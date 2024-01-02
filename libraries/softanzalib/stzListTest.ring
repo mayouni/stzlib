@@ -3343,6 +3343,77 @@ StopProfiler()
 # Executed in 0.09 second(s)
 
 /*===============
+
+pron()
+aList = [ "A", 10, "A", "♥", 20, 1:3, "♥", "B" ]
+aLarge = 1:1_000_000
+for i = 1 to 8
+	aLarge + aList[i]
+next
+
+o1 = new stzList(aList)
+? o1.FindNth(2, "♥")
+#--> 7
+
+proff()
+# Executed in 0.10 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.07 second(s) in Ring 1.19 (32 bits)
+# Executed in 0.09 second(s) in Ring 1.18
+# Executed in 0.37 second(s) in Ring 1.17
+
+/*-----------------
+
+pron()
+aList = [ "A", 10, "A", "♥", 20, 1:3, "♥", "B" ]
+aLarge = aList
+for i = 1 to 1_000_000
+	aLarge + i
+next
+
+o1 = new stzList(aList)
+? o1.FindNth(2, "♥")
+#--> 7
+
+proff()
+# Executed in 0.20 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.20 second(s) in Ring 1.19 (32 bits)
+# Executed in 0.26 second(s) in Ring 1.18
+# Executed in 0.24 second(s) in Ring 1.17
+
+/*-----------------
+*/
+pron()
+
+# Constructing the large list
+
+	aList = [ "A", 10, "A", "♥", 20, 1:3, "♥", "B" ]
+	aLarge = aList
+	
+	for i = 1 to 1_000_000//_000
+		aLarge + "..."
+	next
+	for i = 1 to 8
+		aLarge + aList[i]
+	next
+	# ElapsedTime : 0.48 seconds
+
+# Turning param chek off (better performance)
+
+	CheckParamsOff()
+
+# Doing the job
+
+	o1 = new stzList(aLarge)
+	? o1.FindNth(4, "♥")
+	#--> 7
+
+proff()
+# Executed in 0.20 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.20 second(s) in Ring 1.19 (32 bits)
+# Executed in 0.26 second(s) in Ring 1.18
+# Executed in 0.24 second(s) in Ring 1.17
+
+/*--------------
 */
 StartProfiler()
 
@@ -3372,12 +3443,13 @@ StartProfiler()
 	o1 = new stzList(aLargeListOfStr)
 	# ElapsedTime: 0.11s
 
+/*
 	? o1.FindNext("♥", :StartingAt = 12_000)
 	#--> 100_004
 	# Executed in 2.25 second(s)
 
 	? o1.FindNth(6, "♥")
-
+*/
 	? o1.FindNthNext(6, "♥", :StartingAt = 1)
 	#--> 150_011
 	# Executed in 3.50 second(s)
@@ -5185,7 +5257,7 @@ o1 - o1.NonNumbers()
 /*-----------------
 
 o1 = new stzListOfStrings([ "A", "B", "1", "C", "2", "3", "D", "4", "5" ])
-? o1.FindFirstCS("b", :CS = TRUE)	#--> 0
+? o1.FindFirstCS("b", TRUE)	#--> 0
 ? o1.FindFirstCS("b", :CS = FALSE)	#--> 2
 
 /*-----------------

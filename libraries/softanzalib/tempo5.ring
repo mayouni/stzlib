@@ -113,7 +113,7 @@ pron()
 	#--> Welcome to Ring programming language
 
 	oStr = new stzString("Welcome to Python programming language")
-	oStr.ReplaceCS("PYTHON", :With = "Ring", :CaseSensitive = TRUE)
+	oStr.ReplaceCS("PYTHON", :With = "Ring", TRUE)
 	? oStr.Content()
 	#--> Welcome to Python programming language
 	

@@ -52,7 +52,7 @@ class stzOccurrences
 		return cResult
 
 	def Removed()
-		return This.RemovedCS(:CaseSensitive = TRUE)
+		return This.RemovedCS(TRUE)
 
 
 	#--

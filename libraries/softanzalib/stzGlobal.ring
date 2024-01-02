@@ -1866,6 +1866,12 @@ func ShowShortXT(paList, p)
 	func ShwoShortFormXT(paList, p)
 		ShowShortXT(paList, p)
 
+	func @ShowShortXT(paList, p)
+		ShowShortXT(paList, p)
+
+	func @ShwoShortFormXT(paList, p)
+		ShowShortXT(paList, p)
+
 	#>
 
 func ComputableForm(pValue)
@@ -1968,6 +1974,13 @@ func ComputableForm(pValue)
 
 		func CFQ(pValue)
 			return new stzString( CF(pValue) )
+
+	func @ComputableForm(pValue)
+		return ComputableForm(pValue)
+
+		func @ComputableFormQ(pValue)
+			return new stzString( @ComputableForm(pValue) )
+
 	#>
 
 func YaAllah()

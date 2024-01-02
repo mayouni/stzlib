@@ -2541,7 +2541,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def Find(pWhat)
-		return This.FindCS(pWhat, :CaseSensitive = TRUE)
+		return This.FindCS(pWhat, TRUE)
 
 	  #-------------------------------------------------------------------#
 	 #  FINDING ALL OCCURRENCES OF A STRING-ITEM IN THE LIST OF STRINGS  #
@@ -2738,7 +2738,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAll(pcStrItem)
-		return This.FindallCS(pcStrItem, :CaseSensitive = TRUE)
+		return This.FindallCS(pcStrItem, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -2939,7 +2939,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllExceptNth(pcStr, n)
-		return This.FindAllExceptNthCS(pcStr, n, :CaseSensitive = TRUE)
+		return This.FindAllExceptNthCS(pcStr, n, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -3005,7 +3005,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllExceptFirst(pcStr)
-		return This.FindAllExceptFirstCS(pcStr, :CaseSensitive = TRUE)
+		return This.FindAllExceptFirstCS(pcStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -3071,7 +3071,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllExceptLast(pcStr)
-		return This.FindAllExceptLastCS(pcStr, :CaseSensitive = TRUE)
+		return This.FindAllExceptLastCS(pcStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -3129,7 +3129,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfStringItem(pcStrItem)
-		return This.NumberOfOccurrenceOfStringItemCS(pcStrItem, :CaseSensitive = TRUE)
+		return This.NumberOfOccurrenceOfStringItemCS(pcStrItem, TRUE)
 
 		def NumberOfOccurrencesOfStringItem(pcStrItem)
 			return This.NumberOfOccurrenceOfStringItem(pcStrItem)
@@ -3265,7 +3265,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfManyStringItems(pacStrItems)
-		return This.NumberOfOccurrenceOfManyStringItemsCS(pacStrItems, :CS = TRUE )
+		return This.NumberOfOccurrenceOfManyStringItemsCS(pacStrItems, TRUE )
 
 		#< @FunctionFluentForm
 
@@ -3379,7 +3379,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfManyStringItemsXT(pacStrItems)
-		This.NumberOfOccurrenceOfManyStringItemsCSXT(pacStrItems, :CaseSensitive = TRUE)
+		This.NumberOfOccurrenceOfManyStringItemsCSXT(pacStrItems, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -3468,7 +3468,7 @@ class stzListOfStrings from stzList
 
 	def FindNthOccurrenceOfStringItem(n, pcStrItem)
 		
-		return This.FindNthOccurrenceOfStringItemCS(n, pcStrItem, :CaseSensitive = TRUE)
+		return This.FindNthOccurrenceOfStringItemCS(n, pcStrItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3575,7 +3575,7 @@ class stzListOfStrings from stzList
 
 	def FindFirstOccurrenceOfStringItem(pcStrItem)
 		
-		return This.FindFirstOccurrenceOfStringItemCS(pcStrItem, :CaseSensitive = TRUE)
+		return This.FindFirstOccurrenceOfStringItemCS(pcStrItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3650,7 +3650,7 @@ class stzListOfStrings from stzList
 
 	def FindLastOccurrenceOfStringItem(pcStrItem)
 		
-		return This.FindLastOccurrenceOfStringItemCS(pcStrItem, :CaseSensitive = TRUE)
+		return This.FindLastOccurrenceOfStringItemCS(pcStrItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3696,7 +3696,7 @@ class stzListOfStrings from stzList
 			"Please feel free to call me with any name!"
 		])
 
-		? o1.FindStringItemsCS( [ "name", "your", "please" ], :CS = TRUE )
+		? o1.FindStringItemsCS( [ "name", "your", "please" ], TRUE )
 
 		#--> [ 4, 33, 28, 38 ]
 		*/
@@ -3745,7 +3745,7 @@ class stzListOfStrings from stzList
 	#--- WITHOUT CASESENSITIVITY
 
 	def FindStringItems(pacStrItems)	
-		This.FindStringItemsCS(pacStrItems, :CaseSensitive = TRUE)
+		This.FindStringItemsCS(pacStrItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3805,7 +3805,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def Contains(pcStr)
-		return This.ContainsCS(pcStr, :CaseSensitive = TRUE)
+		return This.ContainsCS(pcStr, TRUE)
 
 		#< @FunctionNegativeForm
 
@@ -3865,7 +3865,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsContainedIn(paList)
-		return This.IsContainedInCS(paList, :CaseSensitive = TRUE)
+		return This.IsContainedInCS(paList, TRUE)
 
 		def ExistIn(paList)
 			return This.IsContainedIn(paList)
@@ -3902,7 +3902,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsEach(paStrings)
-		return This.ContainsEachCS(paStrings, :CaseSensitive = TRUE)
+		return This.ContainsEachCS(paStrings, TRUE)
 
 		def ContainsEachOneOfThese(paStrings)
 			return This.ContainsEach(paStrings)
@@ -3920,7 +3920,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNoOne(paStrings)
-		return This.ContainsNoOneCS(paStrings, :CaseSensitive = TRUE)
+		return This.ContainsNoOneCS(paStrings, TRUE)
 
 		def ContainsNoOneOfThese(paStrings, pCaseSensitive)
 			return This.ContainsNoOne(paStrings)
@@ -3935,7 +3935,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsBoth(pcStr1, pcStr2)
-		return This.ContainsBothCS(pcStr1, pcStr2, :CaseSensitive = TRUE)
+		return This.ContainsBothCS(pcStr1, pcStr2, TRUE)
 	
 	  #--------------------------------------------------------------------#
 	 #    CHECKING IF EACH STRING OF THE LIST EXISTS In THE GIVEN LIST    #
@@ -3963,7 +3963,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def EachStringExistsIn(paList)
-		return This.EachStringExistsInCS(paList, :CaseSensitive = TRUE)
+		return This.EachStringExistsInCS(paList, TRUE)
 
 		def EachStringItemExistsIn(paList)
 			return This.EachStringExistsIn(paList)
@@ -4029,7 +4029,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsMany(paStrings)
-		return This.ContainsManyCS(paStrings, :CaseSensitive = TRUE)
+		return This.ContainsManyCS(paStrings, TRUE)
 
 		def IsMadeOf(paStrings)
 			return This.ContainsMany(paStrings)
@@ -4123,7 +4123,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSome(paStrings)
-		return This.ContainsSomeCS(paStrings, :CaseSensitive = TRUE)
+		return This.ContainsSomeCS(paStrings, TRUE)
 
 		def IsMadeOfSome(paStrings)
 			return This.ContainsSomeCS(paStrings, pCaseSensitive)
@@ -4211,7 +4211,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsAny(paStrings)
-		return This.ContainsAnyCS(paStrings, :CaseSensitive = TRUE)
+		return This.ContainsAnyCS(paStrings, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -4272,7 +4272,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsOnlyOne(paStrings)
-		return This.ContainsOnlyOneCS(paStrings, :CaseSensitive = TRUE)
+		return This.ContainsOnlyOneCS(paStrings, TRUE)
 
 		def ContainsOnlyOneOfThese(paStrings)
 			return This.ContainsOnlyOne(paStrings)
@@ -4683,7 +4683,7 @@ class stzListOfStrings from stzList
 
 	def FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
-		return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -4969,7 +4969,7 @@ class stzListOfStrings from stzList
 
 	def FindNextOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 
-		return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -5216,7 +5216,7 @@ class stzListOfStrings from stzList
 
 	def FindPreviousNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
-		return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindPreviousNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -5463,7 +5463,7 @@ class stzListOfStrings from stzList
 
 	def FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 
-		return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, :CS = TRUE)
+		return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -5614,7 +5614,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNextOccurrences(pcStrItem, pnStartingAt)
-		return This.FindNextOccurrencesCS(pcStrItem, pnStartingAt, :CS = TRUE)
+		return This.FindNextOccurrencesCS(pcStrItem, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -5739,7 +5739,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindPreviousOccurrences(pcStrItem, pnStartingAt)
-		return This.FindPreviousOccurrencesCS(pcStrItem, pnStartingAt, :CS = TRUE)
+		return This.FindPreviousOccurrencesCS(pcStrItem, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -5819,7 +5819,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfSubString(pcSubStr)
-		return This.NumberOfOccurrenceOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.NumberOfOccurrenceOfSubStringCS(pcSubStr, TRUE)
 
 		def NumberOfOccurrencesOfSubString(pcSubStr)
 			return This.NumberOfOccurrenceOfSubString(pcSubStr)
@@ -5860,7 +5860,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfSubStringXT(pcSubStr)
-		return This.NumberOfOccurrenceOfSubStringCSXT(pcSubStr, :CaseSensitive = TRUe)
+		return This.NumberOfOccurrenceOfSubStringCSXT(pcSubStr, TRUE)
 
 		def NumberOfOccurrencesOfSubStringXT(pcSubStr)
 			return This.NumberOfOccurrenceOfSubStringXT(pcSubStr)
@@ -5905,7 +5905,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfManySubStrings(pacSubStrings)
-		return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStrings, :CaseSensitive = TRUE)
+		return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStrings, TRUE)
 
 		def NumberOfOccurrencesOfManySubStrings(pacSubStrings)
 			return This.NumberOfOccurrenceOfManySubStrings(pacSubStrings)
@@ -5959,7 +5959,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfManySubStringsXT(pacSubStrings)
-		return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, :CaseSensitive = TRUE)
+		return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, TRUE)
 
 		def NumberOfOccurrencesOfManySubStringsXT(pacSubStrings)
 			return This.NumberOfOccurrenceOfManySubStringsXT(pacSubStrings)
@@ -6033,7 +6033,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubString(pcSubStr)
-		return This.FindSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -6106,7 +6106,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringXT(pcSubStr)
-		return This.FindSubStringCSXT(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSubStringCSXT(pcSubStr, TRUE)
 
 		def FindSubStringXTQ(pcSubStr)
 			return new stzList( This.FindSubStringXT(pcSubStr) )
@@ -6170,7 +6170,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInStringNSubString(n, pcSubStr)
-		return This.FindInStringNSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindInStringNSubStringCS(n, pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -6289,7 +6289,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthOccurrenceOfSubString(n, pcSubStr)
-		return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindNthOccurrenceOfSubStringCS(n, pcSubStr, TRUE)
 
 		def FindNthSubString(n, pcSubStr)
 			return This.FindNthOccurrenceOfSubString(n, pcSubStr)
@@ -6333,7 +6333,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstOccurrenceOfSubString(pcSubStr)
-		return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindFirstOccurrenceOfSubStringCS(pcSubStr, TRUE)
 
 		def FindFirstSubString(pcSubStr)
 			return This.FindFirstOccurrenceOfSubString(pcSubStr)
@@ -6376,7 +6376,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastOccurrenceOfSubString(pcSubStr)
-		return This.FindLastOccurrenceOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindLastOccurrenceOfSubStringCS(pcSubStr, TRUE)
 
 		def FindLastSubString(pcSubStr)
 			return This.FindLastOccurrenceOfSubString(pcSubStr)
@@ -6457,7 +6457,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindtheseSubStrings(pacStr)
-		return This.FindTheseSubStringsCS(pacStr, :CaseSensitive = TRUE)
+		return This.FindTheseSubStringsCS(pacStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -6537,7 +6537,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseSubStringsXT(pacSubStr)
-		return This.FindTheseSubStringsCSXT(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindTheseSubStringsCSXT(pacSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -6589,7 +6589,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNFirstOccurrencesOfSubString(n, pcSubStr)
-		return This.FindNFirstOccurrencesOfSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindNFirstOccurrencesOfSubStringCS(n, pcSubStr, TRUE)
 
 		def NFirstOccurrencesOfSubString(n, pcSubStr)
 			return This.FindNFirstOccurrencesOfSubString(n, pcSubStr)
@@ -6627,7 +6627,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrencesOfSubString(panOccurrences, pcSubStr)
-		return This.FindTheseOccurrencesOfSubStringCS(panOccurrences, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindTheseOccurrencesOfSubStringCS(panOccurrences, pcSubStr, TRUE)
 
 	  #------------------------------------------------#
 	 #   FINDING N LAST OCCURRENCES OF A SUBSTRING   #
@@ -6656,7 +6656,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNLastOccurrencesOfSubString(n, pcSubStr)
-		return This.FindNLastOccurrencesOfSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindNLastOccurrencesOfSubStringCS(n, pcSubStr, TRUE)
 
 		def FindLastNOccurrencesOfSubString(n, pcSubStr)
 			return This.FindNLastOccurrencesOfSubString(n, pcSubStr)
@@ -6697,7 +6697,7 @@ class stzListOfStrings from stzList
 
 	def ContainsSubStrings(pacSubStr)
 
-		return This.ContainsSubStrings(pacSubStr, :CaseSensitive = TRUE)
+		return This.ContainsSubStrings(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -6830,7 +6830,7 @@ class stzListOfStrings from stzList
 
 	def FindNextNthOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
 
-		return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, :CS = TRUE)
+		return This.FindNextNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -6946,7 +6946,7 @@ class stzListOfStrings from stzList
 
 	def FindNextOccurrenceOfSubString(pcSubStr, pnStartingAt)
 
-		return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, :CS = TRUE)
+		return This.FindNextOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -7071,7 +7071,7 @@ class stzListOfStrings from stzList
 
 	def FindPreviousNthOccurrenceOfSubString(n, pcSubStr, pnStartingAt)
 
-		return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, :CS = TRUE)
+		return This.FindPreviousNthOccurrenceOfSubStringCS(n, pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -7176,7 +7176,7 @@ class stzListOfStrings from stzList
 
 	def FindPreviousOccurrenceOfSubString(pcSubStr, pnStartingAt)
 
-		return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindPreviousOccurrenceOfSubStringCS(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -7215,7 +7215,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSubString(pcSubStr)
-		return This.ContainsSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.ContainsSubStringCS(pcSubStr, TRUE)
 
 	  #------------------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS N TIMES A GIVEN SUSBTRING   #
@@ -7228,7 +7228,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNTimesSubString(n, pcSubStr)
-		return This.ContainsNTimesSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.ContainsNTimesSubStringCS(n, pcSubStr, TRUE)
 
 	  #--------------------------------------------------------------------#
 	 #  CHECKING IF EACH STRING-ITEM CONTAINS N TIMES A GIVEN SUSBTRING   #
@@ -7259,7 +7259,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def EachStringItemContainsNTimesTheSubstring(n, pcSubstr)
-		return This.EachStringItemContainsNTimesTheSubstringCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.EachStringItemContainsNTimesTheSubstringCS(n, pcSubStr, TRUE)
 
 		def EachStringContainsNTimesTheSubstring(n, pcSubstr)
 			return This.EachStringItemContainsNTimesTheSubstring(n, pcSubstr)
@@ -7293,7 +7293,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSubStringInEachString(pcStr)
-		return This.ContainsSubStringInEachStringCS(pcStr, :CaseSensitive = TRUE)
+		return This.ContainsSubStringInEachStringCS(pcStr, TRUE)
 
 		def ContainsSubStringInEachStringItem(pcStr)
 			return This.ContainsSubStringInEachString(pcStr)
@@ -7505,7 +7505,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringItemsContainingSubString(pcSubStr)
-		return This.StringItemsContainingSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.StringItemsContainingSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionfluentForm
 
@@ -7800,7 +7800,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def UniqueStringItemsContainingSubString(pcSubStr)
-		return This.UniqueStringItemsContainingSubStringCS(pcSubStr, :CS = TRUE)
+		return This.UniqueStringItemsContainingSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionfluentForm
 
@@ -8022,7 +8022,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringItemsContainingNTimesTheSubstring(n, pcSubstr)
-		return This.StringItemsContainingNTimesTheSubstringCS(n, pcSubstr, :CaseSensitive = TRUE)
+		return This.StringItemsContainingNTimesTheSubstringCS(n, pcSubstr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -8242,7 +8242,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def UniqueStringItemsContainingNTimesTheSubstring(n, pcSubstr)
-		return This.UniqueStringItemsContainingNTimesTheSubstringCS(n, pcSubstr, :CaseSensitive = TRUE)
+		return This.UniqueStringItemsContainingNTimesTheSubstringCS(n, pcSubstr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -8250,7 +8250,7 @@ class stzListOfStrings from stzList
 			return This.UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, :stzList)
 
 		def UniqueStringItemsContainingNTimesTheSubstringQR(n, pcSubstr, pcReturn)
-			return This.UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, :CaseSensitive = TRUE, pcReturn)
+			return This.UniqueStringItemsContainingNTimesTheSubstringCSQR(n, pcSubstr, TRUE, pcReturn)
 		#>
 
 		#< @FunctionAlternativeForms
@@ -8455,7 +8455,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITTY
 
 	def StringItemsContainingNTimesTheSubstringXT(n, pcSubstr)
-		return This.StringItemsContainingNTimesTheSubstringCSXT(n, pcSubstr, :CaseSensitive = TRUE)
+		return This.StringItemsContainingNTimesTheSubstringCSXT(n, pcSubstr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -8488,7 +8488,7 @@ class stzListOfStrings from stzList
 				return This.StringsContainingNTimesTheSubstringXTQR(n, pcSubstr, :stzList)
 	
 			def StringsContainingNTimesTheSubstringXTQR(n, pcSubstr, pcReturn)
-				return This.StringsContainingNTimesTheSubstringCSXTQR(n, pcSubstr, :CS = TRUE, pcReturn)
+				return This.StringsContainingNTimesTheSubstringCSXTQR(n, pcSubstr, TRUE, pcReturn)
 
 		def StringItemsContainingNTimesXT(n, pcSubStr)
 			return This.StringItemsContainingNTimesTheSubstringXT(n, pcSubstr)
@@ -8497,7 +8497,7 @@ class stzListOfStrings from stzList
 				return This.StringItemsContainingNTimesXTQR(n, pcSubstr, :stzList)
 		
 			def StringItemsContainingNTimesXTQR(n, pcSubstr, pcReturn)
-				return This.StringsContainingNTimesTheSubstringCSXTQR(n, pcSubstr, :CS = TRUE, pcReturn)
+				return This.StringsContainingNTimesTheSubstringCSXTQR(n, pcSubstr, TRUE, pcReturn)
 
 		def StringsContainingNTimesXT(n, pcSubStr)
 			return This.StringItemsContainingNTimesTheSubstringXT(n, pcSubstr)
@@ -8506,7 +8506,7 @@ class stzListOfStrings from stzList
 				return This.StringsContainingNTimesXTQR(n, pcSubstr, :stzList)
 		
 			def StringsContainingNTimesXTQR(n, pcSubstr, pcReturn)
-				return This.StringsContainingNTimesTheSubstringCSXTQR(n, pcSubstr, :CS = TRUE, pcReturn)
+				return This.StringsContainingNTimesTheSubstringCSXTQR(n, pcSubstr, TRUE, pcReturn)
 
 		#>
 
@@ -8700,7 +8700,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAllOccurrencesOfString(pcString, pcNewString)
-		This.ReplaceAllOccurrencesOfStringCS(pcString, pcNewString, :CS = TRUE)
+		This.ReplaceAllOccurrencesOfStringCS(pcString, pcNewString, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -8861,7 +8861,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceManyStrings(pacStrings, pcNewString)
-		This.ReplaceManyStringsCS(pacStrings, pcNewString, :CaseSensitive = TRUE)
+		This.ReplaceManyStringsCS(pacStrings, pcNewString, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -9131,7 +9131,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceStringsByManyXT(pacStrings, pacNewStrings)
-		This.ReplaceStringsByManyCSXT(pacStrings, pacNewStrings, :CaseSensitive = TRUE)
+		This.ReplaceStringsByManyCSXT(pacStrings, pacNewStrings, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -9227,7 +9227,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceByMany(pcStrItem, pacNewSubStringItems)
-		This.ReplaceByManyCS(pcStrItem, pacNewSubStringItems, :CaseSensitive = TRUE)
+		This.ReplaceByManyCS(pcStrItem, pacNewSubStringItems, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -9334,7 +9334,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceByManyXT(pcStrItem, pacNewSubStringItems)
-		This.ReplaceByManyCSXT(pcStrItem, pacNewSubStringItems, :CaseSensitive = TRUE)
+		This.ReplaceByManyCSXT(pcStrItem, pacNewSubStringItems, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -9402,7 +9402,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextOccurrences(pcString, pcOtherString, pnStartingAt)
-		This.ReplaceNextOccurrencesCS(pcString, pcOtherString, pnStartingAt, :CS = TRUE)
+		This.ReplaceNextOccurrencesCS(pcString, pcOtherString, pnStartingAt, TRUE)
 
 		def ReplaceNextOccurrencesQ(pcString, pcOtherString, pnStartingAt)
 			This.ReplaceNextOccurrences(pcString, pcOtherString, pnStartingAt)
@@ -9455,7 +9455,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousOccurrences(pcString, pcOtherString, pnStartingAt)
-		ReplacePreviousOccurrencesCS(pcString, pcOtherString, pnStartingAt, :CS = TRUE)
+		ReplacePreviousOccurrencesCS(pcString, pcOtherString, pnStartingAt, TRUE)
 
 		def ReplacePreviousOccurrencesQ(pcString, pcOtherString, pnStartingAt)
 			This.ReplacePreviousOccurrences(pcString, pcOtherString, pnStartingAt)
@@ -9552,7 +9552,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNthOccurrence(n, pcString, pcOtherString)
-		ReplaceNthOccurrenceCS(n, pcString, pcOtherString, :CaseSensitive = TRUE)
+		ReplaceNthOccurrenceCS(n, pcString, pcOtherString, TRUE)
 
 		def ReplaceNthOccurrenceQ(n, pcString, pcOtherString)
 			This.ReplaceNthOccurrence(n, pcString, pcOtherString)
@@ -9672,7 +9672,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceFirstOccurrence(pcString, pcOtherString)
-		This.ReplaceFirstOccurrenceCS(pcString, pcOtherString, :CaseSensitive = TRUE)
+		This.ReplaceFirstOccurrenceCS(pcString, pcOtherString, TRUE)
 
 		def ReplaceFirstOccurrenceQ(pcString, pcOtherString)
 			This.ReplaceFirstOccurrence(pcString, pcOtherString)
@@ -9794,7 +9794,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceLastOccurrence(pcString, pcOtherString)
-		ReplaceLastOccurrenceCS(pcString, pcOtherString, :CaseSensitive = TRUE)
+		ReplaceLastOccurrenceCS(pcString, pcOtherString, TRUE)
 
 		def ReplaceLastOccurrenceQ(pcString, pcOtherString)
 			This.ReplaceLastOccurrence(pcString, pcOtherString)
@@ -9938,7 +9938,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextNthOccurrence(n, pcString, pnStartingAt, pcNewString)
-		This.ReplaceNextNthOccurrenceCS(n, pcString, pnStartingAt, pcNewString, :CaseSensitive = TRUE)
+		This.ReplaceNextNthOccurrenceCS(n, pcString, pnStartingAt, pcNewString, TRUE)
 
 		def ReplaceNextNthOccurrenceQ(n, pcString, pnStartingAt, pcNewString)
 			This.ReplaceNextNthOccurrence(n, pcString, pnStartingAt, pcNewString)
@@ -9984,7 +9984,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextOccurrence(pcString, pcNewString, pnStartingAt)
-		This.ReplaceNextOccurrenceCS(pcString, pcNewString, pnStartingAt, :CS = TRUE)
+		This.ReplaceNextOccurrenceCS(pcString, pcNewString, pnStartingAt, TRUE)
 
 		def ReplaceNextOccurrenceQ(pcString, pcNewString, pnStartingAt)
 			This.ReplaceNextOccurrence(pcString, pcNewString, pnStartingAt)
@@ -10101,7 +10101,7 @@ class stzListOfStrings from stzList
 
 	def ReplaceNextNthOccurrences(panList, pcString, pcNewString, pnStartingAt)
 
-		This.ReplaceNextNthOccurrencesCS(panList, pcString, pcNewString, pnStartingAt, :CS = TRUE)
+		This.ReplaceNextNthOccurrencesCS(panList, pcString, pcNewString, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -10200,7 +10200,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousNthOccurrence(n, pcString, pcNewString, pnStartingAt)
-		This.ReplacePreviousNthOccurrenceCS(n, pcString, pcNewString, pnStartingAt, :CS = TRUE)
+		This.ReplacePreviousNthOccurrenceCS(n, pcString, pcNewString, pnStartingAt, TRUE)
 
 		def ReplacePreviousNthOccurrenceQ(n, pcString, pcNewString, pnStartingAt)
 			This.ReplacePreviousNthOccurrence(n, pcString, pcNewString, pnStartingAt)
@@ -10245,7 +10245,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousOccurrence(pcString, pcNewString, pnStartingAt)
-		This.ReplacePreviousOccurrenceCS(pcString, pcNewString, pnStartingAt, :CS = TRUE)
+		This.ReplacePreviousOccurrenceCS(pcString, pcNewString, pnStartingAt, TRUE)
 
 		def ReplacePreviousOccurrenceQ(pcString, pcNewString, pnStartingAt)
 			This.ReplacePreviousOccurrence(pcString, pcNewString, pnStartingAt)
@@ -10357,7 +10357,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousNthOccurrences(panList, pcString, pcNewString, pnStartingAt)
-		This.ReplacePreviousNthOccurrencesCS(panList, pcString, pcNewString, pnStartingAt, :CS = TRUE)
+		This.ReplacePreviousNthOccurrencesCS(panList, pcString, pcNewString, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -10618,7 +10618,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisNthString(n, pcStr)
-		This.ReplaceThisNthStringCS(n, pcStr, :CaseSensitive = TRUE)
+		This.ReplaceThisNthStringCS(n, pcStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -10691,7 +10691,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisFirstString(pcStr)
-		This.ReplaceThisFirstStringCS(pcStr, :CaseSensitive = TRUE)
+		This.ReplaceThisFirstStringCS(pcStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -10747,7 +10747,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisLastString(pcStr)
-		This.ReplaceThisLastStringCS(pcStr, :CaseSensitive = TRUE)
+		This.ReplaceThisLastStringCS(pcStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -12026,7 +12026,7 @@ class stzListOfStrings from stzList
 	def ReplaceSubString(pcSubStr, pcNewStr)
 ? "lllll"
 stop()
-		This.ReplaceSubStringCS(pcSubStr, pcNewStr, :CaseSensitive = TRUE)
+		This.ReplaceSubStringCS(pcSubStr, pcNewStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -12039,7 +12039,7 @@ stop()
 		#< @FunctionAlternativeForm
 
 		def ReplaceInStrings(pSubStr, pcNewSubStr)
-			This.ReplaceInStringsCS(pSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+			This.ReplaceInStringsCS(pSubStr, pcNewSubStr, TRUE)
 
 		def ReplaceInStringItems(pSubStr, pcNewSubStr)
 			This.ReplaceInStrings(pSubStr, pcNewSubStr)
@@ -12126,7 +12126,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceManySubStrings(pacSubStr, pcNewSubStr)
-		This.ReplaceManySubStringsCS(pacSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceManySubStringsCS(pacSubStr, pcNewSubStr, TRUE)
 
 		def ReplaceManySubStringsQ(pacSubStr, pcNewSubStr)
 			This.ReplaceManySubStrings(pacSubStr, pcNewSubStr)
@@ -12190,7 +12190,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubStringByMany(pcSubStr, pacNewSubStr)
-		This.ReplaceSubStringByManyCS(pcSubStr, pacNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceSubStringByManyCS(pcSubStr, pacNewSubStr, TRUE)
 
 	  #----------------------------------------------------------------------------#
 	 #    REPLACING A SUBSTRING BY MANY SUBSTRINGS -- EXTENDED (RETURN TO FIST)   #
@@ -12231,7 +12231,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubStringByManyXT(pcSubStr, pacNewSubStr)
-		This.ReplaceSubStringByManyCSXT(pcSubStr, pacNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceSubStringByManyCSXT(pcSubStr, pacNewSubStr, TRUE)
 
 		def ReplaceSubStringByManyXTQ(pcSubStr, pacNewSubStr)
 			This.ReplaceSubStringByManyXT(pcSubStr, pacNewSubStr)
@@ -12265,7 +12265,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubStringsByMany(pacSubStr, pacNewSubStr)
-		return This.ReplaceSubStringsByManyCS(pacSubStr, pacNewSubStr, :CaseSensitive = TRUE)
+		return This.ReplaceSubStringsByManyCS(pacSubStr, pacNewSubStr, TRUE)
 
 		def ReplaceManySubStringsByMany(pacSubStr, pacNewSubStr)
 			return This.ReplaceSubStringsByMany(pacSubStr, pacNewSubStr)
@@ -12304,7 +12304,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubStringsByManyXT(pacSubStr, pacNewSubStr)
-		This.ReplaceSubStringsByManyCSXT(pacSubStr, pacNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceSubStringsByManyCSXT(pacSubStr, pacNewSubStr, TRUE)
 
 		def ReplaceManySubStringsByManyXT(pacSubStrings, pacNewSubStrings)
 			This.ReplaceSubStringsByManyXT(pacSubStrings, pacNewSubStrings)
@@ -12320,7 +12320,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNthOccurrenceOfSubString(n, pcSubStr, pcNewSubStr)
-		This.ReplaceNthOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceNthOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, TRUE)
 		return This
 
 	  #-----------------------------------------------#
@@ -12368,7 +12368,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubstringAtPosition(panPosition, pcSubStr, pcNewSubstr)
-		This.ReplaceSubStringAtPositionCS(panPosition, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceSubStringAtPositionCS(panPosition, pcSubStr, pcNewSubStr, TRUE)
 
 		def ReplaceSubstringAtPositionQ(panPosition, pcSubStr, pcNewSubStr)
 			This.ReplaceSubstringAtPosition(panPosition, pcSubStr, pcNewSubStr)
@@ -12394,7 +12394,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubStringAtPositions(panPositions, pcSubStr, pcNewSubStr)
-		This.ReplaceSubStringAtPositionsCS(panPositions, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceSubStringAtPositionsCS(panPositions, pcSubStr, pcNewSubStr, TRUE)
 
 		def ReplaceSubStringAtThesePositions(panPositions, pcSubStr, pcNewSubStr)
 			This.ReplaceSubStringAtPositions(panPositions, pcSubStr, pcNewSubStr)
@@ -12426,7 +12426,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceInStringN(n, pcSubStr, pcNewSubStr)
-		This.ReplaceInStringNCS(n, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceInStringNCS(n, pcSubStr, pcNewSubStr, TRUE)
 		
 		def ReplaceInStringNQ(n, pcSubStr, pcNewSubStr)
 			This.ReplaceInStringN(n, pcSubStr, pcNewSubStr)
@@ -12461,7 +12461,7 @@ stop()
 	#-- WITHOUT CASESENSITIVTY
 
 	def ReplaceInStringNTheNthOccurrence(pnStringNumber, pnOccurrence, pcSubStr, pcNewSubStr)
-		This.ReplaceInStringNTheNthOccurrenceCS(pnStringNumber, pnOccurrence, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceInStringNTheNthOccurrenceCS(pnStringNumber, pnOccurrence, pcSubStr, pcNewSubStr, TRUE)
 
 		def ReplaceInStringNTheNthOccurrenceQ(pnStringNumber, pnOccurrence, pcSubStr, pcNewSubStr)
 			This.ReplaceInStringNTheNthOccurrence(pnStringNumber, pnOccurrence, pcSubStr, pcNewSubStr)
@@ -12482,7 +12482,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceInStringNTheFirstNOccurrences(pnStringNumber, n, pcSubStr, pcNewSubStr)
-		This.ReplaceInStringNTheFirstNOccurrencesCS(pnStringNumber, n, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceInStringNTheFirstNOccurrencesCS(pnStringNumber, n, pcSubStr, pcNewSubStr, TRUE)
 
 	  #-------------------------------------------------------------------------------#
 	 #  REPLACING, INSIDE A GIVEN STRING, THE FIRST OCCURRENCE OF A GIVEN SUBSTRING  #
@@ -12498,7 +12498,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceInStringNTheFirstOccurrence(pnStringNumber, pcSubStr, pcNewSubStr)
-		This.ReplaceInStringNTheFirstOccurrenceCS(pnStringNumber, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceInStringNTheFirstOccurrenceCS(pnStringNumber, pcSubStr, pcNewSubStr, TRUE)
 
 		def ReplaceInStringNTheFirstOccurrenceQ(pnStringNumber, pcSubStr, pcNewSubStr)
 			This.ReplaceInStringNTheFirstOccurrence(pnStringNumber, pcSubStr, pcNewSubStr)
@@ -12518,7 +12518,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceInStringNTheLastOccurrence(pnStringNumber, pcSubStr, pcNewSubStr)
-		This.ReplaceInStringNTheLastOccurrenceCS(pnStringNumber, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceInStringNTheLastOccurrenceCS(pnStringNumber, pcSubStr, pcNewSubStr, TRUE)
 
 		def ReplaceInStringNTheLastOccurrenceQ(pnStringNumber, pcSubStr, pcNewSubStr)
 			This.ReplaceInStringNTheLastOccurrence(pnStringNumber, pcSubStr, pcNewSubStr)
@@ -12619,7 +12619,7 @@ stop()
 
 	def RemoveAll(pcString)
 
-		This.RemoveAllCS(pcString, :CaseSensitive = TRUE)
+		This.RemoveAllCS(pcString, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -12877,7 +12877,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveMany(pacStrings)
-		This.RemoveManyCS(pacStrings, :CaseSensitive = TRUE)
+		This.RemoveManyCS(pacStrings, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -12998,7 +12998,7 @@ stop()
 
 	def RemoveNthOccurrence(n, pcString)
 
-		This.RemoveNthOccurrenceCS(n, pcString, :CaseSensitive = TRUE)
+		This.RemoveNthOccurrenceCS(n, pcString, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -13063,7 +13063,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFirstOccurrence(pcString)
-		This.RemoveFirstOccurrenceCS(pcString, :CaseSensitive = TRUE)
+		This.RemoveFirstOccurrenceCS(pcString, TRUE)
 
 		def RemoveFirstOccurrenceQ(pcString)
 			This.RemoveFirstOccurrence(pcString)
@@ -13112,7 +13112,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveLastOccurrence(pcString)
-		This.RemoveLastOccurrenceCS(pcString, :CaseSensitive = TRUE)
+		This.RemoveLastOccurrenceCS(pcString, TRUE)
 
 		def RemoveLastOccurrenceQ(pcString)
 			This.RemoveLastOccurrence(pcString)
@@ -13198,7 +13198,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNextNthOccurrence(n, pcString, pnStartingAt)
-		This.RemoveNextNthOccurrenceCS(n, pcString, pnStartingAt, :CS = TRUE)
+		This.RemoveNextNthOccurrenceCS(n, pcString, pnStartingAt, TRUE)
 
 		def RemoveNextNthOccurrenceQ(n, pcString, pnStartingAt)
 			This.RemoveNextNthOccurrence(n, pcString, pnStartingAt)
@@ -13245,7 +13245,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNextOccurrence(pcString, pnStartingAt)
-		This.RemoveNextOccurrenceCS(pcString, pnStartingAt, :CS = TRUE)
+		This.RemoveNextOccurrenceCS(pcString, pnStartingAt, TRUE)
 
 		def RemoveNextOccurrenceQ(pcString, pnStartingAt)
 			This.RemoveNextOccurrence(pcString, pnStartingAt)
@@ -13364,7 +13364,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNextNthOccurrences(panList, pcString, pnStartingAt)
-		This.RemoveNextNthOccurrencesCS(panList, pcString, pnStartingAt, :CS = TRUE)
+		This.RemoveNextNthOccurrencesCS(panList, pcString, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -13458,7 +13458,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemovePreviousNthOccurrence(n, pcString, pnStartingAt)
-		This.RemovePreviousNthOccurrenceCS(n, pcString, pnStartingAt, :Cs = TRUe)
+		This.RemovePreviousNthOccurrenceCS(n, pcString, pnStartingAt, TRUE)
 
 		def RemovePreviousNthOccurrenceQ(n, pcString, pnStartingAt)
 			This.RemovePreviousNthOccurrence(n, pcString, pnStartingAt)
@@ -13618,7 +13618,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemovePreviousNthOccurrences(panList, pcString, pnStartingAt)
-		This.RemovePreviousNthOccurrencesCS(panList, pcString, pnStartingAt, :CS = TRUE)
+		This.RemovePreviousNthOccurrencesCS(panList, pcString, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -13918,7 +13918,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisStringAtPosition(n, pcStr)
-		This.RemoveThisStringAtPositionCS(n, pcStr, :CaseSensitive = TRUE)
+		This.RemoveThisStringAtPositionCS(n, pcStr, TRUE)
 		
 		#< @FunctionFluentForm
 
@@ -14573,7 +14573,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsBoundedBy(pacBounds)
-		return This.IsBoundedByCS(pacBounds, :CaseSensitive = TRUE)
+		return This.IsBoundedByCS(pacBounds, TRUE)
 
 		def IsBoundedByTheseTwoStrings(pacBounds)
 			return This.IsBoundedBy(pacBounds)
@@ -14660,7 +14660,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveTheseBounds(pcFirstStr, pcLastStr)
-		This.RemoveTheseBoundsCS(pcFirstStr, pcLastStr, :CaseSensitive = TRUE)
+		This.RemoveTheseBoundsCS(pcFirstStr, pcLastStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -14757,7 +14757,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveManyBounds(pacPairsOfBounds)
-		This.RemoveManyBoundsCS(pacPairsOfBounds, :CaseSensitive = TRUE)
+		This.RemoveManyBoundsCS(pacPairsOfBounds, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -14848,7 +14848,7 @@ stop()
 			"Mabrooka"
 		])
 
-		o1.FindSubstringCS("name", :CaseSensitive = TRUE)
+		o1.FindSubstringCS("name", TRUE)
 		#--> [ "1" = [ 13 ], "3" = [ 6, 21 ] ]
 		*/
 		
@@ -14885,7 +14885,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubString(pcSubStr)
-		This.RemoveSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -14950,7 +14950,7 @@ stop()
 	#---
 
 	def RemoveNthSubString(n, pcSubStr)
-		This.RemoveNthSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveNthSubStringCS(n, pcSubStr, TRUE)
 
 		def RemoveNthSubStringQ(n, pcSubStr)
 			This.RemoveNthSubString(n, pcSubStr)
@@ -14981,7 +14981,7 @@ stop()
 	#---
 
 	def RemoveFirstSubString(pcSubStr)
-		This.RemoveFirstSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveFirstSubStringCS(pcSubStr, TRUE)
 
 		def RemoveFirstSubStringQ(pcSubStr)
 			This.RemoveFirstSubString(pcSubStr)
@@ -15012,7 +15012,7 @@ stop()
 	#---
 
 	def RemoveLastSubString(pcSubStr)
-		This.RemoveLastSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveLastSubStringCS(pcSubStr, TRUE)
 
 		def RemoveLastSubStringQ(pcSubStr)
 			This.RemoveLastSubString(pcSubStr)
@@ -15068,7 +15068,7 @@ stop()
 	#---
 
 	def RemoveSubStrings(paSubStr)
-		This.RemoveSubStrings(paSubStr, :CaseSensitive = TRUE)
+		This.RemoveSubStrings(paSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -15159,7 +15159,7 @@ stop()
 	#--- WITHOUT CASESENSITIVITY
 
 	def RemoveNextNthSubString(n, pcStr, pnStartingAt)
-		This.RemoveNextNthSubStringCS(n, pcStr, pnStartingAt, :CaseSensitive = TRUE)
+		This.RemoveNextNthSubStringCS(n, pcStr, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -15223,7 +15223,7 @@ stop()
 	#--- WITHOUT CASESENSITIVITY
 
 	def RemoveNextSubString(pcStr, pnStartingAt)
-		This.RemoveNextSubStringCS(pcStr, pnStartingAt, :CaseSensitive = TRUE)
+		This.RemoveNextSubStringCS(pcStr, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -15287,7 +15287,7 @@ stop()
 	#--- WITHOUT CASESENSITIVITY
 
 	def RemovePreviousNthSubString(n, pcStr, pnStartingAt)
-		This.RemovePreviousNthSubStringCS(n, pcStr, pnStartingAt, :CaseSensitive = TRUE)
+		This.RemovePreviousNthSubStringCS(n, pcStr, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -15351,7 +15351,7 @@ stop()
 	#--- WITHOUT CASESENSITIVITY
 
 	def RemovePreviousSubString(pcStr, pnStartingAt)
-		This.RemovePreviousSubStringCS(pcStr, pnStartingAt, :CaseSensitive = TRUE)
+		This.RemovePreviousSubStringCS(pcStr, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -15385,7 +15385,7 @@ stop()
 			"Mabrooka!"
 		])
 	
-		? @@( o1.FindSubstringCS("name", :CaseSensitive = TRUE) )
+		? @@( o1.FindSubstringCS("name", TRUE) )
 			#--> [ "1" = [ 13 ], "3" = [ 6, 18 ] ]
 
 		*/
@@ -16391,7 +16391,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicatedStrings()
-		return This.ContainsDuplicatedStringsCS(:CaseSensitive = TRUE)
+		return This.ContainsDuplicatedStringsCS(TRUE)
 	
 		def ContainsDuplicatedStringItems()
 			return This.ContainsDuplicatedStrings()
@@ -16422,7 +16422,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicated(pcString)
-		return This.ContainsDuplicatedCS(pcString, :CaseSensitive = TRUE)
+		return This.ContainsDuplicatedCS(pcString, TRUE)
 
 		def ContainsDuplicatedString(pcString)
 			return This.ContainsDuplicated(pcString)
@@ -16450,7 +16450,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicatedNTimes(n, pcString)
-		return This.ContainsDuplicatedNTimesCS(n, pcString, :CaseSensitive = TRUE)
+		return This.ContainsDuplicatedNTimesCS(n, pcString, TRUE)
 
 		def StringIsDuplicatedNTimes(n, pcString)
 			return This.ContainsDuplicatedNTimes(n, pcString)
@@ -16506,7 +16506,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfTimesStringIsDuplicated(pcString)
-		return This.NumberOfTimesStringIsDuplicatedCS(pcString, :CaseSensitive = TRUE)
+		return This.NumberOfTimesStringIsDuplicatedCS(pcString, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -16564,7 +16564,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNonDuplicatedStrings()
-		return This.ContainsNonDuplicatedStringsCS(:CaseSensitive = TRUE)
+		return This.ContainsNonDuplicatedStringsCS(TRUE)
 
 		def ContainsNoDuplications()
 			return This.ContainsNonDuplicatedStrings()
@@ -16580,7 +16580,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def NonDuplicatedStrings()
-		return This.NonDuplicatedStringsCS(:CaseSensitive = TRUE)
+		return This.NonDuplicatedStringsCS(TRUE)
 
 	  #------------------------------------#
 	 #  NUMBER OF NON DUPLICATED STRINGS  #
@@ -16593,7 +16593,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfNonDuplicatedStrings()
-		return This.NumberOfNonDuplicatedStringsCS(:CaseSensitive = TRUE)
+		return This.NumberOfNonDuplicatedStringsCS(TRUE)
 
 	  #----------------------------------#
 	 #  FINDING NON DUPLICATED STRINGS  #
@@ -16616,7 +16616,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNonDuplicatedStrings()
-		return This.FindNonDuplicatedStringsCS(:CaseSensitive = TRUE)
+		return This.FindNonDuplicatedStringsCS(TRUE)
 
 	  #----------------------------------------------#
 	 #  NON DUPLICATED STRINGS AND THEIR POSITIONS  #
@@ -16642,7 +16642,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def NonDuplicatedStringsAndTheirPositions()
-		return This.NonDuplicatedStringsAndTheirPositionsCS(:CaseSensitive = TRUE)
+		return This.NonDuplicatedStringsAndTheirPositionsCS(TRUE)
 
 		def NonDuplicatedStringsZ()
 			return This.NonDuplicatedStringsAndTheirPositions()
@@ -16665,7 +16665,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfDuplicates()
-		return This.NumberOfDuplicatesCS(:CaseSensitive = TRUE)
+		return This.NumberOfDuplicatesCS(TRUE)
 
 		def HowManyDuplicates()
 			return This.NumberOfDuplicates()
@@ -16697,7 +16697,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicates()
-		return This.FindDuplicatesCS(:CaseSensitive = TRUE)
+		return This.FindDuplicatesCS(TRUE)
 
 	  #------------------------------------------------#
 	 #  DUPLICATES AND THEIR POSITIONS -- Z/Extended  #
@@ -16721,7 +16721,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesAndTheirPositions()
-		return This.DuplicatesAndTheirPositionsCS(:CaseSensitive = TRUE)
+		return This.DuplicatesAndTheirPositionsCS(TRUE)
 
 		def DuplicatesZ()
 			return This.DuplicatesAndTheirPositions()
@@ -16750,7 +16750,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesAndTheirPositionsU()
-		return This.DuplicatesAndTheirPositionsUCS(:CaseSensitive = TRUE)
+		return This.DuplicatesAndTheirPositionsUCS(TRUE)
 
 		def DuplicatesUZ()
 			return This.DuplicatesAndTheirPositionsU()
@@ -16781,7 +16781,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfDuplicatedStrings()
-		return This.NumberOfDuplicatedStringsCS(:CaseSensitive = TRUE)
+		return This.NumberOfDuplicatedStringsCS(TRUE)
 
 		def NumberOfDuplicatedStringItems()
 			return This.NumberOfDuplicatedStrings()
@@ -16858,7 +16858,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatedStrings()
-		return This.DuplicatedStringsCS(:CaseSensitive = TRUE)
+		return This.DuplicatedStringsCS(TRUE)
 		
 		#< @FunctionFluentForm
 
@@ -17017,7 +17017,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatedStrings()
-		return This.FindDuplicatedStringsCS(:CaseSensitive = TRUE)
+		return This.FindDuplicatedStringsCS(TRUE)
 		
 		#< @FunctionFluentForm
 
@@ -17158,7 +17158,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatedStringsAndTheirPositions()
-		return This.DuplicatedStringsAndTheirPositionsCS(:CaseSensitive = TRUE)
+		return This.DuplicatedStringsAndTheirPositionsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17324,7 +17324,7 @@ stop()
 
 	def FindDuplicatedString(pcString)
 
-		return This.FindDuplicatedStringCS(pcString, :CaseSensitive = TRUE)
+		return This.FindDuplicatedStringCS(pcString, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -17471,7 +17471,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesOfString(pcStr)
-		return This.FindDuplicatesOfStringCS(pcStr, :CaseSensitive = TRUE)
+		return This.FindDuplicatesOfStringCS(pcStr, TRUE)
 
 		def FindDuplicatesOfStringItem(pcStr)
 			return This.FindDuplicatesOfString(pcStr)
@@ -17566,7 +17566,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicates()
-		This.RemoveDuplicatesCS(:CaseSensitive = TRUE)
+		This.RemoveDuplicatesCS(TRUE)
 
 		def RemoveDuplicatesQ()
 			This.RemoveDuplicates()
@@ -17672,7 +17672,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicatesOfString(pcStr)
-		This.RemoveDuplicatesOfStringCS(pcStr, :CaseSensitive = TRUE)
+		This.RemoveDuplicatesOfStringCS(pcStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -17708,7 +17708,7 @@ stop()
 		#>
 
 	def DuplicatesOfStringRemoved(pcStr)
-		return This.DuplicatesOfStringRemovedCS(pcStr, :CaseSensitive = TRUE)
+		return This.DuplicatesOfStringRemovedCS(pcStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17775,7 +17775,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicatesOfStrings(pacStr)
-		This.RemoveDuplicatesOfStringsCS(pacStr, :CaseSensitive = TRUE)
+		This.RemoveDuplicatesOfStringsCS(pacStr, TRUE)
 
 		#< @FuntionFluentForm
 
@@ -17850,7 +17850,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicatedStrings()
-		return This.RemoveDuplicatedStringsCS(:CaseSensitive = TRUE)
+		return This.RemoveDuplicatedStringsCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -17948,7 +17948,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def UniqueChars()
-		return This.UniqueCharsCS(:CaseSensitive = TRUE)
+		return This.UniqueCharsCS(TRUE)
 
 		#< @FunctionFluentForms
 
@@ -18043,7 +18043,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def CommonChars()
-		return This.CommonCharsCS(:CaseSensitive = TRUE)
+		return This.CommonCharsCS(TRUE)
 
 		def CommonCharsQ()
 			return This.CommonCharsQR(:stzList)
@@ -19678,7 +19678,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStrongs()
-		return This.SubStrongsCS(:CaseSensitive = TRUE)
+		return This.SubStrongsCS(TRUE)
 
 	  #-----------------------------------------------#
 	 #  GETTING THE LIST OF SUBSTREACKS IN THE LIST  #
@@ -19720,7 +19720,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStreaks()
-		return This.SubStreaksCS(:CaseSensitive = TRUE)
+		return This.SubStreaksCS(TRUE)
 
 	  #-----------------------------------#
 	 #  SUBSTRONGS AND THEIR SUBSTREAKS  # TODO
@@ -19735,7 +19735,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStrongsAndTheirSubStreaks()
-		return This.SubStrongsAndTheirSubStreaksCS(:CaseSensitive = TRUE)
+		return This.SubStrongsAndTheirSubStreaksCS(TRUE)
 
 		def SubStrongsAndSubStreaks()
 			return This.SubStrongsAndTheirSubStreaks()
@@ -19753,7 +19753,7 @@ stop()
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStreaksAndTheirSubStrongs()
-		return This.SubStreaksAndTheirSubStrongsCS(:CaseSensitive = TRUE)
+		return This.SubStreaksAndTheirSubStrongsCS(TRUE)
 
 		def SubStreaksAndSubStrongs()
 			return This.SubStreaksAndTheirSubStrongs()

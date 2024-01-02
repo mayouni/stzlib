@@ -108,7 +108,7 @@ func CommonItemsCS(paLists, pCaseSensitive)
 		return CommonItemsCS(paList, pCaseSensitive)
 
 func CommonItems(paLists)
-	return CommonItemsCS(paLists, :CaseSensitive = TRUE)
+	return CommonItemsCS(paLists, TRUE)
 
 	func Intersection(paLists)
 		return CommonItems(paLists)
@@ -1878,7 +1878,7 @@ class stzListOfLists from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ListsContainingItem(pItem)
-		return This.ListsContainingItemCS(pItem, :CaseSensitive = TRUE)
+		return This.ListsContainingItemCS(pItem, TRUE)
 
 	  #------------------------------------------------#
 	 #  CHECKING IF A GIVEN ITEM EXISTS IN ALL LISTS  #
@@ -1920,7 +1920,7 @@ class stzListOfLists from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def EachListContains(pItem)
-		return This.EachListContainsCS(pItem, :CaseSensitive = TRUE)
+		return This.EachListContainsCS(pItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -2126,7 +2126,7 @@ class stzListOfLists from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def CommonItems()
-		return This.CommonItemsCS(:CaseSensitive = TRUE)
+		return This.CommonItemsCS(TRUE)
 
 		def Intersection()
 			return This.CommonItems()

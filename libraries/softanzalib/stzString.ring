@@ -362,7 +362,7 @@ func BothStringsAreEqualCS(pcStr1, pcStr2, pCaseSensitive)
 	return StringsAreEqualCS( [ pcStr1, pcStr2 ], pCaseSensitive )
 
 func BothStringsAreEqual(pcStr1, pcStr2)
-	return BothStringsAreEqualCS(pcStr1, pcStr2, :CaseSensitive = TRUE)
+	return BothStringsAreEqualCS(pcStr1, pcStr2, TRUE)
 
 func StringsAreEqualCS(pacStr, pCaseSensitive)
 	if NOT ListIsListOfStrings(paStr)
@@ -431,7 +431,7 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 	return bResult
 
 func StringsAreEqual(paStrings)
-	return StringsAreEqualCS(paStrings, :CaseSensitive = TRUE)
+	return StringsAreEqualCS(paStrings, TRUE)
 
 func RemoveDiacritics(pcStr)
 	return StzStringQ(pcStr).DiacriticsRemoved()
@@ -910,7 +910,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AddXT(pcNewSubStr, pcSubStr)
-		This.AddCSXTQ(pcNewSubStr, pcSubStr, :CaseSensitive = TRUE)
+		This.AddCSXTQ(pcNewSubStr, pcSubStr, TRUE)
 
 		def AddXTQ(pcNewSubStr, pcSubStr)
 			This.AddXT(pcNewSubStr, pcSubStr)
@@ -2129,10 +2129,10 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def UppercaseSubString(pcSubStr)
-		This.UppercaseSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		This.UppercaseSubStringCS(pcSubStr, TRUE)
 
 		def UppercaseSubStringQ(pcSubStr)
-			This.UppercaseSubStringCSQ(pcSubStr, :CaseSensitive = TRUE)
+			This.UppercaseSubStringCSQ(pcSubStr, TRUE)
 
 	def SubStringUppercased(pcSubStr)
 		cResult = This.Copy().UppercaseSubStringQ(pcStr).Content()
@@ -2182,10 +2182,10 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def UppercaseSubStringInLocale(pcSubStr, pLocale)
-		This.UppercaseSubStringInLocaleCS(pcSubStr, pLocale, :CaseSensitive = TRUE)
+		This.UppercaseSubStringInLocaleCS(pcSubStr, pLocale, TRUE)
 
 		def UppercaseSubStringInLocaleQ(pcSubStr, pLocale)
-			This.UppercaseSubStringInLocaleCSQ(pcSubStr, pLocale, :CaseSensitive = TRUE)
+			This.UppercaseSubStringInLocaleCSQ(pcSubStr, pLocale, TRUE)
 
 		def UppercaseSubStringIn(pcSubStr, pLocale)
 			This.UppercaseSubStringInLocale(pcSubStr, pLocale)
@@ -2235,10 +2235,10 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LowercaseSubString(pcSubStr)
-		This.LowercaseSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		This.LowercaseSubStringCS(pcSubStr, TRUE)
 
 		def LowercaseSubStringQ(pcSubStr)
-			This.LowercaseSubStringCSQ(pcSubStr, :CaseSensitive = TRUE)
+			This.LowercaseSubStringCSQ(pcSubStr, TRUE)
 
 	def SubStringLowercased(pcSubStr)
 		cResult = This.Copy().LowercaseSubStringQ(pcStr).Content()
@@ -2288,10 +2288,10 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LowercaseSubStringInLocale(pcSubStr, pLocale)
-		This.LowercaseSubStringInLocaleCS(pcSubStr, pLocale, :CaseSensitive = TRUE)
+		This.LowercaseSubStringInLocaleCS(pcSubStr, pLocale, TRUE)
 
 		def LowercaseSubStringInLocaleQ(pcSubStr, pLocale)
-			This.LowercaseSubStringInLocaleCSQ(pcSubStr, pLocale, :CaseSensitive = TRUE)
+			This.LowercaseSubStringInLocaleCSQ(pcSubStr, pLocale, TRUE)
 
 		def LowercaseSubStringIn(pcSubStr, pLocale)
 			This.LowercaseSubStringInLocale(pcSubStr, pLocale)
@@ -2892,7 +2892,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfSubStrings()
-		return This.NumberOfSubStringsCS(:CaseSensitive = TRUE)
+		return This.NumberOfSubStringsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -2987,7 +2987,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStrings()
-		return This.SubStringsCS(:CaseSensitive = TRUE)
+		return This.SubStringsCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -3026,7 +3026,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def UniqueSubStrings()
-		return This.UniqueSubStringsCS(:CaseSensitive = TRUE)
+		return This.UniqueSubStringsCS(TRUE)
 
 		def SubStringsU()
 			return This.UniqueSubStrings()
@@ -3071,7 +3071,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfUniqueSubStrings()
-		return This.NumberOfUniqueSubStringsCS(:CaseSensitive = TRUE)
+		return This.NumberOfUniqueSubStringsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3194,7 +3194,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllSubStrings(pCaseSensitive)
-		return This.FindSubStringsCS(:CaseSensitive = TRUE)
+		return This.FindSubStringsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3313,7 +3313,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllSubStringsAsSections(pCaseSensitive)
-		return This.FindAllSubStringsAsSectionsCS(:CaseSensitive = TRUE)
+		return This.FindAllSubStringsAsSectionsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3389,7 +3389,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AllSubStringsZ()
-		return This.AllSubStringsCSZ(:CaseSensitive = TRUE)
+		return This.AllSubStringsCSZ(TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -3464,7 +3464,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AllSubStringsZZ()
-		return This.SubStringsCSZZ(:CaseSensitive = TRUE)
+		return This.SubStringsCSZZ(TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -3539,7 +3539,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringsOfNChars(n)
-		return This.SubStringsOfNCharsCS(n, :CaseSensitive = TRUE)
+		return This.SubStringsOfNCharsCS(n, TRUE)
 
 		def SubStringsMadeOfNChars(n)
 			return This.SubStringsOfNChars(n)
@@ -3577,7 +3577,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESITIVITY
 
 	def UniqueSubStringsOfNChars(n)
-		return This.UniqueSubStringsOfNCharsCS(n, :CaseSensitive = TRUE)
+		return This.UniqueSubStringsOfNCharsCS(n, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3613,7 +3613,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfSubStringsOfNChars(n)
-		return This.NumberOfSubStringsOfNCharsCS(n, :CaseSensitive = TRUE)
+		return This.NumberOfSubStringsOfNCharsCS(n, TRUE)
 
 		def NumberOfSubStringsMadeOfNChars(n)
 			return This.NumberOfSubStringsOfNChars(n)
@@ -3649,7 +3649,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfUniqueSubStringsOfNChars(n)
-		return This.NumberOfUniqueSubStringsOfNCharsCS(n, :CaseSensitive = TRUE)
+		return This.NumberOfUniqueSubStringsOfNCharsCS(n, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3715,7 +3715,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringsExcept(pacSubStr)
-		return This.FindSubStringsExceptCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindSubStringsExceptCS(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3778,7 +3778,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringsExceptAsSections(pacSubStr)
-		return This.FindSubStringsExceptAsSectionsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindSubStringsExceptAsSectionsCS(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3844,7 +3844,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringsExcept(pacSubStr)
-		return This.SubStringsExceptCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.SubStringsExceptCS(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3910,7 +3910,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringsExceptZ(pacSubStr)
-		return This.SubStringsExceptCSZ(pacSubStr, :CaseSensitive = TRUE)
+		return This.SubStringsExceptCSZ(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -3959,7 +3959,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringsExceptZZ(pacSubStr)
-		return This.SubStringsExceptCSZZ(pacSubStr, :CaseSensitive = TRUE)
+		return This.SubStringsExceptCSZZ(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -5347,7 +5347,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubstringsWithMarquers(pacSubstrings)
-		This.ReplaceSubstringsWithMarquersCS(pacSubstrings, :CaseSensitive = TRUE)
+		This.ReplaceSubstringsWithMarquersCS(pacSubstrings, TRUE)
 
 		def MarkTheseSubStrings(pacSubStrings)
 			This.ReplaceSubstringsWithMarquers(pacSubstrings)
@@ -5364,7 +5364,7 @@ class stzString from stzObject
 				return This
 
 	def SubstringsReplacedWithMarquers(pacSubstrings)
-		return This.SubstringsReplacedWithMarquersCS(pacSubstrings, :CaseSensitive = TRUE)
+		return This.SubstringsReplacedWithMarquersCS(pacSubstrings, TRUE)
 
 		def SubstringsMarqued(pacSubstrings)
 			return This.SubstringsReplacedWithMarquers(pacSubstrings)
@@ -6152,7 +6152,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicatedSubStrings()
-		return This.ContainsDuplicatedSubStringsCS(:CaseSensitive = TRUE)
+		return This.ContainsDuplicatedSubStringsCS(TRUE)
 	
 		def ContainsDuplicates()
 			return This.ContainsDuplicatedSubStrings()
@@ -6171,7 +6171,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicated(pcSubStr)
-		return This.ContainsDuplicatedCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.ContainsDuplicatedCS(pcSubStr, TRUE)
 
 		def ContainsDuplicatedSubString(pcSubStr)
 			return This.ContainsDuplicated(pcSubStr)
@@ -6193,7 +6193,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicatedNTimes(n, pcSubStr)
-		return This.ContainsDuplicatedNTimesCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.ContainsDuplicatedNTimesCS(n, pcSubStr, TRUE)
 
 		def SubStringIsDuplicatedNTimes(n, pcSubStr)
 			return This.ContainsDuplicatedNTimes(n, pcSubStr, pItem)
@@ -6230,7 +6230,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfTimesSubStringIsDuplicated(pcSubStr)
-		return This.NumberOfTimesSubStringIsDuplicatedCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.NumberOfTimesSubStringIsDuplicatedCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -6267,7 +6267,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNonDuplicatedsubStrings()
-		return This.ContainsNonDuplicatedSubStringsCS(:CaseSensitive = TRUE)
+		return This.ContainsNonDuplicatedSubStringsCS(TRUE)
 
 		def ContainsNoDuplications()
 			return This.ContainsNonDuplicatedSubStrings()
@@ -6283,7 +6283,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NonDuplicatedISubStrings()
-		return This.NonDuplicatedSubStringsCS(:CaseSensitive = TRUE)
+		return This.NonDuplicatedSubStringsCS(TRUE)
 
 	  #---------------------------------------#
 	 #  NUMBER OF NON DUPLICATED SUBSTRINGS  #
@@ -6296,7 +6296,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfNonDuplicatedSubStrings()
-		return This.NumberOfNonDuplicatedSubStringsCS(:CaseSensitive = TRUE)
+		return This.NumberOfNonDuplicatedSubStringsCS(TRUE)
 
 	  #-------------------------------------#
 	 #  FINDING NON DUPLICATED SUBSTRINGS  #
@@ -6319,7 +6319,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNonDuplicatedSubStrings()
-		return This.FindNonDuplicatedSubStringsCS(:CaseSensitive = TRUE)
+		return This.FindNonDuplicatedSubStringsCS(TRUE)
 
 	  #-------------------------------------------------#
 	 #  NON DUPLICATED SUBSTRINGS AND THEIR POSITIONS  #
@@ -6345,7 +6345,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NonDuplicatedSubStringsAndTheirPositions()
-		return This.NonDuplicatedSubStringsAndTheirPositionsCS(:CaseSensitive = TRUE)
+		return This.NonDuplicatedSubStringsAndTheirPositionsCS(TRUE)
 
 		def NonDuplicatedSubStringsZ()
 			return This.NonDuplicatedSubStringsAndTheirPositions()
@@ -6379,7 +6379,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfDuplicates()
-		return This.NumberOfDuplicatesCS(:CaseSensitive = TRUE)
+		return This.NumberOfDuplicatesCS(TRUE)
 
 		#< @functionAlternativeForms
 
@@ -6413,7 +6413,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicates()
-		return This.FindDuplicatesCS(:CaseSensitive = TRUE)
+		return This.FindDuplicatesCS(TRUE)
 
 		def FindDuplicatesZ()
 			return This.FindDuplicates()
@@ -6436,7 +6436,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesXT()
-		return This.FindDuplicatesCSXT(:CaseSensitive = TRUE)
+		return This.FindDuplicatesCSXT(TRUE)
 
 		def FindDuplicatesXTZ()
 			return This.FindDuplicatesXT()
@@ -6474,7 +6474,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesAsSections()
-		return This.FindDuplicatesAsSectionsCS(:CaseSensitive = TRUE)
+		return This.FindDuplicatesAsSectionsCS(TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -6518,7 +6518,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Duplicates()
-		return This.DuplicatesCS(:CaseSensitive = TRUE)
+		return This.DuplicatesCS(TRUE)
 
 	  #------------------------------------------------#
 	 #  DUPLICATES AND THEIR POSITIONS -- Z/Extended  #
@@ -6537,7 +6537,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesAndTheirPositions()
-		return This.DuplicatesAndTheirPositionsCS(:CaseSensitive = TRUE)
+		return This.DuplicatesAndTheirPositionsCS(TRUE)
 
 		def DuplicatesZ()
 			return This.DuplicatesAndTheirPositions()
@@ -6559,7 +6559,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesAndTheirSections()
-		return This.DuplicatesAndTheirSectionsCS(:CaseSensitive = TRUE)
+		return This.DuplicatesAndTheirSectionsCS(TRUE)
 
 		def DuplicatesZZ()
 			return This.DuplicatesAndTheirSections()
@@ -6586,7 +6586,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesOfSubString(pcSubStr)
-		return This.FindDuplicatesOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindDuplicatesOfSubStringCS(pcSubStr, TRUE)
 
 		def PositionsOfDuplicatesOfSubString(pcSubStr)
 			return This.FindDuplicatesOfSubString(pcSubStr)
@@ -6611,7 +6611,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesOfSubStringAsSections(pcSubStr)
-		return This.FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, TRUE)
 
 		def FindDuplicatesOfSubStringZZ(pcSubStr)
 			return This.FindDuplicatesOfSubStringAsSections(pcSubStr)
@@ -6645,7 +6645,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicates()
-		This.RemoveDuplicatesCS(:CaseSensitive = TRUE)
+		This.RemoveDuplicatesCS(TRUE)
 
 		def RemoveDuplicatesQ()
 			This.RemoveDuplicates()
@@ -6709,7 +6709,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicatesOfSubString(pcSubStr)
-		This.RemoveDuplicatesOfSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveDuplicatesOfSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -6731,7 +6731,7 @@ class stzString from stzObject
 		#>
 
 	def DuplicatesOfSubStringRemoved(pcSubStr)
-		return This.DuplicatesOfSubStringRemovedCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.DuplicatesOfSubStringRemovedCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -6778,7 +6778,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicatesOfSubStrings(pacSubStr)
-		This.RemoveDuplicatesOfSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		This.RemoveDuplicatesOfSubStringsCS(pacSubStr, TRUE)
 
 		#< @FuntionFluentForm
 
@@ -6863,7 +6863,7 @@ class stzString from stzObject
 			pcSubStr = pcSubStr[2]
 		ok
 
-		return NumberOfOccurrenceCS(pcSubStr, :CaseSensitive = TRUE)
+		return NumberOfOccurrenceCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -9545,7 +9545,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsBoundedBy(pacBounds)
-		return This.IsBoundedByCS(pacBounds, :CaseSensitive = TRUE)
+		return This.IsBoundedByCS(pacBounds, TRUE)
 
 	   #--------------------------------------------------------#
 	  #  CHECKING IF THE STRING IS BOUNDED BY A GIVEN PAIR OF  #
@@ -9645,7 +9645,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsBoundedByIn(pacBounds, pIn)
-		return This.IsboundedByInCS(pacBounds, pIn, :CaseSensitive = TRUE)
+		return This.IsboundedByInCS(pacBounds, pIn, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -9653,13 +9653,13 @@ class stzString from stzObject
 			return This.IsBoundedByIn(pacBounds, pIn)
 
 		def IsBetweenIB(pacBounds, pIn)
-			return This.IsBetweenCSIB(pacBounds, pIn, :CaseSensitive = TRUE)
+			return This.IsBetweenCSIB(pacBounds, pIn, TRUE)
 
 		def IsBoundedByInIB(pacBounds, pIn)
 			return This.IsBoundedByIn(pacBounds, pIn)
 
 		def IsBetweenInIB(pacBounds, pIn)
-			return This.IsBetweenCSIB(pacBounds, pIn, :CaseSensitive = TRUE)
+			return This.IsBetweenCSIB(pacBounds, pIn, TRUE)
 
 		#>
 
@@ -9684,7 +9684,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESNESITUVURT
 
 	def IsBoundOf(pcSubStr, pcInStr)
-		bResult = This.IsBoundOfCS(pcSubStr, pcInStr, :CaseSensitive = TRUE)
+		bResult = This.IsBoundOfCS(pcSubStr, pcInStr, TRUE)
 		return bResult
 
 	def IsFirstBoundOfCS(pcOtherStr, pCaseSensitive)
@@ -9824,7 +9824,7 @@ class stzString from stzObject
 		
 
 	def SubStringIsBoundedBy(pcSubStr, pacBounds)
-		return This.SubStringIsBoundedByCS(pcSubStr, pacBounds, :CaseSensitive = TRUE)
+		return This.SubStringIsBoundedByCS(pcSubStr, pacBounds, TRUE)
 
 	  #------------------------------------------------------------------------#
 	 #  CHECKING IF A GIVEN SUBSTRING IS BOUNDED BY MANY PAIRS OF SUBSTRINGS  #
@@ -9856,7 +9856,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringIsBoundedByMany(pacSubStr, pacPairsOfBounds)
-		return This.SubStringIsBoundedByManyCS(pacSubStr, pacPairsOfBounds, :CaseSensitive = TRUE)
+		return This.SubStringIsBoundedByManyCS(pacSubStr, pacPairsOfBounds, TRUE)
 
 	  #=====================================================================================#
 	 #  CHECKING IF A SUBSTRING COMES BEFORE AN OTHER SUBSTRING OR POSITION IN THE STRING  #
@@ -9896,7 +9896,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringIsBefore(pcSubStr, p)
-		return This.SubStringIsBeforeCS(pcSubStr, p, :CaseSensitive = TRUE)
+		return This.SubStringIsBeforeCS(pcSubStr, p, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -9923,7 +9923,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringIsBeforePosition(pcSubStr, n)
-		return This.SubStringIsBeforePositionCS(pcSubStr, n, :CaseSensitive = TRUE)
+		return This.SubStringIsBeforePositionCS(pcSubStr, n, TRUE)
 
 		def SubStringComesBeforePosition(pcSubStr, n)
 			return This.SubStringIsBeforePosition(pcSubStr, n)
@@ -9948,7 +9948,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringIsBeforeSubString(pcSubStr, pcOtherSubStr)
-		return This.SubStringIsBeforeSubStringCS(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+		return This.SubStringIsBeforeSubStringCS(pcSubStr, pcOtherSubStr, TRUE)
 
 		def SubStringComesBeforeSubString(pcSubStr, pcOtherSubStr)
 			return This.SubStringIsBeforeSubString(pcSubStr, pcOtherSubStr)
@@ -9993,7 +9993,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringIsAfter(pcSubStr, p)
-		return This.SubStringIsAfterCS(pcSubStr, p, :CaseSensitive = TRUE)
+		return This.SubStringIsAfterCS(pcSubStr, p, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -10020,7 +10020,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringIsAfterPosition(pcSubStr, n)
-		return This.SubStringIsAfterPositionCS(pcSubStr, n, :CaseSensitive = TRUE)
+		return This.SubStringIsAfterPositionCS(pcSubStr, n, TRUE)
 
 		def SubStringComesAfterPosition(pcSubStr, n)
 			return This.SubStringIsAfterPosition(pcSubStr, n)
@@ -10045,7 +10045,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringIsAfterSubString(pcSubStr, pcOtherSubStr)
-		return This.SubStringIsAfterSubStringCS(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+		return This.SubStringIsAfterSubStringCS(pcSubStr, pcOtherSubStr, TRUE)
 
 		def SubStringComesAfterSubString(pcSubStr, pcOtherSubStr)
 			return This.SubStringIsAfterSubString(pcSubStr, pcOtherSubStr)
@@ -10099,7 +10099,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringIsBetween(pcSubStr, p1, p2)
-		return This.SubStringIsBetweenCS(pcSubStr, p1, p2, :CaseSensitive = TRUE)
+		return This.SubStringIsBetweenCS(pcSubStr, p1, p2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -10133,7 +10133,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringIsBetweenPositions(pcSubStr, n1, n2)
-		return This.SubStringIsBetweenPositionsCS(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+		return This.SubStringIsBetweenPositionsCS(pcSubStr, n1, n2, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -10193,7 +10193,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringIsBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
-		return This.SubStringIsBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+		return This.SubStringIsBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, TRUE)
 
 		def SubStringComesBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
 			return This.SubStringIsBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
@@ -10281,7 +10281,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindBoundsAsSections()
-		return This.FindBoundsAsSectionsCS(:CaseSensitive = TRUE)
+		return This.FindBoundsAsSectionsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -10387,7 +10387,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastAndFirstBoundsAsSections()
-		return This.FindLastAndFirstBoundsAsSectionsCS(:CaseSensitive = TRUE)
+		return This.FindLastAndFirstBoundsAsSectionsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -10467,7 +10467,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLeftAndRightBoundsAsSections()
-		return This.FindLeftAndRightBoundsAsSectionsCS(:CaseSensitive = TRUE)
+		return This.FindLeftAndRightBoundsAsSectionsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -10534,7 +10534,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRightAndLeftBoundsAsSections()
-		return This.FindRightAndLeftBoundsAsSectionsCS(:CaseSensitive = TRUE)
+		return This.FindRightAndLeftBoundsAsSectionsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -10571,7 +10571,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsBounded()
-		return This.IsBoundedCS(:CaseSensitive = TRUE)
+		return This.IsBoundedCS(TRUE)
 
 		def HasBounds()
 			return This.IsBounded()
@@ -10620,7 +10620,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindBounds()
-		return This.FindBoundsCS(:CaseSensitive = TRUE)
+		return This.FindBoundsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -10676,7 +10676,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastAndFirstBounds()
-		return This.FindLastAndFirstBoundsCS(:CaseSensitive = TRUE)
+		return This.FindLastAndFirstBoundsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -10719,7 +10719,7 @@ class stzString from stzObject
 	#--
 
 	def FindLeftAndRightBounds()
-		return This.FindLeftAndRightBoundsCS(:CaseSensitive = TRUE)
+		return This.FindLeftAndRightBoundsCS(TRUE)
 
 		def FindStringLeftAndRightBounds()
 			return This.FindLeftAndRightBounds()
@@ -10753,7 +10753,7 @@ class stzString from stzObject
 	#--
 
 	def FindRightAndLeftBounds()
-		return This.FindRightAndLeftBoundsCS(:CaseSensitive = TRUE)
+		return This.FindRightAndLeftBoundsCS(TRUE)
 
 		def FindStringRightAndLeftBounds()
 			return This.FindRightAndLeftBounds()
@@ -10809,7 +10809,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Bounds()
-		return This.BoundsCS(:CaseSensitive = TRUE)
+		return This.BoundsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -10852,7 +10852,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastAndFirstBounds()
-		return This.LastAndFirstBoundsCS(:CaseSensitive = TRUE)
+		return This.LastAndFirstBoundsCS(TRUE)
 
 		#< @FunctionAlternatoveForms
 
@@ -10895,7 +10895,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LeftAndRightBounds()
-		return This.LeftAndRightBoundsCS(:CaseSensitive = TRUE)
+		return This.LeftAndRightBoundsCS(TRUE)
 
 		def StringLeftAndRightBounds()
 			return This.LeftAndRightBoundsCS()
@@ -10928,7 +10928,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RightAndLeftBounds()
-		return This.RightAndLeftBoundsCS(:CaseSensitive = TRUE)
+		return This.RightAndLeftBoundsCS(TRUE)
 
 		def StringRightAndLeftBounds()
 			return This.RightAndLeftBoundsCS()
@@ -10976,7 +10976,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def BoundsZ()
-		return This.BoundsCSZ(:CaseSensitive = TRUE)
+		return This.BoundsCSZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11048,7 +11048,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def BoundsZZ()
-		return This.BoundsCSZZ(:CaseSensitive = TRUE)
+		return This.BoundsCSZZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11125,7 +11125,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastAndFirstBoundsZ()
-		return This.LastAndFirstBoundsCSZ(:CaseSensitive = TRUE)
+		return This.LastAndFirstBoundsCSZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11200,7 +11200,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastAndFirstBoundsZZ()
-		return This.LastAndFirstBoundsCSZZ(:CaseSensitive = TRUE)
+		return This.LastAndFirstBoundsCSZZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11256,7 +11256,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LeftAndRightBoundsZ()
-		return This.LeftAndrightBoundsCSZ(:CaseSensitive = TRUE)
+		return This.LeftAndrightBoundsCSZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11301,7 +11301,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LeftAndRightBoundsZZ()
-		return This.LeftAndRightBoundsCSZZ(:CaseSensitive = TRUE)
+		return This.LeftAndRightBoundsCSZZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11345,7 +11345,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RightAndLeftBoundsZ()
-		return This.RightAndLeftBoundsCSZ(:CaseSensitive = TRUE)
+		return This.RightAndLeftBoundsCSZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11389,7 +11389,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RightAndLeftBoundsZZ()
-		return This.RightAndLeftBoundsCSZZ(:CaseSensitive = TRUE)
+		return This.RightAndLeftBoundsCSZZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11422,7 +11422,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstBound()
-		return This.FindFirstBoundCS(:CaseSensitive = TRUE)
+		return This.FindFirstBoundCS(TRUE)
 
 		def FindStringFirstBound()
 			return This.FindFirstBound()
@@ -11460,7 +11460,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstBoundAsSection()
-		return This.FindFirstBoundAsSectionCS(:CaseSensitive = TRUE)
+		return This.FindFirstBoundAsSectionCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11491,7 +11491,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstBound()
-		return This.FirstBoundCS(:CaseSensitive = TRUE)
+		return This.FirstBoundCS(TRUE)
 
 		def StringFirstBound()
 			return This.FirstBound()
@@ -11524,7 +11524,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstBoundZ()
-		return This.FirstBoundCSZ(:CaseSensitive = TRUE)
+		return This.FirstBoundCSZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11567,7 +11567,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstBoundZZ()
-		return This.FirstBoundCSZZ(:CaseSensitive = TRUE)
+		return This.FirstBoundCSZZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11610,7 +11610,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastBound()
-		return This.FindLastBoundCS(:CaseSensitive = TRUE)
+		return This.FindLastBoundCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11671,7 +11671,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastBoundAsSection()
-		return This.FindLastBoundAsSectionCS(:CaseSensitive = TRUE)
+		return This.FindLastBoundAsSectionCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11724,7 +11724,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastBound()
-		return This.LastBoundCS(:CaseSensitive = TRUE)
+		return This.LastBoundCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11767,7 +11767,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastBoundZ()
-		return This.LastBoundCSZ(:CaseSensitive = TRUE)
+		return This.LastBoundCSZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11810,7 +11810,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastBoundZZ()
-		return This.LastBoundCSZZ(:CaseSensitive = TRUE)
+		return This.LastBoundCSZZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11853,7 +11853,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLeftBound()
-		return This.FindLeftBoundCS(:CaseSensitive = TRUE)
+		return This.FindLeftBoundCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11899,7 +11899,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLeftBoundAsSection()
-		return This.FindLeftBoundAsSectionCS(:CaseSensitive = TRUE)
+		return This.FindLeftBoundAsSectionCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -11935,7 +11935,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LeftBound()
-		return This.LeftBoundCS(:CaseSensitive = TRUE)
+		return This.LeftBoundCS(TRUE)
 
 		def StringLeftBound()
 			return This.LeftBound()
@@ -11968,7 +11968,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LeftBoundZ()
-		return This.LeftBoundCSZ(:CaseSensitive = TRUE)
+		return This.LeftBoundCSZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -12012,7 +12012,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LeftBoundZZ()
-		return This.LeftBoundCSZZ(:CaseSensitive = TRUE)
+		return This.LeftBoundCSZZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -12055,7 +12055,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRightBound()
-		return This.FindRightBoundCS(:CaseSensitive = TRUE)
+		return This.FindRightBoundCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -12099,7 +12099,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRightBoundAsSection()
-		return This.FindRightBoundAsSectionCS(:CaseSensitive = TRUE)
+		return This.FindRightBoundAsSectionCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -12132,7 +12132,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RightBound()
-		return This.RightBoundCS(:CaseSensitive = TRUE)
+		return This.RightBoundCS(TRUE)
 
 		def StringRightBound()
 			return This.RightBound()
@@ -12165,7 +12165,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RightBoundZ()
-		return This.RightBoundCSZ(:CaseSensitive = TRUE)
+		return This.RightBoundCSZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -12208,7 +12208,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RightBoundZZ()
-		return This.RightBoundCSZZ(:CaseSensitive = TRUE)
+		return This.RightBoundCSZZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -12411,7 +12411,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveStringBounds()
-		return This.RemoveStringBoundsCS(:CaseSensitive = TRUE)
+		return This.RemoveStringBoundsCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -12625,7 +12625,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveStringLeftBound()
-		This.RemoveStringLeftBoundCS(:CaseSensitive = TRUE)
+		This.RemoveStringLeftBoundCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -12691,7 +12691,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveStringRightBound()
-		This.RemoveStringRightBoundCS(:CaseSensitive = TRUE)
+		This.RemoveStringRightBoundCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -12757,7 +12757,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveStringFirstBound()
-		This.RemoveStringFirstBoundCS(:CaseSensitive = TRUE)
+		This.RemoveStringFirstBoundCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -12848,7 +12848,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveStringLastBound()
-		This.RemoveStringLastBoundCS(:CaseSensitive = TRUE)
+		This.RemoveStringLastBoundCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -12938,7 +12938,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseStringBoundsAsSections(pcBound1, pcBound2)
-		return This.FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
+		return This.FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -12978,7 +12978,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseStringBounds(pcBound1, pcBound2)
-		return This.FindTheseStringBoundsCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
+		return This.FindTheseStringBoundsCS(pcBound1, pcBound2, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -13026,7 +13026,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def TheseStringBoundsZ(pcBound1, pcBound2)
-		return This.TheseStringBoundsCSZ(pcBound1, pcBound2, :CaseSensitive = TRUE)
+		return This.TheseStringBoundsCSZ(pcBound1, pcBound2, TRUE)
 
 		def TheseBoundsZ(pcBound1, pcBound2)
 			return This.TheseStringBoundsZ(pcBound1, pcBound2)
@@ -13064,7 +13064,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def TheseStringBoundsZZ(pcBound1, pcBound2)
-		return This.TheseStringBoundsCSZZ(pcBound1, pcBound2, :CaseSensitive = TRUE)
+		return This.TheseStringBoundsCSZZ(pcBound1, pcBound2, TRUE)
 
 		def TheseBoundsZZ(pcBound1, pcBound2)
 			return This.TheseStringBoundsZZ(pcBound1, pcBound2)
@@ -13112,7 +13112,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveTheseStringBounds(pcBound1, pcBound2)
-		return This.RemoveTheseStringBoundsCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
+		return This.RemoveTheseStringBoundsCS(pcBound1, pcBound2, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -13178,7 +13178,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SwapBounds()
-		return This.SwapBoundsCS(:CaseSensitive = TRUE)
+		return This.SwapBoundsCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -13290,7 +13290,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringBoundsAsSections(pcSubStr)
-		return This.FindSubStringBoundsAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSubStringBoundsAsSectionsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -13331,7 +13331,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringBounds(pcSubStr)
-		return This.FindSubStringBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSubStringBoundsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -13367,7 +13367,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsBoundsOf(pcSubStr)
-		return This.ContainsBoundsOfCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.ContainsBoundsOfCS(pcSubStr, TRUE)
 
 		def SubStringIsBounded(pcSubStr)
 			return This.ContainsBoundsOf(pcSubStr)
@@ -13453,7 +13453,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringFirstBoundsAsSections(pcSubStr)
-		return This.FindFirstBoundsOfAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindFirstBoundsOfAsSectionsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -13575,7 +13575,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringLastBoundsAsSections(pcSubStr)
-		return This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSubStringLastBoundsAsSectionsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -13656,7 +13656,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringLeftBoundsAsSections(pcSubStr)
-		return This.FindSubStringLeftBoundsAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSubStringLeftBoundsAsSectionsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -13715,7 +13715,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringRightBoundsAsSections(pcSubStr)
-		return This.FindSubStringRightBoundsAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSubStringRightBoundsAsSectionsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -13773,7 +13773,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def FindSubStringFirstBounds(pcSubStr)
-		return This.FindSubStringFirstBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSubStringFirstBoundsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -13849,7 +13849,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def FindSubStringLastBounds(pcSubStr)
-		return This.FindSubStringLastBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSubStringLastBoundsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForsm
 
@@ -13926,7 +13926,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def FindSubStringLeftBounds(pcSubStr)
-		return This.FindSubStringLeftBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSubStringLeftBoundsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -13984,7 +13984,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def FindSubStringRightBounds(pcSubStr)
-		return This.FindRightBoundsOfCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindRightBoundsOfCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -14097,7 +14097,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringBounds(pcSubstr)
-		return This.SubStringBoundsCS(pcSubstr, :CaseSensitive = TRUE)
+		return This.SubStringBoundsCS(pcSubstr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -14105,10 +14105,10 @@ class stzString from stzObject
 			return This.SubStringBounds(pcSubStr)
 
 			def BoundsOfQ(pcSubStr)
-				return This.BoundsOfCSQ(pcSubStr, :CaseSensitive = TRUE)
+				return This.BoundsOfCSQ(pcSubStr, TRUE)
 
 			def BoundsOfQR(pcSubStr, pcReturnType)
-				return This.BoundsOfCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+				return This.BoundsOfCSQR(pcSubStr, TRUE, pcReturnType)
 
 		#--
 
@@ -14178,7 +14178,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringFirstBounds(pcSubStr)
-		return This.SubStringFirstBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.SubStringFirstBoundsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -14186,7 +14186,7 @@ class stzString from stzObject
 			return This.SubStringFirstBounds(pcSubStr)
 
 		def FirstBounds(pcSubStr)
-			return This.FirstBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.FirstBoundsCS(pcSubStr, TRUE)
 
 		#>
 
@@ -14229,7 +14229,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringLastBounds(pcSubStr)
-		return This.SubStringLastBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.SubStringLastBoundsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -14245,7 +14245,7 @@ class stzString from stzObject
 		#--
 
 		def LastBounds(pcSubStr)
-			return This.LastBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.LastBoundsCS(pcSubStr, TRUE)
 
 		def SecondBounds(pcSubStr)
 			return This.LastBounds(pcSubStr)
@@ -14281,7 +14281,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def SubStringLeftBounds(pcSubStr)
-		return This.SubStringLeftBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.SubStringLeftBoundsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -14289,7 +14289,7 @@ class stzString from stzObject
 			return This.SubStringLeftBounds(pcSubStr)
 
 		def LeftBounds(pcSubStr)
-			return This.LeftBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.LeftBoundsCS(pcSubStr, TRUE)
  
 		#>
 
@@ -14322,7 +14322,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def SubStringRightBounds(pcSubStr)
-		return This.SubStringRightBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.SubStringRightBoundsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -14330,7 +14330,7 @@ class stzString from stzObject
 			return This.SubStringRightBounds(pcSubStr)
 
 		def RightBounds(pcSubStr)
-			return This.RightBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.RightBoundsCS(pcSubStr, TRUE)
 
 		#>
 
@@ -14521,7 +14521,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubStringBounds(pcSubStr)
-		return This.RemoveSubStringBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.RemoveSubStringBoundsCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -14752,7 +14752,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubStringLeftBounds()
-		This.RemoveSubStringLeftBoundsCS(:CaseSensitive = TRUE)
+		This.RemoveSubStringLeftBoundsCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -14765,7 +14765,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def RemoveLeftBounds(pcSubStr)
-			This.RemoveLeftBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+			This.RemoveLeftBoundsCS(pcSubStr, TRUE)
 
 			def RemoveLeftBoundsQ(pcSubStr)
 				This.RemoveLeftBounds(pcSubStr)
@@ -14848,7 +14848,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubStringRightBounds()
-		This.RemoveSubStringRightBoundsCS(:CaseSensitive = TRUE)
+		This.RemoveSubStringRightBoundsCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -14861,7 +14861,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def RemoveRightBounds(pcSubStr)
-			This.RemoveRightBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+			This.RemoveRightBoundsCS(pcSubStr, TRUE)
 
 			def RemoveRightBoundsQ(pcSubStr)
 				This.RemoveRightBounds(pcSubStr)
@@ -14944,7 +14944,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubStringFirstBounds()
-		This.RemoveSubStringFirstBoundsCS(:CaseSensitive = TRUE)
+		This.RemoveSubStringFirstBoundsCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -14957,7 +14957,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def RemoveFirstBounds(pcSubStr)
-			This.RemoveFirstBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+			This.RemoveFirstBoundsCS(pcSubStr, TRUE)
 
 			def RemoveFirstBoundsQ(pcSubStr)
 				This.RemoveFirstBounds(pcSubStr)
@@ -15040,7 +15040,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubStringLastBounds()
-		This.RemoveSubStringLastBoundsCS(:CaseSensitive = TRUE)
+		This.RemoveSubStringLastBoundsCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -15053,7 +15053,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def RemoveLastBounds(pcSubStr)
-			This.RemoveLastBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+			This.RemoveLastBoundsCS(pcSubStr, TRUE)
 
 			def RemoveLastBoundsQ(pcSubStr)
 				This.RemoveLastBounds(pcSubStr)
@@ -15176,7 +15176,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SwapSubStringBounds(pcSubStr)
-		This.SwapSubStringBoundsCS(pcSubStr, :CaseSensitive = TRUE)
+		This.SwapSubStringBoundsCS(pcSubStr, TRUE)
 	
 		#< @FunctionFluentForm
 
@@ -15279,7 +15279,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveAnyBetween(pcBound1, pcBound2)
-		return This.RemoveAnyBetweenCS(pcBound1, pcBound2, :CaseSensitive = TRUE)
+		return This.RemoveAnyBetweenCS(pcBound1, pcBound2, TRUE)
 
 
 	def AnyBetweenRemoved(pcBound1, pcBound2)
@@ -15324,7 +15324,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveAnyBetweenIB(pcBound1, pcBound2)
-		return This.RemoveAnyBetweenCSIB(pcBound1, pcBound2, :CaseSensitive = TRUE)
+		return This.RemoveAnyBetweenCSIB(pcBound1, pcBound2, TRUE)
 
 	def AnyBetweenRemovedIB(pcBound1, pcBound2)
 		acResult = This.Copy().RemoveBetweenIBQ(pcBound1, pcBound2).Content()
@@ -15391,7 +15391,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubStringLeftBound(pcSubStr)
-		This.RemoveSubStringLeftBoundCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveSubStringLeftBoundCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -15500,7 +15500,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubStringRightBound(pcSubStr)
-		This.RemoveSubStringRightBoundCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveSubStringRightBoundCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -15612,7 +15612,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubStringFirstBound(pcSubStr)
-		This.RemoveSubStringFirstBoundCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveSubStringFirstBoundCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -15757,7 +15757,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubStringLastBound(pcSubStr)
-		This.RemoveSubStringLastBoundCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveSubStringLastBoundCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -15866,7 +15866,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsTheseBounds(pacBounds)
-		return This.ContainsTheseBoundsCS(pacBounds, :CaseSensitive = TRUE)
+		return This.ContainsTheseBoundsCS(pacBounds, TRUE)
 
 
 	  #------------------------------------------------------------------------#
@@ -15981,7 +15981,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
-		This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
+		This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -16012,7 +16012,7 @@ class stzString from stzObject
 		#-- the user expects to provide either one bound or two, at his will:
 
 		def BoundSubString(pcSubStr, pacBounds)
-			This.BoundSubStringCS(pcSubStr, pacBounds, :CaseSensitive = TRUE)
+			This.BoundSubStringCS(pcSubStr, pacBounds, TRUE)
 
 			def BoundSubStringQ(pcSubStr, pacBounds)
 				This.BoundSubString(pcSubStr, pacBounds)
@@ -16093,7 +16093,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AddBoundsToManySubStrings(pacSubStr, pcBound1, pcBound2)
-		This.AddBoundsToManySubStringsCS(pacSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
+		This.AddBoundsToManySubStringsCS(pacSubStr, pcBound1, pcBound2, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -16202,7 +16202,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedLeadingChars()
-		return This.RepeatedLeadingCharsCS(:CaseSensitive = TRUE)
+		return This.RepeatedLeadingCharsCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -16294,7 +16294,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedLeadingChar()
-		return This.RepeatedLeadingCharCS(:CaseSensitive = TRUE)
+		return This.RepeatedLeadingCharCS(TRUE)
 
 
 		#< @FunctionFleuntForms
@@ -16394,7 +16394,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfRepeatedLeadingChars()
-		return This.NumberOfRepeatedLeadingCharsCS(:CaseSensitive = TRUE)
+		return This.NumberOfRepeatedLeadingCharsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -16450,7 +16450,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY()
 
 	def RepeatedLeadingCharIs(c)
-		return This.RepeatedLeadingCharIsCS(c, :CaseSensitive = TRUE)
+		return This.RepeatedLeadingCharIsCS(c, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -16498,7 +16498,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasRepeatedLeadingChars()
-		return This.HasRepeatedLeadingCharsCS(:CaseSensitive = TRUE)
+		return This.HasRepeatedLeadingCharsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -16552,7 +16552,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasRepeatedTrailingChars()
-		return This.HasRepeatedTrailingCharsCS(:CaseSensitive = TRUE)
+		return This.HasRepeatedTrailingCharsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -16606,7 +16606,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedTrailingChars()
-		return This.RepeatedTrailingCharsCS(:CaseSensitive = TRUE)
+		return This.RepeatedTrailingCharsCS(TRUE)
 
 		def RepeatedTrailingCharsQ()
 			return new stzString( This.RepeatedTrailingChars() )
@@ -16680,7 +16680,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedTrailingChar()
-		return This.RepeatedTrailingCharCS(:CaseSensitive = TRUE)
+		return This.RepeatedTrailingCharCS(TRUE)
 
 		def RepeatedTrailingCharQ()
 			return This.RepeatedTrailingCharQR(:stzChar)
@@ -16767,7 +16767,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfRepeatedTrailingChars()
-		return This.NumberOfRepeatedTrailingCharsCS(:CaseSensitive = TRUE)
+		return This.NumberOfRepeatedTrailingCharsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -16819,7 +16819,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedTrailingCharIs(c)
-		return This.RepeatedTrailingCharIsCS(c, :CaseSensitive = TRUE)
+		return This.RepeatedTrailingCharIsCS(c, TRUE)
 
 		def TrailingRepeatedCharIs(c)
 			return This.RepeatedTrailingCharIs(c)
@@ -16855,7 +16855,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedLeadingChars()
-		return This.FindRepeatedLeadingCharsCS(:CaseSensitive = TRUE)
+		return This.FindRepeatedLeadingCharsCS(TRUE)
 
 		#< @FunctionALternativeForm
 
@@ -16895,7 +16895,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedLeadingCharsAsSection()
-		return This.FindRepeatedLeadingCharsAsSectionCS(:CaseSensitive = TRUE)
+		return This.FindRepeatedLeadingCharsAsSectionCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -16935,7 +16935,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepatedLeadingCharsZ()
-		return This.RepeatedLeadingCharsCSZ(:CaseSensitive = TRUE)
+		return This.RepeatedLeadingCharsCSZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -16978,7 +16978,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepatedLeadingCharsZZ()
-		return This.RepeatedLeadingCharsCSZZ(:CaseSensitive = TRUE)
+		return This.RepeatedLeadingCharsCSZZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17033,7 +17033,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedLeadingChars()
-		This.RemoveRepeatedLeadingCharsCS(:CaseSensitive = TRUE)
+		This.RemoveRepeatedLeadingCharsCS(TRUE)
 
 		def RemoveRepeatedLeadingCharsQ()
 			This.RemoveRepeatedLeadingChars()
@@ -17095,7 +17095,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedTrailingChars()
-		return This.FindRepeatedTrailingCharsCS(:CaseSensitive = TRUE)
+		return This.FindRepeatedTrailingCharsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17143,7 +17143,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedTrailingCharsAsSection()
-		return This.FindRepeatedTrailingCharsAsSectionCS(:CaseSensitive = TRUE)
+		return This.FindRepeatedTrailingCharsAsSectionCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17186,7 +17186,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepatedTrailingCharsZ()
-		return This.RepeatedTrailingCharsCSZ(:CaseSensitive = TRUE)
+		return This.RepeatedTrailingCharsCSZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17229,7 +17229,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepatedTrailingCharsZZ()
-		return This.RepeatedTrailingCharsCSZZ(:CaseSensitive = TRUE)
+		return This.RepeatedTrailingCharsCSZZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17284,7 +17284,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedTrailingChars()
-		This.RemoveRepeatedTrailingCharsCS(:CaseSensitive = TRUE)
+		This.RemoveRepeatedTrailingCharsCS(TRUE)
 
 		def RemoveRepeatedTrailingCharsQ()
 			This.RemoveRepeatedTrailingChars()
@@ -17355,7 +17355,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedLeadingAndTrailingChars()
-		return This.FindRepeatedLeadingAndTrailingCharsCS(:CaseSensitive = TRUE)
+		return This.FindRepeatedLeadingAndTrailingCharsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17411,7 +17411,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedTrailingAndLeadingChars()
-		return This.FindRepeatedTrailingAndLeadingCharsCS(:CaseSensitive = TRUE)
+		return This.FindRepeatedTrailingAndLeadingCharsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17476,7 +17476,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedLeadingAndTrailingCharsAsSections()
-		return This.FindRepeatedLeadingAndTrailingCharsAsSectionsCS(:CaseSensitive = TRUE)
+		return This.FindRepeatedLeadingAndTrailingCharsAsSectionsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17541,7 +17541,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedTrailingAndLeadingCharsAsSections()
-		return This.FindRepeatedTrailingAndLeadingCharsAsSectionsCS(:CaseSensitive = TRUE)
+		return This.FindRepeatedTrailingAndLeadingCharsAsSectionsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17584,7 +17584,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepatedLeadingAndTrailingCharsZ()
-		return This.RepeatedLeadingAndTrailingCharsCSZ(:CaseSensitive = TRUE)
+		return This.RepeatedLeadingAndTrailingCharsCSZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17627,7 +17627,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepatedTrailingAndLeadingCharsZ()
-		return This.RepeatedTrailingAndLeadingCharsCSZ(:CaseSensitive = TRUE)
+		return This.RepeatedTrailingAndLeadingCharsCSZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17670,7 +17670,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepatedTrailingAndLeadingCharsZZ()
-		return This.RepeatedTrailingAndLeadingCharsCSZZ(:CaseSensitive = TRUE)
+		return This.RepeatedTrailingAndLeadingCharsCSZZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17726,7 +17726,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedLeadingAndTrailingChars()
-		This.RemoveRepeatedLeadingAndTrailingCharsCS(:CaseSensitive = TRUE)
+		This.RemoveRepeatedLeadingAndTrailingCharsCS(TRUE)
 
 		def RemoveRepeatedLeadingAndTrailingCharsQ()
 			This.RemoveRepeatedLeadingAndTrailingChars()
@@ -17783,7 +17783,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasRepeatedChars()
-		return This.HasRepeatedCharsCS(:CaseSensitive = TRUE)
+		return This.HasRepeatedCharsCS(TRUE)
 
 		def ContainsRepeatedChars()
 			return This.HasRepeatedChars()
@@ -17801,7 +17801,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindRepeatedChars()
-		return This.FindRepeatedCharsCS(:CaseSensitive = TRUE)
+		return This.FindRepeatedCharsCS(TRUE)
 
 		def FindRepeatedCharsZ()
 			return This.FindRepeatedChars()
@@ -17819,7 +17819,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepatedCharsZ()
-		return This.RepeatedCharsCSZ(:CaseSensitive = TRUE)
+		return This.RepeatedCharsCSZ(TRUE)
 
 		def RepeatedCharsAndTheirPositions()
 			return This.RepatedCharsZ()
@@ -17837,7 +17837,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RepatedCharsZZ()
-		return This.RepeatedCharsCSZZ(:CaseSensitive = TRUE)
+		return This.RepeatedCharsCSZZ(TRUE)
 
 		def RepeatedCharsAndTheirSecions()
 			return This.RepatedCharsZZ()
@@ -17863,14 +17863,14 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedChars()
-		return This.RemoveRepeatedCharsCS(:CaseSensitive = TRUE)
+		return This.RemoveRepeatedCharsCS(TRUE)
 
 		def RemoveRepeatedCharsQ()
 			This.RemoveRepeatedChars()
 			return This
 
 	def RepeatedCharsRemoved()
-		return This.RepeatedCharsRemovedCS(:CaseSensitive = TRUE)
+		return This.RepeatedCharsRemovedCS(TRUE)
 		
 	  #----------------------------------------------------------#
 	 #  CHECHKING IF THE STRING HAS LEADING AND TRAILING CHARS  #
@@ -17915,7 +17915,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasRepeatedLeadingAndTrailingChars()
-		return This.HasRepeatedLeadingAndTrailingCharsCS(:CaseSensitive = TRUE)
+		return This.HasRepeatedLeadingAndTrailingCharsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -18013,7 +18013,7 @@ class stzString from stzObject
 
 	def RemoveThisRepeatedLeadingChar(c)
 		if This.RepeatedLeadingCharQ().IsEqualTo(c)
-			This.RemoveThisRepeatedLeadingCharCS(c, :CaseSensitive = TRUE)
+			This.RemoveThisRepeatedLeadingCharCS(c, TRUE)
 		ok
 
 		def RemoveThisRepeatedLeadingCharQ(c)
@@ -18125,7 +18125,7 @@ class stzString from stzObject
 
 	def RemoveThisRepeatedTrailingChar(c)
 		if This.RepeatedTrailingCharQ().IsEqualTo(c)
-			This.RemoveThisRepeatedTrailingCharCS(c, :CaseSensitive = TRUE)
+			This.RemoveThisRepeatedTrailingCharCS(c, TRUE)
 		ok
 
 		def RemoveThisRepeatedTrailingCharQ(c)
@@ -18215,7 +18215,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveTheseRepeatedLeadingAndTrailingChars(c1, c2)
-		This.RemoveTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, :CaseSensitive = TRUE)
+		This.RemoveTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, TRUE)
 
 		def RemoveTheseRepeatedLeadingAndTrailingCharsQ(c1, c2)
 			This.RemoveTheseRepeatedLeadingAndTrailingChars(c1, c2)
@@ -18255,7 +18255,7 @@ class stzString from stzObject
 		/* Example:
 
 		StzStringQ("aaaAAAH RING!").
-		ReplaceEachLeadingCharCS( :With = "O", :CS = TRUE)
+		ReplaceEachLeadingCharCS( :With = "O", TRUE)
 		--> Gives: "OOOAAAH RING!"
 
 		StzStringQ("aaaAVAR").
@@ -18321,7 +18321,7 @@ class stzString from stzObject
 
 	def ReplaceEachRepeatedLeadingChar(cNewSubStr)
 
-		This.ReplaceEachRepeatedLeadingCharCS(cNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceEachRepeatedLeadingCharCS(cNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -18372,7 +18372,7 @@ class stzString from stzObject
 		/* Example:
 
 		StzStringQ("RINGaaaAAA").
-		ReplaceEachRepeatedTrailingCharCS( :With = "O", :CS = TRUE)
+		ReplaceEachRepeatedTrailingCharCS( :With = "O", TRUE)
 		--> Gives: "RINGaaaOOO"
 
 		StzStringQ("RINGaaaAAA").
@@ -18439,7 +18439,7 @@ class stzString from stzObject
 
 	def ReplaceEachRepeatedTrailingChar(cNewSubStr)
 
-		This.ReplaceEachRepeatedTrailingCharCS(cNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceEachRepeatedTrailingCharCS(cNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -18628,7 +18628,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceEachRepeatedLeadingAndTrailingChars(cNewSubStr)
-		This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceEachRepeatedLeadingAndTrailingCharsCS(cNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -18795,7 +18795,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceRepeatedLeadingChars(cNewSubStr)
-		This.ReplaceRepeatedLeadingCharsCS(cNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceRepeatedLeadingCharsCS(cNewSubStr, TRUE)
 
 		def ReplaceRepeatedLeadingCharsQ(cNewSubStr)
 			This.ReplaceRepeatedLeadingChars(cNewSubStr)
@@ -18842,7 +18842,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceRepeatedTrailingChars(cNewSubStr)
-		This.ReplaceRepeatedTrailingCharsCS(cNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceRepeatedTrailingCharsCS(cNewSubStr, TRUE)
 
 		def ReplaceRepeatedTrailingCharsQ(cNewSubStr)
 			This.ReplaceRepeatedTrailingChars(cNewSubStr)
@@ -19114,7 +19114,7 @@ class stzString from stzObject
 
 	def ReplaceThisRepeatedLeadingChar(c, cNewSubStr)
 
-		This.ReplaceThisRepeatedLeadingCharCS(c, cNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceThisRepeatedLeadingCharCS(c, cNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -19291,7 +19291,7 @@ class stzString from stzObject
 
 	def ReplaceThisRepeatedTrailingChar(c, cNewSubStr)
 
-		This.ReplaceThisRepeatedTrailingCharCS(c, cNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceThisRepeatedTrailingCharCS(c, cNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -19457,7 +19457,7 @@ class stzString from stzObject
 
 	def ReplaceTheseRepeatedLeadingAndTrailingChars(c1, c2, cNewSubStr)
 
-		These.ReplaceTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, :CaseSensitive = TRUE)
+		These.ReplaceTheseRepeatedLeadingAndTrailingCharsCS(c1, c2, cNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -19828,7 +19828,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Section(n1, n2)
-		return This.SectionCS(n1, n2, :CaseSensitive = TRUE)
+		return This.SectionCS(n1, n2, TRUE)
 
 		def SectionQ(n1, n2)
 			return new stzString(This.Section(n1, n2))
@@ -19853,7 +19853,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def SectionXT(n1, n2)
-		return This.SectionCSXT(n1, n2, :CaseSensitive = TRUE)
+		return This.SectionCSXT(n1, n2, TRUE)
 
 		def SliceXT(n1, n2)
 			return SectionXT(n1, n2)
@@ -20057,7 +20057,7 @@ class stzString from stzObject
 	#-- WTIHOUT CASESENSITIVITY
 
 	def Range(nStartPos, nRange)
-		return This.RangeCS(nStartPos, nRange, :CaseSensitive = TRUE)
+		return This.RangeCS(nStartPos, nRange, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -20069,21 +20069,21 @@ class stzString from stzObject
 		#< @FunctionNamedParamForm
 
 		def nmdRange(paParams)
-			return This.nmdRangeCS(paParams, :CaseSensitive = TRUE)
+			return This.nmdRangeCS(paParams, TRUE)
 
 		#>
 
 		#< @FunctionInfoForm
 
 		def infRange()
-			return This.infRangeCS(:CaseSensitive = TRUE)
+			return This.infRangeCS(TRUE)
 
 		#>
 
 		#< @FunctionDefaultForm
 
 		def dftRange()
-			return This.dftRangeCS(:CaseSensitive = TRUE)
+			return This.dftRangeCS(TRUE)
 
 
 		#>
@@ -20091,24 +20091,24 @@ class stzString from stzObject
 		#< @FunctionExampleForm
 
 		def expRange()
-			return This.expRangeCS(:CaseSensitive = TRUE)
+			return This.expRangeCS(TRUE)
 
 		#>
 
 		#< @FunctionRandomForm
 
 		def rndRange()
-			return This.rndRangeCS(:CaseSensitive = TRUE)
+			return This.rndRangeCS(TRUE)
 
 		#>
 
 		#< @FunctionTestForm
 
 		def tstRange()
-			return This.tstRangeCS(:CaseSensitive = TRUE)
+			return This.tstRangeCS(TRUE)
 
 		def tstRangeXT()
-			return This.tstRangeCSXT(:CaseSensitive = TRUE)
+			return This.tstRangeCSXT(TRUE)
 
 		#>
 
@@ -20123,7 +20123,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RangeXT(nStartPos, nRange)
-		return This.RangeCSXT(nStartPos, nRange, :CaseSensitive = TRUE)
+		return This.RangeCSXT(nStartPos, nRange, TRUE)
 
 	  #---------------------------------------#
 	 #   GETIING MANY SECTIONS (OR SLICES)   # TODO: Add CaseSensitivity
@@ -20632,7 +20632,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SectionsFromTo(pcSubStr1, pcSubStr2)
-		return This.SectionsFromToCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+		return This.SectionsFromToCS(pcSubStr1, pcSubStr2, TRUE)
 
 		def AllPossibleSectionsFromTo(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SectionsFromTo(pcSubStr1, pcSubStr2)
@@ -20969,14 +20969,14 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def InsertBefore(nPos, pcSubStr)
-		This.InsertBeforeCS(nPos, pcSubStr, :CaseSensitive = TRUE)
+		This.InsertBeforeCS(nPos, pcSubStr, TRUE)
 
 		def InsertBeforeQ(nPos, pcSubStr)
 			This.InsertBefore(nPos, pcSubStr)
 			return This
 
 		def InsertSubStringBefore(nPos, pcSubStr)
-			This.InsertSubStringBeforeCS(nPos, pcSubStr, :CaseSensitive = TRUE)
+			This.InsertSubStringBeforeCS(nPos, pcSubStr, TRUE)
 
 			def InsertSubStringBeforeQ(nPos, pcSubStr)
 				This.InsertSubStringBefore(nPos, pcSubStr)
@@ -21487,7 +21487,7 @@ class stzString from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertBeforeSubstring(pcSubStr, pcNewSubStr)
-		This.InsertBeforeSubstringCS(pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.InsertBeforeSubstringCS(pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -21591,7 +21591,7 @@ class stzString from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertBeforeNthOccurrence(n, pcSubStr, pcNewSubStr)
-		This.InsertBeforeNthOccurrenceCS(n, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.InsertBeforeNthOccurrenceCS(n, pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -21648,7 +21648,7 @@ class stzString from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertBeforeFirstOccurrence(pcSubStr, pcNewSubStr)
-		This.InsertBeforeFirstOccurrenceCS(pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.InsertBeforeFirstOccurrenceCS(pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -21706,7 +21706,7 @@ class stzString from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertBeforeLastOccurrence(pcSubStr, pcNewSubStr)
-		This.InsertBeforeLastOccurrenceCS(pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.InsertBeforeLastOccurrenceCS(pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -21816,7 +21816,7 @@ class stzString from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertAfterSubstring(pcSubStr, pcNewSubStr)
-		This.InsertAfterSubstringCS(pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.InsertAfterSubstringCS(pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -21916,7 +21916,7 @@ class stzString from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertAfterNthOccurrence(n, pcSubStr, pcNewSubStr)
-		This.InsertAfterNthOccurrenceCS(n, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.InsertAfterNthOccurrenceCS(n, pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -21995,7 +21995,7 @@ class stzString from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertAfterFirstOccurrence(pcSubStr, pcNewSubStr)
-		This.InsertAfterFirstOccurrenceCS(pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.InsertAfterFirstOccurrenceCS(pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -22074,7 +22074,7 @@ class stzString from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertAfterLastOccurrence(pcSubStr, pcNewSubStr)
-		This.InsertAfterLastOccurrenceCS(pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.InsertAfterLastOccurrenceCS(pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -22447,7 +22447,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Replace(pcSubStr, pcNewSubStr)
-		This.ReplaceCS(pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceCS(pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 		
@@ -22679,7 +22679,7 @@ class stzString from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def ReplaceMany(pacSubstr, pcNewSubstr)
-		This.ReplaceManyCS( pacSubstr, pcNewSubstr, :CaseSensitive = TRUE )
+		This.ReplaceManyCS( pacSubstr, pcNewSubstr, TRUE )
 
 		#< @FunctionFluentFormn
 
@@ -22751,7 +22751,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceByMany(pcSubStr, pacNewSubStrings)
-		This.ReplaceByManyCS(pcSubStr, pacNewSubStrings, :CaseSensitive = TRUE)
+		This.ReplaceByManyCS(pcSubStr, pacNewSubStrings, TRUE)
 
 	  #--------------------------------------------------------------------------#
 	 #  REPLACING A SUBSTRING BY MANY SUBSTRINGS -- EXTENDED (RETURN TO FIRST)  #
@@ -22794,7 +22794,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceByManyXT(pcSubStr, pacNewSubStrings)
-		This.ReplaceByManyCSXT(pcSubStr, pacNewSubStrings, :CaseSensitive = TRUE)
+		This.ReplaceByManyCSXT(pcSubStr, pacNewSubStrings, TRUE)
 
 	  #------------------------------------------------------#
 	 #  REPLACING MANY SUBSTRINGS BY MANY OTHER SUBSTRINGS  #
@@ -22834,7 +22834,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceManyByMany(pacSubStrings, pacNewSubStrings)
-		This.ReplaceManyByManyCS(pacSubStrings, pacNewSubStrings, :CaseSensitive = TRUE)
+		This.ReplaceManyByManyCS(pacSubStrings, pacNewSubStrings, TRUE)
 
 	  #-------------------------------------------------------------------#
 	 #  REPLACING SOME OCCURRENCES OF A SUBSTRING BY AN OTHER SUBSTRING  #
@@ -22889,7 +22889,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceOccurrences(panOccurrencess, pcSubStr, pcNewSubStr)
-		This.ReplaceSomeOccurrencesCS(panOccurrencess, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceSomeOccurrencesCS(panOccurrencess, pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FuntionFluentForm
 
@@ -22973,7 +22973,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceOcuurencesByMany(panOccurrences, pcSubStr, pacNewSubStrings)
-		This.ReplaceOccurrencedByManyCS(panOccurrences, pcSubStr, pacNewSubStrings, :CaseSensitive = TRUE)
+		This.ReplaceOccurrencedByManyCS(panOccurrences, pcSubStr, pacNewSubStrings, TRUE)
 
 		#< @FuntionFluentForm
 
@@ -23030,7 +23030,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubStringAtPositionN(n, pcSubStr, pcNewSubStr)
-		This.ReplaceSubStringAtPositionNCS(n, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceSubStringAtPositionNCS(n, pcSubStr, pcNewSubStr, TRUE)
 
 		def ReplaceSubStringAtPositionNQ(n, pcSubStr, pcNewSubStr)
 			This.ReplaceSubStringAtPositionN(n, pcSubStr, pcNewSubStr)
@@ -23069,7 +23069,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubStringAtPositions(panPositions, pcSubStr, pcNewSubStr)
-		This.ReplaceSubStringAtPositionsCS(panPositions, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceSubStringAtPositionsCS(panPositions, pcSubStr, pcNewSubStr, TRUE)
 
 	  #-------------------------------------------------------------------------------#
 	 #   REPALCING A SUBSTRING AT A SOME GIVEN POSITIONS BY MANY OTHER SUBSTRINGS    #
@@ -23121,7 +23121,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubStringAtPositionsByMany(panPositions, pcSubStr, pacNewSubStrings)
-		This.ReplaceSubStringAtPositionsByManyCS(panPositions, pcSubStr, pacNewSubStrings, :CaseSensitive = TRUE)
+		This.ReplaceSubStringAtPositionsByManyCS(panPositions, pcSubStr, pacNewSubStrings, TRUE)
 
 		def ReplaceSubStringAtPositionsByManyQ(panPositions, pcSubStr, pacNewSubStrings)
 			This.ReplaceSubStringAtPositionsByMany(panPositions, pcSubStr, pacNewSubStrings)
@@ -23216,7 +23216,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubString@(pcSubStr, pcDynamicStr)
-		This.ReplaceSubStringCS@(pcSubStr, pcDynamicStr, :CaseSensitive = TRUE)
+		This.ReplaceSubStringCS@(pcSubStr, pcDynamicStr, TRUE)
 
 		def ReplaceSubString@Q(pcSubStr, pcDynamicStr)
 			This.ReplaceSubString@(pcSubStr, pcDynamicStr)
@@ -23305,7 +23305,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubStringW(pcSubStr, pcCondition, pcNewSubStr)
-		This.ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, TRUE)
 
 		def ReplaceSubStringWQ(pcSubStr, pcCondition, pcNewSubStr)
 			This.ReplaceSubStringW(pcSubStr, pcCondition, pcNewSubStr)
@@ -23365,7 +23365,7 @@ class stzString from stzObject
 	#--- WITHOUT CASESENSITIVITY
 
 	def ReplaceBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
-		return This.ReplaceBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, :CaseSensitive = TRUE)
+		return This.ReplaceBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, TRUE)
 
 		#< @FunctionAlternativeForm # (look to other in bottom of file)
 
@@ -23384,7 +23384,7 @@ class stzString from stzObject
 				return This
 
 		def ReplaceSubStringBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
-			This.ReplaceSubstringBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, :CaseSensitive = TRUE)
+			This.ReplaceSubstringBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, TRUE)
 
 			def ReplaceSubStringBoundedByQ(pcSubStr, pacBounds, pcNewSubStr)
 				This.ReplaceSubStringBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
@@ -23394,7 +23394,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringInBetweenReplaced(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
-		return This.SubStringInBetweenReplacedCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, :CaseSensitive = TRUE)
+		return This.SubStringInBetweenReplacedCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, TRUE)
 
 		def InBetweenReplaced(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
 			return This.SubStringInBetweenReplaced(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
@@ -23465,7 +23465,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceBetweenIB(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
-		This.ReplaceBetweenCSIB(pcSubStr, pcBound1, pcBound2, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceBetweenCSIB(pcSubStr, pcBound1, pcBound2, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -23485,7 +23485,7 @@ class stzString from stzObject
 				return This
 
 		def ReplaceBoundedByIB(pcSubStr, pacBounds, pcNewSubStr)
-			This.ReplaceBoundedByCSIB(pcSubStr, pacBounds, pcNewSubStr, :CaseSensitive = TRUE)
+			This.ReplaceBoundedByCSIB(pcSubStr, pacBounds, pcNewSubStr, TRUE)
 
 			def ReplaceBoundedByIBQ(pcSubStr, pacBounds, pcNewSubStr)
 				This.ReplaceBoundedByIB(pcSubStr, pacBounds, pcNewSubStr)
@@ -23507,7 +23507,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def SubStringBoundedByIB(pcSubStr, pacBounds, pcNewSubStr)
-			return This.SubStringBoundedByCSIB(pcSubStr, pacBounds, pcNewSubStr, :CaseSensitive = TRUE)
+			return This.SubStringBoundedByCSIB(pcSubStr, pacBounds, pcNewSubStr, TRUE)
 
 		#>	
 
@@ -23828,7 +23828,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceXT(p1, p2, p3)
-		This.ReplaceCSXT(p1, p2, p3, :CaseSensitive = TRUE)
+		This.ReplaceCSXT(p1, p2, p3, TRUE)
 
 	  #-----------------------------------------------------------------------#
 	 #  REPLACING ALL SUBSTRINGS EXCEPT THOSE PROVIDED BY A GIVEN SUBSTRING  #
@@ -23873,7 +23873,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubStringsExcept(pacSubStr, pcNewSubStr)
-		This.ReplaceSubStringsExceptCS(pacSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceSubStringsExceptCS(pacSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -23921,7 +23921,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 	
 	def SubStringsMadeOf(pcSubStr)
-		return This.SubStringsMadeOfCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.SubStringsMadeOfCS(pcSubStr, TRUE)
 	
 		def MadeOf(pcSubStr)
 			return This.SubStringsMadeOf(pcSubStr)
@@ -23941,7 +23941,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 	
 	def SubStringsMadeOfXT(pcSubStr)
-		return This.SubStringsMadeOfCSXT(pcSubStr, :CaseSensitive = TRUE)
+		return This.SubStringsMadeOfCSXT(pcSubStr, TRUE)
 	
 		def MadeOfXT(pcSubStr)
 			return This.SubStringsMadeOfXT(pcSubStr)
@@ -24007,7 +24007,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindMadeOf(pcSubStr)
-		return This.FindMadeOfCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindMadeOfCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -24137,7 +24137,7 @@ class stzString from stzObject
 	#--  WITHOUT CASESENSITIVITY
 
 	def FindMadeOfAsSections(pcSubStr)
-		return This.FindMadeOfAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindMadeOfAsSectionsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -24274,7 +24274,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyBetween(pcBound1, pcBound2, pcNewSubStr)
-		return This.ReplaceAnyBetweenCS(pcBound1, pcBound2, pcNewSubStr, :CaseSensitive = TRUE)
+		return This.ReplaceAnyBetweenCS(pcBound1, pcBound2, pcNewSubStr, TRUE)
 
 		def ReplaceAnyBetweenQ(pcBound1, pcBound2, pcNewSubStr)
 			This.ReplaceAnyBetween(pcBound1, pcBound2, pcNewSubStr)
@@ -24283,7 +24283,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms: SeeBottomOfFile >
 
 	def SubStringsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-		acResult = This.Copy().ReplaceAnyBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, :CS = TRUE).Content()
+		acResult = This.Copy().ReplaceAnyBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, TRUE).Content()
 		return acResult
 
 	  #--------------------------------------------------------------------#
@@ -24320,7 +24320,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms: SeeBottomOfFile >
 
 	def SubStringsBetweenReplacedCSXT(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceBetweenCSIBQ(pcBound1, pcBound2, pcNewSubStr, :CS = TRUE).Content()
+		acResult = This.Copy().ReplaceBetweenCSIBQ(pcBound1, pcBound2, pcNewSubStr, TRUE).Content()
 		return acResult
 
 		#< @FunctionAlternativeForms: SeeBottomOfFile >
@@ -24328,12 +24328,12 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceAnyBetweenIB(pcBound1, pcBound2, pcNewSubStr)
-		return This.ReplaceAnyBetweenCSIB(pcBound1, pcBound2, pcNewSubStr, :CaseSensitive = TRUE)
+		return This.ReplaceAnyBetweenCSIB(pcBound1, pcBound2, pcNewSubStr, TRUE)
 
 		#< @FunctionAlternativeForms: SeeBottomOfFile >
 
 	def SubStringsBetweenReplacedXT(pcBound1, pcBound2, pcNewSubStr)
-		acResult = This.Copy().ReplaceBetweenCSIBQ(pcBound1, pcBound2, pcNewSubStr, :CS = TRUE).Content()
+		acResult = This.Copy().ReplaceBetweenCSIBQ(pcBound1, pcBound2, pcNewSubStr, TRUE).Content()
 		return acResult
 
 		#< @FunctionAlternativeForms: SeeBottomOfFile >
@@ -24679,7 +24679,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNthOccurrence(n, pcSubStr, pcNewSubStr)
-		This.ReplaceNthOccurrenceCS(n, pcSubStr, pcNewSubStr, :Casesensitive = TRUE)
+		This.ReplaceNthOccurrenceCS(n, pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -24731,7 +24731,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceFirstOccurrence(pcSubStr, pcNewSubStr)
-		This.ReplaceFirstOccurrenceCS(pcSubStr, pcNewSubStr, :Casesensitive = TRUE)
+		This.ReplaceFirstOccurrenceCS(pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -24787,7 +24787,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceLastOccurrence(pcSubStr, pcNewSubStr)
-		This.ReplaceLastOccurrenceCS(pcSubStr, pcNewSubStr, :Casesensitive = TRUE)
+		This.ReplaceLastOccurrenceCS(pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -24877,7 +24877,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextNthOccurrence(n, pcSubStr, nStart, pcNewSubStr)
-		This.ReplaceNextNthOccurrenceCS(n, pcSubStr, nStart, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceNextNthOccurrenceCS(n, pcSubStr, nStart, pcNewSubStr, TRUE)
 
 		def ReplaceNextNthOccurrenceQ(n, pcSubStr, nStart, pcNewSubStr)
 			This.ReplaceNextNthOccurrence(n, pcSubStr, nStart, pcNewSubStr)
@@ -24910,7 +24910,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextOccurrence(pcSubStr, nStart, pcNewSubStr)
-		This.ReplaceNextNthOccurrenceCS(1, pcSubStr, nStart, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceNextNthOccurrenceCS(1, pcSubStr, nStart, pcNewSubStr, TRUE)
 
 		def ReplaceNextOccurrenceQ(pcSubStr, nStart, pcNewSubStr)
 			This.ReplaceNextOccurrence(pcSubStr, nStart, pcNewSubStr)
@@ -24993,7 +24993,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousNthOccurrence(n, pcSubStr, nStart, pcNewSubStr)
-		This.ReplacePreviousNthOccurrenceCS(n, pcSubStr, nStart, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplacePreviousNthOccurrenceCS(n, pcSubStr, nStart, pcNewSubStr, TRUE)
 
 		def ReplacePreviousNthOccurrenceQ(n, pcSubStr, nStart, pcNewSubStr)
 			This.ReplacePreviousNthOccurrence(n, pcSubStr, nStart, pcNewSubStr)
@@ -25027,7 +25027,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousOccurrence(pcSubStr, nStart, pcNewSubStr)
-		This.ReplacePreviousNthOccurrenceCS(1, pcSubStr, nStart, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplacePreviousNthOccurrenceCS(1, pcSubStr, nStart, pcNewSubStr, TRUE)
 
 		def ReplacePreviousOccurrenceQ(pcSubStr, nStart, pcNewSubStr)
 			This.ReplacePreviousOccurrence(pcSubStr, nStart, pcNewSubStr)
@@ -25064,7 +25064,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceFirstNOccurrences(n, pcSubStr, pcNewSubStr)
-		This.ReplaceFirstNOccurrencesCS(n, pcSubStr, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceFirstNOccurrencesCS(n, pcSubStr, pcNewSubStr, TRUE)
 
 		def ReplaceFirstNOccurrencesQ(n, pcSubStr, pcNewSubStr)
 			This.ReplaceFirstNOccurrences(n, pcSubStr, pcNewSubStr)
@@ -25176,7 +25176,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisNthChar(n, cChar, pcSubStr)
-		This.ReplaceThisNthCharCS(n, cChar, pcSubStr, :CaseSensitive = TRUE)
+		This.ReplaceThisNthCharCS(n, cChar, pcSubStr, TRUE)
 
 		def ReplaceThisNthCharQ(n, cChar, pcSubStr)
 			This.ReplaceThisNthChar(n, cChar, pcSubStr)
@@ -25213,7 +25213,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisFirstChar(c, pcSubStr)
-		This.ReplaceThisFirstCharCSQ(c, pcSubStr, :CaseSensitive = TRUE)
+		This.ReplaceThisFirstCharCSQ(c, pcSubStr, TRUE)
 
 		def ReplaceThisFirstCharQ(c, pcSubStr)
 			This.ReplaceThisFirstChar(c, pcSubStr)
@@ -25250,7 +25250,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceThisLastChar(c, pcSubStr)
-		This.ReplaceThisLastCharCSQ(c, pcSubStr, :CaseSensitive = TRUE)
+		This.ReplaceThisLastCharCSQ(c, pcSubStr, TRUE)
 
 		def ReplaceThisLastCharQ(c, pcSubStr)
 			This.ReplaceThisLastChar(c, pcSubStr)
@@ -25651,7 +25651,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def StartsWith(pcSubStr)
-		return This.StartsWithCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.StartsWithCS(pcSubStr, TRUE)
 
 		def BeginsWith(pcSubStr)
 			return This.StartsWith(pcSubStr)
@@ -25678,7 +25678,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESNESITIVITY
 
 	def BeginsWithOneOfThese(paSubStr)
-		return This.BeginsWithOneOfTheseCS(paSubStr, :CaseSensitive = TRUE)
+		return This.BeginsWithOneOfTheseCS(paSubStr, TRUE)
 
 		def StartsWithOneOfThese(paSubStr)
 			return This.BeginsWithOneOfThese(paSubStr)
@@ -25701,7 +25701,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def StartsWithEither(pSubStr1, pSubStr2)
-		return This.StartsWithEitherCS(pSubStr1, pSubStr2, :CaseSensitive = TRUE)
+		return This.StartsWithEitherCS(pSubStr1, pSubStr2, TRUE)
 
 	  #----------------------------------------------------------#
 	 #  CHECKS IF THE STRING ENDS WITH A GIVEN GIVEN SUBSTRING  #
@@ -25772,7 +25772,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def EndsWithOneOfThese(paSubStr)
-		return This.BeginsWithOneOfTheseCS(paSubStr, :CaseSensitive = TRUE)
+		return This.BeginsWithOneOfTheseCS(paSubStr, TRUE)
 
 		def FinsihsWithOneOfThese(paSubStr)
 			return This.EndsWithOneOfThese(paSubStr)
@@ -25791,7 +25791,7 @@ class stzString from stzObject
 	#-- WTHOUT CASESENSITIVITY
 
 	def EndsWithEither(pSubStr1, pSubStr2)
-		return This.EndsWithEitherCS(pSubStr1, pSubStr2, :CaseSensitive = TRUE)
+		return This.EndsWithEitherCS(pSubStr1, pSubStr2, TRUE)
 
 	  #====================================================#
 	 #  GETTING THE SUBSTRING OCCURRENCE BY ITS POSITION  #
@@ -25820,7 +25820,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringOccurrenceByPosition(nPos, pcSubStr)
-		return This.SubStringOccurrenceByPositionCS(nPos, pcSubStr, :CaseSensitive = TRUE)
+		return This.SubStringOccurrenceByPositionCS(nPos, pcSubStr, TRUE)
 
 	  #=============================================#
 	 #   FINDING THE NTH OCCURRENCE OF SUBSTRING   #
@@ -25903,7 +25903,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNth(n, pcSubstr)
-		return This.FindNthCS(n, pcSubstr, :CaseSensitive = TRUE)
+		return This.FindNthCS(n, pcSubstr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -25953,7 +25953,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthAsSection(n, pcSubStr)
-		return This.FindNthAsSectionCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindNthAsSectionCS(n, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26017,7 +26017,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstAsSection(pcSubStr)
-		return This.FindFirstAsSectionCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindFirstAsSectionCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -26088,7 +26088,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastAsSection(pcSubStr)
-		return This.FindLastAsSectionCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindLastAsSectionCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -26145,7 +26145,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AntiFindZZ(pcSubStr)
-		return This.AntiFindAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.AntiFindAsSectionsCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26187,7 +26187,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AntiFindAsSection(pcSubStr)
-		return This.AntiFindAsSectionCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.AntiFindAsSectionCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26257,7 +26257,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthAsSectionDZZ(n, pcSubStr, pcDirection)
-		return This.FindNthAsSectionDCS(n, pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindNthAsSectionDCS(n, pcSubStr, pcDirection, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26295,7 +26295,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstDZZ(pcSubStr, pcDirection)
-		return This.FindFirstDCSZZ(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindFirstDCSZZ(pcSubStr, pcDirection, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26333,7 +26333,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastADZZ(pcSubStr, pcDirection)
-		return This.FindLastDCSZZ(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindLastDCSZZ(pcSubStr, pcDirection, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26395,7 +26395,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSDZZ(n, pcSubStr, pnStartingAt, pcDirection)
-		return This.FindNthDCSZZ(n, pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindNthDCSZZ(n, pcSubStr, pcDirection, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26433,7 +26433,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSDZZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindFirstSDCSZZ(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindFirstSDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26472,7 +26472,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSDZZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindLastSDCSZZ(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindLastSDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26514,7 +26514,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthAsSectionS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindNthAsSectionSCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindNthAsSectionSCS(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26552,7 +26552,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstAsSectionS(pcSubStr, pnStartingAt)
-		return This.FindFirstAsSectionSCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindFirstAsSectionSCS(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26590,7 +26590,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastAsSectionS(pcSubStr, pnStartingAt)
-		return This.FindLastAsSectionSCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindLastAsSectionSCS(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26628,7 +26628,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NthZ(n, pcSubStr)
-		return This.NthCSZ(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.NthCSZ(n, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26666,7 +26666,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NthZZ(n, pcSubStr)
-		return This.FindNthCSZZ(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindNthCSZZ(n, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -26702,7 +26702,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthS(n, pcsubStr, pnStartingAt)
-		return This.FindNthSCS(n, pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindNthSCS(n, pcSubStr, pnStartingAt, TRUE)
 
 		def FindNthSZ(n, pcsubStr, pnStartingAt)
 			return This.FindNthS(n, pcsubStr, pnStartingAt)
@@ -26781,7 +26781,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstS(pcSubStr, pnStartingAt)
-		return This.FindFirstSCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindFirstSCS(pcSubStr, pnStartingAt, TRUE)
 
 		def FindFirstSZ(pcSubStr, pnStartingAt)
 			return This.FindFirstS(pcSubStr, pnStartingAt)
@@ -26799,7 +26799,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastS(pcSubStr, pnStartingAt)
-		return This.FindLastSCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindLastSCS(pcSubStr, pnStartingAt, TRUE)
 
 		def FindLastSZ(pcSubStr, pnStartingAt)
 			return This.FindLastS(pcSubStr, pnStartingAt)
@@ -26921,7 +26921,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSD(n, pcSubStr, pnStartingAt, pcDirection)
-		return This.FindNthSDCS(n, pcSubStr, pnStartingAt, pcDirection, :CS = TRUE)
+		return This.FindNthSDCS(n, pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 		def FindNthSDZ(n, pcSubStr, pnStartingAt, pcDirection)
 			return This.FindNthSD(n, pcSubStr, pnStartingAt, pcDirection)
@@ -26940,7 +26940,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSD(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindFirstSDCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindFirstSDCS(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 		def FindFirstSDZ(pcSubStr, pnStartingAt, pcDirection)
 			return This.FindFirstSD(pcSubStr, pnStartingAt, pcDirection)
@@ -26959,7 +26959,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSD(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindLastSDCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindLastSDCS(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 		def FindLastSDZ(pcSubStr, pnStartingAt, pcDirection)
 			return This.FindLastSD(pcSubStr, pnStartingAt, pcDirection)
@@ -26985,7 +26985,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NthSZ(n, pcsubStr, pnStartingAt)
-		return This.NthSCSZ(n, pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.NthSCSZ(n, pcSubStr, pnStartingAt, TRUE)
 
 		def NthSubStringSZ(n, pcSubStr, pnStartingAt)
 			return This.NthSZ(n, pcSubStr, pnStartingAt, pCaseSensitive)
@@ -27003,7 +27003,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstSZ(pcSubStr, pnStartingAt)
-		return This.FirstSCSZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FirstSCSZ(pcSubStr, pnStartingAt, TRUE)
 
 		def FirstSubstringSZ(pcSubStr, pnStartingAt)
 			return This.FirstSZ(pcSubStr, pnStartingAt)
@@ -27025,7 +27025,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastSZ(pcSubStr, pnStartingAt)
-		return This.LastSCSZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.LastSCSZ(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -27063,7 +27063,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NthSZZ(n, pcsubStr, pnStartingAt)
-		return This.NthSCSZZ(n, pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.NthSCSZZ(n, pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -27101,7 +27101,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstSZZ(pcSubStr, pnStartingAt)
-		return This.FirstSCSZZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FirstSCSZZ(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -27140,7 +27140,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastSZZ(pcSubStr, pnStartingAt)
-		return This.LastSCSZZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.LastSCSZZ(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -27172,7 +27172,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NthSDZ(n, pcSubStr, pnStartingAt, pcDirection)
-		return This.NthSDCSZ(n, pcSubStr, pnStartingAt, pcDirection, :CS = TRUE)
+		return This.NthSDCSZ(n, pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 		def NthSubStringSDZ(n, pcSubStr, pnStartingAt, pcDirection)
 			return This.NthSDZ(n, pcSubStr, pnStartingAt, pcDirection)
@@ -27192,7 +27192,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstSDZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FirstSDCSZ(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FirstSDCSZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 		def FirstSubStringSDZ(pcSubStr, pnStartingAt, pcDirection)
 			return This.FirstSDZ(pcSubStr, pnStartingAt, pcDirection)
@@ -27213,7 +27213,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastSDZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.LastSDCSZ(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.LastSDCSZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 		def LastSubStringSD(pcSubStr, pnSartingAt, pcDirection)
 			return This.LastSDZ(pcSubstr, pnStartingAt, pcDirection)
@@ -27246,7 +27246,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NthSDZZ(n, pcSubStr, pnStartingAt, pcDirection)
-		return This.NthSDCSZZ(n, pcSubStr, pnStartingAt, pcDirection, :CS = TRUE)
+		return This.NthSDCSZZ(n, pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 		#< @FunctionAlternativeFrom
 
@@ -27285,7 +27285,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstSDZZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindFirstSDCSZZ(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindFirstSDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 
 		def FirstSubStringSDZZ(pcSubStr, pnStartingAt, pcDirection)
@@ -27325,7 +27325,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastSDZZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.LastSDCSZZ(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.LastSDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -27407,7 +27407,7 @@ class stzString from stzObject
 	#-- WTIHOUT CASESENSITIVITY
 
 	def FindNthXT(n, pcSubStr, paOption)
-		return This.FindNthCSXT(n, pcSubStr, paOption, :CaseSensitive = TRUE)
+		return This.FindNthCSXT(n, pcSubStr, paOption, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -27445,7 +27445,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstXT(pcSubStr, paOption)
-		return This.FindFirstCSXT(pcSubStr, paOption, :CaseSensitive = TRUE)
+		return This.FindFirstCSXT(pcSubStr, paOption, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -27483,7 +27483,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastXT(pcSubStr, paOption)
-		return This.FindLastCSXT(pcSubStr, paOption, :CaseSensitive = TRUE)
+		return This.FindLastCSXT(pcSubStr, paOption, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -27588,7 +27588,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirst(pcSubstr)
-		return This.FindFirstCS(pcSubstr, :CaseSensitive = TRUE)
+		return This.FindFirstCS(pcSubstr, TRUE)
 	
 		#< @FunctionAlternativeForms
 	
@@ -27649,7 +27649,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstZ(pcSubStr)
-		return This.FindFirstCSZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindFirstCSZ(pcSubStr, TRUE)
 
 		def FirstSubstringZ(pcSubStr)
 			return This.FirstZ(pcSubStr)
@@ -27688,7 +27688,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstZZ(pcSubStr)
-		return This.FindFirstCSZZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindFirstCSZZ(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -27741,7 +27741,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthD(n, pcSubStr, pcDirection)
-		return This.FindNthDCS(n, pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindNthDCS(n, pcSubStr, pcDirection, TRUE)
 
 	  #---------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING -- D-EXTENDED  #
@@ -27755,7 +27755,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstD(pcSubStr, pcDirection)
-		return This.FindFirstDCS(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindFirstDCS(pcSubStr, pcDirection, TRUE)
 
 	  #--------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A SUBSTRING -- D-EXTENDED  #
@@ -27769,7 +27769,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastD(pcSubStr, pcDirection)
-		return This.FindLastDCS(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindLastDCS(pcSubStr, pcDirection, TRUE)
 
 	  #--------------------------------------------------------#
 	 #  GETTING NTH OCCURRENCE OF A SUBSTRING -- DZ-EXTENDED  #
@@ -27783,7 +27783,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NthDZ(n, pcSubStr, pcDirection)
-		return This.FindNthDCSZ(n, pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindNthDCSZ(n, pcSubStr, pcDirection, TRUE)
 
 	  #----------------------------------------------------------#
 	 #  GETTING FIRST OCCURRENCE OF A SUBSTRING -- DZ-EXTENDED  #
@@ -27796,7 +27796,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstDZ(pcSubStr, pcDirection)
-		return This.FindFirstDCSZ(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindFirstDCSZ(pcSubStr, pcDirection, TRUE)
 
 		#< @FunctionMisspelledForm
 
@@ -27816,7 +27816,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastDZ(pcSubStr, pcDirection)
-		return This.FindLastDCSZ(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindLastDCSZ(pcSubStr, pcDirection, TRUE)
 
 	  #---------------------------------------------------------#
 	 #  GETTING NTH OCCURRENCE OF A SUBSTRING -- DZZ-EXTENDED  #
@@ -27830,7 +27830,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NthDZZ(n, pcSubStr, pcDirection)
-		return This.FindNthDCSZZ(n, pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindNthDCSZZ(n, pcSubStr, pcDirection, TRUE)
 
 	  #-----------------------------------------------------------#
 	 #  GETTING FIRST OCCURRENCE OF A SUBSTRING -- DZZ-EXTENDED  #
@@ -27843,7 +27843,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstDZZ(pcSubStr, pcDirection)
-		return This.FindFirstDCSZZ(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindFirstDCSZZ(pcSubStr, pcDirection, TRUE)
 
 		#< @FunctionMisspelledForm
 
@@ -27863,7 +27863,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastDZZ(pcSubStr, pcDirection)
-		return This.LastDCSZZ(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.LastDCSZZ(pcSubStr, pcDirection, TRUE)
 
 	  #=================================================#
 	 #      FINDING LAST OCCURRENCE OF A SUBSTRING     #
@@ -27949,7 +27949,7 @@ class stzString from stzObject
 		#>
 
 	def FindLast(pcSubStr)
-		return This.FindLastCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindLastCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -28035,7 +28035,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastZ(pcSubStr)
-		return This.FindLastCSZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindLastCSZ(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -28076,7 +28076,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LastZZ(pcSubStr)
-		return This.LastCSZZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.LastCSZZ(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -28138,7 +28138,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrences(panOccurr, pcSubStr)
-		return This.FindTheseOccurrencesCS(panOccurr, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindTheseOccurrencesCS(panOccurr, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -28176,7 +28176,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrencesZZ(panOccurr, pcSubStr)
-		return This.FindTheseOccurrencesCSZZ(panOccurr, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindTheseOccurrencesCSZZ(panOccurr, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -28244,7 +28244,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrencesSD(panOccurr, pcSubStr, pnStartingAt, pcDirection)
-		return This.FindTheseOccurrencesSDCS(panOccurr, pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindTheseOccurrencesSDCS(panOccurr, pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -28283,7 +28283,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrencesAsSectionsSD(panOccurr, pcSubStr, pnStartingAt, pcDirection)
-		return This.FindTheseOccurrencesAsSectionsSDCS(panOccurr, pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindTheseOccurrencesAsSectionsSDCS(panOccurr, pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -28311,7 +28311,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrencesS(panOccurr, pcSubStr, pnStartingAt)
-		return This.FindTheseOccurrencesSCS(panOccurr, pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindTheseOccurrencesSCS(panOccurr, pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -28340,7 +28340,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrencesAsSectionsS(panOccurr, pcSubStr, pnStartingAt)
-		return This.FindTheseOccurrencesAsSectionsSCS(panOccurr, pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindTheseOccurrencesAsSectionsSCS(panOccurr, pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -28394,7 +28394,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrencesD(panOccurr, pcSubStr, pcDirection)
-		return This.FindTheseOccurrencesDCS(panOccurr, pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindTheseOccurrencesDCS(panOccurr, pcSubStr, pcDirection, TRUE)
 
 		def FindTheseOccurrencesDZ(panOccurr, pcSubStr, pcDirection)
 			return This.FindTheseOccurrencesD(panOccurr, pcSubStr, pcDirection)
@@ -28434,7 +28434,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrencesAsSectionsD(panOccurr, pcSubStr, pcDirection)
-		return This.FindTheseOccurrencesAsSectionsDCS(panOccurr, pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindTheseOccurrencesAsSectionsDCS(panOccurr, pcSubStr, pcDirection, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -28474,7 +28474,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllNext(pcSubStr, pnStartingAt)
-		aResult = This.FindAllNext(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		aResult = This.FindAllNext(pcSubStr, pnStartingAt, TRUE)
 		return aResult
 
 		def FindAllNextZ(pcSubStr, pnStartingAt)
@@ -28505,7 +28505,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllPrevious(pcSubStr, pnStartingAt)
-		aResult = This.FindAllPreviousCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		aResult = This.FindAllPreviousCS(pcSubStr, pnStartingAt, TRUE)
 		return aResult
 
 		def FindAllPreviousZ(pcSubStr, pnStartingAt)
@@ -28579,7 +28579,7 @@ class stzString from stzObject
 	#-- WYHOUT CASESENSITIVITY
 
 	def FindNthNext(n, pcSubStr, nStart)
-		return This.FindNthNextCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+		return This.FindNthNextCS(n, pcSubStr, nStart, TRUE)
 
 		def FindNthNextZ(n, pcSubStr, nStart)
 			return This.FindNthNext(n, pcSubStr, nStart)
@@ -28605,7 +28605,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 	
 	def FindNthNextAsSection(n, pcSubStr, nStart )
-		return This.FindNthNextAsSectionCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+		return This.FindNthNextAsSectionCS(n, pcSubStr, nStart, TRUE)
 	
 		#< @FunctionAlternativeForm
 
@@ -28715,7 +28715,7 @@ class stzString from stzObject
 			return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
 
 	def FindNthPrevious(n, pcSubStr, nStart)
-		return This.FindNthPreviousCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+		return This.FindNthPreviousCS(n, pcSubStr, nStart, TRUE)
 
 		def FindNthPreviousZ(n, pcSubStr, nStart)
 			return This.FindNthPrevious(n, pcSubStr, nStart)
@@ -28737,7 +28737,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 	
 	def FindNthPreviousAsSection(n, pcSubStr, nStart )
-		return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+		return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, TRUE)
 
 		def FindNthPreviousZZ(n, pcSubStr, nStart )
 			return This.FindNthPreviousAsSection(n, pcSubStr, nStart )
@@ -28822,7 +28822,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNext(pcSubStr, nStart)
-		return This.FindNextCS(pcSubStr, nStart, :CaseSensitive = TRUE)
+		return This.FindNextCS(pcSubStr, nStart, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -28876,7 +28876,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindPrevious(pcSubStr, nStart)
-		return This.FindPreviousCS(pcSubStr, nStart, :CaseSensitive = TRUE)
+		return This.FindPreviousCS(pcSubStr, nStart, TRUE)
 	
 		#< @FunctionAlternativeForm
 
@@ -29012,7 +29012,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Find(pcSubStr)
-		return This.FindCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -29020,7 +29020,7 @@ class stzString from stzObject
 			return This.FindQR(pcSubStr, :stzList)
 		
 		def FindQR(pcSubStr, pcReturnType)
-				return This.FindCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+				return This.FindCSQR(pcSubStr, TRUE, pcReturnType)
 
 		#>
 
@@ -29055,7 +29055,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringZ(pcSubStr)
-		return This.SubStringCSZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.SubStringCSZ(pcSubStr, TRUE)
 
 	  #------------------------------------------#
 	 #  GETTING THE SUBSTRING AND ITS SECTIONS  #
@@ -29081,7 +29081,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringZZ(pcSubStr)
-		return This.SubStringCSZZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.SubStringCSZZ(pcSubStr, TRUE)
 
 	  #--------------------------------------------------#
 	 #  FINDING POSITIONS OF ANTI-PARTS OF A SUBSTRING  #
@@ -29096,7 +29096,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AntiFind(pcSubStr)
-		return This.AntiFindCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.AntiFindCS(pcSubStr, TRUE)
 
 		def AntiFindZ(pcSubStr)
 			return This.AntiFind(pcSubStr)
@@ -29181,7 +29181,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindD(pcSubStr, pcDirection)
-		return This.FindDCS(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindDCS(pcSubStr, pcDirection, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -29189,7 +29189,7 @@ class stzString from stzObject
 			return This.FindDQR(pcSubStr, pcDirection, :stzList)
 		
 		def FindDQR(pcSubStr, pcDirection, pcReturnType)
-				return This.FindDCSQR(pcSubStr, pcDirection, :CaseSensitive = TRUE, pcReturnType)
+				return This.FindDCSQR(pcSubStr, pcDirection, TRUE, pcReturnType)
 
 		#>
 
@@ -29264,7 +29264,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringDZ(pcSubStr, pcDirection)
-		return This.SubStringDCSZ(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.SubStringDCSZ(pcSubStr, pcDirection, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -29272,7 +29272,7 @@ class stzString from stzObject
 			return This.SubStringDZQR(pcSubStr, pcDirection, :stzList)
 		
 		def SubStringDZQR(pcSubStr, pcDirection, pcReturnType)
-				return This.SubStringDCSZQR(pcSubStr, pcDirection, :CaseSensitive = TRUE, pcReturnType)
+				return This.SubStringDCSZQR(pcSubStr, pcDirection, TRUE, pcReturnType)
 
 		#>
 
@@ -29349,7 +29349,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringDZZ(pcSubStr, pcDirection)
-		return This.FindDCSZZ(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindDCSZZ(pcSubStr, pcDirection, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -29357,7 +29357,7 @@ class stzString from stzObject
 			return This.SubStringDZZQR(pcSubStr, pcDirection, :stzList)
 		
 		def SubStringDZZQR(pcSubStr, pcDirection, pcReturnType)
-				return This.SubStringDCSZZQR(pcSubStr, pcDirection, :CaseSensitive = TRUE, pcReturnType)
+				return This.SubStringDCSZZQR(pcSubStr, pcDirection, TRUE, pcReturnType)
 
 		#>
 
@@ -29445,7 +29445,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindS(pcSubStr, pnStartingAt)
-		return This.FindSCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindSCS(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -29514,7 +29514,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubString_SZ(pcSubStr, pnStartingAt)
-		return This.SubString_SCSZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.SubString_SCSZ(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -29522,7 +29522,7 @@ class stzString from stzObject
 			return This.SubString_SZQR(pcSubStr, pnStartingAt, :stzList)
 		
 		def SubString_SZQR(pcSubStr, pnStartingAt, pcReturnType)
-				return This.SubString_SCSZQR(pcSubStr, pnStartingAt, :CaseSensitive = TRUE, pcReturnType)
+				return This.SubString_SCSZQR(pcSubStr, pnStartingAt, TRUE, pcReturnType)
 
 		#>
 
@@ -29577,7 +29577,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubString_SZZ(pcSubStr, pnStartingAt)
-		return This.SubString_SCSZZ(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.SubString_SCSZZ(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -29585,7 +29585,7 @@ class stzString from stzObject
 			return This.SubString_SZZQR(pcSubStr, pnStartingAt, :stzList)
 		
 		def SubString_SZZQR(pcSubStr, pnStartingAt, pcReturnType)
-				return This.SubString_SCSZZQR(pcSubStr, pnStartingAt, :CaseSensitive = TRUE, pcReturnType)
+				return This.SubString_SCSZZQR(pcSubStr, pnStartingAt, TRUE, pcReturnType)
 
 		#>
 
@@ -29637,7 +29637,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVIY
 
 	def FindSD(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindSDCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindSDCS(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 	   #-------------------------------------------------------------------------------#
 	  #  FINDING ALL OCCURRENCES OF A SUBSTRING, STARTING FROM A GIVEN POSITION,      #
@@ -29660,7 +29660,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVIY
 
 	def FindSDZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindSDCSZ(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindSDCSZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 	   #-------------------------------------------------------------------------------#
 	  #  FINDING ALL OCCURRENCES OF A SUBSTRING, STARTING FROM A GIVEN POSITION,      #
@@ -29683,7 +29683,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVIY
 
 	def FindSDZZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindSDCSZZ(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindSDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 	  #-----------------------------------------------------------------------#
 	 #  FINDING OCCURRENCES OF CHARS/SUBSTRINGS VERIFYING A GIVEN CONDITION  #
@@ -29991,7 +29991,7 @@ class stzString from stzObject
 	def FindManyCS(pacSubStr, pCaseSensitive)
 		/*
 		o1 = new stzString("My name is Mansour. What's your name please?")
-		? o1.FindManyCS( [ "name", "your", "please" ], :CS = TRUE )
+		? o1.FindManyCS( [ "name", "your", "please" ], TRUE )
 
 		#--> [ [ 4, 33 ], [ 28 ], [ 38 ] ]
 
@@ -30045,7 +30045,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindMany(pacSubStr)
-		return This.FindManyCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindManyCS(pacSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -30128,7 +30128,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindManyAsSections(pacSubStr)
-		return This.FindManyAsSectionsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindManyAsSectionsCS(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -30174,7 +30174,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def TheseSubStringsZ(pacSubStr)
-		return This.TheseSubStringsCSZ(pacSubStr, :CaseSensitive = TRUE)
+		return This.TheseSubStringsCSZ(pacSubStr, TRUE)
 
 		def TheseSubStringsAndTheirPositions(pacSubStr)
 			return This.TheseSubStringsZ(pacSubStr)
@@ -30207,7 +30207,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def TheseSubStringsZZ(pacSubStr)
-		return This.TheseSubStringsCSZZ(pacSubStr, :CaseSensitive = TRUE)
+		return This.TheseSubStringsCSZZ(pacSubStr, TRUE)
 
 		def TheseSubStringsAndTheirSections(pacSubStr)
 			return This.TheseSubStringsZZ(pacSubStr)
@@ -30229,7 +30229,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindChars()
-		return This.FindCharsCS(:CaseSensitive = TRUE)
+		return This.FindCharsCS(TRUE)
 
 		def FindCharsZ()
 			return This.FindChars()
@@ -30253,7 +30253,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def CharsZ()
-		return This.CharsCSZ(:CaseSensitive = TRUE)
+		return This.CharsCSZ(TRUE)
 
 		def CharsAndTheirPositions()
 			return This.CharsZ()
@@ -30280,7 +30280,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseChars(pacChars)
-		return This.FindtheseCharsCS(pacChars, :CaseSensitive = TRUE)
+		return This.FindtheseCharsCS(pacChars, TRUE)
 
 		def FindTheseCharsZ(pacChars)
 			return This.FindChars(pacChars)
@@ -30304,7 +30304,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def TheseCharsZ(pacChars)
-		return This.TheseCharsCSZ(pacChars, :CaseSensitive = TRUE)
+		return This.TheseCharsCSZ(pacChars, TRUE)
 
 		def TheseCharsAndTheirPositions(pacChars)
 			return This.TheseCharsZ(pacChars)
@@ -30516,7 +30516,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindXT(p1, p2)
-		return This.FindCSXT(p1, p2, :CaseSensitive = TRUE)
+		return This.FindCSXT(p1, p2, TRUE)
 
 	  #=================================================#
 	 #  FINDING THINGS AS SECTIONS, THE EXTENDED FORM  #
@@ -30749,7 +30749,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def FindAsSectionsXT(p1, p2)
-		return This.FindAsSectionsCSXT(p1, p2, :CaseSensitive = TRUE)
+		return This.FindAsSectionsCSXT(p1, p2, TRUE)
 
 	  #==========================================================#
 	 #  FINDING OCCURRENCES OF A SIUBSTRING IN A GIVEN SECTION  #
@@ -30852,7 +30852,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInSection(pcSubStr, n1, n2)
-		return This.FindInSectionCS(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+		return This.FindInSectionCS(pcSubStr, n1, n2, TRUE)
 		
 		#< @FunctionAlternativeForm
 
@@ -30968,7 +30968,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInSectionZZ(pcSubStr, n1, n2)
-		return This.FindInSectionAsSectionsCS(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+		return This.FindInSectionAsSectionsCS(pcSubStr, n1, n2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -31063,7 +31063,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInSections(pcSubStr, paSections)
-		return This.FindInSectionsCS(pcSubStr, paSections, :CaseSensitive = TRUE)
+		return This.FindInSectionsCS(pcSubStr, paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -31156,7 +31156,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceInSections(pcSubStr, paSections)
-		return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, :CaseSensitive = TRUE)
+		return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, TRUE)
 
 		#< @FunctionalternativeForms
 
@@ -31252,7 +31252,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInSectionsZZ(pcSubStr, paSections)
-		return This.FindInSectionsCSZZ(pcSubStr, paSections, :CaseSensitive = TRUE)
+		return This.FindInSectionsCSZZ(pcSubStr, paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -31368,7 +31368,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInSection(n, pcSubStr, n1, n2)
-		return This.FindNthInSectionCS(n, pcSubStr, n1, n2, :CaseSensitive = TRUE)
+		return This.FindNthInSectionCS(n, pcSubStr, n1, n2, TRUE)
 		
 		#< @FunctionAlternativeForm
 
@@ -31453,7 +31453,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInSectionZZ(n, pcSubStr, n1, n2)
-		return This.FindNthInSectionCSZZ(n, pcSubStr, n1, n2, :CaseSensitive = TRUE)
+		return This.FindNthInSectionCSZZ(n, pcSubStr, n1, n2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -31520,7 +31520,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInSections(n, pcSubStr, paSections)
-		return This.FindNthInSectionsCS(n, pcSubStr, paSections, :CaseSensitive = TRUE)
+		return This.FindNthInSectionsCS(n, pcSubStr, paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -31614,7 +31614,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInSectionsZZ(n, pcSubStr, paSections)
-		return This.FindNthInSectionsCSZZ(n, pcSubStr, paSections, :CaseSensitive = TRUE)
+		return This.FindNthInSectionsCSZZ(n, pcSubStr, paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -31681,7 +31681,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInSection(pcSubStr, n1, n2)
-		return This.FindFirstInSectionCS(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+		return This.FindFirstInSectionCS(pcSubStr, n1, n2, TRUE)
 		
 		#< @FunctionAlternativeForm
 
@@ -31749,7 +31749,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInSectionZZ(pcSubStr, n1, n2)
-		return This.FindFirstInSectionCSZZ(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+		return This.FindFirstInSectionCSZZ(pcSubStr, n1, n2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -31827,7 +31827,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInSections(pcSubStr, paSections)
-		return This.FindFirstInSectionsCS(pcSubStr, paSections, :CaseSensitive = TRUE)
+		return This.FindFirstInSectionsCS(pcSubStr, paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -31906,7 +31906,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInSectionsZZ(pcSubStr, paSections)
-		return This.FindFirstInSectionsCSZZ(pcSubStr, paSections, :CaseSensitive = TRUE)
+		return This.FindFirstInSectionsCSZZ(pcSubStr, paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -31959,7 +31959,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInSection(pcSubStr, n1, n2)
-		return This.FindLastInSectionCS(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+		return This.FindLastInSectionCS(pcSubStr, n1, n2, TRUE)
 		
 		#< @FunctionAlternativeForm
 
@@ -31999,7 +31999,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInSectionZZ(pcSubStr, n1, n2)
-		return This.FindLastInSectionCSZZ(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+		return This.FindLastInSectionCSZZ(pcSubStr, n1, n2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -32063,7 +32063,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInSections(pcSubStr, paSections)
-		return This.FindLastInSectionsCS(pcSubStr, paSections, :CaseSensitive = TRUE)
+		return This.FindLastInSectionsCS(pcSubStr, paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -32142,7 +32142,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInSectionsZZ(pcSubStr, paSections)
-		return This.FindLastInSectionsCSZZ(pcSubStr, paSections, :CaseSensitive = TRUE)
+		return This.FindLastInSectionsCSZZ(pcSubStr, paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -32286,7 +32286,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsSections(pcSubStr)
-		return This.FindAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindAsSectionsCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForms
 
@@ -32294,7 +32294,7 @@ class stzString from stzObject
 			return This.FindAsSectionsQR(pcSubStr, :stzList)
 
 		def FindAsSectionsQR(pcSubStr, pcReturnType)
-			return This.FindAsSectionsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+			return This.FindAsSectionsCSQR(pcSubStr, TRUE, pcReturnType)
 
 		#>
 
@@ -32344,7 +32344,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsSectionsD(pcSubStr, pcDirection)
-		return This.FindAsSectionsDCS(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindAsSectionsDCS(pcSubStr, pcDirection, TRUE)
 
 	  #---------------------------------------------------------------------------#
 	 #  FINDING SUBSTRING AND RETURNING ITS POSITIONS AS SECTIONS -- S/Extented  #
@@ -32392,7 +32392,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsSectionsS(pcSubStr, pnStartingAt)
-		return This.FindAsSectionsSCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindAsSectionsSCS(pcSubStr, pnStartingAt, TRUE)
 
 	   #--------------------------------------------------------------------#
 	  #  FINDING A SUBSTRING AS SECTIONS, STARTING FROM A GIVEN POSITION,  #
@@ -32429,7 +32429,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsSectionsSD(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindAsSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindAsSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 	   #--------------------------------------------------------------------#
 	  #  FINDING A SUBSTRING AS SECTIONS, STARTING FROM A GIVEN POSITION,  #
@@ -32443,7 +32443,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsSectionsSDZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindAsSectionsSDCSZ(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindAsSectionsSDCSZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 	   #--------------------------------------------------------------------#
 	  #  FINDING A SUBSTRING AS SECTIONS, STARTING FROM A GIVEN POSITION,  #
@@ -32457,7 +32457,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsSectionsSDZZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindAsSectionsSDCSZZ(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindAsSectionsSDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 	  #=====================================================================#
 	 #   FINDING A SUBSTRING AND RETURNING ITS POSITIONS AS ANTI-SECTIONS  #
@@ -32519,13 +32519,13 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsAntiSections(pcSubStr)
-		return This.FindAsAntiSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindAsAntiSectionsCS(pcSubStr, TRUE)
 
 		def FindAsAntiSectionsQ(pcSubStr)
 			return This.FindAsAntiSectionsQR(pcSubStr, :stzList)
 
 		def FindAsAntiSectionsQR(pcSubStr, pcReturnType)
-			return This.FindAsAntiSectionsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+			return This.FindAsAntiSectionsCSQR(pcSubStr, TRUE, pcReturnType)
 
 	  #-------------------------------------------------------------------------------#
 	 #  FINDING SUBSTRING AND RETURNING ITS POSITIONS AS ANTISECTIONS -- D/Extented  #
@@ -32544,7 +32544,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsAntiSectionsD(pcSubStr, pcDirection)
-		return This.FindAsSectionsDCS(pcSubStr, pcDirection, :CaseSensitive = TRUE)
+		return This.FindAsSectionsDCS(pcSubStr, pcDirection, TRUE)
 
 	  #-------------------------------------------------------------------------------#
 	 #  FINDING SUBSTRING AND RETURNING ITS POSITIONS AS ANTISECTIONS -- S/Extented  #
@@ -32563,7 +32563,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsAntiSectionsS(pcSubStr, pnStartingAt)
-		return This.FindAsAntiSectionsSCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindAsAntiSectionsSCS(pcSubStr, pnStartingAt, TRUE)
 
 	   #--------------------------------------------------------------#
 	  #  FINDING A SUBSTRING AS ANTISECTIONS, STARTING FROM A GIVEN  #
@@ -32583,7 +32583,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsAntiSectionsSD(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindAsAntiSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, :CaseSensitive = TRUE)
+		return This.FindAsAntiSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 
 	  #==============================#
@@ -32762,7 +32762,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSiTiVITY
 
 	def DeepFindAnyBetweenAsSectionsIB(pcSubStr1, pcSubStr2)
-		return This.DeepFindAnyBetweenAsSectionsCSIB(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+		return This.DeepFindAnyBetweenAsSectionsCSIB(pcSubStr1, pcSubStr2, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -32770,7 +32770,7 @@ class stzString from stzObject
 			return This.DeepFindAnyBetweenAsSectionsIBQR(pcSubStr1, pcSubStr2, :stzList)
 
 		def DeepFindAnyBetweenAsSectionsIBQR(pcSubStr1, pcSubStr2, pcReturnType)
-			return This.DeepFindAnyBetweenAsSectionsCSIBQR(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE, pcReturnType)
+			return This.DeepFindAnyBetweenAsSectionsCSIBQR(pcSubStr1, pcSubStr2, TRUE, pcReturnType)
 
 		#>
 
@@ -32809,7 +32809,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepAnyBetween(pcChar1, pcChar2)
-		return This.DeepAnyBetweenCS(pcChar1, pcChar2, :CaseSensitive = TRUE)
+		return This.DeepAnyBetweenCS(pcChar1, pcChar2, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -32817,7 +32817,7 @@ class stzString from stzObject
 			return This.DeepAnyBetweenQR(pcChar1, pcChar2, pCaseSensitive, :stzList)
 
 		def DeepAnyBetweenQR(pcChar1, pcChar2, pcReturnType)
-			return This.DeepAnyBetweenCSQR(pcChar1, pcChar2, :CaseSensitive = TRUE, pcReturnType)
+			return This.DeepAnyBetweenCSQR(pcChar1, pcChar2, TRUE, pcReturnType)
 			
 		#>
 
@@ -32859,7 +32859,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepAnyBetweenIB(pcChar1, pcChar2)
-		return This.DeepAnyBetweenCSIB(pcChar1, pcChar2, :CaseSensitive = TRUE)
+		return This.DeepAnyBetweenCSIB(pcChar1, pcChar2, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -32867,7 +32867,7 @@ class stzString from stzObject
 			return This.DeepAnysBetweenIBQR(pcChar1, pcChar2, pCaseSensitive, :stzList)
 
 		def DeepAnyBetweenIBQR(pcChar1, pcChar2, pcReturnType)
-			return This.DeepAnyBetweenCSIBQR(pcChar1, pcChar2, :CaseSensitive = TRUE, pcReturnType)
+			return This.DeepAnyBetweenCSIBQR(pcChar1, pcChar2, TRUE, pcReturnType)
 			
 		#>
 
@@ -33138,7 +33138,7 @@ class stzString from stzObject
 			   paOptions[ :CS ] = TRUE
 	
 				paOptions + [ :Hilighted, 
-					      This.FindAllCS(pcSubStr, :CS = TRUE)
+					      This.FindAllCS(pcSubStr, TRUE)
 					    ]
 			else
 				paOptions + [ :Hilighted, 
@@ -33147,8 +33147,8 @@ class stzString from stzObject
 			ok
 	
 			StzHashListQ(paOptions) {
-				RemovePairByKeyQ(:Casesensitive = TRUE)
-				RemovePairByKeyQ(:CS = TRUE)
+				RemovePairByKeyQ(TRUE)
+				RemovePairByKeyQ(TRUE)
 				paOptions = Content()
 			}
 	
@@ -33170,7 +33170,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DistanceTo(pcSubStr, pnStartingAt)
-		return This.DistanceToCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.DistanceToCS(pcSubStr, pnStartingAt, TRUE)
 
 	  #--------------------------------------------------------------------------#
 	 #  DISTANCE TO A GIVEN SUBSTRING STARTING AT A GIVEN POSITION -- EXTENDED  #
@@ -33257,7 +33257,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DistanceToXT(pcSubStr, pnStartingAt)
-		return This.DistanceToCSXT(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.DistanceToCSXT(pcSubStr, pnStartingAt, TRUE)
 
 	  #======================================#
 	 #   CONTAINMENT OF A GIVEN SUBSTRING   #
@@ -33338,7 +33338,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Contains(pcSubStr)
-		return This.ContainsCS(pcSubstr, :CaseSensitive = TRUE)
+		return This.ContainsCS(pcSubstr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -33389,7 +33389,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsContainedIn(pcOtherStr)
-		return This.IsContainedInCS(pcOtherStr, :CaseSensitive = TRUE)
+		return This.IsContainedInCS(pcOtherStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -33502,7 +33502,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsBefore(pcSubStr, p)
-		return This.ContainsBeforeCS(pcSubStr, p, :CaseSensitive = TRUE)
+		return This.ContainsBeforeCS(pcSubStr, p, TRUE)
 
 	  #-------------------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING AFTER A GIVEN POSITON/SUBSTRING  #
@@ -33535,7 +33535,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsAfter(pcSubStr, p)
-		return This.ContainsAfterCS(pcSubStr, p, :CaseSensitive = TRUE)
+		return This.ContainsAfterCS(pcSubStr, p, TRUE)
 
 	  #----------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING BEFORE A GIVEN POSITON  #
@@ -33547,7 +33547,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsBeforePosition(pcSubStr, pnPos)
-		return This.ContainsBeforePositionCS(pcSubStr, pnPos, :CaseSensitive = TRUE)
+		return This.ContainsBeforePositionCS(pcSubStr, pnPos, TRUE)
 
 	  #------------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING BEFORE A GIVEN SUBSTRING  #
@@ -33559,7 +33559,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsBeforeSubString(pcSubStr1, pcSubStr2)
-		return This.ContainsBeforeSubStringCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+		return This.ContainsBeforeSubStringCS(pcSubStr1, pcSubStr2, TRUE)
 
 	  #---------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING AFTER A GIVEN POSITON  #
@@ -33571,7 +33571,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsAfterPosition(pcSubStr, pnPos)
-		return This.ContainsAfterPositionCS(pcSubStr, pnPos, :CaseSensitive = TRUE)
+		return This.ContainsAfterPositionCS(pcSubStr, pnPos, TRUE)
 
 	  #-----------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING AFTER A GIVEN SUBSTRING  #
@@ -33583,7 +33583,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsAfterSubString(pcSubStr1, pcSubStr2)
-		return This.ContainsAfterSubStringCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+		return This.ContainsAfterSubStringCS(pcSubStr1, pcSubStr2, TRUE)
 
 	  #---------------------------------------#
 	 #   CHECKING CONATAINMENT -- EXTENDED   #
@@ -33954,7 +33954,7 @@ class stzString from stzObject
 	#-- WITOUT CASESENSITIVITY
 
 	def ContainsXT(p1, p2)
-		return This.ContainsCSXT( p1, p2, :CaseSensitive = TRUE)
+		return This.ContainsCSXT( p1, p2, TRUE)
 
 	  #----------------------------------------------#
 	 #    CONTAINING ONE OF THE GIVEN SUBSTRINGS    #
@@ -34015,7 +34015,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsOneOfThese(paSubStr)
-		return This.ContainsOneOfTheseCS(paSubStr, :Casesensitive = TRUE)
+		return This.ContainsOneOfTheseCS(paSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -34084,7 +34084,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsBoth(pcStr1, pcStr2)
-		return This.ContainsBothCS(pcStr1, pcStr2, :CaseSensitive = TRUE)
+		return This.ContainsBothCS(pcStr1, pcStr2, TRUE)
 	
 	  #---------------------------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING (OR MANY SUBSTRINGS) IN A GIVEN SECTION  #
@@ -34112,7 +34112,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsInSection(p, n1, n2)
-		return This.ContainsInSectionCS(p, n1, n2, :CaseSensitive = TRUE)
+		return This.ContainsInSectionCS(p, n1, n2, TRUE)
 
 	  #------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING IN A GIVEN SECTION  #
@@ -34125,7 +34125,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def ContainsSubStringInSection(pcSubStr, n1, n2)
-		return This.ContainsSubStringInSectionCS(pcSubStr, n1, n2, :CaseSensitive = TRUE)
+		return This.ContainsSubStringInSectionCS(pcSubStr, n1, n2, TRUE)
 
 	  #---------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS THE GIVEN SUBSTRINGS IN A GIVEN SECTION  #
@@ -34157,7 +34157,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def ContainsSubStringsInSection(pacSubStr, n1, n2)
-		return This.ContainsSubStringsInSectionCS(pacSubStr, n1, n2, :CaseSensitive = TRUE)
+		return This.ContainsSubStringsInSectionCS(pacSubStr, n1, n2, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -34204,7 +34204,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsInSections(p, panSections)
-		return This.ContainsInSectionsCS(p, panSections, :CaseSensitive = TRUE)
+		return This.ContainsInSectionsCS(p, panSections, TRUE)
 
 	  #----------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING IN MANY SECTIONS  #
@@ -34217,7 +34217,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def ContainsSubStringInSections(pcSubStr, panSections)
-		return This.ContainsSubStringInSectionsCS(pcSubStr, panSections, :CaseSensitive = TRUE)
+		return This.ContainsSubStringInSectionsCS(pcSubStr, panSections, TRUE)
 
 	  #---------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS THE GIVEN SUBSTRINGS IN MANY SECTIONS  #
@@ -34249,7 +34249,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def ContainsSubStringsInSections(pcSubStr, panSections)
-		return This.ContainsSubStringsInSectionsCS(pcSubStr, panSections, :CaseSensitive = TRUE)
+		return This.ContainsSubStringsInSectionsCS(pcSubStr, panSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -34325,7 +34325,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceXT(pcSubStr, pacBetween)
-		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, :CaseSensitive = TRUE)
+		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, TRUE)
 
 	  #----------------------------------------------------------------------#
 	 #  GETTING THE NUMBER OF CHARS/SUBSTRINGS VERIFYING A GIVEN CONDITION  #
@@ -34365,7 +34365,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNOccurrences(n, pcSubStr)
-		return This.ContainsNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.ContainsNOccurrencesCS(n, pcSubStr, TRUE)
 
 		def ContainsExactlyNOccurrences(n, pcSubStr)
 			return This.ContainsNOccurrences(n, pcSubStr)
@@ -34384,7 +34384,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsMoreThenNOccurrences(n, pcSubStr)
-		return This.ContainsMoreThenNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.ContainsMoreThenNOccurrencesCS(n, pcSubStr, TRUE)
 
 	  #--------------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS LESS THEN N OCCURRENCES OF A GIVEN SUBSTRING  #
@@ -34400,7 +34400,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsLessThenNOccurrences(n, pcSubStr)
-		return This.ContainsLessThenNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.ContainsLessThenNOccurrencesCS(n, pcSubStr, TRUE)
 
 	  #==============================================#
 	 #   REMOVING A SUBSTRING AT A GIVEN POSITION   #
@@ -34435,7 +34435,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubStringAt(n, pcSubStr)
-		This.RemoveSubStringAtPositionCS(n, pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveSubStringAtPositionCS(n, pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -34503,7 +34503,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubStringAtPositions(panPositions, pcSubStr)
-		This.RemoveSubStringAtPositionsCS(panPositions, pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveSubStringAtPositionsCS(panPositions, pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -34514,7 +34514,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringAtPositionsRemoved(panPos, pcSubStr)
-		return This.SubStringAtPositionsRemovedCS(panPos, pcSubStr, :CaseSensitive = TRUE)
+		return This.SubStringAtPositionsRemovedCS(panPos, pcSubStr, TRUE)
 
 	  #================================================#
 	 #   CONTAINING A SUBSTRING AT A GIVEN POSITION   #
@@ -34548,7 +34548,7 @@ class stzString from stzObject
 			return This.ContainsAtCS(n, pcSubStr, pCaseSensitive)
 
 	def ContainsAt(n, pcSubStr)
-		return This.ContainsAtCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.ContainsAtCS(n, pcSubStr, TRUE)
 
 		def ContainsSubStringAt(n, pcSubStr)
 			return This.ContainsAt(n, pcSubStr)
@@ -34605,7 +34605,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsAtPosition(n, pcSubStr)
-		return This.ContainsAtPositionCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.ContainsAtPositionCS(n, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -34673,7 +34673,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsAtPositions(panPositions, pcSubStr)
-		return This.ContainsAtPositionsCS(panPositions, pcSubStr, :CaseSensitive = TRUE)
+		return This.ContainsAtPositionsCS(panPositions, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -34735,7 +34735,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSubStringsAtPositions(panPositions, pacSubStr)
-		return This.ContainsSubStringsAtPositionsCS(panPositions, pacSubStr, :CaseSensitive = TRUE)
+		return This.ContainsSubStringsAtPositionsCS(panPositions, pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -34781,7 +34781,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsOneOrMore(paSubStr)
-		return This.ContainsOneOrMoreCS(paSubStr, :CS = TRUE)
+		return This.ContainsOneOrMoreCS(paSubStr, TRUE)
 
 		def ContainsSome(pacSubstr)
 			return This.ContainsOneOrMore(pacSubStr)
@@ -34800,7 +34800,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNTimes(n, pcSubStr)
-		return This.ContainsNTimesCS(n, pcSubstr, :CaseSensitive = TRUE)
+		return This.ContainsNTimesCS(n, pcSubstr, TRUE)
 
 		def ContainsNTimesTheSubstring(n, pcSubstr)
 			return This.ContainsNTimes(n, pcSubstr)
@@ -34836,7 +34836,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsOneOccurrence(pcSubStr)
-		return This.ContainsOneOccurrenceCS(pcSubstr, :CaseSensitive = TRUE)
+		return This.ContainsOneOccurrenceCS(pcSubstr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -34892,7 +34892,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsMoreThanNOccurrences(n, pcSubstr)
-		return This.ContainsMoreThanNOccurrencesCS(n, pcSubstr, :CaseSensitive = TRUE)
+		return This.ContainsMoreThanNOccurrencesCS(n, pcSubstr, TRUE)
 
 		def ContainsMoreThenN(n, pcSubStr)
 			return This.ContainsMoreThanNOccurrences(n, pcSubstr)
@@ -34911,7 +34911,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNOrMoreOccurrences(n, pcSubstr)
-		return This.ContainsNOrMoreOccurrencesCS(n, pcSubstr, :CaseSensitive = TRUE)
+		return This.ContainsNOrMoreOccurrencesCS(n, pcSubstr, TRUE)
 	
 		def ContainsNOrMore(n, pcSubStr)
 			return This.ContainsNOrMoreOccurrences(n, pcSubstr)
@@ -35033,7 +35033,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsTheseSubStrings(pacSubStr)
-		return This.ContainsTheseSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.ContainsTheseSubStringsCS(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -35400,7 +35400,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitXT(pSubStrOrPos)
-		return This.SplitCSXT(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.SplitCSXT(pSubStrOrPos, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -35581,7 +35581,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitXTZ(pSubStrOrPos)
-		return This.SplitCSXTZ(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.SplitCSXTZ(pSubStrOrPos, TRUE)
 
 	def SplittedXTZ(pSubStrOrPos)
 		return This.SplitXTZ(pSubStrOrPos)
@@ -35741,7 +35741,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitXTZZ(pSubStrOrPos)
-		return This.SplitCSXTZZ(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.SplitCSXTZZ(pSubStrOrPos, TRUE)
 
 	def SplittedXTZZ(pSubStrOrPos)
 		return This.SplitXTZZ(pSubStrOrPos)
@@ -35830,13 +35830,13 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAt(pSubStrOrPos)
-		return This.SplitAtCS(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.SplitAtCS(pSubStrOrPos, TRUE)
 
 		def SplitAtQ(pSubStrOrPos)
 			return This.SplitAtQR(pSubStrOrPos, :stzList)
 
 		def SplitAtQR(pSubStrOrPos, pcReturnType)
-			return This.SplitAtCSQR(pSubStrOrPos, :CaseSensitive = TRUE, pcReturnType)
+			return This.SplitAtCSQR(pSubStrOrPos, TRUE, pcReturnType)
 
 	def SplittedAt(pSubStrOrPos)
 		return This.SplitAt(pSubStrOrPos)
@@ -36122,7 +36122,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAtSubString(pcSubStr)
-		return This.SplitAtSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.SplitAtSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -36130,7 +36130,7 @@ class stzString from stzObject
 			return This.SplitAtSubStringQR(pcSubStr, :stzList)
 
 		def SplitAtSubStringQR(pcSubStr, pcReturnType)
-			return This.SplitAtSubStringCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+			return This.SplitAtSubStringCSQR(pcSubStr, TRUE, pcReturnType)
 
 		#>
 
@@ -36249,7 +36249,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAtSubStringZ(pcSubStr)
-		return This.SplitAtSubStringCSZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.SplitAtSubStringCSZ(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -36334,7 +36334,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAtSubStringZZ(pcSubStr)
-		return This.SplitAtSubStringCSZZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.SplitAtSubStringCSZZ(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -36448,7 +36448,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAtSubStrings(pacSubStr)
-		return This.SplitAtSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.SplitAtSubStringsCS(pacSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -36456,7 +36456,7 @@ class stzString from stzObject
 			return This.SplitAtSubStringsQR(pcSubStr, pCaseSensitive, :stzList)
 
 		def SplitAtSubStringsQR(pcSubStr, pCaseSensitive, pcReturnType)
-			return This.SplitAtSubStringsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+			return This.SplitAtSubStringsCSQR(pcSubStr, TRUE, pcReturnType)
 
 		#>
 
@@ -36469,7 +36469,7 @@ class stzString from stzObject
 				return This.SplitAtTheseSubStringsQR(pcSubStr, pCaseSensitive, :stzList)
 	
 			def SplitAtTheseSubStringsQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+				return This.SplitAtSubStringsCSQR(pcSubStr, TRUE, pcReturnType)
 	
 		def SplitAtManySubStrings(pacSubStr)
 			return This.SplitAtSubStrings(pacSubStr)
@@ -36478,7 +36478,7 @@ class stzString from stzObject
 				return This.SplitAtManySubStringsQR(pcSubStr, pCaseSensitive, :stzList)
 	
 			def SplitAtManySubStringsQR(pcSubStr, pCaseSensitive, pcReturnType)
-				return This.SplitAtSubStringsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+				return This.SplitAtSubStringsCSQR(pcSubStr, TRUE, pcReturnType)
 
 		#>
 
@@ -36794,13 +36794,13 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitBefore(pSubStrOrPos)
-		return This.SplitBeforeCS(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.SplitBeforeCS(pSubStrOrPos, TRUE)
 
 		def SplitBeforeQ(pSubStrOrPos)
 			return This.SplitBeforeQR(pSubStrOrPos, :stzList)
 
 		def SplitBeforeQR(pSubStrOrPos, pcReturnType)
-			return This.SplitBeforeCSQR(pSubStrOrPos, :CaseSensitive = TRUE, pcReturnType)
+			return This.SplitBeforeCSQR(pSubStrOrPos, TRUE, pcReturnType)
 
 	def SplittedBefore(pSubStrOrPos)
 		return This.SplitBefore(pSubStrOrPos)
@@ -36998,7 +36998,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitBeforeSubString(pcSubStr)
-		return This.SplitBeforeSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.SplitBeforeSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForms
 
@@ -37116,7 +37116,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitBeforeSubStrings(pacSubStr)
-		return This.SplitBeforeSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.SplitBeforeSubStringsCS(pacSubStr, TRUE)
 	
 		#< @FunctionFluentForms
 
@@ -37508,7 +37508,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAfter(pSubStrOrPos)
-		return This.SplitAfterCS(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.SplitAfterCS(pSubStrOrPos, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -37516,7 +37516,7 @@ class stzString from stzObject
 			return This.SplitAfterQR(pSubStrOrPos, :stzList)
 
 		def SplitAfterQR(pSubStrOrPos, pcReturnType)
-			return This.SplitAfterCSQR(pSubStrOrPos, :CaseSensitive = TRUE, pcReturnType)
+			return This.SplitAfterCSQR(pSubStrOrPos, TRUE, pcReturnType)
 
 		#>
 
@@ -37704,7 +37704,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAfterSubString(pcSubStr)
-		return This.SplitAfterSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.SplitAfterSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForms
 
@@ -37806,7 +37806,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAfterSubStrings(pacSubStr)
-		return This.SplitAfterSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.SplitAfterSubStringsCS(pacSubStr, TRUE)
 
 		#< @FunctionFluentForms
 
@@ -38126,7 +38126,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitBetween(pBound1, pBound2)
-		return This.SplitBetweenCS(pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.SplitBetweenCS(pBound1, pBound2, TRUE)
 
 		#< @FunctionFluentForms
 
@@ -38214,7 +38214,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitBetweenIB(pBound1, pBound2)
-		return This.SplitBetweenCSIB(pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.SplitBetweenCSIB(pBound1, pBound2, TRUE)
 
 		#< @FunctionFluentForms
 
@@ -38391,7 +38391,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitBetweenSubStrings(pacSubStr)
-		return This.SplitBetweenSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.SplitBetweenSubStringsCS(pacSubStr, TRUE)
 
 		#< @FunctionFluentForms
 
@@ -38430,7 +38430,7 @@ class stzString from stzObject
 
 
 	def SplittedBetweenSubStrings(pacSubStr)
-		return This.SplittedBetweenSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.SplittedBetweenSubStringsCS(pacSubStr, TRUE)
 
 		def SplittedBetweenTheseSubStrings(pacSubStr)
 			return This.SplittedBetweenSubStrings(pacSubStr)
@@ -38938,7 +38938,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsXT(pSubStrOrPos)
-		return This.FindSplitsCSXT(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindSplitsCSXT(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -39010,7 +39010,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAt(pSubStrOrPos)
-		return This.FindSplitsAtCS(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindSplitsAtCS(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -39153,25 +39153,25 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSubString(pcSubStr)
-		return This.FindSplitsAtSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsAtSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
 		def FindSplits(pcSubStr)
-			return This.FindSplitsCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindSplitsCS(pcSubStr, TRUE)
 
 		def FindSplitsAtThisSubString(pcSubStr)
-			return This.FindSplitsAtThisSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindSplitsAtThisSubStringCS(pcSubStr, TRUE)
 		#--
 
 		def FindSplitsAtSubStringZ(pcSubStr)
-			return This.FindSplitsAtSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindSplitsAtSubStringCS(pcSubStr, TRUE)
 
 		def FindSplitsZ(pcSubStr)
-			return This.FindSplitsCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindSplitsCS(pcSubStr, TRUE)
 
 		def FindSplitsAtThisSubStringZ(pcSubStr)
-			return This.FindSplitsAtThisSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindSplitsAtThisSubStringCS(pcSubStr, TRUE)
 
 		#>
 
@@ -39213,7 +39213,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSubStrings(pacSubStr)
-		return This.FindSplitsAtSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsAtSubStringsCS(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -39268,7 +39268,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSection(n1, n2)
-		return This.FindSplitsAtSectionCS(n1, n2, :CaseSensitive = TRUE)
+		return This.FindSplitsAtSectionCS(n1, n2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -39317,7 +39317,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSectionIB(n1, n2)
-		return This.FindSplitsAtSectionCSIB(n1, n2, :CaseSensitive = TRUE)
+		return This.FindSplitsAtSectionCSIB(n1, n2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -39374,7 +39374,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSections(paSections)
-		return This.FindSplitsAtSectionsCS(paSections, :CaseSensitive = TRUE)
+		return This.FindSplitsAtSectionsCS(paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -39431,7 +39431,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSectionsIB(paSections)
-		return This.FindSplitsAtSectionsCSIB(paSections, :CaseSensitive = TRUE)
+		return This.FindSplitsAtSectionsCSIB(paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -39512,7 +39512,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBefore(pSubStrOrPos)
-		return This.FindSplitsBeforeCS(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforeCS(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -39559,7 +39559,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforePosition(n)
-		return This.FindSplitsBeforePositionCS(n, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforePositionCS(n, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -39622,7 +39622,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforePositions(anPos)
-		return This.FindSplitsBeforePositionsCS(anPos, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforePositionsCS(anPos, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -39681,7 +39681,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSubString(pcSubStr)
-		return This.FindSplitsBeforeSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforeSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -39740,7 +39740,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSubStrings(pacSubStr)
-		return This.FindSplitsBeforeSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforeSubStringsCS(pacSubStr, TRUE)
 	
 		#< @FunctionAlternativeForms
 
@@ -39956,7 +39956,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfter(pSubStrOrPos)
-		return This.FindSplitsAfterCS(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindSplitsAfterCS(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -40054,7 +40054,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterSubString(pcSubStr)
-		return This.FindSplitsAfterSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsAfterSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -40108,7 +40108,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterSubStrings(pacSubStr)
-		return This.FindSplitsAfterSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsAfterSubStringsCS(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -40280,7 +40280,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetween(pBound1, pBound2)
-		return This.FindSplitsBetweenCS(pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.FindSplitsBetweenCS(pBound1, pBound2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -40333,7 +40333,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenIB(pBound1, pBound2)
-		return This.FindSplitsBetweenCSIB(pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.FindSplitsBetweenCSIB(pBound1, pBound2, TRUE)
 
 
 		#< @FunctionAlternativeForm
@@ -40414,7 +40414,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenSubStrings(pacSubStr)
-		return This.FindSplitsBetweenSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsBetweenSubStringsCS(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -40778,7 +40778,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsXTZZ(pSubStrOrPos)
-		return This.FindSplitsCSXTZZ(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindSplitsCSXTZZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -40850,7 +40850,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtZZ(pSubStrOrPos)
-		return This.FindSplitsAtCSZZ(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindSplitsAtCSZZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -40891,7 +40891,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtPositionZZ(n)
-		return This.FindSplitsAtPositionCSZZ(n, :CaseSensitive = TRUE)
+		return This.FindSplitsAtPositionCSZZ(n, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -40945,7 +40945,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtPositionsZZ(anPos)
-		return This.FindSplitsAtPositionsCSZZ(anPos, :CaseSensitive = TRUE)
+		return This.FindSplitsAtPositionsCSZZ(anPos, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -41030,25 +41030,25 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSubStringZZ(pcSubStr)
-		return This.FindSplitsAtSubStringCSZZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsAtSubStringCSZZ(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
 		def FindSplitsZZ(pcSubStr)
-			return This.FindSplitsCSZZ(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindSplitsCSZZ(pcSubStr, TRUE)
 
 		def FindSplitsAtThisSubStringZZ(pcSubStr)
-			return This.FindSplitsAtThisSubStringCSZZ(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindSplitsAtThisSubStringCSZZ(pcSubStr, TRUE)
 		#--
 
 		def FindSplitsAtSubStringAsSectionsZZ(pcSubStr)
-			return This.FindSplitsAtSubStringAsSectionsCSZZ(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindSplitsAtSubStringAsSectionsCSZZ(pcSubStr, TRUE)
 
 		def FindSplitsAsSections(pcSubStr)
-			return This.FindSplitsAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindSplitsAsSectionsCS(pcSubStr, TRUE)
 
 		def FindSplitsAtThisSubStringAsSections(pcSubStr)
-			return This.FindSplitsAtThisSubStringAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindSplitsAtThisSubStringAsSectionsCS(pcSubStr, TRUE)
 
 		#>
 
@@ -41097,7 +41097,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSubStringsZZ(pacSubStr)
-		return This.FindSplitsAtSubStringsCSZZ(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsAtSubStringsCSZZ(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -41152,7 +41152,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSectionZZ(n1, n2)
-		return This.FindSplitsAtSectionCSZZ(n1, n2, :CaseSensitive = TRUE)
+		return This.FindSplitsAtSectionCSZZ(n1, n2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -41207,7 +41207,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtSectionIBZZ(n1, n2)
-		return This.FindSplitsAtSectionCSIBZZ(n1, n2, :CaseSensitive = TRUE)
+		return This.FindSplitsAtSectionCSIBZZ(n1, n2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -41345,7 +41345,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeZZ(pSubStrOrPos)
-		return This.FindSplitsBeforeCSZZ(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforeCSZZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -41394,7 +41394,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforePositionZZ(n)
-		return This.FindSplitsBeforePositionCSZZ(n, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforePositionCSZZ(n, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -41457,7 +41457,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforePositionsZZ(anPos)
-		return This.FindSplitsBeforePositionsCSZZ(anPos, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforePositionsCSZZ(anPos, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -41521,7 +41521,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSubStringZZ(pcSubStr)
-		return This.FindSplitsBeforeSubStringCSZZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforeSubStringCSZZ(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -41585,7 +41585,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSubStringsZZ(pacSubStr)
-		return This.FindSplitsBeforeSubStringsCSZZ(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforeSubStringsCSZZ(pacSubStr, TRUE)
 	
 		#< @FunctionAlternativeForms
 
@@ -41648,7 +41648,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSectionZZ(n1, n2)
-		return This.FindSplitsBeforeSectionCSZZ(n1, n2, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforeSectionCSZZ(n1, n2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -41705,7 +41705,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSectionIBZZ(n1, n2)
-		return This.FindSplitsBeforeSectionCSIBZZ(n1, n2, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforeSectionCSIBZZ(n1, n2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -41765,7 +41765,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSectionsZZ(paSections)
-		return This.FindSplitsBeforeSectionsCSZZ(paSections, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforeSectionsCSZZ(paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -41832,7 +41832,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeSectionsIBZZ(paSections)
-		return This.FindSplitsBeforeSectionsCSIBZZ(paSections, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforeSectionsCSIBZZ(paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -41916,7 +41916,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterZZ(pSubStrOrPos)
-		return This.FindSplitsAfterCSZZ(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindSplitsAfterCSZZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -41961,7 +41961,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterPositionZZ(n)
-		return This.FindSplitsAfterPositionCSZZ(n, :CaseSensitive = TRUE)
+		return This.FindSplitsAfterPositionCSZZ(n, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -42019,7 +42019,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterPositionsZZ(anPos)
-		return This.FindSplitsAfterPositionsCSZZ(anPos, :CaseSensitive = TRUE)
+		return This.FindSplitsAfterPositionsCSZZ(anPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -42082,7 +42082,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterSubStringZZ(pcSubStr)
-		return This.FindSplitsAfterSubStringCSZZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsAfterSubStringCSZZ(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -42145,7 +42145,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterSubStringsZZ(pacSubStr)
-		return This.FindSplitsAfterSubStringsCSZZ(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsAfterSubStringsCSZZ(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -42207,7 +42207,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterSectionZZ(n1, n2)
-		return This.FindSplitsAfterSectionCSZZ(n1, n2, :CaseSensitive = TRUE)
+		return This.FindSplitsAfterSectionCSZZ(n1, n2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -42263,7 +42263,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterSectionIBZZ(n1, n2)
-		return This.FindSplitsAfterSectionCSIBZZ(n1, n2, :CaseSensitive = TRUE)
+		return This.FindSplitsAfterSectionCSIBZZ(n1, n2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -42320,7 +42320,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterSectionsZZ(paSections)
-		return This.FindSplitsAfterSectionsCSZZ(paSections, :CaseSensitive = TRUE)
+		return This.FindSplitsAfterSectionsCSZZ(paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -42378,7 +42378,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESNSITIVITY
 
 	def FindSplitsAfterSectionsIBZZ(paSections)
-		return This.FindSplitsAfterSectionsCSIBZZ(paSections, :CaseSensitive = TRUE)
+		return This.FindSplitsAfterSectionsCSIBZZ(paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -42438,7 +42438,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenZZ(pBound1, pBound2)
-		return This.FindSplitsBetweenCS(pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.FindSplitsBetweenCS(pBound1, pBound2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -42496,7 +42496,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenIBZZ(pBound1, pBound2)
-		return This.FindSplitsBetweenCSIBZZ(pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.FindSplitsBetweenCSIBZZ(pBound1, pBound2, TRUE)
 
 
 		#< @FunctionAlternativeForm
@@ -42531,7 +42531,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenPositionsZZ(n1, n2)
-		return This.FindSplitsAtSectionCSZZ(n1, n2, :CaseSensitive = TRUE)
+		return This.FindSplitsAtSectionCSZZ(n1, n2, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -42573,7 +42573,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenPositionsIBZZ(n1, n2)
-		return This.FindSplitsAtSectionCSIBZZ(n1, n2, :CaseSensitive = TRUE)
+		return This.FindSplitsAtSectionCSIBZZ(n1, n2, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -42627,7 +42627,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBetweenSubStringsZZ(pacSubStr)
-		return This.FindSplitsBetweenSubStringsCSZZ(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindSplitsBetweenSubStringsCSZZ(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -42669,7 +42669,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsToNPartsZZ(n)
-		return This.FindSplitsToNPartsCSZZ(n, :CaseSensitive = TRUE)
+		return This.FindSplitsToNPartsCSZZ(n, TRUE)
 
 		def FindSplitsToNPartsAsSections(n)
 			return This.FindSplitsToNPartsZZ(n)
@@ -42712,7 +42712,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsToPartsOfNCharsZZ(n)
-		return This.FindSplitsToPartsOfNCharsCSZZ(n, :CaseSensitive = TRUE)
+		return This.FindSplitsToPartsOfNCharsCSZZ(n, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -42759,7 +42759,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY()
 
 	def FindSplitsToPartsOfNCharsXTZZ(n)
-		return This.FindSplitsToPartsOfNCharsCSXTZZ(n, :CaseSensitive = TRUE)
+		return This.FindSplitsToPartsOfNCharsCSXTZZ(n, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -42809,7 +42809,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsWZZ(pcCondition)
-		return This.FindSplitsWCSZZ(pcCondition, :CaseSensitive = TRUE)
+		return This.FindSplitsWCSZZ(pcCondition, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -42875,7 +42875,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAtWZZ(pcCondition)
-		return This.FindSplitsAtWCSZZ(pcCondition, :CaseSensitive = TRUE)
+		return This.FindSplitsAtWCSZZ(pcCondition, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -42928,7 +42928,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsBeforeWZZ(pcCondition)
-		return This.FindSplitsBeforeWCSZZ(pcCondition, :CaseSensitive = TRUE)
+		return This.FindSplitsBeforeWCSZZ(pcCondition, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -42981,7 +42981,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsAfterWZZ(pcCondition)
-		return This.FindSplitsAfterWCSZZ(pcCondition, :CaseSensitive = TRUE)
+		return This.FindSplitsAfterWCSZZ(pcCondition, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -43148,7 +43148,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitXT(n, pSubStrOrPos)
-		return This.FindNthSplitCSXT(n, pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindNthSplitCSXT(n, pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -43220,7 +43220,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAt(n, pSubStrOrPos)
-		return This.FindNthSplitAtCS(n, pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindNthSplitAtCS(n, pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -43406,25 +43406,25 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtSubString(n, pcSubStr)
-		return This.FindNthSplitAtSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitAtSubStringCS(n, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
 		def FindNthSplit(n, pcSubStr)
-			return This.FindNthSplitCS(n, pcSubStr, :CaseSensitive = TRUE)
+			return This.FindNthSplitCS(n, pcSubStr, TRUE)
 
 		def FindNthSplitAtThisSubString(n, pcSubStr)
-			return This.FindNthSplitAtThisSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+			return This.FindNthSplitAtThisSubStringCS(n, pcSubStr, TRUE)
 		#--
 
 		def FindNthSplitAtSubStringZ(n, pcSubStr)
-			return This.FindNthSplitAtSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+			return This.FindNthSplitAtSubStringCS(n, pcSubStr, TRUE)
 
 		def FindNthSplitZ(n, pcSubStr)
-			return This.FindNthSplitCS(n, pcSubStr, :CaseSensitive = TRUE)
+			return This.FindNthSplitCS(n, pcSubStr, TRUE)
 
 		def FindNthSplitAtThisSubStringZ(pcSubStr)
-			return This.FindNthSplitAtThisSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+			return This.FindNthSplitAtThisSubStringCS(n, pcSubStr, TRUE)
 
 		#>
 
@@ -43489,7 +43489,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtSubStrings(n, pacSubStr)
-		return This.FindNthSplitAtSubStringsCS(n, pacSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitAtSubStringsCS(n, pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -43675,7 +43675,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBefore(n, pSubStrOrPos)
-		return This.FindNthSplitBeforeCS(n, pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindNthSplitBeforeCS(n, pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -43788,7 +43788,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeSubString(n, pcSubStr)
-		return This.FindNthSplitBeforeSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitBeforeSubStringCS(n, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -43847,7 +43847,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeSubStrings(n, pacSubStr)
-		return This.FindNthSplitBeforeSubStringsCS(n, pacSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitBeforeSubStringsCS(n, pacSubStr, TRUE)
 	
 		#< @FunctionAlternativeForms
 
@@ -44063,7 +44063,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfter(n, pSubStrOrPos)
-		return This.FindNthSplitAfterCS(n, pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindNthSplitAfterCS(n, pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -44161,7 +44161,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterSubString(n, pcSubStr)
-		return This.FindNthSplitAfterSubStringCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitAfterSubStringCS(n, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -44215,7 +44215,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterSubStrings(n, pacSubStr)
-		return This.FindNthSplitAfterSubStringsCS(n, pacSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitAfterSubStringsCS(n, pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -44387,7 +44387,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetween(n, pBound1, pBound2)
-		return This.FindNthSplitBetweenCS(n, pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.FindNthSplitBetweenCS(n, pBound1, pBound2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -44440,7 +44440,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenIB(n, pBound1, pBound2)
-		return This.FindNthSplitBetweenCSIB(n, pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.FindNthSplitBetweenCSIB(n, pBound1, pBound2, TRUE)
 
 
 		#< @FunctionAlternativeForm
@@ -44521,7 +44521,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenSubStrings(n, pacSubStr)
-		return This.FindNthSplitBetweenSubStringsCS(n, pacSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitBetweenSubStringsCS(n, pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -44887,7 +44887,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitXTZZ(n, pSubStrOrPos)
-		return This.FindNthSplitCSXTZZ(n, pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindNthSplitCSXTZZ(n, pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -44959,7 +44959,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtZZ(n, pSubStrOrPos)
-		return This.FindNthSplitAtCSZZ(n, pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindNthSplitAtCSZZ(n, pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -45093,25 +45093,25 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtSubStringZZ(pcSubStr)
-		return This.FindNthSplitAtSubStringCSZZ(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitAtSubStringCSZZ(n, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
 		def FindNthSplitZZ(pcSubStr)
-			return This.FindNthSplitAtSubStringZZ(n, pcSubStr, :CaseSensitive = TRUE)
+			return This.FindNthSplitAtSubStringZZ(n, pcSubStr, TRUE)
 
 		def FindNthSplitAtThisSubStringZZ(pcSubStr)
-			return This.FindNthSplitAtSubStringZZ(n, pcSubStr, :CaseSensitive = TRUE)
+			return This.FindNthSplitAtSubStringZZ(n, pcSubStr, TRUE)
 		#--
 
 		def FindNthSplitAtSubStringAsSectionZZ(pcSubStr)
-			return This.FindNthSplitAtSubStringZZ(n, pcSubStr, :CaseSensitive = TRUE)
+			return This.FindNthSplitAtSubStringZZ(n, pcSubStr, TRUE)
 
 		def FindNthSplitAsSection(pcSubStr)
-			return This.FindNthSplitAtSubStringZZ(n, pcSubStr, :CaseSensitive = TRUE)
+			return This.FindNthSplitAtSubStringZZ(n, pcSubStr, TRUE)
 
 		def FindNthSplitAtThisSubStringAsSection(pcSubStr)
-			return This.FindNthSplitAtSubStringZZ(n, pcSubStr, :CaseSensitive = TRUE)
+			return This.FindNthSplitAtSubStringZZ(n, pcSubStr, TRUE)
 
 		#>
 
@@ -45153,7 +45153,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAtSubStringsZZ(n, pacSubStr)
-		return This.FindNthSplitAtSubStringsCSZZ(n, pacSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitAtSubStringsCSZZ(n, pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -45325,7 +45325,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeZZ(n, pSubStrOrPos)
-		return This.FindNthSplitBeforeCSZZ(n, pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindNthSplitBeforeCSZZ(n, pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -45438,7 +45438,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeSubStringZZ(n, pcSubStr)
-		return This.FindNthSplitBeforeSubStringCSZZ(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitBeforeSubStringCSZZ(n, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -45497,7 +45497,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBeforeSubStringsZZ(n, pacSubStr)
-		return This.FindNthSplitBeforeSubStringsCSZZ(n, pacSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitBeforeSubStringsCSZZ(n, pacSubStr, TRUE)
 	
 		#< @FunctionAlternativeForms
 
@@ -45713,7 +45713,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterZZ(n, pSubStrOrPos)
-		return This.FindNthSplitAfterCSZZ(n, pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindNthSplitAfterCSZZ(n, pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -45808,7 +45808,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterSubStringZZ(n, pcSubStr)
-		return This.FindNthSplitAfterSubStringCSZZ(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitAfterSubStringCSZZ(n, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -45862,7 +45862,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitAfterSubStringsZZ(n, pacSubStr)
-		return This.FindNthSplitAfterSubStringsCSZZ(n, pacSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitAfterSubStringsCSZZ(n, pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -46033,7 +46033,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenZZ(n, pBound1, pBound2)
-		return This.FindNthSplitBetweenCS(n, pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.FindNthSplitBetweenCS(n, pBound1, pBound2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -46086,7 +46086,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenIBZZ(n, pBound1, pBound2)
-		return This.FindNthSplitBetweenCSIBZZ(n, pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.FindNthSplitBetweenCSIBZZ(n, pBound1, pBound2, TRUE)
 
 
 		#< @FunctionAlternativeForm
@@ -46167,7 +46167,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitBetweenSubStringsZZ(n, pacSubStr)
-		return This.FindNthSplitBetweenSubStringsCSZZ(n, pacSubStr, :CaseSensitive = TRUE)
+		return This.FindNthSplitBetweenSubStringsCSZZ(n, pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -46528,7 +46528,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitXT(pSubStrOrPos)
-		return This.FindLastSplitCSXT(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindLastSplitCSXT(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -46600,7 +46600,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAt(pSubStrOrPos)
-		return This.FindLastSplitAtCS(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindLastSplitAtCS(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -46740,25 +46740,25 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtSubString(pcSubStr)
-		return This.FindLastSplitAtSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitAtSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
 		def FindLastSplit(pcSubStr)
-			return This.FindLastSplitCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindLastSplitCS(pcSubStr, TRUE)
 
 		def FindLastSplitAtThisSubString(pcSubStr)
-			return This.FindLastSplitAtThisSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindLastSplitAtThisSubStringCS(pcSubStr, TRUE)
 		#--
 
 		def FindLastSplitAtSubStringZ(pcSubStr)
-			return This.FindLastSplitAtSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindLastSplitAtSubStringCS(pcSubStr, TRUE)
 
 		def FindLastSplitZ(pcSubStr)
-			return This.FindLastSplitCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindLastSplitCS(pcSubStr, TRUE)
 
 		def FindLastSplitAtThisSubStringZ(pcSubStr)
-			return This.FindLastSplitAtThisSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindLastSplitAtThisSubStringCS(pcSubStr, TRUE)
 
 		#>
 
@@ -46800,7 +46800,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtSubStrings(pacSubStr)
-		return This.FindLastSplitAtSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitAtSubStringsCS(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -47003,7 +47003,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBefore(pSubStrOrPos)
-		return This.FindLastSplitBeforeCS(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindLastSplitBeforeCS(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -47116,7 +47116,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeSubString(pcSubStr)
-		return This.FindLastSplitBeforeSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitBeforeSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -47175,7 +47175,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeSubStrings(pacSubStr)
-		return This.FindLastSplitBeforeSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitBeforeSubStringsCS(pacSubStr, TRUE)
 	
 		#< @FunctionAlternativeForms
 
@@ -47391,7 +47391,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfter(pSubStrOrPos)
-		return This.FindLastSplitAfterCS(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindLastSplitAfterCS(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -47489,7 +47489,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterSubString(pcSubStr)
-		return This.FindLastSplitAfterSubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitAfterSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -47543,7 +47543,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterSubStrings(pacSubStr)
-		return This.FindLastSplitAfterSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitAfterSubStringsCS(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -47715,7 +47715,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetween(pBound1, pBound2)
-		return This.FindLastSplitBetweenCS(pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.FindLastSplitBetweenCS(pBound1, pBound2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -47768,7 +47768,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenIB(pBound1, pBound2)
-		return This.FindLastSplitBetweenCSIB(pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.FindLastSplitBetweenCSIB(pBound1, pBound2, TRUE)
 
 
 		#< @FunctionAlternativeForm
@@ -47849,7 +47849,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenSubStrings(pacSubStr)
-		return This.FindLastSplitBetweenSubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitBetweenSubStringsCS(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -48215,7 +48215,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitXTZZ(pSubStrOrPos)
-		return This.FindLastSplitCSXTZZ(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindLastSplitCSXTZZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -48287,7 +48287,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtZZ(pSubStrOrPos)
-		return This.FindLastSplitAtCSZZ(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindLastSplitAtCSZZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -48421,25 +48421,25 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtSubStringZZ(pcSubStr)
-		return This.FindLastSplitAtSubStringCSZZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitAtSubStringCSZZ(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
 		def FindLastSplitZZ(pcSubStr)
-			return This.FindLastSplitAtSubStringZZ(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindLastSplitAtSubStringZZ(pcSubStr, TRUE)
 
 		def FindLastSplitAtThisSubStringZZ(pcSubStr)
-			return This.FindLastSplitAtSubStringZZ(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindLastSplitAtSubStringZZ(pcSubStr, TRUE)
 		#--
 
 		def FindLastSplitAtSubStringAsSectionZZ(pcSubStr)
-			return This.FindLastSplitAtSubStringZZ(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindLastSplitAtSubStringZZ(pcSubStr, TRUE)
 
 		def FindLastSplitAsSection(pcSubStr)
-			return This.FindLastSplitAtSubStringZZ(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindLastSplitAtSubStringZZ(pcSubStr, TRUE)
 
 		def FindLastSplitAtThisSubStringAsSection(pcSubStr)
-			return This.FindLastSplitAtSubStringZZ(pcSubStr, :CaseSensitive = TRUE)
+			return This.FindLastSplitAtSubStringZZ(pcSubStr, TRUE)
 
 		#>
 
@@ -48481,7 +48481,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAtSubStringsZZ(pacSubStr)
-		return This.FindLastSplitAtSubStringsCSZZ(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitAtSubStringsCSZZ(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -48653,7 +48653,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeZZ(pSubStrOrPos)
-		return This.FindLastSplitBeforeCSZZ(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindLastSplitBeforeCSZZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -48766,7 +48766,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeSubStringZZ(pcSubStr)
-		return This.FindLastSplitBeforeSubStringCSZZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitBeforeSubStringCSZZ(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -48825,7 +48825,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBeforeSubStringsZZ(pacSubStr)
-		return This.FindLastSplitBeforeSubStringsCSZZ(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitBeforeSubStringsCSZZ(pacSubStr, TRUE)
 	
 		#< @FunctionAlternativeForms
 
@@ -49041,7 +49041,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterZZ(pSubStrOrPos)
-		return This.FindLastSplitAfterCSZZ(pSubStrOrPos, :CaseSensitive = TRUE)
+		return This.FindLastSplitAfterCSZZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -49136,7 +49136,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterSubStringZZ(pcSubStr)
-		return This.FindLastSplitAfterSubStringCSZZ(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitAfterSubStringCSZZ(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -49190,7 +49190,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitAfterSubStringsZZ(pacSubStr)
-		return This.FindLastSplitAfterSubStringsCSZZ(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitAfterSubStringsCSZZ(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -49361,7 +49361,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenZZ(pBound1, pBound2)
-		return This.FindLastSplitBetweenCS(pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.FindLastSplitBetweenCS(pBound1, pBound2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -49414,7 +49414,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenIBZZ(pBound1, pBound2)
-		return This.FindLastSplitBetweenCSIBZZ(pBound1, pBound2, :CaseSensitive = TRUE)
+		return This.FindLastSplitBetweenCSIBZZ(pBound1, pBound2, TRUE)
 
 
 		#< @FunctionAlternativeForm
@@ -49495,7 +49495,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitBetweenSubStringsZZ(pacSubStr)
-		return This.FindLastSplitBetweenSubStringsCSZZ(pacSubStr, :CaseSensitive = TRUE)
+		return This.FindLastSplitBetweenSubStringsCSZZ(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -50385,7 +50385,7 @@ ici		//...
 		*/
 
 	def UnicodeCompareWith(pcOtherStr)
-		return This.CompareWithCS(pcOtherStr, :CaseSensitive = TRUE)
+		return This.CompareWithCS(pcOtherStr, TRUE)
 
 	def UnicodeCompareWithInSystemLocale(pcOtherStr)
 		nQtResult = @oQString.localeAwareCompare(pcOtherStr)
@@ -50573,10 +50573,10 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsEqualTo(pcOtherStr)
-		return This.IsEqualToCS(pcOtherStr, :CaseSensitive = TRUE)
+		return This.IsEqualToCS(pcOtherStr, TRUE)
 
 		def IsEqualToQ(pcOtherStr)
-			return This.IsEqualToCS(pcOther, :CaseSensitive = TRUE)
+			return This.IsEqualToCS(pcOther, TRUE)
 
 		def IsEqualWith(pcOtherStr)
 			return This.IsEqualTo(pcOtherStr)
@@ -50642,7 +50642,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsStrictlyEqualTo(pcOtherStr)
-		return This.IsStrictlyEqualToCS(pcOtherStr, :CaseSensitive = TRUE)
+		return This.IsStrictlyEqualToCS(pcOtherStr, TRUE)
 
 		def IsStrictlyEqualWith(pcOtherStr)
 			return This.IsStrictlyEqualTo(pcOtherStr)
@@ -50683,7 +50683,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsEqualToOneOfThese(pacOtherStr)
-		return This.IsEqualToOneOfTheseCS(pacOtherStr, :CaseSensitive = TRUE)
+		return This.IsEqualToOneOfTheseCS(pacOtherStr, TRUE)
 
 	  #--------------------------------------------------------------#
 	 #  CHECKING IF THE STRING IS SMALLER THAN THE PROVIDED STRING  #
@@ -50788,7 +50788,7 @@ ici		//...
 		return oStr.IsEqualToCS(This.String(), pCaseSensitive)
 
 	def IsMultipleOf(pcSubStr)
-		return This.IsMultipleOfCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.IsMultipleOfCS(pcSubStr, TRUE)
 
 	def IsNTimesMultipleOfCS(n, pcSubStr, pCaseSensitive)
 		if NOT isString(pcSubStr)
@@ -50800,7 +50800,7 @@ ici		//...
 		return oStr.IsEqualToCS(This.String(), pCaseSensitive)
 
 	def IsNTimesMultipleOf(n, pcSubStr)
-		return This.IsNTimesMultipleOfCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.IsNTimesMultipleOfCS(n, pcSubStr, TRUE)
 
 	  #------------------------------------------------#
 	 #     STRING IS A SPLITTER OF AN OTHER STRING    #
@@ -50815,7 +50815,7 @@ ici		//...
 		return bResult
 
 	def IsSplitterOf(pcOtherStr)
-		bResult = This.IsSplitterOfCS(pcOtherStr, :CaseSensitive = TRUE)
+		bResult = This.IsSplitterOfCS(pcOtherStr, TRUE)
 		return bResult
 
 	  #---------------------------------------------------#
@@ -50902,7 +50902,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveOccurrences(panOccurr, pcSubStr)
-		This.RemoveOccurrencesCS(panOccurr, pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveOccurrencesCS(panOccurr, pcSubStr, TRUE)
 
 		def RemoveOccurrencesQ(panOccurr, pcSubStr)
 			This.RemoveOccurrences(panOccurr, pcSubStr)
@@ -50943,7 +50943,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFirstNOccurrences(n, pcSubStr)
-		This.RemoveFirstNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveFirstNOccurrencesCS(n, pcSubStr, TRUE)
 
 		def RemoveFirstNOccurrencesQ(n, pcSubStr, pCaseSensitive)
 			This.RemoveFirstNOccurrencesQ(n, pcSubStr, pCaseSensitive)
@@ -50989,7 +50989,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveLastNOccurrences(n, pcSubStr)
-		This.RemoveLastNOccurrencesCS(n, pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveLastNOccurrencesCS(n, pcSubStr, TRUE)
 
 		def RemoveLastNOccurrencesQ(n, pcSubStr, pCaseSensitive)
 			This.RemoveLastNOccurrencesQ(n, pcSubStr, pCaseSensitive)
@@ -51114,7 +51114,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveSubStringsExcept(pacSubStr)
-		This.RemoveSubStringsExceptCS(pacSubStr, :CaseSensitive = TRUE)
+		This.RemoveSubStringsExceptCS(pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -51165,7 +51165,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIViTY
 
 	def RemoveBetween(pcSubStr,pcBound1, pcBound2)
-		This.RemoveBetweenCS(pcSubStr,pcBound1, pcBound2, :CaseSensitive = TRUE)
+		This.RemoveBetweenCS(pcSubStr,pcBound1, pcBound2, TRUE)
 		
 		#< @FunctionFluentForm
 
@@ -51176,7 +51176,7 @@ ici		//...
 		#>
 
 	def InBetweenRemoved(pcSubStr, pcBound1, pcBound2)
-		return This.InBetweenRemovedCS(pcSubStr, pcBound1, pcBound2, :CaseSensitiVE = TRUE)
+		return This.InBetweenRemovedCS(pcSubStr, pcBound1, pcBound2, TRUE)
 
 		def SubStringInBetweenRemoved(pcSubStr,pcBound1, pcBound2)
 			return This.InBetweenRemoved(pcSubStr, pcBound1, pcBound2)
@@ -51218,7 +51218,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVE
 
 	def RemoveBetweenS(pcSubStr, pcBound1, pcBound2, pnStartingAt)
-		This.RemoveBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, :CaseSensitive = TRUE)
+		This.RemoveBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, TRUE)
 	
 		#< @FunctionFluentForm
 
@@ -51285,7 +51285,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIViTY
 
 	def RemoveBetweenIB(pcSubStr, pcBound1, pcBound2)
-		return This.RemoveBetweenCSIB(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
+		return This.RemoveBetweenCSIB(pcSubStr, pcBound1, pcBound2, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -51296,7 +51296,7 @@ ici		//...
 		#>
 
 	def InBetweenRemovedIB(pcSubStr, pcBound1, pcBound2)
-		return This.InBetweenRemovedCSIB(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE)
+		return This.InBetweenRemovedCSIB(pcSubStr, pcBound1, pcBound2, TRUE)
 
 		def SubStringInBetweenRemovedIB(pcSubStr,pcBound1, pcBound2)
 			return This.InBetweenRemovedIB(pcSubStr,pcBound1, pcBound2)
@@ -51339,7 +51339,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIViTY
 
 	def RemoveBetweenIBS(pcSubStr, pcBound1, pnStartingAt, pcBound2)
-		return This.RemoveSubStringBetweenIBSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, :CaseSensitive = TRUE)
+		return This.RemoveSubStringBetweenIBSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -51350,7 +51350,7 @@ ici		//...
 		#>
 
 	def InBetweenRemovedIBS(pcSubStr, pcBound1, pcBound2, pnStartingAt)
-		return This.InBetweenRemovedIBSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, :CaseSensitive = TRUE)
+		return This.InBetweenRemovedIBSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, TRUE)
 
 		def SubStringInBetweenRemovedIBS(pcSubStr,pcBound1, pcBound2, pnStartingAt)
 			return This.InBetweenRemovedIBS(pcSubStr,pcBound1, pcBound2, pnStartingAt)
@@ -51725,7 +51725,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveXT(pcNewSubStr, pcSubStr)
-		This.RemoveCSXTQ(pcNewSubStr, pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveCSXTQ(pcNewSubStr, pcSubStr, TRUE)
 
 		def RemoveXTQ(pcNewSubStr, pcSubStr)
 			This.RemoveXT(pcNewSubStr, pcSubStr)
@@ -51872,7 +51872,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisNthChar(n, cChar)
-		This.RemoveThisNthCharCS(n, cChar, :CaseSensitive = TRUE)
+		This.RemoveThisNthCharCS(n, cChar, TRUE)
 
 		def RemoveThisNthCharQ(n, cChar)
 			This.RemoveThisNthChar(n, cChar)
@@ -51900,7 +51900,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisFirstChar(c)
-		This.RemoveThisFirstCharCS(c, :CaseSensitive = TRUE)
+		This.RemoveThisFirstCharCS(c, TRUE)
 
 		def RemoveThisFirstCharQ(c)
 			This.RemoveThisFirstChar(c)
@@ -51928,7 +51928,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisLastChar(c)
-		This.RemoveThisLastCharCS(c, :CaseSensitive = TRUE)
+		This.RemoveThisLastCharCS(c, TRUE)
 
 		def RemoveThisLastCharQ(c)
 			This.RemoveThisLastChar(c)
@@ -52189,7 +52189,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveChar(pcChar)
-		This.RemoveCharCS(pcChar, :CaseSensitive = TRUE)
+		This.RemoveCharCS(pcChar, TRUE)
 
 		def RemoveCharQ(pcChar)
 			This.RemoveChar(pcChar)
@@ -53047,7 +53047,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNthOccurrence(n, pcSubStr)
-		This.RemoveNthOccurrenceCS(n, pcSubStr, :Casesensitive = TRUE)
+		This.RemoveNthOccurrenceCS(n, pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -53123,7 +53123,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFirstOccurrence(pcSubStr)
-		This.RemoveFirstOccurrenceCS(pcSubStr, :Casesensitive = TRUE)
+		This.RemoveFirstOccurrenceCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -53191,7 +53191,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveLastOccurrence(pcSubStr)
-		This.RemoveLastOccurrenceCS(pcSubStr, :Casesensitive = TRUE)
+		This.RemoveLastOccurrenceCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -53273,7 +53273,7 @@ ici		//...
 	#-- WIHTOUT CASESENSITIVITY
 
 	def RemoveNextNthOccurrence(n, pcSubStr, nStart, pcNewSubStr)
-		This.RemoveNextNthOccurrenceCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+		This.RemoveNextNthOccurrenceCS(n, pcSubStr, nStart, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -53315,7 +53315,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNextOccurrence(pcSubStr, nStart, pcNewSubStr)
-		This.RemoveNextNthOccurrenceCS(1, pcSubStr, nStart, :CaseSensitive = TRUE)
+		This.RemoveNextNthOccurrenceCS(1, pcSubStr, nStart, TRUE)
 
 		def RemoveNextOccurrenceQ(pcSubStr, nStart, pcNewSubStr)
 			This.RemoveNextOccurrence(pcSubStr, nStart, pcNewSubStr)
@@ -53382,7 +53382,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemovePreviousNthOccurrence(n, pcSubStr, nStart, pcNewSubStr)
-		This.RemovePreviousNthOccurrenceCS(n, pcSubStr, nStart, :CaseSensitive = TRUE)
+		This.RemovePreviousNthOccurrenceCS(n, pcSubStr, nStart, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -53429,7 +53429,7 @@ ici		//...
 	#-- WIHTOUT CASESENSITIVITY
 
 	def RemovePreviousOccurrence(pcSubStr, nStart, pcNewSubStr)
-		This.RemovePreviousNthOccurrenceCS(1, pcSubStr, nStart, :CaseSensitive = TRUE)
+		This.RemovePreviousNthOccurrenceCS(1, pcSubStr, nStart, TRUE)
 
 		def RemovePreviousOccurrenceQ(pcSubStr, nStart, pcNewSubStr)
 			This.RemovePreviousOccurrence(pcSubStr, nStart, pcNewSubStr)
@@ -53498,7 +53498,7 @@ ici		//...
 	#-- WIHTOUT CASESENSITIVITY
 
 	def RemoveRightOccurrence(pcSubStr)
-		This.RemoveRightOccurrenceCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveRightOccurrenceCS(pcSubStr, TRUE)
 
 		def RemoveRightOccurrenceQ(pcSubStr)
 			This.RemoveRightOccurrence(pcSubStr)
@@ -53556,7 +53556,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFromLeft(pcSubStr)
-		This.RemoveFromLeftCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveFromLeftCS(pcSubStr, TRUE)
 
 		def RemoveFromLeftQ(pcSubStr)
 			This.RemoveFromLeft(pcSubStr)
@@ -53632,7 +53632,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFromRight(pcSubStr)
-		This.RemoveFromRightCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveFromRightCS(pcSubStr, TRUE)
 
 		def RemoveFromRightQ(pcSubStr)
 			This.RemoveFromRight(pcSubStr)
@@ -53710,7 +53710,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFromStart(pcSubStr)
-		This.RemoveFromStartCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveFromStartCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -53797,7 +53797,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFromEnd(pcSubStr)
-		This.RemoveFromEndCS(pcSubStr, :CaseSensitive = TRUE)
+		This.RemoveFromEndCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -54229,7 +54229,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def Extract(pcSubStr)
-		return This.ExtractCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.ExtractCS(pcSubStr, TRUE)
 
 		def Pop(pcSubStr)
 			return This.Extract(pcSubStr)
@@ -54417,7 +54417,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractNthOccurrence(n, pcSubStr)
-		return This.ExtractNthOccurrenceCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.ExtractNthOccurrenceCS(n, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeFroms
 
@@ -54467,7 +54467,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractFirst(pcSubStr)
-		return This.ExtractFirstCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.ExtractFirstCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -54517,7 +54517,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractLast(pcSubStr)
-		return This.ExtractLastCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.ExtractLastCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -54725,7 +54725,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractNext(substring, pnStartingAt)
-		return This.ExtractNext(substring, pnStartingAt, :CaseSensitive = TRUE)
+		return This.ExtractNext(substring, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -54828,7 +54828,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractPrevious(substring, pnStartingAt)
-		return This.ExtractPreviousCS(substring, pnStartingAt, :CaseSensitive = TRUE)
+		return This.ExtractPreviousCS(substring, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -55252,7 +55252,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def SpacifySubstringUsing(pcSubStr, pcSep)
-		This.SpacifySubStringUsingCS(pcSubStr, pcSep, :CaseSensitive = TRUE)
+		This.SpacifySubStringUsingCS(pcSubStr, pcSep, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -55312,7 +55312,7 @@ ici		//...
 	#-- CASE-SENSITIVE
 
 	def SpacifySubstring(pcSubStr)
-		This.SpacifySubstringCS(pcSubStr, :CaseSensitive = TRUE)
+		This.SpacifySubstringCS(pcSubStr, TRUE)
 
 		def SpacifySubstringQ(pcSubStr)
 			This.SpacifySubstring(pcSubStr)
@@ -55389,7 +55389,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def SpacifySubStrings(pacSubStr)
-		This.SpacifySubStringsCS(pacSubStr, :CaseSensitive = TRUE)
+		This.SpacifySubStringsCS(pacSubStr, TRUE)
 
 		def SpacifySubStringsQ(pacSubStr)
 			This.SpacifySubStrings(pacSubStr)
@@ -55539,7 +55539,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def SpacifySubStringsUsing(pacSubStr, pcSep)
-		This.SpacifySubStringsUsingCS(pacSubStr, pcSep, :CaseSensitive = TRUE)
+		This.SpacifySubStringsUsingCS(pacSubStr, pcSep, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -55671,7 +55671,7 @@ ici		//...
 		This.ReplaceSections( aSections, Q(pcSubStr).Unspacified() )
 
 	def UnSpacifySubString(pcSubStr)
-		This.UnSpacifySubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		This.UnSpacifySubStringCS(pcSubStr, TRUE)
 
 	  #--------------------------------------------#
 	 #   UNSPACIFITYING A SECTION OF THE STRING   #
@@ -55730,10 +55730,10 @@ ici		//...
 		return n + oStr.NumberOfChars()
 
 	def PositionAfter(cSubStr)
-		return This.PositionAfterCS(cSubStr, :CaseSensitive = TRUE)
+		return This.PositionAfterCS(cSubStr, TRUE)
 
 	def PositionAfterNthOccurrence(n, cSubStr)
-		return This.PositionAfterNthOccurrenceCS(n, cSubStr, :CaseSensitive = TRUE)
+		return This.PositionAfterNthOccurrenceCS(n, cSubStr, TRUE)
 
 	  #--------------------------------------------------#
 	 #    GETTING POSITION BEFORE A GIVEN SUBSTRING     #
@@ -60029,7 +60029,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfChars()
-		return This.NumberOfCharsCS(:CaseSensitive = TRUE)
+		return This.NumberOfCharsCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -60336,7 +60336,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsMadeOf(acSubStr)
-		return This.IsMadeOfCS(acSubStr, :CaseSensitive = TRUE)
+		return This.IsMadeOfCS(acSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -60362,7 +60362,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsMadeOfTheseChars(acChars)
-		return This.IsMadeOfTheseCharsCS(acChars, :CaseSensitive = TRUE)
+		return This.IsMadeOfTheseCharsCS(acChars, TRUE)
 
 	  #---------------------------------------------#
 	 #  CHECKING IF THE STRING IS MADE OF LETTERS  #
@@ -60793,7 +60793,7 @@ ici		//...
 	#--
 
 	def ExistsInList(paList)
-		return This.ExistsInListCS(paList, :CaseSensitive = TRUE)
+		return This.ExistsInListCS(paList, TRUE)
 
 		def ExistsAsItemInList(paList)
 			return This.ExistsInList(paList)
@@ -60822,7 +60822,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsEither(pcStr1, pcStr2)
-		return This.IsEitherCS(pcStr1, pcStr2, :CaseSensitive = TRUE)
+		return This.IsEitherCS(pcStr1, pcStr2, TRUE)
 
 	  #=============================================#
 	 #  MOVING CHAR AT POSITION N1 TO POSITION N2  #
@@ -61051,7 +61051,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def SwapSubStrings(pcSubStr1, pcSubStr2)
-		This.SwapSubStringsCS(pcSubStr1, pcSubStr2, :CaseSensitive = TRUE)
+		This.SwapSubStringsCS(pcSubStr1, pcSubStr2, TRUE)
 
 		def SwapSubStringsQ(pcSubStr1, pcSubStr2)
 			This.SwapSubStrings(pcSubStr1, pcSubStr2)
@@ -64284,7 +64284,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumbersComingAfter(pcSubStr)
-		return This.NumbersComingAfterCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.NumbersComingAfterCS(pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -64292,7 +64292,7 @@ ici		//...
 			return This.NumbersComingAfterQR(pcSubStr, :stzList)
 
 		def NumbersComingAfterQR(pcSubStr, pcReturnType)
-			return This.NumbersComingAfterCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)
+			return This.NumbersComingAfterCSQR(pcSubStr, TRUE, pcReturnType)
 
 		#>
 
@@ -64329,7 +64329,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def NthNumberComingAfter(n, pcSubStr)
-		return This.NthNumberComingAfterCS(n, pcSubStr, :CaseSensitive = TRUE)
+		return This.NthNumberComingAfterCS(n, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -64358,7 +64358,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 	
 	def FirstNumberComingAfter(pcSubStr)
-		return This.FirstNumberComingAfterCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FirstNumberComingAfterCS(pcSubStr, TRUE)
 
 		def NumberComingAfter(pcSubStr)
 			return This.FirstNumberComingAfter(pcSubStr)
@@ -64387,7 +64387,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 	
 	def LastNumberComingAfter(pcSubStr)
-		return This.LastNumberComingAfterCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.LastNumberComingAfterCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -64613,7 +64613,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def CommonSubStrings(pcOtherStr)
-		return This.CommonSubStringsCS(pcOtherStr, :CaseSensitive = TRUE)
+		return This.CommonSubStringsCS(pcOtherStr, TRUE)
 
 		def Intersection(pcOtherStr)
 			return This.CommonSubStrings(pcOtherStr)
@@ -65017,13 +65017,13 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def Words()
-		return This.WordsCS(:CaseSensitive = TRUE)
+		return This.WordsCS(TRUE)
 
 		def WordsQ()
 			return This.WordsQR(:stzList)
 
 		def WordsQR(pcReturnType)
-			return This.WordsCSQR(:CaseSensitive = TRUE, pcReturnType)
+			return This.WordsCSQR(TRUE, pcReturnType)
 
 	  #------------------------------------------------------------------------#
 	 #  CHECKING IF THE GIVEN SUSBSTRING CORRESPONDS TO A WORD OF THE STRING  #
@@ -65053,7 +65053,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringIsWord(pcSubStr)
-		return This.SubStringIsWordCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.SubStringIsWordCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -65098,7 +65098,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringsAreWords(acSubStr)
-		return This.SubStringsAreWordsCS(acSubStr, :CaseSensitive = TRUE)
+		return This.SubStringsAreWordsCS(acSubStr, TRUE)
 
 	  #-----------------------------------#
 	 #  FINDING THE WORDS IN THE STRING  #
@@ -65120,7 +65120,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindWords()
-		return This.FindWordsCS(:CaseSensitive = TRUE)
+		return This.FindWordsCS(TRUE)
 
 		def PositionsOfWords()
 			return This.FindWords()
@@ -65148,7 +65148,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindWordsAsSections()
-		return This.FindWordsAsSectionsCS(:CaseSensitive = TRUE)
+		return This.FindWordsAsSectionsCS(TRUE)
 
 		def SectionsOfWords()
 			return This.FindWordsAsSections()
@@ -65175,7 +65175,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def WordsZ()
-		return This.WordsCSZ(:CaseSensitive = TRUE)
+		return This.WordsCSZ(TRUE)
 
 		def WordsAndTheirPositions()
 			return This.WordsZ()
@@ -65199,7 +65199,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def WordsZZ()
-		return This.WordsCSZZ(:CaseSensitive = TRUE)
+		return This.WordsCSZZ(TRUE)
 
 		def WordsAndTheirSections()
 			return This.WordsZZ()
@@ -65292,7 +65292,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVTY
 
 	def Occurs(pcBeforeOrAfter, pIn)
-		return This.OccursCS(pcBeforeOrAfter, pIn, :CaseSensitive = TRUE)
+		return This.OccursCS(pcBeforeOrAfter, pIn, TRUE)
 
 	   #-----------------------------------------------#
 	  #   CHECKING IF STRING OCCURES BEFORE A GIVEN   #
@@ -65305,7 +65305,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVTY
 
 	def OccursBefore(pcSubStr, pIn)
-		return This.OccursBeforeCS( pcSubStr, pIn, :CaseSensitive = TRUE )
+		return This.OccursBeforeCS( pcSubStr, pIn, TRUE )
 
 	   #----------------------------------------------#
 	  #   CHECKING IF STRING OCCURES AFTER A GIVEN   #
@@ -65318,7 +65318,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVTY
 
 	def OccursAfter(pcSubStr, pIn)
-		return This.OccursAfterCS( pcSubStr, pIn, :CaseSensitive = TRUE )
+		return This.OccursAfterCS( pcSubStr, pIn, TRUE )
 
 	  #-------------------------------------------------------------------#
 	 #   CHECKING IF STRING OCCURES N TIMES IN AN OTHER STRING OR LIST   #
@@ -65373,7 +65373,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def OccursNTimes( n, pIn )
-		return This.OccursNTimesCS( n, pIn, :CaseSensitive = TRUE )
+		return This.OccursNTimesCS( n, pIn, TRUE )
 
 	   #----------------------------------------------------#
 	  #  CHECKING IF STRING OCCURS FOR THE NTH TIME,       #
@@ -65445,7 +65445,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def OccursForTheNthTime(n, pIn, pnAt)
-		return This.OccursForTheNthTimeCS(n, pIn, pnAt, :CaseSensitive = TRUE)
+		return This.OccursForTheNthTimeCS(n, pIn, pnAt, TRUE)
 
 	   #----------------------------------------------------#
 	  #  CHECKING IF STRING OCCURS FOR THE FIRST TIME,     #
@@ -65458,7 +65458,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def OccursForTheFirstTime(pIn, pnAt)
-		return This.OccursForTheFirstTimeCS(pIn, pnAt, :CaseSensitive = TRUE)
+		return This.OccursForTheFirstTimeCS(pIn, pnAt, TRUE)
 
 	   #----------------------------------------------------#
 	  #  CHECKING IF STRING OCCURS FOR THE LAST TIME,      #
@@ -65472,7 +65472,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def OccursForTheLastTime(pIn, pnAt)
-		return This.OccursForTheLastTimeCS(pIn, pnAt, :CaseSensitive = TRUE)
+		return This.OccursForTheLastTimeCS(pIn, pnAt, TRUE)
 
 	  #===========#
 	 #   MISC.   #
@@ -65494,7 +65494,7 @@ ici		//...
 		return bResult
 
 	def IsAnagramOf(pcOtherStr)
-		return This.IsAnagramOfCS(pcOtherStr, :CS = TRUE)
+		return This.IsAnagramOfCS(pcOtherStr, TRUE)
 
 	def UpTo(pcChar)
 		if This.IsChar() and ( isString(pcChar) and StzStringQ(pcChar).IsChar() ) and
@@ -65587,10 +65587,10 @@ ici		//...
 			return new stzSubStringCS(pcSubStr, This.String(), pCaseSensitive)
 
 	def SubString(pcSubStr)
-		return This.SubStringCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.SubStringCS(pcSubStr, TRUE)
 
 		def SubStringQ(pcSubStr)
-			return This.SubStringCSQ(pcSubStr, :CaseSensitive = TRUE)
+			return This.SubStringCSQ(pcSubStr, TRUE)
 
 	#--
 
@@ -65625,10 +65625,10 @@ ici		//...
 		#< @FunctionAlternativeForm
 
 		def _In(p)
-			return InCS(p, :CaseSensitive = TRUE)
+			return InCS(p, TRUE)
 
 			def InQ(p)
-				return InCSQ(p, :CaseSensitive = TRUE)
+				return InCSQ(p, TRUE)
 
 		#>
 
@@ -65646,7 +65646,7 @@ ici		//...
 
 
 	def SubStringIn(pcStr)
-		return This.SubStringInCS(pcStr, :CaseSensitive = TRUE)
+		return This.SubStringInCS(pcStr, TRUE)
 
 		def SubStringInQ(pcStr)
 			return new stzSubString(This.Content(), pcStr)
@@ -65668,7 +65668,7 @@ ici		//...
 			return new stzItemCS(This.Content(), paList, pCaseSensitive)
 
 	def ItemIn(paList)	
-		return This.ItemInCS(paList, :CaseSensitive = TRUE)
+		return This.ItemInCS(paList, TRUE)
 
 	def AndThen()
 		return This
@@ -66072,7 +66072,7 @@ ici		//...
 			return This.FindAnySplittedByCSQR(pcSeparator, pCaseSensitive, :stzList)
 
 		def FindAnySeparatedByCSQR(pcSeparator, pCaseSensitive, pcReturnType)
-			return This.FindanySplittedByCSQR(pcSeparator, :CaseSensitive = TRUE, pcReturnType)				
+			return This.FindanySplittedByCSQR(pcSeparator, TRUE, pcReturnType)				
 	
 		#>
 
@@ -66087,7 +66087,7 @@ ici		//...
 			return This.FindAnySeparatedByQR(pcSeparator, :stzList)
 
 		def FindAnySeparatedByQR(pcSeparator, pcReturnType)
-			return This.FindAnySplittedByCSQR(pcSeparator, :CaseSensitive = TRUE, pcReturnType)				
+			return This.FindAnySplittedByCSQR(pcSeparator, TRUE, pcReturnType)				
 
 		#>
 
@@ -66660,7 +66660,7 @@ ici		//...
 			return This.FindSubstringBetweenCSQR(pcSubStr, pcBound1, pcBound2, pCaseSensitive, :stzList)
 
 		def FindSubstringBetweenCSQR(pcSubStr, pcBound1, pcBound2, pCaseSensitive, pcReturnType)
-			return This.FindBetweenCSQR(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE, pcReturnType)			
+			return This.FindBetweenCSQR(pcSubStr, pcBound1, pcBound2, TRUE, pcReturnType)			
 
 	def FindThisBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.FindBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
@@ -66669,7 +66669,7 @@ ici		//...
 			return This.FindThisBetweenCSQR(pcSubStr, pcBound1, pcBound2, pCaseSensitive, :stzList)
 
 		def FindThisBetweenCSQR(pcSubStr, pcBound1, pcBound2, pCaseSensitive, pcReturnType)
-			return This.FindBetweenCSQRQR(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE, pcReturnType)			
+			return This.FindBetweenCSQRQR(pcSubStr, pcBound1, pcBound2, TRUE, pcReturnType)			
 
 	#--
 
@@ -66684,7 +66684,7 @@ ici		//...
 			return This.FindThisSubStringBoundedByCSQR(pcSubStr, pacBounds, pCaseSensitive, :stzList)
 
 		def FindThisSubStringBoundedByCSQR(pcSubStr, pacBounds, pCaseSensitive, pcReturnType)
-			return This.FindThisSubStringBoundedByCSQR(pcSubStr, pacBounds, :CaseSensitive = TRUE, pcReturnType)			
+			return This.FindThisSubStringBoundedByCSQR(pcSubStr, pacBounds, TRUE, pcReturnType)			
 
 	def FindSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 		if isString(pacBounds)
@@ -66697,7 +66697,7 @@ ici		//...
 			return This.FindSubstringBoundedByCSQR(pcSubStr, pacBounds, pCaseSensitive, :stzList)
 
 		def FindSubstringBoundedByCSQR(pcSubStr, pacBounds, pCaseSensitive, pcReturnType)
-			return This.FindThisSubStringBoundedByCSQR(pcSubStr, pacBounds, :CaseSensitive = TRUE, pcReturnType)			
+			return This.FindThisSubStringBoundedByCSQR(pcSubStr, pacBounds, TRUE, pcReturnType)			
 
 	def FindThisBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 		if isString(pacBounds)
@@ -66710,7 +66710,7 @@ ici		//...
 			return This.FindThisBoundedByCSQR(pcSubStr, pacBounds, pCaseSensitive, :stzList)
 
 		def FindThisBoundedByCSQR(pcSubStr, pacBounds, pCaseSensitive, pcReturnType)
-			return This.FindThisSubStringBoundedByCSQR(pcSubStr, pacBounds, :CaseSensitive = TRUE, pcReturnType)			
+			return This.FindThisSubStringBoundedByCSQR(pcSubStr, pacBounds, TRUE, pcReturnType)			
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -66730,7 +66730,7 @@ ici		//...
 			return This.FindSubstringBetweenQR(pcSubStr, pcBound1, pcBound2, :stzList)
 
 		def FindSubstringBetweenQR(pcSubStr, pcBound1, pcBound2, pcReturnType)
-			return This.FindBetweenQR(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE, pcReturnType)			
+			return This.FindBetweenQR(pcSubStr, pcBound1, pcBound2, TRUE, pcReturnType)			
 
 	def FindThisBetween(pcSubStr, pcBound1, pcBound2)
 		return This.FindBetween(pcSubStr, pcBound1, pcBound2)
@@ -66739,7 +66739,7 @@ ici		//...
 			return This.FindThisBetweenQR(pcSubStr, pcBound1, pcBound2, :stzList)
 
 		def FindThisBetweenQR(pcSubStr, pcBound1, pcBound2, pcReturnType)
-			return This.FindBetweenCSQRQR(pcSubStr, pcBound1, pcBound2, :CaseSensitive = TRUE, pcReturnType)			
+			return This.FindBetweenCSQRQR(pcSubStr, pcBound1, pcBound2, TRUE, pcReturnType)			
 
 	#--
 
@@ -66754,7 +66754,7 @@ ici		//...
 			return This.FindThisSubStringBoundedByQR(pcSubStr, pacBounds, :stzList)
 
 		def FindThisSubStringBoundedByQR(pcSubStr, pacBounds, pcReturnType)
-			return This.FindThisSubStringBoundedByQR(pcSubStr, pacBounds, :CaseSensitive = TRUE, pcReturnType)			
+			return This.FindThisSubStringBoundedByQR(pcSubStr, pacBounds, TRUE, pcReturnType)			
 
 	def FindSubStringBoundedBy(pcSubStr, pacBounds)
 		if isString(pacBounds)
@@ -66767,7 +66767,7 @@ ici		//...
 			return This.FindSubstringBoundedByQR(pcSubStr, pacBounds, :stzList)
 
 		def FindSubstringBoundedByQR(pcSubStr, pacBounds, pcReturnType)
-			return This.FindThisSubStringBoundedByQR(pcSubStr, pacBounds, :CaseSensitive = TRUE, pcReturnType)			
+			return This.FindThisSubStringBoundedByQR(pcSubStr, pacBounds, TRUE, pcReturnType)			
 
 	def FindThisBoundedBy(pcSubStr, pacBounds)
 		if isString(pacBounds)
@@ -66780,7 +66780,7 @@ ici		//...
 			return This.FindThisBoundedByQR(pcSubStr, pacBounds, :stzList)
 
 		def FindThisBoundedByQR(pcSubStr, pacBounds, pcReturnType)
-			return This.FindThisSubStringBoundedByQR(pcSubStr, pacBounds, :CaseSensitive = TRUE, pcReturnType)			
+			return This.FindThisSubStringBoundedByQR(pcSubStr, pacBounds, TRUE, pcReturnType)			
 
 	  #-------------------------------------------#
 	 #  ALTERNATIVES OF FindBetweenAsSections()  #
@@ -67491,7 +67491,7 @@ ici		//...
 			return This.BetweenIBQR(p1, p2, pcReturnType)
 
 	def BoundedByIB(pacBounds)
-		return This.BoundedByCSIB(pacBounds, :CaseSensitive = TRUE)
+		return This.BoundedByCSIB(pacBounds, TRUE)
 	
 		def BoundedByIBQ(pacBounds)
 			return This.BoundedByIBQR(pacBounds, :stzList)
@@ -67717,13 +67717,13 @@ ici		//...
 			return This.SubStringsBetweenIBQR(pcSubStr1, pcSubStr2,  pcReturnType)
 
 	def SubStringsBoundedByIB(pacBounds)
-		return This.SubStringsBoundedByCSIB(pacBounds, :CaseSensitive = TRUE)
+		return This.SubStringsBoundedByCSIB(pacBounds, TRUE)
 		
 		def SubStringsBoundedByIBQ(pacBounds)
 			return This.SubStringsBoundedByIBQR(pacBounds, :stzList)
 
 		def SubStringsBoundedByIBQR(pacBounds,  pcReturnType)
-			return This.SubStringsBoundedByCSIBQR(pacBounds, :CaseSensitive = TRUE, pcReturnType)
+			return This.SubStringsBoundedByCSIBQR(pacBounds, TRUE, pcReturnType)
 
 	def AnySubStringBoundedByIB(pacBounds)
 		return This.SubStringsBoundedByIB(pacBounds)
@@ -67966,7 +67966,7 @@ ici		//...
 			return This.SubStringsBetweenCQR(pcSubStr1, pcSubStr2, pcReturnType)
 
 	def BoundedBy(pacBounds)
-		return This.SubStringsBoundedByCS(pacBounds, :CaseSensitive = TRUE)
+		return This.SubStringsBoundedByCS(pacBounds, TRUE)
 
 		def BoundedByQ(pacBounds)
 			return This.BoundedByQR(pacBounds, :stzList)
@@ -68003,18 +68003,18 @@ ici		//...
 			return This.FindSeparatedByAsSectionsCSQR(pcSubStr, pCaseSensitive, :stzList)
 
 		def FindSeparatedByAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
-			return This.FindSplittedByAsSectionsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)				
+			return This.FindSplittedByAsSectionsCSQR(pcSubStr, TRUE, pcReturnType)				
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSeparatedByAsSections(pcSubStr)
-		return This.FindSplittedByAsSectionsCS(pcSubStr, :CaseSensitive = TRUE)
+		return This.FindSplittedByAsSectionsCS(pcSubStr, TRUE)
 
 		def FindSeparatedByAsSectionsQ(pcSubStr)
 			return This.FindSeparatedByAsSectionsQR(pcSubStr, :stzList)
 
 		def FindSeparatedByAsSectionsQR(pcSubStr, pcReturnType)
-			return This.FindSplittedByAsSectionsCSQR(pcSubStr, :CaseSensitive = TRUE, pcReturnType)				
+			return This.FindSplittedByAsSectionsCSQR(pcSubStr, TRUE, pcReturnType)				
 
 	  #------------------------------------#
 	 #  ALTERNATIVES OF AnyDeepBetween()  #
@@ -69194,7 +69194,7 @@ ici		//...
 	#--
 
 	def ReplaceAnyBoundedBy(pacBounds, pcNewSubStr)
-		return This.ReplaceAnyBoundedByCS(pacBounds, pcNewSubStr, :CaseSensitive = TRUE)
+		return This.ReplaceAnyBoundedByCS(pacBounds, pcNewSubStr, TRUE)
 
 	def ReplaceSubStringsBoundedBy(pcBound1, pcBound2, pcNewSubStr)
 		This.ReplaceAnyBoundedBy(pcBound1, pcBound2, pcNewSubStr)
@@ -69529,7 +69529,7 @@ ici		//...
 	#--
 
 	def ReplaceAnyBoundedByIB(pacBounds, pcNewSubStr)
-		This.ReplaceAnyBoundedByCSIB(pacBounds, pcNewSubStr, :CaseSensitive = TRUE)
+		This.ReplaceAnyBoundedByCSIB(pacBounds, pcNewSubStr, TRUE)
 
 	def ReplaceSubStringsBoundedByIB(pcBound1, pcBound2, pcNewSubStr)
 		This.ReplaceAnyBoundedByIB(pcBound1, pcBound2, pcNewSubStr)

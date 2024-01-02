@@ -2249,7 +2249,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextOccurrences(pItem, pOtherItem, pnStartingAt)
-		This.ReplaceNextOccurrencesCS(pItem, pOtherItem, pnStartingAt, :CaseSensitive = TRUE)
+		This.ReplaceNextOccurrencesCS(pItem, pOtherItem, pnStartingAt, TRUE)
 
 		def ReplaceNextOccurrencesQ(pItem, pOtherItem, pnStartingAt)
 			This.ReplaceNextOccurrences(pItem, pOtherItem, pnStartingAt)
@@ -2301,7 +2301,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousOccurrences(pItem, pOtherItem, pnStartingAt)
-		This.ReplacePreviousOccurrencesCS(pItem, pOtherItem, pnStartingAt, :CaseSensitive = TRUE)
+		This.ReplacePreviousOccurrencesCS(pItem, pOtherItem, pnStartingAt, TRUE)
 
 		def ReplacePreviousOccurrencesQ(pItem, pOtherItem, pStartingAt)
 			This.ReplacePreviousOccurrences(pItem, pOtherItem, pnStartingAt)
@@ -2372,7 +2372,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNthOccurrence(n, pItem, pOtherItem)
-		This.ReplaceNthOccurrenceCS(n, pItem, pOtherItem, :CaseSensitive = TRUE)
+		This.ReplaceNthOccurrenceCS(n, pItem, pOtherItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -2430,7 +2430,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceFirstOccurrence(pItem, pOtherItem)
-		This.ReplaceFirstOccurrenceCS(pItem, pOtherItem, :CaseSensitive = TRUE)
+		This.ReplaceFirstOccurrenceCS(pItem, pOtherItem, TRUE)
 
 		def ReplaceFirstOccurrenceQ(pItem, pOtherItem)
 			This.ReplaceFirstOccurrence(pItem, pOtherItem)
@@ -2623,7 +2623,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
-		return This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, :CaseSensitive = TRUE)
+		return This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -2799,7 +2799,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
-		return This.ReplaceNextNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, :CaseSensitive = TRUE)
+		return This.ReplaceNextNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -2948,7 +2948,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousOccurrence(pItem, pNewItem, pnStartingAt)
-		This.ReplacePreviousOccurrenceCS(pItem, pNewItem, pnStartingAt, :CaseSensitive = TRUE)
+		This.ReplacePreviousOccurrenceCS(pItem, pNewItem, pnStartingAt, TRUE)
 
 		def ReplacePreviousOccurrenceQ(pItem, pNewItem, pnStartingAt)
 			This.ReplacePreviousOccurrence(pItem, pNewItem, pnStartingAt)
@@ -3991,7 +3991,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepReplace(pItem, pByValue)
-		This.DeepReplaceCS(pItem, pByValue, :CaseSensitive = TRUE)
+		This.DeepReplaceCS(pItem, pByValue, TRUE)
 
 		def DeepReplaceQ(pItem, pByValue)
 			This.DeepReplace(pItem, pByValue)
@@ -4061,7 +4061,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveAll(pItem)
-		This.RemoveAllCS(pItem, :CaseSensitive = TRUE)
+		This.RemoveAllCS(pItem, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -4233,7 +4233,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveMany(pacItems)
-		This.RemoveManyCS(pacItems, :CaseSensitive = TRUE)
+		This.RemoveManyCS(pacItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -4328,7 +4328,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveItemsOtherThan(paItems)
-		return This.RemoveItemsOtherThanCS(paItems, :CaseSensitive = TRUE)
+		return This.RemoveItemsOtherThanCS(paItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -4410,7 +4410,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNthOccurrence(n, pItem)
-		This.RemoveNthOccurrenceCS(n, pItem, :CaseSensitive = TRUE)
+		This.RemoveNthOccurrenceCS(n, pItem, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -4482,7 +4482,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFirstOccurrence(pItem)
-		This.RemoveFirstOccurrenceCS(pItem, :CaseSensitive = TRUE)
+		This.RemoveFirstOccurrenceCS(pItem, TRUE)
 
 
 		#< @FunctionFluentForm
@@ -4657,7 +4657,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNextNthOccurrence(n, pItem, pnStartingAt)
-		This.RemoveNextNthOccurrenceCS(n, pItem, pnStartingAt, :CaseSensitive = TRUE)
+		This.RemoveNextNthOccurrenceCS(n, pItem, pnStartingAt, TRUE)
 
 		#< @FuntionFluentForm
 
@@ -4846,7 +4846,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNextNthOccurrences(panList, pItem, pnStartingAt)
-		This.RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, :CaseSensitive = TRUE)
+		This.RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -4947,7 +4947,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
-		This.RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, :CaseSensitive = TRUE)
+		This.RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, TRUE)
 
 		def RemovePreviousNthOccurrenceQ(n, pItem, pnStartingAt)
 			This.RemovePreviousNthOccurrence(n, pItem, pnStartingAt)
@@ -4998,7 +4998,7 @@ class stzList from stzObject
 	# WITHOUT CASESENSITIVITY
 
 	def RemovePreviousOccurrence(pItem, pnStartingAt)
-		This.RemovePreviousOccurrenceCS(pItem, pnStartingAt, :CaseSensitive = TRUE)
+		This.RemovePreviousOccurrenceCS(pItem, pnStartingAt, TRUE)
 
 		def RemovePreviousOccurrenceQ(pItem, pnStartingAt)
 			This.RemovePreviousOccurrence(pItem, pnStartingAt)
@@ -5117,7 +5117,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
-		This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, :CaseSensitive = TRUE)
+		This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -5387,7 +5387,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisNthItem(n, pItem)
-		This.RemoveThisNthItemCS(n, pItem, :CaseSensitive = TRUE)
+		This.RemoveThisNthItemCS(n, pItem, TRUE)
 			
 		def RemoveThisNthItemQ(n, pItem)
 			This.RemoveThisNthItemCS(n, pItem)
@@ -5413,7 +5413,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisFirstItem(pItem)
-		This.RemoveThisNthItemCS(1, pItem, :CaseSensitive = TRUE)
+		This.RemoveThisNthItemCS(1, pItem, TRUE)
 
 		def RemoveThisFirstItemQ(pItem)
 			This.RemoveThisFirstItem(pItem)
@@ -5439,7 +5439,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisLastItem(pItem)
-		This.RemoveThisNthItemCS(1, pItem, :CaseSensitive = TRUE)
+		This.RemoveThisNthItemCS(1, pItem, TRUE)
 
 		def RemoveThisLastItemQ(pItem)
 			This.RemoveThisLastItem(pItem)
@@ -5900,7 +5900,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Extract(pItem)
-		return This.ExtractCS(pItem, :CaseSensitive = TRUE)
+		return This.ExtractCS(pItem, TRUE)
 
 		def Pop(pItem)
 			return This.Extract(pItem)
@@ -6129,7 +6129,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractNthOccurrence(n, pItem)
-		return This.ExtractNthOccurrenceCS(n, pItem, :CaseSensitive = TRUE)
+		return This.ExtractNthOccurrenceCS(n, pItem, TRUE)
 
 		#< @FunctionAlternativeFroms
 
@@ -6179,7 +6179,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractFirst(pItem)
-		return This.ExtractFirstCS(pItem, :CaseSensitive = TRUE)
+		return This.ExtractFirstCS(pItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -6230,7 +6230,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractLast(pItem)
-		return This.ExtractLastCS(pItem, :CaseSensitive = TRUE)
+		return This.ExtractLastCS(pItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -6380,7 +6380,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractNext(item, pnStartingAt)
-		return This.ExtractNext(item, pnStartingAt, :CaseSensitive = TRUE)
+		return This.ExtractNext(item, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -6483,7 +6483,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractPrevious(item, pnStartingAt)
-		return This.ExtractPreviousCS(item, pnStartingAt, :CaseSensitive = TRUE)
+		return This.ExtractPreviousCS(item, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -6580,7 +6580,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AreBoundsOf(pItem, pIn)
-		return This.AreBoundsOfCS(pItem, pIn, :CaseSensitive = TRUE)
+		return This.AreBoundsOfCS(pItem, pIn, TRUE)
 
 	  #----------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS BOUNDED BY THE GIVEN TWO ITEMS  #
@@ -6654,7 +6654,7 @@ class stzList from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def RemoveTheseBounds(pBound1, pBound2)
-		This.RemoveTheseBoundsCS(pBound1, pBound2, :CaseSensitive = TRUE)
+		This.RemoveTheseBoundsCS(pBound1, pBound2, TRUE)
 
 		def RemoveTheseBoundsQ(pBound1, pBound2)
 			This.RemoveTheseBounds(pBound1, pBound2)
@@ -6686,7 +6686,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveManyBounds(paPairsOfBounds)
-		This.RemoveManyBoundsCS(paPairsOfBounds, :CaseSensitive = TRUE)
+		This.RemoveManyBoundsCS(paPairsOfBounds, TRUE)
 
 		def RemoveManyBoundsQ(paPairsOfBounds)
 			This.RemoveManyBounds(paPairsOfBounds)
@@ -8060,7 +8060,7 @@ class stzList from stzObject
 	#-- CASESENSITIVITY
 
 	def ItemsAreAllEqual()
-		return This.ItemsAreAllEqualCS(:CaseSensitive = TRUE)
+		return This.ItemsAreAllEqualCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -13008,10 +13008,10 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsEqualTo(paOtherList)
-		return This.IsEqualToCS(paOtherList, :CaseSensitive = TRUE)
+		return This.IsEqualToCS(paOtherList, TRUE)
 
 		def IsEqualToQ(paOtherList)
-			return This.IsEqualToCSQ(paOtherList, :CaseSensitive = TRUE)
+			return This.IsEqualToCSQ(paOtherList, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -13077,7 +13077,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsStrictlyEqualTo(paOtherList)
-		return This.IsStrictlyEqualToCS(paOtherList, :CaseSensitive = TRUE)
+		return This.IsStrictlyEqualToCS(paOtherList, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -13595,7 +13595,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasSameContent(paOtherList)
-		return This.HasSameContentCS(paOtherList, :CaseSensitive = TRUE)
+		return This.HasSameContentCS(paOtherList, TRUE)
 
 		def HasSameContentAs(paOtherList)
 			return This.HasSameContent(paOtherList)
@@ -14418,7 +14418,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSameItemsAs(paOtherList)
-		return This.ContainsSameItemsAsCS(paOtherList, :CaseSensitive = TRUE)
+		return This.ContainsSameItemsAsCS(paOtherList, TRUE)
 
 	   #------------------------------------------------------------#
 	  #  GETTING THE LIST OF ITEMS FORMING THE DIFFERENCE BETWEEN  #
@@ -14443,7 +14443,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DifferenceWith(paOtherList)
-		return This.DifferenceWithCS(paOtherList, :CaseSensitive = TRUE)
+		return This.DifferenceWithCS(paOtherList, TRUE)
 
 	   #---------------------------------------------------------#
 	  #  GETTING THE LIST OF ITEMS WHICH ARE DIFFERENT BETWEEN  #
@@ -14522,7 +14522,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def OverItemsComparedTo(paOtherList)
-		return This.OverItemsComparedToCS(paOtherList, :CaseSensitive = TRUE)
+		return This.OverItemsComparedToCS(paOtherList, TRUE)
 
 		def OverItemsComparedToQ(paOtherList)
 			return new stzList( This.OverItemsComparedTo(paOtherList) )
@@ -14551,7 +14551,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def LackingItemsComparedTo(paOtherList)
-		return This.LackingItemsComparedToCS(paOtherList, :CaseSensitive = TRUE)
+		return This.LackingItemsComparedToCS(paOtherList, TRUE)
 
 		def LackingItemsComparedToQ(paOtherList)
 			return new stzList( This.LackingItemsComparedTo(paOtherList) )	
@@ -14579,7 +14579,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def HasSameNumberOfItemsAs(paOtherList)
-		return This.HasSameNumberOfItemsAsCS(paOtherList, :CaseSensitive = TRUE)
+		return This.HasSameNumberOfItemsAsCS(paOtherList, TRUE)
 
 		def HasSameWidthAs(paOtherList)
 			return HasSameNumberOfItemsAs(paOtherList)
@@ -14658,7 +14658,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def CommonItems(paOtherList)
-		return This.CommonItemsCS(paOtherList, :CaseSensitive = TRUE)
+		return This.CommonItemsCS(paOtherList, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -14717,7 +14717,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfCommonItemsWith(paItems)
-		return This.NumberOfCommonItemsWithCS(paItems, :CaseSensitive = TRUE)
+		return This.NumberOfCommonItemsWithCS(paItems, TRUE)
 
 		def SizeOfIntersectionWith(paItems)
 			return NumberOfCommonItemsWith(paItems)
@@ -14750,7 +14750,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfDifferentItemsWith(paItems)
-		return This.NumberOfDifferentItemsWithCS(paItems, :CaseSensitive = TRUE)
+		return This.NumberOfDifferentItemsWithCS(paItems, TRUE)
 
 		def CountDifferentItemsWith(paItem)
 			return This.NumberOfDifferentItemsWith(paItems)
@@ -16971,7 +16971,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrence(pItem)
-		return This.NumberOfOccurrenceCS(pItem, :CaseSensitive = TRUE)
+		return This.NumberOfOccurrenceCS(pItem, TRUE)
 
 		#< @FucntionAlternativeForms
 
@@ -17119,15 +17119,15 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def FindItems()
-		return This.FindItemsCS(:CaseSensitive = TRUE)
+		return This.FindItemsCS(TRUE)
 			
 		#< @FunctionFluentForms
 
 		def FindItemsQ()
-			return This.FindItemsCSQ(:CaseSensitive = TRUE)
+			return This.FindItemsCSQ(TRUE)
 
 		def FindItemsQR(pcReturnType)
-			return This.FindItemsCSQR(:CaseSensitive = TRUE, pcReturnType)
+			return This.FindItemsCSQR(TRUE, pcReturnType)
 
 		#>
 
@@ -17177,7 +17177,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemIsDuplicated(pItem)
-		return This.ItemIsDuplicatedCS(pItem, :CaseSensitive = TRUE)
+		return This.ItemIsDuplicatedCS(pItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17347,7 +17347,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsDuplicates()
-		return This.ContainsDuplicatesCS(:CaseSensitive = TRUE)
+		return This.ContainsDuplicatesCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17376,7 +17376,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemIsDuplicatedNTimes(n, pItem)
-		return This.ItemIsDuplicatedNTimesCS(n, pItem, :CaseSensitive = TRUE)
+		return This.ItemIsDuplicatedNTimesCS(n, pItem, TRUE)
 
 	  #----------------------------------------------------#
 	 #  CHECKING IF ALL ITEMS IN THE LIST ARE DUPLICATED  #
@@ -17495,7 +17495,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AllItemsAreDuplicated()
-		return This.AllItemsAreDuplicatedCS(:CaseSensitive = TRUE)
+		return This.AllItemsAreDuplicatedCS(TRUE)
 
 	  #-------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS A SET (CONTAINS NO DUPLICATIONS AT ALL)  #
@@ -17654,7 +17654,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNoDuplicates()
-		return This.ContainsNoDuplicatesCS(:CaseSensitive = TRUE)
+		return This.ContainsNoDuplicatesCS(TRUE)
 
 		#< @FunctionAlterativeForms
 
@@ -17754,7 +17754,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfDuplicates()
-		return This.NumberOfDuplicatesCS(:CaseSensitive = TRUE)
+		return This.NumberOfDuplicatesCS(TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -17942,7 +17942,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesZ()
-		return This.DuplicatesCSZ(:CaseSensitive = TRUE)
+		return This.DuplicatesCSZ(TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -18094,7 +18094,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicates()
-		return This.FindDuplicatesCS(:CaseSensitive = TRUE)
+		return This.FindDuplicatesCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -18249,7 +18249,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesXTZ()
-		return This.DuplicatesCSXTZ(:CaseSensitive = TRUE)
+		return This.DuplicatesCSXTZ(TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -18401,7 +18401,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesXT()
-		return This.FindDuplicatesCSXT(:CaseSensitive = TRUE)
+		return This.FindDuplicatesCSXT(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -18551,7 +18551,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstDuplicates()
-		return This.FindFirstDuplicatesCS(:CaseSensitive = TRUE)
+		return This.FindFirstDuplicatesCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -18715,7 +18715,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Duplicates()
-		return This.DuplicatesCS(:CaseSensitive = TRUE)
+		return This.DuplicatesCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -18788,7 +18788,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesOfItem(pItem)
-		return This.FindDuplicatesOfItemCS(pItem, :CaseSensitive = TRUE)
+		return This.FindDuplicatesOfItemCS(pItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -18889,7 +18889,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNonDuplicatedItems()
-		return This.ContainsItemsThatAreNotDuplicatedCS(:CaseSensitive = TRUE)
+		return This.ContainsItemsThatAreNotDuplicatedCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -19059,7 +19059,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NonDuplicatedItems()
-		return This.NonDuplicatedItemsCS(:CaseSensitive = TRUE)
+		return This.NonDuplicatedItemsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -19116,7 +19116,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfNonDuplicatedItems()
-		return This.NumberOfNonDuplicatedItemsCS(:CaseSensitive = TRUE)
+		return This.NumberOfNonDuplicatedItemsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -19282,7 +19282,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNonDuplicatedItems()
-		return This.FindNonDuplicatedItemsCS(:CaseSensitive = TRUE)
+		return This.FindNonDuplicatedItemsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -19334,7 +19334,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NonDuplicatedItemsAndTheirPositions()
-		return This.NonDuplicatedItemsAndTheirPositionsCS(:CaseSensitive = TRUE)
+		return This.NonDuplicatedItemsAndTheirPositionsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -19429,7 +19429,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicates()
-		This.RemoveDuplicatesCS(:CaseSensitive = TRUE)
+		This.RemoveDuplicatesCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -19685,7 +19685,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicatesOfItem(pItem)
-		This.RemoveDuplicatesOfItemCS(pItem, :CaseSensitive = TRUE)
+		This.RemoveDuplicatesOfItemCS(pItem, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -19712,7 +19712,7 @@ class stzList from stzObject
 				return This
 
 		def RemoveDuplicatesOf(pItem)
-			This.RemoveDuplicatesOfCS(pItem, :CaseSensitive = TRUE)
+			This.RemoveDuplicatesOfCS(pItem, TRUE)
 
 			def RemoveDuplicatesOfQ(pItem)
 				This.RemoveDuplicatesOf(pItem)
@@ -19735,7 +19735,7 @@ class stzList from stzObject
 		#>
 
 	def DuplicatesOfItemRemoved(pItem)
-		return This.DuplicatesOfItemRemovedCS(pItem, :CaseSensitive = TRUE)
+		return This.DuplicatesOfItemRemovedCS(pItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -19874,7 +19874,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicatesOfItems(paItems)
-		This.RemoveDuplicatesOfItemsCS(paItems, :CaseSensitive = TRUE)
+		This.RemoveDuplicatesOfItemsCS(paItems, TRUE)
 
 		#< @FuntionFluentForm
 
@@ -19941,7 +19941,7 @@ class stzList from stzObject
 		#>
 
 	def DuplicatesOfItemsRemoved(paItems)
-		return This.DuplicatesOfItemsRemovedCS(paItems, :CaseSensitive = TRUE)
+		return This.DuplicatesOfItemsRemovedCS(paItems, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -20021,7 +20021,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNonDuplicates()
-		This.RemoveNonDuplicatesCS(:CaseSensitive = TRUE)
+		This.RemoveNonDuplicatesCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -20139,7 +20139,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Contains(pItem)
-		return This.ContainsCS(pItem, :CaseSensitive = TRUE)
+		return This.ContainsCS(pItem, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -20243,7 +20243,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsContainedIn(p)
-		return This.IsContainedInCS(p, :CaseSensitive = TRUE)
+		return This.IsContainedInCS(p, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -20269,7 +20269,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsBoth(pItem1, pItem2)
-		return This. ContainsBothCS(pItem1, pItem2, :CaseSensitive = TRUE)
+		return This. ContainsBothCS(pItem1, pItem2, TRUE)
 
 	  #--------------------------------------------------------------------#
 	 #  CHECKING IF EACH ONE OF THE GIVEN ITEMS EXISTS IN THE GIVEN LIST  #
@@ -20297,7 +20297,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVI
 
 	def EachItemExistsIn(paOtherList)
-		return This.EachItemExistsInCS(paOtherList, :CaseSensitive = TRUE)
+		return This.EachItemExistsInCS(paOtherList, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -20326,7 +20326,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsOneOfThese(paOtherList)
-		return This.IsOneOfTheseCS(paOtherList, :CaseSensitive = TRUE)
+		return This.IsOneOfTheseCS(paOtherList, TRUE)
 
 		def IsNotOneOfThese(paOtherList)
 			return NOT This.IsOneOfThese(paOtherList)
@@ -20393,7 +20393,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsMany(paSetOfItems)
-		return This.ContainsManyCS(paSetOfItems, :CaseSensitive = TRUE)
+		return This.ContainsManyCS(paSetOfItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -20466,7 +20466,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSome(paSetOfItems)
-		return This.ContainsSomeCS(paSetOfItems, :CaseSensitive = TRUE)
+		return This.ContainsSomeCS(paSetOfItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -20540,7 +20540,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsAny(pSetOfItems)
-		return This.ContainsAnyCS(pSetOfItems, :CaseSensitive = TRUE)
+		return This.ContainsAnyCS(pSetOfItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -20612,7 +20612,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsOnlyOne(paItems)
-		return This.ContainsOnlyOneCS(paItems, :CaseSensitive = TRUE)
+		return This.ContainsOnlyOneCS(paItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -20686,7 +20686,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsN(n, paItems)
-		return This.ContainsNCS(n, paItems, :CaseSensitive = TRUE)
+		return This.ContainsNCS(n, paItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -20819,7 +20819,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def EachContains(pItem)
-		return This.EachContainsCS(pItem, :CaseSensitive = TRUE)
+		return This.EachContainsCS(pItem, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -20876,7 +20876,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def EachContainsThese(paItems)
-		return This.EachContainsTheseCS(paItems, :CaseSensitive = TRUE)
+		return This.EachContainsTheseCS(paItems, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -21921,7 +21921,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAllOccurrences(pItem)
-		aResult = This.FindAllOccurrencesCS(pItem, :CaseSensitive = TRUE)
+		aResult = This.FindAllOccurrencesCS(pItem, TRUE)
 		return aResult
 
 		#< @FunctionFluentForm
@@ -21930,7 +21930,7 @@ class stzList from stzObject
 			return This.FindAllOccurrencesQR(pItem, :stzList)
 
 		def FindAllOccurrencesQR(pItem, pcReturnType)
-			return This.FindAllOccurrencesCSQR(pItem, :CS = TRUE, pcReturnType)
+			return This.FindAllOccurrencesCSQR(pItem, TRUE, pcReturnType)
 		#>
 
 		#< @FunctionAlternativeForms
@@ -22023,32 +22023,36 @@ class stzList from stzObject
 
 		*/
 
-		if isString(n)
-			if n = :First or n = :FirstOccurrence
-				return This.FindfirstCS(pItem, pCaseSensitive)
+		if CheckParams()
 
-			but n = :Last or n = :LastOccurrence
-				return This.FindLastCS(pItem, pCaseSensitive)
+			if isString(n)
+				if n = :First or n = :FirstOccurrence
+					return This.FindfirstCS(pItem, pCaseSensitive)
+	
+				but n = :Last or n = :LastOccurrence
+					return This.FindLastCS(pItem, pCaseSensitive)
+				ok
 			ok
-		ok
+	
+			if NOT isNumber(n)
+				SrzRaise("Incorrect  param type! n must be a number.")
+			ok
+	
+			if n = 1
+				return This.FirstOccurrenceCS(pItem, pCaseSensitive)
+	
+			but n = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+				return This.LastOccurrenceCS(pItem, pCaseSensitive)
+			ok
+	
+			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+				pItem = pItem[2]
+			ok
+	
+			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+				pCaseSensitive = pCaseSensitive[2]
+			ok
 
-		if NOT isNumber(n)
-			SrzRaise("Incorrect  param type! n must be a number.")
-		ok
-
-		if n = 1
-			return This.FirstOccurrenceCS(pItem, pCaseSensitive)
-
-		but n = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
-			return This.LastOccurrenceCS(pItem, pCaseSensitive)
-		ok
-
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
 		ok
 
 		# Doing the job
@@ -22060,35 +22064,36 @@ class stzList from stzObject
 			return This.LastOccurrenceCS(pItem, pCaseSensitive)
 		ok
 
-		# TODO
+		cItem = Q(pItem).Stringified()
+		acContent = This.Stringified()
+		nLen = len(acContent)
+? pCaseSensitive
+dfdf
+		if pCaseSensitive = FALSE
 
-		cItem = @@(pItem)
-		aoQStrings = This.ToListOfQStrings()
-		nLen = len(aoQStrings)
+			cItem = lower(cItem)
 
-		nResult = 0
-		bContinue = TRUE
-		i = 0
-		nOccurrence = 0
+			for i = 1 to nLen
+				if NOT isLower(acCotent[i])
+					acContent[i] = lower(acContent[i])
+				ok
+			next
+		ok
 
-		while bContinue
-			i++
-			if i > nLen
-				bContinue = FALSE
-				exit
-			ok
+		
 
-			if aoQStrings[i].mid(0, aoQStrings[i].length()-1) = cItem
-				nOccurrence++
-				if nOccurrence = n
-					nResult = i
-					nContinue = FALSE
-					exit
+		nOccurr = 0
+
+		for i = 1 to nLen
+			if acContent[i] = cItem
+				nOccurr++
+				if nOccurr = n
+					return i
 				ok
 			ok
-		end
+		next
 
-		return nResult
+		return 0
 
 		#< @FunctionAlternativeForms
 
@@ -22112,7 +22117,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthOccurrence(n, pItem) 
-		return This.FindNthOccurrenceCS(n, pItem, :CaseSensitive = TRUE) 
+		return This.FindNthOccurrenceCS(n, pItem, TRUE) 
 
 		#< @FunctionAlternativeForms
 
@@ -22234,7 +22239,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstOccurrence(pItem)
-		return This.FindFirstOccurrenceCS(pItem, :CaseSensitive = TRUE)
+		return This.FindFirstOccurrenceCS(pItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -22344,7 +22349,7 @@ class stzList from stzObject
 
 	def FindLastOccurrence(pItem)
 
-		return This.FindLastOccurrenceCS(pItem, :CaseSensitive = TRUE)
+		return This.FindLastOccurrenceCS(pItem, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -22379,7 +22384,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindTheseOccurrences(panOccurr, pItem)
-		return This.FindTheseOccurrencesCS(panOccurr, pItem, :CaseSensitive = TRUE)
+		return This.FindTheseOccurrencesCS(panOccurr, pItem, TRUE)
 
 		def FindOccurrences(panOccurr, pItem)
 			return This.FindTheseOccurrences(panOccurr, pItem)
@@ -22454,7 +22459,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindMany(paItems)
-		return This.FindManyCS(paItems, :CaseSensitive = TRUE)
+		return This.FindManyCS(paItems, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -22462,7 +22467,7 @@ class stzList from stzObject
 			return This.FindManyQR(paItems, :stzListOfNumbers)
 
 		def FindManyQR(paItems, pcReturnType)
-			return This.FindManyCSQR(paItems, :CaseSensitive = TRUE, pcReturnType)
+			return This.FindManyCSQR(paItems, TRUE, pcReturnType)
 
 		#>
 
@@ -22522,7 +22527,7 @@ class stzList from stzObject
 	#-- CASESENSITIVITY
 
 	def TheseItemsZ(paItems)
-		return This.TheseItemsCSZ(paItems, :CaseSensitive = TRUE)
+		return This.TheseItemsCSZ(paItems, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -22722,7 +22727,7 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def FindAllExceptFirstQR(pItem, pcReturnType)
-			return This.FindAllExceptFirstCSQR(pItem, pcReturnType, :CaseSensitive = TRUE)
+			return This.FindAllExceptFirstCSQR(pItem, pcReturnType, TRUE)
 
 		def FindAllExceptFirstQ(pItem)
 			return This.FindAllExceptFirstQR(pItem, :stzList)
@@ -22737,7 +22742,7 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptFirstQR(pItem, pcReturnType)
-				return This.FindExeptFirstCSQR(pItem, pcReturType, :CaseSensitive = TRUE)
+				return This.FindExeptFirstCSQR(pItem, pcReturType, TRUE)
 	
 			def FindExceptFirstQ(pItem)
 				return This.FindAllExceptFirstQR(pItem, :stzList)
@@ -22846,7 +22851,7 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptLastQR(pItem, pcReturnType)
-				return This.FindExceptLastCSQR(pItem, pcReturnType, :CaseSensitive = TRUE)
+				return This.FindExceptLastCSQR(pItem, pcReturnType, TRUE)
 	
 			def FindExceptLastQ(pItem)
 				return This.FindAllExceptLastQR(pItem, :stzListOfNumbers)
@@ -22884,7 +22889,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContains(pItem)
-		return This.DeepContainsCS(pItem, :CaseSensitive = TRUE)
+		return This.DeepContainsCS(pItem, TRUE)
 
 	  #-----------------------------------------------------------------------------#
 	 #  CHECKING IF THE PROVIDED ITEMS ARE ALL CONTAINED IN THE LIST AT ANY LEVEL  #
@@ -22920,7 +22925,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContainsMany(paItems)
-		return This.DeepContainsManyCS(paItems, :CaseSensitive = TRUE)
+		return This.DeepContainsManyCS(paItems, TRUE)
 
 		def DeepContainsEach(paItems)
 			return This.DeepContainsMany(paItems)
@@ -22948,7 +22953,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContainsBoth(pItem1, pItem2)
-		return This.DeepContainsBothCS(pItem1, pItem2, :CaseSensitive = TRUE)
+		return This.DeepContainsBothCS(pItem1, pItem2, TRUE)
 
 	  #--------------------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS AT LEAST ONE OF THE PROVIDED ITEMS AT ANY LEVEL  #
@@ -22969,7 +22974,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContainsOneOfThese(paItems)
-		return This.DeepContainsOneOfTheseCS(paItems, :CaseSensitive = TRUE)
+		return This.DeepContainsOneOfTheseCS(paItems, TRUE)
 
 	  #--------------------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS AT LEAST N OF THE PROVIDED ITEMS AT ANY LEVEL  #
@@ -22998,7 +23003,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepContainsNOfThese(n, paItems)
-		return This.DeepContainsNOfTheseCS(n, paItems, :CaseSensitive = TRUE)
+		return This.DeepContainsNOfTheseCS(n, paItems, TRUE)
 
 		def DeepContainsNItemsOfThese(n, paItems)
 			return This.DeepContainsNOfThese(n, paItems)
@@ -23064,7 +23069,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DeepFind(pItem)
-		return This.DeepFindCS(pItem, :CaseSensitive = TRUE)
+		return This.DeepFindCS(pItem, TRUE)
 
 	  #-----------------------------------------------------#
 	 #  FINDING THE LIST ITEMS IN AN OTHER LIST OR ITEM  #
@@ -23119,7 +23124,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindIn(pOtherListOrStr)
-		return FindInCS(pOtherListOrStr, :CaseSensitive = TRUE)
+		return FindInCS(pOtherListOrStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -23149,7 +23154,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInList(paOtherList)
-		return This.FindInListCS(paOtherList, :CaseSensitive = TRUE)
+		return This.FindInListCS(paOtherList, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -23179,7 +23184,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInString(pcStr)
-		return This.FindInStringCS(pcStr, :CaseSensitive = TRUE)
+		return This.FindInStringCS(pcStr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -23243,7 +23248,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def VizFindAllOccurrences(pItem)
-		return This.VizFindAllOccurrencesCS(pItem, :CaseSensitive = TRUE)
+		return This.VizFindAllOccurrencesCS(pItem, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -23389,7 +23394,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthNextOccurrence( n, pItem, nStart )
-		return This.FindNthNextOccurrenceCS( n, pItem, nStart, :CaseSensitive = TRUE )
+		return This.FindNthNextOccurrenceCS( n, pItem, nStart, TRUE )
 
 		#< @FunctionAlternativeForms
 
@@ -23545,7 +23550,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthPreviousOccurrence(n, pItem, nStart)
-		return This. FindNthPreviousOccurrenceCS(n, pItem, nStart, :CaseSensitive = TRUE)
+		return This. FindNthPreviousOccurrenceCS(n, pItem, nStart, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -23643,7 +23648,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNextOccurrence(pItem, nStart)
-		nResult = This.FindNextOccurrenceCS(pItem, nStart, :CaseSensitive = TRUE)
+		nResult = This.FindNextOccurrenceCS(pItem, nStart, TRUE)
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -23721,7 +23726,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindPreviousOccurrence(pItem, nStart)
-		return This.FindPreviousOccurrenceCS(pItem, nStart, :CaseSensitive = TRUE)
+		return This.FindPreviousOccurrenceCS(pItem, nStart, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -23799,7 +23804,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNextOccurrences(pItem, pnStartingAt)
-		return This.FindNextOccurrencesCS(pItem, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindNextOccurrencesCS(pItem, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -23857,7 +23862,7 @@ class stzList from stzObject
 		#>
 
 	def FindPreviousOccurrences(pcSubStr, pnStartingAt)
-		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, :CaseSensitive = TRUE)
+		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -24787,7 +24792,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def AllItemsExcept(pItem)
-		return This.AllItemsExceptCS(pItem, :CaseSensitive = TRUE)
+		return This.AllItemsExceptCS(pItem, TRUE)
 
 	  #================================================================================#
 	 #   GETTING UNIQUE ITEMS VERIFYING A GIVEN CONDITION ALONG WITH THEIR POSITIONS  #
@@ -27501,7 +27506,7 @@ class stzList from stzObject
 	#-- WTHOUT CASESENSITIVITY
 
 	def SectionsXT(pItem1, pItem2)
-		return This.SectionsCSXT(pItem1, pItem2, :CaseSensitive = TRUE)
+		return This.SectionsCSXT(pItem1, pItem2, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -28491,7 +28496,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def EndsWith(paItems)
-		return This.EndsWithCS(paItems, :CS = TRUE)
+		return This.EndsWithCS(paItems, TRUE)
 
 		def FinishesWith(paItems)
 			return This.EndsWith(paItems)
@@ -28714,7 +28719,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInSection(pItem, n1, n2)
-		return This.FindInSectionCS(pItem, n1, n2, :CaseSensitive = TRUE)
+		return This.FindInSectionCS(pItem, n1, n2, TRUE)
 		
 		#< @FunctionAlternativeForm
 
@@ -28765,7 +28770,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindInSections(pItem, paSections)
-		return This.FindInSectionsCS(pItem, paSections, :CaseSensitive = TRUE)
+		return This.FindInSectionsCS(pItem, paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -28841,7 +28846,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInSection(n, pItem, n1, n2)
-		return This.FindNthInSectionCS(n, pItem, n1, n2, :CaseSensitive = TRUE)
+		return This.FindNthInSectionCS(n, pItem, n1, n2, TRUE)
 		
 		#< @FunctionAlternativeForm
 
@@ -28897,7 +28902,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthInSections(n, pItem, paSections)
-		return This.FindNthInSectionsCS(n, pItem, paSections, :CaseSensitive = TRUE)
+		return This.FindNthInSectionsCS(n, pItem, paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -28932,7 +28937,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInSection(pItem, n1, n2)
-		return This.FindFirstInSectionCS(pItem, n1, n2, :CaseSensitive = TRUE)
+		return This.FindFirstInSectionCS(pItem, n1, n2, TRUE)
 		
 		#< @FunctionAlternativeForm
 
@@ -28978,7 +28983,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInSections(pItem, paSections)
-		return This.FindFirstInSectionsCS(pItem, paSections, :CaseSensitive = TRUE)
+		return This.FindFirstInSectionsCS(pItem, paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -29013,7 +29018,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInSection(pItem, n1, n2)
-		return This.FindLastInSectionCS(pItem, n1, n2, :CaseSensitive = TRUE)
+		return This.FindLastInSectionCS(pItem, n1, n2, TRUE)
 		
 		#< @FunctionAlternativeForm
 
@@ -29059,7 +29064,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastInSections(pItem, paSections)
-		return This.FindLastInSectionsCS(pItem, paSections, :CaseSensitive = TRUE)
+		return This.FindLastInSectionsCS(pItem, paSections, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -29496,7 +29501,7 @@ class stzList from stzObject
 
 
 			but isList(aContent[i])
-				cResult += ( ComputableForm(aContent[i]) + ", ")
+				cResult += ( @ComputableForm(aContent[i]) + ", ")
 
 			but isObject(aContent[i])
 				cResult += @ObjectVarName(aContent[i]) + ", "
@@ -29762,7 +29767,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyAndReplaceXT(pcSubStr, pcOtherSubStr)
-		This.StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+		This.StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -29823,7 +29828,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyAndReplace(pcSubStr, pcOtherSubStr)
-		This.StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+		This.StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -29981,7 +29986,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyLowercaseAndReplaceXT(pcSubStr, pcOtherSubStr)
-		This.StringifyLowercaseAndReplaceCSXT(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+		This.StringifyLowercaseAndReplaceCSXT(pcSubStr, pcOtherSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -30043,7 +30048,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def StringifyLowercaseAndReplace(pcSubStr, pcOtherSubStr)
-		This.StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, :CaseSensitive = TRUE)
+		This.StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -40453,7 +40458,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItems()
-		return This.NRandomItemsCS(:CaseSensitive = TRUE)
+		return This.NRandomItemsCS(TRUE)
 
 		#< @functionAlternativeForm
 
@@ -40519,7 +40524,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsZ()
-		return This.NRandomItemsCSZ(:CaseSensitive = TRUE)
+		return This.NRandomItemsCSZ(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -40693,7 +40698,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnItemOtherThan(pItem)
-		return This.AnItemOtherThanCS(pItem, :CaseSensitive = TRUE)
+		return This.AnItemOtherThanCS(pItem, TRUE)
 
 		#< @FunctionAlternativeForms
 	
@@ -40819,7 +40824,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnItemOtherThanZ(pItem)
-		return This.AnItemOtherThanCSZ(pItem, :CaseSensitive = TRUE)
+		return This.AnItemOtherThanCSZ(pItem, TRUE)
 
 		#< @FunctionAlternativeForms
 	
@@ -40886,7 +40891,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnyRandomItemOtherThanMany(paItems)
-		return This.AnyRandomItemOtherThanManyCS(paItems, :CaseSensitive = TRUE)
+		return This.AnyRandomItemOtherThanManyCS(paItems, TRUE)
 
 	  #----------------------------------------------------------------------------------#
 	 #  GETTING A EANDOM ITEM OTHER THAN THE ITEMS PROVIDED ALONG WITH THEIR POSITIONS  #
@@ -40901,7 +40906,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnyRandomItemOtherThanManyZ(paItems)
-		return This.AnyRandomItemOtherThanManyCSZ(paItems, :CaseSensitive = TRUE)
+		return This.AnyRandomItemOtherThanManyCSZ(paItems, TRUE)
 
 	  #--------------------------------------------------#
 	 #  GETTING N RANDOM ITEMS OTHER THAN A GIVEN ITEM  #
@@ -40923,7 +40928,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanS(pItem)
-		return This.NRandomItemsOtherThanCS(pItem, :CaseSensitive = TRUE)
+		return This.NRandomItemsOtherThanCS(pItem, TRUE)
 
 		def NItemsOtherThan(pItem)
 			return This.NRandomItemsOtherThan(pItem)
@@ -40949,7 +40954,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanZ(pItem)
-		return This.NRandomItemsOtherThanCSZ(pItem, :CS = TRUE)
+		return This.NRandomItemsOtherThanCSZ(pItem, TRUE)
 
 		def NItemsOtherThanZ(pItem)
 			return This.NRandomItemsOtherThanZ(pItem)
@@ -40997,7 +41002,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def SomeRandomItemsOtherThanZ(pItem)
-		return This.SomeRandomItemsOtherThanCSZ(pItem, :CS = TRUE)
+		return This.SomeRandomItemsOtherThanCSZ(pItem, TRUE)
 
 	  #-------------------------------------------------------------------#
 	 #  GETTING SOME RANDOM ITEMS OTHER THAN A GIVEN ITEM -- U/EXTENDED  #
@@ -41022,7 +41027,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanMany(paItems)
-		return This.NRandomItemsOtherThanManyCS(paItems, :CS = TRUE)
+		return This.NRandomItemsOtherThanManyCS(paItems, TRUE)
 
 	  #---------------------------------------------------------------------#
 	 #  GETTING N RANDOM ITEMS OTHER THAN MANY GIVEN ITEMS  -- Z/EXTENDED  #
@@ -41035,7 +41040,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanManyZ(pItem)
-		return This.NRandomItemsOtherThanManyCSZ(pItem, :CS = TRUE)
+		return This.NRandomItemsOtherThanManyCSZ(pItem, TRUE)
 
 	#-- U/EXTENDED FORM
 
@@ -41713,7 +41718,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomizeBetween(p1, p2)
-		This.RandomizeBetweenCS(p1, p2, :CaseSensitive = TRUE)
+		This.RandomizeBetweenCS(p1, p2, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -41789,7 +41794,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomizeBetweenItems(p1, p2)
-		This.RandomizeBetweenItemsCS(p1, p2, :CaseSensitive = TRUE)
+		This.RandomizeBetweenItemsCS(p1, p2, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -41872,7 +41877,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomizeNotBetween(p1, p2)
-		This.RandomizeNotBetweenCS(p1, p2, :CaseSensitive = TRUE)
+		This.RandomizeNotBetweenCS(p1, p2, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -41948,7 +41953,7 @@ vvv
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomizeNotBetweenItems(p1, p2)
-		This.RandomizeNotBetweenItemsCS(p1, p2, :CaseSensitive = TRUE)
+		This.RandomizeNotBetweenItemsCS(p1, p2, TRUE)
 
 		#< @FunctionFluentForm
 

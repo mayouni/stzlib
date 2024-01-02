@@ -114,7 +114,7 @@ load "stzlib.ring"
 		"Mabrooka!"
 	])
 
-	? @@( o1.FindSubstringCS("name", :CaseSensitive = TRUE) )
+	? @@( o1.FindSubstringCS("name", TRUE) )
 		#--> [ "1" = [ 13 ], "3" = [ 6, 18 ] ]
 
 /*------- GETTING A SECTION OF A LIST OF STRINGS

@@ -1122,7 +1122,7 @@ pron()
 o1 = new stzString("aaA...")
 
 ? o1.FindCS("a", :CaseSensitive) # Or :IsCaseSensitive or :CS or :IsCS
-				 # or :CaseSensitive = TRUE or :CS = TRUE or TRUE
+				 # or TRUE or TRUE or TRUE
 #--> [1, 2]
 
 ? o1.FindCS("a", :CaseInSensitive) # Or :NotCaseSensitive or :NotCS
@@ -6203,7 +6203,7 @@ o1 = new stzString("and **<Ring>** and _<<PHP>>_ AND <Python/> and _<<<Ruby>>>_ 
 	:Using = "and",
 
 	[ 
-	:CaseSensitive = TRUE,
+	TRUE,
 	:SkipEmptyParts = TRUE,
 
 	:IncludeLeadingSep = TRUE,
@@ -7300,7 +7300,7 @@ proff()
 pron()
 
 o1 = new stzString("@str = Q(@str).Uppercased()")
-? o1.BeginsWithOneOfTheseCS([ "@str =", :Or = "@str=" ], :CS = TRUE)
+? o1.BeginsWithOneOfTheseCS([ "@str =", :Or = "@str=" ], TRUE)
 #--> TRUE
 
 proff()
@@ -7389,7 +7389,7 @@ o1.ReplaceSubStringAtPosition(19, "♥♥♥", :With = "Ring")
 ? Q("ArabicArabicArabic").IsNTimesMultipleOf(3, "Arabic") #--> TRUE
 ? Q("ArabicArabicArabic").IsNTimesMultipleOf(5, "Arabic") #--> FALSE
 
-? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", :CS = TRUE)	  #--> FALSE
+? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", TRUE)	  #--> FALSE
 ? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", :CS = FALSE)	  #--> TRUE
 
 /*====================== WORKING WITH MARQUERS
@@ -7879,7 +7879,7 @@ pron()
 
 o1 = new stzString("Ring can be compared to Python, Ruby and PHP.")
 
-o1.MarkTheseSubStringsCS( [ "Ring", "Python", "Ruby", "PHP" ], :CS = TRUE )
+o1.MarkTheseSubStringsCS( [ "Ring", "Python", "Ruby", "PHP" ], TRUE )
 # Or ReplaceSubstringsWithMarquersCS
 
 ? o1.Content()
@@ -7988,13 +7988,13 @@ pron()
 
 o1 = new stzString("My name is Mansour. What's your name please?")
 
-? @@( o1.FindManyCS( [ "name", "your", "please" ], :CS = TRUE ) ) + NL
+? @@( o1.FindManyCS( [ "name", "your", "please" ], TRUE ) ) + NL
 #--> [ 4, 28, 33, 38 ]
 
 ? @@( o1.FindMany( [ "name", "your", "please" ] ) ) + NL
 #--> [ 4, 28, 33, 38 ]
 
-? @@( o1.TheseSubStringsCSZ( [ "name", "your", "please" ], :CS = TRUE ) ) + NL
+? @@( o1.TheseSubStringsCSZ( [ "name", "your", "please" ], TRUE ) ) + NL
 #--> [ "name" = [ 4, 33 ], "your" = [ 28 ], "please" = [ 38 ] ]
 
 o1 = new stzString("My name is Mansour. What's your name please?")
@@ -8251,10 +8251,10 @@ StzStringQ("eeEEeeTUNISeeEE") {
 	? LeadingCharsCS(:CaseSensitive = FALSE)
 	#--> eeEEee
 
-	? NumberOfLeadingCharsCS(:CaseSensitive = TRUE)
+	? NumberOfLeadingCharsCS(TRUE)
 	#--> 2
 
-	? LeadingCharsCS(:CaseSensitive = TRUE)
+	? LeadingCharsCS(TRUE)
 	#--> ee
 
 	? LeadingCharIsCS("E", :CaseSensitive = FALSE)	+ NL
@@ -8268,10 +8268,10 @@ StzStringQ("eeEEeeTUNISeeEE") {
 	? TrailingCharsCS(:CaseSensitive = FALSE)
 	#--> EEee
 
-	? NumberOfTrailingCharsCS(:CaseSensitive = TRUE)
+	? NumberOfTrailingCharsCS(TRUE)
 	#--> 2
 
-	? TrailingCharsCS(:CaseSensitive = TRUE)
+	? TrailingCharsCS(TRUE)
 	#--> EE
 
 	? LeadingCharIsCS("e", :CaseSensitive = FALSE)
@@ -8429,7 +8429,7 @@ o1 = new stzString("ritekode")
 ? o1.IsEqualToCS("RiteKode", :CS = FALSE)
 #--> TRUE
 
-? o1.IsEqualToCS("RiteKode", :CS = TRUE)
+? o1.IsEqualToCS("RiteKode", TRUE)
 #--> FALSE
 
 proff()
@@ -8475,7 +8475,7 @@ pron()
 ? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", :CS = FALSE)
 #--> TRUE
 
-? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", :CS = TRUE)
+? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", TRUE)
 #--> FALSE
 
 proff()
@@ -8887,7 +8887,7 @@ o1.ReplaceMany([ "two", "four" ], :By = "---")
 /*=====================
 
 o1 = new stzString("---Mio---Mio---Mio---Mio---")
-? o1.FindNthOccurrenceCS(3, "Mio", :CS = TRUE)	#--> 16
+? o1.FindNthOccurrenceCS(3, "Mio", TRUE)	#--> 16
 
 /*--------------------
 
@@ -8997,10 +8997,10 @@ StzStringQ("__b和平س__a__و") {
 
 /*====================
 
-? StringsAreEqualCS([ "abc","abc" ], :CaseSensitive = TRUE )	#--> TRUE
+? StringsAreEqualCS([ "abc","abc" ], TRUE )	#--> TRUE
 ? StringsAreEqual([ "cbad", "cbad", "cbad" ])			#--> TRUE
 
-? BothStringsAreEqualCS("abc", "abc", :CaseSensitive = TRUE)	#--> TRUE
+? BothStringsAreEqualCS("abc", "abc", TRUE)	#--> TRUE
 ? BothStringsAreEqual("abc", "abc")				#--> TRUE
 
 /*====================
@@ -9697,7 +9697,7 @@ StzStringQ("MY BEAUTIFUL RING") {
 
 /*==================
 
-? StzStringQ("ar_TN-tun").ContainsEachCS(["_", "-"],:CS = TRUE)	#--> TRUE
+? StzStringQ("ar_TN-tun").ContainsEachCS(["_", "-"],TRUE)	#--> TRUE
 ? StzStringQ("ar_TN-tun").ContainsBoth("_", "-") #--> TRUE
 
 /*==================
@@ -10791,7 +10791,7 @@ o1 = new stzString("🐨")
 /*================
 
 StzStringQ("MustHave@32@Chars") {
-	? NumberOfOccurrenceCS(:Of = "@", :CS = TRUE) #--> 2
+	? NumberOfOccurrenceCS(:Of = "@", TRUE) #--> 2
 	? FindAll("@") #--> [9, 12]
 
 	? FindNext("@", :StartingAt = 5) #--> 9
