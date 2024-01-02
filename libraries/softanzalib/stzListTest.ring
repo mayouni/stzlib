@@ -69,7 +69,7 @@ o1.ReverseItemsInLists()
 
 
 /*==========
-*/
+
 pron()
 
 ? L('"v1" : "v3" ')		# Eqstzruivalent to Q('"v1" : "v3" ').ToList()
@@ -85,7 +85,9 @@ pron()
 #--> [ "N", "I", "A", "M", "E", "Y" ]
 
 proff()
-# Executed in 0.72 second(s)
+# Executed in 0.38 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.46 second(s) in Ring 1.19 (32 bits)
+# Executed in 0.51 second(s) in Ring 1.17
 
 /*==========
 
@@ -98,7 +100,9 @@ pron()
 #--> [ 1, 2, 3 ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.06 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.05 second(s) in Ring 1.19 (32 bits)
+# Executed in 0.04 second(s) in Ring 1.17
 
 /*==========
 
@@ -415,7 +419,9 @@ o1.StringifyLowercaseAndReplace("_", "♥")
 #--> [ "r♥ing", "r♥ing", "r♥ing" ]
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.10 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.09 second(s) in Ring 1.19 (32 bits)
+# Executed in 0.12 second(s) in Ring 1.17
 
 /*-------------
 
@@ -430,7 +436,10 @@ o1.StringifyAndReplaceXT("_", "♥") # Used by internal staff in Softanza
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.05 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.04 second(s) in Ring 1.19 (32 bits)
+# Executed in 0.04 second(s) in Ring 1.18
+# Executed in 0.03 second(s) in Ring 1.17
 
 /*-------------
 
@@ -445,11 +454,11 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-------------
-
+*/
 pron()
 
 aLargeList = [ "--_--", [ 12, "--_--", 10], "--_--", 9 ]
-for i = 1 to 1_000_000
+for i = 1 to 1_000_000 # test it with 1_000, 10_000, and 100_000 times
 	aLargeList + "ring"
 next
 
@@ -459,12 +468,15 @@ o1.StringifyAndReplaceXT("_", "*")
 #--> [1, 3]
 
 proff()
-#   1_000 items	--> Executed in 0.08 second(s)
-#  10_000 items	--> Executed in 0.50 second(s)
-# 100_000 items	--> Executed in 4.83 second(s)
-# 1_000_000 its --> Executed in 114.89 second(s)
 
-/*-------------
+#   SIZE    | Ring 1.17 | Ring 1.18 | Ring 1.19 | Ring 1.19 X64
+#-----------+-----------+-----------+-----------+---------------
+#     1_000 |   0.08 s  |   0.07 s  |   0.06 s  |   0.07 s
+#    10_000 |   0.50 s  |   0.48 s  |   0.25 s  |   0.23 s
+#   100_000 |   4.83 s  |   4.58 s  |   2.24 s  |   2.04 s
+# 1_000_000 | 114.89 s  | 114.80 s  |  43.73 s  |  38.21 s
+#-----------+-----------+-----------+-----------+---------------
+
 
 pron()
 

@@ -1,3 +1,6 @@
+Ring 1.19 (64 bits)
+
+
 -- select age and country columns from customers table where the country is 'USA' 
 SELECT age, country
 FROM Customers

@@ -62237,6 +62237,7 @@ ici		//...
 
 		# Case where we have a normal list syntax
 
+		
 		if This.TrimQ().IsBoundedBy([ "[", "]" ])
 			cCode = "aResult = " + This.Content()
 			eval(cCode)

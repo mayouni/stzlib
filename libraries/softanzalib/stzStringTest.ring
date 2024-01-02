@@ -7455,6 +7455,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
+# Executed in 1.84 second(s) in Ring 1.19 (64 bits)
 # Executed in 1.81 second(s) in Ring 1.19 (32 bits)
 # Executed in 2.23 second(s) in Ring 1.18
 # Executed in 3.65 second(s) in Ring 1.17
