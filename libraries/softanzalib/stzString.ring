@@ -4312,9 +4312,12 @@ class stzString from stzObject
 	#=============================================================#
 
 	def NumberOfCharsInEachMarquer()
+		acMarquers = This.Marquers()
+		nLen = len(acMarquers)
+
 		aResult = []
-		for cMarquer in This.Marquers()
-			aResult + len(cMarquer)
+		for i = 1 to nLen
+			aResult + len(acMarquers[i])
 		next
 
 		return aResult

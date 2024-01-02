@@ -22012,6 +22012,7 @@ class stzList from stzObject
 	# in SoftanzaLib
 
 	# UPDATE: Lists are now findable (only objects are left for future)
+	# UPDATE : Named objects are now findable!
 
 	def FindNthOccurrenceCS(n, pItem, pCaseSensitive)
 		/* EXAMPLE
@@ -22061,7 +22062,33 @@ class stzList from stzObject
 
 		# TODO
 
-		StzRaise("TODO")
+		cItem = @@(pItem)
+		aoQStrings = This.ToListOfQStrings()
+		nLen = len(aoQStrings)
+
+		nResult = 0
+		bContinue = TRUE
+		i = 0
+		nOccurrence = 0
+
+		while bContinue
+			i++
+			if i > nLen
+				bContinue = FALSE
+				exit
+			ok
+
+			if aoQStrings[i].mid(0, aoQStrings[i].length()-1) = cItem
+				nOccurrence++
+				if nOccurrence = n
+					nResult = i
+					nContinue = FALSE
+					exit
+				ok
+			ok
+		end
+
+		return nResult
 
 		#< @FunctionAlternativeForms
 
@@ -29548,6 +29575,53 @@ class stzList from stzObject
 
 		def ToListOfStringifiedItems()
 			return This.Stringified()
+
+	  #---------------------------------------------------------------------#
+	 #  Q-STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BECOME QSTRINGS)  #
+	#---------------------------------------------------------------------#
+
+	def QStringified()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aoResult = []
+		cItem = ""
+
+		for i = 1 to nLen
+			item = aContent[i]
+			if isNumber(item)
+				cItem = ""+ item
+
+			but isString(item)
+				cItem = item
+
+			but isList(item)
+				cItem = @@(item)
+
+			but isObject(item)
+				cItem = @ObjectVarName(aContent[i])
+			ok
+
+			oQStr = new QString2()
+			oQStr.append(cItem)
+			aoResult + oQStr
+		next
+
+		return aoResult
+
+		#< @FunctionAlternativeForms
+
+		def ToListOfQStrings()
+			return This.QStringified()
+
+		def ToListOfQStringifiedItems()
+			return This.QStringified()
+
+		def ItemsQStringified()
+			return This.QStringified()
+
+		#>
 
 	  #---------------------------------------------------------------------------------------#
 	 #  STRINGIFYING ITEMS AND REPLACING A SUBSTRING BY AN OTHER IN EACH STRING -- EXTENDED  #

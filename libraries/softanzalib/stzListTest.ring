@@ -860,7 +860,7 @@ pron()
 proff()
 
 /*========= Replace and DeepReplace
-*/
+
 pron()
 
 o1 = new stzList([
@@ -972,7 +972,8 @@ o1.ShowShortNUsing(2, "***")
 #--> [ 1, 2, "{...}", 179999, 180000 ]
 
 proff()
-# Executed in 0.76 second(s)
+# Executed in 0.46 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.76 second(s) in Ring 1.17
 
 /*--------------
 
@@ -1986,7 +1987,8 @@ o1 = new stzList( aLarge + 10 + 20 + [ "+", "-" ] + 30 + 40 + [ "*" ] )
 # Executed in 2 second(s)
 
 proff()
-# Executed in 3.72 second(s)
+# Executed in 2.35 second(s) in Ring 1.19 (64 bits)
+# Executed in 3.72 second(s) in Ring 1.17
 
 /*----------------
 
@@ -3308,7 +3310,8 @@ o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3,"c" ])
 # Executed in 0.23 second(s)
 
 proff()
-# Executed in 0.67 second(s)
+# Executed in 0.06 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.67 second(s) in Ring 1.17
 
 /*-------------
 
@@ -3340,7 +3343,7 @@ StopProfiler()
 # Executed in 0.09 second(s)
 
 /*===============
-
+*/
 StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
@@ -3384,7 +3387,7 @@ StartProfiler()
 	# Executed in 2.71 second(s)
 
 StopProfiler()
-# Executed in 7.55 second(s)
+# Executed in 7.55 second(s) in Ring 1.17
 
 /*------------
 
