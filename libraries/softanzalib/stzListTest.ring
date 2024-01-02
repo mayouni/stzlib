@@ -3381,7 +3381,7 @@ proff()
 # Executed in 0.24 second(s) in Ring 1.17
 
 /*-----------------
-*/
+
 pron()
 
 # Constructing the large list
@@ -3389,7 +3389,7 @@ pron()
 	aList = [ "A", 10, "A", "♥", 20, 1:3, "♥", "B" ]
 	aLarge = aList
 	
-	for i = 1 to 1_000_000//_000
+	for i = 1 to 1_000_000
 		aLarge + "..."
 	next
 	for i = 1 to 8
@@ -3405,13 +3405,47 @@ pron()
 
 	o1 = new stzList(aLarge)
 	? o1.FindNth(4, "♥")
-	#--> 7
+	#--> 1_000_015
 
 proff()
-# Executed in 0.20 second(s) in Ring 1.19 (64 bits)
-# Executed in 0.20 second(s) in Ring 1.19 (32 bits)
-# Executed in 0.26 second(s) in Ring 1.18
-# Executed in 0.24 second(s) in Ring 1.17
+# Executed in 8.78 second(s) in Ring 1.19 (64 bits)
+# Executed in 9.34 second(s) in Ring 1.19 (32 bits)
+# Executed in 20.98 second(s) in Ring 1.18
+# Executed in 22.84 second(s) in Ring 1.17
+
+/*-----------------
+*/
+pron()
+
+# Constructing the large list (+1M items, the to-be-found item is a list (1:3),
+# and it exists in the beginning and the end of the large list)
+
+	aList = [ "A", 10, "A", 1:3, 20, 1:3, 1:3, "B" ]
+	aLarge = aList
+	
+	for i = 1 to 1_000_000
+		aLarge + "..."
+	next
+	for i = 1 to 8
+		aLarge + aList[i]
+	next
+	# ElapsedTime : 0.48 seconds
+
+# Turning param chek off (better performance)
+
+	CheckParamsOff()
+
+# Doing the job
+
+	o1 = new stzList(aLarge)
+	? o1.FindNth(4, 1:3)
+	#--> 1_000_012
+
+proff()
+# Executed in 8.72 second(s) in Ring 1.19 (64 bits)
+# Executed in 9.14 second(s) in Ring 1.19 (32 bits)
+# Executed in 21.51 second(s) in Ring 1.18
+# Executed in 22.74 second(s) in Ring 1.17
 
 /*--------------
 */
