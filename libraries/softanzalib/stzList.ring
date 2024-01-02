@@ -1881,23 +1881,14 @@ class stzList from stzObject
 			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 				pItem = pItem[2]
 			ok
-	
-			if @BothAreLists(pItem, pNewItem)
-				This.ReplaceManyByMany(pItem, pNewItem)
-				return
-			ok
-
-			if isList(pNewItem)
-				This.ReplaceByMany(pNewItem)
-				return
-			ok
 
 		ok
 
-		anPositions = This.FindAll(pItem)
+		anPos = This.FindAll(pItem)
+		nLen = len(anPos)
 
-		for n in anPositions
-			This.ReplaceItemAtPosition(n, pNewItem)
+		for i = 1 to nLen
+			This.ReplaceItemAtPosition(anPos[i], pNewItem)
 		next
 
 		#< @FunctionFluentForm

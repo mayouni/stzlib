@@ -454,7 +454,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-------------
-*/
+
 pron()
 
 aLargeList = [ "--_--", [ 12, "--_--", 10], "--_--", 9 ]
@@ -477,6 +477,7 @@ proff()
 # 1_000_000 | 114.89 s  | 114.80 s  |  43.73 s  |  38.21 s
 #-----------+-----------+-----------+-----------+---------------
 
+/*---------------
 
 pron()
 
@@ -545,7 +546,7 @@ pron()
 
 # TODO: General note on performance
 # For all loops on large data (tens of thousands of times and more)
-# don't relay on stzString services, but use Qt directly instead!
+# don't rely on stzString services, but use Qt directly instead!
 
 oQStr = new QString2()
 oQStr.append("I talk in Ring language!")
@@ -572,7 +573,8 @@ aList = ["_", "_", "♥"]
 for i = 1 to 100_000
 	@@(aList)
 next
-#--> Takes more then 20 seconds!
+#--> Takes more then 20 seconds! (in Ring 1.17)
+#--> Takes more then 10 seconds! (in Ring 1.19)
 
 # Instead, you shoud do this:
 
@@ -620,7 +622,10 @@ pron()
 	#--> [ "*", "_", "_", "*" ]
 
 proff()
-# Executed in 12.80 second(s)
+# Executed in  4.09 second(s) in Ring 1.18 (64 bits)
+# Executed in  4.53 second(s) in Ring 1.19 (32 bits)
+# Executed in  7.40 second(s) in Ring 1.18
+# Executed in 16.62 second(s) in Ring 1.17
 
 /*==============
 
@@ -671,7 +676,10 @@ o1 = new stzlist(1:120_000)
 #--> 110000
 
 proff()
-# Executed in 0.52 second(s)
+# Executed in 0.61 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.67 second(s) in Ring 1.19 (32 bits)
+# Executed in 2.06 second(s) in Ring 1.18
+# Executed in 2.19 second(s) in Ring 1.17
 
 /*-------------
 
@@ -682,7 +690,8 @@ ShowShort( o1.Stringified() )
 #--> [ "1", "2", "3", "...", "119998", "119999", "120000" ]
 
 proff()
-# Executed in 1.12 second(s)
+# Executed in 0.66 second(s) in Ring 1.19 (64 bits)
+# Executed in 1.14 second(s) in Ring 1.17
 
 /*==========
 
@@ -851,7 +860,7 @@ pron()
 proff()
 
 /*========= Replace and DeepReplace
-
+*/
 pron()
 
 o1 = new stzList([
@@ -873,7 +882,7 @@ o1.Replace("me", :By = "you")
 #    ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.10 second(s)
 
 /*------------
 
