@@ -22038,13 +22038,6 @@ class stzList from stzObject
 				SrzRaise("Incorrect  param type! n must be a number.")
 			ok
 	
-			if n = 1
-				return This.FirstOccurrenceCS(pItem, pCaseSensitive)
-	
-			but n = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
-				return This.LastOccurrenceCS(pItem, pCaseSensitive)
-			ok
-	
 			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 				pItem = pItem[2]
 			ok
@@ -22057,21 +22050,20 @@ class stzList from stzObject
 
 		# Doing the job
 
-		if n = 1
+/*		if n = 1
 			return This.FirstOccurrenceCS(pItem, pCaseSensitive)
-
-		but n = This.NumberOfItems()
+	
+		but n = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
 			return This.LastOccurrenceCS(pItem, pCaseSensitive)
 		ok
-
-		cItem = @@(pItem)
+*/
+		cItem = Q(pItem).Stringified()
 		acContent = This.Stringified()
 		nLen = len(acContent)
 
 		# Managing case sensitivity
 
 		if pCaseSensitive = FALSE
-
 			cItem = lower(cItem)
 
 			for i = 1 to nLen
@@ -22086,6 +22078,7 @@ class stzList from stzObject
 		nOccurr = 0
 
 		for i = 1 to nLen
+
 			if acContent[i] = cItem
 				nOccurr++
 				if nOccurr = n
@@ -22158,47 +22151,38 @@ class stzList from stzObject
 	#---------------------------------------------------#
 
 	def FindFirstOccurrenceCS(pItem, pCaseSensitive)
-		if isList(pItem) and Q(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
 
-		if isObject(pItem)
-			StzRaise("Can't process! Objects can not be found yet.")
-		ok
-
-		# Resolving pCaseSensitive
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if isString(pCaseSensitive)
-			if Q(pCaseSensitive).IsOneOfThese([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
-
-				pCaseSensitive = TRUE
-			
-			but Q(pCaseSensitive).IsOneOfThese([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
-
-				pCaseSensitive = FALSE
+		if CheckParams()
+			if isList(pItem) and Q(pItem).IsOfNamedParam()
+				pItem = pItem[2]
+			ok
+	
+			if isObject(pItem)
+				StzRaise("Can't process! Objects can not be found yet.")
+			ok
+	
+			# Resolving pCaseSensitive
+	
+			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+				pCaseSensitive = pCaseSensitive[2]
 			ok
 
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
-			stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
-		ok
+		# Doing the job : using Ring skills first...
 
-		# Doing the job
+		# (if the list is made of numbers and/or strings, and the
+		#  item itself is a number or string, and when case sensitivity
+		#  is not involved ~> use ring_find()
 
 		aContent = This.Content()
 		nLen = len(aContent)
 
 		nResult = 0
 
-		if ( This.IsListOfNumbers() or This.IsListOfStrings() ) and
+		if ( This.IsListOfNumbers() or This.IsListOfStrings() or
+		     This.IsAListOfNumbersOrStrings() ) and
+
 		   ( isNumber(pItem) or isString(pItem) ) and
 		   pCaseSensitive = TRUE
 
@@ -22206,15 +22190,32 @@ class stzList from stzObject
 			return nResult
 		ok
 
-		cItem = @@(pItem)
+		# Relying on Softanza skills
 
-		for i = 1 to nLen
-	
-			if Q(cItem).IsEqualToCS( @@(aContent[i]), pCaseSensitive )
-				nResult = i
-				exit
-			ok
-		next
+		# ( either case sensitivity is involved, or the list and the
+		#   value to be found are not strings or numbers)
+
+		# Hence we turn every thing to strings
+
+		cItem = @@(pItem)
+		acContent = This.Stringified()
+
+		# Managing case sensitivity
+
+		if pCaseSensitive = FALSE
+
+			cItem = lower(cItem)
+
+			for i = 1 to nLen
+				if NOT isLower(acCotent[i])
+					acContent[i] = lower(acContent[i])
+				ok
+			next
+		ok
+
+		# Using Ring after adapting data to it
+
+		nResult = ring_find(acContent, cItem)
 
 		return nResult
 
