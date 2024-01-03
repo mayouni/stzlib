@@ -3345,27 +3345,32 @@ StopProfiler()
 /*===============
 
 pron()
-aList = [ "A", 10, "A", "♥", 20, 1:3, "♥", "B" ]
+
 aLarge = 1:1_000_000
+
+aList = [ "A", 10, "A", "♥", 20, 1:3, "♥", "B" ]
+
 for i = 1 to 8
 	aLarge + aList[i]
 next
 
-o1 = new stzList(aList)
+o1 = new stzList(aLarge)
 ? o1.FindNth(2, "♥")
-#--> 7
+#--> 1_000_007
 
 proff()
-# Executed in 0.10 second(s) in Ring 1.19 (64 bits)
-# Executed in 0.07 second(s) in Ring 1.19 (32 bits)
-# Executed in 0.09 second(s) in Ring 1.18
-# Executed in 0.37 second(s) in Ring 1.17
+# Executed in 13.79 second(s) in Ring 1.19 (64 bits)
+# Executed in 16.20 second(s) in Ring 1.19 (32 bits)
+# Executed in 60.34 second(s) in Ring 1.18
+# Executed in 65.71 second(s) in Ring 1.17
 
 /*-----------------
 
 pron()
+
 aList = [ "A", 10, "A", "♥", 20, 1:3, "♥", "B" ]
 aLarge = aList
+
 for i = 1 to 1_000_000
 	aLarge + i
 next
@@ -3381,7 +3386,7 @@ proff()
 # Executed in 0.24 second(s) in Ring 1.17
 
 /*-----------------
-
+*/
 pron()
 
 # Constructing the large list
@@ -3392,6 +3397,7 @@ pron()
 	for i = 1 to 1_000_000
 		aLarge + "..."
 	next
+
 	for i = 1 to 8
 		aLarge + aList[i]
 	next
@@ -3408,13 +3414,13 @@ pron()
 	#--> 1_000_015
 
 proff()
-# Executed in 8.78 second(s) in Ring 1.19 (64 bits)
-# Executed in 9.34 second(s) in Ring 1.19 (32 bits)
-# Executed in 20.98 second(s) in Ring 1.18
-# Executed in 22.84 second(s) in Ring 1.17
+# Executed in 8.49 second(s) in Ring 1.19 (64 bits)
+# Executed in 9.17 second(s) in Ring 1.19 (32 bits)
+# Executed in 20.67 second(s) in Ring 1.18
+# Executed in 22.53 second(s) in Ring 1.17
 
 /*-----------------
-*/
+
 pron()
 
 # Constructing the large list (+1M items, the to-be-found item is a list (1:3),
@@ -3447,8 +3453,30 @@ proff()
 # Executed in 21.51 second(s) in Ring 1.18
 # Executed in 22.74 second(s) in Ring 1.17
 
-/*--------------
+/*----------------
 */
+pron()
+
+aLarge = 1:1_000_000
+
+aList = [ "A", 10, "A", "♥", 20, 1:3, "♥", "B" ]
+
+for i = 1 to 8
+	aLarge + aList[i]
+next
+
+o1 = new stzList(aList)
+? o1.FindFirst("♥")
+#--> 7
+
+proff()
+# Executed in 0.10 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.07 second(s) in Ring 1.19 (32 bits)
+# Executed in 0.09 second(s) in Ring 1.18
+# Executed in 0.37 second(s) in Ring 1.17
+
+/*--------------
+
 StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
