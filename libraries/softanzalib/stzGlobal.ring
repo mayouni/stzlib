@@ -849,6 +849,18 @@ func ring_copy(p1, p2)
 func ring_len(p)
 	return len(p)
 
+func ring_islower(str)
+	return islower(str)
+
+func ring_isupper(str)
+	return isupper(str)
+
+func ring_lower(str)
+	return lower(str)
+
+func ring_upper(str)
+	return upper(str)
+
 #-----
 
 func StzFindCS(pThing, paIn, pCaseSensitive)

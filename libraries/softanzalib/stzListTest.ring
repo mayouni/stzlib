@@ -3285,7 +3285,8 @@ o1 = new stzList([ "a", "ab", 1:3, "abA", "abAb", 1:3 ])
 #--> 6
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.02 second(s) in Ring 1.18
+# Executed in 0.07 second(s) in Ring 1.17
 
 /*==========
 
@@ -3310,8 +3311,8 @@ o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3,"c" ])
 # Executed in 0.23 second(s)
 
 proff()
-# Executed in 0.06 second(s) in Ring 1.19 (64 bits)
-# Executed in 0.67 second(s) in Ring 1.17
+# Executed in 0.04 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.03 second(s) in Ring 1.17
 
 /*-------------
 
@@ -3322,7 +3323,8 @@ o1 = new stzList([ "a", "ab", "b" ])
 #--> [ "a", "ab", "b" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.05 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.03 second(s) in Ring 1.17
 
 /*==========
 
@@ -3340,7 +3342,8 @@ o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" , "♥", "_", "_" ])
 #--> 3
 
 StopProfiler()
-# Executed in 0.09 second(s)
+# Executed in 0.07 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.04 second(s) in Ring 1.17
 
 /*===============
 
@@ -3359,10 +3362,10 @@ o1 = new stzList(aLarge)
 #--> 1_000_007
 
 proff()
-# Executed in 13.79 second(s) in Ring 1.19 (64 bits)
-# Executed in 16.20 second(s) in Ring 1.19 (32 bits)
-# Executed in 60.34 second(s) in Ring 1.18
-# Executed in 65.71 second(s) in Ring 1.17
+# Executed in  5.88 second(s) in Ring 1.19 (64 bits)
+# Executed in  6.11 second(s) in Ring 1.19 (32 bits)
+# Executed in 13.13 second(s) in Ring 1.18
+# Executed in 14.88 second(s) in Ring 1.17
 
 /*-----------------
 
@@ -3380,7 +3383,7 @@ o1 = new stzList(aList)
 #--> 7
 
 proff()
-# Executed in 0.20 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.17 second(s) in Ring 1.19 (64 bits)
 # Executed in 0.20 second(s) in Ring 1.19 (32 bits)
 # Executed in 0.26 second(s) in Ring 1.18
 # Executed in 0.24 second(s) in Ring 1.17
@@ -3403,14 +3406,11 @@ pron()
 	next
 	# ElapsedTime : 0.48 seconds
 
-# Turning param chek off (better performance)
-
-	CheckParamsOff()
-
 # Doing the job
 
 	o1 = new stzList(aLarge)
-	? o1.FindNth(4, "♥")
+? o1.FindAll("♥")
+//	? o1.FindNth(4, "♥")
 	#--> 1_000_015
 
 proff()
@@ -3457,13 +3457,13 @@ proff()
 */
 pron()
 
-aLarge = 1:1_000_000
+//aLarge = 1:1_000_000
 
 aList = [ "A", 10, "A", "♥", 20, 1:3, "♥", "B" ]
 
-for i = 1 to 8
-	aLarge + aList[i]
-next
+//for i = 1 to 8
+//	aLarge + aList[i]
+//next
 
 o1 = new stzList(aList)
 ? o1.FindFirst("♥")

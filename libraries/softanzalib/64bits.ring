@@ -1,5 +1,8 @@
 load "stzlib.ring"
 
+
+/*--------
+
 pron()
 
 o1 = new stzList([ 120, "abc", 1:3 ])
