@@ -1,3 +1,4 @@
+
 # Made just to be used in instanciating objects that do
 # nothing, when I am writing test samples, so I am not
 # obliged to write a class under the sample code.

@@ -30961,6 +30961,8 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	#--
+
 	def IsToItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :ToItem)
@@ -30969,6 +30971,187 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	def IsUntilItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UntilItem)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUpToItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UpToItem)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	# TODO: Move IsToCharNamedParam() here
+
+	def IsUntilCharNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UntilChar)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUpToCharNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UpToChar)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	# Move IsToSubStringNamedParam() here
+
+	def IsUntilSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UntilSubString)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUpToSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UpToSubString)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	# TODO : Move IsToStringNamedParam() here
+
+	def IsUntilStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UntilString)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUpToStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UpToString)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsToStringItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :ToStringItem)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUntilStringItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UntilStringItem)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUpToStringItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UpToStringItem)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	# TODO : Move IsToNumberNamedParam() here
+
+	def IsUntilNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UntilNumber)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUpToNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UpToNumber)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	# TODO: Move IsToListNamedParam() here
+
+	def IsUntilListNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UntilList)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUpToListNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UpToList)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	# TODO : Move IsToObjectNamedParam() here
+
+	def IsUntilObjectNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UntilObject)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUpToObjectNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :UpToObject)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
 
 	def IsOneOfTheseNamedParams(pacParamNames)
 		if CheckParams()
@@ -30980,7 +31163,7 @@ class stzList from stzObject
 		nLen = len(pacParamNames)
 		bResult = FALSE
 
-		for i = 1 to pacParamNames
+		for i = 1 to nLen
 			cCode = 'bFound = This.Is' + pacParamNames[i] + 'NamedParam()'
 			eval(cCode)
 			if bFound
