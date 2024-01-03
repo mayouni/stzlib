@@ -53,6 +53,9 @@ func IsListOfBytes(p)
 		return FALSE
 	ok
 
+	func @IsListOfBytes(p)
+		return IsListOfBytes(p)
+
 func IsQByteArray(p)
 	if isObject(p) and classname(p) = :QByteArray
 		return TRUE

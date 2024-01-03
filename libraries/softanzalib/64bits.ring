@@ -1,6 +1,7 @@
 load "stzlib.ring"
 
 ? Q(NullObject()).IsNamedObject()
+#--> FALSE
 
 /*--------
 

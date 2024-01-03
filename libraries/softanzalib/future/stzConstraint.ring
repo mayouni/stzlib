@@ -62,6 +62,9 @@ func IsConstraint(pObject, pcConstraint)
 		return FALSE
 	ok
 
+	func @IsConstraint(pObject, pcConstraint)
+		return IsConstraint(pObject, pcConstraint)
+
 class stzConstraint from stzObject
 	@oObject
 	@cConstraint

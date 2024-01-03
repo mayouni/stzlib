@@ -23,6 +23,9 @@ oLetters {
 			return FALSE
 		ok
 	
+		func @IsActiveItem(pItem)
+			return IsActiveItem(pItem)
+
 	func ComposeFunction( pcFuncName, paFuncParam )
 		cResult = pcFuncName + "( '@'+ pItem.Content() + ' >> ' + "
 	

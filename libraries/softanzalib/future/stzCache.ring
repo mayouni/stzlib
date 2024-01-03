@@ -47,6 +47,9 @@ func IsCacheActivated(pcFileName)
 	n = oTempHashList.FindInKeys(cCompleteCacheFileName)
 	return _aSteCaches[n][2]
 
+	func @IsCacheActivated(pcFileName)
+		return IsCacheActivated(pcFileName)
+
 func CacheCompleteFileName(pcCacheName)
 	return "cache/" + pcCacheName + ".txt"
 

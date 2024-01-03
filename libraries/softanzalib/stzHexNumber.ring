@@ -16,7 +16,7 @@ func StzHexNumberQ(cHex)
 func HexToDecimalForm(cHex)
 	return StzHexNumberQ(cHex).ToDecimalForm()
 
-	def HexToDecimal(cHex)
+	func HexToDecimal(cHex)
 		return HexToDecimalForm(cHex)
 
 func UnicodeHexToDecimalForm(cUnicodeHex)
@@ -28,7 +28,7 @@ func UnicodeHexToDecimalForm(cUnicodeHex)
 
 	#< @FunctionAlternativeForm
 
-	def UnicodeHexToDecimal(cUnicodeHex)
+	func UnicodeHexToDecimal(cUnicodeHex)
 		return UnicodeHexToDecimalForm(cUnicodeHex)
 
 	#>
@@ -36,12 +36,21 @@ func UnicodeHexToDecimalForm(cUnicodeHex)
 func IsHexNumber(cNumber)
 	return StringRepresentsNumberInHexform(cNumber)
 
+	func @IsHexNumber(cNumber)
+		return IsHexNumber(cNumber)
+
 func IsUnicodeHexNumber(cNumber)
 	return StzStringQ(cNumber).RepresentsNumberInUnicodeHexForm()
 
 	#< @FunctionAlternativeForm
 
-	def IsUnicodeHex(cNumber)
+	func IsUnicodeHex(cNumber)
+		return IsUnicodeHexNumber(cNumber)
+
+	func @IsUnicodeHexNumber(cNumber)
+		return IsUnicodeHexNumber(cNumber)
+
+	func @IsUnicodeHex(cNumber)
 		return IsUnicodeHexNumber(cNumber)
 
 	#>

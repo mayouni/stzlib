@@ -611,6 +611,10 @@ func IsCaseSensitive(p)
 	ok
 
 	return bResult
+
+	func @IsCaseSensitive(p)
+		return IsCaseSensitive(p)
+
 #--
 
 func StzKeywords()

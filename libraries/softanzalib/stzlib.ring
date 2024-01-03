@@ -139,6 +139,7 @@ load "stzFalseObject.ring"
 
 load "threads.ring"
 
+load "stzDistanceZero.ring"
 //? (clock()-t1)/clockspersecond()
 
 # Softanza startup time :

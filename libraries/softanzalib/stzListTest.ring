@@ -3362,7 +3362,7 @@ o1 = new stzList(aLarge)
 #--> 1_000_007
 
 proff()
-# Executed in  5.88 second(s) in Ring 1.19 (64 bits)
+# Executed in  5.74 second(s) in Ring 1.19 (64 bits)
 # Executed in  6.11 second(s) in Ring 1.19 (32 bits)
 # Executed in 13.13 second(s) in Ring 1.18
 # Executed in 14.88 second(s) in Ring 1.17
@@ -3408,13 +3408,14 @@ pron()
 
 # Doing the job
 
+	CheckParamsOff()
+
 	o1 = new stzList(aLarge)
-? o1.FindFirst("♥")
-//	? o1.FindNth(4, "♥")
+	? o1.FindNth(4, "♥")
 	#--> 1_000_015
 
 proff()
-# Executed in 8.49 second(s) in Ring 1.19 (64 bits)
+# Executed in 8.62 second(s) in Ring 1.19 (64 bits)
 # Executed in 9.17 second(s) in Ring 1.19 (32 bits)
 # Executed in 20.67 second(s) in Ring 1.18
 # Executed in 22.53 second(s) in Ring 1.17
@@ -3454,7 +3455,6 @@ proff()
 # Executed in 22.74 second(s) in Ring 1.17
 
 /*----------------
-*/
 
 pron()
 
@@ -3471,7 +3471,7 @@ o1 = new stzList(aLarge)
 #--> 1_000_004
 
 proff()
-# Executed in  6.36 second(s) in Ring 1.19 (64 bits)
+# Executed in  6.51 second(s) in Ring 1.19 (64 bits)
 # Executed in 14.32 second(s) in Ring 1.17
 
 /*--------------
@@ -3485,45 +3485,40 @@ StartProfiler()
 		aLargeListOfStr + "_"
 	next
 	
-	//aLargeListOfStr + "♥" + "_" + "_" + "♥"
+	aLargeListOfStr + "♥" + "_" + "_" + "♥"
 	
 	for i = 1 to 50_000
 		aLargeListOfStr + "_"
 	next i
 	
-	//aLargeListOfStr + "♥" + "_" + "_" + "♥"
+	aLargeListOfStr + "♥" + "_" + "_" + "♥"
 	
 	for i = 1 to 10
 		aLargeListOfStr + "_"
 	next i
 
-	# ElapsedTime: 0.08s
-
 # Finding next "♥"
 
 	o1 = new stzList(aLargeListOfStr)
-	# ElapsedTime: 0.11s
 
-/*
-	? o1.FindNext("♥", :StartingAt = 12_000)
+	? o1.FindNext("♥", :StartingAt = 100_000)
 	#--> 100_004
-	# Executed in 2.25 second(s)
 
-	? o1.FindNth(6, "♥")
-*/
-	? o1.FindNthNext(6, "♥", :StartingAt = 1)
-	#--> 150_011
-	# Executed in 3.50 second(s)
+	? o1.FindNth(3, "♥")
+	#--> 1_00_007
+
+	? o1.FindNthNext(2, "♥", :StartingAt = 2)
+	#--> 1_00_004
 	
 	? o1.FindNthNext(3, "♥", :StartingAt = 12_000)
 	#--> 150_008
-	# Executed in 2.71 second(s)
 
 StopProfiler()
+# Executed in 3.51 second(s) in Ring 1.19 (64 bits)
 # Executed in 7.55 second(s) in Ring 1.17
 
 /*------------
-
+*/
 StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
@@ -3546,7 +3541,7 @@ StartProfiler()
 	next i
 
 	# NOTE: Internally, FindNthPrevious() useses native
-	# ring_revers() function which has a good performance:
+	# ring_reverse() function which has a good performance:
 	# 
 	# ring_reverse(aLargeListOfStr)
 	# Executed in 0.16 second(s)
@@ -3558,17 +3553,15 @@ StartProfiler()
 
 	? o1.FindPrevious("♥", :StartingAt = 5)
 	#--> 3
-	# Executed in 0.12 second(s)
 
 	? o1.FindNthPrevious(2, "♥", :StartingAt = 120_000)
 	#--> 100_004
-	# Executed in 3.58 second(s)
 
 	? o1.FindNthPrevious(3, "♥", :StartingAt = 150_000)
 	#--> 3
-	# Executed in 4.70 second(s)
 
 StopProfiler()
+# Executed in 4.71 second(s) in Ring 1.19 (64 bits)
 # Executed in 7.51 second(s)
 
 /*------------
