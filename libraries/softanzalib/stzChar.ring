@@ -57,11 +57,16 @@ or 'unavoidable' Qt feature.
  ///   FUNCTIONS   ///
 /////////////////////
 
-
-func DistanceZero()
+func DistanceZero() # See the stzDistanceZero class
 	return "🔻"
 
 	func ZeroDistance()
+		return DistanceZero()
+
+	func DistanceZeroChar()
+		return DistanceZero()
+
+	func ZeroDistanceChar()
 		return DistanceZero()
 
 func StzCharQ(p)

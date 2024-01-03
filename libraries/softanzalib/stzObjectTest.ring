@@ -4,10 +4,39 @@ load "stzlib.ring"
 */
 pron()
 
+? NullObject().Name()
+#--> @nullobject
+
+? Q(NullObject()).IsNamedObject()
+#--> TRUE
+
+#--
+
+? TrueObject().Name()
+#--> @trueobject
+
+? Q(TrueObject()).IsNamedObject()
+#--> TRUE
+
+#--
+
+? FalseObject().Name()
+#--> @falseobject
+
+? Q(FalseObject()).IsNamedObject()
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s)
+
+/*--------------
+
+pron()
+
 StzNamedObjectQ(:myobj = TrueObject()) {
 
 	? Name()
-	#--> :myage
+	#--> :myobj
 
 	? StzType()
 	#--> :stznumber
