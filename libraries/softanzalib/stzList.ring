@@ -21733,66 +21733,53 @@ class stzList from stzObject
 
 		*/
 
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
+		if CheckParams()
+	
+			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+				pItem = pItem[2]
+			ok
+	
+			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+				pCaseSensitive = pCaseSensitive[2]
+			ok
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
 		ok
 
 		# Doing the job
 
+		cItem = ""
+		if isList(pItem)
+			cItem = @@(pItem)
+		else
+			cItem = Q(pItem).Stringified()
+		ok
+
+		acContent = This.Stringified()
+		nLen = len(acContent)
+
+		# Managing case sensitivity
+
+		if pCaseSensitive = FALSE
+			cItem = ring_lower(cItem)
+
+			for i = 1 to nLen
+				if NOT ring_isLower(acCotent[i])
+					acContent[i] = ring_lower(acContent[i])
+				ok
+			next
+		ok
+
+		# Getting the occurrences
+
 		anResult = []
 
-		if isNumber(pItem)
-			anNumbersZ = This.NumbersZ()
-			nLen = len(anNumbersZ)
+		for i = 1 to nLen
+			if acContent[i] = cItem
+				anResult + i
+			ok
+		next
 
-			for i = 1 to nLen
-				if anNumbersZ[i][1] = pItem
-					anResult + anNumbersZ[i][2]
-				ok
-			next
-
-			return anResult
-
-		but isString(pItem)
-			acStringsZ = This.StringsZ()
-			nLen = len(acStringsZ)
-
-			for i = 1 to nLen
-				if acStringsZ[i][1] = pItem
-					anResult + acStringsZ[i][2]
-				ok
-			next
-
-			return anResult
-
-		but isList(pItem)
-			aListsZ = This.ListsZ()
-			nLen = len(aListsZ)
-
-			for i = 1 to nLen
-				if StzListQ(aListsZ[i][1]).IsEqualToCS(pItem, pCaseSensitive)
-					anResult + aListsZ[i][2]
-				ok
-			next
-
-			return anResult
-
-		else // isObject(pItem)
-			aoObjectsZ = This.ObjectsZ()
-			nLen = len(aoObjectsZ)
-
-			for i = 1 to nLen
-				if StzObjectQ(aoObjectsZ[i][1]).IsEqualTo(pItem)
-					anResult + aoObjectsZ[i][2]
-				ok
-			next
-
-			return anResult
-		ok
+		return anResult
 
 		#< @FunctionFluentForm
 
@@ -22050,25 +22037,24 @@ class stzList from stzObject
 
 		# Doing the job
 
-/*		if n = 1
-			return This.FirstOccurrenceCS(pItem, pCaseSensitive)
-	
-		but n = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
-			return This.LastOccurrenceCS(pItem, pCaseSensitive)
+		cItem = ""
+		if isList(pItem)
+			cItem = @@(pItem)
+		else
+			cItem = Q(pItem).Stringified()
 		ok
-*/
-		cItem = Q(pItem).Stringified()
+
 		acContent = This.Stringified()
 		nLen = len(acContent)
 
 		# Managing case sensitivity
 
 		if pCaseSensitive = FALSE
-			cItem = lower(cItem)
+			cItem = ring_lower(cItem)
 
 			for i = 1 to nLen
-				if NOT isLower(acCotent[i])
-					acContent[i] = lower(acContent[i])
+				if NOT ring_isLower(acCotent[i])
+					acContent[i] = ring_lower(acContent[i])
 				ok
 			next
 		ok
@@ -22197,18 +22183,24 @@ class stzList from stzObject
 
 		# Hence we turn every thing to strings
 
-		cItem = @@(pItem)
+		cItem = ""
+		if isList(pItem)
+			cItem = @@(pItem)
+		else
+			cItem = Q(pItem).Stringified()
+		ok
+
 		acContent = This.Stringified()
 
 		# Managing case sensitivity
 
 		if pCaseSensitive = FALSE
 
-			cItem = lower(cItem)
+			cItem = ring_lower(cItem)
 
 			for i = 1 to nLen
-				if NOT isLower(acCotent[i])
-					acContent[i] = lower(acContent[i])
+				if NOT ring_isLower(acContent[i])
+					acContent[i] = ring_lower(acContent[i])
 				ok
 			next
 		ok
