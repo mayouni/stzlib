@@ -10,6 +10,9 @@ func IsCounterNamedParamList(paParams)
 			return FALSE
 		ok
 
+	func @IsCounterNamedParamList(paParams)
+		return IsCounterNamedParamList(paParams)
+
 func StzCounterQ(paParams)
 	return new stzCounter(paParams)
 

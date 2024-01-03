@@ -58,6 +58,12 @@ or 'unavoidable' Qt feature.
 /////////////////////
 
 
+func DistanceZero()
+	return "🔻"
+
+	func ZeroDistance()
+		return DistanceZero()
+
 func StzCharQ(p)
 	return new stzChar(p)
 
@@ -87,6 +93,9 @@ func StzCharClass()
 func IsAsciiChar(c)
 	return StzCharQ(c).IsAscii()
 	
+	func @IsAsciiChar(c)
+		return IsAsciiChar(c)
+
 func UnicodeToHexUnicode(n)
 	oChar = new stzChar(n)
 	cResult = oChar.HexUnicode()
@@ -154,6 +163,12 @@ func IsQChar(p)
 	ok
 
 	func IsQCharObject(p)
+		return IsQChar(p)
+
+	func @IsQChar(p)
+		return This.IsQChar(p)
+
+	func @IsQCharObject(p)
 		return IsQChar(p)
 
 func QCharToString(oQChar)

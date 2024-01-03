@@ -3,6 +3,9 @@
 func IsStringPattern(pcString)
 	return TRUE // TODO
 
+	func @IsStringPattern(pcStr)
+		return IsStringPattern(pcStr)
+
 class stzStringPattern from stzObject
 	cPattern
 

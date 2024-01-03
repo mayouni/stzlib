@@ -13,6 +13,9 @@ func IsListOfBits(paList)
 		return FALSE
 	ok
 
+	func @IsListOfBits()
+		return IsListOfBits(paList)
+
 class stzByte from stzObject
 	aByte
 

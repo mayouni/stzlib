@@ -239,7 +239,7 @@ func AreBothEqual(p1, p2)
 	func BothAreEqual(p1, p2)
 		return AreEqual([ p1, p2 ])
 	
-		def BothAreNotEqual(p1, p2)
+		func BothAreNotEqual(p1, p2)
 			return NOT BothAreEqual(p1, p2)
 
 func AreEqual(paItems)
@@ -288,7 +288,14 @@ func HaveBothSameType(p1, p2)
 func IsEmptyList(paList)
 	return StzListQ(paList).IsEmpty()
 		
-	def IsAnEmptyList(paList)
+	func IsAnEmptyList(paList)
+		return IsEmptyList(paList)
+
+	func @IsEmptyList(paList)
+		return IsEmptyList(paList)
+
+	func @IsAnEmptyList(paList)
+		return IsEmptyList(paList)
 
 func ListShow(paList)
 	StzListQ(paList).Show()
@@ -296,56 +303,147 @@ func ListShow(paList)
 func AreNumbers(paList)
 	return StzListQ(paList).ContainsOnlyNumbers()
 
-	def AllAreNumbers(paList)
+	#< @FunctionAlternativeForms
+
+	func AllAreNumbers(paList)
 		return AreNumbers(paList)
 
-	def AreAllNumbers(paList)
+	func AreAllNumbers(paList)
 		return AreNumbers(paList)
 
-	def TheseAreNumbers(paList)
+	func TheseAreNumbers(paList)
 		return AreNumbers(paList)
 
-	def AllTheseAreNumbers(paList)
+	func AllTheseAreNumbers(paList)
 		return AreNumbers(paList)
+
+	func IsMadeOfNumbers(paList)
+		return AreNumbers(paList)
+
+	func IsMadeOfOnlyNumbers(paList)
+		return AreNumbers(paList)
+
+	func IsMadeOfJustNumbers(paList)
+		return AreNumbers(paList)
+
+	func ContainsOnlyNumbers(paList)
+		return AreNumbers(paList)
+
+	func ContainsJustNumbers(paList)
+		return AreNumbers(paList)
+
+	#--
+
+	func @AreNumbers(paList)
+		return AreNumbers(paList)
+
+	func @AllAreNumbers(paList)
+		return AreNumbers(paList)
+
+	func @AreAllNumbers(paList)
+		return AreNumbers(paList)
+
+	func @IsMadeOfNumbers(paList)
+		return AreNumbers(paList)
+
+	func @IsMadeOfOnlyNumbers(paList)
+		return AreNumbers(paList)
+
+	func @IsMadeOfJustNumbers(paList)
+		return AreNumbers(paList)
+
+	func @ContainsOnlyNumbers(paList)
+		return AreNumbers(paList)
+
+	func @ContainsJustNumbers(paList)
+		return AreNumbers(paList)
+
+	# TODO : Add these alternatives to other similar functions
+	#>
 
 func AreStrings(paList)
 	return StzListQ(paList).ContainsOnlyStrings()
 
-	def AllAreStrings(paList)
+	#< @FuncctionAlternativeForms
+
+	func AllAreStrings(paList)
 		return AreStrings(paList)
 
-	def AreAllStrings(paList)
+	func AreAllStrings(paList)
 		return AreStrings(paList)
 
-	def TheseAreStrings(paList)
+	func TheseAreStrings(paList)
 		return AreStrings(paList)
 
-	def AllTheseAreStrings(paList)
+	func AllTheseAreStrings(paList)
 		return AreStrings(paList)
+
+	#--
+
+	func @AreStrings(paList)
+		return AreStrings(paList)
+
+	func @AllAreStrings(paList)
+		return AreStrings(paList)
+
+	func @AreAllStrings(paList)
+		return AreStrings(paList)
+
+	#>
 
 func AreLists(paList)
 	return StzListQ(paList).ContainsOnlyLists()
 
-	def AllAreLists(paList)
+	#< @FunctionAlternativeForms
+
+	func AllAreLists(paList)
 		return AreLists(paList)
 
-	def AreAllLists(paList)
+	func AreAllLists(paList)
 		return AreLists(paList)
 
-	def TheseAreLists(paList)
+	func TheseAreLists(paList)
 		return AreLists(paList)
+
+	#--
+
+	func @AreLists(paList)
+		return AreLists(paList)
+
+	func @AllAreLists(paList)
+		return AreLists(paList)
+
+	func @AreAllLists(paList)
+		return AreLists(paList)
+
+	#>
 
 func AreObjects(paList)
 	return StzListQ(paList).ContainsOnlyObjects()
 
-	def AllAreObjects(paList)
+	#< @FunctionAlternativeForms
+
+	func AllAreObjects(paList)
 		return AreObjects(paList)
 
-	def AreAllObjects(paList)
+	func AreAllObjects(paList)
 		return AreObjects(paList)
 
-	def TheseAreObjects(paList)
+	func TheseAreObjects(paList)
 		return AreObjects(paList)
+
+	#--
+
+	func @AreObjects(paList)
+		return AreObjects(paList)
+
+	func @AllAreObjects(paList)
+		return AreObjects(paList)
+
+	func @AreAllObjects(paList)
+		return AreObjects(paList)
+
+	#>
 
 func ListIsListOfStrings(paList)
 	return StzListQ(paList).IsListOfStrings()
@@ -353,11 +451,19 @@ func ListIsListOfStrings(paList)
 	func IsListOfStrings(paList)
 		return ListIsListOfStrings(paList)
 
+	func @IsListOfStrings(paList)
+		return ListIsListOfStrings(paList)
 
 func IsRangeNamedParamList(paList)
 	return StzListQ(paList).IsRangeNamedParam()
 
 	func ListIsRangeNamedParamList(paList)
+		return This.IsRangeNamedParamList(paList)
+
+	func @IsRangeNamedParamList(paList)
+		return IsRangeNamedParamList(paList)
+
+	func @ListIsRangeNamedParamList(paList)
 		return This.IsRangeNamedParamList(paList)
 
 func ListToCode(paList)
@@ -23183,70 +23289,17 @@ class stzList from stzObject
 	#-------------------------------------------------#
 
 	def FindNthNextOccurrenceCS( n, pItem, pnStartingAt, pCaseSensitive )
-/*
-		if (isString(n) and (n = :First or n = :FirstOccurrence)) or
-		   (isNumber(n) and n = 1)
 
-			return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
+		if CheckParams()
 
-		ok
+			if isList(pItem) and Q(pItem).IsOfNamedParam()
+				pItem = pItem[2]
+			ok
+	
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
 
-		if (isString(n) and (n = :Last or n = :LastOccurrence))
-
-			return This.FindLastOccurrenceCS(pItem, nStart, pCaseSensitive)
-
-		ok
-
-		if isList(pItem) and Q(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
-
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if NOT Q([ n, pnStartingAt]).BothAreNumbers()
-			StzRaise("Incorrect param type! n and pnStartingAt must be numbers.")
-		ok
-
-		# Early checks (gains performance for large strings)
-
-		if NOT This.ContainsCS(pItem, pCaseSensitive)
-			return 0
-		ok
-
-		nLen = This.NumberOfItems()
-
-		if (NOT Q(n).IsBetween(1, nLen - pnStartingAt)) or
-		   (NOT Q(pnStartingAt).IsBetween(1, nLen - n))
-
-			return 0
-		ok
-
-		if n = nLen and
-		   This.LastItemQ().IsEqualToCS(pItem, pCaseSensitive)
-			return nLen
-		ok
-
-		# Doing the job
-
-		nResult  = This.SectionQ(pnStartingAt, nLen).
-				FindNthCS(n, pItem, pCaseSensitive)
-
-		if nResult != 0
-			nResult += pnStartingAt - 1
-		ok
-
-		return nResult
-
-
-*/
-		if isList(pItem) and Q(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
-
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
 		ok
 
 		# Doing the job
@@ -23346,6 +23399,12 @@ class stzList from stzObject
 
 	def FindNthPreviousOccurrenceCS(n, pItem, nStart, pCaseSensitive)
 
+		nResult  = This.SectionQ(1, nStart).
+				ReverseQ().
+				FindNthNextOccurrenceCS(n, pItem, nStart, pCaseSensitive)
+
+		return nResult
+/*
 		# Resolving params
 
 		if isList(pItem) and Q(pItem).IsOfNamedParam()
@@ -23397,9 +23456,9 @@ class stzList from stzObject
 		# Doing full check
 
 		# Until this point, elapsed time approches 0.80 second
-		# in parsing a list of +150K hynrid items
+		# in parsing a list of +150K hybrid items
 
-		# For the same list, the following check take about 2.76 seconds
+		# For the same list, the following check takes about 2.76 seconds
 
 		nPos = This.SectionQ(nStart, 1).ReverseQ().
 			    FindNthCS(n, pItem, pCaseSensitive)
@@ -23411,7 +23470,7 @@ class stzList from stzObject
 		ok
 
 		return nResult
-
+*/
 		#< @FunctionAlternativeForms
 
 		def FindPreviousNthOccurrenceCS( n, pItem, nStart, pCaseSensitive )
@@ -30902,11 +30961,27 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsToItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and This[1] = :ToItem)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsOneOfTheseNamedParams(pacParamNames)
+		if CheckParams()
+			if NOT ( isList(pacParamNames) and @IsListOfStrings(pacParamNames) )
+				StzRaise("Incorrect param type! pacParamNames must be a list of strings.")
+			ok
+		ok
+
+		nLen = len(pacParamNames)
 		bResult = FALSE
 
-		for cParamName in pacParamNames
-			cCode = 'bFound = This.Is' + cParamName + 'NamedParam()'
+		for i = 1 to pacParamNames
+			cCode = 'bFound = This.Is' + pacParamNames[i] + 'NamedParam()'
 			eval(cCode)
 			if bFound
 				bResult = TRUE

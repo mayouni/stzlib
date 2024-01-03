@@ -24,6 +24,9 @@ func IsListOfConstraints(pObject, paConstraints)
 
 	return bResult
 	
+	func @IsListOfConstraints(pObject, paConstraints)
+		return IsListOfConstraints(pObject, paConstraints)
+
 func IsListOfNamedConstraints(pObject, paConstraints)
 	if NOT IsListOfPairs(paConstraints)
 		return FALSE
@@ -39,6 +42,9 @@ func IsListOfNamedConstraints(pObject, paConstraints)
 	next
 
 	return bResult
+
+	func @IsListOfNamedConstraints(pObject, paConstraints)
+		return IsListOfNamedConstraints(pObject, paConstraints)
 
 class stzListOfConstraints from stzObject
 	@acConstraints

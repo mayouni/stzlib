@@ -65,6 +65,9 @@ dyn {
 		else
 			return FALSE
 		ok
+
+		func @IsActiveItem(pItem)
+			return IsActiveItem(pItem)
 	
 // The main class
 
