@@ -3389,7 +3389,7 @@ proff()
 # Executed in 0.24 second(s) in Ring 1.17
 
 /*-----------------
-*/
+
 pron()
 
 # Constructing the large list
@@ -3409,7 +3409,7 @@ pron()
 # Doing the job
 
 	o1 = new stzList(aLarge)
-? o1.FindAll("♥")
+? o1.FindFirst("♥")
 //	? o1.FindNth(4, "♥")
 	#--> 1_000_015
 
@@ -3448,32 +3448,31 @@ pron()
 	#--> 1_000_012
 
 proff()
-# Executed in 8.72 second(s) in Ring 1.19 (64 bits)
+# Executed in 8.51 second(s) in Ring 1.19 (64 bits)
 # Executed in 9.14 second(s) in Ring 1.19 (32 bits)
 # Executed in 21.51 second(s) in Ring 1.18
 # Executed in 22.74 second(s) in Ring 1.17
 
 /*----------------
 */
+
 pron()
 
-//aLarge = 1:1_000_000
+aLarge = 1:1_000_000
 
 aList = [ "A", 10, "A", "♥", 20, 1:3, "♥", "B" ]
 
-//for i = 1 to 8
-//	aLarge + aList[i]
-//next
+for i = 1 to 8
+	aLarge + aList[i]
+next
 
-o1 = new stzList(aList)
-? o1.FindFirst("♥")
-#--> 7
+o1 = new stzList(aLarge)
+? o1.FindLast("♥")
+#--> 1_000_004
 
 proff()
-# Executed in 0.10 second(s) in Ring 1.19 (64 bits)
-# Executed in 0.07 second(s) in Ring 1.19 (32 bits)
-# Executed in 0.09 second(s) in Ring 1.18
-# Executed in 0.37 second(s) in Ring 1.17
+# Executed in  6.36 second(s) in Ring 1.19 (64 bits)
+# Executed in 14.32 second(s) in Ring 1.17
 
 /*--------------
 

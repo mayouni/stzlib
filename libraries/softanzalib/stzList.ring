@@ -7465,11 +7465,7 @@ class stzList from stzObject
 	#--
 
 	def IsNamedObject()
-		if This.IsPairOfStringAndObject()
-			return TRUE
-		else
-			return FALSE
-		ok
+		return FALSE
 
 	def IsListOfNamedObjects()
 		bResult = TRUE
@@ -22028,7 +22024,11 @@ class stzList from stzObject
 			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 				pItem = pItem[2]
 			ok
-	
+
+			if isObject(pItem) and NOT @IsNamedObject(pItem)
+				StzRaise("Can't process! Objects, unless they are named objects, can not be found yet.")
+			ok
+
 			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 				pCaseSensitive = pCaseSensitive[2]
 			ok
@@ -22038,7 +22038,7 @@ class stzList from stzObject
 		# Doing the job
 
 		cItem = ""
-		if isList(pItem)
+		if isList(pItem) or @IsNamedObject(pItem)
 			cItem = @@(pItem)
 		else
 			cItem = Q(pItem).Stringified()
@@ -22137,79 +22137,7 @@ class stzList from stzObject
 	#---------------------------------------------------#
 
 	def FindFirstOccurrenceCS(pItem, pCaseSensitive)
-
-		if CheckParams()
-			if isList(pItem) and Q(pItem).IsOfNamedParam()
-				pItem = pItem[2]
-			ok
-	
-			if isObject(pItem)
-				StzRaise("Can't process! Objects can not be found yet.")
-			ok
-	
-			# Resolving pCaseSensitive
-	
-			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-				pCaseSensitive = pCaseSensitive[2]
-			ok
-
-		ok
-
-		# Doing the job : using Ring skills first...
-
-		# (if the list is made of numbers and/or strings, and the
-		#  item itself is a number or string, and when case sensitivity
-		#  is not involved ~> use ring_find()
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		nResult = 0
-
-		if ( This.IsListOfNumbers() or This.IsListOfStrings() or
-		     This.IsAListOfNumbersOrStrings() ) and
-
-		   ( isNumber(pItem) or isString(pItem) ) and
-		   pCaseSensitive = TRUE
-
-			nResult = ring_find( aContent, pItem )
-			return nResult
-		ok
-
-		# Relying on Softanza skills
-
-		# ( either case sensitivity is involved, or the list and the
-		#   value to be found are not strings or numbers)
-
-		# Hence we turn every thing to strings
-
-		cItem = ""
-		if isList(pItem)
-			cItem = @@(pItem)
-		else
-			cItem = Q(pItem).Stringified()
-		ok
-
-		acContent = This.Stringified()
-
-		# Managing case sensitivity
-
-		if pCaseSensitive = FALSE
-
-			cItem = ring_lower(cItem)
-
-			for i = 1 to nLen
-				if NOT ring_isLower(acContent[i])
-					acContent[i] = ring_lower(acContent[i])
-				ok
-			next
-		ok
-
-		# Using Ring after adapting data to it
-
-		nResult = ring_find(acContent, cItem)
-
-		return nResult
+		return This.FindNthOccurrenceCS(1, pItem, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
@@ -22260,64 +22188,46 @@ class stzList from stzObject
 
 	def FindLastOccurrenceCS(pItem, pCaseSensitive)
 
-		# Resolving pCaseSensitive
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if isString(pCaseSensitive)
-			oCase = Q(pCaseSensitive)
-			if oCase.IsOneOfThese([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
-
-				pCaseSensitive = TRUE
-			
-			but oCase.IsOneOfThese([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
-
-				pCaseSensitive = FALSE
+		if CheckParams()
+			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+				pItem = pItem[2]
 			ok
 
+			if isObject(pItem) and NOT @IsNamedObject(pItem)
+				StzRaise("Can't process! Objects, unless they are named objects, can not be found yet.")
+			ok
+
+			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+				pCaseSensitive = pCaseSensitive[2]
+			ok
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+		# Reversing the list after stringifying it
+
+		acReversed = ring_reverse( This.Stringified() )
+		nLen = len(acReversed)
+
+		# Stringifying the item to look for
+
+		cItem = ""
+		if isList(pItem) or @IsNamedObject(pItem)
+			cItem = @@(pItem)
+		else
+			cItem = Q(pItem).Stringified()
+		ok
+
+		# Managing case sensitivity
+
+		if pCaseSensitive = FALSE
+			cItem = ring_lower(cItem)
+			for i = 1 to nLen
+				acReversed[i] = ring_lower(acReversed[i])
+			next
 		ok
 
 		# Doing the job
 
-		if This.IsListOfNumbersOrStrings() and
-		   Q(pITem).IsNumberOrString() and
-		   pCaseSensitive = TRUE
-
-			nLen = This.NumberOfItems()
-			n = ring_find( ring_reverse(This.List()), pItem )
-
-			if n > 0
-				return nLen - n + 1
-			else
-				return 0
-			ok
-		ok
-
-		cItem = @@(pItem)
-		n = 0
-	
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		nResult = 0
-
-		for i = nLen to 1 step -1
-			n++
-			if Q(cItem).IsEqualToCS( @@(aContent[i]), pCaseSensitive )
-				nResult = nLen - n + 1
-				exit
-			ok
-		next
-
+		nResult = nLen - ring_find(acReversed, cItem) + 1
 		return nResult
 
 		#< @FunctionAlternativeForms

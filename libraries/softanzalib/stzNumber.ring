@@ -4963,3 +4963,6 @@ class stzNumber from stzObject
 
 		def AndQ()
 			return This.AndThen()
+
+	def IsNamedObject()
+		return FALSE

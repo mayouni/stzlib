@@ -183,7 +183,7 @@ func ObjectIsUnnamed(pObject)
 #--
 
 func RingQtClasses()
-	# TODO: Update it
+	# TODO: Update it tp Ring 1.19
 	aRingQtClasses = [
 		:QAbstractAspect,
 		:QAbstractButton,
