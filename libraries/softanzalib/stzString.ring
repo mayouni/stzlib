@@ -28619,8 +28619,6 @@ class stzString from stzObject
 	 #      STARTING AT A GIVEN POSITION                       #
 	#=========================================================#
 
-	# TODO: Add FindNthPreviousAsSectionsCS( n, pcSubStr, nStart, pCaseSensitive )
-
 	def FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
 
 		# Resolving params

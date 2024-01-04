@@ -53,7 +53,28 @@ func ItemExists(pItem, paList)
 	ok
 
 func ListsMerge(paListOfLists)
-	return StzListOfListsQ(paListOfLists).Merged()
+	if CheckParams()
+		if NOT ( isList(paListOfLists) and @IsListOfLists(paListOfLists) )
+			StzRaise("Incorrect param type! paListOfLists must be a list of lists.")
+		ok
+	ok
+
+	nLen = len(paListOfLists)
+
+	if nLen < 2
+		return paListOfLists
+	ok
+
+	aResult = paListOfLists[1]
+
+	for i = 2 to nLen
+		nLenList = len(paListOfLists[i])
+		for j = 1 to nLenList
+			aResult + paListOfLists[i][j]
+		next j
+	next
+
+	return aResult
 
 	func ListsMergeQ(paListOfLists)
 		return new stzList( ListsMerge(paListOfLists) )
@@ -113,7 +134,30 @@ func CommonItems(paLists)
 	func Intersection(paLists)
 		return CommonItems(paLists)
 
+func IsListOfLists(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type!")
+		ok
+	ok
 
+	bResult = TRUE
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if NOT isList(paList[i])
+			bResult = FALSE
+			exit
+		ok
+	next i
+
+	return bResult
+
+	func @IsListOfLists(paList)
+		return IsListOfLists(paList)
+
+	func ListIsListOfLists(paList)
+		return IsListOfLists(paList)
 
 func StzListsQ(paList)
 	return new stzLists(paList)
@@ -1952,20 +1996,7 @@ class stzListOfLists from stzList
 			StzRaise("Can't merge the list of lists! Instead you can return a merged copy of it using Merged()")
 
 	def Merged()
-		
-		aResult = []
-
-		aContent = This.Lists()
-		nLen = This.NumberOfLists()
-
-		for i = 1 to nLen
-			nLenList = len(aContent[i])
-			for j = 1 to nLenList
-		   		aResult + aContent[i][j]
-			next
-		next
-		
-		return aResult
+		return @Merge(This.Content())
 
 	  #----------------------------------------#
 	 #  GETTING A FLATTENED COPY OF THE LIST  #

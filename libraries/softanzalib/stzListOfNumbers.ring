@@ -59,6 +59,31 @@ func StzListOfNumbersQ(paListOfNumbers)
 	func StzNumbersQ(paList)
 		return StzListOfNumbersQ(paListOfNumbers)
 
+func IsListOfNumbers(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type!")
+		ok
+	ok
+
+	bResult = TRUE
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if NOT isNumber(paList[i])
+			bResult = FALSE
+			exit
+		ok
+	next i
+
+	return bResult
+
+	func @IsListOfNumbers(paList)
+		return IsListOfNumbers(paList)
+
+	func ListIsListOfNumbers(paList)
+		return IsListOfNumbers(paList)
+
 func LN(p)
 	if isList(p)
 		return StzListQ(p).OnlyNumbers()

@@ -3519,11 +3519,42 @@ StopProfiler()
 
 /*------------
 */
+pron()
+
+o1 = new stzString("12♥4♥67")
+
+? o1.FindPrevious("♥", :StartingAt = 5)
+#--> 3
+
+? o1.FindNthPrevious(2, "♥", :StartingAt = 6)
+#--> 3
+
+proff()
+
+/*------------
+
+*/
+pron()
+
+o1 = new stzList([ "1", "2", "♥", "4", "♥", "6", "7" ])
+
+//? o1.FindPrevious("♥", :StartingAt = 5)
+#--> 3
+
+? o1.FindNthPrevious(2, "♥", :StartingAt = 6)
+
+
+proff()
+
+/*------------
+
+*/
+
 StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
 
-	aLargeListOfStr = ["_", "_", "♥"]
+	aLargeListOfStr = [ "_", "_", "♥" ]
 	for i = 1 to 100_000
 		aLargeListOfStr + "_"
 	next
@@ -3551,13 +3582,13 @@ StartProfiler()
 
 	o1 = new stzList(aLargeListOfStr)
 
-	? o1.FindPrevious("♥", :StartingAt = 5)
+//	? o1.FindPrevious("♥", :StartingAt = 5)
 	#--> 3
 
 	? o1.FindNthPrevious(2, "♥", :StartingAt = 120_000)
 	#--> 100_004
 
-	? o1.FindNthPrevious(3, "♥", :StartingAt = 150_000)
+//	? o1.FindNthPrevious(3, "♥", :StartingAt = 150_000)
 	#--> 3
 
 StopProfiler()

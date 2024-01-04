@@ -48,6 +48,31 @@ func LS(p)
 		func LoSQ(p)
 			return LSQ(p)
 
+func IsListOfStrings(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type!")
+		ok
+	ok
+
+	bResult = TRUE
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if NOT isString(paList[i])
+			bResult = FALSE
+			exit
+		ok
+	next i
+
+	return bResult
+
+	func @IsListOfStrings(paList)
+		return IsListOfstrings(paList)
+
+	func ListIsListOfStrings(paList)
+		return IsListOfStrings(paList)
+
 func IsQStringList(p)
 	if isObject(p) and classname(p) = "qstringlist"
 		return TRUE

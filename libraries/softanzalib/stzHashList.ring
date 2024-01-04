@@ -39,6 +39,16 @@ func StzNamedHashList(paNamed)
 	func StzHashListXTQ(paNamed)
 		return StzNamedHashList(paNamed)
 
+func ListIsHashList(paList)
+	oTempList = new stzList(paList)
+	return oTempList.IsHashList()
+
+	func IsHashList(paList)
+		return ListIsHashList(paList)
+
+	func @IsHashList(paList)
+		return ListIsHashList(paList)
+
 func ListIsPairAndKeyIsString(paPair)
 	if isList(paPair) and Q(paPair).IsPairAndKeyIsString()
 		return TRUE
