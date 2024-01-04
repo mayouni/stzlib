@@ -3,6 +3,16 @@
 func StzPairQ(paList)
 	return new stzPair(paList)
 
+func IsPair(paList)
+	if isList(paList) and len(paList) = 2
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func @IsPair(paList)
+		return IsPair(paList)
+
 class stzPair from stzList
 	@aContent
 	

@@ -162,28 +162,15 @@ func ListIsSet(paList)
 	oList = new stzList(paList)
 	return oList.IsSet()
 
-func ListIsListOfNumbers(paList)
-	return StzListQ(paList).IsListOfNumbers()
-
 func ListItemsAreAllStrings(paList)
 	oTempList = new stzList(paList)
 	return oTempList.ItemsAreAllStrings()
-
-func ListIsHashList(paList)
-	oTempList = new stzList(paList)
-	return oTempList.IsHashList()
-
-func ListIsListOfLists(paList)
-	return StzListQ(paList).IsListOfLists()
 
 func ListIsListOfSets(paList)
 	return StzListQ(paList).IsListOfSets()
 
 func ListIsListOfLetters(paList)
 	return StzListQ(paList).IsListOfLetters()
-
-func ListIsListOfHashLists(paList)
-	return StzListQ(paList).IsListOfHashLists()
 
 func ListIsListOfZerosAndOnes(paList)
 	return StzListQ(paList).IsListOfZerosAndOnes()
@@ -444,15 +431,6 @@ func AreObjects(paList)
 		return AreObjects(paList)
 
 	#>
-
-func ListIsListOfStrings(paList)
-	return StzListQ(paList).IsListOfStrings()
-
-	func IsListOfStrings(paList)
-		return ListIsListOfStrings(paList)
-
-	func @IsListOfStrings(paList)
-		return ListIsListOfStrings(paList)
 
 func IsRangeNamedParamList(paList)
 	return StzListQ(paList).IsRangeNamedParam()
@@ -22333,7 +22311,13 @@ class stzList from stzObject
 
 		# Doing the job
 
-		nResult = nLen - ring_find(acReversed, cItem) + 1
+		nResult = 0
+
+		n = ring_find(acReversed, cItem)
+		if n > 0
+			nResult = nLen - n + 1
+		ok
+
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -23404,73 +23388,7 @@ class stzList from stzObject
 				FindNthNextOccurrenceCS(n, pItem, nStart, pCaseSensitive)
 
 		return nResult
-/*
-		# Resolving params
 
-		if isList(pItem) and Q(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
-
-		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
-			nStart = nStart[2]
-		ok
-
-		# Resolving params
-
-		if isList(pItem) and Q(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
-
-		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
-			nStart = nStart[2]
-		ok
-
-		if NOT Q([n, nStart]).BothAreNumbers()
-			StzRaise("Incorrect param type! n and nStart must be numbers.")
-		ok
-
-		# Early checks (gains performance for large strings)
-		# Very quick on small to medium lists (thousands of item)
-		# Takes half a second on a list of +150K hybrid items
-
-		if NOT This.ContainsCS(pItem, pCaseSensitive)
-			return 0
-		ok
-
-		nLen = This.NumberOfItems()
-
-		if (NOT Q(n).IsBetween(1, nLen - 1)) or
-		   (NOT Q(nStart).IsBetween(n + 1, nLen))
-
-			return 0
-		ok
-
-		# The following check is very quick, even for
-		# large lists (less then 0.01s)
-
-		if n = nLen and
-		   This.FirstItemQ().IsEqualToCS(pItem, pCaseSensitive)
-			return nLen
-		ok
-
-		# Doing full check
-
-		# Until this point, elapsed time approches 0.80 second
-		# in parsing a list of +150K hybrid items
-
-		# For the same list, the following check takes about 2.76 seconds
-
-		nPos = This.SectionQ(nStart, 1).ReverseQ().
-			    FindNthCS(n, pItem, pCaseSensitive)
-
-		if nPos != 0
-			nResult = (1 + nStart) - nPos
-		else
-			nResult = 0
-		ok
-
-		return nResult
-*/
 		#< @FunctionAlternativeForms
 
 		def FindPreviousNthOccurrenceCS( n, pItem, nStart, pCaseSensitive )
@@ -23651,13 +23569,16 @@ class stzList from stzObject
 
 		*/
 
+		if CheckParams()
 
-		if isList(pItem) and Q(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
+			if isList(pItem) and Q(pItem).IsOfNamedParam()
+				pItem = pItem[2]
+			ok
+	
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
 
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
 		ok
 
 		nResult = This.SectionQ(1, pnStartingAt - 1).
@@ -27223,12 +27144,14 @@ class stzList from stzObject
 					:To, :ToPosition, :ToItem,
 					:Until, :UntilPosition, :UntilItem,
 					:UpTo, :UpToPosition, :UpToItem,
-					:And
+					:And,
+
+					:StartingAt, :StartingAtPosition, :StartingAtItem
 					])
 	
 				n2 = n2[2]
 			ok
-	
+
 			# Managing the use of :NthToFirst named param
 	
 			if isList(n1) and StzListQ(n1).IsOneOfTheseNamedParams([
@@ -27291,7 +27214,7 @@ class stzList from stzObject
 			if n1 < 0
 				n1 = This.NumberOfItems() + n1 + 1
 			ok
-	
+
 			if n2 < 0
 				n2 = This.NumberOfItems() + n2 + 1
 			ok
@@ -27313,17 +27236,15 @@ class stzList from stzObject
 		nLen = len(aContent)
 		aResult = []
 
-		if n1 = n2
-			aResult + This.Item(n1)
-
-		but n1 < n2
-			for i = n1 to n2
-				aResult + aContent[i]
-			next
-
-		else
-			aResult = This.Section(n2, n1)
+		if n1 > n2
+			nTemp = n1
+			n1 = n2
+			n2 = nTemp
 		ok
+
+		for i = n1 to n2
+			aResult + aContent[i]
+		next
 
 		return aResult	
 

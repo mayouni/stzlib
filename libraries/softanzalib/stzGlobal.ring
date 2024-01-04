@@ -1738,6 +1738,9 @@ func ComputableShortForm(paList)
 func ShowShort(paList)
 	? ComputableShortForm(paList)
 
+	func ShowPart(paList)
+		ShowShort(paList)
+
 	#< @FunctionMisspelledForm
 
 	func ShwoShort(paList)
