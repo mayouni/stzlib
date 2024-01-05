@@ -744,11 +744,8 @@ func IsStzObject(pObject)
 	func @IsStzObject(pObject)
 		return IsStzObject(pObject)
 
-func IsNamedObject(pObject)
-	if isObject(pObject) and
-	   Q( attributes(pObject) ).ContainsCS( "@objectvarname", :CS = FALSE ) and
-	   Q( methods(pObject) ).ContainsCS( "objectvarname", :CS = FALSE )
-
+func IsNamedObject(pObject) 
+	if isObject(pObject) and @IsStzObject(pObject) and pObject.IsNamed()
 		return TRUE
 
 	else
@@ -1471,21 +1468,25 @@ class stzObject
 		#>
 
 	def IsNamed()
-		return NOT This.IsUnnamed()
+		if This.Name() != :@NoName
+			return TRUE
+		else
+			return FALSE
+		ok
 
 		#< @FunctionAlternativeForms
 
 		def IsNamedObject()
-			return This.IsUnnamed()
+			return This.IsNamed()
 
 		def HasName()
-			return This.IsUnnamed()
+			return This.IsNamed()
 
 		def HasAName()
-			return This.IsUnnamed()
+			return This.IsNamed()
 
 		def IsANamedObject()
-			return This.IsUnnamed()
+			return This.IsNamed()
 
 		#>
 
@@ -2811,7 +2812,8 @@ class stzObject
 		return object2pointer(This.Object())
 
 	def Stringified()
-		StzRaise("Feature unavailable yet!")
+		return This.Name()
+		
 
 	def IfQ(pcCondition)
 		if NOT isString(pcCondition)

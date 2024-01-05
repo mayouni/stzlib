@@ -68,7 +68,7 @@ func IsListOfStrings(paList)
 	return bResult
 
 	func @IsListOfStrings(paList)
-		return IsListOfstrings(paList)
+		return IsListOfStrings(paList)
 
 	func ListIsListOfStrings(paList)
 		return IsListOfStrings(paList)

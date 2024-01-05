@@ -1,4 +1,32 @@
 
+func StzListOfSetsQ(paList)
+	return new stzListOfSets(paList)
+
+func IsListOfSets(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type!")
+		ok
+	ok
+
+	bResult = TRUE
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if NOT IsSet(paList[i])
+			bResult = FALSE
+			exit
+		ok
+	next i
+
+	return bResult
+
+	func @IsListOfSets(paList)
+		return IsListOfSets(paList)
+
+	func ListIsListOfSets(paList)
+		return IsListOfSets(paList)
+
 class stzListOfSets from stzListOfLists
 	@aContent
 

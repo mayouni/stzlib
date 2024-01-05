@@ -45,6 +45,38 @@ func StzListClassName()
 	func StzListClass()
 		return "stzlist"
 
+def Flatten(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	nLen = len(paList)
+	aResult = []
+	aTemp = []
+
+	for i = 1 to nLen
+		if isList(paList[i])
+			aTemp = Flatten(paList[i]) # A recursive call
+			nLenTemp = len(aTemp)
+
+			for j = 1 to nLenTemp
+				aResult + aTemp[j]
+			next
+		else
+			aResult + paList[i]
+		ok
+	next
+
+	return aResult
+
+	func ListFlatten(paList)
+		return Flatten(paList)
+
+	func @Flatten(paList)
+		return Flatten(paList)
+
 func U(p)
 	/* EXAMPLE
 
@@ -157,17 +189,16 @@ func GenerateListAccessCode_FromNameAndPath(pcListName, paPath)
 	next
 
 	return cCode
-		
-func ListIsSet(paList)
-	oList = new stzList(paList)
-	return oList.IsSet()
 
 func ListItemsAreAllStrings(paList)
 	oTempList = new stzList(paList)
 	return oTempList.ItemsAreAllStrings()
 
-func ListIsListOfSets(paList)
-	return StzListQ(paList).IsListOfSets()
+	func AllItemsAreStrings(paList)
+		return ListItemsAreAllStrings(paList)
+
+	func @AllItemsAreStrings(paList)
+		return ListItemsAreAllStrings(paList)
 
 func ListIsListOfLetters(paList)
 	return StzListQ(paList).IsListOfLetters()
@@ -698,12 +729,13 @@ class stzList from stzObject
 	#--------------#
 
 	def init(paList)
-		if isList(paList)
-			@aContent = paList
-
-		else
-			StzRaise("Can't create the stzList object!")
+		if CheckParams()
+			if NOT isList(paList)
+				StzRaise("Can't create the stzList object! paList must be a list.")
+			ok
 		ok
+
+		@aContent = paList
 
 	  #---------------------#
 	 #     CONSTRAINTS     #
@@ -21818,7 +21850,11 @@ class stzList from stzObject
 			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
 				pItem = pItem[2]
 			ok
-	
+
+			if isObject(pItem) and NOT @IsNamedObject(pItem)
+				StzRaise("Can't find an unnamed object!")
+			ok
+
 			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 				pCaseSensitive = pCaseSensitive[2]
 			ok
@@ -21830,8 +21866,13 @@ class stzList from stzObject
 		cItem = ""
 		if isList(pItem)
 			cItem = @@(pItem)
+
+		but isObject(pItem) and @IsStzObject(pItem) and pItem.IsNamed()
+			cItem = pItem.ObjectName()
+
 		else
 			cItem = Q(pItem).Stringified()
+
 		ok
 
 		acContent = This.Stringified()
@@ -21843,7 +21884,7 @@ class stzList from stzObject
 			cItem = ring_lower(cItem)
 
 			for i = 1 to nLen
-				if NOT ring_isLower(acCotent[i])
+				if NOT ring_isLower(acContent[i])
 					acContent[i] = ring_lower(acContent[i])
 				ok
 			next
@@ -22137,7 +22178,7 @@ class stzList from stzObject
 			cItem = ring_lower(cItem)
 
 			for i = 1 to nLen
-				if NOT ring_isLower(acCotent[i])
+				if NOT ring_isLower(acContent[i])
 					acContent[i] = ring_lower(acContent[i])
 				ok
 			next

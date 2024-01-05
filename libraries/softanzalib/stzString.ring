@@ -105,10 +105,6 @@ func IsNonNullString(cStr)
 
 	func IsFullString(cStr)
 		return This.IsNonNullString(cStr)
-
-func StringToQString(cStr)
-	oStr = new stzString(cStr)
-	return oStr.QStringObject()
 	
 func IsQString(p)
 
@@ -118,11 +114,15 @@ func IsQString(p)
 		return FALSE
 	ok
 
-	#--
-
-	def IsQStringObject(p)
+	func IsQStringObject(p)
 		return IsQString(p)
-	
+
+	func @IsQString(p)
+		return IsQString(p)
+
+	func @IsQStringObject(p)
+		return IsQString(p)
+
 func QStringContent(oQStr)
 
 	try
@@ -141,7 +141,34 @@ func QStringContent(oQStr)
 
 	func QStringObjectToString(oQStr)
 		return QStringContent(oQStr)
-	
+
+func StringToQStringObject(str)
+	if CheckParams()
+		if NOT isString(str)
+			StzRaise("Incorrect param type! str must be a string.")
+		ok
+	ok
+
+	oQStr = new QString2()
+	oQStr.append(str)
+
+	return oQStr
+
+	func StringToQString(str)
+		return StringToQStringObject(str)
+
+	func ToQStringObject(str)
+		return StringToQStringObject(str)
+
+	func ToQString(str)
+		return StringToQStringObject(str)
+
+	func @ToQStringObject(str)
+		return StringToQStringObject(str)
+
+	func @ToQString(str)
+		return StringToQStringObject(str)
+
 func QStringToStzString(oQString)
 	return new stzString(QStringToString(oQString))
 
@@ -509,20 +536,28 @@ class stzString from stzObject
 	// Initializes the content of the softanza string object
 	def init(pcStr)
 
-		if isString(pcStr)
-			@oQString = new QString2()
-			@oQString.append(pcStr)
+		if CheckParams()
+			if NOT ( isString(pcStr) or @IsQString(pcStr) or
+				 (isList(pcStr) and Q(pcStr).IsPairOfStrings()) )
 
-		but IsQString(pcStr)
-			@oQString = pcStr
+				StzRaise("Can't create the stzString object! pcStr must be a string, a QString object, or a pair of strings.")
+			ok
 
-		but isList(pcStr) and Q(pcStr).IsPairOfStrings() # Named string
-			@cVarName = pcStr[1] # Inherited from stzObject
-			@oQString = new QString2()
-			@oQString.append(pcStr[2])
-		else
-			stzRaise("Can't create the stzString object! You must provide a string, a QString, or a pair of string (for named strings).")
+			if IsQString(pcStr)
+				@oQString = pcStr
+				return
+
+			but isList(pcStr) and Q(pcStr).IsPairOfStrings() # Named string
+				@cVarName = pcStr[1] # Inherited from stzObject
+				@oQString = new QString2()
+				@oQString.append(pcStr[2])
+				return
+			ok
+
 		ok
+
+		@oQString = new QString2()
+		@oQString.append(pcStr)
 
 	  #==========================#
 	 #   CHECKING CONSTRAINTS   #

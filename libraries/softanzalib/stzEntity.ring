@@ -2,6 +2,19 @@
 func StzEntityQ(pcStr)
 	return new stzEntity(pcStr)
 
+func IsEntity(p)
+	try
+		new stzEntity(p)
+		return TRUE
+	catch
+		return FALSE
+	end
+	# TODO : Replace this implementation
+	# Use the code in the init() function inside the class
+
+	func @IsEntity(p)
+		return IsEntity(p)
+
 class stzEntity
 	@aEntity
 

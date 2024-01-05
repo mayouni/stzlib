@@ -3,6 +3,31 @@
 func StzListOfGridsQ(paGrids)
 	return new stzListOfGrids(paGrids)
 
+func IsListOfGrids(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type!")
+		ok
+	ok
+
+	bResult = TRUE
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if NOT IsGrid(paList[i])
+			bResult = FALSE
+			exit
+		ok
+	next i
+
+	return bResult
+
+	func @IsListOfGrids(paList)
+		return IsListOfGrids(paList)
+
+	func ListIsListOfGrids(paList)
+		return IsListOfGrids(paList)
+
 class stzListOfGrids from stzListOfLists
 
 	def init(paGrids)
