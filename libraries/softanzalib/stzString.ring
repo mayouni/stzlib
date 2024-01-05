@@ -16718,7 +16718,7 @@ class stzString from stzObject
 		return This.RepeatedTrailingCharCS(TRUE)
 
 		def RepeatedTrailingCharQ()
-			return This.RepeatedTrailingCharQR(:stzChar)
+			return This.RepeatedTrailingCharQR(:stzString)
 
 		def RepeatedTrailingCharQR(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -16740,7 +16740,7 @@ class stzString from stzObject
 			return This.RepeatedTrailingChar()
 
 			def TrailingRepeatedCharQ()
-				return This.TrailingRepeatedCharQR(:stzChar)
+				return This.TrailingRepeatedCharQR(:stzString)
 
 			def TrailingRepeatedCharQR(pcReturnType)
 				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -18104,9 +18104,17 @@ class stzString from stzObject
 	#---------------------------------------------#
 
 	def RemoveThisRepeatedTrailingCharCS(c, pCaseSensitive)
+		if CheckParams()
+			if NOT @IsChar(c)
+				StzRaise("Incorrect param type! c must be a char.")
+			ok
+		ok
+
 		if This.RepeatedTrailingCharQ().IsEqualToCS(c, pCaseSensitive)
 			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
 		ok
+
+		#< @FunctionAlternativeForms
 
 		def RemoveThisRepeatedTrailingCharCSQ(c, pCaseSensitive)
 			This.RemoveThisRepeatedTrailingCharCS(c, pCaseSensitive)
@@ -18133,6 +18141,13 @@ class stzString from stzObject
 				This.RemoveRepeatedTrailingCharCS(c, pCaseSensitive)
 				return This
 
+		def RemoveTrailingRepeatedCharCS(c, pCaseSensitive)
+			This.RemoveThisTrailingLeadingCharCS(c, pCaseSensitive)
+
+			def RemoveTrailingRepeatedCharCSQ(c, pCaseSensitive)
+				This.RemoveTrailingRepeatedCharCS(c, pCaseSensitive)
+				return This
+
 		def RemoveTrailingCharCS(c, pCaseSensitive)
 			This.RemoveThisRepeatedTrailingCharCS(c, pCaseSensitive)
 
@@ -18140,9 +18155,13 @@ class stzString from stzObject
 				This.RemoveTrailingCharCS(c, pCaseSensitive)
 				return This
 
+		#>
+
 	def ThisRepeatedTrailingCharRemovedCS(c, pCaseSensitive)
 		cResult = This.Copy().RemoveThisRepeatedTrailingCharCSQ(c, pCaseSensitive).Content()
 		return cResult
+
+		#< @FunctionAlterativeForms
 
 		def ThisTrailingRepeatedCharRemovedCS(c, pCaseSensitive)
 			return This.ThisRepeatedTrailingCharRemoved(c, pCaseSensitive)
@@ -18153,8 +18172,13 @@ class stzString from stzObject
 		def RepeatedTrailingCharRemovedCS(c, pCaseSensitive)
 			return This.ThisRepeatedTrailingCharRemovedCS(c, pCaseSensitive)
 
+		def TrailingRepeatedCharRemovedCS(c, pCaseSensitive)
+			return This.ThisRepeatedTrailingCharRemovedCS(c, pCaseSensitive)
+
 		def TrailingCharRemovedCS(c, pCaseSensitive)
 			return This.ThisRepeatedTrailingCharRemovedCS(c, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -18162,6 +18186,8 @@ class stzString from stzObject
 		if This.RepeatedTrailingCharQ().IsEqualTo(c)
 			This.RemoveThisRepeatedTrailingCharCS(c, TRUE)
 		ok
+
+		#< @FunctionAlternativeForms
 
 		def RemoveThisRepeatedTrailingCharQ(c)
 			This.RemoveThisRepeatedTrailingChar(c)
@@ -18188,6 +18214,13 @@ class stzString from stzObject
 				This.RemoveRepeatedTrailingChar(c)
 				return This
 
+		def RemoveTrailingRepeatedChar(c)
+			This.RemoveThisTrailingChar(c)
+
+			def RemoveTrailingRepeatedCharQ(c)
+				This.RemoveRepeatedTrailingChar(c)
+				return This
+
 		def RemoveTrailingChar(c)
 			This.RemoveThisRepeatedTrailingChar(c)
 
@@ -18195,9 +18228,13 @@ class stzString from stzObject
 				This.RemoveTrailingChar(c)
 				return This
 
+		#>
+
 	def ThisRepeatedTrailingCharRemoved(c)
 		cResult = This.Copy().RemoveThisRepeatedTrailingCharQ(c).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def ThisTrailingRepeatedCharRemoved(c)
 			return This.ThisRepeatedTrailingCharRemoved(c)
@@ -18208,8 +18245,13 @@ class stzString from stzObject
 		def RepeatedTrailingCharRemoved(c)
 			return This.ThisRepeatedTrailingCharRemoved(c)
 
+		def TrailingRepeatedCharRemoved(c)
+			return This.ThisRepeatedTrailingCharRemoved(c)
+
 		def TrailingCharRemoved(c)
 			return This.ThisRepeatedTrailingCharRemoved(c)
+
+		#>
 
 	  #--------------------------------------------------------#
 	 #   REMOVING GIVEN REPEATED LEADING AND TRAILING CHARS   #

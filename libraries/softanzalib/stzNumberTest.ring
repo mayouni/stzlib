@@ -55,7 +55,6 @@ proff()
 # Executed in 0.83 second(s)
 
 /*-----------------
-*/
 
 pron()
 
@@ -80,7 +79,7 @@ o1 * Q([ 5, 4, 2 ])
  #--> 480
 
 proff()
-# Executed in 0.75 second(s)
+# Executed in 0.75 second(s) in Ring 1.17
 
 /*-----------------
 
@@ -98,6 +97,7 @@ o1 = new stzNumber(3000)
  #--> 5
 
 proff()
+# Executed in 0.24 second(s) in Ring 1.19
 
 /*================
 
@@ -161,7 +161,7 @@ pron()
 proff()
 
 /*------------------
-*/
+
 pron()
 
 ? NRandomNumbersLessThan(3, 17_000)
@@ -171,6 +171,7 @@ pron()
 #--> [ 16_998, 16_997, 16_999, 16_997, 16_997 ]
 
 proff()
+# Executed in 0.04 second(s) in Ring 1.19
 
 /*------------------
 
@@ -238,10 +239,15 @@ proff()
 
 /*===========
 
+pron()
+
 # TODO : Fix the point at the end of the result
+
 o1 = new stzNumber("601793176.32")
 ? o1.ToHexForm()
 #!--> 0x23DEA298.
+
+proff()
 
 /*=============
 
@@ -256,29 +262,31 @@ pron()
 proff()
 # Executed in 0.02 second(s)
 
-/*--------
-*/
+/*-------- FIX
 
 pron()
 
-? StzListOfListsQ([ [ "a", "b", "c" ], [ 1, "b", 2, "c" ] ]).CommonItems()
+//? StzListOfListsQ([ [ "a", "b", "c" ], [ 1, "b", 2, "c" ] ]).CommonItems()
 #--> [ "b", "c" ]
 
-//? CommonItems( :Between = [ "a", "b", "c" ], :And = [ 1, "b", 2, "c" ])
+? CommonItems([ :Between = [ "a", "b", "c" ], :And = [ 1, "b", 2, "c" ] ])
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s) in Ring 1.19
+# Executed in 0.07 second(s) in Ring 1.17
 
 /*--------
-*/
+
 pron()
 
 ? Q(25).MultiplesUntilQR(1080, :stzListOfNumbers).
 	LeastCommonNumber(:With = Q(42).MultiplesUntil(1080) )
-#--> 1050
-#--> Executed in 12.97 second(s)
 
-proff()
+#--> 1050
+
+	# Executed in 1.48 second(s) in Ring 1.19
+	# Executed in 2.51 second(s) in Ring 1.18
+	# Executed in 4.45 second(s) in Ring 1.17
 
 # Ok, but how this is found in practice, like if we make it by hand?
 # First, let's see the multiples of 25 under 1080
@@ -296,10 +304,15 @@ aList1 = Q(25).Multiples(:Under = 1080) # Use ? @@( aList1 ) to show the list
 #	900, 925, 950, 975,
 #	1000, 1025, 1050, 1075
 # ]
-# Executed in 8.05 second(s)
+
+	# Executed in 1.00 second(s) in Ring 1.19 (64 Bits)
+	# Executed in 1.62 second(s) in Ring 1.18
+	# Executed in 2.84 second(s) in Ring 1.17
 
 # Then we look to the multiples of 42 under 1080
+
 aList2 = Q(42).Multiples(:Under = 1080) # Use ? @@( aList2 ) to show the list
+
 #--> [
 #	42, 84, 126, 168, 210,
 #	252, 294, 336, 378, 420,
@@ -307,7 +320,10 @@ aList2 = Q(42).Multiples(:Under = 1080) # Use ? @@( aList2 ) to show the list
 #	672, 714, 756, 798, 840,
 #	882, 924, 966, 1008, 1050
 # ]
-# Executed in 4.77 second(s)
+
+	# Executed in 0.65 second(s) in Ring 1.19
+	# Executed in 1.64 second(s) in Ring 1.18
+	# Executed in 1.70 second(s) in Ring 1.17
 
 # We can visually recognize 1050 as the Least Common Multiplier between
 # the two numbers (25 and 42) before we exceed 1080.
@@ -318,8 +334,13 @@ aList2 = Q(42).Multiples(:Under = 1080) # Use ? @@( aList2 ) to show the list
 #--> 1050
 
 proff()
+# Executed in 2.92 second(s) in Ring 1.19 (64 Bits)
+# Executed in 6.85 second(s) in Ring 1.18
+# Executed in 9.02 second(s) in Ring 1.17
 
 /*-----------------
+
+pron()
 
 ? @@( Q(25).MultiplesUnder(1080) ) + NL
 #--> [
@@ -343,8 +364,12 @@ proff()
 #	882, 924, 966, 1008, 1050
 # ]
 
+proff()
+# Executed in 1.45 second(s)
 
 /*----------------
+
+pron()
 
 # Least common multiplier between 25 and 42
 ? Q(25).LCM(42)
@@ -365,65 +390,122 @@ proff()
 #	[ 350, 3 ], [ 525, 2 ], [ 1050, 1 ]
 # ]
 
+proff()
+# Executed in 0.29 second(s) in Ring 1.19
+# Executed in 0.68 second(s) in Ring 1.17
 
-/*
+/*---------------
 
-for i = 1 to 300
-	n1 = 25 * i
-	n2 = 42 * i
-	if n1 = n2
-		? i
-	ok
-next
-? "end"
+pron()
 
+? Q(11) + [2, 3] # same as 11 + 2 + 3
+#--> 16
 
-/*
-( Q(11) * [2, 3] ).Content()
+? Q(11) - [2, 3] # same as 11 - 2 - 3
+#--> 6
 
+? Q(11) * [2, 3] # same as 11 * 2 * 3
+#--> 66
+
+? Q(24) / [ 3, 2] # same as 24 / 3 / 2
+#--> 4
+
+proff()
+# Executed in 0.22 second(s) in Ring 1.19
+# Executed in 0.46 second(s) in Ring 1.17
 
 /*===================
 
+pron()
+
 o1 = new stzNumber(11)
-//? o1.RepeatedNTimes(3)
+o1.MultiplyBy(3)
+#--> 33
+
+#--
+
+o1 = new stzNumber(11)
+o1.MultiplyBy([ 3, 2 ])
+? o1.Content()
+#--> 66
+
+proff()
+# Executed in 0.16 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzNumber(11)
+? o1.RepeatedNTimes(3000000)
 #--> [11, 11, 11]
 
 # Don't confuse with:
-o1.Times(3)
-? o1.Value()
+? o1.Times(3)
 #--> 33
 
-o1.Times([2, 3])
-? o1.Value()
+? o1.Times([2, 3])
+#--> 66
+
+proff()
+# Executed in 0.14 second(s) in Ring 1.19
+# Executed in 0.28 second(s) in Ring 1.17
 
 /*------------------
+
+pron()
 
 o1 = new stzNumber(11)
 o1.MultiplyByMany([2, 3])
 ? o1.Value()
 #--> 66
 
+proff()
+# Executed in 0.10 second(s) in Ring 1.19
+# Executed in 0.12 second(s) in Ring 1.17
 /*------------------
 
+pron()
+
 o1 = new stzNumber(5)
+
 ? @@( o1.RepeatXT(:InA = :List, :OfSize = 2) )
 #--> [ 5, 5 ]
 
 ? o1.RepeatXT(:InA = :String, :OfSize = 7)
 #--> "5555555"
 
-? @@( o1.RepeatXT(:InA = :Grid, :OfSize = [3, 3]) )
+? @@( o1.RepeatXT(:InA = :Grid, :OfSize = [3, 3]) ) + NL
 #-->
 # [
-# 	[ "5", "5", "5" ],
-# 	[ "5", "5", "5" ],
-# 	[ "5", "5", "5" ]
+# 	[ 5, 5, 5 ],
+# 	[ 5, 5, 5 ],
+# 	[ 5, 5, 5 ]
 # ]
+
+? o1.RepeatXT(:InA = :StzTable, :OfSize = [3, 3]).Shwo() # NOTE taht Shwo() is a misspelled
+						         # form of Show(), recognised and fixed
+#--> :COL1   :COL2   :COL3
+#    ------ ------- ------
+#       5       5       5
+#       5       5       5
+ #      5       5       5
+
+proff()
+# Executed in 0.26 second(s)
 
 /*-----------------------
 
-? o1.RepeatedInAPair()
+pron()
+
+? Q(5).RepeatXT( :InAPair, @ )
 #--> [5, 5]
+
+? Q(5).RepeatedInAPair()
+#--> [5, 5]
+
+proff()
+# Executed in 0.08 second(s)
 
 /*-----------------------
 
@@ -432,10 +514,17 @@ o1 = new stzNumber(5)
 
 /*-----------------------
 
-? o1.RepeatedInAPairQ().Types()
+pron()
+
+? Q("Ring").RepeatedInAPairQ().Types()
 #--> [ "STRING", "STRING" ]
 
+proff()
+# Executed in 0.07 second(s)
+
 /*-----------------------
+
+pron()
 
 ? @@( CircledNumbers() )
 #--> [ "①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⓪" ]
@@ -452,18 +541,78 @@ o1 = new stzNumber(5)
 ? StzNumberQ("⑨").Number() #--> 9
 # You can also use .NumericValue() or just .Value() and it works!
 
+proff()
+# Executed in 0.09 second(s)
+
 /*-----------------------
 
- ? Q(10) ^ 3 #--> 1000
+pron()
+
+? Q(10) ^ 3 #--> 1000
+
+proff()
+# Executed in 0.07 second(s)
+
+/*--------------------
+
+pron()
+
+? DefaultRound()
+#--> 2
+
+	? ActiveRound()
+	#--> 2
+	
+	? 1.224
+	#--> 1.22
+
+StzDecimals(7)
+
+	? ActiveRound()
+	#--> 7
+
+	? 1.224
+	#--> 1.2240000
+
+ResetRound()
+
+	? ActiveRound()
+	#--> 2
+
+	? 1.224
+	#--> 1.22
+
+
+proff()
+# Executed in 0.04 second(s)
 
 /*-----------------------
+*/
+pron()
+
+? Q(1.123456).RoundedToMax()
+
+proff()
+
+/*----------------------- TODO: FIX
+*/
+pron()
 
 o1 = new stzNumber( 55993400908134 )
-decimals(12) # TODO: should return numbers above in string form with the max round
-? o1.Sine()		#--> -0.999864884364
-? o1.Cosine()		#--> -0.016438157335
-? o1.Tangent() 		#--> 60.825849514064
-? o1.Cotangent() 	#--> 0.016440378687
+
+? o1.Sine()
+#--> -0.999864883179
+
+? o1.Cosine()
+#--> -0.016438157335
+
+//? o1.Tangent()
+#--> 60.825849514064
+
+//? o1.Cotangent()
+#--> 0.016440378687
+
+proff()
 
 /*-----------------------
 

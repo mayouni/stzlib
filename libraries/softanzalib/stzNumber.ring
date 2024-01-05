@@ -79,6 +79,18 @@
  ///   GLOBALS   ///
 ///////////////////
 	
+	_nDefaultRound = 2
+	_nActiveRound = 2
+	StzDecimals(2)		# Softanza sets the number of round to 2 by default,
+				# in confrmity with Ring defaults.
+
+				# In order to help Softanza manage rounds correcly,
+				# please don't use the Ring decimals() function
+				# directly, and use its equivalent StzDecimals()
+				# instead. Hence, Softanza will memorise the
+				# current round in the program, and can restore it
+				# when it finishes its work.
+
 	_cMaxCalculableInteger = "999_999_999_999_999"
 	_nMaxNumberOfDigitsInUnsignedInteger = 15
 	
@@ -641,33 +653,75 @@ func OddOrEven(n)
 #---- ROUNDS
 
 func MaxRingRound()
-	return 90
+	return 90 # TODO : Update it if necessary
 
-	def RingMaxRound()
+	func RingMaxRound()
 		 return MaxRingRound()
 
+	func MaxRound()
+		return MaxRingRound()
+
+	func MaxRoundInRing()
+		return MaxRingRound()
+
+func DefaultRound()
+	return _nDefaultRound
+
+	func StzDefaultRound()
+		return DefaultRound()
+
+	func InitialRound()
+		return DefaultRound()
+
+	func StzInitialRound()
+		return DefaultRound()
+
+func StzResetRound()
+	SetActiveRound(_nDefaultRound)
+
+	func ResetRound()
+		StzResetRound()
+
 func SetActiveRound(n)
-	return decimals(n)
+	_nActiveRound = n
+	decimals(n)
+
+	func StzDecimals(n)
+		SetActiveRound(n)
 	
 # Getting the active round inforced by the last use of
-# the ring decimals() function in the program
-func GetActiveRound()
-	nTemp = 12.1	# Any number but shoud contain decimals
-	str = "" + nTemp
-				
-	nSepPos = len(str)
-			
-	// Getting the position of "." sperator+1
-	for i=1 to len(str)
-		if str[i] = "."
-			nSepPos = i
-			exit
-		ok
-	next
-			
-	nActiveRound = len(str) - nSepPos
-	return nActiveRound
+# the ring StzDecimals() function in the program
 
+func GetActiveRound()
+	return _nActiveRound
+
+	#< @FunctionAlternativeForms
+
+	func ActiveRound()
+		return GetActiveRound()
+
+	func StzGetActiveRound()
+		return GetActiveRound()
+
+	func StzActiveRound()
+		return GetActiveRound()
+
+	#--
+
+	func GetCurrentRound()
+		return GetActiveRound()
+
+	func CurrentRound()
+		return GetActiveRound()
+
+	func StzGetCurrentRound()
+		return GetActiveRound()
+
+	func StzCurrentRound()
+		return GetActiveRound()
+
+	#>
+	
 func NumberIsCalculable(nNumber)
 	oStr = new stzString(""+ nNumber)
 	return oStr.RepresentsCalculableNumber()
@@ -987,48 +1041,53 @@ class stzNumber from stzObject
 
 	def init(pNumber)
 
-		if isNumber(pNumber)
-			@cNumber = ""+ pNumber
+		if CheckParams()
+			if NOT (isNumber(pNumber) or isString(pNumber) )
+				StzRaise(stzNumberError(:CanNotCreateStzNumberObject))
+			ok
 
-		but isString(pNumber)
+			if isString(pNumber)
 		
-			if StzStringQ(pNumber).IsAChar() and
-			   StzCharQ(pNumber).IsCircledNumber()
-				@cNumber = ""+ StzCharQ(pNumber).NumericValue()
-				return
-			ok
-
-			if StzStringQ(pNumber).LastChar() = "." and
-			   StzStringQ(pNumber).RemoveLastCharQ().RepresentsNumberInDecimalForm()
-				pNumber += "0"
-
-			ok
-
-			if pNumber = NULL
-				@cNumber = "0"
-
-			else
-			# We are sure that pNumber is a non null string
-				if StringRepresentsNumberInDecimalForm(pNumber)
+				if StzStringQ(pNumber).IsAChar() and
+				   StzCharQ(pNumber).IsCircledNumber()
+					@cNumber = ""+ StzCharQ(pNumber).NumericValue()
+					return
+				ok
 	
-					if StringRepresentsCalculableNumber(pNumber)
-						oString = new stzString(pNumber)
-						if oString.Contains("_")
-							@cNumber = oString.RemoveQ("_").Content()
-						else
-							@cNumber = pNumber
-						ok
-					else
-						StzRaise(stzNumberError(:CanNotCreateDecimalNumber2))
-					ok
+				if StzStringQ(pNumber).LastChar() = "." and
+				   StzStringQ(pNumber).RemoveLastCharQ().RepresentsNumberInDecimalForm()
+					pNumber += "0"
+	
+				ok
+	
+				if pNumber = NULL
+					@cNumber = "0"
 	
 				else
-					StzRaise(stzNumberError(:CanNotCreateDecimalNumber1))
+				# We are sure that pNumber is a non null string
+					if StringRepresentsNumberInDecimalForm(pNumber)
+		
+						if StringRepresentsCalculableNumber(pNumber)
+							oString = new stzString(pNumber)
+							if oString.Contains("_")
+								@cNumber = oString.RemoveQ("_").Content()
+							else
+								@cNumber = pNumber
+							ok
+						else
+							StzRaise(stzNumberError(:CanNotCreateDecimalNumber2))
+						ok
+		
+					else
+						StzRaise(stzNumberError(:CanNotCreateDecimalNumber1))
+					ok
 				ok
+
 			ok
-		else
-			StzRaise(stzNumberError(:CanNotCreateStzNumberObject))
 		ok
+
+		# Case isNumber(pNumber)
+		@cNumber = ""+ pNumber
 
 	  #-------------------------#
 	 #    CONTENT AND VALUE    #
@@ -1849,7 +1908,7 @@ class stzNumber from stzObject
 	def IsQuietEqualTo(pOtherNumber)
 		nOtherNumber = 0+ pOtherNumber
 
-		if fabs(This.NumericValue() - nOtherNumber) <= QuietEqualityRatio()
+		if fabs( This.NumericValue() - nOtherNumber ) <= QuietEqualityRatio()
 			return TRUE
 		else
 			return FALSE
@@ -2008,56 +2067,63 @@ class stzNumber from stzObject
 
 	def NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
 
-		return This.MaxNumberOfDigitsTheNumberCanContain() -
-		       This.NumberOfDigitsTheNumberActuallyContains()
+		nResult =  This.MaxNumberOfDigitsTheNumberCanContain() -
+		      	   This.NumberOfDigitsTheNumberActuallyContains()
 
+		return nResult
 
 	# Rounding a number -> return it as a string to preserve
 	# the effective round whatever decimals() is in the program
 	def RoundTo(pRound)
 
+		# Early check
+
 		if NOT NumberIsCalculable(This.Content())
 			StzRaise(stzNumberError(:CanNotRoundSutchLargeNumber))
 		ok
 
-		if NOT Q(pRound).IsNumberOrString()
-			StzRaise("Incorrect param type!")
-		ok
-
-		if isNumber(pRound) 
-		
-			if pRound < 0
-				StzRaise("Inccorect value! Round can't be negative.")
-
-			but pRound > RingMaxRound()
-				pRound = RingMaxRound()
-
-			but pRound > This.NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
-				pRound = This.NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
-			ok
-
-		but isString(pRound)
-
-			if pRound = :Max
-				pRound = NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
-			else
-				StzRaise("Incorrect param type!")
-			ok
-		ok
-
-		# At this level, we have defined nRound
-
-		nRound = pRound
-//? "nRound = " + nRound
-		# Let's set a variable containing the number itself
-
-		nNumber = This.NumericValue()
-//? "nNumber = " + nNumber		
-		# Let's also save the current active round in the
+		# Let's first save the current active round in the
 		# program so we can restore it at the end
 	
 		nActiveRound = GetActiveRound()
-//? "nActiveRound = " + nActiveRound
+
+		if CheckParams()
+	
+			if NOT @IsNumberOrString(pRound)
+				StzRaise("Incorrect param type! pRound must be a number or string.")
+			ok
+	
+			if isNumber(pRound) 
+			
+				if pRound < 0
+					StzRaise("Inccorect value! Round can't be negative.")
+	
+				but pRound > RingMaxRound()
+					pRound = RingMaxRound()
+	
+				but pRound > This.NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
+					pRound = This.NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
+				ok
+	
+			but isString(pRound)
+
+				if pRound = :Max
+					pRound = This.NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
+				else
+					StzRaise("Incorrect param type!")
+				ok
+			ok
+
+		ok
+
+		# At this level, we have defined nRound, and its guranteed to be a number
+
+		nRound = pRound
+
+		# Let's set a variable containing the number itself
+
+		nNumber = This.NumericValue()
+		
 		# If the number is negative then drop the sign temporarilay
 		# before we restore it at the end
 	
@@ -2094,16 +2160,21 @@ class stzNumber from stzObject
 		# At this level, we know the number is real (has fractions)
 		# Let's apply the system round to the value of nRound
 
-		decimals(nRound)
+		StzDecimals(nRound)
 		
 		# And then we save it in a string
 		
 		cNumber = ""+ nNumber
 		
 		# Then we delete any zeros from the right
-	
-		cNumber = Q(cNumber).RemoveRepeatedTrailingcharQ("0").RemoveLastCharWQ('@char = "0"').RemoveLastCharWQ('@char = "."').Content()
-		
+
+		oNumber = new StzString(cNumber)
+
+		if oNumber.Contains(".") and oNumber.LastChar() = "0"
+			oNumber.RemoveThisRepeatedTrailingChar("0")
+			cNumber = oNumber.Content()
+		ok
+
 		# Eventually, we add the negative sign we dropped
 		# at the beginning
 		
@@ -2112,8 +2183,8 @@ class stzNumber from stzObject
 		ok
 		
 		# And we restore the active round back
-		
-		decimals(nActiveRound)
+
+		StzDecimals(nActiveRound)
 		
 		# Finally, we return the number (at its effective round)
 		
@@ -2550,10 +2621,12 @@ class stzNumber from stzObject
 	#-------------------------------------------------#
 
 	def MultiplyBy(pOtherNumber)
-		if isList(pOtherNumber) and
-		   Q(pOtherNumber).IsEitherA( :ListOfNumbers, :Or = :ListOfStrings )
 
-			This.MultiplyByMany(pOtherNumber)
+		if CheckParams()
+			if isList(pOtherNumber)
+				This.MultiplyByMany(pOtherNumber)
+				return
+			ok
 		ok
 
 		This.Update( pvtCalculate("*", pOtherNumber ) )
@@ -2577,14 +2650,14 @@ class stzNumber from stzObject
 
 			This.MultiplyBy(pOtherNumber)
 
-			def Multiplied(pOtherNumber)
-				nResult = This.Copy().MultiplyByQ(pOtherNumber).NumericValue()
-				return nResult
-
 		#>
 
 	def MultipliedBy(pOtherNumber)
-		return This.Copy().MultiplyByQ(pOtherNumber).Content()
+		nResult = This.Copy().MultiplyByQ(pOtherNumber).NumericValue()
+		return nResult
+
+		def Multiplied(pOtherNumber)
+			return This.MultipliedBy(pOtherNumber)
 
 		def Times(pOtherNumber)
 			return This.MultipliedBy(pOtherNumber)
@@ -4813,6 +4886,9 @@ class stzNumber from stzObject
 			def SwapContentWithQ(pOtherStzNumber)
 				return This.SwapWithQ(pOtherStzNumber)
 
+	def LCM(pOtherNumber)
+		return pvtCalculate("LCM", pOtherNumber)
+
 	  #-------------------------------------#
 	 #    INTERNAL KITCHEN OF THE CLASS    #
 	#-------------------------------------#
@@ -4822,7 +4898,7 @@ class stzNumber from stzObject
 	def pvtCalculate(pcOperation, pOtherNumber)
 
 		# Makes basic arithmetic operations (+, -, *, and /) and
-		# other mathematic operations (sin, cos, tan, log...) in
+		# other mathematical operations (sin, cos, tan, log...) in
 		# a round-independent way:
 
 		#--> Whatever the active round defined by decimals() is,
@@ -4938,7 +5014,8 @@ class stzNumber from stzObject
 		the program (made using decimals())
 		*/
 
-		return Q(nResult).RoundedTo(:Max)
+		cResult = Q(nResult).RoundedTo(:Max)
+		return cResult
 
 	def Methods()
 		return ring_methods(This)

@@ -24,6 +24,8 @@ Programming, by Heart! By: M.Ayouni╭
  ///  GLOBALS VARIABLES  ///
 ///////////////////////////
 
+@ = 0
+
 _bMany = FALSE	# Used in case like this: Q(1:5) - Many(3:5) --> [1,2]
 
 _bParamCheck = TRUE # Activates the "# Checking params region" in softanza functions

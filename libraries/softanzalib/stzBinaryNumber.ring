@@ -71,13 +71,19 @@ class stzBinaryNumber from stzObject
 	#------------#
 
 	def init(cNumber)
-		if isString(cNumber) and StzStringQ(cNumber).RepresentsNumberInBinaryForm()
-				@cBinaryNumber = cNumber
-					
-		else
-				StzRaise("Can't create binary number!")
+		if NOT isString(cNumber)
+			StzRaise("Can't create binary number! cNumber must be a string")
 		ok
 
+		if StzStringQ(cNumber).RepresentsNumberInBinaryForm()
+			@cBinaryNumber = cNumber
+
+		but cNumber = ""
+			@cBinaryNumber = "b0"
+
+		else
+			StzRaise("Can't create binary number! cNumber must be an empty string or a string with a number in binary form.")
+		ok
 
   	  #------------#
 	 #    INFO    #

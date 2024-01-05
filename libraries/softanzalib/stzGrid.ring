@@ -1183,10 +1183,6 @@ class stzGrid from stzObject
 			pcValue = pcValue[2]
 		ok
 
-		if NOT isString(pcValue)
-			StzRaise("Incorrect param type! pcValue must be a string.")
-		ok
-
 		for h = 1 to This.NumberOfHLines()
 			for v = 1 to this.NumberOfVLines()
 				This.Content()[h][v] = pcValue
