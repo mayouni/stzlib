@@ -2,6 +2,31 @@
 func StzListOfEntitiesQ()
 	return new stzListOfEntities()
 
+func IsListOfEntities(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type!")
+		ok
+	ok
+
+	bResult = TRUE
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if NOT IsEntity(paList[i])
+			bResult = FALSE
+			exit
+		ok
+	next i
+
+	return bResult
+
+	func @IsListOfEntities(paList)
+		return IsListOfEntities(paList)
+
+	func ListIsListOfEntities(paList)
+		return IsListOfEntities(paList)
+
 class stzListOfEntities from stzList
 	@aListOfEntities = []
 

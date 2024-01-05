@@ -52,6 +52,38 @@ func ItemExists(pItem, paList)
 		return FALSE
 	ok
 
+func AllListsHaveSameSize(paListOfLists)
+	if CheckParams()
+		if NOT ( isList(paListOfLists) and
+			 len(paListOfLists) > 1 and
+			 IsListOfLists(paListOfLists) )
+
+			StzRaise("Incorrect param type! paListOfLists must be a list of lists.")
+		ok
+	ok
+
+	nLen = len(paListOfLists)	
+	nSize = len(paListOfLists[1])
+	bResult = TRUE
+
+	for i = 2 to nLen
+		if len(paListOfLists[i]) != nSize
+			bResult = FALSE
+			exit
+		ok
+	next
+
+	return bResult
+
+	func ListsHaveSameSize(paListofLists)
+		return AllListsHaveSameSize(paListOfLists)
+
+	func AllListsHaveSameNumberOfItems(paListOfLists)
+		return AllListsHaveSameSize(paListOfLists)
+
+	func ListsHaveSameNumberOfItems(paListOfLists)
+		return AllListsHaveSameSize(paListOfLists)
+
 func ListsMerge(paListOfLists)
 	if CheckParams()
 		if NOT ( isList(paListOfLists) and @IsListOfLists(paListOfLists) )
@@ -85,38 +117,66 @@ func ListsMerge(paListOfLists)
 	func @Merge(paListOfLists)
 		return ListsMerge(paListOfLists)
 
-func ListsFlatten(paListOfLists)
-	return StzListOfListsQ(paListOfLists).Flattened()
-
-	func @Flatten(paListOfLists)
-		return ListsFlatten(paListOfLists)
-
 func Association(paLists)
-	if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
-		StzRaise("Incorrect param type! paLists must be a list of lists.")
+	if CheckParams()
+	
+		if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
+			StzRaise("Incorrect param type! paLists must be a list of lists.")
+		ok
+
 	ok
 
 	if len(paLists) < 2
 		StzRaise("Can't proceed! paLists must contain at least two lists.")
 	ok
 
-	aFirstList = paLists[1]
-	aLastList = paLists[ len(paLists) ]
+	nLen = len(paLists)
 
-	if isList(aFirstList) and Q(aFirstList).IsOfNamedParam()
-		paLists[1] = aFirstList[2]
-	ok
+	# Counting the sizes of each list
 
-	if isList(aLastList) and Q(aLastList).IsAndOrWithNamedParam()
-		paLists[ len(paLists) ] = aLastList[2]
-	ok
+	anLen = []
+	for i = 1 to nLen
+		anLen + len(paLists[i])
+	next
 
-	aResult = StzListOfListsQ(paLists).Associated()
+	# Unifiying the sizes of all the lists
+
+	nMax = Max(anLen)
+	
+	for i = 1 to nLen
+
+		if anLen[i] < nMax
+			for j = anLen[i] + 1 to nMax
+				paLists[i] + NULL
+			next
+		ok
+	next
+
+	# Doing the association
+
+	aResult = []
+
+	for i = 1 to nMax
+		aList = []
+		for j = 1 to nLen
+
+			aList + paLists[j][i]
+		next
+		aResult + aList
+	next
+
 	return aResult
+
+	#< @FunctionAlternativeForm
+
+	func @Association(paLists)
+		return Association(paLists)
+
+	#>
 
 	#< @FunctionMisspelledForm
 
-	def Associattion(paLists)
+	func Associattion(paLists)
 		return Association(paLists)
 
 	#>
@@ -175,14 +235,17 @@ class stzListOfLists from stzList
 
 	def init(paList)
 
-		if isList(paList) and
-		   ( Q(paList).IsEmpty() or Q(paList).IsListOfLists() )
+		if CheckParams()
 
-			@aContent = paList
+		if NOT ( isList(paList) and
+		  	 ( len(paList) = 0 or @IsListOfLists(paList) ) )
 
-		else
-			StzRaise("Can't create the stzListOfLists object!")
+			StzRaise("Can't create the stzListOfLists object! You must provide a list that is empty or a list of lists.")
 		ok
+
+		ok
+
+		@aContent = paList
 
 	  #-------------#
 	 #   GENERAL   #
@@ -1526,38 +1589,7 @@ class stzListOfLists from stzList
 	#========================================#
 
 	def Associate()
-
-		if CheckParams()
-	
-			if This.IsEmpty() or This.NumberOfLists() = 1
-				StzRaise("Can't proceed! The list must contain at least 2 lists.")
-			ok
-	
-			if This.AllItemsAreEmptyLists()
-				StzRaise("Can't associate empty lists!")
-			ok
-	
-		ok
-
-		This.Extend()
-
-		nLen = This.NumberOfLists()
-		nItems = len(This.FirstList())
-
-		aResult = []
-
-		for i = 1 to nItems
-
-			aTempList = []
-
-			for j = 1 to nLen
-				aTempList + This.NthList(j)[i]
-			next
-
-			aResult + aTempList
-		next
-
-		This.Update(aResult)
+		This.Update( @Association(This.Content()) )
 
 	def Associated()
 		oCopy = This.Copy()
@@ -1996,7 +2028,7 @@ class stzListOfLists from stzList
 			StzRaise("Can't merge the list of lists! Instead you can return a merged copy of it using Merged()")
 
 	def Merged()
-		return @Merge(This.Content())
+		return @Merge(@aContent)
 
 	  #----------------------------------------#
 	 #  GETTING A FLATTENED COPY OF THE LIST  #

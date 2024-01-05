@@ -17,6 +17,19 @@ TODO:
 _cEmptyNodeChar = "."
 _cGridSeparator = ":"
 
+func IsGrid(paList)
+	if isList(paList) and IsListOfLists(paList) and AllListsHaveSameSize(paList)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func @IsGrid(paList)
+		return IsGrid(paList)
+
+	func ListIsGrid(paList)
+		retrun IsGrid(paList)
+ 
 func GridEmptyNodeChar()
 	return _cEmptyNodeChar
 

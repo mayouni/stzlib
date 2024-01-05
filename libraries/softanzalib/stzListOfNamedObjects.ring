@@ -1,6 +1,31 @@
 
 func StzListOfNamedObject(paObjects)
 
+func IsListOfNamedObjects(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type!")
+		ok
+	ok
+
+	bResult = TRUE
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if NOT IsNamedObject(paList[i])
+			bResult = FALSE
+			exit
+		ok
+	next i
+
+	return bResult
+
+	func @IsListOfNamedObjects(paList)
+		return IsListOfObjects(paList)
+
+	func ListIsListOfNamedObjects(paList)
+		return IsListOfNamedObjects(paList)
+
 class stzListOfNamedObjects from stzList
 	@aContent
 

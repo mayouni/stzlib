@@ -12,6 +12,39 @@
 func StzSetQ(paList)
 	return new stzSet(paList)
 
+func IsSet(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	nLen = len(paList)
+	if nLen = 0
+		return FALSE
+	but nLen = 1
+		return TRUE
+	ok
+
+	bResult = TRUE
+	aSeen = []
+	for i = 1 to nLen
+		if find(aSeen, paList[i]) = 0
+			aSeen + paList[i]
+		else
+			bResult = FALSE
+			exit
+		ok
+	next
+
+	return bResult
+
+	func @IsSet(paList)
+		return IsSet(paList)
+
+	func ListIsSet(paList)
+		return IsSet(paList)
+
 class stzSet from stzList
 	@aContent = []
 
