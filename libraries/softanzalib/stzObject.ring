@@ -1569,16 +1569,6 @@ class stzObject
 	def ObjectMethods() # Depricated, use Methods() instead
 		return methods(This.Object())
 
-	  #----------------------------#
-	 #  CHECKING OBJECT EQUALITY  #
-	#----------------------------#
-
-	def IsEqualTo(poOtherObject) # TODO
-		StzRaise("Feature unavailable yet!")
-
-	def IsStrictlyEqualTo(poOtherObject)
-		StzRaise("Feature unavailable yet!")
-
 	  #------------------#
 	 #   CHECKING TYPE  #
 	#------------------#
@@ -1854,7 +1844,7 @@ class stzObject
 			pcType2 = pcType2[2]
 		ok
 
-		if NOT BothAreStrings(pcType1, pcType2)
+		if NOT @BothAreStrings(pcType1, pcType2)
 			StzRaise("Incorrect param type! pcType1 and pcType2 must be strings.")
 		ok
 
@@ -2078,24 +2068,24 @@ class stzObject
 
 		if NOT ( isString(pIn) and
 				Q(pIn).IsOneOfTheseCS([
-					:String, :List, :ListOfNumbers, :ListOfStrings,
-					:ListOfLists, :ListOfPairs, :Grid, :Table,
+					:String, :List, :Pair, :ListOfNumbers, :ListOfStrings,
+					:ListOfLists, :ListOfPairs, :Grid, :Table, :StzTable,
 
-					:AString, :AList, :AListOfNumbers, :AListOfStrings,
-					:AListOfLists, :AListOfPairs, :AGrid, :ATable,
+					:AString, :AList, :APair, :AListOfNumbers, :AListOfStrings,
+					:AListOfLists, :AListOfPairs, :AGrid, :ATable, :AStzTable,
 
-					:InString, :InList, :InListOfNumbers, :InListOfStrings,
-					:InListOfLists, :InListOfPairs, :InGrid, :InTable,
+					:InString, :InList, :InPair, :InListOfNumbers, :InListOfStrings,
+					:InListOfLists, :InListOfPairs, :InGrid, :InTable, :InStzTable,
 
-					:InAString, :InAList, :InAListOfNumbers, :InAListOfStrings,
-					:InAListOfLists, :InAListOfPairs, :InAGrid, :InATable
+					:InAString, :InAList, :InAPair, :InAListOfNumbers, :InAListOfStrings,
+					:InAListOfLists, :InAListOfPairs, :InAGrid, :InATable, :InAStzTable
 
 				], :CS = FALSE)
 			)
 
 			StzRaise("Incorrect param! pIn must be a string representing one of" +
-				 "these Softanza types: :String, :List, :ListOfNumbers, :ListOfStrings, " +
-				 ":ListOfLists, :ListOfPairs, :Grid, :Table.")
+				 "these Softanza types: :String, :List, :Pair, :ListOfNumbers, :ListOfStrings, " +
+				 ":ListOfLists, :ListOfPairs, :Grid, :Table, and :StzTable.")
 		ok
 
 		if isList(pnSize) and
@@ -2112,8 +2102,12 @@ class stzObject
 		# Doing the job
 
 		value = ""
-		if this.IsANumber()
-			value = This.Number()
+		if This.IsANumber()
+			if This.IsInteger()
+				value = This.NumericValue()
+			else
+				value = This.StringValue()
+			ok
 		else
 			value = This.Content()
 		ok
@@ -2122,6 +2116,14 @@ class stzObject
 	
 			aResult = []
 			for i = 1 to pnSize
+				aResult + value
+			next
+			return aResult
+
+		but Q(pIn).IsOneOfThese([ :Pair, :InPair, :APair, :InAPair ])
+
+			aResult = []
+			for i = 1 to 2
 				aResult + value
 			next
 			return aResult
@@ -2183,9 +2185,14 @@ class stzObject
 			aResult = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(value).Content()
 			return aResult
 
+		but Q(pIn).IsOneOfThese([ :StzTable, :InStzTable, :InAStzTable ])
+
+			oResult = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(value)
+			return oResult
+
 		else
 			StzRaise("Unsupported type of container! Allowed containers you can repeat " +
-				 "the value in are: :List, :Pair, :ListOfLists, :ListOfPairs, :String, :Grid, and :Table.")
+				 "the value in are: :List, :Pair, :ListOfLists, :ListOfPairs, :String, :Grid, :Table, and :StzTable.")
 		ok
 
 		#< @FunctionFluentForm
