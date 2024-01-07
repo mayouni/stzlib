@@ -198,7 +198,7 @@ func MaxNumberOfDigitsInSignedRealNumber()
 	
 func MaxCalculableNumber()
 	oStr = new stzString(_cMaxCalculableInteger)
-	oStr - "_"
+	oStr.Remove("_")
 	cMax = oStr.content()
 
 	return 0+ cMax
@@ -222,10 +222,19 @@ func MaxCalculableNumber()
 	func MaxNumber()
 		return MaxCalculableNumber()
 
+	func MaxNumberInRing()
+		return MaxCalculableNumber()
+
 	func GreatestNumber()
 		return MaxCalculableNumber()
 
+	func GreatestNumberInRing()
+		return MaxCalculableNumber()
+
 	func LargestNumber()
+		return MaxCalculableNumber()
+
+	func LargestNumberInRing()
 		return MaxCalculableNumber()
 
 	#--
@@ -248,10 +257,16 @@ func MinCalculableNumber()
 	func MinRingNumber()
 		return MinCalculableNumber()
 
+	func MinNumberInRing()
+		return MinCalculableNumber()
+
 	func SmallestRingNumber()
 		return MinCalculableNumber()
 
 	func RingSmallestNumber()
+		return MinCalculableNumber()
+
+	func SmallestNumberInRing()
 		return MinCalculableNumber()
 
 	func MinNumber()
@@ -695,10 +710,10 @@ func SetActiveRound(n)
 	func SetRound(n)
 		SetActiveRound(n)
 
-	def StzRound(n)
+	func StzRound(n)
 		SetActiveRound(n)
 
-	def Round(n)
+	func Round(n)
 	
 # Getting the active round inforced by the last use of
 # the ring StzDecimals() function in the program
@@ -1126,7 +1141,15 @@ class stzNumber from stzObject
 			but isString(pNumber[1])
 				@cNumber = pNumber[1]
 			ok
-				
+			
+			if NOT Q(@cNumber).Contains(".") and @nRound > 0
+				cDec = "."
+				for i = 1 to @nRound
+					cDec += "0"
+				next
+		
+				@cNumber += cDec
+			ok	
 		ok
 
 	  #-------------------------#
@@ -1956,7 +1979,7 @@ class stzNumber from stzObject
 
 		def IntegerPartStringValue()
 			return This.IntegerPart()
-		
+
 	def IntegerPartWithoutSign()
 		if NOT This.IsSigned()
 			return This.IntegerPart()
@@ -1974,12 +1997,17 @@ class stzNumber from stzObject
 			return len(This.IntegerPart()) - 1
 		ok
 
+		def NumberOfIntegers()
+			return This.NumberOfDigitsInIntegerPart()
+
 	def HasFractionalPart()
 		if This.ToStzString().Contains(".")
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		#< @FunctionAlternativeForms
 
 		def HasDecimalPart()
 			return This.HasFractionalPart()
@@ -1989,6 +2017,22 @@ class stzNumber from stzObject
 
 		def ContainsDecimalPart()
 			return This.HasFractionalPart()
+
+		#--
+
+		def HasAFractionalPart()
+			return This.HasFractionalPart()
+
+		def HasADecimalPart()
+			return This.HasFractionalPart()
+
+		def ContainsAFractionalPart()
+			return This.HasFractionalPart()
+
+		def ContainsADecimalPart()
+			return This.HasFractionalPart()
+
+		#>
 
 	// Returns the fraction part of the number (with a leading "0.")
 	def FractionalPart()
@@ -2017,6 +2061,9 @@ class stzNumber from stzObject
 
 		def DecimaplPartWithoutZeroDot()
 			return This.FractionalPartWithoutZeroDot()
+
+	def NumberOfDecimals()
+		return len(This.FractionalPartWithoutZeroDot())
 
 	def ToStzString()
 		return new stzString(This.Content())
@@ -2084,6 +2131,15 @@ class stzNumber from stzObject
 	       	- RoundUnnecessary
 	*/
 
+	def MaxRound()
+		nResult = len( ""+ MaxNumberInRing() ) - This.NumberOfIntegers()
+
+		if This.ContainsDecimalPart()
+			nResult -= (1 + This.NumberOfDecimals())
+		ok
+
+		return nResult
+
 	def NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
 
 		nResult =  This.MaxNumberOfDigitsTheNumberCanContain() -
@@ -2096,6 +2152,10 @@ class stzNumber from stzObject
 
 	def RoundTo(nRound)
 		if CheckParams()
+			if isString(nRound) and nRound = :Max
+				nRound = MaxRoundInRing()
+			ok
+
 			if NOT isNumber(nRound)
 				StzRaise("Incorrect param type! nRound must be a number.")
 			ok
@@ -2107,6 +2167,21 @@ class stzNumber from stzObject
 
 		@nRound = nRound
 
+		nCurrentRound = StzCurrentRound()
+		StzDecimals(nRound)
+		@cNumber = Q(""+ This.NumericValue()).
+			   AnyCharFromRightRemoved("0")
+		
+/*		if NOT Q(@cNumber).Contains(".")
+			cDec = "."
+			for i = 1 to nRound
+				cDec += "0"
+			next
+
+			@cNumber += cDec
+		ok
+*/
+		StzDecimals(nCurrentRound)
 
 		#< @FunctionFluentForm
 
@@ -2126,12 +2201,15 @@ class stzNumber from stzObject
 
 		#>
 
+	def RoundToMax()
+		This.RoundTo(:Max)
+
 	def RoundedTo(pRound)
 		cResult = This.Copy().RoundToQ(pRound).Content()
 		return cResult
 
 	def RoundedToMax()
-		return This.RoundedTo(:Max)
+		return This.RoundedTo(MaxRound())
 		
 	def GetRound()
 		return This.NumberOfDigitsInFractionalPart()

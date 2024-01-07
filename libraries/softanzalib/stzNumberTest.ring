@@ -643,7 +643,7 @@ proff()
 # Executed in 0.08 second(s)
 
 /*-----------------------
-*/
+
 pron()
 
 o1 = new stzNumber("12.872")
@@ -658,50 +658,155 @@ proff()
 
 /*-----------------------
 
-? StzNumberQ(1).UpTo(7) 	#--> 1:7
-? StzNumberQ(7).DownTo(1)	#--> 7:1
+pron()
+
+? StzNumberQ(1).UpTo(7)
+#--> 1:7
+
+? StzNumberQ(7).DownTo(1)
+#--> 7:1
+
+proff()
+# Executed in 0.03 second(s)
 
 /*-----------------------
 
-? _(5.12).@.IsEqualTo(5.1200000000000000000001)
+pron()
 
-? _(5.12).@.IsEqualTo("5.1200000000000000000001")	# Because "5.12" is a number in string
+? Q(5.12).IsEqualTo(5.1200000000000000000001)
+#--> TRUE
 
-/*-----------------------
+? Q(5.12).IsEqualTo("5.1200000000000000000001")	# Because "5.12" is a number in string
+#--> TRUE
 
-? RingMaxRound()	#--> 90
-
-/*-----------------------
-
-o1 = new stzNumber(-123)
-? o1.RoundTo(3)	# "-123.000"
+proff()
+# Executed in 0.04 second(s)
 
 /*-----------------------
 
-o1 = new stzNumber("123") 
-? o1.RoundTo(:Max)	#--> "123.000000000000"
+? RingMaxRound()
+#--> 14
 
-o1 = new stzNumber("123345678912345")
-? o1.RoundTo(:Max)	#--> "123345678912345"
+/*-----------------------
 
-/*----------------------- REVIEW
+pron()
+
+o1 = new stzNumber("123")
+? o1.Content()
+#--> 123
 
 o1 = new stzNumber("123.")
-? o1.RoundTo(:Max)	#--> "123.0000000000"
+? o1.Content()
+#--> 123.0
+
+o1 = new stzNumber([ "123", 3 ])
+? o1.Content()
+#--> 123.000
+
+proff()
 
 /*-----------------------
+
+pron()
+
+o1 = new stzNumber(-123)
+o1.RoundTo(3)
+#--> "-123.000"
+
+? o1.Content()
+
+proff()
+
+/*-----------------------
+
+pron()
+
+? MaxNumberInRing()
+#--> 999999999999999
+
+? MaxRoundInRing()
+#--> 14
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-----------------------
+
+pron()
+
+o1 = new stzNumber("23500.124")
+
+? o1.Round()
+#--> 3
+
+? o1.MaxRound()
+#--> 6
+
+o1.RoundTo(:Max)
+? o1.Content()
+#--> 23500.12399999999980
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-----------------------
+
+pron()
+
+o1 = new stzNumber("123") 
+o1.RoundTo(:Max)
+? o1.Content()
+#--> "123.00000000000000"
+
+o1 = new stzNumber("123456789012345")
+o1.RoundTo(:Max)
+? o1.Content()
+#--> "12345678912345"
+
+proff()
+
+/*-----------------------
+
+pron()
+
+o1 = new stzNumber("123.")
+? o1.RoundedTo(:Max)
+#--> "123.0000000000"
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-----------------------
+*/
+pron()
 
 o1 = new stzNumber("12.456")
-? o1.RoundTo(:Max)	#--> 12.456
-? o1.RoundTo(0) 	# --? "12"
-? o1.RoundTo(1) 	#--> "12.5"
-? o1.RoundTo(2) 	#--> "12.46"
-? o1.RoundTo(3) 	#--> "12.456"
-? o1.RoundTo(4)	 	#--> "12.456"
-? o1.RoundTo(5)		#--> "12.456"
 
+? o1.RoundedTo(:Max)
+#--> 12.456
 
-/*-----------------------
+? o1.RoundedTo(0)
+# --> "12"
+
+? o1.RoundedTo(1)
+#--> "12.5"
+
+? o1.RoundedTo(2)
+#--> "12.46"
+
+? o1.RoundedTo(3)
+#--> "12.456"
+
+? o1.RoundedTo(4)
+#--> "12.456"
+
+? o1.RoundedTo(5)
+#--> "12.456"
+
+proff()
+# Executed in 0.19 second(s)
+
+/*=================
 
 ? StzNumberQ(14).IsDividableBy(2)
 

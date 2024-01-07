@@ -1,5 +1,71 @@
 load "stzlib.ring"
 
+/*-------------
+
+pron()
+
+o1 = new stzList([ "🔻", "🔻", "1", "2", "3", "🔻", "🔻" ])
+o1.RemoveAnyItemFromStart("🔻")
+? @@( o1.Content() )
+#--> [ "1", "2", "3", "🔻", "🔻" ]
+
+o1.RemoveAnyItemFromEnd("🔻")
+? @@( o1.Content() )
+#--> [ "1", "2", "3" ]
+
+proff()
+# Executed in 0.01 second(s)
+
+/*--------------- TODO: fix error
+
+pron()
+
+new stzChar("🔻")
+#--> ERR: Can not create char object!
+
+proff()
+
+/*---------------
+
+pron()
+
+o1 = new stzString("♥♥♥123♥♥♥")
+
+o1.RemoveAnyCharFromLeft("♥")
+? o1.Content()
+#--> 123♥♥♥
+
+o1.RemoveAnyCharFromRight("♥")
+? o1.Content()
+#--> 123
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzString(" ♥♥♥123♥♥♥   ")
+o1.Trim()
+? o1.Content()
+#--> "♥♥♥123♥♥♥"
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+*/
+pron()
+
+o1 = new stzString("♥♥♥123♥♥♥")
+o1.TrimChar("♥")
+? o1.Content()
+#--> "123"
+
+proff()
+# Executed in 0.03 second(s)
+
 /*================= UNDERSTANDING THE ..ed() and ..Q() FUNCTION FORMS
 
 pron()
