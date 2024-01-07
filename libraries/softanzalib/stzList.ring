@@ -5875,9 +5875,105 @@ class stzList from stzObject
 
 		def SectionsRemoved(paSections)
 
-	  #----------------------------------------#
+	  #----------------------------------#
+	 #   REMOVING ANY ITEM FROM START   #
+	#==================================#
+
+	def RemoveAnyItemFromStartCS(pItem, pCaseSensitive)
+
+		aItems = This.Items()
+		nLen = len(aItems)
+		if nLen = 0
+			return
+		ok
+
+		n = 0
+
+		for i = 1 to nLen
+			if Q(aItems[i]).IsEqualToCS(pItem, pCaseSensitive)
+				n++
+			else
+				exit
+			ok
+		next i
+
+		if n > 0
+			This.RemoveSection( 1, n )
+		ok
+
+
+		def RemoveAnyItemFromStartCSQ(c, pCaseSensitive)
+			This.RemoveAnyItemFromStartCS(c, pCaseSensitive)
+			return This
+
+	def AnyItemFromStartRemovedCS(c, pCaseSensitive)
+		cResult = This.Copy().RemoveAnyItemFromStartCSQ(c, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveAnyItemFromStart(c)
+		This.RemoveAnyItemFromStartCS(c, TRUE)
+		return This
+
+		def RemoveAnyItemFromStartQ(c)
+			This.RemoveAnyItemFromStart(c)
+			return This
+
+	def AnyItemFromStartRemoved(c)
+		return This.AnyItemFromStartRemovedCS(c, TRUE)
+
+	  #---------------------------------#
+	 #   REMOVING ANY ITEM FROM END    #
+	#---------------------------------#
+
+	def RemoveAnyItemFromEndCS(c, pCaseSensitive)
+
+		aItems = This.Items()
+		nLen = len(aItems)
+		if nLen = 0
+			return
+		ok
+
+		n = 0
+
+		for i = nLen to 1 step -1
+			if Q(aItems[i]).IsEqualToCS(c, pCaseSensitive)
+				n++
+			else
+				exit
+			ok
+		next i
+
+		if n > 0
+			This.RemoveSection( nLen - n + 1, nLen )
+		ok
+
+
+		def RemoveAnyItemFromEndCSQ(c, pCaseSensitive)
+			This.RemoveAnyItemFromEndCS(c, pCaseSensitive)
+			return This
+
+	def AnyItemFromEndRemovedCS(c, pCaseSensitive)
+		cResult = This.Copy().RemoveAnyItemFromEndCSQ(c, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveAnyItemFromEnd(c)
+		This.RemoveAnyItemFromEndCS(c, TRUE)
+		return This
+
+		def RemoveAnyItemFromEndQ(c)
+			This.RemoveAnyItemFromEnd(c)
+			return This
+
+	def AnyItemFromEndRemoved(c)
+		return This.AnyItemFromEndRemovedCS(c, TRUE)
+
+	  #========================================#
 	 #    SWAPPING TWO SECTIONS OF THE LIST   # 
-	#----------------------------------------#
+	#========================================#
 
 	def SwapSections( panSection1, panSection2 )
 		if isList(panSection2) and Q(panSection2).IsWithOrAndNamedParams()

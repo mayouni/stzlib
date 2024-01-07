@@ -53583,6 +53583,208 @@ ici		//...
 		cResult = This.Copy().RemoveRightOccurrenceQ(pcSubStr).Content()
 		return cResult
 
+	  #==================================#
+	 #   REMOVING ANY CHAR FROM START   #
+	#==================================#
+
+	def RemoveAnyCharFromStartCS(c, pCaseSensitive)
+		if This.IsLeftToRight()
+			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
+		else
+			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
+		ok
+
+		def RemoveAnyCharFromStartCSQ(c, pCaseSensitive)
+			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
+			return This
+
+	def AnyCharFromStartRemovedCS(c, pCaseSensitive)
+		cResult = This.Copy().RemoveAnyCharFromStartCSQ(c, pCaseSensitive).Content()
+		return cResult
+
+	#-- WTIHOUT CASESENSITIVITY
+
+	def RemoveAnyCharFromStart(c)
+		This.RemoveAnyCharFromStartCS(c, TRUE)
+
+		def RemoveAnyCharFromStartQ(c)
+			This.RemoveAnyCharFromStart(c)
+			return This
+
+	def AnyCharFromStartRemoved(c)
+		return This.AnyCharFromStartRemovedCS(c, TRUE)
+
+	  #---------------------------------#
+	 #   REMOVING ANY CHAR FROM END    #
+	#---------------------------------#
+
+	def RemoveAnyCharFromEndCS(c, pCaseSensitive)
+		if This.IsLeftToRight()
+			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
+		else
+			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
+		ok
+
+		def RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
+			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
+			return This
+
+	def AnyCharFromEndRemovedCS(c, pCaseSensitive)
+		cResult = This.Copy().RemoveAnyCharFromEndCSQ(c, pCaseSensitive).Content()
+		return cResult
+
+	#-- WTIHOUT CASESENSITIVITY
+
+	def RemoveAnyCharFromEnd(c)
+		This.RemoveAnyCharFromEndCS(c, TRUE)
+
+		def RemoveAnyCharFromEndQ(c)
+			This.RemoveAnyCharFromEnd(c)
+			return This
+
+	def AnyCharFromEndRemoved(c)
+		return This.AnyCharFromEndRemovedCS(c, TRUE)
+
+	  #----------------------------------#
+	 #   REMOVING ANY CHAR FROM LEFT    #
+	#==================================#
+
+	def RemoveAnyCharFromLeftCS(c, pCaseSensitive)
+		if CheckParams()
+			if NOT (isString(c) and @IsChar(c))
+				StzRaise("Incorrect param type! c must be a char.")
+			ok
+		ok
+
+		acChars = This.Chars()
+		nLen = len(acChars)
+		if nLen = 0
+			return
+		ok
+
+		n = 0
+
+		n = 0
+
+		if This.IsLeftToRight()
+			for i = 1 to nLen
+				if Q(acChars[i]).IsEqualToCS(c, pCaseSensitive)
+					n++
+				else
+					exit
+				ok
+			next i
+
+			if n > 0
+				This.RemoveSection( 1, n )
+			ok
+
+		else
+			for i = nLen to 1 step -1
+				if Q(acChars[i]).IsEqualToCS(c, pCaseSensitive)
+					n++
+				else
+					exit
+				ok
+			next i
+
+			if n > 0
+				This.RemoveSection( nLen - n + 1, nLen )
+			ok
+
+		ok
+
+
+		def RemoveAnyCharFromLeftCSQ(c, pCaseSensitive)
+			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
+			return This
+
+	def AnyCharFromLeftRemovedCS(c, pCaseSensitive)
+		cResult = This.Copy().RemoveAnyCharFromLeftCSQ(c, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveAnyCharFromLeft(c)
+		This.RemoveAnyCharFromLeftCS(c, TRUE)
+		return This
+
+		def RemoveAnyCharFromLeftQ(c)
+			This.RemoveAnyCharFromLeft(c)
+			return This
+
+	def AnyCharFromLeftRemoved(c)
+		return This.AnyCharFromLeftRemovedCS(c, TRUE)
+
+	  #-----------------------------------#
+	 #   REMOVING ANY CHAR FROM RIGHT    #
+	#-----------------------------------#
+
+	def RemoveAnyCharFromRightCS(c, pCaseSensitive)
+		if CheckParams()
+			if NOT (isString(c) and @IsChar(c))
+				StzRaise("Incorrect param type! c must be a char.")
+			ok
+		ok
+
+		acChars = This.Chars()
+		nLen = len(acChars)
+		if nLen = 0
+			return
+		ok
+
+		n = 0
+
+		if This.IsLeftToRight()
+
+			for i = nLen to 1 step -1
+				if Q(acChars[i]).IsEqualToCS(c, pCaseSensitive)
+					n++
+				else
+					exit
+				ok
+			next i
+
+			if n > 0
+				This.RemoveSection( nLen - n + 1, nLen )
+			ok
+
+		else
+			for i = 1 to nLen
+				if Q(acChars[i]).IsEqualToCS(c, pCaseSensitive)
+					n++
+				else
+					exit
+				ok
+			next i
+
+			if n > 0
+				This.RemoveSection( 1, n )
+			ok
+		ok
+
+
+		def RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
+			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
+			return This
+
+	def AnyCharFromRightRemovedCS(c, pCaseSensitive)
+		cResult = This.Copy().RemoveAnyCharFromRightCSQ(c, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveAnyCharFromRight(c)
+		This.RemoveAnyCharFromRightCS(c, TRUE)
+		return This
+
+		def RemoveAnyCharFromRightQ(c)
+			This.RemoveAnyCharFromRight(c)
+			return This
+
+	def AnyCharFromRightRemoved(c)
+		return This.AnyCharFromRightRemovedCS(c, TRUE)
+
 	  #-------------------------------------#
 	 #   REMOVING A SUBSTRING FROM LEFT    #
 	#-------------------------------------#
@@ -53910,6 +54112,18 @@ ici		//...
 		def EndRemoved(pcSubStr)
 			return This.RemovedFromEnd(pcSubStr)
 
+	  #------------------------------------#
+	 #  REMOVING ANY SUBSTRING FROM LEFT  #
+	#------------------------------------#
+	# TODO : See RemoveAnyCharFromLeft()
+
+	# Add : RemoveAnySubStringFromLeft(cSubStr)
+	#       RemoveAnySubStringFromRight(cSubStr)
+	#       RemoveAnySubStringFromStart(cSubStr)
+	# 	RemoveAnySubStringFromEnd(cSubStr)
+
+	# TODO : Add TrailingSubString() ~~> Like TrailingChar()
+
 	  #--------------------------------------------------------#
 	 #    REMOVING CHARS FROM LEFT UNDER A GIVEN CONDITION    # 
 	#--------------------------------------------------------#
@@ -54120,6 +54334,7 @@ ici		//...
 	  #----------------------------------#
 	 #    TRIMMING & REMOVING SPACES    # 
 	#----------------------------------#
+	# TODO : Add Trim functions to stzList
 
 	def Trim()
 		This.Update( This.QStringObject().trimmed() )
@@ -54251,6 +54466,40 @@ ici		//...
 
 		def WithoutRightSpaces()
 			return This.TrimmedFromRight()
+
+	#--
+
+	def TrimCharCS(c, pCaseSensitive) # TODO : Add TrimSubString()
+		/* Example
+
+		o1 = new stzString("♥♥♥123♥♥♥")
+		o1.TrimChar("♥")
+		? o1.Content()
+		#--> "♥♥♥123♥♥♥"
+
+		*/
+
+		This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
+		This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
+
+		def TrimCharCSQ(c, pCaseSensitive)
+			This.TrimCharCS(c, pCaseSensitive)
+			return This
+
+	def CharTrimmedCS(c, pCaseSensitive)
+		cResult = This.Copy().TrimCharCSQ(c, pCaseSensitive).Content()
+		return cResult
+
+	def TrimChar(c)
+		This.TrimCharCS(c, TRUE)
+
+		def TrimCharQ(c)
+			return This.TrimCharCSQ(c, TRUE)
+
+	def CharTrimmed(c)
+		return This.CharTrimmedCS(c, TRUE)
+
+	#--
 
 	def RemoveSpaces()
 		This.RemoveAll(" ")

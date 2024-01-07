@@ -1555,8 +1555,12 @@ func StringIsStzClassName(pcStr)
 		return StzStringQ(pcStr).IsStzClassName()
 
 func StringIsChar(pcStr)
-	oStzString = new stzString(pcStr)
-	return oStzString.IsChar()
+	try
+		new stzChar(pcStr)
+		return TRUE
+	catch
+		return FALSE
+	end
 
 	func IsChar(pcStr)
 		oStzString = new stzString(pcStr)

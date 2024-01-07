@@ -409,6 +409,7 @@ class stzChar from stzObject
 			ok
 
 			oStr = StzStringQ(pChar)
+
 			if oStr.NumberOfChars() = 1
 				nUnicode = StzStringQ(pChar).UnicodeOfCharN(1)
 				@oQChar = new QChar(nUnicode)
