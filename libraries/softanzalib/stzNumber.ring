@@ -101,7 +101,7 @@
 
 	_cNumberFractionalSeparator = "."
 
-	_nMaxRound = 90	# Ring constraint
+	_nMaxRound = 14	# Ring constraint
 
 	_anDecimalDigits = 0:9
 
@@ -653,7 +653,7 @@ func OddOrEven(n)
 #---- ROUNDS
 
 func MaxRingRound()
-	return 90 # TODO : Update it if necessary
+	return _nMaxRound
 
 	func RingMaxRound()
 		 return MaxRingRound()
@@ -688,6 +688,17 @@ func SetActiveRound(n)
 
 	func StzDecimals(n)
 		SetActiveRound(n)
+
+	func SetStzRound(n)
+		SetActiveRound(n)
+
+	func SetRound(n)
+		SetActiveRound(n)
+
+	def StzRound(n)
+		SetActiveRound(n)
+
+	def Round(n)
 	
 # Getting the active round inforced by the last use of
 # the ring StzDecimals() function in the program
@@ -1035,6 +1046,8 @@ class stzNumber from stzObject
 	#--> Holds the number WITHOUT eventual
 	# underscores introduced by the user!
 
+	@nRound = DefaultRound()
+
 	  #------------#
 	 #    INIT    #
 	#------------#
@@ -1042,52 +1055,79 @@ class stzNumber from stzObject
 	def init(pNumber)
 
 		if CheckParams()
-			if NOT (isNumber(pNumber) or isString(pNumber) )
+			if NOT (isNumber(pNumber) or isString(pNumber) or @IsPair(pNumber))
 				StzRaise(stzNumberError(:CanNotCreateStzNumberObject))
-			ok
-
-			if isString(pNumber)
-		
-				if StzStringQ(pNumber).IsAChar() and
-				   StzCharQ(pNumber).IsCircledNumber()
-					@cNumber = ""+ StzCharQ(pNumber).NumericValue()
-					return
-				ok
-	
-				if StzStringQ(pNumber).LastChar() = "." and
-				   StzStringQ(pNumber).RemoveLastCharQ().RepresentsNumberInDecimalForm()
-					pNumber += "0"
-	
-				ok
-	
-				if pNumber = NULL
-					@cNumber = "0"
-	
-				else
-				# We are sure that pNumber is a non null string
-					if StringRepresentsNumberInDecimalForm(pNumber)
-		
-						if StringRepresentsCalculableNumber(pNumber)
-							oString = new stzString(pNumber)
-							if oString.Contains("_")
-								@cNumber = oString.RemoveQ("_").Content()
-							else
-								@cNumber = pNumber
-							ok
-						else
-							StzRaise(stzNumberError(:CanNotCreateDecimalNumber2))
-						ok
-		
-					else
-						StzRaise(stzNumberError(:CanNotCreateDecimalNumber1))
-					ok
-				ok
-
 			ok
 		ok
 
-		# Case isNumber(pNumber)
-		@cNumber = ""+ pNumber
+		if isString(pNumber)
+		
+			if StzStringQ(pNumber).IsAChar() and
+			   StzCharQ(pNumber).IsCircledNumber()
+				@cNumber = ""+ StzCharQ(pNumber).NumericValue()
+				return
+			ok
+
+			if StzStringQ(pNumber).LastChar() = "." and
+			   StzStringQ(pNumber).RemoveLastCharQ().RepresentsNumberInDecimalForm()
+				pNumber += "0"
+	
+			ok
+	
+			if pNumber = NULL
+				@cNumber = "0"
+	
+			else
+			# We are sure that pNumber is a non null string
+				if StringRepresentsNumberInDecimalForm(pNumber)
+		
+					if StringRepresentsCalculableNumber(pNumber)
+						oString = new stzString(pNumber)
+						if oString.Contains("_")
+							@cNumber = oString.RemoveQ("_").Content()
+						else
+							@cNumber = pNumber
+						ok
+
+						if oString.Contains(".")
+							@nRound = oString.Size() - oString.FindFirst(".")
+						ok
+					else
+						StzRaise(stzNumberError(:CanNotCreateDecimalNumber2))
+					ok
+		
+				else
+					StzRaise(stzNumberError(:CanNotCreateDecimalNumber1))
+				ok
+			ok
+
+		but isNumber(pNumber)
+
+			@cNumber = "" + pNumber 
+
+		but isPair(pNumber) and @IsNumberOrString(pNumber[1])
+
+			if @IsPair(pNumber[2]) and isString(pNumber[2][1]) and
+			   ( pNumber[2][1] = :Round or pNumber[2][1] = :RoundedTo ) and
+			   isNumber(pNumber[2][2])
+
+				@nRound = pNumber[2][2]	
+
+			but isNumber(pNumber[2])
+				@nRound = pNumber[2]
+			ok
+
+			if isNumber(pNumber[1])
+				nCurrentRound = StzCurrentRound()
+				StzDecimals(@nRound)
+				@cNumber = "" + pNumber[1]
+				StzDecimals(nCurrentRound)
+
+			but isString(pNumber[1])
+				@cNumber = pNumber[1]
+			ok
+				
+		ok
 
 	  #-------------------------#
 	 #    CONTENT AND VALUE    #
@@ -1129,6 +1169,10 @@ class stzNumber from stzObject
 			return This.NumericValue()
 
 	def StringValue()
+		nCurrentRound = StzCurrentRound()
+		StzDecimals(This.Round())
+		@cNumber = "" + This.NumbericValue()
+		StzDecimals(nCurrentRound)
 		return @cNumber
 
 	  #------------------------------------#
@@ -1635,83 +1679,34 @@ class stzNumber from stzObject
 	 #    COMPARAISON    #
         #-------------------#
 	
-	def IsEqualToCS(pOtherNumber, pCaseSensitive)
-		return This.IsEqualTo(pOtherNumber)
-
 	def IsEqualTo(pOtherNumber)
-
-		# A check made to enable some external code
-		# In Ring context use IsEqualToQ()
-
-		if isObject(pOtherNumber)
-
-			if ( isNumber(pOtherNumber.Content()) or isString(pOtherNumber.Content()) ) and
-			   This.NumericValue() = 0+ pOtherNumber.Content()
-
-				return pOtherNumber
-			else
-				return FALSE
+		if CheckParams()
+			if NOT Q(pOtherNumber).IsNumberOrString()
+				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
 			ok
 		ok
 
-		# Doing the job
+		nCurrentRound = StzCurrentRound()
 
-		if NOT ( isNumber(pOtherNumber) or
-			 (isString(pOtherNumber) and Q(pOtherNumber).RepresentsNumberInString()) )
+		StzDecimals(This.Round())
+		bResult = (This.NumericValue() = 0+ pOtherNumber)
+		StzDecimals(nCurrentRound)
 
-			return FALSE
-		ok
+		return bResult
 
-		if This.NumericValue() = 0+ pOtherNumber
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		#< @FunctionFluentForm
-
-		def IsEqualToQ(pOtherNumber)
-
-			bResult = FALSE
-
-			if isNumber(pOtherNumber) or
-			   ( isString(pOtherNumber) and Q(pOtherNumber).IsNumberInString() )
-
-				bResult = ( This.NumericValue() = 0+ pOtherNumber )
-				
+		def IsEqual(pOtherNumber)
+			if isList(pOtherNumber) and Q(pOtherNumber).IsToNamedParam()
+				pOtherNumber = pOtherNumber[2]
 			ok
 
-			if bResult = TRUE
-				return This
-			else
-				return new stzFalsObject
-			ok
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def IsEqualWith(pOtherNumber)
 			return This.IsEqualTo(pOtherNumber)
-
-			def IsEqualWithQ(pOtherNumber)
-				return This.IsEqualToQ(pOtherNumber)
-
-		#>
 
 		#< @FunctionNegativeForm
 
 		def IsNotEqualTo(pOtherNumber)
-			if This.NumericValue() != 0+ pOtherNumber
-				return TRUE
-			else
-				return FALSE
-			ok
+			return NOT This.IsEqualTo(pOtherNumber)
 	
 			#< @FunctionAlternativeForm
-
-			def IsNotEqualWith(pOtherNumber)
-				return This.IsNotEqualTo(pOtherNumber)
 
 			def IsDifferentFrom(pOtherNumber)
 				return This.IsNotEqualTo(pOtherNumber)
@@ -1726,26 +1721,20 @@ class stzNumber from stzObject
 
 		#>
 
-	def IsStrictlyEqualTo(pOtherNumber)
-		if NOT Q(pOtherNumber).IsNumberOrString()
-			return FALSE
-		ok
-
-		cOtherNumber = StzNumberQ(pOtherNumber).RoundedToMax()
-		cThisNumber = This.UnifyRoundWith(cOtherNumber)
-
-		return cThisNumber = cOtherNumber
-
 	def IsLess(pOtherNumber)
-		if isList(pOtherNumber) and Q(pOtherNumber).IsThanNamedParam()
-			pOtherNumber = pOtherNumber[2]
+		if CheckParams()
+			if NOT Q(pOtherNumber).IsNumberOrString()
+				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
+			ok
 		ok
 
-		if This.NumericValue() <= StringToNumber(0+ pOtherNumber)
-			return TRUE
-		else
-			return FALSE
-		ok
+		nCurrentRound = StzCurrentRound()
+
+		StzDecimals(This.Round())
+		bResult = (This.NumericValue() <= 0+ pOtherNumber)
+		StzDecimals(nCurrentRound)
+
+		return bResult
 
 		#< @FunctionAlternativeForms
 
@@ -1770,26 +1759,19 @@ class stzNumber from stzObject
 		#>
 	
 	def IsStriclyLess(pOtherNumber)
-		if isList(pOtherNumber) and Q(pOtherNumber).IsThanNamedParam()
-			pOtherNumber = pOtherNumber[2]
+		if CheckParams()
+			if NOT Q(pOtherNumber).IsNumberOrString()
+				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
+			ok
 		ok
 
-		if This.NumericValue() < StringToNumber(0+ pOtherNumber)
-			return TRUE
+		nCurrentRound = StzCurrentRound()
 
-		else
-			return FALSE
-		ok
+		StzDecimals(This.Round())
+		bResult = (This.NumericValue() < 0+ pOtherNumber)
+		StzDecimals(nCurrentRound)
 
-		if isList(pOtherNumber) and Q(pOtherNumber).IsThanNamedParam()
-			pOtherNumber = pOtherNumber[2]
-		ok
-
-		if This.NumericValue() <= StringToNumber(0+ pOtherNumber)
-			return TRUE
-		else
-			return FALSE
-		ok
+		return bResult
 
 		#< @FunctionAlternativeForms
 
@@ -1814,15 +1796,19 @@ class stzNumber from stzObject
 		#>
 
 	def IsGreater(pOtherNumber)
-		if isList(pOtherNumber) and Q(pOtherNumber).IsThanNamedParam()
-			pOtherNumber = pOtherNumber[2]
+		if CheckParams()
+			if NOT Q(pOtherNumber).IsNumberOrString()
+				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
+			ok
 		ok
 
-		if This.NumericValue() >= StringToNumber(0+ pOtherNumber)
-			return TRUE
-		else
-			return FALSE
-		ok
+		nCurrentRound = StzCurrentRound()
+
+		StzDecimals(This.Round())
+		bResult = (This.NumericValue() >= 0+ pOtherNumber)
+		StzDecimals(nCurrentRound)
+
+		return bResult
 
 		#< @FunctionAlternativeForms
 
@@ -1850,15 +1836,19 @@ class stzNumber from stzObject
 		#>
 
 	def IsStrictlyGreater(pOtherNumber)
-		if isList(pOtherNumber) and Q(pOtherNumber).IsThanNamedParam()
-			pOtherNumber = pOtherNumber[2]
+		if CheckParams()
+			if NOT Q(pOtherNumber).IsNumberOrString()
+				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
+			ok
 		ok
 
-		if This.NumericValue() >= StringToNumber(0+ pOtherNumber)
-			return TRUE
-		else
-			return FALSE
-		ok
+		nCurrentRound = StzCurrentRound()
+
+		StzDecimals(This.Round())
+		bResult = (This.NumericValue() > 0+ pOtherNumber)
+		StzDecimals(nCurrentRound)
+
+		return bResult
 
 		#< @FunctionAlternativeForms
 
@@ -1886,33 +1876,62 @@ class stzNumber from stzObject
 		#>
 
 	def IsBetween(pNumber1, pNumber2)
-		n1 = 0+ pNumber1
-		n2 = 0+ pNumber2
 
-		if This.NumericValue() >= n1 and This.NumericValue() <= n2
-			return TRUE
-		else
-			return FALSE
+		if CheckParams()
+			if isList(pNumber2) and Q(pNumber2).IsAndNamedParam()
+				pNumber2 = pNumber2[2]
+			ok
+	
+			if NOT ( Q(pNumber1).IsNumberOrString() and Q(pNumber2).IsNumberOrString() )
+				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
+			ok
 		ok
+
+		nCurrentRound = StzCurrentRound()
+		StzDecimals(This.Round())
+
+		bResult = ( This.NumericValue() >= 0+ pNumber1 and
+			    This.NumericValue() <= 0+ pNumber2 )
+
+		StzDecimals(nCurrentRound)
+
+		return bResult
+
 
 	def IsStrictlyBetween(pNumber1, pNumber2)
-		n1 = 0+ pNumber1
-		n2 = 0+ pNumber2
-
-		if This.NumericValue() > n1 and This.NumericValue() < n2
-			return TRUE
-		else
-			return FALSE
+		if CheckParams()
+			if isList(pNumber2) and Q(pNumber2).IsAndNamedParam()
+				pNumber2 = pNumber2[2]
+			ok
+	
+			if NOT ( Q(pNumber1).IsNumberOrString() and Q(pNumber2).IsNumberOrString() )
+				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
+			ok
 		ok
+
+		nCurrentRound = StzCurrentRound()
+		StzDecimals(This.Round())
+
+		bResult = ( This.NumericValue() > 0+ pNumber1 and
+			    This.NumericValue() < 0+ pNumber2 )
+
+		StzDecimals(nCurrentRound)
+
+		return bResult
 
 	def IsQuietEqualTo(pOtherNumber)
-		nOtherNumber = 0+ pOtherNumber
 
-		if fabs( This.NumericValue() - nOtherNumber ) <= QuietEqualityRatio()
-			return TRUE
-		else
-			return FALSE
+		if NOT Q(pOtherNumber).IsNumberOrString()
+			StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
 		ok
+
+		nCurrentRound = StzCurrentRound()
+
+		StzDecimals(This.Round())
+		bResult = ( fabs( (This - pOtherNumber).NumericValue() ) <= QuietEqualityRatio() )
+		StzDecimals(nCurrentRound)
+
+		return bResult
 
 	  #-------------------------------------------------------------#
 	 #    INTEGER & FRACTIONAL PARTS (CALLED ALSO DECIMAL PARTS)   #
@@ -2072,123 +2091,22 @@ class stzNumber from stzObject
 
 		return nResult
 
-	# Rounding a number -> return it as a string to preserve
-	# the effective round whatever decimals() is in the program
-	def RoundTo(pRound)
+	def Round()
+		return @nRound
 
-		# Early check
-
-		if NOT NumberIsCalculable(This.Content())
-			StzRaise(stzNumberError(:CanNotRoundSutchLargeNumber))
-		ok
-
-		# Let's first save the current active round in the
-		# program so we can restore it at the end
-	
-		nActiveRound = GetActiveRound()
-
+	def RoundTo(nRound)
 		if CheckParams()
-	
-			if NOT @IsNumberOrString(pRound)
-				StzRaise("Incorrect param type! pRound must be a number or string.")
+			if NOT isNumber(nRound)
+				StzRaise("Incorrect param type! nRound must be a number.")
 			ok
-	
-			if isNumber(pRound) 
-			
-				if pRound < 0
-					StzRaise("Inccorect value! Round can't be negative.")
-	
-				but pRound > RingMaxRound()
-					pRound = RingMaxRound()
-	
-				but pRound > This.NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
-					pRound = This.NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
-				ok
-	
-			but isString(pRound)
-
-				if pRound = :Max
-					pRound = This.NumberOfRoundsWeCanAddBeforeMaxRoundIsReached()
-				else
-					StzRaise("Incorrect param type!")
-				ok
-			ok
-
 		ok
 
-		# At this level, we have defined nRound, and its guranteed to be a number
-
-		nRound = pRound
-
-		# Let's set a variable containing the number itself
-
-		nNumber = This.NumericValue()
-		
-		# If the number is negative then drop the sign temporarilay
-		# before we restore it at the end
-	
-		bNegative = FALSE
-		if nNumber < 0
-			nNumber = -nNumber
-			bNegative = TRUE
+		if nRound > MaxRoundInRing()
+			StzRaise("Incorrect round! nRound can't exceed the maxround in Ring, " + MaxRound() + ".")
 		ok
 
-		# If the number is an integer, then add "." separator
-		# and the necessary number of "0"s as round, and return it
+		@nRound = nRound
 
-		# NOTE: We don't use stzNumber.IsInteger() to avoid
-		# potential circular calls...
-	
-		oNumberStr = new stzString(""+ nNumber)
-		if oNumberStr.RepresentsNumberInDecimalForm() and
-		   (NOT oNumberStr.Contains("."))
-	
-			cNumber = ""+ nNumber
-			cNumber += "."
-
-			for i = 1 to nRound
-				cNumber += 0
-			next
-
-			if bNegative
-				cNumber = "-" + cNumber
-			ok
-
-			return cNumber
-		ok
-
-		# At this level, we know the number is real (has fractions)
-		# Let's apply the system round to the value of nRound
-
-		StzDecimals(nRound)
-		
-		# And then we save it in a string
-		
-		cNumber = ""+ nNumber
-		
-		# Then we delete any zeros from the right
-
-		oNumber = new StzString(cNumber)
-
-		if oNumber.Contains(".") and oNumber.LastChar() = "0"
-			oNumber.RemoveThisRepeatedTrailingChar("0")
-			cNumber = oNumber.Content()
-		ok
-
-		# Eventually, we add the negative sign we dropped
-		# at the beginning
-		
-		if bNegative
-			cNumber = "-" + cNumber
-		ok
-		
-		# And we restore the active round back
-
-		StzDecimals(nActiveRound)
-		
-		# Finally, we return the number (at its effective round)
-		
-		return cNumber
 
 		#< @FunctionFluentForm
 
@@ -2198,13 +2116,23 @@ class stzNumber from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SetRound(nRound)
+			This.RoundTo(nRound)
+
+			def SetRoundQ(nRound)
+				return This.RoundToQ(nRound)
+
+		#>
+
 	def RoundedTo(pRound)
 		cResult = This.Copy().RoundToQ(pRound).Content()
 		return cResult
 
 	def RoundedToMax()
 		return This.RoundedTo(:Max)
-
+		
 	def GetRound()
 		return This.NumberOfDigitsInFractionalPart()
 
@@ -5014,7 +4942,11 @@ class stzNumber from stzObject
 		the program (made using decimals())
 		*/
 
-		cResult = Q(nResult).RoundedTo(:Max)
+		nCurrentRound = StzCurrentRound()
+		StzDecimals(This.Round())
+		cResult = ""+ nResult
+		StzDecimals(nCurrentRound)
+
 		return cResult
 
 	def Methods()

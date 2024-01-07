@@ -1,13 +1,5 @@
 _cDefaultTimeFormat = "hh:mm:ss"
 
-func StzSleep(nSec)
-	# Based on Ilir contribution on the Ring Group (https://shorturl.at/bhY12)
-	ts = int2bytes(nSec) + int2bytes(0)
-	thrd_sleep( varptr(:ts,"struct timespec"), nullpointer() )
-
-	func StzWait(nSec)
-		Sleep(nSec)
-
 func StzTimeQ(pTime)
 	return new stzTime(pTime)
 
@@ -85,9 +77,3 @@ class stzTime from stzObject
 
 	def TimeStamp()
 		return date() + " " + time()
-
-	def Sleep(nSec)
-		StzSleep(nSec)
-
-		def Wait(nSec) # By Ilir
-			Sleep(nSec)
