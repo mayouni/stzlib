@@ -2443,7 +2443,12 @@ func StartProfiler()
 		StartProfiler()
 
 func StopProfiler()
+	nCurrentRound = StzCurrentRound()
+
+	StzDecimals(2)
 	? NL + "Executed in " + ElapsedTime()
+	StzDecimals(nCurrentRound)
+
 	ResetTimer()
 	STOP()
 

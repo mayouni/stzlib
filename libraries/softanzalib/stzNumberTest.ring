@@ -587,30 +587,72 @@ proff()
 # Executed in 0.04 second(s)
 
 /*-----------------------
-*/
+
 pron()
 
-? Q(1.123456).RoundedToMax()
+o1 = new stzNumber("-12.4521")
+? o1.Round()
+#--> 4
+? o1.Value()
 
 proff()
+# Executed in 0.05 second(s)
 
-/*----------------------- TODO: FIX
+/*-----------------------
+
+pron()
+
+StzDecimals(3)
+
+o1 = new stzNumber([ 981.123456701, :round = 5 ])
+
+? o1.Round()
+#--> 5
+
+? o1.NumericValue() # Sensitive to current round, 3.
+#--> 981.123
+
+? o1.StringValue() # Rounded to the what is specified, 5.
+#--> 981.12346
+
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-----------------------
+
+pron()
+
+o1 = new stzNumber([ 55993400908134, :Round = 5 ])
+? o1.Round()
+#--> 5
+
+? o1.Sine()
+#--> -0.99986
+
+? o1.Cosine()
+#--> -0.01644
+
+? o1.Tangent()
+#--> 60.82558
+
+? o1.Cotangent()
+#--> 0.01644
+
+proff()
+# Executed in 0.08 second(s)
+
+/*-----------------------
 */
 pron()
 
-o1 = new stzNumber( 55993400908134 )
+o1 = new stzNumber("12.872")
 
-? o1.Sine()
-#--> -0.999864883179
+? o1.IsEqual(12.872)
+#--> TRUE
 
-? o1.Cosine()
-#--> -0.016438157335
-
-//? o1.Tangent()
-#--> 60.825849514064
-
-//? o1.Cotangent()
-#--> 0.016440378687
+? o1.IsBetween(12, "13")
+#--> TRUE
 
 proff()
 
