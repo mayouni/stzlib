@@ -492,6 +492,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FirstPairQ()
 			return This.NthPairQ(1)
 
+		#-- MISSPELLED
+
+		def FristPair()
+			return This.FirstPair()
+
 	def LastPair()
 		return This.LastPair(n)
 
@@ -1279,14 +1284,31 @@ class stzHashList from stzList # Also called stzAssociativeList
 	 #   FINDING THE FIRST OCCURRENCE OF A VALUE   # TODO: Add case sensitivity
 	#---------------------------------------------#
 
-	def FindFirstOccurrenceOfValue(pValue) 
+	def FindFirstOccurrenceOfValue(pValue)
 		return This.FindNthValue(1, pValue)
 
+		#< @FunctionAlternativeForms
+
 		def FindFirstValue(pValue)
-			return This.FindFirstOccurrenceOfValue(pValue) 
+			return This.FindFirstOccurrenceOfValue(pValue)
 
 		def FindFirst(pValue)
-			return This.FindFirstOccurrenceOfValue(pValue) 
+			return This.FindFirstOccurrenceOfValue(pValue)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FindFristOccurrenceOfValue(pValue) 
+			return This.FindFirstOccurrenceOfValue(pValue)
+
+		def FindFristValue(pValue)
+			return This.FindFirstOccurrenceOfValue(pValue)
+
+		def FindFrist(pValue)
+			return This.FindFirstOccurrenceOfValue(pValue)
+
+		#>
 
 	  #--------------------------------------------#
 	 #   FINDING THE LAST OCCURRENCE OF A VALUE   # TODO: Add case sensitivity
@@ -1343,9 +1365,19 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 		return nResult
 
+		#< @FunctionAlternativeForm
+
 		def FindKeyByValue(pValue)
 			return This.FindFirstKeyByValue(pValue)
 
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def FindFristKeyByValue(pValue)
+			return This.FindFirstKeyByValue(pValue)
+
+		#>
 	  #-------------------------------#
 	 #   FINDING LAST KEY BY VALUE   # TODO: Add case sensitivity
 	#-------------------------------#
@@ -2257,6 +2289,25 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def FindFristItem(pItem)
+			return This.FindFirstItem(pItem)
+
+		def FindThisFristItem(pItem)
+			return This.FindFirstItem(pItem)
+
+		def FindFristOccurrenceOfThisItem(pItem)
+			return This.FindFirstItem(pItem)
+
+		def FindFristOccurrenceOfItemInList(pItem)
+			return This.FindFirstItem(pItem)
+
+		def FindFristOccurrenceOfThisItemInList(pItem)
+			return This.FindFirstItem(pItem)
+
+		#>
+
 	  #--------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE LAST OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
 	#--------------------------------------------------------------------------------------#
@@ -2325,8 +2376,19 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return 0
 		ok
 
+		#< @FunctionAlternativeForm
+
 		def FindFirstKeyByItem(pValue)
 			return This.FindFirstKeyByItemInList(pValue)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def FindFristKeyByItemInList(pValue)
+			return This.FindFirstKeyByItemInList(pValue)
+
+		#>
 
 	def FindKeyByItemInList(pValue)
 		return This.FindFirstKeyByItemInList(pValue)
