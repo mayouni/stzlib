@@ -1,5 +1,18 @@
 load "stzlib.ring"
 
+/*-----
+*/
+pron()
+
+o1 = new stzString("12.58000")
+o1.RemoveAnyOccurrenceOfCharFromRight("0")
+? o1.Content()
+#--> 12.58
+
+proff()
+
+/*-----
+
 pron()
 
 ? Q("---ring").NumberOfOccurrenceOfCharLeftSide("-")

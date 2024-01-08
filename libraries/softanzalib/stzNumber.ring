@@ -2283,7 +2283,7 @@ class stzNumber from stzObject
 	#---
 
 	def RoundTo(nRound)
-		cResult = This.RoundToXTQ(nRound).AnyCharFromRightRemoved("0")
+		cResult = This.RoundToXTQ(nRound).ToStzString().CharRemovedFromRightXT("0") # XT ~> All 0s are removed
 		return cResult
 
 		#< @FunctionFluentForm

@@ -572,7 +572,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*--------------------
-*/
+
 pron()
 
 ? type(Round(81.8))
@@ -588,7 +588,7 @@ decimals(3)
 ? 81.8
 #--> 81.800
 
-? StzNumberQ("81.8").RoundedTo(3)
+? StzNumberQ("81.8").RoundedToXT(3)
 #--> "81.8"
 
 proff()
