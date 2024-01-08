@@ -107,6 +107,13 @@ class stzTurboList
 		nPos = Q(@aItems).FindFirst(pItem)
 		return @aPositions[nPos][1]
 
+		#< @FunctionMisspelledForm
+
+		def FindFrist(pItem)
+			return This.FindFirst(pItem)
+
+		#>
+
 	def FindLast(pItem)
 		nPos = Q(@aItems).FindFirst(pItem)
 		return @aPositions[nPos][len(@aPositions[nPos])]

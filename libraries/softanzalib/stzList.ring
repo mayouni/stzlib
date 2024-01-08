@@ -876,6 +876,14 @@ class stzList from stzObject
 		def FirstItemQ()
 			return Q(This.FirstItem())
 
+		#-- MISSPELLED
+
+		def FristItem()
+			return This.FirstItem()
+
+			def FristItemQ()
+				return This.FirstItemQ()
+
 	def LastItem()
 		return This.NthItem( This.NumberOfItems() )
 
@@ -886,9 +894,19 @@ class stzList from stzObject
 		aResult = [ This.FirstItem(), This.LastItem() ]
 		return aResult
 
+		#-- MISSPELLED
+
+		def FristAndLastItems()
+			return This.FirstAndLastItems()
+
 	def LastAndFirstItems()
 		aResult = [ This.LastItem(), FirstItem() ]
 		return aResult
+
+		#-- MISSPELLED
+
+		def LastAndFristItems()
+			return This.LastAndFirstItems()
 
 	def CentralPosition()
 		oTemp = new stzNumber( (This.NumberOfItems()/2) )
@@ -1077,6 +1095,138 @@ class stzList from stzObject
 				return This.First10Items()
 	
 			def TenFirstItems()
+			return This.First10Items()
+
+		#>
+
+		#< @FunctionAMisspelledForms
+
+		def NFristItems(n)
+			return This.NFirstItems(n)
+
+			def NFristItemsQ(n)
+				return This.NFirstItemsQ(n)
+
+			def NFristItemsQR(n, pcReturnType)
+				return This.NFirstItemsQR(n, pcReturnType)
+
+		def FristNItems(n)
+			return This.NFirstItems(n)
+
+			def FristNItemsQ(n)
+				return This.NFirstItemsQ(n)
+
+			def FristNItemsQR(n, pcReturnType)
+				return This.NFirstItemsQR(n, pcReturnType)
+
+		#--
+
+		def Frist2Items()
+			return This.FirstNItems(2)
+	
+			def 2FristItems()
+				return This.First2Items()
+	
+			def FristTwoItems()
+				return This.First2Items()
+	
+			def TwoFristItems()
+				return This.First2Items()
+	
+		def Frist3Items()
+			return This.FirstNItems(3)
+	
+			def 3FristItems()
+				return This.First3Items()
+	
+			def FristThreeItems()
+				return This.First2Items()
+	
+			def ThreeFristItems()
+				return This.First3Items()
+	
+		def Frist4Items()
+			return This.FirstNItems(4)
+	
+			def 4FristItems()
+				return This.First4Items()
+	
+			def FristFourItems()
+				return This.First4Items()
+	
+			def FourFristItems()
+				return This.First4Items()
+	
+		def Frist5Items()
+			return This.FirstNItems(5)
+	
+			def 5FristItems()
+				return This.First5Items()
+	
+			def FristFiveItems()
+				return This.First5Items()
+	
+			def FrieFirstItems()
+				return This.First5Items()
+	
+		def Frist6Items()
+			return This.FirstNItems(6)
+	
+			def 6FristItems()
+				return This.First6Items()
+	
+			def FristSixItems()
+				return This.First6Items()
+	
+			def SixFristItems()
+				return This.First6Items()
+	
+		def Frist7Items()
+			return This.FirstNItems(7)
+	
+			def 7FristItems()
+				return This.First7Items()
+	
+			def FristSevenItems()
+				return This.First7Items()
+	
+			def SevenFristItems()
+				return This.First7Items()
+	
+		def Frist8Items()
+			return This.FirstNItems(8)
+	
+			def 8FristItems()
+				return This.First8Items()
+	
+			def FristEightItems()
+				return This.First8Items()
+	
+			def EightFristItems()
+				return This.First8Items()
+	
+		def Frist9Items()
+			return This.FirstNItems(9)
+	
+			def 9FristItems()
+				return This.First9Items()
+	
+			def FristNineItems()
+				return This.First9Items()
+	
+			def NineFristItems()
+				return This.First9Items()
+	
+		def Frist10Items()
+			return This.FirstNItems(10)
+	
+			def 10FristItems()
+				return This.First10Items()
+	
+			def FristTenItems()
+				return This.First10Items()
+	
+			def TenFristItems()
 			return This.First10Items()
 
 		#>
@@ -2108,6 +2258,14 @@ class stzList from stzObject
 		def NFirstOccurrencesReplaced(n, pItem, pNewItem)
 			return This.FirstNOccurrencesReplaced(n, pItem, pNewItem)
 
+		#-- MISSPELLED
+
+		def FristNOccurrencesReplaced(n, pItem, pNewItem)
+			return This.FirstNOccurrencesReplaced(n, pItem, pNewItem)
+
+		def NFristOccurrencesReplaced(n, pItem, pNewItem)
+			return This.FirstNOccurrencesReplaced(n, pItem, pNewItem)
+
 	  #---------------------------------------------#
 	 #   REPLACING LAST N OCCURRENCES OF AN ITEM   #
 	#---------------------------------------------#
@@ -2519,9 +2677,13 @@ class stzList from stzObject
 	def ReplaceFirstOccurrenceCS(pItem, pOtherItem, pCaseSensitive)
 		This.ReplaceNthOccurrenceCS(1, pItem, pOtherItem, pCaseSensitive)
 
+		#< @FunctionFluentForm
+
 		def ReplaceFirstOccurrenceCSQ(pItem, pOtherItem, pCaseSensitive)
 			This.ReplaceFirstOccurrenceCS(pItem, pOtherItem, pCaseSensitive)
 			return This
+
+		#>
 
 		#< @FunctionAlternativeForm
 
@@ -2531,6 +2693,25 @@ class stzList from stzObject
 			def ReplaceFirstCSQ(pItem, pOtherItem, pCaseSensitive)
 				This.ReplaceFirstCS(pItem, pOtherItem, pCaseSensitive)
 				return This
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def ReplaceFristOccurrenceCS(pItem, pOtherItem, pCaseSensitive)
+			return This.ReplaceFirstOccurrenceCS(pItem, pOtherItem, pCaseSensitive)
+
+			def ReplaceFristOccurrenceCSQ(pItem, pOtherItem, pCaseSensitive)
+				return This.ReplaceFirstOccurrenceCSQ(pItem, pOtherItem, pCaseSensitive)
+
+		#--
+
+		def ReplaceFristCS(pItem, pOtherItem, pCaseSensitive)
+			This.ReplaceFirstOccurrenceCS(pItem, pOtherItem, pCaseSensitive)
+
+			def ReplaceFristCSQ(pItem, pOtherItem, pCaseSensitive)
+				This.ReplaceFirstCS(pItem, pOtherItem, pCaseSensitive)
+				return This
+
 		#>
 
 	def FirstOccurrenceReplacedCS(pItem, pOtherItem, pCaseSensitive)
@@ -2543,16 +2724,28 @@ class stzList from stzObject
 		def FirstReplacedCS(pItem, pOtherItem, pCaseSensitive)
 			return This.FirstOccurrenceReplacedCS(pItem, pOtherItem, pCaseSensitive)
 
+		#-- MISSPELLED
+
+		def FristOccurrenceReplacedCS(pItem, pOtherItem, pCaseSensitive)
+			return This.FirstOccurrenceReplacedCS(pItem, pOtherItem, pCaseSensitive)
+
+		def FristReplacedCS(pItem, pOtherItem, pCaseSensitive)
+			return This.FirstOccurrenceReplacedCS(pItem, pOtherItem, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceFirstOccurrence(pItem, pOtherItem)
 		This.ReplaceFirstOccurrenceCS(pItem, pOtherItem, TRUE)
 
+		#< @FunctionFluentForm
+
 		def ReplaceFirstOccurrenceQ(pItem, pOtherItem)
 			This.ReplaceFirstOccurrence(pItem, pOtherItem)
 			return This
 
-		#< @FunctionAlternativeForm
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def ReplaceFirst(pItem, pOtherItem)
 			This.ReplaceFirstOccurrence(pItem, pOtherItem)
@@ -2560,6 +2753,25 @@ class stzList from stzObject
 			def ReplaceFirstQ(pItem, pOtherItem)
 				This.ReplaceFirst(pItem, pOtherItem)
 				return This
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def ReplaceFristOccurrence(pItem, pOtherItem)
+			return This.ReplaceFirstOccurrence(pItem, pOtherItem)
+
+			def ReplaceFristOccurrenceQ(pItem, pOtherItem)
+				return This.ReplaceFirstOccurrenceQ(pItem, pOtherItem)
+
+		#--
+
+		def ReplaceFrist(pItem, pOtherItem)
+			This.ReplaceFirstOccurrence(pItem, pOtherItem)
+
+			def ReplaceFristQ(pItem, pOtherItem)
+				This.ReplaceFirst(pItem, pOtherItem)
+				return This
+
 		#>
 
 	def FirstOccurrenceReplaced(pItem, pOtherItem)
@@ -2570,6 +2782,14 @@ class stzList from stzObject
 		return aResult
 
 		def FirstReplaced(pItem, pOtherItem)
+			return This.FirstOccurrenceReplaced(pItem, pOtherItem)
+
+		#-- MISSPELLED
+
+		def FristOccurrenceReplaced(pItem, pOtherItem)
+			return This.FirstOccurrenceReplacedCS(pItem, pOtherItem)
+
+		def FristReplaced(pItem, pOtherItem)
 			return This.FirstOccurrenceReplaced(pItem, pOtherItem)
 
 	  #-----------------------------------------#
@@ -3360,6 +3580,14 @@ class stzList from stzObject
 		return aResult
 
 		def FirstItemReplacedWith(pOtherItem)
+			return This.FirstItemReplaced(pOtherItem)
+
+		#-- MISSPELLED
+
+		def FristItemReplaced(pOtherItem)
+			return This.FirstItemReplaced(pOtherItem)
+
+		def FristItemReplacedWith(pOtherItem)
 			return This.FirstItemReplaced(pOtherItem)
 
 	  #-----------------------------#
@@ -4588,12 +4816,39 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def RemoveFristOccurrenceCS(pItem, pCaseSensitive)
+			This.RemoveFirstOccurrenceCS(pItem, pCaseSensitive)
+
+			def RemoveFristOccurrenceCSQ(pItem, pCaseSensitive)
+				return RemoveFirstOccurrenceCSQ(pItem, pCaseSensitive)
+
+		#--
+
+		def RemoveFristCS(pItem, pCaseSensitive)
+			This.RemoveFirstOccurrenceCS(pItem, pCaseSensitive)
+
+			def RemoveFristCSQ(pItem, pCaseSensitive)
+				return This.RemoveFirstCSQ(pItem, pCaseSensitive)
+
+		#>
+
 	def FirstOccurrenceRemovedCS(pItem, pCaseSensitive)
 		aResult = This.Copy().RemoveFirstOccurrenceCSQ(pItem, pCaseSensitive).Content()
 		return aResult
 
 		def FirstRemovedCS(pItem, pCaseSensitive)
 			return This.FirstOccurrenceRemovedCS(pItem, pCaseSensitive)
+
+		#-- MISSPELLED
+
+		def FristOccurrenceRemovedCS(pItem, pCaseSensitive)
+			return This.FirstOccurrenceRemovedCS(pItem, pCaseSensitive)
+
+		def FristRemovedCS(pItem, pCaseSensitive)
+			return This.FirstOccurrenceRemovedCS(pItem, pCaseSensitive)
+
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -4620,11 +4875,37 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def RemoveFristOccurrence(pItem)
+			This.RemoveFirstOccurrence(pItem)
+
+			def RemoveFristOccurrenceQ(pItem)
+				return RemoveFirstOccurrenceQ(pItem)
+
+		#--
+
+		def RemoveFrist(pItem)
+			This.RemoveFirstOccurrence(pItem)
+
+			def RemoveFristQ(pItem)
+				return This.RemoveFirstQ(pItem)
+
+		#>
+
 	def FirstOccurrenceRemoved(pItem)
 		aResult = This.Copy().RemoveFirstOccurrenceQ(pItem).Content()
 		return aResult
 
 		def FirstRemoved(pItem)
+			return This.FirstOccurrenceRemoved(pItem)
+
+		#-- MISSPELLED
+
+		def FristOccurrenceRemoved(pItem)
+			return This.FirstOccurrenceRemoved(pItem)
+
+		def FristRemoved(pItem)
 			return This.FirstOccurrenceRemoved(pItem)
 
 	  #--------------------------------------------------#
@@ -5371,9 +5652,24 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForm
+
+		def RemoveFristItem()
+			This.RemoveFirstItem()
+
+			def RemoveFristItemQ()
+				return This.RemoveFirstItemQ()
+
+		#>
+
 	def FirstItemRemoved()
 		aResult = This.Copy().RemoveFirstItemQ().Content()
 		return aResult
+
+		#-- MISSPELLED
+
+		def FristItemRemoved()
+			return This.FirstItemRemoved()
 
 	  #-------------------------------------#
 	 #    REMOVING LAST ITEM IN THE LIST   #
@@ -5453,6 +5749,8 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveFirstAndLastItemsQ().Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def LastAndFirstItemsRemoved()
 			return This.FirstAndLastItemsRemoved()
 
@@ -5469,6 +5767,32 @@ class stzList from stzObject
 
 		def LastItemAndFirstItemRemoved()
 			return This.FirstAndLastItemsRemoved()
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FristAndLastItemsRemoved()
+			return This.FirstAndLastItemsRemoved()
+
+		def LastAndFristItemsRemoved()
+			return This.FirstAndLastItemsRemoved()
+
+		def FristAndLastRemoved()
+			return This.FirstAndLastItemsRemoved()
+
+		def LastAndFristRemoved()
+			return This.FirstAndLastItemsRemoved()
+
+		#--
+
+		def FristItemAndLastItemRemoved()
+			return This.FirstAndLastItemsRemoved()
+
+		def LastItemAndFristItemRemoved()
+			return This.FirstAndLastItemsRemoved()
+
+		#>
 
 	  #--------------------------------------#
 	 #  REMOVING A GIVEN NTH ITEM (IF ANY)  #
@@ -6285,6 +6609,14 @@ class stzList from stzObject
 		def FirstItemPopped()
 			return This.ExtractFirstItem()
 
+		#-- MISSPELLED
+
+		def FristItemExtracted()
+			return This.FirstItemExtracted()
+
+		def FristItemPopped()
+			return This.ExtractFirstItem()
+
 	  #----------------------------#
 	 #  EXTRACTING THE LAST ITEM  #
 	#----------------------------#
@@ -6382,11 +6714,36 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def ExtractFristCS(pItem, pCaseSensitive)
+			return This.ExtractFirstCS(pItem, pCaseSensitive)
+
+		def PopFristCS(pItem, pCaseSensitive)
+			return This.ExtractFirstCS(pItem, pCaseSensitive)
+
+		def ExtractFristOccurrenceCS(pItem, pCaseSensitive)
+			return This.ExtractFirstCS(pItem, pCaseSensitive)
+
+		def PopFristOccurrenceCS(pItem, pCaseSensitive)
+			return This.ExtractFirstCS(pItem, pCaseSensitive)
+
+		#>
+
 	def FirstOccurrenceExtractedCS(pItem, pCaseSensitive)
 		return This.ExtractFirstCS(pItem, pCaseSensitive)
 
 		def FirstOccurrencePoppedCS(pItem, pCaseSensitive)
 			return This.ExtractFirstCS(pItem, pCaseSensitive)
+
+		#-- MISSPELLED
+
+		def FristOccurrenceExtractedCS(pItem, pCaseSensitive)
+			return This.FirstOccurrenceExtractedCS(pItem, pCaseSensitive)
+
+		def FristOccurrencePoppedCS(pItem, pCaseSensitive)
+			return This.ExtractFirstCS(pItem, pCaseSensitive)
+
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -6406,10 +6763,34 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def ExtractFrist(pItem)
+			return This.ExtractFirst(pItem)
+
+		def PopFrist(pItem)
+			return This.ExtractFirst(pItem)
+
+		def ExtractFristOccurrence(pItem)
+			return This.ExtractFirst(pItem)
+
+		def PopFristOccurrence(pItem)
+			return This.ExtractFirst(pItem)
+
+		#>
+
 	def FirstOccurrenceExtracted(pItem)
 		return This.ExtractFirst(pItem)
 
 		def FirstOccurrencePopped(pItem)
+			return This.ExtractFirst(pItem)
+
+		#-- MISSPELLED
+
+		def FristOccurrenceExtracted(pItem)
+			return This.FirstOccurrenceExtracted(pItem)
+
+		def FristOccurrencePopped(pItem)
 			return This.ExtractFirst(pItem)
 
 	  #---------------------------------------------#
@@ -14347,6 +14728,11 @@ class stzList from stzObject
 
 		return acResult
 
+		#-- MISSPELLED
+
+		def FristHalf()
+			return This.FirstHalf()
+
 	def FirstHalfAndPosition()
 		aResult = [ This.FirstHalf(), 1 ]
 		return aResult
@@ -14354,19 +14740,41 @@ class stzList from stzObject
 		def FirstHalfAndItsPosition()
 			return This.FirstHalfAndPosition()
 
+		#-- MISSPELLED
+
+		def FristHalfAndPosition()
+			return This.FirstHalfAndPosition()
+
+		def FristHalfAndItsPosition()
+			return This.FirstHalfAndPosition()
+
+
 	def FirstHalfAndSection()
 		aResult = [ This.FirstHalf(), [1, floor(This.NumberOfItems() / 2)] ]
 		return aResult
 
 		def FirstHalfAndItsSection()
 			return This.FirstHalfAndSection()
-		
+
+		#-- MISSPELLED
+
+		def FristHalfAndSection()
+			return This.FirstHalfAndSection()
+
+		def FristHalfAndItsSection()
+			return This.FirstHalfAndSection()
+
 	def FirstHalfXT()
 
 		nPos = ceil(This.NumberOfItems() / 2)
 		acResult = This.Section(1, nPos)
 
 		return acResult
+
+		#-- MISSPELLED
+
+		def FristHalfXT()
+			return This.FirstHalfXT()
 		
 	def FirstHalfAndPositionXT()
 		aResult = [ This.FirstHalfXT(), 1 ]
@@ -14375,11 +14783,27 @@ class stzList from stzObject
 		def FirstHalfAndItsPositionXT()
 			return This.FirstHalfAndPositionXT()
 
+		#-- MISSPELLED
+
+		def FristHalfAndPositionXT()
+			return This.FirstHalfAndPositionXT()
+
+		def FristHalfAndItsPositionXT()
+			return This.FirstHalfAndPositionXT()
+
 	def FirstHalfAndSectionXT()
 		aResult = [ This.FirstHalfXT(), [1, ceil(This.NumberOfItems() / 2)] ]
 		return aResult
 
 		def FirstHalfAndItsSectionXT()
+			return This.FirstHalfAndSectionXT()
+
+		#-- MISSPELLED
+
+		def FristHalfAndSectionXT()
+			return This.FirstHalfAndSectionXT()
+
+		def FristHalfAndItsSectionXT()
 			return This.FirstHalfAndSectionXT()
 
 	#-- SECOND HALF
@@ -18756,6 +19180,28 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def FindFristDuplicatesCS(pCaseSensitive)
+			return This.FindFirstDuplicatesCS(pCaseSensitive)
+
+		def FindFristDuplicatedItemsCS(pCaseSensitive)
+			return This.FindFirstDuplicatesCS(pCaseSensitive)
+
+		def FindFristDuplicationsCS(pCaseSensitive)
+			return This.FindFirstDuplicatesCS(pCaseSensitive)
+
+		def FindFristOccurrenceOfEachDuplicatedItemCS(pCaseSensitive)
+			return This.FindFirstDuplicatesCS(pCaseSensitive)
+
+		def FindFristOccurrenceOfEachDuplicateCS(pCaseSensitive)
+			return This.FindFirstDuplicatesCS(pCaseSensitive)
+
+		def FindFristOccurrenceOfEachDuplicationCS(pCaseSensitive)
+			return This.FindFirstDuplicatesCS(pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstDuplicates()
@@ -18776,6 +19222,28 @@ class stzList from stzObject
 			return This.FindFirstDuplicates()
 
 		def FindFirstOccurrenceOfEachDuplication()
+			return This.FindFirstDuplicates()
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FindFristDuplicates()
+			return This.FindFirstDuplicates()
+
+		def FindFristDuplicatedItems()
+			return This.FindFirstDuplicates()
+
+		def FindFristDuplications()
+			return This.FindFirstDuplicates()
+
+		def FindFristOccurrenceOfEachDuplicatedItem()
+			return This.FindFirstDuplicates()
+
+		def FindFristOccurrenceOfEachDuplicate()
+			return This.FindFirstDuplicates()
+
+		def FindFristOccurrenceOfEachDuplication()
 			return This.FindFirstDuplicates()
 
 		#>
@@ -21246,6 +21714,14 @@ class stzList from stzObject
 		def FirstListQ()
 			return new stzList( This.FirstList() )
 
+		#-- MISSPELLED
+
+		def FristList()
+			return This.FirstList()
+
+			def FristListQ()
+				return This.FirstListQ()
+
 	def ListsPaths()
 		return This.ItemsThatAreLists_AtAnyLevel_TheirPaths() # TODO: Refactor this!
 
@@ -22379,6 +22855,25 @@ class stzList from stzObject
 	
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def FindFristCS(pItem, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pItem, pCaseSensitive)
+
+		def FristOccurrenceCS(pItem, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pItem, pCaseSensitive)
+
+		def FristCS(pItem, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pItem, pCaseSensitive)
+
+		def PositionOfFristCS(pItem, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pItem, pCaseSensitive)
+
+		def PositionOfFristOccurrenceCS(pItem, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pItem, pCaseSensitive)
+	
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstOccurrence(pItem)
@@ -22399,6 +22894,25 @@ class stzList from stzObject
 			return This.FindFirstOccurrence(pItem)
 
 		def PositionOfFirstOccurrence(pItem)
+			return This.FindFirstOccurrence(pItem)
+	
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FindFrist(pItem)
+			return This.FindFirstOccurrence(pItem)
+
+		def FristOccurrence(pItem)
+			return This.FindFirstOccurrence(pItem)
+
+		def Frist(pItem)
+			return This.FindFirstOccurrence(pItem)
+
+		def PositionOfFrist(pItem)
+			return This.FindFirstOccurrence(pItem)
+
+		def PositionOfFristOccurrence(pItem)
 			return This.FindFirstOccurrence(pItem)
 	
 		#>
@@ -22850,6 +23364,30 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def FindExceptFristCS(pItem, pCaseSensitive)
+			return This.FindAllExceptFristCS(pItem, pCaseSensitive)
+
+			#< @FunctionFluentForm
+	
+			def FindExceptFristCSQR(pItem, pCaseSensitive, pcReturnType)
+				return This.FindAllExceptFristCSQR(pItem, pcReturnType, pCaseSensitive)
+	
+			def FindExceptFristCSQ(pItem, pCaseSensitive)
+				return This.FindAllExceptFristCSQR(pItem, pCaseSenstive, :stzList)
+	
+		def FindFristExceptCS(pItem, pCaseSensitive)
+			return This.FindAllExceptFristCS(pItem, pCaseSensitive)
+
+		def FindFristButCS(pItem, pCaseSensitive)
+			return This.FindAllExceptFristCS(pItem, pCaseSensitive)
+
+		def FindAllButFristCS(pItem, pCaseSensitive)
+			return This.FindAllExceptFristCS(pItem, pCaseSensitive)
+
+		#>
+
 	#-- WITHoUT CASESENSITIVITY
 
 	def FindAllExceptFirst(pItem)
@@ -22888,6 +23426,30 @@ class stzList from stzObject
 
 		def FindAllButFirst(pItem)
 			return This.FindAllExceptFirst(pItem)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FindExceptFrist(pItem)
+			return This.FindAllExceptFrist(pItem)
+
+			#< @FunctionFluentForm
+	
+			def FindExceptFristQR(pItem, pcReturnType)
+				return This.FindAllExceptFristQR(pItem, pcReturnType)
+	
+			def FindExceptFristQ(pItem)
+				return This.FindAllExceptFristQR(pItem, :stzList)
+	
+		def FindFristExcept(pItem)
+			return This.FindAllExceptFrist(pItem)
+
+		def FindFristBut(pItem)
+			return This.FindAllExceptFrist(pItem)
+
+		def FindAllButFrist(pItem)
+			return This.FindAllExceptFrist(pItem)
 
 		#>
 
@@ -24093,11 +24655,28 @@ class stzList from stzObject
 	def FindFirstW(pcCondition)
 		return This.FindNthW(1, pcCondition)
 
+		#< @FunctionAlternativeForms
+
 		def FindFirstItemW(pcCondition)
 			return This.FindFirstW(pcCondition)
 
 		def FindFirstOccurrenceW(pcCondition)
 			return This.FindFirstW(pcCondition)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FindFristW(pcCondition)
+			return This.FindFirstW(pcCondition)
+
+		def FindFristItemW(pcCondition)
+			return This.FindFirstW(pcCondition)
+
+		def FindFristOccurrenceW(pcCondition)
+			return This.FindFirstW(pcCondition)
+
+		#>
 
 	  #-------------------------------------------------#
 	 #  FINDING LAST ITEM VERIFYING A GIVEN CONDITION  #
@@ -24184,11 +24763,28 @@ class stzList from stzObject
 	def FindFirstWXT(pcCondition)
 		return This.FindNthWXT(1, pcCondition)
 
+		#< @FunctionAlternativeForms
+
 		def FindFirstItemWXT(pcCondition)
 			return This.FindFirstWXT(pcCondition)
 
 		def FindFirstOccurrenceWXT(pcCondition)
 			return This.FindFirstWXT(pcCondition)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FindFristWXT(pcCondition)
+			return This.FindFirstWXT(pcCondition)
+
+		def FindFristItemWXT(pcCondition)
+			return This.FindFirstWXT(pcCondition)
+
+		def FindFristOccurrenceWXT(pcCondition)
+			return This.FindFirstWXT(pcCondition)
+
+		#>
 
 	  #-------------------------------------------------------------#
 	 #  FINDING LAST ITEM VERIFYING A GIVEN CONDITION -- EXTENDED  #
@@ -24571,6 +25167,16 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForm
+
+		def FristItemW(pCondition)
+			return This.FirstItemW(pCondition)
+
+			def FristItemWQ(pCondition)
+				return This.FirstItemWQ(pCondition)
+
+		#>
+
 	  #------------------------------------------------------------------#
 	 #  GETTINIG THE LAST ITEM IN THE LIST VERIFYING A GIVEN CONDITION  #
 	#------------------------------------------------------------------#
@@ -24742,6 +25348,14 @@ class stzList from stzObject
 			off
 
 		#>
+
+		#-- MISSPELLED
+
+		def FristItemWXT(pCondition)
+			return This.FirstItemWXT(pCondition)
+
+			def FristItemWXTQ(pCondition)
+				return This.FirstItemWXTQ(pCondition)
 
 	def LastItemWXT(pCondition)
 		return This.ItemsW(pCondition)[ len(This.ItemsWXT(pCondition)) ]
@@ -28215,15 +28829,15 @@ class stzList from stzObject
 			return FALSE
 		ok
 		
-		if oKeys.Contains(:Language) and _(cLanguage).@.IsNotLanguageName()
+		if oKeys.Contains(:Language) and _(cLanguage).Q.IsNotLanguageName()
 			return FALSE
 		ok
 
-		if oKeys.Contains(:Script) and _(cScript).@.IsNotScriptName()
+		if oKeys.Contains(:Script) and _(cScript).Q.IsNotScriptName()
 			return FALSE
 		ok
 
-		if oKeys.Contains(:Country) and _(cCountry).@.IsNotCountryName()
+		if oKeys.Contains(:Country) and _(cCountry).Q.IsNotCountryName()
 			return FALSE
 		ok
 
@@ -28955,6 +29569,16 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def FindFristInSectionCS(pItem, n1, n2, pCaseSensitive)
+			return This.FindFirstInSectionCS(pItem, n1, n2, pCaseSensitive)
+
+		def FindFristInSectionCSZ(pItem, n1, n2, pCaseSensitive)
+			return This.FindFirstInSectionCS(pItem, n1, n2, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInSection(pItem, n1, n2)
@@ -28963,6 +29587,16 @@ class stzList from stzObject
 		#< @FunctionAlternativeForm
 
 		def FindFirstInSectionZ(pItem, n1, n2)
+			return This.FindFirstInSection(pItem, n1, n2)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FindFristInSection(pItem, n1, n2)
+			return This.FindFirstInSection(pItem, n1, n2)
+
+		def FindFristInSectionZ(pItem, n1, n2)
 			return This.FindFirstInSection(pItem, n1, n2)
 
 		#>
@@ -29001,6 +29635,24 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def FindFristInSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.FindFirstInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def FindFristInManySectionsCS(pItem, paSections, pCaseSensitive)
+			return This.FindFirstInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		#--
+
+		def FindFristInSectionsCSZ(pItem, paSections, pCaseSensitive)
+			return This.FindFirstInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def FindFristInManySectionsCSZ(pItem, paSections, pCaseSensitive)
+			return This.FindFirstInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstInSections(pItem, paSections)
@@ -29017,6 +29669,24 @@ class stzList from stzObject
 			return This.FindFirstInSections(pItem, paSections)
 
 		def FindFirstInManySectionsZ(pItem, paSections)
+			return This.FindFirstInSections(pItem, paSections)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FindFristInSections(pItem, paSections)
+			return This.FindFirstInSections(pItem, paSections)
+
+		def FindFristInManySections(pItem, paSections)
+			return This.FindFirstInSections(pItem, paSections)
+
+		#--
+
+		def FindFristInSectionsZ(pItem, paSections)
+			return This.FindFirstInSections(pItem, paSections)
+
+		def FindFristInManySectionsZ(pItem, paSections)
 			return This.FindFirstInSections(pItem, paSections)
 
 		#>

@@ -2,6 +2,37 @@ load "stzlib.ring"
 
 pron()
 
+? Q("---ring").NumberOfOccurrenceOfCharOnTheLeft("-")
+
+
+proff()
+
+/*-----
+
+pron()
+
+? StzChar(65021)
+#--> ﷽
+
+? StzCharQ(65021).Name()
+#--> ARABIC LIGATURE BISMILLAH AR-RAHMAN AR-RAHEEM
+
+? StzCharQ(65021).SizeInBytes()
+#--> 3
+
+? StzCharQ(65021).SizeInChars()
+#--> 1
+
+? Basmalah()
+#--> #--> ﷽
+
+proff()
+# Executed in 0.15 second(s)
+
+/*------
+
+pron()
+
 # A stzString object can be created in one of three ways
 
 # 1. From a normal Ring string

@@ -222,7 +222,7 @@ class stzChainOfTruth from stzObject
 			but StzStringQ(pThing).IsAlmostAFunctionCall()
 				# Example: _("H").Is('LetterOf("HUSSEIN")')._
 
-				cCode = 'bResult = _(' + ComputableForm(This.Value()) + ').@.Is' + pThing
+				cCode = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + pThing
 				eval(cCode)
 
 			else
@@ -339,10 +339,10 @@ class stzChainOfTruth from stzObject
 			ok
 
 			cFunCode = cFuncName + '(' + FunctionParam(pThing) + ')'
-			cCode = 'bResult = _(' + ComputableForm(This.Value()) + ').@.Is' + cFunCode
+			cCode = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + cFunCode
 	
 			#--> Example of generated code:
-			# bResult = _("H").@.IsLetterOf("HUSSEIN")
+			# bResult = _("H").Q.IsLetterOf("HUSSEIN")
 
 			# Which invoques the IsLetterOf() method from stzString
 
@@ -358,7 +358,7 @@ class stzChainOfTruth from stzObject
 			cMethod = StzStringQ(cFuncName).Section(1, -3)
 			cIsMethod = "is" + cMethod
 			cIsMethodCall = cIsMethod + "()"
-			cCode = "bPass = _(" + ComputableForm(cValue) + ").@.NumberOfItemsW('{ _(@item).@." + cIsMethodCall + " }') > 1"
+			cCode = "bPass = _(" + ComputableForm(cValue) + ").Q.NumberOfItemsW('{ _(@item).Q." + cIsMethodCall + " }') > 1"
 
 				eval(cCode)
 	
@@ -672,7 +672,7 @@ class stzChainOfTruth from stzObject
 	def th(pcThing)
 		/* Example:
 	
-		_(7).nth('LetterOf("HUSSEIN")').@ 	#--> "N"
+		_(7).nth('LetterOf("HUSSEIN")').Q 	#--> "N"
 	
 		*/
 		if This._Type() = "NUMBER" and

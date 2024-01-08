@@ -334,9 +334,9 @@ aList2 = Q(42).Multiples(:Under = 1080) # Use ? @@( aList2 ) to show the list
 #--> 1050
 
 proff()
-# Executed in 2.92 second(s) in Ring 1.19 (64 Bits)
-# Executed in 6.85 second(s) in Ring 1.18
-# Executed in 9.02 second(s) in Ring 1.17
+# Executed in 0.85 second(s) in Ring 1.19 (64 Bits)
+# Executed in 1.41 second(s) in Ring 1.18
+# Executed in 2.35 second(s) in Ring 1.17
 
 /*-----------------
 
@@ -365,7 +365,7 @@ pron()
 # ]
 
 proff()
-# Executed in 1.45 second(s)
+# Executed in 0.51 second(s)
 
 /*----------------
 
@@ -391,7 +391,7 @@ pron()
 # ]
 
 proff()
-# Executed in 0.29 second(s) in Ring 1.19
+# Executed in 0.51 second(s) in Ring 1.19
 # Executed in 0.68 second(s) in Ring 1.17
 
 /*---------------
@@ -411,8 +411,8 @@ pron()
 #--> 4
 
 proff()
-# Executed in 0.22 second(s) in Ring 1.19
-# Executed in 0.46 second(s) in Ring 1.17
+# Executed in 0.09 second(s) in Ring 1.19
+# Executed in 0.14 second(s) in Ring 1.17
 
 /*===================
 
@@ -437,7 +437,7 @@ proff()
 pron()
 
 o1 = new stzNumber(11)
-? o1.RepeatedNTimes(3000000)
+? o1.RepeatedNTimes(3)
 #--> [11, 11, 11]
 
 # Don't confuse with:
@@ -448,8 +448,8 @@ o1 = new stzNumber(11)
 #--> 66
 
 proff()
-# Executed in 0.14 second(s) in Ring 1.19
-# Executed in 0.28 second(s) in Ring 1.17
+# Executed in 0.09 second(s) in Ring 1.19
+# Executed in 0.13 second(s) in Ring 1.17
 
 /*------------------
 
@@ -483,7 +483,7 @@ o1 = new stzNumber(5)
 # 	[ 5, 5, 5 ]
 # ]
 
-? o1.RepeatXT(:InA = :StzTable, :OfSize = [3, 3]).Shwo() # NOTE taht Shwo() is a misspelled
+? o1.RepeatXT(:InA = :StzTable, :OfSize = [3, 3]).Shwo() # NOTE that Shwo() is a misspelled
 						         # form of Show(), recognised and fixed
 #--> :COL1   :COL2   :COL3
 #    ------ ------- ------
@@ -492,7 +492,7 @@ o1 = new stzNumber(5)
  #      5       5       5
 
 proff()
-# Executed in 0.26 second(s)
+# Executed in 0.30 second(s)
 
 /*-----------------------
 
@@ -509,8 +509,14 @@ proff()
 
 /*-----------------------
 
-o1 = new stzNumber(5)
-? ring_type(o1.Number()) #--> NUMBER
+pron()
+
+o1 = new stzNumber("5")
+? ring_type(o1.Number())
+#--> NUMBER
+
+proff()
+# Executed in 0.05 second(s)
 
 /*-----------------------
 
@@ -519,8 +525,19 @@ pron()
 ? Q("Ring").RepeatedInAPairQ().Types()
 #--> [ "STRING", "STRING" ]
 
+# Because this feature is implemented in stzObject, and bacause
+# stzObject is the parent of all the other Softanza types, like
+# stzNumber, stzList, stzString and so on, this will work the
+# same way using any type:
+
+? Q(5).RepeatedInAPair()
+#--> [ 5, 5 ]
+
+? Q([1, 2]).RepeatedInAPair()
+#--> [ [1,2], [1,2] ]
+
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.06 second(s)
 
 /*-----------------------
 
@@ -542,19 +559,42 @@ pron()
 # You can also use .NumericValue() or just .Value() and it works!
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.07 second(s)
 
 /*-----------------------
 
 pron()
 
-? Q(10) ^ 3 #--> 1000
+? Q(10) ^ 3
+#--> 1000
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s)
 
 /*--------------------
+*/
+pron()
 
+? type(Round(81.8))
+#--> 82
+
+proff()
+
+/*--------------------
+*/
+pron()
+
+decimals(3)
+? 81.8
+#--> 81.800
+
+? StzNumberQ("81.8").RoundedTo(3)
+#--> "81.8"
+
+proff()
+
+/*--------------------
+*/
 pron()
 
 ? DefaultRound()
@@ -566,6 +606,9 @@ pron()
 	? 1.224
 	#--> 1.22
 
+	? 81.8
+	#--> 
+/*
 StzDecimals(7)
 
 	? ActiveRound()
@@ -582,7 +625,7 @@ ResetRound()
 	? 1.224
 	#--> 1.22
 
-
+*/
 proff()
 # Executed in 0.04 second(s)
 
@@ -777,7 +820,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*-----------------------
-*/
+
 pron()
 
 o1 = new stzNumber("12.456")
@@ -808,7 +851,24 @@ proff()
 
 /*=================
 
-? StzNumberQ(14).IsDividableBy(2)
+pron()
+
+Q(14) {
+
+	? IsDividableBy(2)
+	#--> TRUE
+
+	? IsDividableBy("2")
+	#--> TRUE
+
+	? IsDividableBy("2.00")
+	#--> TRUE
+
+	? IsDividableBy("2.001")
+	#--> FALSE
+}
+
+proff()
 
 /*-----------------------  # ERROR
 

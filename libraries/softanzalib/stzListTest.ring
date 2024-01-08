@@ -6714,7 +6714,7 @@ o1 = new stzList([
 #--> [1, 2, 3]
 
 ? StzListQ([ "A", 1, "B", 2, "C", 3]).ItemsW('
-	isString(@item) and _(@item).@.IsLetter()
+	isString(@item) and _(@item).Q.IsLetter()
 ') #--> ["A", "B", "C"]
 
 ? StzListQ([ 1, 2, 3, 4, 5, 6 ]).ItemsW('Q(@item).IsDividableBy(2)')

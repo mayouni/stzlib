@@ -53645,6 +53645,46 @@ ici		//...
 	def AnyCharFromEndRemoved(c)
 		return This.AnyCharFromEndRemovedCS(c, TRUE)
 
+	  #---------------------------------------------------------------------------#
+	 #   GETTING THE NUMBER OF OCCURRENCE OF A CHAR ON THE LEFT OF THE STRING    #
+	#===========================================================================#
+
+	def NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isString(pcChar) and @IsChar(pcChar) )
+				StzRaise("Incorrect param type! pcChar must be a char.")
+			ok
+		ok
+
+		
+		n = This.FindFristCS(pcChar, pCaseSensitive)
+
+		if n = 0 or n > 1
+			return 0
+		ok
+
+		bResult = 0
+		nTemp = n
+		while TRUE
+			nTemp--
+			if nTemp = 0
+				bResult = n
+				exit
+			ok
+
+			if NOT This.CharQ(nTemp).IsEqualToCS(pcChar, pCaseSensitive)
+				bResult = 0
+				exit
+			ok
+		end
+		
+		return bResult
+		
+	#-- WITHOUT CASESENSITIVE
+
+	def NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+		return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, TRUE)
+
 	  #----------------------------------#
 	 #   REMOVING ANY CHAR FROM LEFT    #
 	#==================================#
@@ -53787,7 +53827,7 @@ ici		//...
 
 	  #-------------------------------------#
 	 #   REMOVING A SUBSTRING FROM LEFT    #
-	#-------------------------------------#
+	#=====================================#
 
 	def RemoveFromLeftCS(pcSubStr, pCaseSensitive)
 
@@ -54331,9 +54371,9 @@ ici		//...
 		cResult = This.Copy().RemoveCharsFromEndWQ(pcCondition).Content()
 		return cResult
 
-	  #----------------------------------#
-	 #    TRIMMING & REMOVING SPACES    # 
-	#----------------------------------#
+	  #=================================#
+	 #   TRIMMING & REMOVING SPACES    # 
+	#=================================#
 	# TODO : Add Trim functions to stzList
 
 	def Trim()

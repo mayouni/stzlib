@@ -656,7 +656,7 @@ func QuietEqualityRatio()
 	return _nQuietEqualityRatio
 
 func SetQuietEqualityRatio(n)
-	if _(n).@.IsBetween(0,1)
+	if _(n).Q.IsBetween(0,1)
 		_nQuietEqualityRatio = n
 	ok
 

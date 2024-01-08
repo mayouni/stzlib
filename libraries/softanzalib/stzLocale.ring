@@ -111,10 +111,10 @@ func NamesOfDays()
 func NamesOfDaysIn(pcLangOrCountry)
 
 	aResult = []
-	if _(pcLangOrCountry).@.IsLanguageName()
+	if _(pcLangOrCountry).Q.IsLanguageName()
 		oQLocale = StzLocaleQ([ :Language = pcLangOrCountry ]).QLocaleObject()
 
-	but _(pcLangOrCountry).@.IsCountryName()
+	but _(pcLangOrCountry).Q.IsCountryName()
 
 		cAbbr = StzCountryQ(pcLangOrCountry).LanguageAbbreviation() + "_" +
 			StzCountryQ(pcLangOrCountry).Abbreviation()
@@ -154,10 +154,10 @@ func NamesOfMonths()
 func NamesOfMonthsIn(pcLangOrCountry)
 	
 	aResult = []
-	if _(pcLangOrCountry).@.IsLanguageName()
+	if _(pcLangOrCountry).Q.IsLanguageName()
 		oQLocale = StzLocaleQ([ :Language = pcLangOrCountry ]).QLocaleObject()
 
-	but _(pcLangOrCountry).@.IsCountryName()
+	but _(pcLangOrCountry).Q.IsCountryName()
 
 		cAbbr = StzCountryQ(pcLangOrCountry).LanguageAbbreviation() + "_" +
 			StzCountryQ(pcLangOrCountry).Abbreviation()

@@ -83,6 +83,12 @@ func UnicodeChar(n)
 
 	return StzCharQ(n).Content()
 
+	func StzChar(n)
+		return UnicodeChar(n)
+
+	func UChar(n)
+		return UnicodeChar(n)
+
 func StzCharMethods()
 	return Stz(:Char, :Methods)
 
@@ -630,10 +636,23 @@ class stzChar from stzObject
 		def HowManyByte()
 			return This.NumberOfBytes()
 
+		def SizeInBytes()
+			return This.NumberOfBytes()
+
 	def Bytes()
 		// TODO: Review it and test it!
 		oStzBinStr = new stzListOfBytes(This.Content())
 		return oStzBinStr.Bytes()
+
+	def SizeInChars() # Normally, it returns 1. But there will be cases
+			  # where our implementation of NumberOfChars() in
+			  # stzString is not accurate, due to Unicode complexisty.
+			  # TODO: Check them and fix them.
+
+		return This.ToStzString().SizeInChars()
+
+		def NumberOfChars()
+			return This.SizeInChars()
 
 	  #-------------------------------------#
 	 #   ORIENTATION & UNICODE DIRECTION   #
