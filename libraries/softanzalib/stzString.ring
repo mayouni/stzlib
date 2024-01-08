@@ -5428,6 +5428,14 @@ class stzString from stzObject
 		def FirstMarquerQ()
 			return new stzString( This.LastMarquer() )
 
+		#-- MISSPELLED
+
+		def FristMarquer()
+			return This.FirstMarquer()
+
+			return This.FristMArquerQ()
+				return This.FirstMarquerQ()
+
 	def LastMarquer()
 		n = This.NumberOfMarquers()
 		acResult = This.Marquers()[ n ]
@@ -5463,6 +5471,8 @@ class stzString from stzObject
 	def FindFirstMarquer()
 		return This.FindNthMarquer(1)
 
+		#< @FunctionAlternativeForms
+
 		def FirstMarquerOccurrence()
 			return This.FindFirstMarquer()
 
@@ -5471,6 +5481,24 @@ class stzString from stzObject
 
 		def PositionOfFirstMarquer()
 			return This.FindFirstMarquer()
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FindFristMarquer()
+			return This.FindFirstMarquer()
+
+		def FristMarquerOccurrence()
+			return This.FindFirstMarquer()
+
+		def FristMarquerPosition()
+			return This.FindFirstMarquer()
+
+		def PositionOfFristMarquer()
+			return This.FindFirstMarquer()
+
+		#>
 
 	def FindLastMarquer()
 			return This.FindNthMarquer(This.NumberOfMarquers())
@@ -7281,7 +7309,7 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def NFirstCharsAsString(n)
 			return This.NFirstCharsAsSubString(n)
@@ -7350,6 +7378,78 @@ class stzString from stzObject
 				return This.NFirstCharsAsSubString(3)
 
 			def ThreeFirstCharsAsString()
+				return This.NFirstCharsAsSubString(3)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def NFristCharsAsString(n)
+			return This.NFirstCharsAsSubString(n)
+
+			def NFristCharsAsStringQ(n)
+				return This.NFirstCharsAsSubStringQ(n)
+	
+		def FristNCharsAsSubString(n)
+			return This.NFirstCharsAsSubString(n)
+	
+			def FristNCharsAsSubStringQ(n)
+				return This.NFirstCharsAsSubStringQ(n)
+
+		def FristNCharsAsString(n)
+			return This.NFirstCharsAsSubString(n)
+	
+			def FristNCharsAsStringQ(n)
+				return This.NFirstCharsAsSubStringQ(n)
+
+		#-- Specific misspelled forms
+
+		def Frist2CharsAsSubString()
+			return This.NFirstCharsAsSubString(2)
+
+			def Frist2CharsAsString()
+				return This.NFirstCharsAsSubString(2)
+
+			def 2FristCharsAsSubString()
+				return This.NFirstCharsAsSubString(2)
+
+			def 2FristCharsAsString()
+				return This.NFirstCharsAsSubString(2)
+
+			def FristTwoCharsAsSubString()
+				return This.NFirstCharsAsSubString(2)
+
+			def FristTwoCharsAsString()
+				return This.NFirstCharsAsSubString(2)
+
+			def TwoFristCharsAsSubString()
+				return This.NFirstCharsAsSubString(2)
+
+			def TwoFristCharsAsString()
+				return This.NFirstCharsAsSubString(2)
+
+		def Frist3CharsAsSubString()
+			return This.NFirstCharsAsSubString(3)
+
+			def Frist3CharsAsString()
+				return This.NFirstCharsAsSubString(3)
+
+			def 3FristCharsAsSubString()
+				return This.NFirstCharsAsSubString(3)
+
+			def 3FristCharsAsString()
+				return This.NFirstCharsAsSubString(3)
+
+			def FristThreeCharsAsSubString()
+				return This.NFirstCharsAsSubString(3)
+
+			def FristThreeCharsAsString()
+				return This.NFirstCharsAsSubString(3)
+
+			def ThreeFristCharsAsSubString()
+				return This.NFirstCharsAsSubString(3)
+
+			def ThreeFristCharsAsString()
 				return This.NFirstCharsAsSubString(3)
 
 		#>
@@ -8161,7 +8261,7 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def FirstNChars(n)
 			return This.NFirstChars(n)
@@ -8284,6 +8384,129 @@ class stzString from stzObject
 			def TenFirstChars()
 				return This.First10Chars()
 	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FristNChars(n)
+			return This.NFirstChars(n)
+	
+			def FristNCharsQ(n)
+				return This.NFirstCharsQ(n)
+
+			def FristNCharsQR(n, pcReturnType)
+				return This.NFirstCharsQR(n, pcReturnType)
+
+		#-- specific misspelled forms
+
+		def Frist2Chars()
+			return This.NFirstChars(2)
+
+			def 2FristChars()
+				return This.NFirstChars(2)
+
+			def FristTwoChars()
+				return This.NFirstChars(2)
+
+			def TwoFristChars()
+				return This.NFirstChars(2)
+
+		def Frist3Chars()
+			return This.NFirstChars(3)
+
+			def 3FristChars()
+				return This.NFirstChars(3)
+
+			def FristThreeChars()
+				return This.NFirstChars(3)
+
+			def ThreeFristChars()
+				return This.NFirstChars(3)
+
+		def Frist4Chars()
+			return This.FristNChars(4)
+	
+			def 4FristChars()
+				return This.First4Chars()
+	
+			def FristFourChars()
+				return This.First4Chars()
+	
+			def FourFristChars()
+				return This.First4Chars()
+	
+		def Frist5Chars()
+			return This.FirstNChars(5)
+	
+			def 5FristChars()
+				return This.First5Chars()
+	
+			def FristFiveChars()
+				return This.First5Chars()
+	
+			def FiveFristChars()
+				return This.First5Chars()
+	
+		def Frist6Chars()
+			return This.FirstNChars(6)
+	
+			def 6FristChars()
+				return This.First6Chars()
+	
+			def FristSixChars()
+				return This.First6Chars()
+	
+			def SixFristChars()
+				return This.First6Chars()
+	
+		def Frist7Chars()
+			return This.FirstNChars(7)
+	
+			def 7FristChars()
+				return This.First7Chars()
+	
+			def FristSevenChars()
+				return This.First7Chars()
+	
+			def SevenFristChars()
+				return This.First7Chars()
+	
+		def Frist8Chars()
+			return This.FirstNChars(8)
+	
+			def 8FristChars()
+				return This.First8Chars()
+	
+			def FristEightChars()
+				return This.First8Chars()
+	
+			def EightFristChars()
+				return This.First8Chars()
+	
+		def Frist9Chars()
+			return This.FirstNChars(9)
+	
+			def 9FristChars()
+				return This.First9Chars()
+	
+			def FristNineChars()
+				return This.First9Chars()
+	
+			def NineFristChars()
+				return This.First9Chars()
+	
+		def Frist10Chars()
+			return This.FirstNChars(10)
+	
+			def 10FristChars()
+				return This.First10Chars()
+	
+			def FristTenChars()
+				return This.First10Chars()
+	
+			def TenFristChars()
+				return This.First10Chars()
+
 		#>
 
 	  #----------------------------------------------#
@@ -10841,6 +11064,17 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def FristAndLastBoundsCS(pCaseSensitive)
+			return This.BoundsCS(pCaseSensitive)
+
+		def StringFristAndLastBoundsCS(pCaseSensitive)
+			return This.BoundsCS(pCaseSensitive)
+
+		#>
+
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def Bounds()
@@ -10855,6 +11089,16 @@ class stzString from stzObject
 			return This.Bounds()
 
 		def StringFirstAndLastBounds()
+			return This.Bounds()
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FristAndLastBounds()
+			return This.Bounds()
+
+		def StringFristAndLastBounds()
 			return This.Bounds()
 
 		#>
@@ -11008,6 +11252,22 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def FristAndLastBoundsCSZ(pCaseSensitive)
+			return This.BoundsCSZ(pCaseSensitive)
+
+		def FristAndLastBoundsAndTheirPositionsCS(pCaseSensitive)
+			return This.BoundsCSZ(pCaseSensitive)
+
+		def StringFristAndLastBoundsCSZ(pCaseSensitive)
+			return This.BoundsCSZ(pCaseSensitive)
+
+		def StringFristAndLastBoundsAndTheirPositionsCS(pCaseSensitive)
+			return This.BoundsCSZ(pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def BoundsZ()
@@ -11036,6 +11296,22 @@ class stzString from stzObject
 			return This.BoundsZ()
 
 		def StringFirstAndLastBoundsAndTheirPositions()
+			return This.BoundsZ()
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FristAndLastBoundsZ()
+			return This.BoundsZ()
+
+		def FristAndLastBoundsAndTheirPositions()
+			return This.BoundsZ()
+
+		def StringFristAndLastBoundsZ()
+			return This.BoundsZ()
+
+		def StringFristAndLastBoundsAndTheirPositions()
 			return This.BoundsZ()
 
 		#>
@@ -11080,6 +11356,22 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def FristAndLastBoundsCSZZ(pCaseSensitive)
+			return This.BoundsCSZZ(pCaseSensitive)
+
+		def FristAndLastBoundsAndThierSectionsCS(pCaseSensitive)
+			return This.BoundsCSZZ(pCaseSensitive)
+
+		def StringFristAndLastBoundsCSZZ(pCaseSensitive)
+			return This.BoundsCSZZ(pCaseSensitive)
+
+		def StringFristAndLastBoundsAndTheirSectionsCS(pCaseSensitive)
+			return This.BoundsCSZZ(pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def BoundsZZ()
@@ -11108,6 +11400,23 @@ class stzString from stzObject
 			return This.BoundsZZ()
 
 		def StringFirstAndLastBoundsAndTheirSections()
+			return This.BoundsZZ()
+
+		#>
+
+
+		#< @FunctionMisspelledForms
+
+		def FristAndLastBoundsZZ()
+			return This.BoundsZZ()
+
+		def FristAndLastBoundsAndThierSections()
+			return This.BoundsZZ()
+
+		def StringFristAndLastBoundsZZ()
+			return This.BoundsZZ()
+
+		def StringFristAndLastBoundsAndTheirSections()
 			return This.BoundsZZ()
 
 		#>
@@ -11523,12 +11832,28 @@ class stzString from stzObject
 		def StringFirstBoundCS(pCaseSensitive)
 			return This.FirstBoundCS(pCaseSensitive)
 
+		#-- MISSPELLED
+
+		def FristBoundCS(pCaseSensitive)
+			return This.FirstBoundCS(pCaseSensitive)
+
+		def StringFristBoundCS(pCaseSensitive)
+			return This.FirstBoundCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstBound()
 		return This.FirstBoundCS(TRUE)
 
 		def StringFirstBound()
+			return This.FirstBound()
+
+		#-- MISSPELLED
+
+		def FristBound()
+			return This.FirstBound()
+
+		def StringFristBound()
 			return This.FirstBound()
 
 	  #-----------------------------------------------------------------#
@@ -11556,6 +11881,23 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def FristBoundCSZ(pCaseSensitive)
+			return This.FirstBoundCSZ(pCaseSensitive)
+
+		def FristBoundAndItsPositionCS(pCaseSensitive)
+			return This.FirstBoundCSZ(pCaseSensitive)
+
+		def StringFristBoundCSZ(pCaseSensitive)
+			return This.FirstBoundCSZ(pCaseSensitive)
+
+		def StringFristBoundAndItsPositionCS(pCaseSensitive)
+			return This.FirstBoundCSZ(pCaseSensitive)
+
+		#>
+
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstBoundZ()
@@ -11570,6 +11912,22 @@ class stzString from stzObject
 			return This.FirstBoundZ()
 
 		def StringFirstBoundAndItsPosition()
+			return This.FirstBoundZ()
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def FristBoundZ()
+			return This.FirstBoundZ()
+
+		def FristBoundAndItsPosition()
+			return This.FirstBoundZ()
+
+		def StringFristBoundZ()
+			return This.FirstBoundZ()
+
+		def StringFristBoundAndItsPosition()
 			return This.FirstBoundZ()
 
 		#>
@@ -11599,6 +11957,22 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def FristBoundCSZZ(pCaseSensitive)
+			return This.FirstBoundCSZZ(pCaseSensitive)
+
+		def FristBoundAndItsSectionCS(pCaseSensitive)
+			return This.FirstBoundCSZZ(pCaseSensitive)
+
+		def StringFristBoundCSZZ(pCaseSensitive)
+			return This.FirstBoundCSZZ(pCaseSensitive)
+
+		def StringFristBoundAndItsSectionCS(pCaseSensitive)
+			return This.FirstBoundCSZZ(pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstBoundZZ()
@@ -11616,6 +11990,25 @@ class stzString from stzObject
 			return THis.FirstBoundZZ()
 
 		#>
+
+		#< @FunctionMisspelledForms
+
+		def FristBoundZZ()
+			return This.FirstBoundZZ()
+
+		def FristBoundAndItsSection()
+			return This.FirstBoundZZ()
+
+		def StringFristBoundZZ()
+			return This.FirstBoundZZ()
+
+		def StringFristBoundAndItsSection()
+			return This.FirstBoundZZ()
+
+		#>
+
+		# TODO: Complete to add misspelled forms to all functions
+		# containing First in their names
 
 	  #----------------------------------------#
 	 #  FINDING THE LAST BOUND OF THE STRING  #
