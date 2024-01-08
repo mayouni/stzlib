@@ -13594,6 +13594,13 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForm
+
+		def IsEqualtToCS(pcOtherList, pCaseSensitive)
+			return This.IsEqualToCS(pcOtherList, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsEqualTo(paOtherList)
@@ -13620,6 +13627,13 @@ class stzList from stzObject
 
 		def IsNotEqualTo(paOtherList)
 			return NOT This.IsEqualTo(paOtherList)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def IsEqualtTo(pcOtherList)
+			return This.IsEqualTo(pcOtherList)
 
 		#>
 

@@ -1808,6 +1808,13 @@ class stzNumber from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForm
+
+		def IsEqualtTo(pcOtherNumber)
+			return This.IsEqualTo(pcOtherNumber)
+
+		#>
+
 	def IsLess(pOtherNumber)
 		if CheckParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()

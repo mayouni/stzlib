@@ -1,7 +1,48 @@
 load "stzlib.ring"
 
-/*-----
+/*-----------
 */
+pron()
+
+o1 = new stzString("ring---")
+
+? o1.RightCharRemoved()
+#--> ring--
+
+? o1.CharRemovedFromRight("-")
+#--> ring--
+
+? o1.CharRemovedFromRightXT("-")
+#--> ring
+
+? o1.CharTrimmedFromRight("-")
+#--> ring
+
+proff()
+
+/*--------
+*/
+pron()
+
+o1 = new stzString("---ring")
+
+? o1.LeftCharRemoved()
+#--> ring--
+
+? o1.CharRemovedFromLeft("-")
+#--> ring--
+
+? o1.CharRemovedFromLeftXT("-")
+#--> ring
+
+? o1.CharTrimmedFromLeft("-")
+#--> ring
+
+proff()
+# Executed in 0.04 second(s)
+
+/*====
+
 pron()
 
 o1 = new stzString("12.58000")
@@ -11,7 +52,31 @@ o1.RemoveAnyOccurrenceOfCharFromRight("0")
 
 proff()
 
+/*===
+
+pron()
+
+o1 = new stzString("00012.58")
+o1.RemoveCharFromLeft("0")
+? o1.Content()
+#--> 0012.58
+
+pron()
+# Executed in 0.02 second(s)
+
 /*-----
+
+pron()
+
+o1 = new stzString("000012.58")
+o1.RemoveCharFromLeftXT("0")
+? o1.Content()
+#--> 12.58
+
+proff()
+# Executed in 0.03 second(s)
+
+/*========
 
 pron()
 
