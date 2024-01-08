@@ -28050,7 +28050,39 @@ class stzString from stzObject
 
 		#< @FunctionMisspelledForms
 
-		def FindFirsteCS(pcSubStr, pCaseSensitive)
+		def FindFristCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstCS(pcSubStr, pCaseSensitive)
+
+		def FindFristOccurrenceCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstCS(pcSubStr, pCaseSensitive)
+
+		def FristOccurrenceCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstCS(pcSubStr, pCaseSensitive)
+
+		def FindFristSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstCS(pcSubStr, pCaseSensitive)
+
+		def FristSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstCS(pcSubStr, pCaseSensitive)
+
+		#--
+
+		def PositionOfFristOccurrenceCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstCS(pcSubStr, pCaseSensitive)
+
+		def FristOccurrencePositionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfFristCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstCS(pcSubStr, pCaseSensitive)
+
+		def PositionOfFristSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstCS(pcSubStr, pCaseSensitive)
+
+		def FristSubStringPositionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstCS(pcSubStr, pCaseSensitive)
+
+		def FristCS(pcSubStr)
 			return This.FindFirstCS(pcSubStr, pCaseSensitive)
 
 		#>
@@ -28098,7 +28130,39 @@ class stzString from stzObject
 
 		#< @FunctionMisspelledForms
 
-		def FindFirste(pcSubStr)
+		def FindFrist(pcSubStr)
+			return This.FindFirst(pcSubStr)
+
+		def FindFristOccurrence(pcSubStr)
+			return This.FindFirst(pcSubStr)
+
+		def FristOccurrence(pcSubStr)
+			return This.FindFirst(pcSubStr)
+
+		def FindFristSubString(pcSubStr)
+			return This.FindFirst(pcSubStr)
+
+		def FristSubString(pcSubStr)
+			return This.FindFirst(pcSubStr)
+
+		#--
+
+		def PositionOfFristOccurrence(pcSubStr)
+			return This.FindFirst(pcSubStr)
+
+		def FristOccurrencePosition(pcSubStr)
+			return This.FindFirst(pcSubStr)
+
+		def PositionOfFrist(pcSubStr)
+			return This.FindFirst(pcSubStr)
+
+		def PositionOfFristSubString(pcSubStr)
+			return This.FindFirst(pcSubStr)
+
+		def FristSubStringPosition(pcSubStr)
+			return This.FindFirst(pcSubStr)
+
+		def Frist(pcSubStr)
 			return This.FindFirst(pcSubStr)
 
 		#>
@@ -54038,6 +54102,598 @@ ici		//...
 	def AnyCharFromEndRemoved(c)
 		return This.AnyCharFromEndRemovedCS(c, TRUE)
 
+	  #===========================================================================#
+	 #   GETTING THE NUMBER OF OCCURRENCE OF A CHAR ON THE START OF THE STRING   #
+	#===========================================================================#
+
+	def NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+		else # IsRightToLeft()
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def CharOccurrenceOnTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesOnTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharOnTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharOnTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceOnTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesOnTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharOnTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharOnTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		#== TO THE START instead of ON THE START
+
+		def CharOccurrenceToTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesToTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCharToTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharToTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharToTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceToTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesToTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharToTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharToTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		#== AT THE START instead of ON THE START
+
+		def CharOccurrenceAtTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesAtTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCharAtTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharAtTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharAtTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceAtTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesAtTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharAtTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharAtTheStartCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		#== STARTSIDE instead of ON THE START
+
+		def CharOccurrenceStartSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesStartSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCharStartSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharStartSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharStartSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceStartSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesStartSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharStartSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfCharStartSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def HowManyOccurrencesOfCharStartSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def HowManyOccurrenceOfThisCharStartSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		def HowManyOccurrencesOfThisCharStartSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVE
+
+	def NumberOfOccurrenceOfCharOnTheStart(pcChar)
+		return This.NumberOfOccurrenceOfCharOnTheStartCS(pcChar, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def CharOccurrenceOnTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def CharOccurrencesOnTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def NumberOfOccurrencesOfCharOnTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharOnTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def ThisCharOccurrenceOnTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def ThisCharOccurrencesOnTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def NumberOfOccurrencesOfThisCharOnTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharOnTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		#== TO THE START instead of ON THE START
+
+		def CharOccurrenceToTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def CharOccurrencesToTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def NumberOfOccurrenceOfCharToTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def NumberOfOccurrencesOfCharToTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharToTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def ThisCharOccurrenceToTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def ThisCharOccurrencesToTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def NumberOfOccurrencesOfThisCharToTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharToTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		#== AT THE START instead of ON THE START
+
+		def CharOccurrenceAtTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def CharOccurrencesAtTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def NumberOfOccurrenceOfCharAtTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def NumberOfOccurrencesOfCharAtTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharAtTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def ThisCharOccurrenceAtTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def ThisCharOccurrencesAtTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def NumberOfOccurrencesOfThisCharAtTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharAtTheStart(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		#== STARTSIDE instead of ON THE START
+
+		def CharOccurrenceStartSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def CharOccurrencesStartSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def NumberOfOccurrenceOfCharStartSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def NumberOfOccurrencesOfCharStartSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharStartSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def ThisCharOccurrenceStartSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def ThisCharOccurrencesStartSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def NumberOfOccurrencesOfThisCharStartSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfCharStartSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def HowManyOccurrencesOfCharStartSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def HowManyOccurrenceOfThisCharStartSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		def HowManyOccurrencesOfThisCharStartSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheStart(pcChar)
+
+		#>
+
+	  #--------------------------------------------------------------------------#
+	 #   GETTING THE NUMBER OF OCCURRENCE OF A CHAR ON THE END OF THE STRING    #
+	#==========================================================================#
+
+	def NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+		if This.IsLeftToRight()
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+		else # IsRightToLeft()
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def CharOccurrenceOnTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesOnTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharOnTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharOnTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceOnTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesOnTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharOnTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharOnTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		#== TO THE END instead of ON THE END
+
+		def CharOccurrenceToTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesToTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCharToTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharToTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharToTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceToTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesToTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharToTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharToTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		#== AT THE END instead of ON THE END
+
+		def CharOccurrenceAtTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesAtTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCharAtTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharAtTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharAtTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceAtTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesAtTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharAtTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharAtTheEndCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		#== ENDSIDE instead of ON THE END
+
+		def CharOccurrenceEndSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesEndSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCharEndSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharEndSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharEndSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceEndSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesEndSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharEndSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfCharEndSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def HowManyOccurrencesOfCharEndSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def HowManyOccurrenceOfThisCharEndSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		def HowManyOccurrencesOfThisCharEndSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVE
+
+	def NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+		return This.NumberOfOccurrenceOfCharOnTheEndCS(pcChar, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def CharOccurrenceOnTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def CharOccurrencesOnTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def NumberOfOccurrencesOfCharOnTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharOnTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def ThisCharOccurrenceOnTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def ThisCharOccurrencesOnTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def NumberOfOccurrencesOfThisCharOnTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharOnTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		#== TO THE END instead of ON THE END
+
+		def CharOccurrenceToTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def CharOccurrencesToTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def NumberOfOccurrenceOfCharToTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def NumberOfOccurrencesOfCharToTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharToTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def ThisCharOccurrenceToTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def ThisCharOccurrencesToTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def NumberOfOccurrencesOfThisCharToTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharToTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		#== AT THE END instead of ON THE END
+
+		def CharOccurrenceAtTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def CharOccurrencesAtTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def NumberOfOccurrenceOfCharAtTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def NumberOfOccurrencesOfCharAtTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharAtTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def ThisCharOccurrenceAtTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def ThisCharOccurrencesAtTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def NumberOfOccurrencesOfThisCharAtTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharAtTheEnd(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		#== ENDSIDE instead of ON THE END
+
+		def CharOccurrenceEndSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def CharOccurrencesEndSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def NumberOfOccurrenceOfCharEndSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def NumberOfOccurrencesOfCharEndSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharEndSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def ThisCharOccurrenceEndSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def ThisCharOccurrencesEndSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def NumberOfOccurrencesOfThisCharEndSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfCharEndSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def HowManyOccurrencesOfCharEndSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def HowManyOccurrenceOfThisCharEndSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		def HowManyOccurrencesOfThisCharEndSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheEnd(pcChar)
+
+		#>
+
 	  #---------------------------------------------------------------------------#
 	 #   GETTING THE NUMBER OF OCCURRENCE OF A CHAR ON THE LEFT OF THE STRING    #
 	#===========================================================================#
@@ -54050,33 +54706,631 @@ ici		//...
 		ok
 
 		
-		n = This.FindFristCS(pcChar, pCaseSensitive)
+		n = This.FindLastCS(pcChar, pCaseSensitive)
 
-		if n = 0 or n > 1
-			return 0
+		if n = 0 or n = 1
+			return n
 		ok
 
-		bResult = 0
+		nResult = 0
 		nTemp = n
 		while TRUE
 			nTemp--
 			if nTemp = 0
-				bResult = n
+				nResult = n
 				exit
 			ok
 
 			if NOT This.CharQ(nTemp).IsEqualToCS(pcChar, pCaseSensitive)
-				bResult = 0
+				nResult = 0
 				exit
 			ok
 		end
 		
-		return bResult
-		
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def CharOccurrenceOnTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesOnTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharOnTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceOnTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesOnTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharOnTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharOnTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		#== TO THE LEFT instead of ON THE LEFT
+
+		def CharOccurrenceToTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesToTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCharToTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharToTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharToTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceToTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesToTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharToTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharToTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		#== AT THE LEFT instead of ON THE LEFT
+
+		def CharOccurrenceAtTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesAtTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCharAtTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharAtTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharAtTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceAtTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesAtTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharAtTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharAtTheLeftCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		#== LEFTSIDE instead of ON THE LEFT
+
+		def CharOccurrenceLeftSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesLeftSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCharLeftSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharLeftSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharLeftSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceLeftSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesLeftSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharLeftSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfCharLeftSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def HowManyOccurrencesOfCharLeftSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def HowManyOccurrenceOfThisCharLeftSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		def HowManyOccurrencesOfThisCharLeftSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVE
 
 	def NumberOfOccurrenceOfCharOnTheLeft(pcChar)
 		return This.NumberOfOccurrenceOfCharOnTheLeftCS(pcChar, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def CharOccurrenceOnTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def CharOccurrencesOnTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def NumberOfOccurrencesOfCharOnTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharOnTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def ThisCharOccurrenceOnTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def ThisCharOccurrencesOnTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def NumberOfOccurrencesOfThisCharOnTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharOnTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		#== TO THE LEFT instead of ON THE LEFT
+
+		def CharOccurrenceToTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def CharOccurrencesToTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def NumberOfOccurrenceOfCharToTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def NumberOfOccurrencesOfCharToTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharToTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def ThisCharOccurrenceToTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def ThisCharOccurrencesToTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def NumberOfOccurrencesOfThisCharToTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharToTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		#== AT THE LEFT instead of ON THE LEFT
+
+		def CharOccurrenceAtTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def CharOccurrencesAtTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def NumberOfOccurrenceOfCharAtTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def NumberOfOccurrencesOfCharAtTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharAtTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def ThisCharOccurrenceAtTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def ThisCharOccurrencesAtTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def NumberOfOccurrencesOfThisCharAtTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharAtTheLeft(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		#== LEFTSIDE instead of ON THE LEFT
+
+		def CharOccurrenceLeftSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def CharOccurrencesLeftSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def NumberOfOccurrenceOfCharLeftSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def NumberOfOccurrencesOfCharLeftSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharLeftSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def ThisCharOccurrenceLeftSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def ThisCharOccurrencesLeftSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def NumberOfOccurrencesOfThisCharLeftSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfCharLeftSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def HowManyOccurrencesOfCharLeftSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def HowManyOccurrenceOfThisCharLeftSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		def HowManyOccurrencesOfThisCharLeftSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheLeft(pcChar)
+
+		#>
+
+	  #---------------------------------------------------------------------------#
+	 #   GETTING THE NUMBER OF OCCURRENCE OF A CHAR ON THE RIGHT OF THE STRING   #
+	#---------------------------------------------------------------------------#
+
+	def NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isString(pcChar) and @IsChar(pcChar) )
+				StzRaise("Incorrect param type! pcChar must be a char.")
+			ok
+		ok
+
+		nLen = This.NumberOfChars()
+		n = This.FindFirstCS(pcChar, pCaseSensitive)
+
+		if n = 0
+			return 0
+
+		but n = nLen
+			return 1
+		ok
+
+		nResult = 1
+		for i = n + 1 to nLen
+			if This.CharQ(i).IsEqualToCS(pcChar, pCaseSensitive)
+				nResult++
+			else
+				nResult = 0
+				exit
+			ok
+		next
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def CharOccurrenceOnTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesOnTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharOnTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharOnTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceOnTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesOnTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharOnTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharOnTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		#== TO THE LEFT instead of ON THE LEFT
+
+		def CharOccurrenceToTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesToTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCharToTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharToTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharToTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceToTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesToTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharToTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharToTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		#== AT THE LEFT instead of ON THE LEFT
+
+		def CharOccurrenceAtTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesAtTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCharAtTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharAtTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharAtTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceAtTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesAtTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharAtTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharAtTheRightCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		#== LEFTSIDE instead of ON THE LEFT
+
+		def CharOccurrenceRightSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def CharOccurrencesRightSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCharRightSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfCharRightSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharRightSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrenceRightSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def ThisCharOccurrencesRightSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def NumberOfOccurrencesOfThisCharRightSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def HowManyOccurrenceOfCharRightSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def HowManyOccurrencesOfCharRightSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def HowManyOccurrenceOfThisCharRightSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		def HowManyOccurrencesOfThisCharRightSideCS(pcChar, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVE
+
+	def NumberOfOccurrenceOfCharOnTheRight(pcChar)
+		return This.NumberOfOccurrenceOfCharOnTheRightCS(pcChar, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def CharOccurrenceOnTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def CharOccurrencesOnTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def NumberOfOccurrencesOfCharOnTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharOnTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def ThisCharOccurrenceOnTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def ThisCharOccurrencesOnTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def NumberOfOccurrencesOfThisCharOnTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharOnTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		#== TO THE LEFT instead of ON THE LEFT
+
+		def CharOccurrenceToTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def CharOccurrencesToTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def NumberOfOccurrenceOfCharToTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def NumberOfOccurrencesOfCharToTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharToTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def ThisCharOccurrenceToTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def ThisCharOccurrencesToTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def NumberOfOccurrencesOfThisCharToTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharToTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		#== AT THE LEFT instead of ON THE LEFT
+
+		def CharOccurrenceAtTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def CharOccurrencesAtTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def NumberOfOccurrenceOfCharAtTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def NumberOfOccurrencesOfCharAtTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharAtTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def ThisCharOccurrenceAtTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def ThisCharOccurrencesAtTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def NumberOfOccurrencesOfThisCharAtTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfThisCharAtTheRight(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		#== LEFTSIDE instead of ON THE LEFT
+
+		def CharOccurrenceRightSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def CharOccurrencesRightSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def NumberOfOccurrenceOfCharRightSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def NumberOfOccurrencesOfCharRightSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		#--
+
+		def NumberOfOccurrenceOfThisCharRightSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def ThisCharOccurrenceRightSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def ThisCharOccurrencesRightSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def NumberOfOccurrencesOfThisCharRightSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		#--
+
+		def HowManyOccurrenceOfCharRightSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def HowManyOccurrencesOfCharRightSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def HowManyOccurrenceOfThisCharRightSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		def HowManyOccurrencesOfThisCharRightSide(pcChar)
+			return This.NumberOfOccurrenceOfCharOnTheRight(pcChar)
+
+		#>
 
 	  #----------------------------------#
 	 #   REMOVING ANY CHAR FROM LEFT    #

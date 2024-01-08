@@ -2,10 +2,34 @@ load "stzlib.ring"
 
 pron()
 
-? Q("---ring").NumberOfOccurrenceOfCharOnTheLeft("-")
+? Q("---ring").NumberOfOccurrenceOfCharLeftSide("-")
+#--> 3
 
+? Q("ring---").HowManyOccurrenceOfCharRightSide("-")
+#--> 3
+
+? Q("---سلام").NumberOfOccurrenceOfCharLeftSide("-")
+#--> 3
+
+? Q("سلام---").NumberOfOccurrenceOfCharRightSide("-")
+#--> 3
+
+#--
+
+? Q("---ring").NumberOfOccurrenceOfCharStartSide("-")
+#--> 3
+
+? Q("ring---").HowManyOccurrenceOfCharEndSide("-")
+#--> 3
+
+? Q("---سلام").NumberOfOccurrenceOfCharEndSide("-")
+#--> 3
+
+? Q("سلام---").NumberOfOccurrenceOfCharStartSide("-")
+# #--> 3
 
 proff()
+# Executed in 0.03 second(s)
 
 /*-----
 
