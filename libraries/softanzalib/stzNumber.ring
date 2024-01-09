@@ -81,6 +81,14 @@
 	
 	_nDefaultRound = 2
 	_nActiveRound = 2
+
+	_nMaxRound = 14		# Ring says that the max round is 90. But actually
+				# the most calculable number can't exceed 15 digits.
+				# That's why, I will take 14 as a realistic maximum
+				# round in Softanza.
+
+				# TODO : Check this with Mahmoud and Ilir.
+
 	StzDecimals(2)		# Softanza sets the number of round to 2 by default,
 				# in confrmity with Ring defaults.
 
@@ -698,6 +706,16 @@ func StzResetRound()
 		StzResetRound()
 
 func SetActiveRound(n)
+	if CheckParams()
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+	ok
+
+	if NOT ( n >= 0 and n <= MaxRoundInRing() )
+		StzRaise("Incorrect value! n must be in the range 1 to " + MaxRoundInRing() + ".")
+	ok
+
 	_nActiveRound = n
 	decimals(n)
 
@@ -706,11 +724,9 @@ func SetActiveRound(n)
 
 	func SetStzRound(n)
 		SetActiveRound(n)
-
-	func SetRound(n)
-		SetActiveRound(n)
 	
 func StzRound(p)
+
 	nNumber = p
 	nRound = 0
 
@@ -723,6 +739,21 @@ func StzRound(p)
 
 	func Round(p)
 		return StzRound(p)
+
+func StzRoundXT(p)
+
+	nNumber = p
+	nRound = 0
+
+	if isList(p) and IsPair(p)
+		nNumber = p[1]
+		nRound = p[2]
+	ok
+
+	return StzNumberQ(nNumber).RoundedToXT(nRound)
+
+	func RoundXT(p)
+		return StzRoundXT(p)
 
 # Getting the active round inforced by the last use of
 # the ring StzDecimals() function in the program
@@ -758,6 +789,12 @@ func GetActiveRound()
 	#>
 	
 func NumberIsCalculable(nNumber)
+	if CheckParams()
+		if NOT isString(nNumber)
+			StzRaise("Incorrect param type! nNumber must be a number.")
+		ok
+	ok
+
 	oStr = new stzString(""+ nNumber)
 	return oStr.RepresentsCalculableNumber()
 
@@ -800,17 +837,29 @@ func StringToNumber(cNumber) # TESTING IN PROGESS
 
 	but StringRepresentsNumberInScientificNotation(cNumber)
 		// TODO
-			
+		StzRaise("Feature not implemented yet!")
 	other
 		StzRaise(stzNumberError(:UnsupportedNumberForm))
 	ok
 
 func NumberToString(n)
+	if CheckParams()
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+	ok
+
 	return ""+ n
 
 # Decimal form
 
 func StringRepresentsNumberInDecimalForm(pcNumber)
+	if CheckParams()
+		if NOT isString(pcNumber)
+			StzRaise("Incorrect param type! pcNumber must be a string.")
+		ok
+	ok
+
 	oStr = new stzString(pcNumber)
 	return oStr.RepresentsNumberInDecimalForm()		
 
@@ -820,32 +869,56 @@ func CharIsDigit(c)
 # Binary form
 
 func StringRepresentsNumberInBinaryform(pcNumber)
+	if CheckParams()
+		if NOT isString(pcNumber)
+			StzRaise("Incorrect param type! pcNumber must be a string.")
+		ok
+	ok
+
 	oTempStr = new stzString(pcNumber)
 	return oTempStr.RepresentsNumberInBinaryForm()
 
 # Hex form
 
 func StringRepresentsNumberInHexForm(pcNumber)
+	if CheckParams()
+		if NOT isString(pcNumber)
+			StzRaise("Incorrect param type! pcNumber must be a string.")
+		ok
+	ok
+
 	oTempStr = new stzString(pcNumber)
 	return oTempStr.RepresentsNumberInHexForm()
 
 func StringRepresentsNumberInUnicodeHexForm(pcNumber)
+	if CheckParams()
+		if NOT isString(pcNumber)
+			StzRaise("Incorrect param type! pcNumber must be a string.")
+		ok
+	ok
+
 	return StzStringQ(pcNumber).RepresentsNumberInUnicodeHexForm()
 
 # Octal form
 
-func StringRepresentsNumberInOctalForm(pNumber)
-	oTempStr = new stzString(pNumber)
+func StringRepresentsNumberInOctalForm(pcNumber)
+	if CheckParams()
+		if NOT isString(pcNumber)
+			StzRaise("Incorrect param type! pcNumber must be a string.")
+		ok
+	ok
+
+	oTempStr = new stzString(pcNumber)
 	return oTempStr.RepresentsNumberInOctalForm()
 
 # Scientific notation form
 
 func StringRepresentsNumberInScientificNotation(pNumber)
 	// TODO
+	StzRaise("Feature not implemented yet!")
 
 # Takes a number of 3 digits and returns the following hashlist:
 # [ :Units = ..., :Dozens = ..., :Hundreds = ... ]
-
 func GetUnitsDozensAndHundreds(pNumber)	// Or simplier : GetMicroStructure(pNumber)
 	# WARNING: We rely on Ring native functions (len, right, left, substr)
 	# In principle this is correct, since the number string contains only digits and some
@@ -1072,6 +1145,8 @@ class stzNumber from stzObject
 
 	@nRound = DefaultRound()
 
+	@cReturnType = :Number # Or :String depending on the type of the input
+
 	  #------------#
 	 #    INIT    #
 	#------------#
@@ -1103,10 +1178,13 @@ class stzNumber from stzObject
 
 			@cNumber = "" + pNumber 
 			@nRound = StzCurrentRound()
+			@cReturnType = :Number
 
 		# CASE 2
 		but isString(pNumber)
-		
+
+			@cReturnType = :String
+
 			# Case where a char is provided in the form
 			# of Unicode circled numbers
 			# ~> Example : new stzNumber("⑦")
@@ -1168,12 +1246,14 @@ class stzNumber from stzObject
 
 			if isNumber(pNumber[2])
 				@nRound = pNumber[2]
+				@cReturnType = :Number
 
 			but @IsPair(pNumber[2]) and isString(pNumber[2][1]) and
 			   ( pNumber[2][1] = :Round or pNumber[2][1] = :RoundedTo ) and
 			   isNumber(pNumber[2][2])
 
 				@nRound = pNumber[2][2]	
+				@cReturnType = :Number
 
 			else
 				StzRaise("Incorrect param type! The second item of the pair must be a number or" + 
@@ -1183,6 +1263,9 @@ class stzNumber from stzObject
 			# Reading the number (from the first item in the pair)
 
 			if isNumber(pNumber[1])
+
+				@cReturnType = :Number
+
 				nCurrentRound = StzCurrentRound()
 				StzDecimals(@nRound)
 				@cNumber = "" + pNumber[1]
@@ -1190,6 +1273,8 @@ class stzNumber from stzObject
 
 			but isString(pNumber[1])
 				@cNumber = pNumber[1]
+				@cReturnType = :String
+
 			ok
 	
 		ok
@@ -1207,6 +1292,45 @@ class stzNumber from stzObject
 	def Copy()
 		oCopy = new stzNumber( This.Content() )
 		return oCopy
+
+	def ReturnType()
+		return @cReturnType
+
+	def SetReturnType(cType)
+		if CheckParams()
+			if isList(cType) and Q(cType).IsToOrAsNamedParams()
+				cType = cType[2]
+			ok
+
+			if NOT isString(cType)
+				StzRaise("Incorrect param type! cType must be a string.")
+			ok
+		ok
+
+		if NOT ( cType = :Number or cType = :String )
+			StzRaise("Incorrect value! cType must be equal to :Number or :String.")
+		ok
+
+		@cReturnType = cType
+
+		#< @FunctionAlternativeForms
+
+		def SetReturnTypeTo(cType)
+			if CheckParams()
+				if NOT isString(cType)
+					StzRaise("Incorrect param type! cType must be a string.")
+				ok
+			ok
+
+			This.SetReturnType(cType)
+
+		def SetReturnTypeAs(cType)
+			SetReturnTypeTo(cType)
+
+		#>
+
+	def ReturnNumber()
+		SetReturnType(:Number)
 
 	def Number()
 		return This.NumericValue()
@@ -1234,10 +1358,25 @@ class stzNumber from stzObject
 			return This.NumericValue()
 
 	def StringValue()
+
+		# Memorizing the current round (to reset it before leaving)
+
 		nCurrentRound = StzCurrentRound()
+
+		# Activating the round of the number as saved in the object
+
 		StzDecimals(This.Round())
+
+		# Casting the number in a string using the round above
+
 		@cNumber = "" + This.NumbericValue()
+
+		# Resetting the round active in the program
+
 		StzDecimals(nCurrentRound)
+
+		# Returning the string form of the number
+
 		return @cNumber
 
 	  #------------------------------------#
@@ -1276,16 +1415,21 @@ class stzNumber from stzObject
 
 		if isString(pNumber)
 
+			@cReturnType = :String
+
 			oStr = new stzString(pNumber)
 			@cNumber = oStr.RemoveQ("_").Content()
 
 			@nRound = StzCurrentRound()
 
 			if oStr.Contains(".")
-				@nRound = This.Size() - This.FindFirst(".") + 1
+				@nRound = oStr.NumberOfChars() - oStr.FindFirst(".") + 1
 			ok
 
-		else
+		else # isNumber(pNumber)
+
+			@cReturnType = :Number
+
 			@cNumber = ""+ pNumber
 			@nRound = StzCurrentRound()
 		ok
@@ -1375,6 +1519,22 @@ class stzNumber from stzObject
 	#---------------------------------------------------------#
 
 	def IsMultipleOf(n)
+
+		if CheckParams()
+			if NOT @IsStringOrNumber(n)
+				StzRaise("Incorrect param type! n must be a number or string.")
+			ok
+
+			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+				StzRaise("Incorrect value! The string n must contain a decimal number.")
+			ok
+
+		ok
+
+		if isString(n)
+			n = StzNumberQ(n).NumericValue()
+		ok
+
 		if This.NumericValue() = 0
 			return FALSE
 		ok
@@ -1392,6 +1552,21 @@ class stzNumber from stzObject
 			return This.IsMultipleOf(n)
 
 	def IsDoubleOf(n)
+		if CheckParams()
+			if NOT @IsStringOrNumber(n)
+				StzRaise("Incorrect param type! n must be a number or string.")
+			ok
+
+			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+				StzRaise("Incorrect value! The string n must contain a decimal number.")
+			ok
+
+		ok
+
+		if isString(n)
+			n = StzNumberQ(n).NumericValue()
+		ok
+
 		If This.NumericValue() = DoubleOf(n)
 			return TRUE
 		else
@@ -1405,6 +1580,21 @@ class stzNumber from stzObject
 			return This.IsDoubleOf(n)
 
 	def IsTripleOf(n)
+		if CheckParams()
+			if NOT @IsStringOrNumber(n)
+				StzRaise("Incorrect param type! n must be a number or string.")
+			ok
+
+			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+				StzRaise("Incorrect value! The string n must contain a decimal number.")
+			ok
+
+		ok
+
+		if isString(n)
+			n = StzNumberQ(n).NumericValue()
+		ok
+
 		If This.NumericValue() = TripleOf(n)
 			return TRUE
 		else
@@ -1418,6 +1608,21 @@ class stzNumber from stzObject
 			return This.IsTripleOf(n)
 
 	def IsQuadrupleOf(n)
+		if CheckParams()
+			if NOT @IsStringOrNumber(n)
+				StzRaise("Incorrect param type! n must be a number or string.")
+			ok
+
+			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+				StzRaise("Incorrect value! The string n must contain a decimal number.")
+			ok
+
+		ok
+
+		if isString(n)
+			n = StzNumberQ(n).NumericValue()
+		ok
+
 		If This.NumericValue() = QuadrupleOf(n)
 			return TRUE
 		else
@@ -1431,6 +1636,21 @@ class stzNumber from stzObject
 			return This.IsQuadrupleOf(n)
 
 	def IsQuintupleOf(n)
+		if CheckParams()
+			if NOT @IsStringOrNumber(n)
+				StzRaise("Incorrect param type! n must be a number or string.")
+			ok
+
+			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+				StzRaise("Incorrect value! The string n must contain a decimal number.")
+			ok
+
+		ok
+
+		if isString(n)
+			n = StzNumberQ(n).NumericValue()
+		ok
+
 		If This.NumericValue() = QuintupleOf(n)
 			return TRUE
 		else
@@ -1444,6 +1664,21 @@ class stzNumber from stzObject
 			return This.IsQuintupleOf(n)
 
 	def IsSextupleOf(n)
+		if CheckParams()
+			if NOT @IsStringOrNumber(n)
+				StzRaise("Incorrect param type! n must be a number or string.")
+			ok
+
+			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+				StzRaise("Incorrect value! The string n must contain a decimal number.")
+			ok
+
+		ok
+
+		if isString(n)
+			n = StzNumberQ(n).NumericValue()
+		ok
+
 		If This.NumericValue() = SextupleOf(n)
 			return TRUE
 		else
@@ -1458,6 +1693,21 @@ class stzNumber from stzObject
 
 
 	def IsOctupleOf(n)
+		if CheckParams()
+			if NOT @IsStringOrNumber(n)
+				StzRaise("Incorrect param type! n must be a number or string.")
+			ok
+
+			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+				StzRaise("Incorrect value! The string n must contain a decimal number.")
+			ok
+
+		ok
+
+		if isString(n)
+			n = StzNumberQ(n).NumericValue()
+		ok
+
 		If This.NumericValue() = OctupleOf(n)
 			return TRUE
 		else
@@ -1471,6 +1721,21 @@ class stzNumber from stzObject
 			return This.IsOctupleOf(n)
 
 	def IsNonupleOf(n)
+		if CheckParams()
+			if NOT @IsStringOrNumber(n)
+				StzRaise("Incorrect param type! n must be a number or string.")
+			ok
+
+			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+				StzRaise("Incorrect value! The string n must contain a decimal number.")
+			ok
+
+		ok
+
+		if isString(n)
+			n = StzNumberQ(n).NumericValue()
+		ok
+
 		If This.NumericValue() = Nonuple(n)
 			return TRUE
 		else
@@ -1484,6 +1749,21 @@ class stzNumber from stzObject
 			return This.IsNonupleOf(n)
 
 	def IsDecupleOf(n)
+		if CheckParams()
+			if NOT @IsStringOrNumber(n)
+				StzRaise("Incorrect param type! n must be a number or string.")
+			ok
+
+			if isString(n) and NOT Q(n).IsDecimalNumberInString()
+				StzRaise("Incorrect value! The string n must contain a decimal number.")
+			ok
+
+		ok
+
+		if isString(n)
+			n = StzNumberQ(n).NumericValue()
+		ok
+
 		If This.NumericValue() = Decuple(n)
 			return TRUE
 		else
@@ -1501,6 +1781,29 @@ class stzNumber from stzObject
 	#-----------------#
 
 	def IsBoundedBy(n1, n2)
+		if CheckParams()
+			if NOT ( @IsStringOrNumber(n1) and @IsStringOrNumber(n2) )
+				StzRaise("Incorrect param type! n1 and n2 must be numbers or strings.")
+			ok
+
+			if isString(n1) and NOT Q(n1).IsDecimalNumberInString()
+				StzRaise("Incorrect value! The string n1 must contain a decimal number.")
+			ok
+
+			if isString(n2) and NOT Q(n2).IsDecimalNumberInString()
+				StzRaise("Incorrect value! The string n2 must contain a decimal number.")
+			ok
+
+		ok
+
+		if isString(n1)
+			n1 = StzNumberQ(n1).NumericValue()
+		ok
+
+		if isString(n2)
+			n2 = StzNumberQ(n2).NumericValue()
+		ok
+
 		if n1 > n2
 			nTemp = n1
 			n1 = n2
@@ -1707,10 +2010,14 @@ class stzNumber from stzObject
 	#------------#
 	
 	def Sign()
-		if Q(This.Content()).LeftChar() = "+"
+
+		oStr = new stzString(This.Content())
+		cLeft = oStr.LeftChar()
+
+		if cLeft = "+"
 			return "+"
 
-		but Q(This.Content()).LeftChar() = "-"
+		but cLeft = "-"
 			return "-"
 
 		ok
@@ -1719,8 +2026,9 @@ class stzNumber from stzObject
 		cNumber = This.Content()
 		nLenNumber = len(cNumber)
 
-		if This.Sign() = "+" or
-		   This.Sign() = "-"
+		cSign = This.Sign()
+
+		if cSign = "+" or cSign = "-"
 
 			This.Update( Substr(cNumber, 2, nLenNumber -2 ) )
 		ok
@@ -2277,12 +2585,15 @@ class stzNumber from stzObject
 
 		#>
 
-	def RoundToMaxXT()
-		This.RoundToXT(:Max)
-
 	def RoundedToXT(pRound)
 		cResult = This.Copy().RoundToXTQ(pRound).Content()
 		return cResult
+
+	#--
+
+	def RoundToMaxXT()
+		This.RoundToXT(:Max)
+
 
 	def RoundedToMaxXT()
 		return This.RoundedTo(MaxRoundXT())
@@ -2290,8 +2601,11 @@ class stzNumber from stzObject
 	#---
 
 	def RoundTo(nRound)
-		cResult = This.RoundToXTQ(nRound).ToStzString().CharRemovedFromRightXT("0") # XT ~> All 0s are removed
-		return cResult
+		cResult = This.RoundToXTQ(nRound).
+			       ToStzString().
+			       CharRemovedFromRightXT("0") # XT ~> All 0s are removed
+
+		This.Update(cResult)
 
 		#< @FunctionFluentForm
 
@@ -2311,12 +2625,14 @@ class stzNumber from stzObject
 
 		#>
 
-	def RoundToMax()
-		This.RoundTo(:Max)
-
 	def RoundedTo(pRound)
 		cResult = This.Copy().RoundToQ(pRound).Content()
 		return cResult
+
+	#--
+
+	def RoundToMax()
+		This.RoundTo(:Max)
 
 	def RoundedToMax()
 		return This.RoundedTo(MaxRound())
@@ -2331,41 +2647,42 @@ class stzNumber from stzObject
 			
 	def RoundToSameRoundAs(pOtherNumber)
 		oOtherNumber = new stzNumber(pOtherNumber)
-		nRoundOtherNumber = oOtherNumber.NumberOfDigitsInFractionalPart()
-			
-		return This.RoundTo(pRoundOtherNumber)
+		nRoundOtherNumber = oOtherNumber.Round()
+
+		This.RoundTo(nRoundOtherNumber)
 
 	def RoundIsGreaterThanRoundOf(pOtherNumber)
-		nRoundMainNumber = This.NumberOfDigits()
+
+		nRound = This.Round()
 
 		oOtherNumber = new stzNumber(pOtherNumber)
-		nRoundOtherNumber = oOtherNumber.NumberOfDigits()
+		nOtherRound = oOtherNumber.NumberOfDigits()
 
-		if nRoundMainNumber > nRoundOtherNumber
+		if nRound > nOtherRound
 			return TRUE
 		else
 			return FALSE
 		ok
 
 	def RoundIsLessThanRoundOf(pOtherNumber)
-		nRoundMainNumber = This.NumberOfDigits()
+		nRound = This.Round()
 
 		oOtherNumber = new stzNumber(pOtherNumber)
-		nRoundOtherNumber = oOtherNumber.NumberOfDigits()
+		nOtherRound = oOtherNumber.NumberOfDigits()
 
-		if nRoundMainNumber < nRoundOtherNumber
+		if nRound < nOtherRound
 			return TRUE
 		else
 			return FALSE
 		ok
 	
 	def RoundIsSameAsRoundOf(pOtherNumber)
-		nRoundMainNumber = This.NumberOfDigits()
+		nRound = This.Round()
 
 		oOtherNumber = new stzNumber(pOtherNumber)
-		nRoundOtherNumber = oOtherNumber.NumberOfDigits()
+		nOtherRound = oOtherNumber.NumberOfDigits()
 
-		if nRoundMainNumber = nRoundOtherNumber
+		if nRound = nOtherRound
 			return TRUE
 		else
 			return FALSE
@@ -2402,10 +2719,10 @@ class stzNumber from stzObject
 	# 	  :nUnifiedRound       = ... ]
 
 		// Getting the rounds of the two numbers
-		nRoundMainNumber = This.NumberOfDigitsInFractionalPart()
+		nRoundMainNumber = This.round()
 
 		oOtherNumber = new stzNumber(pOtherNumber)
-		nRoundOtherNumber = oOtherNumber.NumberOfDigitsInFractionalPart()
+		nRoundOtherNumber = oOtherNumber.Round()
 
 		// In case the two numbers are integers (with no decimals),
 		// return them as-they-are
@@ -2548,6 +2865,11 @@ class stzNumber from stzObject
 		#>
 
 	def AddManyXT(paOtherNumbers, paReturnIntermediateResults)
+		if CheckParams()
+			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
+				StzRaise("Incorrect param type! paOtherNumbers must be a list of numbers or strings.")
+			ok
+		ok
 
 		bReturnIntermediateResults = FALSE
 
@@ -2557,10 +2879,11 @@ class stzNumber from stzObject
 			bReturnIntermediateResults = TRUE
 		ok
 
+		nLen = len(paOtherNumbers)
 		aIntermediateResults = []
 
-		for nbr in paOtherNumbers
-			This.Add(nbr)
+		for i = 1 to nLen
+			This.Add(paOtherNumbers[i])
 			aIntermediateResults + This.Content()
 		next
 
@@ -2685,6 +3008,11 @@ class stzNumber from stzObject
 	#--
 
 	def SubStructManyXT(paOtherNumbers, paReturnIntermediateResults)
+		if CheckParams()
+			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
+				StzRaise("Incorrect param type! paOtherNumbers must be a list of numbers or strings.")
+			ok
+		ok
 	
 		bReturnIntermediateResults = FALSE
 		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
@@ -2693,10 +3021,11 @@ class stzNumber from stzObject
 			bReturnIntermediateResults = TRUE
 		ok
 	
+		nLen = len(paOtherNumbers)
 		aIntermediateResults = []
-	
-		for nbr in paOtherNumbers
-			This.SubStruct(nbr)
+
+		for i = 1 to nLen
+			This.SubStruct(paOtherNumbers[i])
 			aIntermediateResults + This.Content()
 		next
 	
@@ -2796,31 +3125,34 @@ class stzNumber from stzObject
 			nResult = This.Copy().MultiplyByManyQ(paOtherNumbers).NumericValue()
 			return nResult
 
-		#> @FunctionExtendedForm
-
-		def MultiplyByManyXT(paOtherNumbers, paReturnIntermediateResults)
-			aIntermediateResults = []
-	
-			bReturnIntermediateResults = FALSE
-	
-			if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
-			   paReturnIntermediateResults[2] = TRUE
-	
-				bReturnIntermediateResults = TRUE
+	def MultiplyByManyXT(paOtherNumbers, paReturnIntermediateResults)
+		if CheckParams()
+			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
+				StzRaise("Incorrect param type! paOtherNumbers must be a list of numbers or strings.")
 			ok
+		ok
+
+		aIntermediateResults = []
 	
-			aIntermediateResults = []
+		bReturnIntermediateResults = FALSE
 	
-			for nbr in paOtherNumbers
-				This.MultiplyBy(nbr)
-				aIntermediateResults + This.Content()
-			next
+		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
+		   paReturnIntermediateResults[2] = TRUE
 	
-			if bReturnIntermediateResults
-				return aIntermediateResults
-			ok		
-		
-		#>
+			bReturnIntermediateResults = TRUE
+		ok
+	
+		nLen = len(paOtherNumbers)
+		aIntermediateResults = []
+
+		for i = 1 to nLen
+			This.MultiplyBy(paOtherNumbers[i])
+			aIntermediateResults + This.Content()
+		next
+	
+		if bReturnIntermediateResults
+			return aIntermediateResults
+		ok		
 
 	  #----------------#
 	 #    DIVISION    #
@@ -2887,31 +3219,34 @@ class stzNumber from stzObject
 			nResult = This.Copy().DivideByManyQ(paOtherNumbers).NumericValue()
 			return nResult
 
-		#< @FunctionExtendedForm
+	def DivideByManyXT(paOtherNumbers, paReturnIntermediateResults)
+		if CheckParams()
+			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
+				StzRaise("Incorrect param type! paOtherNumbers must be a list of numbers or strings.")
+			ok
+		ok
 
-		def DivideByManyXT(paOtherNumbers, paReturnIntermediateResults)
-			aIntermediateResults = []
+		aIntermediateResults = []
 	
-			bReturnIntermediateResults = FALSE
+		bReturnIntermediateResults = FALSE
 	
-			if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
-			   paReturnIntermediateResults[2] = TRUE
+		if paReturnIntermediateResults[1] = :ReturnIntermediateResults and
+		   paReturnIntermediateResults[2] = TRUE
 	
-				bReturnIntermediateResults = TRUE
-			ok
+			bReturnIntermediateResults = TRUE
+		ok
 	
-			aIntermediateResults = []
+		nLen = len(paOtherNumbers)
+		aIntermediateResults = []
+
+		for i = 1 to nLen
+			This.DivideBy(paOtherNumbers[i])
+			aIntermediateResults + This.Content()
+		next
 	
-			for nbr in paOtherNumbers
-				This.DivideBy(nbr)
-				aIntermediateResults + This.Content()
-			next
-	
-			if bReturnIntermediateResults
-				return aIntermediateResults
-			ok
-			
-		#>
+		if bReturnIntermediateResults
+			return aIntermediateResults
+		ok
 	
 	  #-------------#
 	 #    MATHS    #

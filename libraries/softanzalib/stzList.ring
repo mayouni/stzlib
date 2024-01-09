@@ -825,6 +825,7 @@ class stzList from stzObject
 
 	def Item(n)
 		if CheckParams()
+
 			if isString(n)
 				if n = "first"
 					n = 1

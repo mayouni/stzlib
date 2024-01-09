@@ -581,6 +581,45 @@ pron()
 proff()
 
 /*--------------------
+
+pron()
+
+? Q(2).IsBetween(1, 3)
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s)
+
+/*--------------------
+*/
+pron()
+
+? Round(81.8)
+#--> 82
+
+? Round([ "81.8", 3 ])
+#--> 81.8
+
+? RoundXT([ "81.8", 3 ])
+#--> 81.800
+
+proff()
+
+/*--------------------
+*/
+pron()
+
+o1 = new stzNumber("81.8")
+? o1.RoundedTo(3)
+#--> 81.800
+
+? o1.RoundedToXT(3)
+#--> 81.800
+
+proff()
+
+/*--------------------
+
 */
 pron()
 
@@ -588,8 +627,15 @@ decimals(3)
 ? 81.8
 #--> 81.800
 
-? StzNumberQ("81.8").RoundedToXT(3)
-#--> "81.8"
+StzNumberQ("81.8") {
+
+//	? RoundedTo(3)
+	#--> "81.8"
+
+	? RoundedToXT(3)
+	#--> "81.800"
+
+}
 
 proff()
 
