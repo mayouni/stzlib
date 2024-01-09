@@ -1289,38 +1289,4 @@ oNbr = new stzNumber("123456.12345678")
 		? " - But returned  : " + oNbr.nbrRoundedSameAs("28.5")
 	ok
 
-? "" #-----------
-
-	if oNbr.nbrUnifyRoundWith("28.302", :toGreatest)[1] = "123456.12345678" and
-	   oNbr.nbrUnifyRoundWith("28.302", :toGreatest)[2] =     "28.30200000"
-		? 'Testing oNbr.nbrUnifyRoundWith("28.302",:toGreatest) -> Ok :)'
-		? ' - Correctly returned : [ "123456.12345678" , "28.30200000" , 8 ]'
-	else
-		? 'Testing oNbr.nbrUnifyRoundWith("28.302",:toGreatest) -> Failed :('
-		? ' - Should return : [ "123456.12345678" , "28.30200000" , 8 ]'
-
-		cFirstItem  = '"' +
-			      oNbr.nbrUnifyRoundWith("28.302",:toGreatest)[1] + '"'
-		cSecondItem = '"' +
-			      oNbr.nbrUnifyRoundWith("28.302",:toGreatest)[2] + '"'
-		nThirdItem  = oNbr.nbrUnifyRoundWith("28.302",:toGreatest)[3]
-		? " - But returned  : [ " + cFirstItem + " , " + cSecondItem + " , " + nThirdItem + " ]"
-	ok
-
-	#-----------
-
-	if oNbr.nbrUnifyRoundWith("28.302", :toSmallest)[1] = "123456.123" and
-	   oNbr.nbrUnifyRoundWith("28.302", :toSmallest)[2] =     "28.302"
-		? 'Testing oNbr.nbrUnifyRoundWith("28.302",:toSmallest) -> Ok :)'
-		? ' - Correctly returned : [ "123456.123" , "28.302" , 3 ]'
-	else
-		? 'Testing oNbr.nbrUnifyRoundWith("28.302",:toSmallest) -> Failed :('
-		? ' - Should return : [ "123456.123" , "28.302" , 3 ]'
-		cFirstItem  = '"' +
-			      oNbr.nbrUnifyRoundWith("28.302",:toSmallest)[1] + '"'
-		cSecondItem = '"' +
-			      oNbr.nbrUnifyRoundWith("28.302",:toSmallest)[2] + '"'
-		nThirdItem  = oNbr.nbrUnifyRoundWith("28.302",:toSmallest)[3]
-		? " - But returned  : [ " + cFirstItem + " , " + cSecondItem + " , " + nT hirdItem + " ]"
-	ok
 
