@@ -2356,18 +2356,50 @@ class stzNumber from stzObject
 			return This.Content()
 		ok
 
+		#< @FunctionFluentForms
+
+		def IntegrPartQ()
+			return new stzString(This.InterPart())
+
 		def IntegerPartStringValue()
 			return This.IntegerPart()
+
+			def IntegerPartStringValueQ()
+				return This.IntegrPartQ()
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def IntergerPart()
+			return This.IntegerPart()
+
+			def IntergerPartQ()
+				return This.IntegerPartQ()
+
+		def IntergerPartStringValue()
+			return This.IntegerPart()
+
+			def IntergerPartStringValueQ()
+				return This.IntegrPartQ()
+
+		#>
 
 	def IntegerPartWithoutSign()
 		if NOT This.IsSigned()
 			return This.IntegerPart()
 		else
-			return  substr( This.IntegerPart(), 2, len(This.IntegerPart())-1 )
+			return substr( This.IntegerPart(), 2, len(This.IntegerPart())-1 )
 		ok
+
+		def IntegerPartWithoutSignQ()
+			return new stzString(This.IntegerPartWithoutSign())
 
 		def IntegerPartStringValueWithoutSign()
 			return This.IntegerPartWithoutSign()
+
+			def IntegerPartStringValueWithoutSignQ()
+				return This.IntegerPartWithoutSignQ()
 
 	def NumberOfDigitsInIntegerPart()
 		if This.Sign() = NULL
@@ -2423,30 +2455,95 @@ class stzNumber from stzObject
 			ok
 		ok
 
+		def FractionalPartQ()
+			return new stzString(This.FractionalPart())
+
 		def DecimalPart()
 			return This.FractionalPart()
+
+			def DecimalPartQ()
+				return This.FractionalPartQ()
 
 		def FractionalPartStringValue()
 			return This.FractionalPart()
 
+			def FractionalPartStringValueQ()
+				return This.FractionalPartQ()
+
 		def DecimalPartStringValue()
 			return This.FractionalPart()
+
+			def DecimalPartStringValueQ()
+				return This.FractionalPartQ()
 
 	// Returninig only the digits of the fractional part without the "0."
 	def FractionalPartWithoutZeroDot()
 		if This.HasFractionalPart()
 			return This.ToStzString().Split(".")[2]
+		else
+			return ""
 		ok
 
-		def DecimaplPartWithoutZeroDot()
+		#< @FunctionFluentForm
+
+		def FractionalPartWithoutZeroDotQ()
+			return new stzString(This.FractionalPartWithoutZeroDot())
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def DecimalPartWithoutZeroDot()
 			return This.FractionalPartWithoutZeroDot()
+
+			def DecimalPartWithoutZeroDotQ()
+				return This.FractionalPartWithoutZeroDotQ()
+
+		def FractionalPartWithoutDot()
+			return This.FractionalPartWithoutZeroDot()
+
+			def FractionalPartWithoutDotQ()
+				return This.FractionalPartWithoutZeroDotQ()
+
+		def DecimalPartWithoutDot()
+			return This.FractionalPartWithoutZeroDot()
+
+			def DecimalPartWithoutDotQ()
+				return This.FractionalPartWithoutZeroDotQ()
+
+		#>
+
+		#< @FunctionMisspelledForms # without -> wihtout
+
+		def FractionalPartwihtoutZeroDot()
+			return This.FractionalPartWithoutZeroDot()
+
+			def FractionalPartwihtoutZeroDotQ()
+				return This.FractionalPartWithoutZeroDotQ()
+
+		def DecimalPartwihtoutZeroDot()
+			return This.FractionalPartWithoutZeroDot()
+
+			def DecimalPartwihtoutZeroDotQ()
+				return This.FractionalPartWithoutZeroDotQ()
+
+		def FractionalPartwihtoutDot()
+			return This.FractionalPartWithoutZeroDot()
+
+			def FractionalPartwihtoutDotQ()
+				return This.FractionalPartWithoutZeroDotQ()
+
+		def DecimalPartwihtoutDot()
+			return This.FractionalPartWithoutZeroDot()
+
+			def DecimalPartwihtoutDotQ()
+				return This.FractionalPartWithoutZeroDotQ()
+
+		#>
 
 	def NumberOfDecimals()
 		return len(This.FractionalPartWithoutZeroDot())
 
-	def ToStzString()
-		return new stzString(This.Content())
-	
 	def NumberOfDigitsInFractionalPart()
 		if NOT This.HasFractionalPart()
 			return 0
@@ -2490,7 +2587,84 @@ class stzNumber from stzObject
 		but This.IsReal()
 			return "REAL"
 		ok
-			
+		
+		#< @FunctionMisspelledForm
+
+		def IsIntergerOrReal()
+			return This.IsIntegerOrReal()
+
+		#>
+
+	def Integers()
+		anResult = This.IntegerPartWithoutSignQ().CharsQ().Numberified()
+		return anResult
+
+		#< @FunctionFluentFroms
+
+		def IntegersQ()
+			return This.IntegersQR(:stzList)
+
+		def IntegersQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Integers() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Integers() )
+
+			other
+				StzRaise("Insupported return type!")
+			off
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def Intergers()
+			return This.Integers()
+
+			def IntergersQ()
+				return This.IntegersQ()
+
+			def IntergersQR(pcReturnType)
+				return This.IntegersQR(pcReturnType)
+
+		#>
+
+	def Decimals()
+		anResult = This.DecimalPartWihtoutDotQ().CharsQ().Numberified()
+		# NOTE : This is a misspelled form in Wihtout (sould be Without)
+		# But Softanza recognises it understands what you meant!
+
+		return anResult
+
+		#< @FunctionFluentFroms
+
+		def DecimalsQ()
+			return This.DecimalsQR(:stzList)
+
+		def DecimalsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Decimals() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Decimals() )
+
+			other
+				StzRaise("Insupported return type!")
+			off
+
+		#>
+
+	def SumOfIntegers()
+		nResult = This.IntegersQR(:stzListOfNumbers).Sum()
+		return nResult
+
+	def SumOfDecimals()
+		nResult = This.DecimalsQR(:stzListOfNumbers).Sum()
+		return nResult
+
 	  #--------------#
 	 #    ROUNDS    #
 	#--------------#
@@ -3655,6 +3829,9 @@ class stzNumber from stzObject
 	 #     CONVERSION    #
 	#-------------------#
 
+	def ToStzString()
+		return new stzString(This.Content())
+	
 	# Converting decimal to hex form
 	
 	def ToHexForm()

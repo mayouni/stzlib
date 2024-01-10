@@ -334,22 +334,113 @@ class stzListOfPairs from stzListOfLists
 	 #  SORTING PAIRS IN ASCENDING  #
 	#==============================#
 
-	def SortInAscending()
+	def StringifyItems()
+		aContent = This.Content()
+		nLen = len(aContent)
 
-		aStringified = Q(This.Content()).StringifyQ().sorted()
-		nLen = len(aStringified)
-
-		cCode = 'aResult = [ '
+		aResult = []
 
 		for i = 1 to nLen
-			cCode += aStringified[i]
-			if i < nLen
-				cCode += ", "
+			aResult + [ Q(aContent[i][1]).Stringified(), Q(aContent[i][2]).Stringified() ]
+		next
+
+		This.Update(aResult)
+
+		def StringifyItemsQ()
+			This.StringifyItems()
+			return This
+
+	def ItemsStringified()
+		aResult = This.Copy().StringifyItemsQ().Content()
+		return aResult
+
+	  #------------------------------------------#
+	 #  SORTING THE LIST OF PAIRS IN ASCENDING  #
+	#------------------------------------------#
+
+	def SortInAscending()
+
+		if NOT This.IsListOfPairsOfNumbers()
+			aResult = This.Copy().StringifyItemsQ().SortedInAscending()
+			return aResult
+		ok
+
+		# Special case of pair of list of numbers
+
+		# Flattening the list of pairs
+
+		aFlat = Q(aSorted).Flattened()
+		nLen = len(aFlat)
+
+		# Transforming the strings to stzNumbers
+
+		aStzNumbers = []
+		for i = 1 to nLen
+			aStzNumbers + StzNumberQ(aFlat[i])
+		next
+
+		# Getting the max number of digits on both the
+		# interger and decimal parts of the numbers
+
+		nMaxInt = 0
+		nMaxDec = 0
+
+		for i = 1 to nLen
+
+			nInt = aStzNumbers[i].NumberOfIntegers()
+			if nInt > nMaxInt
+				nMaxInt = nInt
+			ok
+
+			nDec = aStzNumbers[i].NumberOfDecimals()
+			if nDec > nMaxDec
+				nMaxDec = nDec
+			ok
+
+		next
+
+		# Adjusting the numbers by adding 0s left and right
+		# to fill the values of nMaxInt and nMaxDec
+
+		aAdjust = []
+
+		for i = 1 to nLen
+
+			aPair = []
+			# Adjusting the decimal part by rounding it to nMaxDec
+
+			aPair + aStzNumbers[i].RoundedTo(nMaxDec)
+
+			# Adjusting the integr part
+
+			nInt = nMaxInt - aStzNumbers[i].NumberOfIntegers()
+			cTempStr = ""
+			for j = 1 to nInt
+				cTempStr += "0"
+			next
+			aPair = cTempStr + aAdjust[i]
+
+			if len(aPair) = 2
+				aAdjust + aPair
+				aPair = []
 			ok
 		next
 
-		cCode += ' ]'
+		# Sorting the pairs of numbers
 
+		aSorted = Q(aAdjust).SortedInAscending()
+
+		# Composing and evaluating the content of the list
+
+		nLen = len(aSorted)
+
+		cCode = 'aResult = [ '
+		
+		for i = 1 to nLen
+			cCode += aSorted[i] + ", "
+		next
+		
+		cCode = Q(cCode).RemoveFromRightQ(", ").AddQ(" ]").Content()
 		eval(cCode)
 
 		This.Update(aResult)
@@ -362,10 +453,7 @@ class stzListOfPairs from stzListOfLists
 			return This
 
 	def SortedInAscending()
-		oCopy = This.Copy()
-		oCopy.SortInAscending()
-		aResult = oCopy.Content()
-
+		aResult = This.Copy().SortInAscendingQ().Content()
 		return aResult
 
 		def Sorted()

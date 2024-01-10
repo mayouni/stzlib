@@ -142,6 +142,17 @@ func QStringContent(oQStr)
 	func QStringObjectToString(oQStr)
 		return QStringContent(oQStr)
 
+	#--
+
+	func @QStringObjectContent(oQStr)
+		return QStringContent(oQStr)
+
+	func @QStringToString(oQStr)
+		return QStringContent(oQStr)
+
+	func @QStringObjectToString(oQStr)
+		return QStringContent(oQStr)
+
 func StringToQStringObject(str)
 	if CheckParams()
 		if NOT isString(str)
@@ -620,7 +631,7 @@ class stzString from stzObject
 	// Returns the string's content
 	def Content()
 
-		return QStringToString( @oQString )
+		return @oQString.left(@oQString.count())
 
 		#< @FunctionFluentForm
 
@@ -630,7 +641,7 @@ class stzString from stzObject
 		#>
 
 		def Value()
-			return Content()
+			return This.Content()
 
 	
 	def QStringObject()
@@ -24903,6 +24914,13 @@ class stzString from stzObject
 			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
 
 		def ReplaceCharsAtThesePositions(panPositions, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def RepalceCharsAtPositions(panPositions, pcNewSubStr)
 			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
 
 		#>
@@ -52823,9 +52841,10 @@ ici		//...
 			return
 		ok
 
-		aSorted = QR(paSections, :stzListOfPairs).Sorted()
-
-		for i = nLen to 1 step -1
+		aSorted = QR(paSections, :stzListOfPairs).SortedInDescending()
+? @@(aSorted)
+fdf
+		for i = 1 to nLen
 			This.RemoveSection(aSorted[i][1], aSorted[i][2])
 		next
 
@@ -67892,16 +67911,16 @@ ici		//...
 		# becauses it is already a string
 
 		def StringifiyQ()
-			return new stzString( This.String() )
+			return This
 
 	def Stringified()
-		return This.String()
+		return This.Content()
 
 	def ToString()
-		return This.String()
+		return This.Content()
 
 		def ToStringQ()
-			return new stzString( This.ToString() )
+			return new stzString( This.Content() )
 	
 	def ToCode()
 		cResult = ""

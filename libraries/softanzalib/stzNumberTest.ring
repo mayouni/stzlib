@@ -590,37 +590,24 @@ pron()
 proff()
 # Executed in 0.04 second(s)
 
-/*--------------------
-*/
+/*=============== ici
+
 pron()
 
 ? Round(81.8)
 #--> 82
 
 ? Round([ "81.8", 3 ])
-#--> 81.8
+#--> "81.8"
 
 ? RoundXT([ "81.8", 3 ])
-#--> 81.800
+#--> "81.800"
 
 proff()
-
-/*--------------------
-*/
-pron()
-
-o1 = new stzNumber("81.8")
-? o1.RoundedTo(3)
-#--> 81.800
-
-? o1.RoundedToXT(3)
-#--> 81.800
-
-proff()
+# Executed in 0.11 second(s)
 
 /*--------------------
 
-*/
 pron()
 
 decimals(3)
@@ -629,7 +616,7 @@ decimals(3)
 
 StzNumberQ("81.8") {
 
-//	? RoundedTo(3)
+	? RoundedTo(3)
 	#--> "81.8"
 
 	? RoundedToXT(3)
@@ -638,13 +625,14 @@ StzNumberQ("81.8") {
 }
 
 proff()
+# Executed in 0.08 second(s)
 
 /*--------------------
-*/
+
 pron()
 
-? DefaultRound()
-#--> 2
+	? DefaultRound()
+	#--> 2
 
 	? ActiveRound()
 	#--> 2
@@ -653,9 +641,9 @@ pron()
 	#--> 1.22
 
 	? 81.8
-	#--> 
-/*
-StzDecimals(7)
+	#--> 81.80
+
+	StzDecimals(7)
 
 	? ActiveRound()
 	#--> 7
@@ -663,7 +651,7 @@ StzDecimals(7)
 	? 1.224
 	#--> 1.2240000
 
-ResetRound()
+	ResetRound()
 
 	? ActiveRound()
 	#--> 2
@@ -671,18 +659,26 @@ ResetRound()
 	? 1.224
 	#--> 1.22
 
-*/
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s)
 
 /*-----------------------
 
 pron()
 
+? CurrentRound() # Currrent round on the program
+#--> 2
+
 o1 = new stzNumber("-12.4521")
-? o1.Round()
+
+? o1.Round() # Round of the object (infered here from the decimal part .4532)
 #--> 4
-? o1.Value()
+
+? o1.Value() # Or NumericValue() ~> Sensitive to the currend round on the program (2)
+#--> -12.45
+
+? o1.StringValue() # Or Content() ~> Sensitive to the current round on the stzNumber object (4)
+#--> "-12.4521"
 
 proff()
 # Executed in 0.05 second(s)
@@ -691,19 +687,18 @@ proff()
 
 pron()
 
-StzDecimals(3)
+StzDecimals(3) # Change the program round and memorises it
 
 o1 = new stzNumber([ 981.123456701, :round = 5 ])
 
 ? o1.Round()
 #--> 5
 
-? o1.NumericValue() # Sensitive to current round, 3.
+? o1.NumericValue() # Sensitive to current on the program round, 3.
 #--> 981.123
 
-? o1.StringValue() # Rounded to the what is specified, 5.
+? o1.StringValue() # Rounded to the what is specified at the object level, 5.
 #--> 981.12346
-
 
 proff()
 # Executed in 0.03 second(s)
@@ -717,16 +712,16 @@ o1 = new stzNumber([ 55993400908134, :Round = 5 ])
 #--> 5
 
 ? o1.Sine()
-#--> -0.99986
+#--> "-0.99986"
 
 ? o1.Cosine()
-#--> -0.01644
+#--> "-0.01644"
 
 ? o1.Tangent()
-#--> 60.82558
+#--> "60.82558"
 
 ? o1.Cotangent()
-#--> 0.01644
+#--> "0.01644"
 
 proff()
 # Executed in 0.08 second(s)
@@ -744,6 +739,7 @@ o1 = new stzNumber("12.872")
 #--> TRUE
 
 proff()
+# Executed in 0.06 second(s)
 
 /*-----------------------
 
@@ -758,15 +754,20 @@ pron()
 proff()
 # Executed in 0.03 second(s)
 
-/*-----------------------
-
+/*----------------------- TODO: FIX
+*/
 pron()
 
-? Q(5.12).IsEqualTo(5.1200000000000000000001)
+? Q(5.12).IsEqualTo(5.1200000000000001)
 #--> TRUE
 
-? Q(5.12).IsEqualTo("5.1200000000000000000001")	# Because "5.12" is a number in string
+# Because the current round on the program is 2, as defined by default in Ring.
+# When Ring rounds the long number provide to 2, it will become 5.12
+
+? Q(5.12).IsEqualTo("5.1200000000000001")
 #--> TRUE
+
+? Q(5.12).IsEqualTo([ 5.1200000000000001, :Round = 16 ])
 
 proff()
 # Executed in 0.04 second(s)
@@ -1182,111 +1183,4 @@ o1.FromHex("x407")
 
 o1.FromOctal("o2007")
 ? o1.Content()
-
-
-/* TEMPLATE
-
-? "" #-----------
-
-	if oNbr.nbr...() = ...
-		? "Testing oNbr.nbr...() ---> Ok :)"
-		? " - Correctly returned : ..."
-	else
-		? "Testing oNbr.nbr...() ---> Failed :("
-		? " - Should return : ..."
-		? " - But returned  : " + oNbr.nbr...()
-	ok
-*/
-/*
-oNbr = new stzNumber("123456.12345678")
-
-? "BEGIN" + NL #-----------
-
-	if oNbr.nbrValue() = "123456.12345678"
-		? "Testing oNbr.nbrValue() -> Ok :)"
-		? ' - Correctly returned "123456.12345678"'
-	else
-		? "Testing oNbr.nbrValue() -> Failed :("
-		? ' - Should return : "123456.12345678"'
-		? " - But returned  : " + oNbr.nbrValue()
-	ok
-
-? "" #-----------
-
-	if oNbr.nbrOfDigits() = 14
-		? "Testing oNbr.nbrOfDigits() -> Ok :)"
-		? " - Correctly returned : 14"
-	else
-		? "Testing oNbr.nbrOfDigits() -> Failed :("
-		? " - Should return : 14"
-		? " - But returned  : " + oNbr.nbrOfDigits()
-	ok
-
-? "" #-----------
-
-	if oNbr.nbrIntegerPart() = "123456"
-		? "Testing oNbr.nbrIntegerPart() -> Ok :)"
-		? ' - Correctly returned : "123456"'
-	else
-		? "Testing oNbr.nbrIntegerPart() -> Failed :("
-		? ' - Should return : "123456"'
-		? ' - But returned  : "' +
-					    oNbr.nbrIntegerPart() + '"'
-	ok
-
-? "" #-----------
-
-	if oNbr.nbrOfIntegers() = 6
-		? "Testing oNbr.nbrOfIntegers() -> Ok :)"
-		? " - Correctly returned : 6"
-	else
-		? "Testing oNbr.nbrOfIntegers() -> Failed :("
-		? " - Should return : 6"
-		? " - But returned  : " + oNbr.nbrOfIntegers()
-	ok
-
-? "" #-----------
-
-	if oNbr.nbrDecimalPart() = "0.12345678"
-		? "Testing oNbr.nbrDecimalPart() -> Ok :)"
-		? ' - Correctly returned : "0.12345678"'
-	else
-		? "Testing oNbr.nbrDecimalPart() -> Failed :("
-		? ' - Should return : "0.12345678"'
-		? " - But returned  : " + oNbr.nbrDecimalPart()
-	ok
-
-? "" #-----------
-
-	if oNbr.nbrOfDecimals() = 8
-		? "Testing oNbr.nbrOfDecimals() -> Ok :)"
-		? " - Correctly returned : 8"
-	else
-		? "Testing oNbr.nbrOfDecimals() -> Failed :("
-		? " - Should return : 8"
-		? " - But returned  : " + oNbr.nbrOfDecimals()
-	ok
-
-? "" #-----------
-
-	if oNbr.nbrRoundedTo(3) = "123456.123"
-		? "Testing oNbr.nbrRoundedTo(3) -> Ok :)"
-		? ' - Correctly returned : "123456.123"'
-	else
-		? "Testing oNbr.nbrRoundedTo(3) -> Failed :("
-		? ' - Should return : "123456.123"'
-		? " - But returned  : " + oNbr.nbrRoundedTo(3)
-	ok
-
-#-----------
-
-	if oNbr.nbrRoundedSameAs("28.5") = "123456.1"
-		? 'Testing oNbr.nbrRoundedSameAs("28.5") -> Ok :)'
-		? ' - Correctly returned : "123456.1"'
-	else
-		? 'Testing oNbr.nbrRoundedSameAs("28.5") -> Failed :('
-		? ' - Should return : "123456.1"'
-		? " - But returned  : " + oNbr.nbrRoundedSameAs("28.5")
-	ok
-
 
