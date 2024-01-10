@@ -108,8 +108,33 @@ func NumberOfUnicodeChars()
 func MathUnicodes()
 	return _anMathUnicodes
 
+func NumberOfMathChars()
+	return len(_anMathUnicodes)
+
+	func HowManyMathChars()
+		return NumberOfMathChars()
+
 func MathChars()
 	return UnicodesToChars(MathUnicodes())
+
+	func MathCharsQ()
+		return MathCharsQR(:stzList)
+
+	func MathCharsQR(pcReturnType)
+
+		switch pcReturnType
+		on :stzList
+			return new stzList(MathChars())
+
+		on :stzListOfChars
+			return new stzListOfChars(MathChars())
+
+		on :stzListOfStrings
+			return new stzListOfStrings(MathChars())
+
+		other
+			StzRaise("Insupported return type!")
+		off
 
 class stzUnicodeDataAsString from stzUnicodeData
 

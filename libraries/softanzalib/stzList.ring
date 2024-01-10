@@ -16788,19 +16788,50 @@ class stzList from stzObject
 		// Divides the list on pValue sublists (a list of lists)
 		but pcOp = "/" 
 
-			if isNumber(pValue)
-				return This.SplittedToNParts(pValue)
+			if This.IsListOfNumbers() and isNumber(pValue)
+				aContent = This.Content()
+				nLen = len(aContent)
 
-			but @IsStzNumber(pValue)
-				This.SplitToNParts(pValue.NumericValue())
+				aResult = []
+
+				for i = 1 to nLen
+					aResult + (aContent[i] / pValue)
+				next
+
+				return aResult
+
+			but This.IsListOfNumbers() and @IsStzNumber(pValue)
+				aContent = This.Content()
+				nLen = len(aContent)
+
+				aResult = []
+
+				for i = 1 to nLen
+					aResult + (aContent[i] / pValue.Content())
+				next
+
+				This.Update(aResult)
 				return This
+
+			but @IsStzString(pValue)
+				aResult = This.SplittedUsing(pValue.Content())
+				return new stzList(aResult)
 
 			but isList(pValue)
-				return This.DistributedOver(pValue)
+				aResult = This.DistributedOver(pValue.Content())
+				return aResult
 
 			but @IsStzList(pValue)
-				This.DistributeOver(pValue.Content())
-				return This
+				aResult = This.DistributedOver(pValue.Content())
+				return new stzList(aResult)
+
+			but @IsStzNumber(pValue)
+				aResult = This.SplittedToNParts(pValue.NumericValue())
+				return new stzList(aResult)
+
+			but isNumber(pValue)
+				aResult = This.SplittedToNParts(pValue)
+				return aResult
 			ok
 
 		but pcOp = "-"
@@ -16831,12 +16862,37 @@ class stzList from stzObject
 
 			else
 				anPositions = This.FindAll(pValue)
-				aResult = This.Copy().RemoveItemsAtPositions(anPositions)
-				return aResult
+				aResult = This.RemoveItemsAtPositions(anPositions)
+				return This.Content()
 			ok
 
 		but pcOp = "*"
-			if @IsStzString(pValue) or @IsStzList(pValue)
+			if This.IsListOfNumbers() and isNumber(pValue)
+				aContent = This.Content()
+				nLen = len(aContent)
+
+				aResult = []
+
+				for i = 1 to nLen
+					aResult + (aContent[i] * pValue)
+				next
+
+				return aResult
+
+			but This.IsListOfNumbers() and @IsStzNumber(pValue)
+				aContent = This.Content()
+				nLen = len(aContent)
+
+				aResult = []
+
+				for i = 1 to nLen
+					aResult + (aContent[i] * pValue.Content())
+				next
+
+				This.Update(aResult)
+				return This
+
+			but @IsStzString(pValue) or @IsStzList(pValue)
 				This.MultiplyBy(pValue.Content())
 				return This
 
@@ -16851,16 +16907,41 @@ class stzList from stzObject
 
 		but pcOp = "+"
 
-			if @IsStzString(pValue) or @IsStzList(pValue)
-				This.AddItem(pValue.Content())
+			if isList(pValue)
+
+				if _bMany
+					aResult = This.Copy().ManyAdded(pValue)
+					_Many = FALSE # Resets the global flag
+				else
+					aResult = This.Copy().ItemAdded(pValue)
+				ok
+
+				return aResult
+			
+			but @IsStzList(pValue) or @IsStzString(pValue)
+				if _bMany
+					This.AddMany(pValue.Content())
+					_Many = FALSE  # Resets the global flag
+				else
+					This.AddItem(pValue.Content())
+				ok
+
+				return This
+			
+			but @IsStzNumber(pValue)	
+				if _bMany
+					This.AddMany(pValue.NumericValue())
+					_Many = FALSE  # Resets the global flag
+				else
+					This.AddItem(pValue.NumericValue())
+				ok
+
 				return This
 
-			but @IsStzNumber(pValue)
-				This.AddItem(pValue.NumericValue())
-
 			else
-				aResult = This.Copy().AddItemQ(pValue).Content()
-				return aResult
+				This.Add(pValue)
+				return This.Content()
+
 			ok
 		ok
 

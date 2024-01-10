@@ -345,6 +345,7 @@ class stzListOfChars from stzListOfStrings
 
 	def CharsAndTheirNames()
 		aResult = Association([ This.Chars(), This.Names() ])
+		return aResult
 
 		def CharsXT()
 			return This.CharsAndTheirNames()

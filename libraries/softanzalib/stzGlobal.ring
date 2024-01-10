@@ -2658,7 +2658,7 @@ func EuclideanDistance(anNumbers1, anNumbers2)
 	nResult = euc_dist(anNumbers1, anNumbers2)
 	return nResult
 
-def euc_dist(a,b)
+func euc_dist(a,b)
 
 	s = 0
 	n = len(a)
@@ -2670,6 +2670,18 @@ def euc_dist(a,b)
 	next
 
 	return sqrt(s)
+
+func @IsNumber(n)
+	return isNumber(n)
+
+func @IsString(str)
+	return isString(str)
+
+func @IsList(aList)
+	return isList(aList)
+
+func @IsObject(obj)
+	return isObject(obj)
 
 class stzForEachObjectOld
 	@acVars
