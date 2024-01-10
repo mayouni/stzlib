@@ -72,6 +72,15 @@ _nMaxUnicode = 1_114_112
 
 _cUnicodeData = read("stzUnicodeData.txt")
 
+_anMathUnicodes = [
+	172, 176, 177, 188, 189, 190, 215, 247, 915, 916, 920, 923,
+	926, 928, 931, 933, 934, 936, 937, 945, 946, 947, 948, 949,
+	950, 951, 952, 953, 954, 955, 956, 957, 958, 959, 960, 961,
+	963, 964, 965, 966, 967, 968, 969, 8531, 8532, 8704, 8706,
+	8707, 8709, 8711, 8712, 8713, 8719, 8721, 8730, 8733, 8734,
+	8736, 8743, 8744, 8747, 8754, 8756, 8776, 8800, 8801, 8804, 8805
+]
+
 func UnicodeData()
 	return _cUnicodeData
 	
@@ -95,6 +104,12 @@ func MaxUnicode()
 
 func NumberOfUnicodeChars()
 	return _nNumberOfUnicodeChars
+
+func MathUnicodes()
+	return _anMathUnicodes
+
+func MathChars()
+	return UnicodesToChars(MathUnicodes())
 
 class stzUnicodeDataAsString from stzUnicodeData
 
