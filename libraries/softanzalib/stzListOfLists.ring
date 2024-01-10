@@ -1098,20 +1098,32 @@ class stzListOfLists from stzList
 	def Extend()
 		This.ExtendTo( This.SizeOfLargestList() )
 
+		#< @FuntionFluentForm
+
+		def ExtendQ()
+			This.Extend()
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForm
 
 		def ExtendEachList()
 			This.Extend()
 
+			def ExtendEachListQ()
+				return This.ExtendQ()
+
 		def Adjust()
 			This.Extend()
+
+			def AdjustQ()
+				return This.ExtendQ()
 
 		#>
 
 	def Extended()
-		oCopy = This.Copy()
-		oCopy.Extend()
-		aResult = oCopy.Content()
+		aResult = This.Copy().ExtendQ().Content()
 		return aResult
 
 		def EachListExtended()
@@ -1127,21 +1139,29 @@ class stzListOfLists from stzList
 	def ExtendXT(pItem)
 		This.ExtendToXT( This.SizeOfLargestList(), pItem )
 
-		#< @FunctionAlternativeForm
+		#< @FuntionFluentForm
 
-		def ExtendEachListXT(pItem)
-			This.ExtendXT(pItem)
+		def ExtendXTQ()
+			This.ExtendXT()
+			return This
 
 		#>
 
-	def ExtendedXT(pItem)
-		oCopy = This.Copy()
-		oCopy.ExtendXT(pItem)
-		aResult = oCopy.Content()
+		#< @FunctionAlternativeForm
+
+		def ExtendEachListXT()
+			This.ExtendXT()
+
+			def ExtendEachListXTQ()
+				return This.ExtendXTQ()
+		#>
+
+	def ExtendedXT()
+		aResult = This.Copy().ExtendXTQ().Content()
 		return aResult
 
-		def EachListExtendedXT(pItem)
-			return This.ExtendedXT(pItem)
+		def EachListExtendedXT()
+			return This.ExtendedXT()
 
 	  #------------------------------------------------------------------------------------#
 	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION WITH A NULL VALUE  #
@@ -1149,6 +1169,14 @@ class stzListOfLists from stzList
 
 	def ExtendTo(n)
 		This.ExtendToXT(n, NULL)
+
+		#< @FunctionFluentForm
+
+		def ExtendToQ(n)
+			This.ExtendTo(n)
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForm
 
@@ -1159,13 +1187,13 @@ class stzListOfLists from stzList
 
 			This.ExtendTo(n)
 
+			def ExtendToPositionQ(n)
+				return This.ExtendToQ(n)
 		#>
 
 
 	def ExtendedTo(n)
-		oCopy = This.Copy()
-		oCopy.ExtendTo(n)
-		aResult = oCopy.Content()
+		aResult = This.Copy().ExtendToQ(n).Content()
 		return aResult
 
 		def ExtendedToPosition(n)
@@ -1219,6 +1247,14 @@ class stzListOfLists from stzList
 
 		next
 
+		#< @FuntionFluentForm
+
+		def ExtendToXTQ(n, pItem)
+			This.ExtendToXT(n, pItem)
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForm
 
 		def ExtendToPositionXT(n, pItem)
@@ -1227,9 +1263,7 @@ class stzListOfLists from stzList
 		#>
 
 	def ExtendedToXT(n, pItem)
-		oCopy = This.Copy()
-		oCopy.ExtendedToXT(n, pItem)
-		aResult = oCopy.Content()
+		aResult = This.Copy().ExtendToXTQ(n, pItem).Content()
 		return aResult
 
 		def ExtendedToPositionXT(n, pItem)
@@ -1255,18 +1289,27 @@ class stzListOfLists from stzList
 
 		This.UpdateWith(aResult)
 
+		#< @FunctionFluentForm
+
+		def ExtendToByRepeatingItemsQ(n)
+			This.ExtendToByRepeatingItems(n)
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForm
 
 		def ExtendToWithItemsRepeated(n)
 			This.ExtendedToByRepeatingItems(n)
 
+			def ExtendToWithItemsRepeatedQ(n)
+				return This.ExtendToByRepeatingItemsQ(n)
+
 		#>
 
 	def ExtendedToByRepeatingItems(n)
-		oCopy = This.Copy()
-		oCopy.ExtendToByRepeatingItems(n)
-		aResult = oCopy.Content()
-		return aResult
+		aResult = This.Copy().ExtendToByRepeatingItemsQ(n).Content()
+		return aResul
 
 		#< @FunctionAlternativeForm
 
@@ -1282,20 +1325,32 @@ class stzListOfLists from stzList
 	def ExtendByRepeatingItems()
 		This.ExtendToByRepeatingItems( This.SizeOfLargestList() )
 
+		#< @FunctionFluentForm
+
+		def ExtendByRepeatingItemsQ()
+			This.ExtendByRepeatingItems()
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def ExtendWithItemsRepeated()
 			This.ExtendByRepeatingItems()
 
+			def ExtendWithItemsRepeatedQ()
+				return This.ExtendByRepeatingItemsQ()
+
 		def ExtendByItemsRepeated()
 			This.ExtendByRepeatingItems()
+
+			def ExtendByItemsRepeatedQ()
+				return This.ExtendByRepeatingItemsQ()
 
 		#>
 
 	def ExtendedByRepeatingItems()
-		oCopy = This.Copy()
-		oCopy.ExtendByRepeatingItems()
-		aResult = oCopy.Content()
+		aResult = This.Copy().ExtendByRepeatingItemsQ().Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -1324,13 +1379,19 @@ class stzListOfLists from stzList
 
 		This.UpdateWith(aResult)
 
+
+		def ExtendToWithItemsInQ(n, paItems)
+			This.ExtendToWithItemsIn(n, paItems)
+			return This
+
 		def ExtendToUsingItemsIn(n, paItems)
 			This.ExtendToWithItemsIn(n, paItems)
 
+			def ExtendToUsingItemsInQ(n, paItems)
+				return This.ExtendToWithItemsInQ(n, paItems)
+
 	def ExtendedToWithItemsIn(n, paItems)
-		oCopy = This.Copy()
-		oCopy.ExtendToWithItemsIn(n, paItems)
-		aResult = oCopy.Content()
+		aResult = This.Copy().ExtendToWithItemsInQ(n, paItems).Content()
 		return aResult
 
 		def ExtendedToUsingItemsIn(n, paItems)
@@ -1343,13 +1404,18 @@ class stzListOfLists from stzList
 	def ExtendWithItemsIn(paItems)
 		This.ExtendToWithItemsIn( This.SizeOfLargestList(), paItems)
 
+		def ExtendWithItemsInQ(paItems)
+			This.ExtendWithItemsIn(paItems)
+			return This
+
 		def ExtendUsingItemsIn(paItems)
 			This.ExtendWithItemsIn(paItems)
 
+			def ExtendUsingItemsInQ(paItems)
+				return This.ExtendWithItemsInQ(paItems)
+
 	def ExtendedWithItemsIn(paItems)
-		oCopy = This.Copy()
-		oCopy.ExtendWithItemsIn(paItems)
-		aResult = oCopy.Content()
+		aResult = This.Copy().ExtendWithItemsInQ(paItems).Content()
 		return aResult
 
 		def ExtendedUsingItemsIn(paItems)
@@ -1361,6 +1427,10 @@ class stzListOfLists from stzList
 
 	def Shrink()
 		This.ShrinkTo( This.SizeOfSmallestList() )
+
+		def ShrinkQ()
+			This.Shrink()
+			return This
 
 		#< @FunctionAlternativeForms
 
@@ -1385,9 +1455,7 @@ class stzListOfLists from stzList
 		#>
 
 	def Shrinked()
-		oCopy = This.Copy()
-		oCopy.Shrink()
-		aResult = oCopy.Content()
+		aResult = This.Copy().ShrinkQ().Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -1433,6 +1501,10 @@ class stzListOfLists from stzList
 
 		next
 
+		def ShrinkToQ(n)
+			This.ShrinkTp(n)
+			return This
+
 		#< @FunctionAlternativeForm
 
 		def ShrinkToPosition(n)
@@ -1441,9 +1513,7 @@ class stzListOfLists from stzList
 		#>
 
 	def ShrinkedTo(n)
-		oCopy = This.Copy()
-		oCopy.ShrinkedTo(n)
-		aResult = oCopy.Content()
+		aResult = This.Copy().ShrinkToQ(n).Content()
 		return aResult
 
 		def ShrinkedToPosition(n)
@@ -1505,6 +1575,11 @@ class stzListOfLists from stzList
 
 		This.UpdateWith(aResult)
 
+
+		def ShrinkToWithQ(n, pWith)
+			This.ShrinkToWith(n, pWith)
+			return This
+
 		#< @FunctionAlternativeForms
 
 		def ShrinkToUsing(n, pUsing)
@@ -1527,9 +1602,7 @@ class stzListOfLists from stzList
 		#>
 
 	def ShrinkedToWith(n, pWith)
-		oCopy = This.Copy()
-		oCopy.ShrinkedToWith(n, pWith)
-		aResult = oCopy.Content()
+		aResult = This.Copy().ShrinkToWithQ(n, pWith).Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -1572,13 +1645,18 @@ class stzListOfLists from stzList
 	
 		This.AdjustToUsing(n, pWith)
 
+		def AdjustXTQ(n, pWith)
+			This.AdjustXT(n, pWith)
+			return This
+
 		def ShrinkXT(n, pWith)
 			This.AdjustXT(n, pWith)
 
+			def ShrinkXTQ(n, pWith)
+				return This.AdjustXTQ(n, pWith)
+
 	def AdjustedXT(n, pWith)
-		oCopy = This.Copy()
-		oCopy.AdjustXT(n, pWith)
-		aResult = oCopy.Content()
+		aResult = This.Copy().AdjustXTQ(n, pWith).Content()
 		return aResult
 
 		def ShrinkedXT(n, pWith)
@@ -1591,10 +1669,12 @@ class stzListOfLists from stzList
 	def Associate()
 		This.Update( @Association(This.Content()) )
 
+		def AssociateQ()
+			This.Associate()
+			return This
+
 	def Associated()
-		oCopy = This.Copy()
-		oCopy.Associate()
-		aResult = oCopy.Content()
+		aResult = This.Copy().AssociateQ().Content()
 		return aResult
 
 	  #-------------------------------------#
@@ -1614,14 +1694,18 @@ class stzListOfLists from stzList
 			This.ReverseLists()
 
 
+		def ReverseListsQ()
+			This.ReverseLists()
+			return This
+
 		def Reverse()
 			This.ReverseLists()
 
+			def ReverseQ()
+				return This.ReverseListsQ()
 
 	def ReversedLists()
-		oCopy = This.Copy()
-		oCopy.ReverseLists()
-		aResult = oCopy.Content()
+		aResult = This.Copy().ReverseListsQ().Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -1661,9 +1745,7 @@ class stzListOfLists from stzList
 				return This
 
 	def ItemsInListsReversed()
-		oCopy = This.Copy()
-		oCopy.ReverseItemsInLists()
-		aResult = oCopy.Content()
+		aResult = This.Copy().ReverseItemsInListsQ().Content()
 		return aResult
 
 		def ListsContentReversed()
