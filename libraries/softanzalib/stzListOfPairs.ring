@@ -507,10 +507,7 @@ class stzListOfPairs from stzListOfLists
 			return This
 
 	def SortedInDescending()
-		oCopy = This.Copy()
-		oCopy.SortInDescending()
-		aResult = oCopy.Content()
-
+		aResult = This.Copy().SortInDescendingQ().Content()
 		return aResult
 
 	def IsSortedInDescending()
