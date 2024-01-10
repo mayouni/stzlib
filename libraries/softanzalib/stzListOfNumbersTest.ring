@@ -19,17 +19,190 @@ o1 = new stzNumber("1234567.1234567")
 #--> 28
 
 proff()
+# Executed in 0.11 second(s)
 
-/*---------------
+/*=================
+
+pron()
+
+? Q([ 1, 2, 3, 4, 5]) - [1, 3 , 5]
+#--> [ 1, 2, 3, 4, 5 ]
+# Because [1, 3, 5 ] is not an item in the list [ 1, 2, 3, 4, 5 ]
+
+? Q([ 1, 2, 3, [1, 3 , 5], 4, 5]) - [1, 3 , 5]
+#--> [ 1, 2, 3, 4, 5 ]
+# Now [ 1, 3, 5 ] is removed because it is an item from the list
+
+# If you want to remove 1, 3, and 5 in the same statement, you use Many():
+
+? Q([ 1, 2, 3, 4, 5]) - Many([1, 3 , 5])
+#--> [ 2, 4 ]
+
+# If you want to get a stzNumber object as an output add Q() to the second member:
+? Q([ 1, 2, 3, 4, 5]) - Q( Many([1, 3 , 5]) )
+#--> [ 2, 4 ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------------
+
+pron()
+
+? Q([1, 2, "*", 3 ]) - "*"
+#--> [ 1, 2, 3 ]
+
+? Q([1, 2, "*", 3 ]) - Q("*")
+#--> A stzList object containg [ 1, 2, 3 ]
+
+# To check it add ( ... ).Content() around it:
+
+? ( Q([1, 2, "*", 3 ]) - Q("*") ).Content()
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------------
+
+pron()
+
+? Q([1, 2, 3 ]) + 4
+#--> [ 1, 2, 3, 4 ]
+
+? Q([1, 2, 3 ]) + Q(4)
+#--> A stzList object containg [ 1, 2, 3, 4 ]
+
+# To check it add ( ... ).Content() around it:
+
+? ( Q([1, 2, 3 ]) + Q(4) ).Content()
+# [ 1, 2, 3, 4 ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------------
+
+pron()
+
+? Q([1, 2, 3 ]) * 4
+#--> [ 4, 8, 12 ]
+
+? Q([1, 2, 3 ]) * Q(4)
+#--> A stzList object containg [ 4, 8, 12 ]
+
+# To check it add ( ... ).Content() around it:
+
+? ( Q([1, 2, 3 ]) * Q(4) ).Content()
+# [ 4, 8, 12 ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------------
+
+pron()
+
+? Q(["A", "B" ]) * 3
+#--> [ "A", "B", "A", "B", "A", "B" ]
+
+? Q(["A", "B" ]) * Q(3)
+#--> A stzList object containg [ 4, 8, 12 ]
+
+# To check it add ( ... ).Content() around it:
+
+? ( Q(["A", "B" ]) * Q(3) ).Content()
+# [ "A", "B", "A", "B", "A", "B" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------------
+
+pron()
+
+? Q([4, 44, 444 ]) / 4
+#--> [ 1, 11, 111 ]
+
+? Q([4, 44, 444 ]) / Q(4)
+#--> A stzList object containg [ 1, 11, 111 ]
+
+# To check it add ( ... ).Content() around it:
+
+? ( Q([4, 44, 444 ]) / Q(4) ).Content()
+# [ 1, 11, 111 ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*----------------
+
+pron()
+
+o1 = new stzList([ "A", "B" ])
+
+? @@( o1.SplittedToNParts(2) )
+#--> [ [ "A" ], [ "B" ] ]
+
+? @@( o1.SplittedToNParts(1) )
+#--> [ [ "A", "B" ] ]
+
+? @@( o1.SplittedToNParts(0) )
+#--> [ ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*----------------
 */
 pron()
 
-? Q(1:7) - [1, 2, 6, 7] # TODO: check it's the same for all the library
-#--> [ 3, 4, 5 ]
+? Q(["A", 1, "B", 2, "C", 3 ]) / 3
+#--> [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ]
+
+? Q(["A", 1, "B", 2, "C", 3 ]) / Q(3)
+#--> A stzList object containg [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ]
+
+# To check it add ( ... ).Content() around it:
+
+? ( Q(["A", 1, "B", 2, "C", 3 ]) / Q(3) ).Content()
+# [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*===============
+
+pron()
+
+? Q([1, 2, "*", 3 ]) + "*"
+#--> [ 1, 2, 3 ]
+
+? Q([1, 2, "*", 3 ]) + Q("*")
+#--> A stzList object containg [ 1, 2, 3 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*================
+
+pron()
 
 ? Q("Ringggg") - "ggg"
+#--> Ring
 
-? Q("Ringgg") - Q("ggg")
+? (Q("Ringggg") - Q("ggg")).Content()
+#--> A StzString object containg "Ring"
+
+proff()
+
+/*---------------
+
+pron()
+
+? Q("Rin") + "g"
+#--> Ring
+
+? Q("Rin") + Q("g")
 #--> A StzString object containg "Ring"
 
 proff()

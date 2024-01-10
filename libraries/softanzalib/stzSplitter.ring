@@ -1134,6 +1134,9 @@ class stzSplitter from stzListOfNumbers
 
 		if n = 0
 			return []
+
+		but n < 0 or n > This.NumberOfItems()
+			StzRaise("Can't be splitted! n must not be less then 0 or greater then the number of items in the list.")
 		ok
 
 		nNumberOfPositions = This.NumberOfPositions()

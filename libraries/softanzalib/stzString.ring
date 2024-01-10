@@ -51434,7 +51434,7 @@ ici		//...
 			return This
 	
 	def Removed(pSubStr)
-		cResult = This.Copy().RemoveCSQ(pSubStr).Content()
+		cResult = This.Copy().RemoveQ(pSubStr).Content()
 		return cResult
 
 	  #----------------------------------------------#
@@ -66790,11 +66790,11 @@ fdf
 			cResult = NULL
 						
 			if isString(pValue)
-				cResult = This.Copy().RemoveAll(pValue)
+				cResult = This.Copy().Removed(pValue)
 				return cResult
 
 			but @IsStzString(pValue)
-				This.RemoveAll(pValue.Content())
+				This.Remove(pValue.Content())
 				return This
 
 			but isNumber(pValue)
@@ -66810,15 +66810,9 @@ fdf
 
 				return cResult
 
-			but @IsStzNumber(pValue)
-				cResult = This - pValue.NumericValue()
-				This.UpdateWith(cResult)
-				return This
-
 			but isList(pValue) and Q(pValue).IsListOfStrings()
-				oCopy = This.Copy()
-				oCopy.RemoveMany(pValue)
-				return oCopy.Content()
+				cResult = This.RemoveManyQ(pValue).Content()
+				return cResult
 
 			but @IsStzListOfStrings(pValue)
 				This.RemoveMany(pValue.Content())
