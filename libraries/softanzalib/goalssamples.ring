@@ -642,18 +642,21 @@ load "stzlib.ring"
 
 	If you instruct Softanza something, it recognizes it as an internal piece of wizdom
 	inside you program. Look at this knowledge-oriented dialog with Softanza:
-
-*/	_("Apple").IsA(:Fruit)_
+*/
+	_("Apple").IsA(:Fruit)_
 		? WhatIs(:Apple) #--> :Fruit
 		? WhatIs(:Fruit) #--> :Undefined
+
 	_(:Fruit).Is("the means by which flowering plants disseminate their seeds")
 		? WhatIs(:Fruit) #--> the means by which flowering plants disseminate their seeds
+
 	_("Apple").IsA(:Company)_
 		? WhatIs(:Apple) #--> [ :Fruit, :Company ]
 
 	_("Steve Jobs").IsThe(:Owner).Of(:Apple)_
 		? WhoIs("Steve Jobs") #--> _('Steve Jobs").IsThe(:Owner).Of(:Apple)
 		? WhatIs("Steve Jobs") #--> :Undefined
+
 	_(:Owner).IsA(:Person)_
 		? WhatIs("Steve Jobs") #--> :Person
 

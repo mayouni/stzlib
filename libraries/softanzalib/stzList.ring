@@ -7824,22 +7824,37 @@ class stzList from stzObject
 		But the following solution is more performant...
 		*/
 
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		bResult = TRUE
 
-		for item in This.List()
-			if NOT ( isList(item) and Q(item).IsPairOfStrings() )
-				bResult = FALSE
-				exit
+		for i = 1 to nLen
+
+			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
+				 isString(aContent[i][1]) and isString(aContent[i][2]) )
+
+					bResult = FALSE
+					exit
 			ok
 		next
 
 		return bResult
 
+
 		def IsAListOfPairsOfStrings()
 			return This.IsListOfPairsOfStrings()
 
 	def IsPairOfNumbers()
-		return This.IsPair() and This.IsListOfNumbers()
+		aContent = This.Content()
+		nlen = len(aContent)
+
+		if nLen = 2 and isNumber(aContent[1]) and isNumber(aContent[2])
+			return TRUE
+
+		else
+			return FALSE
+		ok
 
 		def IsAPairOfNumbers()
 			return This.IsPairOfNumbers()
@@ -7851,13 +7866,18 @@ class stzList from stzObject
 			return This.IsPairOfNumbers()
 
 	def IsListOfPairsOfNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		bResult = TRUE
 
-		for item in This.List()
-			if NOT ( isList(item) and Q(item).IsPairOfNumbers() )
-				bResult = FALSE
-				exit
+		for i = 1 to nLen
+
+			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
+				 isNumber(aContent[i][1]) and isNumber(aContent[i][2]) )
+
+					bResult = FALSE
+					exit
 			ok
 		next
 
@@ -7910,19 +7930,33 @@ class stzList from stzObject
 			return This.IsListOfPairsOfSections
 
 	def IsPairOfLists()
-		return This.IsPair() and This.IsListOfLists()
+		aContent = This.Content()
+		nlen = len(aContent)
+
+		if nLen = 2 and isList(aContent[1]) and isList(aContent[2])
+			return TRUE
+
+		else
+			return FALSE
+		ok
 
 		def IsAPairOfLists()
 			return This.IsPairOfLists()
 
 	def IsListOfPairsOfLists()
 
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		bResult = TRUE
 
-		for item in This.List()
-			if NOT ( isList(item) and Q(item).IsPairOfLists() )
-				bResult = FALSE
-				exit
+		for i = 1 to nLen
+
+			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
+				 isList(aContent[i][1]) and isList(aContent[i][2]) )
+
+					bResult = FALSE
+					exit
 			ok
 		next
 
@@ -7932,19 +7966,33 @@ class stzList from stzObject
 			return This.IsListOfPairsOfLists()
 
 	def IsPairOfObjects()
-		return This.IsPair() and This.IsListOfObjects()
+		aContent = This.Content()
+		nlen = len(aContent)
+
+		if nLen = 2 and isObject(aContent[1]) and isObject(aContent[2])
+			return TRUE
+
+		else
+			return FALSE
+		ok
 
 		def IsAPairOfObjects()
 			return This.IsPairOfObjects()
 
 	def IsListOfPairsOfObjects()
 
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		bResult = TRUE
 
-		for item in This.List()
-			if NOT ( isList(item) and Q(item).IsPairOfObjects() )
-				bResult = FALSE
-				exit
+		for i = 1 to nLen
+
+			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 and
+				 isObject(aContent[i][1]) and isObject(aContent[i][2]) )
+
+					bResult = FALSE
+					exit
 			ok
 		next
 
