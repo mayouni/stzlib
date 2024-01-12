@@ -1406,7 +1406,7 @@ class stzNumber from stzObject
 			if isList(pNumber) and Q(pNumber).IsWithOrByOrUsingNamedParam()
 				pNumber = pNumber[2]
 			ok
-	
+
 			if NOT ( isNumber(pNumber) or ( isString(pNumber) and Q(pNumber).IsNumberInString() ) )
 				StzRaise("Incorrect param type! pNumber must be a number or a string containing a number.")
 			ok
@@ -2738,7 +2738,13 @@ class stzNumber from stzObject
 		nCurrentRound = StzCurrentRound()
 		StzDecimals(nRound)
 		@cNumber = ""+ This.NumericValue()
-		
+
+		if This.IsInteger() and nRound > 0
+			@cNumber += "."
+			for i = 1 to nRound
+				@cNumber += "0"
+			next
+		ok
 		StzDecimals(nCurrentRound)
 
 		#< @FunctionFluentForm
@@ -2777,7 +2783,8 @@ class stzNumber from stzObject
 	def RoundTo(nRound)
 		cResult = This.RoundToXTQ(nRound).
 			       ToStzString().
-			       CharRemovedFromRightXT("0") # XT ~> All 0s are removed
+			       RemoveCharFromRightXTQ("0"). # XT ~> All 0s are removed
+			       RemovedFromEnd(".")
 
 		This.Update(cResult)
 

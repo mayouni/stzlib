@@ -52842,8 +52842,7 @@ ici		//...
 		ok
 
 		aSorted = QR(paSections, :stzListOfPairs).SortedInDescending()
-? @@(aSorted)
-fdf
+
 		for i = 1 to nLen
 			This.RemoveSection(aSorted[i][1], aSorted[i][2])
 		next
@@ -56368,13 +56367,17 @@ fdf
 		This.RemoveAnyCharFromRightCS(c, TRUE)
 		return This
 
+		def RemoveAnyCharFromRightQ(c)
+			This.RemoveAnyCharFromRight(c)
+			return This
+
 		#< @FunctionAlternativeForms
 
 		def RemoveAnyCharFromTheRight(c)
 			This.RemoveAnyCharFromRight(c)
 
 			def RemoveAnyCharFromTheRightQ(c)
-				return This.RemoveAnyCharFromTheRightQ(c)
+				return This.RemoveAnyCharFromRightQ(c)
 
 		def RemoveAnyOccurrenceOfCharFromRight(c)
 			This.RemoveAnyCharFromRight(c)
@@ -56414,13 +56417,13 @@ fdf
 			This.RemoveAnyCharFromRight(c)
 
 			def RemoveCharFromRightXTQ(c)
-				return This.RemoveAnyCharFromTheRightQ(c)
+				return This.RemoveAnyCharFromRightQ(c)
 
 		def RemoveCharFromTheRightXT(c)
 			This.RemoveAnyCharFromRight(c)
 
 			def RemoveCharFromTheRightXTQ(c)
-				return This.RemoveAnyCharFromTheRightQ(c)
+				return This.RemoveAnyCharFromRightQ(c)
 
 		#--
 
@@ -56428,25 +56431,25 @@ fdf
 			This.RemoveAnyCharFromRight(c)
 
 			def TrimCharFromRightQ(c)
-				return This.RemoveAnyCharFromTheleftQ(c)
+				return This.RemoveAnyCharFromRightQ(c)
 
 		def TrimCharFromTheRight(c)
 			This.RemoveAnyCharFromRight(c)
 
 			def TrimCharFromTheRightQ(c)
-				return This.RemoveAnyCharFromTheRightQ(c)
+				return This.RemoveAnyCharFromRightQ(c)
 
 		def TrimThisCharFromRight(c)
 			This.RemoveAnyCharFromRight(c)
 
 			def TrimThisCharFromRightQ(c)
-				return This.RemoveAnyCharFromTheRightQ(c)
+				return This.RemoveAnyCharFromRightQ(c)
 
 		def TrimThisCharFromTheRight(c)
 			This.RemoveAnyCharFromRight(c)
 
 			def TrimThisCharFromTheRightQ(c)
-				return This.RemoveAnyCharFromTheRightQ(c)
+				return This.RemoveAnyCharFromRightQ(c)
 
 		#>
 

@@ -121,7 +121,7 @@ class stzListOfPairs from stzListOfLists
 		ok
 
 	def ToStzList()
-		return new stzList( This.Pair() )
+		return new stzList( This.Content() )
 
 	  #-------------------------------#
 	 #  GETTING THE NUMBER OF PAIRS  #
@@ -360,9 +360,11 @@ class stzListOfPairs from stzListOfLists
 
 	def SortInAscending()
 
+		aSorted = This.ToStzList().SortedInAscending()
+
 		if NOT This.IsListOfPairsOfNumbers()
-			aResult = This.Copy().StringifyItemsQ().SortedInAscending()
-			return aResult
+			This.UpdateWith(aSorted)
+			return
 		ok
 
 		# Special case of pair of list of numbers
@@ -403,13 +405,13 @@ class stzListOfPairs from stzListOfLists
 		# to fill the values of nMaxInt and nMaxDec
 
 		aAdjust = []
+		aPair = []
 
 		for i = 1 to nLen
 
-			aPair = []
 			# Adjusting the decimal part by rounding it to nMaxDec
 
-			aPair + aStzNumbers[i].RoundedTo(nMaxDec)
+			cNumber = aStzNumbers[i].RoundedToXT(nMaxDec)
 
 			# Adjusting the integr part
 
@@ -418,10 +420,12 @@ class stzListOfPairs from stzListOfLists
 			for j = 1 to nInt
 				cTempStr += "0"
 			next
-			aPair = cTempStr + aAdjust[i]
+			cNumber = cTempStr + cNumber
+
+			aPair + cNumber
 
 			if len(aPair) = 2
-				aAdjust + aPair
+				aAdjust + ( "[ " + aPair[1] + ", " + aPair[2] + " ]" )
 				aPair = []
 			ok
 		next
@@ -437,13 +441,17 @@ class stzListOfPairs from stzListOfLists
 		cCode = 'aResult = [ '
 		
 		for i = 1 to nLen
-			cCode += aSorted[i] + ", "
+			cCode += aSorted[i]
+			if i < nLen
+				cCode += ', '
+			ok
 		next
 		
-		cCode = Q(cCode).RemoveFromRightQ(", ").AddQ(" ]").Content()
+		cCode += ' ]'
+
 		eval(cCode)
 
-		This.Update(aResult)
+		This.UpdateWith(aResult)
 		
 		def Sort()
 			This.SortInAscending()
@@ -484,22 +492,7 @@ class stzListOfPairs from stzListOfLists
 
 		*/
 
-		aStringified = Q(This.Content()).StringifyQ().sortedInDescending()
-		nLen = len(aStringified)
-
-		cCode = 'aResult = [ '
-
-		for i = 1 to nLen
-			cCode += aStringified[i]
-			if i < nLen
-				cCode += ", "
-			ok
-		next
-
-		cCode += ' ]'
-
-		eval(cCode)
-
+		aResult = ring_reverse( This.SortedInAscending() )
 		This.Update(aResult)
 
 		def SortInDescendingQ()

@@ -276,20 +276,13 @@ class stzListOfLists from stzList
 	def Update(paList)
 		if isList(paList) and Q(paList).IsWithOrByOrUsingNamedParam()
 			paList = paList[2]
+
+			if NOT Q(paList).IsListOfLists(paList)
+				StzRaise("Incorrect param type! paList must be a list of lists.")
+			ok
 		ok
 
-
-		if isList(paList) and Q(paList).IsListOfLists()
-
-			@aContent = paList
-
-		else
-			StzRaise([
-				:File = "stzListOfLists (541) > Update()",
-				:What = "Can't update the list of lists!",
-				:Why  = "The value you provided is not a list of lists."
-			])
-		ok
+		@aContent = paList
 
 		#< @FunctionAlternativeForms
 
@@ -2276,19 +2269,81 @@ class stzListOfLists from stzList
 		def Intersection()
 			return This.CommonItems()
 
-	  #=============================#
-	 #  SORTING THE LIST OF LISTS  #
-	#=============================#
+	  #==========================================#
+	 #  SORTING THE LIST OF LISTS IN ASCENDING  #
+	#==========================================#
 
 	def Sort()
-		This.SortBy(1)
+		aStringified = This.Stringified()
+
+		aSorted = ring_sort(aStringified)
+
+		nLen = len(aSorted)
+
+		cCode = 'aResult = [ '
+
+		for i = 1 to nLen
+
+			cCode += aSorted[i]
+			if i < nLen
+				cCode += ', '
+			ok
+		next
+
+		cCode += ' ]'
+
+		eval(cCode)
+
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm
+
+		def SortQ()
+			This.Sort()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SortInAscending()
+			This.Sort()
+
+			def SortInAscendingQ()
+				return This.SortQ()
+
+		#>
 
 	def Sorted()
-		return This.SortedBy(1)				
+		aResult = This.Copy().SortQ().Content()
+		return aResult
+
+		def SortedInAscending()
+			return This.Sorted()			
+
+	  #-------------------------------------------#
+	 #  SORTING THE LIST OF LISTS IN DESCENDING  #
+	#-------------------------------------------#
+
+	def SortInDescending()
+		aResult = ring_reverse( This.SortedInAscending() )
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm
+
+		def SortInDescendingQ()
+			This.SortInDescending()
+			return This
+
+		#>
+
+	def SortedInDescendning()
+		aResult = This.Copy().SortInDescendingQ().Content()
+		return aResult
 
 	  #-----------------------------------------------#
 	 #  SORTING THE LIST OF LISTS BY A GIVEN COLUMN  #
-	#-----------------------------------------------#
+	#===============================================#
 
 	def SortBy(n)
 		This.UpdateBy(This.SortedBy(n))

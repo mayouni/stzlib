@@ -15653,9 +15653,9 @@ class stzList from stzObject
 			aNumbers = ring_sort( This.OnlyNumbers() )
 	
 			aStrings = ring_sort( This.OnlyStrings() )
-	
+
 			aLists = StzListOfListsQ( This.OnlyLists() ).Sorted()
-	
+
 			aObjects = This.OnlyObjects()
 	
 			aResult = ListsMerge([ aNumbers, aStrings, aLists, aObjects ])
@@ -15720,7 +15720,7 @@ class stzList from stzObject
 
 	def SortInDescending()
 
-		aResult = ring_reverse( ring_sort(This.Content()) )
+		aResult = ring_reverse( This.SortedInAscending() )
 		This.Update( aResult )
 
 		#< @FunctionFluentForm
@@ -21936,7 +21936,7 @@ class stzList from stzObject
 			ok
 		catch
 			return FALSE
-			// Report Ring bug: catch region does not consider more then 1 line!
+
 		done
 
 		
@@ -30403,6 +30403,19 @@ class stzList from stzObject
 			other
 				StzRaise("Unsupported return type!")
 			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def StringifyItems()
+			This.Stringify()
+
+			def StringifyItemsQ()
+				return This.StringifyQ()
+
+			def StringifyItemsQR(pcReturnType)
+				return This.StringifyQR(pcReturnType)
 
 		#>
 
