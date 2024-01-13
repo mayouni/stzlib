@@ -1,6 +1,7 @@
 
 load "stzlib.ring"
 
+
 /*=============
 
 pron()
@@ -96,7 +97,7 @@ proff()
 # Executed in 0.20 second(s)
 
 /*=====
-*/
+
 pron()
 
 	o1 = new stzString("**word1***word2**word3***")
@@ -113,14 +114,23 @@ proff()
 #--> Executed in 0.17 second(s)
 
 /*-----
-*/
+
 pron()
 
 o1 = new stzString("1♥♥456♥♥901♥♥4")
 o1.RemoveSections([ 2:3, 7:8, 12:13 ])
 ? o1.Content()
+#--> 14569014
 
-/*
+proff()
+# Executed in 0.14 second(s)
+
+/*-----
+
+pron()
+
+o1 = new stzString("1♥♥456♥♥901♥♥4")
+
 o1 {
 	# Finding chars / items
 
@@ -143,6 +153,44 @@ o1 {
 	#-- Doing somethinh the sections
 
 	RemoveSections(aSections)
-	? o1.Content()
-
+		? o1.Content()
+		#--> 14569014
+	
 }
+
+proff()
+
+/*-----
+*/
+pron()
+
+o1 = new stzList(Q("1♥♥456♥♥901♥♥4").Chars())
+
+o1 {
+	# Finding chars / items
+
+	anPos = Find("♥")
+		? @@(anPos)
+		#--> [ 2, 3, 4, 8, 9, 14, 15 ]
+
+	# Doing someting with the positions
+
+	RepalceCharsAtPositions(anPos, :With = "★")
+		? Content()
+		#--> 1★★456★★901★★4
+
+	#-- Finding sections
+
+	aSections = FindAsSections("★★")
+		? @@(aSections)
+		#--> [ [ 2, 3 ], [ 7, 8 ], [ 12, 13 ] ]
+
+	#-- Doing somethinh the sections
+
+	RemoveSections(aSections)
+		? o1.Content()
+		#--> 14569014
+	
+}
+
+proff()
