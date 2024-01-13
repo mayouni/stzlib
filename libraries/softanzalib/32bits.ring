@@ -1,6 +1,35 @@
 
 load "stzlib.ring"
 
+/*---
+
+pron()
+
+o1 = new stzString("1♥34♥♥")
+o1.ReplaceByMany("♥", [ "2", "5", "6" ])
+? o1.Content()
+#--> 123456
+
+o1 = new stzString("1♥34♥♥")
+o1.Replace("♥", :By = [ "2", "5", "6" ])
+? o1.Content()
+
+proff()
+
+/*---
+*/
+pron()
+
+o1 = new stzList([ 1, :♥, 3, 4, :♥, :♥ ])
+anPos = o1.Find(:♥)
+#--> [ 2, 5, 6 ]
+
+o1.ReplaceByMany(:♥, [2, 5, 6]) # TODO: Add this function to stzList, based on
+? o1.Content()			# its sister in stzString
+
+proff()
+
+/*---
 
 pron()
 
@@ -15,21 +44,9 @@ o1 {
 
 	# Doing someting with the positions
 
-	ReplaceCharsAtPositions(anPos, :With = "★")
+	ReplaceItemsAtPositions(anPos, :With = "★")
 		? Content()
 		#--> 1★★456★★901★★4
-
-	#-- Finding sections
-
-	aSections = FindAsSections("★★")
-		? @@(aSections)
-		#--> [ [ 2, 3 ], [ 7, 8 ], [ 12, 13 ] ]
-
-	#-- Doing somethinh the sections
-
-	RemoveSections(aSections)
-		? o1.Content()
-		#--> 14569014
 	
 }
 
