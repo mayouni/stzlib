@@ -255,7 +255,7 @@ class stzCCode
 		# code uses only This[@i] like code. No @NextItem, @PreviousI,
 		# and other keywords can be use here.
 
-		# You can always repalce them by a This[@i] like alternative.
+		# You can always Replace them by a This[@i] like alternative.
 		# For example @NewtItem can be written as This[@i + 1], and
 		# @PreviousItem can be written as This[@i - 1], and so on.
 

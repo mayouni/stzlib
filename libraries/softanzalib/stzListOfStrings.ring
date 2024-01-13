@@ -3298,7 +3298,7 @@ class stzListOfStrings from stzList
 			return This.NumberOfOccurrenceOfManyStringItemsQR(pacStrItems, :stzList)
 
 		def NumberOfOccurrenceOfManyStringItemsQR(pacStrItems, pcReturnType)
-			return This.NumberOfOccurrenceOfManyStringItemsCSQR(pacStrItems, pcCaseSensitive, pcReturnType)
+			return This.NumberOfOccurrenceOfManyStringItemsCSQR(pacStrItems, TRUE, pcReturnType)
 		#>
 
 		#< @FunctionAlternativeForms
@@ -3310,7 +3310,7 @@ class stzListOfStrings from stzList
 				return This.NumberOfOccurrencesOfManyStringItemsQR(pacStrItems, :stzList)
 	
 			def NumberOfOccurrencesOfManyStringItemsQR(pacStrItems, pcReturnType)
-				return This.NumberOfOccurrencesOfManyStringItemsCSQR(pacStrItems, pcCaseSensitive, pcReturnType)
+				return This.NumberOfOccurrencesOfManyStringItemsCSQR(pacStrItems, TRUE, pcReturnType)
 
 		def NumberOfOccurrenceOfManyStrings(pacStrItems)
 			return This.NumberOfOccurrenceOfManyStringItems(pacStrItems)
@@ -9646,11 +9646,11 @@ class stzListOfStrings from stzList
 
 		#< @FunctionAlternativeForms
 
-		def RepalceFirstCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceFirstCS(pcString, pcOtherString, pCaseSensitive)
 			This.ReplaceFirstOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
 
-			def RepalceFirstCSQ(pcString, pcOtherString, pCaseSensitive)
-				This.RepalceFirstCS(pcString, pcOtherString, pCaseSensitive)
+			def ReplaceFirstCSQ(pcString, pcOtherString, pCaseSensitive)
+				This.ReplaceFirstCS(pcString, pcOtherString, pCaseSensitive)
 				return This
 
 		def ReplaceFirstOccurrenceOfStringCS(pcStrItem, pcOtherString, pCaseSensitive)
@@ -9705,11 +9705,11 @@ class stzListOfStrings from stzList
 
 		#< @FunctionAlternativeForms
 
-		def RepalceFirst(pcString, pcOtherString)
+		def ReplaceFirst(pcString, pcOtherString)
 			This.ReplaceFirstOccurrence(pcString, pcOtherString)
 
-			def RepalceFirstQ(pcString, pcOtherString)
-				This.RepalceFirst(pcString, pcOtherString)
+			def ReplaceFirstQ(pcString, pcOtherString)
+				This.ReplaceFirst(pcString, pcOtherString)
 				return This
 
 		def ReplaceFirstOccurrenceOfString(pcStrItem, pcOtherString)
@@ -9768,11 +9768,11 @@ class stzListOfStrings from stzList
 
 		#< @FunctionAlternativeForms
 
-		def RepalceLastCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceLastCS(pcString, pcOtherString, pCaseSensitive)
 			This.ReplaceLastOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
 
-			def RepalceLastCSQ(pcString, pcOtherString, pCaseSensitive)
-				This.RepalceLastCS(pcString, pcOtherString, pCaseSensitive)
+			def ReplaceLastCSQ(pcString, pcOtherString, pCaseSensitive)
+				This.ReplaceLastCS(pcString, pcOtherString, pCaseSensitive)
 				return This
 
 		def ReplaceLastOccurrenceOfStringCS(pcStrItem, pcOtherString, pCaseSensitive)
@@ -9827,11 +9827,11 @@ class stzListOfStrings from stzList
 
 		#< @FunctionAlternativeForms
 
-		def RepalceLast(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceLast(pcString, pcOtherString, pCaseSensitive)
 			This.ReplaceLastOccurrence(pcString, pcOtherString)
 
-			def RepalceLastQ(pcString, pcOtherString, pCaseSensitive)
-				This.RepalceLast(pcString, pcOtherString)
+			def ReplaceLastQ(pcString, pcOtherString, pCaseSensitive)
+				This.ReplaceLast(pcString, pcOtherString)
 				return This
 
 		def ReplaceLastOccurrenceOfString(pcStrItem, pcOtherString)
@@ -11117,7 +11117,7 @@ class stzListOfStrings from stzList
 		#>
 
 	def StringsAtPositionsReplacedByMany(panPositions, pacOtherStrings)
-		acResult = This.Copy().RepalceStringsByManyAtPositionsQ(panPositions, pacOtherStrings).Content()
+		acResult = This.Copy().ReplaceStringsByManyAtPositionsQ(panPositions, pacOtherStrings).Content()
 		return acResult
 
 		def StringItemsAtPositionsReplacedByMany(panPositions, pacOtherStrings)
@@ -11198,7 +11198,7 @@ class stzListOfStrings from stzList
 		#>
 
 	def StringsAtPositionsReplacedByManyXT(panPositions, pacOtherStrings)
-		acResult = This.Copy().RepalceStringsByManyAtPositionsXTQ(panPositions, pacOtherStrings).Content()
+		acResult = This.Copy().ReplaceStringsByManyAtPositionsXTQ(panPositions, pacOtherStrings).Content()
 		return acResult
 
 		def StringItemsAtPositionsReplacedByManyXT(panPositions, pacOtherStrings)
@@ -12134,11 +12134,11 @@ stop()
 			This.ReplaceManySubStringsCS(pacSubStr, pcNewSubStr, pCaseSensitive)
 			return This
 
-		def RepalceSubStringsCS(pacSubStr, pcNewSubStr, pCaseSensitive)
+		def ReplaceSubStringsCS(pacSubStr, pcNewSubStr, pCaseSensitive)
 			This.ReplaceManySubStringsCS(pacSubStr, pcNewSubStr, pCaseSensitive)
 
-			def RepalceSubStringsCSQ(pacSubStr, pcNewSubStr, pCaseSensitive)
-				This.RepalceSubStringsCS(pacSubStr, pcNewSubStr, pCaseSensitive)
+			def ReplaceSubStringsCSQ(pacSubStr, pcNewSubStr, pCaseSensitive)
+				This.ReplaceSubStringsCS(pacSubStr, pcNewSubStr, pCaseSensitive)
 				return This
 
 	def ManySubStringsReplacedCS(pacSubStr, pcNewSubStr, pCaseSensitive)
@@ -12157,11 +12157,11 @@ stop()
 			This.ReplaceManySubStrings(pacSubStr, pcNewSubStr)
 			return This
 
-		def RepalceSubStrings(pacSubStr, pcNewSubStr)
+		def ReplaceSubStrings(pacSubStr, pcNewSubStr)
 			This.ReplaceManySubStrings(pacSubStr, pcNewSubStr)
 
-			def RepalceSubStringsQ(pacSubStr, pcNewSubStr)
-				This.RepalceSubStrings(pacSubStr, pcNewSubStr)
+			def ReplaceSubStringsQ(pacSubStr, pcNewSubStr)
+				This.ReplaceSubStrings(pacSubStr, pcNewSubStr)
 				return This
 
 	def ManySubStringsReplaced(pacSubStr, pcNewSubStr)

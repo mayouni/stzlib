@@ -44,7 +44,7 @@ o1 {
 
 	# Doing someting with the positions
 
-	RepalceCharsAtPositions(anPos, :With = "★")
+	ReplaceCharsAtPositions(anPos, :With = "★")
 		? Content()
 		#--> 1★★456★★901★★4
 

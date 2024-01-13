@@ -22885,6 +22885,9 @@ class stzString from stzObject
 					else
 						pcNewSubStr = pcNewSubStr[2]
 					ok
+
+				but isList(pcNewSubStr[2])
+					return This.ReplaceByManyCS(pcSubStr, pcNewSubStr[2], pCaseSensitive)
 				ok
 	
 			ok
@@ -22929,6 +22932,15 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForm
+
+		# TODO: Add Repalce as a misspelled form to all Replace...() functions
+
+		def RepalceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def Replace(pcSubStr, pcNewSubStr)
@@ -22945,6 +22957,15 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		#--> See bottom of file!
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		# TODO: Add Repalce as a misspelled form to all Replace...() functions
+
+		def Repalce(pcSubStr, pcNewSubStr)
+			This.Replace(pcSubStr, pcNewSubStr)
 
 		#>
 
@@ -53563,22 +53584,21 @@ ici		//...
 				StzRaise("Incorrect param type! nNumberOfChars must be a number.")
 			ok
 
-			if isString(n1) and NOT Q(n1).IsOneOfThese([
+			if isString(nStart) and NOT Q(nStart).IsOneOfThese([
 				:First, :FirstChar, :StartOfString,
 				:Last,  :LastChar,  :EndOfString ])
 
-				StzRaise("Incorrect value! n1 can be a string containing one of these values: " +
+				StzRaise("Incorrect value! nStart can be a string containing one of these values: " +
 					":First, :FirstChar, :StartOfString, :Last,  :LastChar or :EndOfString.")
 
 			ok
 
 			#--
 
-			if n1 = :FirstChar or n1 = :StartOfString or n1 = :First
-				n1 = 1
-			ok
-	
-			if n1 = :LastChar  or n1 = :EndOfString or n1 = :Last
+			if nStart = :FirstChar or nStart = :StartOfString or nStart = :First
+				nStart = 1
+
+			but nStart = :LastChar  or nStart = :EndOfString or nStart = :Last
 				n1 = This.NumberOfChars()
 			ok
 
@@ -62617,8 +62637,16 @@ ici		//...
 	 #    CHARS     #
 	#==============#
 
-	def CharsCS(pcCaseSensitive)
-		acResult = This.CharsQ().DuplicatesRemovedCS(pCaseSensitive)
+	def CharsCS(pCaseSensitive)
+		cContent = This.Content()
+		nLen = This.NumberOfChars()
+		acChars = []
+
+		for i = 1 to nLen
+			acChars + This.Char(i)
+		next
+
+		acResult = StzListQ(acChars).DuplicatesRemovedCS(pCaseSensitive)
 		return acResult
 
 		def CharsCSQ(pCaseSensitive)
@@ -62656,7 +62684,7 @@ ici		//...
 		#< @FunctionFluentForm
 
 		def CharsQ()
-			return This.CharsQR(:stzList)
+			return new stzList(This.Chars())
 
 		def CharsQR(pcReturnType)
 			return This.CharsCSQR(TRUE, pcReturnType)
