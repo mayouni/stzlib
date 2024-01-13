@@ -26805,7 +26805,7 @@ class stzString from stzObject
 	def AntiFindCSZZ(pcSubStr, pCaseSensitive)
 
 		return Q(1:This.NumberOfChars()).
-			FindAntiSections( This.FindZZCS(pcSubStr, pCaseSensitive) )
+			FindAntiSections( This.FindCSZZ(pcSubStr, pCaseSensitive) )
 
 		#< @FunctionAlternativeForms
 
@@ -30958,10 +30958,8 @@ class stzString from stzObject
 	 #  FINDING THE POSITIONS OF ALL THE CHARS IN THE STRING  #
 	#========================================================#
 
-# Add U() function in stzGlobal.ring
-
 	def FindCharsCS(pCaseSensitive)
-		acChars  = This.CharsCSU(pCaseSensitive) # TODO: Add the method
+		acChars  = This.CharsCSU(pCaseSensitive)
 		anResult = This.FindTheseSubStringsCS(acChars, pCaseSensitive)
 		return anResult
 
@@ -31012,7 +31010,7 @@ class stzString from stzObject
 			ok
 		ok
 
-		acChars  = U( pacChars ) # TODO: Add the method
+		acChars  = U( pacChars )
 		anResult = This.FindTheseSubStringsCS(acChars, pCaseSensitive)
 		return anResult
 
@@ -55659,16 +55657,16 @@ ici		//...
 
 		#--
 
-		def RemoveCharFromStartXTCS(c, pCaseSensitive)
+		def RemoveCharFromStartCSXT(c, pCaseSensitive)
 			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
 
-			def RemoveCharFromStartXTCSQ(c, pCaseSensitive)
+			def RemoveCharFromStartCSXTQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromTheStartCSQ(c, pCaseSensitive)
 
-		def RemoveCharFromTheStartXTCS(c, pCaseSensitive)
+		def RemoveCharFromTheStartCSXT(c, pCaseSensitive)
 			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
 
-			def RemoveCharFromTheStartXTCSQ(c, pCaseSensitive)
+			def RemoveCharFromTheStartCSXTQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromTheStartCSQ(c, pCaseSensitive)
 
 		#--
@@ -55724,10 +55722,10 @@ ici		//...
 
 		#--
 
-		def CharRemovedFromStartXTCS(c, pCaseSensitive)
+		def CharRemovedFromStartCSXT(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
 
-		def CharRemovedFromTheStartXTCS(c, pCaseSensitive)
+		def CharRemovedFromTheStartCSXT(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
 
 		#--
@@ -55928,16 +55926,16 @@ ici		//...
 
 		#--
 
-		def RemoveCharFromEndXTCS(c, pCaseSensitive)
+		def RemoveCharFromEndCSXT(c, pCaseSensitive)
 			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
 
-			def RemoveCharFromEndXTCSQ(c, pCaseSensitive)
+			def RemoveCharFromEndCSXTQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromTheEndCSQ(c, pCaseSensitive)
 
-		def RemoveCharFromTheEndXTCS(c, pCaseSensitive)
+		def RemoveCharFromTheEndCSXT(c, pCaseSensitive)
 			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
 
-			def RemoveCharFromTheEndXTCSQ(c, pCaseSensitive)
+			def RemoveCharFromTheEndCSXTQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromTheEndCSQ(c, pCaseSensitive)
 
 		#--
@@ -55993,10 +55991,10 @@ ici		//...
 
 		#--
 
-		def CharRemovedFromEndXTCS(c, pCaseSensitive)
+		def CharRemovedFromEndCSXT(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
 
-		def CharRemovedFromTheEndXTCS(c, pCaseSensitive)
+		def CharRemovedFromTheEndCSXT(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
 
 		#--
@@ -56250,18 +56248,17 @@ ici		//...
 
 		#--
 
-		def RemoveCharFromLeftXTCS(c, pCaseSensitive)
+		def RemoveCharFromLeftCSXT(c, pCaseSensitive)
 			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
 
-			def RemoveCharFromLeftXTCSQ(c, pCaseSensitive)
+			def RemoveCharFromLeftCSXTQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromTheLeftCSQ(c, pCaseSensitive)
 
-		def RemoveCharFromTheLeftXTCS(c, pCaseSensitive)
+		def RemoveCharFromTheLeftCSXT(c, pCaseSensitive)
 			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
 
-			def RemoveCharFromTheLeftXTCSQ(c, pCaseSensitive)
+			def RemoveCharFromTheLeftCSXTQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromTheLeftCSQ(c, pCaseSensitive)
-
 
 		#--
 
@@ -56316,10 +56313,10 @@ ici		//...
 
 		#--
 
-		def CharRemovedFromLeftXTCS(c, pCaseSensitive)
+		def CharRemovedFromLeftCSXT(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
 
-		def CharRemovedFromTheLeftXTCS(c, pCaseSensitive)
+		def CharRemovedFromTheLeftCSXT(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
 
 		#--
@@ -56570,16 +56567,16 @@ ici		//...
 
 		#--
 
-		def RemoveCharFromRightXTCS(c, pCaseSensitive)
+		def RemoveCharFromRightCSXT(c, pCaseSensitive)
 			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
 
 			def RemoveCharFromRightXTCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromTheRightCSQ(c, pCaseSensitive)
 
-		def RemoveCharFromTheRightXTCS(c, pCaseSensitive)
+		def RemoveCharFromTheRightCSXT(c, pCaseSensitive)
 			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
 
-			def RemoveCharFromTheRightXTCSQ(c, pCaseSensitive)
+			def RemoveCharFromTheRightCSXTQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromTheRightCSQ(c, pCaseSensitive)
 
 		#--
@@ -56634,10 +56631,10 @@ ici		//...
 			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
 		#--
 
-		def CharRemovedFromRightXTCS(c, pCaseSensitive)
+		def CharRemovedFromRightCSXT(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
 
-		def CharRemovedFromTheRightXTCS(c, pCaseSensitive)
+		def CharRemovedFromTheRightCSXT(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
 
 		#--
@@ -62620,17 +62617,41 @@ ici		//...
 	 #    CHARS     #
 	#==============#
 
-	// Returns the string as a list of Chars
-	def Chars()
-
-		acResult = []
-		nLen = This.NumberOfChars()
-
-		for i = 1 to nLen
-			acResult + This.NthChar(i)
-		next
-
+	def CharsCS(pcCaseSensitive)
+		acResult = This.CharsQ().DuplicatesRemovedCS(pCaseSensitive)
 		return acResult
+
+		def CharsCSQ(pCaseSensitive)
+			return This.CharsCSQR(pCaseSensitive, :stzList)
+
+		def CharsCSQR(pCaseSensitive, pcReturnType)
+			if CheckParams()
+
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+			ok
+
+			switch pcReturnType
+
+			on :stzList
+				return new stzList( This.CharsCS(pCaseSensitive) )
+
+			on :StzListOfChars
+				return new stzListOfChars( This.CharsCS(pCaseSensitive) )
+
+			on :StzListOfStrings
+				return new stzListOfStrings( This.CharsCS(pCaseSensitive) )
+
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Chars()
+		return This.CharsCS(TRUE)
 
 		#< @FunctionFluentForm
 
@@ -62638,25 +62659,7 @@ ici		//...
 			return This.CharsQR(:stzList)
 
 		def CharsQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Chars() )
-
-			on :stzListOfChars
-				return new stzListOfChars( This.Chars() )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.Chars() )
-			other
-				stzRaise([
-					:Where = "stzString (13237) > CharsQR()",
-					:What  = "Unsupported type!"
-				])
-			off
+			return This.CharsCSQR(TRUE, pcReturnType)
 
 		#>
 
@@ -62665,52 +62668,17 @@ ici		//...
 		def ToListOfChars()
 			return This.Chars()
 
-			#< @FunctionFluentForm
+			def ToListOfCharsQ()
+				return This.ToListOfCharsQR(:stzList)
 
 			def ToListOfCharsQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.Chars() )
-
-				on :stzListOfChars
-					return new stzListOfChars( This.Chars() )
-
-				on :stzListOfStrings
-					return new stzListOfStrings( This.Chars() )
-
-				other
-					stzRaise("Unsupported type!")
-				off 
-
-			def ToListOfCharsQ()
-				return This.ToListOfCharsQR(:stzListOfChars)
-
-			def ToStzListOfChars()
-				return This.ToListOfCharsQR(:stzListOfChars)
-
-
-			#>
+				return This.CharsQR(pcReturnType)
 	
 		#>
-			
 
-	def CharsU()
-		acResult = U( This.Chars() )
-		return acResult
-
-		def UniqueChars()
-			return This.CharsU()
-
-	def NumberOfCharsU()
-		nResult = len( This.CharsU() )
-		return nResult
-
-		def NumberOfUniqueChars()
-			return This.NumberOfCharsU()
+	  #---------------------------------------------------------------------#
+	 #  TRANSFORMING THE CHARS OF THE STRING TO A LIST OF stzChar OBJECTS  #
+	#---------------------------------------------------------------------#
 
 	def ToListOfStzChars()
 		acChars = This.Chars()
@@ -62733,6 +62701,18 @@ ici		//...
 			return new stzList( This.ToListOfStzChars() )
 
 		#>
+
+	  #-------------------------------------------------------------------#
+	 #  TRANSFORMING THE CHARS OF THE STRING TO A stzListOfChars OBJECT  #
+	#-------------------------------------------------------------------#
+
+	def ToStzListOfCharsCS(pCaseSensitive)
+		return This.ToListOfCharsCSQR(pCaseSensitive, :stzListOfChars)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ToStzListOfChars()
+		return This.ToStzListOfCharsCS(TRUE)
 
 	  #=====================================================#
 	 #  CHECKING IF THE STRING IS THE NAME OF A FUNCTION   #
@@ -63190,9 +63170,48 @@ ici		//...
 			return FALSE
 		ok
 
-	  #------------------#
-	 #   UNIQUE CHARS   #
-	#------------------#
+	  #----------------------------#
+	 #   NUMBER OF UNIQUE CHARS   #
+	#----------------------------#
+
+	def NumberOfCharsCSU(pCaseSensitive)
+		nResult = len( This.CharsCSU(pCaseSensitive) )
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfUniqueCharsCS(pCaseSensitive)
+			return This.NumberOfCharsCSU(pCaseSensitive)
+
+		def HowManyCharsCSU(pCaseSensitive)
+			return This.NumberOfCharsCSU(pCaseSensitive)
+
+		def HowManyUniqueCharsCS(pCaseSensitive)
+			return This.NumberOfCharsCSU(pCaseSensitive)
+
+		#>
+
+	#--
+
+	def NumberOfCharsU()
+		return This.NumberOfCharsCSU(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfUniqueChars()
+			return This.NumberOfCharsU()
+
+		def HowManyCharsU()
+			return This.NumberOfCharsU()
+
+		def HowManyUniqueChars()
+			return This.NumberOfCharsU()
+
+		#>
+
+	  #------------------------------#
+	 #   UNIQUE CHARS IN THE LIST   #
+	#------------------------------#
 
 	def UniqueCharsCS(pCaseSensitive)
 		acResult = This.CharsQR(:stzListOfStrings).DuplicatesRemovedCS(pCaseSensitive)
@@ -63235,13 +63254,13 @@ ici		//...
 			def ToSetOfCharsCSQR(pcReturnType, pCaseSensitive)
 				return This.UniqueCharsQRCS(pcReturnType, pCaseSensitive)
 	
-		def CharsUCS(pCaseSensitive)
+		def CharsCSU(pCaseSensitive)
 			return This.UniqueCharsCS(pCaseSensitive)
 
-			def CharsUCSQ(pCaseSensitive)
+			def CharsCSUQ(pCaseSensitive)
 				return This.UniqueCharsCSQ(pCaseSensitive)
 
-			def CharsUCSQR(pCaseSensitive, pcReturnType)
+			def CharsCSUQR(pCaseSensitive, pcReturnType)
 				return This.UniqueCharsQRCS(pcReturnType, pCaseSensitive)
 
 		def CharsWithoutDuplicationCS(pCaseSensitive)
@@ -63254,6 +63273,9 @@ ici		//...
 				return This.UniqueCharsQRCS(pcReturnType, pCaseSensitive)
 
 		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
 
 	  #-----------------------------#
 	 #  REMOVING DUPLICATED CHARS  #
@@ -69504,9 +69526,161 @@ ici		//...
 	def FindAllOccurrences(pcSubStr)
 		return This.FindOccurrences(pcSubStr)
 
+	  #------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES OF A CHAR INSIDE THE STING  #
+	#======================================================#
+
+	def FindCharCS(c, pCaseSensitive)
+		anResult = This.FindCS(c, pCaseSensitive)
+		return anResult
+
+		def FindCharCSZ(c, pCaseSensitive)
+			return This.FindCharCS(c, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVE
+
+	def FindChar(c)
+		return This.FindCharCS(c, TRUE)
+
+		def FindCharZ(c)
+			return This.FindChar(c)
+
+	  #---------------------------------------------------------#
+	 #  FINDING THE NTH OCCURRENCE OF A CHAR INSIDE THE STING  #
+	#---------------------------------------------------------#
+
+	def FindNthCharCS(n, cChar, pCaseSensitive)
+		nResult = This.FindNthCS(n, cChar, pCaseSensitive)
+		return nResult
+
+		#< @FunctiionAlternativeForms
+
+		def FindNthCharCSZ(n, cChar, pCaseSensitive)
+			return This.FindNthCharCS(n, cChar, pCaseSensitive)
+
+		#--
+
+		def FindNthOccurrenceOfCharCS(n, cChar, pCaseSensitive)
+			return This.FindNthCharCS(n, cChar, pCaseSensitive)
+
+		def FindNthOccurrenceOfCharCSZ(n, cChar, pCaseSensitive)
+			return This.FindNthCharCS(n, cChar, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVE
+
+	def FindNthChar(n, cChar)
+		return This.FindNthCharCS(n, cChar, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNthCharZ(n, cChar)
+			return This.FindNthChar(n, cChar)
+
+		#--
+
+		def FindNthOccurrenceOfChar(n, cChar)
+			return This.FindNthChar(n, cChar)
+
+		def FindNthOccurrenceOfCharZ(n, cChar)
+			return This.FindNthChar(n, cChar)
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #  FINDING THE FIRST OCCURRENCE OF A CHAR INSIDE THE STING  #
+	#-----------------------------------------------------------#
+
+	def FindFirstCharCS(cChar, pCaseSensitive)
+
+		nResult = This.FindNthOccurrenceOfCharCS(1, cChar, pCaseSensitive)
+		return nResult
+
+		#< @FunctiionAlternativeForms
+
+		def FindFirstCharCSZ(cChar, pCaseSensitive)
+			return This.FindFirstCharCS(cChar, pCaseSensitive)
+
+		#--
+
+		def FindFirstOccurrenceOfCharCS(cChar, pCaseSensitive)
+			return This.FindFirstCharCS(cChar, pCaseSensitive)
+
+		def FindFirstOccurrenceOfCharCSZ(cChar, pCaseSensitive)
+			return This.FindFirstCharCS(cChar, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVE
+
+	def FindFirstChar(cChar)
+		return This.FindFirstCharCS(cChar, TRUE)
+
+		#< @FunctiionAlternativeForms
+
+		def FindFirstCharZ(cChar)
+			return This.FindFirstChar(cChar)
+
+		#--
+
+		def FindFirstOccurrenceOfChar(cChar)
+			return This.FindFirstChar(cChar)
+
+		def FindFirstOccurrenceOfCharZ(cChar)
+			return This.FindFirstChar(cChar)
+
+		#>
+
+	  #----------------------------------------------------------#
+	 #  FINDING THE LAST OCCURRENCE OF A CHAR INSIDE THE STING  #
+	#----------------------------------------------------------#
+
+	def FindLastCharCS(cChar, pCaseSensitive)
+
+		n = This.NumberOfOccurrenceCS(c, pCaseSensitive)
+		nResult = This.FindNthOccurrenceOfCharCS(n, cChar, pCaseSensitive)
+
+		return nResult
+
+		#< @FunctiionAlternativeForms
+
+		def FindLastCharCSZ(cChar, pCaseSensitive)
+			return This.FindLastCharCS(cChar, pCaseSensitive)
+
+		#--
+
+		def FindLastOccurrenceOfCharCS(cChar, pCaseSensitive)
+			return This.FindLastCharCS(cChar, pCaseSensitive)
+
+		def FindLastOccurrenceOfCharCSZ(cChar, pCaseSensitive)
+			return This.FindLastCharCS(cChar, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVE
+
+	def FindLastChar(cChar)
+		return This.FindLastCharCS(cChar, TRUE)
+
+		#< @FunctiionAlternativeForms
+
+		def FindLastCharZ(cChar)
+			return This.FindLastChar(cChar)
+
+		#--
+
+		def FindLastOccurrenceOfChar(cChar)
+			return This.FindLastChar(cChar)
+
+		def FindLastOccurrenceOfCharZ(cChar)
+			return This.FindLastChar(cChar)
+
+		#>
+
 	  #--------------------------------#
 	 #  ALTERNATIVES OF SubStrings()  #
-	#--------------------------------#
+	#================================#
 
 	def AllSubStringsCS(pCaseSitive)
 		return This.SubStringsCS(pCaseSitive)
@@ -70922,12 +71096,12 @@ ici		//...
 	#----------------------------------------#
 
 	def UniqueSubStringsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		return This.SubstringsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.SubstringsBetweenCSU(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 	#--
 
 	def UniqueSubStringsBoundedByCS(pacBounds, pCaseSensitive)
-		return This.SubstringsBetweenUCS(pacBounds[1], pacBounds[2], pCaseSensitive, :stzList)
+		return This.SubstringsBetweenCSU(pacBounds[1], pacBounds[2], pCaseSensitive, :stzList)
 
 		def UniqueSubStringsBoundedByCSQ(pacBounds, pCaseSensitive)
 			return This.SubstringsBetweenUCSQ(pacBounds[1], pacBounds[2], pCaseSensitive)
@@ -70936,7 +71110,7 @@ ici		//...
 			return This.SubstringsBetweenUCSQR(pacBounds[1], pacBounds[2], pCaseSensitive, pcReturnType)
 
 	def SubStringsBoundedByWithoutDuplicationCS(pacBounds, pCaseSensitive)
-		return This.SubstringsBetweenUCS(pacBounds[1], pacBounds[2], pCaseSensitive, :stzList)
+		return This.SubstringsBetweenCSU(pacBounds[1], pacBounds[2], pCaseSensitive, :stzList)
 
 		def SubStringsBoundedByWithoutDuplicationCSQ(pacBounds, pCaseSensitive)
 			return This.UniqueSubStringsBoundedByCSQ(pacBounds, pCaseSensitive)
@@ -70947,7 +71121,7 @@ ici		//...
 	#--
 
 	def UniqueSectionsBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		return This.SubstringsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.SubstringsBetweenCSU(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		def UniqueSectionsBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SubstringsBetweenUCSQ(ppacBounds[1], pacBounds[2], pCaseSensitive)
@@ -70956,7 +71130,7 @@ ici		//...
 			return This.SubstringsBetweenUCSQR(pacBounds[1], pacBounds[2], pCaseSensitive, pcReturnType)
 
 	def UniqueSectionsBoundedByCS(pacBounds, pCaseSensitive)
-		return This.SubstringsBetweenUCS(pacBounds[1], pacBounds[2], pCaseSensitive)
+		return This.SubstringsBetweenCSU(pacBounds[1], pacBounds[2], pCaseSensitive)
 
 		def UniqueSectionsBoundedByCSQ(pacBounds, pCaseSensitive)
 			return This.SubstringsBetweenUCSQ(pacBounds[1], pacBounds[2], pCaseSensitive)
@@ -70965,7 +71139,7 @@ ici		//...
 			return This.SubstringsBetweenUCSQR(pacBounds[1], pacBounds[2], pCaseSensitive, pcReturnType)
 
 	def SectionsWithoutDuplicationBetwenCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		return This.SubstringsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.SubstringsBetweenCSU(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		def SectionsWithoutDuplicationBetweenCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SubstringsBetweenUCSQ(ppacBounds[1], pacBounds[2], pCaseSensitive)
@@ -70976,8 +71150,8 @@ ici		//...
 
 	#==
 
-	def SubStringsBoundedByUCS(pacBounds, pCaseSensitive)
-		return This.SubstringsBetweenUCS(pacBounds[1], pacBounds[2], pCaseSensitive, :stzList)
+	def SubStringsBoundedByCSU(pacBounds, pCaseSensitive)
+		return This.SubstringsBetweenCSU(pacBounds[1], pacBounds[2], pCaseSensitive, :stzList)
 
 		def SubStringsBoundedByUCSQ(pacBounds, pCaseSensitive)
 			return This.SubstringsBetweenUCSQ(pacBounds[1], pacBounds[2], pCaseSensitive)
@@ -70987,8 +71161,8 @@ ici		//...
 
 	#--
 
-	def SectionsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		return This.SubstringsBetweenUCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+	def SectionsBetweenCSU(pcSubStr1, pcSubStr2, pCaseSensitive)
+		return This.SubstringsBetweenCSU(pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		def SectionsBetweenUCSQ(pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.SubstringsBetweenUCSQ(ppacBounds[1], pacBounds[2], pCaseSensitive)
@@ -70996,8 +71170,8 @@ ici		//...
 		def USectionsBetweenUCSQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
 			return This.SubstringsBetweenUCSQR(pacBounds[1], pacBounds[2], pCaseSensitive, pcReturnType)
 
-	def SectionsBoundedByUCS(pacBounds, pCaseSensitive)
-		return This.SubstringsBetweenUCS(pacBounds[1], pacBounds[2], pCaseSensitive)
+	def SectionsBoundedByCSU(pacBounds, pCaseSensitive)
+		return This.SubstringsBetweenCSU(pacBounds[1], pacBounds[2], pCaseSensitive)
 
 		def SectionsBoundedByUCSQ(pacBounds, pCaseSensitive)
 			return This.SubstringsBetweenUCSQ(pacBounds[1], pacBounds[2], pCaseSensitive)
