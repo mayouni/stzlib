@@ -1,6 +1,120 @@
 load "stzlib.ring"
 
-/*-------
+/*==========
+*/
+pron()
+
+	o1 = new stzString("ring ♥♥♥ruby php")
+	o1.RemoveAt(6, "♥♥♥") # Or RemoveSubStringAtPosition()
+
+	? o1.Content()
+	#--> "ring ruby php"
+
+proff()
+# Executed in 0.01 second(s)
+
+/*----------
+
+pron()
+
+	o1 = new stzString("ring ♥♥♥ruby php")
+	o1.RemoveXT("♥♥♥", :AtPosition = 6)
+
+	? o1.Content()
+	#--> "ring ruby php"
+
+proff()
+# Executed in 0.05 second(s)
+
+/*------------
+
+pron()
+
+	o1 = new stzString("♥♥♥ring ♥♥♥ruby ♥♥♥php")
+	o1.RemoveXT("♥♥♥", :AtPositions = [ 1, 9, 17 ])
+
+	? o1.Content() #--> "ring ruby php"
+
+proff()
+# Executed in 0.14 second(s)
+
+/*------------
+
+pron()
+
+	o1 = new stzString("♥♥♥ring ♥♥♥ruby ♥♥♥php")
+	o1.RemoveAt([ 1, 9, 17 ], "♥♥♥") # Or RemoveSubstringAtPositions()
+
+	? o1.Content()
+	#--> "ring ruby php"
+
+proff()
+# Executed in 0.07 second(s)
+
+/*==========
+
+pron()
+
+	o1 = new stzString("ruby ring php")
+	o1.ReplaceAt(6, "ring", :By = "♥♥♥") # Or ReplaceSubStringAtPosition()
+
+	? o1.Content()
+	#--> "ruby ♥♥♥ php"
+
+proff()
+# Executed in 0.16 second(s)
+
+/*----------
+
+pron()
+
+	o1 = new stzString("ruby ring php")
+	o1.ReplaceXT("ring", :AtPosition = 6, :By = "♥♥♥")
+
+	? o1.Content()
+	#--> "ruby ♥♥♥ php"
+
+proff()
+# Executed in 0.16 second(s)
+
+/*------------
+
+pron()
+
+	o1 = new stzString("ring ruby ring php ring")
+	o1.ReplaceXT("ring", :AtPositions = [ 1, 20 ], :By = "♥♥♥")
+
+	? o1.Content() #--> "♥♥♥ ruby ring php ♥♥♥"
+
+proff()
+# Executed in 0.14 second(s)
+
+/*------------
+
+pron()
+
+	o1 = new stzString("ring ruby ring php ring")
+	o1.ReplaceAt([ 1, 20 ], "ring", :By = "♥♥♥") # Or ReplaceSubstringAtPositions()
+
+	? o1.Content() #--> "♥♥♥ ruby ring php ♥♥♥"
+
+proff()
+# Executed in 0.07 second(s)
+
+/*=============
+
+pron()
+
+o1 = new stzString( "a + b - c / d = 0")
+o1.Replace( [ "+", "-", "/" ], :By = "*" ) # Or ReplaceMany()
+ ? o1.Content()
+	
+#--> "a * b * c * d = 0"
+	
+proff()
+# Executed in 0.05 second(s)
+
+/*=========
 
 pron()
 
