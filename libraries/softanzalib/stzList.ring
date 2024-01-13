@@ -20228,7 +20228,7 @@ class stzList from stzObject
 		def UniqueItemsCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
-		def ItemsUCS(pCaseSensitive)
+		def ItemsCSU(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
 		def ItemsWithoutDuplicationCS(pCaseSensitive)

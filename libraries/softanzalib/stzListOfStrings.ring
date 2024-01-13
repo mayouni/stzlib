@@ -16755,7 +16755,7 @@ stop()
 	 #  DUPLICATES AND THEIR POSITIONS -- UZ/Extended  #
 	#-------------------------------------------------#
 
-	def DuplicatesAndTheirPositionsUCS(pCaseSensitive)
+	def DuplicatesAndTheirPositionsCSU(pCaseSensitive)
 		acDuplicated = This.DuplicatedStringsCS(pCaseSensitive)
 		nLen = len(acDuplicated)
 
@@ -16770,12 +16770,12 @@ stop()
 		return aResult
 
 		def DuplicatesUCSZ(pCaseSensitive)
-			return This.DuplicatesAndTheirPositionsUCS(pCaseSensitive)
+			return This.DuplicatesAndTheirPositionsCSU(pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def DuplicatesAndTheirPositionsU()
-		return This.DuplicatesAndTheirPositionsUCS(TRUE)
+		return This.DuplicatesAndTheirPositionsCSU(TRUE)
 
 		def DuplicatesUZ()
 			return This.DuplicatesAndTheirPositionsU()
@@ -17166,10 +17166,10 @@ stop()
 		#-- By nature, duplicated items are unique, so for convenience, we can add
 		#-- the U extension to all of these alternatives
 
-		def DuplicatedStringsAndTheirPositionsUCS(pCaseSensitive)
+		def DuplicatedStringsAndTheirPositionsCSU(pCaseSensitive)
 			return This.DuplicatedStringsAndTheirPositionsCS(pCaseSensitive)
 
-		def DuplicatedStringItemsAndTheirPositionsUCS(pCaseSensitive)
+		def DuplicatedStringItemsAndTheirPositionsCSU(pCaseSensitive)
 			return This.DuplicatedStringsAndTheirPositionsCS(pCaseSensitive)
 
 		def DuplicatedStringsUCSZ(pCaseSensitive)
@@ -17580,10 +17580,10 @@ stop()
 		def StringItemsWithoutDuplicationCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
-		def StringsUCS(pCaseSensitive)
+		def StringsCSU(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
-		def StringItemsUCS(pCaseSensitive)
+		def StringItemsCSU(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
 		#>
@@ -17950,7 +17950,7 @@ stop()
 
 		#< @FunctionAlternativeForms
 
-		def CharsUCS(pCaseSensitive)
+		def CharsCSU(pCaseSensitive)
 			return This.UniqueCharsCS(pCaseSensitive)
 
 			def CharsUCQ(pCaseSensitive)
