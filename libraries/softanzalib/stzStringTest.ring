@@ -1,5 +1,81 @@
 load "stzlib.ring"
 
+
+/*======
+*/
+pron()
+
+o1 = new stzString( "a + b - c / d = 0")
+
+o1.ReplaceMany( ["+", "-", "/" ], :By = "*" )
+? o1.Content()	
+#--> "a * b * c * d = 0"
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-----
+
+pron()
+
+o1 = new stzString("ring php ruby ring python ring")
+
+o1.ReplaceByMany("ring", :By = [ "♥", "♥♥", "♥♥♥" ])
+? o1.Content()
+#--> "♥ php ruby ♥♥ python ♥♥♥"
+
+proff()
+# Executed in 0.08 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzString("ring php ring ruby ring python ring")
+
+o1.ReplaceByManyXT("ring", :By = [ "#1", "#2" ])
+? o1.Content() #--> "#1 php #2 ruby #1 python #2"
+
+proff()
+# Executed in 0.10 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzString("ring qt softanza pyhton kandaji csharp ring")
+
+o1.ReplaceManyByMany([ "ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥", "♥♥♥" ])
+? o1.Content() #--> "♥ qt ♥♥ pyhton ♥♥♥ csharp ♥"
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzString("ring ruby ring php ring")
+
+o1.ReplaceSubstringAtPositions([ 1, 20 ], "ring", :By = "♥♥♥")
+? o1.Content()
+#--> "♥♥♥ ruby ring php ♥♥♥"
+
+proff()
+# Executed in 0.07 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzString("ring php ring ruby ring python ring csharp ring")
+
+o1.ReplaceOccurrencesByMany([ 1, 3, 5], "ring", :By = [ "#1", "#3", "#5" ])
+? o1.Content() #--> "#1 php ring ruby #3 python ring csharp #5"
+
+proff()
+# Executed in 0.09 second(s)
+
 /*=====
 
 pron()
