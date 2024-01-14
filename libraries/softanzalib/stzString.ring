@@ -22854,6 +22854,7 @@ class stzString from stzObject
 			# Checking the pcSubStr param
 	
 			if isList(pcSubStr)
+
 				This.ReplaceManyCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 				return
 			ok
@@ -22865,11 +22866,11 @@ class stzString from stzObject
 			# Checking the correctness of pcNewSubStr param
 	
 			bWellFormed = FALSE
-	
+? @@(pcNewSubStr)	
 			if isString(pcNewSubStr)
 				bWellFormed = TRUE
 	
-			but isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithOrByNamedParam()
+			but isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithOrByOrUsingNamedParam()
 				
 				if isString(pcNewSubStr[2])
 					bWellFormed = TRUE
@@ -22889,7 +22890,9 @@ class stzString from stzObject
 				but isList(pcNewSubStr[2])
 					return This.ReplaceByManyCS(pcSubStr, pcNewSubStr[2], pCaseSensitive)
 				ok
-	
+
+			but isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsOneOfTheseNamedParams([ :ByMany, :WithMany, :UsingMany ])
+				return This.ReplaceByManyCS(pcSubStr, pcNewSubStr[2], pCaseSensitive)
 			ok
 	
 			# Checking the correctness of pCaseSensitive param
