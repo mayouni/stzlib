@@ -22866,7 +22866,7 @@ class stzString from stzObject
 			# Checking the correctness of pcNewSubStr param
 	
 			bWellFormed = FALSE
-? @@(pcNewSubStr)	
+	
 			if isString(pcNewSubStr)
 				bWellFormed = TRUE
 	

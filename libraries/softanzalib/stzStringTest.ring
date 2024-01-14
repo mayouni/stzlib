@@ -1,5 +1,26 @@
 load "stzlib.ring"
 
+/*======
+*/
+pron()
+
+o1 = new stzString("1♥34♥♥")
+o1.ReplaceByMany("♥", [ "2", "5", "6" ])
+? o1.Content()
+#--> 123456
+
+o1 = new stzString("1♥34♥♥")
+o1.Replace("♥", :By = [ "2", "5", "6" ])
+? o1.Content()
+#--> 123456
+
+o1 = new stzString("1♥34♥♥")
+o1.Replace("♥", :ByMany = [ "2", "5", "6" ])
+? o1.Content()
+#--> 123456
+
+proff()
+# Executed in 0.16 second(s)
 
 /*======
 */
