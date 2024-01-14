@@ -35736,10 +35736,19 @@ vvv
 
 
 	def IsWithNamedParam()
-		if This.NumberOfItems() = 2 and
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :With or This[1] = :With@ ) )
 
-		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :With, :With@ ]) )
+			return TRUE
 
+		else
+			return FALSE
+		ok
+
+	def IsWithManyNamedParam()
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :WithMany or This[1] = :WithMany@ ) )
+		  
 			return TRUE
 
 		else
@@ -35763,8 +35772,8 @@ vvv
 			return This.IsWithOrAndNamedParam()
 
 	def IsWithItemsInNamedParam() 
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :WithItemsIn, :WithItemsIn@ ]) )
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :By or This[1] = :By@ ) )
 
 			return TRUE
 
@@ -35773,8 +35782,8 @@ vvv
 		ok
 
 	def IsWithCharsInNamedParam() 
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :WithcharsIn, :WithCharsIn@ ]) )
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :WithCharsIn or This[1] = :WithCharsIn@ ) )
 
 			return TRUE
 
@@ -35783,9 +35792,8 @@ vvv
 		ok
 
 	def IsByItemsInNamedParam()
-		if This.NumberOfItems() = 2 and
-
-		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :ByItemsIn, :ByItemsIn@ ]) )
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :ByItemsIn or This[1] = :ByItemsIn@ ) )
 
 			return TRUE
 
@@ -35794,9 +35802,8 @@ vvv
 		ok
 
 	def IsUsingItemsInNamedParam()
-		if This.NumberOfItems() = 2 and
-
-		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :UsingItemsIn, :UsingItemsIn@ ]) )
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :UsingItemsIn or This[1] = :UsingItemsIn@ ) )
 
 			return TRUE
 
@@ -35805,9 +35812,8 @@ vvv
 		ok
 
 	def IsWithTheirNamedParam()
-		if This.NumberOfItems() = 2 and
-
-		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([ :WithTheir, :WithTheir@ ]) )
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :WithTheir or This[1] = :WithTheir@ ) )
 
 			return TRUE
 
@@ -35816,8 +35822,18 @@ vvv
 		ok
 
 	def IsByNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :By, :By@ ]) )
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :By or This[1] = :By@ ) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsByManyNamedParam()
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :ByMany or This[1] = :ByMany@ ) )
 		  
 			return TRUE
 
@@ -35958,8 +35974,18 @@ vvv
 			return This.IsWithOrByNamedParam()
 
 	def IsUsingNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Using )
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :Using or This[1] = :Using@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUsingManyNamedParam()
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :UsingMany or This[1] = :UsingMany@ ) )
 
 			return TRUE
 
@@ -41050,7 +41076,7 @@ vvv
 
 		if This.IsUsingNamedParam() or
 		   This.IsWithNamedParam() or
-		   This.IsOrNamedParam()
+		   This.IsByNamedParam()
 
 			return TRUE
 		else

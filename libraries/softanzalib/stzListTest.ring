@@ -1,6 +1,16 @@
 load "stzlib.ring"
 
 /*=============
+*/
+pron()
+
+? Q([ "by", [ "2", "5", "6" ] ]).IsByNamedParam()
+#--> TRUE
+
+proff()
+#--> Executed in 0.04 second(s)
+
+/*=============
 
 pron()
 
