@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*======
-*/
+
 pron()
 
 o1 = new stzString("1♥34♥♥")
@@ -23,7 +23,7 @@ proff()
 # Executed in 0.16 second(s)
 
 /*======
-*/
+
 pron()
 
 o1 = new stzString( "a + b - c / d = 0")

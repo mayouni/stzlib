@@ -1,5 +1,32 @@
 load "stzlib.ring"
 
+
+pron()
+
+? Q(462).PrimeDividors() 
+? Q(462).Factors()
+proff()
+
+/*----------
+
+pron()
+
+? Q(169).IsPrime()
+#--> FALSE
+
+? Q(17).IsPrime()
+#--> TRUE
+
+? Q(54).Divirdos()	# Misspelled, but works!
+
+? Q(54).Factors()
+
+? Q(54).PrimeFactors()
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------
 Task
 StzList -->
 Remplimenting FindAll() based on DuplicatesZ()
