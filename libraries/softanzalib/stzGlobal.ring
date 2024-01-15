@@ -867,6 +867,9 @@ func ring_lower(str)
 func ring_upper(str)
 	return upper(str)
 
+func ring_isPrime(n)
+	return isPrime(n)
+
 #-----
 
 func StzFindCS(pThing, paIn, pCaseSensitive)

@@ -706,10 +706,8 @@ func StzResetRound()
 		StzResetRound()
 
 func SetActiveRound(n)
-	if CheckParams()
-		if NOT isNumber(n)
+	if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
-		ok
 	ok
 
 	if NOT ( n >= 0 and n <= MaxRoundInRing() )
@@ -1935,13 +1933,21 @@ class stzNumber from stzObject
 		def IsFardiOrZawji()
 			return This.IsZawjiOrFardi()
 
-	def IsPrimeNumber() # We can't use isPrime() because this function is coined by Ring
-		// A prime number must be an integer Greater than 1!
+	def IsPrime()
 		if This.IsInteger() and This.IsGreaterThan(1)
-			return isPrime( This.NumericValue() ) // IsPrime -> StdLib.ring
+			return ring_isPrime( This.NumericValue() )
 		else
 			return FALSE
 		ok
+
+		def IsAPrimeNumber()
+			return This.IsPrime()
+
+		def IsAPrime()
+			return This.IsPrime()
+
+		def IsPrimeNumber()
+			return This.IsPrime()
 
 	def IsBoolean()
 		if This.Number() = 1 or This.Number() = 0
@@ -3582,15 +3588,84 @@ class stzNumber from stzObject
 			StzRaise("For factors(n), n must must be positive!")
 		ok
 
+		#< @FunctionFluentForm
+
 		def FactorsQ()
-			return new stzListOfNumbers( This.Factors() )
+			return This.FactorsQR(:stzList)
+
+		def FactorsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Factors() )
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Factors() )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def Dividors()
+			return This.Factors()
+
+		def Divisors()
+			return This.Factors()
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def Divirdos()
+			return This.Factors()
+
+		#>
 
 	def FactorsXT()
+		anFactors = This.Factors()
+		nLen = len(anFactors)
+
 		aResult = []
-		for n in This.Factors()
-			aResult + [ n, This.IntegerPartValue() / n ]
+		for i = 1 to nLen
+			aResult + [ anFactors[i], This.IntegerPartValue() / anFactors[i] ]
 		next
+
 		return aResult
+
+		#< @FunctionFluentForm
+
+		def FactorsXRQ()
+			return This.FactorsXTQR(:stzList)
+
+		def FactorsXTQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FactorsXT() )
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FactorsXT() )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def DividorsXT()
+			return This.FactorsXT()
+
+		def DivisorsXT()
+			return This.FactorsXT()
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def DivirdosXT()
+			return This.Factors()
+
+		#>
 
 	def PrimeFactors()
 		aResult = []
@@ -3606,8 +3681,40 @@ class stzNumber from stzObject
 
 		return aResult
 
+
+		#< @FunctionFluentForm
+
 		def PrimeFactorsQ()
-			return new stzListOfNumbers( This.PrimeFactors() )
+			return This.PrimeFactorsQR(:stzList)
+
+		def PrimeFactorsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Factors() )
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Factors() )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def PrimeDividors()
+			return This.PrimeFactors()
+
+		def PrimeDivisors()
+			return This.PrimeFactors()
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def PrimeDivirdos()
+			return This.PrimeFactors()
+
+		#>
 
 	def PrimeFactorsXT()
 		aResult = []
@@ -3615,6 +3722,40 @@ class stzNumber from stzObject
 			aResult + [ n, This.IntegerPartValue() / n ]
 		next
 		return aResult
+
+		#< @FunctionFluentForm
+
+		def PrimeFactorsXRQ()
+			return This.PrimeFactorsXTQR(:stzList)
+
+		def PrimeFactorsXTQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.PrimeFactorsXT() )
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.PrimeFactorsXT() )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def PrimeDividorsXT()
+			return This.PrimeFactorsXT()
+
+		def PrimeDivisorsXT()
+			return This.PrimeFactorsXT()
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def PrimeDivirdosXT()
+			return This.PrimeFactors()
+
+		#>
 
 	# MULTIPLES UNTIL
 
