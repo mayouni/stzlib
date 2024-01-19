@@ -3814,7 +3814,7 @@ class stzListOfStrings from stzList
 		bResult = This.ConcatenateQ().ContainsCS(pcStr, pCaseSensitive)
 		return bResult
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def ContainsNoCS(pcStr, pCaseSensitive)
 			return NOT This.ContainsCS(pcStr, pCaseSensitive)
@@ -3832,7 +3832,7 @@ class stzListOfStrings from stzList
 	def Contains(pcStr)
 		return This.ContainsCS(pcStr, TRUE)
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def ContainsNo(pcStr)
 			return NOT This.Contains(pcStr)

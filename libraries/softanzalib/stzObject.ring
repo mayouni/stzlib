@@ -1607,7 +1607,7 @@ class stzObject
 
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotStzNumber()
 			return NOT This.IsStzNumber()
@@ -1632,7 +1632,7 @@ class stzObject
 
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotStzString()
 			return NOT This.IsStzString()
@@ -1656,7 +1656,7 @@ class stzObject
 
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotStzList()
 			return NOT This.IsStzList()
@@ -1680,7 +1680,7 @@ class stzObject
 
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotStzGrid()
 			return NOT This.IsStzGrid()
@@ -1700,7 +1700,7 @@ class stzObject
 
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotStzObject()
 			return FALSE

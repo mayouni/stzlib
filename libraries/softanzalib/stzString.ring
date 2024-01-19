@@ -726,7 +726,7 @@ class stzString from stzObject
 		def HasSameCharCaseAs(pcOtherStr)
 			return This.HasSameCaseAs(pcOtherStr)
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def HasDifferentCaseAs(pcOtherStr)
 			return NOT This.HasSameCaseAs(pcOtherStr)
@@ -1644,7 +1644,7 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotLowercase()
 			return NOT This.IsLowercase()
@@ -25284,18 +25284,24 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms: SeeBottomOfFile >
 
-	  #==========================================#
-	 #   REPLACING A CHAR AT A GIVEN POSITION   #
-	#==========================================#
+	  #==============================================================#
+	 #   REPLACING A CHAR AT A GIVEN POSITION BY A GIVEN SUBSTRING  #
+	#==============================================================#
 
-	def ReplaceCharAtPosition(n, pcNewSubStr)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
+	# TODO : Add case sensitivity
+
+	def ReplaceCharAtPosition(n, pcNewChar)
+		#< @MotherFunction = ReplaceSection() > @QtBased = TRUE #>
 
 		This.ReplaceSection(n, n, pcNewSubStr)
+
+		#< @FunctionFluentForm
 
 		def ReplaceCharAtPositionQ(n, pcNewSubStr)
 			This.ReplaceCharAtPosition(n, pcNewSubStr)
 			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
@@ -25324,6 +25330,40 @@ class stzString from stzObject
 				This.ReplaceCharAtThisPosition(n, pcNewSubStr)
 				return This
 
+		#--
+
+		def ReplaceAnyCharAtPosition(pc, pcNewSubStr)
+			This.ReplaceCharAtPosition(n, pcNewSubStr)
+
+			def ReplaceAnyCharAtPositionQ(pc, pcNewSubStr)
+				This.ReplaceAnyCharAtPosition(pc, pcNewSubStr)
+				return This
+
+		def ReplaceAnyCharAt(n, pcNewSubStr)
+			if isList(n) and Q(n).IsPositionNamedParam()
+				n = n[2]
+			ok
+
+			This.ReplaceCharAtPosition(n, pcNewSubStr)
+
+			def ReplaceAnyCharAtQ(n, pcNewSubStr)
+				This.ReplaceAnyCharAt(n, pcNewSubStr)
+				return This
+
+		def ReplaceAnyCharAtPositionN(n, pcNewSubStr)
+			This.ReplaceAnyCharAtPosition(n, pcNewSubStr)
+
+			def ReplaceAnyCharAtPositionNQ(n, pcNewSubStr)
+				This.ReplaceAnyCharAtPositionN(n, pcNewSubStr)
+				return This
+
+		def ReplaceAnyCharAtThisPosition(n, pcNewSubStr)
+			This.ReplaceAnyCharAtPosition(n, pcNewSubStr)
+
+			def ReplaceAnyCharAtThisPositionQ(n, pcNewSubStr)
+				This.ReplaceAnyCharAtThisPosition(n, pcNewSubStr)
+				return This
+
 		#>
 
 	def CharReplacedAtPsoition(n, pcNewSubStr)
@@ -25340,11 +25380,27 @@ class stzString from stzObject
 		def CharAtPositionNReplaced(n, pcNewSubStr)
 			return This.CharReplacedAtPsoition(n, pcNewSubStr)
 
+		#--
+
+		def AnyCharReplacedAtPsoition(n, pcNewSubStr)
+			return This.CharReplacedAtPsoition(n, pcNewSubStr)
+
+		def AnyCharReplacedAtThisPsoition(n, pcNewSubStr)
+			return This.CharReplacedAtPsoition(n, pcNewSubStr)
+
+		def AnyCharAtPositionNReplaced(n, pcNewSubStr)
+			return This.CharReplacedAtPsoition(n, pcNewSubStr)
+
 		#>
+
+		# TODO: Add Psoition as a misspelling of Position
+		# TODO: Add Repalce as misspelling of Replace
 
 	  #-------------------------------------------------------------#
 	 #   REPLACING CHARS AT GIVEN POSITIONS BY A GIVEN SUBSTRING   #
 	#-------------------------------------------------------------#
+
+	# TODO : Add case sensitivity
 
 	def ReplaceCharsAtPositions(panPositions, pcNewSubStr)
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
@@ -25381,6 +25437,17 @@ class stzString from stzObject
 		def ReplaceCharsAtThesePositions(panPositions, pcNewSubStr)
 			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
 
+		#--
+
+		def ReplaceAnyCharsAtPositions(panPositions, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+
+		def ReplaceAnyCharsAt(panPositions, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+
+		def ReplaceAnyCharsAtThesePositions(panPositions, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+
 		#>
 
 		#< @FunctionMisspelledForm
@@ -25394,15 +25461,31 @@ class stzString from stzObject
 		cResult = This.Copy().ReplaceCharsAtPositionsQ(panPositions, pcNewSubStr).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def CharsReplacedAtThesePsoitions(panPositions, pcNewSubStr)
 			return This.CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
 
 		def CharsAtThesePositionsReplaced(panPositions, pcNewSubStr)
 			return This.CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
 
+		#--
+
+		def AnyCharsReplacedAtPsoitions(panPositions, pcNewSubStr)
+			return This.CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
+
+		def AnyCharsReplacedAtThesePsoitions(panPositions, pcNewSubStr)
+			return This.CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
+
+		def AnyCharsAtThesePositionsReplaced(panPositions, pcNewSubStr)
+			return This.CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
+
+		#>
 	  #-----------------------------------------------------------#
 	 #   REPLACING CHARS AT GIVEN POSITIONS BY MANY SUBSTRINGS   #
 	#-----------------------------------------------------------#
+
+	# TODO: Add case sensitivity
 
 	def ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStrings)
 		/* EXAMPLE
@@ -25419,9 +25502,11 @@ class stzString from stzObject
 		acNewSubStrings = StzListQ(pacNewSubStrings).SectionQ(1, nMin).SortedInDescending()
 
 		i = 0
-		for n in anPositions
-			i++
-			This.ReplaceCharAtPosition(n, acNewSubStrings[i])
+
+		nLen = len(anPositions)
+
+		for i = 1 to nLen
+			This.ReplaceCharAtPosition(anPositions[i], acNewSubStrings[i])
 		next
 
 		#< @FunctionFluentForm
@@ -25439,17 +25524,180 @@ class stzString from stzObject
 		def ReplaceCharsAtThesePositionsByMany(panPositions, pacNewSubStrings)
 			This.ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStrings)
 
+		#--
+
+		def ReplaceAnyCharsAtPositionsByMany(panPositions, pacNewSubStrings)
+			This.ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStrings)
+
+		def ReplaceAnyCharsAtByMany(panPositions, pacNewSubStrings)
+			This.ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStrings)
+
+		def ReplaceAnyCharsAtThesePositionsByMany(panPositions, pacNewSubStrings)
+			This.ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStrings)
+
 		#>
 
 	def CharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
 		cResult = This.Copy().ReplaceCharsAtPositionsByManyQ(panPositions, pacNewSubStrings).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def CharsReplacedAtThesePsoitionsByMany(panPositions, pacNewSubStrings)
 			return This.CharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
 
 		def CharsAtThesePositionsReplacedByMany(panPositions, pacNewSubStrings)
 			return This.CharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
+
+		#--
+
+		def AnyCharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
+			This.CharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
+
+		def AnyCharsReplacedAtThesePsoitionsByMany(panPositions, pacNewSubStrings)
+			return This.CharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
+
+		def AnyCharsAtThesePositionsReplacedByMany(panPositions, pacNewSubStrings)
+			return This.CharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
+
+		#>
+
+		# TODO: Add Psoitions as a misspelling of Positions
+
+	  #------------------------------------------------#
+	 #  REPLACING A GIVEN CHAR AT THE GIVEN POSITION  #
+	#------------------------------------------------#
+
+	/* NOTE
+		There is a difference in Softanza between ReplaceCharAt() and
+		ReplaceCharAtXT().
+
+		...
+	*/
+
+	def ReplaceCharAtPositionCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+		if This.CharQ(n).IsEqualToCs(pcChar, pCaseSensitive)
+			This.ReplaceCharAtPosition(n, pcCharOrSubStr)
+		ok
+
+		#< @FunctionFluentForm
+
+		def ReplaceCharAtPositionCSXTQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+			This.ReplaceCharAtPositionCsXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceThisCharAtPositionCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+			This.ReplaceCharAtPositionCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+
+			def ReplaceThisCharAtPositionCSXTQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+				return This.ReplaceCharAtPositionCSXTQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+
+		def ReplaceCharAtCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+			This.ReplaceCharAtPositionCsXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+
+			def ReplaceCharAtCSXTQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+					return This.ReplaceCharAtPositionCSXTQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+
+		def ReplaceThisCharAtCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+			This.ReplaceCharAtPositionCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+
+			def ReplaceThisCharAtXTCSQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+				This.ReplaceThisCharAtCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+				return This
+		#--
+
+		# TODO: Add other alternatives like the fellowing ( ...(A)Char )
+		def ReplaceACharAtPositionCS(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+			This.ReplaceCharAtPositionCS(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+
+			def ReplaceACharAtPositionCSQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+				This.ReplaceACharAtPositionCS(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+				return This
+
+		#>
+
+		
+	#< @FunctionPassiveForms
+
+	def CharAtPositionReplacedCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceCharAtPositionCSXTQ(n, pcChar, pcCharOrSubStr, pCaseSensitive).Content()
+		return cResult
+
+		def ThisCharAtPositionReplacedXTCS(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+			return This.CharAtPositionReplacedCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+
+		def ACharAtPositionReplacedCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+			return This.CharAtPositionReplacedCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
+
+		# TODO: Complete other alternatives
+
+	#>
+
+	#-- WITHOUT CASESITIVITY
+
+	def ReplaceCharAtPositionXT(n, pcChar, pcCharOrSubStr)
+		return This.ReplaceCharAtPositionCSXT(n, pcChar, pcCharOrSubStr, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceCharAtPositionXTQ(n, pcChar, pcCharOrSubStr)
+			This.ReplaceCharAtPositionXT(n, pcChar, pcCharOrSubStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceThisCharAtPositionXT(n, pcChar, pcCharOrSubStr)
+			This.ReplaceCharAtPositionXT(n, pcChar, pcCharOrSubStr)
+
+			def ReplaceThisCharAtPositionXTQ(n, pcChar, pcCharOrSubStr)
+				return This.ReplaceCharAtPositionXTQ(n, pcChar, pcCharOrSubStr)
+
+		def ReplaceCharAtXT(n, pcChar, pcCharOrSubStr)
+			This.ReplaceCharAtPositionXT(n, pcChar, pcCharOrSubStr)
+
+			def ReplaceCharAtXTQ(n, pcChar, pcCharOrSubStr)
+					return This.ReplaceCharAtPositionXTQ(n, pcChar, pcCharOrSubStr)
+
+		def ReplaceThisCharAtXT(n, pcChar, pcCharOrSubStr)
+			This.ReplaceCharAtPositionXT(n, pcChar, pcCharOrSubStr)
+
+			def ReplaceThisCharAtXTQ(n, pcChar, pcCharOrSubStr)
+				This.ReplaceThisCharAtXT(n, pcChar, pcCharOrSubStr)
+				return This
+		#--
+
+		# TODO: Add other alternatives like the fellowing ( ...(A)Char )
+		def ReplaceACharAtPosition(n, pcChar, pcCharOrSubStr)
+			This.ReplaceCharAtPosition(n, pcChar, pcCharOrSubStr)
+
+			def ReplaceACharAtPositionQ(n, pcChar, pcCharOrSubStr)
+				This.ReplaceACharAtPosition(n, pcChar, pcCharOrSubStr)
+				return This
+
+		#>
+
+		
+	#< @FunctionPassiveForms
+
+	def CharAtPositionReplacedXT(n, pcChar, pcCharOrSubStr)
+		cResult = This.Copy().ReplaceCharAtPositionXTQ(n, pcChar, pcCharOrSubStr).Content()
+		return cResult
+
+		def ThisCharAtPositionReplacedXT(n, pcChar, pcCharOrSubStr)
+			return This.CharAtPositionReplacedXT(n, pcChar, pcCharOrSubStr)
+
+		def ACharAtPositionReplacedXT(n, pcChar, pcCharOrSubStr)
+			return This.CharAtPositionReplacedXT(n, pcChar, pcCharOrSubStr)
+
+		# TODO: Complete other alternatives
+
+	#>
 
 	  #-------------------------------------------------------------------------#
 	 #   REPLACING CHARS/SUBSTRINGS WITH A SUBSTRING UNDER A GIVEN CONDITION   #
@@ -34331,7 +34579,7 @@ class stzString from stzObject
 			return This.ContainsCS(pcSubStr, pCaseSensitive)
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def ContainsNoCS(pcSubStr, pCaseSensitive)
 			return NOT This.ContainsCS(pcSubStr, pCaseSensitive)
@@ -34359,7 +34607,7 @@ class stzString from stzObject
 			return This.Contains(pcSubStr)
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def ContainsNo(pcSubStr)
 			return NOT This.Contains(pcSubStr)
@@ -35076,7 +35324,7 @@ class stzString from stzObject
 	def ContainsSpaces()
 		return This.Contains(" ")
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def ContainsNoSpaces()
 			return NOT This.ContainsSpaces()
@@ -36010,7 +36258,7 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionNegativeForms
+		#< @FunctionPassiveForms
 
 		def ContainsNoneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
 			return NOT This.ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
@@ -36097,7 +36345,7 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def ContainsNoneOfTheseSubStrings(pacSubStr)
 			return NOT This.ContainsTheseSubStrings(pacSubStr)
@@ -36126,7 +36374,7 @@ class stzString from stzObject
 	def ContainsCharsInScript(pcScript)
 		return This.ToStzText().ContainsScript(pcScript)
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def ContainsNocharsInScript(pcScript)
 			return NOT This.ContainsCharsInScript(pcScript)
@@ -36159,7 +36407,7 @@ class stzString from stzObject
 		next
 		return bResult
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def ContainsNoLetters()
 			return NOT This.ContainsNumbers()
@@ -36194,7 +36442,7 @@ class stzString from stzObject
 		next
 		return bResult
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def ContainsNoArabicLetters()
 			return NOT This.ContainsArabicNumbers()
@@ -36213,7 +36461,7 @@ class stzString from stzObject
 		next
 		return bResult
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def ContainsNoLatinLetters()
 			return NOT This.ContainsLatinNumbers()
@@ -36232,7 +36480,7 @@ class stzString from stzObject
 		next
 		return bResult
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def ContainsNoLettersInScript(pcScript)
 			return NOT This.ContainsNumbers(pcScript)
@@ -51445,7 +51693,7 @@ ici		//...
 		def IsUnicodeEqualWith(pcOtherStr)
 			return This.IsUnicodeEqualTo(pcOtherStr)
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsUnicodeDifferentFrom(pcOtherStr)
 			return NOT This.IsUnicodeEqualTo(pcOtherStr)
@@ -51573,7 +51821,7 @@ ici		//...
 			def IsEqualWithCSQ(pcOtherStr, pCaseSensitive)
 				return This.IsEqualToCSQ(pcOtherStr)
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotEqualToCS(pcOtherStr, pCaseSensitive)
 			return NOT This.IsEqualToCS(pcOtherStr, pCaseSensitive)
@@ -51614,7 +51862,7 @@ ici		//...
 			def IsEqualWithQ(pcOtherStr)
 				return This.IsEqualToQ(pcOtherStr)
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotEqualTo(pcOtherStr)
 			return NOT This.IsEqualTo(pcOtherStr)
@@ -51657,7 +51905,7 @@ ici		//...
 		def IsStrictlyEqualWithCS(pcOtherStr, pCaseSensitive)
 			return This.IsStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
 			return NOT This.IsStrictlyEqualToCS(pcOtherStr, pCaseSensitive)
@@ -51684,7 +51932,7 @@ ici		//...
 		def IsStrictlyEqualWith(pcOtherStr)
 			return This.IsStrictlyEqualTo(pcOtherStr)
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotStrictlyEqualTo(pcOtherStr)
 			return NOT This.IsStrictlyEqualTo(pcOtherStr)
@@ -64096,7 +64344,7 @@ ici		//...
 
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotLetter()
 			return NOT This.IsLetter()
@@ -69805,6 +70053,105 @@ ici		//...
 	
 	def FindAllOccurrences(pcSubStr)
 		return This.FindOccurrences(pcSubStr)
+
+	  #-------------------------------------------#
+	 #  FINDING A SUBSTRING AT A GIVEN POSITION  #
+	#-------------------------------------------#
+
+	def FindAtCS(n, pcSubStr, pCaseSensitive)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		anPos = This.FindCS(pcSubStr, pCaseSensitive)
+		if ring_find(anPos, n)
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionFluentForm
+
+		def FindAtCSQ(n, pcSubStr, pCaseSensitive)
+			This.FindAtCS(n, pcSubStr, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringAtCS(n, pcSubStr, pCaseSensitive)
+			return This.FindAtCS(n, pcSubStr, pCaseSensitive)
+
+		def FindSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
+			return This.FindAtCS(n, pcSubStr, pCaseSensitive)
+
+		def FindAtPositionCS(n, pcSubStr, pCaseSensitive)
+			return This.FindAtCS(n, pcSubStr, pCaseSensitive)
+
+		#--
+
+		def FindASubStringAtCS(n, pcSubStr, pCaseSensitive)
+			return This.FindAtCS(n, pcSubStr, pCaseSensitive)
+
+		def FindASubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
+			return This.FindAtCS(n, pcSubStr, pCaseSensitive)
+
+		#==
+
+		def FindSubStringAtPositionNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindAtCS(n, pcSubStr, pCaseSensitive)
+
+		def FindAtPositionNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindAtCS(n, pcSubStr, pCaseSensitive)
+
+		#--
+
+		def FindASubStringAtPositionNCS(n, pcSubStr, pCaseSensitive)
+			return This.FindAtCS(n, pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAt(n, pcSubStr)
+		return This.FindAtCS(n, pcSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringAt(n, pcSubStr)
+			return This.FindAt(n, pcSubStr)
+
+		def FindSubStringAtPosition(n, pcSubStr)
+			return This.FindAt(n, pcSubStr)
+
+		def FindAtPosition(n, pcSubStr)
+			return This.FindAt(n, pcSubStr)
+
+		#--
+
+		def FindASubStringAt(n, pcSubStr)
+			return This.FindAt(n, pcSubStr)
+
+		def FindASubStringAtPosition(n, pcSubStr)
+			return This.FindAt(n, pcSubStr)
+
+		#==
+
+		def FindSubStringAtPositionN(n, pcSubStr)
+			return This.FindAt(n, pcSubStr)
+
+		def FindAtPositionN(n, pcSubStr)
+			return This.FindAt(n, pcSubStr)
+
+		#--
+
+		def FindASubStringAtPositionN(n, pcSubStr)
+			return This.FindAt(n, pcSubStr)
+
+		#>
 
 	  #------------------------------------------------------#
 	 #  FINDING THE OCCURRENCES OF A CHAR INSIDE THE STING  #

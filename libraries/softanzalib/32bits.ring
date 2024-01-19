@@ -1,8 +1,19 @@
 load "stzlib.ring"
 
+pron()
+
+put "What's your firts name?"
+gname = getstring()
+print( Interpolate("It's nice to meet you {fnmae}!") )
+#--> It's nice to meet you {fnmae}!
+
+proff()
+
+//ReplaceItemAt()
+//ReplaceAnyItemAt()
 
 /*---
-*/
+
 pron()
 
 o1 = new stzList([ "a", "+", "b", "-", "c", "/", "d", "=", "0" ])
@@ -12,6 +23,18 @@ o1.ReplaceMany( ["+", "-", "/" ], :By = "*" )
 
 proff()
 #--> Executed in 0.06 second(s)
+
+/*---
+*/
+pron()
+o1 = new stzList([ "ring", "php", "ruby", "ring", "python", "ring" ])
+o1.ReplaceByMany("ring", :By = [ "♥", "♥♥", "♥♥♥" ])
+	
+? o1.Content()
+#--> [ "♥", "php", "ruby", "♥♥", "python", "♥♥♥" ]
+
+proff()
+# Executed in 0.07 second(s)
 
 //////////////////////////////////////////////////////////////////
 

@@ -231,7 +231,16 @@ func Numbers(n1, n2)
 
 	func NumbersBetween(nMin, nMax)
 		return Numbers(nMin, nMax)
-	
+
+func CommonNumbers(paListsOfNumbers)
+	if NOT ( isList(paListsOfNumbers) and Q(paListsOfNumbers).IsListOfListsOfNumbers())
+		StzRaise("Incorrect param type! paListsOfNumbers must be a list of lists of numbers.")
+	ok
+
+	return CommonItems(paListsOfNumbers)
+
+	def CommunNumbers(paListsOfNumbers)
+		return CommonNumbers(paListsOfNumbers)
 
   ////////////////
  ///  CLASS   ///
