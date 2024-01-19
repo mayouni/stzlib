@@ -2487,7 +2487,7 @@ class stzList from stzObject
 		for i = nMin to 1 step -1
 			n = anPositions[i]
 			item = pacNewItems[i]
-			This.ReplaceItemAtPositionNCS(n, pItem, item, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionNCS(n, pItem, item, pCaseSensitive)
 		next
 
 		#< @FunctionFluentForm
@@ -2801,38 +2801,34 @@ class stzList from stzObject
 		#--
 
 		def ReplaceAnyAtCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCSXT(n, pNewItem, pCaseSensitive)
 
 			def ReplaceAnyAtCSQ(n, pNewItem, pCaseSensitive)
-				This.ReplaceAnyAtCS(n, pNewItem, pCaseSensitive)
-				return This
+				return This.ReplaceItemAtPositionNCSXTQ(n, pNewItem, pCaseSensitive)
 
 		def ReplaceAnyAtPositionNCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCSXT(n, pNewItem, pCaseSensitive)
 
 			def ReplaceAnyAtPositionNCSQ(n, pNewItem, pCaseSensitive)
-				This.ReplaceAnyAtPositionNCS(n, pNewItem, pCaseSensitive)
-				return This
+				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
 
 		def ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCSXT(n, pNewItem, pCaseSensitive)
 
 			def ReplaceAnyItemAtPositionNCSQ(n, pNewItem, pCaseSensitive)
-				This.ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
-				return This
+				return This.ReplaceItemAtPositionNCSXTQ(n, pNewItem, pCaseSensitive)
 
 		def ReplaceAnyItemAtPositionCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCSXT(n, pNewItem, pCaseSensitive)
 
 			def ReplaceAnyItemAtPositionCSQ(n, pNewItem, pCaseSensitive)
-				This.ReplaceItemAtPositionCS(n, pNewItem, pCaseSensitive)
-				return This
+				return This.ReplaceItemAtPositionNCSXTQ(n, pNewItem, pCaseSensitive)
 
 		def ReplaceAnyAtPositionCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCSXT(n, pNewItem, pCaseSensitive)
 
-			def ReplaceAnyAtPositionCSQ(n, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionCSQ(n, pNewItem, pCaseSensitive)
+			def ReplaceAnyAtPositionCSQ(n, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceItemAtPositionNCSXTQ(n, pNewItem, pCaseSensitive)
 
 		#>
 
@@ -2884,38 +2880,34 @@ class stzList from stzObject
 		#--
 
 		def ReplaceAnyAt(n, pNewItem)
-			This.ReplaceItemAtPositionN(n, pNewItem)
+			This.ReplaceItemAtPositionNXT(n, pNewItem)
 
 			def ReplaceAnyAtQ(n, pNewItem)
-				This.ReplaceAnyAt(n, pNewItem)
-				return This
+				return This.ReplaceItemAtPositionNXTQ(n, pNewItem)
 
 		def ReplaceAnyAtPositionN(n, pNewItem)
-			This.ReplaceItemAtPositionN(n, pNewItem)
+			This.ReplaceItemAtPositionNXT(n, pNewItem)
 
 			def ReplaceAnyAtPositionNQ(n, pNewItem)
-				This.ReplaceAnyAtPositionN(n, pNewItem)
-				return This
+				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
 
 		def ReplaceAnyItemAtPositionN(n, pNewItem)
-			This.ReplaceItemAtPositionN(n, pNewItem)
+			This.ReplaceItemAtPositionNXT(n, pNewItem)
 
-			def ReplaceAnyItemAtPositionNQ(n, pNewItem)
-				This.ReplaceAnyItemAtPositionN(n, pNewItem)
-				return This
+			def ReplaceAnyItemAtPositionNCQ(n, pNewItem)
+				return This.ReplaceItemAtPositionNXTQ(n, pNewItem)
 
 		def ReplaceAnyItemAtPosition(n, pNewItem)
-			This.ReplaceItemAtPositionN(n, pNewItem)
+			This.ReplaceItemAtPositionNXT(n, pNewItem)
 
-			def ReplaceAnyItemAtPositionQ(n, pNewItem)
-				This.ReplaceItemAtPosition(n, pNewItem)
-				return This
+			def ReplaceAnyItemAtPositionCQ(n, pNewItem)
+				return This.ReplaceItemAtPositionNXTQ(n, pNewItem)
 
 		def ReplaceAnyAtPosition(n, pNewItem)
-			This.ReplaceItemAtPositionN(n, pNewItem)
+			This.ReplaceItemAtPositionNXT(n, pNewItem)
 
-			def ReplaceAnyAtPositionQ(n, pNewItem)
-				return This.ReplaceItemAtPositionQ(n, pNewItem)
+			def ReplaceAnyAtPositionQ(n, pItem, pNewItem)
+				return This.ReplaceItemAtPositionNXTQ(n, pNewItem)
 
 		#>
 
@@ -2974,14 +2966,45 @@ class stzList from stzObject
 			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
 
 			def ReplaceItemAtPositionCSXTQ(n, pItem, pNewItem, pCaseSensitive)
-				This.ReplaceItemAtPositionCSXT(n, pItem, pNewItem, pCaseSensitive)
-				return This
+				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
 
 		def ReplaceAtPositionCSXT(n, pItem, pNewItem, pCaseSensitive)
 			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
 
 			def ReplaceAtPositionCSXTQ(n, pItem, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionCSXTQ(n, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
+
+		#--
+
+		def ReplaceThisAtCS(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceThisAtCSQ(n, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
+
+		def ReplaceThisAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceThisAtPositionNCSQ(n, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
+
+		def ReplaceThisItemAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceThisItemAtPositionNCSQ(n, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
+
+		def ReplaceThisItemAtPositionCS(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceThisItemAtPositionCSQ(n, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
+
+		def ReplaceThisAtPositionCS(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceThisAtPositionCSQ(n, pItem, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
 
 		#>
 
@@ -3007,20 +3030,59 @@ class stzList from stzObject
 	def ReplaceItemAtPositionNXT(n, pItem, pNewItem)
 		This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, TRUE)
 
+		#< @FunctionFluentForm
+
+		def ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
+			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def ReplaceItemAtPositionXT(n, pItem, pNewItem)
 			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
 
 			def ReplaceItemAtPositionXTQ(n, pItem, pNewItem)
-				This.ReplaceItemAtPositionXT(n, pItem, pNewItem)
-				return This
+				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
 
 		def ReplaceAtPositionXT(n, pItem, pNewItem)
 			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
 
 			def ReplaceAtPositionXTQ(n, pItem, pNewItem)
-				return This.ReplaceItemAtPositionXTQ(n, pItem, pNewItem)
+				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
+
+		#--
+
+		def ReplaceThisAt(n, pItem, pNewItem)
+			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
+
+			def ReplaceThisAtQ(n, pItem, pNewItem)
+				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
+
+		def ReplaceThisAtPositionN(n, pItem, pNewItem)
+			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
+
+			def ReplaceThisAtPositionNQ(n, pItem, pNewItem)
+				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
+
+		def ReplaceThisItemAtPositionN(n, pItem, pNewItem)
+			This.ReplaceItemAtPositionNXT(n, pItem, pItem, pNewItem)
+
+			def ReplaceThisItemAtPositionNQ(n, pItem, pNewItem)
+				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
+
+		def ReplaceThisItemAtPosition(n, pItem, pNewItem)
+			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
+
+			def ReplaceThisItemAtPositionQ(n, pItem, pNewItem)
+				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
+
+		def ReplaceThisAtPosition(n, pItem, pNewItem)
+			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
+
+			def ReplaceThisAtPositionQ(n, pItem, pNewItem)
+				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
 
 		#>
 
@@ -8400,6 +8462,246 @@ class stzList from stzObject
 
 		def IsAListOfLists()
 			return This.IsListOfLists()
+
+	def IsListOfListsOfNumbers()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) and @IsListOfNumbers(aContent[i]) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def IsListOfListsOfStrings()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) and @IsListOfStrings(aContent[i]) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def IsListOfListsOfLists()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) and @IsListOfLists(aContent[i]) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def IsListOfListsOfObjects()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) and @IsListOfObjects(aContent[i]) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def IsListOfListsOfChars()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) and @IsListOfChars(aContent[i]) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def IsListOfListsOfHashLists()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) and @IsListOfHastLists(aContent[i]) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def IsListOfListsOfStzNumbers()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) and @IsListOfStzNumbers(aContent[i]) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def IsListOfListsOfStzStrings()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) and @IsListOfStzStrings(aContent[i]) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def IsListOfListsOfStzLists()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) and @IsListOfStzLists(aContent[i]) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def IsListOfListsOfStzObjects()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) and @IsListOfStzObjects(aContent[i]) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def IsListOfListsOfStzChars()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) and @IsListOfStzChars(aContent[i]) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def IsListOfListsOfStzHashLists()
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( isList(aContent[i]) and @IsListOfStzHshLists(aContent[i]) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
 
 	def IsListOfSets()
 		if This.NumberOfItems() = 0
@@ -14368,7 +14670,7 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotEqualTo(paOtherList)
 			return NOT This.IsEqualTo(paOtherList)
@@ -21616,7 +21918,7 @@ class stzList from stzObject
 	
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 	
 		def ContainsNoCS(pItem, pCaseSensitive)
 			return NOT This.ContainsCS(pItem, pCaseSensitive)
@@ -21667,7 +21969,7 @@ class stzList from stzObject
 	
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 	
 		def ContainsNo(pItem)
 			return NOT This.Contains(pItem)

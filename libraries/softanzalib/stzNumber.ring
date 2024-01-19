@@ -1877,7 +1877,7 @@ class stzNumber from stzObject
 
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotOdd()
 			return NOT This.IsOdd()
@@ -1901,7 +1901,7 @@ class stzNumber from stzObject
 
 		#>
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotEven()
 			return NOT This.IsEven()
@@ -2102,7 +2102,7 @@ class stzNumber from stzObject
 
 			return This.IsEqualTo(pOtherNumber)
 
-		#< @FunctionNegativeForm
+		#< @FunctionPassiveForm
 
 		def IsNotEqualTo(pOtherNumber)
 			return NOT This.IsEqualTo(pOtherNumber)
