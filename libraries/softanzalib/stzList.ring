@@ -2487,7 +2487,7 @@ class stzList from stzObject
 		for i = nMin to 1 step -1
 			n = anPositions[i]
 			item = pacNewItems[i]
-			This.ReplaceAnyItemAtPositionNCS(n, pItem, item, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionNCS(n, item, pCaseSensitive)
 		next
 
 		#< @FunctionFluentForm
@@ -2801,31 +2801,31 @@ class stzList from stzObject
 		#--
 
 		def ReplaceAnyAtCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCSXT(n, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 
 			def ReplaceAnyAtCSQ(n, pNewItem, pCaseSensitive)
 				return This.ReplaceItemAtPositionNCSXTQ(n, pNewItem, pCaseSensitive)
 
 		def ReplaceAnyAtPositionNCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCSXT(n, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 
 			def ReplaceAnyAtPositionNCSQ(n, pNewItem, pCaseSensitive)
 				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
 
 		def ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCSXT(n, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 
 			def ReplaceAnyItemAtPositionNCSQ(n, pNewItem, pCaseSensitive)
 				return This.ReplaceItemAtPositionNCSXTQ(n, pNewItem, pCaseSensitive)
 
 		def ReplaceAnyItemAtPositionCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCSXT(n, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 
 			def ReplaceAnyItemAtPositionCSQ(n, pNewItem, pCaseSensitive)
 				return This.ReplaceItemAtPositionNCSXTQ(n, pNewItem, pCaseSensitive)
 
 		def ReplaceAnyAtPositionCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCSXT(n, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 
 			def ReplaceAnyAtPositionCSQ(n, pItem, pNewItem, pCaseSensitive)
 				return This.ReplaceItemAtPositionNCSXTQ(n, pNewItem, pCaseSensitive)
@@ -2880,31 +2880,31 @@ class stzList from stzObject
 		#--
 
 		def ReplaceAnyAt(n, pNewItem)
-			This.ReplaceItemAtPositionNXT(n, pNewItem)
+			This.ReplaceItemAtPositionN(n, pNewItem)
 
 			def ReplaceAnyAtQ(n, pNewItem)
 				return This.ReplaceItemAtPositionNXTQ(n, pNewItem)
 
 		def ReplaceAnyAtPositionN(n, pNewItem)
-			This.ReplaceItemAtPositionNXT(n, pNewItem)
+			This.ReplaceItemAtPositionN(n, pNewItem)
 
 			def ReplaceAnyAtPositionNQ(n, pNewItem)
 				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
 
 		def ReplaceAnyItemAtPositionN(n, pNewItem)
-			This.ReplaceItemAtPositionNXT(n, pNewItem)
+			This.ReplaceItemAtPositionN(n, pNewItem)
 
 			def ReplaceAnyItemAtPositionNCQ(n, pNewItem)
 				return This.ReplaceItemAtPositionNXTQ(n, pNewItem)
 
 		def ReplaceAnyItemAtPosition(n, pNewItem)
-			This.ReplaceItemAtPositionNXT(n, pNewItem)
+			This.ReplaceItemAtPositionN(n, pNewItem)
 
 			def ReplaceAnyItemAtPositionCQ(n, pNewItem)
 				return This.ReplaceItemAtPositionNXTQ(n, pNewItem)
 
 		def ReplaceAnyAtPosition(n, pNewItem)
-			This.ReplaceItemAtPositionNXT(n, pNewItem)
+			This.ReplaceItemAtPositionN(n, pNewItem)
 
 			def ReplaceAnyAtPositionQ(n, pItem, pNewItem)
 				return This.ReplaceItemAtPositionNXTQ(n, pNewItem)
@@ -4527,8 +4527,15 @@ class stzList from stzObject
 
 	def ReplaceItemsAtPositions(panPositions, pOtherItem)
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
-			StzRaise("Incorrect param type! panPositions must be a list of numbers.")
+		if CheckParams()
+
+			if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+				StzRaise("Incorrect param type! panPositions must be a list of numbers.")
+			ok
+
+			if isList(pOtherItem) and Q(pOtherItem).IsWithOrByOrUsingNamedParam()
+				pOtherItem = pOtherItem[2]
+			ok
 		ok
 
 		nLen = len(panPositions)
