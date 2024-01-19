@@ -532,6 +532,9 @@ func WithoutSpaces(pcStr)
 
 	#>
 
+func Chars(str)
+	return Q(str).Chars()
+
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -25563,141 +25566,6 @@ class stzString from stzObject
 		#>
 
 		# TODO: Add Psoitions as a misspelling of Positions
-
-	  #------------------------------------------------#
-	 #  REPLACING A GIVEN CHAR AT THE GIVEN POSITION  #
-	#------------------------------------------------#
-
-	/* NOTE
-		There is a difference in Softanza between ReplaceCharAt() and
-		ReplaceCharAtXT().
-
-		...
-	*/
-
-	def ReplaceCharAtPositionCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-		if This.CharQ(n).IsEqualToCs(pcChar, pCaseSensitive)
-			This.ReplaceCharAtPosition(n, pcCharOrSubStr)
-		ok
-
-		#< @FunctionFluentForm
-
-		def ReplaceCharAtPositionCSXTQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-			This.ReplaceCharAtPositionCsXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def ReplaceThisCharAtPositionCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-			This.ReplaceCharAtPositionCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-
-			def ReplaceThisCharAtPositionCSXTQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-				return This.ReplaceCharAtPositionCSXTQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-
-		def ReplaceCharAtCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-			This.ReplaceCharAtPositionCsXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-
-			def ReplaceCharAtCSXTQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-					return This.ReplaceCharAtPositionCSXTQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-
-		def ReplaceThisCharAtCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-			This.ReplaceCharAtPositionCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-
-			def ReplaceThisCharAtXTCSQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-				This.ReplaceThisCharAtCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-				return This
-		#--
-
-		# TODO: Add other alternatives like the fellowing ( ...(A)Char )
-		def ReplaceACharAtPositionCS(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-			This.ReplaceCharAtPositionCS(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-
-			def ReplaceACharAtPositionCSQ(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-				This.ReplaceACharAtPositionCS(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-				return This
-
-		#>
-
-		
-	#< @FunctionPassiveForms
-
-	def CharAtPositionReplacedCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-		cResult = This.Copy().ReplaceCharAtPositionCSXTQ(n, pcChar, pcCharOrSubStr, pCaseSensitive).Content()
-		return cResult
-
-		def ThisCharAtPositionReplacedXTCS(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-			return This.CharAtPositionReplacedCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-
-		def ACharAtPositionReplacedCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-			return This.CharAtPositionReplacedCSXT(n, pcChar, pcCharOrSubStr, pCaseSensitive)
-
-		# TODO: Complete other alternatives
-
-	#>
-
-	#-- WITHOUT CASESITIVITY
-
-	def ReplaceCharAtPositionXT(n, pcChar, pcCharOrSubStr)
-		return This.ReplaceCharAtPositionCSXT(n, pcChar, pcCharOrSubStr, TRUE)
-
-		#< @FunctionFluentForm
-
-		def ReplaceCharAtPositionXTQ(n, pcChar, pcCharOrSubStr)
-			This.ReplaceCharAtPositionXT(n, pcChar, pcCharOrSubStr)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def ReplaceThisCharAtPositionXT(n, pcChar, pcCharOrSubStr)
-			This.ReplaceCharAtPositionXT(n, pcChar, pcCharOrSubStr)
-
-			def ReplaceThisCharAtPositionXTQ(n, pcChar, pcCharOrSubStr)
-				return This.ReplaceCharAtPositionXTQ(n, pcChar, pcCharOrSubStr)
-
-		def ReplaceCharAtXT(n, pcChar, pcCharOrSubStr)
-			This.ReplaceCharAtPositionXT(n, pcChar, pcCharOrSubStr)
-
-			def ReplaceCharAtXTQ(n, pcChar, pcCharOrSubStr)
-					return This.ReplaceCharAtPositionXTQ(n, pcChar, pcCharOrSubStr)
-
-		def ReplaceThisCharAtXT(n, pcChar, pcCharOrSubStr)
-			This.ReplaceCharAtPositionXT(n, pcChar, pcCharOrSubStr)
-
-			def ReplaceThisCharAtXTQ(n, pcChar, pcCharOrSubStr)
-				This.ReplaceThisCharAtXT(n, pcChar, pcCharOrSubStr)
-				return This
-		#--
-
-		# TODO: Add other alternatives like the fellowing ( ...(A)Char )
-		def ReplaceACharAtPosition(n, pcChar, pcCharOrSubStr)
-			This.ReplaceCharAtPosition(n, pcChar, pcCharOrSubStr)
-
-			def ReplaceACharAtPositionQ(n, pcChar, pcCharOrSubStr)
-				This.ReplaceACharAtPosition(n, pcChar, pcCharOrSubStr)
-				return This
-
-		#>
-
-		
-	#< @FunctionPassiveForms
-
-	def CharAtPositionReplacedXT(n, pcChar, pcCharOrSubStr)
-		cResult = This.Copy().ReplaceCharAtPositionXTQ(n, pcChar, pcCharOrSubStr).Content()
-		return cResult
-
-		def ThisCharAtPositionReplacedXT(n, pcChar, pcCharOrSubStr)
-			return This.CharAtPositionReplacedXT(n, pcChar, pcCharOrSubStr)
-
-		def ACharAtPositionReplacedXT(n, pcChar, pcCharOrSubStr)
-			return This.CharAtPositionReplacedXT(n, pcChar, pcCharOrSubStr)
-
-		# TODO: Complete other alternatives
-
-	#>
 
 	  #-------------------------------------------------------------------------#
 	 #   REPLACING CHARS/SUBSTRINGS WITH A SUBSTRING UNDER A GIVEN CONDITION   #
@@ -63140,13 +63008,13 @@ ici		//...
 	def CharsCS(pCaseSensitive)
 		cContent = This.Content()
 		nLen = This.NumberOfChars()
-		acChars = []
+
+		acResult = []
 
 		for i = 1 to nLen
-			acChars + This.Char(i)
+			acResult + This.Char(i)
 		next
 
-		acResult = StzListQ(acChars).DuplicatesRemovedCS(pCaseSensitive)
 		return acResult
 
 		def CharsCSQ(pCaseSensitive)

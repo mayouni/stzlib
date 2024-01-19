@@ -1,5 +1,18 @@
 load "stzlib.ring"
 
+/*----
+
+pron()
+
+o1 = new stzString("123ruby89")
+o1.ReplaceAt(4, "ruby", "ring")
+? o1.Content()
+#--> 123ring89
+
+proff()
+
+/*----
+
 pron()
 
 put "What's your firts name?"
@@ -8,9 +21,6 @@ print( Interpolate("It's nice to meet you {fnmae}!") )
 #--> It's nice to meet you {fnmae}!
 
 proff()
-
-//ReplaceItemAt()
-//ReplaceAnyItemAt()
 
 /*---
 
@@ -25,7 +35,7 @@ proff()
 #--> Executed in 0.06 second(s)
 
 /*---
-*/
+
 pron()
 o1 = new stzList([ "ring", "php", "ruby", "ring", "python", "ring" ])
 o1.ReplaceByMany("ring", :By = [ "♥", "♥♥", "♥♥♥" ])
@@ -40,25 +50,53 @@ proff()
 
 
 /*---
-*
+
 pron()
 
 o1 = new stzList([ 1, :♥, 3, 4, :♥, :♥ ])
 anPos = o1.Find(:♥)
 #--> [ 2, 5, 6 ]
 
-o1.ReplaceByMany(:♥, [2, 5, 6]) # TODO: Add this function to stzList, based on
-? o1.Content()			# its sister in stzString
+o1.ReplaceByMany(:♥, [2, 5, 6])
+? o1.Content()
+
+#--> [ 1, 2, 3, 4, 5, 6 ]
+
+proff()
+
+/*===
+
+pron()
+
+o1 = new stzList([ "1", "♥", "♥", "4", "5", "6", "♥", "♥", "9" ])
+
+anPos = o1.Find("♥")
+#--> [ 2, 3, 7, 8 ]
+
+o1.ReplaceItemsAtPositions( o1.Find("♥"), :By = "★" )
+? @@( o1.Content() )
+#--> [ "1", "★", "★", "4", "5", "6", "★", "★", "9" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*---
+*/
+pron()
+
+? Chars("SOFTANZA")
+#--> [ "S", "O", "F", "T", "A", "Z", "A" ]
 
 proff()
 
 /*---
-
+*/
 pron()
 
-o1 = new stzList(Q("1♥♥456♥♥901♥♥4").Chars())
+o1 = new stzList( Q("1♥♥456♥♥901♥♥4").Chars() )
 
 o1 {
+
 	# Finding chars / items
 
 	anPos = Find("♥")
