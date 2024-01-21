@@ -725,13 +725,18 @@ func SetActiveRound(n)
 	
 func StzRound(p)
 
-	nNumber = p
-	nRound = 0
-
 	if isList(p) and IsPair(p)
+		if isList(p[2]) and Q(p[2]).IsToNamedParam()
+			p[2] = p[2][2]
+		ok
+
 		nNumber = p[1]
 		nRound = p[2]
+	else
+		nNumber = p
+		nRound = CurrentRound()
 	ok
+
 
 	return StzNumberQ(nNumber).RoundedTo(nRound)
 
@@ -739,13 +744,16 @@ func StzRound(p)
 		return StzRound(p)
 
 func StzRoundXT(p)
-
-	nNumber = p
-	nRound = 0
-
 	if isList(p) and IsPair(p)
+		if isList(p[2]) and Q(p[2]).IsToNamedParam()
+			p[2] = p[2][2]
+		ok
+
 		nNumber = p[1]
 		nRound = p[2]
+	else
+		nNumber = p
+		nRound = CurrentRound()
 	ok
 
 	return StzNumberQ(nNumber).RoundedToXT(nRound)
