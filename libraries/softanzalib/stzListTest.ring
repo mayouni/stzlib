@@ -236,7 +236,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*========== A Softanza narration about one of the many uses of @
-
+*/
 pron()
 
 # In softanza there some useful functions that you can use from

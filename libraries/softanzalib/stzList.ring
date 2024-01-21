@@ -2762,14 +2762,19 @@ class stzList from stzObject
 
 	#>
 
-	  #-----------------------------------------------------------------#
-	 #  REPLACING (ANY) ITEM AT POSITION N WITH THE NEW ITEM PROVIDED  #
-	#-----------------------------------------------------------------#
+	  #---------------------------------------------------------------#
+	 #  REPLACING ANY ITEM AT POSITION N WITH THE NEW ITEM PROVIDED  #
+	#===============================================================#
 
-	def ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+	def ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 		if CheckParams()
+
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			if isList(pNewItem) and Q(pNewItem).IsByOrWithOrUsingNamedParam()
+				pNewItem = pNewItem[2]
 			ok
 		ok
 
@@ -2777,173 +2782,319 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def ReplaceItemAtPositionNCSQ(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+		def ReplaceAnyItemAtPositionNCSQ(n, pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceItemAtPositionCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+		def ReplaceAnyItemAtPositionCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 
-			def ReplaceItemAtPositionCSQ(n, pNewItem, pCaseSensitive)
-				This.ReplaceItemAtPositionCS(n, pNewItem, pCaseSensitive)
+			def ReplaceAnyItemAtPositionCSQ(n, pNewItem, pCaseSensitive)
+				This.ReplaceAnyItemAtPositionCS(n, pNewItem, pCaseSensitive)
 				return This
 
-		def ReplaceAtPositionCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+		def ReplaceAnyAtPositionCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 
-			def ReplaceAtPositionCSQ(n, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionCSQ(n, pNewItem, pCaseSensitive)
+			def ReplaceAnyAtPositionCSQ(n, pNewItem, pCaseSensitive)
+				return This.ReplaceAnyItemAtPositionCSQ(n, pNewItem, pCaseSensitive)
 
 		#--
 
 		def ReplaceAnyAtCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 
 			def ReplaceAnyAtCSQ(n, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionNCSXTQ(n, pNewItem, pCaseSensitive)
+				return This.ReplaceAnyItemAtPositionNCSQ(n, pNewItem, pCaseSensitive)
 
 		def ReplaceAnyAtPositionNCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 
 			def ReplaceAnyAtPositionNCSQ(n, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceAnyItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
 
-		def ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+		#--
 
-			def ReplaceAnyItemAtPositionNCSQ(n, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionNCSXTQ(n, pNewItem, pCaseSensitive)
+		def ReplaceAtCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 
-		def ReplaceAnyItemAtPositionCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+			def ReplaceAtCSQ(n, pNewItem, pCaseSensitive)
+				This.ReplaceAtCS(n, pNewItem, pCaseSensitive)
+				return This
 
-			def ReplaceAnyItemAtPositionCSQ(n, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionNCSXTQ(n, pNewItem, pCaseSensitive)
+		def ReplaceAtPositionCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 
-		def ReplaceAnyAtPositionCS(n, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+			def ReplaceAtPositionCSQ(n, pNewItem, pCaseSensitive)
+				This.ReplaceAtPositionCS(n, pNewItem, pCaseSensitive)
+				return This
 
-			def ReplaceAnyAtPositionCSQ(n, pItem, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionNCSXTQ(n, pNewItem, pCaseSensitive)
+		def ReplaceAtPositionNCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+
+			def ReplaceAtPositionNCSQ(n, pNewItem, pCaseSensitive)
+				This.ReplaceAtPositionNCS(n, pNewItem, pCaseSensitive)
+				return This
 
 		#>
 
-	def ItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
-		cResult = This.Copy().ReplaceItemAtPositionNCSQ(n, pNewItem, pCaseSensitive)
+	def AnyItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
+		cResult = This.Copy().ReplaceAnyItemAtPositionNCSQ(n, pNewItem, pCaseSensitive)
 		return cResult
 
 		#< @FunctionAlternativeforms
 
-		def ItemAtPositionReplacedCS(n, pNewItem, pCaseSensitive)
-			return This.ItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
+		def AnyItemAtPositionReplacedCS(n, pNewItem, pCaseSensitive)
+			return This.AnyItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
 
-		def ReplacedAtPositionCS(n, pNewItem, pCaseSensitive)
-			return This.ItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
+		def AnyReplacedAtPositionCS(n, pNewItem, pCaseSensitive)
+			return This.AnyItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
 
-		def ItemReplacedAtPositionCS(n, pNewItem, pCaseSensitive)
-			return This.ItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
+		def AnyItemReplacedAtPositionCS(n, pNewItem, pCaseSensitive)
+			return This.AnyItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
 
 		#--
 
-		def AnyItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
-			return This.ItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
-
 		def AnyItemAtReplacedCS(n, pNewItem, pCaseSensitive)
-			return This.ItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
+			return This.AnyItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
+
+		#--
+
+		def ReplacedAtCS(n, pNewItem, pCaseSensitive)
+			return This.AnyItemAtReplacedCS(n, pNewItem, pCaseSensitive)
+
+		def ReplaceedAtPositionCS(n, pNewItem, pCaseSensitive)
+			return This.AnyItemAtReplacedCS(n, pNewItem, pCaseSensitive)
+
+		def ReplacedAtPositionNCS(n, pNewItem, pCaseSensitive)
+			return This.AnyItemAtReplacedCS(n, pNewItem, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceItemAtPositionN(n, pNewItem)
-		This.ReplaceItemAtPositionNCS(n, pNewItem, TRUE)
+	def ReplaceAnyItemAtPositionN(n, pNewItem)
+		return This.ReplaceAnyItemAtPositionNCS(n, pNewItem, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceAnyItemAtPositionNQ(n, pNewItem)
+			This.ReplaceAnyItemAtPositionN(n, pNewItem)
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceItemAtPosition(n, pNewItem)
-			This.ReplaceItemAtPositionN(n, pNewItem)
+		def ReplaceAnyItemAt(n, pNewItem)
+			This.ReplaceAnyItemAtPositionN(n, pNewItem)
 
-			def ReplaceItemAtPositionQ(n, pNewItem)
-				This.ReplaceItemAtPosition(n, pNewItem)
+			def ReplaceAnyItemAtQ(n, pNewItem)
+				This.ReplaceAnyItemAt(n, pNewItem)
 				return This
 
-		def ReplaceAtPosition(n, pNewItem)
-			This.ReplaceItemAtPositionN(n, pNewItem)
+		def ReplaceAnyItemAtPosition(n, pNewItem)
+			This.ReplaceAnyItemAtPositionN(n, pNewItem)
 
-			def ReplaceAtPositionQ(n, pNewItem)
-				return This.ReplaceItemAtPositionQ(n, pNewItem)
+			def ReplaceAnyItemAtPositionQ(n, pNewItem)
+				This.ReplaceAnyItemAtPosition(n, pNewItem)
+				return This
+
+		def ReplaceAnyAtPosition(n, pNewItem)
+			This.ReplaceAnyItemAtPositionN(n, pNewItem)
+
+			def ReplaceAnyAtPositionQ(n, pNewItem)
+				return This.ReplaceAnyItemAtPositionQ(n, pNewItem)
 
 		#--
 
 		def ReplaceAnyAt(n, pNewItem)
-			This.ReplaceItemAtPositionN(n, pNewItem)
+			This.ReplaceAnyItemAtPositionN(n, pNewItem)
 
 			def ReplaceAnyAtQ(n, pNewItem)
-				return This.ReplaceItemAtPositionNXTQ(n, pNewItem)
+				return This.ReplaceAnyItemAtPositionNQ(n, pNewItem)
 
 		def ReplaceAnyAtPositionN(n, pNewItem)
-			This.ReplaceItemAtPositionN(n, pNewItem)
+			This.ReplaceAnyItemAtPositionN(n, pNewItem)
 
 			def ReplaceAnyAtPositionNQ(n, pNewItem)
-				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
-
-		def ReplaceAnyItemAtPositionN(n, pNewItem)
-			This.ReplaceItemAtPositionN(n, pNewItem)
-
-			def ReplaceAnyItemAtPositionNCQ(n, pNewItem)
-				return This.ReplaceItemAtPositionNXTQ(n, pNewItem)
-
-		def ReplaceAnyItemAtPosition(n, pNewItem)
-			This.ReplaceItemAtPositionN(n, pNewItem)
-
-			def ReplaceAnyItemAtPositionCQ(n, pNewItem)
-				return This.ReplaceItemAtPositionNXTQ(n, pNewItem)
-
-		def ReplaceAnyAtPosition(n, pNewItem)
-			This.ReplaceItemAtPositionN(n, pNewItem)
-
-			def ReplaceAnyAtPositionQ(n, pItem, pNewItem)
-				return This.ReplaceItemAtPositionNXTQ(n, pNewItem)
-
-		#>
-
-	def ItemAtPositionNReplaced(n, pNewItem)
-		cResult = This.Copy().ReplaceItemAtPositionNCSQ(n, pNewItem, TRUE).Content()
-		return cResult
-
-		#< @FunctionalternativeForms
-
-		def ItemAtPositionReplaced(n, pNewItem)
-			return This.ItemAtPositionNReplaced(n, pNewItem)
-
-		def ReplacedAtPosition(n, pNewItem)
-			return This.ItemAtPositionNReplaced(n, pNewItem)
-
-		def ItemReplacedAtPosition(n, pNewItem)
-			return This.ItemAtPositionNReplaced(n, pNewItem)
+				return This.ReplaceAnyItemAtPositionNXTQ(n, pItem, pNewItem)
 
 		#--
 
-		def AnyItemAtPositionNReplaced(n, pNewItem)
-			return This.ItemAtPositionNReplaced(n, pNewItem)
+		def ReplaceAt(n, pNewItem)
+			This.ReplaceAnyItemAtPositionN(n, pNewItem)
 
-		def AnyItemAtReplaced(n, pNewItem)
-			return This.ItemAtPositionNReplaced(n, pNewItem)
+			def ReplaceAtQ(n, pNewItem)
+				This.ReplaceAt(n, pNewItem)
+				return This
+
+		def ReplaceAtPosition(n, pNewItem)
+			This.ReplaceAnyItemAtPositionN(n, pNewItem)
+
+			def ReplaceAtPositionQ(n, pNewItem)
+				This.ReplaceAtPosition(n, pNewItem)
+				return This
+
+		def ReplaceAtPositionN(n, pNewItem)
+			This.ReplaceAnyItemAtPositionN(n, pNewItem)
+
+			def ReplaceAtPositionNQ(n, pNewItem)
+				This.ReplaceAtPositionN(n, pNewItem)
+				return This
 
 		#>
 
-	  #------------------------------------------------------------#
-	 #  REPLACING ITEM AT POSITION N  -- XT (RESTART FROM FIRST)  #
-	#------------------------------------------------------------#
+	#< @FunctionPassiveForms
 
-	def ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
+	def AnyItemAtPositionNReplaced(n, pNewItem)
+		cResult = This.Copy().ReplaceAnyItemAtPositionNQ(n, pNewItem)
+		return cResult
+
+		#< @FunctionAlternativeforms
+
+		def AnyItemAtPositionReplaced(n, pNewItem)
+			return This.AnyItemAtPositionNReplaced(n, pNewItem)
+
+		def AnyReplacedAtPosition(n, pNewItem)
+			return This.AnyItemAtPositionNReplaced(n, pNewItem)
+
+		def AnyItemReplacedAtPosition(n, pNewItem)
+			return This.AnyItemAtPositionNReplaced(n, pNewItem)
+
+		#--
+
+		def AnyItemAtReplaced(n, pNewItem)
+			return This.AnyItemAtPositionNReplaced(n, pNewItem)
+
+		#>
+
+	#>
+
+	  #-----------------------------------------------------------------------#
+	 #  REPLACING ANY ITEMS AT THE GIVEN POSITIONS BY THE NEW ITEM PROVIDED  #
+	#-----------------------------------------------------------------------#
+
+	def ReplaceAnyItemAtPositionsCS(panPos, pNewItem, pCaseSensitive)
+		if CheckParams()
+
+			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+
+			if isList(pNewItem) and Q(pNewItem).IsByOrWithOrUsingNamedParam()
+				pNewItem = pNewItem[2]
+			ok
+		ok
+
+		nLen = len(panPos)
+
+		for i = 1 to nLen
+			@aContent[ panPos[i] ] = pNewItem
+		next
+
+		#< @FunctionFluentForm
+
+		def ReplaceAnyItemAtPositionsCSQ(panPos, pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionsCS(panPos, pNewItem, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceAnyItemsAtPositionsCS(panPos, pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionsCS(panPos, pNewItem, pCaseSensitive)
+
+			def ReplaceAnyItemsAtPositionsCSQ(panPos, pNewItem, pCaseSensitive)
+				This.ReplaceAnyItemsAtPositionsCS(panPos, pNewItem, pCaseSensitive)
+				return This
+
+		def ReplaceAnyAtPositionsCS(panPos, pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionsCS(panPos, pNewItem, pCaseSensitive)
+
+			def ReplaceAnyAtPositionsCSQ(panPos, pNewItem, pCaseSensitive)
+				return This.ReplaceAnyItemsAtPositionsCSQ(panPos, pNewItem, pCaseSensitive)
+
+		#>
+
+	#< @FunctionPassiveForm
+
+	def AnyItemAtPositionsReplacedCS(panPos, pNewItem, pCaseSensitive)
+		cResult = This.Copy().ReplaceAnyItemAtPositionsCSQ(panPos, pNewItem, pCaseSensitive)
+		return cResult
+
+		#< @FunctionAlternativeform
+
+		def AnyItemReplacedAtPositionsCS(panPos, pNewItem, pCaseSensitive)
+			return This.AnyItemAtPositionsReplacedCS(panPos, pNewItem, pCaseSensitive)
+
+
+		#>
+	#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceAnyItemAtPositions(panPos, pNewItem)
+		return This.ReplaceAnyItemAtPositionsCS(panPos, pNewItem, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceAnyItemAtPositionsQ(panPos, pNewItem)
+			This.ReplaceAnyItemAtPositions(panPos, pNewItem)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceAnyItemsAtPositions(panPos, pNewItem)
+			This.ReplaceAnyItemAtPositions(panPos, pNewItem)
+
+			def ReplaceAnyItemsAtPositionsQ(panPos, pNewItem)
+				This.ReplaceAnyItemsAtPositions(panPos, pNewItem)
+				return This
+
+		def ReplaceAnyAtPositions(panPos, pNewItem)
+			This.ReplaceAnyItemAtPositions(panPos, pNewItem)
+
+			def ReplaceAnyAtPositionsQ(panPos, pNewItem)
+				return This.ReplaceAnyItemsAtPositionsQ(panPos, pNewItem)
+
+		#>
+
+	#< @FunctionPassiveForm
+
+	def AnyItemAtPositionsReplaced(panPos, pNewItem)
+		cResult = This.Copy().ReplaceAnyItemAtPositionsQ(panPos, pNewItem)
+		return cResult
+
+		#< @FunctionAlternativeform
+
+		def AnyItemReplacedAtPositions(panPos, pNewItem)
+			return This.AnyItemAtPositionsReplaced(panPos, pNewItem)
+
+
+		#>
+	#>
+
+	  #--------------------------------------------------------#
+	 #  REPLACING AN ITEM IF IT EXISTS AT THE GIVEN POSITION  #
+	#========================================================#
+
+	def ReplaceItemAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+
 		if CheckParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			if isList(pNewItem) and Q(pNewItem).IsByOrWithOrUsingNamedParam()
+				pNewItem = pNewItem[2]
 			ok
 		ok
 
@@ -2954,154 +3105,206 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
+		def ReplaceItemAtPositionNCSQ(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceItemAtPositionCSXT(n, pItem, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
+		#--
 
-			def ReplaceItemAtPositionCSXTQ(n, pItem, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
+		def ReplaceItemAtPositionCS(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
 
-		def ReplaceAtPositionCSXT(n, pItem, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
+			def ReplaceItemAtPositionCSQ(n, pItem, pNewItem, pCaseSensitive)
+				This.ReplaceItemAtPositionCS(n, pItem, pNewItem, pCaseSensitive)
+				return This
 
-			def ReplaceAtPositionCSXTQ(n, pItem, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
+		def ReplaceItemAtCS(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceItemAtCSQ(n, pItem, pNewItem, pCaseSensitive)
+				This.ReplaceItemAtCS(n, pItem, pNewItem, pCaseSensitive)
+				return This
+
+		def ReplaceThisAtCS(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceThisAtCSQ(n, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceItemAtPositionNCSQ(n, pItem, pNewItem, pCaseSensitive)
+
+		def ReplaceThisAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceThisAtPositionNCSQ(n, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceItemAtPositionNCSQ(n, pItem, pNewItem, pCaseSensitive)
+
+		def ReplaceThisItemAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceThisItemAtPositionNCSQ(n, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceItemAtPositionNCSQ(n, pItem, pNewItem, pCaseSensitive)
+
+		def ReplaceThisItemAtPositionCS(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceThisItemAtPositionCSQ(n, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceItemAtPositionNCSQ(n, pItem, pNewItem, pCaseSensitive)
+
+		def ReplaceThisAtPositionCS(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceItemAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceThisAtPositionCSQ(n, pItem, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceItemAtPositionNCSQ(n, pItem, pNewItem, pCaseSensitive)
+
+		#>
+
+	#< @FunctionPassiveForms
+
+	def ThisItemAtPositionNReplacedCS(n, pItem, pNewItem, pCaseSensitive)
+		cResult = This.Copy().ReplaceItemAtPositionNCSQ(n, pItem, pNewItem, pCaseSensitive)
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		# TODO: Add alternative ...ThisPosition...()
+
+		def ItemAtPositionReplacedCS(n, pItem, pNewItem, pCaseSensitive)
+			return This.ThisItemAtPositionNReplacedCS(n, pItem, pNewItem, pCaseSensitive)
+	
+		def ItemReplacedAtPositionCS(n, pItem, pNewItem, pCaseSensitive)
+			return This.ThisItemAtPositionNReplacedCS(n, pItem, pNewItem, pCaseSensitive)
+
+		def ReplacedAtPositionCS(n, pItem, pNewItem, pCaseSensitive)
+			return This.ThisItemAtPositionNReplacedCS(n, pItem, pNewItem, pCaseSensitive)
+
+		def ItemReplacedAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+			return This.ThisItemAtPositionNReplacedCS(n, pItem, pNewItem, pCaseSensitive)
 
 		#--
 
-		def ReplaceThisAtCS(n, pItem, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
+		def ThisItemReplacedAtPositionCS(n, pItem, pNewItem, pCaseSensitive)
+			return This.ThisItemAtPositionNReplacedCS(n, pItem, pNewItem, pCaseSensitive)
 
-			def ReplaceThisAtCSQ(n, pItem, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
+		def ThisReplacedAtPositionCS(n, pItem, pNewItem, pCaseSensitive)
+			return This.ThisItemAtPositionNReplacedCS(n, pItem, pNewItem, pCaseSensitive)
 
-		def ReplaceThisAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
+		def ThisItemReplacedAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+			return This.ThisItemAtPositionNReplacedCS(n, pItem, pNewItem, pCaseSensitive)
 
-			def ReplaceThisAtPositionNCSQ(n, pItem, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
-
-		def ReplaceThisItemAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
-
-			def ReplaceThisItemAtPositionNCSQ(n, pItem, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
-
-		def ReplaceThisItemAtPositionCS(n, pItem, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
-
-			def ReplaceThisItemAtPositionCSQ(n, pItem, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
-
-		def ReplaceThisAtPositionCS(n, pItem, pNewItem, pCaseSensitive)
-			This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, pCaseSensitive)
-
-			def ReplaceThisAtPositionCSQ(n, pItem, pItem, pNewItem, pCaseSensitive)
-				return This.ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
+		def ThisReplacedAtPositionNCS(n, pItem, pNewItem, pCaseSensitive)
+			return This.ThisItemAtPositionNReplacedCS(n, pItem, pNewItem, pCaseSensitive)
 
 		#>
 
-	def ItemAtPositionNReplacedCSXT(n, pItem, pNewItem, pCaseSensitive)
-		cResult = This.Copy().ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, pCaseSensitive)
-		return cResult
-
-		#< @FunctionAlternativeforms
-
-		def ItemAtPositionReplacedCSXT(n, pItem, pNewItem, pCaseSensitive)
-			return This.ItemAtPositionNReplacedCSXT(n, pItem, pNewItem, pCaseSensitive)
-
-		def ReplacedAtPositionCSXT(n, pItem, pNewItem, pCaseSensitive)
-			return This.ItemAtPositionNReplacedCSXT(n, pItem, pNewItem, pCaseSensitive)
-
-		def ItemReplacedAtPositionCSXT(n, pItem, pNewItem, pCaseSensitive)
-			return This.ItemAtPositionNReplacedCSXT(n, pItem, pNewItem, pCaseSensitive)
-
-		#>
+	#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceItemAtPositionNXT(n, pItem, pNewItem)
-		This.ReplaceItemAtPositionNCSXT(n, pItem, pNewItem, TRUE)
+	def ReplaceItemAtPositionN(n, pItem, pNewItem)
+		This.ReplaceItemAtPositionNCS(n, pItem, pNewItem, TRUE)
 
 		#< @FunctionFluentForm
 
-		def ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
-			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
+		def ReplaceItemAtPositionNQ(n, pItem, pNewItem)
+			This.ReplaceItemAtPositionN(n, pItem, pNewItem)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceItemAtPositionXT(n, pItem, pNewItem)
-			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
-
-			def ReplaceItemAtPositionXTQ(n, pItem, pNewItem)
-				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
-
-		def ReplaceAtPositionXT(n, pItem, pNewItem)
-			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
-
-			def ReplaceAtPositionXTQ(n, pItem, pNewItem)
-				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
-
-		#--
-
 		def ReplaceThisAt(n, pItem, pNewItem)
-			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
+			This.ReplaceItemAtPositionN(n, pItem, pNewItem)
 
 			def ReplaceThisAtQ(n, pItem, pNewItem)
-				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
+				return This.ReplaceItemAtPositionNQ(n, pItem, pNewItem)
 
 		def ReplaceThisAtPositionN(n, pItem, pNewItem)
-			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
+			This.ReplaceItemAtPositionN(n, pItem, pNewItem)
 
 			def ReplaceThisAtPositionNQ(n, pItem, pNewItem)
-				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
+				return This.ReplaceItemAtPositionNQ(n, pItem, pNewItem)
 
 		def ReplaceThisItemAtPositionN(n, pItem, pNewItem)
 			This.ReplaceItemAtPositionNXT(n, pItem, pItem, pNewItem)
 
 			def ReplaceThisItemAtPositionNQ(n, pItem, pNewItem)
-				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
+				return This.ReplaceItemAtPositionNQ(n, pItem, pNewItem)
 
 		def ReplaceThisItemAtPosition(n, pItem, pNewItem)
-			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
+			This.ReplaceItemAtPositionN(n, pItem, pNewItem)
 
 			def ReplaceThisItemAtPositionQ(n, pItem, pNewItem)
-				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
+				return This.ReplaceItemAtPositionNQ(n, pItem, pNewItem)
 
 		def ReplaceThisAtPosition(n, pItem, pNewItem)
-			This.ReplaceItemAtPositionNXT(n, pItem, pNewItem)
+			This.ReplaceItemAtPositionN(n, pItem, pNewItem)
 
 			def ReplaceThisAtPositionQ(n, pItem, pNewItem)
-				return This.ReplaceItemAtPositionNXTQ(n, pItem, pNewItem)
+				return This.ReplaceItemAtPositionNQ(n, pItem, pNewItem)
+
+		#--
+
+		def ReplaceItemAtPosition(n, pItem, pNewItem)
+			This.ReplaceItemAtPositionN(n, pItem, pNewItem)
+
+			def ReplaceItemAtPositionQ(n, pItem, pNewItem)
+				This.ReplaceItemAtPosition(n, pItem, pNewItem)
+				return This
+
+		def ReplaceItemAt(n, pItem, pNewItem)
+			This.ReplaceItemAtPositionN(n, pItem, pNewItem)
+
+			def ReplaceItemAtQ(n, pItem, pNewItem)
+				This.ReplaceItemAt(n, pItem, pNewItem)
+				return This
 
 		#>
 
-	def ItemAtPositionNReplacedXT(n, pItem, pNewItem)
-		cResult = This.Copy().ReplaceItemAtPositionNCSXTQ(n, pItem, pNewItem, TRUE).Content()
+	#< @FunctionPassiveForms
+
+	def ThisItemAtPositionNReplaced(n, pItem, pNewItem)
+		cResult = This.Copy().ReplaceItemAtPositionNCSQ(n, pItem, pNewItem, TRUE).Content()
 		return cResult
 
-		#< @FunctionalternativeForms
+		#< @FunctionAlternativeForms
 
-		def ItemAtPositionReplacedXT(n, pItem, pNewItem)
-			return This.ItemAtPositionNReplacedXT(n, pItem, pNewItem)
+		def ItemAtPositionReplaced(n, pItem, pNewItem)
+			return This.ThisItemAtPositionNReplaced(n, pItem, pNewItem)
+	
+		def ItemReplacedAtPosition(n, pItem, pNewItem)
+			return This.ThisItemAtPositionNReplaced(n, pItem, pNewItem)
 
-		def ReplacedAtPositionXT(n, pItem, pNewItem)
-			return This.ItemAtPositionNReplacedXT(n, pItem, pNewItem)
+		def ReplacedAtPosition(n, pItem, pNewItem)
+			return This.ThisItemAtPositionNReplaced(n, pItem, pNewItem)
 
-		def ItemReplacedAtPositionXT(n, pItem, pNewItem)
-			return This.ItemAtPositionNReplacedXT(n, pItem, pNewItem)
+		def ItemReplacedAtPositionN(n, pItem, pNewItem)
+			return This.ThisItemAtPositionNReplaced(n, pItem, pNewItem)
+
+		def ReplacedAtPositionN(n, pItem, pNewItem)
+			return This.ThisItemAtPositionNReplaced(n, pItem, pNewItem)
+
+		#--
+
+		def ThisItemReplacedAtPosition(n, pItem, pNewItem)
+			return This.ThisItemAtPositionNReplaced(n, pItem, pNewItem)
+
+		def ThisReplacedAtPosition(n, pItem, pNewItem)
+			return This.ThisItemAtPositionNReplaced(n, pItem, pNewItem)
+
+		def ThisItemReplacedAtPositionN(n, pItem, pNewItem)
+			return This.ThisItemAtPositionNReplaced(n, pItem, pNewItem)
+
+		def ThisReplacedAtPositionN(n, pItem, pNewItem)
+			return This.ThisItemAtPositionNReplaced(n, pItem, pNewItem)
 
 		#>
+
+
+	#>
 
 	  #--------------------------------------------------------------#
 	 #   REPALCING A SUBSTRING OCCURRENCES BY AN OTHER SUBSTRING    #
@@ -3121,12 +3324,22 @@ class stzList from stzObject
 			if NOT (isList(panPos) and Q(panPos).IsListOfNumbers())
 				StzRaise("Incorrect param type! panPos must be a list of numbers.")
 			ok
+
+			if isList(pNewItem) and Q(pNewItem).IsByOrWithOrUsingNamedParam()
+				pNewItem = pNewItem[2]
+			ok
+
 		ok
 
-		nLen = len(anPos)
+		nLen = len(panPos)
+		anPosAll = This.FindAllCS(pItem, pCaseSensitive)
+		
+		anPos = []
 
 		for i = 1 to nLen
-			This.ReplaceItemAtPositionNCS(anPos[i], pItem, pNewItem, pCaseSensitive)
+			if ring_find(anPosAll, panPos[i])
+				@aContent[ panPos[i] ] = pNewItem
+			ok
 		next
 
 		#< @FunctionFluentForm
@@ -3198,13 +3411,14 @@ class stzList from stzObject
 
 		#>
 
-	  #--------------------------------------------------------------------------#
-	 #   REPALCING A SUBSTRING AT A SOME GIVEN POSITIONS BY MANY OTHER ITEMS    #
-	#--------------------------------------------------------------------------#
+	  #---------------------------------------------------------------#
+	 #   REPALCING AN ITEM AT GIVEN POSITIONS BY MANY OTHER ITEMS    #
+	#===============================================================#
 
 	def ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
 
 		/* EXAMPLE 1
+
 		o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
 		o1.ReplaceItemAtPositionsByMany([ 3, 5, 7], "ring", :By = [ "♥", "♥♥", "♥♥♥" ])
 
@@ -3216,19 +3430,19 @@ class stzList from stzObject
 		if CheckParams()
 
 			if isList(paNewItems) and Q(paNewItems).IsWithOrByNamedParam()
-				paNewItems = pacNewItems[2]
+				paNewItems = paNewItems[2]
 			ok
 
 		ok
 
-		# Keeping only the adequate number of positsions and new items
+		# Keeping only the adequate number of positions and new items
 		#--> Avoids incorrect results when the number of provided positions is
 		#     different from the number of provided new items
 
-		nMin = Min([ len(panPos), len(pacNewItems) ])
+		nMin = Min([ len(panPos), len(paNewItems) ])
 
-		anPositions 	= Q(panPos).SectionQ(1, nMin).SortedInDescending()
-		aNewItems	= Q(pacNewItems).SectionQ(1, nMin).SortedInDescending()
+		anPositions = Q(panPos).SectionQ(1, nMin).SortedInDescending()
+		aNewItems   = Q(paNewItems).SectionQ(1, nMin).SortedInDescending()
 
 		# Doing the job
 
@@ -3241,38 +3455,452 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def ReplaceItemAtPositionsByManyCSQ(panPos, pItem, pacNewItems, pCaseSensitive)
-			This.ReplaceItemAtPositionsByManyCS(panPos, pItem, pacNewItems, pCaseSensitive)
+		def ReplaceItemAtPositionsByManyCSQ(panPos, pItem, paNewItems, pCaseSensitive)
+			This.ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceItemAtThesePositionsByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
+			This.ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
+
+			def ReplaceItemAtThesePositionsByManyCSQ(panPos, pItem, paNewItems, pCaseSensitive)
+				This.ReplaceItemAtThesePositionsByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
+				return This
 
 		#>
 
 	#< @FunctionPassiveForms
 
-	def ItemAtThesePositionsReplacedByManyCS(panPos, pItem, pacNewItems, pCaseSensitive)
-		cResult = This.Copy().ReplaceItemAtPositionsByManyCSQ(panPos, pItem, pacNewItems, pCaseSensitive).Content()
+	def ItemAtPositionsReplacedByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceItemAtPositionsByManyCSQ(panPos, pItem, paNewItems, pCaseSensitive).Content()
 		return cResult
+
+		def ItemAtThesePositionsReplacedByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
+			return This.ItemAtPositionsReplacedByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
 
 	#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceItemAtPositionsByMany(panPos, pItem, pacNewItems)
-		This.ReplaceItemAtPositionsByManyCS(panPos, pItem, pacNewItems, TRUE)
+	def ReplaceItemAtPositionsByMany(panPos, pItem, paNewItems)
+		This.ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, TRUE)
 
 		#< @FunctionFluentForm
 
-		def ReplaceItemAtPositionsByManyQ(panPos, pItem, pacNewItems)
-			This.ReplaceItemAtPositionsByMany(panPos, pItem, pacNewItems)
+		def ReplaceItemAtPositionsByManyQ(panPos, pItem, paNewItems)
+			This.ReplaceItemAtPositionsByMany(panPos, pItem, paNewItems)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceItemAtThesePositionsByMany(panPos, pItem, paNewItems)
+			This.ReplaceItemAtPositionsByMany(panPos, pItem, paNewItems)
+
+			def ReplaceItemAtThesePositionsByManyQ(panPos, pItem, paNewItems)
+				This.ReplaceItemAtThesePositionsByMany(panPos, pItem, paNewItems)
+				return This
 
 		#>
 
 	#< @FunctionPassiveForm
 
-	def ItemAtThesePositionsReplacedByMany(panPos, pItem, pacNewItems)
-		cResult = This.Copy().ReplaceItemAtPositionsByManyQ(panPos, pItem, pacNewItems).Content()
+	def ItemAtPositionsReplacedByMany(panPos, pItem, paNewItems)
+		cResult = This.Copy().ReplaceItemAtPositionsByManyQ(panPos, pItem, paNewItems).Content()
 		return cResult
+
+		def ItemAtThesePositionsReplacedByMany(panPos, pItem, paNewItems)
+			return This.ItemAtPositionsReplacedByMany(panPos, pItem, paNewItems)
+
+	#>
+
+	  #------------------------------------------------------------------#
+	 #  REPALCING THE ITEMS AT THE GIVEN POSITIONS BY MANY OTHER ITEMS  #
+	#------------------------------------------------------------------#
+
+	def ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+
+		/* EXAMPLE 1
+
+		o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+		o1.ReplaceAnyItemsAtPositionsByMany([ 3, 5, 7], :By = [ "♥", "♥♥", "♥♥♥" ])
+
+		? o1.Content()
+		#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
+
+		*/
+
+		if CheckParams()
+
+			if isList(paNewItems) and Q(paNewItems).IsWithOrByNamedParam()
+				paNewItems = paNewItems[2]
+			ok
+
+		ok
+
+		# Keeping only the adequate number of positions and new items
+		#--> Avoids incorrect results when the number of provided positions is
+		#     different from the number of provided new items
+
+		nMin = Min([ len(panPos), len(paNewItems) ])
+
+		anPositions = Q(panPos).SectionQ(1, nMin).SortedInDescending()
+		aNewItems   = Q(paNewItems).SectionQ(1, nMin).SortedInDescending()
+
+		# Doing the job
+
+		for i = 1 to nMin
+			This.ReplaceAnyItemAtPositionNCS(anPositions[i], aNewItems[i], pCaseSensitive)
+		next
+
+		#< @FunctionFluentForm
+
+		def ReplaceAnyItemAtPositionsByManyCSQ(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceAnyItemsAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+			
+			def ReplaceAnyItemsAtPositionsByManyCSQ(panPos, paNewItems, pCaseSensitive)
+				This.ReplaceAnyItemsAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+				return This
+
+		#--
+
+		def ReplaceAnyItemAtThesePositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+
+			def ReplaceAnyItemAtThesePositionsByManyCSQ(panPos, paNewItems, pCaseSensitive)
+				This.ReplaceAnyItemAtThesePositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+				return This
+
+		def ReplaceAnyItemsAtThesePositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+			
+			def ReplaceAnyItemsAtThesePositionsByManyCSQ(panPos, paNewItems, pCaseSensitive)
+				This.ReplaceAnyItemsAtThesePositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+				return This
+
+		#>
+
+	#< @FunctionPassiveForm
+
+	def AnyItemAtPositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceAnyItemAtPositionsByManyCSQ(panPos, pacNewItems, pCaseSensitive).Content()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def AnyItemsAtPositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
+			return This.AnyItemAtThesePositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
+
+		#--
+
+		def AnyItemAtThesePositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
+			return This.AnyItemAtPositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
+
+		def AnyItemsAtThesePositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
+			return This.AnyItemAtThesePositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
+
+		#>
+
+	#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceAnyItemAtPositionsByMany(panPos, pItem, pacNewItems)
+		This.ReplaceAnyItemAtPositionsByManyCS(panPos, pItem, pacNewItems, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceAnyItemAtPositionsByManyQ(panPos, pItem, pacNewItems)
+			This.ReplaceAnyItemAtPositionsByMany(panPos, pItem, pacNewItems)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceAnyItemsAtPositionsByMany(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
+			
+			def ReplaceAnyItemsAtPositionsByManyQ(panPos, paNewItems)
+				This.ReplaceAnyItemsAtPositionsByMany(panPos, paNewItems)
+				return This
+
+		#--
+
+		def ReplaceAnyItemAtThesePositionsByMany(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
+
+			def ReplaceAnyItemAtThesePositionsByManyQ(panPos, paNewItems)
+				This.ReplaceAnyItemAtThesePositionsByMany(panPos, paNewItems)
+				return This
+
+		def ReplaceAnyItemsAtThesePositionsByMany(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
+			
+			def ReplaceAnyItemsAtThesePositionsByManyQ(panPos, paNewItems)
+				This.ReplaceAnyItemsAtThesePositionsByMany(panPos, paNewItems)
+				return This
+
+		#>
+
+
+	#< @FunctionPassiveForm
+
+	def AnyItemAtPositionsReplacedByMany(panPos, pacNewItems)
+		return This.AnyItemAtPositionsReplacedByManyCS(panPos, pacNewItems, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def AnyItemsAtPositionsReplacedByMany(panPos, pacNewItems)
+			return This.AnyItemAtThesePositionsReplacedByMany(panPos, pacNewItems)
+
+		#--
+
+		def AnyItemAtThesePositionsReplacedByMany(panPos, pacNewItems)
+			return This.AnyItemAtPositionsReplacedByMany(panPos, pacNewItems)
+
+		def AnyItemsAtThesePositionsReplacedByMany(panPos, pacNewItems)
+			return This.AnyItemAtThesePositionsReplacedByMany(panPos, pacNewItems)
+
+		#>
+
+	#>
+
+	  #--------------------------------------------------------------------------#
+	 #   REPALCING AN ITEM AT GIVEN POSITIONS BY MANY OTHER ITEMS -- EXTENDED   #
+	#==========================================================================#
+
+	def ReplaceItemAtPositionsByManyXTCS(panPos, pItem, paNewItems, pCaseSensitive)
+
+		/* EXAMPLE 1
+
+		o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+		o1.ReplaceItemAtPositionsByManyXT([ 3, 5, 7, 9], "ring", :By = [ "♥", "♥♥" ])
+
+		? o1.Content()
+		#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥", "csharp", "♥♥" ]
+
+		*/
+
+		if CheckParams()
+
+			if isList(paNewItems) and Q(paNewItems).IsWithOrByNamedParam()
+				paNewItems = paNewItems[2]
+			ok
+
+		ok
+
+		nLenPos   = len(panPos)
+		nLenItems = len(paNewItems)
+
+		if nLenItems >= nLenPos
+			This.ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
+			return
+		ok
+
+		# Case :  nLenItems < nLenPos
+
+		aItems = paNewItems
+		j = 0
+		for i = 1 to nLenPos - nLenItems
+			j++
+			if j > nLenItems
+				j = 1
+			ok
+			aItems + paNewItems[j]
+		next
+
+		for i = 1 to nLenPos
+			This.ReplaceItemAtPositionNCS(panPos[i], pItem, aItems[i], pCaseSensitive)
+		next
+
+		#< @FunctionFluentForm
+
+		def ReplaceItemAtPositionsByManyXTCSQ(panPos, pItem, paNewItems, pCaseSensitive)
+			This.ReplaceItemAtPositionsByManyXTCS(panPos, pItem, paNewItems, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceItemAtThesePositionsByManyXTCS(panPos, pItem, paNewItems, pCaseSensitive)
+			This.ReplaceItemAtPositionsByManyXTCS(panPos, pItem, paNewItems, pCaseSensitive)
+
+			def ReplaceItemAtThesePositionsByManyXTCSQ(panPos, pItem, paNewItems, pCaseSensitive)
+				This.ReplaceItemAtThesePositionsByManyXTCS(panPos, pItem, paNewItems, pCaseSensitive)
+				return This
+
+		#>
+
+	#< @FunctionPassiveForms
+
+	def ItemAtPositionsReplacedByManyXTCS(panPos, pItem, paNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceItemAtPositionsByManyXTCSQ(panPos, pItem, paNewItems, pCaseSensitive).Content()
+		return cResult
+
+		def ItemAtThesePositionsReplacedByManyXTCS(panPos, pItem, paNewItems, pCaseSensitive)
+			return This.ItemAtPositionsReplacedByManyXTCS(panPos, pItem, paNewItems, pCaseSensitive)
+
+	#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceItemAtPositionsByManyXT(panPos, pItem, paNewItems)
+		This.ReplaceItemAtPositionsByManyXTCS(panPos, pItem, paNewItems, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceItemAtPositionsByManyXTQ(panPos, pItem, paNewItems)
+			This.ReplaceItemAtPositionsByManyXT(panPos, pItem, paNewItems)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceItemAtThesePositionsByManyXT(panPos, pItem, paNewItems)
+			This.ReplaceItemAtPositionsByManyXT(panPos, pItem, paNewItems)
+
+			def ReplaceItemAtThesePositionsByManyXTQ(panPos, pItem, paNewItems)
+				This.ReplaceItemAtThesePositionsByManyXT(panPos, pItem, paNewItems)
+				return This
+
+		#>
+
+	#< @FunctionPassiveForm
+
+	def ItemAtPositionsReplacedByManyXT(panPos, pItem, paNewItems)
+		cResult = This.Copy().ReplaceItemAtPositionsByManyXTQ(panPos, pItem, paNewItems).Content()
+		return cResult
+
+		def ItemAtThesePositionsReplacedByManyXT(panPos, pItem, paNewItems)
+			return This.ItemAtPositionsReplacedByManyXT(panPos, pItem, paNewItems)
+
+	#>
+
+	  #------------------------------------------------------------------------------#
+	 #  REPALCING THE ITEMS AT THE GIVEN POSITIONS BY MANY OTHER ITEMS -- EXTENDED  #
+	#------------------------------------------------------------------------------#
+
+	def ReplaceAnyItemAtPositionsByManyXTCS(panPos, paNewItems, pCaseSensitive)
+
+		/* EXAMPLE 1
+
+		o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+		o1.ReplaceAnyItemsAtPositionsByManyXT([ 3, 5, 7], :By = [ "♥", "♥♥", "♥♥♥" ])
+
+		? o1.Content()
+		#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
+
+		*/
+
+		if CheckParams()
+
+			if isList(paNewItems) and Q(paNewItems).IsWithOrByNamedParam()
+				paNewItems = paNewItems[2]
+			ok
+
+		ok
+
+		nLenPos   = len(panPos)
+		nLenItems = len(paNewItems)
+
+		if nLenItems >= nLenPos
+			This.ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
+			return
+		ok
+
+		# Case :  nLenItems < nLenPos
+
+		aItems = paNewItems
+		j = 0
+		for i = 1 to nLenPos - nLenItems
+			j++
+			if j > nLenItems
+				j = 1
+			ok
+			aItems + paNewItems[j]
+		next
+
+		for i = 1 to nLenPos
+			This.ReplaceAnyItemAtPositionNCS(panPos[i], aItems[i], pCaseSensitive)
+		next
+
+		#< @FunctionFluentForm
+
+		def ReplaceAnyItemAtPositionsByManyXTCSQ(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionsByManyXTCS(panPos, paNewItems, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceAnyItemAtThesePositionsByManyXTCS(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionsByManyXTCS(panPos, pItem, paNewItems, pCaseSensitive)
+
+			def ReplaceAnyItemAtThesePositionsByManyXTCSQ(panPos, pItem, paNewItems, pCaseSensitive)
+				This.ReplaceAnyItemAtThesePositionsByManyXTCS(panPos, pItem, paNewItems, pCaseSensitive)
+				return This
+
+		#>
+
+	#< @FunctionPassiveForms
+
+	def AnyItemAtPositionsReplacedByManyXTCS(panPos, paNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceAnyItemAtPositionsByManyXTCSQ(panPos, paNewItems, pCaseSensitive).Content()
+		return cResult
+
+		def AnyItemAtThesePositionsReplacedByManyXTCS(panPos, paNewItems, pCaseSensitive)
+			return This.ItemAtPositionsReplacedByManyXTCS(panPos, paNewItems, pCaseSensitive)
+
+	#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
+		This.ReplaceAnyItemAtPositionsByManyXTCS(panPos, paNewItems, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceAnyItemAtPositionsByManyXTQ(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceAnyItemAtThesePositionsByManyXT(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByManyXT(panPos, paNewItems)
+
+			def ReplaceAnyItemAtThesePositionsByManyXTQ(panPos, paNewItems)
+				This.ReplaceAnyItemAtThesePositionsByManyXT(panPos, paNewItems)
+				return This
+
+		#>
+
+	#< @FunctionPassiveForm
+
+	def AnyItemAtPositionsReplacedByManyXT(panPos, paNewItems)
+		cResult = This.Copy().ReplaceAnyItemAtPositionsByManyXTQ(panPos, paNewItems).Content()
+		return cResult
+
+		def AnyItemAtThesePositionsReplacedByManyXT(panPos, paNewItems)
+			return This.ItemAtPositionsReplacedByManyXT(panPos, paNewItems)
 
 	#>
 
@@ -4457,26 +5085,6 @@ class stzList from stzObject
 		def NthPreviousOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
 			return This.PreviousNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
 
-
-	  #==============================================#
-	 #  REPLACING AN ITEM AT ONE OR MORE POSITIONS  #
-	#==============================================#
-
-	def ReplaceAt(n, pOtherItem)
-		if isList(n) and Q(n).IsListOfNumbers()
-			This.ReplaceItemsAtPositions(n, pOtherItem)
-
-		but isNumber(n)
-			This.ReplaceItemAtPosition(n, pOtherItem)
-
-		else
-			StzRaise("Incorrect param type! n must be a number or a list of numbers.")
-		ok
-
-		def ReplaceAtQ(n, pOtherItem)
-			This.ReplaceAt(n, pOtherItem)
-			return This
-
 	  #------------------------------#
 	 #   REPLACING THE FIRST ITEM   #
 	#------------------------------#
@@ -4525,6 +5133,8 @@ class stzList from stzObject
 	 #   REPLACING ITEMS AT THE GIVEN POSITIONS   #
 	#--------------------------------------------#
 
+	# TODO: Add case sensitivity
+
 	def ReplaceItemsAtPositions(panPositions, pOtherItem)
 
 		if CheckParams()
@@ -4572,6 +5182,12 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def ReplaceItemsAt(panPositions, pOtherItem)
+			This.ReplaceItemsAtPositions(panPositions, pOtherItem)
+
+			def ReplaceItemsAtQ(panPositions, pOtherItem)
+				This.ReplaceItemsAt(panPositions, pOtherItem)
+				return This
 
 		def ReplaceManyAt(panPositions, pOtherItem)
 			This.ReplaceItemsAtPositions(panPositions, pOtherItem)

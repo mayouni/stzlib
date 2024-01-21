@@ -1,5 +1,140 @@
 load "stzlib.ring"
 
+/*========
+
+pron()
+
+o1 = new stzList([ "♥", 2, "♥", "♥", 5, "♥" ])
+o1.ReplaceByMany("♥", [ 1, 3, 4, 6 ])
+? @@( o1.Content() )
+#--> [ 1, 2, 3, 4, 5, 6 ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*----
+
+ReplaceItemAtPositionsByMany_XT()
+
+Replace_Any_ItemAtPositionsByMany()
+Replace_Any_ItemAtPositionsByMany_XT()
+
+/*=====
+
+pron()
+
+o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+o1.ReplaceItemAtPositionsByManyXT([ 3, 5, 7, 9], "ring", :By = [ "♥", "♥♥" ])
+
+? o1.Content()
+#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥", "csharp", "♥♥" ]
+
+proff()
+#--> Executed in 0.06 second(s)
+
+/*-------
+
+*/
+pron()
+
+o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+o1.ReplaceAnyItemAtPositionsByManyXT([ 3, 5, 7, 9], :By = [ "♥", "♥♥" ])
+
+? o1.Content()
+#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥", "csharp", "♥♥" ]
+
+proff()
+#--> Executed in 0.06 second(s)
+
+/*-----
+
+pron()
+
+o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+o1.ReplaceItemAtPositionsByMany([ 3, 5, 7], "ring", :By = [ "♥", "♥♥", "♥♥♥" ])
+
+? o1.Content()
+#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
+
+proff()
+#--> Executed in 0.06 second(s)
+
+/*=======
+
+pron()
+
+o1 = new stzList([ "ring", "ruby", "ring", "php", "ring" ])
+o1.ReplaceAnyItemAtPositions([ 1, 5 ], :By = "♥♥♥")
+
+? o1.Content()
+#--> [ "♥♥♥", "ruby", "ring", "php", "♥♥♥" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzList([ "ring", "ruby", "ring", "php", "ring" ])
+o1.ReplaceItemAtPositions([ 1, 5 ], "ring", :By = "♥♥♥")
+
+? o1.Content()
+#--> [ "♥♥♥", "ruby", "ring", "php", "♥♥♥" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*========
+
+pron()
+
+o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
+
+o1.ReplaceAnyItemAt(3, :With = "★")
+? @@( o1.Content() )
+#--> [ 1, 2, "★", 4, "★" ]
+
+proff()
+
+/*--------
+
+pron()
+
+o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
+
+o1.ReplaceItemAt(3, "♥", :With = "★")
+? @@( o1.Content() )
+#--> [ 1, 2, "★", 4, "★" ]
+
+# Because there is the terme "item" in ReplaceItemAt(), the provided item
+# ("♥" in our case) must be in position 3 to be replace. Otherwise, nothing
+# will happen. In fact:
+
+o1.ReplaceItemAt(2, "BLA", :With = "★" )
+? @@( o1.Content() )
+#--> [ 1, 2, "★", 4, "♥" ]
+
+proff()
+
+/*---
+*/
+pron()
+
+o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
+
+o1.ReplaceItemAt(3, "♥", "★")
+? @@( o1.Content() )
+#--> [ 1, 2, "★", 4, "★" ]
+
+# Because there is the terme "item" in ReplaceItemAt(), the provided item
+# ("♥" in our case) must be in position 3 to be replace. Otherwise, nothing
+# will happen. In fact:
+
+o1.ReplaceItemAt(2, "BLA", :With = "★" )
+? @@( o1.Content() )
+#--> [ 1, 2, "★", 4, "♥" ]
+
 /*----
 
 pron()
@@ -81,7 +216,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*---
-*/
+
 pron()
 
 ? Chars("SOFTANZA")
@@ -90,7 +225,7 @@ pron()
 proff()
 
 /*---
-*/
+
 pron()
 
 o1 = new stzList( Q("1♥♥456♥♥901♥♥4").Chars() )
@@ -101,7 +236,7 @@ o1 {
 
 	anPos = Find("♥")
 		? @@(anPos)
-		#--> [ 2, 3, 4, 8, 9, 14, 15 ]
+		#--> [ 2, 3, 7, 8, 12, 13 ]
 
 	# Doing someting with the positions
 
@@ -112,10 +247,27 @@ o1 {
 }
 
 proff()
+# Executed in 0.08 second(s)
 
+/*===== FIX
 
-/*=====
+pron()
 
+? Round(2.398)
+#--> 2.4
+
+? RoundXT(2.398)
+#--> 2.40
+
+? CurrentRound()
+#--> 2
+
+? Round([ 2.398, :To = 3 ])
+
+proff()
+
+/*-----
+*/
 pron()
 
 ? Q(2.5).RoundedToXT(3)
