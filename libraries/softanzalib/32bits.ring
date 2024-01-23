@@ -1,5 +1,34 @@
 load "stzlib.ring"
 
+/*=======
+
+pron()
+
+# The fellowing two code snippets illustrate the use of two similar functions.
+# Try to read the code, see the output and identift the difference between them...
+
+# First snippet
+
+o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+o1.ReplaceAnyItemAtPositionsByManyXT([ 3, 5, 7, 9], :By = [ "♥", "♥♥" ])
+	
+? o1.Content()
+#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥", "csharp", "♥♥" ]
+	
+# Second snippet
+
+o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+o1.ReplaceItemAtPositionsByManyXT([ 1, 3, 5, 7, 9], "ring", :By = [ "♥", "♥♥" ])
+
+? o1.Content()
+#--> [ "♥", "php", "♥♥", "ruby", "♥", "python", "♥♥", "csharp", "♥" ]
+
+# Read how Google Bard answered the question:
+# Link: https://bard.google.com/share/fb5fb52af8de
+
+proff()
+# Executed in 0.06 second(s)
+
 /*========
 
 pron()
@@ -12,16 +41,33 @@ o1.ReplaceByMany("♥", [ 1, 3, 4, 6 ])
 proff()
 # Executed in 0.04 second(s)
 
-/*----
-
-ReplaceItemAtPositionsByMany_XT()
-
-Replace_Any_ItemAtPositionsByMany()
-Replace_Any_ItemAtPositionsByMany_XT()
-
 /*=====
 
 pron()
+
+o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
+o1.ReplaceItemsAtPositions([ 1, 3, 4, 5 ], [ "ring", "softanza" ] , :By = "♥♥♥")
+
+? o1.Content()
+#--> [ "♥♥♥", "ruby", "♥♥♥", "♥♥♥", "php", "softanza" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*----///
+
+pron()
+
+o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
+o1.ReplaceAnyItemsAtPositions([ 1, 3, 4, 5 ], :By = "♥♥♥")
+
+? o1.Content()
+#--> [ "♥♥♥", "ruby", "♥♥♥", "♥♥♥", "♥♥♥", "softanza" ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*===
 
 o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
 o1.ReplaceItemAtPositionsByManyXT([ 3, 5, 7, 9], "ring", :By = [ "♥", "♥♥" ])
@@ -33,12 +79,11 @@ proff()
 #--> Executed in 0.06 second(s)
 
 /*-------
-
 */
 pron()
 
 o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
-o1.ReplaceAnyItemAtPositionsByManyXT([ 3, 5, 7, 9], :By = [ "♥", "♥♥" ])
+o1.ReplaceAnyItemAtPositionsByManyXT([ 3, 5, 7, 9], [ "♥", "♥♥" ])
 
 ? o1.Content()
 #--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥", "csharp", "♥♥" ]
@@ -47,17 +92,18 @@ proff()
 #--> Executed in 0.06 second(s)
 
 /*-----
-
+*/
 pron()
 
 o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
-o1.ReplaceItemAtPositionsByMany([ 3, 5, 7], "ring", :By = [ "♥", "♥♥", "♥♥♥" ])
+o1.ReplaceItemAtPositionsByMany([ 3, 5, 7], "ring", [ "♥", "♥♥", "♥♥♥" ])
+# Or you can say: o1.ReplaceItemAtPositions([ 3, 5, 7], "ring", :ByMany = [ "♥", "♥♥", "♥♥♥" ])
 
 ? o1.Content()
 #--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
 
 proff()
-#--> Executed in 0.06 second(s)
+#--> Executed in 0.05 second(s)
 
 /*=======
 
@@ -93,19 +139,20 @@ o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
 
 o1.ReplaceAnyItemAt(3, :With = "★")
 ? @@( o1.Content() )
-#--> [ 1, 2, "★", 4, "★" ]
+#--> [ 1, 2, "★", 4, "♥" ]
 
 proff()
+# Executed in 0.05 second(s)
 
 /*--------
-
+*/
 pron()
 
 o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
 
 o1.ReplaceItemAt(3, "♥", :With = "★")
 ? @@( o1.Content() )
-#--> [ 1, 2, "★", 4, "★" ]
+#--> [ 1, 2, "★", 4, "♥" ]
 
 # Because there is the terme "item" in ReplaceItemAt(), the provided item
 # ("♥" in our case) must be in position 3 to be replace. Otherwise, nothing

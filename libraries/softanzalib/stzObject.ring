@@ -2080,8 +2080,7 @@ class stzObject
 					:InAString, :InAList, :InAPair, :InAListOfNumbers, :InAListOfStrings,
 					:InAListOfLists, :InAListOfPairs, :InAGrid, :InATable, :InAStzTable
 
-				], :CS = FALSE)
-			)
+				], :CS = FALSE) )
 
 			StzRaise("Incorrect param! pIn must be a string representing one of" +
 				 "these Softanza types: :String, :List, :Pair, :ListOfNumbers, :ListOfStrings, " +

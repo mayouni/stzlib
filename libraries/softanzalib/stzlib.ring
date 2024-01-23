@@ -1,13 +1,19 @@
 
-load "stdlib.ring"
-
 //t1 = clock()
+
+load "stdlib.ring"
 
 load "lightguilib.ring"
 load "sqlitelib.ring"
 load "tracelib.ring"
 load "internetlib.ring"
 load "typehints.ring"
+
+//? (clock()-t1)/clockspersecond()
+# 0.05 seconds in Ring 1.19
+# 0.46 seconds in Ring 1.14
+
+t1 = clock()
 
 load "stzGlobal.ring"
 
@@ -138,7 +144,9 @@ load "stzTrueObject.ring"
 load "stzFalseObject.ring"
 
 load "stzDistanceZero.ring"
+
 //? (clock()-t1)/clockspersecond()
 
 # Softanza startup time :
-# 	0.06s in Ring 1.19 (64 bits)
+# 	0.02s in Ring 1.19
+#	0.04s in Ring 1.14
