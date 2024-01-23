@@ -166,21 +166,21 @@ load "stzlib.ring"
 
 	These are the corresponding examples of the 3 scenarios above:
 
-/*--	(7) REPALCING A SUBSTRING AT A GIVEN POSITION BY AN OTHER SUBSTRING
+/*--	(7) REPLACING A SUBSTRING AT A GIVEN POSITION BY AN OTHER SUBSTRING
 
 		o1 = new stzString("ring ruby ring php ring")
 		o1.ReplaceSubstringAtPosition(11, "ring", :By = "♥♥♥")
 
 		? o1.Content() #--> "ring ruby ♥♥♥ php ring"
 
-/*--	(8) REPALCING A SUBSTRING AT A SOME GIVEN POSITIONS BY AN OTHER SUBSTRING
+/*--	(8) REPLACING A SUBSTRING AT A SOME GIVEN POSITIONS BY AN OTHER SUBSTRING
 
 		o1 = new stzString("ring ruby ring php ring")
 		o1.ReplaceSubstringAtPositions([ 1, 20], "ring", :By = "♥♥♥")
 
 		? o1.Content() #--> "♥♥♥ ruby ring php ♥♥♥"
 
-/*--	(9) REPALCING A SUBSTRING AT A SOME GIVEN POSITIONS BY MANY OTHER SUBSTRINGS
+/*--	(9) REPLACING A SUBSTRING AT A SOME GIVEN POSITIONS BY MANY OTHER SUBSTRINGS
 
 		o1 = new stzString("ring php ring ruby ring python ring csharp ring")
 		o1.ReplaceSubstringAtPositionsByMany([ 10, 20, 32], "ring", :By = [ "♥", "♥♥", "♥♥♥" ])

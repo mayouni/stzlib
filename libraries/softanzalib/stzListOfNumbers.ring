@@ -1250,8 +1250,7 @@ class stzListOfNumbers from stzList
 				:ComingBeforeOrAfter, :ComingBeforeOrAfterIt,
 				:ComingAfterOrBefore, :ComingAfterOrBeforeIt
 
-			  ])
-			)
+			  ]) )
 
 			StzRaise("Incorrect param type! pcComingBeforeOrAfter must be a string equal to :Before, :After, or :BeforeOrAfter.")
 
@@ -1375,8 +1374,7 @@ class stzListOfNumbers from stzList
 				:ComingBeforeOrAfter, :ComingBeforeOrAfterIt,
 				:ComingAfterOrBefore, :ComingAfterOrBeforeIt
 
-			  ])
-			)
+			  ]) )
 
 			StzRaise("Incorrect param type! pcComingBeforeOrAfter must be a string equal to :Before, :After, or :BeforeOrAfter.")
 

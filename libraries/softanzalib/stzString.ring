@@ -20266,8 +20266,7 @@ class stzString from stzObject
 		# Managing out of range params
 
 		if NOT 	( Q(n1).IsBetween(1, nLen) and
-			  Q(n2).IsBetween(1, nLen)
-			)
+			  Q(n2).IsBetween(1, nLen) )
 			
 			return NULL
 		ok
@@ -20618,16 +20617,13 @@ class stzString from stzObject
 		if isString(paSections) or
 			(isList(paSections) and
 				(Q(paSections).IsOfNamedParam() or
-					Q(paSections).IsOfSubStringNamedParam()
-				)
-			)
+					Q(paSections).IsOfSubStringNamedParam() ) )
 
 			return This.FindAsSections(paSections)
 		ok
 
 		if NOT 	( isList(paSections) and
-				Q(paSections).IsListOfPairsOfNumbers()
-			)
+				Q(paSections).IsListOfPairsOfNumbers() )
 
 			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
@@ -23711,7 +23707,7 @@ class stzString from stzObject
 		#>
 
 	  #--------------------------------------------------------------#
-	 #   REPALCING A SUBSTRING OCCURRENCES BY AN OTHER SUBSTRING    #
+	 #   REPLACING A SUBSTRING OCCURRENCES BY AN OTHER SUBSTRING    #
 	#--------------------------------------------------------------#
 
 	def ReplaceSubStringAtPositionsCS(panPos, pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -23801,7 +23797,7 @@ class stzString from stzObject
 		#>
 
 	  #-------------------------------------------------------------------------------#
-	 #   REPALCING A SUBSTRING AT A SOME GIVEN POSITIONS BY MANY OTHER SUBSTRINGS    #
+	 #   REPLACING A SUBSTRING AT A SOME GIVEN POSITIONS BY MANY OTHER SUBSTRINGS    #
 	#-------------------------------------------------------------------------------#
 
 	def ReplaceSubStringAtPositionsByManyCS(panPos, pcSubStr, pacNewSubStrings, pCaseSensitive)
@@ -34777,9 +34773,7 @@ class stzString from stzObject
 		# ? Q("_-♥-_").ContainsXT("♥", :BoundedBy = "-")
 		# ? Q("_-♥-_").ContainsXT(:SubString = "♥", :BoundedBy = "-")
 		but ( isString(p1) or
-		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
-		    ) and
-
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) ) ) and
 		    isList(p2) and Q(p2).IsBoundedByNamedParam()
 
 			if isList(p1) and Q(p1).IsSubStringNamedParam()
@@ -34975,8 +34969,7 @@ class stzString from stzObject
 
 		# ? Q("^^♥^^").ContainsXT("♥", :AtPosition = 3)
 		but ( isString(p1) or
-		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
-		    ) and
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) ) ) and
 
 		    isList(p2) and Q(p2).IsOneOfTheseNamedParams([ :At, :AtPosition ]) and
 		    isNumber(p2[2])
@@ -34989,8 +34982,7 @@ class stzString from stzObject
 
 		# ? Q("♥^^♥^^♥").ContainsXT("♥", :AtPositions = [1, 4, 7])
 		but ( isString(p1) or
-		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
-		    ) and
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) ) ) and
 
 		    isList(p2) and Q(p2).IsOneOfTheseNamedParams([ :At, :AtPositions ]) and
 		    isList(p2[2]) and Q(p2[2]).IsListOfNumbers()
@@ -35004,8 +34996,7 @@ class stzString from stzObject
 		# ? Q("^^♥^^").ContainsXT("^", :Before = "♥^")
 		# ? Q("^^♥^^").ContainsXT("^", :Before = 3)
 		but ( isString(p1) or
-		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
-		    ) and
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) ) ) and
 
 		    isList(p2) and Q(p2).IsBeforeNamedParam() and Q(p2[2]).IsStringOrNumber()
 
@@ -35014,8 +35005,7 @@ class stzString from stzObject
 		# ? Q("--♥^^").ContainsXT("^", :After = "-♥")
 		# ? Q("^^♥^^").ContainsXT("^", :After = 3)
 		but ( isString(p1) or
-		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
-		    ) and
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) ) ) and
 
 		    isList(p2) and Q(p2).IsAfterNamedParam() and Q(p2[2]).IsStringOrNumber()
 
@@ -35023,8 +35013,7 @@ class stzString from stzObject
 
 		# ? Q("^^♥^^").ContainsXT("^", :BeforePosition = 3)
 		but ( isString(p1) or
-		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
-		    ) and
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) ) ) and
 
 		    isList(p2) and Q(p2).IsBeforePositionNamedParam() and isNumber(p2[2])
 
@@ -35032,8 +35021,7 @@ class stzString from stzObject
 
 		# ? Q("^^♥^^").ContainsXT("^", :AfterPosition = 3)
 		but ( isString(p1) or
-		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
-		    ) and
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) ) ) and
 
 		    isList(p2) and Q(p2).IsAfterPositionNamedParam() and isNumber(p2[2])
 
@@ -35041,8 +35029,7 @@ class stzString from stzObject
 
 		# ? Q("^^♥^^").ContainsXT("^", :BeforeSubString = "♥^")
 		but ( isString(p1) or
-		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
-		    ) and
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) ) ) and
 
 		    isList(p2) and Q(p2).IsBeforeSubStringNamedParam() and isString(p2[2])
 
@@ -35050,8 +35037,7 @@ class stzString from stzObject
 
 		# ? Q("--♥^^").ContainsXT("^", :AfterSubString = "-♥")
 		but ( isString(p1) or
-		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
-		    ) and
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) ) ) and
 
 		    isList(p2) and Q(p2).IsAfterSubStringNamedParam() and isString(p2[2])
 
@@ -35059,8 +35045,7 @@ class stzString from stzObject
 
 		# ? Q("123♥5678").ContainsXT( "♥", :InSection = [3, 5] )
 		but ( isString(p1) or
-		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
-		    ) and
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) ) ) and
 
 		    isList(p2) and Q(p2).IsInSectionNamedParam()
 
@@ -35068,8 +35053,7 @@ class stzString from stzObject
 
 		# ? Q("123♥56♥890♥234").Contains( "♥", :InSections = [ [3,5], [6,8], [10,12] ] )
 		but ( isString(p1) or
-		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) )
-		    ) and
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) ) ) and
 
 		    isList(p2) and Q(p2).IsInSectionsNamedParam()
 
@@ -35441,9 +35425,7 @@ class stzString from stzObject
 			( isString(pacBetween[1]) and
 			   	isList(pacBetween[2]) and
 			  	 Q(pacBetween[2]).IsAndNamedParam() and
-			   	 isString(pacBetween[2][2])
-			)
-		      )
+			   	 isString(pacBetween[2][2]) ) )
 
 			stzRaise("Incorrect param! pacBetween must be a pair of strings.")
 		ok
@@ -67418,9 +67400,7 @@ ici		//...
 				if NOT 	( isNumber(oHashList.LastValue()) or
 
 					  ( isString(oHashList.LastValue()) and
-					    Q(oHashList.LastValue()).IsOneOfThese([ :Remaining, :RemainingChars ])
-					  )
-					)
+					    Q(oHashList.LastValue()).IsOneOfThese([ :Remaining, :RemainingChars ]) ) )
 
 					stzRaise("Incorrect value! The last value mus tbe a number or a string (:Remaining or :RemainingChars).")
 				ok
