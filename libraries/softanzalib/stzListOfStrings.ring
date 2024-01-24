@@ -4432,7 +4432,7 @@ class stzListOfStrings from stzList
 		def FindNextNthCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
-			def FindNthNextCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			def FindNthNeCSXT(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 		def FindNextNthOccurrenceCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
@@ -4492,7 +4492,7 @@ class stzListOfStrings from stzList
 		def PositionsOfNextNthCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
-			def PositionsOfNthNextCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
+			def PositionsOfNthNeCSXT(n, pcStrItem, pnStartingAt, pCaseSensitive)
 				return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 	
 		def NextNthPositionsCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
@@ -4925,7 +4925,7 @@ class stzListOfStrings from stzList
 		def FindNextOccurrenceOfStringCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
-		def FindNextCS(pcStrItem, pnStartingAt, pCaseSensitive)
+		def FindNeCSXT(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
 		def FindNextOccurrenceCS(pcStrItem, pnStartingAt, pCaseSensitive)
@@ -4955,7 +4955,7 @@ class stzListOfStrings from stzList
 		def NextStringPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
-		def PositionsOfNextCS(pcStrItem, pnStartingAt, pCaseSensitive)
+		def PositionsOfNeCSXT(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 	
 		def PositionsOfNextOccurrenceCS(pcStrItem, pnStartingAt, pCaseSensitive)
@@ -5622,7 +5622,7 @@ class stzListOfStrings from stzList
 
 		#< @FunctionAlternativeForms
 
-		def FindAllNextCS(pcStrItem, pnStartingAt, pCaseSensitive)
+		def FindAllNeCSXT(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextOccurrencesCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
 		def FindNextAllCS(pcStrItem, pnStartingAt, pCaseSensitive)
@@ -9409,11 +9409,11 @@ class stzListOfStrings from stzList
 			This.ReplaceNextOccurrencesCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
 			return This
 
-		def ReplaceNextCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
+		def ReplaceNeCSXT(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
 			This.ReplaceNextOccurrencesCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
 
 			def ReplaceNextCSQ(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
-				This.ReplaceNextCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
+				This.ReplaceNeCSXT(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
 				return This
 
 	def NextOccurrencesReplacedCSQ(pcString, pcOtherString, pnStartingAt, pCaseSensitive)

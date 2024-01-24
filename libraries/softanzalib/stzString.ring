@@ -29580,7 +29580,7 @@ class stzString from stzObject
 	# TODO: Add FindAllNextAsSectionsCS()
 	# 	    FindNextAsSectionCS()
 
-	def FindAllNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	def FindAllNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
@@ -29598,7 +29598,7 @@ class stzString from stzObject
 		return anResult
 		
 		def FindAllNextCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindAllNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindAllNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -29645,7 +29645,7 @@ class stzString from stzObject
 	 #      STARTING AT A GIVEN POSITION                   #
 	#=====================================================#
 
-	def FindNthNextCS( n, pcSubStr, nStart, pCaseSensitive )
+	def FindNthNeCSXT( n, pcSubStr, nStart, pCaseSensitive )
 
 		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
@@ -29703,12 +29703,12 @@ class stzString from stzObject
 		return nResult
 
 		def FindNthNextCSZ(n, pcSubStr, nStart, pCaseSensitive)
-			return This.FindNthNextCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthNeCSXT(n, pcSubStr, nStart, pCaseSensitive)
 
 	#-- WYHOUT CASESENSITIVITY
 
 	def FindNthNext(n, pcSubStr, nStart)
-		return This.FindNthNextCS(n, pcSubStr, nStart, TRUE)
+		return This.FindNthNeCSXT(n, pcSubStr, nStart, TRUE)
 
 		def FindNthNextZ(n, pcSubStr, nStart)
 			return This.FindNthNext(n, pcSubStr, nStart)
@@ -29876,7 +29876,7 @@ class stzString from stzObject
 
 	# TODO: FindNextW() FindPreviousW()
 
-	def FindNextCS(pcSubStr, nStart, pCaseSensitive)
+	def FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
 		#< QTBased | Uses: QString.IndexOf() >
 
 		if CheckParams()
@@ -29937,19 +29937,19 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def FindNextCSZ(pcSubStr, nStart, pCaseSensitive)
-			return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
 
 		def FindNextSCS(pcSubStr, nStart, pCaseSensitive)
-			return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
 
 		def FindNextSCSZ(pcSubStr, nStart, pCaseSensitive)
-			return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNext(pcSubStr, nStart)
-		return This.FindNextCS(pcSubStr, nStart, TRUE)
+		return This.FindNeCSXT(pcSubStr, nStart, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -58693,55 +58693,55 @@ ici		//...
 	 #  EXTRACTING NEXT SUBSTRING STARTING AT A GIVEN POSITION  #
 	#----------------------------------------------------------#
 
-	def ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	def ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 		if This.FindNext(pcSubStr, pnStartingAt, pCaseSensitive) = 0
 			StzRaise("Can't extract! pcSubStr does not exist at the specified position.")
 		ok
 
-		This.RemoveNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		This.RemoveNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 		return pcSubStr
 
 		#< @FunctionAlternativeForms
 
 		def ExtractNextOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
-		def PopNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def PopNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		def PopNextOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#--
 
 		def ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		def ExtractNextOccurrenceSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		def PopNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		def PopNextOccurrenceSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#>
 
 	def NextOccurrenceExtractedCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
 		def NextOccurrenceExtractedSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 		def NextOccurrencePoppedCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 		def NextOccurrencePoppedSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#>
 
@@ -70395,28 +70395,28 @@ ici		//...
 	#------------------------------#
 
 	def FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
 	
 	def FindNextFirstCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
 	
-	def FindFirstNextCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+	def FindFirstNeCSXT(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
 	
 	def PositionOfNextFirstCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
 	
-	def PositionOfFirstNextCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+	def PositionOfFirstNeCSXT(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
 	
 	def NextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
 	
 	def NextFirstOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
 
 	def FirstNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
 	
 	#-- WITHOUT CASESENSITIVITY
 
