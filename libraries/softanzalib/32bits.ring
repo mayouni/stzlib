@@ -4,6 +4,34 @@ load "stzlib.ring"
 
 pron()
 
+# Replacing the string by reference
+
+	o1 = new stzString("R I N G")
+	o1.Replace(" ", "-")
+	# This modifies the string itself
+
+	? o1.Content()
+	#--> R-I-N-G
+
+# Replacing the string by copy
+
+	o1 = new stzString("R I N G")
+	? o1.Copy().ReplaceQ(" ", "-").Content()
+	#--> R-I-N-G
+
+	# Hence, the copy is modified, but the original
+	# string stays the same
+
+	? o1.Content()
+	#--> R I N G
+
+proff()
+# Executed in 0.04 second(s)
+
+/*=======
+
+pron()
+
 # The fellowing two code snippets illustrate the use of two similar functions.
 # Try to read the code, see the output and identift the difference between them...
 
@@ -184,21 +212,16 @@ proff()
 pron()
 
 o1 = new stzList([
-	"ring", "ruby", "softanza",
-	"ring", "ring", "php",
-	"softanza", "ring", "softanza"
+	"ring", "ruby", "softanza", "ring", "softanza", "php", "softanza", "ring", "python"
 ])
 
-o1.ReplaceItemsAtPositionsByManyXT( [ 1, 4, 5, 8, 9 ], [ "♥", "♥♥" ] )
+o1.ReplaceAnyItemsAtPositionsByManyXT( [ 1, 3, 4, 5, 7, 8 ], [ "♥", "♥♥" ] )
 				
 ? @@( o1.Content() )
-#       1    2       3     4    5     6      7    8     9
-#--> [ "♥", "ruby", "♥", "♥♥", "♥", "php", "♥♥", "♥♥", "♥" ]
-#	^                  ^    ^                 ^
-#                    ^                       ^          ^
+#--> [ "♥", "ruby", "♥♥", "♥", "♥♥", "php", "♥", "♥♥", "python" ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*=======
 

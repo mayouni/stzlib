@@ -3849,41 +3849,66 @@ class stzList from stzObject
 			return
 		ok
 
-/* ... */
+		# Computing nPos and aNewItems
 
+		anPos = @WithoutDuplicates(panPos)
+		nLenPos = len(anPos)
+
+		aNewItems = []
+
+		if nLenNewItems >= nLenPos
+ 			anNewItems = Q(paNewItems).Section(1, nLenPos)
+		else
+			aNewItems = paNewItems
+			n = 0
+			for j = 1 to nLenPos - nLenNewItems
+				n++
+				if n > nLenNewItems
+					n = 1
+				ok
+
+				aNewItems + paNewItems[n]
+			next
+		ok
+
+		# Doing the replacement
+
+		for i = 1 to nLenPos
+			This.ReplaceAnyItemAtPositionCS(anPos[i], aNewItems[i], pCaseSensitive)
+		next
 
 		#< @FunctionFluentForm
 
-		def ReplaceItemsAtPositionsByManyXTCSQ(panPos, paItems, pNewItem, pCaseSensitive)
-			This.ReplaceItemsAtPositionsByManyCSXT(panPos, paItems, pNewItem, pCaseSensitive)
+		def ReplaceAnyItemsAtPositionsByManyXTCSQ(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceanyItemsAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
 			return This
 
 		#>
 
-	def ItemsAtPositionsReplacedByManyCSXT(panPos, paItems, pNewItem, pCaseSensitive)
-		cResult = This.Copy().ReplaceItemsAtPositionsByManyXTCSQ(panPos, paItems, pNewItem, pCaseSensitive)
+	def AnyItemsAtPositionsReplacedByManyCSXT(panPos, paNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceAnyItemsAtPositionsByManyXTCSQ(panPos, paNewItems, pCaseSensitive)
 		return cResult
 
 		#< @FunctionAlternativeform
 
-		def ItemsReplacedAtPositionsByManyCSXT(panPos, paItems, pNewItem, pCaseSensitive)
-			return This.ItemsAtPositionsReplacedByManyCSXT(n, paItems, pNewItem, pCaseSensitive)
+		def AnyItemsReplacedAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
+			return This.AnyItemsAtPositionsReplacedByManyCSXT(panPos, paNewItems, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceItemsAtPositionsByManyXT(panPos, paItems, pNewItem)
-		This.ReplaceItemsAtPositionsByManyCSXT(panPos, paItems, pNewItem, TRUE)
+	def ReplaceAnyItemsAtPositionsByManyXT(panPos, paNewItems)
+		This.ReplaceAnyItemsAtPositionsByManyCSXT(panPos, paNewItems, TRUE)
 
-	def ItemsAtPositionsReplacedByManyXT(panPos, paItems, pNewItem)
-		cResult = This.Copy().ReplaceItemsAtPositionsByManyXTQ(panPos, paItems, pNewItem)
+	def AnyItemsAtPositionsReplacedByManyXT(panPos, paNewItems)
+		cResult = This.Copy().ReplaceAnyItemsAtPositionsByManyXTQ(panPos, paNewItems)
 		return cResult
 
 		#< @FunctionAlternativeforms
 
-		def ItemsReplacedAtPositionsByManyXT(panPos, paItems, pNewItem)
-			return This.ItemsAtPositionsReplacedByManyXT(n, paItems, pNewItem)
+		def AnyItemsReplacedAtPositionsByManyXT(panPos, paNewItems)
+			return This.AnyItemsAtPositionsReplacedByManyXT(n, paNewItems)
 
 		#>
 
