@@ -37864,6 +37864,136 @@ vvv
 			return FALSE
 		ok
 
+	def IsByManyXTNamedParam()
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :ByManyXT or This[1] = :ByManyXT@ ) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUsingManyXTNamedParam()
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :UsingManyXT or This[1] = :UsingManyXT@ ) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsWithManyXTNamedParam()
+		if This.NumberOfItems() = 2 and ( isString(This[1]) and
+			( This[1] = :WithManyXT or This[1] = :WithManyXT@ ) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsByManyOrWithManyOrUsingManyNamedParam()
+		if This.IsByManyNamedParam() or
+		   This.IsWithNamedParam() or
+		   This.IsUsingNamedParam()
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#--
+
+		def IsByManyOrUsingManyOrWithManyNamedParam()
+			return This.IsByManyOrWithManyOrUsingManyNamedParam()
+	
+		def IsWithManyOrByManyOrUsingManyNamedParam()
+			return This.IsByManyOrWithManyOrUsingManyNamedParam()
+	
+		def IsWithManyOrUsingManyOrByManyNamedParam()
+			return This.IsByManyOrWithManyOrUsingManyNamedParam()
+	
+		def IsUsingManyOrByManyOrWithManyNamedParam()
+			return This.IsByManyOrWithManyOrUsingManyNamedParam()
+	
+		def IsUsingManyOrWithManyOrByManyNamedParam()
+			return This.IsByManyOrWithManyOrUsingManyNamedParam()
+
+		#-- ...Param(s) with s
+
+		def IsByManyOrWithManyOrUsingManyNamedParams()
+			return This.IsByManyOrWithManyOrUsingManyNamedParam()
+
+		def IsByManyOrUsingManyOrWithManyNamedParams()
+			return This.IsByManyOrWithManyOrUsingManyNamedParam()
+	
+		def IsWithManyOrByManyOrUsingManyNamedParams()
+			return This.IsByManyOrWithManyOrUsingManyNamedParam()
+	
+		def IsWithManyOrUsingManyOrByManyNamedParams()
+			return This.IsByManyOrWithManyOrUsingManyNamedParam()
+	
+		def IsUsingManyOrByManyOrWithManyNamedParams()
+			return This.IsByManyOrWithManyOrUsingManyNamedParam()
+	
+		def IsUsingManyOrWithManyOrByManyNamedParams()
+			return This.IsByManyOrWithManyOrUsingManyNamedParam()
+
+	#--
+
+	def IsByManyXTOrWithManyXTOrUsingManyXTNamedParam()
+		if This.IsByManyXTNamedParam() or
+		   This.IsWithXTNamedParam() or
+		   This.IsUsingXTNamedParam()
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#--
+
+		def IsByManyXTOrUsingManyXTOrWithManyXTNamedParam()
+			return This.IsByManyXTOrWithManyXTOrUsingManyXTNamedParam()
+	
+		def IsWithManyXTOrByManyXTOrUsingManyXTNamedParam()
+			return This.IsByManyXTOrWithManyXTOrUsingManyXTNamedParam()
+	
+		def IsWithManyXTOrUsingManyXTOrByManyXTNamedParam()
+			return This.IsByManyXTOrWithManyXTOrUsingManyXTNamedParam()
+	
+		def IsUsingManyXTOrByManyXTOrWithManyXTNamedParam()
+			return This.IsByManyXTOrWithManyXTOrUsingManyXTNamedParam()
+	
+		def IsUsingManyXTOrWithManyXTOrByManyXTNamedParam()
+			return This.IsByManyXTOrWithManyXTOrUsingManyXTNamedParam()
+
+		#-- ...Param(s) with s
+
+		def IsByManyXTOrWithManyXTOrUsingManyXTNamedParams()
+			return This.IsByManyXTOrWithManyXTOrUsingManyXTNamedParam()
+
+		def IsByManyXTOrUsingManyXTOrWithManyXTNamedParams()
+			return This.IsByManyXTOrWithManyXTOrUsingManyXTNamedParam()
+	
+		def IsWithManyXTOrByManyXTOrUsingManyXTNamedParams()
+			return This.IsByManyXTOrWithManyXTOrUsingManyXTNamedParam()
+	
+		def IsWithManyXTOrUsingManyXTOrByManyXTNamedParams()
+			return This.IsByManyXTOrWithManyXTOrUsingManyXTNamedParam()
+	
+		def IsUsingManyXTOrByManyXTOrWithManyXTNamedParams()
+			return This.IsByManyXTOrWithManyXTOrUsingManyXTNamedParam()
+	
+		def IsUsingManyXTOrWithManyXTOrByManyXTNamedParams()
+			return This.IsByManyXTOrWithManyXTOrUsingManyXTNamedParam()
+
+	#==
+
 	def IsByColNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :ByCol, :ByCol@ ]) )
