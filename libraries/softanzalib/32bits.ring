@@ -1,44 +1,18 @@
 load "stzlib.ring"
 
-/*=======
 
-pron()
-
-# Replacing the string by reference
-
-	o1 = new stzString("R I N G")
-	o1.Replace(" ", "-")
-	# This modifies the string itself
-
-	? o1.Content()
-	#--> R-I-N-G
-
-# Replacing the string by copy
-
-	o1 = new stzString("R I N G")
-	? o1.Copy().ReplaceQ(" ", "-").Content()
-	#--> R-I-N-G
-
-	# Hence, the copy is modified, but the original
-	# string stays the same
-
-	? o1.Content()
-	#--> R I N G
-
-proff()
-# Executed in 0.04 second(s)
 
 /*=======
 
 pron()
 
 # The fellowing two code snippets illustrate the use of two similar functions.
-# Try to read the code, see the output and identift the difference between them...
+# Try to read the code, see the output and identify the difference between them...
 
 # First snippet
 
 o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
-o1.ReplaceAnyItemAtPositionsByManyXT([ 3, 5, 7, 9], :By = [ "♥", "♥♥" ])
+o1.ReplaceAnyItemAtPositionsByManyXT([ 3, 5, 7, 9], [ "♥", "♥♥" ])
 	
 ? o1.Content()
 #--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥", "csharp", "♥♥" ]
@@ -46,7 +20,7 @@ o1.ReplaceAnyItemAtPositionsByManyXT([ 3, 5, 7, 9], :By = [ "♥", "♥♥" ])
 # Second snippet
 
 o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
-o1.ReplaceItemAtPositionsByManyXT([ 1, 3, 5, 7, 9], "ring", :By = [ "♥", "♥♥" ])
+o1.ReplaceItemAtPositionsByManyXT([ 1, 3, 5, 7, 9], "ring", [ "♥", "♥♥" ])
 
 ? o1.Content()
 #--> [ "♥", "php", "♥♥", "ruby", "♥", "python", "♥♥", "csharp", "♥" ]
@@ -55,7 +29,7 @@ o1.ReplaceItemAtPositionsByManyXT([ 1, 3, 5, 7, 9], "ring", :By = [ "♥", "♥�
 # Link: https://bard.google.com/share/fb5fb52af8de
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.02 second(s)
 
 /*========
 
@@ -70,7 +44,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*=====
-
+*/
 pron()
 
 o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
