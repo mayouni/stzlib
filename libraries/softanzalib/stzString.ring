@@ -20165,8 +20165,15 @@ class stzString from stzObject
 	
 			if isList(n1) and
 			   StzListQ(n1).IsOneOfTheseNamedParams([
-					:From, :FromPosition,
-					:StartingAt, :StartingAtPosition
+					:From, :FromPosition, :FromCharAt, :FromCharAtPosition,
+
+					:StartingAt, :StartingAtPosition,
+					:StartingAtCharAt, :StartingAtCharAtPosition,
+
+					:Between, :BetweenPosition, :BetweenCharAt,
+					:BetweenCharAtPosition,
+
+					:BetweenPositions, :BetweeChartsAtPosition
 					])
 	
 				n1 = n1[2]
@@ -20174,10 +20181,14 @@ class stzString from stzObject
 	
 			if isList(n2) and
 			   StzListQ(n2).IsOneOfTheseNamedParams([
-					:To, :ToPosition,
-					:Until, :UntilPosition,
-					:UpTo, :UpToPosition
-					])
+					:To, :ToPosition, :ToCharAt, :ToCharAtPosition,
+
+					:Until, :UntilPosition, :UntilCharAt, :UntilCharAtPosition,
+					:UpTo, :UpToPosition, :UpToCharAt, :UpToCharAtPosition,
+
+					:And,
+
+					:StartingAt, :StartingAtPosition, :StartingAtCharAt, :StartingAtCharAtPosition					])
 	
 				n2 = n2[2]
 			ok
@@ -20296,13 +20307,7 @@ class stzString from stzObject
 				StzRaise("Incorrect params! n1 and n2 must be numbers.")
 			ok
 
-			# params must be in range
-	
-			if NOT 	( Q(n1).IsBetween(1, nLen) and
-				  Q(n2).IsBetween(1, nLen) )
-				
-				StzRaise("Indexes out of range! n1 and n2 must be inside the list.")
-			ok
+
 			# TODO: do same behavior in stzList.Section()
 			# TODO : Add SectionXT() that allows using out of index params and return accurate results
 
@@ -20319,6 +20324,14 @@ class stzString from stzObject
 		# If you need to use this feature in Softanza, use the eXTended form of Section(),
 		# like this :
 		#--> Q("ring").SectionXT(3,1) and it will return "nir"
+
+		# params must be in range
+	
+		if NOT 	( ( n1 >= 1 and n1 <= nLen ) and
+			   ( n2 >= 1 and n2 <= nLen ) )
+				
+			StzRaise("Indexes out of range! n1 and n2 must be inside the list.")
+		ok
 
 		if n1 = n2
 			cResult = This.Char(n1)
@@ -20480,11 +20493,12 @@ class stzString from stzObject
 		# Managing negative values
 
 		if n1 < 0
-			n1 = nLen - n1 + 1
+			n1 = nLen + n1 + 1
+			# Be careful : + n1 and not - n1 because n1 is already negative!
 		ok
 
 		if n2 < 0
-			n2 = nLen - n2 + 1
+			n2 = nLen + n2 + 1
 		ok
 
 		# Managing the case where n1 > n2 --> section reversed
@@ -20498,10 +20512,16 @@ class stzString from stzObject
 
 		return cResult
 
+		def SliceCSXT(n1, n2, pCaseSensitive)
+			return This.SectionCSXT(n1, n2, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIIVTY
 
 	def SectionXT(n1, n2)
 		return This.SectionCSXT(n1, n2, TRUE)
+
+		def SliceXT(n1, n2)
+			return This.SectionXT(n1, n2)
 
 	  #---------------------------------------------------------------#
 	 #  GETTING THE SECTION BETWEEN n1 and n2 POSITIONS -- XTZ form  #
@@ -20521,10 +20541,16 @@ class stzString from stzObject
 		aResult = [ This.SectionCSXT(n1, n2, pCaseSensitive), n1 ]
 		return aResult
 
+		def SliceCSXTZ(n1, n2, pCaseSensitive)
+			return This.SectionCSXTZ(n1, n2, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIIVTY
 
 	def SectionXTZ(n1, n2)
 		return This.SectionCSXTZ(n1, n2, TRUE)
+
+		def SliceXTZ(n1, n2)
+			return This.SectionXTZ(n1, n2)
 
 	  #----------------------------------------------------------------#
 	 #  GETTING THE SECTION BETWEEN n1 and n2 POSITIONS -- XTZZ form  #
@@ -20556,10 +20582,19 @@ class stzString from stzObject
 		aResult = [ This.SectionCSXT(n1, n2, pCaseSensitive), [n1, n2] ]
 		return aResult
 
+		def SliceCSXTZZ(n1, n2, pCaseSensitive)
+			return This.SectionCSXTZZ(n1, n2, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIIVTY
 
 	def SectionXTZZ(n1, n2)
 		return This.SectionCSXTZZ(n1, n2, TRUE)
+
+		def SliceXTZZ(n1, n2)
+			return This.SectionXTZZ(n1, n2)
+
+	# TODO : RangeZ(), RangeZZ(), RangeXT(), RangeXTZ(), and RangeXTZZ()
+
 	  #-----------------------------------#
 	 #   GETTING A RANGE OF THE STRING   #
 	#===================================#
