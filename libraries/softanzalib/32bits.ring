@@ -1,20 +1,46 @@
 load "stzlib.ring"
 
+/*=========== @narration
+*/
+
 pron()
 
-o1 = new stzList([ "emm", "EMM", "eMm" ])
+# Do you know that case sensitivity is supported in Softanza,
+# not only on stzString but also on stzLits ?!
+
+# Look how we can fin an item case-sensitively:
+
+o1 = new stzList([ "emm", "EMM", "eMm", "EMM" ])
+
+? o1.Find("EMM") # Same as FindCS("EMM", :CS = TRUE)
+#--> [ 2, 4 ]
+
+? o1.FindCS("EMM", :CS = FALSE)
+#--> [ 1, 2, 3, 4 ]
+
+# In fact, all items are equal when case sensitivity is deactivated!
+# In the same way, the size of the list can be counted in a case-sensity way:
+
+? o1.NumberOfItems()
+#--> 4
+
+? o1.NumberOfItemsCS(FALSE)
+#--> 1
+
+# Now, softanza digs deeper and applies CaseSensitiviy on some other
+# non trivial corners of the stzList class : the Content() method!
 
 ? o1.Content() # Same as ContentCS(TRUE)
-#--> [ "emm", "EMM", "eMe" ]
+#--> [ "emm", "EMM", "eMm", "EMM" ]
 
 ? o1.ContentCS(FALSE)
 #--> [ "emm" ]
 
 proff()
-#--> Executed in 0.02 second(s)
+# Executed in 0.05 second(s)
 
 /*======= A stzNarration
-
+*/
 pron()
 
 o1 = new stzString("123456789")
@@ -38,7 +64,7 @@ o1 = new stzString("123456789")
 #--> 876
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.03 second(s)
 
 /*======= A stzNarration
 */
