@@ -1,6 +1,72 @@
 load "stzlib.ring"
 
+pron()
 
+o1 = new stzList([ "emm", "EMM", "eMm" ])
+
+? o1.Content() # Same as ContentCS(TRUE)
+#--> [ "emm", "EMM", "eMe" ]
+
+? o1.ContentCS(FALSE)
+#--> [ "emm" ]
+
+proff()
+#--> Executed in 0.02 second(s)
+
+/*======= A stzNarration
+
+pron()
+
+o1 = new stzString("123456789")
+
+? o1.Section(3, 5)
+#--> "345"
+
+? o1.Section(5, 3)
+#--> "345"
+
+? o1.SectionXT(5,3)
+#--> "543"
+
+//? o1.Section(-2, -4)
+#--> Error message: n1 and n2 must be inside the list.
+
+? o1.SectionXT(-4, -2)
+#--> 678
+
+? o1.SectionXT(-2, -4)
+#--> 876
+
+proff()
+# Executed in 0.02 second(s)
+
+/*======= A stzNarration
+*/
+
+pron()
+
+o1 = new stzList(1:9)
+
+? o1.Section(3, 5)
+#--> "345"
+
+? o1.Section(5, 3)
+#--> "345"
+
+? o1.SectionXT(5,3)
+#--> "543"
+
+//? o1.Section(-2, -4)
+#--> Error message: n1 and n2 must be inside the list.
+
+? o1.SectionXT(-4, -2)
+#--> 678
+
+? o1.SectionXT(-2, -4)
+#--> 876
+
+proff()
+# Executed in 0.03 second(s)
 
 /*=======
 

@@ -839,28 +839,70 @@ class stzList from stzObject
 	#---------------------#
 	// TODO: Finish stzConstraint --> Finsh Constraints section here and
 	// in other classes (StzString...)
-/*
-	def MustBe(pcIsMethod)
+
+	//def MustBe(pcIsMethod)
 
 
-	def CanNotBe(pcIsMethod)
-*/
+	//def CanNotBe(pcIsMethod)
 
-	  #-----------------#
-	 #     GENERAL     #
-	#-----------------#
+
+	  #-----------------------------------#
+	 #  GETTING THE CONTENT OF THE LIST  #
+	#-----------------------------------#
+
+	def ContentCS(pCaseSensitive)
+		if CheckParams()
+
+			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+				pCaseSensitive = pCaseSensitive[2]
+			ok
+	
+			if NOT (pCaseSensitive = 0 or pCaseSensitive = 1)
+				StzRaise("Incorrect param type! pCaseSensitive must be 1 (TRUE) or 0 (FALSE).")
+			ok
+
+		ok
+
+		aResult = []
+
+		if pCaseSensitive = TRUE
+			aResult = @aContent
+
+		else
+			aResult = This.WithoutDuplicationCS(FALSE)
+		
+		ok
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ValueCS(pCaseSensitive)
+			return This.ContentCS(pCaseSensitve)
+
+		def ListCS(pCaseSensitive)
+			return This.ContentCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def Content()
-		return @aContent
+		return This.ContentCS(TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def Value()
-			return Content()
+			return This.Content()
 
-	def List()
-		return This.Content()
+		def List()
+			return This.Content()
 
-		def ListQ() # Same as Copy()
-			return new stzList( This.List() )
+		#>
+
+	  #------------------------------#
+	 #  GETTING A COPY OF THE LIST  #
+	#------------------------------#
 
 	def Copy()
 		return new stzList( This.List() )
@@ -868,6 +910,15 @@ class stzList from stzObject
 	def ReversedCopy()
 		return This.ReverseQ()
 
+	  #-------------------------------------------#
+	 #  GETTING THE NUMBER OF ITEMS OF THE LIST  #
+	#-------------------------------------------#
+
+	def NumberOfItemsCS(pCaseSensitive)
+		nResult = len( This.ContentCS(pCaseSensitive) )
+		return nResult
+
+		
 	def NumberOfItems()
 		return len(This.Content())
 
@@ -888,6 +939,10 @@ class stzList from stzObject
 	
 		def HowManyItem()
 			return This.NumberOfItems()
+
+	  #--------------------------------------------------------------#
+	 #  GETTING THE NUMBER OF ITEMS OF THE LIST -- U/Extended FORM  #
+	#--------------------------------------------------------------#
 
 	def NumberOfItemsU()
 		return len( Q(This.Content()).WithoutDuplicates() )
@@ -910,6 +965,10 @@ class stzList from stzObject
 		def HowManyItemU()
 			return This.NumberOfItemsU()
 
+	  #-----------------------------#
+	 #  GETTING THE LIST OF ITEMS  #
+	#-----------------------------#
+
 	def Items()
 		return This.Content()
 
@@ -919,6 +978,10 @@ class stzList from stzObject
 			return This
 
 		#>
+
+	  #------------------------------------#
+	 #  GETTING THE NTH ITEM IN THE LIST  #
+	#------------------------------------#
 
 	def Item(n)
 		if CheckParams()
@@ -968,6 +1031,10 @@ class stzList from stzObject
 
 		#>
 
+	  #--------------------------------------#
+	 #  GETTING THE FIRST ITEM IN THE LIST  #
+	#--------------------------------------#
+
 	def FirstItem()
 		return This.NthItem(1)
 
@@ -982,11 +1049,19 @@ class stzList from stzObject
 			def FristItemQ()
 				return This.FirstItemQ()
 
+	  #-------------------------------------#
+	 #  GETTING THE LAST ITEM IN THE LIST  #
+	#-------------------------------------#
+
 	def LastItem()
 		return This.NthItem( This.NumberOfItems() )
 
 		def LastItemQ()
 			return Q(This.LastItem())
+
+	  #------------------------------------------------#
+	 #  GETTING THE FIRST AND LAST ITEMS IN THE LIST  #
+	#------------------------------------------------#
 
 	def FirstAndLastItems()
 		aResult = [ This.FirstItem(), This.LastItem() ]
@@ -1006,6 +1081,10 @@ class stzList from stzObject
 		def LastAndFristItems()
 			return This.LastAndFirstItems()
 
+	  #--------------------------------------------#
+	 #  GETTING THE CENTRAL POSITION IN THE LIST  #
+	#--------------------------------------------#
+
 	def CentralPosition()
 		oTemp = new stzNumber( (This.NumberOfItems()/2) )
 		n = oTemp.IntegerPartValue()
@@ -1014,11 +1093,19 @@ class stzList from stzObject
 		def CentralItemPosition()
 			return This.CentralPosition()
 
+	  #----------------------------------------#
+	 #  GETTING THE CENTRAL ITEM IN THE LIST  #
+	#----------------------------------------#
+
 	def CentralItem()
 		return This[CentralPosition()]
 
 		def CentralItemQ()
 			return Q(This.CentralItem())
+
+	  #---------------------------------------------#
+	 #  CHECKING IF THE STRING HAS A CENTRAL ITEM  #
+	#---------------------------------------------#
 
 	def HasCentralItem()
 		return This.NumberOfItemsQ().IsNotEven()
@@ -22316,6 +22403,16 @@ class stzList from stzObject
 		def DuplicationRemovedCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
 
+		#--
+
+		def WithoutDuplicatesCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		def WithoutDuplicationCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		def WithoutDuplicationsCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
 
 		#>
 
@@ -22351,7 +22448,6 @@ class stzList from stzObject
 				This.RemoveDuplications()
 				return This
 
-
 		#>
 
 	def DuplicatesRemoved()
@@ -22363,123 +22459,40 @@ class stzList from stzObject
 		def ToSet()
 			return This.DuplicatesRemoved()
 
-			def ToSetQ()
-				return This.ToSetQR(:stzList)
-			
-			def ToSetQR(pcReturnType)
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.ToSet() )
-
-				on :stzSet
-					return new stzSet( This.ToSet() )
-
-				other
-					StzRaise("Unsupported return type!")
-				off
-
 		def ToSetOfItems()
 			return This.DuplicatesRemoved()
-
-			def ToSetOfItemsQ()
-				return This.ToSetQR(:stzList)
-			
-			def ToSetOfItemsQR(pcReturnType)
-				return This.ToSetQR(pcReturnType)
 
 		def UniqueItems()
 			return This.DuplicatesRemoved()
 
-			#< @FunctionFluentForms
+		def ItemsU()
+			return This.DuplicatesRemoved()
 
-			def UniqueItemsQ()
-				return This.ToSetQR(:stzList)
-			
-			def UniqueItemsQR(pcReturnType)
-				return This.ToSetQR(pcReturnType)
+		def ItemsWithoutDuplication()
+			return This.DuplicatesRemoved()
 
-			#>
+		def DuplicatedItemsRemoved()
+			return This.DuplicatesRemoved()
 
-			#< @FunctionAlternativeForm
+		def DuplicationsRemoved()
+			return This.DuplicatesRemoved()
 
-			def ItemsU()
-				return This.DuplicatesRemoved()
-	
-				def ItemsUQ()
-					return This.ToSetQR(:stzList)
-				
-				def ItemsUQR(pcReturnType)
-					return This.ToSetQR(pcReturnType)
-	
-			#>
+		def DuplicationRemoved()
+			return This.DuplicatesRemoved()
+
+		#--
 
 		def WithoutDuplicates()
 			return This.DuplicatesRemoved()
 
-			def WithoutDuplication()
-				return This.DuplicatesRemoved()
+		def WithoutDuplication()
+			return This.DuplicatesRemoved()
 
-				def WithoutDuplicationQ()
-					return This.ToSetQR(:stzList)
+		def WithoutDuplications()
+			return This.DuplicatesRemoved()
 
-				def WithoutDuplicationQR(pcReturnType)
-					return This.ToSetQR(pcReturnType)
+		#>
 
-			def WithoutDuplications()
-				return This.DuplicatesRemoved()
-
-				def WithoutDuplicationsQ()
-					return This.ToSetQR(:stzList)
-
-				def WithoutDuplicationsQR(pcReturnType)
-					return This.ToSetQR(pcReturnType)
-
-			def ItemsWithoutDuplication()
-				return This.DuplicatesRemoved()
-	
-				def ItemsWithoutDuplicationQ()
-					return This.ToSetQR(:stzList)
-	
-				def ItemsWithoutDuplicationQR(pcReturnType)
-					return This.ToSetQR(pcReturnType)
-	
-			def ItemsWithoutDuplications()
-				return This.DuplicatesRemoved()
-	
-				def ItemsWithoutDuplicationsQ()
-					return This.ToSetQR(:stzList)
-	
-				def ItemsWithoutDuplicationsQR(pcReturnType)
-					return This.ToSetQR(pcReturnType)
-	
-			def DuplicatedItemsRemoved()
-				return This.DuplicatesRemoved()
-	
-				def DuplicatedItemsRemovedQ()
-					return This.ToSetQR(:stzList)
-	
-				def DuplicatesItemsRemovedQR(pcReturnType)
-					return This.ToSetQR(pcReturnType)
-	
-			def DuplicationsRemoved()
-				return This.DuplicatesRemoved()
-	
-				def DuplicationsRemovedQ()
-					return This.ToSetQR(:stzList)
-	
-				def DuplicationsRemovedQR(pcReturnType)
-					return This.ToSetQR(pcReturnType)
-	
-			def DuplicationRemoved()
-				return This.DuplicatesRemoved()
-	
-				def DuplicationRemovedQ()
-					return This.ToSetQR(:stzList)
-	
-				def DuplicationRemovedQR(pcReturnType)
-					return This.ToSetQR(pcReturnType)
-	
-			#>
 
   	  #-----------------------------------------#
 	 #   REMOVING DUPLICATES OF A GIVEN ITEM   #
@@ -22573,6 +22586,17 @@ class stzList from stzObject
 		def DuplicationOfThisItemRemovedCS(pItem, pCaseSensitive)
 			return This.DuplicatesOfItemRemovedCS(pItem, pCaseSensitive)
 
+		#--
+
+		def WithoutDuplicationOfItemCS(pItem, pCaseSensitive)
+			return This.DuplicatesOfItemRemovedCS(pItem, pCaseSensitive)
+
+		def WithoutDuplicationsOfItemCS(pItem, pCaseSensitive)
+			return This.DuplicatesOfItemRemovedCS(pItem, pCaseSensitive)
+
+		def WithoutDuplicatingItemCS(pItem, pCaseSensitive)
+			return This.DuplicatesOfItemRemovedCS(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -22647,6 +22671,16 @@ class stzList from stzObject
 		def DuplicationOfThisItemRemoved(pItem)
 			return This.DuplicatesOfItemRemoved(pItem)
 
+		#--
+
+		def WithoutDuplicationOfItem(pItem)
+			return This.DuplicatesOfItemRemoved(pItem)
+
+		def WithoutDuplicationsOfItem(pItem)
+			return This.DuplicatesOfItemRemoved(pItem)
+
+		def WithoutDuplicatingItem(pItem)
+			return This.DuplicatesOfItemRemoved(pItem)
 
 		#>
 
@@ -22762,6 +22796,17 @@ class stzList from stzObject
 		def DuplicationOfTheseItemsRemovedCS(paItems, pCaseSensitive)
 			return This.DuplicatesOfItemsRemovedCS(paItems, pCaseSensitive)
 
+		#--
+
+		def WithoutDuplicationOfItemsCS(paItems, pCaseSensitive)
+			return This.DuplicatesOfItemsRemovedCS(paItems, pCaseSensitive)
+
+		def WithoutDuplicationsOfItemsCS(paItems, pCaseSensitive)
+			return This.DuplicatesOfItemsRemovedCS(paItems, pCaseSensitive)
+
+		def WithoutDuplicatingItemsCS(paItems, pCaseSensitive)
+			return This.DuplicatesOfItemsRemovedCS(paItems, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -22851,6 +22896,17 @@ class stzList from stzObject
 			return This.DuplicatesOfItemsRemoved(paItems)
 
 		def DuplicationOfTheseItemsRemoved(paItems)
+			return This.DuplicatesOfItemsRemoved(paItems)
+
+		#--
+
+		def WithoutDuplicationOfItems(paItems)
+			return This.DuplicatesOfItemsRemoved(paItems)
+
+		def WithoutDuplicationsOfItems(paItems)
+			return This.DuplicatesOfItemsRemoved(paItems)
+
+		def WithoutDuplicatingItems(paItems)
 			return This.DuplicatesOfItemsRemoved(paItems)
 
 		#>
@@ -30067,41 +30123,30 @@ class stzList from stzObject
 		def SplittedAfterWhere(pcCondition)
 			return This.SplitAfterW(pCondition)
 
-	  #------------------------------------------------#
+	  #================================================#
 	 #    GETTING A SECTION (OR SLICE) OF THE LIST    #
-	#------------------------------------------------#
-	/*
-	TODO: Think of a syntax that return the section without the
-	extremities, like for example:
+	#================================================#
 
-	o1.Section(:@, ']5, 8]') --> [6, 7, 8]
 
-	UPDATE: It's more elegant to pass only one param between barackets:
+	def SectionCS(n1, n2, pCaseSensitive)
 
-	o1.Section([5, 8]) --> [5, 6, 7, 8]
+		nLen = This.NumberOfItems()
 
-	And if we need to not return the left item for example we use
-	a string instead like this:
+		if CheckParams()
 
-	o1.Section(']5, 8]') --> [6, 7, 8]
-
-	*/
-
-	def Section(n1, n2)
-
-		if This.NumberOfItems() = 0
-			return []
-		ok
-
-		# Checking the params
-
-		if CheckParams() = TRUE
-
+			# Managing the use of :From and :To named params
+	
 			if isList(n1) and
 			   StzListQ(n1).IsOneOfTheseNamedParams([
-					:From, :FromPosition, :FromItem,
-					:StartingAt, :StartingAtPosition, :StartingAtItem,
-					:Between, :BetweenPosition, :BetweenItem
+					:From, :FromPosition, :FromItemAt, :FromItemAtPosition,
+
+					:StartingAt, :StartingAtPosition,
+					:StartingAtItemAt, :StartingAtItemAtPosition,
+
+					:Between, :BetweenPosition, :BetweenCharAt,
+					:BetweenItemAtPosition,
+
+					:BetweenPositions, :BetweeItemsAtPosition
 					])
 	
 				n1 = n1[2]
@@ -30109,26 +30154,31 @@ class stzList from stzObject
 	
 			if isList(n2) and
 			   StzListQ(n2).IsOneOfTheseNamedParams([
-					:To, :ToPosition, :ToItem,
-					:Until, :UntilPosition, :UntilItem,
-					:UpTo, :UpToPosition, :UpToItem,
+
+					:To, :ToPosition, :ToItemAt, :ToItemAtPosition,
+
+					:Until, :UntilPosition, :UntilItemAt, :UntilItemAtPosition,
+
+					:UpTo, :UpToPosition, :UpToItemAt, :UpToItemAtPosition,
+
 					:And,
 
-					:StartingAt, :StartingAtPosition, :StartingAtItem
+					:StartingAt, :StartingAtPosition, :StartingAtItemAt, :StartingAtItemAtPosition
+
 					])
 	
 				n2 = n2[2]
 			ok
-
+	
 			# Managing the use of :NthToFirst named param
 	
-			if isList(n1) and StzListQ(n1).IsOneOfTheseNamedParams([
+			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
 						:NthToFirst, :NthToFirstItem ])
 	
 				n1 = n1[2] + 1
 			ok
 	
-			if isList(n2) and StzListQ(n2).IsOneOfTheseNamedParams([
+			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
 						:NthToFirst, :NthToFirstItem ])
 	
 				n2 = n2[2] + 1
@@ -30139,139 +30189,370 @@ class stzList from stzObject
 			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
 						:NthToLast, :NthToLastItem ])
 	
-				n1 = This.NumberOfItems() - n1[2]
+				n1 = nLen - n1[2]
 			ok
 	
-			if isList(n2) and StzListQ(n2).IsOneOfTheseNamedParams([
+			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
 						:NthToLast, :NthToLastItem ])
 	
-				n2 = This.NumberOfItems() - n2[2]
+				n2 = nLen - n2[2]
+	
+			but isList(n2) and Q(n2).IsStoppingAtNamedParam()
+	
+				n2 = n2[2]
 			ok
 	
 			# Managing the case of :First and :Last keywords
 	
 			if isString(n1)
-				if stzStringQ(n1).IsOneOfThese([ :First, :FirstItem, :StartOfList ])
+				if Q(n1).IsOneOfThese([
+					:First, :FirstItem
+				])
+
 					n1 = 1
 	
-				but StzStringQ(n1).IsOneOfThese([ :Last, :LastItem, :EndOfList ])
-					n1 = This.NumberOfItems()
+				but Q(n1).IsOneOfThese([
+					:Last, :LastItem
+				])
+
+					n1 = nLen
 	
 				but n1 = :@
 					n1 = n2
+
+				else
+					n1 = This.FindFirstCS(n1, pCaseSensitive)
 				ok
 			ok
 		
 			if isString(n2)
-				if StzStringQ(n2).IsOneOfThese([ :Last, :LastItem, :EndOfList ])
-					n2 = This.NumberOfItems()
+				if Q(n2).IsOneOfThese([
+					:End, :Last, :LastItem, :EndOfList
+				])
+
+					n2 = nLen
 	
-				but StzStringQ(n2).IsOneOfThese([ :First, :FirstItem, :StartOfList ])
+				but Q(n2).IsOneOfThese([
+					:First, :FirstItem
+				])
+
 					n2 = 1
 	
 				but n2 = :@
 					n2 = n1
+
+				else
+					nLen2 = StzStringQ(n2).NumberOfItems()
+					n2 = This.FindLastCS(n2, pCaseSensitive) + nLen2 - 1
 				ok
 			ok
-	
+
 			if n1 = :@ and n2 = :@
 				n1 = 1
-				n2 = This.NumberOfItems()
+				n2 = nLen
 			ok
 	
 			if n1 < 0
-				n1 = This.NumberOfItems() + n1 + 1
+				n1 = nLen + n1 + 1
+			ok
+	
+			if n2 < 0
+				n2 = nLen + n2 + 1
 			ok
 
-			if n2 < 0
-				n2 = This.NumberOfItems() + n2 + 1
-			ok
+			# Params must be numbers
 	
-			# If the params are not numbers, so find them and take their positions
-			# EXAMPLE:
-			# 	? Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]).
-			# 		Section(:From = "F", :To = "A") #--> [ "F", "T", "A" ]
-	
-			if NOT ( isNumber(n1) and isNumber(n2) )
-				return This.SectionsBetweenItems(n1, n2)
+			if NOT @BothAreNumbers(n1, n2)
+				StzRaise("Incorrect params! n1 and n2 must be numbers.")
 			ok
 
 		ok
 
-		# Doing the job (issuming n1 and n2 are numbers)
+		# NOTE: when positions are given in inversed order, the same
+		# section as if they were not inverted is returned, so:
+		#--> Q([ "r", "i", "n", "g" ]).Section(1,3) and .Section(3,1) both
+		#    return [ "r", "i", "n" ]
+
+		# In some languages, like Pyhton for example, reverting the positions,
+		# inverts the section. So:
+		#--> Q([ "r", "i", "n", "g" ]).Section(1,3) returns [ "r", "i", "n" ], but
+		#    .Section(3,1) returns [ "n", "i", "r" ]
+
+		# If you need to use this feature in Softanza, use the eXTended form
+		# SectionXT(), like this :
+		#--> Q([ "r", "i", "n", "g" ]).SectionXT(3,1) and it will return
+		#    [ "n", "i", "r" ]
+
+		# params must be in range
+	
+		if NOT 	( ( n1 >= 1 and n1 <= nLen ) and
+			   ( n2 >= 1 and n2 <= nLen ) )
+				
+			StzRaise("Indexes out of range! n1 and n2 must be inside the list.")
+		ok
 
 		aContent = This.Content()
-		nLen = len(aContent)
 		aResult = []
 
-		if n1 > n2
+		if n2 < n1
 			nTemp = n1
 			n1 = n2
 			n2 = nTemp
 		ok
-
+		
 		for i = n1 to n2
 			aResult + aContent[i]
 		next
 
-		return aResult	
+		return aResult
 
 		#< @FunctionFluentForm
 
-		def SectionQ(n1, n2)
-			return This.SectionQR(n1, n2, :stzList)
+		def SectionCSQ(n1, n2, pCaseSensitive)
+			return new stzList( This.SectionCS(n1, n2, pCaseSensitive) )
 
-		def SectionQR(n1, n2, pcReturntype)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-
-			on :stzList
-				return new stzList( This.Section(n1, n2) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.Section(n1, n2) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Section(n1, n2) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.Section(n1, n2) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.Section(n1, n2) )
-
-			on :stzListOfObjects
-				return new stzListOfObjects( This.Section(n1, n2) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
 		#>
 
-		#< @FunctionAlternativeForms
+		#< @FunctionAlternativeForm
+
+		def SliceCS(n1, n2, pCaseSensitive)
+			return This.SectionCS(n1, n2, pCaseSensitive)
+
+			#< @FunctionFluentForm
+
+			def SliceCSQ(n1, n2, pCaseSensitive)
+				return This.SectionCSQ(n1, n2, pCaseSensitive)
+
+			#>
+		#>	
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Section(n1, n2)
+		return This.SectionCS(n1, n2, TRUE)
+
+		def SectionQ(n1, n2)
+			return new stzList(This.Section(n1, n2))
 
 		def Slice(n1, n2)
 			return This.Section(n1, n2)
 
 			def SliceQ(n1, n2)
-				return This.SectionQ(n1, n2)
-	
-			def SliceQR(n1, n2, pcReturntype)
-				return This.SectionQR(n1, n2, pcReturntype)
+				return new stzList(This.Slice(n1, n2))
 
-		def SectionBetweenPositions(n1, n2)
-			return This.Position(n1, n2)
+	  #------------------------------------------------------------#
+	 #   GETTING A SECTION (OR SLICE) OF THE LIST -- Z/EXTENDED   #
+	#------------------------------------------------------------#
 
-			def SectionBetweenPositionsQ(n1, n2)
-				return This.SectionQ(n1, n2)
+	def SectionCSZ(n1, n2, pCaseSensitive)
+		if CheckParams()
+			if isString(n1) and (n1 = :Start or n1 = :StartOfList)
+				n1 = 1
+			ok
 
-			def SectionBetweenPositionsQR(n1, n2, pcReturnType)
-				return This.SectionQ(n1, n2, pcReturnType)
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+		ok
 
-		#>
+		aResult = [ This.SectionCS(n1, n2, pCaseSensitive), n1 ]
+		return aResult
+
+		def SliceCSZ(n1, n2, pCaseSensitive)
+			return This.SectionCSZ(n1, n2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVE
+
+	def SectionZ(n1, n2)
+		return This.SectionCSZ(n1, n2, TRUE)
+
+		def SliceZ(n1, n2)
+			return SectionZ(n1, n2)
+
+	  #------------------------------------------------------------#
+	 #   GETTING A SECTION (OR SLICE) OF THE LIST -- ZZ/EXTENDED  #
+	#------------------------------------------------------------#
+
+	def SectionCSZZ(n1, n2, pCaseSensitive)
+		if CheckParams()
+
+			if isString(n1) and (n1 = :Start or n1 = :StartOfList)
+				n1 = 1
+			ok
+
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+
+			#--
+
+			if isString(n1) and (n1 = :End or n1 = :EndOfList)
+				n1 = This.NumberOfChars()
+			ok
+
+			if NOT isNumber(n2)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+
+		ok
+
+		aResult = [ This.SectionCS(n1, n2, pCaseSensitive), [n1, n2] ]
+		return aResult
+
+		def SliceCSZZ(n1, n2, pCaseSensitive)
+			return This.SectionCSZZ(n1, n2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVE
+
+	def SectionZZ(n1, n2)
+		return This.SectionCSZZ(n1, n2, TRUE)
+
+		def SliceZZ(n1, n2)
+			return SectionZZ(n1, n2)
+
+	  #-------------------------------------------------------------------#
+	 #  GETTING THE SECTION BETWEEN n1 and n2 POSITIONS -- XTended form  #
+	#===================================================================#
+
+	def SectionCSXT(n1, n2, pCaseSensitive)
+
+		# This is an extended form of Section() that supports
+		# two fency features (that we find in other languages like Python):
+		# 	~> n1 and n2 can be negative numbers, and hence their values are counted from the end
+		# 	~> n1 can be greater then n2, and hence the section is reversed.
+
+		nLen = This.NumberOfItemsCS(pCaseSensitive)
+
+		if CheckParams()
+
+			if isString(n1) and (n1 = :Start or n1 = :StartOfList)
+				n1 = 1
+			ok
+
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+
+			#--
+
+			if isString(n1) and (n1 = :End or n1 = :EndOfList)
+				n1 = nLen
+			ok
+
+			if NOT isNumber(n2)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+
+		ok
+
+		# Managing negative values
+
+		if n1 < 0
+			n1 = nLen + n1 + 1
+			# Be careful : + n1 and not - n1 because n1 is already negative!
+		ok
+
+		if n2 < 0
+			n2 = nLen + n2 + 1
+		ok
+
+		# Managing the case where n1 > n2 --> section reversed
+
+		aResult = []
+
+		if n1 > n2
+			aResult = This.SectionCSQ(n2, n1, pCaseSensitive).Reversed()
+
+		else
+			aResult = This.SectionCS(n2, n1, pCaseSensitive)
+		ok
+
+		return aResult
+
+		def SliceCSXT(n1, n2, pCaseSensitive)
+			return This.SectionCSXT(n1, n2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIIVTY
+
+	def SectionXT(n1, n2)
+		return This.SectionCSXT(n1, n2, TRUE)
+
+		def SliceXT(n1, n2)
+			return This.SectionXT(n1, n2)
+
+	  #---------------------------------------------------------------#
+	 #  GETTING THE SECTION BETWEEN n1 and n2 POSITIONS -- XTZ form  #
+	#---------------------------------------------------------------#
+
+	def SectionCSXTZ(n1, n2, pCaseSensitive)
+		if CheckParams()
+			if isString(n1) and (n1 = :Start or n1 = :StartOfList)
+				n1 = 1
+			ok
+
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+		ok
+
+		aResult = [ This.SectionCSXT(n1, n2, pCaseSensitive), n1 ]
+		return aResult
+
+		def SliceCSXTZ(n1, n2, pCaseSensitive)
+			return This.SectionCSXTZ(n1, n2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIIVTY
+
+	def SectionXTZ(n1, n2)
+		return This.SectionCSXTZ(n1, n2, TRUE)
+
+		def SliceXTZ(n1, n2)
+			return This.SectionXTZ(n1, n2)
+
+	  #----------------------------------------------------------------#
+	 #  GETTING THE SECTION BETWEEN n1 and n2 POSITIONS -- XTZZ form  #
+	#----------------------------------------------------------------#
+
+	def SectionCSXTZZ(n1, n2, pCaseSensitive)
+		if CheckParams()
+
+			if isString(n1) and (n1 = :Start or n1 = :StartOfList)
+				n1 = 1
+			ok
+
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+
+			#--
+
+			if isString(n1) and (n1 = :End or n1 = :EndOfList)
+				n1 = nLen
+			ok
+
+			if NOT isNumber(n2)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+
+		ok
+
+		aResult = [ This.SectionCSXT(n1, n2, pCaseSensitive), [n1, n2] ]
+		return aResult
+
+		def SliceCSXTZZ(n1, n2, pCaseSensitive)
+			return This.SectionCSXTZZ(n1, n2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIIVTY
+
+	def SectionXTZZ(n1, n2)
+		return This.SectionCSXTZZ(n1, n2, TRUE)
+
+		def SliceXTZZ(n1, n2)
+			return This.SectionXTZZ(n1, n2)
+
+	# TODO : RangeZ(), RangeZZ(), RangeXT(), RangeXTZ(), and RangeXTZZ()
+
+
 
 	  #---------------------------------------#
 	 #   GETIING MANY SECTIONS (OR SLICES)   #
