@@ -5413,8 +5413,9 @@ class stzNumber from stzObject
 				# ? Q(345)['// 100'] #--> 3
 
 			if isString(pValue) and Q(pValue).StartsWith("//") 
-
-				cRemainingPart = Q(pValue).SectionQ(3, :LastChar).Trimmed()
+				oStr = new stzString(pValue)
+				nLen = oStr.NumberOfChars()
+				cRemainingPart = oStr.SectionQ(3, nLen).Trimmed()
 
 				if Q(cRemainingPart).IsNumberInString()
 					n = 0+ cRemainingPart

@@ -971,8 +971,10 @@ class stzLocale from stzObject
 				# "à la recherche du temps perdu" becomes
 				# "A la Recherche du temps perdu"
 
-				cResult = This.ToUppercase( StzStringQ(pcStr)[1] ) +
-					  This.ToLowercase( StzStringQ(pcStr).Section(2,:LastChar) )
+				oStr = new stzString(pcStr)
+				nLen = This.NumberOfChars()
+				cResult = This.ToUppercase( oStr[1] ) +
+					  This.ToLowercase( oStr.Section(2,nLen) )
 			ok
 
 			return cResult

@@ -1,8 +1,26 @@
 load "stzlib.ring"
 
+/*=====
+*/
+pron()
+
+o1 = new stzListOfLists([ 1:3, 1:3, 1:3 ])
+? o1.IsMadeOfSameList()
+#--> TRUE
+
+? StzListOfListsQ([ 1:3, 1:2, 1:3 ]).AllListsAreEqual()
+
+# TODO : Add to stzList
+#	AllNumbersAreEqual()
+#	AllStringsAreEqual()
+#	AllListsAreEqual()
+#	AllObjectsAreEqual()
+
+proff()
+# Executed in 0.04 second(s)
 
 /*=========
-*/
+
 pron()
 
 o1 = new stzListOfLists([ ["01","02"], ["16", "17"], ["23", "25"], ["08", "10"] ])
@@ -14,6 +32,7 @@ o1 = new stzListOfLists([ ["01","02"], ["16", "17"], ["23", "25"], ["08", "10"] 
 #--> [ [ "23", "25" ], [ "16", "17" ], [ "08", "10" ], [ "01", "02" ] ]
 
 proff()
+# Executed in 0.04 second(s)
 
 /*=========
 

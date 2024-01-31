@@ -809,6 +809,9 @@ func List(pFrom, pTo)
 
 	return ContiguousList(pFrom, pto)
 
+func @WithoutDuplication(paList)
+	return StzListQ(paList).WithoutDuplication()
+
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -2270,7 +2273,7 @@ class stzList from stzObject
 		nLen = len(anPos)
 
 		for i = 1 to nLen
-			This.ReplaceItemAtPositionCS(anPos[i], pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionCS(anPos[i], pNewItem, pCaseSensitive)
 		next
 
 		#< @FunctionFluentForm
@@ -2556,93 +2559,196 @@ class stzList from stzObject
 		def ItemsReplaced(paItems, pNewItem)
 			return This.ManyItemsReplaced(paItems, pNewItem)
 
+	  #---------------------------------------------------#
+	 #     REPLACING MANY ITEMS BY THE ITEM PRIVIDED     #
+	#---------------------------------------------------#
+
+	def ReplaceManyByCS(paItems, pNewItem, pCaseSensitive)
+
+		if CheckParams()
+
+			if NOT isList(paItems)
+				stzRaise("Incorrect param type! paItems must be a list.")
+			ok
+
+		ok
+
+		# Doing the job
+
+		paItems = Q(paItems).DuplicatesRemovedCS(pCaseSensitive)
+		nLen = len(paItems)
+		
+		for i = 1 to nLen
+			This.ReplaceCS( paItems[i], pNewItem, pCaseSensitive )
+		next
+	
+		#< @FunctionFluentForm
+	
+		def ReplaceManyByCSQ(paItems, pNewItem, pCaseSensitive)
+			This.ReplaceManyByCS(paItems, pNewItem, pCaseSensitive)
+			return This
+		
+		#>
+
+		#< @FunctionALternativeForms
+
+		def ReplaceAllOfTheseByCS(paItems, pNewItem, pCaseSensitive)
+			This.ReplaceManyByCS(paItems, pNewItem, pCaseSensitive)
+
+			def ReplaceAllOfTheseByCSQ(paItems, pNewItem, pCaseSensitive)
+				return This.ReplaceManyByCSQ(paItems, pNewItem, pCaseSensitive)
+
+		def ReplaceManyItemsByCS(paItems, pNewItem, pCaseSensitive)
+			This.ReplaceManyByCS(paItems, pNewItem, pCaseSensitive)
+
+			def ReplaceManyItemsByCSQ(paItems, pNewItem, pCaseSensitive)
+				return This.ReplaceManyByCSQ(paItems, pNewItem, pCaseSensitive)
+
+		#--
+
+		def ReplaceItemsByCS(paItems, pItem, pCaseSensitive)
+			This.ReplaceManyByCS(paItems, pNewItem, pCaseSensitive)
+
+			def ReplaceItemsByCSQ(paItems, pItem, pCaseSensitive)
+				return This.ReplaceManyByCSQ(paItems, pNewItem, pCaseSensitive)
+
+		#>
+
+	def ManyItemsReplacedByCS(paItems, pNewItem, pCaseSensitive)
+		acResult = This.Copy().ReplaceManyItemsByCSQ(paItems, pNewItem, pCaseSensitive).Content()
+		return acResult
+
+		def ManyReplacedByCS(paItems, pNewItem, pCaseSensitive)
+			return This.ManyItemsReplacedByCS(paItems, pNewItem, pCaseSensitive)
+
+		def ItemsReplacedByCS(paItems, pNewItem, pCaseSensitive)
+			return This.ManyItemsReplacedByCS(paItems, pNewItem, pCaseSensitive)
+
+	#-- WIHTOUT CASESENSITIVITY
+
+	def ReplaceManyBy(paItems, pNewItem)
+		This.ReplaceManyByCS( paItems, pNewItem, TRUE )
+
+		#< @FunctionFluentFormn
+
+		def ReplaceManyByQ(paItems, pItem)
+			This.ReplaceManyBy(paItems, pNewItem)
+			return This
+		#>
+
+		#< @FunctionAlternativeForm
+	
+		def ReplaceAllOfTheseBy(paItems, pItem)
+			This.ReplaceManyBy(paItems, pNewItem)
+
+			def ReplaceAllOfTheseByQ(paItems, pItem)
+				This.ReplaceAllOfTheseBy(paItems, pItem)
+				return This
+
+		def ReplaceManyItemsBy(paItems, pNewItem)
+			This.ReplaceManyBy(paItems, pNewItem)
+
+			def ReplaceManyItemsByQ(paItems, pNewItem)
+				This.ReplaceManyItemsBy(paItems, pNewItem)
+				return This
+
+		#--
+
+		def ReplaceItemsBy(paItems, pItem)
+			This.ReplaceManyBy(paItems, pNewItem)
+
+			def ReplaceItemsByQ(paItems, pItem)
+				return This.ReplaceManyByQ(paItems, pNewItem)
+
+		#>
+
+	def ManyItemsReplacedBy(paItems, pNewItem)
+		acResult = This.Copy().ReplaceManyItemsByQ(paItems, pNewItem).Content()
+		return acResult
+
+		def ManyReplacedBy(paItems, pNewItem)
+			return This.ManyItemsReplacedBy(paItems, pNewItem)
+
+		def ItemsReplacedBy(paItems, pNewItem)
+			return This.ManyItemsReplacedBy(paItems, pNewItem)
+
 	  #---------------------------------------#
 	 #  REPLACING A SUBSTRING BY MANY ITEMS  #
 	#---------------------------------------#
 
-	def ReplaceByManyCS(pItem, pacNewItems, pCaseSensitive)
+	def ReplaceByManyCS(pItem, paNewItems, pCaseSensitive)
 
 		/* EXAMPLE
 
 		o1 = new stzList([ "ring", "php", "ruby", "ring", "python", "ring" ])
-		o1.ReplaceByMany("ring", :By = [ "♥", "♥♥", "♥♥♥" ])
+		o1.ReplaceByMany("ring", [ "♥", "♥♥", "♥♥♥" ])
 	
 		? o1.Content() #--> [ "♥", "php", "ruby", "♥♥", "python", "♥♥♥" ]
 
 		*/
 
-		if isList(pacNewItems) and Q(pacNewItems).IsWithOrByNamedParam()
-			pacNewItems = pacNewItems[2]
-		ok
-
-		anPositions = This.FindCS(pItem, pCaseSensitive)
-		nMin = Min([ len(anPositions), len(pacNewItems) ])
-	
-		for i = nMin to 1 step -1
-			n = anPositions[i]
-			item = pacNewItems[i]
-			This.ReplaceAnyItemAtPositionNCS(n, item, pCaseSensitive)
-		next
+		anPos = This.FindCS(pItem, pCaseSensitive)
+		This.ReplaceItemAtPositionsByManyCS(anPos, pItem, paNewItems, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
-		def ReplaceByManyCSQ(pItem, pacNewItems, pCaseSensitive)
-			This.ReplaceByManyCS(pItem, pacNewItems, pCaseSensitive)
+		def ReplaceByManyCSQ(pItem, paNewItems, pCaseSensitive)
+			This.ReplaceByManyCS(pItem, paNewItems, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceItemByManyCS(pItem, pacNewItems, pCaseSensitive)
-			This.ReplaceByManyCS(pItem, pacNewItems, pCaseSensitive)
+		def ReplaceItemByManyCS(pItem, paNewItems, pCaseSensitive)
+			This.ReplaceByManyCS(pItem, paNewItems, pCaseSensitive)
 
-			def ReplaceItemByManyCSQ(pItem, pacNewItems, pCaseSensitive)
-				This.ReplaceItemByManyCS(pItem, pacNewItems, pCaseSensitive)
+			def ReplaceItemByManyCSQ(pItem, paNewItems, pCaseSensitive)
+				This.ReplaceItemByManyCS(pItem, paNewItems, pCaseSensitive)
 				return This
 
 		#>
 
 	#< @FunctionPassiveForms
 
-	def ReplacedByManyCS(pItem, pacNewItems, pCaseSensitive)
-		cResult = This.Copy().ReplaceByManyCSQ(pItem, pacNewItems, pCaseSensitive).Conten()
+	def ReplacedByManyCS(pItem, paNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceByManyCSQ(pItem, paNewItems, pCaseSensitive).Conten()
 		return cResult
 
-		def ItemReplacedByManyCS(pItem, pacNewItems, pCaseSensitive)
-			return This.ReplacedByManyCS(pItem, pacNewItems, pCaseSensitive)
+		def ItemReplacedByManyCS(pItem, paNewItems, pCaseSensitive)
+			return This.ReplacedByManyCS(pItem, paNewItems, pCaseSensitive)
 
 	#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceByMany(pItem, pacNewItems)
-		This.ReplaceByManyCS(pItem, pacNewItems, TRUE)
+	def ReplaceByMany(pItem, paNewItems)
+		This.ReplaceByManyCS(pItem, paNewItems, TRUE)
 
 		#< @FunctionFluentForm
 
-		def ReplaceByManyQ(pItem, pacNewItems)
-			return This.ReplaceByManyCSQ(pItem, pacNewItems, TRUE)
+		def ReplaceByManyQ(pItem, paNewItems)
+			return This.ReplaceByManyCSQ(pItem, paNewItems, TRUE)
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceItemByMany(pItem, pacNewItems)
-			This.ReplaceByMany(pItem, pacNewItems)
+		def ReplaceItemByMany(pItem, paNewItems)
+			This.ReplaceByMany(pItem, paNewItems)
 
-			def ReplaceItemByManyQ(pItem, pacNewItems)
-				return This.ReplaceByManyQ(pItem, pacNewItems)
+			def ReplaceItemByManyQ(pItem, paNewItems)
+				return This.ReplaceByManyQ(pItem, paNewItems)
 
 		#>
 
 	#< @FunctionPassiveForms
 
-	def ReplacedByMany(pItem, pacNewItems)
-		return This.ReplacedByManyCS(pItem, pacNewItems, TRUE)
+	def ReplacedByMany(pItem, paNewItems)
+		return This.ReplacedByManyCS(pItem, paNewItems, TRUE)
 
-		def ItemReplacedByMany(pItem, pacNewItems)
-			return This.ReplacedByMany(pItem, pacNewItems)
+		def ItemReplacedByMany(pItem, paNewItems)
+			return This.ReplacedByMany(pItem, paNewItems)
 
 	#>
 
@@ -2650,7 +2756,7 @@ class stzList from stzObject
 	 #  REPLACING A SUBSTRING BY MANY ITEMS -- EXTENDED (RETURN TO FIRST)  #
 	#---------------------------------------------------------------------#
 
-	def ReplaceByManyCSXT(pItem, pacNewItems, pCaseSensitive)
+	def ReplaceByManyCSXT(pItem, paNewItems, pCaseSensitive)
 
 		/* EXAMPLE
 
@@ -2661,94 +2767,69 @@ class stzList from stzObject
 
 		*/
 
-		if CheckParams()
+		anPos = This.FindAllCS(pItem, pCaseSensitive)
+		This.ReplaceItemAtPositionsByManyCSXT(anPos, pItem, paNewItems, pCaseSensitive)
 
-			if isList(pacNewItems) and Q(pacNewItems).IsWithOrByNamedParam()
-				pacNewItems = pacNewItems[2]
-			ok
-
-		ok
-
-		# doing the job
-
-		anPositions = This.FindCSQ(pItem, pCaseSensitive).SortedInDescending()
-		nLen = len(anPositions)
-
-		acNewItems = StzListQ(pacNewItems).SortedInDescending()
-		nLen2 = len(acNewItems)
-	
-		n = 0
-		for i = 1 to nLen
-			nPos = anPositions[i]
-			n++
-			if n > nLen2
-				n = 1
-			ok
-
-			item = acNewItems[n]
-			This.ReplaceItemAtPositionNCS(nPos, pItem, item, pCaseSensitive)
-			
-		next
 
 		#< @FunctionFluentForm
 
-		def ReplaceByManyCSXTQ(pItem, pacNewItems, pCaseSensitive)
-			This.ReplaceByManyCSXT(pItem, pacNewItems, pCaseSensitive)
+		def ReplaceByManyCSXTQ(pItem, paNewItems, pCaseSensitive)
+			This.ReplaceByManyCSXT(pItem, paNewItems, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceItemByManyCSXT(pItem, pacNewSybStrings, pCaseSensitive)
-			This.ReplaceByManyCSXT(pItem, pacNewItems, pCaseSensitive)
+		def ReplaceItemByManyCSXT(pItem, paNewItems, pCaseSensitive)
+			This.ReplaceByManyCSXT(pItem, paNewItems, pCaseSensitive)
 
-			def ReplaceItemByManyCSXTQ(pItem, pacNewSybStrings, pCaseSensitive)
-				return This.ReplaceByManyCSXTQ(pItem, pacNewItems, pCaseSensitive)
+			def ReplaceItemByManyCSXTQ(pItem, paNewItems, pCaseSensitive)
+				return This.ReplaceByManyCSXTQ(pItem, paNewItems, pCaseSensitive)
 
 		#>
 
 	#< @FunctionPassiveForms
 
-	def ReplacedByManyCSXT(pItem, pacNewItems, pCaseSensitive)
-		cResult = This.Copy().ReplaceByManyCSXTQ(pItem, pacNewItems, pCaseSensitive).Content()
+	def ReplacedByManyCSXT(pItem, paNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceByManyCSXTQ(pItem, paNewItems, pCaseSensitive).Content()
 		return cResult
 
-		def ItemReplacedByManyCSXT(pItem, pacNewItems, pCaseSensitive)
-			return This.ReplacedByManyCSXT(pItem, pacNewItems, pCaseSensitive)
+		def ItemReplacedByManyCSXT(pItem, paNewItems, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pItem, paNewItems, pCaseSensitive)
 
 	#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceByManyXT(pItem, pacNewItems)
-		This.ReplaceByManyCSXT(pItem, pacNewItems, TRUE)
+	def ReplaceByManyXT(pItem, paNewItems)
+		This.ReplaceByManyCSXT(pItem, paNewItems, TRUE)
 
 		#< @FunctionFluentForm
 
-		def ReplaceByManyXTQ(pItem, pacNewItems)
-			return This.ReplaceByManyCSXTQ(pItem, pacNewItems, TRUE)
+		def ReplaceByManyXTQ(pItem, paNewItems)
+			return This.ReplaceByManyCSXTQ(pItem, paNewItems, TRUE)
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceItemByManyXT(pItem, pacNewSybStrings)
-			This.ReplaceByManyXT(pItem, pacNewItems)
+		def ReplaceItemByManyXT(pItem, paNewItems)
+			This.ReplaceByManyXT(pItem, paNewItems)
 
-			def ReplaceItemByManyXTQ(pItem, pacNewSybStrings)
-				return This.ReplaceByManyXTQ(pItem, pacNewItems)
+			def ReplaceItemByManyXTQ(pItem, paNewItems)
+				return This.ReplaceByManyXTQ(pItem, paNewItems)
 
 		#>
 
 	#< @FunctionPassiveForms
 
-	def ReplacedByManyXT(pItem, pacNewItems)
-		cResult = This.Copy().ReplaceByManyXTQ(pItem, pacNewItems).Content()
+	def ReplacedByManyXT(pItem, paNewItems)
+		cResult = This.Copy().ReplaceByManyXTQ(pItem, paNewItems).Content()
 		return cResult
 
-		def ItemReplacedByManyXT(pItem, pacNewItems)
-			return This.ReplacedByManyXT(pItem, pacNewItems)
+		def ItemReplacedByManyXT(pItem, paNewItems)
+			return This.ReplacedByManyXT(pItem, paNewItems)
 
 	#>
 
@@ -2756,7 +2837,7 @@ class stzList from stzObject
 	 #  REPLACING MANY ITEMS BY MANY OTHER ITEMS  #
 	#--------------------------------------------#
 
-	def ReplaceManyByManyCS(paItems, pacNewItems, pCaseSensitive)
+	def ReplaceManyByManyCS(paItems, paNewItems, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzList("ring qt softanza pyhton kandaji csharp ring")
@@ -2767,8 +2848,8 @@ class stzList from stzObject
 
 		if CheckParams()
 	
-			if isList(pacNewItems) and Q(pacNewItems).IsWithOrByNamedParam()
-				pacNewItems = pacNewItems[2]
+			if isList(paNewItems) and Q(paNewItems).IsWithOrByNamedParam()
+				paNewItems = paNewItems[2]
 			ok	
 
 		ok
@@ -2776,13 +2857,14 @@ class stzList from stzObject
 		# Doing the job
 
 		nLen = len(paItems)
+		nLenNewItems = len(paNewItems)
 
 		for i = 1 to nLen
 			cSubStr = paItems[i]
 			item = NULL
 
-			if i <= len(pacNewItems)
-				item = pacNewItems[i]
+			if i <= nLenNewItems
+				item = paNewItems[i]
 			ok
 
 			if item != NULL
@@ -2793,66 +2875,66 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def ReplaceManyByManyCSQ(paItems, pacNewItems, pCaseSensitive)
-			This.ReplaceManyByManyCS(paItems, pacNewItems, pCaseSensitive)
+		def ReplaceManyByManyCSQ(paItems, paNewItems, pCaseSensitive)
+			This.ReplaceManyByManyCS(paItems, paNewItems, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceManyItemsByManyCS(paItems, pacNewItems, pCaseSensitive)
-			This.ReplaceManyByManyCS(paItems, pacNewItems, pCaseSensitive)
+		def ReplaceManyItemsByManyCS(paItems, paNewItems, pCaseSensitive)
+			This.ReplaceManyByManyCS(paItems, paNewItems, pCaseSensitive)
 
-			def ReplaceManyItemsByManyCSQ(paItems, pacNewItems, pCaseSensitive)
-				This.ReplaceManyItemsByManyCS(paItems, pacNewItems, pCaseSensitive)
+			def ReplaceManyItemsByManyCSQ(paItems, paNewItems, pCaseSensitive)
+				This.ReplaceManyItemsByManyCS(paItems, paNewItems, pCaseSensitive)
 				return This
 
 		#>
 
 	#< @FunctionPassiveForm
 
-	def ManyItemsReplaceByManyCS(paItems, pacNewItems, pCaseSensitive)
-		cResult = This.Copy().ReplaceManyByManyCSQ(paItems, pacNewItems, pCaseSensitive).Content()
+	def ManyItemsReplaceByManyCS(paItems, paNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceManyByManyCSQ(paItems, paNewItems, pCaseSensitive).Content()
 		return cResult
 
-		def ItemsReplaceByManyCS(paItems, pacNewItems, pCaseSensitive)
-			return This.ManyItemsReplaceByManyCS(paItems, pacNewItems, pCaseSensitive)
+		def ItemsReplaceByManyCS(paItems, paNewItems, pCaseSensitive)
+			return This.ManyItemsReplaceByManyCS(paItems, paNewItems, pCaseSensitive)
 
 	#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceManyByMany(paItems, pacNewItems)
-		This.ReplaceManyByManyCS(paItems, pacNewItems, TRUE)
+	def ReplaceManyByMany(paItems, paNewItems)
+		This.ReplaceManyByManyCS(paItems, paNewItems, TRUE)
 
 		#< @FunctionFluentForm
 
-		def ReplaceManyByManyQ(paItems, pacNewItems)
-			This.ReplaceManyByMany(paItems, pacNewItems)
+		def ReplaceManyByManyQ(paItems, paNewItems)
+			This.ReplaceManyByMany(paItems, paNewItems)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceManyItemsByMany(paItems, pacNewItems)
-			This.ReplaceManyByMany(paItems, pacNewItems)
+		def ReplaceManyItemsByMany(paItems, paNewItems)
+			This.ReplaceManyByMany(paItems, paNewItems)
 
-			def ReplaceManyItemsByManyQ(paItems, pacNewItems)
-				This.ReplaceManyItemsByMany(paItems, pacNewItems)
+			def ReplaceManyItemsByManyQ(paItems, paNewItems)
+				This.ReplaceManyItemsByMany(paItems, paNewItems)
 				return This
 
 		#>
 
 	#< @FunctionPassiveForm
 
-	def ManyItemsReplaceByMany(paItems, pacNewItems)
-		cResult = This.Copy().ReplaceManyByManyQ(paItems, pacNewItems).Content()
+	def ManyItemsReplaceByMany(paItems, paNewItems)
+		cResult = This.Copy().ReplaceManyByManyQ(paItems, paNewItems).Content()
 		return cResult
 
-		def ItemsReplaceByMany(paItems, pacNewItems)
-			return This.ManyItemsReplaceByMany(paItems, pacNewItems)
+		def ItemsReplaceByMany(paItems, paNewItems)
+			return This.ManyItemsReplaceByMany(paItems, paNewItems)
 
 	#>
 
@@ -3948,35 +4030,15 @@ class stzList from stzObject
 			return
 		ok
 
-		# Cleaning the positions provided by leaving only those that make sense
-		# (~> Positions out of index or duplicated are removed) and
-		# (~> Only positions of pItem are considered)
-
-		nLen = This.NumberOfItems()
-		nLenPos = len(panPos)
+		# Managing the positions
 
 		anPosItem = This.FindAllCS(pItem, pCaseSensitive)
+		anPos = Intersection([ panPos, anPosItem ])
+		nLen = len(anPos)
 
-		anPos = []
-		for i = 1 to nLenPos
-
-			if panPos[i] > 0 and panPos[i] <= nLen and
-			   ring_find(anPosItem, panPos[i]) > 0 and
-			   ring_find(anPos, panPos[i]) = 0
-
-				anPos + panPos[i]
-			ok
-		next
-
-		# Cleansing the items provided, they must be unique (no duplication!)
-
-		paNewItems = @WithoutDuplication(paNewItems)
-	
 		# Doing the job
 
-		nMin = Min([ len(anPos), nLenItems ])
-
-		for i = 1 to nMin
+		for i = 1 to nLen
 			@aContent[ anPos[i] ] = paNewItems[i]
 		next
 
@@ -4125,22 +4187,22 @@ class stzList from stzObject
 
 	#< @FunctionPassiveForm
 
-	def AnyItemAtPositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
-		cResult = This.Copy().ReplaceAnyItemAtPositionsByManyCSQ(panPos, pacNewItems, pCaseSensitive).Content()
+	def AnyItemAtPositionsReplacedByManyCS(panPos, paNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceAnyItemAtPositionsByManyCSQ(panPos, paNewItems, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
 
-		def AnyItemsAtPositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
-			return This.AnyItemAtThesePositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
+		def AnyItemsAtPositionsReplacedByManyCS(panPos, paNewItems, pCaseSensitive)
+			return This.AnyItemAtThesePositionsReplacedByManyCS(panPos, paNewItems, pCaseSensitive)
 
 		#--
 
-		def AnyItemAtThesePositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
-			return This.AnyItemAtPositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
+		def AnyItemAtThesePositionsReplacedByManyCS(panPos, paNewItems, pCaseSensitive)
+			return This.AnyItemAtPositionsReplacedByManyCS(panPos, paNewItems, pCaseSensitive)
 
-		def AnyItemsAtThesePositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
-			return This.AnyItemAtThesePositionsReplacedByManyCS(panPos, pacNewItems, pCaseSensitive)
+		def AnyItemsAtThesePositionsReplacedByManyCS(panPos, paNewItems, pCaseSensitive)
+			return This.AnyItemAtThesePositionsReplacedByManyCS(panPos, paNewItems, pCaseSensitive)
 
 		#>
 
@@ -4148,13 +4210,13 @@ class stzList from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceAnyItemAtPositionsByMany(panPos, pItem, pacNewItems)
-		This.ReplaceAnyItemAtPositionsByManyCS(panPos, pItem, pacNewItems, TRUE)
+	def ReplaceAnyItemAtPositionsByMany(panPos, pItem, paNewItems)
+		This.ReplaceAnyItemAtPositionsByManyCS(panPos, pItem, paNewItems, TRUE)
 
 		#< @FunctionFluentForm
 
-		def ReplaceAnyItemAtPositionsByManyQ(panPos, pItem, pacNewItems)
-			This.ReplaceAnyItemAtPositionsByMany(panPos, pItem, pacNewItems)
+		def ReplaceAnyItemAtPositionsByManyQ(panPos, pItem, paNewItems)
+			This.ReplaceAnyItemAtPositionsByMany(panPos, pItem, paNewItems)
 			return This
 
 		#>
@@ -4189,21 +4251,21 @@ class stzList from stzObject
 
 	#< @FunctionPassiveForm
 
-	def AnyItemAtPositionsReplacedByMany(panPos, pacNewItems)
-		return This.AnyItemAtPositionsReplacedByManyCS(panPos, pacNewItems, TRUE)
+	def AnyItemAtPositionsReplacedByMany(panPos, paNewItems)
+		return This.AnyItemAtPositionsReplacedByManyCS(panPos, paNewItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def AnyItemsAtPositionsReplacedByMany(panPos, pacNewItems)
-			return This.AnyItemAtThesePositionsReplacedByMany(panPos, pacNewItems)
+		def AnyItemsAtPositionsReplacedByMany(panPos, paNewItems)
+			return This.AnyItemAtThesePositionsReplacedByMany(panPos, paNewItems)
 
 		#--
 
-		def AnyItemAtThesePositionsReplacedByMany(panPos, pacNewItems)
-			return This.AnyItemAtPositionsReplacedByMany(panPos, pacNewItems)
+		def AnyItemAtThesePositionsReplacedByMany(panPos, paNewItems)
+			return This.AnyItemAtPositionsReplacedByMany(panPos, paNewItems)
 
-		def AnyItemsAtThesePositionsReplacedByMany(panPos, pacNewItems)
-			return This.AnyItemAtThesePositionsReplacedByMany(panPos, pacNewItems)
+		def AnyItemsAtThesePositionsReplacedByMany(panPos, paNewItems)
+			return This.AnyItemAtThesePositionsReplacedByMany(panPos, paNewItems)
 
 		#>
 
@@ -4536,36 +4598,36 @@ class stzList from stzObject
 	 #  REPLACING GIVEN OCCURRENCES OF A SUBSTRING BY MANY OTHER ITEMS  #
 	#------------------------------------------------------------------#
 
-	def ReplaceOccurrencesByManyCS(panOccurrences, pItem, pacNewItems, pCaseSensitive)
+	def ReplaceOccurrencesByManyCS(panOccurrences, pItem, paNewItems, pCaseSensitive)
 		anPos = This.FindTheseOccurrencesCS(panOccurrences, pItem, pCaseSensitive)
-		This.ReplaceItemAtPositionsByManyCS(anPos, pItem, pacNewItems, pCaseSensitive)
+		This.ReplaceItemAtPositionsByManyCS(anPos, pItem, paNewItems, pCaseSensitive)
 
-		def ReplaceOccurrencesByManyCSQ(panPos, pItem, pacNewItems, pCaseSensitive)
-			This.ReplaceOccurrencesByManyCS(panPos, pItem, pacNewItems, pCaseSensitive)
+		def ReplaceOccurrencesByManyCSQ(panPos, pItem, paNewItems, pCaseSensitive)
+			This.ReplaceOccurrencesByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
 			return This
 
-	def OccurrencesReplacedByManyCS(panPos, pItem, pacNewItems, pCaseSensitive)
-		cResult = This.Copy().ReplaceOccurrencesByManyCSQ(panPos, pItem, pacNewItems, pCaseSensitive).Content()
+	def OccurrencesReplacedByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceOccurrencesByManyCSQ(panPos, pItem, paNewItems, pCaseSensitive).Content()
 		return cResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceOccurrencesByMany(panOccurrences, pItem, pacNewItems)
-		this.ReplaceOccurrencesByManyCS(panOccurrences, pItem, pacNewItems, TRUE)
+	def ReplaceOccurrencesByMany(panOccurrences, pItem, paNewItems)
+		this.ReplaceOccurrencesByManyCS(panOccurrences, pItem, paNewItems, TRUE)
 
-		def ReplaceOccurrencesByManyQ(panPos, pItem, pacNewItems)
-			This.ReplaceOccurrencesByMany(panPos, pItem, pacNewItems)
+		def ReplaceOccurrencesByManyQ(panPos, pItem, paNewItems)
+			This.ReplaceOccurrencesByMany(panPos, pItem, paNewItems)
 			return This
 
-	def OccurrencesReplacedByMany(panPos, pItem, pacNewItems)
-		cResult = This.Copy().ReplaceOccurrencesByManyQ(panPos, pItem, pacNewItems).Content()
+	def OccurrencesReplacedByMany(panPos, pItem, paNewItems)
+		cResult = This.Copy().ReplaceOccurrencesByManyQ(panPos, pItem, paNewItems).Content()
 		return cResult 
 
 	  #-------------------------------------------------------------------------#
 	 #  REPLACING GIVEN OCCURRENCES OF A SUBSTRING BY MANY OTHER ITEMS -- XT  #
 	#------------------------------------------------------------------------#
 
-	def ReplaceOccurrencesByManyCSXT(panOccurrences, pItem, pacNewItems, pCaseSensitive)
+	def ReplaceOccurrencesByManyCSXT(panOccurrences, pItem, paNewItems, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzList([ "A", "B", "*", "*", "*", "*",  "*" ])
@@ -4575,27 +4637,27 @@ class stzList from stzObject
 		*/
 
 		anPos = This.FindTheseOccurrencesCS(panOccurrences, pItem, pCaseSensitive)
-		This.ReplaceItemAtPositionsByManyCSXT(anPos, pItem, pacNewItems, pCaseSensitive)
+		This.ReplaceItemAtPositionsByManyCSXT(anPos, pItem, paNewItems, pCaseSensitive)
 
-		def ReplaceOccurrencesByManyCSXTQ(panPos, pItem, pacNewItems, pCaseSensitive)
-			This.ReplaceOccurrencesByManyCSXT(panPos, pItem, pacNewItems, pCaseSensitive)
+		def ReplaceOccurrencesByManyCSXTQ(panPos, pItem, paNewItems, pCaseSensitive)
+			This.ReplaceOccurrencesByManyCSXT(panPos, pItem, paNewItems, pCaseSensitive)
 			return This
 
-	def OccurrencesReplacedByManyCSXT(panPos, pItem, pacNewItems, pCaseSensitive)
-		cResult = This.Copy().ReplaceOccurrencesByManyCSXTQ(panPos, pItem, pacNewItems, pCaseSensitive).Content()
+	def OccurrencesReplacedByManyCSXT(panPos, pItem, paNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceOccurrencesByManyCSXTQ(panPos, pItem, paNewItems, pCaseSensitive).Content()
 		return cResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceOccurrencesByManyXT(panOccurrences, pItem, pacNewItems)
-		this.ReplaceOccurrencesByManyCSXT(panOccurrences, pItem, pacNewItems, TRUE)
+	def ReplaceOccurrencesByManyXT(panOccurrences, pItem, paNewItems)
+		this.ReplaceOccurrencesByManyCSXT(panOccurrences, pItem, paNewItems, TRUE)
 
-		def ReplaceOccurrencesByManyXTQ(panPos, pItem, pacNewItems)
-			This.ReplaceOccurrencesByManyXT(panPos, pItem, pacNewItems)
+		def ReplaceOccurrencesByManyXTQ(panPos, pItem, paNewItems)
+			This.ReplaceOccurrencesByManyXT(panPos, pItem, paNewItems)
 			return This
 
-	def OccurrencesReplacedByManyXT(panPos, pItem, pacNewItems)
-		cResult = This.Copy().ReplaceOccurrencesByManyXTQ(panPos, pItem, pacNewItems).Content()
+	def OccurrencesReplacedByManyXT(panPos, pItem, paNewItems)
+		cResult = This.Copy().ReplaceOccurrencesByManyXTQ(panPos, pItem, paNewItems).Content()
 		return cResult 
 
 	  #----------------------------------------------------------------------#
@@ -6295,106 +6357,106 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def RemoveManyCSQ(pacItems, pCaseSensitive)
-			This.RemoveManyCS(pacItems, pCaseSensitive)
+		def RemoveManyCSQ(paItems, pCaseSensitive)
+			This.RemoveManyCS(paItems, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveAllOfTheseCS(pacItems, pCaseSensitive)
-			This.RemoveManyCS(pacItems, pCaseSensitive)
+		def RemoveAllOfTheseCS(paItems, pCaseSensitive)
+			This.RemoveManyCS(paItems, pCaseSensitive)
 
-			def RemoveAllOfTheseCSQ(pacItems, pCaseSensitive)
-				This.RemoveAllOfTheseCS(pacItems, pCaseSensitive)
+			def RemoveAllOfTheseCSQ(paItems, pCaseSensitive)
+				This.RemoveAllOfTheseCS(paItems, pCaseSensitive)
 				return This
 
-		def RemoveTheseCS(pacItems, pCaseSensitive)
-			This.RemoveManyCS(pacItems, pCaseSensitive)
+		def RemoveTheseCS(paItems, pCaseSensitive)
+			This.RemoveManyCS(paItems, pCaseSensitive)
 
-			def RemoveTheseCSQ(pacItems, pCaseSensitive)
-				This.RemoveTheseCS(pacItems, pCaseSensitive)
+			def RemoveTheseCSQ(paItems, pCaseSensitive)
+				This.RemoveTheseCS(paItems, pCaseSensitive)
 				return This
 
-		def RemoveTheseItemsCS(pacItems, pCaseSensitive)
-			This.RemoveManyCS(pacItems, pCaseSensitive)
+		def RemoveTheseItemsCS(paItems, pCaseSensitive)
+			This.RemoveManyCS(paItems, pCaseSensitive)
 
-			def RemoveTheseItemsCSQ(pacItems, pCaseSensitive)
-				This.RemoveTheseItemsCS(pacItems, pCaseSensitive)
+			def RemoveTheseItemsCSQ(paItems, pCaseSensitive)
+				This.RemoveTheseItemsCS(paItems, pCaseSensitive)
 				return This
 
 		#>
 
-	def TheseItemsRemovedCS(pacItems, pCaseSensitive)
+	def TheseItemsRemovedCS(paItems, pCaseSensitive)
 
 		aResult =  This.Copy().
-				RemoveTheseItemsCSQ(pacItems, pCaseSensitive).
+				RemoveTheseItemsCSQ(paItems, pCaseSensitive).
 				Content()
 
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def AllOfTheseItemsRemovedCS(pacItems, pCaseSensitive)
-			return This.TheseItemsRemovedCS(pacItems, pCaseSensitive)
+		def AllOfTheseItemsRemovedCS(paItems, pCaseSensitive)
+			return This.TheseItemsRemovedCS(paItems, pCaseSensitive)
 
-		def ManyItemsRemovedCS(pacItems, pCaseSensitive)
-			return This.TheseItemsRemovedCS(pacItems, pCaseSensitive)
+		def ManyItemsRemovedCS(paItems, pCaseSensitive)
+			return This.TheseItemsRemovedCS(paItems, pCaseSensitive)
 
-		def ManyRemovedCS(pacItems, pCaseSensitive)
-			return This.TheseItemsRemovedCS(pacItems, pCaseSensitive)
+		def ManyRemovedCS(paItems, pCaseSensitive)
+			return This.TheseItemsRemovedCS(paItems, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveMany(pacItems)
-		This.RemoveManyCS(pacItems, TRUE)
+	def RemoveMany(paItems)
+		This.RemoveManyCS(paItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def RemoveAllOfThese(pacItems)
-			This.RemoveMany(pacItems)
+		def RemoveAllOfThese(paItems)
+			This.RemoveMany(paItems)
 
-			def RemoveAllOfTheseQ(pacItems)
-				This.RemoveAllOfThese(pacItems)
+			def RemoveAllOfTheseQ(paItems)
+				This.RemoveAllOfThese(paItems)
 				return This
 
-		def RemoveThese(pacItems)
-			This.RemoveMany(pacItems)
+		def RemoveThese(paItems)
+			This.RemoveMany(paItems)
 
-			def RemoveTheseQ(pacItems)
-				This.RemoveThese(pacItems)
+			def RemoveTheseQ(paItems)
+				This.RemoveThese(paItems)
 				return This
 
-		def RemoveTheseItems(pacItems)
-			This.RemoveMany(pacItems)
+		def RemoveTheseItems(paItems)
+			This.RemoveMany(paItems)
 
-			def RemoveTheseItemsQ(pacItems)
-				This.RemoveTheseItems(pacItems)
+			def RemoveTheseItemsQ(paItems)
+				This.RemoveTheseItems(paItems)
 				return This
 
 		#>
 
-	def TheseItemsRemoved(pacItems)
+	def TheseItemsRemoved(paItems)
 
 		aResult =  This.Copy().
-				RemoveTheseItemsQ(pacItems).
+				RemoveTheseItemsQ(paItems).
 				Content()
 
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def AllOfTheseItemsRemoved(pacItems)
-			return This.TheseItemsRemoved(pacItems)
+		def AllOfTheseItemsRemoved(paItems)
+			return This.TheseItemsRemoved(paItems)
 
-		def ManyItemsRemoved(pacItems)
-			return This.TheseItemsRemoved(pacItems)
+		def ManyItemsRemoved(paItems)
+			return This.TheseItemsRemoved(paItems)
 
-		def ManyRemoved(pacItems)
-			return This.TheseItemsRemoved(pacItems)
+		def ManyRemoved(paItems)
+			return This.TheseItemsRemoved(paItems)
 
 		#>
 
@@ -10678,7 +10740,7 @@ class stzList from stzObject
 				ok
 
 			but isString(aContent[i]) or isList(aContent[i])
-				if NOT oFirstItem.IsEqualtToCS(aContent[i])
+				if NOT oFirstItem.IsEqualtToCS(aContent[i], pCaseSensitive)
 					bResult = FALSE
 					exit
 				ok
