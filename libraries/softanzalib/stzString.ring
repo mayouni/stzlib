@@ -5422,6 +5422,13 @@ class stzString from stzObject
 	 #    PARSING MARQUERS    #
 	#========================#
 
+	# TODO : Add these functions	
+	# 	NthMarquerZ(n)
+	# 	NthMarquerZZ(n)
+	
+	# 	NextNthMarquerZZ(n, nStart)
+	# 	PreviousNthMarquerZZ(n, nStart)
+
 	def NthMarquer(n)
 		if NOT isNumber(n)
 			stzRaise("Incorrect param type! n should be a number.")
@@ -5532,27 +5539,32 @@ class stzString from stzObject
 	#==================================================#
 
 	def NextMarquers(pnStartingAt)
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
+		if CheckParams()
 
-		if isString(pnStartingAt)
-			if pnStartingAt = :First or pnStartingAt = :FirstChar
-				pnStartingAt = 1
-
-			but pnStartingAt = :Last or pnStartingAt = :LastChar
-				pnStartingAt = This.NumberOfChars()
-
-			else
-				n = 0
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if isString(pnStartingAt)
+				if pnStartingAt = :First or pnStartingAt = :FirstChar
+					pnStartingAt = 1
+	
+				but pnStartingAt = :Last or pnStartingAt = :LastChar
+					pnStartingAt = This.NumberOfChars()
+	
+				else
+					n = 0
+				ok
+			ok
+	
+			if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0)
+				StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
 			ok
 		ok
 
-		if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0)
-			StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
-		ok
-
-		return This.SectionQ(pnStartingAt, :LastChar).Marquers()
+		nLen =  This.NumberOfChars()
+		acResult = This.SectionQ(pnStartingAt, nLen).Marquers()
+		return acResult
 
 		def NextMarquersQ(pnStartingAt)
 			return This.NextMarquersQR(pnstartingAt, :stzList)
@@ -5586,29 +5598,33 @@ class stzString from stzObject
 		#--> #3
 		*/
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
+		if CheckParams()
 
-		if isString(pnStartingAt)
-			if pnStartingAt = :First or pnStartingAt = :FirstChar
-				pnStartingAt = 1
-
-			but pnStartingAt = :Last or pnStartingAt = :LastChar
-				pnStartingAt = This.NumberOfChars()
-
-			else
-				n = 0
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if isString(pnStartingAt)
+				if pnStartingAt = :First or pnStartingAt = :FirstChar
+					pnStartingAt = 1
+	
+				but pnStartingAt = :Last or pnStartingAt = :LastChar
+					pnStartingAt = This.NumberOfChars()
+	
+				else
+					n = 0
+				ok
+			ok
+	
+			if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0)
+				StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
 			ok
 		ok
 
-		if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0)
-			StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
-		ok
-
-		oStr = This.SectionQ(pnStartingAt, :LastChar)
-		return oStr.Marquers()[ n ]
-
+		nLen = This.NumberOfChars()
+		oStr = This.SectionQ(pnStartingAt, nLen)
+		cResult = oStr.Marquers()[ n ]
+		return cResult
 
 		def NthNextMarquerQ(n, pnStartingAt)
 			return new stzString( This.NthNextMarquer(n, pnStartingAt) )
@@ -5632,27 +5648,32 @@ class stzString from stzObject
 		#--> 44
 		*/
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
+		if CheckParams()
 
-		if isString(pnStartingAt)
-			if pnStartingAt = :First or pnStartingAt = :FirstChar
-				pnStartingAt = 1
-
-			but pnStartingAt = :Last or pnStartingAt = :LastChar
-				pnStartingAt = This.NumberOfChars()
-
-			else
-				n = 0
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
 			ok
+	
+			if isString(pnStartingAt)
+				if pnStartingAt = :First or pnStartingAt = :FirstChar
+					pnStartingAt = 1
+	
+				but pnStartingAt = :Last or pnStartingAt = :LastChar
+					pnStartingAt = This.NumberOfChars()
+	
+				else
+					n = 0
+				ok
+			ok
+	
+			if NOT (isNumber(pnStartingAt) and pnStartingAt != 0)
+				StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
+			ok
+
 		ok
 
-		if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0)
-			StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
-		ok
-
-		oStr = This.SectionQ(pnStartingAt, :LastChar)
+		nLen = This.NumberOfChars()
+		oStr = This.SectionQ(pnStartingAt, nLen)
 
 		nPos = oStr.MarquersPositions()[ n ] + pnStartingAt - 1
 		
@@ -5872,27 +5893,30 @@ class stzString from stzObject
 	#=================================#
 
 	def PreviousMarquers(pnStartingAt)
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if pnStartingAt = :First or pnStartingAt = :FirstChar
-				pnStartingAt = 1
-
-			but pnStartingAt = :Last or pnStartingAt = :LastChar
-				pnStartingAt = This.NumberOfChars()
-
-			else
-				n = 0
+		if CheckParams()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if isString(pnStartingAt)
+				if pnStartingAt = :First or pnStartingAt = :FirstChar
+					pnStartingAt = 1
+	
+				but pnStartingAt = :Last or pnStartingAt = :LastChar
+					pnStartingAt = This.NumberOfChars()
+	
+				else
+					n = 0
+				ok
+			ok
+	
+			if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0 )
+				StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
 			ok
 		ok
 
-		if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0 )
-			StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
-		ok
-
-		return This.SectionQ(1, pnStartingAt).Marquers()
+		acResult = This.SectionQ(1, pnStartingAt).Marquers()
+		return acResult
 
 		#< @FunctionFluentForms
 
@@ -5969,36 +5993,42 @@ class stzString from stzObject
 	#====================================#
 
 	def FindNthPreviousMarquer(n, pnStartingAt)
-
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if pnStartingAt = :First or pnStartingAt = :FirstChar
-				pnStartingAt = 1
-
-			but pnStartingAt = :Last or pnStartingAt = :LastChar
-				pnStartingAt = This.NumberOfChars()
-
-			else
-				n = 0
+		if CheckParams()
+	
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
 			ok
-		ok
-
-		if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0)
-			StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
+	
+			if isString(pnStartingAt)
+				if pnStartingAt = :First or pnStartingAt = :FirstChar
+					pnStartingAt = 1
+	
+				but pnStartingAt = :Last or pnStartingAt = :LastChar
+					pnStartingAt = This.NumberOfChars()
+	
+				else
+					n = 0
+				ok
+			ok
+	
+			if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0)
+				StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
+			ok
 		ok
 
 		oStr = This.SectionQ(1,  pnStartingAt)
 
-		aPositions = oStr.MarquersPositions()
-		
-		try
-			return aPositions[ len(aPositions) - n + 1 ]
-		catch
-			return 0
-		done
+		anPos = oStr.MarquersPositions()
+		nLenPos = len(anPos)
+
+		nResult = 0
+
+		n = nLenPos - n + 1
+		if n >= 1 and n <= nLenPos
+			nResult = anPos[n]
+		ok
+
+		return nResult
 		
 		#< @FunctionAlternativeForm
 
@@ -7840,37 +7870,37 @@ class stzString from stzObject
 
 	def NextNCharsAsSubString(n, pnStartingAt)
 
-		# Checking params
+		if CheckParams()
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if pnStartingAt = :First or pnStartingAt = :FirstChar
-				pnStartingAt = 1
-
-			but pnStartingAt = :Last or pnStartingAt = :LastChar
-				pnStartingAt = This.NumberOfChars()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
 			ok
-		ok
-
-		if NOT isNumber(pnStartingAt)
-			StzRaise("Incorrect param type! pnStartingAt must be a number.")
-		ok
-
-		if pnStartingAt < 0
-			pnStartingAt = This.NumberOfChars() - Abs(pnStartingAt) + 1
+	
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if isString(pnStartingAt)
+				if pnStartingAt = :First or pnStartingAt = :FirstChar
+					pnStartingAt = 1
+	
+				but pnStartingAt = :Last or pnStartingAt = :LastChar
+					pnStartingAt = This.NumberOfChars()
+				ok
+			ok
+	
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param type! pnStartingAt must be a number.")
+			ok
+	
+			if pnStartingAt < 0
+				pnStartingAt = This.NumberOfChars() - Abs(pnStartingAt) + 1
+			ok
 		ok
 
 		# Doing the job
 
 		cResult = This.Section(pnStartingAt, pnStartingAt + n - 1)
-
 		return cResult
 
 		#< @FunctionFluentForm
@@ -7948,31 +7978,32 @@ class stzString from stzObject
 
 	def PreviousNCharsAsSubString(n, pnStartingAt)
 
-		# Checking params
+		if CheckParams()
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if pnStartingAt = :First or pnStartingAt = :FirstChar
-				pnStartingAt = 1
-
-			but pnStartingAt = :Last or pnStartingAt = :LastChar
-				pnStartingAt = This.NumberOfChars()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
 			ok
-		ok
-
-		if NOT isNumber(pnStartingAt)
-			StzRaise("Incorrect param type! pnStartingAt must be a number.")
-		ok
-
-		if pnStartingAt < 0
-			pnStartingAt = This.NumberOfChars() - Abs(pnStartingAt) + 1
+	
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if isString(pnStartingAt)
+				if pnStartingAt = :First or pnStartingAt = :FirstChar
+					pnStartingAt = 1
+	
+				but pnStartingAt = :Last or pnStartingAt = :LastChar
+					pnStartingAt = This.NumberOfChars()
+				ok
+			ok
+	
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param type! pnStartingAt must be a number.")
+			ok
+	
+			if pnStartingAt < 0
+				pnStartingAt = This.NumberOfChars() - Abs(pnStartingAt) + 1
+			ok
 		ok
 
 		# Doing the job
@@ -8693,37 +8724,37 @@ class stzString from stzObject
 
 	def NextNChars(n, pnStartingAt)
 
-		# Checking params
+		if CheckParams()
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if pnStartingAt = :First or pnStartingAt = :FirstChar
-				pnStartingAt = 1
-
-			but pnStartingAt = :Last or pnStartingAt = :LastChar
-				pnStartingAt = This.NumberOfChars()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
 			ok
-		ok
-
-		if NOT isNumber(pnStartingAt)
-			StzRaise("Incorrect param type! pnStartingAt must be a number.")
-		ok
-
-		if pnStartingAt < 0
-			pnStartingAt = This.NumberOfChars() - Abs(pnStartingAt) + 1
+	
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if isString(pnStartingAt)
+				if pnStartingAt = :First or pnStartingAt = :FirstChar
+					pnStartingAt = 1
+	
+				but pnStartingAt = :Last or pnStartingAt = :LastChar
+					pnStartingAt = This.NumberOfChars()
+				ok
+			ok
+	
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param type! pnStartingAt must be a number.")
+			ok
+	
+			if pnStartingAt < 0
+				pnStartingAt = This.NumberOfChars() - Abs(pnStartingAt) + 1
+			ok
 		ok
 
 		# Doing the job
 
 		acResult = This.SectionQ(pnStartingAt, pnStartingAt + n - 1).Chars()
-
 		return acResult
 
 		#< @FunctionFluentForm
@@ -8795,31 +8826,32 @@ class stzString from stzObject
 
 	def PreviousNChars(n, pnStartingAt)
 
-		# Checking params
+		if CheckParams()
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if pnStartingAt = :First or pnStartingAt = :FirstChar
-				pnStartingAt = 1
-
-			but pnStartingAt = :Last or pnStartingAt = :LastChar
-				pnStartingAt = This.NumberOfChars()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
 			ok
-		ok
-
-		if NOT isNumber(pnStartingAt)
-			StzRaise("Incorrect param type! pnStartingAt must be a number.")
-		ok
-
-		if pnStartingAt < 0
-			pnStartingAt = This.NumberOfChars() - Abs(pnStartingAt) + 1
+	
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if isString(pnStartingAt)
+				if pnStartingAt = :First or pnStartingAt = :FirstChar
+					pnStartingAt = 1
+	
+				but pnStartingAt = :Last or pnStartingAt = :LastChar
+					pnStartingAt = This.NumberOfChars()
+				ok
+			ok
+	
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param type! pnStartingAt must be a number.")
+			ok
+	
+			if pnStartingAt < 0
+				pnStartingAt = This.NumberOfChars() - Abs(pnStartingAt) + 1
+			ok
 		ok
 
 		# Doing the job
@@ -17070,9 +17102,12 @@ class stzString from stzObject
 	#----------------------------------------#
 
 	def RepeatedTrailingCharCS(pCaseSensitive)
+		cResult = ""
 		if This.HasRepeatedTrailingCharsCS(pCaseSensitive)
-			return This[:LastChar]
+			cResult = This.Lastchar()
 		ok
+
+		return cResult
 
 		def RepeatedTrailingCharCSQ(pCaseSensitive)
 			return This.RepeatedTrailingCharCSQR(pCaseSensitive, :stzChar)
@@ -20116,9 +20151,9 @@ class stzString from stzObject
 	
 		#>
 
-	  #------------------------------------------------#
+	  #================================================#
 	 #   GETTING A SECTION (OR SLICE) OF THE STRING   #
-	#------------------------------------------------#
+	#================================================#
 
 	def SectionCS(n1, n2, pCaseSensitive)
 
@@ -20258,31 +20293,46 @@ class stzString from stzObject
 			# Params must be numbers
 	
 			if NOT BothAreNumbers(n1, n2)
-				stzRaise("Incorrect params! n1 and n2 must be numbers.")
+				StzRaise("Incorrect params! n1 and n2 must be numbers.")
 			ok
 
+			# params must be in range
+	
+			if NOT 	( Q(n1).IsBetween(1, nLen) and
+				  Q(n2).IsBetween(1, nLen) )
+				
+				StzRaise("Indexes out of range! n1 and n2 must be inside the list.")
+			ok
+			# TODO: do same behavior in stzList.Section()
+			# TODO : Add SectionXT() that allows using out of index params and return accurate results
+
 		ok
 
-		# Managing out of range params
+		# NOTE: when positions are given in inversed order, the same
+		# section as if they were not inverted is returned, so:
+		#--> Q("ring").Section(1,3) and .Section(3,1) both return "rin"
 
-		if NOT 	( Q(n1).IsBetween(1, nLen) and
-			  Q(n2).IsBetween(1, nLen) )
-			
-			return NULL
-		ok
+		# In some languages, like Pyhton for example, reverting the positions,
+		# inverts the section. So:
+		#--> Q("ring").Section(1,3) returns "rin" but .Section(3,1) returns 'nir"
 
-		# Finally, we're ready to extract the section...
-		# NOTE: when positions are given in inversed order
-		#--> Revert them!
+		# If you need to use this feature in Softanza, use the eXTended form of Section(),
+		# like this :
+		#--> Q("ring").SectionXT(3,1) and it will return "nir"
 
 		if n1 = n2
 			cResult = This.Char(n1)
-
+			
 		but n1 < n2
 			cResult = This.QStringObject().mid( (n1 - 1) , (n2 - n1 + 1) )
 
 		else // n2 < n1
-			cResult = This.Section(n2, n1)
+			# Swapping n1 and n2
+			nTemp = n1
+			n1 = n2
+			n2 = nTemp
+
+			cResult = This.QStringObject().mid( (n1 - 1) , (n2 - n1 + 1) )
 
 		ok
 
@@ -20322,28 +20372,197 @@ class stzString from stzObject
 			def SliceQ(n1, n2)
 				return new stzString(This.Slice(n1, n2))
 
-	  #----------------------------------------------------------#
-	 #   GETTING A SECTION (OR SLICE) OF THE STRING -- EXTENDED  #
-	#----------------------------------------------------------#
+	  #-------------------------------------------------------------#
+	 #   GETTING A SECTION (OR SLICE) OF THE STRING -- Z/EXTENDED  #
+	#-------------------------------------------------------------#
 
-	def SectionCSXT(n1, n2, pCaseSensitive)
+	def SectionCSZ(n1, n2, pCaseSensitive)
+		if CheckParams()
+			if isString(n1) and (n1 = :Start or n1 = :StartOfString)
+				n1 = 1
+			ok
+
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+		ok
+
+		aResult = [ This.SectionCS(n1, n2, pCaseSensitive), n1 ]
+		return aResult
+
+		def SliceCSZ(n1, n2, pCaseSensitive)
+			return This.SectionCSZ(n1, n2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVE
+
+	def SectionZ(n1, n2)
+		return This.SectionCSZ(n1, n2, TRUE)
+
+		def SliceZ(n1, n2)
+			return SectionZ(n1, n2)
+
+	  #--------------------------------------------------------------#
+	 #   GETTING A SECTION (OR SLICE) OF THE STRING -- ZZ/EXTENDED  #
+	#--------------------------------------------------------------#
+
+	def SectionCSZZ(n1, n2, pCaseSensitive)
+		if CheckParams()
+
+			if isString(n1) and (n1 = :Start or n1 = :StartOfString)
+				n1 = 1
+			ok
+
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+
+			#--
+
+			if isString(n1) and (n1 = :End or n1 = :EndOfString)
+				n1 = This.NumberOfChars()
+			ok
+
+			if NOT isNumber(n2)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+
+		ok
+
 		aResult = [ This.SectionCS(n1, n2, pCaseSensitive), [n1, n2] ]
 		return aResult
 
-		def SliceCSXT(n1, n2, pCaseSensitive)
-			return This.SecrionCS(n1, n2, pCaseSensitive)
+		def SliceCSZZ(n1, n2, pCaseSensitive)
+			return This.SectionCSZZ(n1, n2, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVE
+
+	def SectionZZ(n1, n2)
+		return This.SectionCSZZ(n1, n2, TRUE)
+
+		def SliceZZ(n1, n2)
+			return SectionZZ(n1, n2)
+
+	  #-------------------------------------------------------------------#
+	 #  GETTING THE SECTION BETWEEN n1 and n2 POSITIONS -- XTended form  #
+	#===================================================================#
+
+	def SectionCSXT(n1, n2, pCaseSensitive)
+
+		# This is an extended form of Section() that supports
+		# two fency features (that we find in other languages like Python):
+		# 	~> n1 and n2 can be negative numbers, and hence their values are counted from the end
+		# 	~> n1 can be greater then n2, and hence the section is reversed.
+
+		nLen = This.NumberOfCharsCS(pCaseSensitive)
+
+		if CheckParams()
+
+			if isString(n1) and (n1 = :Start or n1 = :StartOfString)
+				n1 = 1
+			ok
+
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+
+			#--
+
+			if isString(n1) and (n1 = :End or n1 = :EndOfString)
+				n1 = nLen
+			ok
+
+			if NOT isNumber(n2)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+
+		ok
+
+		# Managing negative values
+
+		if n1 < 0
+			n1 = nLen - n1 + 1
+		ok
+
+		if n2 < 0
+			n2 = nLen - n2 + 1
+		ok
+
+		# Managing the case where n1 > n2 --> section reversed
+
+		if n1 > n2
+			cResult = This.SectionCSQ(n2, n1, pCaseSensitive).Reversed()
+
+		else
+			cResult = This.SectionCS(n2, n1, pCaseSensitive)
+		ok
+
+		return cResult
+
+	#-- WITHOUT CASESENSITIIVTY
 
 	def SectionXT(n1, n2)
 		return This.SectionCSXT(n1, n2, TRUE)
 
-		def SliceXT(n1, n2)
-			return SectionXT(n1, n2)
+	  #---------------------------------------------------------------#
+	 #  GETTING THE SECTION BETWEEN n1 and n2 POSITIONS -- XTZ form  #
+	#---------------------------------------------------------------#
 
+	def SectionCSXTZ(n1, n2, pCaseSensitive)
+		if CheckParams()
+			if isString(n1) and (n1 = :Start or n1 = :StartOfString)
+				n1 = 1
+			ok
+
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+		ok
+
+		aResult = [ This.SectionCSXT(n1, n2, pCaseSensitive), n1 ]
+		return aResult
+
+	#-- WITHOUT CASESENSITIIVTY
+
+	def SectionXTZ(n1, n2)
+		return This.SectionCSXTZ(n1, n2, TRUE)
+
+	  #----------------------------------------------------------------#
+	 #  GETTING THE SECTION BETWEEN n1 and n2 POSITIONS -- XTZZ form  #
+	#----------------------------------------------------------------#
+
+	def SectionCSXTZZ(n1, n2, pCaseSensitive)
+		if CheckParams()
+
+			if isString(n1) and (n1 = :Start or n1 = :StartOfString)
+				n1 = 1
+			ok
+
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+
+			#--
+
+			if isString(n1) and (n1 = :End or n1 = :EndOfString)
+				n1 = nLen
+			ok
+
+			if NOT isNumber(n2)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+
+		ok
+
+		aResult = [ This.SectionCSXT(n1, n2, pCaseSensitive), [n1, n2] ]
+		return aResult
+
+	#-- WITHOUT CASESENSITIIVTY
+
+	def SectionXTZZ(n1, n2)
+		return This.SectionCSXTZZ(n1, n2, TRUE)
 	  #-----------------------------------#
 	 #   GETTING A RANGE OF THE STRING   #
-	#-----------------------------------#
+	#===================================#
 
 	// Returns a subset of the string starting from nStart and ranging over nRange Chars
 	def RangeCS(nStartPos, nRange, pCaseSensitive)
@@ -51440,14 +51659,106 @@ ici		//...
 			cResult = This.StringWithCharsSortedInDescending()
 			return cResult
 
-	  #============================================================#
-	 #     COMPARING THE STRING TO OTHER STRINGS USING UNICODE    #
-	#============================================================#
+	  #====================================================#
+	 #  COMPARING THE STRING TO AN OTHER PROVIDED STRING  #
+	#====================================================#
+
+	def CompareCS(pcOtherStr, pCaseSensitive)
+
+		# Returs :
+		# 	0 if the two strings are equal
+		# 	-1 if the main tring is lesser then the provided string
+		# 	1 if the main string is greater then the provided string
+
+		# NOTE : the comparison is made first by comparing them for equality.
+		# If so, !à is returned. Then, the two strings are put in a list and
+		# the list is sorted in ascending. Then first in the list is greater.
+
+		# If you want to perform the comparison in a locale-sensitive way,
+		# use ComapreInLocale() instead. WARRING: This function needs the
+		# the support of the QCollator class in RingQt.
+
+		if CheckParams()
+			if isList(pcOtherStr) and (pcOtherStr).IsWithOrToNamedParam()
+				pcOtherStr = pcOtherStr[2]
+	
+				if NOT isString(pcOtherStr)
+					StzRaise("Incorrect param type! pcOtherStr must be a string.")
+				ok
+			ok
+		ok
+
+		# Early check of equality
+
+		if This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+			return 0
+		ok
+
+		cStr = This.Content()
+		oList =  new stzList([ cStr, pcOtherStr ])
+		oList.Sort()
+
+		n = oList.FindFirstCS(cStr)
+
+		if n = 1
+			return -1
+		else
+			return 1
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def CompareWithCS(pcOtherStr, pCaseSensitive)
+			return This.CompareCS(pcOtherStr, pCaseSensitive)
+
+		def CompareToCS(pcOtherStr, pCaseSensitive)
+			return This.CompareCS(pcOtherStr, pCaseSensitive)
+
+		#-- @FunctionPassiveForms
+
+		def ComparedCS(pcOtherStr, pCaseSensitive)
+			return This.CompareCS(pcOtherStr, pCaseSensitive)
+
+		def ComparedWithCS(pcOtherStr, pCaseSensitive)
+			return This.CompareCS(pcOtherStr, pCaseSensitive)
+
+		def ComparedToCS(pcOtherStr, pCaseSensitive)
+			return This.CompareCS(pcOtherStr, pCaseSensitive)
+
+		#>
+
+	def Compare(pcOtherStr)
+		return This.CompareCS(pcOtherStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def CompareWith(pcOtherStr)
+			return This.Compare(pcOtherStr)
+
+		def CompareTo(pcOtherStr)
+			return This.Compare(pcOtherStr)
+
+		#-- @FunctionPassiveForms
+
+		def Compared(pcOtherStr)
+			return This.Compare(pcOtherStr)
+
+		def ComparedWith(pcOtherStr)
+			return This.Compare(pcOtherStr)
+
+		def ComparedTo(pcOtherStr)
+			return This.Compare(pcOtherStr)
+
+		#>
+	
+	  #-----------------------------------------------------------#
+	 #     COMPARING THE STRING TO OTHER STRINGS USING UNICODE   #
+	#===========================================================#
 	# TODO: add Casesensitivity support
 
-	// Compares the main string with an other string (base on the unicode code table)
-	// --> Use this for internal string comparisons and sorting
-	// --> For lists presented to the user, use SystemLocaleCompare()
+	# Compares the main string with an other string (base on the unicode code table)
+	# --> Use this for internal string comparisons and sorting
+	# --> For lists presented to the user, use SystemLocaleCompare()
 
 	def UnicodeCompareWithCS(pcOtherStr, pCaseSensitive)
 		#< QtBased | Uses QString.compare() >
@@ -51479,30 +51790,8 @@ ici		//...
 
 		# Doing the job
 
-		nQtResult = @oQString.compare(pcOtherStr, pCaseSensitive)
-
-	
-		if  nQtResult = 0
-			return :Equal	# Be careful :Equal is "equal" and not "Equal" with capital "E"
-
-		but nQtResult < 0
-			return :Less
-
-		but  nQtResult > 0
-			return :Greater
-		ok
-		/*
-		Returns :Equal, :Less, or :Greater:
-
-		:Equal   --> The 2 strings are equal
-		:Less    --> The main string is "less" then the substring
-		:Greater --> The main string is "greater" then the substring
-		
-		"less" and "greater" should be understood at the sense
-		provided to them by Qt. Read this:
-	
-		https://doc.qt.io/qt-5/qstring.html#comparing-strings
-		*/
+		nResult = @oQString.compare(pcOtherStr, pCaseSensitive)
+		return nResult
 
 	def UnicodeCompareWith(pcOtherStr)
 		return This.CompareWithCS(pcOtherStr, TRUE)
@@ -51536,6 +51825,7 @@ ici		//...
 	def UnicodeCompareWithInLocale(pcOtherStr, pLocale) # TODO
 		// Needs the implementation of QCollator class in RingQt (read comment
 		// in SystemLocaleCompareWith() methof above
+		StzRaise("Feature unsupported yet!")
 
 	def IsUnicodeEqualTo(pcOtherStr)
 		return This.UnicodeCompareWith(pcOtherNumber) = :Equal

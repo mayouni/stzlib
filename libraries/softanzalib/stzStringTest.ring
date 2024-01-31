@@ -1,5 +1,28 @@
 load "stzlib.ring"
 
+/*----
+
+pron()
+
+o1 = new stzString("123ruby89")
+o1.ReplaceAt(4, "ruby", "ring")
+? o1.Content()
+#--> 123ring89
+
+proff()
+# Executed in 0.04 second(s)
+
+/*---- TODO: Retesting after re-establishing SubStringBetweenZZ() inside the file
+
+pron()
+
+put "What's your firts name?"
+gname = getstring()
+print( Interpolate("It's nice to meet you {fnmae}!") )
+#--> It's nice to meet you {fnmae}!
+
+proff()
+
 /*=======
 
 pron()
@@ -7713,11 +7736,10 @@ pron()
 #--> FALSE
 
 ? Q("bla #0 bla bla #1 bla #2 blabla").Marquers()
-#--> [ "#1", "#1" ]
+#--> [ "#1", "#2" ]
 
 proff()
-# Executed in 0.33 second(s) in Ring 1.18
-# Executed in 0.43 second(s) in Ring 1.17
+# Executed in 0.53 second(s)
 
 /*---------------------- 
 
@@ -7739,7 +7761,7 @@ proff()
 
 /*----------------------
 @perf
-*/
+
 pron()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
@@ -7759,10 +7781,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
-# Executed in 1.67 second(s) in Ring 1.19 (64 bits)
-# Executed in 1.79 second(s) in Ring 1.19 (32 bits)
-# Executed in 1.67 second(s) in Ring 1.18
-# Executed in 2.08 second(s) in Ring 1.17
+# Executed in 2.49 second(s) in Ring 1.19
 
 /*---------------------- 
 
@@ -7794,9 +7813,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
-# Executed in 0.69 second(s) on Ring 1.19 (32 bits)
-# Executed in 0.77 second(s) in Ring 1.18
-# Executed in 1.24 second(s) in Ring 1.17
+# Executed in 1.64 second(s)
 
 /*---------------------- 
 
@@ -7815,9 +7832,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
-# Executed in 0.20 second(s) in Ring 1.19 (32 bits)
-# Executed in 0.22 second(s) in Ring 1.18
-# Executed in 0.29 second(s) in Ring 1.17
+# Executed in 0.63 second(s)
 
 /*---------------------- 
 @perf
@@ -7842,11 +7857,9 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
-# Executed in 0.28 second(s) in Ring 1.19 (32 bits)
-# Executed in 0.29 second(s) in Ring 1.18
-# Executed in 0.43 second(s) in Ring 1.17
+# Executed in 0.70 second(s)
 
-/*---------------------- 
+/*===================
 @perf
 
 pron()
@@ -7871,7 +7884,7 @@ proff()
 # Executed in 0.03 second(s) in Ring 1.18
 
 /*----------------------
-*/
+
 pron()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
@@ -7899,9 +7912,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
-# Executed in 1.04 second(s) in Ring 1.19 (32 bits)
-# Executed in 1.26 second(s) in Ring 1.18
-# Executed in 2.05 second(s) in Ring 1.17
+# Executed in 2.70 second(s)
 
 /*---------------------- 
 
@@ -7918,8 +7929,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
-# Executed in 0.29 second(s) in Ring 1.18
-# Executed in 0.43 second(s) in Ring 1.17
+# Executed in 0.66 second(s)
 
 /*---------------------- 
 
@@ -7930,38 +7940,47 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 	? PreviousNthMarquer(3, :StartingAt = 50)
 	#--> #1
 
-	? PreviousNthMarquerPosition(3, :StartingAt = 50)
+	? FindPreviousNthMarquer(3, :StartingAt = 50) # or  PreviousNthMarquerPosition(3, :StartingAt = 50)
 	#--> 12
 
-	? PreviousNthMarquerAndItsPosition(3, :StartingAt = 50)
+	? @@( PreviousNthMarquerZ(3, :StartingAt = 50) ) # or PreviousNthMarquerAndItsPosition(3, :StartingAt = 50)
 	#--> [ "#1", 12 ]
+
+	# TODO : Add these functions	
+	# 	? NthMarquerZ(n)
+	# 	? NthMarquerZZ(n)
+	
+	# 	? NextNthMarquerZZ(n, nStart)
+	# 	? PreviousNthMarquerZZ(n, nStart)
 }
 
 proff()
-# Executed in 0.83 second(s) in Ring 1.18
-# Executed in 1.28 second(s) in Ring 1.17
+# Executed in 2.02 second(s)
 
 /*---------------------- 
 
 pron()
 
+CheckparamsOff() # Gain of performance
+
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
-	? FindNthPreviousMarquer(1, :StartingAt = 50)
+	? FindNthPreviousMarquer(1, 50)
 	#--> 44
 
-	? @@( PreviousMarquerZ(:StartingAt = 50) )
+	? @@( PreviousMarquerZ(50) )
 	#--> [ "#3", 44 ]
 
 }
 
 proff()
-# Executed in 0.60 second(s) in Ring 1.18
-# Executed in 0.86 second(s) in Ring 1.17
+# Executed in 0.79 second(s)
 
 /*---------------------- 
 
 pron()
+
+CheckParamsOff()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
@@ -7985,6 +8004,8 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
+# Executed in 1.67 second(s) in Ring 1.19 with CheckParamsOff()
+# Executed in 2.58 second(s) in Ring 1.19 without CheckParamsOff()
 # Executed in 4.65 second(s) in Ring 1.18
 # Executed in 7.74 second(s) in Ring 1.17
 
@@ -8001,6 +8022,7 @@ StzStringQ("My name is #2, my age is #1, and my job is #3.") {
 }
 
 proff()
+# Executed in 0.54 second(s) in Ring 1.19
 # Executed in 0.29 second(s) in Ring 1.18
 # Executed in 0.45 second(s) in Ring 1.17
 
@@ -8069,16 +8091,18 @@ proff()
 # Executed in 0.53 second(s) in Ring 1.17
 
 /*----------------------
-
+*/
 pron()
+
+CheckParamsOff()
 
 StzStringQ("The first candidate is #3, the second is #1, while the third is #2!") {	
 	? NumberOfMarquers()
 	#--> 3
-	? MarquersPositions()
+	? MarquersPositions() # Or FindMarquers()
 	#--> [ 24, 42, 65 ]
 	
-	? FindNextNthMarquer(2, :StartingAt = 14)
+	? FindNextNthMarquer(2, 14)
 	#--> 42
 	
 	? MarquersPositionsSortedInAscending()
@@ -8086,8 +8110,7 @@ StzStringQ("The first candidate is #3, the second is #1, while the third is #2!"
 }
 
 proff()
-# Executed in 0.50 second(s) in Ring 1.18
-# Executed in 0.79 second(s) in Ring 1.17
+# Executed in 0.69 second(s)
 
 /*----------------------
 
@@ -10719,6 +10742,8 @@ o1 = new stzString("text this text is written with the text of my scrampy text")
 ? o1.ContainsNtimes(4, "text") #--> TRUE
 
 /*==================
+*/
+pron()
 
 o1 = new stzString("reserve")
 ? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = False ) #--> :Equal
@@ -10728,6 +10753,8 @@ o1 = new stzString("réservé")
 
 o1 = new stzString("reserv")
 ? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = False ) #--> :Less
+
+proff()
 
 /*--------------------
 

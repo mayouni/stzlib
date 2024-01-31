@@ -179,6 +179,8 @@ func Association(paLists)
 	func Associattion(paLists)
 		return Association(paLists)
 
+	func @Associattion(paLists)
+		return Association(paLists)
 	#>
 
 func CommonItemsCS(paLists, pCaseSensitive)
@@ -188,12 +190,29 @@ func CommonItemsCS(paLists, pCaseSensitive)
 	func IntersectionCS(paLists, pCaseSensitive)
 		return CommonItemsCS(paList, pCaseSensitive)
 
+	#--
+
+	func @CommonItemsCS(paLists, pCaseSensitive)
+		return CommonItemsCS(paLists, pCaseSensitive)
+
+	func @IntersectionCS(paLists, pCaseSensitive)
+		return CommonItemsCS(paList, pCaseSensitive)
+
 func CommonItems(paLists)
 	return CommonItemsCS(paLists, TRUE)
 
 	func Intersection(paLists)
 		return CommonItems(paLists)
 
+	#--
+
+	func @CommonItems(paLists)
+		return CommonItems(paLists)
+
+	func @Intersection(paLists)
+		return CommonItems(paLists)
+
+	
 func IsListOfLists(paList)
 	if CheckParams()
 		if NOT isList(paList)
@@ -2233,6 +2252,68 @@ class stzListOfLists from stzList
 
 		#>
 
+	  #===================================#
+	 #  CHECKING IF ALL LISTS ARE EQUAL  #
+	#===================================#
+
+	def AllListsAreEqualCS(pCaseSensitive)
+		return This.AllItemsAreEqualCS(pCaseSensitive) # Inherited from stzList
+
+		def AllListsAreMadeOfSameItemsCS(pCaseSensitive)
+			return This.AllListsAreEqualCS(pCaseSensitive)
+
+		def AllListsAreMadeOfTheSameItemsCS(pCaseSensitive)
+			return This.AllListsAreEqualCS(pCaseSensitive)
+
+		#--
+
+		def ListsAreEqualCS(pCaseSensitie)
+			return This.AllListsAreEqualCS(pCaseSensitive)
+
+		def ListsAreMadeOfSameItemsCS(pCaseSensitive)
+			return This.AllListsAreEqualCS(pCaseSensitive)
+
+		def ListsAreMadeOfTheSameItemsCS(pCaseSensitive)
+			return This.AllListsAreEqualCS(pCaseSensitive)
+
+		#--
+
+		def IsMadeOfSameListCS(pCaseSensitive)
+			return This.AllListsAreEqualCS(pCaseSensitive)
+
+		def IsMadeOfTheSameListCS(pCaseSensitive)
+			return This.AllListsAreEqualCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def AllListsAreEqual()
+		return This.AllListsAreEqualCS(TRUE)
+
+		def AllListsAreMadeOfSameItems()
+			return This.AllListsAreEqual()
+
+		def AllListsAreMadeOfTheSameItems()
+			return This.AllListsAreEqual()
+
+		#--
+
+		def ListsAreEqual()
+			return This.AllListsAreEqual()
+
+		def ListsAreMadeOfSameItems()
+			return This.AllListsAreEqual()
+
+		def ListsAreMadeOfTheSameItems()
+			return This.AllListsAreEqual()
+
+		#--
+
+		def IsMadeOfSameList()
+			return This.AllListsAreEqual()
+
+		def IsMadeOfTheSameList()
+			return This.AllListsAreEqual()
+
 	  #======================================#
 	 #  COMMON ITEMS BETWEEN ALL THE LISTS  #
 	#======================================#
@@ -2242,18 +2323,44 @@ class stzListOfLists from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 
+		# Early cheks
+
 		if nLen = 0
 			return []
+
+		but This.AllListsAreEqualCS(pCaseSensitive)
+			return aContent[1]
 		ok
 
-		aResult = Q(aContent[1]).ToSet()
+		# Doing the job
 
-		if nLen = 1
-			return aResult
-		ok
+		aResult = []
+		aSeen = []
 
-		for i = 2 to nLen
-			aResult = Q(aResult).Intersection(:With = aContent[i])
+		for i = 1 to nLen
+			nLenList = len(aContent[i])
+			for j = 1 to nLenList
+				item = aContent[i][j]
+				if ring_find(aSeen, item) = 0
+					aSeen + item
+
+					if i < nLen
+						bCommon = TRUE
+						for q = i + 1 to nLen
+							if ring_find(aContent[q], item) > 0
+								bCommon = FALSE
+								exit
+							ok
+						next
+						if bCommon
+							aResult + item
+						ok
+					ok
+				ok
+
+				
+
+			next
 		next
 
 		return aResult
