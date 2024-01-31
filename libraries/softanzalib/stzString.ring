@@ -20279,14 +20279,6 @@ class stzString from stzObject
 				n2 = nLen
 			ok
 	
-			if n1 < 0
-				n1 = nLen + n1 + 1
-			ok
-	
-			if n2 < 0
-				n2 = nLen + n2 + 1
-			ok
-	
 			# Managing the case of :EndOfSentence, :EndOfLine, and :EndOfWord keywords
 	
 			if n1 > 0 and n2 = :EndOfSentence
@@ -20330,7 +20322,7 @@ class stzString from stzObject
 		if NOT 	( ( n1 >= 1 and n1 <= nLen ) and
 			   ( n2 >= 1 and n2 <= nLen ) )
 				
-			StzRaise("Indexes out of range! n1 and n2 must be inside the list.")
+			StzRaise("Indexes out of range! n1 and n2 must be inside the string.")
 		ok
 
 		if n1 = n2

@@ -30251,14 +30251,6 @@ class stzList from stzObject
 				n1 = 1
 				n2 = nLen
 			ok
-	
-			if n1 < 0
-				n1 = nLen + n1 + 1
-			ok
-	
-			if n2 < 0
-				n2 = nLen + n2 + 1
-			ok
 
 			# Params must be numbers
 	
