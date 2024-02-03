@@ -973,13 +973,15 @@ class stzString from stzObject
 	#=================================================#
 
 	def ExtendWith(pSubStr)
-		if isList(pSubStr)
-			This.ExtendWithMany(pSubStr)
-			return
-		ok
-
-		if NOT isString(pSubStr)
-			StzRaise("Incorrect param type! pSubStr must be a string.")
+		if CheckParams()
+			if isList(pSubStr)
+				This.ExtendWithMany(pSubStr)
+				return
+			ok
+	
+			if NOT isString(pSubStr)
+				StzRaise("Incorrect param type! pSubStr must be a string.")
+			ok
 		ok
 
 		This.AppendWith(pSubStr)
@@ -1015,8 +1017,10 @@ class stzString from stzObject
 	#---------------------------------------------#
 
 	def ExtendWithMany(pacSubStr)
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
-			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+		if CheckParams()
+			if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
 		ok
 
 		This.AppendWith( QR(pacSubStr, :stzListOfStrings).Concatenated() )
@@ -1056,9 +1060,10 @@ class stzString from stzObject
 	#-----------------------------------#
 
 	def ExtendToPosition(n)
-
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
 		ok
 
 		nLen = This.NumberOfItems()
@@ -1076,12 +1081,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def ExtendTo(n)
-			if isList(n) and
-			   ( Q(n).IsPositionNamedParam() or Q(n).IsToNCharsNamedParam() )
-
-				n = n[2]
-			ok
+			if CheckParams()
+				if isList(n) and
+				   ( Q(n).IsPositionNamedParam() or Q(n).IsToNCharsNamedParam() )
 	
+					n = n[2]
+				ok
+			ok
+
 			This.ExtendToPosition(n)
 			
 			def ExtendToQ(n)
@@ -1096,10 +1103,12 @@ class stzString from stzObject
 				return This
 
 		def Extend(n)
-			if isList(n) and Q(n).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToNChars ])
-				n = n[2]
+			if CheckParams()
+				if isList(n) and Q(n).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToNChars ])
+					n = n[2]
+				ok
 			ok
-	
+
 			This.ExtendToPosition(n)
 			
 			def ExtendQ(n)
@@ -1132,18 +1141,19 @@ class stzString from stzObject
 	#--------------------------------------------------------------#
 
 	def ExtendToPositionWith(n, pcChar)
-
-		if isString(pcChar) and pcChar = :CharsRepeated
-			This.ExtendToPositionWithCharsRepeadted(n)
-			return
-		ok
-
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		if NOT ( isString(pcChar) and Q(pcChar).IsChar() )
-			StzRaise("Incorrect param type! pcChar must be a char.")
+		if CheckParams()
+			if isString(pcChar) and pcChar = :CharsRepeated
+				This.ExtendToPositionWithCharsRepeadted(n)
+				return
+			ok
+	
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+	
+			if NOT ( isString(pcChar) and Q(pcChar).IsChar() )
+				StzRaise("Incorrect param type! pcChar must be a char.")
+			ok
 		ok
 
 		nLen = This.NumberOfChars()
@@ -1265,12 +1275,14 @@ class stzString from stzObject
 	#-------------------------------------------------------------------------#
 
 	def ExtendToPositionWithCharsIn(n, pacChars)
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		if NOT ( isList(pacChars) and Q(pacChars).IsListOfChars() )
-			StzRaise("Incorrect param type! pacChars must be a list or chars.")
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+	
+			if NOT ( isList(pacChars) and Q(pacChars).IsListOfChars() )
+				StzRaise("Incorrect param type! pacChars must be a list or chars.")
+			ok
 		ok
 
 		nLen = len(pacChars)
@@ -1429,14 +1441,16 @@ class stzString from stzObject
 	#============================================#
 
 	def ShrinkTo(n)
-		if isList(n) and
-		   ( Q(n).IsPositionNamedParam() or Q(n).IsNCharsNamedParam() )
-
-			n = n[2]
-		ok
-
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
+		if CheckParams()
+			if isList(n) and
+			   ( Q(n).IsPositionNamedParam() or Q(n).IsNCharsNamedParam() )
+	
+				n = n[2]
+			ok
+	
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
 		ok
 
 		nLen = This.NumberOfItems()
@@ -1979,8 +1993,10 @@ class stzString from stzObject
 	#-------------------------------------------#
 
 	def UppercaseSections(anSections)
-		if NOT (isList(anSections) and Q(anSections).IsListOfPairsOfNumbers())
-			StzRaise("Incorrect param type: anSections must be a list of pairs of numbers.")
+		if CheckParams()
+			if NOT (isList(anSections) and Q(anSections).IsListOfPairsOfNumbers())
+				StzRaise("Incorrect param type: anSections must be a list of pairs of numbers.")
+			ok
 		ok
 
 		nLen = len(anSections)
@@ -2004,8 +2020,10 @@ class stzString from stzObject
 	#-- WITH LOCALE SENSITIVITY
 
 	def UppercaseSectionsInLocale(anSections, pLocale)
-		if NOT (isList(anSections) and Q(anSections).IsListOfPairsOfNumbers())
-			StzRaise("Incorrect param type: anSections must be a list of pairs of numbers.")
+		if CheckParams()
+			if NOT (isList(anSections) and Q(anSections).IsListOfPairsOfNumbers())
+				StzRaise("Incorrect param type: anSections must be a list of pairs of numbers.")
+			ok
 		ok
 
 		nLen = len(anSections)
@@ -2093,8 +2111,10 @@ class stzString from stzObject
 	#-------------------------------------------#
 
 	def LowercaseSections(paSections)
-		if NOT (isList(paSections) and Q(paSections).IsListOfPairsOfNumbers())
-			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+		if CheckParams()
+			if NOT (isList(paSections) and Q(paSections).IsListOfPairsOfNumbers())
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
 		ok
 
 		nLen = len(paSections)
@@ -2118,8 +2138,10 @@ class stzString from stzObject
 	#-- WITH LOCALE SENSITIVITY
 
 	def LowercaseSectionsInLocale(paSections, pLocale)
-		if NOT (isList(paSections) and Q(paSections).IsListOfPairsOfNumbers())
-			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+		if CheckParams()
+			if NOT (isList(paSections) and Q(paSections).IsListOfPairsOfNumbers())
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
 		ok
 
 		nLen = len(paSections)
@@ -2889,27 +2911,30 @@ class stzString from stzObject
 
 		# Resolving pCaseSensitive
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
+		if CheckParams()
 
-		if isString(pCaseSensitive)
-			if Q(pCaseSensitive).IsOneOfThese([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
-
-				pCaseSensitive = TRUE
-			
-			but Q(pCaseSensitive).IsOneOfThese([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
-
-				pCaseSensitive = FALSE
+			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+				pCaseSensitive = pCaseSensitive[2]
 			ok
-
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+	
+			if isString(pCaseSensitive)
+				if Q(pCaseSensitive).IsOneOfThese([
+					:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+	
+					pCaseSensitive = TRUE
+				
+				but Q(pCaseSensitive).IsOneOfThese([
+					:CaseInSensitive, :NotCaseSensitive, :NotCS,
+					:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+	
+					pCaseSensitive = FALSE
+				ok
+	
+			ok
+	
+			if NOT IsBoolean(pCaseSensitive)
+				stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
+			ok
 		ok
 
 		# Doing the job
@@ -3550,8 +3575,10 @@ class stzString from stzObject
 		return len( This.SubStringsW(pcCondition) )
 
 	def SubStringsW(pcCondition)
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
+		if CheckParams()
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
 		ok
 
 		acSubStr = This.SubStringsU() # Or UniqueSubStrings()
@@ -5319,11 +5346,9 @@ class stzString from stzObject
 
 	def ReplaceMarquers(pacSubStrings)
 		if CheckParams()
-
 			if isList(pacSubStrings) and Q(pacSubStrings).IsWithOrByNamedParam()
 				pacSubStrings = pacSubStrings[2]
 			ok
-
 		ok
 
 		aMarquersXT = This.MarquersAndSectionsSortedInAscending()
@@ -5430,8 +5455,10 @@ class stzString from stzObject
 	# 	PreviousNthMarquerZZ(n, nStart)
 
 	def NthMarquer(n)
-		if NOT isNumber(n)
-			stzRaise("Incorrect param type! n should be a number.")
+		if CheckParams()
+			if NOT isNumber(n)
+				stzRaise("Incorrect param type! n should be a number.")
+			ok
 		ok
 
 		try
@@ -5470,11 +5497,13 @@ class stzString from stzObject
 	#==============================#
 
 	def FindNthMarquer(n)
-		if isString(n)
-			if n = :First or n = :FirstMarquer
-				n = 1
-			but n = :Last or n = :LastMarquer
-				n = This.NumberOfMarquers()
+		if CheckParams()
+			if isString(n)
+				if n = :First or n = :FirstMarquer
+					n = 1
+				but n = :Last or n = :LastMarquer
+					n = This.NumberOfMarquers()
+				ok
 			ok
 		ok
 
@@ -5522,7 +5551,7 @@ class stzString from stzObject
 		#>
 
 	def FindLastMarquer()
-			return This.FindNthMarquer(This.NumberOfMarquers())
+		return This.FindNthMarquer(This.NumberOfMarquers())
 
 		def LastMarquerOccurrence()
 			return This.FindLastMarquer()

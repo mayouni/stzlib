@@ -5,7 +5,7 @@ load "stzlib.ring"
 pron()
 
 # Do you know that case sensitivity is supported in Softanza,
-# not only on stzString but also on stzLits ?!
+# not only on stzString but also on stzList ?!
 
 # Look how we can fin an item case-sensitively:
 
@@ -17,7 +17,7 @@ o1 = new stzList([ "emm", "EMM", "eMm", "EMM" ])
 ? o1.FindCS("EMM", :CS = FALSE)
 #--> [ 1, 2, 3, 4 ]
 
-# In fact, all items are equal when case sensitivity is deactivated!
+# In fact, all items are equal when case sensitivity is not considered (set to FALSE)!
 # In the same way, the size of the list can be counted in a case-sensity way:
 
 ? o1.NumberOfItems()
@@ -53,7 +53,7 @@ o1 = new stzString("123456789")
 
 # When you inverse the params so the first is greater then the second,
 # nothing happens to the result ( the Section() function is not aware
-# of the direction of parsing )
+# of the direction of parsing ) :
 
 ? o1.Section(5, 3)
 #--> "345"
@@ -61,8 +61,8 @@ o1 = new stzString("123456789")
 # You may argue that it would be useful, in this case, to embrace the
 # Python-way of returning an inversed string (or list)...
 
-# Softanza does not reject that. But, it just requires that you use
-# the extended form of the function, say SectionXT().
+# Softanza does not reject that, and finds it very useful too! But, it just
+# requires that you use the extended form of the function, SectionXT() :
 
 ? o1.SectionXT(5,3)
 #--> "543"
@@ -76,22 +76,20 @@ o1 = new stzString("123456789")
 ? o1.SectionXT(-2, -4)
 #--> 876
 
-# Rember : if you try these fency things with the conservative Section()
+# Rember : if you try these fency things with the more conservative Section()
 # methond (without ...XT() extension), and for Softanza to stay simple and
 # consitent for the most common use cases, you will get an error:
 
 ? o1.Section(-2, -4)
 #--> Error message: n1 and n2 must be inside the list.
 
-# Before you leave : you want to check the semantic flexibility of Softanza ?!
-# The Golden Rule : All what works for stzString, will work for stzList.
+# Before you leave : All what works for stzString, will work for stzList.
 # For our case, just change the first line of the code to use stzList instead
 # of stzString, like this :
 
 o1 = new stzList("1":"9")
 
 # Now you can run the code sucessfully withou any modification.
-# Done? Great. See you in an other narration.
 
 proff()
 # Executed in 0.03 second(s)
