@@ -19,6 +19,23 @@ func SeedRandom(n)
 	func SRandomWith(n)
 		srand(n)
 
+#-- A RANDOM NUMBER AMONG THE NUMBERS IN A LIST
+
+func RandomNumberIn(panNumbers)
+	if NOT isList(panNumbers)
+		StzRaise("Incorrect param type! panNumbers must be a list.")
+	ok
+
+	anNumbers = OnlyNumbers(panNumbers)
+	nLen = len(anNumbers)
+	nPos = ARandomNumber(1, nLen)
+	nResult = anNumbers[nPos]
+
+	return nResult
+
+	func ARandomNumberIn(panNumbers)
+		return RandomNumberIn(panNumbers)
+
 #-- A RANDOM NUMBER BETWEEN TWO NUMBERS
 
 func StzRandom(nMin, nMax) # Bound are not included. To include them add ...XT()

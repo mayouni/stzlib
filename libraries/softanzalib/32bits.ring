@@ -1,5 +1,29 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzString("Ring Programming Language")
+
+? o1.Section(6, o1.RandomPositionAfter(6) )
+#--> Programming La
+
+? o1.Section(6, o1.FindNth(3, "g") )
+#--> Programming
+
+? o1.Section( :From = "L", :To = "e")
+#--> Language
+
+#--
+
+? o1.Range(6, 11)
+#--> Programming
+
+? o1.SectionXT(6, :UpToNCHars = 11)
+#--> Programming
+
+proff()
+# Executed in 0.08 second(s)
+
 /*=========== @narration
 
 pron()
@@ -39,7 +63,6 @@ proff()
 # Executed in 0.05 second(s)
 
 /*======= A stzNarration
-*/
 
 pron()
 
@@ -124,7 +147,13 @@ proff()
 # Executed in 0.03 second(s)
 
 /*========
-
+*/
+pron()
+		o1 = new stzString("ring php ruby ring python ring")
+		o1.ReplaceByMany("ring", :By = [ "♥", "♥♥", "♥♥♥" ])
+	
+		? o1.Content() #--> "♥ php ruby ♥♥ python ♥♥♥"
+proff()
 pron()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5, "♥" ])
