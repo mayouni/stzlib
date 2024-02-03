@@ -20327,6 +20327,9 @@ class stzString from stzObject
 		cResult = This.CharAt( This.RandomPositionGreaterThan(n) )
 		return cResult
 
+		def ARandomCharAfterPosition(n)
+			return This.RandomCharAfterPosition(n)
+
 	  #---------------------------------------------------------------------------------#
 	 #   GETTING A RANDOM CHAR IN THE STRING AFTER THE PROVIDED POSITION OR SUBSTRING  #
 	#---------------------------------------------------------------------------------#
@@ -20337,7 +20340,7 @@ class stzString from stzObject
 		ok
 
 		if isNumber(pPosOrSubStr)
-			return This.RandomCharAfterPosition(n)
+			return This.RandomCharAfterPosition(pPosOrSubStr)
 		else
 			nPos = This.FindFirstCS(pPosOrSubStr, pCaseSensitive)
 			return This.RandomCharAfterPosition(nPos)
@@ -20363,6 +20366,9 @@ class stzString from stzObject
 		cResult = This.CharAt( This.RandomPositionLessThan(n) )
 		return cResult
 
+		def ARandomCharBeforePosition(n)
+			return This.RandomCharBeforePosition(n)
+
 	  #----------------------------------------------------------------------------------#
 	 #   GETTING A RANDOM CHAR IN THE STRING BEFORE THE PROVIDED POSITION OR SUBSTRING  #
 	#----------------------------------------------------------------------------------#
@@ -20385,10 +20391,10 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomCharBefore(pPosOrSubStr)
-		return This.RandomBeforeAfterCS(pPosOrSubStr, TRUE)
+		return This.RandomBeforeBeforeCS(pPosOrSubStr, TRUE)
 
-		def ARandomBeforeAfter(pPosOrSubStr)
-			return This.RandomBeforeAfter(pPosOrSubStr)
+		def ARandomBeforeBefore(pPosOrSubStr)
+			return This.RandomBeforeBefore(pPosOrSubStr)
 
 	  #--------------------------------------------------------------------#
 	 #   GETTING A RANDOM CHAR IN THE STRING EXECEPT THE PROVIDED ONE OR  #
@@ -20404,13 +20410,19 @@ class stzString from stzObject
 			return This.RandomCharExceptPosition(pPosOrChar)
 
 		else
-			return This.RandomCharExeptCharCS(pPosOrChar, pCaseSensitive)
+			return This.RandomCharExceptCharCS(pPosOrChar, pCaseSensitive)
 		ok
+
+		def ARandomCharExceptCS(pPosOrChar, pCaseSensitive)
+			return This.RandomCharExceptCS(pPosOrChar, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIIVTY
 
 	def RandomCharExcept(pPosOrChar)
 		return This.RandomCharExceptCS(pPosOrChar, TRUE)
+
+		def ARandomCharExcept(pPosOrChar)
+			return This.RandomCharExcept(pPosOrChar)
 
 	  #---------------------------------------------------------------------------------#
 	 #   GETTING A RANDOM CHAR IN THE STRING EXECEPT THE ONE AT THE POSITION PROVIDED  #
@@ -20478,15 +20490,23 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcChar must be a char.")
 		ok
 
-		nPos = This.RandomPositionExcept( This.FindFirstCS(pcChar, pCaseSensitive) )
+		anPos = This.FindAllCS(pcChar, pCaseSensitive)
+		anPos = Q(1: This.NumberOfChars()) - anPos
+		nPos = ARandomNumberIn( anPos )
 		cResult = This.CharAt(nPos)
 		return cResult
+
+		def ARandomCharExceptCharCS(pcChar, pCaseSensitive)
+			return This.RandomCharExceptCharCS(pcChar, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomCharExceptChar(pcChar)
 		return This.RandomCharExceptCharCS(pcChar, TRUE)
-		
+
+		def ARandomCharExceptChar(pcChar)
+			return This.RandomCharExceptChar(pcChar)
+
 	  #================================================#
 	 #   GETTING A SECTION (OR SLICE) OF THE STRING   #
 	#================================================#
@@ -30805,7 +30825,21 @@ class stzString from stzObject
 	#==================================================#
 
 	def AntiFindCS(pcSubStr, pCaseSensitive)
-		return QR( This.AntiFindAsSectionsCS(pcSubStr, pCaseSensitive), :stzListOfPairs ).FirstItems()
+		anSections = This.AntiFindAsSectionsCS(pcSubStr, pCaseSensitive)
+		nLen = len(anSections)
+
+		anResult = []
+		
+		for i = 1 to nLen
+			nLenSection = len(anSections[i])
+			for j = 1 to nLenSection
+				if ring_find(anResult, anSections[i][j]) = 0
+					anResult + anSections[i][j]
+				ok
+			next
+		next
+
+		return anResult
 
 		def AntiFindCSZ(pcSubStr, pCaseSensitive)
 			return This.AntiFindCS(pcSubStr, pCaseSensitive)

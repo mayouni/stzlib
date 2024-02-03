@@ -1056,6 +1056,74 @@ func IsNumberOrStringOrList(p)
 	def @IsListOrStringOrNumber(p)
 		return IsNumberOrStringOrList(p)
 
+#--
+
+func IsCharOrNumber(p)
+	if isNumber(p) or IsChar(p)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func IsNumberOrChar(p)
+		return IsCharOrNumber(p)
+
+	func @IsCharOrNumber(p)
+		return IsCharOrNumber(p)
+
+	func @IsNumberOrChar(p)
+		return IsCharOrNumber(p)
+
+func IsCharOrString(p)
+	if isString(p)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func IsStringOrChar(p)
+		return IsCharOrString(p)
+
+	func @IsCharOrString(p)
+		return IsCharOrString(p)
+
+	func @IsStringOrChar(p)
+		return IsCharOrString(p)
+
+func IsCharOrList(p)
+	if isList(p) or IsChar(p)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func IsListOrChar(p)
+		return IsCharOrList(p)
+
+	func @IsCharOrList(p)
+		return IsCharOrList(p)
+
+	func @IsListOrChar(p)
+		return IsCharOrList(p)
+
+func IsCharOrObject(p)
+	if isObject(p) or IsChar(p)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func IsObjectOrChar(p)
+		return IsCharOrObject(p)
+
+	func @IsCharOrObject(p)
+		return IsCharOrObject(p)
+
+	func @IsObjectOrChar(p)
+		return IsCharOrObject(p)
+
+#--
+
 func ListOfListsOfStzTypes() # TODO: complete the list
 	return [
 		:ListOfStzNumbers,

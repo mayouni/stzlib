@@ -24984,6 +24984,33 @@ class stzList from stzObject
 			#>
 		#>
 
+	  #---------------------------------------------------#
+	 #  FINDING POSITIONS WHERE THE ITEM DOES NOT EXIST  #
+	#===================================================#
+
+	def AntiFindCS(pItem, pCaseSensitive)
+		/* Example
+
+		o1 = new stzList([ "1", "2", "♥", "4", "5", "♥", "6", "7", "♥", "9" ])
+		
+		? @@( o1.Find("♥") ) + NL
+		#--> [ 3, 6, 9 ]
+		
+		? @@( o1.AntiFind("♥") ) + NL
+		#--> [ 1, 2, 4, 5, 7, 8, 10 ]
+
+		*/
+
+		anPos = This.FindAllCS(pItem, pCaseSensitive)
+		anResult = Q(1:This.NumberOfItems()) - Many(anPos)
+
+		return anResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def AntiFind(pItem)
+		return This.AntiFindCS(pItem, TRUE)
+
 	  #-------------------------------------------------------#
 	 #    FINDING N OCCURRENCES OF AN ITEM INSIDE THE LIST   #
 	#-------------------------------------------------------#
@@ -25714,7 +25741,7 @@ class stzList from stzObject
 			#< @FunctionFluentForm
 	
 			def FindExceptFirstQR(pItem, pcReturnType)
-				return This.FindExeptFirstCSQR(pItem, pcReturType, TRUE)
+				return This.FindExceptFirstCSQR(pItem, pcReturType, TRUE)
 	
 			def FindExceptFirstQ(pItem)
 				return This.FindAllExceptFirstQR(pItem, :stzList)
