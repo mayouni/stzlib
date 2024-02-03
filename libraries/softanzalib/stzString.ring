@@ -20180,6 +20180,313 @@ class stzString from stzObject
 	
 		#>
 
+	  #=============================================#
+	 #   GETTING A RANDOM POSITION IN THE STRING   #
+	#=============================================#
+
+	# TODO: Add
+
+	# 	RandomPositions()			RandomChars()
+	# 	NRandomPositions()			NRandomChars()
+
+	# 	RandomPositionsGreaterThan()		RandomCharsAfter()
+	# 	NRandomPositionsGreaterThan()		NRandomCharsAfter()
+
+	# 	RandomPositionsLessThan()		RandomCharsBefore()
+	# 	NRandomPositionsLessThan()		NRandomCharsBefore()
+
+	# 	RandomPositionsExcept()			RandomCharsExcept()
+	# 	NRandomPositionsExcept()		NRandomCharsExcept()
+
+	def RandomPosition()
+
+		nResult = ARandomNumberBetweenXT(1, This.NumberOfChars())
+		return nResult
+
+		def ARandomPosition()
+			return This.RandomPosition()
+
+		def APosition()
+			return This.RandomPosition()
+
+	  #--------------------------------------------------------------------------#
+	 #   GETTING A RANDOM POSITION IN THE STRING GREATER THAN THE ONE PROVIDED  #
+	#--------------------------------------------------------------------------#
+
+	def RandomPositionGreaterThan(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+		ok
+
+		nLen = This.NumberOfChars()
+
+		if NOT ( n >= 1 and n < nLen - 1 )
+			StzRaise("Out of range! n must be >= 1 and < (nLen-1).")
+		ok
+
+		nResult = ARandomNumberBetween(n+1, This.NumberOfChars())
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomPositionGreaterThan(n)
+			return RandomPositionGreaterThan(n)
+
+		def RandomPositionAfter(n)
+			return RandomPositionGreaterThan(n)
+
+		def ARandomPositionAfter(n)
+			return RandomPositionGreaterThan(n)
+
+		#>
+
+	  #-----------------------------------------------------------------------#
+	 #   GETTING A RANDOM POSITION IN THE STRING LESS THAN THE ONE PROVIDED  #
+	#-----------------------------------------------------------------------#
+
+	def RandomPositionLessThan(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+		ok
+
+		nLen = This.NumberOfChars()
+
+		if NOT ( n > 1 and n <= nLen )
+			StzRaise("Out of range! n must be > 1 and < nLen.")
+		ok
+
+		nResult = ARandomNumberBetween(1, n - 1)
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomPositionLessThan(n)
+			return RandomPositionLessThan(n)
+
+		def RandomPositionBefore(n)
+			return RandomPositionLessThan(n)
+
+		def ARandomPositionBefore(n)
+			return RandomPositionLessThan(n)
+
+		#>
+
+	  #---------------------------------------------------------------------#
+	 #   GETTING A RANDOM POSITION IN THE STRING EXECEPT THE ONE PROVIDED  #
+	#---------------------------------------------------------------------#
+
+	def RandomPositionExcept(n)
+
+		if checkParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		aNumbers = Q( 1:This.NumberOfChars() ) - n
+		nResult = ARandomNumberIn(aNumbers)
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomPositionExcept(n)
+			return This.RandomPositionExcept(n)
+
+		def RandomPositionOtherThan(n)
+			return This.RandomPositionExcept(n)
+
+		def ARandomPositionOtherThan(n)
+			return This.RandomPositionExcept(n)
+
+		#>
+
+	  #-----------------------------------------#
+	 #   GETTING A RANDOM CHAR IN THE STRING   #
+	#=========================================#
+
+	def RandomChar()
+
+		cResult = This.CharAtPosition( This.RandomPosition() )
+		return cResult
+
+		def ARandomChar()
+			return This.RandomChar()
+
+	  #--------------------------------------------------------------------#
+	 #   GETTING A RANDOM CHAR IN THE STRING AFTER THE PROVIDED POSITION  #
+	#--------------------------------------------------------------------#
+
+	def RandomCharAfterPosition(n)
+
+		cResult = This.CharAt( This.RandomPositionGreaterThan(n) )
+		return cResult
+
+	  #---------------------------------------------------------------------------------#
+	 #   GETTING A RANDOM CHAR IN THE STRING AFTER THE PROVIDED POSITION OR SUBSTRING  #
+	#---------------------------------------------------------------------------------#
+
+	def RandomCharAfterCS(pPosOrSubStr, pCaseSensitive)
+		if NOT @IsNumberOrString(pPosOrSubStr)
+			StzRaise("Incorrect param type! pPosOrSubStr must be a number or string.")
+		ok
+
+		if isNumber(pPosOrSubStr)
+			return This.RandomCharAfterPosition(n)
+		else
+			nPos = This.FindFirstCS(pPosOrSubStr, pCaseSensitive)
+			return This.RandomCharAfterPosition(nPos)
+		ok
+
+		def ARandomCharAfterCS(pPosOrSubStr, pCaseSensitive)
+			return This.RandomCharAfterCS(pPosOrSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RandomCharAfter(pPosOrSubStr)
+		return This.RandomCharAfterCS(pPosOrSubStr, TRUE)
+
+		def ARandomCharAfter(pPosOrSubStr)
+			return This.RandomCharAfter(pPosOrSubStr)
+
+	  #---------------------------------------------------------------------#
+	 #   GETTING A RANDOM CHAR IN THE STRING BEFORE THE PROVIDED POSITION  #
+	#---------------------------------------------------------------------#
+
+	def RandomCharBeforePosition(n)
+
+		cResult = This.CharAt( This.RandomPositionLessThan(n) )
+		return cResult
+
+	  #----------------------------------------------------------------------------------#
+	 #   GETTING A RANDOM CHAR IN THE STRING BEFORE THE PROVIDED POSITION OR SUBSTRING  #
+	#----------------------------------------------------------------------------------#
+
+	def RandomCharBeforeCS(pPosOrSubStr, pCaseSensitive)
+		if NOT @IsNumberOrString(pPosOrSubStr)
+			StzRaise("Incorrect param type! pPosOrSubStr must be a number or string.")
+		ok
+
+		if isNumber(pPosOrSubStr)
+			return This.RandomCharBeforePosition(n)
+		else
+			nPos = This.FindFirstCS(pPosOrSubStr, pCaseSensitive)
+			return This.RandomCharBeforePosition(nPos)
+		ok
+
+		def ARandomCharBeforeCS(pPosOrSubStr, pCaseSensitive)
+			return This.RandomCharBeforeCS(pPosOrSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RandomCharBefore(pPosOrSubStr)
+		return This.RandomBeforeAfterCS(pPosOrSubStr, TRUE)
+
+		def ARandomBeforeAfter(pPosOrSubStr)
+			return This.RandomBeforeAfter(pPosOrSubStr)
+
+	  #--------------------------------------------------------------------#
+	 #   GETTING A RANDOM CHAR IN THE STRING EXECEPT THE PROVIDED ONE OR  #
+	#  EXCEPT THE ONE AT THE POSITION PROVIDED                           #
+	#-------------------------------------------------------------------#
+
+	def RandomCharExceptCS(pPosOrChar, pCaseSensitive)
+		if NOT @IsNumberOrChar(pPosOrChar)
+			StzRaise("Incorrect param type! pPosOrChar must be a number or char.")
+		ok
+
+		if isNumber(pPosOrChar)
+			return This.RandomCharExceptPosition(pPosOrChar)
+
+		else
+			return This.RandomCharExeptCharCS(pPosOrChar, pCaseSensitive)
+		ok
+
+	#-- WITHOUT CASESENSITIIVTY
+
+	def RandomCharExcept(pPosOrChar)
+		return This.RandomCharExceptCS(pPosOrChar, TRUE)
+
+	  #---------------------------------------------------------------------------------#
+	 #   GETTING A RANDOM CHAR IN THE STRING EXECEPT THE ONE AT THE POSITION PROVIDED  #
+	#---------------------------------------------------------------------------------#
+
+	def RandomCharExceptPosition(n)
+		cResult = This.CharAt( This.RandomPositionExcept(n) )
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomCharExceptPosition(n)
+			return This.RandomCharExceptPosition(n)
+
+		def RandomCharOtherThanPosition(n)
+			return This.RandomCharExceptPosition(n)
+
+		def ARandomCharOtherThanPosition(n)
+			return This.RandomCharExceptPosition(n)
+
+		#--
+
+		def RandomCharExceptCharAtPosition(n)
+			return This.RandomCharExceptPosition(n)
+
+		def ARandomCharExceptCharAtPosition(n)
+			return This.RandomCharExceptPosition(n)
+
+		def RandomCharOtherThanCharAtPosition(n)
+			return This.RandomCharExceptPosition(n)
+
+		def ARandomCharOtherThanCharAtPosition(n)
+			return This.RandomCharExceptPosition(n)
+
+		#--
+
+		def RandomCharExceptCharAt(n)
+			return This.RandomCharExceptPosition(n)
+
+		def ARandomCharExceptCharAt(n)
+			return This.RandomCharExceptPosition(n)
+
+		def RandomCharOtherThanCharAt(n)
+			return This.RandomCharExceptPosition(n)
+
+		def ARandomCharOtherThanCharAt(n)
+			return This.RandomCharExceptPosition(n)
+
+		#--
+
+		def RandomCharExceptAt(n)
+			return This.RandomCharExceptPosition(n)
+
+		def ARandomCharExceptAt(n)
+			return This.RandomCharExceptPosition(n)
+
+		#>
+
+	  #---------------------------------------------------------------#
+	 #  GETTING A RANDOM CHAR IN THE STRING EXCEPT THE ONE PROVIDED  #
+	#---------------------------------------------------------------#
+
+	def RandomCharExceptCharCS(pcChar, pCaseSensitive)
+		if NOT ( isString(pcChar) and @IsChar(pcChar) )
+			StzRaise("Incorrect param type! pcChar must be a char.")
+		ok
+
+		nPos = This.RandomPositionExcept( This.FindFirstCS(pcChar, pCaseSensitive) )
+		cResult = This.CharAt(nPos)
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RandomCharExceptChar(pcChar)
+		return This.RandomCharExceptCharCS(pcChar, TRUE)
+		
 	  #================================================#
 	 #   GETTING A SECTION (OR SLICE) OF THE STRING   #
 	#================================================#
@@ -20196,6 +20503,7 @@ class stzString from stzObject
 			   StzListQ(n1).IsOneOfTheseNamedParams([
 					:From, :FromPosition, :FromCharAt, :FromCharAtPosition,
 
+					:Start, :FromStart,
 					:StartingAt, :StartingAtPosition,
 					:StartingAtCharAt, :StartingAtCharAtPosition,
 
@@ -20212,6 +20520,7 @@ class stzString from stzObject
 			   StzListQ(n2).IsOneOfTheseNamedParams([
 					:To, :ToPosition, :ToCharAt, :ToCharAtPosition,
 
+					:End, :ToEnd,
 					:Until, :UntilPosition, :UntilCharAt, :UntilCharAtPosition,
 					:UpTo, :UpToPosition, :UpToCharAt, :UpToCharAtPosition,
 
@@ -20503,6 +20812,12 @@ class stzString from stzObject
 
 			if isString(n1) and (n1 = :End or n1 = :EndOfString)
 				n1 = nLen
+			ok
+
+			#==
+
+			if isList(n2) and Q(n2).IsUpToNCharsNamedParam()
+				return This.Range(n1, n2[2])
 			ok
 
 			if NOT isNumber(n2)

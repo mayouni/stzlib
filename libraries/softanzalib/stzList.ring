@@ -45,6 +45,36 @@ func StzListClassName()
 	func StzListClass()
 		return "stzlist"
 
+func OnlyNumbers(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	nLen = len(paList)
+	anResult = []
+
+	for i = 1 to nLen
+		if isNumber(paList[i])
+			anResult + paList[i]
+		ok
+	next
+
+	return anResult
+
+
+	func @OnlyNumbers(paList)
+		return OnlyNumbers(paList)
+
+	func OnlyNumbersIn(paList)
+		return OnlyNumbers(paList)
+
+	func @OnlyNumbersIn(paList)
+		return OnlyNumbers(paList)
+
+# TODO: Add OnlyStrings() and cie...
+
 def Flatten(paList)
 	if CheckParams()
 		if NOT isList(paList)

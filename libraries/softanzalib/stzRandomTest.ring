@@ -1,3 +1,10 @@
+load "stzlib.ring"
+
+pron()
+
+? ARandomNumberIn(1:7)
+
+proff()
 
 # Propose examples showing realword applications of randomness:
 #	- Generating unique passwords
