@@ -2,10 +2,76 @@ load "stzlib.ring"
 
 pron()
 
+o1 = new stzList([ "1", "2", "♥", "4", "5", "♥", "6", "7", "♥", "9" ])
+
+? @@( o1.Find("♥") ) + NL
+#--> [ 3, 6, 9 ]
+
+? @@( o1.AntiFind("♥") ) + NL
+#--> [ 1, 2, 4, 5, 7, 8, 10 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----
+
+pron()
+
+o1 = new stzString("12♥45♥67♥9")
+
+? @@( o1.Find("♥") ) + NL
+#--> [ 3, 6, 9 ]
+
+? @@( o1.AntiFind("♥") ) + NL
+#--> [ 1, 2, 4, 5, 7, 8, 10 ]
+
+? @@( o1.AntiFindZZ("♥") )
+#--> [ [ 1, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]
+
+proff()
+
+/*----
+
+pron()
+
+Q("Ring Programming Language") {
+
+	? ARandomPosition()
+	#--> 25
+	? ARandomChar()
+	#--> e
+
+	? ARandomPositionGreaterThan(6)
+	#--> 24
+	? ARandomCharAfterPosition(6)
+	#--> " "
+	? ARandomCharExcept(" ")
+	#--> u
+
+//	ARandomPositionLessThan(n)
+//	ARandomPositionExcept(n)
+	
+//	ARandomChar()
+//	ARandomCharAfterPosition(n)
+//	ARandomCharAfter(pPosOrSubStr)
+//	ARandomCharBeforePosition(n)
+//	ARandomBeforeBefore(pPosOrSubStr)
+//	ARandomCharExcept(pPosOrChar)
+//	ARandomCharExceptPosition(n)
+//	ARandomCharExceptChar(pcChar)
+
+}
+
+proff()
+
+/*-------
+
+pron()
+
 o1 = new stzString("Ring Programming Language")
 
 ? o1.Section(6, o1.RandomPositionAfter(6) )
-#--> Programming La
+#--> Programming Lang
 
 ? o1.Section(6, o1.FindNth(3, "g") )
 #--> Programming
