@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*====
+
 pron()
 
 o1 = new stzList([ "1", "2", "♥", "4", "5", "♥", "6", "7", "♥", "9" ])
@@ -31,38 +33,102 @@ o1 = new stzString("12♥45♥67♥9")
 proff()
 
 /*----
+*/
 
 pron()
 
-Q("Ring Programming Language") {
+Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]) {
+
+	? NRandomItems(3)
+	#--> [ "N", "F", "A" ]
+
+	? @@( NRandomItemsZ(3) )
+	#--> [ [ "O", 2 ], [ "O", 2 ], [ "N", 6 ] ]
+}
+
+proff()
+
+/*----
+
+pron()
+
+Q("SOFTANZA") {
 
 	? ARandomPosition()
-	#--> 25
+	#--> 8
+
 	? ARandomChar()
-	#--> e
+	#--> T
 
-	? ARandomPositionGreaterThan(6)
-	#--> 24
-	? ARandomCharAfterPosition(6)
-	#--> " "
-	? ARandomCharExcept(" ")
-	#--> u
+	? ARandomPositionGreaterThan(4)
+	#--> 8
 
-//	ARandomPositionLessThan(n)
-//	ARandomPositionExcept(n)
-	
-//	ARandomChar()
-//	ARandomCharAfterPosition(n)
-//	ARandomCharAfter(pPosOrSubStr)
-//	ARandomCharBeforePosition(n)
-//	ARandomBeforeBefore(pPosOrSubStr)
-//	ARandomCharExcept(pPosOrChar)
-//	ARandomCharExceptPosition(n)
-//	ARandomCharExceptChar(pcChar)
+	? ARandomCharAfterPosition(4)
+	#--> A
+
+	? ARandomPositionExcept(5)
+	#--> 1
+
+	? ARandomCharExcept("A")
+	#--> S
+
+	? ARandomPositionLessThan(4)
+	#--> 2
+
+	? ARandomCharBefore(4)
+	#--> S
+
+	? ARandomCharAfter("T")
+	#--> N
+
+	? ARandomCharBefore("T")
+	#--> S
 
 }
 
 proff()
+# Executed in 0.05 second(s)
+
+/*-------
+
+pron()
+
+Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]) {
+
+	? ARandomPosition()
+	#--> 3
+
+	? ARandomItem()
+	#--> S
+
+	? ARandomPositionGreaterThan(4)
+	#--> 5
+
+	? ARandomItemAfterPosition(4)
+	#--> N
+
+	? ARandomPositionExcept(5)
+	#--> 1
+
+	? ARandomItemExcept("A")
+	#--> Z
+
+	? ARandomPositionLessThan(4)
+	#--> 3
+
+	? ARandomItemBeforePosition(4)
+	#--> O
+
+	? ARandomItemAfter("T")
+	#--> A
+
+	? ARandomItemBefore("T")
+	#--> O
+
+}
+
+proff()
+# Executed in 0.04 second(s)
 
 /*-------
 

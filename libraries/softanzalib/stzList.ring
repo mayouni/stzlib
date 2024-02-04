@@ -43956,141 +43956,909 @@ vvv
 		return @@( This.Content() )
 
 		def ToListInString()
-			return ComputableForm()
+			return This.ComputableForm()
 
 		def ToListInAString()
-			return ComputableForm()
+			return This.ComputableForm()
 
-	  #=======================================#
-	 #  GETTING A RANDOM ITEM FROM THE LIST  #
-	#=======================================#
+/////////////////////////////
 
-	def AnyItem()
-		nLen = This.NumberOfItems() 
-		if nLen = 0
-			StzRaise("Can't return any item because the list is empty!")
-		ok
+	  #===========================================#
+	 #   GETTING A RANDOM POSITION IN THE LIST   #
+	#===========================================#
 
-		if nLen = 1
-			return This.Item(1)
-		ok
+	# TODO: Add
 
-		n = ARandomNumberBetweenIB(1, nLen)
-		return This.Item(n)
+	# 	RandomPositions()			RandomItems()
+	# 	NRandomPositions()			NRandomItems()
+
+	# 	RandomPositionsGreaterThan()		RandomItemsAfter()
+	# 	NRandomPositionsGreaterThan()		NRandomItemsAfter()
+
+	# 	RandomPositionsLessThan()		RandomItemsBefore()
+	# 	NRandomPositionsLessThan()		NRandomItemsBefore()
+
+	# 	RandomPositionsExcept()			RandomItemsExcept()
+	# 	NRandomPositionsExcept()		NRandomItemsExcept()
+
+	def RandomPosition()
+
+		nResult = ARandomNumberBetween(1, This.NumberOfItems())
+		return nResult
 
 		#< @FunctionAlternativeForms
 
-		def RandomItem()
-			return This.AnyItem()
+		def ARandomPosition()
+			return This.RandomPosition()
+
+		#--
+
+		def APosition()
+			return This.RandomPosition()
+
+		def AnyPosition()
+			return This.RandomPosition()
+
+		#>
+
+	  #------------------------------------------------------------------------#
+	 #   GETTING A RANDOM POSITION IN THE LIST GREATER THAN THE ONE PROVIDED  #
+	#------------------------------------------------------------------------#
+
+	def RandomPositionGreaterThan(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+		ok
+
+		nLen = This.NumberOfItems()
+
+		if NOT ( n >= 1 and n < nLen - 1 )
+			StzRaise("Out of range! n must be >= 1 and < (nLen-1).")
+		ok
+
+		nResult = ARandomNumberBetween(n+1, This.NumberOfItems())
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomPositionGreaterThan(n)
+			return This.RandomPositionGreaterThan(n)
+
+		def RandomPositionAfter(n)
+			return This.RandomPositionGreaterThan(n)
+
+		def ARandomPositionAfter(n)
+			return This.RandomPositionGreaterThan(n)
+
+		#--
+
+		def APositionGreaterThan(n)
+			return This.RandomPositionGreaterThan(n)
+
+		def AnyPositionGreaterThan(n)
+			return This.RandomPositionGreaterThan(n)
+
+		#>
+
+	  #---------------------------------------------------------------------#
+	 #   GETTING A RANDOM POSITION IN THE LIST LESS THAN THE ONE PROVIDED  #
+	#---------------------------------------------------------------------#
+
+	def RandomPositionLessThan(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+		ok
+
+		nLen = This.NumberOfItems()
+
+		if NOT ( n > 1 and n <= nLen )
+			StzRaise("Out of range! n must be > 1 and < nLen.")
+		ok
+
+		nResult = ARandomNumberBetween(1, n - 1)
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomPositionLessThan(n)
+			return This.RandomPositionLessThan(n)
+
+		def RandomPositionBefore(n)
+			return This.RandomPositionLessThan(n)
+
+		def ARandomPositionBefore(n)
+			return This.RandomPositionLessThan(n)
+
+		#--
+
+		def APositionLessThan(n)
+			return This.RandomPositionLessThan(n)
+
+		def AnyPositionLessThan(n)
+			return This.RandomPositionLessThan(n)
+
+		#>
+
+	  #-------------------------------------------------------------------#
+	 #   GETTING A RANDOM POSITION IN THE LIST EXECEPT THE ONE PROVIDED  #
+	#-------------------------------------------------------------------#
+
+	def RandomPositionExcept(n)
+
+		if checkParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		aNumbers = Q( 1:This.NumberOfItems() ) - n
+		nResult = ARandomNumberIn(aNumbers)
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomPositionExcept(n)
+			return This.RandomPositionExcept(n)
+
+		def RandomPositionOtherThan(n)
+			return This.RandomPositionExcept(n)
+
+		def ARandomPositionOtherThan(n)
+			return This.RandomPositionExcept(n)
+
+		#--
+
+		def APositionExcept(n)
+			return This.RandomPositionExcept(n)
+
+		def APositionOtherThan(n)
+			return This.RandomPositionExcept(n)
+
+		def AnyPositionExcept(n)
+			return This.RandomPositionExcept(n)
+
+		def AnyPositionOtherThan(n)
+			return This.RandomPositionExcept(n)
+
+		#>
+
+	  #---------------------------------------#
+	 #   GETTING A RANDOM ITEM IN THE LIST   #
+	#=======================================#
+
+	def RandomItem()
+
+		cResult = This.ItemAtPosition( This.RandomPosition() )
+		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def ARandomItem()
-			return This.AnyItem()
+			return This.RandomItem()
+
+		#--
 
 		def AnItem()
-			return This.AnyItem()
+			return This.RandomItem()
+
+		def AnyItem()
+			return This.RandomItem()
 
 		#>
 
 	  #---------------------------------------------------------------#
-	 #  GETTING A RANDOM ITEM FROM THE LIST ALONG WITH ITS POSITION  #
+	 #   GETTING A RANDOM ITEM IN THE LIST ALONG WITH ITS POSITION   #
 	#---------------------------------------------------------------#
 
-	def AnyItemZ() # AnyItemAndItsPosition()
-		nLen = This.NumberOfItems() 
-		if nLen = 0
-			StzRaise("Can't return any item because the list is empty!")
-		ok
+	def RandomItemZ()
 
-		if nLen = 1
-			return This.Item(1)
-		ok
+		nPos =  This.RandomPosition()
+		cItem = This.ItemAtPosition(nPos)
+		aResult = [ cItem, nPos] 
 
-		aRresult = [ This.Item(n), ARandomNumberBetweenIB(1, nLen) ]
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def RandomItemZ()
-			return This.AnyItemZ()
-
 		def ARandomItemZ()
-			return This.AnyItemZ()
-
-		def AnItemZ()
-			return This.AnyItemZ()
+			return This.RandomItemZ()
 
 		#--
 
-		def AnyItemAndItsPosition()
-			return This.AnyItemZ()
+		def AnItemZ()
+			return This.RandomItemZ()
+
+		def AnyItemZ()
+			return This.RandomItemZ()
+
+		#==
 
 		def RandomItemAndItsPosition()
-			return This.AnyItemZ()
+			return This.RandomItemZ()
 
 		def ARandomItemAndItsPosition()
-			return This.AnyItemZ()
+			return This.RandomItemZ()
+
+		#--
 
 		def AnItemAndItsPosition()
-			return This.AnyItemZ()
+			return This.RandomItemZ()
+
+		def AnyItemAndItsPosition()
+			return This.RandomItemZ()
 
 		#>
 
-	  #----------------------------------------#
-	 #  GETIING N RANDOM ITEMS FROM THE LIST  #
-	#----------------------------------------#
+	  #------------------------------------------------------------------#
+	 #   GETTING A RANDOM ITEM IN THE LIST AFTER THE PROVIDED POSITION  #
+	#==================================================================#
 
-	def NRandomItemsCS(pCaseSensitive)
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
+	def RandomItemAfterPosition(n)
 
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
-		ok
+		cResult = This.ItemAt( This.RandomPositionGreaterThan(n) )
+		return cResult
 
-		if pCaseSensitive = TRUE
-			anPos = NRandomNumbersBetween(1, This.NumberOfItems())
-			return This.ItemsAtPositions(anPos)
+		#< @FunctionAlternativeForms
 
-		else
-#>>>>>>>		# TODO: Add case sensitivity
-			StzRaise("Case sensitivity is not supported yet for this fucntion!")
-		ok
-	
-		#< @functionAlternativeForm
+		def ARandomItemAfterPosition(n)
+			return This.RandomItemAfterPosition(n)
 
-		def NAnyItemsCS(pCaseSensitive)
-			return This.NRandomItemsCS(pCaseSensitive)
+		#--
 
-		def AnyNItemsCS(pCaseSensitive)
-			return This.NRandomItemsCS(pCaseSensitive)
+		def AnItemAfterPosition(n)
+			return This.RandomItemAfterPosition(n)
 
-		def NItemsCS(pCaseSensitive)
-			return This.NRandomItemsCS(pCaseSensitive)
+		def AnyItemAfterPosition(n)
+			return This.RandomItemAfterPosition(n)
 
-		def RandomNItemsCS(pCaseSensitive)
-			return This.NRandomItemsCS(pCaseSensitive)
+		#>
+
+	   #--------------------------------------------------------#
+	  #  GETTING A RANDOM ITEM IN THE LIST AFTER THE PROVIDED  #
+	 #  POSITION ALONG WITH ITS POSITION                      #
+	#--------------------------------------------------------#
+
+	def RandomItemAfterPositionZ(n)
+
+		nPos = This.RandomPositionGreaterThan(n)
+		aResult = [ This.ItemAt(nPos), nPos ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemAfterPositionZ(n)
+			return This.RandomItemAfterPositionZ(n)
+
+		#--
+
+		def AnItemAfterPositionZ(n)
+			return This.RandomItemAfterPositionZ(n)
+
+		def AnyItemAfterPositionZ(n)
+			return This.RandomItemAfterPositionZ(n)
+
+		#==
+
+		def RandomItemAndItsPositionAfterPosition(n)
+			return This.RandomItemAfterPositionZ(n)
+
+		def ARandomItemAndItsPositionAfterPosition(n)
+			return This.RandomItemAfterPositionZ(n)
+
+		#--
+
+		def AnItemAndItsPositionAfterPositionZ(n)
+			return This.RandomItemAfterPositionZ(n)
+
+		def AnyItemAndItsPositionAfterPositionZ(n)
+			return This.RandomItemAfterPositionZ(n)
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #   GETTING A RANDOM ITEM IN THE LIST AFTER THE PROVIDED ITEM  #
+	#==============================================================#
+
+	def RandomItemAfterCS(pItem, pCaseSensitive)
+		nPos = This.RandomPositionAfter( This.FindFirstCS(pItem, pCaseSensitive) )
+		result = This.ItemAt(nPos)
+		return result
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemAfterCS(pItem, pCaseSensitive)
+			return This.RandomItemAfterCS(pItem, pCaseSensitive)
+
+		def ARandomItemAfterItemCS(pItem, pCaseSensitive)
+			return This.RandomItemAfterItemCS(pItem, pCaseSensitive)
+
+		#--
+
+		def AnItemAfterCS(pItem, pCaseSensitive)
+			return This.RandomItemAfterItemCS(pItem, pCaseSensitive)
+
+		def AnyItemAfterCS(pItem, pCaseSensitive)
+			return This.RandomItemAfterItemCS(pItem, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NRandomItems()
-		return This.NRandomItemsCS(TRUE)
+	def RandomItemAfter(pItem)
+		return This.RandomItemAfterCS(pItem, TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def ARandomItemAfter(pItem)
+			return This.RandomItemAfter(pItem)
+
+		def ARandomItemAfterItem(pItem)
+			return This.RandomItemAfterItem(pItem)
+
+		#--
+
+		def AnItemAfter(pItem)
+			return This.RandomItemAfterItem(pItem)
+
+		def AnyItemAfter(pItem)
+			return This.RandomItemAfterItem(pItem)
+
+		#>
+
+	   #--------------------------------------------------------#
+	  #  GETTING A RANDOM ITEM IN THE LIST AFTER THE PROVIDED  #
+	 #  ITEM ALONG WITH ITS POSITION                          #
+	#--------------------------------------------------------#
+
+	def RandomItemAfterCSZ(pItem, pCaseSensitive)
+
+		nPos = This.RandomPositionAfter( This.FindFirstCS(pItem, pCaseSensitive) )
+		aResult = [ This.ItemAt(nPos), nPos ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemAfterCSZ(pItem, pCaseSensitive)
+			return This.RandomItemAfterCSZ(pItem, pCaseSensitive)
+
+		def ARandomItemAfterItemCSZ(pItem, pCaseSensitive)
+			return This.RandomItemAfterItemCSZ(pItem, pCaseSensitive)
+
+		#--
+
+		def AnItemAfterCSZ(pItem, pCaseSensitive)
+			return This.RandomItemAfterItemCSZ(pItem, pCaseSensitive)
+
+		def AnyItemAfterCSZ(pItem, pCaseSensitive)
+			return This.RandomItemAfterItemCSZ(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RandomItemAfterZ(pItem)
+		return This.RandomItemAfterCSZ(pItem, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemAfterZ(pItem)
+			return This.RandomItemAfterZ(pItem)
+
+		def ARandomItemAfterItemZ(pItem)
+			return This.RandomItemAfterItemZ(pItem)
+
+		#--
+
+		def AnItemAfterZ(pItem)
+			return This.RandomItemAfterItemZ(pItem)
+
+		def AnyItemAfterZ(pItem)
+			return This.RandomItemAfterItemZ(pItem)
+
+		#>
+
+	  #-------------------------------------------------------------------#
+	 #   GETTING A RANDOM ITEM IN THE LIST BEFORE THE PROVIDED POSITION  #
+	#===================================================================#
+
+	def RandomItemBeforePosition(n)
+
+		result = This.ItemAt( This.RandomPositionLessThan(n) )
+		return result
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemBeforePosition(n)
+			return This.RandomItemBeforePosition(n)
+
+		#--
+
+		def AnItemBeforePosition(n)
+			return This.RandomItemBeforePosition(n)
+
+		def AnyItemBeforePosition(n)
+			return This.RandomItemBeforePosition(n)
+
+		#>
+
+	  #----------------------------------------------------------#
+	 #   GETTING A RANDOM ITEM IN THE LIST BEFORE THE PROVIDED  #
+	 #  POSITION ALONG WITH ITS POSITION                       #
+	#---------------------------------------------------------#
+
+	def RandomItemBeforePositionZ(n)
+		nPos = This.RandomPositionLessThan(n)
+		aResult = [ This.ItemAt(nPos), nPos ]
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemBeforePositionZ(n)
+			return This.RandomItemBeforePositionZ(n)
+
+		#--
+
+		def AnItemBeforePositionZ(n)
+			return This.RandomItemBeforePositionZ(n)
+
+		def AnyItemBeforePositionZ(n)
+			return This.RandomItemBeforePositionZ(n)
+
+		#>
+
+	  #---------------------------------------------------------------#
+	 #   GETTING A RANDOM ITEM IN THE LIST BEFORE THE PROVIDED ITEM  #
+	#===============================================================#
+
+	def RandomItemBeforeCS(pItem, pCaseSensitive)
+
+		nPos = This.RandomPositionBefore( This.FindFirstCS(pItem, pCaseSensitive) )
+		result = This.ItemAt(nPos)
+		return result
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemBeforeCS(pItem, pCaseSensitive)
+			return This.RandomItemBeforeCS(pItem, pCaseSensitive)
+
+		def ARandomItemBeforeItemCS(pItem, pCaseSensitive)
+			return This.RandomItemBeforeItemCS(pItem, pCaseSensitive)
+
+		#--
+
+		def AnItemBeforeCS(pItem, pCaseSensitive)
+			return This.RandomItemBeforeCS(pItem, pCaseSensitive)
+
+		def AnyItemBeforeCS(pItem, pCaseSensitive)
+			return This.RandomItemBeforeCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RandomItemBefore(pItem)
+		return This.RandomItemBeforeCS(pItem, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemBefore(pItem)
+			return This.RandomItemBefore(pItem)
+
+		def ARandomItemBeforeItem(pItem)
+			return This.RandomItemBeforeItem(pItem)
+
+		#--
+
+		def AnItemBefore(pItem)
+			return This.RandomItemBefore(pItem)
+
+		def AnyItemBefore(pItem)
+			return This.RandomItemBefore(pItem)
+
+		#>
+
+	   #--------------------------------------------------------------#
+	  #   GETTING A RANDOM ITEM IN THE LIST BEFORE THE PROVIDED ONE  #
+	 #  ALONG WITH ITS POSITION                                     #
+	#--------------------------------------------------------------#
+
+	def RandomItemBeforeCSZ(pItem, pCaseSensitive)
+
+		nPos = This.RandomPositionBefore( This.FindFirstCS(pItem, pCaseSensitive) )
+		aResult = [ This.ItemAt(nPos), nPos ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemBeforeCSZ(pItem, pCaseSensitive)
+			return This.RandomItemBeforeCSZ(pItem, pCaseSensitive)
+
+		def ARandomItemBeforeItemCSZ(pItem, pCaseSensitive)
+			return This.RandomItemBeforeItemCSZ(pItem, pCaseSensitive)
+
+		#--
+
+		def AnItemBeforeCSZ(pItem, pCaseSensitive)
+			return This.RandomItemBeforeCSZ(pItem, pCaseSensitive)
+
+		def AnyItemBeforeCSZ(pItem, pCaseSensitive)
+			return This.RandomItemBeforeCSZ(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RandomItemBeforeZ(pItem)
+		return This.RandomItemBeforeCSZ(pItem, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemBeforeZ(pItem)
+			return This.RandomItemBeforeZ(pItem)
+
+		def ARandomItemBeforeItemZ(pItem)
+			return This.RandomItemBeforeItemZ(pItem)
+
+		#--
+
+		def AnItemBeforeZ(pItem)
+			return This.RandomItemBeforeZ(pItem)
+
+		def AnyItemBeforeZ(pItem)
+			return This.RandomItemBeforeZ(pItem)
+
+		#>
+
+	  #-------------------------------------------------------------------#
+	 #   GETTING A RANDOM ITEM IN THE LIST EXECEPT THE ONE PROVIDED ONE  #
+	#===================================================================#
+
+	def RandomItemExceptCS(pItem, pCaseSensitive)
+		anPos = This.AntiFindCS(pItem, pCaseSensitive)
+		n = ARandomNumberIn(anPos)
+		result = This.ItemAt(n)
+
+		return  result
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemExceptCS(pItem, pCaseSensitive)
+			return This.RandomItemExceptCS(pItem, pCaseSensitive)
+
+		def RandomItemExceptItemCS(pItem, pCaseSensitive)
+			return This.RandomItemExceptCS(pItem, pCaseSensitive)
+
+		def ARandomItemExceptItemCS(pItem, pCaseSensitive)
+			return This.RandomItemExceptCS(pItem, pCaseSensitive)
+
+		#--
+
+		def AnItemExceptCS(pItem, pCaseSensitive)
+			return This.RandomItemExceptCS(pItem, pCaseSensitive)
+
+		def AnyItemExceptCS(pItem, pCaseSensitive)
+			return This.RandomItemExceptCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIIVTY
+
+	def RandomItemExcept(pItem)
+		return This.RandomItemExceptCS(pItem, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemExcept(pItem)
+			return This.RandomItemExcept(pItem)
+
+		def RandomItemExceptItem(pItem)
+			return This.RandomItemExcept(pItem)
+
+		def ARandomItemExceptItem(pItem)
+			return This.RandomItemExcept(pItem)
+
+		#--
+
+		def AnItemExcept(pItem)
+			return This.RandomItemExcept(pItem)
+
+		def AnyItemExcept(pItem)
+			return This.RandomItemExcept(pItem)
+
+		#>
+
+	   #--------------------------------------------------------------#
+	  #  GETTING A RANDOM ITEM IN THE LIST EXECEPT THE ONE PROVIDED  #
+	 #  ALONG WITH ITS POSITION                                     #
+	#--------------------------------------------------------------#
+
+	def RandomItemExceptCSZ(pItem, pCaseSensitive)
+		anPos = This.AntiFindCS(pItem, pCaseSensitive)
+		n = ARandomNumberIn(anPos)
+		aResult = [ This.ItemAt(n), n ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemExceptCSZ(pItem, pCaseSensitive)
+			return This.RandomItemExceptCSZ(pItem, pCaseSensitive)
+
+		def RandomItemExceptItemCSZ(pItem, pCaseSensitive)
+			return This.RandomItemExceptCSZ(pItem, pCaseSensitive)
+
+		def ARandomItemExceptItemCSZ(pItem, pCaseSensitive)
+			return This.RandomItemExceptCSZ(pItem, pCaseSensitive)
+
+		#--
+
+		def AnItemExceptCSZ(pItem, pCaseSensitive)
+			return This.RandomItemExceptCSZ(pItem, pCaseSensitive)
+
+		def AnyItemExceptCSZ(pItem, pCaseSensitive)
+			return This.RandomItemExceptCSZ(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIIVTY
+
+	def RandomItemExceptZ(pItem)
+		return This.RandomItemExceptCSZ(pItem, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemExceptZ(pItem)
+			return This.RandomItemExceptZ(pItem)
+
+		def RandomItemExceptItemZ(pItem)
+			return This.RandomItemExceptZ(pItem)
+
+		def ARandomItemExceptItemZ(pItem)
+			return This.RandomItemExceptZ(pItem)
+
+		#--
+
+		def AnItemExceptZ(pItem)
+			return This.RandomItemExceptZ(pItem)
+
+		def AnyItemExceptZ(pItem)
+			return This.RandomItemExcept(pItem)
+
+		#>
+
+	  #-------------------------------------------------------------------------------#
+	 #   GETTING A RANDOM ITEM IN THE LIST EXECEPT THE ONE AT THE POSITION PROVIDED  #
+	#===============================================================================#
+
+	def RandomItemExceptPosition(n)
+		result = This.ItemAt( This.RandomPositionExcept(n) )
+		return result
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemExceptPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		def RandomItemOtherThanPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		def ARandomItemOtherThanPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		#--
+
+		def RandomItemExceptItemAtPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		def ARandomItemExceptItemAtPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		def RandomItemOtherThanItemAtPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		def ARandomItemOtherThanItemAtPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		#--
+
+		def RandomItemExceptItemAt(n)
+			return This.RandomItemExceptPosition(n)
+
+		def ARandomItemExceptItemAt(n)
+			return This.RandomItemExceptPosition(n)
+
+		def RandomItemOtherThanItemAt(n)
+			return This.RandomItemExceptPosition(n)
+
+		def ARandomItemOtherThanItemAt(n)
+			return This.RandomItemExceptPosition(n)
+
+		#--
+
+		def RandomItemExceptAt(n)
+			return This.RandomItemExceptPosition(n)
+
+		def ARandomItemExceptAt(n)
+			return This.RandomItemExceptPosition(n)
+
+		#==
+
+		def AnItemExceptPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		def AnItemExceptItemAt(n)
+			return This.RandomItemExceptPosition(n)
+
+		def AnItemExceptItemAtPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		def AnyItemExceptPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		def AnyItemExceptItemAt(n)
+			return This.RandomItemExceptPosition(n)
+
+		def AnyItemExceptItemAtPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		#--
+
+		def AnItemOtherThanItemAtPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		def AnItemOtherThanItemAt(n)
+			return This.RandomItemExceptPosition(n)
+
+		def AnyItemOtherThanItemAtPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		def AnyItemOtherThanItemAt(n)
+			return This.RandomItemExceptPosition(n)
+
+		#>
+
+	   #----------------------------------------------------------------------#
+	  #   GETTING A RANDOM ITEM IN THE LIST EXECEPT THE ONE AT THE POSITION  #
+	 #  PROVIDED ALONG WITH ITS POSITION                                    #
+	#----------------------------------------------------------------------#
+
+	def RandomItemExceptPositionZ(n)
+		nPos = This.RandomPositionExcept(n)
+		aResult = [ This.ItemAt(nPos), nPos ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomItemExceptPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def RandomItemOtherThanPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def ARandomItemOtherThanPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		#--
+
+		def RandomItemExceptItemAtPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def ARandomItemExceptItemAtPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def RandomItemOtherThanItemAtPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def ARandomItemOtherThanItemAtPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		#--
+
+		def RandomItemExceptItemAtZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def ARandomItemExceptItemAtZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def RandomItemOtherThanItemAtZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def ARandomItemOtherThanItemAtZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		#--
+
+		def RandomItemExceptAtZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def ARandomItemExceptAtZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		#==
+
+		def AnItemExceptPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def AnItemExceptItemAtZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def AnItemExceptItemAtPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def AnyItemExceptPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def AnyItemExceptItemAtZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def AnyItemExceptItemAtPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		#--
+
+		def AnItemOtherThanItemAtPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def AnItemOtherThanItemAtZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def AnyItemOtherThanItemAtPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def AnyItemOtherThanItemAtZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		#>
+
+///////////
+
+	  #--------------------------------------------#
+	 #  GETIING N RANDOM POSITIONS FROM THE LIST  #
+	#--------------------------------------------#
+
+	def NRandomPositions(n)
+		anResult = NRandomNumbersIn(n, 1 : This.NumberOfItems() )
+		return anResult
+
+		def NPositions(n)
+			return This. NRandomPositions(n)
+
+		def AnyNPositions(n)
+			return This. NRandomPositions(n)
+
+	  #----------------------------------------#
+	 #  GETIING N RANDOM ITEMS FROM THE LIST  #
+	#----------------------------------------#
+
+	def NRandomItems(n)
+		anPos = NRandomNumbersIn(n, 1 : This.NumberOfItems() )
+		aResult = This.ItemsAtPositions(anPos)
+
+		return aResult
+	
 		#< @functionAlternativeForm
 
-		def NAnyItems()
-			return This.NRandomItems()
+		def NAnyItems(n)
+			return This.NRandomItems(n)
 
-		def AnyNItems(pCaseSensitive)
-			return This.NRandomItems()
+		def AnyNItems(n)
+			return This.NRandomItems(n)
 
-		def NItems(pCaseSensitive)
-			return This.NRandomItems()
+		def NItems(n)
+			return This.NRandomItems(n)
 
-		def RandomNItems(pCaseSensitive)
-			return This.NRandomItems()
+		def RandomNItemsC(n)
+			return This.NRandomItemsC(n)
 
 		#>
 
@@ -44098,114 +44866,63 @@ vvv
 	 #  GETIING N RANDOM ITEMS FROM THE LIST ALONG WITH THEIR POSITIONS  #
 	#-------------------------------------------------------------------#
 
-	def NRandomItemsCSZ(pCaseSensitive) # NRandomItemsAndTheirPositions()
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
-		ok
-
-		if pCaseSensitive = TRUE
-			anPos = NRandomNumbersBetween(1, This.NumberOfItems())
-			aItems = This.ItemsAtPositions(anPos)
-			return [ aItems, anPos ]
-
-		else
-#>>>>>>>		# TODO: Add case sensitivity
-			StzRaise("Case sensitivity is not supported yet for this fucntion!")
-		ok
+	def NRandomItemsZ(n)
+		anPos = NRandomNumbersIn(n, 1 : This.NumberOfItems() )
+		aItems = This.ItemsAtPositions(anPos)
+		aResult = Association([ aItems, anPos ])
+		return aResult
 		
 		#< @FunctionAlternativeForms
 
-		def NAnyItemsCSZ(pCaseSensitive)
-			return This.NRandomItemsCSZ(pCaseSensitive)
+		def NAnyItemsZ(n)
+			return This.NRandomItemsZ(n)
 
-		def NItemsCSZ(pCaseSensitive)
-			return This.NRandomItemsCSZ(pCaseSensitive)
+		def NItemsZ(n)
+			return This.NRandomItemsZ(n)
 
-		def NRandomItemsAndTheirPositionsCS(pCaseSensitive)
-			return This.NRandomItemsCSZ(pCaseSensitive)
+		def NRandomItemsAndTheirPositions(n)
+			return This.NRandomItemsZ(n)
 
-		def NAnyItemsAndTheirPositionsCS(pCaseSensitive)
-			return This.NRandomItemsCSZ(pCaseSensitive)
+		def NAnyItemsAndTheirPositions(n)
+			return This.NRandomItemsZ(n)
 
-		def NItemsAndTheirPositionsCS(pCaseSensitive)
-			return This.NRandomItemsCSZ(pCaseSensitive)
+		def NItemsAndTheirPositions(n)
+			return This.NRandomItemsZ(n)
 
-		def RandomItemsAndTheirPositionsCS(pCaseSensitive)
-			return This.NRandomItemsCSZ(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def NRandomItemsZ()
-		return This.NRandomItemsCSZ(TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def NAnyItemsZ()
-			return This.NRandomItemsZ()
-
-		def NItemsZ()
-			return This.NRandomItemsZ()
-
-		def NRandomItemsAndTheirPositions()
-			return This.NRandomItemsZ()
-
-		def NAnyItemsAndTheirPositions()
-			return This.NRandomItemsZ()
-
-		def NItemsAndTheirPositions()
-			return This.NRandomItemsZ()
-
-		def RandomItemsAndTheirPositions()
-			return This.NRandomItemsZ()
+		def RandomItemsAndTheirPositions(n)
+			return This.NRandomItemsZ(n)
 
 		#>
+
+	  #-----------------------------------------------#
+	 #  GETIING SOME RANDOM POSITIONS FROM THE LIST  #
+	#-----------------------------------------------#
+
+	def SomeRandomPositions()
+		n = ARandomNumberIn( 1 : This.NumberOfItems() )
+		anResult = This.NRandomPositions(n)
+		return anResult
+
+		def SomePositions()
+			return This.SomeRandomPositions()
+
+		def AnyPositions()
+			return This.SomeRandomPositions()
 
 	  #-------------------------------------------#
 	 #  GETIING SOME RANDOM ITEMS FROM THE LIST  #
 	#-------------------------------------------#
 
-	def SomeRandomItemsCS(pCaseSensitive)
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
-		ok
-
-		if pCaseSensitive = TRUE
-
-			n = ARandomNumberBetweenIB( 1, This.NumberOfItems() )
-			aResult = This.NRandomItems(n)
-	
-			return aResult
-		else
-#>>>>>>>		# TODO: Add case sensitivity
-			StzRaise("Case sensitivity is not supported yet for this fucntion!")
-		ok
-
-		#< @FunctionAlternativeForms
-
-		def RandomItemsCS(pCaseSensitive)
-			return This.SomeRandomItemsCS(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
 	def SomeRandomItems()
-		return This.SomeRandomItemsCS(pCaseSensitive)
+		n = ARandomNumberIn( 1 : This.NumberOfItems() )
+		aResult = This.NRandomItems(n)
+	
+		return aResult
 
-		#< @FunctionAlternativeForms
+		#< @FunctionAlternativeForm
 
-		def RandomItems()
-			return This.SomeRandomItems()
+		def RandomItems(pCaseSensitive)
+			return This.SomeRandomItemsCS(pCaseSensitive)
 
 		#>
 
@@ -44213,36 +44930,25 @@ vvv
 	 #  GETIING SOME RANDOM ITEMS FROM THE LIST ALONG WITH THEIR POSITIONS  #
 	#----------------------------------------------------------------------#
 
-	def SomeRandomItemsCSZ(pCaseSensitive) # SomeRandomItemsAndTheirPositions
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
-		ok
-
-		if pCaseSensitive = TRUE
-
-			n = ARandomNumberBetweenIB( 1, This.NumberOfItems() )
-			aResult = This.NRandomItemsZ(n)
+	def SomeRandomItemsZ(pCaseSensitive)
+		n = ARandomNumberIn( 1 : This.NumberOfItems() )
+		anPos = This.NRandomPositions(n)
+		aItems = This.ItemsAtPositions(anPos)
 	
-			return aResult
-		else
-#>>>>>>>		# TODO: Add case sensitivity
-			StzRaise("Case sensitivity is not supported yet for this fucntion!")
-		ok
+		aResult = Association([ aItems, anPos ])
+		return aResult
+
 
 		#< @FunctionAlternativeForms
 
-		def SomeRandomItemsAndTheirPosotionsCS(pCaseSensitive)
-			return This.SomeRandomItemsCSZ(pCaseSensitive)
+		def SomeRandomItemsAndTheirPosotions(pCaseSensitive)
+			return This.SomeRandomItemsZ(pCaseSensitive)
 
-		def RandomItemsCSZ(pCaseSensitive)
-			return This.SomeRandomItemsCSZ(pCaseSensitive)
+		def RandomItemsZ(pCaseSensitive)
+			return This.SomeRandomItemsZ(pCaseSensitive)
 
 		def RandomItemsAndTheirPositionsZ(pCaseSensitive)
-			return This.SomeRandomItemsCSZ(pCaseSensitive)
+			return This.SomeRandomItemsZ(pCaseSensitive)
 
 		#>
 
@@ -44251,19 +44957,13 @@ vvv
 	#---------------------------------------------------------#
 
 	def AnItemOtherThanCS(pItem, pCaseSensitive)
-		if isList(pItem)
-			return This.AnyRandomItemOtherThanManyCS(pItem, pCaseSensitive)
-		ok
-
-		if NOT This.ContainsCS(pItem, pCaseSensitive)
-			return This.AnyItem()
-
-		else
-			nPos = This.ToSetQ().FindFirstCS(pItem, pCaseSensitive)
-			n = StzListOfNumbersQ( 1: len(aSet) ).AnyNumberOtherThan(nPos)
-			return This.Item(n)
-		ok
+		anPos = This.FindAllCS(pItem, pCaseSensitive)
+		anPos = Q(anPos) - Many(anPos)
+		n = ARandomNumberIn(anPos)
+		result = This.ItemAt(n)
 	
+		return result
+
 		#< @FunctionAlternativeForms
 	
 		def AnItemDifferentThanCS(pItem, pCaseSensitive)
@@ -44375,18 +45075,13 @@ vvv
 	#---------------------------------------------------------------------------------#
 
 	def AnItemOtherThanCSZ(pItem, pCaseSensitive)
-		if isList(pItem)
-			return This.AnyRandomItemOtherThanManyCSZ(pItem, pCaseSensitive)
-		ok
-
-		if NOT This.ContainsCS(pItem, pCaseSensitive)
-			return This.AnyItemZ()
-
-		else
-			nPos = This.ToSetQ().FindFirstCS(pItem, pCaseSensitive)
-			n = StzListOfNumbersQ( 1 : len(aSet) ).AnyNumberOtherThan(nPos)
-			return [ This.Item(n), n ]
-		ok
+		anPos = This.FindAllCS(pItem, pCaseSensitive)
+		anPos = Q(anPos) - Many(anPos)
+		nPos = ARandomNumberIn(anPos)
+		item = This.ItemAt(nPos)
+	
+		aResult = [ item, nPos ]
+		return aResult
 	
 
 		#< @FunctionAlternativeForms
@@ -44437,7 +45132,6 @@ vvv
 			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
 
 		#>
-
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -44492,12 +45186,12 @@ vvv
 			return This.ANumberOtherThanZ(pItem)
 
 		def ARandomItemOtherThanZ(pItem)
-			return This.ANumberOtherThanZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanZ(pItem)
 
 		#>
 
 	  #-------------------------------------------------------#
-	 #  GETTING A EANDOM ITEM OTHER THAN THE ITEMS PROVIDED  #
+	 #  GETTING A RANDOM ITEM OTHER THAN THE ITEMS PROVIDED  #
 	#-------------------------------------------------------#
 
 	def AnyRandomItemOtherThanManyCS(paItems, pCaseSensitive)
@@ -44506,76 +45200,228 @@ vvv
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def RandomItemOtherThanManyCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCS(paItems, pCaseSensitive)
+
+		def ARandomItemOtherThanManyCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCS(paItems, pCaseSensitive)
+
+		def AnItemOtherThanManyCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCS(paItems, pCaseSensitive)
+
+		#--
+
+		def AnyRandomItemExceptManyCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCS(paItems, pCaseSensitive)
+
+		def RandomItemExceptManyCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCS(paItems, pCaseSensitive)
+
+		def ARandomItemExceptManyCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCS(paItems, pCaseSensitive)
+
+		def AnItemExceptManyCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCS(paItems, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnyRandomItemOtherThanMany(paItems)
 		return This.AnyRandomItemOtherThanManyCS(paItems, TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def RandomItemOtherThanMany(paItems)
+			return This.AnyRandomItemOtherThanMany(paItems)
+
+		def ARandomItemOtherThanMany(paItems)
+			return This.AnyRandomItemOtherThanMany(paItems)
+
+		def AnItemOtherThanMany(paItems)
+			return This.AnyRandomItemOtherThanMany(paItems)
+
+		#--
+
+		def AnyRandomItemExceptMany(paItems)
+			return This.AnyRandomItemOtherThanMany(paItems)
+
+		def RandomItemExceptMany(paItems)
+			return This.AnyRandomItemOtherThanMany(paItems)
+
+		def ARandomItemExceptMany(paItems)
+			return This.AnyRandomItemOtherThanMany(paItems)
+
+		def AnItemExceptMany(paItems)
+			return This.AnyRandomItemOtherThanMany(paItems)
+
+		#>
+
 	  #----------------------------------------------------------------------------------#
-	 #  GETTING A EANDOM ITEM OTHER THAN THE ITEMS PROVIDED ALONG WITH THEIR POSITIONS  #
+	 #  GETTING A RANDOM ITEM OTHER THAN THE ITEMS PROVIDED ALONG WITH THEIR POSITIONS  #
 	#----------------------------------------------------------------------------------#
 
 	def AnyRandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
+
 		anPos = This.FindManyCS(paItems, pCaseSensitive)
 		aResult = [ This.AnyItemsInPositionsOtherThan(anPos), anPos ]
 
 		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def RandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
+
+		def ARandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
+
+		def AnItemOtherThanManyCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
+
+		#--
+
+		def AnyRandomItemExceptManyCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
+
+		def RandomItemExceptManyCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
+
+		def ARandomItemExceptManyCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
+
+		def AnItemExceptManyCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def AnyRandomItemOtherThanManyZ(paItems)
 		return This.AnyRandomItemOtherThanManyCSZ(paItems, TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def RandomItemOtherThanManyZ(paItems)
+			return This.AnyRandomItemOtherThanManyZ(paItems)
+
+		def ARandomItemOtherThanManyZ(paItems)
+			return This.AnyRandomItemOtherThanManyZ(paItems)
+
+		def AnItemOtherThanManyZ(paItems)
+			return This.AnyRandomItemOtherThanManyZ(paItems)
+
+		#--
+
+		def AnyRandomItemExceptManyZ(paItems)
+			return This.AnyRandomItemOtherThanManyZ(paItems)
+
+		def RandomItemExceptManyZ(paItems)
+			return This.AnyRandomItemOtherThanManyZ(paItems)
+
+		def ARandomItemExceptManyZ(paItems)
+			return This.AnyRandomItemOtherThanManyZ(paItems)
+
+		def AnItemExceptManyZ(paItems)
+			return This.AnyRandomItemOtherThanManyZ(paItems)
+
+		#>
+
 	  #--------------------------------------------------#
 	 #  GETTING N RANDOM ITEMS OTHER THAN A GIVEN ITEM  #
 	#--------------------------------------------------#
 
 	def NRandomItemsOtherThanCS(pItem, pCaseSensitive)
-		anPos = ( Q(1 : This.NumberOfItems()) -
-			  This.FindCS(pItem, pCaseSensitive) ).
-			Content()
-
+		anPos = Q(1 : This.NumberOfItems()) - This.FindCS(pItem, pCaseSensitive)
 		anRandomPos = NRandomNumbersIn(anPos)
 		aResult = This.ItemsAtPositions(anRandomPos)
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def NItemsOtherThanCS(pItem, pCaseSensitive)
 			return This.NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
+		#--
+
+		def NRandomItemsExceptCS(pItem, pCaseSensitive)
+			return This. NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
+		def NItemsExceptCS(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanS(pItem)
 		return This.NRandomItemsOtherThanCS(pItem, TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def NItemsOtherThan(pItem)
 			return This.NRandomItemsOtherThan(pItem)
+
+		#--
+
+		def NRandomItemsExcept(pItem)
+			return This. NRandomItemsOtherThan(pItem)
+
+		def NItemsExcept(pItem)
+			return This.NRandomItemsOtherThan(pItem)
+
+		#>
 
 	  #----------------------------------------------------------------#
 	 #  GETTING N RANDOM ITEMS OTHER THAN A GIVEN ITEM -- Z/EXTENDED  #
 	#----------------------------------------------------------------#
 
 	def NRandomItemsOtherThanCSZ(pItem)
-
-		anPos = ( Q(1 : This.NumberOfItems()) -
-			  This.FindCS(pItem, pCaseSensitive) ).
-			Content()
-
+		anPos = Q(1 : This.NumberOfItems()) - This.FindCS(pItem, pCaseSensitive)
 		anRandomPos = NRandomNumbersIn(anPos)
-		aResult = This.ItemsAtPositionsQ(anRandomPos).AssociatedWith(anRandomPos)
+		aItems = This.ItemsAtPositions(anRandomPos)
+
+		aResult = Association([ aItems, anRandomPos ])
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def NItemsOtherThanCSZ(pItem, pCaseSensitive)
 			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
+		#--
+
+		def NRandomItemsExceptCSZ(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
+		def NItemsExceptCSZ(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def NRandomItemsOtherThanZ(pItem)
 		return This.NRandomItemsOtherThanCSZ(pItem, TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def NItemsOtherThanZ(pItem)
 			return This.NRandomItemsOtherThanZ(pItem)
+
+		#--
+
+		def NRandomItemsExceptZ(pItem)
+			return This.NRandomItemsOtherThanZ(pItem)
+
+		def NItemsExceptZ(pItem)
+			return This.NRandomItemsOtherThanZ(pItem)
+
+		#>
 
 	  #----------------------------------------------------------------#
 	 #  GETTING N RANDOM ITEMS OTHER THAN A GIVEN ITEM -- U/EXTENDED  #
@@ -44593,34 +45439,85 @@ vvv
 	 #  GETTING SOME RANDOM ITEMS OTHER THAN A GIVEN ITEM  #
 	#-----------------------------------------------------#
 
-	def SomeRandomItemsOtherThanCS(pItem)
-		anPos = ( Q(1 : This.NumberOfItems()) -
-			  This.FindCS(pItem, pCaseSensitive) ).
-			Content()
-
+	def SomeRandomItemsOtherThanCS(pItem, pCaseSensitive)
+		anPos = Q(1 : This.NumberOfItems()) - This.FindCS(pItem, pCaseSensitive)
 		anRandomPos = SomeRandomNumbersIn(anPos)
 		aResult = This.ItemsAtPositions(anRandomPos)
 
 		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SomeItemsOtherThanCS(pItem, pCaseSensitive)
+			return This.SomeRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
+		def SomeRandomItemsExceptCS(pItem, pCaseSensitive)
+			return This.SomeRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
+		def SomeItemsExceptCS(pItem, pCaseSensitive)
+			return This.SomeRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SomeRandomItemsOtherThanpItem(pItem)
+		return This.SomeRandomItemsOtherThanCS(pItem, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def SomeItemsOtherThan(pItem)
+			return This.SomeRandomItemsOtherThan(pItem)
+
+		def SomeRandomItemsExcept(pItem)
+			return This.SomeRandomItemsOtherThan(pItem)
+
+		def SomeItemsExcept(pItem)
+			return This.SomeRandomItemsOtherThan(pItem)
+
+		#>
 
 	  #-------------------------------------------------------------------#
 	 #  GETTING SOME RANDOM ITEMS OTHER THAN A GIVEN ITEM -- Z/EXTENDED  #
 	#-------------------------------------------------------------------#
 
 	def SomeRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
-		anPos = ( Q(1 : This.NumberOfItems()) -
-			  This.FindCS(pItem, pCaseSensitive) ).
-			Content()
-
+		anPos = Q(1 : This.NumberOfItems()) - This.FindCS(pItem, pCaseSensitive)
 		anRandomPos = SomeRandomNumbersIn(anPos)
 		aResult = This.ItemsAtPositionsQ(anRandomPos).AssociatedWith(anRandomPos)
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def SomeItemsOtherThanCSZ(pItem, pCaseSensitive)
+			return This.SomeRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
+		def SomeRandomItemsExceptCSZ(pItem, pCaseSensitive)
+			return This.SomeRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
+		def SomeItemsExceptCSZ(pItem, pCaseSensitive)
+			return This.SomeRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def SomeRandomItemsOtherThanZ(pItem)
 		return This.SomeRandomItemsOtherThanCSZ(pItem, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def SomeItemsOtherThanZ(pItem)
+			return This.SomeRandomItemsOtherThanZ(pItem)
+
+		def SomeRandomItemsExceptZ(pItem)
+			return This.SomeRandomItemsOtherThanZ(pItem)
+
+		def SomeItemsExceptZ(pItem)
+			return This.SomeRandomItemsOtherThanZ(pItem)
+
+		#>
 
 	  #-------------------------------------------------------------------#
 	 #  GETTING SOME RANDOM ITEMS OTHER THAN A GIVEN ITEM -- U/EXTENDED  #
@@ -44651,14 +45548,14 @@ vvv
 	 #  GETTING N RANDOM ITEMS OTHER THAN MANY GIVEN ITEMS  -- Z/EXTENDED  #
 	#---------------------------------------------------------------------#
 
-	def NRandomItemsOtherThanManyCSZ(pItem, pCaseSensitive)
+	def NRandomItemsOtherThanManyCSZ(paItems, pCaseSensitive)
 		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NRandomItemsOtherThanManyZ(pItem)
-		return This.NRandomItemsOtherThanManyCSZ(pItem, TRUE)
+	def NRandomItemsOtherThanManyZ(paItems)
+		return This.NRandomItemsOtherThanManyCSZ(paItems, TRUE)
 
 	#-- U/EXTENDED FORM
 
@@ -44672,13 +45569,13 @@ vvv
 	 #  GETTING SOME RANDOM ITEMS OTHER THAN A MANY GIVEN ITEMS  #
 	#-----------------------------------------------------------#
 
-	def SomeRandomItemsOtherThanManyCS(pItem)
+	def SomeRandomItemsOtherThanManyCS(paItems)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
 	#-- Z/EXTENDED FORM
 
-	def SomeRandomItemsOtherThanManyCSZ(pItem)
+	def SomeRandomItemsOtherThanManyCSZ(paItems)
 		# TODO
 		StzRaise("Unsupported feature yet!")
 
@@ -45036,29 +45933,6 @@ vvv
 		def SomeItemsInPositionsOtherThanZ(panPos, pCaseSensitive)
 			return This.SomeItemsOutsidePositionsZ(panPos, pCaseSensitive)
 
-	  #--------------------------------------------------------#
-	 #  GETTING A RANDOM ITEM AFTER A GIVEN ITEM OR POSITION  #
-	#--------------------------------------------------------#
-
-	def AnyItemAfter(p) #TODO
-
-	def AnytemAfterZ(p) #TODO
-
-	  #------------------------------------------------#
-	 #  GETTING A RANDOM ITEM AFTER A GIVEN POSITION  #
-	#------------------------------------------------#
-
-	def AnytemAfterPosition(n) #TODO
-
-	def AnyItemAfterPositionZ(n) #TODO
-
-	  #---------------------------------------------------------#
-	 #  GETTING A RANDOM ITEM BEFORE A GIVEN ITEM OR POSITION  #
-	#---------------------------------------------------------#
-
-	def AnyItemBefore(p) #TODO
-
-	def AnyItemBeforeZ(n) #TODO
 
 	  #-------------------------------------------------#
 	 #  GETTING A RANDOM ITEM BEFORE A GIVEN POSITION  #
@@ -45074,7 +45948,7 @@ vvv
 
 	def AnyItemsBeforePosition(n) #TODO
 
-	def AnyItemBeforePositionZ(n) #TODO
+ 	def AnyItemsBeforePositionZ(n) #TODO
 
 	  #----------------------------------------------------#
 	 #  GETTING SOME RANDOM ITEMS AFTER A GIVEN POSITION  #

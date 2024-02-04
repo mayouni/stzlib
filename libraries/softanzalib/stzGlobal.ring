@@ -870,6 +870,12 @@ func ring_upper(str)
 func ring_isPrime(n)
 	return isPrime(n)
 
+func ring_random(n)
+	return random(n)
+
+func ring_srandom(n)
+	return srandom(n)
+
 #-----
 
 func StzFindCS(pThing, paIn, pCaseSensitive)
