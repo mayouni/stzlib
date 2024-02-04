@@ -20200,14 +20200,21 @@ class stzString from stzObject
 
 	def RandomPosition()
 
-		nResult = ARandomNumberBetweenXT(1, This.NumberOfChars())
+		nResult = ARandomNumberBetween(1, This.NumberOfChars())
 		return nResult
+
+		#< @FunctionAlternativeForms
 
 		def ARandomPosition()
 			return This.RandomPosition()
 
 		def APosition()
 			return This.RandomPosition()
+
+		def AnyPosition()
+			return This.RandomPosition()
+
+		#>
 
 	  #--------------------------------------------------------------------------#
 	 #   GETTING A RANDOM POSITION IN THE STRING GREATER THAN THE ONE PROVIDED  #
@@ -20233,14 +20240,28 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def ARandomPositionGreaterThan(n)
-			return RandomPositionGreaterThan(n)
+			return This.RandomPositionGreaterThan(n)
 
 		def RandomPositionAfter(n)
-			return RandomPositionGreaterThan(n)
+			return This.RandomPositionGreaterThan(n)
 
 		def ARandomPositionAfter(n)
-			return RandomPositionGreaterThan(n)
+			return This.RandomPositionGreaterThan(n)
 
+		#--
+
+		def APositionGreaterThan(n)
+			return This.RandomPositionGreaterThan(n)
+
+		def APositionAfter(n)
+			return This.RandomPositionGreaterThan(n)
+
+		def AnyPositionGreaterThan(n)
+			return This.RandomPositionGreaterThan(n)
+
+		def AnyPositionAfter(n)
+			return This.RandomPositionGreaterThan(n)
+		
 		#>
 
 	  #-----------------------------------------------------------------------#
@@ -20267,13 +20288,27 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def ARandomPositionLessThan(n)
-			return RandomPositionLessThan(n)
+			return This.RandomPositionLessThan(n)
 
 		def RandomPositionBefore(n)
-			return RandomPositionLessThan(n)
+			return This.RandomPositionLessThan(n)
 
 		def ARandomPositionBefore(n)
-			return RandomPositionLessThan(n)
+			return This.RandomPositionLessThan(n)
+
+		#--
+
+		def APositionLessThan(n)
+			return This.RandomPositionLessThan(n)
+
+		def APositionBefore(n)
+			return This.RandomPositionLessThan(n)
+
+		def AnyPositionLessThan(n)
+			return This.RandomPositionLessThan(n)
+
+		def AnyPositionBefore(n)
+			return This.RandomPositionLessThan(n)
 
 		#>
 
@@ -20304,6 +20339,20 @@ class stzString from stzObject
 		def ARandomPositionOtherThan(n)
 			return This.RandomPositionExcept(n)
 
+		#--
+
+		def APositionExcept(n)
+			return This.RandomPositionExcept(n)
+
+		def APositionOtherThan(n)
+			return This.RandomPositionExcept(n)
+
+		def AnyPositionExcept(n)
+			return This.RandomPositionExcept(n)
+
+		def AnyPositionOtherThan(n)
+			return This.RandomPositionExcept(n)
+
 		#>
 
 	  #-----------------------------------------#
@@ -20315,8 +20364,20 @@ class stzString from stzObject
 		cResult = This.CharAtPosition( This.RandomPosition() )
 		return cResult
 
+		#< @functionAlternativeForms
+
 		def ARandomChar()
 			return This.RandomChar()
+
+		#--
+
+		def AChar()
+			return This.RandomChar()
+
+		def AnyChar()
+			return This.RandomChar()
+
+		#>
 
 	  #--------------------------------------------------------------------#
 	 #   GETTING A RANDOM CHAR IN THE STRING AFTER THE PROVIDED POSITION  #
@@ -20327,8 +20388,20 @@ class stzString from stzObject
 		cResult = This.CharAt( This.RandomPositionGreaterThan(n) )
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def ARandomCharAfterPosition(n)
 			return This.RandomCharAfterPosition(n)
+
+		#--
+
+		def ACharAfterPosition(n)
+			return This.RandomCharAfterPosition(n)
+
+		def AnyCharAfterPosition(n)
+			return This.RandomCharAfterPosition(n)
+
+		#>
 
 	  #---------------------------------------------------------------------------------#
 	 #   GETTING A RANDOM CHAR IN THE STRING AFTER THE PROVIDED POSITION OR SUBSTRING  #
@@ -20346,16 +20419,40 @@ class stzString from stzObject
 			return This.RandomCharAfterPosition(nPos)
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def ARandomCharAfterCS(pPosOrSubStr, pCaseSensitive)
 			return This.RandomCharAfterCS(pPosOrSubStr, pCaseSensitive)
+
+		#--
+
+		def ACharAfterCS(pPosOrSubStr, pCaseSensitive)
+			return This.RandomCharAfterCS(pPosOrSubStr, pCaseSensitive)
+
+		def AnyCharAfterCS(pPosOrSubStr, pCaseSensitive)
+			return This.RandomCharAfterCS(pPosOrSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomCharAfter(pPosOrSubStr)
 		return This.RandomCharAfterCS(pPosOrSubStr, TRUE)
 
+		#< @functionAlternativeForms
+
 		def ARandomCharAfter(pPosOrSubStr)
 			return This.RandomCharAfter(pPosOrSubStr)
+
+		#--
+
+		def ACharAfter(pPosOrSubStr)
+			return This.RandomCharAfter(pPosOrSubStr)
+
+		def AnyCharAfter(pPosOrSubStr)
+			return This.RandomCharAfterCS(pPosOrSubStr)
+
+		#>
 
 	  #---------------------------------------------------------------------#
 	 #   GETTING A RANDOM CHAR IN THE STRING BEFORE THE PROVIDED POSITION  #
@@ -20366,8 +20463,20 @@ class stzString from stzObject
 		cResult = This.CharAt( This.RandomPositionLessThan(n) )
 		return cResult
 
+		#< @functionAlternativeForms
+
 		def ARandomCharBeforePosition(n)
 			return This.RandomCharBeforePosition(n)
+
+		#--
+
+		def ACharBeforePosition(n)
+			return This.RandomCharBeforePosition(n)
+
+		def AnyCharBeforePosition(n)
+			return This.RandomCharBeforePosition(n)
+
+		#>
 
 	  #----------------------------------------------------------------------------------#
 	 #   GETTING A RANDOM CHAR IN THE STRING BEFORE THE PROVIDED POSITION OR SUBSTRING  #
@@ -20379,22 +20488,46 @@ class stzString from stzObject
 		ok
 
 		if isNumber(pPosOrSubStr)
-			return This.RandomCharBeforePosition(n)
+			return This.RandomCharBeforePosition(pPosOrSubStr)
 		else
 			nPos = This.FindFirstCS(pPosOrSubStr, pCaseSensitive)
 			return This.RandomCharBeforePosition(nPos)
 		ok
 
+		#< @functionAlternativeForms
+
 		def ARandomCharBeforeCS(pPosOrSubStr, pCaseSensitive)
 			return This.RandomCharBeforeCS(pPosOrSubStr, pCaseSensitive)
+
+		#--
+
+		def ACharBeforeCS(pPosOrSubStr, pCaseSensitive)
+			return This.RandomCharBeforeCS(pPosOrSubStr, pCaseSensitive)
+
+		def  AnyCharBeforeCS(pPosOrSubStr, pCaseSensitive)
+			return This.RandomCharBeforeCS(pPosOrSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomCharBefore(pPosOrSubStr)
-		return This.RandomBeforeBeforeCS(pPosOrSubStr, TRUE)
+		return This.RandomCharBeforeCS(pPosOrSubStr, TRUE)
 
-		def ARandomBeforeBefore(pPosOrSubStr)
-			return This.RandomBeforeBefore(pPosOrSubStr)
+		#< @FunctionAlternativeForms
+
+		def ARandomCharBefore(pPosOrSubStr)
+			return This.RandomCharBefore(pPosOrSubStr)
+
+		#--
+
+		def ACharBefore(pPosOrSubStr)
+			return This.RandomCharBefore(pPosOrSubStr)
+
+		def  AnyCharBefore(pPosOrSubStr)
+			return This.RandomCharBefore(pPosOrSubStr)
+
+		#>
 
 	  #--------------------------------------------------------------------#
 	 #   GETTING A RANDOM CHAR IN THE STRING EXECEPT THE PROVIDED ONE OR  #
@@ -20413,16 +20546,40 @@ class stzString from stzObject
 			return This.RandomCharExceptCharCS(pPosOrChar, pCaseSensitive)
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def ARandomCharExceptCS(pPosOrChar, pCaseSensitive)
 			return This.RandomCharExceptCS(pPosOrChar, pCaseSensitive)
+
+		#--
+
+		def ACharExceptCS(pPosOrChar, pCaseSensitive)
+			return This.RandomCharExceptCS(pPosOrChar, pCaseSensitive)
+
+		def AnyCharExceptCS(pPosOrChar, pCaseSensitive)
+			return This.RandomCharExceptCS(pPosOrChar, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIIVTY
 
 	def RandomCharExcept(pPosOrChar)
 		return This.RandomCharExceptCS(pPosOrChar, TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def ARandomCharExcept(pPosOrChar)
 			return This.RandomCharExcept(pPosOrChar)
+
+		#--
+
+		def ACharExcept(pPosOrChar)
+			return This.RandomCharExcept(pPosOrChar)
+
+		def AnyCharExcept(pPosOrChar)
+			return This.RandomCharExcept(pPosOrChar)
+
+		#>
 
 	  #---------------------------------------------------------------------------------#
 	 #   GETTING A RANDOM CHAR IN THE STRING EXECEPT THE ONE AT THE POSITION PROVIDED  #
@@ -20479,6 +20636,28 @@ class stzString from stzObject
 		def ARandomCharExceptAt(n)
 			return This.RandomCharExceptPosition(n)
 
+		#==
+
+		def ACharExceptPosition(n)
+			return This.RandomCharExceptPosition(n)
+
+		def ACharExceptCharAtPosition(n)
+			return This.RandomCharExceptPosition(n)
+
+		def ACharExceptCharAt(n)
+			return This.RandomCharExceptPosition(n)
+
+		#--
+
+		def AnyCharExceptPosition(n)
+			return This.RandomCharExceptPosition(n)
+
+		def AnyCharExceptCharAtPosition(n)
+			return This.RandomCharExceptPosition(n)
+
+		def AnyCharExceptCharAt(n)
+			return This.RandomCharExceptPosition(n)
+
 		#>
 
 	  #---------------------------------------------------------------#
@@ -20491,21 +20670,45 @@ class stzString from stzObject
 		ok
 
 		anPos = This.FindAllCS(pcChar, pCaseSensitive)
-		anPos = Q(1: This.NumberOfChars()) - anPos
+		anPos = Q(1: This.NumberOfChars()) - Many(anPos)
 		nPos = ARandomNumberIn( anPos )
 		cResult = This.CharAt(nPos)
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def ARandomCharExceptCharCS(pcChar, pCaseSensitive)
 			return This.RandomCharExceptCharCS(pcChar, pCaseSensitive)
+
+		#--
+
+		def ACharExceptCharCS(pcChar, pCaseSensitive)
+			return This.RandomCharExceptCharCS(pcChar, pCaseSensitive)
+
+		def AnyCharExceptCharCS(pcChar, pCaseSensitive)
+			return This.RandomCharExceptCharCS(pcChar, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def RandomCharExceptChar(pcChar)
 		return This.RandomCharExceptCharCS(pcChar, TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def ARandomCharExceptChar(pcChar)
 			return This.RandomCharExceptChar(pcChar)
+
+		#--
+
+		def ACharExceptChar(pcChar)
+			return This.RandomCharExceptChar(pcChar)
+
+		def AnyCharExceptChar(pcChar)
+			return This.RandomCharExceptChar(pcChar)
+
+		#>
 
 	  #================================================#
 	 #   GETTING A SECTION (OR SLICE) OF THE STRING   #
