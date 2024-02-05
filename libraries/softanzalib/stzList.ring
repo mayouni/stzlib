@@ -44140,7 +44140,7 @@ vvv
 
 	  #-------------------------------------------------------------------#
 	 #   GETTING A RANDOM SECTION FROM THE LIST ALONG WITH ITS POSITION  #
-	#===================================================================#
+	#-------------------------------------------------------------------#
 
 	def RandomSectionZ()
 		n1 = This.ARandomPosition()
@@ -44176,70 +44176,6 @@ vvv
 		def AnySectionAndItsPosition()
 			return This.RandomSectionZ()
 
-
-		#>
-
-	  #----------------------------------------------------------------#
-	 #   GETTING A RANDOM SECTION FROM THE LIST AS A PAIR OF NUMBERS  #
-	#================================================================#
-
-	def RandomSectionAsAPairOfNumbers()
-		n1 = This.ARandomPosition()
-		n2 = This.ARandomPositionOtherThan(n1)
-
-		aResult = [ n1, n2 ]
-
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def RandmSectionAsNumbers()
-			return This.RandomSectionAsAPairOfNumbers()
-
-		def RandmSectionInNumbers()
-			return This.RandomSectionAsAPairOfNumbers()
-
-		#--
-
-		def ARandomSectionAsAPairOfNumbers()
-			return This.RandomSection()
-
-		def ARandomSectionAsPairOfNumbers()
-			return This.RandomSection()
-
-		def ASectionAsAPairOfNumbers()
-			return This.RandomSection()
-
-		def ASectionAsPairOfNumbers()
-			return This.RandomSection()
-
-		def AnySectionAsAPairOfNumbers()
-			return This.RandomSection()
-
-		def AnySectionAsPairOfNumbers()
-			return This.RandomSection()
-
-		#--
-
-		def ARandomSectionAsNumbers()
-			return This.RandomSection()
-
-		def ASectionAsNumbers()
-			return This.RandomSection()
-
-		def AnySectionAsNumbers()
-			return This.RandomSection()
-
-		#--
-
-		def ARandomSectionInNumbers()
-			return This.RandomSection()
-
-		def ASectionInNumbers()
-			return This.RandomSection()
-
-		def AnySectionInNumbers()
-			return This.RandomSection()
 
 		#>
 

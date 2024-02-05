@@ -20710,12 +20710,12 @@ class stzString from stzObject
 
 		#>
 
-	  #--------------------------------------------#
-	 #  GETTING A RANDOM SECTION FROM THE STRING  #
-	#--------------------------------------------#
-
 //def RandomSection() --> RandomSubString()
 //add ...Z() and ZZ() to Random...
+
+	  #--------------------------------------------#
+	 #  GETTING A RANDOM SECTION FROM THE STRING  #
+	#============================================#
 
 	def RandomSection()
 		n1 = This.ARandomPosition()
@@ -20754,6 +20754,86 @@ class stzString from stzObject
 
 		def AnySubString()
 			return This.RandomSection()
+
+		#>
+
+	  #--------------------------------------------------------------------#
+	 #  GETTING A RANDOM SECTION FROM THE STRING ALONG WITH ITS POSITION  #
+	#--------------------------------------------------------------------#
+
+	def RandomSectionZ()
+		n1 = This.ARandomPosition()
+		n2 = This.ARandomPositionOtherThan(n1)
+		aSection = This.Section(n1, n2)
+
+		aResult = [ aSection, [n1, n2] ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomSectionZ()
+			return This.RandomSectionZ()
+
+		def AnyRandomSectionZ()
+			return This.RandomSectionZ()
+
+		def ASectionZ()
+			return This.RandomSectionZ()
+
+		def AnySectionZ()
+			return This.RandomSectionZ()
+
+		#--
+
+		def RandomSubStringZ()
+			return This.RandomSectionZ()
+
+		def ARandomSubStringZ()
+			return This.RandomSectionZ()
+
+		def AnyRandomSubStringZ()
+			return This.RandomSectionZ()
+
+		def ASubStringZ()
+			return This.RandomSectionZ()
+
+		def AnySubStringZ()
+			return This.RandomSectionZ()
+
+		#==
+
+		def RandomSectionAndItsPosition()
+			return This.RandomSectionZ()
+
+		def ARandomSectionAndItsPosition()
+			return This.RandomSectionZ()
+
+		def AnyRandomSectionAndItsPosition()
+			return This.RandomSectionZ()
+
+		def ASectionAndItsPosition()
+			return This.RandomSectionZ()
+
+		def AnySectionAndItsPosition()
+			return This.RandomSectionZ()
+
+		#--
+
+		def RandomSubStringAndItsPosition()
+			return This.RandomSectionZ()
+
+		def ARandomSubStringAndItsPosition()
+			return This.RandomSectionZ()
+
+		def AnyRandomSubStringAndItsPosition()
+			return This.RandomSectionZ()
+
+		def ASubStringAndItsPosition()
+			return This.RandomSectionZ()
+
+		def AnySubStringAndItsPosition()
+			return This.RandomSectionZ()
 
 		#>
 
