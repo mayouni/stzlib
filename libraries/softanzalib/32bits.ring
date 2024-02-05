@@ -39,8 +39,10 @@ pron()
 Q("123456789") {
 
 	? ARandomSection() # Or ASection() or ASubString etc.
-	#--> "6789"
+	#--> "12345"
 
+	? ARandomSectionZ()
+	#--> [ "123456", [ 1, 6 ] ]
 }
 
 proff()
