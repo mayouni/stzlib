@@ -43967,20 +43967,6 @@ vvv
 	 #   GETTING A RANDOM POSITION IN THE LIST   #
 	#===========================================#
 
-	# TODO: Add
-
-	# 	RandomPositions()			RandomItems()
-	# 	NRandomPositions()			NRandomItems()
-
-	# 	RandomPositionsGreaterThan()		RandomItemsAfter()
-	# 	NRandomPositionsGreaterThan()		NRandomItemsAfter()
-
-	# 	RandomPositionsLessThan()		RandomItemsBefore()
-	# 	NRandomPositionsLessThan()		NRandomItemsBefore()
-
-	# 	RandomPositionsExcept()			RandomItemsExcept()
-	# 	NRandomPositionsExcept()		NRandomItemsExcept()
-
 	def RandomPosition()
 
 		nResult = ARandomNumberBetween(1, This.NumberOfItems())
@@ -44125,6 +44111,135 @@ vvv
 
 		def AnyPositionOtherThan(n)
 			return This.RandomPositionExcept(n)
+
+		#>
+
+	  #-------------------------------------------#
+	 #   GETTING A RANDOM SECTION FROM THE LIST  #
+	#===========================================#
+
+	def RandomSection()
+		n1 = This.ARandomPosition()
+		n2 = This.ARandomPositionOtherThan(n1)
+		aResult = This.Section(n1, n2)
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomSection()
+			return This.RandomSection()
+
+		def ASection()
+			return This.RandomSection()
+
+		def AnySection()
+			return This.RandomSection()
+
+		#>
+
+	  #-------------------------------------------------------------------#
+	 #   GETTING A RANDOM SECTION FROM THE LIST ALONG WITH ITS POSITION  #
+	#===================================================================#
+
+	def RandomSectionZ()
+		n1 = This.ARandomPosition()
+		n2 = This.ARandomPositionOtherThan(n1)
+		aSection = This.Section(n1, n2)
+
+		aResult = [ aSection, [n1, n2] ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomSectionZ()
+			return This.RandomSectionZ()
+
+		def ASectionZ()
+			return This.RandomSectionZ()
+
+		def AnySectionZ()
+			return This.RandomSectionZ()
+
+		#--
+
+		def RandomSectionAndItsPosition()
+			return This.RandomSectionZ()
+
+		def ARandomSectionAndItsPosition()
+			return This.RandomSectionZ()
+
+		def ASectionAndItsPosition()
+			return This.RandomSectionZ()
+
+		def AnySectionAndItsPosition()
+			return This.RandomSectionZ()
+
+
+		#>
+
+	  #----------------------------------------------------------------#
+	 #   GETTING A RANDOM SECTION FROM THE LIST AS A PAIR OF NUMBERS  #
+	#================================================================#
+
+	def RandomSectionAsAPairOfNumbers()
+		n1 = This.ARandomPosition()
+		n2 = This.ARandomPositionOtherThan(n1)
+
+		aResult = [ n1, n2 ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def RandmSectionAsNumbers()
+			return This.RandomSectionAsAPairOfNumbers()
+
+		def RandmSectionInNumbers()
+			return This.RandomSectionAsAPairOfNumbers()
+
+		#--
+
+		def ARandomSectionAsAPairOfNumbers()
+			return This.RandomSection()
+
+		def ARandomSectionAsPairOfNumbers()
+			return This.RandomSection()
+
+		def ASectionAsAPairOfNumbers()
+			return This.RandomSection()
+
+		def ASectionAsPairOfNumbers()
+			return This.RandomSection()
+
+		def AnySectionAsAPairOfNumbers()
+			return This.RandomSection()
+
+		def AnySectionAsPairOfNumbers()
+			return This.RandomSection()
+
+		#--
+
+		def ARandomSectionAsNumbers()
+			return This.RandomSection()
+
+		def ASectionAsNumbers()
+			return This.RandomSection()
+
+		def AnySectionAsNumbers()
+			return This.RandomSection()
+
+		#--
+
+		def ARandomSectionInNumbers()
+			return This.RandomSection()
+
+		def ASectionInNumbers()
+			return This.RandomSection()
+
+		def AnySectionInNumbers()
+			return This.RandomSection()
 
 		#>
 
@@ -44819,8 +44934,6 @@ vvv
 			return This.RandomItemExceptPositionZ(n)
 
 		#>
-
-///////////
 
 	  #--------------------------------------------#
 	 #  GETIING N RANDOM POSITIONS FROM THE LIST  #

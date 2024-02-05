@@ -20710,6 +20710,53 @@ class stzString from stzObject
 
 		#>
 
+	  #--------------------------------------------#
+	 #  GETTING A RANDOM SECTION FROM THE STRING  #
+	#--------------------------------------------#
+
+//def RandomSection() --> RandomSubString()
+//add ...Z() and ZZ() to Random...
+
+	def RandomSection()
+		n1 = This.ARandomPosition()
+		n2 = This.ARandomPositionOtherThan(n1)
+		aResult = This.Section(n1, n2)
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomSection()
+			return This.RandomSection()
+
+		def AnyRandomSection()
+			return This.RandomSection()
+
+		def ASection()
+			return This.RandomSection()
+
+		def AnySection()
+			return This.RandomSection()
+
+		#--
+
+		def RandomSubString()
+			return This.RandomSection()
+
+		def ARandomSubString()
+			return This.RandomSection()
+
+		def AnyRandomSubString()
+			return This.RandomSection()
+
+		def ASubString()
+			return This.RandomSection()
+
+		def AnySubString()
+			return This.RandomSection()
+
+		#>
+
 	  #================================================#
 	 #   GETTING A SECTION (OR SLICE) OF THE STRING   #
 	#================================================#

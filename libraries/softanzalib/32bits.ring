@@ -32,8 +32,21 @@ o1 = new stzString("12♥45♥67♥9")
 
 proff()
 
-/*----
+/*====
 */
+pron()
+
+Q("123456789") {
+
+	? ARandomSection() # Or ASection() or ASubString etc.
+	#--> "6789"
+
+}
+
+proff()
+
+
+/*---
 
 pron()
 
