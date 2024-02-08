@@ -66700,7 +66700,7 @@ ici		//...
 
 		This.Update( cHashed )
 
-		#< @FunctionFluidVersion
+		#< @FunctionFluentVersion
 
 		def HashQ(pcHashingAlgo)
 			return new stzString( This.Hash(pcHashingAlgo) )

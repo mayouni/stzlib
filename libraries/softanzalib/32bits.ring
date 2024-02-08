@@ -4,6 +4,21 @@ load "stzlib.ring"
 
 pron()
 
+o1 = new stzString("ilir")
+
+? o1.Copy().UppercaseQ().SpacifyQ().ReplaceQ(" ", "*").Content()
+#--> "I*L*R"
+
+? o1.Content()
+#--> "ilir"
+
+proff()
+# Executed in 0.10 second(s)
+
+/*====
+
+pron()
+
 o1 = new stzList([ "1", "2", "♥", "4", "5", "♥", "6", "7", "♥", "9" ])
 
 ? @@( o1.Find("♥") ) + NL

@@ -1,11 +1,16 @@
 load "stzlib.ring"
 
+/*=====
+
+pron()
+
 ? NRandomNumbersIn(3, 1:10)
 #--> [ 6, 7, 7 ]
 
 ? NRandomNumbersInU(3, 1:10)
 #--> [ 1, 2, 4 ]
 
+proff-)
 
 /*=====
 
@@ -97,6 +102,18 @@ pron()
 #--> 4
 
 ? RandomNumberBetween(100, 150)
+#--> 106
+
+? @@( NRandomNumbersBetween(3, 100, 110) )
+#--> [ 102, 103, 103 ]
+
+? @@( NRandomNumbersBetweenU(3, 100, 110) )
+#--> [ 101, 108, 109 ]
+
+? @@( NRandomNumbersBetweenZ(3, 100, 110) )
+#--> [ [ 103, 4 ], [ 104, 5 ], [ 105, 6 ], [ 105, 6 ] ]
+
+? @@( NRandomNumbersBetweenUZ(3, 100, 110) )
 
 proff()
 

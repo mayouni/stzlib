@@ -981,7 +981,7 @@
 		return aResult
 
 	  #-----------------------------------------------------------------------------------------------#
-	 #  FINDING A SUBSTRING (AS SECTIONS) BETWEEB TWO OTHER SUBSTRINGS STARTING AT A GIVEN POSITION  #
+	 #  FINDING A SUBSTRING (AS SECTIONS) BETWEEN TWO OTHER SUBSTRINGS STARTING AT A GIVEN POSITION  #
 	#===============================================================================================#
 
 	def FindSubStringBetweenSCSZZ(pcSubStr, pcSubStr1, pSubStr2, pnStartingAt, pCaseSensitive)
