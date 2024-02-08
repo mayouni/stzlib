@@ -4149,7 +4149,7 @@ class stzText from stzString
 					StzRaise("Unsupported return type!")
 				off
 
-		def LettersUXT()
+		def LettersXTU()
 			return This.UniqueLettersXT()
 
 		def LettersWithoutDuplicationXT()

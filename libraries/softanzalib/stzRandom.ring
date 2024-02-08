@@ -2,22 +2,127 @@
 # Get inspiration from this great article:
 # https://marketsplash.com/tutorials/python/cracking-the-code-of-randomness-pythons-secrets-revealed/
 
+# TODO: Propose examples showing realword applications of randomness:
+#	- Generating unique passwords
+#	- Randomizing data
+#	- Monte Carlo simulations
+#	- Randomizing game mechanics
+#	- etc
+
   ////////////////////////////
  ///   RANDOM FUNCTIONS   ///
 ////////////////////////////
 
-func SeedRandom(n)
-	if isList(n) and Q(n).IsWithOrByOrUsingNamedParam()
-		n = n[2]
+_nRingMaxRandom = 999_999_999 # Based on my testing of Ring random() function
+			      # NOTE: if you seed the Ring random() function
+			      # with a value greater than that, you will get NULL
+			      # as a result! Example : random(9_999_999_999)
+
+_nRingMaxSeed = 1_999_999_999 # Idem
+
+func RingMaxRandom()
+	return _nRingMaxRandom
+
+	func MaxRingRandom()
+		return RingMaxRandom()
+
+func RingMaxSeed()
+	return _nRingMaxSeed
+
+	func MaxRingSeed()
+		return RingMaxSeed()
+
+func StzRandom(n)
+	if CheckParams()
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
 	ok
-	
-	srand(n)
 
-	func SeedRandomWith(n)
-		srand(n)
+	if n > RingMaxRandom()
+		StzRaise("Can't proceed. n must be less then " + MaxRingRandom() + ".")
+	ok
 
-	func SRandomWith(n)
-		srand(n)
+	return random(n)
+
+func StzSRandom(n)
+	if CheckParams()
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+	ok
+
+	if n > RingMaxSeed()
+		StzRaise("Can't proceed. n must be less then " + RingMaxSeed() + ".")
+	ok
+
+	return srandom(n)
+
+func StzRandomXT(n, nSeed)
+	if CheckParams()
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if isList(nSeed) and Q(nSeed).IsSeedNamedParam()
+			nSeed = nSeed[2]
+		ok
+
+		if NOT isNumber(nSeed)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+	ok
+
+	SeedRandom(nSeed)
+	return StzRandom(n)
+
+func SeedRandom(n)
+	if CheckParams()
+		if isList(n) and Q(n).IsWithOrByOrUsingNamedParam()
+			n = n[2]
+		ok
+	ok
+
+	if n > RingMaxSeed()
+		StzRaise("Can't proceed. n must be less than " + RingMaxSeed() + ".")
+	ok
+
+	srandom(n)
+
+#---
+
+func RandomNumber()
+	return ring_random( RingMaxRandom() )
+
+	#< @FunctionAlternativeForms
+
+	func ARandomNumber()
+		return RandomNumber()
+
+	func AnyRandomNumber()
+		return RandomNumber()
+
+	func AnyNumber()
+		return RandomNumber()
+
+	#>
+
+func RandomNumberXT(nSeed)
+	StzSRandom(nSeed)
+	return RandomNumber()
+
+	#< @FunctionAlternativeForms
+
+	func ARandomNumberXT(nSeed)
+		return RandomNumberXT(nSeed)
+
+	func AnyRandomNumberXT(nSeed)
+		return RandomNumberXT(nSeed)
+
+	func AnyNumberXT(nSeed)
+		return RandomNumberXT(nSeed)
+
+	#>
 
 #-- A RANDOM NUMBER AMONG THE NUMBERS IN A LIST
 
@@ -45,518 +150,48 @@ func RandomNumberIn(panNumbers)
 
 	return nResult
 
+	#< @FunctionAlternativeForms
+
 	func ARandomNumberIn(panNumbers)
 		return RandomNumberIn(panNumbers)
 
-#-- A RANDOM NUMBER BETWEEN TWO NUMBERS
+	func ANumberIn(panNumbers)
+		return RandomNumberIn(panNumbers)
 
-func StzRandom(nMin, nMax) # Bound are not included. To include them add ...XT()
+	func AnyNumberIn(panNumbers)
+		return RandomNumberIn(panNumbers)
 
-	if isList(nMin)
-		oMin = StzListQ(nMin)
-		if oMin.IsBetweenXTNamedParam()
-			return StzRandomXT(nMin[2], nMax)
-		
-		but oMin.IsBetweenNamedParam()
-			nMin = nMin[2]
-		ok
-	ok
+	func AnyRandomNumberIn(panNumbers)
+		return RandomNumberIn(panNumbers)
 
-	if isList(nMax) and StzListQ(nMax).IsAndNamedParam()
-		nMax = nMax[2]
-	ok
+	#>
 
-	if NOT (isNumber(nMin) and isNumber(nMax))
-		StzRaise("Incorrect param types! nMin and nMax must be both numbers.")
-	ok
+func RandomNumberInXT(panNumbers, nSeed)
+	StzSRandom(nSeed)
+	nResult = StzRandomNumberIn(panNumbers)
 
-	nResult = RandomNumberIn(nMin:nMax)
 	return nResult
 
 	#< @FunctionAlternativeForms
 
-	func StzRandomNumber(nMin, nMax)
-		return StzRandom(nMin, nMax)
+	func ARandomNumberInXT(panNumbers, nSeed)
+		return RandomNumberInXT(panNumbers, nSeed)
 
-	func RandomNumberBetween(nMin, nMax)
-		return StzRandom(nMin, nMax)
+	func ANumberInXT(panNumbers, nSeed)
+		return RandomNumberInXt(panNumbers, nSeed)
 
-	func AnyRandomNumberBetween(nMin, nMax)
-		return StzRandom(nMin, nMax)
+	func AnyNumberInXT(panNumbers, nSeed)
+		return RandomNumberInXT(panNumbers, nSeed)
 
-	func ARandomNumberBetween(nMin, nMax)
-		return StzRandom(nMin, nMax)
-
-	func ARandomNumber(nMin, nMax)
-		return StzRandom(nMin, nMax)
-
-	func AnyRandomNumber(nMin, nMax)
-		return StzRandom(nMin, nMax)
-
-	#--
-
-	func ANumber(nMin, nMax)
-		return StzRandom(nMin, nMax)
-
-	func ANumberBetween(nMin, nMax)
-		return StzRandom(nMin, nMax)
-
-	func AnyNumber(nMin, nMax)
-		return StzRandom(nMin, nMax)
-
-	func AnyNumberBetween(nMin, nMax)
-		return StzRandom(nMin, nMax)
+	func AnyRandomNumberInXT(panNumbers, nSeed)
+		return RandomNumberInXT(panNumbers, nSeed)
 
 	#>
-
-#-- N RANDOM NUMBERS
-
-func NRandomNumbers(n, nMin, nMax) # XT --> bounds are included
-
-	if isList(nMin)
-		oMin = StzListQ(nMin)
-		if oMin.IsBetweenXTNamedParam()
-			return StzNRandomNumbersXT(nMin[2], nMax)
-		
-		but oMin.IsBetweenNamedParam()
-			nMin = nMin[2]
-		ok
-	ok
-
-	if isList(nMin) and StzListQ(nMin).IsBetweenNamedParam()
-		nMin = nMin[2]
-	ok
-
-	if isList(nMax) and StzListQ(nMax).IsAndNamedParam()
-		nMax = nMax[2]
-	ok
-
-	if NOT (isNumber(nMin) and isNumber(nMax))
-		StzRaise("Incorrect param types! nMin and nMax must be both numbers.")
-	ok
-
-	return NRandomNumbersXT( n, nMin++, nMax-- )
-
-	#< @FunctionAlternativeForm
-
-	func AnyNRandomNumbers(n, nMin, nMax)
-		return NRandomNumbers(n, nMin, nMax)
-
-	func NRandomNumbersBetween(n, nMin, nMax)
-		return NRandomNumbers(n, nMin, nMax)
-
-	func AnyNRandomNumbersBetween(n, nMin, nMax)
-		return NRandomNumbers(n, nMin, nMax)
-
-	#--
-
-	func NNumbers(n, nMin, nMax)
-		return NRandomNumbers(n, nMin, nMax)
-
-	func NNumberBetween(n, nMin, nMax)
-		return NRandomNumbers(n, nMin, nMax)
-
-	func AnyNNumbers(nMin, nMax)
-		return NRandomNumbers(n, nMin, nMax)
-
-	func AnyNNumbersBetween(n, nMin, nMax)
-		return NRandomNumbers(n, nMin, nMax)
-
-	#>
-
-func SomeNumbers(nMin, nMax)
-	n = AnyNumberBetween(nMin, nMax)
-	return NRandomNumbers(n, nMin, nMax)
-
-	func SomeNumbersBetween(nMin, nMax)
-		return SomeNumbers(nMin, nMax)
-
-	func AnyNumbersBetween(nMin, nMax)
-		return SomeNumbers(nMin, nMax)
 
 #--
 
-func 2RandomNumbers(nMin, nMax)
-	return NRandomNumbers(2, nMin, nMax)
-
-	#< @FunctionAlternativeForms
-
-	func 2RandomNumbersBetween(nMin, nMax)
-		return 2RandomNumbers(nMin, nMax)
-
-	func TwoRandomNumbers(nMin, nMax)
-		return 2RandomNumbers(nMin, nMax)
-
-	func TwoRandomNumbersBetween(nMin, nMax)
-		return 2RandomNumbers(nMin, nMax)
-
-	#--
-
-	func 2Numbers(nMin, nMax)
-		return 2RandomNumbers(nMin, nMax)
-
-	func 2NumbersBetween(nMin, nMax)
-		return 2RandomNumbers(nMin, nMax)
-
-	func TwoNumbers(nMin, nMax)
-		return 2RandomNumbers(nMin, nMax)
-
-	func TwoNumbersBetween(nMin, nMax)
-		return 2RandomNumbers(nMin, nMax)
-
-	func Any2Numbers(nMin, nMax)
-		return 2RandomNumbers(nMin, nMax)
-
-	func Any2NumbersBetween(nMin, nMax)
-		return 2RandomNumbers(nMin, nMax)
-
-	func AnyTwoNumbers(nMin, nMax)
-		return 2RandomNumbers(nMin, nMax)
-
-	func AnyTwoNumbersBetween(nMin, nMax)
-		return 2RandomNumbers(nMin, nMax)
-
-	#>
-
-func 3RandomNumbers(nMin, nMax)
-	return NRandomNumbers(3, nMin, nMax)
-
-	#< @FunctionAlternativeForms
-
-	func 3RandomNumbersBetween(nMin, nMax)
-		return 3RandomNumbers(nMin, nMax)
-
-	func ThreeRandomNumbers(nMin, nMax)
-		return 3RandomNumbers(nMin, nMax)
-
-	func ThreeRandomNumbersBetween(nMin, nMax)
-		return 3RandomNumbers(nMin, nMax)
-
-	#--
-
-	func 3Numbers(nMin, nMax)
-		return 3RandomNumbers(nMin, nMax)
-
-	func 3NumbersBetween(nMin, nMax)
-		return 3RandomNumbers(nMin, nMax)
-
-	func ThreeNumbers(nMin, nMax)
-		return 3RandomNumbers(nMin, nMax)
-
-	func ThreeNumbersBetween(nMin, nMax)
-		return 3RandomNumbers(nMin, nMax)
-
-	func Any3Numbers(nMin, nMax)
-		return 3RandomNumbers(nMin, nMax)
-
-	func Any3NumbersBetween(nMin, nMax)
-		return 3RandomNumbers(nMin, nMax)
-
-	func AnyThreeNumbers(nMin, nMax)
-		return 3RandomNumbers(nMin, nMax)
-
-	func AnyThreeNumbersBetween(nMin, nMax)
-		return 3RandomNumbers(nMin, nMax)
-
-	#>
-
-func 4RandomNumbers(nMin, nMax)
-	return NRandomNumbers(4, nMin, nMax)
-
-	#< @FunctionAlternativeForms
-
-	func 4RandomNumbersBetween(nMin, nMax)
-		return 4RandomNumbers(nMin, nMax)
-
-	func FourRandomNumbers(nMin, nMax)
-		return 4RandomNumbers(nMin, nMax)
-
-	func FourRandomNumbersBetween(nMin, nMax)
-		return 4RandomNumbers(nMin, nMax)
-
-	#--
-
-	func 4Numbers(nMin, nMax)
-		return 4RandomNumbers(nMin, nMax)
-
-	func 4NumbersBetween(nMin, nMax)
-		return 4RandomNumbers(nMin, nMax)
-
-	func FourNumbers(nMin, nMax)
-		return 4RandomNumbers(nMin, nMax)
-
-	func FourNumbersBetween(nMin, nMax)
-		return 4RandomNumbers(nMin, nMax)
-
-	func Any4Numbers(nMin, nMax)
-		return 4RandomNumbers(nMin, nMax)
-
-	func Any4NumbersBetween(nMin, nMax)
-		return 4RandomNumbers(nMin, nMax)
-
-	func AnyFourNumbers(nMin, nMax)
-		return 4RandomNumbers(nMin, nMax)
-
-	func AnyFourNumbersBetween(nMin, nMax)
-		return 4RandomNumbers(nMin, nMax)
-
-	#>
-
-func 5RandomNumbers(nMin, nMax)
-	return NRandomNumbers(5, nMin, nMax)
-
-	#< @FunctionAlternativeForms
-
-	func 5RandomNumbersBetween(nMin, nMax)
-		return 5RandomNumbers(nMin, nMax)
-
-	func FiveRandomNumbers(nMin, nMax)
-		return 5RandomNumbers(nMin, nMax)
-
-	func FiveRandomNumbersBetween(nMin, nMax)
-		return 5RandomNumbers(nMin, nMax)
-	#--
-
-	func 5Numbers(nMin, nMax)
-		return 5RandomNumbers(nMin, nMax)
-
-	func 5NumbersBetween(nMin, nMax)
-		return 5RandomNumbers(nMin, nMax)
-
-	func FiveNumbers(nMin, nMax)
-		return 5RandomNumbers(nMin, nMax)
-
-	func FiveNumbersBetween(nMin, nMax)
-		return 5RandomNumbers(nMin, nMax)
-
-	func Any5Numbers(nMin, nMax)
-		return 5RandomNumbers(nMin, nMax)
-
-	func Any5NumbersBetween(nMin, nMax)
-		return 5RandomNumbers(nMin, nMax)
-
-	func AnyFiveNumbers(nMin, nMax)
-		return 5RandomNumbers(nMin, nMax)
-
-	func AnyFiveNumbersBetween(nMin, nMax)
-		return 5RandomNumbers(nMin, nMax)
-
-	#>
-
-func 6RandomNumbers(nMin, nMax)
-	return NRandomNumbers(6, nMin, nMax)
-
-	#< @FunctionAlternativeForms
-
-	func 6RandomNumbersBetween(nMin, nMax)
-		return 6RandomNumbers(nMin, nMax)
-
-	func SixRandomNumbers(nMin, nMax)
-		return 6RandomNumbers(nMin, nMax)
-
-	func SixRandomNumbersBetween(nMin, nMax)
-		return 6RandomNumbers(nMin, nMax)
-
-	#--
-
-	func 6Numbers(nMin, nMax)
-		return 6RandomNumbers(nMin, nMax)
-
-	func 6NumbersBetween(nMin, nMax)
-		return 6RandomNumbers(nMin, nMax)
-
-	func SixNumbers(nMin, nMax)
-		return 6RandomNumbers(nMin, nMax)
-
-	func SixNumbersBetween(nMin, nMax)
-		return 6RandomNumbers(nMin, nMax)
-
-	func Any6Numbers(nMin, nMax)
-		return 6RandomNumbers(nMin, nMax)
-
-	func Any6NumbersBetween(nMin, nMax)
-		return 6RandomNumbers(nMin, nMax)
-
-	func AnySixNumbers(nMin, nMax)
-		return 6RandomNumbers(nMin, nMax)
-
-	func AnySixNumbersBetween(nMin, nMax)
-		return 6RandomNumbers(nMin, nMax)
-
-	#>
-
-func 7RandomNumbers(nMin, nMax)
-	return NRandomNumbers(7, nMin, nMax)
-
-	#< @FunctionAlternativeForms
-
-	func 7RandomNumbersBetween(nMin, nMax)
-		return 7RandomNumbers(nMin, nMax)
-
-	func SevenRandomNumbers(nMin, nMax)
-		return 7RandomNumbers(nMin, nMax)
-
-	func SevenRandomNumbersBetween(nMin, nMax)
-		return 7RandomNumbers(nMin, nMax)
-
-	#--
-
-	func 7Numbers(nMin, nMax)
-		return 7RandomNumbers(nMin, nMax)
-
-	func 7NumbersBetween(nMin, nMax)
-		return 7RandomNumbers(nMin, nMax)
-
-	func SevenNumbers(nMin, nMax)
-		return 7RandomNumbers(nMin, nMax)
-
-	func SevenNumbersBetween(nMin, nMax)
-		return 7RandomNumbers(nMin, nMax)
-
-	func Any7Numbers(nMin, nMax)
-		return 7RandomNumbers(nMin, nMax)
-
-	func Any7NumbersBetween(nMin, nMax)
-		return 7RandomNumbers(nMin, nMax)
-
-	func AnySevenNumbers(nMin, nMax)
-		return 7RandomNumbers(nMin, nMax)
-
-	func AnySevenNumbersBetween(nMin, nMax)
-		return 7RandomNumbers(nMin, nMax)
-
-	#>
-
-func 8RandomNumbers(nMin, nMax)
-	return NRandomNumbers(8, nMin, nMax)
-
-	#< @FunctionAlternativeForms
-
-	func 8RandomNumbersBetween(nMin, nMax)
-		return 8RandomNumbers(nMin, nMax)
-
-	func EightRandomNumbers(nMin, nMax)
-		return 7RandomNumbers(nMin, nMax)
-
-	func EightRandomNumbersBetween(nMin, nMax)
-		return 7RandomNumbers(nMin, nMax)
-
-	#--
-
-	func 8Numbers(nMin, nMax)
-		return 8RandomNumbers(nMin, nMax)
-
-	func 8NumbersBetween(nMin, nMax)
-		return 8RandomNumbers(nMin, nMax)
-
-	func EightNumbers(nMin, nMax)
-		return 8RandomNumbers(nMin, nMax)
-
-	func EightNumbersBetween(nMin, nMax)
-		return 8RandomNumbers(nMin, nMax)
-
-	func Any8Numbers(nMin, nMax)
-		return 8RandomNumbers(nMin, nMax)
-
-	func Any8NumbersBetween(nMin, nMax)
-		return 8RandomNumbers(nMin, nMax)
-
-	func AnyEightNumbers(nMin, nMax)
-		return 8RandomNumbers(nMin, nMax)
-
-	func AnyEightNumbersBetween(nMin, nMax)
-		return 8RandomNumbers(nMin, nMax)
-
-	#>
-
-func 9RandomNumbers(nMin, nMax)
-	return NRandomNumbers(9, nMin, nMax)
-
-	#< @FunctionAlternativeForms
-
-	func 9RandomNumbersBetween(nMin, nMax)
-		return 9RandomNumbers(nMin, nMax)
-
-	func NineRandomNumbers(nMin, nMax)
-		return 9RandomNumbers(nMin, nMax)
-
-	func NineRandomNumbersBetween(nMin, nMax)
-		return 9RandomNumbers(nMin, nMax)
-
-	#--
-
-	func 9Numbers(nMin, nMax)
-		return 9RandomNumbers(nMin, nMax)
-
-	func 9NumbersBetween(nMin, nMax)
-		return 9RandomNumbers(nMin, nMax)
-
-	func NineNumbers(nMin, nMax)
-		return 9RandomNumbers(nMin, nMax)
-
-	func NineNumbersBetween(nMin, nMax)
-		return 9RandomNumbers(nMin, nMax)
-
-	func Any9Numbers(nMin, nMax)
-		return 9RandomNumbers(nMin, nMax)
-
-	func Any9NumbersBetween(nMin, nMax)
-		return 9RandomNumbers(nMin, nMax)
-
-	func AnyNineNumbers(nMin, nMax)
-		return 9RandomNumbers(nMin, nMax)
-
-	func AnyNineNumbersBetween(nMin, nMax)
-		return 9RandomNumbers(nMin, nMax)
-
-	#>
-
-func 10RandomNumbers(nMin, nMax)
-	return NRandomNumbers(10, nMin, nMax)
-
-	#< @FunctionAlternativeForms
-
-	func 10RandomNumbersBetween(nMin, nMax)
-		return 10RandomNumbers(nMin, nMax)
-
-	func TenRandomNumbers(nMin, nMax)
-		return 10RandomNumbers(nMin, nMax)
-
-	func TenRandomNumbersBetween(nMin, nMax)
-		return 10RandomNumbers(nMin, nMax)
-
-	#--
-
-	func 10Numbers(nMin, nMax)
-		return 10RandomNumbers(nMin, nMax)
-
-	func 10NumbersBetween(nMin, nMax)
-		return 10RandomNumbers(nMin, nMax)
-
-	func TenNumbers(nMin, nMax)
-		return 10RandomNumbers(nMin, nMax)
-
-	func TenNumbersBetween(nMin, nMax)
-		return 10RandomNumbers(nMin, nMax)
-
-	func Any10Numbers(nMin, nMax)
-		return 10RandomNumbers(nMin, nMax)
-
-	func Any10NumbersBetween(nMin, nMax)
-		return 10RandomNumbers(nMin, nMax)
-
-	func AnyTenNumbers(nMin, nMax)
-		return 10RandomNumbers(nMin, nMax)
-
-	func AnyTenNumbersBetween(nMin, nMax)
-		return 10RandomNumbers(nMin, nMax)
-
-	#>
-
-#------
-
 func RandomNumberLessThan(n)
-	return RandomNumberBetween(1, n)
+	return RandomNumberIn(1 : n)
 
 	#< @FunctionAlternativeForms
 
@@ -583,8 +218,39 @@ func RandomNumberLessThan(n)
 
 	#>
 
+func RandomNumberLessThanXT(n, nSeed)
+	StzSRandom(nSeed)
+	return RandomNumberLessThan(n)
+
+	#< @FunctionAlternativeForms
+
+	func ARandomNumberLessThanXT(n, nSeed)
+		return RandomNumberLessThanXT(n, nSeed)
+
+	func RandomNumberSmallerThanXT(n, nSeed)
+		return RandomNumberLessThanXT(n, nSeed)
+
+	func ARandomNumberSmallerThanXT(n, nSeed)
+		return RandomNumberLessThanXT(n, nSeed)
+
+	func ANumberSmallerThanXT(n, nSeed)
+		return RandomNumberLessThanXT(n, nSeed)
+
+	func ANumberLessThanXT(n, nSeed)
+		return RandomNumberLessThanXT(n, nSeed)
+
+	func AnyNumberSmallerThanXT(n, nSeed)
+		return RandomNumberLessThanXT(n, nSeed)
+
+	func AnyNumberLessThanXT(n, nSeed)
+		return RandomNumberLessThanXT(n, nSeed)
+
+	#>
+
+#--
+
 func RandomNumberGreaterThan(n)
-	return RandomNumberBetween(n, MaxRingNumber())
+	return RandomNumberIn(n : MaxRingNumber())
 
 	#< @FunctionAlternativeForms
 
@@ -606,6 +272,12 @@ func RandomNumberGreaterThan(n)
 	func ANumberLargerThan(n)
 		return RandomNumberGreaterThan(n)
 
+	func AnyRandomNumberGreaterThan(n)
+		return RandomNumberGreaterThan(n)
+
+	func AnyRandomNumberBiggerThan(n)
+		return RandomNumberGreaterThanXT(n, nSeed)
+
 	func AnyNumberGreaterThan(n)
 		return RandomNumberGreaterThan(n)
 
@@ -617,7 +289,291 @@ func RandomNumberGreaterThan(n)
 
 	#>
 
-#-----
+func RandomNumberGreaterThanXT(n, nSeed)
+	StzSRandom(nSeed)
+	return RandomNumberGreaterThan(n)
+
+	#< @FunctionAlternativeForms
+
+	func ARandomNumberGreaterThanXT(n, nSeed)
+		return RandomNumberGreaterThanXT(n, nSeed)
+
+	func RandomNumberBiggerThanXT(n, nSeed)
+		return RandomNumberGreaterThanXT(n, nSeed)
+
+	func ARandomNumberBiggerThanXT(n, nSeed)
+		return RandomNumberGreaterThanXT(n, nSeed)
+
+	func ANumberGreaterThanXT(n, nSeed)
+		return RandomNumberGreaterThanXT(n, nSeed)
+
+	func ANumberBiggerThanXT(n, nSeed)
+		return RandomNumberGreaterThanXT(n, nSeed)
+
+	func ANumberLargerThanXT(n, nSeed)
+		return RandomNumberGreaterThanXT(n, nSeed)
+
+	func AnyRandomNumberGreaterThanXT(n, nSeed)
+		return RandomNumberGreaterThanXT(n, nSeed)
+
+	func AnyRandomNumberBiggerThanXT(n, nSeed)
+		return RandomNumberGreaterThanXT(n, nSeed)
+
+	func AnyNumberGreaterThanXT(n, nSeed)
+		return RandomNumberGreaterThanXT(n, nSeed)
+
+	func AnyNumberBiggerThanXT(n, nSeed)
+		return RandomNumberGreaterThanXT(n, nSeed)
+
+	func AnyNumberLargerThanXT(n, nSeed)
+		return RandomNumberGreaterThanXT(n, nSeed)
+
+	#>
+
+#--
+
+func RandomNumberOtherThan(n)
+	nResult = RandomNumberIn(1 : MaxRingNumber())
+	if nResult = n
+		nResult = n - 1
+		if nResult < 0
+			nResult = 0
+		ok
+	ok
+	return nResult
+
+	#< @FunctionAlternativeForm
+
+	func ARandomNumberOtherThan(n)
+		return RandomNumberOtherThan(n)
+
+	func AnyRandomNumberOtherThan(n)
+		return RandomNumberOtherThan(n)
+
+	func ANumberOtherThan(n)
+		return RandomNumberOtherThan(n)
+
+	func AnyNumberOtherThan(n)
+		return RandomNumberOtherThan(n)
+
+	func NumberOtherThan(n)
+		return RandomNumberOtherThan(n)
+
+	#--
+
+	func ARandomNumberExcept(n)
+		return RandomNumberOtherThan(n)
+
+	func AnyRandomNumberExcept(n)
+		return RandomNumberOtherThan(n)
+
+	func ANumberExcept(n)
+		return RandomNumberOtherThan(n)
+
+	func AnyNumberExcept(n)
+		return RandomNumberOtherThan(n)
+
+	#>
+
+func RandomNumberOtherThanXT(n, nSeed)
+	StzSRandom(nSeed)
+	return RandomNumberOtherThan(n)
+
+	#< @FunctionAlternativeForm
+
+	func ARandomNumberOtherThanXT(n, nSeed)
+		return RandomNumberOtherThanXT(n, nSeed)
+
+	func AnyRandomNumberOtherThanXT(n, nSeed)
+		return RandomNumberOtherThanXT(n, nSeed)
+
+	func ANumberOtherThanXT(n, nSeed)
+		return RandomNumberOtherThanXT(n, nSeed)
+
+	func AnyNumberOtherThanXT(n, nSeed)
+		return RandomNumberOtherThanXT(n, nSeed)
+
+	func NumberOtherThanXT(n, nSeed)
+		return RandomNumberOtherThanXT(n, nSeed)
+
+	#--
+
+	func ARandomNumberExceptXT(n, nSeed)
+		return RandomNumberOtherThanXT(n, nSeed)
+
+	func AnyRandomNumberExceptXT(n, nSeed)
+		return RandomNumberOtherThanXT(n, nSeed)
+
+	func ANumberExceptXT(n, nSeed)
+		return RandomNumberOtherThanXT(n, nSeed)
+
+	func AnyNumberExceptXT(n, nSeed)
+		return RandomNumberOtherThanXT(n, nSeed)
+
+	#>
+
+#==
+
+func SomeRandomNumbersGreaterThan(nValue)
+	n = ARandomNumber()
+	return NRandomNumbersGreaterThan(n, nValue)
+
+	#< @FunctionAlternativeForms
+
+	func SomeNumbersGreaterThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
+
+	func AnyRandomNumbersGreaterThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
+
+	func AnyNumbersGreaterThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
+
+	#--
+
+	func SomeRandomNumbersBiggerThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
+
+	func SomeNumbersBiggerThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
+
+	func AnyRandomNumbersBiggerThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
+
+	func AnyNumbersBiggerThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
+
+	#>
+
+func SomeRandomNumbersGreaterThanXT(n, nSeed)
+	StzSRandom(nSeed)
+	return SomeRandomNumbersGreaterThan(n)
+
+	#< @FunctionAlternativeForms
+
+	func SomeNumbersGreaterThanXT(n, nSeed)
+		return SomeRandomNumbersGreaterThanXT(n, nSeed)
+
+	func AnyRandomNumbersGreaterThanXT(n, nSeed)
+		return SomeRandomNumbersGreaterThanXT(n, nSeed)
+
+	func AnyNumbersGreaterThanXT(n, nSeed)
+		return SomeRandomNumbersGreaterThanXT(n, nSeed)
+
+	#--
+
+	func SomeRandomNumbersBiggerThanXT(n, nSeed)
+		return SomeRandomNumbersGreaterThanXT(n, nSeed)
+
+	func SomeNumbersBiggerThanXT(n, nSeed)
+		return SomeRandomNumbersGreaterThanXT(n, nSeed)
+
+	func AnyRandomNumbersBiggerThanXT(n, nSeed)
+		return SomeRandomNumbersGreaterThanXT(n, nSeed)
+
+	func AnyNumbersBiggerThanXT(n, nSeed)
+		return SomeRandomNumbersGreaterThanXT(n, nSeed)
+
+	#>
+
+#--
+
+func SomeRandomNumbersGreaterThanU(nValue)
+	n = ARandomNumber()
+	return NRandomNumbersGreaterThanU(n, nValue)
+
+	#< @FunctionAlternativeForms
+
+	func SomeNumbersGreaterThanU(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	func AnyRandomNumbersGreaterThanU(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	func AnyNumbersGreaterThanU(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	#--
+
+	func SomeRandomNumbersBiggerThanU(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	func SomeNumbersBiggerThanU(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	func AnyRandomNumbersBiggerThanU(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	func AnyNumbersBiggerThanU(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	#==
+
+	func SomeUniqueRandomNumbersGreaterThanU(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	func SomeUniqueNumbersGreaterThanU(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	#--
+
+	func SomeUniqueRandomNumbersBiggerThanU(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	func SomeUniqueNumbersBiggerThanU(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	#>
+
+func SomeRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+	StzSRandom(nSeed)
+	return NRandomNumbersGreaterThanU(n, nValue)
+
+	#< @FunctionAlternativeForms
+
+	func SomeNumbersGreaterThanXTU(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	func AnyRandomNumbersGreaterThanXTU(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	func AnyNumbersGreaterThanXTU(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	#--
+
+	func SomeRandomNumbersBiggerThanXTU(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	func SomeNumbersBiggerThanXTU(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	func AnyRandomNumbersBiggerThanXTU(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	func AnyNumbersBiggerThanXTU(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	#==
+
+	func SomeUniqueRandomNumbersGreaterThanXTU(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	func SomeUniqueNumbersGreaterThanXTU(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	#--
+
+	func SomeUniqueRandomNumbersBiggerThanXTU(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	func SomeUniqueNumbersBiggerThanXTU(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	#>
+
+
+#==
 
 func NRandomNumbersGreaterThan(n, nValue)
 	if NOT (isNumber(n) and isNumber(nValue))
@@ -628,6 +584,8 @@ func NRandomNumbersGreaterThan(n, nValue)
 	for i = 1 to n
 		anResult + ARandomNumberGreaterThan(nValue)
 	next
+
+	anResult = ring_sort(anResult)
 
 	return anResult
 
@@ -661,80 +619,167 @@ func NRandomNumbersGreaterThan(n, nValue)
 
 	#>
 
-func NRandomNumbersGreaterThanIB(n, nValue)
+func NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+	StzSRandom(nSeed)
+	return NRandomNumbersGreaterThan(n, nValue)
+
+	#< @FunctionAlternativeForm
+
+	func NRandomNumbersLargerThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+	func NRandomNumbersBiggerThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+
+	func NNumbersGreaterThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+	func NNumbersLargerThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+	func NNumbersBiggerThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+
+	func AnyNNumbersGreaterThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+	func AnyNNumbersLargerThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+	func AnyNNumbersBiggerThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+	#>
+
+func NRandomNumbersGreaterThanU(n, nValue)
 	if NOT (isNumber(n) and isNumber(nValue))
 		StzRaise("Incorrect param type! n and nValue must be numbers.")
 	ok
 
 	anResult = []
-	for i = 1 to n
-		anResult = ARandomNumberGreaterThanIB(nValue)
-	next
+
+	while TRUE
+
+		nRandom = ARandomNumberGreaterThan(nValue)
+
+		if ring_find(anResult, nRandom) = 0
+			anResult + nRandom
+			if len(anResult) = n
+				exit
+			ok
+		ok
+
+	end
+
+	anResult = ring_sort(anResult)
 
 	return anResult
 
-	#< @FunctionAlternativeForms
+	#< @FunctionAlternativeForm
 
-	func NRandomNumbersGreaterThanXT(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
+	func NRandomNumbersLargerThanU(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
-	func NRandomNumbersLargerThanIB(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
+	func NRandomNumbersBiggerThanU(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
-	func NRandomNumbersLargerThanXT(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
+	func NNumbersGreaterThanU(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
-	func NRandomNumbersBiggerThanXT(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
+	func NNumbersLargerThanU(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
-	func NRandomNumbersBiggerThanIB(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
+	func NNumbersBiggerThanU(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
-	#--
+	func AnyNNumbersGreaterThanU(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
-	func NNumbersGreaterThanIB(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
+	func AnyNNumbersLargerThanU(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
-	func NNumbersLargerThanIB(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
-
-	func NNumbersBiggerThanIB(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
-
-
-	func AnyNNumbersGreaterThanIB(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
-
-	func AnyNNumbersLargerThanIB(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
-
-	func AnyNNumbersBiggerThanIB(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
+	func AnyNNumbersBiggerThanU(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
 	#--
 
-	func NNumbersGreaterThanXT(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
+	func NUniqueRandomNumbersGreaterThan(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
-	func NNumbersLargerThanXT(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
+	func NUniqueRandomNumbersLargerThan(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
-	func NNumbersBiggerThanXT(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
+	func NUniqueRandomNumbersBiggerThan(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
+	func NUniqueNumbersGreaterThan(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
-	func AnyNNumbersGreaterThanXT(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
+	func NUniqueNumbersLargerThan(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
-	func AnyNNumbersLargerThanXT(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
-
-	func AnyNNumbersBiggerThanXT(n, nValue)
-		return NRandomNumbersGreaterThanIB(n, nValue)
+	func NUniqueNumbersBiggerThan(n, nValue)
+		return NRandomNumbersGreaterThanU(n, nValue)
 
 	#>
 
-#--
+func NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+	StzSRandom(nSeed)
+	return NRandomNumbersGreaterThanU(n, nValue)
+
+	#< @FunctionAlternativeForm
+
+	func NRandomNumbersLargerThanXTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+
+	func NRandomNumbersBiggerThanXTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+
+
+	func NNumbersGreaterThanXTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+	func NNumbersLargerThanXTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+
+	func NNumbersBiggerThanXTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+
+
+	func AnyNNumbersGreaterThanXTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+
+	func AnyNNumbersLargerThanXTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+
+	func AnyNNumbersBiggerThanXTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+
+	#--
+
+	func NUniqueRandomNumbersGreaterThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+
+	func NUniqueRandomNumbersLargerThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+
+	func NUniqueRandomNumbersBiggerThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+
+	func NUniqueNumbersGreaterThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+
+	func NUniqueNumbersLargerThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+
+	func NUniqueNumbersBiggerThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
+
+	#>
+
+#==
 
 func NRandomNumbersLessThan(n, nValue)
 	if NOT (isNumber(n) and isNumber(nValue))
@@ -745,6 +790,8 @@ func NRandomNumbersLessThan(n, nValue)
 	for i = 1 to n
 		anResult + ARandomNumberLessThan(nValue)
 	next
+
+	anResult = ring_sort(anResult)
 
 	return anResult
 
@@ -768,1006 +815,222 @@ func NRandomNumbersLessThan(n, nValue)
 
 	#>
 
-func NRandomNumbersLessThanIB(n, nValue)
+func NRandomNumbersLessThanXT(n, nValue, nSeed)
+	StzSRandom(nSeed)
+	return NRandomNumbersLessThan(n, nValue)
+
+	#< @FunctionAlternativeForm
+
+	func NRandomNumbersSmallerThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+
+	func NNumbersLessThanXT(n, nValue, nSeed)
+		return NRandomNumbersLessThanXT(n, nValue, nSeed)
+
+	func NNumbersSmallerThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+	func AnyNNumbersLessThanXT(n, nValue, nSeed)
+		return NRandomNumbersLessThanXT(n, nValue, nSeed)
+
+	func AnyNNumbersSmallerThanXT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+	#>
+
+func NRandomNumbersLessThanU(n, nValue)
 	if NOT (isNumber(n) and isNumber(nValue))
 		StzRaise("Incorrect param type! n and nValue must be numbers.")
 	ok
 
 	anResult = []
-	for i = 1 to n
-		anResult + ARandomNumberLessThanIB(nValue)
-	next
+
+	while TRUE
+
+		nRandom = ARandomNumberLessThan(nValue)
+
+		if ring_find(anResult, nRandom) = 0
+			anResult + nRandom
+			if len(anResult) = n
+				exit
+			ok
+		ok
+
+	end
+
+	anResult = ring_sort(anResult)
 
 	return anResult
 
-	#< @FunctionAlternativeForms
+	#< @FunctionAlternativeForm
 
-	func NRandomNumbersSmallerThanIB(n, nValue)
-		return NRandomNumbersLessThanIB(n, nValue)
+	func NNumbersLessThanU(n, nValue)
+		return NRandomNumbersLessThanU(n, nValue)
 
-	func NNumbersLessThanIB(n, nValue)
-		return NRandomNumbersLessThanIB(n, nValue)
+	func NNumbersSmallerThanU(n, nValue)
+		return NRandomNumbersLessThanU(n, nValue)
 
-	func NNumbersSmallerThanIB(n, nValue)
-		return NRandomNumbersLessThanIB(n, nValue)
+	func AnyNNumbersLessThanU(n, nValue)
+		return NRandomNumbersLessThanU(n, nValue)
 
-	func AnyNNumbersLessThanIB(n, nValue)
-		return NRandomNumbersLessThanIB(n, nValue)
-
-	func AnyNNumbersSmallerThanIB(n, nValue)
-		return NRandomNumbersLessThanIB(n, nValue)
+	func AnyNNumbersSmallerThanU(n, nValue)
+		return NRandomNumbersLessThanU(n, nValue)
 
 	#--
 
-	func NRandomNumbersLessThanXT(n, nValue)
-		return NRandomNumbersLessThanIB(n, nValue)
+	func NUniqueRandomNumbersLessThan(n, nValue)
+		return NRandomNumbersLessThanU(n, nValue)
 
-	func NRandomNumbersSmallerThanXT(n, nValue)
-		return NRandomNumbersLessThanIB(n, nValue)
+	func NUniqueRandomNumbersSmallerThan(n, nValue)
+		return NRandomNumbersLessThanU(n, nValue)
 
-	func NNumbersLessThanXT(n, nValue)
-		return NRandomNumbersLessThanIB(n, nValue)
 
-	func NNumbersSmallerThanXT(n, nValue)
-		return NRandomNumbersLessThanIB(n, nValue)
+	func NUniqueNumbersLessThan(n, nValue)
+		return NRandomNumbersLessThanU(n, nValue)
 
-	func AnyNNumbersLessThanXT(n, nValue)
-		return NRandomNumbersLessThanIB(n, nValue)
-
-	func AnyNNumbersSmallerThanXT(n, nValue)
-		return NRandomNumbersLessThanIB(n, nValue)
+	func NUniqueNumbersSmallerThan(n, nValue)
+		return NRandomNumbersLessThanU(n, nValue)
 
 	#>
 
-#====== TODO: Add all alternative as above
-
-func 2RandomNumbersGreaterThan(n)
-	return NRandomNumbersGreaterThan(2, n)
+func NRandomNumbersLessThanXTU(n, nValue, nSeed)
+	StzSRandom(nSeed)
+	return NRandomNumbersLessThanU(n, nValue)
 
 	#< @FunctionAlternativeForm
 
-	func 2RandomNumbersLargerThan(n)
-		return 2RandomNumbersGreaterThan(n)
+	func NNumbersLessThanXTU(n, nValue)
+		return NRandomNumbersLessThanXTU(n, nValue)
 
-	func 2RandomNumbersBiggerThan(n)
-		return 2RandomNumbersGreaterThan(n)
+	func NNumbersSmallerThanXTU(n, nValue)
+		return NRandomNumbersLessThanXTU(n, nValue)
 
-	func TwoRandomNumbersGreaterThan(n)
-		return 2RandomNumbersGreaterThan(n)
+	func AnyNNumbersLessThanXTU(n, nValue)
+		return NRandomNumbersLessThanXTU(n, nValue)
 
-	func TwoRandomNumbersLargerThan(n)
-		return 2RandomNumbersGreaterThan(n)
-
-	func TwoRandomNumbersBiggerThan(n)
-		return 2RandomNumbersGreaterThan(n)
-
-	#>
-
-func 2RandomNumbersGreaterThanIB(n)
-	return NRandomNumbersGreaterThanIB(2, n)
-
-	#< @FunctionAlternativeForms
-
-	func 2RandomNumbersGreaterThanXT(n)
-		return 2RandomNumbersGreaterThanIB(n)
-
-	func 2RandomNumbersLargerThanIB(n)
-		return 2RandomNumbersGreaterThanIB(n)
-
-	func 2RandomNumbersLargerThanXT(n)
-		return 2RandomNumbersGreaterThanIB(n)
-
-	func TwoRandomNumbersGreaterThanIB(n)
-		return 2RandomNumbersGreaterThanIB(n)
-
-	func TwoRandomNumbersGreaterThanXT(n)
-		return 2RandomNumbersGreaterThanIB(n)
-
-	func TwoRandomNumbersLargerThanIB(n)
-		return 2RandomNumbersGreaterThanIB(n)
-
-	func TwoRandomNumbersLargerThanXT(n)
-		return 2RandomNumbersGreaterThanIB(n)
-
-	#>
-
-#--
-
-func 3RandomNumbersGreaterThanIB(n)
-	return NRandomNumbersGreaterThanIB(3, n)
-
-	#< @FunctionAlternativeForms
-
-	func 3RandomNumbersGreaterThanXT(n)
-		return 3RandomNumbersGreaterThanIB(n)
-
-	func 3RandomNumbersLargerThanIB(n)
-		return 3RandomNumbersGreaterThanIB(n)
-
-	func 3RandomNumbersLargerThanXT(n)
-		return 3RandomNumbersGreaterThanIB(n)
-
-	func ThreeRandomNumbersGreaterThanIB(n)
-		return 3RandomNumbersGreaterThanIB(n)
-
-	func ThreeRandomNumbersGreaterThanXT(n)
-		return 3RandomNumbersGreaterThanIB(n)
-
-	func ThreeRandomNumbersLargerThanIB(n)
-		return 3RandomNumbersGreaterThanIB(n)
-
-	func ThreeRandomNumbersLargerThanXT(n)
-		return 3RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 3RandomNumbersGreaterThan(n)
-	return NRandomNumbersGreaterThan(3, n)
-
-	#< @FunctionAlternativeForm
-
-	func 3RandomNumbersLargerThan(n)
-		return 3RandomNumbersGreaterThan(n)
-
-	func 3RandomNumbersBiggerThan(n)
-		return 3RandomNumbersGreaterThan(n)
-
-	func ThreeRandomNumbersGreaterThan(n)
-		return 3RandomNumbersGreaterThan(n)
-
-	func ThreeRandomNumbersLargerThan(n)
-		return 3RandomNumbersGreaterThan(n)
-
-	func ThreeRandomNumbersBiggerThan(n)
-		return 3RandomNumbersGreaterThan(n)
-
-	#>
-
-#--
-
-func 4RandomNumbersGreaterThanIB(n)
-	return NRandomNumbersGreaterThanIB(4, n)
-
-	#< @FunctionAlternativeForms
-
-	func 4RandomNumbersGreaterThanXT(n)
-		return 4RandomNumbersGreaterThanIB(n)
-
-	func 4RandomNumbersLargerThanIB(n)
-		return 4RandomNumbersGreaterThanIB(n)
-
-	func 4RandomNumbersLargerThanXT(n)
-		return 4RandomNumbersGreaterThanIB(n)
-
-	func FourRandomNumbersGreaterThanIB(n)
-		return 4RandomNumbersGreaterThanIB(n)
-
-	func FourRandomNumbersGreaterThanXT(n)
-		return 4RandomNumbersGreaterThanIB(n)
-
-	func FourRandomNumbersLargerThanIB(n)
-		return 4RandomNumbersGreaterThanIB(n)
-
-	func FourRandomNumbersLargerThanXT(n)
-		return 4RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 4RandomNumbersGreaterThan(n)
-	return NRandomNumbersGreaterThan(4, n)
-
-	#< @FunctionAlternativeForm
-
-	func 4RandomNumbersLargerThan(n)
-		return 4RandomNumbersGreaterThan(n)
-
-	func 4RandomNumbersBiggerThan(n)
-		return 4RandomNumbersGreaterThan(n)
-
-	func FourRandomNumbersGreaterThan(n)
-		return 4RandomNumbersGreaterThan(n)
-
-	func FourRandomNumbersLargerThan(n)
-		return 4RandomNumbersGreaterThan(n)
-
-	func FourRandomNumbersBiggerThan(n)
-		return 4RandomNumbersGreaterThan(n)
-
-	#>
-
-#--
-
-func 5RandomNumbersGreaterThanIB(n)
-	return NRandomNumbersGreaterThanIB(5, n)
-
-	#< @FunctionAlternativeForms
-
-	func 5RandomNumbersGreaterThanXT(n)
-		return 5RandomNumbersGreaterThanIB(n)
-
-	func 5RandomNumbersLargerThanIB(n)
-		return 5RandomNumbersGreaterThanIB(n)
-
-	func 5RandomNumbersLargerThanXT(n)
-		return 5RandomNumbersGreaterThanIB(n)
-
-	func FiveRandomNumbersGreaterThanIB(n)
-		return 5RandomNumbersGreaterThanIB(n)
-
-	func FiveRandomNumbersGreaterThanXT(n)
-		return 5RandomNumbersGreaterThanIB(n)
-
-	func FiveRandomNumbersLargerThanIB(n)
-		return 5RandomNumbersGreaterThanIB(n)
-
-	func FiveRandomNumbersLargerThanXT(n)
-		return 5RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 5RandomNumbersGreaterThan(n)
-	return NRandomNumbersGreaterThan(5, n)
-
-	#< @FunctionAlternativeForm
-
-	func 5RandomNumbersLargerThan(n)
-		return 5RandomNumbersGreaterThan(n)
-
-	func 5RandomNumbersBiggerThan(n)
-		return 5RandomNumbersGreaterThan(n)
-
-	func FiveRandomNumbersGreaterThan(n)
-		return 5RandomNumbersGreaterThan(n)
-
-	func FiveRandomNumbersLargerThan(n)
-		return 5RandomNumbersGreaterThan(n)
-
-	func FiveRandomNumbersBiggerThan(n)
-		return 5RandomNumbersGreaterThan(n)
-
-	#>
-
-#--
-
-func 6RandomNumbersGreaterThanIB(n)
-	return NRandomNumbersGreaterThanIB(6, n)
-
-	#< @FunctionAlternativeForms
-
-	func 6RandomNumbersGreaterThanXT(n)
-		return 6RandomNumbersGreaterThanIB(n)
-
-	func 6RandomNumbersLargerThanIB(n)
-		return 6RandomNumbersGreaterThanIB(n)
-
-	func SixRandomNumbersLargerThanXT(n)
-		return 6RandomNumbersGreaterThanIB(n)
-
-	func SixRandomNumbersGreaterThanXT(n)
-		return 6RandomNumbersGreaterThanIB(n)
-
-	func SixRandomNumbersLargerThanIB(n)
-		return 6RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 6RandomNumbersGreaterThan(n)
-	return NRandomNumbersGreaterThan(6, n)
-
-	#< @FunctionAlternativeForm
-
-	func 6RandomNumbersLargerThan(n)
-		return 6RandomNumbersGreaterThan(n)
-
-	func 6RandomNumbersBiggerThan(n)
-		return 6RandomNumbersGreaterThan(n)
-
-	func SixRandomNumbersGreaterThan(n)
-		return 6RandomNumbersGreaterThan(n)
-
-	func SixRandomNumbersLargerThan(n)
-		return 6RandomNumbersGreaterThan(n)
-
-	func SixRandomNumbersBiggerThan(n)
-		return 6RandomNumbersGreaterThan(n)
-
-	#>
-
-#--
-
-func 7RandomNumbersGreaterThanIB(n)
-	return NRandomNumbersGreaterThanIB(7, n)
-
-	#< @FunctionAlternativeForms
-
-	func 7RandomNumbersGreaterThanXT(n)
-		return 7RandomNumbersGreaterThanIB(n)
-
-	func 7RandomNumbersLargerThanIB(n)
-		return 7RandomNumbersGreaterThanIB(n)
-
-	func 7RandomNumbersLargerThanXT(n)
-		return 7RandomNumbersGreaterThanIB(n)
-
-	func SevenRandomNumbersGreaterThanIB(n)
-		return 7RandomNumbersGreaterThanIB(n)
-
-	func SevenRandomNumbersGreaterThanXT(n)
-		return 7RandomNumbersGreaterThanIB(n)
-
-	func SevenRandomNumbersLargerThanIB(n)
-		return 7RandomNumbersGreaterThanIB(n)
-
-	func SevenRandomNumbersLargerThanXT(n)
-		return 7RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 7RandomNumbersGreaterThan(n)
-	return NRandomNumbersGreaterThan(7, n)
-
-	#< @FunctionAlternativeForm
-
-	func 7RandomNumbersLargerThan(n)
-		return 7RandomNumbersGreaterThan(n)
-
-	func 7RandomNumbersBiggerThan(n)
-		return 7RandomNumbersGreaterThan(n)
-
-	func SevenRandomNumbersGreaterThan(n)
-		return 7RandomNumbersGreaterThan(n)
-
-	func SevenRandomNumbersLargerThan(n)
-		return 7RandomNumbersGreaterThan(n)
-
-	func SevenRandomNumbersBiggerThan(n)
-		return 7RandomNumbersGreaterThan(n)
-
-	#>
-
-#--
-
-func 8RandomNumbersGreaterThanIB(n)
-	return NRandomNumbersGreaterThanIB(8, n)
-
-	#< @FunctionAlternativeForms
-
-	func 8RandomNumbersGreaterThanXT(n)
-		return 8RandomNumbersGreaterThanIB(n)
-
-	func 8RandomNumbersLargerThanIB(n)
-		return 8RandomNumbersGreaterThanIB(n)
-
-	func 8RandomNumbersLargerThanXT(n)
-		return 8RandomNumbersGreaterThanIB(n)
-
-	func EightRandomNumbersGreaterThanIB(n)
-		return 8RandomNumbersGreaterThanIB(n)
-
-	func EightRandomNumbersGreaterThanXT(n)
-		return 8RandomNumbersGreaterThanIB(n)
-
-	func EightRandomNumbersLargerThanIB(n)
-		return 8RandomNumbersGreaterThanIB(n)
-
-	func EightRandomNumbersLargerThanXT(n)
-		return 8RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 8RandomNumbersGreaterThan(n)
-	return NRandomNumbersGreaterThan(8, n)
-
-	#< @FunctionAlternativeForm
-
-	func 8RandomNumbersLargerThan(n)
-		return 8RandomNumbersGreaterThan(n)
-
-	func 8RandomNumbersBiggerThan(n)
-		return 8RandomNumbersGreaterThan(n)
-
-	func EightRandomNumbersGreaterThan(n)
-		return 8RandomNumbersGreaterThan(n)
-
-	func EightRandomNumbersLargerThan(n)
-		return 8RandomNumbersGreaterThan(n)
-
-	func EightRandomNumbersBiggerThan(n)
-		return 8RandomNumbersGreaterThan(n)
-
-	#>
-
-#--
-
-func 9RandomNumbersGreaterThanIB(n)
-	return NRandomNumbersGreaterThanIB(9, n)
-
-	#< @FunctionAlternativeForms
-
-	func 9RandomNumbersGreaterThanXT(n)
-		return 9RandomNumbersGreaterThanIB(n)
-
-	func 9RandomNumbersLargerThanIB(n)
-		return 9RandomNumbersGreaterThanIB(n)
-
-	func 9RandomNumbersLargerThanXT(n)
-		return 9RandomNumbersGreaterThanIB(n)
-
-	func NineRandomNumbersGreaterThanIB(n)
-		return 9RandomNumbersGreaterThanIB(n)
-
-	func NineRandomNumbersGreaterThanXT(n)
-		return 9RandomNumbersGreaterThanIB(n)
-
-	func NineRandomNumbersLargerThanIB(n)
-		return 9RandomNumbersGreaterThanIB(n)
-
-	func NineRandomNumbersLargerThanXT(n)
-		return 9RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 9RandomNumbersGreaterThan(n)
-	return NRandomNumbersGreaterThan(9, n)
-
-	#< @FunctionAlternativeForm
-
-	func 9RandomNumbersLargerThan(n)
-		return 9RandomNumbersGreaterThan(n)
-
-	func 9RandomNumbersBiggerThan(n)
-		return 9RandomNumbersGreaterThan(n)
-
-	func NineRandomNumbersGreaterThan(n)
-		return 9RandomNumbersGreaterThan(n)
-
-	func NineRandomNumbersLargerThan(n)
-		return 9RandomNumbersGreaterThan(n)
-
-	func NineRandomNumbersBiggerThan(n)
-		return 9RandomNumbersGreaterThan(n)
-
-	#>
-
-#--
-
-func 10RandomNumbersGreaterThanIB(n)
-	return NRandomNumbersGreaterThanIB(10, n)
-
-	#< @FunctionAlternativeForms
-
-	func 10RandomNumbersGreaterThanXT(n)
-		return 10RandomNumbersGreaterThanIB(n)
-
-	func 10RandomNumbersLargerThanIB(n)
-		return 10RandomNumbersGreaterThanIB(n)
-
-	func 10RandomNumbersLargerThanXT(n)
-		return 10RandomNumbersGreaterThanIB(n)
+	func AnyNNumbersSmallerThanXTU(n, nValue)
+		return NRandomNumbersLessThanXTU(n, nValue)
 
 	#--
 
-	func TenRandomNumbersGreaterThanIB(n)
-		return TenRandomNumbersGreaterThanIB(n)
+	func NUniqueRandomNumbersLessThanXT(n, nValue)
+		return NRandomNumbersLessThanXTU(n, nValue)
 
-	func TenRandomNumbersGreaterThanXT(n)
-		return TenRandomNumbersGreaterThanIB(n)
+	func NUniqueRandomNumbersSmallerThanXT(n, nValue)
+		return NRandomNumbersLessThanXTU(n, nValue)
 
-	func TenRandomNumbersLargerThanIB(n)
-		return TenRandomNumbersGreaterThanIB(n)
 
-	func TenRandomNumbersLargerThanXT(n)
-		return TenRandomNumbersGreaterThanIB(n)
+	func NUniqueNumbersLessThanXT(n, nValue)
+		return NRandomNumbersLessThanXTU(n, nValue)
 
-	#>
-
-func 10RandomNumbersGreaterThan(n)
-	return NRandomNumbersGreaterThan(10, n)
-
-	#< @FunctionAlternativeForm
-
-	func 10RandomNumbersLargerThan(n)
-		return 10RandomNumbersGreaterThan(n)
-
-	func 10RandomNumbersBiggerThan(n)
-		return 10RandomNumbersGreaterThan(n)
-
-	#--
-
-	func TenRandomNumbersGreaterThan(n)
-		return 10RandomNumbersGreaterThan(n)
-
-	func TenRandomNumbersLargerThan(n)
-		return 10RandomNumbersGreaterThan(n)
-
-	func TenRandomNumbersBiggerThan(n)
-		return 10RandomNumbersGreaterThan(n)
+	func NUniqueNumbersSmallerThanXT(n, nValue)
+		return NRandomNumbersLessThanXTU(n, nValue)
 
 	#>
-
-#------
-
-func 2RandomNumbersLessThanIB(n)
-	return NRandomNumbersLessThanIB(2, n)
-
-	#< @FunctionAlternativeForms
-
-	func 2RandomNumbersLessThanXT(n)
-		return 2RandomNumbersLessThanIB(n)
-
-	func 2RandomNumbersSmallerThanIB(n)
-		return 2RandomNumbersGreaterThanIB(n)
-
-	func 2RandomNumbersSmallerThanXT(n)
-		return 2RandomNumbersGreaterThanIB(n)
-
-	func TwoRandomNumbersLessThanXT(n)
-		return 2RandomNumbersGreaterThanIB(n)
-
-	func TwoRandomNumbersLessThanIB(n)
-		return 2RandomNumbersGreaterThanIB(n)
-
-	func TwoRandomNumbersSmallerThanIB(n)
-		return 2RandomNumbersGreaterThanIB(n)
-
-	func TwoRandomNumbersSmallerThanXT(n)
-		return 2RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 2RandomNumbersLessThan(n)
-	return NRandomNumbersLessThan(2, n)
-
-	#< @FunctionAlternativeForm
-
-	func 2RandomNumbersSmallerThan(n)
-		return 2RandomNumbersLessThan(n)
-
-	#>
-
-#--
-
-func 3RandomNumbersLessThanIB(n)
-	return NRandomNumbersLessThanIB(3, n)
-
-	#< @FunctionAlternativeForms
-
-	func 3RandomNumbersLessThanXT(n)
-		return 3RandomNumbersLessThanIB(n)
-
-	func 3RandomNumbersSmallerThanIB(n)
-		return 3RandomNumbersGreaterThanIB(n)
-
-	func 3RandomNumbersSmallerThanXT(n)
-		return 3RandomNumbersGreaterThanIB(n)
-
-	func ThreeRandomNumbersLessThanXT(n)
-		return 3RandomNumbersGreaterThanIB(n)
-
-	func ThreeRandomNumbersLessThanIB(n)
-		return 3RandomNumbersGreaterThanIB(n)
-
-	func ThreeRandomNumbersSmallerThanIB(n)
-		return 3RandomNumbersGreaterThanIB(n)
-
-	func ThreeRandomNumbersSmallerThanXT(n)
-		return 3RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 3RandomNumbersLessThan(n)
-	return NRandomNumbersLessThan(3, n)
-
-	#< @FunctionAlternativeForm
-
-	func 3RandomNumbersSmallerThan(n)
-		return 3RandomNumbersLessThan(n)
-
-	func ThreeRandomNumbersLessThan(n)
-		return 3RandomNumbersLessThan(n)
-
-	func ThreeRandomNumbersSmallerThan(n)
-		return 3RandomNumbersLessThan(n)
-
-	#>
-
-#--
-
-func 4RandomNumbersLessThanIB(n)
-	return NRandomNumbersLessThanIB(4, n)
-
-	#< @FunctionAlternativeForms
-
-	func 4RandomNumbersLessThanXT(n)
-		return 4RandomNumbersLessThanIB(n)
-
-	func 4RandomNumbersSmallerThanIB(n)
-		return 4RandomNumbersGreaterThanIB(n)
-
-	func 4RandomNumbersSmallerThanXT(n)
-		return 4RandomNumbersGreaterThanIB(n)
-
-	func FourRandomNumbersLessThanXT(n)
-		return 4RandomNumbersLessThanIB(n)
-
-	func FourRandomNumbersLessThanIB(n)
-		return 4RandomNumbersLessThanIB(n)
-
-	func FourRandomNumbersSmallerThanIB(n)
-		return 4RandomNumbersGreaterThanIB(n)
-
-	func FourRandomNumbersSmallerThanXT(n)
-		return 4RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 4RandomNumbersLessThan(n)
-	return NRandomNumbersLessThan(4, n)
-
-	#< @FunctionAlternativeForm
-
-	func 4RandomNumbersSmallerThan(n)
-		return 4RandomNumbersLessThan(n)
-
-	func FourRandomNumbersLessThan(n)
-		return 4RandomNumbersLessThan(n)
-
-	func FourRandomNumbersSmallerThan(n)
-		return 4RandomNumbersLessThan(n)
-
-	#>
-
-#--
-
-func 5RandomNumbersLessThanIB(n)
-	return NRandomNumbersLessThanIB(5, n)
-
-	#< @FunctionAlternativeForms
-
-	func 5RandomNumbersLessThanXT(n)
-		return 5RandomNumbersLessThanIB(n)
-
-	func 5RandomNumbersSmallerThanIB(n)
-		return 5RandomNumbersGreaterThanIB(n)
-
-	func 5RandomNumbersSmallerThanXT(n)
-		return 5RandomNumbersGreaterThanIB(n)
-
-	func FiveRandomNumbersLessThanXT(n)
-		return 5RandomNumbersLessThanIB(n)
-
-	func FiveRandomNumbersLessThanIB(n)
-		return 5RandomNumbersLessThanIB(n)
-
-	func FiveRandomNumbersSmallerThanIB(n)
-		return 5RandomNumbersGreaterThanIB(n)
-
-	func FiveRandomNumbersSmallerThanXT(n)
-		return 5RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 5RandomNumbersLessThan(n)
-	return NRandomNumbersLessThan(5, n)
-
-	#< @FunctionAlternativeForm
-
-	func 5RandomNumbersSmallerThan(n)
-		return 5RandomNumbersLessThan(n)
-
-	func FiveRandomNumbersLessThan(n)
-		return 5RandomNumbersLessThan(n)
-
-	func FiveRandomNumbersSmallerThan(n)
-		return 5RandomNumbersLessThan(n)
-
-	#>
-
-#--
-
-func 6RandomNumbersLessThanIB(n)
-	return NRandomNumbersLessThanIB(6, n)
-
-	#< @FunctionAlternativeForms
-
-	func 6RandomNumbersLessThanXT(n)
-		return 6RandomNumbersLessThanIB(n)
-
-	func 6RandomNumbersSmallerThanIB(n)
-		return 6RandomNumbersGreaterThanIB(n)
-
-	func 6RandomNumbersSmallerThanXT(n)
-		return 6RandomNumbersGreaterThanIB(n)
-
-	func SixRandomNumbersLessThanXT(n)
-		return 6RandomNumbersLessThanIB(n)
-
-	func SixRandomNumbersLessThanIB(n)
-		return 6RandomNumbersLessThanIB(n)
-
-	func SixRandomNumbersSmallerThanIB(n)
-		return 6RandomNumbersGreaterThanIB(n)
-
-	func SixRandomNumbersSmallerThanXT(n)
-		return 6RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 6RandomNumbersLessThan(n)
-	return NRandomNumbersLessThan(6, n)
-
-	#< @FunctionAlternativeForm
-
-	func 6RandomNumbersSmallerThan(n)
-		return 6RandomNumbersLessThan(n)
-
-	func SixRandomNumbersLessThan(n)
-		return 6RandomNumbersLessThan(n)
-
-	func SixRandomNumbersSmallerThan(n)
-		return 6RandomNumbersLessThan(n)
-
-	#>
-
-#--
-
-func 7RandomNumbersLessThanIB(n)
-	return NRandomNumbersLessThanIB(7, n)
-
-	#< @FunctionAlternativeForms
-
-	func 7RandomNumbersLessThanXT(n)
-		return 7RandomNumbersLessThanIB(n)
-
-	func 7RandomNumbersSmallerThanIB(n)
-		return 7RandomNumbersGreaterThanIB(n)
-
-	func 7RandomNumbersSmallerThanXT(n)
-		return 7RandomNumbersGreaterThanIB(n)
-
-	func SevenRandomNumbersLessThanXT(n)
-		return 7RandomNumbersLessThanIB(n)
-
-	func SevenRandomNumbersLessThanIB(n)
-		return 7RandomNumbersLessThanIB(n)
-
-	func SevenRandomNumbersSmallerThanIB(n)
-		return 7RandomNumbersGreaterThanIB(n)
-
-	func SevenRandomNumbersSmallerThanXT(n)
-		return 7RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 7RandomNumbersLessThan(n)
-	return NRandomNumbersLessThan(7, n)
-
-	#< @FunctionAlternativeForm
-
-	func 7RandomNumbersSmallerThan(n)
-		return 7RandomNumbersLessThan(n)
-
-	func SevenRandomNumbersLessThan(n)
-		return 7RandomNumbersLessThan(n)
-
-	func SevenRandomNumbersSmallerThan(n)
-		return 7RandomNumbersLessThan(n)
-
-	#>
-
-#--
-
-func 8RandomNumbersLessThanIB(n)
-	return NRandomNumbersLessThanIB(8, n)
-
-	#< @FunctionAlternativeForms
-
-	func 8RandomNumbersLessThanXT(n)
-		return 8RandomNumbersLessThanIB(n)
-
-	func 8RandomNumbersSmallerThanIB(n)
-		return 8RandomNumbersGreaterThanIB(n)
-
-	func 8RandomNumbersSmallerThanXT(n)
-		return 8RandomNumbersGreaterThanIB(n)
-
-	func EightRandomNumbersLessThanXT(n)
-		return 8RandomNumbersLessThanIB(n)
-
-	func EightRandomNumbersLessThanIB(n)
-		return 8RandomNumbersLessThanIB(n)
-
-	func EightRandomNumbersSmallerThanIB(n)
-		return 8RandomNumbersGreaterThanIB(n)
-
-	func EightRandomNumbersSmallerThanXT(n)
-		return 8RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 8RandomNumbersLessThan(n)
-	return NRandomNumbersLessThan(8, n)
-
-	#< @FunctionAlternativeForm
-
-	func 8RandomNumbersSmallerThan(n)
-		return 8RandomNumbersLessThan(n)
-
-	func EightRandomNumbersLessThan(n)
-		return 8RandomNumbersLessThan(n)
-
-	func EightRandomNumbersSmallerThan(n)
-		return 8RandomNumbersLessThan(n)
-
-	#>
-
-#--
-
-func 9RandomNumbersLessThanIB(n)
-	return NRandomNumbersLessThanIB(9, n)
-
-	#< @FunctionAlternativeForms
-
-	func 9RandomNumbersLessThanXT(n)
-		return 9RandomNumbersLessThanIB(n)
-
-	func 9RandomNumbersSmallerThanIB(n)
-		return 9RandomNumbersGreaterThanIB(n)
-
-	func 9RandomNumbersSmallerThanXT(n)
-		return 9RandomNumbersGreaterThanIB(n)
-
-	func NineRandomNumbersLessThanIB(n)
-		return 9RandomNumbersLessThanIB(n)
-
-	func NineRandomNumbersLessThanXT(n)
-		return 9RandomNumbersLessThanIB(n)
-
-	func NineRandomNumbersSmallerThanIB(n)
-		return 9RandomNumbersGreaterThanIB(n)
-
-	func NineRandomNumbersSmallerThanXT(n)
-		return 9RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 9RandomNumbersLessThan(n)
-	return NRandomNumbersLessThan(9, n)
-
-	#< @FunctionAlternativeForm
-
-	func 9RandomNumbersSmallerThan(n)
-		return 9RandomNumbersLessThan(n)
-
-	func NineRandomNumbersLessThan(n)
-		return 9RandomNumbersLessThan(n)
-
-	func NineRandomNumbersSmallerThan(n)
-		return 9RandomNumbersLessThan(n)
-
-	#>
-
-#--
-
-func 10RandomNumbersLessThanIB(n)
-	return NRandomNumbersLessThanIB(10, n)
-
-	#< @FunctionAlternativeForms
-
-	func 10RandomNumbersLessThanXT(n)
-		return 10RandomNumbersLessThanIB(n)
-
-	func 10RandomNumbersSmallerThanIB(n)
-		return 10RandomNumbersGreaterThanIB(n)
-
-	func 10RandomNumbersSmallerThanXT(n)
-		return 10RandomNumbersGreaterThanIB(n)
-
-	func TenRandomNumbersLessThanIB(n)
-		return 10RandomNumbersLessThanIB(n)
-
-	func TenRandomNumbersLessThanXT(n)
-		return 10RandomNumbersLessThanIB(n)
-
-	func TenRandomNumbersSmallerThanIB(n)
-		return 10RandomNumbersGreaterThanIB(n)
-
-	func TenRandomNumbersSmallerThanXT(n)
-		return 10RandomNumbersGreaterThanIB(n)
-
-	#>
-
-func 10RandomNumbersLessThan(n)
-	return NRandomNumbersLessThan(10, n)
-
-	#< @FunctionAlternativeForm
-
-	func 10RandomNumbersSmallerThan(n)
-		return 10RandomNumbersLessThan(n)
-
-	func TenRandomNumbersLessThan(n)
-		return 10RandomNumbersLessThan(n)
-
-	func TenRandomNumbersSmallerThan(n)
-		return 10RandomNumbersLessThan(n)
-
-
-	#>
-
-#--
-
-func RandomNumberOtherThan(n)
-	nResult = RandomNumberBetween(1, MaxRingNumber())
-	if nResult = n
-		nResult = n - 1
-		if nResult < 0
-			nResult = 0
+#==
+
+func SomeRandomNumbersIn(panNumbers)
+	if CheckParams()
+		if NOT ( isList(panNumbers) and IsListOfNumbers(panNumbers) )
+			StzRaise("Incorrect param type! panNumbers.")
 		ok
 	ok
-	return nResult
 
-	#< @FunctionAlternativeForm
+	n = ARandomNumberIn(1:len(panNumbers))
+	return NRandomNumbersIn(n, panNumbers)
 
-	func ARandomNumberOtherThan(n)
-		return RandomNumberOtherThan(n)
+	#< @FunctionAlternativeForms
 
-	func AnyRandomNumberOtherThan(n)
-		return RandomNumberOtherThan(n)
+	func SomeNumbersIn(paNumbers)
+		return RandomNumbersIn(panNumbers)
 
-	func ANumberOtherThan(n)
-		return RandomNumberOtherThan(n)
+	func AnyRandomNumbersIn(paNumbers)
+		return RandomNumbersIn(panNumbers)
 
-	func AnyNumberOtherThan(n)
-		return RandomNumberOtherThan(n)
-
-	func NumberOtherThan(n)
-		return RandomNumberOtherThan(n)
-
-	#--
-
-	func RandomNumberDifferentThan(n)
-		return RandomNumberOtherThan(n)
-
-	func ARandomNumberDifferentThan(n)
-		return RandomNumberOtherThan(n)
-
-	func AnyRandomNumberDifferentThan(n)
-		return RandomNumberOtherThan(n)
-
-	func ANumberDifferentThan(n)
-		return RandomNumberOtherThan(n)
-
-	func AnyNumberDifferentThan(n)
-		return RandomNumberOtherThan(n)
-
-	func NumberDifferentThan(n)
-		return RandomNumberOtherThan(n)
-
-	#--
-
-	func RandomNumberDifferentFrom(n)
-		return RandomNumberOtherThan(n)
-
-	func ARandomNumberDifferentFrom(n)
-		return RandomNumberOtherThan(n)
-
-	func AnyRandomNumberDifferentFrom(n)
-		return RandomNumberOtherThan(n)
-
-	func ANumberDifferentFrom(n)
-		return RandomNumberOtherThan(n)
-
-	func AnyNumberDifferentFrom(n)
-		return RandomNumberOtherThan(n)
-
-	func NumberDifferentFrom(n)
-		return RandomNumberOtherThan(n)
+	func AnyNumbersIn(paNumbers)
+		return RandomNumbersIn(panNumbers)
 
 	#>
 
-#-- N RANDOM NUMBERS FROM A LIST OF NUMBERS
+func SomeRandomNumbersInXT(panNumbers, nSeed)
+	StzSRandom(nSeed)
+	return SomeRandomNumbersIn(panNumbers)
 
-func NRandomNumbersAmong(n, panNumbers)
+	#< @FunctionAlternativeForms
+
+	func SomeNumbersInXT(paNumbers, nSeed)
+		return RandomNumbersInXT(panNumbers, nSeed)
+
+	func AnyRandomNumbersInXT(paNumbers, nSeed)
+		return RandomNumbersInXT(panNumbers, nSeed)
+
+	func AnyNumbersInXT(paNumbers, nSeed)
+		return RandomNumbersInXT(panNumbers, nSeed)
+
+	#>
+
+#--
+
+func SomeRandomNumbersInU(panNumbers)
+	if CheckParams()
+		if NOT ( isList(panNumbers) and IsListOfNumbers(panNumbers) )
+			StzRaise("Incorrect param type! panNumbers.")
+		ok
+	ok
+
+	n = ARandomNumberIn( 1: len(panNumbers) )
+	return NRandomNumbersInU(n, panNumbers)
+
+	#< @FunctionAlternativeForms
+
+	func SomeNumbersInU(paNumbers)
+		return RandomNumbersInU(panNumbers)
+
+	func AnyRandomNumbersInU(paNumbers)
+		return RandomNumbersInU(panNumbers)
+
+	func AnyNumbersInU(paNumbers)
+		return RandomNumbersInU(panNumbers)
+
+	#--
+
+	func UniqueRandomNumbersIn(panNumbers)
+		return RandomNumbersInU(panNumbers)
+
+	func SomeUniqueNumbersIn(paNumbers)
+		return RandomNumbersInU(panNumbers)
+
+	#>
+
+func SomeRandomNumbersInXTU(panNumbers, nSeed)
+	StzSRandom(nSeed)
+	return SomeRandomNumbersInU(panNumbers)
+
+	#< @FunctionAlternativeForms
+
+	func SomeNumbersInXTU(paNumbers, nSeed)
+		return RandomNumbersInXTU(panNumbers, nSeed)
+
+	func AnyRandomNumbersInXTU(paNumbers, nSeed)
+		return RandomNumbersInXTU(panNumbers, nSeed)
+
+	func AnyNumbersInXTU(paNumbers, nSeed)
+		return RandomNumbersInXTU(panNumbers, nSeed)
+
+	#--
+
+	func UniqueRandomNumbersInXT(panNumbers, nSeed)
+		return RandomNumbersInXTU(panNumbers, nSeed)
+
+	func SomeUniqueNumbersInXT(paNumbers, nSeed)
+		return RandomNumbersInXTU(panNumbers, nSeed)
+
+	#>
+
+#== N RANDOM NUMBERS FROM A LIST OF NUMBERS
+
+func NRandomNumbersIn(n, panNumbers)
 
 	# NOTE: The same number can appear more than once
 	# To avoid this, use the function with the ...U() extension
@@ -1777,112 +1040,61 @@ func NRandomNumbersAmong(n, panNumbers)
 	anResult = []
 
 	for i = 1 to n
-		nPos = ARandomNumberBetween(1, nLen)
+		nPos = ARandomNumberIn(1 : nLen)
 		anResult + panNumbers[nPos]
 	next
+
+	anResult = ring_sort(anResult)
 
 	return anResult
 
 	#< @FunctionAlternativeForms
 
-	func RandomNNumbersAmong(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	func AnyNNumbersAmong(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	func NNumbersAmong(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	#--
-
-	func NRandomNumbersIn(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
 	func RandomNNumbersIn(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
+		return NRandomNumbersIn(n, panNumbers)
 
 	func AnyNNumbersIn(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
+		return NRandomNumbersIn(n, panNumbers)
 
 	func NNumbersIn(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	#--
-
-	func NRandomNumbersFrom(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	func RandomNNumbersFrom(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	func AnyNNumbersFrom(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	func NNumbersFrom(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	#--
-
-	func NRandomNumbersInside(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	func RandomNNumbersInside(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	func AnyNNumbersInside(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	func NNumbersInside(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	#--
-
-	func NRandomNumbersFromInside(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	func RandomNNumbersFromInside(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	func AnyNNumbersFromInside(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
-
-	func NNumbersFromInside(n, panNumbers)
-		return NRandomNumbersAmong(n, panNumbers)
+		return NRandomNumbersIn(n, panNumbers)
 
 	#>
 
-	# Z/EXTENDED FORM (TODO)
+func NRandomNumbersInXT(n, panNumbers, nSeed)
+	StzSRandom(nSeed)
+	return NRandomNumbersIn(n, panNumbers)
 
-func NRandomNumbersAmongZ(n, panNumbers)
+	#< @FunctionAlternativeForms
+
+	func RandomNNumbersInXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXT(n, panNumbers, nSeed)
+
+	func AnyNNumbersInXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXT(n, panNumbers, nSeed)
+
+	func NNumbersInXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXT(n, panNumbers, nSeed)
+
+	#>
+
+func NRandomNumbersInZ(n, panNumbers)
 
 	nLen = len(panNumbers)
-	nRandom = ARandomNumberBetween(1, nLen)
+	nRandom = ARandomNumberIn(1 : nLen)
 
 	aResult = []
 
 	for i = 1 to nRandom
-		nPos = ARandomNumberBetween(1, nLen)
+		nPos = ARandomNumberIn(1 : nLen)
 		aResult + [ panNumbers[nPos], nPos ]
 	next
+
+	anResult = ring_sort(anResult)
 
 	return aResult
 
 	#< @FunctionAlternativeForms
-
-	func RandomNNumbersAmongZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	func AnyNNumbersAmongZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	func NNumbersAmongZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	#--
-
-	func NRandomNumbersInZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
 
 	func RandomNNumbersInZ(n, panNumbers)
 		return NRandomNumbersAmongZ(n, panNumbers)
@@ -1893,1458 +1105,190 @@ func NRandomNumbersAmongZ(n, panNumbers)
 	func NNumbersInZ(n, panNumbers)
 		return NRandomNumbersAmongZ(n, panNumbers)
 
-	#--
-
-	func NRandomNumbersFromZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	func RandomNNumbersFromZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	func AnyNNumbersFromZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	func NNumbersFromZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	#--
-
-	func NRandomNumbersInsideZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	func RandomNNumbersInsideZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	func AnyNNumbersInsideZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	func NNumbersInsideZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	#--
-
-	func NRandomNumbersFromInsideZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	func RandomNNumbersFromInsideZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	func AnyNNumbersFromInsideZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
-	func NNumbersFromInsideZ(n, panNumbers)
-		return NRandomNumbersAmongZ(n, panNumbers)
-
 	#>
 
-	#-- UZ/EXTENDED FORM (TODO)
-
-#--
-
-func 2RandomNumbersAmong(panNumbers)
-	return NRandomNumbersAmong(2, panNumbers)
+func NRandomNumbersInXTZ(n, panNumbers, nSeed)
+	StzSRandom(nSeed)
+	return NRandomNumbersInZ(n, panNumbers)
 
 	#< @FunctionAlternativeForms
 
-	func TwoRandomNumbersAmong(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
+	func RandomNNumbersInXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTZ(n, panNumbers, nSeed)
 
-	func Random2NumbersAmong(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
+	func AnyNNumbersInXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTZ(n, panNumbers, nSeed)
 
-	func RandomTwoNumbersAmong(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func Any2NumbersAmong(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func AnyTwoNumbersAmong(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func 2NumbersAmong(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func TwoNumbersAmong(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 2RandomNumbersIn(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func TwoRandomNumbersIn(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func Random2NumbersIn(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func RandomTwoNumbersIn(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func Any2NumbersIn(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func AnyTwoNumbersIn(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func 2NumbersIn(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func TwoNumbersIn(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 2RandomNumbersFrom(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func TwoRandomNumbersFrom(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func Random2NumbersFrom(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func RandomTwoNumbersFrom(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func Any2NumbersFrom(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func AnyTwoNumbersFrom(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func 2NumbersFrom(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func TwoNumbersFrom(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 2RandomNumbersInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func TwoRandomNumbersInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func Random2NumbersInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func RandomTwoNumbersInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func Any2NumbersInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func AnyTwoNumbersInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func 2NumbersInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func TwoNumbersInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 2RandomNumbersFromInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func TwoRandomNumbersFromInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func Random2NumbersFromInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func RandomTwoNumbersFromInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func Any2NumbersFromInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func AnyTwoNumbersFromInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func 2NumbersFromInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
-
-	func TwoNumbersFromInside(panNumbers)
-		return 2RandomNumbersAmong(panNumbers)
+	func NNumbersInXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTZ(n, panNumbers, nSeed)
 
 	#>
 
-#--
+#==
 
-func 3RandomNumbersAmong(panNumbers)
-	return NRandomNumbersAmong(3, panNumbers)
-
-	#< @FunctionAlternativeForms
-
-	func ThreeRandomNumbersAmong(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func Random3NumbersAmong(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func RandomThreeNumbersAmong(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func Any3NumbersAmong(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func AnyThreeNumbersAmong(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func 3NumbersAmong(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func ThreeNumbersAmong(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 3RandomNumbersIn(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func ThreeRandomNumbersIn(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func Random3NumbersIn(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func RandomThreeNumbersIn(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func Any3NumbersIn(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func AnyThreeNumbersIn(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func 3NumbersIn(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func ThreeNumbersIn(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 3RandomNumbersFrom(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func ThreeRandomNumbersFrom(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func Random3NumbersFrom(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func RandomThreeNumbersFrom(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func Any3NumbersFrom(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func AnyThreeNumbersFrom(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func 3NumbersFrom(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func ThreeNumbersFrom(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 3RandomNumbersInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func ThreeRandomNumbersInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func Random3NumbersInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func RandomThreeNumbersInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func Any3NumbersInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func AnyThreeNumbersInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func 3NumbersInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func ThreeNumbersInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 3RandomNumbersFromInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func ThreeRandomNumbersFromInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func Random3NumbersFromInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func RandomThreeNumbersFromInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func Any3NumbersFromInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func AnyThreeNumbersFromInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func 3NumbersFromInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	func ThreeNumbersFromInside(panNumbers)
-		return 3RandomNumbersAmong(panNumbers)
-
-	#>
-
-#--
-
-func 4RandomNumbersAmong(panNumbers)
-	return NRandomNumbersAmong(4, panNumbers)
-
-	#< @FunctionAlternativeForms
-
-	func FourRandomNumbersAmong(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func Random4NumbersAmong(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func RandomFourNumbersAmong(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func Any4NumbersAmong(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func AnyFourNumbersAmong(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func 4NumbersAmong(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func FourNumbersAmong(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 4RandomNumbersIn(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func FourRandomNumbersIn(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func Random4NumbersIn(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func RandomFourNumbersIn(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func Any4NumbersIn(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func AnyFourNumbersIn(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func 4NumbersIn(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func FourNumbersIn(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 4RandomNumbersFrom(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func FourRandomNumbersFrom(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func Random4NumbersFrom(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func RandomFourNumbersFrom(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func Any4NumbersFrom(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func AnyFourNumbersFrom(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func 4NumbersFrom(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func FourNumbersFrom(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 4RandomNumbersInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func FourRandomNumbersInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func Random4NumbersInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func RandomFourNumbersInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func Any4NumbersInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func AnyFourNumbersInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func 4NumbersInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func FourNumbersInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 4RandomNumbersFromInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func FourRandomNumbersFromInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func Random4NumbersFromInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func RandomFourNumbersFromInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func Any4NumbersFromInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func AnyFourNumbersFromInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func 4NumbersFromInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	func FourNumbersFromInside(panNumbers)
-		return 4RandomNumbersAmong(panNumbers)
-
-	#>
-
-#--
-
-func 5RandomNumbersAmong(panNumbers)
-	return NRandomNumbersAmong(5, panNumbers)
-
-	#< @FunctionAlternativeForms
-
-	func FiveRandomNumbersAmong(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func Random5NumbersAmong(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func RandomFiveNumbersAmong(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func Any5NumbersAmong(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func AnyFiveNumbersAmong(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func 5NumbersAmong(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func FiveNumbersAmong(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 5RandomNumbersIn(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func FiveRandomNumbersIn(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func Random5NumbersIn(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func RandomFiveNumbersIn(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func Any5NumbersIn(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func AnyFiveNumbersIn(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func 5NumbersIn(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func FiveNumbersIn(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 5RandomNumbersFrom(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func FiveRandomNumbersFrom(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func Random5NumbersFrom(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func RandomFiveNumbersFrom(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func Any5NumbersFrom(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func AnyFiveNumbersFrom(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func 5NumbersFrom(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func FiveNumbersFrom(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 5RandomNumbersInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func FiveRandomNumbersInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func Random5NumbersInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func RandomFiveNumbersInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func Any5NumbersInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func AnyFiveNumbersInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func 5NumbersInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func FiveNumbersInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 5RandomNumbersFromInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func FiveRandomNumbersFromInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func Random5NumbersFromInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func RandomFiveNumbersFromInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func Any5NumbersFromInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func AnyFiveNumbersFromInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func 5NumbersFromInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	func FiveNumbersFromInside(panNumbers)
-		return 5RandomNumbersAmong(panNumbers)
-
-	#>
-
-#--
-
-func 6RandomNumbersAmong(panNumbers)
-	return NRandomNumbersAmong(6, panNumbers)
-
-	#< @FunctionAlternativeForms
-
-	func SixRandomNumbersAmong(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func Random6NumbersAmong(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func RandomSixNumbersAmong(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func Any6NumbersAmong(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func AnySixNumbersAmong(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func 6NumbersAmong(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func SixNumbersAmong(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 6RandomNumbersIn(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func SixRandomNumbersIn(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func Random6NumbersIn(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func RandomSixNumbersIn(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func Any6NumbersIn(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func AnySixNumbersIn(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func 6NumbersIn(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func SixNumbersIn(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 6RandomNumbersFrom(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func SixRandomNumbersFrom(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func Random6NumbersFrom(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func RandomSixNumbersFrom(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func Any6NumbersFrom(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func AnySixNumbersFrom(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func 6NumbersFrom(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func SixNumbersFrom(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 6RandomNumbersInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func SixRandomNumbersInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func Random6NumbersInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func RandomSixNumbersInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func Any6NumbersInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func AnySixNumbersInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func 6NumbersInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func SixNumbersInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 6RandomNumbersFromInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func SixRandomNumbersFromInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func Random6NumbersFromInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func RandomSixNumbersFromInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func Any6NumbersFromInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func AnySixNumbersFromInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func 6NumbersFromInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	func SixNumbersFromInside(panNumbers)
-		return 6RandomNumbersAmong(panNumbers)
-
-	#>
-
-#--
-
-func 7RandomNumbersAmong(panNumbers)
-	return NRandomNumbersAmong(7, panNumbers)
-
-	#< @FunctionAlternativeForms
-
-	func SevenRandomNumbersAmong(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func Random7NumbersAmong(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func RandomSevenNumbersAmong(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func Any7NumbersAmong(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func AnySevenNumbersAmong(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func 7NumbersAmong(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func SevenNumbersAmong(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 7RandomNumbersIn(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func SevenRandomNumbersIn(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func Random7NumbersIn(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func RandomSevenNumbersIn(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func Any7NumbersIn(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func AnySevenNumbersIn(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func 7NumbersIn(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func SevenNumbersIn(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 7RandomNumbersFrom(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func SevenRandomNumbersFrom(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func Random7NumbersFrom(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func RandomSevenNumbersFrom(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func Any7NumbersFrom(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func AnySevenNumbersFrom(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func 7NumbersFrom(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func SevenNumbersFrom(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 7RandomNumbersInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func SevenRandomNumbersInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func Random7NumbersInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func RandomSevenNumbersInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func Any7NumbersInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func AnySevenNumbersInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func 7NumbersInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func SevenNumbersInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 7RandomNumbersFromInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func SevenRandomNumbersFromInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func Random7NumbersFromInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func RandomSevenNumbersFromInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func Any7NumbersFromInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func AnySevenNumbersFromInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func 7NumbersFromInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	func SevenNumbersFromInside(panNumbers)
-		return 7RandomNumbersAmong(panNumbers)
-
-	#>
-
-#--
-
-func 8RandomNumbersAmong(panNumbers)
-	return NRandomNumbersAmong(8, panNumbers)
-
-	#< @FunctionAlternativeForms
-
-	func EightRandomNumbersAmong(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func Random8NumbersAmong(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func RandomEightNumbersAmong(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func Any8NumbersAmong(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func AnyEightNumbersAmong(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func 8NumbersAmong(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func EightNumbersAmong(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 8RandomNumbersIn(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func EightRandomNumbersIn(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func Random8NumbersIn(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func RandomEightNumbersIn(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func Any8NumbersIn(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func AnyEightNumbersIn(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func 8NumbersIn(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func EightNumbersIn(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 8RandomNumbersFrom(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func EightRandomNumbersFrom(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func Random8NumbersFrom(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func RandomEightNumbersFrom(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func Any8NumbersFrom(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func AnyEightNumbersFrom(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func 8NumbersFrom(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func EightNumbersFrom(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 8RandomNumbersInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func EightRandomNumbersInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func Random8NumbersInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func RandomEightNumbersInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func Any8NumbersInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func AnyEightNumbersInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func 8NumbersInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func EightNumbersInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 8RandomNumbersFromInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func EightRandomNumbersFromInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func Random8NumbersFromInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func RandomEightNumbersFromInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func Any8NumbersFromInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func AnyEightNumbersFromInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func 8NumbersFromInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	func EightNumbersFromInside(panNumbers)
-		return 8RandomNumbersAmong(panNumbers)
-
-	#>
-
-#--
-
-func 9RandomNumbersAmong(panNumbers)
-	return NRandomNumbersAmong(9, panNumbers)
-
-	#< @FunctionAlternativeForms
-
-	func NineRandomNumbersAmong(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func Random9NumbersAmong(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func RandomNineNumbersAmong(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func Any9NumbersAmong(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func AnyNineNumbersAmong(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func 9NumbersAmong(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func NineNumbersAmong(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 9RandomNumbersIn(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func NineRandomNumbersIn(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func Random9NumbersIn(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func RandomNineNumbersIn(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func Any9NumbersIn(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func AnyNineNumbersIn(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func 9NumbersIn(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func NineNumbersIn(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 9RandomNumbersFrom(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func NineRandomNumbersFrom(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func Random9NumbersFrom(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func RandomNineNumbersFrom(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func Any9NumbersFrom(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func AnyNineNumbersFrom(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func 9NumbersFrom(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func NineNumbersFrom(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 9RandomNumbersInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func NineRandomNumbersInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func Random9NumbersInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func RandomNineNumbersInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func Any9NumbersInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func AnyNineNumbersInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func 9NumbersInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func NineNumbersInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 9RandomNumbersFromInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func NineRandomNumbersFromInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func Random9NumbersFromInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func RandomNineNumbersFromInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func Any9NumbersFromInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func AnyNineNumbersFromInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func 9NumbersFromInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	func NineNumbersFromInside(panNumbers)
-		return 9RandomNumbersAmong(panNumbers)
-
-	#>
-
-#--
-
-func 10RandomNumbersAmong(panNumbers)
-	return NRandomNumbersAmong(10, panNumbers)
-
-	#< @FunctionAlternativeForms
-
-	func TenRandomNumbersAmong(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func Random10NumbersAmong(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func RandomTenNumbersAmong(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func Any10NumbersAmong(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func AnyTenNumbersAmong(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func 10NumbersAmong(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func TenNumbersAmong(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 10RandomNumbersIn(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func TenRandomNumbersIn(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func Random10NumbersIn(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func RandomTenNumbersIn(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func Any10NumbersIn(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func AnyTenNumbersIn(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func 10NumbersIn(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func TenNumbersIn(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 10RandomNumbersFrom(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func TenRandomNumbersFrom(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func Random10NumbersFrom(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func RandomTenNumbersFrom(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func Any10NumbersFrom(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func AnyTenNumbersFrom(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func 10NumbersFrom(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func TenNumbersFrom(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 10RandomNumbersInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func TenRandomNumbersInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func Random10NumbersInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func RandomTenNumbersInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func Any10NumbersInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func AnyTenNumbersInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func 10NumbersInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func TenNumbersInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	#--
-
-	func 10RandomNumbersFromInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func TenRandomNumbersFromInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func Random10NumbersFromInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func RandomTenNumbersFromInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func Any10NumbersFromInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func AnyTenNumbersFromInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func 10NumbersFromInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	func TenNumbersFromInside(panNumbers)
-		return 10RandomNumbersAmong(panNumbers)
-
-	#>
-
-#--
-
-func NRandomNumbersAmongU(n, panNumbers)
+func NRandomNumbersInU(n, panNumbers)
 
 	# NOTE: The generated numbers are guranteed to be unique
 
-	nLen = len(panNumbers)
-	nRandom = ARandomNumberBetween(1, nLen)
-
 	anResult = []
-	anSeen = []
 
-	nTrials = 0
+	while TRUE
 
-	for i = 1 to nRandom
-		nPos = ARandomNumberBetween(1, nLen)
+		nRandom = ARandomNumberIn(panNumbers)
 		
-		if NOT ring_find(anSeen, nPos)
-			anResult + panNumbers[nPos]
-			anSeen + nPos
-		else
-			i--
+		if ring_find(anResult, nRandom) = 0
+			anResult + nRandom
 
-			# A risky implementation. If the engine tries +1000 times
-			# without generating a unique random number than abort the process!
-
-			nTrials++
-			if nTrials > 1000
-				StzRaise("Can't generate a unique random number!")
+			if len(anResult) = n
+				exit
 			ok
 		ok
-	next
+	end
+
+	anResult = ring_sort(anResult)
 
 	return anResult
 
 	#< @FunctionAlternativeForms
 
-	func RandomNNumbersAmongU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
-
-	func AnyNNumbersAmongU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
-
-	func NNumbersAmongU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
-
-	#--
-
-	func NRandomNumbersInU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
-
 	func RandomNNumbersInU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
 
 	func AnyNNumbersInU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
 
 	func NNumbersInU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
 
 	#--
 
-	func NRandomNumbersFromU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
+	func NUniqueRandomNumbersIn(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
 
-	func RandomNNumbersFromU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
+	func UniqueNRandomNumbersIn(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
 
-	func AnyNNumbersFromU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
+	func NUniqueNumbersIn(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
 
-	func NNumbersFromU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
-
-	#--
-
-	func NRandomNumbersInsideU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
-
-	func RandomNNumbersInsideU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
-
-	func AnyNNumbersInsideU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
-
-	func NNumbersInsideU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
-
-	#--
-
-	func NRandomNumbersFromInsideU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
-
-	func RandomNNumbersFromInsideU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
-
-	func AnyNNumbersFromInsideU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
-
-	func NNumbersFromInsideU(n, panNumbers)
-		return NRandomNumbersAmongU(n, panNumbers)
+	func UniqueNNumbersIn(n, panNumbers)
+		return NRandomNumbersInU(n, panNumbers)
 
 	#>
 
-func NRandomNumbersAmongUZ(n, panNumbers)
+func NRandomNumbersInUZ(n, panNumbers)
 
-	nLen = len(panNumbers)
-	nRandom = ARandomNumberBetween(1, nLen)
+	anNumbers = []
+	anPos = []
 
-	aResult = []
-	anSeen = []
+	while TRUE
 
-	nTrials = 0
-
-	for i = 1 to nRandom
-		nPos = ARandomNumberBetween(1, nLen)
+		anRandomZ = ARandomNumberInZ(panNumbers)
 		
-		if NOT ring_find(anSeen, nPos)
-			aResult + [ panNumbers[nPos], nPos ]
-			anSeen + nPos
-		else
-			i--
+		if ring_find(anNumbers, anRandomZ[1]) = 0
+			anNumbers + anRandomZ[1]
+			anPos + anRandomZ[2]
 
-			# A risky implementation. If the engine tries +1000 times
-			# without generating a unique random number than abort the process!
-
-			nTrials++
-			if nTrials > 1000
-				StzRaise("Can't generate a unique random number!")
+			if len(anResult) = n
+				exit
 			ok
 		ok
-	next
+	end
+
+	anNumbers = ring_sort(anNumbers)
+	anPos = ring_sort(anPos)
+
+	aResult = Association([ anNumbers, anPos ])
 
 	return aResult
 
 	#< @FunctionAlternativeForms
 
-	func RandomNNumbersAmongUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
-
-	func AnyNNumbersAmongUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
-
-	func NNumbersAmongUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
-
-	#--
-
-	func NRandomNumbersInUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
-
 	func RandomNNumbersInUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
 
 	func AnyNNumbersInUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
 
 	func NNumbersInUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
 
 	#--
 
-	func NRandomNumbersFromUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+	func NUniqueRandomNumbersInZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
 
-	func RandomNNumbersFromUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+	func UniqueNRandomNumbersInZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
 
-	func AnyNNumbersFromUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+	func NUniqueNumbersInZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
 
-	func NNumbersFromUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+	func UniqueNNumbersInZ(n, panNumbers)
+		return NRandomNumbersInUZ(n, panNumbers)
+
+	#>
+
+#--
+
+func NRandomNumbersInXTU(n, panNumbers, nSeed)
+	StzSRandom(nSeed)
+	return NRandomNumbersInXTU(n, panNumbers)
+
+	#< @FunctionAlternativeForms
+
+	func RandomNNumbersInXTU(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
+
+	func AnyNNumbersInXTU(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
+
+	func NNumbersInXTU(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
 
 	#--
 
-	func NRandomNumbersInsideUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+	func NUniqueRandomNumbersInXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
 
-	func RandomNNumbersInsideUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+	func UniqueNRandomNumbersInXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
 
-	func AnyNNumbersInsideUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+	func NUniqueNumbersInXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
 
-	func NNumbersInsideUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+	func UniqueNNumbersInXT(n, panNumbers, nSeed)
+		return NRandomNumbersInXTU(n, panNumbers, nSeed)
+
+	#>
+
+func NRandomNumbersInXTUZ(n, panNumbers, nSeed)
+	StzSRandom(nSeed)
+	return NRandomNumbersInUZ(n, panNumbers)
+
+	#< @FunctionAlternativeForms
+
+	func RandomNNumbersInXTUZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
+
+	func AnyNNumbersInXTUZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
+
+	func NNumbersInXTUZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
 
 	#--
 
-	func NRandomNumbersFromInsideUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+	func NUniqueRandomNumbersInXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
 
-	func RandomNNumbersFromInsideUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+	func UniqueNRandomNumbersInXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
 
-	func AnyNNumbersFromInsideUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+	func NUniqueNumbersInXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
 
-	func NNumbersFromInsideUZ(n, panNumbers)
-		return NRandomNumbersAmongUZ(n, panNumbers)
+	func UniqueNNumbersInXTZ(n, panNumbers, nSeed)
+		return NRandomNumbersInXTUZ(n, panNumbers, nSeed)
 
 	#>

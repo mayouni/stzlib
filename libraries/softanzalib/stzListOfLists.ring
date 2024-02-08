@@ -179,8 +179,17 @@ func Association(paLists)
 	func Associattion(paLists)
 		return Association(paLists)
 
+	func Associaton(paLists)
+		return Association(paLists)
+
+	#--
+
 	func @Associattion(paLists)
 		return Association(paLists)
+
+	func@ Associaton(paLists)
+		return Association(paLists)
+
 	#>
 
 func CommonItemsCS(paLists, pCaseSensitive)

@@ -1,177 +1,102 @@
 load "stzlib.ring"
 
+? NRandomNumbersIn(3, 1:10)
+#--> [ 6, 7, 7 ]
+
+? NRandomNumbersInU(3, 1:10)
+#--> [ 1, 2, 4 ]
+
+
+/*=====
+
 pron()
 
-? ARandomNumberIn(1:7)
+? 9_999_999_999 + 1
+#--> 10_000_000_000
+
+? 9_999_999_999 * 2
+#--> 19_999_999_998
+
+? sin(9_999_999_999)
+#--> -1.00
 
 proff()
 
-# Propose examples showing realword applications of randomness:
-#	- Generating unique passwords
-#	- Randomizing data
-#	- Monte Carlo simulations
-#	- Randomizing game mechanics
-#	- etc
+/*=====
 
-# General functions
+/*---- @Narration: In this narration; I will show how Sofanza compliments
+# Ring in some corner areas, by taking as an example the generation of
+# random numbers. I Hope you will find it interesting...
 
-SeedRandom(n)
-StzRandom()
-StzRandom(nMin, nMax)
-StzRandomIB(nMin, nMax)
-NRandomNumbers(n, nMin, nMax)
-NRandomNumbersIB(n, nMin, nMax)
-3RandomNumbers(nMin, nMax)
-3RandomNumbersIB(nMin, nMax)
-RandomNumberLessThan(n)
-RandomNumberGreaterThan(n)
-NRandomNumbersGreaterThan(n, nValue)
-3RandomNumbersGreaterThan(n)
-NRandomNumbersLessThan(n, nValue)
-3RandomNumbersLessThan(nValue)
-RandomNumberOtherThan(n)
+pron()
 
-NRandomNumbersIn(n, panNumbers)
-NRandomNumbersInZ(n, panNumbers)
+# If you write this to ask Ring to generate a random number (version 1.19)
 
-NRandomNumbersInU(n, panNumbers)
-NRandomNumbersInUZ(n, panNumbers)
+? @@( random(9_999_999_999) )
+#--> NULL
+# The result will be a NULL string.
 
-#-- stzListOfNumbers
+# In Softanza, using the alternative StzRandom() function, an error
+# messageis raised:
 
-ARandomNumber()
-ARandomNumberZ()
-ANumberLessThan(nNumber)
-ANumberLessThanZ(nNumber)
-ANumberGreaterThan(nNumber)
-ANumberGreaterThanZ(nNumber)
-AnyNumberBeforeOrAfter(n)
-AnyNumberBeforeOrAfterZ(n)
-AnyNumberBefore(n)
-AnyNumberBeforeZ(n)
-AnyNumberBeforePosition(n)
-AnyNumberBeforePositionZ(n)
-AnyNumberAfter(n)
-AnyNumberAfterZ(n)
-AnyNumberAfterPosition(n)
-AnyNumberAfterPositionZ(n)
-AnyNumberBetween(n1, n2)
-AnyNumberBetweenZ(n1, n2)
-AnyNumberBetweenIB(n1, n2)
-AnyNumberBetweenIBZ(n1, n2)
-AnyNumberNotBetween(n1, n2)
-AnyNumberNotBetweenZ(n1, n2)
-AnyNumberNotBetweenIB(n1, n2)
-AnyNumberNotBetweenIBZ(n1, n2)
-AnyNumberBetweenPositions(n1, n2)
-AnyNumberBetweenPositionsZ(n1, n2)
-AnyNumberNotBetweenPositions(n1, n2)
-AnyNumberNotBetweenPositionsZ(n1, n2)
-AnyNumberOutsidePosition(n)
-ANumberOtherThan(n)
-NRandomNumbers(n)
-NRandomNumbersZ(n)
-NNumbersOtherThan(n, nNumber)
-NNumbersOtherThanZ(n, nNumber)
-NNumbersLessThan(n, nNumber)
-NNumbersLessThanZ(n, nNumber)
-NNumbersGreaterThan(n, nNumber)
-NNumbersGreaterThanZ(n, nNumber)
-NNumbersOtherThanMany(n, anNumbers)
-NNumbersOtherThanManyZ(n, anNumbers)
-NNumbersBetween(n, nMin, nMax)
-NNumbersBetweenZ(n, nMin, nMax)
+? StzRandom(9_999_999_999)
+#--> ERROR: Can't proceed. The maximum value you can provide is 999_999_999.
 
-# StzList
+# It turns our that Softanza is aware of the fact that Ring random()
+# function has a limit. And you get the info it by calling the function :
 
-ARandomItem()
-ARandomItemZ()
-NRandomItemsCS(pCaseSensitive)
-NRandomItemsCSZ(pCaseSensitive)
-SomeRandomItemsCS(pCaseSensitive)
-SomeRandomItemsCSZ(pCaseSensitive)
-AnItemOtherThanCS(pItem, pCaseSensitive)
-AnItemOtherThanCSZ(pItem, pCaseSensitive)
-AnItemOtherThanZ(pItem)
-AnyRandomItemOtherThanManyCS(paItems, pCaseSensitive)
-AnyRandomItemOtherThanMany(paItems)
-AnyRandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
-AnyRandomItemOtherThanManyZ(paItems)
-NRandomItemsOtherThanCS(pItem)
-NRandomItemsOtherThanCSZ(pItem)
-SomeRandomItemsOtherThanCS(pItem)
-SomeRandomItemsOtherThanCSZ(pItem)
-NRandomItemsOtherThanManyCS(pItem)
-NRandomItemsOtherThanManyCSZ(pItem)
-SomeRandomItemsOtherThanManyCS(pItem)
-SomeRandomItemsOtherThanManyCSZ(pItem)
-AnItemBetweenCS(pMin, pMax, pCaseSensitive) # InSection
-AnItemBetweenCSZ(pMin, pMax, pCaseSensitive)
-AnItemBetweenCSIB(pMin, pMax, pCaseSensitive)
-AnItemBetweenCSIBZ(pMin, pMax, pCaseSensitive)
-AnItemNotBetweenCS(pMin, pMax, pCaseSensitive) # OutsideInSection
-AnItemNotBetweenCSZ(pMin, pMax, pCaseSensitive)
-AnItemNotBetweenCSIB(pMin, pMax, pCaseSensitive)
-AnItemNotBetweenCSIBZ(pMin, pMax, pCaseSensitive)
-AnItemBetweenManyCS(pMin, pMax, pCaseSensitive) # InSections
-AnItemBetweenManyCSZ(pMin, pMax, pCaseSensitive)
-AnItemBetweenManyCSIB(pMin, pMax, pCaseSensitive)
-AnItemBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
-AnItemNotBetweenManyCS(pMin, pMax, pCaseSensitive) # OutsideSections
-AnItemNotBetweenManyCSZ(pMin, pMax, pCaseSensitive)
-AnItemNotBetweenManyCSIB(pMin, pMax, pCaseSensitive)
-AnItemNotBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
-NItemsBetweenCS(pMin, pMax, pCaseSensitive) # InSection
-NItemsBetweenCSZ(pMin, pMax, pCaseSensitive)
-NItemsBetweenCSIB(pMin, pMax, pCaseSensitive)
-NItemsBetweenCSIBZ(pMin, pMax, pCaseSensitive)
-SomeItemsBetweenCS(pMin, pMax, pCaseSensitive)
-SomeItemsBetweenCSZ(pMin, pMax, pCaseSensitive)
-SomeItemsBetweenCSIB(pMin, pMax, pCaseSensitive)
-SomeItemsBetweenCSIBZ(pMin, pMax, pCaseSensitive)
-NItemsNotBetweenCS(pMin, pMax, pCaseSensitive) # OutsideSection
-NItemsNotBetweenCSZ(pMin, pMax, pCaseSensitive)
-NItemsNotBetweenCSIB(pMin, pMax, pCaseSensitive)
-NItemsNotBetweenCSIBZ(pMin, pMax, pCaseSensitive)
-SomeItemsNotBetweenCS(pMin, pMax, pCaseSensitive)
-SomeItemsNotBetweenCSZ(pMin, pMax, pCaseSensitive)
-SomeItemsNotBetweenCSIB(pMin, pMax, pCaseSensitive)
-SomeItemsNotBetweenCSIBZ(pMin, pMax, pCaseSensitive)
-NItemsBetweenManyCS(pMin, pMax, pCaseSensitive) # InSections
-NItemsBetweenManyCSZ(pMin, pMax, pCaseSensitive)
-NItemsBetweenManyCSIB(pMin, pMax, pCaseSensitive)
-NItemsBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
-SomeItemsBetweenManyCS(pMin, pMax, pCaseSensitive) # InSections
-SomeItemsBetweenManyCSZ(pMin, pMax, pCaseSensitive)
-SomeItemsBetweenManyCSIB(pMin, pMax, pCaseSensitivity)
-SomeItemsBetweenManyCSIBZ(pMin, pMax, pCaseSensitivity)
-NItemsNotBetweenMayCS(pMin, pMax, pCaseSensitive) # NotInSections
-NItemsNotBetweenMayCSZ(pMin, pMax, pCaseSensitive)
-NItemsNotBetweenManyCSIB(pMin, pMax, pCaseSensitive)
-NItemsNotBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
-SomeItemsNotBetweenManyCS(pMin, pMax, pCaseSensitive) # NotInSections
-SomeItemsNotBetweenManyCSZ(pMin, pMax, pCaseSensitive)
-SomeItemsNotBetweenManyCSIB(pMin, pMax, pCaseSensitive)
-SomeItemsNotBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
-AnItemOutsidePosition(nPos)
-AnItemOutsidePositionZ(nPos)
-AnItemOutsidePositions(panPos)
-AnItemOutsidePositionsZ(panPos)
-NItemsOutsidePosition(anPos)
-NItemsOutsidePositionZ(anPos)
-SomeItemsOutsidePosition(anPos)
-SomeItemsOutsidePositionZ(anPos)
-NItemsOutsidePositions(panPos, pCaseSensitive)
-NItemsOutsidePositionsZ(panPos, pCaseSensitive)
-SomeItemsOutsidePositions(panPos, pCaseSensitive)
-SomeItemsOutsidePositionsZ(panPos, pCaseSensitive)
-Randomize()
-RandomizeSection(n1, n2)
-RandomizeSections(panSections)
-RandomizeBetweenCS(p1, p2, pCaseSensitive)
-RandomizeBetweenItemsCS(p1, p2, pCaseSensitive)
-RandomizeNotBetweenCS(p1, p2, pCaseSensitive)
-RandomizeNotBetweenItemsCS(p1, p2, pCaseSensitive)
-RandomizeAntiSection(n1, n2)
-RandomizeAntiSections(panSections)
+? RingMaxRandom()
+#--> 999_999_999
+
+# In the same way, Softanza manages an other limit of the standard srandom()
+# function. srandom(n) seeds the randomness engine with the number n, so the
+# sequence of generated numbers fellwos a different path evry time the random()
+# function is called.
+
+# But, if you say:
+
+? srandom(2_999_999_999)
+#--> RING ERROR: Bad parameters value, error in range!
+
+# Than you will get an error.
+
+# Actually, Softanza knows that the maximum number you can seed
+# the engine with is:
+
+? MaxRingSeed()
+#--> 1_999_999_999
+
+# So, you have the possibility to specify it in a more controlled way using
+# the Softanza alternative function StzSRandom(), like this:
+
+//? StzSRandom(2_999_999_999)
+#--> ERR : Can't proceeed. n must be less than 1_999_999_999.
+
+# In practice, when you ask Softanza for a random number, you can get it
+# by using this function :
+
+? ARandomNumber()
+#--> 133_322_384
+
+# And when you want to specify the seed, you can do it directly, as a second
+# parameter of the eXtended form of the function:
+
+? ARandomNumberXT(77)
+#--> 32_438_4546
+
+proff()
+
+/*---
+*/
+pron()
+
+? ARandomNumberLessThan(10)
+#--> 7
+
+? ARandomNumberIn(1:10)
+#--> 4
+
+? RandomNumberBetween(100, 150)
+
+proff()
 

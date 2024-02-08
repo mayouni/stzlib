@@ -20710,9 +20710,6 @@ class stzString from stzObject
 
 		#>
 
-//def RandomSection() --> RandomSubString()
-//add ...Z() and ZZ() to Random...
-
 	  #--------------------------------------------#
 	 #  GETTING A RANDOM SECTION FROM THE STRING  #
 	#============================================#
@@ -20766,7 +20763,13 @@ class stzString from stzObject
 		n2 = This.ARandomPositionOtherThan(n1)
 		aSection = This.Section(n1, n2)
 
-		aResult = [ aSection, [n1, n2] ]
+		if n1 > n2
+			nTemp = n1
+			n1 = n2
+			n2 = nTemp
+		ok
+
+		aResult = [ aSection, [ n1, n2 ] ]
 
 		return aResult
 
@@ -20834,6 +20837,262 @@ class stzString from stzObject
 
 		def AnySubStringAndItsPosition()
 			return This.RandomSectionZ()
+
+		#>
+
+
+	  #------------------------------------------------------------#
+	 #  GETTING N RANDOM SECTIONS (AS POSITIONS) FROM THE STRING  #
+	#============================================================#
+
+	# TODO: Add "Position" as an misspelled form of "Position"
+
+	def NRandomSectionsAsPositions(n)
+		n = NRandomNumberIn(n, 1:This.NumberOfItems())
+
+		aResult = []
+
+		for i = 1 to n
+			n1 = This.RandomPosition()
+			n2 = This.RandomPositionOtherThan(n1)
+
+			if n1 > n2
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
+			ok
+			
+			aResult + [ n1, n2 ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def NSectionsAsPositions(n)
+			return This.NRandomSectionsAsPositions(n)
+
+		#>
+
+	  #---------------------------------------------#
+	 #  GETTING N RANDOM SECTIONS FROM THE STRING  #
+	#---------------------------------------------#
+
+	def NRandomSections(n)
+		aSections = This.NRandomSectionsAsPositions(n)
+		aResult = This.Sections(aSections)
+
+		return aResult
+
+	  #------------------------------------------------------------------------#
+	 #  GETTING N RANDOM SECTIONS FROM THE STRING ALONG WITH THEIR POSITIONS  #
+	#------------------------------------------------------------------------#
+
+	def NRandomSectionsZ(n)
+		aSections = This.NRandomSectionsAsPositions(n)
+		aResult = Association([ This.Sections(aSections), aSections ])
+
+		return aResult
+
+		def NRandomSectionsAndTheirPositions(n)
+			return This.NRandomSectionsZ(n)
+
+	  #------------------------------------------------------------------------#
+	 #  GETTING SOME RANDOM SECTIONS (AS PAIRS OF POSITIONS) FROM THE STRING  #
+	#========================================================================#
+
+	def SomeRandomSectionsAsPairsOfPositions()
+		n = ARandomNumberIn(1:This.NumberOfItems())
+
+		aResult = []
+
+		for i = 1 to n
+			n1 = This.RandomPosition()
+			n2 = This.RandomPositionOtherThan(n1)
+
+			if n1 > n2
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
+			ok
+
+			aResult + [ n1, n2 ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def SomeSectionsAsPairsOfPositions()
+			return This.SomeRandomSectionsAsPairsOfPositions()
+
+		def AnySectionsAsPairsOfPositions()
+			return This.SomeRandomSectionsAsPairsOfPositions()
+
+		#--
+
+		def SomeRandomSectionsAsPairsOfNumbers()
+			return This.SomeRandomSectionsAsPairsOfPositions()
+
+		def SomeSectionsAsPairsOfNumbers()
+			return This.SomeRandomSectionsAsPairsOfPositions()
+
+		def AnySectionsAsPairsOfNumbers()
+			return This.SomeRandomSectionsAsPairsOfPositions()
+
+		#>
+
+	  #----------------------------------------------------#
+	 #  GETTING SOME RANDOM SECTIONS AND THEIR POSITIONS  #
+	#----------------------------------------------------#
+
+	def SomeRandomSectionsZ()
+		n = ARandomNumberIn(1:This.NumberOfItems())
+
+		aResult = []
+
+		for i = 1 to n
+			n1 = This.RandomPosition()
+			n2 = This.RandomPositionOtherThan(n1)
+
+			if n1 > n2
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
+			ok
+
+			aResult + [ This.Section(n1, n2), n1 ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def SomeSectionsZ()
+			return This.SomeRandomSectionsZ()
+
+		def AnySectionsZ()
+			return This.SomeRandomSectionsZ()
+
+		#--
+
+		def SomeRandomSectionsAndTheirPositions()
+			return This.SomeRandomSectionsZ()
+
+		def SomeSectionsAndTheirPositions()
+			return This.SomeRandomSectionsZ()
+
+		def AnySectionsAndTheirPositions()
+			return This.SomeRandomSectionsZ()
+
+		#==
+
+		def SomeRandomSubStringsZ()
+			return This.SomeRandomSectionsZ()
+
+		def SomeSubStringsZ()
+			return This.SomeRandomSectionsZ()
+
+		def AnySubStringsZ()
+			return This.SomeRandomSectionsZ()
+
+		#--
+
+		def SomeRandomSubStringsAndTheirPositions()
+			return This.SomeRandomSectionsZ()
+
+		def SomeSubStringsAndTheirPositions()
+			return This.SomeRandomSectionsZ()
+
+		def AnySubStringsAndTheirPositions()
+			return This.SomeRandomSectionsZ()
+
+		#>
+
+	  #---------------------------------------------------#
+	 #  GETTING SOME RANDOM SECTIONS AND THEIR SECTIONS  #
+	#---------------------------------------------------#
+
+	def SomeRandomSectionsZZ()
+		n = ARandomNumberIn(1:This.NumberOfItems())
+
+		aResult = []
+
+		for i = 1 to n
+			n1 = This.RandomPosition()
+			n2 = This.RandomPositionOtherThan(n1)
+
+			if n1 > n2
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
+			ok
+
+			aResult + [ This.Section(n1, n2), [n1, n2] ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def SomeSectionsZZ()
+			return This.SomeRandomSectionsZZ()
+
+		def AnySectionsZZ()
+			return This.SomeRandomSectionsZZ()
+
+		#--
+
+		def SomeRandomSectionsAndTheirSections()
+			return This.SomeRandomSectionsZZ()
+
+		def SomeSectionsAndTheirSections()
+			return This.SomeRandomSectionsZZ()
+
+		def AnySectionsAndTheirSections()
+			return This.SomeRandomSectionsZZ()
+
+		#==
+
+		def SomeRandomSubStringsZZ()
+			return This.SomeRandomSectionsZZ()
+
+		def SomeSubStringsZZ()
+			return This.SomeRandomSectionsZZ()
+
+		def AnySubStringsZZ()
+			return This.SomeRandomSectionsZZ()
+
+		#--
+
+		def SomeRandomSubStringsAndTheirSections()
+			return This.SomeRandomSectionsZZ()
+
+		def SomeSubStringsAndTheirSections()
+			return This.SomeRandomSectionsZZ()
+
+		def AnySubStringsAndTheirSections()
+			return This.SomeRandomSectionsZZ()
+
+		#>
+
+	  #------------------------------------------------#
+	 #  GETTING SOME RANDOM SECTIONS FROM THE STRING  #
+	#================================================#
+
+	def SomeRandomSections()
+		aSections = This.SomeRandomSectionsAsPairsOfNumbers()
+		aResult = This.Sections(aSections)
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SomeSections()
+			return This.SomeRandomSections()
+
+		def AnySections()
+			return This.SomeRandomSections()
 
 		#>
 
@@ -26305,7 +26564,7 @@ class stzString from stzObject
 
 		#>
 
-	def CharReplacedAtPsoition(n, pcNewSubStr)
+	def CharReplacedAtPosition(n, pcNewSubStr)
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
 
 		cResult = This.Copy().ReplaceCharAtPositionQ(n, pcNewSubStr).Content()
@@ -26313,26 +26572,26 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def CharReplacedAtThisPsoition(n, pcNewSubStr)
-			return This.CharReplacedAtPsoition(n, pcNewSubStr)
+		def CharReplacedAtThisPosition(n, pcNewSubStr)
+			return This.CharReplacedAtPosition(n, pcNewSubStr)
 
 		def CharAtPositionNReplaced(n, pcNewSubStr)
-			return This.CharReplacedAtPsoition(n, pcNewSubStr)
+			return This.CharReplacedAtPosition(n, pcNewSubStr)
 
 		#--
 
-		def AnyCharReplacedAtPsoition(n, pcNewSubStr)
-			return This.CharReplacedAtPsoition(n, pcNewSubStr)
+		def AnyCharReplacedAtPosition(n, pcNewSubStr)
+			return This.CharReplacedAtPosition(n, pcNewSubStr)
 
-		def AnyCharReplacedAtThisPsoition(n, pcNewSubStr)
-			return This.CharReplacedAtPsoition(n, pcNewSubStr)
+		def AnyCharReplacedAtThisPosition(n, pcNewSubStr)
+			return This.CharReplacedAtPosition(n, pcNewSubStr)
 
 		def AnyCharAtPositionNReplaced(n, pcNewSubStr)
-			return This.CharReplacedAtPsoition(n, pcNewSubStr)
+			return This.CharReplacedAtPosition(n, pcNewSubStr)
 
 		#>
 
-		# TODO: Add Psoition as a misspelling of Position
+		# TODO: Add Position as a misspelling of Position
 		# TODO: Add Repalce as misspelling of Replace
 
 	  #-------------------------------------------------------------#
@@ -26396,28 +26655,28 @@ class stzString from stzObject
 
 		#>
 
-	def CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
+	def CharsReplacedAtPositions(panPositions, pcNewSubStr)
 		cResult = This.Copy().ReplaceCharsAtPositionsQ(panPositions, pcNewSubStr).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
 
-		def CharsReplacedAtThesePsoitions(panPositions, pcNewSubStr)
-			return This.CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
+		def CharsReplacedAtThesePositions(panPositions, pcNewSubStr)
+			return This.CharsReplacedAtPositions(panPositions, pcNewSubStr)
 
 		def CharsAtThesePositionsReplaced(panPositions, pcNewSubStr)
-			return This.CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
+			return This.CharsReplacedAtPositions(panPositions, pcNewSubStr)
 
 		#--
 
-		def AnyCharsReplacedAtPsoitions(panPositions, pcNewSubStr)
-			return This.CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
+		def AnyCharsReplacedAtPositions(panPositions, pcNewSubStr)
+			return This.CharsReplacedAtPositions(panPositions, pcNewSubStr)
 
-		def AnyCharsReplacedAtThesePsoitions(panPositions, pcNewSubStr)
-			return This.CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
+		def AnyCharsReplacedAtThesePositions(panPositions, pcNewSubStr)
+			return This.CharsReplacedAtPositions(panPositions, pcNewSubStr)
 
 		def AnyCharsAtThesePositionsReplaced(panPositions, pcNewSubStr)
-			return This.CharsReplacedAtPsoitions(panPositions, pcNewSubStr)
+			return This.CharsReplacedAtPositions(panPositions, pcNewSubStr)
 
 		#>
 	  #-----------------------------------------------------------#
@@ -26476,32 +26735,32 @@ class stzString from stzObject
 
 		#>
 
-	def CharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
+	def CharsReplacedAtPositionsByMany(panPositions, pacNewSubStrings)
 		cResult = This.Copy().ReplaceCharsAtPositionsByManyQ(panPositions, pacNewSubStrings).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
 
-		def CharsReplacedAtThesePsoitionsByMany(panPositions, pacNewSubStrings)
-			return This.CharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
+		def CharsReplacedAtThesePositionsByMany(panPositions, pacNewSubStrings)
+			return This.CharsReplacedAtPositionsByMany(panPositions, pacNewSubStrings)
 
 		def CharsAtThesePositionsReplacedByMany(panPositions, pacNewSubStrings)
-			return This.CharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
+			return This.CharsReplacedAtPositionsByMany(panPositions, pacNewSubStrings)
 
 		#--
 
-		def AnyCharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
-			This.CharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
+		def AnyCharsReplacedAtPositionsByMany(panPositions, pacNewSubStrings)
+			This.CharsReplacedAtPositionsByMany(panPositions, pacNewSubStrings)
 
-		def AnyCharsReplacedAtThesePsoitionsByMany(panPositions, pacNewSubStrings)
-			return This.CharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
+		def AnyCharsReplacedAtThesePositionsByMany(panPositions, pacNewSubStrings)
+			return This.CharsReplacedAtPositionsByMany(panPositions, pacNewSubStrings)
 
 		def AnyCharsAtThesePositionsReplacedByMany(panPositions, pacNewSubStrings)
-			return This.CharsReplacedAtPsoitionsByMany(panPositions, pacNewSubStrings)
+			return This.CharsReplacedAtPositionsByMany(panPositions, pacNewSubStrings)
 
 		#>
 
-		# TODO: Add Psoitions as a misspelling of Positions
+		# TODO: Add Positions as a misspelling of Positions
 
 	  #-------------------------------------------------------------------------#
 	 #   REPLACING CHARS/SUBSTRINGS WITH A SUBSTRING UNDER A GIVEN CONDITION   #
@@ -56994,6 +57253,8 @@ ici		//...
 	  #----------------------------------#
 	 #   REMOVING ANY CHAR FROM START   #
 	#==================================#
+
+	# TODO: Add "Strip" as alternative of "Trim" all over the library
 
 	def RemoveAnyCharFromStartCS(c, pCaseSensitive)
 		if This.IsLeftToRight()
