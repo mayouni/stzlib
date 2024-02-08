@@ -37597,6 +37597,18 @@ vvv
 
 	#==
 
+	def IsSeedNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Seed )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+	
+	#==
+
 	def IsToNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and  This[1] = :To )
@@ -43961,8 +43973,6 @@ vvv
 		def ToListInAString()
 			return This.ComputableForm()
 
-/////////////////////////////
-
 	  #===========================================#
 	 #   GETTING A RANDOM POSITION IN THE LIST   #
 	#===========================================#
@@ -43984,6 +43994,10 @@ vvv
 
 		def AnyPosition()
 			return This.RandomPosition()
+
+		def AnyRandomPosition()
+			return This.RandomPosition()
+
 
 		#>
 
@@ -44027,6 +44041,10 @@ vvv
 		def AnyPositionGreaterThan(n)
 			return This.RandomPositionGreaterThan(n)
 
+		def AnyRandomPositionGreaterThan(n)
+			return This.RandomPositionGreaterThan(n)
+
+
 		#>
 
 	  #---------------------------------------------------------------------#
@@ -44068,6 +44086,10 @@ vvv
 
 		def AnyPositionLessThan(n)
 			return This.RandomPositionLessThan(n)
+
+		def AnyRandomPositionLessThan(n)
+			return This.RandomPositionLessThan(n)
+
 
 		#>
 
@@ -44112,6 +44134,12 @@ vvv
 		def AnyPositionOtherThan(n)
 			return This.RandomPositionExcept(n)
 
+		def AnyRandomPositionExcept(n)
+			return This.RandomPositionExcept(n)
+
+		def AnyRandomPositionOtherThan(n)
+			return This.RandomPositionExcept(n)
+
 		#>
 
 	  #-------------------------------------------#
@@ -44136,6 +44164,9 @@ vvv
 		def AnySection()
 			return This.RandomSection()
 
+		def AnyRandomSection()
+			return This.RandomSection()
+
 		#>
 
 	  #-------------------------------------------------------------------#
@@ -44147,7 +44178,13 @@ vvv
 		n2 = This.ARandomPositionOtherThan(n1)
 		aSection = This.Section(n1, n2)
 
-		aResult = [ aSection, [n1, n2] ]
+		if n1 > n2
+			nTemp = n1
+			n1 = n2
+			n2 = nTemp
+		ok
+
+		aResult = [ aSection, n1 ]
 
 		return aResult
 
@@ -44160,6 +44197,9 @@ vvv
 			return This.RandomSectionZ()
 
 		def AnySectionZ()
+			return This.RandomSectionZ()
+
+		def AnyRandomSectionZ()
 			return This.RandomSectionZ()
 
 		#--
@@ -44176,8 +44216,252 @@ vvv
 		def AnySectionAndItsPosition()
 			return This.RandomSectionZ()
 
+		def AnyRandomSectionAndItsPosition()
+			return This.RandomSectionZ()
 
 		#>
+
+	  #------------------------------------------------------------------#
+	 #   GETTING A RANDOM SECTION FROM THE LIST ALONG WITH ITS SECTION  #
+	#------------------------------------------------------------------#
+
+	def RandomSectionZZ()
+		n1 = This.ARandomPosition()
+		n2 = This.ARandomPositionOtherThan(n1)
+		aSection = This.Section(n1, n2)
+
+		if n1 > n2
+			nTemp = n1
+			n1 = n2
+			n2 = nTemp
+		ok
+
+		aResult = [ aSection, [ n1, n2 ] ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ARandomSectionZZ()
+			return This.RandomSectionZZ()
+
+		def ASectionZZ()
+			return This.RandomSectionZZ()
+
+		def AnySectionZZ()
+			return This.RandomSectionZZ()
+
+		def AnyRandomSectionZZ()
+			return This.RandomSectionZZ()
+
+		#>
+
+	  #--------------------------------#
+	 #  GETTING SOME RANDOM SECTIONS  #
+	#--------------------------------#
+
+	def RandomSections()
+		n = ARandomNumberIn(1:This.NumberOfItems())
+
+		aSections = []
+		for i = 1 to n
+			n1 = This.RandomPosition()
+			n2 = This.RandomPositionOtherThan(n1)
+			if n1 > n2
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
+			ok
+
+			aSections + [ n1, n2 ]
+		next
+
+		aResult = This.Sections(aSections)
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SomeSections()
+			return This.RandomSections()
+
+		def SomeRandomSections()
+			return This.RandomSections()
+
+		def AnySections()
+			return This.RandomSections()
+
+		def AnyRandomSections()
+			return This.RandomSections()
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #  GETTING SOME RANDOM SECTIONS ALONG WITH THEIR POSITIONS  #
+	#-----------------------------------------------------------#
+
+	def RandomSectionsZ()
+		n = ARandomNumberIn(1:This.NumberOfItems())
+
+		aResult = []
+		for i = 1 to n
+			n1 = This.RandomPosition()
+			n2 = This.RandomPositionOtherThan(n1)
+			if n1 > n2
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
+			ok
+
+			aResult + [ This.Section(n1, n2), n1 ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SomeSectionsZ()
+			return This.RandomSectionsZ()
+
+		def SomeRandomSectionsZ()
+			return This.RandomSectionsZ()
+
+		def AnySectionsZ()
+			return This.RandomSectionsZ()
+
+		def AnyRandomSectionsZ()
+			return This.RandomSectionsZ()
+
+		#--
+
+		def RandomSectionsAndTheirPositions()
+			return This.RandomSectionsZ()
+
+		def SomeSectionsAndTheirPositions()
+			return This.RandomSectionsZ()
+
+		def SomeRandomSectionsAndTheirPositions()
+			return This.RandomSectionsZ()
+
+		def AnySectionsAndTheirPositions()
+			return This.RandomSectionsZ()
+
+		def AnyRandomSectionsAndTheirPositions()
+			return This.RandomSectionsZ()
+
+		#>
+
+	  #----------------------------------------------------------#
+	 #  GETTING SOME RANDOM SECTIONS ALONG WITH THEIR SECTIONS  #
+	#----------------------------------------------------------#
+
+	def RandomSectionsZZ()
+		n = ARandomNumberIn(1:This.NumberOfItems())
+
+		aResult = []
+		for i = 1 to n
+			n1 = This.RandomPosition()
+			n2 = This.RandomPositionOtherThan(n1)
+			if n1 > n2
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
+			ok
+
+			aResult + [ This.Section(n1, n2), [ n1, n2 ] ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SomeSectionsZZ()
+			return This.RandomSectionsZZ()
+
+		def SomeRandomSectionsZZ()
+			return This.RandomSectionsZZ()
+
+		def AnySectionsZZ()
+			return This.RandomSectionsZZ()
+
+		def AnyRandomSectionsZZ()
+			return This.RandomSectionsZZ()
+
+		#>
+
+	  #-----------------------------#
+	 #  GETTING N RANDOM SECTIONS  #
+	#=============================#
+
+	def NRandomSections(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		aSections = []
+		for i = 1 to n
+			n1 = This.RandomPosition()
+			n2 = This.RandomPositionOtherThan(n1)
+			if n1 > n2
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
+			ok
+
+			aSections + [ n1, n2 ]
+		next
+
+		aResult = This.Sections(aSections)
+
+		return aResult
+
+	  #--------------------------------------------------------#
+	 #  GETTING N RANDOM SECTIONS ALONG WITH THEIR POSITIONS  #
+	#--------------------------------------------------------#
+
+	def NRandomSectionsZ(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		aResult = []
+		for i = 1 to n
+			n1 = This.RandomPosition()
+			n2 = This.RandomPositionOtherThan(n1)
+			if n1 > n2
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
+			ok
+
+			aResult + [ This.Section(n1, n2), n1 ]
+		next
+
+		return aResult
+
+	  #-------------------------------------------------------#
+	 #  GETTING N RANDOM SECTIONS ALONG WITH THEIR SECTIONS  #
+	#-------------------------------------------------------#
+
+	def NRandomSectionsZZ(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		aResult = []
+		for i = 1 to n
+			n1 = This.RandomPosition()
+			n2 = This.RandomPositionOtherThan(n1)
+			if n1 > n2
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
+			ok
+
+			aResult + [ This.Section(n1, n2), [ n1, n2 ] ]
+		next
+
+		return aResult
 
 	  #---------------------------------------#
 	 #   GETTING A RANDOM ITEM IN THE LIST   #
@@ -44199,6 +44483,9 @@ vvv
 			return This.RandomItem()
 
 		def AnyItem()
+			return This.RandomItem()
+
+		def AnyRandomItem()
 			return This.RandomItem()
 
 		#>
@@ -44228,6 +44515,9 @@ vvv
 		def AnyItemZ()
 			return This.RandomItemZ()
 
+		def AnyRandomItemZ()
+			return This.RandomItemZ()
+
 		#==
 
 		def RandomItemAndItsPosition()
@@ -44242,6 +44532,9 @@ vvv
 			return This.RandomItemZ()
 
 		def AnyItemAndItsPosition()
+			return This.RandomItemZ()
+
+		def AnyRandomItemAndItsPosition()
 			return This.RandomItemZ()
 
 		#>
@@ -44266,6 +44559,9 @@ vvv
 			return This.RandomItemAfterPosition(n)
 
 		def AnyItemAfterPosition(n)
+			return This.RandomItemAfterPosition(n)
+
+		def AnyRandomItemAfterPosition(n)
 			return This.RandomItemAfterPosition(n)
 
 		#>
@@ -44295,6 +44591,9 @@ vvv
 		def AnyItemAfterPositionZ(n)
 			return This.RandomItemAfterPositionZ(n)
 
+		def AnyRandomItemAfterPositionZ(n)
+			return This.RandomItemAfterPositionZ(n)
+
 		#==
 
 		def RandomItemAndItsPositionAfterPosition(n)
@@ -44309,6 +44608,9 @@ vvv
 			return This.RandomItemAfterPositionZ(n)
 
 		def AnyItemAndItsPositionAfterPositionZ(n)
+			return This.RandomItemAfterPositionZ(n)
+
+		def AnyRandomItemAndItsPositionAfterPositionZ(n)
 			return This.RandomItemAfterPositionZ(n)
 
 		#>
@@ -44338,6 +44640,9 @@ vvv
 		def AnyItemAfterCS(pItem, pCaseSensitive)
 			return This.RandomItemAfterItemCS(pItem, pCaseSensitive)
 
+		def AnyRandomItemAfterCS(pItem, pCaseSensitive)
+			return This.RandomItemAfterItemCS(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -44359,6 +44664,9 @@ vvv
 			return This.RandomItemAfterItem(pItem)
 
 		def AnyItemAfter(pItem)
+			return This.RandomItemAfterItem(pItem)
+
+		def AnyRandomItemAfter(pItem)
 			return This.RandomItemAfterItem(pItem)
 
 		#>
@@ -44391,6 +44699,9 @@ vvv
 		def AnyItemAfterCSZ(pItem, pCaseSensitive)
 			return This.RandomItemAfterItemCSZ(pItem, pCaseSensitive)
 
+		def AnyRandomItemAfterCSZ(pItem, pCaseSensitive)
+			return This.RandomItemAfterItemCSZ(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -44412,6 +44723,9 @@ vvv
 			return This.RandomItemAfterItemZ(pItem)
 
 		def AnyItemAfterZ(pItem)
+			return This.RandomItemAfterItemZ(pItem)
+
+		def AnyRandomItemAfterZ(pItem)
 			return This.RandomItemAfterItemZ(pItem)
 
 		#>
@@ -44438,6 +44752,9 @@ vvv
 		def AnyItemBeforePosition(n)
 			return This.RandomItemBeforePosition(n)
 
+		def AnyRandomItemBeforePosition(n)
+			return This.RandomItemBeforePosition(n)
+
 		#>
 
 	  #----------------------------------------------------------#
@@ -44461,6 +44778,9 @@ vvv
 			return This.RandomItemBeforePositionZ(n)
 
 		def AnyItemBeforePositionZ(n)
+			return This.RandomItemBeforePositionZ(n)
+
+		def AnyRandomItemBeforePositionZ(n)
 			return This.RandomItemBeforePositionZ(n)
 
 		#>
@@ -44491,6 +44811,9 @@ vvv
 		def AnyItemBeforeCS(pItem, pCaseSensitive)
 			return This.RandomItemBeforeCS(pItem, pCaseSensitive)
 
+		def AnyRandomItemBeforeCS(pItem, pCaseSensitive)
+			return This.RandomItemBeforeCS(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -44512,6 +44835,9 @@ vvv
 			return This.RandomItemBefore(pItem)
 
 		def AnyItemBefore(pItem)
+			return This.RandomItemBefore(pItem)
+
+		def AnyRandomItemBefore(pItem)
 			return This.RandomItemBefore(pItem)
 
 		#>
@@ -44544,6 +44870,9 @@ vvv
 		def AnyItemBeforeCSZ(pItem, pCaseSensitive)
 			return This.RandomItemBeforeCSZ(pItem, pCaseSensitive)
 
+		def AnyRandomItemBeforeCSZ(pItem, pCaseSensitive)
+			return This.RandomItemBeforeCSZ(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -44565,6 +44894,9 @@ vvv
 			return This.RandomItemBeforeZ(pItem)
 
 		def AnyItemBeforeZ(pItem)
+			return This.RandomItemBeforeZ(pItem)
+
+		def AnyRandomItemBeforeZ(pItem)
 			return This.RandomItemBeforeZ(pItem)
 
 		#>
@@ -44599,6 +44931,9 @@ vvv
 		def AnyItemExceptCS(pItem, pCaseSensitive)
 			return This.RandomItemExceptCS(pItem, pCaseSensitive)
 
+		def AnyRandomItemExceptCS(pItem, pCaseSensitive)
+			return This.RandomItemExceptCS(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIIVTY
@@ -44623,6 +44958,9 @@ vvv
 			return This.RandomItemExcept(pItem)
 
 		def AnyItemExcept(pItem)
+			return This.RandomItemExcept(pItem)
+
+		def AnyRandomItemExcept(pItem)
 			return This.RandomItemExcept(pItem)
 
 		#>
@@ -44658,6 +44996,9 @@ vvv
 		def AnyItemExceptCSZ(pItem, pCaseSensitive)
 			return This.RandomItemExceptCSZ(pItem, pCaseSensitive)
 
+		def AnyRandomItemExceptCSZ(pItem, pCaseSensitive)
+			return This.RandomItemExceptCSZ(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIIVTY
@@ -44682,6 +45023,9 @@ vvv
 			return This.RandomItemExceptZ(pItem)
 
 		def AnyItemExceptZ(pItem)
+			return This.RandomItemExcept(pItem)
+
+		def AnyRandomItemExceptZ(pItem)
 			return This.RandomItemExcept(pItem)
 
 		#>
@@ -44761,6 +45105,15 @@ vvv
 		def AnyItemExceptItemAtPosition(n)
 			return This.RandomItemExceptPosition(n)
 
+		def AnyRandomItemExceptPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		def AnyRandomItemExceptItemAt(n)
+			return This.RandomItemExceptPosition(n)
+
+		def AnyRandomItemExceptItemAtPosition(n)
+			return This.RandomItemExceptPosition(n)
+
 		#--
 
 		def AnItemOtherThanItemAtPosition(n)
@@ -44773,6 +45126,12 @@ vvv
 			return This.RandomItemExceptPosition(n)
 
 		def AnyItemOtherThanItemAt(n)
+			return This.RandomItemExceptPosition(n)
+
+		def AnyRandomItemOtherThanItemAtPosition(n)
+			return This.RandomItemExceptPosition(n)
+
+		def AnyRandomItemOtherThanItemAt(n)
 			return This.RandomItemExceptPosition(n)
 
 		#>
@@ -44855,6 +45214,15 @@ vvv
 		def AnyItemExceptItemAtPositionZ(n)
 			return This.RandomItemExceptPositionZ(n)
 
+		def AnyRandomItemExceptPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def AnyRandomItemExceptItemAtZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def AnyRandomItemExceptItemAtPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
 		#--
 
 		def AnItemOtherThanItemAtPositionZ(n)
@@ -44869,6 +45237,12 @@ vvv
 		def AnyItemOtherThanItemAtZ(n)
 			return This.RandomItemExceptPositionZ(n)
 
+		def AnyRandomItemOtherThanItemAtPositionZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
+		def AnyRandomItemOtherThanItemAtZ(n)
+			return This.RandomItemExceptPositionZ(n)
+
 		#>
 
 	  #--------------------------------------------#
@@ -44879,11 +45253,21 @@ vvv
 		anResult = NRandomNumbersIn(n, 1 : This.NumberOfItems() )
 		return anResult
 
+		#< @FunctionAlternativeForms
+
 		def NPositions(n)
 			return This. NRandomPositions(n)
 
 		def AnyNPositions(n)
 			return This. NRandomPositions(n)
+
+		def AnyRandomNPositions(n)
+			return This. NRandomPositions(n)
+
+		def AnyNRandomPositions(n)
+			return This. NRandomPositions(n)
+
+		#>
 
 	  #----------------------------------------#
 	 #  GETIING N RANDOM ITEMS FROM THE LIST  #
@@ -44897,17 +45281,23 @@ vvv
 	
 		#< @functionAlternativeForm
 
-		def NAnyItems(n)
+		def NItems(n)
+			return This.NRandomItems(n)
+
+		def RandomNItems(n)
+			return This.NRandomItems(n)
+
+		def NRandomItemsC(n)
 			return This.NRandomItems(n)
 
 		def AnyNItems(n)
 			return This.NRandomItems(n)
 
-		def NItems(n)
+		def AnyNRandomItems(n)
 			return This.NRandomItems(n)
 
-		def RandomNItemsC(n)
-			return This.NRandomItemsC(n)
+		def AnyRandomNItems(n)
+			return This.NRandomItems(n)
 
 		#>
 
@@ -44921,25 +45311,43 @@ vvv
 		aResult = Association([ aItems, anPos ])
 		return aResult
 		
-		#< @FunctionAlternativeForms
-
-		def NAnyItemsZ(n)
-			return This.NRandomItemsZ(n)
+		#< @functionAlternativeForms
 
 		def NItemsZ(n)
 			return This.NRandomItemsZ(n)
 
-		def NRandomItemsAndTheirPositions(n)
+		def RandomNItemsZ(n)
 			return This.NRandomItemsZ(n)
 
-		def NAnyItemsAndTheirPositions(n)
+		def AnyNItemsZ(n)
+			return This.NRandomItemsZ(n)
+
+		def AnyNRandomItemsZ(n)
+			return This.NRandomItemsZ(n)
+
+		def AnyRandomNItemsZ(n)
+			return This.NRandomItemsZ(n)
+
+		#--
+
+		def NRandomItemsAndTheirPositions(n)
 			return This.NRandomItemsZ(n)
 
 		def NItemsAndTheirPositions(n)
 			return This.NRandomItemsZ(n)
 
-		def RandomItemsAndTheirPositions(n)
+		def RandomNItemsAndTheirPositions(n)
 			return This.NRandomItemsZ(n)
+
+		def AnyNItemsAndTheirPositions(n)
+			return This.NRandomItemsZ(n)
+
+		def AnyNRandomItemsAndTheirPositions(n)
+			return This.NRandomItemsZ(n)
+
+		def AnyRandomNItemsAndTheirPositions(n)
+			return This.NRandomItemsZ(n)
+
 
 		#>
 
@@ -44952,11 +45360,21 @@ vvv
 		anResult = This.NRandomPositions(n)
 		return anResult
 
+		#< @functionAlternativeForms
+
+		def RandomPositions()
+			return This.SomeRandomPositions()
+
 		def SomePositions()
 			return This.SomeRandomPositions()
 
 		def AnyPositions()
 			return This.SomeRandomPositions()
+
+		def AnyRandomPositions()
+			return This.SomeRandomPositions()
+
+		#>
 
 	  #-------------------------------------------#
 	 #  GETIING SOME RANDOM ITEMS FROM THE LIST  #
@@ -44970,8 +45388,17 @@ vvv
 
 		#< @FunctionAlternativeForm
 
-		def RandomItems(pCaseSensitive)
-			return This.SomeRandomItemsCS(pCaseSensitive)
+		def SomeItems()
+			return This.SomeRandomItems()
+
+		def RandomItems()
+			return This.SomeRandomItems()
+
+		def AnyItems()
+			return This.SomeRandomItems()
+
+		def AnyRandomItems()
+			return This.SomeRandomItems()
 
 		#>
 
@@ -44988,16 +45415,36 @@ vvv
 		return aResult
 
 
-		#< @FunctionAlternativeForms
+		#< @FunctionAlternativeForm
 
-		def SomeRandomItemsAndTheirPosotions(pCaseSensitive)
-			return This.SomeRandomItemsZ(pCaseSensitive)
+		def SomeItemsZ()
+			return This.SomeRandomItemsZ()
 
-		def RandomItemsZ(pCaseSensitive)
-			return This.SomeRandomItemsZ(pCaseSensitive)
+		def RandomItemsZ()
+			return This.SomeRandomItemsZ()
 
-		def RandomItemsAndTheirPositionsZ(pCaseSensitive)
-			return This.SomeRandomItemsZ(pCaseSensitive)
+		def AnyItemsZ()
+			return This.SomeRandomItemsZ()
+
+		def AnyRandomItemsZ()
+			return This.SomeRandomItemsZ()
+
+		#--
+
+		def SomeRandomItemsAndTheirPositions()
+			return This.SomeRandomItemsZ()
+
+		def SomeItemsAndTheirPositions()
+			return This.SomeRandomItemsZ()
+
+		def RandomItemsAndTheirPositions()
+			return This.SomeRandomItemsZ()
+
+		def AnyItemsAndTheirPositions()
+			return This.SomeRandomItemsZ()
+
+		def AnyRandomItemsAndTheirPositions()
+			return This.SomeRandomItemsZ()
 
 		#>
 
@@ -45054,6 +45501,20 @@ vvv
 	
 		#--
 
+		def AnyRandomItemOtherThanCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
+	
+		def AnyRandomItemDifferentThanCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pcChar, pCaseSensitive)
+	
+		def AnyRandomItemDifferentToCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
+
+		def AnyRandomItemDifferentFromCS(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
+
+		#--
+
 		def RandomItemOtherThanCS(pItem, pCaseSensitive)
 			return This.ANumberOtherThanCS(pItem, pCaseSensitive)
 
@@ -45108,7 +45569,21 @@ vvv
 
 		def AnyItemDifferentFrom(pItem)
 			return This.ANumberOtherThan(pItem)
+
+		#--
 	
+		def AnyRandomItemOtherThan(pItem)
+			return This.ANumberOtherThan(pItem)
+	
+		def AnyRandomItemDifferentThan(pItem)
+			return This.ANumberOtherThan(pItem)
+	
+		def AnyRandomItemDifferentTo(pItem)
+			return This.ANumberOtherThan(pItem)
+
+		def AnyRandomItemDifferentFrom(pItem)
+			return This.ANumberOtherThan(pItem)
+
 		#--
 
 		def RandomItemOtherThan(pItem)
@@ -45171,7 +45646,21 @@ vvv
 
 		def AnyItemDifferentFromCSZ(pItem, pCaseSensitive)
 			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+
+		#--
 	
+		def AnyRandomItemOtherThanCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+	
+		def AnyRandomItemDifferentThanCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pcChar, pCaseSensitive)
+	
+		def AnyRandomItemDifferentToCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+
+		def AnyRandomItemDifferentFromCSZ(pItem, pCaseSensitive)
+			return This.ANumberOtherThanCSZ(pItem, pCaseSensitive)
+
 		#--
 
 		def RandomItemOtherThanCSZ(pItem, pCaseSensitive)
@@ -45228,7 +45717,21 @@ vvv
 
 		def AnyItemDifferentFromZ(pItem)
 			return This.ANumberOtherThanZ(pItem)
+
+		#--
 	
+		def AnyRandomItemOtherThanZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+	
+		def AnyRandomItemDifferentThanZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+	
+		def AnyRandomItemDifferentToZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+
+		def AnyRandomItemDifferentFromZ(pItem)
+			return This.ANumberOtherThanZ(pItem)
+
 		#--
 
 		def RandomItemOtherThanZ(pItem)
@@ -45262,6 +45765,9 @@ vvv
 
 		#--
 
+		def AnyRItemExceptManyCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCS(paItems, pCaseSensitive)
+
 		def AnyRandomItemExceptManyCS(paItems, pCaseSensitive)
 			return This.AnyRandomItemOtherThanManyCS(paItems, pCaseSensitive)
 
@@ -45273,6 +45779,34 @@ vvv
 
 		def AnItemExceptManyCS(paItems, pCaseSensitive)
 			return This.AnyRandomItemOtherThanManyCS(paItems, pCaseSensitive)
+
+		#==
+
+		def RandomItemOtherThanTheseCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCS(paItems, pCaseSensitive)
+
+		def ARandomItemOtherThanTheseCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCS(paItems, pCaseSensitive)
+
+		def AnItemOtherThanTheseCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCS(paItems, pCaseSensitive)
+
+		#--
+
+		def AnyRItemExceptTheseCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCS(paItems, pCaseSensitive)
+
+		def AnyRandomItemExceptTheseCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCS(paItems, pCaseSensitive)
+
+		def RandomItemExceptTheseCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCS(paItems, pCaseSensitive)
+
+		def ARandomItemExceptTheseCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCS(paItems, pCaseSensitive)
+
+		def AnItemExceptTheseCS(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCS(paItems, pCaseSensitive)
 
 		#>
 
@@ -45294,6 +45828,9 @@ vvv
 
 		#--
 
+		def AnyRItemExceptMany(paItems)
+			return This.AnyRandomItemOtherThanMany(paItems)
+
 		def AnyRandomItemExceptMany(paItems)
 			return This.AnyRandomItemOtherThanMany(paItems)
 
@@ -45305,6 +45842,34 @@ vvv
 
 		def AnItemExceptMany(paItems)
 			return This.AnyRandomItemOtherThanMany(paItems)
+
+		#==
+
+		def RandomItemOtherThanThese(paItems)
+			return This.AnyRandomItemOtherThanThese(paItems)
+
+		def ARandomItemOtherThanThese(paItems)
+			return This.AnyRandomItemOtherThanThese(paItems)
+
+		def AnItemOtherThanThese(paItems)
+			return This.AnyRandomItemOtherThanThese(paItems)
+
+		#--
+
+		def AnyRItemExceptThese(paItems)
+			return This.AnyRandomItemOtherThanThese(paItems)
+
+		def AnyRandomItemExceptThese(paItems)
+			return This.AnyRandomItemOtherThanThese(paItems)
+
+		def RandomItemExceptThese(paItems)
+			return This.AnyRandomItemOtherThanThese(paItems)
+
+		def ARandomItemExceptThese(paItems)
+			return This.AnyRandomItemOtherThanThese(paItems)
+
+		def AnItemExceptThese(paItems)
+			return This.AnyRandomItemOtherThanThese(paItems)
 
 		#>
 
@@ -45332,6 +45897,9 @@ vvv
 
 		#--
 
+		def AnyRItemExceptManyCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
+
 		def AnyRandomItemExceptManyCSZ(paItems, pCaseSensitive)
 			return This.AnyRandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
 
@@ -45343,6 +45911,34 @@ vvv
 
 		def AnItemExceptManyCSZ(paItems, pCaseSensitive)
 			return This.AnyRandomItemOtherThanManyCSZ(paItems, pCaseSensitive)
+
+		#==
+
+		def RandomItemOtherThanTheseCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCSZ(paItems, pCaseSensitive)
+
+		def ARandomItemOtherThanTheseCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCSZ(paItems, pCaseSensitive)
+
+		def AnItemOtherThanTheseCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCSZ(paItems, pCaseSensitive)
+
+		#--
+
+		def AnyRItemExceptTheseCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCSZ(paItems, pCaseSensitive)
+
+		def AnyRandomItemExceptTheseCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCSZ(paItems, pCaseSensitive)
+
+		def RandomItemExceptTheseCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCSZ(paItems, pCaseSensitive)
+
+		def ARandomItemExceptTheseCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCSZ(paItems, pCaseSensitive)
+
+		def AnItemExceptTheseCSZ(paItems, pCaseSensitive)
+			return This.AnyRandomItemOtherThanTheseCSZ(paItems, pCaseSensitive)
 
 		#>
 
@@ -45364,6 +45960,9 @@ vvv
 
 		#--
 
+		def AnyRItemExceptManyZ(paItems)
+			return This.AnyRandomItemOtherThanManyZ(paItems)
+
 		def AnyRandomItemExceptManyZ(paItems)
 			return This.AnyRandomItemOtherThanManyZ(paItems)
 
@@ -45375,6 +45974,34 @@ vvv
 
 		def AnItemExceptManyZ(paItems)
 			return This.AnyRandomItemOtherThanManyZ(paItems)
+
+		#==
+
+		def RandomItemOtherThanTheseZ(paItems)
+			return This.AnyRandomItemOtherThanTheseZ(paItems)
+
+		def ARandomItemOtherThanTheseZ(paItems)
+			return This.AnyRandomItemOtherThanTheseZ(paItems)
+
+		def AnItemOtherThanTheseZ(paItems)
+			return This.AnyRandomItemOtherThanTheseZ(paItems)
+
+		#--
+
+		def AnyRItemExceptTheseZ(paItems)
+			return This.AnyRandomItemOtherThanTheseZ(paItems)
+
+		def AnyRandomItemExceptTheseZ(paItems)
+			return This.AnyRandomItemOtherThanTheseZ(paItems)
+
+		def RandomItemExceptTheseZ(paItems)
+			return This.AnyRandomItemOtherThanTheseZ(paItems)
+
+		def ARandomItemExceptTheseZ(paItems)
+			return This.AnyRandomItemOtherThanTheseZ(paItems)
+
+		def AnItemExceptTheseZ(paItems)
+			return This.AnyRandomItemOtherThanTheseZ(paItems)
 
 		#>
 
@@ -45402,6 +46029,28 @@ vvv
 		def NItemsExceptCS(pItem, pCaseSensitive)
 			return This.NRandomItemsOtherThanCS(pItem, pCaseSensitive)
 
+		#==
+
+		def AnyNRandomItemsOtherThanCS(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
+		def AnyRandomNItemsOtherThanCS(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
+		def AnyNItemsOtherThanCS(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
+		#--
+
+		def AnyNRandomItemsExceptCS(pItem, pCaseSensitive)
+			return This. NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
+		def AnyRandomNItemsExceptCS(pItem, pCaseSensitive)
+			return This. NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
+		def AnyNItemsExceptCS(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -45420,6 +46069,28 @@ vvv
 			return This. NRandomItemsOtherThan(pItem)
 
 		def NItemsExcept(pItem)
+			return This.NRandomItemsOtherThan(pItem)
+
+		#==
+
+		def AnyNRandomItemsOtherThan(pItem)
+			return This.NRandomItemsOtherThan(pItem)
+
+		def AnyRandomNItemsOtherThan(pItem)
+			return This.NRandomItemsOtherThan(pItem)
+
+		def AnyNItemsOtherThan(pItem)
+			return This.NRandomItemsOtherThan(pItem)
+
+		#--
+
+		def AnyNRandomItemsExcept(pItem)
+			return This. NRandomItemsOtherThan(pItem)
+
+		def AnyRandomNItemsExcept(pItem)
+			return This. NRandomItemsOtherThan(pItem)
+
+		def AnyNItemsExcept(pItem)
 			return This.NRandomItemsOtherThan(pItem)
 
 		#>
@@ -45445,9 +46116,31 @@ vvv
 		#--
 
 		def NRandomItemsExceptCSZ(pItem, pCaseSensitive)
-			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+			return This. NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
 
 		def NItemsExceptCSZ(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
+		#==
+
+		def AnyNRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
+		def AnyRandomNItemsOtherThanCSZ(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
+		def AnyNItemsOtherThanCSZ(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
+		#--
+
+		def AnyNRandomItemsExceptCSZ(pItem, pCaseSensitive)
+			return This. NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
+		def AnyRandomNItemsExceptCSZ(pItem, pCaseSensitive)
+			return This. NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
+		def AnyNItemsExceptCSZ(pItem, pCaseSensitive)
 			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
 
 		#>
@@ -45465,9 +46158,31 @@ vvv
 		#--
 
 		def NRandomItemsExceptZ(pItem)
-			return This.NRandomItemsOtherThanZ(pItem)
+			return This. NRandomItemsOtherThanZ(pItem)
 
 		def NItemsExceptZ(pItem)
+			return This.NRandomItemsOtherThanZ(pItem)
+
+		#==
+
+		def AnyNRandomItemsOtherThanZ(pItem)
+			return This.NRandomItemsOtherThanZ(pItem)
+
+		def AnyRandomNItemsOtherThanZ(pItem)
+			return This.NRandomItemsOtherThanZ(pItem)
+
+		def AnyNItemsOtherThanZ(pItem)
+			return This.NRandomItemsOtherThanZ(pItem)
+
+		#--
+
+		def AnyNRandomItemsExceptZ(pItem)
+			return This. NRandomItemsOtherThanZ(pItem)
+
+		def AnyRandomNItemsExceptZ(pItem)
+			return This. NRandomItemsOtherThanZ(pItem)
+
+		def AnyNItemsExceptZ(pItem)
 			return This.NRandomItemsOtherThanZ(pItem)
 
 		#>
@@ -45506,6 +46221,14 @@ vvv
 		def SomeItemsExceptCS(pItem, pCaseSensitive)
 			return This.SomeRandomItemsOtherThanCS(pItem, pCaseSensitive)
 
+		#--
+
+		def AnyRandomItemsOtherThanCS(pItem, pCaseSensitive)
+			return This.SomeRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
+		def AnyItemsOtherThanCS(pItem, pCaseSensitive)
+			return This.SomeRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -45522,6 +46245,14 @@ vvv
 			return This.SomeRandomItemsOtherThan(pItem)
 
 		def SomeItemsExcept(pItem)
+			return This.SomeRandomItemsOtherThan(pItem)
+
+		#--
+
+		def AnyRandomItemsOtherThan(pItem)
+			return This.SomeRandomItemsOtherThan(pItem)
+
+		def AnyItemsOtherThan(pItem)
 			return This.SomeRandomItemsOtherThan(pItem)
 
 		#>
@@ -45548,6 +46279,14 @@ vvv
 		def SomeItemsExceptCSZ(pItem, pCaseSensitive)
 			return This.SomeRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
 
+		#--
+
+		def AnyRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+			return This.SomeRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
+		def AnyItemsOtherThanCSZ(pItem, pCaseSensitive)
+			return This.SomeRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -45564,6 +46303,14 @@ vvv
 			return This.SomeRandomItemsOtherThanZ(pItem)
 
 		def SomeItemsExceptZ(pItem)
+			return This.SomeRandomItemsOtherThanZ(pItem)
+
+		#--
+
+		def AnyRandomItemsOtherThanZ(pItem)
+			return This.SomeRandomItemsOtherThanZ(pItem)
+
+		def AnyItemsOtherThanZ(pItem)
 			return This.SomeRandomItemsOtherThanZ(pItem)
 
 		#>
@@ -46020,7 +46767,8 @@ vvv
 	#================================================#
 
 	def Randomize()
-		anPos = NRandomNumbersBetween(1, This.NumberOfItems())
+		nLen = This.NumberOfItems()
+		anPos = NUniqueRandomNumbersIn(nLen, 1:nLen)
 		This.UpdateWith( This.ItemsAtPositions(anPos) )
 
 		#< @FunctionFluentForm
