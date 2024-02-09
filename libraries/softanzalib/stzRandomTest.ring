@@ -136,22 +136,42 @@ proff()
 # Executed in 0.03 second(s)
 
 /*---
-*/
+
 pron()
 
-? random(-10)
+? random(-10) # Standard Ring function returning NULL
 #--> ""
 
-? StzRandom(-10)
+? StzRandom(-10) + NL
 #--> -9
 
 ? SomeRandomNumbersBetween(-10, -1)
+#--> [ -10, -10, -10 ]
+
+? SomeRandomNumbersBetweenU(-10, -1)
+#--> [ -10, -6, -3, -2 ]
 
 proff()
+# Executed in 0.01 second(s)
 
 /*---
+*/
+pron()
 
-? ARandomNumberBetween(-10, 0)
+# Ring random() can't deal with 0 as a paramter:
+
+? random(0)
+#--> ""
+
+# But Softanza can:
+
+? StzRandom(0) + NL
+#--> 0
+
+# And can even generate 0s as random numbers:
+
+? NRandomNumbersIn(5, 0:3)
+#--> [ 0, 1, 1, 2, 3 ]
 
 proff()
 

@@ -6,11 +6,13 @@
 #	- Generating unique passwords
 #	- Randomizing data
 #	- Monte Carlo simulations
-#	- Randomizing game mechanics
+#	- Randomizing game scanrios
 #	- etc
 
-  ////////////////////////////
- ///   RANDOM FUNCTIONS   ///
+# TODO: Add titles to functions
+
+  /////////////////////////////
+ ///   GENERAL FUNCTIONS   ///
 ////////////////////////////
 
 _nRingMaxRandom = 999_999_999 # Based on my testing of Ring random() function
@@ -52,7 +54,10 @@ func StzRandom(n)
 		return ARandomNumberIn(n:-1)
 	ok
 
+	#--
 
+	func StzRandom01()
+		n = ARandomNumberBetween(1, 10)
 func StzSRandom(n)
 	if CheckParams()
 		if NOT isNumber(n)
@@ -1396,7 +1401,7 @@ func SomeRandomNumbersInU(panNumbers)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
-		return SomeRandomNumbersIn(nMin : nMax)
+		return SomeRandomNumbersInU(nMin : nMax)
 
 	func SomeNumbersBetweenU(nMin, nMax)
 		return SomeRandomNumbersBetweenU(nMin, nMax)
@@ -1464,7 +1469,7 @@ func SomeRandomNumbersInUZ(panNumbers)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
-		return SomeRandomNumbersInZ(nMin : nMax)
+		return SomeRandomNumbersInUZ(nMin : nMax)
 
 	func SomeNumbersBetweenUZ(nMin, nMax)
 		return SomeRandomNumbersBetweenUZ(nMin, nMax)
