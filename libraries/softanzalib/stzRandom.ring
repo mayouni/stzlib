@@ -43,7 +43,15 @@ func StzRandom(n)
 		StzRaise("Can't proceed. n must be less then " + MaxRingRandom() + ".")
 	ok
 
-	return random(n)
+	if n = 0
+		return 0
+
+	but n > 0
+		return ARandomNumberIn(1:n)
+	else
+		return ARandomNumberIn(n:-1)
+	ok
+
 
 func StzSRandom(n)
 	if CheckParams()
@@ -379,6 +387,13 @@ func SomeRandomNumbersGreaterThan(nValue)
 	func AnyNumbersBiggerThan(nValue)
 		return SomeRandomNumbersGreaterThan(nValue)
 
+	#==
+
+	func RandomNumbersGreaterThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
+
+	func RandomNumbersBiggerThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
 	#>
 
 func SomeRandomNumbersGreaterThanXT(n, nSeed)
@@ -408,6 +423,14 @@ func SomeRandomNumbersGreaterThanXT(n, nSeed)
 		return SomeRandomNumbersGreaterThanXT(n, nSeed)
 
 	func AnyNumbersBiggerThanXT(n, nSeed)
+		return SomeRandomNumbersGreaterThanXT(n, nSeed)
+
+	#==
+
+	func RandomNumbersGreaterThanXT(n, nSeed)
+		return SomeRandomNumbersGreaterThanXT(n, nSeed)
+
+	func RandomNumbersBiggerThanXT(n, nSeed)
 		return SomeRandomNumbersGreaterThanXT(n, nSeed)
 
 	#>
@@ -459,6 +482,20 @@ func SomeRandomNumbersGreaterThanU(nValue)
 	func SomeUniqueNumbersBiggerThanU(nValue)
 		return SomeRandomNumbersGreaterThanU(nValue)
 
+	#==
+
+	func RandomNumbersGreaterThanU(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	func RandomNumbersBiggerThanU(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	func UniqueRandomNumbersGreaterThan(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
+	func UniqueRandomNumbersBiggerThan(nValue)
+		return SomeRandomNumbersGreaterThanU(nValue)
+
 	#>
 
 func SomeRandomNumbersGreaterThanXTU(n, nValue, nSeed)
@@ -505,6 +542,20 @@ func SomeRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 
 	func SomeUniqueNumbersBiggerThanXTU(nValue, nSeed)
 		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	#==
+
+	func RandomNumbersGreaterThanXTU(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	func RandomNumbersBiggerThanXTU(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
+
+	func UniqueRandomNumbersGreaterThanXT(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXT(nValue, nSeed)
+
+	func UniqueRandomNumbersBiggerThanXT(nValue, nSeed)
+		return SomeRandomNumbersGreaterThanXT(nValue, nSeed)
 
 	#>
 
@@ -1084,16 +1135,16 @@ func RandomNumberInXTZ(panNumbers, nSeed)
 		return NRandomNumberInXTZ(nMin:nMax, nSeed)
 
 	func ARandomNumberBetweenXTZ(nMin, nMax, nSeed)
-		return RandomNumberBetweenXTZ(nMin, nMax, nSeed)
+		return SomeRandomNumberBetweenXTZ(nMin, nMax, nSeed)
 
 	func ANumberBetweenXTZ(nMin, nMax, nSeed)
-		return RandomNumberBetweenXTZ(nMin, nMax, nSeed)
+		return ARandomNumberBetweenXTZ(nMin, nMax, nSeed)
 
 	func AnyNumberBetweenXTZ(nMin, nMax, nSeed)
-		return RandomNumberBetweenXTZ(nMin, nMax, nSeed)
+		return ARandomNumberBetweenXTZ(nMin, nMax, nSeed)
 
 	func AnyRandomNumberBetweenXTZ(nMin, nMax, nSeed)
-		return RandomNumberBetweenXTZ(nMin, nMax, nSeed)
+		return ARandomNumberBetweenXTZ(nMin, nMax, nSeed)
 
 	#>
 
@@ -1111,37 +1162,44 @@ func SomeRandomNumbersIn(panNumbers)
 
 	#< @FunctionAlternativeForms
 
-	func SomeNumbersIn(paNumbers)
-		return RandomNumbersIn(panNumbers)
+	func SomeNumbersIn(panNumbers)
+		return SomeRandomNumbersIn(panNumbers)
 
-	func AnyRandomNumbersIn(paNumbers)
-		return RandomNumbersIn(panNumbers)
+	func AnyRandomNumbersIn(panNumbers)
+		return SomeRandomNumbersIn(panNumbers)
 
-	func AnyNumbersIn(paNumbers)
-		return RandomNumbersIn(panNumbers)
+	func AnyNumbersIn(panNumbers)
+		return SomeRandomNumbersIn(panNumbers)
+
+	#--
+
+	func RandomNumbersIn(panNumbers)
+		return SomeRandomNumbersIn(panNumbers)
 
 	#==
 
-	func RandomNumbersBetween(nMin, nMax)
+	func SomeRandomNumbersBetween(nMin, nMax)
 		if CheckParams()
 			if NOT BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
 
-		return RandomNumbersIn(nMin : nMax)
-
-	func SomeRandomNumbersBetween(nMin, nMax)
-		return RandomNumbersBetween(nMin, nMax)
+		return SomeRandomNumbersIn(nMin : nMax)
 
 	func SomeNumbersBetween(nMin, nMax)
-		return RandomNumbersBetween(nMin, nMax)
+		return SomeRandomNumbersBetween(nMin, nMax)
 
 	func AnyRandomNumbersBetween(nMin, nMax)
-		return RandomNumbersBetween(nMin, nMax)
+		return SomeRandomNumbersBetween(nMin, nMax)
 
 	func AnyNumbersBetween(nMin, nMax)
-		return RandomNumbersBetween(nMin, nMax)
+		return SomeRandomNumbersBetween(nMin, nMax)
+
+	#--
+
+	func RandomNumbersBetween(nMin, nMax)
+		return SomeRandomNumbersBetween(nMin, nMax)
 
 	#>
 
@@ -1157,28 +1215,30 @@ func SomeRandomNumbersInZ(panNumbers)
 
 	#< @FunctionAlternativeForms
 
-	func SomeNumbersInZ(paNumbers)
+	func SomeNumbersInZ(panNumbers)
 		return RandomNumbersInZ(panNumbers)
 
-	func AnyRandomNumbersInZ(paNumbers)
+	func AnyRandomNumbersInZ(panNumbers)
 		return RandomNumbersInZ(panNumbers)
 
-	func AnyNumbersInZ(paNumbers)
+	func AnyNumbersInZ(panNumbers)
+		return RandomNumbersInZ(panNumbers)
+
+	#--
+
+	func RandomNumbersInZ(panNumbers)
 		return RandomNumbersInZ(panNumbers)
 
 	#==
 
-	func RandomNumbersBetweenZ(nMin, nMax)
+	func SomeRandomNumbersBetweenZ(nMin, nMax)
 		if CheckParams()
 			if NOT BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
 
-		return RandomNumbersInZ(nMin : nMax)
-
-	func SomeRandomNumbersBetweenZ(nMin, nMax)
-		return RandomNumbersBetweenZ(nMin, nMax)
+		return SomeRandomNumbersInZ(nMin : nMax)
 
 	func SomeNumbersBetweenZ(nMin, nMax)
 		return RandomNumbersBetweenZ(nMin, nMax)
@@ -1187,6 +1247,11 @@ func SomeRandomNumbersInZ(panNumbers)
 		return RandomNumbersBetweenZ(nMin, nMax)
 
 	func AnyNumbersBetweenZ(nMin, nMax)
+		return RandomNumbersBetweenZ(nMin, nMax)
+
+	#--
+
+	func RandomNumbersBetweenZ(nMin, nMax)
 		return RandomNumbersBetweenZ(nMin, nMax)
 
 	#>
@@ -1199,37 +1264,44 @@ func SomeRandomNumbersInXT(panNumbers, nSeed)
 
 	#< @FunctionAlternativeForms
 
-	func SomeNumbersInXT(paNumbers, nSeed)
-		return RandomNumbersInXT(panNumbers, nSeed)
+	func SomeNumbersInXT(panNumbers, nSeed)
+		return SomeRandomNumbersInXT(panNumbers, nSeed)
 
-	func AnyRandomNumbersInXT(paNumbers, nSeed)
-		return RandomNumbersInXT(panNumbers, nSeed)
+	func AnyRandomNumbersInXT(panNumbers, nSeed)
+		return SomeRandomNumbersInXT(panNumbers, nSeed)
 
-	func AnyNumbersInXT(paNumbers, nSeed)
-		return RandomNumbersInXT(panNumbers, nSeed)
+	func AnyNumbersInXT(panNumbers, nSeed)
+		return SomeRandomNumbersInXT(panNumbers, nSeed)
+
+	#--
+
+	func RandomNumbersInXT(panNumbers, nSeed)
+		return SomeRandomNumbersInXT(panNumbers, nSeed)
 
 	#==
 
-	func RandomNumbersBetweenXT(nMin, nMax, nSeed)
+	func SomeRandomNumbersBetweenXT(nMin, nMax, nSeed)
 		if CheckParams()
 			if NOT BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
 
-		return RandomNumbersInXT(nMin : nMax, nSeed)
-
-	func SomeRandomNumbersBetweenXT(nMin, nMax, nSeed)
-		return RandomNumbersBetweenXT(nMin, nMax, nSeed)
+		return SomeRandomNumbersInXT(nMin : nMax, nSeed)
 
 	func SomeNumbersBetweenXT(nMin, nMax, nSeed)
-		return RandomNumbersBetweenXT(nMin, nMax, nSeed)
+		return SomeRandomNumbersBetweenXT(nMin, nMax, nSeed)
 
 	func AnyRandomNumbersBetweenXT(nMin, nMax, nSeed)
-		return RandomNumbersBetweenXT(nMin, nMax, nSeed)
+		return SomeRandomNumbersBetweenXT(nMin, nMax, nSeed)
 
 	func AnyNumbersBetweenXT(nMin, nMax, nSeed)
-		return RandomNumbersBetweenXT(nMin, nMax, nSeed)
+		return SomeRandomNumbersBetweenXT(nMin, nMax, nSeed)
+
+	#--
+
+	func RandomNumbersBetweenXT(nMin, nMax, nSeed)
+		return SomeRandomNumbersBetweenXT(nMin, nMax, nSeed)
 
 	#>
 
@@ -1239,37 +1311,44 @@ func SomeRandomNumbersInXTZ(panNumbers, nSeed)
 
 	#< @FunctionAlternativeForms
 
-	func SomeNumbersInXTZ(paNumbers, nSeed)
-		return RandomNumbersInXTZ(panNumbers, nSeed)
+	func SomeNumbersInXTZ(panNumbers, nSeed)
+		return SomeRandomNumbersInXTZ(panNumbers, nSeed)
 
-	func AnyRandomNumbersInXTZ(paNumbers, nSeed)
-		return RandomNumbersInXTZ(panNumbers, nSeed)
+	func AnyRandomNumbersInXTZ(panNumbers, nSeed)
+		return SomeRandomNumbersInXTZ(panNumbers, nSeed)
 
-	func AnyNumbersInXTZ(paNumbers, nSeed)
-		return RandomNumbersInXTZ(panNumbers, nSeed)
+	func AnyNumbersInXTZ(panNumbers, nSeed)
+		return SomeRandomNumbersInXTZ(panNumbers, nSeed)
+
+	#--
+
+	func RandomNumbersInXTZ(panNumbers, nSeed)
+		return SomeRandomNumbersInXTZ(panNumbers, nSeed)
 
 	#==
 
-	func RandomNumbersBetweenXTZ(nMin, nMax, nSeed)
+	func SomeRandomNumbersBetweenXTZ(nMin, nMax, nSeed)
 		if CheckParams()
 			if NOT BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
 
-		return RandomNumbersInXTZ(nMin : nMax, nSeed)
-
-	func SomeRandomNumbersBetweenXTZ(nMin, nMax, nSeed)
-		return RandomNumbersBetweenXTZ(nMin, nMax, nSeed)
+		return SomeRandomNumbersInXTZ(nMin : nMax, nSeed)
 
 	func SomeNumbersBetweenXTZ(nMin, nMax, nSeed)
-		return RandomNumbersBetweenXTZ(nMin, nMax, nSeed)
+		return SomeRandomNumbersBetweenXTZ(nMin, nMax, nSeed)
 
 	func AnyRandomNumbersBetweenXTZ(nMin, nMax, nSeed)
-		return RandomNumbersBetweenXTZ(nMin, nMax, nSeed)
+		return SomeRandomNumbersBetweenXTZ(nMin, nMax, nSeed)
 
 	func AnyNumbersBetweenXTZ(nMin, nMax, nSeed)
-		return RandomNumbersBetweenXTZ(nMin, nMax, nSeed)
+		return SomeRandomNumbersBetweenXTZ(nMin, nMax, nSeed)
+
+	#--
+
+	func RandomNumbersBetweenXTZ(nMin, nMax, nSeed)
+		return SomeRandomNumbersBteweenXTZ(nMin, nMax, nSeed)
 
 	#>
 
@@ -1287,22 +1366,27 @@ func SomeRandomNumbersInU(panNumbers)
 
 	#< @FunctionAlternativeForms
 
-	func SomeNumbersInU(paNumbers)
-		return RandomNumbersInU(panNumbers)
+	func SomeNumbersInU(panNumbers)
+		return SomeRandomNumbersInU(panNumbers)
 
-	func AnyRandomNumbersInU(paNumbers)
-		return RandomNumbersInU(panNumbers)
+	func AnyRandomNumbersInU(panNumbers)
+		return SomeRandomNumbersInU(panNumbers)
 
-	func AnyNumbersInU(paNumbers)
-		return RandomNumbersInU(panNumbers)
+	func AnyNumbersInU(panNumbers)
+		return SomeRandomNumbersInU(panNumbers)
 
 	#--
 
 	func UniqueRandomNumbersIn(panNumbers)
-		return RandomNumbersInU(panNumbers)
+		return SomeRandomNumbersInU(panNumbers)
 
-	func SomeUniqueNumbersIn(paNumbers)
-		return RandomNumbersInU(panNumbers)
+	func SomeUniqueNumbersIn(panNumbers)
+		return SomeRandomNumbersInU(panNumbers)
+
+	#--
+
+	func RandomNumbersInU(panNumbers)
+		return SomeRandomNumbersInU(panNumbers)
 
 	#==
 
@@ -1331,6 +1415,11 @@ func SomeRandomNumbersInU(panNumbers)
 	func SomeUniqueNumbersBetween(nMin, nMax)
 		return SomeRandomNumbersBetweenU(nMin, nMax)
 
+	#--
+
+	func RandomNumbersBetweenU(nMin, nMax)
+		return SomeRandomNumbersBetweenU(nMin, nMax)
+
 	#>
 
 func SomeRandomNumbersInUZ(panNumbers)
@@ -1345,22 +1434,27 @@ func SomeRandomNumbersInUZ(panNumbers)
 
 	#< @FunctionAlternativeForms
 
-	func SomeNumbersInUZ(paNumbers)
-		return RandomNumbersInUZ(panNumbers)
+	func SomeNumbersInUZ(panNumbers)
+		return SomeRandomNumbersInUZ(panNumbers)
 
-	func AnyRandomNumbersInUZ(paNumbers)
-		return RandomNumbersInUZ(panNumbers)
+	func AnyRandomNumbersInUZ(panNumbers)
+		return SomeRandomNumbersInUZ(panNumbers)
 
-	func AnyNumbersInUZ(paNumbers)
-		return RandomNumbersInUZ(panNumbers)
+	func AnyNumbersInUZ(panNumbers)
+		return SomeRandomNumbersInUZ(panNumbers)
 
 	#--
 
 	func UniqueRandomNumbersInZ(panNumbers)
-		return RandomNumbersInUZ(panNumbers)
+		return SomeRandomNumbersInUZ(panNumbers)
 
-	func SomeUniqueNumbersInZ(paNumbers)
-		return RandomNumbersInUZ(panNumbers)
+	func SomeUniqueNumbersInZ(panNumbers)
+		return SomeRandomNumbersInUZ(panNumbers)
+
+	#--
+
+	func RandomNumbersInUZ(nMin, nMax)
+		return SomeRandomNumbersInUZ(panNumbers)
 
 	#==
 
@@ -1389,6 +1483,11 @@ func SomeRandomNumbersInUZ(panNumbers)
 	func SomeUniqueNumbersBetweenZ(nMin, nMax)
 		return SomeRandomNumbersBetweenUZ(nMin, nMax)
 
+	#--
+
+	func RandomNumbersBetweenUZ(nMin, nMax)
+		return SomeRandomNumbersBetweenUZ(nMin, nMax)
+
 	#>
 
 #==
@@ -1399,50 +1498,60 @@ func SomeRandomNumbersInXTU(panNumbers, nSeed)
 
 	#< @FunctionAlternativeForms
 
-	func SomeNumbersInXTU(paNumbers, nSeed)
-		return RandomNumbersInXTU(panNumbers, nSeed)
+	func SomeNumbersInXTU(panNumbers, nSeed)
+		return SomeRandomNumbersInXTU(panNumbers, nSeed)
 
-	func AnyRandomNumbersInXTU(paNumbers, nSeed)
-		return RandomNumbersInXTU(panNumbers, nSeed)
+	func AnyRandomNumbersInXTU(panNumbers, nSeed)
+		return SomeRandomNumbersInXTU(panNumbers, nSeed)
 
-	func AnyNumbersInXTU(paNumbers, nSeed)
-		return RandomNumbersInXTU(panNumbers, nSeed)
+	func AnyNumbersInXTU(panNumbers, nSeed)
+		return SomeRandomNumbersInXTU(panNumbers, nSeed)
 
 	#--
 
 	func UniqueRandomNumbersInXT(panNumbers, nSeed)
-		return RandomNumbersInXTU(panNumbers, nSeed)
+		return SomeRandomNumbersInXTU(panNumbers, nSeed)
 
-	func SomeUniqueNumbersInXT(paNumbers, nSeed)
-		return RandomNumbersInXTU(panNumbers, nSeed)
+	func SomeUniqueNumbersInXT(panNumbers, nSeed)
+		return SomeRandomNumbersInXTU(panNumbers, nSeed)
+
+	#--
+
+	func RandomNumbersInXTU(panNumbers, nSeed)
+		return SomeRandomNumbersInXTU(panNumbers, nSeed)
 
 	#==
 
-	func RandomNumbersBetweenXTU(nMin, nMax, nSeed)
+	func SomeRandomNumbersBetweenXTU(nMin, nMax, nSeed)
 		if CheckParams()
 			if NOT BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
 
-		return RandomNumbersInXTU(nMin : nMax)
+		return SomeRandomNumbersInXTU(nMin : nMax)
 
 	func SomeNumbersBetweenXTU(nMin, nMax, nSeed)
-		return RandomNumbersBetweenXTU(nMin, nMax, nSeed)
+		return SomeRandomNumbersBetweenXTU(nMin, nMax, nSeed)
 
 	func AnyRandomNumbersBetweenXTU(nMin, nMax, nSeed)
-		return RandomNumbersBetweenXTU(nMin, nMax, nSeed)
+		return SomeRandomNumbersBetweenXTU(nMin, nMax, nSeed)
 
 	func AnyNumbersBetweenXTU(nMin, nMax, nSeed)
-		return RandomNumbersBetweenXTU(nMin, nMax, nSeed)
+		return SomeRandomNumbersBetweenXTU(nMin, nMax, nSeed)
 
 	#--
 
 	func UniqueRandomNumbersBetweenXT(nMin, nMax, nSeed)
-		return RandomNumbersBetweenXTU(nMin, nMax, nSeed)
+		return SomeRandomNumbersBetweenXTU(nMin, nMax, nSeed)
 
 	func SomeUniqueNumbersBetweenXT(nMin, nMax, nSeed)
-		return RandomNumbersBetweenXTU(nMin, nMax, nSeed)
+		return SomeRandomNumbersBetweenXTU(nMin, nMax, nSeed)
+
+	#--
+
+	func RandomNumbersBetweenXTU(nMin, nMax, nSeed)
+		return SomeRandomNumbersBetweenXTU(panNumbers, nSeed)
 
 	#>
 
@@ -1452,13 +1561,13 @@ func SomeRandomNumbersInXTUZ(panNumbers, nSeed)
 
 	#< @FunctionAlternativeForms
 
-	func SomeNumbersInXTUZ(paNumbers, nSeed)
+	func SomeNumbersInXTUZ(panNumbers, nSeed)
 		return RandomNumbersInXTUZ(panNumbers, nSeed)
 
-	func AnyRandomNumbersInXTUZ(paNumbers, nSeed)
+	func AnyRandomNumbersInXTUZ(panNumbers, nSeed)
 		return RandomNumbersInXTUZ(panNumbers, nSeed)
 
-	func AnyNumbersInXTUZ(paNumbers, nSeed)
+	func AnyNumbersInXTUZ(panNumbers, nSeed)
 		return RandomNumbersInXTUZ(panNumbers, nSeed)
 
 	#--
@@ -1466,12 +1575,17 @@ func SomeRandomNumbersInXTUZ(panNumbers, nSeed)
 	func UniqueRandomNumbersInXTZ(panNumbers, nSeed)
 		return RandomNumbersInXTUZ(panNumbers, nSeed)
 
-	func SomeUniqueNumbersInXTZ(paNumbers, nSeed)
+	func SomeUniqueNumbersInXTZ(panNumbers, nSeed)
+		return RandomNumbersInXTUZ(panNumbers, nSeed)
+
+	#--
+
+	func RandomNumbersInUXTZ(panNumbers, nSeed)
 		return RandomNumbersInXTUZ(panNumbers, nSeed)
 
 	#==
 
-	func RandomNumbersBetweenXTUZ(nMin, nMax, nSeed)
+	func SomeRandomNumbersBetweenXTUZ(nMin, nMax, nSeed)
 		if CheckParams()
 			if NOT BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
@@ -1497,6 +1611,11 @@ func SomeRandomNumbersInXTUZ(panNumbers, nSeed)
 	func SomeUniqueNumbersBetweenXTZ(nMin, nMax, nSeed)
 		return RandomNumbersBetweenXTUZ(nMin, nMax, nSeed)
 
+	#--
+
+	func RandomNumbersBetweenUXTZ(nMin, nMax, nSeed)
+		return RandomNumbersBetweenXTUZ(nMin, nMax, nSeed)
+
 	#>
 
 #== N RANDOM NUMBERS FROM A LIST OF NUMBERS
@@ -1510,10 +1629,13 @@ func NRandomNumbersIn(n, panNumbers)
 
 	anResult = []
 
-	for i = 1 to n
+	while TRUE
 		nPos = ARandomNumberIn(1 : nLen)
 		anResult + panNumbers[nPos]
-	next
+		if len(anResult) = n
+			exit
+		ok
+	end
 
 	anResult = ring_sort(anResult)
 
@@ -1560,11 +1682,14 @@ func NRandomNumbersInZ(n, panNumbers)
 	anNumbers = []
 	anPos = []
 
-	for i = 1 to nRandom
+	while TRUE
 		nPos = ARandomNumberIn(1 : nLen)
 		anNumbers + panNumbers[nPos]
 		anPos + nPos
-	next
+		if len(anNumbers) = n
+			exit
+		ok
+	end
 
 	anNumbers = ring_sort(anNumbers)
 	anPos = ring_sort(anPos)
