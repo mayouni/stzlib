@@ -10,7 +10,8 @@ pron()
 ? NRandomNumbersInU(3, 1:10)
 #--> [ 1, 2, 4 ]
 
-proff-)
+proff()
+# Executed in 0.03 second(s)
 
 /*=====
 
@@ -26,6 +27,7 @@ pron()
 #--> -1.00
 
 proff()
+# Executed in 0.03 second(s)
 
 /*=====
 
@@ -44,7 +46,7 @@ pron()
 # In Softanza, using the alternative StzRandom() function, an error
 # messageis raised:
 
-? StzRandom(9_999_999_999)
+//? StzRandom(9_999_999_999)
 #--> ERROR: Can't proceed. The maximum value you can provide is 999_999_999.
 
 # It turns our that Softanza is aware of the fact that Ring random()
@@ -60,7 +62,7 @@ pron()
 
 # But, if you say:
 
-? srandom(2_999_999_999)
+//? srandom(2_999_999_999)
 #--> RING ERROR: Bad parameters value, error in range!
 
 # Than you will get an error.
@@ -90,34 +92,67 @@ pron()
 #--> 32_438_4546
 
 proff()
+# Executed in 0.03 second(s)
 
 /*---
-*/
+
 pron()
 
 ? ARandomNumberLessThan(10)
 #--> 2
 
-? ARandomNumberIn(1:10)
+? ARandomNumberIn(1:10) 
 #--> 1
 
-? @@( ARandomNumberInZ(1:10) )
+? @@( ARandomNumberInZ(1:10) ) + NL
 #--> [ 2, 2 ]
 
-? RandomNumberBetween(100, 150)
+? RandomNumberBetween(100, 150) + NL
 #--> 149
 
-? @@( NRandomNumbersBetween(3, 100, 110) )
+? @@( NRandomNumbersBetween(3, 100, 110) ) + NL
 #--> [ 102, 103, 103 ]
 
-? @@( NRandomNumbersBetweenU(3, 100, 110) )
+? @@( NRandomNumbersBetweenU(3, 100, 110) ) + NL
 #--> [ 101, 108, 109 ]
 
-? @@( NRandomNumbersBetweenZ(3, 100, 110) )
-#--> [ [ 103, 4 ], [ 104, 5 ], [ 105, 6 ], [ 105, 6 ] ]
+? @@( NRandomNumbersBetweenZ(3, 100, 110) ) + NL
+#--> [ [ 100, 1 ], [ 101, 2 ], [ 106, 7 ] ]
 
 ? @@( NRandomNumbersBetweenUZ(3, 100, 110) )
 #--> [ [ 105, 6 ], [ 107, 8 ], [ 110, 11 ] ]
 
 proff()
+# Executed in 0.05 second(s)
+
+/*---
+
+pron()
+
+? -5:1
+#--> [ -5, -4, -3, -2, -1, 0, 1 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---
+*/
+pron()
+
+? random(-10)
+#--> ""
+
+? StzRandom(-10)
+#--> -9
+
+? SomeRandomNumbersBetween(-10, -1)
+
+proff()
+
+/*---
+
+? ARandomNumberBetween(-10, 0)
+
+proff()
+
 
