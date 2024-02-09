@@ -46804,6 +46804,22 @@ vvv
 				This.RandomisePositions()
 				return This
 
+	#--
+
+		def Shuffle()
+			This.Randomize()
+
+			def ShuffleQ()
+				This.Shuffle()
+				return This
+
+		def ShufflePositions()
+			This.Randomize()
+
+			def ShufflePositionsQ()
+				This.ShufflePositions()
+				return This
+
 		#>
 
 	def Randomized()
@@ -46811,7 +46827,11 @@ vvv
 		return aResult
 
 		def Randomised()
+			return This.Randomized()
 
+		def Shuffeled()
+			return This.Randomized()
+		
 	  #---------------------------------------------------------------------#
 	 #  RANDOMINZING THE ITEMS POSITIONS IN THE GIVEN SECTION OF THE LIST  #
 	#---------------------------------------------------------------------#
