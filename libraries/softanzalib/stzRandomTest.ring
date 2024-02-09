@@ -96,13 +96,16 @@ proff()
 pron()
 
 ? ARandomNumberLessThan(10)
-#--> 7
+#--> 2
 
 ? ARandomNumberIn(1:10)
-#--> 4
+#--> 1
+
+? @@( ARandomNumberInZ(1:10) )
+#--> [ 2, 2 ]
 
 ? RandomNumberBetween(100, 150)
-#--> 106
+#--> 149
 
 ? @@( NRandomNumbersBetween(3, 100, 110) )
 #--> [ 102, 103, 103 ]
@@ -114,6 +117,7 @@ pron()
 #--> [ [ 103, 4 ], [ 104, 5 ], [ 105, 6 ], [ 105, 6 ] ]
 
 ? @@( NRandomNumbersBetweenUZ(3, 100, 110) )
+#--> [ [ 105, 6 ], [ 107, 8 ], [ 110, 11 ] ]
 
 proff()
 
