@@ -177,7 +177,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*---
-*/
+
 pron()
 
 # Softanza can generate random real numbers in the range 0 to 1
@@ -210,5 +210,15 @@ SetRandomRound(5)
 	
 	? ARandomNumberLessThan01(0.5)
 	#--> 0.26434
+
+proff()
+# Executed in 0.15 second(s)
+
+/*---
+*/
+
+pron()
+
+? ARandomNumberBetween(1, 2)
 
 proff()
