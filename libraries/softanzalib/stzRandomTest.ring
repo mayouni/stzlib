@@ -155,7 +155,7 @@ proff()
 # Executed in 0.01 second(s)
 
 /*---
-*/
+
 pron()
 
 # Ring random() can't deal with 0 as a paramter:
@@ -174,5 +174,41 @@ pron()
 #--> [ 0, 1, 1, 2, 3 ]
 
 proff()
+# Executed in 0.04 second(s)
 
+/*---
+*/
+pron()
 
+# Softanza can generate random real numbers in the range 0 to 1
+
+? random01() # Or StzRandom01()
+#--> 0.61
+
+? ARandomNumberLessThan01(0.7)
+#--> 0.08
+
+? RandomRound()
+#--> 3
+
+	decimals(3)
+	
+	? random01() # Or StzRandom01()
+	#--> 0.949
+	
+	? ARandomNumberLessThan01(0.7)
+	#--> 0.557
+
+SetRandomRound(5)
+? RandomRound()
+#--> 5
+
+	decimals(5)
+	
+	? random01() # Or StzRandom01()
+	#--> 0.91723
+	
+	? ARandomNumberLessThan01(0.5)
+	#--> 0.26434
+
+proff()
