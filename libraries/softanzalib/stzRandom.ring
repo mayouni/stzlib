@@ -24,6 +24,20 @@ _nRingMaxSeed = 1_999_999_999 # Idem
 
 _nRandomRound = 3	# Defines how many decimals are supported in random01()
 
+_nSome = 10 # The default size of Some() function
+
+func Some()
+	return _nSome
+
+func SetSome(n)
+	if CheckParams()
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+	ok
+
+	_nSome = n
+
 func RingMaxRandom()
 	return _nRingMaxRandom
 
@@ -39,17 +53,17 @@ func RingMaxSeed()
 func RandomRound()
 	return _nRandomRound
 
-	func RandomRoundXT()
-		return pow(10, _nRandomRound)
+func RandomRoundXT()
+	return pow(10, _nRandomRound)
 
-	func SetRandomRound(n)
-		if checkParams()
-			if NOT isNumber(n)
-				StzRaise("Incorrect param type! n must be a number.")
-			ok
+func SetRandomRound(n)
+	if checkParams()
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
+	ok
 
-		_nRandomRound = n
+	_nRandomRound = n
 				
 func StzRandom(n)
 	if CheckParams()
@@ -227,6 +241,16 @@ func RandomNumberLessThan(n)
 	#==
 
 	func RandomNumberLessThan01(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n musrt be a number.")
+			ok
+
+			if NOT ( n >= 0 and n <= 1 )
+				StzRaise("Incorrect value! n must be a value between 0 and 1.")
+			ok
+		ok
+
 		i = 0
 		while TRUE
 			i++
@@ -236,7 +260,11 @@ func RandomNumberLessThan(n)
 			ok
 		end
 
-		nResult = nRandom
+		if nRandom < n
+			nResult = nRandom
+		else
+			StzRaise("Can't proceed! A random number has not been reached after 1000 trial.")
+		ok
 
 		return nResult
 
@@ -293,6 +321,17 @@ func RandomNumberLessThanXT(n, nSeed)
 	#==
 
 	func RandomNumberLessThan01XT(n, nSeed)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n musrt be a number.")
+			ok
+
+			if NOT ( n >= 0 and n <= 1 )
+				StzRaise("Incorrect value! n must be a value between 0 and 1.")
+			ok
+		ok
+
+
 		i = 0
 		while TRUE
 			i++
@@ -302,7 +341,11 @@ func RandomNumberLessThanXT(n, nSeed)
 			ok
 		end
 
-		nResult = nRandom
+		if nRandom < n
+			nResult = nRandom
+		else
+			StzRaise("Can't proceed! A random number has not been reached after 1000 trial.")
+		ok
 
 		return nResult
 
@@ -372,6 +415,17 @@ func RandomNumberGreaterThan(n)
 	#==
 
 	func RandomNumberGreaterThan01(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n musrt be a number.")
+			ok
+
+			if NOT ( n >= 0 and n <= 1 )
+				StzRaise("Incorrect value! n must be a value between 0 and 1.")
+			ok
+		ok
+
+
 		i = 0
 		while TRUE
 			i++
@@ -381,7 +435,11 @@ func RandomNumberGreaterThan(n)
 			ok
 		end
 
-		nResult = nRandom
+		if nRandom < n
+			nResult = nRandom
+		else
+			StzRaise("Can't proceed! A random number has not been reached after 1000 trial.")
+		ok
 
 		return nResult
 
@@ -462,6 +520,16 @@ func RandomNumberGreaterThanXT(n, nSeed)
 	#==
 
 	func RandomNumberGreaterThan01XT(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n musrt be a number.")
+			ok
+
+			if NOT ( n >= 0 and n <= 1 )
+				StzRaise("Incorrect value! n must be a value between 0 and 1.")
+			ok
+		ok
+
 		i = 0
 		while TRUE
 			i++
@@ -471,7 +539,11 @@ func RandomNumberGreaterThanXT(n, nSeed)
 			ok
 		end
 
-		nResult = nRandom
+		if nRandom < n
+			nResult = nRandom
+		else
+			StzRaise("Can't proceed! A random number has not been reached after 1000 trial.")
+		ok
 
 		return nResult
 
@@ -562,18 +634,25 @@ func RandomNumberOtherThan(n)
 			ok
 
 			if NOT ( n >= 0 and n <=1 )
-				StzRaise("Incorrect value! n must be between 0 and 1.")
+				StzRaise("Incorrect value! n must be a value between 0 and 1.")
 			ok
 		ok
 
+		i = 0
 		while TRUE
+			i++
 			nRandom = ARandomNumbers01()
-			if nRandom != n
+			if nRandom != n or i = 1000
 				exit
 			ok
 		end
 
-		nResult = nRandom
+		if nRandom != n
+			nResult = nRandom
+		else
+			StzRaise("Can't proceed! A random number has not been reached after 1000 trial.")
+		ok
+
 		return nResult
 
 	func AnyRandomNumberOtherThan01(n)
@@ -648,18 +727,25 @@ func RandomNumberOtherThanXT(n, nSeed)
 			ok
 
 			if NOT ( n >= 0 and n <=1 )
-				StzRaise("Incorrect value! n must be between 0 and 1.")
+				StzRaise("Incorrect value! n must be a value between 0 and 1.")
 			ok
 		ok
 
+		i = 0
 		while TRUE
-			nRandom = ARandomNumbers01XT(nSeed)
-			if nRandom != n
+			i++
+			nRandom = ARandomNumber01XT(nSeed)
+			if nRandom != n or i = 1000
 				exit
 			ok
 		end
 
-		nResult = nRandom
+		if nRandom != n
+			nResult = nRandom
+		else
+			StzRaise("Can't proceed! A random number has not been reached after 1000 trial.")
+		ok
+
 		return nResult
 
 	func AnyRandomNumberOtherThan01XT(n, nSeed)
@@ -732,7 +818,46 @@ func SomeRandomNumbersGreaterThan(n)
 	#==
 
 	func SomeRandomNumbersGreaterThan01(n)
-		/* ... */
+
+		nSome = ARandomNumberLessThan(Some())
+		anResult = []
+
+		for i = 1 to nSome
+			anResult + ARanomNumberGreaterThan01(n)
+		next
+
+		return anResult
+
+	func SomeNumbersGreaterThan01(n)
+		return SomeRandomNumbersGreaterThan01(n)
+
+	func AnyRandomNumbersGreaterThan01(n)
+		return SomeRandomNumbersGreaterThan01(n)
+
+	func AnyNumbersGreaterThan01(n)
+		return SomeRandomNumbersGreaterThan01(n)
+
+	#--
+
+	func SomeRandomNumbersBiggerThan01(n)
+		return SomeRandomNumbersGreaterThan01(n)
+
+	func SomeNumbersBiggerThan01(n)
+		return SomeRandomNumbersGreaterThan01(n)
+
+	func AnyRandomNumbersBiggerThan01(n)
+		return SomeRandomNumbersGreaterThan01(n)
+
+	func AnyNumbersBiggerThan01(n)
+		return SomeRandomNumbersGreaterThan01(n)
+
+	#--
+
+	func RandomNumbersGreaterThan01(n)
+		return SomeRandomNumbersGreaterThan01(n)
+
+	func RandomNumbersBiggerThan01(n)
+		return SomeRandomNumbersGreaterThan01(n)
 
 	#>
 
@@ -773,68 +898,185 @@ func SomeRandomNumbersGreaterThanXT(n, nSeed)
 	func RandomNumbersBiggerThanXT(n, nSeed)
 		return SomeRandomNumbersGreaterThanXT(n, nSeed)
 
+	#==
+
+	func SomeRandomNumbersGreaterThan01XT(n, nSeed)
+
+		nSome = ARandomNumberLessThan(Some())
+		anResult = []
+
+		for i = 1 to nSome
+			anResult + ARanomNumberGreaterThan01XT(n, nSeed)
+		next
+
+		return anResult
+
+	func SomeNumbersGreaterThan01XT(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XT(n, nSeed)
+
+	func AnyRandomNumbersGreaterThan01XT(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XT(n, nSeed)
+
+	func AnyNumbersGreaterThan01XT(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XT(n, nSeed)
+
+	#--
+
+	func SomeRandomNumbersBiggerThan01XT(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XT(n, nSeed)
+
+	func SomeNumbersBiggerThan01XT(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XT(n, nSeed)
+
+	func AnyRandomNumbersBiggerThan01XT(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XT(n, nSeed)
+
+	func AnyNumbersBiggerThan01XT(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XT(n, nSeed)
+
+	#--
+
+	func RandomNumbersGreaterThan01XT(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XT(n, nSeed)
+
+	func RandomNumbersBiggerThan01XT(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XT(n, nSeed)
+
 	#>
 
 #--
 
-func SomeRandomNumbersGreaterThanU(nValue)
-	n = ARandomNumber()
-	return NRandomNumbersGreaterThanU(n, nValue)
+func SomeRandomNumbersGreaterThanU(n)
+	nRandom = ARandomNumber()
+	return NRandomNumbersGreaterThanU(nRandom, n)
 
 	#< @FunctionAlternativeForms
 
-	func SomeNumbersGreaterThanU(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
+	func SomeNumbersGreaterThanU(n)
+		return SomeRandomNumbersGreaterThanU(n)
 
-	func AnyRandomNumbersGreaterThanU(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
+	func AnyRandomNumbersGreaterThanU(n)
+		return SomeRandomNumbersGreaterThanU(n)
 
-	func AnyNumbersGreaterThanU(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
-
-	#--
-
-	func SomeRandomNumbersBiggerThanU(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
-
-	func SomeNumbersBiggerThanU(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
-
-	func AnyRandomNumbersBiggerThanU(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
-
-	func AnyNumbersBiggerThanU(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
-
-	#==
-
-	func SomeUniqueRandomNumbersGreaterThanU(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
-
-	func SomeUniqueNumbersGreaterThanU(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
+	func AnyNumbersGreaterThanU(n)
+		return SomeRandomNumbersGreaterThanU(n)
 
 	#--
 
-	func SomeUniqueRandomNumbersBiggerThanU(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
+	func SomeRandomNumbersBiggerThanU(n)
+		return SomeRandomNumbersGreaterThanU(n)
 
-	func SomeUniqueNumbersBiggerThanU(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
+	func SomeNumbersBiggerThanU(n)
+		return SomeRandomNumbersGreaterThanU(n)
+
+	func AnyRandomNumbersBiggerThanU(n)
+		return SomeRandomNumbersGreaterThanU(n)
+
+	func AnyNumbersBiggerThanU(n)
+		return SomeRandomNumbersGreaterThanU(n)
+
+	#--
+
+	func SomeUniqueRandomNumbersGreaterThanU(n)
+		return SomeRandomNumbersGreaterThanU(n)
+
+	func SomeUniqueNumbersGreaterThanU(n)
+		return SomeRandomNumbersGreaterThanU(n)
+
+	#--
+
+	func SomeUniqueRandomNumbersBiggerThanU(n)
+		return SomeRandomNumbersGreaterThanU(n)
+
+	func SomeUniqueNumbersBiggerThanU(n)
+		return SomeRandomNumbersGreaterThanU(n)
+
+	#--
+
+	func RandomNumbersGreaterThanU(n)
+		return SomeRandomNumbersGreaterThanU(n)
+
+	func RandomNumbersBiggerThanU(n)
+		return SomeRandomNumbersGreaterThanU(n)
+
+	func UniqueRandomNumbersGreaterThan(n)
+		return SomeRandomNumbersGreaterThanU(n)
+
+	func UniqueRandomNumbersBiggerThan(n)
+		return SomeRandomNumbersGreaterThanU(n)
 
 	#==
 
-	func RandomNumbersGreaterThanU(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
+	func SomeRandomNumbersGreaterThan01U(n)
 
-	func RandomNumbersBiggerThanU(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
+		nSome = ARandomNumberLessThan(Some())
+		anResult = []
 
-	func UniqueRandomNumbersGreaterThan(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
+		while TRUE
+			nRandom = ARanomNumberGreaterThan01(n)
+			if ring_find(anResult, nRandom) = 0
+				anResult + nRandom
 
-	func UniqueRandomNumbersBiggerThan(nValue)
-		return SomeRandomNumbersGreaterThanU(nValue)
+				if len(anResult) = nSome
+					exit
+				ok
+			ok
+		end
+
+		return anResult
+
+	func SomeNumbersGreaterThan01U(n)
+		return SomeRandomNumbersGreaterThan01U(n)
+
+	func AnyRandomNumbersGreaterThan01U(n)
+		return SomeRandomNumbersGreaterThan01U(n)
+
+	func AnyNumbersGreaterThan01U(n)
+		return SomeRandomNumbersGreaterThan01U(n)
+
+	#--
+
+	func SomeRandomNumbersBiggerThan01U(n)
+		return SomeRandomNumbersGreaterThan01U(n)
+
+	func SomeNumbersBiggerThan01U(n)
+		return SomeRandomNumbersGreaterThan01U(n)
+
+	func AnyRandomNumbersBiggerThan01U(n)
+		return SomeRandomNumbersGreaterThan01U(n)
+
+	func AnyNumbersBiggerThan01U(n)
+		return SomeRandomNumbersGreaterThan01U(n)
+
+	#--
+
+	func SomeUniqueRandomNumbersGreaterThan01U(n)
+		return SomeRandomNumbersGreaterThan01U(n)
+
+	func SomeUniqueNumbersGreaterThan01U(n)
+		return SomeRandomNumbersGreaterThan01U(n)
+
+	#--
+
+	func SomeUniqueRandomNumbersBiggerThan01U(n)
+		return SomeRandomNumbersGreaterThan01U(n)
+
+	func SomeUniqueNumbersBiggerThan01U(n)
+		return SomeRandomNumbersGreaterThan01U(n)
+
+	#--
+
+	func RandomNumbersGreaterThan01U(n)
+		return SomeRandomNumbersGreaterThan01U(n)
+
+	func RandomNumbersBiggerThan01U(n)
+		return SomeRandomNumbersGreaterThanU(n)
+
+	func UniqueRandomNumbersGreaterThan01(n)
+		return SomeRandomNumbersGreaterThan01U(n)
+
+	func UniqueRandomNumbersBiggerThan01(n)
+		return SomeRandomNumbersGreaterThan01U(n)
 
 	#>
 
@@ -867,7 +1109,7 @@ func SomeRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 	func AnyNumbersBiggerThanXTU(nValue, nSeed)
 		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
 
-	#==
+	#--
 
 	func SomeUniqueRandomNumbersGreaterThanXTU(nValue, nSeed)
 		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
@@ -883,7 +1125,7 @@ func SomeRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 	func SomeUniqueNumbersBiggerThanXTU(nValue, nSeed)
 		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
 
-	#==
+	#--
 
 	func RandomNumbersGreaterThanXTU(nValue, nSeed)
 		return SomeRandomNumbersGreaterThanXTU(nValue, nSeed)
@@ -896,6 +1138,84 @@ func SomeRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 
 	func UniqueRandomNumbersBiggerThanXT(nValue, nSeed)
 		return SomeRandomNumbersGreaterThanXT(nValue, nSeed)
+
+	#==
+
+	func SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number")
+			ok
+		ok
+
+		nSome = ARandomNumberLessThan(Some())
+		anResult = []
+
+		while TRUE
+			nRandom = ARanomNumberBetween01XT(n, nSeed)
+			if ring_find(anResult, nRandom) = 0
+				anResult + nRandom
+
+				if len(anResult) = nSome
+					exit
+				ok
+			ok
+		end
+
+		return anResult
+
+	func SomeNumbersGreaterThan01XTU(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+
+	func AnyRandomNumbersGreaterThan01XTU(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+
+	func AnyNumbersGreaterThan01XTU(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+
+	#--
+
+	func SomeRandomNumbersBiggerThan01XTU(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+
+	func SomeNumbersBiggerThan01XTU(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+
+	func AnyRandomNumbersBiggerThan01XTU(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+
+	func AnyNumbersBiggerThan01XTU(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+
+	#--
+
+	func SomeUniqueRandomNumbersGreaterThan01XTU(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+
+	func SomeUniqueNumbersGreaterThan01XTU(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+
+	#--
+
+	func SomeUniqueRandomNumbersBiggerThan01XTU(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+
+	func SomeUniqueNumbersBiggerThan01XTU(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+
+	#--
+
+	func RandomNumbersGreaterThan01XTU(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+
+	func RandomNumbersBiggerThan01XTU(n, nSeed)
+		return SomeRandomNumbersGreaterThanXTU(n, nSeed)
+
+	func UniqueRandomNumbersGreaterThan01XT(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
+
+	func UniqueRandomNumbersBiggerThan01XT(n, nSeed)
+		return SomeRandomNumbersGreaterThan01XTU(n, nSeed)
 
 	#>
 
@@ -924,7 +1244,6 @@ func NRandomNumbersGreaterThan(n, nValue)
 	func NRandomNumbersBiggerThan(n, nValue)
 		return NRandomNumbersGreaterThan(n, nValue)
 
-
 	func NNumbersGreaterThan(n, nValue)
 		return NRandomNumbersGreaterThan(n, nValue)
 
@@ -944,6 +1263,47 @@ func NRandomNumbersGreaterThan(n, nValue)
 	func AnyNNumbersBiggerThan(n, nValue)
 		return NRandomNumbersGreaterThan(n, nValue)
 
+	#==
+
+	func NRandomNumbersGreaterThan01(n, nValue)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		anResult = []
+
+		for i = 1 to n
+			anResult + ARandomNumberGreaterThan01(nValue)
+		next
+
+		return anResult
+
+	func NRandomNumbersLargerThan01(n, nValue)
+		return NRandomNumbersGreaterThan01(n, nValue)
+
+	func NRandomNumbersBiggerThan01(n, nValue)
+		return NRandomNumbersGreaterThan01(n, nValue)
+
+	func NNumbersGreaterThan01(n, nValue)
+		return NRandomNumbersGreaterThan01(n, nValue)
+
+	func NNumbersLargerThan01(n, nValue)
+		return NRandomNumbersGreaterThan01(n, nValue)
+
+	func NNumbersBiggerThan01(n, nValue)
+		return NRandomNumbersGreaterThan01(n, nValue)
+
+	func AnyNNumbersGreaterThan01(n, nValue)
+		return NRandomNumbersGreaterThan01(n, nValue)
+
+	func AnyNNumbersLargerThan01(n, nValue)
+		return NRandomNumbersGreaterThan01(n, nValue)
+
+	func AnyNNumbersBiggerThan01(n, nValue)
+		return NRandomNumbersGreaterThan01(n, nValue)
+
 	#>
 
 func NRandomNumbersGreaterThanXT(n, nValue, nSeed)
@@ -958,7 +1318,6 @@ func NRandomNumbersGreaterThanXT(n, nValue, nSeed)
 	func NRandomNumbersBiggerThanXT(n, nValue, nSeed)
 		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
 
-
 	func NNumbersGreaterThanXT(n, nValue, nSeed)
 		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
 
@@ -968,7 +1327,6 @@ func NRandomNumbersGreaterThanXT(n, nValue, nSeed)
 	func NNumbersBiggerThanXT(n, nValue, nSeed)
 		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
 
-
 	func AnyNNumbersGreaterThanXT(n, nValue, nSeed)
 		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
 
@@ -977,6 +1335,47 @@ func NRandomNumbersGreaterThanXT(n, nValue, nSeed)
 
 	func AnyNNumbersBiggerThanXT(n, nValue, nSeed)
 		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+	#==
+
+	func NRandomNumbersGreaterThan01XT(n, nValue, nSeed)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		anResult = []
+
+		for i = 1 to n
+			anResult + ARandomNumberGreaterThan01XT(nValue, nSeed)
+		next
+
+		return anResult
+
+	func NRandomNumbersLargerThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XT(n, nValue, nSeed)
+
+	func NRandomNumbersBiggerThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XT(n, nValue, nSeed)
+
+	func NNumbersGreaterThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XT(n, nValue, nSeed)
+
+	func NNumbersLargerThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XT(n, nValue, nSeed)
+
+	func NNumbersBiggerThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XT(n, nValue, nSeed)
+
+	func AnyNNumbersGreaterThan01XT(n, nValue)
+		return NRandomNumbersGreaterThan01XT(n, nValue, nSeed)
+
+	func AnyNNumbersLargerThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XT(n, nValue, nSeed)
+
+	func AnyNNumbersBiggerThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XT(n, nValue, nSeed)
 
 	#>
 
@@ -1050,6 +1449,75 @@ func NRandomNumbersGreaterThanU(n, nValue)
 	func NUniqueNumbersBiggerThan(n, nValue)
 		return NRandomNumbersGreaterThanU(n, nValue)
 
+	#==
+
+	func NRandomNumbersGreaterThan01U(n, nValue)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		anResult = []
+
+		while TRUE
+
+			nRandom = ARandomNumberGreaterThan01(nValue)
+
+			if ring_find(anResult, nRandom)
+				anResult + nRandom
+				if len(anResult) = n
+					exit
+				ok
+			ok
+		end
+
+		return anResult
+
+	func NRandomNumbersLargerThan01U(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
+	func NRandomNumbersBiggerThan01U(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
+	func NNumbersGreaterThan01U(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
+	func NNumbersLargerThan01U(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
+	func NNumbersBiggerThan01U(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
+	func AnyNNumbersGreaterThan01U(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
+	func AnyNNumbersLargerTha01nU(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
+	func AnyNNumbersBiggerThan01U(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
+	#--
+
+	func NUniqueRandomNumbersGreaterThan01(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
+	func NUniqueRandomNumbersLargerThan01(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
+	func NUniqueRandomNumbersBiggerThan01(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
+	func NUniqueNumbersGreaterThan01(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
+	func NUniqueNumbersLargerThan01(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
+	func NUniqueNumbersBiggerThan01(n, nValue)
+		return NRandomNumbersGreaterThan01U(n, nValue)
+
 	#>
 
 func NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
@@ -1104,6 +1572,75 @@ func NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 	func NUniqueNumbersBiggerThanXT(n, nValue, nSeed)
 		return NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 
+	#==
+
+	func NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		anResult = []
+
+		while TRUE
+
+			nRandom = ARandomNumberGreaterThan01XT(nValue, nSeed)
+
+			if ring_find(anResult, nRandom)
+				anResult + nRandom
+				if len(anResult) = n
+					exit
+				ok
+			ok
+		end
+
+		return anResult
+
+	func NRandomNumbersLargerThan01XTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
+	func NRandomNumbersBiggerThan01XTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
+	func NNumbersGreaterThan01XTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
+	func NNumbersLargerThan01XTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
+	func NNumbersBiggerThan01XTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
+	func AnyNNumbersGreaterThan01XTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
+	func AnyNNumbersLargerThan01XTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
+	func AnyNNumbersBiggerThan01XTU(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
+	#--
+
+	func NUniqueRandomNumbersGreaterThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
+	func NUniqueRandomNumbersLargerThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
+	func NUniqueRandomNumbersBiggerThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
+	func NUniqueNumbersGreaterThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
+	func NUniqueNumbersLargerThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
+	func NUniqueNumbersBiggerThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
+
 	#>
 
 #==
@@ -1138,7 +1675,44 @@ func NRandomNumbersLessThan(n, nValue)
 		return NRandomNumbersLessThan(n, nValue)
 
 	func AnyNNumbersSmallerThan(n, nValue)
-		return NRandomNumbersGreaterThan(n, nValue)
+		return NRandomNumbersLessThan(n, nValue)
+
+	#==
+
+	func NRandomNumbersLessThan01(n, nValue)
+		if CheckParams()
+			if NOT isNumber(nValue)
+				StzRaise("Incorrect param type! nValue must be a number.")
+			ok
+
+			if NOT ( nValue >= 0 and nValue <= 1 )
+				StzRaise("Incorrect value! nValue must be a value between 0 and 1.")
+			ok
+		ok
+
+		anResult = []
+
+		for i = 1 to n
+			anResult + ARandomNumberLessThan01(nValue)
+		next
+
+		return anResult
+
+	func NRandomNumbersSmallerThan01(n, nValue)
+		return NRandomNumbersGreaterThan01(n, nValue)
+
+
+	func NNumbersLessThan01(n, nValue)
+		return NRandomNumbersLessThan01(n, nValue)
+
+	func NNumbersSmallerThan01(n, nValue)
+		return NRandomNumbersGreaterThan01(n, nValue)
+
+	func AnyNNumbersLessThan01(n, nValue)
+		return NRandomNumbersLessThan01(n, nValue)
+
+	func AnyNNumbersSmallerThan01(n, nValue)
+		return NRandomNumbersLessThan01(n, nValue)
 
 	#>
 
@@ -1163,6 +1737,43 @@ func NRandomNumbersLessThanXT(n, nValue, nSeed)
 
 	func AnyNNumbersSmallerThanXT(n, nValue, nSeed)
 		return NRandomNumbersGreaterThanXT(n, nValue, nSeed)
+
+	#==
+
+	func NRandomNumbersLessThan01XT(n, nValue, nSeed)
+		if CheckParams()
+			if NOT isNumber(nValue)
+				StzRaise("Incorrect param type! nValue must be a number.")
+			ok
+
+			if NOT ( nValue >= 0 and nValue <= 1 )
+				StzRaise("Incorrect value! nValue must be a value between 0 and 1.")
+			ok
+		ok
+
+		anResult = []
+
+		for i = 1 to n
+			anResult + ARandomNumberLessThan01XT(nValue, nSeed)
+		next
+
+		return anResult
+
+	func NRandomNumbersSmallerThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XT(n, nValue, nSeed)
+
+
+	func NNumbersLessThan01XT(n, nValue, nSeed)
+		return NRandomNumbersLessThan01XT(n, nValue, nSeed)
+
+	func NNumbersSmallerThan01XT(n, nValue, nSeed)
+		return NRandomNumbersGreaterThan01XT(n, nValue, nSeed)
+
+	func AnyNNumbersLessThan01XT(n, nValue, nSeed)
+		return NRandomNumbersLessThan01XT(n, nValue, nSeed)
+
+	func AnyNNumbersSmallerThan01XT(n, nValue, nSeed)
+		return NRandomNumbersLessThan01XT(n, nValue, nSeed)
 
 	#>
 
@@ -1920,7 +2531,7 @@ func SomeRandomNumbersInXTUZ(panNumbers, nSeed)
 
 	#--
 
-	func RandomNumbersInUXTZ(panNumbers, nSeed)
+	func RandomNumbersInXTUZ(panNumbers, nSeed)
 		return RandomNumbersInXTUZ(panNumbers, nSeed)
 
 	#==
@@ -1953,7 +2564,7 @@ func SomeRandomNumbersInXTUZ(panNumbers, nSeed)
 
 	#--
 
-	func RandomNumbersBetweenUXTZ(nMin, nMax, nSeed)
+	func RandomNumbersBetweenXTUZ(nMin, nMax, nSeed)
 		return RandomNumbersBetweenXTUZ(nMin, nMax, nSeed)
 
 	#>
