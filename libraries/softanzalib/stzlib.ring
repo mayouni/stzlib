@@ -20,7 +20,6 @@ load "stzGlobal.ring"
 load "stzTest.ring"
 
 load "stzObject.ring"
-load "stzObjects.ring"
 load "stzObjectError.ring"
 load "stzListOfObjects.ring"
 
@@ -34,7 +33,6 @@ load "stzListOfNumbers.ring"
 load "stzRandom.ring"
 
 load "stzListOfUnicodes.ring"
-load "stzUnicodes.ring"
 
 load "stzBinaryNumber.ring"
 load "stzBinaryNumberError.ring"
@@ -60,8 +58,6 @@ load "stzListOfStringsError.ring"
 load "stzListInString.ring"
 
 load "stzListOfBytes.ring"
-load "stzBytes.ring"
-
 load "stzListOfBytesError.ring"
 
 load "stzChar.ring"
@@ -89,7 +85,6 @@ load "stzPairOfNumbers.ring"
 load "stzPairOfLists.ring"
 
 load "stzListOfSets.ring"
-load "stzSets.ring"
 load "stzListOfSetsError.ring"
 load "stzPairOfLists.ring"
 load "stzTree.ring"

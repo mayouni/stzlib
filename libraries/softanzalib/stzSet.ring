@@ -45,6 +45,17 @@ func IsSet(paList)
 	func ListIsSet(paList)
 		return IsSet(paList)
 
+	#--
+
+	func IsASet(paList)
+		return IsSet(paList)
+
+	func @IsASet(paList)
+		return IsSet(paList)
+
+	func ListIsASet(paList)
+		return IsSet(paList)
+
 class stzSet from stzList
 	@aContent = []
 

@@ -11,9 +11,6 @@
 
 # TODO: Add titles to functions
 
-  /////////////////////////////
- ///   GENERAL FUNCTIONS   ///
-////////////////////////////
 
 _nRingMaxRandom = 999_999_999 # Based on my testing of Ring random() function
 			      # NOTE: if you seed the Ring random() function
@@ -26,6 +23,11 @@ _nRandomRound = 3	# Defines how many decimals are supported in random01()
 
 _nSome = 10 # The default size of Some() function
 
+_nMaxRandomLoop = 1000 	# How many times Softanza loops to find a given random number
+			# before it aborts the process and raises an error
+			#--> Used as a safey featur with while loops inorder to
+			# avoid infite lopps
+
 func Some()
 	return _nSome
 
@@ -37,6 +39,18 @@ func SetSome(n)
 	ok
 
 	_nSome = n
+
+func MaxRandomLoop()
+	return _nMaxRandomLoop
+
+func SetMaxRandomLoop(n)
+	if CheckParams()
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+	ok
+
+	_nMaxRandomLoop = n
 
 func RingMaxRandom()
 	return _nRingMaxRandom
@@ -166,16 +180,16 @@ func RandomNumber()
 	#==
 
 	func RandomNumber01()
-		return StzNumbers01()
+		return StzRandom01()
 
 	func ARandomNumber01()
-		return StzNumbers01()
+		return StzRandom01()
 
 	func AnyRandomNumber01()
-		return StzNumbers01()
+		return StzRandom01()
 
 	func AnyNumber01()
-		return StzNumbers01()
+		return StzRandom01()
 
 	#>
 
@@ -255,7 +269,7 @@ func RandomNumberLessThan(n)
 		while TRUE
 			i++
 			nRandom = StzRandom01()
-			if nRandom < n or i = 1000
+			if nRandom < n or i = MaxRandomLoop()
 				exit
 			ok
 		end
@@ -263,7 +277,7 @@ func RandomNumberLessThan(n)
 		if nRandom < n
 			nResult = nRandom
 		else
-			StzRaise("Can't proceed! A random number has not been reached after 1000 trial.")
+			StzRaise("Can't proceed! A random number has not been reached after " + MaxRandomLoop() + " trials.")
 		ok
 
 		return nResult
@@ -336,7 +350,7 @@ func RandomNumberLessThanXT(n, nSeed)
 		while TRUE
 			i++
 			nRandom = StzRandom01XT(nSeed)
-			if nRandom < n or i = 1000
+			if nRandom < n or i = MaxRandomLoop()
 				exit
 			ok
 		end
@@ -344,7 +358,7 @@ func RandomNumberLessThanXT(n, nSeed)
 		if nRandom < n
 			nResult = nRandom
 		else
-			StzRaise("Can't proceed! A random number has not been reached after 1000 trial.")
+			StzRaise("Can't proceed! A random number has not been reached after " + MaxRandomLoop() + " trials.")
 		ok
 
 		return nResult
@@ -430,7 +444,7 @@ func RandomNumberGreaterThan(n)
 		while TRUE
 			i++
 			nRandom = StzRandom01()
-			if nRandom > n or i = 1000
+			if nRandom > n or i = MaxRandomLoop()
 				exit
 			ok
 		end
@@ -438,7 +452,7 @@ func RandomNumberGreaterThan(n)
 		if nRandom < n
 			nResult = nRandom
 		else
-			StzRaise("Can't proceed! A random number has not been reached after 1000 trial.")
+			StzRaise("Can't proceed! A random number has not been reached after " + MaxRandomLoop() + " trial.")
 		ok
 
 		return nResult
@@ -534,7 +548,7 @@ func RandomNumberGreaterThanXT(n, nSeed)
 		while TRUE
 			i++
 			nRandom = StzRandom01XT()
-			if nRandom > n or i = 1000
+			if nRandom > n or i = MaxRandomLoop()
 				exit
 			ok
 		end
@@ -542,7 +556,7 @@ func RandomNumberGreaterThanXT(n, nSeed)
 		if nRandom < n
 			nResult = nRandom
 		else
-			StzRaise("Can't proceed! A random number has not been reached after 1000 trial.")
+			StzRaise("Can't proceed! A random number has not been reached after " + MaxRandomLoop() + " trials.")
 		ok
 
 		return nResult
@@ -642,7 +656,7 @@ func RandomNumberOtherThan(n)
 		while TRUE
 			i++
 			nRandom = ARandomNumbers01()
-			if nRandom != n or i = 1000
+			if nRandom != n or i = MaxRandomLoop()
 				exit
 			ok
 		end
@@ -650,7 +664,7 @@ func RandomNumberOtherThan(n)
 		if nRandom != n
 			nResult = nRandom
 		else
-			StzRaise("Can't proceed! A random number has not been reached after 1000 trial.")
+			StzRaise("Can't proceed! A random number has not been reached after " + MaxRandomLoop() + " trials.")
 		ok
 
 		return nResult
@@ -735,7 +749,7 @@ func RandomNumberOtherThanXT(n, nSeed)
 		while TRUE
 			i++
 			nRandom = ARandomNumber01XT(nSeed)
-			if nRandom != n or i = 1000
+			if nRandom != n or i = MaxRandomLoop()
 				exit
 			ok
 		end
@@ -743,7 +757,7 @@ func RandomNumberOtherThanXT(n, nSeed)
 		if nRandom != n
 			nResult = nRandom
 		else
-			StzRaise("Can't proceed! A random number has not been reached after 1000 trial.")
+			StzRaise("Can't proceed! A random number has not been reached after " + MaxRandomLoop() + " trials.")
 		ok
 
 		return nResult
@@ -1830,6 +1844,64 @@ func NRandomNumbersLessThanU(n, nValue)
 	func NUniqueNumbersSmallerThan(n, nValue)
 		return NRandomNumbersLessThanU(n, nValue)
 
+	#==
+
+	func NRandomNumbersLessThan01U(n, nValue)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		anResult = []
+
+		i = 0
+		while TRUE
+			i++
+			nRandom = ARandomNumberLessthan01(n, nValue)
+
+			if ring_find(anResult, nRandom) = 0
+				anResult + nRandom
+				if len(anResult) = n or i = MaxRandomLoop()
+					exit
+				ok
+			ok
+
+		end
+
+		if len(anResult) = n
+			return anResult
+		else
+			StzRaise("Can't proceed. No random number generated after " + MaxRandomLoop() + " trials.")
+		ok
+
+	func NNumbersLessThan01U(n, nValue)
+		return NRandomNumbersLessThan01U(n, nValue)
+
+	func NNumbersSmallerThan01U(n, nValue)
+		return NRandomNumbersLessThan01U(n, nValue)
+
+	func AnyNNumbersLessThan01U(n, nValue)
+		return NRandomNumbersLessThan01U(n, nValue)
+
+	func AnyNNumbersSmallerThan01U(n, nValue)
+		return NRandomNumbersLessThan01U(n, nValue)
+
+	#--
+
+	func NUniqueRandomNumbersLessThan01(n, nValue)
+		return NRandomNumbersLessThan01U(n, nValue)
+
+	func NUniqueRandomNumbersSmallerThan01(n, nValue)
+		return NRandomNumbersLessThan01U(n, nValue)
+
+
+	func NUniqueNumbersLessThan01(n, nValue)
+		return NRandomNumbersLessThan01U(n, nValue)
+
+	func NUniqueNumbersSmallerThan01(n, nValue)
+		return NRandomNumbersLessThan01U(n, nValue)
+
 	#>
 
 func NRandomNumbersLessThanXTU(n, nValue, nSeed)
@@ -1865,8 +1937,65 @@ func NRandomNumbersLessThanXTU(n, nValue, nSeed)
 	func NUniqueNumbersSmallerThanXT(n, nValue)
 		return NRandomNumbersLessThanXTU(n, nValue)
 
+	#==
+
+	func NRandomNumbersLessThanXT01U(n, nValue, nSeed)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		anResult = []
+
+		i = 0
+		while TRUE
+			i++
+			nRandom = ARandomNumberLessthanXT01(n, nValue, nSeed)
+
+			if ring_find(anResult, nRandom) = 0
+				anResult + nRandom
+				if len(anResult) = n or i = MaxRandomLoop()
+					exit
+				ok
+			ok
+
+		end
+
+		if len(anResult) = n
+			return anResult
+		else
+			StzRaise("Can't proceed. No random number generated after " + MaxRandomLoop() + " trials.")
+		ok
+
+	func NNumbersLessThanXT01U(n, nValue, nSeed)
+		return NRandomNumbersLessThan01U(n, nValue)
+
+	func NNumbersSmallerThanXT01U(n, nValue, nSeed)
+		return NRandomNumbersLessThanXT01U(n, nValue, nSeed)
+
+	func AnyNNumbersLessThanXT01U(n, nValue, nSeed)
+		return NRandomNumbersLessThanXT01U(n, nValue, nSeed)
+
+	func AnyNNumbersSmallerThanXT01U(n, nValue, nSeed)
+		return NRandomNumbersLessThanXT01U(n, nValue, nSeed)
+
+	#--
+
+	func NUniqueRandomNumbersLessThanXT01(n, nValue, nSeed)
+		return NRandomNumbersLessThanXT01U(n, nValue, nSeed)
+
+	func NUniqueRandomNumbersSmallerThanXT01(n, nValue, nSeed)
+		return NRandomNumbersLessThanXT01U(n, nValue, nSeed)
+
+
+	func NUniqueNumbersLessThanXT01(n, nValue, nSeed)
+		return NRandomNumbersLessThanXT01U(n, nValue, nSeed)
+
+	func NUniqueNumbersSmallerThanXT01(n, nValue, nSeed)
+		return NRandomNumbersLessThanXT01U(n, nValue, nSeed)
+
 	#>
-#==
 
 #== A RANDOM NUMBER AMONG THE NUMBERS IN A LIST
 
@@ -1917,7 +2046,43 @@ func RandomNumberIn(panNumbers)
 			ok
 		ok
 
-		return RandomNumberIn(nMin:nMax)
+		
+		if nMin = nMax
+			return nMin
+
+		but BothAreIntegers(nMin, nMax)
+
+			if Abs(nMin - nMax) = 1
+				anTemp = ring_sort([ nMin, nMax ])
+				nRandom01 = ARandomNumber01()
+				nResult = anTemp[1] + nRandom01
+				return nResult
+
+			else
+				return RandomNumberIn(nMin:nMax)
+			ok
+
+		else
+
+			nMin01 = 0
+			nMax01 = 0
+			nRandomMin01 = 0
+			nRandomMax01 = 0
+
+			if Q(nMin).IsReal()
+				nMin   = 0+ Q(nMin).IntegerPart()
+				nMin01 = 0+ Q(nMin).DecimalPart()
+
+				nRandomMin01 = ARanomNumberGreaterThan01(nMin01)
+
+			nRandomMax01 = 0
+			but Q(nMax).IsReal()
+				nMax   = 0+ Q(nMax).IntegerPart() 
+				nMax01 = 0+ Q(nMax).DecimalPat()
+			ok
+
+			/* ... */
+		ok
 
 	func ARandomNumberBetween(nMin, nMax)
 		return RandomNumberBetween(nMin, nMax)

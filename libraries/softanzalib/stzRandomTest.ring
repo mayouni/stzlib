@@ -216,9 +216,22 @@ proff()
 
 /*---
 */
+pron()
+
+//? 2.5 : 5.8
+
+? L('2.5 : 5.8')
+
+proff()
+
+/*---
 
 pron()
 
 ? ARandomNumberBetween(1, 2)
+#--> 1.34
+
+? ARandomNumberBetween(-3, -2)
+#--> -2.45
 
 proff()

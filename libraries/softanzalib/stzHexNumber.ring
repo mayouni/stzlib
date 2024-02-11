@@ -39,6 +39,12 @@ func IsHexNumber(cNumber)
 	func @IsHexNumber(cNumber)
 		return IsHexNumber(cNumber)
 
+	func IsAHexNumber(cNumber)
+		return IsHexNumber(cNumber)
+
+	func @IsAHexNumber(cNumber)
+		return IsHexNumber(cNumber)
+
 func IsUnicodeHexNumber(cNumber)
 	return StzStringQ(cNumber).RepresentsNumberInUnicodeHexForm()
 
@@ -51,6 +57,20 @@ func IsUnicodeHexNumber(cNumber)
 		return IsUnicodeHexNumber(cNumber)
 
 	func @IsUnicodeHex(cNumber)
+		return IsUnicodeHexNumber(cNumber)
+
+	#--
+
+	func IsAUnicodeHexNumber(cNumber)
+		return IsUnicodeHexNumber(cNumber)
+
+	func IsAUnicodeHex(cNumber)
+		return IsUnicodeHexNumber(cNumber)
+
+	func @IsAUnicodeHexNumber(cNumber)
+		return IsUnicodeHexNumber(cNumber)
+
+	func @IsAUnicodeHex(cNumber)
 		return IsUnicodeHexNumber(cNumber)
 
 	#>

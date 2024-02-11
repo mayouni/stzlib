@@ -192,6 +192,45 @@ func IsBoolean(n)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
+	func IsBooleanNumber(n)
+		return IsBoolean(n)
+
+	func NumberIsBoolean(n)
+		return IsBoolean(n)
+
+	func IsABoolean(n)
+		return IsBoolean(n)
+
+	func IsABooleanNumber(n)
+		return IsBoolean(n)
+
+	func NumberIsABoolean(n)
+		return IsBoolean(n)
+
+	#--
+
+	func @IsBoolean(n)
+		return IsBoolean(n)
+
+	func @IsBooleanNumber(n)
+		return IsBoolean(n)
+
+	func @NumberIsBoolean(n)
+		return IsBoolean(n)
+
+	func @IsABoolean(n)
+		return IsBoolean(n)
+
+	func @IsABooleanNumber(n)
+		return IsBoolean(n)
+
+	func @NumberIsABoolean(n)
+		return IsBoolean(n)
+
+	#>
+
 func MaxNumberOfDigitsInUnsignedInteger()
 	return _nMaxNumberOfDigitsInUnsignedInteger
 	
@@ -489,6 +528,60 @@ func StringRepresentsSignedNumber(cNumber)
 	oStr = new stzString(cNumber)
 	return oStr.RepresentsSignedNumber()
 
+func IsInteger(n)
+	if isNumber(n) and Q(n).IsInteger()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func @IsInteger(n)
+		return IsInteger(n)
+
+	func IsAnInteger(n)
+		return IsInteger(n)
+
+	func @IsAnInteger(n)
+		return IsInteger(n)
+
+	#>
+
+func IsReal(n)
+	if isNumber(n) and Q(n).IsReal()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func IsRealNumber(n)
+		return IsReal(n)
+
+	func @IsReal(n)
+		return IsReal(n)
+
+	func @IsRealNumber(n)
+		return IsReal(n)
+
+	#--
+
+	func IsAReal(n)
+		return IsReal(n)
+
+	func IsARealNumber(n)
+		return IsReal(n)
+
+	func @IsAReal(n)
+		return IsReal(n)
+
+	func @IsARealNumber(n)
+		return IsReal(n)
+
+	#>
+
 func IsBit(n)
 	if NOT isNumber(n)
 		StzRaise("Incorrect param! n must be a number!")
@@ -500,6 +593,19 @@ func IsBit(n)
 		return FALSE
 
 	ok
+
+	#< @FunctionAlternativeForms
+
+	func IsABit(n)
+		return IsBit(n)
+
+	func @IsBit(n)
+		return IsBit(n)
+
+	func @IsABit(n)
+		return IsBit(n)
+
+	#>
 
 func DecimalDigits()
 	return _anDecimalDigits
@@ -1853,6 +1959,9 @@ class stzNumber from stzObject
 		else
 			return FALSE
 		ok
+
+		def IsRealNumber()
+			return This.IsReal()
 
 	def IsBigNumber()
 		if This.NumberOfDigits() > This.MaxNumberOfDigits()

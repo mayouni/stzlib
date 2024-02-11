@@ -18,7 +18,6 @@ func StzLocaleQ(p)
 	return new stzLocale(p)
 
 func IsQLocale(p)
-
 	if isObject(p) and classname(p) = "qlocale"
 		return TRUE
 	else
@@ -27,6 +26,28 @@ func IsQLocale(p)
 
 	func IsQLocaleObject(p)
 		return IsQLocale(p)
+
+	func IsAQLocale(p)
+		return IsQLocale(p)
+
+	func IsAQLocaleObject(p)
+		return IsQLocale(p)
+
+	#--
+
+	func @IsQLocale(p)
+		return IsQLocale(p)
+
+	func @IsQLocaleObject(p)
+		return IsQLocale(p)
+
+	func @IsAQLocale(p)
+		return IsQLocale(p)
+
+	func @IsAQLocaleObject(p)
+		return IsQLocale(p)
+
+	#>
 
 func QLocaleToStzLocale(oQLocale)
 	return new stzLocale(oQLocale)

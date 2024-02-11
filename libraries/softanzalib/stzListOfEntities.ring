@@ -21,11 +21,28 @@ func IsListOfEntities(paList)
 
 	return bResult
 
+	#< @FunctionAlternativeForms
+
 	func @IsListOfEntities(paList)
 		return IsListOfEntities(paList)
 
 	func ListIsListOfEntities(paList)
 		return IsListOfEntities(paList)
+
+	#--
+
+	func IsAListOfEntities(paList)
+		return IsListOfEntities(paList)
+
+	func @IsAListOfEntities(paList)
+		return IsListOfEntities(paList)
+
+	func ListIsAListOfEntities(paList)
+		return IsListOfEntities(paList)
+
+	#>
+
+class stzEntities from stzListOfEntities
 
 class stzListOfEntities from stzList
 	@aListOfEntities = []

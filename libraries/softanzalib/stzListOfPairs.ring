@@ -23,11 +23,26 @@ func IsListOfPairs(paList)
 
 	return bResult
 
+	#< @FunctionAlternativeForms
+
 	func @IsListOfPairs(paList)
 		return IsListOfPairs(paList)
 
 	func ListIsListOfPairs(paList)
 		return IsListOfPairs(paList)
+
+	#--
+
+	func IsAListOfPairs(paList)
+		return IsListOfPairs(paList)
+
+	func @IsAListOfPairs(paList)
+		return IsListOfPairs(paList)
+
+	func ListIsAListOfPairs(paList)
+		return IsListOfPairs(paList)
+
+	#>
 
 func RangeToSection(paRange)
 	if isList(paRange) and Q(paRange).IsPairOfNumbers()
@@ -595,7 +610,7 @@ class stzListOfPairs from stzListOfLists
 		return aResult
 
 	  #==================================================================#
-	 #  RETRUNING AN EXPANDED LIST OF NUMBERS OUT OF THE LIST OF PAIRS  #
+	 #  RETURNING AN EXPANDED LIST OF NUMBERS OUT OF THE LIST OF PAIRS  #
 	#==================================================================#
 
 	def ExpandedIfPairsOfNumbers()

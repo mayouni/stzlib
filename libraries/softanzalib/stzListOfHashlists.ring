@@ -23,13 +23,30 @@ func IsListOfHashLists(paList)
 
 	return bResult
 
+	#< @FunctionAlternativeForms
+
 	func @IsListOfHashLists(paList)
 		return IsListOfHashLists(paList)
 
 	func ListIsListOfHashLists(paList)
 		return IsListOfHashLists(paList)
 
+	#--
+
+	func IsAListOfHashLists(paList)
+		return IsListOfHashLists(paList)
+
+	func @IsAListOfHashLists(paList)
+		return IsListOfHashLists(paList)
+
+	func ListIsAListOfHashLists(paList)
+		return IsListOfHashLists(paList)
+
+	#>
+
 class stzHashLists from stzListOfHashLists
+class stzListOfAssociativeLists from stzListOfHashLists
+class stzAssociativeLists from stzListOfHashLists
 
 class stzListOfHashLists from stzList
 	@aListOfHashLists

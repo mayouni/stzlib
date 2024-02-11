@@ -20,11 +20,28 @@ func IsListOfNamedObjects(paList)
 
 	return bResult
 
+	#< @FunctionAlternativeForms
+
 	func @IsListOfNamedObjects(paList)
 		return IsListOfObjects(paList)
 
 	func ListIsListOfNamedObjects(paList)
 		return IsListOfNamedObjects(paList)
+
+	#--
+
+	func IsAListOfNamedObjects(paList)
+		return IsListOfObjects(paList)
+
+	func @IsAListOfNamedObjects(paList)
+		return IsListOfObjects(paList)
+
+	func ListIsAListOfNamedObjects(paList)
+		return IsListOfNamedObjects(paList)
+
+	#>
+ 
+class stzNamedObjects from stzListOfNamedObjects
 
 class stzListOfNamedObjects from stzList
 	@aContent

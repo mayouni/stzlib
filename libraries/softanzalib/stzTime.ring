@@ -14,8 +14,32 @@ func IsQTime(p)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	func IsQTimeObject(p)
-		return IsQTime(op)
+		return IsQTime(p)
+
+	func IsAQTime(p)
+		return IsQTime(p)
+
+	func IsAQTimeObject(p)
+		return IsQTime(p)
+
+	#--
+
+	func @IsQTime(p)
+		return IsQTime(p)
+
+	func @IsQTimeObject(p)
+		return IsQTime(p)
+
+	func @IsAQTime(p)
+		return IsQTime(p)
+
+	func @IsAQTimeObject(p)
+		return IsQTime(p)
+
+	#>
 
 func QTimeToString(oQTime, cFormat)
 	if IsQTime(oQTime)

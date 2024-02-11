@@ -49,12 +49,52 @@ func ListIsHashList(paList)
 	func @IsHashList(paList)
 		return ListIsHashList(paList)
 
+	#--
+
+	func ListIsAHashList(paList)
+		return ListIsHashList(paList)
+
+	func @ListIsAHashList(paList)
+		return ListIsHashList(paList)
+
+	func IsAHashList(paList)
+		return ListIsHashList(paList)
+
+	func @IsAHashList(paList)
+		return ListIsHashList(paList)
+
+	#>
+
 func ListIsPairAndKeyIsString(paPair)
 	if isList(paPair) and Q(paPair).IsPairAndKeyIsString()
 		return TRUE
 	else
 		return FALSE
 	ok
+
+	#< @FunctionAlternativeForms
+
+	func @ListIsPairAndKeyIsString(paPair)
+		return ListIsPairAndKeyIsString(paPair)
+
+	func ListIsAPairAndKeyIsAString(paPair)
+		return ListIsPairAndKeyIsString(paPair)
+
+	func @ListIsAPairAndKeyIsAString(paPair)
+		return ListIsPairAndKeyIsString(paPair)
+
+	#--
+
+	func @IsPairAndKeyIsString(paPair)
+		return ListIsPairAndKeyIsString(paPair)
+
+	func IsAPairAndKeyIsAString(paPair)
+		return ListIsPairAndKeyIsString(paPair)
+
+	func @IsAPairAndKeyIsAString(paPair)
+		return ListIsPairAndKeyIsString(paPair)
+
+	#>
 
 func StzAssociativeListQ(paList)
 	return new stzAssociativeList(paList)

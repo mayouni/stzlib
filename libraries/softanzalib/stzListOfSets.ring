@@ -21,11 +21,28 @@ func IsListOfSets(paList)
 
 	return bResult
 
+	#< @FunctionAlternativeForms
+
 	func @IsListOfSets(paList)
 		return IsListOfSets(paList)
 
 	func ListIsListOfSets(paList)
 		return IsListOfSets(paList)
+
+	#--
+
+	func IsAListOfSets(paList)
+		return IsListOfSets(paList)
+
+	func @IsAListOfSets(paList)
+		return IsListOfSets(paList)
+
+	func ListIsAListOfSets(paList)
+		return IsListOfSets(paList)
+
+	#>
+
+class stzSets from stzListOfSets
 
 class stzListOfSets from stzListOfLists
 	@aContent

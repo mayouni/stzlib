@@ -13,6 +13,12 @@ func IsPair(paList)
 	func @IsPair(paList)
 		return IsPair(paList)
 
+	func IsAPair(paList)
+		return IsPair(paList)
+
+	func @IsAPair(paList)
+		return IsPair(paList)
+
 class stzPair from stzList
 	@aContent
 	

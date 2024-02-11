@@ -86,7 +86,17 @@ func S(p)
 
 func IsNotString(pcStr)
 	return NOT isString(pcStr)
-	
+
+	func IsNotAString(pcStr)
+		return IsNotString(pcStr)
+
+	func @IsNotString(pcStr)
+		return IsNotString(pcStr)
+
+	func @IsNotAString(pcStr)
+		return IsNotString(pcStr)
+
+
 func IsNullString(cStr)
 	if isString(cStr) and cStr != NULL
 		return TRUE
@@ -94,18 +104,103 @@ func IsNullString(cStr)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	func IsEmptyString(cStr)
 		return IsNullString(cStr)
+
+	func ANullString(pcStr)
+		return IsNullString(cStr)
+
+	func IsAnEmptyString(cStr)
+		return IsNullString(cStr)
+
+	#--
+
+	func @IsNullString(cStr)
+		return IsNullString(cStr)
+
+	func @IsEmptyString(cStr)
+		return IsNullString(cStr)
+
+	func @ANullString(pcStr)
+		return IsNullString(cStr)
+
+	func @IsAnEmptyString(cStr)
+		return IsNullString(cStr)
+
+	#==
+
+	func IsNull(cStr)
+		return IsNullString(cStr)
+
+	func IsEmpty(cStr)
+		return IsNullString(cStr)
+
+	#--
+
+	func @IsNull(cStr)
+		return IsNullString(cStr)
+
+	func @IsEmpty(cStr)
+		return IsNullString(cStr)
+
+	#>
 
 func IsNonNullString(cStr)
 	return NOT IsNullString(cStr)
 
-	func IsNonEmptyString(cStr)
-		return This.IsNonNullString(cStr)
+	#< @FunctionAlternativeForms
 
-	func IsFullString(cStr)
-		return This.IsNonNullString(cStr)
-	
+	func IsNonEmptyString(cStr)
+		return IsNonNullString(cStr)
+
+	func ANonNullString(pcStr)
+		return IsNonNullString(cStr)
+
+	func IsANonEmptyString(cStr)
+		return IsNonNullString(cStr)
+
+	#--
+
+	func @IsNonNullString(cStr)
+		return IsNonNullString(cStr)
+
+	func @IsNonEmptyString(cStr)
+		return IsNonNullString(cStr)
+
+	func @ANonNullString(pcStr)
+		return IsNonNullString(cStr)
+
+	func @IsANonEmptyString(cStr)
+		return IsNonNullString(cStr)
+
+	#>
+
+func IsBlank(pcStr)
+	return StzStringQ(pcStr).IsMadeOfSpaces()
+
+	#< @FunctionAlternativeForms
+
+	func IsBlankString(pcStr)
+		return IsBlank(pcStr)
+
+	func IsABlankString(pcStr)
+		return IsBlank(pcStr)
+
+	#--
+
+	func @IsBlank(pcStr)
+		return IsBlank(pcStr)
+
+	func @IsBlankString(pcStr)
+		return IsBlank(pcStr)
+
+	func @IsABlankString(pcStr)
+		return IsBlank(pcStr)
+
+	#>
+
 func IsQString(p)
 
 	if isObject(p) and ( classname(p) = "qstring" or classname(p) = "qstring2" )
@@ -113,6 +208,8 @@ func IsQString(p)
 	else
 		return FALSE
 	ok
+
+	#< @functionAlternativeForms
 
 	func IsQStringObject(p)
 		return IsQString(p)
@@ -122,6 +219,22 @@ func IsQString(p)
 
 	func @IsQStringObject(p)
 		return IsQString(p)
+
+	#--
+
+	func IsAQString(p)
+		return IsQString(p)
+
+	func IsAQStringObject(p)
+		return IsQString(p)
+
+	func @IsAQString(p)
+		return IsQString(p)
+
+	func @IsAQStringObject(p)
+		return IsQString(p)
+
+	#>
 
 func QStringContent(oQStr)
 
@@ -27067,7 +27180,7 @@ class stzString from stzObject
 			This.ReplaceLastOccurrence(pcSubStr, pcNewSubStr)
 
 			def ReplaceLastQ(pcSubStr, pcNewSubStr)
-				This.ReplaceLast()
+				This.ReplaceLast(pcSubStr, pcNewSubStr)
 				return This
 
 		#>
@@ -67197,6 +67310,10 @@ ici		//...
 		
 		o1 = new stzString(' "ا":"ج": ')
 		? o1.IsListInString() #--> TRUE
+
+		o1 = new stzString("10 : 15")
+		? o1.IsListInString() #--> TRUE
+
 		*/
 
 		oCopy = This.RemoveSpacesQ().RemoveTheseBoundsQ( "{", "}" ).
@@ -67246,7 +67363,6 @@ ici		//...
 				cMember2 = aListMembers[2]
 
 				cCode = "pMember1 = " + cMember1
-
 				eval(cCode)
 	
 				cCode = "pMember2 = " + cMember2
@@ -67295,7 +67411,7 @@ ici		//...
 		
 					but n1 > n2
 
-						for n = n1 to n2 stzp -1
+						for n = n1 to n2 step -1
 							cNormalSyntax += (""+ n)
 							if n > n2
 								cNormalSyntax += ", "
@@ -67306,12 +67422,13 @@ ici		//...
 		
 				ok
 
+				cNormalSyntax = StzStringQ(cNormalSyntax).RemoveFromEndQ(", ").Content()
+
 				if Q(cNormalSyntax).LastChar() != "]"
 					cNormalSyntax += " ]"
 				ok
 
 				cCode = "aTempList = " + cNormalSyntax
-
 				eval(cCode)
 
 				bResult = isList(aTempList)
@@ -67510,6 +67627,7 @@ ici		//...
 					next
 				ok
 		
+				cNormalSystax = stzStringQ(cNormalSyntax).RemoveFromEndQ(", ").Content()
 				cNormalSyntax += " ]"
 		
 			but isNumber(pMember1) and isNumber(pMember2)
@@ -67528,7 +67646,7 @@ ici		//...
 		
 				but n1 > n2
 
-					for n = n1 to n2 stzp -1
+					for n = n1 to n2 step -1
 						cNormalSyntax += (""+ n)
 						if n > n2
 							cNormalSyntax += ", "
@@ -67537,10 +67655,11 @@ ici		//...
 		
 				ok
 		
+				cNormalSystax = StzStringQ(cNormalSyntax).RemoveFromEndQ(", ").Content()
 				cNormalSyntax += " ]"
 			ok
 
-			cResult = cNormalSyntax
+			cResult = StzStringQ(cNormalSyntax).ReplaceLastQ(",  ]", " ]").Content()
 
 		ok  
 
@@ -67673,9 +67792,11 @@ ici		//...
 	
 		# Adding the other parts
 	
+		nLen = len(aList)
+
 		if cPart != NULL
-			for item in aList
-				item = cPart + item
+			for i = 1 to nLen
+				aList[i] = cPart + aList[i]
 			next
 		ok
 
