@@ -103,9 +103,19 @@ func StzCharClass()
 
 func IsAsciiChar(c)
 	return StzCharQ(c).IsAscii()
-	
+
+	#< @FunctionAlternativeForms
+
+	func IsAnAsciiChar(c)
+		return IsAsciiChar(c)
+
 	func @IsAsciiChar(c)
 		return IsAsciiChar(c)
+
+	func @IsAnAsciiChar(c)
+		return IsAsciiChar(c)
+
+	#>
 
 func UnicodeToHexUnicode(n)
 	oChar = new stzChar(n)
@@ -173,6 +183,8 @@ func IsQChar(p)
 		return FALSE
 	ok
 
+	#< @fUNCtionAlternativeForms
+
 	func IsQCharObject(p)
 		return IsQChar(p)
 
@@ -181,6 +193,22 @@ func IsQChar(p)
 
 	func @IsQCharObject(p)
 		return IsQChar(p)
+
+	#--
+
+	func IsAQChar(p)
+		return IsQChar(p)
+
+	func IsAQCharObject(p)
+		return IsQChar(p)
+
+	func @IsAQChar(p)
+		return This.IsQChar(p)
+
+	func @IsAQCharObject(p)
+		return IsQChar(p)
+
+	#>
 
 func QCharToString(oQChar)
 	if IsQChar(oQChar)

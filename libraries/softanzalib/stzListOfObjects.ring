@@ -23,11 +23,28 @@ func IsListOfObjects(paList)
 
 	return bResult
 
+	#< @FunctionAlternativeForms
+
 	func @IsListOfObjects(paList)
 		return IsListOfObjects(paList)
 
 	func ListIsListOfObjects(paList)
 		return IsListOfObjects(paList)
+
+	#--
+
+	func IsAListOfObjects(paList)
+		return IsListOfObjects(paList)
+
+	func @IsAListOfObjects(paList)
+		return IsListOfObjects(paList)
+
+	func ListIsAListOfObjects(paList)
+		return IsListOfObjects(paList)
+
+	#>
+
+class stzObjects from stzListOfObjects
 
 class stzListOfObjects from stzList
 	@aContent = []

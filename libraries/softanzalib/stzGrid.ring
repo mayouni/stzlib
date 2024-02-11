@@ -28,8 +28,27 @@ func IsGrid(paList)
 		return IsGrid(paList)
 
 	func ListIsGrid(paList)
-		retrun IsGrid(paList)
- 
+		return IsGrid(paList)
+
+	func @ListIsGrid(paList)
+		return IsGrid(paList)
+
+	#--
+
+	func IsAGrid(paList)
+		return IsGrid(paList)
+
+	func @IsAGrid(paList)
+		return IsGrid(paList)
+
+	func ListIsAGrid(paList)
+		return IsGrid(paList)
+
+	func @ListIsAGrid(paList)
+		return IsGrid(paList)
+
+	#>
+
 func GridEmptyNodeChar()
 	return _cEmptyNodeChar
 

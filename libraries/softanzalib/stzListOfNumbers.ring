@@ -78,11 +78,26 @@ func IsListOfNumbers(paList)
 
 	return bResult
 
+	#< @FunctionAlternativeForms
+
 	func @IsListOfNumbers(paList)
 		return IsListOfNumbers(paList)
 
 	func ListIsListOfNumbers(paList)
 		return IsListOfNumbers(paList)
+
+	#--
+
+	func IsAListOfNumbers(paList)
+		return IsListOfNumbers(paList)
+
+	func @IsAListOfNumbers(paList)
+		return IsListOfNumbers(paList)
+
+	func ListIsAListOfNumbers(paList)
+		return IsListOfNumbers(paList)
+
+	#>
 
 func LN(p)
 	if isList(p)

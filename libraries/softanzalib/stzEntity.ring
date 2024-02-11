@@ -12,8 +12,18 @@ func IsEntity(p)
 	# TODO : Replace this implementation
 	# Use the code in the init() function inside the class
 
+	#< @FunctionAlternativeForms
+
 	func @IsEntity(p)
 		return IsEntity(p)
+
+	func IsAnEntity(p)
+		return IsEntity(p)
+
+	func @IsAnEntity(p)
+		return IsEntity(p)
+
+	#>
 
 class stzEntity
 	@aEntity

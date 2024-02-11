@@ -904,6 +904,8 @@ func IsNumberOrString(p)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	func IsStringOrNumber(p)
 		return IsNumberOrString(p)
 
@@ -917,6 +919,34 @@ func IsNumberOrString(p)
 	func @IsStringOrNumber(p)
 		return IsNumberOrString(p)
 
+	#--
+
+	func IsANumberOrString(p)
+		return IsNumberOrString(p)
+
+	func IsANumberOrAString(p)
+		return IsNumberOrString(p)
+
+	func IsAStringOrNumber(p)
+		return IsNumberOrString(p)
+
+	func IsAStringOrANumber(p)
+		return IsNumberOrString(p)
+
+
+	func @IsANumberOrString(p)
+		return IsNumberOrString(p)
+
+	func @IsANumberOrAString(p)
+		return IsNumberOrString(p)
+
+	func @IsAStringOrNumber(p)
+		return IsNumberOrString(p)
+
+	func @IsAStringOrANumber(p)
+		return IsNumberOrString(p)
+
+	#>
 
 func IsNumberOrList(p)
 	if isNumber(p) or isList(p)
@@ -925,18 +955,45 @@ func IsNumberOrList(p)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	func IsListOrNumber(p)
 		return This.IsNumberOrList(p)
-
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.IsNumberOrList()
 
 	func @IsNumberOrList(p)
 		return IsNumberOrList(p)
 
 	func @IsListOrNumber(p)
 		return IsNumberOrList(p)
+
+	#--
+
+	func IsANumberOrList(p)
+		return IsNumberOrList(p)
+
+	func IsANumberOrAList(p)
+		return IsNumberOrList(p)
+
+	func IsAListOrNumber(p)
+		return IsNumberOrList(p)
+
+	func IsAListOrANumber(p)
+		return IsNumberOrList(p)
+
+
+	func @IsANumberOrList(p)
+		return IsNumberOrList(p)
+
+	func @IsANumberOrAList(p)
+		return IsNumberOrList(p)
+
+	func @IsAListOrNumber(p)
+		return IsNumberOrList(p)
+
+	func @IsAListOrANumber(p)
+		return IsNumberOrList(p)
+
+	#>
 
 func IsNumberOrObject(p)
 	if isNumber(p) or isObject(p)
@@ -945,18 +1002,45 @@ func IsNumberOrObject(p)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	func IsObjectOrNumber(p)
 		return This.IsNumberOrObject(p)
-
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.IsNumberOrString()
 
 	func @IsNumberOrSObject(p)
 		return IsNumberOrObject(p)
 
 	func @IsObjectOrNumber(p)
 		return IsNumberOrObject(p)
+
+	#--
+
+	func IsANumberOrObject(p)
+		return IsNumberOrObject(p)
+
+	func IsANumberOrAObject(p)
+		return IsNumberOrObject(p)
+
+	func IsAObjectOrNumber(p)
+		return IsNumberOrObject(p)
+
+	func IsAObjectOrANumber(p)
+		return IsNumberOrObject(p)
+
+
+	func @IsANumberOrObject(p)
+		return IsNumberOrObject(p)
+
+	func @IsANumberOrAObject(p)
+		return IsNumberOrObject(p)
+
+	func @IsAObjectOrNumber(p)
+		return IsNumberOrObject(p)
+
+	func @IsAObjectOrANumber(p)
+		return IsNumberOrObject(p)
+
+	#>
 
 func IsStringOrList(p)
 	if isString(p) or isList(p)
@@ -967,10 +1051,6 @@ func IsStringOrList(p)
 
 	def IsListOrString(p)
 		return IsStringOrList(p)
-
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.IsStringOrList()
 
 	func @IsStringOrList(p)
 		return IsStringOrList(p)
@@ -985,18 +1065,45 @@ func IsStringOrObject(p)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	def IsObjectOrString(p)
 		return IsStringOrObject(p)
-
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.IsStringOrObject()
 
 	func @IsStringOrObject(p)
 		return IsStringOrObject(p)
 
 	func @IsObjectOrString(p)
 		return IsStringOrObject(p)
+
+	#--
+
+	func IsAStringOrObject(p)
+		return IsStringOrObject(p)
+
+	func IsAStringOrAObject(p)
+		return IsStringOrObject(p)
+
+	func IsAObjectOrString(p)
+		return IsStringOrObject(p)
+
+	func IsAObjectOrAString(p)
+		return IsStringOrObject(p)
+
+
+	func @IsAStringOrObject(p)
+		return IsStringOrObject(p)
+
+	func @IsAStringOrAObject(p)
+		return IsStringOrObject(p)
+
+	func @IsAObjectOrString(p)
+		return IsStringOrObject(p)
+
+	func @IsAObjectOrAString(p)
+		return IsStringOrObject(p)
+
+	#>
 
 func IsListOrObject(p)
 	if isList(p) or isObject(p)
@@ -1005,12 +1112,10 @@ func IsListOrObject(p)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	def IsObjectOrList(p)
 		return IsListOrObject(p)
-
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.IsListOrObject()
 
 	func @IsListOrObject(p)
 		return IsListOrObject(p)
@@ -1018,12 +1123,43 @@ func IsListOrObject(p)
 	func @IsObjectOrList(p)
 		return IsListOrObject(p)
 
+	#--
+
+	func IsAListOrObject(p)
+		return IsListOrObject(p)
+
+	func IsAListOrAObject(p)
+		return IsListOrObject(p)
+
+	func IsAObjectOrList(p)
+		return IsListOrObject(p)
+
+	func IsAObjectOrAList(p)
+		return IsListOrObject(p)
+
+
+	func @IsAListOrObject(p)
+		return IsListOrObject(p)
+
+	func @IsAListOrAObject(p)
+		return IsListOrObject(p)
+
+	func @IsAObjectOrList(p)
+		return IsListOrObject(p)
+
+	func @IsAObjectOrAList(p)
+		return IsListOrObject(p)
+
+	#>
+
 func IsNumberOrStringOrList(p)
 	if isNumber(p) or isString(p) or isList(p)
 		return TRUE
 	else
 		return FALSE
 	ok
+
+	#<@FunctionAlternativeForms
 
 	def IsNumberOrListOrString(p)
 		return IsNumberOrStringOrList(p)
@@ -1040,9 +1176,7 @@ func IsNumberOrStringOrList(p)
 	def IsListOrStringOrNumber(p)
 		return IsNumberOrStringOrList(p)
 
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.IsNumberOrStringOrList()
+	#--
 
 	def @IsNumberOrStringOrList(p)
 		return IsNumberOrStringOrList(p)
@@ -1062,6 +1196,8 @@ func IsNumberOrStringOrList(p)
 	def @IsListOrStringOrNumber(p)
 		return IsNumberOrStringOrList(p)
 
+	#>
+
 #--
 
 func IsCharOrNumber(p)
@@ -1070,6 +1206,8 @@ func IsCharOrNumber(p)
 	else
 		return FALSE
 	ok
+
+	#< @FunctionAlternativeForms
 
 	func IsNumberOrChar(p)
 		return IsCharOrNumber(p)
@@ -1080,12 +1218,43 @@ func IsCharOrNumber(p)
 	func @IsNumberOrChar(p)
 		return IsCharOrNumber(p)
 
+	#--
+
+	func IsACharOrNumber(p)
+		return IsCharOrNumber(p)
+
+	func IsACharOrANumber(p)
+		return IsCharOrNumber(p)
+
+	func IsANumberOrChar(p)
+		return IsCharOrNumber(p)
+
+	func IsANumberOrAChar(p)
+		return IsCharOrNumber(p)
+
+
+	func @IsACharOrNumber(p)
+		return IsCharOrNumber(p)
+
+	func @IsACharOrANumber(p)
+		return IsCharOrNumber(p)
+
+	func @IsANumberOrChar(p)
+		return IsCharOrNumber(p)
+
+	func @IsANumberOrAChar(p)
+		return IsCharOrNumber(p)
+
+	#>
+
 func IsCharOrString(p)
 	if isString(p)
 		return TRUE
 	else
 		return FALSE
 	ok
+
+	#< @FunctionAlternativeForms
 
 	func IsStringOrChar(p)
 		return IsCharOrString(p)
@@ -1096,12 +1265,43 @@ func IsCharOrString(p)
 	func @IsStringOrChar(p)
 		return IsCharOrString(p)
 
+	#--
+
+	func IsACharOrString(p)
+		return IsCharOrString(p)
+
+	func IsACharOrAString(p)
+		return IsCharOrString(p)
+
+	func IsAStringOrChar(p)
+		return IsCharOrString(p)
+
+	func IsAStringOrAChar(p)
+		return IsCharOrString(p)
+
+
+	func @IsACharOrString(p)
+		return IsCharOrString(p)
+
+	func @IsACharOrAString(p)
+		return IsCharOrString(p)
+
+	func @IsAStringOrChar(p)
+		return IsCharOrString(p)
+
+	func @IsAStringOrAChar(p)
+		return IsCharOrString(p)
+
+	#>
+
 func IsCharOrList(p)
 	if isList(p) or IsChar(p)
 		return TRUE
 	else
 		return FALSE
 	ok
+
+	#< @FunctionAlternativeForms
 
 	func IsListOrChar(p)
 		return IsCharOrList(p)
@@ -1112,12 +1312,43 @@ func IsCharOrList(p)
 	func @IsListOrChar(p)
 		return IsCharOrList(p)
 
+	#--
+
+	func IsACharOrList(p)
+		return IsCharOrList(p)
+
+	func IsACharOrAList(p)
+		return IsCharOrList(p)
+
+	func IsAListOrChar(p)
+		return IsCharOrList(p)
+
+	func IsAListOrAChar(p)
+		return IsCharOrList(p)
+
+
+	func @IsACharOrList(p)
+		return IsCharOrList(p)
+
+	func @IsACharOrAList(p)
+		return IsCharOrList(p)
+
+	func @IsAListOrChar(p)
+		return IsCharOrList(p)
+
+	func @IsAListOrAChar(p)
+		return IsCharOrList(p)
+
+	#>
+
 func IsCharOrObject(p)
 	if isObject(p) or IsChar(p)
 		return TRUE
 	else
 		return FALSE
 	ok
+
+	#< @FunctionAlternativeForms
 
 	func IsObjectOrChar(p)
 		return IsCharOrObject(p)
@@ -1128,24 +1359,57 @@ func IsCharOrObject(p)
 	func @IsObjectOrChar(p)
 		return IsCharOrObject(p)
 
+	#--
+
+	func IsACharOrObject(p)
+		return IsCharOrObject(p)
+
+	func IsACharOrAObject(p)
+		return IsCharOrObject(p)
+
+	func IsAObjectOrChar(p)
+		return IsCharOrObject(p)
+
+	func IsAObjectOrAChar(p)
+		return IsCharOrObject(p)
+
+
+	func @IsACharOrObject(p)
+		return IsCharOrObject(p)
+
+	func @IsACharOrAObject(p)
+		return IsCharOrObject(p)
+
+	func @IsAObjectOrChar(p)
+		return IsCharOrObject(p)
+
+	func @IsAObjectOrAChar(p)
+		return IsCharOrObject(p)
+
+	#>
+
 #--
 
 func ListOfListsOfStzTypes() # TODO: complete the list
 	return [
-		:ListOfStzNumbers,
-		:ListOfStzStrings,
-		:ListOfStzLists,
-		:ListOfStzObjects,
-		:ListOfStzChars,
-		:ListOfStzHashlists,
-		:ListOfStzPairs,
-		:ListOfStzSets,
-		:ListOfStzGrids
+		:stzListOfObjects,
+		:stzListOfNumbers,
+		:stzListOfUnicodes,
+		:stzListOfStrings,
+		:stzListOfBytes,
+		:stzListOfChars,
+		:stzListOfHashLists,
+		:stzListOfLists,
+		:stzListOfPairs,
+		:stzListOfSets,
+		:stzListOfEntities
 	]
 
 func BothAreNumbers(p1, p2)
-	if isList(p2) and Q(p2).IsAndNamedParam()
-		p2 = p2[2]
+	if CheckParams()
+		if isList(p2) and Q(p2).IsAndNamedParam()
+			p2 = p2[2]
+		ok
 	ok
 
 	if isNumber(p1) and isNumber(p2)
@@ -1167,6 +1431,67 @@ func BothAreNumbers(p1, p2)
 	func @AreBothNumbers(p1, p2)
 		return BothAreNumbers(p1, p2)
 
+func BothAreIntegers(p1, p2)
+	if CheckParams()
+		if isList(p2) and Q(p2).IsAndNamedParam()
+			p2 = p2[2]
+		ok
+	ok
+
+	if isNumber(p1) and isNumber(p2) and Q(p1).IsInteger() and Q(p2).IsInteger()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func AreBothIntegers(p1, p2)
+		return BothAreIntegers(p1, p2)
+
+	func @BothAreIntegers(p1, p2)
+		return BothAreIntegers(p1, p2)
+
+	func @AreBothIntegers(p1, p2)
+		return BothAreIntegers(p1, p2)
+
+func BothAreReals(p1, p2)
+	if CheckParams()
+		if isList(p2) and Q(p2).IsAndNamedParam()
+			p2 = p2[2]
+		ok
+	ok
+
+	if isNumber(p1) and isNumber(p2) and Q(p1).IsReal() and Q(p2).IsReal()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func AreBothReals(p1, p2)
+		return BothAreReals(p1, p2)
+
+	func @BothAreReals(p1, p2)
+		return BothAreReals(p1, p2)
+
+	func @AreBothReals(p1, p2)
+		return BothAreReals(p1, p2)
+
+	#--
+
+	func BothAreRealNumbers(p1, p2)
+		return BothAreReals(p1, p2)
+
+	func AreBothRealNumbers(p1, p2)
+		return BothAreReals(p1, p2)
+
+	func @BothAreRealNumbers(p1, p2)
+		return BothAreReals(p1, p2)
+
+	func @AreBothRealNumbers(p1, p2)
+		return BothAreReals(p1, p2)
+
+	#>
 
 func BothArePairsOfNumbers(p1, p2)
 
@@ -1619,17 +1944,43 @@ func Ten(pThing)
 func IsRingType(pcStr)
 	return StzStringQ(pcStr).LowercaseQ().ExistsIn( RingTypes() )
 
+	#< @FunctionAlternativeForms
+
 	func @IsRingType(pcStr)
 		return IsRingType(pcStr)
 
+	func IsARingType(pcStr)
+		return IsRingType(pcStr)
+
+	func @IsARingType(pcStr)
+		return IsRingType(pcStr)
+
+	#>
+
 func StringIsStzClassName(pcStr)
 	return StzStringQ(pcStr).IsStzClassName()
+
+	#< @FunctionAlternativeForms
 
 	func IsClassName(pcStr)
 		return StzStringQ(pcStr).IsStzClassName()
 
 	func @IsClassName(pcStr)
 		return StzStringQ(pcStr).IsStzClassName()
+
+	func StringIsAStzClassName(pcStr)
+		return StringIsStzClassName(pcStr)
+
+	func @StringIsAStzClassName(pcStr)
+		return StringIsStzClassName(pcStr)
+
+	func IsAClassName(pcStr)
+		return StzStringQ(pcStr).IsStzClassName()
+
+	func @IsAClassName(pcStr)
+		return StzStringQ(pcStr).IsStzClassName()
+
+	#>
 
 func StringIsChar(pcStr)
 	try
@@ -1639,6 +1990,8 @@ func StringIsChar(pcStr)
 		return FALSE
 	end
 
+	#< @FunctionAlternativeForms
+
 	func IsChar(pcStr)
 		oStzString = new stzString(pcStr)
 		return oStzString.IsChar()
@@ -1646,16 +1999,45 @@ func StringIsChar(pcStr)
 	func @IsChar(pcStr)
 		return IsChar(pcStr)
 
+	func StringIsAChar(pcStr)
+		return StringIsChar(pcStr)
+
+	func IsAChar(pcStr)
+		return StringIsChar(pcStr)
+
+	func @IsAChar(pcStr)
+		return StringIsChar(pcStr)
+
+	func @StringIsAChar(pcStr)
+		return StringIsChar(pcStr)
+
+	#>
+
 func CharIsLetter(pcStr)
 	oStzChar = new stzChar(pcStr)
 	return oStzChar.IsLetter()
 
+	#< @FunctionAlternativeForms
+
 	func IsLetter(pcStr)
-		oStzChar = new stzChar(pcStr)
-		return oStzChar.IsLetter()
+		return CharIsLetter(pcStr)
 
 	func @IsLetter(pcStr)
-		return IsLetter(pcStr)
+		return CharIsLetter(pcStr)
+
+	func CharIsALetter(pcStr)
+		return CharIsLetter(pcStr)
+
+	func @CharIsALetter(pcStr)
+		return CharIsLetter(pcStr)
+
+	func IsALetter(pcStr)
+		return CharIsLetter(pcStr)
+
+	func @IsALetter(pcStr)
+		return CharIsLetter(pcStr)
+
+	#>
 
 func StzLen(p)
 	if isString(p)

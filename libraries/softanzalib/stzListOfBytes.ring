@@ -53,11 +53,26 @@ func IsListOfBytes(p)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	func @IsListOfBytes(p)
 		return IsListOfBytes(p)
 
 	func ListIsListOfBytes(p)
 		return IsListOfBytes(p)
+
+	#--
+
+	func IsAListOfBytes(p)
+		return IsListOfBytes(p)
+
+	func @IsAListOfBytes(p)
+		return IsListOfBytes(p)
+
+	func ListIsAListOfBytes(p)
+		return IsListOfBytes(p)
+
+	#>
 
 func IsQByteArray(p)
 	if isObject(p) and classname(p) = :QByteArray
@@ -65,6 +80,8 @@ func IsQByteArray(p)
 	else
 		return FALSE
 	ok
+
+	#< @functionAlternativeForms
 
 	func IsQByteArrayObject(p)
 		return IsQByteArray(p)
@@ -74,6 +91,22 @@ func IsQByteArray(p)
 
 	func @IsQByteArrayObject(p)
 		return IsQByteArray(p)
+
+	#--
+
+	func IsAQByteArray(p)
+		return IsQByteArray(p)
+
+	func IsAQByteArrayObject(p)
+		return IsQByteArray(p)
+
+	func @IsAQByteArray(p)
+		return IsQByteArray(p)
+
+	func @IsAQByteArrayObject(p)
+		return IsQByteArray(p)
+
+	#>
 
 func ToQByteArray(p)
 	if IsListOfBytes(p)
@@ -154,6 +187,8 @@ func NumberInPointer(ptr)
 	else
 		StzRaise("Value you provided is not of type Pointer!")
 	ok
+
+class stzBytes from stzListOfBytes
 
 class stzListOfBytes from stzList
 	

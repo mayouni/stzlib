@@ -69,11 +69,26 @@ func IsListOfChars(paList)
 
 	return bResult
 
+	#< @FunctionAlternativeForms
+
 	func @IsListOfChars(paList)
 		return IsListOfChars(paList)
 
 	func ListIsListOfChars(paList)
 		return IsListOfChars(paList)
+
+	#--
+
+	func IsAListOfChars(paList)
+		return IsListOfChars(paList)
+
+	func @IsAListOfChars(paList)
+		return IsListOfChars(paList)
+
+	func ListIsAListOfChars(paList)
+		return IsListOfChars(paList)
+
+	#>
 
 func HilightChar()
 	return _cHilightChar

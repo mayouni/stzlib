@@ -22,11 +22,28 @@ func IsListOfGrids(paList)
 
 	return bResult
 
+	#< @FunctionAlternativeForms
+
 	func @IsListOfGrids(paList)
 		return IsListOfGrids(paList)
 
 	func ListIsListOfGrids(paList)
 		return IsListOfGrids(paList)
+
+	#--
+
+	func IsAListOfGrids(paList)
+		return IsListOfGrids(paList)
+
+	func @IsAListOfGrids(paList)
+		return IsListOfGrids(paList)
+
+	func ListIsAListOfGrids(paList)
+		return IsListOfGrids(paList)
+
+	#>
+
+class stzGrids from stzListOfGrids
 
 class stzListOfGrids from stzListOfLists
 

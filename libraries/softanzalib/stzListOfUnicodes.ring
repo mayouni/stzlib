@@ -23,10 +23,44 @@ func IsUnicode(n)
 	func IsUnicodeNumber(n)
 		return IsUnicode()
 
+	func IsANuicodeNumber(n)
+		return IsUnicode()
+
+	func IsAUnicode(n)
+		return IsUnicode()
+
+	func NumberIsUnicode(n)
+		return IsUnicode()
+
+	func NumberIsAUnicode(n)
+		return IsUnicode()
+
+	#--
+
+	func @IsUnicode(n)
+		return IsUnicode()
+
+	func @IsUnicodeNumber(n)
+		return IsUnicode()
+
+	func @IsANuicodeNumber(n)
+		return IsUnicode()
+
+	func @IsAUnicode(n)
+		return IsUnicode()
+
+	func @NumberIsUnicode(n)
+		return IsUnicode()
+
+	func @NumberIsAUnicode(n)
+		return IsUnicode()
+
 	#>
 
 func UnicodesToString(anUnicodes)
 	return StzListOfUnicodesQ(anUnicodes).ToString()
+
+class stzUnicodes from stzListOfUnicodes
 
 class stzListOfUnicodes from stzListOfNumbers
 	@anUnicodes

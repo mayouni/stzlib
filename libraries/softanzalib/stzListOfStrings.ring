@@ -17,7 +17,7 @@ func StzListOfStringsQ(paList)
 	return new stzListOfStrings(paList)
 
 	func StzStringsQ(paList)
-		return StzListOfStrings(paList)
+		return StzListOfStringsQ(paList)
 
 func LS(p)
 	if isList(p)
@@ -67,11 +67,26 @@ func IsListOfStrings(paList)
 
 	return bResult
 
+	#< @FunctionAlternativeForms
+
 	func @IsListOfStrings(paList)
 		return IsListOfStrings(paList)
 
 	func ListIsListOfStrings(paList)
 		return IsListOfStrings(paList)
+
+	#--
+
+	func IsAListOfStrings(paList)
+		return IsListOfStrings(paList)
+
+	func @IsAListOfStrings(paList)
+		return IsListOfStrings(paList)
+
+	func ListIsAListOfStrings(paList)
+		return IsListOfStrings(paList)
+
+	#>
 
 func IsQStringList(p)
 	if isObject(p) and classname(p) = "qstringlist"
@@ -81,6 +96,12 @@ func IsQStringList(p)
 	ok
 
 	func IsQStringListObject(p)
+		return IsQStringList(p)
+
+	func IsAQStringList(p)
+		return IsQStringList(p)
+
+	func IsAQStringListObject(p)
 		return IsQStringList(p)
 
 func QStringListToList(oQStrList)
@@ -94,6 +115,8 @@ func QStringListToList(oQStrList)
 	next
 
 	return aResult
+
+	#< @FunctionAlternativeForms
 
 	func QStringListObjectToList(oQStrList)
 		return QStringListToList(oQStrList)
@@ -109,6 +132,8 @@ func QStringListToList(oQStrList)
 
 	func QStringListObjectToRingList(oQStrList)
 		return QStringListToList(oQStrList)
+
+	#>
 
 func QStringListToStzListOfStrings(oQStrList)
 	return new stzListOfStrings(QStringListToList(oQStrList))
@@ -12296,7 +12321,7 @@ stop()
 			return This.ReplaceSubStringsByMany(pacSubStr, pacNewSubStr)
 
 	  #--------------------------------------------------------------#
-	 #   REPLACING SUBSTRINGS BY MANY EXTENDED -- RETRUN TO FIRST   #
+	 #   REPLACING SUBSTRINGS BY MANY EXTENDED -- RETURN TO FIRST   #
 	#--------------------------------------------------------------#
 
 	def ReplaceSubStringsByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)

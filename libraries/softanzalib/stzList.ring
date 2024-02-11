@@ -31287,7 +31287,7 @@ class stzList from stzObject
 		next
 		return bResult
 
-	func IsMultilingualString()
+	def IsMultilingualString()
 	     
 		/* A multilingual string is a hashlist of the form:
 			[

@@ -9,6 +9,10 @@
 #									    #
 #---------------------------------------------------------------------------#
 
+  #=============#
+ #  FUNCTIONS  #
+#=============#
+
 func StzListOfListsQ(paList)
 	return new stzListOfLists(paList)
 
@@ -241,17 +245,36 @@ func IsListOfLists(paList)
 
 	return bResult
 
+	#< @FunctionAlternativeForms
+
 	func @IsListOfLists(paList)
 		return IsListOfLists(paList)
 
 	func ListIsListOfLists(paList)
 		return IsListOfLists(paList)
 
+	#--
+
+	func IsAListOfLists(paList)
+		return IsListOfLists(paList)
+
+	func @IsAListOfLists(paList)
+		return IsListOfLists(paList)
+
+	func ListIsAListOfLists(paList)
+		return IsListOfLists(paList)
+
+	#>
+
 func StzListsQ(paList)
 	return new stzLists(paList)
 
 func Stz2DListQ(paList)
 	return new stz2DList(paList)
+
+  #=========#
+ #  CLASS  #
+#=========#
 
 class stzLists from stzListOfLists
 
