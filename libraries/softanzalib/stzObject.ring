@@ -3331,3 +3331,64 @@ class stzObject
 
 			def SwapContentWithQ(pOtherStzObject)
 				return This.SwapWithQ(pOtherStzObject)
+
+	def @IsNeither(pcType1, pcType2)
+		if CheckParams()
+			if isList(pcType1) and Q(pcType1).IsOfTypeNamedParam()
+				pcType1 = pcType1[2]
+			ok
+
+			if isList(pcType2) and Q(pcType2).IsNorNamedParam()
+				pcType2 = pcType2[2]
+			ok
+
+			if NOT @BothAreStrings(pcType1, pcType2)
+				StzRaise("Incorrect param type! pcType1 and pcType2 must both be strings.")
+			ok
+		ok
+
+		# TODO: Add other Stz types
+
+		bOfType1 = FALSE
+		bOfType2 = FALSE
+
+		if pcType1 = :String or pcType1 = :AString
+			bOfTyep1 = This.IsStzString()
+
+		but pcType1 = :Char or pcType1 = :AChar
+			bOfType1 = This.IsStzChar()
+
+		but pcType1 = :Number or pcType1 = :ANumber
+			bOfType1 = This.IsStzNumber()
+
+		but pcType1 = :List or pcType1 = :AList
+			bOfType1 = This.IsStzList()
+
+		but pcType1 = :Object or pcType1 = :AnObject
+			bOfType1 = This.IsStzObject()
+		ok
+
+		if pcType2 = :String or pcType2 = :AString
+			bOfType2 = This.IsStzString()
+
+		but pcType2 = :Char or pcType2 = :AChar
+			bOfType2 = This.IsStzChar()
+
+		but pcType2 = :Number or pcType2 = :ANumber
+			bOfType2 = This.IsStzNumber()
+
+		but pcType2 = :List or pcType2 = :AList
+			bOfType2 = This.IsStzList()
+
+		but pcType2 = :Object or pcType2 = :AnObject
+			bOfType2 = This.IsStzObject()
+		ok
+
+		if NOT bOfType1 and NOT bOfType2
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def @IsNeitheOfType(pcType1, pcType2)
+			return This.IsNeither(pcType1, pcType2)

@@ -5,8 +5,14 @@ func StzListOfUnicodesQ(aListOfNumbers)
 func UnicodesToChars(anUnicodes)
 	return StzListOfUnicodesQ(anUnicodes).Chars()
 
+	func @UnicodesToChars(anUnicodes)
+		return UnicodesToChars(anUnicodes)
+
 func UnicodesToCharsNames(anUnicodes)
 	return StzListOfUnicodesQ(anUnicodes).Names()
+
+	func @UnicodesToCharsNames(anUnicodes)
+		return UnicodesToCharsNames(anUnicodes)
 
 func NamesOfInvisibleChars()
 	return UnicodesToCharsNames( InvisibleUnicodes() )

@@ -29944,6 +29944,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def FindFirstCSQ(pcSubStr, pCaseSensitive)
+			return new stzNumber( This.FindFirstCS(pcSubStr, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def FindFirstOccurrenceCS(pcSubStr, pCaseSensitive)
 			return This.FindFirstCS(pcSubStr, pCaseSensitive)
 
@@ -30022,6 +30029,13 @@ class stzString from stzObject
 	def FindFirst(pcSubstr)
 		return This.FindFirstCS(pcSubstr, TRUE)
 	
+		#< @FunctionAlternativeForms
+
+		def FindFirstQ(pcSubStr)
+			return new stzNumber( This.FindFirst(pcSubStr) )
+
+		#>
+
 		#< @FunctionAlternativeForms
 	
 		def FindFirstOccurrence(pcSubStr)
@@ -53240,6 +53254,58 @@ ici		//...
 	def IsEqualToOneOfThese(pacOtherStr)
 		return This.IsEqualToOneOfTheseCS(pacOtherStr, TRUE)
 
+	  #-----------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING IS NEITHER EQUAL TO A GIVEN STRING NOR TO AN OTHER  #
+	#-----------------------------------------------------------------------------#
+
+	def IsNeitherCS(pcStr1, pcStr2, pCaseSensitive)
+		if CheckParams()
+			if isList(pcStr1) and Q(pcStr1).IsEqualToNamedParam()
+				pcStr1 = pcStr1[2]
+			ok
+
+			if isList(pcStr2) and Q(pcStr2).IsNorNamedParam()
+				pcStr2 = pcStr2[2]
+			ok
+
+			acStzTypes = [
+				:String, :AString, :Char, :AChar, :Number,
+				:ANumber, :List, :AList, :Object, :AnObject
+			]
+			# TODO: Add other stz types
+
+			if @BothAreStrings(pcStr1, pcStr2) and
+			   Q(pcStr1).IsOneOfThese(acStzTypes) and
+			   Q(pcStr2).IsOneOfThese(acStzTypes)
+
+				return This.@IsNeither(pcStr1, pcStr2)
+			ok
+
+			if NOT @BothAreStrings(pcStr1, pcStr2)
+				StzRaise("Incorrect param type! pcStr1 and pcStr2 must both be strings.")
+			ok
+		ok
+
+		bEqualToStr1 = This.IsEqualToCS(pcStr1, pCaseSensitive)
+		bEqualToStr2 = This.IsEqualToCS(pcStr2, pCaseSensitive)
+
+		if NOT bEqualToStr1 and NOT bEqualToStr2
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsNeitherEqualToCS(pcStr1, pcStr2, pCaseSensitive)
+			return This.IsNeitherCS(pcStr1, pcStr2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIIVITY
+
+	def IsNeither(pcStr1, pcStr2)
+		return This.IsNeitherCS(pcStr1, pcStr2, TRUE)
+
+		def IsNeitherEqualTo(pcStr1, pcStr2)
+			return This.IsNeither(pcStr1, pcStr2)
+
 	  #--------------------------------------------------------------#
 	 #  CHECKING IF THE STRING IS SMALLER THAN THE PROVIDED STRING  #
 	#--------------------------------------------------------------#
@@ -67720,12 +67786,12 @@ ici		//...
 		TODO: Generalise it!
 		*/
 
-		This.TrimQ().RemoveTheseBounds("{", "}")
+		oCopy = This.Copy()
+		ocopy.TrimQ().RemoveTheseBounds("{", "}")
 
 		# Case where we have a normal list syntax
 
-		
-		if This.TrimQ().IsBoundedBy([ "[", "]" ])
+		if ocopy.IsBoundedBy([ "[", "]" ])
 			cCode = "aResult = " + This.Content()
 			eval(cCode)
 			return aResult
@@ -67734,6 +67800,35 @@ ici		//...
 		# Case where we have a continuous list syntax:
 		#  ? StzStringQ(' "Thing 1" : "Thing 3" ').ToList()
 
+		nLen = oCopy.NumberOfChars()
+		aResult = []
+
+		if nLen > 3 and oCopy.NumberOfOccurrence(":") = 1 and
+		   oCopy.FindFirstQ(":").IsNeighther(1, :Nor = nLen)
+
+			acParts = oCopy.Split(":")
+			cPart1 = acParts[1]
+			cPart2 = acParts[2]
+
+			if BothAreIntegersInStrings(cPart1, cPart2)
+
+			but BothAreNumbersInStrings(cPart1, cPart2) and
+			    ( IsRealInString(cPart1) or IsRealInString(cPart2) )
+
+			but BothAreChars(cPart1, cPart2)
+
+				anUnicodes = ring_sort([ @Unicode(cPart1), @Unicode(cPart2) ])
+				anUnicodes = anUnicodes[1] : anUnicodes[2]
+				aResult = @UnicodesToChars(anUnicodes)
+
+			but BothAreMarquers(cPart1, cPart2)
+				
+			ok
+		ok
+
+		return aResult
+
+/*
 		cPart = NULL
 
 		cPart1 = NULL
@@ -67805,7 +67900,7 @@ ici		//...
 			stzRaise("Syntax error! Can't transoform the string into list.")
 
 		ok
-		
+	
 		# Composing the contiguous list for cLastChar1 to cLastChar2
 	
 		oString = StzStringQ( cLastChar1 + " : " + cLastChar2 )
@@ -67824,7 +67919,7 @@ ici		//...
 		ok
 
 		return aList
-
+*/
 		def ToListQ()
 			return new stzList( This.ToList() )
 		
