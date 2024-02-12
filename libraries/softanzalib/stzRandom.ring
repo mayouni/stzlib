@@ -21,24 +21,51 @@ _nRingMaxSeed = 1_999_999_999 # Idem
 
 _nRandomRound = 3	# Defines how many decimals are supported in random01()
 
-_nSome = 10 # The default size of Some() function
+_nDefaultSome = 10 # The default size of DefaultSome() function
 
 _nMaxRandomLoop = 1000 	# How many times Softanza loops to find a given random number
 			# before it aborts the process and raises an error
 			#--> Used as a safey featur with while loops inorder to
 			# avoid infite lopps
 
-func Some()
-	return _nSome
+func DefaultSome()
+	return _nDefaultSome
 
-func SetSome(n)
+func SetDefaultSome(n)
 	if CheckParams()
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 	ok
 
-	_nSome = n
+	_nDefaultSome = n
+
+	func SetSome(n)
+		SetDefaultSome(n)
+
+func Some(p)
+	if CheckParams()
+		if isString()
+			if p = :Chars
+				return SomeChars()
+			but p = :Strings
+				return SomeStrings()
+			but p = :Numbers
+				return SomeNumbers()
+			but p = :Lists
+				return SomeLists()
+			but p = :Objects
+				return SomeObjects()
+			ok
+		ok
+
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+	ok
+
+	return NRandomItemsIn(DefaultSome(), p)
+
 
 func MaxRandomLoop()
 	return _nMaxRandomLoop
@@ -833,7 +860,7 @@ func SomeRandomNumbersGreaterThan(n)
 
 	func SomeRandomNumbersGreaterThan01(n)
 
-		nSome = ARandomNumberLessThan(Some())
+		nSome = ARandomNumberLessThan(DefaultSome())
 		anResult = []
 
 		for i = 1 to nSome
@@ -916,7 +943,7 @@ func SomeRandomNumbersGreaterThanXT(n, nSeed)
 
 	func SomeRandomNumbersGreaterThan01XT(n, nSeed)
 
-		nSome = ARandomNumberLessThan(Some())
+		nSome = ARandomNumberLessThan(DefaultSome())
 		anResult = []
 
 		for i = 1 to nSome
@@ -1023,7 +1050,7 @@ func SomeRandomNumbersGreaterThanU(n)
 
 	func SomeRandomNumbersGreaterThan01U(n)
 
-		nSome = ARandomNumberLessThan(Some())
+		nSome = ARandomNumberLessThan(DefaultSome())
 		anResult = []
 
 		while TRUE
@@ -1162,7 +1189,7 @@ func SomeRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 			ok
 		ok
 
-		nSome = ARandomNumberLessThan(Some())
+		nSome = ARandomNumberLessThan(DefaultSome())
 		anResult = []
 
 		while TRUE
@@ -3227,3 +3254,21 @@ func NRandomNumbersInXTUZ(n, panNumbers, nSeed)
 		return NRandomNumbersBetweenXTUZ(n, nMin, nMax, nSeed)
 
 	#>
+
+func NRandomItemsIn(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	anPos = NRandomNumbersIn(1:len(paList))
+	nLen = len(anPos)
+
+	aResult = []
+
+	for i = 1 to nLen
+		aResult + paList[anPos[i]]
+	next
+
+	return aResult
