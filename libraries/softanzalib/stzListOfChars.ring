@@ -135,6 +135,16 @@ func ListOfLetters(paList)
 		return StzListOfCharsQ(paList).Uppercased()
 	ok
 
+func UnicodesNames(panUnicodes)
+	if CheckParams()
+		if NOT (isList(panUnicodes) and Q(panUnicodes).IsListOfNumbers())
+			StzRaise("Incorrect param type! panUnicodes must be a list of numbers.")
+		ok
+	ok
+
+	acResult = StzListOfCharsQ(panUnicodes).Names()
+	return acResult
+
   /////////////////
  ///   CLASS   ///
 /////////////////

@@ -193,6 +193,8 @@ class stzUnicodeData
 			cHex = HexPrefix() + @oStzStrUnicodeData.Section(n1, n2)
 
 			return cHex
+		else
+			return HexPrefix() 
 		ok
 
 	def CharUnicodeByName(pcCharName)

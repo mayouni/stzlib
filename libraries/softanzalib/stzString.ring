@@ -7265,14 +7265,19 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
+		nLen = This.NumberOfChars()
 
 		if n = 0
 			return NULL
+
+		but n > nLen
+			return This.Conten()
+
 		else
 			if This.IsRightToleft()
 				cResult = This.Section( 1, n )
 			else
-				cResult = This.Section( This.NumberOfChars() - n + 1, NumberOfChars() )
+				cResult = This.Section( nLen - n + 1, nLen )
 			end
 					
 			return cResult
@@ -7374,11 +7379,17 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
+		nLen = This.NumberOfChars()
+
 		if n = 0
 			return NULL
+
+		but n > nLen
+			return This.Content()
+
 		else
 			if IsRightToleft()
-				cResult = Section( This.NumberOfChars()-n+1, NumberOfChars() )
+				cResult = Section( nLen - n + 1, nLen )
 			else
 				cResult = Section( 1, n)
 			end
@@ -8232,8 +8243,14 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
+		nLen = This.NumberOfChars()
+
 		if n = 0
 			return []
+
+		but n > nLen
+			return This.Content()
+
 		ok
 
 		acResult = []
@@ -8241,7 +8258,7 @@ class stzString from stzObject
 		if This.IsRightToleft()
 			acResult = This.SectionQ( 1, n ).Chars()
 		else
-			acResult = This.SectionQ( This.NumberOfChars() - n + 1, NumberOfChars() ).Chars()
+			acResult = This.SectionQ( nLen - n + 1, nLen ).Chars()
 		end
 					
 		return acResult
@@ -8322,14 +8339,20 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
+		nLen = This.NumberOfChars()
+
 		if n = 0
 			return []
+
+		but n > nLen
+			return This.Content()
+
 		ok
 
 		acResult = []
 
 		if IsRightToleft()
-			acResult = SectionQ( This.NumberOfChars()-n+1, NumberOfChars() ).Chars()
+			acResult = SectionQ( nLen - n + 1, nLen ).Chars()
 		else
 			acResult = SectionQ( 1, n).Chars()
 		end
