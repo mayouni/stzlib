@@ -1,5 +1,56 @@
 load "stzlib.ring"
 
+/*------
+
+ProfilerOn()
+
+SetSomeTo(3)
+
+? Some( UnicodeBlocksXT() ) # XT --> ..Along with their ranges
+#--> [
+#	[ "Osage", [66736, 66815] ],
+#	[ "Manichaean", [68288, 68351 ] ],
+# 	[ "Dives Akuru", [72272, 72367] ]
+# ]
+
+? UnicodeBlocksContaining("box")
+#--> [ "Box Drawing" ]
+
+? UnicodeBlocksContainingXT("box")
+#-->[ "Box Drawing", [9472, 9599] ]
+
+SetSomeTo(9)
+
+? Some( UnicodesToChars(9472:9599) )
+#--> [ "┅", "┊", "┧", "┯", "╇", "╉", "╢", "╤", "╪" ]
+
+ProfilerOff()
+# Executed in 0.07 second(s)
+
+/*-----------------
+
+pron()
+
+? Some( UnicodeBlocks() ) # By default, Some() function returns 10 items
+
+#--> [ "Basic Latin", "Block Elements", "Tai Viet",
+# 	"Arabic Presentation Forms-A", "CJK Compatibility Forms",
+# 	"Ancient Greek Numbers", "Bhaiksuki", "Adlam",
+# 	"Mahjong Tiles", "Enclosed Alphanumeric Supplement"
+# ]
+
+# Let's change the default number of items returned by Some() function:
+SetDefaultSome(3)
+
+? Some( UnicodeBlocksAndTheirRanges() )
+#--> [
+# 	[ "Combining Diacritical Marks", [768, 879] ],
+# 	[ "Mro", [92704, 92767] ],
+# 	[ "Adlam", [123904, 123951] ]
+# ]
+
+proff()
+# Executed in 0.04 second(s)
 
 /*-----------------
 

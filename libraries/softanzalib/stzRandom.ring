@@ -33,6 +33,10 @@ func DefaultSome()
 
 func SetDefaultSome(n)
 	if CheckParams()
+		if isList(n) and Q(n).IsToNamedParam()
+			n = n[2]
+		ok
+
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
@@ -43,9 +47,21 @@ func SetDefaultSome(n)
 	func SetSome(n)
 		SetDefaultSome(n)
 
+	func SetDefaultSomeTo(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		_nDefaultSome = n
+
+	func SetSomeTo(n)
+		SetDefaultSomeTo(n)
+
 func Some(p)
 	if CheckParams()
-		if isString()
+		if isString(p)
 			if p = :Chars
 				return SomeChars()
 			but p = :Strings
@@ -3255,14 +3271,28 @@ func NRandomNumbersInXTUZ(n, panNumbers, nSeed)
 
 	#>
 
-func NRandomItemsIn(paList)
+#==
+
+func ARandomItemIn(paList)
 	if CheckParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
 	ok
 
-	anPos = NRandomNumbersIn(1:len(paList))
+	nPos = ARandomNumberIn(1:len(paList))
+	aResult = paList[nPos]
+
+	return aResult
+
+func NRandomItemsIn(n, paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	anPos = NRandomNumbersIn(n, 1:len(paList))
 	nLen = len(anPos)
 
 	aResult = []
@@ -3272,3 +3302,27 @@ func NRandomItemsIn(paList)
 	next
 
 	return aResult
+
+func NRandomItemsInU(n, paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	aResult = []
+
+	while TRUE
+		item = ARandomItemIn(paList)
+		if ring_find(aResult, item) = 0
+			aResult + item
+			if len(aResult) = n
+				exit
+			ok
+		ok
+	end
+
+	return aResult
+
+	func NUniqueRandomItemsIn(n, paList)
+		return NRandomItemsInU(n, paList)
