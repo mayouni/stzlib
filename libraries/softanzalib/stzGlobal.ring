@@ -3142,6 +3142,18 @@ func @IsList(aList)
 func @IsObject(obj)
 	return isObject(obj)
 
+func IsNeitherNorCS(p, p1, p2, pCaseSensitive)
+	return Q(p).IsNeitherCS(p1, p2, pCaseSensitive)
+
+	func @IsNeitherNorCS(p, p1, p2, pCaseSensitive)
+		return IsNeitherNorCS(p, p1, p2, pCaseSensitive)
+
+func IsNeitherNor(p, p1, p2)
+	return Q(p).IsNeither(p1, p2)
+
+	func @IsNeitherNor(p, p1, p2)
+		return IsNeitherNor(p, p1, p2)
+
 class stzForEachObjectOld
 	@acVars
 	@aValues

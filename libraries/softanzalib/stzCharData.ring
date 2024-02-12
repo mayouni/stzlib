@@ -755,24 +755,11 @@ Dotless LETTERS
 		
 	# Arabic number fractions
 
-	_anArabicNumberFractionsUnicodes = []
-
-	for item in 188:190
-		_anArabicNumberFractionsUnicodes + item
-	next
-
-	for item in 8528:8530
-		_anArabicNumberFractionsUnicodes + item
-	next
-	for item in 8531:8532
-		_anArabicNumberFractionsUnicodes + item
-	next
-	for item in 8533:8536
-		_anArabicNumberFractionsUnicodes + item
-	next
-	for item in 8537:8542
-		_anArabicNumberFractionsUnicodes + item
-	next
+	_anArabicNumberFractionsUnicodes = [
+		188, 189, 190, 8528, 8529, 8530,
+		8531, 8532, 8533, 8534, 8535, 8536,
+		8537, 8538, 8539, 8540, 8541, 8542
+	]
 
 	_aArabicNumberFractionsXT = [
 		[ "1/4", 188 ], #--> "¼"
@@ -964,84 +951,6 @@ Dotless LETTERS
 		8301, 8302, 8303, 10240, 12288, 12644, 65279,
 		65440, 119129, 119155, 119155, 	119157, 119158,
 		119159, 119160, 119161, 119162
-	]
-
-
-	# Invisible chars -- EXTENDED
-	_aInvisibleCharsXT = [
-	
-		# Unicode > Name
-	
-		[ 9, :Tabulation ],
-		[ 32, :Space ],
-		[ 173, :SoftHyphen ],
-		[ 847, :CombiningGrphemJoiner ],
-		
-		[ 1564, :ArabicLetterMark ],
-		
-		[ 4447, :HangulChoseongFiller ],
-		[ 4448, :HangulJungseongFiller ],
-		
-		[ 6068, :KhmerVowelInherentAQ ],
-		[ 6069, :KhmerVowelInherentAA ],
-		
-		[ 6158, :MongolianVowelSeparator ],
-		
-		[ 8192, :EnQuad ],
-		[ 8193, :EmQuad ],
-		
-		[ 8194, :EnSpace ],
-		[ 8195, :EmSpace ],
-		[ 8196, :ThreePerEmSpace ],
-		[ 8197, :FourPerEmSpace ],
-		[ 8198, :SixPerEmSpace ],
-		[ 8199, :FigureSpace ],
-		[ 8200, :PunctuationSpace ],
-		[ 8201, :ThinSpace ],
-		[ 8202, :HairSpace ],
-		[ 8203, :ZeroWidthSpace ],
-		[ 8204, :ZeroWidthNonJoiner ],
-		[ 8205, :ZeroWidthJoiner ],
-		[ 8206, :LeftToRightMark ],
-		[ 8207, :RightoLeftMark ],
-		
-		[ 8239, :NarrowNoBreakSpace ],
-		
-		[ 8287, :MediumMathematicalSpace ],
-		[ 8288, :WordJoiner ],
-		[ 8289, :FunctionApplication ],
-		[ 8290, :InvisibleTimes ],
-		[ 8291, :InvisibleSpearator ],
-		[ 8292, :InvisiblePlus ],
-		
-		[ 8298, :InhibitSymmetricSwapping ],
-		[ 8299, :ActivateSymmetricSwapping ],
-		[ 8300, :InhibitArabicFormShaping ],
-		[ 8301, :ActivateArabicFormShaping ],
-		[ 8302, :NationalDigitShapes ],
-		[ 8303, :NominalDigitShapes ],
-		
-		[ 12288, :IdeographicSpace ],
-
-		[ 10240, :BraillePatternBlank ],
-
-		[ 12644, :HangulFiller ],
-		
-		[ 65279, :ZeroWidthNoBreakSpace ],
-		
-		[ 65440, :HalfWidthHangulFiller ],
-		
-		[ 119129, :MusicalSymbolNullNotehead ],
-
-		[ 119155, :MusicalSymbolBeginBeam ],
-		[ 119156, :MusicalSymbolEndBeam ],
-		[ 119157, :MusicalSymbolBeginTie ],
-		[ 119158, :MusicalSymbolEndTie ],
-		[ 119159, :MusicalSymbolBeginSlur ],
-		[ 119160, :MusicalSymbolEndSlur ],
-		[ 119161, :MusicalSymbolBeginPhrase ],
-		[ 119162, :MusicalSymbolEndPhrase ]
-		
 	]
 
 	  #------------------#

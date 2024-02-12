@@ -15964,6 +15964,49 @@ class stzList from stzObject
 		def IsQuietEqual(paOtherList)
 			return This.IsQuietEqualTo(paOtherList)
 
+	  #-------------------------------------------------------------------------#
+	 #  CHECKING IF THE LIST IS NEITHER EQUAL TO A GIVEN LIST NOR TO AN OTHER  #
+	#-------------------------------------------------------------------------#
+
+	def IsNeitherCS(paList1, paList2, pCaseSensitive)
+		if CheckParams()
+			if isList(paList1) and Q(paList1).IsEqualToNamedParam()
+				paList1 = paList1[2]
+			ok
+
+			if isList(palist2) and Q(paList2).IsNorNamedParam()
+				paList2 = paList2[2]
+			ok
+
+			if @BothAreStrings(paList1, paList2)
+				return This.@IsNeither(paList1, paList2)
+			ok
+
+			if NOT @BothAreLists(paList1, paList2)
+				StzRaise("Incorrect param type! paList1 and paList2 must both be lists.")
+			ok
+		ok
+
+		bEqualToList1 = This.IsEqualToCS(paList1, pCaseSensitive)
+		bEqualToList2 = This.IsEqualToCS(paList2, pCaseSensitive)
+
+		if NOT bEqualToList1 and NOT bEqualToList2
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsNeitherEqualToCS(paList1, paList2, pCaseSensitive)
+			return This.IsNeitherCS(paList1, paList2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIIVITY
+
+	def IsNeither(paList1, paList2)
+		return This.IsNeitherCS(paList1, paList2, TRUE)
+
+		def IsNeitherEqualTo(paList1, paList2)
+			return This.IsNeither(paList1, paList2)
+
 	  #--------------------------------------------------------#
 	 #  CHECKING IF THE LIST HAS SAME ORDER AS AN OTHER LIST  #
 	#--------------------------------------------------------#
@@ -37607,6 +37650,28 @@ vvv
 			return FALSE
 		ok
 	
+	#==
+
+	def IsEqualToNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :EqualTo )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEqualsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This[1]) and  This[1] = :Equals )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	#==
 
 	def IsToNamedParam()

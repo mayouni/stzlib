@@ -5,7 +5,7 @@ pron()
 
 # Softanza knows all the 53 invisible chars available in Unicode:
 ? len( InvisibleUnicodes() )
-#--> 53
+#--> 54
 
 # Let's see some of them:
 ? ShowShort( InvisibleUnicodes() )

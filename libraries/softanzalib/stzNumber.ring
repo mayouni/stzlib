@@ -2246,6 +2246,39 @@ class stzNumber from stzObject
 
 		#>
 
+	def IsNeither(n1, n2)
+		if CheckParams()
+			if isList(n1) and Q(n1).IsEqualToNamedParam()
+				n1 = n1[2]
+			ok
+
+			if isList(n2) and Q(n2).IsNorNamedParam()
+				n2 = n2[2]
+			ok
+
+			if @BothAreStrings(n1, n2) and
+			   NOT @BothAreNumbersInStrings(n1, n2)
+
+				return This.@IsNeither(n1, n2)
+			ok
+
+			if NOT ( @BothAreNumbers(n1, n2) or @BothAreNumbersInStrings(n1, n2) )
+				StzRaise("Incorrect param type! n1 and n2 must both be numbers or numbers in strings.")
+			ok
+		ok
+
+		bEqualToN1 = This.IsEqualTo(n1)
+		bEqualToN2 = This.IsEqualTo(n2)
+
+		if NOT bEqualToN1 and NOT bEqualToN2
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsNeitherEqualTo(n1, n2)
+			return This.IsNeither(n1, n2)
+
 	def IsLess(pOtherNumber)
 		if CheckParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()

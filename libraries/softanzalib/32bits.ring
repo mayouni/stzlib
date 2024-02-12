@@ -1,5 +1,11 @@
 load "stzlib.ring"
 
+pron()
+
+? Q(' "A" : "E" ').ToList()
+
+proff()
+
 /*====
 
 pron()
