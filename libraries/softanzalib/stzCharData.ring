@@ -955,59 +955,17 @@ Dotless LETTERS
 
 	# Invisible chars
 
-	_anInvisibleUnicodes = []
+	_anInvisibleUnicodes = [
+		9, 32, 173, 874, 1564, 4447, 4448, 6068,
+		6069, 6158, 8192, 8193, 8194, 8195, 8196,
+		8197, 8198, 8199, 8200, 8201, 8202, 8203,
+		8204, 8205, 8206, 8207, 8232, 8239, 8282, 8283,
+		8284, 8285, 8286, 8287, 8298, 8299, 8300,
+		8301, 8302, 8303, 10240, 12288, 12644, 65279,
+		65440, 119129, 119155, 119155, 	119157, 119158,
+		119159, 119160, 119161, 119162
+	]
 
-	for item in [ 9, 32, 173, 874 ]
-		_anInvisibleUnicodes + item
-	next
-	for item in [ 1564 ]
-		_anInvisibleUnicodes + item
-	next
-	for item in [ 4447, 4448]
-		_anInvisibleUnicodes + item
-	next
-	for item in [ 6068, 6069 ]
-		_anInvisibleUnicodes + item
-	next
-	for item in [ 6158 ]
-		_anInvisibleUnicodes + item
-	next
-	for item in [ 8192, 8193 ]
-		_anInvisibleUnicodes + item
-	next
-	for item in 8194 : 8207
-		_anInvisibleUnicodes + item
-	next
-	for item in [ 8239 ]
-		_anInvisibleUnicodes + item
-	next
-	for item in 8287 : 8282
-		_anInvisibleUnicodes + item
-	next
-	for item in 8298 : 8303
-		_anInvisibleUnicodes + item
-	next
-	for item in [ 12288 ]
-		_anInvisibleUnicodes + item
-	next
-	for item in [ 10240 ]
-		_anInvisibleUnicodes + item
-	next
-	for item in [ 12644 ]
-		_anInvisibleUnicodes + item
-	next
-	for item in [ 65279 ]
-		_anInvisibleUnicodes + item
-	next
-	for item in [ 65440 ]
-		_anInvisibleUnicodes + item
-	next
-	for item in [ 119129 ]
-		_anInvisibleUnicodes + item
-	next
-	for item in 119155:119162
-		_anInvisibleUnicodes + item
-	next
 
 	# Invisible chars -- EXTENDED
 	_aInvisibleCharsXT = [

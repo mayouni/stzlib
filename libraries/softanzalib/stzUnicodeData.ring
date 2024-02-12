@@ -81,6 +81,7 @@ _anMathUnicodes = [
 	8736, 8743, 8744, 8747, 8754, 8756, 8776, 8800, 8801, 8804, 8805
 ]
 
+
 _aUnicodeBlocksXT = [
 	[ "Basic Latin", [0, 127] ],
 	[ "Latin-1 Supplement", [128, 255] ],
@@ -486,14 +487,14 @@ func UnicodeBlocksXT()
 	return _aUnicodeBlocksXT
 
 	func UnicodeBlocksAndTheirRanges()
-		return UnicodeBlocks()
+		return UnicodeBlocksXT()
 
 func UnicodeBlocks()
 	acResult = []
 	nLen = len(_aUnicodeBlocksXT)
 
 	for i = 1 to nLen
-		acResult + _aUnicodeBlocks[i][1]
+		acResult + _aUnicodeBlocksXT[i][1]
 	next
 
 	return acResult
@@ -510,6 +511,38 @@ func UnicodeBlocksRanges()
 	next
 
 	return aResult
+
+func UnicodeBlocksContaining(pcStr)
+	acResult = []
+	nLen = len(_aUnicodeBlocksXT)
+
+	for i = 1 to nLen
+		str = lower(_aUnicodeBlocksXT[i][1])
+		if substr(str, pcStr) > 0
+			acResult + _aUnicodeBlocksXT[i][1]
+		ok
+	next
+
+	return acResult
+
+func UnicodeBlocksContainingXT(pcStr)
+	aResult = []
+	nLen = len(_aUnicodeBlocksXT)
+
+	for i = 1 to nLen
+		str = lower(_aUnicodeBlocksXT[i][1])
+		if substr(str, pcStr) > 0
+			aResult + _aUnicodeBlocksXT[i]
+		ok
+	next
+
+	return aResult
+
+	func UnicodeBlocksContainingAlongWithTheirRanges(pcStr)
+		return UnicodeBlocksContainingXT(pcStr)
+
+func UnicodeCharsContaing(pcStr) # TODO
+	StzRaise("Not yet implemented!")
 
 class stzUnicodeDataAsString from stzUnicodeData
 

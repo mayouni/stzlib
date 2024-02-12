@@ -4,6 +4,22 @@ load "stzlib.ring"
 
 pron()
 
+? ARandomItemIn("A":"E")
+#--> B
+
+? NRandomItemsIn(3, "A":"E")
+#--> [ "B", "B", "E" ]
+
+? NRandomItemsInU(3, "A":"E")
+#--> [ "B", "E", "A" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*=====
+
+pron()
+
 ? NRandomNumbersIn(3, 1:10)
 #--> [ 6, 7, 7 ]
 
