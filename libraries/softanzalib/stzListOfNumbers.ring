@@ -100,7 +100,16 @@ func IsListOfNumbers(paList)
 	#>
 
 func LN(p)
-	if isList(p)
+
+	if  IsPair(p) and
+	    IsPair(p[1]) and IsPair(p[2]) and
+	    isString(p[1][1]) and isString(p[2][1]) and
+	    p[1][1] = :From and p[2][1] = :To and
+	    isNumber(p[1][2]) and isNumber(p[2][2])
+
+		return NumbersBetween(p[1][2], p[2][2])
+
+	but isList(p)
 		return StzListQ(p).OnlyNumbers()
 
 	but isString(p) and Q(p).IsListInString()
@@ -113,7 +122,6 @@ func LN(p)
 			aResult + 0
 		next
 		return aResult
-
 	ok
 
 	func LNQ(p)
@@ -208,22 +216,26 @@ func NumbersXT(n1, n2)
 		return NumbersXT(n1, n2)
 	
 	func NumbersIB(n1, n2)
-		returnNumbersXT(n1, n2)
+		return NumbersXT(n1, n2)
 	
 	func NumbersBetweenIB(n1, n2)
 		return NumbersXT(n1, n2)
 
 func Numbers(n1, n2)
-	if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :Between, :From ])
-		n1 = n1[2]
-	ok
+	if CheckParams()
 
-	if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :And, :To ])
-		n2 = n2[2]
-	ok
-
-	if NOT BothAreNumbers(n1, n2)
-		StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
+		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :Between, :From ])
+			n1 = n1[2]
+		ok
+	
+		if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :And, :To ])
+			n2 = n2[2]
+		ok
+	
+		if NOT BothAreNumbers(n1, n2)
+			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
+		ok
+	
 	ok
 
 	anResult = []
