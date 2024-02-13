@@ -597,7 +597,27 @@ class stzChar from stzObject
 
 		return cResult
 
+	def CanRetrieveName()
+		# Read not in Name() function below
+
+		if This.Name() != "@CantRetriveTheName"
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def Name()
+		# Softanza will do its best ti get the unciode name of the char
+		# by trying to find it in a local copy of the official UnicodeData.txt
+		# file. Unfortunaletly, this file does not contrain directly all the names.
+		# (a further processing of other files is necessary). But this is not
+		# supported now and leaved for future releases.
+
+		# So, when the name is not found, a special name is returned in
+		# the string @CantRetriveTheName (so you know what happended).
+
+		# To avoid this in your program and be sure a valid name is returned,
+		# use the checker function CanRetriveName()
 
 		cHex = DecimalToHex( This.Unicode() )
 		cResult = StzUnicodeDataQ().CharNameByHexCode(cHex)
