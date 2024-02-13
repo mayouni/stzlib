@@ -1,9 +1,10 @@
- 
 load "stzlib.ring"
+
+/*---
 
 pron()
 
-# Softanza knows all the 53 invisible chars available in Unicode:
+# Softanza knows all the 54 invisible chars available in Unicode:
 ? len( InvisibleUnicodes() )
 #--> 54
 

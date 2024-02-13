@@ -2,7 +2,11 @@ load "stzlib.ring"
 
 pron()
 
-? Q(' "A" : "E" ').ToList()
+//? Q('[  "ABC" , "EB" , "AA"  , 12 ]').ToList()
+
+//? Q('  "#01" : "@12" ').ToList()
+
+? Q(' "ا" : "س" ').ToList()
 
 proff()
 

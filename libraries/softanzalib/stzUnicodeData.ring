@@ -422,6 +422,17 @@ _aUnicodeBlocksXT = [
 	[ "Supplementary Private Use Area-B", [1048576, 1114111] ]
 ]
 
+_anUnicodesOfBoxChars = 9472:9599
+
+func UnicodesOfBoxChars()
+	return _anUnicodesOfBoxChars
+
+func UnicodeBoxChars()
+	return UnicodesToChars(_anUnicodesOfBoxChars)
+
+	func BoxChars()
+		return UnicodeBoxChars()
+
 func UnicodeData()
 	return _cUnicodeData
 	
@@ -525,6 +536,9 @@ func UnicodeBlocksContaining(pcStr)
 
 	return acResult
 
+	func UnicodeBlocksNamesContaining(pcStr)
+		return UnicodeBlocksContaining(pcStr)
+
 func UnicodeBlocksContainingXT(pcStr)
 	aResult = []
 	nLen = len(_aUnicodeBlocksXT)
@@ -539,6 +553,12 @@ func UnicodeBlocksContainingXT(pcStr)
 	return aResult
 
 	func UnicodeBlocksContainingAlongWithTheirRanges(pcStr)
+		return UnicodeBlocksContainingXT(pcStr)
+
+	func UnicodeBlocksNamesContainingXT(pcStr)
+		return UnicodeBlocksContainingXT(pcStr)
+
+	func UnicodeBlocksNamesContainingAlongWithTheirRanges(pcStr)
 		return UnicodeBlocksContainingXT(pcStr)
 
 func UnicodeCharsContaing(pcStr) # TODO

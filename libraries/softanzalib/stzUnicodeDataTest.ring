@@ -1,10 +1,16 @@
 load "stzlib.ring"
 
-/*------
+/*------ @narration
 
-ProfilerOn()
+*/
+Pron()
+
+# Setting the Some() function to return 3 items (by default it returns 5)
 
 SetSomeTo(3)
+
+# Getting the names of some unicode blocks along with their ranges
+# in term of unicode codepoints (expressed in decimal numbers)
 
 ? Some( UnicodeBlocksXT() ) # XT --> ..Along with their ranges
 #--> [
@@ -13,19 +19,42 @@ SetSomeTo(3)
 # 	[ "Dives Akuru", [72272, 72367] ]
 # ]
 
-? UnicodeBlocksContaining("box")
+# Searching for blocks containg the word "box"
+
+? UnicodeBlocksContaining("box") # or, to be precise: UnicodeBlocksNamesContaing("box")
 #--> [ "Box Drawing" ]
+
+# Getting the ranges of those boxes (only one range, since there is one block)
 
 ? UnicodeBlocksContainingXT("box")
 #-->[ "Box Drawing", [9472, 9599] ]
 
+# Setting the default number of items returned by some() function to 9
+
 SetSomeTo(9)
 
+# Transforming some of the unicode codepoints of the chars belonging to
+# block "Box Drawing" to chars, so we can see them on screen()
+
 ? Some( UnicodesToChars(9472:9599) )
-#--> [ "┅", "┊", "┧", "┯", "╇", "╉", "╢", "╤", "╪" ]
+#--> [ "┆", "┒", "┣", "┮", "╇", "╚", "╝", "╻", "╿", "┖" ]
+
+# Getting the names of 3 randoms chars of them (along their unicode codepoints ~> XT),
+# and we want them to be unique (the same char is not displayed twice ~> U)
+
+? CharsAndNames( NRandomItemsInU(5, [ "┆", "┒", "┣", "┮", "╇", "╚", "╝", "╻", "╿", "┖" ]) )
+#--> [
+# 	[ "┖", "BOX DRAWINGS UP HEAVY AND RIGHT LIGHT" ],
+# 	[ "╸", "BOX DRAWINGS HEAVY LEFT" ],
+#	[ "╏", "BOX DRAWINGS HEAVY DOUBLE DASH VERTICAL" ],
+#	[ "╚", "BOX DRAWINGS DOUBLE UP AND RIGHT" ],
+#	[ "┺", "BOX DRAWINGS LEFT LIGHT AND RIGHT UP HEAVY" ]
+# ]
+
+? CharsContainingInTheirName([ "box", "up", "heavy" ], :From = UnicodeBoxChars() )
 
 ProfilerOff()
-# Executed in 0.07 second(s)
+# Executed in 0.26 second(s)
 
 /*-----------------
 
