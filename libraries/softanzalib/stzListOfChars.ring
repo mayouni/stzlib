@@ -1,5 +1,5 @@
 #---------------------------------------------------------------------------#
-# 		    SOFTANZA LIBRARY (V1.0) - StzListOfChars			    #
+# 		    SOFTANZA LIBRARY (V1.0) - StzListOfChars		    #
 #		An accelerative library for Ring applications		    #
 #---------------------------------------------------------------------------#
 #									    #
@@ -209,16 +209,6 @@ func ListOfLetters(paList)
 		return StzListOfCharsQ(paList).Uppercased()
 	ok
 
-func UnicodesNames(panUnicodes)
-	if CheckParams()
-		if NOT (isList(panUnicodes) and Q(panUnicodes).IsListOfNumbers())
-			StzRaise("Incorrect param type! panUnicodes must be a list of numbers.")
-		ok
-	ok
-
-	acResult = StzListOfCharsQ(panUnicodes).Names()
-	return acResult
-
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -416,7 +406,11 @@ class stzListOfChars from stzListOfStrings
 		acResult = []
 
 		for i = 1 to nLen
-			acResult + StzCharQ(acContent[i]).Name()
+			cName = StzCharQ(acContent[i]).Name()
+			if cName = ""
+				cName = "@CantRetriveTheName"
+			ok
+			acResult + cName
 		next
 
 		return acResult

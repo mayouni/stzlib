@@ -8,11 +8,40 @@ func UnicodesToChars(anUnicodes)
 	func @UnicodesToChars(anUnicodes)
 		return UnicodesToChars(anUnicodes)
 
-func UnicodesToCharsNames(anUnicodes)
-	return StzListOfUnicodesQ(anUnicodes).Names()
+func UnicodesToCharsNames(panUnicodes)
+	if CheckParams()
+		if NOT (isList(panUnicodes) and Q(panUnicodes).IsListOfNumbers())
+			StzRaise("Incorrect param type! panUnicodes must be a list of numbers.")
+		ok
+	ok
+	return StzListOfCharsQ(panUnicodes).Names()
 
-	func @UnicodesToCharsNames(anUnicodes)
-		return UnicodesToCharsNames(anUnicodes)
+	#< @FunctionAlternativeForms
+
+	func UnicodesNames(panUnicodes)
+		return UnicodesToCharsNames(panUnicodes)
+
+	func UnicodesCharsNames(panUnicodes)
+		return UnicodesNames(panUnicodes)
+
+	func UnicodesToNames(panUnicodes)
+		return UnicodesNames(panUnicodes)
+
+	#--
+
+	func @UnicodesToCharsNames(panUnicodes)
+		return UnicodesToCharsNames(panUnicodes)
+
+	func @UnicodesNames(panUnicodes)
+		return UnicodesToCharsNames(panUnicodes)
+
+	func @UnicodesCharsNames(panUnicodes)
+		return UnicodesNames(panUnicodes)
+
+	func @UnicodesToNames(panUnicodes)
+		return UnicodesNames(panUnicodes)
+
+	#>
 
 func NamesOfInvisibleChars()
 	return UnicodesToCharsNames( InvisibleUnicodes() )

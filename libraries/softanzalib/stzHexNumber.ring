@@ -19,6 +19,9 @@ func HexToDecimalForm(cHex)
 	func HexToDecimal(cHex)
 		return HexToDecimalForm(cHex)
 
+	func HexToUnicode(cHex)
+		return HexToDecimalForm(cHex)
+
 func UnicodeHexToDecimalForm(cUnicodeHex)
 	if IsUnicodeHex(cUnicodeHex)
 		cHex = StzStringQ(cUnicodeHex).RemoveFirstNCharsQ(2).Content()
@@ -108,9 +111,11 @@ class stzHexNumber from stzObject
 		if isString(pNumber) and StzStringQ(pNumber).RepresentsNumberInHexForm()
 
 			oHexNumber = StzStringQ(pNumber)
+			acHexPrefix = HexPrefixes()
+			nLen = len(acHexPrefix)
 
-			for cHexPrefix in HexPrefixes()
-				oHexNumber.RemoveFromLeft(cHexPrefix)
+			for i = 1 to nLen
+				oHexNumber.RemoveFromLeft(acHexPrefix[i])
 			next
 				
 			@cHexNumber = oHexNumber.Content()

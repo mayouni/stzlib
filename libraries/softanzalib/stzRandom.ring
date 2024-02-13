@@ -3303,6 +3303,9 @@ func NRandomItemsIn(n, paList)
 
 	return aResult
 
+	func NItemsIn(n, paList)
+		return NRandomItemsIn(n, paList)
+
 func NRandomItemsInU(n, paList)
 	if CheckParams()
 		if NOT isList(paList)
@@ -3325,4 +3328,10 @@ func NRandomItemsInU(n, paList)
 	return aResult
 
 	func NUniqueRandomItemsIn(n, paList)
+		return NRandomItemsInU(n, paList)
+
+	func NItemsInU(n, paList)
+		return NRandomItemsInU(n, paList)
+
+	func NUniqueItemsIn(n, paList)
 		return NRandomItemsInU(n, paList)

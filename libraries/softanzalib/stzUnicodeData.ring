@@ -70,6 +70,8 @@ _nNumberOfUnicodeChars = 149_186
 
 _nMaxUnicode = 1_114_112
 
+_nNumberOfLinesInUnicodeDataFile = 34_931
+
 _cUnicodeData = read("stzUnicodeData.txt")
 
 _anMathUnicodes = [
@@ -457,6 +459,18 @@ func MaxUnicode()
 func NumberOfUnicodeChars()
 	return _nNumberOfUnicodeChars
 
+	func NumberOfUnicodes()
+		return NumberOfUnicodeChars1()
+
+	func @NumberOfUnicodeChars()
+		return NumberOfUnicodeChars()
+
+	func @NumberOfUnicodes()
+		return NumberOfUnicodeChars()
+
+func NumberOfLinesInUnicodeDataFile()
+	return _nNumberOfLinesInUnicodeDataFile
+
 func MathUnicodes()
 	return _anMathUnicodes
 
@@ -536,8 +550,32 @@ func UnicodeBlocksContaining(pcStr)
 
 	return acResult
 
+	#< @FunctionAlternativeForms
+
 	func UnicodeBlocksNamesContaining(pcStr)
 		return UnicodeBlocksContaining(pcStr)
+
+	func UnicodeBlocksContainingInTheirName(pcStr)
+		return UnicodeBlocksContaining(pcStr)
+
+	func UnicodeBlocksContainingInTheirNames(pcStr)
+		return UnicodeBlocksContaining(pcStr)
+
+	#--
+
+	func @UnicodeBlocksContaining(pcStr)
+		return UnicodeBlocksContaining(pcStr)
+
+	func @UnicodeBlocksNamesContaining(pcStr)
+		return UnicodeBlocksContaining(pcStr)
+
+	func @UnicodeBlocksContainingInTheirName(pcStr)
+		return UnicodeBlocksContaining(pcStr)
+
+	func @UnicodeBlocksContainingInTheirNames(pcStr)
+		return UnicodeBlocksContaining(pcStr)
+
+	#>
 
 func UnicodeBlocksContainingXT(pcStr)
 	aResult = []
@@ -552,6 +590,8 @@ func UnicodeBlocksContainingXT(pcStr)
 
 	return aResult
 
+	#< @FunctionAlternativeForms
+
 	func UnicodeBlocksContainingAlongWithTheirRanges(pcStr)
 		return UnicodeBlocksContainingXT(pcStr)
 
@@ -561,8 +601,36 @@ func UnicodeBlocksContainingXT(pcStr)
 	func UnicodeBlocksNamesContainingAlongWithTheirRanges(pcStr)
 		return UnicodeBlocksContainingXT(pcStr)
 
-func UnicodeCharsContaing(pcStr) # TODO
-	StzRaise("Not yet implemented!")
+	#--
+
+	func @UnicodeBlocksContainingXT(pcStr)
+		return UnicodeBlocksContainingXT(pcStr)
+
+	func @UnicodeBlocksNamesContainingXT(pcStr)
+		return UnicodeBlocksContainingXT(pcStr)
+
+	func @UnicodeBlocksContainingInTheirNameXT(pcStr)
+		return UnicodeBlocksContainingXT(pcStr)
+
+	func @UnicodeBlocksContainingInTheirNamesXT(pcStr)
+		return UnicodeBlocksContainingXT(pcStr)
+
+	#>
+
+func CharsContainingInTheirName(pcPartOfName)
+	oUnicodeData = new stzUnicodeData()
+	acResult = oUnicodeData.CharsContaining(pcPartOfName)
+	return acResult
+
+	func CharsContaining(pcPartOfName)
+		return CharsContainingInTheirName(pcPartOfName)
+
+	func @CharsContainingInTheirName(pcPartOfName)
+		return CharsContainingInTheirName(pcPartOfName)
+
+	func @CharsContaining(pcPartOfName)
+		return CharsContainingInTheirName(pcPartOfName)
+
 
 class stzUnicodeDataAsString from stzUnicodeData
 
@@ -571,6 +639,9 @@ class stzUnicodeData
 
 	def init()
 		@oStzStrUnicodeData = new stzString( UnicodeData() )
+
+	def UnicodeStringObject()
+		return @oStzStrUnicodeData
 
 	def ContainsCharName(pcCharName)
 		if This.FindCharName(pcCharName) > 0
@@ -613,6 +684,13 @@ class stzUnicodeData
 		return cChar
 
 	def CharHexCodeByName(pcCharName)
+		if CheckParams()
+			if NOT isString(pcCharName)
+				StzRaise("Incorrect param type! pcCharName must be a string.")
+			ok
+		ok
+
+		pcCharName = StzStringQ(pcCharName).Uppercased()
 		n = This.FindCharName(";"+ pcCharName + ";")
 
 		if n > 0
@@ -710,13 +788,60 @@ class stzUnicodeData
 		cResult = This.CharNameByHexCode(cHex)
 		return cResult
 
-	def CharsContaining(pcCharName)
-		anUnicodes = This.SearchCharByName(pcCharName)
-		acResult = StzListOfCharsQ(anUnicodes).Content()
+	#==
 
+	def UnicodesOfCharsContaining(cPartOfName)
+		if CheckParams()
+			if NOT isString(cPartOfName)
+				StzRaise("Incorrect param type! cPartOfName must be a string.")
+			ok
+		ok
+
+		cPartOfName = StzStringQ(cPartOfName).Uppercased()
+		acLines = @oStzStrUnicodeData.split(NL)
+		nLen = len(acLines)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if substr(acLines[i], cPartOfName) > 0
+				cHex = ""
+				n = 1
+				while TRUE
+					if acLines[i][n] = ";"
+						exit
+					else
+						cHex += acLines[i][n]
+						n++
+					ok
+				end
+				anResult + dec( "0x" + cHex )
+		
+			ok
+		next
+
+		return anResult
+
+	def CharsContaining(cPartOfName)
+		acResult = UnicodesToChars( This.UnicodesOfCharsContaining(cPartOfName) )
 		return acResult
 
-	def CharsNamesContaining(pcCharName)
-		anUnicodes = This.SearchCharName(pcCharName)
-		aResult = UnicodesToCharsNames(anUnicodes)
-		return aResult
+	#==
+
+	def NumberOfUnicodeChars()
+		return @oStzStrUnicodeData.NumberOfLines()
+
+		def NumberOfChars()
+			return This.NumberOfUnicodeChars()
+
+		def NumberOfUnicodes()
+			return This.NumberOfUnicodeChars()
+
+		def HowManyUnicodeChars()
+			return This.NumberOfUnicodeChars()
+
+		def HowManyChars()
+			return This.NumberOfUnicodeChars()
+
+		def HowManyUnicodes()
+			return This.NumberOfUnicodeChars()

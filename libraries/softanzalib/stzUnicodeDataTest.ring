@@ -1,5 +1,31 @@
 load "stzlib.ring"
 
+/*----
+
+pron()
+
+? MaxUnicode()
+#--> 1_114_112
+
+? NumberOfUnicodeChars()
+#--> 149_186
+
+? NumberOfLinesInUnicodeDataFile()
+#--> 34_626
+
+StzUnicodeDataQ() {
+
+	? UnicodesOfCharsContaining("arabic")
+	# 0.22 seconds
+
+	? CharsContaining("arabic")
+	# 0.40 seconds
+
+}
+
+proff()
+# Executed in 0.58 second(s)
+
 /*------ @narration
 
 */
@@ -39,7 +65,7 @@ SetSomeTo(9)
 ? Some( UnicodesToChars(9472:9599) )
 #--> [ "┆", "┒", "┣", "┮", "╇", "╚", "╝", "╻", "╿", "┖" ]
 
-# Getting the names of 3 randoms chars of them (along their unicode codepoints ~> XT),
+# Getting the names of 5 randoms chars of them (along their unicode codepoints ~> XT),
 # and we want them to be unique (the same char is not displayed twice ~> U)
 
 ? CharsAndNames( NRandomItemsInU(5, [ "┆", "┒", "┣", "┮", "╇", "╚", "╝", "╻", "╿", "┖" ]) )
@@ -51,10 +77,24 @@ SetSomeTo(9)
 #	[ "┺", "BOX DRAWINGS LEFT LIGHT AND RIGHT UP HEAVY" ]
 # ]
 
-? CharsContainingInTheirName([ "box", "up", "heavy" ], :From = UnicodeBoxChars() )
+# And we can search directly in the Unicode database for the chars containging
+# a given substring in their name. So for the chars containing "box" we can say:
+
+? NItemsIn(6, CharsContainingInTheirName("box") )
+#--> [ "␣", "┌", "┞", "╬", "╼", "☐" ]
+
+? CharsAndTheirNames([ "␣", "┌", "┞", "╬", "╼", "☐" ])
+#--> [
+#	[ "␣", "OPEN BOX" ],
+#	[ "┌", "BOX DRAWINGS LIGHT DOWN AND RIGHT" ],
+#	[ "┞", "BOX DRAWINGS UP HEAVY AND RIGHT DOWN LIGHT" ],
+#	[ "╬", "BOX DRAWINGS DOUBLE VERTICAL AND HORIZONTAL" ],
+#	[ "╼", "BOX DRAWINGS LIGHT LEFT AND HEAVY RIGHT" ],
+#	[ "☐", "BALLOT BOX" ]
+# ]
 
 ProfilerOff()
-# Executed in 0.26 second(s)
+# Executed in 0.76 second(s)
 
 /*-----------------
 
