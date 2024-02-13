@@ -110,13 +110,87 @@ func CharsToUnicodes(paList)
 	
 	func ListOfCharsToUnicodes(paList)
 		return CharsToUnicodes(paList)
-	
+
+	#--
+
+	func @CharsToUnicodes(paList)
+		return CharsToUnicodes(paList)
+
+	func @CharsUnicodes(paList)
+		return CharsToUnicodes(paList)
+
 	#>
+
+func CharsToUnicodesXT(paList)
+	return StzListOfCharsQ(paList).UnicodesXT()
 	
+	#< @FunctionAlternativeForms
+	
+	func CharsUnicodesXT(paList)
+		return CharsToUnicodesXT(paList)
+	
+	func ListOfCharsToUnicodesXT(paList)
+		return CharsToUnicodesXT(paList)
+
+	#--
+
+	func @CharsToUnicodesXT(paList)
+		return CharsToUnicodesXT(paList)
+
+	func @CharsUnicodesXT(paList)
+		return CharsToUnicodesXT(paList)
+
+	#>
+
+func CharsNames(paList)
+	return StzListOfCharsQ(paList).Names()
+
+	func CharsToNames(paList)
+		return CharsNames(paList)
+
+	func @CharsNames(paList)
+		return CharsNames(paList)
+
+	func @CharsToNames(paList)
+		return CharsNames(paList)
+
+func CharsNamesXT(paList)
+	return StzListOfCharsQ(paList).NamesXT()
+
+	func CharsToNamesXT(paList)
+		return CharsNamesXT(paList)
+
+	func CharsNamesAndUnicodes(paList)
+		return CharsNamesXT(paList)
+
+	func @CharsNamesXT(paList)
+		return CharsNamesXT(paList)
+
+	func @CharsToNamesXT(paList)
+		return CharsNamesXT(paList)
+
+	func @CharsNamesAndUnicodes(paList)
+		return CharsNamesXT(paList)
+
+func CharsAndNames(paList)
+	return StzListOfCharsQ(paList).CharsAndNames()
+
+	func CharsAndTheirNames(palist)
+		return CharsAndNames(paList)
+
+	func @CharsAndNames(paList)
+		return CharsAndNames(paList)
+
+	func @CharsAndTheirNames(palist)
+		return CharsAndNames(paList)
+
 func CharsScripts(acListOfChars)
 	return StzListOfCharsQ(acListOfChars).Scripts()
 
 	#< @FunctionAlternativeForm
+
+	func @CharsScripts(acListOfChars)
+		return CharsScripts(acListOfChars)
 
 	func ListOfCharsScripts(acListOfChars)
 		return CharsScripts(acListOfChars)
@@ -373,6 +447,9 @@ class stzListOfChars from stzListOfStrings
 		return aResult
 
 		def CharsXT()
+			return This.CharsAndTheirNames()
+
+		def CharsAndNames()
 			return This.CharsAndTheirNames()
 
 	def CharsAndTheirNamesAndTheirUnicodes()
@@ -672,7 +749,7 @@ class stzListOfChars from stzListOfStrings
 		aResult = []
 
 		for i = 1 to nLen
-			aResult + Unicode(aContent[i])
+			aResult + @Unicode(aContent[i])
 		next
 
 		return aResult
@@ -702,6 +779,14 @@ class stzListOfChars from stzListOfStrings
 		next
 
 		return aResult
+
+	def UnicodesXT()
+		aResult = Association([ This.Unicodes(), This.Chars() ])
+		return aResult
+
+
+		def UnicodesAndChars()
+			return This.UnicodesXT()
 
 	  #----------------#
 	 #     SCRIPTS    #

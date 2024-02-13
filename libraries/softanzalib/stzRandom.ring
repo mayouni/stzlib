@@ -21,7 +21,7 @@ _nRingMaxSeed = 1_999_999_999 # Idem
 
 _nRandomRound = 3	# Defines how many decimals are supported in random01()
 
-_nDefaultSome = 10 # The default size of DefaultSome() function
+_nDefaultSome = 5 	# The default size of DefaultSome() function
 
 _nMaxRandomLoop = 1000 	# How many times Softanza loops to find a given random number
 			# before it aborts the process and raises an error

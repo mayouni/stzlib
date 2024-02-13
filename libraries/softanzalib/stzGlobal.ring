@@ -1431,6 +1431,49 @@ func BothAreNumbers(p1, p2)
 	func @AreBothNumbers(p1, p2)
 		return BothAreNumbers(p1, p2)
 
+func BothAreNumbersInStrings(p1, p2)
+	if CheckParams()
+		if isList(p2) and Q(p2).IsAndNamedParam()
+			p2 = p2[2]
+		ok
+	ok
+
+	if isString(p1) and isString(p2) and
+	   Q(p1).IsNumberInString() and
+	   Q(p2).IsNumberInString()
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func AreBothNumbersInStrings(p1, p2)
+		return BothAreNumbersInStrings(p1, p2)
+
+	func @BothAreNumbersInStrings(p1, p2)
+		return BothAreNumbersInStrings(p1, p2)
+
+	func @AreBothNumbersInStrings(p1, p2)
+		return BothAreNumbersInStrings(p1, p2)
+
+	#--
+
+	func BothAreNumbersInString(p1, p2)
+		return BothAreNumbersInStrings(p1, p2)
+
+	func AreBothNumbersInString(p1, p2)
+		return BothAreNumbersInStrings(p1, p2)
+
+	func @BothAreNumbersInString(p1, p2)
+		return BothAreNumbersInStrings(p1, p2)
+
+	func @AreBothNumbersInString(p1, p2)
+		return BothAreNumbersInStrings(p1, p2)
+
+	#>
+
 func BothAreIntegers(p1, p2)
 	if CheckParams()
 		if isList(p2) and Q(p2).IsAndNamedParam()
@@ -1452,6 +1495,48 @@ func BothAreIntegers(p1, p2)
 
 	func @AreBothIntegers(p1, p2)
 		return BothAreIntegers(p1, p2)
+
+func BothAreIntegersInStrings(p1, p2)
+	if CheckParams()
+		if isList(p2) and Q(p2).IsAndNamedParam()
+			p2 = p2[2]
+		ok
+	ok
+
+	if isNumber(p1) and isNumber(p2) and
+	   Q(p1).IsIntegerInString() and Q(p2).IsIntegerInString()
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func AreBothIntegersInStrings(p1, p2)
+		return BothAreIntegersInStrings(p1, p2)
+
+	func @BothAreIntegersInStrings(p1, p2)
+		return BothAreIntegersInStrings(p1, p2)
+
+	func @AreBothIntegersInStrings(p1, p2)
+		return BothAreIntegersInStrings(p1, p2)
+
+	#--
+
+	func BothAreIntegersInString(p1, p2)
+		return BothAreIntegersInStrings(p1, p2)
+
+	func AreBothIntegersInString(p1, p2)
+		return BothAreIntegersInStrings(p1, p2)
+
+	func @BothAreIntegersInString(p1, p2)
+		return BothAreIntegersInStrings(p1, p2)
+
+	func @AreBothIntegersInString(p1, p2)
+		return BothAreIntegersInStrings(p1, p2)
+
+	#>
 
 func BothAreReals(p1, p2)
 	if CheckParams()
@@ -1492,6 +1577,46 @@ func BothAreReals(p1, p2)
 		return BothAreReals(p1, p2)
 
 	#>
+
+func BothAreRealsInStrings(p1, p2)
+	if CheckParams()
+		if isList(p2) and Q(p2).IsAndNamedParam()
+			p2 = p2[2]
+		ok
+	ok
+
+	if isNumber(p1) and isNumber(p2) and
+	   Q(p1).IsRealInString() and Q(p2).IsRealInString()
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func AreBothRealsInStrings(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	func @BothAreRealsInStrings(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	func @AreBothRealsInStrings(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	#--
+
+	func BothAreRealsInString(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	func AreBothRealsInString(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	func @BothAreRealsInString(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	func @AreBothRealsInString(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
 
 func BothArePairsOfNumbers(p1, p2)
 
@@ -1589,34 +1714,6 @@ func BothArePairsOfObjects(p1, p2)
 
 	func @AreBothPairsOfObjects(p1, p2)
 		return BothArePairsOfObjects(p1, p2)
-
-func BothAreNumbersInStrings(p1, p2) # NOTE: hex and octal numbers are excluded
-	if isList(p2) and Q(p2).IsAndNamedParam()
-		p2 = p2[2]
-	ok
-
-	if BothAreStrings(p1, p2) and
-	   Q(p1).IsDecimalNumberInString() and
-	   Q(p2).IsDecimalNumberInString()
-
-		return TRUE
-
-	else
-		return FALSE
-	ok
-
-	func AreBothNumbersInStrings(p1, p2)
-		return BothAreNumbersInStrings(p1, p2)
-
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothAreNumbersInStrings()
-
-	func @BothAreNumbersInStrings(p1, p2)
-		return BothAreNumbersInStrings(p1, p2)
-
-	func @AreBothNumbersInStrings(p1, p2)
-		return BothAreNumbersInStrings(p1, p2)
 
 func BothAreCharsInComputableForm(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
@@ -2905,6 +3002,9 @@ func StartProfiler()
 	func Pron()
 		StartProfiler()
 
+	func ProfilerOn()
+		StartProfiler()
+
 func StopProfiler()
 	nCurrentRound = StzCurrentRound()
 
@@ -2922,6 +3022,9 @@ func StopProfiler()
 		StopProfiler()
 
 	func Proff()
+		StopProfiler()
+
+	func ProfilerOff()
 		StopProfiler()
 
 func eval@(pcExpr, paItems) # WARNING: if you change paItems name,

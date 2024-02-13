@@ -312,63 +312,111 @@ func StringIsLocaleAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLocaleAbbreviation()
 	
+	func @IsLocaleAbbreviation(cStr)
+		return StringIsLocaleAbbreviation(cStr)
+
 func StringIsLanguageAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLanguageAbbreviation()
-	
+
+	func @IsLanguageAbbreviation(cStr)
+		return StringIsLanguageAbbreviation(cStr)
+
 func StringIsShortLanguageAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsShortLanguageAbbreviation()
-	
+
+	func @IsShortLanguageAbbreviation(cStr)
+		return StringIsShortLanguageAbbreviation(cStr)
+
 func StringIsLongLanguageAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLongLanguageAbbreviation()
-	
+
+	func @IsLongLanguageAbbreviation(cStr)
+		return StringIsLongLanguageAbbreviation(cStr)
+
 func StringIsLanguageName(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLanguageName()
-	
+
+	func @IsLanguageName(cStr)
+		return StringIsLanguageName(cStr)
+
 func StringIsLanguageNumber(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLanguageNumber()
-	
+
+	func @IsLanguageNumber(cStr)
+		return StringIsLanguageNumber(cStr)
+
 func StringIsCountryAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsCountryAbbreviation()
-	
+
+	func @IsCountryAbbreviation(cStr)
+		return StringIsCountryAbbreviation(cStr)
+
 func StringIsCountryName(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsCountryName()
-	
+
+	func @IsCountryName(cStr)
+		return StringIsCountryName(cStr)
+
 func StringIsCountryNumber(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsCountryNumber()
-	
+
+	func @IsCountryNumber(cStr)
+		return StringIsCountryNumber(cStr)
+
 func StringIsShortCountryAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsShortCountryAbbreviation()
-	
+
+	func @IsShortCountryAbbreviation(cStr)
+		return StringIsShortCountryAbbreviation(cStr)
+
 func StringIsLongCountryAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLongCountryAbbreviation()
-	
+
+	func @IsLongCountryAbbreviation(cStr)
+		return StringIsLongCountryAbbreviation(cStr)
+
 func StringIsScriptAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsScriptAbbreviation()
-	
+
+	func @IsScriptAbbreviation(cStr)
+		return StringIsScriptAbbreviation(cStr)
+
 func StringIsScriptName(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsScriptName()
-	
+
+	func @IsScriptName(cStr)
+		return StringIsScriptName(cStr)
+
 func StringIsScriptNumber(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsScriptNumber()
-	
+
+	func @IsScriptNumber(cStr)
+		return StringIsScriptNumber(cStr)
+
 func StringIsLowercase(cStr)
 	return StzStringQ(cStr).IsLowercase()
 
+	func @IsLowercase(cStr)
+		return StringIsLowercase(cStr)
+
 func StringIsUppercase(cStr)
 	return StzStringQ(cStr).IsUppercase()
+
+	func @IsUppercase(cStr)
+		return StringIsUppercase(cStr)
 
 func StringLowercased(cStr)
 	oStr = new stzString(cStr)
@@ -377,13 +425,25 @@ func StringLowercased(cStr)
 	func StringLowercase(cStr)
 		return StringLowercased(cStr)
 
+	func @Lowercased(cStr)
+		return StringLowercased(cStr)
+
+	func @Lowercase(cStr)
+		return StringLowercased(cStr)
+
 func StringUppercased(cStr)
 	oStr = new stzString(cStr)
 	return oStr.Uppercased()
 	
 	func StringUppercase(cStr)
 		return StringUppercased(cStr)
-	
+
+	func @Uppercased(cStr)
+		return StringUppercased(cStr)
+
+	func @Uppercase(cStr)
+		return StringUppercased(cStr)
+
 func StringTitlecased(cStr)
 	oStr = new stzString(cStr)
 	return oStr.Titlecased()
@@ -397,53 +457,115 @@ func StringTitlecased(cStr)
 	func Titlecased(cStr)
 		return StringTitlecased(cStr)
 
+	func @Titlecased(cStr)
+		return StringTitlecased(cStr)
 	
+	func @Titlecase(cStr)
+		return StringTitlecased(cStr)
+
 func StringAlign(cString, nWidth, cChar, cDirection)
 	oString = new stzString(cString)
 	return oString.AlignXTQ(nWidth, cChar, cDirection).Content()
 	
+	func @Align(cString, nWidth, cChar, cDirection)
+		return StringAlign(cString, nWidth, cChar, cDirection)
+
 func StringLeftAlign(cString, nWidth, cChar)
 	return StringAlign(cString, nWidth, cChar, :Left)
-	
+
+	func @LeftAlign(cString, nWidth, cChar)
+		return StringLeftAlign(cString, nWidth, cChar)
+
 func StringRightAlign(cString, nWidth, cChar)
 	return StringAlign(cString, nWidth, cChar, :Right)
-	
+
+	func @RightAlign(cString, nWidth, cChar)
+		return StringRightAlign(cString, nWidth, cChar)
+
 func StringCenterAlign(cString, nWidth, cChar)
 	return StringAlign(cString, nWidth, cChar, :Center)
-	
+
+	func @CenterAlign(cString, nWidth, cChar)
+		return StringCenterAlign(cString, nWidth, cChar)
+
 func StringRepeat(cString, n)
 	oString = new stzString(cString)
 	return oString.RepeatedNTimes(n)
 	
+	func @Repeat(cString, n)
+		return StringRepeat(cString, n)
+
 func StringNumberOfChars(cStr)
 	oString = new stzString(cStr)
 	return oString.NumberOfChars()
 	
+	func @NumberOfChars(cStr)
+		return StringNumberOfChars(cStr)
+
 func StringReverseChars(cStr)
 	oString = new stzString(cStr)
 	return oString.CharsReversed()
 	
+	func @ReverseChars(cStr)
+		return StringReverseChars(cStr)
+
 func StringIsWord(cStr)
 	oString = new stzString(cStr)
 	return oString.IsWord()
 	
+	func @IsWord(cStr)
+		return StringIsWord(cStr)
+
 func StringContains(pcStr, pcSubStr)
 	return StzStringQ(pcStr).Contains(pcSubStr)
 	
+	func @Contains(pcStr, pcSubStr)
+		return StringContains(pcStr, pcSubStr)
+
 func StringNumberOfOccurrence(pcStr, pcSubStr)
 	return StzStringQ(pcStr).NumberOfOccurrence(pcSubStr)
 	
+	func @NumberOfOccurrence(pcStr, pcSubStr)
+		return StringNumberOfOccurrence(pcStr, pcSubStr)
+
 func StringToUnicodes(pcStr)
 	return StzStringQ(pcStr).Unicodes()
-	
-	func StringUnicodes(pcStr)
+		
+	func @ToUnicodes(pcStr)
 		return StringToUnicodes(pcStr)
-	
+
 func StringInvert(cStr)
 	return StzStringQ(cStr).Inverted()
 	
+	func StringRevert(cStr)
+		return StringInvert(cStr)
+
+	func StringInverse(cStr)
+		return StringInvert(cStr)
+
+	func StringReverse(cStr)
+		return StringInvert(cStr)
+
+	func @Invert(cStr)
+		return StringInvert(cStr)
+
+	func @StringRevert(cStr)
+		return StringInvert(cStr)
+
+	func @StringInverse(cStr)
+		return StringInvert(cStr)
+
+	func @StringReverse(cStr)
+		return StringInvert(cStr)
+
 func StringScript(cStr)
 	return StzStringQ(cStr).Script()
+
+	func Script(cStr)
+		return StringScript(cStr)
+
+	func @Script(cStr)
+		return StringScript(cStr)
 
 # Some functions used mainly in natural-code
 
@@ -647,6 +769,48 @@ func WithoutSpaces(pcStr)
 
 func Chars(str)
 	return Q(str).Chars()
+
+func IsMarquer(cStr)
+	if CheckParams()
+		if NOT isString(cStr)
+			StzRaise("Incorrect param type! cStr must be a string.")
+		ok
+	ok
+
+	return Q(cStr).IsMarquer()
+
+	func IsAMarquer(cStr)
+		return IsMarquer(cStr)
+
+	func StringIsMarquer(cStr)
+		return IsMarquer(cStr)
+
+	func StringIsAMarquer(cStr)
+		return IsMarquer(cStr)
+
+	func @IsMarquer(cStr)
+		return IsMarquer(cStr)
+
+	func @IsAMarquer(cStr)
+		return IsMarquer(cStr)
+
+	func @StringIsMarquer(cStr)
+		return IsMarquer(cStr)
+
+	func @StringIsAMarquer(cStr)
+		return IsMarquer(cStr)
+
+func BothAreMarquers(pcStr1, pcStr2)
+	if BothAreStrings(pcStr1, pcStr2) and
+	   Q(pcStr1).IsMarquer() and Q(pcStr2).IsMarquer()
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func @BothAreMarquers(pcStr1, pcStr2)
+		return BothAreMarquers(pcStr1, pcStr2)
 
   /////////////////
  ///   CLASS   ///
@@ -4354,6 +4518,27 @@ class stzString from stzObject
 		else
 			return FALSE
 		ok
+
+	  #---------------------------------------#
+	 #  CHECKING IF THE STRING IS A MARQUER  #
+	#=======================================#
+
+	def IsMarquer()
+
+		nLen = This.NumberOfChars()
+
+		if nLen > 2 and
+		   This.FirstChar() = "#" and
+		   This.SectionQ(2, nLen).IsIntegerInString() and
+		   (0+ This.Section(2, nLen)) != 0
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAMarquer()
+			return This.IsMarquer()
 
 	  #----------------------------------------------#
 	 #  GETTING THE LIST OF MARQUERS IN THE STRING  #
@@ -63533,6 +63718,46 @@ ici		//...
 		def IsANumberInString()
 			return This.RepresentsNumber()
 
+		#==
+
+		def RepresentsReal()
+			return This.RepresentsNumber()
+
+		def RepresentsAReal()
+			return This.RepresentsNumber()
+
+		def RepresentsRealInString()
+			return This.RepresentsNumber()
+
+		def RepresentsARealInString()
+			return This.RepresentsNumber()
+
+		def IsRealInString()
+			return This.RepresentsNumber()
+
+		def IsARealInString()
+			return This.RepresentsNumber()
+
+		#--
+
+		def RepresentsRealNumber()
+			return This.RepresentsNumber()
+
+		def RepresentsARealNumber()
+			return This.RepresentsNumber()
+
+		def RepresentsRealNumberInString()
+			return This.RepresentsNumber()
+
+		def RepresentsARealNumberInString()
+			return This.RepresentsNumber()
+
+		def IsRealNumberInString()
+			return This.RepresentsNumber()
+
+		def IsARealNumberInString()
+			return This.RepresentsNumber()
+
 		#>
 
 	def RepresentsSignedNumber()
@@ -63763,33 +63988,6 @@ ici		//...
 
 		def IsACalculableIntegerInString()
 			return This.RepresentsCalculableInteger()
-
-
-		#>
-
-	def RepresentsRealNumber()
-		if This.RepresentsNumber() and This.Contains(".")
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		#< @FunctionAlternativeForms
-
-		def RepresentsARealNumber()
-			return This.RepresentsRealNumber()		
-
-		def IsRealNumber()
-			return This.RepresentsRealNumber()		
-
-		def IsARealNumber()
-			return This.RepresentsRealNumber()		
-
-		def IsRealNumberInString()
-			return This.RepresentsRealNumber()		
-
-		def IsARealNumberInString()
-			return This.RepresentsRealNumber()		
 
 		#>
 
@@ -67786,12 +67984,46 @@ ici		//...
 		TODO: Generalise it!
 		*/
 
+		aResult = []
+
 		oCopy = This.Copy()
-		ocopy.TrimQ().RemoveTheseBounds("{", "}")
+		nLenCopy = oCopy.NumberOfChars()
+
+		if oCopy.Contains('"') and
+		   oCopy.NumberOfOccurrenceQ('"').IsMultipleOf(2) and
+		   nLenCopy > 4
+
+			# Remove spaces except those enclosed betweeb " and "
+
+			anPos = oCopy.FindAll('"')
+			nLen = len(anPos)
+
+			aSections = []
+
+			n1 = 1
+			for i = 1 to nLen
+				aSections + [ n1, anPos[i]-1 ]
+				if i < nLen
+					n1 = anPos[i+1]	+ 1
+					i++
+				ok
+			next
+			aSections + [ anPos[nLen]+1, nLenCopy ]
+			nLenSections = len(aSections)
+
+			for i = nLenSections to 1 step -1
+				n1 = aSections[i][1]
+				n2 = aSections[i][2]
+				cWithoutSpaces = oCopy.SectionQ(n1, n2).SpacesRemoved()
+				oCopy.ReplaceSection(n1, n2, cWithoutSpaces)
+			next
+		ok
+
+		ocopy.RemoveTheseBounds("{", "}")
 
 		# Case where we have a normal list syntax
 
-		if ocopy.IsBoundedBy([ "[", "]" ])
+		if oCopy.IsBoundedBy([ "[", "]" ])
 			cCode = "aResult = " + This.Content()
 			eval(cCode)
 			return aResult
@@ -67800,24 +68032,31 @@ ici		//...
 		# Case where we have a continuous list syntax:
 		#  ? StzStringQ(' "Thing 1" : "Thing 3" ').ToList()
 
+		nPos = oCopy.FindFirst(":")
 		nLen = oCopy.NumberOfChars()
-		aResult = []
 
 		if nLen > 3 and oCopy.NumberOfOccurrence(":") = 1 and
-		   oCopy.FindFirstQ(":").IsNeighther(1, :Nor = nLen)
+		   nPos != 1 and nPos != nLen
 
 			acParts = oCopy.Split(":")
 			cPart1 = acParts[1]
 			cPart2 = acParts[2]
+			oPart1 = new stzString(cPart1)
+			oPart2 = new stzString(cPart2)
 
 			if BothAreIntegersInStrings(cPart1, cPart2)
 
 			but BothAreNumbersInStrings(cPart1, cPart2) and
 			    ( IsRealInString(cPart1) or IsRealInString(cPart2) )
 
-			but BothAreChars(cPart1, cPart2)
+			but oPart1.IsBoundedBy('"') and oPart1.NumberOfChars() = 3 and
+			    oPart2.IsBoundedBy('"') and oPart2.NumberOfChars() = 3
 
-				anUnicodes = ring_sort([ @Unicode(cPart1), @Unicode(cPart2) ])
+				anUnicodes = ring_sort([
+					@Unicode(oPart1.CharAt(2)),
+					@Unicode(oPart2.CharAt(2))
+				])
+
 				anUnicodes = anUnicodes[1] : anUnicodes[2]
 				aResult = @UnicodesToChars(anUnicodes)
 
