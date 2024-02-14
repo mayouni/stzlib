@@ -1,29 +1,5 @@
 load "stzlib.ring"
 
-pron()
-
-//? Q('[  "ABC" , "EB" , "AA"  , 12 ]').ToList()
-
-//? Q('  "#01" : "@12" ').ToList()
-
-? Q(' "ا" : "س" ').ToList()
-
-proff()
-
-/*====
-
-pron()
-
-o1 = new stzString("ilir")
-
-? o1.Copy().UppercaseQ().SpacifyQ().ReplaceQ(" ", "*").Content()
-#--> "I*L*R"
-
-? o1.Content()
-#--> "ilir"
-
-proff()
-# Executed in 0.10 second(s)
 
 /*====
 

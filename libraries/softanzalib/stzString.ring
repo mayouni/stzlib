@@ -67989,6 +67989,12 @@ ici		//...
 		oCopy = This.Copy()
 		nLenCopy = oCopy.NumberOfChars()
 
+		# Removing over spaces in the string
+		# NOTE: spaces encoldes between " and " are not removed
+
+		# ~> TODO: make it as a function? Something like FindOverSpaces() and
+		# RemoveOverSpaces() ?
+
 		if oCopy.Contains('"') and
 		   oCopy.NumberOfOccurrenceQ('"').IsMultipleOf(2) and
 		   nLenCopy > 4
@@ -68043,26 +68049,47 @@ ici		//...
 			cPart2 = acParts[2]
 			oPart1 = new stzString(cPart1)
 			oPart2 = new stzString(cPart2)
+			nLenPart1 = oPart1.NumberOfChars()
+			nLenPart2 = oPart2.NumberOfChars()
 
 			if BothAreIntegersInStrings(cPart1, cPart2)
 
 			but BothAreNumbersInStrings(cPart1, cPart2) and
 			    ( IsRealInString(cPart1) or IsRealInString(cPart2) )
 
-			but oPart1.IsBoundedBy('"') and oPart1.NumberOfChars() = 3 and
-			    oPart2.IsBoundedBy('"') and oPart2.NumberOfChars() = 3
+			but oPart1.IsBoundedBy('"') and
+			    oPart2.IsBoundedBy('"')
 
-				anUnicodes = ring_sort([
-					@Unicode(oPart1.CharAt(2)),
-					@Unicode(oPart2.CharAt(2))
-				])
+				# Case of "A" : "E"
 
-				anUnicodes = anUnicodes[1] : anUnicodes[2]
-				aResult = @UnicodesToChars(anUnicodes)
+				if  nLenPart1 = 3 and nLenPart2 = 3
+					anUnicodes = ring_sort([
+						@Unicode(oPart1.CharAt(2)),
+						@Unicode(oPart2.CharAt(2))
+					])
+	
+					anUnicodes = anUnicodes[1] : anUnicodes[2]
+					aResult = @UnicodesToChars(anUnicodes)
 
-			but BothAreMarquers(cPart1, cPart2)
-				
+				# Case of marquers: "#1" : "#9"
+				but nLenPart1 >= 4 and nLenPart2 >= 4 and
+				    oPart1.Char(2) = "#" and oPart2.Char(2) = "#" and
+				    oPart1.SectionQ(3, nLenPart1 - 1).IsIntegerInString() and
+				    oPart2.SectionQ(3, nLenPart2 - 1).IsIntegerInString()
+
+					n1 = 0+ oPart1.Section(3, nLenPart1 - 1)
+					n2 = 0+ oPart2.Section(3, nLenPart2 - 1)
+
+					acResult = []
+					for i = n1 to n2
+						acResult + ('#' + i)
+					next
+
+					return acResult
+				ok
+			     
 			ok
+
 		ok
 
 		return aResult
