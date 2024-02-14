@@ -1,5 +1,20 @@
 load "stzlib.ring"
 
+pron()
+
+# Getting a char by its unicode codepoint
+? StzChar(65014) #--> ﷶ
+? StzChar(65013) #--> ﷵ
+
+# Taking the way back and getting the unicode
+# codepoint of a given char
+? Unicode("ﷶ") #--> 65014
+? Unicode("ﷵ") #--> 65013
+
+# Executed in 0.06 second(s)
+
+proff()
+
 /*----
 
 pron()
@@ -77,8 +92,11 @@ SetSomeTo(9)
 #	[ "┺", "BOX DRAWINGS LEFT LIGHT AND RIGHT UP HEAVY" ]
 # ]
 
-# And we can search directly in the Unicode database for the chars containging
-# a given substring in their name. So for the chars containing "box" we can say:
+# Searching for chars containg the word "box" in their name
+# (Note that we are searching directly the chars and not
+# the blocks of chars as above)
+
+# Here we take randsomly 6 of them:
 
 ? NItemsIn(6, CharsContainingInTheirName("box") )
 #--> [ "␣", "┌", "┞", "╬", "╼", "☐" ]

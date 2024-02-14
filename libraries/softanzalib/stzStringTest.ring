@@ -1,5 +1,55 @@
 load "stzlib.ring"
 
+/*-----
+
+pron()
+
+? IsMarquer("#01")
+#--> TRUE
+
+? IsMarquer("#02")
+#--> TRUE
+
+? BothAreMarquers("#01", "#02")
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s)
+
+/*-----
+*/
+pron()
+
+? Q('[  "ABC" , "EB" , "AA"  , 12 ]').ToList()
+#--> [ "ABC", "EB", "AA", 12 ]
+
+? Q(' "A" : "E" ').ToList()
+#--> [ "A", "B", "C", "D", "E" ])
+
+? Q(' "ا" : "ت" ').ToList()
+#o--> [ "ا", "ب", "ة", "ت" ]
+
+? Q(' "#1" : "#5" ').ToList()
+#--> [ "#1", "#2", "#3", "#4", "#5" ]
+
+proff()
+# Executed in 0.42 second(s)
+
+/*====
+
+pron()
+
+o1 = new stzString("ilir")
+
+? o1.Copy().UppercaseQ().SpacifyQ().ReplaceQ(" ", "*").Content()
+#--> "I*L*R"
+
+? o1.Content()
+#--> "ilir"
+
+proff()
+# Executed in 0.10 second(s)
+
 /*----
 
 pron()
