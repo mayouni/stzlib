@@ -1289,8 +1289,6 @@ func NRandomNumbersGreaterThan(n, nValue)
 		anResult + ARandomNumberGreaterThan(nValue)
 	next
 
-	anResult = ring_sort(anResult)
-
 	return anResult
 
 	#< @FunctionAlternativeForm
@@ -1455,8 +1453,6 @@ func NRandomNumbersGreaterThanU(n, nValue)
 		ok
 
 	end
-
-	anResult = ring_sort(anResult)
 
 	return anResult
 
@@ -1712,8 +1708,6 @@ func NRandomNumbersLessThan(n, nValue)
 		anResult + ARandomNumberLessThan(nValue)
 	next
 
-	anResult = ring_sort(anResult)
-
 	return anResult
 
 	#< @FunctionAlternativeForm
@@ -1853,8 +1847,6 @@ func NRandomNumbersLessThanU(n, nValue)
 		ok
 
 	end
-
-	anResult = ring_sort(anResult)
 
 	return anResult
 
@@ -2796,8 +2788,6 @@ func NRandomNumbersIn(n, panNumbers)
 		ok
 	end
 
-	anResult = ring_sort(anResult)
-
 	return anResult
 
 	#< @FunctionAlternativeForms
@@ -2849,9 +2839,6 @@ func NRandomNumbersInZ(n, panNumbers)
 			exit
 		ok
 	end
-
-	anNumbers = ring_sort(anNumbers)
-	anPos = ring_sort(anPos)
 
 	aResult = Association([ anNumbers, anPos ])
 
@@ -2987,8 +2974,6 @@ func NRandomNumbersInU(n, panNumbers)
 		ok
 	end
 
-	anResult = ring_sort(anResult)
-
 	return anResult
 
 	#< @FunctionAlternativeForms
@@ -3070,9 +3055,6 @@ func NRandomNumbersInUZ(n, panNumbers)
 			ok
 		ok
 	end
-
-	anNumbers = ring_sort(anNumbers)
-	anPos = ring_sort(anPos)
 
 	aResult = Association([ anNumbers, anPos ])
 
