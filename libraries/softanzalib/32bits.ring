@@ -35,21 +35,52 @@ proff()
 
 /*====
 
-/*---
+pron()
 
-*/
+o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
+o1.Randomize()
+? @@( o1.Content() )
+#--> [ 1, "A", 4, 3, "D", "C", "B", 2 ]
+#--> [ 1, "B", 2, "A", "C", 4, "D", 3 ]
+#--> [ "B", "D", 2, 3, 4, 1, "A", "C" ]
+
+proff()
+
+#--
 
 pron()
 
-Q( 1:5 + "A" + "B" + 8 + 9 ) {
+o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
+o1.RandomizeNumbers()
+? o1.Content()
 
-	Show()
-	#--> [ 1, 2, 3, 4, 5, "A", "B", 8, 10 ]
+#--
 
-	Randomise()
-	? Show()
+pron()
 
-}
+o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
+o1.RandomizeStrings()
+? o1.Content()
+
+proff()
+
+#--
+
+pron()
+
+o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
+o1.RandomizeSection()
+? o1.Content()
+
+proff()
+
+#--
+
+pron()
+
+o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
+o1.RandomizeSections()
+? o1.Content()
 
 proff()
 
