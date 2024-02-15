@@ -779,6 +779,18 @@ func OddOrEven(n)
 		return :Odd
 	ok
 
+func IsEven(n)
+	return n % 2 = 0
+
+	func @IsEven(n)
+		return IsEven(n)
+
+func IsOdd(n)
+	return n % 2 != 0
+
+	func @IsOdd(n)
+		return IsOdd(n)
+
 #---- ROUNDS
 
 func MaxRingRound()

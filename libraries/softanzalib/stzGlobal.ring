@@ -26,7 +26,7 @@ Programming, by Heart! By: M.Ayouni╭
 
 @ = 0
 
-_bMany = FALSE	# Used in case like this: Q(1:5) - Many(3:5) --> [1,2]
+_bThese = FALSE	# Used in case like this: Q(1:5) - These(3:5) --> [1,2]
 
 _bParamCheck = TRUE # Activates the "# Checking params region" in softanza functions
 		     #--> Set it to FALSE if the functions are used inside large loops
@@ -395,10 +395,10 @@ _acStzCCKeywords = [
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
 
-func Many(p)
-	_bMany = TRUE
+func These(p)
+	_bThese = TRUE
 	return p
-	# Must be reset to FALSE everytime Many() is used.
+	# Must be reset to FALSE everytime These() is used.
 
 func ForEach(p, pIn)
 	/* EXAMPLES

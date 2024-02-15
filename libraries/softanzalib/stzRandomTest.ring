@@ -1,5 +1,27 @@
 load "stzlib.ring"
 
+pron()
+
+? Some( NumbersIn( -5 : 5 ) )
+#--> [ -2, -1, 2, 4 ]
+
+? Few( NumbersIn( -5 : 5 ) )
+#--> [ -5, -1 ]
+
+? All( EvenNumbersIn( -5 : 5 ) )
+#--> [ -4, -2, 0, 2, 4 ]
+
+? Half( OddNumbersIn( -5 : 5 ) )
+#--> [ -5, 1, 3 ]
+
+? Most( PositiveNumbersIn( -5 : 5 ) )
+#--> [ 1, 2, 4, 5 ]
+
+? No( NumbersIn( -5 : 5 ] )
+#--> [ ]
+
+proff()
+
 /*=====
 
 pron()
@@ -21,10 +43,10 @@ proff()
 pron()
 
 ? NRandomNumbersIn(3, 1:10)
-#--> [ 6, 7, 7 ]
+#--> [ 1, 1, 1 ]
 
 ? NRandomNumbersInU(3, 1:10)
-#--> [ 1, 2, 4 ]
+#--> [ 5, 1, 10 ]
 
 proff()
 # Executed in 0.03 second(s)
@@ -127,16 +149,16 @@ pron()
 #--> 149
 
 ? @@( NRandomNumbersBetween(3, 100, 110) ) + NL
-#--> [ 102, 103, 103 ]
+#--> [ 101, 101, 101 ]
 
 ? @@( NRandomNumbersBetweenU(3, 100, 110) ) + NL
-#--> [ 101, 108, 109 ]
+#--> [ 102, 109, 105 ]
 
 ? @@( NRandomNumbersBetweenZ(3, 100, 110) ) + NL
-#--> [ [ 100, 1 ], [ 101, 2 ], [ 106, 7 ] ]
+#--> [ [ 105, 6 ], [ 108, 9 ], [ 105, 6 ] ]
 
 ? @@( NRandomNumbersBetweenUZ(3, 100, 110) )
-#--> [ [ 105, 6 ], [ 107, 8 ], [ 110, 11 ] ]
+#--> [ [ 102, 3 ], [ 106, 7 ], [ 103, 4 ] ]
 
 proff()
 # Executed in 0.05 second(s)
@@ -152,7 +174,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*---
-
+*/
 pron()
 
 ? random(-10) # Standard Ring function returning NULL

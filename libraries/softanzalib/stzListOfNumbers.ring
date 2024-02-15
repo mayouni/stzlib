@@ -221,7 +221,7 @@ func NumbersXT(n1, n2)
 	func NumbersBetweenIB(n1, n2)
 		return NumbersXT(n1, n2)
 
-func Numbers(n1, n2)
+func NumbersBetween(n1, n2)
 	if CheckParams()
 
 		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :Between, :From ])
@@ -256,8 +256,8 @@ func Numbers(n1, n2)
 
 	return anResult
 
-	func NumbersBetween(nMin, nMax)
-		return Numbers(nMin, nMax)
+	func @NumbersBetween(nMin, nMax)
+		return NumbersBetween(nMin, nMax)
 
 func CommonNumbers(paListsOfNumbers)
 	if NOT ( isList(paListsOfNumbers) and Q(paListsOfNumbers).IsListOfListsOfNumbers())
@@ -266,8 +266,270 @@ func CommonNumbers(paListsOfNumbers)
 
 	return CommonItems(paListsOfNumbers)
 
-	def CommunNumbers(paListsOfNumbers)
+	func CommunNumbers(paListsOfNumbers)
 		return CommonNumbers(paListsOfNumbers)
+
+	func @CommonNumbers(paListsOfNumbers)
+		return CommonNumbers(paListsOfNumbers)
+	
+func Numbers(paList)
+	if CheckParams()
+		if NOT IsList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	nLen = len(paList)
+	anResult = []
+
+	for i = 1 to nLen
+		if isNumber(paList[i])
+			anResult + palist[i]
+		ok
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+
+	func @Numbers(paList)
+		return Numbers(paList)
+
+	func NumbersIn(paList)
+		return Numbers(paList)
+
+	func @NumbersIn(paList)
+		return Numbers(paList)
+
+	#>
+
+func PositiveNumbers(paList)
+	if CheckParams()
+		if NOT IsList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	nLen = len(paList)
+	anResult = []
+
+	for i = 1 to nLen
+		if isNumber(paList[i]) and paList[i] > 0
+			anResult + palist[i]
+		ok
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+	func PositiveNumbersIn(paList)
+		return PositiveNumbers(paList)
+
+	func @PositiveNumbers(paList)
+		return PositiveNumbers(paList)
+
+	func @PositiveNumbersIn(paList)
+		return PositiveNumbers(paList)
+
+	#--
+
+	func Positive(paList)
+		return PositiveNumbers(paList)
+
+	func @Positive(paList)
+		return PositiveNumbers(paList)
+
+	#>
+
+func NegativeNumbers(paList)
+	if CheckParams()
+		if NOT IsList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	nLen = len(paList)
+	anResult = []
+
+	for i = 1 to nLen
+		if isNumber(paList[i]) and paList[i] < 0
+			anResult + palist[i]
+		ok
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+	func NegativeNumbersIn(paList)
+		return NegativeNumbers(paList)
+
+	func @NegativeNumbers(paList)
+		return NegativeNumbers(paList)
+
+	func @NegativeNumbersIn(paList)
+		return NegativeNumbers(paList)
+
+	#--
+
+	func Negative(paList)
+		return NegativeNumbers(paList)
+
+	func @Negative(paList)
+		return NegativeNumbers(paList)
+
+	#>
+
+func PositiveNumbersBetween(n1, n2)
+	if CheckParams()
+		if NOT BothAreNumbers(n1, n2)
+			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
+		ok
+	ok
+
+	return PositiveNumbersIn(n1:n2)
+
+	#< @FunctionAlternativeForms
+
+	func @PositiveNumbersBetween(n1, n2)
+		return PositiveNumbersBetween(n1, n2)
+
+	#>
+
+func NegativeNumbersBetween(n1, n2)
+	if CheckParams()
+		if NOT BothAreNumbers(n1, n2)
+			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
+		ok
+	ok
+
+	return NegativeNumbersIn(n1:n2)
+
+	#< @FunctionAlternativeForms
+
+	func @NegativeNumbersBetween(n1, n2)
+		return NegativeNumbersBetween(n1, n2)
+
+	#>
+
+func EvenNumbers(paList)
+	if CheckParams()
+		if NOT IsList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	nLen = len(paList)
+	anResult = []
+
+	for i = 1 to nLen
+		if isNumber(paList[i]) and IsEven(paList[i])
+			anResult + palist[i]
+		ok
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+	func EvenNumbersIn(paList)
+		return EvenNumbers(paList)
+
+	func @EvenNumbers(paList)
+		return EvenNumbers(paList)
+
+	func @EvenNumbersIn(paList)
+		return EvenNumbers(paList)
+
+	#--
+
+	func Even(paList)
+		return EvenNumbers(paList)
+
+	func @Even(paList)
+		return EvenNumbers(paList)
+
+	#>
+
+func OddNumbers(paList)
+	if CheckParams()
+		if NOT IsList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	nLen = len(paList)
+	anResult = []
+
+	for i = 1 to nLen
+		if isNumber(paList[i]) and IsOdd(paList[i])
+			anResult + palist[i]
+		ok
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+	func OddNumbersIn(paList)
+		return OddNumbers(paList)
+
+	func @OddNumbers(paList)
+		return OddNumbers(paList)
+
+	func @OddNumbersIn(paList)
+		return OddNumbers(paList)
+
+	#--
+
+	func Odd(paList)
+		return OddNumbers(paList)
+
+	func @Odd(paList)
+		return OddNumbers(paList)
+
+	#>
+
+func PrimeNumbers(paList)
+	if CheckParams()
+		if NOT IsList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	nLen = len(paList)
+	anResult = []
+
+	for i = 1 to nLen
+		if isNumber(paList[i]) and IsPrime(paList[i])
+			anResult + palist[i]
+		ok
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+	func PrimeNumbersIn(paList)
+		return PrimeNumbers(paList)
+
+	func @PrimeNumbers(paList)
+		return PrimeNumbers(paList)
+
+	func @PrimeNumbersIn(paList)
+		return PrimeNumbers(paList)
+
+	#--
+
+	func Prime(paList)
+		return PrimeNumbers(paList)
+
+	func @Prime(paList)
+		return PrimeNumbers(paList)
+
+	#>
 
   ////////////////
  ///  CLASS   ///
