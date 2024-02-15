@@ -21,67 +21,189 @@ _nRingMaxSeed = 1_999_999_999 # Idem
 
 _nRandomRound = 3	# Defines how many decimals are supported in random01()
 
-_nDefaultSome = 5 	# The default size of DefaultSome() function
-
 _nMaxRandomLoop = 1000 	# How many times Softanza loops to find a given random number
 			# before it aborts the process and raises an error
 			#--> Used as a safey featur with while loops inorder to
 			# avoid infite lopps
 
+_nNo = 0
+_nFew = 0.15
+_nSome = 0.30
+_nHalf = 0.50
+_nMany = 0.70
+_nMost = 0.90
+_nAll = 1
+
+_nProbably = 0.50
+_nUnlikely = 0.05
+_nPerhaps = 0.50
+_nAlmost = 0.95
+
+# Probabilistic functions
+
+func DefaultNo()
+	return _nNo
+
+	func DefaultAny()
+		return _nNo
+
+	func _No()
+		return _nNo
+
+	func _Any()
+		return _nNo
+
+func SetNo(n)
+	_nNo = n
+
+	func SetAny(n)
+		SetNo(n)
+
+func No(p)
+	return []
+
+	func Any(p)
+		return No(p)
+
+#--
+
+func DefaultFew()
+	return _nFew
+
+	func _Few()
+		return _nFew
+
+func SetFew(n)
+	_nFew = n
+
+func Few(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	n = ceil( len(paList) * _Few() )
+	return sort( NRandomItemsInU(n, paList) )
+
+#--
+
 func DefaultSome()
-	return _nDefaultSome
+	return _nSome
 
-func SetDefaultSome(n)
+	func _Some()
+		return _nSome
+func SetSome(n)
+	_nSome = n
+
+func Some(paList)
 	if CheckParams()
-		if isList(n) and Q(n).IsToNamedParam()
-			n = n[2]
-		ok
-
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
 		ok
 	ok
 
-	_nDefaultSome = n
+	n = ceil( len(paList) * _Some() )
 
-	func SetSome(n)
-		SetDefaultSome(n)
+	return sort( NRandomItemsInU(n, paList) )
 
-	func SetDefaultSomeTo(n)
-		if CheckParams()
-			if NOT isNumber(n)
-				StzRaise("Incorrect param type! n must be a number.")
-			ok
-		ok
+#--
 
-		_nDefaultSome = n
+func DefaultHalf()
+	return _nHalf
 
-	func SetSomeTo(n)
-		SetDefaultSomeTo(n)
+	func _Half()
+		return _nHalf
+func SetHalf(n)
+	_nHalf = n
 
-func Some(p)
+func Half(paList)
 	if CheckParams()
-		if isString(p)
-			if p = :Chars
-				return SomeChars()
-			but p = :Strings
-				return SomeStrings()
-			but p = :Numbers
-				return SomeNumbers()
-			but p = :Lists
-				return SomeLists()
-			but p = :Objects
-				return SomeObjects()
-			ok
-		ok
-
-		if NOT isList(p)
-			StzRaise("Incorrect param type! p must be a list.")
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
 		ok
 	ok
 
-	return NRandomItemsIn(DefaultSome(), p)
+	n = ceil( len(paList) / 2 )
+	return sort( NRandomItemsInU(n, paList) )
 
+func HalfXT(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	nLen = len(paList)
+	if IsEven(nLen)
+		n = nLen / 2
+	else
+		n = ceil( nLen / 2 )
+	ok
+
+#--
+
+func DefaultMany()
+	return _nMany
+
+	func _Many()
+		return _nMany
+
+func SetMany(n)
+	_nMany = n
+
+func Many(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	n = ceil( len(paList) * _Some() )
+	return sort( NRandomItemsInU(n, paList) )
+
+#--
+
+func DefaultMost()
+	return _nMost
+
+	func _Most()
+		return _nMost
+
+func SetMost(n)
+	_nMost = n
+
+func Most(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	n = floor( len(paList) * _Most() )
+	return sort( NRandomItemsInU(n, paList) )
+
+#--
+
+func DefaultAll()
+	return _nAll
+
+	func _All()
+		return n_All
+
+func SetAll(n)
+	_nAll = n
+
+func All(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	return paList
+
+#==
 
 func MaxRandomLoop()
 	return _nMaxRandomLoop
@@ -835,86 +957,86 @@ func RandomNumberOtherThanXT(n, nSeed)
 
 #==
 
-func SomeRandomNumbersGreaterThan(n)
-	nRandom = ARandomNumber()
-	return NRandomNumbersGreaterThan(nRandom, n)
+func SomeRandomNumbersGreaterThan(nValue)
+	n = floor( _Some() * 10 )
+	return NRandomNumbersGreaterThan(n, nValue)
 
 	#< @FunctionAlternativeForms
 
-	func SomeNumbersGreaterThan(n)
-		return SomeRandomNumbersGreaterThan(n)
+	func SomeNumbersGreaterThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
 
-	func AnyRandomNumbersGreaterThan(n)
-		return SomeRandomNumbersGreaterThan(n)
+	func AnyRandomNumbersGreaterThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
 
-	func AnyNumbersGreaterThan(n)
-		return SomeRandomNumbersGreaterThan(n)
-
-	#--
-
-	func SomeRandomNumbersBiggerThan(n)
-		return SomeRandomNumbersGreaterThan(n)
-
-	func SomeNumbersBiggerThan(n)
-		return SomeRandomNumbersGreaterThan(n)
-
-	func AnyRandomNumbersBiggerThan(n)
-		return SomeRandomNumbersGreaterThan(n)
-
-	func AnyNumbersBiggerThan(n)
-		return SomeRandomNumbersGreaterThan(n)
+	func AnyNumbersGreaterThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
 
 	#--
 
-	func RandomNumbersGreaterThan(n)
-		return SomeRandomNumbersGreaterThan(n)
+	func SomeRandomNumbersBiggerThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
 
-	func RandomNumbersBiggerThan(n)
-		return SomeRandomNumbersGreaterThan(n)
+	func SomeNumbersBiggerThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
+
+	func AnyRandomNumbersBiggerThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
+
+	func AnyNumbersBiggerThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
+
+	#--
+
+	func RandomNumbersGreaterThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
+
+	func RandomNumbersBiggerThan(nValue)
+		return SomeRandomNumbersGreaterThan(nValue)
 
 	#==
 
-	func SomeRandomNumbersGreaterThan01(n)
+	func SomeRandomNumbersGreaterThan01(nValue)
 
-		nSome = ARandomNumberLessThan(DefaultSome())
+		nSome = ARandomNumberLessThan( floor(_Some() * 10) )
 		anResult = []
 
 		for i = 1 to nSome
-			anResult + ARanomNumberGreaterThan01(n)
+			anResult + ARanomNumberGreaterThan01(nValue)
 		next
 
 		return anResult
 
-	func SomeNumbersGreaterThan01(n)
-		return SomeRandomNumbersGreaterThan01(n)
+	func SomeNumbersGreaterThan01(nValue)
+		return SomeRandomNumbersGreaterThan01(nValue)
 
-	func AnyRandomNumbersGreaterThan01(n)
-		return SomeRandomNumbersGreaterThan01(n)
+	func AnyRandomNumbersGreaterThan01(nValue)
+		return SomeRandomNumbersGreaterThan01(nValue)
 
-	func AnyNumbersGreaterThan01(n)
-		return SomeRandomNumbersGreaterThan01(n)
-
-	#--
-
-	func SomeRandomNumbersBiggerThan01(n)
-		return SomeRandomNumbersGreaterThan01(n)
-
-	func SomeNumbersBiggerThan01(n)
-		return SomeRandomNumbersGreaterThan01(n)
-
-	func AnyRandomNumbersBiggerThan01(n)
-		return SomeRandomNumbersGreaterThan01(n)
-
-	func AnyNumbersBiggerThan01(n)
-		return SomeRandomNumbersGreaterThan01(n)
+	func AnyNumbersGreaterThan01(nValue)
+		return SomeRandomNumbersGreaterThan01(nValue)
 
 	#--
 
-	func RandomNumbersGreaterThan01(n)
-		return SomeRandomNumbersGreaterThan01(n)
+	func SomeRandomNumbersBiggerThan01(nValue)
+		return SomeRandomNumbersGreaterThan01(nValue)
 
-	func RandomNumbersBiggerThan01(n)
-		return SomeRandomNumbersGreaterThan01(n)
+	func SomeNumbersBiggerThan01(nValue)
+		return SomeRandomNumbersGreaterThan01(nValue)
+
+	func AnyRandomNumbersBiggerThan01(nValue)
+		return SomeRandomNumbersGreaterThan01(nValue)
+
+	func AnyNumbersBiggerThan01(nValue)
+		return SomeRandomNumbersGreaterThan01(nValue)
+
+	#--
+
+	func RandomNumbersGreaterThan01(nValue)
+		return SomeRandomNumbersGreaterThan01(nValue)
+
+	func RandomNumbersBiggerThan01(nValue)
+		return SomeRandomNumbersGreaterThan01(nValue)
 
 	#>
 
@@ -959,7 +1081,7 @@ func SomeRandomNumbersGreaterThanXT(n, nSeed)
 
 	func SomeRandomNumbersGreaterThan01XT(n, nSeed)
 
-		nSome = ARandomNumberLessThan(DefaultSome())
+		nSome = ARandomNumberLessThan( floor( _Some() * 10) )
 		anResult = []
 
 		for i = 1 to nSome
@@ -1004,8 +1126,7 @@ func SomeRandomNumbersGreaterThanXT(n, nSeed)
 #--
 
 func SomeRandomNumbersGreaterThanU(n)
-	nRandom = ARandomNumber()
-	return NRandomNumbersGreaterThanU(nRandom, n)
+	return NRandomNumbersGreaterThanU( floor( _Some() * 10), n)
 
 	#< @FunctionAlternativeForms
 
@@ -1066,7 +1187,7 @@ func SomeRandomNumbersGreaterThanU(n)
 
 	func SomeRandomNumbersGreaterThan01U(n)
 
-		nSome = ARandomNumberLessThan(DefaultSome())
+		nSome = ARandomNumberLessThan( floor(_Some() * 10) )
 		anResult = []
 
 		while TRUE
@@ -1205,7 +1326,7 @@ func SomeRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 			ok
 		ok
 
-		nSome = ARandomNumberLessThan(DefaultSome())
+		nSome = ARandomNumberLessThan(floor(_Some() * 10))
 		anResult = []
 
 		while TRUE
@@ -2308,7 +2429,7 @@ func SomeRandomNumbersIn(panNumbers)
 		ok
 	ok
 
-	n = ARandomNumberIn(1:len(panNumbers))
+	n = floor( _Some() * len(panNumbers) )
 	return NRandomNumbersIn(n, panNumbers)
 
 	#< @FunctionAlternativeForms

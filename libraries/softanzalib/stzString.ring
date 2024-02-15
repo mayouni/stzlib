@@ -59948,28 +59948,72 @@ ici		//...
 		This.RemoveManyCS(paSubStrings, pCaseSensitive)
 		return paSubStrings
 
+		#< @FunctionAlternativeForms
+
 		def PopManyCS(paSubStrings, pCaseSensitive)
 			return This.ExtractManyCS(paSubStrings, pCaseSensitive)
+
+		#--
+
+		def ExtractTheseCS(aSubStrings, pCaseSensitive)
+			return This.ExtractManyCS(paSubStrings, pCaseSensitive)
+
+		def PopTheseCS(aSubStrings, pCaseSensitive)
+			return This.ExtractManyCS(paSubStrings, pCaseSensitive)
+
+		#>
 
 	def ManySubStringsExtractedCS(paSubStrings, pCaseSensitive)
 		return This.ExtractManyCS(paSubStrings, pCaseSensitive)
 
+		#< @FunctionAlternativeForms
+
 		def ManySubStringsPoppedCS(paSubStrings, pCaseSensitive)
 			return This.ExtractManyCS(paSubStrings, pCaseSensitive)
+
+		def TheseSubStringsExtractedCS(paSubStrings, pCaseSensitive)
+			return This.ManySubStringsExtractedCS(paSubStrings, pCaseSensitive)
+
+		def TheseSubStringsPoppedCS(paSubStrings, pCaseSensitive)
+			return This.ExtractManyCS(paSubStrings, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractMany(paSubStrings)
 		return This.ExtractManyCS(paSubStrings, :pCaseSensitive = TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def PopMany(paSubStrings)
 			return This.ExtractMany(paSubStrings)
+
+		#--
+
+		def ExtractThese(aSubStrings)
+			return This.ExtractMany(paSubStrings)
+
+		def PopThese(aSubStrings)
+			return This.ExtractMany(paSubStrings)
+
+		#>
 
 	def ManySubStringsExtracted(paSubStrings)
 		return This.ExtractMany(paSubStrings)
 
+		#< @FunctionAlternativeForms
+
 		def ManySubStringsPopped(paSubStrings)
 			return This.ExtractMany(paSubStrings)
+
+		def TheseSubStringsExtracted(paSubStrings)
+			return This.ManySubStringsExtracted(paSubStrings)
+
+		def TheseSubStringsPopped(paSubStrings)
+			return This.ExtractMany(paSubStrings)
+
+		#>
 
 	  #-------------------------------------------------#
 	 #  EXTRACTING ALL THE SUBSTRINGS FROM THE STRING  #

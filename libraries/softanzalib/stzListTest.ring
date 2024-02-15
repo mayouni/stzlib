@@ -220,7 +220,7 @@ pron()
 ? Q(1:7) - 4:7
 #--> [ 1, 2, 3, 4, 5, 6, 7 ]
 
-? Q(1:7) - Many(4:7)
+? Q(1:7) - These(4:7)
 #--> [ 1, 2, 3 ]
 
 proff()
@@ -2543,7 +2543,7 @@ StopProfiler()
 StartProfiler()
 
 o1 = new stzList([ "A", "B", "_", "C", "*" ])
-? o1.ExtractMany(["_", "*"])
+? o1.ExtractMany(["_", "*"]) # Or ExtractThese()
 #--> ["_", "*"]
 
 ? o1.Content()
@@ -4564,7 +4564,7 @@ o1 = new stzList([ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "🌞"] ] ])
 ? o1.DeepContains("🌞")
 #--> TRUE
 
-? o1.DeepContainsMany([ "1", "♥", "3", "🌞" ])
+? o1.DeepContainsMany([ "1", "♥", "3", "🌞" ]) # Or DeepContainsThese()
 #--> TRUE
 
 ? o1.DeepContainsBoth("♥", :And = "🌞")
@@ -7340,22 +7340,22 @@ o1 = new stzlist([ "a" , "b", "c", [ "a", "b", "c" ], "c" ])
 #--> [ "a", "b", "c", "c" ]
 
 # But if we need to remove all the items equal to "a", "b", "c", and leave only the
-# list at position 4 containing [ "a", "b", "c" ], we use Many() like this:
+# list at position 4 containing [ "a", "b", "c" ], we use These() like this:
 
-? @@( o1 - Many([ "a", "b", "c" ]) )
+? @@( o1 - These([ "a", "b", "c" ]) )
 #--> [ [ "a", "b", "c" ] ]
 
 proff()
 # Executed in 0.06 second(s)
 
 /*---------------
-
+*/
 pron()
 
 # When you write this:
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
-o1 - Many([ "b", "c" ])
+o1 - These([ "b", "c" ])
 ? @@( o1.Content() )
 #--> [ "a", "b", "c", "d", "e" ]
 
@@ -7366,7 +7366,7 @@ o1 - Many([ "b", "c" ])
 # tue result in a normal new list.
 
 # Check it by yourself by using ? command before the operation:
-? @@( o1 - Many([ "b", "c" ]) )
+? @@( o1 - These([ "b", "c" ]) )
 #--> [ "a", "d", "e" ]
 
 # Again, the object itself has not been changed:
@@ -7379,7 +7379,7 @@ o1 - Many([ "b", "c" ])
 # Just use the Q() elevator to tell softanza that you want
 # the object to be changed and returned, like this:
 
-o1 - Q( Many(["b", "c"]) )
+o1 - Q( These(["b", "c"]) )
 #    ^
 #    |_ This Q() means that the (-) operation will be refelected
 #       on the object o1 itself. It means also that, after beeing
