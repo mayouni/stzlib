@@ -753,6 +753,12 @@ func StzRaise(paMessage)
 
 # TODO: Add the ring_...() form of all Ring functions
 
+func ring_trim(str)
+	return trim(str)
+
+	func @trim(str)
+		return trim(str)
+
 func ring_insert(paList, n, pItem)
 	insert(paList, n, pItem)
 
@@ -833,6 +839,12 @@ func ring_sin(n)
 
 func ring_pow(n, nPower)
 	return pow(n, nPower)
+
+	func Power(n, nPower)
+		return pow(n, nPower)
+
+	func @Power(n, nPower)
+		return pow(n, nPower)
 
 func ring_left(str, n)
 	return left(str, n)

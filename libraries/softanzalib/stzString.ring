@@ -812,6 +812,24 @@ func BothAreMarquers(pcStr1, pcStr2)
 	func @BothAreMarquers(pcStr1, pcStr2)
 		return BothAreMarquers(pcStr1, pcStr2)
 
+func IsNumberInString(str)
+	return StzStringQ(str).IsNumberInString()
+
+	func @IsNumberInstring(str)
+		return IsNumberInString(str)
+
+func IsIntegerInString(str)
+	return StzStringQ(str).IsIntegerInString()
+
+	func @IsIntegerInstring(str)
+		return IsIntegerInString(str)
+
+func IsRealInString(str)
+	return StzStringQ(str).IsRealInString()
+
+	func @IsRealInstring(str)
+		return IsRealInString(str)
+
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -68099,7 +68117,45 @@ ici		//...
 			if BothAreIntegersInStrings(cPart1, cPart2)
 
 			but BothAreNumbersInStrings(cPart1, cPart2) and
-			    ( IsRealInString(cPart1) or IsRealInString(cPart2) )
+			    ( @IsRealInString(cPart1) or @IsRealInString(cPart2) )
+
+				cPart1 = ring_trim(cPart1)
+				cPart2 = ring_trim(cPart2)
+
+				nLenPart1 = len(cPart1)
+				nLenPart2 = len(cPart2)
+
+				nDec1 = 0
+				nDec2 = 0
+
+				nPos1 = substr(cPart1, ".")
+				if nPos1 > 0
+					nDec1 = nLenPart1 - nPos1
+				ok
+
+				nPos2 = substr(cPart2, ".")
+				if nPos2 > 0
+					nDec2 = nLenPart2 - nPos2
+				ok
+
+				nDec = Max([ nDec1, nDec2 ])
+
+				nTempDec = CurrentRound()
+				decimals(nDec)
+
+				n1 = 0+ cPart1
+				n2 = 0+ cPart2 + (1 / power(10, nDec+1))
+				nStep = 1 / power(10, nDec)
+
+				anResult = []
+
+				for n = n1 to n2 step nStep
+					anResult + n
+				next
+
+				decimals(nTempDec)
+
+				return anResult
 
 			but oPart1.IsBoundedBy('"') and
 			    oPart2.IsBoundedBy('"')

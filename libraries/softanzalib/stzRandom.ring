@@ -2482,7 +2482,7 @@ func SomeRandomNumbersInZ(panNumbers)
 		ok
 	ok
 
-	n = ARandomNumberIn(1:len(panNumbers))
+	n = floor( _Some() * len(panNumbers) )
 	return NRandomNumbersInZ(n, panNumbers)
 
 	#< @FunctionAlternativeForms
@@ -2633,7 +2633,7 @@ func SomeRandomNumbersInU(panNumbers)
 		ok
 	ok
 
-	n = ARandomNumberIn( 1: len(panNumbers) )
+	n = floor( len(panNumbers) * _Some() )
 	return NRandomNumbersInU(n, panNumbers)
 
 	#< @FunctionAlternativeForms
@@ -2701,7 +2701,7 @@ func SomeRandomNumbersInUZ(panNumbers)
 		ok
 	ok
 
-	n = ARandomNumberIn( 1: len(panNumbers) )
+	n = floor( _Some() * len(panNumbers) )
 	return NRandomNumbersInUZ(n, panNumbers)
 
 	#< @FunctionAlternativeForms
