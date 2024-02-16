@@ -146,15 +146,7 @@ func L(p)
 
 	but isString(p)
 
-		if Q(p).IsListInString()
-			return Q(p).ToList()
-
-		but Q(p).ContainsNoSpaces()
-			return Q(p).Chars()
-
-		but Q(p).ContainsSpaces()
-			return Q(p) / " "
-		ok
+		return StzStringQ(p).ToList()
 
 	but isObject(p)
 		return StzObject(p).ObjectAttributesAndValues()
@@ -3260,6 +3252,13 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def ReplaceAtCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+
+			def ReplaceAtCSQ(n, pNewItem, pCaseSensitive)
+				This.ReplaceAtCS(n, pNewItem, pCaseSensitive)
+				return This
+
 		def ReplaceAnyItemAtPositionCS(n, pNewItem, pCaseSensitive)
 			This.ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 
@@ -3325,6 +3324,13 @@ class stzList from stzObject
 		#>
 
 		#< @FunctionAlternativeForms
+
+		def ReplaceAt(n, pNewItem)
+			This.ReplaceAnyItemAtPositionN(n, pNewItem)
+
+			def ReplaceAtQ(n, pNewItem)
+				This.ReplaceAt(n, pNewItem)
+				return This
 
 		def ReplaceAnyItemAt(n, pNewItem)
 			This.ReplaceAnyItemAtPositionN(n, pNewItem)
@@ -28868,7 +28874,7 @@ class stzList from stzObject
 			
 			if isString(aContent[i])
 				cStrUpp = Q(aContent[i]).Uppercased()
-				This.ReplaceItemAtPosition(i, cStrUpp)
+				This.ReplaceAt(i, cStrUpp)
 			ok
 		next
 
@@ -31963,6 +31969,254 @@ class stzList from stzObject
 
 		def FinishesWith(paItems)
 			return This.EndsWith(paItems)
+
+	  #---------------------------------------------#
+	 #  CHECKING IF THE LIST STARTS WITH A NUMBER  #
+	#=============================================#
+
+	def StartsWithANumber()
+		bResult = FALSE
+		
+		if This.NumberOfItems() > 1 and
+		   isNumber(This.Item(1))
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def StartsWithALeadingNumber()
+			return This.StartsWithANumber()
+
+		def ContainsAStartingNumber()
+			return This.StartsWithANumber()
+
+		def ContainsALeadingNumber()
+			return This.StartsWithANumber()
+
+		def HasALeadingNumber()
+			return This.StartsWithANumber()
+
+		def HasAStartingNumber()
+			return This.StartsWithANumber()
+
+		#>
+
+	  #-------------------------------------------#
+	 #  CHECKING IF THE LSIT ENDS WITH A NUMBER  #
+	#-------------------------------------------#
+
+	def EndsWithANumber()
+		bResult = FALSE
+		
+		if This.NumberOfItems() > 1 and
+		   isNumber(This.LastItem())
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def EndsWithATrailingNumber()
+			return This.EndsWithANumber()
+
+		def ContainsATrailingNumber()
+			return This.EndsWithANumber()
+
+		def HasATrailingNumber()
+			return This.EndsWithANumber()
+
+		#>
+
+	  #---------------------------------------------#
+	 #  CHECKING IF THE LIST STARTS WITH A STRING  #
+	#=============================================#
+
+	def StartsWithAString()
+		bResult = FALSE
+		
+		if This.StringOfItems() > 1 and
+		   isString(This.Item(1))
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def StartsWithALeadingString()
+			return This.StartsWithAString()
+
+		def ContainsAStartingString()
+			return This.StartsWithAString()
+
+		def ContainsALeadingString()
+			return This.StartsWithAString()
+
+		def HasALeadingString()
+			return This.StartsWithAString()
+
+		def HasAStartingString()
+			return This.StartsWithAString()
+
+		#>
+
+	  #-------------------------------------------#
+	 #  CHECKING IF THE LIST ENDS WITH A NUMBER  #
+	#-------------------------------------------#
+
+	def EndsWithAString()
+		bResult = FALSE
+		
+		if This.NumberOfItems() > 1 and
+		   isString(This.LastItem())
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def EndsWithATrailingString()
+			return This.EndsWithAString()
+
+		def ContainsATrailingString()
+			return This.EndsWithAString()
+
+		def HasATrailingString()
+			return This.EndsWithAString()
+
+		#>
+
+	  #-------------------------------------------#
+	 #  CHECKING IF THE LIST STARTS WITH A LIST  #
+	#===========================================#
+
+	def StartsWithAList()
+		bResult = FALSE
+		
+		if This.NumberOfItems() > 1 and
+		   isList(This.Item(1))
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def StartsWithALeadingList()
+			return This.StartsWithAList()
+
+		def ContainsAStartingList()
+			return This.StartsWithAList()
+
+		def ContainsALeadingList()
+			return This.StartsWithAList()
+
+		def HasALeadingList()
+			return This.StartsWithAList()
+
+		def HasAStartingList()
+			return This.StartsWithAList()
+
+		#>
+
+	  #-----------------------------------------#
+	 #  CHECKING IF THE LIST ENDS WITH A LIST  #
+	#-----------------------------------------#
+
+	def EndsWithAList()
+		bResult = FALSE
+		
+		if This.NumberOfItems() > 1 and
+		   isList(This.LastItem())
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def EndsWithATrailingList()
+			return This.EndsWithAList()
+
+		def ContainsATrailingList()
+			return This.EndsWithAList()
+
+		def HasATrailingList()
+			return This.EndsWithAList()
+
+		#>
+
+	  #----------------------------------------------#
+	 #  CHECKING IF THE LIST STARTS WITH AN OBJECT  #
+	#==============================================#
+
+	def StartsWithAObject()
+		bResult = FALSE
+		
+		if This.NumberOfItems() > 1 and
+		   isObject(This.Item(1))
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def StartsWithALeadingObject()
+			return This.StartsWithAObject()
+
+		def ContainsAStartingObject()
+			return This.StartsWithAObject()
+
+		def ContainsALeadingObject()
+			return This.StartsWithAObject()
+
+		def HasALeadingObject()
+			return This.StartsWithAObject()
+
+		def HasAStartingObject()
+			return This.StartsWithAObject()
+
+		#>
+
+	  #--------------------------------------------#
+	 #  CHECKING IF THE LIST ENDS WITH AN OBJECT  #
+	#--------------------------------------------#
+
+	def EndsWithAObject()
+		bResult = FALSE
+		
+		if This.NumberOfItems() > 1 and
+		   isObject(This.LastItem())
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def EndsWithATrailingObject()
+			return This.EndsWithAObject()
+
+		def ContainsATrailingObject()
+			return This.EndsWithAObject()
+
+		def HasATrailingObject()
+			return This.EndsWithAObject()
+
+		#>
 
 	  #==========================================#
 	 #  SMALLEST AND LARGEST ITEMS IN THE LIST  #

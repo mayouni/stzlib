@@ -57678,11 +57678,12 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def RemoveAnyCharFromTheStartCS(c, pCaseSensitive)
+		def RemoveThisCharFromStartCS(c, pCaseSensitive)
 			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
 
-			def RemoveAnyCharFromTheStartCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheStartCSQ(c, pCaseSensitive)
+			def RemoveThisCharFromStartCSQ(c, pCaseSensitive)
+				This.RemoveThisCharFromStartCS(c, pCaseSensitive)
+				return This
 
 		def RemoveAnyOccurrenceOfCharFromStartCS(c, pCaseSensitive)
 			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
@@ -57722,13 +57723,7 @@ ici		//...
 			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
 
 			def RemoveCharFromStartCSXTQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheStartCSQ(c, pCaseSensitive)
-
-		def RemoveCharFromTheStartCSXT(c, pCaseSensitive)
-			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
-
-			def RemoveCharFromTheStartCSXTQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheStartCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromStartCSQ(c, pCaseSensitive)
 
 		#--
 
@@ -57736,25 +57731,13 @@ ici		//...
 			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
 
 			def TrimCharFromStartCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheStartCSQ(c, pCaseSensitive)
-
-		def TrimCharFromTheStartCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
-
-			def TrimCharFromTheStartCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheStartCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromStartCSQ(c, pCaseSensitive)
 
 		def TrimThisCharFromStartCS(c, pCaseSensitive)
 			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
 
 			def TrimThisCharFromStartCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheStartCSQ(c, pCaseSensitive)
-
-		def TrimThisCharFromTheStartCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
-
-			def TrimThisCharFromTheStartCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheStartCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromStartCSQ(c, pCaseSensitive)
 
 		#>
 
@@ -57786,21 +57769,12 @@ ici		//...
 		def CharRemovedFromStartCSXT(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
 
-		def CharRemovedFromTheStartCSXT(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
-
 		#--
 
 		def CharTrimmedFromStartCS(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
 
-		def CharTrimmedFromTheStartCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
-
 		def ThisCharTrimmedFromStartCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
-
-		def ThisCharTrimmedFromTheStartCS(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
 
 		#>
@@ -57812,12 +57786,6 @@ ici		//...
 		return This
 
 		#< @FunctionAlternativeForms
-
-		def RemoveAnyCharFromTheStart(c)
-			This.RemoveAnyCharFromStart(c)
-
-			def RemoveAnyCharFromTheStartQ(c)
-				return This.RemoveAnyCharFromTheStartQ(c)
 
 		def RemoveAnyOccurrenceOfCharFromStart(c)
 			This.RemoveAnyCharFromStart(c)
@@ -57857,13 +57825,7 @@ ici		//...
 			This.RemoveAnyCharFromStart(c)
 
 			def RemoveCharFromStartXTQ(c)
-				return This.RemoveAnyCharFromTheStartQ(c)
-
-		def RemoveCharFromTheStartXT(c)
-			This.RemoveAnyCharFromStart(c)
-
-			def RemoveCharFromTheStartXTQ(c)
-				return This.RemoveAnyCharFromTheStartQ(c)
+				return This.RemoveAnyCharFromStartQ(c)
 
 		#--
 
@@ -57871,25 +57833,13 @@ ici		//...
 			This.RemoveAnyCharFromStart(c)
 
 			def TrimCharFromStartQ(c)
-				return This.RemoveAnyCharFromTheStartQ(c)
-
-		def TrimCharFromTheStart(c)
-			This.RemoveAnyCharFromStart(c)
-
-			def TrimCharFromTheStartQ(c)
-				return This.RemoveAnyCharFromTheStartQ(c)
+				return This.RemoveAnyCharFromStartQ(c)
 
 		def TrimThisCharFromStart(c)
 			This.RemoveAnyCharFromStart(c)
 
 			def TrimThisCharFromStartQ(c)
-				return This.RemoveAnyCharFromTheStartQ(c)
-
-		def TrimThisCharFromTheStart(c)
-			This.RemoveAnyCharFromStart(c)
-
-			def TrimThisCharFromTheStartQ(c)
-				return This.RemoveAnyCharFromTheStartQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromStartQ(c)
 
 		#>
 
@@ -57920,9 +57870,6 @@ ici		//...
 		def CharRemovedFromStartXT(c)
 			return This.AnyOccurrenceOfCharRemovedFromStart(c)
 
-		def CharRemovedFromTheStartXT(c)
-			return This.AnyOccurrenceOfCharRemovedFromStart(c)
-
 		#>
 
 	  #---------------------------------#
@@ -57931,9 +57878,9 @@ ici		//...
 
 	def RemoveAnyCharFromEndCS(c, pCaseSensitive)
 		if This.IsLeftToRight()
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
-		else
 			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
+		else
+			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
 		ok
 
 
@@ -57947,11 +57894,12 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def RemoveAnyCharFromTheEndCS(c, pCaseSensitive)
+		def RemoveThisCharFromEndCS(c, pCaseSensitive)
 			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
 
-			def RemoveAnyCharFromTheEndCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheEndCSQ(c, pCaseSensitive)
+			def RemoveThisCharFromEndCSQ(c, pCaseSensitive)
+				This.RemoveThisCharFromEndCS(c, pCaseSensitive)
+				return This
 
 		def RemoveAnyOccurrenceOfCharFromEndCS(c, pCaseSensitive)
 			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
@@ -57991,13 +57939,7 @@ ici		//...
 			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
 
 			def RemoveCharFromEndCSXTQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheEndCSQ(c, pCaseSensitive)
-
-		def RemoveCharFromTheEndCSXT(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
-
-			def RemoveCharFromTheEndCSXTQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheEndCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
 
 		#--
 
@@ -58005,25 +57947,13 @@ ici		//...
 			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
 
 			def TrimCharFromEndCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheEndCSQ(c, pCaseSensitive)
-
-		def TrimCharFromTheEndCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
-
-			def TrimCharFromTheEndCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheEndCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
 
 		def TrimThisCharFromEndCS(c, pCaseSensitive)
 			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
 
 			def TrimThisCharFromEndCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheEndCSQ(c, pCaseSensitive)
-
-		def TrimThisCharFromTheEndCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
-
-			def TrimThisCharFromTheEndCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheEndCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
 
 		#>
 
@@ -58055,23 +57985,13 @@ ici		//...
 		def CharRemovedFromEndCSXT(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
 
-		def CharRemovedFromTheEndCSXT(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
-
 		#--
 
 		def CharTrimmedFromEndCS(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
 
-		def CharTrimmedFromTheEndCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
-
 		def ThisCharTrimmedFromEndCS(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
-
-		def ThisCharTrimmedFromTheEndCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
-
 
 		#>
 
@@ -58083,11 +58003,12 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def RemoveAnyCharFromTheEnd(c)
+		def RemoveThisCharFromEnd(c)
 			This.RemoveAnyCharFromEnd(c)
 
-			def RemoveAnyCharFromTheEndQ(c)
-				return This.RemoveAnyCharFromTheEndQ(c)
+			def RemoveThisCharFromEndQ(c)
+				This.RemoveThisCharFromEnd(c)
+				return This
 
 		def RemoveAnyOccurrenceOfCharFromEnd(c)
 			This.RemoveAnyCharFromEnd(c)
@@ -58127,13 +58048,7 @@ ici		//...
 			This.RemoveAnyCharFromEnd(c)
 
 			def RemoveCharFromEndXTQ(c)
-				return This.RemoveAnyCharFromTheEndQ(c)
-
-		def RemoveCharFromTheEndXT(c)
-			This.RemoveAnyCharFromEnd(c)
-
-			def RemoveCharFromTheEndXTQ(c)
-				return This.RemoveAnyCharFromTheEndQ(c)
+				return This.RemoveAnyCharFromEndQ(c)
 
 
 		#--
@@ -58142,25 +58057,13 @@ ici		//...
 			This.RemoveAnyCharFromEnd(c)
 
 			def TrimCharFromEndQ(c)
-				return This.RemoveAnyCharFromTheEndQ(c)
-
-		def TrimCharFromTheEnd(c)
-			This.RemoveAnyCharFromEnd(c)
-
-			def TrimCharFromTheEndQ(c)
-				return This.RemoveAnyCharFromTheEndQ(c)
+				return This.RemoveAnyCharFromEndQ(c)
 
 		def TrimThisCharFromEnd(c)
 			This.RemoveAnyCharFromEnd(c)
 
 			def TrimThisCharFromEndQ(c)
-				return This.RemoveAnyCharFromTheEndQ(c)
-
-		def TrimThisCharFromTheEnd(c)
-			This.RemoveAnyCharFromEnd(c)
-
-			def TrimThisCharFromTheEndQ(c)
-				return This.RemoveAnyCharFromTheEndQ(c)
+				return This.RemoveAnyCharFromEndQ(c)
 
 		#>
 
@@ -58191,21 +58094,12 @@ ici		//...
 		def CharRemovedFromEndXT(c)
 			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
 
-		def CharRemovedFromTheEndXT(c)
-			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
-
 		#--
 
 		def CharTrimmedFromEnd(c)
 			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
 
-		def CharTrimmedFromTheEnd(c)
-			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
-
 		def ThisCharTrimmedFromEnd(c)
-			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
-
-		def ThisCharTrimmedFromTheEnd(c)
 			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
 
 		#>
@@ -58269,11 +58163,12 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def RemoveAnyCharFromTheLeftCS(c, pCaseSensitive)
+		def RemoveThisCharFromLeftCS(c, pCaseSensitive)
 			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
 
-			def RemoveAnyCharFromTheLeftCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheLeftCSQ(c, pCaseSensitive)
+			def RemoveThisCharFromLeftCSQ(c, pCaseSensitive)
+				This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
+				return This
 
 		def RemoveAnyOccurrenceOfCharFromLeftCS(c, pCaseSensitive)
 			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
@@ -58313,39 +58208,13 @@ ici		//...
 			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
 
 			def RemoveCharFromLeftCSXTQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheLeftCSQ(c, pCaseSensitive)
-
-		def RemoveCharFromTheLeftCSXT(c, pCaseSensitive)
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
-
-			def RemoveCharFromTheLeftCSXTQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheLeftCSQ(c, pCaseSensitive)
-
-		#--
+				return This.RemoveAnyCharFromLeftCSQ(c, pCaseSensitive)
 
 		def TrimCharFromLeftCS(c, pCaseSensitive)
 			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
 
 			def TrimCharFromLeftCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheleftCSQ(c, pCaseSensitive)
-
-		def TrimCharFromTheLeftCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
-
-			def TrimCharFromTheLeftCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheLeftCSQ(c, pCaseSensitive)
-
-		def TrimThisCharFromLeftCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
-
-			def TrimThisCharFromLeftCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheLeftCSQ(c, pCaseSensitive)
-
-		def TrimThisCharFromTheLeftCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
-
-			def TrimThisCharFromTheLeftCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheLeftCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromleftCSQ(c, pCaseSensitive)
 
 		#>
 
@@ -58377,23 +58246,11 @@ ici		//...
 		def CharRemovedFromLeftCSXT(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
 
-		def CharRemovedFromTheLeftCSXT(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
-
-		#--
-
 		def CharTrimmedFromLeftCS(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
 
-		def CharTrimmedFromTheLeftCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
-
-		def ThisCharTrimmedFromRLeftCS(c, pCaseSensitive)
+		def ThisCharTrimmedFromLeftCS(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromRLeftCS(c, pCaseSensitive)
-
-		def ThisCharTrimmedFromTheLeftCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
-
 
 		#>
 
@@ -58405,11 +58262,12 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def RemoveAnyCharFromTheLeft(c)
+		def RemoveThisCharFromLeft(c)
 			This.RemoveAnyCharFromLeft(c)
 
-			def RemoveAnyCharFromTheLeftQ(c)
-				return This.RemoveAnyCharFromTheLeftQ(c)
+			def RemoveThisCharFromLeftQ(c)
+				This.RemoveThisCharFromLeft(c)
+				return This
 
 		def RemoveAnyOccurrenceOfCharFromLeft(c)
 			This.RemoveAnyCharFromLeft(c)
@@ -58449,13 +58307,7 @@ ici		//...
 			This.RemoveAnyCharFromLeft(c)
 
 			def RemoveCharFromLeftXTQ(c)
-				return This.RemoveAnyCharFromTheLeftQ(c)
-
-		def RemoveCharFromTheLeftXT(c)
-			This.RemoveAnyCharFromLeft(c)
-
-			def RemoveCharFromTheLeftXTQ(c)
-				return This.RemoveAnyCharFromTheLeftQ(c)
+				return This.RemoveAnyCharFromLeftQ(c)
 
 		#--
 
@@ -58463,25 +58315,13 @@ ici		//...
 			This.RemoveAnyCharFromLeft(c)
 
 			def TrimCharFromLeftQ(c)
-				return This.RemoveAnyCharFromTheleftQ(c)
-
-		def TrimCharFromTheLeft(c)
-			This.RemoveAnyCharFromLeft(c)
-
-			def TrimCharFromTheLeftQ(c)
-				return This.RemoveAnyCharFromTheLeftQ(c)
+				return This.RemoveAnyCharFromleftQ(c)
 
 		def TrimThisCharFromLeft(c)
 			This.RemoveAnyCharFromLeft(c)
 
 			def TrimThisCharFromLeftQ(c)
-				return This.RemoveAnyCharFromTheLeftQ(c)
-
-		def TrimThisCharFromTheLeft(c)
-			This.RemoveAnyCharFromLeft(c)
-
-			def TrimThisCharFromTheLeftQ(c)
-				return This.RemoveAnyCharFromTheLeftQ(c)
+				return This.RemoveAnyCharFromLeftQ(c)
 
 		#>
 
@@ -58512,21 +58352,10 @@ ici		//...
 		def CharRemovedFromLeftXT(c)
 			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
 
-		def CharRemovedFromTheLeftXT(c)
-			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
-
-		#--
-
 		def CharTrimmedFromLeft(c)
 			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
 
-		def CharTrimmedFromTheLeft(c)
-			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
-
 		def ThisCharTrimmedFromLeft(c)
-			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
-
-		def ThisCharTrimmedFromTheLeft(c)
 			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
 
 		#>
@@ -58588,12 +58417,6 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def RemoveAnyCharFromTheRightCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
-
-			def RemoveAnyCharFromTheRightCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheRightCSQ(c, pCaseSensitive)
-
 		def RemoveAnyOccurrenceOfCharFromRightCS(c, pCaseSensitive)
 			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
 
@@ -58626,45 +58449,23 @@ ici		//...
 			def RemoveAnyOccurrenceOfThisCharRightSideCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
 
-		#--
-
 		def RemoveCharFromRightCSXT(c, pCaseSensitive)
 			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
 
 			def RemoveCharFromRightXTCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheRightCSQ(c, pCaseSensitive)
-
-		def RemoveCharFromTheRightCSXT(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
-
-			def RemoveCharFromTheRightCSXTQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheRightCSQ(c, pCaseSensitive)
-
-		#--
+				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
 
 		def TrimCharFromRightCS(c, pCaseSensitive)
 			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
 
 			def TrimCharFromRightCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheleftCSQ(c, pCaseSensitive)
-
-		def TrimCharFromTheRightCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
-
-			def TrimCharFromTheRightCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheRightCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
 
 		def TrimThisCharFromRightCS(c, pCaseSensitive)
 			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
 
 			def TrimThisCharFromRightCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheRightCSQ(c, pCaseSensitive)
-
-		def TrimThisCharFromTheRightCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
-
-			def TrimThisCharFromTheRightCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromTheRightCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
 
 		#>
 
@@ -58695,21 +58496,10 @@ ici		//...
 		def CharRemovedFromRightCSXT(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
 
-		def CharRemovedFromTheRightCSXT(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
-
-		#--
-
 		def CharTrimmedFromRightCS(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
 
-		def CharTrimmedFromTheRightCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
-
 		def ThisCharTrimmedFromRightCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
-
-		def ThisCharTrimmedFromTheRightCS(c, pCaseSensitive)
 			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
 
 		#>
@@ -58725,12 +58515,6 @@ ici		//...
 			return This
 
 		#< @FunctionAlternativeForms
-
-		def RemoveAnyCharFromTheRight(c)
-			This.RemoveAnyCharFromRight(c)
-
-			def RemoveAnyCharFromTheRightQ(c)
-				return This.RemoveAnyCharFromRightQ(c)
 
 		def RemoveAnyOccurrenceOfCharFromRight(c)
 			This.RemoveAnyCharFromRight(c)
@@ -58772,36 +58556,16 @@ ici		//...
 			def RemoveCharFromRightXTQ(c)
 				return This.RemoveAnyCharFromRightQ(c)
 
-		def RemoveCharFromTheRightXT(c)
-			This.RemoveAnyCharFromRight(c)
-
-			def RemoveCharFromTheRightXTQ(c)
-				return This.RemoveAnyCharFromRightQ(c)
-
-		#--
-
 		def TrimCharFromRight(c)
 			This.RemoveAnyCharFromRight(c)
 
 			def TrimCharFromRightQ(c)
 				return This.RemoveAnyCharFromRightQ(c)
 
-		def TrimCharFromTheRight(c)
-			This.RemoveAnyCharFromRight(c)
-
-			def TrimCharFromTheRightQ(c)
-				return This.RemoveAnyCharFromRightQ(c)
-
 		def TrimThisCharFromRight(c)
 			This.RemoveAnyCharFromRight(c)
 
 			def TrimThisCharFromRightQ(c)
-				return This.RemoveAnyCharFromRightQ(c)
-
-		def TrimThisCharFromTheRight(c)
-			This.RemoveAnyCharFromRight(c)
-
-			def TrimThisCharFromTheRightQ(c)
 				return This.RemoveAnyCharFromRightQ(c)
 
 		#>
@@ -58833,21 +58597,10 @@ ici		//...
 		def CharRemovedFromRightXT(c)
 			return This.AnyOccurrenceOfCharRemovedFromRight(c)
 
-		def CharRemovedFromTheRightXT(c)
-			return This.AnyOccurrenceOfCharRemovedFromRight(c)
-
-		#--
-
 		def CharTrimmedFromRight(c)
 			return This.AnyOccurrenceOfCharRemovedFromRight(c)
 
-		def CharTrimmedFromTheRight(c)
-			return This.AnyOccurrenceOfCharRemovedFromRight(c)
-
 		def ThisCharTrimmedFromRight(c)
-			return This.AnyOccurrenceOfCharRemovedFromRight(c)
-
-		def ThisCharTrimmedFromTheRight(c)
 			return This.AnyOccurrenceOfCharRemovedFromRight(c)
 
 		#>
@@ -58887,28 +58640,6 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def RemoveCharFromTheLeftCS(c, pCaseSensitive)
-			This.RemoveCharFromLeftCS(c, pCaseSensitive)
-
-			def RemoveCharFromTheLeftCSQ(c, pCaseSensitive)
-				return This.RemoveCharFromLeftCSQ(c, pCaseSensitive)
-
-		#--
-
-		def RemoveThisCharFromLeftCS(c, pCaseSensitive)
-			This.RemoveCharFromLeftCS(c, pCaseSensitive)
-
-			def RemoveThisCharFromLeftCSQ(c, pCaseSensitive)
-				return This.RemoveCharFromLeftCSQ(c, pCaseSensitive)
-
-		def RemoveThisCharFromTheLeftCS(c, pCaseSensitive)
-			This.RemoveCharFromLeftCS(c, pCaseSensitive)
-
-			def RemoveThisCharFromTheLeftCSQ(c, pCaseSensitive)
-				return This.RemoveCharFromLeftCSQ(c, pCaseSensitive)
-
-		#--
-
 		def RemoveCharLeftSideCS(c, pCaseSensitive)
 			This.RemoveCharFromLeftCS(c, pCaseSensitive)
 
@@ -58920,7 +58651,6 @@ ici		//...
 
 			def RemoveThisCharLeftSideCSQ(c, pCaseSensitive)
 				return This.RemoveCharFromLeftCSQ(c, pCaseSensitive)
-
 
 		#>
 
@@ -58958,28 +58688,6 @@ ici		//...
 		#>
 
 		#< @FunctionAlternativeForms
-
-		def RemoveCharFromTheLeft(c)
-			This.RemoveCharFromLeft(c)
-
-			def RemoveCharFromTheLeftQ(c)
-				return This.RemoveCharFromLeftQ(c)
-
-		#--
-
-		def RemoveThisCharFromLeft(c)
-			This.RemoveCharFromLeft(c)
-
-			def RemoveThisCharFromLeftQ(c)
-				return This.RemoveCharFromLeftQ(c)
-
-		def RemoveThisCharFromTheLeft(c)
-			This.RemoveCharFromLeft(c)
-
-			def RemoveThisCharFromTheLeftQ(c)
-				return This.RemoveCharFromLeftQ(c)
-
-		#--
 
 		def RemoveCharLeftSide(c)
 			This.RemoveCharFromLeft(c)
@@ -59049,27 +58757,11 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def RemoveCharFromTheRightCS(c, pCaseSensitive)
-			This.RemoveCharFromRightCS(c, pCaseSensitive)
-
-			def RemoveCharFromTheRightCSQ(c, pCaseSensitive)
-				return This.RemoveCharFromRightCSQ(c, pCaseSensitive)
-
-		#--
-
 		def RemoveThisCharFromRightCS(c, pCaseSensitive)
 			This.RemoveCharFromRightCS(c, pCaseSensitive)
 
 			def RemoveThisCharFromRightCSQ(c, pCaseSensitive)
 				return This.RemoveCharFromRightCSQ(c, pCaseSensitive)
-
-		def RemoveThisCharFromTheRightCS(c, pCaseSensitive)
-			This.RemoveCharFromRightCS(c, pCaseSensitive)
-
-			def RemoveThisCharFromTheRightCSQ(c, pCaseSensitive)
-				return This.RemoveCharFromRightCSQ(c, pCaseSensitive)
-
-		#--
 
 		def RemoveCharRightSideCS(c, pCaseSensitive)
 			This.RemoveCharFromRightCS(c, pCaseSensitive)
@@ -59120,27 +58812,11 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def RemoveCharFromTheRight(c)
-			This.RemoveCharFromRight(c)
-
-			def RemoveCharFromTheRightQ(c)
-				return This.RemoveCharFromRightQ(c)
-
-		#--
-
 		def RemoveThisCharFromRight(c)
 			This.RemoveCharFromRight(c)
 
 			def RemoveThisCharFromRightQ(c)
 				return This.RemoveCharFromRightQ(c)
-
-		def RemoveThisCharFromTheRight(c)
-			This.RemoveCharFromRight(c)
-
-			def RemoveThisCharFromTheRightQ(c)
-				return This.RemoveCharFromRightQ(c)
-
-		#--
 
 		def RemoveCharLeftRight(c)
 			This.RemoveCharFromRight(c)
@@ -59869,8 +59545,8 @@ ici		//...
 
 		*/
 
-		This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
-		This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
+		This.RemoveThisCharFromStartCS(c, pCaseSensitive)
+		This.RemoveThisCharFromEndCS(c, pCaseSensitive)
 
 		def TrimCharCSQ(c, pCaseSensitive)
 			This.TrimCharCS(c, pCaseSensitive)
@@ -68172,6 +67848,7 @@ ici		//...
 					aResult = @UnicodesToChars(anUnicodes)
 
 				# Case of marquers: "#1" : "#9"
+
 				but nLenPart1 >= 4 and nLenPart2 >= 4 and
 				    oPart1.Char(2) = "#" and oPart2.Char(2) = "#" and
 				    oPart1.SectionQ(3, nLenPart1 - 1).IsIntegerInString() and
@@ -68186,106 +67863,38 @@ ici		//...
 					next
 
 					return acResult
+
+				# Case "v1 : v3"
+
+				but BothEndWithANumber( oPart1.Section(2, nLenPart1-1),
+					oPart2.Section(2, nLenPart2-1) )
+
+
+					cNumber1 = oPart1.SectionQ(2, nLenPart1-1).TrailingNumber()
+					cNumber2 = oPart2.SectionQ(2, nLenPart2-1).TrailingNumber()
+
+					n1 = 0+ cNumber1
+					n2 = 0+ cNumber2
+
+					cPart1 = oPart1.SectionQ(2, nLenPart1-1).RemoveFromEndQ(cNumber1).Content()
+					cPart2 = oPart2.SectionQ(2, nLenPart2-1).RemoveFromEndQ(cNumber2).Content()
+
+					if cPart1 = cPart2
+						acResult = []
+						for i = n1 to n2
+							acResult + (cPart1 + i)
+						next
+					ok
+
+					return acResult
 				ok
 			     
 			ok
 
 		ok
 
-		return aResult
+		return [ This.Content() ]
 
-/*
-		cPart = NULL
-
-		cPart1 = NULL
-		cLastChar1 = NULL
-
-		cPart2 = NULL
-		cLastChar2 = NULL
-
-		oThisWS = This.ReplaceManyQ([": ", " :"], " : ").SimplifyQ()
-		
-		if oThisWS.NumberOfOccurrence(":") = 1 and oThisWS.MiddleChar() = ":"
-
-			aListMembers = QStringListToList( QStringObject().split(":", 0, 0) )
-			oMember1 = StzStringQ(aListMembers[1]).TrimQ()
-			oMember2 = StzStringQ(aListMembers[2]).TrimQ()
-
-			cMember1 = oMember1.Content()
-			cMember2 = oMember2.Content()
-
-			if BothAreNumbersInStrings(cMember1, cMember2)
-				cLastChar1 = cMember1
-				cLastChar2 = cMember2
-
-			but BothAreCharsInComputableForm(cMember1, cMember2)
-				cLastChar1 = cMember1
-				cLastChar2 = cMember2
-
-			but BothAreStringsInComputableForm(cMember1, cMember2)
-
-				c1 = '"'
-				c2 = "'"
-
-				oMember1.RemoveManyQ([c1, c2])
-				oMember2.RemoveManyQ([c1, c2])
-
-				cLastChar1 = oMember1.LastChar()
-				cLastChar2 = oMember2.LastChar()
-	
-				nLenMember1 = oMember1.NumberOfChars()
-				
-				if nLenMember1 > 1
-					cPart1 = oMember1.Section(1, nLenMember1 - 1)
-				ok
-	
-				nLenMember2 = oMember2.NumberOfChars()
-	
-				if nLenMember2 > 1
-					cPart2 = oMember2.Section(1, nLenMember2 - 1)
-				ok
-
-				if ( cPart1 = NULL     or cPart2 = NULL ) and
-				   ( cLastChar1 = NULL or cLastChar2 = NULL )
-
-					stzRaise("Syntax error! parts must not be null.")
-				ok
-
-				if cPart1 != cPart2
-					stzRaise("Syntax error! The two parts must be the same.")
-				ok
-	
-				cPart = cPart1
-			else
-
-				stzRaise("Syntax error! Can't transoform the string into list.")
-			ok
-
-		else
-
-			stzRaise("Syntax error! Can't transoform the string into list.")
-
-		ok
-	
-		# Composing the contiguous list for cLastChar1 to cLastChar2
-	
-		oString = StzStringQ( cLastChar1 + " : " + cLastChar2 )
-
-		cCode = "aList = " + oString.ToListInNormalForm()
-		eval(cCode)
-	
-		# Adding the other parts
-	
-		nLen = len(aList)
-
-		if cPart != NULL
-			for i = 1 to nLen
-				aList[i] = cPart + aList[i]
-			next
-		ok
-
-		return aList
-*/
 		def ToListQ()
 			return new stzList( This.ToList() )
 		
