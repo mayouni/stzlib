@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*=====
+
 pron()
 
 ? Some( NumbersIn( -5 : 5 ) )
@@ -17,10 +19,8 @@ pron()
 ? Most( PositiveNumbersIn( -5 : 5 ) )
 #--> [ 1, 2, 4, 5 ]
 
-? No( NumbersIn( -5 : 5 ] )
-#--> [ ]
-
 proff()
+# Executed in 0.03 second(s)
 
 /*=====
 
@@ -174,20 +174,20 @@ proff()
 # Executed in 0.03 second(s)
 
 /*---
-*/
+
 pron()
 
 ? random(-10) # Standard Ring function returning NULL
 #--> ""
 
 ? StzRandom(-10) + NL
-#--> -9
+#--> -5
 
 ? SomeRandomNumbersBetween(-10, -1)
-#--> [ -10, -10, -10 ]
+#--> [ -10, -10, -4 ]
 
 ? SomeRandomNumbersBetweenU(-10, -1)
-#--> [ -10, -6, -3, -2 ]
+#--> [ -10, -7, -3 ]
 
 proff()
 # Executed in 0.01 second(s)
@@ -251,16 +251,6 @@ SetRandomRound(5)
 
 proff()
 # Executed in 0.15 second(s)
-
-/*---
-*/
-pron()
-
-//? 2.5 : 5.8
-
-? L('2.5 : 5.8')
-
-proff()
 
 /*---
 
