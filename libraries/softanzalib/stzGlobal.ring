@@ -3260,6 +3260,8 @@ func @IsList(aList)
 func @IsObject(obj)
 	return isObject(obj)
 
+#--
+
 func IsNeitherNorCS(p, p1, p2, pCaseSensitive)
 	return Q(p).IsNeitherCS(p1, p2, pCaseSensitive)
 
@@ -3271,6 +3273,64 @@ func IsNeitherNor(p, p1, p2)
 
 	func @IsNeitherNor(p, p1, p2)
 		return IsNeitherNor(p, p1, p2)
+
+#==
+
+func BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+
+	if Q(pStrOrList1).StartsWithCS(pSubStrOrSubList, pCaseSensitive) and
+	   Q(pStrOrList2).StartsWithCS(pSubStrOrSubList, pCaseSensitive)
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func @BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+		return BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+
+func BothStartWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
+	return BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, TRUE)
+
+	func @BothStartWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
+		return BothStartWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
+
+#--
+
+func BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+
+	if Q(pStrOrList1).endsWithCS(pSubStrOrSubList, pCaseSensitive) and
+	   Q(pStrOrList2).EndsWithCS(pSubStrOrSubList, pCaseSensitive)
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func @BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+		return BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+
+func BothEndWith(pStrOrList1, pStrOrList2)
+	return BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, TRUE)
+
+	func @BothEndWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
+		return BothEndWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
+
+#==
+
+func BothStartWithANumber(p1, p2)
+	if Q(p1).StartsWithANumber() and Q(p2).StartsWithANumber()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func BothEndWithANumber(p1, p2)
+	if Q(p1).EndsWithANumber() and Q(p2).EndsWithANumber()
+		return TRUE
+	else
+		return FALSE
+	ok
 
 class stzForEachObjectOld
 	@acVars

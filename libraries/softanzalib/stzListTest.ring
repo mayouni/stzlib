@@ -1,5 +1,32 @@
 load "stzlib.ring"
 
+/*---
+*/
+pron()
+
+? 1 : 3
+#--> [ 1, 2, 3 ]
+
+? 2.8 : 3.2
+#--> [ 2, 3 ]
+
+? L('2.8 : 3.2')
+#--> [ 2.80, 2.90, 3, 3.10, 3.20 ]
+
+? L('0.07 : 0.10')
+#--> [ 0.07, 0.08, 0.09, 0.10 ]
+
+? L(' -3.25 : -3.2 ')
+#--> [ -3.25, -3.24, -3.23, -3.22, -3.21, -3.20 ]
+
+? L(' "v1" : "v3" ')
+#--> [ "v1", "v2", "v3" ]
+
+proff()
+# Executed in 0.68 second(s)
+
+/*=============
+
 pron()
 
 ? Q(1:3).IsNeither(5:8, :Nor = 10:12)
@@ -32,6 +59,7 @@ pron()
 ? Q(12).IsNeither( :List, :Nor = :Object )
 
 proff()
+# Executed in 0.12 second(s)
 
 /*=============
 
@@ -113,7 +141,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*---------------
-*/
+
 pron()
 
 o1 = new stzString("♥♥♥123♥♥♥")
@@ -190,28 +218,6 @@ o1.ReverseItemsInLists()
 # specific using nearly the same code and the same semantics.
 
 # PS: CONSISTENCY is one of the 7 design goals of SoftanzaLib.
-
-
-/*==========
-
-pron()
-
-? L('"v1" : "v3" ')		# Eqstzruivalent to Q('"v1" : "v3" ').ToList()
-#--> [ "v1", "v2", "v3" ]
-
-? L("v1 v2 v3")
-#--> [ "v1", "v2", "v3" ]
-
-? L("niamey")
-#--> [ "n", "i", "a", "m", "e", "y" ]
-
-? LQ("niamey").Uppercased()
-#--> [ "N", "I", "A", "M", "E", "Y" ]
-
-proff()
-# Executed in 0.38 second(s) in Ring 1.19 (64 bits)
-# Executed in 0.46 second(s) in Ring 1.19 (32 bits)
-# Executed in 0.51 second(s) in Ring 1.17
 
 /*==========
 
