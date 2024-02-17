@@ -31,6 +31,7 @@ load "stzDecimalToBinaryError.ring"
 load "stzListOfNumbers.ring"
 
 load "stzRandom.ring"
+load "stzRandomData.ring"
 
 load "stzListOfUnicodes.ring"
 

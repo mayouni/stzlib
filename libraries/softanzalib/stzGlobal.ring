@@ -1633,6 +1633,36 @@ func BothAreRealsInStrings(p1, p2)
 	func @AreBothRealsInString(p1, p2)
 		return BothAreRealsInStrings(p1, p2)
 
+	#==
+
+	func BothAreRealInString(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	func AreBothRealInString(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	func @BothAreRealInString(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	func @AreBothRealInString(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	#--
+
+	func BothAreRealInStrings(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	func AreBothRealInStrings(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	func @BothAreRealInStrings(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	func @AreBothRealInStrings(p1, p2)
+		return BothAreRealsInStrings(p1, p2)
+
+	#>
+
 func BothArePairsOfNumbers(p1, p2)
 
 	if BothAreLists(p1, p2) and
@@ -1644,12 +1674,10 @@ func BothArePairsOfNumbers(p1, p2)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	func AreBothPairsOfNumbers(p1, p2)
 		return BothArePairsOfNumbers(p1, p2)
-
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothArePairsOfNumbers()
 
 	func @BothArePairsOfNumbers(p1, p2)
 		return BothArePairsOfNumbers(p1, p2)
@@ -1657,6 +1685,46 @@ func BothArePairsOfNumbers(p1, p2)
 	func @AreBothPairsOfNumbers(p1, p2)
 		return BothArePairsOfNumbers(p1, p2)
 
+
+	#--
+
+	func BothArePairOfNumbers(p1, p2)
+		return BothArePairsOfNumbers(p1, p2)
+
+		func AreBothPairOfNumbers(p1, p2)
+			return BothArePairsOfNumbers(p1, p2)
+	
+	func @BothArePairOfNumbers(p1, p2)
+		return BothArePairsOfNumbers(p1, p2)
+
+		func @AreBothPairOfNumbers(p1, p2)
+			return BothArePairsOfNumbers(p1, p2)
+
+	func BothArePairOfNumber(p1, p2)
+		return BothArePairsOfNumbers(p1, p2)
+
+		func AreBothPairOfNumber(p1, p2)
+			return BothArePairsOfNumbers(p1, p2)
+	
+	func @BothArePairOfNumber(p1, p2)
+		return BothArePairsOfNumbers(p1, p2)
+
+		func @AreBothPairOfNumber(p1, p2)
+			return BothArePairsOfNumbers(p1, p2)
+
+	func BothArePairsOfNumber(p1, p2)
+		return BothArePairsOfNumbers(p1, p2)
+
+		func AreBothPairsOfNumber(p1, p2)
+			return BothArePairsOfNumbers(p1, p2)
+	
+	func @BothArePairsOfNumber(p1, p2)
+		return BothArePairsOfNumbers(p1, p2)
+
+		func @AreBothPairsOfNumber(p1, p2)
+			return BothArePairsOfNumbers(p1, p2)
+
+	#>
 
 func BothArePairsOfStrings(p1, p2)
 
@@ -1669,18 +1737,55 @@ func BothArePairsOfStrings(p1, p2)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	func AreBothPairsOfStrings(p1, p2)
 		return BothArePairsOfStrings(p1, p2)
-
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothArePairsOfStrings()
 
 	func @BothArePairsOfStrings(p1, p2)
 		return BothArePairsOfStrings(p1, p2)
 
 	func @AreBothPairsOfStrings(p1, p2)
 		return BothArePairsOfStrings(p1, p2)
+
+	#--
+
+	func BothArePairOfStrings(p1, p2)
+		return BothArePairsOfStrings(p1, p2)
+
+		func AreBothPairOfStrings(p1, p2)
+			return BothArePairsOfStrings(p1, p2)
+	
+	func @BothArePairOfStrings(p1, p2)
+		return BothArePairsOfStrings(p1, p2)
+
+		func @AreBothPairOfStrings(p1, p2)
+			return BothArePairsOfStrings(p1, p2)
+
+	func BothArePairOfString(p1, p2)
+		return BothArePairsOfStrings(p1, p2)
+
+		func AreBothPairOfString(p1, p2)
+			return BothArePairsOfStrings(p1, p2)
+	
+	func @BothArePairOfString(p1, p2)
+		return BothArePairsOfStrings(p1, p2)
+
+		func @AreBothPairOfString(p1, p2)
+			return BothArePairsOfStrings(p1, p2)
+
+	func BothArePairsOfString(p1, p2)
+		return BothArePairsOfStrings(p1, p2)
+
+		func AreBothPairsOfString(p1, p2)
+			return BothArePairsOfStrings(p1, p2)
+	
+	func @BothArePairsOfString(p1, p2)
+		return BothArePairsOfStrings(p1, p2)
+
+		func @AreBothPairsOfString(p1, p2)
+			return BothArePairsOfStrings(p1, p2)
+	#>
 
 func BothArePairsOfLists(p1, p2)
 
@@ -1693,18 +1798,56 @@ func BothArePairsOfLists(p1, p2)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	func AreBothPairsOfLists(p1, p2)
 		return BothArePairsOfLists(p1, p2)
-
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothArePairsOfLists()
 
 	func @BothArePairsOfLists(p1, p2)
 		return BothArePairsOfLists(p1, p2)
 
 	func @AreBothPairsOfLists(p1, p2)
 		return BothArePairsOfLists(p1, p2)
+
+	#--
+
+	func BothArePairOfLists(p1, p2)
+		return BothArePairsOfLists(p1, p2)
+
+		func AreBothPairOfLists(p1, p2)
+			return BothArePairsOfLists(p1, p2)
+	
+	func @BothArePairOfLists(p1, p2)
+		return BothArePairsOfLists(p1, p2)
+
+		func @AreBothPairOfLists(p1, p2)
+			return BothArePairsOfLists(p1, p2)
+
+	func BothArePairOfList(p1, p2)
+		return BothArePairsOfLists(p1, p2)
+
+		func AreBothPairOfList(p1, p2)
+			return BothArePairsOfLists(p1, p2)
+	
+	func @BothArePairOfList(p1, p2)
+		return BothArePairsOfLists(p1, p2)
+
+		func @AreBothPairOfList(p1, p2)
+			return BothArePairsOfLists(p1, p2)
+
+	func BothArePairsOfList(p1, p2)
+		return BothArePairsOfLists(p1, p2)
+
+		func AreBothPairsOfList(p1, p2)
+			return BothArePairsOfLists(p1, p2)
+	
+	func @BothArePairsOfList(p1, p2)
+		return BothArePairsOfLists(p1, p2)
+
+		func @AreBothPairsOfList(p1, p2)
+			return BothArePairsOfLists(p1, p2)
+
+	#>
 
 func BothArePairsOfObjects(p1, p2)
 
@@ -1717,18 +1860,56 @@ func BothArePairsOfObjects(p1, p2)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	func AreBothPairsOfObjects(p1, p2)
 		return BothArePairsOfObjects(p1, p2)
-
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothArePairsOfObjects()
 
 	func @BothArePairsOfObjects(p1, p2)
 		return BothArePairsOfObjects(p1, p2)
 
 	func @AreBothPairsOfObjects(p1, p2)
 		return BothArePairsOfObjects(p1, p2)
+
+	#--
+
+	func BothArePairOfObjects(p1, p2)
+		return BothArePairsOfObjects(p1, p2)
+
+		func AreBothPairOfObjects(p1, p2)
+			return BothArePairsOfObjects(p1, p2)
+	
+	func @BothArePairOfObjects(p1, p2)
+		return BothArePairsOfObjects(p1, p2)
+
+		func @AreBothPairOfObjects(p1, p2)
+			return BothArePairsOfObjects(p1, p2)
+
+	func BothArePairOfObject(p1, p2)
+		return BothArePairsOfObjects(p1, p2)
+
+		func AreBothPairOfObject(p1, p2)
+			return BothArePairsOfObjects(p1, p2)
+	
+	func @BothArePairOfObject(p1, p2)
+		return BothArePairsOfObjects(p1, p2)
+
+		func @AreBothPairOfObject(p1, p2)
+			return BothArePairsOfObjects(p1, p2)
+
+	func BothArePairsOfObject(p1, p2)
+		return BothArePairsOfObjects(p1, p2)
+
+		func AreBothPairsOfObject(p1, p2)
+			return BothArePairsOfObjects(p1, p2)
+	
+	func @BothArePairsOfObject(p1, p2)
+		return BothArePairsOfObjects(p1, p2)
+
+		func @AreBothPairsOfObject(p1, p2)
+			return BothArePairsOfObjects(p1, p2)
+
+	#>
 
 func BothAreCharsInComputableForm(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
@@ -1992,61 +2173,101 @@ func AreSameObject(pcVarName1, pcVarName2) # TODO
 # REPEATING A THING N TIME
 
 func One(pThing)
-	return pThing
+	if isList(pThing)
+		return ARandomItemIn(pThing)
+	else
+		return pThing
+	ok
 
 	func @One(pThing)
 		return One(pThing)
 
 func Two(pThing)
-	return Q(pThing).RepeatedNTimes(2)
+	if isList(pThing)
+		return NRandomItemsInU(2, pThing)
+	else
+		return Q(pThing).RepeatedNTimes(2)
+	ok
 
 	func @Two(pThing)
 		return Two(pThing)
 
 func Three(pThing)
-	return Q(pThing).RepeatedNTimes(3)
+	if isList(pThing)
+		return NRandomItemsInU(3, pThing)
+	else
+		return Q(pThing).RepeatedNTimes(3)
+	ok
 
 	func @Three(pThing)
 		return Three(pThing)
 
 func Four(pThing)
-	return Q(pThing).RepeatedNTimes(4)
+	if isList(pThing)
+		return NRandomItemsInU(4, pThing)
+	else
+		return Q(pThing).RepeatedNTimes(4)
+	ok
 
 	func @Four(pThing)
 		return Four(pThing)
 
 func Five(pThing)
-	return Q(pThing).RepeatedNTimes(5)
+	if isList(pThing)
+		return NRandomItemsInU(5, pThing)
+	else
+		return Q(pThing).RepeatedNTimes(5)
+	ok
 
 	func @Five(pThing)
 		return Five(pThing)
 
 func Six(pThing)
-	return Q(pThing).RepeatedNTimes(6)
+	if isList(pThing)
+		return NRandomItemsInU(6, pThing)
+	else
+		return Q(pThing).RepeatedNTimes(6)
+	ok
 
 	func @Six(pThing)
 		return Six(pThing)
 
 func Seven(pThing)
-	return Q(pThing).RepeatedNTimes(7)
+	if isList(pThing)
+		return NRandomItemsInU(7, pThing)
+	else
+		return Q(pThing).RepeatedNTimes(7)
+	ok
 
 	func @Seven(pThing)
 		return Seven(pThing)
 
 func Eight(pThing)
-	return Q(pThing).RepeatedNTimes(8)
+	if isList(pThing)
+		return NRandomItemsInU(8, pThing)
+	else
+		return Q(pThing).RepeatedNTimes(8)
+	ok
 
 	func @Eight(pThing)
 		return Eight(pThing)
 
 func Nine(pThing)
-	return Q(pThing).RepeatedNTimes(9)
+	if isList(pThing)
+		return NRandomItemsInU(9, pThing)
+	else
+		return Q(pThing).RepeatedNTimes(9)
+	ok
 
 	func @Nine(pThing)
 		return Nine(pThing)
 
 func Ten(pThing)
-	return Q(pThing).RepeatedNTimes(10)
+	if isList(pThing)
+		return NRandomItemsInU(10, pThing)
+	else
+		return Q(pThing).RepeatedNTimes(10)
+	ok
 
 	func @Ten(pThing)
 		return Ten(pThing)
