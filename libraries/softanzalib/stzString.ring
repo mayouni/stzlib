@@ -67791,9 +67791,8 @@ ici		//...
 			nLenPart2 = oPart2.NumberOfChars()
 
 			if BothAreIntegersInStrings(cPart1, cPart2)
-
-			but BothAreNumbersInStrings(cPart1, cPart2) and
-			    ( @IsRealInString(cPart1) or @IsRealInString(cPart2) )
+/* ... */ ? "hi"
+			but BothAreRealsInStrings(cPart1, cPart2)
 
 				cPart1 = ring_trim(cPart1)
 				cPart2 = ring_trim(cPart2)
