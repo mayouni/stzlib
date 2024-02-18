@@ -116,6 +116,18 @@ func 100Words()
 	func Words()
 		return 100EnglishWords()
 
+func Word()
+	return ARandomItemIn( 100Words() )
+
+	func RandomWord()
+		return Word()
+
+func AWord()
+	return ARandomItemIn( 100Words() )
+
+	func ARandomWord()
+		return AWord()
+
 func 100EnglishWords()
 	acResult = []
 	nLen = len(_a100Words)
@@ -129,7 +141,19 @@ func 100EnglishWords()
 	func EnglishWords()
 		return 100EnglishWords()
 
-func 100FenshWords()
+func EnglishWord()
+	return ARandomItemIn( 100EnglishWords() )
+
+	func RandomEnglishWord()
+		return EnglishWord()
+
+func AnEnglishWord()
+	return ARandomItemIn( 100englishWords() )
+
+	func ARandomEnglishWord()
+		return AnEnglishWord()
+
+func 100FrenchWords()
 	acResult = []
 	nLen = len(_a100Words)
 
@@ -139,8 +163,20 @@ func 100FenshWords()
 
 	return acResult
 
-	func FrenshWords()
-		return 100FrenshhWords()
+	func FrenchWords()
+		return 100FrenchWords()
+
+func FrenchWord()
+	return ARandomItemIn( 100FrenchWords() )
+
+	func RandomFrenchWord()
+		return FrenchWord()
+
+func AFrenchWord()
+	return ARandomItemIn( 100FrenchWords() )
+
+	func ARandomFrenchWord()
+		return AFrenchWord()
 
 func 100ArabicWords()
 	acResult = []
@@ -154,3 +190,16 @@ func 100ArabicWords()
 
 	func ArabicWords()
 		return 100ArabicWords()
+
+func ArabicWord()
+	return ARandomItemIn( 100ArabicWords() )
+
+	func RandomArabicWord()
+		ArabicWord()
+
+func AnArabicWord()
+	return ARandomItemIn( 100ArabicWords() )
+
+	func ARandomArabicWord()
+		return AnArabicWord()
+

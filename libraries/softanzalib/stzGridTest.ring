@@ -23,11 +23,6 @@ proff()
 
 pron()
 
-? List(:From = "A", :To = "C") # Same as "A":"C" (more useful for non latin chars)
-#--> [ "A", "B", "C" ]
-
-# Can also be written:
-
 ? Contig("ج","ر") # Or ContigList() or Contiguous() or ContiguousList()
 
 proff()
@@ -57,35 +52,6 @@ proff()
 
 pron()
 
-? CharsBetween( "A", :And = "C" )
-#--> [ "B" ]
-
-? CharsBetweenIB( "A", :And = "C" ) # CharsBetweenB("A", "C")
-#--> [ "A", "B", "C" ]
-
-proff()
-# Executed in 0.06 second(s)
-
-/*----------
-
-pron()
-
-? NumberOfCharsBetweenIB(" ", "z")
-#--> 91
-
-? NumberOfCharsBetween(" ", "z")
-#--> 89
-
-proff()
-#--> Executed in 0.05 second(s)
-
-/*----------
-
-pron()
-
-? NumberOfCharsBetweenIB("A", "B")
-#--> 2
-
 ? NumberOfCharsBetween("A", "B")
 #--> 0
 
@@ -94,7 +60,7 @@ proff()
 
 /*=======
 
-o1 = new stzGrid(CharsBetweenIB(" ", :And = "z") )
+o1 = new stzGrid(CharsBetween(" ", :And = "z") )
 ? o1.Show()
 
 proff()
@@ -105,7 +71,7 @@ proff()
 pron()
 
 # Showing the chars between " " and "z" in a grid of 10 by 10
-StzGridQ([10, 10]).FillWithQ( CharsBetween(" ", "z") ).Show()
+StzGridQ([10, 10]).FillWithQ( CharsBetween("!", "p") ).Show()
 
 #-->
 #   ! " # $ % & ' ( ) *

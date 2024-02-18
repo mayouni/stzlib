@@ -28048,30 +28048,6 @@ class stzString from stzObject
 
 	def IsEmpty()
 		return This.Content() = ""
-
-	  #-----------------------------------------------------------#
-	 #  FILLING THE STRING WITH N COPIES OF THE GIVEN SUBSTRING  #
-	#-----------------------------------------------------------#
-
-	def FillWith(n, cSubStr)
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		if NOT isString(cSubStr)
-			StzRaise("Incorrect param type! cSubStr must be a string.")
-		ok
-
-		cStr = Q(cSubStr).RepeatedNTimes(n)
-		This.UpdateWith(cStr)
-
-		#< @FunctionFluentForm
-
-		def FillWillQ(n, cChar)
-			This.FillWith(n, cChar)
-			return This
-
-		#>
 		
 	  #-----------------------#
 	 #  RESIZING THE STRING  #
@@ -28159,6 +28135,31 @@ class stzString from stzObject
 			def UpdateUsingQ(pcNewStr)
 				return This.UpdateQ(pcNewStr)
 
+		#--
+
+		def Fill(pcNewStr)
+			This.Update(pcNewStr)
+
+			def FillQ(pcNewStr)
+				return This.UpdateQ(pcNewStr)
+
+		def FillWith(pcNewStr)
+			This.Update(pcNewStr)
+
+			def FillWithQ(pcNewStr)
+				return This.UpdateQ(pcNewStr)
+	
+		def FillBy(pcNewStr)
+			This.Update(pcNewStr)
+
+			def FillByQ(pcNewStr)
+				return This.UpdateQ(pcNewStr)
+
+		def FillUsing(pcNewStr)
+			This.Update(pcNewStr)
+
+			def FillUsingQ(pcNewStr)
+				return This.UpdateQ(pcNewStr)
 		#>
 
 	def Updated(pcNewStr)
@@ -28173,6 +28174,20 @@ class stzString from stzObject
 			return This.Updated(pcNewStr)
 
 		def UpdatedUsing(pcNewStr)
+			return This.Updated(pcNewStr)
+
+		#--
+
+		def Filled(pcNewStr)
+			return This.Updated(pcNewStr)
+
+		def FilledWith(pcNewStr)
+			return This.Updated(pcNewStr)
+
+		def FilledBy(pcNewStr)
+			return This.Updated(pcNewStr)
+
+		def FilledUsing(pcNewStr)
 			return This.Updated(pcNewStr)
 
 		#>
@@ -67779,19 +67794,25 @@ ici		//...
 		nPos = oCopy.FindFirst(":")
 		nLen = oCopy.NumberOfChars()
 
-		if nLen > 3 and oCopy.NumberOfOccurrence(":") = 1 and
+		if nLen >= 3 and oCopy.NumberOfOccurrence(":") = 1 and
 		   nPos != 1 and nPos != nLen
 
 			acParts = oCopy.Split(":")
-			cPart1 = acParts[1]
-			cPart2 = acParts[2]
+			cPart1 = Q(acParts[1]).Trimmed()
+			cPart2 = Q(acParts[2]).Trimmed()
 			oPart1 = new stzString(cPart1)
 			oPart2 = new stzString(cPart2)
 			nLenPart1 = oPart1.NumberOfChars()
 			nLenPart2 = oPart2.NumberOfChars()
 
 			if BothAreIntegersInStrings(cPart1, cPart2)
-/* ... */ ? "hi"
+
+				n1 = 0+ ring_trim(cPart1)
+				n2 = 0+ ring_trim(cPart2)
+
+				anResult = n1 : n2
+				return anResult
+
 			but BothAreRealsInStrings(cPart1, cPart2)
 
 				cPart1 = ring_trim(cPart1)
@@ -67838,6 +67859,7 @@ ici		//...
 				# Case of "A" : "E"
 
 				if  nLenPart1 = 3 and nLenPart2 = 3
+
 					anUnicodes = ring_sort([
 						@Unicode(oPart1.CharAt(2)),
 						@Unicode(oPart2.CharAt(2))
@@ -67845,6 +67867,8 @@ ici		//...
 	
 					anUnicodes = anUnicodes[1] : anUnicodes[2]
 					aResult = @UnicodesToChars(anUnicodes)
+
+					return aResult
 
 				# Case of marquers: "#1" : "#9"
 

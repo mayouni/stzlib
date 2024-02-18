@@ -1,9 +1,100 @@
 load "stzlib.ring"
 
 /*---
+
+pron()
+
+? L('8:5')
+#--> [ 8, 7, 6, 5 ]
+
+proff()
+# Executed in 0.17 second(s)
+
+/*----------------- @Narration : Use of the L() small function
 */
 pron()
-/*
+
+# As we all know, Ring provides us with this elegant syntax:
+
+? "A" : "D"
+#--> [ "A", "B", "C", "D" ]
+
+# Unfortunaltely, this is limited to ASCII chars.
+# Hence, if we use it with other UNICODE chars we get
+# just the first char:
+
+aList = "ا" : "ج"
+? aList
+#o--> "ا"
+
+# Fortunately, Softanza solves this by the L() small function:
+
+? L( ' "ا" : "ج" ')
+#o--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+
+# You won't need it but it manages ASCIIs as well:
+
+? L(' "A" : "D" ')
+#--> [ "A", "B", "C", "D" ]
+
+# Interestingly, you can get any list of a numbered string:
+
+? L(' "♥1" : "♥5" ')
+#--> [ "♥1", "♥2", "♥3", "♥4", "♥5" ]
+
+# Or maybe:
+
+? L(' "Ring1" : "Ring3" ')
+#--> [ "Ring1", "Ring2", "Ring3" ]
+
+# This works also for any unicode string (here in arabic):
+
+? L(' "كلمة1" : "كلمة3" ')
+#o--> [ "كلمة3", "كلمة2", "كلمة1" ]
+
+# On the other hand, as you kow, the _:_ syntax in Ring
+# works also for numbers, like this:
+
+? 1:5
+#--> [ 1, 5 ]
+
+# But it suports only integers and not real numbers (with decimals):
+
+? 1.02 : 3.08
+#--> [ 1, 2, 3 ]
+
+# While in Softanza, using the magic of L() function, you can enumarate
+# all the real numbers inbetween, what ever decimal part they have:
+
+? L(' 1.02 : 1.05 ')
+#--> [ 1.02, 1.03, 1.04, 1.05 ]
+ 
+# Finally, if the string you feed to L() function contains a list written
+# in Ring form, than the function will evaluate it and return it:
+
+? L('[ 1, 2, 3 ]')
+#--> [ 1, 2, 3 ]
+
+proff()
+# Executed in 0.63 second(s)
+
+/*---
+
+pron()
+
+? Q("2.8").IsRealInString()
+#--> TRUE
+
+? Q("3.2").IsRealInString()
+#--> TRUE
+
+? BothAreRealsInStrings("2.8", "3.2")
+#--> TRUE
+
+proff()
+
+/*----
+*/
 ? 1 : 3
 #--> [ 1, 2, 3 ]
 
@@ -24,17 +115,16 @@ pron()
 
 ? L(' "♥1" : "♥5" ')
 #--> [ "♥1", "♥2", "♥3", "♥4", "♥5" ]
-*/
+
 ? L(' "A" : "E" ')
 #--> [ "A", "B", "C", "D", "E" ]
 
 ? L(' "ج" : "ه" ')
 
 
-/*
 ? L(' "كلمة1" : "كلمة3" ')
 #o--> [ "كلمة3", "كلمة2", "كلمة1" ]
-*/
+
 
 proff()
 # Executed in 0.68 second(s)
@@ -5296,21 +5386,10 @@ StzListQ(' "ا" : "ج" ') {
 	? ItemAtPosition(4) #--> "ت"
 }
 
-/*-----------------
+/*----------------- @Narration : Use of the L() small function
+*/
 
-? @@( List( :From = "A", :To = "E" ) )
-#--> [ "A", "B", "C", "D", "E" ]
-
-? @@( List( :From = "ا", :To = "ث" ) )
-o#--> [ "ا", "ب", "ة", "ت", "ث" ]
-
-? @@( ListXT( ' "A" : "E" ' ) )
-#--> [ "A", "B", "C", "D", "E" ]
-
-? @@( ListXT( ' "ا" : "ث" ' ) )
-o#--> [ "ا", "ب", "ة", "ت", "ث" ]
-
-/*-----------------
+pron()
 
 # As we all know, Ring provides us with this elegant syntax:
 
@@ -5324,20 +5403,49 @@ aList = "A" : "D"
 aList = "ا" : "ج"
 ? @@( aList )	#--> "ا"
 
-# Fortunately, Softanza solves this by the List() function:
+# Fortunately, Softanza solves this by the L() small function:
 
-? @@( List( :From = "ا", :To = "ج" ) )
+? @@( L( ' "ا" : "ج" ') )
 #--> Gives [ "ا", "ب", "ة", "ت", "ث", "ج" ]
 
 # You won't need it but it manages ASCIIs as well:
 
-? @@( List("A", "D")	) #--> [ "A", "B", "C", "D" ]
+? @@( L(' "A" : "D" ') ) #--> [ "A", "B", "C", "D" ]
 
-# Interestingly, you can put the list in a string and mimics
-# the "_" : "_" Ring syntax, by using the ..XT() form of the function:
+# Interestingly, you can get an other form of a numbered list of strings:
 
-? ListXT('"ا" : "ج"')	#--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
-? ListXT(' "ج" : "ا" ') 	#--> [ "ج", "ث", "ت", "ة", "ب", "ا" ]
+? @@( L(' "Ring1" : "Ring2" ') )
+#--> [ "Ring1", "Ring2", "Ring3", "Ring4", "Ring5" ]
+
+# This works also for any unicode string:
+
+? L(' "كلمة1" : "كلمة3" ')
+#o--> [ "كلمة3", "كلمة2", "كلمة1" ]
+
+# On the other hand, as you kow, the _:_ syntax in Ring
+# works also for numbers, like this:
+
+? 1:5
+#--> [ 1, 5 ]
+
+# But it suports only integers and not real numbers (with decimals):
+
+? 1.02 : 3.08
+#--> [ 1, 2, 3 ]
+
+# While in Softanza, using the magic of L() function, you can enumarate
+# all the real numbers inbetween, what ever decimal part they have:
+
+? L(' 1.02 : 1.05 ')
+#--> [ 1.02, 1.03, 1.04, 1.05 ]
+ 
+# Finally, if the string you feed to L() function contains a list written
+# in Ring form, than the function will evaluate it and return it:
+
+? L('[ 1, 2, 3 ]')
+#--> [ 1, 2, 3 ]
+
+proff()
 
 /*================
 
@@ -5681,12 +5789,12 @@ StzListQ([ -1 , 2, 3, 4 ]) {
 /*------------------
 
 o1 = new stzList([ "1", "2", "*", "4", "5" ])
-o1.ReplaceItemAtPosition(3, :By = "3")
+o1.ReplaceAt(3, :By = "3")
 ? @@( o1.Content() )
 #--> [ "1", "2", "3", "4", "5" ]
 
 o1 = new stzList([ "1", "2", "*", "4", "5" ])
-o1.ReplaceItemAtPosition(3, :By@ = '{ 8 - 5 }' )
+o1.ReplaceAt(3, :By@ = '{ 8 - 5 }' )
 ? @@( o1.Content() )
 #--> [ "1", "2", "3", "4", "5" ]
 
@@ -6258,7 +6366,7 @@ o1 = new stzList([ :Char, :String, :Number, :List, :Object, :CObject, :QObject, 
 StartProfiler()
 
 	o1 = new stzList([ "A", "b", "C" ])
-	o1.ReplaceItemAtPosition(2, :With@ = "upper(@item)")
+	o1.ReplaceAt(2, :With@ = "upper(@item)")
 	? o1.Content()	#--> [ "A", "B", "C" ]
 
 StopProfiler()
@@ -6811,32 +6919,32 @@ o1 = new stzList( [ "1", "2", [ 1, [ "x" ], 2 ],  "3" ] )
 # by a given value by writing:
 
 o1 = new stzList([ "A", "b", "C" ])
-o1.ReplaceItemAtPosition(2, "B")
+o1.ReplaceAt(2, "B")
 ? o1.Content()	#--> [ "A", "B", "C" ]
 
 # Or you can be a bit more expressive by using :With
 
 o1 = new stzList([ "A", "b", "C" ])
-o1.ReplaceItemAtPosition(2, :With = "B")
+o1.ReplaceAt(2, :With = "B")
 ? o1.Content() #--> [ "A", "B", "C" ]
 
 # Or you can use the dynamic form of :With@ to evaluate
 # a piece of Ring code that returns the replaced value
 
 o1 = new stzList([ "A", "b", "C" ])
-o1.ReplaceItemAtPosition(2, :With@ = ' Q(@item).Uppercased() ')
+o1.ReplaceAt(2, :With@ = ' Q(@item).Uppercased() ')
 ? o1.Content()	#--> [ "A", "B", "C" ]
 
 /*----------------------
 
 o1 = new stzList([ "A", "a", "A" ])
-o1.ReplaceItemAtPosition(2, :By = "A")
+o1.ReplaceAt(2, :By = "A")
 ? o1.Content() #--> [ "A", "A", "A" ]
 
 /*----------------------
 
 o1 = new stzList([ "A", "a", "A" ])
-o1.ReplaceItemAtPosition(2, :By@ = "Q(@item).Uppercased()")
+o1.ReplaceAt(2, :By@ = "Q(@item).Uppercased()")
 ? @@( o1.Content() )  #--> [ "A", "A", "A" ]
 
 o1 = new stzList([ "1", "2", "_", "_", "_", "4", "5" ])
@@ -6876,7 +6984,7 @@ o1.ReplaceAt([2, 5], "♥")
 StartProfiler()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
-o1.ReplaceItemAtPosition(5, :with@ = '{ @item * 2 }')
+o1.ReplaceAt(5, :with@ = '{ @item * 2 }')
 ? @@( o1.Content() )
 #--> [ "♥", 2, "♥", "♥", 10 ]
 
@@ -6977,7 +7085,7 @@ o1 = new stzList([ "a", "b", 3, "c"])
 /*--------------
 
 StzListQ([ "one", "two", "three" ]) {
-	ReplaceItemAtPosition(2, :With = "TWO")
+	ReplaceAt(2, :With = "TWO")
 	? Content() #--> [ "one", "TWO", "three" ]
 
 	ReplaceAllItems( :With = "***")
