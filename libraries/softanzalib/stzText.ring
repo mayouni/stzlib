@@ -148,11 +148,6 @@ func PossibleWordInstances(pcWord)
 	def PossibleInstancesOfWord(pcWord)
 		return PossibleWordInstances(pcWord)
 
-func ArabicWord(pcStr)
-	if StzTextQ(pcStr).IsArabicWord()
-		return pcStr
-	ok
-
 #---- 
 
 func WordIdentificationMode()

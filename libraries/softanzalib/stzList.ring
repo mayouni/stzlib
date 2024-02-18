@@ -638,198 +638,7 @@ func ListOfNTimes(n, pItem)
 	next
 	return aResult
 
-func NumberOfCharsBetweenIB(p1, p2)
-
-	# Checking params
-
-	if isList(p2) and Q(p2).IsAndNamedParam()
-		p2 = p2[2]
-	ok
-
-	if BothAreChars(p1, p2)
-		p1 = Unicode(p1)
-		p2 = Unicode(p2)
-	ok
-
-	if NOT BothAreNumbers(p1, p2)
-		StzRaise("Incorrect params! p1 and p2 must corrspond to valid Unicode numbers.")
-	ok
-
-	aSorted = Q([ p1, p2 ]).Sorted()
-	n1 = aSorted[1]
-	n2 = aSorted[2]
-
-	if (n1 <= 0 or n2 <= 0) or
-	   (n1 > NumberOfCharsInUnicode() or n2 > NumberOfCharsInUnicode())
-
-		StzRaise("Incorrect params! p1 and p2 must correspond to valid chars in the unicode database.")
-	ok
-
-	# Doing the job
-
-	nResult = n2 - n1 + 1
-	return nResult
-
-	func @NumberOfCharsBetweenIB(p1, p2)
-		return NumberOfCharsBetweenIB(p1, p2)
-
-func CharsBetweenIB(p1, p2)
-
-	# Checking params
-
-	if isList(p2) and Q(p2).IsAndNamedParam()
-		p2 = p2[2]
-	ok
-
-	if BothAreChars(p1, p2)
-		p1 = Unicode(p1)
-		p2 = Unicode(p2)
-	ok
-
-	if NOT BothAreNumbers(p1, p2)
-		StzRaise("Incorrect params! p1 and p2 must corrspond to valid Unicode numbers.")
-	ok
-
-	aSorted = Q([ p1, p2 ]).Sorted()
-	n1 = aSorted[1]
-	n2 = aSorted[2]
-
-	if (n1 <= 0 or n2 <= 0) or
-	   (n1 > NumberOfCharsInUnicode() or n2 > NumberOfCharsInUnicode())
-
-		StzRaise("Incorrect params! p1 and p2 must correspond to valid chars in the unicode database.")
-	ok
-
-	# Doing the job
-
-	aResult = []
-	for i = n1 to n2
-		aResult + StzCharQ(i).Content()
-	next
-
-	return aResult
-
-	func CharsBetweenB(p1, p2) # ...B() extension --> Bounds included in the result
-		return CharsBetweenIB(p1, p2)
-
-	func @CharsBetweenIB(p1, p2)
-		return CharsBetweenIB(p1, p2)
-
-	func @CharsBetweenB(p1, p2)
-		return CharsBetweenIB(p1, p2)
-
-func NumberOfCharsBetween(p1, p2)
-	return NumberOfCharsBetweenIB(p1, p2) - 2 # Bounds included
-
-	func @NumberOfCharsBetween(p1, p2)
-		return NumberOfCharsBetween(p1, p2)
-
-func CharsBetween(p1, p2)
-
-	# Checking params
-
-	if isList(p2) and Q(p2).IsAndNamedParam()
-		p2 = p2[2]
-	ok
-
-	if NOT ( BothAreNumbers(p1, p2) or BothAreChars(p1, p2) )
-		StzRaise("Error!")
-	ok
-
-	if BothAreChars(p1, p2)
-		p1 = Unicode(p1)
-		p2 = Unicode(p2)
-	ok
-
-	aSorted = Q([ p1, p2 ]).Sorted()
-	n1 = aSorted[1]
-	n2 = aSorted[2]
-
-	if (n1 <= 0 or n2 <= 0) or
-	   (n1 > NumberOfCharsInUnicode() or n2 > NumberOfCharsInUnicode())
-
-		StzRaise("Incorrect params! p1 and p2 must correspond to valid chars in the unicode database.")
-	ok
-
-	# Doing the job
-
-	if n1 = n2 + 1
-		return []
-
-	else
-		aResult = []
-		for i = n1 + 1 to n2 - 1
-			aResult + StzCharQ(i).Content()
-		next
-	
-		return aResult
-	ok
-
-	func @CharsBetween(p1, p2)
-		return CharsBetween(p1, p2)
-
-func ContiguousListOfChars(cChar1, cChar2)
-	aResult = []
-	for i = CharUnicode(cChar1) to CharUnicode(cChar2)
-		aResult + StzCharQ(i).Content()
-	next
-
-	return aResult
-
-	func ContiguousList(cChar1, cChar2)
-		return ContinuousListOfChars(cChar1, cChar2)
-
-	func ContinuousListOfChars(cChar1, cChar2)
-		return ContiguousListOfChars(cChar1, cChar2)
-
-	func ContinuousList(cChar1, cChar2)
-		return ContiguousList(cChar1, cChar2)
-
-	func Contig(cChar1, cChar2)
-		return ContiguousList(cChar1, cChar2)
-
-	func ContigList(cChar1, cChar2)
-		return ContiguousList(cChar1, cChar2)
-
-	func CL(cChar1, cChar2)
-		return ContiguousList(cChar1, cChar2)
-
 #--
-
-func ListXT(p)
-
-	if isList(p)
-		return p
-
-	but isString(p) and StzStringQ(p).IsListInShortForm()
-		aResult = StzStringQ(p).ToList()
-		return aResult
-
-	else
-		StzRaise("Can't process the param you provided! It must be a list or a list in string.")
-	ok
-
-func List(pFrom, pTo)
-	/* EXAMPLE
-
-	? ListXT( :From = "A", :To = "D" )
-	#--> [ "A", "B", "C", "D" ]
-
-	*/
-
-	if isList(pFrom) and Q(pFrom).IsFromNamedParam()
-		pFrom = pFrom[2]
-	ok
-
-	if isList(pTo) and Q(pTo).IsToNamedParam()
-		pTo = pto[2]
-	ok
-
-	if NOT BothAreChars(pFrom, pTo)
-		StzRaise("Incorrect params! Bonth pFrom and pTo must be chars.")
-	ok
-
-	return ContiguousList(pFrom, pto)
 
 func @WithoutDuplication(paList)
 	return StzListQ(paList).WithoutDuplication()
@@ -1900,6 +1709,32 @@ class stzList from stzObject
 			def UpdateUsingQ(paNewList)
 				return This.UpdateQ(paNewList)
 
+		#--
+
+		def Fill(paNewList)
+			This.Update(paNewList)
+
+			def FillQ(paNewList)
+				return This.UpdateQ(paNewList)
+
+		def FillWith(paNewList)
+			This.Update(paNewList)
+
+			def FillWithQ(paNewList)
+				return This.UpdateQ(paNewList)
+
+		def FillBy(paNewList)
+			This.Update(paNewList)
+
+			def FillByQ(paNewList)
+				return This.UpdateQ(paNewList)
+
+		def FillUsing(paNewList)
+			This.Update(paNewList)
+
+			def FillUsingQ(paNewList)
+				return This.UpdateQ(paNewList)
+
 		#>
 
 	def Updated(paNewList)
@@ -1915,6 +1750,20 @@ class stzList from stzObject
 
 		def UpdatedUsing(paNewList)
 			return This.Updated(paNewList)
+
+		#--
+
+		def Filled(paNewList)
+			return paNewList
+
+		def FilledWith(paNewList)
+			return paNewList
+	
+		def FilledBy(paNewList)
+			return paNewList
+
+		def FilledUsing(paNewList)
+			return paNewList
 
 		#>
 
@@ -2429,7 +2278,7 @@ class stzList from stzObject
 	def ReplaceAllItems(pNewItem)
 
 		for i = 1 to This.NumberOfItems()
-			This.ReplaceItemAtPosition(i, pNewItem)
+			This.ReplaceAt(i, pNewItem)
 		next
 
 		#< @FunctionFluentForm
@@ -5189,7 +5038,7 @@ class stzList from stzObject
 		ok
 
 		nItemPosition = This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
-		This.ReplaceItemAtPositionCS(nItemPosition, pOtherItem, pCaseSensitive)
+		This.ReplaceAtCS(nItemPosition, pOtherItem, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -5377,7 +5226,7 @@ class stzList from stzObject
 	def ReplaceLastOccurrenceCS(pItem, pOtherItem, pCaseSensitive)
 		n = This.FindLastOccurrenceCS(pItem, pCaseSensitive)
 
-		This.ReplaceItemAtPosition(n, pOtherItem)
+		This.ReplaceAt(n, pOtherItem)
 
 		def ReplaceLastOccurrenceCSQ(pItem, pOtherItem, pCaseSensitive)
 			This.ReplaceLastOccurrenceCS(pItem, pOtherItem, pCaseSensitive)
@@ -5410,7 +5259,7 @@ class stzList from stzObject
 	def ReplaceLastOccurrence(pItem, pOtherItem)
 		n = This.FindLastOccurrence(pItem)
 
-		This.ReplaceItemAtPosition(n, pOtherItem)
+		This.ReplaceAt(n, pOtherItem)
 
 		def ReplaceLastOccurrenceQ(pItem, pOtherItem)
 			This.ReplaceLastOccurrence(pItem, pOtherItem)
@@ -5502,7 +5351,7 @@ class stzList from stzObject
 			anPos = StzListOfNumbersQ(anPos).AddToEachQ(pnStartingAt - 1).Content()
 			nPos = anPos[n]
 	
-			This.ReplaceItemAtPosition(nPos, pNewItem)
+			This.ReplaceAt(nPos, pNewItem)
 		ok
 	
 		#< @FunctionFluentForm
@@ -5792,7 +5641,7 @@ class stzList from stzObject
 
 		nPosition = aPositions[ len(aPositions) - n + 1 ]
 
-		This.ReplaceItemAtPositionCS(nPosition, pNewItem, pCaseSensitive)
+		This.ReplaceAtCS(nPosition, pNewItem, pCaseSensitive)
 
 		def ReplacePreviousNthOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 			This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
@@ -6202,7 +6051,7 @@ class stzList from stzObject
 				item = NULL
 			ok
 
-			This.ReplaceItemAtPosition(n, item)
+			This.ReplaceAt(n, item)
 		next
 
 		def ReplaceSectionByManyQ(n1, n2, paOtherListOfItems)
@@ -6356,7 +6205,7 @@ class stzList from stzObject
 				item = NULL
 			ok
 
-			This.ReplaceItemAtPosition(n, item)
+			This.ReplaceAt(n, item)
 		next
 
 		def ReplaceRangeByManyQ(n, nRange, paOtherListOfItems)
@@ -15620,7 +15469,7 @@ class stzList from stzObject
 	#---------------------------------------------------#
 
 	def PerformOn(panPositions, pcCode)
-		#< @MotherFunction > ReplaceItemAtPosition() | @RingBased #>
+		#< @MotherFunction > ReplaceAt() | @RingBased #>
 
 		if NOT ( isList(panPositions) and (Q(panPositions).IsListOfNumbers() or len(panPositions) = 0) )
 			StzRaise("Invalid param type! panPositions must be a list of numbers.")
@@ -15677,7 +15526,7 @@ class stzList from stzObject
 			if bEval
 
 			eval(cCode)
-				This.ReplaceItemAtPosition(@i, @item)
+				This.ReplaceAt(@i, @item)
 			ok
 
 		next
@@ -18882,7 +18731,7 @@ class stzList from stzObject
 			n = This.NumberOfRepeatedLeadingItems()
 
 			for i = 1 to n
-				This.ReplaceItemAtPosition(i, pItem)
+				This.ReplaceAt(i, pItem)
 			next
 
 		ok
@@ -18982,7 +18831,7 @@ class stzList from stzObject
 
 			n = This.NumberOfItems() - n + 1
 			for i = n to This.NumberOfItems()
-				This.ReplaceItemAtPosition(i, pItem)
+				This.ReplaceAt(i, pItem)
 			next
 
 		ok
@@ -28818,7 +28667,7 @@ class stzList from stzObject
 
 			if isString(aContent[i])
 				cStrLow = Q(aContent[i]).Lowercased()
-				This.ReplaceItemAtPosition(i, cStrLow)
+				This.ReplaceAt(i, cStrLow)
 			ok
 		next
 
@@ -28930,7 +28779,7 @@ class stzList from stzObject
 
 			if isString(aContent[i])
 				cStrTtl = Q(aContent[i]).Titlecased()
-				This.ReplaceItemAtPosition(i, cStrTtl)
+				This.ReplaceAt(i, cStrTtl)
 			ok
 		next
 
@@ -28986,7 +28835,7 @@ class stzList from stzObject
 			
 			if isString(aContent[i])
 				cStrCap = Q(aContent[i]).Capitalised()
-				This.ReplaceItemAtPosition(i, cStrCap)
+				This.ReplaceAt(i, cStrCap)
 			ok
 		next
 

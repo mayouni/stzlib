@@ -25,6 +25,9 @@ func SubStringCSQ(pcSubStr, pCaseSensitive)
 	func SubStringCS(pcSubStr, pCaseSensitive)
 		return SubStringCSQ(pcSubStr, pCaseSensitive)
 
+	func TheSubStringCS(pcSubStr, pCaseSensitive)
+		return SubStringCSQ(pcSubStr, pCaseSensitive)
+
 	func TheSubStringCSQ(pcSubStr, pCaseSensitive)
 		return SubStringCSQ(pcSubStr, pCaseSensitive)
 
@@ -122,8 +125,6 @@ func WordCSQ(pcSubStr, pCaseSensitive)
 func WordQ(pcSubStr)
 	return WordCSQ(pcSubStr, :CaseSensitive)
 
-	func Word(pcSubStr)
-
 	func TheWordQ(pcSubStr)
 		return WordQ(pcSubStr)
 
@@ -161,40 +162,6 @@ func TheWordInQ( pcSubstr, pcInStr )
 
 	func TheWordIn(pcSubStr, pcInStr)
 		return TheWordInQ( pcSubstr, pcInStr )
-
-#--
-
-func AWordCS(pcStr, pCaseSensitive)
-	if isList(pcStr) and Q(pcStr).IsInOrInStringNamedParam()
-		pcStr = pcStr[2]
-	ok
-
-	acSubStr = Q(pcStr).WordsCS(pCaseSensitive)
-	nLen = len(acSubStr)
-	n = ANumberBetween(1, nLen)
-	oResult = new stzSubStringCS(acSubStr[n], pcStr, pCaseSensitive)
-	return oResult
-
-func AWord(pcStr)
-	return AWordCS(pcStr, TRUE)
-
-#--
-
-func SomeWordsCS(pcStr, pCaseSensitive)
-	if isList(pcStr) and Q(pcStr).IsInOrInStringNamedParam()
-		pcStr = pcStr[2]
-	ok
-
-	aSections = Q(pcStr).WordsAsSectionsCS(pCaseSensitive)
-	nLen = len(aSections)
-	anRandom = 3NumbersBetween(1, nLen)
-
-	aSections = Q(aSections).ItemsAtPositions(anRandom)
-	oResult = new stzListOfSubStringsCS(aSections, pcStr, pCaseSensitive)
-	return oResult
-
-func SomeWords(pcStr)
-	return SomeWordsCS(pcStr, TRUE)
 
 
   #-----------#

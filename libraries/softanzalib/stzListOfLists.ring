@@ -1287,7 +1287,7 @@ class stzListOfLists from stzList
 				aTemp + pItem
 			next
 
-			This.ReplaceItemAt(i, aTemp)
+			This.ReplaceAt(i, aTemp)
 
 		next
 
@@ -1540,7 +1540,7 @@ class stzListOfLists from stzList
 			aTemp = []
 			if n < nSize
 				aTemp = This.NthListQ(i).Section(1, n)
-				This.ReplaceItemAt(i, aTemp)
+				This.ReplaceAt(i, aTemp)
 			ok
 
 		next

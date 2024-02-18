@@ -90,6 +90,41 @@ func IsListOfChars(paList)
 
 	#>
 
+func CharsBetween(c1, c2)
+	if CheckParams()
+		if NOT BothAreChars(c1, c2)
+			StzRaise("Incorrect param type!")
+		ok
+	ok
+
+	nUnicode1 = Unicode(c1)
+	nUnicode2 = Unicode(c2)
+
+	nStep = 1
+	if nUnicode1 > nUnicode2
+		nStep = -1
+	ok
+
+	acResult = []
+	for i = nUnicode1 to nUnicode2 step nStep
+		acResult + StzCharQ(i).Content()
+	next
+
+	return acResult
+
+func NumberOfCharsBetween(c1, c2)
+	if CheckParams()
+		if NOT BothAreChars(c1, c2)
+			StzRaise("Incorrect param type!")
+		ok
+	ok
+
+	nUnicode1 = Unicode(c1)
+	nUnicode2 = Unicode(c2)
+
+	nResult = Abs(nUnicode2 - nUnicode1) + 1
+	return nResult
+
 func HilightChar()
 	return _cHilightChar
 	

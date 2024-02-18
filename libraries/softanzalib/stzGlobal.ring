@@ -1518,7 +1518,7 @@ func BothAreIntegersInStrings(p1, p2)
 		ok
 	ok
 
-	if isNumber(p1) and isNumber(p2) and
+	if isString(p1) and isString(p2) and
 	   Q(p1).IsIntegerInString() and Q(p2).IsIntegerInString()
 
 		return TRUE
@@ -1600,7 +1600,7 @@ func BothAreRealsInStrings(p1, p2)
 		ok
 	ok
 
-	if isNumber(p1) and isNumber(p2) and
+	if isString(p1) and isString(p2) and
 	   Q(p1).IsRealInString() and Q(p2).IsRealInString()
 
 		return TRUE
