@@ -33,13 +33,13 @@ pron()
 #--> [ 1, 2, 3, 4, 5 ]
 # Now [ 1, 3, 5 ] is removed because it is an item from the list
 
-# If you want to remove 1, 3, and 5 in the same statement, you use Many():
+# If you want to remove 1, 3, and 5 in the same statement, you use These():
 
-? Q([ 1, 2, 3, 4, 5]) - Many([1, 3 , 5])
+? Q([ 1, 2, 3, 4, 5]) - These([1, 3 , 5])
 #--> [ 2, 4 ]
 
 # If you want to get a stzNumber object as an output add Q() to the second member:
-? Q([ 1, 2, 3, 4, 5]) - Q( Many([1, 3 , 5]) )
+? Q([ 1, 2, 3, 4, 5]) - Q( These([1, 3 , 5]) )
 #--> [ 2, 4 ]
 
 proff()

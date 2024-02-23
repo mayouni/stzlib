@@ -2169,6 +2169,9 @@ class stzListOfLists from stzList
 	def Flattened()
 		return This.ToStzList().Flattened()
 
+		def FlattenedQ()
+			return new stzList( This.Flattened() )
+
 	  #===========================================================#
 	 #  CHECKING IF THE SIZE OF EACH ITEM EQUALS A GIVEN NUMBER  #
 	#===========================================================#
@@ -2352,47 +2355,41 @@ class stzListOfLists from stzList
 
 	def CommonItemsCS(pCaseSensitive)
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		aLists = This.Content()
+
+		if CaseSensitive(pCaseSensitive) = FALSE
+			aLists = This.Lowercased()
+		ok
+
+		nLenLists = len(aLists)
 
 		# Early cheks
 
-		if nLen = 0
+		if nLenLists = 0
 			return []
 
 		but This.AllListsAreEqualCS(pCaseSensitive)
-			return aContent[1]
+			return aLists[1]
 		ok
 
 		# Doing the job
 
+		aItems = This.FlattenedQ().WithoutDuplication()
+		nLenItems = len(aItems)
+
 		aResult = []
-		aSeen = []
-
-		for i = 1 to nLen
-			nLenList = len(aContent[i])
-			for j = 1 to nLenList
-				item = aContent[i][j]
-				if ring_find(aSeen, item) = 0
-					aSeen + item
-
-					if i < nLen
-						bCommon = TRUE
-						for q = i + 1 to nLen
-							if ring_find(aContent[q], item) > 0
-								bCommon = FALSE
-								exit
-							ok
-						next
-						if bCommon
-							aResult + item
-						ok
-					ok
+		
+		for i = 1 to nLenItems
+			bExistsInAllLists = TRUE
+			for j = 1 to nLenLists
+				if ring_find(aLists[j], aItems[i]) = 0
+					bExistsInAllLists = FALSE
+					exit
 				ok
-
-				
-
 			next
+			if bExistsInAllLists
+				aResult + aItems[i]
+			ok
 		next
 
 		return aResult
@@ -2412,28 +2409,15 @@ class stzListOfLists from stzList
 	 #  SORTING THE LIST OF LISTS IN ASCENDING  #
 	#==========================================#
 
+	def SortNthList(n)
+		aSorted = StzListQ(This.Content()[n]).Sorted()
+		@aContent[n] = aSorted
+
 	def Sort()
-		aStringified = This.Stringified()
-
-		aSorted = ring_sort(aStringified)
-
-		nLen = len(aSorted)
-
-		cCode = 'aResult = [ '
-
+		nLen = This.NumberOfLists()
 		for i = 1 to nLen
-
-			cCode += aSorted[i]
-			if i < nLen
-				cCode += ', '
-			ok
+			This.SortNthList(i)
 		next
-
-		cCode += ' ]'
-
-		eval(cCode)
-
-		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
@@ -2451,6 +2435,17 @@ class stzListOfLists from stzList
 			def SortInAscendingQ()
 				return This.SortQ()
 
+		def SortLists()
+			This.Sort()
+
+			def SortListsQ()
+				return This.SortQ()
+
+		def SortListsInAscending()
+			This.Sort()
+
+			def SortListsInAscendingQ()
+				return This.SortQ()
 		#>
 
 	def Sorted()
@@ -2458,7 +2453,13 @@ class stzListOfLists from stzList
 		return aResult
 
 		def SortedInAscending()
-			return This.Sorted()			
+			return This.Sorted()		
+
+		def ListsSorted()
+			return This.Sorted()
+
+		def ListsSortedInAscending()
+			return This.Sorted()
 
 	  #-------------------------------------------#
 	 #  SORTING THE LIST OF LISTS IN DESCENDING  #
@@ -2476,13 +2477,27 @@ class stzListOfLists from stzList
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SortListsInDescending()
+			This.SortInDescending()
+
+			def SortListsInDescendingQ()
+				return This.SortInDescendingQ()
+
+		#>
+
 	def SortedInDescendning()
 		aResult = This.Copy().SortInDescendingQ().Content()
 		return aResult
 
+		def ListsSortedInDescending()
+			return This.SortedInDescendning()
+
 	  #-----------------------------------------------#
 	 #  SORTING THE LIST OF LISTS BY A GIVEN COLUMN  #
 	#===============================================#
+	# TODO: Sorting by many columns
 
 	def SortBy(n)
 		This.UpdateBy(This.SortedBy(n))
@@ -2568,6 +2583,62 @@ class stzListOfLists from stzList
 		def ExtraItemsAndTheirPositions()
 			return This.ExtraItemsZ()
 
+	  #===========================================#
+	 #  REMOVING DUPLICATES INSIDE THE NTH LIST  #
+	#===========================================#
+
+	def RemoveDuplicatesInNthList(n)
+		@aContent[n] = @WithoutDuplicates(@aContent[n])
+
+		def RemoveDuplicatesInNthListQ(n)
+			This.RemoveDuplicatesInNthList(n)
+			return
+
+	def DuplicatesInNthListRemoved(n)
+		aResult = This.Copy().RemoveDuplicatesInNthListQ(n).Content()
+		return aResult
+
+		def WithoutDuplicatesInNthList(n)
+			return This.DuplicatesInNthListRemoved(n)
+
+		def WithoutDuplicationInNthList(n)
+			return This.DuplicatesInNthListRemoved(n)
+
+		def WithoutDuplicationsInNthList(n)
+			return This.DuplicatesInNthListRemoved(n)
+
+	  #--------------------------------------------#
+	 #  REMOVING DUPLICATES INSIDE ALL THE LISTS  #
+	#--------------------------------------------#
+
+	def RemoveDuplicatesInLists()
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			@aContent[i] = @WithoutDuplicates(@aContent[i])
+		next
+
+		def RemoveDuplicatesInListsQ()
+			This.RemoveDuplicatesInLists()
+			return This
+
+	def DuplicatesInListsRemoved()
+		aResult = This.RemoveDuplicatesInListsQ().Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def WithoutDuplicatesInLists()
+			return This.DuplicatesInListsRemoved()
+
+		def WithoutDuplicationsInLists()
+			return This.DuplicatesInListsRemoved()
+
+		def WithoutDuplicationInLists()
+			return This.DuplicatesInListsRemoved()
+ 
+		#>
+	
 	  #==================================================#
 	 #  TRANSFORMING THE LIST OF LISTS TO OTHER FORMS   #
 	#==================================================#

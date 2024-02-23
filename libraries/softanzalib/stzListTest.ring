@@ -11,7 +11,7 @@ proff()
 # Executed in 0.17 second(s)
 
 /*----------------- @Narration : Use of the L() small function
-*/
+
 pron()
 
 # As we all know, Ring provides us with this elegant syntax:
@@ -76,7 +76,7 @@ aList = "ا" : "ج"
 #--> [ 1, 2, 3 ]
 
 proff()
-# Executed in 0.63 second(s)
+# Executed in 0.60 second(s)
 
 /*---
 
@@ -94,7 +94,9 @@ pron()
 proff()
 
 /*----
-*/
+
+pron()
+
 ? 1 : 3
 #--> [ 1, 2, 3 ]
 
@@ -119,15 +121,14 @@ proff()
 ? L(' "A" : "E" ')
 #--> [ "A", "B", "C", "D", "E" ]
 
-? L(' "ج" : "ه" ')
-
+ShowShort( L(' "ج" : "ه" ') )
+#o--> [ "ج", "ح", "خ", "...", "م", "ن", "ه" ]
 
 ? L(' "كلمة1" : "كلمة3" ')
 #o--> [ "كلمة3", "كلمة2", "كلمة1" ]
 
-
 proff()
-# Executed in 0.68 second(s)
+# Executed in 0.65 second(s)
 
 /*=============
 
@@ -379,7 +380,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*========== A Softanza narration about one of the many uses of @
-*/
+
 pron()
 
 # In softanza there some useful functions that you can use from
@@ -597,7 +598,7 @@ pron()
 #--> [ "♥", 1, 2, 3 ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s)
 
 /*----------
 
@@ -1116,7 +1117,7 @@ o1.Replace("me", :By = "you")
 #    ]
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.07 second(s)
 
 /*------------
 
@@ -1142,7 +1143,7 @@ o1.DeepReplace("me", :By = "you")
 proff()
 
 /*==============
-
+*/
 pron()
 
 o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
@@ -3074,7 +3075,7 @@ next
 proff()
 
 /*----------
-
+*/
 pron()
 
 o1 = new stzList([ "Ab", "Im", "Ab", "Cf", "Fd", "Ab", "Cf" ])
@@ -6803,7 +6804,7 @@ oStr = new stzString("|<--Scope of Life-->|")
 ? oStr.IsBoundedBy([ "|<--", "-->|" ]) #--> TRUE
 
 # And then we can delete these bounds:
-? oStr.BoundsRemoved([ "|<--", "-->|" ]) #--> "Scope of Life"
+? oStr.TheseBoundsRemoved( "|<--", "-->|" ) #--> "Scope of Life"
 
 # The same semantics apply to lists, like this:
 
@@ -6811,7 +6812,7 @@ oList = new stzList([ "|<--", "Scope", "of", "Life", "-->|" ])
 ? oList.IsBoundedBy([ "|<--", "-->|" ]) #--> TRUE
 
 # And we can remove all these bounds, exactly like we did for strings:
-? oList.BoundsRemoved([ "|<--", "-->|" ]) #--> [ "Scope", "of", "Life" ]
+? oList.TheseBoundsRemoved( "|<--", "-->|" ) #--> [ "Scope", "of", "Life" ]
 
 STOP()
 /*-----------------------
@@ -6831,7 +6832,7 @@ o1 = new stzList([ "{", "<", "A", "B", "C", ">", "}" ])
 /*-----------------------
 
 o1 = new stzList([ "{", "A", "B", "C", "}" ])
-? o1.BoundsRemoved("{", "}") #--> [ "A", "B", "C" ]
+? o1.TheseBoundsRemoved("{", "}") #--> [ "A", "B", "C" ]
 
 /*-----------------------
 

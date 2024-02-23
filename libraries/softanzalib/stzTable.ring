@@ -803,7 +803,7 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		anResult = Q(1:This.NumberOfCols()) - Many( This.FindCols(paCols) )
+		anResult = Q(1:This.NumberOfCols()) - These( This.FindCols(paCols) )
 		return anResult
 
 		#< @FunctionAlternativeForms
@@ -852,7 +852,7 @@ Class stzTable from stzObject
 	def FindColsByValueExceptCS(paCols, pCaseSensitive)
 
 		anResult = Q(1:This.NumberOfCols()) -
-			   Many( This.FindColsByValueCS(paCols, pCaseSensitive) )
+			   These( This.FindColsByValueCS(paCols, pCaseSensitive) )
 
 		return anResult
 
@@ -957,7 +957,7 @@ Class stzTable from stzObject
 	def FindRowsExceptCS(paRows, pCaseSensitive)
 
 		anResult = Q(1:This.NumberOfRows()) -
-			   Many( This.FindRowsCS(paRows, pCaseSensitive) )
+			   These( This.FindRowsCS(paRows, pCaseSensitive) )
 
 		return anResult
 

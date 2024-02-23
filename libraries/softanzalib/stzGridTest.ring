@@ -72,7 +72,6 @@ pron()
 
 # Showing the chars between " " and "z" in a grid of 10 by 10
 StzGridQ([10, 10]).FillWithQ( CharsBetween("!", "p") ).Show()
-
 #-->
 #   ! " # $ % & ' ( ) *
 #   + , - . / 0 1 2 3 4
@@ -84,7 +83,7 @@ StzGridQ([10, 10]).FillWithQ( CharsBetween("!", "p") ).Show()
 #   g h i j k l m n o p
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.12 second(s)
 
 /*---------------
 

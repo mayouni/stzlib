@@ -4182,7 +4182,7 @@ class stzList from stzObject
 		# Managing the positions
 
 		anPosItem = This.FindAllCS(pItem, pCaseSensitive)
-		anPos = Intersection([ panPos, anPosItem ])
+		anPos = @Intersection([ panPos, anPosItem ])
 		nLen = len(anPos)
 
 		# Doing the job
@@ -17598,14 +17598,12 @@ class stzList from stzObject
 	 #  GETTING THE COMMON-ITEMS (INTERSECTION) BETWEEN THE MAIN LIST AN OTHER GIVEN LIST  #
 	#-------------------------------------------------------------------------------------#
 
-	def CommonItemsCS(paOtherList, pCaseSensitive)
+	def CommonItemsWithCS(paOtherList, pCaseSensitive)
 
-		if isList(paOtherList) and Q(paOtherList).IsWithNamedParam()
-			paOtherList = paOtherList[2]
-		ok
-
-		if NOT isList(paOtherList)
-			StzRaise("Incorrect param type! paOtherList must be a list.")
+		if CheckParams()
+			if NOT isList(paOtherList)
+				StzRaise("Incorrect param type! paOtherList must be a list.")
+			ok
 		ok
 
 		aContent = This.Content()
@@ -17626,75 +17624,51 @@ class stzList from stzObject
 
 		#< FunctionFluentForm
 
-		def CommonItemsCSQ(paOtherList, pCaseSensitive)
-			return new stzlist( This.CommonItemsCS(paOtherList, pCaseSensitive) )
+		def CommonItemsWithCSQ(paOtherList, pCaseSensitive)
+			return new stzlist( This.CommonItemsWithCS(paOtherList, pCaseSensitive) )
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def IntersectionCS(paOtherList, pCaseSensitive)
-			return This.CommonItemsCS(paOtherList, pCaseSensitive)
-
-			def IntersectionCSQ(paOtherList, pCaseSensitive)
-				return This.CommonItemsWithCSQ(paOtherList, pCaseSensitive)
-
-		def IntersectCS(paOtherList, pCaseSensitive)
-			return This.CommonItemsCS(paOtherList, pCaseSensitive)
-
-			def IntersectCSQ(paOtherList, pCaseSensitive)
-				return This.CommonItemsWithCSQ(paOtherList, pCaseSensitive)
-
-		def CommonItemsWithCS(paOtherList, pCaseSensitive)
-			return This.CommonItemsCS(paOtherList, pCaseSensitive)
-
-			def CommonItemsWithCSQ(paOtherList, pCaseSensitive)
-				return new stzList( This.CommonItemsWithCS(paOtherList, pCaseSensitive) )
-
 		def IntersectionWithCS(paOtherList, pCaseSensitive)
-			return This.CommonItemsCS(paOtherList, pCaseSensitive)
+			return This.CommonItemsWithCS(paOtherList, pCaseSensitive)
 
 			def IntersectionWithCSQ(paOtherList, pCaseSensitive)
+				return This.CommonItemsWithCSQ(paOtherList, pCaseSensitive)
+
+		def IntersectWithCS(paOtherList, pCaseSensitive)
+			return This.CommonItemsWithCS(paOtherList, pCaseSensitive)
+
+			def IntersectWithCSQ(paOtherList, pCaseSensitive)
 				return This.CommonItemsWithCSQ(paOtherList, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def CommonItems(paOtherList)
-		return This.CommonItemsCS(paOtherList, TRUE)
+	def CommonItemsWith(paOtherList)
+		return This.CommonItemsWithCS(paOtherList, TRUE)
 
 		#< @FunctionFluentForm
 
-		def CommonItemsQ(paOtherList)
-			return new stzlist( This.CommonItems(paOtherList) )
+		def CommonItemsWithQ(paOtherList)
+			return new stzlist( This.CommonItemsWith(paOtherList) )
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def Intersection(paOtherList)
-			return This.CommonItems(paOtherList)
-
-			def IntersectionQ(paOtherList)
-				return This.CommonItemsWithQ(paOtherList)
-
-		def Intersect(paOtherList)
-			return This.CommonItems(paOtherList)
-
-			def IntersectQ(paOtherList)
-				return This.CommonItemsWithQ(paOtherList)
-
-		def CommonItemsWith(paOtherList)
-			return This.CommonItems(paOtherList)
-
-			def CommonItemsWithQ(paOtherList)
-				return new stzList( This.CommonItemsWith(paOtherList) )
-
 		def IntersectionWith(paOtherList)
-			return This.CommonItems(paOtherList)
+			return This.CommonItemsWith(paOtherList)
 
 			def IntersectionWithQ(paOtherList)
+				return This.CommonItemsWithQ(paOtherList)
+
+		def IntersectWith(paOtherList)
+			return This.CommonItemsWith(paOtherList)
+
+			def IntersectWithQ(paOtherList)
 				return This.CommonItemsWithQ(paOtherList)
 
 		#>
@@ -17955,7 +17929,7 @@ class stzList from stzObject
 
 		aResult = []
 
-		if This.IsMadeOfNumbersOrStrings()
+		if This.IsMadeOfNumbers() This.IsMadeOfStrings()
 			aResult = ring_sort( This.Content() )
 
 		else
@@ -18121,7 +18095,7 @@ class stzList from stzObject
 		acContent = This.Content()
 		nLen = len(acContent)
 
-		cCode = 'value = ' + Q(pcExpr).BoundsRemoved([ "{", "}" ])
+		cCode = 'value = ' + Q(pcExpr).TheseBoundsRemoved("{", "}")
 		aValues = []
 		
 		for @i = 1 to nLen
@@ -19061,7 +19035,7 @@ class stzList from stzObject
 
 				but oStr.TrimQ().IsBoundedBy([ "{", "}" ])
 
-					pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved([ "{", "}" ])
+					pcCondition = StzStringQ(pValue).TrimQ().TheseBoundsRemoved("{", "}")
 					anResult = []
 	
 					@i = 0
@@ -19146,9 +19120,9 @@ class stzList from stzObject
 		but pcOp = "-"
 			if isList(pValue)
 
-				if _bMany
+				if _bThese
 					aResult = This.Copy().ManyRemoved(pValue)
-					_Many = FALSE # Resets the global flag
+					_bThese = FALSE # Resets the global flag
 				else
 					aResult = This.Copy().ItemRemoved(pValue)
 				ok
@@ -19156,9 +19130,9 @@ class stzList from stzObject
 				return aResult
 			
 			but @IsStzList(pValue) or @IsStzString(pValue)
-				if _bMany
+				if _bThese
 					This.RemoveMany(pValue.Content())
-					_Many = FALSE  # Resets the global flag
+					_bThese = FALSE  # Resets the global flag
 				else
 					This.RemoveItem(pValue.Content())
 				ok
@@ -19218,9 +19192,9 @@ class stzList from stzObject
 
 			if isList(pValue)
 
-				if _bMany
+				if _bThese
 					aResult = This.Copy().ManyAdded(pValue)
-					_Many = FALSE # Resets the global flag
+					_bThese = FALSE # Resets the global flag
 				else
 					aResult = This.Copy().ItemAdded(pValue)
 				ok
@@ -19228,9 +19202,9 @@ class stzList from stzObject
 				return aResult
 			
 			but @IsStzList(pValue) or @IsStzString(pValue)
-				if _bMany
+				if _bThese
 					This.AddMany(pValue.Content())
-					_Many = FALSE  # Resets the global flag
+					_bThese = FALSE  # Resets the global flag
 				else
 					This.AddItem(pValue.Content())
 				ok
@@ -19238,9 +19212,9 @@ class stzList from stzObject
 				return This
 			
 			but @IsStzNumber(pValue)	
-				if _bMany
+				if _bThese
 					This.AddMany(pValue.NumericValue())
-					_Many = FALSE  # Resets the global flag
+					_bThese = FALSE  # Resets the global flag
 				else
 					This.AddItem(pValue.NumericValue())
 				ok
@@ -20226,6 +20200,81 @@ class stzList from stzObject
 
 			def PositionsOfEachItemQR(pcReturnType)
 				return This.FindItemsQR(pcReturnType)
+
+		#>
+
+	  #------------------------------------------------------------------------#
+	 #  GETTING THE NUMBER OF OCCURRENCES OF EACH ITEM CONTAINED IN THE LIST  #
+	#------------------------------------------------------------------------#
+
+	def NumberOfOccurrenceOfItemsCS(pCaseSensitive)
+		aItemsXT = This.FindItemsCS(pCaseSensitive)
+		nLen = len(aItemsXT)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ aItemsXT[i][1], len(aItemsXT[i][2]) ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfOccurrenceOfEachItemCS(pCaseSensitive)
+			return This.NumberOfOccurrenceOfItems(pCaseSensitive)
+
+		def HowManyOccurrenceItemsHaveCS(pCaseSensitive)
+			return This.NumberOfOccurrenceOfItemsCS(pCaseSensitive)
+
+		def HowManyOccurrenceEachItemHasCS(pCaseSensitive)
+			return This.NumberOfOccurrenceOfItemsCS(pCaseSensitive)
+
+		#--
+
+		def NumberOfOccurrencesOfItemsCS(pCaseSensitive)
+			return This.NumberOfOccurrenceOfItemsCS(pCaseSensitive)
+
+		def NumberOfOccurrencesOfEachItemsCS(pCaseSensitive)
+			return This.NumberOfOccurrenceOfItemsCS(pCaseSensitive)
+
+		def HowManyOccurrencesItemsHaveCS(pCaseSensitive)
+			return This.NumberOfOccurrenceOfItemsCS(pCaseSensitive)
+
+		def HowManyOccurrencesEachItemHasCS(pCaseSensitive)
+			return This.NumberOfOccurrenceOfItemsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfOccurrenceOfItems()
+		return This.NumberOfOccurrenceOfItemsCS(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfOccurrenceOfEachItem()
+			return This.NumberOfOccurrenceOfItems()
+
+		def HowManyOccurrenceItemsHave(paseSensitive)
+			return This.NumberOfOccurrenceOfItems()
+
+		def HowManyOccurrenceEachItemHas()
+			return This.NumberOfOccurrenceOfItems()
+
+		#--
+
+		def NumberOfOccurrencesOfItems()
+			return This.NumberOfOccurrenceOfItems()
+
+		def NumberOfOccurrencesOfEachItems()
+			return This.NumberOfOccurrenceOfItems()
+
+		def HowManyOccurrencesItemsHave()
+			return This.NumberOfOccurrenceOfItems()
+
+		def HowManyOccurrencesEachItemHas()
+			return This.NumberOfOccurrenceOfItems()
 
 		#>
 
@@ -25659,7 +25708,7 @@ class stzList from stzObject
 		anPos = This.FindTheseItemsCS(paItems, pCaseSensitive)
 
 		nLen = This.NumberOfItems()
-		anResult = Q( 1 : nLen) - anPos
+		anResult = Q( 1 : nLen) - These(anPos)
 
 		return anResult
 
@@ -26968,7 +27017,7 @@ class stzList from stzObject
 			nEnd = nLen
 		ok
 
-		cCode = 'bOk = (' + Q(pcCondition).TrimQ().BoundsRemoved(["{","}"]) + ')'
+		cCode = 'bOk = (' + Q(pcCondition).TrimQ().TheseBoundsRemoved("{","}") + ')'
 
 		anResult = []
 
@@ -27059,7 +27108,7 @@ class stzList from stzObject
 			nEnd = nLen
 		ok
 
-		cCode = 'bOk = (' + Q(cCode).TrimQ().BoundsRemoved(["{","}"]) + ')'
+		cCode = 'bOk = (' + Q(cCode).TrimQ().TheseBoundsRemoved("{","}") + ')'
 		anResult = []
 
 		for @i = nStart to nEnd
@@ -27388,7 +27437,7 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
-		panPos = ( Q( 1 : This.NumberOfItems ) - panPos ).Content()
+		panPos = Q( 1 : This.NumberOfItems ) - These(panPos)
 		aResult = This.ItemsAtPositions(panPos)
 
 		return aResult
@@ -33959,7 +34008,7 @@ class stzList from stzObject
 
 		if isString(p) and Q(p).TrimQ().IsBoundedBy([ "{", "}" ])
 
-			cCode = 'bOk = (' + Q(p).BoundsRemoved([ "{", "}" ]) + ')'
+			cCode = 'bOk = (' + Q(p).TheseBoundsRemoved( "{", "}" ) + ')'
 
 			bResult = TRUE
 			for @i = 1 to nLen
@@ -34150,7 +34199,7 @@ class stzList from stzObject
 				for j = 2 to nLenMethods
 
 					if Q(p[j]).TrimQ().IsBoundedBy(["{","}"])
-						cCode = 'bOk = (' + Q(p[j]).TrimQ().BoundsRemoved(["{","}"]) + ')'
+						cCode = 'bOk = (' + Q(p[j]).TrimQ().TheseBoundsRemoved("{","}") + ')'
 					else
 						cCode = 'bOk = Q(@item).Is' + p[j] + '()'
 					ok
@@ -46416,7 +46465,7 @@ vvv
 	#--------------------------------------------------#
 
 	def NRandomItemsOtherThanCS(pItem, pCaseSensitive)
-		anPos = Q(1 : This.NumberOfItems()) - This.FindCS(pItem, pCaseSensitive)
+		anPos = Q(1 : This.NumberOfItems()) - These( This.FindCS(pItem, pCaseSensitive) )
 		anRandomPos = NRandomNumbersIn(anPos)
 		aResult = This.ItemsAtPositions(anRandomPos)
 
@@ -46506,7 +46555,7 @@ vvv
 	#----------------------------------------------------------------#
 
 	def NRandomItemsOtherThanCSZ(pItem)
-		anPos = Q(1 : This.NumberOfItems()) - This.FindCS(pItem, pCaseSensitive)
+		anPos = Q(1 : This.NumberOfItems()) - These( This.FindCS(pItem, pCaseSensitive) )
 		anRandomPos = NRandomNumbersIn(anPos)
 		aItems = This.ItemsAtPositions(anRandomPos)
 
@@ -46610,7 +46659,7 @@ vvv
 	#-----------------------------------------------------#
 
 	def SomeRandomItemsOtherThanCS(pItem, pCaseSensitive)
-		anPos = Q(1 : This.NumberOfItems()) - This.FindCS(pItem, pCaseSensitive)
+		anPos = Q(1 : This.NumberOfItems()) - These( This.FindCS(pItem, pCaseSensitive) )
 		anRandomPos = SomeRandomNumbersIn(anPos)
 		aResult = This.ItemsAtPositions(anRandomPos)
 
@@ -46668,7 +46717,7 @@ vvv
 	#-------------------------------------------------------------------#
 
 	def SomeRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
-		anPos = Q(1 : This.NumberOfItems()) - This.FindCS(pItem, pCaseSensitive)
+		anPos = Q(1 : This.NumberOfItems()) - These( This.FindCS(pItem, pCaseSensitive) )
 		anRandomPos = SomeRandomNumbersIn(anPos)
 		aResult = This.ItemsAtPositionsQ(anRandomPos).AssociatedWith(anRandomPos)
 
