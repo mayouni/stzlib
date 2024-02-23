@@ -424,13 +424,62 @@ proff()
 # Executed in 0.03 second(s)
 
 /*========
+
+pron()
+
+o1 = new stzString("ring php ruby ring python ring")
+o1.ReplaceByMany("ring", [ "♥", "♥♥", "♥♥♥" ])
+	
+? o1.Content() #--> "♥ php ruby ♥♥ python ♥♥♥"
+
+proff()
+# Executed in 0.07 second(s)
+
+/*------
 */
 pron()
-		o1 = new stzString("ring php ruby ring python ring")
-		o1.ReplaceByMany("ring", :By = [ "♥", "♥♥", "♥♥♥" ])
-	
-		? o1.Content() #--> "♥ php ruby ♥♥ python ♥♥♥"
+
+//? Intersection([ 1:3, 2:7, 10:12 ])
+
+StzListQ([ "1":"3", "2":"7", "10":"12", 2:3 ]) {
+	Flatten()
+	Sort()
+
+	Show()
+
+	//ItemsOccuringNTimes(2)
+	? @@( FindItems() )
+	#-->[
+	# 	[ "1", [ 1 ] ], [ "10", [ 2 ] ], [ "2", [ 3, 4 ] ],
+	# 	[ "3", [ 5, 6 ] ], [ "4", [ 7 ] ], [ "5", [ 8 ] ],
+	# 	[ "6", [ 9 ] ], [ "7", [ 10 ] ]
+	# ]
+
+	? @@( NumberOfOccurrenceOfEachItem() )
+	#-->[
+	# 	[ "1", 1 ], [ "10", 1 ], [ "2", 2 ],
+	# 	[ "3", 2 ], [ "4", 1 ], [ "5", 1 ],
+	# 	[ "6", 1 ], [ "7", 1 ]
+	# ]
+}
+
 proff()
+
+/*------
+
+pron()
+
+o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+o1.ReplaceItemAtPositionsByMany([ 3, 5, 7], "ring", [ "♥", "♥♥", "♥♥♥" ])
+
+? o1.Content()
+#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------
+
 pron()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5, "♥" ])
@@ -439,17 +488,17 @@ o1.ReplaceByMany("♥", [ 1, 3, 4, 6 ])
 #--> [ 1, 2, 3, 4, 5, 6 ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.04 second(s)
 
 /*=====
 
 pron()
 
-	# This example shows how deactivating checking params could enhance
-	# performance. By default, the feature is on, and depending on the
-	# function you are using, more or less params semantics are checked.
+# This example shows how deactivating checking params could enhance
+# performance. By default, the feature is on, and depending on the
+# function you are using, more or less params semantics are checked.
 	
-	# So, in the case:
+# So, in the case:
 	
 	o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
 	o1.ReplaceItemsAtPositions([ 1, 3, 4, 5 ], [ "ring", "softanza" ] , :By = "♥♥♥")
@@ -457,25 +506,27 @@ pron()
 	? o1.Content()
 	#--> [ "♥♥♥", "ruby", "♥♥♥", "♥♥♥", "php", "softanza" ]
 	
-proff()
-# Executed in 0.18 second(s)
+	# The execution takes about 0.18 seconds (on my machine)
 
-/*---
+	? ElapsedTime()
+	# Executed in 0.18 second(s)
 
 # But if you disable params checking and restartd the same code:
 
-pron()
-
 	CheckParamsOff()
 
+	# And repeat the same job
+
 	o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
-	o1.ReplaceItemsAtPositions([ 1, 3, 4, 5 ], [ "ring", "softanza" ] , :By = "♥♥♥")
+	o1.ReplaceItemsAtPositions([ 1, 3, 4, 5 ], [ "ring", "softanza" ] , "♥♥♥")
 	
 	? o1.Content()
 	#--> [ "♥♥♥", "ruby", "♥♥♥", "♥♥♥", "php", "softanza" ]
 
+	# It would take half of the time!
+
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.09 second(s)
 
 /*=====
 
@@ -495,13 +546,13 @@ proff()
 pron()
 
 o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
-o1.ReplaceItemAtPositionsByManyXT([ 3, 5, 7, 9], "ring", :By = [ "♥", "♥♥" ])
+o1.ReplaceItemAtPositionsByManyXT([ 3, 5, 7, 9], "ring", [ "♥", "♥♥" ])
 
 ? o1.Content()
 #--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥", "csharp", "♥♥" ]
 
 proff()
-#--> Executed in 0.06 second(s)
+#--> Executed in 0.03 second(s)
 
 /*-------
 
@@ -516,7 +567,7 @@ o1.ReplaceAnyItemAtPositionsByManyXT([ 3, 5, 7, 9], [ "♥", "♥♥" ])
 proff()
 #--> Executed in 0.02 second(s)
 
-/*-----
+/*---
 
 pron()
 
@@ -528,7 +579,7 @@ o1.ReplaceItemAtPositionsByMany([ 3, 5, 7], "ring", [ "♥", "♥♥", "♥♥�
 #--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
 
 proff()
-#--> Executed in 0.06 second(s)
+#--> Executed in 0.04 second(s)
 
 /*------
 
@@ -580,7 +631,7 @@ o1.ReplaceItemAtPositionsByManyXT( [ 1, 3, 4, 5, 7, 8, 9 ],
 #	^                        ^    ^                        ^
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.04 second(s)
 
 /*-------
 
@@ -602,7 +653,7 @@ o1.ReplaceItemsAtPositionsByManyXT( [ 1, 3, 4, 5, 7, 8, 9 ],
 #                    ^                       ^          ^
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.06 second(s)
 
 /*-------
 
@@ -673,7 +724,7 @@ o1.ReplaceItemAt(3, "♥", :With = "★")
 #--> [ 1, 2, "★", 4, "♥" ]
 
 # Because there is the terme "item" in ReplaceItemAt(), the provided item
-# ("♥" in our case) must be in position 3 to be replace. Otherwise, nothing
+# ("♥" in our case) must be in position 3 to be replaced. Otherwise, nothing
 # will happen. In fact:
 
 o1.ReplaceItemAt(2, "BLA", :With = "★" )
@@ -752,19 +803,19 @@ o1 = new stzListOfLists([ "A":"C", "A":"B", "A":"C" ])
 proff()
 
 /*-----
-*/
+
 pron()
 
 ? Intersection([ "A":"C", "A":"C", "A":"C" ])
-#--> [ 1, 2, 3 ]
+#--> [ "A", "B", "C" ]
 
 ? Intersection([ "A":"C", "A":"B", "A":"C" ])
+#--> [ "A", "C" ]
 
 proff()
 
 /*---
 
-*/
 pron()
 
 o1 = new stzList([ 1, :♥, 3, 4, :♥, :♥ ])
@@ -777,6 +828,7 @@ o1.ReplaceByMany(:♥, [2, 5, 6])
 #--> [ 1, 2, 3, 4, 5, 6 ]
 
 proff()
+# Executed in 0.04 second(s)
 
 /*===
 
@@ -787,7 +839,7 @@ o1 = new stzList([ "1", "♥", "♥", "4", "5", "6", "♥", "♥", "9" ])
 anPos = o1.Find("♥")
 #--> [ 2, 3, 7, 8 ]
 
-o1.ReplaceItemsAtPositions( o1.Find("♥"), :By = "★" )
+o1.ReplaceAnyItemsAtPositions( o1.Find("♥"), :By = "★" )
 ? @@( o1.Content() )
 #--> [ "1", "★", "★", "4", "5", "6", "★", "★", "9" ]
 
@@ -802,6 +854,7 @@ pron()
 #--> [ "S", "O", "F", "T", "A", "Z", "A" ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*---
 
@@ -819,17 +872,17 @@ o1 {
 
 	# Doing someting with the positions
 
-	ReplaceItemsAtPositions(anPos, :With = "★")
+	ReplaceAnyItemsAtPositions(anPos, :With = "★")
 		? Content()
-		#--> 1★★456★★901★★4
+		#--> [ "1","★","★","4","5","6","★","★","9","0","1","★","★","4" ]
 	
 }
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.06 second(s)
 
 /*===== FIX
-
+*/
 pron()
 
 ? Round(2.398)

@@ -19572,7 +19572,7 @@ stop()
 
 				if StzStringQ(pValue).TrimQ().IsBoundedBy(["{", "}" ])
 
-					pcCondition = StzStringQ(pValue).TrimQ().BoundsRemoved("{","}")
+					pcCondition = StzStringQ(pValue).TrimQ().TheseBoundsRemoved("{","}")
 					anResult = []
 	
 					nLen = This.NumberOfStrings()

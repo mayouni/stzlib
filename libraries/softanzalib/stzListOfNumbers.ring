@@ -4804,7 +4804,7 @@ class stzListOfNumbers from stzList
 	#---------------------------------------------------#
 
 	def AnyNumberOutsidePosition(n)
-		anPositons = ( Q(1 : This.NumberOfItems()) - n ).Content()
+		anPositons = Q(1 : This.NumberOfItems()) - n
 		nRandom = AnyNumberIn(anPositions)
 		nResult = This.Number(nRandom)
 
@@ -4879,7 +4879,7 @@ class stzListOfNumbers from stzList
 	# Z/EXTENDED FORM
 
 	def AnyNumberOutsidePositionZ(n)
-		anPositons = ( Q(1 : This.NumberOfItems()) - n ).Content()
+		anPositons = Q(1 : This.NumberOfItems()) - n
 		nRandom = AnyNumberIn(anPositions)
 		aResult = [ This.Number(nRandom), nRandom ]
 
@@ -5061,7 +5061,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		anPos = This.Find(n)
-		anPos = ( Q( 1 : This.NumberOfNumbers() ) - anPos ).Content()
+		anPos = Q( 1 : This.NumberOfNumbers() ) - These(anPos)
 		anRandoms = NRandomNumbersIn(anPos)
 		anResult = This.ItemsAtPositions(anRandoms)
 
@@ -5083,7 +5083,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		anPos = This.Find(n)
-		anPos = ( Q( 1 : This.NumberOfNumbers() ) - anPos ).Content()
+		anPos = Q( 1 : This.NumberOfNumbers() ) - These(anPos)
 		anRandoms = NRandomNumbersIn(anPos)
 		nLen = len(anRandoms)
 
@@ -5209,7 +5209,7 @@ class stzListOfNumbers from stzList
 	# TODO: Add alternatives of (DifferentTo / Of / From / With) all over the library!
 
 	def NNumbersOtherThanMany(n, anNumbers)
-		anPos = ( Q( 1 : This.NumberOfItems() ) - This.Find(anNumbers) ).Content()
+		anPos = Q( 1 : This.NumberOfItems() ) - These(This.Find(anNumbers))
 		anRandoms = NRandomNumbersIn(anPos)
 		aResult = This.ItemsAtPositions(anRandoms)
 
@@ -5251,7 +5251,7 @@ class stzListOfNumbers from stzList
 	#-- Z/EXTENDED FORM
 
 	def NNumbersOtherThanManyZ(n, anNumbers)
-		anPos = ( Q( 1 : This.NumberOfItems() ) - This.Find(anNumbers) ).Content()
+		anPos = Q( 1 : This.NumberOfItems() ) - These(This.Find(anNumbers))
 		anRandoms = NRandomNumbersIn(anPos)
 		nLen = len(aRandoms)
 		
@@ -5505,7 +5505,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		anPos = This.Find(n)
-		anPos = ( Q( 1 : This.NumberOfNumbers() ) - anPos ).Content()
+		anPos = Q( 1 : This.NumberOfNumbers() ) - These(anPos)
 		anRandoms = SomeRandomNumbersIn(anPos)
 		anResult = This.ItemsAtPositions(anRandoms)
 
@@ -6021,7 +6021,7 @@ class stzListOfNumbers from stzList
 	#--------------------------------------------#
 
 	def NumbersOutsidePosition(n)
-		anPos = ( Q( 1 : This.NumberOfItems() ) - [n] ).Content()
+		anPos = Q( 1 : This.NumberOfItems() ) - n
 		anResult = This.ItemsAtPositions(anPos)
 
 		return anResult
@@ -6045,7 +6045,7 @@ class stzListOfNumbers from stzList
 	#-- Z/EXTENDED FORM
 
 	def NumbersOutsidePositionZ(n)
-		anPos = ( Q( 1 : This.NumberOfItems() ) - [n] ).Content()
+		anPos = Q( 1 : This.NumberOfItems() ) - n
 		nLen = len(anPos)
 
 		aResult = []

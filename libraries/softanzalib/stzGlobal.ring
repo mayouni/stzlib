@@ -400,6 +400,48 @@ func These(p)
 	return p
 	# Must be reset to FALSE everytime These() is used.
 
+	func EachOfThese(p)
+		return These(p)
+
+	func EachOneOfThese(p)
+		return These(p)
+
+	func EachItemOfThese(p)
+		return These(p)
+
+	func AllThese(p)
+		return These(p)
+
+	func AllOfThese(p)
+		return These(p)
+
+	#--
+
+	func TheseItems(p)
+		return These(p)
+
+	func EachOfTheseItems(p)
+		return These(p)
+
+	func EachOneOfTheseItems(p)
+		return These(p)
+
+	func AllTheseItems(p)
+		return These(p)
+
+	func AllOfTheseItems(p)
+		return These(p)
+
+	#--
+
+	func EachIn(p)
+		return These(p)
+
+	func EachItemIn(p)
+		return These(p)
+
+	#>
+
 func ForEach(p, pIn)
 	/* EXAMPLES
 
@@ -604,18 +646,35 @@ func ParamChecking()
 #--
 
 func IsCaseSensitive(p)
-	bResult = FALSE
 
 	if (isNumber(p) and p = 1) or
 	   (isList(p) and Q(p).IsCaseSensitiveNamedParam() and p[2] = 1)
 
-		bResult = TRUE
-	ok
+		return TRUE
 
-	return bResult
+	but (isNumber(p) and p = 0) or
+	   (isList(p) and Q(p).IsCaseSensitiveNamedParam() and p[2] = 0)
+
+		return FALSE
+
+	else
+		StzRaise("Incorrect param! p must be TRUE or FALSE.")
+	ok
 
 	func @IsCaseSensitive(p)
 		return IsCaseSensitive(p)
+
+func CaseSensitive(p)
+	if IsCaseSensitive(p)
+		if isNumber(p)
+			return p
+		else // A nameed param of the form :CS = TRUE for example
+			return p[2]
+		ok
+	ok
+
+	func @CaseSensitive(p)
+		return CaseSensitive(p)
 
 #--
 
@@ -2182,6 +2241,9 @@ func One(pThing)
 	func @One(pThing)
 		return One(pThing)
 
+	func @1(pThing)
+		return One(pThing)
+
 func Two(pThing)
 	if isList(pThing)
 		return NRandomItemsInU(2, pThing)
@@ -2190,6 +2252,9 @@ func Two(pThing)
 	ok
 
 	func @Two(pThing)
+		return Two(pThing)
+
+	func @2(pThing)
 		return Two(pThing)
 
 func Three(pThing)
@@ -2202,6 +2267,9 @@ func Three(pThing)
 	func @Three(pThing)
 		return Three(pThing)
 
+	func @3(pThing)
+		return Three(pThing)
+
 func Four(pThing)
 	if isList(pThing)
 		return NRandomItemsInU(4, pThing)
@@ -2210,6 +2278,9 @@ func Four(pThing)
 	ok
 
 	func @Four(pThing)
+		return Four(pThing)
+
+	func @4(pThing)
 		return Four(pThing)
 
 func Five(pThing)
@@ -2222,6 +2293,9 @@ func Five(pThing)
 	func @Five(pThing)
 		return Five(pThing)
 
+	func @5(pThing)
+		return Five(pThing)
+
 func Six(pThing)
 	if isList(pThing)
 		return NRandomItemsInU(6, pThing)
@@ -2230,6 +2304,9 @@ func Six(pThing)
 	ok
 
 	func @Six(pThing)
+		return Six(pThing)
+
+	func @6(pThing)
 		return Six(pThing)
 
 func Seven(pThing)
@@ -2242,6 +2319,9 @@ func Seven(pThing)
 	func @Seven(pThing)
 		return Seven(pThing)
 
+	func @7(pThing)
+		return Seven(pThing)
+
 func Eight(pThing)
 	if isList(pThing)
 		return NRandomItemsInU(8, pThing)
@@ -2250,6 +2330,9 @@ func Eight(pThing)
 	ok
 
 	func @Eight(pThing)
+		return Eight(pThing)
+
+	func @8(pThing)
 		return Eight(pThing)
 
 func Nine(pThing)
@@ -2262,6 +2345,9 @@ func Nine(pThing)
 	func @Nine(pThing)
 		return Nine(pThing)
 
+	func @9(pThing)
+		return Nine(pThing)
+
 func Ten(pThing)
 	if isList(pThing)
 		return NRandomItemsInU(10, pThing)
@@ -2270,6 +2356,9 @@ func Ten(pThing)
 	ok
 
 	func @Ten(pThing)
+		return Ten(pThing)
+
+	func @10(pThing)
 		return Ten(pThing)
 
 # OTHER STAFF

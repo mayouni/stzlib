@@ -7456,7 +7456,7 @@ proff()
 pron()
 
 o1 = new stzString("<<Go!>>")
-? o1.BoundsRemoved(["<<", ">>"]) #--> "Go!"
+? o1.TheseBoundsRemoved("<<", ">>") #--> "Go!"
 # Executed in 0.04 second(s)
 
 proff()
@@ -9237,7 +9237,7 @@ o1 = new stzString("{{{ Scope of Life }}}")
 ? o1.EndsWith("}")
 
 ? o1.IsBoundedBy([ "{", "}" ])		#--> TRUE
-? o1.BoundsRemoved([ "{", "}" ]) 	#--> {{ Scope of Life }}
+? o1.TheseBoundsRemoved("{", "}") 	#--> {{ Scope of Life }}
 
 /*--------------------
 

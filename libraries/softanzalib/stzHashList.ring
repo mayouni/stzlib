@@ -369,7 +369,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		PerformOnKeys('@key += @i')
 		*/
 
-		cCode = StzStringQ(pcCode).TrimQ().BoundsRemoved(["{", "}"])
+		cCode = StzStringQ(pcCode).TrimQ().TheseBoundsRemoved("{", "}")
 
 		for @i = 1 to This.NumberOfPairs()
 			@key = This.NthKey(@i)		
@@ -393,7 +393,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		PerformOnValues('@value += @i')
 		*/
 
-		cCode = StzStringQ(pcCode).TrimQ().BoundsRemoved(["{", "}"])
+		cCode = StzStringQ(pcCode).TrimQ().TheseBoundsRemoved("{", "}")
 
 		for @i = 1 to This.NumberOfPairs()
 			@value = This.NthValue(@i)
@@ -1505,7 +1505,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return anResult
 
 	def FindNonLists()
-		anResult = Q( 1 : This.Size() ) - This.FindLists()
+		anResult = Q( 1 : This.Size() ) - These( This.FindLists() )
 		return anResult
 
 	def Lists()
