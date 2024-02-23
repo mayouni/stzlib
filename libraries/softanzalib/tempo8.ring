@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*===
+
 #-- @narration: long functions names are necessary to Softanza but not to you!
 
 pron()
@@ -41,14 +43,15 @@ o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
 proff()
 
 /*---
-
+*/
 pron()
 
 o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
 ? o1.BoundsOf("Ring")
-#--> [ ["<<", ">>"], [ "((", "))" ] ]
+#--> [ ["<<<", ">>>"], [ "(((", ")))" ] ]
 
 ? o1.BoundsOfXT("Ring", :UpToNChars = 2) # Or BoundsOfUpToNChars()
+#--> [ ["<<", ">>"], [ "((", "))" ] ]
 
 proff()
 
