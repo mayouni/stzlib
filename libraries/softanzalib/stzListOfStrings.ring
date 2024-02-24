@@ -8873,6 +8873,12 @@ class stzListOfStrings from stzList
 				This.ReplaceAllOfTheseCS(pacStrings, pcNewString, pCaseSensitive)
 				return This
 
+		def ReplaceTheseCS(pacStrings, pcNewString, pCaseSensitive)
+			This.ReplaceManyStringsCS(pacStrings, pcNewString, pCaseSensitive)
+
+			def ReplaceTheseCSQ(pacStrings, pcNewString, pCaseSensitive)
+				This.ReplaceTheseCS(pacStrings, pcNewString, pCaseSensitive)
+				return This
 		#--
 
 		def ReplaceTheseStringsCS(pacStrings, pcNewString, pCaseSensitive)
@@ -8899,6 +8905,8 @@ class stzListOfStrings from stzList
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def ManyStringItemsReplacedCS(pacStrings, pcNewString, pCaseSensitive)
 			return This.ManyStringsReplacedCS(pacStrings, pcNewString, pCaseSensitive)
 
@@ -8908,6 +8916,11 @@ class stzListOfStrings from stzList
 		def TheseStringItemsReplacedCS(pacStrings, pcNewString, pCaseSensitive)
 			return This.ManyStringsReplacedCS(pacStrings, pcNewString, pCaseSensitive)
 	
+		def TheseReplacedCS(pacStrings, pcNewString, pCaseSensitive)
+			return This.ManyStringsReplacedCS(pacStrings, pcNewString, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceManyStrings(pacStrings, pcNewString)
@@ -8944,7 +8957,15 @@ class stzListOfStrings from stzList
 				This.ReplaceAllOfThese(pacStrings, pcNewString)
 				return This
 
+		def ReplaceThese(pacStrings, pcNewString)
+			This.ReplaceManyStrings(pacStrings, pcNewString)
+
+			def ReplaceTheseQ(pacStrings, pcNewString)
+				This.ReplaceThese(pacStrings, pcNewString)
+				return This
+
 		#--
+
 
 		def ReplaceTheseStrings(pacStrings, pcNewString)
 			This.ReplaceManyStrings(pacStrings, pcNewString)
@@ -8970,6 +8991,8 @@ class stzListOfStrings from stzList
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def ManyStringItemsReplaced(pacStrings, pcNewString)
 			return This.ManyStringsReplaced(pacStrings, pcNewString)
 
@@ -8978,6 +9001,11 @@ class stzListOfStrings from stzList
 
 		def TheseStringItemsReplaced(pacStrings, pcNewString)
 			return This.ManyStringsReplaced(pacStrings, pcNewString)
+
+		def TheseReplaced(pacStrings, pcNewString)
+			return This.ManyStringsReplaced(pacStrings, pcNewString)
+
+		#>
 
 	  #------------------------------------------------#
 	 #  REPLACING MANY STRINGS BY MANY OTHER STRINGS  #

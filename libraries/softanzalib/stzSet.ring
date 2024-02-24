@@ -203,6 +203,7 @@ class stzSet from stzList
 	#---------------------------------#
 
 	def UnionWithMany(paListOfSets)
+		# TODO: Add "These" as alternative of "Many"
 
 		if NOT ListIsListOfSets(paListOfSets)
 			StzRaise(stzSetError(:CanNotComputeUnionWithNonSets))
@@ -220,15 +221,17 @@ class stzSet from stzList
 
 		return aUnion
 
-	def UnionWithManyQ(paListOfSets)
-		return new stzSet( This.UnionWithMany(paListOfSets))
-
+		def UnionWithManyQ(paListOfSets)
+			return new stzSet( This.UnionWithMany(paListOfSets))
+	
 	def UnifyWithMany(paListOfSets)
+		# TODO: Add "These" as alternative of "Many"
+
 		This.Update( This.UnionWithMany(paListOfSets) )
 
-	def UnifyWithManyQ(paListOfSets)
-		This.UnifyWithMany(paListOfSets)
-		return This
+		def UnifyWithManyQ(paListOfSets)
+			This.UnifyWithMany(paListOfSets)
+			return This
 
 	  #----------------------------------#
 	 #    INTERSECTION WITH OTHER SET   #

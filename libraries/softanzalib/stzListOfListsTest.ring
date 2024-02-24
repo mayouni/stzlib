@@ -1,5 +1,17 @@
 load "stzlib.ring"
 
+/*-----
+
+pron()
+
+? Intersection([ "A":"C", "A":"C", "A":"C" ])
+#--> [ "A", "B", "C" ]
+
+? Intersection([ "A":"C", "A":"B", "A":"C" ])
+#--> [ "A", "C" ]
+
+proff()
+
 /*=====
 */
 pron()

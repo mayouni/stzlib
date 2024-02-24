@@ -150,6 +150,9 @@ class stzFunction from stzObject
 			This.ApplyFor([m])
 		next
 
+		def ApplyForThese(paMany)
+			This.ApplyForMany(paMany)
+
 	def ElpasedTime()
 		t1 = clocks()
 		This.Startup()
