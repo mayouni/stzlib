@@ -9590,6 +9590,8 @@ class stzString from stzObject
 	 #  FINDING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER  #
 	#=====================================================================#
 
+	# TODO: Unify the bounds fucntions in stzString and stzList
+
 	def FindSectionBoundsZZ(n1, n2, nCharsBefore, nCharsAfter)
 		if CheckParams()
 			if NOT BothAreNumbers(n1, n2)
@@ -10361,12 +10363,35 @@ class stzString from stzObject
 		#--> TRUE
 		*/
 
-		pcStr = pcInStr[2]
-		acBounds = Q(pcStr).BoundsOfCS(pcSubStr, :UpToNChars = This.NumberOfChars(), pCaseSensitive )
-		#--> [ [ "_", "_" ], [ "<", ">" ] ]
+		if CheckParams()
+			if isList(pcInStr) and Q(pcInStr).IsInNamedParam()
+				pcInStr = pcInStr[2]
+			ok
 
-		bResult = Q(acBounds).Contains( [ This.String(), This.String() ] )
+			if NOT isString(pcInStr)
+				StzRaise("Incorrect param type! pcInStr must be a string.")
+			ok
+		ok
+
+		cBounded = This.String() + pcSubStr + This.String()
+		bResult = StzStringQ(pcInStr).ContainsCS(cBounded, pCaseSensitive)
+
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsBoundOfXTCS(pcSubStr, pcInStr, pCaseSensitive)
+			return This.IsBoundOfCS(pcSubStr, pcInStr, pCaseSensitive)
+
+		def IsBoundOfInCS(pcSubStr, pcInStr, pCaseSensitive)
+			if CheckParams()	
+				if NOT isString(pcInStr)
+					StzRaise("Incorrect param type! pcInStr must be a string.")
+				ok
+			ok
+			return This.IsBoundOfCS(pcSubStr, pcInStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESNESITUVURT
 
@@ -10374,12 +10399,29 @@ class stzString from stzObject
 		bResult = This.IsBoundOfCS(pcSubStr, pcInStr, TRUE)
 		return bResult
 
+		#< @FunctionAlternativeForms
+
+		def IsBoundOfXT(pcSubStr, pcInStr)
+			return This.IsBoundOf(pcSubStr, pcInStr)
+
+		def IsBoundOfIn(pcSubStr, pcInStr)
+			return This.IsBoundOfCS(pcSubStr, pcInStr, TRUE)
+
+		#>
+
+	#==
+
 	def IsFirstBoundOfCS(pcOtherStr, pCaseSensitive)
 		if Q(pcOtherStr).FirstBoundsCS().IsEqualToCS(This.String(), pCaseSensitive)
 			return TRUE
 		else
 			return FALSE
 		ok
+
+	def IsFirstBoundOf(pcOtherStr)
+		return This.IsFirstBoundOfCS(pcOtherStr, TRUE)
+
+	#==
 
 	def IsLastBoundOfCS(pcOtherStr, pCaseSensitive)
 		if Q(pcOtherStr).LastBoundsCS().IsEqualToCS(This.String(), pCaseSensitive)
@@ -10391,12 +10433,25 @@ class stzString from stzObject
 		def IsSecondBoundOfCS(pcOtherStr, pCaseSensitive)
 			return This.IsLastBoundOfCS(pcOtherStr, pCaseSensitive)
 
+	def IsLastBoundOf(pcOtherStr)
+		return This.IsLastBoundOfCS(pcOtherStr, TRUE)
+
+		def IsSecondBoundOf(pcOtherStr)
+			return This.IsLastBoundOf(pcOtherStr)
+
+	#==
+
 	def IsLeftBoundOfCS(pcOtherStr, pCaseSensitive)
 		if Q(pcOtherStr).LeftBoundsCS().IsEqualToCS(This.String(), pCaseSensitive)
 			return TRUE
 		else
 			return FALSE
 		ok
+
+	def IsLeftBound(pcOtherStr)
+		return This.IsLetfBoundOfCS(pcOtherStr, TRUE)
+
+	#==
 
 	def IsRightBoundOfCS(pcOtherStr, pCaseSensitive)
 		if Q(pcOtherStr).RightBoundsCS().IsEqualToCS(This.String(), pCaseSensitive)
@@ -10405,9 +10460,12 @@ class stzString from stzObject
 			return FALSE
 		ok
 
+	def IsRightBoundOf(pcOtherStr)
+		return This.IsRightBoundOfCS(pcOtherStr, TRUE)
+
 	  #------------------------------------#
 	 #     ADDING BOUNDS TO THE STRING    #
-	#------------------------------------#
+	#====================================#
 
 	def AddBounds(pacBounds)
 		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
@@ -10518,6 +10576,8 @@ class stzString from stzObject
 	#------------------------------------------------------------------------#
 	
 	def SubStringIsBoundedByManyCS(pcSubStr, pacPairsOfBounds, pCaseSensitive)
+		# TODO: Add "These" as alternative of "Many"
+
 		/* EXAMPLE
 
 		? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE
@@ -14399,7 +14459,7 @@ class stzString from stzObject
 
 	  #---------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS BOUNDS OF A GIVEN SUBSTRING  #
-	#---------------------------------------------------------------#
+	#===============================================================#
 
 	def ContainsBoundsOfCS(pcSubStr, pCaseSensitive)
 		if len( This.BoundsOfCS(pcSubStr, pCaseSensitive) ) > 0
@@ -14428,7 +14488,7 @@ class stzString from stzObject
 
 	  #---------------------------------------------------------------------------#
 	 #  FINDING THE FIRST BOUNDS AS SECTIONS OF A GIVEN SUBSTRING IN THE STRING  #
-	#---------------------------------------------------------------------------#
+	#===========================================================================#
 
 	def FindSubStringFirstBoundsAsSectionsCS(pcSubStr, pCaseSensitive)
 
@@ -24831,13 +24891,15 @@ class stzString from stzObject
 	
 		#< @FunctionFluentForm
 		
-		def InsertSubstringsQ( nPos, aSubStr)
+		def InsertSubstringsQ(nPos, aSubStr)
 			This.InsertSubstrings(nPos, aSubStr)
 			return This
 		
 		#>
 
 		#< @FunctionAlternativeForms
+
+		# TODO: Add "These" as alternative of "Many"
 
 		def InsertMany(nPos, aSubStr)
 			This.InsertListOfSubstrings(nPos, aSubStr)
@@ -25194,6 +25256,12 @@ class stzString from stzObject
 
 		#< @FunctionALternativeForms
 
+		def ReplaceTheseCS(pacSubStr, pNewSubstr, pCaseSensitive)
+			This.ReplaceManyCS(pacSubStr, pNewSubstr, pCaseSensitive)
+
+			def ReplaceTheseCSQ(pacSubStr, pNewSubstr, pCaseSensitive)
+				return This.ReplaceManyCSQ(pacSubStr, pNewSubstr, pCaseSensitive)
+
 		def ReplaceAllOfTheseCS(pacSubStr, pNewSubstr, pCaseSensitive)
 			This.ReplaceManyCS(pacSubStr, pNewSubstr, pCaseSensitive)
 
@@ -25220,11 +25288,21 @@ class stzString from stzObject
 		acResult = This.Copy().ReplaceManySubstringsCSQ(pacSubstr, pNewSubstr, pCaseSensitive).Content()
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def ManyReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
 			return This.ManySubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
 
 		def SubStringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
 			return This.ManySubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+
+		def TheseSubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+			return This.ManySubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+
+		def TheseReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+			return This.ManySubstringsReplacedCS(pacSubstr, pNewSubstr, pCaseSensitive)
+
+		#>
 
 	#-- WIHTOUT CASESENSITIVITY
 
@@ -25240,6 +25318,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 	
+		def ReplaceThese(pacSubStr, pcNewSubStr)
+			This.ReplaceMany(pacSubstr, pcNewSubstr)
+
+			def ReplaceTheseQ(pacSubStr, pcNewSubStr)
+				This.ReplaceAllOfThese(pacSubStr, pcNewSubStr)
+				return This
+
 		def ReplaceAllOfThese(pacSubStr, pcNewSubStr)
 			This.ReplaceMany(pacSubstr, pcNewSubstr)
 
@@ -25268,17 +25353,28 @@ class stzString from stzObject
 		acResult = This.Copy().ReplaceManySubstringsQ(pacSubstr, pNewSubstr).Content()
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def ManyReplaced(pacSubstr, pNewSubstr)
 			return This.ManySubstringsReplaced(pacSubstr, pNewSubstr)
 
 		def SubStringsReplaced(pacSubstr, pNewSubstr)
 			return This.ManySubstringsReplaced(pacSubstr, pNewSubstr)
 
+		def TheseSubstringsReplaced(pacSubstr, pNewSubstr)
+			return This.ManySubstringsReplaced(pacSubstr, pNewSubstr)
+
+		def TheseReplaced(pacSubstr, pNewSubstr)
+			return This.ManySubstringsReplaced(pacSubstr, pNewSubstr)
+
+		#>
+
 	  #--------------------------------------------#
 	 #  REPLACING A SUBSTRING BY MANY SUBSTRINGS  #
 	#--------------------------------------------#
 
 	def ReplaceByManyCS(pcSubStr, pacNewSubStrings, pCaseSensitive)
+		# TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE
 
@@ -25373,6 +25469,7 @@ class stzString from stzObject
 	#--------------------------------------------------------------------------#
 
 	def ReplaceByManyCSXT(pcSubStr, pacNewSubStrings, pCaseSensitive)
+		# TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE
 
@@ -25483,6 +25580,8 @@ class stzString from stzObject
 	#------------------------------------------------------#
 
 	def ReplaceManyByManyCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+		# TODO: Add "These" as alternatibe of "Many"
+
 		/* EXAMPLE
 
 		o1 = new stzString("ring qt softanza pyhton kandaji csharp ring")
@@ -25832,6 +25931,7 @@ class stzString from stzObject
 	#-------------------------------------------------------------------------------#
 
 	def ReplaceSubStringAtPositionsByManyCS(panPos, pcSubStr, pacNewSubStrings, pCaseSensitive)
+		# TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE 1
 		o1 = new stzString("ring php ring ruby ring python ring csharp ring")
@@ -25982,6 +26082,8 @@ class stzString from stzObject
 	#-----------------------------------------------------------------------#
 
 	def ReplaceOccurrencesByManyCS(panOccurrences, pcSubStr, pacNewSubStrings, pCaseSensitive)
+		# TODO: Add "These" as alternatibe of "Many"
+
 		anPos = This.FindTheseOccurrencesCS(panOccurrences, pcSubStr, pCaseSensitive)
 		This.ReplaceSubStringAtPositionsByManyCS(anPos, pcSubStr, pacNewSubStrings, pCaseSensitive)
 
@@ -26047,6 +26149,8 @@ class stzString from stzObject
 	#-----------------------------------------------------------------------------#
 
 	def ReplaceOccurrencesByManyCSXT(panOccurrences, pcSubStr, pacNewSubStrings, pCaseSensitive)
+		# TODO: Add "These" as alternatibe of "Many"
+
 		anPos = This.FindTheseOccurrencesCS(panOccurrences, pcSubStr, pCaseSensitive)
 		This.ReplaceSubStringAtPositionsByManyCSXT(anPos, pcSubStr, pacNewSubStrings, pCaseSensitive)
 
@@ -27518,6 +27622,8 @@ class stzString from stzObject
 	# TODO: Add case sensitivity
 
 	def ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStrings)
+		# TODO: Add "These" as alternatibe of "Many"
+
 		/* EXAMPLE
 		o1 = new stzString("ab3de6gh9")
 		o1.ReplaceCharsAtPositionsByMany([3, 6, 9], [ "c", "f", "i" ])
@@ -33238,6 +33344,17 @@ class stzString from stzObject
 		def FindManySubStringsCSZ(pacSubStr, pCaseSensitive)
 			return This.FindManyCS(pacSubStr, pCaseSensitive)
 
+		#--
+
+		def FindTheseCS(pacSubStr, pCaseSensitive)
+			return This.FindManyCS(pacSubStr, pCaseSensitive)
+
+		def FindTheseCSZ(pacSubStr, pCaseSensitive)
+			return This.FindManyCS(pacSubStr, pCaseSensitive)
+
+		def FindTheseSubStringsCS(pacSubStr, pCaseSensitive)
+			return This.FindManyCS(pacSubStr, pCaseSensitive)
+
 		def FindTheseSubStringsCSZ(pacSubStr, pCaseSensitive)
 			return This.FindManyCS(pacSubStr, pCaseSensitive)
 
@@ -33276,6 +33393,17 @@ class stzString from stzObject
 			return This.FindMany(pacSubStr)
 
 		def FindManySubStringsZ(pacSubStr)
+			return This.FindMany(pacSubStr)
+
+		#--
+
+		def FindThese(pacSubStr)
+			return This.FindMany(pacSubStr)
+
+		def FindTheseZ(pacSubStr)
+			return This.FindMany(pacSubStr)
+
+		def FindTheseSubStrings(pacSubStr)
 			return This.FindMany(pacSubStr)
 
 		def FindTheseSubStringsZ(pacSubStr)
@@ -33601,7 +33729,7 @@ class stzString from stzObject
 			    isList(p2[2]) and Q(p2[2]).IsPair()
 
 				n = 0+ Q(p1[1]).FirstNumber()
-				return This.FindNthBetweenCS(n, p1[2], p2[1], p2[2], pCaseSensitve)
+				return This.FindNthBetweenCS(n, p1[2], p2[1], p2[2], pCaseSensitive)
 
 			# FindXT( :3rd = "*", :BoundedBy = '"' ])
 			but isList(p1) and  isString(p1[2]) and
@@ -33612,7 +33740,7 @@ class stzString from stzObject
 			    isList(p2) and Q(p2).IsBoundedByNamedParam()
 
 				n = 0+ Q(p1[1]).FirstNumber()
-				return This.FindNthBoundedByCS(n, p1[2], p2, pCaseSensitve)
+				return This.FindNthBoundedByCS(n, p1[2], p2, pCaseSensitive)
 
 			# FindXT( :3rd = "*", :InSection = [5, 24] ])
 			but isList(p1) and isString(p1[2]) and
@@ -33814,7 +33942,7 @@ class stzString from stzObject
 			    isList(p2[2]) and Q(p2[2]).IsPair()
 
 				n = 0+ Q(p1[1]).FirstNumber()
-				return This.FindNthBetweenAsSectionCS(n, p1[2], p2[1], p2[2], pCaseSensitve)
+				return This.FindNthBetweenAsSectionCS(n, p1[2], p2[1], p2[2], pCaseSensitive)
 
 			# FindAsSectionsXT( :3rd = "*", :BoundedBy = '"' ])
 			but isList(p1) and  isString(p1[2]) and
@@ -33825,7 +33953,7 @@ class stzString from stzObject
 			    isList(p2) and Q(p2).IsBoundedByNamedParam()
 
 				n = 0+ Q(p1[1]).FirstNumber()
-				return This.FindNthBoundedAsSectionByCS(n, p1[2], p2, pCaseSensitve)
+				return This.FindNthBoundedAsSectionByCS(n, p1[2], p2, pCaseSensitive)
 
 			# FindAsSectionsXT( :3rd = "*", :InSection = [5, 24] ])
 			but isList(p1) and isString(p1[2]) and
@@ -54356,15 +54484,20 @@ ici		//...
 			This.RemoveMany(pacSubStr)
 
 			def RemoveAllOfTheseCSQ(pacSubStr, pCaseSensitive)
-				This.RemoveAllOfTheseCS(pacSubstr, pCaseSensitive)
-				return This
+				return This.RemoveManyCSQ(pacSubStr, pCaseSensitive)
+
+		def RemoveTheseCS(pacSubStr, pCaseSensitive)
+			This.RemoveMany(pacSubStr)
+
+			def RemoveTheseCSQ(pacSubStr, pCaseSensitive)
+				return This.RemoveManyCSQ(pacSubStr, pCaseSensitive)
 
 		def RemoveManySubstringsCS(pcSubStr, pCaseSensitive)
 			This.RemoveAllCS(pcSubStr, pCaseSensitive)
 
 			def RemoveManySubstringsCSQ(pSubStr, pCaseSensitive)
-				This.RemoveManySubstringsCS(pSubStr, pCaseSensitive)
-				return This
+				return This.RemoveManyCSQ(pacSubStr, pCaseSensitive)
+
 
 	def ManySubstringsRemovedCS(pacSubStr, pCaseSensitive)
 		return This.Copy().RemoveManySubstringsCS(pacSubStr, pCaseSensitive).Content()
@@ -54387,21 +54520,28 @@ ici		//...
 			This.RemoveMany(pacSubStr)
 
 			def RemoveAllOfTheseQ(pacSubstr)
-				This.RemoveAllOfThese(pacSubstr)
-				return This
+				return This.RemoveManyQ(pacSubStr)
+
+		def RemoveThese(pacSubstr)
+			This.RemoveMany(pacSubStr)
+
+			def RemoveTheseQ(pacSubstr)
+				return This.RemoveManyQ(pacSubStr)
 
 		def RemoveManySubstrings(pcSubStr)
 			This.RemoveMany(pacSubStr)
 
 			def RemoveManySubstringsQ(pSubStr)
-				This.RemoveManySubstrings(pSubStr, pCaseSensitive)
-				return This
+				return This.RemoveManyQ(pacSubStr)
 
 	def ManySubstringsRemoved(pacSubStr)
 		return This.Copy().RemoveManySubstrings(pacSubStr).Content()
 
 		def SubstringsRemoved(pacSubStr)
 			return This. ManySubstringsRemoved(pacSubStr)
+
+		def TheseRemoved(pacSubStr)
+			return This.ManySubstringsRemoved(pacSubStr)
 
 	  #-------------------------------------------------#
 	 #  REMOVING ALL SUBSTRINGS EXCEPT THOSE PROVIDED  #
@@ -61688,7 +61828,7 @@ ici		//...
 		return This.FindNthOccurrenceCS(cSubStr, pCaseSensitive)
 	
 	def PositionBefore(cSubStr)
-		return This.PositionBeforeCS(cSubStr, :CaseSensitve = FALSE)
+		return This.PositionBeforeCS(cSubStr, :CaseSensitive = FALSE)
 
 	def PositionBeforeNthOccurrence(n, cSubStr)
 		return This.PositionBeforeNthOccurrenceCS(n, cSubStr, pCaseSensitive)
@@ -72337,30 +72477,6 @@ ici		//...
 
 	def AppendedAtStart(pcOtherStr)
 		return This.Prepended(pcOtherStr)
-
-	  #------------------------------#
-	 #  ALTERNATIVES OF FindMany()  #
-	#------------------------------#
-
-	def FindTheseSubStringsCS(pacSubStr, pCaseSensitive)
-		return This.FindManyCS(pacSubStr, pCaseSensitive)
-
-		def FindTheseSubStringsCSQ(pacSubStr, pCaseSensitive)
-			return This.FindManyCSQ(pacSubStr, pCaseSensitive)
-		
-		def FindTheseSubStringsCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-			return This.FindManyCSQR(pacSubStr, pCaseSensitive, pcReturnType)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindTheseSubStrings(pacSubStr)
-		return This.FindMany(pacSubStr)
-
-		def FindTheseSubStringsQ(pacSubStr)
-			return This.FindManyQ(pacSubStr)
-		
-		def FindTheseSubStringsQR(pacSubStr, pcReturnType)
-			return This.FindManyQR(pacSubStr, pcReturnType)
 
 	  #----------------------------------------#
 	 #  ALTERNATIVES OF FindManyAsSections()  #

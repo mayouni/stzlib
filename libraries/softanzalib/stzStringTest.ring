@@ -1,6 +1,297 @@
 load "stzlib.ring"
 
-/*-----
+#== @narration: function active form and passive form (discussion with Mahmoud)
+
+pron()
+
+# The RemoveBounds() function exists and it acts on the object
+# on place and changes its value, like this:
+
+o1 = new stzString("<<Go!>>")
+o1.RemoveBounds()
+? o1.Content()
+#--> "Go!"
+
+# This is called the @FunctionActiveForm , while BoundsRemoved()
+# is called the @FunctionPassiveForm.
+
+# Typically, the first active form is used to sculpture the object
+# at your will, action after action, like for example:
+
+StzStringQ( "<<Go!>>") {
+        RemoveBounds()
+        Uppercase()
+        AddBounds([ "~", "~" ])
+        # and so on...
+        ? Content()
+        #--> "~GO!~"
+}
+
+# While the passive form is used to return the final result of the
+# function WITHOUT altering the object value. Hence when we say:
+
+o1 = new stzString("<<Go!>>")
+? o1.BoundsRemoved()
+#--> "Go!"
+? o1.Content()
+#--> <<Go!>>
+
+# The value of the object won't be changed after BoundsRemoved() is used.
+
+proff()
+
+/*===
+
+pron()
+
+? Chars("SOFTANZA")
+#--> [ "S", "O", "F", "T", "A", "Z", "A" ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*===  @narration: long functions names are necessary to Softanza but not to you!
+
+pron()
+
+# When you dig inside Softanza code, you will sometimes encouter functions
+# with very long names like for example:
+
+#                         7.9....4.6                3.5....4.2
+o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
+? @@( o1.FindSubStringBoundsUpToNCharsAsSections("Ring", 2) )
+#--> [ [ 8, 9 ], [ 14, 15 ], [ 34, 35 ], [ 40, 41 ] ]
+
+# This shouldn't dissiponts you Let me explain why.
+
+# Although the function is clear enough about what its does (in this case:
+# finding the substrings bounding the substring "Ring" up to 2 chars), it
+# is not made to be used directly by you.
+
+# In fact, those long functions are used internally by other usual functions
+# that you will need in practice, while letting the codebase be more readable.
+
+# In our case, you would need this one:
+
+? o1.BoundsOfXT("Ring", :UpToNChars = 2) # You will understand the use of XT() in a moment ;)
+#--> [ [ "<<", ">>" ], [ "((", "))" ] ]
+
+# That you should use when you don't want all the bounding sunstrings to be returned
+# (in this case all the 3 chars), but only 2 chars of each bound.
+
+# To return all the chars bounding the substring "Ring" you say:
+
+? o1.BoundsOf("Ring")
+#--> [ [ "<<<", ">>" ], [ "(((", ")))" ] ]
+
+# NOTE: Now you understand why we used the XT() extension to the name of BoundsOf()
+# function, to say its an extended form of the main function, where we can specify
+# the number of chars in the bound.
+
+proff()
+
+/*===
+
+pron()
+
+o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
+? o1.BoundsOf("Ring")
+#--> [ ["<<<", ">>>"], [ "(((", ")))" ] ]
+
+? o1.BoundsOfXT("Ring", :UpToNChars = 2) # Or BoundsOfUpToNChars()
+#--> [ ["<<", ">>"], [ "((", "))" ] ]
+
+proff()
+
+/*--- 5 cases of the many cheks Softanza has for bounds
+
+pron()
+
+# Case 1 : Checking if the string is bounded by ONE or TWO substrings
+
+? Q("_world_").IsBoundedBy("_")
+#--> TRUE
+
+? Q("/world\").IsBoundedBy([ "/", "\" ])
+#--> TRUE
+
+# Case 3 : Checking if the string is bounded by one (or two)
+# substrings INSIDE an other string
+
+? Q("world").IsBoundedBy([ "_", :In = "_world_" ])
+#--> TRUE
+
+? Q("world").IsBoundedBy([ ["/","\"], :In = "/world\" ])
+#--> TRUE
+
+# Case 3 : Checking if a string (or two) is the bound of an other
+# string inside a third string
+
+? Q("_").IsBoundOf("world", :In = "Hello _world_ of Ring!")
+#--> TRUE
+
+? Q(["/","\"]).AreBoundsOf("world", :In = "Hello /world\ of Ring!")
+#--> TRUE
+
+proff()
+# Executed in 0.22 second(s)
+
+/*--- @narrative
+
+pron()
+
+# In Softanza, if you have a string bounded by some chars,
+# you can remove them to keep only the string:
+
+o1 = new stzString("<<Go!>>")
+? o1.TheseBoundsRemoved("<<", ">>")
+#--> "Go!"
+
+# In case you don't know the bounds, Softanza knows them,
+# and can remove them for you:
+
+o1 = new stzString("<<Go!>>")
+? o1.Bounds()
+#--> [ "<<", ">>" ]
+
+? o1.BoundsRemoved()
+#--> "Go!"
+
+proff()
+# Executed in 0.24 second(s)
+
+/*======= @stzarration
+
+pron()
+
+# In Softanza, you can get a part of a list (or string) using
+# Section() function, also called Slice()
+
+o1 = new stzString("123456789")
+
+? o1.Section(3, 5)
+#--> "345"
+
+# When you inverse the params so the first is greater then the second,
+# nothing happens to the result ( the Section() function is not aware
+# of the direction of parsing ) :
+
+? o1.Section(5, 3)
+#--> "345"
+
+# You may argue that it would be useful, in this case, to embrace the
+# Python-way of returning an inversed string (or list)...
+
+# Softanza does not reject that, and finds it very useful too! But, it just
+# requires that you use the extended form of the function, SectionXT() :
+
+? o1.SectionXT(5,3)
+#--> "543"
+
+# As you see, the section has been reversed. But you can do more, and use
+# negative numbers to order Softanza to start parsing from the end:
+
+? o1.SectionXT(-4, -2)
+#--> 678
+
+? o1.SectionXT(-2, -4)
+#--> 876
+
+# Rember : if you try these fency things with the more conservative Section()
+# methond (without ...XT() extension), and for Softanza to stay simple and
+# consitent for the most common use cases, you will get an error:
+
+? o1.Section(-2, -4)
+#--> Error message: n1 and n2 must be inside the list.
+
+# Before you leave : All what works for stzString, will work for stzList.
+# For our case, just change the first line of the code to use stzList instead
+# of stzString, like this :
+
+o1 = new stzList("1":"9")
+
+# Now you can run the code sucessfully withou any modification.
+
+proff()
+# Executed in 0.03 second(s)
+
+/*=========== @narration: case sensitivity in Softanza
+
+pron()
+
+# Do you know that case sensitivity is supported in Softanza,
+# not only on stzString but also on stzList ?!
+
+# Look how we can fin an item case-sensitively:
+
+o1 = new stzList([ "emm", "EMM", "eMm", "EMM" ])
+
+? o1.Find("EMM") # Same as FindCS("EMM", :CS = TRUE)
+#--> [ 2, 4 ]
+
+? o1.FindCS("EMM", :CS = FALSE)
+#--> [ 1, 2, 3, 4 ]
+
+# In fact, all items are equal when case sensitivity is not considered (set to FALSE)!
+# In the same way, the size of the list can be counted in a case-sensity way:
+
+? o1.NumberOfItems()
+#--> 4
+
+? o1.NumberOfItemsCS(FALSE)
+#--> 1
+
+# Now, softanza digs deeper and applies CaseSensitiviy on some other
+# non trivial corners of the stzList class : the Content() method!
+
+? o1.Content() # Same as ContentCS(TRUE)
+#--> [ "emm", "EMM", "eMm", "EMM" ]
+
+? o1.ContentCS(FALSE)
+#--> [ "emm" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*========
+
+pron()
+
+o1 = new stzString("ring php ruby ring python ring")
+o1.ReplaceByMany("ring", [ "♥", "♥♥", "♥♥♥" ])
+	
+? o1.Content() #--> "♥ php ruby ♥♥ python ♥♥♥"
+
+proff()
+# Executed in 0.07 second(s)
+
+/*========
+
+pron()
+
+o1 = new stzString("Ring Programming Language")
+
+? o1.Section(6, o1.RandomPositionAfter(6) )
+#--> Programming Lang
+
+? o1.Section(6, o1.FindNth(3, "g") )
+#--> Programming
+
+? o1.Section( :From = "L", :To = "e")
+#--> Language
+
+#--
+
+? o1.Range(6, 11)
+#--> Programming
+
+? o1.SectionXT(6, :UpToNCHars = 11)
+#--> Programming
+
+proff()
+# Executed in 0.08 second(s)
+
+/*===
 
 pron()
 

@@ -1,6 +1,451 @@
 load "stzlib.ring"
 
+/*===== @narration: activating and deactivating CheckParams()
+
+pron()
+
+# This narration shows how deactivating checking params could enhance
+# performance. By default, the feature is on, and depending on the
+# function you are using, more or less params semantics are checked.
+	
+# So, in the case:
+	
+	o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
+	o1.ReplaceItemsAtPositions([ 1, 3, 4, 5 ], [ "ring", "softanza" ] , :By = "♥♥♥")
+	
+	? o1.Content()
+	#--> [ "♥♥♥", "ruby", "♥♥♥", "♥♥♥", "php", "softanza" ]
+	
+	# The execution takes about 0.18 seconds (on my machine)
+
+	? ElapsedTime()
+	# Executed in 0.18 second(s)
+
+# But if you disable params checking and restartd the same code:
+
+	CheckParamsOff()
+
+	# And repeat the same job
+
+	o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
+	o1.ReplaceItemsAtPositions([ 1, 3, 4, 5 ], [ "ring", "softanza" ] , "♥♥♥")
+	
+	? o1.Content()
+	#--> [ "♥♥♥", "ruby", "♥♥♥", "♥♥♥", "php", "softanza" ]
+
+	# It would take half of the time!
+
+proff()
+# Executed in 0.09 second(s)
+
+/*======= @narration
+
+pron()
+
+# The fellowing two code snippets illustrate the use of two similar functions.
+# Try to read the code, see the output and identify the difference between them...
+
+# First snippet
+
+o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+o1.ReplaceAnyItemAtPositionsByManyXT([ 3, 5, 7, 9], [ "♥", "♥♥" ])
+	
+? o1.Content()
+#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥", "csharp", "♥♥" ]
+	
+# Second snippet
+
+o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+o1.ReplaceItemAtPositionsByManyXT([ 1, 3, 5, 7, 9], "ring", [ "♥", "♥♥" ])
+
+? o1.Content()
+#--> [ "♥", "php", "♥♥", "ruby", "♥", "python", "♥♥", "csharp", "♥" ]
+
+# Read how Google Bard answered the question:
+# Link: https://bard.google.com/share/fb5fb52af8de
+
+proff()
+# Executed in 0.03 second(s)
+
+/*==== Find and AntiFind in stzList
+
+pron()
+
+o1 = new stzList([ "1", "2", "♥", "4", "5", "♥", "6", "7", "♥", "9" ])
+
+? @@( o1.Find("♥") ) + NL
+#--> [ 3, 6, 9 ]
+
+? @@( o1.AntiFind("♥") ) + NL
+#--> [ 1, 2, 4, 5, 7, 8, 10 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---- Find and AntiFind in stzString
+
+pron()
+
+o1 = new stzString("12♥45♥67♥9")
+
+? @@( o1.Find("♥") ) + NL
+#--> [ 3, 6, 9 ]
+
+? @@( o1.AntiFind("♥") ) + NL
+#--> [ 1, 2, 4, 5, 7, 8, 10 ]
+
+? @@( o1.AntiFindZZ("♥") )
+#--> [ [ 1, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]
+
+proff()
+
+/*======
+
+pron()
+
+o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+o1.ReplaceItemAtPositionsByMany([ 3, 5, 7], "ring", [ "♥", "♥♥", "♥♥♥" ])
+
+? o1.Content()
+#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzList([ "♥", 2, "♥", "♥", 5, "♥" ])
+o1.ReplaceByMany("♥", [ 1, 3, 4, 6 ])
+? @@( o1.Content() )
+#--> [ 1, 2, 3, 4, 5, 6 ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*=====
+
+pron()
+
+o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
+o1.ReplaceAnyItemsAtPositions([ 1, 3, 4, 5 ], :By = "♥♥♥")
+
+? o1.Content()
+#--> [ "♥♥♥", "ruby", "♥♥♥", "♥♥♥", "♥♥♥", "softanza" ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*===
+
+pron()
+
+o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+o1.ReplaceItemAtPositionsByManyXT([ 3, 5, 7, 9], "ring", [ "♥", "♥♥" ])
+
+? o1.Content()
+#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥", "csharp", "♥♥" ]
+
+proff()
+#--> Executed in 0.03 second(s)
+
+/*-------
+
+pron()
+
+o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+o1.ReplaceAnyItemAtPositionsByManyXT([ 3, 5, 7, 9], [ "♥", "♥♥" ])
+
+? o1.Content()
+#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥", "csharp", "♥♥" ]
+
+proff()
+#--> Executed in 0.02 second(s)
+
 /*---
+
+pron()
+
+o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+o1.ReplaceItemAtPositionsByMany([ 3, 5, 7], "ring", [ "♥", "♥♥", "♥♥♥" ])
+# Or you can say: o1.ReplaceItemAtPositions([ 3, 5, 7], "ring", :ByMany = [ "♥", "♥♥", "♥♥♥" ])
+
+? o1.Content()
+#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
+
+proff()
+#--> Executed in 0.04 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzList([
+	"ring", "ruby", "softanza",
+	"ring", "ring", "php",
+	"softanza", "ring", "softanza"
+])
+
+o1.ReplaceItemAtPositionsByManyXT( [ 1, 3, 4, 5, 7, 8, 9 ],
+	"ring" , [ "♥", "♥♥", "♥♥♥" ] )
+
+? @@( o1.Content() )
+#--> [ "♥", "ruby", "softanza", "♥♥", "♥♥♥", "php", "softanza", "♥", "softanza" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*=======
+
+pron()
+
+o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
+o1.ReplaceItemsAtPositionsByMany([ 1, 3, 4, 6 ], [ "ring", "softanza" ] , [ "♥", "♥♥" ])
+		
+? @@( o1.Content() )
+#--> [ "♥", "ruby", "♥", "♥♥", "php", "♥♥" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-------
+
+pron()
+
+o1 = new stzList([
+	"ring", "ruby", "softanza",
+	"ring", "ring", "php",
+	"softanza", "ring", "softanza"
+])
+
+o1.ReplaceItemAtPositionsByManyXT( [ 1, 3, 4, 5, 7, 8, 9 ],
+	"ring" , [ "♥", "♥♥" ] )
+				
+? @@( o1.Content() )
+#--> [ "♥", "ruby", "softanza", "♥♥", "♥", "php", "softanza", "♥♥", "softanza" ]
+#	^                        ^    ^                        ^
+
+proff()
+# Executed in 0.04 second(s)
+
+/*-------
+
+pron()
+
+o1 = new stzList([
+	"ring", "ruby", "softanza",
+	"ring", "ring", "php",
+	"softanza", "ring", "softanza"
+])
+
+o1.ReplaceItemsAtPositionsByManyXT( [ 1, 3, 4, 5, 7, 8, 9 ],
+	[ "ring", "softanza" ], [ "♥", "♥♥" ] )
+				
+? @@( o1.Content() )
+#       1    2       3     4    5     6      7    8     9
+#--> [ "♥", "ruby", "♥", "♥♥", "♥", "php", "♥♥", "♥♥", "♥" ]
+#	^                  ^    ^                 ^
+#                    ^                       ^          ^
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-------
+
+pron()
+
+o1 = new stzList([
+	"ring", "ruby", "softanza", "ring", "softanza", "php", "softanza", "ring", "python"
+])
+
+o1.ReplaceAnyItemsAtPositionsByManyXT( [ 1, 3, 4, 5, 7, 8 ], [ "♥", "♥♥" ] )
+				
+? @@( o1.Content() )
+#--> [ "♥", "ruby", "♥♥", "♥", "♥♥", "php", "♥", "♥♥", "python" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*=======
+
+pron()
+
+o1 = new stzList([ "ring", "ruby", "ring", "php", "ring" ])
+o1.ReplaceAnyItemAtPositions([ 1, 5 ], :By = "♥♥♥")
+
+? o1.Content()
+#--> [ "♥♥♥", "ruby", "ring", "php", "♥♥♥" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*---------
+
+pron()
+
+//CheckParamOff()
+
+o1 = new stzList([ "ring", "ruby", "ring", "php", "ring" ])
+o1.ReplaceItemAtPositions([ 1, 5 ], "ring", :By = "♥♥♥")
+
+? o1.Content()
+#--> [ "♥♥♥", "ruby", "ring", "php", "♥♥♥" ]
+
+proff()
+# Executed in 0.16 second(s)
+# NOTE : turn CheckParamsOff() to get 0.03
+
+/*========
+
+pron()
+
+o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
+
+o1.ReplaceAnyItemAt(3, :With = "★")
+? @@( o1.Content() )
+#--> [ 1, 2, "★", 4, "♥" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*--------
+
+pron()
+
+o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
+
+o1.ReplaceItemAt(3, "♥", :With = "★")
+? @@( o1.Content() )
+#--> [ 1, 2, "★", 4, "♥" ]
+
+# Because there is the terme "item" in ReplaceItemAt(), the provided item
+# ("♥" in our case) must be in position 3 to be replaced. Otherwise, nothing
+# will happen. In fact:
+
+o1.ReplaceItemAt(2, "BLA", :With = "★" )
+? @@( o1.Content() )
+#--> [ 1, 2, "★", 4, "♥" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*---
+
+pron()
+
+o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
+
+o1.ReplaceItemAt(3, "♥", "★")
+? @@( o1.Content() )
+#--> [ 1, 2, "★", 4, "♥" ]
+
+# Because there is the terme "item" in ReplaceItemAt(), the provided item
+# ("♥" in our case) must be in position 3 to be replace. Otherwise, nothing
+# will happen. In fact:
+
+o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
+o1.ReplaceItemAt(2, "BLA", :With = "★" )
+? @@( o1.Content() )
+#--> [ 1, 2, "♥", 4, "♥" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*===
+
+pron()
+
+o1 = new stzList([ "a", "+", "b", "-", "c", "/", "d", "=", "0" ])
+o1.ReplaceMany( ["+", "-", "/" ], :by = "*" )
+? o1.Content()	
+#--> [ "a", "*", "b", "*", "c", "*", "d", "=", "0" ]
+
+proff()
+#--> Executed in 0.04 second(s)
+
+/*---
+
+pron()
+o1 = new stzList([ "ring", "php", "ruby", "ring", "python", "ring" ])
+o1.ReplaceByMany("ring", [ "♥", "♥♥", "♥♥♥" ])
+	
+? o1.Content()
+#--> [ "♥", "php", "ruby", "♥♥", "python", "♥♥♥" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---
+
+pron()
+o1 = new stzList([ "ring", "ring", "ruby", "ring", "python", "ring" ])
+o1.ReplaceItemByManyXT("ring", [ "♥", "♥♥" ])
+	
+? @@( o1.Content() )
+#--> [ "♥", "♥♥", "ruby", "♥", "python", "♥♥" ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*====
+
+pron()
+
+o1 = new stzList([ 1, :♥, 3, 4, :♥, :♥ ])
+anPos = o1.Find(:♥)
+#--> [ 2, 5, 6 ]
+
+o1.ReplaceByMany(:♥, [2, 5, 6])
+? o1.Content()
+
+#--> [ 1, 2, 3, 4, 5, 6 ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*===
+
+pron()
+
+o1 = new stzList([ "1", "♥", "♥", "4", "5", "6", "♥", "♥", "9" ])
+
+anPos = o1.Find("♥")
+#--> [ 2, 3, 7, 8 ]
+
+o1.ReplaceAnyItemsAtPositions( o1.Find("♥"), :By = "★" )
+? @@( o1.Content() )
+#--> [ "1", "★", "★", "4", "5", "6", "★", "★", "9" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*===
+
+pron()
+
+o1 = new stzList( Q("1♥♥456♥♥901♥♥4").Chars() )
+
+o1 {
+
+	# Finding chars / items
+
+	anPos = Find("♥")
+		? @@(anPos)
+		#--> [ 2, 3, 7, 8, 12, 13 ]
+
+	# Doing someting with the positions
+
+	ReplaceAnyItemsAtPositions(anPos, :With = "★")
+		? Content()
+		#--> [ "1","★","★","4","5","6","★","★","9","0","1","★","★","4" ]
+	
+}
+
+proff()
+# Executed in 0.06 second(s)
+
+/*===
 
 pron()
 

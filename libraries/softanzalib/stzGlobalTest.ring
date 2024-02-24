@@ -1,5 +1,14 @@
 load "stzlib.ring"
 
+/*===
+
+pron()
+
+? BothEndWithANumber( "v1" , "v3" )
+#--> TRUE
+
+proff()
+
 /*======== Some small functions
 */
 pron()

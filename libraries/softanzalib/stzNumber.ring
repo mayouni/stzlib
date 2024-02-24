@@ -3082,14 +3082,31 @@ class stzNumber from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def AddThese(paOtherNumbers)
+			This.AddMany(paOtherNumbers)
+
+			def AddTheseQ(paOtherNumbers)
+				This.AddThese(paOtherNumbers)
+				return This
+
+		#>
+
 		#< @FunctionPassiveForm
 
 		def AddedMany(pOtherNumbers)
 			nResult = This.Copy().AddManyQ(pOtherNumbers).NumbericValue()
 			return nResult
 
+			def AddedThese(pOtherNumbers)
+				return This.AddedMany(pOtherNumbers)
+
 		def ManyAdded(pOtherNumbers)
 			return This.AddedMany(pOtherNumbers)
+
+			def TheseAdded(pOtherNumbers)
+				return This.ManyAdded(pOtherNumbers)
 
 		#>
 	
@@ -3101,6 +3118,17 @@ class stzNumber from stzObject
 		def AddManyWithIntermediateResultsQ(paOtherNumbers)
 			return new stzListOfNumbers( This.AddManyWithIntermediateResults(paOtherNumbers) )
 	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AddTheseWithIntermediateResults(paOtherNumbers)
+			This.AddManyWithIntermediateResults(paOtherNumbers)
+
+			def AddTheseWithIntermediateResultsQ(paOtherNumbers)
+				This.AddTheseWithIntermediateResults(paOtherNumbers)
+				return This
+
 		#>
 
 	def AddManyXT(paOtherNumbers, paReturnIntermediateResults)
@@ -3135,6 +3163,17 @@ class stzNumber from stzObject
 		def AddManyXTQ(paOtherNumbers, paReturnIntermediateResults)
 			return new stzListOfNumbers( This.AddManyXT(paOtherNumbers, paReturnIntermediateResults) )
 	
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AddTheseXT(paOtherNumbers, paReturnIntermediateResults)
+			This.AddManyXT(paOtherNumbers, paReturnIntermediateResults)
+
+			def AddTheseXTQ(paOtherNumbers, paReturnIntermediateResults)
+				This.AddTheseXT(paOtherNumbers, paReturnIntermediateResults)
+				return This
+
 		#>
 
 	  #--------------------#
@@ -3203,6 +3242,8 @@ class stzNumber from stzObject
 		#>
 
 	def SubStructMany(paOtherNumbers)
+		# TODO: Add "These" as alternative of "Many"
+
 		This.SubStructManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
 
 		#< @FunctionFluentForm
@@ -3247,6 +3288,8 @@ class stzNumber from stzObject
 	#--
 
 	def SubStructManyXT(paOtherNumbers, paReturnIntermediateResults)
+		# TODO: Add "These" as alternative of "Many"
+
 		if CheckParams()
 			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
 				StzRaise("Incorrect param type! paOtherNumbers must be a list of numbers or strings.")
@@ -3287,6 +3330,8 @@ class stzNumber from stzObject
 
 						
 	def RetrieveMany(paOtherNumbers)
+		# TODO: Add "These" as alternative of "Many"
+
 		This.SubStructMany(paOtherNumbers)
 
 		def RetrieveManyQ(paOtherNumbers)
@@ -3350,6 +3395,8 @@ class stzNumber from stzObject
 	#----------------------------------------------------#
 
 	def MultiplyByMany(paOtherNumbers)
+		# TODO: Add "These" as alternative of "Many"
+
 		This.MultiplyByManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
 
 		#< @FunctionFluentForm
@@ -3365,6 +3412,8 @@ class stzNumber from stzObject
 			return nResult
 
 	def MultiplyByManyXT(paOtherNumbers, paReturnIntermediateResults)
+		# TODO: Add "These" as alternative of "Many"
+
 		if CheckParams()
 			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
 				StzRaise("Incorrect param type! paOtherNumbers must be a list of numbers or strings.")
@@ -3444,6 +3493,8 @@ class stzNumber from stzObject
 		#>
 	
 	def DivideByMany(paOtherNumbers)
+		# TODO: Add "These" as alternative of "Many"
+
 		This.DivideByManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
 
 		#< @FunctionFluentForm
@@ -3459,6 +3510,8 @@ class stzNumber from stzObject
 			return nResult
 
 	def DivideByManyXT(paOtherNumbers, paReturnIntermediateResults)
+		# TODO: Add "These" as alternative of "Many"
+
 		if CheckParams()
 			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
 				StzRaise("Incorrect param type! paOtherNumbers must be a list of numbers or strings.")
