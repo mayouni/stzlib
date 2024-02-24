@@ -1,8 +1,5 @@
 load "stzlib.ring"
 
-
-
-
 /*====
 
 pron()
@@ -16,16 +13,29 @@ o1.Randomize()
 
 proff()
 
-#--
+/*==
+*/
+pron()
 
+o1 = new stzList([ 1, 2, 3, 4, "A", "B", 7, 8, "C", "D", 11, 12, 13 ])
+? @@( o1.FindNumbersAsSections() )
+#--> [ [ 1, 4 ], [ 7, 8 ], [ 11, 13 ] ]
+
+proff()
+
+/*---
+
+*/
 pron()
 
 o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
 o1.RandomizeNumbers()
-? o1.Content()
+? @@( o1.Content() )
+
+proff()
 
 #--
-
+/*
 pron()
 
 o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
