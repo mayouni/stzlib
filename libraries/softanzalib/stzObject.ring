@@ -2003,7 +2003,7 @@ class stzObject
 
 		return aResult
 
-		def Content()
+		def Content() # TODO: Shoud this be like that?
 			return This.ObjectAttributesAndValues()
 
 		def AttributesXT()

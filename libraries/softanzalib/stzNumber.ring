@@ -1410,6 +1410,15 @@ class stzNumber from stzObject
 	def Content()
 		return @cNumber
 
+		def ContentQ()
+			return new stzNumber(This.Content())
+
+	def Number()
+		return This.NumericValue()
+
+		def NumberQ() # Same as Copy()
+			return new stzNumber( This.Content() )
+
 	def InitialContent()
 		return pNumber		 
 
@@ -1455,12 +1464,6 @@ class stzNumber from stzObject
 
 	def ReturnNumber()
 		SetReturnType(:Number)
-
-	def Number()
-		return This.NumericValue()
-
-		def NumberQ() # Same as Copy()
-			return new stzNumber( This.Content() )
 		
 	def NumberWithSign()
 		If This.IsPositive()

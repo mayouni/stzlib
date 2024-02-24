@@ -938,10 +938,22 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
 		def Value()
 			return This.Content()
 
+			def ValueQ()
+				return This.ContentQ()
 	
+		def String()
+			return This.Content()
+
+			def StringQ() # Same as Copy()
+				return new stzString( This.String() )
+
+		#>
+
 	def QStringObject()
 		return @oQString
 
@@ -950,16 +962,6 @@ class stzString from stzObject
 
 		def ToQString()
 			return This.QStringObject()
-
-	def String()
-		return This.Content()
-
-		#< @FunctionFluentForm
-
-		def StringQ() # Same as Copy()
-			return new stzString( This.String() )
-	
-		#>
 
 	  #=======================================#
 	 #  GETTING A COPY OF THE STRING OBJECT  #

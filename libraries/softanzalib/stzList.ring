@@ -802,13 +802,26 @@ class stzList from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForm
+
+		def ContentCSQ(pCaseSensitive)
+			return new stzList(This.Content())
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def ValueCS(pCaseSensitive)
 			return This.ContentCS(pCaseSensitive)
 
+			def ValueCSQ(pCaseSensitive)
+				return This.ContentCSQ(pCaseSensitive)
+
 		def ListCS(pCaseSensitive)
 			return This.ContentCS(pCaseSensitive)
+
+			def ListCSQ(pCaseSensitive)
+				return This.ContentCSQ(pCaseSensitive)
 
 		#>
 
@@ -817,13 +830,26 @@ class stzList from stzObject
 	def Content()
 		return This.ContentCS(TRUE)
 
+		#< @FunctionAlternativeForm
+
+		def ContentQ()
+			return new stzList(This.Content())
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def Value()
 			return This.Content()
 
+			def ValueQ()
+				return This.ContentQ()
+
 		def List()
 			return This.Content()
+
+			def ListQ()
+				return This.ContentQ()
 
 		#>
 
@@ -28677,7 +28703,10 @@ class stzList from stzObject
 		aContent = This.Content() + "X"
 		nLen = len(aContent)
 
-		if nLen = 1 and isNumber(aContent[1])
+		if nLen = 0
+			return []
+
+		but nLen = 1 and isNumber(aContent[1])
 			return [ [1, 1] ]
 		ok
 
@@ -29025,6 +29054,40 @@ class stzList from stzObject
 		next
 		
 		return aResult		
+
+		def FindStringsZ()
+			return This.FindStrings()
+
+	def FindStringsAsSections()
+		aContent = This.Content() + 0
+		nLen = len(aContent)
+
+		if nLen = 0
+			return []
+
+		but nLen = 1 and isString(aContent[1])
+			return [ [1, 1] ]
+		ok
+
+		aResult = []
+		n1 = 1
+
+		for i = 2 to nLen - 1
+			if isString(aContent[i]) and NOT isString(aContent[i-1])
+				n1 = i
+			ok
+
+			if isString(aContent[i]) and NOT isString(aContent[i+1])
+				n2 = i
+				aResult + [n1, n2]
+			ok	
+
+		next
+
+		return aResult
+
+		def FindStringsZZ()
+			return This.FindStringsAsSections()
 
 	def Strings()
 		/* WARNING
@@ -29727,6 +29790,40 @@ class stzList from stzObject
 		next
 		
 		return aResult		
+
+		def FindListsZ()
+			return This.FindLists()
+
+	def FindListsAsSections()
+		aContent = This.Content() + 0
+		nLen = len(aContent)
+
+		if nLen = 0
+			return []
+
+		but nLen = 1 and isList(aContent[1])
+			return [ [1, 1] ]
+		ok
+
+		aResult = []
+		n1 = 1
+
+		for i = 2 to nLen - 1
+			if isList(aContent[i]) and NOT isList(aContent[i-1])
+				n1 = i
+			ok
+
+			if isList(aContent[i]) and NOT isList(aContent[i+1])
+				n2 = i
+				aResult + [n1, n2]
+			ok	
+
+		next
+
+		return aResult
+
+		def FindListsZZ()
+			return This.FindListsAsSections()
 
 	def FindList(paList) # Add case sensitivity
 
@@ -32325,6 +32422,12 @@ class stzList from stzObject
 		aResult = This.ListQ().AssociatedWith( This.Types() )
 		return aResult
 
+		def ItemsAndTypes()
+			return This.TypesXT()
+
+		def ItemsAndTheirTypes()
+			return This.TypesXT()
+
 	def UniqueTypes()
 
 		aContent = This.Content()
@@ -32345,6 +32448,66 @@ class stzList from stzObject
 
 		def TypesWithoutDuplication()
 			return This.UniqueTypes()
+
+	def TypesAndTheirPositions()
+		acTypes = This.TypesU()
+		nLen = len(acTypes)
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			cType = lower(acTypes[i])
+
+			if  cType = "number"
+				aResult + [ :Number, This.FindNumbers() ]
+
+			but cType = "string"
+				aResult + [ :String, This.FindStrings() ]
+
+			but cType = "list"
+				aResult + [ :List, This.FindLists() ]
+
+			but cType = "object"
+				aResult + [ :Object, This.FindObjects() ]
+			ok
+
+		next
+		
+		return aResult
+
+		def TypesZ()
+			return This.TypesAndTheirPositions()
+
+	def TypesAndTheirSections()
+		acTypes = This.TypesU()
+		nLen = len(acTypes)
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			cType = lower(acTypes[i])
+
+			if  cType = "number"
+				aResult + [ :Number, This.FindNumbersZZ() ]
+
+			but cType = "string"
+				aResult + [ :String, This.FindStringsZZ() ]
+
+			but cType = "list"
+				aResult + [ :List, This.FindListsZZ() ]
+
+			but cType = "object"
+				aResult + [ :Object, This.FindObjectsZZ() ]
+			ok
+
+		next
+		
+		return aResult
+
+		def TypesZZ()
+			return This.TypesAndTheirSections()
 
 	  #-------------------------------------------------------#
 	 #  GETTING THE SOFTANZA TYPES OF EACH ITEM IN THE LIST  #
@@ -33429,6 +33592,40 @@ class stzList from stzObject
 
 		return anResult
 			
+		def FindObjectsZ()
+			return This.FindObjects()
+
+	def FindObjectsAsSections()
+		aContent = This.Content() + 0
+		nLen = len(aContent)
+
+		if nLen = 0
+			return []
+
+		but nLen = 1 and isObject(aContent[1])
+			return [ [1, 1] ]
+		ok
+
+		aResult = []
+		n1 = 1
+
+		for i = 2 to nLen - 1
+			if isObject(aContent[i]) and NOT isObject(aContent[i-1])
+				n1 = i
+			ok
+
+			if isObject(aContent[i]) and NOT isObject(aContent[i+1])
+				n2 = i
+				aResult + [n1, n2]
+			ok	
+
+		next
+
+		return aResult
+
+		def FindObjectsZZ()
+			return This.FindObjectsAsSections()
+
 	def ObjectsZ()
 
 		aContent = This.Content()
