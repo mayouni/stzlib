@@ -28670,6 +28670,37 @@ class stzList from stzObject
 		
 		return aResult		
 
+		def FindNumbersZ()
+			return This.FindNumbers()
+
+	def FindNumbersAsSections()
+		aContent = This.Content() + "X"
+		nLen = len(aContent)
+
+		if nLen = 1 and isNumber(aContent[1])
+			return [ [1, 1] ]
+		ok
+
+		aResult = []
+		n1 = 1
+
+		for i = 2 to nLen - 1
+			if isNumber(aContent[i]) and NOT isNumber(aContent[i-1])
+				n1 = i
+			ok
+
+			if isNumber(aContent[i]) and NOT isNumber(aContent[i+1])
+				n2 = i
+				aResult + [n1, n2]
+			ok	
+
+		next
+
+		return aResult
+
+		def FindNumbersZZ()
+			return This.FindNumbersAsSections()
+		
 	def Numbers()
 		/* WARNING
 
@@ -48442,6 +48473,47 @@ vvv
 
 		def OutsideSectionsRandomised(panSections)
 			return This.AntiSectionsRandomized(panSections)
+
+		#>
+
+	  #-------------------------------------------------#
+	 #  RANDOMINZING THE NUMBERS EXISTING IN THE LIST  #
+	#=================================================#
+
+	def RandomizeNumbers()
+		aSections = This.FindNumbersAsSections()
+		This.RandomizeSections(aSections)
+
+		#< @FunctionFluentForm
+
+		def RandomizeNumbersQ()
+			This.RandomizeNumbers()
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomiseNumbers()
+			This.RandomizeNumbers()
+
+		def ShuffleNumbers()
+			This.RandomizeNumbers()
+
+		#>
+
+	#-- @FunctionPassiveForm
+
+	def NumbersRandomized()
+		aResult = This.Copy().RandomizeNumbersQ().Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def NumbersRansomised()
+			return This.NumbersRandomized()
+
+		def NumbersShuffled()
+			return This.NumbersRandomized()
 
 		#>
 
