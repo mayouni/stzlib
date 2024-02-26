@@ -1,5 +1,15 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzList([ "_", "_", "3", "4", "5", "6", "7", "_", "_" ])
+//? o1.IsListOfNumbers()
+
+o1.ReplaceAnyItemsAtPositionsByManyXT(3:7, [ "-3", "-4", "-5", "_", "_" ])
+? @@( o1.Content() )
+
+proff()
+
 /*====
 
 pron()
@@ -19,7 +29,7 @@ proff()
 
 pron()
 
-o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
+o1 = new stzList([ "A", "B", 30, 40, 50, 60, "A", "B", "C" ])
 o1.RandomizeNumbers()
 ? @@( o1.Content() )
 
@@ -36,16 +46,16 @@ o1.RandomizeStrings()
 proff()
 
 #--
-
+*/
 pron()
 
 o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
-o1.RandomizeSection()
+o1.RandomizeSection(1, 4)
 ? o1.Content()
 
 proff()
 
-#--
+/*--
 
 pron()
 
