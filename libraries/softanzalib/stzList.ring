@@ -778,16 +778,13 @@ class stzList from stzObject
 	#-----------------------------------#
 
 	def ContentCS(pCaseSensitive)
-		if CheckParams()
-
-			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-				pCaseSensitive = pCaseSensitive[2]
-			ok
+		
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
 	
-			if NOT (pCaseSensitive = 0 or pCaseSensitive = 1)
-				StzRaise("Incorrect param type! pCaseSensitive must be 1 (TRUE) or 0 (FALSE).")
-			ok
-
+		if NOT (pCaseSensitive = 0 or pCaseSensitive = 1)
+			StzRaise("Incorrect param type! pCaseSensitive must be 1 (TRUE) or 0 (FALSE).")
 		ok
 
 		aResult = []
@@ -828,7 +825,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Content()
-		return This.ContentCS(TRUE)
+		return @aContent
 
 		#< @FunctionAlternativeForm
 
@@ -873,7 +870,7 @@ class stzList from stzObject
 
 		
 	def NumberOfItems()
-		return len(This.Content())
+		return len(@aContent)
 
 		def NumberOfItemsQ()
 			return new stzNumber(This.NumberOfItems())
@@ -3094,17 +3091,17 @@ class stzList from stzObject
 
 	#< @FunctionPassiveForm
 
-	def ManyItemsReplaceByManyCS(paItems, paNewItems, pCaseSensitive)
+	def ManyItemsReplacedByManyCS(paItems, paNewItems, pCaseSensitive)
 		cResult = This.Copy().ReplaceManyByManyCSQ(paItems, paNewItems, pCaseSensitive).Content()
 		return cResult
 
-		def ItemsReplaceByManyCS(paItems, paNewItems, pCaseSensitive)
+		def ItemsReplacedByManyCS(paItems, paNewItems, pCaseSensitive)
 			return This.ManyItemsReplacedByManyCS(paItems, paNewItems, pCaseSensitive)
 
 		def TheseItemsReplacedByTheseCS(paItems, paNewItems, pCaseSensitive)
 			return This.ManyItemsReplacedByManyCS(paItems, paNewItems, pCaseSensitive)
 
-		def ItemsReplaceByTheseCS(paItems, paNewItems, pCaseSensitive)
+		def ItemsReplacedByTheseCS(paItems, paNewItems, pCaseSensitive)
 			return This.ManyItemsReplacedByManyCS(paItems, paNewItems, pCaseSensitive)
 
 	#>
@@ -3151,17 +3148,17 @@ class stzList from stzObject
 
 	#< @FunctionPassiveForm
 
-	def ManyItemsReplaceByMany(paItems, paNewItems)
+	def ManyItemsReplacedByMany(paItems, paNewItems)
 		cResult = This.Copy().ReplaceManyByManyQ(paItems, paNewItems).Content()
 		return cResult
 
-		def ItemsReplaceByMany(paItems, paNewItems)
-			return This.ManyItemsReplaceByMany(paItems, paNewItems)
+		def ItemsReplacedByMany(paItems, paNewItems)
+			return This.ManyItemsReplacedByMany(paItems, paNewItems)
 
 		def TheseItemsReplacedByThese(paItems, paNewItems)
 			return This.ManyItemsReplacedByMany(paItems, paNewItems)
 
-		def ItemsReplaceByThese(paItems, paNewItems)
+		def ItemsReplacedByThese(paItems, paNewItems)
 			return This.ManyItemsReplacedByMany(paItems, paNewItems)
 
 	#>
@@ -4118,6 +4115,10 @@ class stzList from stzObject
 
 		if nLenNewItems = 0
 			return
+
+		but nLenNewItems = len(panPos)
+			This.ReplaceItemsAtPositionsByManyCS(panPos, paItems, paNewItems, pCaseSensitive)
+			return
 		ok
 
 		# Doing the job
@@ -4253,6 +4254,10 @@ class stzList from stzObject
 		nLenNewItems = len(paNewItems)
 
 		if nLenNewItems = 0
+			return
+
+		but nLenNewItems = len(panPos)
+			This.ReplaceAnyItemsAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
 			return
 		ok
 
@@ -4575,6 +4580,20 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def ReplaceAtByManyCS(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+			
+			def ReplaceAtByManyCSQ(panPos, paNewItems, pCaseSensitive)
+				This.ReplaceAtByManyCS(panPos, paNewItems, pCaseSensitive)
+				return This
+
+		def ReplaceAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+			
+			def ReplaceAtPositionsByManyCSQ(panPos, paNewItems, pCaseSensitive)
+				This.ReplaceAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
+				return This
+
 		def ReplaceAnyItemsAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
 			This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
 			
@@ -4653,18 +4672,32 @@ class stzList from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceAnyItemAtPositionsByMany(panPos, pItem, paNewItems)
-		This.ReplaceAnyItemAtPositionsByManyCS(panPos, pItem, paNewItems, TRUE)
+	def ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
+		This.ReplaceAnyItemAtPositionsByManyCS(panPos, paNewItems, TRUE)
 
 		#< @FunctionFluentForm
 
-		def ReplaceAnyItemAtPositionsByManyQ(panPos, pItem, paNewItems)
-			This.ReplaceAnyItemAtPositionsByMany(panPos, pItem, paNewItems)
+		def ReplaceAnyItemAtPositionsByManyQ(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
+
+		def ReplaceAtByMany(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
+			
+			def ReplaceAtByManyQ(panPos, paNewItems)
+				This.ReplaceAtByManyCS(panPos, paNewItems)
+				return This
+
+		def ReplaceAtPositionsByMany(panPos, paNewItems)
+			This.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
+			
+			def ReplaceAtPositionsByManyQ(panPos, paNewItems)
+				This.ReplaceAtPositionsByMany(panPos, paNewItems)
+				return This
 
 		def ReplaceAnyItemsAtPositionsByMany(panPos, paNewItems)
 			This.ReplaceAnyItemAtPositionsByMany(panPos, paNewItems)
@@ -4774,6 +4807,10 @@ class stzList from stzObject
 
 		nLenNewItems = len(paNewItems)
 		if nLenNewItems = 0
+			return
+
+		but nLenNewItems = len(panPos)
+			This.ReplaceItemAtPositionsByManyCS(panPos, pItem, paNewItems, pCaseSensitive)
 			return
 		ok
 
@@ -10141,6 +10178,8 @@ class stzList from stzObject
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
 		def IsAHashList()
 			return This.IsHashList()
 
@@ -10150,32 +10189,53 @@ class stzList from stzObject
 		def IsNotAHashList()
 			return This.IsHashList()
 	
-	def AllItemsAreHashLists()
-		if This.NumberOfItems() = 0
+		#>
+
+	def IsListOfHashLists()
+		nLen = len(@aContent)
+		if nLen = 0
 			return FALSE
 		ok
 
 		bResult = TRUE
-		for item in This.List()
-			if NOT isList(item)
-				bResult = FALSE
-				exit
-			ok
 
-			if NOT StzListQ(item).IsHashList()
+		for i = 1 to nLen
+			if NOT @IsHashList(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
+
 		return bResult
 
 		#< @FunctionAlternativeForms
 
+		def IsAListOfHashLists()
+			return This.IsListOfHashLists()
+
+		def ItemsAreHashLists()
+			return This.IsListOfHashLists()
+
+		def ItemsAreAllHashLists()
+			return This.IsListOfHashLists()
+
+		def AllItemsAreHashLists()
+			return This.IsListOfHashLists()
+
 		def ContainsOnlyHashLists()
-			return This.AllItemsAreHashLists()
-	
-		def IsListOfHashLists()
-			return This.AllItemsAreHashLists()
+			return This.IsListOfHashLists()
+
+		def ContainsHashListsOnly()
+			return This.IsListOfHashLists()
+
+		def IsMadeOfHashLists()
+			return This.IsListOfHashLists()
+
+		def IsMadeOfOnlyHashLists()
+			return This.IsListOfHashLists()
+
+		def IsMadeOfHashListsOnly()
+			return This.IsListOfHashLists()
 
 		#>
 
@@ -10189,7 +10249,7 @@ class stzList from stzObject
 		def IsListOfStringsOrHashList()
 			return This.IsHashListOrListOfStrings()
 
-	def ItemsAreListsOfSameSize()
+	def IsListOfListsOfSameSize()
 		if This.NumberOfItems() = 0
 			return FALSE
 		ok
@@ -10210,39 +10270,83 @@ class stzList from stzObject
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
+		def ItemsAreListsOfSameSize()
+			return This.IsListOfListsOfSameSize()
+
+		def ItemsAreAllListsOfSameSize()
+			return This.IsListOfListsOfSameSize()
+
 		def AllItemsAreListsOfSameSize()
-			return This.ItemsAreListsOfSameSize()
+			return This.IsListOfListsOfSameSize()
 
-	def ItemsAreSets()
-		if This.NumberOfItems() = 0
+		def ContainsListsOfSameSize()
+			return This.IsListOfListsOfSameSize()
+
+		def IsMadeOfListsOfSameSize()
+			return This.IsListOfListsOfSameSize()
+
+		#--
+
+		def IsListOfListsHavingSameSize()
+			return This.IsListOfListsOfSameSize()
+
+		def ItemsAreListsHavingSameSize()
+			return This.IsListOfListsOfSameSize()
+
+		def AllItemsAreListsHavingSameSize()
+			return This.IsListOfListsOfSameSize()
+
+		def ContainsListsHavingSameSize()
+			return This.IsListOfListsOfSameSize()
+
+		def IsMadeOfListsHavingSameSize()
+			return This.IsListOfListsOfSameSize()
+
+		#=
+
+		def ItemsAreListsOfSameNumberOfItems()
+			return This.IsListOfListsOfSameSize()
+
+		def AllItemsAreListsOfSameNumberOfItems()
+			return This.IsListOfListsOfSameSize()
+
+		def ContainsListsOfSameNumberOfItems()
+			return This.IsListOfListsOfSameSize()
+
+		def IsMadeOfListsOfSameNumberOfItems()
+			return This.IsListOfListsOfSameSize()
+
+		#--
+
+		def IsListOfListsHavingSameNumberOfItems()
+			return This.IsListOfListsOfSameSize()
+
+		def ItemsAreListsHavingSameNumberOfItems()
+			return This.IsListOfListsOfSameSize()
+
+		def AllItemsAreListsHavingSameNumberOfItems()
+			return This.IsListOfListsOfSameSize()
+
+		def ContainsListsHavingSameNumberOfItems()
+			return This.IsListOfListsOfSameSize()
+
+		def IsMadeOfListsHavingSameNumberOfItems()
+			return This.IsListOfListsOfSameSize()
+
+		#>
+
+	def IsListOfSets()
+		nLen = len(@aContent)
+		if nLen = 0
 			return FALSE
 		ok
 
 		bResult = TRUE
-
-		for item in This.List()
-			if NOT ListIsSet(item)
-				bResult = FALSE
-				exit
-			ok
-		end
-
-		return bResult
-
-		def AllItemsAreSets()
-			return This.ItemsAreSets()
-
-	def IsListOfStrings()
-		if This.NumberOfItems() = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-		aTempList = This.List()
-		nLen = len(aTempList)
 
 		for i = 1 to nLen
-			if NOT isString(aTempList[i])
+			if NOT @IsSet(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
@@ -10250,9 +10354,81 @@ class stzList from stzObject
 
 		return bResult
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
+
+		def IsAListOfSets()
+			return This.IsListOfSets()
+
+		def ItemsAreSets()
+			return This.IsListOfSets()
+
+		def ItemsAreAllSets()
+			return This.IsListOfSets()
+
+		def AllItemsAreSets()
+			return This.IsListOfSets()
+
+		def ContainsOnlySets()
+			return This.IsListOfSets()
+
+		def ContainsSetsOnly()
+			return This.IsListOfSets()
+
+		def IsMadeOfSets()
+			return This.IsListOfSets()
+
+		def IsMadeOfOnlySets()
+			return This.IsListOfSets()
+
+		def IsMadeOfSetsOnly()
+			return This.IsListOfSets()
+
+		#>
+
+	def IsListOfStrings()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT isString(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
 
 		def IsAListOfStrings()
+			return This.IsListOfStrings()
+
+		def ItemsAreStrings()
+			return This.IsListOfStrings()
+
+		def ItemsAreAllStrings()
+			return This.IsListOfStrings()
+
+		def AllItemsAreStrings()
+			return This.IsListOfStrings()
+
+		def ContainsOnlyStrings()
+			return This.IsListOfStrings()
+
+		def ContainsStringsOnly()
+			return This.IsListOfStrings()
+
+		def IsMadeOfStrings()
+			return This.IsListOfStrings()
+
+		def IsMadeOfOnlyStrings()
+			return This.IsListOfStrings()
+
+		def IsMadeOfStringsOnly()
 			return This.IsListOfStrings()
 
 		#>
@@ -10265,65 +10441,158 @@ class stzList from stzObject
 		#>
 
 	def IsListOfChars()
-		if This.NumberOfItems() = 0
+		nLen = len(@aContent)
+		if nLen = 0
 			return FALSE
 		ok
 
 		bResult = TRUE
-		aContent = This.Content()
-		nLen = len(aContent)
 
 		for i = 1 to nLen
-
-			item = aContent[i]
-			if NOT ( (isString(item) or isNumber(item))  and Q(item).IsAChar())
-
+			if NOT @IsChar(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
 
 		def IsAListOfChars()
 			return This.IsListOfChars()
 
+		def ItemsAreChars()
+			return This.IsListOfChars()
+
+		def ItemsAreAllChars()
+			return This.IsListOfChars()
+
+		def AllItemsAreChars()
+			return This.IsListOfChars()
+
+		def ContainsOnlyChars()
+			return This.IsListOfChars()
+
+		def ContainsCharsOnly()
+			return This.IsListOfChars()
+
+		def IsMadeOfChars()
+			return This.IsListOfChars()
+
+		def IsMadeOfOnlyChars()
+			return This.IsListOfChars()
+
+		def IsMadeOfCharsOnly()
+			return This.IsListOfChars()
+		#>
+
 	def IsListOfLetters()
-		if This.NumberOfItems() = 0
+		nLen = len(@aContent)
+		if nLen = 0
 			return FALSE
 		ok
 
 		bResult = TRUE
 
-		for item in This.List()
-			if NOT ( isString(item) and
-				 StzStringQ(item).IsLetter() )
-
+		for i = 1 to nLen
+			if NOT @IsLetter(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
 
 		def IsAListOfLetters()
 			return This.IsListOfLetters()
 
+		def ItemsAreLetters()
+			return This.IsListOfLetters()
+
+		def ItemsAreAllLetters()
+			return This.IsListOfLetters()
+
+		def AllItemsAreLetters()
+			return This.IsListOfLetters()
+
+		def ContainsOnlyLetters()
+			return This.IsListOfLetters()
+
+		def ContainsLettersOnly()
+			return This.IsListOfLetters()
+
+		def IsMadeOfLetters()
+			return This.IsListOfLetters()
+
+		def IsMadeOfOnlyLetters()
+			return This.IsListOfLetters()
+
+		def IsMadeOfLettersOnly()
+			return This.IsListOfLetters()
+
+		#>
+
 	def IsListOfNumbers()
-		if This.NumberOfItems() = 0
+		nLen = len(@aContent)
+		if nLen = 0
 			return FALSE
 		ok
 
-		return This.AllItemsAreNumbers()
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT isNumber(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
 
 		def IsAListOfNumbers()
 			return This.IsListOfNumbers()
 
+		def ItemsAreNumbers()
+			return This.IsListOfNumbers()
+
+		def ItemsAreAllNumbers()
+			return This.IsListOfNumbers()
+
+		def AllItemsAreNumbers()
+			return This.IsListOfNumbers()
+
+		def ContainsOnlyNumbers()
+			return This.IsListOfNumbers()
+
+		def ContainsNumbersOnly()
+			return This.IsListOfNumbers()
+
+		def IsMadeOfNumbers()
+			return This.IsListOfNumbers()
+
+		def IsMadeOfOnlyNumbers()
+			return This.IsListOfNumbers()
+
+		def IsMadeOfNumbersOnly()
+			return This.IsListOfNumbers()
+
+		#>
+
 	def IsListOfNumbersInStrings()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
 		bResult = TRUE
 
-		for item in This.List()
-			if NOT ( isString(item) and Q(item).IsNumberInString() )
+		for i = 1 to nLen
+			if NOT @IsNumberInString(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
@@ -10331,21 +10600,87 @@ class stzList from stzObject
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
+		def IsAListOfNumbersInStrings()
+			return This.IsListOfNumbersInStrings()
+
+		def ItemsAreNumbersInStrings()
+			return This.IsListOfNumbersInStrings()
+
+		def ItemsAreAllNumbersInStrings()
+			return This.IsListOfNumbersInStrings()
+
+		def AllItemsAreNumbersInStrings()
+			return This.IsListOfNumbersInStrings()
+
+		def ContainsOnlyNumbersInStrings()
+			return This.IsListOfNumbersInStrings()
+
+		def ContainsNumbersInStringsOnly()
+			return This.IsListOfNumbersInStrings()
+
+		def IsMadeOfNumbersInStrings()
+			return This.IsListOfNumbersInStrings()
+
+		def IsMadeOfOnlyNumbersInStrings()
+			return This.IsListOfNumbersInStrings()
+
+		def IsMadeOfNumbersInStringsOnly()
+			return This.IsListOfNumbersInStrings()
+
+		#>
+
 	def IsListOfLists()
-		if This.NumberOfItems() = 0
+		nLen = len(@aContent)
+		if nLen = 0
 			return FALSE
 		ok
 
-		return This.AllItemsAreLists()
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT isList(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
 
 		def IsAListOfLists()
 			return This.IsListOfLists()
 
+		def ItemsAreLists()
+			return This.IsListOfLists()
+
+		def ItemsAreAllLists()
+			return This.IsListOfLists()
+
+		def AllItemsAreLists()
+			return This.IsListOfLists()
+
+		def ContainsOnlyLists()
+			return This.IsListOfLists()
+
+		def ContainsListsOnly()
+			return This.IsListOfLists()
+
+		def IsMadeOfLists()
+			return This.IsListOfLists()
+
+		def IsMadeOfOnlyLists()
+			return This.IsListOfLists()
+
+		def IsMadeOfListsOnly()
+			return This.IsListOfLists()
+
+		#>
+
 	def IsListOfListsOfNumbers()
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
+		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
 		ok
@@ -10353,19 +10688,47 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) and @IsListOfNumbers(aContent[i]) )
+			if NOT @IsListOfNumbers(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def ItemsAreListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def ItemsAreAllListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def AllItemsAreListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def ContainsOnlyListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def ContainsListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def IsMadeOfListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def IsMadeOfOnlyListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def IsMadeOfListsOfNumbersOnly()
+			return This.IsListOfListsOfNumbers()
+
+		#>
 
 	def IsListOfListsOfStrings()
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
+		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
 		ok
@@ -10373,19 +10736,47 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) and @IsListOfStrings(aContent[i]) )
+			if NOT @IsListOfStrings(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def ItemsAreListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def ItemsAreAllListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def AllItemsAreListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def ContainsOnlyListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def ContainsListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def IsMadeOfListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def IsMadeOfOnlyListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def IsMadeOfListsOfStringsOnly()
+			return This.IsListOfListsOfStrings()
+
+		#>
 
 	def IsListOfListsOfLists()
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
+		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
 		ok
@@ -10393,19 +10784,47 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) and @IsListOfLists(aContent[i]) )
+			if NOT @IsListOfLists(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def ItemsAreListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def ItemsAreAllListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def AllItemsAreListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def ContainsOnlyListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def ContainsListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def IsMadeOfListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def IsMadeOfOnlyListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def IsMadeOfListsOfListsOnly()
+			return This.IsListOfListsOfLists()
+
+		#>
 
 	def IsListOfListsOfObjects()
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
+		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
 		ok
@@ -10413,19 +10832,47 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) and @IsListOfObjects(aContent[i]) )
+			if NOT @IsListOfObjects(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def ItemsAreListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def ItemsAreAllListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def AllItemsAreListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def ContainsOnlyListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def ContainsListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def IsMadeOfListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def IsMadeOfOnlyListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def IsMadeOfListsOfObjectsOnly()
+			return This.IsListOfListsOfObjects()
+
+		#>
 
 	def IsListOfListsOfChars()
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
+		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
 		ok
@@ -10433,19 +10880,47 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) and @IsListOfChars(aContent[i]) )
+			if NOT @IsListOfChars(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfChars()
+			return This.IsListOfListsOfChars()
+
+		def ItemsAreListsOfChars()
+			return This.IsListOfListsOfChars()
+
+		def ItemsAreAllListsOfChars()
+			return This.IsListOfListsOfChars()
+
+		def AllItemsAreListsOfChars()
+			return This.IsListOfListsOfChars()
+
+		def ContainsOnlyListsOfChars()
+			return This.IsListOfListsOfChars()
+
+		def ContainsListsOfChars()
+			return This.IsListOfListsOfChars()
+
+		def IsMadeOfListsOfChars()
+			return This.IsListOfListsOfChars()
+
+		def IsMadeOfOnlyListsOfChars()
+			return This.IsListOfListsOfChars()
+
+		def IsMadeOfListsOfCharsOnly()
+			return This.IsListOfListsOfChars()
+
+		#>
 
 	def IsListOfListsOfHashLists()
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
+		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
 		ok
@@ -10453,19 +10928,47 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) and @IsListOfHastLists(aContent[i]) )
+			if NOT @IsListOfHashLists(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def ItemsAreListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def ItemsAreAllListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def AllItemsAreListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def ContainsOnlyListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def ContainsListsOfHashLists()
+			return This.IsListOfListsOfHahsLists()
+
+		def IsMadeOfListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def IsMadeOfOnlyListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def IsMadeOfListsOfHashListsOnly()
+			return This.IsListOfListsOfHashLists()
+
+		#>
 
 	def IsListOfListsOfStzNumbers()
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
+		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
 		ok
@@ -10473,19 +10976,47 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) and @IsListOfStzNumbers(aContent[i]) )
+			if NOT @IsListOfStzNumbers(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def ItemsAreListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def ItemsAreAllListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def AllItemsAreListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def ContainsOnlyListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def ContainsListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def IsMadeOfListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def IsMadeOfOnlyListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def IsMadeOfListsOfStzNumbersOnly()
+			return This.IsListOfListsOfStzNumbers()
+
+		#>
 
 	def IsListOfListsOfStzStrings()
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
+		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
 		ok
@@ -10493,19 +11024,47 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) and @IsListOfStzStrings(aContent[i]) )
+			if NOT @IsListOfStzStrings(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def ItemsAreListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def ItemsAreAllListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def AllItemsAreListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def ContainsOnlyListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def ContainsListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def IsMadeOfListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def IsMadeOfOnlyListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def IsMadeOfListsOfStzStringsOnly()
+			return This.IsListOfListsOfStzStrings()
+
+		#>
 
 	def IsListOfListsOfStzLists()
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
+		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
 		ok
@@ -10513,19 +11072,47 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) and @IsListOfStzLists(aContent[i]) )
+			if NOT @IsListOfStzLists(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def ItemsAreListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def ItemsAreAllListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def AllItemsAreListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def ContainsOnlyListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def ContainsListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def IsMadeOfListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def IsMadeOfOnlyListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def IsMadeOfListsOfStzListsOnly()
+			return This.IsListOfListsOfStzLists()
+
+		#>
 
 	def IsListOfListsOfStzObjects()
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
+		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
 		ok
@@ -10533,19 +11120,47 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) and @IsListOfStzObjects(aContent[i]) )
+			if NOT @IsListOfStzObjects(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def ItemsAreListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def ItemsAreAllListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def AllItemsAreListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def ContainsOnlyListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def ContainsListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def IsMadeOfListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def IsMadeOfOnlyListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def IsMadeOfListsOfStzObjectsOnly()
+			return This.IsListOfListsOfStzObjects()
+
+		#>
 
 	def IsListOfListsOfStzChars()
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
+		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
 		ok
@@ -10553,19 +11168,47 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) and @IsListOfStzChars(aContent[i]) )
+			if NOT @IsListOfStzChars(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def ItemsAreListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def ItemsAreAllListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def AllItemsAreListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def ContainsOnlyListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def ContainsListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def IsMadeOfListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def IsMadeOfOnlyListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def IsMadeOfListsOfStzCharsOnly()
+			return This.IsListOfListsOfStzChars()
+
+		#>
 
 	def IsListOfListsOfStzHashLists()
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
+		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
 		ok
@@ -10573,7 +11216,7 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT ( isList(aContent[i]) and @IsListOfStzHshLists(aContent[i]) )
+			if NOT @IsListOfStzHashLists(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
@@ -10581,15 +11224,36 @@ class stzList from stzObject
 
 		return bResult
 
-	def IsListOfSets()
-		if This.NumberOfItems() = 0
-			return FALSE
-		ok
+		#< @FunctionAlternativeForms
 
-		return This.AllItemsAreSets()
+		def IsAListOfListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
 
-		def IsAListOfSets()
-			return This.IsAListOfSets()
+		def ItemsAreListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def ItemsAreAllListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def AllItemsAreListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def ContainsOnlyListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def ContainsListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def IsMadeOfListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def IsMadeOfOnlyListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def IsMadeOfListsOfStzHashListsOnly()
+			return This.IsListOfListsOfStzHashLists()
+
+		#>
 
 	def IsListOfNumbersOrStrings()
 		if This.IsListOfNumbers() or
@@ -10600,15 +11264,68 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+		#< @FunctionAlternativeForms
+
+		def IsAListOfNumberOrStrings()
+			return This.IsListOfNumbersOrStrings()
+
+		def ItemsAreListsOfNumbersOrStrings()
+			return This.IsListOfNumbersOrStrings()
+
+		def ItemsAreAllListsOfNumbersOrStrings()
+			return This.IsListOfNumbersOrStrings()
+
+		def AllItemsAreListsOfNumbersOrStrings()
+			return This.IsListOfNumbersOrStrings()
+
+		def ContainsOnlyListsOfNumbersOrStrings()
+			return This.IsListOfNumbersOrStrings()
+
+		def ContainsListsOfNumbersOrStrings()
+			return This.IsListOfNumbersOrStrings()
+
+		def IsMadeOfListsOfNumbersOrStrings()
+			return This.IsListOfNumbersOrStrings()
+
+		def IsMadeOfOnlyListsOfNumbersOrStrings()
+			return This.IsListOfNumbersOrStrings()
+
+		def IsMadeOfListsOfNumbersOrStringsOnly()
+			return This.IsListOfNumbersOrStrings()
+
+		#--
 
 		def IsListOfStringsOrNumbers()
 			return This.IsListOfNumbersOrStrings()
 
-		def IsAListOfNumbersOrStrings()
-			return This.IsListOfNumbersOrStrings()
-
 		def IsAListOfStringsOrNumbers()
 			return This.IsListOfNumbersOrStrings()
+
+		def ItemsAreListsOfStringsOrNumbers()
+			return This.IsListOfNumbersOrStrings()
+
+		def ItemsAreAllListsOfStringsOrNumbers()
+			return This.IsListOfNumbersOrStrings()
+
+		def AllItemsAreListsOfStringsOrNumbers()
+			return This.IsListOfNumbersOrStrings()
+
+		def ContainsOnlyListsOfStringsOrNumbers()
+			return This.IsListOfNumbersOrStrings()
+
+		def ContainsListsOfStringsOrNumbers()
+			return This.IsListOfNumbersOrStrings()
+
+		def IsMadeOfListsOfStringsOrNumbers()
+			return This.IsListOfNumbersOrStrings()
+
+		def IsMadeOfOnlyListsOfStringsOrNumbers()
+			return This.IsListOfNumbersOrStrings()
+
+		def IsMadeOfListsOfStringsOrNumbersOnly()
+			return This.IsListOfNumbersOrStrings()
+
+		#>
 
 	def IsListOfNumbersAndStrings()
 		bResult = TRUE
@@ -10621,30 +11338,104 @@ class stzList from stzObject
 
 		return bResult
 
-		def IsListOfStringsAndNumbers()
+		#< @FunctionAlternativeForms
+
+		def IsAListOfNumberAndStrings()
 			return This.IsListOfNumbersAndStrings()
 
-		def IsAListOfNumbersAndStrings()
+		def ItemsAreListsOfNumbersAndStrings()
+			return This.IsListOfNumbersAndStrings()
+
+		def ItemsAreAllListsOfNumbersAndStrings()
+			return This.IsListOfNumbersAndStrings()
+
+		def AllItemsAreListsOfNumbersAndStrings()
+			return This.IsListOfNumbersAndStrings()
+
+		def ContainsOnlyListsOfNumbersAndStrings()
+			return This.IsListOfNumbersAndStrings()
+
+		def ContainsListsOfNumbersAndStrings()
+			return This.IsListOfNumbersAndStrings()
+
+		def IsMadeOfListsOfNumbersAndStrings()
+			return This.IsListOfNumbersAndStrings()
+
+		def IsMadeOfOnlyListsOfNumbersAndStrings()
+			return This.IsListOfNumbersAndStrings()
+
+		def IsMadeOfListsOfNumbersAndStringsOnly()
+			return This.IsListOfNumbersAndStrings()
+
+		#--
+
+		def IsListOfStringsAndNumbers()
 			return This.IsListOfNumbersAndStrings()
 
 		def IsAListOfStringsAndNumbers()
 			return This.IsListOfNumbersAndStrings()
 
-	def IsListOfEitherNumbersOrStrings()
+		def ItemsAreListsOfStringsAndNumbers()
+			return This.IsListOfNumbersAndStrings()
+
+		def ItemsAreAllListsOfStringsAndNumbers()
+			return This.IsListOfNumbersAndStrings()
+
+		def AllItemsAreListsOfStringsAndNumbers()
+			return This.IsListOfNumbersAndStrings()
+
+		def ContainsOnlyListsOfStringsAndNumbers()
+			return This.IsListOfNumbersAndStrings()
+
+		def ContainsListsOfStringsAndNumbers()
+			return This.IsListOfNumbersAndStrings()
+
+		def IsMadeOfListsOfStringsAndNumbers()
+			return This.IsListOfNumbersAndStrings()
+
+		def IsMadeOfOnlyListsOfStringsAndNumbers()
+			return This.IsListOfNumbersAndStrings()
+
+		def IsMadeOfListsOfStringsAndNumbersOnly()
+			return This.IsListOfNumbersAndStrings()
+
+		#>
+
+	def IsListOfNumbersOrListOfStrings()
 		if This.IsListOfNumbers() or This.IsListOfStrings()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsListOfEitherStringsOrNumbers()
-			return This.IsListOfEitherNumbersOrStrings()
+		def IsListOfStringsOrListOfNumbers()
+			return This.IsListOfNumbersOrListOfStrings()
 
-		def IsAListOfEitherNumbersOrStrings()
-			return This.IsListOfEitherNumbersOrStrings()
+	def IsListOfStringsAndPairsOfStrings()
+		bResult = TRUE
 
-		def IsAListOfEitherStringsOrNumbers()
-			return This.IsListOfEitherNumbersOrStrings()
+		for item in This.List()
+			if NOT 	( isString(item) or
+					( isList(item) and Q(item).IsPairOfStrings() ) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStringsAndPairsOfStrings()
+			return This.IsListOfStringsAndPairsOfStrings()
+
+		def IsListOfPairsOfstringsAndStrings()
+			return This.IsListOfStringsAndPairsOfStrings()
+
+		def IsAListOfPairsOfStringsAndstrings()
+			return This.IsListOfStringsAndPairsOfStrings()
+
+		#>
 
 	def IsListOfNumbersAndPairsOfNumbers()
 		bResult = TRUE
@@ -10659,8 +11450,70 @@ class stzList from stzObject
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
 		def IsAListOfNumbersAndPairsOfNumbers()
 			return This.IsListOfNumbersAndPairsOfNumbers()
+
+		def IsListOfPairsOfNumbersAndNumbers()
+			return This.IsListOfNumbersAndPairsOfNumbers()
+
+		def IsAListOfPairsOfNumbersAndNumbers()
+			return This.IsListOfNumbersAndPairsOfNumbers()
+
+		#>
+
+	def IsListOfListsAndPairsOfLists()
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT 	( isList(item) or
+					( isList(item) and Q(item).IsPairOfLists() ) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsAndPairsOfLists()
+			return This.IsListOfListsAndPairsOfLists()
+
+		def IsListOfPairsOfListsAndLists()
+			return This.IsListOfListsAndPairsOfLists()
+
+		def IsAListOfPairsOfListsAndLists()
+			return This.IsListOfListsAndPairsOfLists()
+
+		#>
+
+	def IsListOfObjectsAndPairsOfObjects()
+		bResult = TRUE
+
+		for item in This.List()
+			if NOT 	( isNumber(item) or
+					( isObject(item) and Q(item).IsPairOfObjects() ) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfObjectsAndPairsOfObjects()
+			return This.IsListOfObjectsAndPairsOfObjects()
+
+		def IsListOfPairsOfObjectsAndObjects()
+			return This.IsListOfObjectsAndPairsOfObjects()
+
+		def IsAListOfPairsOfObjectsAndObjects()
+			return This.IsListOfObjectsAndPairsOfObjects()
+
+		#>
 
 	def IsPair()
 		return This.NumberOfItems() = 2
@@ -11254,13 +12107,15 @@ class stzList from stzObject
 		But the following solution is more performant:
 		*/
 
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
 		bResult = TRUE
-		nLen = This.NumberOfItems()
-		aContent = This.Content()
 
 		for i = 1 to nLen
-			
-			if NOT ( isList(aContent[i]) and len(aContent[i]) = 2 )
+			if NOT isPair(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
@@ -11268,8 +12123,36 @@ class stzList from stzObject
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
 		def IsAListOfPairs()
 			return This.IsListOfPairs()
+
+		def ItemsArePairs()
+			return This.IsListOfPairs()
+
+		def ItemsAreAllPairs()
+			return This.IsListOfPairs()
+
+		def AllItemsArePairs()
+			return This.IsListOfPairs()
+
+		def ContainsOnlyPairs()
+			return This.IsListOfPairs()
+
+		def ContainsPairsOnly()
+			return This.IsListOfPairs()
+
+		def IsMadeOfPairs()
+			return This.IsListOfPairs()
+
+		def IsMadeOfOnlyPairs()
+			return This.IsListOfPairs()
+
+		def IsMadeOfPairsOnly()
+			return This.IsListOfPairs()
+
+		#>
 
 	def IsTree()
 		if NOT This.IsEmpty()
@@ -11318,6 +12201,9 @@ class stzList from stzObject
 	def ItemsHaveSameType()
 		return This.IsPureList()
 
+		def AllItemsHaveSameType()
+			return This.ItemsHaveSameType()
+
 	def ItemsHaveSameValue()
 		aContent = This.Content()
 		nLen = len(aContent)
@@ -11353,166 +12239,8 @@ class stzList from stzObject
 
 		return bResult
 
-	  #----------------------#
-	 #     LIST CONTENT     #
-	#----------------------#
-
-	/* NOTE
-
-	All the functions in this section could be implemented easily
-	using Condition-Coding. So for example, ContainsOnlyNumbers()
-	can be solved like this:
-
-		This.Check( :That = 'type(@item) = "NUMBER"' )
-
-	Despite of this, we provide them here, because they are implemented
-	in brute Ring code, and not in run-time evaluated code like in Check(),
-	which is better for performance (especially when these functions are
-	used in large lists and in deep for-loops.
-
-	*/
-
-	def ContainsOnlyNumbers()
-
-		bResult = TRUE
-		nLen = This.NumberOfItems()
-
-		aContent = This.Content()
-
-		for i = 1 to nLen
-
-			if NOT isNumber(aContent[i])
-				bResult = FALSE
-				exit
-			ok
-
-		next
-
-		return bResult
-
-		def ItemsAreAllNumbers()
-			return This.ContainsOnlyNumbers()
-
-		def AllItemsAreNumbers()
-			return This.ContainsOnlyNumbers()
-
-		def IsMadeOfNumbers()
-			return This.ContainsOnlyNumbers()
-
-	def ContainsOnlyOddNumbers()
-		
-		bResult = TRUE
-		nLen = This.NumberOfItems()
-
-		aContent = This.Content()
-
-		for i = 1 to nLen
-
-			if NOT isNumber(aContent[i])
-				bResult = FALSE
-				exit
-			ok
-
-			if NOT OddOrEven(aContent[i]) = :Odd
-				bResult = FALSE
-				exit
-			ok
-
-		next
-		return bResult
-
-		def ItemsAreAllOddNumbers()
-			return This.ContainsOnlyOddNumbers()
-
-		def AllItemsAreOddNumbers()
-			return This.ContainsOnlyOddNumbers()
-
-		def IsMadeOfOddNumbers()
-			return This.ContainsOnlyOddNumbers()
-
-	def ContainsOnlyEvenNumbers()
-
-		bResult = TRUE
-		nLen = This.NumberOfItems()
-
-		aContent = This.Content()
-
-		for i = 1 to nLen
-
-			if NOT isNumber(aContent[i])
-				bResult = FALSE
-				exit
-			ok
-
-			if NOT OddOrEven(aContent[i]) = :Even
-				bResult = FALSE
-				exit
-			ok
-
-		next
-		return bResult
-
-		def ItemsAreAllEvenNumbers()
-			return This.ContainsOnlyEvenNumbers()
-
-		def AllItemsAreEvenNumbers()
-			return This.ContainsOnlyEvenNumbers()
-
-		def IsMadeOfEvenNumbers()
-			return This.ContainsOnlyEvenNumbers()
-
-	def ContainsOnlyDigits()
-
-		bResult = TRUE
-		nLen = This.NumberOfItems()
-
-		aContent = This.Content()
-
-		for i = 1 to nLen
-
-			if NOT ( isNumber(aContent[i]) and aContent[i] >= 0 and aContent[i] < 10 )
-				bResult = FALSE
-				exit
-			ok
-
-		next
-		return bResult
-
-		def ItemsAreAllDigits()
-			return This.ContainsOnlyDigits()
-
-		def AllItemsAreDigits()
-			return This.ContainsOnlyDigits()
-
-		def IsMadeOfDigits()
-			return This.ContainsOnlyDigits()
-
-	def ContainsOnlyStrings()
-
-		bResult = TRUE
-		nLen = This.NumberOfItems()
-
-		aContent = This.Content()
-
-		for i = 1 to nLen
-
-			if NOT isString(aContent[i])
-				bResult = FALSE
-				exit
-			ok
-
-		next
-		return bResult
-
-
-		def ItemsAreAllStrings()
-			return This.ContainsOnlyStrings()
-
-		def AllItemsAreStrings()
-			return This.ContainsOnlyStrings()
-
-		def IsMadeOfStrings()
-			return This.ContainsOnlyStrings()
+		def AllItemsHaveSameValue()
+			return This.ItemsHaveSameValue()
 
 	  #-----------------------------------#
 	 #  CHECKING IF ALL ITEMS ARE EQUAL  #
@@ -11588,7 +12316,6 @@ class stzList from stzObject
 
 		#>
 
-
 	  #----------------------------------------------------#
 	 #  CHECKING IF ALL ITEMS ARE EQUAL TO A GIVEN VALUE  #
 	#----------------------------------------------------#
@@ -11614,244 +12341,6 @@ class stzList from stzObject
 
 		def IsMadeOfItemsEqualTo(pValue)
 			return This.AllItemsAreEqualTo(pValue)
-
-	  #------------------------------------------#
-	 #  CHECKING IF ALL ITEMS ARE NULL STRINGS  #
-	#------------------------------------------#
-
-	def ContainsOnlyNullStrings()
-
-		bResult = TRUE
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		for i = 1 to nLen
-
-			item = aContent[i]
-
-			if NOT isString(item) or
-			   ( isString(item) and item != "" )
-
-				bResult = FALSE
-				exit
-			ok
-
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def ContainsOnlyEmptyStrings()
-			return This.ContainsOnlyNullStrings()
-
-		def ItemsAreAllNullStrings()
-			return This.ContainsOnlyNullStrings()
-
-		def ItemsAreAllEmptyStrings()
-			return This.ContainsOnlyNullStrings()
-
-		def AllItemsAreNullStrings()
-			return This.ContainsOnlyNullStrings()
-
-		def AllItemsAreNull()
-			return This.ContainsOnlyNullStrings()
-
-		def AllItemsAreEmptyStrings()
-			return This.ContainsOnlyNullStrings()
-
-		def ItemsAreNull()
-			return This.ContainsOnlyNullStrings()
-
-		def ItemsAreNullStrings()
-			return This.ContainsOnlyNullStrings()
-
-		def IsMadeOfNullStrings()
-			return This.ContainsOnlyNullStrings()
-
-		def IsMadeOfEmptyStrings()
-			return This.ContainsOnlyNullStrings()
-
-		#>
-
-	  #-----------------------------------#
-	 #  CHECKING IF ALL ITEMS ARE LISTS  #
-	#-----------------------------------#
-
-	def ContainsOnlyLists()
-		bResult = TRUE
-		nLen = This.NumberOfItems()
-
-		aContent = This.Content()
-
-		for i = 1 to nLen
-
-			if NOT isList(aContent[i])
-				bResult = FALSE
-				exit
-			ok
-
-		next
-		return bResult
-
-		def ItemsAreAllLists()
-			return This.ContainsOnlyLists()
-
-		def AllItemsAreLists()
-			return This.ContainsOnlyLists()
-
-		def IsMadeOfLists()
-			return This.ContainsOnlyLists()
-
-	  #-----------------------------------#
-	 #  CHECKING IF ALL ITEMS ARE PAIRS  #
-	#-----------------------------------#
-
-	def AllItemsArePairs()
-		bResult = TRUE
-		nLen = This.NumberOfItems()
-
-		aContent = This.Content()
-
-		for i = 1 to nLen
-
-			if (NOT isList(aContent[i]) and len(aContent[i]) = 2)
-				bResult = FALSE
-				exit
-			ok
-
-		next
-		return bResult
-
-	  #----------------------------------------------#
-	 #  CHECKING IF ALL ITEMS ARE PAIRS OF NUMBERS  #
-	#----------------------------------------------#
-
-	def AllItemsArePairsOfNumbers()
-		bResult = TRUE
-		nLen = This.NumberOfItems()
-
-		aContent = This.Content()
-
-		for i = 1 to nLen
-
-			if NOT (isList(aContent[i]) and len(aContent[i]) = 2 and
-				isNumber(aContent[i][1]) and isNumber(aContent[i][2]))
-
-				bResult = FALSE
-				exit
-			ok
-
-		next
-		return bResult
-
-		def IsMadeOfPairsOfNumbers()
-			return This.AllItemsArePairsOfNumbers()
-
-	  #----------------------------------------------#
-	 #  CHECKING IF ALL ITEMS ARE PAIRS OF STRINGS  #
-	#----------------------------------------------#
-
-	def AllItemsArePairsOfStrings()
-		bResult = TRUE
-		nLen = This.NumberOfItems()
-
-		aContent = This.Content()
-
-		for i = 1 to nLen
-
-			if NOT (isList(aContent[i]) and len(aContent[i]) = 2 and
-				isString(aContent[i][1]) and isString(aContent[i][2]))
-
-				bResult = FALSE
-				exit
-			ok
-
-		next
-		return bResult
-
-		def IsMadeOfPairsOfStrings()
-			return This.AllItemsArePairsOfStrings()
-
-	  #--------------------------------------------#
-	 #  CHECKING IF ALL ITEMS ARE PAIRS OF LISTS  #
-	#--------------------------------------------#
-
-	def AllItemsArePairsOfLists()
-		bResult = TRUE
-		nLen = This.NumberOfItems()
-
-		aContent = This.Content()
-
-		for i = 1 to nLen
-			
-			if NOT (isList(aContent[i]) and len(aContent[i]) = 2 and
-				isList(aContent[i][1]) and isList(aContent[i][2]))
-
-				bResult = FALSE
-				exit
-			ok
-
-		next
-		return bResult
-
-		def IsMadeOfPairsOfLists()
-			return This.AllItemsArePairsOfLists()
-
-	  #----------------------------------------------#
-	 #  CHECKING IF ALL ITEMS ARE PAIRS OF OBJECTS  #
-	#----------------------------------------------#
-
-	def AllItemsArePairsOfObjects()
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-
-			if NOT (isList(aContent[i]) and len(aContent[i]) = 2 and
-				isObjects(aContent[i][1]) and isObject(aContent[i][2]))
-
-				bResult = FALSE
-				exit
-			ok
-
-		next
-		return bResult
-
-		def IsMadeOfPairsOfObjects()
-			return This.AllItemsArePairsOfObjects()
-
-	  #-----------------------------------------#
-	 #  CHECKING IF ALL ITEMS ARE EMPTY LISTS  #
-	#-----------------------------------------#
-
-	def ContainsOnlyEmptyLists()
-		bResult = TRUE
-		nLen = This.NumberOfItems()
-
-		aContent = This.Content()
-
-		for i = 1 to nLen
-			
-			if NOT ( isList(aContent[i]) and len(aContent[i]) = 0 )
-				bResult = FALSE
-				exit
-			ok
-
-		next
-		return bResult
-
-		def ItemsAreAllEmptyLists()
-			return This.ContainsOnlyEmptyLists()
-
-		def AllItemsAreEmptyLists()
-			return This.ContainsOnlyEmptyLists()
-
-		def MadeOfEmptyLists()
-			return This.ContainsOnlyEmptyLists()
 
 	  #---------------------------------------------------------------#
 	 #  CHECKING IF ALL ITEMS ARE LISTS HAVING SAME NUMBER OF ITEMS  #
@@ -11894,35 +12383,6 @@ class stzList from stzObject
 
 		def IsMadeOfListsWithSameNumberOfItems()
 			return This.ContainsOnlyListsWithSameNumberOfItems()
-
-	  #-------------------------------------#
-	 #  CHECKING IF ALL ITEMS ARE OBJECTS  #
-	#-------------------------------------#
-
-	def ContainsOnlyObjects()
-		bResult = TRUE
-		nLen = This.NumberOfItems()
-
-		aContent = This.Content()
-
-		for i = 1 to nLen
-			
-			if NOT isObject(aContent[i])
-				bResult = FALSE
-				exit
-			ok
-
-		next
-		return bResult
-
-		def ItemsAreAllObjects()
-			return This.ContainsOnlyObjects()
-
-		def AllItemsAreObjects()
-			return This.ContainsOnlyObjects()
-
-		def IsMadeOfObjects()
-			return This.ContainsOnlyObjects()
 
 	  #-----------------------------------------------------------------#
 	 #  CHECKING IF ALL ITEMS ARE STRINGS CONTAINING VALID RING CODES  #
@@ -48103,8 +48563,19 @@ vvv
 	#---------------------------------------------------------------------#
 
 	def RandomizeSection(n1, n2)
-		anPos = NRandomNumbersBetween(n1, n2)
-		This.UpdateWith( This.ItemsAtPositions(anPos) )
+		if CheckParams()
+			if NOT @BothAreNumbers(n1, n2)
+				StzRaise("Incorrect param types! n1 and n2 must be both numbers.")
+			ok
+		ok
+
+		nLen = n2 - n1 + 1
+		anPos = NRandomNumbersBetweenU(nLen, n1, n2)
+? @@(anPos)
+		aItems = This.ItemsAtPositions(anPos)
+? @@(aItems)
+
+		This.ReplaceAnyItemsAtPositionsByMany(anPos, aItems)
 
 		#< @FunctionFluentForm
 
