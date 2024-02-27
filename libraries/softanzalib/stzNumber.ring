@@ -1245,6 +1245,52 @@ func BothAreZeros(n1, n2)
 		return FALSE
 	ok
 
+func IsDecimalNumber(n)
+	return isNumber(n)
+
+	func @IsDecimalNumber(n)
+		return IsDecimalNumber(n)
+
+	func IsADecimalNumber(n)
+		return IsDecimalNumber(n)
+
+	func @IsADecimalNumber(n)
+		return IsDecimalNumber(n)
+
+func IsStzNumber(pObject)
+	if isObject(pObject) and classname(pObject) = "stznumber"
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	def @IsStzNumber(pObject)
+		return IsStzNumber(pObject)
+
+	def IsAStzNumber(pObject)
+		return IsStzNumber(pObject)
+
+	def @IsAStzNumber(pObject)
+		return IsStzNumber(pObject)
+
+	#--
+
+	def IsStzDecimalNumber(pObject)
+		return IsStzNumber(pObject)
+
+	def @IsStzDecimalNumber(pObject)
+		return IsStzNumber(pObject)
+
+	def IsAStzDecimalNumber(pObject)
+		return IsStzNumber(pObject)
+
+	def @IsAStzDecimalNumber(pObject)
+		return IsStzNumber(pObject)
+
+	#>
+
 #---- used for natural-coding (don't remove them!)
 
 func Number(n)
@@ -1261,6 +1307,8 @@ func Number@(n)	# TODO: Check if it's orphelin and, if so, remove it!
  ///   STZNUMBER CLASS   ///
 ///////////////////////////
 	
+class stzDecimalNumber from stzNumber
+
 class stzNumber from stzObject
 
 	@cNumber = ""
