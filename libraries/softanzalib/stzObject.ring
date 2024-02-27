@@ -924,27 +924,6 @@ func IsStzTransform(pObject)
 	func @IsAStzTransform(pObject)
 		return IsStzTransform(pObject)
 
-func IsStznumber(pObject)
-	if isObject(pObject) and classname(pObject) = "stznumber"
-		return TRUE
-	else
-		return FALSE
-	ok
-
-	func ObjectIsStznumber(pObject)
-		return IsStznumber(pObject)
-
-	func @IsStznumber(pObject)
-		return IsStznumber(pObject)
-
-	#--
-
-	func IsAStzNumber(pObject)
-		return IsStzNumber(pObject)
-
-	func @IsAStzNumber(pObject)
-		return IsStzNumber(pObject)
-
 func IsStzDecimalToBinary(pObject)
 	if isObject(pObject) and classname(pObject) = "stzdecimaltobinary"
 		return TRUE

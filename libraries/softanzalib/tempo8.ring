@@ -1,7 +1,7 @@
-load "stzlib.ring"
+//load "stzlib.ring"
 
 
-/*===
+/*====
 
 pron()
 
@@ -26,7 +26,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*----
-*/
+
 pron()
 
 	a1 = [ "A", "A", "B", "C" ]

@@ -231,6 +231,39 @@ func ListItemsAreAllStrings(paList)
 	func @AllItemsAreStrings(paList)
 		return ListItemsAreAllStrings(paList)
 
+func IsListOfNumbers(paList)
+	if NOT isList(paList)
+		StzRaise("Incorrect param type! paList must be a list.")
+	ok
+
+	bResult = TRUE
+	
+	nLen = len(paList)
+	for i = 1 to nLen
+		if NOT isNumber(paList[i])
+			bResult = FALSE
+			exit
+		ok
+	next
+
+	return bResult
+
+	#< @FunctionAlternativeForms
+
+	func @IsListOfNumbers(paList)
+		return IsListOfNumbers(paList)
+
+	func IsAListOfNumbers(paList)
+		return IsListOfNumbers(paList)
+
+	func @IsAListOfNumbers(paList)
+		return IsListOfNumbers(paList)
+
+	func ListIsAListOfNumbers(paList)
+		return IsListOfNumbers(paList)
+
+	#>
+
 func ListIsListOfLetters(paList)
 	return StzListQ(paList).IsListOfLetters()
 
@@ -754,6 +787,7 @@ class stzList from stzObject
 
 	def init(paList)
 		if CheckParams()
+
 			if NOT isList(paList)
 				StzRaise("Can't create the stzList object! paList must be a list.")
 			ok
@@ -4234,13 +4268,8 @@ class stzList from stzObject
 		*/
 
 		if CheckParams()
-			if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+			if NOT @IsListOfNumbers(panPos)
 				StzRaise("Incorrect param type! panPos must be a list of numbers.")
-			ok
-
-			if isList(paNewItems) and Q(paNewItems).IsRespectivelyNamedParam()
-				This.ReplaceItemsAtPositionsByManyRespectivelyCS(panPos, paItems, paNewItems[2], pCaseSensitive)
-				return
 			ok
 
 			if NOT isList(paNewItems)
@@ -4257,7 +4286,7 @@ class stzList from stzObject
 			return
 
 		but nLenNewItems = len(panPos)
-			This.ReplaceAnyItemsAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceAnyItemsAtPositionsByManyCS(panPos, paNewItems, pCaseSensitive)
 			return
 		ok
 
@@ -4299,11 +4328,39 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceanyItemsAtPositionsByTheseCSXT(panPos, paNewItems, pCaseSensitive)
+		def ReplaceAnyItemsAtPositionsByTheseCSXT(panPos, paNewItems, pCaseSensitive)
 			This.ReplaceanyItemsAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
 
 			def ReplaceanyItemsAtPositionsByTheseCSXTQ(panPos, paNewItems, pCaseSensitive)
 				This.ReplaceanyItemsAtPositionsByTheseCSXT(panPos, paNewItems, pCaseSensitive)
+				return This
+
+		def ReplaceAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceanyItemsAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
+
+			def ReplaceAtPositionsByManyCSXTQ(panPos, paNewItems, pCaseSensitive)
+				This.ReplaceAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
+				return This
+
+		def ReplaceAtPositionsByTheseCSXT(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceanyItemsAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
+
+			def ReplaceAtPositionsByTheseCSXTQ(panPos, paNewItems, pCaseSensitive)
+				This.ReplaceAtPositionsByTheseCSXT(panPos, paNewItems, pCaseSensitive)
+				return This
+
+		def ReplaceAtByManyCSXT(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceanyItemsAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
+
+			def ReplaceAtByManyCSXTQ(panPos, paNewItems, pCaseSensitive)
+				This.ReplaceAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
+				return This
+
+		def ReplaceAtByTheseCSXT(panPos, paNewItems, pCaseSensitive)
+			This.ReplaceanyItemsAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
+
+			def ReplaceAtByTheseCSXTQ(panPos, paNewItems, pCaseSensitive)
+				This.ReplaceAtPositionsByTheseCSXT(panPos, paNewItems, pCaseSensitive)
 				return This
 
 		#>
@@ -4339,6 +4396,34 @@ class stzList from stzObject
 
 			def ReplaceanyItemsAtPositionsByTheseXTQ(panPos, paNewItems)
 				This.ReplaceanyItemsAtPositionsByTheseXT(panPos, paNewItems)
+				return This
+
+		def ReplaceAtPositionsByManyXT(panPos, paNewItems)
+			This.ReplaceanyItemsAtPositionsByManyXT(panPos, paNewItems)
+
+			def ReplaceAtPositionsByManyXTQ(panPos, paNewItems)
+				This.ReplaceAtPositionsByManyXT(panPos, paNewItems)
+				return This
+
+		def ReplaceAtPositionsByTheseXT(panPos, paNewItems)
+			This.ReplaceanyItemsAtPositionsByManyXT(panPos, paNewItems)
+
+			def ReplaceAtPositionsByTheseXTQ(panPos, paNewItems)
+				This.ReplaceAtPositionsByTheseXT(panPos, paNewItems)
+				return This
+
+		def ReplaceAtByManyXT(panPos, paNewItems)
+			This.ReplaceanyItemsAtPositionsByManyXT(panPos, paNewItems)
+
+			def ReplaceAtByManyXTQ(panPos, paNewItems)
+				This.ReplaceAtPositionsByManyXT(panPos, paNewItems)
+				return This
+
+		def ReplaceAtByTheseXT(panPos, paNewItems)
+			This.ReplaceanyItemsAtPositionsByManyXT(panPos, paNewItems)
+
+			def ReplaceAtByTheseXTQ(panPos, paNewItems)
+				This.ReplaceAtPositionsByTheseXT(panPos, paNewItems)
 				return This
 
 		#>
@@ -10056,21 +10141,6 @@ class stzList from stzObject
 		def IsAnEvenList()
 			return This.IsEvenList()
 
-	def IsListOfGrids()
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT Q(aContent[i]).IsGrid()
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
 	// TODO: Maybe we should design a stzListOfBits class...
 	def IsListOfBits()
 		if This.NumberOfItems() = 0
@@ -10191,53 +10261,6 @@ class stzList from stzObject
 	
 		#>
 
-	def IsListOfHashLists()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT @IsHashList(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfHashLists()
-			return This.IsListOfHashLists()
-
-		def ItemsAreHashLists()
-			return This.IsListOfHashLists()
-
-		def ItemsAreAllHashLists()
-			return This.IsListOfHashLists()
-
-		def AllItemsAreHashLists()
-			return This.IsListOfHashLists()
-
-		def ContainsOnlyHashLists()
-			return This.IsListOfHashLists()
-
-		def ContainsHashListsOnly()
-			return This.IsListOfHashLists()
-
-		def IsMadeOfHashLists()
-			return This.IsListOfHashLists()
-
-		def IsMadeOfOnlyHashLists()
-			return This.IsListOfHashLists()
-
-		def IsMadeOfHashListsOnly()
-			return This.IsListOfHashLists()
-
-		#>
 
 	def IsHashListOrListOfStrings()
 		if This.IsListOfStrings() or This.IsHashList()
@@ -10337,7 +10360,11 @@ class stzList from stzObject
 
 		#>
 
-	def IsListOfSets()
+	  #-----------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF NUMBERS  #
+	#===============================================#
+
+	def IsListOfNumbers()
 		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
@@ -10346,7 +10373,7 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT @IsSet(@aContent[i])
+			if NOT @IsNumber(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
@@ -10356,34 +10383,661 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def IsAListOfSets()
-			return This.IsListOfSets()
+		def IsAListOfNumbers()
+			return This.IsListOfNumbers()
 
-		def ItemsAreSets()
-			return This.IsListOfSets()
+		def ItemsAreNumbers()
+			return This.IsListOfNumbers()
 
-		def ItemsAreAllSets()
-			return This.IsListOfSets()
+		def ItemsAreAllNumbers()
+			return This.IsListOfNumbers()
 
-		def AllItemsAreSets()
-			return This.IsListOfSets()
+		def AllItemsAreNumbers()
+			return This.IsListOfNumbers()
 
-		def ContainsOnlySets()
-			return This.IsListOfSets()
+		def ContainsOnlyNumbers()
+			return This.IsListOfNumbers()
 
-		def ContainsSetsOnly()
-			return This.IsListOfSets()
+		def ContainsNumbersOnly()
+			return This.IsListOfNumbers()
 
-		def IsMadeOfSets()
-			return This.IsListOfSets()
+		def IsMadeOfNumbers()
+			return This.IsListOfNumbers()
 
-		def IsMadeOfOnlySets()
-			return This.IsListOfSets()
+		def IsMadeOfOnlyNumbers()
+			return This.IsListOfNumbers()
 
-		def IsMadeOfSetsOnly()
-			return This.IsListOfSets()
+		def IsMadeOfNumbersOnly()
+			return This.IsListOfNumbers()
+
+		def IsMadeOnlyOfNumbers()
+			return This.IsListOfNumbers()
+
+		def IsOnlyMadeOfNumbers()
+			return This.IsListOfNumbers()
 
 		#>
+
+	  #--------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF NUMBERS  #
+	#--------------------------------------------------------#
+
+	def IsListOfListsOfNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfNumbers(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def ItemsAreListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def ItemsAreAllListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def AllItemsAreListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def ContainsOnlyListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def ContainsListsOfNumbersOnly()
+			return This.IsListOfListsOfNumbers()
+
+		def IsMadeOfListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def IsMadeOfOnlyListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def IsMadeOfListsOfNumbersOnly()
+			return This.IsListOfListsOfNumbers()
+
+		def IsMadeOnlyOfListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def IsOnlyMadeOfListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		#>
+
+	  #-------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF DECIMAL NUMBERS  #
+	#=======================================================#
+
+	def IsListOfDecimalNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsDecimalNumber(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfDecimalNumbers()
+			return This.IsListOfDecimalNumbers()
+
+		def ItemsAreDecimalNumbers()
+			return This.IsListOfDecimalNumbers()
+
+		def ItemsAreAllDecimalNumbers()
+			return This.IsListOfDecimalNumbers()
+
+		def AllItemsAreDecimalNumbers()
+			return This.IsListOfDecimalNumbers()
+
+		def ContainsOnlyDecimalNumbers()
+			return This.IsListOfDecimalNumbers()
+
+		def ContainsDecimalNumbersOnly()
+			return This.IsListOfDecimalNumbers()
+
+		def IsMadeOfDecimalNumbers()
+			return This.IsListOfDecimalNumbers()
+
+		def IsMadeOfOnlyDecimalNumbers()
+			return This.IsListOfDecimalNumbers()
+
+		def IsMadeOfDecimalNumbersOnly()
+			return This.IsListOfDecimalNumbers()
+
+		def IsMadeOnlyOfDecimalNumbers()
+			return This.IsListOfDecimalNumbers()
+
+		def IsOnlyMadeOfDecimalNumbers()
+			return This.IsListOfDecimalNumbers()
+
+		#>
+
+	  #----------------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF DECIMAL NUMBERS  #
+	#----------------------------------------------------------------#
+
+	def IsListOfListsOfDecimalNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfDecimalNumbers(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfDecimalNumbers()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		def ItemsAreListsOfDecimalNumbers()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		def ItemsAreAllListsOfDecimalNumbers()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		def AllItemsAreListsOfDecimalNumbers()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		def ContainsOnlyListsOfDecimalNumbers()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		def ContainsListsOfDecimalNumbersOnly()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		def IsMadeOfListsOfDecimalNumbers()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		def IsMadeOfOnlyListsOfDecimalNumbers()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		def IsMadeOfListsOfDecimalNumbersOnly()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		def IsMadeOnlyOfListsOfDecimalNumbers()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		def IsOnlyMadeOfListsOfDecimalNumbers()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		#>
+
+	  #------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF BINARY NUMBERS  #
+	#======================================================#
+
+	def IsListOfBinaryNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsBinaryNumber(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfBinaryNumbers()
+			return This.IsListOfBinaryNumbers()
+
+		def ItemsAreBinaryNumbers()
+			return This.IsListOfBinaryNumbers()
+
+		def ItemsAreAllBinaryNumbers()
+			return This.IsListOfBinaryNumbers()
+
+		def AllItemsAreBinaryNumbers()
+			return This.IsListOfBinaryNumbers()
+
+		def ContainsOnlyBinaryNumbers()
+			return This.IsListOfBinaryNumbers()
+
+		def ContainsBinaryNumbersOnly()
+			return This.IsListOfBinaryNumbers()
+
+		def IsMadeOfBinaryNumbers()
+			return This.IsListOfBinaryNumbers()
+
+		def IsMadeOfOnlyBinaryNumbers()
+			return This.IsListOfBinaryNumbers()
+
+		def IsMadeOfBinaryNumbersOnly()
+			return This.IsListOfBinaryNumbers()
+
+		def IsMadeOnlyOfBinaryNumbers()
+			return This.IsListOfBinaryNumbers()
+
+		def IsOnlyMadeOfBinaryNumbers()
+			return This.IsListOfBinaryNumbers()
+
+		#>
+
+	  #---------------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF BINARY NUMBERS  #
+	#---------------------------------------------------------------#
+
+	def IsListOfListsOfBinaryNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfBinaryNumbers(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfBinaryNumbers()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		def ItemsAreListsOfBinaryNumbers()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		def ItemsAreAllListsOfBinaryNumbers()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		def AllItemsAreListsOfBinaryNumbers()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		def ContainsOnlyListsOfBinaryNumbers()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		def ContainsListsOfBinaryNumbersOnly()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		def IsMadeOfListsOfBinaryNumbers()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		def IsMadeOfOnlyListsOfBinaryNumbers()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		def IsMadeOfListsOfBinaryNumbersOnly()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		def IsMadeOnlyOfListsOfBinaryNumbers()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		def IsOnlyMadeOfListsOfBinaryNumbers()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		#>
+
+	  #-----------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF OCTAL NUMBERS  #
+	#=====================================================#
+
+	def IsListOfOctalNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsOctalNumber(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfOctalNumbers()
+			return This.IsListOfOctalNumbers()
+
+		def ItemsAreOctalNumbers()
+			return This.IsListOfOctalNumbers()
+
+		def ItemsAreAllOctalNumbers()
+			return This.IsListOfOctalNumbers()
+
+		def AllItemsAreOctalNumbers()
+			return This.IsListOfOctalNumbers()
+
+		def ContainsOnlyOctalNumbers()
+			return This.IsListOfOctalNumbers()
+
+		def ContainsOctalNumbersOnly()
+			return This.IsListOfOctalNumbers()
+
+		def IsMadeOfOctalNumbers()
+			return This.IsListOfOctalNumbers()
+
+		def IsMadeOfOnlyOctalNumbers()
+			return This.IsListOfOctalNumbers()
+
+		def IsMadeOfOctalNumbersOnly()
+			return This.IsListOfOctalNumbers()
+
+		def IsMadeOnlyOfOctalNumbers()
+			return This.IsListOfOctalNumbers()
+
+		def IsOnlyMadeOfOctalNumbers()
+			return This.IsListOfOctalNumbers()
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF OCTAL NUMBERS  #
+	#--------------------------------------------------------------#
+
+	def IsListOfListsOfOctalNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfOctalNumbers(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfOctalNumbers()
+			return This.IsListOfListsOfOctalNumbers()
+
+		def ItemsAreListsOfOctalNumbers()
+			return This.IsListOfListsOfOctalNumbers()
+
+		def ItemsAreAllListsOfOctalNumbers()
+			return This.IsListOfListsOfOctalNumbers()
+
+		def AllItemsAreListsOfOctalNumbers()
+			return This.IsListOfListsOfOctalNumbers()
+
+		def ContainsOnlyListsOfOctalNumbers()
+			return This.IsListOfListsOfOctalNumbers()
+
+		def ContainsListsOfOctalNumbersOnly()
+			return This.IsListOfListsOfOctalNumbers()
+
+		def IsMadeOfListsOfOctalNumbers()
+			return This.IsListOfListsOfOctalNumbers()
+
+		def IsMadeOfOnlyListsOfOctalNumbers()
+			return This.IsListOfListsOfOctalNumbers()
+
+		def IsMadeOfListsOfOctalNumbersOnly()
+			return This.IsListOfListsOfOctalNumbers()
+
+		def IsMadeOnlyOfListsOfOctalNumbers()
+			return This.IsListOfListsOfOctalNumbers()
+
+		def IsOnlyMadeOfListsOfOctalNumbers()
+			return This.IsListOfListsOfOctalNumbers()
+
+		#>
+
+	  #---------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF HEX NUMBERS  #
+	#===================================================#
+
+	def IsListOfHexNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsHexNumber(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfHexNumbers()
+			return This.IsListOfHexNumbers()
+
+		def ItemsAreHexNumbers()
+			return This.IsListOfHexNumbers()
+
+		def ItemsAreAllHexNumbers()
+			return This.IsListOfHexNumbers()
+
+		def AllItemsAreHexNumbers()
+			return This.IsListOfHexNumbers()
+
+		def ContainsOnlyHexNumbers()
+			return This.IsListOfHexNumbers()
+
+		def ContainsHexNumbersOnly()
+			return This.IsListOfHexNumbers()
+
+		def IsMadeOfHexNumbers()
+			return This.IsListOfHexNumbers()
+
+		def IsMadeOfOnlyHexNumbers()
+			return This.IsListOfHexNumbers()
+
+		def IsMadeOfHexNumbersOnly()
+			return This.IsListOfHexNumbers()
+
+		def IsMadeOnlyOfHexNumbers()
+			return This.IsListOfHexNumbers()
+
+		def IsOnlyMadeOfHexNumbers()
+			return This.IsListOfHexNumbers()
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF HEX NUMBERS  #
+	#------------------------------------------------------------#
+
+	def IsListOfListsOfHexNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfHexNumbers(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfHexNumbers()
+			return This.IsListOfListsOfHexNumbers()
+
+		def ItemsAreListsOfHexNumbers()
+			return This.IsListOfListsOfHexNumbers()
+
+		def ItemsAreAllListsOfHexNumbers()
+			return This.IsListOfListsOfHexNumbers()
+
+		def AllItemsAreListsOfHexNumbers()
+			return This.IsListOfListsOfHexNumbers()
+
+		def ContainsOnlyListsOfHexNumbers()
+			return This.IsListOfListsOfHexNumbers()
+
+		def ContainsListsOfHexNumbersOnly()
+			return This.IsListOfListsOfHexNumbers()
+
+		def IsMadeOfListsOfHexNumbers()
+			return This.IsListOfListsOfHexNumbers()
+
+		def IsMadeOfOnlyListsOfHexNumbers()
+			return This.IsListOfListsOfHexNumbers()
+
+		def IsMadeOfListsOfHexNumbersOnly()
+			return This.IsListOfListsOfHexNumbers()
+
+		def IsMadeOnlyOfListsOfHexNumbers()
+			return This.IsListOfListsOfHexNumbers()
+
+		def IsOnlyMadeOfListsOfHexNumbers()
+			return This.IsListOfListsOfHexNumbers()
+
+		#>
+	  #----------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF QBYTESLIST OBJECTS  #
+	#==========================================================#
+
+	def IsListOfQBytesLists()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsQBytesListObject(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfQBytesLists()
+			return This.IsListOfQBytesLists()
+
+		def ItemsAreQBytesLists()
+			return This.IsListOfQBytesLists()
+
+		def ItemsAreAllQBytesLists()
+			return This.IsListOfQBytesLists()
+
+		def AllItemsAreQBytesLists()
+			return This.IsListOfQBytesLists()
+
+		def ContainsOnlyQBytesLists()
+			return This.IsListOfQBytesLists()
+
+		def ContainsQBytesListsOnly()
+			return This.IsListOfQBytesLists()
+
+		def IsMadeOfQBytesLists()
+			return This.IsListOfQBytesLists()
+
+		def IsMadeOfOnlyQBytesLists()
+			return This.IsListOfQBytesLists()
+
+		def IsMadeOfQBytesListsOnly()
+			return This.IsListOfQBytesLists()
+
+		def IsMadeOnlyOfQBytesLists()
+			return This.IsListOfQBytesLists()
+
+		def IsOnlyMadeOfQBytesLists()
+			return This.IsListOfQBytesLists()
+
+		#--
+
+		def IsListOfQBytesListObjects()
+			return This.IsListOfQBytesLists()
+
+		def IsAListOfQBytesListObjects()
+			return This.IsListOfQBytesLists()
+
+		def ItemsAreQBytesListObjects()
+			return This.IsListOfQBytesLists()
+
+		def ItemsAreAllQBytesListObjects()
+			return This.IsListOfQBytesLists()
+
+		def AllItemsAreQBytesListObjects()
+			return This.IsListOfQBytesLists()
+
+		def ContainsOnlyQBytesListObjects()
+			return This.IsListOfQBytesLists()
+
+		def ContainsQBytesListObjectsOnly()
+			return This.IsListOfQBytesLists()
+
+		def IsMadeOfQBytesListObjects()
+			return This.IsListOfQBytesLists()
+
+		def IsMadeOfOnlyQBytesListObjects()
+			return This.IsListOfQBytesLists()
+
+		def IsMadeOfQBytesListObjectsOnly()
+			return This.IsListOfQBytesLists()
+
+		def IsMadeOnlyOfQBytesListObjects()
+			return This.IsListOfQBytesLists()
+
+		def IsOnlyMadeOfQBytesListObjects()
+			return This.IsListOfQBytesLists()
+
+		#>
+
+	  #-----------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STRINGS  #
+	#===============================================#
 
 	def IsListOfStrings()
 		nLen = len(@aContent)
@@ -10394,7 +11048,7 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT isString(@aContent[i])
+			if NOT @IsString(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
@@ -10431,14 +11085,307 @@ class stzList from stzObject
 		def IsMadeOfStringsOnly()
 			return This.IsListOfStrings()
 
-		#>
+		def IsMadeOnlyOfStrings()
+			return This.IsListOfStrings()
 
-		#< @FunctionMisspelledForm
-
-		def IsListOfSrtrings()
+		def IsOnlyMadeOfStrings()
 			return This.IsListOfStrings()
 
 		#>
+
+	  #--------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STRINGS  #
+	#--------------------------------------------------------#
+
+	def IsListOfListsOfStrings()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStrings(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def ItemsAreListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def ItemsAreAllListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def AllItemsAreListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def ContainsOnlyListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def ContainsListsOfStringsOnly()
+			return This.IsListOfListsOfStrings()
+
+		def IsMadeOfListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def IsMadeOfOnlyListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def IsMadeOfListsOfStringsOnly()
+			return This.IsListOfListsOfStrings()
+
+		def IsMadeOnlyOfListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def IsOnlyMadeOfListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		#>
+
+	  #---------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS  #
+	#=============================================#
+
+	def IsListOfLists()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsList(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfLists()
+			return This.IsListOfLists()
+
+		def ItemsAreLists()
+			return This.IsListOfLists()
+
+		def ItemsAreAllLists()
+			return This.IsListOfLists()
+
+		def AllItemsAreLists()
+			return This.IsListOfLists()
+
+		def ContainsOnlyLists()
+			return This.IsListOfLists()
+
+		def ContainsListsOnly()
+			return This.IsListOfLists()
+
+		def IsMadeOfLists()
+			return This.IsListOfLists()
+
+		def IsMadeOfOnlyLists()
+			return This.IsListOfLists()
+
+		def IsMadeOfListsOnly()
+			return This.IsListOfLists()
+
+		def IsMadeOnlyOfLists()
+			return This.IsListOfLists()
+
+		def IsOnlyMadeOfLists()
+			return This.IsListOfLists()
+
+		#>
+
+	  #------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF LISTS  #
+	#------------------------------------------------------#
+
+	def IsListOfListsOfLists()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfLists(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def ItemsAreListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def ItemsAreAllListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def AllItemsAreListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def ContainsOnlyListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def ContainsListsOfListsOnly()
+			return This.IsListOfListsOfLists()
+
+		def IsMadeOfListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def IsMadeOfOnlyListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def IsMadeOfListsOfListsOnly()
+			return This.IsListOfListsOfLists()
+
+		def IsMadeOnlyOfListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def IsOnlyMadeOfListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		#>
+
+	  #-----------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF OBJECTS  #
+	#===============================================#
+
+	def IsListOfObjects()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsObject(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfObjects()
+			return This.IsListOfObjects()
+
+		def ItemsAreObjects()
+			return This.IsListOfObjects()
+
+		def ItemsAreAllObjects()
+			return This.IsListOfObjects()
+
+		def AllItemsAreObjects()
+			return This.IsListOfObjects()
+
+		def ContainsOnlyObjects()
+			return This.IsListOfObjects()
+
+		def ContainsObjectsOnly()
+			return This.IsListOfObjects()
+
+		def IsMadeOfObjects()
+			return This.IsListOfObjects()
+
+		def IsMadeOfOnlyObjects()
+			return This.IsListOfObjects()
+
+		def IsMadeOfObjectsOnly()
+			return This.IsListOfObjects()
+
+		def IsMadeOnlyOfObjects()
+			return This.IsListOfObjects()
+
+		def IsOnlyMadeOfObjects()
+			return This.IsListOfObjects()
+
+		#>
+
+	  #--------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF OBJECTS  #
+	#--------------------------------------------------------#
+
+	def IsListOfListsOfObjects()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfObjects(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def ItemsAreListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def ItemsAreAllListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def AllItemsAreListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def ContainsOnlyListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def ContainsListsOfObjectsOnly()
+			return This.IsListOfListsOfObjects()
+
+		def IsMadeOfListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def IsMadeOfOnlyListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def IsMadeOfListsOfObjectsOnly()
+			return This.IsListOfListsOfObjects()
+
+		def IsMadeOnlyOfListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def IsOnlyMadeOfListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		#>
+
+	  #---------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF CHARS  #
+	#=============================================#
 
 	def IsListOfChars()
 		nLen = len(@aContent)
@@ -10485,9 +11432,20 @@ class stzList from stzObject
 
 		def IsMadeOfCharsOnly()
 			return This.IsListOfChars()
+
+		def IsMadeOnlyOfChars()
+			return This.IsListOfChars()
+
+		def IsOnlyMadeOfChars()
+			return This.IsListOfChars()
+
 		#>
 
-	def IsListOfLetters()
+	  #------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF CHARS  #
+	#------------------------------------------------------#
+
+	def IsListOfListsOfChars()
 		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
@@ -10496,7 +11454,7 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT @IsLetter(@aContent[i])
+			if NOT @IsListOfChars(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
@@ -10506,36 +11464,46 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def IsAListOfLetters()
-			return This.IsListOfLetters()
+		def IsAListOfListsOfChars()
+			return This.IsListOfListsOfChars()
 
-		def ItemsAreLetters()
-			return This.IsListOfLetters()
+		def ItemsAreListsOfChars()
+			return This.IsListOfListsOfChars()
 
-		def ItemsAreAllLetters()
-			return This.IsListOfLetters()
+		def ItemsAreAllListsOfChars()
+			return This.IsListOfListsOfChars()
 
-		def AllItemsAreLetters()
-			return This.IsListOfLetters()
+		def AllItemsAreListsOfChars()
+			return This.IsListOfListsOfChars()
 
-		def ContainsOnlyLetters()
-			return This.IsListOfLetters()
+		def ContainsOnlyListsOfChars()
+			return This.IsListOfListsOfChars()
 
-		def ContainsLettersOnly()
-			return This.IsListOfLetters()
+		def ContainsListsOfCharsOnly()
+			return This.IsListOfListsOfChars()
 
-		def IsMadeOfLetters()
-			return This.IsListOfLetters()
+		def IsMadeOfListsOfChars()
+			return This.IsListOfListsOfChars()
 
-		def IsMadeOfOnlyLetters()
-			return This.IsListOfLetters()
+		def IsMadeOfOnlyListsOfChars()
+			return This.IsListOfListsOfChars()
 
-		def IsMadeOfLettersOnly()
-			return This.IsListOfLetters()
+		def IsMadeOfListsOfCharsOnly()
+			return This.IsListOfListsOfChars()
+
+		def IsMadeOnlyOfListsOfChars()
+			return This.IsListOfListsOfChars()
+
+		def IsOnlyMadeOfListsOfChars()
+			return This.IsListOfListsOfChars()
 
 		#>
 
-	def IsListOfNumbers()
+	  #---------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF PAIRS  #
+	#=============================================#
+
+	def IsListOfPairs()
 		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
@@ -10544,7 +11512,7 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT isNumber(@aContent[i])
+			if NOT @IsPair(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
@@ -10554,34 +11522,2478 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def IsAListOfNumbers()
-			return This.IsListOfNumbers()
+		def IsAListOfPairs()
+			return This.IsListOfPairs()
 
-		def ItemsAreNumbers()
-			return This.IsListOfNumbers()
+		def ItemsArePairs()
+			return This.IsListOfPairs()
 
-		def ItemsAreAllNumbers()
-			return This.IsListOfNumbers()
+		def ItemsAreAllPairs()
+			return This.IsListOfPairs()
 
-		def AllItemsAreNumbers()
-			return This.IsListOfNumbers()
+		def AllItemsArePairs()
+			return This.IsListOfPairs()
 
-		def ContainsOnlyNumbers()
-			return This.IsListOfNumbers()
+		def ContainsOnlyPairs()
+			return This.IsListOfPairs()
 
-		def ContainsNumbersOnly()
-			return This.IsListOfNumbers()
+		def ContainsPairsOnly()
+			return This.IsListOfPairs()
 
-		def IsMadeOfNumbers()
-			return This.IsListOfNumbers()
+		def IsMadeOfPairs()
+			return This.IsListOfPairs()
 
-		def IsMadeOfOnlyNumbers()
-			return This.IsListOfNumbers()
+		def IsMadeOfOnlyPairs()
+			return This.IsListOfPairs()
 
-		def IsMadeOfNumbersOnly()
-			return This.IsListOfNumbers()
+		def IsMadeOfPairsOnly()
+			return This.IsListOfPairs()
+
+		def IsMadeOnlyOfPairs()
+			return This.IsListOfPairs()
+
+		def IsOnlyMadeOfPairs()
+			return This.IsListOfPairs()
 
 		#>
+
+	  #------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF PAIRS  #
+	#------------------------------------------------------#
+
+	def IsListOfListsOfPairs()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfPairs(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfPairs()
+			return This.IsListOfListsOfPairs()
+
+		def ItemsAreListsOfPairs()
+			return This.IsListOfListsOfPairs()
+
+		def ItemsAreAllListsOfPairs()
+			return This.IsListOfListsOfPairs()
+
+		def AllItemsAreListsOfPairs()
+			return This.IsListOfListsOfPairs()
+
+		def ContainsOnlyListsOfPairs()
+			return This.IsListOfListsOfPairs()
+
+		def ContainsListsOfPairsOnly()
+			return This.IsListOfListsOfPairs()
+
+		def IsMadeOfListsOfPairs()
+			return This.IsListOfListsOfPairs()
+
+		def IsMadeOfOnlyListsOfPairs()
+			return This.IsListOfListsOfPairs()
+
+		def IsMadeOfListsOfPairsOnly()
+			return This.IsListOfListsOfPairs()
+
+		def IsMadeOnlyOfListsOfPairs()
+			return This.IsListOfListsOfPairs()
+
+		def IsOnlyMadeOfListsOfPairs()
+			return This.IsListOfListsOfPairs()
+
+		#>
+
+	  #--------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF SETS  #
+	#============================================#
+
+	def IsListOfSets()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsSet(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfSets()
+			return This.IsListOfSets()
+
+		def ItemsAreSets()
+			return This.IsListOfSets()
+
+		def ItemsAreAllSets()
+			return This.IsListOfSets()
+
+		def AllItemsAreSets()
+			return This.IsListOfSets()
+
+		def ContainsOnlySets()
+			return This.IsListOfSets()
+
+		def ContainsSetsOnly()
+			return This.IsListOfSets()
+
+		def IsMadeOfSets()
+			return This.IsListOfSets()
+
+		def IsMadeOfOnlySets()
+			return This.IsListOfSets()
+
+		def IsMadeOfSetsOnly()
+			return This.IsListOfSets()
+
+		def IsMadeOnlyOfSets()
+			return This.IsListOfSets()
+
+		def IsOnlyMadeOfSets()
+			return This.IsListOfSets()
+
+		#>
+
+	  #-----------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF SETS  #
+	#-----------------------------------------------------#
+
+	def IsListOfListsOfSets()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfSets(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfSets()
+			return This.IsListOfListsOfSets()
+
+		def ItemsAreListsOfSets()
+			return This.IsListOfListsOfSets()
+
+		def ItemsAreAllListsOfSets()
+			return This.IsListOfListsOfSets()
+
+		def AllItemsAreListsOfSets()
+			return This.IsListOfListsOfSets()
+
+		def ContainsOnlyListsOfSets()
+			return This.IsListOfListsOfSets()
+
+		def ContainsListsOfSetsOnly()
+			return This.IsListOfListsOfSets()
+
+		def IsMadeOfListsOfSets()
+			return This.IsListOfListsOfSets()
+
+		def IsMadeOfOnlyListsOfSets()
+			return This.IsListOfListsOfSets()
+
+		def IsMadeOfListsOfSetsOnly()
+			return This.IsListOfListsOfSets()
+
+		def IsMadeOnlyOfListsOfSets()
+			return This.IsListOfListsOfSets()
+
+		def IsOnlyMadeOfListsOfSets()
+			return This.IsListOfListsOfSets()
+
+		#>
+
+	  #-------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF HASHLISTS  #
+	#=================================================#
+
+	def IsListOfHashLists()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsHashList(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfHashLists()
+			return This.IsListOfHashLists()
+
+		def ItemsAreHashLists()
+			return This.IsListOfHashLists()
+
+		def ItemsAreAllHashLists()
+			return This.IsListOfHashLists()
+
+		def AllItemsAreHashLists()
+			return This.IsListOfHashLists()
+
+		def ContainsOnlyHashLists()
+			return This.IsListOfHashLists()
+
+		def ContainsHashListsOnly()
+			return This.IsListOfHashLists()
+
+		def IsMadeOfHashLists()
+			return This.IsListOfHashLists()
+
+		def IsMadeOfOnlyHashLists()
+			return This.IsListOfHashLists()
+
+		def IsMadeOfHashListsOnly()
+			return This.IsListOfHashLists()
+
+		def IsMadeOnlyOfHashLists()
+			return This.IsListOfHashLists()
+
+		def IsOnlyMadeOfHashLists()
+			return This.IsListOfHashLists()
+
+		#>
+
+	  #----------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF HASHLISTS  #
+	#----------------------------------------------------------#
+
+	def IsListOfListsOfHashLists()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfHashLists(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def ItemsAreListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def ItemsAreAllListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def AllItemsAreListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def ContainsOnlyListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def ContainsListsOfHashListsOnly()
+			return This.IsListOfListsOfHashLists()
+
+		def IsMadeOfListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def IsMadeOfOnlyListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def IsMadeOfListsOfHashListsOnly()
+			return This.IsListOfListsOfHashLists()
+
+		def IsMadeOnlyOfListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def IsOnlyMadeOfListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		#>
+
+	  #---------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF GRIDS  #
+	#=============================================#
+
+	def IsListOfGrids()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsGrid(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfGrids()
+			return This.IsListOfGrids()
+
+		def ItemsAreGrids()
+			return This.IsListOfGrids()
+
+		def ItemsAreAllGrids()
+			return This.IsListOfGrids()
+
+		def AllItemsAreGrids()
+			return This.IsListOfGrids()
+
+		def ContainsOnlyGrids()
+			return This.IsListOfGrids()
+
+		def ContainsGridsOnly()
+			return This.IsListOfGrids()
+
+		def IsMadeOfGrids()
+			return This.IsListOfGrids()
+
+		def IsMadeOfOnlyGrids()
+			return This.IsListOfGrids()
+
+		def IsMadeOfGridsOnly()
+			return This.IsListOfGrids()
+
+		def IsMadeOnlyOfGrids()
+			return This.IsListOfGrids()
+
+		def IsOnlyMadeOfGrids()
+			return This.IsListOfGrids()
+
+		#>
+
+	  #------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF GRIDS  #
+	#------------------------------------------------------#
+
+	def IsListOfListsOfGrids()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfGrids(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfGrids()
+			return This.IsListOfListsOfGrids()
+
+		def ItemsAreListsOfGrids()
+			return This.IsListOfListsOfGrids()
+
+		def ItemsAreAllListsOfGrids()
+			return This.IsListOfListsOfGrids()
+
+		def AllItemsAreListsOfGrids()
+			return This.IsListOfListsOfGrids()
+
+		def ContainsOnlyListsOfGrids()
+			return This.IsListOfListsOfGrids()
+
+		def ContainsListsOfGridsOnly()
+			return This.IsListOfListsOfGrids()
+
+		def IsMadeOfListsOfGrids()
+			return This.IsListOfListsOfGrids()
+
+		def IsMadeOfOnlyListsOfGrids()
+			return This.IsListOfListsOfGrids()
+
+		def IsMadeOfListsOfGridsOnly()
+			return This.IsListOfListsOfGrids()
+
+		def IsMadeOnlyOfListsOfGrids()
+			return This.IsListOfListsOfGrids()
+
+		def IsOnlyMadeOfListsOfGrids()
+			return This.IsListOfListsOfGrids()
+
+		#>
+
+	  #----------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF TABLES  #
+	#==============================================#
+
+	def IsListOfTables()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsTable(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfTables()
+			return This.IsListOfTables()
+
+		def ItemsAreTables()
+			return This.IsListOfTables()
+
+		def ItemsAreAllTables()
+			return This.IsListOfTables()
+
+		def AllItemsAreTables()
+			return This.IsListOfTables()
+
+		def ContainsOnlyTables()
+			return This.IsListOfTables()
+
+		def ContainsTablesOnly()
+			return This.IsListOfTables()
+
+		def IsMadeOfTables()
+			return This.IsListOfTables()
+
+		def IsMadeOfOnlyTables()
+			return This.IsListOfTables()
+
+		def IsMadeOfTablesOnly()
+			return This.IsListOfTables()
+
+		def IsMadeOnlyOfTables()
+			return This.IsListOfTables()
+
+		def IsOnlyMadeOfTables()
+			return This.IsListOfTables()
+
+		#>
+
+	  #-------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF TABLES  #
+	#-------------------------------------------------------#
+
+	def IsListOfListsOfTables()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfTables(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfTables()
+			return This.IsListOfListsOfTables()
+
+		def ItemsAreListsOfTables()
+			return This.IsListOfListsOfTables()
+
+		def ItemsAreAllListsOfTables()
+			return This.IsListOfListsOfTables()
+
+		def AllItemsAreListsOfTables()
+			return This.IsListOfListsOfTables()
+
+		def ContainsOnlyListsOfTables()
+			return This.IsListOfListsOfTables()
+
+		def ContainsListsOfTablesOnly()
+			return This.IsListOfListsOfTables()
+
+		def IsMadeOfListsOfTables()
+			return This.IsListOfListsOfTables()
+
+		def IsMadeOfOnlyListsOfTables()
+			return This.IsListOfListsOfTables()
+
+		def IsMadeOfListsOfTablesOnly()
+			return This.IsListOfListsOfTables()
+
+		def IsMadeOnlyOfListsOfTables()
+			return This.IsListOfListsOfTables()
+
+		def IsOnlyMadeOfListsOfTables()
+			return This.IsListOfListsOfTables()
+
+		#>
+
+	  #---------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF TREES  #
+	#=============================================#
+
+	def IsListOfTrees()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsTree(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfTrees()
+			return This.IsListOfTrees()
+
+		def ItemsAreTrees()
+			return This.IsListOfTrees()
+
+		def ItemsAreAllTrees()
+			return This.IsListOfTrees()
+
+		def AllItemsAreTrees()
+			return This.IsListOfTrees()
+
+		def ContainsOnlyTrees()
+			return This.IsListOfTrees()
+
+		def ContainsTreesOnly()
+			return This.IsListOfTrees()
+
+		def IsMadeOfTrees()
+			return This.IsListOfTrees()
+
+		def IsMadeOfOnlyTrees()
+			return This.IsListOfTrees()
+
+		def IsMadeOfTreesOnly()
+			return This.IsListOfTrees()
+
+		def IsMadeOnlyOfTrees()
+			return This.IsListOfTrees()
+
+		def IsOnlyMadeOfTrees()
+			return This.IsListOfTrees()
+
+		#>
+
+	  #------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF TREES  #
+	#------------------------------------------------------#
+
+	def IsListOfListsOfTrees()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfTrees(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfTrees()
+			return This.IsListOfListsOfTrees()
+
+		def ItemsAreListsOfTrees()
+			return This.IsListOfListsOfTrees()
+
+		def ItemsAreAllListsOfTrees()
+			return This.IsListOfListsOfTrees()
+
+		def AllItemsAreListsOfTrees()
+			return This.IsListOfListsOfTrees()
+
+		def ContainsOnlyListsOfTrees()
+			return This.IsListOfListsOfTrees()
+
+		def ContainsListsOfTreesOnly()
+			return This.IsListOfListsOfTrees()
+
+		def IsMadeOfListsOfTrees()
+			return This.IsListOfListsOfTrees()
+
+		def IsMadeOfOnlyListsOfTrees()
+			return This.IsListOfListsOfTrees()
+
+		def IsMadeOfListsOfTreesOnly()
+			return This.IsListOfListsOfTrees()
+
+		def IsMadeOnlyOfListsOfTrees()
+			return This.IsListOfListsOfTrees()
+
+		def IsOnlyMadeOfListsOfTrees()
+			return This.IsListOfListsOfTrees()
+
+		#>
+
+	  #--------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZNUMBERS  #
+	#==================================================#
+
+	def IsListOfStzNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzNumber(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzNumbers()
+			return This.IsListOfStzNumbers()
+
+		def ItemsAreStzNumbers()
+			return This.IsListOfStzNumbers()
+
+		def ItemsAreAllStzNumbers()
+			return This.IsListOfStzNumbers()
+
+		def AllItemsAreStzNumbers()
+			return This.IsListOfStzNumbers()
+
+		def ContainsOnlyStzNumbers()
+			return This.IsListOfStzNumbers()
+
+		def ContainsStzNumbersOnly()
+			return This.IsListOfStzNumbers()
+
+		def IsMadeOfStzNumbers()
+			return This.IsListOfStzNumbers()
+
+		def IsMadeOfOnlyStzNumbers()
+			return This.IsListOfStzNumbers()
+
+		def IsMadeOfStzNumbersOnly()
+			return This.IsListOfStzNumbers()
+
+		def IsMadeOnlyOfStzNumbers()
+			return This.IsListOfStzNumbers()
+
+		def IsOnlyMadeOfStzNumbers()
+			return This.IsListOfStzNumbers()
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZNUMBERS  #
+	#-----------------------------------------------------------#
+
+	def IsListOfListsOfStzNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzNumbers(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def ItemsAreListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def ItemsAreAllListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def AllItemsAreListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def ContainsOnlyListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def ContainsListsOfStzNumbersOnly()
+			return This.IsListOfListsOfStzNumbers()
+
+		def IsMadeOfListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def IsMadeOfOnlyListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def IsMadeOfListsOfStzNumbersOnly()
+			return This.IsListOfListsOfStzNumbers()
+
+		def IsMadeOnlyOfListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def IsOnlyMadeOfListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZDECIMALNUMBERS  #
+	#=========================================================#
+
+	def IsListOfStzDecimalNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzDecimalNumber(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzDecimalNumbers()
+			return This.IsListOfStzDecimalNumbers()
+
+		def ItemsAreStzDecimalNumbers()
+			return This.IsListOfStzDecimalNumbers()
+
+		def ItemsAreAllStzDecimalNumbers()
+			return This.IsListOfStzDecimalNumbers()
+
+		def AllItemsAreStzDecimalNumbers()
+			return This.IsListOfStzDecimalNumbers()
+
+		def ContainsOnlyStzDecimalNumbers()
+			return This.IsListOfStzDecimalNumbers()
+
+		def ContainsStzDecimalNumbersOnly()
+			return This.IsListOfStzDecimalNumbers()
+
+		def IsMadeOfStzDecimalNumbers()
+			return This.IsListOfStzDecimalNumbers()
+
+		def IsMadeOfOnlyStzDecimalNumbers()
+			return This.IsListOfStzDecimalNumbers()
+
+		def IsMadeOfStzDecimalNumbersOnly()
+			return This.IsListOfStzDecimalNumbers()
+
+		def IsMadeOnlyOfStzDecimalNumbers()
+			return This.IsListOfStzDecimalNumbers()
+
+		def IsOnlyMadeOfStzDecimalNumbers()
+			return This.IsListOfStzDecimalNumbers()
+
+		#>
+
+	  #------------------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZDECIMALNUMBERS  #
+	#------------------------------------------------------------------#
+
+	def IsListOfListsOfStzDecimalNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzDecimalNumbers(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzDecimalNumbers()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
+		def ItemsAreListsOfStzDecimalNumbers()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
+		def ItemsAreAllListsOfStzDecimalNumbers()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
+		def AllItemsAreListsOfStzDecimalNumbers()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
+		def ContainsOnlyListsOfStzDecimalNumbers()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
+		def ContainsListsOfStzDecimalNumbersOnly()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
+		def IsMadeOfListsOfStzDecimalNumbers()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
+		def IsMadeOfOnlyListsOfStzDecimalNumbers()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
+		def IsMadeOfListsOfStzDecimalNumbersOnly()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
+		def IsMadeOnlyOfListsOfStzDecimalNumbers()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
+		def IsOnlyMadeOfListsOfStzDecimalNumbers()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
+		#>
+
+	  #--------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZBINARYNUMBERS  #
+	#========================================================#
+
+	def IsListOfStzBinaryNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzBinaryNumber(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		def ItemsAreStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		def ItemsAreAllStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		def AllItemsAreStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		def ContainsOnlyStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		def ContainsStzBinaryNumbersOnly()
+			return This.IsListOfStzBinaryNumbers()
+
+		def IsMadeOfStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		def IsMadeOfOnlyStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		def IsMadeOfStzBinaryNumbersOnly()
+			return This.IsListOfStzBinaryNumbers()
+
+		def IsMadeOnlyOfStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		def IsOnlyMadeOfStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZBINARYNUMBERS  #
+	#-----------------------------------------------------------------#
+
+	def IsListOfListsOfStzBinaryNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzBinaryNumbers(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzBinaryNumbers()
+			return This.IsListOfListsOfStzBinaryNumbers()
+
+		def ItemsAreListsOfStzBinaryNumbers()
+			return This.IsListOfListsOfStzBinaryNumbers()
+
+		def ItemsAreAllListsOfStzBinaryNumbers()
+			return This.IsListOfListsOfStzBinaryNumbers()
+
+		def AllItemsAreListsOfStzBinaryNumbers()
+			return This.IsListOfListsOfStzBinaryNumbers()
+
+		def ContainsOnlyListsOfStzBinaryNumbers()
+			return This.IsListOfListsOfStzBinaryNumbers()
+
+		def ContainsListsOfStzBinaryNumbersOnly()
+			return This.IsListOfListsOfStzBinaryNumbers()
+
+		def IsMadeOfListsOfStzBinaryNumbers()
+			return This.IsListOfListsOfStzBinaryNumbers()
+
+		def IsMadeOfOnlyListsOfStzBinaryNumbers()
+			return This.IsListOfListsOfStzBinaryNumbers()
+
+		def IsMadeOfListsOfStzBinaryNumbersOnly()
+			return This.IsListOfListsOfStzBinaryNumbers()
+
+		def IsMadeOnlyOfListsOfStzBinaryNumbers()
+			return This.IsListOfListsOfStzBinaryNumbers()
+
+		def IsOnlyMadeOfListsOfStzBinaryNumbers()
+			return This.IsListOfListsOfStzBinaryNumbers()
+
+		#>
+
+	  #-------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZOCTALNUMBERS  #
+	#=======================================================#
+
+	def IsListOfStzOctalNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzOctalNumber(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzOctalNumbers()
+			return This.IsListOfStzOctalNumbers()
+
+		def ItemsAreStzOctalNumbers()
+			return This.IsListOfStzOctalNumbers()
+
+		def ItemsAreAllStzOctalNumbers()
+			return This.IsListOfStzOctalNumbers()
+
+		def AllItemsAreStzOctalNumbers()
+			return This.IsListOfStzOctalNumbers()
+
+		def ContainsOnlyStzOctalNumbers()
+			return This.IsListOfStzOctalNumbers()
+
+		def ContainsStzOctalNumbersOnly()
+			return This.IsListOfStzOctalNumbers()
+
+		def IsMadeOfStzOctalNumbers()
+			return This.IsListOfStzOctalNumbers()
+
+		def IsMadeOfOnlyStzOctalNumbers()
+			return This.IsListOfStzOctalNumbers()
+
+		def IsMadeOfStzOctalNumbersOnly()
+			return This.IsListOfStzOctalNumbers()
+
+		def IsMadeOnlyOfStzOctalNumbers()
+			return This.IsListOfStzOctalNumbers()
+
+		def IsOnlyMadeOfStzOctalNumbers()
+			return This.IsListOfStzOctalNumbers()
+
+		#>
+
+	  #----------------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZOCTALNUMBERS  #
+	#----------------------------------------------------------------#
+
+	def IsListOfListsOfStzOctalNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzOctalNumbers(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzOctalNumbers()
+			return This.IsListOfListsOfStzOctalNumbers()
+
+		def ItemsAreListsOfStzOctalNumbers()
+			return This.IsListOfListsOfStzOctalNumbers()
+
+		def ItemsAreAllListsOfStzOctalNumbers()
+			return This.IsListOfListsOfStzOctalNumbers()
+
+		def AllItemsAreListsOfStzOctalNumbers()
+			return This.IsListOfListsOfStzOctalNumbers()
+
+		def ContainsOnlyListsOfStzOctalNumbers()
+			return This.IsListOfListsOfStzOctalNumbers()
+
+		def ContainsListsOfStzOctalNumbersOnly()
+			return This.IsListOfListsOfStzOctalNumbers()
+
+		def IsMadeOfListsOfStzOctalNumbers()
+			return This.IsListOfListsOfStzOctalNumbers()
+
+		def IsMadeOfOnlyListsOfStzOctalNumbers()
+			return This.IsListOfListsOfStzOctalNumbers()
+
+		def IsMadeOfListsOfStzOctalNumbersOnly()
+			return This.IsListOfListsOfStzOctalNumbers()
+
+		def IsMadeOnlyOfListsOfStzOctalNumbers()
+			return This.IsListOfListsOfStzOctalNumbers()
+
+		def IsOnlyMadeOfListsOfStzOctalNumbers()
+			return This.IsListOfListsOfStzOctalNumbers()
+
+		#>
+
+	  #-----------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZHEXNUMBERS  #
+	#=====================================================#
+
+	def IsListOfStzHexNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzHexNumber(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzHexNumbers()
+			return This.IsListOfStzHexNumbers()
+
+		def ItemsAreStzHexNumbers()
+			return This.IsListOfStzHexNumbers()
+
+		def ItemsAreAllStzHexNumbers()
+			return This.IsListOfStzHexNumbers()
+
+		def AllItemsAreStzHexNumbers()
+			return This.IsListOfStzHexNumbers()
+
+		def ContainsOnlyStzHexNumbers()
+			return This.IsListOfStzHexNumbers()
+
+		def ContainsStzHexNumbersOnly()
+			return This.IsListOfStzHexNumbers()
+
+		def IsMadeOfStzHexNumbers()
+			return This.IsListOfStzHexNumbers()
+
+		def IsMadeOfOnlyStzHexNumbers()
+			return This.IsListOfStzHexNumbers()
+
+		def IsMadeOfStzHexNumbersOnly()
+			return This.IsListOfStzHexNumbers()
+
+		def IsMadeOnlyOfStzHexNumbers()
+			return This.IsListOfStzHexNumbers()
+
+		def IsOnlyMadeOfStzHexNumbers()
+			return This.IsListOfStzHexNumbers()
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZHEXNUMBERS  #
+	#--------------------------------------------------------------#
+
+	def IsListOfListsOfStzHexNumbers()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzHexNumbers(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzHexNumbers()
+			return This.IsListOfListsOfStzHexNumbers()
+
+		def ItemsAreListsOfStzHexNumbers()
+			return This.IsListOfListsOfStzHexNumbers()
+
+		def ItemsAreAllListsOfStzHexNumbers()
+			return This.IsListOfListsOfStzHexNumbers()
+
+		def AllItemsAreListsOfStzHexNumbers()
+			return This.IsListOfListsOfStzHexNumbers()
+
+		def ContainsOnlyListsOfStzHexNumbers()
+			return This.IsListOfListsOfStzHexNumbers()
+
+		def ContainsListsOfStzHexNumbersOnly()
+			return This.IsListOfListsOfStzHexNumbers()
+
+		def IsMadeOfListsOfStzHexNumbers()
+			return This.IsListOfListsOfStzHexNumbers()
+
+		def IsMadeOfOnlyListsOfStzHexNumbers()
+			return This.IsListOfListsOfStzHexNumbers()
+
+		def IsMadeOfListsOfStzHexNumbersOnly()
+			return This.IsListOfListsOfStzHexNumbers()
+
+		def IsMadeOnlyOfListsOfStzHexNumbers()
+			return This.IsListOfListsOfStzHexNumbers()
+
+		def IsOnlyMadeOfListsOfStzHexNumbers()
+			return This.IsListOfListsOfStzHexNumbers()
+
+		#>
+	  #------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZLISTOFBYTES  #
+	#======================================================#
+
+	def IsListOfStzListOfBytes()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzListOfBytes(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzListOfBytes()
+			return This.IsListOfStzListOfBytes()
+
+		def ItemsAreStzListOfBytes()
+			return This.IsListOfStzListOfBytes()
+
+		def ItemsAreAllStzListOfBytes()
+			return This.IsListOfStzListOfBytes()
+
+		def AllItemsAreStzListOfBytes()
+			return This.IsListOfStzListOfBytes()
+
+		def ContainsOnlyStzListOfBytes()
+			return This.IsListOfStzListOfBytes()
+
+		def ContainsStzListOfBytesOnly()
+			return This.IsListOfStzListOfBytes()
+
+		def IsMadeOfStzListOfBytes()
+			return This.IsListOfStzListOfBytes()
+
+		def IsMadeOfOnlyStzListOfBytes()
+			return This.IsListOfStzListOfBytes()
+
+		def IsMadeOfStzListOfBytesOnly()
+			return This.IsListOfStzListOfBytes()
+
+		def IsMadeOnlyOfStzListOfBytes()
+			return This.IsListOfStzListOfBytes()
+
+		def IsOnlyMadeOfStzListOfBytes()
+			return This.IsListOfStzListOfBytes()
+
+		#>
+
+	  #--------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZSTRINGS  #
+	#==================================================#
+
+	def IsListOfStzStrings()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzString(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzStrings()
+			return This.IsListOfStzStrings()
+
+		def ItemsAreStzStrings()
+			return This.IsListOfStzStrings()
+
+		def ItemsAreAllStzStrings()
+			return This.IsListOfStzStrings()
+
+		def AllItemsAreStzStrings()
+			return This.IsListOfStzStrings()
+
+		def ContainsOnlyStzStrings()
+			return This.IsListOfStzStrings()
+
+		def ContainsStzStringsOnly()
+			return This.IsListOfStzStrings()
+
+		def IsMadeOfStzStrings()
+			return This.IsListOfStzStrings()
+
+		def IsMadeOfOnlyStzStrings()
+			return This.IsListOfStzStrings()
+
+		def IsMadeOfStzStringsOnly()
+			return This.IsListOfStzStrings()
+
+		def IsMadeOnlyOfStzStrings()
+			return This.IsListOfStzStrings()
+
+		def IsOnlyMadeOfStzStrings()
+			return This.IsListOfStzStrings()
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZSTRINGS  #
+	#-----------------------------------------------------------#
+
+	def IsListOfListsOfStzStrings()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzStrings(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def ItemsAreListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def ItemsAreAllListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def AllItemsAreListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def ContainsOnlyListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def ContainsListsOfStzStringsOnly()
+			return This.IsListOfListsOfStzStrings()
+
+		def IsMadeOfListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def IsMadeOfOnlyListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def IsMadeOfListsOfStzStringsOnly()
+			return This.IsListOfListsOfStzStrings()
+
+		def IsMadeOnlyOfListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def IsOnlyMadeOfListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		#>
+
+	  #------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZLISTS  #
+	#================================================#
+
+	def IsListOfStzLists()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzList(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzLists()
+			return This.IsListOfStzLists()
+
+		def ItemsAreStzLists()
+			return This.IsListOfStzLists()
+
+		def ItemsAreAllStzLists()
+			return This.IsListOfStzLists()
+
+		def AllItemsAreStzLists()
+			return This.IsListOfStzLists()
+
+		def ContainsOnlyStzLists()
+			return This.IsListOfStzLists()
+
+		def ContainsStzListsOnly()
+			return This.IsListOfStzLists()
+
+		def IsMadeOfStzLists()
+			return This.IsListOfStzLists()
+
+		def IsMadeOfOnlyStzLists()
+			return This.IsListOfStzLists()
+
+		def IsMadeOfStzListsOnly()
+			return This.IsListOfStzLists()
+
+		def IsMadeOnlyOfStzLists()
+			return This.IsListOfStzLists()
+
+		def IsOnlyMadeOfStzLists()
+			return This.IsListOfStzLists()
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZLISTS  #
+	#---------------------------------------------------------#
+
+	def IsListOfListsOfStzLists()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzLists(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def ItemsAreListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def ItemsAreAllListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def AllItemsAreListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def ContainsOnlyListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def ContainsListsOfStzListsOnly()
+			return This.IsListOfListsOfStzLists()
+
+		def IsMadeOfListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def IsMadeOfOnlyListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def IsMadeOfListsOfStzListsOnly()
+			return This.IsListOfListsOfStzLists()
+
+		def IsMadeOnlyOfListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def IsOnlyMadeOfListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		#>
+
+	  #--------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZOBJECTS  #
+	#==================================================#
+
+	def IsListOfStzObjects()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzObject(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzObjects()
+			return This.IsListOfStzObjects()
+
+		def ItemsAreStzObjects()
+			return This.IsListOfStzObjects()
+
+		def ItemsAreAllStzObjects()
+			return This.IsListOfStzObjects()
+
+		def AllItemsAreStzObjects()
+			return This.IsListOfStzObjects()
+
+		def ContainsOnlyStzObjects()
+			return This.IsListOfStzObjects()
+
+		def ContainsStzObjectsOnly()
+			return This.IsListOfStzObjects()
+
+		def IsMadeOfStzObjects()
+			return This.IsListOfStzObjects()
+
+		def IsMadeOfOnlyStzObjects()
+			return This.IsListOfStzObjects()
+
+		def IsMadeOfStzObjectsOnly()
+			return This.IsListOfStzObjects()
+
+		def IsMadeOnlyOfStzObjects()
+			return This.IsListOfStzObjects()
+
+		def IsOnlyMadeOfStzObjects()
+			return This.IsListOfStzObjects()
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZOBJECTS  #
+	#-----------------------------------------------------------#
+
+	def IsListOfListsOfStzObjects()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzObjects(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def ItemsAreListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def ItemsAreAllListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def AllItemsAreListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def ContainsOnlyListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def ContainsListsOfStzObjectsOnly()
+			return This.IsListOfListsOfStzObjects()
+
+		def IsMadeOfListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def IsMadeOfOnlyListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def IsMadeOfListsOfStzObjectsOnly()
+			return This.IsListOfListsOfStzObjects()
+
+		def IsMadeOnlyOfListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def IsOnlyMadeOfListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		#>
+
+	  #------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZCHARS  #
+	#================================================#
+
+	def IsListOfStzChars()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzChar(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzChars()
+			return This.IsListOfStzChars()
+
+		def ItemsAreStzChars()
+			return This.IsListOfStzChars()
+
+		def ItemsAreAllStzChars()
+			return This.IsListOfStzChars()
+
+		def AllItemsAreStzChars()
+			return This.IsListOfStzChars()
+
+		def ContainsOnlyStzChars()
+			return This.IsListOfStzChars()
+
+		def ContainsStzCharsOnly()
+			return This.IsListOfStzChars()
+
+		def IsMadeOfStzChars()
+			return This.IsListOfStzChars()
+
+		def IsMadeOfOnlyStzChars()
+			return This.IsListOfStzChars()
+
+		def IsMadeOfStzCharsOnly()
+			return This.IsListOfStzChars()
+
+		def IsMadeOnlyOfStzChars()
+			return This.IsListOfStzChars()
+
+		def IsOnlyMadeOfStzChars()
+			return This.IsListOfStzChars()
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZCHARS  #
+	#---------------------------------------------------------#
+
+	def IsListOfListsOfStzChars()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzChars(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def ItemsAreListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def ItemsAreAllListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def AllItemsAreListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def ContainsOnlyListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def ContainsListsOfStzCharsOnly()
+			return This.IsListOfListsOfStzChars()
+
+		def IsMadeOfListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def IsMadeOfOnlyListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def IsMadeOfListsOfStzCharsOnly()
+			return This.IsListOfListsOfStzChars()
+
+		def IsMadeOnlyOfListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def IsOnlyMadeOfListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		#>
+
+	  #------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZPAIRS  #
+	#================================================#
+
+	def IsListOfStzPairs()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzPair(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzPairs()
+			return This.IsListOfStzPairs()
+
+		def ItemsAreStzPairs()
+			return This.IsListOfStzPairs()
+
+		def ItemsAreAllStzPairs()
+			return This.IsListOfStzPairs()
+
+		def AllItemsAreStzPairs()
+			return This.IsListOfStzPairs()
+
+		def ContainsOnlyStzPairs()
+			return This.IsListOfStzPairs()
+
+		def ContainsStzPairsOnly()
+			return This.IsListOfStzPairs()
+
+		def IsMadeOfStzPairs()
+			return This.IsListOfStzPairs()
+
+		def IsMadeOfOnlyStzPairs()
+			return This.IsListOfStzPairs()
+
+		def IsMadeOfStzPairsOnly()
+			return This.IsListOfStzPairs()
+
+		def IsMadeOnlyOfStzPairs()
+			return This.IsListOfStzPairs()
+
+		def IsOnlyMadeOfStzPairs()
+			return This.IsListOfStzPairs()
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZPAIRS  #
+	#---------------------------------------------------------#
+
+	def IsListOfListsOfStzPairs()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzPairs(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzPairs()
+			return This.IsListOfListsOfStzPairs()
+
+		def ItemsAreListsOfStzPairs()
+			return This.IsListOfListsOfStzPairs()
+
+		def ItemsAreAllListsOfStzPairs()
+			return This.IsListOfListsOfStzPairs()
+
+		def AllItemsAreListsOfStzPairs()
+			return This.IsListOfListsOfStzPairs()
+
+		def ContainsOnlyListsOfStzPairs()
+			return This.IsListOfListsOfStzPairs()
+
+		def ContainsListsOfStzPairsOnly()
+			return This.IsListOfListsOfStzPairs()
+
+		def IsMadeOfListsOfStzPairs()
+			return This.IsListOfListsOfStzPairs()
+
+		def IsMadeOfOnlyListsOfStzPairs()
+			return This.IsListOfListsOfStzPairs()
+
+		def IsMadeOfListsOfStzPairsOnly()
+			return This.IsListOfListsOfStzPairs()
+
+		def IsMadeOnlyOfListsOfStzPairs()
+			return This.IsListOfListsOfStzPairs()
+
+		def IsOnlyMadeOfListsOfStzPairs()
+			return This.IsListOfListsOfStzPairs()
+
+		#>
+
+	  #-----------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZSETS  #
+	#===============================================#
+
+	def IsListOfStzSets()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzSet(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzSets()
+			return This.IsListOfStzSets()
+
+		def ItemsAreStzSets()
+			return This.IsListOfStzSets()
+
+		def ItemsAreAllStzSets()
+			return This.IsListOfStzSets()
+
+		def AllItemsAreStzSets()
+			return This.IsListOfStzSets()
+
+		def ContainsOnlyStzSets()
+			return This.IsListOfStzSets()
+
+		def ContainsStzSetsOnly()
+			return This.IsListOfStzSets()
+
+		def IsMadeOfStzSets()
+			return This.IsListOfStzSets()
+
+		def IsMadeOfOnlyStzSets()
+			return This.IsListOfStzSets()
+
+		def IsMadeOfStzSetsOnly()
+			return This.IsListOfStzSets()
+
+		def IsMadeOnlyOfStzSets()
+			return This.IsListOfStzSets()
+
+		def IsOnlyMadeOfStzSets()
+			return This.IsListOfStzSets()
+
+		#>
+
+	  #--------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZSETS  #
+	#--------------------------------------------------------#
+
+	def IsListOfListsOfStzSets()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzSets(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzSets()
+			return This.IsListOfListsOfStzSets()
+
+		def ItemsAreListsOfStzSets()
+			return This.IsListOfListsOfStzSets()
+
+		def ItemsAreAllListsOfStzSets()
+			return This.IsListOfListsOfStzSets()
+
+		def AllItemsAreListsOfStzSets()
+			return This.IsListOfListsOfStzSets()
+
+		def ContainsOnlyListsOfStzSets()
+			return This.IsListOfListsOfStzSets()
+
+		def ContainsListsOfStzSetsOnly()
+			return This.IsListOfListsOfStzSets()
+
+		def IsMadeOfListsOfStzSets()
+			return This.IsListOfListsOfStzSets()
+
+		def IsMadeOfOnlyListsOfStzSets()
+			return This.IsListOfListsOfStzSets()
+
+		def IsMadeOfListsOfStzSetsOnly()
+			return This.IsListOfListsOfStzSets()
+
+		def IsMadeOnlyOfListsOfStzSets()
+			return This.IsListOfListsOfStzSets()
+
+		def IsOnlyMadeOfListsOfStzSets()
+			return This.IsListOfListsOfStzSets()
+
+		#>
+
+	  #----------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZHASHLISTS  #
+	#====================================================#
+
+	def IsListOfStzHashLists()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzHashList(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzHashLists()
+			return This.IsListOfStzHashLists()
+
+		def ItemsAreStzHashLists()
+			return This.IsListOfStzHashLists()
+
+		def ItemsAreAllStzHashLists()
+			return This.IsListOfStzHashLists()
+
+		def AllItemsAreStzHashLists()
+			return This.IsListOfStzHashLists()
+
+		def ContainsOnlyStzHashLists()
+			return This.IsListOfStzHashLists()
+
+		def ContainsStzHashListsOnly()
+			return This.IsListOfStzHashLists()
+
+		def IsMadeOfStzHashLists()
+			return This.IsListOfStzHashLists()
+
+		def IsMadeOfOnlyStzHashLists()
+			return This.IsListOfStzHashLists()
+
+		def IsMadeOfStzHashListsOnly()
+			return This.IsListOfStzHashLists()
+
+		def IsMadeOnlyOfStzHashLists()
+			return This.IsListOfStzHashLists()
+
+		def IsOnlyMadeOfStzHashLists()
+			return This.IsListOfStzHashLists()
+
+		#>
+
+	  #-------------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZHASHLISTS  #
+	#-------------------------------------------------------------#
+
+	def IsListOfListsOfStzHashLists()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzHashLists(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def ItemsAreListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def ItemsAreAllListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def AllItemsAreListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def ContainsOnlyListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def ContainsListsOfStzHashListsOnly()
+			return This.IsListOfListsOfStzHashLists()
+
+		def IsMadeOfListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def IsMadeOfOnlyListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def IsMadeOfListsOfStzHashListsOnly()
+			return This.IsListOfListsOfStzHashLists()
+
+		def IsMadeOnlyOfListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def IsOnlyMadeOfListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		#>
+
+	  #------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZGRIDS  #
+	#================================================#
+
+	def IsListOfStzGrids()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzGrid(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzGrids()
+			return This.IsListOfStzGrids()
+
+		def ItemsAreStzGrids()
+			return This.IsListOfStzGrids()
+
+		def ItemsAreAllStzGrids()
+			return This.IsListOfStzGrids()
+
+		def AllItemsAreStzGrids()
+			return This.IsListOfStzGrids()
+
+		def ContainsOnlyStzGrids()
+			return This.IsListOfStzGrids()
+
+		def ContainsStzGridsOnly()
+			return This.IsListOfStzGrids()
+
+		def IsMadeOfStzGrids()
+			return This.IsListOfStzGrids()
+
+		def IsMadeOfOnlyStzGrids()
+			return This.IsListOfStzGrids()
+
+		def IsMadeOfStzGridsOnly()
+			return This.IsListOfStzGrids()
+
+		def IsMadeOnlyOfStzGrids()
+			return This.IsListOfStzGrids()
+
+		def IsOnlyMadeOfStzGrids()
+			return This.IsListOfStzGrids()
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZGRIDS  #
+	#---------------------------------------------------------#
+
+	def IsListOfListsOfStzGrids()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzGrids(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzGrids()
+			return This.IsListOfListsOfStzGrids()
+
+		def ItemsAreListsOfStzGrids()
+			return This.IsListOfListsOfStzGrids()
+
+		def ItemsAreAllListsOfStzGrids()
+			return This.IsListOfListsOfStzGrids()
+
+		def AllItemsAreListsOfStzGrids()
+			return This.IsListOfListsOfStzGrids()
+
+		def ContainsOnlyListsOfStzGrids()
+			return This.IsListOfListsOfStzGrids()
+
+		def ContainsListsOfStzGridsOnly()
+			return This.IsListOfListsOfStzGrids()
+
+		def IsMadeOfListsOfStzGrids()
+			return This.IsListOfListsOfStzGrids()
+
+		def IsMadeOfOnlyListsOfStzGrids()
+			return This.IsListOfListsOfStzGrids()
+
+		def IsMadeOfListsOfStzGridsOnly()
+			return This.IsListOfListsOfStzGrids()
+
+		def IsMadeOnlyOfListsOfStzGrids()
+			return This.IsListOfListsOfStzGrids()
+
+		def IsOnlyMadeOfListsOfStzGrids()
+			return This.IsListOfListsOfStzGrids()
+
+		#>
+
+	  #-------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZTABLES  #
+	#=================================================#
+
+	def IsListOfStzTables()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzTable(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzTables()
+			return This.IsListOfStzTables()
+
+		def ItemsAreStzTables()
+			return This.IsListOfStzTables()
+
+		def ItemsAreAllStzTables()
+			return This.IsListOfStzTables()
+
+		def AllItemsAreStzTables()
+			return This.IsListOfStzTables()
+
+		def ContainsOnlyStzTables()
+			return This.IsListOfStzTables()
+
+		def ContainsStzTablesOnly()
+			return This.IsListOfStzTables()
+
+		def IsMadeOfStzTables()
+			return This.IsListOfStzTables()
+
+		def IsMadeOfOnlyStzTables()
+			return This.IsListOfStzTables()
+
+		def IsMadeOfStzTablesOnly()
+			return This.IsListOfStzTables()
+
+		def IsMadeOnlyOfStzTables()
+			return This.IsListOfStzTables()
+
+		def IsOnlyMadeOfStzTables()
+			return This.IsListOfStzTables()
+
+		#>
+
+	  #----------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZTABLES  #
+	#----------------------------------------------------------#
+
+	def IsListOfListsOfStzTables()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzTables(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzTables()
+			return This.IsListOfListsOfStzTables()
+
+		def ItemsAreListsOfStzTables()
+			return This.IsListOfListsOfStzTables()
+
+		def ItemsAreAllListsOfStzTables()
+			return This.IsListOfListsOfStzTables()
+
+		def AllItemsAreListsOfStzTables()
+			return This.IsListOfListsOfStzTables()
+
+		def ContainsOnlyListsOfStzTables()
+			return This.IsListOfListsOfStzTables()
+
+		def ContainsListsOfStzTablesOnly()
+			return This.IsListOfListsOfStzTables()
+
+		def IsMadeOfListsOfStzTables()
+			return This.IsListOfListsOfStzTables()
+
+		def IsMadeOfOnlyListsOfStzTables()
+			return This.IsListOfListsOfStzTables()
+
+		def IsMadeOfListsOfStzTablesOnly()
+			return This.IsListOfListsOfStzTables()
+
+		def IsMadeOnlyOfListsOfStzTables()
+			return This.IsListOfListsOfStzTables()
+
+		def IsOnlyMadeOfListsOfStzTables()
+			return This.IsListOfListsOfStzTables()
+
+		#>
+
+	  #------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STZTREES  #
+	#================================================#
+
+	def IsListOfStzTrees()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzTree(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStzTrees()
+			return This.IsListOfStzTrees()
+
+		def ItemsAreStzTrees()
+			return This.IsListOfStzTrees()
+
+		def ItemsAreAllStzTrees()
+			return This.IsListOfStzTrees()
+
+		def AllItemsAreStzTrees()
+			return This.IsListOfStzTrees()
+
+		def ContainsOnlyStzTrees()
+			return This.IsListOfStzTrees()
+
+		def ContainsStzTreesOnly()
+			return This.IsListOfStzTrees()
+
+		def IsMadeOfStzTrees()
+			return This.IsListOfStzTrees()
+
+		def IsMadeOfOnlyStzTrees()
+			return This.IsListOfStzTrees()
+
+		def IsMadeOfStzTreesOnly()
+			return This.IsListOfStzTrees()
+
+		def IsMadeOnlyOfStzTrees()
+			return This.IsListOfStzTrees()
+
+		def IsOnlyMadeOfStzTrees()
+			return This.IsListOfStzTrees()
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF LISTS OF STZTREES  #
+	#---------------------------------------------------------#
+
+	def IsListOfListsOfStzTrees()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsListOfStzTrees(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfStzTrees()
+			return This.IsListOfListsOfStzTrees()
+
+		def ItemsAreListsOfStzTrees()
+			return This.IsListOfListsOfStzTrees()
+
+		def ItemsAreAllListsOfStzTrees()
+			return This.IsListOfListsOfStzTrees()
+
+		def AllItemsAreListsOfStzTrees()
+			return This.IsListOfListsOfStzTrees()
+
+		def ContainsOnlyListsOfStzTrees()
+			return This.IsListOfListsOfStzTrees()
+
+		def ContainsListsOfStzTreesOnly()
+			return This.IsListOfListsOfStzTrees()
+
+		def IsMadeOfListsOfStzTrees()
+			return This.IsListOfListsOfStzTrees()
+
+		def IsMadeOfOnlyListsOfStzTrees()
+			return This.IsListOfListsOfStzTrees()
+
+		def IsMadeOfListsOfStzTreesOnly()
+			return This.IsListOfListsOfStzTrees()
+
+		def IsMadeOnlyOfListsOfStzTrees()
+			return This.IsListOfListsOfStzTrees()
+
+		def IsOnlyMadeOfListsOfStzTrees()
+			return This.IsListOfListsOfStzTrees()
+
+		#>
+
+ 10277 > 13968
+###ici
 
 	def IsListOfNumbersInStrings()
 		nLen = len(@aContent)
@@ -10628,630 +14040,6 @@ class stzList from stzObject
 
 		def IsMadeOfNumbersInStringsOnly()
 			return This.IsListOfNumbersInStrings()
-
-		#>
-
-	def IsListOfLists()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT isList(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfLists()
-			return This.IsListOfLists()
-
-		def ItemsAreLists()
-			return This.IsListOfLists()
-
-		def ItemsAreAllLists()
-			return This.IsListOfLists()
-
-		def AllItemsAreLists()
-			return This.IsListOfLists()
-
-		def ContainsOnlyLists()
-			return This.IsListOfLists()
-
-		def ContainsListsOnly()
-			return This.IsListOfLists()
-
-		def IsMadeOfLists()
-			return This.IsListOfLists()
-
-		def IsMadeOfOnlyLists()
-			return This.IsListOfLists()
-
-		def IsMadeOfListsOnly()
-			return This.IsListOfLists()
-
-		#>
-
-	def IsListOfListsOfNumbers()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT @IsListOfNumbers(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfListsOfNumbers()
-			return This.IsListOfListsOfNumbers()
-
-		def ItemsAreListsOfNumbers()
-			return This.IsListOfListsOfNumbers()
-
-		def ItemsAreAllListsOfNumbers()
-			return This.IsListOfListsOfNumbers()
-
-		def AllItemsAreListsOfNumbers()
-			return This.IsListOfListsOfNumbers()
-
-		def ContainsOnlyListsOfNumbers()
-			return This.IsListOfListsOfNumbers()
-
-		def ContainsListsOfNumbers()
-			return This.IsListOfListsOfNumbers()
-
-		def IsMadeOfListsOfNumbers()
-			return This.IsListOfListsOfNumbers()
-
-		def IsMadeOfOnlyListsOfNumbers()
-			return This.IsListOfListsOfNumbers()
-
-		def IsMadeOfListsOfNumbersOnly()
-			return This.IsListOfListsOfNumbers()
-
-		#>
-
-	def IsListOfListsOfStrings()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT @IsListOfStrings(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfListsOfStrings()
-			return This.IsListOfListsOfStrings()
-
-		def ItemsAreListsOfStrings()
-			return This.IsListOfListsOfStrings()
-
-		def ItemsAreAllListsOfStrings()
-			return This.IsListOfListsOfStrings()
-
-		def AllItemsAreListsOfStrings()
-			return This.IsListOfListsOfStrings()
-
-		def ContainsOnlyListsOfStrings()
-			return This.IsListOfListsOfStrings()
-
-		def ContainsListsOfStrings()
-			return This.IsListOfListsOfStrings()
-
-		def IsMadeOfListsOfStrings()
-			return This.IsListOfListsOfStrings()
-
-		def IsMadeOfOnlyListsOfStrings()
-			return This.IsListOfListsOfStrings()
-
-		def IsMadeOfListsOfStringsOnly()
-			return This.IsListOfListsOfStrings()
-
-		#>
-
-	def IsListOfListsOfLists()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT @IsListOfLists(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfListsOfLists()
-			return This.IsListOfListsOfLists()
-
-		def ItemsAreListsOfLists()
-			return This.IsListOfListsOfLists()
-
-		def ItemsAreAllListsOfLists()
-			return This.IsListOfListsOfLists()
-
-		def AllItemsAreListsOfLists()
-			return This.IsListOfListsOfLists()
-
-		def ContainsOnlyListsOfLists()
-			return This.IsListOfListsOfLists()
-
-		def ContainsListsOfLists()
-			return This.IsListOfListsOfLists()
-
-		def IsMadeOfListsOfLists()
-			return This.IsListOfListsOfLists()
-
-		def IsMadeOfOnlyListsOfLists()
-			return This.IsListOfListsOfLists()
-
-		def IsMadeOfListsOfListsOnly()
-			return This.IsListOfListsOfLists()
-
-		#>
-
-	def IsListOfListsOfObjects()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT @IsListOfObjects(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfListsOfObjects()
-			return This.IsListOfListsOfObjects()
-
-		def ItemsAreListsOfObjects()
-			return This.IsListOfListsOfObjects()
-
-		def ItemsAreAllListsOfObjects()
-			return This.IsListOfListsOfObjects()
-
-		def AllItemsAreListsOfObjects()
-			return This.IsListOfListsOfObjects()
-
-		def ContainsOnlyListsOfObjects()
-			return This.IsListOfListsOfObjects()
-
-		def ContainsListsOfObjects()
-			return This.IsListOfListsOfObjects()
-
-		def IsMadeOfListsOfObjects()
-			return This.IsListOfListsOfObjects()
-
-		def IsMadeOfOnlyListsOfObjects()
-			return This.IsListOfListsOfObjects()
-
-		def IsMadeOfListsOfObjectsOnly()
-			return This.IsListOfListsOfObjects()
-
-		#>
-
-	def IsListOfListsOfChars()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT @IsListOfChars(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfListsOfChars()
-			return This.IsListOfListsOfChars()
-
-		def ItemsAreListsOfChars()
-			return This.IsListOfListsOfChars()
-
-		def ItemsAreAllListsOfChars()
-			return This.IsListOfListsOfChars()
-
-		def AllItemsAreListsOfChars()
-			return This.IsListOfListsOfChars()
-
-		def ContainsOnlyListsOfChars()
-			return This.IsListOfListsOfChars()
-
-		def ContainsListsOfChars()
-			return This.IsListOfListsOfChars()
-
-		def IsMadeOfListsOfChars()
-			return This.IsListOfListsOfChars()
-
-		def IsMadeOfOnlyListsOfChars()
-			return This.IsListOfListsOfChars()
-
-		def IsMadeOfListsOfCharsOnly()
-			return This.IsListOfListsOfChars()
-
-		#>
-
-	def IsListOfListsOfHashLists()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT @IsListOfHashLists(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfListsOfHashLists()
-			return This.IsListOfListsOfHashLists()
-
-		def ItemsAreListsOfHashLists()
-			return This.IsListOfListsOfHashLists()
-
-		def ItemsAreAllListsOfHashLists()
-			return This.IsListOfListsOfHashLists()
-
-		def AllItemsAreListsOfHashLists()
-			return This.IsListOfListsOfHashLists()
-
-		def ContainsOnlyListsOfHashLists()
-			return This.IsListOfListsOfHashLists()
-
-		def ContainsListsOfHashLists()
-			return This.IsListOfListsOfHahsLists()
-
-		def IsMadeOfListsOfHashLists()
-			return This.IsListOfListsOfHashLists()
-
-		def IsMadeOfOnlyListsOfHashLists()
-			return This.IsListOfListsOfHashLists()
-
-		def IsMadeOfListsOfHashListsOnly()
-			return This.IsListOfListsOfHashLists()
-
-		#>
-
-	def IsListOfListsOfStzNumbers()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT @IsListOfStzNumbers(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfListsOfStzNumbers()
-			return This.IsListOfListsOfStzNumbers()
-
-		def ItemsAreListsOfStzNumbers()
-			return This.IsListOfListsOfStzNumbers()
-
-		def ItemsAreAllListsOfStzNumbers()
-			return This.IsListOfListsOfStzNumbers()
-
-		def AllItemsAreListsOfStzNumbers()
-			return This.IsListOfListsOfStzNumbers()
-
-		def ContainsOnlyListsOfStzNumbers()
-			return This.IsListOfListsOfStzNumbers()
-
-		def ContainsListsOfStzNumbers()
-			return This.IsListOfListsOfStzNumbers()
-
-		def IsMadeOfListsOfStzNumbers()
-			return This.IsListOfListsOfStzNumbers()
-
-		def IsMadeOfOnlyListsOfStzNumbers()
-			return This.IsListOfListsOfStzNumbers()
-
-		def IsMadeOfListsOfStzNumbersOnly()
-			return This.IsListOfListsOfStzNumbers()
-
-		#>
-
-	def IsListOfListsOfStzStrings()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT @IsListOfStzStrings(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfListsOfStzStrings()
-			return This.IsListOfListsOfStzStrings()
-
-		def ItemsAreListsOfStzStrings()
-			return This.IsListOfListsOfStzStrings()
-
-		def ItemsAreAllListsOfStzStrings()
-			return This.IsListOfListsOfStzStrings()
-
-		def AllItemsAreListsOfStzStrings()
-			return This.IsListOfListsOfStzStrings()
-
-		def ContainsOnlyListsOfStzStrings()
-			return This.IsListOfListsOfStzStrings()
-
-		def ContainsListsOfStzStrings()
-			return This.IsListOfListsOfStzStrings()
-
-		def IsMadeOfListsOfStzStrings()
-			return This.IsListOfListsOfStzStrings()
-
-		def IsMadeOfOnlyListsOfStzStrings()
-			return This.IsListOfListsOfStzStrings()
-
-		def IsMadeOfListsOfStzStringsOnly()
-			return This.IsListOfListsOfStzStrings()
-
-		#>
-
-	def IsListOfListsOfStzLists()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT @IsListOfStzLists(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfListsOfStzLists()
-			return This.IsListOfListsOfStzLists()
-
-		def ItemsAreListsOfStzLists()
-			return This.IsListOfListsOfStzLists()
-
-		def ItemsAreAllListsOfStzLists()
-			return This.IsListOfListsOfStzLists()
-
-		def AllItemsAreListsOfStzLists()
-			return This.IsListOfListsOfStzLists()
-
-		def ContainsOnlyListsOfStzLists()
-			return This.IsListOfListsOfStzLists()
-
-		def ContainsListsOfStzLists()
-			return This.IsListOfListsOfStzLists()
-
-		def IsMadeOfListsOfStzLists()
-			return This.IsListOfListsOfStzLists()
-
-		def IsMadeOfOnlyListsOfStzLists()
-			return This.IsListOfListsOfStzLists()
-
-		def IsMadeOfListsOfStzListsOnly()
-			return This.IsListOfListsOfStzLists()
-
-		#>
-
-	def IsListOfListsOfStzObjects()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT @IsListOfStzObjects(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfListsOfStzObjects()
-			return This.IsListOfListsOfStzObjects()
-
-		def ItemsAreListsOfStzObjects()
-			return This.IsListOfListsOfStzObjects()
-
-		def ItemsAreAllListsOfStzObjects()
-			return This.IsListOfListsOfStzObjects()
-
-		def AllItemsAreListsOfStzObjects()
-			return This.IsListOfListsOfStzObjects()
-
-		def ContainsOnlyListsOfStzObjects()
-			return This.IsListOfListsOfStzObjects()
-
-		def ContainsListsOfStzObjects()
-			return This.IsListOfListsOfStzObjects()
-
-		def IsMadeOfListsOfStzObjects()
-			return This.IsListOfListsOfStzObjects()
-
-		def IsMadeOfOnlyListsOfStzObjects()
-			return This.IsListOfListsOfStzObjects()
-
-		def IsMadeOfListsOfStzObjectsOnly()
-			return This.IsListOfListsOfStzObjects()
-
-		#>
-
-	def IsListOfListsOfStzChars()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT @IsListOfStzChars(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfListsOfStzChars()
-			return This.IsListOfListsOfStzChars()
-
-		def ItemsAreListsOfStzChars()
-			return This.IsListOfListsOfStzChars()
-
-		def ItemsAreAllListsOfStzChars()
-			return This.IsListOfListsOfStzChars()
-
-		def AllItemsAreListsOfStzChars()
-			return This.IsListOfListsOfStzChars()
-
-		def ContainsOnlyListsOfStzChars()
-			return This.IsListOfListsOfStzChars()
-
-		def ContainsListsOfStzChars()
-			return This.IsListOfListsOfStzChars()
-
-		def IsMadeOfListsOfStzChars()
-			return This.IsListOfListsOfStzChars()
-
-		def IsMadeOfOnlyListsOfStzChars()
-			return This.IsListOfListsOfStzChars()
-
-		def IsMadeOfListsOfStzCharsOnly()
-			return This.IsListOfListsOfStzChars()
-
-		#>
-
-	def IsListOfListsOfStzHashLists()
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT @IsListOfStzHashLists(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfListsOfStzHashLists()
-			return This.IsListOfListsOfStzHashLists()
-
-		def ItemsAreListsOfStzHashLists()
-			return This.IsListOfListsOfStzHashLists()
-
-		def ItemsAreAllListsOfStzHashLists()
-			return This.IsListOfListsOfStzHashLists()
-
-		def AllItemsAreListsOfStzHashLists()
-			return This.IsListOfListsOfStzHashLists()
-
-		def ContainsOnlyListsOfStzHashLists()
-			return This.IsListOfListsOfStzHashLists()
-
-		def ContainsListsOfStzHashLists()
-			return This.IsListOfListsOfStzHashLists()
-
-		def IsMadeOfListsOfStzHashLists()
-			return This.IsListOfListsOfStzHashLists()
-
-		def IsMadeOfOnlyListsOfStzHashLists()
-			return This.IsListOfListsOfStzHashLists()
-
-		def IsMadeOfListsOfStzHashListsOnly()
-			return This.IsListOfListsOfStzHashLists()
 
 		#>
 
@@ -11584,14 +14372,68 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def IsAPairOfNumbers()
 			return This.IsPairOfNumbers()
+
+		def ContainsOnlyPairOfNumbers()
+			return This.IsPairOfNumbers()
+
+		def ContainsOnlyAPairOfNumbers()
+			return This.IsPairOfNumbers()
+
+		def ContainsPairOfNumbers()
+			return This.IsPairOfNumbers()
+
+		def ContainsAPairOfNumbers()
+			return This.IsPairOfNumbers()
+
+		def IsMadeOfPairOfNumbers()
+			return This.IsPairOfNumbers()
+
+		def IsMadeOfAPairOfNumbers()
+			return This.IsPairOfNumbers()
+
+		def IsMadeOfOnlyPairOfNumbers()
+			return This.IsPairOfNumbers()
+
+		def IsMadeOfOnlyAPairOfNumbers()
+			return This.IsPairOfNumbers()
+
+		def IsMadeOfPairOfNumbersOnly()
+			return This.IsPairOfNumbers()
+
+		def IsMadeOfAPairOfNumbersOnly()
+			return This.IsPairOfNumbers()
+
+		#--
 
 		def IsSection()
 			return This.IsPairOfNumbers()
 
 		def IsASection()
 			return This.IsPairOfNumbers()
+
+		def ContainsSection()
+			return This.IsPairOfNumbers()
+
+		def ContainsASection()
+			return This.IsPairOfNumbers()
+
+		def ContainsOnlySection()
+			return This.IsPairOfNumbers()
+
+		def ContainsOnlyASection()
+			return This.IsPairOfNumbers()
+
+		def ContainsSectionOnly()
+			return This.IsPairOfNumbers()
+
+		def ContainsASectionOnly()
+			return This.IsPairOfNumbers()
+
+		#>
 
 	def IsListOfPairsOfNumbers()
 		aContent = This.Content()
@@ -11639,6 +14481,43 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
+		def IsAPairOfSections()
+			return This.IsPairOfSections()
+
+		def ContainsOnlyPairOfSections()
+			return This.IsPairOfSections()
+
+		def ContainsOnlyAPairOfSections()
+			return This.IsPairOfSections()
+
+		def ContainsPairOfSections()
+			return This.IsPairOfSections()
+
+		def ContainsAPairOfSections()
+			return This.IsPairOfSections()
+
+		def IsMadeOfPairOfSections()
+			return This.IsPairOfSections()
+
+		def IsMadeOfAPairOfSections()
+			return This.IsPairOfSections()
+
+		def IsMadeOfOnlyPairOfSections()
+			return This.IsPairOfSections()
+
+		def IsMadeOfOnlyAPairOfSections()
+			return This.IsPairOfSections()
+
+		def IsMadeOfPairOfSectionsOnly()
+			return This.IsPairOfSections()
+
+		def IsMadeOfAPairOfSectionsOnly()
+			return This.IsPairOfSections()
+
+		#>
+
 	def IsListOfPairsOfSections()
 		aContent = This.Content()
 		nLen = len(aContent)
@@ -11668,8 +14547,42 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def IsAPairOfLists()
 			return This.IsPairOfLists()
+
+		def ContainsOnlyPairOfLists()
+			return This.IsPairOfLists()
+
+		def ContainsOnlyAPairOfLists()
+			return This.IsPairOfLists()
+
+		def ContainsPairOfLists()
+			return This.IsPairOfLists()
+
+		def ContainsAPairOfLists()
+			return This.IsPairOfLists()
+
+		def IsMadeOfPairOfLists()
+			return This.IsPairOfLists()
+
+		def IsMadeOfAPairOfLists()
+			return This.IsPairOfLists()
+
+		def IsMadeOfOnlyPairOfLists()
+			return This.IsPairOfLists()
+
+		def IsMadeOfOnlyAPairOfLists()
+			return This.IsPairOfLists()
+
+		def IsMadeOfPairOfListsOnly()
+			return This.IsPairOfLists()
+
+		def IsMadeOfAPairOfListsOnly()
+			return This.IsPairOfLists()
+
+		#>
 
 	def IsListOfPairsOfLists()
 
@@ -11704,8 +14617,42 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def IsAPairOfObjects()
 			return This.IsPairOfObjects()
+
+		def ContainsOnlyPairOfObjects()
+			return This.IsPairOfObjects()
+
+		def ContainsOnlyAPairOfObjects()
+			return This.IsPairOfObjects()
+
+		def ContainsPairOfObjects()
+			return This.IsPairOfObjects()
+
+		def ContainsAPairOfObjects()
+			return This.IsPairOfObjects()
+
+		def IsMadeOfPairOfObjects()
+			return This.IsPairOfObjects()
+
+		def IsMadeOfAPairOfObjects()
+			return This.IsPairOfObjects()
+
+		def IsMadeOfOnlyPairOfObjects()
+			return This.IsPairOfObjects()
+
+		def IsMadeOfOnlyAPairOfObjects()
+			return This.IsPairOfObjects()
+
+		def IsMadeOfPairOfObjectsOnly()
+			return This.IsPairOfObjects()
+
+		def IsMadeOfAPairOfObjectsOnly()
+			return This.IsPairOfObjects()
+
+		#>
 
 	def IsListOfPairsOfObjects()
 
@@ -11732,6 +14679,8 @@ class stzList from stzObject
 	def IsPairAndKeyIsString()
 		return This.IsPair() and isString(This[1])
 
+		#< @FunctionAlternativeForms
+
 		def IsAPairAndKeyIsString()
 			return IsPairAndKeyIsString()
 
@@ -11741,96 +14690,189 @@ class stzList from stzObject
 		def IsAPairAndKeyIsAString()
 			return This.IsPairAndKeyIsString()
 
-	def IsListOfObjects()
-		bResult = TRUE
-		for item in This.List()
-			if NOT isObject(item)
-				bREsult = FALSE
-				exit
-			ok
-		next
+		#--
 
-		return bResult
+		def IsMadeOfAPairAndKeyIsString()
+			return IsPairAndKeyIsString()
 
-		def IsAListOfObjects()
-			return This.IsListOfObjects()
+		def IsMadeOfPairAndKeyIsAString()
+			return This.IsPairAndKeyIsString()
 
-	def IsPairStzObjects()
+		def IsMAdeOfAPairAndKeyIsAString()
+			return This.IsPairAndKeyIsString()
+
+		#--
+
+		def ContainsAPairAndKeyIsString()
+			return IsPairAndKeyIsString()
+
+		def ContainsPairAndKeyIsAString()
+			return This.IsPairAndKeyIsString()
+
+		def containsAPairAndKeyIsAString()
+			return This.IsPairAndKeyIsString()
+
+		#>
+
+	def IsPairOfStzObjects()
 		return This.IsPair() and This.IsListOfStzObjects()
 
-		def IsAPairStzObjects()
-			return This.IsPairStzObjects()
+		#< @FunctionAlternativeForms
 
-	def IsListOfStzObjects()
-		bResult = TRUE
-		for item in This.List()
-			if NOT @IsStzObjet(item)
-				bREsult = FALSE
-				exit
-			ok
-		next
+		def IsAPairOfStzObjects()
+			return This.IsPairOfStzObjects()
 
-		return bResult
+		def ContainsOnlyPairOfStzObjects()
+			return This.IsPairOfStzObjects()
 
-		def IsAListOfStzObjects()
-			return This.IsListOfStzObjects()
+		def ContainsOnlyAPairOfStzObjects()
+			return This.IsPairOfStzObjects()
+
+		def ContainsPairOfStzObjects()
+			return This.IsPairOfStzObjects()
+
+		def ContainsAPairOfStzObjects()
+			return This.IsPairOfStzObjects()
+
+		def IsMadeOfPairOfStzObjects()
+			return This.IsPairOfStzObjects()
+
+		def IsMadeOfAPairOfStzObjects()
+			return This.IsPairOfStzObjects()
+
+		def IsMadeOfOnlyPairOfStzObjects()
+			return This.IsPairOfStzObjects()
+
+		def IsMadeOfOnlyAPairOfStzObjects()
+			return This.IsPairOfStzObjects()
+
+		def IsMadeOfPairOfStzObjectsOnly()
+			return This.IsPairOfStzObjects()
+
+		def IsMadeOfAPairOfStzObjectsOnly()
+			return This.IsPairOfStzObjects()
+
+		#>
 
 	def IsPairOfStzNumbers()
 		return This.IsPair() and This.IsListOfStzNumbers()
 
+		#< @FunctionAlternativeForms
+
 		def IsAPairOfStzNumbers()
 			return This.IsPairOfStzNumbers()
 
-	def IsListOfStzNumbers()
-		bResult = TRUE
-		for item in This.List()
-			if NOT @IsStzNumber(item)
-				bResult = FALSE
-				exit
-			ok
-		next
+		def ContainsOnlyPairOfStzNumbers()
+			return This.IsPairOfStzNumbers()
 
-		return bResult
+		def ContainsOnlyAPairOfStzNumbers()
+			return This.IsPairOfStzNumbers()
 
-		def IsAListOfStzNumbers()
-			return This.IsListOfStzNumbers()
+		def ContainsPairOfStzNumbers()
+			return This.IsPairOfStzNumbers()
+
+		def ContainsAPairOfStzNumbers()
+			return This.IsPairOfStzNumbers()
+
+		def IsMadeOfPairOfStzNumbers()
+			return This.IsPairOfStzNumbers()
+
+		def IsMadeOfAPairOfStzNumbers()
+			return This.IsPairOfStzNumbers()
+
+		def IsMadeOfOnlyPairOfStzNumbers()
+			return This.IsPairOfStzNumbers()
+
+		def IsMadeOfOnlyAPairOfStzNumbers()
+			return This.IsPairOfStzNumbers()
+
+		def IsMadeOfPairOfStzNumbersOnly()
+			return This.IsPairOfStzNumbers()
+
+		def IsMadeOfAPairOfStzNumbersOnly()
+			return This.IsPairOfStzNumbers()
+
+		#>
 
 	def IsPairOfStzStrings()
 		return This.IsPair() and This.IsListOfStzStrings()
 
-	def IsListOfStzStrings()
-		bResult = TRUE
-		for item in This.List()
-			if NOT @IsStzString(item)
-				bREsult = FALSE
-				exit
-			ok
-		next
+		#< @FunctionAlternativeForms
 
-		return bResult
+		def IsAPairOfStzStrings()
+			return This.IsPairOfStzStrings()
 
-		def IsAListOfStzStrings()
-			return This.IsListOfStzStrings()
+		def ContainsOnlyPairOfStzStrings()
+			return This.IsPairOfStzStrings()
+
+		def ContainsOnlyAPairOfStzStrings()
+			return This.IsPairOfStzStrings()
+
+		def ContainsPairOfStzStrings()
+			return This.IsPairOfStzStrings()
+
+		def ContainsAPairOfStzStrings()
+			return This.IsPairOfStzStrings()
+
+		def IsMadeOfPairOfStzStrings()
+			return This.IsPairOfStzStrings()
+
+		def IsMadeOfAPairOfStzStrings()
+			return This.IsPairOfStzStrings()
+
+		def IsMadeOfOnlyPairOfStzStrings()
+			return This.IsPairOfStzStrings()
+
+		def IsMadeOfOnlyAPairOfStzStrings()
+			return This.IsPairOfStzStrings()
+
+		def IsMadeOfPairOfStzStringsOnly()
+			return This.IsPairOfStzStrings()
+
+		def IsMadeOfAPairOfStzStringsOnly()
+			return This.IsPairOfStzStrings()
+
+		#>
 
 	def IsPairOfStzLists()
 		return This.IsPair() and This.IsListOfStzLists()
 
+		#< @FunctionAlternativeForms
+
 		def IsAPairOfStzLists()
 			return This.IsPairOfStzLists()
 
-	def IsListOfStzLists()
-		bResult = TRUE
-		for item in This.List()
-			if NOT @IsStzList(item)
-				bREsult = FALSE
-				exit
-			ok
-		next
+		def ContainsOnlyPairOfStzLists()
+			return This.IsPairOfStzLists()
 
-		return bResult
+		def ContainsOnlyAPairOfStzLists()
+			return This.IsPairOfStzLists()
 
-		def IsAListOfStzLists()
-			return This.IsListOfStzLists()
+		def ContainsPairOfStzLists()
+			return This.IsPairOfStzLists()
+
+		def ContainsAPairOfStzLists()
+			return This.IsPairOfStzLists()
+
+		def IsMadeOfPairOfStzLists()
+			return This.IsPairOfStzLists()
+
+		def IsMadeOfAPairOfStzLists()
+			return This.IsPairOfStzLists()
+
+		def IsMadeOfOnlyPairOfStzLists()
+			return This.IsPairOfStzLists()
+
+		def IsMadeOfOnlyAPairOfStzLists()
+			return This.IsPairOfStzLists()
+
+		def IsMadeOfPairOfStzListsOnly()
+			return This.IsPairOfStzLists()
+
+		def IsMadeOfAPairOfStzListsOnly()
+			return This.IsPairOfStzLists()
+
+		#>
 
 	#--
 
@@ -11861,6 +14903,8 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForm
+
 		def IsAPairOfNumberAndString()
 			return This.IsPairOfNumberAndString()
 
@@ -11870,12 +14914,56 @@ class stzList from stzObject
 		def IsAPairOfANumberAndAString()
 			return This.IsPairOfNumberAndString()
 
+		#--
+
+		def IsMadeOfPairOfNumberAndString()
+			return This.IsPairOfNumberAndString()
+
+		def IsMAdeOfAPairOfNumberAndString()
+			return This.IsPairOfNumberAndString()
+
+		def IsMAdeOfPairOfANumberAndAString()
+			return This.IsPairOfNumberAndString()
+
+		def IsMAdeOfAPairOfANumberAndAString()
+			return This.IsPairOfNumberAndString()
+
+		#--
+
+		def ContainsOnlyPairOfNumberAndString()
+			return This.IsPairOfNumberAndString()
+
+		def ContainsPairOfNumberAndStringOnly()
+			return This.IsPairOfNumberAndString()
+
+		def ContainsOnlyAPairOfNumberAndString()
+			return This.IsPairOfNumberAndString()
+
+		def ContainsAPairOfNumberAndStringOnly()
+			return This.IsPairOfNumberAndString()
+
+		def ContainsOnlyPairOfANumberAndAString()
+			return This.IsPairOfNumberAndString()
+
+		def ContainsPairOfANumberAndAStringOnly()
+			return This.IsPairOfNumberAndString()
+
+		def ContainsOnlyAPairOfANumberAndAString()
+			return This.IsPairOfNumberAndString()
+
+		def ContainsAPairOfANumberAndAStringOnly()
+			return This.IsPairOfNumberAndString()
+
+		#>
+
 	def IsPairOfStringAndNumber()
 		if This.NumberOfItems() = 2 and isString(This.Item(1)) and isNumber(This.Item(2))
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		#< @FunctionAlternativeForms
 
 		def IsAPairOfStringAndNumber()
 			return This.IsPairOfStringAndNumber()
@@ -11886,12 +14974,56 @@ class stzList from stzObject
 		def IsAPairOfAStringAndANumber()
 			return This.IsPairOfStringAndNumber()
 
+		#--
+
+		def IsMadeOfPairOfStringAndNumber()
+			return This.IsPairOfStringAndNumber()
+
+		def IsMadeOfAPairOfStringAndNumber()
+			return This.IsPairOfStringAndNumber()
+
+		def IsMadeOfPairOfAStringAndANumber()
+			return This.IsPairOfStringAndNumber()
+
+		def IsMadeOfAPairOfAStringAndANumber()
+			return This.IsPairOfStringAndNumber()
+
+		#--
+
+		def ContainsOnlyPairOfStringAndNumber()
+			return This.IsPairOfStringAndNumber()
+
+		def ContainsPairOfStringAndNumberOnly()
+			return This.IsPairOfStringAndNumber()
+
+		def ContainsOnlyAPairOfStringAndNumber()
+			return This.IsPairOfStringAndNumber()
+
+		def ContainsAPairOfStringAndNumberOnly()
+			return This.IsPairOfStringAndNumber()
+
+		def ContainsOnlyPairOfAStringAndANumber()
+			return This.IsPairOfStringAndNumber()
+
+		def ContainsPairOfAStringAndANumberOnly()
+			return This.IsPairOfStringAndNumber()
+
+		def ContainsOnlyAPairOfAStringAndANumber()
+			return This.IsPairOfStringAndNumber()
+
+		def ContainsAPairOfAStringAndANumberOnly()
+			return This.IsPairOfStringAndNumber()
+
+		#>
+
 	def IsPairOfNumberAndList()
 		if This.NumberOfItems() = 2 and isNumber(This.Item(1)) and isList(This.Item(2))
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		#< @FunctionAlternativeForms
 
 		def IsAPairOfNumberAndList()
 			return This.IsPairOfNumberAndList()
@@ -11902,12 +15034,56 @@ class stzList from stzObject
 		def IsAPairOfANumberAndAList()
 			return This.IsPairOfNumberAndList()
 
+		#--
+
+		def IsMadeOfPairOfNumberAndList()
+			return This.IsPairOfNumberAndList()
+
+		def IsMadeOfAPairOfNumberAndList()
+			return This.IsPairOfNumberAndList()
+
+		def IsMadeOfPairOfANumberAndAList()
+			return This.IsPairOfNumberAndList()
+
+		def IsMadeOfAPairOfANumberAndAList()
+			return This.IsPairOfNumberAndList()
+
+		#--
+
+		def ContainsOnlyPairOfNumberAndList()
+			return This.IsPairOfNumberAndList()
+
+		def ContainsPairOfNumberAndListOnly()
+			return This.IsPairOfNumberAndList()
+
+		def ContainsOnlyAPairOfNumberAndList()
+			return This.IsPairOfNumberAndList()
+
+		def ContainsAPairOfNumberAndListOnly()
+			return This.IsPairOfNumberAndList()
+
+		def ContainsOnlyPairOfANumberAndAList()
+			return This.IsPairOfNumberAndList()
+
+		def ContainsPairOfANumberAndAListOnly()
+			return This.IsPairOfNumberAndList()
+
+		def ContainsOnlyAPairOfANumberAndAList()
+			return This.IsPairOfNumberAndList()
+
+		def ContainsAPairOfANumberAndAListOnly()
+			return This.IsPairOfNumberAndList()
+
+		#>
+
 	def IsPairOfListAndNumber()
 		if This.NumberOfItems() = 2 and isList(This.Item(1)) and isNumber(This.Item(2))
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		#< @FunctionAlternativeForms
 
 		def IsAPairOfListAndNumber()
 			return This.IsPairOfListAndNumber()
@@ -11918,12 +15094,56 @@ class stzList from stzObject
 		def IsAPairOfAListAndANumber()
 			return This.IsPairOfListAndNumber()
 
+		#--
+
+		def IsMadeOfPairOfListAndNumber()
+			return This.IsPairOfListAndNumber()
+
+		def IsMadeOfAPairOfListAndNumber()
+			return This.IsPairOfListAndNumber()
+
+		def IsMadeOfPairOfAListAndANumber()
+			return This.IsPairOfListAndNumber()
+
+		def IsMadeOfAPairOfAListAndANumber()
+			return This.IsPairOfListAndNumber()
+
+		#--
+
+		def ContainsOnlyPairOfListAndNumber()
+			return This.IsPairOfListAndNumber()
+
+		def ContainsPairOfListAndNumberOnly()
+			return This.IsPairOfListAndNumber()
+
+		def ContainsOnlyAPairOfListAndNumber()
+			return This.IsPairOfListAndNumber()
+
+		def ContainsAPairOfListAndNumberOnly()
+			return This.IsPairOfListAndNumber()
+
+		def ContainsOnlyPairOfAListAndANumber()
+			return This.IsPairOfListAndNumber()
+
+		def ContainsPairOfAListAndANumberOnly()
+			return This.IsPairOfListAndNumber()
+
+		def ContainsOnlyAPairOfAListAndANumber()
+			return This.IsPairOfListAndNumber()
+
+		def ContainsAPairOfAListAndANumberOnly()
+			return This.IsPairOfListAndNumber()
+
+		#>
+
 	def IsPairOfNumberAndObject()
 		if This.NumberOfItems() = 2 and isNumber(This.Item(1)) and isObject(This.Item(2))
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		#< @FunctionAlternativeForms
 
 		def IsAPairOfNumberAndObject()
 			return This.IsPairOfNumberAndObject()
@@ -11934,12 +15154,56 @@ class stzList from stzObject
 		def IsAPairOfANumberAndAnObject()
 			return This.IsPairOfNumberAndObject()
 
+		#--
+
+		def IsMadeOfPairOfNumberAndObject()
+			return This.IsPairOfNumberAndObject()
+
+		def IsMadeOfAPairOfNumberAndObject()
+			return This.IsPairOfNumberAndObject()
+
+		def IsMAdeOfPairOfANumberAndAnObject()
+			return This.IsPairOfNumberAndObject()
+
+		def IsMAdeOfAPairOfANumberAndAnObject()
+			return This.IsPairOfNumberAndObject()
+
+		#--
+
+		def ContainsOnlyPairOfNumberAndObject()
+			return This.IsPairOfNumberAndObject()
+
+		def ContainsPairOfNumberAndObjectOnly()
+			return This.IsPairOfNumberAndObject()
+
+		def ContainsOnlyAPairOfNumberAndObject()
+			return This.IsPairOfNumberAndObject()
+
+		def ContainsAPairOfNumberAndObjectOnly()
+			return This.IsPairOfNumberAndObject()
+
+		def ContainsOnlyPairOfANumberAndAnObject()
+			return This.IsPairOfNumberAndObject()
+
+		def ContainsPairOfANumberAndAnObjectOnly()
+			return This.IsPairOfNumberAndObject()
+
+		def ContainsOnlyAPairOfANumberAndAnObject()
+			return This.IsPairOfNumberAndObject()
+
+		def ContainsAPairOfANumberAndAnObjectOnly()
+			return This.IsPairOfNumberAndObject()
+
+		#>
+
 	def IsPairOfObjectAndNumber()
 		if This.NumberOfItems() = 2 and isObject(This.Item(1)) and isNumber(This.Item(2))
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		#< @FunctionAlternativeForms
 
 		def IsAPairOfObjectAndNumber()
 			return This.IsPairOfObjectAndNumber()
@@ -11950,12 +15214,56 @@ class stzList from stzObject
 		def IsAPairOfAnObjectAndANumber()
 			return This.IsPairOfObjectAndNumber()
 
+		#--
+
+		def IsMAdeOfPairOfObjectAndNumber()
+			return This.IsPairOfObjectAndNumber()
+
+		def IsMAdeOfAPairOfObjectAndNumber()
+			return This.IsPairOfObjectAndNumber()
+
+		def IsMadeOfPairOfAnObjectAndANumber()
+			return This.IsPairOfObjectAndNumber()
+
+		def IsMadeOfAPairOfAnObjectAndANumber()
+			return This.IsPairOfObjectAndNumber()
+
+		#--
+
+		def ContainsOnlyPairOfObjectAndNumber()
+			return This.IsPairOfObjectAndNumber()
+
+		def ContainsPairOfObjectAndNumberOnly()
+			return This.IsPairOfObjectAndNumber()
+
+		def ContainsOnlyAPairOfObjectAndNumber()
+			return This.IsPairOfObjectAndNumber()
+
+		def ContainsAPairOfObjectAndNumberOnly()
+			return This.IsPairOfObjectAndNumber()
+
+		def ContainsOnlyPairOfAnObjectAndANumber()
+			return This.IsPairOfObjectAndNumber()
+
+		def ContainsPairOfAnObjectAndANumberOnly()
+			return This.IsPairOfObjectAndNumber()
+
+		def ContainsOnlyAPairOfAnObjectAndANumber()
+			return This.IsPairOfObjectAndNumber()
+
+		def ContainsAPairOfAnObjectAndANumberOnly()
+			return This.IsPairOfObjectAndNumber()
+
+		#>
+
 	def IsPairOfStringAndList()
 		if This.NumberOfItems() = 2 and isString(This.Item(1)) and isList(This.Item(2))
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		#< @FunctionAlternativeForms
 
 		def IsAPairOfStringAndList()
 			return This.IsPairOfStringAndList()
@@ -11966,12 +15274,56 @@ class stzList from stzObject
 		def IsAPairOfAStringAndAList()
 			return This.IsPairOfStringAndList()
 
+		#--
+
+		def IsMadeOfPairOfStringAndList()
+			return This.IsPairOfStringAndList()
+
+		def IsMAdeOfAPairOfStringAndList()
+			return This.IsPairOfStringAndList()
+
+		def IsMAdeOfPairOfAStringAndAList()
+			return This.IsPairOfStringAndList()
+
+		def IsMAdeOfAPairOfAStringAndAList()
+			return This.IsPairOfStringAndList()
+
+		#--
+
+		def ContainsOnlyPairOfStringAndList()
+			return This.IsPairOfStringAndList()
+
+		def ContainsPairOfStringAndListOnly()
+			return This.IsPairOfStringAndList()
+
+		def ContainsOnlyAPairOfStringAndList()
+			return This.IsPairOfStringAndList()
+
+		def ContainsAPairOfStringAndList()
+			return This.IsPairOfStringAndListOnly()
+
+		def ContainsOnlyPairOfAStringAndAList()
+			return This.IsPairOfStringAndList()
+
+		def ContainsPairOfAStringAndAListOnly()
+			return This.IsPairOfStringAndList()
+
+		def ContainsOnlyAPairOfAStringAndAList()
+			return This.IsPairOfStringAndList()
+
+		def ContainsAPairOfAStringAndAListOnly()
+			return This.IsPairOfStringAndList()
+
+		#>
+
 	def IsPairOfListAndString()
 		if This.NumberOfItems() = 2 and isList(This.Item(1)) and isString(This.Item(2))
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		#< @FunctionAlternativeForms
 
 		def IsAPairOfListAndString()
 			return This.IsPairOfListAndString()
@@ -11982,12 +15334,56 @@ class stzList from stzObject
 		def IsAPairOfAListAndAString()
 			return This.IsPairOfListAndString()
 
+		#--
+
+		def IsMadeOfPairOfListAndString()
+			return This.IsPairOfListAndString()
+
+		def IsMadeOfAPairOfListAndString()
+			return This.IsPairOfListAndString()
+
+		def IsMadeOfPairOfAListAndAString()
+			return This.IsPairOfListAndString()
+
+		def IsMadeOfAPairOfAListAndAString()
+			return This.IsPairOfListAndString()
+
+		#--
+
+		def ContainsOnlyPairOfListAndString()
+			return This.IsPairOfListAndString()
+
+		def ContainsPairOfListAndStringOnly()
+			return This.IsPairOfListAndString()
+
+		def ContainsOnlyAPairOfListAndString()
+			return This.IsPairOfListAndString()
+
+		def ContainsAPairOfListAndStringOnly()
+			return This.IsPairOfListAndString()
+
+		def ContainsOnlyPairOfAListAndAString()
+			return This.IsPairOfListAndString()
+
+		def ContainsPairOfAListAndAStringOnly()
+			return This.IsPairOfListAndString()
+
+		def ContainsOnlyAPairOfAListAndAString()
+			return This.IsPairOfListAndString()
+
+		def ContainsAPairOfAListAndAStringOnly()
+			return This.IsPairOfListAndString()
+
+		#>
+
 	def IsPairOfStringAndObject()
 		if This.NumberOfItems() = 2 and isString(This.Item(1)) and isObject(This.Item(2))
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		#< @FunctionAlternativeForms
 
 		def IsAPairOfStringAndObject()
 			return This.IsPairOfStringAndObject()
@@ -11998,6 +15394,48 @@ class stzList from stzObject
 		def IsAPairOfAStringAndAnObject()
 			return This.IsPairOfStringAndObject()
 
+		#--
+
+		def IsMadeOfPairOfStringAndObject()
+			return This.IsPairOfStringAndObject()
+
+		def IsMadeOfAPairOfStringAndObject()
+			return This.IsPairOfStringAndObject()
+
+		def IsMadeOfPairOfAStringAndAnObject()
+			return This.IsPairOfStringAndObject()
+
+		def IsMadeOfAPairOfAStringAndAnObject()
+			return This.IsPairOfStringAndObject()
+
+		#--
+
+		def ContainsOnlyPairOfStringAndObject()
+			return This.IsPairOfStringAndObject()
+
+		def ContainsPairOfStringAndObjectOnly()
+			return This.IsPairOfStringAndObject()
+
+		def ContainsOnlyAPairOfStringAndObject()
+			return This.IsPairOfStringAndObject()
+
+		def ContainsAPairOfStringAndObjectOnly()
+			return This.IsPairOfStringAndObject()
+
+		def ContainsOnlyPairOfAStringAndAnObject()
+			return This.IsPairOfStringAndObject()
+
+		def ContainsPairOfAStringAndAnObjectOnly()
+			return This.IsPairOfStringAndObject()
+
+		def ContainsOnlyAPairOfAStringAndAnObject()
+			return This.IsPairOfStringAndObject()
+
+		def ContainsAPairOfAStringAndAnObjectOnly()
+			return This.IsPairOfStringAndObject()
+
+		#>
+
 	def IsPairOfObjectAndString()
 		if This.NumberOfItems() = 2 and isObject(This.Item(1)) and isString(This.Item(2))
 			return TRUE
@@ -12005,14 +15443,58 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def IsAPairOfObjectAndString()
-			return This.IsAPairOfObjectAndString()
+			return This.IsPairOfObjectAndString()
 
 		def IsPairOfAnObjectAndAString()
-			return This.IsAPairOfObjectAndString()
+			return This.IsPairOfObjectAndString()
 
 		def IsAPairOfAnObjectAndAString()
-			return This.IsAPairOfObjectAndString()
+			return This.IsPairOfObjectAndString()
+
+		#--
+
+		def IsMadeOfPairOfObjectAndString()
+			return This.IsPairOfObjectAndString()
+
+		def IsMadeOfAPairOfObjectAndString()
+			return This.IsPairOfObjectAndString()
+
+		def IsMadeeOfPairOfAnObjectAndAString()
+			return This.IsPairOfObjectAndString()
+
+		def IsMAdeOfAPairOfAnObjectAndAString()
+			return This.IsPairOfObjectAndString()
+
+		#--
+
+		def ContainsOnlyPairOfObjectAndString()
+			return This.IsPairOfObjectAndString()
+
+		def ContainsPairOfObjectAndStringOnly()
+			return This.IsPairOfObjectAndString()
+
+		def ContainsOnlyAPairOfObjectAndString()
+			return This.IsPairOfObjectAndString()
+
+		def ContainsAPairOfObjectAndStringOnly()
+			return This.IsPairOfObjectAndString()
+
+		def ContainsOnlyPairOfAnObjectAndAString()
+			return This.IsPairOfObjectAndString()
+
+		def ContainsPairOfAnObjectAndAStringOnly()
+			return This.IsPairOfObjectAndString()
+
+		def ContainsOnlyAPairOfAnObjectAndAString()
+			return This.IsPairOfObjectAndString()
+
+		def ContainsAPairOfAnObjectAndAStringOnly()
+			return This.IsPairOfObjectAndString()
+
+		#>
 
 	def IsPairOfListAndObject()
 		if This.NumberOfItems() = 2 and isList(This.Item(1)) and isObject(This.Item(2))
@@ -12020,6 +15502,8 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+		#< @FunctionAlternativeForms
 
 		def IsAPairOfListAndObject()
 			return This.IsPairOfListAndObject()
@@ -12030,13 +15514,43 @@ class stzList from stzObject
 		def IsAPairOfAListAndAnObject()
 			return This.IsPairOfListAndObject()
 
+		#--
+
+		def IsMadeOfPairOfListAndObject()
+			return This.IsPairOfListAndObject()
+
+		def IsMadeOfAPairOfListAndObject()
+			return This.IsPairOfListAndObject()
+
+		def IsMadeOfPairOfAListAndAnObject()
+			return This.IsPairOfListAndObject()
+
+		def IsMadeOfAPairOfAListAndAnObject()
+			return This.IsPairOfListAndObject()
+
+		#--
+
+		def ContainsOnlyPairOfListAndObject()
+			return This.IsPairOfListAndObject()
+
+		def ContainsPairOfListAndObjectOnly()
+			return This.IsPairOfListAndObject()
+
+		def ContainsOnlyAPairOfListAndObject()
+			return This.IsPairOfListAndObject()
+
+		def ContainsAPairOfListAndObjectOnly()
+			return This.IsPairOfListAndObject()
+
+		def ContainsPairOfAListAndAnObjectOnly()
+			return This.IsPairOfListAndObject()
+
+		def ContainsAPairOfAListAndAnObjectOnly()
+			return This.IsPairOfListAndObject()
+
+		#>
+
 	#--
-
-	def IsPairOfStzObjects()
-		return This.IsPair() and This.IsListOfStzObjects()
-
-		def IsAPairOfStzObjects()
-			return This.IsPairOfStzObjects()
 
 	def IsPairOfChars()
 		return This.IsPair() and This.IsListOf(:Chars)
@@ -12095,64 +15609,6 @@ class stzList from stzObject
 
 		def IsAListOf(pcType)
 			return This.IsListOf(pcType)
-		
-	def IsListOfPairs()
-		/* NOTE
-
-		Could be solved nicely like this:
-
-		bResult = This.Check( :That = 'isList(@item) and Q(@item).IsPair()' )
-		return bResult
-
-		But the following solution is more performant:
-		*/
-
-		nLen = len(@aContent)
-		if nLen = 0
-			return FALSE
-		ok
-
-		bResult = TRUE
-
-		for i = 1 to nLen
-			if NOT isPair(@aContent[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-		#< @FunctionAlternativeForms
-
-		def IsAListOfPairs()
-			return This.IsListOfPairs()
-
-		def ItemsArePairs()
-			return This.IsListOfPairs()
-
-		def ItemsAreAllPairs()
-			return This.IsListOfPairs()
-
-		def AllItemsArePairs()
-			return This.IsListOfPairs()
-
-		def ContainsOnlyPairs()
-			return This.IsListOfPairs()
-
-		def ContainsPairsOnly()
-			return This.IsListOfPairs()
-
-		def IsMadeOfPairs()
-			return This.IsListOfPairs()
-
-		def IsMadeOfOnlyPairs()
-			return This.IsListOfPairs()
-
-		def IsMadeOfPairsOnly()
-			return This.IsListOfPairs()
-
-		#>
 
 	def IsTree()
 		if NOT This.IsEmpty()
@@ -24592,10 +28048,7 @@ class stzList from stzObject
 		def ContainsAllCS(paItems, pCaseSensitive)
 			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
 
-		def ContaisTheseCS(paSetOfItems, pCaseSensitive)
-			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
-
-		def ContaisAllTheseCS(paSetOfItems, pCaseSensitive)
+		def ContainsAllTheseCS(paSetOfItems, pCaseSensitive)
 			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
 
 
@@ -24633,12 +28086,8 @@ class stzList from stzObject
 		def ContainsAll(paItems)
 			return This.ContainsMany(paSetOfItems)
 
-		def ContaisThese(paSetOfItems)
+		def ContainsAllThese(paSetOfItems)
 			return This.ContainsMany(paSetOfItems)
-
-		def ContaisAllThese(paSetOfItems)
-			return This.ContainsMany(paSetOfItems)
-
 
 		#>
 
@@ -27180,13 +30629,13 @@ class stzList from stzObject
 		def DeepContainsEachCS(paItems, pCaseSensitive)
 			return This.DeepContainsManyCS(paItems, pCaseSensitive)
 
-		def DeepContaisEachOneOfTheseCS(paItems, pCaseSensitive)
+		def DeepContainsEachOneOfTheseCS(paItems, pCaseSensitive)
 			return This.DeepContainsManyCS(paItems, pCaseSensitive)
 
-		def DeepContaisEachOfTheseCS(paItems, pCaseSensitive)
+		def DeepContainsEachOfTheseCS(paItems, pCaseSensitive)
 			return This.DeepContainsManyCS(paItems, pCaseSensitive)
 
-		def DeepContaisAllOfTheseCS(paItems, pCaseSensitive)
+		def DeepContainsAllOfTheseCS(paItems, pCaseSensitive)
 			return This.DeepContainsManyCS(paItems, pCaseSensitive)
 
 		#>
@@ -27204,13 +30653,13 @@ class stzList from stzObject
 		def DeepContainsEach(paItems)
 			return This.DeepContainsMany(paItems)
 
-		def DeepContaisEachOneOfThese(paItems)
+		def DeepContainsEachOneOfThese(paItems)
 			return This.DeepContainsMany(paItems)
 
-		def DeepContaisEachOfThese(paItems)
+		def DeepContainsEachOfThese(paItems)
 			return This.DeepContainsMany(paItems)
 
-		def DeepContaisAllOfThese(paItems)
+		def DeepContainsAllOfThese(paItems)
 			return This.DeepContainsMany(paItems)
 
 		#>
@@ -29160,7 +32609,7 @@ class stzList from stzObject
 			return This.FindNumbers()
 
 	def FindNumbersAsSections()
-		aContent = This.Content() + "X"
+		aContent = This.Copy().Content() + "X"
 		nLen = len(aContent)
 
 		if nLen = 0
@@ -29519,7 +32968,7 @@ class stzList from stzObject
 			return This.FindStrings()
 
 	def FindStringsAsSections()
-		aContent = This.Content() + 0
+		aContent = This.Copy().Content() + 0
 		nLen = len(aContent)
 
 		if nLen = 0
@@ -30255,7 +33704,7 @@ class stzList from stzObject
 			return This.FindLists()
 
 	def FindListsAsSections()
-		aContent = This.Content() + 0
+		aContent = This.Copy().Content() + 0
 		nLen = len(aContent)
 
 		if nLen = 0
@@ -34056,7 +37505,7 @@ class stzList from stzObject
 			return This.FindObjects()
 
 	def FindObjectsAsSections()
-		aContent = This.Content() + 0
+		aContent = This.Copy().Content() + 0
 		nLen = len(aContent)
 
 		if nLen = 0
@@ -48571,11 +52020,13 @@ vvv
 
 		nLen = n2 - n1 + 1
 		anPos = NRandomNumbersBetweenU(nLen, n1, n2)
-? @@(anPos)
 		aItems = This.ItemsAtPositions(anPos)
-? @@(aItems)
 
-		This.ReplaceAnyItemsAtPositionsByMany(anPos, aItems)
+		j = 0
+		for i = n1 to n2
+			j++
+			@aContent[i] = aItems[j]
+		next
 
 		#< @FunctionFluentForm
 
@@ -49182,6 +52633,129 @@ vvv
 
 		def NumbersShuffled()
 			return This.NumbersRandomized()
+
+		#>
+
+	  #-------------------------------------------------#
+	 #  RANDOMINZING THE STRINGS EXISTING IN THE LIST  #
+	#=================================================#
+
+	def RandomizeStrings()
+		aSections = This.FindStringsAsSections()
+		This.RandomizeSections(aSections)
+
+		#< @FunctionFluentForm
+
+		def RandomizeStringsQ()
+			This.RandomizeStrings()
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomiseStrings()
+			This.RandomizeStrings()
+
+		def ShuffleStrings()
+			This.RandomizeStrings()
+
+		#>
+
+	#-- @FunctionPassiveForm
+
+	def StringsRandomized()
+		aResult = This.Copy().RandomizeStringsQ().Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def StringsRansomised()
+			return This.StringsRandomized()
+
+		def StringsShuffled()
+			return This.StringsRandomized()
+
+		#>
+
+	  #-----------------------------------------------#
+	 #  RANDOMINZING THE LISTS EXISTING IN THE LIST  #
+	#===============================================#
+
+	def RandomizeLists()
+		aSections = This.FindListsAsSections()
+		This.RandomizeSections(aSections)
+
+		#< @FunctionFluentForm
+
+		def RandomizeListsQ()
+			This.RandomizeLists()
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomiseLists()
+			This.RandomizeLists()
+
+		def ShuffleLists()
+			This.RandomizeLists()
+
+		#>
+
+	#-- @FunctionPassiveForm
+
+	def ListsRandomized()
+		aResult = This.Copy().RandomizeListsQ().Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ListsRansomised()
+			return This.ListsRandomized()
+
+		def ListsShuffled()
+			return This.ListsRandomized()
+
+		#>
+
+	  #-------------------------------------------------#
+	 #  RANDOMINZING THE OBJECTS EXISTING IN THE LIST  #
+	#=================================================#
+
+	def RandomizeObjects()
+		aSections = This.FindObjectsAsSections()
+		This.RandomizeSections(aSections)
+
+		#< @FunctionFluentForm
+
+		def RandomizeObjectsQ()
+			This.RandomizeObjects()
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RandomiseObjects()
+			This.RandomizeObjects()
+
+		def ShuffleObjects()
+			This.RandomizeObjects()
+
+		#>
+
+	#-- @FunctionPassiveForm
+
+	def ObjectsRandomized()
+		aResult = This.Copy().RandomizeObjectsQ().Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ObjectsRansomised()
+			return This.ObjectsRandomized()
+
+		def ObjectsShuffled()
+			return This.ObjectsRandomized()
 
 		#>
 
