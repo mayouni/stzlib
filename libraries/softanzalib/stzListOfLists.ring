@@ -1800,10 +1800,17 @@ class stzListOfLists from stzList
 	#---------------#
 
 	def IndexCS(pCaseSensitive)
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT @IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be TRUE or FALSE.")
+		ok
 
 		aLists = @aContent
 
-		if CaseSensitive(pCaseSensitive) = FALSE
+		if pCaseSensitive = FALSE
 			aLists = This.Lowercased()
 		ok
 
@@ -2244,10 +2251,17 @@ class stzListOfLists from stzList
 	#======================================#
 
 	def CommonItemsCS(pCaseSensitive)
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT @IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be TRUE or FALSE.")
+		ok
 
 		aLists = @aContent
 
-		if CaseSensitive(pCaseSensitive) = FALSE
+		if pCaseSensitive = FALSE
 			aLists = This.Lowercased()
 		ok
 
@@ -2264,7 +2278,7 @@ class stzListOfLists from stzList
 
 		# Doing the job
 
-		aItems = This.FlattenedQ().WithoutDuplication()
+		aItems = StzListQ(aLists).FlattenQ().WithoutDuplicationCS(pCaseSensitive)
 		nLenItems = len(aItems)
 
 		aResult = []
