@@ -330,37 +330,272 @@ func AreBothAsciiChars(p1, p2)
 	func @BothAreAsciiChars(p1, p2)
 		return AreBothAsciiChars(p1, p2)
 
+#====
+
+func AreBothEqualCS(p1, p2, pCaseSensitive)
+
+	if NOT type(p1) = type(p2)
+		return FALSE
+	ok
+
+	if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+		pCaseSensitive = pCaseSensitive[2]
+	ok
+
+	if NOT IsBoolean(pCaseSensitive)
+		StzRaise("Incorrect param! pCaseSensitive must be TRUE or FALSE.")
+	ok
+
+	if isNumber(p1)
+		return p1 = p2
+
+	but isString(p1)
+
+		if NOT IsCaseSensitive(pCaseSensitive)
+			p1 = lower(p1)
+			p2 = lower(p2)
+		ok
+
+		return p1 = p2
+
+	else
+		return Q(p1).IsEqualToCS(p2, pCaseSensitive)
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func BothAreEqualCS(p1, p2, pCaseSensitive)
+		return AreBothEqualCS(p1, p2, pCaseSensitive)
+
+	func @AreBothEqualCS(p1, p2, pCaseSensitive)
+		return AreBothEqualCS(p1, p2, pCaseSensitive)
+
+	func @BothAreEqualCS(p1, p2, pCaseSensitive)
+		return AreBothEqualCS(p1, p2, pCaseSensitive)
+
+	#>
+
+	#< @FunctionNegativeForms
+
+	func BothAreNotEqualCS(p1, p2, pCaseSensitive)
+		return NOT AreBothEqualCS(p1, p2, pCaseSensitive)
+
+	func @AreNotBothEqualCS(p1, p2, pCaseSensitive)
+		return BothAreNotEqualCS(p1, p2, pCaseSensitive)
+
+	func @BothAreNotEqualCS(p1, p2, pCaseSensitive)
+		return BothAreNotEqualCS(p1, p2, pCaseSensitive)
+
+	#>
+
+#-- WITHOUT CASESENSITIVITY
+
 func AreBothEqual(p1, p2)
-	return AreEqual([ p1, p2 ])
+	return AreBothEqualCS(p1, p2, TRUE)
+
+	#< @FunctionAlternativeForms
 
 	func BothAreEqual(p1, p2)
-		return AreEqual([ p1, p2 ])
-	
-		func BothAreNotEqual(p1, p2)
-			return NOT BothAreEqual(p1, p2)
+		return AreBothEqual(p1, p2)
 
 	func @AreBothEqual(p1, p2)
 		return AreBothEqual(p1, p2)
 
-		func @AreNotBothEqual(p1, p2)
-			return BothAreNotEqual(p1, p2)
-
 	func @BothAreEqual(p1, p2)
 		return AreBothEqual(p1, p2)
 
-		func @BothAreNotEqual(p1, p2)
-			return BothAreNotEqual(p1, p2)
+	#>
 
-func AreEqual(paItems)
-	return StzListQ(paItems).NumberOfOccurrence(paItems[1]) = len(paItems)
+	#< @FunctionNegativeForms
 
-	func @AreEqual(paItems)
-		return AreEqual(paItems)
+	func BothAreNotEqual(p1, p2)
+		return NOT AreBothEqual(p1, p2)
+
+	func @AreNotBothEqual(p1, p2)
+		return BothAreNotEqual(p1, p2)
+
+	func @BothAreNotEqual(p1, p2)
+		return BothAreNotEqual(p1, p2)
+
+	#>
+
+
+#===
+
+func AreEqualCS(paValues, pCaseSensitive)
+	if NOT isList(paValues)
+		return FALSE
+	ok
+
+	if NOT AllHaveSameType(paValues)
+		return FALSE
+	ok
+
+	if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+		pCaseSensitive = pCaseSensitive[2]
+	ok
+
+	if NOT IsBoolean(pCaseSensitive)
+		StzRaise("Incorrect param! pCaseSensitive must be TRUE or FALSE.")
+	ok
+
+	# Early checks
+
+	nLen = len(paValues)
+	if nLen = 0
+		return FALSE
+	but nLen = 1
+		return TRUE
+	ok
+
+	# Doing the job
+
+	bResult = TRUE
+
+	if IsNumber(paValues[1])
+
+		for i = 2 to nLen
+			if paValues[i] != paValues[1]
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	but isString(paValues[1])
+		for i = 1 to nLen
+			paValues[i] = lower(paValues[i])
+		next
+
+		for i = 2 to nLen
+			if paValues[i] != paValues[1]
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	else
+
+		for i = 2 to nLen
+			if NOT Q(paValues[i]).IsEqualCS(paValues[1], pCaseSensitive)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func @AreEqualCS(paValues, pCaseSensitive)
+		return AreEqualCS(paValues, pCaseSensitive)
+
+	func AreAllEqualCS(paValues, pCaseSensitive)
+		return AreEqualCS(paValues, pCaseSensitive)
+
+	func @AreAllEqualCS(paValues, pCaseSensitive)
+		return AreEqualCS(paValues, pCaseSensitive)
+
+	func AllAreEqualCS(paValues, pCaseSensitive)
+		return AreEqualCS(paValues, pCaseSensitive)
+
+	func @AllAreEqualCS(paValues, pCaseSensitive)
+		return AreEqualCS(paValues, pCaseSensitive)
+
+	#>
+
+	#< @FunctionNegativeForms
+
+	func AreNotEqualCS(paValues, pCaseSensitive)
+		return NOT AreEqualCS(paValues, pCaseSensitive)
+
+	func @AreNotEqualCS(paValues, pCaseSensitive)
+		return AreNotEqualCS(paValues, pCaseSensitive)
+
+	func AreNotAllEqualCS(paValues, pCaseSensitive)
+		return NOT AreEqualCS(paValues, pCaseSensitive)
+
+	func @AreNotAllEqualCS(paValues, pCaseSensitive)
+		return AreNotEqualCS(paValues, pCaseSensitive)
+
+	func AllAreNotEqualCS(paValues, pCaseSensitive)
+		return NOT AreEqualCS(paValues, pCaseSensitive)
+
+	func @AllAreNotEqualCS(paValues, pCaseSensitive)
+		return AreNotEqualCS(paValues, pCaseSensitive)
+
+	#>
+
+#-- WITHOUT CASESENSITIVITY
+
+func AreEqual(paValues)
+	return AreEqualCS(paValues, TRUE)
+
+	#< @FunctionAlternativeForm
+
+	func @AreEqual(paValues)
+		return AreEqual(paValues)
+
+	func AreAllEqual(paValues)
+		return AreEqual(paValues)
+
+	func @AreAllEqual(paValues)
+		return AreEqual(paValues)
+
+	func AllAreEqual(paValues)
+		return AreEqual(paValues)
+
+	func @AllAreEqual(paValues)
+		return AreEqualCS(paValues)
+
+	#>
+
+	#< @FunctionNegativeForms
+
+	func AreNotEqual(paValues)
+		return NOT AreEqual(paValues)
+
+	func @AreNotEqual(paValues)
+		return AreNotEqual(paValues)
+
+	func AreNotAllEqual(paValues)
+		return AreNotEqual(paValues)
+
+	func @AreNotAllEqual(paValues, pCaseSensitive)
+		return AreNotEqual(paValues)
+
+	func AllAreNotEqual(paValues, pCaseSensitive)
+		return AreNotEqual(paValues)
+
+	func @AllAreNotEqual(paValues, pCaseSensitive)
+		return AreNotEqual(paValues)
+
+	#>
+
+#===
 
 func HaveSameType(paItems)
+	if NOT isList(paItems)
+		StzRaise("Incorrect param type! paItems must be a list.")
+	ok
+
+	nLen = len(paItems)
+	if nLen = 0
+		return FALSE
+	but nLen = 1
+		return TRUE
+	ok
+
+	# Case nLen >= 2
+
 	bResult = TRUE
-	for i = 2 to len(paItems)
-		if ring_type( paItems[i] ) != ring_type( paItems[i] )
+	for i = 2 to nLen
+		if ring_type( paItems[1] ) != ring_type( paItems[i] )
 			bResult = FALSE
 			exit
 		ok
@@ -368,6 +603,12 @@ func HaveSameType(paItems)
 	return bResult
 
 	func @HaveSameType(paItems)
+		return HaveSameType(paItems)
+
+	func AllHaveSameType(paItems)
+		return HaveSameType(paItems)
+
+	func @AllHaveSameType(paItems)
 		return HaveSameType(paItems)
 
 func BothHaveSameType(p1, p2)
@@ -417,6 +658,8 @@ func IsEmptyList(paList)
 
 	func @IsAnEmptyList(paList)
 		return IsEmptyList(paList)
+
+#===
 
 func ListShow(paList)
 	StzListQ(paList).Show()
@@ -21844,6 +22087,7 @@ class stzList from stzObject
 	#--
 
 	def IndexBy(pcBy)
+
 		if NOT isString(pcBy)
 			StzRaise("Incorrect param type! pcBy must be a string.")
 		ok
@@ -21854,6 +22098,7 @@ class stzList from stzObject
 
 		aResult = []
 		if pcBy = :Position
+
 			aUniqueItems = This.DuplicatesRemoved()
 			nLen = len(aUniqueItems)
 
@@ -21929,13 +22174,9 @@ class stzList from stzObject
 		def IndexedOnNumberOfOccurrences()
 			return This.IndexedByNumberOfOccurrence()
 
-	  #========================================#
-	 #     COMPARAISON WITH AN OTHER LIST     #
-	#========================================#
-
-	  #-------------------------------------------------------------#
+	  #=============================================================#
 	 #  CHECKING IF THE LIST CONTAINS SAME ITEMS AS AN OTHER LIST  #
-	#-------------------------------------------------------------#
+	#=============================================================#
 
 	def ContainsSameItemsAsCS(paOtherList, pCaseSensitive)
 		if len( This.DifferentItemsWithCS(paOtherList, pCaseSensitive) ) = 0
@@ -24583,7 +24824,6 @@ class stzList from stzObject
 	  #--------------------------------------------------------------#
 	 #  FINDING THE OCCURRENCES OF EACH ITEM CONTAINED IN THE LIST  #
 	#==============================================================#
-	# NOTE: for performance reason, the items are stringified.
 
 	def FindItemsCS(pCaseSensitive) # TODO: Is it a kind of Index() ?
 		/* EXAMPLE
@@ -24613,90 +24853,54 @@ class stzList from stzObject
 
 		# Doing the job
 
-		nLen = This.NumberOfItems()
-		if nLen < 2
+		aList = @aContent
+
+		if CaseSensitive(pCaseSensitive) = FALSE
+			aList = This.Lowercased()
+		ok
+
+		nLenList = len(aList)
+
+		# Early cheks
+
+		if nLenList = 0
 			return []
 		ok
 
-		aContent = []
+		# Doing the job
 
-		# We stringify the list (all items are becoming strings)
-
-		if pCaseSensitive = TRUE
-
-			aContent = This.Copy().
-					StringifyAndReplaceQ(",", "*").
-					Content()
-
-		else // pCaseSensitive = FALSE
-
-			aContent = This.Copy().
-					StringifyLowercaseAndReplaceQ(",", "*").
-					Content()
-		ok
-
-
-		acItems = []
-		anOccur = []
-
-		for i = 1 to nLen
-
-			cCurrentItem = aContent[i]
-			nPos = ring_find(acItems, cCurrentItem)
-
-			if nPos = 0
-				acItems + cCurrentItem
-				anOccur + [i]
-
-			else
-				n = ring_find(acItems, cCurrentItem)
-				anOccur[n] + i
-			ok
-
-		next
+		aItems = This.WithoutDuplicationCS(pCaseSensitive)
+		nLenItems = len(aItems)
 
 		aResult = []
-		nLen = len(acItems)
+	
+		for i = 1 to nLenItems
+			anPos = []
+			for j = 1 to nLenList
+				if ring_type(aItems[i]) = ring_type(aList[j]) and
+				   aItems[i] = aList[j]
 
-		for i = 1 to nLen
-			aResult + [ acItems[i], anOccur[i] ]
+					anPos + j
+				ok
+			next
+			aResult + [ aItems[i], anPos ]
 		next
-
-		return aResult 
-
-		#< @FunctionFluentForms
-
-		def FindItemsCSQ(pCaseSensitive)
-			return This.FindItemsCSQR(pCaseSensitive, :stzList)
-
-		def FindItemsCSQR(pCaseSensitive, pcReturnType)
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindItemsCS(pCaseSensitive) )
-
-			on :stzHashList
-				return new stzHashList( This.FindItemsCS(pCaseSensitive) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.FindItemsCS(pCaseSensitive) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
+			
+		return aResult
 
 		#< @FunctionAlternativeForm
 
-		def PositionsOfEachItemCS(pCaseSensitive)
+		def FindItemsCSZ(pCaseSensitive)
 			return This.FindItemsCS(pCaseSensitive)
 
-			def PositionsOfEachItemCSQ(pCaseSensitive)
-				return This.PositionsOfEachItemCSQ(pCaseSensitive)
+		def ItemsCSZ(pCaseSensitive)
+			return This.FindItemsCS(pCaseSensitive)
 
-			def PositionsOfEachItemCSQR(pCaseSensitive, pcReturnType)
-				return This.PositionsOfEachItemCSQR(pCaseSensitive, pcReturnType)
+		def ItemsAndTheirPositionsCS(pCaseSensitive)
+			return This.FindItemsCS(pCaseSensitive)
+
+		def PositionsOfEachItemCS(pCaseSensitive)
+			return This.FindItemsCS(pCaseSensitive)
 
 		#>
 
@@ -24704,27 +24908,20 @@ class stzList from stzObject
 
 	def FindItems()
 		return This.FindItemsCS(TRUE)
-			
-		#< @FunctionFluentForms
-
-		def FindItemsQ()
-			return This.FindItemsCSQ(TRUE)
-
-		def FindItemsQR(pcReturnType)
-			return This.FindItemsCSQR(TRUE, pcReturnType)
-
-		#>
 
 		#< @FunctionAlternativeForm
 
-		def PositionsOfEachItem()
+		def FindItemsZ()
 			return This.FindItems()
 
-			def PositionsOfEachItemQ()
-				return This.FindItemsQ()
+		def ItemsZ()
+			return This.FindItems()
 
-			def PositionsOfEachItemQR(pcReturnType)
-				return This.FindItemsQR(pcReturnType)
+		def ItemsAndTheirPositions()
+			return This.FindItems()
+
+		def PositionsOfEachItem()
+			return This.FindItems()
 
 		#>
 
@@ -24733,21 +24930,61 @@ class stzList from stzObject
 	#------------------------------------------------------------------------#
 
 	def NumberOfOccurrenceOfItemsCS(pCaseSensitive)
-		aItemsXT = This.FindItemsCS(pCaseSensitive)
-		nLen = len(aItemsXT)
+
+		# Checking params
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		aList = @aContent
+
+		if CaseSensitive(pCaseSensitive) = FALSE
+			aList = This.Lowercased()
+		ok
+
+		nLenList = len(aList)
+
+		# Early cheks
+
+		if nLenList = 0
+			return []
+		ok
+
+		# Doing the job
+
+		aItems = This.WithoutDuplicationCS(pCaseSensitive)
+		nLenItems = len(aItems)
 
 		aResult = []
+	
+		for i = 1 to nLenItems
+			n = 0
+			for j = 1 to nLenList
+				if ring_type(aItems[i]) = ring_type(aList[j]) and
+				   aItems[i] = aList[j]
 
-		for i = 1 to nLen
-			aResult + [ aItemsXT[i][1], len(aItemsXT[i][2]) ]
+					n++
+				ok
+			next
+			aResult + [ aItems[i], n ]
 		next
-
+			
 		return aResult
 
 		#< @FunctionAlternativeForms
 
+		def ItemsCountCS(pCaseSensitive)
+			return This.NumberOfOccurrenceOfItemsCS(pCaseSensitive)
+
 		def NumberOfOccurrenceOfEachItemCS(pCaseSensitive)
-			return This.NumberOfOccurrenceOfItems(pCaseSensitive)
+			return This.NumberOfOccurrenceOfItemsCS(pCaseSensitive)
 
 		def HowManyOccurrenceItemsHaveCS(pCaseSensitive)
 			return This.NumberOfOccurrenceOfItemsCS(pCaseSensitive)
@@ -24777,6 +25014,9 @@ class stzList from stzObject
 		return This.NumberOfOccurrenceOfItemsCS(TRUE)
 
 		#< @FunctionAlternativeForms
+
+		def ItemsCount()
+			return This.NumberOfOccurrenceOfItems()
 
 		def NumberOfOccurrenceOfEachItem()
 			return This.NumberOfOccurrenceOfItems()

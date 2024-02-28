@@ -69,10 +69,3 @@ class stzListOfSets from stzListOfLists
 
 	def Sets()
 		return Content()
-
-	def Intersection()
-		oStzList = new stzList(This.Merge())
-		return oStzList.UniqueItems()
-
-	def CommonItems()
-		return This.Intersection()
