@@ -1,6 +1,66 @@
 load "stzlib.ring"
 
+pron()
 
+o1 = new stzList([ "A", "A", "B", "C", "A", "C" ])
+? o1.ItemsOccurringNTimes(2)
+#--> [ "A", "C" ]
+
+? o1.ItemsOccurringExactlyNTimes(2)
+#--> [ "C" ]
+
+? o1.ItemsOccurringLessThanNTimes(3)
+#--> [ "B", "C" ]
+
+? o1.ItemsOccurringNTimesOrLess(3)
+#--> [ "A", "B", "C" ]
+
+? o1.ItemsOccurringNTimesOrMore(3)
+#--> [ "A" ]
+
+proff()
+
+/*---
+
+pron()
+
+o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
+? o1.ItemsOccuringNTimesCS(3, FALSE) # Note this is a misspelled form (one r instead of 2)
+#--> [ "b" ]
+
+proff()
+
+/*===
+*/
+pron()
+
+o1 = new stzList([ "A", "B", "A", "C", "D", "B" ])
+? @@( o1.Index() )
+#--> [
+#	[ "A", [ 1, 3 ] ],
+#	[ "B", [ 2, 6 ] ],
+#	[ "C", [ 4 ] ],
+#	[ "D", [ 5 ] ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---
+
+pron()
+
+o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
+? @@( o1.IndexCS(FALSE) )
+#--> [
+#	[ "a", [ 1, 3 ] ],
+#	[ "b", [ 2, 6, 7 ] ],
+#	[ "c", [ 4 ] ],
+#	[ "d", [ 5 ] ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*====
 
@@ -40,7 +100,6 @@ StzListQ([ "1":"3", "2":"7", "10":"12" ]) {
 
 	Show()
 
-	//ItemsOccuringNTimes(2)
 	? @@( FindItems() )
 	#-->[
 	# 	[ "1", [ 1 ] ], [ "10", [ 2 ] ], [ "2", [ 3, 4 ] ],
@@ -60,7 +119,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*====
-*/
+
 pron()
 
 o1 = new stzListOfLists([ "A":"C", "A":"B", "A":"C" ])

@@ -22048,134 +22048,6 @@ class stzList from stzObject
 		def HalvesAndTheirSectionsXT()
 			return This.HalvesAndSectionsXT()
 
-	  #============================================================#
-	 #  INDEXING THE LIST BY POSITION OR BY NUMBER OF OCCURRENCE  #
-	#============================================================#
-
-	def Index()
-		return IndexBy(:Position)
-
-	def Indexed()
-		return This.Index()
-
-	#--
-
-	def IndexXT(pBy)
-		cBy = ""
-
-		if isList(paBy) and
-		   Q(paBy).IsOneOfTheseNamedParams([ :By, :On ])
-
-			pBy = pBy[2]
-		ok
-
-		if NOT isString(pBy)
-			StzRaise("Incorrect param type! pBy must be a string.")
-		ok
-
-		if pBy = :Position
-			return This.IndexByPosition()
-
-		but pBy = :NumberOfOccurrence or :NumberOfOccurrences
-			return This.IndexByNumberOfOccurrence()
-
-		else
-			StzRaise("Unsupported indexing type! Allowed types are by :Positon and by :NumberOfOccurrences.")
-		ok
-	
-	def IndexedXT(pBy)
-		return This.IndexXT(pBy)
-
-	#--
-
-	def IndexBy(pcBy)
-
-		if NOT isString(pcBy)
-			StzRaise("Incorrect param type! pcBy must be a string.")
-		ok
-
-		if NOT Q(pcBy).IsOneOfThese([ :Position, :NumberOfOccurrence, :NumberOfOccurrences ])
-			StzRaise("Incorrect value of pcBy! Allowed values are :Position and :NumberOfOccurrence.")
-		ok
-
-		aResult = []
-		if pcBy = :Position
-
-			aUniqueItems = This.DuplicatesRemoved()
-			nLen = len(aUniqueItems)
-
-			for i = 1 to nLen
-				item = aUniqueItems[i]
-				anPos = This.Positions(item)
-				aResult + [ item, anPos ]
-			next
-	
-		but pcBy = :NumberOfOccurrence or pcBy = :NumberOfOccurrences
-			/* Index( [ "A", "A", "B", "C" ] --> [ :A = 2, :B = 1, :C = 1 ] */
-			
-			aUniqueItems = This.DuplicatesRemoved()
-			nLen = len(aUniqueItems)
-
-			for i = 1 to nLen
-				item = aUniqueItems[i]
-				n =  This.NumberOfOccurrence(item)
-				aResult + [ item, n ]
-			next	
-		else
-			StzRaise("Unsupported indexing paramater!")
-		ok
-
-		return aResult
-
-		def IndexOn(pcOn)
-			return This.IndexBy(pcOn)
-
-	def IndexedBy(pcBy)
-		return This.IndexBy(pcBy)
-
-		def IndexedOn(pcOn)
-			return This.IndexedBy(pcOn)
-
-	#--
-	
-	def IndexByPosition()
-		return IndexBy(:Position)
-
-		def IndexOnPosition()
-			return This.IndexByPosition()
-
-	def IndexedByPosition()
-		return This.IndexByPosition()
-
-		def IndexedOnPosition()
-			return This.IndexedByPostion()
-
-	#--
-
-	def IndexByNumberOfOccurrence()
-		return IndexBy(:NumberOfOccurrence)
-
-		def IndexByNumberOfOccurrences()
-			return This.IndexByNumberOfOccurrence()
-
-		def IndexOnNumberOfOccurrence()
-			return This.IndexByNumberOfOccurrence()
-
-		def IndexOnNumberOfOccurrences()
-			return This.IndexByNumberOfOccurrence()
-
-	def IndexedByNumberOfOccurrence()
-		return This.IndexByNumberOfOccurrence()
-
-		def IndexedByNumberOfOccurrences()
-			return This.IndexedByNumberOfOccurrence()
-
-		def IndexedOnNumberOfOccurrence()
-			return This.IndexedByNumberOfOccurrence()
-
-		def IndexedOnNumberOfOccurrences()
-			return This.IndexedByNumberOfOccurrence()
-
 	  #=============================================================#
 	 #  CHECKING IF THE LIST CONTAINS SAME ITEMS AS AN OTHER LIST  #
 	#=============================================================#
@@ -24823,6 +24695,395 @@ class stzList from stzObject
 
 		#
 
+	  #---------------------------------------------------------#
+	 #  GETTING ITEMS OCCURRING N (OR MORE) TIMES IN THE LIST  #
+	#=========================================================#
+
+	def ItemsOccurringNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+		aIndex = This.IndexCS(pCaseSensitive)
+		nLen = len(aIndex)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if len(aIndex[i][2]) >= n
+				aResult + aIndex[i][1]
+			ok
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def ItemsOccurringNTimesCSQ(n, pCaseSensitive)
+			return new stzList( This.ItemsOccurringNTimesCS(n, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ItemsOccuringNTimesCS(n, pCaseSensitive) # On r instead of 2
+			return This.ItemsOccurringNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccuringNTimesCSQ(n, pCaseSensitive)
+				return This.ItemsOccurringNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ItemsOccurringNTimesOrMoreCS(n, pCaseSensitive)
+			return This.ItemsOccurringNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccurringNTimesOrMoreCSQ(n, pCaseSensitive)
+				return This.ItemsOccuringNTimesCSQ(n, pCaseSensitive)
+
+		def ItemsOccurringNTimesAndMoreCS(n, pCaseSensitive)
+			return This.ItemsOccurringNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccurringNTimesAndMoreCSQ(n, pCaseSensitive)
+				return This.ItemsOccuringNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ItemsOccurringNTimes(n)
+		return This.ItemsOccurringNTimesCS(n, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ItemsOccurringNTimesQ(n)
+			return This.ItemsOccurringNTimes(n)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ItemsOccuringNTimes(n) # On r instead of 2
+			return This.ItemsOccurringNTimes(n)
+
+			def ItemsOccuringNTimesQ(n)
+				return This.ItemsOccurringNTimesQ(n)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ItemsOccurringNTimesOrMore(n)
+			return This.ItemsOccurringNTimes(n)
+
+			def ItemsOccurringNTimesOrMoreQ(n)
+				return This.ItemsOccuringNTimesQ(n)
+
+		def ItemsOccurringNTimesAndMore(n)
+			return This.ItemsOccurringNTimes(n)
+
+			def ItemsOccurringNTimesAndMoreQ(n)
+				return This.ItemsOccuringNTimesQ(n)
+
+		#>
+
+	  #-------------------------------------------------------#
+	 #  GETTING ITEMS OCCURRING EXACTLY N TIMES IN THE LIST  #
+	#-------------------------------------------------------#
+
+	def ItemsOccurringExactlyNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+		aIndex = This.IndexCS(pCaseSensitive)
+		nLen = len(aIndex)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if len(aIndex[i][2]) = n
+				aResult + aIndex[i][1]
+			ok
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def ItemsOccurringExactlyNTimesCSQ(n, pCaseSensitive)
+			return new stzList( This.ItemsOccurringExactlyNTimesCS(n, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ItemsOccuringExactlyNTimesCS(n, pCaseSensitive) # On r instead of 2
+			return This.ItemsOccurringExactlyNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccuringExactlyNTimesCSQ(n, pCaseSensitive)
+				return This.ItemsOccurringExactlyNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ItemsOccurringExactlyNTimesOrMoreCS(n, pCaseSensitive)
+			return This.ItemsOccurringExactlyNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccurringExactlyNTimesOrMoreCSQ(n, pCaseSensitive)
+				return This.ItemsOccuringExactlyNTimesCSQ(n, pCaseSensitive)
+
+		def ItemsOccurringExactlyNTimesAndMoreCS(n, pCaseSensitive)
+			return This.ItemsOccurringExactlyNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccurringExactlyNTimesAndMoreCSQ(n, pCaseSensitive)
+				return This.ItemsOccuringExactlyNTimesCSQ(n, pCaseSensitive)
+
+		#--
+
+		def ItemsOccurringOnlyNTimesCS(n, pCaseSensitive)
+			return This.ItemsOccurringExactlyNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccurringOnlyNTimesCSQ(n, pCaseSensitive)
+				return This.ItemsOccuringExactlyNTimesCSQ(n, pCaseSensitive)
+
+		def ItemsOccurringOnlyNTimesOrMoreCS(n, pCaseSensitive)
+			return This.ItemsOccurringExactlyNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccurringOnlyNTimesOrMoreCSQ(n, pCaseSensitive)
+				return This.ItemsOccuringExactlyNTimesCSQ(n, pCaseSensitive)
+
+		def ItemsOccurringOnlyNTimesAndMoreCS(n, pCaseSensitive)
+			return This.ItemsOccurringExactlyNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccurringOnlyNTimesAndMoreCSQ(n, pCaseSensitive)
+				return This.ItemsOccuringExactlyNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ItemsOccurringExactlyNTimes(n)
+		return This.ItemsOccurringExactlyNTimesCS(n, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ItemsOccurringExactlyNTimesQ(n)
+			return This.ItemsOccurringExactlyNTimes(n)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ItemsOccuringExactlyNTimes(n) # On r instead of 2
+			return This.ItemsOccurringExactlyNTimes(n)
+
+			def ItemsOccuringExactlyNTimesQ(n)
+				return This.ItemsOccurringExactlyNTimesQ(n)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ItemsOccurringExactlyNTimesOrMore(n)
+			return This.ItemsOccurringExactlyNTimes(n)
+
+			def ItemsOccurringExactlyNTimesOrMoreQ(n)
+				return This.ItemsOccuringExactlyNTimesQ(n)
+
+		def ItemsOccurringExactlyNTimesAndMore(n)
+			return This.ItemsOccurringExactlyNTimes(n)
+
+			def ItemsOccurringExactlyNTimesAndMoreQ(n)
+				return This.ItemsOccuringExactlyNTimesQ(n)
+
+		#--
+
+		def ItemsOccurringOnlyNTimes(n)
+			return This.ItemsOccurringExactlyNTimes(n)
+
+			def ItemsOccurringOnlyNTimesQ(n)
+				return This.ItemsOccuringExactlyNTimesQ(n)
+
+		def ItemsOccurringOnlyNTimesOrMore(n)
+			return This.ItemsOccurringExactlyNTimes(n)
+
+			def ItemsOccurringOnlyNTimesOrMoreQ(n)
+				return This.ItemsOccuringExactlyNTimesQ(n)
+
+		def ItemsOccurringOnlyNTimesAndMore(n)
+			return This.ItemsOccurringExactlyNTimes(n)
+
+			def ItemsOccurringOnlyNTimesAndMoreQ(n)
+				return This.ItemsOccuringExactlyNTimesQ(n)
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  GETTING ITEMS OCCURRING MORE THAN N TIMES IN THE LIST  #
+	#---------------------------------------------------------#
+
+	def ItemsOccurringMoreThanNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+		aIndex = This.IndexCS(pCaseSensitive)
+		nLen = len(aIndex)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if len(aIndex[i][2]) > n
+				aResult + aIndex[i][1]
+			ok
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def ItemsOccurringMoreThanNTimesCSQ(n, pCaseSensitive)
+			return new stzList( This.ItemsOccurringMoreThanNTimesCS(n, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ItemsOccuringMoreThanNTimesCS(n, pCaseSensitive) # On r instead of 2
+			return This.ItemsOccurringMoreThanNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccuringMoreThanNTimesCSQ(n, pCaseSensitive)
+				return This.ItemsOccurringMoreThanNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ItemsOccurringMoreThanNTimes(n)
+		return This.ItemsOccurringMoreThanNTimesCS(n, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ItemsOccurringMoreThanNTimesQ(n)
+			return This.ItemsOccurringMoreThanNTimes(n)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ItemsOccuringMoreThanNTimes(n) # On r instead of 2
+			return This.ItemsOccurringMoreThanNTimes(n)
+
+			def ItemsOccuringMoreThanNTimesQ(n)
+				return This.ItemsOccurringMoreThanNTimesQ(n)
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  GETTING ITEMS OCCURRING LESS THAN N TIMES IN THE LIST  #
+	#---------------------------------------------------------#
+
+	def ItemsOccurringLessThanNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+		aIndex = This.IndexCS(pCaseSensitive)
+		nLen = len(aIndex)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if len(aIndex[i][2]) < n
+				aResult + aIndex[i][1]
+			ok
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def ItemsOccurringLessThanNTimesCSQ(n, pCaseSensitive)
+			return new stzList( This.ItemsOccurringLessThanNTimesCS(n, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ItemsOccuringLessThanNTimesCS(n, pCaseSensitive) # On r instead of 2
+			return This.ItemsOccurringLessThanNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccuringLessThanNTimesCSQ(n, pCaseSensitive)
+				return This.ItemsOccurringLessThanNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ItemsOccurringLessThanNTimes(n)
+		return This.ItemsOccurringLessThanNTimesCS(n, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ItemsOccurringLessThanNTimesQ(n)
+			return This.ItemsOccurringLessThanNTimes(n)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ItemsOccuringLessThanNTimes(n) # On r instead of 2
+			return This.ItemsOccurringLessThanNTimes(n)
+
+			def ItemsOccuringLessThanNTimesQ(n)
+				return This.ItemsOccurringLessThanNTimesQ(n)
+
+		#>
+
+	  #-------------------------------------------------------#
+	 #  GETTING ITEMS OCCURRING N TIMES OR LESS IN THE LIST  #
+	#-------------------------------------------------------#
+
+	def ItemsOccurringNTimesOrLessCS(n, pCaseSensitive) # TODO: Check for performance
+		aIndex = This.IndexCS(pCaseSensitive)
+		nLen = len(aIndex)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if len(aIndex[i][2]) <= n
+				aResult + aIndex[i][1]
+			ok
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def ItemsOccurringNTimesOrLessCSQ(n, pCaseSensitive)
+			return new stzList( This.ItemsOccurringNTimesOrLessCS(n, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ItemsOccuringNTimesOrLessCS(n, pCaseSensitive) # On r instead of 2
+			return This.ItemsOccurringNTimesOrLessCS(n, pCaseSensitive)
+
+			def ItemsOccuringNTimesOrLessCSQ(n, pCaseSensitive)
+				return This.ItemsOccurringNTimesOrLessCSQ(n, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ItemsOccurringNTimesOrLess(n)
+		return This.ItemsOccurringNTimesOrLessCS(n, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ItemsOccurringNTimesOrLessQ(n)
+			return This.ItemsOccurringNTimesOrLess(n)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def ItemsOccuringNTimesOrLess(n) # On r instead of 2
+			return This.ItemsOccurringNTimesOrLess(n)
+
+			def ItemsOccuringNTimesOrLessQ(n)
+				return This.ItemsOccurringNTimesOrLessQ(n)
+
+		#>
+
 	  #--------------------------------------------------------------#
 	 #  FINDING THE OCCURRENCES OF EACH ITEM CONTAINED IN THE LIST  #
 	#==============================================================#
@@ -24857,7 +25118,7 @@ class stzList from stzObject
 
 		aList = @aContent
 
-		if CaseSensitive(pCaseSensitive) = FALSE
+		if pCaseSensitive = FALSE
 			aList = This.Lowercased()
 		ok
 
@@ -24871,7 +25132,7 @@ class stzList from stzObject
 
 		# Doing the job
 
-		aItems = This.WithoutDuplicationCS(pCaseSensitive)
+		aItems = StzListQ(aList).WithoutDuplicationCS(pCaseSensitive)
 		nLenItems = len(aItems)
 
 		aResult = []
@@ -24917,6 +25178,12 @@ class stzList from stzObject
 		def EachItemCSZ(pCaseSensitive)
 			return This.FindItemsCS(pCaseSensitive)
 
+		def IndexCS(pCaseSensitive)
+			return This.FindItemsCS(pCaseSensitive)
+
+		def IndexByPositionsCS(pCaseSensitive)
+			return This.FindItemsCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVE
@@ -24951,6 +25218,12 @@ class stzList from stzObject
 		def EachItemZ()
 			return This.FindItems()
 
+		def Index()
+			return This.FindItems()
+
+		def IndexByPositions()
+			return This.FindItems()
+
 		#>
 
 	  #------------------------------------------------------------------------#
@@ -24973,7 +25246,7 @@ class stzList from stzObject
 
 		aList = @aContent
 
-		if CaseSensitive(pCaseSensitive) = FALSE
+		if pCaseSensitive = FALSE
 			aList = This.Lowercased()
 		ok
 
