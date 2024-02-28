@@ -1,79 +1,6 @@
 load "stzlib.ring"
 
-/*=====
 
-? 0 = ""
-
-? "" = 0
-
-? "0" = 0
-
-? "1" = 1
-#--> TRUE
-
-? 1 = "01.0"
-#--> TRUE
-
-/*----
-
-pron()
-
-? BothAreEqual(0, "")
-#--> FALSE
-
-? BothAreEqual(1, "1")
-#--> FALSE
-
-? BothAreEqual([], "")
-#--> FALSE
-
-? BothAreEqual(1:3, [1, 2, 3])
-#--> TRUE
-
-? BothAreEqual("ring", "ring")
-#--> TRUE
-
- ? BothAreEqual("RING", "ring")
-#--> FALSE
-
-? BothAreEqualCS("RING", "ring", FALSE)
-#--> TRUE
-
-? BothAreEqual("A":"C", "a":"c")
-#--> FALSE
-
-? BothAreEqualCS("A":"C", "a":"c", FALSE)
-#--> TRUE
-
-proff()
-#--> Executed in 0.04 second(s)
-
-/*----
-
-pron()
-
-? AllHaveSameType([1, "1", 1])
-#--> FALSE
-
-proff()
-
-/*----
-*/
-pron()
-
-? AreEqual([1, 1, 1])
-#--> TRUE
-
-? AreEqual([1, "1", 1])
-#--> FALSE
-
-? AreEqual([ "ring", "Ring", "RING" ])
-#--> FALSE
-
-? AreEqualCS([ "ring", "Ring", "RING" ], FALSE)
-#--> TRUE
-
-proff()
 
 /*====
 
@@ -103,7 +30,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*====
-*/
+
 pron()
 
 
@@ -138,7 +65,11 @@ pron()
 
 o1 = new stzListOfLists([ "A":"C", "A":"B", "A":"C" ])
 ? @@( o1.Index() )
-#--> [ [ "A", [ ] ], [ "B", [ [ 2, 1 ] ] ], [ "C", [ [ 1, 1 ], [ 3, 1 ] ] ] ]
+#--> [
+#	[ "A", [ 1, 2, 3 ] ],
+#	[ "B", [ 1, 2, 3 ] ],
+#	[ "C", [ 1, 3 ] ]
+# ]
 
 proff()
 
