@@ -24827,7 +24827,7 @@ class stzList from stzObject
 	 #  FINDING THE OCCURRENCES OF EACH ITEM CONTAINED IN THE LIST  #
 	#==============================================================#
 
-	def FindItemsCS(pCaseSensitive) # TODO: Is it a kind of Index() ?
+	def FindItemsCS(pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzList([ "Ab", "Im", "Ab", "Cf", "Fd", "Ab", "Cf" ])
@@ -24898,10 +24898,23 @@ class stzList from stzObject
 		def ItemsCSZ(pCaseSensitive)
 			return This.FindItemsCS(pCaseSensitive)
 
+		def FindEachItemCS(pCaseSensitive)
+			return This.FindItemsCS(pCaseSensitive)
+
+		def FindEachItemCSZ(pCaseSensitive)
+			return This.FindItemsCS(pCaseSensitive)
+
+		
 		def ItemsAndTheirPositionsCS(pCaseSensitive)
 			return This.FindItemsCS(pCaseSensitive)
 
 		def PositionsOfEachItemCS(pCaseSensitive)
+			return This.FindItemsCS(pCaseSensitive)
+
+		def EachItemAndItsPositionsCS(pCaseSensitive)
+			return This.FindItemsCS(pCaseSensitive)
+
+		def EachItemCSZ(pCaseSensitive)
 			return This.FindItemsCS(pCaseSensitive)
 
 		#>
@@ -24913,16 +24926,29 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def FindItemsZ()
+		def FindItemsZ(pCaseSensitive)
 			return This.FindItems()
 
 		def ItemsZ()
 			return This.FindItems()
 
+		def FindEachItem()
+			return This.FindItems()
+
+		def FindEachItemZ()
+			return This.FindItems()
+
+		
 		def ItemsAndTheirPositions()
 			return This.FindItems()
 
 		def PositionsOfEachItem()
+			return This.FindItems()
+
+		def EachItemAndItsPositions()
+			return This.FindItems()
+
+		def EachItemZ()
 			return This.FindItems()
 
 		#>
