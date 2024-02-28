@@ -1,27 +1,107 @@
 load "stzlib.ring"
 
+/*=====
+
+? 0 = ""
+
+? "" = 0
+
+? "0" = 0
+
+? "1" = 1
+#--> TRUE
+
+? 1 = "01.0"
+#--> TRUE
+
+/*----
+
+pron()
+
+? BothAreEqual(0, "")
+#--> FALSE
+
+? BothAreEqual(1, "1")
+#--> FALSE
+
+? BothAreEqual([], "")
+#--> FALSE
+
+? BothAreEqual(1:3, [1, 2, 3])
+#--> TRUE
+
+? BothAreEqual("ring", "ring")
+#--> TRUE
+
+ ? BothAreEqual("RING", "ring")
+#--> FALSE
+
+? BothAreEqualCS("RING", "ring", FALSE)
+#--> TRUE
+
+? BothAreEqual("A":"C", "a":"c")
+#--> FALSE
+
+? BothAreEqualCS("A":"C", "a":"c", FALSE)
+#--> TRUE
+
+proff()
+#--> Executed in 0.04 second(s)
+
+/*----
+
+pron()
+
+? AllHaveSameType([1, "1", 1])
+#--> FALSE
+
+proff()
+
+/*----
+*/
+pron()
+
+? AreEqual([1, 1, 1])
+#--> TRUE
+
+? AreEqual([1, "1", 1])
+#--> FALSE
+
+proff()
+
 /*====
 
 pron()
 
-o1 = new stzList([ "_", "_", "3", "4", "5", "6", "7", "_", "_" ])
-
-o1.ReplaceAtByManyXT(3:5, [ "-3", "-4", "-5" ])
-? @@( o1.Content() )
-#--> [ "_", "_", "-3", "-4", "-5", "6", "7", "_", "_" ]
+? Intersection([ 1:3, 2:7, 2:3 ])
+#--> [ 2, 3 ]
 
 proff()
-# Executed in 0.07 second(s)
-
-
-
-/*------
+# Executed in 0.05 second(s)
+/*====
 
 pron()
 
-//? Intersection([ 1:3, 2:7, 10:12 ])
+o1 = new stzList([ "1", "A", "B", "A", "A", "C", "B", 1 ])
+? @@( o1.Withoutduplication() )
+#--> [ "1", "A", "B", "C", 1 ]
 
-StzListQ([ "1":"3", "2":"7", "10":"12", 2:3 ]) {
+/*
+? @@( o1.FindItems() ) + NL # Or ItemsZ()
+#--> [ [ "A", [ 1, 3, 4 ] ], [ "B", [ 2, 6 ] ], [ "C", [ 5 ] ] ]
+
+? @@( o1.ItemsCount() )
+#--> [ [ "A", 3 ], [ "B", 2 ], [ "C", 1 ] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*====
+*/
+pron()
+
+
+StzListQ([ "1":"3", "2":"7", "10":"12" ]) {
 	Flatten()
 	Sort()
 
@@ -44,9 +124,10 @@ StzListQ([ "1":"3", "2":"7", "10":"12", 2:3 ]) {
 }
 
 proff()
+# Executed in 0.06 second(s)
 
 /*====
-
+*/
 pron()
 
 o1 = new stzListOfLists([ "A":"C", "A":"B", "A":"C" ])

@@ -731,6 +731,9 @@ func RingKeywords()
 func SoftanzaLogo()
 	return _cSoftanzaLogo
 
+	func Softanza()
+		return _cSoftanzaLogo
+
 func StzRaise(paMessage)
 	/*
 	WARNING: Do not use StzRaise to raise errors here

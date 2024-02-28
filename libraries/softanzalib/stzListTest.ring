@@ -4,6 +4,19 @@ load "stzlib.ring"
 
 pron()
 
+o1 = new stzList([ "_", "_", "3", "4", "5", "6", "7", "_", "_" ])
+
+o1.ReplaceAtByManyXT(3:5, [ "-3", "-4", "-5" ])
+? @@( o1.Content() )
+#--> [ "_", "_", "-3", "-4", "-5", "6", "7", "_", "_" ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*==
+
+pron()
+
 o1 = new stzList([ 1, 2, 3, 4, "A", "B", 7, 8, "C", "D", 11, 12, 13 ])
 ? @@( o1.FindNumbersAsSections() )
 #--> [ [ 1, 4 ], [ 7, 8 ], [ 11, 13 ] ]

@@ -1,5 +1,51 @@
+
+
+/*
+changeRingKeyword load ＃
+＃ "stzlib.ring"
+
+? SoftanzaLogo() + NL
+
+# Unicode codepoint of the char ＃
+? "＃ ~> " + Unicode("＃")
+#--> ＃ ~> 65283
+
+? QQ("＃").Name()
+#--> FULLWIDTH NUMBER SIGN
+
+
+
+
+
+
 //load "stzlib.ring"
 
+/*----
+
+pron()
+
+? 3 : 5
+#--> [ 3, 5 ]
+
+? "3" : "5"
+#--> [ "3", "4", "5" ]
+
+? 10 : 12
+#--> [ 10, 11, 12 ]
+
+? "10" : "12"
+#--> "10"
+
+? L(' "10":"12" ')
+#--> #--> [ "10", "11", "12" ]
+
+proff()
+
+/*----
+
+? @@( Intersection([ "1":"3", "2":"7", L(' "10":"12" ') ]) )
+
+proff()
 
 /*====
 

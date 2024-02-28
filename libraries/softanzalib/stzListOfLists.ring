@@ -1799,32 +1799,88 @@ class stzListOfLists from stzList
 	 #   INDEXING    #
 	#---------------#
 
-	def Index()
-		return This.IndexByPosition()
+	def IndexCS(pCaseSensitive)
+		//return This.IndexByPosition()
 
-		def IndexQ()
-			return This.IndexQR(:stzList)
+		aLists = @aContent
 
-		def IndexQR(pcReturnType)
+		if CaseSensitive(pCaseSensitive) = FALSE
+			aLists = This.Lowercased()
+		ok
+
+		nLenLists = len(aLists)
+
+		# Early cheks
+
+		if nLenLists = 0
+			return []
+		ok
+
+		# Doing the job
+
+		aItems = This.FlattenedQ().WithoutDuplicationCS(pCaseSensitive)
+		nLenItems = len(aItems)
+
+		aResult = []
+	
+		for i = 1 to nLenItems
+			anPos = []
+
+			for j = 1 to nLenLists
+				nLen = len(aLists[j])
+				for w = 1 to nLen
+					if ring_type(aLists[j][w]) = ring_type(aItems[i]) and
+					   aLists[j][w] = aItems[i]
+
+						anPos + j
+					ok
+				next
+			next
+
+			aResult + [ aItems[i], anPos ]
+
+		next
+
+		return aResult
+
+		def IndexCSQ()
+			return This.IndexCSQR(:stzList, pCaseSensitive)
+
+		def IndexCSQR(pcReturnType, pCaseSensitive)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.Index() )
+				return new stzList( This.IndexCS(pCaseSensitive) )
 
 			on :stzHashList
-				return new stzHashList( This.Index() )
+				return new stzHashList( This.IndexCS(pCaseSensitive) )
 
 			on :stzListOfLists
-				return new stzListOfLists( This.Index() )
+				return new stzListOfLists( This.IndexCS(pCaseSensitive) )
 
 			other
 				StzRaise("Insupported return type!")
 			off
 
+	def IndexedCS(pCaseSensitive)
+		return This.IndexCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Index()
+		return This.IndexCS(TRUE)
+
+		def IndexQ()
+			return This.IndexQR(:stzList)
+
+		def IndexQR(pcReturnType)
+			return This.IndexCSQR(pcReturnType, TRUE)
+
 	def Indexed()
 		return This.Index()
 
 	#--
-
+	# IndexiNG
+	#---------
 	def IndexByPosition()
 		return This.IndexBy(:Position)
 
@@ -2355,7 +2411,7 @@ class stzListOfLists from stzList
 
 	def CommonItemsCS(pCaseSensitive)
 
-		aLists = This.Content()
+		aLists = @aContent
 
 		if CaseSensitive(pCaseSensitive) = FALSE
 			aLists = This.Lowercased()
@@ -2378,10 +2434,12 @@ class stzListOfLists from stzList
 		nLenItems = len(aItems)
 
 		aResult = []
-		
+	
 		for i = 1 to nLenItems
+
 			bExistsInAllLists = TRUE
 			for j = 1 to nLenLists
+
 				if ring_find(aLists[j], aItems[i]) = 0
 					bExistsInAllLists = FALSE
 					exit
