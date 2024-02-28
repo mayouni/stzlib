@@ -67,6 +67,12 @@ pron()
 ? AreEqual([1, "1", 1])
 #--> FALSE
 
+? AreEqual([ "ring", "Ring", "RING" ])
+#--> FALSE
+
+? AreEqualCS([ "ring", "Ring", "RING" ], FALSE)
+#--> TRUE
+
 proff()
 
 /*====

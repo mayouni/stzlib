@@ -351,7 +351,7 @@ func AreBothEqualCS(p1, p2, pCaseSensitive)
 
 	but isString(p1)
 
-		if NOT IsCaseSensitive(pCaseSensitive)
+		if pCaseSensitive = FALSE
 			p1 = lower(p1)
 			p2 = lower(p2)
 		ok
@@ -464,9 +464,11 @@ func AreEqualCS(paValues, pCaseSensitive)
 		return bResult
 
 	but isString(paValues[1])
-		for i = 1 to nLen
-			paValues[i] = lower(paValues[i])
-		next
+		if pCaseSensitive = FALSE
+			for i = 1 to nLen
+				paValues[i] = lower(paValues[i])
+			next
+		ok
 
 		for i = 2 to nLen
 			if paValues[i] != paValues[1]
