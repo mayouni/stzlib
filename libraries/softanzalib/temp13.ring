@@ -2764,7 +2764,7 @@ ici	def FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnS
 	 #  FINDING LAST OCCURRENCE OF A SUBSTRING BOUNDED BY TWO SUBSTRINGS  #
 	#====================================================================#
 
-	def FindLastSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive) # TODO: check performance!
+	def FindLastSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive) #TODO: check performance!
 		nLast = This.NumberOfOccurrenceOfSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		return This.FindNthSubStringBetweenCS(nLast, pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
@@ -3674,7 +3674,7 @@ ici	def FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnS
 
 		ok
 
-		# TODO (future): Check if switch could be more performant then if/else when
+		#TODO (future): Check if switch could be more performant then if/else when
 		# this function (or any other function written with if/else) is used in large loops
 
 		#< @FunctionAlternativeForms

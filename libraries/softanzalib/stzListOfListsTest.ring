@@ -1,5 +1,19 @@
 load "stzlib.ring"
 
+/*===
+
+pron()
+
+? Intersection([
+	[ "A", "A", "X", "B", "C" ],
+	[ "B", "A", "C", "B", "A", "X" ],
+	[ "C", "X", "Z", "A" ]
+])
+#--> [ "A", "X", "C" ]
+
+proff()
+# Executed in 0.04 second(s)
+
 /*-----
 
 pron()
@@ -22,7 +36,7 @@ o1 = new stzListOfLists([ 1:3, 1:3, 1:3 ])
 
 ? StzListOfListsQ([ 1:3, 1:2, 1:3 ]).AllListsAreEqual()
 
-# TODO : Add to stzList
+#TODO : Add to stzList
 #	AllNumbersAreEqual()
 #	AllStringsAreEqual()
 #	AllListsAreEqual()

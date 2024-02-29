@@ -1275,7 +1275,7 @@ class stzSplitter from stzListOfNumbers
 	#------------------------------#
 
 	def SplitAroundPositions(panPos)
-		# TODO
+		#TODO
 		StzRaise("Not yet implemented!")
 
 		def SplitsAroundPositions(panPos)
@@ -1300,7 +1300,7 @@ class stzSplitter from stzListOfNumbers
 	#------------------------------#
 
 	def SplitAroundSection(n1, n2)
-		# TODO
+		#TODO
 		StzRaise("Not yet implemented!")
 
 		def SplitsAroundSection(n1, n2)
@@ -1325,7 +1325,7 @@ class stzSplitter from stzListOfNumbers
 	#-----------------------------#
 
 	def SplitAroundSections(panSections)
-		# TODO
+		#TODO
 		StzRaise("Not yet implemented!")
 
 		def SplitsAroundSections(panSections)
@@ -1349,7 +1349,7 @@ class stzSplitter from stzListOfNumbers
 	 #   Utility functions used by the other methods above   #
 	#=======================================================#
 
-	def GetPairsFromPositions(panPositions) # TODO: A general function, can move to stzListOfNumbers
+	def GetPairsFromPositions(panPositions) #TODO: A general function, can move to stzListOfNumbers
 		/*
 		Main list 	--> 1:10
 		panPositions	--> [ 3, 6, 8 ]

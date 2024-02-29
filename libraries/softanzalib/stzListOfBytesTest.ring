@@ -1,7 +1,7 @@
 
 load "stzlib.ring"
 
-# TODO: Add use cases from Qt documentation:
+#TODO: Add use cases from Qt documentation:
 # https://doc.qt.io/qt-6/qbytearray.html()
 
 /*--------------------
@@ -12,7 +12,7 @@ o1 = new stzListOfBytes("で")
 ? o1.ToHex() 
 #--> e381a7
 
-# TODO --> (\xE3 \x81 \xa7 in UTF-8)
+#TODO --> (\xE3 \x81 \xa7 in UTF-8)
 
 proff()
 #--> Executed in 0.05 second(s)
@@ -268,7 +268,7 @@ o1 = new stzString("ssdsd")
 ? @@( o1.CharsAndUnicodes() ) # Same as o1.UnicodePerChar()
 #--> [ [ "s", 115 ], [ "s", 115 ], [ "d", 100 ], [ "s", 115 ], [ "d", 100 ] ]
 
-? @@( o1.CharsAndUnicodesU() ) # TODO
+? @@( o1.CharsAndUnicodesU() ) #TODO
 #--> [ [ "s", 115 ], [ "d", 100 ] ]
 
 proff()
@@ -287,7 +287,7 @@ o1 {
 	
 	? @@( Bytecodes() )
 	#--> [ 115, -29, -118, -79, 109 ]
-	# TODO: Understand why some values are negative!
+	#TODO: Understand why some values are negative!
 
 	? BytecodeOfByteN(5)
 	#--> 109

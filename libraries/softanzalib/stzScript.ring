@@ -209,8 +209,83 @@ func LocaleScripts()
 
 	return aResult
 
-	def Scripts()
- 		return LocaleScripts()
+func Script(p)
+	if isList(p) and Q(p).IsOfNamedParam()
+		p = p[2]
+	ok
+
+	if NOT (isString(p) or IsStzString(p) or IsStzText(p) or IsStzChar(p) )
+		StzRaise("Incorrect param type! p must be a char, string, stzChar, stzString, or stzText.")
+	ok
+
+	if IsChar(p)
+		return StzCharQ(p).Script()
+
+	but isString(p)
+		return StzTextQ(p).Script()
+
+	but IsStzChar(p)
+		return p.Script()
+
+	but IsStzString()
+		return p.ToStzText().Script()
+
+	but IsStzText()
+		return p.Script()
+
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func ScriptOf(p)
+		return Script(p)
+
+	func @Script(p)
+		return Script(p)
+
+	func @ScriptOf(p)
+		return Script(p)
+
+	#>
+
+func Scripts(p)
+	if isList(p) and Q(p).IsOfNamedParam()
+		p = p[2]
+	ok
+
+	if NOT ( isList(p) or isString(p) or IsStzString(p) or IsStzText(p) )
+		StzRaise("Incorrect param type! p must be a list, string, stzString or stzText.")
+	ok
+
+	if isList(p)
+		acResult = []
+		nLen = len(p)
+
+		for i = 1 to nLen
+			acResult + Script(p[i])
+		next
+
+		return acResult
+
+	but isString(p)
+		return StzTextQ(p).Scripts()
+
+	but IsStzString(p)
+		return p.ToStzText().Scripts()
+
+	but IsStzText(p)
+		return p.Scripts()
+
+	ok
+
+	func ScriptsOf(paListStr)
+		return Scripts(paListStr)
+
+	func @Scripts(paListStr)
+		return ScriptsOf(paListStr)
+
+	func @ScriptsOf(paListStr)
+		return Scripts(paListStr)
 
 func StzScriptQ(pcScriptIdentifier)
 	return new stzScript(pcScriptIdentifier)

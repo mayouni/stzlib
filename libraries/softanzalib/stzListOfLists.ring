@@ -753,7 +753,7 @@ class stzListOfLists from stzList
 
 		#>
 
-	# TODO: adds "big", "great", and "large" as alternatives all over the library
+	#TODO: adds "big", "great", and "large" as alternatives all over the library
 	def BiggestLists()
 		anPos = This.FindBiggestLists()
 		aResult = This.ItemsAtPositions(anPos)
@@ -2403,7 +2403,7 @@ class stzListOfLists from stzList
 	  #-----------------------------------------------#
 	 #  SORTING THE LIST OF LISTS BY A GIVEN COLUMN  #
 	#===============================================#
-	# TODO: Sorting by many columns
+	#TODO: Sorting by many columns
 
 	def SortBy(n)
 		This.UpdateBy(This.SortedBy(n))
@@ -2605,7 +2605,7 @@ class stzListOfLists from stzList
 	def ToStzListQ()
 		return new stzList( This.Content() )
 
-	def ToListOfStrings() # TODO: Do we need it? compare with stzList.Stringified()
+	def ToListOfStrings() #TODO: Do we need it? compare with stzList.Stringified()
 		aResult = []
 		aListOfLists = This.ListOfLists()
 		nLen = len(aListOfLists)

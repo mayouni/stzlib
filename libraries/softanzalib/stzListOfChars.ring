@@ -320,7 +320,7 @@ class stzListOfChars from stzListOfStrings
 			@cString = Q(paOtherListOfChars).Concatenated()
 			@aStzChars = Q(paOtherListOfChars).ToListOfStzChars()
 		else
-			StzRaise(stzListOfCharsError(:CanNotUpdateListOfChars)) # TODO
+			StzRaise(stzListOfCharsError(:CanNotUpdateListOfChars)) #TODO
 		ok
 
 		#< @FunctionAlternativeForms

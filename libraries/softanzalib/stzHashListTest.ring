@@ -434,7 +434,7 @@ o1 = new stzHashList([
 	:four	= "nor this will be classified",
 	:five	= [ "guess", "if", "this", "will", "be", "classified" ],
 	:six	= "and this",
-	:seven	= "and this" # TODO: use an object an test
+	:seven	= "and this" #TODO: use an object an test
 ])
 
 ? o1.HowManyKlassInLists()

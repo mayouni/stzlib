@@ -10,7 +10,7 @@
 /*
 	Mainly, this class servers as a parent for the common features
 	ot its inherited classes, namely stzNumber, stzString, stzList, etc.
-	# TODO: All the common features are not abstructed yet. Some of them
+	#TODO: All the common features are not abstructed yet. Some of them
 	# are duplicated due to semantic differences between classes.
 
 	All the meta data provided by Ring to objects are provided by this class:
@@ -189,7 +189,7 @@ func ObjectIsUnnamed(pObject)
 #--
 
 func RingQtClasses()
-	# TODO: Update it tp Ring 1.19
+	#TODO: Update it tp Ring 1.19
 	aRingQtClasses = [
 		:QAbstractAspect,
 		:QAbstractButton,
@@ -591,7 +591,7 @@ func NumberOfStzClasses()
 		return NumberOfStzClasses()
 
 func StzClassesXT()
-	# TODO: Update this list!
+	#TODO: Update this list!
 	aStzClassesXT = [
 		# [ :Singular,			:Plural			]
 		[ :stzObject, 			:stzObjects 		],
@@ -1982,7 +1982,7 @@ class stzObject
 
 		return aResult
 
-		def Content() # TODO: Shoud this be like that?
+		def Content() #TODO: Shoud this be like that?
 			return This.ObjectAttributesAndValues()
 
 		def AttributesXT()
@@ -2337,7 +2337,7 @@ class stzObject
 				return TRUE
 			ok
 
-		but This.IsAnObject() # TODO
+		but This.IsAnObject() #TODO
 			/* ... */
 		ok
 
@@ -2819,7 +2819,7 @@ class stzObject
 	  #----------------------------------------------------#
 	 #   FINDING THE FIRST N OCCURRENCES OF A SUBSTRING   #
 	#----------------------------------------------------#
-	# TODO: Abstract it in stzObject
+	#TODO: Abstract it in stzObject
 
 	def FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
 
@@ -3326,7 +3326,7 @@ class stzObject
 			ok
 		ok
 
-		# TODO: Add other Stz types
+		#TODO: Add other Stz types
 
 		bOfType1 = FALSE
 		bOfType2 = FALSE

@@ -558,15 +558,6 @@ func StringInvert(cStr)
 	func @StringReverse(cStr)
 		return StringInvert(cStr)
 
-func StringScript(cStr)
-	return StzStringQ(cStr).Script()
-
-	func Script(cStr)
-		return StringScript(cStr)
-
-	func @Script(cStr)
-		return StringScript(cStr)
-
 # Some functions used mainly in natural-code
 
 func UppercaseOf(cStr)
@@ -840,7 +831,7 @@ class stzString from stzObject
 	@aConstraints = []
 
 	@cLanguage = :English	# Set explicitly using SetLanguage()
-				# TODO (future): Infere the language from the string
+				#TODO (future): Infere the language from the string
 
 	// Initializes the content of the softanza string object
 	def init(pcStr)
@@ -871,7 +862,7 @@ class stzString from stzObject
 	  #==========================#
 	 #   CHECKING CONSTRAINTS   #
 	#==========================#
-	# TODO: Generalize this feature to other classes
+	#TODO: Generalize this feature to other classes
 
 	def EnforcedConstraints()
 		return @@aConstraints
@@ -1008,7 +999,7 @@ class stzString from stzObject
 	 #  IF THE STRING IS A CHAR, GETTING ITS CASE  #
 	#---------------------------------------------#
 
-	def CharCase() # TODO: unable to use Case() as a name. See why?
+	def CharCase() #TODO: unable to use Case() as a name. See why?
 		if This.NumberOfChars() = 1
 			return This.StringCase()
 
@@ -1992,7 +1983,7 @@ class stzString from stzObject
 	#----------------------------------------------------------#
 
 	def IsLowercaseInLocale(pLocale)
-		bResult = StzLocaleQ(pLocale).StringLowercased(This.String()) = This.String() # TODO: replace with DefaultLocale
+		bResult = StzLocaleQ(pLocale).StringLowercased(This.String()) = This.String() #TODO: replace with DefaultLocale
 		return bResult
 
 		#< @FunctionAlternativeForms
@@ -2286,7 +2277,7 @@ class stzString from stzObject
 			return This.SectionUppercasedInLocale(n1, n2, pLocale)
 
 	  #-------------------------------------------#
-	 #  UPPERCASING MANY SECTIONS IN THE STRING  # TODO: Check for performance!
+	 #  UPPERCASING MANY SECTIONS IN THE STRING  #TODO: Check for performance!
 	#-------------------------------------------#
 
 	def UppercaseSections(anSections)
@@ -2404,7 +2395,7 @@ class stzString from stzObject
 			return This.SectionLowercasedInLocale(n1, n2, pLocale)
 
 	  #-------------------------------------------#
-	 #  LOWERCASING MANY SECTIONS IN THE STRING  # TODO: Check for performance!
+	 #  LOWERCASING MANY SECTIONS IN THE STRING  #TODO: Check for performance!
 	#-------------------------------------------#
 
 	def LowercaseSections(paSections)
@@ -2694,7 +2685,7 @@ class stzString from stzObject
 		ok
 
 		# Getting the positions of the words in the string
-		# TODO: delegate the work to stzText when ready
+		#TODO: delegate the work to stzText when ready
 
 		anPos = This.FindAll(" ")
 		if len(anPos) = 0
@@ -2770,7 +2761,7 @@ class stzString from stzObject
 		oStr = This.Copy().LowercaseQ()
 
 		# Getting the positions of the words in the string
-		# TODO: delegate the work to stzText when ready
+		#TODO: delegate the work to stzText when ready
 
 		anPos = oStr.FindAll(" ")
 		if len(anPos) = 0
@@ -3143,7 +3134,7 @@ class stzString from stzObject
 	  #================================#
 	 #   CHECKING IF STRING IS WORD   #
 	#================================#
-	# TODO: should move to stzText
+	#TODO: should move to stzText
 
 	def IsWord()
 
@@ -3184,7 +3175,7 @@ class stzString from stzObject
 	  #-------------------------------------#
 	 #   CHECKING IF STRING IS STOPWORD    #
 	#-------------------------------------#
-	# TODO: Should move to stzText
+	#TODO: Should move to stzText
 
 	def IsStopWord()
 		return StopWordsQ().Contains(This.Lowercased())
@@ -3243,7 +3234,7 @@ class stzString from stzObject
 			nResult = n * (n + 1) / 2
 	
 		else
-			# TODO (Future): Think of a numeric solution
+			#TODO (Future): Think of a numeric solution
 			acSubStringsCS = This.SubStringsCS(FALSE)
 			nResult = len(acSubStringsCS)
 		ok
@@ -3276,10 +3267,10 @@ class stzString from stzObject
 		#>
 
 	  #==================================================#
-	 #  GETTING THE SUBSTRINGS CONTAINED IN THE STRING  # TODO
+	 #  GETTING THE SUBSTRINGS CONTAINED IN THE STRING  #TODO
 	#==================================================#
 
-	# TODO: Rethink the SubStrings() function
+	#TODO: Rethink the SubStrings() function
 
 	# --> AllSubStrings()      : returns all possible substrings
 
@@ -3313,7 +3304,7 @@ class stzString from stzObject
 
 		acResult = []
 		nLen = This.NumberOfChars()
-		# TODO: Chexk wether ..CS() extension is needed here!
+		#TODO: Chexk wether ..CS() extension is needed here!
 
 		for i = 1 to nLen
 			for j = i to nLen
@@ -3322,7 +3313,7 @@ class stzString from stzObject
 					acResult + cSubStr
 
 				else
-					# TODO: Optimise it for better performance
+					#TODO: Optimise it for better performance
 					if NOT Q(acResult).ContainsCS(cSubStr, FALSE)
 						acResult + cSubStr
 					ok
@@ -5765,7 +5756,7 @@ class stzString from stzObject
 	 #    PARSING MARQUERS    #
 	#========================#
 
-	# TODO : Add these functions	
+	#TODO : Add these functions	
 	# 	NthMarquerZ(n)
 	# 	NthMarquerZZ(n)
 	
@@ -6877,7 +6868,7 @@ class stzString from stzObject
 	#----------------------------------#
 
 	# This extended form keeps the positions even if they are duplicated
-	# TODO: Illistrate it with an example.
+	#TODO: Illistrate it with an example.
 
 	def FindDuplicatesCSXT(pCaseSensitive)
 		aSections = This.FindDuplicatesAsSectionsCS(pCaseSensitive)
@@ -7364,7 +7355,7 @@ class stzString from stzObject
 	 #  GETTING SUBSTRINGS OCCURRING N (OR MORE) TIMES IN THE LIST  #
 	#==============================================================#
 
-	def SubStringsOccurringNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+	def SubStringsOccurringNTimesCS(n, pCaseSensitive) #TODO: Check for performance
 		acResult = This.SubStringsQ().ItemsOccurringNTimesCS(n, pCaseSensitive)
 		return acResult
 
@@ -7455,7 +7446,7 @@ class stzString from stzObject
 	 #  GETTING SUBSTRINGS OCCURRING EXACTLY N TIMES IN THE LIST  #
 	#------------------------------------------------------------#
 
-	def SubStringsOccurringExactlyNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+	def SubStringsOccurringExactlyNTimesCS(n, pCaseSensitive) #TODO: Check for performance
 		acResult = This.SubStringsQ().ItemsOccurringExactlyNTimesCS(n, pCaseSensitive)
 		return acResult
 
@@ -7574,7 +7565,7 @@ class stzString from stzObject
 	 #  GETTING SUBSTRINGS OCCURRING MORE THAN N TIMES IN THE LIST  #
 	#--------------------------------------------------------------#
 
-	def SubStringsOccurringMoreThanNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+	def SubStringsOccurringMoreThanNTimesCS(n, pCaseSensitive) #TODO: Check for performance
 		acResult = This.SubStringsQ().ItemsOccurringMoreThanNTimesCS(n, pCaseSensitive)
 		return acResult
 
@@ -7653,7 +7644,7 @@ class stzString from stzObject
 	 #  GETTING SUBSTRINGS OCCURRING LESS THAN N TIMES IN THE LIST  #
 	#--------------------------------------------------------------#
 
-	def SubStringsOccurringLessThanNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+	def SubStringsOccurringLessThanNTimesCS(n, pCaseSensitive) #TODO: Check for performance
 		acResult = This.SubStringsQ().ItemsOccurringLessThanNTimesCS(n, pCaseSensitive)
 		return acResult
 
@@ -7732,7 +7723,7 @@ class stzString from stzObject
 	 #  GETTING SUBSTRINGS OCCURRING N TIMES OR LESS IN THE LIST  #
 	#------------------------------------------------------------#
 
-	def SubStringsOccurringNTimesOrLessCS(n, pCaseSensitive) # TODO: Check for performance
+	def SubStringsOccurringNTimesOrLessCS(n, pCaseSensitive) #TODO: Check for performance
 		acResult = This.SubStringsQ().ItemsOccurringNTimesOrLessCS(n, pCaseSensitive)
 		return acResult
 
@@ -10007,7 +9998,7 @@ class stzString from stzObject
 	 #  FINDING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER  #
 	#=====================================================================#
 
-	# TODO: Unify the bounds fucntions in stzString and stzList
+	#TODO: Unify the bounds fucntions in stzString and stzList
 
 	def FindSectionBoundsZZ(n1, n2, nCharsBefore, nCharsAfter)
 		if CheckParams()
@@ -10123,7 +10114,7 @@ class stzString from stzObject
 	 #  GETTING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER, ALONG WITH THEIR POSITIONS  #
 	#=================================================================================================#
 
-	def SectionBoundsZ(n1, n2, nCharBefore, nCharsAfter) # TODO: check for performance
+	def SectionBoundsZ(n1, n2, nCharBefore, nCharsAfter) #TODO: check for performance
 
 		acBounds = This.SectionBounds(n1, n2, nCharBefore, nCharsAfter)
 		anPos = This.FindSectionBounds(n1, n2, nCharBefore, nCharsAfter)
@@ -10141,7 +10132,7 @@ class stzString from stzObject
 	 #  GETTING THE BOUNDS OF A SECTION, N CHARS BEFORE AND N CHARS AFTER, ALONG WITH THEIR POSITIONS  #
 	#=================================================================================================#
 
-	def SectionBoundsZZ(n1, n2, nCharBefore, nCharsAfter) # TODO: check for performance
+	def SectionBoundsZZ(n1, n2, nCharBefore, nCharsAfter) #TODO: check for performance
 
 		acBounds = This.SectionBounds(n1, n2, nCharBefore, nCharsAfter)
 		anPos = This.FindSectionBoundsZZ(n1, n2, nCharBefore, nCharsAfter)
@@ -10158,7 +10149,7 @@ class stzString from stzObject
 	 #  INCLDUING BOUNDS, ALONG WITH THEIR POSITIONS                        #
 	#======================================================================#
 
-	def SectionBoundsIBZ(n1, n2, nCharBefore, nCharsAfter) # TODO: check for performance
+	def SectionBoundsIBZ(n1, n2, nCharBefore, nCharsAfter) #TODO: check for performance
 
 		acBounds = This.SectionBoundsIB(n1, n2, nCharBefore, nCharsAfter)
 		anPos = This.FindSectionBoundsIB(n1, n2, nCharBefore, nCharsAfter)
@@ -10175,7 +10166,7 @@ class stzString from stzObject
 	 #  INCLDUING BOUNDS, ALONG WITH THEIR SECTIONS                         #
 	#======================================================================#
 
-	def SectionBoundsIBZZ(n1, n2, nCharBefore, nCharsAfter) # TODO: check for performance
+	def SectionBoundsIBZZ(n1, n2, nCharBefore, nCharsAfter) #TODO: check for performance
 
 		acBounds  = This.SectionBoundsIB(n1, n2, nCharBefore, nCharsAfter)
 		aSections = This.FindSectionBoundsIBZZ(n1, n2, nCharBefore, nCharsAfter)
@@ -10365,7 +10356,7 @@ class stzString from stzObject
 
 		#>
 
-	# TODO: Add these alternatives
+	#TODO: Add these alternatives
 
 	def SitOnSection(n1, n2, paHarvest)
 		return This.Sit([n1, n2], paHarvest)
@@ -10697,7 +10688,7 @@ class stzString from stzObject
 
 		but isList(pIn) and Q(pIn).IsListOfStrings()
 
-			# TODO
+			#TODO
 			StzRaise("Currently, the function works only on one string. List of strings are not supported.")
 		ok
 	
@@ -10993,7 +10984,7 @@ class stzString from stzObject
 	#------------------------------------------------------------------------#
 	
 	def SubStringIsBoundedByManyCS(pcSubStr, pacPairsOfBounds, pCaseSensitive)
-		# TODO: Add "These" as alternative of "Many"
+		#TODO: Add "These" as alternative of "Many"
 
 		/* EXAMPLE
 
@@ -12913,7 +12904,7 @@ class stzString from stzObject
 
 		#>
 
-		# TODO: Complete to add misspelled forms to all functions
+		#TODO: Complete to add misspelled forms to all functions
 		# containing First in their names
 
 	  #----------------------------------------#
@@ -19575,7 +19566,7 @@ class stzString from stzObject
 	 #  CHECKING IF THE STRING CONTAINS REPEATED CHARS  #
 	#==================================================#
 
-	def HasRepeatedCharsCS(pCaseSensitive) # TODO: Test it!
+	def HasRepeatedCharsCS(pCaseSensitive) #TODO: Test it!
 		nLen = @oQString.count()
 		if nLen < 2
 			return FALSE
@@ -19604,7 +19595,7 @@ class stzString from stzObject
 			return This.HasRepeatedChars()
 
 	  #---------------------------------------#
-	 #  FINDING POSITIONS OF REPEATED CHARS  # TODO
+	 #  FINDING POSITIONS OF REPEATED CHARS  #TODO
 	#---------------------------------------#
 
 	def FindRepeatedCharsCS(pCaseSensitive)
@@ -19622,7 +19613,7 @@ class stzString from stzObject
 			return This.FindRepeatedChars()
 
 	  #-----------------------------------------------------#
-	 #  GETTING REPEATED CHARS ALONG WITH THEIR POSITIONS  # TODO
+	 #  GETTING REPEATED CHARS ALONG WITH THEIR POSITIONS  #TODO
 	#-----------------------------------------------------#
 
 	def RepeatedCharsCSZ(pCaseSensitive)
@@ -19640,7 +19631,7 @@ class stzString from stzObject
 			return This.RepatedCharsZ()
 
 	  #----------------------------------------------------#
-	 #  GETTING REPEATED CHARS ALONG WITH THEIR SECTIONS  # TODO
+	 #  GETTING REPEATED CHARS ALONG WITH THEIR SECTIONS  #TODO
 	#----------------------------------------------------#
 
 	def RepeatedCharsCSZZ(pCaseSensitive)
@@ -21493,7 +21484,7 @@ class stzString from stzObject
 	 #   GETTING A RANDOM POSITION IN THE STRING   #
 	#=============================================#
 
-	# TODO: Add
+	#TODO: Add
 
 	# 	RandomPositions()			RandomChars()
 	# 	NRandomPositions()			NRandomChars()
@@ -22154,7 +22145,7 @@ class stzString from stzObject
 	 #  GETTING N RANDOM SECTIONS (AS POSITIONS) FROM THE STRING  #
 	#============================================================#
 
-	# TODO: Add "Position" as an misspelled form of "Position"
+	#TODO: Add "Position" as an misspelled form of "Position"
 
 	def NRandomSectionsAsPositions(n)
 		n = NRandomNumberIn(n, 1:This.NumberOfItems())
@@ -22545,7 +22536,7 @@ class stzString from stzObject
 				return This.ForwardToEndOfLine( :StartingAt = n1 )
 			ok
 	
-			if n1 > 0 and n2 = :EndOfWord # TODO: should move to stzText?
+			if n1 > 0 and n2 = :EndOfWord #TODO: should move to stzText?
 				return This.ToStzText().ForwardToEndOfWord( :StartingAt = n1 )
 			ok
 
@@ -22556,8 +22547,8 @@ class stzString from stzObject
 			ok
 
 
-			# TODO: do same behavior in stzList.Section()
-			# TODO : Add SectionXT() that allows using out of index params and return accurate results
+			#TODO: do same behavior in stzList.Section()
+			#TODO : Add SectionXT() that allows using out of index params and return accurate results
 
 		ok
 
@@ -22847,7 +22838,7 @@ class stzString from stzObject
 		def SliceXTZZ(n1, n2)
 			return This.SectionXTZZ(n1, n2)
 
-	# TODO : RangeZ(), RangeZZ(), RangeXT(), RangeXTZ(), and RangeXTZZ()
+	#TODO : RangeZ(), RangeZZ(), RangeXT(), RangeXTZ(), and RangeXTZZ()
 
 	  #-----------------------------------#
 	 #   GETTING A RANGE OF THE STRING   #
@@ -23117,7 +23108,7 @@ class stzString from stzObject
 		return This.RangeCSXT(nStartPos, nRange, TRUE)
 
 	  #---------------------------------------#
-	 #   GETIING MANY SECTIONS (OR SLICES)   # TODO: Add CaseSensitivity
+	 #   GETIING MANY SECTIONS (OR SLICES)   #TODO: Add CaseSensitivity
 	#---------------------------------------#
 
 	def Sections(paSections)
@@ -23664,7 +23655,7 @@ class stzString from stzObject
 			return This.AntiRanges()
 
 	  #====================================#
-	 #  INSERTING SUBSTRINGS -- EXTENDED  # TODO / ADD OTHER FORMS
+	 #  INSERTING SUBSTRINGS -- EXTENDED  #TODO / ADD OTHER FORMS
 	#====================================#
 
 	def InsertXT(pcSubStr, paOptions)
@@ -25316,7 +25307,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		# TODO: Add "These" as alternative of "Many"
+		#TODO: Add "These" as alternative of "Many"
 
 		def InsertMany(nPos, aSubStr)
 			This.InsertListOfSubstrings(nPos, aSubStr)
@@ -25446,7 +25437,7 @@ class stzString from stzObject
 
 		#< @FunctionMisspelledForm
 
-		# TODO: Add Repalce as a misspelled form to all Replace...() functions
+		#TODO: Add Repalce as a misspelled form to all Replace...() functions
 
 		def RepalceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -25474,7 +25465,7 @@ class stzString from stzObject
 
 		#< @FunctionMisspelledForm
 
-		# TODO: Add Repalce as a misspelled form to all Replace...() functions
+		#TODO: Add Repalce as a misspelled form to all Replace...() functions
 
 		def Repalce(pcSubStr, pcNewSubStr)
 			This.Replace(pcSubStr, pcNewSubStr)
@@ -25791,7 +25782,7 @@ class stzString from stzObject
 	#--------------------------------------------#
 
 	def ReplaceByManyCS(pcSubStr, pacNewSubStrings, pCaseSensitive)
-		# TODO: Add "These" as alternatibe of "Many"
+		#TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE
 
@@ -25886,7 +25877,7 @@ class stzString from stzObject
 	#--------------------------------------------------------------------------#
 
 	def ReplaceByManyCSXT(pcSubStr, pacNewSubStrings, pCaseSensitive)
-		# TODO: Add "These" as alternatibe of "Many"
+		#TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE
 
@@ -25997,7 +25988,7 @@ class stzString from stzObject
 	#------------------------------------------------------#
 
 	def ReplaceManyByManyCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
-		# TODO: Add "These" as alternatibe of "Many"
+		#TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE
 
@@ -26348,7 +26339,7 @@ class stzString from stzObject
 	#-------------------------------------------------------------------------------#
 
 	def ReplaceSubStringAtPositionsByManyCS(panPos, pcSubStr, pacNewSubStrings, pCaseSensitive)
-		# TODO: Add "These" as alternatibe of "Many"
+		#TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE 1
 		o1 = new stzString("ring php ring ruby ring python ring csharp ring")
@@ -26499,7 +26490,7 @@ class stzString from stzObject
 	#-----------------------------------------------------------------------#
 
 	def ReplaceOccurrencesByManyCS(panOccurrences, pcSubStr, pacNewSubStrings, pCaseSensitive)
-		# TODO: Add "These" as alternatibe of "Many"
+		#TODO: Add "These" as alternatibe of "Many"
 
 		anPos = This.FindTheseOccurrencesCS(panOccurrences, pcSubStr, pCaseSensitive)
 		This.ReplaceSubStringAtPositionsByManyCS(anPos, pcSubStr, pacNewSubStrings, pCaseSensitive)
@@ -26566,7 +26557,7 @@ class stzString from stzObject
 	#-----------------------------------------------------------------------------#
 
 	def ReplaceOccurrencesByManyCSXT(panOccurrences, pcSubStr, pacNewSubStrings, pCaseSensitive)
-		# TODO: Add "These" as alternatibe of "Many"
+		#TODO: Add "These" as alternatibe of "Many"
 
 		anPos = This.FindTheseOccurrencesCS(panOccurrences, pcSubStr, pCaseSensitive)
 		This.ReplaceSubStringAtPositionsByManyCSXT(anPos, pcSubStr, pacNewSubStrings, pCaseSensitive)
@@ -26723,7 +26714,7 @@ class stzString from stzObject
 	 #   REPLACING A SUBSTRING UNDER A GIVEN CONDITION   #
 	#---------------------------------------------------#
 
-	# TODO : Generalize the CS check to all W() functions in the library
+	#TODO : Generalize the CS check to all W() functions in the library
 
 	def ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
 		/* EXAMPLE
@@ -26766,7 +26757,7 @@ class stzString from stzObject
 
 		
 		i = 0
-		for @Position in anPositions # TODO: replace for/in with for loop
+		for @Position in anPositions #TODO: replace for/in with for loop
 
 			i++
 			@CurrentPosition = @Position
@@ -26903,7 +26894,7 @@ class stzString from stzObject
 	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	#-------------------------------------------------------------------------#
 
-# TODO: Add...
+#TODO: Add...
 #	def ReplaceBetweenS()
 #	def ReplaceIBS()
 	
@@ -27839,7 +27830,7 @@ class stzString from stzObject
 	 #   REPLACING A CHAR AT A GIVEN POSITION BY A GIVEN SUBSTRING  #
 	#==============================================================#
 
-	# TODO : Add case sensitivity
+	#TODO : Add case sensitivity
 
 	def ReplaceCharAtPosition(n, pcNewChar)
 		#< @MotherFunction = ReplaceSection() > @QtBased = TRUE #>
@@ -27944,14 +27935,14 @@ class stzString from stzObject
 
 		#>
 
-		# TODO: Add Position as a misspelling of Position
-		# TODO: Add Repalce as misspelling of Replace
+		#TODO: Add Position as a misspelling of Position
+		#TODO: Add Repalce as misspelling of Replace
 
 	  #-------------------------------------------------------------#
 	 #   REPLACING CHARS AT GIVEN POSITIONS BY A GIVEN SUBSTRING   #
 	#-------------------------------------------------------------#
 
-	# TODO : Add case sensitivity
+	#TODO : Add case sensitivity
 
 	def ReplaceCharsAtPositions(panPositions, pcNewSubStr)
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
@@ -28036,10 +28027,10 @@ class stzString from stzObject
 	 #   REPLACING CHARS AT GIVEN POSITIONS BY MANY SUBSTRINGS   #
 	#-----------------------------------------------------------#
 
-	# TODO: Add case sensitivity
+	#TODO: Add case sensitivity
 
 	def ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStrings)
-		# TODO: Add "These" as alternatibe of "Many"
+		#TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE
 		o1 = new stzString("ab3de6gh9")
@@ -28115,7 +28106,7 @@ class stzString from stzObject
 
 		#>
 
-		# TODO: Add Positions as a misspelling of Positions
+		#TODO: Add Positions as a misspelling of Positions
 
 	  #-------------------------------------------------------------------------#
 	 #   REPLACING CHARS/SUBSTRINGS WITH A SUBSTRING UNDER A GIVEN CONDITION   #
@@ -28986,7 +28977,7 @@ class stzString from stzObject
 	  #===========================================#
 	 #  CHECKING IF THE STRING CONTAINS MARKERS  #
 	#===========================================#
-	# TODO: Reorganize it with similar functions
+	#TODO: Reorganize it with similar functions
 
 	def ContainsMarkers()
 		/*
@@ -29211,7 +29202,7 @@ class stzString from stzObject
 	  #========================================#
 	 #     CONTAINING ONLY SPACES & LETTERS   #
 	#========================================#
-	# TODO: Reorganize it with similar functions
+	#TODO: Reorganize it with similar functions
 
 	def ContainsOnlySpaces()
 		if This.content() = ""
@@ -31426,7 +31417,7 @@ class stzString from stzObject
 	  #-------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- D-EXTENDED  #
 	#-------------------------------------------------------#
-	# TODO: Add other alternatives
+	#TODO: Add other alternatives
 
 	def FindNthDCS(n, pcSubStr, pcDirection, pCaseSensitive)
 		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
@@ -31458,7 +31449,7 @@ class stzString from stzObject
 	  #---------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING -- D-EXTENDED  #
 	#---------------------------------------------------------#
-	# TODO: Add other alternatives
+	#TODO: Add other alternatives
 
 	def FindFirstDCS(pcSubStr, pcDirection, pCaseSensitive)
 		nResult = This.FindNthDCS(1, pcSubStr, pcDirection, pCaseSensitive)
@@ -31472,7 +31463,7 @@ class stzString from stzObject
 	  #--------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A SUBSTRING -- D-EXTENDED  #
 	#--------------------------------------------------------#
-	# TODO: Add other alternatives
+	#TODO: Add other alternatives
 
 	def FindLastDCS(pcSubStr, pcDirection, pCaseSensitive)
 		nResult = This.FindNthDCS(:Last, pcSubStr, pcDirection, pCaseSensitive)
@@ -31486,7 +31477,7 @@ class stzString from stzObject
 	  #--------------------------------------------------------#
 	 #  GETTING NTH OCCURRENCE OF A SUBSTRING -- DZ-EXTENDED  #
 	#--------------------------------------------------------#
-	# TODO: Add other alternatives
+	#TODO: Add other alternatives
 
 	def NthDCSZ(n, pcSubStr, pcDirection, pCaseSensitive)
 		aResult = [ pcSubStr, This.FindNthDCS(n, pcSubStr, pcDirection, pCaseSensitive) ]
@@ -31500,7 +31491,7 @@ class stzString from stzObject
 	  #----------------------------------------------------------#
 	 #  GETTING FIRST OCCURRENCE OF A SUBSTRING -- DZ-EXTENDED  #
 	#----------------------------------------------------------#
-	# TODO: Add other alternatives
+	#TODO: Add other alternatives
 
 	def FirstDCSZ(pcSubStr, pcDirection, pCaseSensitive)
 		return This.FindNthDCSZ(1, pcSubStr, pcDirection, pCaseSensitive)
@@ -31520,7 +31511,7 @@ class stzString from stzObject
 	  #---------------------------------------------------------#
 	 #  GETTING LAST OCCURRENCE OF A SUBSTRING -- DZ-EXTENDED  #
 	#---------------------------------------------------------#
-	# TODO: Add other alternatives
+	#TODO: Add other alternatives
 
 	def LastDCSZ(pcSubStr, pcDirection, pCaseSensitive)
 		return This.NthDCSZ(:LastOccurrence, pcSubStr, pcDirection, pCaseSensitive)
@@ -31533,7 +31524,7 @@ class stzString from stzObject
 	  #---------------------------------------------------------#
 	 #  GETTING NTH OCCURRENCE OF A SUBSTRING -- DZZ-EXTENDED  #
 	#---------------------------------------------------------#
-	# TODO: Add other alternatives
+	#TODO: Add other alternatives
 
 	def NthDCSZZ(n, pcSubStr, pcDirection, pCaseSensitive)
 		aResult = [ pcSubStr, This.FindNthAsSectionDCS(n, pcSubStr, pcDirection, pCaseSensitive) ]
@@ -31547,7 +31538,7 @@ class stzString from stzObject
 	  #-----------------------------------------------------------#
 	 #  GETTING FIRST OCCURRENCE OF A SUBSTRING -- DZZ-EXTENDED  #
 	#-----------------------------------------------------------#
-	# TODO: Add other alternatives
+	#TODO: Add other alternatives
 
 	def FirstDCSZZ(pcSubStr, pcDirection, pCaseSensitive)
 		return This.FindNthDCSZZ(1, pcSubStr, pcDirection, pCaseSensitive)
@@ -31567,7 +31558,7 @@ class stzString from stzObject
 	  #----------------------------------------------------------#
 	 #  GETTING LAST OCCURRENCE OF A SUBSTRING -- DZZ-EXTENDED  #
 	#----------------------------------------------------------#
-	# TODO: Add other alternatives
+	#TODO: Add other alternatives
 
 	def LastDCSZZ(pcSubStr, pcDirection, pCaseSensitive)
 		return This.NthDCSZZ(:LastOccurrence, pcSubStr, pcDirection, pCaseSensitive)
@@ -32160,7 +32151,7 @@ class stzString from stzObject
 	 #   STARTING AT A GIVEN POSITION              #
 	#=============================================#
 
-	# TODO: Add FindAllNextAsSectionsCS()
+	#TODO: Add FindAllNextAsSectionsCS()
 	# 	    FindNextAsSectionCS()
 
 	def FindAllNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
@@ -32197,7 +32188,7 @@ class stzString from stzObject
 	 #   STARTING AT A GIVEN POSITION                  #
 	#-------------------------------------------------#
 
-	# TODO:
+	#TODO:
 	# 	def FindAllPreviousAsSection()
 	# 	def FindAllNextAsSection()
 
@@ -32457,7 +32448,7 @@ class stzString from stzObject
 	 #      STARTING AT A GIVEN POSITION               #
 	#-------------------------------------------------#
 
-	# TODO: FindNextW() FindPreviousW()
+	#TODO: FindNextW() FindPreviousW()
 
 	def FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
 		#< QTBased | Uses: QString.IndexOf() >
@@ -33472,7 +33463,7 @@ class stzString from stzObject
 	 #  FINDING OCCURRENCES OF CHARS VERIFYING A GIVEN CONDITION  #
 	#============================================================#
 
-	# TODO: Add ..Where() alternative to all ..W() functions
+	#TODO: Add ..Where() alternative to all ..W() functions
 
 	def FindCharsW(pcCondition)
 		if CheckParams()
@@ -33633,7 +33624,7 @@ class stzString from stzObject
 	#----------------------------------------------------------------#
 
 	def FindNthCharW(n, pcCondition)
-		# TODO: Change implementation for better performance
+		#TODO: Change implementation for better performance
 		# There is no need to traverse all the charsW and then
 		# returning the nth one.
 		#--> Add FindNextCharW() and use it instead.
@@ -33660,7 +33651,7 @@ class stzString from stzObject
 	#----------------------------------------------------------------#
 
 	def FindNthSubStringW(n, pcCondition)
-		# TODO: Change implementation for better performance
+		#TODO: Change implementation for better performance
 		# There is no need to traverse all the charsW and then
 		# returning the nth one.
 		#--> Add FindNextSubStringW() and use it instead.
@@ -34854,7 +34845,7 @@ class stzString from stzObject
 	 #  GETTING NUMBER OF OCCURRENCES OF A SUBSTRING IN THE GIVEN SECTIONS  #
 	#----------------------------------------------------------------------#
 
-# TODO: Add
+#TODO: Add
 #	FindNearest("hi", :To = "emm")
 #	FindNearest("hi", :ToPositio = 10)
 
@@ -35916,7 +35907,7 @@ class stzString from stzObject
 		#>
 
 	  #===================================================#
-	 #   FINDING BY PATTERN (AN ALTERNATIVE TO REGEXP)   # TODO (FUTURE)
+	 #   FINDING BY PATTERN (AN ALTERNATIVE TO REGEXP)   #TODO (FUTURE)
 	#===================================================#
 
 	// Finds all the occurrences of a given substring in the string
@@ -35939,7 +35930,7 @@ class stzString from stzObject
 
 		StzRaise("FindInside() function is not implemented yet!")
 
-	def FindInsideW(pcTemplate, pcCondition) # TODO
+	def FindInsideW(pcTemplate, pcCondition) #TODO
 		/*
 		o1 = new stzString("opsus amcKLMbmi findus")
 		o1.FindInsideW("KLM", :Where = [
@@ -35992,7 +35983,7 @@ class stzString from stzObject
 				pcReturnType = pcReturnType[2]
 			ok
 
-			# TODO: Generalize this check
+			#TODO: Generalize this check
 
 			if NOT isString(pcReturnType)
 				stzRaise("Incorrect param! pcReturnType must be a string.")
@@ -36238,7 +36229,7 @@ class stzString from stzObject
 				pcReturnType = pcReturnType[2]
 			ok
 
-			# TODO: Generalize this check
+			#TODO: Generalize this check
 
 			if NOT isString(pcReturnType)
 				stzRaise("Incorrect param! pcReturnType must be a string.")
@@ -36384,7 +36375,7 @@ class stzString from stzObject
 	 #   NTH SUBSTRING WHERE A CONDITION IS VERIFIED  # 
 	#------------------------------------------------#
 
-	# TODO: Reimplement it for better performance
+	#TODO: Reimplement it for better performance
 
 	def NthSubStringW(n, pcCondition)
 		return This.SubStringsW()[n]
@@ -36481,7 +36472,7 @@ class stzString from stzObject
 				pcReturnType = pcReturnType[2]
 			ok
 
-			# TODO: Generalize this check
+			#TODO: Generalize this check
 
 			if NOT isString(pcReturnType)
 				stzRaise("Incorrect param! pcReturnType must be a string.")
@@ -36519,7 +36510,7 @@ class stzString from stzObject
 		#>
 
 	  #-----------------------------------------------------------#
-	 #   EXTRACTING DEEP-SUBSTRINGS ENCLOSED BETWEEN TWO CHARS   # TODO: Generealize to substrings not only chars
+	 #   EXTRACTING DEEP-SUBSTRINGS ENCLOSED BETWEEN TWO CHARS   #TODO: Generealize to substrings not only chars
 	#-----------------------------------------------------------#
 	# Bouding chars are NOT counted in the result
 
@@ -36861,10 +36852,10 @@ class stzString from stzObject
 		return This.VizFindXT(pcSubStr, [ pCaseSensitive ])
 		
 	  #----------------------------------------------------#
-	 #      VISUALLY FINDING AND BOXING A SUBSTRING       # TODO: Review this
+	 #      VISUALLY FINDING AND BOXING A SUBSTRING       #TODO: Review this
 	#----------------------------------------------------#
 
-	def VizFindBoxedXT(pcSubstr, paOptions) # TODO
+	def VizFindBoxedXT(pcSubstr, paOptions) #TODO
 		/* EXAMLPE
 
 		*/
@@ -38446,7 +38437,7 @@ class stzString from stzObject
 
 		bResult = TRUE
 
-		# TODO: change for in with for loop --> better performance
+		#TODO: change for in with for loop --> better performance
 		i = 0
 		for n in panPositions
 			i++
@@ -38659,7 +38650,7 @@ class stzString from stzObject
 	 #  CHECKING IF THE STRING CONTAINS EACH OF THE GIVEN SUBSTRINGS  #
 	#----------------------------------------------------------------#
 
-	# TODO : Unify alternative namings with ContainsMay() in stzList
+	#TODO : Unify alternative namings with ContainsMay() in stzList
 
 	def ContainsTheseSubStringsCS(pacSubStr, pCaseSensitive)
 		bResult = TRUE
@@ -38960,7 +38951,7 @@ class stzString from stzObject
 	 #   SPLITTING THE STRING -- XT/EXTENDED   #
 	#=========================================#
 
-	# TODO
+	#TODO
 	# Add SplitAround(), SplitAroundPosition(), SplitAroundPositions(),
 	# SplitAroundSubString(), SplitAroundSubStrings(),
 	# SplitAroundSection(), SplitAroundSections()
@@ -42512,7 +42503,7 @@ class stzString from stzObject
 	# Utility function used to simplify code in stzListOfStrings
 
 	def NthSubstringAfterSplittingStringUsing(n, cSep)
-	# TODO: Remake it using FindNthSplitZZ(n)
+	#TODO: Remake it using FindNthSplitZZ(n)
 
 		return This.Split(cSep)[n]
 
@@ -53787,7 +53778,7 @@ ici		//...
 			return This.PartsClassified(pcClassifier)
 
 	  #-------------------------------------------------------------#
-	 #  GETTINING THE PARTS OF STRING VERIFYING A GIVEN CONDITION  # TODO
+	 #  GETTINING THE PARTS OF STRING VERIFYING A GIVEN CONDITION  #TODO
 	#-------------------------------------------------------------#
 
 	def PartsW(pcCondition)
@@ -54154,7 +54145,7 @@ ici		//...
 	  #-----------------------------------------------------------#
 	 #     COMPARING THE STRING TO OTHER STRINGS USING UNICODE   #
 	#===========================================================#
-	# TODO: add Casesensitivity support
+	#TODO: add Casesensitivity support
 
 	# Compares the main string with an other string (base on the unicode code table)
 	# --> Use this for internal string comparisons and sorting
@@ -54222,7 +54213,7 @@ ici		//...
 		--> TODO: Add QCollator class to RingQt and make CompareWithInLocale()
 		*/
 
-	def UnicodeCompareWithInLocale(pcOtherStr, pLocale) # TODO
+	def UnicodeCompareWithInLocale(pcOtherStr, pLocale) #TODO
 		// Needs the implementation of QCollator class in RingQt (read comment
 		// in SystemLocaleCompareWith() methof above
 		StzRaise("Feature unsupported yet!")
@@ -54528,7 +54519,7 @@ ici		//...
 				:String, :AString, :Char, :AChar, :Number,
 				:ANumber, :List, :AList, :Object, :AnObject
 			]
-			# TODO: Add other stz types
+			#TODO: Add other stz types
 
 			if @BothAreStrings(pcStr1, pcStr2) and
 			   Q(pcStr1).IsOneOfThese(acStzTypes) and
@@ -55314,7 +55305,7 @@ ici		//...
 				ok
 	
 			#-- Removing at many positions
-			# TODO: Add example here for better readability
+			#TODO: Add example here for better readability
 			but oP2.IsAtPositionsNamedParam()
 				p2 = p2[2]
 	
@@ -55325,7 +55316,7 @@ ici		//...
 				This.RemoveSubStringAtPositionsCS(p2, p1, pCaseSensitive)
 
 			# Removing from, Nth from, First from, Last from
-			# TODO: Add examples here for better readability
+			#TODO: Add examples here for better readability
 			but oP2.IsFromNamedParam()
 				p2 = p2[2]
 
@@ -55367,7 +55358,7 @@ ici		//...
 			#==
 
 			# Removing after
-			# TODO: Add example here for better readability
+			#TODO: Add example here for better readability
 			but oP2.IsOneOfTheseNamedParams([ :After, :AfterEach  ])
 
 				p2 = p2[2] + p1
@@ -55376,7 +55367,7 @@ ici		//...
 				This.ReplaceCS(p2, cNewSubStr, pCaseSensitive)
 
 			# Removing after nth
-			# TODO: Add example here for better readability
+			#TODO: Add example here for better readability
 			but oP2.IsOneOfTheseNamedParams([ :AfterNth ])
 				n = p2[2][1]
 				p2 = p2[2][2] + p1
@@ -55385,7 +55376,7 @@ ici		//...
 				This.ReplaceCS(p2, cNewSubStr, pCaseSensitive)
 
 			# Removeing after first
-			# TODO: Add example here for better readability
+			#TODO: Add example here for better readability
 			but oP2.IsOneOfTheseNamedParams([ :AfterFirst, :ToFirst ])
 				p2 = p2[2] + p1
 				cNewSubStr = Q(p2).RemoveFromEndQ(p1).Content()
@@ -55393,7 +55384,7 @@ ici		//...
 				This.ReplaceFirstCS(p2, cNewSubStr, pCaseSensitive)
 
 			# Removeing atfer last
-			# TODO: Add example here for better readability
+			#TODO: Add example here for better readability
 			but oP2.IsOneOfTheseNamedParams([ :AfterLast, :ToLast ])
 				p2 = p2[2] + p1
 				cNewSubStr = Q(p2).RemoveFromEndQ(p1).Content()
@@ -55403,7 +55394,7 @@ ici		//...
 			#==
 
 			# Removing Before
-			# TODO: Add example here for better readability
+			#TODO: Add example here for better readability
 			but oP2.IsOneOfTheseNamedParams([ :Before, :BeforeEach  ])
 
 				p2 = p1 + p2[2]
@@ -55412,7 +55403,7 @@ ici		//...
 				This.ReplaceCS(p2, cNewSubStr, pCaseSensitive)
 
 			# Removing before nth
-			# TODO: Add example here for better readability
+			#TODO: Add example here for better readability
 			but oP2.IsOneOfTheseNamedParams([ :BeforeNth ])
 				n = p2[2][1]
 				p2 = p1 + p2[2][2]
@@ -55422,7 +55413,7 @@ ici		//...
 				This.ReplaceCS(p2, cNewSubStr, pCaseSensitive)
 
 			# Removeing before first
-			# TODO: Add example here for better readability
+			#TODO: Add example here for better readability
 			but oP2.IsOneOfTheseNamedParams([ :BeforeFirst, :ToFirst ])
 				p2 = p1 + p2[2]
 				cNewSubStr = Q(p2).RemoveFromStartQ(p1).Content()
@@ -55430,7 +55421,7 @@ ici		//...
 				This.ReplaceFirstCS(p2, cNewSubStr, pCaseSensitive)
 
 			# Removing before last
-			# TODO: Add example here for better readability
+			#TODO: Add example here for better readability
 			but oP2.IsOneOfTheseNamedParams([ :BeforeLast, :ToLast ])
 				p2 = p1 + p2[2]
 				cNewSubStr = Q(p2).RemoveFromStartQ(p1).Content()
@@ -55440,7 +55431,7 @@ ici		//...
 			#==
 
 			# Removing around
-			# TODO: Add example here for better readability
+			#TODO: Add example here for better readability
 			but oP2.IsOneOfTheseNamedParams([ :Around, :AroundEach ])
 				p2 = p2[2]
 
@@ -55459,7 +55450,7 @@ ici		//...
 				ok
 
 			# Removing around nth
-			# TODO: Add example here for better readability
+			#TODO: Add example here for better readability
 			but oP2.IsAroundNthNamedParam()
 				
 				n = p2[2][1]
@@ -55513,7 +55504,7 @@ ici		//...
 				# Otherwise, we do nothing.
 
 			# Removing around first
-			# TODO: Add example for better readability
+			#TODO: Add example for better readability
 			but oP2.IsAroundFirstNamedParam()
 				RemoveXT(p1, :AroundNth = [1, p2[2]])
 
@@ -56255,7 +56246,7 @@ ici		//...
 	 #    REMOVING MANY RANGES OF CHARS AT THE SAME TIME   # 
 	#-----------------------------------------------------#
 
-	def RemoveManyRanges(paRanges) # Todo: use for loop instead of for/in
+	def RemoveManyRanges(paRanges) #TODO: use for loop instead of for/in
 
 		if NOT ( isList(paRanges) and Q(paRanges).IsListOfPairsOfNumbers() )
 
@@ -56960,7 +56951,7 @@ ici		//...
 	
 		aStzChars = This.ToListOfStzChars()
 
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for oChar in aStzChars
 			if NOT oChar.IsANumber()
 				cResult += oChar.Content()
@@ -58724,7 +58715,7 @@ ici		//...
 	 #   REMOVING ANY CHAR FROM START   #
 	#==================================#
 
-	# TODO: Add "Strip" as alternative of "Trim" all over the library
+	#TODO: Add "Strip" as alternative of "Trim" all over the library
 
 	def RemoveAnyCharFromStartCS(c, pCaseSensitive)
 		if This.IsLeftToRight()
@@ -60246,14 +60237,14 @@ ici		//...
 	  #------------------------------------#
 	 #  REMOVING ANY SUBSTRING FROM LEFT  #
 	#------------------------------------#
-	# TODO : See RemoveAnyCharFromLeft()
+	#TODO : See RemoveAnyCharFromLeft()
 
 	# Add : RemoveAnySubStringFromLeft(cSubStr)
 	#       RemoveAnySubStringFromRight(cSubStr)
 	#       RemoveAnySubStringFromStart(cSubStr)
 	# 	RemoveAnySubStringFromEnd(cSubStr)
 
-	# TODO : Add TrailingSubString() ~~> Like TrailingChar()
+	#TODO : Add TrailingSubString() ~~> Like TrailingChar()
 
 	  #--------------------------------------------------------#
 	 #    REMOVING CHARS FROM LEFT UNDER A GIVEN CONDITION    # 
@@ -60465,7 +60456,7 @@ ici		//...
 	  #=================================#
 	 #   TRIMMING & REMOVING SPACES    # 
 	#=================================#
-	# TODO : Add Trim functions to stzList
+	#TODO : Add Trim functions to stzList
 
 	def Trim()
 		This.Update( This.QStringObject().trimmed() )
@@ -60600,7 +60591,7 @@ ici		//...
 
 	#--
 
-	def TrimCharCS(c, pCaseSensitive) # TODO : Add TrimSubString()
+	def TrimCharCS(c, pCaseSensitive) #TODO : Add TrimSubString()
 		/* Example
 
 		o1 = new stzString("♥♥♥123♥♥♥")
@@ -61684,7 +61675,7 @@ ici		//...
 		#--
 
 		def CharsSpacifiedQ()
-		# TODO : Add the fluent form of each passive form in the libraray
+		#TODO : Add the fluent form of each passive form in the libraray
 			oResult = This.Copy().SpacifyCharsQ()
 			return oResult
 
@@ -63946,7 +63937,7 @@ ici		//...
 	#-----------------------------------#
 
 	def RemoveDots()
-		# TODO: Needs a better data stracture to deal with some special cases
+		#TODO: Needs a better data stracture to deal with some special cases
 
 		acChars = This.Chars()
 		anLettersPos = This.FindLetters()
@@ -64020,7 +64011,7 @@ ici		//...
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if aLanguageInfo[1] = This.String()
 				bResult = TRUE
@@ -64037,7 +64028,7 @@ ici		//...
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[3]) = lower(This.String())
 				bResult = TRUE
@@ -64051,7 +64042,7 @@ ici		//...
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[4]) = lower(This.String())
 				bResult = TRUE
@@ -64071,7 +64062,7 @@ ici		//...
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 
 			if lower(aLanguageInfo[3]) = lower(This.String()) OR
@@ -64087,7 +64078,7 @@ ici		//...
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[3]) = lower(This.String())
 				bResult = TRUE
@@ -64101,7 +64092,7 @@ ici		//...
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[4]) = lower(This.String())
 				bResult = TRUE
@@ -64133,7 +64124,7 @@ ici		//...
 		if This.IsEmpty() { return FALSE }
 
 		bResult = FALSE
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aLanguageInfo in LocaleLanguagesXT()
 			if lower(aLanguageInfo[2]) = lower(This.String())
 				bResult = TRUE
@@ -64149,7 +64140,7 @@ ici		//...
 	def IsNativeLanguageName() # Locale-specific
 		if This.IsEmpty() { return FALSE }
 
-		stzRaise(stzStringError(:UnsupportedFeatureInThisVersion)) # TODO
+		stzRaise(stzStringError(:UnsupportedFeatureInThisVersion)) #TODO
 
 	def IsCountryIdentifier()
 		return 	This.IsCountryNumber() or
@@ -64162,7 +64153,7 @@ ici		//...
 
 		cAbbr = This.String()
 		bResult = FALSE
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if UPPER(aCountryInfo[3]) = UPPER(cAbbr) OR
 			   UPPER(aCountryInfo[4]) = UPPER(cAbbr)
@@ -64179,7 +64170,7 @@ ici		//...
 
 		cName = This.String()
 		bResult = FALSE
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if lower(aCountryInfo[2]) = lower(cName)
 				bResult = TRUE
@@ -64203,7 +64194,7 @@ ici		//...
 		cPhoneCode = This.String()
 		bResult = FALSE
 
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if aCountryInfo[5] = cPhoneCode
 				bResult = TRUE
@@ -64219,7 +64210,7 @@ ici		//...
 		cNumber = This.String()
 		bResult = FALSE
 
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if lower(aCountryInfo[1]) = lower(cNumber)
 				bResult = TRUE
@@ -64238,7 +64229,7 @@ ici		//...
 		cAbbr = This.String()
 		bResult = FALSE
 
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if UPPER(aCountryInfo[3]) = UPPER(cAbbr)
 
@@ -64258,7 +64249,7 @@ ici		//...
 		cAbbr = This.String()
 		bResult = FALSE
 
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aCountryInfo in LocaleCountriesXT()
 			if UPPER(aCountryInfo[4]) = UPPER(cAbbr)
 				bResult = TRUE
@@ -64302,7 +64293,7 @@ ici		//...
 		cAbbr = This.String()
 		bResult = FALSE
 
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aScriptInfo in LocaleScriptsXT()
 			if lower(aScriptInfo[3]) = lower(cAbbr)
 				bResult = TRUE
@@ -64318,7 +64309,7 @@ ici		//...
 		cScript = This.String()
 		bResult = FALSE
 
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aScriptInfo in LocaleScriptsXT()
 			if lower(aScriptInfo[2]) = lower(cScript)
 				bResult = TRUE
@@ -64340,7 +64331,7 @@ ici		//...
 		cScript = This.String()
 		bResult = FALSE
 
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aScriptInfo in LocaleScriptsXT()
 			if lower(aScriptInfo[1]) = lower(cScript)
 				bResult = TRUE
@@ -64389,7 +64380,7 @@ ici		//...
 
 		bResult = FALSE
 
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for aCurrencyInfo in CurrenciesXT()
 			if lower(aCurrencyInfo[1]) = This.Lowercased()
 				bResult = TRUE
@@ -64399,7 +64390,7 @@ ici		//...
 
 		return bResult	
 
-	def IsCurrencySymbol()	# TODO
+	def IsCurrencySymbol()	#TODO
 		if This.IsEmpty() { return FALSE }
 		
 	def IsBp64LocaleAbbreviation() # Like "ar-TN" for example
@@ -65024,7 +65015,7 @@ ici		//...
 
 		bTemp = FALSE
 
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for cBinPrefix in BinaryPrefixes()
 			oCopy = This.Copy()
 			oCopy.RemoveFromLeftQ("-").RemoveFromLeftQ("+")
@@ -65135,7 +65126,7 @@ ici		//...
 
 		bTemp = FALSE
 
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for cHexPrefix in HexPrefixes()
 			oCopy = This.Copy()
 			oCopy.RemoveFromLeft("-")
@@ -65293,7 +65284,7 @@ ici		//...
 
 		bTemp = FALSE
 
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for cOctalPrefix in OctalPrefixes()
 			oCopy = This.Copy()
 			oCopy.RemoveFromLeftQ("-").RemoveFromLeftQ("+")
@@ -65989,7 +65980,7 @@ ici		//...
 	def IsMadeOfSome(acSubstrings)
 		oCopy = This.Copy()
 		
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for cSubstr in acSubstrings
 			if This.Contains(cSubStr)
 				oCopy.RemoveAll(cSubStr)
@@ -66272,7 +66263,7 @@ ici		//...
 
 		acResult = []
 
-		# TODO: Replace for/in with for --> better performance
+		#TODO: Replace for/in with for --> better performance
 		for n in panPositions
 			acResult + This.CharAt(n)
 		next
@@ -67372,7 +67363,7 @@ ici		//...
 	  #=============================================#
 	 #  MOVING CHAR AT POSITION N1 TO POSITION N2  #
 	#=============================================#
-	# TODO: Should be generalized to move hole substrings not only chars
+	#TODO: Should be generalized to move hole substrings not only chars
 
 	def Move(n1, n2)
 
@@ -67860,7 +67851,7 @@ ici		//...
 	#========================#
 	
 	# Currently we use the native hashing functions of Ring StdLib
-	# TODO: other algortithms can be added through RingQt
+	#TODO: other algortithms can be added through RingQt
 
 	def Hash(pcHashingAlgo)
 		if isList(pcHashingAlgo) and Q(pcHashingAlgo).IsWithOrUsingOrByNamedParam()
@@ -68110,7 +68101,7 @@ ici		//...
 		return This.WalkXT([ pnFromPosition, pnToPosition, pnStep, pcReturn ])
 
 	  #--------------------------------------------#
-	 #   WALKING STARTING FROM N UNTIL CHAR IS    # TODO: Redo with stzWalker
+	 #   WALKING STARTING FROM N UNTIL CHAR IS    #TODO: Redo with stzWalker
 	#--------------------------------------------#
 
 	def WalkBackwardW( paStartingAt, pcCondition )
@@ -69769,7 +69760,7 @@ ici		//...
 
 		#--
 
-		def DoW(pcAction, pcCondition) # TODO: Generalize in other classes
+		def DoW(pcAction, pcCondition) #TODO: Generalize in other classes
 			This.PerformW(pcAction, pcCondition)
 
 		def PerformWQ(paParams)
@@ -69783,7 +69774,7 @@ ici		//...
 	 #  OPERATORS OVERLOADING     #
 	#============================#
 
-	# TODO: Operators should carry same semantics in all classes...
+	#TODO: Operators should carry same semantics in all classes...
 
 	def operator(pOp,pValue)
 
@@ -70087,7 +70078,7 @@ ici		//...
 				This.RemoveMany(pValue.Content())
 				return This
 
-			but isList(pValue) and Q(pValue).IsListOfLists() and len(pValue) = 1 # TODO
+			but isList(pValue) and Q(pValue).IsListOfLists() and len(pValue) = 1 #TODO
 				/*
 				Example:
 
@@ -70239,7 +70230,7 @@ ici		//...
 		   This.NumberOfOccurrence(")") = 1 and
 		   This.FindFirst("(") > 1 and
 		   This.FindFirst("(") < This.FindFirst(")") and
-		   This.LastChar() = ")" // and # TODO: complete this and remove "Almost" from the function name!
+		   This.LastChar() = ")" // and #TODO: complete this and remove "Almost" from the function name!
 		   //This.SectionQ(1,  This.FindFirst("(") - 1).ContainsOnly(:CompterCodeChars)
 		
 			return TRUE
@@ -70687,7 +70678,7 @@ ici		//...
 	 #  GETTING THE NUMBERS INCLUDED IN THE STRING ALONG WITH THEIR POSITIONS  #
 	#-------------------------------------------------------------------------#
 
-	def NumbersAndTheirPositions() # TODO: Check performance!
+	def NumbersAndTheirPositions() #TODO: Check performance!
 		aResult = Q(This.UniqueNumbers()).AssociatedWith( This.FindNumbers() )
 		return aResult
 
@@ -70698,7 +70689,7 @@ ici		//...
 	 #  GETTING THE NUMBERS INCLUDED IN THE STRING ALONG WITH THEIR SECTIONS  #
 	#------------------------------------------------------------------------#
 
-	def NumbersAndTheirSections() # TODO: chek performance!
+	def NumbersAndTheirSections() #TODO: chek performance!
 		aResult = []
 		acNumbersU = This.UniqueNumbers()
 		nLen = len(acNumbersU)
@@ -70935,7 +70926,7 @@ ici		//...
 	#---------------------------------------------#
 
 	def NthNumberComingAfterCS(n, pcSubStr, pCaseSensitive)
-		# TODO: Re-implement it for better performance
+		#TODO: Re-implement it for better performance
 		# No need to parse all the numbers and then get the nth
 
 		return This.NumbersComingAfterCS(pcSubStr, pCaseSensitive)[n]
@@ -71650,7 +71641,7 @@ ici		//...
 	 #  CHECKING IF THE GIVEN SUSBSTRING CORRESPONDS TO A WORD OF THE STRING  #
 	#------------------------------------------------------------------------#
 
-	def SubStringIsWordCS(pcSubStr, pCaseSensitive) # TODO: Check for performance!
+	def SubStringIsWordCS(pcSubStr, pCaseSensitive) #TODO: Check for performance!
 		bResult = This.WordsCSQ(pCaseSensitive).ContainsCS(pcSubStr, pCaseSensitive)
 		return bResult
 
@@ -71666,7 +71657,7 @@ ici		//...
 		def SubSgtringIsWordCS(pcSubStr, pCaseSensitive)
 			return This.SubStringIsWord(pcSubStr, pCaseSensitive)
 
-		# TODO: Generalise this misspelled form to all functions
+		#TODO: Generalise this misspelled form to all functions
 		# containing SubString in their names
 
 		#>
@@ -71694,7 +71685,7 @@ ici		//...
 	 #  CHECKING IF THE GIVEN SUSBSTRINGS CORRESPOND TO A WORDS OF THE STRING  #
 	#-------------------------------------------------------------------------#
 
-	def SubStringsAreWordsCS(acSubStr, pCaseSensitive) # TODO: check for performance!
+	def SubStringsAreWordsCS(acSubStr, pCaseSensitive) #TODO: check for performance!
 
 		if CheckParams() = TRUE
 			if NOT (isList(acSubStr) and Q(acSubStr).IsLIstOfStrings())
@@ -71831,8 +71822,8 @@ ici		//...
 	#=====================================================#
 
 	def OccursCS( pcBeforeOrAfter, pIn, pCaseSensitive )
-		# TODO: Generalise this fuction so pIn can also be a list
-		# TODO: Implement the same function in all other types
+		#TODO: Generalise this fuction so pIn can also be a list
+		#TODO: Implement the same function in all other types
 
 		/* EXAMPLE
 
@@ -74867,7 +74858,7 @@ ici		//...
 	  #------------------------------------#
 	 #  ALTERNATIVES OF AnyDeepBetween()  #
 	#------------------------------------#
-	# TODO: Add BoundedBy alternatives!
+	#TODO: Add BoundedBy alternatives!
 
 	def DeepSubStringsBetweenCS(pcChar1, pcChar2, pCaseSensitive)
 		return This.AnyDeepBetweenCS(pcChar1, pcChar2, pCaseSensitive)

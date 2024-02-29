@@ -1,5 +1,5 @@
 
-# TODO: general - study the cmpatibility of softanza comments
+#TODO: general - study the cmpatibility of softanza comments
 # with JSDoc (https://jsdoc.app/)
 #--> Create a generator of a static web site documentation
 
@@ -15,7 +15,7 @@ Programming, by Heart! By: M.Ayouni╭
 ━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
   ╰╯'
 
-# TODO: Add these alternatives to NumberOf...() functions, allover the library:
+#TODO: Add these alternatives to NumberOf...() functions, allover the library:
 #	- HowMany...() : in singular and plural forms, exp: HowManyItem() and HowManyItems()
 #	- Count...()
 # NB: Many have been added! Check those that haven't.
@@ -44,7 +44,7 @@ _CacheFileHandler = NULL
 
 _cCacheMemoryString = ""
 
-_acRingFunctions = [ # TODO: Add the new functions added in Ring 1.18
+_acRingFunctions = [ #TODO: Add the new functions added in Ring 1.18
 	"acos",
 	"add",
 	"addattribute",
@@ -285,7 +285,7 @@ _acRingFunctions = [ # TODO: Add the new functions added in Ring 1.18
 	"write"
 ]
 
-_acRingKeywords = [ # TODO: Review the list for Ring 1.18
+_acRingKeywords = [ #TODO: Review the list for Ring 1.18
 	"again",
 	"and",
 	"but",
@@ -477,7 +477,7 @@ func ForEach(p, pIn)
 # --> In this case, you deactivate param checking inside
 # functions, and if you need it, do it by yourself outside teh loop/
 
-func SetParamCheckingTo(bTrueOrFalse) # TODO: Test it!
+func SetParamCheckingTo(bTrueOrFalse) #TODO: Test it!
 	_bParamCheck = bTrueOrFalse
  
 	#< @FunctionAlternatives
@@ -813,7 +813,7 @@ func StzRaise(paMessage)
 #     softanza object, then the softanza version will apply, unless you
 #     you for the Ring's version using ring_...()
 
-# TODO: Add the ring_...() form of all Ring functions
+#TODO: Add the ring_...() form of all Ring functions
 
 func ring_trim(str)
 	return trim(str)
@@ -1467,7 +1467,7 @@ func IsCharOrObject(p)
 
 #--
 
-func ListOfListsOfStzTypes() # TODO: complete the list
+func ListOfListsOfStzTypes() #TODO: complete the list
 	return [
 		:stzListOfObjects,
 		:stzListOfNumbers,
@@ -2222,7 +2222,7 @@ func BothHaveSameStzType(p1, p2)
 
 # ARE TWO OBJECTS THE SAME?
 
-func AreSameObject(pcVarName1, pcVarName2) # TODO
+func AreSameObject(pcVarName1, pcVarName2) #TODO
 	if isList(pcVarName2) and Q(pcVarName2).IsAndNamedParam()
 		pcVarName2 = pcVarName2[2]
 	ok
@@ -2482,6 +2482,10 @@ func StzLen(p)
 	ok
 
 func Unicode(p)
+	if isList(p) and Q(p).IsOfNamedParam()
+		p = p[2]
+	ok
+
 	if isString(p)
 		nResult = StzStringQ(p).Unicode()
 		return nResult
@@ -2497,7 +2501,17 @@ func Unicode(p)
 	func @Unicode(p)
 		return Unicode(p)
 
+	func UnicodeOf(p)
+		return Unicode(p)
+
+	func @UnicodeOf(p)
+		return Unicode(p)
+
 func HexUnicode(p)
+	if isList(p) and Q(p).IsOfNamedParam()
+		p = p[2]
+	ok
+
 	if isString(p)
 		nResult = StzStringQ(p).HexUnicode()
 		return nResult
@@ -2513,7 +2527,16 @@ func HexUnicode(p)
 	func @HexUnicode(p)
 		return HexUnicode(p)
 
+	func HexUnicodeOf(p)
+		return hexUnicode(p)
+
+	func @HexUnicodeOf(p)
+		return hexUnicode(p)
+
 func Unicodes(p)
+	if isList(p) and Q(p).IsOfNamedParam()
+		p = p[2]
+	ok
 
 	if isString(p)
 		anResult = StzStringQ(p).Unicodes()
@@ -2530,7 +2553,16 @@ func Unicodes(p)
 	func @Unicodes(p)
 		return Unicodes(p)
 
+	func UnicodesOf(p)
+		return Unciodes(p)
+
+	func @UnicodesOf(p)
+		return Unciodes(p)
+
 func HexUnicodes(p)
+	if isList(p) and Q(p).IsOfNamedParam(p)
+		p = p[2]
+	ok
 
 	if isString(p)
 		anResult = StzStringQ(p).HexUnicodes()
@@ -2547,8 +2579,11 @@ func HexUnicodes(p)
 	func @HexUnicodes(p)
 		return HexUnicodes(p)
 
-func ScriptsOf(paListStr)
-	return StzListOfStringsQ(paListStr).Scripts()
+	func HexUnicodesOf(p)
+		return HexUnicodes(p)
+
+	func @HexUnicodesOf(p)
+		return HexUnicodes(p)
 
 func Show(pValue)
 	? ComputableForm(pValue)
@@ -3197,9 +3232,9 @@ func QQ(p)
 		if oParam.IsNumberInString()
 			return new stzNumber(p)
 
-		but oParam.IsListInString() # TODO: check Q(' "A" : "C" ').IsListInString()
+		but oParam.IsListInString() #TODO: check Q(' "A" : "C" ').IsListInString()
 			return new stzList(p)
-			# TODO: check new stzList("[1, 2, 3]")
+			#TODO: check new stzList("[1, 2, 3]")
 
 		but oParam.IsChar() or oParam.IsHexUnicode()
 			return new stzChar(p)
@@ -3288,7 +3323,7 @@ func ElapsedTimeXT(pIn)
 	ok
 
 	if NOT Q(pIn).IsOneOfThese([ :Clocks, :Seconds, :Minutes, :Hours ])
-		# TODO - Future: Add days, weeks, months, years...
+		#TODO - Future: Add days, weeks, months, years...
 		StzRaise("Incorrect value of pIn param! Allowed values are: " +
 		":Clocks, :Seconds, :Minutes and :Hours.")
 	ok
@@ -3662,6 +3697,18 @@ func HowMany(paList)
 
 		return HowMany(paList)
 
+	#-- @FunctionMisspelledForms
+	#TODO: Add "Hwo" as an alternative of "Hwo" in all functions
+
+	def HwoMany(paList)
+		return HowMany(paList)
+
+	func HwoManyItemsIn(paList)
+		return HowMany(paList)
+
+	func HwoManyItems(paList)
+		return HowManyItems(paList)
+
 class stzForEachObjectOld
 	@acVars
 	@aValues
@@ -3778,6 +3825,15 @@ class stzForEachObjectOld
 		next
 
 		return
+
+func NewLine()
+	return NL
+
+	func NL()
+		return NL
+
+	func EmptyLine()
+		return NL
 
 class stzForEachObject
 	@acVars

@@ -1,5 +1,172 @@
 load "stzlib.ring"
 
+/*====
+
+pron()
+
+? Q(1:7) - These(3:5) # Or AllThese() or EachIn()
+#--> [ 1, 2, 6, 7 ]
+
+? Q(1:7) - These(3:5)
+#--> [ 1, 2, 6, 7 ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*====
+
+pron()
+
+StzListQ([ "1":"3", "2":"7", "10":"12" ]) {
+	Flatten()
+	Sort()
+
+	Show() + NL
+	#--> [ "1", "10", "2", "2", "3", "3", "4", "5", "6", "7" ]
+
+	? @@( FindItems() ) + NL # Or ItemsAndTheirPositions() or ItemsZ()
+	#-->[
+	# 	[ "1", [ 1 ] ], [ "10", [ 2 ] ], [ "2", [ 3, 4 ] ],
+	# 	[ "3", [ 5, 6 ] ], [ "4", [ 7 ] ], [ "5", [ 8 ] ],
+	# 	[ "6", [ 9 ] ], [ "7", [ 10 ] ]
+	# ]
+
+	? @@( NumberOfOccurrenceOfEachItem() ) # Or ItemsCount()
+	#-->[
+	# 	[ "1", 1 ], [ "10", 1 ], [ "2", 2 ],
+	# 	[ "3", 2 ], [ "4", 1 ], [ "5", 1 ],
+	# 	[ "6", 1 ], [ "7", 1 ]
+	# ]
+}
+
+proff()
+# Executed in 0.04 second(s)
+
+/*====
+
+pron()
+
+o1 = new stzList([ "1", "A", "B", "A", "A", "C", "B", 1 ])
+? @@( o1.Withoutduplication() ) + NL
+#--> [ "1", "A", "B", "C", 1 ]
+
+
+? @@( o1.FindItems() ) + NL # Or ItemsZ()
+#--> [
+#	[ "1", [ 1 ] ],
+#	[ "A", [ 2, 4, 5 ] ],
+#	[ "B", [ 3, 7 ] ],
+#	[ "C", [ 6 ] ],
+#	[   1, [ 8 ] ]
+# ]
+
+? @@( o1.ItemsCount() )
+#--> [ [ "1", 1 ], [ "A", 3 ], [ "B", 2 ], [ "C", 1 ], [ 1, 1 ] ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*====
+
+pron()
+
+? Intersection([ 1:3, 2:7, 2:3 ])
+#--> [ 2, 3 ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*===
+
+pron()
+
+o1 = new stzList([ "A", "B", "A", "C", "D", "B" ])
+? @@( o1.Index() )
+#--> [
+#	[ "A", [ 1, 3 ] ],
+#	[ "B", [ 2, 6 ] ],
+#	[ "C", [ 4 ] ],
+#	[ "D", [ 5 ] ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---
+
+pron()
+
+o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
+? @@( o1.IndexCS(FALSE) )
+#--> [
+#	[ "a", [ 1, 3 ] ],
+#	[ "b", [ 2, 6, 7 ] ],
+#	[ "c", [ 4 ] ],
+#	[ "d", [ 5 ] ]
+# ]
+
+# NOTE: When casesitivity is used, all items are turned to lowercase in the output
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----
+
+pron()
+
+o1 = new stzListOfLists([ "A":"C", "A":"B", "A":"C" ])
+? @@( o1.Index() )
+#--> [
+#	[ "A", [ 1, 2, 3 ] ],
+#	[ "B", [ 1, 2, 3 ] ],
+#	[ "C", [ 1, 3 ] ]
+# ]
+
+proff()
+#--> Executed in 0.10 second(s)
+
+/*=====
+
+pron()
+
+o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
+? o1.ItemsOccuringNTimesCS(3, FALSE) # Note this is a misspelled form (one r instead of 2)
+#--> [ "b" ]
+
+proff()
+
+/*===
+
+pron()
+
+o1 = new stzList([ "A", "A", "B", "C", "A", "C" ])
+? o1.ItemsOccurringNTimes(2)
+#--> [ "A", "C" ]
+
+? o1.ItemsOccurringExactlyNTimes(2)
+#--> [ "C" ]
+
+? o1.ItemsOccurringLessThanNTimes(3)
+#--> [ "B", "C" ]
+
+? o1.ItemsOccurringNTimesOrLess(3)
+#--> [ "A", "B", "C" ]
+
+? o1.ItemsOccurringNTimesOrMore(3)
+#--> [ "A" ]
+
+proff()
+
+/*---
+
+pron()
+
+o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
+? o1.ItemsOccuringNTimesCS(3, FALSE) # Note this is a misspelled form (one r instead of 2)
+#--> [ "b" ]
+
+proff()
+
 /*==
 
 pron()
@@ -1323,7 +1490,7 @@ proff()
 
 pron()
 
-# TODO: General note on performance
+#TODO: General note on performance
 # For all loops on large data (tens of thousands of times and more)
 # don't rely on stzString services, but use Qt directly instead!
 
@@ -1634,7 +1801,7 @@ proff()
 
 pron()
 
-# TODO
+#TODO
 
 proff()
 
@@ -2345,7 +2512,7 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 ? @@( o1.Letters() )
 #--> [ "a", "b" ]
 
-//? @@( o1.LettersZ() ) # TODO
+//? @@( o1.LettersZ() ) #TODO
 
 #--
 
@@ -2355,7 +2522,7 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 ? @@( o1.Numbers() )
 #--> [ 5 ]
 
-# ? @@( o1.NumbersZ() ) # TODO
+# ? @@( o1.NumbersZ() ) #TODO
 
 #--
 
@@ -2365,7 +2532,7 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 ? @@( o1.Strings() )
 #--> [ "a", "bcd", "♥", "b", "♥♥♥" ]
 
-# ? @@( o1.StringsZ() ) # TODO
+# ? @@( o1.StringsZ() ) #TODO
 
 #--
 
@@ -2375,7 +2542,7 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 ? @@( o1.Lists() )
 #--> [ [ 1, 2 ] ]
 
-# ? @@( o1.ListsZ() ) # TODO
+# ? @@( o1.ListsZ() ) #TODO
 
 #--
 
@@ -2384,7 +2551,7 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 
 ? @@( o1.Pairs() )
 #--> [ [ 1, 2 ] ]
-# ? @@( o1.PairsZ() ) # TODO
+# ? @@( o1.PairsZ() ) #TODO
 
 #--
 
@@ -2394,7 +2561,7 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 ? @@( o1.Objects() )
 #--> []
 
-# ? @@( o1.ObjectsZ() ) # TODO
+# ? @@( o1.ObjectsZ() ) #TODO
 
 proff()
 # Executed in 0.12 second(s)
@@ -5681,7 +5848,7 @@ o1.InsertAt( :Position = 2, :SubString = "B")
 o1.Insert("B", 2)
 o1.InsertAt(2, "B")
 
-# TODO: add ( :Position = ... and :SubString = ... ) everywhere!
+#TODO: add ( :Position = ... and :SubString = ... ) everywhere!
 
 /*--------------
 
@@ -6268,7 +6435,7 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 #	  --^--------------^---------^-------------------^------------
 
 # WARINING: works only for list of chars
-# TODO : Generalize it for list of strings and other types
+#TODO : Generalize it for list of strings and other types
 
 /*------------------ TODO: Add this function
 
@@ -7301,7 +7468,7 @@ o1 = new stzList([ 10, "A":"E", 12, obj, 10, "A":"E", obj, "Ring" ])
 ? o1.FindAll("A":"E")	#--> [ 2, 6 ]
 
 ? o1.FindAll(obj)	#--> [ 4, 7 ]
-# TODO: this won't work corretcly if we add other objects different from
+#TODO: this won't work corretcly if we add other objects different from
 # obj in the list. We should think of an other algorithm other then relying
 # on the empty spaces generated, for objects, by list2code() function of Ring!
 
@@ -7660,7 +7827,7 @@ o1 = new stzList([ "a", 1, 3, "b", ["A1", "A2"], obj1, "c", 3, ["B1", "B2"], obj
 ? o1.OnlyStrings()	#--> [ "a", "b", "c" ]
 ? o1.OnlyNumbers()	#--> [ 1, 3, 3 ]
 ? o1.OnlyLists()	#--> [ "A1", "A2", "B1", "B2" ]
-? o1.OnlyObjects()	# TODO: Not yet implemented!
+? o1.OnlyObjects()	#TODO: Not yet implemented!
 
 class Person name age
 
@@ -8178,7 +8345,7 @@ o1 = new stzList([ "tunis", 1:3, 1:3, "gafsa", "tunis", "tunis", 1:3, "gabes", "
 //? o1.NumberOfDuplicates("tunis")
 ? o1.DuplicatedItems()
 
-? o1.DuplicatedItems() # TODO: CaseSensitive! in stzListOfStrings + Objects are not covered!
+? o1.DuplicatedItems() #TODO: CaseSensitive! in stzListOfStrings + Objects are not covered!
 ? o1.DuplicatesOfItem(1:3)
 
 //? o1.DuplicatedItemsXT()
@@ -8377,7 +8544,7 @@ oList = new stzList([ o1, o2 ])
 
 ? AreEqual([ 1:3, 1:3, 1:3, 1:3 ])
 
-# ? AreEqual([ ["A", 1:5], 1:3, 1:3, 1:3 ]) # TODO: can't process deep lists
+# ? AreEqual([ ["A", 1:5], 1:3, 1:3, 1:3 ]) #TODO: can't process deep lists
 ? AreEqual([ new person, new person, new person ])
 class person
 

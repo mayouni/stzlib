@@ -73,7 +73,7 @@ func OnlyNumbers(paList)
 	func @OnlyNumbersIn(paList)
 		return OnlyNumbers(paList)
 
-# TODO: Add OnlyStrings() and cie...
+#TODO: Add OnlyStrings() and cie...
 
 def Flatten(paList)
 	if CheckParams()
@@ -724,7 +724,7 @@ func AreNumbers(paList)
 	func @ContainsJustNumbers(paList)
 		return AreNumbers(paList)
 
-	# TODO : Add these alternatives to other similar functions
+	#TODO : Add these alternatives to other similar functions
 	#>
 
 func AreStrings(paList)
@@ -2130,7 +2130,7 @@ class stzList from stzObject
 	 #  ADDING AN ITEM AT A GIVEN POSITION --> INSERT OR EXTEND  #
 	#-----------------------------------------------------------#
 
-	def AddItemAt(n, pItem) # TODO: Test it!
+	def AddItemAt(n, pItem) #TODO: Test it!
 
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
@@ -2396,7 +2396,7 @@ class stzList from stzObject
 		#>
 
 	#---------------------------------------#
-	# TODO: Add same functions as stzString #
+	#TODO: Add same functions as stzString #
 	#---------------------------------------#
 	
 	/*
@@ -2412,7 +2412,7 @@ class stzList from stzObject
 	*/
 
 	  #--------------------------------#
-	 #     OTHER INSERTING FORMS      # TODO
+	 #     OTHER INSERTING FORMS      #TODO
 	#--------------------------------#
 
 	def InsertAfterEachNumberOfSteps(n, pItem) // TODO
@@ -3203,7 +3203,7 @@ class stzList from stzObject
 		def ItemReplacedByMany(pItem, paNewItems)
 			return This.ReplacedByMany(pItem, paNewItems)
 
-		# TODO: Add ...These() as alternative to ..Many() all over the library
+		#TODO: Add ...These() as alternative to ..Many() all over the library
 		def ReplacedByThese(pItem, paNewItems)
 			return This.ReplacedByMany(pItem, paNewItems)
 
@@ -3912,7 +3912,7 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		# TODO: Add alternative ...ThisPosition...()
+		#TODO: Add alternative ...ThisPosition...()
 
 		def ItemAtPositionReplacedCS(n, pItem, pNewItem, pCaseSensitive)
 			return This.ThisItemAtPositionNReplacedCS(n, pItem, pNewItem, pCaseSensitive)
@@ -7034,8 +7034,8 @@ class stzList from stzObject
 	#------------------------------------------------#
 
 	def ReplaceRanges(panRanges, pNewItem)
-		# TODO: Add params check
-		# TODO: Change for/in loop by for loop
+		#TODO: Add params check
+		#TODO: Change for/in loop by for loop
 
 		for anRange in panRanges
 			n = anRange[1]
@@ -7097,8 +7097,8 @@ class stzList from stzObject
 	#---------------------------------------------------------------#
 
 	def ReplaceEachItemInManyRanges(panRanges, pNewItem)
-		# TODO: Add params check
-		# TODO: Change for/in loop by for loop
+		#TODO: Add params check
+		#TODO: Change for/in loop by for loop
 
 		for anRange in panRanges
 			anSection = RangeToSection(anRange)
@@ -7140,7 +7140,7 @@ class stzList from stzObject
 	#--------------------------------------------#
 
 	def ReplaceRangeByMany(n, nRange, paOtherListOfItems)
-		# TODO: Add params check
+		#TODO: Add params check
 
 		anSection = RangeToSection([ n, nRange ])
 		n1 = anSection[1]
@@ -7405,7 +7405,7 @@ class stzList from stzObject
 			return This.AllOccurrencesOfThisItemRemoved(pItem)
 
 	  #-------------------------------------------------------#
-	 #   REMOVING GIVEN OCCURRENCES OF AN ITEM IN THE LIST   # TODO: Add CASESENSITIVITY
+	 #   REMOVING GIVEN OCCURRENCES OF AN ITEM IN THE LIST   #TODO: Add CASESENSITIVITY
 	#-------------------------------------------------------#
 
 	def RemoveOccurrences(panOccurrences, pItem)
@@ -9619,7 +9619,7 @@ class stzList from stzObject
 
 	def ExtractLastItem()
 		return This.ExtractAt(This.NumberOfItems())
-		# TODO: the line above was:
+		#TODO: the line above was:
 		# return This.ExtractAt(:Last)
 		# but since CheckParams() is used in ExtractAt(),
 		# the special value :Last will not be recognosed.
@@ -10121,11 +10121,11 @@ class stzList from stzObject
 	 #  CHECKING IF THE 2 ITEMS OF THE LIST ARE BOUNDS OF A SUBSTRING IN A GIVEN STRING  #
 	#===================================================================================#
 
-	# TODO: Unify the bounds fucntions in stzString and stzList
+	#TODO: Unify the bounds fucntions in stzString and stzList
 
 	def AreBoundsOfCS(pcSubStr, pIn, pCaseSensitive)
 		# Supports only strings in pIn
-		# TODO: lists will be also supported
+		#TODO: lists will be also supported
 
 		/* EXAMPLE 1
 
@@ -10466,7 +10466,7 @@ class stzList from stzObject
 		*/
 
 		# All items are list of 2 items, where the 1st beeing string
-		# TODO: The strings in the 1st column (keys of the hashlist) must be unique
+		#TODO: The strings in the 1st column (keys of the hashlist) must be unique
 
 		bResult = TRUE
 		aTempKeys = []
@@ -15876,7 +15876,7 @@ class stzList from stzObject
 		def IsAStzTree()
 			return This.IsStzTree()
 
-	def IsTable() # TODO: Review this solution
+	def IsTable() #TODO: Review this solution
 		try
 			new stzTable(This.List())
 			return TRUE
@@ -15884,14 +15884,14 @@ class stzList from stzObject
 			return FALSE
 		done
 
-	def IsPivotTable() # TODO
+	def IsPivotTable() #TODO
 		/* ... */
 		StzRaise("Inexistant feature in this release!")
 
 		def IsAPivotTable()
 			return This.IsPivotTable()
 
-	def IsGraph() # TODO
+	def IsGraph() #TODO
 		/* ... */
 		StzRaise("Inexistant feature in this release!")
 
@@ -16152,7 +16152,7 @@ class stzList from stzObject
 			return This.ContainsOnlyStzClassNames()
 
 	  #======================#
-	 #   MANAGING WALKERS   # TODO
+	 #   MANAGING WALKERS   #TODO
 	#======================#
 
 	def AddWalker(pcName, pnStart, pnEnd, panStepping)
@@ -16184,14 +16184,14 @@ class stzList from stzObject
 	def Walker(pcWalker)
 		return This.Walkers()[pcWalker]
 
-	def FindWalker(pcWalker) # TODO
+	def FindWalker(pcWalker) #TODO
 		/* ... */
 		StzRaise("Inexistant feature in this release!")
 
 	def RemoveWalker(pcWalker)
 		del( @aWalkers, This.FindWalker(pcWalker) )
 
-	def RemoveTheseWalkers(pacNames) # TODO
+	def RemoveTheseWalkers(pacNames) #TODO
 		/* ... */
 		StzRaise("Inexistant feature in this release!")
 
@@ -16201,7 +16201,7 @@ class stzList from stzObject
 		def RemoveAllWalkers()
 			This.RemoveWalkers()
 
-	def CombineTheseWalkers(pacNames) # TODO
+	def CombineTheseWalkers(pacNames) #TODO
 		/* ... */
 		StzRaise("Inexistant feature in this release!")
 
@@ -16221,7 +16221,7 @@ class stzList from stzObject
 		def ComposeAllWalkers()
 			This.CombineWalkers()
 
-	def CombinedWalkers() # TODO
+	def CombinedWalkers() #TODO
 		/* ... */
 		StzRaise("Inexistant feature in this release!")
 
@@ -18026,7 +18026,7 @@ class stzList from stzObject
 		? o1.ExpandedIfPairOfNumbers() #--> [ 12, 11, 10, 9, 8, 7 ]
 	*/
 
-	def ExpandIfPairOfNumbers() # TODO: Should be delegated to stzPairOfNumbers
+	def ExpandIfPairOfNumbers() #TODO: Should be delegated to stzPairOfNumbers
 		if This.IsPairOfNumbers()
 			n1 = This[1]
 			n2 = This[2]
@@ -22841,7 +22841,7 @@ class stzList from stzObject
 		return aResult
 
 	  #----------------------------#
-	 #   REPEATED LEADING ITEMS   # # TODO: Add case sensitivity!
+	 #   REPEATED LEADING ITEMS   # #TODO: Add case sensitivity!
 	#----------------------------#
 
 	def HasRepeatedLeadingItems()
@@ -24609,7 +24609,7 @@ class stzList from stzObject
 	  #----------------------#
 	 #     FROM/TO LIST     #
 	#----------------------#
-	# TODO: Do it for all Softanza classes()
+	#TODO: Do it for all Softanza classes()
 
 	def ToStzSet()
 		return new stzSet( This.ToSet() )
@@ -24699,7 +24699,7 @@ class stzList from stzObject
 	 #  GETTING ITEMS OCCURRING N (OR MORE) TIMES IN THE LIST  #
 	#=========================================================#
 
-	def ItemsOccurringNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+	def ItemsOccurringNTimesCS(n, pCaseSensitive) #TODO: Check for performance
 		aIndex = This.IndexCS(pCaseSensitive)
 		nLen = len(aIndex)
 
@@ -24800,7 +24800,7 @@ class stzList from stzObject
 	 #  GETTING ITEMS OCCURRING EXACTLY N TIMES IN THE LIST  #
 	#-------------------------------------------------------#
 
-	def ItemsOccurringExactlyNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+	def ItemsOccurringExactlyNTimesCS(n, pCaseSensitive) #TODO: Check for performance
 		aIndex = This.IndexCS(pCaseSensitive)
 		nLen = len(aIndex)
 
@@ -24929,7 +24929,7 @@ class stzList from stzObject
 	 #  GETTING ITEMS OCCURRING MORE THAN N TIMES IN THE LIST  #
 	#---------------------------------------------------------#
 
-	def ItemsOccurringMoreThanNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+	def ItemsOccurringMoreThanNTimesCS(n, pCaseSensitive) #TODO: Check for performance
 		aIndex = This.IndexCS(pCaseSensitive)
 		nLen = len(aIndex)
 
@@ -25018,7 +25018,7 @@ class stzList from stzObject
 	 #  GETTING ITEMS OCCURRING LESS THAN N TIMES IN THE LIST  #
 	#---------------------------------------------------------#
 
-	def ItemsOccurringLessThanNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+	def ItemsOccurringLessThanNTimesCS(n, pCaseSensitive) #TODO: Check for performance
 		aIndex = This.IndexCS(pCaseSensitive)
 		nLen = len(aIndex)
 
@@ -25107,7 +25107,7 @@ class stzList from stzObject
 	 #  GETTING ITEMS OCCURRING N TIMES OR LESS IN THE LIST  #
 	#-------------------------------------------------------#
 
-	def ItemsOccurringNTimesOrLessCS(n, pCaseSensitive) # TODO: Check for performance
+	def ItemsOccurringNTimesOrLessCS(n, pCaseSensitive) #TODO: Check for performance
 		aIndex = This.IndexCS(pCaseSensitive)
 		nLen = len(aIndex)
 
@@ -26244,7 +26244,7 @@ class stzList from stzObject
 	#----------------------------------#
 	# NOTE 1 : The first occurrence of an item is not considered as a duplicate
 	# 	   --> If you want to get also the first occurrence then you can
-	# 		use FindDuplicatesXT() # TODO
+	# 		use FindDuplicatesXT() #TODO
 
 	# NOTE 2 : We use a part of the code of DuplicatesZ(). There is a duplication
 	# but this is better for performance then calling DuplicatesZ(), because it
@@ -29286,7 +29286,7 @@ class stzList from stzObject
 	def ContainsNoObjectsAtAnyLevel()
 		return NOT This.ContainsObjectsAtSomeLevel()
 
-	def ContainsAtAnyLevel(pItem) # TODO
+	def ContainsAtAnyLevel(pItem) #TODO
 		// TODO
 
 	  #======================#
@@ -29331,7 +29331,7 @@ class stzList from stzObject
 				return This.FirstListQ()
 
 	def ListsPaths()
-		return This.ItemsThatAreLists_AtAnyLevel_TheirPaths() # TODO: Refactor this!
+		return This.ItemsThatAreLists_AtAnyLevel_TheirPaths() #TODO: Refactor this!
 
 		def ListsPathsQ()
 			return new stzList( This.ListsPaths() )
@@ -29385,7 +29385,7 @@ class stzList from stzObject
 		return StzListQ( This.Paths() ).Contains(panPath)
 
 	def ContainsItemOnPath(panPath)
-		# TODO
+		#TODO
 
 	def ContainsListOnPath(panPath)
 		try
@@ -30322,7 +30322,7 @@ class stzList from stzObject
 
 	# Finding works only for numbers and strings
 
-	# TODO : Lists and objects will become findable after
+	#TODO : Lists and objects will become findable after
 	# designing an overall solution of the Equality problem
 	# in SoftanzaLib
 
@@ -31541,7 +31541,7 @@ class stzList from stzObject
 	#=======================================================#
 
 	# NOTE: Works only if items are chars (string of 1 char each)
-	# TODO: Implement a more general solution for longer items
+	#TODO: Implement a more general solution for longer items
 
 	def VizFindAllOccurrencesCS(pItem, pCaseSensitive)
 		
@@ -32332,7 +32332,7 @@ class stzList from stzObject
 	 #  FINDING LAST ITEM VERIFYING A GIVEN CONDITION  #
 	#-------------------------------------------------#
 
-	def FindLastW(pcCondition) # TODO: Check for performance
+	def FindLastW(pcCondition) #TODO: Check for performance
 		nLastW = This.NumberOfOccurrencesW(pcCondition)
 		return FindNthW(nLastW , pcCondition)
 
@@ -32440,7 +32440,7 @@ class stzList from stzObject
 	 #  FINDING LAST ITEM VERIFYING A GIVEN CONDITION -- EXTENDED  #
 	#-------------------------------------------------------------#
 
-	def FindLastWXT(pcCondition) # TODO: Check for performance
+	def FindLastWXT(pcCondition) #TODO: Check for performance
 		n = This.NumberOfItemsW(pcCondition)
 		return FindNthWXT(n, pcCondition)
 
@@ -36021,7 +36021,7 @@ class stzList from stzObject
 		def SliceXTZZ(n1, n2)
 			return This.SectionXTZZ(n1, n2)
 
-	# TODO : RangeZ(), RangeZZ(), RangeXT(), RangeXTZ(), and RangeXTZZ()
+	#TODO : RangeZ(), RangeZZ(), RangeXT(), RangeXTZ(), and RangeXTZZ()
 
 
 
@@ -38533,7 +38533,7 @@ class stzList from stzObject
 	  #------------------------------------------------------------------#
 	 #  STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BECOME STRINGS)  #
 	#------------------------------------------------------------------#
-	# TODO: Abstract this function in stzObject
+	#TODO: Abstract this function in stzObject
 
 	def Stringify()
 
@@ -39707,7 +39707,7 @@ class stzList from stzObject
 	  #===========================================#
 	 #   CHECKING IF THE LIST IS A NAMED PARAM   #
 	#===========================================#
-	# TODO: Add @ to all params, like this:
+	#TODO: Add @ to all params, like this:
 	# (This[1] = :ParamName or This[1] = :ParamName@ ) )
 
 	def IsOnPositionNamedParam()
@@ -40050,7 +40050,7 @@ class stzList from stzObject
 
 	#--
 
-	# TODO: Move IsToCharNamedParam() here
+	#TODO: Move IsToCharNamedParam() here
 
 	def IsUntilCharNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -40094,7 +40094,7 @@ class stzList from stzObject
 
 	#--
 
-	# TODO : Move IsToStringNamedParam() here
+	#TODO : Move IsToStringNamedParam() here
 
 	def IsUntilStringNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -40145,7 +40145,7 @@ class stzList from stzObject
 
 	#--
 
-	# TODO : Move IsToNumberNamedParam() here
+	#TODO : Move IsToNumberNamedParam() here
 
 	def IsUntilNumberNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -40167,7 +40167,7 @@ class stzList from stzObject
 
 	#--
 
-	# TODO: Move IsToListNamedParam() here
+	#TODO: Move IsToListNamedParam() here
 
 	def IsUntilListNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -40189,7 +40189,7 @@ class stzList from stzObject
 
 	#--
 
-	# TODO : Move IsToObjectNamedParam() here
+	#TODO : Move IsToObjectNamedParam() here
 
 	def IsUntilObjectNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -41079,7 +41079,7 @@ vvv
 
 	def IsExceptNamedParam()
 		# Used initially by ReplaceWordsWithMarquersExceptXT(pcByOption, paExcept)
-		# TODO: generalize to all the functions we want to provide exceptions to it
+		#TODO: generalize to all the functions we want to provide exceptions to it
 
 		if This.NumberOfItems() = 2 and
 		   ( isString(This[1]) and This[1] = :Except )
@@ -52158,13 +52158,13 @@ vvv
 	#-----------------------------------------------------------#
 
 	def SomeRandomItemsOtherThanManyCS(paItems)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#-- Z/EXTENDED FORM
 
 	def SomeRandomItemsOtherThanManyCSZ(paItems)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#-- U/EXTENDED FORM
@@ -52180,25 +52180,25 @@ vvv
 	#========================================================#
 
 	def AnItemBetweenCS(pMin, pMax, pCaseSensitive) # InSection
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#-- Z/EXTENDED FORM
 
 	def AnItemBetweenCSZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#-- IB/EXTENDED FORM
 
 	def AnItemBetweenCSIB(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#-- IBZ/EXTENDED FORM
 
 	def AnItemBetweenCSIBZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #------------------------------------------------------------#
@@ -52206,21 +52206,21 @@ vvv
 	#------------------------------------------------------------#
 
 	def AnItemNotBetweenCS(pMin, pMax, pCaseSensitive) # OutsideInSection
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def AnItemNotBetweenCSZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def AnItemNotBetweenCSIB(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def AnItemNotBetweenCSIBZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #---------------------------------------------#
@@ -52228,21 +52228,21 @@ vvv
 	#=============================================#
 
 	def AnItemBetweenManyCS(pMin, pMax, pCaseSensitive) # InSections
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def AnItemBetweenManyCSZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def AnItemBetweenManyCSIB(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def AnItemBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #----------------------------------------------#
@@ -52250,21 +52250,21 @@ vvv
 	#----------------------------------------------#
 
 	def AnItemNotBetweenManyCS(pMin, pMax, pCaseSensitive) # OutsideSections
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def AnItemNotBetweenManyCSZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def AnItemNotBetweenManyCSIB(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def AnItemNotBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #--------------------------------------------------------#
@@ -52272,21 +52272,21 @@ vvv
 	#========================================================#
 
 	def NItemsBetweenCS(pMin, pMax, pCaseSensitive) # InSection
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def NItemsBetweenCSZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def NItemsBetweenCSIB(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def NItemsBetweenCSIBZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #-----------------------------------------------------------#
@@ -52294,21 +52294,21 @@ vvv
 	#-----------------------------------------------------------#
 
 	def SomeItemsBetweenCS(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsBetweenCSZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def SomeItemsBetweenCSIB(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsBetweenCSIBZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #------------------------------------------------------------#
@@ -52316,21 +52316,21 @@ vvv
 	#------------------------------------------------------------#
 
 	def NItemsNotBetweenCS(pMin, pMax, pCaseSensitive) # OutsideSection
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def NItemsNotBetweenCSZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def NItemsNotBetweenCSIB(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def NItemsNotBetweenCSIBZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #---------------------------------------------------------------#
@@ -52338,21 +52338,21 @@ vvv
 	#---------------------------------------------------------------#
 
 	def SomeItemsNotBetweenCS(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsNotBetweenCSZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def SomeItemsNotBetweenCSIB(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsNotBetweenCSIBZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #---------------------------------------------#
@@ -52360,21 +52360,21 @@ vvv
 	#=============================================#
 
 	def NItemsBetweenManyCS(pMin, pMax, pCaseSensitive) # InSections
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def NItemsBetweenManyCSZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def NItemsBetweenManyCSIB(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def NItemsBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #------------------------------------------------#
@@ -52382,21 +52382,21 @@ vvv
 	#------------------------------------------------#
 
 	def SomeItemsBetweenManyCS(pMin, pMax, pCaseSensitive) # InSections
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsBetweenManyCSZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def SomeItemsBetweenManyCSIB(pMin, pMax, pCaseSensitivity)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsBetweenManyCSIBZ(pMin, pMax, pCaseSensitivity)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #----------------------------------------------#
@@ -52404,21 +52404,21 @@ vvv
 	#----------------------------------------------#
 
 	def NItemsNotBetweenManyCS(pMin, pMax, pCaseSensitive) # NotInSections
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def NItemsNotBetweenManyCSZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def NItemsNotBetweenManyCSIB(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def NItemsNotBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #-------------------------------------------------#
@@ -52426,21 +52426,21 @@ vvv
 	#-------------------------------------------------#
 
 	def SomeItemsNotBetweenManyCS(pMin, pMax, pCaseSensitive) # NotInSections
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsNotBetweenManyCSZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	#---------------
 
 	def SomeItemsNotBetweenManyCSIB(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsNotBetweenManyCSIBZ(pMin, pMax, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #-------------------------------------------#
@@ -52448,11 +52448,11 @@ vvv
 	#===========================================#
 
 	def AnItemOutsidePosition(nPos)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def AnItemOutsidePositionZ(nPos)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #---------------------------------------------#
@@ -52460,11 +52460,11 @@ vvv
 	#---------------------------------------------#
 
 	def AnItemOutsidePositions(panPos)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def AnItemOutsidePositionsZ(panPos)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #---------------------------------------------#
@@ -52472,11 +52472,11 @@ vvv
 	#=============================================#
 
 	def NItemsOutsidePosition(nPos)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def NItemsOutsidePositionZ(anPos)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
   	  #------------------------------------------------#
@@ -52484,11 +52484,11 @@ vvv
 	#------------------------------------------------#
 
 	def SomeItemsOutsidePosition(anPos)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def SomeItemsOutsidePositionZ(anPos)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #----------------------------------------------#
@@ -52496,11 +52496,11 @@ vvv
 	#----------------------------------------------#
 
 	def NItemsOutsidePositions(panPos, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	def NItemsOutsidePositionsZ(panPos, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 	  #-------------------------------------------------#
@@ -52508,14 +52508,14 @@ vvv
 	#-------------------------------------------------#
 
 	def SomeItemsOutsidePositions(panPos, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 		def SomeItemsInPositionsOtherThan(panPos, pCaseSensitive)
 			return This.SomeItemsOutsidePositions(panPos, pCaseSensitive)
 
 	def SomeItemsOutsidePositionsZ(panPos, pCaseSensitive)
-		# TODO
+		#TODO
 		StzRaise("Unsupported feature yet!")
 
 		def SomeItemsInPositionsOtherThanZ(panPos, pCaseSensitive)
@@ -53453,7 +53453,7 @@ vvv
 		return len(This.Letters())
 
 	  #=========================================#
-	 #  GETTING THE LIST OF PAIRS IN THE LIST  # TODO: Add case sensitivity
+	 #  GETTING THE LIST OF PAIRS IN THE LIST  #TODO: Add case sensitivity
 	#=========================================#
 
 	def ContainsPairs()
@@ -53605,7 +53605,7 @@ vvv
 		return aResult
 
 	  #===========================================#
-	 #  GETTING THE LIST OF SINGLES IN THE LIST  # TODO: Add case sensitivity
+	 #  GETTING THE LIST OF SINGLES IN THE LIST  #TODO: Add case sensitivity
 	#===========================================#
 
 	def ContainsSingles()

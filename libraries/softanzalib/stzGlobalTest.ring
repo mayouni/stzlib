@@ -1,5 +1,26 @@
 load "stzlib.ring"
 
+/*===
+
+pron()
+
+? 3 : 5
+#--> [ 3, 5 ]
+
+? "3" : "5"
+#--> [ "3", "4", "5" ]
+
+? 10 : 12
+#--> [ 10, 11, 12 ]
+
+? "10" : "12"
+#--> "10"
+
+? L(' "10":"12" ')
+#--> #--> [ "10", "11", "12" ]
+
+proff()
+
 /*=====
 
 ? 0 = ""
@@ -144,7 +165,7 @@ proff()
 # Executed in 0.38 second(s)
 
 /*======== Desabling param checking to enhance performance
-# TODO: Generalize this feature to all Softanza functions
+#TODO: Generalize this feature to all Softanza functions
 
 
 # Softanza functions do a lot of work in checking params correctness.
@@ -306,13 +327,13 @@ ForEach( [ :name, :age ], :in = [ [ "Teebah", 12], ["Haneen", 8], ["Hussein", 2]
 //	? @@( @Values() )
 	#--> [ [ "Teebah", 12 ], [ "Haneen", 8 ], [ "Hussein", 2 ] ]
 
-	//? @@( @Var(1) ) # TODO
+	//? @@( @Var(1) ) #TODO
 	#--> :name
 
-	// ? @@( @Value(2) ) # TODO
+	// ? @@( @Value(2) ) #TODO
 	#--> ["Haneen", 8]
 
-	//? @@( @Value([ 2, :ForVar = :name ]) ) # Or @ValueXT(2, :ForVar = 1 ] # TODO
+	//? @@( @Value([ 2, :ForVar = :name ]) ) # Or @ValueXT(2, :ForVar = 1 ] #TODO
 	#--> ...
 
 //	? @@( @Content() )
@@ -321,8 +342,8 @@ ForEach( [ :name, :age ], :in = [ [ "Teebah", 12], ["Haneen", 8], ["Hussein", 2]
 	# 	[ "age",  [   12        8,        2      ] ]
 	# ]
 
-	// @Step = 2 # TODO
-	// @ForIterations = [ 1, 3]) # TODO
+	// @Step = 2 #TODO
+	// @ForIterations = [ 1, 3]) #TODO
 	// @Where = '{}'
 
 	//@Iterations = [1, 3]
@@ -1075,11 +1096,11 @@ o1 = new stzString("A")
 ? ComputableForm([ 1, 2, "a" ]) # or use the abbreviated form @@(...)
 #--> [ 1, 2, "a" ]
 
-/*================
-
+/*================ @narration: chars looking similar but are different!
+*/
 # Look at theses statements and guess their results:
 
-	StartProfiler()
+StartProfiler()
 	
 	? "۰" = "٠"	#--> FALSE
 	? "۱" = "١"	#--> FALSE
@@ -1087,30 +1108,46 @@ o1 = new stzString("A")
 	? "۳" = "٣"	#--> FALSE
 	? "۸" = "٨"	#--> FALSE		
 	? "۹" = "٩"	#--> FALSE
-	? ""
+
 	? Unicode("۱")	#--> 1777
 	? Unicode("١")	#--> 1633
-	? ""
-	? AreEqual([ "O", "Ο", "О" ]) #--> FALSE
-	? ""
-	? Unicodes([ "O", "Ο", "О" ]) #--> [ 79, 927, 1054 ]
-	? Scripts([ "O", "Ο", "О" ]) #--> [ :Latin, :Greek, :Cyrillic ]
+
+	# Surprised?
 	
-	StopProfiler()
+	# The point is that Unicode assigns unique codes to Chars and
+	# not to their visual glyfs. To give a clear example:
+	
+	# "O", "Ο", and "О" appear the same for us, and for the particular
+	# font we use in our system to render them, but from a unicode
+	# standpoint, they are different.
 
-# Surprised?
+	? AreEqual([ "O", "Ο", "О" ]) 	#--> FALSE
 
-# The point is that Unicode assigns unique code to Chars and
-# not to their visual glyfs. To give a clear example:
+	# In fact, they are different in uncicodes code points, scripts they
+	# represent, and unicode names they have:
 
-# "O", "Ο", and "О" seam the same for us, and for the particular
-# font we use in our system to render them, but from a unicode
-# standpoint, they are different.
+	? Unicodes([ "O", "Ο", "О" ]) 	#--> [ 79, 927, 1054 ]
+	? Scripts([ "O", "Ο", "О" ]) 	#--> [ :Latin, :Greek, :Cyrillic ]
+	? CharsNames([ "O", "Ο", "О" ])
+	#--> [
+	# 	"LATIN CAPITAL LETTER O",
+	# 	"GREEK CAPITAL LETTER OMICRON",
+	# 	"CYRILLIC CAPITAL LETTER O"
+	# ]
 
-# If you try to get their unicode code points, you find them
-# respectively: 79, 927, and 1054.
+StopProfiler()
+# Executed in 0.20 second(s)
 
-# In fact, the first is Latin "O", the second is Greek "Ο", and
-# the third is Cyrillic "О".
+#====
 
+ChangeRingKeyword load ＃
+＃ "stzlib.ring"
 
+? SoftanzaLogo() + NL
+
+# Unicode codepoint of the char ＃
+? "＃ ~> " + Unicode("＃")
+#--> ＃ ~> 65283
+
+? QQ("＃").Name()
+#--> FULLWIDTH NUMBER SIGN

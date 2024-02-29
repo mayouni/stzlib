@@ -373,10 +373,10 @@ Dotless LETTERS
 	# Those are classified in the category "Other Punctuation". Listed here:
 	# https://www.compart.com/en/unicode/category/Po
 
-	# TODO --> Add them to this list of unicodes herefater, otherwise the
+	#TODO --> Add them to this list of unicodes herefater, otherwise the
 	# use of Punctuations() function would lead the user to error...
 
-	_anOtherPunctuationUnicodes	= [] # TODO: Comptete it
+	_anOtherPunctuationUnicodes	= [] #TODO: Comptete it
 	_anGeneralPunctuationUnicodes   = 8192  : 8303
 	_anSupplementalPunctuationCodes = 11766 : 11903
 
@@ -517,7 +517,7 @@ Dotless LETTERS
 	
 	_aArabicDotlessCharsXT = [
 
-	# TODO: Wa may need a better data structure
+	#TODO: Wa may need a better data structure
 	# to manage some special Dotless letters
 	# like ٯ in the word مٯاومه
 
@@ -661,7 +661,7 @@ Dotless LETTERS
 	# Dotless chars
 
 	_anLatinDotlessUnicodes = [ 97, 101, 111, 117, 305, 567 ]
-	# TODO: Add unicodes of uppercased "a", "e", "o", and "u"
+	#TODO: Add unicodes of uppercased "a", "e", "o", and "u"
 
 	_aLatinDotlessLettersXT = [
 		[ "ı", "ı" ],
@@ -683,7 +683,7 @@ Dotless LETTERS
 		[ "ù", "u" ],
 		[ "û", "u"]
 
-		# TODO: # TODO: Add unicodes of uppercased "a", "e", "o", and "u"
+		#TODO: #TODO: Add unicodes of uppercased "a", "e", "o", and "u"
 	]
 
 	  #--------------------#
@@ -920,7 +920,7 @@ Dotless LETTERS
 	# "INVERTIBLE" chars (see _aInvertibleCharsXT) above,
 	# which may be different, in Unicode, then "TURNABLE"!
 
-	# TODO: Check this and fix it accordingly
+	#TODO: Check this and fix it accordingly
 	#--> Read this to understand the problem:
 	#     https://unicode.org/faq/casemap_charprop.html#16
 
@@ -1520,7 +1520,7 @@ Dotless LETTERS
 
 	func RomanToArabicNumber(pcRomanNumber)
 		# Uses the data available in RomanNumbersXT()
-		# TODO: In the future, make a more general algorithm
+		#TODO: In the future, make a more general algorithm
 		return RomanNumbersXT()[pcRomanNumber]
 
 	func MandarinNumbersUnicodes()
@@ -1543,7 +1543,7 @@ Dotless LETTERS
 
 	func MandarinToArabicNumber(pcMandarinNumber)
 		# Uses the data available in MandarinNumbersXT()
-		# TODO: In the future, make a more general algorithm
+		#TODO: In the future, make a more general algorithm
 		return MandarinNumbersXT()[pcMandarinNumber]
 
 	func ArabicNumberFractions()
@@ -1769,7 +1769,7 @@ Dotless LETTERS
 		next
 		return aResult
 
-	func CircledLatinCapitalLetterUnicodes() # TODO: resolve the semantics lower/lowercase/small and upper/uppercase/capital
+	func CircledLatinCapitalLetterUnicodes() #TODO: resolve the semantics lower/lowercase/small and upper/uppercase/capital
 		return _aCircledLatinCapitalLetterUnicodes
 
 	func CircledLatinCapitalLetters()
@@ -2345,7 +2345,7 @@ Dotless LETTERS
 	func PunctuationUnicodes()
 		return _anPunctuationUnicodes
 	
-	func PunctuationChars()	# TODO: Review its content
+	func PunctuationChars()	#TODO: Review its content
 			  	# Some punctuations are not present (".", ",", ";"...")
 				# Read the note at the beginning of this file while
 				# defining the content of the _anPunctuationUniCodes

@@ -276,7 +276,7 @@ class stzBinaryNumber from stzObject
 			return This.IntegerPartToBaseNForm(n)
 
 
-	def ToBytes() # TODO: Should also be turned as stzListOfBytes
+	def ToBytes() #TODO: Should also be turned as stzListOfBytes
 		return This.ToStzNumber().ToBytes()
 	
 	  #----------------------------------#

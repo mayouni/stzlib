@@ -87,7 +87,7 @@
 				# That's why, I will take 14 as a realistic maximum
 				# round in Softanza.
 
-				# TODO : Check this with Mahmoud and Ilir.
+				#TODO : Check this with Mahmoud and Ilir.
 
 	StzDecimals(2)		# Softanza sets the number of round to 2 by default,
 				# in confrmity with Ring defaults.
@@ -1298,7 +1298,7 @@ func Number(n)
 		return n
 	ok
 
-func Number@(n)	# TODO: Check if it's orphelin and, if so, remove it!
+func Number@(n)	#TODO: Check if it's orphelin and, if so, remove it!
 	if isNumber(n)
 		return ComputableForm(n)
 	ok
@@ -3293,7 +3293,7 @@ class stzNumber from stzObject
 		#>
 
 	def SubStructMany(paOtherNumbers)
-		# TODO: Add "These" as alternative of "Many"
+		#TODO: Add "These" as alternative of "Many"
 
 		This.SubStructManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
 
@@ -3339,7 +3339,7 @@ class stzNumber from stzObject
 	#--
 
 	def SubStructManyXT(paOtherNumbers, paReturnIntermediateResults)
-		# TODO: Add "These" as alternative of "Many"
+		#TODO: Add "These" as alternative of "Many"
 
 		if CheckParams()
 			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
@@ -3381,7 +3381,7 @@ class stzNumber from stzObject
 
 						
 	def RetrieveMany(paOtherNumbers)
-		# TODO: Add "These" as alternative of "Many"
+		#TODO: Add "These" as alternative of "Many"
 
 		This.SubStructMany(paOtherNumbers)
 
@@ -3446,7 +3446,7 @@ class stzNumber from stzObject
 	#----------------------------------------------------#
 
 	def MultiplyByMany(paOtherNumbers)
-		# TODO: Add "These" as alternative of "Many"
+		#TODO: Add "These" as alternative of "Many"
 
 		This.MultiplyByManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
 
@@ -3463,7 +3463,7 @@ class stzNumber from stzObject
 			return nResult
 
 	def MultiplyByManyXT(paOtherNumbers, paReturnIntermediateResults)
-		# TODO: Add "These" as alternative of "Many"
+		#TODO: Add "These" as alternative of "Many"
 
 		if CheckParams()
 			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
@@ -3544,7 +3544,7 @@ class stzNumber from stzObject
 		#>
 	
 	def DivideByMany(paOtherNumbers)
-		# TODO: Add "These" as alternative of "Many"
+		#TODO: Add "These" as alternative of "Many"
 
 		This.DivideByManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
 
@@ -3561,7 +3561,7 @@ class stzNumber from stzObject
 			return nResult
 
 	def DivideByManyXT(paOtherNumbers, paReturnIntermediateResults)
-		# TODO: Add "These" as alternative of "Many"
+		#TODO: Add "These" as alternative of "Many"
 
 		if CheckParams()
 			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
@@ -5422,7 +5422,7 @@ class stzNumber from stzObject
 
 		cFractionalPart = cNewFractionalPart
 
-		if NOT bRounded # TODO: review the round() mechanism!
+		if NOT bRounded #TODO: review the round() mechanism!
 			if cFractionalPart != ""
 				cFormattedNumber += (cFractionalSep + cFractionalPart)
 			ok
@@ -5523,8 +5523,8 @@ class stzNumber from stzObject
 	 #     OPERATORS OVERLOADING   #
 	#-----------------------------#
 
-	# TODO: Operators should carry same semantics in all classes...
-	# TODO: Make a request to Mahmoud to enable multichar operators in Ring
+	#TODO: Operators should carry same semantics in all classes...
+	#TODO: Make a request to Mahmoud to enable multichar operators in Ring
 
 	def operator (pOp, pValue)
 
@@ -5658,10 +5658,10 @@ class stzNumber from stzObject
 		but pOp = "<>" or pOp = "!"
 			return This.IsDifferentFrom(pValue)
 
-		but pOp = "++" # TODO: check if it works! (++ is reserved by Ring)
+		but pOp = "++" #TODO: check if it works! (++ is reserved by Ring)
 			return This.NextNumber()
 
-		but pOp = "--" # TODO: check if it works! (-- is reserved by Ring)
+		but pOp = "--" #TODO: check if it works! (-- is reserved by Ring)
 			return This.PreviousNumber()
 
 		but pOp = "[]"

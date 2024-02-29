@@ -1,5 +1,5 @@
 
-# TODO/FUTURE: Support CaseSensitivity
+#TODO/FUTURE: Support CaseSensitivity
 
 func StzListOfPairsQ(paLists)
 	return new stzListOfPairs(paLists)
@@ -57,7 +57,7 @@ func RangeToSection(paRange)
 
 func RangesToSections(panRanges)
 	anSections = []
-	# TODO: Replace for/in by for
+	#TODO: Replace for/in by for
 	for anRange in panRanges
 		anSections + RangeToSection(anRange)
 	next
@@ -76,7 +76,7 @@ func SectionToRange(panSection)
 
 func SectionsToRanges(paSections)
 	anRanges = []
-	# TODO: Replace for/in by for
+	#TODO: Replace for/in by for
 	for anSection in paSections
 		anRanges + SectionToRange(anSection)
 	next

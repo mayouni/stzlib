@@ -1,6 +1,79 @@
 load "stzlib.ring"
 
-#== @narration: function active form and passive form (discussion with Mahmoud)
+/*===
+
+pron()
+
+? HowMany( ArabicLetters() ) # Or HowManyArabicLetters() or NumberOfArabicLetters()
+#--> 28
+
+? 10PercentOf( ArabicLetters() ) # Or NPercentOf(10, ArabicLetters())
+#o--> [ "ص", "ة", "د", "ص" ]
+
+# NOTE : there is an eXTended list of arabic leters
+
+? HowMany( ArabicLettersXT() )
+#--> 34
+
+proff()
+# Executed in 0.02 second(s)
+
+/*===
+
+pron()
+
+o1 = new stzString( "one two one three two one four five" )
+
+? o1.HowManySubStrings()
+#--> 630
+
+? @@( SomeXT( o1.SubStrings(), 1/100 ) ) + NL # 1% of all the substrings
+#--> [ " four", "e three two", "hree t", "one th", "one three two o", "th", "wo on" ]
+
+# can also be written direcltly:
+//? @@( OnePercentOf( o1.SubStrings() ) ) # or just 1Percent()
+
+? @@( o1.SubStringsOccuringNTimes(3) ) + NL # NOTE "occuring" is mispelled (one r instead of two)
+#--> [ "o", "on", "one", "one ", "n", "ne", "ne ", "e", "e ", "e t", " ", " t", "t" ]
+
+? @@( o1.SubStringsOccurringExactlyNtimes(3) ) + NL
+#--> [ "on", "one", "one ", "n", "ne", "ne ", "e t", " t", "t" ]
+
+? @@( o1.SubStringsOccurringNoMoreThanNTimes(1) )
+#--> [ ]
+
+proff()
+# Executed in 4.46 second(s)
+
+/*---
+
+pron()
+
+o1 = new stzString( "ALLAH" )
+? o1.HowManySubStrings()
+#--> 15
+
+? @@( o1.SubStringsOccurringOnlyNTimes(1) ) + NL
+#--> [ "AL", "ALL", "ALLA", "ALLAH", "LL", "LLA", "LLAH", "LA", "LAH", "AH", "H" ]
+
+? @@( o1.SubStringsOccurringNTimes(2) )
+#--> [ "A", "L" ]
+
+? HwoMany( o1.SubStringsOccurringNTimes(7) ) # Note that "HwoMany" is misspelled
+#--> 0
+
+? HowMany( o1.SubStringsOccurringLessThanNTimes(3) )
+#--> 13
+
+? @@( Some( o1.SubStringsOccurringLessThanNTimes(3) ) )
+#--> [ "ALLA", "L", "LLA", "LA" ]
+
+proff()
+# Executed in 0.05 second(s)
+
+#=====
+
+# @narration: function active form and passive form (discussion with Mahmoud)
 
 pron()
 
@@ -39,6 +112,7 @@ o1 = new stzString("<<Go!>>")
 # The value of the object won't be changed after BoundsRemoved() is used.
 
 proff()
+# Executed in 0.29 second(s)
 
 /*===
 
@@ -763,7 +837,7 @@ o1.ReplaceManyWithMany(["--", "__", ".."], ["1", "2", "3"])
 
 proff()
 
-/*-------- # TODO
+/*-------- #TODO
 
 pron()
 
@@ -1317,7 +1391,7 @@ proff()
 
 pron()
 
-# TODO: Those two functions must be unified
+#TODO: Those two functions must be unified
 #--> Read the TODO in stzScripts.ring
 
 ? len( LocaleScripts() )
@@ -1351,7 +1425,7 @@ pron()
 ? Dotless("أفديك بروحي يا قدس") 	#--> أٯدٮک ٮروحٮ ٮا ٯدس
 ? Dotless("مشمش وخوخ وزيتون")		#--> مسمس وحوح ورٮٮوٮ
 
-# TODO: the implementation needs some enhancements/
+#TODO: the implementation needs some enhancements/
 
 proff()
 
@@ -4207,7 +4281,7 @@ pron()
 o1 = new stzString("99999999999")
 
 o1.InsertXT("_", :EachNChars = 3)
-//o1.InsertXT("_", [ :EachNChars = 3, :Forward ]) # TODO
+//o1.InsertXT("_", [ :EachNChars = 3, :Forward ]) #TODO
 
 ? o1.Content()
 #--> 999_999_999_99
@@ -4735,7 +4809,7 @@ o1 = new stzString("**aa***aa**aa***")
 ? o1.SplitQ("aa").IfQ('NumberOfItems() > 2').RemoveFirstAndLastItemsQ().Content()
 #--> ["***", "**"]
 
-# TODO: Needs more thinking, because the ELSE case should also be considered.
+#TODO: Needs more thinking, because the ELSE case should also be considered.
 #--> A use case better suited for stzChainOfValue
 
 proff()
@@ -4750,7 +4824,7 @@ o1 = new stzString("**aa***aa**aa***")
 ? o1.SplitQ("aa").IfQ('This.NumberOfItems() > 2').RemoveFirstAndLastItemsQ().Content()
 #--> ["***", "**"]
 
-# TODO: IfQ() function Needs more thinking, because the ELSE case should also be considered.
+#TODO: IfQ() function Needs more thinking, because the ELSE case should also be considered.
 #--> A use case better suited for stzChainOfValue
 
 proff()
@@ -6248,7 +6322,7 @@ o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12"
 #	[ "77.12",  [ 55 ]    ]
 # ]
 
-? @@( o1.NumbersAndTheirSections() ) # TODO: Enhance performance!
+? @@( o1.NumbersAndTheirSections() ) #TODO: Enhance performance!
 #-->
 # [
 # 	[ "12.34", 	[ [ 7, 11 ], [ 39, 43 ]	] ],
@@ -7307,7 +7381,7 @@ o1 = new stzString("***ONE***TWO***THREE***")
 
 ? @@( o1.SplitQ(:Using = "***").Content() )
 #--> [ "", "ONE", "TWO", "THREE", "" ]
-# TODO: Should we remove the "" from the result?
+#TODO: Should we remove the "" from the result?
 
 ? @@( o1.FindAnyBoundedByIB("**") )
 #--> [ 2, 8, 14 ]
@@ -8287,7 +8361,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 	? @@( PreviousNthMarquerZ(3, :StartingAt = 50) ) # or PreviousNthMarquerAndItsPosition(3, :StartingAt = 50)
 	#--> [ "#1", 12 ]
 
-	# TODO : Add these functions	
+	#TODO : Add these functions	
 	# 	? NthMarquerZ(n)
 	# 	? NthMarquerZZ(n)
 	
@@ -9184,7 +9258,7 @@ pron()
 oQLocale = new QLocale("tr-TR")
 ? oQLocale.toupper("ı") # ERROR: --> I but must be İ
 
-# TODO: solve this by implementing the specialCasing of unicode as
+#TODO: solve this by implementing the specialCasing of unicode as
 # described in this file:
 # http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 
@@ -9475,7 +9549,7 @@ o1 = new stzString("SOFTANZA IS AWSOME!")
 /*================= Quiet-Equality of two strings
 
 o1 = new stzString("SOFTANZA IS AWSOME!")
-# TODO: Check performance of IsQuietEqualTo() --> Root cause RemoveDiacritics()
+#TODO: Check performance of IsQuietEqualTo() --> Root cause RemoveDiacritics()
 ? o1.IsQuietEqualTo("softanza is awsome!")	#--> TRUE
 ? o1.IsQuietEqualTo("Softansa is aowsome!")	#--> TRUE (we added an "o" to "awsome")
 ? o1.IsQuietEqualTo("Softansa iis aowsome!")	#--> FALSE (we add "i" to "is" and "o" to "awsome")
@@ -9519,7 +9593,7 @@ o1 = new stzString("SOFTANZA")
 # Comparing the string with other strings
 ? o1 = StringUppercase("softanza")	#--> TRUE
 
-# TODO: Complete the other operators when COMPARAISON methods are made in stzString
+#TODO: Complete the other operators when COMPARAISON methods are made in stzString
 
 /*=================
 
@@ -9653,7 +9727,7 @@ StzStringQ("__b和平س__a__و") {
 ? Q("tunis").Uppercased()	# TUNIS
 ? Q("tunis").Titlecased()	# Tunis
 
-//? Q("tunis").Foldcased()	# TODO
+//? Q("tunis").Foldcased()	#TODO
 
 /*--------------------
 
@@ -9661,7 +9735,7 @@ StzStringQ("__b和平س__a__و") {
 ? StzStringQ("TUNIS").IsUppercased()	# TRUE
 ? StzStringQ("Tunis").IsTitlecased()	# TRUE
 
-//? StzStringQ("tunis").IsFoldcased()	# TODO
+//? StzStringQ("tunis").IsFoldcased()	#TODO
 
 /*====================
 
@@ -10228,10 +10302,10 @@ StzStringQ("MY BEAUTIFUL RING") {
 	? Boxed()
 	? BoxedRound()
 
-	//? BoxedEachChar()		# TODO: Add it
-	// ? BoxedEachCharRound()	# TODO: Add it
+	//? BoxedEachChar()		#TODO: Add it
+	// ? BoxedEachCharRound()	#TODO: Add it
 
-	// ? VizFindBoxed("I")	# TODO: Add it
+	// ? VizFindBoxed("I")	#TODO: Add it
 
 	? BoxedDashed()
 	? BoxedDashedRound()
@@ -10918,7 +10992,7 @@ o1 = new stzString("<script>func return :done<script/>")
 ? o1.IsBoundedBy(["<script>", :And = "<script/>"])
 #--> TRUE
 
-o1.RemoveTheseBounds("<script>", "<script/>") # TODO: Check this!
+o1.RemoveTheseBounds("<script>", "<script/>") #TODO: Check this!
 ? o1.Content()
 #--> "func return :done"
 
@@ -11102,7 +11176,7 @@ proff()
 # Strings comparisons are made in a locale-sensitive manner
 o1 = new stzString("RÉSERVÉ")
 ? o1.UnicodeCompareWithInSystemLocale("réservé")	#--> :Greater
-# o1.UnicodeCompareWithInLocale("réservé"", "fr-FR")	# TODO
+# o1.UnicodeCompareWithInLocale("réservé"", "fr-FR")	#TODO
 
 /*==================
 
@@ -11264,7 +11338,7 @@ o1 = new stzChar("Ⅱ")
 
 /*------------------ TODO
 
-# TODO:
+#TODO:
 # 	Should go to stzString class
 # 	Homogenize the semantics of ArabicNumber, ArabicNumerals, ArabaicDecimalDigit...
 
@@ -11416,7 +11490,7 @@ o1 = new stzString("Приве́т नमस्ते שָׁלוֹם")
 o# 	[ "שָׁלוֹם", "hebrew" 	]
 # ]
 
-# TODO
+#TODO
 ? o1.PartsW('{
 	Q(@part).Script() = :Cyrillic
 }')
@@ -11428,7 +11502,7 @@ o1 = new stzString("🐨")
 ? o1.NumberOfChars() # returns 2! --> Number of CodePoints()
 ? o1.SizeInBytes() # returns 4
 
-# TODO: Reflect on this: NumberOfChars() is actually NumberOfCodePoints()
+#TODO: Reflect on this: NumberOfChars() is actually NumberOfCodePoints()
 
 /*---------------
 

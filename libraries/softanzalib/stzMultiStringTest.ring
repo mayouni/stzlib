@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-# TODO: Review this class on the light of the changes made in stzLocale,
+#TODO: Review this class on the light of the changes made in stzLocale,
 # stzLanguage, stzScript, and stzCountry classes
 
 o1 = new stzMultiString([ :en = "house", :fr = "maison", :ar = "منزل" ])
