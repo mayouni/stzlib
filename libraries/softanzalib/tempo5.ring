@@ -140,7 +140,7 @@ str += "|1|2|1|__*__|[ 10* 11* 12 ]|B|2|1|__*__|A*|3|__*__|B|[ 10* 11* 12 ]|B|"
 o1 = new stzString(str)
 ? @@(o1.FindThisBoundedBy("1", "|"))
 
-# TODO: Try to compose the string by pushing the first part in the middle or a the end,
+#TODO: Try to compose the string by pushing the first part in the middle or a the end,
 # and if stzString is still as performant!
 
 proff()

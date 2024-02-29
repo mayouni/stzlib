@@ -764,7 +764,7 @@ class stzGrid from stzObject
 			7 8 9		9 8 7
 		*/
 
-		# TODO
+		#TODO
 		StzRaise("TODO feature!")
 
 	def ReverseVLinesQ()
@@ -778,7 +778,7 @@ class stzGrid from stzObject
 			7 8 9		9 8 7
 		*/
 
-		# TODO
+		#TODO
 
 	def ReverseNodesInHLinesQ()
 		This.ReverseHLines()
@@ -824,7 +824,7 @@ class stzGrid from stzObject
 			7 8 9		1 4 7
 		*/
 
-		# TODO
+		#TODO
 
 	def TurnToLeftQ()
 		This.TurnToLeft()
@@ -837,7 +837,7 @@ class stzGrid from stzObject
 			7 8 9		9 6 3
 		*/
 
-		# TODO
+		#TODO
 
 	def TurnToRightQ()
 		This.TurnToRight()
@@ -1301,14 +1301,14 @@ class stzGrid from stzObject
 	def StzType()
 		return :stzgrid
 
-	def SetGridSize(pnNumberOfVLines, pnNumberOfHLines) # TODO
+	def SetGridSize(pnNumberOfVLines, pnNumberOfHLines) #TODO
 		/* ... */
 		StzRaise("Inexistant feature in this release!")
 
-	def Extend() # TODO
+	def Extend() #TODO
 		/* ... */
 		StzRaise("Inexistant feature in this release!")
 
-	def Shrink() # TODO
+	def Shrink() #TODO
 		/* ... */
 		StzRaise("Inexistant feature in this release!")

@@ -9,7 +9,7 @@
 #										#
 #-------------------------------------------------------------------------------#
 
-# TODO: Replace all for/in loops by for loops
+#TODO: Replace all for/in loops by for loops
 
   ///////////////////
  ///   GLOBALS   ///
@@ -69,6 +69,12 @@ func T(p)
 
 	func TQ(p)
 		return new stzText( T(p) )
+
+func IsStzText(p)
+	return IsObject(p) and classname(p) = "stztext"
+
+	func @IsStzText(p)
+		return IsStzText(p)
 
 # Useful four finding instances of WORDS (an not substrings!) inside a string
 func PossibleWordInstancesXT(pcWord, cWordPositionInSentence)
@@ -1157,7 +1163,7 @@ class stzText from stzString
 		cResult = StzListOfStringsQ( acListOfChars ).ConcatenateQ().SimplifyQ().Content()
 		return cResult
 		
-	# TODO: Not optimised for large texts!
+	#TODO: Not optimised for large texts!
 	def OnlyArabic()
 		acListOfChars = StzListQ( This.ToListOfChars() ).ItemsW('
 			StzCharQ(@item).IsNeutral() or
@@ -1791,7 +1797,7 @@ class stzText from stzString
 	 #   REVERSING THE ORDER OF WORDS IN THE TEXT   #
 	#----------------------------------------------#
 
-	def ReverseWords() # TODO
+	def ReverseWords() #TODO
 		/*
 			1. ReplaceWordsWithMarquers()
 			2. ReverseSortingOrderOfMarquers()
@@ -1984,7 +1990,7 @@ class stzText from stzString
 		
 		cWord = ""
 		
-		# TODO: replace for/in with normal for loop --> better performance
+		#TODO: replace for/in with normal for loop --> better performance
 
 		for aLine in aTemp
 			cWord = aLine[1]
@@ -2088,7 +2094,7 @@ class stzText from stzString
 
 		next
 
-		# TODO: When RegExp is implemented, use it instead.
+		#TODO: When RegExp is implemented, use it instead.
 
 		# ? ( clock() - t0 ) / clockspersecond()
 
@@ -3094,7 +3100,7 @@ class stzText from stzString
 	 #  SORTING WORDS IN THE TEXT IN ASCENDING  #
 	#------------------------------------------#
 
-	def SortWordsInAscending() # TODO
+	def SortWordsInAscending() #TODO
 		/*
 			1. Replace words with marquers
 			2. Sort the marquers in ascending (inside the text string)
@@ -3116,7 +3122,7 @@ class stzText from stzString
 	 #  SORTING WORDS IN THE TEXT IN DESCENDING  #
 	#-------------------------------------------#
 
-	def SortWordsInDescending() # TODO
+	def SortWordsInDescending() #TODO
 		/*
 			1. Replace words with marquers
 			2. Sort the marquers in descending (inside the text string)
@@ -3334,7 +3340,7 @@ class stzText from stzString
 		return cResult
 
 	  #-----------------------------------------#
-	 #    REPLACING NTH OCCURRENCE OF A WORD   # TODO
+	 #    REPLACING NTH OCCURRENCE OF A WORD   #TODO
 	#-----------------------------------------#
 	
 	def ReplaceNthWordCS(n, pcWord, pcNewSubStr, pCaseSensitive)
@@ -3675,7 +3681,7 @@ class stzText from stzString
 		#>
 
 	  #------------------------------------------#
-	 #      FINDING ALL OCCURRENCES OF WORD     # TODO
+	 #      FINDING ALL OCCURRENCES OF WORD     #TODO
 	#------------------------------------------#
 
 	def FindAllOccurrencesOfWordCS(pcWord, pCaseSensitive)
@@ -3726,7 +3732,7 @@ class stzText from stzString
 		#>
 	
 	  #-----------------------------------------#
-	 #      FINDING NTH OCCURRENCE OF WORD     # TODO: Test it
+	 #      FINDING NTH OCCURRENCE OF WORD     #TODO: Test it
 	#-----------------------------------------#
 	
 	# In principal, words are managed in lowercase (and this is what
@@ -3774,7 +3780,7 @@ class stzText from stzString
 			return This.FindNthOccurrenceOfWordCS(n, pcWord, pCaseSensitive)
 
 	  #-------------------------------------------#
-	 #      FINDING FIRST OCCURRENCE OF WORD     # TODO: Test it!
+	 #      FINDING FIRST OCCURRENCE OF WORD     #TODO: Test it!
 	#-------------------------------------------#
 	
 	def FindFirstOccurrenceOfWordCS(pcWord, pCaseSensitive)
@@ -3813,7 +3819,7 @@ class stzText from stzString
 		#>
 
 	  #------------------------------------------#
-	 #      FINDING LAST OCCURRENCE OF WORD     # TODO: test it!
+	 #      FINDING LAST OCCURRENCE OF WORD     #TODO: test it!
 	#------------------------------------------#
 
 	def FindLastOccurrenceOfWordCS(pcWord, pCaseSensitive)
@@ -4627,7 +4633,7 @@ class stzText from stzString
 	 #    REMOVING PUNCTUATION   # 
 	#---------------------------#
 
-	def RemovePunctuation() # TODO: Use an other ilmplementation for better performance
+	def RemovePunctuation() #TODO: Use an other ilmplementation for better performance
 		This.RemoveCharsWhere('{ StzCharQ(@char).IsPunctuation() }')
 
 		def RemovePunctuationQ()
@@ -4682,7 +4688,7 @@ class stzText from stzString
 		return bResult
 
 
-	def RemoveDiacritics() # TODO: test this!
+	def RemoveDiacritics() #TODO: test this!
 
 		/*
 		Diacritics are marks placed above or below (or sometimes next to)
@@ -4724,12 +4730,12 @@ class stzText from stzString
 				:Where = '{ StzCharQ(@char).IsGreekDiacritic() }',
 				:With  = 'StzCharQ(@char).RemoveGreekDiacritic()'
 			)
-			# TODO: I assumed that greek works like latin for diacritics,
+			#TODO: I assumed that greek works like latin for diacritics,
 			# but check this!
 	
 		on :Hebrew
 			This.ToStzString().RemoveCharsWhere('{ StzCharQ(@char).IsHebrewDiacritic() }')
-			# TODO: I assumed that hebrew works like arabic for diacritics,
+			#TODO: I assumed that hebrew works like arabic for diacritics,
 			# but check this!
 	
 		other
@@ -4825,7 +4831,7 @@ class stzText from stzString
 	*/
 
 	def RemoveDiacriticsInLocale(pLocale)
-		# TODO: add more speciefic languages (only german is managed here)
+		#TODO: add more speciefic languages (only german is managed here)
 		# and special cases as documented in the Unicode standard here:
 		#--> http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 

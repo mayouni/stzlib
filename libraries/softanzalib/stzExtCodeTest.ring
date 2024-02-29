@@ -114,7 +114,7 @@ pron()
 
 		@([
 
-		:id    = SMALLINT, 	# TODO: SQL datatypes are not supported yet
+		:id    = SMALLINT, 	#TODO: SQL datatypes are not supported yet
 		:name  = VARCHAR(30),
 		:score = SMALLINT
 
@@ -190,7 +190,7 @@ pron()
 
 	@SELECT([ :name, :score ]),
 	@FROM( :persons ),
-	@WHERE( 'score > 80' ) # TODO: check WHERE_( 'name = "Dan"' );
+	@WHERE( 'score > 80' ) #TODO: check WHERE_( 'name = "Dan"' );
 
 	])
 
@@ -498,7 +498,7 @@ o1 = new stzString("Niger")
 ? ObjectName(o1)
 #--> @noname
 
-# TODO: Reflect...
+#TODO: Reflect...
 # Does any normal object (not necessarilty a stzObject) containing an
 # @cVarName attribute and an ObjectVarName() method should be
 # considered as potentially named ?
@@ -694,7 +694,7 @@ value1 == value2 == value3
 # to use the syntax shown in this sample, one would gain
 # more clarity when it does...
 
-# TODO: Explain the use of stzFalseObject to enable
+#TODO: Explain the use of stzFalseObject to enable
 # managing the FALSE case in multiple eqality check.
 
 proff()

@@ -9,7 +9,7 @@ func IsEntity(p)
 	catch
 		return FALSE
 	end
-	# TODO : Replace this implementation
+	#TODO : Replace this implementation
 	# Use the code in the init() function inside the class
 
 	#< @FunctionAlternativeForms

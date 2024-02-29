@@ -242,7 +242,7 @@ proff()
 
 pron()
 
-# TODO : Fix the point at the end of the result
+#TODO : Fix the point at the end of the result
 
 o1 = new stzNumber("601793176.32")
 ? o1.ToHexForm()

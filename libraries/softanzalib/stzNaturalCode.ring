@@ -1,4 +1,4 @@
-# TODO
+#TODO
 
 func StzNaturalCodeQ()
 	return new stzNaturalCode

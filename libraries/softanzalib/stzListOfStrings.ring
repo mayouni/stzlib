@@ -16439,7 +16439,7 @@ stop()
 	 #   CHECKING IF THE LIST CONTAINS DUPLICATED STRINGS   #
 	#======================================================#
 
-	# TODO: Reuse the Duplication code from steList!
+	#TODO: Reuse the Duplication code from steList!
 	# --> Hormonize the semantics
 
 	def ContainsDuplicatedStringsCS(pCaseSensitive)
@@ -18970,7 +18970,7 @@ stop()
 	#=====================#
 
 	def NumberOfCombinations()
-		return len(This.Combinations()) # TODO: solve it mathematically.
+		return len(This.Combinations()) #TODO: solve it mathematically.
 	
 	def Combinations()
 	
@@ -19801,7 +19801,7 @@ stop()
 		return This.SubStreaksCS(TRUE)
 
 	  #-----------------------------------#
-	 #  SUBSTRONGS AND THEIR SUBSTREAKS  # TODO
+	 #  SUBSTRONGS AND THEIR SUBSTREAKS  #TODO
 	#-----------------------------------#
 
 	def SubStrongsAndTheirSubStreaksCS(pCaseSensitive)
@@ -19819,7 +19819,7 @@ stop()
 			return This.SubStrongsAndTheirSubStreaks()
 
 	  #-----------------------------------#
-	 #  SUBSTREAKS AND THEIR SUBSTRONGS  # TODO
+	 #  SUBSTREAKS AND THEIR SUBSTRONGS  #TODO
 	#-----------------------------------#
 
 	def SubStreaksAndTheirSubStrongsCS(pCaseSensitive)
@@ -19837,7 +19837,7 @@ stop()
 			return This.SubStreaksAndTheirSubStrongs()
 
 	  #----------------------------------#
-	 #  FINDING SUBSTRONGS IN THE LIST  # TODO
+	 #  FINDING SUBSTRONGS IN THE LIST  #TODO
 	#----------------------------------#
 
 	def FindSubStrongsCS(pCaseSensitive)
@@ -19855,7 +19855,7 @@ stop()
 			return This.FindSubStrongs()
 
 	  #----------------------------------#
-	 #  FINDING SUBSTREAKS IN THE LIST  # TODO
+	 #  FINDING SUBSTREAKS IN THE LIST  #TODO
 	#----------------------------------#
 
 	def FindSubStreaksCS(pCaseSensitive)

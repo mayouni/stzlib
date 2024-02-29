@@ -325,7 +325,7 @@ class stzFile from stzObject
 		return oQFileInfo.completeSuffix()
 
 	  #--------------------------#
-	 #   ZIPPING & EXTRACTING   # TODO
+	 #   ZIPPING & EXTRACTING   #TODO
 	#--------------------------#
 
 	// See : https://ring-lang.sourceforge.io/doc1.15/ringzip.html

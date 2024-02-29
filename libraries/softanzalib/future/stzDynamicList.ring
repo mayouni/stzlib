@@ -157,7 +157,7 @@ class stzDynamicList from stzObject
  			pObj = GetActiveItemByContent(pItem.Content())
 			oTempList = new stzList( Content() )
 			return oTempList.FindFirst( pObj )
-			# TODO: Shouldn't we use FindAll() to catch all the
+			#TODO: Shouldn't we use FindAll() to catch all the
 			# position of pItem in that list?
 		ok
 

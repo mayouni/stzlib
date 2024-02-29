@@ -1157,7 +1157,7 @@ o1 = Q("ABAAC")
 # 	"ABCB", "ABCBB", "ABCBBD", "ABCBBDA"
 # ]
 
-? @@( o1.SubStringsAndTheirPositions() ) # TODO: Optimise performance!
+? @@( o1.SubStringsAndTheirPositions() ) #TODO: Optimise performance!
 #--> [
 # 	[ "A", [ 1, 3, 4 ] ], [ "B", [ 2 ] ], [ "C", [ 5 ] ],
 # 	[ "AB", [ 1 ] ], [ "AA", [ 3 ] ], [ "ABA", [ 1 ] ],

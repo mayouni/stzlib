@@ -2,14 +2,14 @@
 # Get inspiration from this great article:
 # https://marketsplash.com/tutorials/python/cracking-the-code-of-randomness-pythons-secrets-revealed/
 
-# TODO: Propose examples showing realword applications of randomness:
+#TODO: Propose examples showing realword applications of randomness:
 #	- Generating unique passwords
 #	- Randomizing data
 #	- Monte Carlo simulations
 #	- Randomizing game scanrios
 #	- etc
 
-# TODO: Add titles to functions
+#TODO: Add titles to functions
 
 
 _nRingMaxRandom = 999_999_999 # Based on my testing of Ring random() function

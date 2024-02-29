@@ -36,11 +36,11 @@ https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-
 	designed to support the needs of analytic database
 	systems, data frame libraries, and more.
 
-# TODO: Add support of Excel functions (see at the bottom of the file)
+#TODO: Add support of Excel functions (see at the bottom of the file)
 
-# TODO: Add Paging feature
+#TODO: Add Paging feature
 
-# TODO : Support SQL statements
+#TODO : Support SQL statements
 
 */
 
@@ -75,7 +75,7 @@ Class stzTable from stzObject
 	
 		# Way 1: new stzTable([])
 		#--> Creates an empty table with just a column and a row
-		# TODO: Review this choice!
+		#TODO: Review this choice!
 
 		# Way 2: new stzTable([3, 4])
 		#--> Creates a tale of 3 columns and 4 rows, all cells are empty
@@ -2521,7 +2521,7 @@ Class stzTable from stzObject
 		#>
 
 	def TheseCellsToHashList(paCellsPos)
-		# TODO: check if paCells are really cells and belong to the table!
+		#TODO: check if paCells are really cells and belong to the table!
 
 		aResult = []
 		nLen = len(paCellsPos)
@@ -3084,7 +3084,7 @@ Class stzTable from stzObject
 	 #  FINDING MANY CELLS IN THE TABLE  #
 	#-----------------------------------#
 
-	def FindCellsCS(paValues, pCaseSensitive) # TODO
+	def FindCellsCS(paValues, pCaseSensitive) #TODO
 		StzRaise("TODO!")
 
 	#-- WITHOUT CASESENSITIVITY
@@ -3096,7 +3096,7 @@ Class stzTable from stzObject
 	 #  FINDING ALL CELLS EXCEPT THOSE PROVIDED  #
 	#-------------------------------------------#
 
-	def FindCellsExceptCS(paValues, pCaseSensitive) # TODO
+	def FindCellsExceptCS(paValues, pCaseSensitive) #TODO
 		StzRaise("TODO!")
 
 	#-- WITHOUT CASESENSITIVITY
@@ -3167,7 +3167,7 @@ Class stzTable from stzObject
 	 #  FINFING MANY SUBVALUES INSIDE THE TABLE  #
 	#-------------------------------------------#
 
-	def FindSubValuesCS(paSubValues, pCaseSensitive) # TODO
+	def FindSubValuesCS(paSubValues, pCaseSensitive) #TODO
 		StzRaise("TODO!")
 
 	#-- WITHOUT CASESENSITIVITY
@@ -3179,7 +3179,7 @@ Class stzTable from stzObject
 	 #  FINFING ALL SUBVALUES EXCEPT THOSE PROVIDED  #
 	#-----------------------------------------------#
 
-	def FindSubValuesExceptCS(paSubValues, pCaseSensitive) # TODO
+	def FindSubValuesExceptCS(paSubValues, pCaseSensitive) #TODO
 		StzRaise("TODO!")
 
 	#-- WITHOUT CASESENSITIVITY
@@ -4795,7 +4795,7 @@ Class stzTable from stzObject
 		anPos = FindSubValueInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 		anResult = anPos[n]
 
-		# TODO: Implement a more performant alortithm by adding FindNext...()
+		#TODO: Implement a more performant alortithm by adding FindNext...()
 
 		return anResult
 
@@ -8050,7 +8050,7 @@ Class stzTable from stzObject
 		#>
 
 	/// WORKING ON SECTIONS //////////////////////////////////////////////////////////////////////
-	# TODO: Working on SELECTIONS
+	#TODO: Working on SELECTIONS
 
 	  #==========================================================================================#
 	 #  FINDING POSITIONS OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN THE GIVEN SECTION  #
@@ -8541,7 +8541,7 @@ Class stzTable from stzObject
 
 		#--
 
-		# TODO: Add the fellowing semantics to all simular functions in the library
+		#TODO: Add the fellowing semantics to all simular functions in the library
 
 		def ReplaceEachOne(paCellsPos, paNewCellValue)
 			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
@@ -9213,7 +9213,7 @@ Class stzTable from stzObject
 	 #  REPLACING OCCURRENCES OF MANY CELLS, DEFINED BY VALUE, BY THE PROVIDED VALUE  #
 	#--------------------------------------------------------------------------------#
 
-	def ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, pCaseSensitive) # TODO
+	def ReplaceManyCellsByValueCS(paCellsValues, pNewCellValue, pCaseSensitive) #TODO
 		/* ... */
 
 		#< @FunctionAlternativeForms
@@ -9255,7 +9255,7 @@ Class stzTable from stzObject
 	 #  REPLACING OCCURRENCES OF MANY CELLS, DEFINED BY VALUE, BY MANYS VALUES  #
 	#--------------------------------------------------------------------------#
 
-	def ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, pCaseSensitive) # TODO
+	def ReplaceManyCellsByValueByManyCS(paCellsValues, pNewCellValue, pCaseSensitive) #TODO
 		/* ... */
 
 		#< @FunctionAlternativeForms
@@ -9295,7 +9295,7 @@ Class stzTable from stzObject
 	 #  REPLACING OCCURRENCES OF MANY CELLS, DEFINED BY VALUE, BY MANYS VALUES -- XT FORM  #
 	#-------------------------------------------------------------------------------------#
 
-	def ReplaceManyCellsByValueByManyCSXT(paCellsValues, pNewCellValue, pCaseSensitive) # TODO
+	def ReplaceManyCellsByValueByManyCSXT(paCellsValues, pNewCellValue, pCaseSensitive) #TODO
 		/* ... */
 
 		#< @FunctionAlternativeForms
@@ -9414,7 +9414,7 @@ Class stzTable from stzObject
 		def ReplaceAllColumsByMany(paCols, paNewCols)
 			This.ReplaceAllColsByMany(paCols, paNewCols)
 
-	# TODO : Add ReplaceAllColsByManyXT()
+	#TODO : Add ReplaceAllColsByManyXT()
 	#--> When the new provided cols are all used --> restart from the first one
 
 	  #------------------------------------------------------------------------------------------------#
@@ -9459,7 +9459,7 @@ Class stzTable from stzObject
 
 		#>
 
-	# TODO: Add ReplaceTheseColsByManyXT()
+	#TODO: Add ReplaceTheseColsByManyXT()
 	#--> When the new provided cols are all used --> restart from the first one
 
 	  #===========================#
@@ -9507,7 +9507,7 @@ Class stzTable from stzObject
 		def ReplaceRows(paNewRows)
 			This.ReplaceAllRows(paNewRows)
 
-	# TODO: Add  ReplaceAllRowsXT(paNewRows)
+	#TODO: Add  ReplaceAllRowsXT(paNewRows)
 	#--> when all the provided rows are used --> restart from the 1st one
 
 	def ReplaceTheseRows(paRows, paNewRows)
@@ -9518,7 +9518,7 @@ Class stzTable from stzObject
 		aCells = This.CellsInTheseRowsAsPositions(paRows)
 		This.ReplaceCells(aCells, paNewrows)
 
-	# TODO: Add  ReplaceThesesRowsXT()
+	#TODO: Add  ReplaceThesesRowsXT()
 	#--> when all the provided rows are used --> restart from the 1st one
 
 	  #===================================================#
@@ -11405,7 +11405,7 @@ Class stzTable from stzObject
 
 				return This.ShowXT([ :UnderLineHeader = TRUE ])
 
-			but paOptions = :ShowRowNumbers or	# TODO: Add those named params
+			but paOptions = :ShowRowNumbers or	#TODO: Add those named params
 			    paOptions = :AddRowNumbers or	# to ShowXT([ ... ])
 			    paOptions = :WithRowNumbers or
 			    paOptions = :RowNumbers
@@ -11741,7 +11741,7 @@ Class stzTable from stzObject
 			This.Fill(pValue)
 			return This
 
-		def FillCQ(pValue) # TODO: Add this to all functions
+		def FillCQ(pValue) #TODO: Add this to all functions
 			return This.Copy().FillQ(pValue)
 
 	def Filled(pValue)

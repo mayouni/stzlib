@@ -4150,7 +4150,7 @@ class stzListOfNumbers from stzList
 		nLen = len(aContent)
 
 		anNumbers = This.NumbersBetween(n1, n2)
-		nResult = ARandomNumberIn(anNumbers) # TODO: Add ARandomItemIn() function to stzRandomFunctions.ring
+		nResult = ARandomNumberIn(anNumbers) #TODO: Add ARandomItemIn() function to stzRandomFunctions.ring
 
 		return nResult
 
@@ -4335,7 +4335,7 @@ class stzListOfNumbers from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		anNumbers = This.NumbersNotBetween(n1, n2) # TODO
+		anNumbers = This.NumbersNotBetween(n1, n2) #TODO
 		nResult = ARandomNumberIn(anNumbers)
 
 		return nResult
@@ -4411,8 +4411,8 @@ class stzListOfNumbers from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		anNumbers = This.NumbersNotBetweenIB(n1, n2) # TODO
-		nResult = ARandomNumberIn(anNumbers) # TODO: Add ARandomItemIn() function to stzRandomFunctions.ring
+		anNumbers = This.NumbersNotBetweenIB(n1, n2) #TODO
+		nResult = ARandomNumberIn(anNumbers) #TODO: Add ARandomItemIn() function to stzRandomFunctions.ring
 
 		return nResult
 
@@ -4634,7 +4634,7 @@ class stzListOfNumbers from stzList
 		nMax = Max([ n1, n2 ])
 
 		anPos = nMin : nMax
-		nRandom = AnyNumberNotIn(anPos) # TODO
+		nRandom = AnyNumberNotIn(anPos) #TODO
 		nResult = This.Number(nRandom)
 
 		return nResult
@@ -5166,7 +5166,7 @@ class stzListOfNumbers from stzList
 	 #  GETTING N RANDOM NUMBERS OTHER THEN THE GIVEN NUMBERS  #
 	#---------------------------------------------------------#
 	
-	# TODO: Add alternatives of (DifferentTo / Of / From / With) all over the library!
+	#TODO: Add alternatives of (DifferentTo / Of / From / With) all over the library!
 
 	def NNumbersOtherThanMany(n, anNumbers)
 		anPos = Q( 1 : This.NumberOfItems() ) - These(This.Find(anNumbers))

@@ -49,7 +49,7 @@ or 'unavoidable' Qt feature.
 
 */
 
-# TODO: Add ZeroWithChars()
+#TODO: Add ZeroWithChars()
 #--> [\u200B\u200C\u200D\u200E\u200F\uFEFF]
 
 
@@ -312,7 +312,7 @@ func FirstUnicodeChar()
 		return FirstUnicodeChar()
 
 #---- Functions used for natural-coding
-# TODO: generate all the possible functions based on stzChar methods
+#TODO: generate all the possible functions based on stzChar methods
 
 func Letter(pcChar)
 	if StringIsChar(pcChar) and StzCharQ(pcChar).IsLetter() 
@@ -425,7 +425,7 @@ func NumberOfChineseLetters()
 	func HowManyChineseLetters()
 		return NumberOfChineseLetters()
 
-# TODO: add simular functions to all other languages
+#TODO: add simular functions to all other languages
 
 
 
@@ -496,7 +496,7 @@ class stzChar from stzObject
 		def NumericValue()
 			return This.Number()
 
-		def Value() # TODO: Generalize it to infere other values then number
+		def Value() #TODO: Generalize it to infere other values then number
 			return This.Number()
 
 	def QCharObject()
@@ -695,7 +695,7 @@ class stzChar from stzObject
 	def SizeInChars() # Normally, it returns 1. But there will be cases
 			  # where our implementation of NumberOfChars() in
 			  # stzString is not accurate, due to Unicode complexisty.
-			  # TODO: Check them and fix them.
+			  #TODO: Check them and fix them.
 
 		return This.ToStzString().SizeInChars()
 
@@ -1130,7 +1130,7 @@ class stzChar from stzObject
 			return FALSE
 		ok
 
-		# TODO: A quicker solution would be possible if we create a global
+		#TODO: A quicker solution would be possible if we create a global
 		# name _anSymbolUnicodes = [ ... ] with the decimal unicode numbers
 		# of the Symbols Block in Unicode.
 
@@ -1149,7 +1149,7 @@ class stzChar from stzObject
 			return FALSE
 		ok
 
-		# TODO: A quicker solution would be possible if we create a global
+		#TODO: A quicker solution would be possible if we create a global
 		# name _anMarkUnicodes = [ ... ] with the decimal unicode numbers
 		# of the Symbols Block in Unicode.
 
@@ -1165,7 +1165,7 @@ class stzChar from stzObject
 			return FALSE
 		ok
 
-		# TODO: A quicker solution would be possible if we create a global
+		#TODO: A quicker solution would be possible if we create a global
 		# name _anSeparatorUnicodes = [ ... ] with the decimal unicode numbers
 		# of the Symbols Block in Unicode.
 
@@ -2677,7 +2677,7 @@ class stzChar from stzObject
 	       https://unicode.org/faq/casemap_charprop.html#16
 
 	   Hence, there is a high risk of naming confustion in using those terms!
-	   # TODO: Reflect on this problem and fix it accordingly!
+	   #TODO: Reflect on this problem and fix it accordingly!
 
 	  NOTE: For the mean time, Softanza considers them the same!
 		In fact, the _aTurnableCharsXT in stzCharData file hosts the
@@ -2690,7 +2690,7 @@ class stzChar from stzObject
 
 		def IsTurnable()
 			return IsInvertible()
-		# TODO: We suppose that turning is same as inverting but this could
+		#TODO: We suppose that turning is same as inverting but this could
 		# change in the future to cope with their exact meaning in Unicode!
 
 	  #----------------------#

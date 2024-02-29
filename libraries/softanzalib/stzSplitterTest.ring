@@ -129,7 +129,7 @@ o1 = new stzSplitter(1:10)
 ? @@( o1.SplitAfterSection([ 4, 7 ]) )
 #--> [ [ 1, 7 ], [ 8, 10 ] ]
 
-? @@( o1.SplitAfterSection([ 2, 9 ]) ) # TODO: Correct it
+? @@( o1.SplitAfterSection([ 2, 9 ]) ) #TODO: Correct it
 #--> Returned [ 1, 10 ]
 #--> Should return [ [1, 9], [10, 10] ]
 

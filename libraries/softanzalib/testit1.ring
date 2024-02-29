@@ -1256,7 +1256,7 @@ o1.InsertAt(3, "THREE")
 
 o1 = new stzString("ring programming")
 
-o1.Capitalize() # TODO: revisit its mother fucntion in stzLocale.toUppercase')
+o1.Capitalize() #TODO: revisit its mother fucntion in stzLocale.toUppercase')
 		# when stzText.Words() is finalized
 
 ? o1.Content() #--> Ring Programming
