@@ -414,7 +414,7 @@ func NumberOfLatinLetters()
 		return NumberOfLatinLetters()
 
 func NumberOfArabicLetters()
-	return 28
+	return len( ArabicLetters() )
 
 	func HowManyArabicLetters()
 		return NumberOfArabicLetters()

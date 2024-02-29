@@ -414,7 +414,8 @@ Dotless LETTERS
 	_cSalatAlaMuhammedAsString = "صَلَّى اللّهُ عَلَيْهِ وَ سَلَّمَ"
 
 	# Arabic letters
-	_acArabicLetters = [ "ا","أ","ئ","ء","آ","ب","ت","ة","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","و","ه","ي", "ّ" ]
+	_acArabicLetters   = ["أ", "ب", "ت", "ث", "ج", "ح", "خ", "د", "ذ", "ر", "ز", "س", "ش", "ص", "ض", "ط", "ظ", "ع", "غ", "ف", "ق", "ك", "ل", "م", "ن", "ه", "و", "ي"]
+	_acArabicLettersXT = [ "ا","أ","ئ","ء","آ","ب","ت","ة","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","و","ه","ي", "ّ" ]
 
 	# Arabic 7arakets
 
@@ -1421,6 +1422,9 @@ Dotless LETTERS
 	func ArabicLetters()
 		return _acArabicLetters
 
+	func ArabicLettersXT()
+		return _acArabicLettersXT
+
 	func ArabicAndLatinLetters()
 		aLetters = ArabicLetters()
 		for c in LatinLetters()
@@ -2399,6 +2403,9 @@ Dotless LETTERS
 	func Muhammed()
 		return MuhammedAsChar()
 
+		func Muhammad()
+			return Muhammed()
+
 	func MuhammedAsChar()
 		return _cMuhammedAsChar
 
@@ -2407,6 +2414,9 @@ Dotless LETTERS
 
 	func SalatAlaMuhammed()
 		return SalatAlaMuhammedAsChar()
+
+		func SalatAlaMuhammad()
+			return SalatAlaMuhammed()
 
 	func SalatAlaMuhammedAsChar()
 		return _cSalatAlaMuhammedAsChar

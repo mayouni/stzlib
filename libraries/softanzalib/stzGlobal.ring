@@ -3645,6 +3645,23 @@ func BothEndWithANumber(p1, p2)
 		return FALSE
 	ok
 
+func HowMany(paList)
+	if NOT isList(paList)
+		StzRaise("Incorrect param type! paList must be a list.")
+	ok
+
+	return len(paList)
+
+	func HowManyItemsIn(paList)
+		return HowMany(paList)
+
+	func HowManyItems(paList)
+		if isList(paList) and Q(paList).IsInNamedParam()
+			paList = paList[2]
+		ok
+
+		return HowMany(paList)
+
 class stzForEachObjectOld
 	@acVars
 	@aValues

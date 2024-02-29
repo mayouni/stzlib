@@ -77,15 +77,22 @@ func SetFew(n)
 	_nFew = n
 
 func Few(paList)
+	return FewXT(paList, DefaultFew())
+
+func FewXT(paList, nFewRatio)
 	if CheckParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
+
+		if NOT isNumber(nFewRatio)
+			StzRaise("Incorrect param type! nFewRatio must be a number.")
+		ok
 	ok
 
-	n = ceil( len(paList) * _Few() )
-	return sort( NRandomItemsInU(n, paList) )
-
+	n = ceil( len(paList) * nFewRatio )
+	return NRandomItemsInU(n, paList)
+	
 #--
 
 func DefaultSome()
@@ -97,15 +104,22 @@ func SetSome(n)
 	_nSome = n
 
 func Some(paList)
+	return SomeXT(paList, DefaultSome())
+
+func SomeXT(paList, nSomeRatio)
 	if CheckParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
+
+		if NOT isNumber(nSomeRatio)
+			StzRaise("Incorrect param type! nSomeRatio must be a number.")
+		ok
 	ok
 
-	n = ceil( len(paList) * _Some() )
+	n = ceil( len(paList) * nSomeRatio )
 
-	return sort( NRandomItemsInU(n, paList) )
+	return NRandomItemsInU(n, paList)
 
 #--
 
@@ -125,7 +139,7 @@ func Half(paList)
 	ok
 
 	n = ceil( len(paList) / 2 )
-	return sort( NRandomItemsInU(n, paList) )
+	return NRandomItemsInU(n, paList)
 
 func HalfXT(paList)
 	if CheckParams()
@@ -153,14 +167,20 @@ func SetMany(n)
 	_nMany = n
 
 func Many(paList)
+	return ManyXT(paList, DefaultMany())
+
+func ManyXT(paList, nManyRatio)
 	if CheckParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
+		if NOT isNumber(nManyRatio)
+			StzRaise("Incorrect param type! nManyRatio must be a number.")
+		ok
 	ok
 
-	n = ceil( len(paList) * _Some() )
-	return sort( NRandomItemsInU(n, paList) )
+	n = ceil( len(paList) * nManyRatio )
+	return NRandomItemsInU(n, paList)
 
 #--
 
@@ -174,14 +194,20 @@ func SetMost(n)
 	_nMost = n
 
 func Most(paList)
+	return MostXT(paList, DefaultMost())
+
+func MostXT(paList, nMostRatio)
 	if CheckParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
+		if NOT isNumber(nMostRatio)
+			StzRaise("Incorrect param type! nMostRatio must be a number.")
+		ok
 	ok
 
-	n = floor( len(paList) * _Most() )
-	return sort( NRandomItemsInU(n, paList) )
+	n = floor( len(paList) * nMostRatio )
+	return NRandomItemsInU(n, paList)
 
 #--
 
@@ -3438,3 +3464,130 @@ func NRandomItemsInU(n, paList)
 
 	func NUniqueItemsIn(n, paList)
 		return NRandomItemsInU(n, paList)
+
+func NPercentOf(n, p)
+	if NOT IsNumberOrStringOrList(p)
+		StzRaise("Incorrect param type! p must be number or string or list.")
+	ok
+
+	if isNumber(p)
+		return p * n / 100
+
+	but isList(p)
+		nItems = ceil( len(p) * n / 100 )
+		return NRandomItemsIn(nItems, p)
+
+	but isString(p)
+		oStr = new stzString(p)
+		nLen = ceil( oStr.Size() * n / 100 )
+		return oStr.FirstNChars(nLen)
+
+	ok
+
+	func NPercent(n, p)
+		return NPercentOf(n, p)
+
+func 1PercentOf(p)
+	return NPercentOf(1, p)
+
+	def OnePercentOf(p)
+		return 1PercentOf(p)
+
+	func 1Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 1PercentOf(p)
+
+	def OnePercent(p)
+		return 1Percent(p)
+
+func 10PercentOf(p)
+	return NPercentOf(10, p)
+
+	func 10Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 10PercentOf(p)
+
+func 20PercentOf(p)
+	return NPercentOf(20, p)
+
+	func 20Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 20PercentOf(p)
+
+func 30PercentOf(p)
+	return NPercentOf(30, p)
+
+	func 30Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 30PercentOf(p)
+
+func 40PercentOf(p)
+	return NPercentOf(40, p)
+
+	func 40Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 40PercentOf(p)
+
+func 50PercentOf(p)
+	return NPercentOf(50, p)
+
+	func 50Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 50PercentOf(p)
+
+func 60PercentOf(p)
+	return NPercentOf(60, p)
+
+	func 60Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 60PercentOf(p)
+
+func 70PercentOf(p)
+	return NPercentOf(70, p)
+
+	func 70Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 70PercentOf(p)
+
+func 80PercentOf(p)
+	return NPercentOf(80, p)
+
+	func 80Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 80PercentOf(p)
+
+func 90PercentOf(p)
+	return NPercentOf(90, p)
+
+	func 90Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 90PercentOf(p)
+
+func 100PercentOf(p)
+	return p
+
+	func 100Percent(p)
+		if isList(p) and Q(p).IsOfNamedParam()
+			p = p[2]
+		ok
+		return 100PercentOf(p)
