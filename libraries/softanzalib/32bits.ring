@@ -1,5 +1,80 @@
 load "stzlib.ring"
 
+/*===
+
+pron()
+
+? HowMany( ArabicLetters() ) # Or HowManyArabicLetters() or NumberOfArabicLetters()
+#--> 28
+
+? 10PercentOf( ArabicLetters() ) # Or NPercentOf(10, ArabicLetters())
+#o--> [ "ص", "ة", "د", "ص" ]
+
+# NOTE : there is an eXTended list of arabic leters
+
+? HowMany( ArabicLettersXT() )
+#--> 34
+
+proff()
+# Executed in 0.02 second(s)
+
+/*===
+*/
+pron()
+
+o1 = new stzString( "one two one three two one four five" )
+
+? o1.HowManySubStrings()
+#--> 630
+
+? @@( SomeXT( o1.SubStrings(), 1/100 ) ) + NL # 1% of all the substrings
+#--> [ " four", "e three two", "hree t", "one th", "one three two o", "th", "wo on" ]
+
+# can also be written direcltly:
+//? @@( OnePercentOf( o1.SubStrings() ) ) # or just 1Percent()
+
+? @@( o1.SubStringsOccuringNTimes(3) ) + NL # NOTE "occuring" is mispelled (one r instead of two)
+#--> [ "o", "on", "one", "one ", "n", "ne", "ne ", "e", "e ", "e t", " ", " t", "t" ]
+
+? @@( o1.SubStringsOccurringExactlyNtimes(3) ) + NL
+#--> [ "on", "one", "one ", "n", "ne", "ne ", "e t", " t", "t" ]
+
+? @@( o1.SubStringsOccurringNoMoreThanNTimes(1) )
+#--> [ ]
+
+proff()
+
+/*---
+
+? o1.SubStringsOccurringNTimes(2)
+#--> [ "A", "C" ]
+
+? o1..SubStringsOccurringExactlyNTimes(2)
+#--> [ "C" ]
+
+? o1..SubStringsOccurringLessThanNTimes(3)
+#--> [ "B", "C" ]
+
+? o1..SubStringsOccurringNTimesOrLess(3)
+#--> [ "A", "B", "C" ]
+
+? o1..SubStringsOccurringNTimesOrMore(3)
+#--> [ "A" ]
+*/
+proff()
+
+/*---
+
+pron()
+
+o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
+? o1.ItemsOccuringNTimesCS(3, FALSE) # Note this is a misspelled form (one r instead of 2)
+#--> [ "b" ]
+
+proff()
+
+/*===
+
 pron()
 
 o1 = new stzList([ "A", "A", "B", "C", "A", "C" ])

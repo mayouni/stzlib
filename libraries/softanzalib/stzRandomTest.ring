@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*====
-*/
+
 pron()
 
 o1 = new stzList([ 1, 2, 3, 4, "A", "B", "C", "D" ])
@@ -298,10 +298,10 @@ proff()
 pron()
 
 ? Some( NumbersIn( -5 : 5 ) )
-#--> [ -2, -1, 2, 4 ]
+#--> [ -1, -4, -5, 3 ]
 
 ? Few( NumbersIn( -5 : 5 ) )
-#--> [ -5, -1 ]
+#--> [ 0, -4 ]
 
 ? All( EvenNumbersIn( -5 : 5 ) )
 #--> [ -4, -2, 0, 2, 4 ]
@@ -314,6 +314,31 @@ pron()
 
 proff()
 # Executed in 0.03 second(s)
+
+/*-----
+
+pron()
+
+? SomeXT( NumbersIn( -5 : 5 ), 20/100 )
+#--> [ -5, 0, 4 ]
+
+? FewXT( NumbersIn( -5 : 5 ), 5/100 )
+#--> [ 2 ]
+
+? MostXT( PositiveNumbersIn( -5 : 5 ), 90/100 )
+#--> [ 3, 4, 5, 1 ]
+
+proff()
+
+/*-----
+*/
+pron()
+
+TheAnnualGain = 20500
+? NPercentOf( 10, TheAnnualGain )
+#--> 2050
+
+proff()
 
 /*=====
 

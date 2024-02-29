@@ -24744,6 +24744,12 @@ class stzList from stzObject
 			def ItemsOccurringNTimesAndMoreCSQ(n, pCaseSensitive)
 				return This.ItemsOccuringNTimesCSQ(n, pCaseSensitive)
 
+		def ItemsOccurringAtLeastNTimesCS(n, pCaseSensitive)
+			return This.ItemsOccurringNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccurringAtLeastNTimesCSQ(n, pCaseSensitive)
+				return This.ItemsOccuringNTimesCSQ(n, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -24780,6 +24786,12 @@ class stzList from stzObject
 			return This.ItemsOccurringNTimes(n)
 
 			def ItemsOccurringNTimesAndMoreQ(n)
+				return This.ItemsOccuringNTimesQ(n)
+
+		def ItemsOccurringAtLeastNTimes(n)
+			return This.ItemsOccurringNTimes(n)
+
+			def ItemsOccurringAtLeastNTimesQ(n)
 				return This.ItemsOccuringNTimesQ(n)
 
 		#>
@@ -24938,12 +24950,28 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionMisspelledForm
+		#< @FunctionAlternativeForm
 
-		def ItemsOccuringMoreThanNTimesCS(n, pCaseSensitive) # On r instead of 2
+		def ItemsOccurringNoLessThanNTimesCS(n, pCaseSensitive)
+			return This.ItemsOccurringMoreThanNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccurringNoLessThanNTimesCSQ(n, pCaseSensitive)
+				return This.ItemsOccurringMoreThanNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def ItemsOccuringMoreThanNTimesCS(n, pCaseSensitive) # One r instead of 2
 			return This.ItemsOccurringMoreThanNTimesCS(n, pCaseSensitive)
 
 			def ItemsOccuringMoreThanNTimesCSQ(n, pCaseSensitive)
+				return This.ItemsOccurringMoreThanNTimesCSQ(n, pCaseSensitive)
+
+		def ItemsOccuringNoLessThanNTimesCS(n, pCaseSensitive) # One r instead of 2
+			return This.ItemsOccurringMoreThanNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccuringNoLessThanNTimesCSQ(n, pCaseSensitive)
 				return This.ItemsOccurringMoreThanNTimesCSQ(n, pCaseSensitive)
 
 		#>
@@ -24960,12 +24988,28 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionMisspelledForm
+		#< @FunctionAlternativeForm
 
-		def ItemsOccuringMoreThanNTimes(n) # On r instead of 2
+		def ItemsOccurringNoLessThanNTimes(n)
+			return This.ItemsOccurringMoreThanNTimes(n)
+
+			def ItemsOccurringNoLessThanNTimesQ(n)
+				return This.ItemsOccurringMoreThanNTimesQ(n)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def ItemsOccuringMoreThanNTimes(n) # One r instead of 2
 			return This.ItemsOccurringMoreThanNTimes(n)
 
 			def ItemsOccuringMoreThanNTimesQ(n)
+				return This.ItemsOccurringMoreThanNTimesQ(n)
+
+		def ItemsOccuringNoLessThanNTimes(n) # One r instead of 2
+			return This.ItemsOccurringMoreThanNTimesCS(n)
+
+			def ItemsOccuringNoLessThanNTimesQ(n)
 				return This.ItemsOccurringMoreThanNTimesQ(n)
 
 		#>
@@ -24995,12 +25039,28 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionMisspelledForm
+		#< @FunctionAlternativeForms
 
-		def ItemsOccuringLessThanNTimesCS(n, pCaseSensitive) # On r instead of 2
+		def ItemsOccurringNoMoreThanNTimesCS(n, pCaseSensitive)
+			return This.ItemsOccurringLessThanNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccurringNoMoreThanNTimesCSQ(n, pCaseSensitive)
+				return This.ItemsOccurringLessThanNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def ItemsOccuringLessThanNTimesCS(n, pCaseSensitive) # One r instead of 2
 			return This.ItemsOccurringLessThanNTimesCS(n, pCaseSensitive)
 
 			def ItemsOccuringLessThanNTimesCSQ(n, pCaseSensitive)
+				return This.ItemsOccurringLessThanNTimesCSQ(n, pCaseSensitive)
+
+		def ItemsOccuringNoMoreThanNTimesCS(n, pCaseSensitive) # One r instead of 2
+			return This.ItemsOccurringLessThanNTimesCS(n, pCaseSensitive)
+
+			def ItemsOccuringNoMoreThanNTimesCSQ(n, pCaseSensitive)
 				return This.ItemsOccurringLessThanNTimesCSQ(n, pCaseSensitive)
 
 		#>
@@ -25017,12 +25077,28 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionMisspelledForm
+		#< @FunctionAlternativeForms
 
-		def ItemsOccuringLessThanNTimes(n) # On r instead of 2
+		def ItemsOccurringNoMoreThanNTimes(n)
+			return This.ItemsOccurringLessThanNTimesCS(n)
+
+			def ItemsOccurringNoMoreThanNTimesQ(n)
+				return This.ItemsOccurringLessThanNTimesQ(n)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def ItemsOccuringLessThanNTimes(n)
 			return This.ItemsOccurringLessThanNTimes(n)
 
 			def ItemsOccuringLessThanNTimesQ(n)
+				return This.ItemsOccurringLessThanNTimesQ(n)
+
+		def ItemsOccuringNoMoreThanNTimes(n)
+			return This.ItemsOccurringLessThanNTimes(n)
+
+			def ItemsOccuringNoMoreThanNTimesQ(n)
 				return This.ItemsOccurringLessThanNTimesQ(n)
 
 		#>

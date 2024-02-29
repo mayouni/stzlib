@@ -1,6 +1,21 @@
+load "stzlib.ring"
 
+/*---
 
-/*
+? Allah()
+#o--> ﷲ
+
+? Basmalah()
+#o--> ﷽
+
+? Muhammad()
+#o--> ﷴ
+
+? SalatAlaMuhammad()
+#o--> ﷺ
+
+/*---
+
 changeRingKeyword load ＃
 ＃ "stzlib.ring"
 
@@ -12,13 +27,6 @@ changeRingKeyword load ＃
 
 ? QQ("＃").Name()
 #--> FULLWIDTH NUMBER SIGN
-
-
-
-
-
-
-//load "stzlib.ring"
 
 /*----
 

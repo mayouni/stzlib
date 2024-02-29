@@ -7360,6 +7360,421 @@ class stzString from stzObject
 	
 		#>
 
+	  #--------------------------------------------------------------#
+	 #  GETTING SUBSTRINGS OCCURRING N (OR MORE) TIMES IN THE LIST  #
+	#==============================================================#
+
+	def SubStringsOccurringNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+		acResult = This.SubStringsQ().ItemsOccurringNTimesCS(n, pCaseSensitive)
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def SubStringsOccurringNTimesCSQ(n, pCaseSensitive)
+			return new stzList( This.SubStringsOccurringNTimesCS(n, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def SubStringsOccuringNTimesCS(n, pCaseSensitive) # One r instead of 2
+			return This.SubStringsOccurringNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccuringNTimesCSQ(n, pCaseSensitive)
+				return This.SubStringsOccurringNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SubStringsOccurringNTimesOrMoreCS(n, pCaseSensitive)
+			return This.SubStringsOccurringNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccurringNTimesOrMoreCSQ(n, pCaseSensitive)
+				return This.SubStringsOccuringNTimesCSQ(n, pCaseSensitive)
+
+		def SubStringsOccurringNTimesAndMoreCS(n, pCaseSensitive)
+			return This.SubStringsOccurringNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccurringNTimesAndMoreCSQ(n, pCaseSensitive)
+				return This.SubStringsOccuringNTimesCSQ(n, pCaseSensitive)
+
+		def SubStringsOccurringAtLeastNTimesCS(n, pCaseSensitive)
+			return This.SubStringsOccurringNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccurringAtLeastNTimesCSQ(n, pCaseSensitive)
+				return This.SubStringsOccuringNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsOccurringNTimes(n)
+		return This.SubStringsOccurringNTimesCS(n, TRUE)
+
+		#< @FunctionFluentForm
+
+		def SubStringsOccurringNTimesQ(n)
+			return This.SubStringsOccurringNTimes(n)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def SubStringsOccuringNTimes(n) # One r instead of 2
+			return This.SubStringsOccurringNTimes(n)
+
+			def SubStringsOccuringNTimesQ(n)
+				return This.SubStringsOccurringNTimesQ(n)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SubStringsOccurringNTimesOrMore(n)
+			return This.SubStringsOccurringNTimes(n)
+
+			def SubStringsOccurringNTimesOrMoreQ(n)
+				return This.SubStringsOccuringNTimesQ(n)
+
+		def SubStringsOccurringNTimesAndMore(n)
+			return This.SubStringsOccurringNTimes(n)
+
+			def SubStringsOccurringNTimesAndMoreQ(n)
+				return This.SubStringsOccuringNTimesQ(n)
+
+		def SubStringsOccurringAtLeastNTimes(n)
+			return This.SubStringsOccurringNTimes(n)
+
+			def SubStringsOccurringAtLeastNTimesQ(n)
+				return This.SubStringsOccuringNTimesQ(n)
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  GETTING SUBSTRINGS OCCURRING EXACTLY N TIMES IN THE LIST  #
+	#------------------------------------------------------------#
+
+	def SubStringsOccurringExactlyNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+		acResult = This.SubStringsQ().ItemsOccurringExactlyNTimesCS(n, pCaseSensitive)
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def SubStringsOccurringExactlyNTimesCSQ(n, pCaseSensitive)
+			return new stzList( This.SubStringsOccurringExactlyNTimesCS(n, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def SubStringsOccuringExactlyNTimesCS(n, pCaseSensitive) # One r instead of 2
+			return This.SubStringsOccurringExactlyNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccuringExactlyNTimesCSQ(n, pCaseSensitive)
+				return This.SubStringsOccurringExactlyNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SubStringsOccurringExactlyNTimesOrMoreCS(n, pCaseSensitive)
+			return This.SubStringsOccurringExactlyNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccurringExactlyNTimesOrMoreCSQ(n, pCaseSensitive)
+				return This.SubStringsOccuringExactlyNTimesCSQ(n, pCaseSensitive)
+
+		def SubStringsOccurringExactlyNTimesAndMoreCS(n, pCaseSensitive)
+			return This.SubStringsOccurringExactlyNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccurringExactlyNTimesAndMoreCSQ(n, pCaseSensitive)
+				return This.SubStringsOccuringExactlyNTimesCSQ(n, pCaseSensitive)
+
+		#--
+
+		def SubStringsOccurringOnlyNTimesCS(n, pCaseSensitive)
+			return This.SubStringsOccurringExactlyNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccurringOnlyNTimesCSQ(n, pCaseSensitive)
+				return This.SubStringsOccuringExactlyNTimesCSQ(n, pCaseSensitive)
+
+		def SubStringsOccurringOnlyNTimesOrMoreCS(n, pCaseSensitive)
+			return This.SubStringsOccurringExactlyNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccurringOnlyNTimesOrMoreCSQ(n, pCaseSensitive)
+				return This.SubStringsOccuringExactlyNTimesCSQ(n, pCaseSensitive)
+
+		def SubStringsOccurringOnlyNTimesAndMoreCS(n, pCaseSensitive)
+			return This.SubStringsOccurringExactlyNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccurringOnlyNTimesAndMoreCSQ(n, pCaseSensitive)
+				return This.SubStringsOccuringExactlyNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsOccurringExactlyNTimes(n)
+		return This.SubStringsOccurringExactlyNTimesCS(n, TRUE)
+
+		#< @FunctionFluentForm
+
+		def SubStringsOccurringExactlyNTimesQ(n)
+			return This.SubStringsOccurringExactlyNTimes(n)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def SubStringsOccuringExactlyNTimes(n) # One r instead of 2
+			return This.SubStringsOccurringExactlyNTimes(n)
+
+			def SubStringsOccuringExactlyNTimesQ(n)
+				return This.SubStringsOccurringExactlyNTimesQ(n)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SubStringsOccurringExactlyNTimesOrMore(n)
+			return This.SubStringsOccurringExactlyNTimes(n)
+
+			def SubStringsOccurringExactlyNTimesOrMoreQ(n)
+				return This.SubStringsOccuringExactlyNTimesQ(n)
+
+		def SubStringsOccurringExactlyNTimesAndMore(n)
+			return This.SubStringsOccurringExactlyNTimes(n)
+
+			def SubStringsOccurringExactlyNTimesAndMoreQ(n)
+				return This.SubStringsOccuringExactlyNTimesQ(n)
+
+		#--
+
+		def SubStringsOccurringOnlyNTimes(n)
+			return This.SubStringsOccurringExactlyNTimes(n)
+
+			def SubStringsOccurringOnlyNTimesQ(n)
+				return This.SubStringsOccuringExactlyNTimesQ(n)
+
+		def SubStringsOccurringOnlyNTimesOrMore(n)
+			return This.SubStringsOccurringExactlyNTimes(n)
+
+			def SubStringsOccurringOnlyNTimesOrMoreQ(n)
+				return This.SubStringsOccuringExactlyNTimesQ(n)
+
+		def SubStringsOccurringOnlyNTimesAndMore(n)
+			return This.SubStringsOccurringExactlyNTimes(n)
+
+			def SubStringsOccurringOnlyNTimesAndMoreQ(n)
+				return This.SubStringsOccuringExactlyNTimesQ(n)
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  GETTING SUBSTRINGS OCCURRING MORE THAN N TIMES IN THE LIST  #
+	#--------------------------------------------------------------#
+
+	def SubStringsOccurringMoreThanNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+		acResult = This.SubStringsQ().ItemsOccurringMoreThanNTimesCS(n, pCaseSensitive)
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def SubStringsOccurringMoreThanNTimesCSQ(n, pCaseSensitive)
+			return new stzList( This.SubStringsOccurringMoreThanNTimesCS(n, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SubStringsOccurringNoLessThanNTimesCS(n, pCaseSensitive)
+			return This.SubStringsOccurringMoreThanNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccurringNoLessThanNTimesCSQ(n, pCaseSensitive)
+				return This.SubStringsOccurringMoreThanNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def SubStringsOccuringMoreThanNTimesCS(n, pCaseSensitive) # One r instead of 2
+			return This.SubStringsOccurringMoreThanNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccuringMoreThanNTimesCSQ(n, pCaseSensitive)
+				return This.SubStringsOccurringMoreThanNTimesCSQ(n, pCaseSensitive)
+
+		def SubStringsOccuringNoLessThanNTimesCS(n, pCaseSensitive) # One r instead of 2
+			return This.SubStringsOccurringMoreThanNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccuringNoLessThanNTimesCSQ(n, pCaseSensitive)
+				return This.SubStringsOccurringMoreThanNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsOccurringMoreThanNTimes(n)
+		return This.SubStringsOccurringMoreThanNTimesCS(n, TRUE)
+
+		#< @FunctionFluentForm
+
+		def SubStringsOccurringMoreThanNTimesQ(n)
+			return This.SubStringsOccurringMoreThanNTimes(n)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SubStringsOccurringNoLessThanNTimes(n)
+			return This.SubStringsOccurringMoreThanNTimes(n)
+
+			def SubStringsOccurringNoLessThanNTimesQ(n)
+				return This.SubStringsOccurringMoreThanNTimesQ(n)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def SubStringsOccuringMoreThanNTimes(n) # One r instead of 2
+			return This.SubStringsOccurringMoreThanNTimes(n)
+
+			def SubStringsOccuringMoreThanNTimesQ(n)
+				return This.SubStringsOccurringMoreThanNTimesQ(n)
+
+		def SubStringsOccuringNoLessThanNTimes(n) # One r instead of 2
+			return This.SubStringsOccurringMoreThanNTimes(n)
+
+			def SubStringsOccuringNoLessThanNTimesCQ(n)
+				return This.SubStringsOccurringMoreThanNTimesQ(n)
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  GETTING SUBSTRINGS OCCURRING LESS THAN N TIMES IN THE LIST  #
+	#--------------------------------------------------------------#
+
+	def SubStringsOccurringLessThanNTimesCS(n, pCaseSensitive) # TODO: Check for performance
+		acResult = This.SubStringsQ().ItemsOccurringLessThanNTimesCS(n, pCaseSensitive)
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def SubStringsOccurringLessThanNTimesCSQ(n, pCaseSensitive)
+			return new stzList( This.SubStringsOccurringLessThanNTimesCS(n, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SubStringsOccurringNoMoreThanNTimesCS(n, pCaseSensitive)
+			return This.SubStringsOccurringLessThanNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccurringNoMoreThanNTimesCSQ(n, pCaseSensitive)
+				return This.SubStringsOccurringLessThanNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def SubStringsOccuringLessThanNTimesCS(n, pCaseSensitive) # One r instead of 2
+			return This.SubStringsOccurringLessThanNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccuringLessThanNTimesCSQ(n, pCaseSensitive)
+				return This.SubStringsOccurringLessThanNTimesCSQ(n, pCaseSensitive)
+
+		def SubStringsOccuringNoMoreThanNTimesCS(n, pCaseSensitive) # One r instead of 2
+			return This.SubStringsOccurringLessThanNTimesCS(n, pCaseSensitive)
+
+			def SubStringsOccuringNoMoreThanNTimesCSQ(n, pCaseSensitive)
+				return This.SubStringsOccurringLessThanNTimesCSQ(n, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsOccurringLessThanNTimes(n)
+		return This.SubStringsOccurringLessThanNTimesCS(n, TRUE)
+
+		#< @FunctionFluentForm
+
+		def SubStringsOccurringLessThanNTimesQ(n)
+			return This.SubStringsOccurringLessThanNTimes(n)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SubStringsOccurringNoMoreThanNTimes(n)
+			return This.SubStringsOccurringLessThanNTimes(n)
+
+			def SubStringsOccurringNoMoreThanNTimesQ(n)
+				return This.SubStringsOccurringLessThanNTimesQ(n)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def SubStringsOccuringLessThanNTimes(n)
+			return This.SubStringsOccurringLessThanNTimes(n)
+
+			def SubStringsOccuringLessThanNTimesQ(n)
+				return This.SubStringsOccurringLessThanNTimesQ(n)
+
+		def SubStringsOccuringNoMoreThanNTimes(n) # One r instead of 2
+			return This.SubStringsOccurringLessThanNTimes(n)
+
+			def SubStringsOccuringNoMoreThanNTimesQ(n)
+				return This.SubStringsOccurringLessThanNTimesQ(n)
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  GETTING SUBSTRINGS OCCURRING N TIMES OR LESS IN THE LIST  #
+	#------------------------------------------------------------#
+
+	def SubStringsOccurringNTimesOrLessCS(n, pCaseSensitive) # TODO: Check for performance
+		acResult = This.SubStringsQ().ItemsOccurringNTimesOrLessCS(n, pCaseSensitive)
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def SubStringsOccurringNTimesOrLessCSQ(n, pCaseSensitive)
+			return new stzList( This.SubStringsOccurringNTimesOrLessCS(n, pCaseSensitive) )
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def SubStringsOccuringNTimesOrLessCS(n, pCaseSensitive) # On r instead of 2
+			return This.SubStringsOccurringNTimesOrLessCS(n, pCaseSensitive)
+
+			def SubStringsOccuringNTimesOrLessCSQ(n, pCaseSensitive)
+				return This.SubStringsOccurringNTimesOrLessCSQ(n, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsOccurringNTimesOrLess(n)
+		return This.SubStringsOccurringNTimesOrLessCS(n, TRUE)
+
+		#< @FunctionFluentForm
+
+		def SubStringsOccurringNTimesOrLessQ(n)
+			return This.SubStringsOccurringNTimesOrLess(n)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def SubStringsOccuringNTimesOrLess(n) # On r instead of 2
+			return This.SubStringsOccurringNTimesOrLess(n)
+
+			def SubStringsOccuringNTimesOrLessQ(n)
+				return This.SubStringsOccurringNTimesOrLessQ(n)
+
+		#>
+
 	  #=======================================================#
 	 #    CHECKING IF THE STRING IS ONE OF THE RING TYPES    #
 	#=======================================================#
