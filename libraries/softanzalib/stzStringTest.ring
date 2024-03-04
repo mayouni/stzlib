@@ -1,5 +1,37 @@
 load "stzlib.ring"
 
+/*--------- @narration: Softanza permissiveness
+*/
+pron()
+
+# Suppose you have a string like this:
+o1 = new stzString("rRing")
+
+# And you want to remove the first char:
+o1.RemoveFirstCharCS(TRUE)
+? o1.Content()
+#--> Ring
+
+# What if you think of applying CaseSensitivity here?
+# Means that you want to the removel operation to
+# be case sensitive...
+
+# In fact, this is not logical, since the first char is
+# the first char whatever case it has!
+
+# But, Softanza don't care, and let you do it, and ignores
+# the CS param completely:
+
+o1 = new stzString("rRing")
+o1.RemoveFirstCharCS(TRUE)
+? o1.Content()
+#--> Ring
+
+# NOTE: This featire is made available only for this function,
+# so we can show the principle. It will be generalised in future.
+proff()
+# Executed in 0.03 second(s)
+
 /*===
 
 pron()

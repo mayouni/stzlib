@@ -55667,6 +55667,40 @@ ici		//...
 	 #   REMOVING FIRST CHAR   #
 	#=========================#
 
+	#TODO #DONE
+	# Here, case sensitivity does not apply. But it would be more
+	# flexible and permissive to add it, although it has no effect.
+
+	#TODO #FUTURE
+	# Add it in all the library functions (future)
+
+	#TODO #DONE
+	# Write a narration about it
+
+
+	def RemoveFirstCharCS(pCaseSensitive)
+		This.RemoveNthChar(1)
+
+		def RemoveFirstCharCSQ(pCaseSensitive)
+			This.RemoveFirstCharCS(pCaseSensitive)
+			return This
+
+		def RemoveAnyCharFromStartCS(pCaseSensitive)
+			This.RemoveFirstCharCS(pCaseSensitive)
+
+			def RemoveAnyCharFromStartCSQ(pCaseSensitive)
+				return This.RemoveFirstCharCSQ(pCaseSensitive)
+
+	#-- @FunctionPassiveForm
+
+	def FirstCharRemovedCS(pCaseSensitive)
+		return This.Copy().RemoveFirstCharCSQ(pCaseSensitive).Content()
+
+		def AnyCharRemovedFromStartCS(pCaseSensitive)
+			return This.FirstCharRemovedCS(pCaseSensitive)
+
+	#== WITHOUT CASESENSITIVITY
+
 	def RemoveFirstChar()
 		This.RemoveNthChar(1)
 
@@ -55680,15 +55714,40 @@ ici		//...
 			def RemoveAnyCharFromStartQ()
 				return This.RemoveFirstCharQ()
 
+	#-- @FunctionPassiveForm
+
 	def FirstCharRemoved()
 		return This.Copy().RemoveFirstCharQ().Content()
 
 		def AnyCharRemovedFromStart()
 			return This.FirstCharRemoved()
 
+	  #-----------------------------------------------------------#
+	 #  REMOVING ALL LEADING OCCURRENCES OF THE FIRST CHAR - XT  #
+	#-----------------------------------------------------------#
+
+	def RemoveFirstCharXT()
+		This.RemoveLeadingChar()
+
+		def RemoveFirstCharXTQ()
+			This.RemoveFirstCharXT()
+			return This
+
+		def RemoveAnyCharFromStartXT()
+			This.RemoveFirstCharXT()
+
+			def RemoveAnyCharFromStartXTQ()
+				return This.RemoveFirstCharXTQ()
+
+	def FirstCharRemovedXT()
+		return This.Copy().RemoveFirstCharXTQ().Content()
+
+		def AnyCharRemovedFromStartXT()
+			return This.FirstCharRemovedXT()
+
 	  #-----------------------#
 	 #   REMOVING LAST CHAR  #
-	#-----------------------#
+	#=======================#
 
 	def RemoveLastChar()
 		This.RemoveNthChar(This.NumberOfChars())
