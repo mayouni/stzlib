@@ -56,7 +56,7 @@ Support all the features of NumPy
 func StzListOfNumbersQ(paListOfNumbers)
 	return new stzListOfNumbers(paListOfNumbers)
 
-	func StzNumbersQ(paList)
+	func StzNumbersQ(paListOfNumbers)
 		return StzListOfNumbersQ(paListOfNumbers)
 
 func LN(p)
@@ -232,7 +232,7 @@ func CommonNumbers(paListsOfNumbers)
 	func @CommonNumbers(paListsOfNumbers)
 		return CommonNumbers(paListsOfNumbers)
 	
-func Numbers(paList)
+func NumbersIn(paList)
 	if CheckParams()
 		if NOT IsList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
@@ -250,21 +250,15 @@ func Numbers(paList)
 
 	return anResult
 
-	#< @FunctionAlternativeForms
+	#< @FunctionAlternativeForm
 
-
-	func @Numbers(paList)
-		return Numbers(paList)
-
-	func NumbersIn(paList)
-		return Numbers(paList)
 
 	func @NumbersIn(paList)
-		return Numbers(paList)
+		return NumbersIn(paList)
 
 	#>
 
-func PositiveNumbers(paList)
+func PositiveNumbersIn(paList)
 	if CheckParams()
 		if NOT IsList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
@@ -284,12 +278,6 @@ func PositiveNumbers(paList)
 
 	#< @FunctionAlternativeForms
 
-	func PositiveNumbersIn(paList)
-		return PositiveNumbers(paList)
-
-	func @PositiveNumbers(paList)
-		return PositiveNumbers(paList)
-
 	func @PositiveNumbersIn(paList)
 		return PositiveNumbers(paList)
 
@@ -303,7 +291,7 @@ func PositiveNumbers(paList)
 
 	#>
 
-func NegativeNumbers(paList)
+func NegativeNumbersIn(paList)
 	if CheckParams()
 		if NOT IsList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
@@ -322,12 +310,6 @@ func NegativeNumbers(paList)
 	return anResult
 
 	#< @FunctionAlternativeForms
-
-	func NegativeNumbersIn(paList)
-		return NegativeNumbers(paList)
-
-	func @NegativeNumbers(paList)
-		return NegativeNumbers(paList)
 
 	func @NegativeNumbersIn(paList)
 		return NegativeNumbers(paList)
@@ -374,7 +356,7 @@ func NegativeNumbersBetween(n1, n2)
 
 	#>
 
-func EvenNumbers(paList)
+func EvenNumbersIn(paList)
 	if CheckParams()
 		if NOT IsList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
@@ -394,12 +376,6 @@ func EvenNumbers(paList)
 
 	#< @FunctionAlternativeForms
 
-	func EvenNumbersIn(paList)
-		return EvenNumbers(paList)
-
-	func @EvenNumbers(paList)
-		return EvenNumbers(paList)
-
 	func @EvenNumbersIn(paList)
 		return EvenNumbers(paList)
 
@@ -413,7 +389,7 @@ func EvenNumbers(paList)
 
 	#>
 
-func OddNumbers(paList)
+func OddNumbersIn(paList)
 	if CheckParams()
 		if NOT IsList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
@@ -433,12 +409,6 @@ func OddNumbers(paList)
 
 	#< @FunctionAlternativeForms
 
-	func OddNumbersIn(paList)
-		return OddNumbers(paList)
-
-	func @OddNumbers(paList)
-		return OddNumbers(paList)
-
 	func @OddNumbersIn(paList)
 		return OddNumbers(paList)
 
@@ -452,7 +422,7 @@ func OddNumbers(paList)
 
 	#>
 
-func PrimeNumbers(paList)
+func PrimeNumbersIn(paList)
 	if CheckParams()
 		if NOT IsList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
@@ -471,12 +441,6 @@ func PrimeNumbers(paList)
 	return anResult
 
 	#< @FunctionAlternativeForms
-
-	func PrimeNumbersIn(paList)
-		return PrimeNumbers(paList)
-
-	func @PrimeNumbers(paList)
-		return PrimeNumbers(paList)
 
 	func @PrimeNumbersIn(paList)
 		return PrimeNumbers(paList)

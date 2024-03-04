@@ -363,7 +363,7 @@ class stzSubStringCS
 		oStr = This.StringQ()
 
 		for i = 1 to nLen
-			anResult = oStr.FindNthOccurrenceCS(anOccurrences[i], This.SubString(), pCaseSensitive)
+			anResult + oStr.FindNthOccurrenceCS(anOccurrences[i], This.SubString(), pCaseSensitive)
 		next
 
 		return anResult

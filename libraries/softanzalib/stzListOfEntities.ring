@@ -26,18 +26,12 @@ func IsListOfEntities(paList)
 	func @IsListOfEntities(paList)
 		return IsListOfEntities(paList)
 
-	func ListIsListOfEntities(paList)
-		return IsListOfEntities(paList)
-
 	#--
 
 	func IsAListOfEntities(paList)
 		return IsListOfEntities(paList)
 
 	func @IsAListOfEntities(paList)
-		return IsListOfEntities(paList)
-
-	func ListIsAListOfEntities(paList)
 		return IsListOfEntities(paList)
 
 	#>

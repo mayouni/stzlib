@@ -28,12 +28,24 @@ shorturl.at/fBKNO
 
 */
 
-func ListIsMultingualString(paString)
+func StzMultilingualStringQ(paString)
+	return new stzMultiLangString(paString)
+
+	func StzMultiStringQ(paString)
+		return StzMultilingualStringQ(paString)
+
+func IsMultingualString(paString)
 	oStzList = new stzList(paString)
 	return oStzList.IsMultilingualString()
 
-func stzMultiStringQ(paString)
-	return new stzMultiLangString(paString)
+	func @IsMultingualString(paString)
+		return IsMultingualString(paString)
+
+	func IsMultiString(paString)
+		return IsMultingualString(paString)
+
+	func @IsMultiString(paString)
+		return IsMultingualString(paString)
 
 class stzMultilingualString from stzMultiString
 

@@ -50,46 +50,6 @@ func LC(p)
 		func LoCQ(p)
 			return LCQ(p)
 
-func IsListOfChars(paList)
-	if CheckParams()
-		if NOT isList(paList)
-			StzRaise("Incorrect param type!")
-		ok
-	ok
-
-	bResult = TRUE
-	nLen = len(paList)
-
-	for i = 1 to nLen
-		if NOT IsChar(paList[i])
-			bResult = FALSE
-			exit
-		ok
-	next i
-
-	return bResult
-
-	#< @FunctionAlternativeForms
-
-	func @IsListOfChars(paList)
-		return IsListOfChars(paList)
-
-	func ListIsListOfChars(paList)
-		return IsListOfChars(paList)
-
-	#--
-
-	func IsAListOfChars(paList)
-		return IsListOfChars(paList)
-
-	func @IsAListOfChars(paList)
-		return IsListOfChars(paList)
-
-	func ListIsAListOfChars(paList)
-		return IsListOfChars(paList)
-
-	#>
-
 func CharsBetween(c1, c2)
 	if CheckParams()
 		if NOT BothAreChars(c1, c2)

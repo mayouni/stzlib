@@ -22,19 +22,12 @@ func IsListOfBoxedStrings(paList)
 
 	func @IsListOfBoxedStrings(paList)
 		return IsListOfBoxedStrings(paList)
-
-	func ListIsListOfBoxedStrings(paList)
-		return IsListOfBoxedStrings(paList)
-
 	#--
 
 	func IsAListOfBoxedStrings(paList)
 		return IsListOfBoxedStrings(paList)
 
 	func @IsAListOfBoxedStrings(paList)
-		return IsListOfBoxedStrings(paList)
-
-	func ListIsAListOfBoxedStrings(paList)
 		return IsListOfBoxedStrings(paList)
 
 	#>

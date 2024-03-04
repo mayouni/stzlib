@@ -4,46 +4,6 @@
 func StzListOfPairsQ(paLists)
 	return new stzListOfPairs(paLists)
 
-func IsListOfPairs(paList)
-	if CheckParams()
-		if NOT isList(paList)
-			StzRaise("Incorrect param type!")
-		ok
-	ok
-
-	bResult = TRUE
-	nLen = len(paList)
-
-	for i = 1 to nLen
-		if NOT ( isList(paList[i]) and len(paList[i]) = 2 )
-			bResult = FALSE
-			exit
-		ok
-	next i
-
-	return bResult
-
-	#< @FunctionAlternativeForms
-
-	func @IsListOfPairs(paList)
-		return IsListOfPairs(paList)
-
-	func ListIsListOfPairs(paList)
-		return IsListOfPairs(paList)
-
-	#--
-
-	func IsAListOfPairs(paList)
-		return IsListOfPairs(paList)
-
-	func @IsAListOfPairs(paList)
-		return IsListOfPairs(paList)
-
-	func ListIsAListOfPairs(paList)
-		return IsListOfPairs(paList)
-
-	#>
-
 func RangeToSection(paRange)
 	if isList(paRange) and Q(paRange).IsPairOfNumbers()
 		n1 = paRange[1]

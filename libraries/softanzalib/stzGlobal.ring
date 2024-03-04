@@ -2382,30 +2382,7 @@ func IsRingType(pcStr)
 
 	#>
 
-func StringIsStzClassName(pcStr)
-	return StzStringQ(pcStr).IsStzClassName()
 
-	#< @FunctionAlternativeForms
-
-	func IsClassName(pcStr)
-		return StzStringQ(pcStr).IsStzClassName()
-
-	func @IsClassName(pcStr)
-		return StzStringQ(pcStr).IsStzClassName()
-
-	func StringIsAStzClassName(pcStr)
-		return StringIsStzClassName(pcStr)
-
-	func @StringIsAStzClassName(pcStr)
-		return StringIsStzClassName(pcStr)
-
-	func IsAClassName(pcStr)
-		return StzStringQ(pcStr).IsStzClassName()
-
-	func @IsAClassName(pcStr)
-		return StzStringQ(pcStr).IsStzClassName()
-
-	#>
 
 func StringIsChar(pcStr)
 	try

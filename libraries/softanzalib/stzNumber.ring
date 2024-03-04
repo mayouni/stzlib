@@ -3002,7 +3002,7 @@ class stzNumber from stzObject
 	def RoundTo(nRound)
 		cResult = This.RoundToXTQ(nRound).
 			       ToStzString().
-			       RemoveCharFromRightXTQ("0"). # XT ~> All 0s are removed
+			       RemoveThisTrailingCharQ("0"). # XT ~> All 0s are removed
 			       RemovedFromEnd(".")
 
 		This.Update(cResult)

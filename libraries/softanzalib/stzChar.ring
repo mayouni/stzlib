@@ -428,7 +428,6 @@ func NumberOfChineseLetters()
 #TODO: add simular functions to all other languages
 
 
-
   /////////////////
  ///   CLASS   ///
 /////////////////
