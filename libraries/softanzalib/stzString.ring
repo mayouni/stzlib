@@ -1118,10 +1118,10 @@ class stzString from stzObject
 	 #  ADDING A SUBSTRING --EXTENDED  #
 	#=================================#
 
-	def AddCSXT(pcNewSubStr, pcSubStr, pCaseSensitive)
+	def AddXTCS(pcNewSubStr, pcSubStr, pCaseSensitive)
 		/*
 		o1 = new stzString("Ring programin language")
-		o1.Add("g", :To = "programmin")
+		o1.AddXT("g", :To = "programmin")
 
 		? o1.Content()
 		#--> Ring programming language
@@ -1237,17 +1237,17 @@ class stzString from stzObject
 
 		ok
 
-		def AddCSXTQ(pcNewSubStr, pcSubStr, pCaseSensitive)
-			This.AddCSXT(pcNewSubStr, pcSubStr, pCaseSensitive)
+		def AddXTCSQ(pcNewSubStr, pcSubStr, pCaseSensitive)
+			This.AddXTCS(pcNewSubStr, pcSubStr, pCaseSensitive)
 			return This
 
 	def AddedCSXT(pcNewSubStr, pcSubStr, pCaseSensitive)
-		return This.Copy().AddCSXTQ(pcNewSubStr, pcSubStr, pCaseSensitive).Content()
+		return This.Copy().AddXTCSQ(pcNewSubStr, pcSubStr, pCaseSensitive).Content()
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def AddXT(pcNewSubStr, pcSubStr)
-		This.AddCSXTQ(pcNewSubStr, pcSubStr, TRUE)
+		This.AddXTCSQ(pcNewSubStr, pcSubStr, TRUE)
 
 		def AddXTQ(pcNewSubStr, pcSubStr)
 			This.AddXT(pcNewSubStr, pcSubStr)
@@ -14730,7 +14730,7 @@ class stzString from stzObject
 	 #  FINDING THE BOUNDS - UP TO N CHARS - OF A GIVEN SUBSTRING IN THE STRING -- XT #
 	#--------------------------------------------------------------------------------#
 
-	def FindSubStringBoundsAsSectionsXTCS(pcSubStr, pUpToNChars,  pCaseSensitive)
+	def FindSubStringBoundsAsSectionsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
 		if CheckParams()
 			if isList(pUpToNChars) and Q(pUpToNChars).IsUpToNCharsNamedParam()
 				pUpToNChars = pUpToNChars[2]
@@ -14747,20 +14747,20 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindSubStringBoundsXTCSZZ(pcSubStr, pUpToNChars,  pCaseSensitive)
-			return This.FindSubStringBoundsAsSectionsXTCS(pcSubStr, pUpToNChars,  pCaseSensitive)
+			return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, pUpToNChars,  pCaseSensitive)
 
 		def FindBoundsOfAsSectionsXTCS(pcSubStr, pUpToNChars,  pCaseSensitive)
-			return This.FindSubStringBoundsAsSectionsXTCS(pcSubStr, pUpToNChars,  pCaseSensitive)
+			return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, pUpToNChars,  pCaseSensitive)
 
-		def FindBoundsOfXTCSZZ(pcSubStr, pUpToNChars,  pCaseSensitive)
-			return This.FindSubStringBoundsAsSectionsXTCS(pcSubStr, pUpToNChars,  pCaseSensitive)
+		def FindBoundsOfCSXTZZ(pcSubStr, pUpToNChars,  pCaseSensitive)
+			return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, pUpToNChars,  pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringBoundsAsSectionsXT(pcSubStr, pUpToNChars)
-		return This.FindSubStringBoundsAsSectionsXTCS(pcSubStr, pUpToNChars,  TRUE)
+		return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, pUpToNChars,  TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -14839,10 +14839,10 @@ class stzString from stzObject
 		def FindSubStringBoundsXTCSZ(pcSubStr, pUpToNChars, pCaseSensitive)
 			return This.FindSubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
 
-		def FindBoundsOfXTCS(pcSubStr, pCaseSensitive)
+		def FindBoundsOfCSXT(pcSubStr, pCaseSensitive)
 			return This.FindSubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
 
-		def FindBoundsOfXTCSZ(pcSubStr, pUpToNChars, pCaseSensitive)
+		def FindBoundsOfCSXTZ(pcSubStr, pUpToNChars, pCaseSensitive)
 			return This.FindSubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
 
 		#>
@@ -30969,14 +30969,14 @@ class stzString from stzObject
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- EXTENDED   #
 	#======================================================#
 
-	def FindNthCSXT(n, pcSubStr, paOption, pCaseSensitive)
+	def FindNthXTCS(n, pcSubStr, paOption, pCaseSensitive)
 		/* EXAMPLE
 		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 		
 		? o1.FindNthXT(2, "word", :Between = ["<<", ">>"])
 		#--> 43
 		
-		? o1.FindNthCSXT(2, "WORD", :Between = ["<<", ">>"], :CS = FALSE)
+		? o1.FindNthXTCS(2, "WORD", :Between = ["<<", ">>"], :CS = FALSE)
 		#--> 43
 
 		? o1.FindNthXT(2, "word", :StartingAt = 5)
@@ -31018,21 +31018,21 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindNthCSXTZ(n, pcSubStr, paOption, pCaseSensitive)
-			return This.FindNthCSXT(n, pcSubStr, paOption, pCaseSensitive)
+		def FindNthXTCSZ(n, pcSubStr, paOption, pCaseSensitive)
+			return This.FindNthXTCS(n, pcSubStr, paOption, pCaseSensitive)
 
-		def FindNthSubstringCSXT(n, pcSubStr, paOption, pCaseSensitive)
-			return This.FindNthCSXT(n, pcSubStr, paOption, pCaseSensitive)
+		def FindNthSubstringXTCS(n, pcSubStr, paOption, pCaseSensitive)
+			return This.FindNthXTCS(n, pcSubStr, paOption, pCaseSensitive)
 
-		def FindNthSubstringCSXTZ(n, pcSubStr, paOption, pCaseSensitive)
-			return This.FindNthCSXT(n, pcSubStr, paOption, pCaseSensitive)
+		def FindNthSubstringXTCSZ(n, pcSubStr, paOption, pCaseSensitive)
+			return This.FindNthXTCS(n, pcSubStr, paOption, pCaseSensitive)
 
 		#>
 
 	#-- WTIHOUT CASESENSITIVITY
 
 	def FindNthXT(n, pcSubStr, paOption)
-		return This.FindNthCSXT(n, pcSubStr, paOption, TRUE)
+		return This.FindNthXTCS(n, pcSubStr, paOption, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -31051,26 +31051,26 @@ class stzString from stzObject
 	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING -- EXTENDED  #
 	#-------------------------------------------------------#
 
-	def FindFirstCSXT(pcSubStr, paOption, pCaseSensitive)
-		return This.FindNthCSXT(1, pcSubStr, paOption, pCaseSensitive)
+	def FindFirstXTCS(pcSubStr, paOption, pCaseSensitive)
+		return This.FindNthXTCS(1, pcSubStr, paOption, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
-		def FindFirstCSXTZ(pcSubStr, paOption, pCaseSensitive)
-			return This.FindFirstCSXT(pcSubStr, paOption, pCaseSensitive)
+		def FindFirstXTCSZ(pcSubStr, paOption, pCaseSensitive)
+			return This.FindFirstXTCS(pcSubStr, paOption, pCaseSensitive)
 
-		def FindFirstSubStringCSXT(pcSubStr, paOption, pCaseSensitive)
-			return This.FindFirstCSXT(pcSubStr, paOption, pCaseSensitive)
+		def FindFirstSubStringXTCS(pcSubStr, paOption, pCaseSensitive)
+			return This.FindFirstXTCS(pcSubStr, paOption, pCaseSensitive)
 
-		def FindFirstSubStringCSXTZ(pcSubStr, paOption, pCaseSensitive)
-			return This.FindFirstCSXT(pcSubStr, paOption, pCaseSensitive)
+		def FindFirstSubStringXTCSZ(pcSubStr, paOption, pCaseSensitive)
+			return This.FindFirstXTCS(pcSubStr, paOption, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstXT(pcSubStr, paOption)
-		return This.FindFirstCSXT(pcSubStr, paOption, TRUE)
+		return This.FindFirstXTCS(pcSubStr, paOption, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -31089,26 +31089,26 @@ class stzString from stzObject
 	 #  FINDING LAST OCCURRENCE OF A SUBSTRING -- EXTENDED  #
 	#------------------------------------------------------#
 
-	def FindLastCSXT(pcSubStr, paOption, pCaseSensitive)
-		return This.FindNthXT(:Last, pcSubStr, paOption, pCaseSensitive)
+	def FindLastXTCS(pcSubStr, paOption, pCaseSensitive)
+		return This.FindNthXTCS(:Last, pcSubStr, paOption, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
-		def FindLastCSXTZ(pcSubStr, paOption, pCaseSensitive)
+		def FindLastXTCSZ(pcSubStr, paOption, pCaseSensitive)
 			return This.FindLastCSXT(pcSubStr, paOption, pCaseSensitive)
 
-		def FindLastSubStringCSXT(pcSubStr, paOption, pCaseSensitive)
-			return This.FindLastCSXT(pcSubStr, paOption, pCaseSensitive)
+		def FindLastSubStringXTCS(pcSubStr, paOption, pCaseSensitive)
+			return This.FindLastXTCS(pcSubStr, paOption, pCaseSensitive)
 
-		def FindLastSubStringCSXTZ(pcSubStr, paOption, pCaseSensitive)
-			return This.FindLastCSXT(pcSubStr, paOption, pCaseSensitive)
+		def FindLastSubStringXTCSZ(pcSubStr, paOption, pCaseSensitive)
+			return This.FindLastXTCS(pcSubStr, paOption, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastXT(pcSubStr, paOption)
-		return This.FindLastCSXT(pcSubStr, paOption, TRUE)
+		return This.FindLastXTCS(pcSubStr, paOption, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -32154,7 +32154,7 @@ class stzString from stzObject
 	#TODO: Add FindAllNextAsSectionsCS()
 	# 	    FindNextAsSectionCS()
 
-	def FindAllNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+	def FindAllNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
@@ -32172,7 +32172,7 @@ class stzString from stzObject
 		return anResult
 		
 		def FindAllNextCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindAllNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindAllNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -32219,7 +32219,7 @@ class stzString from stzObject
 	 #      STARTING AT A GIVEN POSITION                   #
 	#=====================================================#
 
-	def FindNthNeCSXT( n, pcSubStr, nStart, pCaseSensitive )
+	def FindNthNextSCS( n, pcSubStr, nStart, pCaseSensitive )
 
 		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
 			pcSubStr = pcSubStr[2]
@@ -32277,12 +32277,12 @@ class stzString from stzObject
 		return nResult
 
 		def FindNthNextCSZ(n, pcSubStr, nStart, pCaseSensitive)
-			return This.FindNthNeCSXT(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthNextSCS(n, pcSubStr, nStart, pCaseSensitive)
 
 	#-- WYHOUT CASESENSITIVITY
 
 	def FindNthNext(n, pcSubStr, nStart)
-		return This.FindNthNeCSXT(n, pcSubStr, nStart, TRUE)
+		return This.FindNthNextSCS(n, pcSubStr, nStart, TRUE)
 
 		def FindNthNextZ(n, pcSubStr, nStart)
 			return This.FindNthNext(n, pcSubStr, nStart)
@@ -32450,7 +32450,7 @@ class stzString from stzObject
 
 	#TODO: FindNextW() FindPreviousW()
 
-	def FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
+	def FindNextSCS(pcSubStr, nStart, pCaseSensitive)
 		#< QTBased | Uses: QString.IndexOf() >
 
 		if CheckParams()
@@ -32511,19 +32511,16 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def FindNextCSZ(pcSubStr, nStart, pCaseSensitive)
-			return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
-
-		def FindNextSCS(pcSubStr, nStart, pCaseSensitive)
-			return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
 
 		def FindNextSCSZ(pcSubStr, nStart, pCaseSensitive)
-			return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNext(pcSubStr, nStart)
-		return This.FindNeCSXT(pcSubStr, nStart, TRUE)
+		return This.FindNextSCS(pcSubStr, nStart, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -34048,7 +34045,7 @@ class stzString from stzObject
 	 #  FINDING THINGS, THE EXTENDED FORM  #
 	#=====================================#
 
-	def FindCSXT(p1, p2, pCaseSensitive)
+	def FindXTCS(p1, p2, pCaseSensitive)
 
 		if ( isString(p1) OR ( isList(p1) and Q(p1).IsSubStringNamedParam() ) ) AND
 		   ( isList(p2) )
@@ -34092,40 +34089,40 @@ class stzString from stzObject
 				if isString(p2[2])
 					nPos = This.FindFirstCS(p2, pCaseSensitive)
 					if nPos > 0
-						return This.FindCSXT( p1, :InSection = [1, nPos], pCaseSensitive )
+						return This.FindXTCS( p1, :InSection = [1, nPos], pCaseSensitive )
 
 					else
 						return []
 					ok
 
 				but isNumber(p2[2])
-					return This.FindCSXT( p1, :InSection = [1, p2[2]], pCaseSensitive )
+					return This.FindXTCS( p1, :InSection = [1, p2[2]], pCaseSensitive )
 
 				ok
 
 			# FindXT( "*", :BeforePosition = 10)
 			but oP2.IsBeforePositionNamedParam()
-				return This.FindCSXT( p1, :InSection = [1, p2[2]], pCaseSensitive )
+				return This.FindXTCS( p1, :InSection = [1, p2[2]], pCaseSensitive )
 
 			# FindXT( "*", :After = "--")
 			but oP2.IsAfterNamedParam()
 				if isString(p2[2])
 					nPos = This.FindFirstCS(p2, pCaseSensitive)
 					if nPos > 0
-						return This.FindCSXT( p1, :InSection = [nPos, :LastChar], pCaseSensitive )
+						return This.FindXTCS( p1, :InSection = [nPos, :LastChar], pCaseSensitive )
 
 					else
 						return []
 					ok
 
 				but isNumber(p2[2])
-					return This.FindCSXT( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
+					return This.FindXTCS( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
 
 				ok
 
 			# FindXT( "*", :AfterPosition = 3)
 			but oP2.IsAfterPositionNamedParam()
-				return This.FindCSXT( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
+				return This.FindXTCS( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
 
 			# FindXT( :3rd = "*", :Between = [ "<<", ">>" ])
 			but isList(p1) and isString(p1[2]) and
@@ -34175,10 +34172,10 @@ class stzString from stzObject
 
 				if isString(p2[2])
 					n = This.FindFirstCS(p2[2], pCaseSensitive)
-					return This.FindCSXT( p1[2], :InSection = [1, n], pCaseSensitive)
+					return This.FindXTCS( p1[2], :InSection = [1, n], pCaseSensitive)
 
 			 	but isNumber(p2[2])
-					return This.FindCSXT( p1[2], :InSection = [1, p2[2] ], pCaseSensitive )
+					return This.FindXTCS( p1[2], :InSection = [1, p2[2] ], pCaseSensitive )
 
 				else
 					StzRaise("Incorrect param type! :Before = ... must be fellowed by a string or number.")
@@ -34192,7 +34189,7 @@ class stzString from stzObject
 
 			    isList(p2) and Q(p2).IsBeforePositionNamedParam()
 
-				return This.FindCSXT( p1[2], :InSection = [ 1, p2[2] ], pCaseSensitive )
+				return This.FindXTCS( p1[2], :InSection = [ 1, p2[2] ], pCaseSensitive )
 
 
 			# FindXT( :3rd = "*", :After = '!' ])
@@ -34205,10 +34202,10 @@ class stzString from stzObject
 
 				if isString(p2[2])
 					n = This.FindLastCS(p2[2], pCaseSensitive)
-					return This.FindCSXT( p1[2], :InSection = [n, :LastChar], pCaseSensitive)
+					return This.FindXTCS( p1[2], :InSection = [n, :LastChar], pCaseSensitive)
 
 			 	but isNumber(p2[2])
-					return This.FindCSXT( p1[2], :InSection = [p2[2], :LastChar], pCaseSensitive )
+					return This.FindXTCS( p1[2], :InSection = [p2[2], :LastChar], pCaseSensitive )
 
 				else
 					StzRaise("Incorrect param type! :Before = ... must be fellowed by a string or number.")
@@ -34222,7 +34219,7 @@ class stzString from stzObject
 
 			    isList(p2) and Q(p2).IsAfterPositionNamedParam()
 
-				return This.FindCSXT( p1[2], :InSection = [ p2[2], :LastChar ], pCaseSensitive )
+				return This.FindXTCS( p1[2], :InSection = [ p2[2], :LastChar ], pCaseSensitive )
 
 			# FindXT( :AnySubString, :Between = ["<<", ">>" )
 			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
@@ -34251,13 +34248,31 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindXT(p1, p2)
-		return This.FindCSXT(p1, p2, TRUE)
+		return This.FindXTCS(p1, p2, TRUE)
 
+	  #========#
+	 #  NOTE  #
+	#========#
+
+	# NOTE: These fuctions are defined in stzObject:
+
+	# 	FindFirstNOccurrences(n, pStrOrItem)
+	# 	FindFirstNOccurrencesS(n, pcStr, pnStartingAt)
+	
+	# 	FindLastNOccurrences(n, pStrOrItem)
+	# 	FindLastNOccurrencesS(n, pcStr, pnStartingAt)
+
+	# I'm experimenting wiith this technique of abstraction
+	# to make them usable form stzString and stzList
+
+	# Son I'm not decided yet to keep them or reimmplement
+	# them in each class apart. Think about the pros and cons!
+	
 	  #=================================================#
 	 #  FINDING THINGS AS SECTIONS, THE EXTENDED FORM  #
 	#=================================================#
 
-	def FindAsSectionsCSXT(p1, p2, pCaseSensitive)
+	def FindAsSectionsXTCS(p1, p2, pCaseSensitive)
 
 		if ( isString(p1) OR ( isList(p1) and Q(p1).IsSubStringNamedParam() ) ) AND
 		   ( isList(p2) )
@@ -34305,40 +34320,40 @@ class stzString from stzObject
 				if isString(p2[2])
 					nPos = This.FindFirstCS(p2, pCaseSensitive)
 					if nPos > 0
-						return This.FindAsSectionsCSXT( p1, :InSection = [1, nPos], pCaseSensitive )
+						return This.FindAsSectionsXTCS( p1, :InSection = [1, nPos], pCaseSensitive )
 
 					else
 						return []
 					ok
 
 				but isNumber(p2[2])
-					return This.FindAsSectionsCSXT( p1, :InSection = [1, p2[2]], pCaseSensitive )
+					return This.FindAsSectionsXTCS( p1, :InSection = [1, p2[2]], pCaseSensitive )
 
 				ok
 
 			# FindAsSectionsXT( "*", :BeforePosition = 10)
 			but oP2.IsBeforePositionNamedParam()
-				return This.FindAsSectionsCSXT( p1, :InSection = [1, p2[2]], pCaseSensitive )
+				return This.FindAsSectionsXTCS( p1, :InSection = [1, p2[2]], pCaseSensitive )
 
 			# FindAsSectionsXT( "*", :After = "--")
 			but oP2.IsAfterNamedParam()
 				if isString(p2[2])
 					nPos = This.FindFirstAsSectionsCS(p2, pCaseSensitive)
 					if nPos > 0
-						return This.FindAsSectionsCSXT( p1, :InSection = [nPos, :LastChar], pCaseSensitive )
+						return This.FindAsSectionsXTCS( p1, :InSection = [nPos, :LastChar], pCaseSensitive )
 
 					else
 						return []
 					ok
 
 				but isNumber(p2[2])
-					return This.FindAsSectionsCSXT( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
+					return This.FindAsSectionsXTCS( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
 
 				ok
 
 			# FindAsSectionsXT( "*", :AfterPosition = 3)
 			but oP2.IsAfterPositionNamedParam()
-				return This.FindAsSectionsCSXT( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
+				return This.FindAsSectionsXTCS( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
 
 			# FindAsSectionsXT( :3rd = "*", :Between = [ "<<", ">>" ])
 			but isList(p1) and isString(p1[2]) and
@@ -34391,7 +34406,7 @@ class stzString from stzObject
 					return This.FindAsSectionCSXT( p1[2], :InSection = [1, n], pCaseSensitive)
 
 			 	but isNumber(p2[2])
-					return This.FindAsSectionsCSXT( p1[2], :InSection = [1, p2[2] ], pCaseSensitive )
+					return This.FindAsSectionsXTCS( p1[2], :InSection = [1, p2[2] ], pCaseSensitive )
 
 				else
 					StzRaise("Incorrect param type! :Before = ... must be fellowed by a string or number.")
@@ -34405,7 +34420,7 @@ class stzString from stzObject
 
 			    isList(p2) and Q(p2).IsBeforePositionNamedParam()
 
-				return This.FindAsSectionsCSXT( p1[2], :InSection = [ 1, p2[2] ], pCaseSensitive )
+				return This.FindAsSectionsXTCS( p1[2], :InSection = [ 1, p2[2] ], pCaseSensitive )
 
 
 			# FindAsSectionsXT( :3rd = "*", :After = '!' ])
@@ -34418,10 +34433,10 @@ class stzString from stzObject
 
 				if isString(p2[2])
 					n = This.FindLastCS(p2[2], pCaseSensitive)
-					return This.FindAsSectionsCSXT( p1[2], :InSection = [n, :LastChar], pCaseSensitive)
+					return This.FindAsSectionsXTCS( p1[2], :InSection = [n, :LastChar], pCaseSensitive)
 
 			 	but isNumber(p2[2])
-					return This.FindAsSectionsCSXT( p1[2], :InSection = [p2[2], :LastChar], pCaseSensitive )
+					return This.FindAsSectionsXTCS( p1[2], :InSection = [p2[2], :LastChar], pCaseSensitive )
 
 				else
 					StzRaise("Incorrect param type! :Before = ... must be fellowed by a string or number.")
@@ -34435,7 +34450,7 @@ class stzString from stzObject
 
 			    isList(p2) and Q(p2).IsAfterPositionNamedParam()
 
-				return This.FindAsSectionsCSXT( p1[2], :InSection = [ p2[2], :LastChar ], pCaseSensitive )
+				return This.FindAsSectionsXTCS( p1[2], :InSection = [ p2[2], :LastChar ], pCaseSensitive )
 
 			# FindAsSectionsXT( :AnySubString, :Between = ["<<", ">>" )
 			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
@@ -34477,14 +34492,14 @@ class stzString from stzObject
 		# return definetly only one section
 		# like FindAsSectionXT( :3rd = "*" :InSection = ...)
 
-			return This.FindAsSectionsCSXT(p1, p2, pCaseSensitive)
+			return This.FindAsSectionsXTCS(p1, p2, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVE
 
 	def FindAsSectionsXT(p1, p2)
-		return This.FindAsSectionsCSXT(p1, p2, TRUE)
+		return This.FindAsSectionsXTCS(p1, p2, TRUE)
 
 	  #==========================================================#
 	 #  FINDING OCCURRENCES OF A SIUBSTRING IN A GIVEN SECTION  #
@@ -36899,7 +36914,7 @@ class stzString from stzObject
 	# To include them, use ...XT() form of the function
 
 	def DistanceToCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		nResult = This.DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive) - 2
+		nResult = This.DistanceToSCS(pcSubStr, pnStartingAt, pCaseSensitive) - 2
 		return nResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -36911,7 +36926,7 @@ class stzString from stzObject
 	 #  DISTANCE TO A GIVEN SUBSTRING STARTING AT A GIVEN POSITION -- EXTENDED  #
 	#--------------------------------------------------------------------------#
 
-	def DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+	def DistanceToSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
@@ -36992,7 +37007,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def DistanceToXT(pcSubStr, pnStartingAt)
-		return This.DistanceToCSXT(pcSubStr, pnStartingAt, TRUE)
+		return This.DistanceToSCS(pcSubStr, pnStartingAt, TRUE)
 
 	  #======================================#
 	 #   CONTAINMENT OF A GIVEN SUBSTRING   #
@@ -37324,8 +37339,8 @@ class stzString from stzObject
 	 #   CHECKING CONATAINMENT -- EXTENDED   #
 	#---------------------------------------#
 
-	def ContainsCSXT(p1, p2, pCaseSensitive)
-		
+	def ContainsXTCS(p1, p2, pCaseSensitive)
+
 		#=== GENERAL
 
 		# ? Q("").ContainsXT(:Chars, []) #--> FALSE
@@ -37393,13 +37408,14 @@ class stzString from stzObject
 			return This.ContainsSubStringBoundedByCS(p1, p2[2], pCaseSensitive)
 		
 		# ? Q("_/♥\_").ContainsXT("♥", :Between = ["/", :And = "\"])
-		but isString(p1) and isList(p2) and Q(p2).IsBetweenNamedParam()
+		but isString(p1) and isList(p2) and (Q(p2).IsBetweenNamedParam() or Q(p2).IsBoundedByNamedParam())
 
-			if Q(p2[2]).IsAndNamedParam()
-				p2[2] = p2[2][2]
+			if Q(p2[2][2]).IsAndNamedParam()
+				p2[2][2] = p2[2][2][2]
 			ok
 
 			if Q(p2[2]).isListOfStrings()
+
 				return This.ContainsSubStringBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
 
 			but Q(p2[2]).isListOfNumbers()
@@ -37410,8 +37426,8 @@ class stzString from stzObject
 		# ? Q("..<<--♥♥♥-->>..").ContainsXT("♥♥♥", :InBetween = ["<<", ">>"])
 		but isString(p1) and isList(p2) and Q(p2).IsInBetweenNamedParam()
 
-			if Q(p2[2]).IsAndNamedParam()
-				p2[2] = p2[2][2]
+			if Q(p2[2][2]).IsAndNamedParam()
+				p2[2][2] = p2[2][2][2]
 			ok
 
 			if Q(p2[2]).isListOfStrings()
@@ -37427,16 +37443,16 @@ class stzString from stzObject
 
 		but isString(p1) and isList(p2) and Q(p2).IsBetweenSubStringsNamedParam()
 
-			if Q(p2[2]).IsAndNamedParam()
-				p2[2] = p2[2][2]
+			if Q(p2[2][2]).IsAndNamedParam()
+				p2[2][2] = p2[2][2][2]
 			ok
 
 			return This.ContainsSubStringBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
 		
 		but isString(p1) and isList(p2) and Q(p2).IsBetweenPositionsNamedParam()
 
-			if Q(p2[2]).IsAndNamedParam()
-				p2[2] = p2[2][2]
+			if Q(p2[2][2]).IsAndNamedParam()
+				p2[2][2] = p2[2][2][2]
 			ok
 
 			return This.ContainsSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
@@ -37461,8 +37477,8 @@ class stzString from stzObject
 		
 		# ? Q("__/♥\__/•\__").ContainsXT(["♥", "•"], :Between = ["/","\"])
 		but isList(p1) and Q(p1).IsListOfStrings() and isList(p2) and Q(p2).IsBetweenNamedParam()
-			if Q(p2[2]).IsAndNamedParam()
-				p2[2] = p2[2][2]
+			if Q(p2[2][2]).IsAndNamedParam()
+				p2[2][2] = p2[2][2][2]
 			ok
 		
 			bResult = TRUE
@@ -37487,8 +37503,8 @@ class stzString from stzObject
 		
 		# ? Q("__/♥\__/^^\__").ContainsXT( [], :Between = ["/","\"] )
 		but isList(p1) and len(p1) = 0 and isList(p2) and Q(p2).IsBetweenNamedParam()
-			if Q(p2[2]).IsAndNamedParam()
-				p2[2] = p2[2][2]
+			if Q(p2[2][2]).IsAndNamedParam()
+				p2[2][2] = p2[2][2][2]
 			ok
 		
 			return This.ContainsSubStringsBetweenCS(p2[2][1], p2[2][2], pCaseSensitive)
@@ -37677,7 +37693,7 @@ class stzString from stzObject
 	#-- WITOUT CASESENSITIVITY
 
 	def ContainsXT(p1, p2)
-		return This.ContainsCSXT( p1, p2, TRUE)
+		return This.ContainsXTCS( p1, p2, TRUE)
 
 	  #----------------------------------------------#
 	 #    CONTAINING ONE OF THE GIVEN SUBSTRINGS    #
@@ -37997,7 +38013,7 @@ class stzString from stzObject
 	 #  NUMBER OF OCCURRENCE OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
 	#=======================================================================#
 
-	def NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
+	def NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
 		/* EXAMPLE
 		
 		o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
@@ -38046,7 +38062,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceXT(pcSubStr, pacBetween)
-		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, TRUE)
+		return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, TRUE)
 
 	  #----------------------------------------------------------------------#
 	 #  GETTING THE NUMBER OF CHARS/SUBSTRINGS VERIFYING A GIVEN CONDITION  #
@@ -38958,7 +38974,7 @@ class stzString from stzObject
 	
 	# Add ..IB() extensions to all those functions
 
-	def SplitCSXT(pSubStrOrPos, pCaseSensitive)
+	def SplitXTCS(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
 		ok
@@ -39104,19 +39120,19 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def SplitCSXTQ(pSubStrOrPos, pCaseSensitive)
-			return This.SplitCSXTQR(pSubStrOrPos, pCaseSensitive, :stzList)
+		def SplitXTCSQ(pSubStrOrPos, pCaseSensitive)
+			return This.SplitXTCSQR(pSubStrOrPos, pCaseSensitive, :stzList)
 
-		def SplitCSXTQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+		def SplitXTCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.SplitCSXT(pSubStrOrPos, pCaseSensitive) )
+				return new stzList( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitCSXT(pSubStrOrPos, pCaseSensitive) )
+				return new stzListOfStrings( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
 
 			on :stzListOfChars
-				return new stzListOfChars( This.SplitCSXT(pSubStrOrPos, pCaseSensitive) )
+				return new stzListOfChars( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
 
 			other
 				StzRaise("Unsupported param type!")
@@ -39124,13 +39140,13 @@ class stzString from stzObject
 
 		#>
 
-	def SplittedCSXT(pSubStrOrPos, pCaseSensitive)
-		return This.SplitCSXT(pSubStrOrPos, pCaseSensitive)
+	def SplittedXTCS(pSubStrOrPos, pCaseSensitive)
+		return This.SplitXTCS(pSubStrOrPos, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitXT(pSubStrOrPos)
-		return This.SplitCSXT(pSubStrOrPos, TRUE)
+		return This.SplitXTCS(pSubStrOrPos, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -39146,7 +39162,7 @@ class stzString from stzObject
 				return new stzListOfStrings( This.SplitXT(pSubStrOrPos) )
 
 			on :stzListOfChars
-				return new stzListOfChars( This.Split(pSubStrOrPos) )
+				return new stzListOfChars( This.SplitXT(pSubStrOrPos) )
 
 			other
 				StzRaise("Unsupported param type!")
@@ -39161,7 +39177,7 @@ class stzString from stzObject
 	 #  SPLITTING THE STRING -- XTZ/EXTENDED  #
 	#----------------------------------------#
 
-	def SplitCSXTZ(pSubStrOrPos, pCaseSensitive)
+	def SplitXTCSZ(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
 		ok
@@ -39305,23 +39321,22 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pSubStrOrPos must be position(s), string(s), or section(s).")
 		ok
 
-	def SplittedCSXTZ(pSubStrOrPos, pCaseSensitive)
-		return This.SplitCSXTZ(pSubStrOrPos, pCaseSensitive)
+	def SplittedXTCSZ(pSubStrOrPos, pCaseSensitive)
+		return This.SplitXTCSZ(pSubStrOrPos, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitXTZ(pSubStrOrPos)
-		return This.SplitCSXTZ(pSubStrOrPos, TRUE)
+		return This.SplitXTCSZ(pSubStrOrPos, TRUE)
 
 	def SplittedXTZ(pSubStrOrPos)
 		return This.SplitXTZ(pSubStrOrPos)
-
 
 	  #-----------------------------------------#
 	 #  SPLITTING THE STRING -- XTZZ/EXTENDED  #
 	#-----------------------------------------#
 
-	def SplitCSXTZZ(pSubStrOrPos, pCaseSensitive)
+	def SplitXTCSZZ(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
 		ok
@@ -39465,13 +39480,13 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pSubStrOrPos must be position(s), string(s), or section(s).")
 		ok
 
-	def SplittedCSXTZZ(pSubStrOrPos, pCaseSensitive)
-		return This.SplitCSXTZZ(pSubStrOrPos, pCaseSensitive)
+	def SplittedXTCSZZ(pSubStrOrPos, pCaseSensitive)
+		return This.SplitXTCSZZ(pSubStrOrPos, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitXTZZ(pSubStrOrPos)
-		return This.SplitCSXTZZ(pSubStrOrPos, TRUE)
+		return This.SplitXTCSZZ(pSubStrOrPos, TRUE)
 
 	def SplittedXTZZ(pSubStrOrPos)
 		return This.SplitXTZZ(pSubStrOrPos)
@@ -42514,7 +42529,7 @@ class stzString from stzObject
 	 #   FINDING THE SPLITS   #
 	#========================#
 
-	def FindSplitsCSXT(pSubStrOrPos, pCaseSensitive)
+	def FindSplitsXTCS(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
 		ok
@@ -42661,14 +42676,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def FindSplitsCSXTZ(pSubStrOrPos, pCaseSensitive)
-			return This.FindSplitsCSXT(pSubStrOrPos, pCaseSensitive)
+			return This.FindSplitsXTCS(pSubStrOrPos, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsXT(pSubStrOrPos)
-		return This.FindSplitsCSXT(pSubStrOrPos, TRUE)
+		return This.FindSplitsXTCS(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -44354,7 +44369,7 @@ class stzString from stzObject
 	 #   FINDING THE SPLITS AS SECTIONS -- ZZ/EXTENDED  #
 	#==================================================#
 
-	def FindSplitsCSXTZZ(pSubStrOrPos, pCaseSensitive)
+	def FindSplitsXTCSZZ(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
 		ok
@@ -44500,15 +44515,15 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def FindSplitsAsSectionsCSXT(pSubStrOrPos, pCaseSensitive)
-			return This.FindSplitsAsSectionsCSXTZZ(pSubStrOrPos, pCaseSensitive)
+		def FindSplitsAsSectionsXTCS(pSubStrOrPos, pCaseSensitive)
+			return This.FindSplitsAsSectionsXTCSZZ(pSubStrOrPos, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsXTZZ(pSubStrOrPos)
-		return This.FindSplitsCSXTZZ(pSubStrOrPos, TRUE)
+		return This.FindSplitsXTCSZZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -46724,7 +46739,7 @@ class stzString from stzObject
 	 #   FINDING THE NTH SPLIT   #
 	#===========================#
 
-	def FindNthSplitCSXT(n, pSubStrOrPos, pCaseSensitive)
+	def FindNthSplitXTCS(n, pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
 		ok
@@ -46870,15 +46885,15 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def FindNthSplitCSXTZ(pSubStrOrPos, pCaseSensitive)
-			return This.FindNthSplitCSXT(n, pSubStrOrPos, pCaseSensitive)
+		def FindNthSplitXTCSZ(pSubStrOrPos, pCaseSensitive)
+			return This.FindNthSplitXTCS(n, pSubStrOrPos, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitXT(n, pSubStrOrPos)
-		return This.FindNthSplitCSXT(n, pSubStrOrPos, TRUE)
+		return This.FindNthSplitXTCS(n, pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -48463,7 +48478,7 @@ ici		//...
 	 #   FINDING THE NTH SPLIT AS SECTION -- ZZ/EXTENDED  #
 	#====================================================#
 
-	def FindNthSplitCSXTZZ(n, pSubStrOrPos, pCaseSensitive)
+	def FindNthSplitXTCSZZ(n, pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
 		ok
@@ -48609,15 +48624,15 @@ ici		//...
 
 		#< @FunctionAlternativeForm
 
-		def FindNthSplitAsSectionCSXT(n, pSubStrOrPos, pCaseSensitive)
-			return This.FindNthSplitCSXTZZ(n, pSubStrOrPos, pCaseSensitive)
+		def FindNthSplitAsSectionXTCS(n, pSubStrOrPos, pCaseSensitive)
+			return This.FindNthSplitXTCSZZ(n, pSubStrOrPos, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitXTZZ(n, pSubStrOrPos)
-		return This.FindNthSplitCSXTZZ(n, pSubStrOrPos, TRUE)
+		return This.FindNthSplitXTCSXT(n, pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -50104,7 +50119,7 @@ ici		//...
 	 #   FINDING THE LAST SPLIT   #
 	#============================#
 
-	def FindLastSplitCSXT(pSubStrOrPos, pCaseSensitive)
+	def FindLastSplitXTCS(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
 		ok
@@ -50250,15 +50265,15 @@ ici		//...
 
 		#< @FunctionAlternativeForm
 
-		def FindLastSplitCSXTZ(pSubStrOrPos, pCaseSensitive)
-			return This.FindLastSplitCSXT(pSubStrOrPos, pCaseSensitive)
+		def FindLastSplitXTCSZ(pSubStrOrPos, pCaseSensitive)
+			return This.FindLastSplitXTCS(pSubStrOrPos, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitXT(pSubStrOrPos)
-		return This.FindLastSplitCSXT(pSubStrOrPos, TRUE)
+		return This.FindLastSplitXTCS(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -51791,7 +51806,7 @@ ici		//...
 	 #   FINDING THE LAST SPLIT AS SECTION -- ZZ/EXTENDED  #
 	#=====================================================#
 
-	def FindLastSplitCSXTZZ(pSubStrOrPos, pCaseSensitive)
+	def FindLastSplitXTCSZZ(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
 		ok
@@ -51937,15 +51952,15 @@ ici		//...
 
 		#< @FunctionAlternativeForm
 
-		def FindLastSplitAsSectionCSXT(pSubStrOrPos, pCaseSensitive)
-			return This.FindLastSplitCSXTZZ(pSubStrOrPos, pCaseSensitive)
+		def FindLastSplitAsSectionXTCS(pSubStrOrPos, pCaseSensitive)
+			return This.FindLastSplitXTCSZZ(pSubStrOrPos, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindLastSplitXTZZ(pSubStrOrPos)
-		return This.FindLastSplitCSXTZZ(pSubStrOrPos, TRUE)
+	def FindLastSplitZZXT(pSubStrOrPos)
+		return This.FindLastSplitXTCSZZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -55239,7 +55254,7 @@ ici		//...
 	 #  REMOVING A SUBSTRING -- EXTENDED  #
 	#====================================#
 
-	def RemoveCSXT(p1, p2, pCaseSensitive)
+	def RemoveXTCS(p1, p2, pCaseSensitive)
 
 		# Q("/♥♥♥\__/♥\/♥♥\__/♥\__").RemoveXT("♥", [])
 		if isString(p1) and
@@ -55595,17 +55610,17 @@ ici		//...
 			ok
 		ok
 
-		def RemoveCSXTQ(pcNewSubStr, pcSubStr, pCaseSensitive)
-			This.RemoveCSXT(pcNewSubStr, pcSubStr, pCaseSensitive)
+		def RemoveXTCSQ(pcNewSubStr, pcSubStr, pCaseSensitive)
+			This.RemoveXTCS(pcNewSubStr, pcSubStr, pCaseSensitive)
 			return This
 
-	def RemovedCSXT(pcNewSubStr, pcSubStr, pCaseSensitive)
-		return This.Copy().RemoveCSXTQ(pcNewSubStr, pcSubStr, pCaseSensitive).Content()
+	def RemovedXTCS(pcNewSubStr, pcSubStr, pCaseSensitive)
+		return This.Copy().RemoveXTCSQ(pcNewSubStr, pcSubStr, pCaseSensitive).Content()
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveXT(pcNewSubStr, pcSubStr)
-		This.RemoveCSXTQ(pcNewSubStr, pcSubStr, TRUE)
+		This.RemoveXTCSQ(pcNewSubStr, pcSubStr, TRUE)
 
 		def RemoveXTQ(pcNewSubStr, pcSubStr)
 			This.RemoveXT(pcNewSubStr, pcSubStr)
@@ -55659,8 +55674,17 @@ ici		//...
 			This.RemoveFirstChar()
 			return This
 
+		def RemoveAnyCharFromStart()
+			This.RemoveFirstChar()
+
+			def RemoveAnyCharFromStartQ()
+				return This.RemoveFirstCharQ()
+
 	def FirstCharRemoved()
 		return This.Copy().RemoveFirstCharQ().Content()
+
+		def AnyCharRemovedFromStart()
+			return This.FirstCharRemoved()
 
 	  #-----------------------#
 	 #   REMOVING LAST CHAR  #
@@ -55673,8 +55697,17 @@ ici		//...
 			This.RemoveLastChar()
 			return This
 
+		def RemoveAnyCharFromEnd()
+			This.RemoveLastChar()
+
+			def RemoveAnyCharFromEndQ()
+				return This.RemoveLastCharQ()
+
 	def LastCharRemoved()
 		return This.Copy().RemoveLastCharQ().Content()
+
+		def AnyCharRemoveedFromEnd()
+			return This.LastCharRemoved()
 
 	  #----------------------------------#
 	 #   REMOVING FIRST AND LAST CHARS  #
@@ -55868,9 +55901,20 @@ ici		//...
 			This.RemoveLeftChar()
 			return This
 
+		def RemoveAnyCharFormLeft()
+			return This.RemoveLeftChar()
+
+			def RemoveAnyCharFormLeftQ()
+				return This.RemoveLeftCharQ()
+
 	def LeftCharRemoved()
 		cResult = This.Copy().RemoveLeftCharQ().Content()
 		return cResult
+
+		def AnyCharFromLeftRemoved()
+			return This.LeftCharRemoved()
+
+	#--
 
 	def RemoveRightChar()
 		This.RemoveNRightChars(1)
@@ -55879,9 +55923,19 @@ ici		//...
 			This.RemoveRightChar()
 			return This
 
+
+		def RemoveAnyCharFormRight()
+			return This.RemoveRightChar()
+
+			def RemoveAnyCharFormRightQ()
+				return This.RemoveRightCharQ()
+
 	def RightCharRemoved()
 		cResult = This.Copy().RemoveRightCharQ().Content()
 		return cResult
+
+		def AnyCharFromRightRemoved()
+			return This.RightCharRemoved()
 
 	  #----------------------------#
 	 #   REMOVING N FIRST CHARS   #
@@ -58711,460 +58765,427 @@ ici		//...
 
 		#>
 
-	  #----------------------------------#
-	 #   REMOVING ANY CHAR FROM START   #
-	#==================================#
+	  #--------------------------------#
+	 #   REMOVING A CHAR FROM START   #
+	#================================#
 
 	#TODO: Add "Strip" as alternative of "Trim" all over the library
 
-	def RemoveAnyCharFromStartCS(c, pCaseSensitive)
+	def RemoveThisCharFromStartCS(c, pCaseSensitive)
 		if This.IsLeftToRight()
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
+			This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
 		else
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
+			This.RemoveThisCharFromRightCS(c, pCaseSensitive)
 		ok
 
 		#< @FunctionFluentFrom
 
-		def RemoveAnyCharFromStartCSQ(c, pCaseSensitive)
-			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
+		def RemoveThisCharFromStartCSQ(c, pCaseSensitive)
+			This.RemoveThisCharFromStartCS(c, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveThisCharFromStartCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
-
-			def RemoveThisCharFromStartCSQ(c, pCaseSensitive)
-				This.RemoveThisCharFromStartCS(c, pCaseSensitive)
-				return This
-
 		def RemoveAnyOccurrenceOfCharFromStartCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
+			This.RemoveThisCharFromStartCS(c, pCaseSensitive)
 
 			def RemoveAnyOccurrenceOfCharFromStartCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromStartCSQ(c, pCaseSensitive)
 
 		def RemoveAnyOccurrenceOfThisCharFromStartCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
+			This.RemoveThisCharFromStartCS(c, pCaseSensitive)
 
 			def RemoveAnyOccurrenceOfThisCharFromStartCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
 
 		#--
 
-		def RemoveAnyCharStartSideCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
-
-			def RemoveAnyCharStartSideCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
-
 		def RemoveAnyOccurrenceOfCharstartSideCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
+			This.RemoveThisCharFromStartCS(c, pCaseSensitive)
 
 			def RemoveAnyOccurrenceOfCharStartSideCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
 
 		def RemoveAnyOccurrenceOfThisCharStartSideCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
+			This.RemoveThisCharFromStartCS(c, pCaseSensitive)
 
 			def RemoveAnyOccurrenceOfThisCharStartSideCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
 
 		#--
 
-		def RemoveCharFromStartCSXT(c, pCaseSensitive)
-			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
+		def RemoveCharFromStartCS(c, pCaseSensitive)
+			This.RemoveThisCharFromStartCS(c, pCaseSensitive)
 
-			def RemoveCharFromStartCSXTQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromStartCSQ(c, pCaseSensitive)
-
-		#--
+			def RemoveCharFromStartCSQ(c, pCaseSensitive)
+				This.RemoveCharFromStartCS(c, pCaseSensitive)
+				return This
 
 		def TrimCharFromStartCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
+			This.RemoveThisCharFromStartCS(c, pCaseSensitive)
 
 			def TrimCharFromStartCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromStartCSQ(c, pCaseSensitive)
 
 		def TrimThisCharFromStartCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromStartCS(c, pCaseSensitive)
+			This.RemoveThisCharFromStartCS(c, pCaseSensitive)
 
 			def TrimThisCharFromStartCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromStartCSQ(c, pCaseSensitive)
 
 		#>
 
-	def AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
+	def CharRemovedFromStartCS(c, pCaseSensitive)
 		cResult = This.Copy().RemoveAnyCharFromStartCSQ(c, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
 
+		def ThisCharRemovedFromStartCS(c, pCaseSensitive)
+			return This.CharRemovedFromStartCS(c, pCaseSensitive)
+
+		def AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
+			return This.CharRemovedFromStartCS(c, pCaseSensitive)
+
 		def AnyOccurrenceOfThisCharRemovedFromStartCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
+			return This.CharRemovedFromStartCS(c, pCaseSensitive)
 
 		def AnyOccurrenceOfCharFromStartRemovedCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
+			return This.CharRemovedFromStartCS(c, pCaseSensitive)
 
 		def AnyOccurrenceOfThisCharFromStartRemovedCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
+			return This.CharRemovedFromStartCS(c, pCaseSensitive)
 
 		#--
 
 		def AnyOccurrenceOfCharRemovedStartSideCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
+			return This.CharRemovedFromStartCS(c, pCaseSensitive)
 
 		def AnyOccurrenceOfThisCharRemovedStartSideCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
+			return This.CharRemovedFromStartCS(c, pCaseSensitive)
 
-		#--
-
-		def CharRemovedFromStartCSXT(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
 
 		#--
 
 		def CharTrimmedFromStartCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
+			return This.CharRemovedFromStartCS(c, pCaseSensitive)
 
 		def ThisCharTrimmedFromStartCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromStartCS(c, pCaseSensitive)
+			return This.CharRemovedFromStartCS(c, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveAnyCharFromStart(c)
+	def RemoveThisCharFromStart(c)
 		This.RemoveAnyCharFromStartCS(c, TRUE)
 		return This
 
 		#< @FunctionAlternativeForms
 
 		def RemoveAnyOccurrenceOfCharFromStart(c)
-			This.RemoveAnyCharFromStart(c)
+			This.RemoveThisCharFromStart(c)
 
 			def RemoveAnyOccurrenceOfCharFromStartQ(c)
 				return This.RemoveAnyCharFromStartQ(c)
 
 		def RemoveAnyOccurrenceOfThisCharFromStart(c)
-			This.RemoveAnyCharFromRight(c)
+			This.RemoveThisCharFromStart(c)
 
 			def RemoveAnyOccurrenceOfThisCharFromStartQ(c)
 				return This.RemoveAnyCharFromEndQ(c)
 
 		#--
 
-		def RemoveAnyCharStartSide(c)
-			This.RemoveAnyCharFromEnd(c)
-
-			def RemoveAnyCharStartSideQ(c)
-				return This.RemoveAnyCharFromEndQ(c)
-
 		def RemoveAnyOccurrenceOfCharstartSide(c)
-			This.RemoveAnyCharFromEnd(c)
+			This.RemoveThisCharFromStart(c)
 
 			def RemoveAnyOccurrenceOfCharStartSideQ(c)
 				return This.RemoveAnyCharFromEndQ(c)
 
 		def RemoveAnyOccurrenceOfThisCharStartSide(c)
-			This.RemoveAnyCharFromEnd(c)
+			This.RemoveThisCharFromStart(c)
 
 			def RemoveAnyOccurrenceOfThisCharStartSideQ(c)
 				return This.RemoveAnyCharFromEndQ(c)
 
 		#--
 
-		def RemoveCharFromStartXT(c)
-			This.RemoveAnyCharFromStart(c)
+		def RemoveCharFromStart(c)
+			This.RemoveThisCharFromStart(c)
 
-			def RemoveCharFromStartXTQ(c)
-				return This.RemoveAnyCharFromStartQ(c)
-
-		#--
+			def RemoveCharFromStartQ(c)
+				This.RemoveCharFromStartCS(c)
+				return This
 
 		def TrimCharFromStart(c)
-			This.RemoveAnyCharFromStart(c)
+			This.RemoveThisCharFromStart(c)
 
 			def TrimCharFromStartQ(c)
 				return This.RemoveAnyCharFromStartQ(c)
 
 		def TrimThisCharFromStart(c)
-			This.RemoveAnyCharFromStart(c)
+			This.RemoveThisCharFromStart(c)
 
 			def TrimThisCharFromStartQ(c)
 				return This.RemoveAnyCharFromStartQ(c)
 
 		#>
 
-	def AnyOccurrenceOfCharRemovedFromStart(c)
-		return This.AnyOccurrenceOfCharRemovedFromStartCS(c, TRUE)
+	def CharRemovedFromStart(c)
+		return This.CharRemovedFromStartCS(c, TRUE)
 
 		#< @FunctionAlternativeForms
 
+
+		def ThisCharRemovedFromStart(c)
+			return This.CharRemovedFromStart(c)
+
+		def AnyOccurrenceOfCharRemovedFromStart(c)
+			return This.CharRemovedFromStart(c)
+
 		def AnyOccurrenceOfThisCharRemovedFromStart(c)
-			return This.AnyOccurrenceOfCharRemovedFromStart(c)
+			return This.CharRemovedFromStart(c)
 
 		def AnyOccurrenceOfCharFromStartRemoved(c)
-			return This.AnyOccurrenceOfCharRemovedFromStart(c)
+			return This.CharRemovedFromStart(c)
 
 		def AnyOccurrenceOfThisCharFromStartRemoved(c)
-			return This.AnyOccurrenceOfCharRemovedFromStart(c)
+			return This.CharRemovedFromStart(c)
 
 		#--
 
 		def AnyOccurrenceOfCharRemovedStartSide(c)
-			return This.AnyOccurrenceOfCharRemovedFromStart(c)
+			return This.CharRemovedFromStart(c)
 
 		def AnyOccurrenceOfThisCharRemovedStartSide(c)
-			return This.AnyOccurrenceOfCharRemovedFromStart(c)
+			return This.CharRemovedFromStart(c)
+
 
 		#--
 
-		def CharRemovedFromStartXT(c)
-			return This.AnyOccurrenceOfCharRemovedFromStart(c)
+		def CharTrimmedFromStart(c)
+			return This.CharRemovedFromStart(c)
+
+		def ThisCharTrimmedFromStart(c)
+			return This.CharRemovedFromStart(c)
 
 		#>
 
-	  #---------------------------------#
-	 #   REMOVING ANY CHAR FROM END    #
-	#---------------------------------#
+	  #-------------------------------#
+	 #   REMOVING A CHAR FROM END    #
+	#-------------------------------#
 
-	def RemoveAnyCharFromEndCS(c, pCaseSensitive)
+	def RemoveThisCharFromEndCS(c, pCaseSensitive)
 		if This.IsLeftToRight()
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
+			This.RemoveThisCharFromRightCS(c, pCaseSensitive)
 		else
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
+			This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
 		ok
-
 
 		#< @FunctionFluentFrom
 
-		def RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
+		def RemoveThisCharFromEndCSQ(c, pCaseSensitive)
+			This.RemoveThisCharFromEndCS(c, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveThisCharFromEndCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
-
-			def RemoveThisCharFromEndCSQ(c, pCaseSensitive)
-				This.RemoveThisCharFromEndCS(c, pCaseSensitive)
-				return This
-
 		def RemoveAnyOccurrenceOfCharFromEndCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
+			This.RemoveThisCharFromEndCS(c, pCaseSensitive)
 
 			def RemoveAnyOccurrenceOfCharFromEndCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
 
 		def RemoveAnyOccurrenceOfThisCharFromEndCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
+			This.RemoveThisCharFromEndCS(c, pCaseSensitive)
 
 			def RemoveAnyOccurrenceOfThisCharFromEndCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
 
 		#--
 
-		def RemoveAnyCharEndSideCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
-
-			def RemoveAnyCharEndSideCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
-
 		def RemoveAnyOccurrenceOfCharEndSideCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
+			This.RemoveThisCharFromEndCS(c, pCaseSensitive)
 
 			def RemoveAnyOccurrenceOfCharEndSideCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
 
 		def RemoveAnyOccurrenceOfThisCharEndSideCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
+			This.RemoveThisCharFromEndCS(c, pCaseSensitive)
 
 			def RemoveAnyOccurrenceOfThisCharEndSideCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
 
 		#--
 
-		def RemoveCharFromEndCSXT(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
+		def RemoveCharFromEndCS(c, pCaseSensitive)
+			This.RemoveThisCharFromEndCS(c, pCaseSensitive)
 
-			def RemoveCharFromEndCSXTQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
-
-		#--
+			def RemoveCharFromEndCSQ(c, pCaseSensitive)
+				This.RemoveCharFromEndCS(c, pCaseSensitive)
+				return This
 
 		def TrimCharFromEndCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
+			This.RemoveThisCharFromEndCS(c, pCaseSensitive)
 
 			def TrimCharFromEndCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
 
 		def TrimThisCharFromEndCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromEndCS(c, pCaseSensitive)
+			This.RemoveThisCharFromEndCS(c, pCaseSensitive)
 
 			def TrimThisCharFromEndCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromEndCSQ(c, pCaseSensitive)
 
 		#>
 
-	def AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
+	def CharRemovedFromEndCS(c, pCaseSensitive)
 		cResult = This.Copy().RemoveAnyCharFromEndCSQ(c, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
 
+		def ThisCharRemovedFromEndCS(c, pCaseSensitive)
+			return This.CharRemovedFromEndCS(c, pCaseSensitive)
+
+		def AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
+			return This.CharRemovedFromEndCS(c, pCaseSensitive)
+
 		def AnyOccurrenceOfThisCharRemovedFromEndCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
+			return This.CharRemovedFromEndCS(c, pCaseSensitive)
 
 		def AnyOccurrenceOfCharFromEndRemovedCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
+			return This.CharRemovedFromEndCS(c, pCaseSensitive)
 
 		def AnyOccurrenceOfThisCharFromEndRemovedCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
+			return This.CharRemovedFromEndCS(c, pCaseSensitive)
 
 		#--
 
 		def AnyOccurrenceOfCharRemovedEndSideCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
+			return This.CharRemovedFromEndCS(c, pCaseSensitive)
 
 		def AnyOccurrenceOfThisCharRemovedEndSideCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
+			return This.CharRemovedFromEndCS(c, pCaseSensitive)
 
-		#--
-
-		def CharRemovedFromEndCSXT(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
 
 		#--
 
 		def CharTrimmedFromEndCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
+			return This.CharRemovedFromEndCS(c, pCaseSensitive)
 
 		def ThisCharTrimmedFromEndCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromEndCS(c, pCaseSensitive)
+			return This.CharRemovedFromEndCS(c, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveAnyCharFromEnd(c)
+	def RemoveThisCharFromEnd(c)
 		This.RemoveAnyCharFromEndCS(c, TRUE)
 		return This
 
 		#< @FunctionAlternativeForms
 
-		def RemoveThisCharFromEnd(c)
-			This.RemoveAnyCharFromEnd(c)
-
-			def RemoveThisCharFromEndQ(c)
-				This.RemoveThisCharFromEnd(c)
-				return This
-
 		def RemoveAnyOccurrenceOfCharFromEnd(c)
-			This.RemoveAnyCharFromEnd(c)
+			This.RemoveThisCharFromEnd(c)
 
 			def RemoveAnyOccurrenceOfCharFromEndQ(c)
 				return This.RemoveAnyCharFromEndQ(c)
 
 		def RemoveAnyOccurrenceOfThisCharFromEnd(c)
-			This.RemoveAnyCharFromRight(c)
+			This.RemoveThisCharFromEnd(c)
 
 			def RemoveAnyOccurrenceOfThisCharFromEndQ(c)
 				return This.RemoveAnyCharFromEndQ(c)
 
 		#--
 
-		def RemoveAnyCharEndSide(c)
-			This.RemoveAnyCharFromEnd(c)
-
-			def RemoveAnyCharEndSideQ(c)
-				return This.RemoveAnyCharFromEndQ(c)
-
 		def RemoveAnyOccurrenceOfCharEndSide(c)
-			This.RemoveAnyCharFromEnd(c)
+			This.RemoveThisCharFromEnd(c)
 
 			def RemoveAnyOccurrenceOfCharEndSideQ(c)
 				return This.RemoveAnyCharFromEndQ(c)
 
 		def RemoveAnyOccurrenceOfThisCharEndSide(c)
-			This.RemoveAnyCharFromEnd(c)
+			This.RemoveThisCharFromEnd(c)
 
 			def RemoveAnyOccurrenceOfThisCharEndSideQ(c)
 				return This.RemoveAnyCharFromEndQ(c)
 
 		#--
 
-		def RemoveCharFromEndXT(c)
-			This.RemoveAnyCharFromEnd(c)
+		def RemoveCharFromEnd(c)
+			This.RemoveThisCharFromEnd(c)
 
-			def RemoveCharFromEndXTQ(c)
-				return This.RemoveAnyCharFromEndQ(c)
-
-
-		#--
+			def RemoveCharFromEndQ(c)
+				This.RemoveCharFromEnd(c)
+				return This
 
 		def TrimCharFromEnd(c)
-			This.RemoveAnyCharFromEnd(c)
+			This.RemoveThisCharFromEnd(c)
 
 			def TrimCharFromEndQ(c)
 				return This.RemoveAnyCharFromEndQ(c)
 
 		def TrimThisCharFromEnd(c)
-			This.RemoveAnyCharFromEnd(c)
+			This.RemoveThisCharFromEnd(c)
 
 			def TrimThisCharFromEndQ(c)
 				return This.RemoveAnyCharFromEndQ(c)
 
 		#>
 
-	def AnyOccurrenceOfCharRemovedFromEnd(c)
-		return This.AnyOccurrenceOfCharRemovedFromEndCS(c, TRUE)
+	def CharRemovedFromEnd(c)
+		return This.CharRemovedFromEndCS(c, TRUE)
 
 		#< @FunctionAlternativeForms
 
+
+		def ThisCharRemovedFromEnd(c)
+			return This.CharRemovedFromEnd(c)
+
+		def AnyOccurrenceOfCharRemovedFromEnd(c)
+			return This.CharRemovedFromEnd(c)
+
 		def AnyOccurrenceOfThisCharRemovedFromEnd(c)
-			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
+			return This.CharRemovedFromEnd(c)
 
 		def AnyOccurrenceOfCharFromEndRemoved(c)
-			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
+			return This.CharRemovedFromEnd(c)
 
 		def AnyOccurrenceOfThisCharFromEndRemoved(c)
-			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
+			return This.CharRemovedFromEnd(c)
 
 		#--
 
 		def AnyOccurrenceOfCharRemovedEndSide(c)
-			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
+			return This.CharRemovedFromEnd(c)
 
 		def AnyOccurrenceOfThisCharRemovedEndSide(c)
-			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
+			return This.CharRemovedFromEnd(c)
 
-		#--
-
-		def CharRemovedFromEndXT(c)
-			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
 
 		#--
 
 		def CharTrimmedFromEnd(c)
-			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
+			return This.CharRemovedFromEnd(c)
 
 		def ThisCharTrimmedFromEnd(c)
-			return This.AnyOccurrenceOfCharRemovedFromEnd(c)
+			return This.CharRemovedFromEnd(c)
 
 		#>
 
-	  #----------------------------------#
-	 #   REMOVING ANY CHAR FROM LEFT    #
-	#==================================#
+	  #--------------------------------#
+	 #   REMOVING A CHAR FROM LEFT    #
+	#================================#
 
-	def RemoveAnyCharFromLeftCS(c, pCaseSensitive)
+	def RemoveThisCharFromLeftCS(c, pCaseSensitive)
 		if CheckParams()
 			if NOT (isString(c) and @IsChar(c))
 				StzRaise("Incorrect param type! c must be a char.")
@@ -59211,507 +59232,65 @@ ici		//...
 
 		#< @FunctionFluentFrom
 
-		def RemoveAnyCharFromLeftCSQ(c, pCaseSensitive)
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
+		def RemoveThisCharFromLeftCSQ(c, pCaseSensitive)
+			This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveThisCharFromLeftCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
-
-			def RemoveThisCharFromLeftCSQ(c, pCaseSensitive)
-				This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
-				return This
-
 		def RemoveAnyOccurrenceOfCharFromLeftCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
+			This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
 
 			def RemoveAnyOccurrenceOfCharFromLeftCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromLeftCSQ(c, pCaseSensitive)
 
 		def RemoveAnyOccurrenceOfThisCharFromLeftCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
+			This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
 
 			def RemoveAnyOccurrenceOfThisCharFromLeftCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromLeftCSQ(c, pCaseSensitive)
 
 		#--
 
-		def RemoveAnyCharLeftSideCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
-
-			def RemoveAnyCharLeftSideCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromLeftCSQ(c, pCaseSensitive)
-
 		def RemoveAnyOccurrenceOfCharLeftSideCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
+			This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
 
 			def RemoveAnyOccurrenceOfCharLeftSideCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromLeftCSQ(c, pCaseSensitive)
 
 		def RemoveAnyOccurrenceOfThisCharLeftSideCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
+			This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
 
 			def RemoveAnyOccurrenceOfThisCharLeftSideCSQ(c, pCaseSensitive)
 				return This.RemoveAnyCharFromLeftCSQ(c, pCaseSensitive)
 
 		#--
 
-		def RemoveCharFromLeftCSXT(c, pCaseSensitive)
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
+		def RemoveCharFromLeftCS(c, pCaseSensitive)
+			This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
 
-			def RemoveCharFromLeftCSXTQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromLeftCSQ(c, pCaseSensitive)
-
-		def TrimCharFromLeftCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromLeftCS(c, pCaseSensitive)
-
-			def TrimCharFromLeftCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromleftCSQ(c, pCaseSensitive)
-
-		#>
-
-	def AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
-		cResult = This.Copy().RemoveAnyCharFromLeftCSQ(c, pCaseSensitive).Content()
-		return cResult
-
-		#< @FunctionAlternativeForms
-
-		def AnyOccurrenceOfThisCharRemovedFromLeftCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
-
-		def AnyOccurrenceOfCharFromLeftRemovedCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
-
-		def AnyOccurrenceOfThisCharFromLeftRemovedCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
-
-		#--
-
-		def AnyOccurrenceOfCharRemovedLeftSideCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
-
-		def AnyOccurrenceOfThisCharRemovedLeftSideCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
-
-		#--
-
-		def CharRemovedFromLeftCSXT(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
-
-		def CharTrimmedFromLeftCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
-
-		def ThisCharTrimmedFromLeftCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromRLeftCS(c, pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RemoveAnyCharFromLeft(c)
-		This.RemoveAnyCharFromLeftCS(c, TRUE)
-		return This
-
-		#< @FunctionAlternativeForms
-
-		def RemoveThisCharFromLeft(c)
-			This.RemoveAnyCharFromLeft(c)
-
-			def RemoveThisCharFromLeftQ(c)
-				This.RemoveThisCharFromLeft(c)
+			def RemoveCharFromLeftCSQ(c, pCaseSensitive)
+				This.RemoveCharFromLeftCS(c, pCaseSensitive)
 				return This
 
-		def RemoveAnyOccurrenceOfCharFromLeft(c)
-			This.RemoveAnyCharFromLeft(c)
+		def TrimCharFromLeftCS(c, pCaseSensitive)
+			This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
 
-			def RemoveAnyOccurrenceOfCharFromLeftQ(c)
-				return This.RemoveAnyCharFromLeftQ(c)
+			def TrimCharFromLeftCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromLeftCSQ(c, pCaseSensitive)
 
-		def RemoveAnyOccurrenceOfThisCharFromLeft(c)
-			This.RemoveAnyCharFromRight(c)
+		def TrimThisCharFromLeftCS(c, pCaseSensitive)
+			This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
 
-			def RemoveAnyOccurrenceOfThisCharFromLeftQ(c)
-				return This.RemoveAnyCharFromLeftQ(c)
-
-		#--
-
-		def RemoveAnyCharLeftSide(c)
-			This.RemoveAnyCharFromLeft(c)
-
-			def RemoveAnyCharLeftSideQ(c)
-				return This.RemoveAnyCharFromLeftQ(c)
-
-		def RemoveAnyOccurrenceOfCharLeftSide(c)
-			This.RemoveAnyCharFromLeft(c)
-
-			def RemoveAnyOccurrenceOfCharLeftSideQ(c)
-				return This.RemoveAnyCharFromLeftQ(c)
-
-		def RemoveAnyOccurrenceOfThisCharLeftSide(c)
-			This.RemoveAnyCharFromLeft(c)
-
-			def RemoveAnyOccurrenceOfThisCharLeftSideQ(c)
-				return This.RemoveAnyCharFromLeftQ(c)
-
-		#--
-
-		def RemoveCharFromLeftXT(c)
-			This.RemoveAnyCharFromLeft(c)
-
-			def RemoveCharFromLeftXTQ(c)
-				return This.RemoveAnyCharFromLeftQ(c)
-
-		#--
-
-		def TrimCharFromLeft(c)
-			This.RemoveAnyCharFromLeft(c)
-
-			def TrimCharFromLeftQ(c)
-				return This.RemoveAnyCharFromleftQ(c)
-
-		def TrimThisCharFromLeft(c)
-			This.RemoveAnyCharFromLeft(c)
-
-			def TrimThisCharFromLeftQ(c)
-				return This.RemoveAnyCharFromLeftQ(c)
-
-		#>
-
-	def AnyOccurrenceOfCharRemovedFromLeft(c)
-		return This.AnyOccurrenceOfCharRemovedFromLeftCS(c, TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def AnyOccurrenceOfThisCharRemovedFromLeft(c)
-			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
-
-		def AnyOccurrenceOfCharFromLeftRemoved(c)
-			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
-
-		def AnyOccurrenceOfThisCharFromLeftRemoved(c)
-			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
-
-		#--
-
-		def AnyOccurrenceOfCharRemovedLeftSide(c)
-			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
-
-		def AnyOccurrenceOfThisCharRemovedLeftSide(c)
-			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
-
-		#--
-
-		def CharRemovedFromLeftXT(c)
-			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
-
-		def CharTrimmedFromLeft(c)
-			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
-
-		def ThisCharTrimmedFromLeft(c)
-			return This.AnyOccurrenceOfCharRemovedFromLeft(c)
-
-		#>
-
-	  #-----------------------------------#
-	 #   REMOVING ANY CHAR FROM RIGHT    #
-	#-----------------------------------#
-
-	def RemoveAnyCharFromRightCS(c, pCaseSensitive)
-		if CheckParams()
-			if NOT (isString(c) and @IsChar(c))
-				StzRaise("Incorrect param type! c must be a char.")
-			ok
-		ok
-
-		acChars = This.Chars()
-		nLen = len(acChars)
-		if nLen = 0
-			return
-		ok
-
-		n = 0
-
-		if This.IsLeftToRight()
-
-			for i = nLen to 1 step -1
-				if Q(acChars[i]).IsEqualToCS(c, pCaseSensitive)
-					n++
-				else
-					exit
-				ok
-			next i
-
-			if n > 0
-				This.RemoveSection( nLen - n + 1, nLen )
-			ok
-
-		else
-			for i = 1 to nLen
-				if Q(acChars[i]).IsEqualToCS(c, pCaseSensitive)
-					n++
-				else
-					exit
-				ok
-			next i
-
-			if n > 0
-				This.RemoveSection( 1, n )
-			ok
-		ok
-
-		#< @FunctionFluentFrom
-
-		def RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def RemoveAnyOccurrenceOfCharFromRightCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
-
-			def RemoveAnyOccurrenceOfCharFromRightCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
-
-		def RemoveAnyOccurrenceOfThisCharFromRightCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
-
-			def RemoveAnyOccurrenceOfThisCharFromRightCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
-
-		#--
-
-		def RemoveAnyCharRightSideCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
-
-			def RemoveAnyCharRightSideCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
-
-		def RemoveAnyOccurrenceOfCharRightSideCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
-
-			def RemoveAnyOccurrenceOfCharRightSideCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
-
-		def RemoveAnyOccurrenceOfThisCharRightSideCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
-
-			def RemoveAnyOccurrenceOfThisCharRightSideCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
-
-		def RemoveCharFromRightCSXT(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
-
-			def RemoveCharFromRightXTCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
-
-		def TrimCharFromRightCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
-
-			def TrimCharFromRightCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
-
-		def TrimThisCharFromRightCS(c, pCaseSensitive)
-			This.RemoveAnyCharFromRightCS(c, pCaseSensitive)
-
-			def TrimThisCharFromRightCSQ(c, pCaseSensitive)
-				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
-
-		#>
-
-	def AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
-		cResult = This.Copy().RemoveAnyCharFromRightCSQ(c, pCaseSensitive).Content()
-		return cResult
-
-		#< @FunctionAlternativeForms
-
-		def AnyOccurrenceOfThisCharRemovedFromRightCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
-
-		def AnyOccurrenceOfCharFromRightRemovedCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
-
-		def AnyOccurrenceOfThisCharFromRightRemovedCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
-
-		#--
-
-		def AnyOccurrenceOfCharRemovedRightSideCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
-
-		def AnyOccurrenceOfThisCharRemovedRightSideCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
-		#--
-
-		def CharRemovedFromRightCSXT(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
-
-		def CharTrimmedFromRightCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
-
-		def ThisCharTrimmedFromRightCS(c, pCaseSensitive)
-			return This.AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RemoveAnyCharFromRight(c)
-		This.RemoveAnyCharFromRightCS(c, TRUE)
-		return This
-
-		def RemoveAnyCharFromRightQ(c)
-			This.RemoveAnyCharFromRight(c)
-			return This
-
-		#< @FunctionAlternativeForms
-
-		def RemoveAnyOccurrenceOfCharFromRight(c)
-			This.RemoveAnyCharFromRight(c)
-
-			def RemoveAnyOccurrenceOfCharFromRightQ(c)
-				return This.RemoveAnyCharFromRightQ(c)
-
-		def RemoveAnyOccurrenceOfThisCharFromRight(c)
-			This.RemoveAnyCharFromRight(c)
-
-			def RemoveAnyOccurrenceOfThisCharFromRightQ(c)
-				return This.RemoveAnyCharFromRightQ(c)
-
-		#--
-
-		def RemoveAnyCharRightSide(c)
-			This.RemoveAnyCharFromRight(c)
-
-			def RemoveAnyCharRightSideQ(c)
-				return This.RemoveAnyCharFromRightQ(c)
-
-		def RemoveAnyOccurrenceOfCharRightSide(c)
-			This.RemoveAnyCharFromRight(c)
-
-			def RemoveAnyOccurrenceOfCharRightSideQ(c)
-				return This.RemoveAnyCharFromRightQ(c)
-
-		def RemoveAnyOccurrenceOfThisCharRightSide(c)
-			This.RemoveAnyCharFromRight(c)
-
-			def RemoveAnyOccurrenceOfThisCharRightSideQ(c)
-				return This.RemoveAnyCharFromRightQ(c)
-
-		#--
-
-		def RemoveCharFromRightXT(c)
-			This.RemoveAnyCharFromRight(c)
-
-			def RemoveCharFromRightXTQ(c)
-				return This.RemoveAnyCharFromRightQ(c)
-
-		def TrimCharFromRight(c)
-			This.RemoveAnyCharFromRight(c)
-
-			def TrimCharFromRightQ(c)
-				return This.RemoveAnyCharFromRightQ(c)
-
-		def TrimThisCharFromRight(c)
-			This.RemoveAnyCharFromRight(c)
-
-			def TrimThisCharFromRightQ(c)
-				return This.RemoveAnyCharFromRightQ(c)
-
-		#>
-
-	def AnyOccurrenceOfCharRemovedFromRight(c)
-		return This.AnyOccurrenceOfCharRemovedFromRightCS(c, TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def AnyOccurrenceOfThisCharRemovedFromRight(c)
-			return This.AnyOccurrenceOfCharRemovedFromRight(c)
-
-		def AnyOccurrenceOfCharFromRightRemoved(c)
-			return This.AnyOccurrenceOfCharRemovedFromRight(c)
-
-		def AnyOccurrenceOfThisCharFromRightRemoved(c)
-			return This.AnyOccurrenceOfCharRemovedFromRight(c)
-
-		#--
-
-		def AnyOccurrenceOfCharRemovedRightSide(c)
-			return This.AnyOccurrenceOfCharRemovedFromRight(c)
-
-		def AnyOccurrenceOfThisCharRemovedRightSide(c)
-			return This.AnyOccurrenceOfCharRemovedFromRight(c)
-
-		#--
-
-		def CharRemovedFromRightXT(c)
-			return This.AnyOccurrenceOfCharRemovedFromRight(c)
-
-		def CharTrimmedFromRight(c)
-			return This.AnyOccurrenceOfCharRemovedFromRight(c)
-
-		def ThisCharTrimmedFromRight(c)
-			return This.AnyOccurrenceOfCharRemovedFromRight(c)
-
-		#>
-
-	  #-----------------------------#
-	 #  REMOVING A CHAR FROM LEFT  #
-	#=============================#
-
-	def RemoveCharFromLeftCS(c, pCaseSensitive)
-
-		if CheckParams()
-			if NOT ( isString(c) and @IsChar(c) )
-				StzRaise("Incorrect param type! c must be a char.")
-			ok
-		ok
-
-		if This.IsLeftToRight()
-
-			if This.FirstCharQ().IsEqualtToCS(c, pCaseSensitive) # Misspelled
-				This.RemoveFirstChar()
-			ok
-
-		else # IsRightToLeft()
-
-			if This.LastCharQ().IsEqualtToCS(c, pCaseSensitive)
-				This.RemoveLastChar()
-			ok
-		ok
-
-		#< @FunctionFluentForm
-
-		def RemoveCharFromLeftCSQ(c, pCaseSensitive)
-			This.RemoveCharFromLeftCS(c, pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def RemoveCharLeftSideCS(c, pCaseSensitive)
-			This.RemoveCharFromLeftCS(c, pCaseSensitive)
-
-			def RemoveCharLeftSideCSQ(c, pCaseSensitive)
-				return This.RemoveCharFromLeftCSQ(c, pCaseSensitive)
-
-		def RemoveThisCharLeftSideCS(c, pCaseSensitive)
-			This.RemoveCharFromLeftCS(c, pCaseSensitive)
-
-			def RemoveThisCharLeftSideCSQ(c, pCaseSensitive)
-				return This.RemoveCharFromLeftCSQ(c, pCaseSensitive)
+			def TrimThisCharFromLeftCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromLeftCSQ(c, pCaseSensitive)
 
 		#>
 
 	def CharRemovedFromLeftCS(c, pCaseSensitive)
-		cResult = This.Copy().RemoveCharFromLeftCSQ(c, pCaseSensitive).Content()
+		cResult = This.Copy().RemoveAnyCharFromLeftCSQ(c, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -59719,122 +59298,244 @@ ici		//...
 		def ThisCharRemovedFromLeftCS(c, pCaseSensitive)
 			return This.CharRemovedFromLeftCS(c, pCaseSensitive)
 
-		#--
-
-		def CharRemovedLefSideCS(c, pCaseSensitive) # Add LeftSide as an alternative of FromLeft
-							    # all over the library
+		def AnyOccurrenceOfCharRemovedFromLeftCS(c, pCaseSensitive)
 			return This.CharRemovedFromLeftCS(c, pCaseSensitive)
 
-		def ThisCharRemovedLeftSideCS(c, pCaseSensitive)
+		def AnyOccurrenceOfThisCharRemovedFromLeftCS(c, pCaseSensitive)
+			return This.CharRemovedFromLeftCS(c, pCaseSensitive)
+
+		def AnyOccurrenceOfCharFromLeftRemovedCS(c, pCaseSensitive)
+			return This.CharRemovedFromLeftCS(c, pCaseSensitive)
+
+		def AnyOccurrenceOfThisCharFromLeftRemovedCS(c, pCaseSensitive)
+			return This.CharRemovedFromLeftCS(c, pCaseSensitive)
+
+		#--
+
+		def AnyOccurrenceOfCharRemovedLeftSideCS(c, pCaseSensitive)
+			return This.CharRemovedFromLeftCS(c, pCaseSensitive)
+
+		def AnyOccurrenceOfThisCharRemovedLeftSideCS(c, pCaseSensitive)
+			return This.CharRemovedFromLeftCS(c, pCaseSensitive)
+
+
+		#--
+
+		def CharTrimmedFromLeftCS(c, pCaseSensitive)
+			return This.CharRemovedFromLeftCS(c, pCaseSensitive)
+
+		def ThisCharTrimmedFromLeftCS(c, pCaseSensitive)
 			return This.CharRemovedFromLeftCS(c, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveCharFromLeft(c)
-		This.RemoveCharFromLeftCS(c, TRUE)
-
-		#< @FunctionFluentForm
-
-		def RemoveCharFromLeftQ(c)
-			This.RemoveCharFromLeft(c)
-			return This
-
-		#>
+	def RemoveThisCharFromLeft(c)
+		This.RemoveAnyCharFromLeftCS(c, TRUE)
+		return This
 
 		#< @FunctionAlternativeForms
 
-		def RemoveCharLeftSide(c)
-			This.RemoveCharFromLeft(c)
+		def RemoveAnyOccurrenceOfCharFromLeft(c)
+			This.RemoveThisCharFromLeft(c)
 
-			def RemoveCharLeftSideQ(c)
-				return This.RemoveCharFromLeftQ(c)
+			def RemoveAnyOccurrenceOfCharFromLeftQ(c)
+				return This.RemoveAnyCharFromLeftQ(c)
 
-		def RemoveThisCharLeftSide(c)
-			This.RemoveCharFromLeft(c)
+		def RemoveAnyOccurrenceOfThisCharFromLeft(c)
+			This.RemoveThisCharFromLeft(c)
 
-			def RemoveThisCharLeftSideQ(c)
-				return This.RemoveCharFromLeftQ(c)
+			def RemoveAnyOccurrenceOfThisCharFromLeftQ(c)
+				return This.RemoveAnyCharFromLeftQ(c)
+
+		#--
+
+		def RemoveAnyOccurrenceOfCharLeftSide(c)
+			This.RemoveThisCharFromLeft(c)
+
+			def RemoveAnyOccurrenceOfCharLeftSideQ(c)
+				return This.RemoveAnyCharFromLeftQ(c)
+
+		def RemoveAnyOccurrenceOfThisCharLeftSide(c)
+			This.RemoveThisCharFromLeft(c)
+
+			def RemoveAnyOccurrenceOfThisCharLeftSideQ(c)
+				return This.RemoveAnyCharFromLeftQ(c)
+
+		#--
+
+		def RemoveCharFromLeft(c)
+			This.RemoveThisCharFromLeft(c)
+
+			def RemoveCharFromLeftQ(c)
+				This.RemoveCharFromLeft(c)
+				return This
+
+		def TrimCharFromLeft(c)
+			This.RemoveThisCharFromLeft(c)
+
+			def TrimCharFromLeftQ(c)
+				return This.RemoveAnyCharFromLeftQ(c)
+
+		def TrimThisCharFromLeft(c)
+			This.RemoveThisCharFromLeft(c)
+
+			def TrimThisCharFromLeftQ(c)
+				return This.RemoveAnyCharFromLeftQ(c)
 
 		#>
 
 	def CharRemovedFromLeft(c)
-		cResult = This.Copy().RemoveCharFromLeftQ(c).Content()
-		return cResult
+		return This.CharRemovedFromLeftCS(c, TRUE)
 
 		#< @FunctionAlternativeForms
+
 
 		def ThisCharRemovedFromLeft(c)
 			return This.CharRemovedFromLeft(c)
 
-		#--
-
-		def CharRemovedLefSide(c)
+		def AnyOccurrenceOfCharRemovedFromLeft(c)
 			return This.CharRemovedFromLeft(c)
 
-		def ThisCharRemovedLeftSide(c)
+		def AnyOccurrenceOfThisCharRemovedFromLeft(c)
+			return This.CharRemovedFromLeft(c)
+
+		def AnyOccurrenceOfCharFromLeftRemoved(c)
+			return This.CharRemovedFromLeft(c)
+
+		def AnyOccurrenceOfThisCharFromLeftRemoved(c)
+			return This.CharRemovedFromLeft(c)
+
+		#--
+
+		def AnyOccurrenceOfCharRemovedLeftSide(c)
+			return This.CharRemovedFromLeft(c)
+
+		def AnyOccurrenceOfThisCharRemovedLeftSide(c)
+			return This.CharRemovedFromLeft(c)
+
+
+		#--
+
+		def CharTrimmedFromLeft(c)
+			return This.CharRemovedFromLeft(c)
+
+		def ThisCharTrimmedFromLeft(c)
 			return This.CharRemovedFromLeft(c)
 
 		#>
 
-	  #------------------------------#
-	 #  REMOVING A CHAR FROM RIGHT  #
-	#------------------------------#
+	  #---------------------------------#
+	 #   REMOVING A CHAR FROM RIGHT    #
+	#---------------------------------#
 
-	def RemoveCharFromrightCS(c, pCaseSensitive)
-
+	def RemoveThisCharFromRightCS(c, pCaseSensitive)
 		if CheckParams()
-			if NOT ( isString(c) and @IsChar(c) )
+			if NOT (isString(c) and @IsChar(c))
 				StzRaise("Incorrect param type! c must be a char.")
 			ok
 		ok
 
+		acChars = This.Chars()
+		nLen = len(acChars)
+		if nLen = 0
+			return
+		ok
+
+		n = 0
+
 		if This.IsLeftToRight()
 
-			if This.LastCharQ().IsEqualtToCS(c, pCaseSensitive) # Misspelled
-				This.RemoveLastChar()
+			for i = nLen to 1 step -1
+				if Q(acChars[i]).IsEqualToCS(c, pCaseSensitive)
+					n++
+				else
+					exit
+				ok
+			next i
+
+			if n > 0
+				This.RemoveSection( nLen - n + 1, nLen )
 			ok
 
-		else # IsRightToLeft()
+		else
+			for i = 1 to nLen
+				if Q(acChars[i]).IsEqualToCS(c, pCaseSensitive)
+					n++
+				else
+					exit
+				ok
+			next i
 
-			if This.LastCharQ().IsEqualtToCS(c, pCaseSensitive)
-				This.RemoveFirstChar()
+			if n > 0
+				This.RemoveSection( 1, n )
 			ok
 		ok
 
-		#< @FunctionFluentForm
 
-		def RemoveCharFromRightCSQ(c, pCaseSensitive)
-			This.RemoveCharFromRightCS(c, pCaseSensitive)
+
+		#< @FunctionFluentFrom
+
+		def RemoveThisCharFromRightCSQ(c, pCaseSensitive)
+			This.RemoveThisCharFromRightCS(c, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveThisCharFromRightCS(c, pCaseSensitive)
-			This.RemoveCharFromRightCS(c, pCaseSensitive)
+		def RemoveAnyOccurrenceOfCharFromRightCS(c, pCaseSensitive)
+			This.RemoveThisCharFromRightCS(c, pCaseSensitive)
 
-			def RemoveThisCharFromRightCSQ(c, pCaseSensitive)
-				return This.RemoveCharFromRightCSQ(c, pCaseSensitive)
+			def RemoveAnyOccurrenceOfCharFromRightCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
 
-		def RemoveCharRightSideCS(c, pCaseSensitive)
-			This.RemoveCharFromRightCS(c, pCaseSensitive)
+		def RemoveAnyOccurrenceOfThisCharFromRightCS(c, pCaseSensitive)
+			This.RemoveThisCharFromRightCS(c, pCaseSensitive)
 
-			def RemoveCharRightSideCSQ(c, pCaseSensitive)
-				return This.RemoveCharFromRightCSQ(c, pCaseSensitive)
+			def RemoveAnyOccurrenceOfThisCharFromRightCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
 
-		def RemoveThisCharRightSideCS(c, pCaseSensitive)
-			This.RemoveCharFromRightCS(c, pCaseSensitive)
+		#--
 
-			def RemoveThisCharRightSideCSQ(c, pCaseSensitive)
-				return This.RemoveCharFromRightCSQ(c, pCaseSensitive)
+		def RemoveAnyOccurrenceOfCharRightSideCS(c, pCaseSensitive)
+			This.RemoveThisCharFromRightCS(c, pCaseSensitive)
+
+			def RemoveAnyOccurrenceOfCharRightSideCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
+
+		def RemoveAnyOccurrenceOfThisCharRightSideCS(c, pCaseSensitive)
+			This.RemoveThisCharFromRightCS(c, pCaseSensitive)
+
+			def RemoveAnyOccurrenceOfThisCharRightSideCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
+
+		#--
+
+		def RemoveCharFromRightCS(c, pCaseSensitive)
+			This.RemoveThisCharFromRightCS(c, pCaseSensitive)
+
+			def RemoveCharFromRightCSQ(c, pCaseSensitive)
+				This.RemoveCharFromRightCS(c, pCaseSensitive)
+				return This
+
+		def TrimCharFromRightCS(c, pCaseSensitive)
+			This.RemoveThisCharFromRightCS(c, pCaseSensitive)
+
+			def TrimCharFromRightCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
+
+		def TrimThisCharFromRightCS(c, pCaseSensitive)
+			This.RemoveThisCharFromRightCS(c, pCaseSensitive)
+
+			def TrimThisCharFromRightCSQ(c, pCaseSensitive)
+				return This.RemoveAnyCharFromRightCSQ(c, pCaseSensitive)
 
 		#>
 
 	def CharRemovedFromRightCS(c, pCaseSensitive)
-		cResult = This.Copy().RemoveCharFromRightCSQ(c, pCaseSensitive).Content()
+		cResult = This.Copy().RemoveAnyCharFromRightCSQ(c, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -59842,67 +59543,130 @@ ici		//...
 		def ThisCharRemovedFromRightCS(c, pCaseSensitive)
 			return This.CharRemovedFromRightCS(c, pCaseSensitive)
 
-		#--
-
-		def CharRemovedRightSideCS(c, pCaseSensitive) # Add RightSide as an alternative of FromLeft
-							    # all over the library
+		def AnyOccurrenceOfCharRemovedFromRightCS(c, pCaseSensitive)
 			return This.CharRemovedFromRightCS(c, pCaseSensitive)
 
-		def ThisCharRemovedRightSideCS(c, pCaseSensitive)
+		def AnyOccurrenceOfThisCharRemovedFromRightCS(c, pCaseSensitive)
+			return This.CharRemovedFromRightCS(c, pCaseSensitive)
+
+		def AnyOccurrenceOfCharFromRightRemovedCS(c, pCaseSensitive)
+			return This.CharRemovedFromRightCS(c, pCaseSensitive)
+
+		def AnyOccurrenceOfThisCharFromRightRemovedCS(c, pCaseSensitive)
+			return This.CharRemovedFromRightCS(c, pCaseSensitive)
+
+		#--
+
+		def AnyOccurrenceOfCharRemovedRightSideCS(c, pCaseSensitive)
+			return This.CharRemovedFromRightCS(c, pCaseSensitive)
+
+		def AnyOccurrenceOfThisCharRemovedRightSideCS(c, pCaseSensitive)
+			return This.CharRemovedFromRightCS(c, pCaseSensitive)
+
+
+		#--
+
+		def CharTrimmedFromRightCS(c, pCaseSensitive)
+			return This.CharRemovedFromRightCS(c, pCaseSensitive)
+
+		def ThisCharTrimmedFromRightCS(c, pCaseSensitive)
 			return This.CharRemovedFromRightCS(c, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveCharFromRight(c)
-		This.RemoveCharFromRightCS(c, TRUE)
-
-		#< @FunctionFluentForm
-
-		def RemoveCharFromRightQ(c)
-			This.RemoveCharFromRight(c)
-			return This
-
-		#>
+	def RemoveThisCharFromRight(c)
+		This.RemoveAnyCharFromRightCS(c, TRUE)
+		return This
 
 		#< @FunctionAlternativeForms
 
-		def RemoveThisCharFromRight(c)
-			This.RemoveCharFromRight(c)
+		def RemoveAnyOccurrenceOfCharFromRight(c)
+			This.RemoveThisCharFromRight(c)
 
-			def RemoveThisCharFromRightQ(c)
-				return This.RemoveCharFromRightQ(c)
+			def RemoveAnyOccurrenceOfCharFromRightQ(c)
+				return This.RemoveAnyCharFromRightQ(c)
 
-		def RemoveCharLeftRight(c)
-			This.RemoveCharFromRight(c)
+		def RemoveAnyOccurrenceOfThisCharFromRight(c)
+			This.RemoveThisCharFromRight(c)
 
-			def RemoveCharRightSideQ(c)
-				return This.RemoveCharFromRightQ(c)
+			def RemoveAnyOccurrenceOfThisCharFromRightQ(c)
+				return This.RemoveAnyCharFromRightQ(c)
 
-		def RemoveThisCharRightSide(c)
-			This.RemoveCharFromRight(c)
+		#--
 
-			def RemoveThisCharRightSideQ(c)
-				return This.RemoveCharFromRightQ(c)
+		def RemoveAnyOccurrenceOfCharRightSide(c)
+			This.RemoveThisCharFromRight(c)
+
+			def RemoveAnyOccurrenceOfCharRightSideQ(c)
+				return This.RemoveAnyCharFromRightQ(c)
+
+		def RemoveAnyOccurrenceOfThisCharRightSide(c)
+			This.RemoveThisCharFromRight(c)
+
+			def RemoveAnyOccurrenceOfThisCharRightSideQ(c)
+				return This.RemoveAnyCharFromRightQ(c)
+
+		#--
+
+		def RemoveCharFromRight(c)
+			This.RemoveThisCharFromRight(c)
+
+			def RemoveCharFromRightQ(c)
+				This.RemoveCharFromRight(c)
+				return This
+
+		def TrimCharFromRight(c)
+			This.RemoveThisCharFromRight(c)
+
+			def TrimCharFromRightQ(c)
+				return This.RemoveAnyCharFromRightQ(c)
+
+		def TrimThisCharFromRight(c)
+			This.RemoveThisCharFromRight(c)
+
+			def TrimThisCharFromRightQ(c)
+				return This.RemoveAnyCharFromRightQ(c)
 
 		#>
 
 	def CharRemovedFromRight(c)
-		cResult = This.Copy().RemoveCharFromRightQ(c).Content()
-		return cResult
+		return This.CharRemovedFromRightCS(c, TRUE)
 
 		#< @FunctionAlternativeForms
+
 
 		def ThisCharRemovedFromRight(c)
 			return This.CharRemovedFromRight(c)
 
-		#--
-
-		def CharRemovedRightSide(c)
+		def AnyOccurrenceOfCharRemovedFromRight(c)
 			return This.CharRemovedFromRight(c)
 
-		def ThisCharRemovedRightSide(c)
+		def AnyOccurrenceOfThisCharRemovedFromRight(c)
+			return This.CharRemovedFromRight(c)
+
+		def AnyOccurrenceOfCharFromRightRemoved(c)
+			return This.CharRemovedFromRight(c)
+
+		def AnyOccurrenceOfThisCharFromRightRemoved(c)
+			return This.CharRemovedFromRight(c)
+
+		#--
+
+		def AnyOccurrenceOfCharRemovedRightSide(c)
+			return This.CharRemovedFromRight(c)
+
+		def AnyOccurrenceOfThisCharRemovedRightSide(c)
+			return This.CharRemovedFromRight(c)
+
+
+		#--
+
+		def CharTrimmedFromRight(c)
+			return This.CharRemovedFromRight(c)
+
+		def ThisCharTrimmedFromRight(c)
 			return This.CharRemovedFromRight(c)
 
 		#>
@@ -61160,55 +60924,49 @@ ici		//...
 	 #  EXTRACTING NEXT SUBSTRING STARTING AT A GIVEN POSITION  #
 	#----------------------------------------------------------#
 
-	def ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+	def ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 		if This.FindNext(pcSubStr, pnStartingAt, pCaseSensitive) = 0
 			StzRaise("Can't extract! pcSubStr does not exist at the specified position.")
 		ok
 
-		This.RemoveNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+		This.RemoveSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		return pcSubStr
 
 		#< @FunctionAlternativeForms
 
 		def ExtractNextOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
-		def PopNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+		def PopNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		def PopNextOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#--
 
-		def ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
-
 		def ExtractNextOccurrenceSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
-
-		def PopNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		def PopNextOccurrenceSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#>
 
 	def NextOccurrenceExtractedCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
 		def NextOccurrenceExtractedSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 		def NextOccurrencePoppedCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 		def NextOccurrencePoppedSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNeCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#>
 
@@ -65436,36 +65194,13 @@ ici		//...
 
 		#>
 
-	def IsNumberFraction() # of the form "1/2" or "۱/٢" or "Ⅰ/Ⅱ" or
-					  # even "一/二" (in mandarin numerals)
-		bResult = FALSE
-
-		if This.NumberOfChars() = 3
-			aStzChars = This.ToListOfStzChars()
-			if aStzChars[1].IsANumber() and
-			   (aStzChars[2].Content() = "/" or aStzChars[2].Content() = ":") and
-			   aStzChars[3].IsANumber()
-
-				bResult = TRUE
-			ok
-		ok
-
-		#< @FunctionAlternativeForms
-
-		def IsANumberFraction()
-			return This.IsNumberFraction()
-
-		def IsNumberFractionInString()
-			return This.IsNumberFraction()
-
-		def IsANumberFractionInString()
-			return This.IsNumberFraction()
-
-		#>
-
 	  #==============#
 	 #    CHARS     #
 	#==============#
+
+	def ToStzChar()
+		c = This.FirstChar()
+		return new stzChar(c)
 
 	def CharsCS(pCaseSensitive)
 		cContent = This.Content()
@@ -65961,7 +65696,7 @@ ici		//...
 			return This.IsAsciiChar()
 
 	def IsCharName()
-		return StzunicodeDataQ().ContainsCharName( This.Uppercased() )
+		return StzUnicodeDataQ().ContainsCharName( This.Uppercased() )
 
 		def IsACharName()
 			return This.IsCharName()
@@ -72935,28 +72670,28 @@ ici		//...
 	#------------------------------#
 
 	def FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def FindNextFirstCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
 	
-	def FindFirstNeCSXT(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
+	def FindFirstNextSCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def PositionOfNextFirstCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
 	
-	def PositionOfFirstNeCSXT(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
+	def PositionOfFirstNextSCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def NextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def NextFirstOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
 
 	def FirstNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNeCSXT(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
 	
 	#-- WITHOUT CASESENSITIVITY
 
@@ -73104,10 +72839,7 @@ ici		//...
 
 	def FindNextNthSCS(n, pcSubStr, nStart, pCaseSensitive)
 		return This.FindNthNext(n, pcSubStr, nStart, pCaseSensitive)
-	
-	def FindNthNextSCS(n, pcSubStr, nStart, pCaseSensitive)
-		return This.FindNthNext(n, pcSubStr, nStart, pCaseSensitive)
-	
+		
 	def PositionOfNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 		return This.FindNthNext(n, pcSubStr, nStart, pCaseSensitive)
 	
@@ -73398,9 +73130,6 @@ ici		//...
 	  #---------------------------------#
 	 #  ALTERNATIVES OF FindAllNext()  #
 	#---------------------------------#
-
-	def FindAllNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindAllNext(pcSubStr, pnStartingAt, pCaseSensitive)
 
 	def FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		return This.FindAllNext(pcSubStr, pnStartingAt, pCaseSensitive)
@@ -73698,20 +73427,20 @@ ici		//...
 	 #  ALTERNATIVES OF NumberOfOccurrenceXT()  #
 	#------------------------------------------#
 
-	def NumberOfOccurrencesCSXT(pcSubStr, pacBetween, pCaseSensitive)
-		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
+	def NumberOfOccurrencesXTCS(pcSubStr, pacBetween, pCaseSensitive)
+		return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
 
-	def NumberOfOccurrenceOfSubstringCSXT(pcSubStr, pacBetween, pCaseSensitive)
-		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
+	def NumberOfOccurrenceOfSubstringXTCS(pcSubStr, pacBetween, pCaseSensitive)
+		return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
 
-	def NumberOfOccurrencesOfSubstringCSXT(pcSubStr, pacBetween, pCaseSensitive)
-		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
+	def NumberOfOccurrencesOfSubstringXTCS(pcSubStr, pacBetween, pCaseSensitive)
+		return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
 
-	def CountCSXT(pcSubStr, pacBetween, pCaseSensitive)
-		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
+	def CountXTCS(pcSubStr, pacBetween, pCaseSensitive)
+		return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
 
-	def HowManyCSXT(pcSubStr, pacBetween, pCaseSensitive)
-		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
+	def HowManyXTCS(pcSubStr, pacBetween, pCaseSensitive)
+		return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 

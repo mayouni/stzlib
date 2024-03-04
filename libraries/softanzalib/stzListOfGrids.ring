@@ -27,18 +27,12 @@ func IsListOfGrids(paList)
 	func @IsListOfGrids(paList)
 		return IsListOfGrids(paList)
 
-	func ListIsListOfGrids(paList)
-		return IsListOfGrids(paList)
-
 	#--
 
 	func IsAListOfGrids(paList)
 		return IsListOfGrids(paList)
 
 	func @IsAListOfGrids(paList)
-		return IsListOfGrids(paList)
-
-	func ListIsAListOfGrids(paList)
 		return IsListOfGrids(paList)
 
 	#>

@@ -27,24 +27,12 @@ func IsGrid(paList)
 	func @IsGrid(paList)
 		return IsGrid(paList)
 
-	func ListIsGrid(paList)
-		return IsGrid(paList)
-
-	func @ListIsGrid(paList)
-		return IsGrid(paList)
-
 	#--
 
 	func IsAGrid(paList)
 		return IsGrid(paList)
 
 	func @IsAGrid(paList)
-		return IsGrid(paList)
-
-	func ListIsAGrid(paList)
-		return IsGrid(paList)
-
-	func @ListIsAGrid(paList)
 		return IsGrid(paList)
 
 	#>

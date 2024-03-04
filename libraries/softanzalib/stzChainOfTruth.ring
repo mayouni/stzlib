@@ -5,7 +5,7 @@
 
 	Hence, you become able to write a code like this:
 
-	if _("ring").IsA(:String).Which(:IsLowercase).Containing(TheLetter("g")).Having('FirstChar() = "r"')._
+	if _("ring").IsA(:String).Which(:IsLowercase).Containing(TheLetter("g")).AndHaving('FirstChar() = "r"')._
 	
 		? "Got it!"
 	else

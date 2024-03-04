@@ -1474,7 +1474,7 @@
 
 		while bContinue
 
-			nPos = oSection.FindNeCSXT(cBounded, nStart, pCaseSensitive)
+			nPos = oSection.FindNextSCS(cBounded, nStart, pCaseSensitive)
 
 			if nPos != 0
 

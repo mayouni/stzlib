@@ -1,24 +1,28 @@
 load "stzlib.ring"
 
 
-
 /*=====
 */
 pron()
 
 ? Round(2.398)
-#--> 2.4
+#--> 2.40
 
 ? RoundXT(2.398) # Uses the current round (2 by default, defined by decimals())
 		 # XT ~> To preserve the round, number is returned in a string!
-#--> 2.40
+#--> "2.40"
 
 ? CurrentRound()
 #--> 2
 
-? RoundXT([ 2.398, :To = 3 ]) # XT ~> To preserve the round, number is returned in a string!
+? RoundXT([ 2.3988, :To = 3 ]) # XT ~> To preserve the round, number is returned in a string!
+#--> "2.400"
+
+? CurrentRound()
+#--> 2
 
 proff()
+# Executed in 0.09 second(s)
 
 /*-----
 */

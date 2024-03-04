@@ -225,47 +225,6 @@ func CommonItems(paLists)
 	func @Intersection(paLists)
 		return CommonItems(paLists)
 
-	
-func IsListOfLists(paList)
-	if CheckParams()
-		if NOT isList(paList)
-			StzRaise("Incorrect param type!")
-		ok
-	ok
-
-	bResult = TRUE
-	nLen = len(paList)
-
-	for i = 1 to nLen
-		if NOT isList(paList[i])
-			bResult = FALSE
-			exit
-		ok
-	next i
-
-	return bResult
-
-	#< @FunctionAlternativeForms
-
-	func @IsListOfLists(paList)
-		return IsListOfLists(paList)
-
-	func ListIsListOfLists(paList)
-		return IsListOfLists(paList)
-
-	#--
-
-	func IsAListOfLists(paList)
-		return IsListOfLists(paList)
-
-	func @IsAListOfLists(paList)
-		return IsListOfLists(paList)
-
-	func ListIsAListOfLists(paList)
-		return IsListOfLists(paList)
-
-	#>
-
 func StzListsQ(paList)
 	return new stzLists(paList)
 

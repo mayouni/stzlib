@@ -1555,11 +1555,6 @@ Dotless LETTERS
 		next
 		return aResult 
 
-	func StringToArabicNumberFraction(pcArbFract)
-		nUnicode = _aArabicFractions[pcArbFract]
-		oChar = new stzChar(nUnicode)
-		return oChar.Content()
-
 	func ArabicNumberFractionsUnicodes()
 		aResult = []
 		for item in _aArabicNumberFractionsXT 
@@ -1592,97 +1587,6 @@ Dotless LETTERS
 	func ArabicTamdeed()
 		return _cArabicTamdeed = "ـ"
 		# used to extend arabic words like in حُسَيْـــــن
-
-	func StringIsNumberFraction(cStr) # of the form "1/2" or "۱/٢" or "Ⅰ/Ⅱ" or
-					  # even "一/二" (in mandarin numerals)
-		bResult = FALSE
-		oStr = new stzString(cStr)
-		if oStr.NumberOfChars() = 3
-			aStzChars = oStr.ToListOfStzChars()
-			if aStzChars[1].IsANumber() and
-			   aStzChars[2].Content() = "/" and
-			   aStzChars[3].IsANumber()
-
-				bResult = TRUE
-			ok
-		ok
-
-		return bResult
-
-	func StringIsArabicNumberFraction(cStr) # of the form "1/2"
-		bResult = FALSE
-		oStr = new stzString(cStr)
-		if oStr.NumberOfChars() = 3
-			aStzChars = oStr.ToListOfStzChars()
-			if aStzChars[1].IsArabicNumber() and
-			   aStzChars[2].Content() = "/" and
-			   aStzChars[3].IsArabicNumber()
-
-				bResult = TRUE
-			ok
-		ok
-
-		return bResult
-
-	func StringIsIndianNumberFraction(cStr) # of the form "۱/٢"
-		bResult = FALSE
-		oStr = new stzString(cStr)
-		if oStr.NumberOfChars() = 3
-			aStzChars = oStr.ToListOfStzChars()
-			if aStzChars[1].IsIndianNumber() and
-			   aStzChars[2].Content() = "/" and
-			   aStzChars[3].IsIndianNumber()
-
-				bResult = TRUE
-			ok
-		ok
-
-		return bResult
-
-	func StringIsRomanNumberFraction(cStr) # of the form "Ⅰ/Ⅱ"
-		bResult = FALSE
-		oStr = new stzString(cStr)
-		if oStr.NumberOfChars() = 3
-			aStzChars = oStr.ToListOfStzChars()
-			if aStzChars[1].IsRomanNumber() and
-			   aStzChars[2].Content() = "/" and
-			   aStzChars[3].IsRomanNumber()
-
-				bResult = TRUE
-			ok
-		ok
-
-		return bResult
-
-	func StringIsMandarinNumberFraction(cStr) # of the form "一/二"
-		bResult = FALSE
-		oStr = new stzString(cStr)
-		if oStr.NumberOfChars() = 3
-			aStzChars = oStr.ToListOfStzChars()
-			if aStzChars[1].IsMandarinNumber() and
-			   aStzChars[2].Content() = "/" and
-			   aStzChars[3].IsMandarinNumber()
-
-				bResult = TRUE
-			ok
-		ok
-
-		return bResult
-
-	func StringToNumberFraction(cStr)
-		/*
-		Example : these expressions all return the char "½" (unicode 198)
-			StringToNumberFractionChar("1/2") # arabic numbers
-			StringToNumberFractionChar("۱/٢") # indian numbers
-			StringToNumberFractionChar("Ⅰ/Ⅱ") # roman numbers
-			StringToNumberFractionChar("一/二") # mandarin numbers
-		*/
-		if StringIsNumberFraction(cStr)
-			oChar = new stzChar(cStr)
-			return oChar.Content()
-		else
-			StzRaise(stzCharError(:CanNotTransformStringToChar))
-		ok
 
 	func TurnedDigitUnicodes()
 		return [8586,8587]

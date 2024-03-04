@@ -39,10 +39,9 @@ func IsSet(paList)
 
 	return bResult
 
-	func @IsSet(paList)
-		return IsSet(paList)
+	#< @FunctionAlternativeForms
 
-	func ListIsSet(paList)
+	func @IsSet(paList)
 		return IsSet(paList)
 
 	#--
@@ -53,8 +52,7 @@ func IsSet(paList)
 	func @IsASet(paList)
 		return IsSet(paList)
 
-	func ListIsASet(paList)
-		return IsSet(paList)
+	#>
 
 class stzSet from stzList
 	@aContent = []

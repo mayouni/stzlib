@@ -7218,21 +7218,6 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 
 /*----------------
 
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? o1.NthXT(2, "word", :ReturnSection)
-#--> [30, 33]
-
-? o1.NthXT(2, "word", :Between = ["<<", ">>"])
-#--> 43
-
-? o1.NthCSXT(2, "WORD", :Between = ["<<", ">>"], :CS = FALSE)
-#--> 43
-
-? o1.NthSectionXT(2, "word", :Between = ["<<", ">>"])
-#--> [43, 46]
-
-/*----------------
-
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 ? o1.FindNthBetween(2, "word", "<<", ">>")
 #--> 28
@@ -11336,33 +11321,12 @@ o1 = new stzChar("Ⅱ")
 ? o1.IsRomanNumber()
 #-->
 
-/*------------------ TODO
-
-#TODO:
-# 	Should go to stzString class
-# 	Homogenize the semantics of ArabicNumber, ArabicNumerals, ArabaicDecimalDigit...
-
-? StringIsNumberFraction("1/2") # arabic
-#--> TRUE
-
-? StringIsArabicNumberFraction("1/2") 
-#--> TRUE
-
-? StringIsNumberFraction("۱/٢") # indian
-#--> TRUE
-
-? StringIsNumberFraction("Ⅰ/Ⅱ") # roman
-#!--> FALSE 	(TODO: fix it - should return TRUE)
-
-? StringIsNumberFraction("一/二") # mandarin
-#!--> FALSE 	(TODO: fix it - should return TRUE)
-
 /*----------------
 
 # How to add a string to a QString objet (Qt-side)
 # Used internally by Softanza
 
-oQStr = new QString()
+oQStr = new QString() # NOTE: It's better to use QString2()
 oQStr.append("salem")
 ? QStringToString(oQStr)
 

@@ -58,18 +58,12 @@ func IsListOfBytes(p)
 	func @IsListOfBytes(p)
 		return IsListOfBytes(p)
 
-	func ListIsListOfBytes(p)
-		return IsListOfBytes(p)
-
 	#--
 
 	func IsAListOfBytes(p)
 		return IsListOfBytes(p)
 
 	func @IsAListOfBytes(p)
-		return IsListOfBytes(p)
-
-	func ListIsAListOfBytes(p)
 		return IsListOfBytes(p)
 
 	#>

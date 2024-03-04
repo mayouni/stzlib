@@ -25,9 +25,6 @@ func IsListOfNamedObjects(paList)
 	func @IsListOfNamedObjects(paList)
 		return IsListOfObjects(paList)
 
-	func ListIsListOfNamedObjects(paList)
-		return IsListOfNamedObjects(paList)
-
 	#--
 
 	func IsAListOfNamedObjects(paList)
@@ -35,9 +32,6 @@ func IsListOfNamedObjects(paList)
 
 	func @IsAListOfNamedObjects(paList)
 		return IsListOfObjects(paList)
-
-	func ListIsAListOfNamedObjects(paList)
-		return IsListOfNamedObjects(paList)
 
 	#>
  
