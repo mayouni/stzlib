@@ -18216,7 +18216,7 @@ class stzString from stzObject
 	def RepeatedLeadingCharCS(pCaseSensitive)
 
 		if This.HasRepeatedLeadingCharsCS(pCaseSensitive)
-			return This[1]
+			return This.Char(1)
 		else
 			return NULL
 		ok
@@ -18546,13 +18546,452 @@ class stzString from stzObject
 			return This.HasRepeatedLeadingChars()
 
 		#>
+##########
 
-	  #--------------------------------------------------------#
-	 #   CHECKING IF THE STRING HAS REPEATED TRAILING CHARS   #
-	#========================================================#
+	  #=============================#
+	 #   REPEATED TRAILING CHARS   #
+	#=============================#
+
+	def RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+		acResult = This.Copy().ReverseCharsQ().RepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
+			return new stzString( This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive) )
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def TrailingRepeatedCharsAsSubStringCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def TrailingRepeatedCharsAsSubStringCSQ(pCaseSensitive)
+				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
+	
+		def TrailingCharsAsSubStringCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def TrailingCharsAsSubStringCSQ(pCaseSensitive)
+				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
+	
+		#--
+
+		def RepeatedTrailingCharsAsStringCS(pCaseSensitive)
+			This.return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def RepeatedTrailingCharsAsStringCSQ(pCaseSensitive)
+				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
+
+		def TrailingRepeatedCharsAsStringCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def TrailingRepeatedCharsAsStringCSQ(pCaseSensitive)
+				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
+	
+		def TrailingCharsAsStringCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def TrailingCharsAsStringCSQ(pCaseSensitive)
+				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
+	
+		#--
+
+		def RepeatedTrailingCharsCSXT(pCaseSensitive)
+			This.return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def RepeatedTrailingCharsAsStringCSXTQ(pCaseSensitive)
+				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
+
+		def TrailingRepeatedCharsAsStringCSXT(pCaseSensitive)
+			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def TrailingRepeatedCharsAsStringCSXTQ(pCaseSensitive)
+				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
+	
+		def TrailingCharsAsStringCSXT(pCaseSensitive)
+			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def TrailingCharsAsStringCSXTQ(pCaseSensitive)
+				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
+	
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedTrailingCharsAsSubString()
+		return This.RepeatedTrailingCharsAsSubStringCS(TRUE)
+
+		#< @FunctionFluentForm
+
+		def RepeatedTrailingCharsAsSubStringQ()
+			return new stzString( This.RepeatedTrailingCharsAsSubString() )
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def TrailingRepeatedCharsAsSubString()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def TrailingRepeatedCharsAsSubStringQ()
+				return This.RepeatedTrailingCharsAsSubStringQ()
+	
+		def TrailingCharsAsSubString()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def TrailingCharsAsSubStringQ()
+				return This.RepeatedTrailingCharsAsSubStringQ()
+	
+		#--
+
+		def RepeatedTrailingCharsAsString()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def RepeatedTrailingCharsAsStringQ()
+				return This.RepeatedTrailingCharsAsSubStringQ()
+
+		def TrailingRepeatedCharsAsString()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def TrailingRepeatedCharsAsStringQ()
+				return This.RepeatedTrailingCharsAsSubStringQ()
+	
+		def TrailingCharsAsString()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def TrailingCharsAsStringQ()
+				return This.RepeatedTrailingCharsAsSubStringQ()
+
+		#--
+
+		def RepeatedTrailingCharsXT()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def RepeatedTrailingCharsXTQ()
+				return This.RepeatedTrailingCharsAsSubStringQ()
+
+		def TrailingRepeatedCharsXT()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def TrailingRepeatedCharsXTQ()
+				return This.RepeatedTrailingCharsAsSubStringQ()
+	
+		def TrailingCharsXT()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def TrailingCharsXTQ()
+				return This.RepeatedTrailingCharsAsSubStringQ()
+
+		#>
+
+	  #-----------------------------#
+	 #   REPEATED TRAILING CHARS   #
+	#-----------------------------#
+
+	def RepeatedTrailingCharsCS(pCaseSensitive)
+		acResult = This.Copy().ReverseCharsQ().RepeatedTrailingCharsCS()
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def RepeatedTrailingCharsCSQ(pCaseSensitive)
+			return new stzString( This.RepeatedTrailingCharsCS(pCaseSensitive) )
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def TrailingRepeatedCharsCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsCS(pCaseSensitive)
+
+			def TrailingRepeatedCharsCSQ(pCaseSensitive)
+				return new stzString( This.TrailingRepeatedCharsCS(pCaseSensitive) )
+	
+		def TrailingCharsCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsCS(pCaseSensitive)
+
+			def TrailingCharsCSQ(pCaseSensitive)
+				return new stzString( This.TrailingCharsCS(pCaseSensitive) )
+	
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedTrailingChars()
+		return This.RepeatedTrailingCharsCS(TRUE)
+
+		#< @FunctionFluentForm
+
+		def RepeatedTrailingCharsQ()
+			return new stzString( This.RepeatedTrailingChars() )
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def TrailingRepeatedChars()
+			return This.RepeatedTrailingChars()
+
+			def TrailingRepeatedCharsQ()
+				return new stzString( This.TrailingRepeatedChars() )
+	
+		def TrailingChars()
+			return This.RepeatedTrailingChars()
+
+			def TrailingCharsQ()
+				return new stzString( This.TrailingChars() )
+	
+		#>
+
+	  #--------------------------------------#
+	 #  GETTING THE REPEATED TRAILING CHAR  #
+	#--------------------------------------#
+
+	def RepeatedTrailingCharCS(pCaseSensitive)
+
+		if This.HasRepeatedTrailingCharsCS(pCaseSensitive)
+			return This.FirstChar()
+		else
+			return NULL
+		ok
+
+		#< @FunctionFleuntForms
+
+		def RepeatedTrailingCharCSQ(pCaseSensitive)
+			return This.RepeatedTrailingCharCSQR(pCaseSensitive, :stzChar)
+
+		def RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzChar
+				return new stzChar(This.RepeatedTrailingCharCS(pCaseSensitive))
+
+			on :stzString
+				return new stzString(This.RepeatedTrailingCharCS(pCaseSensitive))
+			other
+				stzRaise("Unsupported returned type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def TrailingRepeatedCharCS(pCaseSensitive)
+			return This.RepeatedTrailingCharCS(pCaseSensitive)
+
+			def TrailingRepeatedCharCSQR(pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				return This.RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
+
+			def TrailingRepeatedCharCSQ(pCaseSensitive)
+				return This.TrailingRepeatedCharCSQR(pCaseSensitive, :stzChar)
+	
+		def TrailingCharCS(pCaseSensitive)
+			return This.RepeatedTrailingCharCS(pCaseSensitive)
+
+			def TrailingCharCSQR(pCaseSensitive, pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				return This.RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
+
+			def TrailingCharCSQ(pCaseSensitive)
+				return This.TrailingCharCSQR(pCaseSensitive, :stzChar)
+	
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedTrailingChar()
+		return This.RepeatedTrailingCharCS(TRUE)
+
+
+		#< @FunctionFleuntForms
+
+		def RepeatedTrailingCharQ()
+			return This.RepeatedTrailingCharQR(:stzString)
+
+		def RepeatedTrailingCharQR(pcReturnType)
+			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzChar
+				return new stzChar(This.RepeatedTrailingChar())
+
+			on :stzString
+				return new stzString(This.RepeatedTrailingChar())
+			other
+				stzRaise("Unsupported returned type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def TrailingRepeatedChar()
+			return This.RepeatedTrailingChar()
+
+			def TrailingRepeatedCharQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				return This.RepeatedTrailingCharQR(pcReturnType)
+
+			def TrailingRepeatedCharQ()
+				return This.TrailingRepeatedCharQR(:stzChar)
+	
+		def TrailingChar()
+			return This.RepeatedTrailingChar()
+
+			def TrailingCharQR(pcReturnType)
+				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				return This.RepeatedTrailingCharQR(pcReturnType)
+
+			def TrailingCharQ()
+				return This.TrailingCharQR(:stzChar)
+	
+		#>
+
+	  #---------------------------------------------------------------#
+	 #  GETTING THE NUMBER OF REPEATED TRAILING CHARS IN THE STRING  #
+	#---------------------------------------------------------------#
+
+	def NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+
+		nResult = 0
+
+		if This.ContainsTrailingCharsCS(pCaseSensitive)
+			nResult = This.TrailingCharsCSQ(pCaseSensitive).NumberOfChars()
+		ok
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfTrailingRepeatedCharsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+
+		def NumberOfTrailingCharsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+	
+		def CountTrailingRepeatedCharsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+
+		def HowManyTrailingRepeatedCharsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+
+		def HowManyTrailingRepeatedCharCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+
+		def CountTrailingCharsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+
+		def HowManyTrailingCharsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+
+		def HowManyTrailingCharCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfRepeatedTrailingChars()
+		return This.NumberOfRepeatedTrailingCharsCS(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfTrailingRepeatedChars()
+			return This.NumberOfRepeatedTrailingChars()
+
+		def NumberOfTrailingChars()
+			return This.NumberOfRepeatedTrailingChars()
+	
+		def CountTrailingRepeatedChars()
+			return This.NumberOfRepeatedTrailingChars()
+
+		def HowManyTrailingRepeatedChars()
+			return This.NumberOfRepeatedTrailingChars()
+
+		def HowManyTrailingRepeatedChar()
+			return This.NumberOfRepeatedTrailingChars()
+
+		def CountTrailingChars()
+			return This.NumberOfRepeatedTrailingChars()
+
+		def HowManyTrailingChars()
+			return This.NumberOfRepeatedTrailingChars()
+
+		def HowManyTrailingChar()
+			return This.NumberOfRepeatedTrailingChars()
+
+		#>
+
+	  #----------------------------------------------------------------------#
+	 #  CHECKING IF A GIVEN CHAR IS A REPEATED TRAILING CHAR IN THE STRING  #
+	#----------------------------------------------------------------------#
+
+	def RepeatedTrailingCharIsCS(c, pCaseSensitive)
+		if This.HasRepeatedTrailingCharsCS(pCaseSensitive) and
+		   This.FirstCharQ().IsEqualToCS(c, pCaseSensitive)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def TrailingRepeatedCharIsCS(c, pCaseSensitive)
+			return This.RepeatedTrailingCharIsCS(c, pCaseSensitive)
+
+		def TrailingCharIsCS(c, pCaseSensitive)
+			return This.RepeatedTrailingCharIsCS(c, pCaseSensitive)
+	
+		#>
+
+	#-- WITHOUT CASESENSITIVITY()
+
+	def RepeatedTrailingCharIs(c)
+		return This.RepeatedTrailingCharIsCS(c, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def TrailingRepeatedCharIs(c)
+			return This.RepeatedTrailingCharIs(c)
+
+		def TrailingCharIs(c)
+			return This.RepeatedTrailingCharIs(c)
+	
+		#>
+
+	  #-----------------------------------------------------#
+	 #  CHECKING IF THE STRING HAS REPEATED TRAILING CHAR  #
+	#=====================================================#
 
 	def HasRepeatedTrailingCharsCS(pCaseSensitive)
-		return This.Copy().ReverseCharsQ().HasRepeatedLeadingCharsCS(pCaseSensitive)
+		if This.RepeatedTrailingCharsCS(pCaseSensitive) != NULL
+			return TRUE
+		else
+
+			return FALSE
+		ok
 
 		#< @FunctionAlternativeForms
 
@@ -18590,7 +19029,7 @@ class stzString from stzObject
 			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
 
 		def ContainsATrailingRepeatedCharCS(pCaseSensitive)
-			return This.HasRepeatedTrailingCharCS(pCaseSensitive)
+			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
 
 		def ContainsATrailingCharCS(pCaseSensitive)
 			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
@@ -18623,10 +19062,10 @@ class stzString from stzObject
 
 		#== adding A
 
-		def HasATrailingRepeatedChars()
+		def HasATrailingRepeatedChar()
 			return This.HasRepeatedTrailingChars()
 
-		def HasATrailingChars(pCaseSensitive)
+		def HasATrailingChar()
 			return This.HasRepeatedTrailingChars()
 
 		#--
@@ -18644,262 +19083,7 @@ class stzString from stzObject
 			return This.HasRepeatedTrailingChars()
 
 		#>
-
-	  #-----------------------------------------#
-	 #   GETTING THE REPEATED TRAILING CHARS   #
-	#-----------------------------------------#
-
-	def RepeatedTrailingCharsCS(pCaseSensitive)
-		/* Example:
-			'TUNISeee' 	--> 'eee'
-			'TUNISexeeeee' 	--> ''
-		*/
-
-		cResult = This.Copy().ReverseCharsQ().RepeatedLeadingCharsCS(pCaseSensitive)
-		return cResult
-
-		def RepeatedTrailingCharsCSQ(pCaseSensitive)
-			return new stzString( This.RepeatedTrailingCharsCS(pCaseSensitive) )
-	
-		def TrailingRepeatedCharsCS(pCaseSensitive)
-			return This.RepeatedTrailingCharsCS(pCaseSensitive)
-
-			def TrailingRepeatedCharsCSQ(pCaseSensitive)
-				return new stzString( This.TrailingRepeatedCharsCS(pCaseSensitive) )
-	
-		def TrailingCharsCS(pCaseSensitive)
-			return This.RepeatedTrailingCharsCS(pCaseSensitive)
-
-			def TrailingCharsCSQ(pCaseSensitive)
-				return new stzString( This.TrailingCharsCS(pCaseSensitive) )
-	
-	#-- WITHOUT CASESENSITIVITY
-
-	def RepeatedTrailingChars()
-		return This.RepeatedTrailingCharsCS(TRUE)
-
-		def RepeatedTrailingCharsQ()
-			return new stzString( This.RepeatedTrailingChars() )
-	
-		def TrailingRepeatedChars()
-			return This.RepeatedTrailingChars()
-
-			def TrailingRepeatedCharsQ()
-				return new stzString( This.TrailingRepeatedChars() )
-	
-		def TrailingChars()
-			return This.RepeatedTrailingChars()
-
-			def TrailingCharsQ()
-				return new stzString( This.TrailingChars() )
-
-	  #----------------------------------------#
-	 #   GETTING THE REPEATED TRAILING CHAR   #
-	#----------------------------------------#
-
-	def RepeatedTrailingCharCS(pCaseSensitive)
-		cResult = ""
-		if This.HasRepeatedTrailingCharsCS(pCaseSensitive)
-			cResult = This.Lastchar()
-		ok
-
-		return cResult
-
-		def RepeatedTrailingCharCSQ(pCaseSensitive)
-			return This.RepeatedTrailingCharCSQR(pCaseSensitive, :stzChar)
-
-		def RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzString
-				return new stzString(This.RepeatedTrailingChar(pCaseSensitive))
-
-			on :stzChar
-				return new stzChar(This.RepeatedTrailingCharCS(pCaseSensitive))
-
-			other
-				stzRaise("Unsupported returned type!")
-			off
-	
-		def TrailingRepeatedCharCS(pCaseSensitive)
-			return This.RepeatedTrailingCharCS(pCaseSensitive)
-
-			def TrailingRepeatedCharCSQ(pCaseSensitive)
-				return This.TrailingRepeatedCharQR(pCaseSensitive, :stzChar)
-
-			def TrailingRepeatedCharCSQR(pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
-	
-		def TrailingCharCS(pCaseSensitive)
-			return This.RepeatedTrailingCharCS(pCaseSensitive)
-
-			def TrailingCharCSQR(pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.RepeatedTrailingCharCSQR(pCaseSensitive, pcReturnType)
-
-			def TrailingCharCSQ(pCaseSensitive)
-				return This.TrailingCharCSQR(pCaseSensitive, :stzChar)
-	
-	#-- WITHOUT CASESENSITIVITY
-
-	def RepeatedTrailingChar()
-		return This.RepeatedTrailingCharCS(TRUE)
-
-		def RepeatedTrailingCharQ()
-			return This.RepeatedTrailingCharQR(:stzString)
-
-		def RepeatedTrailingCharQR(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzString
-				return new stzString(This.RepeatedTrailingChar())
-
-			on :stzChar
-				return new stzChar(This.RepeatedTrailingChar())
-
-			other
-				stzRaise("Unsupported returned type!")
-			off
-	
-		def TrailingRepeatedChar()
-			return This.RepeatedTrailingChar()
-
-			def TrailingRepeatedCharQ()
-				return This.TrailingRepeatedCharQR(:stzString)
-
-			def TrailingRepeatedCharQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.RepeatedTrailingCharQR(pcReturnType)
-
-		def TrailingChar()
-			return This.RepeatedTrailingChar()
-
-
-			def TrailingCharQ()
-				return This.TrailingCharQR(:stzChar)
-
-			def TrailingCharQR(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.RepeatedTrailingCharQR(pcReturnType)
-
-	  #--------------------------------------------------#
-	 #   GETTING THE NUMBER OF REPEATED TRAILING CHARS  #
-	#--------------------------------------------------#
-
-	def NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-		nResult = This.TrailingCharsCSQ(pCaseSensitive).NumberOfChars()
-		return nResult
-
-		#< @FunctionAlternativeForms
-
-		def NumberOfTrailingRepeatedCharsCS(pCaseSensitive)
-			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-
-		def NumberOfTrailingCharsCS(pCaseSensitive)
-			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-	
-		def CountTrailingRepeatedCharsCS(pCaseSensitive)
-			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-
-		def HowManyTrailingRepeatedCharsCS(pCaseSensitive)
-			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-
-		def HowManyTrailingRepeatedCharCS(pCaseSensitive)
-			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-
-		def CountTrailingCharsCS(pCaseSensitive)
-			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-
-		def HowManyTrailingCharsCS(pCaseSensitive)
-			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-
-		def HowManyTrailingCharCS(pCaseSensitive)
-			return This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-
-		#>
-	
-	#-- WITHOUT CASESENSITIVITY
-
-	def NumberOfRepeatedTrailingChars()
-		return This.NumberOfRepeatedTrailingCharsCS(TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def NumberOfTrailingRepeatedChars()
-			return This.NumberOfRepeatedTrailingChars()
-
-		def NumberOfTrailingChars()
-			return This.NumberOfRepeatedTrailingChars()
-	
-		def CountTrailingRepeatedChars()
-			return This.NumberOfRepeatedTrailingChars()
-
-		def HowManyTrailingRepeatedChars()
-			return This.NumberOfRepeatedTrailingChars()
-
-		def HowManyTrailingRepeatedChar()
-			return This.NumberOfRepeatedTrailingChars()
-
-		def CountTrailingChars()
-			return This.NumberOfRepeatedTrailingChars()
-
-		def HowManyTrailingChars()
-			return This.NumberOfRepeatedTrailingChars()
-
-		def HowManyTrailingChar()
-			return This.NumberOfRepeatedTrailingChars()
-
-		#>
-
-	  #------------------------------------------------------------#
-	 #   CHECHKING IF A GIVEN CHAR IS THE REPEATED TRAILING CHAR  #
-	#------------------------------------------------------------#
-
-	def RepeatedTrailingCharIsCS(c, pCaseSensitive)
-		if This.HasRepeatedTrailingCharsCS(pCaseSensitive) and
-		   This.LastCharQ().IsEqualToCS(c, pCaseSensitive)
-
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		def TrailingRepeatedCharIsCS(c, pCaseSensitive)
-			return This.RepeatedTrailingCharIsCS(c, pCaseSensitive)
-
-		def TrailingCharIsCS(c, pCaseSensitive)
-			return This.RepeatedTrailingCharIsCS(c, pCaseSensitive)
-	
-	#-- WITHOUT CASESENSITIVITY
-
-	def RepeatedTrailingCharIs(c)
-		return This.RepeatedTrailingCharIsCS(c, TRUE)
-
-		def TrailingRepeatedCharIs(c)
-			return This.RepeatedTrailingCharIs(c)
-
-		def TrailingCharIs(c)
-			return This.RepeatedTrailingCharIs(c)
-	
+###########	
 	  #-----------------------------------------------#
 	 #  FINDING POSITIONS OF REPEATED LEADING CHARS  # 
 	#===============================================#
@@ -66928,9 +67112,9 @@ ici		//...
 	  #---------------------------#
 	 #   FIRST AND LAST CHARS    #
 	#---------------------------#
-		
+
 	def FirstChar()
-		return This[1]
+ 		return This.QStringObject().mid(0, 1)
 
 		#< @FunctionFluentForm
 
@@ -66980,7 +67164,9 @@ ici		//...
 			off
 
 	def LastChar()
-		return This[ This.NumberOfChars() ]
+		nLen = This.NumberOfChars()
+		cResult = This.QStringObject().mid(nLen - 1, 1)
+		return cResult
 
 		#< @FunctionFluentForm
 

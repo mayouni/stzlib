@@ -2,17 +2,9 @@ load "stzlib.ring"
 
 # Bounds() BoundingChars()
 
-/*------
-*/
-pron()
-
-o1 = new stzString("rrRrrRing")
-? o1.SectionCS(1, 5, FALSE)
-
-proff()
  
 /*------
-*/
+
 pron()
 
 # Here, you cen get a section from a string
@@ -30,12 +22,23 @@ proff()
 pron()
 
 o1 = new stzString("---Ring")
-? o1.LeadingChars()
 
+? o1.FirstChar()
+? o1.LastChar()
+
+/*
+? o1.LeadingChars()
+#--> [ "-", "-", "-" ]
+
+? o1.LeadingCharsXT() # Or LeadingCharsAsString() or LeadingCharsAsSubString()
+#--> "---"
 
 o1 = new stzString("Ring---")
 ? o1.TrailingChars()
+#--> [ "-", "-", "-" ]
 
+? o1.TrailingCharsXT()
+*/
 proff()
 
 /*------
