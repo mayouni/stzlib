@@ -12,11 +12,14 @@ o1 = new stzString("ring---")
 ? o1.CharRemovedFromRight("-")
 #--> ring--
 
+? o1.TrailingCharsRemoved()
+#--> ring
+
 ? o1.CharRemovedFromRightXT("-")
 #--> ring
 
 ? o1.CharTrimmedFromRight("-")
-#--> ring
+#--> ring--
 
 proff()
 
