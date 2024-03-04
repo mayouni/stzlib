@@ -1,8 +1,111 @@
 load "stzlib.ring"
 
+# Bounds() BoundingChars()
+
+/*------
+*/
+pron()
+
+o1 = new stzString("rrRrrRing")
+? o1.SectionCS(1, 5, FALSE)
+
+proff()
+ 
+/*------
+*/
+pron()
+
+# Here, you cen get a section from a string
+? Q("---ring---").Section(4, 7)
+#--> ring
+
+# And here you get the list of chars of that section
+? Q("---ring---").CharsInSection(4, 7)
+#--> [ "r", "i", "n", "g" ]
+
+proff()
+
+/*------
+*/
+pron()
+
+o1 = new stzString("---Ring")
+? o1.LeadingChars()
+
+
+o1 = new stzString("Ring---")
+? o1.TrailingChars()
+
+proff()
+
+/*------
+
+pron()
+
+o1 = new stzString("---Ring")
+
+o1.RemoveThisLeadingChar("*")
+? o1.Content()
+#--> "---Ring"
+
+o1.RemoveThisLeadingChar("-")
+? o1.Content()
+#--> "Ring"
+
+proff()
+# Executed in 0.05 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzString("Ring---")
+
+o1.RemoveTrailingChar()
+? o1.Content()
+
+o1.RemoveThisTrailingChar("*")
+? o1.Content()
+#--> "Ring---"
+
+o1.RemoveThisTrailingChar("-")
+? o1.Content()
+#--> "Ring"
+
+proff()
+# Executed in 0.05 second(s)
+
+/*------
+
+pron()
+
+# Remove the 7 dashes in front of the word ring
+
+o1 = new stzString("-------Ring")
+
+o1.RemoveFirstChar()
+? o1.Content()
+#--> ------ring
+
+# Remove an other one
+o1.RemoveFirstChar()
+? o1.Content()
+#--> -----ring
+
+# And an other one
+o1.RemoveFirstChar()
+? o1.Content()
+#--> ----ring
+
+# Tired? Remove them all in one shot using the eXTend form
+o1.RemoveFirstCharXT()
+? o1.Content()
+#--> ring
+
+proff()
 
 /*-----------
-
+*/
 pron()
 
 o1 = new stzString("ring---")
