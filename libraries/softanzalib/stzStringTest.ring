@@ -8,7 +8,7 @@ pron()
 o1 = new stzString("rRing")
 
 # And you want to remove the first char:
-o1.RemoveFirstCharCS(TRUE)
+o1.RemoveFirstChar()
 ? o1.Content()
 #--> Ring
 
