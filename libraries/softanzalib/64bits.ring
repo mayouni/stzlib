@@ -1,7 +1,17 @@
 load "stzlib.ring"
 
+
 /*-----------
-*/
+
+pron()
+
+o1 = new stzString("ring---")
+? o1.RemoveThisLastCharXT("-")
+
+proff()
+
+/*-----------
+
 pron()
 
 o1 = new stzString("ring---")
