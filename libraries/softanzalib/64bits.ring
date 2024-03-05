@@ -1,72 +1,8 @@
 load "stzlib.ring"
  
-/*=== Section() and CharsInSection()
-*/
-pron()
-
-# Here, you cen get a section from a string
-? Q("---ring---").Section(4, 7)
-#--> ring
-
-# And here you get the list of chars of that section
-? Q("---ring---").CharsInSection(4, 7)
-#--> [ "r", "i", "n", "g" ]
-
-proff()
-
-/*------
-
-pron()
-
-o1 = new stzString("---Ring")
-
-? o1.FirstChar()
-#--> "-"
-
-? o1.LastChar()
-#--> "g"
-
-proff()
 
 
 
-/*------
-
-pron()
-
-# Remove the 7 dashes in front of the word ring
-
-o1 = new stzString("-------Ring")
-
-o1.RemoveFirstChar()
-? o1.Content()
-#--> ------ring
-
-# Remove an other one
-o1.RemoveFirstChar()
-? o1.Content()
-#--> -----ring
-
-# And an other one
-o1.RemoveFirstChar()
-? o1.Content()
-#--> ----ring
-
-# Tired? Remove them all in one shot using the eXTend form
-o1.RemoveFirstCharXT()
-? o1.Content()
-#--> ring
-
-proff()
-
-/*-----------
-*/
-pron()
-
-o1 = new stzString("ring---")
-? o1.RemoveThisLastCharXT("-")
-
-proff()
 
 /*-----------
 
