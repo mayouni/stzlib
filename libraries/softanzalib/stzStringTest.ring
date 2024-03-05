@@ -1,7 +1,76 @@
 load "stzlib.ring"
 
-/*--------- @narration: Softanza permissiveness
+/*=====
 */
+pron()
+
+o1 = new stzString("---Ring")
+? o1.LeadingChars()
+#--> [ "-", "-", "-" ]
+
+? o1.LeadingCharsXT() # Or LeadingCharsAsString() or LeadingCharsAsSubString()
+#--> "---"
+
+o1 = new stzString("Ring---")
+? o1.TrailingChars()
+#--> [ "-", "-", "-" ]
+
+? o1.TrailingCharsXT()
+#--> "---"
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzString("---Ring")
+
+o1.RemoveLeadingChar() # Or RemoveAnyLeadingChar() or RemoveLeadingChars()
+? o1.Content()
+
+o1 = new stzString("Ring---")
+o1.RemoveTrailingChar() # Or RemoveAnyTrailingChar() or RemoveTrailingChars()
+
+proff()
+
+/*------
+
+pron()
+
+o1 = new stzString("---Ring")
+
+o1.RemoveThisLeadingChar("*")
+? o1.Content()
+#--> "---Ring"
+
+o1.RemoveThisLeadingChar("-")
+? o1.Content()
+#--> "Ring"
+
+proff()
+# Executed in 0.05 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzString("Ring---")
+
+o1.RemoveThisTrailingChar("*")
+? o1.Content()
+#--> "Ring---"
+
+o1.RemoveThisTrailingChar("-")
+? o1.Content()
+#--> "Ring"
+
+proff()
+# Executed in 0.05 second(s)
+
+/*====== @narration: Softanza permissiveness
+
 pron()
 
 # Suppose you have a string like this:
@@ -13,7 +82,7 @@ o1.RemoveFirstChar()
 #--> Ring
 
 # What if you think of applying CaseSensitivity here?
-# Means that you want to the removel operation to
+# Means that you want to the removal operation to
 # be case sensitive...
 
 # In fact, this is not logical, since the first char is
@@ -27,8 +96,10 @@ o1.RemoveFirstCharCS(TRUE)
 ? o1.Content()
 #--> Ring
 
-# NOTE: This featire is made available only for this function,
-# so we can show the principle. It will be generalised in future.
+# NOTE: This feature is made available only for this function,
+# so we can show the principle of PERMISSIVENESS.
+#~> It will be generalised in future.
+
 proff()
 # Executed in 0.03 second(s)
 
