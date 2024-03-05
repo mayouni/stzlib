@@ -66617,6 +66617,19 @@ ici		//...
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SectionCharsCS(n1, n2, pCaseSensitive)
+			return this.CharsInSectionCS(n1, n2, pCaseSensitive)
+
+			def SectionCharsCSQ(n1, n2, pCaseSensitive)
+				return This.CharsInSectionCSQ(n1, n2, pCaseSensitive)
+
+			def SectionCharsCSQR(n1, n2, pCaseSensitive, pcReturnType)
+				return This.CharsInSectionCSQR(n1, n2, pCaseSensitive, pcReturnType)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def CharsInSection(n1, n2)
@@ -66629,6 +66642,19 @@ ici		//...
 
 		def CharsInSectionQR(n1, n2, pcReturnType)
 			return This.CharsInSectionQR(n1, n2, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SectionChars(n1, n2)
+			return this.CharsInSection(n1, n2)
+
+			def SectionCharsQ(n1, n2)
+				return This.CharsInSectionQ(n1, n2)
+
+			def SectionCharsQR(n1, n2, pcReturnType)
+				return This.CharsInSectionQR(n1, n2, pcReturnType)
 
 		#>
 
