@@ -1,5 +1,214 @@
 load "stzlib.ring"
 
+/*-----------
+
+pron()
+
+o1 = new stzString("ring---")
+
+? o1.RightCharRemoved()
+#--> ring--
+
+? o1.CharRemovedFromRight("-")
+#--> ring--
+
+? o1.TrailingCharsRemoved()
+#--> ring
+
+? o1.CharRemovedFromRightXT("-")
+#--> ring
+
+? o1.CharTrimmedFromRight("-")
+#--> ring--
+
+proff()
+
+/*=====
+
+pron()
+
+o1 = new stzString("---ring---")
+
+o1.RemoveThisCharFromStartXT("*")
+? o1.Content()
+#--> "---ring---"
+
+o1.RemoveThisCharFromStartXT("-")
+? o1.Content()
+#--> "ring---"
+
+o1.RemoveThisCharFromEndXT("*")
+? o1.Content()
+#--> "ring---"
+
+o1.RemoveThisCharFromEndXT("-")
+? o1.Content()
+#--> "ring"
+
+proff()
+
+/*--------
+
+pron()
+
+o1 = new stzString("ring---")
+
+o1.RemoveThisCharFromEndXT("*")
+? o1.Content()
+#--> "ring---"
+
+o1.RemoveThisCharFromEndXT("-")
+? o1.Content()
+#--> "ring"
+
+proff()
+
+/*--------
+
+pron()
+
+o1 = new stzString("---ring")
+
+o1.RemoveThisCharFromLeftXT("*")
+? o1.Content()
+#--> "---ring"
+
+o1.RemoveThisCharFromLeftXT("-")
+? o1.Content()
+#--> ring
+
+proff()
+
+/*--------
+
+pron()
+
+o1 = new stzString("ring---")
+
+o1.RemoveThisCharFromRightXT("*")
+? o1.Content()
+#--> "ring---"
+
+o1.RemoveThisCharFromRightXT("-")
+? o1.Content()
+#--> "ring"
+
+proff()
+
+/*======
+
+pron()
+
+o1 = new stzString("---ring")
+
+? o1.LeftCharRemoved()
+#--> --ring
+
+? o1.CharRemovedFromLeft("*")
+#--> ---ring
+
+? o1.CharRemovedFromLeft("-")
+#--> --ring
+
+? o1.CharRemovedFromLeftXT("*")
+#--> ---ring
+
+? o1.CharRemovedFromLeftXT("-")
+#--> ring
+
+? o1.CharTrimmedFromLeft("-")
+#--> --ring
+
+proff()
+# Executed in 0.02 second(s)
+
+/*--------
+
+pron()
+
+o1 = new stzString("ring---")
+
+? o1.RightCharRemoved()
+#--> ring--
+
+? o1.CharRemovedFromRight("*")
+#--> ring---
+
+? o1.CharRemovedFromRight("-")
+#--> ring--
+
+? o1.CharRemovedFromRightXT("*")
+#--> ring---
+
+? o1.CharRemovedFromRightXT("-")
+#--> ring
+
+? o1.CharTrimmedFromRight("-")
+#--> ring--
+
+proff()
+# Executed in 0.02 second(s)
+
+/*====
+
+pron()
+
+o1 = new stzString("12.58000")
+o1.RemoveThisCharFromRightXT("0") # Or RemoveAnyOccurrenceOfCharFromRight("0")
+? o1.Content()
+#--> 12.58
+
+proff()
+
+/*===
+
+pron()
+
+o1 = new stzString("00012.58")
+o1.RemoveCharFromLeft("0")
+? o1.Content()
+#--> 0012.58
+
+o1.RemoveCharFromLeftXT("0") # Or o1.RemoveAnyOccurrenceOfCharFromLeft("0")
+? o1.Content()
+#--> 12.58
+
+proff()
+# Executed in 0.02 second(s)
+
+/*========
+
+pron()
+
+? Q("---ring").NumberOfOccurrenceOfCharLeftSide("-")
+#--> 3
+
+? Q("ring---").HowManyOccurrenceOfCharRightSide("-")
+#--> 3
+
+? Q("---سلام").NumberOfOccurrenceOfCharLeftSide("-")
+#--> 3
+
+? Q("سلام---").NumberOfOccurrenceOfCharRightSide("-")
+#--> 3
+
+#--
+
+? Q("---ring").NumberOfOccurrenceOfCharStartSide("-")
+#--> 3
+
+? Q("ring---").HowManyOccurrenceOfCharEndSide("-")
+#--> 3
+
+? Q("---سلام").NumberOfOccurrenceOfCharEndSide("-")
+#--> 3
+
+? Q("سلام---").NumberOfOccurrenceOfCharStartSide("-")
+# #--> 3
+
+proff()
+# Executed in 0.04 second(s)
+
 /*==== @narration: eXTended form of RemoveFirstChar()
 
 pron()
