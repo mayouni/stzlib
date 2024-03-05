@@ -18752,7 +18752,7 @@ class stzString from stzObject
 	def RepeatedTrailingCharCS(pCaseSensitive)
 
 		if This.HasRepeatedTrailingCharsCS(pCaseSensitive)
-			return This.FirstChar()
+			return This.LastChar()
 		else
 			return NULL
 		ok
@@ -20606,12 +20606,12 @@ class stzString from stzObject
 		def ThisLeadingCharRemoved(c)
 			return This.ThisRepeatedLeadingCharRemoved(c)
 
-ici
 	  #---------------------------------------------#
 	 #   REMOVING A GIVEN REPEATED TRAILING CHAR   #
 	#---------------------------------------------#
 
 	def RemoveThisRepeatedTrailingCharCS(c, pCaseSensitive)
+
 		if This.RepeatedTrailingCharQ().IsEqualToCS(c, pCaseSensitive)
 			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
 		ok
@@ -20650,9 +20650,7 @@ ici
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisRepeatedTrailingChar(c)
-		if This.RepeatedTrailingCharQ().IsEqualTo(c)
-			This.RemoveThisRepeatedTrailingCharCS(c, TRUE)
-		ok
+		This.RemoveThisRepeatedTrailingCharCS(c, TRUE)
 
 		def RemoveThisRepeatedTrailingCharQ(c)
 			This.RemoveThisRepeatedTrailingChar(c)
