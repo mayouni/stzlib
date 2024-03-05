@@ -1,7 +1,4 @@
 load "stzlib.ring"
-
-# Bounds() BoundingChars()
-
  
 /*------
 
@@ -18,15 +15,24 @@ pron()
 proff()
 
 /*------
-*/
+
 pron()
 
 o1 = new stzString("---Ring")
 
 ? o1.FirstChar()
-? o1.LastChar()
+#--> "-"
 
-/*
+? o1.LastChar()
+#--> "g"
+
+proff()
+
+/*------
+
+pron()
+
+o1 = new stzString("---Ring")
 ? o1.LeadingChars()
 #--> [ "-", "-", "-" ]
 
@@ -38,8 +44,10 @@ o1 = new stzString("Ring---")
 #--> [ "-", "-", "-" ]
 
 ? o1.TrailingCharsXT()
-*/
+#--> "---"
+
 proff()
+# Executed in 0.04 second(s)
 
 /*------
 
@@ -59,14 +67,15 @@ proff()
 # Executed in 0.05 second(s)
 
 /*------
-
+*/
 pron()
 
 o1 = new stzString("Ring---")
 
-o1.RemoveTrailingChar()
-? o1.Content()
+o1.RemoveTrailingChar() # should be same as RemoveTrailingChars()
 
+? o1.Content()
+/*
 o1.RemoveThisTrailingChar("*")
 ? o1.Content()
 #--> "Ring---"
@@ -74,7 +83,7 @@ o1.RemoveThisTrailingChar("*")
 o1.RemoveThisTrailingChar("-")
 ? o1.Content()
 #--> "Ring"
-
+*/
 proff()
 # Executed in 0.05 second(s)
 

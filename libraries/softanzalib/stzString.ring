@@ -18161,7 +18161,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def RepeatedLeadingCharsCSQ(pCaseSensitive)
-			return new stzString( This.RepeatedLeadingCharsCS(pCaseSensitive) )
+			return new stzList( This.RepeatedLeadingCharsCS(pCaseSensitive) )
 	
 		#>
 
@@ -18189,7 +18189,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def RepeatedLeadingCharsQ()
-			return new stzString( This.RepeatedLeadingChars() )
+			return new stzList( This.RepeatedLeadingChars() )
 	
 		#>
 
@@ -18269,7 +18269,7 @@ class stzString from stzObject
 				return This.RepeatedLeadingCharCSQR(pCaseSensitive, pcReturnType)
 
 			def LeadingCharCSQ(pCaseSensitive)
-				return This.LeadingCharCSQR(pCaseSensitive, :stzChar)
+				return This.LeadingCharCSQR(pCaseSensitive, :stzString)
 	
 		#>
 
@@ -18546,7 +18546,6 @@ class stzString from stzObject
 			return This.HasRepeatedLeadingChars()
 
 		#>
-##########
 
 	  #=============================#
 	 #   REPEATED TRAILING CHARS   #
@@ -18692,13 +18691,13 @@ class stzString from stzObject
 	#-----------------------------#
 
 	def RepeatedTrailingCharsCS(pCaseSensitive)
-		acResult = This.Copy().ReverseCharsQ().RepeatedTrailingCharsCS()
+		acResult = This.Copy().ReverseCharsQ().RepeatedLeadingCharsCS(pCaseSensitive)
 		return acResult
 
 		#< @FunctionFluentForm
 
 		def RepeatedTrailingCharsCSQ(pCaseSensitive)
-			return new stzString( This.RepeatedTrailingCharsCS(pCaseSensitive) )
+			return new stzList( This.RepeatedTrailingCharsCS(pCaseSensitive) )
 	
 		#>
 
@@ -18708,13 +18707,13 @@ class stzString from stzObject
 			return This.RepeatedTrailingCharsCS(pCaseSensitive)
 
 			def TrailingRepeatedCharsCSQ(pCaseSensitive)
-				return new stzString( This.TrailingRepeatedCharsCS(pCaseSensitive) )
-	
+				return This.RepeatedTrailingCharsCSQ(pCaseSensitive)
+
 		def TrailingCharsCS(pCaseSensitive)
 			return This.RepeatedTrailingCharsCS(pCaseSensitive)
 
 			def TrailingCharsCSQ(pCaseSensitive)
-				return new stzString( This.TrailingCharsCS(pCaseSensitive) )
+				return This.RepeatedTrailingCharsCSQ(pCaseSensitive)
 	
 		#>
 
@@ -18726,7 +18725,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def RepeatedTrailingCharsQ()
-			return new stzString( This.RepeatedTrailingChars() )
+			return new stzList( This.RepeatedTrailingChars() )
 	
 		#>
 
@@ -18736,13 +18735,13 @@ class stzString from stzObject
 			return This.RepeatedTrailingChars()
 
 			def TrailingRepeatedCharsQ()
-				return new stzString( This.TrailingRepeatedChars() )
+				return This.RepeatedTrailingCharsQ()
 	
 		def TrailingChars()
 			return This.RepeatedTrailingChars()
 
 			def TrailingCharsQ()
-				return new stzString( This.TrailingChars() )
+				return This.RepeatedTrailingCharsQ()
 	
 		#>
 
@@ -19506,6 +19505,7 @@ class stzString from stzObject
 	#======================================#
 
 	def RemoveRepeatedTrailingCharsCS(pCaseSensitive)
+
 		if This.HasRepeatedTrailingCharsCS(pCaseSensitive)
 			This.RemoveLastNChars( This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive) )
 		ok
@@ -20297,8 +20297,8 @@ class stzString from stzObject
 	#--------------------------------------------#
 
 	def RemoveThisRepeatedLeadingCharCS(c, pCaseSensitive)
-		if This.RepeatedLeadingCharQ().IsEqualToCS(c, pCaseSensitive)
-			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+		if This.LeadingCharCSQ(pCaseSensitive).IsEqualToCS(c, pCaseSensitive)
+			This.RemoveRepeatedLeadingCharCS(pCaseSensitive)
 		ok
 
 		def RemoveThisRepeatedLeadingCharCSQ(c, pCaseSensitive)
@@ -20372,10 +20372,12 @@ class stzString from stzObject
 	#=================================================#
 
 	def RemoveRepeatedTrailingCharCS(pCaseSensitive)
-		if This.HasARepeatedTrailingCharCS(pCaseSensitive)
-			c = This.RepeatedTrailingCharCS(pCaseSensitive)
-			This.RemoveThisCharFromEndCSXT(c, pCaseSensitive)
+		c = This.RepeatedTrailingCharCS(pCaseSensitive)
+		if c = NULL
+			return
 		ok
+			
+		This.RemoveThisCharFromEndCSXT(c, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -59776,8 +59778,6 @@ ici		//...
 
 		#>
 
-#=====================
-
 	  #-----------------------------------------------------------------#
 	 #   REMOVING ALL THE OCCURRENCES OF A CHAR FROM THE START -- XT   #
 	#=================================================================#
@@ -59989,9 +59989,9 @@ ici		//...
 
 	def RemoveThisCharFromEndCSXT(c, pCaseSensitive)
 		if This.IsLeftToRight()
-			This.RemoveThisCharFromRightCS(c, pCaseSensitive)
+			This.RemoveThisCharFromRightCSXT(c, pCaseSensitive)
 		else
-			This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
+			This.RemoveThisCharFromLeftCSXT(c, pCaseSensitive)
 		ok
 
 		#< @FunctionFluentFrom
@@ -66795,7 +66795,7 @@ ici		//...
 			stzRaise("You must provide a list of chars!")
 		ok
 
-	   #------------------------------------------------#
+	  #------------------------------------------------#
 	 #   STRING IS A CHAR IN A COMPUTABLE FORM ("c")   #
 	#-------------------------------------------------#
 
@@ -66810,7 +66810,7 @@ ici		//...
 		if This.NumberOfChars() = 3 and
 		   (This.IsBoundedBy("'", "'") or
 		   This.IsBoundedBy('"', '"'))
-			return StzStringQ(This[2]).IsAsciiChar()
+			return StzStringQ(This.Char(2)).IsAsciiChar()
 		else
 			return FALSE
 		ok

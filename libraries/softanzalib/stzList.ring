@@ -17010,7 +17010,7 @@ class stzList from stzObject
 			return This.IsListOfPairsOfObjects()
 
 	def IsPairAndKeyIsString()
-		return This.IsPair() and isString(This[1])
+		return This.IsPair() and isString(This.Item(1))
 
 		#< @FunctionAlternativeForms
 
@@ -20339,8 +20339,8 @@ class stzList from stzObject
 
 	def ExpandIfPairOfNumbers() #TODO: Should be delegated to stzPairOfNumbers
 		if This.IsPairOfNumbers()
-			n1 = This[1]
-			n2 = This[2]
+			n1 = This.Item(1)
+			n2 = This.Item(2)
 
 			anResult = n1 : n2
 
@@ -23310,7 +23310,7 @@ class stzList from stzObject
 
 	def BothAreNumbers()
 		if This.NumberOfItems() = 2 and
-		   isNumber(This[1]) and isNumber(This[2])
+		   isNumber(This.Item(1)) and isNumber(This.Item(2))
 
 			return TRUE
 		else
@@ -23329,7 +23329,7 @@ class stzList from stzObject
 
 	def BothAreStrings()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and isString(This[2])
+		   isString(This.Item(1)) and isString(This.Item(2))
 
 			return TRUE
 		else
@@ -23348,7 +23348,7 @@ class stzList from stzObject
 
 	def BothAreLists()
 		if This.NumberOfItems() = 2 and
-		   isList(This[1]) and isList(This[2])
+		   isList(This.Item(1)) and isList(This.Item(2))
 
 			return TRUE
 		else
@@ -23367,7 +23367,7 @@ class stzList from stzObject
 
 	def BothAreObjects()
 		if This.NumberOfItems() = 2 and
-		   isObject(This[1]) and isObject(This[2])
+		   isObject(This.Item(1)) and isObject(This.Item(2))
 
 			return TRUE
 		else
@@ -25254,7 +25254,7 @@ class stzList from stzObject
 	
 	def RepeatedLeadingItem()
 		if This.HasRepeatedLeadingItems()
-			return This[1]
+			return This.Item(1)
 		ok
 
 		def RepeatedLeadingItemQ()
@@ -39059,9 +39059,9 @@ class stzList from stzObject
 
 	def IsLocaleList()
 
-		if This.NumberOfItems() = 1 and isString(This[1]) and
+		if This.NumberOfItems() = 1 and isString(This.Item(1)) and
 
-		   Q(This[1]).IsOneOfThese([ :Default, :DefaultLocale,
+		   Q(This.Item(1)).IsOneOfThese([ :Default, :DefaultLocale,
 				 :System, :SystemLocale, :c, "C", :CLocale
 		   ])
 
@@ -42014,11 +42014,11 @@ class stzList from stzObject
 	 #   CHECKING IF THE LIST IS A NAMED PARAM   #
 	#===========================================#
 	#TODO: Add @ to all params, like this:
-	# (This[1] = :ParamName or This[1] = :ParamName@ ) )
+	# (This.Item(1) = :ParamName or This.Item(1) = :ParamName@ ) )
 
 	def IsOnPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OnPosition)
+		   ( isString(This.Item(1)) and This.Item(1) = :OnPosition)
 
 			return TRUE
 		else
@@ -42027,7 +42027,7 @@ class stzList from stzObject
 
 		def IsInPositionNamedParam()
 			if This.NumberOfItems() = 2 and
-			   ( isString(This[1]) and This[1] = :InPosition)
+			   ( isString(This.Item(1)) and This.Item(1) = :InPosition)
 	
 				return TRUE
 			else
@@ -42039,7 +42039,7 @@ class stzList from stzObject
 
 	def IsOnPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OnPositions)
+		   ( isString(This.Item(1)) and This.Item(1) = :OnPositions)
 
 			return TRUE
 		else
@@ -42048,7 +42048,7 @@ class stzList from stzObject
 
 		def IsInPositionsNamedParam()
 			if This.NumberOfItems() = 2 and
-			   ( isString(This[1]) and This[1] = :InPositions)
+			   ( isString(This.Item(1)) and This.Item(1) = :InPositions)
 	
 				return TRUE
 			else
@@ -42059,7 +42059,7 @@ class stzList from stzObject
 
 	def IsOnSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OnSection)
+		   ( isString(This.Item(1)) and This.Item(1) = :OnSection)
 
 			return TRUE
 		else
@@ -42073,7 +42073,7 @@ class stzList from stzObject
 
 	def IsOnSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OnSections)
+		   ( isString(This.Item(1)) and This.Item(1) = :OnSections)
 
 			return TRUE
 		else
@@ -42088,7 +42088,7 @@ class stzList from stzObject
 
 	def IsHarvestNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Harvest)
+		   ( isString(This.Item(1)) and This.Item(1) = :Harvest)
 
 			return TRUE
 		else
@@ -42097,7 +42097,7 @@ class stzList from stzObject
 
 	def IsAndHarvestNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndHarvest)
+		   ( isString(This.Item(1)) and This.Item(1) = :AndHarvest)
 
 			return TRUE
 		else
@@ -42106,7 +42106,7 @@ class stzList from stzObject
 
 	def IsAndThenHarvestNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndThenHarvest)
+		   ( isString(This.Item(1)) and This.Item(1) = :AndThenHarvest)
 
 			return TRUE
 		else
@@ -42115,7 +42115,7 @@ class stzList from stzObject
 
 	def IsThenHarvestNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :ThenHarvest)
+		   ( isString(This.Item(1)) and This.Item(1) = :ThenHarvest)
 
 			return TRUE
 		else
@@ -42124,7 +42124,7 @@ class stzList from stzObject
 
 	def IsYieldNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Yield)
+		   ( isString(This.Item(1)) and This.Item(1) = :Yield)
 
 			return TRUE
 		else
@@ -42133,7 +42133,7 @@ class stzList from stzObject
 
 	def IsAndYieldNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndYield)
+		   ( isString(This.Item(1)) and This.Item(1) = :AndYield)
 
 			return TRUE
 		else
@@ -42142,7 +42142,7 @@ class stzList from stzObject
 
 	def IsAndThenYieldNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndThenYield)
+		   ( isString(This.Item(1)) and This.Item(1) = :AndThenYield)
 
 			return TRUE
 		else
@@ -42151,7 +42151,7 @@ class stzList from stzObject
 
 	def IsThenYieldNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :ThenYield)
+		   ( isString(This.Item(1)) and This.Item(1) = :ThenYield)
 
 			return TRUE
 		else
@@ -42162,7 +42162,7 @@ class stzList from stzObject
 
 	def IsHarvestSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :HarvestSection)
+		   ( isString(This.Item(1)) and This.Item(1) = :HarvestSection)
 
 			return TRUE
 		else
@@ -42171,7 +42171,7 @@ class stzList from stzObject
 
 	def IsAndHarvestSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndHarvestSection)
+		   ( isString(This.Item(1)) and This.Item(1) = :AndHarvestSection)
 
 			return TRUE
 		else
@@ -42180,7 +42180,7 @@ class stzList from stzObject
 
 	def IsAndThenHarvestSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndThenHarvestSection)
+		   ( isString(This.Item(1)) and This.Item(1) = :AndThenHarvestSection)
 
 			return TRUE
 		else
@@ -42189,7 +42189,7 @@ class stzList from stzObject
 
 	def IsThenHarvestSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :ThenHarvestSection)
+		   ( isString(This.Item(1)) and This.Item(1) = :ThenHarvestSection)
 
 			return TRUE
 		else
@@ -42198,7 +42198,7 @@ class stzList from stzObject
 
 	def IsYieldSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :YieldSection)
+		   ( isString(This.Item(1)) and This.Item(1) = :YieldSection)
 
 			return TRUE
 		else
@@ -42207,7 +42207,7 @@ class stzList from stzObject
 
 	def IsAndYieldSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndYieldSection)
+		   ( isString(This.Item(1)) and This.Item(1) = :AndYieldSection)
 
 			return TRUE
 		else
@@ -42216,7 +42216,7 @@ class stzList from stzObject
 
 	def IsAndThenYieldSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndThenYieldSection)
+		   ( isString(This.Item(1)) and This.Item(1) = :AndThenYieldSection)
 
 			return TRUE
 		else
@@ -42225,7 +42225,7 @@ class stzList from stzObject
 
 	def IsThenYieldSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :ThenYieldSection)
+		   ( isString(This.Item(1)) and This.Item(1) = :ThenYieldSection)
 
 			return TRUE
 		else
@@ -42236,7 +42236,7 @@ class stzList from stzObject
 
 	def IsHarvestSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :HarvestSections)
+		   ( isString(This.Item(1)) and This.Item(1) = :HarvestSections)
 
 			return TRUE
 		else
@@ -42245,7 +42245,7 @@ class stzList from stzObject
 
 	def IsAndHarvestSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndHarvestSections)
+		   ( isString(This.Item(1)) and This.Item(1) = :AndHarvestSections)
 
 			return TRUE
 		else
@@ -42254,7 +42254,7 @@ class stzList from stzObject
 
 	def IsAndThenHarvestSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndThenHarvestSections)
+		   ( isString(This.Item(1)) and This.Item(1) = :AndThenHarvestSections)
 
 			return TRUE
 		else
@@ -42263,7 +42263,7 @@ class stzList from stzObject
 
 	def IsThenHarvestSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :ThenHarvestSections)
+		   ( isString(This.Item(1)) and This.Item(1) = :ThenHarvestSections)
 
 			return TRUE
 		else
@@ -42272,7 +42272,7 @@ class stzList from stzObject
 
 	def IsYieldSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :YieldSections)
+		   ( isString(This.Item(1)) and This.Item(1) = :YieldSections)
 
 			return TRUE
 		else
@@ -42281,7 +42281,7 @@ class stzList from stzObject
 
 	def IsAndYieldSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndYieldSections)
+		   ( isString(This.Item(1)) and This.Item(1) = :AndYieldSections)
 
 			return TRUE
 		else
@@ -42290,7 +42290,7 @@ class stzList from stzObject
 
 	def IsAndThenYieldSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndThenYieldSections)
+		   ( isString(This.Item(1)) and This.Item(1) = :AndThenYieldSections)
 
 			return TRUE
 		else
@@ -42299,7 +42299,7 @@ class stzList from stzObject
 
 	def IsThenYieldSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :ThenYieldSections)
+		   ( isString(This.Item(1)) and This.Item(1) = :ThenYieldSections)
 
 			return TRUE
 		else
@@ -42309,7 +42309,7 @@ class stzList from stzObject
 
 	def IsNCharsBeforeNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :NCharsBefore)
+		   ( isString(This.Item(1)) and This.Item(1) = :NCharsBefore)
 
 			return TRUE
 		else
@@ -42318,7 +42318,7 @@ class stzList from stzObject
 
 	def IsNCharsAfterNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :NCharsAfter)
+		   ( isString(This.Item(1)) and This.Item(1) = :NCharsAfter)
 
 			return TRUE
 		else
@@ -42329,7 +42329,7 @@ class stzList from stzObject
 
 	def IsToItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :ToItem)
+		   ( isString(This.Item(1)) and This.Item(1) = :ToItem)
 
 			return TRUE
 		else
@@ -42338,7 +42338,7 @@ class stzList from stzObject
 
 	def IsUntilItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UntilItem)
+		   ( isString(This.Item(1)) and This.Item(1) = :UntilItem)
 
 			return TRUE
 		else
@@ -42347,7 +42347,7 @@ class stzList from stzObject
 
 	def IsUpToItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UpToItem)
+		   ( isString(This.Item(1)) and This.Item(1) = :UpToItem)
 
 			return TRUE
 		else
@@ -42360,7 +42360,7 @@ class stzList from stzObject
 
 	def IsUntilCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UntilChar)
+		   ( isString(This.Item(1)) and This.Item(1) = :UntilChar)
 
 			return TRUE
 		else
@@ -42369,7 +42369,7 @@ class stzList from stzObject
 
 	def IsUpToCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UpToChar)
+		   ( isString(This.Item(1)) and This.Item(1) = :UpToChar)
 
 			return TRUE
 		else
@@ -42382,7 +42382,7 @@ class stzList from stzObject
 
 	def IsUntilSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UntilSubString)
+		   ( isString(This.Item(1)) and This.Item(1) = :UntilSubString)
 
 			return TRUE
 		else
@@ -42391,7 +42391,7 @@ class stzList from stzObject
 
 	def IsUpToSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UpToSubString)
+		   ( isString(This.Item(1)) and This.Item(1) = :UpToSubString)
 
 			return TRUE
 		else
@@ -42404,7 +42404,7 @@ class stzList from stzObject
 
 	def IsUntilStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UntilString)
+		   ( isString(This.Item(1)) and This.Item(1) = :UntilString)
 
 			return TRUE
 		else
@@ -42413,7 +42413,7 @@ class stzList from stzObject
 
 	def IsUpToStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UpToString)
+		   ( isString(This.Item(1)) and This.Item(1) = :UpToString)
 
 			return TRUE
 		else
@@ -42424,7 +42424,7 @@ class stzList from stzObject
 
 	def IsToStringItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :ToStringItem)
+		   ( isString(This.Item(1)) and This.Item(1) = :ToStringItem)
 
 			return TRUE
 		else
@@ -42433,7 +42433,7 @@ class stzList from stzObject
 
 	def IsUntilStringItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UntilStringItem)
+		   ( isString(This.Item(1)) and This.Item(1) = :UntilStringItem)
 
 			return TRUE
 		else
@@ -42442,7 +42442,7 @@ class stzList from stzObject
 
 	def IsUpToStringItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UpToStringItem)
+		   ( isString(This.Item(1)) and This.Item(1) = :UpToStringItem)
 
 			return TRUE
 		else
@@ -42455,7 +42455,7 @@ class stzList from stzObject
 
 	def IsUntilNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UntilNumber)
+		   ( isString(This.Item(1)) and This.Item(1) = :UntilNumber)
 
 			return TRUE
 		else
@@ -42464,7 +42464,7 @@ class stzList from stzObject
 
 	def IsUpToNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UpToNumber)
+		   ( isString(This.Item(1)) and This.Item(1) = :UpToNumber)
 
 			return TRUE
 		else
@@ -42477,7 +42477,7 @@ class stzList from stzObject
 
 	def IsUntilListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UntilList)
+		   ( isString(This.Item(1)) and This.Item(1) = :UntilList)
 
 			return TRUE
 		else
@@ -42486,7 +42486,7 @@ class stzList from stzObject
 
 	def IsUpToListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UpToList)
+		   ( isString(This.Item(1)) and This.Item(1) = :UpToList)
 
 			return TRUE
 		else
@@ -42499,7 +42499,7 @@ class stzList from stzObject
 
 	def IsUntilObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UntilObject)
+		   ( isString(This.Item(1)) and This.Item(1) = :UntilObject)
 
 			return TRUE
 		else
@@ -42508,7 +42508,7 @@ class stzList from stzObject
 
 	def IsUpToObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :UpToObject)
+		   ( isString(This.Item(1)) and This.Item(1) = :UpToObject)
 
 			return TRUE
 		else
@@ -42734,7 +42734,7 @@ class stzList from stzObject
 
 	def IsCellNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Cell)
+		   ( isString(This.Item(1)) and This.Item(1) = :Cell)
 
 			return TRUE
 		else
@@ -42743,7 +42743,7 @@ class stzList from stzObject
 
 	def IsOfCellNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OfCell)
+		   ( isString(This.Item(1)) and This.Item(1) = :OfCell)
 
 			return TRUE
 		else
@@ -42752,7 +42752,7 @@ class stzList from stzObject
 
 	def IsCellsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Cells)
+		   ( isString(This.Item(1)) and This.Item(1) = :Cells)
 
 			return TRUE
 		else
@@ -42761,7 +42761,7 @@ class stzList from stzObject
 
 	def IsOfCellsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OfCells)
+		   ( isString(This.Item(1)) and This.Item(1) = :OfCells)
 
 			return TRUE
 		else
@@ -42770,7 +42770,7 @@ class stzList from stzObject
 
 	def IsInCellNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :InCell)
+		   ( isString(This.Item(1)) and This.Item(1) = :InCell)
 
 			return TRUE
 		else
@@ -42779,7 +42779,7 @@ class stzList from stzObject
 
 	def IsInCellsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :InCells)
+		   ( isString(This.Item(1)) and This.Item(1) = :InCells)
 
 			return TRUE
 		else
@@ -42788,7 +42788,7 @@ class stzList from stzObject
 
 	def IsCellValueNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :CellValue)
+		   ( isString(This.Item(1)) and This.Item(1) = :CellValue)
 
 			return TRUE
 		else
@@ -42797,7 +42797,7 @@ class stzList from stzObject
 
 	def IsOfCellValueNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OfCellValue)
+		   ( isString(This.Item(1)) and This.Item(1) = :OfCellValue)
 
 			return TRUE
 		else
@@ -42806,7 +42806,7 @@ class stzList from stzObject
 
 	def IsCellPartNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :CellPart)
+		   ( isString(This.Item(1)) and This.Item(1) = :CellPart)
 
 			return TRUE
 		else
@@ -42815,7 +42815,7 @@ class stzList from stzObject
 
 	def IsPartNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Part)
+		   ( isString(This.Item(1)) and This.Item(1) = :Part)
 
 			return TRUE
 		else
@@ -42824,7 +42824,7 @@ class stzList from stzObject
 
 	def IsSubPartNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :SubPart)
+		   ( isString(This.Item(1)) and This.Item(1) = :SubPart)
 
 			return TRUE
 		else
@@ -42834,7 +42834,7 @@ class stzList from stzObject
 
 	def IsSubValueNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :SubValue)
+		   ( isString(This.Item(1)) and This.Item(1) = :SubValue)
 
 			return TRUE
 		else
@@ -42843,7 +42843,7 @@ class stzList from stzObject
 
 	def IsOfSubValueNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OfSubValue)
+		   ( isString(This.Item(1)) and This.Item(1) = :OfSubValue)
 
 			return TRUE
 		else
@@ -42852,7 +42852,7 @@ class stzList from stzObject
 
 	def IsSubValuesNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :SubValues)
+		   ( isString(This.Item(1)) and This.Item(1) = :SubValues)
 
 			return TRUE
 		else
@@ -42861,7 +42861,7 @@ class stzList from stzObject
 
 	def IsOfSubValuesNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OfSubValues)
+		   ( isString(This.Item(1)) and This.Item(1) = :OfSubValues)
 
 			return TRUE
 		else
@@ -42872,7 +42872,7 @@ class stzList from stzObject
 
 	def IsOfCellPartNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OfCellPart)
+		   ( isString(This.Item(1)) and This.Item(1) = :OfCellPart)
 
 			return TRUE
 		else
@@ -42881,7 +42881,7 @@ class stzList from stzObject
 
 	def IsOfPartNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OfPart)
+		   ( isString(This.Item(1)) and This.Item(1) = :OfPart)
 
 			return TRUE
 		else
@@ -42890,7 +42890,7 @@ class stzList from stzObject
 
 	def IsOfSubPartNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OfSubPart)
+		   ( isString(This.Item(1)) and This.Item(1) = :OfSubPart)
 
 			return TRUE
 		else
@@ -42901,7 +42901,7 @@ class stzList from stzObject
 
 	def IsColNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and (This[1] = :Col or This[1] = :Column) )
+		   ( isString(This.Item(1)) and (This.Item(1) = :Col or This.Item(1) = :Column) )
 
 			return TRUE
 		else
@@ -42913,7 +42913,7 @@ class stzList from stzObject
 
 	def IsOfColNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and (This[1] = :OfCol or This[1] = :OfColumn) )
+		   ( isString(This.Item(1)) and (This.Item(1) = :OfCol or This.Item(1) = :OfColumn) )
 
 			return TRUE
 		else
@@ -42957,7 +42957,7 @@ class stzList from stzObject
 
 	def IsInColNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and (This[1] = :InCol or This[1] = :InColumn) )
+		   ( isString(This.Item(1)) and (This.Item(1) = :InCol or This.Item(1) = :InColumn) )
 
 			return TRUE
 		else
@@ -43000,7 +43000,7 @@ class stzList from stzObject
 
 	def IsColsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and (This[1] = :Cols or This[1] = :Columns) )
+		   ( isString(This.Item(1)) and (This.Item(1) = :Cols or This.Item(1) = :Columns) )
 
 			return TRUE
 		else
@@ -43012,7 +43012,7 @@ class stzList from stzObject
 
 	def IsOfColsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and (This[1] = :OfCols or This[1] = :OfColumns) )
+		   ( isString(This.Item(1)) and (This.Item(1) = :OfCols or This.Item(1) = :OfColumns) )
 
 			return TRUE
 		else
@@ -43056,7 +43056,7 @@ class stzList from stzObject
 
 	def IsInColsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and (This[1] = :InCols or This[1] = :InColumns) )
+		   ( isString(This.Item(1)) and (This.Item(1) = :InCols or This.Item(1) = :InColumns) )
 
 			return TRUE
 		else
@@ -43101,7 +43101,7 @@ class stzList from stzObject
 
 	def IsRowNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Row)
+		   ( isString(This.Item(1)) and This.Item(1) = :Row)
 
 			return TRUE
 		else
@@ -43110,7 +43110,7 @@ class stzList from stzObject
 
 	def IsOfRowNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OfRow)
+		   ( isString(This.Item(1)) and This.Item(1) = :OfRow)
 
 			return TRUE
 		else
@@ -43119,7 +43119,7 @@ class stzList from stzObject
 
 	def IsInRowNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :InRow)
+		   ( isString(This.Item(1)) and This.Item(1) = :InRow)
 
 			return TRUE
 		else
@@ -43128,7 +43128,7 @@ class stzList from stzObject
 
 	def IsRowsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Rows)
+		   ( isString(This.Item(1)) and This.Item(1) = :Rows)
 
 			return TRUE
 		else
@@ -43137,7 +43137,7 @@ class stzList from stzObject
 
 	def IsOfRowsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OfRows)
+		   ( isString(This.Item(1)) and This.Item(1) = :OfRows)
 
 			return TRUE
 		else
@@ -43146,7 +43146,7 @@ class stzList from stzObject
 
 	def IsInRowsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :InRows)
+		   ( isString(This.Item(1)) and This.Item(1) = :InRows)
 
 			return TRUE
 		else
@@ -43157,7 +43157,7 @@ class stzList from stzObject
 
 	def IsOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Occurrence)
+		   ( isString(This.Item(1)) and This.Item(1) = :Occurrence)
 
 			return TRUE
 		else
@@ -43166,7 +43166,7 @@ class stzList from stzObject
 
 	def IsNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Nth)
+		   ( isString(This.Item(1)) and This.Item(1) = :Nth)
 
 			return TRUE
 		else
@@ -43175,7 +43175,7 @@ class stzList from stzObject
 
 	def IsNthOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :NthOccurrence)
+		   ( isString(This.Item(1)) and This.Item(1) = :NthOccurrence)
 
 			return TRUE
 		else
@@ -43184,7 +43184,7 @@ class stzList from stzObject
 
 	def IsNNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :N)
+		   ( isString(This.Item(1)) and This.Item(1) = :N)
 
 			return TRUE
 		else
@@ -43194,8 +43194,8 @@ class stzList from stzObject
 
 	def IsCaseSensitiveNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and (This[1] = :Casesensitive or This[1] = :CS) ) and
-		   IsBoolean(This[2])
+		   ( isString(This.Item(1)) and (This.Item(1) = :Casesensitive or This.Item(1) = :CS) ) and
+		   IsBoolean(This.Item(2))
 
 			return TRUE
 		else
@@ -43214,7 +43214,7 @@ class stzList from stzObject
 
 		if This.NumberOfItems() = 1
 
-			if This[1][1] = :Start or This[1][1] = :Range
+			if This.Item(1)[1] = :Start or This.Item(1)[1] = :Range
 				return TRUE
 			ok
 		ok
@@ -43237,7 +43237,7 @@ class stzList from stzObject
 
 	def IsStartingAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StartingAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StartingAt )
 
 			return TRUE
 
@@ -43247,7 +43247,7 @@ class stzList from stzObject
 
 	def IsStartingAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StartingAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StartingAtPosition )
 
 			return TRUE
 
@@ -43257,7 +43257,7 @@ class stzList from stzObject
 
 	def IsStartingAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StartingAtOccurrence )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StartingAtOccurrence )
 
 			return TRUE
 
@@ -43267,7 +43267,7 @@ class stzList from stzObject
 
 	def IsStartAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StartAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StartAt )
 
 			return TRUE
 
@@ -43277,7 +43277,7 @@ class stzList from stzObject
 
 	def IsStartAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StartAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StartAtPosition )
 
 			return TRUE
 
@@ -43287,7 +43287,7 @@ class stzList from stzObject
 
 	def IsStartAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StartAtOccurrence )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StartAtOccurrence )
 
 			return TRUE
 
@@ -43300,7 +43300,7 @@ class stzList from stzObject
 
 	def IsStoppingAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StoppingAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StoppingAt )
 
 			return TRUE
 
@@ -43310,7 +43310,7 @@ class stzList from stzObject
 
 	def IsStoppingAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StoppingAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StoppingAtPosition )
 
 			return TRUE
 
@@ -43320,7 +43320,7 @@ class stzList from stzObject
 
 	def IsStoppingAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StoppingAtOccurrence )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StoppingAtOccurrence )
 
 			return TRUE
 
@@ -43330,7 +43330,7 @@ class stzList from stzObject
 
 	def IsStopAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StopAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StopAt )
 
 			return TRUE
 
@@ -43340,7 +43340,7 @@ class stzList from stzObject
 
 	def IsStopAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StopAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StopAtPosition )
 
 			return TRUE
 
@@ -43350,7 +43350,7 @@ class stzList from stzObject
 
 	def IsStopAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StopAtOccurrence )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StopAtOccurrence )
 
 			return TRUE
 
@@ -43363,7 +43363,7 @@ class stzList from stzObject
 	def IsInStringNNamedParam()
 		if This.NumberOfItems() = 2 and
 vvv
-		   ( isString(This[1]) and Q(This[1]).IsOneOfThese([
+		   ( isString(This.Item(1)) and Q(This.Item(1)).IsOneOfThese([
 					:InStringAt, :InStringItemAt,
 					:inStringAtPosition, :InStringItemAtPosition,
 					:InStringN, :InStringItemN ]) )
@@ -43388,7 +43388,7 @@ vvv
 		#TODO: generalize to all the functions we want to provide exceptions to it
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Except )
+		   ( isString(This.Item(1)) and This.Item(1) = :Except )
 
 			return TRUE
 
@@ -43398,7 +43398,7 @@ vvv
 
 	def IsAsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :As )
+		   ( isString(This.Item(1)) and  This.Item(1) = :As )
 
 			return TRUE
 
@@ -43408,7 +43408,7 @@ vvv
 
 	def IsThenNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  (This[1] = :Then or This[1] = :Then@) )
+		   ( isString(This.Item(1)) and  (This.Item(1) = :Then or This.Item(1) = :Then@) )
 
 			return TRUE
 
@@ -43418,7 +43418,7 @@ vvv
 
 	def IsAndThenNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  (This[1] = :AndThen or This[1] = :AndThen@) )
+		   ( isString(This.Item(1)) and  (This.Item(1) = :AndThen or This.Item(1) = :AndThen@) )
 
 			return TRUE
 
@@ -43428,7 +43428,7 @@ vvv
 
 	def IsFromNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  (This[1] = :From or This[1] = :FromPosition)  )
+		   ( isString(This.Item(1)) and  (This.Item(1) = :From or This.Item(1) = :FromPosition)  )
 
 			return TRUE
 
@@ -43454,7 +43454,7 @@ vvv
 
 	def IsValueNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Value )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Value )
 
 			return TRUE
 
@@ -43464,7 +43464,7 @@ vvv
 
 	def IsOfValueNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OfValue )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OfValue )
 
 			return TRUE
 
@@ -43474,7 +43474,7 @@ vvv
 
 	def IsValuesNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Values )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Values )
 
 			return TRUE
 
@@ -43521,7 +43521,7 @@ vvv
 
 	def IsToNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToNumber )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToNumber )
 
 			return TRUE
 
@@ -43531,7 +43531,7 @@ vvv
 
 	def IsToStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToString )
 
 			return TRUE
 
@@ -43541,7 +43541,7 @@ vvv
 
 	def IsToSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToSubString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToSubString )
 
 			return TRUE
 
@@ -43551,7 +43551,7 @@ vvv
 
 	def IsToCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToChar )
 
 			return TRUE
 
@@ -43561,7 +43561,7 @@ vvv
 
 	def IsToListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToList )
 
 			return TRUE
 
@@ -43571,7 +43571,7 @@ vvv
 
 	def IsToPairNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToPair )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToPair )
 
 			return TRUE
 
@@ -43581,7 +43581,7 @@ vvv
 
 	def IsToHashListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToHashList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToHashList )
 
 			return TRUE
 
@@ -43591,7 +43591,7 @@ vvv
 
 	def IsToSetNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToSet )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToSet )
 
 			return TRUE
 
@@ -43601,7 +43601,7 @@ vvv
 
 	def IsToObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToObject )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToObject )
 
 			return TRUE
 
@@ -43759,7 +43759,7 @@ vvv
 
 	def IsOfNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OfNumber )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OfNumber )
 
 			return TRUE
 
@@ -43769,7 +43769,7 @@ vvv
 
 	def IsOfStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OfString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OfString )
 
 			return TRUE
 
@@ -43779,7 +43779,7 @@ vvv
 
 	def IsOfSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OfSubString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OfSubString )
 
 			return TRUE
 
@@ -43789,7 +43789,7 @@ vvv
 
 	def IsOfCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OfChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OfChar )
 
 			return TRUE
 
@@ -43799,7 +43799,7 @@ vvv
 
 	def IsOfListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OfList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OfList )
 
 			return TRUE
 
@@ -43809,7 +43809,7 @@ vvv
 
 	def IsOfPairNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OfPair )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OfPair )
 
 			return TRUE
 
@@ -43819,7 +43819,7 @@ vvv
 
 	def IsOfHashListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OfHashList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OfHashList )
 
 			return TRUE
 
@@ -43829,7 +43829,7 @@ vvv
 
 	def IsOfSetNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OfSet )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OfSet )
 
 			return TRUE
 
@@ -43839,7 +43839,7 @@ vvv
 
 	def IsOfObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OfObject )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OfObject )
 
 			return TRUE
 
@@ -43997,7 +43997,7 @@ vvv
 
 	def IsByNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ByNumber )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ByNumber )
 
 			return TRUE
 
@@ -44007,7 +44007,7 @@ vvv
 
 	def IsByStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ByString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ByString )
 
 			return TRUE
 
@@ -44017,7 +44017,7 @@ vvv
 
 	def IsBySubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BySubString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BySubString )
 
 			return TRUE
 
@@ -44027,7 +44027,7 @@ vvv
 
 	def IsByCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ByChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ByChar )
 
 			return TRUE
 
@@ -44037,7 +44037,7 @@ vvv
 
 	def IsByListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ByList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ByList )
 
 			return TRUE
 
@@ -44047,7 +44047,7 @@ vvv
 
 	def IsByPairNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ByPair )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ByPair )
 
 			return TRUE
 
@@ -44057,7 +44057,7 @@ vvv
 
 	def IsByHashListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ByHashList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ByHashList )
 
 			return TRUE
 
@@ -44067,7 +44067,7 @@ vvv
 
 	def IsBySetNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BySet )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BySet )
 
 			return TRUE
 
@@ -44077,7 +44077,7 @@ vvv
 
 	def IsByObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ByObject )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ByObject )
 
 			return TRUE
 
@@ -44235,7 +44235,7 @@ vvv
 
 	def IsInNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InNumber )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InNumber )
 
 			return TRUE
 
@@ -44245,7 +44245,7 @@ vvv
 
 	def IsInStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InString )
 
 			return TRUE
 
@@ -44255,7 +44255,7 @@ vvv
 
 	def IsInSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InSubString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InSubString )
 
 			return TRUE
 
@@ -44265,7 +44265,7 @@ vvv
 
 	def IsInCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InChar )
 
 			return TRUE
 
@@ -44275,7 +44275,7 @@ vvv
 
 	def IsInListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InList )
 
 			return TRUE
 
@@ -44285,7 +44285,7 @@ vvv
 
 	def IsInPairNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InPair )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InPair )
 
 			return TRUE
 
@@ -44295,7 +44295,7 @@ vvv
 
 	def IsInHashListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InHashList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InHashList )
 
 			return TRUE
 
@@ -44305,7 +44305,7 @@ vvv
 
 	def IsInSetNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InSet )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InSet )
 
 			return TRUE
 
@@ -44315,7 +44315,7 @@ vvv
 
 	def IsInObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InObject )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InObject )
 
 			return TRUE
 
@@ -44473,7 +44473,7 @@ vvv
 
 	def IsWithNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :WithNumber )
+		   ( isString(This.Item(1)) and  This.Item(1) = :WithNumber )
 
 			return TRUE
 
@@ -44483,7 +44483,7 @@ vvv
 
 	def IsWithStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :WithString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :WithString )
 
 			return TRUE
 
@@ -44493,7 +44493,7 @@ vvv
 
 	def IsWithSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :WithSubString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :WithSubString )
 
 			return TRUE
 
@@ -44503,7 +44503,7 @@ vvv
 
 	def IsWithCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :WithChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :WithChar )
 
 			return TRUE
 
@@ -44513,7 +44513,7 @@ vvv
 
 	def IsWithListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :WithList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :WithList )
 
 			return TRUE
 
@@ -44523,7 +44523,7 @@ vvv
 
 	def IsWithPairNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :WithPair )
+		   ( isString(This.Item(1)) and  This.Item(1) = :WithPair )
 
 			return TRUE
 
@@ -44533,7 +44533,7 @@ vvv
 
 	def IsWithHashListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :WithHashList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :WithHashList )
 
 			return TRUE
 
@@ -44543,7 +44543,7 @@ vvv
 
 	def IsWithSetNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :WithSet )
+		   ( isString(This.Item(1)) and  This.Item(1) = :WithSet )
 
 			return TRUE
 
@@ -44553,7 +44553,7 @@ vvv
 
 	def IsWithObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :WithObject )
+		   ( isString(This.Item(1)) and  This.Item(1) = :WithObject )
 
 			return TRUE
 
@@ -44711,7 +44711,7 @@ vvv
 
 	def IsInsideNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InsideNumber )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InsideNumber )
 
 			return TRUE
 
@@ -44721,7 +44721,7 @@ vvv
 
 	def IsInsideStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InsideString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InsideString )
 
 			return TRUE
 
@@ -44731,7 +44731,7 @@ vvv
 
 	def IsInsideSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InsideSubString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InsideSubString )
 
 			return TRUE
 
@@ -44741,7 +44741,7 @@ vvv
 
 	def IsInsideCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InsideChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InsideChar )
 
 			return TRUE
 
@@ -44751,7 +44751,7 @@ vvv
 
 	def IsInsideListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InsideList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InsideList )
 
 			return TRUE
 
@@ -44761,7 +44761,7 @@ vvv
 
 	def IsInsidePairNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InsidePair )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InsidePair )
 
 			return TRUE
 
@@ -44771,7 +44771,7 @@ vvv
 
 	def IsInsideHashListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InsideHashList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InsideHashList )
 
 			return TRUE
 
@@ -44781,7 +44781,7 @@ vvv
 
 	def IsInsideSetNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InsideSet )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InsideSet )
 
 			return TRUE
 
@@ -44791,7 +44791,7 @@ vvv
 
 	def IsInsideObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InsideObject )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InsideObject )
 
 			return TRUE
 
@@ -44949,7 +44949,7 @@ vvv
 
 	def IsOnNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OnNumber )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OnNumber )
 
 			return TRUE
 
@@ -44959,7 +44959,7 @@ vvv
 
 	def IsOnStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OnString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OnString )
 
 			return TRUE
 
@@ -44969,7 +44969,7 @@ vvv
 
 	def IsOnSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OnSubString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OnSubString )
 
 			return TRUE
 
@@ -44979,7 +44979,7 @@ vvv
 
 	def IsOnCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OnChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OnChar )
 
 			return TRUE
 
@@ -44989,7 +44989,7 @@ vvv
 
 	def IsOnListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OnList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OnList )
 
 			return TRUE
 
@@ -44999,7 +44999,7 @@ vvv
 
 	def IsOnPairNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OnPair )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OnPair )
 
 			return TRUE
 
@@ -45009,7 +45009,7 @@ vvv
 
 	def IsOnHashListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OnHashList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OnHashList )
 
 			return TRUE
 
@@ -45019,7 +45019,7 @@ vvv
 
 	def IsOnSetNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OnSet )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OnSet )
 
 			return TRUE
 
@@ -45029,7 +45029,7 @@ vvv
 
 	def IsOnObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OnObject )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OnObject )
 
 			return TRUE
 
@@ -45187,7 +45187,7 @@ vvv
 
 	def IsOverNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverNumber )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverNumber )
 
 			return TRUE
 
@@ -45197,7 +45197,7 @@ vvv
 
 	def IsOverStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverString )
 
 			return TRUE
 
@@ -45207,7 +45207,7 @@ vvv
 
 	def IsOverSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverSubString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverSubString )
 
 			return TRUE
 
@@ -45217,7 +45217,7 @@ vvv
 
 	def IsOverCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverChar )
 
 			return TRUE
 
@@ -45227,7 +45227,7 @@ vvv
 
 	def IsOverListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverList )
 
 			return TRUE
 
@@ -45237,7 +45237,7 @@ vvv
 
 	def IsOverPairNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverPair )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverPair )
 
 			return TRUE
 
@@ -45247,7 +45247,7 @@ vvv
 
 	def IsOverHashListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverHashList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverHashList )
 
 			return TRUE
 
@@ -45257,7 +45257,7 @@ vvv
 
 	def IsOverSetNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverSet )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverSet )
 
 			return TRUE
 
@@ -45267,7 +45267,7 @@ vvv
 
 	def IsOverObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverObject )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverObject )
 
 			return TRUE
 
@@ -45425,7 +45425,7 @@ vvv
 
 	def IsAgainstNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverNumber )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverNumber )
 
 			return TRUE
 
@@ -45435,7 +45435,7 @@ vvv
 
 	def IsAgainstStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverString )
 
 			return TRUE
 
@@ -45445,7 +45445,7 @@ vvv
 
 	def IsAgainstSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverSubString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverSubString )
 
 			return TRUE
 
@@ -45455,7 +45455,7 @@ vvv
 
 	def IsAgainstCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverChar )
 
 			return TRUE
 
@@ -45465,7 +45465,7 @@ vvv
 
 	def IsAgainstListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverList )
 
 			return TRUE
 
@@ -45475,7 +45475,7 @@ vvv
 
 	def IsAgainstPairNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverPair )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverPair )
 
 			return TRUE
 
@@ -45485,7 +45485,7 @@ vvv
 
 	def IsAgainstHashListNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverHashList )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverHashList )
 
 			return TRUE
 
@@ -45495,7 +45495,7 @@ vvv
 
 	def IsAgainstSetNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverSet )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverSet )
 
 			return TRUE
 
@@ -45505,7 +45505,7 @@ vvv
 
 	def IsAgainstObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OverObject )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OverObject )
 
 			return TRUE
 
@@ -45663,7 +45663,7 @@ vvv
 
 	def IsRespectivelyNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Respectively )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Respectively )
 
 			return TRUE
 
@@ -45675,7 +45675,7 @@ vvv
 
 	def IsSeedNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Seed )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Seed )
 
 			return TRUE
 
@@ -45687,7 +45687,7 @@ vvv
 
 	def IsEqualToNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :EqualTo )
+		   ( isString(This.Item(1)) and  This.Item(1) = :EqualTo )
 
 			return TRUE
 
@@ -45697,7 +45697,7 @@ vvv
 
 	def IsEqualsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Equals )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Equals )
 
 			return TRUE
 
@@ -45709,7 +45709,7 @@ vvv
 
 	def IsToNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :To )
+		   ( isString(This.Item(1)) and  This.Item(1) = :To )
 
 			return TRUE
 
@@ -45719,7 +45719,7 @@ vvv
 
 	def IsToPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToPosition )
 
 			return TRUE
 
@@ -45751,7 +45751,7 @@ vvv
 
 	def IsToPositionOfItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToPositionOfItem )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToPositionOfItem )
 
 			return TRUE
 
@@ -45761,7 +45761,7 @@ vvv
 
 	def IsToPositionOfStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToPositionOfString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToPositionOfString )
 
 			return TRUE
 
@@ -45771,7 +45771,7 @@ vvv
 
 	def IsToPositionOfStringItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToPositionOfStringItem )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToPositionOfStringItem )
 
 			return TRUE
 
@@ -45781,7 +45781,7 @@ vvv
 
 	def IsToPositionOfCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToPositionOfChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToPositionOfChar )
 
 			return TRUE
 
@@ -45793,7 +45793,7 @@ vvv
 
 	def IsFromPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromPosition )
 
 			return TRUE
 
@@ -45803,7 +45803,7 @@ vvv
 
 	def IsFromPositionOfItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromPositionOfItem )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromPositionOfItem )
 
 			return TRUE
 
@@ -45813,7 +45813,7 @@ vvv
 
 	def IsFromPositionOfStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromPositionOfString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromPositionOfString )
 
 			return TRUE
 
@@ -45823,7 +45823,7 @@ vvv
 
 	def IsFromPositionOfStringItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromPositionOfStringItem )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromPositionOfStringItem )
 
 			return TRUE
 
@@ -45833,7 +45833,7 @@ vvv
 
 	def IsFromPositionOfCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromPositionOfChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromPositionOfChar )
 
 			return TRUE
 
@@ -45845,7 +45845,7 @@ vvv
 
 	def IsOfNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Of )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Of )
 
 			return TRUE
 
@@ -45855,7 +45855,7 @@ vvv
 
 	def IsOnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :On )
+		   ( isString(This.Item(1)) and  This.Item(1) = :On )
 
 			return TRUE
 
@@ -45865,7 +45865,7 @@ vvv
 
 	def IsInNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :In )
+		   ( isString(This.Item(1)) and  This.Item(1) = :In )
 
 			return TRUE
 
@@ -45875,7 +45875,7 @@ vvv
 
 	def IsInANamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InA )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InA )
 
 			return TRUE
 
@@ -45887,8 +45887,8 @@ vvv
 
 	def IsInSideNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :InSide or This[1] = :Inside@) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :InSide or This.Item(1) = :Inside@) )
 
 			return TRUE
 
@@ -45898,8 +45898,8 @@ vvv
 
 	def IsInSideANamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and 
-			(This[1] = :InSideA or This[1] = :InsideA@) )
+		   ( isString(This.Item(1)) and 
+			(This.Item(1) = :InSideA or This.Item(1) = :InsideA@) )
 
 			return TRUE
 
@@ -45926,8 +45926,8 @@ vvv
 
 	def IsWhereNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Where ) and
-		   isString( This[2] )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Where ) and
+		   isString( This.Item(2) )
 
 			return TRUE
 
@@ -45937,8 +45937,8 @@ vvv
 
 	def IsThatNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :That ) and
-		   isString( This[2] )
+		   ( isString(This.Item(1)) and  This.Item(1) = :That ) and
+		   isString( This.Item(2) )
 
 			return TRUE
 
@@ -45964,7 +45964,7 @@ vvv
 
 	def IsPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Position )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Position )
 
 			return TRUE
 
@@ -45974,7 +45974,7 @@ vvv
 
 	def IsThisPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ThisPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ThisPosition )
 
 			return TRUE
 
@@ -45984,7 +45984,7 @@ vvv
 
 	def IsPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Positions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Positions )
 
 			return TRUE
 
@@ -45994,7 +45994,7 @@ vvv
 
 	def IsThesePositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ThesePositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ThesePositions )
 
 			return TRUE
 
@@ -46014,7 +46014,7 @@ vvv
 
 	def IsAlongWithNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  (This[1] = :AlongWith or This[1] = :AlongWith@)  )
+		   ( isString(This.Item(1)) and  (This.Item(1) = :AlongWith or This.Item(1) = :AlongWith@)  )
 
 			return TRUE
 
@@ -46024,7 +46024,7 @@ vvv
 
 	def IsAlongWithTheirNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  (This[1] = :AlongWithTheir or This[1] = :AlongWithTheir@)  )
+		   ( isString(This.Item(1)) and  (This.Item(1) = :AlongWithTheir or This.Item(1) = :AlongWithTheir@)  )
 
 			return TRUE
 
@@ -46034,7 +46034,7 @@ vvv
 
 	def IsAndNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  (This[1] = :And or This[1] = :And@)  )
+		   ( isString(This.Item(1)) and  (This.Item(1) = :And or This.Item(1) = :And@)  )
 
 			return TRUE
 
@@ -46044,7 +46044,7 @@ vvv
 
 	def IsAndTheirNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  (This[1] = :AndTheir or This[1] = :AndTheir@)  )
+		   ( isString(This.Item(1)) and  (This.Item(1) = :AndTheir or This.Item(1) = :AndTheir@)  )
 
 			return TRUE
 
@@ -46054,7 +46054,7 @@ vvv
 
 	def IsAndItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndItem )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndItem )
 
 			return TRUE
 
@@ -46064,7 +46064,7 @@ vvv
 
 	def IsAndStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndString )
 
 			return TRUE
 
@@ -46074,7 +46074,7 @@ vvv
 
 	def IsAndStringItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndStringItem )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndStringItem )
 
 			return TRUE
 
@@ -46084,7 +46084,7 @@ vvv
 
 	def IsAndCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndChar )
 
 			return TRUE
 
@@ -46094,7 +46094,7 @@ vvv
 
 	def IsAndPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndPosition )
 
 			return TRUE
 
@@ -46104,7 +46104,7 @@ vvv
 
 	def IsAndPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndPositions )
 
 			return TRUE
 
@@ -46114,7 +46114,7 @@ vvv
 
 	def IsAndItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndItemAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndItemAt )
 
 			return TRUE
 
@@ -46124,7 +46124,7 @@ vvv
 
 	def IsAndItemAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndItemAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndItemAtPosition )
 
 			return TRUE
 
@@ -46134,7 +46134,7 @@ vvv
 
 	def IsAndStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndStringAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndStringAt )
 
 			return TRUE
 
@@ -46144,7 +46144,7 @@ vvv
 
 	def IsAndStringAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndStringAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndStringAtPosition )
 
 			return TRUE
 
@@ -46154,7 +46154,7 @@ vvv
 
 	def IsAndStringItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndStringItemAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndStringItemAt )
 
 			return TRUE
 
@@ -46164,7 +46164,7 @@ vvv
 
 	def IsAndStringItemAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndStringItemAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndStringItemAtPosition )
 
 			return TRUE
 
@@ -46176,7 +46176,7 @@ vvv
 
 	def IsOrNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Or )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Or )
 
 			return TRUE
 
@@ -46186,7 +46186,7 @@ vvv
 
 	def IsOrANamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OrA )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OrA )
 
 			return TRUE
 
@@ -46196,7 +46196,7 @@ vvv
 
 	def IsOrAnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OrAn )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OrAn )
 
 			return TRUE
 
@@ -46208,7 +46208,7 @@ vvv
 
 	def IsNorNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Nor )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Nor )
 
 			return TRUE
 
@@ -46218,7 +46218,7 @@ vvv
 
 	def IsWhileNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :While )
+		   ( isString(This.Item(1)) and  This.Item(1) = :While )
 
 			return TRUE
 
@@ -46228,7 +46228,7 @@ vvv
 
 	def IsNotNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Not )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Not )
 
 			return TRUE
 
@@ -46238,8 +46238,8 @@ vvv
 
 	def IsIfNamedParam()
 		if This.NumberOfItems() = 2 and
-		   This[1] = :If and
-		   isString(This[2])
+		   This.Item(1) = :If and
+		   isString(This.Item(2))
 
 			return TRUE
 
@@ -46261,8 +46261,8 @@ vvv
 
 
 	def IsWithNamedParam()
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :With or This[1] = :With@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :With or This.Item(1) = :With@ ) )
 
 			return TRUE
 
@@ -46271,8 +46271,8 @@ vvv
 		ok
 
 	def IsWithManyNamedParam()
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :WithMany or This[1] = :WithMany@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :WithMany or This.Item(1) = :WithMany@ ) )
 		  
 			return TRUE
 
@@ -46297,8 +46297,8 @@ vvv
 			return This.IsWithOrAndNamedParam()
 
 	def IsWithItemsInNamedParam() 
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :By or This[1] = :By@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :By or This.Item(1) = :By@ ) )
 
 			return TRUE
 
@@ -46307,8 +46307,8 @@ vvv
 		ok
 
 	def IsWithCharsInNamedParam() 
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :WithCharsIn or This[1] = :WithCharsIn@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :WithCharsIn or This.Item(1) = :WithCharsIn@ ) )
 
 			return TRUE
 
@@ -46317,8 +46317,8 @@ vvv
 		ok
 
 	def IsByItemsInNamedParam()
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :ByItemsIn or This[1] = :ByItemsIn@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :ByItemsIn or This.Item(1) = :ByItemsIn@ ) )
 
 			return TRUE
 
@@ -46327,8 +46327,8 @@ vvv
 		ok
 
 	def IsUsingItemsInNamedParam()
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :UsingItemsIn or This[1] = :UsingItemsIn@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :UsingItemsIn or This.Item(1) = :UsingItemsIn@ ) )
 
 			return TRUE
 
@@ -46337,8 +46337,8 @@ vvv
 		ok
 
 	def IsWithTheirNamedParam()
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :WithTheir or This[1] = :WithTheir@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :WithTheir or This.Item(1) = :WithTheir@ ) )
 
 			return TRUE
 
@@ -46347,8 +46347,8 @@ vvv
 		ok
 
 	def IsByNamedParam()
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :By or This[1] = :By@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :By or This.Item(1) = :By@ ) )
 		  
 			return TRUE
 
@@ -46357,8 +46357,8 @@ vvv
 		ok
 
 	def IsByManyNamedParam()
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :ByMany or This[1] = :ByMany@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :ByMany or This.Item(1) = :ByMany@ ) )
 		  
 			return TRUE
 
@@ -46367,8 +46367,8 @@ vvv
 		ok
 
 	def IsByManyXTNamedParam()
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :ByManyXT or This[1] = :ByManyXT@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :ByManyXT or This.Item(1) = :ByManyXT@ ) )
 		  
 			return TRUE
 
@@ -46377,8 +46377,8 @@ vvv
 		ok
 
 	def IsUsingManyXTNamedParam()
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :UsingManyXT or This[1] = :UsingManyXT@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :UsingManyXT or This.Item(1) = :UsingManyXT@ ) )
 		  
 			return TRUE
 
@@ -46387,8 +46387,8 @@ vvv
 		ok
 
 	def IsWithManyXTNamedParam()
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :WithManyXT or This[1] = :WithManyXT@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :WithManyXT or This.Item(1) = :WithManyXT@ ) )
 		  
 			return TRUE
 
@@ -46498,7 +46498,7 @@ vvv
 
 	def IsByColNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :ByCol, :ByCol@ ]) )
+		   ( isString(This.Item(1)) and  StzStringQ(This.Item(1)).IsOneOfThese([ :ByCol, :ByCol@ ]) )
 		  
 			return TRUE
 
@@ -46508,7 +46508,7 @@ vvv
 
 	def IsByColumnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :ByColumn, :ByColumn@ ]) )
+		   ( isString(This.Item(1)) and  StzStringQ(This.Item(1)).IsOneOfThese([ :ByColumn, :ByColumn@ ]) )
 		  
 			return TRUE
 
@@ -46518,7 +46518,7 @@ vvv
 
 	def IsUsingColNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :UsingCol, :UsingCol@ ]) )
+		   ( isString(This.Item(1)) and  StzStringQ(This.Item(1)).IsOneOfThese([ :UsingCol, :UsingCol@ ]) )
 		  
 			return TRUE
 
@@ -46528,7 +46528,7 @@ vvv
 
 	def IsUsingColumnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :UsingColumn, :UsingColumn@ ]) )
+		   ( isString(This.Item(1)) and  StzStringQ(This.Item(1)).IsOneOfThese([ :UsingColumn, :UsingColumn@ ]) )
 		  
 			return TRUE
 
@@ -46538,7 +46538,7 @@ vvv
 
 	def IsWithColNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :WithCol, :WithCol@ ]) )
+		   ( isString(This.Item(1)) and  StzStringQ(This.Item(1)).IsOneOfThese([ :WithCol, :WithCol@ ]) )
 		  
 			return TRUE
 
@@ -46548,7 +46548,7 @@ vvv
 
 	def IsWithColumnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  StzStringQ(This[1]).IsOneOfThese([ :WithColumn, :WithColumn@ ]) )
+		   ( isString(This.Item(1)) and  StzStringQ(This.Item(1)).IsOneOfThese([ :WithColumn, :WithColumn@ ]) )
 		  
 			return TRUE
 
@@ -46558,7 +46558,7 @@ vvv
 
 	def IsByRowNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ByRow )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ByRow )
 		  
 			return TRUE
 
@@ -46568,7 +46568,7 @@ vvv
 
 	def IsWithRowNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :WithRow )
+		   ( isString(This.Item(1)) and  This.Item(1) = :WithRow )
 		  
 			return TRUE
 
@@ -46578,7 +46578,7 @@ vvv
 
 	def IsUsingRowNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :UsingRow )
+		   ( isString(This.Item(1)) and  This.Item(1) = :UsingRow )
 		  
 			return TRUE
 
@@ -46588,7 +46588,7 @@ vvv
 
 	def IsByCellNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ByCell )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ByCell )
 		  
 			return TRUE
 
@@ -46598,7 +46598,7 @@ vvv
 
 	def IsWithCellNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :WithCell )
+		   ( isString(This.Item(1)) and  This.Item(1) = :WithCell )
 		  
 			return TRUE
 
@@ -46608,7 +46608,7 @@ vvv
 
 	def IsUsingCellNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :UsingCell )
+		   ( isString(This.Item(1)) and  This.Item(1) = :UsingCell )
 		  
 			return TRUE
 
@@ -46629,8 +46629,8 @@ vvv
 			return This.IsWithOrByNamedParam()
 
 	def IsUsingNamedParam()
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :Using or This[1] = :Using@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :Using or This.Item(1) = :Using@ ) )
 
 			return TRUE
 
@@ -46639,8 +46639,8 @@ vvv
 		ok
 
 	def IsUsingManyNamedParam()
-		if This.NumberOfItems() = 2 and ( isString(This[1]) and
-			( This[1] = :UsingMany or This[1] = :UsingMany@ ) )
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+			( This.Item(1) = :UsingMany or This.Item(1) = :UsingMany@ ) )
 
 			return TRUE
 
@@ -46650,7 +46650,7 @@ vvv
 
 	def IsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and This[1] = :At
+		   isString(This.Item(1)) and This.Item(1) = :At
 			return TRUE
 
 		else
@@ -46677,7 +46677,7 @@ vvv
 
 	def IsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtPosition )
+			( isString(This.Item(1)) and  This.Item(1) = :AtPosition )
 
 			return TRUE
 
@@ -46687,7 +46687,7 @@ vvv
 
 	def IsAtThisPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisPosition )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisPosition )
 
 			return TRUE
 
@@ -46697,7 +46697,7 @@ vvv
 
 	def IsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtPositions )
+			( isString(This.Item(1)) and  This.Item(1) = :AtPositions )
 
 			return TRUE
 
@@ -46707,7 +46707,7 @@ vvv
 
 	def IsAtThesePositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThesePositions )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThesePositions )
 
 			return TRUE
 
@@ -46717,7 +46717,7 @@ vvv
 
 	def IsAtManyPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyPositions )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyPositions )
 
 			return TRUE
 
@@ -46769,7 +46769,7 @@ vvv
 
 	def IsAtItemNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtItem )
+			( isString(This.Item(1)) and  This.Item(1) = :AtItem )
 
 			return TRUE
 
@@ -46779,7 +46779,7 @@ vvv
 
 	def IsAtThisItemNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisItem )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisItem )
 
 			return TRUE
 
@@ -46789,7 +46789,7 @@ vvv
 
 	def IsAtItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtItems )
+			( isString(This.Item(1)) and  This.Item(1) = :AtItems )
 
 			return TRUE
 
@@ -46799,7 +46799,7 @@ vvv
 
 	def IsAtTheseItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseItems )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseItems )
 
 			return TRUE
 
@@ -46809,7 +46809,7 @@ vvv
 
 	def IsAtManyItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyItems )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyItems )
 
 			return TRUE
 
@@ -46821,7 +46821,7 @@ vvv
 
 	def IsAtStringNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtString )
+			( isString(This.Item(1)) and  This.Item(1) = :AtString )
 
 			return TRUE
 
@@ -46831,7 +46831,7 @@ vvv
 
 	def IsAtThisStringNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisString )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisString )
 
 			return TRUE
 
@@ -46841,7 +46841,7 @@ vvv
 
 	def IsAtStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtStrings )
+			( isString(This.Item(1)) and  This.Item(1) = :AtStrings )
 
 			return TRUE
 
@@ -46851,7 +46851,7 @@ vvv
 
 	def IsAtTheseStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseStrings )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseStrings )
 
 			return TRUE
 
@@ -46861,7 +46861,7 @@ vvv
 
 	def IsAtManyStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyStrings )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyStrings )
 
 			return TRUE
 
@@ -46873,7 +46873,7 @@ vvv
 
 	def IsAtStringItemNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtStringItem )
+			( isString(This.Item(1)) and  This.Item(1) = :AtStringItem )
 
 			return TRUE
 
@@ -46883,7 +46883,7 @@ vvv
 
 	def IsAtThisStringItemNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisStringItem )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisStringItem )
 
 			return TRUE
 
@@ -46893,7 +46893,7 @@ vvv
 
 	def IsAtStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtStringItems )
+			( isString(This.Item(1)) and  This.Item(1) = :AtStringItems )
 
 			return TRUE
 
@@ -46903,7 +46903,7 @@ vvv
 
 	def IsAtTheseStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseStringItems )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseStringItems )
 
 			return TRUE
 
@@ -46913,7 +46913,7 @@ vvv
 
 	def IsAtManyStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyStringItems )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyStringItems )
 
 			return TRUE
 
@@ -46925,7 +46925,7 @@ vvv
 
 	def IsAtSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtSubString )
+			( isString(This.Item(1)) and  This.Item(1) = :AtSubString )
 
 			return TRUE
 
@@ -46951,7 +46951,7 @@ vvv
 
 	def IsAtThisSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisSubString )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisSubString )
 
 			return TRUE
 
@@ -46961,7 +46961,7 @@ vvv
 
 	def IsAtSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtSubStrings )
+			( isString(This.Item(1)) and  This.Item(1) = :AtSubStrings )
 
 			return TRUE
 
@@ -46971,7 +46971,7 @@ vvv
 
 	def IsAtTheseSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseSubStrings )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseSubStrings )
 
 			return TRUE
 
@@ -46981,7 +46981,7 @@ vvv
 
 	def IsAtManySubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManySubStrings )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManySubStrings )
 
 			return TRUE
 
@@ -46993,7 +46993,7 @@ vvv
 
 	def IsAtCharNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This[1]) and  This[1] = :AtChar )
+			( isChar(This.Item(1)) and  This.Item(1) = :AtChar )
 
 			return TRUE
 
@@ -47003,7 +47003,7 @@ vvv
 
 	def IsAtThisCharNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This[1]) and  This[1] = :AtThisChar )
+			( isChar(This.Item(1)) and  This.Item(1) = :AtThisChar )
 
 			return TRUE
 
@@ -47013,7 +47013,7 @@ vvv
 
 	def IsAtCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This[1]) and  This[1] = :AtChars )
+			( isChar(This.Item(1)) and  This.Item(1) = :AtChars )
 
 			return TRUE
 
@@ -47023,7 +47023,7 @@ vvv
 
 	def IsAtTheseCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseChars )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseChars )
 
 			return TRUE
 
@@ -47033,7 +47033,7 @@ vvv
 
 	def IsAtManyCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyChars )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyChars )
 
 			return TRUE
 
@@ -47045,7 +47045,7 @@ vvv
 
 	def IsAtNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtNumber )
+			( isString(This.Item(1)) and  This.Item(1) = :AtNumber )
 
 			return TRUE
 
@@ -47055,7 +47055,7 @@ vvv
 
 	def IsAtThisNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisNumber )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisNumber )
 
 			return TRUE
 
@@ -47065,7 +47065,7 @@ vvv
 
 	def IsAtNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtNumbers )
+			( isString(This.Item(1)) and  This.Item(1) = :AtNumbers )
 
 			return TRUE
 
@@ -47075,7 +47075,7 @@ vvv
 
 	def IsAtTheseNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseNumbers )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseNumbers )
 
 			return TRUE
 
@@ -47085,7 +47085,7 @@ vvv
 
 	def IsAtManyNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyNumbers )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyNumbers )
 
 			return TRUE
 
@@ -47097,7 +47097,7 @@ vvv
 
 	def IsAtListNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtList )
+			( isString(This.Item(1)) and  This.Item(1) = :AtList )
 
 			return TRUE
 
@@ -47107,7 +47107,7 @@ vvv
 
 	def IsAtThisListNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisList )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisList )
 
 			return TRUE
 
@@ -47117,7 +47117,7 @@ vvv
 
 	def IsAtListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtLists )
 
 			return TRUE
 
@@ -47127,7 +47127,7 @@ vvv
 
 	def IsAtTheseListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseLists )
 
 			return TRUE
 
@@ -47137,7 +47137,7 @@ vvv
 
 	def IsAtManyListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyLists )
 
 			return TRUE
 
@@ -47149,7 +47149,7 @@ vvv
 
 	def IsAtSubListNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtSubList )
+			( isString(This.Item(1)) and  This.Item(1) = :AtSubList )
 
 			return TRUE
 
@@ -47159,7 +47159,7 @@ vvv
 
 	def IsAtThisSubListNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisSubList )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisSubList )
 
 			return TRUE
 
@@ -47169,7 +47169,7 @@ vvv
 
 	def IsAtSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtSubLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtSubLists )
 
 			return TRUE
 
@@ -47179,7 +47179,7 @@ vvv
 
 	def IsAtTheseSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseSubLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseSubLists )
 
 			return TRUE
 
@@ -47189,7 +47189,7 @@ vvv
 
 	def IsAtManySubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManySubLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManySubLists )
 
 			return TRUE
 
@@ -47201,7 +47201,7 @@ vvv
 
 	def IsAtPairNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtPair )
+			( isString(This.Item(1)) and  This.Item(1) = :AtPair )
 
 			return TRUE
 
@@ -47211,7 +47211,7 @@ vvv
 
 	def IsAtThisPairNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisPair )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisPair )
 
 			return TRUE
 
@@ -47221,7 +47221,7 @@ vvv
 
 	def IsAtPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtPairs )
+			( isString(This.Item(1)) and  This.Item(1) = :AtPairs )
 
 			return TRUE
 
@@ -47231,7 +47231,7 @@ vvv
 
 	def IsAtThesePairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThesePairs )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThesePairs )
 
 			return TRUE
 
@@ -47241,7 +47241,7 @@ vvv
 
 	def IsAtManyPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyPairs )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyPairs )
 
 			return TRUE
 
@@ -47253,7 +47253,7 @@ vvv
 
 	def IsAtListOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListOfNumbers )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListOfNumbers )
 
 			return TRUE
 
@@ -47263,7 +47263,7 @@ vvv
 
 	def IsAtThisListOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisListOfNumbers )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfNumbers )
 
 			return TRUE
 
@@ -47273,7 +47273,7 @@ vvv
 
 	def IsAtListsOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListsOfNumbers )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfNumbers )
 
 			return TRUE
 
@@ -47283,7 +47283,7 @@ vvv
 
 	def IsAtTheseListsOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseListsOfNumbers )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfNumbers )
 
 			return TRUE
 
@@ -47293,7 +47293,7 @@ vvv
 
 	def IsAtManyListsOfNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyListsOfNumbers )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfNumbers )
 
 			return TRUE
 
@@ -47305,7 +47305,7 @@ vvv
 
 	def IsAtListOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListOfChars )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListOfChars )
 
 			return TRUE
 
@@ -47315,7 +47315,7 @@ vvv
 
 	def IsAtThisListOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisListOfChars )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfChars )
 
 			return TRUE
 
@@ -47325,7 +47325,7 @@ vvv
 
 	def IsAtListsOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListsOfChars )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfChars )
 
 			return TRUE
 
@@ -47335,7 +47335,7 @@ vvv
 
 	def IsAtTheseListsOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseListsOfChars )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfChars )
 
 			return TRUE
 
@@ -47345,7 +47345,7 @@ vvv
 
 	def IsAtManyListsOfCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyListsOfChars )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfChars )
 
 			return TRUE
 
@@ -47357,7 +47357,7 @@ vvv
 
 	def IsAtListOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListOfStrings )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListOfStrings )
 
 			return TRUE
 
@@ -47367,7 +47367,7 @@ vvv
 
 	def IsAtThisListOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisListOfStrings )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfStrings )
 
 			return TRUE
 
@@ -47377,7 +47377,7 @@ vvv
 
 	def IsAtListsOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListsOfStrings )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfStrings )
 
 			return TRUE
 
@@ -47387,7 +47387,7 @@ vvv
 
 	def IsAtTheseListsOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseListsOfStrings )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfStrings )
 
 			return TRUE
 
@@ -47397,7 +47397,7 @@ vvv
 
 	def IsAtManyListsOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyListsOfStrings )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfStrings )
 
 			return TRUE
 
@@ -47409,7 +47409,7 @@ vvv
 
 	def IsAtListOfStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListOfStringItems )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListOfStringItems )
 
 			return TRUE
 
@@ -47419,7 +47419,7 @@ vvv
 
 	def IsAtThisListOfStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisListOfStringItems )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfStringItems )
 
 			return TRUE
 
@@ -47430,7 +47430,7 @@ vvv
 
 	def IsAtListsOfStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListsOfStringItems )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfStringItems )
 
 			return TRUE
 
@@ -47440,7 +47440,7 @@ vvv
 
 	def IsAtTheseListsOfStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseListsOfStringItems )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfStringItems )
 
 			return TRUE
 
@@ -47450,7 +47450,7 @@ vvv
 
 	def IsAtManyListsOfStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyListsOfStringItems )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfStringItems )
 
 			return TRUE
 
@@ -47462,7 +47462,7 @@ vvv
 
 	def IsAtListOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListOfLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListOfLists )
 
 			return TRUE
 
@@ -47472,7 +47472,7 @@ vvv
 
 	def IsAtThisListOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisListOfLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfLists )
 
 			return TRUE
 
@@ -47482,7 +47482,7 @@ vvv
 
 	def IsAtListsOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListsOfLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfLists )
 
 			return TRUE
 
@@ -47492,7 +47492,7 @@ vvv
 
 	def IsAtTheseListsOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseListsOfLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfLists )
 
 			return TRUE
 
@@ -47502,7 +47502,7 @@ vvv
 
 	def IsAtManyListsOfListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyListsOfLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfLists )
 
 			return TRUE
 
@@ -47514,7 +47514,7 @@ vvv
 
 	def IsAtListOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListOfSubLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListOfSubLists )
 
 			return TRUE
 
@@ -47524,7 +47524,7 @@ vvv
 
 	def IsAtThisListOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisListOfSubLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfSubLists )
 
 			return TRUE
 
@@ -47534,7 +47534,7 @@ vvv
 
 	def IsAtListsOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListsOfSubLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfSubLists )
 
 			return TRUE
 
@@ -47544,7 +47544,7 @@ vvv
 
 	def IsAtTheseListsOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseListsOfSubLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfSubLists )
 
 			return TRUE
 
@@ -47554,7 +47554,7 @@ vvv
 
 	def IsAtManyListsOfSubListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyListsOfSubLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfSubLists )
 
 			return TRUE
 
@@ -47566,7 +47566,7 @@ vvv
 
 	def IsAtListOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListOfPairs )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListOfPairs )
 
 			return TRUE
 
@@ -47576,7 +47576,7 @@ vvv
 
 	def IsAtThisListOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisListOfPairs )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfPairs )
 
 			return TRUE
 
@@ -47585,7 +47585,7 @@ vvv
 		ok
 	def IsAtListsOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListsOfPairs )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfPairs )
 
 			return TRUE
 
@@ -47595,7 +47595,7 @@ vvv
 
 	def IsAtTheseListsOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseListsOfPairs )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfPairs )
 
 			return TRUE
 
@@ -47605,7 +47605,7 @@ vvv
 
 	def IsAtManyListsOfPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyListsOfPairs )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfPairs )
 
 			return TRUE
 
@@ -47617,7 +47617,7 @@ vvv
 
 	def IsAtListOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListOfHashLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListOfHashLists )
 
 			return TRUE
 
@@ -47627,7 +47627,7 @@ vvv
 
 	def IsAtThisListOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisListOfHashLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfHashLists )
 
 			return TRUE
 
@@ -47637,7 +47637,7 @@ vvv
 
 	def IsAtListsOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListsOfHashLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfHashLists )
 
 			return TRUE
 
@@ -47647,7 +47647,7 @@ vvv
 
 	def IsAtTheseListsOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseListsOfHashLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfHashLists )
 
 			return TRUE
 
@@ -47657,7 +47657,7 @@ vvv
 
 	def IsAtManyListsOfHashListsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyListsOfHashLists )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfHashLists )
 
 			return TRUE
 
@@ -47669,7 +47669,7 @@ vvv
 
 	def IsAtObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtObject )
+			( isString(This.Item(1)) and  This.Item(1) = :AtObject )
 
 			return TRUE
 
@@ -47679,7 +47679,7 @@ vvv
 
 	def IsAtThisObjectNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisObject )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisObject )
 
 			return TRUE
 
@@ -47689,7 +47689,7 @@ vvv
 
 	def IsAtObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtObjects )
+			( isString(This.Item(1)) and  This.Item(1) = :AtObjects )
 
 			return TRUE
 
@@ -47699,7 +47699,7 @@ vvv
 
 	def IsAtTheseObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseObjects )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseObjects )
 
 			return TRUE
 
@@ -47709,7 +47709,7 @@ vvv
 
 	def IsAtManyObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyObjects )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyObjects )
 
 			return TRUE
 
@@ -47721,7 +47721,7 @@ vvv
 
 	def IsAtSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtSection )
+			( isString(This.Item(1)) and  This.Item(1) = :AtSection )
 
 			return TRUE
 
@@ -47731,7 +47731,7 @@ vvv
 
 	def IsAtThisSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisSection )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisSection )
 
 			return TRUE
 
@@ -47741,7 +47741,7 @@ vvv
 
 	def IsAtSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtSections )
+			( isString(This.Item(1)) and  This.Item(1) = :AtSections )
 
 			return TRUE
 
@@ -47751,7 +47751,7 @@ vvv
 
 	def IsAtTheseSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseSections )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseSections )
 
 			return TRUE
 
@@ -47761,7 +47761,7 @@ vvv
 
 	def IsAtManySectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManySections )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManySections )
 
 			return TRUE
 
@@ -47773,7 +47773,7 @@ vvv
 
 	def IsAtListOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListOfSections )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListOfSections )
 
 			return TRUE
 
@@ -47783,7 +47783,7 @@ vvv
 
 	def IsAtThisListOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisListOfSections )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfSections )
 
 			return TRUE
 
@@ -47793,7 +47793,7 @@ vvv
 
 	def IsAtListsOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListsOfSections )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfSections )
 
 			return TRUE
 
@@ -47803,7 +47803,7 @@ vvv
 
 	def IsAtTheseListsOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseListsOfSections )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfSections )
 
 			return TRUE
 
@@ -47813,7 +47813,7 @@ vvv
 
 	def IsAtManyListsOfSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyListsOfSections )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfSections )
 
 			return TRUE
 
@@ -47825,7 +47825,7 @@ vvv
 
 	def IsAtRangeNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtRange )
+			( isString(This.Item(1)) and  This.Item(1) = :AtRange )
 
 			return TRUE
 
@@ -47835,7 +47835,7 @@ vvv
 
 	def IsAtThisRangeNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisRange )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisRange )
 
 			return TRUE
 
@@ -47845,7 +47845,7 @@ vvv
 
 	def IsAtRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtRanges )
+			( isString(This.Item(1)) and  This.Item(1) = :AtRanges )
 
 			return TRUE
 
@@ -47855,7 +47855,7 @@ vvv
 
 	def IsAtTheseRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseRanges )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseRanges )
 
 			return TRUE
 
@@ -47865,7 +47865,7 @@ vvv
 
 	def IsAtManyRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyRanges )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyRanges )
 
 			return TRUE
 
@@ -47877,7 +47877,7 @@ vvv
 
 	def IsAtListOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListOfRanges )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListOfRanges )
 
 			return TRUE
 
@@ -47887,7 +47887,7 @@ vvv
 
 	def IsAtThisListOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtThisListOfRanges )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfRanges )
 
 			return TRUE
 
@@ -47897,7 +47897,7 @@ vvv
 
 	def IsAtListsOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtListsOfRanges )
+			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfRanges )
 
 			return TRUE
 
@@ -47907,7 +47907,7 @@ vvv
 
 	def IsAtTheseListsOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtTheseListsOfRanges )
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfRanges )
 
 			return TRUE
 
@@ -47917,7 +47917,7 @@ vvv
 
 	def IsAtManyListsOfRangesNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This[1]) and  This[1] = :AtManyListsOfRanges )
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfRanges )
 
 			return TRUE
 
@@ -47978,8 +47978,8 @@ vvv
 
 	def IsStepNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  Q(This[1]).IsOneOfThese([ :Step, :Steps ]) ) and
-		   isNumber( This[2] )
+		   ( isString(This.Item(1)) and  Q(This.Item(1)).IsOneOfThese([ :Step, :Steps ]) ) and
+		   isNumber( This.Item(2) )
 		  
 			return TRUE
 
@@ -47989,8 +47989,8 @@ vvv
 
 	def IsNameNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Name ) and
-		   isString(This[2])
+		   ( isString(This.Item(1)) and  This.Item(1) = :Name ) and
+		   isString(This.Item(2))
 		  
 			return TRUE
 
@@ -48000,8 +48000,8 @@ vvv
 
 	def IsNamedNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Named ) and
-		   isString(This[2])
+		   ( isString(This.Item(1)) and  This.Item(1) = :Named ) and
+		   isString(This.Item(2))
 		  
 			return TRUE
 
@@ -48011,8 +48011,8 @@ vvv
 
 	def IsNamedAsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :NamedAs ) and
-		   isString(This[2])
+		   ( isString(This.Item(1)) and  This.Item(1) = :NamedAs ) and
+		   isString(This.Item(2))
 		  
 			return TRUE
 
@@ -48034,7 +48034,7 @@ vvv
 
 	def IsReturnedAsNamedParam()
 
-		if This.NumberOfItems() = 2 and This[1] = :ReturnedAs
+		if This.NumberOfItems() = 2 and This.Item(1) = :ReturnedAs
 
 			return TRUE
 
@@ -48044,7 +48044,7 @@ vvv
 
 	def IsAndReturnedAsNamedParam()
 
-		if This.NumberOfItems() = 2 and This[1] = :AndReturnedAs
+		if This.NumberOfItems() = 2 and This.Item(1) = :AndReturnedAs
 
 			return TRUE
 
@@ -48054,7 +48054,7 @@ vvv
 
 	def IsReturnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and This[1] = :Return
+		   isString(This.Item(1)) and This.Item(1) = :Return
 
 			return TRUE
 
@@ -48064,7 +48064,7 @@ vvv
 
 	def IsReturnAsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and This[1] = :ReturnAs
+		   isString(This.Item(1)) and This.Item(1) = :ReturnAs
 
 			return TRUE
 
@@ -48074,7 +48074,7 @@ vvv
 
 	def IsAndReturnAsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and This[1] = :AndReturnAs
+		   isString(This.Item(1)) and This.Item(1) = :AndReturnAs
 
 			return TRUE
 
@@ -48084,7 +48084,7 @@ vvv
 
 	def IsReturnItAsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and This[1] = :ReturnItAs
+		   isString(This.Item(1)) and This.Item(1) = :ReturnItAs
 
 			return TRUE
 
@@ -48094,7 +48094,7 @@ vvv
 
 	def IsAndReturnItAsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and This[1] = :AndReturnItAs
+		   isString(This.Item(1)) and This.Item(1) = :AndReturnItAs
 
 			return TRUE
 
@@ -48104,7 +48104,7 @@ vvv
 
 	def IsReturnThemAsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and This[1] = :ReturnThemAs
+		   isString(This.Item(1)) and This.Item(1) = :ReturnThemAs
 
 			return TRUE
 
@@ -48114,7 +48114,7 @@ vvv
 
 	def IsAndReturnThemAsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and This[1] = :AndReturnThemAs
+		   isString(This.Item(1)) and This.Item(1) = :AndReturnThemAs
 
 			return TRUE
 
@@ -48124,7 +48124,7 @@ vvv
 
 	def IsReturningNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and Q(This[1]).IsEqualToCS(:Returning, :CS = FALSE)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:Returning, :CS = FALSE)
 
 			return TRUE
 
@@ -48134,7 +48134,7 @@ vvv
 
 	def IsAndReturnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and Q(This[1]).IsEqualToCS(:AndReturn, :CS = FALSE)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:AndReturn, :CS = FALSE)
 
 			return TRUE
 
@@ -48144,7 +48144,7 @@ vvv
 
 	def IsAndReturningNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and Q(This[1]).IsEqualToCS(:AndReturning, :CS = FALSE)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:AndReturning, :CS = FALSE)
 
 			return TRUE
 
@@ -48154,7 +48154,7 @@ vvv
 
 	def IsReturnNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and Q(This[1]).IsEqualToCS(:ReturnNth, :CS = FALSE)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:ReturnNth, :CS = FALSE)
 
 			return TRUE
 
@@ -48164,7 +48164,7 @@ vvv
 
 	def IsReturningNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and Q(This[1]).IsEqualToCS(:ReturningNth, :CS = FALSE)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:ReturningNth, :CS = FALSE)
 
 			return TRUE
 
@@ -48174,7 +48174,7 @@ vvv
 
 	def IsAndReturnNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and Q(This[1]).IsEqualToCS(:AndReturnNth, :CS = FALSE)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:AndReturnNth, :CS = FALSE)
 
 			return TRUE
 
@@ -48184,7 +48184,7 @@ vvv
 
 	def IsAndReturningNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This[1]) and Q(This[1]).IsEqualToCS(:AndReturningNth, :CS = FALSE)
+		   isString(This.Item(1)) and Q(This.Item(1)).IsEqualToCS(:AndReturningNth, :CS = FALSE)
 
 			return TRUE
 
@@ -48194,7 +48194,7 @@ vvv
 
 	def IsUpToNCharsNamedParam()
 		if This.NumberOfItems() = 2 and
- 		   isString(This[1]) and  This[1] = :UpToNChars
+ 		   isString(This.Item(1)) and  This.Item(1) = :UpToNChars
 		  
 			return TRUE
 
@@ -48204,7 +48204,7 @@ vvv
 
 	def IsUpToNItemsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
- 		   ( isString(This[1]) and  This[1] = :UpToNItems )
+ 		   ( isString(This.Item(1)) and  This.Item(1) = :UpToNItems )
 		  
 			return TRUE
 
@@ -48214,7 +48214,7 @@ vvv
 
 	def IsBeforeNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :Before )
+		   ( isString(This.Item(1)) and This.Item(1) = :Before )
 
 			return TRUE
 		else
@@ -48223,7 +48223,7 @@ vvv
 
 	def IsBeforePositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforePosition )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforePosition )
 
 			return TRUE
 		else
@@ -48232,7 +48232,7 @@ vvv
 
 	def IsBeforeThisPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeThisPosition )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThisPosition )
 
 			return TRUE
 		else
@@ -48241,7 +48241,7 @@ vvv
 
 	def IsBeforePositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforePositions )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforePositions )
 
 			return TRUE
 		else
@@ -48250,7 +48250,7 @@ vvv
 
 	def IsBeforeThesePositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeThesePositions )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThesePositions )
 
 			return TRUE
 		else
@@ -48261,7 +48261,7 @@ vvv
 
 	def IsBeforeSubStringNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeSubString )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubString )
 
 			return TRUE
 		else
@@ -48270,7 +48270,7 @@ vvv
 
 	def IsBeforeThisSubStringNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeThisSubString )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThisSubString )
 
 			return TRUE
 		else
@@ -48279,7 +48279,7 @@ vvv
 
 	def IsBeforeSubStringsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeSubStrings )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStrings )
 
 			return TRUE
 		else
@@ -48288,7 +48288,7 @@ vvv
 
 	def IsBeforeTheseSubStringsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeTheseSubStrings )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeTheseSubStrings )
 
 			return TRUE
 		else
@@ -48297,7 +48297,7 @@ vvv
 
 	def IsBeforeSubStringPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeSubStringPosition )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStringPosition )
 
 			return TRUE
 		else
@@ -48306,7 +48306,7 @@ vvv
 
 	def IsBeforeThisSubStringPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeThisSubStringPosition )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThisSubStringPosition )
 
 			return TRUE
 		else
@@ -48315,7 +48315,7 @@ vvv
 
 	def IsBeforeSubStringsPositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeSubStringsPositions )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStringsPositions )
 
 			return TRUE
 		else
@@ -48324,7 +48324,7 @@ vvv
 
 	def IsBeforeTheseSubStringsPositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeTheseSubStringsPositions )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeTheseSubStringsPositions )
 
 			return TRUE
 		else
@@ -48335,7 +48335,7 @@ vvv
 
 	def IsAfterSubStringNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterSubString )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterSubString )
 
 			return TRUE
 		else
@@ -48344,7 +48344,7 @@ vvv
 
 	def IsAfterThisSubStringNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterThisSubString )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterThisSubString )
 
 			return TRUE
 		else
@@ -48353,7 +48353,7 @@ vvv
 
 	def IsAfterSubStringsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterSubStrings )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterSubStrings )
 
 			return TRUE
 		else
@@ -48362,7 +48362,7 @@ vvv
 
 	def IsAfterTheseSubStringsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterTheseSubStrings )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterTheseSubStrings )
 
 			return TRUE
 		else
@@ -48371,7 +48371,7 @@ vvv
 
 	def IsAfterSubStringPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterSubStringPosition )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterSubStringPosition )
 
 			return TRUE
 		else
@@ -48380,7 +48380,7 @@ vvv
 
 	def IsAfterThisSubStringPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterThisSubStringPosition )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterThisSubStringPosition )
 
 			return TRUE
 		else
@@ -48389,7 +48389,7 @@ vvv
 
 	def IsAfterSubStringsPositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterSubStringsPositions )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterSubStringsPositions )
 
 			return TRUE
 		else
@@ -48398,7 +48398,7 @@ vvv
 
 	def IsAfterTheseSubStringsPositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterTheseSubStringsPositions )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterTheseSubStringsPositions )
 
 			return TRUE
 		else
@@ -48409,7 +48409,7 @@ vvv
 
 	def IsBeforeSectionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeSection )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSection )
 
 			return TRUE
 		else
@@ -48418,7 +48418,7 @@ vvv
 
 	def IsBeforeThisSectionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeThisSection )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThisSection )
 
 			return TRUE
 		else
@@ -48427,7 +48427,7 @@ vvv
 
 	def IsBeforeSectionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeSections )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSections )
 
 			return TRUE
 		else
@@ -48436,7 +48436,7 @@ vvv
 
 	def IsBeforeTheseSectionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :BeforeTheseSections )
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeTheseSections )
 
 			return TRUE
 		else
@@ -48447,7 +48447,7 @@ vvv
 
 	def IsAfterSectionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterSection )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterSection )
 
 			return TRUE
 		else
@@ -48456,7 +48456,7 @@ vvv
 
 	def IsAfterThisSectionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterThisSection )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterThisSection )
 
 			return TRUE
 		else
@@ -48465,7 +48465,7 @@ vvv
 
 	def IsAfterSectionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterSections )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterSections )
 
 			return TRUE
 		else
@@ -48474,7 +48474,7 @@ vvv
 
 	def IsAfterTheseSectionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterTheseSections )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterTheseSections )
 
 			return TRUE
 		else
@@ -48495,7 +48495,7 @@ vvv
 
 	def IsAfterNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :After )
+		   ( isString(This.Item(1)) and This.Item(1) = :After )
 
 			return TRUE
 		else
@@ -48504,7 +48504,7 @@ vvv
 
 	def IsAfterPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterPosition )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterPosition )
 
 			return TRUE
 		else
@@ -48513,7 +48513,7 @@ vvv
 
 	def IsAfterThisPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterThisPosition )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterThisPosition )
 
 			return TRUE
 		else
@@ -48522,7 +48522,7 @@ vvv
 
 	def IsAfterPositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterPositions )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterPositions )
 
 			return TRUE
 		else
@@ -48531,7 +48531,7 @@ vvv
 
 	def IsAfterThesePositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
-		   ( isString(This[1]) and This[1] = :AfterThesePositions )
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterThesePositions )
 
 			return TRUE
 		else
@@ -48560,7 +48560,7 @@ vvv
 
 	def IsWidthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Width )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Width )
 
 			return TRUE
 
@@ -48586,7 +48586,7 @@ vvv
 
 	def IsMadeOfNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :MadeOf )
+		   ( isString(This.Item(1)) and  This.Item(1) = :MadeOf )
 
 			return TRUE
 
@@ -48596,7 +48596,7 @@ vvv
 
 	def IsNthTofirstNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :NthToFirst )
+		   ( isString(This.Item(1)) and  This.Item(1) = :NthToFirst )
 
 			return TRUE
 
@@ -48606,7 +48606,7 @@ vvv
 
 	def IsNthToFirstCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :NthToFirstChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :NthToFirstChar )
 
 			return TRUE
 
@@ -48616,7 +48616,7 @@ vvv
 
 	def IsNthToFirstItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :NthToFirstItem )
+		   ( isString(This.Item(1)) and  This.Item(1) = :NthToFirstItem )
 
 			return TRUE
 
@@ -48626,7 +48626,7 @@ vvv
 
 	def IsNthToLastNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :NthToLast )
+		   ( isString(This.Item(1)) and  This.Item(1) = :NthToLast )
 
 			return TRUE
 
@@ -48636,7 +48636,7 @@ vvv
 
 	def IsNthToLastCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :NthToLastChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :NthToLastChar )
 
 			return TRUE
 
@@ -48646,7 +48646,7 @@ vvv
 
 	def IsNthToLastItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :NthToLastItem )
+		   ( isString(This.Item(1)) and  This.Item(1) = :NthToLastItem )
 
 			return TRUE
 
@@ -48656,7 +48656,7 @@ vvv
 
 	def IsStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :String )
+		   ( isString(This.Item(1)) and  This.Item(1) = :String )
 
 			return TRUE
 
@@ -48666,7 +48666,7 @@ vvv
 
 	def IsThisStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ThisString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ThisString )
 
 			return TRUE
 
@@ -48676,7 +48676,7 @@ vvv
 
 	def IsStringItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringItem )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringItem )
 
 			return TRUE
 
@@ -48686,7 +48686,7 @@ vvv
 
 	def IsThisStringItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ThisStringItem )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ThisStringItem )
 
 			return TRUE
 
@@ -48708,7 +48708,7 @@ vvv
 
 	def IsNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Number )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Number )
 
 			return TRUE
 
@@ -48718,7 +48718,7 @@ vvv
 
 	def IsThisNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ThisNumber )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ThisNumber )
 
 			return TRUE
 
@@ -48728,7 +48728,7 @@ vvv
 
 	def IsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Numbers )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Numbers )
 
 			return TRUE
 
@@ -48738,7 +48738,7 @@ vvv
 
 	def IsTheseNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :TheseNumbers )
+		   ( isString(This.Item(1)) and  This.Item(1) = :TheseNumbers )
 
 			return TRUE
 
@@ -48750,7 +48750,7 @@ vvv
 
 	def IsCharNamedParam()
 		if This.CharOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Char )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Char )
 
 			return TRUE
 
@@ -48760,7 +48760,7 @@ vvv
 
 	def IsThisCharNamedParam()
 		if This.CharOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ThisChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ThisChar )
 
 			return TRUE
 
@@ -48770,7 +48770,7 @@ vvv
 
 	def IsCharsNamedParam()
 		if This.CharOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Chars )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Chars )
 
 			return TRUE
 
@@ -48780,7 +48780,7 @@ vvv
 
 	def IsTheseCharsNamedParam()
 		if This.CharOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :TheseChars )
+		   ( isString(This.Item(1)) and  This.Item(1) = :TheseChars )
 
 			return TRUE
 
@@ -48792,7 +48792,7 @@ vvv
 
 	def IsItemNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Item )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Item )
 
 			return TRUE
 
@@ -48802,7 +48802,7 @@ vvv
 
 	def IsItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Items )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Items )
 
 			return TRUE
 
@@ -48812,7 +48812,7 @@ vvv
 
 	def IsItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ItemAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ItemAt )
 
 			return TRUE
 
@@ -48822,7 +48822,7 @@ vvv
 
 	def IsItemsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Items )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Items )
 
 			return TRUE
 
@@ -48832,7 +48832,7 @@ vvv
 
 	def IsItemAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ItemAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ItemAtPosition )
 
 			return TRUE
 
@@ -48842,7 +48842,7 @@ vvv
 
 	def IsItemsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ItemsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ItemsAtPosition )
 
 			return TRUE
 
@@ -48852,7 +48852,7 @@ vvv
 
 	def IsStringsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Strings )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Strings )
 
 			return TRUE
 
@@ -48862,7 +48862,7 @@ vvv
 
 	def IsTheseStringsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :TheseStrings )
+		   ( isString(This.Item(1)) and  This.Item(1) = :TheseStrings )
 
 			return TRUE
 
@@ -48872,7 +48872,7 @@ vvv
 
 	def IsStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringAt )
 
 			return TRUE
 
@@ -48882,7 +48882,7 @@ vvv
 
 	def IsThisStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ThisStringAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ThisStringAt )
 
 			return TRUE
 
@@ -48892,7 +48892,7 @@ vvv
 
 	def IsStringAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringAtPosition )
 
 			return TRUE
 
@@ -48902,7 +48902,7 @@ vvv
 
 	def IsStringAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringAtPositions )
 
 			return TRUE
 
@@ -48912,7 +48912,7 @@ vvv
 
 	def IsItemAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ItemAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ItemAtPositions )
 
 			return TRUE
 
@@ -48922,7 +48922,7 @@ vvv
 
 	def IsItemsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ItemsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ItemsAtPositions )
 
 			return TRUE
 
@@ -48932,7 +48932,7 @@ vvv
 
 	def IsStringItemAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringItemAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemAtPositions )
 
 			return TRUE
 
@@ -48942,7 +48942,7 @@ vvv
 
 	def IsCharAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :CharAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :CharAtPositions )
 
 			return TRUE
 
@@ -48952,7 +48952,7 @@ vvv
 
 	def IsCharsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :CharsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :CharsAtPositions )
 
 			return TRUE
 
@@ -48962,7 +48962,7 @@ vvv
 
 	def IsStringItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringItemAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemAt )
 
 			return TRUE
 
@@ -48972,7 +48972,7 @@ vvv
 
 	def IsStringItemAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringItemAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemAtPosition )
 
 			return TRUE
 
@@ -48982,7 +48982,7 @@ vvv
 
 	def IsSubStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :SubStringAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :SubStringAt )
 
 			return TRUE
 
@@ -48992,7 +48992,7 @@ vvv
 
 	def IsThisSubStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ThisSubStringAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ThisSubStringAt )
 
 			return TRUE
 
@@ -49002,7 +49002,7 @@ vvv
 
 	def IsSubStringsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :SubStringsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :SubStringsAt )
 
 			return TRUE
 
@@ -49012,7 +49012,7 @@ vvv
 
 	def IsTheseSubStringsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :TheseSubStringsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :TheseSubStringsAt )
 
 			return TRUE
 
@@ -49022,7 +49022,7 @@ vvv
 
 	def IsSubStringAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :SubStringAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :SubStringAtPosition )
 
 			return TRUE
 
@@ -49032,7 +49032,7 @@ vvv
 
 	def IsSubStringsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :SubStringsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :SubStringsAtPosition )
 
 			return TRUE
 
@@ -49042,7 +49042,7 @@ vvv
 
 	def IsBetweenNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Between )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Between )
 
 			return TRUE
 
@@ -49052,7 +49052,7 @@ vvv
 
 	def IsBetweenXTNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenXT )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenXT )
 
 			return TRUE
 
@@ -49062,7 +49062,7 @@ vvv
 
 	def IsInBetweenNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InBetween )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InBetween )
 
 			return TRUE
 
@@ -49072,7 +49072,7 @@ vvv
 
 	def IsInBetweenXTNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InBetweenXT )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InBetweenXT )
 
 			return TRUE
 
@@ -49082,7 +49082,7 @@ vvv
 
 	def IsBetweenIBNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenIB )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenIB )
 
 			return TRUE
 
@@ -49092,7 +49092,7 @@ vvv
 
 	def IsInBetweenIBNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InBetweenIB )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InBetweenIB )
 
 			return TRUE
 
@@ -49102,7 +49102,7 @@ vvv
 
 	def IsBetweenIBSNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenIBS )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenIBS )
 
 			return TRUE
 
@@ -49112,7 +49112,7 @@ vvv
 
 	def IsInBetweenIBSNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InBetweenIBS )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InBetweenIBS )
 
 			return TRUE
 
@@ -49122,7 +49122,7 @@ vvv
 
 	def IsBetweenSNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenS )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenS )
 
 			return TRUE
 
@@ -49132,7 +49132,7 @@ vvv
 
 	def IsInBetweenSNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InBetweenS )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InBetweenS )
 
 			return TRUE
 
@@ -49142,7 +49142,7 @@ vvv
 
 	def IsBetweenCSNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenCS )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCS )
 
 			return TRUE
 
@@ -49152,7 +49152,7 @@ vvv
 
 	def IsInBetweenCSNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :InBetweenCS )
+		   ( isString(This.Item(1)) and  This.Item(1) = :InBetweenCS )
 
 			return TRUE
 
@@ -49162,7 +49162,7 @@ vvv
 
 	def IsBetweenPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenPosition )
 
 			return TRUE
 
@@ -49172,7 +49172,7 @@ vvv
 
 	def IsBetweenPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenPositions )
 
 			return TRUE
 
@@ -49184,7 +49184,7 @@ vvv
 
 	def IsBetweenRowNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenRow )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRow )
 
 			return TRUE
 
@@ -49194,7 +49194,7 @@ vvv
 
 	def IsBetweenRowAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenRowAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRowAt )
 
 			return TRUE
 
@@ -49204,7 +49204,7 @@ vvv
 
 	def IsBetweenRowAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenRowAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRowAtPosition )
 
 			return TRUE
 
@@ -49214,7 +49214,7 @@ vvv
 
 	def IsBetweenRowsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenRowsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRowsAtPosition )
 
 			return TRUE
 
@@ -49224,7 +49224,7 @@ vvv
 
 	def IsBetweenRowsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenRowsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRowsAtPositions )
 
 			return TRUE
 
@@ -49234,7 +49234,7 @@ vvv
 
 	def IsBetweenRowsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenRows )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRows )
 
 			return TRUE
 
@@ -49244,7 +49244,7 @@ vvv
 
 	def IsBetweenRowsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenRowsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenRowsAt )
 
 			return TRUE
 
@@ -49256,7 +49256,7 @@ vvv
 
 	def IsBetweenColNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenCol )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCol )
 
 			return TRUE
 
@@ -49266,7 +49266,7 @@ vvv
 
 		def IsBetweenColumnNamedParam()
 			if This.NumberOfItems() = 2 and
-			   ( isString(This[1]) and  This[1] = :BetweenColumn )
+			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumn )
 	
 				return TRUE
 	
@@ -49276,7 +49276,7 @@ vvv
 
 	def IsBetweenColAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenColAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColAt )
 
 			return TRUE
 
@@ -49286,7 +49286,7 @@ vvv
 
 		def IsBetweenColumnAtNamedParam()
 			if This.NumberOfItems() = 2 and
-			   ( isString(This[1]) and  This[1] = :BetweenColumnAt )
+			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumnAt )
 	
 				return TRUE
 	
@@ -49296,7 +49296,7 @@ vvv
 
 	def IsBetweenColAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenColAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColAtPosition )
 
 			return TRUE
 
@@ -49306,7 +49306,7 @@ vvv
 
 		def IsBetweenColumnAtPositionNamedParam()
 			if This.NumberOfItems() = 2 and
-			   ( isString(This[1]) and  This[1] = :BetweenColumnAtPosition )
+			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumnAtPosition )
 	
 				return TRUE
 	
@@ -49316,7 +49316,7 @@ vvv
 	
 	def IsBetweenColsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenColsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColsAtPosition )
 
 			return TRUE
 
@@ -49326,7 +49326,7 @@ vvv
 
 		def IsBetweenColumnsAtPositionNamedParam()
 			if This.NumberOfItems() = 2 and
-			   ( isString(This[1]) and  This[1] = :BetweenColumnsAtPosition )
+			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumnsAtPosition )
 	
 				return TRUE
 	
@@ -49336,7 +49336,7 @@ vvv
 
 	def IsBetweenColsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenColsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColsAtPositions )
 
 			return TRUE
 
@@ -49346,7 +49346,7 @@ vvv
 
 		def IsBetweenColumnsAtPositionsNamedParam()
 			if This.NumberOfItems() = 2 and
-			   ( isString(This[1]) and  This[1] = :BetweenColumnsAtPositions )
+			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumnsAtPositions )
 	
 				return TRUE
 	
@@ -49356,7 +49356,7 @@ vvv
 
 	def IsBetweenColsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenCols )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCols )
 
 			return TRUE
 
@@ -49366,7 +49366,7 @@ vvv
 
 		def IsBetweenColumnsNamedParam()
 			if This.NumberOfItems() = 2 and
-			   ( isString(This[1]) and  This[1] = :BetweenColumns )
+			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumns )
 	
 				return TRUE
 	
@@ -49376,7 +49376,7 @@ vvv
 
 	def IsBetweenColsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenColsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColsAt )
 
 			return TRUE
 
@@ -49386,7 +49386,7 @@ vvv
 
 		def IsBetweenColumnsAtNamedParam()
 			if This.NumberOfItems() = 2 and
-			   ( isString(This[1]) and  This[1] = :BetweenColumnsAt )
+			   ( isString(This.Item(1)) and  This.Item(1) = :BetweenColumnsAt )
 	
 				return TRUE
 	
@@ -49398,7 +49398,7 @@ vvv
 
 	def IsFromPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromPositions )
 
 			return TRUE
 
@@ -49408,7 +49408,7 @@ vvv
 
 	def IsToPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToPositions )
 
 			return TRUE
 
@@ -49421,7 +49421,7 @@ vvv
 	def IsItemFromPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ItemFromPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ItemFromPosition )
 
 			return TRUE
 
@@ -49432,7 +49432,7 @@ vvv
 	def IsItemsFromPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ItemsFromPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ItemsFromPosition )
 
 			return TRUE
 
@@ -49443,7 +49443,7 @@ vvv
 	def IsItemFromNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ItemFrom )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ItemFrom )
 
 			return TRUE
 
@@ -49454,7 +49454,7 @@ vvv
 	def IsItemsFromNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ItemsFrom )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ItemsFrom )
 
 			return TRUE
 
@@ -49464,7 +49464,7 @@ vvv
 
 	def IsBetweenItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenItemAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItemAt )
 
 			return TRUE
 
@@ -49474,7 +49474,7 @@ vvv
 
 	def IsFromItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromItemAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromItemAt )
 
 			return TRUE
 
@@ -49484,7 +49484,7 @@ vvv
 
 	def IsToItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToItemAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToItemAt )
 
 			return TRUE
 
@@ -49494,7 +49494,7 @@ vvv
 
 	def IsBetweenItemsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenItemsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItemsAt )
 
 			return TRUE
 
@@ -49504,7 +49504,7 @@ vvv
 
 	def IsFromItemsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromItemsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromItemsAt )
 
 			return TRUE
 
@@ -49514,7 +49514,7 @@ vvv
 
 	def IsToItemsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToItemsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToItemsAt )
 
 			return TRUE
 
@@ -49525,7 +49525,7 @@ vvv
 	def IsBetweenItemAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenItemAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItemAtPosition )
 
 			return TRUE
 
@@ -49536,7 +49536,7 @@ vvv
 	def IsFromItemAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromItemAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromItemAtPosition )
 
 			return TRUE
 
@@ -49547,7 +49547,7 @@ vvv
 	def IsToItemAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToItemAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToItemAtPosition )
 
 			return TRUE
 
@@ -49558,7 +49558,7 @@ vvv
 	def IsBetweenItemNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenItem )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItem )
 
 			return TRUE
 
@@ -49569,7 +49569,7 @@ vvv
 	def IsBetweenItemsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenItems )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItems )
 
 			return TRUE
 
@@ -49580,7 +49580,7 @@ vvv
 	def IsBetweenItemAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenItemAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItemAtPositions )
 
 			return TRUE
 
@@ -49591,7 +49591,7 @@ vvv
 	def IsToItemAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToItemAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToItemAtPositions )
 
 			return TRUE
 
@@ -49602,7 +49602,7 @@ vvv
 	def IsFromItemAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromItemAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromItemAtPositions )
 
 			return TRUE
 
@@ -49613,7 +49613,7 @@ vvv
 	def IsFromItemPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromItemPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromItemPosition )
 
 			return TRUE
 
@@ -49626,7 +49626,7 @@ vvv
 	def IsStringFromPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringFromPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringFromPosition )
 
 			return TRUE
 
@@ -49637,7 +49637,7 @@ vvv
 	def IsStringsFromPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringsFromPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringsFromPosition )
 
 			return TRUE
 
@@ -49648,7 +49648,7 @@ vvv
 	def IsStringFromNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringFrom )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringFrom )
 
 			return TRUE
 
@@ -49659,7 +49659,7 @@ vvv
 	def IsStringsFromNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringsFrom )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringsFrom )
 
 			return TRUE
 
@@ -49670,7 +49670,7 @@ vvv
 	def IsFromStringPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringPosition )
 
 			return TRUE
 
@@ -49681,7 +49681,7 @@ vvv
 	def IsBetweenStringNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenString )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenString )
 
 			return TRUE
 
@@ -49692,7 +49692,7 @@ vvv
 	def IsBetweenStringsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStrings )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStrings )
 
 			return TRUE
 
@@ -49703,7 +49703,7 @@ vvv
 	def IsBetweenStringItemNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringItem )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItem )
 
 			return TRUE
 
@@ -49714,7 +49714,7 @@ vvv
 	def IsBetweenStringItemsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringItems )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItems )
 
 			return TRUE
 
@@ -49724,7 +49724,7 @@ vvv
 
 	def IsBetweenStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringAt )
 
 			return TRUE
 
@@ -49734,7 +49734,7 @@ vvv
 
 	def IsToStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStringAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringAt )
 
 			return TRUE
 
@@ -49744,7 +49744,7 @@ vvv
 
 	def IsFromStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringAt )
 
 			return TRUE
 
@@ -49755,7 +49755,7 @@ vvv
 	def IsBetweenStringAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringAtPosition )
 
 			return TRUE
 
@@ -49766,7 +49766,7 @@ vvv
 	def IsFromStringAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringAtPosition )
 
 			return TRUE
 
@@ -49777,7 +49777,7 @@ vvv
 	def IsToStringAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStringAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringAtPosition )
 
 			return TRUE
 
@@ -49788,7 +49788,7 @@ vvv
 	def IsBetweenStringAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringAtPositions )
 
 			return TRUE
 
@@ -49799,7 +49799,7 @@ vvv
 	def IsFromStringAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringAtPositions )
 
 			return TRUE
 
@@ -49810,7 +49810,7 @@ vvv
 	def IsToStringAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStringAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringAtPositions )
 
 			return TRUE
 
@@ -49823,7 +49823,7 @@ vvv
 	def IsStringItemFromPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringItemFromPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemFromPosition )
 
 			return TRUE
 
@@ -49834,7 +49834,7 @@ vvv
 	def IsStringItemsFromPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringItemsFromPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemsFromPosition )
 
 			return TRUE
 
@@ -49845,7 +49845,7 @@ vvv
 	def IsStringItemFromNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringItemFrom )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemFrom )
 
 			return TRUE
 
@@ -49856,7 +49856,7 @@ vvv
 	def IsStringItemsFromNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringItemsFrom )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemsFrom )
 
 			return TRUE
 
@@ -49867,7 +49867,7 @@ vvv
 	def IsFromStringItemPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringItemPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemPosition )
 
 			return TRUE
 
@@ -49877,7 +49877,7 @@ vvv
 
 	def IsBetweenStringItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringItemAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItemAt )
 
 			return TRUE
 
@@ -49887,7 +49887,7 @@ vvv
 
 	def IsFromStringItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringItemAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemAt )
 
 			return TRUE
 
@@ -49897,7 +49897,7 @@ vvv
 
 	def IsToStringItemAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStringItemAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItemAt )
 
 			return TRUE
 
@@ -49908,7 +49908,7 @@ vvv
 	def IsBetweenStringItemAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringItemAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItemAtPosition )
 
 			return TRUE
 
@@ -49919,7 +49919,7 @@ vvv
 	def IsFromStringItemAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringItemAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemAtPosition )
 
 			return TRUE
 
@@ -49930,7 +49930,7 @@ vvv
 	def IsToStringItemAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStringItemAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItemAtPosition )
 
 			return TRUE
 
@@ -49941,7 +49941,7 @@ vvv
 	def IsBetweenStringItemAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringItemAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItemAtPositions )
 
 			return TRUE
 
@@ -49952,7 +49952,7 @@ vvv
 	def IsFromStringItemAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringItemAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemAtPositions )
 
 			return TRUE
 
@@ -49963,7 +49963,7 @@ vvv
 	def IsToStringItemAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStringItemAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItemAtPositions )
 
 			return TRUE
 
@@ -49976,7 +49976,7 @@ vvv
 	def IsCharFromPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :CharFromPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :CharFromPosition )
 
 			return TRUE
 
@@ -49987,7 +49987,7 @@ vvv
 	def IsCharsFromPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :CharsFromPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :CharsFromPosition )
 
 			return TRUE
 
@@ -49998,7 +49998,7 @@ vvv
 	def IsCharFromNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :CharFrom )
+		   ( isString(This.Item(1)) and  This.Item(1) = :CharFrom )
 
 			return TRUE
 
@@ -50009,7 +50009,7 @@ vvv
 	def IsCharsFromNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :CharsFrom )
+		   ( isString(This.Item(1)) and  This.Item(1) = :CharsFrom )
 
 			return TRUE
 
@@ -50020,7 +50020,7 @@ vvv
 	def IsFromCharPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromCharPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromCharPosition )
 
 			return TRUE
 
@@ -50030,7 +50030,7 @@ vvv
 
 	def IsCharAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :CharAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :CharAt )
 
 			return TRUE
 
@@ -50040,7 +50040,7 @@ vvv
 
 	def IsCharAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :CharAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :CharAtPosition )
 
 			return TRUE
 
@@ -50050,7 +50050,7 @@ vvv
 
 	def IsBetweenCharNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenChar )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenChar )
 
 			return TRUE
 
@@ -50060,7 +50060,7 @@ vvv
 
 	def IsBetweenCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenChars )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenChars )
 
 			return TRUE
 
@@ -50070,7 +50070,7 @@ vvv
 
 	def IsBetweenCharAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenCharAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCharAt )
 
 			return TRUE
 
@@ -50080,7 +50080,7 @@ vvv
 
 	def IsFromCharAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromCharAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromCharAt )
 
 			return TRUE
 
@@ -50090,7 +50090,7 @@ vvv
 
 	def IsFirstPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FirstPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FirstPosition )
 
 			return TRUE
 
@@ -50100,7 +50100,7 @@ vvv
 
 	def IsLastPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :LastPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :LastPosition )
 
 			return TRUE
 
@@ -50110,7 +50110,7 @@ vvv
 
 	def IsToCharAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToCharAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToCharAt )
 
 			return TRUE
 
@@ -50120,7 +50120,7 @@ vvv
 
 	def IsBetweenCharsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenCharsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCharsAt )
 
 			return TRUE
 
@@ -50130,7 +50130,7 @@ vvv
 
 	def IsFromCharsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromCharsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromCharsAt )
 
 			return TRUE
 
@@ -50140,7 +50140,7 @@ vvv
 
 	def IsToCharsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToCharsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToCharsAt )
 
 			return TRUE
 
@@ -50151,7 +50151,7 @@ vvv
 	def IsBetweenCharAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenCharAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCharAtPosition )
 
 			return TRUE
 
@@ -50162,7 +50162,7 @@ vvv
 	def IsFromCharAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromCharAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromCharAtPosition )
 
 			return TRUE
 
@@ -50173,7 +50173,7 @@ vvv
 	def IsToCharAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToCharAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToCharAtPosition )
 
 			return TRUE
 
@@ -50184,7 +50184,7 @@ vvv
 	def IsBetweenCharAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenCharAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCharAtPositions )
 
 			return TRUE
 
@@ -50195,7 +50195,7 @@ vvv
 	def IsToCharAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToCharAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToCharAtPositions )
 
 			return TRUE
 
@@ -50206,7 +50206,7 @@ vvv
 	def IsFromCharAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromCharAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromCharAtPositions )
 
 			return TRUE
 
@@ -50218,7 +50218,7 @@ vvv
 
 	def IsStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Strings )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Strings )
 
 			return TRUE
 
@@ -50228,7 +50228,7 @@ vvv
 
 	def IsTheseStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :TheseStrings )
+		   ( isString(This.Item(1)) and  This.Item(1) = :TheseStrings )
 
 			return TRUE
 
@@ -50239,7 +50239,7 @@ vvv
 	def IsStringsAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringsAtPosition )
 
 			return TRUE
 
@@ -50250,7 +50250,7 @@ vvv
 	def IsTheseStringsAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :theseStringsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :theseStringsAtPosition )
 
 			return TRUE
 
@@ -50261,7 +50261,7 @@ vvv
 	def IsStringsAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringsAtPositions )
 
 			return TRUE
 
@@ -50272,7 +50272,7 @@ vvv
 	def IsTheseStringsAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :TheseStringsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :TheseStringsAtPositions )
 
 			return TRUE
 
@@ -50283,7 +50283,7 @@ vvv
 	def IsFromStringsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStrings )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStrings )
 
 			return TRUE
 
@@ -50294,7 +50294,7 @@ vvv
 	def IsToStringsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStrings )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStrings )
 
 			return TRUE
 
@@ -50305,7 +50305,7 @@ vvv
 	def IsBetweenStringsAtNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringsAt )
 
 			return TRUE
 
@@ -50316,7 +50316,7 @@ vvv
 	def IsFromStringsAtNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringsAt )
 
 			return TRUE
 
@@ -50327,7 +50327,7 @@ vvv
 	def IsToStringsAtNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStringsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringsAt )
 
 			return TRUE
 
@@ -50338,7 +50338,7 @@ vvv
 	def IsBetweenStringsAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringsAtPosition )
 
 			return TRUE
 
@@ -50349,7 +50349,7 @@ vvv
 	def IsFromStringsAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringsAtPosition )
 
 			return TRUE
 
@@ -50360,7 +50360,7 @@ vvv
 	def IsToStringsAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStringsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringsAtPosition )
 
 			return TRUE
 
@@ -50371,7 +50371,7 @@ vvv
 	def IsBetweenStringsAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringsAtPositions )
 
 			return TRUE
 
@@ -50382,7 +50382,7 @@ vvv
 	def IsFromStringsAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringsAtPositions )
 
 			return TRUE
 
@@ -50393,7 +50393,7 @@ vvv
 	def IsToStringsAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStringsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringsAtPositions )
 
 			return TRUE
 
@@ -50406,7 +50406,7 @@ vvv
 	def IsStringItemsFromPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringItemsFromPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemsFromPositions )
 
 			return TRUE
 
@@ -50417,7 +50417,7 @@ vvv
 	def IsStringItemsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringItems )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringItems )
 
 			return TRUE
 
@@ -50428,7 +50428,7 @@ vvv
 	def IsStringItemsAtNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringItemsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemsAt )
 
 			return TRUE
 
@@ -50439,7 +50439,7 @@ vvv
 	def IsStringItemsAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringItemsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemsAtPosition )
 
 			return TRUE
 
@@ -50450,7 +50450,7 @@ vvv
 	def IsStringItemsAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :StringItemsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemsAtPositions )
 
 			return TRUE
 
@@ -50461,7 +50461,7 @@ vvv
 	def IsFromStringItemsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringItems )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItems )
 
 			return TRUE
 
@@ -50472,7 +50472,7 @@ vvv
 	def IsToStringItemsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStringItems )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItems )
 
 			return TRUE
 
@@ -50483,7 +50483,7 @@ vvv
 	def IsBetweenStringItemsAtNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringItemsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItemsAt )
 
 			return TRUE
 
@@ -50494,7 +50494,7 @@ vvv
 	def IsFromStringItemsAtNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringItemsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemsAt )
 
 			return TRUE
 
@@ -50505,7 +50505,7 @@ vvv
 	def IsToStringItemsAtNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStringItemsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItemsAt )
 
 			return TRUE
 
@@ -50516,7 +50516,7 @@ vvv
 	def IsBetweenStringItemsAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringItemsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItemsAtPosition )
 
 			return TRUE
 
@@ -50527,7 +50527,7 @@ vvv
 	def IsFromStringItemsAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringItemsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemsAtPosition )
 
 			return TRUE
 
@@ -50538,7 +50538,7 @@ vvv
 	def IsToStringItemsAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStringItemsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItemsAtPosition )
 
 			return TRUE
 
@@ -50549,7 +50549,7 @@ vvv
 	def IsBetweenStringItemsAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :BetweenStringItemsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItemsAtPositions )
 
 			return TRUE
 
@@ -50560,7 +50560,7 @@ vvv
 	def IsFromStringItemsAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :FromStringItemsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemsAtPositions )
 
 			return TRUE
 
@@ -50571,7 +50571,7 @@ vvv
 	def IsToStringItemsAtPositionsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToStringItemsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItemsAtPositions )
 
 			return TRUE
 
@@ -50583,7 +50583,7 @@ vvv
 
 	def IsAndColNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndCol )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndCol )
 
 			return TRUE
 
@@ -50593,7 +50593,7 @@ vvv
 
 	def IsAndColumnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndColumn )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndColumn )
 
 			return TRUE
 
@@ -50603,7 +50603,7 @@ vvv
 
 	def IsAndColAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndColat )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndColat )
 
 			return TRUE
 
@@ -50613,7 +50613,7 @@ vvv
 
 	def IsAndColumnAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndColumnAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndColumnAt )
 
 			return TRUE
 
@@ -50623,7 +50623,7 @@ vvv
 
 	def IsAndColAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndColAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndColAtPosition )
 
 			return TRUE
 
@@ -50633,7 +50633,7 @@ vvv
 
 	def IsAndColumnAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndColumnAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndColumnAtPosition )
 
 			return TRUE
 
@@ -50643,7 +50643,7 @@ vvv
 
 	def IsAndColNamedNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndColNamed )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndColNamed )
 
 			return TRUE
 
@@ -50653,7 +50653,7 @@ vvv
 
 	def IsAndColumnNamedNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndColumnNamed )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndColumnNamed )
 
 			return TRUE
 
@@ -50663,7 +50663,7 @@ vvv
 
 	def IsColsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Cols )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Cols )
 
 			return TRUE
 
@@ -50673,7 +50673,7 @@ vvv
 
 	def IsColumnsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Columns )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Columns )
 
 			return TRUE
 
@@ -50683,7 +50683,7 @@ vvv
 
 	def IsColsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ColsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ColsAtPosition )
 
 			return TRUE
 
@@ -50693,7 +50693,7 @@ vvv
 
 	def IsColumnsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ColumnsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ColumnsAtPosition )
 
 			return TRUE
 
@@ -50703,7 +50703,7 @@ vvv
 
 	def IsColsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ColsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ColsAtPositions )
 
 			return TRUE
 
@@ -50713,7 +50713,7 @@ vvv
 
 	def IsColumnsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ColumnsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ColumnsAtPositions )
 
 			return TRUE
 
@@ -50725,7 +50725,7 @@ vvv
 
 	def IsAndRowNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndRow )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndRow )
 
 			return TRUE
 
@@ -50735,7 +50735,7 @@ vvv
 
 	def IsAndRowAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndRowAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndRowAt )
 
 			return TRUE
 
@@ -50745,7 +50745,7 @@ vvv
 
 	def IsAndRowAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndRowAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndRowAtPosition )
 
 			return TRUE
 
@@ -50755,7 +50755,7 @@ vvv
 
 	def IsRowsAtNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :RowsAt )
+		   ( isString(This.Item(1)) and  This.Item(1) = :RowsAt )
 
 			return TRUE
 
@@ -50765,7 +50765,7 @@ vvv
 
 	def IsRowsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :RowsAtPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :RowsAtPosition )
 
 			return TRUE
 
@@ -50775,7 +50775,7 @@ vvv
 
 	def IsRowsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :RowsAtPositions )
+		   ( isString(This.Item(1)) and  This.Item(1) = :RowsAtPositions )
 
 			return TRUE
 
@@ -50787,7 +50787,7 @@ vvv
 
 	def IsThisNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :This )
+		   ( isString(This.Item(1)) and  This.Item(1) = :This )
 
 			return TRUE
 
@@ -50797,7 +50797,7 @@ vvv
 
 	def IsAndThisNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndThis )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndThis )
 
 			return TRUE
 
@@ -50807,7 +50807,7 @@ vvv
 
 	def IsAndThatNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :AndThat )
+		   ( isString(This.Item(1)) and  This.Item(1) = :AndThat )
 
 			return TRUE
 
@@ -50819,7 +50819,7 @@ vvv
 
 	def IsEvalNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Eval )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Eval )
 
 			return TRUE
 
@@ -50829,7 +50829,7 @@ vvv
 
 	def IsEvaluateNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Evaluate )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Evaluate )
 
 			return TRUE
 
@@ -50839,7 +50839,7 @@ vvv
 
 	def IsEvalFromNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :EvalFrom )
+		   ( isString(This.Item(1)) and  This.Item(1) = :EvalFrom )
 
 			return TRUE
 
@@ -50849,7 +50849,7 @@ vvv
 
 	def IsEvaluateFromNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :EvaluateFrom )
+		   ( isString(This.Item(1)) and  This.Item(1) = :EvaluateFrom )
 
 			return TRUE
 
@@ -50859,7 +50859,7 @@ vvv
 
 	def IsEvalDirectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :EvalDirection )
+		   ( isString(This.Item(1)) and  This.Item(1) = :EvalDirection )
 
 			return TRUE
 
@@ -50869,7 +50869,7 @@ vvv
 
 	def IsEvaluationDirectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :EvaluationDirection )
+		   ( isString(This.Item(1)) and  This.Item(1) = :EvaluationDirection )
 
 			return TRUE
 
@@ -50879,7 +50879,7 @@ vvv
 
 	def IsOrThisNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OrThis )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OrThis )
 
 			return TRUE
 
@@ -50889,7 +50889,7 @@ vvv
 
 	def IsOrThatNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OrThat )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OrThat )
 
 			return TRUE
 
@@ -50901,7 +50901,7 @@ vvv
 
 	def IsSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :SubString )
+		   ( isString(This.Item(1)) and This.Item(1) = :SubString )
 
 			return TRUE
 		else
@@ -50910,7 +50910,7 @@ vvv
 
 	def IsThisSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :ThisSubString )
+		   ( isString(This.Item(1)) and This.Item(1) = :ThisSubString )
 
 			return TRUE
 		else
@@ -50919,7 +50919,7 @@ vvv
 
 	def IsAndSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndSubString )
+		   ( isString(This.Item(1)) and This.Item(1) = :AndSubString )
 
 			return TRUE
 		else
@@ -50928,7 +50928,7 @@ vvv
 
 	def IsBetweenSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :BetweenSubString )
+		   ( isString(This.Item(1)) and This.Item(1) = :BetweenSubString )
 
 			return TRUE
 		else
@@ -50937,7 +50937,7 @@ vvv
 
 	def IsBoundedBySubStringNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :BoundedBySubString )
+		   ( isString(This.Item(1)) and This.Item(1) = :BoundedBySubString )
 
 			return TRUE
 		else
@@ -50946,7 +50946,7 @@ vvv
 
 	def IsSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :SubStrings )
+		   ( isString(This.Item(1)) and This.Item(1) = :SubStrings )
 
 			return TRUE
 		else
@@ -50955,7 +50955,7 @@ vvv
 
 	def IsTheseSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :TheseSubStrings )
+		   ( isString(This.Item(1)) and  This.Item(1) = :TheseSubStrings )
 
 			return TRUE
 
@@ -50965,7 +50965,7 @@ vvv
 
 	def IsAndSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndSubStrings )
+		   ( isString(This.Item(1)) and This.Item(1) = :AndSubStrings )
 
 			return TRUE
 		else
@@ -50974,7 +50974,7 @@ vvv
 
 	def IsOfSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OfSubStrings )
+		   ( isString(This.Item(1)) and This.Item(1) = :OfSubStrings )
 
 			return TRUE
 		else
@@ -50983,7 +50983,7 @@ vvv
 
 	def IsInSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :InSubStrings )
+		   ( isString(This.Item(1)) and This.Item(1) = :InSubStrings )
 
 			return TRUE
 		else
@@ -50992,7 +50992,7 @@ vvv
 
 	def IsBetweenSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :BetweenSubStrings )
+		   ( isString(This.Item(1)) and This.Item(1) = :BetweenSubStrings )
 
 			return TRUE
 		else
@@ -51001,7 +51001,7 @@ vvv
 
 	def IsBoundedBySubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :BoundedBySubStrings )
+		   ( isString(This.Item(1)) and This.Item(1) = :BoundedBySubStrings )
 
 			return TRUE
 		else
@@ -51012,7 +51012,7 @@ vvv
 
 	def IsBoundedByNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :BoundedBy )
+		   ( isString(This.Item(1)) and This.Item(1) = :BoundedBy )
 
 			return TRUE
 		else
@@ -51021,7 +51021,7 @@ vvv
 
 	def IsBoundedByIBNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :BoundedByIB )
+		   ( isString(This.Item(1)) and This.Item(1) = :BoundedByIB )
 
 			return TRUE
 		else
@@ -51031,7 +51031,7 @@ vvv
 
 	def IsIsBoundedByNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :IsBoundedBy )
+		   ( isString(This.Item(1)) and This.Item(1) = :IsBoundedBy )
 
 			return TRUE
 		else
@@ -51042,7 +51042,7 @@ vvv
 
 	def IsSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Section )
+		   ( isString(This.Item(1)) and This.Item(1) = :Section )
 
 			return TRUE
 		else
@@ -51051,7 +51051,7 @@ vvv
 
 	def IsThisSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :ThisSection )
+		   ( isString(This.Item(1)) and This.Item(1) = :ThisSection )
 
 			return TRUE
 		else
@@ -51060,7 +51060,7 @@ vvv
 
 	def IsAndSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndSection )
+		   ( isString(This.Item(1)) and This.Item(1) = :AndSection )
 
 			return TRUE
 		else
@@ -51069,7 +51069,7 @@ vvv
 
 	def IsOfSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OfSection )
+		   ( isString(This.Item(1)) and This.Item(1) = :OfSection )
 
 			return TRUE
 		else
@@ -51078,7 +51078,7 @@ vvv
 
 	def IsInSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :InSection )
+		   ( isString(This.Item(1)) and This.Item(1) = :InSection )
 
 			return TRUE
 		else
@@ -51087,7 +51087,7 @@ vvv
 
 	def IsSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :Sections )
+		   ( isString(This.Item(1)) and This.Item(1) = :Sections )
 
 			return TRUE
 		else
@@ -51096,7 +51096,7 @@ vvv
 
 	def IsTheseSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :TheseSections )
+		   ( isString(This.Item(1)) and This.Item(1) = :TheseSections )
 
 			return TRUE
 		else
@@ -51105,7 +51105,7 @@ vvv
 
 	def IsAndSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :AndSections )
+		   ( isString(This.Item(1)) and This.Item(1) = :AndSections )
 
 			return TRUE
 		else
@@ -51114,7 +51114,7 @@ vvv
 
 	def IsOfSubSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :OfSections )
+		   ( isString(This.Item(1)) and This.Item(1) = :OfSections )
 
 			return TRUE
 		else
@@ -51123,7 +51123,7 @@ vvv
 
 	def IsInSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and This[1] = :InSections )
+		   ( isString(This.Item(1)) and This.Item(1) = :InSections )
 
 			return TRUE
 		else
@@ -51132,7 +51132,7 @@ vvv
 
 	def IsSectionOrInSectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and (This[1] = :Section or This[1] = :InSection) )
+		   ( isString(This.Item(1)) and (This.Item(1) = :Section or This.Item(1) = :InSection) )
 
 			return TRUE
 		else
@@ -51141,7 +51141,7 @@ vvv
 
 	def IsSectionsOrInSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and (This[1] = :Sections or This[1] = :InSections) )
+		   ( isString(This.Item(1)) and (This.Item(1) = :Sections or This.Item(1) = :InSections) )
 
 			return TRUE
 		else
@@ -51156,7 +51156,7 @@ vvv
 	def IsOfSizeNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :OfSize )
+		   ( isString(This.Item(1)) and  This.Item(1) = :OfSize )
 
 			return TRUE
 
@@ -51167,7 +51167,7 @@ vvv
 	def IsSizeNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Size )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Size )
 
 			return TRUE
 
@@ -51177,7 +51177,7 @@ vvv
 
 	def IsDoNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Do )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Do )
 
 			return TRUE
 
@@ -51187,7 +51187,7 @@ vvv
 
 	def IsUntilNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Until )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Until )
 
 			return TRUE
 
@@ -51197,7 +51197,7 @@ vvv
 
 	def IsUntilPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :UntilPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :UntilPosition )
 
 			return TRUE
 
@@ -51207,7 +51207,7 @@ vvv
 
 	def IsUntilXTNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :UntilXT )
+		   ( isString(This.Item(1)) and  This.Item(1) = :UntilXT )
 
 			return TRUE
 
@@ -51217,7 +51217,7 @@ vvv
 
 	def IsUptoNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :UpTo )
+		   ( isString(This.Item(1)) and  This.Item(1) = :UpTo )
 
 			return TRUE
 
@@ -51227,7 +51227,7 @@ vvv
 
 	def IsUptoPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :UpToPosition )
+		   ( isString(This.Item(1)) and  This.Item(1) = :UpToPosition )
 
 			return TRUE
 
@@ -51242,8 +51242,8 @@ vvv
 
 	def IsUpToNNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :UpToN or This[1] = :UpToN@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :UpToN or This.Item(1) = :UpToN@ ) )
 
 			return TRUE
 
@@ -51253,7 +51253,7 @@ vvv
 
 	def IsUnderNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Under )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Under )
 
 			return TRUE
 
@@ -51263,7 +51263,7 @@ vvv
 
 	def IsExpressionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :Expression )
+		   ( isString(This.Item(1)) and  This.Item(1) = :Expression )
 
 			return TRUE
 
@@ -51273,7 +51273,7 @@ vvv
 
 	def IsToNCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToNChars )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToNChars )
 
 			return TRUE
 
@@ -51283,7 +51283,7 @@ vvv
 
 	def IsToNItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToNItems )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToNItems )
 
 			return TRUE
 
@@ -51293,7 +51293,7 @@ vvv
 
 	def IsToNStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToNStrings )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToNStrings )
 
 			return TRUE
 
@@ -51303,7 +51303,7 @@ vvv
 
 	def IsToNStringItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToNStringItems )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToNStringItems )
 
 			return TRUE
 
@@ -51313,7 +51313,7 @@ vvv
 
 	def IsToNNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToNNumbers )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToNNumbers )
 
 			return TRUE
 
@@ -51323,7 +51323,7 @@ vvv
 
 	def IsToNListsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToNLists )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToNLists )
 
 			return TRUE
 
@@ -51333,7 +51333,7 @@ vvv
 
 	def IsToNObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and  This[1] = :ToNObjects )
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToNObjects )
 
 			return TRUE
 
@@ -51343,8 +51343,8 @@ vvv
 
 	def IsLastSepNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :LastSep or This[1] = :LastSep@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :LastSep or This.Item(1) = :LastSep@ ) )
 
 			return TRUE
 
@@ -51354,8 +51354,8 @@ vvv
 
 	def IsToEachNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :ToEach or This[1] = :ToEach@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :ToEach or This.Item(1) = :ToEach@ ) )
 
 			return TRUE
 
@@ -51365,8 +51365,8 @@ vvv
 
 	def IsBeforeEachNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :BeforeEach or This[1] = :BeforeEach@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :BeforeEach or This.Item(1) = :BeforeEach@ ) )
 
 			return TRUE
 
@@ -51376,8 +51376,8 @@ vvv
 
 	def IsAfterEachNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :AfterEach or This[1] = :AfterEach@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :AfterEach or This.Item(1) = :AfterEach@ ) )
 
 			return TRUE
 
@@ -51387,8 +51387,8 @@ vvv
 
 	def IsToNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :ToNth or This[1] = :ToNth@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :ToNth or This.Item(1) = :ToNth@ ) )
 
 			return TRUE
 
@@ -51398,8 +51398,8 @@ vvv
 
 	def IsToFirstNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :ToFirst or This[1] = :ToFirst@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :ToFirst or This.Item(1) = :ToFirst@ ) )
 
 			return TRUE
 
@@ -51409,8 +51409,8 @@ vvv
 
 	def IsToLastNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :ToLast or This[1] = :ToLast@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :ToLast or This.Item(1) = :ToLast@ ) )
 
 			return TRUE
 
@@ -51420,8 +51420,8 @@ vvv
 
 	def IsAfterNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :AfterNth or This[1] = :AfterNth@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :AfterNth or This.Item(1) = :AfterNth@ ) )
 
 			return TRUE
 
@@ -51431,8 +51431,8 @@ vvv
 
 	def IsAfterFirstNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :AfterFirst or This[1] = :AfterFirst@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :AfterFirst or This.Item(1) = :AfterFirst@ ) )
 
 			return TRUE
 
@@ -51442,8 +51442,8 @@ vvv
 
 	def IsAfterLastNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :AfterLast or This[1] = :AfterLast@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :AfterLast or This.Item(1) = :AfterLast@ ) )
 
 			return TRUE
 
@@ -51453,8 +51453,8 @@ vvv
 
 	def IsBeforeNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :BeforeNth or This[1] = :BeforeNth@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :BeforeNth or This.Item(1) = :BeforeNth@ ) )
 
 			return TRUE
 
@@ -51464,8 +51464,8 @@ vvv
 
 	def IsBeforeFirstNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :BeforeFirst or This[1] = :BeforeFirst@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :BeforeFirst or This.Item(1) = :BeforeFirst@ ) )
 
 			return TRUE
 
@@ -51475,8 +51475,8 @@ vvv
 
 	def IsBeforeLastNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :BeforeLast or This[1] = :BeforeLast@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :BeforeLast or This.Item(1) = :BeforeLast@ ) )
 
 			return TRUE
 
@@ -51486,8 +51486,8 @@ vvv
 
 	def IsAroundNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :Around or This[1] = :Around@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Around or This.Item(1) = :Around@ ) )
 
 			return TRUE
 
@@ -51497,8 +51497,8 @@ vvv
 
 	def IsAroundEachNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :AroundEach or This[1] = :AroundEach@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :AroundEach or This.Item(1) = :AroundEach@ ) )
 
 			return TRUE
 
@@ -51508,8 +51508,8 @@ vvv
 
 	def IsAroundNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :AroundNth or This[1] = :AroundNth@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :AroundNth or This.Item(1) = :AroundNth@ ) )
 
 			return TRUE
 
@@ -51519,8 +51519,8 @@ vvv
 
 	def IsAroundFirstNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :AroundFirst or This[1] = :AroundFirst@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :AroundFirst or This.Item(1) = :AroundFirst@ ) )
 
 			return TRUE
 
@@ -51530,8 +51530,8 @@ vvv
 
 	def IsAroundLastNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :AroundLast or This[1] = :AroundLast@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :AroundLast or This.Item(1) = :AroundLast@ ) )
 
 			return TRUE
 
@@ -51541,8 +51541,8 @@ vvv
 
 	def IsEachNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :Each or This[1] = :Each@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Each or This.Item(1) = :Each@ ) )
 
 			return TRUE
 
@@ -51552,8 +51552,8 @@ vvv
 
 	def IsFirstNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :First or This[1] = :First@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :First or This.Item(1) = :First@ ) )
 
 			return TRUE
 
@@ -51563,8 +51563,8 @@ vvv
 
 	def IsLastNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :Last or This[1] = :Last@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Last or This.Item(1) = :Last@ ) )
 
 			return TRUE
 
@@ -51574,8 +51574,8 @@ vvv
 
 	def IsConcatenatedNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :Concatenated or This[1] = :Concatenated@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Concatenated or This.Item(1) = :Concatenated@ ) )
 
 			return TRUE
 
@@ -51585,8 +51585,8 @@ vvv
 
 	def IsConcatenatedUsingNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :ConcatenatedUsing or This[1] = :ConcatenatedUsing@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :ConcatenatedUsing or This.Item(1) = :ConcatenatedUsing@ ) )
 
 			return TRUE
 
@@ -51596,8 +51596,8 @@ vvv
 
 	def IsConcatenatedWithNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :ConcatenatedWith or This[1] = :ConcatenatedWith@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :ConcatenatedWith or This.Item(1) = :ConcatenatedWith@ ) )
 
 			return TRUE
 
@@ -51607,8 +51607,8 @@ vvv
 
 	def IsEachNCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :EachNChars or This[1] = :EachNChars@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :EachNChars or This.Item(1) = :EachNChars@ ) )
 
 			return TRUE
 
@@ -51618,8 +51618,8 @@ vvv
 
 	def IsEachNItemsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :EachNItems or This[1] = :EachNItems@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :EachNItems or This.Item(1) = :EachNItems@ ) )
 
 			return TRUE
 
@@ -51629,8 +51629,8 @@ vvv
 
 	def IsEachNStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :EachNStrings or This[1] = :EachNStrings@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :EachNStrings or This.Item(1) = :EachNStrings@ ) )
 
 			return TRUE
 
@@ -51640,8 +51640,8 @@ vvv
 
 	def IsEachNNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :EachNNumbers or This[1] = :EachNNumbers@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :EachNNumbers or This.Item(1) = :EachNNumbers@ ) )
 
 			return TRUE
 
@@ -51651,8 +51651,8 @@ vvv
 
 	def IsEachNListsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :EachNLists or This[1] = :EachNLists@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :EachNLists or This.Item(1) = :EachNLists@ ) )
 
 			return TRUE
 
@@ -51662,8 +51662,8 @@ vvv
 
 	def IsEachNPairsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :EachNPairs or This[1] = :EachNPairs@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :EachNPairs or This.Item(1) = :EachNPairs@ ) )
 
 			return TRUE
 
@@ -51673,8 +51673,8 @@ vvv
 
 	def IsEachNObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :EachNObjects or This[1] = :EachNObjects@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :EachNObjects or This.Item(1) = :EachNObjects@ ) )
 
 			return TRUE
 
@@ -51684,8 +51684,8 @@ vvv
 
 	def IsDirectionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :Direction or This[1] = :Direction@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Direction or This.Item(1) = :Direction@ ) )
 
 			return TRUE
 
@@ -51695,8 +51695,8 @@ vvv
 
 	def IsGoingNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :Going or This[1] = :Going@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Going or This.Item(1) = :Going@ ) )
 
 			return TRUE
 
@@ -51706,8 +51706,8 @@ vvv
 
 	def IsComingNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :Coming or This[1] = :Coming@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Coming or This.Item(1) = :Coming@ ) )
 
 			return TRUE
 
@@ -51717,8 +51717,8 @@ vvv
 
 	def IsSteppingNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :Stepping or This[1] = :Stepping@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Stepping or This.Item(1) = :Stepping@ ) )
 
 			return TRUE
 
@@ -51779,8 +51779,8 @@ vvv
 
 	def IsNextNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :Next or This[1] = :Next@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Next or This.Item(1) = :Next@ ) )
 
 			return TRUE
 
@@ -51790,9 +51790,9 @@ vvv
 
 	def IsNextNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :NextNth or This[1] = :NextNth@  or 
-			 This[1] = :NthNext or This[1] = :NthNext@) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :NextNth or This.Item(1) = :NextNth@  or 
+			 This.Item(1) = :NthNext or This.Item(1) = :NthNext@) )
 
 			return TRUE
 
@@ -51805,8 +51805,8 @@ vvv
 
 	def IsPreviousNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :Previous or This[1] = :Previous@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Previous or This.Item(1) = :Previous@ ) )
 
 			return TRUE
 
@@ -51816,9 +51816,9 @@ vvv
 
 	def IsPreviousNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :PreviousNth or This[1] = :PreviousNth@  or 
-			 This[1] = :NthPrevious or This[1] = :NthPrevious@) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :PreviousNth or This.Item(1) = :PreviousNth@  or 
+			 This.Item(1) = :NthPrevious or This.Item(1) = :NthPrevious@) )
 
 			return TRUE
 
@@ -51833,8 +51833,8 @@ vvv
 
 	def IsExactlyNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :Exactly or This[1] = :Exactly@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Exactly or This.Item(1) = :Exactly@ ) )
 
 			return TRUE
 
@@ -51844,8 +51844,8 @@ vvv
 
 	def IsMoreThenNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :MoreThen or This[1] = :MoreThen@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :MoreThen or This.Item(1) = :MoreThen@ ) )
 
 			return TRUE
 
@@ -51855,8 +51855,8 @@ vvv
 
 	def IsLessThenNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :LessThen or This[1] = :LessThen@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :LessThen or This.Item(1) = :LessThen@ ) )
 
 			return TRUE
 
@@ -51866,8 +51866,8 @@ vvv
 
 	def IsOfTheseNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :OfThese or This[1] = :OfThese@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :OfThese or This.Item(1) = :OfThese@ ) )
 
 			return TRUE
 
@@ -51877,8 +51877,8 @@ vvv
 
 	def IsOfTheseSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :OfTheseSubStrings or This[1] = :OfTheseSubStrings@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :OfTheseSubStrings or This.Item(1) = :OfTheseSubStrings@ ) )
 
 			return TRUE
 
@@ -51888,8 +51888,8 @@ vvv
 
 	def IsOfTheseNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :OfTheseNumbers or This[1] = :OfTheseNumbers@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :OfTheseNumbers or This.Item(1) = :OfTheseNumbers@ ) )
 
 			return TRUE
 
@@ -51899,8 +51899,8 @@ vvv
 
 	def IsOfTheseListsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :OfTheseLists or This[1] = :OfTheseLists@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :OfTheseLists or This.Item(1) = :OfTheseLists@ ) )
 
 			return TRUE
 
@@ -51910,8 +51910,8 @@ vvv
 
 	def IsOfTheseObjectsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :OfTheseObjects or This[1] = :OfTheseObjects@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :OfTheseObjects or This.Item(1) = :OfTheseObjects@ ) )
 
 			return TRUE
 
@@ -51921,8 +51921,8 @@ vvv
 
 	def IsOfTheseCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :OfTheseChars or This[1] = :OfTheseChars@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :OfTheseChars or This.Item(1) = :OfTheseChars@ ) )
 
 			return TRUE
 
@@ -51932,8 +51932,8 @@ vvv
 
 	def IsOfTheseLettersNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This[1]) and
-			(This[1] = :OfTheseLetters or This[1] = :OfTheseLetters@ ) )
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :OfTheseLetters or This.Item(1) = :OfTheseLetters@ ) )
 
 			return TRUE
 
