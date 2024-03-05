@@ -1,5 +1,40 @@
 load "stzlib.ring"
 
+/*========= Stringifying the items of a list
+*/
+pron()
+
+o1 = new stzList([ 120, "abc", 1:3 ])
+o1.Stringify()
+? o1.Content()
+#--> [ "120", "abc", "[ 1, 2, 3 ]" ]
+
+proff()
+
+/*-------- QStringifying the items of a list
+*/
+pron()
+
+# QStringifying a list : All items are forced to becom QString objects
+o1 = new stzList([ 120, "abc", 1:3 ])
+aQStrings = o1.QStringified()
+#--> A list containing 3 QString objects
+# 	pobject: [This Attribute Contains A List]
+#	pobject: [This Attribute Contains A List]
+#	pobject: [This Attribute Contains A List]
+
+? aQStrings[1].mid(0, 3)
+#--> "120"
+
+? aQStrings[2].mid(0, 3)
+#--> [ 1, 2, 3 ]
+
+? aQStrings[3].mid(0, 11)
+#--> [ 1, 2, 3 ]
+
+proff()
+# Executed in 0.01 second(s)
+
 /*====== @perf
 */
 pron()
