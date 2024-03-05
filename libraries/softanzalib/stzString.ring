@@ -56427,9 +56427,32 @@ ici		//...
 		def AnyCharRemoveedFromEnd()
 			return This.LastCharRemoved()
 
+	  #----------------------------------------------------------#
+	 #  REMOVING ALL LEADING OCCURRENCES OF THE LAST CHAR - XT  #
+	#----------------------------------------------------------#
+
+	def RemoveLastCharXT()
+		This.RemoveAnyTrailingChar()
+
+		def RemoveLastCharXTQ()
+			This.RemoveLastCharXT()
+			return This
+
+		def RemoveAnyCharFromEndXT()
+			This.RemoveLastCharXT()
+
+			def RemoveAnyCharFromEndXTQ()
+				return This.RemoveLastCharXTQ()
+
+	def LastCharRemovedXT()
+		return This.Copy().RemoveLastCharXTQ().Content()
+
+		def AnyCharRemovedFromEndXT()
+			return This.LastCharRemovedXT()
+
 	  #----------------------------------#
 	 #   REMOVING FIRST AND LAST CHARS  #
-	#----------------------------------#
+	#==================================#
 
 	def RemoveFirstAndLastChars()
 		This.RemoveFirstChar()
@@ -56484,9 +56507,66 @@ ici		//...
 		def LastCharAndFirstCharRemoved()
 			return This.FirstAndLastCharsRemoved()
 
+	  #---------------------------------------#
+	 #   REMOVING FIRST AND LAST CHARS -- XT #
+	#=======================================#
+
+	def RemoveFirstAndLastCharsXT()
+		This.RemoveFirstCharXT()
+		This.RemoveLastCharXT()
+
+		#< @FunctionFluentForm
+
+		def RemoveFirstAndLastCharsXTQ()
+			This.RemoveFirstAndLastCharsXT()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveLastAndFirstCharsXT()
+			This.RemoveFirstAndLastCharsXT()
+
+			def RemoveLastAndFirstCharsXTQ()
+				This.RemoveLastAndFirstCharsXT()
+				return This
+
+		#--
+
+		def RemoveFirstCharAndLastCharXT()
+			This.RemoveFirstAndLastCharsXT()
+
+			def RemoveFirstCharAndLastCharXTQ()
+				This.RemoveFirstCharAndLastCharXT()
+				return This
+
+		def RemoveLastCharAndFirstCharXT()
+			This.RemoveFirstAndLastCharsXT()
+
+			def RemoveLastCharAndFirstCharXTQ()
+				This.RemoveLastCharAndFirstCharXT()
+				return This
+
+		#>
+
+	def FirstAndLastCharsRemovedXT()
+		return This.Copy().RemoveFirstAndLastCharsXTQ().Content()
+
+		def LastAndFirstCharsRemovedXT()
+			return This.FirstAndLastCharsRemovedXT()
+
+		#--
+
+		def FirstCharAndLastCharRemovedXT()
+			return This.FirstAndLastCharsRemovedXT()
+
+		def LastCharAndFirstCharRemovedXT()
+			return This.FirstAndLastCharsRemovedXT()
+
 	  #-----------------------------------------------------------------------------#
 	 #  REMOVING A GIVEN CHAR AT A GIVEN POSITION (IF ANY) WITH A GIVEN SUBSTRING  #
-	#-----------------------------------------------------------------------------#
+	#=============================================================================#
 
 	def RemoveThisNthCharCS(n, cChar, pCaseSensitive)
 		if isString(cChar) and This.NthCharQ(n).IsEqualToCS(cChar, pCaseSensitive)
@@ -56514,7 +56594,7 @@ ici		//...
 
 	  #---------------------------------#
 	 #   REMOVING A GIVEN FIRST CHAR   #
-	#---------------------------------#
+	#=================================#
 
 	def RemoveThisFirstCharCS(c, pCaseSensitive)
 		if This.FirstCharQ().IsEqualToCS(c, pCaseSensitive)
@@ -56540,9 +56620,37 @@ ici		//...
 	def ThisFirstCharRemoved(c)
 		return This.Copy().RemoveThisFirstCharQ(c).Content()
 
+	  #--------------------------------------#
+	 #   REMOVING A GIVEN FIRST CHAR -- XT  #
+	#--------------------------------------#
+
+	def RemoveThisFirstCharCSXT(c, pCaseSensitive)
+		if This.FirstCharQ().IsEqualToCS(c, pCaseSensitive)
+			This.RemoveFirstCharXT()
+		ok
+
+		def RemoveThisFirstCharCSXTQ(c, pCaseSensitive)
+			This.RemoveThisFirstCharCSXT(c, pCaseSensitive)
+			return This
+
+	def ThisFirstCharRemovedCSXT(c, pCaseSensitive)
+		return This.Copy().RemoveThisFirstCharCSXTQ(c, pCaseSensitive).Content()
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveThisFirstCharXT(c)
+		This.RemoveThisFirstCharCSXT(c, TRUE)
+
+		def RemoveThisFirstCharXTQ(c)
+			This.RemoveThisFirstCharXT(c)
+			return This
+
+	def ThisFirstCharRemovedXT(c)
+		return This.Copy().RemoveThisFirstCharXTQ(c).Content()
+
 	  #--------------------------------#
 	 #   REMOVING A GIVEN LAST CHAR   #
-	#--------------------------------#
+	#================================#
 
 	def RemoveThisLastCharCS(c, pCaseSensitive)
 		if This.LastCharQ().IsEqualToCS(c, pCaseSensitive)
@@ -56568,9 +56676,37 @@ ici		//...
 	def ThisLastCharRemoved(c)
 		return This.Copy().RemoveThisLastCharQ(c).Content()
 
+	  #-------------------------------------#
+	 #   REMOVING A GIVEN LAST CHAR -- XT  #
+	#-------------------------------------#
+
+	def RemoveThisLastCharCSXT(c, pCaseSensitive)
+		if This.LastCharQ().IsEqualToCS(c, pCaseSensitive)
+			This.RemoveLastCharXT()
+		ok
+
+		def RemoveThisLastCharCSXTQ(c, pCaseSensitive)
+			This.RemoveThisLastCharCSXT(c, pCaseSensitive)
+			return This
+
+	def ThisLastCharRemovedCSXT(c, pCaseSensitive)
+		return This.Copy().RemoveThisLastCharCSXTQ(c, pCaseSensitive).Content()
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveThisLastCharXT(c)
+		This.RemoveThisLastCharCSXT(c, TRUE)
+
+		def RemoveThisLastCharXTQ(c)
+			This.RemoveThisLastCharXT(c)
+			return This
+
+	def ThisLastCharRemovedXT(c)
+		return This.Copy().RemoveThisLastCharXTQ(c).Content()
+
 	  #---------------------------------------------------------#
 	 #   REMOVING FIRST & LAST CHARS UPAON A GIVEN CONDITION   #
-	#---------------------------------------------------------#
+	#=========================================================#
 
 	def RemoveFirstCharW(pcCondition)
 		cCode = StzStringQ(pcCondition).RemoveSpacesQ().TheseBoundsRemoved("{","}")
