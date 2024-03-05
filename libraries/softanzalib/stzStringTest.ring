@@ -1,6 +1,36 @@
 load "stzlib.ring"
 
-/*-----------
+/*=======
+
+pron()
+
+o1 = new stzString("12345678")
+
+? o1.Section(3, 5)
+#--> 345
+
+? o1.Section(5, 3)
+#--> 345
+
+proff()
+# Executed in 0.01 second(s)
+
+/*--------
+
+pron()
+
+o1 = new stzList(1:8)
+
+? o1.Section(3, 5)
+#--> [ 3, 4, 5 ]
+
+? o1.Section(5, 3)
+#--> [ 3, 4, 5 ]
+
+proff()
+# Executed in 0.01 second(s)
+
+/*=========
 
 pron()
 
