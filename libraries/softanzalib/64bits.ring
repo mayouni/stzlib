@@ -1,7 +1,7 @@
 load "stzlib.ring"
  
-/*------
-
+/*=== Section() and CharsInSection()
+*/
 pron()
 
 # Here, you cen get a section from a string
