@@ -28,74 +28,7 @@ o1 = new stzString("---Ring")
 
 proff()
 
-/*------
 
-pron()
-
-o1 = new stzString("---Ring")
-? o1.LeadingChars()
-#--> [ "-", "-", "-" ]
-
-? o1.LeadingCharsXT() # Or LeadingCharsAsString() or LeadingCharsAsSubString()
-#--> "---"
-
-o1 = new stzString("Ring---")
-? o1.TrailingChars()
-#--> [ "-", "-", "-" ]
-
-? o1.TrailingCharsXT()
-#--> "---"
-
-proff()
-# Executed in 0.04 second(s)
-
-/*------
-
-pron()
-
-o1 = new stzString("---Ring")
-
-o1.RemoveLeadingChar() # Or RemoveAnyLeadingChar() or RemoveLeadingChars()
-? o1.Content()
-
-o1 = new stzString("Ring---")
-o1.RemoveTrailingChar() # Or RemoveAnyTrailingChar() or RemoveTrailingChars()
-
-proff()
-
-/*------
-
-pron()
-
-o1 = new stzString("---Ring")
-
-o1.RemoveThisLeadingChar("*")
-? o1.Content()
-#--> "---Ring"
-
-o1.RemoveThisLeadingChar("-")
-? o1.Content()
-#--> "Ring"
-
-proff()
-# Executed in 0.05 second(s)
-
-/*------
-*/
-pron()
-
-o1 = new stzString("Ring---")
-
-o1.RemoveThisTrailingChar("*")
-? o1.Content()
-#--> "Ring---"
-
-o1.RemoveThisTrailingChar("-")
-? o1.Content()
-#--> "Ring"
-
-proff()
-# Executed in 0.05 second(s)
 
 /*------
 
