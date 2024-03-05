@@ -156,6 +156,20 @@ func MultiplicationsYieldingN_WithoutCommutation(n)
 
 	return aResult
 
+func NZeros(n)
+	if CheckParams()
+		if NOT isNumber(n) and n >= 0
+			StzRaise("Incorrect param type! n must be a postive number.")
+		ok
+	ok
+
+	anResult = []
+	for i = 1 to n
+		anResult + 0
+	next
+
+	return anResult
+
 func NumbersXT(n1, n2)
 	if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :Between, :From ])
 		n1 = n1[2]
