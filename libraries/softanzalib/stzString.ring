@@ -59772,7 +59772,7 @@ ici		//...
 
 	  #-------------------------------#
 	 #   REMOVING A CHAR FROM END    #
-	#-------------------------------#
+	#===============================#
 
 	def RemoveThisCharFromEndCS(c, pCaseSensitive)
 		if This.IsLeftToRight()
@@ -60324,7 +60324,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisCharFromStartXT(c)
-		This.RemoveAnyCharFromStartCSXT(c, TRUE)
+		This.RemoveThisCharFromStartCSXT(c, TRUE)
 		return This
 
 		#< @FunctionAlternativeForms
@@ -60530,7 +60530,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisCharFromEndXT(c)
-		This.RemoveAnyCharFromEndCSXT(c, TRUE)
+		This.RemoveThisCharFromEndCSXT(c, TRUE)
 		return This
 
 		#< @FunctionAlternativeForms
@@ -60640,13 +60640,18 @@ ici		//...
 			return
 		ok
 
-		n = 0
+		if IsCaseSensitive(pCaseSensitive) = FALSE
+			c = ring_lower(c)
+			for i = 1 to nLen
+				acChars[i] = ring_lower(acChars[i])
+			next
+		ok
 
 		n = 0
 
 		if This.IsLeftToRight()
 			for i = 1 to nLen
-				if Q(acChars[i]).IsEqualToCS(c, pCaseSensitive)
+				if acChars[i] = c
 					n++
 				else
 					exit
@@ -60659,7 +60664,7 @@ ici		//...
 
 		else
 			for i = nLen to 1 step -1
-				if Q(acChars[i]).IsEqualToCS(c, pCaseSensitive)
+				if acChars[i] = c
 					n++
 				else
 					exit
@@ -60774,7 +60779,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisCharFromLeftXT(c)
-		This.RemoveAnyCharFromLeftCSXT(c, TRUE)
+		This.RemoveThisCharFromLeftCSXT(c, TRUE)
 		return This
 
 		#< @FunctionAlternativeForms
@@ -60869,9 +60874,9 @@ ici		//...
 		#>
 
 
-	  #---------------------------------#
-	 #   REMOVING A CHAR FROM RIGHT    #
-	#---------------------------------#
+	  #-------------------------------------#
+	 #   REMOVING A CHAR FROM RIGHT -- XT  #
+	#-------------------------------------#
 	#TODO: Add Strip alternative
 
 	def RemoveThisCharFromRightCSXT(c, pCaseSensitive)
@@ -60887,12 +60892,18 @@ ici		//...
 			return
 		ok
 
+		if IsCaseSensitive(pCaseSensitive) = FALSE
+			c = ring_lower(c)
+			for i = 1 to nLen
+				acChars[i] = ring_lower(acChars[i])
+			next
+		ok
+
 		n = 0
 
 		if This.IsLeftToRight()
-
 			for i = nLen to 1 step -1
-				if Q(acChars[i]).IsEqualToCS(c, pCaseSensitive)
+				if acChars[i] = c
 					n++
 				else
 					exit
@@ -60905,7 +60916,7 @@ ici		//...
 
 		else
 			for i = 1 to nLen
-				if Q(acChars[i]).IsEqualToCS(c, pCaseSensitive)
+				if acChars[i] = c
 					n++
 				else
 					exit
@@ -60915,6 +60926,7 @@ ici		//...
 			if n > 0
 				This.RemoveSection( 1, n )
 			ok
+
 		ok
 
 
@@ -61020,7 +61032,7 @@ ici		//...
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisCharFromRightXT(c)
-		This.RemoveAnyCharFromRightCSXT(c, TRUE)
+		This.RemoveThisCharFromRightCSXT(c, TRUE)
 		return This
 
 		#< @FunctionAlternativeForms
