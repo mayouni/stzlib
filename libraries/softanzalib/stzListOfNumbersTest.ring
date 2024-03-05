@@ -1,5 +1,12 @@
 load "stzlib.ring"
 
+pron()
+
+? NZeros(5)
+#--> [ 0, 0, 0, 0, 0 ]
+
+proff()
+
 /*---------------
 
 pron()
