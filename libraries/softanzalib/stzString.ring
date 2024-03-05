@@ -18171,13 +18171,13 @@ class stzString from stzObject
 			return This.RepeatedLeadingCharsCS(pCaseSensitive)
 
 			def LeadingRepeatedCharsCSQ(pCaseSensitive)
-				return new stzString( This.LeadingRepeatedCharsCS(pCaseSensitive) )
+				return This.RepeatedLeadingCharsCSQ(pCaseSensitive)
 	
 		def LeadingCharsCS(pCaseSensitive)
 			return This.RepeatedLeadingCharsCS(pCaseSensitive)
 
 			def LeadingCharsCSQ(pCaseSensitive)
-				return new stzString( This.LeadingCharsCS(pCaseSensitive) )
+				return This.RepeatedLeadingCharsCSQ(pCaseSensitive)
 	
 		#>
 
@@ -18199,13 +18199,13 @@ class stzString from stzObject
 			return This.RepeatedLeadingChars()
 
 			def LeadingRepeatedCharsQ()
-				return new stzString( This.LeadingRepeatedChars() )
+				return This.RepeatedLeadingCharsQ()
 	
 		def LeadingChars()
 			return This.RepeatedLeadingChars()
 
 			def LeadingCharsQ()
-				return new stzString( This.LeadingChars() )
+				return This.RepeatedLeadingCharsQ()
 	
 		#>
 
@@ -19254,13 +19254,20 @@ class stzString from stzObject
 	#=====================================#
 
 	def RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
 		if This.HasRepeatedLeadingCharsCS(pCaseSensitive)
 			This.RemoveFirstNChars( This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive) )
 		ok
 
+		#< @FunctionFluentForm
+
 		def RemoveRepeatedLeadingCharsCSQ()
 			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def RemoveLeadingRepeatedCharsCS(pCaseSensitive)
 			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
@@ -19275,10 +19282,63 @@ class stzString from stzObject
 			def RemoveLeadingCharsCSQ(pCaseSensitive)
 				This.RemoveLeadingCharsCS(pCaseSensitive)
 				return This
+		#==
+
+		#== Char (without an "s")
+
+		def RemoveRepeatedLeadingCharCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveRepeatedLeadingCharCSQ(pCaseSensitive)
+				This.RemoveRepeatedLeadingCharCS(pCaseSensitive)
+				return This
+
+		def RemoveLeadingRepeatedCharCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveLeadingRepeatedCharCSQ(pCaseSensitive)
+				This.RemoveLeadingRepeatedCharsCS(pCaseSensitive)
+				return This
 	
+		def RemoveLeadingCharCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveLeadingCharCSQ(pCaseSensitive)
+				This.RemoveLeadingCharsCS(pCaseSensitive)
+				return This
+
+		#-- adding ANY
+
+		def RemoveAnyRepeatedLeadingCharCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveAnyRepeatedLeadingCharCSQ(pCaseSensitive)
+				This.RemoveRepeatedLeadingCharCS(pCaseSensitive)
+				return This
+
+		def RemoveAnyLeadingRepeatedCharCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveAnyLeadingRepeatedCharCSQ(pCaseSensitive)
+				This.RemoveLeadingRepeatedCharsCS(pCaseSensitive)
+				return This
+	
+		def RemoveanyLeadingCharCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveAnyLeadingCharCSQ(pCaseSensitive)
+				This.RemoveLeadingCharsCS(pCaseSensitive)
+				return This
+
+		#>
+
+	#-- @FunctionPassiveForm
+
 	def RepeatedLeadingCharsRemovedCS(pCaseSensitive)
 		cResult = This.Copy().RemoveRepeatedLeadingCharsCSQ(pCaseSensitive).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def LeadingRepeatedCharsRemovedCS(pCaseSensitive)
 			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
@@ -19286,14 +19346,44 @@ class stzString from stzObject
 		def LeadingCharsRemovedCS(pCaseSensitive)
 			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
 
+		#==
+
+		def RepeatedLeadingCharRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		def LeadingRepeatedCharRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		def LeadingCharRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		#--
+
+		def AnyRepeatedLeadingCharRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		def AnyLeadingRepeatedCharRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		def AnyLeadingCharRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedLeadingChars()
 		This.RemoveRepeatedLeadingCharsCS(TRUE)
 
+		#< @FunctionFluentForm
+
 		def RemoveRepeatedLeadingCharsQ()
 			This.RemoveRepeatedLeadingChars()
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def RemoveLeadingRepeatedChars()
 			This.RemoveRepeatedLeadingChars()
@@ -19308,16 +19398,92 @@ class stzString from stzObject
 			def RemoveLeadingCharsQ()
 				This.RemoveLeadingChars()
 				return This
+
+		#== Char (without an "s")
+
+		def RemoveRepeatedLeadingChar()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveRepeatedLeadingCharQ()
+				This.RemoveRepeatedLeadingChar()
+				return This
+
+		def RemoveLeadingRepeatedChar()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveLeadingRepeatedCharQ()
+				This.RemoveLeadingRepeatedChars()
+				return This
 	
+		def RemoveLeadingChar()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveLeadingCharQ()
+				This.RemoveLeadingChars()
+				return This
+
+		#-- adding ANY
+
+		def RemoveAnyRepeatedLeadingChar()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveAnyRepeatedLeadingCharQ()
+				This.RemoveRepeatedLeadingChar()
+				return This
+
+		def RemoveAnyLeadingRepeatedChar()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveAnyLeadingRepeatedCharQ()
+				This.RemoveLeadingRepeatedChars()
+				return This
+	
+		def RemoveanyLeadingChar()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveAnyLeadingCharQ()
+				This.RemoveLeadingChars()
+				return This
+
+		#>
+
+	#-- @FunctionPassiveForm
+
 	def RepeatedLeadingCharsRemoved()
 		cResult = This.Copy().RemoveRepeatedLeadingCharsQ().Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def LeadingRepeatedCharsRemoved()
 			return This.RepeatedLeadingCharsRemoved()
 
 		def LeadingCharsRemoved()
 			return This.RepeatedLeadingCharsRemoved()
+
+		#==
+
+		def RepeatedLeadingCharRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		def LeadingRepeatedCharRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		def LeadingCharRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		#--
+
+		def AnyRepeatedLeadingCharRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		def AnyLeadingRepeatedCharRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		def AnyLeadingCharRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		#>
 
 	  #------------------------------------------------#
 	 #  FINDING POSITIONS OF REPEATED TRAILING CHARS  # 
@@ -19510,9 +19676,15 @@ class stzString from stzObject
 			This.RemoveLastNChars( This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive) )
 		ok
 
+		#< @FunctionFluentForm
+
 		def RemoveRepeatedTrailingCharsCSQ()
 			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def RemoveTrailingRepeatedCharsCS(pCaseSensitive)
 			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
@@ -19527,10 +19699,62 @@ class stzString from stzObject
 			def RemoveTrailingCharsCSQ(pCaseSensitive)
 				This.RemoveTrailingCharsCS(pCaseSensitive)
 				return This
+
+		#== Char (without an "s")
+
+		def RemoveRepeatedTrailingCharCS(pCaseSensitive)
+			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
+
+			def RemoveRepeatedTrailingCharCSQ(pCaseSensitive)
+				This.RemoveRepeatedTrailingCharCS(pCaseSensitive)
+				return This
+
+		def RemoveTrailingRepeatedCharCS(pCaseSensitive)
+			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
+
+			def RemoveTrailingRepeatedCharCSQ(pCaseSensitive)
+				This.RemoveTrailingRepeatedCharsCS(pCaseSensitive)
+				return This
 	
+		def RemoveTrailingCharCS(pCaseSensitive)
+			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
+
+			def RemoveTrailingCharCSQ(pCaseSensitive)
+				This.RemoveTrailingCharsCS(pCaseSensitive)
+				return This
+
+		#-- adding ANY
+
+		def RemoveAnyRepeatedTrailingCharCS(pCaseSensitive)
+			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
+
+			def RemoveAnyRepeatedTrailingCharCSQ(pCaseSensitive)
+				This.RemoveRepeatedTrailingCharCS(pCaseSensitive)
+				return This
+
+		def RemoveAnyTrailingRepeatedCharCS(pCaseSensitive)
+			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
+
+			def RemoveAnyTrailingRepeatedCharCSQ(pCaseSensitive)
+				This.RemoveTrailingRepeatedCharsCS(pCaseSensitive)
+				return This
+	
+		def RemoveanyTrailingCharCS(pCaseSensitive)
+			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
+
+			def RemoveAnyTrailingCharCSQ(pCaseSensitive)
+				This.RemoveTrailingCharsCS(pCaseSensitive)
+				return This
+
+		#>
+
+	#-- @FunctionPassiveForm
+
 	def RepeatedTrailingCharsRemovedCS(pCaseSensitive)
 		cResult = This.Copy().RemoveRepeatedTrailingCharsCSQ(pCaseSensitive).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def TrailingRepeatedCharsRemovedCS(pCaseSensitive)
 			return This.RepeatedTrailingCharsRemovedCS(pCaseSensitive)
@@ -19538,14 +19762,44 @@ class stzString from stzObject
 		def TrailingCharsRemovedCS(pCaseSensitive)
 			return This.RepeatedTrailingCharsRemovedCS(pCaseSensitive)
 
+		#==
+
+		def RepeatedTrailingCharRemovedCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsRemovedCS(pCaseSensitive)
+
+		def TrailingRepeatedCharRemovedCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsRemovedCS(pCaseSensitive)
+
+		def TrailingCharRemovedCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsRemovedCS(pCaseSensitive)
+
+		#--
+
+		def AnyRepeatedTrailingCharRemovedCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsRemovedCS(pCaseSensitive)
+
+		def AnyTrailingRepeatedCharRemovedCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsRemovedCS(pCaseSensitive)
+
+		def AnyTrailingCharRemovedCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsRemovedCS(pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedTrailingChars()
 		This.RemoveRepeatedTrailingCharsCS(TRUE)
 
+		#< @FunctionFluentForm
+
 		def RemoveRepeatedTrailingCharsQ()
 			This.RemoveRepeatedTrailingChars()
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def RemoveTrailingRepeatedChars()
 			This.RemoveRepeatedTrailingChars()
@@ -19561,15 +19815,91 @@ class stzString from stzObject
 				This.RemoveTrailingChars()
 				return This
 	
+		#== Char (without an "s")
+
+		def RemoveRepeatedTrailingChar()
+			This.RemoveRepeatedTrailingChars()
+
+			def RemoveRepeatedTrailingCharQ()
+				This.RemoveRepeatedTrailingChar()
+				return This
+
+		def RemoveTrailingRepeatedChar()
+			This.RemoveRepeatedTrailingChars()
+
+			def RemoveTrailingRepeatedCharQ()
+				This.RemoveTrailingRepeatedChars()
+				return This
+	
+		def RemoveTrailingChar()
+			This.RemoveRepeatedTrailingChars()
+
+			def RemoveTrailingCharQ()
+				This.RemoveTrailingChars()
+				return This
+
+		#-- adding ANY
+
+		def RemoveAnyRepeatedTrailingChar()
+			This.RemoveRepeatedTrailingChars()
+
+			def RemoveAnyRepeatedTrailingCharQ()
+				This.RemoveRepeatedTrailingChar()
+				return This
+
+		def RemoveAnyTrailingRepeatedChar()
+			This.RemoveRepeatedTrailingChars()
+
+			def RemoveAnyTrailingRepeatedCharQ()
+				This.RemoveTrailingRepeatedChars()
+				return This
+	
+		def RemoveanyTrailingChar()
+			This.RemoveRepeatedTrailingChars()
+
+			def RemoveAnyTrailingCharQ()
+				This.RemoveTrailingChars()
+				return This
+
+		#>
+
+	#-- @FunctionPassiveForm
+
 	def RepeatedTrailingCharsRemoved()
 		cResult = This.Copy().RemoveRepeatedTrailingCharsQ().Content()
 		return cResult
+
+		#< @FunctionAlternativeForm
 
 		def TrailingRepeatedCharsRemoved()
 			return This.RepeatedTrailingCharsRemoved()
 
 		def TrailingCharsRemoved()
 			return This.RepeatedTrailingCharsRemoved()	
+
+		#==
+
+		def RepeatedTrailingCharRemoved()
+			return This.RepeatedTrailingCharsRemoved()
+
+		def TrailingRepeatedCharRemoved()
+			return This.RepeatedTrailingCharsRemoved()
+
+		def TrailingCharRemoved()
+			return This.RepeatedTrailingCharsRemoved()
+
+		#--
+
+		def AnyRepeatedTrailingCharRemoved()
+			return This.RepeatedTrailingCharsRemoved()
+
+		def AnyTrailingRepeatedCharRemoved()
+			return This.RepeatedTrailingCharsRemoved()
+
+		def AnyTrailingCharRemoved()
+			return This.RepeatedTrailingCharsRemoved()
+
+		#>
 
 	  #------------------------------------------------------------#
 	 #  FINDING POSITIONS OF REPEATED LEADING AND TRAILING CHARS  # 
@@ -20201,97 +20531,6 @@ class stzString from stzObject
 
 		#>
 
-	  #------------------------------------------------#
-	 #   REMOVING THE REPEATED LEADING CHAR (IF ANY)  #
-	#================================================#
-
-	def RemoveRepeatedLeadingCharCS(pCaseSensitive)
-		if This.HasARepeatedLeadingCharCS(pCaseSensitive)
-			c = This.RepeatedLeadingCharCS(pCaseSensitive)
-			This.RemoveThisCharFromStartCSXT(c, pCaseSensitive)
-		ok
-
-		#< @FunctionFluentForm
-
-		def RemoveRepeatedLeadingCharCSQ(pCaseSensitive)
-			This.RemoveRepeatedLeadingCharCS(pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def RemoveLeadingCharCS(pCaseSensitive)
-			This.RemoveRepeatedLeadingCharCS(CaseSensitive)
-
-			def RemoveLeadingCharCSQ(pCaseSensitive)
-				This.RemoveLeadingCharCS(pCaseSensitive)
-				return This
-
-		def RemoveAnyLeadingCharCS(pCaseSensitive)
-			This.RemoveRepeatedLeadingCharCS(CaseSensitive)
-
-			def RemoveAnyLeadingCharCSQ(pCaseSensitive)
-				This.RemoveAnyLeadingCharCS(pCaseSensitive)
-				return This
-
-		#>
-
-	#-- @FunctionPassiveForm
-
-	def RepeatedLeadingCharRemovedCS(pCaseSensitive)
-		acResult = This.Copy().RemoveRepeatedLeadingCharCSQ(cpCaseSensitive).Content()
-		return acResult
-
-		def LeadingCharRemovedCS(pCaseSensitive)
-			return This.RepeatedLeadingCharRemovedCS(pCaseSensitive)
-
-		def AnyLeadingCharRemovedCS(pCaseSensitive)
-			return This.RepeatedLeadingCharRemovedCS(pCaseSensitive)
-
-	#== WITHOUT CASESENSITIVITY
-
-	def RemoveRepeatedLeadingChar()
-		This.RemoveRepeatedLeadingCharCS(TRUE)
-
-		#< @FunctionFluentForm
-
-		def RemoveRepeatedLeadingCharQ()
-			This.RemoveRepeatedLeadingChar()
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def RemoveLeadingChar()
-			This.RemoveRepeatedLeadingChar()
-
-			def RemoveLeadingCharQ()
-				This.RemoveLeadingChar()
-				return This
-
-		def RemoveAnyLeadingChar()
-			This.RemoveRepeatedLeadingChar()
-
-			def RemoveAnyLeadingCharQ()
-				This.RemoveAnyLeadingChar()
-				return This
-
-		#>
-
-	#-- @FunctionPassiveForm
-
-	def RepeatedLeadingCharRemoved()
-		acResult = This.Copy().RemoveRepeatedLeadingCharQ().Content()
-		return acResult
-
-		def LeadingCharRemoved()
-			return This.RepeatedLeadingCharRemoved()
-
-		def AnyLeadingCharRemoved()
-			return This.RepeatedLeadingCharRemoved()
-
 	  #--------------------------------------------#
 	 #   REMOVING A GIVEN REPEATED LEADING CHAR   #
 	#--------------------------------------------#
@@ -20367,99 +20606,7 @@ class stzString from stzObject
 		def ThisLeadingCharRemoved(c)
 			return This.ThisRepeatedLeadingCharRemoved(c)
 
-	  #-------------------------------------------------#
-	 #   REMOVING THE REPEATED TRAILING CHAR (IF ANY)  #
-	#=================================================#
-
-	def RemoveRepeatedTrailingCharCS(pCaseSensitive)
-		c = This.RepeatedTrailingCharCS(pCaseSensitive)
-		if c = NULL
-			return
-		ok
-			
-		This.RemoveThisCharFromEndCSXT(c, pCaseSensitive)
-
-		#< @FunctionFluentForm
-
-		def RemoveRepeatedTrailingCharCSQ(pCaseSensitive)
-			This.RemoveRepeatedTrailingCharCS(pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def RemoveTrailingCharCS(pCaseSensitive)
-			This.RemoveRepeatedTrailingCharCS(CaseSensitive)
-
-			def RemoveTrailingCharCSQ(pCaseSensitive)
-				This.RemoveTrailingCharCS(pCaseSensitive)
-				return This
-
-		def RemoveAnyTrailingCharCS(pCaseSensitive)
-			This.RemoveRepeatedTrailingCharCS(CaseSensitive)
-
-			def RemoveAnyTrailingCharCSQ(pCaseSensitive)
-				This.RemoveAnyTrailingCharCS(pCaseSensitive)
-				return This
-
-		#>
-
-	#-- @FunctionPassiveForm
-
-	def RepeatedTrailingCharRemovedCS(pCaseSensitive)
-		acResult = This.Copy().RemoveRepeatedTrailingCharCSQ(cpCaseSensitive).Content()
-		return acResult
-
-		def TrailingCharRemovedCS(pCaseSensitive)
-			return This.RepeatedTrailingCharRemovedCS(pCaseSensitive)
-
-		def AnyTrailingCharRemovedCS(pCaseSensitive)
-			return This.RepeatedTrailingCharRemovedCS(pCaseSensitive)
-
-	#== WITHOUT CASESENSITIVITY
-
-	def RemoveRepeatedTrailingChar()
-		This.RemoveRepeatedTrailingCharCS(TRUE)
-
-		#< @FunctionFluentForm
-
-		def RemoveRepeatedTrailingCharQ()
-			This.RemoveRepeatedTrailingChar()
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def RemoveTrailingChar()
-			This.RemoveRepeatedTrailingChar()
-
-			def RemoveTrailingCharQ()
-				This.RemoveTrailingChar()
-				return This
-
-		def RemoveAnyTrailingChar()
-			This.RemoveRepeatedTrailingChar()
-
-			def RemoveAnyTrailingCharQ()
-				This.RemoveAnyTrailingChar()
-				return This
-
-		#>
-
-	#-- @FunctionPassiveForm
-
-	def RepeatedTrailingCharRemoved()
-		acResult = This.Copy().RemoveRepeatedTrailingCharQ().Content()
-		return acResult
-
-		def TrailingCharRemoved()
-			return This.RepeatedTrailingCharRemoved()
-
-		def AnyTrailingCharRemoved()
-			return This.RepeatedTrailingCharRemoved()
-
+ici
 	  #---------------------------------------------#
 	 #   REMOVING A GIVEN REPEATED TRAILING CHAR   #
 	#---------------------------------------------#
@@ -59380,6 +59527,20 @@ ici		//...
 			def TrimThisCharFromStartCSQ(c, pCaseSensitive)
 				return This.RemoveThisCharFromStartCSQ(c, pCaseSensitive)
 
+		#--
+
+		def StripCharFromStartCS(c, pCaseSensitive)
+			This.RemoveThisCharFromStartCS(c, pCaseSensitive)
+
+			def StripCharFromStartCSQ(c, pCaseSensitive)
+				return This.RemoveThisCharFromStartCSQ(c, pCaseSensitive)
+
+		def StripThisCharFromStartCS(c, pCaseSensitive)
+			This.RemoveThisCharFromStartCS(c, pCaseSensitive)
+
+			def StripThisCharFromStartCSQ(c, pCaseSensitive)
+				return This.RemoveThisCharFromStartCSQ(c, pCaseSensitive)
+
 		#>
 
 	def CharRemovedFromStartCS(c, pCaseSensitive)
@@ -59397,6 +59558,13 @@ ici		//...
 			return This.CharRemovedFromStartCS(c, pCaseSensitive)
 
 		def ThisCharTrimmedFromStartCS(c, pCaseSensitive)
+			return This.CharRemovedFromStartCS(c, pCaseSensitive)
+
+
+		def CharStrippedFromStartCS(c, pCaseSensitive)
+			return This.CharRemovedFromStartCS(c, pCaseSensitive)
+
+		def ThisCharStrippedFromStartCS(c, pCaseSensitive)
 			return This.CharRemovedFromStartCS(c, pCaseSensitive)
 
 		#>
@@ -59428,6 +59596,20 @@ ici		//...
 			def TrimThisCharFromStartQ(c)
 				return This.RemoveThisCharFromStartQ(c)
 
+		#--
+
+		def StripCharFromStart(c)
+			This.RemoveThisCharFromStart(c)
+
+			def StripCharFromStartQ(c)
+				return This.RemoveThisCharFromStartQ(c)
+
+		def StripThisCharFromStart(c)
+			This.RemoveThisCharFromStart(c)
+
+			def StripThisCharFromStartQ(c)
+				return This.RemoveThisCharFromStartQ(c)
+
 		#>
 
 	def CharRemovedFromStart(c)
@@ -59442,6 +59624,14 @@ ici		//...
 			return This.CharRemovedFromStart(c)
 
 		def ThisCharTrimmedFromStart(c)
+			return This.CharRemovedFromStart(c)
+
+		#--
+
+		def CharStrippedFromStart(c)
+			return This.CharRemovedFromStart(c)
+
+		def ThisCharStrippedFromStart(c)
 			return This.CharRemovedFromStart(c)
 
 		#>
@@ -59486,6 +59676,18 @@ ici		//...
 			def TrimThisCharFromEndCSQ(c, pCaseSensitive)
 				return This.RemoveThisCharFromEndCSQ(c, pCaseSensitive)
 
+		def StripCharFromEndCS(c, pCaseSensitive)
+			This.RemoveThisCharFromEndCS(c, pCaseSensitive)
+
+			def StripCharFromEndCSQ(c, pCaseSensitive)
+				return This.RemoveThisCharFromEndCSQ(c, pCaseSensitive)
+
+		def StripThisCharFromEndCS(c, pCaseSensitive)
+			This.RemoveThisCharFromEndCS(c, pCaseSensitive)
+
+			def StripThisCharFromEndCSQ(c, pCaseSensitive)
+				return This.RemoveThisCharFromEndCSQ(c, pCaseSensitive)
+
 		#>
 
 	def CharRemovedFromEndCS(c, pCaseSensitive)
@@ -59503,6 +59705,12 @@ ici		//...
 			return This.CharRemovedFromEndCS(c, pCaseSensitive)
 
 		def ThisCharTrimmedFromEndCS(c, pCaseSensitive)
+			return This.CharRemovedFromEndCS(c, pCaseSensitive)
+
+		def CharStrippedFromEndCS(c, pCaseSensitive)
+			return This.CharRemovedFromEndCS(c, pCaseSensitive)
+
+		def ThisCharStrippedFromEndCS(c, pCaseSensitive)
 			return This.CharRemovedFromEndCS(c, pCaseSensitive)
 
 		#>
@@ -59534,6 +59742,18 @@ ici		//...
 			def TrimThisCharFromEndQ(c)
 				return This.RemoveThisCharFromEndQ(c)
 
+		def StripCharFromEnd(c)
+			This.RemoveThisCharFromEnd(c)
+
+			def StripCharFromEndQ(c)
+				return This.RemoveThisCharFromEndQ(c)
+
+		def StripThisCharFromEnd(c)
+			This.RemoveThisCharFromEnd(c)
+
+			def StripThisCharFromEndQ(c)
+				return This.RemoveThisCharFromEndQ(c)
+
 		#>
 
 	def CharRemovedFromEnd(c)
@@ -59548,6 +59768,12 @@ ici		//...
 			return This.CharRemovedFromEnd(c)
 
 		def ThisCharTrimmedFromEnd(c)
+			return This.CharRemovedFromEnd(c)
+
+		def CharStrippedFromEnd(c)
+			return This.CharRemovedFromEnd(c)
+
+		def ThisCharStrippedFromEnd(c)
 			return This.CharRemovedFromEnd(c)
 
 		#>
@@ -59596,6 +59822,18 @@ ici		//...
 			def TrimThisCharFromLeftCSQ(c, pCaseSensitive)
 				return This.RemoveThisCharFromLeftCSQ(c, pCaseSensitive)
 
+		def StripCharFromLeftCS(c, pCaseSensitive)
+			This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
+
+			def StripCharFromLeftCSQ(c, pCaseSensitive)
+				return This.RemoveThisCharFromLeftCSQ(c, pCaseSensitive)
+
+		def StripThisCharFromLeftCS(c, pCaseSensitive)
+			This.RemoveThisCharFromLeftCS(c, pCaseSensitive)
+
+			def StripThisCharFromLeftCSQ(c, pCaseSensitive)
+				return This.RemoveThisCharFromLeftCSQ(c, pCaseSensitive)
+
 		#>
 
 	def CharRemovedFromLeftCS(c, pCaseSensitive)
@@ -59613,6 +59851,12 @@ ici		//...
 			return This.CharRemovedFromLeftCS(c, pCaseSensitive)
 
 		def ThisCharTrimmedFromLeftCS(c, pCaseSensitive)
+			return This.CharRemovedFromLeftCS(c, pCaseSensitive)
+
+		def CharStrippedFromLeftCS(c, pCaseSensitive)
+			return This.CharRemovedFromLeftCS(c, pCaseSensitive)
+
+		def ThisCharStrippedFromLeftCS(c, pCaseSensitive)
 			return This.CharRemovedFromLeftCS(c, pCaseSensitive)
 
 		#>
@@ -59644,6 +59888,18 @@ ici		//...
 			def TrimThisCharFromLeftQ(c)
 				return This.RemoveThisCharFromLeftQ(c)
 
+		def StripCharFromLeft(c)
+			This.RemoveThisCharFromLeft(c)
+
+			def StripCharFromLeftQ(c)
+				return This.RemoveThisCharFromLeftQ(c)
+
+		def StripThisCharFromLeft(c)
+			This.RemoveThisCharFromLeft(c)
+
+			def StripThisCharFromLeftQ(c)
+				return This.RemoveThisCharFromLeftQ(c)
+
 		#>
 
 	def CharRemovedFromLeft(c)
@@ -59661,6 +59917,12 @@ ici		//...
 			return This.CharRemovedFromLeft(c)
 
 		def ThisCharTrimmedFromLeft(c)
+			return This.CharRemovedFromLeft(c)
+
+		def CharStrippedFromLeft(c)
+			return This.CharRemovedFromLeft(c)
+
+		def ThisCharStrippedFromLeft(c)
 			return This.CharRemovedFromLeft(c)
 
 		#>
@@ -59709,6 +59971,18 @@ ici		//...
 			def TrimThisCharFromRightCSQ(c, pCaseSensitive)
 				return This.RemoveThisCharFromRightCSQ(c, pCaseSensitive)
 
+		def StrimCharFromRightCS(c, pCaseSensitive)
+			This.RemoveThisCharFromRightCS(c, pCaseSensitive)
+
+			def StripCharFromRightCSQ(c, pCaseSensitive)
+				return This.RemoveThisCharFromRightCSQ(c, pCaseSensitive)
+
+		def StripThisCharFromRightCS(c, pCaseSensitive)
+			This.RemoveThisCharFromRightCS(c, pCaseSensitive)
+
+			def StripThisCharFromRightCSQ(c, pCaseSensitive)
+				return This.RemoveThisCharFromRightCSQ(c, pCaseSensitive)
+
 		#>
 
 	def CharRemovedFromRightCS(c, pCaseSensitive)
@@ -59726,6 +60000,12 @@ ici		//...
 			return This.CharRemovedFromRightCS(c, pCaseSensitive)
 
 		def ThisCharTrimmedFromRightCS(c, pCaseSensitive)
+			return This.CharRemovedFromRightCS(c, pCaseSensitive)
+
+		def CharStrippedFromRightCS(c, pCaseSensitive)
+			return This.CharRemovedFromRightCS(c, pCaseSensitive)
+
+		def ThisCharStrippedFromRightCS(c, pCaseSensitive)
 			return This.CharRemovedFromRightCS(c, pCaseSensitive)
 
 		#>
@@ -59757,6 +60037,18 @@ ici		//...
 			def TrimThisCharFromRightQ(c)
 				return This.RemoveThisCharFromRightQ(c)
 
+		def StripCharFromRight(c)
+			This.RemoveThisCharFromRight(c)
+
+			def StrimCharFromRightQ(c)
+				return This.RemoveThisCharFromRightQ(c)
+
+		def StrimThisCharFromRight(c)
+			This.RemoveThisCharFromRight(c)
+
+			def StripThisCharFromRightQ(c)
+				return This.RemoveThisCharFromRightQ(c)
+
 		#>
 
 	def CharRemovedFromRight(c)
@@ -59776,11 +60068,18 @@ ici		//...
 		def ThisCharTrimmedFromRight(c)
 			return This.CharRemovedFromRight(c)
 
+		def CharStrippedFromRight(c)
+			return This.CharRemovedFromRight(c)
+
+		def ThisCharStrippedFromRight(c)
+			return This.CharRemovedFromRight(c)
+
 		#>
 
 	  #-----------------------------------------------------------------#
 	 #   REMOVING ALL THE OCCURRENCES OF A CHAR FROM THE START -- XT   #
 	#=================================================================#
+	#TODO: Add Strip alternative
 
 	def RemoveThisCharFromStartCSXT(c, pCaseSensitive)
 		if This.IsLeftToRight()
@@ -59986,6 +60285,7 @@ ici		//...
 	  #-------------------------------#
 	 #   REMOVING A CHAR FROM END    #
 	#-------------------------------#
+	#TODO: Add Strip alternative
 
 	def RemoveThisCharFromEndCSXT(c, pCaseSensitive)
 		if This.IsLeftToRight()
@@ -60191,6 +60491,7 @@ ici		//...
 	  #--------------------------------#
 	 #   REMOVING A CHAR FROM LEFT    #
 	#================================#
+	#TODO: Add Strip alternative
 
 	def RemoveThisCharFromLeftCSXT(c, pCaseSensitive)
 		if CheckParams()
@@ -60437,6 +60738,7 @@ ici		//...
 	  #---------------------------------#
 	 #   REMOVING A CHAR FROM RIGHT    #
 	#---------------------------------#
+	#TODO: Add Strip alternative
 
 	def RemoveThisCharFromRightCSXT(c, pCaseSensitive)
 		if CheckParams()
@@ -60705,23 +61007,34 @@ ici		//...
 			This.RemoveSection(n1, n2)
 		ok
 
+		#< @FunctionFluentForm
+
 		def RemoveFromLeftCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
 			return This
 
-		def RemovSubStringFromLeftCS(pcSubStr, pCaseSensitive)
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveSubStringFromLeftCS(pcSubStr, pCaseSensitive)
 			This.RemoveFromLeftCS(pcSubStr, pCaseSensitive)
 
-			def RemovSubStringFromLeftCSQ(pcSubStr, pCaseSensitive)
-				This.RemovSubStringFromLeftCS(pcSubStr, pCaseSensitive)
-				return This
+			def RemoveSubStringFromLeftCSQ(pcSubStr, pCaseSensitive)
+				return This.RemoveFromLeftCSQ(pcSubStr, pCaseSensitive)
+
+		#>
 
 	def RemovedFromLeftCS(pcSubStr, pCaseSensitive)
 		cResult = This.Copy().RemoveFromLeftCSQ(pcSubStr, pCaseSensitive).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def SubStringRemovedFromLeftCS(pcSubStr, pCaseSensitive)
 			return This.RemovedFromLeftCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -60732,11 +61045,11 @@ ici		//...
 			This.RemoveFromLeft(pcSubStr)
 			return This
 
-		def RemovSubStringFromLeft(pcSubStr)
+		def RemoveSubStringFromLeft(pcSubStr)
 			This.RemoveFromLeft(pcSubStr)
 
-			def RemovSubStringFromLeftQ(pcSubStr)
-				This.RemovSubStringFromLeft(pcSubStr)
+			def RemoveSubStringFromLeftQ(pcSubStr)
+				This.RemoveSubStringFromLeft(pcSubStr)
 				return This
 
 	def RemovedFromLeft(pcSubStr)
@@ -60785,11 +61098,11 @@ ici		//...
 				This.RemoveRightCS(pcSubStr, pCaseSensitive)
 				return This
 
-		def RemovSubStringFromRightCS(pcSubStr, pCaseSensitive)
+		def RemoveSubStringFromRightCS(pcSubStr, pCaseSensitive)
 			This.RemoveFromRightCS(pcSubStr, pCaseSensitive)
 
-			def RemovSubStringFromRightCSQ(pcSubStr, pCaseSensitive)
-				This.RemovSubStringFromRightCS(pcSubStr, pCaseSensitive)
+			def RemoveSubStringFromRightCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveSubStringFromRightCS(pcSubStr, pCaseSensitive)
 				return This
 
 	def RemovedFromRightCS(pcSubStr, pCaseSensitive)
@@ -60815,11 +61128,11 @@ ici		//...
 				This.RemoveRight(pcSubStr)
 				return This
 
-		def RemovSubStringFromRight(pcSubStr)
+		def RemoveSubStringFromRight(pcSubStr)
 			This.RemoveFromRight(pcSubStr)
 
-			def RemovSubStringFromRightQ(pcSubStr)
-				This.RemovSubStringFromRight(pcSubStr)
+			def RemoveSubStringFromRightQ(pcSubStr)
+				This.RemoveSubStringFromRight(pcSubStr)
 				return This
 
 	def RemovedFromRight(pcSubStr)
@@ -60851,11 +61164,11 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def RemovSubStringFromStartCS(pcSubStr, pCaseSensitive)
+		def RemoveSubStringFromStartCS(pcSubStr, pCaseSensitive)
 			This.RemoveFromStartCS(pcSubStr, pCaseSensitive)
 
-			def RemovSubStringFromStartCSQ(pcSubStr, pCaseSensitive)
-				This.RemovSubStringFromStartCS(pcSubStr, pCaseSensitive)
+			def RemoveSubStringFromStartCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveSubStringFromStartCS(pcSubStr, pCaseSensitive)
 				return This
 
 		def RemoveStartCS(pcSubStr, pCaseSensittive)
@@ -60892,11 +61205,11 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def RemovSubStringFromStart(pcSubStr)
+		def RemoveSubStringFromStart(pcSubStr)
 			This.RemoveFromStart(pcSubStr)
 
-			def RemovSubStringFromStartQ(pcSubStr)
-				This.RemovSubStringFromStart(pcSubStr)
+			def RemoveSubStringFromStartQ(pcSubStr)
+				This.RemoveSubStringFromStart(pcSubStr)
 				return This
 
 		def RemoveStart(pcSubStr)
@@ -60939,11 +61252,11 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def RemovSubStringFromEndCS(pcSubStr, pCaseSensitive)
+		def RemoveSubStringFromEndCS(pcSubStr, pCaseSensitive)
 			This.RemoveFromEndCS(pcSubStr, pCaseSensitive)
 
-			def RemovSubStringFromEndCSQ(pcSubStr, pCaseSensitive)
-				This.RemovSubStringFromEndCS(pcSubStr, pCaseSensitive)
+			def RemoveSubStringFromEndCSQ(pcSubStr, pCaseSensitive)
+				This.RemoveSubStringFromEndCS(pcSubStr, pCaseSensitive)
 				return This
 
 		def RemoveEndCS(pcSubStr, pCaseSensitive)
@@ -60979,11 +61292,11 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def RemovSubStringFromEnd(pcSubStr)
+		def RemoveSubStringFromEnd(pcSubStr)
 			This.RemoveFromEnd(pcSubStr)
 
-			def RemovSubStringFromEndQ(pcSubStr)
-				This.RemovSubStringFromEnd(pcSubStr)
+			def RemoveSubStringFromEndQ(pcSubStr)
+				This.RemoveSubStringFromEnd(pcSubStr)
 				return This
 
 		def RemoveEnd(pcSubStr)

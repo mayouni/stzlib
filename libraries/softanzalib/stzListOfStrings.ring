@@ -19419,9 +19419,18 @@ stop()
 			This.Trim()
 			return This
 
+		def Strip()
+			This.Trim()
+
+			def StripQ()
+				return This.TrimQ()
+
 	def Trimmed()
 		acResult = This.Copy().TrimQ().Content()
 		return acResult
+
+		def Stripped()
+			return This.Trimmed()
 
 	  #-----------------------------------------------#
 	 #  TRIMMING THE LIST OF STRINGS FROM THE START  #
@@ -19449,9 +19458,15 @@ stop()
 
 		This.RemoveSection(1, i-1)
 
+		#< @FunctionFluentForm
+
 		def TrimStartQ()
 			This.TrimStart()
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def TrimFromStart()
 			This.TrimStart()
@@ -19459,6 +19474,20 @@ stop()
 			def TrimFromStartQ()
 				This.TrimFromStart()
 				return This
+
+		def StripStart()
+			This.TrimStart()
+
+			def StripStartQ()
+				return This.TrimFromStartQ()
+
+		def StripFromStart()
+			This.TrimStart()
+
+			def StripFromStartQ()
+				return This.TrimFromStartQ()
+
+		#>
 
 	  #-----------------------------------------------#
 	 #  TRIMMING THE LIST OF STRINGS FROM THE END  #
@@ -19486,9 +19515,15 @@ stop()
 
 		This.RemoveSection(i + 1, nLen)
 
+		#< @FunctionFluentForm
+
 		def TrimEndQ()
 			This.TrimEnd()
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def TrimFromEnd()
 			This.TrimEnd()
@@ -19496,6 +19531,20 @@ stop()
 			def TrimFromEndQ()
 				This.TrimFromEnd()
 				return This
+
+		def StripEnd()
+			This.TrimEnd()
+
+			def StripEndQ()
+				return This.TrimFromEndQ()
+
+		def StripFromEnd()
+			This.TrimEnd()
+
+			def StripFromEndQ()
+				return This.TrimFromEndQ()
+
+		#>
 
 	  #------------------------------------#
 	 #  TRIMMING THE STRINGS IN THE LIST  #
@@ -19509,10 +19558,15 @@ stop()
 			this.ReplaceNthString(i, Q(acContent[i]).Trimmed())
 		next
 
+		#< @FunctionFluentForm
+
 		def TrimStringsQ()
 			This.TrimStrings()
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def TrimStringItems()
 			This.TrimStrings()
@@ -19525,14 +19579,41 @@ stop()
 			This.TrimStrings()
 
 			def TrimEachQ()
-				This.TrimEach()
-				return This
+				return This.TrimStringItemsQ()
+
+		#--
+
+		def StripStrings()
+			This.TrimStrings()
+
+			def StripStringsQ()
+				return This.TrimStringItemsQ()
+
+		def StripStringItems()
+			This.TrimStrings()
+
+			def StripStringItemsQ()
+				return This.TrimStringItemsQ()
+
+		def StripEach()
+			This.TrimStrings()
+
+			def StripEachQ()
+				return This.TrimStringItemsQ()
+
+		#>
 
 	def StringsTrimmed()
 		acResult = This.Copy().TrimStringsQ().Content()
 		return acResult
 
 		def StringItemsTrimmed()
+			return This.Trimmed()
+
+		def StringsStripped()
+			return This.Trimmed()
+
+		def StringItemsStripped()
 			return This.Trimmed()
 
 	  #------------------------------------#

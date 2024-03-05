@@ -948,12 +948,20 @@ class stzListOfBytes from stzList
 	def Trimmed()
 		return @oQByteArray.trimmed().data()
 
+		def Stripped()
+
 	def Trim()
 		This.Update( This.Trimmed() )
 
 		def TrimQ()
 			This.Trim()
 			return This
+
+		def Strip()
+			This.Trim()
+
+			def StripQ()
+				return This.Trim()
 
 	// Truncates the list of bytes at the position of the nth byte
 	def TruncatedAt(n)
