@@ -128,7 +128,7 @@ func ListOfStringsScripts(pacListStr)
 # Used for natural-coding
 
 func ListOfStrings(paList)
-	if ListIsListOfStrings(paList)
+	if @IsListOfStrings(paList)
 		return paList
 	ok
 
@@ -3165,7 +3165,7 @@ class stzListOfStrings from stzList
 	#--------------------------------------------------#
 
 	def NumberOfOccurrenceOfManyStringItemsCS(pacStrItems, pCaseSensitive)
-		if NOT ListIsListOfStrings(pacStrItems)
+		if NOT @IsListOfStrings(pacStrItems)
 			StzRaise("Incorrect param type! pacStrItems mus tbe a list of strings.")
 		ok
 
@@ -8605,7 +8605,7 @@ class stzListOfStrings from stzList
 	#-------------------------------------------#
 
 	def ReplaceAllOccurrencesOfStringCS(pcString, pcNewString, pCaseSensitive)
-		
+
 		if isList(pcString) and StzListQ(pcString).IsOfNamedParam()
 			pcString = pcString[2]
 		ok
@@ -9049,7 +9049,7 @@ class stzListOfStrings from stzList
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceStringsByMany(pacStrings, pacNewStrings)
-		This.ReplaceStringsByManyCS(pacStrings, pacNewStrings, :CaseSensitivity = TRUE)
+		This.ReplaceStringsByManyCS(pacStrings, pacNewStrings, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -19164,7 +19164,7 @@ stop()
 	def NthSubstrings(n, acSep)
 
 		if isNumber(n) and
-		   ListIsListOfStrings(acSep) and
+		   @IsListOfStrings(acSep) and
 		   len(acSep) = 2 and
 		   acSep[1] = :AfterSplittingStringsUsing
 

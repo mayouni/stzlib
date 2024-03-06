@@ -1,6 +1,0 @@
-load "stzlib.ring"
-
-
-
-
-

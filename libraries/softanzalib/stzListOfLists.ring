@@ -2032,7 +2032,7 @@ class stzListOfLists from stzList
 	 #  CHECKING IF THE SIZE OF EACH ITEM EQUALS A GIVEN NUMBER  #
 	#===========================================================#
 
-	def SizeOfEachListIs(n)
+	def SizeOfEach@Is(n)
 		aContent = This.Content()
 		nLen = len(aContent)
 
@@ -2049,97 +2049,97 @@ class stzListOfLists from stzList
 
 		#< @FunctionalternativeForms
 
-		def TheSizeOfEachListIs(n)
-			return This.SizeOfEachListIs(n)
+		def TheSizeOfEach@Is(n)
+			return This.SizeOfEach@Is(n)
 
-		def TheSizeInEachListIs(n)
-			return This.SizeOfEachListIs(n)
+		def TheSizeInEach@Is(n)
+			return This.SizeOfEach@Is(n)
 
-		def TheSizeOfEachListIsEqualTo(n)
-			return This.SizeOfEachListIs(n)
+		def TheSizeOfEach@IsEqualTo(n)
+			return This.SizeOfEach@Is(n)
 
-		def TheSizeInEachListIsEqualTo(n)
-			return This.SizeOfEachListIs(n)
+		def TheSizeInEach@IsEqualTo(n)
+			return This.SizeOfEach@Is(n)
 
 		def SizeOfEachListEquals(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def SizeInEachListEquals(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
-		def SizeOfEachListIsEqualTo(n)
-			return This.SizeOfEachListIs(n)
+		def SizeOfEach@IsEqualTo(n)
+			return This.SizeOfEach@Is(n)
 
-		def SizeInEachListIsEqualTo(n)
-			return This.SizeOfEachListIs(n)
+		def SizeInEach@IsEqualTo(n)
+			return This.SizeOfEach@Is(n)
 
 		def TheSizeOfEachListEquals(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def TheSizeInEachListEquals(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def EachListHasTheSize(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def EachListHasSize(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def EachListHasItsSizeEqualTo(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def EachListHasThisSize(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def EachListHasThisSameSize(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		#--
 
-		def TheNumberOfItemsOfEachListIs(n)
-			return This.SizeOfEachListIs(n)
+		def TheNumberOfItemsOfEach@Is(n)
+			return This.SizeOfEach@Is(n)
 
-		def TheNumberOfItemsInEachListIs(n)
-			return This.SizeOfEachListIs(n)
+		def TheNumberOfItemsInEach@Is(n)
+			return This.SizeOfEach@Is(n)
 
-		def TheNumberOfItemsOfEachListIsEqualTo(n)
-			return This.SizeOfEachListIs(n)
+		def TheNumberOfItemsOfEach@IsEqualTo(n)
+			return This.SizeOfEach@Is(n)
 
-		def TheNumberOfItemsInEachListIsEqualTo(n)
-			return This.SizeOfEachListIs(n)
+		def TheNumberOfItemsInEach@IsEqualTo(n)
+			return This.SizeOfEach@Is(n)
 
 		def NumberOfItemsOfEachListEquals(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def NumberOfItemsInEachListEquals(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
-		def NumberOfItemsOfEachListIsEqualTo(n)
-			return This.SizeOfEachListIs(n)
+		def NumberOfItemsOfEach@IsEqualTo(n)
+			return This.SizeOfEach@Is(n)
 
-		def NumberOfItemsInEachListIsEqualTo(n)
-			return This.SizeOfEachListIs(n)
+		def NumberOfItemsInEach@IsEqualTo(n)
+			return This.SizeOfEach@Is(n)
 
 		def TheNumberOfItemsOfEachListEquals(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def TheNumberOfCharsInEachStringEquals(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def EachListHasTheNumberOfItems(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def EachListHasNumberOfItems(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def EachListHasItsNumberOfItemsEqualTo(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def EachListItemHasThisNumberOfItems(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		def EachListItemHasThisSameNumberOfItems(n)
-			return This.SizeOfEachListIs(n)
+			return This.SizeOfEach@Is(n)
 
 		#>
 

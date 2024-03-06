@@ -56,7 +56,7 @@ class stzMultiString
 		def init(paMultilingualString)
 
 			if isList(paMultilingualString) and
-			   ListIsMultingualString(paMultilingualString)
+			   @IsMultingualString(paMultilingualString)
 
 				# All abbreviations or names used should be transformed
 				# to short abbreviations. This enables using whatever

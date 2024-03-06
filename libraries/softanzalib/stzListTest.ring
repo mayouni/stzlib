@@ -7757,7 +7757,7 @@ o1 = new stzList([ "A", "B", "C" ])
 
 /*-----------------------
 
-? ListIsListOfHashLists([
+? @IsListOfHashLists([
 	[ :name = "mansour", :job = "programmer", :age = 45 ],
 	[ :name = "selmen", :job = "manager", :age = 45 ],
 	[ :name = "mahran", :job = "manager", :age = 45 ]
@@ -8779,7 +8779,7 @@ o1 = new stzList([ "a", "b", "c", "A", "B", "C" ])
 /*---------------------
 
 o1 = new stzList([ "A", "B", "C" ])
-? o1.AllItemsAre("isString(@item) and StringIsUppercase(@item)")
+? o1.AllItemsAre("isString(@item) and @IsUppercase(@item)")
 
 *---------------------
 

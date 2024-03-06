@@ -905,7 +905,7 @@ class stzLocale from stzObject
 			return This.StringLowercased(pcStr)
 
 	def CharLowercased(pcChar)
-		if StringIsChar(pcChar)
+		if @IsChar(pcChar)
 			return This.StringLowercased(pcStr)
 		ok
 
@@ -916,7 +916,7 @@ class stzLocale from stzObject
 			return This.StringIsLowercased(pcStr)
 
 	def CharIsLowercased(pcChar)
-		if StringIsChar(pcChar)
+		if @IsChar(pcChar)
 			return This.StringIsLowercased(pcStr)
 		ok
 
@@ -934,7 +934,7 @@ class stzLocale from stzObject
 			return This.StringUppercased(pcStr)
 
 	def CharUppercased(pcChar)
-		if StringIsChar(pcChar)
+		if @IsChar(pcChar)
 			return This.StringUppercased(pcStr)
 		ok
 
@@ -945,7 +945,7 @@ class stzLocale from stzObject
 			return This.StringIsUppercased(pcStr)
 
 	def CharIsUppercased(pcChar)
-		if StringIsChar(pcChar)
+		if @IsChar(pcChar)
 			return This.StringIsUppercased(pcStr)
 		ok
 
@@ -1021,7 +1021,7 @@ class stzLocale from stzObject
 			return This.StringFoldcased(pcStr)
 
 	def CharFoldcased(pcChar)
-		if StringIsChar(pcChar)
+		if @IsChar(pcChar)
 			return This.StringFoldcased(pcStr)
 		ok
 
@@ -1032,7 +1032,7 @@ class stzLocale from stzObject
 			return This.StringIsFoldcased(pcStr)
 
 	def CharIsFoldcased(pcChar)
-		if StringIsChar(pcChar)
+		if @IsChar(pcChar)
 			return This.StringIsFoldcased(pcStr)
 		ok
 

@@ -67,7 +67,7 @@ class stzListOfEntities from stzList
 
 	def AddEntity(paEntity)
 
-		if ListIsHashList(paEntity)
+		if @IsHashList(paEntity)
 			if StzHashListQ(paEntity).ContainsKey(:name)
 
 				if This.ContainsName(paEntity[:name]) and

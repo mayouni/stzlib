@@ -30,7 +30,7 @@ func _(p)
 	return new stzChainOfTruth(p)
 
 func TheLetter(c)
-	if isString(c) and StringIsChar(c) and StzCharQ(c).IsLetter()
+	if isString(c) and @IsChar(c) and StzCharQ(c).IsLetter()
 		return c
 	else
 		return FALSE
@@ -236,7 +236,7 @@ class stzChainOfTruth from stzObject
 			ok
 
 		# Case of a list of strings
-		but  ListIsListOfStrings(pThing)
+		but  @IsListOfStrings(pThing)
 			# Example:
 			# ? _(["A","B","C"]).Is([ :AListOfStrings, :AListOfChars, :AListOfLetters ]).AtTheSameTime._
 
@@ -739,7 +739,7 @@ class stzChainOfTruth from stzObject
 			return This
 		ok
 
-		if ListisHashList(paEntity)
+		if @IsHashList(paEntity)
 			if NOT StzHashListQ(paEntity).ContainsKey(:name)
 				insert(paEntity, 0, :name = This.Value())
 			ok

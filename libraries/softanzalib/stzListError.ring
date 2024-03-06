@@ -72,7 +72,7 @@ func stzListError(pcError)
 		cErrorMsg += "   Why  : Only a specified set of operators are supported." + NL
 		cErrorMsg += "   Todo : See 'OPERATOR OVERLOADING' section in stzList class.."
 
-	on :CanNotVerifyListIsMadeOfProvidedItems
+	on :CanNotVerify@IsMadeOfProvidedItems
 		cErrorMsg += "   What : Can't verify if list is made of a set of provided items!" + NL
 		cErrorMsg += "   Why  : Eighter you didn't provide a list at all, or the list you provided contains duplicated items." + NL
 		cErrorMsg += "   Todo : Provide a list containing no duplicated items and try again."

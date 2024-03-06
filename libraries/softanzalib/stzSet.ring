@@ -93,7 +93,7 @@ class stzSet from stzList
 			paOtherSet = paOtherSet[2]
 		ok
 
-		If NOT ListIsSet(paOtherSet)
+		If NOT @IsSet(paOtherSet)
 			StzRaise(stzSetError(:CanNotUpdateSetWithNonSet))
 		ok
 
@@ -174,7 +174,7 @@ class stzSet from stzList
 
 	def UnionWith(paOtherSet)
 		// If necessary, transform the provided list to a set
-		if NOT ListIsSet(paOtherSet)
+		if NOT @IsSet(paOtherSet)
 			StzRaise(stzSetError(:CanNotComputeUnionWithNoSet))
 		ok
 
@@ -203,7 +203,7 @@ class stzSet from stzList
 	def UnionWithMany(paListOfSets)
 		#TODO: Add "These" as alternative of "Many"
 
-		if NOT ListIsListOfSets(paListOfSets)
+		if NOT @IsListOfSets(paListOfSets)
 			StzRaise(stzSetError(:CanNotComputeUnionWithNonSets))
 		ok
 
@@ -237,7 +237,7 @@ class stzSet from stzList
 
 	def IntersectionWith(paOtherSet)
 		// If necessary, transform the provided list to a set
-		if NOT ListIsSet(paOtherSet)
+		if NOT @IsSet(paOtherSet)
 			oTempSet = new stzSet(paOtherSet)
 			paOtherSet = oTempSet.Content()
 		ok
@@ -265,7 +265,7 @@ class stzSet from stzList
 
 	def IsIncludedIn(paOtherSet)
 		// If necessary, transform the provided list to a set
-		if NOT ListIsSet(paOtherSet)
+		if NOT @IsSet(paOtherSet)
 			oTempSet = new stzList(paOtherSet)
 			paOtherSet = oTempSet.ToSet()
 		ok
@@ -285,7 +285,7 @@ class stzSet from stzList
 
 	def Includes(paOtherSet)
 		// If necessary, transform the provided list to a set
-		if NOT ListIsSet(paOtherSet)
+		if NOT @IsSet(paOtherSet)
 			oTempSet = new stzSet(paOtherSet)
 			paOtherSet = oTempSet.Content()
 		ok

@@ -130,7 +130,7 @@ class stzListOfBoxedStrings from stzListOfStrings
 			if isList(paBoxOptions[ :Hilighted ]) and
 			   # len( paBoxOptions[ :Hilighted ] ) <= This.NumberOfItems() and
 			   StzListQ(paBoxOptions[ :Hilighted ]).IsListOfNumbers() and
-			   ListIsSet( paBoxOptions[ :Hilighted ] )
+			   @IsSet( paBoxOptions[ :Hilighted ] )
 
 				if StzListQ( paBoxOptions[ :Hilighted ] ).IsMadeOfSome( 1:This.NumberOfItems() )
 					aHilighted = paBoxOptions[ :Hilighted ]
