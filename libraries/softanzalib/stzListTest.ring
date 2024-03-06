@@ -1,7 +1,20 @@
 load "stzlib.ring"
 
+#--------
+/*
+pron()
+
+? SectionToRange([3, 7])
+#--> [ 3, 5 ]
+
+? RangeToSection([3, 5])
+#--> [ 3, 7 ]
+
+proff()
+# Executed in 0.01 second(s)
+
 /*========= Stringifying the items of a list
-*/
+
 pron()
 
 o1 = new stzList([ 120, "abc", 1:3 ])

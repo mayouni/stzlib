@@ -24733,28 +24733,30 @@ class stzString from stzObject
 	#---------------------------------------------------#
 
 	def InsertBeforeEveryNChars(n, pcSubStr)
-
-		if NOT isNumber(n)
-			stzRaise("Incorrect param! n must be a number.")
+		if CheckParams()
+			if NOT isNumber(n)
+				stzRaise("Incorrect param! n must be a number.")
+			ok
+	
+			if NOT isString(pcSubStr)
+				stzRaise("Incorrect param! pcSubStr must be a string.")
+			ok
 		ok
 
-		if NOT isString(pcSubStr)
-			stzRaise("Incorrect param! pcSubStr must be a string.")
-		ok
-
+		nLen = StzStringQ(pcSubStr)
 		anPositions = []
 
 		if n = 1
-			anPositions = [ 1 ]
+			anPositions + 1
 
 		else
 		
-			for i = 2 to This.NumberOfChars() step n
-				anPositions + [ i - 1 ]
+			for i = (nLen + 1) to This.NumberOfChars() step n
+				anPositions + ( i - 1 )
 			next
 		ok
 
-		This.InsertBeforeThesePositions(anPositions, " ")
+		This.InsertBeforeThesePositions(anPositions, pcSubStr)
 
 		#< @FunctionFluentForm
 
@@ -24765,13 +24767,6 @@ class stzString from stzObject
 		#>
 
 		#< @FunctionAlternativeForms
-
-		def InsertEveryNChars(n, pcSubStr)
-			This.InsertBeforeEveryNChars(n, pcSubStr)
-
-			def InsertEveryNCharsQ(n, pcSubStr)
-				This.InsertAfterEveryNChars(n, pcSubStr)
-				return This
 	
 		def InsertSubStringBeforeEveryNChars(n, pcSubStr)
 			This.InsertEveryNChars(n, pcSubStr)
@@ -24780,21 +24775,11 @@ class stzString from stzObject
 				This.InsertSubStringBeforeEveryNChars(n, pcSubStr)
 				return This
 
-		def InsertSubStringEveryNChars(n, pcSubStr)
-			This.InsertEveryNChars(n, pcSubStr)
-
-			def InsertSubStringEveryNCharsQ(n, pcSubStr)
-				This.InsertEveryNChars(n, pcSubStr)
-				return This
-
 		#>
 
 	def SubStringInsertedBeforeEveryNChars(n, pcSubStr)
 		cResult = This.Copy().InsertBeforeEveryNCharsQ(n, pcSubStr).Content()
 		return cResult
-
-		def SubStringInsertedEveryNChars(n, pcSubStr)
-			return This.SubStringInsertedBeforeEveryNChars(n, pcSubStr)
 
 	  #---------------------------------------------------#
 	 #    INSERTING A SUBSTRING (AFTER) EVERY N CHARS    #
@@ -24802,23 +24787,28 @@ class stzString from stzObject
 
 	def InsertAfterEveryNChars(n, pcSubStr)
 
-		if NOT isNumber(n)
-			stzRaise("Incorrect param! n must be a number.")
+		if CheckParams()
+
+			if NOT isNumber(n)
+				stzRaise("Incorrect param! n must be a number.")
+			ok
+	
+			if NOT isString(pcSubStr)
+				stzRaise("Incorrect param! pcSubStr must be a string.")
+			ok
+
 		ok
 
-		if NOT isString(pcSubStr)
-			stzRaise("Incorrect param! pcSubStr must be a string.")
-		ok
-
+		nLen = StzStringQ(pcSubStr).NumberOfChars()
 		anPositions = []
 
 		if n > 1
-			for i = 1 to This.NumberOfChars() - 1 step n
+			for i = 1 to This.NumberOfChars() - nLen - 1 step n
 				anPositions + ( i + 1 )
 			next
 		ok
 
-		This.InsertAfterThesePositions(anPositions, " ")
+		This.InsertAfterThesePositions(anPositions, pcSubStr)
 
 		#< @FunctionFluentForm
 
@@ -24834,14 +24824,28 @@ class stzString from stzObject
 			This.InsertAfterEveryNChars(n, pcSubStr)
 
 			def InsertSubStringAfterEveryNCharsQ(n, pcSubStr)
-				This.InsertSubStringAfterEveryNChars(n, pcSubStr)
-				return This
+				return This.InsertAfterEveryNCharsQ(n, pcSubStr)
+
+		def InsertEveryNChars(n, pcSubStr)
+			This.InsertAfterEveryNChars(n, pcSubStr)
+
+			def InsertEveryNCharsQ(n, pcSubStr)
+				return This.InsertAfterEveryNCharsQ(n, pcSubStr)
+	
+		def InsertSubStringEveryNChars(n, pcSubStr)
+			This.InsertAfterEveryNChars(n, pcSubStr)
+
+			def InsertSubStringEveryNCharsQ(n, pcSubStr)
+				return This.InsertAfterEveryNCharsQ(n, pcSubStr)
 
 		#>
 
 	def SubStringInsertedAfterEachNCHars(n, pcSubStr)
 		cResult = This.Copy().InsertAfterEveryNCharsQ(n, pcSubStr).Content()
 		return cResult
+
+		def SubStringInsertedEveryNChars(n, pcSubStr)
+			return This.SubStringInsertedAfterEachNCHars(n, pcSubStr)
 
 	   #--------------------------------------------------------#
 	  #    INSERTING A SUBSTRING AFTER A POSITION DEFINED      #
@@ -25004,6 +25008,7 @@ class stzString from stzObject
 			This.InsertBeforePositions(panPositions, pcSubStr)
 
 		def InsertBeforeThesePositions(panPositions, pcSubStr)
+
 			This.InsertBeforePositions(panPositions, pcSubStr)
 			
 		#--

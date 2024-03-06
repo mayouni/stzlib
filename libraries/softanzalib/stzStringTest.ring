@@ -1,5 +1,65 @@
 load "stzlib.ring"
 
+#==== @narration : #TODO Test it after fixing FindBetween and cie
+/*
+StartProfiler()
+
+# You can find the positions of any substring occurring between
+# two bounds by saying:
+
+o1 = new stzString("txt <<ring>> txt <<php>>")
+? @@( o1.FindAnyBetween("<<",">>") )
+#--> [7, 20]
+
+# In fact, the substring "ring" occures in position 7 and "php" in position 20.
+
+# Now, if you have the following case where the two bounds are
+# the same (equal to "*" here):
+
+o1 = new stzString("*2*45*78*0*")
+? @@( o1.FindAnyBetween("*","*") )
+#--> [2, 7]
+
+# then you get "2" that starts at position 2 and "78" at position 7.
+# Let's understand what happened to get this result:
+
+	# the positions	:  12345678901
+	# the string	: "*2*45*78*0*"
+	# the occurences:   ^    ^
+
+# Softanza starts scanning the string. First, it finds that "*2*"
+# corresonds to a substring ("2") between "*" and "*". Then it
+# takes its position 2.
+
+# Then, Softanza restarts from position 3 and scans the remaining
+# substring "45*78*0*" for any other substring between "*" and "*".
+# It finds it at position 7 (substring "78").
+
+# Until now, we have positions 2 and 7.
+
+# Again, Softanza retrives "*78*" from "45*78*0*". Now the substring
+# to be scanned is "45*". There is no substrings between "*" and "*".
+# So the result [2, 7] is returned.
+
+# Now, you would ask me: What if I want to get all the positions of
+# substrings separated by the char "*", like this:
+
+	# the positions	:  12345678901
+	# the string	: "*2*45*78*0*"
+	# the occurences:   ^ ^  ^  ^
+	#--> [2, 4, 7, 10]
+
+# Then you can use FindSplitsBy() function and
+# pass the "*" char as a parameter like this:
+
+? @@( o1.FindSplitsBy("*"))
+#--> [ 2, 4, 7, 10 ]
+
+? @@( o1.SeparatedBy("*") )
+? @@( o1.FindSeparatedBy("*") )
+
+StopProfiler()
+
 /*=======
 
 pron()

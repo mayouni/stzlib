@@ -1,5 +1,64 @@
 load "stzlib.ring"
 
+/*======
+
+pron()
+
+? @@( Q(462).PrimeDividors() ) + NL
+#--> [ 2, 3, 7, 11 ]
+
+? @@( Q(462).Factors() )
+#--> [ 1, 2, 3, 6, 7, 11, 14, 21, 22, 33, 42, 66, 77, 154, 231, 462 ]
+
+proff()
+#--> Executed in 0.05 second(s)
+
+/*----------
+
+pron()
+
+? Q(169).IsPrime()
+#--> FALSE
+
+? Q(17).IsPrime()
+#--> TRUE
+
+? @@( Q(54).Divirdos() ) + NL	# Misspelled, but works!
+#--> [ 1, 2, 3, 6, 9, 18, 27, 54 ]
+
+? @@( Q(54).Factors() ) + NL
+#--> [ 1, 2, 3, 6, 9, 18, 27, 54 ]
+
+? @@( Q(54).PrimeFactors() ) + NL
+#--> [ 2, 3 ]
+
+? @@( Q(54).PrimeDividors() )
+#--> [ 2, 3 ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*================
+
+pron()
+
+n1 = 6405
+n2 = 10
+
+? GCD(n1, n2) # GreatestCommonDivisor()
+#--> 5
+
+? @@( Factors(n1) ) + NL
+#--> [ 1, 3, 5, 7, 15, 21, 35, 61, 105, 183, 305, 427, 915, 1281, 2135, 6405 ]
+
+? @@( Factors(n2) )
+#--> [ 1, 2, 5, 10 ]
+
+? Max( CommonNumbers([ Factors(n1), Factors(n2) ]) )
+#--> 5
+
+proff()
+# Executed in 0.04 second(s)
 
 /*================
 
