@@ -1,6 +1,33 @@
 load "stzlib.ring"
 
 /*============
+/*
+pron()
+
+o1 = new stzListOfStrings([ "ring", "programming", "languag" ])
+? o1.ConcatenatedUsing(" ")
+#--> ring programming languag
+
+o1 = new stzListOfStrings([ ])
+? @@( o1.ConcatenatedUsing(" ") )
+#--> ""
+
+proff()
+# Executed in 0.03 second(s)
+
+#--------
+/*
+pron()
+
+o1 = new stzListOfStrings([ "aa", "  ", "b", "     ", "ccc" ])
+o1.RemoveBlankSpacesStrings()
+? @@( o1.Content() )
+#--> [ "aa", "b", "ccc" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*============
 
 pron()
 

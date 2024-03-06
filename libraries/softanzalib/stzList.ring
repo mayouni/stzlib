@@ -28440,7 +28440,7 @@ class stzList from stzObject
 					cItem = @ObjectVarName(aContent[i])
 				ok
 
-				# Memorising the stringified items so we can used them later
+				# Memorising the stringified items so we can use them later
 	
 				acStr + cItem
 			next
@@ -32327,6 +32327,10 @@ class stzList from stzObject
 	  #======================================#
 	 #  FINDING ALL OCCURRENCES OF AN ITEM  #
 	#======================================#
+
+	#TODO:
+	# Compare the code of this function and the FindDuplicates() function
+	#-> See if there is a window of enhancement
 
 	def FindAllOccurrencesCS(pItem, pCaseSensitive)
 		/* EXAMPLE

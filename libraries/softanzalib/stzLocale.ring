@@ -978,9 +978,9 @@ class stzLocale from stzObject
 				cResult = ""
 				for i = 1 to oStr.NumberOfChars()
 					if Q(i).ExistsIn(ComputableForm(anWordsPositions))
-						cResult += Q(oStr[i]).Uppercased()
+						cResult += Q(oStr.Char(i)).Uppercased()
 					else
-						cResult += oStr[i]
+						cResult += oStr.Char(i)
 					ok
 				next
 
@@ -993,8 +993,8 @@ class stzLocale from stzObject
 				# "A la Recherche du temps perdu"
 
 				oStr = new stzString(pcStr)
-				nLen = This.NumberOfChars()
-				cResult = This.ToUppercase( oStr[1] ) +
+				nLen = oStr.NumberOfChars()
+				cResult = This.ToUppercase( oStr.Char(1) ) +
 					  This.ToLowercase( oStr.Section(2,nLen) )
 			ok
 

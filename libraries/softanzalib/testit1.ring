@@ -10,8 +10,11 @@ pron()
 	o1 = new stzListOfStrings([ "A", "B", "C", "D", "E" ])
 	? o1.ContainsSome([ "B", "D", "V" ]) #--> TRUE
 proff()
+# Executed in 0.03 second(s)
 
 /*------
+
+pron()
 
 	o1 = new stzList([ "from", 1, "to", 10, "step", 2 ])
 
@@ -21,7 +24,12 @@ proff()
 	? o1.StringsUppercased()
 	#--> [ "FROM","TO", "STEP" ]
 
+proff()
+#--> Executed in 0.01 second(s)
+
 /*------
+
+pron()
 
 	o1 = new stzList([ "FROM", 1, "TO", 10, "STEP", 2 ])
  
@@ -31,7 +39,12 @@ proff()
 	? o1.StringsLowercased()
 	#--> [ "from","to", "step" ]
 
+proff()
+#--> Executed in 0.01 second(s)
+
 /*------
+
+pron()
 
 	o1 = new stzList([ "from", 1, "to", 10, "step", 2 ])
 
@@ -41,11 +54,19 @@ proff()
 	? o1.StringsTitlecased()
 	#--> [ "From","To", "Step" ]
 
+proff()
+#--> Executed in 0.10 second(s)
+
 /*------
+*/
+pron()
 
 	o1 = new stzString("e28c98")
 	o1.InsertEveryNChars(2, " ")
 	? o1.Content()
+	#--> e2 8c 98
+
+proff()
 
 /*------
 
