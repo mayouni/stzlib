@@ -2351,7 +2351,7 @@ func CallMethod( pcMethod, paOnObjects )
 func AreChars(paChars)
 	bResult = TRUE
 	for c in paChars
-		if NOT ( isString(c) and StringIsChar(c) )
+		if NOT ( isString(c) and @IsChar(c) )
 			bResult = FALSE
 			exit
 		ok
@@ -5360,7 +5360,7 @@ class stzList from stzObject
 			ok
 
 			if item != NULL
-				This.ReplaceCS(pItem, item, pCaseSensitive)
+				This.ReplaceCS(paItems[i], item, pCaseSensitive)
 			ok
 
 		next
@@ -12547,7 +12547,7 @@ class stzList from stzObject
 
 			aFirstVLine = oTempGrid.VLine(1)
 
-			if ListIsSet(aFirstVLine) and ListItemsAreAllStrings(aFirstVLine)
+			if @IsSet(aFirstVLine) and ListItemsAreAllStrings(aFirstVLine)
 				bResult = TRUE
 			ok
 		ok

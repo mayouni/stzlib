@@ -46,13 +46,13 @@ func sHashList(paList)
 	#< @FunctionAlternativeForms
 
 	func @IsHashList(paList)
-		return ListIsHashList(paList)
+		return @IsHashList(paList)
 
 	func IsAHashList(paList)
-		return ListIsHashList(paList)
+		return @IsHashList(paList)
 
 	func @IsAHashList(paList)
-		return ListIsHashList(paList)
+		return @IsHashList(paList)
 
 	#>
 
@@ -504,7 +504,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.NthPairQ(This.NumberOfPairs())
 
 	def KeyInPair(paPair)
-		if isList(paPair) and ListIsPairAndKeyIsString(paPair) and
+		if isList(paPair) and @IsPairAndKeyIsString(paPair) and
 		   This.ContainsPair(paPair)
 			return paPair[1]
 
@@ -522,7 +522,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 				return This.KeyInPairQ(paPair)
 
 	def ValueInPair(paPair)
-		if isList(paPair) and ListIsPairAndKeyIsString(paPair) and
+		if isList(paPair) and @IsPairAndKeyIsString(paPair) and
 	           This.ContainsPair(paPair)
 			return paPair[2]
 		else
@@ -707,7 +707,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			n = This.NumberOfPairs()
 		ok
 
-		if isList(paNewPair) and ListIsPairAndKeyIsString(paNewPair)
+		if isList(paNewPair) and @IsPairAndKeyIsString(paNewPair)
 
 			This.UpdateNthKey(n, paNewPair[1])
 			This.UpdateNthValue(n, paNewPair[2])
@@ -716,7 +716,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		ok
 	
 	def UpdatePair(paPair, paNewPair)
-		if isList(paPair) and ListIsPairAndKeyIsString(paNewPair) and
+		if isList(paPair) and @IsPairAndKeyIsString(paNewPair) and
 		   This.ContainsPair(paPair)
 			n = This.FindPair(paPair)
 
@@ -793,7 +793,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		This.UpdateNthValue(n, pValue, pNewValue)
 
 	def UpdateAllPairsWith(paPair)
-		if isList(paPair) and ListIsPairAndKeyIsString(paPair)
+		if isList(paPair) and @IsPairAndKeyIsString(paPair)
 			for aPair in This.Content()
 				aPair = paPair
 			next
@@ -1049,7 +1049,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-----------------#
 
 	def FindPair(paPair)
-		if isList(paPair) and ListIsPairAndKeyIsString(paPair)
+		if isList(paPair) and @IsPairAndKeyIsString(paPair)
 			nResult = 0
 			n = 0
 			for aPair in Content()

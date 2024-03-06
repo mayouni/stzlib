@@ -3719,7 +3719,7 @@ class stzForEachObjectOld
 				StzRaise("Incorrect param! pIn must be a list of lists containing " + nLen + " items in each list.")
 			ok
 	
-			if NOT StzListOfListsQ(pIn).SizeOfEachListIs(nLen)
+			if NOT StzListOfListsQ(pIn).SizeOfEach@Is(nLen)
 	
 				StzRaise("Syntax error! Each list in pIn must have the same size as the number of params in p.")
 			ok
@@ -3850,7 +3850,7 @@ class stzForEachObject
 				StzRaise("Incorrect param! pIn must be a list of lists containing " + nLen + " items in each list.")
 			ok
 	
-			if NOT StzListOfListsQ(pIn).SizeOfEachListIs(nLen)
+			if NOT StzListOfListsQ(pIn).SizeOfEach@Is(nLen)
 	
 				StzRaise("Syntax error! Each list in pIn must have the same size as the number of params in p.")
 			ok

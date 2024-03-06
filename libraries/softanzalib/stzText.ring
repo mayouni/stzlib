@@ -2045,7 +2045,7 @@ class stzText from stzString
 	
 	def NumberOfOccurrenceOfWord(pcWord)
 
-		if NOT ( isString(pcWord) and StringIsWord(pcWord) )
+		if NOT ( isString(pcWord) and @IsWord(pcWord) )
 
 			StzRaise(stzStringError(:CanNotComputeNumberOfOccurrenceOfWord))
 		ok

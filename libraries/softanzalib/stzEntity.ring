@@ -29,7 +29,7 @@ class stzEntity
 	@aEntity
 
 	def init(paEntity)
-		if ListIsHashList(paEntity)
+		if @IsHashList(paEntity)
 			if StzHashListQ(paEntity).ContainsKey(:name)
 				# NOTE: All properties are lowercased by using stzHashList
 				# In fact, stzHashList automatically lowercaseس all its keys
@@ -37,7 +37,7 @@ class stzEntity
 				aEntity =  StzHashListQ(paEntity).Content()
 
 				# 'name' is compulsory and it must be a valid word
-				if NOT ( isString(aEntity[:name]) and StringIsWord(aEntity[:name]) )
+				if NOT ( isString(aEntity[:name]) and @IsWord(aEntity[:name]) )
 					StzRaise(stzEntityError(:CanNotCreateEntityObjectWithIncorrectName))
 				ok
 
@@ -56,7 +56,7 @@ class stzEntity
 
 					else
 
-						if NOT ( isString(aEntity[:type]) and StringIsWord(aEntity[:type]) )
+						if NOT ( isString(aEntity[:type]) and @IsWord(aEntity[:type]) )
 							StzRaise(stzEntityError(:CanNotCreateEntityObjectWithIncorrectType))
 						ok
 					ok

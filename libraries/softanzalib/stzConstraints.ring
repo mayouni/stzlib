@@ -6,7 +6,7 @@ func ConstraintsOn(pcType)
 		StzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")
 	ok
 
-	if StringIsStzClassName(pcType)
+	if @IsStzClassName(pcType)
 		return Constraints()[ pcType ]
 	else
 		StzRaise([

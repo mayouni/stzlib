@@ -1887,7 +1887,7 @@ Dotless LETTERS
 
 
 	func DiacriticDescription(c)
-		if StringIsChar(c) and StzCharQ(c).IsDiacritic()
+		if @IsChar(c) and StzCharQ(c).IsDiacritic()
 			for item in DiacriticsXT()
 				if item[1] = c
 					return item[3]

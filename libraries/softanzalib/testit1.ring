@@ -58,7 +58,7 @@ proff()
 #--> Executed in 0.10 second(s)
 
 /*------
-*/
+
 pron()
 
 	o1 = new stzString("e28c98")
@@ -68,13 +68,15 @@ pron()
 
 proff()
 
-/*------
+/*=====
+
+pron()
 
 	o1 = new stzString("ring programming language")
 	? o1.Walk(:From = 6, :To = 16, :Step = 2, :Return = :WalkedChars)
 	#--> [ "p", "o", "r", "m", "i", "g" ]
 
-	? o1.WalkXT([])
+	? o1.WalkXT([ :Return = :WalkedChars ])
 	#--> [ 	"r","i","n","g"," ",
 	# 	"p","r","o","g","r","a","m","m","i","n","g"," ",
 	# 	"l","a","n","g","u","a","g","e" ]
@@ -82,10 +84,12 @@ proff()
 	? o1.WalkXT([ :From = 6, :To = 16, :Step = 2, :Return = :WalkedPositions ])
 	#--> [ 6, 8, 10, 12, 14, 16 ]
 
-	? o1.WalkXT([ :From = 6, :To = 16, :Step = 2, :Return = :WalkedChars ])
-	#--> [ "p", "o", "r", "m", "i", "g" ]
+proff()
+# Executed in 0.04 second(s)
 
 /*------
+
+pron()
 
 	? Q("⌘").CharName()		#--> PLACE OF INTEREST SIGN
 	? Q("⌘").ToHex()		#--> e28c98
@@ -93,7 +97,11 @@ proff()
 	? Q("⌘").NumberOfBytes()	#--> 3
 	? Q("⌘").ToHexSpacified()	#--> e2 8c 98 
 
+proff()
+
 /*------
+*/
+pron()
 
 	SetHilightChar(Heart())
 
@@ -112,6 +120,8 @@ proff()
 #--> 	╭───┬───┬───┬───╮
 #	│ T │ E │ X │ T │
 #	╰───┴───┴─♥─┴───╯
+
+proff()
 
   #------------------------------#
  #   CONTAINMENT IN STZSTRING   #

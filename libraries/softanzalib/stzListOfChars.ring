@@ -89,7 +89,7 @@ func HilightChar()
 	return _cHilightChar
 	
 func SetHilightChar(c)
-	if StringIsChar(c)
+	if @IsChar(c)
 		_cHilightChar = c
 	else
 		StzRaise(:CanNotSetHilightChar)
@@ -195,12 +195,12 @@ func CharsScripts(acListOfChars)
 # Used for natural-coding
 
 func ListOfChars(paList)
-	if ListIsListOfChars(paList)
+	if @IsListOfChars(paList)
 		return paList
 	ok
 
 func ListOfLetters(paList)
-	if ListIsListOfLetters(paList)
+	if @IsListOfLetters(paList)
 		return StzListOfCharsQ(paList).Uppercased()
 	ok
 
@@ -582,7 +582,7 @@ class stzListOfChars from stzListOfStrings
 			if isList(paBoxOptions[ :Hilighted ]) and
 			   # len( paBoxOptions[ :Hilighted ] ) <= This.NumberOfChars() and
 			   StzListQ(paBoxOptions[ :Hilighted ]).IsListOfNumbers() and
-			   ListIsSet( paBoxOptions[ :Hilighted ] )
+			   @IsSet( paBoxOptions[ :Hilighted ] )
 
 				if StzListQ( paBoxOptions[ :Hilighted ] ).IsMadeOfSome( 1:This.NumberOfChars() )
 					aHilighted = paBoxOptions[ :Hilighted ]

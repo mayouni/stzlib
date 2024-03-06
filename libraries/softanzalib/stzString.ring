@@ -629,7 +629,7 @@ func BothStringsAreEqual(pcStr1, pcStr2)
 	return BothStringsAreEqualCS(pcStr1, pcStr2, TRUE)
 
 func StringsAreEqualCS(pacStr, pCaseSensitive)
-	if NOT ListIsListOfStrings(paStr)
+	if NOT @IsListOfStrings(paStr)
 		stzRaise("Incorrect param type! pacStr must b a list of strings!")
 	ok
 
@@ -37294,7 +37294,7 @@ class stzString from stzObject
 			c = c.Content()
 		ok
 
-		if NOT ( isString(c) and StringIsChar(c) )
+		if NOT ( isString(c) and @IsChar(c) )
 			return NULL
 		ok
 
@@ -37415,13 +37415,13 @@ class stzString from stzObject
 			acWhy + ":CaseSensitive option must be a boolean"
 		ok
 
-		if NOT ( isString(cPositionSign) and StringIsChar(cPositionSign) )
+		if NOT ( isString(cPositionSign) and @IsChar(cPositionSign) )
 
 			bCorrect = FALSE
 			acWhy + ":PositionSign option must be a char"
 		ok
 
-		if NOT ( isString(cBlankSign) and StringIsChar(cBlankSign) )
+		if NOT ( isString(cBlankSign) and @IsChar(cBlankSign) )
 
 			bCorrect = FALSE
 			acWhy + ":BlankSign option must be char"
@@ -67279,7 +67279,7 @@ ici		//...
 			return This.IsMadeOfSome(acSubstrings)
 
 	def IsMadeOfSomeOfTheseChars(acChars)
-		if ListIsListOfChars(acChars)
+		if @IsListOfChars(acChars)
 			return This.IsMadeOfSome(acChars)
 		else
 			stzRaise("You must provide a list of chars!")
@@ -68168,7 +68168,7 @@ ici		//...
 	#-------------------------------------------------------#
 
 	def IsMadeOfTheseCharsCS(acChars, pCaseSensitive)
-		if ListIsListOfChars(acChars)
+		if @IsListOfChars(acChars)
 			return This.IsMadeOfCS(acChars, pCaseSensitive)
 		else
 			stzRaise("You must provide a list of chars!")
@@ -69730,8 +69730,8 @@ ici		//...
 	
 				cNormalSyntax = "[ "
 	
-				if ( isString(pMember1) and StringIsChar(pMember1) ) and
-				   ( isString(pMember2) and StringIsChar(pMember2) )
+				if ( isString(pMember1) and @IsChar(pMember1) ) and
+				   ( isString(pMember2) and @IsChar(pMember2) )
 					
 					n1 = CharUnicode(pMember1)
 					n2 = CharUnicode(pMember2)
@@ -69964,8 +69964,8 @@ ici		//...
 	
 			cNormalSyntax = "[ "
 	
-			if ( isString(pMember1) and StringIsChar(pMember1) ) and
-			   ( isString(pMember2) and StringIsChar(pMember2) )
+			if ( isString(pMember1) and @IsChar(pMember1) ) and
+			   ( isString(pMember2) and @IsChar(pMember2) )
 						
 				n1 = CharUnicode(pMember1)
 				n2 = CharUnicode(pMember2)
@@ -71431,12 +71431,12 @@ ici		//...
 				but cFirstOrLast = :LastCharIf
 
 					if cCondition = :EqualTo
-						if StringIsChar(pValue) and This.LastChar() = pValue
+						if @IsChar(pValue) and This.LastChar() = pValue
 							This.RemoveNthChar(This.NumberOfChars())
 							return This
 						ok
 
-						if ListIsListOfChars(pValue)
+						if @IsListOfChars(pValue)
 							oList = pValue
 							if value.IsEqualTo(cFirstOrLast)
 								This.RemoveMany(pValue)

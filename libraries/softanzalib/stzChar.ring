@@ -315,62 +315,62 @@ func FirstUnicodeChar()
 #TODO: generate all the possible functions based on stzChar methods
 
 func Letter(pcChar)
-	if StringIsChar(pcChar) and StzCharQ(pcChar).IsLetter() 
+	if @IsChar(pcChar) and StzCharQ(pcChar).IsLetter() 
 		return StzCharQ(pcChar).Uppercased()
 	ok
 
 func Letter@(pcChar)
-	if StringIsChar(pcChar) and StzCharQ(pcChar).IsLetter()
+	if @IsChar(pcChar) and StzCharQ(pcChar).IsLetter()
 		return ComputableForm(pcChar)
 	ok
 
 func Character(pcChar)
-	if StringIsChar(pcChar)
+	if @IsChar(pcChar)
 		return pcChar
 	ok
 
 func Character@(pcChar)
-	if StringIsChar(pcChar)
+	if @IsChar(pcChar)
 		return ComputableForm(pcChar)
 	ok
 
 func ArabicLetter(pcChar)
-	if StringIsChar(pcChar) and StzCharQ(pcChar).IsArabicLetter()
+	if @IsChar(pcChar) and StzCharQ(pcChar).IsArabicLetter()
 		return pcChar
 	ok
 
 func ArabicLetter@(pcChar)
-	if StringIsChar(pcChar) and StzCharQ(pcChar).IsArabicLetter()
+	if @IsChar(pcChar) and StzCharQ(pcChar).IsArabicLetter()
 		return ComputableForm(pcChar)
 	ok
 
 func LatinLetter(pcChar)
-	if StringIsChar(pcChar) and StzCharQ(pcChar).IsLatinLetter()
+	if @IsChar(pcChar) and StzCharQ(pcChar).IsLatinLetter()
 		return pcChar
 	ok
 
 func LatinLetter@(pcChar)
-	if StringIsChar(pcChar) and StzCharQ(pcChar).IsLatinLetter()
+	if @IsChar(pcChar) and StzCharQ(pcChar).IsLatinLetter()
 		return ComputableForm(pcChar)
 	ok
 	
 func ArabicNumber(pcChar)
-	if StringIsChar(pcChar) and StzCharQ(pcChar).IsArabicNumber()
+	if @IsChar(pcChar) and StzCharQ(pcChar).IsArabicNumber()
 		return pcChar
 	ok
 
 func ArabicNumber@(pcChar)
-	if StringIsChar(pcChar) and StzCharQ(pcChar).IsArabicNumber()
+	if @IsChar(pcChar) and StzCharQ(pcChar).IsArabicNumber()
 		return ComputableForm(pcChar)
 	ok
 
 func RomanNumber(pcChar)
-	if StringIsChar(pcChar) and StzCharQ(pcChar).IsRomanNumber()
+	if @IsChar(pcChar) and StzCharQ(pcChar).IsRomanNumber()
 		return pcChar
 	ok
 
 func RomanNumber@(pcChar)
-	if StringIsChar(pcChar) and StzCharQ(pcChar).IsRomanNumber()
+	if @IsChar(pcChar) and StzCharQ(pcChar).IsRomanNumber()
 		return ComputableForm(pcChar)
 	ok
 

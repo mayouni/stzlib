@@ -8,7 +8,7 @@
 */
 
 func IsListOfConstraints(pObject, paConstraints)
-	if NOT ListIsHashList(paConstraints)
+	if NOT @IsHashList(paConstraints)
 		return FALSE
 	ok
 

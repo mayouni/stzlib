@@ -105,6 +105,7 @@ load "stzlib.ring"
 
 /*------- FINDING A SUBSTRING INSIDE THE LIST OF STRINGS
 
+pron()
 	o1 = new stzListOfStrings([
 		"What's your name please?",
 		"Mabrooka!",
@@ -115,7 +116,10 @@ load "stzlib.ring"
 	])
 
 	? @@( o1.FindSubstringCS("name", TRUE) )
-		#--> [ "1" = [ 13 ], "3" = [ 6, 18 ] ]
+	#--> [ [ 1, [ 13 ] ], [ 3, [ 6, 18 ] ] ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*------- GETTING A SECTION OF A LIST OF STRINGS
 
@@ -138,47 +142,60 @@ load "stzlib.ring"
 	? o1.Content() #--> [ "A", "A", "A" ]
 
 /*------- REPLACING ALL OCCURRENCES OF A STRING
+*/
+pron()
 
-	o1 = new stzListOfStrings([ "A", "*", "B", "*", "C" ])
-	o1.ReplaceAllOccurrencesOfString("*", :With = "♥")
+	o1 = new stzList([ "A", "*", "B", "*", "C" ])
+	o1.ReplaceAllOccurrences(:of = "*", :With = "♥")
 	? o1.Content() #--> [ "A", "♥", "B", "♥", "C" ]
 	
 	#-- CS
 
-	o1 = new stzListOfStrings([ "ring", "Ring", "RING" ])
+	o1 = new stzList([ "ring", "Ring", "RING" ])
 	o1.ReplaceCS(:ring, :By@ = 'upper("ring")', :CaseSensitive = FALSE)
 	? o1.Content() #--> [ "RING", "RING", "RING" ]
 
-/*------- REPLACING MANY STRINGS AT THE SAME TIME
+proff()
 
-	o1 = new stzListOfStrings([ "blabla1", "One", "blabla2", "Two", "blabla3", "Three" ])
+/*------- REPLACING MANY STRINGS AT THE SAME TIME
+*/
+pron()
+	o1 = new stzList([ "blabla1", "One", "blabla2", "Two", "blabla3", "Three" ])
 	o1.ReplaceMany([ "blabla1", "blabla2", "blabla3" ], :with = "♥" )
 	? @@( o1.Content() ) #--> [ "♥", "One", "♥", "Two", "♥", "Three" ]
 
 	#-- CS
 
-	o1 = new stzListOfStrings([ "Tunis", "CAIRO", "Bagdad" ])
+	o1 = new stzList([ "Tunis", "CAIRO", "Bagdad" ])
 	o1.ReplaceManyCS([ :tunis, :cairo, :bagdad ], :With = "♥", :CS = FALSE)
 	? @@( o1.Content() ) #--> [ "♥", "♥", "♥" ]
+proff()
+# Executed in 0.02 second(s)
 
 /*------- REPLACING MANY STRINGS AT THE SAME TIME
+*/
+pron()
 
-	o1 = new stzListOfStrings([ "TUNIS", "CAIRO", "bagdad" ])
+	o1 = new stzList([ "TUNIS", "CAIRO", "bagdad" ])
 	o1.ReplaceMany([ "Tunis", "Cairo", "Bagdad" ], :With = "♥")
 	? @@( o1.Content() ) #--> [ "Tunis", "CAIRO", "Bagdad" ]
 
 	o1.ReplaceManyCS([ "Tunis", "Cairo", "Bagdad" ], :With = "♥", :CS = FALSE)
 	? @@( o1.Content() ) #--> [ "♥", "♥", "♥" ]
 
+proff()
+
 /*------- REPLACING MANY STRINGS BY MANY OTHERS (ONE BY ONE)
 */
-	o1 = new stzListOfStrings([ :tunis, "ALGERIA", :cairo, "LIBYA", :bagdad ])
+pron()
+	o1 = new stzList([ :tunis, "ALGERIA", :cairo, "LIBYA", :bagdad ])
 	
 	o1.ReplaceManyByMany([ :tunis,   :cairo, :bagdad ],
 			:By  = [ "TUNISIA", "EGYPT", "IRAQ"  ])
 	
 	? o1.Content() #--> [ "TUNISIA", "ALGERIA", "EGYPT", "LIBYA", "IRAQ" ]
 
+proff()
 
 /*------- REPLACING A STRING BY ALTERNANCE
 
