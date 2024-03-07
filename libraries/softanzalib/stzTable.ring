@@ -8588,7 +8588,8 @@ Class stzTable from stzObject
 
 	def ReplaceCells(paCellsPos, paNewCellValue)
 
-		if ChekParams()
+		if ChekParams() # NOTE this is a misspelled form (c in Check is lacking)
+			        # But Softanza forgives it (PERMISSIVENESS prinicle of the FLEXIBILITY goal)
 
 			if isList(paNewCellValue) and Q(paNewCellValue).IsOneOfTheseNamedParams([ :By, :With, :Using ])
 				paNewCellValue = paNewCellValue[2]
@@ -9434,15 +9435,19 @@ Class stzTable from stzObject
 	  #------------------------------------------------------------------------------------------------#
 	 #  REPLACING ALL THE COLUMNS IN THE TABLE WITH A GIVEN NEW COLUMN (PROVIDED AS A LIST OF CELLS)  #
 	#------------------------------------------------------------------------------------------------#
+	#TODO: check for performance
 
 	def ReplaceAllCols(paNewCol)
-		if isList(paNewCol) and
-		   Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
-			paNewCol = paNewCol[2]
-		ok
+		if CheckParams()
 
-		if NOT isList(paNewCol) 
-			StzRaise("Incorrect param type! paNewCol must be a list.")
+			if isList(paNewCol) and
+			   Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+				paNewCol = paNewCol[2]
+			ok
+	
+			if NOT isList(paNewCol) 
+				StzRaise("Incorrect param type! paNewCol must be a list.")
+			ok
 		ok
 
 		for i = 1 to This.NumberOfCols()

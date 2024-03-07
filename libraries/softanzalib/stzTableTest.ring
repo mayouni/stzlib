@@ -4179,7 +4179,6 @@ proff()
 
 /*-----------------
 
-*/
 pron()
 
 o1 = new stzTable([
@@ -4232,7 +4231,7 @@ o1.Show()
 #	   USA      .....
 
 proff()
-# Executed in 0.21 second(s)
+# Executed in 0.72 second(s)
 
 /*-----------------
 
@@ -4255,5 +4254,5 @@ o1.Show()
 #    USA      .....
 
 proff()
-# Executed in 0.33 second(s)
+# Executed in 0.19 second(s)
 
