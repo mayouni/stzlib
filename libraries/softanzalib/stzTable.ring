@@ -8802,13 +8802,17 @@ Class stzTable from stzObject
 
 	def ReplaceCellsByMany(paCellsPos, paNewValues)
 
-		if isList(paNewValues) and
-		   Q(paNewValues).IsOneOfTheseNamedParams([ :By, :With, :Using ])
-			paNewValues = paNewValues[2]
-		ok
+		if CheckParams()
 
-		if NOT BothAreLists(paCellsPos, paNewValues)
-			StzRaise("Incorrect param types! paCellsPos and paNewValues must be both lists.")
+			if isList(paNewValues) and
+			   Q(paNewValues).IsOneOfTheseNamedParams([ :By, :With, :Using ])
+				paNewValues = paNewValues[2]
+			ok
+	
+			if NOT BothAreLists(paCellsPos, paNewValues)
+				StzRaise("Incorrect param types! paCellsPos and paNewValues must be both lists.")
+			ok
+
 		ok
 
 		nLenCells  = len(paCellsPos)
@@ -9029,7 +9033,8 @@ Class stzTable from stzObject
 	#---------------------------------------------------------------------------------------#
 
 	def ReplaceCellsByManyXT(paCellsPos, paNewValues)
-		if NOT BothAreLists(paCellsPos, :And = paNewValues)
+
+		if NOT BothAreLists(paCellsPos, paNewValues)
 			StzRaise("Incorrect param types! paCellsPos and paNewValues must both be lists.")
 		ok
 
@@ -9037,7 +9042,7 @@ Class stzTable from stzObject
 		nLenNew = len(paNewValues)
 
 		if nLenNew < nLenPos
-			paNewValues = Q(paNewValues).ExtendXT(:To = nLenPos, :ByRepeatingItems)
+			paNewValues = Q(paNewValues).ExtendXTQ(:To = nLenPos, :ByRepeatingItems).Content()
 
 		but nLenNew > nLenPos
 			This.ExtendTo( QR(paCellsPos, :stzListOfPairs).Max() )
