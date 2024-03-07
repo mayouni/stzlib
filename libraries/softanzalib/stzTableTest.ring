@@ -1,6 +1,41 @@
 load "stzlib.ring"
 
+/*--------------------
 
+pron()
+
+o1 = new stzTable([
+	//[ :ID,	:NAME,		:AGE 	],
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+		
+? o1.ColNames()
+#--> [ "col1", "col2", "col3" ]
+
+? o1.Row(2)
+#--> [ 20, "Hatem", 45 ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*--------------------
+
+pron()
+
+o1 = new stzTable([ [ "I", 1 ], [ AHeart(), 2 ], [ "Ring", 3 ], [ "Language", 4 ] ])
+
+o1.Show()
+#--> :I   :♥   :RING   :LANGUAGE
+#    --- ---- ------- ----------
+ #    1    2       3           4
+
+? o1.Rows()
+#--> [ 1, 2, 3, 4 ]
+
+proff()
+ 
 /*------
 
 pron()
@@ -97,7 +132,7 @@ proff()
 # Executed in 0.17 second(s)
 
 /*=============
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -130,7 +165,7 @@ o1 = new stzTable([
 #--> [1, 2]
 
 proff()
-# Executed in 0.39 second(s)
+# Executed in 0.21 second(s)
 
 /*-------------
 
@@ -2912,12 +2947,15 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? @@( o1.FindCells( "Red" ) )
+? @@( o1.FindCell( "Red" ) )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
 # Same as:
 ? @@( o1.FindAllOccurrences( :Of = "Red") )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
+
+? @@( o1.FindCells([ "Red", "White" ]) ) ) # Colors of the Tunisian falg :D
+#--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ], [ 2, 1 ], [ 1, 4 ] ]
 
 proff()
 # Executed in 0.18 second(s)
