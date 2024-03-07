@@ -48520,6 +48520,24 @@ vvv
 			return FALSE
 		ok
 
+	def IsAfterTheseNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterThese )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterManyNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterMany )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsAfterPositionNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AfterPosition )
@@ -51480,6 +51498,25 @@ vvv
 			return FALSE
 		ok
 
+	def IsBeforeTheseNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThese )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeManyNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeMany )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+
 	def IsBeforeFirstNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and
@@ -51509,6 +51546,24 @@ vvv
 
 			return TRUE
 
+		else
+			return FALSE
+		ok
+
+	def IsAroundTheseNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This.Item(1)) and This.Item(1) = :AroundThese )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAroundManyNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This.Item(1)) and This.Item(1) = :AroundMany )
+
+			return TRUE
 		else
 			return FALSE
 		ok

@@ -1155,6 +1155,22 @@ class stzString from stzObject
 				pcSubStr = pcSubStr[2]
 				This.ReplaceLastCS(pcSubStr, (pcSubStr + pcNewSubStr), pCaseSensitive)
 
+			# Adding atfer these/many
+
+			but oSubStr.IsOneOfTheseNamedParams([ :AfterThese, :ToThese, :AfterMany, :toMany ])
+				pcSubStr = pcSubStr[2]
+				if NOT isList(pcSubStr)
+					StzRaise("Incorrect param type! pcSubStr must be a list.")
+				ok
+
+				acTemp = []
+				nLen = len(pcSubStr)
+				for i = 1 to nLen
+					acTemp + (pcSubStr[i] + pcNewSubStr)
+				next
+
+				This.ReplaceManyByManyCS(pcNewSubStr, acTemp, pCaseSensitive)
+
 			#==
 
 			# Adding before

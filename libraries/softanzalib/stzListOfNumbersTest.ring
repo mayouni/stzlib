@@ -891,13 +891,15 @@ o1.SortInDescendingBy('Q(@string).NumberOfChars()')
 proff()
 
 /*--------------------
-
 */
+
 pron()
 
 o1 = new stzString("iloveringprogramminglanguage!!")
+o1.AddXT(" ", :AfterThese = [ "i", "ring", "programming" ])
+//o1.AddXT([ " ", " " ], :Around = "ring")
 
-o1.SpacifySubStrings([ "i", "ring", "language" ])
+//o1.SpacifySubStrings([ "i", "ring", "language" ])
 
 ? o1.Content()
 
