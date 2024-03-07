@@ -950,9 +950,6 @@ func ring_random(n)
 func ring_srandom(n)
 	return srandom(n)
 
-func ring_substr(str, substr)
-	return substr(str, substr)
-
 #-----
 
 func StzFindCS(pThing, paIn, pCaseSensitive)

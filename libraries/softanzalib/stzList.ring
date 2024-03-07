@@ -31903,9 +31903,10 @@ class stzList from stzObject
 		// TODO
 		StzRaise("Unsupported feature yet!")
 
-	  #-----------------------------------------------------------#
-	 #   SUBLISTS OF THE LIST --> LISTS IN LEVEL 1 OF THE LIST   #
-	#-----------------------------------------------------------#
+	  #-----------------------------------------------#
+	 #   GETTING THE LIST OF ALL POSSIBLE SUBLISTS   #
+	#===============================================#
+	# Bu analogy to SubStrings() in stzString
 
 	def Sublists()
 		aResult = []
@@ -36537,6 +36538,10 @@ class stzList from stzObject
 
 		def HowManyList()
 			return This.NumberOfLists()
+
+	  #---------------------------------------#
+	 #  GETTING THE LISTS ITEMS IN THE LIST  #
+	#---------------------------------------#
 
 	def Lists()
 		/* WARNING

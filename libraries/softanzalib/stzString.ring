@@ -3266,35 +3266,14 @@ class stzString from stzObject
 
 		#>
 
-	  #==================================================#
-	 #  GETTING THE SUBSTRINGS CONTAINED IN THE STRING  #TODO
-	#==================================================#
-
-	#TODO: Rethink the SubStrings() function
-
-	# --> AllSubStrings()      : returns all possible substrings
-
-	# --> SubStrings()         : returns substrings infered from a default list of
-	# 			     separators and default set of classifiers (examples:
-	# 			     Case, Script, Language)
-
-	# --> SubStringsXT(pacSepOrClassifiers) : returns substrings with the given list of separators
-	
-	def SubStringsSeparaetdBy(paSep)
-		StzRaise("Unavailable feature!")
-
-	def SubStringsXT(p)
-		# SubstringsXT([]) # OR SubStringxXT(:All)
-		# SubStringsXT(:SeparatedBy = [ " ", ",", ";" ])
-
-		StzRaise("Unavailable feature!")
-
 	  #-------------------------------------------------------------#
 	 #  GETTING THE LIST OF ALL POSSIBLE SUBSTRINGS IN THE STRING  #
-	#-------------------------------------------------------------#
+	#=============================================================#
 
 	def SubStringsCS(pCaseSensitive)
 		# NOTE: Got help from Google Bard for the basic algorithm used here
+
+		# Early check
 
 		if This.IsEmpty()
 			return []
@@ -3304,17 +3283,23 @@ class stzString from stzObject
 
 		acResult = []
 		nLen = This.NumberOfChars()
-		#TODO: Chexk wether ..CS() extension is needed here!
+
+		cContent = This.Content()
+
+		if IsCaseSensitive(pCaseSensitive) = FALSE
+			cContent = ring_lower(cContent)
+		ok
 
 		for i = 1 to nLen
 			for j = i to nLen
-				cSubStr = This.Section(i, j)
+
+				cSubStr = substr(cContent, i, j-i+1)
 				if pCaseSensitive = TRUE
 					acResult + cSubStr
 
 				else
-					#TODO: Optimise it for better performance
-					if NOT Q(acResult).ContainsCS(cSubStr, FALSE)
+
+					if ring_find(acResult, cSubStr) = 0
 						acResult + cSubStr
 					ok
 				ok
@@ -3339,10 +3324,6 @@ class stzString from stzObject
 			other
 				StzRaise("Unsupported return type!")
 			off
-
-		#>
-
-		#< @AlternativeFuntionForm
 
 		#>
 
@@ -3374,8 +3355,34 @@ class stzString from stzObject
 	#-------------------------------------------#
 
 	def UniqueSubStringsCS(pCaseSensitive)
-		acResult = This.SubStringsCSQR(pCaseSensitive, :stzListOfStrings).
-				DuplicatesRemoved()
+		# Early check
+
+		if This.IsEmpty()
+			return []
+		ok
+
+		# Doing the job
+
+		acResult = []
+		nLen = This.NumberOfChars()
+
+		cContent = This.Content()
+
+		if IsCaseSensitive(pCaseSensitive) = FALSE
+			cContent = ring_lower(cContent)
+		ok
+
+		for i = 1 to nLen
+			for j = i to nLen
+
+				cSubStr = substr(cContent, i, j-i+1)
+	
+				if ring_find(acResult, cSubStr) = 0
+					acResult + cSubStr
+				ok
+
+			next
+		next
 
 		return acResult
 
@@ -3462,29 +3469,51 @@ class stzString from stzObject
 
 		#>
 
-	  #==========================================================#
+	  #----------------------------------------------------------#
 	 #  POSITIONS OF ALL THE POSSIBLE SUBSTRINGS IN THE STRING  #
 	#==========================================================#
 
 	def FindAllSubStringsCS(pCaseSensitive)
+		# Early check
+
 		if This.IsEmpty()
 			return []
 		ok
 
-		acSubStrings = This.UniqueSubStringsCS(pCaseSensitive)
-		nLen = len(acSubStrings)
+		# Doing the job
 
 		anResult = []
-		
+		acSubStrings = []
+		nLen = This.NumberOfChars()
+
+		cContent = This.Content()
+
+		if IsCaseSensitive(pCaseSensitive) = FALSE
+			cContent = ring_lower(cContent)
+		ok
+
 		for i = 1 to nLen
-			anPos = This.FindSubStringCS( acSubStrings[i], pCaseSensitive )
-			for j = 1 to len(anPos)
-				anResult + anPos[j]
+			for j = i to nLen
+
+				cSubStr = substr(cContent, i, j-i+1)
+				if pCaseSensitive = TRUE
+					if ring_find(anResult, i) = 0
+						anResult + i
+					ok
+					acSubStrings + cSubStr
+				else
+
+					if ring_find(acSubStrings, cSubStr) = 0
+						if ring_find(anResult, i) = 0
+							anResult + i
+						ok
+						acSubStrings + cSubStr
+					ok
+				ok
 			next
 		next
-
-		anResult = ring_sort(anResult)
-		return anResult
+		
+		 return anResult
 
 		#< @FunctionAlternativeForms
 
@@ -3555,7 +3584,7 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAllSubStrings(pCaseSensitive)
+	def FindAllSubStrings()
 		return This.FindSubStringsCS(TRUE)
 
 		#< @FunctionAlternativeForms
@@ -3631,19 +3660,42 @@ class stzString from stzObject
 	#------------------------------------------------------------#
 
 	def FindAllSubStringsAsSectionsCS(pCaseSensitive)
+		# Early check
+
 		if This.IsEmpty()
 			return []
 		ok
 
-		acSubStrings = This.UniqueSubStringsCS(pCaseSensitive)
-		nLen = len(acSubStrings)
+		# Doing the job
+
 		aResult = []
+		acSubStrings = []
+		nLen = This.NumberOfChars()
+
+		cContent = This.Content()
+
+		if IsCaseSensitive(pCaseSensitive) = FALSE
+			cContent = ring_lower(cContent)
+		ok
 
 		for i = 1 to nLen
-			aResult + This.FindSubStringAsSectionCS( acSubStrings[i], pCaseSensitive )
-		next
+			for j = i to nLen
 
-		return aResult
+				cSubStr = substr(cContent, i, j-i+1)
+				if pCaseSensitive = TRUE
+					aResult + [ i, j ]
+					acSubStrings + cSubStr
+				else
+
+					if ring_find(acSubStrings, cSubStr) = 0
+						aResult + [ i, j ]
+						acSubStrings + cSubStr
+					ok
+				ok
+			next
+		next
+		
+		 return aResult
 
 		#< @FunctionAlternativeForms
 
@@ -3674,7 +3726,7 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAllSubStringsAsSections(pCaseSensitive)
+	def FindAllSubStringsAsSections()
 		return This.FindAllSubStringsAsSectionsCS(TRUE)
 
 		#< @FunctionAlternativeForms
@@ -3707,6 +3759,7 @@ class stzString from stzObject
 	  #-----------------------------------------------#
 	 #  ALL POSSIBLE SUBSTRINGS AND THEIR POSITIONS  #
 	#-----------------------------------------------#
+	#TODO : Check performance
 
 	def AllSubStringsCSZ(pCaseSensitive)
 	
@@ -3783,6 +3836,7 @@ class stzString from stzObject
 	  #----------------------------------------------#
 	 #  ALL POSSIBLE SUBSTRINGS AND THEIR SECTIONS  #
 	#----------------------------------------------#
+	#TODO : Check performance
 
 	def AllSubStringsCSZZ(pCaseSensitive)
 		acSubStrings = This.UniqueSubStringsCS(pCaseSensitive)
@@ -3878,7 +3932,7 @@ class stzString from stzObject
 		aResult = []
 		
 		for i = 1 to nLen
-			@substring = acSubStr[i]
+			@substr = acSubStr[i]
 			bOk = FALSE
 			eval(cCode)
 
@@ -3894,7 +3948,38 @@ class stzString from stzObject
 	#------------------------------------------------------#
 
 	def SubStringsOfNCharsCS(n, pCaseSensitive)
-		acResult = This.SubStringsW(' Q(@SubStr).NumberOfCharsCS(pCaseSensitive) = n ')
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		# Early check
+
+		if This.IsEmpty()
+			return []
+		ok
+
+		# Doing the job
+
+		acResult = []
+		nLen = This.NumberOfChars()
+
+		cContent = This.Content()
+
+		if IsCaseSensitive(pCaseSensitive) = FALSE
+			cContent = ring_lower(cContent)
+		ok
+
+		for i = 1 to nLen
+			for j = i to nLen
+				if n = j-i+1
+					cSubStr = substr(cContent, i, j-i+1)
+					acResult + cSubStr
+				ok
+			next
+		next
+
 		return acResult
 
 		def SubStringsMadeOfNCharsCS(n, pCaseSensitive)
@@ -3913,8 +3998,41 @@ class stzString from stzObject
 	#-------------------------------------------------------------#
 
 	def UniqueSubStringsOfNCharsCS(n, pCaseSensitive)
-		acSubStrings = This.SubStringsOfNCharsCS(n, pCaseSensitive)
-		acResult = Q(acSubStrings).DuplicatesRemovedCS(pCaseSensitive)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		# Early check
+
+		if This.IsEmpty()
+			return []
+		ok
+
+		# Doing the job
+
+		acResult = []
+		nLen = This.NumberOfChars()
+
+		cContent = This.Content()
+
+		if IsCaseSensitive(pCaseSensitive) = FALSE
+			cContent = ring_lower(cContent)
+		ok
+
+		for i = 1 to nLen
+			for j = i to nLen
+				if n = j-i+1
+					cSubStr = substr(cContent, i, j-i+1)
+				
+					if ring_find(acResult, cSubStr) = 0
+						acResult + cSubStr
+					ok
+				ok
+			next
+		next
+
 		return acResult
 
 		#< @FunctionAlternativeForms
