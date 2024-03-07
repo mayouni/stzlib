@@ -31847,12 +31847,6 @@ class stzList from stzObject
 		def ListsAtAnyLevelQ()
 			return new stzListOfLists( This.ListsAtAnyLevel() )
 	
-	def SublistsAtAnyLevel()
-		return ListsAtAnyLevel()
-
-		def SublistsAtAnyLevelQ()
-			return This.ListsAtAnyLevelQ()
-	
 	def Structure()
 		// TODO
 		
@@ -31906,51 +31900,18 @@ class stzList from stzObject
 	  #-----------------------------------------------#
 	 #   GETTING THE LIST OF ALL POSSIBLE SUBLISTS   #
 	#===============================================#
-	# Bu analogy to SubStrings() in stzString
+	# By analogy to SubStrings() in stzString
+	#TODO: Use the same implementation of SubSrtrings() in stzString
+	#NOTE: Bring all the related functions
+
+	#WARNING: SubLists() and Lists() are different.
+	# SubLists() : Returns all the possible combinations of sections that
+	#              we can compose from the list (look at SubStrings() in stzString)
+	# Lists()    : Provides the list of items that are lists
 
 	def Sublists()
-		aResult = []
-		for item in This.List()
-			if isList(item)
-				aResult + item
-			ok
-		next
-		return aResult
+		StzRaise("Not yet implemented!")
 
-		#< @FunctionFluentForm
-
-		def SubListsQ()
-			return new stzList( This.Sublists() )
-
-		#>
-
-	def SublistsNumberOfItems()
-		aResult = []
-		for item in This.List()
-			if isList(item)
-				aResult + len(item)
-			ok
-		next
-		return aResult
-		
-	def SublistsHaveSameNumberOfItems()
-		bResult = TRUE
-		for i=2 to len( This.Sublists() )
-			if len( This.Sublists()[i] ) != len( This.Sublists()[i-1] )
-				bResult = FALSE
-			ok
-		next
-		return bResult
-
-	def SublistsAtAnyLevelHaveSameNumberOfItems()
-		bResult = TRUE
-		for i=2 to len( This.SublistsAtAnyLevel() )
-			if len( This.SublistsAtAnyLevel()[i] ) != len( This.SublistsAtAnyLevel()[i-1] )
-				bResult = FALSE
-			ok
-		next
-		return bResult
-		
 	  #====================#
 	 #  SHOWING THE LIST  #
 	#====================#
@@ -36776,6 +36737,54 @@ class stzList from stzObject
 
 		def ListsAndPositions()
 			return This.ListsZ()
+
+
+	  #-------------------------------------------------#
+	 #  GETTING THE SIZE OF EACH ITEM WHICH IS A LIST  #
+	#=================================================#
+
+	def ListsNumberOfItems()
+		aResult = []
+		for item in This.List()
+			if isList(item)
+				aResult + len(item)
+			ok
+		next
+		return aResult
+		
+		def ListsSizes()
+			return This.ListsNumberOfItems()
+
+		def NumberOfItemsOfEachList()
+			return This.ListsNumberOfItems()
+
+		def SizeOfEachList()
+			return This.ListsNumberOfItems()
+
+
+	def ListsHaveSameNumberOfItems()
+		bResult = TRUE
+		for i=2 to len( This.Sublists() )
+			if len( This.Sublists()[i] ) != len( This.Sublists()[i-1] )
+				bResult = FALSE
+			ok
+		next
+		return bResult
+
+		def ListsHaveSameSize()
+			return This.ListsHaveSameNumberOfItems()
+
+	def ListsAtAnyLevelHaveSameNumberOfItems()
+		bResult = TRUE
+		for i=2 to len( This.listsAtAnyLevel() )
+			if len( This.listsAtAnyLevel()[i] ) != len( This.listsAtAnyLevel()[i-1] )
+				bResult = FALSE
+			ok
+		next
+		return bResult
+
+		def ListsAtAnyLevelHaveSameSize()
+			return This.ListsAtAnyLevelHaveSameNumberOfItems()
 
 	  #===============================================#
 	 #  GETTING THE NUMBERS AND STRINGS IN THE LIST  #

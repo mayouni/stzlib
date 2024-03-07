@@ -2120,6 +2120,17 @@ o1 = new stzString("HELLOhello")
 ? @@( o1.FindSubStringsCS(FALSE) ) + NL
 #--> [ 1, 2, 3, 4, 5 ]
 
+? @@S( o1.SubStringsCSZ(FALSE) ) + NL
+#--> [
+#	[ "h", [ 1, 6 ] ],
+#	[ "he", [ 1, 6 ] ],
+#	[ "hel", [ 1, 6 ] ],
+#	"...",
+#	[ "ohel", [ 5 ] ],
+#	[ "ohell", [ 5 ] ],
+#	[ "ohello", [ 5 ] ]
+# ]
+
 ? @@S( o1.FindSubStringsCSZZ(FALSE) ) + NL
 #--> [ [ 1, 1 ], [ 1, 2 ], [ 1, 3 ], "...", [ 5, 8 ], [ 5, 9 ], [ 5, 10 ] ]
 
@@ -2146,13 +2157,31 @@ o1 = new stzString("HELLOhello")
 ? @@( o1.SubStringsOfNCharsCSU(4, FALSE) ) + NL
 #--> [ "hell", "ello", "lloh", "lohe", "ohel" ]
 
-? @@( o1.SubStringsW(' len(@SubString) <= 6 and
-	Q(@SubString).ContainsThese(["e", "o"]) ')
+? @@( o1.SubStringsW('
+	len(@SubString) <= 6 and
+	Q(@SubString).Contains(["e", "o"]) ')
+) + NL
+#--> [ "Ohello", "hello", "ello" ]	# Takes 0.20 second(s)
+
+? @@( o1.SubStringsWZ('
+	len(@SubString) <= 6 and
+	Q(@SubString).Contains(["e", "o"]) ')
+) + NL
+#--> [ [ "Ohello", [ 5 ] ], [ "hello", [ 6 ] ], [ "ello", [ 7 ] ] ]
+
+? @@( o1.SubStringsWZZ('
+	len(@SubString) <= 6 and
+	Q(@SubString).Contains(["e", "o"]) ')
 )
-#--> [ "Ohello", "hello", "ello" ]
+#--> [
+#	[ "Ohello", [ [ 5, 10 ] ] ],
+#	[ "hello", [ [ 6, 10 ] ] ],
+#	[ "ello", [ [ 7, 10 ] ] ]
+# ]
 
 proff()
 #Executed in 0.86 second(s)
+
 
 /*==================
 
