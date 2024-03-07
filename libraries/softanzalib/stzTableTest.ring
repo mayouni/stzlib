@@ -2936,7 +2936,7 @@ proff()
 # Executed in 0.51 second(s)
 
 /*=============
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -2954,11 +2954,11 @@ o1 = new stzTable([
 ? @@( o1.FindAllOccurrences( :Of = "Red") )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
-? @@( o1.FindCells([ "Red", "White" ]) ) ) # Colors of the Tunisian falg :D
+? @@( o1.FindCells([ "Red", "White" ]) ) # Colors of the Tunisian falg :D
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ], [ 2, 1 ], [ 1, 4 ] ]
 
 proff()
-# Executed in 0.18 second(s)
+# Executed in 0.15 second(s)
 
 /*-----------
 
@@ -4166,6 +4166,19 @@ proff()
 # Executed in 0.19 second(s)
 
 /*-----------------
+
+pron()
+
+o1 = new stzList([ "A", "B", "C" ])
+o1.ExtendXT(:To = 10, :ByRepeatingItems)
+? @@( o1.Content() )
+#--> [ "A", "B", "C", "A", "B", "C", "A", "B", "C", "A" ]
+
+proff()
+# Executed in 0.01 second(s)
+
+/*-----------------
+
 */
 pron()
 
@@ -4179,6 +4192,7 @@ o1 = new stzTable([
 	[ "Kuwait",	"___"     ]
 ])
 
+
 o1.ReplaceCellsByManyXT(
 	[ [2, 1], [2, 2], [2, 3], [2, 4], [2, 5] ],
 	[   "01",   "02",   "03" ]
@@ -4186,12 +4200,16 @@ o1.ReplaceCellsByManyXT(
 
 o1.Show()
 #-->
-# #    NATION   LANGUAGE
-# 1   Tunisia     Arabic
-# 2    France     French
-# 3       USA        ___
+# :NATION   :LANGUAGE
+# -------- ----------
+#  France          01
+#     USA          02
+#   Niger          03
+#   Egypt          01
+#  Kuwait          02
 
 proff()
+# Executed in 0.21 second(s)
 
 /*-----------------
 
