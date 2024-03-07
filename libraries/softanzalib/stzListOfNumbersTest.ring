@@ -878,37 +878,7 @@ o1 = new stzString("iloveringprogramminglanguage!!")
 
 proff()
 
-/*--------------------
 
-pron()
-
-o1 = new stzTable([
-	//[ :ID,	:NAME,		:AGE 	],
-	[ 10,	"Karim",	52   	],
-	[ 20,	"Hatem", 	46	],
-	[ 30,	"Abraham",	48	]
-])
-		
-? o1.ColNames()
-#--> [ "col1", "col2", "col3" ]
-
-? o1.Row(2)
-#--> [ 20, "Hatem", 45 ]
-
-proff()
-# Executed in 0.02 second(s)
-
-/*--------------------
-*/
-pron()
-
-o1 = new stzTable([ [ "i", 1 ], [ "ring", 4 ], [ "language", 8 ] ])
-o1.Show()
-
-//o1.Rows()
-
-proff()
- 
 /*-------------------- #TODO: Check error
 
 pron()

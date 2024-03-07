@@ -3053,7 +3053,7 @@ Class stzTable from stzObject
 			CellValue = aCellsXT[i][1]
 			aCellPos  = aCellsXT[i][2]
 
-			if isStringOrList(CellValue) and bCheckCase
+			if @IsStringOrList(CellValue) and bCheckCase
 				if Q(CellValue).IsEqualToCS(pCellValue, pCaseSensitive)
 					aResult + aCellPos
 				ok
@@ -3109,13 +3109,57 @@ Class stzTable from stzObject
 	 #  FINDING MANY CELLS IN THE TABLE  #
 	#-----------------------------------#
 
-	def FindCellsCS(paValues, pCaseSensitive) #TODO
-		StzRaise("TODO!")
+	def FindCellsCS(paValues, pCaseSensitive)
+		if CheckParams()
+			if NOT isList(paValues)
+				StzRaise("Incorrect param type! paValues must be a list.")
+			ok
+		ok
+
+		paValues = StzListQ(paValues).WithoutDuplicationCS(pCaseSensitive)
+		nLen = len(paValues)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aTemp = This.FindCellCS(paValues[i], pCaseSensitive)
+			nLen = len(aTemp)
+
+			for j = 1 to nLen
+				aResult + aTemp[j]
+			next
+		next
+
+		return aResult
+
+		def FindValuesCS(paValues, pCaseSensitive)
+			return This.FindCellsCS(paValues, pCaseSensitive)
+
+		def FindManyCS(paValues, pCaseSensitive)
+			return This.FindCellsCS(paValues, pCaseSensitive)
+
+		def FindManyCellsCS(paValues, pCaseSensitive)
+			return This.FindCellsCS(paValues, pCaseSensitive)
+
+		def FindManyValuesCS(paValues, pCaseSensitive)
+			return This.FindCellsCS(paValues, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindCells(paValues)
 		return This.FindCellsCS(paValues, TRUE)
+
+		def FindValues(paValues)
+			return This.FindCells(paValues)
+
+		def FindMany(paValues)
+			return This.FindCells(paValues)
+
+		def FindManyCells(paValues)
+			return This.FindCells(paValues)
+
+		def FindManyValues(paValues)
+			return This.FindCells(paValues)
 
 	  #-------------------------------------------#
 	 #  FINDING ALL CELLS EXCEPT THOSE PROVIDED  #
