@@ -2143,13 +2143,18 @@ o1 = new stzString("HELLOhello")
 ? o1.NumberOfSubStringsOfNCharsCSU(4, FALSE) + NL
 #--> 5
 
-? @@( o1.SubStringsOfNCharsCSU(4, FALSE) )
+? @@( o1.SubStringsOfNCharsCSU(4, FALSE) ) + NL
 #--> [ "hell", "ello", "lloh", "lohe", "ohel" ]
 
-proff()
-#Executed in 0.06 second(s)
+? @@( o1.SubStringsW(' len(@SubString) <= 6 and
+	Q(@SubString).ContainsThese(["e", "o"]) ')
+)
+#--> [ "Ohello", "hello", "ello" ]
 
-/*----------------
+proff()
+#Executed in 0.86 second(s)
+
+/*==================
 
 pron()
 

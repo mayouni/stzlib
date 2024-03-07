@@ -3932,7 +3932,7 @@ class stzString from stzObject
 		aResult = []
 		
 		for i = 1 to nLen
-			@substr = acSubStr[i]
+			@substring = acSubStr[i]
 			bOk = FALSE
 			eval(cCode)
 
