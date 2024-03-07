@@ -1169,7 +1169,7 @@ class stzString from stzObject
 					acTemp + (pcSubStr[i] + pcNewSubStr)
 				next
 
-				This.ReplaceManyByManyCS(pcNewSubStr, acTemp, pCaseSensitive)
+				This.ReplaceManyByManyCS(acTemp, pcNewSubStr, pCaseSensitive)
 
 			#==
 
@@ -27144,7 +27144,7 @@ class stzString from stzObject
 				pacNewSubStrings = pacNewSubStrings[2]
 			ok
 	
-			if NOT Q(pacNewSubStrings).IsListOfStrings()
+			if NOT (isList(pacNewSubStrings) and @IsListOfStrings(pacNewSubStrings))
 				stzRaise("Incorrect param! pacNewSubStrings must be a list of strings.")
 			ok	
 
@@ -27501,7 +27501,7 @@ class stzString from stzObject
 				pacNewSubStrings = pacNewSubStrings[2]
 			ok
 	
-			if NOT (isList(pacNewSubStrings) and Q(pacNewSubStrings).IsListOfStrings() )
+			if NOT ( isList(pacNewSubStrings) and @IsListOfStrings(pacNewSubStrings) )
 				stzRaise("Incorrect param! pacNewSubStrings must be a list of strings.")
 			ok
 
@@ -33740,7 +33740,7 @@ class stzString from stzObject
 
 		if CheckParams()
 
-			if isList(pcSubStr) and Q(pcSubStr).IsListOfStrings()
+			if isList(pcSubStr) and @IsListOfStrings(pcSubStr)
 				return This.FindManyCS(pcSubStr, pCaseSensitive)
 			ok
 	
@@ -34995,7 +34995,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	def FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
