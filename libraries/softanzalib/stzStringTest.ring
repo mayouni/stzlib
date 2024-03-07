@@ -2100,7 +2100,7 @@ o1 = new stzString("BEbe")
 proff()
 # Executed in 0.01 second(s)
 /*----------------
-*/
+
 pron()
 
 o1 = new stzString("HELLOhello")

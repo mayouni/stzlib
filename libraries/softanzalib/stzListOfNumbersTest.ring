@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*---------------
+
 pron()
 
 ? NZeros(5)
@@ -161,7 +163,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*----------------
-*/
+
 pron()
 
 ? Q(["A", 1, "B", 2, "C", 3 ]) / 3
@@ -305,7 +307,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*---------------
-*/
+
 pron()
 
 ? QQ(1:7).AnyNumberAfterPosition(5)
@@ -877,7 +879,7 @@ o1 = new stzString("iloveringprogramminglanguage!!")
 proff()
 
 /*--------------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -888,22 +890,27 @@ o1 = new stzTable([
 ])
 		
 ? o1.ColNames()
-? o1.Row(2)
+#--> [ "col1", "col2", "col3" ]
 
+? o1.Row(2)
+#--> [ 20, "Hatem", 45 ]
 
 proff()
+# Executed in 0.02 second(s)
+
 /*--------------------
 */
 pron()
 
 o1 = new stzTable([ [ "i", 1 ], [ "ring", 4 ], [ "language", 8 ] ])
-o1.Rows()
+o1.Show()
+
+//o1.Rows()
 
 proff()
+ 
+/*-------------------- #TODO: Check error
 
-/*--------------------
-
-*/
 pron()
 
 o1 = new stzListOfStrings([ "i", "ring", "language" ])
