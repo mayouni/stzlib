@@ -20,6 +20,10 @@ func StzListQ(paList)
 #===
 
 func IsListOfNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfNumbers()
 
 	#< @FunctionAlternativeForms
@@ -36,6 +40,10 @@ func IsListOfNumbers(paList)
 	#>
 
 func IsListOfListsOfNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfNumbers()
 
 	#< @FunctionAlternativeForms
@@ -52,6 +60,10 @@ func IsListOfListsOfNumbers(paList)
 	#>
 
 func IsListOfDecimalNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfDecimalNumbers()
 
 	#< @FunctionAlternativeForms
@@ -68,6 +80,10 @@ func IsListOfDecimalNumbers(paList)
 	#>
 
 func IsListOfListsOfDecimalNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfDecimalNumbers()
 
 	#< @FunctionAlternativeForms
@@ -84,6 +100,10 @@ func IsListOfListsOfDecimalNumbers(paList)
 	#>
 
 func IsListOfBinaryNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfBinaryNumbers()
 
 	#< @FunctionAlternativeForms
@@ -100,6 +120,10 @@ func IsListOfBinaryNumbers(paList)
 	#>
 
 func IsListOfListsOfBinaryNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfBinaryNumbers()
 
 	#< @FunctionAlternativeForms
@@ -116,6 +140,10 @@ func IsListOfListsOfBinaryNumbers(paList)
 	#>
 
 func IsListOfOctalNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfOctalNumbers()
 
 	#< @FunctionAlternativeForms
@@ -132,6 +160,10 @@ func IsListOfOctalNumbers(paList)
 	#>
 
 func IsListOfListsOfOctalNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfOctalNumbers()
 
 	#< @FunctionAlternativeForms
@@ -148,6 +180,10 @@ func IsListOfListsOfOctalNumbers(paList)
 	#>
 
 func IsListOfHexNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfHexNumbers()
 
 	#< @FunctionAlternativeForms
@@ -164,6 +200,10 @@ func IsListOfHexNumbers(paList)
 	#>
 
 func IsListOfListsOfHexNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfHexNumbers()
 
 	#< @FunctionAlternativeForms
@@ -180,7 +220,25 @@ func IsListOfListsOfHexNumbers(paList)
 	#>
 
 func IsListOfStrings(paList)
-	return StzListQ(paList).IsListOfStrings()
+	#TODO
+	# Use this implementation of all IsListOf...() functions
+	# ~> More performant then usign stzObjects
+	
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	bResult = TRUE
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if NOT isString(paList[i])
+			bResult = FALSE
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -196,6 +254,10 @@ func IsListOfStrings(paList)
 	#>
 
 func IsListOfListsOfStrings(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStrings()
 
 	#< @FunctionAlternativeForms
@@ -212,7 +274,21 @@ func IsListOfListsOfStrings(paList)
 	#>
 
 func IsListOfLists(paList)
-	return StzListQ(paList).IsListOfLists()
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	bResult = TRUE
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if NOT isSList(paList[i])
+			bResult = FALSE
+			exit
+		ok
+	next
+
+	return bResult
 
 	#< @FunctionAlternativeForms
 
@@ -228,6 +304,10 @@ func IsListOfLists(paList)
 	#>
 
 func IsListOfListsOfLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfLists()
 
 	#< @FunctionAlternativeForms
@@ -244,6 +324,22 @@ func IsListOfListsOfLists(paList)
 	#>
 
 func IsListOfObjects(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	bResult = TRUE
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if NOT isObject(paList[i])
+			bResult = FALSE
+			exit
+		ok
+	next
+
+	return bResult
+
 	return StzListQ(paList).IsListOfObjects()
 
 	#< @FunctionAlternativeForms
@@ -260,6 +356,10 @@ func IsListOfObjects(paList)
 	#>
 
 func IsListOfListsOfObjects(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfObjects()
 
 	#< @FunctionAlternativeForms
@@ -276,6 +376,10 @@ func IsListOfListsOfObjects(paList)
 	#>
 
 func IsListOfChars(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfChars()
 
 	#< @FunctionAlternativeForms
@@ -292,6 +396,10 @@ func IsListOfChars(paList)
 	#>
 
 func IsListOfListsOfChars(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfChars()
 
 	#< @FunctionAlternativeForms
@@ -308,6 +416,10 @@ func IsListOfListsOfChars(paList)
 	#>
 
 func IsListOfPairs(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairs()
 
 	#< @FunctionAlternativeForms
@@ -324,6 +436,10 @@ func IsListOfPairs(paList)
 	#>
 
 func IsListOfListsOfPairs(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfPairs()
 
 	#< @FunctionAlternativeForms
@@ -340,6 +456,10 @@ func IsListOfListsOfPairs(paList)
 	#>
 
 func IsListOfSets(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfSets()
 
 	#< @FunctionAlternativeForms
@@ -356,6 +476,10 @@ func IsListOfSets(paList)
 	#>
 
 func IsListOfListsOfSets(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfSets()
 
 	#< @FunctionAlternativeForms
@@ -372,6 +496,10 @@ func IsListOfListsOfSets(paList)
 	#>
 
 func IsListOfHashLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfHashLists()
 
 	#< @FunctionAlternativeForms
@@ -388,6 +516,10 @@ func IsListOfHashLists(paList)
 	#>
 
 func IsListOfListsOfHashLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfHashLists()
 
 	#< @FunctionAlternativeForms
@@ -404,6 +536,10 @@ func IsListOfListsOfHashLists(paList)
 	#>
 
 func IsListOfGrids(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfGrids()
 
 	#< @FunctionAlternativeForms
@@ -420,6 +556,10 @@ func IsListOfGrids(paList)
 	#>
 
 func IsListOfListsOfGrids(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfGrids()
 
 	#< @FunctionAlternativeForms
@@ -436,6 +576,10 @@ func IsListOfListsOfGrids(paList)
 	#>
 
 func IsListOfTables(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfTables()
 
 	#< @FunctionAlternativeForms
@@ -452,6 +596,10 @@ func IsListOfTables(paList)
 	#>
 
 func IsListOfListsOfTables(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfTables()
 
 	#< @FunctionAlternativeForms
@@ -468,6 +616,10 @@ func IsListOfListsOfTables(paList)
 	#>
 
 func IsListOfTrees(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfTrees()
 
 	#< @FunctionAlternativeForms
@@ -484,6 +636,10 @@ func IsListOfTrees(paList)
 	#>
 
 func IsListOfListsOfTrees(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfTrees()
 
 	#< @FunctionAlternativeForms
@@ -500,6 +656,10 @@ func IsListOfListsOfTrees(paList)
 	#>
 
 func IsListOfStzNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzNumbers()
 
 	#< @FunctionAlternativeForms
@@ -516,6 +676,10 @@ func IsListOfStzNumbers(paList)
 	#>
 
 func IsListOfListsOfStzNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzNumbers()
 
 	#< @FunctionAlternativeForms
@@ -532,6 +696,10 @@ func IsListOfListsOfStzNumbers(paList)
 	#>
 
 func IsListOfStzDecimalNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzDecimalNumbers()
 
 	#< @FunctionAlternativeForms
@@ -548,6 +716,10 @@ func IsListOfStzDecimalNumbers(paList)
 	#>
 
 func IsListOfListsOfStzDecimalNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzDecimalNumbers()
 
 	#< @FunctionAlternativeForms
@@ -564,6 +736,10 @@ func IsListOfListsOfStzDecimalNumbers(paList)
 	#>
 
 func IsListOfStzBinaryNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzBinaryNumbers()
 
 	#< @FunctionAlternativeForms
@@ -580,6 +756,10 @@ func IsListOfStzBinaryNumbers(paList)
 	#>
 
 func IsListOfListsOfStzBinaryNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzBinaryNumbers()
 
 	#< @FunctionAlternativeForms
@@ -596,6 +776,10 @@ func IsListOfListsOfStzBinaryNumbers(paList)
 	#>
 
 func IsListOfStzOctalNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzOctalNumbers()
 
 	#< @FunctionAlternativeForms
@@ -612,6 +796,10 @@ func IsListOfStzOctalNumbers(paList)
 	#>
 
 func IsListOfListsOfStzOctalNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzOctalNumbers()
 
 	#< @FunctionAlternativeForms
@@ -628,6 +816,10 @@ func IsListOfListsOfStzOctalNumbers(paList)
 	#>
 
 func IsListOfStzHexNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzHexNumbers()
 
 	#< @FunctionAlternativeForms
@@ -644,6 +836,10 @@ func IsListOfStzHexNumbers(paList)
 	#>
 
 func IsListOfListsOfStzHexNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzHexNumbers()
 
 	#< @FunctionAlternativeForms
@@ -660,6 +856,10 @@ func IsListOfListsOfStzHexNumbers(paList)
 	#>
 
 func IsListOfStzStrings(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzStrings()
 
 	#< @FunctionAlternativeForms
@@ -676,6 +876,10 @@ func IsListOfStzStrings(paList)
 	#>
 
 func IsListOfListsOfStzStrings(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzStrings()
 
 	#< @FunctionAlternativeForms
@@ -692,6 +896,9 @@ func IsListOfListsOfStzStrings(paList)
 	#>
 
 func IsListOfStzLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
 	return StzListQ(paList).IsListOfStzLists()
 
 	#< @FunctionAlternativeForms
@@ -708,6 +915,10 @@ func IsListOfStzLists(paList)
 	#>
 
 func IsListOfListsOfStzLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzLists()
 
 	#< @FunctionAlternativeForms
@@ -724,6 +935,10 @@ func IsListOfListsOfStzLists(paList)
 	#>
 
 func IsListOfStzObjects(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzObjects()
 
 	#< @FunctionAlternativeForms
@@ -740,6 +955,10 @@ func IsListOfStzObjects(paList)
 	#>
 
 func IsListOfListsOfStzObjects(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzObjects()
 
 	#< @FunctionAlternativeForms
@@ -756,6 +975,10 @@ func IsListOfListsOfStzObjects(paList)
 	#>
 
 func IsListOfStzChars(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzChars()
 
 	#< @FunctionAlternativeForms
@@ -772,6 +995,10 @@ func IsListOfStzChars(paList)
 	#>
 
 func IsListOfListsOfStzChars(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzChars()
 
 	#< @FunctionAlternativeForms
@@ -788,6 +1015,10 @@ func IsListOfListsOfStzChars(paList)
 	#>
 
 func IsListOfStzPairs(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzPairs()
 
 	#< @FunctionAlternativeForms
@@ -804,6 +1035,10 @@ func IsListOfStzPairs(paList)
 	#>
 
 func IsListOfListsOfStzPairs(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzPairs()
 
 	#< @FunctionAlternativeForms
@@ -820,6 +1055,10 @@ func IsListOfListsOfStzPairs(paList)
 	#>
 
 func IsListOfStzSets(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzSets()
 
 	#< @FunctionAlternativeForms
@@ -836,6 +1075,10 @@ func IsListOfStzSets(paList)
 	#>
 
 func IsListOfListsOfStzSets(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzSets()
 
 	#< @FunctionAlternativeForms
@@ -852,6 +1095,10 @@ func IsListOfListsOfStzSets(paList)
 	#>
 
 func IsListOfStzHashLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzHashLists()
 
 	#< @FunctionAlternativeForms
@@ -868,6 +1115,10 @@ func IsListOfStzHashLists(paList)
 	#>
 
 func IsListOfListsOfStzHashLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzHashLists()
 
 	#< @FunctionAlternativeForms
@@ -884,6 +1135,10 @@ func IsListOfListsOfStzHashLists(paList)
 	#>
 
 func IsListOfStzGrids(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzGrids()
 
 	#< @FunctionAlternativeForms
@@ -900,6 +1155,10 @@ func IsListOfStzGrids(paList)
 	#>
 
 func IsListOfListsOfStzGrids(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzGrids()
 
 	#< @FunctionAlternativeForms
@@ -916,6 +1175,10 @@ func IsListOfListsOfStzGrids(paList)
 	#>
 
 func IsListOfStzTables(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzTables()
 
 	#< @FunctionAlternativeForms
@@ -932,6 +1195,10 @@ func IsListOfStzTables(paList)
 	#>
 
 func IsListOfListsOfStzTables(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzTables()
 
 	#< @FunctionAlternativeForms
@@ -948,6 +1215,10 @@ func IsListOfListsOfStzTables(paList)
 	#>
 
 func IsListOfStzTrees(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzTrees()
 
 	#< @FunctionAlternativeForms
@@ -964,6 +1235,10 @@ func IsListOfStzTrees(paList)
 	#>
 
 func IsListOfListsOfStzTrees(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfStzTrees()
 
 	#< @FunctionAlternativeForms
@@ -982,6 +1257,10 @@ func IsListOfListsOfStzTrees(paList)
 #===
 
 func IsDeepList(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsDeepList()
 
 	#< @FunctionAlternativeForms
@@ -998,6 +1277,10 @@ func IsDeepList(paList)
 	#>
 
 func IsHybridList(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsHybridList()
 
 	#< @FunctionAlternativeForms
@@ -1014,6 +1297,10 @@ func IsHybridList(paList)
 	#>
 
 func IsPureList(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPureList()
 
 	#< @FunctionAlternativeForms
@@ -1030,6 +1317,10 @@ func IsPureList(paList)
 	#>
 
 func IsOddList(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsOdd()
 
 	#< @FunctionAlternativeForms
@@ -1060,6 +1351,10 @@ func IsOddList(paList)
 	#>
 
 func IsEvenList()
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsEven()
 
 	#< @FunctionAlternativeForms
@@ -1090,6 +1385,10 @@ func IsEvenList()
 	#>
 
 func IsListOfBits(paLists)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfBits()
 
 	#< @FunctionAlternativeForms
@@ -1106,6 +1405,10 @@ func IsListOfBits(paLists)
 	#>
 
 func IsListOfZerosAndOnes(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfZerosAndOnes()
 
 	#< @FunctionAlternativeForms
@@ -1125,6 +1428,10 @@ func IsListOfZerosAndOnes(paList)
 #===
 
 func IsListOfLetters(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfLetters()
 
 	#< @FunctionAlternativeForms
@@ -1141,6 +1448,10 @@ func IsListOfLetters(paList)
 	#>
 
 func IsListOfQBytesLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfQBytesLists()
 
 	#< @FunctionAlternativeForms
@@ -1157,6 +1468,10 @@ func IsListOfQBytesLists(paList)
 	#>
 
 func IsListOfStzListOfBytes(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStzListOfBytes()
 
 	#< @FunctionAlternativeForms
@@ -1173,6 +1488,10 @@ func IsListOfStzListOfBytes(paList)
 	#>
 
 func IsListOfNumbersInStrings(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfNumbersInStrings()
 
 	#< @FunctionAlternativeForms
@@ -1189,6 +1508,10 @@ func IsListOfNumbersInStrings(paList)
 	#>
 
 func IsListOfNumbersOrStrings(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfNumbersOrStrings()
 
 	#< @FunctionAlternativeForms
@@ -1205,6 +1528,10 @@ func IsListOfNumbersOrStrings(paList)
 	#>
 
 func IsListOfNumbersAndStrings(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfNumbersAndStrings()
 
 	#< @FunctionAlternativeForms
@@ -1221,6 +1548,10 @@ func IsListOfNumbersAndStrings(paList)
 	#>
 
 func IsListOfNumbersOrListOfStrings(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfNumbersOrListOfStrings()
 
 	#< @FunctionAlternativeForms
@@ -1251,6 +1582,10 @@ func IsListOfNumbersOrListOfStrings(paList)
 	#>
 
 func IsListOfStringsAndPairsOfStrings(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfStringsAndPairsOfStrings()
 
 	#< @FunctionAlternativeForms
@@ -1267,6 +1602,10 @@ func IsListOfStringsAndPairsOfStrings(paList)
 	#>
 
 func IsListOfNumbersAndPairsOfNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfNumbersAndPairsOfNumbers()
 
 	#< @FunctionAlternativeForms
@@ -1283,6 +1622,10 @@ func IsListOfNumbersAndPairsOfNumbers(paList)
 	#>
 
 func IsListOfListsAndPairsOfLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsAndPairsOfLists()
 
 	#< @FunctionAlternativeForms
@@ -1299,6 +1642,10 @@ func IsListOfListsAndPairsOfLists(paList)
 	#>
 
 func IsListOfObjectsAndPairsOfObjects(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfObjectsAndPairsOfObjects()
 
 	#< @FunctionAlternativeForms
@@ -1315,7 +1662,13 @@ func IsListOfObjectsAndPairsOfObjects(paList)
 	#>
 
 func IsPairOfStrings(paPair)
-	return StzPairQ(paPair).IsPairOfStrings()
+	if isList(paPair) and len(paPair) = 2 and
+	   isString(paPair[1]) and isString(paPair[2])
+
+		return TRUE
+	else
+		return FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -1331,6 +1684,10 @@ func IsPairOfStrings(paPair)
 	#>
 
 func IsListOfPairsOfStrings(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfStrings()
 
 	#< @FunctionAlternativeForms
@@ -1347,7 +1704,14 @@ func IsListOfPairsOfStrings(paList)
 	#>
 
 func IsPairOfNumbers(paPair)
-	return StzPairQ(paPair).IsPairOfNumbers()
+	if isList(paList) and len(paList) = 2 and
+	   isNumber(paList[1]) and isNumber(paList[2])
+
+		return TRUE
+	else
+
+		return FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -1363,6 +1727,10 @@ func IsPairOfNumbers(paPair)
 	#>
 
 func IsListOfPairsOfNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfNumbers()
 
 	#< @FunctionAlternativeForms
@@ -1379,6 +1747,10 @@ func IsListOfPairsOfNumbers(paList)
 	#>
 
 func IsPairOfSections(paPair)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzPairQ(paPair).IsPairOfSections()
 
 	#< @FunctionAlternativeForms
@@ -1395,6 +1767,10 @@ func IsPairOfSections(paPair)
 	#>
 
 func IsListOfPairsOfSections(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfSections()
 
 	#< @FunctionAlternativeForms
@@ -1411,7 +1787,14 @@ func IsListOfPairsOfSections(paList)
 	#>
 
 func IsPairOfLists(paPair)
-	return StzPairQ(paPair).IsPairOfLists()
+	if isList(paList) and len(paList) = 2 and
+	   isList(paList[1]) and isList(paList[2])
+
+		return TRUE
+	else
+
+		return FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -1427,6 +1810,10 @@ func IsPairOfLists(paPair)
 	#>
 
 func IsListOfPairsOfLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfLists()
 
 	#< @FunctionAlternativeForms
@@ -1443,7 +1830,14 @@ func IsListOfPairsOfLists(paList)
 	#>
 
 func IsPairOfObjects(paPair)
-	return StzPairQ(paPair).IsPairOfObjects()
+	if isList(paList) and len(paList) = 2 and
+	   isObject(paList[1]) and isObject(paList[2])
+
+		return TRUE
+	else
+
+		return FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -1459,6 +1853,10 @@ func IsPairOfObjects(paPair)
 	#>
 
 func IsListOfPairsOfObjects(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfObjects()
 
 	#< @FunctionAlternativeForms
@@ -1475,7 +1873,14 @@ func IsListOfPairsOfObjects(paList)
 	#>
 
 func IsPairAndKeyIsString(paList)
-	return StzListQ(paList).IsPairAndKeyIsString()
+	if isList(paList) and len(paList) = 2 and
+	   isString(paList[1])
+
+		return TRUE
+	else
+
+		return FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -1491,6 +1896,10 @@ func IsPairAndKeyIsString(paList)
 	#>
 
 func IsPairOfStzObjects(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfStzObjects()
 
 	#< @FunctionAlternativeForms
@@ -1507,6 +1916,10 @@ func IsPairOfStzObjects(paList)
 	#>
 
 func IsListOfPairsOfStzObjects(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfStzObjects()
 
 	#< @FunctionAlternativeForms
@@ -1523,6 +1936,10 @@ func IsListOfPairsOfStzObjects(paList)
 	#>
 
 func IsPairOfStzNumbers(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfStzNumbers()
 
 	#< @FunctionAlternativeForms
@@ -1539,6 +1956,10 @@ func IsPairOfStzNumbers(paList)
 	#>
 
 func IsListOfPairsOfStzNumbers(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfStzNumbers()
 
 	#< @FunctionAlternativeForms
@@ -1555,6 +1976,10 @@ func IsListOfPairsOfStzNumbers(paList)
 	#>
 
 func IsPairOfStzStrings(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfStzStrings()
 
 	#< @FunctionAlternativeForms
@@ -1571,6 +1996,10 @@ func IsPairOfStzStrings(paList)
 	#>
 
 func IsListOfPairsOfStzStrings(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfStzStrings()
 
 	#< @FunctionAlternativeForms
@@ -1587,6 +2016,10 @@ func IsListOfPairsOfStzStrings(paList)
 	#>
 
 func IsPairOfStzLists(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfStzLists()
 
 	#< @FunctionAlternativeForms
@@ -1603,6 +2036,10 @@ func IsPairOfStzLists(paList)
 	#>
 
 func IsListOfPairsOfStzLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfStzLists()
 
 	#< @FunctionAlternativeForms
@@ -1619,6 +2056,10 @@ func IsListOfPairsOfStzLists(paList)
 	#>
 
 func IsPairOfNumberAndString(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfNumberAndString()
 
 	#< @FunctionAlternativeForms
@@ -1635,6 +2076,10 @@ func IsPairOfNumberAndString(paList)
 	#>
 
 func IsListOfPairsOfNumberAndString(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfNumberAndString()
 
 	#< @FunctionAlternativeForms
@@ -1651,6 +2096,10 @@ func IsListOfPairsOfNumberAndString(paList)
 	#>
 
 func IsPairOfStringAndNumber(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfStringAndNumber()
 
 	#< @FunctionAlternativeForms
@@ -1667,6 +2116,10 @@ func IsPairOfStringAndNumber(paList)
 	#>
 
 func IsListOfPairsOfStringAndNumber(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfStringAndNumber()
 
 	#< @FunctionAlternativeForms
@@ -1683,6 +2136,10 @@ func IsListOfPairsOfStringAndNumber(paList)
 	#>
 
 func IsPairOfNumberAndList(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfNumberAndList()
 
 	#< @FunctionAlternativeForms
@@ -1699,6 +2156,10 @@ func IsPairOfNumberAndList(paList)
 	#>
 
 func IsListOfPairsOfNumberAndList(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfNumberAndList()
 
 	#< @FunctionAlternativeForms
@@ -1715,6 +2176,10 @@ func IsListOfPairsOfNumberAndList(paList)
 	#>
 
 func IsPairOfListAndNumber(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfListAndNumber()
 
 	#< @FunctionAlternativeForms
@@ -1731,6 +2196,10 @@ func IsPairOfListAndNumber(paList)
 	#>
 
 func IsListOfPairsOfListAndNumber(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfListAndNumber()
 
 	#< @FunctionAlternativeForms
@@ -1747,6 +2216,10 @@ func IsListOfPairsOfListAndNumber(paList)
 	#>
 
 func IsPairOfNumberAndObject(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfNumberAndObject()
 
 	#< @FunctionAlternativeForms
@@ -1763,6 +2236,10 @@ func IsPairOfNumberAndObject(paList)
 	#>
 
 func IsListOfPairsOfNumberAndObject(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfNumberAndObject()
 
 	#< @FunctionAlternativeForms
@@ -1779,6 +2256,10 @@ func IsListOfPairsOfNumberAndObject(paList)
 	#>
 
 func IsPairOfObjectAndNumber(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfObjectAndNumber()
 
 	#< @FunctionAlternativeForms
@@ -1795,6 +2276,10 @@ func IsPairOfObjectAndNumber(paList)
 	#>
 
 func IsListOfPairsOfObjectAndNumber(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfObjectAndNumber()
 
 	#< @FunctionAlternativeForms
@@ -1811,6 +2296,10 @@ func IsListOfPairsOfObjectAndNumber(paList)
 	#>
 
 func IsPairOfStringAndList(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfStringAndList()
 
 	#< @FunctionAlternativeForms
@@ -1827,6 +2316,10 @@ func IsPairOfStringAndList(paList)
 	#>
 
 func IsListOfPairsOfStringAndList(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfStringAndList()
 
 	#< @FunctionAlternativeForms
@@ -1843,6 +2336,10 @@ func IsListOfPairsOfStringAndList(paList)
 	#>
 
 func IsPairOfListAndString(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfListAndString()
 
 	#< @FunctionAlternativeForms
@@ -1859,6 +2356,10 @@ func IsPairOfListAndString(paList)
 	#>
 
 func IsListOfPairsOfListAndString(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfListAndString()
 
 	#< @FunctionAlternativeForms
@@ -1875,6 +2376,10 @@ func IsListOfPairsOfListAndString(paList)
 	#>
 
 func IsPairOfStringAndObject(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfStringAndObject()
 
 	#< @FunctionAlternativeForms
@@ -1891,6 +2396,10 @@ func IsPairOfStringAndObject(paList)
 	#>
 
 func IsListOfPairsOfStringAndObject(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfStringAndObject()
 
 	#< @FunctionAlternativeForms
@@ -1907,6 +2416,10 @@ func IsListOfPairsOfStringAndObject(paList)
 	#>
 
 func IsPairOfObjectAndString(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfObjectAndString()
 
 	#< @FunctionAlternativeForms
@@ -1923,6 +2436,10 @@ func IsPairOfObjectAndString(paList)
 	#>
 
 func IsListOfPairsOfObjectAndString(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfObjectAndString()
 
 	#< @FunctionAlternativeForms
@@ -1939,6 +2456,10 @@ func IsListOfPairsOfObjectAndString(paList)
 	#>
 
 func IsPairOfListAndObject(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsPairOfListAndObject()
 
 	#< @FunctionAlternativeForms
@@ -1955,6 +2476,10 @@ func IsPairOfListAndObject(paList)
 	#>
 
 func IsListOfPairsOfListAndObject(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfPairsOfListAndObject()
 
 	#< @FunctionAlternativeForms
@@ -1971,6 +2496,10 @@ func IsListOfPairsOfListAndObject(paList)
 	#>
 
 func IsPairOfChars(paList)
+	if NOT ( isList(paList) and len(paList) = 2 )
+		return FALSE
+	ok
+
 	return StzPairQ(paList).IsPairOfChars()
 
 	#< @FunctionAlternativeForms
@@ -1987,6 +2516,10 @@ func IsPairOfChars(paList)
 	#>
 
 func IsListOfPairsOfChars(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzPairQ(paList).IsListOfPairsOfChars()
 
 	#< @FunctionAlternativeForms
@@ -2003,6 +2536,10 @@ func IsListOfPairsOfChars(paList)
 	#>
 
 func IsPairOf(pcType, paPair)
+	if NOT ( isList(paPair) and len(paPair) = 2 )
+		return FALSE
+	ok
+
 	return StzPairQ(paPair).IsPairOf(pcType)
 
 	#< @FunctionAlternativeForms
@@ -2019,6 +2556,10 @@ func IsPairOf(pcType, paPair)
 	#>
 
 func IsListOf(pcType, paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOf(pcType)
 
 	#< @FunctionAlternativeForms
@@ -2035,6 +2576,10 @@ func IsListOf(pcType, paList)
 	#>
 
 func IsListOfNamedObjects(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfNamedObjects()
 
 	#< @FunctionAlternativeForms
@@ -2051,6 +2596,10 @@ func IsListOfNamedObjects(paList)
 	#>
 
 func IsHashListOrListOfStrings(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsHashListOrListOfStrings()
 
 	#< @FunctionAlternativeForms
@@ -2067,6 +2616,10 @@ func IsHashListOrListOfStrings(paList)
 	#>
 
 func IsListOfListsOfSameSize(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
 	return StzListQ(paList).IsListOfListsOfSameSize()
 
 	#< @FunctionAlternativeForms
@@ -13664,6 +14217,7 @@ class stzList from stzObject
 	#--------------------------------------------------------#
 
 	def IsListOfListsOfObjects()
+
 		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE

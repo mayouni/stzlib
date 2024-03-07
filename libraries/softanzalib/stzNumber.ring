@@ -769,6 +769,14 @@ func Abs(n)
 	return fabs(n)
 
 func OddOrEven(n)
+	if isList(n)
+		if ListIsOdd(n)
+			return :Odd
+		else
+			return :Even
+		ok
+	ok
+
 	if NOT isNumber(n)
 		StzRaise("Incorrect param type! n must be a number.")
 	ok
@@ -780,12 +788,20 @@ func OddOrEven(n)
 	ok
 
 func IsEven(n)
+	if isList(n)
+		return IsEvenList(n)
+	ok
+
 	return n % 2 = 0
 
 	func @IsEven(n)
 		return IsEven(n)
 
 func IsOdd(n)
+	if isList(n)
+		return IsOddList(n)
+	ok
+
 	return n % 2 != 0
 
 	func @IsOdd(n)
