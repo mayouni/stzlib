@@ -76,6 +76,8 @@ Class stzTable from stzObject
 		# Way 1: new stzTable([])
 		#--> Creates an empty table with just a column and a row
 		#TODO: Review this choice!
+		#NOTE: I forgot why ;(
+		#TODO: In the future leave a comment for the human history!
 
 		# Way 2: new stzTable([3, 4])
 		#--> Creates a tale of 3 columns and 4 rows, all cells are empty
@@ -187,7 +189,30 @@ Class stzTable from stzObject
 		# 	2   Dania      Manager    50000
 		# 	3     Han       Doctor    62500
 
-			@aContent = paTable
+
+			# We need a supplemenatary check here of the case
+			# where the values of the hashlist are not list
+			# So for example, if the use provides:
+
+			# o1 = new stzTable([ [ "i", 1 ], [ "ring", 4 ], [ "language", 8 ] ])
+			# where 1, 4 and 8 are not lists...
+
+			# It should be transformed to:
+
+			# o1 = new stzTable([ [ "i", [1] ], [ "ring", [4] ], [ "language", [8] ] ])
+
+			nLen = len(paTable)
+			@aContent = []
+
+			for i = 1 to nLen
+				if isList(paTable[i][2])
+					@aContent + [ paTable[i][1], paTable[i][2] ]
+				else
+					aTemp = []
+					aTemp + paTable[i][2]
+					@aContent + [ paTable[i][1], aTemp ]
+				ok
+			next
 
 		else
 			# If the param provided don't fit in any of the ways above
