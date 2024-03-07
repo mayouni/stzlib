@@ -8988,7 +8988,7 @@ o1 = new stzList(aList)
 
 # Getting the 
 #? len(o1.ListsAtAnyLevel())
-#? o1.SublistsAtAnyLevel_Have_SameNumberOfItems()
+#? o1.ListsAtAnyLevel_Have_SameNumberOfItems()
 
 /*--------------------------
 

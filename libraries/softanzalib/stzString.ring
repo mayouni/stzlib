@@ -3760,19 +3760,50 @@ class stzString from stzObject
 	 #  ALL POSSIBLE SUBSTRINGS AND THEIR POSITIONS  #
 	#-----------------------------------------------#
 	#TODO : Check performance
+	#UPDATE: Done
 
 	def AllSubStringsCSZ(pCaseSensitive)
-	
-		acSubStrings = This.UniqueSubStringsCS(pCaseSensitive)
+
+		# Early check
+
+		if This.IsEmpty()
+			return []
+		ok
+
+		# Doing the job
+
 		aResult = []
+		acSubStrings = []
+		nLen = This.NumberOfChars()
 
-		for i = 1 to len(acSubStrings)
-			cSubStr = acSubStrings[i]
-			anPos = This.FindAllCS(cSubStr, pCaseSensitive)
-			aResult + [ cSubStr, anPos ]
+		cContent = This.Content()
+
+		if IsCaseSensitive(pCaseSensitive) = FALSE
+			cContent = ring_lower(cContent)
+		ok
+
+		for i = 1 to nLen
+			for j = i to nLen
+
+				cSubStr = substr(cContent, i, j-i+1)
+				if pCaseSensitive = TRUE
+					aResult + [ cSubStr, [ i ] ]
+					acSubStrings + cSubStr
+
+				else
+					nPos = ring_find(acSubStrings, cSubStr)
+					if nPos = 0
+						aResult + [ cSubStr, [ i ] ]
+						acSubStrings + cSubStr
+
+					else
+						aResult[nPos][2] + i
+					ok
+				ok
+			next
 		next
-
-		return aResult
+		
+		 return aResult
 
 		#< @FunctionAlternativeForm
 
@@ -3797,6 +3828,42 @@ class stzString from stzObject
 			return This.AllSubStringsCSZ(pCaseSensitive)
 
 		def PossibleSubStringsAndTheirPositionsCS(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		#== Adding U
+
+		def AllSubStringsCSUZ(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		def AllSubStringsAndTheirPositionsCSU(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		def AllPossibleSubStringsCSUZ(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		def AllPossibleSubStringsAndTheirPositionsCSU(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		#--
+
+		def SubStringsCSUZ(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		def SubStringsAndTheirPositionsCSU(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		def PossibleSubStringsCSUZ(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		def PossibleSubStringsAndTheirPositionsCSU(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		#== Adding Unique
+
+		def UniqueSubStringsCSZ(pCaseSensitive)
+			return This.AllSubStringsCSZ(pCaseSensitive)
+
+		def UniqueSubStringsAndTheirPositionsCS(pCaseSensitive)
 			return This.AllSubStringsCSZ(pCaseSensitive)
 
 		#>
@@ -3831,24 +3898,92 @@ class stzString from stzObject
 		def PossibleSubStringsAndTheirPositions()
 			return This.AllSubStringsZ()
 
+		#== Adding U
+
+		def AllSubStringsUZ()
+			return This.AllSubStringsZ()
+
+		def AllSubStringsAndTheirPositionsU()
+			return This.AllSubStringsZ()
+
+		def AllPossibleSubStringsUZ()
+			return This.AllSubStringsZ()
+
+		def AllPossibleSubStringsAndTheirPositionsU()
+			return This.AllSubStringsZ()
+
+		#--
+
+		def SubStringsUZ()
+			return This.AllSubStringsZ()
+
+		def SubStringsAndTheirPositionsU()
+			return This.AllSubStringsZ()
+
+		def PossibleSubStringsUZ()
+			return This.AllSubStringsZ()
+
+		def PossibleSubStringsAndTheirPositionsU()
+			return This.AllSubStringsZ()
+
+		#== Adding Unique
+
+		def UniqueSubStringsZ()
+			return This.AllSubStringsZ()
+
+		def UniqueSubStringsAndTheirPositions()
+			return This.AllSubStringsZ()
+
 		#>
 
 	  #----------------------------------------------#
 	 #  ALL POSSIBLE SUBSTRINGS AND THEIR SECTIONS  #
 	#----------------------------------------------#
 	#TODO : Check performance
+	#UPDATE: Done
 
 	def AllSubStringsCSZZ(pCaseSensitive)
-		acSubStrings = This.UniqueSubStringsCS(pCaseSensitive)
+
+		# Early check
+
+		if This.IsEmpty()
+			return []
+		ok
+
+		# Doing the job
+
 		aResult = []
+		acSubStrings = []
+		nLen = This.NumberOfChars()
 
-		for i = 1 to len(acSubStrings)
-			cSubStr = acSubStrings[i]
-			aSection = This.FindAsSectionsCS(cSubStr, pCaseSensitive)
-			aResult + [ cSubStr, aSection ]
+		cContent = This.Content()
+
+		if IsCaseSensitive(pCaseSensitive) = FALSE
+			cContent = ring_lower(cContent)
+		ok
+
+		for i = 1 to nLen
+			for j = i to nLen
+
+				cSubStr = substr(cContent, i, j-i+1)
+				if pCaseSensitive = TRUE
+					aResult + [ cSubStr, [ [ i, j ] ] ]
+					acSubStrings + cSubStr
+
+				else
+					nPos = ring_find(acSubStrings, cSubStr)
+					if nPos = 0
+						aResult + [ cSubStr, [ [ i, j ] ] ]
+						acSubStrings + cSubStr
+
+					else
+						aResult[nPos][2] + [ i, j ]
+					ok
+				ok
+			next
 		next
-
-		return aResult
+		
+		 return aResult
 
 		#< @FunctionAlternativeForm
 
@@ -3873,6 +4008,42 @@ class stzString from stzObject
 			return This.AllSubStringsCSZZ(pCaseSensitive)
 
 		def PossibleSubStringsAndTheirSectionsCS(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		#== Adding U
+
+		def AllSubStringsCSUZZ(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		def AllSubStringsAndTheirSectionsCSU(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		def AllPossibleSubStringsCSUZZ(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		def AllPossibleSubStringsAndTheirSectionsCSU(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		#--
+
+		def SubStringsCSUZZ(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		def SubStringsAndTheirSectionsCSU(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		def PossibleSubStringsCSUZZ(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		def PossibleSubStringsAndTheirSectionsCSU(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		#== Adding Unique
+
+		def UniqueSubStringsCSZZ(pCaseSensitive)
+			return This.AllSubStringsCSZZ(pCaseSensitive)
+
+		def UniqueSubStringsAndTheirSectionsCS(pCaseSensitive)
 			return This.AllSubStringsCSZZ(pCaseSensitive)
 
 		#>
@@ -3907,45 +4078,47 @@ class stzString from stzObject
 		def PossibleSubStringsAndTheirSections()
 			return This.AllSubStringsZZ()
 
+		#== Adding U
+
+		def AllSubStringsUZZ()
+			return This.AllSubStringsZZ()
+
+		def AllSubStringsAndTheirSectionsU()
+			return This.AllSubStringsZZ()
+
+		def AllPossibleSubStringsUZZ()
+			return This.AllSubStringsZZ()
+
+		def AllPossibleSubStringsAndTheirSectionsU()
+			return This.AllSubStringsZZ()
+
+		#--
+
+		def SubStringsUZZ()
+			return This.AllSubStringsZZ()
+
+		def SubStringsAndTheirSectionsU()
+			return This.AllSubStringsZZ()
+
+		def PossibleSubStringsUZZ()
+			return This.AllSubStringsZZ()
+
+		def PossibleSubStringsAndTheirSectionsU()
+			return This.AllSubStringsZZ()
+
+		#== Adding Unique
+
+		def UniqueSubStringsZZ()
+			return This.AllSubStringsZZ()
+
+		def UniqueSubStringsAndTheirSections()
+			return This.AllSubStringsZZ()
+
 		#>
-
-	  #------------------------------------------#
-	 #  SUBSTRINGS VERIFYING A GIVEN CONDITION  #
-	#------------------------------------------#
-
-	def NumberOfSubStringsW(pcCondition)
-		return len( This.SubStringsW(pcCondition) )
-
-	def SubStringsW(pcCondition)
-		if CheckParams()
-			if NOT isString(pcCondition)
-				StzRaise("Incorrect param type! pcCondition must be a string.")
-			ok
-		ok
-
-		acSubStr = This.SubStringsU() # Or UniqueSubStrings()
-
-		nLen = len(acSubStr)
-
-		cCode = 'if (' + StzCCodeQ(pcCondition).Transpiled() + ') { bOk = TRUE }'
-
-		aResult = []
-		
-		for i = 1 to nLen
-			@substring = acSubStr[i]
-			bOk = FALSE
-			eval(cCode)
-
-			if bOk
-				aResult + @substring
-			ok
-		next
-
-		return aResult
 
 	  #------------------------------------------------------#
 	 #  GETTING THE LIST OF ALL SUBSTRINGS MADE OF N CHARS  #
-	#------------------------------------------------------#
+	#======================================================#
 
 	def SubStringsOfNCharsCS(n, pCaseSensitive)
 		if CheckParams()
@@ -4154,7 +4327,176 @@ class stzString from stzObject
 
 		#>
 
-	  #------------------------------------------------#
+#TODO: Add these functions
+# def FindSubStringsOfNChars()
+# def FindSubStringsOfNCharsZZ()
+# def SubStringsOfNCharsZ()
+# def SubStringsOfNCharsZZ()
+
+	  #------------------------------------------#
+	 #  SUBSTRINGS VERIFYING A GIVEN CONDITION  #
+	#==========================================#
+
+#TODO: Add these functions
+# def FindSubStringsW()
+# def FindSubStringsWZZ()
+
+	def NumberOfSubStringsW(pcCondition)
+		return len( This.SubStringsW(pcCondition) )
+
+	def SubStringsW(pcCondition)
+		if CheckParams()
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+		ok
+
+		acSubStr = This.SubStringsU() # Or UniqueSubStrings()
+
+		nLen = len(acSubStr)
+
+		cCode = 'if (' + StzCCodeQ(pcCondition).Transpiled() + ') { bOk = TRUE }'
+
+		aResult = []
+		
+		for @i = 1 to nLen
+			@substring = acSubStr[@i]
+			bOk = FALSE
+			eval(cCode)
+
+			if bOk
+				aResult + @substring
+			ok
+		next
+
+		return aResult
+
+	def SubStringsWZ(pcCondition)
+		if CheckParams()
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+		ok
+
+		acSubStr = This.SubStringsUZ() # Or UniqueSubStringsZ()
+
+		nLen = len(acSubStr)
+
+		cCode = 'if (' + StzCCodeQ(pcCondition).Transpiled() + ') { bOk = TRUE }'
+
+		aResult = []
+		
+		for @i = 1 to nLen
+			@substring = acSubStr[@i][1]
+			bOk = FALSE
+			eval(cCode)
+
+			if bOk
+				aResult + [ @substring, acSubStr[@i][2] ]
+			ok
+		next
+
+		return aResult
+
+	def SubStringsWZZ(pcCondition)
+		if CheckParams()
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+		ok
+
+		acSubStr = This.SubStringsUZZ() # Or UniqueSubStringsZ()
+
+		nLen = len(acSubStr)
+
+		cCode = 'if (' + StzCCodeQ(pcCondition).Transpiled() + ') { bOk = TRUE }'
+
+		aResult = []
+		
+		for @i = 1 to nLen
+			@substring = acSubStr[@i][1]
+			bOk = FALSE
+			eval(cCode)
+
+			if bOk
+				aResult + [ @substring, acSubStr[@i][2] ]
+			ok
+		next
+
+		return aResult
+
+	  #----------------------------------------------------#
+	 #  GETTING THE GIVEN SUBSTRINGS AND THEIR POSITIONS  #
+	#====================================================#
+	#TODO: Check performance
+	#~> Use same implementation as SubStrings()
+
+	def TheseSubStringsCSZ(pacSubStr, pCaseSensitive)
+		if CheckParams()
+			if NOT (isList(pacSubStr) and Q(pacSubStr).IsListOfStrings())
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
+		ok
+
+		acSubStr = Q(pacSubStr).ToSet()
+		nLen = len(acSubStr)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ pacSubStr[i], This.FindCS(pacSubStr[i], pCaseSensitive) ]
+		next
+
+		return aResult
+
+		def TheseSubStringsAndTheirPositionsCS(pacSubStr, pCaseSensitive)
+			return This.TheseSubStringsCSZ(pacSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def TheseSubStringsZ(pacSubStr)
+		return This.TheseSubStringsCSZ(pacSubStr, TRUE)
+
+		def TheseSubStringsAndTheirPositions(pacSubStr)
+			return This.TheseSubStringsZ(pacSubStr)
+
+	  #---------------------------------------------------#
+	 #  GETTING THE GIVEN SUBSTRINGS AND THEIR SECTIONS  #
+	#---------------------------------------------------#
+
+	def TheseSubStringsCSZZ(pacSubStr, pCaseSensitive)
+	#TODO: Check performance
+	#~> Use same implementation as SubStrings()
+
+		if CheckParams()
+			if NOT (isList(pacSubStr) and Q(pacSubStr).IsListOfStrings())
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
+		ok
+
+		acSubStr = Q(pacSubStr).ToSet()
+		nLen = len(acSubStr)
+
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ pacSubStr[i], This.FindCSZZ(pacSubStr[i], pCaseSensitive) ]
+		next
+
+		return aResult
+
+		def TheseSubStringsAndTheirSectionsCS(pacSubStr, pCaseSensitive)
+			return This.TheseSubStringsCSZZ(pacSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def TheseSubStringsZZ(pacSubStr)
+		return This.TheseSubStringsCSZZ(pacSubStr, TRUE)
+
+		def TheseSubStringsAndTheirSections(pacSubStr)
+			return This.TheseSubStringsZZ(pacSubStr)
+
+	  #================================================#
 	 #  FINDING ALL SUBSTRINGS EXCEPT THOSE PROVIDED  #
 	#================================================#
 
@@ -34320,41 +34662,33 @@ class stzString from stzObject
 	  #  FINDING OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
 	 #  AND RETURNING THEIR POSITIONS AS SECTIONS                       #
 	#------------------------------------------------------------------#
+	#TODO: check performance
+	#~> May use the implementation of SubStrings()
 
-	def FindSubStringsAsSectionsW(pcCondition)
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
+	def FindSubStringAsSectionsW(pcSubStr, pcCondition)
+		if CheckParams()
+			if NOT BothAreSrings(pcSubStr, pcCondition)
+				StzRaise("Incorrect param type! pcSubStr and pcCondition must be both strings.")
+			ok
 		ok
 
-		acSubStr = This.SubStringsU() # Or UniqueSubStrings()
+		# Doing the job
 
-		nLen = len(acSubStr)
-
-		cCode = 'if (' + StzCCodeQ(pcCondition).Transpiled() + ') { bOk = TRUE }'
+		acSubStringsZZ = This.SubStringsWZZ(pcCondition)
+		nLen = len(acSubStringsZZ)
 
 		aResult = []
-		
-		for i = 1 to nLen
-			@substring = acSubStr[i]
-			bOk = FALSE
-			eval(cCode)
 
-			if bOk
-				aSections = This.FindAsSections(acSubStr[i])
-				nLenSections = len(aSections)
-				for j = 1 to nLenSections
-					aResult + aSections[j]
-				next
+		for i = 1 to nLen
+			if acSubStringsZZ[i][1] = pcSubStr
+				aResult + acSubStringsZZ[i][2]
 			ok
 		next
 
-		aResult = QR(aResult, :stzListOfPairs).Sorted()
-		return aResult
-
 		#< @FunctionAlternativeForm
 
-		def FindSubStringAsSectionsW(pcCondition)
-			return This.FindSubStringsAsSectionsW(pcCondition)
+		def FindSubStringWZZ(pcCondition)
+			return This.FindSubStringAsSectionsW(pcCondition)
 
 		#>
 
@@ -34362,14 +34696,22 @@ class stzString from stzObject
 	  #  FINDING OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
 	 #  AND RETURNING THEIR POSITIONS AS SECTIONS                       #
 	#------------------------------------------------------------------#
+	#TODO: Check performance
+	#NOTE: Depends on the performance of its @MotherFunction
 
-	def FindSubStringsW(pcCondition)
-		aSections = This.FindSubStringsAsSectionsW(pcCondition)
+	def FindSubStringW(pcSubStr, pcCondition)
+		#< @MotherFunction = FindSubStringWZZ() #>
+
+		aSections = This.FindSubStringAsSectionsW(pcSubStr, pcCondition)
 		anPos = QR(aSections, :stzListOfPairs).FirstItems()
 		return anPos
 
-		def FindSubStringW(pcCondition)
-			return This.FindSubStringsW(pcCondition)
+		def FindSubStringWZ(pcSubStr, pcCondition)
+			return This.FindSubStringW(pcSubStr, pcCondition)
+
+#TODO: Add these functions
+# def SubStringWZ(pcSubStr) # Returns the (conditional) substring and its positions
+# def SubStringWZZ(pcSubStr) # Returns the (conditional) substring and its sections
 
 	  #--------------------------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A CHAR/SUBSTRING VERIFYING A GIVEN CONDITION  #
@@ -34398,6 +34740,10 @@ class stzString from stzObject
 			return This.FindNthCharW(n, pcCondition)
 		ok
 
+
+		def FindNthWZ(n, pcCondition)
+			return This.FindNthW(n, pcCondition)
+
 	  #----------------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A CHAR VERIFYING A GIVEN CONDITION  #
 	#----------------------------------------------------------------#
@@ -34425,9 +34771,16 @@ class stzString from stzObject
 
 		return nResult
 
+
+		def FindNthCharWZ(n, pcCondition)
+			return This.FindNthCharW(n, pcCondition)
+
 	  #----------------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A CHAR VERIFYING A GIVEN CONDITION  #
 	#----------------------------------------------------------------#
+
+#TODO: Add this function
+def FindNthSubStringWZZ() # returns the nth (conditional substring and its sections)
 
 	def FindNthSubStringW(n, pcCondition)
 		#TODO: Change implementation for better performance
@@ -34452,6 +34805,10 @@ class stzString from stzObject
 
 		return nResult
 
+
+		def FindNthSubStringWZ(n, pcCondition)
+			return This.FindNthSubStringW(n, pcCondition)
+
 	  #----------------------------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A CHAR/SUBSTRING VERIFYING A GIVEN CONDITION  #
 	#----------------------------------------------------------------------------#
@@ -34459,11 +34816,20 @@ class stzString from stzObject
 	def FindFirstW(pcCondition)
 		return This.FindNthW(1, pcCondition)
 
+		def FindFirstWZ(pcCondition)
+			return This.FindFirstW(pcCondition)
+
 	def FindFirstCharW(pcCondition)
 		return This.FindNthCharW(1, pcCondition)
 
+		def FindFirstCharWZ(pcCondition)
+			return This.FindFirstCharW(pcCondition)
+
 	def FindFirstSubStringW(pcCondition)
 		return This.FindNthSubStringW(1, pcCondition)
+
+		def FindFirstSubStringWZ(pcCondition)
+			return This.FindFirstSubStringW(pcCondition)
 
 	  #---------------------------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A CHAR/SUBSTRING VERIFYING A GIVEN CONDITION  #
@@ -34472,15 +34838,24 @@ class stzString from stzObject
 	def FindLastW(pcCondition)
 		return This.FindNthW(:Last, pcCondition)
 
+		def FindLastWZ(pcCondition)
+			return This.FindLastW(pcCondition)
+
 	def FindLastCharW(pcCondition)
 		return This.FindNthCharW(:Last, pcCondition)
+
+		def FindLastCharWZ(pcCondition)
+			return This.FindLastCharW(pcCondition)
 
 	def FindLastSubStringW(pcCondition)
 		return This.FindNthSubStringW(:Last, pcCondition)
 
-	  #--------------------------------------------#
+		def FindLastSubStringWZ(pcCondition)
+			return This.FindLastSubStringW(pcCondition)
+
+	  #============================================#
 	 #  FINDING MANY SYBSTRINGS IN THE SAME TIME  # 
-	#--------------------------------------------#
+	#============================================#
 
 	def FindManyCS(pacSubStr, pCaseSensitive)
 		/*
@@ -34661,72 +35036,6 @@ class stzString from stzObject
 			return This.FindManyAsSections(pacSubStr)
 
 		#>
-
-	  #----------------------------------------------------#
-	 #  GETTING THE GIVEN SUBSTRINGS AND THEIR POSITIONS  #
-	#----------------------------------------------------#
-
-	def TheseSubStringsCSZ(pacSubStr, pCaseSensitive)
-		if CheckParams()
-			if NOT (isList(pacSubStr) and Q(pacSubStr).IsListOfStrings())
-				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
-			ok
-		ok
-
-		acSubStr = Q(pacSubStr).ToSet()
-		nLen = len(acSubStr)
-
-		aResult = []
-
-		for i = 1 to nLen
-			aResult + [ pacSubStr[i], This.FindCS(pacSubStr[i], pCaseSensitive) ]
-		next
-
-		return aResult
-
-		def TheseSubStringsAndTheirPositionsCS(pacSubStr, pCaseSensitive)
-			return This.TheseSubStringsCSZ(pacSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def TheseSubStringsZ(pacSubStr)
-		return This.TheseSubStringsCSZ(pacSubStr, TRUE)
-
-		def TheseSubStringsAndTheirPositions(pacSubStr)
-			return This.TheseSubStringsZ(pacSubStr)
-
-	  #---------------------------------------------------#
-	 #  GETTING THE GIVEN SUBSTRINGS AND THEIR SECTIONS  #
-	#---------------------------------------------------#
-
-	def TheseSubStringsCSZZ(pacSubStr, pCaseSensitive)
-		if CheckParams()
-			if NOT (isList(pacSubStr) and Q(pacSubStr).IsListOfStrings())
-				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
-			ok
-		ok
-
-		acSubStr = Q(pacSubStr).ToSet()
-		nLen = len(acSubStr)
-
-		aResult = []
-
-		for i = 1 to nLen
-			aResult + [ pacSubStr[i], This.FindCSZZ(pacSubStr[i], pCaseSensitive) ]
-		next
-
-		return aResult
-
-		def TheseSubStringsAndTheirSectionsCS(pacSubStr, pCaseSensitive)
-			return This.TheseSubStringsCSZZ(pacSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def TheseSubStringsZZ(pacSubStr)
-		return This.TheseSubStringsCSZZ(pacSubStr, TRUE)
-
-		def TheseSubStringsAndTheirSections(pacSubStr)
-			return This.TheseSubStringsZZ(pacSubStr)
 
 	  #--------------------------------------------------------#
 	 #  FINDING THE POSITIONS OF ALL THE CHARS IN THE STRING  #
