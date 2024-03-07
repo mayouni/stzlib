@@ -643,6 +643,35 @@ func ParamChecking()
 
 	#>
 
+	#< @FunctionMisspelledForms
+	# Forgetting the "c" in "Check"
+
+	func ParamCheking()
+		return _bParamCheck
+
+	func ParamsCheking()
+		return _bParamCheck
+
+	func ParamChek()
+		return _bParamCheck
+
+	func ParamsChek()
+		return _bParamCheck
+
+	func ChekParam()
+		return _bParamCheck
+
+	func ChekingParam()
+		return _bParamCheck
+
+	func ChekParams()
+		return _bParamCheck
+
+	func ChekingParams()
+		return _bParamCheck
+
+	#>
+
 #--
 
 func IsCaseSensitive(p)
