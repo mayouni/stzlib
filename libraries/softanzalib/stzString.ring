@@ -1169,7 +1169,7 @@ class stzString from stzObject
 					acTemp + (pcSubStr[i] + pcNewSubStr)
 				next
 
-				This.ReplaceManyByManyCS(acTemp, pcNewSubStr, pCaseSensitive)
+				This.ReplaceManyByManyCS(pcSubStr, acTemp, pCaseSensitive)
 
 			#==
 
@@ -35052,6 +35052,56 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return This.FindManyAsSections(pacSubStr)
 
 		#>
+
+	#----------
+	#  
+	#==========
+
+	def FindManyCSXT(pacSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("iloveringprogramminglanguage!!")
+		o1.FindmanyXT([ "i", "love", "ring", "programming" ])
+
+		#--> [ 
+		
+		? @@( o1.FindManyZZ([ "i", "love", "ring", "programming" ]) )
+		# sort substrings in ascending
+		# for each substring
+		#	find the sections
+		#	perform the rempalcement using ReplaceInSections()
+		#	remove those sections from future rempalcements
+		#	 ~> sections = antisections
+
+		*/
+
+		if CheckParams()
+			if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
+		ok
+
+		anResult = []
+		nLen = len(pacSubStr)
+		pacSubStr = ring_reverse( ring_sort(pacSubStr) )
+
+		aAntiSections = [ [ 1, This.NumberOfChars() ] ]
+		oAntiSections = new stzList(aAntiSections)
+
+		for i = 1 to nLen
+			anPos = This.FindInSectionsCS(pacSubStr[i], aAntiSections, pCaseSensitive)
+			nLenPos = len(anPos)
+			for j = 1 to nLenPos
+				anResult + anPos[j]
+			next
+
+			anAtiSections = oAntiSections.Antisections( This.FindAsSectionsCS(pacSubStr[i], pCaseSensitive) )
+		next
+
+		return anResult
+
+	def FindManyXT(pacSubStr)
+		return This.FindManyCSXT(pacSubStr, TRUE)
 
 	  #--------------------------------------------------------#
 	 #  FINDING THE POSITIONS OF ALL THE CHARS IN THE STRING  #

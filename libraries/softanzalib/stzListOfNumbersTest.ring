@@ -896,7 +896,25 @@ proff()
 pron()
 
 o1 = new stzString("iloveringprogramminglanguage!!")
-o1.AddXT(" ", :AfterThese = [ "i", "ring", "programming" ])
+o1.findmanyxt([ "i", "love", "ring", "programming" ])
+
+proff()
+
+? @@( o1.FindManyZZ([ "i", "love", "ring", "programming" ]) )
+# sort substrings in ascending
+# for each substring
+#	find the sections
+#	perform the rempalcement using ReplaceInSections()
+#	remove those sections from future rempalcements
+#	 ~> sections = antisections
+
+/*--------------------
+*/
+
+pron()
+
+o1 = new stzString("iloveringprogramminglanguage!!")
+o1.AddXT(" ", :AfterThese = Q([ "i", "love", "ring", "programming" ]).Reversed())
 //o1.AddXT([ " ", " " ], :Around = "ring")
 
 //o1.SpacifySubStrings([ "i", "ring", "language" ])

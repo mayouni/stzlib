@@ -282,7 +282,7 @@ func IsListOfLists(paList)
 	nLen = len(paList)
 
 	for i = 1 to nLen
-		if NOT isSList(paList[i])
+		if NOT isList(paList[i])
 			bResult = FALSE
 			exit
 		ok
@@ -2791,6 +2791,12 @@ func ListReverse(paList)
 	return reverse(paList) # Here we rely on the native Ring reverse() function
 
 	func @Reverse(paList)
+		return reverse(paList)
+
+	func Inverse(paList)
+		return reverse(paList)
+
+	func @Inverse(paList)
 		return reverse(paList)
 
 func ListFirstItem(paList)
@@ -38632,7 +38638,7 @@ class stzList from stzObject
 		#    [ "n", "i", "r" ]
 
 		# params must be in range
-	
+
 		if NOT 	( ( n1 >= 1 and n1 <= nLen ) and
 			   ( n2 >= 1 and n2 <= nLen ) )
 				
@@ -51628,7 +51634,7 @@ vvv
 			return FALSE
 		ok
 
-	#--
+	#==
 
 	def IsSectionNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -51741,7 +51747,151 @@ vvv
 		def IsSectionsOrInSectionsNamedParams()
 			return This.IsSectionsOrInSectionsNamedParam()
 
-	#--
+	def IsListSizeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ListSize )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsStringSizeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :StringSize )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsNumberOfItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :NumberOfItems )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsNumberOfCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :NumberOfChars )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInAListOfNItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InAListOfNItems )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInAListOfSizeNNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InAListOfSizeN )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInAListOfNNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InAListOfN )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInAListOfNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InAListOf )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInAStringOfNCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InAStringOfN )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInAStringOfSizeNNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InAStringOfSizeN )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInListOfNItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InListOfNItems )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInListOfSizeNNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InListOfSizeN )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInListOfNNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InListOfN )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInListOfNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InListOf )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInStringOfNCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InStringOf )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInStringOfSizeNNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InStringOfSizeN )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#==
 
 	def IsOfSizeNamedParam()
 
