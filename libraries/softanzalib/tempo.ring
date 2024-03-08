@@ -1,6 +1,26 @@
 load "stzlib.ring"
 
-load "stzlib.ring"
+pron()
+
+o1 = new stzTable([
+	[ :Company, :Username, :Active, :Email, :EmailValid, :Firstname, :Infix, :Lastname,
+	  :Gender, :2FA_Status, :Last_Login, :Creation_Date, :Accounts, :Roles ]
+])
+
+
+
+o1.FromCSV(str) # Or LoadCSVString()
+o1.FromCSV(file) # Or LoadCSVFile
+
+o1.FromJSON(str) # Or LoadJSONString()
+o1.FromJSONXT(file) # Or LoadJSONFile()
+
+
+o1.Show()
+give any
+proff()
+
+/*------
 
 
 if _("ring").IsA(:String).Which(:IsLowercase).Containing(TheLetter("g")).AndHaving('FirstChar() = "r"')._

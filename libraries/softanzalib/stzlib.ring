@@ -140,5 +140,7 @@ load "stzFalseObject.ring"
 
 load "stzDistanceZero.ring"
 
+load "stzSection.ring"
+
 //? (clock()-t1)/clockspersecond()
 # Softanza startup time : 0.09 second(s) in Ring 1.19 (64 bits)
