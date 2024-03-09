@@ -293,6 +293,18 @@ func StringToQStringObject(str)
 	func @ToQString(str)
 		return StringToQStringObject(str)
 
+	func QStringObject(str)
+		return StringToQStringObject(str)
+
+	func @QStringObject(str)
+		return StringToQStringObject(str)
+
+	func QStringObjectQ(str)
+		return StringToQStringObject(str)
+
+	func @QStringObjectQ(str)
+		return StringToQStringObject(str)
+
 func QStringToStzString(oQString)
 	return new stzString(QStringToString(oQString))
 

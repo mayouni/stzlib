@@ -434,7 +434,7 @@ func NthChar(n, str)
 		ok
 	ok
 
-	cResult = QStringObject().mid(n+1, 1)
+	cResult = QStringObjectQ(str).mid(n-1, 1)
 	return cResult
 
 	func @NthChar(n, str)

@@ -1,9 +1,12 @@
 load "stzlib.ring"
 
+/*-----
+
 pron()
 
-? isvowel("a") # Ring function
-? @IsVowel("a") # Softanza alternatives
+? isvowel("a") 		# Ring function
+
+? @IsVowel("a") 	# Softanza alternative
 ? @IsVowel("aie")
 ? @IsVowel([ "a", "i", "e" ])
 
@@ -14,9 +17,11 @@ proff()
 # Executed in 0.02 second(s)
 
 /*-----
+*/
 pron()
 
 ? NthChar(3, "ring")
+#--> n
 
 proff()
 
