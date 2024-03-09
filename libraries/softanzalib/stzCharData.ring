@@ -84,6 +84,17 @@ Dotless LETTERS
 
 	_nNumberOfCharsInUnicode = 149_186 # Version 15.0
 
+	# Vowel chars
+
+	_acVowels = [ "A", "a", "E", "e", "I", "i", "O", "o", "U", "u" ]
+	anVowelsUnicodes = [ 65, 97, 69, 101, 73, 105, 79, 111, 85, 117 ]
+
+	#NOTE:
+	# the letter "Y" is not considered a vowel to stay consistent with
+	# the standard Ring function isvowel()
+
+	#TODO: Manage the cases where "Y" could be a vowel in stzText class
+
 	# Unicode scripts
 
 	_aUnicodeScriptsXT = [
@@ -1347,6 +1358,12 @@ Dotless LETTERS
   /////////////////////
  ///   FUNCTIONS   ///
 /////////////////////
+
+	func Vowels()
+		return _acVowels
+
+	func VowelsUnicodes()
+		return _anVowelsUnicodes()
 
 	func WorldLanguages()
 		return _aWorldLanguages

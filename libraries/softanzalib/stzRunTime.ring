@@ -40,29 +40,6 @@ func IsPackageName(cStr)
 	bResult = find( packages(), lower(cStr))
 	return bResult
 
-func IsStzClassName(cStr)
-	if CheckParams()
-		if NOT isSting(cStr)
-			StzRaise("Incorrect param type! cStr must be a string.")
-		ok
-	ok
-
-	if NOT substr(cStr, 1, 3) = "stz"
-		return FALSE
-	ok
-
-	if NOT IsClassName(cStr)
-		return FALSE
-	ok
-
-	return TRUE
-
-	#< @FunctionAlternativeForms
-
-	func @IsAClassName(pcStr)
-		return IsStzClassName(cStr)
-
-	#>
 
 func Vars()
 	return globals()

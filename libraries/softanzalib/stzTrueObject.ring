@@ -4,8 +4,12 @@ func StzTrueObjectQ()
 	return new stzTrueObject
 
 	func TrueObject()
-		return StzTrueObjectQ()
+		return new stzTrueObject
 
+	func ATrueObject()
+		return new stzTrueObject
+
+	
 class stzTrueObject from stzObject
 
 	@cVarName = :@trueobject

@@ -427,6 +427,93 @@ func NumberOfChineseLetters()
 
 #TODO: add simular functions to all other languages
 
+func NthChar(n, str)
+	if CheckParams()
+		if NOT ( isNumber(n) and isString(str) )
+			StzRaise("Incorrect param type! n must be a number and str must be a string.")
+		ok
+	ok
+
+	cResult = QStringObject().mid(n+1, 1)
+	return cResult
+
+	func @NthChar(n, str)
+		return NthChar(c)
+
+/*
+func StzIsVowel(cCharOrStr) # A more general alternative of Ring isVowel()
+	if CheckParams()
+		if NOT isString(cCharOrStr)
+			StzRaise("Incorrect param type! cCharOrStr must be a string.")
+		ok
+	ok
+
+	bResult = TRUE
+
+	acChars = StzStringQ(cCharOrStr).Chars()
+	nLen = len(acChars)
+
+	for i = 1 to nLen
+		if NOT ring_isvowel( acChars[i] )
+			bResult = FALSE
+			exit
+		ok
+	next
+
+	return bResult
+
+
+*/
+func StzIsVowel(p) # Can be char, a string or a list of chars or strings
+	if CheckParams()
+		if NOT isStringOrListOfStrings(p)
+			StzRaise("Incorrect param type! pcStrOrList must be a string or list of strings.")
+		ok
+	ok
+
+	
+	if isString(p)
+		if IsChar(p)
+			return ring_isvowel(p)
+		ok
+
+		acChars = StzStringQ(p).Chars()
+	else
+		acChars = p
+	ok
+
+	nLen = len(p)
+	bResult = TRUE
+
+	for i = 1 to nLen
+		if NOT StzIsVowel(p[i])
+			bResult = FALSE
+			exit
+		ok
+	next
+
+	return bResult
+
+	#< @FunctionAlternativeForms
+
+	func IsAVowel(p)
+		return StzIsVowel(p)
+
+	func @IsVowel(p)
+		return StzIsVowel(p)
+
+	func @IsAVowel(p)
+		return StzIsVowel(p)
+
+	#--
+
+	func AreVowels(p)
+		return StzIsVowel(p)
+
+	func @AreVowels(p)
+		return StzIsVowel(p)
+
+	#>
 
   /////////////////
  ///   CLASS   ///
@@ -734,6 +821,17 @@ class stzChar from stzObject
 	def UnicodeDirectionNumber()
 		cNumber = "" + @oQChar.direction()
 		return cNumber
+
+	def IsVowel()
+		if ring_find( This.Content(), Vowels() ) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAVowel()
+			return This.IsVowel()
+
 
 	def IsLeftToRight()
 		if This.UnicodeDirectionNumber() = "0"

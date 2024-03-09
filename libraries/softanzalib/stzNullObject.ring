@@ -31,7 +31,11 @@ func StzNullObjectQ()
 	return new stzNullObject
 
 	func NullObject()
-		return StzNullObjectQ()
+		return new stzNullObject
+
+	func ANullObject()
+		return new stzNullObject
+
 
 class stzNullObject from stzObject
 	

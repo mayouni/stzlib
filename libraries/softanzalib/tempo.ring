@@ -1,5 +1,19 @@
 load "stzlib.ring"
 
+/*----
+
+pron()
+
+aList = [ [1,2,3], [4,5,6], 7:9 ]
+
+? "List content: " + NL + @@(aList) # Or ListToCode()
+#--> List content: 
+# [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
+
+proff()
+
+/*------
+
 pron()
 
 o1 = new stzTable([
@@ -22,16 +36,71 @@ proff()
 
 /*------
 
+pron()
 
-if _("ring").IsA(:String).Which(:IsLowercase).Containing(TheLetter("g")).AndHaving('FirstChar() = "r"')._
-	
-	? "Got it!"
-else
-	? "Sorry. May be next time..."
-ok
+Q("hi")
+? MainObject().Content()
+#--> "hi"
 
-#--> Got it!
+proff()
+# Executed in 0.01 second(s)
 
+/*=======
+
+pron()
+
+# Two misspelled forms of InLowercase()
+
+? Q("ring").IsAQ(:String).InLowarcase() #--> TRUE
+? Q("ring").IsAQ(:String).InLowercase() #--> TRUE
+
+proff()
+# Executed in 0.05 second(s)
+
+/*------ #natural-coding #semantic-eloquence
+*/
+pron()
+
+? Q("ring").IsAQ(:String).InLowercase() 		#--> TRUE
+? Q("ring").IsAQ(:String).WhichIs().InLowercase()	#--> TRUE
+? Q("ring").IsAQ(:String).Which().IsInLowercase()	#--> TRUE
+? Q("ring").IsAQ(:String).Which().IsLowercase()		#--> TRUE
+
+? Q([ "Ring", "Ruby" ]).AreBothQ(:Strings).HavingQ().TheirQ().FirstCharQ().EqualTo("R")
+
+proff()
+
+/*------
+
+IsLowerCase
+Contains
+Having
+FirstChar
+IsEqual
+LastChar
+*/
+? QM("ring").IsAQ(:String).
+	InLowercaseQ().
+	ContainingQ( TheLetter("i") ).
+	HavingQ().FirstCharQ().EqualToQ("r").
+	AndQM().Lastchar() = "g"
+#--> TRUE
+
+? QM("RING").IsAQ(:String).
+	InUppercaseQ().
+	ContainingQ( TheLetter("N") ).
+	HavingQ().FirstCharQ().EqualToQ("R").
+	AndQ().QM().Lastchar() = "G"
+#--> TRUE
+
+/*
+? QM("ring").IsAQ(:String).
+	InLowercaseQ().
+	ContainingQ( TheLetter("g") ).
+	HavingQ().FirstCharQ() = Q("r").
+	AndQM().Lastchar() = "g"
+*/
+proff()
 /*----------------- #TODO: Check output error "R in g"
 pron()
 

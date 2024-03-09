@@ -2223,14 +2223,43 @@ class stzObject
 		def IsListOrString()
 			return This.IsListOrString()
 
+	#==
+
+	def IsFalseObject()
+		if This.StzType() = :stzFlaseObject
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#-- @Misspelled
+
+		def IsFalseObejct()
+			return This.IsFalseObject()
+
+	def IsTrueObject()
+		if This.StzType() = :stzFlaseObject
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsNullObject()
+		if This.StzType() = :stzNullObject
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsA(pcType)
 
 		/* Example
 
-		? _([ :name = "mio", :age = 12 ]).IsA(:HashList)._
+		? Q([ :name = "mio", :age = 12 ]).IsA(:HashList)
 
 		--> TRUE
 		*/
+
 		if isList(pcType)
 			if Q(pcType).IsListOfStrings()
 				return This.IsEachOneOfTheseTypes(pcType)
@@ -2240,35 +2269,357 @@ class stzObject
 			ok
 		ok
 
+		if NOT ( @IsRingType(pcType) or @IsStzType(pcType) )
+			StzRaise("Incorrect param type! pcType must be a Ring or Softanza type.")
+		ok
+/*
 		if pcType = :Number
 			pcType = :ANumber
+
 		but pcType = :String
 			pcType = :AString
+
 		but pcType = :List
 			pcType = :AList
+
 		but pcType = :Object
 			pcType = :AnObject
-		ok
 
-		cCode = 'bResult = This.Is'+ pcType + '()'
+		#==
+
+		but pcType = :StzNumber
+			pcType = :AStzNumber
+
+		but pcType = :StzString
+			pcType = :AStzString
+
+		but pcType = :StzList
+			pcType = :AStzList
+
+		but pcType = :StzObject
+			pcType = :AStzObject
+
+		#--
+
+		but pcType = :StzChar
+			pcType = :AStzChar
+
+		but pcType = :StzText
+			pcType = :AStzText
+
+		but pcType = :StzBinaryNumber
+			pcType = :AStzBinaryNumber
+
+		but pcType = :StzDecimalNumber
+			pcType = :AStzDecimalNumber
+
+		but pcType = :StzHexNumber
+			pcType = :AStzHexNumber
+
+		but pcType = :StzOctalNumber
+			pcType = :AStzOctalNumber
+
+		but pcType = :StzSet
+			pcType = :AStzSet
+
+		but pcType = :StzPair
+			pcType = :AStzPair
+
+		but pcType = :StzHashList
+			pcType = :AStzHashList
+
+		but pcType = :StzTree
+			pcType = :AStzTree
+
+		but pcType = :StzGrid
+			pcType = :AStzGrid
+
+		but pcType = :StzTable
+			pcType = :AStzTable
+
+		ok
+*/
+		
+		cCode = 'bResult = This.IsA'+ pcType + '()'
 		
 		eval(cCode)
 		return bResult
 
+		#< @FunctionFluentForm
+
+		def IsAQ(pcType)
+			if This.IsA(pcType) = TRUE
+				return This
+			else
+				return AFalseObject()
+			ok
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def IsAn(pcType)
 			return This.IsA(pcType)
+
+			def IsAnQ(pcType)
+				return This.IsAQ(pcType)
 
 		def Is(pcType)
 			return This.IsA(pcType)
 
+			def IsQ(pcType)
+				return This.IsAQ(pcType)
+
+		#--
+
+		def AreA(pcType)
+			return This.IsA(pcType)
+
+			def AreAQ(pcType)
+				return This.IsAQ(pcType)
+
+		def AreAn(pcType)
+			return This.IsA(pcType)
+
+			def AreAnQ(pcType)
+				return This.IsAQ(pcType)
+
+		def Are(pcType)
+			return This.IsA(pcType)
+
+			def AreQ(pcType)
+				return This.IsAQ(pcType)
+
+		def AreBothA(pcType)
+			return This.IsA(pcType)
+
+			def AreBothAQ(pcType)
+				return This.IsAQ(pcType)
+
+		def AreBothAn(pcType)
+			return This.IsA(pcType)
+
+			def AreBothAnQ(pcType)
+				return This.IsAQ(pcType)
+
+		def AreBoth(pcType)
+			return This.IsA(pcType)
+
+			def AreBothQ(pcType)
+				return This.IsAQ(pcType)
+
+		def BothAreA(pcType)
+			return This.IsA(pcType)
+
+			def BothAreAQ(pcType)
+				return This.IsAQ(pcType)
+
+		def BothAreAn(pcType)
+			return This.IsA(pcType)
+
+			def BothAreAnQ(pcType)
+				return This.IsAQ(pcType)
+
+		def BothAre(pcType)
+			return This.IsA(pcType)
+
+			def BothAreQ(pcType)
+				return This.IsAQ(pcType)
+
+		#>
+
+
+	def WhichQ()
+		return This
+
+		def Which()
+			return This
+
+		def ThatQ()
+			return This
+
+		def That()
+			return This
+
+	def WhichIsQ()
+		return This
+
+		def WhichIs()
+			return This
+
+		def ThatIsQ()
+			return This
+
+		def ThatIs()
+			return This
+
+	def WhichAreQ()
+		return This
+
+		def WhichAre()
+			return This
+
+		def ThatAreQ()
+			return This
+
+		def ThatAre()
+			return This
+
+	def WhichAreBothQ()
+		return This
+
+		#< @AlternativeForms
+
+		def WhichAreBoth()
+			return This
+
+		def ThatAreBothQ()
+			return This
+
+		def ThatAreBoth()
+			return This
+
+		#--
+
+		def WhichbothAreQ()
+			return This
+
+		def WhichBothAre()
+			return This
+
+		def ThatBothAreQ()
+			return This
+
+		def ThatBothAre()
+			return This
+
+		#
+
+	def TheirQ()
+		return This
+
+		#< @FunctionAlternativeForms
+
+		def Their()
+			return This
+
+		def Its()
+			return This
+
+		def ItsQ()
+			return This
+
+		def His()
+			return This
+
+		def HisQ()
+			return This
+
+		def Her()
+			return This
+
+		def HerQ()
+			return This
+
+		def My()
+			return This
+
+		def MyQ()
+			return this
+
+		def Your()
+			return This
+
+		def YourQ()
+			return this
+
+		#>
+
+
+	def Me()
+		return This.Content()
+
+		def MeQ()
+			return This
+
+	def Mine()
+		return This
+
+		def MineQ()
+			return This
+
+	def It()
+		return This.Content()
+
+		def ItQ()
+			return This
+
+	def You()
+		return This.Content()
+
+		def YouQ()
+			return This
+
+	def Yours()
+		return This
+
+		def YoursQ()
+			return This
+
+	def Him()
+		return This.Content()
+
+		def HimQ()
+			return This
+
+	def Them()
+		return This.Content()
+
+		def ThemQ()
+			return This
+
+	#==
+	
 	def IsNotA(pcType)
 		return NOT This.IsA(pcType)
+
+		#< @FunctioAlternativeForms
 
 		def IsNotAn(pcType)
 			return This.IsNotA(pcType)
 
 		def IsNot(pcType)
 			return This.IsNotA(pcType)
+
+		def AreNotA(pcType)
+			return This.IsNotA(pcType)
+
+		def AreNotAn(pcType)
+			return This.IsNotA(pcType)
+
+		def AreNot(pcType)
+			return This.IsNotA(pcType)
+
+		#--
+
+		def AreNotBothA(pcType)
+			return This.IsNotA(pcType)
+
+		def AreNotBothAn(pcType)
+			return This.IsNotA(pcType)
+
+		def AreNotBoth(pcType)
+			return This.IsNotA(pcType)
+
+		def AreBothNotA(pcType)
+			return This.IsNotA(pcType)
+
+		def AreBothNotAn(pcType)
+			return This.IsNotA(pcType)
+
+		def AreBotheNot(pcType)
+			return This.IsNotA(pcType)
+		#>
 
 	def IsEitherA(pcType1, pcType2)
 		if isList(pcType2) and Q(pcType2).IsOrNamedParam()
@@ -2285,8 +2636,24 @@ class stzObject
 			return FALSE
 		ok
 
+		#< @functionAlternativeForms
+
 		def IsEitherAn(pcType1, pcType2)
 			return This.IsEitherA(pcType1, pcType2)
+
+		def AreEitherA(pcType1, pcType2)
+			return This.IsEitherA(pcType1, pcType2)
+
+		def AreEitherAn(pcType1, pcType2)
+			return This.IsEitherA(pcType1, pcType2)
+
+		def AreBothEitherA(pcType1, pcType2)
+			return This.IsEitherA(pcType1, pcType2)
+
+		def AreEitherBothAn(pcType1, pcType2)
+			return This.IsEitherA(pcType1, pcType2)
+
+		#>
 
 	def IsNeitherA(pcType1, pcType2)
 		if isList(pcType2) and Q(pcType2).IsNorNamedParam()
@@ -2305,8 +2672,24 @@ class stzObject
 			return FALSE
 		ok
 
+		#< @functionAlternativeForms
+
 		def IsNeitherAn(pcType1, pcType2)
 			return This.IsNeitherA(pcType1, pcType2)
+
+		def AreNeitherA(pcType1, pcType2)
+			return This.IsNeitherA(pcType1, pcType2)
+
+		def AreNeitherAn(pcType1, pcType2)
+			return This.IsNeitherA(pcType1, pcType2)
+
+		def AreBothNeitherA(pcType1, pcType2)
+			return This.IsNeitherA(pcType1, pcType2)
+
+		def AreNeitherBothAn(pcType1, pcType2)
+			return This.IsNeitherA(pcType1, pcType2)
+
+		#>
 
 	  #-------------------------#
 	 #  CHECKING OBJECT VALUE  #
@@ -2338,8 +2721,21 @@ class stzObject
 			ok
 
 		but This.IsAnObject() #TODO
-			/* ... */
+			StzRaise("Feature not implemented yet!")
 		ok
+
+		#< @FunctionAlternativeForms
+
+		def AreEither(pValue1, pValue2)
+			return This.IsEither(pValue1, pValue2)
+
+		def BothAreEither(pValue1, pValue2)
+			return This.IsEither(pValue1, pValue2)
+
+		def AreBothEither(pValue1, pValue2)
+			return This.IsEither(pValue1, pValue2)
+
+		#>
 
 	#--
 
@@ -3284,10 +3680,28 @@ class stzObject
 		return This
 
 		def AndThenQ()
-			return This.AndThen()
+			return This
 
 		def AndQ()
-			return This.AndThen()
+			return This
+
+	def QM()
+		return MainObject() # Used in chains of truth
+
+		def AndQM()
+			return MainObject() # Used in chains of truth
+
+	def Having()
+		return This
+
+		def HavingQ()
+			return This
+
+		def AndHaving()
+			return This
+
+		def AndHavingQ()
+			return This
 
 	# Swapping the content of the stzObject with an other stzObject
 

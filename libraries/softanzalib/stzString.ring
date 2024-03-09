@@ -1949,23 +1949,46 @@ class stzString from stzObject
 			return FALSE
 		ok
 
+		#< @FunctionFluentForm
+
+		def IsLowerercaseQ()
+			if This.IsLowercase()
+				return new stzString(This.Content())
+			else
+				return AFalseObject()
+			ok
+
+		#>
+
 		#< @FunctionAlternativeForm
 
 		def IsLowercased()
 			return This.IsLowercase()
 
+			def IsLowercasedQ()
+				return This.IsLowerercaseQ()
+
 		def IsLower()
 			return This.IsLowercase()
+
+			def IsLowerQ()
+				return This.IsLowerercaseQ()
 
 		def IsInLowercase()
 			return This.IsLowercase()
 
+			def InLowercaseQ()
+				return This.IsLowerercaseQ()
+
 		def IsInALowercase()
 			return This.IsLowercase()
 
+			def IsInALowercasQ()
+				return This.IsLowerercaseQ()
+
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForms
 
 		def IsNotLowercase()
 			return NOT This.IsLowercase()
@@ -1984,12 +2007,23 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionMisspelledForm
+		#< @FunctionMisspelledForms
 
 		def IsLowcased()
 			return This.IsLowercase()
 
 		def IsLowcase()
+			return This.IsLowercase()
+
+		def IsLowarcase()
+			return This.IsLowercase()
+
+		#--
+
+		def InLowarcase()
+			return This.IsLowercase()
+
+		def InLowercase()
 			return This.IsLowercase()
 
 		#>
@@ -2171,22 +2205,46 @@ class stzString from stzObject
 			return FALSE
 		ok
 
-		#< @FunctionAlternativeForm
+		#< @FunctionFluentForm
+		# Useful in Natural-Coding, like for example:
+		# Q("RING").IsAStringQ().WichQ().IsUppercaseQ().AndQ().ContainingQ(TheLetter("I"))
+		#--> TRUE
+
+		#< @FunctionFluentForm
+
+		def IsUpperercaseQ()
+			if This.IsUppercase()
+				return new stzString(This.Content())
+			else
+				return AFalseObject()
+			ok
+
+
+		#< @FunctionAlternativeForms
 
 		def IsUppercased()
 			return This.IsUppercase()
 
-		def IsAnUppercase()
-			return This.IsUppercase()
+			def IsUppercasedQ()
+				return This.IsUpperercaseQ()
 
 		def IsUpper()
 			return This.IsUppercase()
 
-		def IsInUppercase()
-			return This.IsUppercased()
+			def IsUpperQ()
+				return This.IsUpperercaseQ()
 
-		def IsInAnUppercase()
-			return This.IsUppercased()
+		def IsInUppercase()
+			return This.IsUppercase()
+
+			def IsInUppercaseQ()
+				return This.IsUpperercaseQ()
+
+		def InUppercase()
+			return This.IsUppercase()
+
+			def InUppercaseQ()
+				return This.IsUpperercaseQ()
 
 		#>
 
@@ -38166,6 +38224,110 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	def DistanceToXT(pcSubStr, pnStartingAt)
 		return This.DistanceToSCS(pcSubStr, pnStartingAt, TRUE)
 
+	  #======================================================#
+	 #  CHECHING IF THE STRING IS EQUAL TO AN OTHER STRING  #
+	#======================================================#
+
+	def IsEqualToCS(pcOtherStr, pCaseSensitive)
+		if CheckParams()
+			if NOT isString(pcOtherStr)
+				StzRaise("Incorrect param type! pcOtherStr must be a string.")
+			ok
+		ok
+
+		cContent = This.Content()
+
+		if IsCaseSensitive(pCaseSensitive) = FALSE
+			pcOtherStr = lowercase(pcOtherStr)
+			cContent = This.Lowercased()
+		ok
+
+		if pcOtherStr = cContent
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionFluentForm
+		# Usded for natural-coding and chains of truth
+
+		def IsEqualToCSQ(pcOtherStr, pCaseSensitive)
+			if This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+				return This
+			else
+				return AFalseObject()
+			ok
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def EqualToCS(pcOtherStr, pCaseSensitive)
+			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+
+			def EqualToCSQ(pcOtherStr, pCaseSensitive)
+				return This.IsEqualToCSQ(pcOtherStr, pCaseSensitive)
+
+		def EqualsCS(pcOtherStr, pCaseSensitive)
+			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+
+			def EqualsCSQ(pcOtherStr, pCaseSensitive)
+				return This.IsEqualToCSQ(pcOtherStr, pCaseSensitive)
+
+		def HasSameContentAsCS(pcOtherStr, pCaseSensitive)
+			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+
+			def HasSameContentAsCSQ(pcOtherStr, pCaseSensitive)
+				return This.IsEqualToCSQ(pcOtherStr, pCaseSensitive)
+
+		def HasSameValueAsCS(pcOtherStr, pCaseSensitive)
+			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+
+			def HasSameValueAsCSQ(pcOtherStr, pCaseSensitive)
+				return This.IsEqualToCSQ(pcOtherStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IsEqualTo(pcOtherStr)
+		return This.IsEqualToCS(pcOtherStr, TRUE)
+
+		#< @FunctionFluentForm
+
+		def IsEqualToQ(pcOtherStr)
+			return This.IsEqualToCSQ(pcOtherStr, TRUe)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def EqualTo(pcOtherStr)
+			return This.IsEqualTo(pcOtherStr)
+
+			def EqualToQ(pcOtherStr)
+				return This.IsEqualToQ(pcOtherStr)
+
+		def Equals(pcOtherStr)
+			return This.IsEqualTo(pcOtherStr)
+
+			def EqualsQ(pcOtherStr)
+				return This.IsEqualToQ(pcOtherStr)
+
+		def HasSameContentAs(pcOtherStr)
+			return This.IsEqualTo(pcOtherStr)
+
+			def HasSameContentAsQ(pcOtherStr)
+				return This.IsEqualToQ(pcOtherStr)
+
+		def HasSameValueAs(pcOtherStr)
+			return This.IsEqualTo(pcOtherStr)
+
+			def HasSameValueAsQ(pcOtherStr)
+				return This.IsEqualToQ(pcOtherStr)
+
+		#>
+	
 	  #======================================#
 	 #   CONTAINMENT OF A GIVEN SUBSTRING   #
 	#======================================#
@@ -38223,6 +38385,19 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		def ContainsSubStringCS(pcSubStr, pCaseSensitive)
 			return This.ContainsCS(pcSubStr, pCaseSensitive)
+
+		#-- Used for chains of truth
+
+		def ContainingCS(pcSubStr, pCaseSensitive)
+			return This.ContainsCS(pcSubStr, pCaseSensitive)
+
+			def ContainingCSQ(pcSubStr, pCaseSensitive)
+				if This.ContainsCS(pcSubStr, pCaseSensitive)
+					return This
+				else
+					return AFalseObject()
+				ok
+
 		#>
 
 		#< @FunctionPassiveForm
@@ -38251,6 +38426,19 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		def ContainsSubString(pcSubStr)
 			return This.Contains(pcSubStr)
+
+		#-- Used for chains of truth
+
+		def Containing(pcSubStr)
+			return This.Contains(pcSubStr)
+
+			def ContainingQ(pcSubStr)
+				if This.Contains(pcSubStr)
+					return This
+				else
+					return AFalseObject()
+				ok
+
 		#>
 
 		#< @FunctionPassiveForm
@@ -55440,7 +55628,7 @@ ici		//...
 	 #     COMPARING THE STRING TO OTHER STRINGS     #
 	#===============================================#
 
-	def IsEqualToCS(pcOtherStr, pCaseSensitive)
+/*	def IsEqualToCS(pcOtherStr, pCaseSensitive)
 		# A check made to enable some external code
 		# In Ring context use IsEqualToQ()
 
@@ -55590,7 +55778,7 @@ ici		//...
 			return This.IsEqualTo(pcOtherStr)
 
 		#>
-
+*/
 	  #--------------------------------------------------------------#
 	 #  CHECKING IF THE STRING IS STRICTLY EQUAL TO ANOTHER STRING  #
 	#--------------------------------------------------------------#
