@@ -26,6 +26,8 @@ Programming, by Heart! By: M.Ayouni╭
 
 @ = 0
 
+_oMainObject = ANullObject() # Used for chains of truth
+
 _bThese = FALSE	# Used in case like this: Q(1:5) - These(3:5) --> [1,2]
 
 _bParamCheck = TRUE # Activates the "# Checking params region" in softanza functions
@@ -394,6 +396,9 @@ _acStzCCKeywords = [
   //////////////////////////
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
+
+func MainObject() # Used in Chains of truth
+	return _oMainObject
 
 func These(p)
 	_bThese = TRUE
@@ -979,6 +984,9 @@ func ring_random(n)
 func ring_srandom(n)
 	return srandom(n)
 
+func ring_isvowel(c)
+	return isvowel(c)
+
 #-----
 
 func StzFindCS(pThing, paIn, pCaseSensitive)
@@ -1160,6 +1168,22 @@ func IsStringOrList(p)
 
 	func @IsListOrString(p)
 		return IsStringOrList(p)
+
+func IsStringOrListOfStrings(p)
+	if isString(p) or IsListOfStrings(p)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	def IsListOfStringsOrString(p)
+		return IsStringOrListOfStrings(p)
+
+	func @IsStringOrListOfStrings(p)
+		return IsStringOrListOfStrings(p)
+
+	func @IsListOfStringsOrString(p)
+		return IsStringOrListOfStrings(p)
 
 func IsStringOrObject(p)
 	if isString(p) or isObject(p)
@@ -2392,8 +2416,78 @@ func Ten(pThing)
 
 # OTHER STAFF
 
+func IsStzType(pcStr)
+	if CheckParams()
+		if NOT isString(pcStr)
+			StzRaise("Incorrect param type! pcStr must be a string.")
+		ok
+	ok
+
+	acTypes = SyzTypes() # Assumes they are lowercase strings
+
+	if find(acTypes, pcStr) > 0
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func IsStzClass(pcStr)
+		return IsStzType(pcStr)
+
+	func IsStzClassName(pcStr)
+		return IsStzType(pcStr)
+
+	#--
+
+	func IsAStzType(pcStr)
+		return IsStzType(pcStr)
+
+	func IsAStzClass(pcStr)
+		return IsStzType(pcStr)
+
+	func IsAStzClassName(pcStr)
+		return IsStzType(pcStr)
+
+	#==
+
+	func @IsStzType(pcStr)
+		return IsStzType(pcStr)
+
+	func @IsStzClass(pcStr)
+		return IsStzType(pcStr)
+
+	func @IsStzClassName(pcStr)
+		return IsStzType(pcStr)
+
+	#--
+
+	func @IsAStzType(pcStr)
+		return IsStzType(pcStr)
+
+	func @IsAStzClass(pcStr)
+		return IsStzType(pcStr)
+
+	func @IsAStzClassName(pcStr)
+		return IsStzType(pcStr)
+
+	#>
+
 func IsRingType(pcStr)
-	return StzStringQ(pcStr).LowercaseQ().ExistsIn( RingTypes() )
+	if CheckParams()
+		if NOT isString(pcStr)
+			StzRaise("Incorrect param type! pcStr must be a string.")
+		ok
+	ok
+
+	pcStr = lower(pcStr)
+
+	if pcStr = "number" or pcStr = "string" or pcStr = "list" or pcStr = "object"
+		return TRUE
+	else
+		return FALSE
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -2407,7 +2501,6 @@ func IsRingType(pcStr)
 		return IsRingType(pcStr)
 
 	#>
-
 
 
 func StringIsChar(pcStr)
@@ -3178,7 +3271,6 @@ func Q(p)
 		return new stzObject(p)
 	ok
 
-
 	func Softanzify(p)
 		return Q(p)
 
@@ -3187,6 +3279,10 @@ func Q(p)
 
 	func TheQ(p)
 		return Q(p)
+
+func QM(p) # Used to nitiate a chain of truth
+	_oMainObject = Q(p)
+	return _oMainObject
 
 func QR(p, pcType)
 	if NOT isString(pcType)

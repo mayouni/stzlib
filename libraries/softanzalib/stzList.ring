@@ -42934,6 +42934,71 @@ class stzList from stzObject
 
 	#--
 
+	def IsDownToNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :DownTo)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsDownToItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :DownToItem)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsDownToItemAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :DownToItemAt)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsDownToItemAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :DownToItemAtPosition)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsDownToCharNamedParam()
+		if This.NumberOfChars() = 2 and
+		   ( isString(This.Char(1)) and This.Char(1) = :DownToChar)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsDownToCharAtNamedParam()
+		if This.NumberOfChars() = 2 and
+		   ( isString(This.Char(1)) and This.Char(1) = :DownToCharAt)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsDownToCharAtPositionNamedParam()
+		if This.NumberOfChars() = 2 and
+		   ( isString(This.Char(1)) and This.Char(1) = :DownToCharAtPosition)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
 	#TODO: Move IsToCharNamedParam() here
 
 	def IsUntilCharNamedParam()
@@ -51801,6 +51866,15 @@ vvv
 			return FALSE
 		ok
 
+	def IsInAListOfSizeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InAListOfSize )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsInAListOfNNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InAListOfN )
@@ -51855,6 +51929,15 @@ vvv
 			return FALSE
 		ok
 
+	def IsInListOfSizeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InListOfSize )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsInListOfNNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InListOfN )
@@ -51885,6 +51968,232 @@ vvv
 	def IsInStringOfSizeNNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :InStringOfSizeN )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#==
+
+	def IsStartNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Start )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsStartOfStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :StartOfString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsStartOfListNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :StartOfList )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+
+	def IsEndNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :End )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsEndOfListNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :EndOfList )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsEndOfStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :EndOfString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsFromStartNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromStart )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsFromStartOfStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromStartOfString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsFromStartOfListNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromStartOfList )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+
+	def IsFromEndNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromEnd )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsFromEndOfListNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromEndOfList )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsFromEndOfStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :FromEndOfString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsStartingAtCharNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :StartingAtChar )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsStartingAtCharAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :StartingAtCharAt )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsStartingAtCharAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :StartingAtCharAtPosition )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsStartingAtItemNamedPAram()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :StartingAtItem )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsStartingAtItemAtNamedPAram()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :StartingAtItemAt )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsStartingAtItemAtPositionNamedPAram()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :StartingAtItemAtPosition )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsToEndNamedPAram()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToEnd )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToEndOfStringNamedPAram()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToEndOfString )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToEndOfListNamedPAram()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToEndOfList )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToStartNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToStart )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToStartofListNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToStartOfList )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToStartofStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToStartOfString )
 
 			return TRUE
 		else
@@ -51945,6 +52254,47 @@ vvv
 			return FALSE
 		ok
 
+	def IsUntilCharAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :UntilCharAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUntilCharAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :UntilCharAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUntilItemAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :UntilItemAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUntilItemAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :UntilItemAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+
 	def IsUntilXTNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :UntilXT )
@@ -51984,6 +52334,46 @@ vvv
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and
 			(This.Item(1) = :UpToN or This.Item(1) = :UpToN@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUpToCharAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :UpToCharAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUpToCharAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :UpToCharAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUpToItemAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :UpToItemAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsUpToItemAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :UpToItemAtPosition )
 
 			return TRUE
 

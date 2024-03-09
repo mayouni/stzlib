@@ -1,4 +1,26 @@
 
+func IsSection(n1, n2, nSize)
+	try
+		new stzSection(n1, n2, nSize)
+		return TRUE
+	catch
+		return FALSE
+	done
+
+	func @IsSection(n1, n2, nSize)
+
+func Section(n1, n2, nSize)
+	oSection = new stzSection(n1, n2, nSize)
+	
+	aResult = oSection.Content()
+	return aResult
+
+	#TODO:
+	# Bug in Ring: see with Mahmoud why returning the object directly
+	# does nt work :return oSection.Content()
+
+func StzSectionQ(n1, n2, nSize)
+	return new stzSection(n1, n2, nSize)
 
 class stzSection
 	@aContent
@@ -10,10 +32,10 @@ class stzSection
 				:Size, :ListSize, :StringSize,
 				:NumberOfItems, :NumberOfChars,
 
-				:InAListOfNItems, :InAListOfSizeN, :InAListOfN, :InAListOf,
+				:InAListOfNItems, :InAListOfSize, :InAListOfSizeN, :InAListOfN, :InAListOf,
 				:InAStringOfNChars, :InAStringOfSizeN,
 
-				:InListOfNItems, :InListOfSizeN, :InListOfN, :InListOf,
+				:InListOfNItems, :InListOfSize, :InListOfSizeN, :InListOfN, :InListOf,
 				:InStringOfNChars, :InStringOfSizeN
 
 				])
@@ -40,11 +62,15 @@ class stzSection
 
 				:BetweenPositions, :BetweeCharsAtPosition,
 
-				#--
+				#-- Item instead of Char
 
 				:FromItemAt, :FromItemAtPosition,
 				:StartingAtItemAt, :StartingAtItemAtPosition,
-				:BetweenItemAtPosition, :BetweeItemsAtPosition
+				:BetweenItemAtPosition, :BetweeItemsAtPosition,
+
+				#==
+
+				:End, :FromEnd
 
 				])
 	
@@ -61,16 +87,20 @@ class stzSection
 
 				:And,
 
-				:StartingAt, :StartingAtPosition, :StartingAtCharAt,
-				:StartingAtCharAtPosition,
-
-				#--
+				#-- Item instead of Char
 
 				:ToItemAt, :ToItemAtPosition,
 				:UntilItemAt, :UntilItemAtPosition,
 				:UpToItemAt, :UpToItemAtPosition,
-				:StartingAtItemAt, :StartingAtItemAtPosition
 
+				#==
+
+				:Start, :ToStart,
+				:DownTo, :DownToItemAt, :DownToItemAtPosition,
+
+				#-- Item instead of Char
+
+				:DowntoCharAt, :DownToCharAtPosition
 				])
 	
 				n2 = n2[2]
@@ -95,13 +125,13 @@ class stzSection
 			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
 						:NthToLast, :NthToLastChar, :NthToLastItem ])
 	
-				n1 = nLen - n1[2]
+				n1 = nSize - n1[2]
 			ok
 	
 			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
 						:NthToLast, :NthToLastChar, :NthToLastItem ])
 	
-				n2 = nLen - n2[2]
+				n2 = nSize - n2[2]
 	
 			but isList(n2) and Q(n2).IsStoppingAtNamedParam()
 	
@@ -112,6 +142,7 @@ class stzSection
 	
 			if isString(n1)
 				if Q(n1).IsOneOfThese([
+					:Start,
 					:First, :FirstChar,
 					:FromFirst, :FromFirstChar,
 
@@ -132,13 +163,11 @@ class stzSection
 					:LastItem, :ToLastItem
 				])
 
-					n1 = nLen
+					n1 = nSize
 	
 				but n1 = :@
 					n1 = n2
 
-				else
-					n1 = This.FindFirstCS(n1, pCaseSensitive)
 				ok
 			ok
 		
@@ -153,7 +182,7 @@ class stzSection
 
 				])
 
-					n2 = nLen
+					n2 = nSize
 	
 				but Q(n2).IsOneOfThese([
 					:First, :FirstChar,
@@ -170,42 +199,25 @@ class stzSection
 				but n2 = :@
 					n2 = n1
 
-				else
-					nLen2 = StzStringQ(n2).NumberOfChars()
-					n2 = This.FindLastCS(n2, pCaseSensitive) + nLen2 - 1
 				ok
 			ok
 
 			if n1 = :@ and n2 = :@
 				n1 = 1
-				n2 = nLen
-			ok
-	
-			# Managing the case of :EndOfSentence, :EndOfLine, and :EndOfWord keywords
-	
-			if n1 > 0 and n2 = :EndOfSentence
-				return This.ToStzText().ForwardToEndOfSentence( :StartingAt = n1 )
-			ok
-	
-			if n1 > 0 and n2 = :EndOfLine
-				return This.ForwardToEndOfLine( :StartingAt = n1 )
-			ok
-	
-			if n1 > 0 and n2 = :EndOfWord #TODO: should move to stzText?
-				return This.ToStzText().ForwardToEndOfWord( :StartingAt = n1 )
+				n2 = nSize
 			ok
 
-			# Now, params must be numbers
-	
+		ok
 
-			if NOT (isNumber(n1) and n != 0 and isNumber(n2) and n2 != 0)
-				StzRaise("Incorrect params! n1 and n2 must be numbers different from zero.")
-			ok
-	
-			if NOT ( n1 <= nSize and nSize <= n2 )
-				StzRaise("Out of range! nSize must between n1 and n2")
-			ok
+		# Now, params must be numbers
 
+
+		if NOT (isNumber(n1) and n1 != 0 and isNumber(n2) and n2 != 0)
+			StzRaise("Incorrect params! n1 and n2 must be numbers different from zero.")
+		ok
+
+		if NOT ( n1 >= 1 and n2 <= nSize )
+			StzRaise("Out of range! nSize must between n1 and n2")
 		ok
 
 		# Creating the object content
@@ -230,3 +242,34 @@ class stzSection
 
 		def EndPos()
 			return @aContent[2]
+
+	def AddSection(n1, n2)
+		
+	def RemoveSection(n1, n2)
+
+	def AddSections(paSections)
+
+	def RemoveSections(paSections)
+
+	def Extend()
+
+	def ExtendStart()
+
+		def ExtendFromStart()
+			This.ExtendStart()
+
+	def ExtendEnd()
+
+		def ExtendFromEnd()
+			This.ExtendEnd()
+
+	def Shrink()
+
+	def ShringStart()
+
+	def ShringEnd()
+
+	def Section()
+		return This.Content()
+
+	def AntiSection()

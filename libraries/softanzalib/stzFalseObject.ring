@@ -9,7 +9,10 @@ func StzFalseObjectQ()
 	return new stzFalseObject
 
 	func FalseObject()
-		return StzFalseObjectQ()
+		return new stzFalseObject
+
+	func AFalseObject()
+		return new stzFalseObject
 
 #< @ClassMisspelledForms
 

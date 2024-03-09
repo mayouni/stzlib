@@ -1,15 +1,24 @@
 load "stzlib.ring"
 
-o1 = new stzSection(1, 5, :InAListOfSize = 10)
+pron()
 
+? IsSection(:From = :Start, :To = :End, 10)
+#--> TRUE
+
+? Section(:From = :Start, :To = :End, 10)
+#--> [ 1, 5 ]
+
+o1 = new stzSection(:From = :Start, :To = :End, 10)
 ? o1.Content()
 #--> [ 1, 5 ]
 
-? o1.StartPos()
-#--> 1
+o1 = new stzSection(1, 5, 10) # Or stzSection(:From=1, :To=5, :InAListOfSize = 10)
+? o1.Content()
+#--> [ 1, 5 ]
 
-? o1.EndPos()
-#--> 2
+o1 = new stzSection(:From = :EndOfList, :To = :StartOfList, :InAListOfSize = 10)
+? o1.Content()
+#--> [ 1, 5 ]
 
-? o1.Content(:Start, :End)
-
+proff()
+# Executed in 0.06 second(s)
