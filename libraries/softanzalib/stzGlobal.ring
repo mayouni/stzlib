@@ -410,6 +410,9 @@ _acStzCCKeywords = [
 func MainObject() # Used in Chains of truth
 	return _oMainObject
 
+func SetMainObject(p)
+	_oMainObject = p
+
 func These(p)
 	_bThese = TRUE
 	return p
@@ -3264,7 +3267,6 @@ func new_stz(cType, p)
 	func new@stz(cType, p)
 		return stz(cType, p)
 
-
 # Returns the softanza object related to the type of p
 func Q(p)
 
@@ -3291,7 +3293,7 @@ func Q(p)
 		return Q(p)
 
 func QM(p) # Used to nitiate a chain of truth
-	_oMainObject = Q(p)
+	SetMainObject( Q(p) )
 	return _oMainObject
 
 func QR(p, pcType)

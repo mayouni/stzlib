@@ -1,38 +1,31 @@
 load "stzlib.ring"
 
+pron()
+
+? Q("ring").IsReverseOf("gnir")
+#--> TRUE
+
+? Q(1:3).IsReverseOf(3:1)
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s)
+
 /*----
-
+*/
 pron()
 
-aList = [ [1,2,3], [4,5,6], 7:9 ]
+? Q([ -1200, -10200, -820, -10 ]).AreQ(:numbers).ThatQ().AreNegative()
+#--> TRUE
 
-? "List content: " + NL + @@(aList) # Or ListToCode()
-#--> List content: 
-# [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
+? Q([ -1200, -10200, -820, -10 ]).AreQ(:numbers).WhichQ().CanBeDividedBy(10)
+#--> TRUE
+
+? Q([ -1200, -10200, -820, -10 ]).AreQ(:numbers).ThatQ().AreNegativeQ().AndQ().DividableBy(10)
+#--> TRUE
 
 proff()
-
-/*------
-
-pron()
-
-o1 = new stzTable([
-	[ :Company, :Username, :Active, :Email, :EmailValid, :Firstname, :Infix, :Lastname,
-	  :Gender, :2FA_Status, :Last_Login, :Creation_Date, :Accounts, :Roles ]
-])
-
-
-
-o1.FromCSV(str) # Or LoadCSVString()
-o1.FromCSV(file) # Or LoadCSVFile
-
-o1.FromJSON(str) # Or LoadJSONString()
-o1.FromJSONXT(file) # Or LoadJSONFile()
-
-
-o1.Show()
-give any
-proff()
+# Executed in 0.08 second(s)
 
 /*------
 
@@ -132,6 +125,41 @@ pron()
 
 proff()
 # Executed in 0.02 second(s)
+
+
+/*=====
+
+pron()
+
+aList = [ [1,2,3], [4,5,6], 7:9 ]
+
+? "List content: " + NL + @@(aList) # Or ListToCode()
+#--> List content: 
+# [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
+
+proff()
+
+/*------
+
+pron()
+
+o1 = new stzTable([
+	[ :Company, :Username, :Active, :Email, :EmailValid, :Firstname, :Infix, :Lastname,
+	  :Gender, :2FA_Status, :Last_Login, :Creation_Date, :Accounts, :Roles ]
+])
+
+
+
+o1.FromCSV(str) # Or LoadCSVString()
+o1.FromCSV(file) # Or LoadCSVFile
+
+o1.FromJSON(str) # Or LoadJSONString()
+o1.FromJSONXT(file) # Or LoadJSONFile()
+
+
+o1.Show()
+give any
+proff()
 
 /*----------------- #TODO: Check output error "R in g"
 pron()

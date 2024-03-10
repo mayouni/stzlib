@@ -4231,6 +4231,12 @@ class stzNumber from stzObject
 		# Returning the result
 
 		return bResult
+
+		def IsDivisibleBy(n)
+			return This.IsDividableBy(n)
+
+		def CanBeDividedBy(n)
+			return This.IsDividableBy(n)
 			
 	def IsDividorOf(n)	// Main Number and n must be integers!
 		oNumber = new stzNumber(n)

@@ -2526,7 +2526,6 @@ class stzObject
 		ok
 
 	def IsA(pcType)
-
 		/* Example
 
 		? Q([ :name = "mio", :age = 12 ]).IsA(:HashList)
@@ -2544,23 +2543,8 @@ class stzObject
 		ok
 
  
-		if NOT ( @IsRingType(pcType) or @IsRingTypeInPlural(pcType) or
-			 @IsStzType(pcType) or @IsStzTypeInPlural(pcType) )
+		if NOT ( @IsRingType(pcType) or @IsStzType(pcType) )
 			StzRaise("Incorrect param type! pcType must be a Ring type or Softanza type.")
-		ok
-
-		 
-		if @IsRingTypeInPlural(pcType)
-			pcType = "list"
-
-		but @IsStzTypeInPlural(pcType)
-			pcType = "stzlist"
-
-		but @IsRingType(pcType) or @IsStzType(pcType)
-			// do nothing
-
-		else
-			StzRaise("Can't proceed! Unable to infere a type form pcType string.")
 		ok
 		
 		cCode = 'bResult = This.IsA'+ pcType + '()'
@@ -2574,7 +2558,21 @@ class stzObject
 
 			if This.IsA(pcType) = TRUE
 
-				return This
+				if pcType = "number" or pcType = "stznumber"
+					return This.ToStzNumber()
+
+				but pcType = "string" or pcType = "stzstring"
+					return This.ToStzStrig()
+
+				but pcType = "char" or pcType = "stzchar"
+					return This.ToStzChar()
+
+				but pcType = "list" or pcType = "stzlist"
+					return This.ToStzList()
+
+				but pctype = "object" or pcType = "stzobject"
+					return This
+				ok
 			else
 				return AFalseObject()
 			ok
@@ -2595,15 +2593,11 @@ class stzObject
 			def IsQ(pcType)
 				return This.IsAQ(pcType)
 
-		#>
+		def AreA(pcType)
+			return This.IsA(pcType)
 
-	def AreA(pcType)
-		return This.IsA(pcType)
-
-		#< @FunctionAlternativeForms
-
-		def AreAQ(pcType)
-			return This.IsAQ(pcType)
+			def AreAQ(pcType)
+				return This.IsAQ(pcType)
 
 		def AreAn(pcType)
 			return This.IsA(pcType)
@@ -2613,10 +2607,63 @@ class stzObject
 		#>
 
 	def Are(pcType)
-		return This.IsA(pcType)
+		/* Example
+
+		? Q([ 10, 2à, 3à ]).Are(:Numbers)
+
+		--> TRUE
+		*/
+ 
+		if NOT This.IsAList()
+			return FALSE
+		ok
+
+		if NOT ( @IsRingTypeInPlural(pcType) or @IsStzTypeInPlural(pcType) )
+			StzRaise("Incorrect param type! pcType must be a Ring type or Softanza type in plural.")
+		ok
+
+		cCode = 'bResult = This.IsListOf'+ pcType + '()'
+		eval(cCode)
+		return bResult
+
+		#< @FunctionAlternativeForms
 
 		def AreQ(pcType)
-			return This.IsAQ(pcType)
+			if This.Are(pcType) = TRUE
+
+				if pcType = "numbers" or pcType = "stznumbers"
+					return This.ToStzListOfNumbers()
+
+				but pcType = "strings" or pcType = "stzstrings"
+					return This.ToStzListOfStrings()
+
+				but pcType = "chars" or pcType = "stzchars"
+					return This.ToStzListOfChars()
+
+				but pcType = "lists" or pcType = "stzlists"
+					return This.ToStzListOfLists()
+
+				but pctype = "objects" or pcType = "stzobjects"
+					return This.ToStzListOfObjects()
+				ok
+			else
+				return AFalseObject()
+			ok
+
+		def AreQM(pcType)
+			SetMainObject(This)
+			return AreQ(pcType)
+			
+		#>
+
+		def AreAll(pcType)
+			return This.Are(pcType)
+
+			def AreAllQ(pcType)
+				return This.AreQ(pcType)
+
+			def AreAllQM(pcType)
+				return This.AreQM(pcType)
 
 	def AreBothA(pcType)
 
@@ -2802,7 +2849,6 @@ class stzObject
 			return this
 
 		#>
-
 
 	def Me()
 		return This.Content()
