@@ -118,7 +118,7 @@ load "stzRunTime.ring"
 load "stzTextEncoding.ring"
 
 load "stzTextEncodingError.ring"
-load "stzNaturalCode.ring"
+
 load "stzChainOfValue.ring"
 load "stzChainOfTruth.ring"
 load "stzEntity.ring"

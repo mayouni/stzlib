@@ -97,3 +97,26 @@ class stzFalseObject from stzObject
 
 		#>
 
+	def IsDividableBy(n)
+		return FALSE
+
+		def IsDividableByQ(n)
+			return This
+
+		def DividableBy(n)
+			return FALSE
+
+			def DividableByQ(n)
+				return This
+
+		def IsDivisibleBy(n)
+			return FALSE
+
+			def IsDivisibleByQ()
+				return This
+
+		def DivisibleBy(n)
+			return FALSE
+
+			def DivisibleByQ(n)
+				return This

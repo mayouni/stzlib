@@ -6216,3 +6216,118 @@ class stzListOfNumbers from stzList
 			anTemp = This.ToStzList().AddItemQ(pValue).Content()
 			This.Update( anTemp )
 		ok
+
+	def AreNegative()
+		
+		anContent = This.Content()
+		nLen = len(anContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT (0+ anContent[i]) < 0
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def AreNegativeQ()
+			if This.AreNegative()
+				return This
+			else
+				return AFalseObject()
+			ok
+
+		def Nagative()
+			return This.AreNagative()
+
+			def NegaiveQ()
+				return This.AreNegativeQ()
+
+	def ArePositive()
+		
+		anContent = This.Content()
+		nLen = len(anContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT (0+ anContent[i]) > 0
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def ArePositiveQ()
+			if This.ArePositive()
+				return This
+			else
+				return AFalseObject()
+			ok
+
+		def Positive()
+			return This.ArePositive()
+
+			def PositiveQ()
+				return This.ArePositiveQ()
+
+	def IsDividableBy(n)
+		
+		anContent = This.Content()
+		nLen = len(anContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( (0+ anContent[i]) % n = 0 )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionFluentForm
+
+		def IsDividableByQ(n)
+			if This.IsDividableBy(n)
+				return This
+			else
+				return AFalseObject()
+			ok
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def DividableBy(n)
+			return This.IsDividableBy(n)
+
+			def DividableByQ(n)
+				return This.IsDividableByQ(n)
+
+		#--
+
+		def IsDivisibleBy(n)
+			return This.IsDividableBy(n)
+
+			def IsDivisibleByD(n)
+				return This.IsDividableByQ(n)
+
+		#==
+
+		def CanBeDividedBy(n)
+			return This.IsDividableBy(n)
+
+			def CanBiDividedByQ(n)
+				return This.IsDividableByQ(n)
+
+		def CanBeDivisedBy(n)
+			return This.IsDividableBy(n)
+
+			def CanBeDivisedByQ(n)
+				return This.IsDividableByQ(n)	

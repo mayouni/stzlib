@@ -69766,7 +69766,7 @@ ici		//...
 	 #  CHECKING IF THE STRING IS A REVERSED COPY OF AN OTHER STRING  #
 	#----------------------------------------------------------------#
 
-	def IsAReversedCopyOf(pcOtherStr)
+	def IsReverseOf(pcOtherStr)
 
 		if This.Reversed() = pcOtherStr
 			return TRUE
@@ -69777,13 +69777,29 @@ ici		//...
 		#< @FunctionAlternativeForms
 
 		def IsReversedCopyOf(pcOtherStr)
-			return This.IsAReversedCopyOf(pcOtherStr)
+			return This.IsReverseOf(pcOtherStr)
+
+		def IsAReversedCopyOf(pcOtherStr)
+			return This.IsReverseOf(pcOtherStr)
+
+		#--
+
+		def IsInverseOf(pcOtherStr)
+			return This.IsReverseOf(pcOtherStr)
+		
+		def IsInversedCopyOf(pcOtherStr)
+			return This.IsReverseOf(pcOtherStr)
 
 		def IsAnInversedCopyOf(pcOtherStr)
-			return This.IsAReversedCopyOf(pcOtherStr)
+			return This.IsReverseOf(pcOtherStr)
+
+		#--
 
 		def IsInvertedCopyOf(pcOtherStr)
-			return This.IsAReversedCopyOf(pcOtherStr)
+			return This.IsReverseOf(pcOtherStr)
+
+		def IsAnInvertedCopyOf(pcOtherStr)
+			return This.IsReverseOf(pcOtherStr)
 
 		#>
 

@@ -23944,7 +23944,7 @@ class stzList from stzObject
 	 #  CHECKING IF THE LIST IS THE REVERSE OF AN OTHER LIST  #
 	#--------------------------------------------------------#
 
-	def IsReverseOf(paOtherList)
+	def IsReverseOf(paOtherList) #TODO: check performance
 		if NOT isList(paOtherList)
 			StzRaise("Incorrect param type! paOtherList must be a list.")
 		ok
@@ -23952,7 +23952,7 @@ class stzList from stzObject
 		nLen = This.NumberOfItems()
 		nLenOtherList = len(paOtherList)
 
-		if nLen != nOtherList
+		if nLen != nLenOtherList
 			return FALSE
 		ok
 
@@ -23968,7 +23968,13 @@ class stzList from stzObject
 
 		return bResult
 
-		def IsReverse(paOtherList)
+		def IsReversedCopyOf(paOtherList)
+			return This.IsReverseOf(paOtherList)
+
+		def IsInverseOf(paOtherList)
+			return This.IsReverseOf(paOtherList)
+
+		def IsInversedCopyOf(paOtherList)
 			return This.IsReverseOf(paOtherList)
 
 	  #-------------------------------------#
