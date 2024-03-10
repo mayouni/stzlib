@@ -86,18 +86,20 @@ pron()
 
 # "Ring" and "Ruby" are both strings having their first char equal to "R"
 
-? Q([ "Ring", :and = "Ruby" ]).
-	AreBothQ(:strings).HavingQ().TheirQ().FirstCharQ().EqualTo("R")
+? Q([ "Ring", :and = "Ruby" ]).AreBothQ(:strings).HavingQ().TheirQ().FirstCharQ().EqualTo("R")
+#--> TRUE
 
 # "Ring" and "ruby" are two strings having their first char (watver case it has) equal to the letter "R"
 
 ? Q([ "Ring", :and = "ruby" ]).
-	BothAreQ(:strings).HavingQ().TheirQ().FirstCharCSQ(WhatEverCaseItHas).EqualTo(TheLetter("R"))
+  BothAreQ(:strings).HavingQ().TheirQ().FirstCharCSQ(WhatEverCaseItHas).EqualTo(TheLetter("R"))
+#-> TRUE
 
 # "Ring" and "Bing" are two strings having their first char equal to "R" and last char equal to "g"
 
 ? QM([ "Ring", :and = "Bing" ]).
-	AreTwoQ(:strings).HavingQ().TheirQ().FirstCharQ().EqualToQ("R").AndQM().LastCharQ().EqualTo("g")
+  AreTwoQ(:strings).HavingQ().TheirQ().FirstCharQ().EqualToQ("R").AndQM().LastCharQ().EqualTo("g")
+#-> TRUE
 
 # "Ring" and "Bing" are two strings having their first char and last char equal respectively to "R" and "g"
 
@@ -105,13 +107,15 @@ proff()
 # Executed in 0.04 second(s)
 /*------
 
-IsLowerCase
+InLowerCase
 Contains
 Having
 FirstChar
 IsEqual
 LastChar
 */
+pron()
+
 ? QM("ring").IsAQ(:String).
 	InLowercaseQ().
 	ContainingQ( TheLetter("i") ).
@@ -126,14 +130,9 @@ LastChar
 	AndQM().Lastchar() = "G"
 #--> TRUE
 
-/*
-? QM("ring").IsAQ(:String).
-	InLowercaseQ().
-	ContainingQ( TheLetter("g") ).
-	HavingQ().FirstCharQ() = Q("r").
-	AndQM().Lastchar() = "g"
-*/
 proff()
+# Executed in 0.02 second(s)
+
 /*----------------- #TODO: Check output error "R in g"
 pron()
 
