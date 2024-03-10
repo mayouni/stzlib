@@ -45,7 +45,7 @@ Q("hi")
 proff()
 # Executed in 0.01 second(s)
 
-/*=======
+/*======= #natural-coding #semantic-eloquence
 
 pron()
 
@@ -57,8 +57,8 @@ pron()
 proff()
 # Executed in 0.05 second(s)
 
-/*------ #natural-coding #semantic-eloquence
-*/
+/*------
+
 pron()
 
 ? Q("ring").IsAQ(:String).InLowercase() 		#--> TRUE
@@ -66,10 +66,43 @@ pron()
 ? Q("ring").IsAQ(:String).Which().IsInLowercase()	#--> TRUE
 ? Q("ring").IsAQ(:String).Which().IsLowercase()		#--> TRUE
 
-? Q([ "Ring", "Ruby" ]).AreBothQ(:Strings).HavingQ().TheirQ().FirstCharQ().EqualTo("R")
+proff()
+# Executed in 0.02 second(s)
+
+/*------
+
+pron()
+
+? PluralToStzType("stzstrings")
+#--> stzstring
+
 
 proff()
+# Executed in 0.01 second(s)
 
+/*------
+*/
+pron()
+
+# "Ring" and "Ruby" are both strings having their first char equal to "R"
+
+? Q([ "Ring", :and = "Ruby" ]).
+	AreBothQ(:strings).HavingQ().TheirQ().FirstCharQ().EqualTo("R")
+
+# "Ring" and "ruby" are two strings having their first char (watver case it has) equal to the letter "R"
+
+? Q([ "Ring", :and = "ruby" ]).
+	BothAreQ(:strings).HavingQ().TheirQ().FirstCharCSQ(WhatEverCaseItHas).EqualTo(TheLetter("R"))
+
+# "Ring" and "Bing" are two strings having their first char equal to "R" and last char equal to "g"
+
+? QM([ "Ring", :and = "Bing" ]).
+	AreTwoQ(:strings).HavingQ().TheirQ().FirstCharQ().EqualToQ("R").AndQM().LastCharQ().EqualTo("g")
+
+# "Ring" and "Bing" are two strings having their first char and last char equal respectively to "R" and "g"
+
+proff()
+# Executed in 0.04 second(s)
 /*------
 
 IsLowerCase
@@ -90,7 +123,7 @@ LastChar
 	InUppercaseQ().
 	ContainingQ( TheLetter("N") ).
 	HavingQ().FirstCharQ().EqualToQ("R").
-	AndQ().QM().Lastchar() = "G"
+	AndQM().Lastchar() = "G"
 #--> TRUE
 
 /*

@@ -64,3 +64,6 @@ class stzNullObject from stzObject
 
 		def ISEqualTo(p)
 			return FALSE
+
+	def StzType()
+		return :stzNullObject

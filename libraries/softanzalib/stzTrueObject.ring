@@ -37,3 +37,6 @@ class stzTrueObject from stzObject
 
 		def ISEqualTo(p)
 			return TRUE
+
+	def StzType()
+		return :stzTrueObject

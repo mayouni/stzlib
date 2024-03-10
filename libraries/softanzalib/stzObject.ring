@@ -674,7 +674,13 @@ func StzClassesXT()
 		[ :stzFalseObject,		:stzFalsebjects		],
 		[ :stzTrueObject,		:stzTruebjects		],
 
-		[ :stzExtCode,			:stzExtCodes		]
+		[ :stzExtCode,			:stzExtCodes		],
+		
+		[ :stzSection,			:stzSections		],
+
+		[ :stzNullObject,		:stzNullObjects		],
+		[ :stzTrueObject,		:stzTrueObjects		],
+		[ :stzFalseObjects,		:stzFalseObjects	]
 	]
 
 	return aStzClassesXT
@@ -684,6 +690,139 @@ func StzClassesXT()
 
 	func StzClassesAndTheirPluralForm()
 		return StzClassesXT()
+
+	
+func PluralOfRingType(cType)
+	if CheckParams()
+		if NOT IsString(cPlural)
+			StzRaise("Incorrect param type! cPlural must be a string.")
+		ok
+	ok
+
+	if NOT IsRingType(cType)
+		StzRaise("Incorrect param! cType is not a valid Ring type.")
+	ok
+
+	cType = lower(cType)
+	acRingTypesXT = RingTypesXT()
+	nLen = len(acRingTypesXT)
+
+	cResult = ""
+	for i = 1 to nLen
+		if acRingTypesXT[i][1] = cType
+			cResult = acRingTypesXT[i][2]
+			exit
+		ok
+	next
+
+	if cResult = ""
+		StzRaise("Can't get a plural of a Ring type form string!")
+	else
+		return cResult
+	ok
+
+func RingTypesPlurals()
+	acResult = []
+	aRingTypesXT = RingTypesXT()
+	nLen = len(aRingTypesXT)
+
+	for i = 1 to nLen
+		acResult + aRingTypesXT[i][2]
+	next
+
+	return acResult
+
+	func PluralsOfRingTypes()
+		return RingTypesPlurals()
+
+func IsPluralOfRingType(cPlural)
+	if CheckParams()
+		if NOT IsString(cPlural)
+			StzRaise("Incorrect param type! cPlural must be a string.")
+		ok
+	ok
+
+	cPlural = lower(cPlural)
+	acRingTypesPlurals = RingTypesPlurals()
+	nLen = len(acRingTypesPlurals)
+
+	bResult = FALSE
+
+	for i = 1 to nLen
+		if acRingTypesPlurals[i] = cPlural
+			bResult = TRUE
+			exit
+		ok
+	next
+
+	return bResult
+
+	#< @FunctionAlternativeForms
+
+	func IsRingTypePlural(cPlural)
+		return IsPluralOfRingType(cPlural)
+
+	func IsPluralOfARingType(cPlural)
+		return IsPluralOfRingType(cPlural)
+
+	func IsARingTypePlural(cPlural)
+		return IsPluralOfRingType(cPlural)
+
+	func IsRingTypeInPlural(cPlural)
+		return IsPluralOfRingType(cPlural)
+
+	func IsARingTypInePlural(cPlural)
+		return IsPluralOfRingType(cPlural)
+	#--
+
+	func @IsPluralOfRingType(cPlural)
+		return IsPluralOfRingType(cPlural)
+
+	func @IsRingTypePlural(cPlural)
+		return IsPluralOfRingType(cPlural)
+
+	func @IsPluralOfARingType(cPlural)
+		return IsPluralOfRingType(cPlural)
+
+	func @IsARingTypePlural(cPlural)
+		return IsPluralOfRingType(cPlural)
+
+	func @IsRingTypeInPlural(cPlural)
+		return IsPluralOfRingType(cPlural)
+
+	func @IsARingTypInePlural(cPlural)
+		return IsPluralOfRingType(cPlural)
+
+	#>
+	
+func RingTypesXT()
+	return _aRingTypesXT
+	
+func PluralToRingType(cPlural)
+	if CheckParams()
+		if NOT isString(cPlural)
+			StzRaise("Incorrect param type! cPlural must be a string.")
+		ok
+	ok
+
+	cPlural = lower(cPlural)
+	acRingTypesXT = RingTypesXT()
+	nLen = len(acRingTypesXT)
+
+	cResult = ""
+
+	for i = 1 to nLen
+		if acRingTypesXT[i][2] = cPlural
+			cResult = acRingTypesXT[i][1]
+			exit
+		ok
+	next
+
+	if cResult = ""
+		StzRaise("Plural does not exist or can't be be found!")
+	else
+		return cResult
+	ok
 
 func PluralOfStzClassName(cClass)
 
@@ -719,11 +858,146 @@ func PluralOfStzClassName(cClass)
 
 	#>
 
-func PluralToStzType(cPlural)
+func StzClassesPlurals()
+	acResult = []
 
-	oHash = new stzHashList( StzTypesXT() )
-	n = oHash.FindFirstValue(cPlural)
-	cResult = oHash.NthKey(n)
+	acClassesXT = StzClassesXT()
+	nLen = len(acClassesXT)
+
+	for i = 1 to nLen
+		acResult + acClassesXT[i][2]
+	next
+
+	return acResult
+
+	def PluralsOfStzClasses()
+		return StzClassesPlurals()
+
+	def PluralsOfStzClassesNames()
+		return StzClassesPlurals()
+
+	def StzTypesPlurals()
+		return StzClassesPlurals()
+
+	def PluralsOfStzTypes()
+		return StzClassesPlurals()
+
+func IsPluralOfAStzType(cPlural)
+	if CheckParams()
+		if NOT isString(cPlural)
+			StzRaise("Incorrect param! cPlural must be a string.")
+		ok
+	ok
+
+	cPlural = lower(cPlural)
+	acPlurals = StzClassesPlurals()
+	nLen = len(acPlurals)
+
+	if find(acPlurals, cPlural) > 0
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func IsPluralOfStzType(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func IsStzTypePlural(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func IsPluralOfAStzClass(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func IsPluralOfStzClass(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func IsStzClassPlural(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func IsPluralOfAStzClassName(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func IsPluralOfStzClassName(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func IsStzClassNamePlural(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	#--
+
+	func IsStzTypeInPlural(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func IsAStzTypeInPlural(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	#==
+
+	func @IsPluralOfAStzType(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func @IsPluralOfStzType(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func @IsStzTypePlural(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func @IsPluralOfAStzClass(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func @IsPluralOfStzClass(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func @IsStzClassPlural(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func @IsPluralOfAStzClassName(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func @IsPluralOfStzClassName(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func @IsStzClassNamePlural(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	#--
+
+	func @IsStzTypeInPlural(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	func @IsAStzTypeInPlural(cPlural)
+		return IsPluralOfAStzType(cPlural)
+
+	#>
+
+func PluralToStzType(cPlural)
+	if CheckParams()
+		if NOT isString(cPlural)
+			StzRaise("Incorrect param! cPlural must be a string.")
+		ok
+	ok
+
+	cPlural = lower(cPlural)
+	
+	acTypesXT = StzTypesXT()
+
+	nLen = len(acTypesXT)
+
+	cResult = ""
+
+	for i = 1 to nLen
+		if acTypesXT[i][2] = cPlural
+			cResult = acTypesXT[i][1]
+			exit
+		ok
+	next
+
+	if cResult = ""
+		StzRaise("Not a plural of a stzType or can't find it!")
+	ok
+
 	return cResult
 
 	#< @FunctionAlternativeForms
@@ -2269,86 +2543,37 @@ class stzObject
 			ok
 		ok
 
-		if NOT ( @IsRingType(pcType) or @IsStzType(pcType) )
-			StzRaise("Incorrect param type! pcType must be a Ring or Softanza type.")
+ 
+		if NOT ( @IsRingType(pcType) or @IsRingTypeInPlural(pcType) or
+			 @IsStzType(pcType) or @IsStzTypeInPlural(pcType) )
+			StzRaise("Incorrect param type! pcType must be a Ring type or Softanza type.")
 		ok
-/*
-		if pcType = :Number
-			pcType = :ANumber
 
-		but pcType = :String
-			pcType = :AString
+		 
+		if @IsRingTypeInPlural(pcType)
+			pcType = "list"
 
-		but pcType = :List
-			pcType = :AList
+		but @IsStzTypeInPlural(pcType)
+			pcType = "stzlist"
 
-		but pcType = :Object
-			pcType = :AnObject
+		but @IsRingType(pcType) or @IsStzType(pcType)
+			// do nothing
 
-		#==
-
-		but pcType = :StzNumber
-			pcType = :AStzNumber
-
-		but pcType = :StzString
-			pcType = :AStzString
-
-		but pcType = :StzList
-			pcType = :AStzList
-
-		but pcType = :StzObject
-			pcType = :AStzObject
-
-		#--
-
-		but pcType = :StzChar
-			pcType = :AStzChar
-
-		but pcType = :StzText
-			pcType = :AStzText
-
-		but pcType = :StzBinaryNumber
-			pcType = :AStzBinaryNumber
-
-		but pcType = :StzDecimalNumber
-			pcType = :AStzDecimalNumber
-
-		but pcType = :StzHexNumber
-			pcType = :AStzHexNumber
-
-		but pcType = :StzOctalNumber
-			pcType = :AStzOctalNumber
-
-		but pcType = :StzSet
-			pcType = :AStzSet
-
-		but pcType = :StzPair
-			pcType = :AStzPair
-
-		but pcType = :StzHashList
-			pcType = :AStzHashList
-
-		but pcType = :StzTree
-			pcType = :AStzTree
-
-		but pcType = :StzGrid
-			pcType = :AStzGrid
-
-		but pcType = :StzTable
-			pcType = :AStzTable
-
+		else
+			StzRaise("Can't proceed! Unable to infere a type form pcType string.")
 		ok
-*/
 		
 		cCode = 'bResult = This.IsA'+ pcType + '()'
-		
+	
 		eval(cCode)
 		return bResult
 
 		#< @FunctionFluentForm
 
 		def IsAQ(pcType)
+
 			if This.IsA(pcType) = TRUE
+
 				return This
 			else
 				return AFalseObject()
@@ -2370,64 +2595,107 @@ class stzObject
 			def IsQ(pcType)
 				return This.IsAQ(pcType)
 
-		#--
+		#>
 
-		def AreA(pcType)
-			return This.IsA(pcType)
+	def AreA(pcType)
+		return This.IsA(pcType)
 
-			def AreAQ(pcType)
-				return This.IsAQ(pcType)
+		#< @FunctionAlternativeForms
+
+		def AreAQ(pcType)
+			return This.IsAQ(pcType)
 
 		def AreAn(pcType)
 			return This.IsA(pcType)
 
 			def AreAnQ(pcType)
 				return This.IsAQ(pcType)
+		#>
 
-		def Are(pcType)
-			return This.IsA(pcType)
+	def Are(pcType)
+		return This.IsA(pcType)
 
-			def AreQ(pcType)
-				return This.IsAQ(pcType)
+		def AreQ(pcType)
+			return This.IsAQ(pcType)
 
-		def AreBothA(pcType)
-			return This.IsA(pcType)
+	def AreBothA(pcType)
 
-			def AreBothAQ(pcType)
-				return This.IsAQ(pcType)
+		if NOT (This.StzType() = "stzlist" and This.NumberOfItems() = 2)
+			return AFalseObject()
+		ok
 
-		def AreBothAn(pcType)
-			return This.IsA(pcType)
+		item1 = This.Content()[1]
+		item2 = This.Content()[2]
+		if isList(item2) and Q(item2).IsAndNamedParam()
 
-			def AreBothAnQ(pcType)
-				return This.IsAQ(pcType)
+			item2 = item2[2]
+		ok
 
-		def AreBoth(pcType)
-			return This.IsA(pcType)
+		This.UpdateWith([ item1, item2 ])
 
-			def AreBothQ(pcType)
-				return This.IsAQ(pcType)
+		return This.IsA(pcType)
 
-		def BothAreA(pcType)
-			return This.IsA(pcType)
+		#< @FunctionFluentForm
 
-			def BothAreAQ(pcType)
-				return This.IsAQ(pcType)
-
-		def BothAreAn(pcType)
-			return This.IsA(pcType)
-
-			def BothAreAnQ(pcType)
-				return This.IsAQ(pcType)
-
-		def BothAre(pcType)
-			return This.IsA(pcType)
-
-			def BothAreQ(pcType)
-				return This.IsAQ(pcType)
+		def AreBothAQ(pcType)
+			if NOT (This.StzType() = "stzlist" and This.NumberOfItems() = 2)
+				return AFalseObject()
+			ok
+	
+			item1 = This.Content()[1]
+			item2 = This.Content()[2]
+			if isList(item2) and Q(item2).IsAndNamedParam()
+	
+				item2 = item2[2]
+			ok
+	
+			This.UpdateWith([ item1, item2 ])
+	
+			return This.IsAQ(pcType)
 
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def AreBothAn(pcType)
+			return This.AreBothA(pcType)
+
+			def AreBothAnQ(pcType)
+				return This.AreBothAQ(pcType)
+
+		def AreBoth(pcType)
+			return This.AreBothA(pcType)
+
+			def AreBothQ(pcType)
+				return This.AreBothAQ(pcType)
+
+		def BothAreA(pcType)
+			return This.AreBothA(pcType)
+
+			def BothAreAQ(pcType)
+				return This.AreBothAQ(pcType)
+
+		def BothAreAn(pcType)
+			return This.AreBothA(pcType)
+
+			def BothAreAnQ(pcType)
+				return This.AreBothAQ(pcType)
+
+		def BothAre(pcType)
+			return This.AreBothA(pcType)
+
+			def BothAreQ(pcType)
+				return This.AreBothAQ(pcType)
+
+		#--
+
+		def AreTwo(pcType)
+			return AreBothA(pcType)
+
+			def AreTwoQ(pcType)
+				return AreBothAQ(pcType)
+
+		#>
 
 	def WhichQ()
 		return This
