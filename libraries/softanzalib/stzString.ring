@@ -38250,7 +38250,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		cContent = This.Content()
 
 		if IsCaseSensitive(pCaseSensitive) = FALSE
-			pcOtherStr = lowercase(pcOtherStr)
+			pcOtherStr = lower(pcOtherStr)
 			cContent = This.Lowercased()
 		ok
 

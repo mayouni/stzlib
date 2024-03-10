@@ -24,6 +24,18 @@ Programming, by Heart! By: M.Ayouni╭
  ///  GLOBALS VARIABLES  ///
 ///////////////////////////
 
+WhatEverCaseItHas = FALSE # Used in natural-coding
+
+_aRingTypes = [ :number, :string, :char, :list, :object, :cobject ]
+
+_aRingTypesXT = [
+		[ "number", "numbers" ],
+		[ "string", "strings" ],
+		[ "char", "chars" ],
+		[ "list", "lists" ],
+		[ "object", "objects" ]
+	]
+
 @ = 0
 
 _oMainObject = ANullObject() # Used for chains of truth
@@ -38,8 +50,6 @@ _bParamCheck = TRUE # Activates the "# Checking params region" in softanza funct
 		     # Use the SetParamCheckingTo(FALSE)
 
 _time0 = 0 # Used by StartProfiler() and StopProfiler() functions
-
-_aRingTypes = [ :number, :string, :list, :object, :cobject ]
 
 cCacheFileName = "stzcache.txt"
 _CacheFileHandler = NULL
@@ -2423,7 +2433,7 @@ func IsStzType(pcStr)
 		ok
 	ok
 
-	acTypes = SyzTypes() # Assumes they are lowercase strings
+	acTypes = StzTypes() # Assumes they are lowercase strings
 
 	if find(acTypes, pcStr) > 0
 		return TRUE

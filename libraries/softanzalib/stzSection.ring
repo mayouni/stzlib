@@ -273,3 +273,6 @@ class stzSection
 		return This.Content()
 
 	def AntiSection()
+
+	def StzType()
+		return :stzSection

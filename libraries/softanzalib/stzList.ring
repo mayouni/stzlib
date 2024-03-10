@@ -42588,6 +42588,154 @@ class stzList from stzObject
 		def StzClass()
 			return This.ClassName()
 
+	#==
+
+	# A special function that works for a list of strings, and
+	# returns their first char if all the strings have the same
+	# char ~> made in the exploration of natural-coding semantics
+
+	# TODO: Think a more general solution for calling any method
+	# on any item of the list whatever type it has!
+
+	def FirstCharCS(pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzList([ "Ring", "Ruby", "Rust", "Red" ])
+		? o1.FirstChar()
+		#-> "R"
+
+		*/
+
+		if NOT This.IsListOfStrings()
+			return
+		ok
+
+		acContent = This.ToListOfStzStrings()
+		nLen = len(acContent)
+
+		if nLen = 1
+			return acContent[1].FirstChar()
+
+		but nLen = 2
+			if acContent[1].FirstCharQ().IsEqualToCS(acContent[2].FirstChar(), pCaseSensitive)
+				return acContent[1].FirstChar()
+			else
+				return NULL
+			ok
+		ok
+
+		cResult = acContent[1].FirstChar()
+
+		for i = 2 to nLen
+			if NOT acContent[i].FirstCharQ().IsEqualToCS(cResult, pCaseSensitive)
+				return NULL
+			ok 
+		next
+
+		return cResult
+
+		def FirstCharCSQ(pCaseSensitive)
+			
+			if This.FirstCharCS(pCaseSensitive) = ""
+				return AFalseObject()
+			else
+				return new stzString(This.FirstCharCS(pCaseSensitive))
+			ok
+
+	def FirstChar()
+		return This.FirstCharCS(TRUE)
+
+		def FirstCharQ()
+			return This.FirstCharCSQ(TRUE)
+
+
+	#===
+
+	def LastCharCS(pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzList([ "Ring", "Bing", "Wong" ])
+		? o1.LastChar()
+		#-> "g"
+
+		*/
+
+		if NOT This.IsListOfStrings()
+			return
+		ok
+
+		acContent = This.ToListOfStzStrings()
+		nLen = len(acContent)
+
+		if nLen = 1
+			return acContent[1].LastChar()
+
+		but nLen = 2
+			if acContent[1].LAstCharQ().IsEqualToCS(acContent[2].LastChar(), pCaseSensitive)
+				return acContent[1].LastChar()
+			else
+				return NULL
+			ok
+		ok
+
+		cResult = acContent[1].LastChar()
+
+		for i = 2 to nLen
+			if NOT acContent[i].LastCharQ().IsEqualToCS(cResult, pCaseSensitive)
+				return NULL
+			ok 
+		next
+
+		return cResult
+
+		def LAstCharCSQ(pCaseSensitive)
+			
+			if This.LastCharCS(pCaseSensitive) = ""
+				return AFalseObject()
+			else
+				return new stzString(This.LastCharCS(pCaseSensitive))
+			ok
+
+	def LastChar()
+		return This.LastCharCS(TRUE)
+
+		def LastCharQ()
+			return This.LastCharCSQ(TRUE)
+
+	#===
+
+	def ToListOfStzStrings()
+		if NOT This.IsListOfStrings()
+			StzRaise("Can't proceed! All items must be strings.")
+		ok
+
+		acContent = This.Content()
+		nLen = len(acContent)
+
+		aoResult = []
+
+		for i = 1 to nLen
+			aoResult + new stzString(acContent[i])
+		next
+
+		return aoResult
+
+		def ToListOfStzStringsQ()
+			return This.ToListOfStzStringsQR(:stzList)
+
+		def ToListOfStzStringsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.ToListOfStzStrings() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.ToListOfStzStrings() )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.ToListOfStzStrings() )
+
+			off
+
 	  #===========================================#
 	 #   CHECKING IF THE LIST IS A NAMED PARAM   #
 	#===========================================#
