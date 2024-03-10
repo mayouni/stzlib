@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+pron()
+
 # Let's consider this natural language sentence:
 
 # "Unless you have a photographic memory, repetition is vital"
@@ -33,6 +35,8 @@ StzNaturalCodeQ() {
 	Ask( _("repetition") ) #--> _("vital")
 }
 
+proff()
+
 /*-----------------------
 */
 NaturalCode() {
@@ -53,7 +57,6 @@ NaturalCode() {
 
 	# :Moon taking the floor
 	
-
 	Say('
 		SetTalker(:Moon).TalkingTo(:Moon)	# Or SetMonolog(:Moon)
 
