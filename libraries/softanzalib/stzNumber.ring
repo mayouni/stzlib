@@ -5778,6 +5778,9 @@ class stzNumber from stzObject
 	def IsAnObject()
 		return TRUE
 
+		def IsAObject()
+			return TRUE
+
 		def IsNotAnObject()
 			return TRUE
 

@@ -1,5 +1,18 @@
 load "stzlib.ring"
 
+/*------
+
+pron()
+
+Q("hi")
+? MainObject().Content()
+#--> "hi"
+
+proff()
+# Executed in 0.01 second(s)
+
+/*----
+
 pron()
 
 ? Q("ring").IsReverseOf("gnir")
@@ -11,8 +24,19 @@ pron()
 proff()
 # Executed in 0.02 second(s)
 
-/*----
-*/
+
+/*======= #natural-coding #semantic-eloquence
+
+pron()
+
+? Q("ring").IsA([ m(:Lowercase), :String ])
+
+//? Q("ring").IsTheQ([ :Lowercase, :string ]).WhichQ().IsTheReverseOf("gnir")
+
+proff()
+
+/*-----------
+
 pron()
 
 ? Q([ -1200, -10200, -820, -10 ]).AreQ(:numbers).ThatQ().AreNegative()
@@ -27,18 +51,7 @@ pron()
 proff()
 # Executed in 0.08 second(s)
 
-/*------
-
-pron()
-
-Q("hi")
-? MainObject().Content()
-#--> "hi"
-
-proff()
-# Executed in 0.01 second(s)
-
-/*======= #natural-coding #semantic-eloquence
+/*-----------
 
 pron()
 
@@ -60,7 +73,7 @@ pron()
 ? Q("ring").IsAQ(:String).Which().IsLowercase()		#--> TRUE
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.08 second(s)
 
 /*------
 
@@ -69,9 +82,23 @@ pron()
 ? PluralToStzType("stzstrings")
 #--> stzstring
 
-
 proff()
 # Executed in 0.01 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzListOfStrings([ "Ring", "Ruby" ])
+? o1.FirstChar()
+#--> "R"
+
+o1 = new stzListOfStrings([ "Ring", "Bing" ])
+? o1.LastChar()
+#--> "g"
+
+proff()
+# Executed in 0.03 second(s)
 
 /*------
 */
@@ -90,8 +117,9 @@ pron()
 
 # "Ring" and "Bing" are two strings having their first char equal to "R" and last char equal to "g"
 
-? QM([ "Ring", :and = "Bing" ]).
-  AreTwoQ(:strings).HavingQ().TheirQ().FirstCharQ().EqualToQ("R").AndQM().LastCharQ().EqualTo("g")
+? Q([ "Ring", :and = "Bing" ]).
+  AreBothQ(:strings).
+HavingQM().TheirQ().FirstCharsQ().InUppercaseQ().AndQ().TheirQM().LastCharQ().EqualTo("g")
 #-> TRUE
 
 # "Ring" and "Bing" are two strings having their first char and last char equal respectively to "R" and "g"

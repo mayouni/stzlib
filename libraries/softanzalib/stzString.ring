@@ -69801,6 +69801,27 @@ ici		//...
 		def IsAnInvertedCopyOf(pcOtherStr)
 			return This.IsReverseOf(pcOtherStr)
 
+		#==
+
+		def IsTheReverseOf(pcOtherStr)
+			return This.IsReverseOf(pcOtherStr)
+
+		def IsTheReversedCopyOf(pcOtherStr)
+			return This.IsReverseOf(pcOtherStr)
+
+		#--
+
+		def IsTheInverseOf(pcOtherStr)
+			return This.IsReverseOf(pcOtherStr)
+		
+		def IsTheInversedCopyOf(pcOtherStr)
+			return This.IsReverseOf(pcOtherStr)
+
+		#--
+
+		def IsTheInvertedCopyOf(pcOtherStr)
+			return This.IsReverseOf(pcOtherStr)
+
 		#>
 
 	  #-------------------------------------------------------------#
@@ -72272,6 +72293,9 @@ ici		//...
 
 	def IsAnObject()
 		return TRUE
+
+		def IsAObject()
+			return TRUE
 
 		def IsNotAnObject()
 			return FALSE

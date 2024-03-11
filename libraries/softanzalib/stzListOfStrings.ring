@@ -19921,3 +19921,149 @@ stop()
 
 		def FindAllSubStreaks()
 			return This.FindSubStreaks()
+
+
+	#==
+
+	# A special function that works for a list of strings, and
+	# returns their first char if all the strings have the same
+	# char ~> made in the exploration of natural-coding semantics
+
+	# TODO: Think a more general solution for calling any method
+	# on any item of the list whatever type it has!
+
+	def FirstCharCS(pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzList([ "Ring", "Ruby", "Rust", "Red" ])
+		? o1.FirstChar()
+		#-> "R"
+
+		*/
+
+		acContent = This.ToListOfStzStrings()
+		nLen = len(acContent)
+
+		cResult = acContent[1].FirstChar()
+
+		for i = 2 to nLen
+			if NOT acContent[i].FirstCharQ().IsEqualToCS(cResult, pCaseSensitive)
+				return NULL
+			ok 
+		next
+
+		return cResult
+
+		def FirstCharCSQ(pCaseSensitive)
+			
+			if This.FirstCharCS(pCaseSensitive) = ""
+				return AFalseObject()
+			else
+				return new stzString(This.FirstCharCS(pCaseSensitive))
+			ok
+
+	def FirstChar()
+		return This.FirstCharCS(TRUE)
+
+		def FirstCharQ()
+			return This.FirstCharCSQ(TRUE)
+
+	#===
+
+	def LastCharCS(pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzList([ "Ring", "Bing", "Wong" ])
+		? o1.LastChar()
+		#-> "g"
+
+		*/
+
+		acContent = This.ToListOfStzStrings()
+		nLen = len(acContent)
+
+		cResult = acContent[1].LastChar()
+
+		for i = 2 to nLen
+			if NOT acContent[i].LastCharQ().IsEqualToCS(cResult, pCaseSensitive)
+				return NULL
+			ok 
+		next
+
+		return cResult
+
+		def LastCharCSQ(pCaseSensitive)
+			
+			if This.LastCharCS(pCaseSensitive) = ""
+				return AFalseObject()
+			else
+				return new stzString(This.LastCharCS(pCaseSensitive))
+			ok
+
+	def LastChar()
+		return This.LastCharCS(TRUE)
+
+		def LastCharQ()
+			return This.LastCharCSQ(TRUE)
+
+	#==
+
+	def FirstChars()
+		acContent = This.ToListOfStzStrings()
+		nLen = len(acContent)
+
+		acResult = []
+		
+		for i = 1 to nLen
+			acResult + acContent[i].FirstChar()
+		next
+
+		return acResult
+
+		def FirstCharsQ()
+			return new stzList(This.FirstChars())
+
+		def FirstCharsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.FirstChars())
+
+			on :stzListOfChars
+				return new stzListOrChars(This.FirstChars())
+
+			on :stzListOfStrings
+				return new stzListOfStrings(This.FirstChars())
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+	def LastChars()
+		acContent = This.ToListOfStzStrings()
+		nLen = len(acContent)
+
+		acResult = []
+		
+		for i = 1 to nLen
+			acResult + acContent[i].LastChar()
+		next
+
+		return acResult
+
+		def LastCharsQ()
+			return new stzList(This.LastChars())
+
+		def LastCharsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.LastChars())
+
+			on :stzListOfChars
+				return new stzListOrChars(This.LastChars())
+
+			on :stzListOfStrings
+				return new stzListOfStrings(This.LastChars())
+
+			other
+				StzRaise("Unsupported return type!")
+			off

@@ -2495,8 +2495,9 @@ func IsRingType(pcStr)
 	ok
 
 	pcStr = lower(pcStr)
+	acRingTypes = RingTypes()
 
-	if pcStr = "number" or pcStr = "string" or pcStr = "list" or pcStr = "object"
+	if find( RingTypes(), pcStr) > 0
 		return TRUE
 	else
 		return FALSE
@@ -3269,19 +3270,23 @@ func new_stz(cType, p)
 
 # Returns the softanza object related to the type of p
 func Q(p)
+	oResult = AFalseObject()
 
 	if isString(p)
-		return new stzString(p)
+		oResult = new stzString(p)
 
 	but isNumber(p)
-		return new stzNumber(p)
+		oResult = new stzNumber(p)
 
 	but isList(p)
-		return new stzList(p)
+		oResult = new stzList(p)
 
 	but isObject(p)
-		return new stzObject(p)
+		oResult = new stzObject(p)
 	ok
+
+	SetMainObject(oResult)
+	return oResult
 
 	func Softanzify(p)
 		return Q(p)
