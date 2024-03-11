@@ -18472,9 +18472,21 @@ class stzList from stzObject
 
 		*/
 
+		if CheckParams()
+			if NOT isString(pcType)
+				StzRaise("Incorrect param type! pcType must be a string.")
+			ok
+		ok
+
 		pcType = Q(pcType).InfereType()
 
-		cCode1 = 'bOk = item.IsA' + pcType + '()'
+		if pcType = "number" or pcType = "string" or pcType = "list"
+			pcType = "A" + pcType
+		but pcType = "object"
+			pcType = "An" + pcType
+		ok
+
+		cCode1 = 'bOk = item.Is' + pcType + '()'
 		cCode2 = 'bOk = ( ring_type(item) = "' + upper(pcType) + '" )'
 
 		bResult = TRUE
@@ -23943,8 +23955,9 @@ class stzList from stzObject
 	  #--------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS THE REVERSE OF AN OTHER LIST  #
 	#--------------------------------------------------------#
+	 #TODO: check performance
 
-	def IsReverseOf(paOtherList) #TODO: check performance
+	def IsReverseOf(paOtherList)
 		if NOT isList(paOtherList)
 			StzRaise("Incorrect param type! paOtherList must be a list.")
 		ok
@@ -23968,14 +23981,55 @@ class stzList from stzObject
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
 		def IsReversedCopyOf(paOtherList)
 			return This.IsReverseOf(paOtherList)
 
-		def IsInverseOf(paOtherList)
+		def IsAReversedCopyOf(paOtherList)
 			return This.IsReverseOf(paOtherList)
 
+		#--
+
+		def IsInverseOf(paOtherList)
+			return This.IsReverseOf(paOtherList)
+		
 		def IsInversedCopyOf(paOtherList)
 			return This.IsReverseOf(paOtherList)
+
+		def IsAnInversedCopyOf(paOtherList)
+			return This.IsReverseOf(paOtherList)
+
+		#--
+
+		def IsInvertedCopyOf(paOtherList)
+			return This.IsReverseOf(paOtherList)
+
+		def IsAnInvertedCopyOf(paOtherList)
+			return This.IsReverseOf(paOtherList)
+
+		#==
+
+		def IsTheReverseOf(paOtherList)
+			return This.IsReverseOf(paOtherList)
+
+		def IsTheReversedCopyOf(paOtherList)
+			return This.IsReverseOf(paOtherList)
+
+		#--
+
+		def IsTheInverseOf(paOtherList)
+			return This.IsReverseOf(paOtherList)
+		
+		def IsTheInversedCopyOf(paOtherList)
+			return This.IsReverseOf(paOtherList)
+
+		#--
+
+		def IsTheInvertedCopyOf(paOtherList)
+			return This.IsReverseOf(paOtherList)
+
+		#>
 
 	  #-------------------------------------#
 	 #  REVERSING ITEMS ORDER IN THE LIST  #
@@ -41320,48 +41374,139 @@ class stzList from stzObject
 	#===========================================================#
 
 	def IsUppercase()
-		if This.IsListOfStrings() and
-		   LSQ( This.String() ).IsUppercase()
-		   # LSQ() --> abbreviation of StzListOfStringsQ()
+		if This.IsListOfStrings()
+		   	acContent = This.ToListOfStzStrings()
+			nLen = len(acContent)
 
-			return TRUE
+			bResult = TRUE
+
+			for i = 1 to nLen
+				if acContent[i].IsUppercase() = FALSE
+					bResult = FALE
+					exit
+				ok
+			next
+
+			return bResult
 
 		else
 			return FALSE
 		ok
 
+		#< @FunctionFluentForm
+
+		def IsUppercaseQ()
+			if This.IsUppercase()
+				return This
+			else
+				return AFalseObject()
+			ok
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def IsAnUppecase()
 			return This.IsUppercase()
+
+			def IsAnUppercaseQ()
+				return This.IsUppercaseQ()
 
 		def IsUppercased()
 			return This.IsUppercase()
 
+			def IsUppercasedQ()
+				return This.IsUppercaseQ()
+
 		def IsUpper()
 			return This.IsUppercase()
+
+			def IsUpperQ()
+				return This.IsUppercaseQ()
+
+		def IsInUppercase()
+			return This.IsUppercase()
+
+			def IsInUppercaseQ()
+				return This.IsUppercaseQ()
+
+		def InUppercase()
+			return This.IsUppercase()
+
+			def InUppercaseQ()
+				return This.IsUppercaseQ()
+
+		#>
 
 	  #-----------------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS JUST STRINGS IN LOWERCASE  #
 	#-----------------------------------------------------------#
 
 	def IsLowercase()
-		if This.IsListOfStrings() and
-		   LSQ( This.String() ).IsLowercase()
-		   # LSQ() --> abbreviation of StzListOfStringsQ()
+		if This.IsListOfStrings()
+		   	acContent = This.ToListOfStzStrings()
+			nLen = len(acContent)
 
-			return TRUE
+			bResult = TRUE
+
+			for i = 1 to nLen
+				if acContent[i].IsLowercase() = FALSE
+					bResult = FALE
+					exit
+				ok
+			next
+
+			return bResult
 
 		else
 			return FALSE
 		ok
 
+		#< @FunctionFluentForm
+
+		def IsLowercaseQ()
+			if This.IsLowercase()
+				return This
+			else
+				return AFalseObject()
+			ok
+
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def IsALowercase()
 			return This.IsLowercase()
+
+			def IsALowercaseQ()
+				return This.IsLowercaseQ()
 
 		def IsLowercased()
 			return This.IsLowercase()
 
+			def IsLowercasedQ()
+				return This.IsLowercaseQ()
+
 		def IsLower()
 			return This.IsLowercase()
+
+			def IsLowerQ()
+				return This.IsLowercaseQ()
+
+		def InLowerCase()
+			return This.IsLowercase()
+
+			def InLowercaseQ()
+				return This.IsLowercaseQ()
+	
+		def IsInLowerCase()
+			return This.IsLowercase()
+
+			def IsInLowercaseQ()
+				return This.IsLowercaseQ()
+
+		#>
 
 	  #------------------------------------------------------------#
 	 #  TRANSFORMING THE LIST TO ITS REPRESENTATION IN RING CODE  #
@@ -42095,6 +42240,10 @@ class stzList from stzObject
 			StzRaise("Incorrect param types! p1, p2, and p3 must be all strings.")
 		ok
 
+		p1 = lower(p1)
+		p2 = lower(p2)
+		p3 = lower(p3)
+
 		# Composing the conditional expression
 
 		if cSyntax = "1"
@@ -42105,8 +42254,20 @@ class stzList from stzObject
 				p3 = "n" + p3
 			ok
 
-			cCode = 'bOk = ( Q(aContent[@i]).IsA' + p1 + '() or' + NL +
-				'Q(aContent[@i]).IsA' + p3 + '() )'
+			if p1 = "number" or p1 = "string" or p1 = "list"
+				p1 = "A" + p1
+			but p1 = "object"
+				p1 = "An" + p1
+			ok
+
+			if p3 = "number" or p3 = "string" or p3 = "list"
+				p3 = "A" + p3
+			but p3 = "object"
+				p3 = "An" + p3
+			ok
+
+			cCode = 'bOk = ( Q(aContent[@i]).Is' + p1 + '() or' + NL +
+				'Q(aContent[@i]).Is' + p3 + '() )'
 
 		but cSyntax = "2"
 
@@ -42121,8 +42282,20 @@ class stzList from stzObject
 				p2 = "n" + p2
 			ok
 
-			cCode = 'bOk = ( Stz' + p3 + 'Q(aContent[@i]).IsA' + p1 + '() ) or' + NL +
-			        '( Stz' + p3 + 'Q(aContent[@i]).IsA' + p2 + '() )'
+			if p1 = "number" or p1 = "string" or p1 = "list"
+				p1 = "A" + p1
+			but p1 = "object"
+				p1 = "An" + p1
+			ok
+
+			if p2 = "number" or p2 = "string" or p2 = "list"
+				p2 = "A" + p2
+			but p2 = "object"
+				p2 = "An" + p2
+			ok
+
+			cCode = 'bOk = ( Stz' + p3 + 'Q(aContent[@i]).Is' + p1 + '() ) or' + NL +
+			        '( Stz' + p3 + 'Q(aContent[@i]).Is' + p2 + '() )'
 	
 		ok
 
@@ -42428,7 +42601,14 @@ class stzList from stzObject
 					if Q(p[j]).TrimQ().IsBoundedBy(["{","}"])
 						cCode = 'bOk = (' + Q(p[j]).TrimQ().TheseBoundsRemoved("{","}") + ')'
 					else
-						cCode = 'bOk = Q(@item).Is' + p[j] + '()'
+						cMethod = p[j]
+						if cMethod = "number" or cMethod = "string" or cMethod = "list"
+							cMethod = "A" + cMethod
+						but cMethod = "object"
+							cMethod = "AnObject"
+						ok
+
+						cCode = 'bOk = Q(@item).Is' + cMethod + '()'
 					ok
 
 					eval(cCode)
@@ -42482,6 +42662,9 @@ class stzList from stzObject
 
 	def IsAnObject()
 		return TRUE
+
+		def IsAObject()
+			return TRUE
 
 		def IsNotAnObject()
 			return FALSE
@@ -42593,120 +42776,6 @@ class stzList from stzObject
 
 		def StzClass()
 			return This.ClassName()
-
-	#==
-
-	# A special function that works for a list of strings, and
-	# returns their first char if all the strings have the same
-	# char ~> made in the exploration of natural-coding semantics
-
-	# TODO: Think a more general solution for calling any method
-	# on any item of the list whatever type it has!
-
-	def FirstCharCS(pCaseSensitive)
-		/* EXAMPLE
-
-		o1 = new stzList([ "Ring", "Ruby", "Rust", "Red" ])
-		? o1.FirstChar()
-		#-> "R"
-
-		*/
-
-		if NOT This.IsListOfStrings()
-			return
-		ok
-
-		acContent = This.ToListOfStzStrings()
-		nLen = len(acContent)
-
-		if nLen = 1
-			return acContent[1].FirstChar()
-
-		but nLen = 2
-			if acContent[1].FirstCharQ().IsEqualToCS(acContent[2].FirstChar(), pCaseSensitive)
-				return acContent[1].FirstChar()
-			else
-				return NULL
-			ok
-		ok
-
-		cResult = acContent[1].FirstChar()
-
-		for i = 2 to nLen
-			if NOT acContent[i].FirstCharQ().IsEqualToCS(cResult, pCaseSensitive)
-				return NULL
-			ok 
-		next
-
-		return cResult
-
-		def FirstCharCSQ(pCaseSensitive)
-			
-			if This.FirstCharCS(pCaseSensitive) = ""
-				return AFalseObject()
-			else
-				return new stzString(This.FirstCharCS(pCaseSensitive))
-			ok
-
-	def FirstChar()
-		return This.FirstCharCS(TRUE)
-
-		def FirstCharQ()
-			return This.FirstCharCSQ(TRUE)
-
-
-	#===
-
-	def LastCharCS(pCaseSensitive)
-		/* EXAMPLE
-
-		o1 = new stzList([ "Ring", "Bing", "Wong" ])
-		? o1.LastChar()
-		#-> "g"
-
-		*/
-
-		if NOT This.IsListOfStrings()
-			return
-		ok
-
-		acContent = This.ToListOfStzStrings()
-		nLen = len(acContent)
-
-		if nLen = 1
-			return acContent[1].LastChar()
-
-		but nLen = 2
-			if acContent[1].LAstCharQ().IsEqualToCS(acContent[2].LastChar(), pCaseSensitive)
-				return acContent[1].LastChar()
-			else
-				return NULL
-			ok
-		ok
-
-		cResult = acContent[1].LastChar()
-
-		for i = 2 to nLen
-			if NOT acContent[i].LastCharQ().IsEqualToCS(cResult, pCaseSensitive)
-				return NULL
-			ok 
-		next
-
-		return cResult
-
-		def LAstCharCSQ(pCaseSensitive)
-			
-			if This.LastCharCS(pCaseSensitive) = ""
-				return AFalseObject()
-			else
-				return new stzString(This.LastCharCS(pCaseSensitive))
-			ok
-
-	def LastChar()
-		return This.LastCharCS(TRUE)
-
-		def LastCharQ()
-			return This.LastCharCSQ(TRUE)
 
 	#===
 
@@ -46828,6 +46897,16 @@ vvv
 		else
 			return FALSE
 		ok
+
+	def IsOrOrAndNamedParam()
+		if This.IsOrNamedParam() or This.AndNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAndOrOrNamedParam()
+			return This.IsOrOrAndNamedParam()
 
 	def IsAndNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -57606,3 +57685,4 @@ vvv
 
 			def SwapContentWithQ(pOtherStzList)
 				return This.SwapWithQ(pOtherStzList)
+

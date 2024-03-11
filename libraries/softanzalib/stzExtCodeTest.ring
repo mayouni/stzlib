@@ -445,34 +445,6 @@ o1 = new stzList([ 2, 4, 8 ])
 proff()
 # Executed in 0.09 second(s)
 
-/*----------///////////////
-
-pron()
-
-o1 = new stzList([ 6, -2, 9, 5, -10 ])
-? o1.EachItemIsEitherA(:Positive, :Or = :Negative, :Number )
-#--> TRUE
-/*
-o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
-
-? o1.EachItemIsEitherA( :Number, :Or, :String )
-#--> TRUE
-
-? o1.EachItemIsEitherA([ :Negative, :Even, :Number ], :Or, [ :Lowercase, :Latin, :String ])
-
-? o1.EachItemIsEitherA([ :Negative, :Even, :Number ], :Or, :String )
-
-? o1.EachItemIsEitherA( :Number, :Or, [ :Lowercase, :Latin, :String ])
-
-
-o1 = new stzList([ 120, "1250", 54, "452" ])
-//? o1.EachItemIsEither( :Number, :Or = :NumberInString )
-
-o1 = new stzList([ 2, 4, 8, "-129", 10, "-100.45" ])
-// o1.EachItemIsEither([ :Positive, :Even, :Number ], :Or = [ :Negative, :NumberInString ] )
-
-proff()
-
 /*===== ObjectName() and ClassName()
 
 pron()

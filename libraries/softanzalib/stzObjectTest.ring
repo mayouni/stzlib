@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*--------------
-*/
+
 pron()
 
 ? NullObject().Name()
@@ -82,7 +82,7 @@ proff()
 # Executed in 0.17 second(s)
 
 /*==================
-*/
+
 pron()
 
 # There is a difference in Softanza between IsEither() and IsEitherA().
@@ -300,7 +300,72 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.15 second(s)
+
+/*=======
+
+pron()
+
+o1 = new stzList([ 6, -2, 9, 5, -10 ])
+? o1.EachItemIsEitherA(:Positive, :Or = :Negative, :Number)
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------ #TODO
+
+pron()
+
+? Q(["a", 3, "c"]).IsAQ(:list).Of([ :Numbers, :and = :strings ])
+
+proff()
+
+/*------
+
+pron()
+
+o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
+
+? o1.EachItemIsEitherA( :Number, :Or, :String )
+#--> TRUE
+
+proff()
+# Executed in 0.14 second(s)
+
+/*------ #TODO
+
+pron()
+
+o1 = new stzList([ "to", -4, "be", "or", -8, "not", "to", -10, "be" ])
+
+? o1.EachItemIsEitherA([ :Negative, :Even, :Number ], :Or, [ :Lowercase, :Latin, :String ])
+
+? o1.EachItemIsEitherA([ :Negative, :Even, :Number ], :Or, :String )
+
+? o1.EachItemIsEitherA( :Number, :Or, [ :Lowercase, :Latin, :String ])
+
+proff()
+
+/*------
+
+pron()
+
+o1 = new stzList([ 120, "1250", 54, "452" ])
+? o1.EachItemIsEither( :Number, :Or, :NumberInString )
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------ #TODO
+
+pron()
+
+o1 = new stzList([ 2, 4, 8, "-129", 10, "-100.45" ])
+? o1.EachItemIsEither([ :Positive, :Even, :Number ], :Or, [ :Negative, :NumberInString ] )
+
+proff()
 
 /*------------
 
@@ -309,8 +374,12 @@ pron()
 ? Q([10, 20, 30 ]).IsA(:ListOfNumbers)
 #--> TRUE
 
-? Q([ :name = "mio", :age = 12 ]).Is([ :AList, :AHashList, :And = :APair ])
+? Q([10, 20, 30 ]).Is(:ListOfNumbers)
 #--> TRUE
+
+? Q([ "1", "2", "3" ]).EachItemIsA([ :String, :NumberInString, :Char ])
+#--> TRUE
+
 
 proff()
 # Executed in 0.03 second(s)

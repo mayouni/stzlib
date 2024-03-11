@@ -366,7 +366,7 @@ func RingQtClasses()
 		:QMatrix4x4,
 		:QMdiArea,
 		:QMdiSubWindow,
-		:QMediaObject,
+		:QMedIsAObject,
 		:QMediaPlayer,
 		:QMediaPlaylist,
 		:QMenu,
@@ -2452,7 +2452,14 @@ class stzObject
 		bResult = FALSE
 
 		for cType in paTypes
-			if This.IsA(cType)
+
+			if cType = "number" or cType = "string" or cType = "list"
+				cType = "A" + cType
+			but cType = "object"
+				cType = "anobject"
+			ok
+
+			if (This.IsA(cType) or This.Is(cType))
 				bResult = TRUE
 				exit
 			ok
@@ -2469,7 +2476,7 @@ class stzObject
 		ok
 
 		for type in paTypes
-			if isList(type) and Q(type).IsOrNamedParam()
+			if isList(type) and Q(type).IsOrOrAndNamedParam()
 				type = type[2]
 			ok
 		next
@@ -2477,7 +2484,7 @@ class stzObject
 		bResult = TRUE
 
 		for cType in paTypes
-			if NOT This.IsA(cType)
+			if NOT (This.IsA(cType) or This.Is(cType))
 				bResult = FALSE
 				exit
 			ok
@@ -2533,24 +2540,26 @@ class stzObject
 		--> TRUE
 		*/
 
-		if isList(pcType)
-			if Q(pcType).IsListOfStrings()
-				return This.IsEachOneOfTheseTypes(pcType)
-
-			else
-				return This.IsOneOfTheseTypes(pcType)
-			ok
-		ok
-
- 
-		if NOT ( @IsRingType(pcType) or @IsStzType(pcType) )
-			StzRaise("Incorrect param type! pcType must be a Ring type or Softanza type.")
+		if NOT isString(pcType)
+			StzRaise("Incorrect param type! pcType must be a string.")
 		ok
 		
-		cCode = 'bResult = This.IsA'+ pcType + '()'
-	
-		eval(cCode)
-		return bResult
+		pcType = StzStringQ(pcType).InfereType()
+
+		if pcType = "number" or pcType = "string" or pcType = "list"
+			pcType = "A" + pcType
+		but pcType = "object"
+			pcType = "anobject"
+		ok
+
+		cCode = 'bResult = This.Is'+ pcType + '()'
+
+		try
+			eval(cCode)
+			return bResult
+		catch
+			return FALSE
+		done
 
 		#< @FunctionFluentForm
 
@@ -2562,7 +2571,7 @@ class stzObject
 					return This.ToStzNumber()
 
 				but pcType = "string" or pcType = "stzstring"
-					return This.ToStzStrig()
+					return This.ToStzString()
 
 				but pcType = "char" or pcType = "stzchar"
 					return This.ToStzChar()
@@ -2587,12 +2596,6 @@ class stzObject
 			def IsAnQ(pcType)
 				return This.IsAQ(pcType)
 
-		def Is(pcType)
-			return This.IsA(pcType)
-
-			def IsQ(pcType)
-				return This.IsAQ(pcType)
-
 		def AreA(pcType)
 			return This.IsA(pcType)
 
@@ -2604,7 +2607,73 @@ class stzObject
 
 			def AreAnQ(pcType)
 				return This.IsAQ(pcType)
+
+		#--
+
+		def IsThe(pcType)
+			return This.IsA(pcType)
+
+			def IsTheQ(pcType)
+				return This.IsAQ(pcType)
+
+		def AreThe(pcType)
+			return This.IsA(pcType)
+
+			def AreTheQ(pcType)
+				return This.IsAQ(pcType)
+
 		#>
+
+	def Is(pcType)
+
+		if NOT isString(pcType)
+			StzRaise("Incorrect param type! pcType must be a string.")
+		ok
+		
+		pcType = StzStringQ(pcType).InfereType()
+
+		if pcType = "number" or pcType = "string" or pcType = "list"
+			pcType = "A" + pcType
+		but pcType = "object"
+			pcType = "anobject"
+		ok
+
+		cCode = 'bResult = This.Is'+ pcType + '()'
+
+		try
+			eval(cCode)
+			return bResult
+		catch
+			return FALSE
+		done
+
+		def IsQ(pcType)
+			if This.Is(pcType) = TRUE
+
+				if pcType = "number" or pcType = "stznumber" or
+				   pcType = "anumber" or pcType = "astznumber"
+					return This.ToStzNumber()
+
+				but pcType = "string" or pcType = "stzstring" or
+				    pcType = "astring" or pcType = "astzstring"
+					return This.ToStzString()
+
+				but pcType = "char" or pcType = "stzchar" or
+				    pcType = "achar" or pcType = "astzchar"
+					return This.ToStzChar()
+
+				but pcType = "list" or pcType = "stzlist" or
+				    pcType = "alist" or pcType = "astzlist"
+					return This.ToStzList()
+
+				but pctype = "object" or pcType = "stzobject" or
+				    pctype = "aobject" or pcType = "astzobject" or
+				    pcType = "anobject"
+					return This
+				ok
+			else
+				return AFalseObject()
+			ok
 
 	def Are(pcType)
 		/* Example
@@ -2685,6 +2754,7 @@ class stzObject
 		#< @FunctionFluentForm
 
 		def AreBothAQ(pcType)
+
 			if NOT (This.StzType() = "stzlist" and This.NumberOfItems() = 2)
 				return AFalseObject()
 			ok
@@ -2697,8 +2767,8 @@ class stzObject
 			ok
 	
 			This.UpdateWith([ item1, item2 ])
-	
-			return This.IsAQ(pcType)
+
+			return This.AreQ(pcType)
 
 		#>
 
@@ -2747,11 +2817,19 @@ class stzObject
 	def WhichQ()
 		return This
 
+		def WichQM()
+			SetMainObject(This)
+			return This
+
 		def Which()
 			return This
 
 		def ThatQ()
 			return This
+
+			def ThatQM()
+				SetMainObject(This)
+				return This
 
 		def That()
 			return This
@@ -2759,11 +2837,19 @@ class stzObject
 	def WhichIsQ()
 		return This
 
+		def WhichIsQM()
+			SetMainObject(This)
+			return This
+
 		def WhichIs()
 			return This
 
 		def ThatIsQ()
 			return This
+
+			def ThisIsQM()
+				SetMainObject(This)
+				return This
 
 		def ThatIs()
 			return This
@@ -2771,17 +2857,29 @@ class stzObject
 	def WhichAreQ()
 		return This
 
+		def WhichAreQM()
+			SetMainObject(This)
+			return This
+
 		def WhichAre()
 			return This
 
 		def ThatAreQ()
 			return This
 
+			def ThatAreQM()
+				SetMainObject(This)
+				return This
+
 		def ThatAre()
 			return This
 
 	def WhichAreBothQ()
 		return This
+
+		def WhichAreBothQM()
+			SetMainObject(This)
+			return This
 
 		#< @AlternativeForms
 
@@ -2791,19 +2889,31 @@ class stzObject
 		def ThatAreBothQ()
 			return This
 
+			def ThatAreBothQM()
+				SetMainObject(This)
+				return This
+
 		def ThatAreBoth()
 			return This
 
 		#--
 
-		def WhichbothAreQ()
+		def WhichBothAreQ()
 			return This
+
+			def WichBothAreQM()
+				SetNamedObject(This)
+				return This
 
 		def WhichBothAre()
 			return This
 
 		def ThatBothAreQ()
 			return This
+
+			def ThatBothAreQM()
+				SetMainObject(This)
+				return This
 
 		def ThatBothAre()
 			return This
@@ -2812,6 +2922,9 @@ class stzObject
 
 	def TheirQ()
 		return This
+
+		def TheirQM()
+			return MainObject()
 
 		#< @FunctionAlternativeForms
 
@@ -2824,11 +2937,19 @@ class stzObject
 		def ItsQ()
 			return This
 
+			def ItsQM()
+				SetMainObject(This)
+				return This
+
 		def His()
 			return This
 
 		def HisQ()
 			return This
+
+			def HisQM()
+				SetMainObject(This)
+				return This
 
 		def Her()
 			return This
@@ -2836,17 +2957,29 @@ class stzObject
 		def HerQ()
 			return This
 
+			def HerQM()
+				SetMainObject(This)
+				return This
+
 		def My()
 			return This
 
 		def MyQ()
 			return this
 
+			def MyQM()
+				SetMainObject(This)
+				return This
+
 		def Your()
 			return This
 
 		def YourQ()
 			return this
+
+			def YourQM()
+				SetMainObject(This)
+				return This
 
 		#>
 
@@ -2856,11 +2989,19 @@ class stzObject
 		def MeQ()
 			return This
 
+			def MeQM()
+				SetMainObject(This)
+				return This
+
 	def Mine()
 		return This
 
 		def MineQ()
 			return This
+
+			def MinQM()
+				SetMainObject(This)
+				return This
 
 	def It()
 		return This.Content()
@@ -2868,11 +3009,19 @@ class stzObject
 		def ItQ()
 			return This
 
+			def ItQM()
+				SetMainObject(This)
+				return This
+
 	def You()
 		return This.Content()
 
 		def YouQ()
 			return This
+
+			def YouQM()
+				SetMainObject(This)
+				return This
 
 	def Yours()
 		return This
@@ -2880,17 +3029,29 @@ class stzObject
 		def YoursQ()
 			return This
 
+			def YoursQM()
+				SetMainObject(This)
+				return This
+
 	def Him()
 		return This.Content()
 
 		def HimQ()
 			return This
 
+			def HimQM()
+				SetMainObject(This)
+				return This
+
 	def Them()
 		return This.Content()
 
 		def ThemQ()
 			return This
+
+			def ThemQM()
+				SetMainObject(This)
+				return This
 
 	#==
 	
@@ -3055,6 +3216,9 @@ class stzObject
 
 	def IsAnObject()
 		return TRUE
+
+		def IsAObject()
+			return TRUE
 
 	def IsANumber()
 		return FALSE
@@ -4011,12 +4175,21 @@ class stzObject
 		def HavingQ()
 			return This
 
+			def HavingQM()
+				SetMainObject(This)
+				return This.HavingQ()
+
 		def AndHaving()
 			return This
 
 		def AndHavingQ()
 			return This
 
+			def AndHavingQM()
+				SetMainObject(This)
+				return This.AndHavingQ()
+
+	
 	# Swapping the content of the stzObject with an other stzObject
 
 	def SwapWith(pOtherStzObject)
@@ -4105,3 +4278,18 @@ class stzObject
 
 		def @IsNeitheOfType(pcType1, pcType2)
 			return This.IsNeither(pcType1, pcType2)
+
+	#==
+
+	def ToStzChar()
+		return new stzChar(This.Content())
+
+	def ToStzString()
+		return new stzString(This.Content())
+
+	def ToStzNumber()
+		return new stzNumber(This.Content())
+
+	def ToStzList()
+		return new stzList(This.Content())
+
