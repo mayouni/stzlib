@@ -114,7 +114,7 @@ load "stzTime.ring"
 load "stzFile.ring"
 load "stzFileError.ring"
 load "stzFolder.ring"
-load "stzRunTime.ring"
+
 load "stzTextEncoding.ring"
 
 load "stzTextEncodingError.ring"

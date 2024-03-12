@@ -1,5 +1,8 @@
 load "stzlib.ring"
 
+? stztypes()
+
+dfdf
 /*=====
 
 pron()
