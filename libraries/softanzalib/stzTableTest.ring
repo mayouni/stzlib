@@ -1,11 +1,36 @@
 load "stzlib.ring"
 
+/*-------------------- #TODO: Check output error
+
+pron()
+
+StzTableQ([
+	[ :M, :FUNCTION 	, :OBJECT ],
+
+	[ ' ', 'Q'		, 'stzList' ],
+	[ ' ', 'AreBothQ' 	, 'stzListOfStrings' ],
+	[ '•', 'HavingQ'	, 'stzListOfStrings' ],
+	[ ' ', 'AllTheirQ'	, 'stzListOfStrings' ]
+
+]).ShowXT([ :UnderLineChar = "-" ])
+
+#!--> ERROR in the underline (incorrectly adjusted)
+#-->
+#	M | FUNCTION |          OBJECT
+#	---+-----------+--------
+#	   |         Q |          stzList
+#	   |  AreBothQ | stzListOfStrings
+#	 • |   HavingQ | stzListOfStrings
+#	   | AllTheirQ | stzListOfStrings
+
+proff()
+# Executed in 0.12 second(s)
+
 /*--------------------
 
 pron()
 
 o1 = new stzTable([
-	//[ :ID,	:NAME,		:AGE 	],
 	[ 10,	"Karim",	52   	],
 	[ 20,	"Hatem", 	46	],
 	[ 30,	"Abraham",	48	]
@@ -27,17 +52,19 @@ pron()
 o1 = new stzTable([ [ "I", 1 ], [ AHeart(), 2 ], [ "Ring", 3 ], [ "Language", 4 ] ])
 
 o1.Show()
-#--> :I   :♥   :RING   :LANGUAGE
+#--> I   ♥   RING   LANGUAGE
 #    --- ---- ------- ----------
- #    1    2       3           4
+#    1   2      3          4
+
 
 ? o1.Rows()
 #--> [ 1, 2, 3, 4 ]
 
 proff()
- 
-/*------
+# Executed in 0.11 second(s)
 
+/*------
+*/
 pron()
 
 o1 = new stzList([ "A", "B", "C", "D", "E" ])
@@ -51,7 +78,7 @@ o1.ReplaceManyByManyXT([ "A", "B", "A", "D", "E" ], :With = [ "1", "2"])
 proff()
 # Executed in 0.09 second(s)
 
-/*=============
+/*=============  #TODO: ERR Check underline
 
 pron()
 
@@ -65,7 +92,7 @@ o1 = new stzTable([
 o1.Show()
 
 ? o1.FindColsExcept([ :name, :score ])
-#--> :NAME   :AGE   :SCORE
+#--> NAME   AGE   SCORE
 #    ------ ------ -------
 #    sam     24       10
 #    dan     36       20
@@ -167,7 +194,7 @@ o1 = new stzTable([
 proff()
 # Executed in 0.21 second(s)
 
-/*-------------
+/*-------------  #TODO: ERR Check underline
 
 pron()
 
@@ -183,7 +210,7 @@ o1 = new stzTable([
 o1.RemoveRow(3)
 
 o1.Show()
-#--> :COL1   :COL2   :COL3
+#--> COL1   COL2   COL3
 #    ------ ------- ------
 #       10     100    1000
 #       20     200    2000
@@ -192,7 +219,7 @@ o1.Show()
 proff()
 # Executed in 0.31 second(s)
 
-/*-------------
+/*------------- #TODO: ERR Check underline
 
 pron()
 
@@ -210,14 +237,14 @@ o1 = new stzTable([
 o1.RemoveRows([3, 5, 6])
 
 o1.Show()
-#--> :COL1   :COL2   :COL3
+#--> COL1   COL2   COL3
 #    ------ ------- ------
 #       10     100    1000
 #       20     200    2000
 #       30     300    3000
 
 proff()
-# Executed in 0.31 second(s)
+# Executed in 0.11 second(s)
 
 /*-------------
 
@@ -237,14 +264,14 @@ o1 = new stzTable([
 o1.RemoveAllRowsExcept([1, 2, 4]) # Or RemoveRowsOtherThan()
 
 o1.Show()
-#--> :COL1   :COL2   :COL3
+#--> COL1   COL2   COL3
 #    ------ ------- ------
 #       10     100    1000
 #       20     200    2000
 #       30     300    3000
 
 proff()
-# # Executed in 0.31 second(s)
+# # Executed in 0.11 second(s)
 
 /*============ A Softanza narration showing one of the uses of the XT()
 
@@ -264,7 +291,7 @@ o1 = new stzTable([
 # And you want to show it on screen:
 
 ? o1.Show() + NL
-#--> :COL1   :COL2   :COL3
+#--> COL1   COL2   COL3
 #    ------ ------- ------
 #       10     100    1000
 #       20     200    2000
@@ -275,7 +302,7 @@ o1 = new stzTable([
 # Use the XT() extension:
 
 ? o1.ShowXT([]) + NL
-#--> :COL1 | :COL2 | :COL3
+#--> COL1 | COL2 | COL3
 #    ------+-------+------
 #       10 |   100 |  1000
 #       20 |   200 |  2000
@@ -304,7 +331,8 @@ o1 = new stzTable([
 #    4 |  30   |  300  | 3000 
 
 proff()
-# Executed in 1.09 second(s)
+# Executed in 0.25 seconds(s) in Ring 1.19
+# Executed in 1.09 second(s) in Ring 1.17
 
 /*--------------
 

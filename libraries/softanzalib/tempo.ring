@@ -1,5 +1,14 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzString("ring qt softanza pyhton kandaji csharp ring")
+o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥" ])
+
+? o1.Content() #--> "♥ qt ♥♥ pyhton ♥ csharp ♥♥"
+
+proff()
+
 /*------
 
 pron()
@@ -101,9 +110,10 @@ proff()
 # Executed in 0.03 second(s)
 
 /*------
+
 */
 pron()
-
+/*
 # "Ring" and "Ruby" are both strings having their first char equal to "R"
 
 ? Q([ "Ring", :and = "Ruby" ]).AreBothQ(:strings).HavingQ().TheirQ().FirstCharQ().EqualTo("R")
@@ -111,21 +121,38 @@ pron()
 
 # "Ring" and "ruby" are two strings having their first char (watver case it has) equal to the letter "R"
 
-? Q([ "Ring", :and = "ruby" ]).
-  BothAreQ(:strings).HavingQ().TheirQ().FirstCharCSQ(WhatEverCaseItHas).EqualTo(TheLetter("R"))
+? Q([ "Ring", :and = "ruby" ]).AreTwoQ(:strings).HavingQ().TheirQ().FirstCharCSQ(WhatEverCaseItHas).EqualTo(TheLetter("R"))
 #-> TRUE
 
-# "Ring" and "Bing" are two strings having their first char equal to "R" and last char equal to "g"
+# "Ring" and "Bing" are both strings having all their first chars in uppercase and their last char equal to "g"
 
 ? Q([ "Ring", :and = "Bing" ]).
-  AreBothQ(:strings).
-HavingQM().TheirQ().FirstCharsQ().InUppercaseQ().AndQ().TheirQM().LastCharQ().EqualTo("g")
+  AreBothQ(:strings).HavingQM().AllTheirQ().FirstCharsQ().InUppercaseQ().AndQ().TheirQM().LastCharQ().EqualTo("g")
 #-> TRUE
 
-# "Ring" and "Bing" are two strings having their first char and last char equal respectively to "R" and "g"
+? Q([ "Ring", :and = "Bing" ]).
+  AreBothQ(:strings).HavingQM().AllTheirQ().FirstCharsQ().InUppercaseQ().AndQ().TheirQM().LastCharQ().EqualTo("g")
+#-> TRUE
+*/
+//? ChainOfTruth()
+StzTableQ([
+	[ 'M', 'FUNCTION' 	, 'OBJECT' ],
+
+	[ ' ', 'Q'		, 'stzList' ],
+	[ ' ', 'AreBothQ' 	, 'stzListOfStrings' ],
+	[ '•', 'HavingQ'	, 'stzListOfStrings' ],
+	[ ' ', 'AllTheirQ'	, 'stzListOfStrings' ],
+	[ ' ', 'FirstChars'	, 'stzList' ],
+	[ ' ', 'InUpperCaseQ'	, 'stzList' ],
+	[ ' ', 'AndQ'		, 'stzList' ],
+	[ '•', 'TheirQM'	, 'stzListOfStrings' ],
+	[ ' ', 'LastCharQ'	, 'stzString' ],
+	[ ' ', 'EqualTo'	, 'TRUE' ]
+
+]).ShowXT([])
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.05 second(s)
 /*------
 
 InLowerCase

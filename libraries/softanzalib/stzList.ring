@@ -3530,8 +3530,19 @@ func ListOfNTimes(n, pItem)
 
 #--
 
-func @WithoutDuplication(paList)
+func WithoutDuplication(paList)
 	return StzListQ(paList).WithoutDuplication()
+
+	func @WithoutDuplication(paList)
+		return WithoutDuplication(paList)
+
+	#-- @Misspelled (two p instead of one)
+
+	func WithoutDupplication(paList)
+		return WithoutDuplication(paList)
+
+	func @WithoutDupplication(paList)
+		return WithoutDuplication(paList)
 
 func StringsIn(paList)
 	if CheckParams()
@@ -5811,10 +5822,10 @@ class stzList from stzObject
 
 		/* EXAMPLE
 
-		o1 = new stzList("ring php ring ruby ring python ring")
+		o1 = new stzList(["ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "ring" ])
 		o1.ReplaceByManyXT("ring", :By = [ "#1", "#2" ])
 
-		? o1.Content() #--> "#1 php #2 ruby #1 python #2"
+		? o1.Content() #--> [ "#1", "php", "#2", "ruby", "#1", "python", "#2" ]
 
 		*/
 
@@ -5891,10 +5902,10 @@ class stzList from stzObject
 	def ReplaceManyByManyCS(paItems, paNewItems, pCaseSensitive)
 		/* EXAMPLE
 
-		o1 = new stzList("ring qt softanza pyhton kandaji csharp ring")
+		o1 = new stzList(["ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "ring" ])
 		o1.ReplaceManyByMany([ "ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥", "♥♥♥" ])
 
-		? o1.Content() #--> "♥ qt ♥♥ pyhton ♥♥♥ csharp ♥"
+		? o1.Content() #--> [ "♥", "qt", "♥♥", "pyhton", "♥♥♥", "csharp", "♥" ]
 		*/
 
 		if CheckParams()
@@ -30615,32 +30626,61 @@ class stzList from stzObject
 		anPos = This.FindDuplicatesCS(pCaseSensitive)
 		This.RemoveItemsAtPositions(anPos)
 
-		#< @FunctionAlternativeForms
+		#< @FunctionFluentForm
 
 		def RemoveDuplicatesCSQ(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def RemoveDuplicatedItemsCS(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)
 
 			def RemoveDuplicatedItemsCSQ(pCaseSensitive)
-				This.RemoveDuplicatedItemsCS(pCaseSensitive)
-				return This
+				return This.RemoveDuplicatesCSQ(pCaseSensitive)
 
 		def RemoveDuplicationsCS(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)
 
 			def RemoveDuplicationsCSQ(pCaseSensitive)
-				This.RemoveDuplicationsCS(pCaseSensitive)
-				return This
+				return This.RemoveDuplicatesCSQ(pCaseSensitive)
 
 		def RemoveDuplicationCS(pCaseSensitive)
 			This.RemoveDuplicatesCS(pCaseSensitive)
 
 			def RemoveDuplicationCSQ(pCaseSensitive)
-				This.RemoveDuplicationCS(pCaseSensitive)
-				return This
+				return This.RemoveDuplicatesCSQ(pCaseSensitive)
+
+		#>
+
+		#< @FunctionMisspelledForms # double p instead of one p
+
+		def RemoveDupplicatesCS(pCaseSensitive)
+			This.RemoveDuplicatesCS(pCaseSensitive)
+
+			def RemoveDupplicatesCSQ(pCaseSensitive)
+				return This.RemoveDuplicatesCSQ(pCaseSensitive)
+
+		def RemoveDupplicatedItemsCS(pCaseSensitive)
+			This.RemoveDuplicatesCS(pCaseSensitive)
+
+			def RemoveDupplicatedItemsCSQ(pCaseSensitive)
+				return This.RemoveDuplicatesCSQ(pCaseSensitive)
+
+		def RemoveDupplicationsCS(pCaseSensitive)
+			This.RemoveDuplicatesCS(pCaseSensitive)
+
+			def RemoveDupplicationsCSQ(pCaseSensitive)
+				return This.RemoveDuplicatesCSQ(pCaseSensitive)
+
+		def RemoveDupplicationCS(pCaseSensitive)
+			This.RemoveDuplicatesCS(pCaseSensitive)
+
+			def RemoveDupplicationCSQ(pCaseSensitive)
+				return This.RemoveDuplicatesCSQ(pCaseSensitive)
 
 		#>
 
@@ -30687,6 +30727,33 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms # double p instead of one p #TODO: Generalize it
+
+		def ItemsWithoutDupplicationCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		def DupplicatedItemsRemovedCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		def DupplicationsRemovedCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		def DupplicationRemovedCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		#--
+
+		def WithoutDupplicatesCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		def WithoutDupplicationCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		def WithoutDupplicationsCS(pCaseSensitive)
+			return This.DuplicatesRemovedCS(pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDuplicates()
@@ -30718,6 +30785,34 @@ class stzList from stzObject
 			def RemoveDuplicationQ()
 				This.RemoveDuplications()
 				return This
+
+		#>
+
+		#< @FunctionMisspelledForms # double p instead of one p
+
+		def RemoveDupplicates()
+			This.RemoveDuplicates()
+
+			def RemoveDupplicatesQ()
+				return This.RemoveDuplicatesQ()
+
+		def RemoveDupplicatedItems()
+			This.RemoveDuplicates()
+
+			def RemoveDupplicatedItemsQ()
+				return This.RemoveDuplicatesQ()
+
+		def RemoveDupplications()
+			This.RemoveDuplicates()
+
+			def RemoveDupplicationsQ()
+				return This.RemoveDuplicatesQ()
+
+		def RemoveDupplication()
+			This.RemoveDuplicates()
+
+			def RemoveDupplicationQ()
+				return This.RemoveDuplicatesQ()
 
 		#>
 
@@ -30764,6 +30859,32 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForms # double p instead of one p
+
+		def ItemsWithoutDupplication()
+			return This.DuplicatesRemoved()
+
+		def DupplicatedItemsRemoved()
+			return This.DuplicatesRemoved()
+
+		def DupplicationsRemoved()
+			return This.DuplicatesRemoved()
+
+		def DupplicationRemoved()
+			return This.DuplicatesRemoved()
+
+		#--
+
+		def WithoutDupplicates()
+			return This.DuplicatesRemoved()
+
+		def WithoutDupplication()
+			return This.DuplicatesRemoved()
+
+		def WithoutDupplications()
+			return This.DuplicatesRemoved()
+
+		#>
 
   	  #-----------------------------------------#
 	 #   REMOVING DUPLICATES OF A GIVEN ITEM   #
@@ -41382,7 +41503,7 @@ class stzList from stzObject
 
 			for i = 1 to nLen
 				if acContent[i].IsUppercase() = FALSE
-					bResult = FALE
+					bResult = FALSE
 					exit
 				ok
 			next
@@ -41451,7 +41572,7 @@ class stzList from stzObject
 
 			for i = 1 to nLen
 				if acContent[i].IsLowercase() = FALSE
-					bResult = FALE
+					bResult = FALSE
 					exit
 				ok
 			next
