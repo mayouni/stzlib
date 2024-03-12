@@ -380,7 +380,7 @@ o1.RemoveFirstCharXT()
 ? o1.Content()
 #--> Ring
 
-# NOTE: we can get the same result by using RemoveLeadingChars()
+#NOTE: we can get the same result by using RemoveLeadingChars()
 
 o1 = new stzString("-------Ring")
 o1.RemoveLeadingChars()
@@ -542,7 +542,7 @@ o1.RemoveFirstCharCS(TRUE)
 ? o1.Content()
 #--> Ring
 
-# NOTE: This feature is made available only for this function,
+#NOTE: This feature is made available only for this function,
 # so we can show the principle of PERMISSIVENESS.
 #~> It will be generalised in future.
 
@@ -559,7 +559,7 @@ pron()
 ? 10PercentOf( ArabicLetters() ) # Or NPercentOf(10, ArabicLetters())
 #o--> [ "ص", "ة", "د", "ص" ]
 
-# NOTE : there is an eXTended list of arabic leters
+#NOTE : there is an eXTended list of arabic leters
 
 ? HowMany( ArabicLettersXT() )
 #--> 34
@@ -582,7 +582,7 @@ o1 = new stzString( "one two one three two one four five" )
 # can also be written direcltly:
 //? @@( OnePercentOf( o1.SubStrings() ) ) # or just 1Percent()
 
-? @@( o1.SubStringsOccuringNTimes(3) ) + NL # NOTE "occuring" is mispelled (one r instead of two)
+? @@( o1.SubStringsOccuringNTimes(3) ) + NL #NOTE "occuring" is mispelled (one r instead of two)
 #--> [ "o", "on", "one", "one ", "n", "ne", "ne ", "e", "e ", "e t", " ", " t", "t" ]
 
 ? @@( o1.SubStringsOccurringExactlyNtimes(3) ) + NL
@@ -608,7 +608,7 @@ o1 = new stzString( "ALLAH" )
 ? @@( o1.SubStringsOccurringNTimes(2) )
 #--> [ "A", "L" ]
 
-? HwoMany( o1.SubStringsOccurringNTimes(7) ) # Note that "HwoMany" is misspelled
+? HwoMany( o1.SubStringsOccurringNTimes(7) ) #NOTE that "HwoMany" is misspelled
 #--> 0
 
 ? HowMany( o1.SubStringsOccurringLessThanNTimes(3) )
@@ -707,7 +707,7 @@ o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
 ? o1.BoundsOf("Ring")
 #--> [ [ "<<<", ">>" ], [ "(((", ")))" ] ]
 
-# NOTE: Now you understand why we used the XT() extension to the name of BoundsOf()
+#NOTE: Now you understand why we used the XT() extension to the name of BoundsOf()
 # function, to say its an extended form of the main function, where we can specify
 # the number of chars in the bound.
 
@@ -4192,7 +4192,7 @@ StopProfiler()
 # Executed in 0.85 second(s)
 
 /*-----------
-# WARNING: takes 14 seconds to complete!
+#WARNING: takes 14 seconds to complete!
 
 StartProfiler()
 
@@ -4885,7 +4885,7 @@ o1 = new stzString("   r  in  g  is a rin  g  ")
 #--> [ [ 4, 11 ], [ 19, 24 ] ]
 
 ? o1.SubStringsBetweenIBQR("r","g", :stzListOfStrings).WithoutSapces()
-# NOTE: WithoutSapces() is misspelled and the correct form is WithoutSpaces!
+#NOTE: WithoutSapces() is misspelled and the correct form is WithoutSpaces!
 # Despite that, softanza accepts it ;)
 #--> [ "ring", "ring" ]
 
@@ -5044,8 +5044,8 @@ o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
 ? o1.FindLast("♥♥♥")
 #--> 22
 
-? o1.FindLastAsSection("♥♥♥") 	# Note that the function is misspelled (there is an
-#--> [22, 24]			# erronous "e" after "Last", but Softanza lets it go!
+? o1.FindLastAsSection("♥♥♥") 	#NOTE that the function is misspelled (there is an
+#--> [22, 24]			#ERRonous "e" after "Last", but Softanza lets it go!
 
 ? o1.FindLastZ("♥♥♥")
 #--> [ "♥♥♥", 22 ]
@@ -7289,7 +7289,7 @@ str = "sun"
 
 ? Q("LOVE").Inverted() 	#--> ƎɅO⅂
 ? QQ("L").IsInvertible()	#--> TRUE
-# Note that QQ() elevates "L" to a stzChar
+#NOTE that QQ() elevates "L" to a stzChar
 
 /*-----------------
 
@@ -7330,7 +7330,7 @@ str = "sun"
 /*=================
 
 # Inverting (or turning) chars and strings
-# NOTE: In the mean time, Softanza uses Invert()
+#NOTE: In the mean time, Softanza uses Invert()
 # and Turn() as alternatives, but this should
 # change in the future to cope with their exact
 # meaning in Unicode!
@@ -7740,7 +7740,7 @@ o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!
 ? @@(o1.Sections(:Of = "many")) + NL		# or o1.FindAsSections(:OfSubString = "many")
 #--> [ [ 5, 8 ], [ 12, 15 ], [ 33, 36 ], [ 40, 43 ], [ 54, 57 ] ]
 
-	# Note that Sections() has an other syntax that returns, not the sections
+	#NOTE that Sections() has an other syntax that returns, not the sections
 	# as pairs of numbers as in the example above, the substrings corresponding
 	# to the sections themselves:
 
@@ -7994,7 +7994,7 @@ o1 = new stzString("12abc67abc12abc")
 ? o1.FindAll("abc")
 #--> [3, 8, 13]
 
-# Note: the following functions work the same for stzString and
+#NOTE: the following functions work the same for stzString and
 # stzListOfStrings, because they are abstracted in stzObject
 
 ? o1.NFirstOccurrences(2, :Of = "abc") 
@@ -9636,7 +9636,7 @@ StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 	#--> [ "*", "*", "*", "R", "i", "n", "g", "*", "*" ]
 }
 
-# Note that, as far as strings are concerned, this feature is sensitive to case,
+#NOTE that, as far as strings are concerned, this feature is sensitive to case,
 # so we can say:
 
 StzStringQ("eeEEeeTUNISeeEE") {
@@ -9679,7 +9679,7 @@ proff()
 # Executed in 0.35 second(s) in Ring 1.18
 # Executed in 0.61 second(s) in Ring 1.17
 
-# NOTE: Case sensitivity is supported in Lists with some functions.
+#NOTE: Case sensitivity is supported in Lists with some functions.
 # In the future, all functions wil be covered.
 
 /*=====================
@@ -9903,14 +9903,14 @@ pron()
 
 # This sample shows a logical error in Qt unicode:
 
-? Q("ı").UppercasedInLocale("tr-TR")	# ERROR: --> I but must be İ
+? Q("ı").UppercasedInLocale("tr-TR")	#ERROR: --> I but must be İ
 ? Q("İ").Lowercased()	# i
-? Q("İ").LowercasedInLocale("tr-TR")	# ERROR: --> i but must be ı
+? Q("İ").LowercasedInLocale("tr-TR")	#ERROR: --> i but must be ı
 
 # In fact, this is a logical bug in Qt as demonstrated here:
 
 oQLocale = new QLocale("tr-TR")
-? oQLocale.toupper("ı") # ERROR: --> I but must be İ
+? oQLocale.toupper("ı") #ERROR: --> I but must be İ
 
 #TODO: solve this by implementing the specialCasing of unicode as
 # described in this file:
@@ -10361,7 +10361,7 @@ StzStringQ("__b和平س__a__و") {
 	? ContainsCharsInScript(:Common)		# TRUE
 	? CharsW( ' StzCharQ(@char).IsCommonScript() ')	# [ "_", "_", "_", "_", "_", "_" ]
 
-	# Note that if you say
+	#NOTE that if you say
 	? ContainsLettersInScript(:Common)	# or
 	? ContainsLettersInScript(:Unkowan)
 	# you get FALSE because there is no sutch letter that has a script
@@ -10564,7 +10564,7 @@ o1 = new stzString("Ring Programming Language")
 
 ? StzTextQ("abc سلام abc").ContainsScript(:Arabic)	#--> TRUE
 ? StzTextQ("abc سلام abc").ContainsArabicScript()	#--> TRUE
-# NOTE: Scripts are now moved from stzString to stzText
+#NOTE: Scripts are now moved from stzString to stzText
 
 # You can use this short form instead of StzTextQ()
 ? TQ("سلام").Script() #--> :Arabic
@@ -12009,7 +12009,7 @@ o1 = new stzChar("Ⅱ")
 # How to add a string to a QString objet (Qt-side)
 # Used internally by Softanza
 
-oQStr = new QString() # NOTE: It's better to use QString2()
+oQStr = new QString() #NOTE: It's better to use QString2()
 oQStr.append("salem")
 ? QStringToString(oQStr)
 

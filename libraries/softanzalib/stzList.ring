@@ -27027,7 +27027,7 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 			@aContent + paItems[i]
-			# NOTE
+			#NOTE
 			# Using This.Add() is better then using @aContent directly,
 			# but I do it to gain performance on large lists
 
@@ -27401,7 +27401,7 @@ class stzList from stzObject
 				   ( pWith[2] = :ItemsRepeated or pWith[2] = :RepeatingItems )
 
 					This.ExtendToPositionWithItemsRepeadted(n[2])
-					# Note this is a misspelled form --> ...Repea(d)ted()
+					#NOTE this is a misspelled form --> ...Repea(d)ted()
 					return
 	
 				# Case 4: o1.ExtendXT( :ToPosition = 5, :With = "*" )
@@ -28560,7 +28560,7 @@ class stzList from stzObject
 	 #   CHECKING IF THE LIST CONTAINS DUPLICATED ITEMS   #
 	#----------------------------------------------------#
 
-	# WARNING: As implemented currently, duplication is performed
+	#WARNING: As implemented currently, duplication is performed
 	# in a reasonable performance when the size of the list does
 	# not exceed 30K items!
 
@@ -29301,11 +29301,11 @@ class stzList from stzObject
 	  #----------------------------------#
 	 #   FINDING DUPLICATES POSITIONS   #
 	#----------------------------------#
-	# NOTE 1 : The first occurrence of an item is not considered as a duplicate
+	#NOTE 1 : The first occurrence of an item is not considered as a duplicate
 	# 	   --> If you want to get also the first occurrence then you can
 	# 		use FindDuplicatesXT() #TODO
 
-	# NOTE 2 : We use a part of the code of DuplicatesZ(). There is a duplication
+	#NOTE 2 : We use a part of the code of DuplicatesZ(). There is a duplication
 	# but this is better for performance then calling DuplicatesZ(), because it
 	# performs extra work not needed here!
 
@@ -34675,7 +34675,7 @@ class stzList from stzObject
 	 #    VISUALLY FINDING ALL OCCURRENCES OF A GIVEN ITEM   #
 	#=======================================================#
 
-	# NOTE: Works only if items are chars (string of 1 char each)
+	#NOTE: Works only if items are chars (string of 1 char each)
 	#TODO: Implement a more general solution for longer items
 
 	def VizFindAllOccurrencesCS(pItem, pCaseSensitive)
@@ -38920,7 +38920,7 @@ class stzList from stzObject
 
 		ok
 
-		# NOTE: when positions are given in inversed order, the same
+		#NOTE: when positions are given in inversed order, the same
 		# section as if they were not inverted is returned, so:
 		#--> Q([ "r", "i", "n", "g" ]).Section(1,3) and .Section(3,1) both
 		#    return [ "r", "i", "n" ]
@@ -39068,7 +39068,7 @@ class stzList from stzObject
 
 	def SectionCSXT(n1, n2, pCaseSensitive)
 
-		# NOTE:
+		#NOTE:
 		# This is an extended form of Section() that supports
 		# two fency features (that we find in other languages like Python):
 		# ~> n1 and n2 can be negative numbers, so their values are counted from the end
@@ -41932,7 +41932,7 @@ class stzList from stzObject
 	def StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
 		#< QtBased | Uses QString2() #>
 
-		# NOTE: General note on performance of code written here in SoftanzaLib
+		#NOTE: General note on performance of code written here in SoftanzaLib
 
 		# For all loops running on large data (tens of thousands of times and more), we
 		# don't rely on softanza objects services (stzString and alike), we use Qt directly instead!
@@ -43660,7 +43660,7 @@ class stzList from stzObject
 			:RemoveThisCharBefore,:RemoveThisCharBefore,
 			:RemoveThisBound, :RemoveThisBoundingSubString,
 			:CaseSensitive, :CS ])
-			# NOTE: I've decided to keep CS as a suffix in the function
+			#NOTE: I've decided to keep CS as a suffix in the function
 			# name and never use it as an internal option...
 			#--> more simple mental model to keep things memprable
 

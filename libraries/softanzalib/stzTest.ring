@@ -70,7 +70,7 @@ class stzTest
 		cRes = ""
 
 		if WithoutSapces(@Description) != NULL
-		# NOTE: WithoutSapces() is misspelled but Softanza recognizes it!
+		#NOTE: WithoutSapces() is misspelled but Softanza recognizes it!
 
 			cRes = @Description + " : " + NL
 		ok

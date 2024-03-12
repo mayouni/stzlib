@@ -80,7 +80,7 @@ o1 = new stzListOfChars([ "1", "2", "♥", "4", "5", "♥", "7", "8", "♥" ])
 ? o1.FindAll("♥")
 #--> [3, 6, 9]
 
-# Note: the following functions work the same for stzString, 
+#NOTE: the following functions work the same for stzString, 
 # stzList, and stzListOfStrings, because they are abstracted in stzObject
 
 ? o1.NFirstOccurrences(2, :Of = "♥") 

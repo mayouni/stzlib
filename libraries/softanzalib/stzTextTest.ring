@@ -250,7 +250,7 @@ StopWordsMustBeRemoved()
 ? StzTextQ('Softanza: "playing" with words 1001 times!!').Words()
 #--> [ :softanza, :playing, :words, 1001, times ]
 
-# Note that :with has been removed from the output. That's because
+#NOTE that :with has been removed from the output. That's because
 # it figures in the EnglisgStopWords() list defined by default
 # (containing thousands of stopwords, not only for english but
 # for a dozen of other langauges).

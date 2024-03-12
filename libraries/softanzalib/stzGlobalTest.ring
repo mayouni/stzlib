@@ -929,7 +929,7 @@ o1 = new stzString("blablabla")
 #--> TRUE
 
 /*============ INFERRING TYPES: Q() & QQ()
-# NOTE: Unlike Ring, Softanza return type in lowercase.
+#NOTE: Unlike Ring, Softanza return type in lowercase.
 
 Q("ring") {
 	? Type()	#--> "object"

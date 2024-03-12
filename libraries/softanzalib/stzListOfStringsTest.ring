@@ -246,7 +246,7 @@ o1 = new stzListOfStrings([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 ? o1.FindAll("abc")
 #--> [3, 6, 9]
 
-# Note: the following functions work the same for stzString and
+#NOTE: the following functions work the same for stzString and
 # stzList, because they are abstracted in stzObject
 
 

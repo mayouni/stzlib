@@ -223,7 +223,7 @@ StzGridQ( [ 7, 7 ] ) { Show() }
 StzGridQ( [ 7, 7 ] ) {
 
 	@bShowCenter = TRUE
-	//@bShowRanks = TRUE # ERROR in case: TRUE (occurs in stzCounter)
+	//@bShowRanks = TRUE #ERROR in case: TRUE (occurs in stzCounter)
 
 	SetNode(1, 1, "1")
 	SetNode(7, 1, "2")

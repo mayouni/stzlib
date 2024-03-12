@@ -79,7 +79,7 @@ o1 = new stzTable([
 
 ])
 
-//o1.Shwo() + NL # Note this is a mispelled form of Show()
+//o1.Shwo() + NL #NOTE this is a mispelled form of Show()
 
 o1.SortInAscending(:SCORE)
 
@@ -715,7 +715,7 @@ proff()
 
 /*============
 
-# NOTE: examples borrowed from this article:
+#NOTE: examples borrowed from this article:
 # https://note.nkmk.me/en/python-range-usage
 
 pron()
@@ -1371,7 +1371,7 @@ StartProfiler()
 	echo( Min([0, 150, 30, 20, -8, -200]) );   #--> -200
 	echo( Max([0, 150, 30, 20, -8, -200]) );   #--> 150
 
-	# Note that the only difference is to put the numbers in a list
+	#NOTE that the only difference is to put the numbers in a list
 	# by bounding them by [ and ], inside the min() and max() functions
 
 StopProfiler()
@@ -1395,7 +1395,7 @@ StartProfiler()
 	Console.WriteLine( $("The range of integers is {min} to {max}") );
 	#--> The range of integers is '-999_999_999_999_999' to '999_999_999_999_999'
 
-	# Note that the only change made to the original C# code is to bound the string with ()
+	#NOTE that the only change made to the original C# code is to bound the string with ()
 	
 StopProfiler()
 # Executed in 0.10 second(s)
@@ -1426,7 +1426,7 @@ StartProfiler()
 	console.log( Q('ß').toLocaleUppercase('de') );
 	#--> SS
 
-	# Note hat the only difference is to elevate the string to
+	#NOTE hat the only difference is to elevate the string to
 	# stzString objects using Q()
 
 StopProfiler()

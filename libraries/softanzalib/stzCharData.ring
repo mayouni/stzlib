@@ -379,7 +379,7 @@ Dotless LETTERS
 	 #   PUNCTUATION   #
 	#-----------------#
 
-	# WARNING : The two unicode blocks GENERAL_PUNC and SUPPLEMENTAL_PUNCT
+	#WARNING : The two unicode blocks GENERAL_PUNC and SUPPLEMENTAL_PUNCT
 	# do not contain basic punctuations like ",",";", and so on.
 	# Those are classified in the category "Other Punctuation". Listed here:
 	# https://www.compart.com/en/unicode/category/Po
@@ -827,7 +827,7 @@ Dotless LETTERS
 	 #   INVERTIBLE, TURNED, CIRCLED, AND INVISIBLE CHARS    #
 	#-------------------------------------------------------#
 
-	# NOTE: Unicode distinsguishes between:
+	#NOTE: Unicode distinsguishes between:
 	# 	- a turned char
 	# 	- an inverted char
 	# 	- a reversed char
@@ -924,7 +924,7 @@ Dotless LETTERS
 
 	_aTurnableCharsXT = _aInvertibleCharsXT
 
-	# WARNING: Makes it possilbe to check if a char is turnable
+	#WARNING: Makes it possilbe to check if a char is turnable
 	# in uncode using the IsTurnable() function.
 
 	# But what we do here is that we use the same data as

@@ -335,7 +335,7 @@ o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
 #	[ "d", [ 5 ] ]
 # ]
 
-# NOTE: When casesitivity is used, all items are turned to lowercase in the output
+#NOTE: When casesitivity is used, all items are turned to lowercase in the output
 
 proff()
 # Executed in 0.03 second(s)
@@ -360,7 +360,7 @@ proff()
 pron()
 
 o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
-? o1.ItemsOccuringNTimesCS(3, FALSE) # Note this is a misspelled form (one r instead of 2)
+? o1.ItemsOccuringNTimesCS(3, FALSE) #NOTE this is a misspelled form (one r instead of 2)
 #--> [ "b" ]
 
 proff()
@@ -392,7 +392,7 @@ proff()
 pron()
 
 o1 = new stzList([ "A", "B", "A", "C", "D", "B", "b" ])
-? o1.ItemsOccuringNTimesCS(3, FALSE) # Note this is a misspelled form (one r instead of 2)
+? o1.ItemsOccuringNTimesCS(3, FALSE) #NOTE this is a misspelled form (one r instead of 2)
 #--> [ "b" ]
 
 proff()
@@ -790,7 +790,7 @@ o1.ReplaceItemAtPositions([ 1, 5 ], "ring", :By = "♥♥♥")
 
 proff()
 # Executed in 0.16 second(s)
-# NOTE : turn CheckParamsOff() to get 0.03
+#NOTE : turn CheckParamsOff() to get 0.03
 
 /*========
 
@@ -1342,7 +1342,7 @@ pron()
 ? Q([ 5, -12 ]).BothAreNumbers() # Q() elevates the list to a stzList object
 #--> TRUE
 
-# Note that the name of the function stays the same, but its signature
+#NOTE that the name of the function stays the same, but its signature
 # is different. In fact, they are two different things: the first one
 # (with the two numbers as parameters) is defined at the global scope,
 # and the second one (the method with the same name but without any
@@ -2255,7 +2255,7 @@ proff()
 /*-------
 
 pron()
-	# NOTE : Let's precise the concepts of Duplicates/Duplications,
+	#NOTE : Let's precise the concepts of Duplicates/Duplications,
 	# and DuplicateItems, as implemented semantically in Softanza
 
 	o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
@@ -2830,7 +2830,7 @@ pron()
 proff()
 # Executed in 0.04 second(s)
 
-# NOTE: Also, Softanza version is more performant (testit for a large list)
+#NOTE: Also, Softanza version is more performant (testit for a large list)
 
 /*==================
 
@@ -3970,7 +3970,7 @@ pron()
 
 o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
 
-# NOTE: the same code shown here can work as-is for stzListOfStrings!
+#NOTE: the same code shown here can work as-is for stzListOfStrings!
 # to test it just replace the line above with the following:
 // o1 = new stzListOfStrings([ "5", "7", "5", "5", "4", "7" ])
 
@@ -4326,7 +4326,7 @@ pron()
 
 o1 = new stzList([ 5, 7, 5, 5, 4, 7, 1 ])
 
-# NOTE: the same code shown here can work as-is for stzListOfStrings!
+#NOTE: the same code shown here can work as-is for stzListOfStrings!
 # to test it just replace the line above with the following:
 //o1 = new stzListOfStrings([ "5", "7", "5", "5", "4", "7", "1" ])
 
@@ -4747,7 +4747,7 @@ StartProfiler()
 		aLargeListOfStr + "_"
 	next i
 
-	# NOTE: Internally, FindNthPrevious() useses native
+	#NOTE: Internally, FindNthPrevious() useses native
 	# ring_reverse() function which has a good performance:
 	# 
 	# ring_reverse(aLargeListOfStr)
@@ -5042,7 +5042,7 @@ StopProfiler()
 StartProfiler()
 
 o1 = new stzList(["__", "♥", "_", "__", "♥", "♥", "__", "♥" ])
-? o1.NumberOfOccurence("♥") # Note that this is a misspelled form (lacks an "r")
+? o1.NumberOfOccurence("♥") #NOTE that this is a misspelled form (lacks an "r")
 			    # but Softanza is kind to accept it
 #--> 4
 
@@ -5441,7 +5441,7 @@ StopProfiler()
 /*-----------
 
 StartProfiler()
-# NOTE: In this example, it is better to use DeepBetween
+#NOTE: In this example, it is better to use DeepBetween
 
 #                   1..4.6..v.1..vv..8..vv
 o1 = new stzString("[••[•[••]•[••]]••[••]]")
@@ -5813,7 +5813,7 @@ o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 ? o1.FindAll("abc")
 #--> [3, 6, 9]
 
-# Note: the following functions work the same for stzString and
+#NOTE: the following functions work the same for stzString and
 # stzListOfStrings, because they are abstracted in stzObject
 
 ? o1.NFirstOccurrences(2, :Of = "abc") 
@@ -6431,7 +6431,7 @@ o1 = new stzList([
 	# 	:2000 = [ 9 ]
 	#    ]
 
-# NOTE that classes are transformed to strings!
+#NOTE that classes are transformed to strings!
 
 /*-----------------
 
@@ -6447,7 +6447,7 @@ o1 = new stzList([
 #	[ "[ 12, 13, 14, 15, 16, 17, 18, 19, 20 ]", [6, 9 ]
 #    ]
 
-# Note that lists are transformed to strings so we can use them
+#NOTE that lists are transformed to strings so we can use them
 # as keys for idenfifying their positions in the hash string.
 
 # Hence we can say:
@@ -6501,7 +6501,7 @@ StzListQ([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]) {
 	# You can also say OnlyNonNumbers()
 
 	? Content() #--> [ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]
-	# Note that the list is not altered by Numbers() and NonNumbers() functions
+	#NOTE that the list is not altered by Numbers() and NonNumbers() functions
 }
 
 /*-----------------
@@ -7562,10 +7562,10 @@ STOP()
 ? Q([ 1:5, "A":"E" ]).IsListOf(:Lists) 
 
 ? Q( [ 1:5, 6:10, 11:15 ] ).IsListOf(:ListOfNumbers)
-? Q( [ 1:5, 6:10, 11:15 ] ).IsListOf(:ListsOfNumbers) # Note the support of plural form
+? Q( [ 1:5, 6:10, 11:15 ] ).IsListOf(:ListsOfNumbers) #NOTE the support of plural form
 
 ? Q( [ "A":"E", "a":"e" ] ).IsListOf(:ListOfStrings)
-? Q( [ "A":"E", "a":"e" ] ).IsListOf(:ListsOfStrings) # Note the support of plural form
+? Q( [ "A":"E", "a":"e" ] ).IsListOf(:ListsOfStrings) #NOTE the support of plural form
 
 STOP()
 
@@ -8599,7 +8599,7 @@ o1 = new stzList([ "A", "B", "C" ])
 
 //o1 = new stzList( [ "A", "B", [ 1, "v", 2 ], "X" ] )
 o1 = new stzList([ "A", "B", "C" ])
-? o1.ContainsNo("v")		# ERROR: method undefined but it exists!!!
+? o1.ContainsNo("v")		#ERROR: method undefined but it exists!!!
 ? o1.ContainsNoObjects()	# idem
 //? o1.Flattened() # can also be written: o1.FlattenQ().Content()
 
@@ -8612,7 +8612,7 @@ o1 = new stzList([ "A", 1:3, obj, "B", [ "C", 4:5, [ "V", 6:8, ["T", 9:12 ,"K"] 
 /*---------------------
 */
 //? StzListQ([ 1:3, 4:7, 8:10 ]).MergeQ().Content()
-# NOTE: lists are merged only when they are lists of lists (Why? Think of it - TODO)
+#NOTE: lists are merged only when they are lists of lists (Why? Think of it - TODO)
 
 /*----------------------
 
@@ -8734,7 +8734,7 @@ o1 = new stzList(' "♥1" : "♥6" ')
 ? @@( o1 / 8 )
 #--> [ [ "♥1" ], [ "♥2" ], [ "♥3" ], [ "♥4" ], [ "♥5" ], [ "♥6" ], [ ], [ ] ]
 
-# NOTE
+#NOTE
 #--> The beneficiary items can be of any type. In practice, they are
 # strings and hence the returned result is a hashlist.
 

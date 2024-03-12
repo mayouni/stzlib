@@ -959,7 +959,7 @@ class stzLocale from stzObject
 			if This.Language() = :English
 
 				# In english, every word is capitalized in its first letter
-				# NOTE: we are implementing the simplified variant of title
+				#NOTE: we are implementing the simplified variant of title
 				# case here (also knowan as start case).
 
 				#TODO: Implement the various styles documented in this

@@ -1060,7 +1060,7 @@ func StringRepresentsNumberInScientificNotation(pNumber)
 # Takes a number of 3 digits and returns the following hashlist:
 # [ :Units = ..., :Dozens = ..., :Hundreds = ... ]
 func GetUnitsDozensAndHundreds(pNumber)	// Or simplier : GetMicroStructure(pNumber)
-	# WARNING: We rely on Ring native functions (len, right, left, substr)
+	#WARNING: We rely on Ring native functions (len, right, left, substr)
 	# In principle this is correct, since the number string contains only digits and some
 	# other ascii symbols (like "." and "," separators, and "+" and "-" signs).
 
@@ -2868,7 +2868,7 @@ class stzNumber from stzObject
 
 	def Decimals()
 		anResult = This.DecimalPartWihtoutDotQ().CharsQ().Numberified()
-		# NOTE : This is a misspelled form in Wihtout (sould be Without)
+		#NOTE : This is a misspelled form in Wihtout (sould be Without)
 		# But Softanza recognises it understands what you meant!
 
 		return anResult
@@ -4523,7 +4523,7 @@ class stzNumber from stzObject
 		# 
 		# 	aStructure = [ :cHundreds , :cThousands , :cMillions , :cBillions , :cTrillions ]
 		# 	where each key contains a string with the relevant number hosted in it.
-		# Note that the sign is not included in the analysis, but we have it in This.Sign()
+		#NOTE that the sign is not included in the analysis, but we have it in This.Sign()
 
 		oStzIntegerPart = new stzString(This.IntegerPartWithoutSign())
 		oStzFractionalPart = new stzString(This.FractionalPart())
@@ -5700,7 +5700,7 @@ class stzNumber from stzObject
 				if Q(cRemainingPart).IsNumberInString()
 					n = 0+ cRemainingPart
 					nResult = floor( This.NumbericValue() / n )
-					# NOTE this a misspelled form of NumericValue()!
+					#NOTE this a misspelled form of NumericValue()!
 
 					return nResult
 				ok

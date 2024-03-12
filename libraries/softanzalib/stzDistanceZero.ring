@@ -2,7 +2,7 @@
 # In memory of the palestinian people and their fight
 # for Freedom, justice and dignity.
 
-# NOTE : This is a personal opinion of the author.
+#NOTE : This is a personal opinion of the author.
 # It shouldn't be considered as a technical part
 # of the library. I respect all views, including
 # those who do not share mine. I just want them

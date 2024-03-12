@@ -667,7 +667,7 @@ class stzChar from stzObject
 		return "" + This.Unicode()
 
 	def HexUnicode()
-		# NOTE: Based on a proposal from ChatGPT
+		#NOTE: Based on a proposal from ChatGPT
 
 		nDecUnicode = This.Unicode()
 		acHexDigits = "0123456789ABCDEF"

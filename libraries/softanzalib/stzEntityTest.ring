@@ -41,7 +41,7 @@ StzEntityQ([ :name = "*__!", :type = "Company", :domain = "Technology" ])
 
 /*---------------
 
-# Note that if your provide properties in uppercase,
+#NOTE that if your provide properties in uppercase,
 # they are automatically lowercased
 
 ? StzEntityQ([ ["NAME" , "Apple"], [ "TYPE", "Company" ] ]).Content()

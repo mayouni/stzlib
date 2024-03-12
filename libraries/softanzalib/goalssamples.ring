@@ -351,7 +351,7 @@ load "stzlib.ring"
 	 	          #--> 5      #--> 1       #--> 7
 
 	StzListQ([ "A", 1:3, "B", 1:3, "C", 1:3 ]).FindAll( 1:3 ) #--> [2, 4, 6]
-	# Note that, in pure Ring, the find() function can't find the position of
+	#NOTE that, in pure Ring, the find() function can't find the position of
 	# a list like Softanza does in the example above.
 
 	#-- 2. Consistent Experience Over RingQt

@@ -2520,7 +2520,7 @@ func IsRingType(pcStr)
 	#>
 
 func IsRingOrStzType(pcStr)
-	if This.IsRingType(pcStr) or This.IsStzType(pcStr)
+	if IsRingType(pcStr) or IsStzType(pcStr)
 		return TRUE
 	else
 		return FALSE
@@ -2971,7 +2971,7 @@ func ComputableForm(pValue)
 		return cResult
 
 	but isList(pValue)
-		# NOTE: I duplicate the same code as StzListQ().ToCode() here
+		#NOTE: I duplicate the same code as StzListQ().ToCode() here
 		# so @@() can hopefully be more performant when used in large loops
 
 		aContent = pValue
@@ -3447,10 +3447,10 @@ func ElapsedTime()
 
 	func ElpasedTime()
 		return ElapsedTime()
-		# NOTE
+		#NOTE
 		# This function name alternative contains a spelling error.
 		# Despite that, I'll take it. Because I always make this
-		# error and don't want to be blocked for that.
+		#ERRor and don't want to be blocked for that.
 
 func ElapsedTimeXT(pIn)
 	if isList(pIn) and Q(pIn).IsInNamedParam()
@@ -3529,7 +3529,7 @@ func StopProfiler()
 	func ProfilerOff()
 		StopProfiler()
 
-func eval@(pcExpr, paItems) # WARNING: if you change paItems name,
+func eval@(pcExpr, paItems) #WARNING: if you change paItems name,
 			    # change it also in the evaluated code
 
 	# Checking params

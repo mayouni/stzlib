@@ -289,7 +289,7 @@ o1 = new stzListOfPairs([
 ? o1.FindAll([9,9])
 #--> [3, 6, 9]
 
-# Note: the following functions work the same for stzString, 
+#NOTE: the following functions work the same for stzString, 
 # stzList, and stzListOfStrings, because they are abstracted in stzObject
 
 ? o1.NFirstOccurrences(2, :Of = [9,9]) 

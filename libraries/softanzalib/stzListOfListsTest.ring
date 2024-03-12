@@ -128,7 +128,7 @@ o1 = new stzListOfLists([ 1:3, 4:7, 8:10 ])
 proff()
 # Executed in 0.03 second(s)
 
-# NOTE: You will understand the difference between Flatten() and Merge()
+#NOTE: You will understand the difference between Flatten() and Merge()
 # by reading the fellowing two ewxamples...
 
 /*---------------
@@ -733,7 +733,7 @@ o1 = new stzListOfLists([
 ? o1.FindAll([9,9,9])
 #--> [3, 6, 9]
 
-# Note: the following functions work the same for stzString, 
+#NOTE: the following functions work the same for stzString, 
 # stzList, and stzListOfStrings, because they are abstracted in stzObject
 
 ? o1.NFirstOccurrences(2, :Of = [9,9,9]) 

@@ -161,7 +161,7 @@ func ObjectVarName(pObject)
 
 	return cResult
 
-	func ObjectName(pObject) # Note the difference with classname(pObject)
+	func ObjectName(pObject) #NOTE the difference with classname(pObject)
 		return ObjectVarName(pObject)
 
 	func @ObjectVarName(pObject)
@@ -2280,7 +2280,7 @@ class stzObject
 
 	def Type()
 		return :Object
-		# NOTE: Unlike Ring, Softanza returns the type in lowercase
+		#NOTE: Unlike Ring, Softanza returns the type in lowercase
 
 		def RingType()
 			return :Object
@@ -2290,7 +2290,7 @@ class stzObject
 
 	def StzType()
 		return :stzObject
-		# WARNING: The same function should exist inside each Softanza class
+		#WARNING: The same function should exist inside each Softanza class
 		#--> if we call it on a stzOject we get :stzobject, but if wa call
 		#    on an other softanza type, say stzString or stzList for example,
 		#    we get, not :stzobject as a resutl, but :stzstring and stzlist!
@@ -2556,6 +2556,8 @@ class stzObject
 		nLen = len(pacStr)
 		if nLen = 0
 			return FALSE
+		but nLen = 1
+			return This.A(pacStr[1])
 		ok
 
 		cType = lower(pacStr[nLen])
@@ -2578,74 +2580,248 @@ class stzObject
 			object = new stzObject(content)
 
 		but @IsStzType(cType)
+			#NOTE
+			# I could use eval() to get a short and more
+			# flexible code (when a new stz type is added)
+			# but I opted for a static check for better
+			# performance
+
+			#TODO
+			# Update this code every time a new stz type
+			# (or Ring type) is added
+
+			#TODO
+			# Do the same in other similar places
+
 			switch cType
 			on stzobject
+				object = new stzObject(content)
+
 			on stzlistofobjects
+				object = new stzlistofobjects(content)
+
 			on stznumber
+				object = new stznumber(content)
+
 			on stzlistofnumbers
+				object = new stzlistofnumbers(content)
+
 			on stzlistofunicodes
+				object = new stzlistofunicodes(content)
+
 			on stzbinarynumber
+				object = new stzbinarynumber(content)
+
 			on stzhexnumber
+				object = new stzhexnumber(content)
+
 			on stzoctalnumber
+				object = new stzoctalnumber(content)
+
 			on stzstring
+				object = new stzstring(content)
+
 			on stzsplitter
+				object = new stzsplitter(content)
+
 			on stzmultistring
+				object = new stzmultistring(content)
+
 			on stzmultilingualstring
-			on stzstopwords
+				object = new stzmultilingualstring(content)
+
 			on stzlistofstrings
+				object = new stzlistofstrings(content)
+
 			on stzlistinstring
+				object = new stzlistinstring(content)
+
 			on stzlistofbytes
+				object = new stzlistofbytes(content)
+
 			on stzchar
+				object = new stzchar(content)
+
 			on stzunicodenames
+				object = new stzunicodenames(content)
+
 			on stzlistofchars
+				object = new stzlistofchars(content)
+
 			on stzlist
-			on stzhashlist
+				object = new stzlist(content)
+
+			on stzlist
+				object = new stzlist(content)
+
 			on stzlistofhashlists
+				object = new stzlistofhashlists(content)
+
 			on stzassociativelist
+				object = new stzassociativelist(content)
+
 			on stzset
+				object = new stzset(content)
+
 			on stzlistoflists
+				object = new stzlistoflists(content)
+
 			on stzlistofpairs
+				object = new stzlistofpairs(content)
+
 			on stzpair
+				object = new stzpair(content)
+
 			on stzpairofnumbers
+				object = new stzpairofnumbers(content)
+
 			on stzpairoflists
+				object = new stzpairoflists(content)
+
 			on stzlistofsets
+				object = new stzlistofsets(content)
+
 			on stztree
+				object = new stztree(content)
+
 			on stzwalker
+				object = new stzwalker(content)
+
 			on stztable
+				object = new stztable(content)
+
 			on stzlistoftables
+				object = new stzlistoftables(content)
+
 			on stzlocale
+				object = new stzlocale(content)
+
 			on stzcountry
+				object = new stzcountry(content)
+
 			on stzlanguage
+				object = new stzlanguage(content)
+
 			on stzscript
+				object = new stzscript(content)
+
 			on stzcurrency
+				object = new stzcurrency(content)
+
 			on stzlistparser
+				object = new stzlistparser(content)
+
 			on stzgrid
+				object = new stzgrid(content)
+
 			on stzlistofgrids
+				object = new stzlistofgrids(content)
+
 			on stzcounter
+				object = new stzcounter(content)
+
 			on stzdate
+				object = new stzdate(content)
+
 			on stztime
+				object = new stztime(content)
+
 			on stzfile
+				object = new stzfile(content)
+
 			on stzfolder
-	
+				object = new stzfolder(content)
+
 			on stztextencoding
+				object = new stztextencoding(content)
+
 			on stznaturalcode
+				object = new stznaturalcode(content)
+
 			on stzchainofvalue
+				object = new stzchainofvalue(content)
+
 			on stzchainoftruth
+				object = new stzchainoftruth(content)
+
 			on stzentity
+				object = new stzentity(content)
+
 			on stzlistofentities
+				object = new stzlistofentities(content)
+
 			on stztext
+				object = new stztext(content)
+
 			on stzstringart
+				object = new stzstringart(content)
+
 			on stzconstraints
+				object = new stzconstraints(content)
+
 			on stzccode
+				object = new stzccode(content)
+
 			on stznullobject
+				object = new stznullobject(content)
+
 			on stzfalseobject
+				object = new stzfalseobject(content)
+
 			on stztrueobject
+				object = new stztrueobject(content)
+
 			on stzextcode
+				object = new stzextcode(content)
+
 			on stzsection
+				object = new stzsection(content)
+
 			on stznullobject
+				object = new stznullobject(content)
+
 			on stztrueobject
+				object = new stztrueobject(content)
+
 			on stzfalseobjects
+				object = new stzfalseobjects(content)
+
+			other
+				return FALSE
+			off
 		ok
+
+		# Preparing the names of the methods
+
+		acMethods = []
+
+		for i = 1 to nLen-1
+
+			if pacStr[i] = "number" or pacStr[i] = "string" or
+			   pacStr[i] = "list" or pacStr[i] = "object"
+
+				acMethods + ( "isA" + pacStr[i] + "()" )
+			else
+				acMethods + ( "is" + pacStr[i] + "()" )
+			ok
+
+		next
+
+		# Checking the methods on the object
+
+		nLen = len(acMethods)
+		bResult = TRUE
+
+		for i = 1 to nLen
+			ccode = 'bResult = object.' + acMethods[i]
+			eval(cCode)
+			if bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
 
 	def IsA(pcType)
 		/* Example
@@ -2656,6 +2832,10 @@ class stzObject
 		? Q("ring").IsA([ :Lowercase, :Latin, :String ])
 
 		*/
+
+		if isList(pcType)
+			return This.IsAXT(pcType)
+		ok
 
 		if NOT isString(pcType)
 			StzRaise("Incorrect param type! pcType must be a string.")
@@ -3820,7 +4000,7 @@ class stzObject
 	# TODO: This part is an experimentation of abastraction common features
 	# between stzString and stzList in one place, here in stzObject
 
-	# NOTE: I'm not yet decided if this should be generalised. Think about it.
+	#NOTE: I'm not yet decided if this should be generalised. Think about it.
 
 	def FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
 

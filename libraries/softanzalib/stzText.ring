@@ -2383,7 +2383,7 @@ class stzText from stzString
 
 		for nFreq in panFreq
 			aResult + [ "" + nFreq, This.WordsWithFrequency(nFreq) ]
-			# NOTE: we stringify nFreq to be able to use the list as a hashlist
+			#NOTE: we stringify nFreq to be able to use the list as a hashlist
 		next
 
 		return aResult
@@ -2853,7 +2853,7 @@ class stzText from stzString
 		}
 		*/
 
-		# NOTE: Generalize the way ooptions are managed here all over
+		#NOTE: Generalize the way ooptions are managed here all over
 		# the library. Features: Options can be added or not. If not,
 		# a default value is considered ==> Flexiblity Objective
 
