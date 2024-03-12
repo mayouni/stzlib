@@ -27309,10 +27309,12 @@ class stzString from stzObject
 
 		/* EXAMPLE
 
-		o1 = new stzString("ring qt softanza pyhton kandaji csharp ring")
-		o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥" ])
+		o1 = new stzString("ring qt softanza pyhton kandaji csharp zai")
+		o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji", "zai" ], :By = [ "♥", "♥♥" ])
+		
+		? o1.Content()
+		# ♥ qt ♥♥ pyhton ♥ csharp ♥♥
 
-		? o1.Content() #--> "♥ qt ♥♥ pyhton ♥ csharp ♥♥"
 		*/
 
 		if CheckParams()
@@ -27329,23 +27331,27 @@ class stzString from stzObject
 
 		# Doing the job
 
-		acSubStr = StzListQ(pacSubStr).WithoutDupplication() # ~> [ "ring", "softanza", "kandaji" ]
-		nLenSubStr = len(pacSubStr) # ~> 3
-		nOccSubStr = len(This.FindManyCS(pacSubStr, pCaseSensitive)) # ~> 4
-		nLenNewSubStr = len(pacNewSubStr) # ~> 2 ~> [ "♥", "♥♥" ]
+		acSubStr = StzListQ(pacSubStr).WithoutDupplication()
+		nLenSubStr = len(pacSubStr)
+		nLenNewSubStr = len(pacNewSubStr)
 
-		acNewSubStr = pacNewSubStr # ~> [ "♥", "♥♥" ]
+		# Extending or shrinking acNewSubStr, if necessary, so it has
+		# the same size as acSubStr
 
-		# Extending acNewSubStr, if necessary
-
-		if nLenNewSubStr < nOccSubStr # ~> TRUE ~> 2 < 4
+		if nLenNewSubStr < nLenSubStr
+			acNewSubStr = pacNewSubStr
 			n = 0
-			for i = nLenNewSubStr + 1 to nOccSubStr # ~> for i = 2 to 4
+			for i = nLenNewSubStr + 1 to nLenSubStr
 				n++
-				if n > nLenNewSubStr # ~> if n > 2
+				if n > nLenNewSubStr
 					n = 1
 				ok
 				acNewSubStr + pacNewSubStr[n]
+			next
+		else
+			acNewSubStr = []
+			for i = 1 to nLenSubStr
+				acSubStr + pacNewSubStr[i]
 			next
 		ok
 

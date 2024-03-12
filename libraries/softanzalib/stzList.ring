@@ -5930,34 +5930,7 @@ class stzList from stzObject
 			This.ReplaceCS(paItems[i], paNewItems[i], pCaseSensitive)
 		next
 
-/*
-		if CheckParams()
-	
-			if isList(paNewItems) and Q(paNewItems).IsWithOrByNamedParam()
-				paNewItems = paNewItems[2]
-			ok	
 
-		ok
-
-		# Doing the job
-
-		nLen = len(paItems)
-		nLenNewItems = len(paNewItems)
-
-		for i = 1 to nLen
-			cSubStr = paItems[i]
-			item = NULL
-
-			if i <= nLenNewItems
-				item = paNewItems[i]
-			ok
-
-			if item != NULL
-				This.ReplaceCS(paItems[i], item, pCaseSensitive)
-			ok
-
-		next
-*/
 		#< @FunctionFluentForm
 
 		def ReplaceManyByManyCSQ(paItems, paNewItems, pCaseSensitive)
@@ -6064,6 +6037,127 @@ class stzList from stzObject
 
 		def ItemsReplacedByThese(paItems, paNewItems)
 			return This.ManyItemsReplacedByMany(paItems, paNewItems)
+
+	#>
+
+	  #--------------------------------------------------#
+	 #  REPLACING MANY ITEMS BY MANY OTHER ITEMS -- XT  #
+	#--------------------------------------------------#
+	# XT ~> Return to beginning if all the other items are replaced
+
+	def ReplaceManyByManyCSXT(paItems, paNewItems, pCaseSensitive)
+		#TODO: Add "These" as alternatibe of "Many"
+
+		/* EXAMPLE
+
+		o1 = new stzList(["ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "zai" ])
+		o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji", "zai" ], :By = [ "♥", "♥♥" ])
+		
+		? o1.Content()
+		#--> [ "♥", "qt", "♥♥", "pyhton", "♥", "csharp", "♥♥" ]
+
+		*/
+
+		if CheckParams()
+	
+			if isList(paNewItems) and Q(paNewItems).IsWithOrByNamedParam()
+				paNewItems = paNewItems[2]
+			ok
+
+		ok
+
+		# Doing the job
+
+		aItems = StzListQ(paItems).WithoutDupplication()
+		nLenItems = len(paItems)
+		nLenNewItems = len(paNewItems)
+
+		# Extending or shrinking aNewItems, if necessary, so it has
+		# the same size as aItems
+
+		if nLenNewItems < nLenItems
+			aNewItems = paNewItems
+			n = 0
+			for i = nLenNewItems + 1 to nLenItems # ~> for i = 2 to 4
+				n++
+				if n > nLenNewItems
+					n = 1
+				ok
+				aNewItems + paNewItems[n]
+			next
+		else
+			aNewItems = []
+			for i = 1 to nLenItems
+				aItems + paNewItems[i]
+			next
+		ok
+
+		# Calling the noral function
+
+		This.ReplaceManyByManyCS(aItems, aNewItems, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def ReplaceManyByManyXTCSQ(paItems, paNewItems, pCaseSensitive)
+			This.ReplaceManyByManyCSXT(paItems, paNewItems, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceManySubStringsByManyCSXT(paItems, paNewItems, pCaseSensitive)
+			This.ReplaceManyByManyCSXT(paItems, paNewItems, pCaseSensitive)
+
+			def ReplaceManySubStringsByManyXTCSQ(paItems, paNewItems, pCaseSensitive)
+				This.ReplaceManySubStringsByManyCSXT(paItems, paNewItems, pCaseSensitive)
+				return This
+
+		#>
+
+	#< @FunctionPassiveForm
+
+	def ManySubStringsReplaceByManyCSXT(paItems, paNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceManyByManyXTCSQ(paItems, paNewItems, pCaseSensitive).Content()
+		return cResult
+
+		def SubStringsReplaceByManyCSXT(paItems, paNewItems, pCaseSensitive)
+			return This.ManySubStringsReplaceByManyCSXT(paItems, paNewItems, pCaseSensitive)
+
+	#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceManyByManyXT(paItems, paNewItems)
+		This.ReplaceManyByManyCSXT(paItems, paNewItems, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceManyByManyXTQ(paItems, paNewItems)
+			This.ReplaceManyByManyXT(paItems, paNewItems)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceManySubStringsByManyXT(paItems, paNewItems)
+			This.ReplaceManyByManyXT(paItems, paNewItems)
+
+			def ReplaceManySubStringsByManyXTQ(paItems, paNewItems)
+				This.ReplaceManySubStringsByManyXT(paItems, paNewItems)
+				return This
+
+		#>
+
+	#< @FunctionPassiveForm
+
+	def ManySubStringsReplaceByManyXT(paItems, paNewItems)
+		cResult = This.Copy().ReplaceManyByManyXTQ(paItems, paNewItems).Content()
+		return cResult
+
+		def SubStringsReplaceByManyXT(paItems, paNewItems)
+			return This.ManySubStringsReplaceByManyXT(paItems, paNewItems)
 
 	#>
 
