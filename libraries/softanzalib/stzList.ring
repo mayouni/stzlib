@@ -5912,6 +5912,29 @@ class stzList from stzObject
 	
 			if isList(paNewItems) and Q(paNewItems).IsWithOrByNamedParam()
 				paNewItems = paNewItems[2]
+			ok
+
+		ok
+
+		# Doing the job
+
+		paItems = StzListQ(paItems).WithoutDuplication()	
+		nLenItems = len(paItems)
+		nLenNewItems = len(paNewItems)
+
+		if NOT ( nLenItems = nLenNewItems )
+			StzRaise("Incorrect values! nLenItems and nLenNewItems must have the same size.")
+		ok
+
+		for i = 1 to nLenItems
+			This.ReplaceCS(paItems[i], paNewItems[i], pCaseSensitive)
+		next
+
+/*
+		if CheckParams()
+	
+			if isList(paNewItems) and Q(paNewItems).IsWithOrByNamedParam()
+				paNewItems = paNewItems[2]
 			ok	
 
 		ok
@@ -5934,7 +5957,7 @@ class stzList from stzObject
 			ok
 
 		next
-
+*/
 		#< @FunctionFluentForm
 
 		def ReplaceManyByManyCSQ(paItems, paNewItems, pCaseSensitive)
