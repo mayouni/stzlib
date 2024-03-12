@@ -23,18 +23,18 @@ _cWordIdentificationMode = :Quick	# or :Strict
 
 _acCharsAllowedInStartOfWord		= [ "_acCharsAllowedInStartOfWord" ]
 _acCharsNotAllowedInStartOfWord 	= [ "_acCharsNotAllowedInStartOfWord" ]
-_acSubstringsAllowedInStartOfWord	= [ "_acSubstringsAllowedInStartOfWord" ]
-_acSubstringsNotAllowedInStartOfWord	= [ "_acSubstringsNotAllowedInStartOfWord" ]
+_acSubStrAllowedInStartOfWord	= [ "_acSubStrAllowedInStartOfWord" ]
+_acSubStrNotAllowedInStartOfWord	= [ "_acSubStrNotAllowedInStartOfWord" ]
 
 _acCharsAllowedInsideWord		= [ "_acCharsAllowedInsideWord" ]
 _acCharsNotAllowedInsideWord		= [ "_acCharsNotAllowedInsideWord" ]
-_acSubstringsAllowedInsideWord		= [ "_acSubstringsAllowedInsideWord" ]
-_acSubstringsNotAllowedInsideWord	= [ "_acSubstringsNotAllowedInsideWord" ]
+_acSubStrAllowedInsideWord		= [ "_acSubStrAllowedInsideWord" ]
+_acSubStrNotAllowedInsideWord	= [ "_acSubStrNotAllowedInsideWord" ]
 
 _acCharsAllowedInEndOfWord		= [ "_acCharsAllowedInEndOfWord" ]
 _acCharsNotAllowedInEndOfWord		= [ "_acCharsNotAllowedInEndOfWord" ]
-_acSubstringsAllowedInEndOfWord		= [ "_acSubstringsAllowedInEndOfWord" ]
-_acSubstringsNotAllowedInEndOfWord	= [ "_acSubstringsNotAllowedInEndOfWord" ]
+_acSubStrAllowedInEndOfWord		= [ "_acSubStrAllowedInEndOfWord" ]
+_acSubStrNotAllowedInEndOfWord	= [ "_acSubStrNotAllowedInEndOfWord" ]
 
   /////////////////////
  ///   FUNCTIONS   ///
@@ -220,50 +220,50 @@ func CharsNotAllowedInStartOfWord()
 
 #---
 
-func TheseSubstringsCanBeInStartOfWord(pacSubstrings)
-	_acSubstringsAllowedInStartOfWord = pacSubstrings
+func TheseSubstringsCanBeInStartOfWord(pacSubStr)
+	_acSubStrAllowedInStartOfWord = pacSubStr
 
-	func TheseSubstringsCanBeInStartOfAWord(pacSubstrings)
-		TheseSubstringsCanBeInStartOfWord(pacSubstrings)
+	func TheseSubstringsCanBeInStartOfAWord(pacSubStr)
+		TheseSubstringsCanBeInStartOfWord(pacSubStr)
 
-	func TheseSubstringsAreAllowedInStartOfWord(pacSubstrings)
-		TheseSubstringsCanBeInStartOfWord(pacSubstrings)
+	func TheseSubstringsAreAllowedInStartOfWord(pacSubStr)
+		TheseSubstringsCanBeInStartOfWord(pacSubStr)
 
-	func TheseSubstringsAreAllowedInStartOfAWord(pacSubstrings)
-		TheseSubstringsCanBeInStartOfWord(pacSubstrings)
+	func TheseSubstringsAreAllowedInStartOfAWord(pacSubStr)
+		TheseSubstringsCanBeInStartOfWord(pacSubStr)
 
-	func AllowTheseSubstringsInStartOfWord(pacSubstrings)
-		TheseSubstringsCanBeInStartOfWord(pacSubstrings)
+	func AllowTheseSubstringsInStartOfWord(pacSubStr)
+		TheseSubstringsCanBeInStartOfWord(pacSubStr)
 
-	func AllowThesesubstringsInStartOfAWord(pacSubstrings)
-		TheseSubstringsCanBeInStartOfWord(pacSubstrings)
+	func AllowThesesubstringsInStartOfAWord(pacSubStr)
+		TheseSubstringsCanBeInStartOfWord(pacSubStr)
 
-func TheseSubstringsCanNotBeInStartOfWord(pacSubstrings)
-	_acSusbstringsNotAllowedInStartOfWord = pacSubstrings
+func TheseSubstringsCanNotBeInStartOfWord(pacSubStr)
+	_acSusbstringsNotAllowedInStartOfWord = pacSubStr
 
-	func TheseSubstringsCanNotBeInStartOfAWord(pacSubstrings)
-		TheseSubstringsCanNotBeInStartOfWord(pacSubstrings)
+	func TheseSubstringsCanNotBeInStartOfAWord(pacSubStr)
+		TheseSubstringsCanNotBeInStartOfWord(pacSubStr)
 
-	func TheseSubstringsAreNotAllowedInStartOfWord(pacSubstrings)
-		TheseSubstringsCanNotBeInStartOfWord(pacSubstrings)
+	func TheseSubstringsAreNotAllowedInStartOfWord(pacSubStr)
+		TheseSubstringsCanNotBeInStartOfWord(pacSubStr)
 
-	func TheseSubstringsAreNotAllowedInStartOfAWord(pacSubstrings)
-		TheseSubstringsCanNotBeInStartOfWord(pacSubstrings)
+	func TheseSubstringsAreNotAllowedInStartOfAWord(pacSubStr)
+		TheseSubstringsCanNotBeInStartOfWord(pacSubStr)
 
-	func DoNotAllowTheseSubstringsInStartOfWord(pacSubstrings)
-		TheseSubstringsCanNotBeInStartOfWord(pacSubstrings)
+	func DoNotAllowTheseSubstringsInStartOfWord(pacSubStr)
+		TheseSubstringsCanNotBeInStartOfWord(pacSubStr)
 
-	func DoNotAllowTheseSubstringsInStartOfAWord(pacSubstrings)
-		TheseSubstringsCanNotBeInStartOfWord(pacSubstrings)
+	func DoNotAllowTheseSubstringsInStartOfAWord(pacSubStr)
+		TheseSubstringsCanNotBeInStartOfWord(pacSubStr)
 
 func SubstringsAllowedInStartOfWord()
-	return _acSubstringsAllowedInStartOfWord
+	return _acSubStrAllowedInStartOfWord
 
 	func AllowedSubstringsInStartOfWord()
 		return SubstringsAllowedInStartOfWord()
 
 func SubstringsNotAllowedInStartOfWord()
-	return _acSubstringsNotAllowedInStartOfWord
+	return _acSubStrNotAllowedInStartOfWord
 
 	func UnallowedSubstringsInStartOfWord()
 		return CharsNotAllowedInStartOfWord()
@@ -333,43 +333,43 @@ func CharsNotAllowedInsideWord()
 #---
 
 func TheseSubstringsCanBeInsideWord(pacChars)
-	_acSubstringsAllowedInsideWord = pacChars
+	_acSubStrAllowedInsideWord = pacChars
 
-	func TheseSubstringsCanBeInsideAWord(pacSubstrings)
-		TheseSubstringsCanBeInsideWord(pacSubstrings)
+	func TheseSubstringsCanBeInsideAWord(pacSubStr)
+		TheseSubstringsCanBeInsideWord(pacSubStr)
 
-	func TheseSubstringsAreAllowedInsideWord(pacSubstrings)
-		TheseSubstringsCanBeInsideWord(pacSubstrings)
+	func TheseSubstringsAreAllowedInsideWord(pacSubStr)
+		TheseSubstringsCanBeInsideWord(pacSubStr)
 
-	func TheseSubstringsAreAllowedInsideAWord(pacSubstrings)
-		TheseSubstringsCanBeInsideWord(pacSubstrings)
+	func TheseSubstringsAreAllowedInsideAWord(pacSubStr)
+		TheseSubstringsCanBeInsideWord(pacSubStr)
 
-	func AllowTheseSubstringsInsideWord(pacSubstrings)
-		TheseSubstringsCanBeInsideWord(pacSubstrings)
+	func AllowTheseSubstringsInsideWord(pacSubStr)
+		TheseSubstringsCanBeInsideWord(pacSubStr)
 
-	func AllowThesesubstringsInsideAWord(pacSubstrings)
-		TheseSubstringsCanBeInsideWord(pacSubstrings)
+	func AllowThesesubstringsInsideAWord(pacSubStr)
+		TheseSubstringsCanBeInsideWord(pacSubStr)
 
 func TheseSubstringsCanNotBeInsideWord(pacChars)
 	_acCharsNotAllowedInsideWord = pacChars
 
-	func TheseSubstringsCanNotBeInsideAWord(pacSubstrings)
-		TheseSubstringsCanNotBeInStartOfWord(pacSubstrings)
+	func TheseSubstringsCanNotBeInsideAWord(pacSubStr)
+		TheseSubstringsCanNotBeInStartOfWord(pacSubStr)
 
-	func TheseSubstringsAreNotAllowedInsideWord(pacSubstrings)
-		TheseSubstringsCanNotBeInsideWord(pacSubstrings)
+	func TheseSubstringsAreNotAllowedInsideWord(pacSubStr)
+		TheseSubstringsCanNotBeInsideWord(pacSubStr)
 
-	func TheseSubstringsAreNotAllowedInsideAWord(pacSubstrings)
-		TheseSubstringsCanNotBeInsideWord(pacSubstrings)
+	func TheseSubstringsAreNotAllowedInsideAWord(pacSubStr)
+		TheseSubstringsCanNotBeInsideWord(pacSubStr)
 
-	func DoNotAllowTheseSubstringsInsideWord(pacSubstrings)
-		TheseSubstringsCanNotBeInsideWord(pacSubstrings)
+	func DoNotAllowTheseSubstringsInsideWord(pacSubStr)
+		TheseSubstringsCanNotBeInsideWord(pacSubStr)
 
-	func DoNotAllowTheseSubstringsInsideAWord(pacSubstrings)
-		TheseSubstringsCanNotBeInsideWord(pacSubstrings)
+	func DoNotAllowTheseSubstringsInsideAWord(pacSubStr)
+		TheseSubstringsCanNotBeInsideWord(pacSubStr)
 
 func SubstringsAllowedInsideWord()
-	return _acSubstringsAllowedInsideWord
+	return _acSubStrAllowedInsideWord
 
 	func SubstringsAllowedInsideWords()
 		return SubstringsAllowedInsideWord()
@@ -381,7 +381,7 @@ func SubstringsAllowedInsideWord()
 		return SubstringsAllowedInsideWord()
 
 func SubstringsNotAllowedInsideWord()
-	return _acSubstringsNotAllowedInsideWord
+	return _acSubStrNotAllowedInsideWord
 
 	func SubstringsNotAllowedInsideWords()
 		return CharsNotAllowedInsideWord()
@@ -457,50 +457,50 @@ func CharsNotAllowedInEndOfWord()
 #---
 
 func TheseSubstringsCanBeInEndOfWord(pacChars)
-	_acSubstringsAllowedInEndOfWord = pacChars
+	_acSubStrAllowedInEndOfWord = pacChars
 
-	func TheseSubstringsCanBeInEndOfAWord(pacSubstrings)
-		TheseSubstringsCanBeInEndOfWord(pacSubstrings)
+	func TheseSubstringsCanBeInEndOfAWord(pacSubStr)
+		TheseSubstringsCanBeInEndOfWord(pacSubStr)
 
-	func TheseSubstringsAreAllowedInEndOfWord(pacSubstrings)
-		TheseSubstringsCanBeInEndOfWord(pacSubstrings)
+	func TheseSubstringsAreAllowedInEndOfWord(pacSubStr)
+		TheseSubstringsCanBeInEndOfWord(pacSubStr)
 
-	func TheseSubstringsAreAllowedInEndOfAWord(pacSubstrings)
-		TheseSubstringsCanBeInEndOfWord(pacSubstrings)
+	func TheseSubstringsAreAllowedInEndOfAWord(pacSubStr)
+		TheseSubstringsCanBeInEndOfWord(pacSubStr)
 
-	func AllowTheseSubstringsInEndOfWord(pacSubstrings)
-		TheseSubstringsCanBeInEndOfWord(pacSubstrings)
+	func AllowTheseSubstringsInEndOfWord(pacSubStr)
+		TheseSubstringsCanBeInEndOfWord(pacSubStr)
 
-	func AllowThesesubstringsInEndOfAWord(pacSubstrings)
-		TheseSubstringsCanBeInEndOfWord(pacSubstrings)
+	func AllowThesesubstringsInEndOfAWord(pacSubStr)
+		TheseSubstringsCanBeInEndOfWord(pacSubStr)
 
 
 func TheseSubstringsCanNotBeInEndOfWord(pacChars)
 	_acCharsNotAllowedInEndOfWord = pacChars
 
-	func TheseSubstringsCanNotBeInEndOfAWord(pacSubstrings)
-		TheseSubstringsCanNotBeInEndOfWord(pacSubstrings)
+	func TheseSubstringsCanNotBeInEndOfAWord(pacSubStr)
+		TheseSubstringsCanNotBeInEndOfWord(pacSubStr)
 
-	func TheseSubstringsAreNotAllowedInEndOfWord(pacSubstrings)
-		TheseSubstringsCanNotBeInEndOfWord(pacSubstrings)
+	func TheseSubstringsAreNotAllowedInEndOfWord(pacSubStr)
+		TheseSubstringsCanNotBeInEndOfWord(pacSubStr)
 
-	func TheseSubstringsAreNotAllowedInEndOfAWord(pacSubstrings)
-		TheseSubstringsCanNotBeInEndOfWord(pacSubstrings)
+	func TheseSubstringsAreNotAllowedInEndOfAWord(pacSubStr)
+		TheseSubstringsCanNotBeInEndOfWord(pacSubStr)
 
-	func DoNotAllowTheseSubstringsInEndOfWord(pacSubstrings)
-		TheseSubstringsCanNotBeInEndOfWord(pacSubstrings)
+	func DoNotAllowTheseSubstringsInEndOfWord(pacSubStr)
+		TheseSubstringsCanNotBeInEndOfWord(pacSubStr)
 
-	func DoNotAllowTheseSubstringsInEndOfAWord(pacSubstrings)
-		TheseSubstringsCanNotBeInEndOfWord(pacSubstrings)
+	func DoNotAllowTheseSubstringsInEndOfAWord(pacSubStr)
+		TheseSubstringsCanNotBeInEndOfWord(pacSubStr)
 
 func SubstringsAllowedInEndOfWord()
-	return _acSubstringsAllowedInEndOfWord
+	return _acSubStrAllowedInEndOfWord
 
 	func AllowedSubstringsInEndOfWord()
 		return SubstringsAllowedInEndOfWord()
 
 func SubstringsNotAllowedInEndOfWord()
-	return _acSubstringsNotAllowedInEndOfWord
+	return _acSubStrNotAllowedInEndOfWord
 
 	func UnallowedSubstringsInEndOfWord()
 		return CharsNotAllowedInEndOfWord()

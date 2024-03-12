@@ -263,12 +263,12 @@ class stzCCode
 		# a priority over performance, then you can use them and call
 		# the extended version of the function insetead: ExecutableSectionXT()
 
-		acSubStrings = This.CodeQ().SubStringsBetween("[","]")
-		nLenSubStr = len(acSubStrings)
+		acSubStr = This.CodeQ().SubStringsBetween("[","]")
+		nLenSubStr = len(acSubStr)
 
 		acNumbersAfter = []
 		for i = 1 to nLenSubStr
-			acNumbers = Q(acSubStrings[i]).NumbersAfter("@i")
+			acNumbers = Q(acSubStr[i]).NumbersAfter("@i")
 			if len(acNumbers) > 0
 				acNumbersAfter + acNumbers[1]
 			ok
@@ -351,12 +351,12 @@ class stzCCode
 
 		oCode = new stzString( This.Transpiled() )
 	
-		acSubStrings = oCode.Between("[","]")
-		nLenSubStr = len(acSubStrings)
+		acSubStr = oCode.Between("[","]")
+		nLenSubStr = len(acSubStr)
 
 		acNumbersAfter = []
 		for i = 1 to nLenSubStr
-			acNumbers = Q(acSubStrings[i]).NumbersAfter("@i")
+			acNumbers = Q(acSubStr[i]).NumbersAfter("@i")
 			if len(acNumbers) > 0
 				acNumbersAfter + acNumbers[1]
 			ok

@@ -4796,8 +4796,8 @@ pron()
 
 o1 = new stzString("r  in  g language is like a r  ing at your fingertips!")
 
-acSubStringsXT =  o1.SubStringsBetweenAndTheirSectionsXT("r","g")
-//? @@(acSubStringsXT)
+acSubStrXT =  o1.SubStringsBetweenAndTheirSectionsXT("r","g")
+//? @@(acSubStrXT)
 #--> [
 #	[ "r in g", [  1, 8  ] ],
 #	[ "r ing",  [ 29, 34 ] ],
@@ -4805,7 +4805,7 @@ acSubStringsXT =  o1.SubStringsBetweenAndTheirSectionsXT("r","g")
 # ]
 
 
-oHashList = QR(acSubStringsXT, :stzHashList)
+oHashList = QR(acSubStrXT, :stzHashList)
 acWithoutSpaces = oHashList.KeysQR(:stzListOfStrings).WithoutSapces()
 #-->  [ "ring", "ring", "rfing" ]
 

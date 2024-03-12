@@ -570,18 +570,18 @@ class stzSubStringCS
 
 	#--
 
-	def InsertedBeforeSubStringsCS(pacSubStrings, pCaseSensitive)
-		cResult = This.StringQ().InsertBeforeSubStringsCSQ(pacSubStrings, This.SubString(), pCaseSensitive).Content()
+	def InsertedBeforeSubStringsCS(pacSubStr, pCaseSensitive)
+		cResult = This.StringQ().InsertBeforeSubStringsCSQ(pacSubStr, This.SubString(), pCaseSensitive).Content()
 		return cResult
 
-		def InsertedBeforeManySubStringsCS(pacSubStrings, pCaseSensitive)
-			return This.InsertedBeforeSubStringsCS(pacSubStrings, pCaseSensitive)
+		def InsertedBeforeManySubStringsCS(pacSubStr, pCaseSensitive)
+			return This.InsertedBeforeSubStringsCS(pacSubStr, pCaseSensitive)
 
-	def InsertedBeforeSubStrings(pacSubStrings)
-		return This.InsertedBeforeSubStringsCS(pacSubStrings, TRUE)
+	def InsertedBeforeSubStrings(pacSubStr)
+		return This.InsertedBeforeSubStringsCS(pacSubStr, TRUE)
 
-		def InsertedBeforeManySubStrings(pacSubStrings)
-			return This.InsertedBeforeSubStrings(pacSubStrings)
+		def InsertedBeforeManySubStrings(pacSubStr)
+			return This.InsertedBeforeSubStrings(pacSubStr)
 
 	def InsertedBeforeW(pcCondition)
 		cResult = This.StringQ().InsertBeforeWQ(pcCondition, This.SubString()).Content()
@@ -623,18 +623,18 @@ class stzSubStringCS
 
 	#--
 
-	def InsertedAfterSubStringsCS(pacSubStrings, pCaseSensitive)
-		cResult = This.StringQ().InsertAfterSubStringsCSQ(pacSubStrings, This.SubString(), pCaseSensitive).Content()
+	def InsertedAfterSubStringsCS(pacSubStr, pCaseSensitive)
+		cResult = This.StringQ().InsertAfterSubStringsCSQ(pacSubStr, This.SubString(), pCaseSensitive).Content()
 		return cResult
 
-		def InsertedAfterManySubStringsCS(pacSubStrings, pCaseSensitive)
-			return This.InsertedAfterSubStringsCS(pacSubStrings, pCaseSensitive)
+		def InsertedAfterManySubStringsCS(pacSubStr, pCaseSensitive)
+			return This.InsertedAfterSubStringsCS(pacSubStr, pCaseSensitive)
 
-	def InsertedAfterSubStrings(pacSubStrings)
-		return This.InsertedAfterSubStringsCS(pacSubStrings, TRUE)
+	def InsertedAfterSubStrings(pacSubStr)
+		return This.InsertedAfterSubStringsCS(pacSubStr, TRUE)
 
-		def InsertedAfterManySubStrings(pacSubStrings)
-			return This.InsertedAfterSubStrings(pacSubStrings)
+		def InsertedAfterManySubStrings(pacSubStr)
+			return This.InsertedAfterSubStrings(pacSubStr)
 
 	def InsertedAfterW(pcCondition)
 		cResult = This.StringQ().InsertBeforeWQ(pcCondition, This.SubString()).Content()

@@ -64,11 +64,11 @@ load "stzlib.ring"
 	      REPLACE        |       A SUBSTRING         |          MANY SUBSTRINGS          |
 	+====================+===========================+===================================+
 	|       BY A         |           (1)             |               (2)                 |
-	|     SUBSTRING      | Replace(substr1, substr2) | ReplaceMany(acSubStrings, substr) |
+	|     SUBSTRING      | Replace(substr1, substr2) | ReplaceMany(acSubStr, substr) |
 	+--------------------+---------------------------+-----------------------------------+
 	|        BY          |            (3)            |               (4)                 |
-	|       MANY         | ReplaceByMany(substr,     | ReplaceManyByMany(acSubStrings,   |
-	|     SUBSTRINGS     |          acSubStrings)    |          acOtherSubStrings)       |
+	|       MANY         | ReplaceByMany(substr,     | ReplaceManyByMany(acSubStr,   |
+	|     SUBSTRINGS     |          acSubStr)    |          acOtherSubStrings)       |
 	+--------------------+---------------------------+-----------------------------------+
 
 	The scenario number (1) has been presented by the example above. Let's reproduce it
@@ -118,7 +118,7 @@ load "stzlib.ring"
 	|     SUBSTRING      |    ReplaceSome(panOccurrences, cSubStr, cNewSubStr)      | 
 	+--------------------+----------------------------------------------------------+
 	|      BY MANY       |                          (6)                             |
-	|    SUBSTRINGS      | ReplaceSomeByMany(panOccurrences, cSubStr, acSubStrings) |
+	|    SUBSTRINGS      | ReplaceSomeByMany(panOccurrences, cSubStr, acSubStr) |
 	+--------------------+----------------------------------------------------------+
 
 	Let's illstrate those two scnearios with examples:

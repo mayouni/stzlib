@@ -13,22 +13,22 @@ class stzStringNeg
 
 		return NOT This.ContainsCS(cSubStr, pCaseSensitive)
 
-	def ContainsNoneOfTheseCS(pacSubStrings, pCaseSensitive)
+	def ContainsNoneOfTheseCS(pacSubStr, pCaseSensitive)
 		bResult = TRUE
-		nLen = len(pacSubStrings)
+		nLen = len(pacSubStr)
 		for i = 1 to nLen
-			if This.ContainsCS(pacSubStrings[i], pCaseSensitive)
+			if This.ContainsCS(pacSubStr[i], pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
 		next
 		return bRersult
 
-		def ContainsNoneOfTheseSubStringsCS(pacSubStrings, pCaseSensitive)
-			return This.ContainsNoneOfTheseCS(pacSubStrings, pCaseSensitive)
+		def ContainsNoneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
+			return This.ContainsNoneOfTheseCS(pacSubStr, pCaseSensitive)
 	
-		def ContainsNoneOfCS(pacSubStrings, pCaseSensitive)
-			return This.ContainsNoneOfTheseCS(pacSubStrings, pCaseSensitive)
+		def ContainsNoneOfCS(pacSubStr, pCaseSensitive)
+			return This.ContainsNoneOfTheseCS(pacSubStr, pCaseSensitive)
 	
 	def ContainsNeitherCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		if isList(pcSubStr2) and Q(pcSubStr2).IsNorNamedParam()
@@ -42,14 +42,14 @@ class stzStringNeg
 	def ContainsNo(cSubStr)
 		return This.ContainsNoCS(cSubStr, TRUE)
 
-	def ContainsNoneOfThese(pacSubStrings)
-		return This.ContainsNoneOfTheseCS(pacSubStrings, TRUE)
+	def ContainsNoneOfThese(pacSubStr)
+		return This.ContainsNoneOfTheseCS(pacSubStr, TRUE)
 
-		def ContainsNoneOfTheseSubStrings(pacSubStrings)
-			return This.ContainsNoneOfTheseCS(pacSubStrings, TRUE)
+		def ContainsNoneOfTheseSubStrings(pacSubStr)
+			return This.ContainsNoneOfTheseCS(pacSubStr, TRUE)
 	
-		def ContainsNoneOf(pacSubStrings)
-			return This.ContainsNoneOfTheseCS(pacSubStrings, TRUE)
+		def ContainsNoneOf(pacSubStr)
+			return This.ContainsNoneOfTheseCS(pacSubStr, TRUE)
 	
 	def ContainsNeither(pcSubStr1, pcSubStr2)
 		return This.ContainsNeitherCS(pcSubStr1, pcSubStr2, TRUE)
