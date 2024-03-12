@@ -5873,7 +5873,7 @@ class stzListOfStrings from stzList
 	 #   NUMBER OF OCCURRENCE OF MANY SUBSTRINGS IN THE LIST OF STRINGS  #
 	#-------------------------------------------------------------------#
 
-	def NumberOfOccurrenceOfManySubStringsCS(pacSubStrings, pCaseSensitive)
+	def NumberOfOccurrenceOfManySubStringsCS(pacSubStr, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzListOfStrings([
@@ -5889,42 +5889,42 @@ class stzListOfStrings from stzList
 		*/
 
 		anResult = []
-		nLen = len(pacSubStrings)
+		nLen = len(pacSubStr)
 
 		for i = 1 to nLen
-			anResult + This.NumberOfOccurrenceOfSubStringCS(pacSubStrings[i], pCaseSensitive)
+			anResult + This.NumberOfOccurrenceOfSubStringCS(pacSubStr[i], pCaseSensitive)
 		next
 
 		return anResult
 
-		def NumberOfOccurrencesOfManySubStringsCS(pacSubStrings, pCaseSensitive)
-			return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStrings, pCaseSensitive)
+		def NumberOfOccurrencesOfManySubStringsCS(pacSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStr, pCaseSensitive)
 
-		def NumberOfOccurrenceOfSubStringsCS(pacSubStrings, pCaseSensitive)
-			return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStrings, pCaseSensitive)
+		def NumberOfOccurrenceOfSubStringsCS(pacSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStr, pCaseSensitive)
 
-		def NumberOfOccurrencesOfSubStringsCS(pacSubStrings, pCaseSensitive)
-			return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStrings, pCaseSensitive)
+		def NumberOfOccurrencesOfSubStringsCS(pacSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NumberOfOccurrenceOfManySubStrings(pacSubStrings)
-		return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStrings, TRUE)
+	def NumberOfOccurrenceOfManySubStrings(pacSubStr)
+		return This.NumberOfOccurrenceOfManySubStringsCS(pacSubStr, TRUE)
 
-		def NumberOfOccurrencesOfManySubStrings(pacSubStrings)
-			return This.NumberOfOccurrenceOfManySubStrings(pacSubStrings)
+		def NumberOfOccurrencesOfManySubStrings(pacSubStr)
+			return This.NumberOfOccurrenceOfManySubStrings(pacSubStr)
 
-		def NumberOfOccurrenceOfSubStrings(pacSubStrings)
-			return This.NumberOfOccurrenceOfManySubStrings(pacSubStrings)
+		def NumberOfOccurrenceOfSubStrings(pacSubStr)
+			return This.NumberOfOccurrenceOfManySubStrings(pacSubStr)
 
-		def NumberOfOccurrencesOfSubStrings(pacSubStrings)
-			return This.NumberOfOccurrenceOfManySubStrings(pacSubStrings)
+		def NumberOfOccurrencesOfSubStrings(pacSubStr)
+			return This.NumberOfOccurrenceOfManySubStrings(pacSubStr)
 
 	  #---------------------------------------------------------#
 	 #   NUMBER OF OCCURRENCE OF MANY SUBSTRINGS -- EXTENDED   #
 	#---------------------------------------------------------#
 
-	def NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
+	def NumberOfOccurrenceOfManySubStringsCSXT(pacSubStr, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzListOfStrings([
@@ -5943,36 +5943,36 @@ class stzListOfStrings from stzList
 		*/
 
 		anResult = []
-		nLen = len(pacSubStrings)
+		nLen = len(pacSubStr)
 
 		for i = 1 to nLen
-			anResult + This.NumberOfOccurrenceOfSubStringCSXT(pacSubStrings[i], pCaseSensitive)
+			anResult + This.NumberOfOccurrenceOfSubStringCSXT(pacSubStr[i], pCaseSensitive)
 		next
 
 		return anResult
 
-		def NumberOfOccurrencesOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
-			return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
+		def NumberOfOccurrencesOfManySubStringsCSXT(pacSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStr, pCaseSensitive)
 
-		def NumberOfOccurrenceOfSubStringsCSXT(pacSubStrings, pCaseSensitive)
-			return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
+		def NumberOfOccurrenceOfSubStringsCSXT(pacSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStr, pCaseSensitive)
 
-		def NumberOfOccurrencesOfSubStringsCSXT(pacSubStrings, pCaseSensitive)
-			return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, pCaseSensitive)
+		def NumberOfOccurrencesOfSubStringsCSXT(pacSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NumberOfOccurrenceOfManySubStringsXT(pacSubStrings)
-		return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStrings, TRUE)
+	def NumberOfOccurrenceOfManySubStringsXT(pacSubStr)
+		return This.NumberOfOccurrenceOfManySubStringsCSXT(pacSubStr, TRUE)
 
-		def NumberOfOccurrencesOfManySubStringsXT(pacSubStrings)
-			return This.NumberOfOccurrenceOfManySubStringsXT(pacSubStrings)
+		def NumberOfOccurrencesOfManySubStringsXT(pacSubStr)
+			return This.NumberOfOccurrenceOfManySubStringsXT(pacSubStr)
 
-		def NumberOfOccurrenceOfSubStringsXT(pacSubStrings)
-			return This.NumberOfOccurrenceOfManySubStringsXT(pacSubStrings)
+		def NumberOfOccurrenceOfSubStringsXT(pacSubStr)
+			return This.NumberOfOccurrenceOfManySubStringsXT(pacSubStr)
 
-		def NumberOfOccurrencesOfSubStringsXT(pacSubStrings)
-			return This.NumberOfOccurrenceOfManySubStringsXT(pacSubStrings)
+		def NumberOfOccurrencesOfSubStringsXT(pacSubStr)
+			return This.NumberOfOccurrenceOfManySubStringsXT(pacSubStr)
 
 	  #=======================================================================#
 	 #     FINDING ALL OCCURRENCES OF A SUBSTRING IN THE LIST OF STRINGS     #
@@ -12204,7 +12204,7 @@ stop()
 		pacNewSubStr = IfWith@Eval(pacNewSubStr)
 
 		if NOT ( isList(pacNewSubStr) and Q(pacNewSubStr).IsListOfStrings() )
-			StzRaise("Incorrect param! pacNewSubStrings must be a list of strings.")
+			StzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
 		ok
 
 		# [ "heart ___ heart", "___ heart ___ heart ___ heart", "heart" ]
@@ -12330,16 +12330,16 @@ stop()
 		next
 
 
-		def ReplaceManySubStringsByManyCSXT(pacSubStrings, pacNewSubStrings, pCaseSensitive)
-			This.ReplaceSubStringsByManyCSXT(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+		def ReplaceManySubStringsByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringsByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubStringsByManyXT(pacSubStr, pacNewSubStr)
 		This.ReplaceSubStringsByManyCSXT(pacSubStr, pacNewSubStr, TRUE)
 
-		def ReplaceManySubStringsByManyXT(pacSubStrings, pacNewSubStrings)
-			This.ReplaceSubStringsByManyXT(pacSubStrings, pacNewSubStrings)
+		def ReplaceManySubStringsByManyXT(pacSubStr, pacNewSubStr)
+			This.ReplaceSubStringsByManyXT(pacSubStr, pacNewSubStr)
 
 	  #------------------------------------------------------------------#
 	 #   REPLACING NTH OCCURRENCE OF SUBSTRING IN THE LIST OF STRINGS   #
