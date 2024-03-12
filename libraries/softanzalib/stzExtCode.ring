@@ -609,10 +609,10 @@ func $(str) // C#
 	but isString(str) and Q(str).ContainsSubStringsBoundedBy([ "{", "}" ])
 		return Interpoltate(str) // Ring (SoftanzaLib)
 
-		# NOTE the method we used here is misspelled. Normally we
+		#NOTE the method we used here is misspelled. Normally we
 		# should write it correctly as "Interpolate(str)". But I left
 		# as is to show how Softanza can be permissive to spelling
-		# errors when you are under time pressure in writing code ;)
+		#ERRors when you are under time pressure in writing code ;)
 	
 	else
 		return v(str)
@@ -882,7 +882,7 @@ func FROM_(pcTableName)
 
 	#>
 
-func WHERE_(pcCondition) # NOTE: Where() is used in an other place
+func WHERE_(pcCondition) #NOTE: Where() is used in an other place
 
 	if CheckParams()
 		if NOT isString(pcCondition)

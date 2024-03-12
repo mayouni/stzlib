@@ -386,7 +386,7 @@ o1 = new stzListOfNumbers([ 2, 7, 18, 18, 10, 12, 25, 4 ])
 ? o1.Nearest(88)
 #--> 25
 
-? o1.Nearst(17) # NOTE this is a misspelled form of Nearest()
+? o1.Nearst(17) #NOTE this is a misspelled form of Nearest()
 #--> 18
 
 ? o1.NearestTo(10)
@@ -551,7 +551,7 @@ o1 = new stzListOfNumbers([ 1, 2, 999, 4, 5, 999, 7, 8, 999 ])
 ? @@( o1.FindAll(999) )
 #--> [3, 6, 9]
 
-# Note: the following functions work the same for stzString, 
+#NOTE: the following functions work the same for stzString, 
 # stzList, and stzListOfStrings, because they are abstracted in stzObject
 
 ? @@( o1.NFirstOccurrences(2, :Of = 999) )
@@ -570,7 +570,7 @@ o1 = new stzListOfNumbers([ 1, 2, 999, 4, 5, 999, 7, 8, 999 ])
 #--> [6, 9]
 
 ? @@( o1.LastNOccurrencesXT(1, :Of = 999, :StartingAt = 9) )
-# ERROR : Array Access (Index out of range) ! In method section() in tzList.ring
+#ERROR : Array Access (Index out of range) ! In method section() in tzList.ring
 #--> [ 9 ]
 
 StopProfiler()

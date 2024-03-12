@@ -13,7 +13,7 @@
 
 
 _nRingMaxRandom = 999_999_999 # Based on my testing of Ring random() function
-			      # NOTE: if you seed the Ring random() function
+			      #NOTE: if you seed the Ring random() function
 			      # with a value greater than that, you will get NULL
 			      # as a result! Example : random(9_999_999_999)
 
@@ -2920,7 +2920,7 @@ func SomeRandomNumbersInXTUZ(panNumbers, nSeed)
 
 func NRandomNumbersIn(n, panNumbers)
 
-	# NOTE: The same number can appear more than once
+	#NOTE: The same number can appear more than once
 	# To avoid this, use the function with the ...U() extension
 
 	nLen = len(panNumbers)
@@ -3104,7 +3104,7 @@ func NRandomNumbersInXTZ(n, panNumbers, nSeed)
 
 func NRandomNumbersInU(n, panNumbers)
 
-	# NOTE: The generated numbers are guranteed to be unique
+	#NOTE: The generated numbers are guranteed to be unique
 
 	anResult = []
 

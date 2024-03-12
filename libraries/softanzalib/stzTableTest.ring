@@ -1070,7 +1070,7 @@ o1.Show()
 StopProfiler()
 # Executed in 1.93 second(s)
 
-# NOTE/TODO: Show() function takes time! Optimise it...
+#NOTE/TODO: Show() function takes time! Optimise it...
 
 /*--------------
 
@@ -2261,7 +2261,7 @@ o1 = new stzTable([
 #--> [ [ 1, 2 ] ]
 
 ? @@( o1.FindInCells( [ [1, 1], [1, 2], [1, 3] ], :SubValue = "Ali" ) ) + NL
-# NOTE: In place of :SubValue = ... you can say :CellPart or :SubPart = ...
+#NOTE: In place of :SubValue = ... you can say :CellPart or :SubPart = ...
 
 #--> [
 #	[ [ 1, 2 ], [ 1 ] ],
@@ -2341,7 +2341,7 @@ o1 = new stzTable([
 	[ "Dan",	42   ]
 ])
 
-? o1.CellQ(:NAME, 2).Conttains("io") # NOTE: A misspelled form of Contains()
+? o1.CellQ(:NAME, 2).Conttains("io") #NOTE: A misspelled form of Contains()
 #--> TRUE
 
 proff()

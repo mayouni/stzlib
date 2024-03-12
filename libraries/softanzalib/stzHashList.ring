@@ -2738,7 +2738,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-----------------------------------------------#
 
 	def Klass(pcClass)
-		# NOTE: We can't use Class (with C) --> reserved by Ring
+		#NOTE: We can't use Class (with C) --> reserved by Ring
 		# --> To avoid any confusion, use Klass with K instead,
 		# or if you prefer, use Category.
 

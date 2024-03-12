@@ -31,7 +31,7 @@ class stzEntity
 	def init(paEntity)
 		if @IsHashList(paEntity)
 			if StzHashListQ(paEntity).ContainsKey(:name)
-				# NOTE: All properties are lowercased by using stzHashList
+				#NOTE: All properties are lowercased by using stzHashList
 				# In fact, stzHashList automatically lowercaseس all its keys
 
 				aEntity =  StzHashListQ(paEntity).Content()

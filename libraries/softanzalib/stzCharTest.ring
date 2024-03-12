@@ -103,7 +103,7 @@ pron()
 ? Q("Schöne Grüße").Length() # means "Kind Regards" in german
 #--> 12
 
-? StzUnicodeDataQ().CharByName("OSMANYA LETTER BA") # Error! Should be 𐒁
+? StzUnicodeDataQ().CharByName("OSMANYA LETTER BA") #ERRor! Should be 𐒁
 #--> ҁ
 
 ? StzCharQ("ҁ").Name()
@@ -134,7 +134,7 @@ pron()
 ? @@(TurnableNumbersUnicodes())
 #--> [ 2, 3 ]
 
-? @@(TurnableNumbersXT()) # NOTE: Font in Notepad may not show the turned numbers
+? @@(TurnableNumbersXT()) #NOTE: Font in Notepad may not show the turned numbers
 #--> [ [ 2, "↊" ], [ 3, "↋" ] ]
 
 proff()
@@ -147,7 +147,7 @@ pron()
 ? @@(TurnedNumbersUnicodes())
 #--> [ 8586, 8587 ]
 
-? @@(TurnedNumbers()) # NOTE: Idem
+? @@(TurnedNumbers()) #NOTE: Idem
 #--> [ "↊", "↋" ]
 
 ? @@( Q([ "↊", "↋" ]).Names() )
@@ -607,7 +607,7 @@ o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO: fix performance lag!
 ? StzCharQ("꧌").Name()	#--> JAVANESE PADA PISELEH
 ? StzCharQ("س").Name()	#--> ARABIC LETTER SEEN
 
-# Note that sometimes the name returned is NULL
+#NOTE that sometimes the name returned is NULL
 
 ? StzCharQ("百").Name()	#--> NULL
 			#--> inexistant in the unicode list hosted in

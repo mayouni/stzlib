@@ -179,13 +179,13 @@ StzUnicodeDataQ() {
 	? FindCharByName("CLOUD") + NL
 	#--> 506499
 
-	? SearchCharByName("CLOUD") # ERROR : logical error! See next...
+	? SearchCharByName("CLOUD") #ERROR : logical error! See next...
 	#--> [ 506499, 514585, 514690, 1751988, 1752036, 1752084, 1752125, 1752166, 1752207, 1752253 ]
 
-	? @@( CharsContaining("CLOUD") ) # ERROR: Error bur related to SearCharByName()
+	? @@( CharsContaining("CLOUD") ) #ERROR: Error bur related to SearCharByName()
 	#--> [ "몄", "?", "?", "뮵", "믥", "박", "밾", "뱧", "벐", "벾" ]
 
-	? @@( CharsNamesContaining("CLOUD") ) # ERROR: Idem
+	? @@( CharsNamesContaining("CLOUD") ) #ERROR: Idem
 	#--> [ "LATIN CAPITAL LETTER N", "LATIN CAPITAL LETTER U", "LATIN CAPITAL LETTER L", "LATIN CAPITAL LETTER L" ]
 
 	? @@( CharsNamesContaining("LATIN") )

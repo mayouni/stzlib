@@ -116,7 +116,7 @@ _aLocaleScriptsXT = [
 	[ "81" , 	:Old_South_Arabian, 	"Sarb", 		NULL 				], # This script is used for language Sabaean, but
 						     						   # we don't include it beceause Qt Unicode does not know it
 	[ "82" , 	:Orkhon, 		"Orkh", 		NULL 				], # Called also :Old_Turkic and :Orkhon_Runic
-												   # Note that the language corresponding to this script
+												   #NOTE that the language corresponding to this script
 												   # is :Old_Turkish, but we don't include it because Qt Unicode										   # does not knowt it
 	[ "83" , 	:Osmanya, 		"Osma", 		:somali 			],
 	[ "84" , 	:Phags_Pa, 		"Phag", 		:literary_chinese 		], # may also be :mandarin_chineese ?
@@ -292,7 +292,7 @@ func StzScriptQ(pcScriptIdentifier)
 
 class stzScript
 
-	# NOTE: the class have a @aScriptInfo@ attribute in PRIVATE section
+	#NOTE: the class have a @aScriptInfo@ attribute in PRIVATE section
 	# We put it there, because we use it just for initializing the object.
 	#--> it does not necessarilay contain all the information the class
 	# could provide about the script.

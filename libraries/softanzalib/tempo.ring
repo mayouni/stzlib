@@ -1,8 +1,5 @@
 load "stzlib.ring"
 
-? stztypes()
-
-dfdf
 /*=====
 
 pron()
@@ -19,9 +16,13 @@ proff()
 */
 pron()
 
-//? Q("ring").IsA([ m(:Lowercase), :String ])
+? Q("ring").IsAXT([ :Lowercase, :Latin, :String ])
+#--> TRUE
 
-? Q("ring").IsTheQ([ :Lowercase, :string ]).WhichQ().IsTheReverseOf("gnir")
+? Q("string").IsA([ :Lowercase, :Latin, :String ])
+
+
+//? Q("ring").IsTheQ([ :Lowercase, :string ]).WhichQ().IsTheReverseOf("gnir")
 
 proff()
 
@@ -585,7 +586,7 @@ StartProfiler()
 	? Q("__---__").ContainsXT(:Chars, W('Q(@Char).IsEither("_", :Or = "-")'))
 	#--> TRUE
 
-# NOTE: Conditional code will be quicker of you replace Q(@Char) with Q(This[@i])
+#NOTE: Conditional code will be quicker of you replace Q(@Char) with Q(This[@i])
 
 StopProfiler()
 # Executed in 9.14 second(s)
@@ -2342,7 +2343,7 @@ o1.ExtendToNChars(10, :Using = ".")
 /*=================
 
 ? Q("-♥-").IsBoundedBy("-") #--> TRUE
-? Q("♥").IsBoundedByIB("-", :In = "... -♥- ...") # ERROR
+? Q("♥").IsBoundedByIB("-", :In = "... -♥- ...") #ERROR
 
 /*---------------- ERROR
 
@@ -2882,7 +2883,7 @@ pron()
 	? oStr.FindFirst("Ring")
 	#--> 16
 
-	# NOTE : Find(cSubStr) returns all the occurrences of cSubStr
+	#NOTE : Find(cSubStr) returns all the occurrences of cSubStr
 
 	? oStr.Find("Ring") # equivalent to FindAll("Ring")
 	#--> [ 16 ]
@@ -2928,11 +2929,11 @@ pron()
 # Replacing a sbstring by an other substring with Case Sensitivity
 
 	cStr = "Welcome to the Python programming language"
-	? substr(cStr,"PYTHON", "Ring", 0) # WARNING: This is should be 1 and not 0!
+	? substr(cStr,"PYTHON", "Ring", 0) #WARNING: This is should be 1 and not 0!
 	#--> Welcome to the Python programming language
 	
 	cStr = "Welcome to the Python programming language"
-	? substr(cStr, "PYTHON", "Ring", 1) # WARNING: This is should be 0 and not 1!
+	? substr(cStr, "PYTHON", "Ring", 1) #WARNING: This is should be 0 and not 1!
 	#--> Welcome to the Ring programming language
 
 	# In Softanza we say:

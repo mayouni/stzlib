@@ -1069,7 +1069,7 @@ o1 = new stzString("123ABC")
 
 o1.InsertBefore(4, " ") 
 ? o1.Content()		#--> "123 ABC"
-# NOTE --> InsertAt(n,substr) removes char at position n
+#NOTE --> InsertAt(n,substr) removes char at position n
 
 /*---------- OK
 

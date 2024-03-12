@@ -6,7 +6,7 @@ _aLocaleLanguagesXT = [
 
 	[ "1", 		:c, 			"c", 			"c", 			NULL 				],
 	[ "2", 		:abkhazian, 		"ab", 			"abk", 			:abkhazia			],
-	# Note that Abkhazia is not figuring in the official ISO list of countries
+	#NOTE that Abkhazia is not figuring in the official ISO list of countries
 	[ "3", 		:oromo, 		"om", 			"orm", 			:ethiopia 			],
 	[ "4", 		:afar, 			"aa", 			"aar", 			:ethiopia			],
 	[ "5", 		:afrikaans, 		"af", 			"afr", 			:south_africa 			],
@@ -378,7 +378,7 @@ func StzLanguageQ(pcLangIdentifier)
 
 class stzLanguage
 	
-	# NOTE: the class have a @aLanguageInfo@ attribute in PRIVATE section
+	#NOTE: the class have a @aLanguageInfo@ attribute in PRIVATE section
 	# We put it there, because we use it just for initializing the object.
 	#--> it does not necesarilay contain all the information the class
 	# could provide about the langauge.

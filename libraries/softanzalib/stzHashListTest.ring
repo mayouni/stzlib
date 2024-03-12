@@ -96,7 +96,7 @@ o1 = new stzHashList([
 # When a VALUE is of type LIST, then you can find the ITEMS hosted
 # inside those lists using FindInLists() or directly FindItems().
 #
-# WARNING: when you use FindValues, ITEMS inside lists are not found.
+#WARNING: when you use FindValues, ITEMS inside lists are not found.
 # And when you use FindInLists or FindItems then VALUES are not found.
 
 proff()

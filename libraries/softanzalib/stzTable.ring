@@ -8588,7 +8588,7 @@ Class stzTable from stzObject
 
 	def ReplaceCells(paCellsPos, paNewCellValue)
 
-		if ChekParams() # NOTE this is a misspelled form (c in Check is lacking)
+		if ChekParams() #NOTE this is a misspelled form (c in Check is lacking)
 			        # But Softanza forgives it (PERMISSIVENESS prinicle of the FLEXIBILITY goal)
 
 			if isList(paNewCellValue) and Q(paNewCellValue).IsOneOfTheseNamedParams([ :By, :With, :Using ])
@@ -10154,7 +10154,7 @@ Class stzTable from stzObject
 	#=====================#
 
 	def Erase()
-		# NOTE: Only data in cells is erased, columns and
+		#NOTE: Only data in cells is erased, columns and
 		# rows remain as they are!
 
 		for line in This.Table()
@@ -11310,7 +11310,7 @@ Class stzTable from stzObject
 			  Q(pCol1).IsBetweenPositionNamedParam() or
 			  Q(pCol1).IsBetweenPositionsNamedParam()
 			)
-			  # NOTE: I don't use IsOneOfTheseNamedParams() here
+			  #NOTE: I don't use IsOneOfTheseNamedParams() here
 			  # to gain some performance by discarding eval()
 
 			pCol1 = pCol1[2]

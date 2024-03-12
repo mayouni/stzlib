@@ -1572,7 +1572,7 @@ class stzListOfLists from stzList
 
 			else
 				aResult + Q(aContent[i]).ExtendtedToWith(n, pWith)
-				# Note this a misspelled form --> Extend(t)edToWith
+				#NOTE this a misspelled form --> Extend(t)edToWith
 			ok
 		next
 
@@ -2558,7 +2558,7 @@ class stzListOfLists from stzList
 			def ToListInStringSFQ()
 				return new stzString( This.ToListInStringSF() )
 
-	def ToStzList() # NOTE: normally, we don't need it since stzList is the mother class
+	def ToStzList() #NOTE: normally, we don't need it since stzList is the mother class
 		return new stzList( This.Content() )
 
 	def ToStzListQ()

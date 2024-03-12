@@ -1203,7 +1203,7 @@ class stzGrid from stzObject
 	  #------------------------------------------#
 	 #  FILLING THE GRID WITH A LIST OF ITEMS   #
 	#------------------------------------------#
-	# NOTE: Currently, only adding a list of chars is allowed
+	#NOTE: Currently, only adding a list of chars is allowed
 
 	def FillWith(paList)
 		This.FillWithXT(paList, :Direction = :Horizontally)

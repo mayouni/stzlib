@@ -34,7 +34,7 @@ func SubStringCSQ(pcSubStr, pCaseSensitive)
 func SubStringQ(pcSubStr)
 	return SubStringCSQ(pcSubStr, :CaseSensitive)
 
-	# NOTE: can not add SubString() because it is seems to be reserved by Ring!
+	#NOTE: can not add SubString() because it is seems to be reserved by Ring!
 
 	func TheSubStringQ(pcSubStr)
 		return SubStringQ(pcSubStr)

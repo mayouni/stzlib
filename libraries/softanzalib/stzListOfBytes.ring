@@ -323,7 +323,7 @@ class stzListOfBytes from stzList
 		This.ReplaceNBytes(nBytesFromMainStr, nStartingAtPosition, nWithNBytes, pcFromSubstr)
 		return This
 
-	def UnicodeOfNthByte(n) # NOTE: Is it more accurate to talk of Bytecode rather then Unicode?
+	def UnicodeOfNthByte(n) #NOTE: Is it more accurate to talk of Bytecode rather then Unicode?
 		return @oQByteArray.at(n-1)
 
 		def UnicodeOfByteNumber(n)

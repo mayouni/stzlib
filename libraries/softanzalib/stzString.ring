@@ -617,7 +617,7 @@ func String(pcStr)
 	ok
 
 func Text(pcStr)
-	# NOTE: In the future, there will be a difference
+	#NOTE: In the future, there will be a difference
 	# between String and Text
 	if isString(pcStr)
 		return pcStr
@@ -753,7 +753,7 @@ func NCopies(n, p)
 
 func WithoutSpaces(pcStr)
 	cResult = StzSrtringQ(pcStr).WithoutSpaces()
-	# NOTE: StzSrtringQ() is misspelled but Softanza recognizes it!
+	#NOTE: StzSrtringQ() is misspelled but Softanza recognizes it!
 
 	return cResult
 
@@ -1712,7 +1712,7 @@ class stzString from stzObject
 				   ( pWith[2] = :CharsRepeated or pWith[2] = :RepeatingChars )
 
 					This.ExtendToPositionWithCharsRepeadted(n[2])
-					# Note this is a misspelled form --> ...Repea(d)ted()
+					#NOTE this is a misspelled form --> ...Repea(d)ted()
 					return
 	
 				# Case 4: o1.ExtendXT( :ToPosition = 5, :With = "*" )
@@ -3357,7 +3357,7 @@ class stzString from stzObject
 	#=============================================================#
 
 	def SubStringsCS(pCaseSensitive)
-		# NOTE: Got help from Google Bard for the basic algorithm used here
+		#NOTE: Got help from Google Bard for the basic algorithm used here
 
 		# Early check
 
@@ -10666,7 +10666,7 @@ class stzString from stzObject
 		anPos = This.FindSectionBounds(n1, n2, nCharBefore, nCharsAfter)
 
 		aResult = Associattion([ acBounds, anPos ])
-		# NOTE: We've used a misspelled form of Association()
+		#NOTE: We've used a misspelled form of Association()
 		# function (a one more "t"), but Softanza tolerates it!
 
 		return aResult
@@ -11191,7 +11191,7 @@ class stzString from stzObject
 	 #  SUBSTRINGS INSIDE A GIVEN STRING                      #
 	#--------------------------------------------------------#
 
-	# NOTE: It's more elegant to use this function indirectly from IsBoundedBy()
+	#NOTE: It's more elegant to use this function indirectly from IsBoundedBy()
 	# to which we add the param :In, like this:
 
 	# Q("♥").IsBoundedBy([ "-", :In = "-♥-" ])
@@ -23754,7 +23754,7 @@ class stzString from stzObject
 
 		ok
 
-		# NOTE: when positions are given in inversed order, the same
+		#NOTE: when positions are given in inversed order, the same
 		# section as if they were not inverted is returned, so:
 		#--> Q("ring").Section(1,3) and .Section(3,1) both return "rin"
 
@@ -26365,7 +26365,7 @@ class stzString from stzObject
 			ok
 		
 			# If some options are provided then we take them
-			# Note : if len(paOptions) = 0 or paOptions = [ :Default ] then we preserve
+			#NOTE : if len(paOptions) = 0 or paOptions = [ :Default ] then we preserve
 			# the default options already defined
 				
 			cInsertBeforeOrAfter = paOptions[ :InsertBeforeOrAfter ]	
@@ -33140,7 +33140,7 @@ class stzString from stzObject
 		ok
 
 		if isList(pcSubStr) and Q(pcSubStr).IsOneTheseNamedParams([ :Of, :OfSubString ])
-			# NOTE that IsOneTheseNamedParams() is a misspelled form of
+			#NOTE that IsOneTheseNamedParams() is a misspelled form of
 			# IsOneOfTheseNamedParams(). I forgot "These" but hopefully
 			# Softanza forgave it ;)
 
@@ -35602,7 +35602,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #  NOTE  #
 	#========#
 
-	# NOTE: These fuctions are defined in stzObject:
+	#NOTE: These fuctions are defined in stzObject:
 
 	# 	FindFirstNOccurrences(n, pStrOrItem)
 	# 	FindFirstNOccurrencesS(n, pcStr, pnStartingAt)
@@ -48456,7 +48456,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #   FINDING NTH SPLIT AT A GIVEN POSITION   #
 	#===========================================#
 
-	def FindNthSplitAtPosition(n, nPos) # NOTE: Case sensitivty has no added value here,
+	def FindNthSplitAtPosition(n, nPos) #NOTE: Case sensitivty has no added value here,
 					    # since the split is based on position
 					    # and there is no use of ...CS() functions
 					    # in the implementatin
@@ -54941,7 +54941,7 @@ ici		//...
 	For example:
 
 	o1 = new stzString("TUNIS gafsa NABEUL beja")
-	? o1.Parts(:Using = 'Q(@char).CharCase()' ) # NOTE: Parts() is the simple
+	? o1.Parts(:Using = 'Q(@char).CharCase()' ) #NOTE: Parts() is the simple
 						    # form of PartsAsSubstrings()
 
 	Uses the CharCase() method in stzChar as a partionner.	
@@ -55554,7 +55554,7 @@ ici		//...
 		# 	-1 if the main tring is lesser then the provided string
 		# 	1 if the main string is greater then the provided string
 
-		# NOTE : the comparison is made first by comparing them for equality.
+		#NOTE : the comparison is made first by comparing them for equality.
 		# If so, !à is returned. Then, the two strings are put in a list and
 		# the list is sorted in ascending. Then first in the list is greater.
 
@@ -56114,7 +56114,7 @@ ici		//...
 		#>
 
 	def IsQuietEqualTo(pcOtherStr)
-		# WARNING: Performance issue is caused by DiacriticsRemoved()
+		#WARNING: Performance issue is caused by DiacriticsRemoved()
 
 		cThisString = This.LowercaseQ().ToStzText().DiacriticsRemoved()
 
@@ -56622,7 +56622,7 @@ ici		//...
 	  #-----------------------------------------------------------------------------------#
 	 #  REMOVING OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- IB/EXTENDED  #
 	#-----------------------------------------------------------------------------------#
-	# NOTE: encolsing substrings (bounds) are also removed
+	#NOTE: encolsing substrings (bounds) are also removed
 
 	def RemoveBetweenCSIB(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
@@ -67636,7 +67636,7 @@ ici		//...
 		aResult = []
 
 		for i = 1 to nLen
-			# Warning: Note that using 'for in' yields erronous
+			#WARNing: Note that using 'for in' yields erronous
 			# result for strings coded on more then 1 byte
 
 			aResult + new stzChar(acChars[i])
@@ -69664,7 +69664,7 @@ ici		//...
 			StzRaise("Incorrect param types! Both pcSubStr1 and pcSubStr2 must be strings.")
 		ok
 
-		# NOTE: if the string contains more then one occurrence form a substring,
+		#NOTE: if the string contains more then one occurrence form a substring,
 		# then only the first occurence is considered
 
 		aSectionSubStr1 = This.FindAsSectionsCS(pcSubStr1, pCaseSensitive)[1]
@@ -69842,7 +69842,7 @@ ici		//...
 		#--> ƎℲI⅂
 		*/
 
-		# NOTE: Applies to latin script only
+		#NOTE: Applies to latin script only
 
 		if NOT This.ToStzText().ScriptIs(:Latin)
 			return This.String()
@@ -70567,7 +70567,7 @@ ici		//...
 				# and tranform it to a normal syntax
 	
 				aListMembers = QStringListToList( oCopy.QStringObject().split( ":", 0, 0 ) )
-				# NOTE: could be written { aListMembers = oCopy.Split( :Using = ":" ) } atfer
+				#NOTE: could be written { aListMembers = oCopy.Split( :Using = ":" ) } atfer
 				# terminating Split() funtion in Softanza.
 
 				cMember1 = aListMembers[1]
@@ -70801,7 +70801,7 @@ ici		//...
 			# and tranform it to a normal syntax
 
 			aListMembers = QStringListToList( This.QStringObject().split( ":", 0, 0 ) )
-			# NOTE: could be written { aListMembers = This.Split( :Using = ":" ) } atfer
+			#NOTE: could be written { aListMembers = This.Split( :Using = ":" ) } atfer
 			# terminating Split() funtion in Softanza.
 					
 			cMember1 = aListMembers[1]
@@ -70914,7 +70914,7 @@ ici		//...
 		nLenCopy = oCopy.NumberOfChars()
 
 		# Removing over spaces in the string
-		# NOTE: spaces encoldes between " and " are not removed
+		#NOTE: spaces encoldes between " and " are not removed
 
 		# ~> TODO: make it as a function? Something like FindOverSpaces() and
 		# RemoveOverSpaces() ?
@@ -73736,7 +73736,7 @@ ici		//...
 	 #  GETTING THE LIST OF WORDS IN THE STRING  #
 	#===========================================#
 
-	# NOTE: stzString has a limites understanding of what a word is.
+	#NOTE: stzString has a limites understanding of what a word is.
 	# In fact, it just a substring bounded by two spaces (or one space
 	# if it is at the start or the end of the substring.
 

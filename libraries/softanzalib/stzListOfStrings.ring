@@ -3511,7 +3511,7 @@ class stzListOfStrings from stzList
 	
 	def FindFirstOccurrenceOfStringItemCS(pcStrItem, pCaseSensitive)
 
-		# NOTE: QStringList does not contain a find method!
+		#NOTE: QStringList does not contain a find method!
 		# so we do it in pure Ring...
 
 		# Resolving pCaseSensitive
@@ -11888,7 +11888,7 @@ class stzListOfStrings from stzList
 		cCondition = StzCCodeQ(cCondition).UnifiedFor(:stzList)
 		oCondition = new stzString(cCondition)
 
-		# NOTE: Don't change the name of vars @i and @item
+		#NOTE: Don't change the name of vars @i and @item
 		# because they'r used by the evaluated conditional-code.
 
 		for @i = 1 to This.NumberOfStrings()

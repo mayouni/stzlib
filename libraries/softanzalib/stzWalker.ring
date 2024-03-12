@@ -216,7 +216,7 @@ class stzWalker from stzList
 	def EndPosition()
 		return @nEndPosition
 
-	def NStep() # NOTE: We can't use Step() because STEP is reserved by Ring
+	def NStep() #NOTE: We can't use Step() because STEP is reserved by Ring
 		return @nStep
 
 		def NumberOfPositionsPerStep()
