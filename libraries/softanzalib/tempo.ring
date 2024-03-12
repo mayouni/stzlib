@@ -1,8 +1,5 @@
 load "stzlib.ring"
 
-
-
-
 /*=====
 
 pron()
@@ -14,27 +11,14 @@ Q("hi")
 proff()
 # Executed in 0.01 second(s)
 
-/*----
-
-pron()
-
-? Q("ring").IsReverseOf("gnir")
-#--> TRUE
-
-? Q(1:3).IsReverseOf(3:1)
-#--> TRUE
-
-proff()
-# Executed in 0.02 second(s)
-
 
 /*======= #natural-coding #semantic-eloquence
-
+*/
 pron()
 
-? Q("ring").IsA([ m(:Lowercase), :String ])
+//? Q("ring").IsA([ m(:Lowercase), :String ])
 
-//? Q("ring").IsTheQ([ :Lowercase, :string ]).WhichQ().IsTheReverseOf("gnir")
+? Q("ring").IsTheQ([ :Lowercase, :string ]).WhichQ().IsTheReverseOf("gnir")
 
 proff()
 

@@ -2519,6 +2519,23 @@ func IsRingType(pcStr)
 
 	#>
 
+func IsRingOrStzType(pcStr)
+	if This.IsRingType(pcStr) or This.IsStzType(pcStr)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	def IsStzOrRingType(pcStr)
+		return IsRingOrStzType(pcStr)
+
+	def @IsRingOrStzType(pcStr)
+		return IsRingOrStzType(pcStr)
+
+	def @IsStzOrRingType(pcStr)
+		return IsRingOrStzType(pcStr)
+
+	#-- #TODO: Add other alternatives (see IsRingType() and IsStzType() functions)
 
 func StringIsChar(pcStr)
 	try
