@@ -2542,12 +2542,35 @@ class stzObject
 			return FALSE
 		ok
 
+	def IsAXT(pacStr)
+		/* EAMPLE
+		? Q("ring").IsA([ :Lowercase, :Latin, :String ])
+		*/
+
+		if CheckParams()
+			if NOT ( isList(pacStr) and @IsListOfStrings(pacStr) )
+				StzRaise("Incorrect param type! pacStr must be a list of strings.")
+			ok
+		ok
+
+		nLen = len(pacStr)
+		if nLen = 0
+			return FALSE
+		ok
+
+		cType = lower(pacStr[nLen])
+		if NOT @IsRingOrStzType(cType)
+			StzRaise("Incorrect param value! paStr must contains a Ring or Softanza type at the end.")
+		ok
+
 	def IsA(pcType)
 		/* Example
 
 		? Q([ :name = "mio", :age = 12 ]).IsA(:HashList)
-
 		--> TRUE
+
+		? Q("ring").IsA([ :Lowercase, :Latin, :String ])
+
 		*/
 
 		if NOT isString(pcType)

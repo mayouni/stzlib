@@ -4,6 +4,19 @@ load "stzlib.ring"
 
 pron()
 
+? Q("ring").IsReverseOf("gnir")
+#--> TRUE
+
+? Q(1:3).IsReverseOf(3:1)
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s)
+
+/*===
+
+pron()
+
 o1 = new stzString("ring qt softanza pyhton kandaji csharp ring kandaji")
 
 o1.ReplaceManyByMany([
