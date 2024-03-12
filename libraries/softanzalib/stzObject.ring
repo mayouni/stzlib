@@ -2563,6 +2563,90 @@ class stzObject
 			StzRaise("Incorrect param value! paStr must contains a Ring or Softanza type at the end.")
 		ok
 
+		content = This.Content()
+
+		if isNumber(content)
+			obj = new stzNumber(content)
+
+		but isString(content)
+			object = new stzString(content)
+
+		but isList(content)
+			object = new stzList(content)
+
+		but isObject(content)
+			object = new stzObject(content)
+
+		but @IsStzType(cType)
+			switch cType
+			on stzobject
+			on stzlistofobjects
+			on stznumber
+			on stzlistofnumbers
+			on stzlistofunicodes
+			on stzbinarynumber
+			on stzhexnumber
+			on stzoctalnumber
+			on stzstring
+			on stzsplitter
+			on stzmultistring
+			on stzmultilingualstring
+			on stzstopwords
+			on stzlistofstrings
+			on stzlistinstring
+			on stzlistofbytes
+			on stzchar
+			on stzunicodenames
+			on stzlistofchars
+			on stzlist
+			on stzhashlist
+			on stzlistofhashlists
+			on stzassociativelist
+			on stzset
+			on stzlistoflists
+			on stzlistofpairs
+			on stzpair
+			on stzpairofnumbers
+			on stzpairoflists
+			on stzlistofsets
+			on stztree
+			on stzwalker
+			on stztable
+			on stzlistoftables
+			on stzlocale
+			on stzcountry
+			on stzlanguage
+			on stzscript
+			on stzcurrency
+			on stzlistparser
+			on stzgrid
+			on stzlistofgrids
+			on stzcounter
+			on stzdate
+			on stztime
+			on stzfile
+			on stzfolder
+	
+			on stztextencoding
+			on stznaturalcode
+			on stzchainofvalue
+			on stzchainoftruth
+			on stzentity
+			on stzlistofentities
+			on stztext
+			on stzstringart
+			on stzconstraints
+			on stzccode
+			on stznullobject
+			on stzfalseobject
+			on stztrueobject
+			on stzextcode
+			on stzsection
+			on stznullobject
+			on stztrueobject
+			on stzfalseobjects
+		ok
+
 	def IsA(pcType)
 		/* Example
 
