@@ -4,6 +4,22 @@ load "stzlib.ring"
 */
 pron()
 
+o1 = new stzList([
+	"ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "ring", "kandaji" ])
+
+o1.ReplaceManyByMany([
+	"ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥", "♥♥♥" ])
+
+? @@( o1.Content() )
+#--> [ "♥", "qt", "♥♥", "pyhton", "♥♥♥", "csharp", "♥", "♥♥♥" ]
+
+proff()
+#--> Executed in 0.01 second(s)
+
+/*------
+*/
+pron()
+
 o1 = new stzString("ring qt softanza pyhton kandaji csharp ring kandaji")
 
 o1.ReplaceManyByMany([

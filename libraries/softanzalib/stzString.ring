@@ -27234,20 +27234,6 @@ class stzString from stzObject
 			This.ReplaceCS(acSubStr[i], pacNewSubStr[i], pCaseSensitive)
 		next
 
-/*
-			cSubStr = pacSubStr[i]
-			cNewSubStr = NULL
-
-			if i <= len(pacNewSubStr)
-				cNewSubStr = pacNewSubStr[i]
-			ok
-
-			if cNewSubStr != NULL
-				This.ReplaceCS(cSubStr, cNewSubStr, pCaseSensitive)
-			ok
-
-*/
-
 		#< @FunctionFluentForm
 
 		def ReplaceManyByManyCSQ(pacSubStr, pacNewSubStr, pCaseSensitive)
