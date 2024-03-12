@@ -19962,11 +19962,17 @@ stop()
 				return new stzString(This.FirstCharCS(pCaseSensitive))
 			ok
 
+		def FirstCharCSQM(pCaseSensitive)
+			return @MainObject()
+
 	def FirstChar()
 		return This.FirstCharCS(TRUE)
 
 		def FirstCharQ()
 			return This.FirstCharCSQ(TRUE)
+
+		def FirstCharQM()
+			return @MainObject()
 
 	#===
 
@@ -20000,11 +20006,17 @@ stop()
 				return new stzString(This.LastCharCS(pCaseSensitive))
 			ok
 
+		def LastCharCSQM(pCaseSensitive)
+			return @MainObject()
+
 	def LastChar()
 		return This.LastCharCS(TRUE)
 
 		def LastCharQ()
 			return This.LastCharCSQ(TRUE)
+
+		def LastCharQM()
+			return @MainObject()
 
 	#==
 
@@ -20038,6 +20050,9 @@ stop()
 				StzRaise("Unsupported return type!")
 			off
 
+		def FirstCharsQM()
+			return @MainObject()
+
 	def LastChars()
 		acContent = This.ToListOfStzStrings()
 		nLen = len(acContent)
@@ -20067,3 +20082,6 @@ stop()
 			other
 				StzRaise("Unsupported return type!")
 			off
+
+		def LastCharsQM()
+			return @MainObject()

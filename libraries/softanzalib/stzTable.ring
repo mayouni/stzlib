@@ -11426,13 +11426,6 @@ Class stzTable from stzObject
 	def ShowXT(paOptions)
 		? This.ToStringXT(paOptions)
 
-		#< @FuntionMisspelledForm
-
-		def ShwoXT(paOptions)
-			This.ShowXT(paOptions)
-
-		#>
-
 	def ToString()
 		cResult = This.ToStringXT([
 			:Separator 	  = "   ",
@@ -11454,6 +11447,7 @@ Class stzTable from stzObject
 			:Alignment = :Left,
 			:UnderLineHeader = TRUE,
 			:UnderLineChar = "-",
+			:IntersectionChar = " "
 			:ShowRowNumbers = TRUE
 		])
 
@@ -11518,6 +11512,15 @@ Class stzTable from stzObject
 
 		if NOT isList(paOptions)
 			StzRaise("Incorrect param type! paOptions must be a list.")
+		ok
+
+		if len(paOptions) = 0
+			return This.ToStringXT([ 
+					:Separator = " | ",
+					:Alignment = :Left,
+					:UnderLineHeader = FALSE,
+					:ShowRowNumbers = TRUE ])
+
 		ok
 
 		nLen = len(paOptions)
@@ -11647,7 +11650,7 @@ Class stzTable from stzObject
 
 		for i = 1 to nLen
 
-			acCurrentColAdjusted = This.ColQ(i).Stringified() + (":" + This.ColName(i))
+			acCurrentColAdjusted = This.ColQ(i).Stringified() + (This.ColName(i))
 
 			oListOfStr = new stzListOfStrings(acCurrentColAdjusted)
 			acCurrentColAdjusted = oListOfStr.AdjustedTo(cAlignment)
@@ -11710,7 +11713,7 @@ Class stzTable from stzObject
 
 			for i = 1 to nLen
 				cUnderLine += oUnderLineChar.
-				RepeatedNTimes( This.ColNameQ(i).NumberOfChars() + 1 )
+				RepeatedNTimes( This.ColNameQ(i).NumberOfChars() )
 
 				if i < nLen
 					cUnderLine += cSep

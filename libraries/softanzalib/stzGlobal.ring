@@ -410,6 +410,9 @@ _acStzCCKeywords = [
 func MainObject() # Used in Chains of truth
 	return _oMainObject
 
+	func @MainObject()
+		return _oMainObject
+
 func SetMainObject(p)
 	_oMainObject = p
 
@@ -3286,7 +3289,7 @@ func Q(p)
 	ok
 
 	SetMainObject(oResult)
-	return oResult
+		return oResult
 
 	func Softanzify(p)
 		return Q(p)
@@ -3297,9 +3300,12 @@ func Q(p)
 	func TheQ(p)
 		return Q(p)
 
-func QM(p) # Used to nitiate a chain of truth
-	SetMainObject( Q(p) )
-	return _oMainObject
+func QM(p) # Used to set/get the MainObject()
+	if p = ":>"
+		return _oMainObject
+	but p = ":<"
+		SetMainObject(Q(p))
+	ok
 
 func QR(p, pcType)
 	if NOT isString(pcType)

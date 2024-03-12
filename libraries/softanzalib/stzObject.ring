@@ -2493,13 +2493,23 @@ class stzObject
 		return bResult
 
 	def IsNumberOrString()
-		return This.IsA([ :Number, :Or = :String ])
+		content = This.Content()
+		if isNumber(content) or isString(content)
+			return TRUE
+		else
+			return FALSE
+		ok
 
 		def IsStringOrNumber()
 			return This.IsNumberOrString()
 
 	def IsStringOrList()
-		return This.IsA([ :String, :Or = :List ])
+		content = This.Content()
+		if isNumber(content) or isList(content)
+			return TRUE
+		else
+			return FALSE
+		ok
 
 		def IsListOrString()
 			return This.IsListOrString()
@@ -2930,6 +2940,12 @@ class stzObject
 
 		def Their()
 			return This
+
+		def AllTheir()
+			return This
+
+			def AllTheirQ()
+				return This
 
 		def Its()
 			return This

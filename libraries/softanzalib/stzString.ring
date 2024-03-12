@@ -27303,9 +27303,128 @@ class stzString from stzObject
 
 	#>
 
+	  #------------------------------------------------------------#
+	 #  REPLACING MANY SUBSTRINGS BY MANY OTHER SUBSTRINGS -- XT  #
+	#------------------------------------------------------------#
+	# XT ~> Return to beginning if all the other substrings are replaced
+
+	def ReplaceManyByManyXTCS(pacSubStr, pacNewSubStr, pCaseSensitive)
+		#TODO: Add "These" as alternatibe of "Many"
+
+		/* EXAMPLE
+
+		o1 = new stzString("ring qt softanza pyhton kandaji csharp ring")
+		o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥" ])
+
+		? o1.Content() #--> "♥ qt ♥♥ pyhton ♥ csharp ♥♥"
+		*/
+
+		if CheckParams()
+	
+			if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParam()
+				pacNewSubStr = pacNewSubStr[2]
+			ok
+	
+			if NOT (isList(pacNewSubStr) and @IsListOfStrings(pacNewSubStr))
+				stzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
+			ok	
+
+		ok
+
+		# Doing the job
+
+		acSubStr = StzListQ(pacSubStr).WithoutDupplication() # ~> [ "ring", "softanza", "kandaji" ]
+		nLenSubStr = len(pacSubStr) # ~> 3
+		nOccSubStr = This.FindManyCS(pacSubStr, pCaseSensitive) # ~> 4
+		nLenNewSubStr = len(pacNewSubStr) # ~> 2 ~> [ "♥", "♥♥" ]
+
+		acNewSubStr = pacNewSubStr # ~> [ "♥", "♥♥" ]
+
+		# Extending acNewSubStr, if necessary
+
+		if nLenNewSubStr < nOccSubStr # ~> TRUE ~> 2 < 4
+			n = 0
+			for i = nLenNewSubStr + 1 to nOccSubStr # ~> for i = 2 to 4
+				n++
+				if n > nLenNewSubStr # ~> if n > 2
+					n = 1
+				ok
+				acNewSubStr + pacNewSubStr[n]
+			next
+		ok
+
+		# Calling the noram function
+
+		This.ReplaceManyByManyCS(acSubStr, acNewSubStr, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def ReplaceManyByManyXTCSQ(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+			This.ReplaceManyByManyXTCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceManySubStringsByManyXTCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+			This.ReplaceManyByManyXTCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+
+			def ReplaceManySubStringsByManyXTCSQ(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+				This.ReplaceManySubStringsByManyXTCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+				return This
+
+		#>
+
+	#< @FunctionPassiveForm
+
+	def ManySubStringsReplaceByManyXTCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+		cResult = This.Copy().ReplaceManyByManyXTCSQ(pacSubStrings, pacNewSubStrings, pCaseSensitive).Content()
+		return cResult
+
+		def SubStringsReplaceByManyXTCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+			return This.ManySubStringsReplaceByManyXTCS(pacSubStrings, pacNewSubStrings, pCaseSensitive)
+
+	#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceManyByManyXT(pacSubStrings, pacNewSubStrings)
+		This.ReplaceManyByManyXTCS(pacSubStrings, pacNewSubStrings, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceManyByManyXTQ(pacSubStrings, pacNewSubStrings)
+			This.ReplaceManyByManyXT(pacSubStrings, pacNewSubStrings)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceManySubStringsByManyXT(pacSubStrings, pacNewSubStrings)
+			This.ReplaceManyByManyXT(pacSubStrings, pacNewSubStrings)
+
+			def ReplaceManySubStringsByManyXTQ(pacSubStrings, pacNewSubStrings)
+				This.ReplaceManySubStringsByManyXT(pacSubStrings, pacNewSubStrings)
+				return This
+
+		#>
+
+	#< @FunctionPassiveForm
+
+	def ManySubStringsReplaceByManyXT(pacSubStrings, pacNewSubStrings)
+		cResult = This.Copy().ReplaceManyByManyXTQ(pacSubStrings, pacNewSubStrings).Content()
+		return cResult
+
+		def SubStringsReplaceByManyXT(pacSubStrings, pacNewSubStrings)
+			return This.ManySubStringsReplaceByManyXT(pacSubStrings, pacNewSubStrings)
+
+	#>
+
 	  #------------------------------------------#
 	 #     REPLACING SUBSTRING AT POSITION N    #
-	#------------------------------------------#
+	#==========================================#
 
 	def ReplaceSubStringAtPositionNCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 
