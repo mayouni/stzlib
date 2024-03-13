@@ -2544,7 +2544,7 @@ class stzObject
 
 	def IsAXT(pacStr)
 		/* EAMPLE
-		? Q("ring").IsA([ :Lowercase, :Latin, :String ])
+		? Q("ring").IsAXT([ :Lowercase, :Latin, :String ])
 		*/
 
 		if CheckParams()
@@ -2557,18 +2557,27 @@ class stzObject
 		if nLen = 0
 			return FALSE
 		but nLen = 1
-			return This.A(pacStr[1])
+			return This.IsA(pacStr[1])
 		ok
 
 		cType = lower(pacStr[nLen])
-		if NOT @IsRingOrStzType(cType)
+
+		#NOTE
+		# "word" will be used her as an alternative of "string"
+		# ~> we use it in natiral-coding
+
+		if NOT ( @IsRingOrStzType(cType) or cType = "word" )
 			StzRaise("Incorrect param value! paStr must contains a Ring or Softanza type at the end.")
+		ok
+
+		if cType = "word"
+			cType = "string"
 		ok
 
 		content = This.Content()
 
 		if isNumber(content)
-			obj = new stzNumber(content)
+			object = new stzNumber(content)
 
 		but isString(content)
 			object = new stzString(content)
@@ -2579,216 +2588,6 @@ class stzObject
 		but isObject(content)
 			object = new stzObject(content)
 
-		but @IsStzType(cType)
-			#NOTE
-			# I could use eval() to get a short and more
-			# flexible code (when a new stz type is added)
-			# but I opted for a static check for better
-			# performance
-
-			#TODO
-			# Update this code every time a new stz type
-			# (or Ring type) is added
-
-			#TODO
-			# Do the same in other similar places
-
-			switch cType
-			on stzobject
-				object = new stzObject(content)
-
-			on stzlistofobjects
-				object = new stzlistofobjects(content)
-
-			on stznumber
-				object = new stznumber(content)
-
-			on stzlistofnumbers
-				object = new stzlistofnumbers(content)
-
-			on stzlistofunicodes
-				object = new stzlistofunicodes(content)
-
-			on stzbinarynumber
-				object = new stzbinarynumber(content)
-
-			on stzhexnumber
-				object = new stzhexnumber(content)
-
-			on stzoctalnumber
-				object = new stzoctalnumber(content)
-
-			on stzstring
-				object = new stzstring(content)
-
-			on stzsplitter
-				object = new stzsplitter(content)
-
-			on stzmultistring
-				object = new stzmultistring(content)
-
-			on stzmultilingualstring
-				object = new stzmultilingualstring(content)
-
-			on stzlistofstrings
-				object = new stzlistofstrings(content)
-
-			on stzlistinstring
-				object = new stzlistinstring(content)
-
-			on stzlistofbytes
-				object = new stzlistofbytes(content)
-
-			on stzchar
-				object = new stzchar(content)
-
-			on stzunicodenames
-				object = new stzunicodenames(content)
-
-			on stzlistofchars
-				object = new stzlistofchars(content)
-
-			on stzlist
-				object = new stzlist(content)
-
-			on stzlist
-				object = new stzlist(content)
-
-			on stzlistofhashlists
-				object = new stzlistofhashlists(content)
-
-			on stzassociativelist
-				object = new stzassociativelist(content)
-
-			on stzset
-				object = new stzset(content)
-
-			on stzlistoflists
-				object = new stzlistoflists(content)
-
-			on stzlistofpairs
-				object = new stzlistofpairs(content)
-
-			on stzpair
-				object = new stzpair(content)
-
-			on stzpairofnumbers
-				object = new stzpairofnumbers(content)
-
-			on stzpairoflists
-				object = new stzpairoflists(content)
-
-			on stzlistofsets
-				object = new stzlistofsets(content)
-
-			on stztree
-				object = new stztree(content)
-
-			on stzwalker
-				object = new stzwalker(content)
-
-			on stztable
-				object = new stztable(content)
-
-			on stzlistoftables
-				object = new stzlistoftables(content)
-
-			on stzlocale
-				object = new stzlocale(content)
-
-			on stzcountry
-				object = new stzcountry(content)
-
-			on stzlanguage
-				object = new stzlanguage(content)
-
-			on stzscript
-				object = new stzscript(content)
-
-			on stzcurrency
-				object = new stzcurrency(content)
-
-			on stzlistparser
-				object = new stzlistparser(content)
-
-			on stzgrid
-				object = new stzgrid(content)
-
-			on stzlistofgrids
-				object = new stzlistofgrids(content)
-
-			on stzcounter
-				object = new stzcounter(content)
-
-			on stzdate
-				object = new stzdate(content)
-
-			on stztime
-				object = new stztime(content)
-
-			on stzfile
-				object = new stzfile(content)
-
-			on stzfolder
-				object = new stzfolder(content)
-
-			on stztextencoding
-				object = new stztextencoding(content)
-
-			on stznaturalcode
-				object = new stznaturalcode(content)
-
-			on stzchainofvalue
-				object = new stzchainofvalue(content)
-
-			on stzchainoftruth
-				object = new stzchainoftruth(content)
-
-			on stzentity
-				object = new stzentity(content)
-
-			on stzlistofentities
-				object = new stzlistofentities(content)
-
-			on stztext
-				object = new stztext(content)
-
-			on stzstringart
-				object = new stzstringart(content)
-
-			on stzconstraints
-				object = new stzconstraints(content)
-
-			on stzccode
-				object = new stzccode(content)
-
-			on stznullobject
-				object = new stznullobject(content)
-
-			on stzfalseobject
-				object = new stzfalseobject(content)
-
-			on stztrueobject
-				object = new stztrueobject(content)
-
-			on stzextcode
-				object = new stzextcode(content)
-
-			on stzsection
-				object = new stzsection(content)
-
-			on stznullobject
-				object = new stznullobject(content)
-
-			on stztrueobject
-				object = new stztrueobject(content)
-
-			on stzfalseobjects
-				object = new stzfalseobjects(content)
-
-			other
-				return FALSE
-			off
 		ok
 
 		# Preparing the names of the methods
@@ -2814,6 +2613,7 @@ class stzObject
 
 		for i = 1 to nLen
 			ccode = 'bResult = object.' + acMethods[i]
+
 			eval(cCode)
 			if bResult = FALSE
 				exit
@@ -2822,6 +2622,28 @@ class stzObject
 
 		return bResult
 
+
+		def IsAXTQ(pcType)
+			if this.IsAXT(pcType) = TRUE
+
+				content = This.Content()
+		
+				if isNumber(content)
+					return new stzNumber(content)
+		
+				but isString(content)
+					return new stzString(content)
+		
+				but isList(content)
+					return new stzList(content)
+		
+				but isObject(content)
+					return new stzObject(content)
+		
+				ok
+			else
+				return AFalseObject()
+			ok
 
 	def IsA(pcType)
 		/* Example
@@ -2841,6 +2663,10 @@ class stzObject
 			StzRaise("Incorrect param type! pcType must be a string.")
 		ok
 		
+		if pcType = "word"
+			pcType = "string"
+		ok
+
 		pcType = StzStringQ(pcType).InfereType()
 
 		if pcType = "number" or pcType = "string" or pcType = "list"
@@ -2862,6 +2688,10 @@ class stzObject
 
 		def IsAQ(pcType)
 
+			if isList(pcType)
+				return This.IsAXTQ(pcType)
+			ok
+	
 			if This.IsA(pcType) = TRUE
 
 				if pcType = "number" or pcType = "stznumber"
@@ -2883,6 +2713,9 @@ class stzObject
 				return AFalseObject()
 			ok
 
+		def IsAQM(pcType)
+			return MainObject()
+
 		#>
 
 		#< @FunctionAlternativeForms
@@ -2893,17 +2726,26 @@ class stzObject
 			def IsAnQ(pcType)
 				return This.IsAQ(pcType)
 
+			def IsAnQM(pcType)
+				return MainObject()
+
 		def AreA(pcType)
 			return This.IsA(pcType)
 
 			def AreAQ(pcType)
 				return This.IsAQ(pcType)
 
+			def AreAQM(pcType)
+				return MainObject()
+
 		def AreAn(pcType)
 			return This.IsA(pcType)
 
 			def AreAnQ(pcType)
 				return This.IsAQ(pcType)
+
+			def AreAnQM(pcType)
+				return MainObject()
 
 		#--
 
@@ -2913,11 +2755,17 @@ class stzObject
 			def IsTheQ(pcType)
 				return This.IsAQ(pcType)
 
+			def IsTheQM(pcType)
+				return MainObject()
+
 		def AreThe(pcType)
 			return This.IsA(pcType)
 
 			def AreTheQ(pcType)
 				return This.IsAQ(pcType)
+
+			def AreTheQM(pcType)
+				return MainObject()
 
 		#>
 
@@ -2972,6 +2820,9 @@ class stzObject
 				return AFalseObject()
 			ok
 
+		def IsQM(pcType)
+			return MainObject()
+
 	def Are(pcType)
 		/* Example
 
@@ -3017,8 +2868,7 @@ class stzObject
 			ok
 
 		def AreQM(pcType)
-			SetMainObject(This)
-			return AreQ(pcType)
+			return MainObject()
 			
 		#>
 
@@ -3029,7 +2879,7 @@ class stzObject
 				return This.AreQ(pcType)
 
 			def AreAllQM(pcType)
-				return This.AreQM(pcType)
+				return MainObject()
 
 	def AreBothA(pcType)
 
@@ -3067,6 +2917,9 @@ class stzObject
 
 			return This.AreQ(pcType)
 
+		def AreBothAQM(pcType)
+			return MainObject()
+
 		#>
 
 		#< @FunctionAlternativeForms
@@ -3077,11 +2930,17 @@ class stzObject
 			def AreBothAnQ(pcType)
 				return This.AreBothAQ(pcType)
 
+			def AreBothAnQM(pcType)
+				return MainObject()
+
 		def AreBoth(pcType)
 			return This.AreBothA(pcType)
 
 			def AreBothQ(pcType)
 				return This.AreBothAQ(pcType)
+
+			def AreBothQM(pcType)
+				return MainObject()
 
 		def BothAreA(pcType)
 			return This.AreBothA(pcType)
@@ -3089,17 +2948,26 @@ class stzObject
 			def BothAreAQ(pcType)
 				return This.AreBothAQ(pcType)
 
+			def BothAreAQM(pcType)
+				return MainObject()
+
 		def BothAreAn(pcType)
 			return This.AreBothA(pcType)
 
 			def BothAreAnQ(pcType)
 				return This.AreBothAQ(pcType)
 
+			def BothAreAnQM(pcType)
+				return MainObject()
+
 		def BothAre(pcType)
 			return This.AreBothA(pcType)
 
 			def BothAreQ(pcType)
 				return This.AreBothAQ(pcType)
+
+			def BothAreQM(pcType)
+				return MainObject()
 
 		#--
 
@@ -3109,14 +2977,16 @@ class stzObject
 			def AreTwoQ(pcType)
 				return AreBothAQ(pcType)
 
+			def AreTwoQM(pcType)
+				return MainObject()
+
 		#>
 
 	def WhichQ()
 		return This
 
 		def WichQM()
-			SetMainObject(This)
-			return This
+			return MainObject()
 
 		def Which()
 			return This
@@ -3124,9 +2994,8 @@ class stzObject
 		def ThatQ()
 			return This
 
-			def ThatQM()
-				SetMainObject(This)
-				return This
+		def ThatQM()
+			return MainObject()
 
 		def That()
 			return This
@@ -3135,8 +3004,7 @@ class stzObject
 		return This
 
 		def WhichIsQM()
-			SetMainObject(This)
-			return This
+			return MainObject()
 
 		def WhichIs()
 			return This
@@ -3144,9 +3012,8 @@ class stzObject
 		def ThatIsQ()
 			return This
 
-			def ThisIsQM()
-				SetMainObject(This)
-				return This
+		def ThisIsQM()
+			return MainObject()
 
 		def ThatIs()
 			return This
@@ -3155,8 +3022,7 @@ class stzObject
 		return This
 
 		def WhichAreQM()
-			SetMainObject(This)
-			return This
+			return MainObject()
 
 		def WhichAre()
 			return This
@@ -3164,9 +3030,8 @@ class stzObject
 		def ThatAreQ()
 			return This
 
-			def ThatAreQM()
-				SetMainObject(This)
-				return This
+		def ThatAreQM()
+			return MainObject()
 
 		def ThatAre()
 			return This
@@ -3175,8 +3040,7 @@ class stzObject
 		return This
 
 		def WhichAreBothQM()
-			SetMainObject(This)
-			return This
+			return MainObject()
 
 		#< @AlternativeForms
 
@@ -3186,9 +3050,8 @@ class stzObject
 		def ThatAreBothQ()
 			return This
 
-			def ThatAreBothQM()
-				SetMainObject(This)
-				return This
+		def ThatAreBothQM()
+			return MainObject()
 
 		def ThatAreBoth()
 			return This
@@ -3198,9 +3061,8 @@ class stzObject
 		def WhichBothAreQ()
 			return This
 
-			def WichBothAreQM()
-				SetNamedObject(This)
-				return This
+		def WichBothAreQM()
+			return MainObject()
 
 		def WhichBothAre()
 			return This
@@ -3208,25 +3070,31 @@ class stzObject
 		def ThatBothAreQ()
 			return This
 
-			def ThatBothAreQM()
-				SetMainObject(This)
-				return This
+		def ThatBothAreQM()
+			return MainObject()
 
 		def ThatBothAre()
 			return This
 
 		#
 
-	def TheirQ()
+	def Their()
 		return This
 
-		def TheirQM()
+		def TheirM()
 			return MainObject()
 
-		#< @FunctionAlternativeForms
+		#< @FunctionFluentForm
 
-		def Their()
+		def TheirQ()
 			return This
+
+			def TheirQM()
+				return MainObject()
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def AllTheir()
 			return This
@@ -3234,57 +3102,86 @@ class stzObject
 			def AllTheirQ()
 				return This
 
+			def AllTheirQM()
+				return MainObject()
+
 		def Its()
 			return This
 
-		def ItsQ()
-			return This
-
-			def ItsQM()
-				SetMainObject(This)
+			def ItsQ()
 				return This
+	
+			def ItsQM()
+				return MainObject()
 
 		def His()
 			return This
 
-		def HisQ()
-			return This
-
-			def HisQM()
-				SetMainObject(This)
+			def HisQ()
 				return This
+	
+			def HisQM()
+				return MainObject()
 
 		def Her()
 			return This
 
-		def HerQ()
-			return This
-
-			def HerQM()
-				SetMainObject(This)
+			def HerQ()
 				return This
+	
+			def HerQM()
+				return MainObject()
 
 		def My()
 			return This
 
-		def MyQ()
-			return this
-
+			def MyQ()
+				return this
+	
 			def MyQM()
-				SetMainObject(This)
-				return This
+				return MainObject()
 
 		def Your()
 			return This
 
-		def YourQ()
-			return this
-
+			def YourQ()
+				return this
+	
 			def YourQM()
-				SetMainObject(This)
-				return This
+				return MainObject()
 
 		#>
+
+	def As()
+		return This
+
+		def AsQ()
+			return This
+
+		def AsQM()
+			return MainObject()
+
+		#--
+
+		def AsA()
+			return This
+
+		def AsAQ()
+			return This
+
+		def AsAQM()
+			return MainObject()
+
+		#--
+
+		def AsThe()
+			return This
+
+		def AsTheQ()
+			return This
+
+		def AsTheQM()
+			return MainObject()
 
 	def Me()
 		return This.Content()
@@ -3292,9 +3189,8 @@ class stzObject
 		def MeQ()
 			return This
 
-			def MeQM()
-				SetMainObject(This)
-				return This
+		def MeQM()
+			return MainObject()
 
 	def Mine()
 		return This
@@ -3302,9 +3198,8 @@ class stzObject
 		def MineQ()
 			return This
 
-			def MinQM()
-				SetMainObject(This)
-				return This
+		def MineQM()
+			return MainObject()
 
 	def It()
 		return This.Content()
@@ -3312,9 +3207,8 @@ class stzObject
 		def ItQ()
 			return This
 
-			def ItQM()
-				SetMainObject(This)
-				return This
+		def ItQM()
+			return MainObject()
 
 	def You()
 		return This.Content()
@@ -3322,9 +3216,8 @@ class stzObject
 		def YouQ()
 			return This
 
-			def YouQM()
-				SetMainObject(This)
-				return This
+		def YouQM()
+			return MainObject()
 
 	def Yours()
 		return This
@@ -3332,9 +3225,8 @@ class stzObject
 		def YoursQ()
 			return This
 
-			def YoursQM()
-				SetMainObject(This)
-				return This
+		def YoursQM()
+			return MainObject()
 
 	def Him()
 		return This.Content()
@@ -3342,9 +3234,8 @@ class stzObject
 		def HimQ()
 			return This
 
-			def HimQM()
-				SetMainObject(This)
-				return This
+		def HimQM()
+			return MainObject()
 
 	def Them()
 		return This.Content()
@@ -3352,9 +3243,65 @@ class stzObject
 		def ThemQ()
 			return This
 
-			def ThemQM()
-				SetMainObject(This)
-				return This
+		def ThemQM()
+			return MainObject()
+
+	def Has()
+		return This
+
+		def HasQ()
+			return This
+
+		def HasQM()
+			return MainObject()
+
+	def HasV(value)
+		SetLastValue(value)
+		return This
+
+		def HasVQ(value)
+			return This.HasV(value)
+
+		def HasVQM(value)
+			return MainObject()
+
+	def HasN(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		SetLastValue(n)
+		return This
+
+		def HasNQ(n)
+			return This.HasN(n)
+
+		def HasNQM(n)
+			return MainObject()
+
+		#--
+
+		def HasTheNumber(n)
+			return This.HasN(n)
+
+		def HasTheNumberQ(n)
+			return This.HasN(n)
+
+		def HasTheNumberQM(n)
+			return MainObject()
+
+	#==
+
+	def _(any)
+		return LastValue()
+
+		def _Q(any)
+			return MainObject()
+
+		def _QM(an)
+			return MainObject()
 
 	#==
 	
@@ -4478,9 +4425,10 @@ class stzObject
 		def HavingQ()
 			return This
 
-			def HavingQM()
-				SetMainObject(This)
-				return This.HavingQ()
+		def HavingQM()
+			return MainObject()
+
+		#--
 
 		def AndHaving()
 			return This
@@ -4488,11 +4436,38 @@ class stzObject
 		def AndHavingQ()
 			return This
 
-			def AndHavingQM()
-				SetMainObject(This)
-				return This.AndHavingQ()
+		def AndHavingQM()
+			return MainObject()
 
+	def With()
+		return This
+
+		def WithQ()
+			return This
+
+		def WithA()
+			return This
+
+		def WithAQ()
+			return This
+
+	def WithQM()
+		return MainObject()
+
+		def WithAQM()
+			return MainObject()
 	
+	def Only(value)
+		SetLastValue(value)
+		return This
+
+		def OnlyQ(value)
+			return Only(value)
+
+	def OnlyQM(value)
+		SetLastValue(value)
+		return MainObject()
+
 	# Swapping the content of the stzObject with an other stzObject
 
 	def SwapWith(pOtherStzObject)

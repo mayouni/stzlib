@@ -3753,23 +3753,54 @@ class stzList from stzObject
 	def NumberOfItems()
 		return len(@aContent)
 
+		#< @FunctionFluentForm
+
 		def NumberOfItemsQ()
 			return new stzNumber(This.NumberOfItems())
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def Size()
 			return This.NumberOfItems()
 
+			def SizeQ()
+				return This.NumberOfItemsQ()
+
 		def Length()
 			return This.NumberOfItems()
+
+			def LengthQ()
+				return This.return This.NumberOfItemsQ()
+
+			#-- @Misspelled
+
+			def Lenght()
+				return This.Length()
+
+			def LenghtQ()
+				return This.NumberOfItemsQ()
 
 		def CountItems()
 			return This.NumberOfItems()
 
+			def CountItemsQ()
+				return This.NumberOfItemsQ()
+
 		def HowManyItems()
 			return This.NumberOfItems()
 	
+			def HowManyItemsQ()
+				return This.NumberOfItemsQ()
+
 		def HowManyItem()
 			return This.NumberOfItems()
+
+			def HowManyItemQ()
+				return This.NumberOfItemsQ()
+
+		#>
 
 	  #--------------------------------------------------------------#
 	 #  GETTING THE NUMBER OF ITEMS OF THE LIST -- U/Extended FORM  #
@@ -3786,6 +3817,11 @@ class stzList from stzObject
 
 		def LengthU()
 			return This.NumberOfItemsU()
+
+			#-- @Misspelled
+
+			def LenghtU()
+				return This.NumberOfItemsU()
 
 		def CountItemsU()
 			return This.NumberOfItemsU()
@@ -57885,15 +57921,6 @@ vvv
 
 		def Softanzified()
 			return This.Objecified()
-
-	def AndThen()
-		return This
-
-		def AndThenQ()
-			return This.AndThen()
-
-		def AndQ()
-			return This.AndThen()
 
 	# Swapping the content of the stzList with an other stzList
 
