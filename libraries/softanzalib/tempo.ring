@@ -4,6 +4,22 @@ load "stzlib.ring"
 
 pron()
 
+? Q("AnnIE").NumberOfVowels() # same as ? Q("AnnIE").VowelN()
+#--> 3
+
+? Q("AnnIE").Vowels()
+#--> [ "A", "I", "E" ]
+
+? Q("AnnIE").Vowel()
+#--> A
+
+proff()
+# Executed in 0.05 second(s)
+
+/*=====
+
+pron()
+
 Q("hi")
 ? MainObject().Content()
 #--> "hi"
@@ -15,15 +31,48 @@ proff()
 /*======= #natural-coding #semantic-eloquence
 */
 pron()
+/*
+? Q("ring").IsAString()
+#--> TRUE
+
+? Q("ring").IsStzString()
+#--> TRUE
 
 ? Q("ring").IsAXT([ :Lowercase, :Latin, :String ])
 #--> TRUE
 
-? Q("string").IsA([ :Lowercase, :Latin, :String ])
+? Q("ring").IsAXT([ :String ])
+#--> TRUE
+
+? Q("ring").IsA(:String)
+#--> TRUE
+*/
+# "ring" is a lowercase latin word which has its number of chars equal to 4
+//? Q("ring").IsAXTQ([ :Lowercase, :Latin, :String ]).WhichQ().HasQ().ItsQ().LengthQ().EqualTo(4)
+
+//? TheStringQ("ring").IsAQ([ :Lowercase, :Latin, :String ]).WithQ().LengthQ().Of(4)
+#--> TRUE
+
+//? TheWordQ("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WithAQ().LengthQ().OfQ(4)._(:Letters)
+#--> TRUE
+
+? TheWordQM("ring").IsAQ([ :Lowercase, :Latin, :Word ]).
+  WithAQ().LengthQ().OfQ(4)._Q(:Letters).AndQ().OnlyQM(1).VowelNB()
 
 
-//? Q("ring").IsTheQ([ :Lowercase, :string ]).WhichQ().IsTheReverseOf("gnir")
+/*
+? MainObject().StzType()
 
+? TheWordQ("ring").HasNQ(4).LettersNB()
+
+? TheWordQ("ring").HasNQ(4).LowercaseBQ().LettersNB()
+
+? TheWordQ("ring").HasNQ(4).LettersNBQ().ThatAreQ().InLowercase()
+
+? Q("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WhichQ().HasTheNumberQ(4).AsAQ().NumberOfCharsB()
+
+? Q("ring").IsTheQ([ :Lowercase, :string ]).WhichQ().IsTheReverseOf("gnir")
+*/
 proff()
 
 /*-----------

@@ -106,30 +106,6 @@ func SomeSubStrings(pcStr)
 
 #== Word
 
-func WordCSQ(pcSubStr, pCaseSensitive)
-
-	if isList(pcSubStr) and Q(pcSubStr).IsPair() and
-	   isString(pcSubStr[1]) and Q(pcSubStr[2]).IsInOrInStringNamedParam()
-
-		return WordInCSQ(pcSubStr[1], pcSubStr[2][2], pCaseSensitive)
-	ok
-
-	return new stzString(pcSubStr)
-
-	func WordCS(pcSubStr, pCaseSensitive)
-		return WordCSQ(pcSubStr, pCaseSensitive)
-
-	func TheWordCSQ(pcSubStr, pCaseSensitive)
-		return WordCSQ(pcSubStr, pCaseSensitive)
-
-func WordQ(pcSubStr)
-	return WordCSQ(pcSubStr, :CaseSensitive)
-
-	func TheWordQ(pcSubStr)
-		return WordQ(pcSubStr)
-
-	func TheWord(pcSubStr)
-		return WordQ(pcSubStr)
 
 func TheWordInCSQ( pcSubstr, pcInStr, pCaseSensitive )
 	if isList(pcInStr) and Q(pcInStr).IsInOrInStringNamedParam()

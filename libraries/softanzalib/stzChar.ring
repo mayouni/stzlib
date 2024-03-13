@@ -823,7 +823,7 @@ class stzChar from stzObject
 		return cNumber
 
 	def IsVowel()
-		if ring_find( This.Content(), Vowels() ) > 0
+		if ring_find( Vowels(), This.Content() ) > 0
 			return TRUE
 		else
 			return FALSE
@@ -832,6 +832,8 @@ class stzChar from stzObject
 		def IsAVowel()
 			return This.IsVowel()
 
+	#TODO:
+	# Add IsConsonant()
 
 	def IsLeftToRight()
 		if This.UnicodeDirectionNumber() = "0"

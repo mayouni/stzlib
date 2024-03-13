@@ -611,21 +611,11 @@ func StringIsCharName(pcStr)
 
 # Used for natural-coding
 
-func String(pcStr)
-	if isString(pcStr)
-		return pcStr
-	ok
-
 func Text(pcStr)
 	#NOTE: In the future, there will be a difference
 	# between String and Text
 	if isString(pcStr)
 		return pcStr
-	ok
-
-func String@(pcStr)
-	if isString(pcStr)
-		return ComputableForm(pcStr)
 	ok
 
 func NumberOfCharsOf(pcStr)
@@ -1881,11 +1871,41 @@ class stzString from stzObject
 		cResult = This.Copy().LowercaseQ().Content()
 		return cResult
 
-		def Lowcased()
-			return This.Lowercased()
+		#< @FunctionFluentForm
 
+		def LowercasedQ()
+			if This.Lowercased()
+				return This
+			else
+				return AFalseObject()
+			ok
+
+		#>
+
+		#< @FunctionAlternativeForms
+			
 		def ToLowercase()
 			return This.Lowercased()
+
+			def ToLowercaseQ()
+				if This.Lowercased()
+					return This
+				else
+					return AFalseObject()
+				ok
+		#--
+
+		def LowercaseB()
+			return This.Lowercased()
+
+			def LowercaseBQ()
+				if This.Lowercased()
+					return This
+				else
+					return AFalseObject()
+				ok
+
+		#>
 
 	  #-------------------------------------------------#
 	 #     LOWERCASING THE STRING IN A GIVEN LOCALE    #
@@ -2148,8 +2168,41 @@ class stzString from stzObject
 	def Uppercased()
 		return This.Copy().UppercaseQ().Content()
 
+		#< @FunctionFluentForm
+
+		def UppercasedQ()
+			if This.IsUppercased()
+				return This
+			else
+				return AFalseObject()
+			ok
+
+		#>
+
+		#< @FunctionAlternativeForms
+			
 		def ToUppercase()
 			return This.Uppercased()
+
+				def ToUppercaseQ()
+					if This.Uppercased()
+						return This
+					else
+						return AFalseObject()
+					ok
+		#--
+
+		def UppercaseB()
+			return This.Uppercased()
+
+			def UpperBQ()
+				if This.Uppercased()
+					return This
+				else
+					return AFalseObject()
+				ok
+
+		#>
 
 	// Tranforms the string to LOCALE-SENSITIVE UPPERCase
 	def ApplyUppercaseInLocale(pcLocale)
@@ -68623,28 +68676,109 @@ ici		//...
 
 		#>
 
+		#< @FunctionBooleanForm
+
+		def NumberOfcharsCSB(pCaseSensitive)
+			if This.NumberOfCharsCS(pCaseSensitive) = LastValue()
+				return TRUE
+			else
+				return FALSE
+			ok
+
+			def NumberOfCharCSBQ(pCaseSensitive)
+				if This.NumberOfcharsCSB(pCaseSensitive)
+					return This
+				else
+					return AFalseObject()
+				ok
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def SizeCS(pCaseSensitive)
 			return This.NumberOfCharsCS(pCaseSensitive)
 
+			def SizeCSQ(pCaseSensitive)
+				return This.NumberOfCharsCSQ(pCaseSensitive)
+
+			def SizeCSB(pCaseSensitive)
+				return This.NumberOfcharsCSB(pCaseSensitive)
+
+			def SizeCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
 		def SizeInCharsCS(pCaseSensitive)
 			return This.NumberOfCharsCS(pCaseSensitive)
+
+			def SizeInCharsCSQ(pCaseSensitive)
+				return This.NumberOfCharsCSQ(pCaseSensitive)
+
+			def SizeInCharsCSB(pCaseSensitive)
+				return This.NumberOfcharsCSB(pCaseSensitive)
+
+			def SizeInCharsCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
 
 		def NumberOfItemsCS(pCaseSensitive)
 			return This.NumberOfCharsCS(pCaseSensitive)
 
+			def NumberOfItemsCSQ(pCaseSensitive)
+				return This.NumberOfCharsCSQ(pCaseSensitive)
+
+			def NumberOfItemsCSB(pCaseSensitive)
+				return This.NumberOfcharsCSB(pCaseSensitive)
+
+			def NumberOfItemsCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
 		def LengthCS(pCaseSensitive)
 			return This.NumberOfCharsCS(pCaseSensitive)
+
+			def LengthCSQ(pCaseSensitive)
+				return This.NumberOfCharCSQ(pCaseSensitive)
+
+			def LengthCSB(pCaseSensitive)
+				return This.NumberOfcharsCSB(pCaseSensitive)
+
+			def LengthCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
 
 		def CountCharsCS(pCaseSensitive)
 			return This.NumberOfCharsCS(pCaseSensitive)
 
+			def CountCharsCSQ(pCaseSensitive)
+				return This.NumberOfCharCSQ(pCaseSensitive)
+
+			def CountCharsCSB(pCaseSensitive)
+				return This.NumberOfcharsCSB(pCaseSensitive)
+
+			def CountCharsCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
 		def HowManyCharsCS(pCaseSensitive)
 			return This.NumberOfCharsCS(pCaseSensitive)
 
+			def HowManyCharsCSQ(pCaseSensitive)
+				return This.NumberOfCharCSQ(pCaseSensitive)
+
+			def HowManyCharsCSB(pCaseSensitive)
+				return This.NumberOfcharsCSB(pCaseSensitive)
+
+			def HowManyCharsCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
 		def HowManyCharCS(pCaseSensitive)
 			return This.NumberOfCharsCS(pCaseSensitive)
+
+			def HowManyCharCSQ(pCaseSensitive)
+				return This.NumberOfCharsCSQ(pCaseSensitive)
+
+			def HowManyCharCSB(pCaseSensitive)
+				return This.NumberOfcharsCSB(pCaseSensitive)
+
+			def HowManyCharCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
 
 		#>
 
@@ -68667,32 +68801,109 @@ ici		//...
 
 		#>
 
+		#< @FunctionBooleanForm
+
+		def NumberOfcharsB()
+			if This.NumberOfChars() = LastValue()
+				return TRUE
+			else
+				return FALSE
+			ok
+
+			def NumberOfCharBQ()
+				if This.NumberOfcharsB()
+					return This
+				else
+					return AFalseObject()
+				ok
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def Size()
 			return This.NumberOfChars()
 
+			def SizeQ()
+				return This.NumberOfCharsQ()
+
+			def SizeB()
+				return This.NumberOfCharsB()
+
+			def SizeBQ()
+				return This.NumberOfCharBQ()
+
 		def SizeInChars()
 			return This.NumberOfChars()
 
-		def LengthInChars()
-			return This.NumberOfBytes()
+			def SizeInCharsQ()
+				return This.NumberOfCharsQ()
 
+			def SizeInCharsB()
+				return This.NumberOfCharsB()
+
+			def SizeInCharsBQ()
+				return This.NumberOfCharBQ()
 
 		def NumberOfItems()
 			return This.NumberOfChars()
 
+			def NumberOfItemsQ()
+				return This.NumberOfCharsQ()
+
+			def NumberOfItemsB()
+				return This.NumberOfCharsB()
+
+			def NumberOfItemsBQ()
+				return This.NumberOfCharBQ()
+
 		def Length()
 			return This.NumberOfChars()
+
+			def LengthQ()
+				return This.NumberOfCharsQ()
+
+			def LengthB()
+				return This.NumberOfCharsB()
+
+			def LengthBQ()
+				return This.NumberOfCharBQ()
 
 		def CountChars()
 			return This.NumberOfChars()
 
+			def CountCharsQ()
+				return This.NumberOfCharsQ()
+
+			def CountCharsB()
+				return This.NumberOfCharsB()
+
+			def CountCharsBQ()
+				return This.NumberOfCharBQ()
+
 		def HowManyChars()
 			return This.NumberOfChars()
 
+			def HowManyCharsQ()
+				return This.NumberOfCharsQ()
+
+			def HowManyCharsB()
+				return This.NumberOfCharsB()
+
+			def HowManyCharsBQ()
+				return This.NumberOfCharBQ()
+
 		def HowManyChar()
 			return This.NumberOfChars()
+
+			def HowManyCharQ()
+				return This.NumberOfCharsQ()
+
+			def HowManyCharB()
+				return This.NumberOfCharsB()
+
+			def HowManyCharBQ()
+				return This.NumberOfCharBQ()
 
 		#>
 
@@ -68710,16 +68921,68 @@ ici		//...
 	def NumberOfLetters()
 		return len(This.OnlyLetters())
 	
+		#< @FunctionFluentForm
+
+		def NumberOfLettersQ()
+			return new stzNumber(This.NumberOfLetters())
+
+		#>
+
+		#< @FunctionBooleanForm
+
+		def NumberOfLettersB()
+			if This.NumberOfLetters() = LastValue()
+				return TRUE
+			else
+				return FALSE
+			ok
+
+		def NumberOfLettersBQ()
+			if This.NumberOfLettersB() = TRUE
+				return This
+			else
+				return AFalseObject()
+			ok
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def CountLetters()
 			return This.NumberOfLetters()
 
+			def CountLettersQ()
+				This.NumberOfLettersQ()
+
+			def CountLettersB()
+				return This.NumberOfLettersB()
+
+			def CountLettersBQ()
+				return This.NumberOfLettersBQ()
+
 		def HowManyLetters()
 			return This.NumberOfLetters()
 
+			def HowManyLettersQ()
+				This.NumberOfLettersQ()
+
+			def HowManyLettersB()
+				return This.NumberOfLettersB()
+
+			def HowManyLettersBQ()
+				return This.NumberOfLettersBQ()
+
 		def HowManyLetter()
 			return This.NumberOfLetters()
+
+			def HowManyLetterQ()
+				This.NumberOfLettersQ()
+
+			def HowManyLetterB()
+				return This.NumberOfLettersB()
+
+			def HowManyLetterBQ()
+				return This.NumberOfLettersBQ()
 
 		#>
 
@@ -68839,6 +69102,27 @@ ici		//...
 			on :stzListOfChars
 				return new stzListOfChars( This.Letters() )
 			off
+
+		def LettersN()
+			nResult = This.NumberOfLetters()
+			return nResult
+
+			def LettersNQ()
+				return new stzNumber(This.LettersN())
+
+		def LettersNB() # Used for natural-coding and chains of truth
+			if This.NumberOfLetters() = LastValue()
+				return TRUE
+			else
+				return FALSE
+			ok
+
+			def LettersNBQ()
+				if This.LettersNB() = TRUE
+					return This
+				else
+					return AFalseObject()
+				ok
 
 	def LettersZ()
 		aResult = []
@@ -74415,15 +74699,6 @@ ici		//...
 	def ItemIn(paList)	
 		return This.ItemInCS(paList, TRUE)
 
-	def AndThen()
-		return This
-
-		def AndThenQ()
-			return This.AndThen()
-
-		def AndQ()
-			return This.AndThen()
-
 	# Swapping the content of the stzString with an other stzString
 
 	def SwapWith(pOtherStzString)
@@ -74849,6 +75124,67 @@ ici		//...
 			return This.FindLastChar(cChar)
 
 		#>
+
+	  #============================================#
+	 #  GETTING THE LIST OF VOWELS IN THE STRING  #
+	#============================================#
+
+	def Vowels()
+		nLen = This.NumberOfChars()
+		aoChars = This.ToListOfStzChars()
+		
+		acResult = []
+
+		for i = 1 to nLen
+			if aoChars[i].IsVowel()
+				acResult + aoChars[i].Content()
+			ok
+		next
+
+		return acResult
+
+	def NumberOfVowels()
+		nResult = len( This.Vowels() )
+		return nResult
+
+	def Vowel() # a random vowel from the string
+		cResult = ARandomItemIn( This.Vowels() )
+		return cResult
+
+		def VowelQ()
+			return new stzString(This.Vowel())
+
+		def VowelQR(pcReturnType)
+			switch pcReturnType
+			on :stzString
+				return new stzString(This.Vowel())
+
+			on :stzChar
+				return new stzChar(This.Vowel())
+
+			other
+				StzRaise("Unsuppprted return type!")
+			off
+
+	def VowelN()
+		return This.NumberOfVowels()
+
+		def VowelNQ()
+			return new stzNumber(This.vowelN())
+
+	def VowelNB()
+		if This.NumberOfVowels() = LastValue()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def VowelNBQ()
+			if This.NumberOfVowels() = LastValue()
+				return This
+			else
+				return AFalseObject()
+			ok
 
 	  #--------------------------------#
 	 #  ALTERNATIVES OF SubStrings()  #

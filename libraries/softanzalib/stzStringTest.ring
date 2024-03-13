@@ -4529,10 +4529,10 @@ StartProfiler()
 ? Q("I BELIEVE IN RING FUTURE AND ENGAGE FOR IT!").Lowercased()
 #--> i believe in ring future and engage for it!
 
-? Q("i believe in ring future and engage for it!").IsLowcase()
+? Q("i believe in ring future and engage for it!").IsLowercase()
 #--> TRUE
 
-# As a side note, the last fuction used above (IsLowcase()) is
+# As a side note, the last fuction used above (IsLowercase()) is
 # misspelled (should be IsLowerCase() with an "r" after low),*
 # but Softanza accepts it.
 

@@ -1307,18 +1307,6 @@ func IsStzNumber(pObject)
 
 	#>
 
-#---- used for natural-coding (don't remove them!)
-
-func Number(n)
-	if isNumber(n)
-		return n
-	ok
-
-func Number@(n)	#TODO: Check if it's orphelin and, if so, remove it!
-	if isNumber(n)
-		return ComputableForm(n)
-	ok
-
   ///////////////////////////
  ///   STZNUMBER CLASS   ///
 ///////////////////////////
@@ -2291,12 +2279,33 @@ class stzNumber from stzObject
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
 		def IsEqual(pOtherNumber)
 			if isList(pOtherNumber) and Q(pOtherNumber).IsToNamedParam()
 				pOtherNumber = pOtherNumber[2]
 			ok
 
 			return This.IsEqualTo(pOtherNumber)
+
+		def EqualTo(pOtherNumber)
+			return This.IsEqual(pOtherNumber)
+
+		#-- Used specifically in natural-coding and chains of truth
+		# Example: 
+
+		def Of(n)
+			return This.IsEqual(n)
+
+			def OfQ(n)
+
+				if This.IsEqual(n)
+					SetLastValue(n)
+					return This
+				else
+					return AFalseObject()
+				ok
+		#>
 
 		#< @FunctionPassiveForm
 
@@ -6057,15 +6066,6 @@ class stzNumber from stzObject
 
 		def StzClass()
 			return This.ClassName()
-
-	def AndThen()
-		return This
-
-		def AndThenQ()
-			return This.AndThen()
-
-		def AndQ()
-			return This.AndThen()
 
 	def IsNamedObject()
 		return FALSE

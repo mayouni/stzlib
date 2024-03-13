@@ -39,6 +39,8 @@ _aRingTypesXT = [
 @ = 0
 
 _oMainObject = ANullObject() # Used for chains of truth
+_MainValue = NULL
+_LastValue = NULL
 
 _bThese = FALSE	# Used in case like this: Q(1:5) - These(3:5) --> [1,2]
 
@@ -413,8 +415,20 @@ func MainObject() # Used in Chains of truth
 	func @MainObject()
 		return _oMainObject
 
-func SetMainObject(p)
-	_oMainObject = p
+func SetMainObject(obj)
+	_oMainObject = obj
+
+func MainValue()
+	return _MainValue
+
+	def @MainValue()
+		return _MainValue
+
+func LastValue()
+	return _LastValue
+
+func SetLastValue(value)
+	_LastValue = value
 
 func These(p)
 	_bThese = TRUE
@@ -1549,10 +1563,8 @@ func ListOfListsOfStzTypes() #TODO: complete the list
 	]
 
 func BothAreNumbers(p1, p2)
-	if CheckParams()
-		if isList(p2) and Q(p2).IsAndNamedParam()
-			p2 = p2[2]
-		ok
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
 	ok
 
 	if isNumber(p1) and isNumber(p2)
@@ -1575,10 +1587,8 @@ func BothAreNumbers(p1, p2)
 		return BothAreNumbers(p1, p2)
 
 func BothAreNumbersInStrings(p1, p2)
-	if CheckParams()
-		if isList(p2) and Q(p2).IsAndNamedParam()
-			p2 = p2[2]
-		ok
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
 	ok
 
 	if isString(p1) and isString(p2) and
@@ -1618,10 +1628,8 @@ func BothAreNumbersInStrings(p1, p2)
 	#>
 
 func BothAreIntegers(p1, p2)
-	if CheckParams()
-		if isList(p2) and Q(p2).IsAndNamedParam()
-			p2 = p2[2]
-		ok
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
 	ok
 
 	if isNumber(p1) and isNumber(p2) and Q(p1).IsInteger() and Q(p2).IsInteger()
@@ -1640,10 +1648,8 @@ func BothAreIntegers(p1, p2)
 		return BothAreIntegers(p1, p2)
 
 func BothAreIntegersInStrings(p1, p2)
-	if CheckParams()
-		if isList(p2) and Q(p2).IsAndNamedParam()
-			p2 = p2[2]
-		ok
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
 	ok
 
 	if isString(p1) and isString(p2) and
@@ -1682,10 +1688,8 @@ func BothAreIntegersInStrings(p1, p2)
 	#>
 
 func BothAreReals(p1, p2)
-	if CheckParams()
-		if isList(p2) and Q(p2).IsAndNamedParam()
-			p2 = p2[2]
-		ok
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
 	ok
 
 	if isNumber(p1) and isNumber(p2) and Q(p1).IsReal() and Q(p2).IsReal()
@@ -1722,10 +1726,8 @@ func BothAreReals(p1, p2)
 	#>
 
 func BothAreRealsInStrings(p1, p2)
-	if CheckParams()
-		if isList(p2) and Q(p2).IsAndNamedParam()
-			p2 = p2[2]
-		ok
+	if isList(p2) and Q(p2).IsAndNamedParam()
+		p2 = p2[2]
 	ok
 
 	if isString(p1) and isString(p2) and
@@ -1792,7 +1794,6 @@ func BothAreRealsInStrings(p1, p2)
 	#>
 
 func BothArePairsOfNumbers(p1, p2)
-
 	if BothAreLists(p1, p2) and
 	   isList(p1) and Q(p1).IsPairOfNumbers() and
 	   isList(p2) and Q(p2).IsPairOfNumbers()
@@ -1855,7 +1856,6 @@ func BothArePairsOfNumbers(p1, p2)
 	#>
 
 func BothArePairsOfStrings(p1, p2)
-
 	if BothAreLists(p1, p2) and
 	   isList(p1) and Q(p1).IsPairOfStrings() and
 	   isList(p2) and Q(p2).IsPairOfStrings()
@@ -1916,7 +1916,6 @@ func BothArePairsOfStrings(p1, p2)
 	#>
 
 func BothArePairsOfLists(p1, p2)
-
 	if BothAreLists(p1, p2) and
 	   isList(p1) and Q(p1).IsPairOfLists() and
 	   isList(p2) and Q(p2).IsPairOfLists()
@@ -1978,7 +1977,6 @@ func BothArePairsOfLists(p1, p2)
 	#>
 
 func BothArePairsOfObjects(p1, p2)
-
 	if BothAreLists(p1, p2) and
 	   isList(p1) and Q(p1).IsPairOfObjects() and
 	   isList(p2) and Q(p2).IsPairOfObjects()
@@ -2433,10 +2431,8 @@ func Ten(pThing)
 # OTHER STAFF
 
 func IsStzType(pcStr)
-	if CheckParams()
-		if NOT isString(pcStr)
-			StzRaise("Incorrect param type! pcStr must be a string.")
-		ok
+	if NOT isString(pcStr)
+		StzRaise("Incorrect param type! pcStr must be a string.")
 	ok
 
 	acTypes = StzTypes() # Assumes they are lowercase strings
@@ -2491,10 +2487,8 @@ func IsStzType(pcStr)
 	#>
 
 func IsRingType(pcStr)
-	if CheckParams()
-		if NOT isString(pcStr)
-			StzRaise("Incorrect param type! pcStr must be a string.")
-		ok
+	if NOT isString(pcStr)
+		StzRaise("Incorrect param type! pcStr must be a string.")
 	ok
 
 	pcStr = lower(pcStr)
@@ -3305,8 +3299,7 @@ func Q(p)
 		oResult = new stzObject(p)
 	ok
 
-	SetMainObject(oResult)
-		return oResult
+	return oResult
 
 	func Softanzify(p)
 		return Q(p)
@@ -3317,12 +3310,99 @@ func Q(p)
 	func TheQ(p)
 		return Q(p)
 
-func QM(p) # Used to set/get the MainObject()
-	if p = ":>"
-		return _oMainObject
-	but p = ":<"
-		SetMainObject(Q(p))
+func TheNumberQ(n)
+	if NOT isNumber(n)
+		StzRaise("Incorrect param type! n must be a number.")
 	ok
+
+	obj = new stzNumber(n)
+	return obj
+
+	func NumberQ(n)
+		return TheNumberQ(n)
+
+func TheNumberQM(n)
+	obj = TheNumberQ(n)
+	SetMainObject(obj)
+	return obj
+
+	def NumberQM(n)
+		return TheNumberQM(n)
+
+func TheListQ(aList)
+	if NOT isList(aList)
+		StzRaise("Incorrect param type! aList must be a list.")
+	ok
+
+	obj = new stzList(aList)
+	return obj
+
+	func ListQ(aList)
+		return TheListQ(aList)
+
+func TheListQM(aList)
+	obj = TheListQ(aList)
+	SetMainObject(obj)
+	return obj
+
+	func ListQM(aList)
+		return TheListQM(aList)
+
+func TheList(aList)
+	if NOT isList(aList)
+		StzRaise("Incorrect param type! aList must be a list.")
+	ok
+
+	return aList
+
+func TheStringQ(str)
+	if NOT isString(str)
+		StzRaise("Incorrect param type! str must be a string.")
+	ok
+
+	obj = new stzString(str)
+	return obj
+
+	func StringQ(str)
+		return TheStringQ(str)
+
+	#--
+
+	func TheWordQ(str)
+		return TheStringQ(str)
+
+	func WordQ(str)
+		return TheStringQ(str)
+
+func TheStringQM(str)
+	obj = TheStringQ(str)
+	SetMainObject(obj)
+	return obj
+
+	func StringQM(str)
+		return TheStringQM(str)
+
+	func TheWordQM(str)
+		return TheStringQM(str)
+
+	func WordQM(str)
+		return TheStringQM(str)
+
+func TheString(str)
+	if NOT isString(str)
+		StzRaise("Incorrect param type! str must be a string.")
+	ok
+
+	return str
+
+	func TheWord(str)
+		return TheString(str)
+
+
+func QM(p)
+	obj = Q(p)
+	SetMainObject(obj)
+	return obj
 
 func QR(p, pcType)
 	if NOT isString(pcType)
@@ -3414,12 +3494,8 @@ func QQ(p)
 	ok
 
 func W(cCode)
-	if CheckParams()
-
-		if NOT isString(cCode)
-			StzRaise("Incorrect param type! cCode must be a string.")
-		ok
-
+	if NOT isString(cCode)
+		StzRaise("Incorrect param type! cCode must be a string.")
 	ok
 
 	aResult = [:Where, cCode]
@@ -3702,21 +3778,19 @@ func AreBothListsOfObjects(aList1, aList2)
 	ok
 
 func EuclideanDistance(anNumbers1, anNumbers2)
-	if CheckParams()
-		if isList(anNumbers1) and Q(anNumbers1).IsBetweenNamedParam()
-			anNumbers1 = anNumbers1[1]
-		ok
-		if isList(anNumbers2) and Q(anNumbers2).IsAndNamedParam()
-			anNumbers2 = anNumbers2[1]
-		ok
+	if isList(anNumbers1) and Q(anNumbers1).IsBetweenNamedParam()
+		anNumbers1 = anNumbers1[1]
+	ok
+	if isList(anNumbers2) and Q(anNumbers2).IsAndNamedParam()
+		anNumbers2 = anNumbers2[1]
+	ok
 	
-		if NOT AreBothListsOfNumbers(anNumbers1, anNumbers2)
-			StzRaise("Incorrect param types! anNumbers1 and anNumbers2 must be both lists of numbers.")
-		ok
+	if NOT AreBothListsOfNumbers(anNumbers1, anNumbers2)
+		StzRaise("Incorrect param types! anNumbers1 and anNumbers2 must be both lists of numbers.")
+	ok
 	
-		if len(anNumbers1) != len(anNumbers2)
-			StzRaise("Incorrect lists sizes! anNumbers1 and anNumbers2 must both have the same size.")
-		ok
+	if len(anNumbers1) != len(anNumbers2)
+		StzRaise("Incorrect lists sizes! anNumbers1 and anNumbers2 must both have the same size.")
 	ok
 
 	nResult = euc_dist(anNumbers1, anNumbers2)
