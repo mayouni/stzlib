@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*=====
-
+*/
 pron()
 
 ? Q("AnnIE").NumberOfVowels() # same as ? Q("AnnIE").VowelN()
@@ -10,8 +10,13 @@ pron()
 ? Q("AnnIE").Vowels()
 #--> [ "A", "I", "E" ]
 
-? Q("AnnIE").Vowel()
-#--> A
+? Q("AnnIE").Vowel() # A random vowel from the string
+#--> E
+
+? Q("AnnIE").VowyelsN() # N ~> Number of...
+#--> 3
+
+
 
 proff()
 # Executed in 0.05 second(s)
@@ -48,16 +53,16 @@ pron()
 #--> TRUE
 */
 # "ring" is a lowercase latin word which has its number of chars equal to 4
-//? Q("ring").IsAXTQ([ :Lowercase, :Latin, :String ]).WhichQ().HasQ().ItsQ().LengthQ().EqualTo(4)
+/*? Q("ring").IsAXTQ([ :Lowercase, :Latin, :String ]).WhichQ().HasQ().ItsQ().LengthQ().EqualTo(4)
 
-//? TheStringQ("ring").IsAQ([ :Lowercase, :Latin, :String ]).WithQ().LengthQ().Of(4)
+? TheStringQ("ring").IsAQ([ :Lowercase, :Latin, :String ]).WithQ().LengthQ().Of(4)
 #--> TRUE
 
-//? TheWordQ("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WithAQ().LengthQ().OfQ(4)._(:Letters)
+? TheWordQ("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WithAQ().LengthQ().OfQ(4)._(:Letters)
 #--> TRUE
-
+*/
 ? TheWordQM("ring").IsAQ([ :Lowercase, :Latin, :Word ]).
-  WithAQ().LengthQ().OfQ(4)._Q(:Letters).AndQ().OnlyQM(1).VowelNB()
+  WithQ().ALengthQ().OfQ(4)._Q(:Letters).AndQ().OnlyQM(1).VowelNB()
 
 
 /*

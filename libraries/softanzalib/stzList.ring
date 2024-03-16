@@ -3749,14 +3749,165 @@ class stzList from stzObject
 		nResult = len( This.ContentCS(pCaseSensitive) )
 		return nResult
 
-		
-	def NumberOfItems()
-		return len(@aContent)
+		#< @FuntionFluentForm
 
-		#< @FunctionFluentForm
+		def NumberOfItemsCSQ(pCaseSensitive)
+			return new stzNumber( This.NumberOfItemsCS(pCaseSensitive) )
+
+		#>
+
+		#< @FunctionBooleanForm
+
+		def NumberOfItemsCSB(pCaseSensitive)
+			if This.NumberOfItemsCS(pCaseSensitive) = LastValue()
+				return TRUE
+			else
+				return FALSE
+			ok
+
+			def NumberOfItemsCSBQ(pCaseSensitive)
+				if This.NumberOfItemsCSB(pCaseSensitive)
+					return This
+				else
+					return AFalseObject()
+				ok
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SizeCS(pCaseSensitive)
+			return This.NumberOfItemsCS(pCaseSensitive)
+
+			def SizeCSQ(pCaseSensitive)
+				return This.NumberOfItemsCSQ(pCaseSensitive)
+
+			def SizeCSB(pCaseSensitive)
+				return This.NumberOfItemsCSB(pCaseSensitive)
+
+			def SizeCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
+		def LengthCS(pCaseSensitive)
+			return This.NumberOfItemsCS(pCaseSensitive)
+
+			def LengthCSQ(pCaseSensitive)
+				return This.NumberOfItemsCSQ(pCaseSensitive)
+
+			def LengthCSB(pCaseSensitive)
+				return This.NumberOfItemsCSB(pCaseSensitive)
+
+			def LengthCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
+		#-- Used in natural-coding
+
+		def ANumberOfItemsCS(pCaseSensitive)
+			return This.NumberOfItemsCS(pCaseSensitive)
+
+			def ANumberOfItemsCSQ(pCaseSensitive)
+				return This.NumberOfItemsCSQ(pCaseSensitive)
+
+			def ANumberOfItemsCSB(pCaseSensitive)
+				return This.NumberOfItemsCSB(pCaseSensitive)
+
+			def ANumberOfItemsCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
+		def ASizeCS(pCaseSensitive)
+			return This.NumberOfItemsCS(pCaseSensitive)
+
+			def ASizeCSQ(pCaseSensitive)
+				return This.NumberOfItemsCSQ(pCaseSensitive)
+
+			def ASizeCSB(pCaseSensitive)
+				return This.NumberOfItemsCSB(pCaseSensitive)
+
+			def ASizeCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
+		def ALengthCS(pCaseSensitive)
+			return This.NumberOfItemsCS(pCaseSensitive)
+
+			def ALengthCSQ(pCaseSensitive)
+				return This.NumberOfItemsCSQ(pCaseSensitive)
+
+			def ALengthCSB(pCaseSensitive)
+				return This.NumberOfItemsCSB(pCaseSensitive)
+
+			def ALengthCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
+		#--
+
+		def CountItemsCS(pCaseSensitive)
+			return This.NumberOfItemsCS(pCaseSensitive)
+
+			def CountItemsCSQ(pCaseSensitive)
+				return This.NumberOfItemsCSQ(pCaseSensitive)
+
+			def CountItemsCSB(pCaseSensitive)
+				return This.NumberOfItemsCSB(pCaseSensitive)
+
+			def CountItemsCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
+		def HowManyItemsCS(pCaseSensitive)
+			return This.NumberOfItemsCS(pCaseSensitive)
+
+			def HowManyItemsCSQ(pCaseSensitive)
+				return This.NumberOfItemsCSQ(pCaseSensitive)
+
+			def HowManyItemsCSB(pCaseSensitive)
+				return This.NumberOfItemsCSB(pCaseSensitive)
+
+			def HowManyItemsCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def NuberOfItemsCS(pCaseSensitive)
+			return This.NumberOfItemsCS(pCaseSensitive)
+
+		#--
+
+		def LenghtCS(pCaseSensitive)
+			return This.LengthCS(pCaseSensitive)
+
+		def LenghtCSQ(pCaseSensitive)
+			return This.NumberOfItemsCSQ(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfItems()
+		return This.NumberOfItemsCS(TRUE)
+
+		#< @FuntionFluentForm
 
 		def NumberOfItemsQ()
-			return new stzNumber(This.NumberOfItems())
+			return new stzNumber( This.NumberOfItems() )
+
+		#>
+
+		#< @FunctionBooleanForm
+
+		def NumberOfItemsB()
+			if This.NumberOfItems() = LastValue()
+				return TRUE
+			else
+				return FALSE
+			ok
+
+			def NumberOfItemsBQ()
+				if This.NumberOfItemsB()
+					return This
+				else
+					return AFalseObject()
+				ok
 
 		#>
 
@@ -3768,19 +3919,63 @@ class stzList from stzObject
 			def SizeQ()
 				return This.NumberOfItemsQ()
 
+			def SizeB()
+				return This.NumberOfItemsB()
+
+			def SizeBQ()
+				return This.NumberOfCharBQ()
+
 		def Length()
 			return This.NumberOfItems()
 
 			def LengthQ()
-				return This.return This.NumberOfItemsQ()
-
-			#-- @Misspelled
-
-			def Lenght()
-				return This.Length()
-
-			def LenghtQ()
 				return This.NumberOfItemsQ()
+
+			def LengthB()
+				return This.NumberOfItemsB()
+
+			def LengthBQ()
+				return This.NumberOfCharBQ()
+
+		#-- Used in natural-coding
+
+		def ANumberOfItems()
+			return This.NumberOfItems()
+
+			def ANumberOfItemsQ()
+				return This.NumberOfItemsQ()
+
+			def ANumberOfItemsB()
+				return This.NumberOfItemsB()
+
+			def ANumberOfItemsBQ()
+				return This.NumberOfCharBQ()
+
+		def ASize()
+			return This.NumberOfItems()
+
+			def ASizeQ()
+				return This.NumberOfItemsQ()
+
+			def ASizeB()
+				return This.NumberOfItemsB()
+
+			def ASizeBQ()
+				return This.NumberOfCharBQ()
+
+		def ALength()
+			return This.NumberOfItems()
+
+			def ALengthQ()
+				return This.NumberOfItemsQ()
+
+			def ALengthB()
+				return This.NumberOfItemsB()
+
+			def ALengthBQ()
+				return This.NumberOfCharBQ()
+
+		#--
 
 		def CountItems()
 			return This.NumberOfItems()
@@ -3788,17 +3983,38 @@ class stzList from stzObject
 			def CountItemsQ()
 				return This.NumberOfItemsQ()
 
+			def CountItemsB()
+				return This.NumberOfItemsB()
+
+			def CountItemsBQ()
+				return This.NumberOfCharBQ()
+
 		def HowManyItems()
 			return This.NumberOfItems()
-	
+
 			def HowManyItemsQ()
 				return This.NumberOfItemsQ()
 
-		def HowManyItem()
+			def HowManyItemsB()
+				return This.NumberOfItemsB()
+
+			def HowManyItemsBQ()
+				return This.NumberOfCharBQ()
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def NuberOfItems()
 			return This.NumberOfItems()
 
-			def HowManyItemQ()
-				return This.NumberOfItemsQ()
+		#--
+
+		def Lenght()
+			return This.Length()
+
+		def LenghtQ()
+			return This.NumberOfItemsQ()
 
 		#>
 

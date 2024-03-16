@@ -18602,7 +18602,7 @@ class stzString from stzObject
 		#--
 
 		def RepeatedLeadingCharsAsStringCS(pCaseSensitive)
-			This.return This.RepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
+			ThisRepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
 
 			def RepeatedLeadingCharsAsStringCSQ(pCaseSensitive)
 				return This.RepeatedLeadingCharsAsSubStringCSQ(pCaseSensitive)
@@ -18622,7 +18622,7 @@ class stzString from stzObject
 		#--
 
 		def RepeatedLeadingCharsCSXT(pCaseSensitive)
-			This.return This.RepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
+			ThisRepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
 
 			def RepeatedLeadingCharsAsStringCSXTQ(pCaseSensitive)
 				return This.RepeatedLeadingCharsAsSubStringCSQ(pCaseSensitive)
@@ -19178,7 +19178,7 @@ class stzString from stzObject
 		#--
 
 		def RepeatedTrailingCharsAsStringCS(pCaseSensitive)
-			This.return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+			ThisRepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
 
 			def RepeatedTrailingCharsAsStringCSQ(pCaseSensitive)
 				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
@@ -19198,7 +19198,7 @@ class stzString from stzObject
 		#--
 
 		def RepeatedTrailingCharsCSXT(pCaseSensitive)
-			This.return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+			ThisRepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
 
 			def RepeatedTrailingCharsAsStringCSXTQ(pCaseSensitive)
 				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
@@ -68703,7 +68703,7 @@ ici		//...
 				return This.NumberOfCharsCSQ(pCaseSensitive)
 
 			def SizeCSB(pCaseSensitive)
-				return This.NumberOfcharsCSB(pCaseSensitive)
+				return This.NumberOfCharsCSB(pCaseSensitive)
 
 			def SizeCSBQ(pCaseSensitive)
 				return This.NumberOfCharCSBQ(pCaseSensitive)
@@ -68715,7 +68715,7 @@ ici		//...
 				return This.NumberOfCharsCSQ(pCaseSensitive)
 
 			def SizeInCharsCSB(pCaseSensitive)
-				return This.NumberOfcharsCSB(pCaseSensitive)
+				return This.NumberOfCharsCSB(pCaseSensitive)
 
 			def SizeInCharsCSBQ(pCaseSensitive)
 				return This.NumberOfCharCSBQ(pCaseSensitive)
@@ -68727,7 +68727,7 @@ ici		//...
 				return This.NumberOfCharsCSQ(pCaseSensitive)
 
 			def NumberOfItemsCSB(pCaseSensitive)
-				return This.NumberOfcharsCSB(pCaseSensitive)
+				return This.NumberOfCharsCSB(pCaseSensitive)
 
 			def NumberOfItemsCSBQ(pCaseSensitive)
 				return This.NumberOfCharCSBQ(pCaseSensitive)
@@ -68736,22 +68736,86 @@ ici		//...
 			return This.NumberOfCharsCS(pCaseSensitive)
 
 			def LengthCSQ(pCaseSensitive)
-				return This.NumberOfCharCSQ(pCaseSensitive)
+				return This.NumberOfCharsCSQ(pCaseSensitive)
 
 			def LengthCSB(pCaseSensitive)
-				return This.NumberOfcharsCSB(pCaseSensitive)
+				return This.NumberOfCharsCSB(pCaseSensitive)
 
 			def LengthCSBQ(pCaseSensitive)
 				return This.NumberOfCharCSBQ(pCaseSensitive)
+
+		#-- Used in natural-coding
+
+		def ANumberOfCharsCS(pCaseSensitive)
+			return This.NumberOfCharsCS(pCaseSensitive)
+
+			def ANumberOfCharsCSQ(pCaseSensitive)
+				return This.NumberOfCharsCSQ(pCaseSensitive)
+
+			def ANumberOfCharsCSB(pCaseSensitive)
+				return This.NumberOfCharsCSB(pCaseSensitive)
+
+			def ANumberOfCharsCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
+		def ASizeCS(pCaseSensitive)
+			return This.NumberOfCharsCS(pCaseSensitive)
+
+			def ASizeCSQ(pCaseSensitive)
+				return This.NumberOfCharsCSQ(pCaseSensitive)
+
+			def ASizeCSB(pCaseSensitive)
+				return This.NumberOfCharsCSB(pCaseSensitive)
+
+			def ASizeCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
+		def ASizeInCharsCS(pCaseSensitive)
+			return This.NumberOfCharsCS(pCaseSensitive)
+
+			def ASizeInCharsCSQ(pCaseSensitive)
+				return This.NumberOfCharsCSQ(pCaseSensitive)
+
+			def ASizeInCharsCSB(pCaseSensitive)
+				return This.NumberOfCharsCSB(pCaseSensitive)
+
+			def ASizeInCharsCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
+		def ANumberOfItemsCS(pCaseSensitive)
+			return This.NumberOfCharsCS(pCaseSensitive)
+
+			def ANumberOfItemsCSQ(pCaseSensitive)
+				return This.NumberOfCharsCSQ(pCaseSensitive)
+
+			def ANumberOfItemsCSB(pCaseSensitive)
+				return This.NumberOfCharsCSB(pCaseSensitive)
+
+			def ANumberOfItemsCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
+		def ALengthCS(pCaseSensitive)
+			return This.NumberOfCharsCS(pCaseSensitive)
+
+			def ALengthCSQ(pCaseSensitive)
+				return This.NumberOfCharsCSQ(pCaseSensitive)
+
+			def ALengthCSB(pCaseSensitive)
+				return This.NumberOfCharsCSB(pCaseSensitive)
+
+			def ALengthCSBQ(pCaseSensitive)
+				return This.NumberOfCharCSBQ(pCaseSensitive)
+
+		#--
 
 		def CountCharsCS(pCaseSensitive)
 			return This.NumberOfCharsCS(pCaseSensitive)
 
 			def CountCharsCSQ(pCaseSensitive)
-				return This.NumberOfCharCSQ(pCaseSensitive)
+				return This.NumberOfCharsCSQ(pCaseSensitive)
 
 			def CountCharsCSB(pCaseSensitive)
-				return This.NumberOfcharsCSB(pCaseSensitive)
+				return This.NumberOfCharsCSB(pCaseSensitive)
 
 			def CountCharsCSBQ(pCaseSensitive)
 				return This.NumberOfCharCSBQ(pCaseSensitive)
@@ -68760,10 +68824,10 @@ ici		//...
 			return This.NumberOfCharsCS(pCaseSensitive)
 
 			def HowManyCharsCSQ(pCaseSensitive)
-				return This.NumberOfCharCSQ(pCaseSensitive)
+				return This.NumberOfCharsCSQ(pCaseSensitive)
 
 			def HowManyCharsCSB(pCaseSensitive)
-				return This.NumberOfcharsCSB(pCaseSensitive)
+				return This.NumberOfCharsCSB(pCaseSensitive)
 
 			def HowManyCharsCSBQ(pCaseSensitive)
 				return This.NumberOfCharCSBQ(pCaseSensitive)
@@ -68775,7 +68839,7 @@ ici		//...
 				return This.NumberOfCharsCSQ(pCaseSensitive)
 
 			def HowManyCharCSB(pCaseSensitive)
-				return This.NumberOfcharsCSB(pCaseSensitive)
+				return This.NumberOfCharsCSB(pCaseSensitive)
 
 			def HowManyCharCSBQ(pCaseSensitive)
 				return This.NumberOfCharCSBQ(pCaseSensitive)
@@ -68786,6 +68850,14 @@ ici		//...
 
 		def NuberOfCharsCS(pCaseSensitive)
 			return This.NumberOfCharsCS(pCaseSensitive)
+
+		#--
+
+		def LenghtCS(pCaseSensitive)
+			return This.Length(pCaseSensitive)
+
+		def LenghtCSQ(pCaseSensitive)
+			return This.NumberOfItemsCSQ(pCaseSensitive)
 
 		#>
 
@@ -68869,6 +68941,70 @@ ici		//...
 			def LengthBQ()
 				return This.NumberOfCharBQ()
 
+		#-- Used in natural-coding
+
+		def ANumberOfChars()
+			return This.NumberOfChars()
+
+			def ANumberOfCharsQ()
+				return This.NumberOfCharsQ()
+
+			def ANumberOfCharsB()
+				return This.NumberOfCharsB()
+
+			def ANumberOfCharsBQ()
+				return This.NumberOfCharBQ()
+
+		def ASize()
+			return This.NumberOfChars()
+
+			def ASizeQ()
+				return This.NumberOfCharsQ()
+
+			def ASizeB()
+				return This.NumberOfCharsB()
+
+			def ASizeBQ()
+				return This.NumberOfCharBQ()
+
+		def ASizeInChars()
+			return This.NumberOfChars()
+
+			def ASizeInCharsQ()
+				return This.NumberOfCharsQ()
+
+			def ASizeInCharsB()
+				return This.NumberOfCharsB()
+
+			def ASizeInCharsBQ()
+				return This.NumberOfCharBQ()
+
+		def ANumberOfItems()
+			return This.NumberOfChars()
+
+			def ANumberOfItemsQ()
+				return This.NumberOfCharsQ()
+
+			def ANumberOfItemsB()
+				return This.NumberOfCharsB()
+
+			def ANumberOfItemsBQ()
+				return This.NumberOfCharBQ()
+
+		def ALength()
+			return This.NumberOfChars()
+
+			def ALengthQ()
+				return This.NumberOfCharsQ()
+
+			def ALengthB()
+				return This.NumberOfCharsB()
+
+			def ALengthBQ()
+				return This.NumberOfCharBQ()
+
+		#--
+
 		def CountChars()
 			return This.NumberOfChars()
 
@@ -68911,6 +69047,14 @@ ici		//...
 
 		def NuberOfChars()
 			return This.NumberOfChars()
+
+		#--
+
+		def Lenght()
+			return This.Length()
+
+		def LenghtQ()
+			return This.NumberOfItemsQ()
 
 		#>
 
@@ -75143,9 +75287,19 @@ ici		//...
 
 		return acResult
 
+		#-- @Misspelled
+
+		def Vowyels()
+			return This.Vowels()
+
 	def NumberOfVowels()
 		nResult = len( This.Vowels() )
 		return nResult
+
+		#-- @Misspelled
+
+		def NumberOfVowyels()
+			return This.NumberOfVowels()
 
 	def Vowel() # a random vowel from the string
 		cResult = ARandomItemIn( This.Vowels() )
@@ -75166,11 +75320,30 @@ ici		//...
 				StzRaise("Unsuppprted return type!")
 			off
 
+		#-- @Misspelled
+
+		def Vowyel()
+			return This.Vowel()
+
+			def VowyelQ()
+				return This.VowelQ()
+
+			def VowyelQR(pcReturnType)
+				return This.VowelQR(pcReturnType)
+
 	def VowelN()
 		return This.NumberOfVowels()
 
 		def VowelNQ()
 			return new stzNumber(This.vowelN())
+
+		#-- @Misspelled
+
+		def VowyelN()
+			return This.VowelN()
+
+			def VowyelNQ()
+				return This.VowelNQ()
 
 	def VowelNB()
 		if This.NumberOfVowels() = LastValue()
@@ -75185,6 +75358,14 @@ ici		//...
 			else
 				return AFalseObject()
 			ok
+
+		#-- @Misspelled
+
+		def VowyelNB()
+			return This.VowelNB()
+
+			def VowyelNBQ()
+				return This.VowelNBQ()
 
 	  #--------------------------------#
 	 #  ALTERNATIVES OF SubStrings()  #
