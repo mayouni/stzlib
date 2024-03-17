@@ -2291,20 +2291,6 @@ class stzNumber from stzObject
 		def EqualTo(pOtherNumber)
 			return This.IsEqual(pOtherNumber)
 
-		#-- Used specifically in natural-coding and chains of truth
-		# Example: 
-
-		def Of(n)
-			return This.IsEqual(n)
-
-			def OfQ(n)
-
-				if This.IsEqual(n)
-					SetLastValue(n)
-					return This
-				else
-					return AFalseObject()
-				ok
 		#>
 
 		#< @FunctionPassiveForm

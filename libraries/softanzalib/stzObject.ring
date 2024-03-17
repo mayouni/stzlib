@@ -2542,6 +2542,8 @@ class stzObject
 			return FALSE
 		ok
 
+	#=====
+
 	def IsAXT(pacStr)
 		/* EAMPLE
 		? Q("ring").IsAXT([ :Lowercase, :Latin, :String ])
@@ -2622,6 +2624,7 @@ class stzObject
 
 		return bResult
 
+		#-- @fluentForm
 
 		def IsAXTQ(pcType)
 			if this.IsAXT(pcType) = TRUE
@@ -2644,6 +2647,37 @@ class stzObject
 			else
 				return AFalseObject()
 			ok
+
+		#-- @AlternativeForm
+
+		def IsAnXT(pacStr)
+			return This.IsAXT(pacStr)
+
+			def IsAnXTQ(pacStr)
+				return This.IsAXTQ(pacStr)
+
+			def IsAnXTQR(pacStr, pcReturnType)
+				return This.IsAXTQR(pacStr, pcReturnType)
+
+		#-- @NegativeForm
+
+		def IsNotAXT(pacStr)
+			return NOT This.IsAXT(pacStr)
+
+			def IsNotAXTQ(pacStr)
+				return NOT This.IsAXTQ(pacStr)
+
+			def IsNotAXTQR(pacStr, pcReturnType)
+				return NOT This.IsAXTQR(pacStr, pcReturnType)
+
+		def IsNotAnXT(pacStr)
+			return NOT This.IsAXT(pacStr)
+
+			def IsNotAnXTQ(pacStr)
+				return NOT This.IsAXTQ(pacStr)
+
+			def IsNotAnXTQR(pacStr, pcReturnType)
+				return NOT This.IsAXTQR(pacStr, pcReturnType)
 
 	def IsA(pcType)
 		/* Example
@@ -2714,6 +2748,21 @@ class stzObject
 			ok
 
 		def IsAQM(pcType)
+			SetMainObject(This)
+			return This.IsAQ(pcType)
+
+		def IsAQMM(pcType)
+			return MainObject()
+
+		def IsAM(pcType)
+			SetMainObject(This)
+			return This.IsA(pcType)
+
+			def IsAMQ(pcType)
+				SetMainObject(This)
+				return This.IsAQ(pcType)
+
+		def IsAMM(pcType)
 			return MainObject()
 
 		#>
@@ -2729,6 +2778,19 @@ class stzObject
 			def IsAnQM(pcType)
 				return MainObject()
 
+		def IsAnM(pcType)
+			SetMainObject(This)
+			return THis.IsAn(pcType)
+
+			def IsAnMQ(pcType)
+				SetMainObject(This)
+				return This.IsAnQ(pcType)
+
+		def IsAnMM(pctype)
+			return MainObject()
+
+		#--
+
 		def AreA(pcType)
 			return This.IsA(pcType)
 
@@ -2738,6 +2800,19 @@ class stzObject
 			def AreAQM(pcType)
 				return MainObject()
 
+		def AreAM(pcType)
+			SetMainObject(This)
+			return This.AreA(pcType)
+
+			def AreAMQ(pcType)
+				SetMainObject(This)
+				return This.AreAQ(pcType)
+
+		def AreAMM(pcType)
+			return MainObject()
+
+		#--
+
 		def AreAn(pcType)
 			return This.IsA(pcType)
 
@@ -2746,6 +2821,17 @@ class stzObject
 
 			def AreAnQM(pcType)
 				return MainObject()
+
+		def AreAnM(pcType)
+			SetMainObject(This)
+			return This.AreAn(pcType)
+
+			def AreAnMQ(pcType)
+				SetMainObject(This)
+				return This.AreAnQ(pcType)
+
+		def AreAnMM(pcType)
+			return MainObject()
 
 		#--
 
@@ -2758,6 +2844,19 @@ class stzObject
 			def IsTheQM(pcType)
 				return MainObject()
 
+		def IsTheM(pcType)
+			SetMainObject(This)
+			return This.IsThe(pcType)
+
+			def IsTheMQ(pcType)
+				SetMainObject(This)
+				return This.IsTheQ(pcType)
+
+		def IsTheMM(pcType)
+			return MainObject()
+
+		#--
+
 		def AreThe(pcType)
 			return This.IsA(pcType)
 
@@ -2766,6 +2865,17 @@ class stzObject
 
 			def AreTheQM(pcType)
 				return MainObject()
+
+		def AreTheM(pcType)
+			SetMainObject(This)
+			return This.AreThe(pcType)
+
+			def AreTheMQ(pcType)
+				SetMainObject(This)
+				return This.AreTheQ(pcType)
+
+		def AreTheMM(pcType)
+			return MainObject()
 
 		#>
 
@@ -2823,6 +2933,17 @@ class stzObject
 		def IsQM(pcType)
 			return MainObject()
 
+		def IsM(pcType)
+			SetMainObject(This)
+			return This.IsM(pcType)
+
+			def IsMQ(pcType)
+				SetMainObject(This)
+				return This.IsQ(pcType)
+
+		def IsMM(pcType)
+			return MainObject()
+
 	def Are(pcType)
 		/* Example
 
@@ -2870,6 +2991,17 @@ class stzObject
 		def AreQM(pcType)
 			return MainObject()
 			
+		def AreM(pcType)
+			SetMainObject(This)
+			return This.Are(pcType)
+
+			def AreMQ(pcType)
+				SetMainObject(This)
+				return This.AreQ(pcType)
+
+		def AreMM(pcType)
+			return MainObject()
+
 		#>
 
 		def AreAll(pcType)
@@ -2880,6 +3012,17 @@ class stzObject
 
 			def AreAllQM(pcType)
 				return MainObject()
+
+		def AreAllM(pcType)
+			SetMainObject(This)
+			return this.AreAll(pcType)
+
+			def AreAllMQ(pcType)
+				SetMainObject(pcType)
+				return This.AreAllQ(pcType)
+
+		def AreAllMM(pcType)
+			return MainObject()
 
 	def AreBothA(pcType)
 
@@ -2933,6 +3076,8 @@ class stzObject
 			def AreBothAnQM(pcType)
 				return MainObject()
 
+		#--
+
 		def AreBoth(pcType)
 			return This.AreBothA(pcType)
 
@@ -2940,7 +3085,20 @@ class stzObject
 				return This.AreBothAQ(pcType)
 
 			def AreBothQM(pcType)
-				return MainObject()
+				return MainObject(This)
+
+			def AreBothMQ(pcType)
+				SetMainObject(This)
+				return This
+
+		def AreBothM(pcType)
+			SetMainObject(This)
+			return This.AreBoth(pcType)
+
+		def AreBothMM(pcType)
+			return MainObject()
+
+		#--
 
 		def BothAreA(pcType)
 			return This.AreBothA(pcType)
@@ -2951,6 +3109,23 @@ class stzObject
 			def BothAreAQM(pcType)
 				return MainObject()
 
+			def BothAreAMQ(pcType)
+				SetMainObject(This)
+				return This
+
+		def AreBothAM(pcType)
+			SetMainObject(This)
+			return This.AreBothA(pcType)
+
+			def AreBothAMQ(pcType)
+				SetMainObject(This)
+				return This.AreBothAQ(pcType)
+
+		def AreBothAMM(pcType)
+			return MainObject()
+
+		#--
+
 		def BothAreAn(pcType)
 			return This.AreBothA(pcType)
 
@@ -2960,14 +3135,40 @@ class stzObject
 			def BothAreAnQM(pcType)
 				return MainObject()
 
+			def BothAreAnMQ(pcType)
+				SetMainObject(This)
+				return This
+
+		def AreBothAnM(pcType)
+			SetMainObject(This)
+			return This.AreBothAn(pcType)
+
+			def AreBothAnMQ(pcType)
+				SetMainObject(This)
+				return This.AreBothAnQ(pcType)
+
+		def AreBothAnMM(pcType)
+			return MainObject()
+
+		#--
+
 		def BothAre(pcType)
-			return This.AreBothA(pcType)
+			return This.AreBoth(pcType)
 
 			def BothAreQ(pcType)
-				return This.AreBothAQ(pcType)
+				return This.AreBothQ(pcType)
 
 			def BothAreQM(pcType)
 				return MainObject()
+
+		def BothAreM(pcType)
+			return this.AreBothM(pcType)
+
+			def BothAreMQ(pcType)
+				return This.AreBothMQ(pcType)
+
+		def BothAreMM(pcType)
+			return MainObject()
 
 		#--
 
@@ -2980,16 +3181,52 @@ class stzObject
 			def AreTwoQM(pcType)
 				return MainObject()
 
-		#>
+		def AreTwoM(pcType)
+			SetMainObject(This)
+			return This.AreTwo(pcType)
 
-	def WhichQ()
-		return This
+			def AreTwoMQ(pcType)
+				SetMainObject(This)
+				return This.AreTwoM(pcType)
 
-		def WichQM()
+		def AreTwoMM(pcType)
 			return MainObject()
 
-		def Which()
+		#>
+
+	def Which()
+		return This
+
+		def WichM()
+			SetMainObject(This)
 			return This
+
+			def WichMQ()
+				return This.WichM()
+	
+		def WichMM()
+			return MainObject()
+
+		def WhichQ()
+			return This.Which()
+
+		def WhichQM()
+			return MainObject()
+
+		def whichMQ()
+			SetMainObject(This)
+			return This
+		#--
+	
+		def That()
+			return This
+
+		def ThatM()
+			SetMainObject(This)
+			return This
+
+		def ThatMM()
+			return MainObject()
 
 		def ThatQ()
 			return This
@@ -2997,102 +3234,324 @@ class stzObject
 		def ThatQM()
 			return MainObject()
 
-		def That()
+		def ThatMQ()
+			SetMainObject(This)
 			return This
 
-	def WhichIsQ()
+	def WhichIs()
 		return This
+
+		def WichIsQ()
+			return This.WichIs()
+
+		def WichIsM()
+			SetMainObject(This)
+			return This
+
+			def WichIsMQ()
+				return This.WichIsM()
 
 		def WhichIsQM()
 			return MainObject()
 
-		def WhichIs()
-			return This
-
-		def ThatIsQ()
-			return This
-
-		def ThisIsQM()
+		def WichiIsMM()
 			return MainObject()
+
+		#--
 
 		def ThatIs()
 			return This
 
-	def WhichAreQ()
-		return This
+		def ThatIsQ()
+			return This.ThatIs()
 
-		def WhichAreQM()
+		def ThatIsM()
+			SetMainObject(This)
+			return This
+
+			def ThatIsMQ()
+				return This.ThatIsM()
+
+		def ThatiIsMM()
 			return MainObject()
 
-		def WhichAre()
+	def WhichAre()
+		return This
+
+		def WichAreQ()
+			return This.WichAre()
+
+		def WichAreM()
+			SetMainObject(This)
 			return This
 
-		def ThatAreQ()
-			return This
+			def WichAreMQ()
+				return This.WichAreM()
 
-		def ThatAreQM()
+		def WhicAreMQ()
 			return MainObject()
 
-		def ThatAre()
-			return This
+		def WichAreMM()
+			return MainObject()
 
-	def WhichAreBothQ()
+	def WhichAreBoth()
+		aContent = This.Content()
+		if NOT (isList(aList) and len(aList) = 2)
+			return AFalseObject()
+		ok
+
 		return This
+
+		#-- @FluentForm
+
+		def WhichAreBothQ()
+			return This.WhichAre()
+
+		#-- @AlternativeForms
+
+		def WhichAreBothM()
+			SetMainObject(This)
+			return This.WhichAreBoth()
+
+			def WhichAreBothMQ()
+				SetMainObject(This)
+				return This.WhichAreBothQ()
 
 		def WhichAreBothQM()
 			return MainObject()
 
-		#< @AlternativeForms
-
-		def WhichAreBoth()
-			return This
-
-		def ThatAreBothQ()
-			return This
-
-		def ThatAreBothQM()
+		def WhichAreBothMM()
 			return MainObject()
-
-		def ThatAreBoth()
-			return This
 
 		#--
 
-		def WhichBothAreQ()
-			return This
-
-		def WichBothAreQM()
-			return MainObject()
-
 		def WhichBothAre()
+			return This.WhichAreBoth()
+
+		def WhichBothAreQ()
+			return This.WhichAreBoth()
+
+		def WhichBothAreM()
+			SetMainObject(This)
 			return This
 
-		def ThatBothAreQ()
-			return This
+			def WhichBothAreMQ()
+				SetMainObject(This)
+				return This.WhichBothAreQ()
 
-		def ThatBothAreQM()
+		def WhichBothAreMM()
 			return MainObject()
 
-		def ThatBothAre()
+		#-- @MisspelledForms
+
+		def WichAreBoth()
+			return This.WhichAreBoth()
+
+		def WichAreBothQ()
+			return This.WhichAre()
+
+		def WichAreBothM()
+			SetMainObject(This)
+			return This.WichAreBoth()
+
+			def WichAreBothMQ()
+				SetMainObject(This)
+				return This.WichAreBothQ()
+
+			def WichAreBothQM()
+				return MainObject()
+
+		def WichAreBothMM()
+			return MainObject()
+
+		#--
+
+		def WichBothAre()
+			return This.WhichAreBoth()
+
+		def WichBothAreQ()
+			return This.WhichAreBoth()
+
+		def WichBothAreM()
+			SetMainObject(This)
+			return This.WichBothAre()
+
+			def WichBothAreMQ()
+				SetMainObject(This)
+				return This.WichBothAreQ()
+
+			def WichBothAreQM()
+				return MainObject()
+
+		def WichBothAreMM()
+			return MainObject()
+
+		#--
+
+		def WitchBothAre()
+			return This.WhichAreBoth()
+
+		def WitchBothAreQ()
+			return This.WhichAreBoth()
+
+		def WitchBothAreM()
+			SetMainObject(This)
+			return This.WitchBothAre()
+
+			def WitchBothAreMQ()
+				SetMainObject(This)
+				return This.WitchBothAreQ()
+
+			def WitchBothAreQM()
+				return MainObject()
+
+		def WitchBothAreMM()
+			return MainObject()
+
+	def AndThen()
+		return This
+
+		def AndThenQ()
 			return This
 
-		#
+			def AndThenMQ()
+				SetMainObject(This)
+				return This.AndThenQ()
+
+			def AndThenQM()
+				return MainObject()
+
+		def AndQ()
+			return This
+
+			def AndQM()
+				return MainObject()
+
+			def AndMQ()
+				SetMainObject()
+				return This.AndQ()
+
+		def AndThenM()
+			SetMainObject()
+			return This.AndThen()
+
+		def AndThenMM()
+			return MainObject()
+
+	def QM()
+		return MainObject() # Used in chains of truth
+
+	def Having()
+		return This
+
+		def HavingQ()
+			return This
+
+		def HavingQM()
+			return MainObject()
+
+		def HavingMQ()
+			SetMainObject(This)
+			return This.HavingQ()
+
+		def HavingM()
+			return MainObject()
+		
+		#--
+
+		def AndHaving()
+			return This
+
+		def AndHavingQ()
+			return This
+
+		def AndHavingQM()
+			return MainObject()
+
+		def AndHavingMQ()
+			SetMainObject(This)
+			return This.AndHavingQ()
+
+		def AndHavingM()
+			return MainObject()
+
+	def With()
+		return This
+
+		def WithQ()
+			return This
+
+		def WithA()
+			return This
+
+		def WithAQ()
+			return This
+
+		def WithMQ()
+			SetMainObject(This)
+			return This.WithQ()
+
+		def WithM()
+			return MainObject()
+
+		def WithAMQ()
+			SetMainObject(This)
+			return This.WithAQ()
+
+		def WithAM()
+			return MainObject()
+
+	def WithQM()
+		return MainObject()
+
+		def WithAQM()
+			return MainObject()
+	
+	def Only(value)
+		SetLastValue(value)
+		return This
+
+		def OnlyQ(value)
+			return Only(value)
+
+		def OnLyQM()
+			return MainObject()
+
+		def OnlyMQ()
+			SetMainObject(This)
+			return this.OnlyQ()
+
+		def OnlyM()
+			SetMainObject(This)
+			return This.OnlyM()
+
+		def OnlyMM()
+			return MainObject()
 
 	def Their()
 		return This
-
-		def TheirM()
-			return MainObject()
 
 		#< @FunctionFluentForm
 
 		def TheirQ()
 			return This
 
-			def TheirQM()
-				return MainObject()
-
+		def TheirQM()
+			return MainObject()
+		
 		#>
+
+		def TheirM()
+			SetMainObject(This)
+			return This.Their()
+
+			def TheirMQ()
+				SetMainObject(This)
+				return This.TheirQ()
+	
+		def TheirMM()
+			return MainObject()
+
 
 		#< @FunctionAlternativeForms
 
@@ -3105,8 +3564,19 @@ class stzObject
 			def AllTheirQM()
 				return MainObject()
 
+			def AlltheirMQ()
+				SetMainObject(This)
+				return This.AlltheirQ()
+
 		def Its()
 			return This
+
+			def ItsM()
+				SetMainObject(This)
+				return This.Its()
+
+			def ItsMM()
+				return MainObject()
 
 			def ItsQ()
 				return This
@@ -3114,8 +3584,19 @@ class stzObject
 			def ItsQM()
 				return MainObject()
 
+			def ItsMQ()
+				SetMainObject(This)
+				return This.ItsQ()
+
 		def His()
 			return This
+
+			def HisM()
+				SetMainObject(This)
+				return This
+
+			def HisMM()
+				return MainObject()
 
 			def HisQ()
 				return This
@@ -3123,8 +3604,19 @@ class stzObject
 			def HisQM()
 				return MainObject()
 
+			def HisMQ()
+				SetMainObject(This)
+				return This.HisQ()
+
 		def Her()
 			return This
+
+			def HerM()
+				SetMainObject(This)
+				return This
+
+			def HerMM()
+				return MainObject()
 
 			def HerQ()
 				return This
@@ -3132,28 +3624,63 @@ class stzObject
 			def HerQM()
 				return MainObject()
 
+			def HerMQ()
+				SetMainObject(This)
+				return This.HerQ()
+
 		def My()
 			return This
 
+
+			def MyM()
+				SetMainObject(This)
+				return This
+
+			def MyMM()
+				return MainObject()
+
 			def MyQ()
-				return this
+				return This
 	
 			def MyQM()
 				return MainObject()
 
+			def MyMQ()
+				SetMainObject(This)
+				return This.MyQ()
+
 		def Your()
 			return This
 
+
+			def YourM()
+				SetMainObject(This)
+				return This
+
+			def YourMM()
+				return MainObject()
+
 			def YourQ()
-				return this
+				return This
 	
 			def YourQM()
 				return MainObject()
+
+			def YourMQ()
+				SetMainObject(This)
+				return This.YourQ()
 
 		#>
 
 	def As()
 		return This
+
+		def AsM()
+			SetMainObject(This)
+			return This.As()
+
+		def AsMM()
+			return MainObject()
 
 		def AsQ()
 			return This
@@ -3161,109 +3688,209 @@ class stzObject
 		def AsQM()
 			return MainObject()
 
+		def AsMQ()
+			SetMainObject(This)
+			return This.AsM()
+
 		#--
 
 		def AsA()
-			return This
+			return This.As()
+
+		def AsAM()
+			return This.AsM()
+
+		def AsAMM()
+			return MainObject()
 
 		def AsAQ()
-			return This
+			return This.AsQ()
 
 		def AsAQM()
 			return MainObject()
 
+		def AsAMQ()
+			return This.AsMQ()
+
 		#--
 
 		def AsThe()
-			return This
+			return This.As()
+
+		def AstheM()
+			return This.AsM()
+
+		def AsTheMM()
+			return MainObject()
 
 		def AsTheQ()
-			return This
+			return This.AsQ()
 
 		def AsTheQM()
 			return MainObject()
 
+		def AsTheMQ()
+			return This.AsMQ()
+
 	def Me()
-		return This.Content()
+		return This
+
+		def MeM()
+			SetMainObject(This)
+			return This
+
+		def MeMM()
+			return MainObject()
 
 		def MeQ()
-			return This
+			return This.Me()
 
 		def MeQM()
 			return MainObject()
 
+		def MeMQ()
+			SetMainObject(This)
+			return This.MeQ()
+
 	def Mine()
 		return This
 
-		def MineQ()
+		def MineM()
+			SetMainObject(This)
 			return This
+
+		def MineMM()
+			return MainObject()
+
+		def MineQ()
+			return This.Mine()
 
 		def MineQM()
 			return MainObject()
 
+		def MineMQ()
+			SetMainObject(This)
+			return This.MineQ()
+
 	def It()
-		return This.Content()
+		return This
+
+		def ItM()
+			SetMainObject(This)
+			return This
+
+		def ItMM()
+			return MainObject()
 
 		def ItQ()
-			return This
+			return This.It()
 
 		def ItQM()
 			return MainObject()
 
+		def ItMQ()
+			SetMainObject(This)
+			return This.ItQ()
+
 	def You()
-		return This.Content()
+		return This
+
+		def YouM()
+			SetMainObject(This)
+			return This
+
+		def YouMM()
+			return MainObject()
 
 		def YouQ()
-			return This
+			return This.You()
 
 		def YouQM()
 			return MainObject()
 
+		def YouMQ()
+			SetMainObject(This)
+			return This.YouQ()
+
 	def Yours()
 		return This
 
-		def YoursQ()
+		def YoursM()
+			SetMainObject(This)
 			return This
+
+		def YoursMM()
+			return MainObject()
+
+		def YoursQ()
+			return This.Yours()
 
 		def YoursQM()
 			return MainObject()
 
+		def YoursMQ()
+			SetMainObject(This)
+			return This.YoursQ()
+
 	def Him()
-		return This.Content()
+		return This
+
+		def HimM()
+			SetMainObject(This)
+			return This
+
+		def HimMM()
+			return MainObject()
 
 		def HimQ()
-			return This
+			return This.Him()
 
 		def HimQM()
 			return MainObject()
 
-	def Them()
-		return This.Content()
+		def HimMQ()
+			SetMainObject(This)
+			return This.HimQ()
 
-		def ThemQ()
+	def Them()
+		return This
+
+		def TheimM()
+			SetMainObject(This)
 			return This
 
-		def ThemQM()
+		def TheimMM()
 			return MainObject()
+
+		def TheimQ()
+			return This.Theim()
+
+		def TheimQM()
+			return MainObject()
+
+		def TheimMQ()
+			SetMainObject(This)
+			return This.TheimQ()
 
 	def Has()
 		return This
 
-		def HasQ()
+		def HasM()
+			SetMainObject(This)
 			return This
+
+		def HasMM()
+			return MainObject()
+
+		def HasQ()
+			return This.Has()
 
 		def HasQM()
 			return MainObject()
 
-	def HasV(value)
-		SetLastValue(value)
-		return This
-
-		def HasVQ(value)
-			return This.HasV(value)
-
-		def HasVQM(value)
-			return MainObject()
+		def HasMQ()
+			SetMainObject(This)
+			return This.HasQ()
 
 	def HasN(n)
 		if CheckParams()
@@ -3272,8 +3899,24 @@ class stzObject
 			ok
 		ok
 
-		SetLastValue(n)
-		return This
+		return This.HasN(n)
+
+		def HasNM(n)
+			if CheckParams()
+				if NOT isNumber(n)
+					StzRaise("Incorrect param type! n must be a number.")
+				ok
+			ok
+			SetMainObject(This)
+			return This.HasN(n)
+
+		def HasNMM()
+			if CheckParams()
+				if NOT isNumber(n)
+					StzRaise("Incorrect param type! n must be a number.")
+				ok
+			ok
+			return MainObject()
 
 		def HasNQ(n)
 			return This.HasN(n)
@@ -3281,70 +3924,238 @@ class stzObject
 		def HasNQM(n)
 			return MainObject()
 
+		def HasNMQ(n)
+			SetMainObject(This)
+			return This.HasNQ(n)
+
 		#--
 
 		def HasTheNumber(n)
 			return This.HasN(n)
 
-		def HasTheNumberQ(n)
-			return This.HasN(n)
+		def HasTheNumberM(n)
+			SetMainObject(This)
+			return This.HasTheNumber(n)
 
-		def HasTheNumberQM(n)
+		def HasTheNumberMM(n)
 			return MainObject()
 
+		def HasTheNumberQ(n)
+			return This.HasTheNumber(n)
+
+		def HasTheNumberQM(n)
+			return This.HasTheNumberM(n)
+
+		def HasTheNumberMQ(n)
+			return This.HasTheNumberM(n)
+
 	#==
+
+	def M()
+		SetMainObject(This)
+		return This
+
+	def MM()
+		return MainObject()
 
 	def _(any)
 		return LastValue()
 
-		def _Q(any)
+		def _M()
+			SetMainObject(This)
+			return This._(any)
+
+		def _MM()
 			return MainObject()
 
-		def _QM(an)
+		def _Q(any)
+			return Q( This._(any) )
+
+		def _QM(any)
+			return MainObject()
+
+		def _MQ(any)
+			SetMainObject(This)
+			return This._Q(any)
+
+	#==
+
+	def OfCS(n, pCaseSensitive)
+		return This.IsEqualToCS(pCaseSensitive)
+
+		def OfCSM(n, pCaseSensitive)
+			SetMainObject(This)
+			return This.OfCS(n, pCaseSensitive)
+
+		def OfCSMM(n, pCaseSensitive)
+			return MainObject()
+
+		def OfCSQ(n, pCaseSensitive)
+			if This.IsEqualToCS(n, pCaseSensitive)
+				return This
+			else
+				return AFalseObject()
+			ok
+
+		def OfCSQM(n, pCaseSensitive)
+			return MainObject()
+
+		def OfCSMQ(n, pCaseSensitive)
+			SetMainObject(This)
+			return This.OfCSQ(n, pCaseSensitive)
+
+	def Of(n)
+		return This.OfCS(n, TRUE)
+
+		def OfM(n)
+			return This.OfCSM(n, TRUE)
+
+		def OfMM(n)
+			return This.OfCSMM(n, TRUE)
+
+		def OfQ(n)
+			return This.OfCSQ(n, TRUE)
+
+		def OfQM(n)
+			return MainObject()
+
+		def OfMQ(n)
+			return This.OfCSMQ(n, pCaseSensitive)
+		
+	#--
+
+	def OfXTCS(n, cIgnored, pCaseSensitive)
+		return This.OfCS(n, pCaseSensitive)
+
+		def OfXTCSM(n, cIgnored, pCaseSensitive)
+			return This.OfCSM(n, pCaseSensitive)
+
+		def OfXTCSMM(n, cIgnored, pCaseSensitive)
+			return This.OfCSMM(n, pCaseSensitive)
+
+		def OfXTCSQ(n, cIgnored, pCaseSensitive)
+			return This.OfCSQ(n, pCaseSensitive)
+
+		def OfXTCSQM(n, cIgnored, pCaseSensitive)
+			return This.OfCSQM(n, pCaseSensitive)
+
+		def OfXTCSMQ(n, cIgnored, pCaseSensitive)
+			return This.OfCSMQ(n, pCaseSensitive)
+
+	def OfXT(n, cIgnored)
+		return This.OfCS(n, TRUE)
+
+		def OfXTM(n, cIgnored)
+			return This.OfCSM(n, TRUE)
+
+		def OfXTMM(n, cIgnored)
+			return This.OfCSMM(n, TRUE)
+
+		def OfXTQ(n, cIgnored)
+			return This.OfCSQ(n, TRUE)
+
+		def OfXTQM(n, cIgnored)
+			return This.OfXTCSQM(n, TRUE)
+
+		def OfXTMQ(n, cIgnored)
+			return This.OfXTCSMQ(n, TRUE)
+
+	#==
+
+	def OfCSB(n, pCaseSensitive)
+		if Q(n).IsEqualToCS(LastValue(), pCaseSensitive)
+			
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def OfCSBM(n, pCaseSensitive)
+			SetMainObject()
+			return This. OfCSB(n, pCaseSensitive)
+
+		def OfCSBMM(n, pCaseSensitive)
+			return MainObject()
+
+		def OfCSMB(n, pCaseSensitive)
+			SetMainObject(This)
+			return This.OfCSB(n, pCaseSensitive)
+
+		def OfCSBQ(n, pCaseSensitive)
+			if This.OfCSB(n, pCaseSensitive) = TRUE
+				return This
+			else
+				return AFalseObject()
+			ok
+
+		def OfCSBQM(n, pCaseSensitive)
+			SetMainObject(This)
+			return This.OfCSBQ(n, pCaseSensitive)
+
+
+		def OfCSBQMM(n, pCaseSensitive)
+			return MainObject()
+
+	def OfBM(n)
+		return This.OfCSBM(n, pCaseSensitive)
+
+		def OfBMM(n)
+			return MainObject()
+
+		def OfMB(n)
+			return This.OfCSMB(n, TRUE)
+
+		def OfBQ(n)
+			return This.OfCSBQ(n, TRUE)
+
+		def OfBQM(n)
+			return This.OfCSBQM(n, TRUE)
+
+		def OfBQMM(n)
 			return MainObject()
 
 	#==
-	
-	def IsNotA(pcType)
-		return NOT This.IsA(pcType)
 
-		#< @FunctioAlternativeForms
+	def OfXTCSB(n, cIgnored, pCaseSensitive)
+		return This.OfCSB(c, pCaseSensitive)
 
-		def IsNotAn(pcType)
-			return This.IsNotA(pcType)
+		def OfXTCSBM(n, cIgnored, pCaseSensitive)
+			return This.OfCSBM(n, pCaseSensitive)
 
-		def IsNot(pcType)
-			return This.IsNotA(pcType)
+		def OfXTCSBMM(n, cIgnored, pCaseSensitive)
+			return MainObject()
 
-		def AreNotA(pcType)
-			return This.IsNotA(pcType)
+		def OfXTCSMB(n, cIgnored, pCaseSensitive)
+			return This.OfCSMB(n, pCaseSensitive)
 
-		def AreNotAn(pcType)
-			return This.IsNotA(pcType)
+		def OfXTCSBQ(n, cIgnored, pCaseSensitive)
+			return This.OfCSBQ(n, pCaseSensitive)
 
-		def AreNot(pcType)
-			return This.IsNotA(pcType)
+		def OfXTCSBQM(n, cIgnored, pCaseSensitive)
+			return This.OfCSBQM(n, pCaseSensitive)
 
-		#--
+		def OfXTCSBQMM(n, pCaseSensitive)
+			return MainObject()
 
-		def AreNotBothA(pcType)
-			return This.IsNotA(pcType)
+	def OfXTBM(n)
+		return This.OfXTCSB(n, cIgnored, TRUE)
 
-		def AreNotBothAn(pcType)
-			return This.IsNotA(pcType)
+		def OfXTBMM(n)
+			return MainObject()
 
-		def AreNotBoth(pcType)
-			return This.IsNotA(pcType)
+		def OfXTMB(n)
+			return This.OfXTCSMB(n, TRUE)
 
-		def AreBothNotA(pcType)
-			return This.IsNotA(pcType)
+		def OfXTBQ(n)
+			return This.OfXTCSBQ(n, TRUE)
 
-		def AreBothNotAn(pcType)
-			return This.IsNotA(pcType)
+		def OfXTBQM(n)
+			return This.OfXTCSBQM(n, TRUE)
 
-		def AreBotheNot(pcType)
-			return This.IsNotA(pcType)
-		#>
+		def OfXTBQMM(n)
+			return MainObject()
+
+	#==
 
 	def IsEitherA(pcType1, pcType2)
 		if isList(pcType2) and Q(pcType2).IsOrNamedParam()
@@ -3360,6 +4171,7 @@ class stzObject
 		else
 			return FALSE
 		ok
+
 
 		#< @functionAlternativeForms
 
@@ -4403,70 +5215,6 @@ class stzObject
 		else
 			return FALSE
 		ok
-
-	def AndThen()
-		return This
-
-		def AndThenQ()
-			return This
-
-		def AndQ()
-			return This
-
-	def QM()
-		return MainObject() # Used in chains of truth
-
-		def AndQM()
-			return MainObject() # Used in chains of truth
-
-	def Having()
-		return This
-
-		def HavingQ()
-			return This
-
-		def HavingQM()
-			return MainObject()
-
-		#--
-
-		def AndHaving()
-			return This
-
-		def AndHavingQ()
-			return This
-
-		def AndHavingQM()
-			return MainObject()
-
-	def With()
-		return This
-
-		def WithQ()
-			return This
-
-		def WithA()
-			return This
-
-		def WithAQ()
-			return This
-
-	def WithQM()
-		return MainObject()
-
-		def WithAQM()
-			return MainObject()
-	
-	def Only(value)
-		SetLastValue(value)
-		return This
-
-		def OnlyQ(value)
-			return Only(value)
-
-	def OnlyQM(value)
-		SetLastValue(value)
-		return MainObject()
 
 	# Swapping the content of the stzObject with an other stzObject
 
