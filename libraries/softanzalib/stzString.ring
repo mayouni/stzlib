@@ -68935,11 +68935,19 @@ ici		//...
 			def LengthQ()
 				return This.NumberOfCharsQ()
 
+				def LengthQV()
+					SetLastValue(This.Length())
+					return This.LengthQ()
+
 			def LengthB()
 				return This.NumberOfCharsB()
 
 			def LengthBQ()
 				return This.NumberOfCharBQ()
+
+				def LengthBQV()
+					SetLastValue(This.Lenght())
+					return This.LengthBQ()
 
 		#-- Used in natural-coding
 
@@ -75273,6 +75281,9 @@ ici		//...
 	 #  GETTING THE LIST OF VOWELS IN THE STRING  #
 	#============================================#
 
+	#TODO
+	# Add case sensitivity
+
 	def Vowels()
 		nLen = This.NumberOfChars()
 		aoChars = This.ToListOfStzChars()
@@ -75287,10 +75298,50 @@ ici		//...
 
 		return acResult
 
-		#-- @Misspelled
+		def VowelsQ()
+			return new stzList(This.Vowels())
+
+		def VowelsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.Vowels())
+
+			on :stzListOfChars
+				return new stzList(This.Vowels())
+
+			on :stzListOfStrings
+				return new stzListOfStrings(This.Vowels())
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#-- @MisspelledForm
 
 		def Vowyels()
 			return This.Vowels()
+
+		def VowyelsQ()
+			return This.VowelsQ()
+
+		def VowyelsQR(pcReturnType)
+			return This.VowelsQ(pcReturnType)
+
+		#-- @BooleanForm
+
+		def VowelsB()
+			if This.VowelsQ().IsEqualTo(LastValue())
+				return TRUE
+			else
+				return FALSE
+			ok
+
+		def VowelsBQ()
+			if This.VowelsB()
+				return This
+			else
+				return AFalseObject()
+			ok
 
 	def NumberOfVowels()
 		nResult = len( This.Vowels() )
