@@ -2284,6 +2284,7 @@ class stzString from stzObject
 				return AFalseObject()
 			ok
 
+		#>
 
 		#< @FunctionAlternativeForms
 
@@ -2310,6 +2311,53 @@ class stzString from stzObject
 
 			def InUppercaseQ()
 				return This.IsUpperercaseQ()
+
+		#>
+
+		#< @FunctionFutureForms
+
+		def IsUppercaseF()
+			AddFuture(:Uppercase)
+
+		def IsUppeercaseFQ()
+			AddFuture(:Uppercase)
+			return This.IsUpperercaseQ()
+
+		#--
+
+		def IsUppercasedF()
+			AddFuture(:Uppercase)
+
+		def IsUppercasedFQ()
+			AddFuture(:Uppercase)
+			return This.IsUpperercaseQ()
+
+		#--
+
+		def IsUpperF()
+			AddFuture(:Uppercase)
+
+		def IsUpperFQ()
+			AddFuture(:Uppercase)
+			return This.IsUpperercaseQ()
+
+		#--
+
+		def IsInUppercaseF()
+			AddFuture(:Uppercase)
+
+		def IsInUppercaseFQ()
+			AddFuture(:Uppercase)
+			return This.IsUpperercaseQ()
+
+		#--
+
+		def InUppercaseF()
+			AddFuture(:Uppercase)
+
+		def IsUppercaseFQ()
+			AddFuture(:Uppercase)
+			return This.IsUpperercaseQ()
 
 		#>
 
@@ -3925,20 +3973,15 @@ class stzString from stzObject
 			for j = i to nLen
 
 				cSubStr = substr(cContent, i, j-i+1)
-				if pCaseSensitive = TRUE
+				nPos = ring_find(acSubStr, cSubStr)
+				if nPos = 0
 					aResult + [ cSubStr, [ i ] ]
 					acSubStr + cSubStr
 
 				else
-					nPos = ring_find(acSubStr, cSubStr)
-					if nPos = 0
-						aResult + [ cSubStr, [ i ] ]
-						acSubStr + cSubStr
-
-					else
-						aResult[nPos][2] + i
-					ok
+					aResult[nPos][2] + i
 				ok
+
 			next
 		next
 		
@@ -4105,20 +4148,15 @@ class stzString from stzObject
 			for j = i to nLen
 
 				cSubStr = substr(cContent, i, j-i+1)
-				if pCaseSensitive = TRUE
+				nPos = ring_find(acSubStr, cSubStr)
+				if nPos = 0
 					aResult + [ cSubStr, [ [ i, j ] ] ]
 					acSubStr + cSubStr
 
 				else
-					nPos = ring_find(acSubStr, cSubStr)
-					if nPos = 0
-						aResult + [ cSubStr, [ [ i, j ] ] ]
-						acSubStr + cSubStr
-
-					else
-						aResult[nPos][2] + [ i, j ]
-					ok
+					aResult[nPos][2] + [ i, j ]
 				ok
+
 			next
 		next
 		
@@ -11551,6 +11589,17 @@ class stzString from stzObject
 		ok
 
 		# Doing the job
+
+		if IsListOfPairs(pacBounds)
+			nLen = len(pacBounds)
+			bResult = TRUE
+
+			for i = 1 to nLen
+				bResult = This.SubStringIsBoundedByCS(pcSubStr, pacBounds[i], pCaseSensitive)
+			next
+
+			return bResult
+		ok
 
 		nLen1 = Q(pacBounds[1]).NumberOfChars()
 		nLen2 = Q(pacBounds[2]).NumberOfChars()
@@ -74390,270 +74439,17 @@ ici		//...
 	 #   SUBSTRINGING AN OTHER STRING OR LIST              #
 	#=====================================================#
 
-	def OccursCS( pcBeforeOrAfter, pIn, pCaseSensitive )
-		#TODO: Generalise this fuction so pIn can also be a list
-		#TODO: Implement the same function in all other types
-
-		/* EXAMPLE
-
-		o1 = new stzString("ONE")
-
-		? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***")	#--> TRUE
-		? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***")	#--> FALSE
-
-		? o1.Occurs( :Before = "two", :In = [ "***", "ONE", "***", "TWO", "***" ])
-		#--> TRUE
-		? o1.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***" ])
-		#--> FALSE
-
-		*/
-		cBeforeOrAfter = ""
-
-		if isList(pcBeforeOrAfter) and Q(pcBeforeOrAfter).IsBeforeOrAfterNamedParam()
-			cTemp = pcBeforeOrAfter[1]
-
-			pcBeforeOrAfter = pcBeforeOrAfter[2]
-		ok
-
-		if NOT isString(pcBeforeOrAfter)
-			StzRaise("Incorrect param type! pcSubStr must be a string.")
-		ok
-
-		if isList(pIn) and Q(pIn).IsInNamedParam()
-			pIn = pIn[2]
-		ok
-
-		if NOT ( isString(pIn) or isList(pIn) )
-			StzRaise("Incorrect param type! pcIn must be a string or list.")
-		ok
-	
-
-		if isString(pIn)
-			oStr = new stzString(pIn)
-	
-			nThis  = oStr.FindFirstCS( This.Content(), pCaseSensitive )
-			nOther = oStr.FindFirstCS( pcBeforeOrAfter, pCaseSensitive )
-
-		but isList(pIn)
-			if Q(pIn).IsListOfStrings()
-				oListStr = new stzListOfStrings(pIn)
-
-				nThis  = oListStr.FindFirstCS( This.Content(), pCaseSensitive )
-				nOther = oListStr.FindFirstCS( pcBeforeOrAfter, pCaseSensitive )
-			else
-				if pCaseSensitive[2] = TRUE
-					oList = new stzList(pIn)
-	
-					nThis  = oList.FindFirst( This.Content() )
-					nOther = oList.FindFirst( pcBeforeOrAfter )
-						
-				else
-					oList = new stzList(pIn)
-					oList.Lowercase()
-
-					nThis  = oList.FindFirst( This.ContentQ().Lowercased() )
-					nOther = oList.FindFirst( pcBeforeOrAfter )
-
-				ok
-			ok
-
-		ok
-
-		bResult = FALSE
-
-		if cTemp = :After
-			bResult = nThis > nOther
-
-		but cTemp = :Before
-			bResult = nThis < nOther
-		ok
-
-		return bResult
-
-	#-- WITHOUT CASESENSITIVTY
-
-	def Occurs(pcBeforeOrAfter, pIn)
-		return This.OccursCS(pcBeforeOrAfter, pIn, TRUE)
-
-	   #-----------------------------------------------#
-	  #   CHECKING IF STRING OCCURES BEFORE A GIVEN   #
-	 #   SUBSTRINGING AN OTHER STRING OR LIST        #
-	#-----------------------------------------------#
-
-	def OccursBeforeCS( pcSubStr, pIn, pCaseSensitive )
-		return This.OccursCS( :Before = pcSubStr, pIn, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVTY
-
-	def OccursBefore(pcSubStr, pIn)
-		return This.OccursBeforeCS( pcSubStr, pIn, TRUE )
-
-	   #----------------------------------------------#
-	  #   CHECKING IF STRING OCCURES AFTER A GIVEN   #
-	 #   SUBSTRINGING AN OTHER STRING OR LIST       #
-	#----------------------------------------------#
-
-	def OccursAfterCS( pcSubStr, pIn, pCaseSensitive )
-		return This.OccursCS( :After = pcSubStr, pIn, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVTY
-
-	def OccursAfter(pcSubStr, pIn)
-		return This.OccursAfterCS( pcSubStr, pIn, TRUE )
-
-	  #-------------------------------------------------------------------#
-	 #   CHECKING IF STRING OCCURES N TIMES IN AN OTHER STRING OR LIST   #
-	#-------------------------------------------------------------------#
-
-	def OccursNTimesCS( n, pIn, pCaseSensitive )
-
-		if isList(pIn) and Q(pIn).IsInNamedParam()
-			pIn = pIn[2]
-		ok
-
-		if NOT ( isString(pIn) or isList(pIn) )
-			StzRaise("Incorrect param type! pcIn must be a string or list.")
-		ok
-	
-		nOccurrence = 0
-
-		if isString(pIn)
-			oStr = new stzString(pIn)
-			nOccurrence  = oStr.NumberOfOccurrenceCS( This.Content(), pCaseSensitive )
-
-		but isList(pIn)
-			if Q(pIn).IsListOfStrings()
-				oListStr = new stzListOfStrings(pIn)
-				nOccurrence  = oListStr.NumberOfOccurrenceCS( This.Content(), pCaseSensitive )
-
-			else
-				if pCaseSensitive[2] = TRUE
-					oList = new stzList(pIn)
-					nOccurrence  = oList.NumberOfOccurrence( This.Content() )
-		
-				else
-					oList = new stzList(pIn)
-					oList.Lowercase()
-
-					nThis  = oList.FindFirst( This.ContentQ().Lowercased() )
-					nOccurrence  = oList.NumberOfOccurrence( This.Content() )
-		
-				ok
-			ok
-
-		ok
-
-		bResult = FALSE
-
-		if nOccurrence = n
-			bResult = TRUE
-		ok
-
-		return bResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def OccursNTimes( n, pIn )
-		return This.OccursNTimesCS( n, pIn, TRUE )
-
-	   #----------------------------------------------------#
-	  #  CHECKING IF STRING OCCURS FOR THE NTH TIME,       #
-	 #  IN AN OTHER STRING OR LIST, AT A GIVEN POSITION   #
-	#----------------------------------------------------#
-
-	def OccursForTheNthTimeCS(n, pIn, pnAt, pCaseSensitive)
-		/* EXAMPLE
-
-		? Q("*").OccursForTheNthTime( 1, :In = "a*b*c*d", :AtPosition = 2 )
-		#--> TRUE
-
-		? Q("*").OccursForTheNthTime( 3, :In = "a*b*c*d", :AtPosition = 6 )
-		#--> TRUE
-
-		*/
-
-		if isList(pIn) and Q(pIn).IsInNamedParam()
-			pIn = pIn[2]
-		ok
-
-		if NOT ( isString(pIn) or isList(pIn) )
-			StzRaise("Incorrect param type! pcIn must be a string or list.")
-		ok
-
-		if isList(pnAt) and Q(pnAt).IsAtOrAtPositionNamedParam()
-			pnAt = pnAt[2]
-		ok
-	
-		if NOT isNumber(pnAt)
-			StzRaise("Incorrect param type! pAt must be a number.")
-		ok
-
-		nNthOccurrence = 0
-
-		if isString(pIn)
-			oStr = new stzString(pIn)
-			nNthOccurrence = oStr.NthOccurrenceCS( n, This.String(), pCaseSensitive)
-	
-		but isList(pIn)
-			if Q(pIn).IsListOfStrings()
-				oListStr = new stzListOfStrings(pIn)
-				nNthOccurrence  = oListStr.NthOccurrenceCS( n, This.String(), pCaseSensitive)
-
-			else
-				if pCaseSensitive[2] = TRUE
-					oList = new stzList(pIn)
-					nNthOccurrence  = oList.NthOccurrence( n, This.String() )
-		
-				else
-					oList = new stzList(pIn)
-					oList.Lowercase()
-
-					nNthOccurrence  = oList.NthOccurrence( n, This.String() )
-		
-				ok
-			ok
-
-		ok
-
-
-		if nNthOccurrence = pnAt
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def OccursForTheNthTime(n, pIn, pnAt)
-		return This.OccursForTheNthTimeCS(n, pIn, pnAt, TRUE)
-
-	   #----------------------------------------------------#
-	  #  CHECKING IF STRING OCCURS FOR THE FIRST TIME,     #
-	 #  IN AN OTHER STRING OR LIST, AT A GIVEN POSITION   #
-	#----------------------------------------------------#
-
-	def OccursForTheFirstTimeCS(pIn, pnAt, pCaseSensitive)
-		return This.OccursForTheNthTimeCS(1, pIn, pnAt, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def OccursForTheFirstTime(pIn, pnAt)
-		return This.OccursForTheFirstTimeCS(pIn, pnAt, TRUE)
-
-	   #----------------------------------------------------#
-	  #  CHECKING IF STRING OCCURS FOR THE LAST TIME,      #
-	 #  IN AN OTHER STRING OR LIST, AT A GIVEN POSITION   #
-	#----------------------------------------------------#
-
-	def OccursForTheLastTimeCS(pIn, pnAt, pCaseSensitive)
-		nLast = Q(pIn).FindLastCS(This.Content(), pCaseSensitive)
-		return This.OccursForTheNthTimeCS(nLast, pIn, pnAt, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def OccursForTheLastTime(pIn, pnAt)
-		return This.OccursForTheLastTimeCS(pIn, pnAt, TRUE)
+	#NOTE
+	# These functions have been abstracted in stzObject so
+	# we can use them with any type not only a string
+
+	# Here is the list of those functions:
+	# 	Occurs(pValue, pIn)
+	# 	OccursBefore(pValue, pIn)
+	# 	OccursAfter(pValue, pIn)
+	# 	OccursBetween(pValue1, pValue2, pIn)
+	# 	OccursNTimes( n, pIn )
+	# 	OccursForTheNthTimeAt(n, pIn, pnAt)
 
 	  #===========#
 	 #   MISC.   #

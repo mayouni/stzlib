@@ -24,6 +24,8 @@ Programming, by Heart! By: M.Ayouni╭
  ///  GLOBALS VARIABLES  ///
 ///////////////////////////
 
+_aFuture = [] # Stores future actions in natural-coding
+
 WhatEverCaseItHas = FALSE # Used in natural-coding
 
 _aRingTypes = [ :number, :string, :char, :list, :object, :cobject ]
@@ -408,6 +410,27 @@ _acStzCCKeywords = [
   //////////////////////////
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
+
+func Future()
+	return _aFuture
+	# Takes the form [
+	# 	:Action1 = [param1, param2, ... ],
+	# 	:Action2 = [param2, param2, ... ],
+	# 	...
+	# ]
+
+	func FutureActions()
+
+func AddFuture(pAction)
+	if isString(pAction)
+		pAction = [ pAction, [] ]
+	ok
+
+	if NOT ( isList(pAction) and IsHashList(pAction) )
+		StzRaise("cAction must be a string hashlist.")
+	ok
+
+	_aFuture + pAction
 
 func MainObject() # Used in Chains of truth
 	return _oMainObject

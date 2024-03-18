@@ -2,8 +2,25 @@ load "stzlib.ring"
 
 /*=====
 
-? BeforeQ("ring").IsUppercasedQ().RemoveQ("i").FromIt()
-? BeforeQ().UppercasingQ("ring").Remove("i")
+emm = [
+
+	:Uppercase = [
+		:Uppercase, :Uppercased, :IsUppercased, :InUppercase, :Uppercasing
+	]
+]
+
+BeforeQ("ring").IsUppercasedFQ()//RemoveFFQ("i").FromIt()
+? @@(Future())
+
+//? BeforeQ().UppercasingFQ("ring").RemoveFF("i")
+
+
+class stzBefore
+	obj
+
+	def init(value)
+		obj = Q(value)
+
 
 /*=====
 
@@ -173,7 +190,6 @@ proff()
 
 /*------
 
-*/
 pron()
 
 ? Q([ "Ring", :and = "Ruby" ]).AreBothQ(:strings).HavingQ().TheirQ().FirstCharQ().EqualTo("R")
@@ -192,34 +208,28 @@ pron()
 #-> TRUE
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.07 second(s)
+
 /*------
 
-InLowerCase
-Contains
-Having
-FirstChar
-IsEqual
-LastChar
-*/
 pron()
 
 ? QM("ring").IsAQ(:String).
 	InLowercaseQ().
 	ContainingQ( TheLetter("i") ).
-	HavingQ().FirstCharQ().EqualToQ("r").
-	AndQM().Lastchar() = "g"
+	HavingQ().TheQ().FirstCharQ().EqualToQ("r").
+	AndQM().TheQ().Lastchar() = "g"
 #--> TRUE
 
 ? QM("RING").IsAQ(:String).
 	InUppercaseQ().
 	ContainingQ( TheLetter("N") ).
-	HavingQ().FirstCharQ().EqualToQ("R").
-	AndQM().Lastchar() = "G"
+	HavingQ().ItsQ().FirstCharQ().EqualToQ("R").
+	AndQM().ItsQ().Lastchar() = "G"
 #--> TRUE
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.05 second(s)
 
 
 /*=====
@@ -397,8 +407,9 @@ pron()
 
 proff()
 
-/*================
-*/
+/*================ #TODO: check error in :uppercase valyes
+		   #~> they must be in uppercase!
+
 pron()
 
 o1 = new stzString("mmmMMMaaAAAiii")
@@ -1981,7 +1992,7 @@ pron()
 proff()
 
 /*==============
-*/
+
 pron()
 
 o1 = new stzString("<<word>> and __word__")
@@ -1995,6 +2006,13 @@ o1 = new stzString("<<word>> and __word__")
 ? o1.SubStringIsBoundedByMany("word", [ ["<<", ">>"], "__" ])
 #--> TRUE
 
+proff()
+# Executed in 0.11 second(s)
+
+/*------ #TODO: check it
+
+pron()
+
 ? o1.SubStringQ( "word" ).IsBoundedBy(["<<", ">>"])
 #--> TRUE
 
@@ -2002,7 +2020,7 @@ proff()
 # Executed in 0.27 second(s)
 
 /*----------------
-*/
+
 pron()
 
 	o1 = new stzList([ "<<", ">>" ])
@@ -2015,8 +2033,10 @@ pron()
 	#--> TRUE
 
 proff()
+# Executed in 0.08 second(s)
+
 /*----------------
-*/
+
 pron()
 
 o1 = new stzList([ "<<", ">>" ])
@@ -2024,27 +2044,52 @@ o1 = new stzList([ "<<", ">>" ])
 #--> TRUE
 
 proff()
+# Executed in 0.04 second(s)
 
 /*----------------
+
+pron()
 
 o1 = new stzList([ [ "<<", ">>" ], ["__", "__" ] ])
 ? o1.AreBoundsOf("word", :In = "<<word>> and __word__ @word@")
 #--> TRUE
 
+proff()
+# Executed in 0.07 second(s)
+
 /*----------------
+
+pron()
 
 o1 = new stzList([ [ "<<", ">>" ], ["__", "__" ], [ "@", "@" ] ])
 ? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
 #--> FALSE
 
-/*----------------
-
-? Q("_").IsBoundOf( "world", :In = "hello _world_ and <world>" ) #--> TRUE
-? Q("<").IsBoundOf( "world", :In = "hello _world_ and <world>" ) #--> FALSE
-? Q([ "<", ">" ]).AreBoundsOf( "world", :In = "hello _world_ and <world>" ) #--> TRUE
-? Q([ ["<",">"], ["_","_"] ]).AreBoundsOf( "world", :In = "hello _world_ and <world>" ) #--> TRUE
+proff()
+# Executed in 0.10 second(s)
 
 /*----------------
+
+pron()
+
+? Q("_").IsBoundOf( "world", :In = "hello _world_ and <world>" )
+#--> TRUE
+
+? Q("<").IsBoundOf( "world", :In = "hello _world_ and <world>" )
+#--> FALSE
+
+? Q([ "<", ">" ]).AreBoundsOf( "world", :In = "hello _world_ and <world>" )
+#--> TRUE
+
+? Q([ ["<",">"], ["_","_"] ]).AreBoundsOf( "world", :In = "hello _world_ and <world>" )
+#--> TRUE
+
+proff()
+# Executed in 0.10 second(s)
+
+/*----------------
+
+pron()
 
 o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 
@@ -2054,72 +2099,104 @@ o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 ? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] ) #--> TRUE
 ? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE
 
+proff()
+# Executed in 0.14 second(s)
+
 /*================= POSSIBLE SUBSTRINGS IN THE STRING
 
-o1 = Q("ABAAC")
-? @@( o1.SubStrings() )
-#--> [
-# 	"A", "B", "C", "B", "B", "D", "A",
-# 	"AB", "CB", "BD", "ABC", "BBD",
-# 	"ABCB", "ABCBB", "ABCBBD", "ABCBBDA"
-# ]
-
-? @@( o1.SubStringsAndTheirPositions() ) #TODO: Optimise performance!
-#--> [
-# 	[ "A", [ 1, 3, 4 ] ], [ "B", [ 2 ] ], [ "C", [ 5 ] ],
-# 	[ "AB", [ 1 ] ], [ "AA", [ 3 ] ], [ "ABA", [ 1 ] ],
-# 	[ "ABAA", [ 1 ] ], [ "ABAAC", [ 1 ] ] ]
-
-STOP()
-
-/*=================
-
-? @@( Q([ "abc", 120, "cdef", 14, "opjn", 988 ]).ToString() )
-
-/*-->
-"abc
-120
-cdef
-14
-opjn
-988"
-
-*/
-
-/*----------------
-*/
 pron()
 
-? @@( Q(["abc","cdef","opjn"]).ToString() ) # Q() creates a stzList object
-/*-->
-abc
-cdef
-opjn
-*/
+o1 = Q("ABAAC")
+? @@( o1.SubStrings() ) + NL
+#--> [
+# 	"A", "AB", "ABA", "ABAA",
+# 	"ABAAC", "B", "BA", "BAA",
+# 	"BAAC", "A", "AA", "AAC", "A", "AC", "C"
+# ]
 
-# Same thing can be done wit stzListOfStrings
+? @@( o1.SubStringsZ() ) + NL
+#--> [
+# 	[ "A", [ 1, 3, 4 ] ],
+# 	[ "AB", [ 1 ] ],
+# 	[ "ABA", [ 1 ] ],
+#	[ "ABAA", [ 1 ] ],
+#	[ "ABAAC", [ 1 ] ],
+#	[ "B", [ 2 ] ],
+#	[ "BA", [ 2 ] ],
+#	[ "BAA", [ 2 ] ],
+#	[ "BAAC", [ 2 ] ],
+#	[ "AA", [ 3 ] ],
+#	[ "AAC", [ 3 ] ],
+#	[ "AC", [ 4 ] ],
+#	[ "C", [ 5 ] ]
+# ]
 
-? @@( QQ(["abc","cdef","opjn"]).ToString() ) // QQ() generates a stzListOfStrings object
-/*-->
-abc
-cdef
-opjn
-*/
+? @@( o1.SubStringsZZ() )
+#--> [
+#	[ "A", [ [ 1, 1 ], [ 3, 3 ], [ 4, 4 ] ] ],
+#	[ "AB", [ [ 1, 2 ] ] ],
+#	[ "ABA", [ [ 1, 3 ] ] ],
+#	[ "ABAA", [ [ 1, 4 ] ] ],
+#	[ "ABAAC", [ [ 1, 5 ] ] ],
+#	[ "B", [ [ 2, 2 ] ] ],
+#	[ "BA", [ [ 2, 3 ] ] ],
+#	[ "BAA", [ [ 2, 4 ] ] ],
+#	[ "BAAC", [ [ 2, 5 ] ] ],
+#	[ "AA", [ [ 3, 4 ] ] ],
+#	[ "AAC", [ [ 3, 5 ] ] ],
+#	[ "AC", [ [ 4, 5 ] ] ],
+#	[ "C", [ [ 5, 5 ] ] ]
+# ]
 
 proff()
-# Executed in 0.05 second(s)
-
+# Executed in 0.03 second(s)
 
 /*=================
 
-o1 = new stzListOfStrings(["A", "AA", "B", "BB", "C", "CC", "CC" ])
-? o1.StringsW('len(@string) = 2')
-#--> [ "AA", "BB", "CC", "CC" ])
+pron()
 
-? o1.UniqueStringsW('len(@string) = 2')
-#--> [ "AA", "BB", "CC" ]
+? Q([ "abc", 120, "cdef", 14, "opjn", 988 ]).ToString()
+
+#-->
+#	"abc
+#	120
+#	cdef
+#	14
+#	opjn
+#	988"
+
+proff()
+# Executed in 0.04 second(s)
 
 /*----------------
+
+pron()
+
+? Q(["abc","cdef","opjn"]).ToString() + NL # Q() creates a stzList object
+#-->
+#	abc
+#	cdef
+#	opjn
+
+proff()
+# Executed in 0.03 second(s)
+
+/*================= #Todo: check after including SubstringsBetween()
+
+pron()
+
+o1 = new stzList(["A", "AA", "B", "BB", "C", "CC", "CC" ])
+? o1.ItemsW('len(@item) = 2')
+#--> [ "AA", "BB", "CC", "CC" ])
+
+? o1.UniqueItemsW('len(@item) = 2')
+#--> [ "AA", "BB", "CC" ]
+
+proff()
+
+/*---------------- #Todo: check after including SubstringsBetween()
+
+pron()
 
 o1 = new stzListOfStrings([
 	"A", "v", "♥", "c",
@@ -2138,13 +2215,21 @@ o1 = new stzListOfStrings([
 ')
 #--> [ "Av♥♥c", "Av♥♥c♥", "Av♥♥c♥♥" ]
 
-/*================
+proff()
+
+/*================ #Todo: check after including SubstringsBetween()
+
+pron()
 
 o1 = new stzString("Av♥♥c♥♥")
 ? o1.FindAll("♥♥") #--> [ 3, 6 ]
 ? o1.FindSubStringsW('{ @SubString = "♥♥" }') #--> [ 3, 6 ]
 
-/*===============
+proff()
+
+/*=============== #Todo: check after including SubstringsBetween()
+
+pron()
 
 o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
 ? o1.SubstringsBetween("<<", ">>")
@@ -2154,9 +2239,10 @@ o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
 ? o1.SubstringsBetween('"', '"')
 #--> [ "    value ", " 12   " ]
 
-STOP()
+proff()
 
-/*----------------
+/*---------------- #Todo: check after including SubstringsBetween()
+pron()
 
 o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
 ? @@( o1.SubStringsBetween('"','"') )
@@ -2171,15 +2257,22 @@ o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
 ? @@( o1.FindSubStringsBetweenIB('"','"') )
 #--> [ [ 16, " value " ], [ 42, " 12 " ] ]
 
-STOP()
+proff()
 
 /*================
 
+pron()
+
 o1 = new stzString("blabla bla <<word>> bla bla <<word>>")
-? o1.FindSubStringAsSections("word", "<<", ">>")
+? o1.FindAsSections("word") # Or FindSubStringAsSections() or FindZZ()
 #--> [ [14, 17], [31, 34] ]
 
-/*----------------
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------- #Todo: Check after including findanybetween()
+
+pron()
 
 o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
 ? o1.FindAnyBetween("<<", ">>")
@@ -2189,7 +2282,9 @@ o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
 ? o1.FindAnyBetweenAsSections("<<", ">>")
 #--> [ [14, 18], [32, 36] ]
 
-/*----------------
+proff()
+
+/*---------------- #Todo: Check after including findanybetween()
 
 o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
 aSections = o1.FindAnyBetweenAsSections('"', '"')
@@ -2205,7 +2300,7 @@ aAntiSections = o1.FindAntiSections(aSections)
 #	'"  '
 #    ]
 
-/*----------------
+/*---------------- #Todo: Check after including findanybetween()
 
 o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
 aBetween = o1.FindAnyBetweenAsSections('"', '"')
@@ -2254,10 +2349,17 @@ aBetween = o1.FindAnyBetweenAsSections('"', '"')
 
 /*---------------
 
+pron()
+
 ? Q(" this code:   txt1  = ").Simplified()
 #--> "this code: txt1 ="
 
-/*---------------
+proff()
+# Executed in 0.01 second(s)
+
+/*--------------- #Todo: Check after including findanybetween()
+
+pron()
 
 o1 = new stzString(' this code:   txt1  = "<    withspaces    >"   and txt2="<nospaces>"  ')
 aAntiSections = o1.FindAntiSections( o1.FindAnyBetweenAsSections('"','"') )
@@ -2266,7 +2368,11 @@ o1.ReplaceSections(aAntiSections, :With = '|***|')
 ? o1.Content()
 #--> '|***|<    withspaces    >|***|<nospaces>|***|'
 
-/*----------------
+proff()
+
+/*---------------- #Todo: Check after including findanybetween()
+
+pron()
 
 o1 = new stzString(' this code    :   txt1  = "<    leave spaces    >"   and this    code:  txt2 =   "< leave spaces >"  ')
 aAntiSections = o1.FindAntiSections( o1.FindAnyBetweenAsSections('"','"') )
@@ -2275,19 +2381,57 @@ o1.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
 ? o1.Content()
 #--> this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"
 
+proff()
+
 /*==============
+
+pron()
 
 o1 = new stzString("ONE")
 
-? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***THREE")	#--> TRUE
-? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***THREE")	#--> FALSE
+? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***THREE")
+#--> TRUE
+
+? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***THREE")
+#--> FALSE
+
+proff()
+# Executed in 0.01 second(s)
 
 /*----------------
 
+pron()
+
 o1 = new stzString("ONE")
 
-? o1.Occurs( :Before = "TWO", :In = [ "***", "ONE", "***", "TWO", "***", "THREE" ])	#--> TRUE
-? o1.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***", "THREE" ])	#--> FALSE
+? o1.Occurs( :Before = "TWO", :In = [ "***", "ONE", "***", "TWO", "***", "THREE" ])
+#--> TRUE
+
+? o1.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***", "THREE" ])
+#--> FALSE
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------------
+*/
+pron()
+
+o1 = new stzNumber(10)
+? o1.Occures( :Before = "TEN", :In = [ 2, "TWO", 10, "TEN" ] ) # NOTE: OccurEs is misspelled!
+#--> TRUE
+
+o1 = new stzList(1:3)
+? o1.Occurs( :Before = 1:7, :In = [ 1:2, "TWO", 1:3, 1:7, "THREE" ] )
+
+o1 = new stzObject(ANullObject())
+? o1.Comes( :Before = "NULL", :In = [ 1, 2, ANullObject(), "NULL" ] )
+
+o1 = new stzString("one")
+? o1.Happens( :Before = "two", :In = [ "one", "two", "three" ] )
+
+proff()
+# Executed in 0.06 second(s)
 
 /*----------------
 

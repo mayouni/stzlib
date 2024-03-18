@@ -3732,6 +3732,38 @@ class stzObject
 		def AsTheMQ()
 			return This.AsMQ()
 
+	def The()
+		return This
+
+		def TheQ()
+			return This.The()
+
+		def The_M() # to avoid confusion with Them()
+			SetMainObject(This)
+			return This
+
+			def The_MQ()
+				return This.The_M()
+
+		def The_MM()
+			return MainObject()
+
+	def Them()
+		return This
+
+		def ThemQ()
+			return This.Them()
+
+		def ThemM()
+			SetMainObject(This)
+			return This
+
+			def ThemMQ()
+				return This.ThemM()
+
+		def ThemMM()
+			return MainObejct()
+
 	def Me()
 		return This
 
@@ -3851,26 +3883,6 @@ class stzObject
 		def HimMQ()
 			SetMainObject(This)
 			return This.HimQ()
-
-	def Them()
-		return This
-
-		def TheimM()
-			SetMainObject(This)
-			return This
-
-		def TheimMM()
-			return MainObject()
-
-		def TheimQ()
-			return This.Theim()
-
-		def TheimQM()
-			return MainObject()
-
-		def TheimMQ()
-			SetMainObject(This)
-			return This.TheimQ()
 
 	def Has()
 		return This
@@ -5319,3 +5331,353 @@ class stzObject
 	def ToStzList()
 		return new stzList(This.Content())
 
+	   #=====================================================#
+	  #   CHECKING IF OBJECT OCCURES BEFORE/AFTER A GIVEN   #
+	 #   VALUE IN THE GIVEN STRING OR LIST                 #
+	#=====================================================#
+
+	def OccursCS(pcBeforeOrAfter, pIn, pCaseSensitive)
+
+		/* EXAMPLE
+
+		o1 = new stzString("ONE")
+
+		? o1.Occurs( :Before = "TWO", :In = "***ONE***TWO***")	#--> TRUE
+		? o1.Occurs( :After = "TWO", :In = "***ONE***TWO***")	#--> FALSE
+
+		? o1.Occurs( :Before = "two", :In = [ "***", "ONE", "***", "TWO", "***" ])
+		#--> TRUE
+		? o1.Occurs( :After = "TWO", :In = [ "***", "ONE", "***", "TWO", "***" ])
+		#--> FALSE
+
+		*/
+		cBeforeOrAfter = ""
+
+		if isList(pcBeforeOrAfter) and Q(pcBeforeOrAfter).IsBeforeOrAfterNamedParam()
+			cTemp = pcBeforeOrAfter[1]
+
+			pcBeforeOrAfter = pcBeforeOrAfter[2]
+		ok
+
+		if isList(pIn) and Q(pIn).IsInNamedParam()
+			pIn = pIn[2]
+		ok
+
+		if NOT ( isString(pIn) or isList(pIn) )
+			StzRaise("Incorrect param type! pcIn must be a string or list.")
+		ok
+	
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if isString(pIn)
+			oStr = new stzString(pIn)
+	
+			nThis  = oStr.FindFirstCS( This.Content(), bCaseSensitive )
+			nOther = oStr.FindFirstCS( pcBeforeOrAfter, bCaseSensitive )
+
+		but isList(pIn)
+			if Q(pIn).IsListOfStrings()
+				oListStr = new stzListOfStrings(pIn)
+
+				nThis  = oListStr.FindFirstCS( This.Content(), bCaseSensitive )
+				nOther = oListStr.FindFirstCS( pcBeforeOrAfter, bCaseSensitive )
+			else
+
+				if bCaseSensitive = TRUE
+					oList = new stzList(pIn)
+	
+					nThis  = oList.FindFirst( This.Content() )
+					nOther = oList.FindFirst( pcBeforeOrAfter )
+						
+				else
+					oList = new stzList(pIn)
+					oList.Lowercase()
+
+					nThis  = oList.FindFirst( This.ContentQ().Lowercased() )
+					nOther = oList.FindFirst( pcBeforeOrAfter )
+
+				ok
+			ok
+
+		ok
+
+		bResult = FALSE
+
+		if cTemp = :After
+			bResult = nThis > nOther
+
+		but cTemp = :Before
+			bResult = nThis < nOther
+		ok
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def HappensCS(pcBeforeOrAfter, pIn, pCaseSensitive)
+			return This.OccursCS(pcBeforeOrAfter, pIn, pCaseSensitive)
+
+		def ComesCS(pcBeforeOrAfter, pIn, pCaseSensitive)
+			return This.OccursCS(pcBeforeOrAfter, pIn, pCaseSensitive)
+
+		#>
+
+
+		#< @FunctionMisspelledForm
+
+		def OccuresCS(pcBeforeOrAfter, pIn, pCaseSensitive)
+			return This.OccursCS(pcBeforeOrAfter, pIn, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def Occurs(pcBeforeOrAfter, pIn)
+		return This.OccursCS(pcBeforeOrAfter, pIn, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def Happens(pcBeforeOrAfter, pIn)
+			return This.Occurs(pcBeforeOrAfter, pIn)
+
+		def Comes(pcBeforeOrAfter, pIn)
+			return This.Occurs(pcBeforeOrAfter, pIn)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def Occures(pcBeforeOrAfter, pIn)
+			return This.Occurs(pcBeforeOrAfter, pIn)
+
+		#>
+
+	   #-----------------------------------------------#
+	  #   CHECKING IF OBJECT OCCURES BEFORE A GIVEN   #
+	 #   VALUE IN THE GIVEN STRING OR LIST           #
+	#-----------------------------------------------#
+
+	def OccursBeforeCS( pcSubStr, pIn, pCaseSensitive )
+		return This.OccursCS( :Before = pcSubStr, pIn, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def OccursBefore(pcSubStr, pIn)
+		return This.OccursBeforeCS( pcSubStr, pIn, TRUE )
+
+	   #----------------------------------------------#
+	  #   CHECKING IF OBJECT OCCURES َAFTER A GIVEN   #
+	 #   VALUE IN THE GIVEN STRING OR LIST          #
+	#----------------------------------------------#
+
+	def OccursAfterCS( pcSubStr, pIn, pCaseSensitive )
+		return This.OccursCS( :After = pcSubStr, pIn, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def OccursAfter(pcSubStr, pIn)
+		return This.OccursAfterCS( pcSubStr, pIn, TRUE )
+
+	   #---------------------------------------------------------#
+	  #   CHECKING IF OBJECT OCCURES BETWEEN TWO GIVEN VALUES   #
+	 #  IN THE GIVEN STRING OR LIST                            #
+	#---------------------------------------------------------#
+
+	def OccursBetweenCS( pValue1, pValue2, pIn, pCaseSensitive )
+
+		if This.OccursCS( :After = pValue1, pIn, pCaseSensitive) and
+		   This.OccursCS( :Before = pValue2, pIn, pCaseSensitive)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def OccursBetween( pValue1, pValue2, pIn )
+		return This.OccursBetweenCS( pValue1, pValue2, pIn, TRUE )
+
+	  #-------------------------------------------------------------------#
+	 #   CHECKING IF OBJECT OCCURES N TIMES IN AN OTHER STRING OR LIST   #
+	#-------------------------------------------------------------------#
+
+	def OccursNTimesCS( n, pIn, pCaseSensitive )
+
+		if isList(pIn) and Q(pIn).IsInNamedParam()
+			pIn = pIn[2]
+		ok
+
+		if NOT ( isString(pIn) or isList(pIn) )
+			StzRaise("Incorrect param type! pcIn must be a string or list.")
+		ok
+	
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		nOccurrence = 0
+
+		if isString(pIn)
+			oStr = new stzString(pIn)
+			nOccurrence  = oStr.NumberOfOccurrenceCS( This.Content(), bCaseSensitive )
+
+		but isList(pIn)
+			if Q(pIn).IsListOfStrings()
+				oListStr = new stzListOfStrings(pIn)
+				nOccurrence  = oListStr.NumberOfOccurrenceCS( This.Content(), bCaseSensitive )
+
+			else
+				if bCaseSensitive = TRUE
+					oList = new stzList(pIn)
+					nOccurrence  = oList.NumberOfOccurrence( This.Content() )
+		
+				else
+					oList = new stzList(pIn)
+					oList.Lowercase()
+
+					nThis  = oList.FindFirst( This.ContentQ().Lowercased() )
+					nOccurrence  = oList.NumberOfOccurrence( This.Content() )
+		
+				ok
+			ok
+
+		ok
+
+		bResult = FALSE
+
+		if nOccurrence = n
+			bResult = TRUE
+		ok
+
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def OccursNTimes( n, pIn )
+		return This.OccursNTimesCS( n, pIn, TRUE )
+
+	   #----------------------------------------------------#
+	  #  CHECKING IF STRING OCCURS FOR THE NTH TIME,       #
+	 #  IN AN OTHER STRING OR LIST, AT A GIVEN POSITION   #
+	#----------------------------------------------------#
+
+	def OccursForTheNthTimeCS(n, pIn, pnAt, pCaseSensitive)
+		/* EXAMPLE
+
+		? Q("*").OccursForTheNthTime( 1, :In = "a*b*c*d", :AtPosition = 2 )
+		#--> TRUE
+
+		? Q("*").OccursForTheNthTime( 3, :In = "a*b*c*d", :AtPosition = 6 )
+		#--> TRUE
+
+		*/
+
+		if isList(pIn) and Q(pIn).IsInNamedParam()
+			pIn = pIn[2]
+		ok
+
+		if NOT ( isString(pIn) or isList(pIn) )
+			StzRaise("Incorrect param type! pcIn must be a string or list.")
+		ok
+
+		if isList(pnAt) and Q(pnAt).IsAtOrAtPositionNamedParam()
+			pnAt = pnAt[2]
+		ok
+	
+		if NOT isNumber(pnAt)
+			StzRaise("Incorrect param type! pAt must be a number.")
+		ok
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		nNthOccurrence = 0
+
+		if isString(pIn)
+			oStr = new stzString(pIn)
+			nNthOccurrence = oStr.NthOccurrenceCS( n, This.String(), bCaseSensitive )
+	
+		but isList(pIn)
+			if Q(pIn).IsListOfStrings()
+				oListStr = new stzListOfStrings(pIn)
+				nNthOccurrence  = oListStr.NthOccurrenceCS( n, This.String(), bCaseSensitive )
+
+			else
+				if bCaseSensitive = TRUE
+					oList = new stzList(pIn)
+					nNthOccurrence  = oList.NthOccurrence( n, This.String() )
+		
+				else
+					oList = new stzList(pIn)
+					oList.Lowercase()
+
+					nNthOccurrence  = oList.NthOccurrence( n, This.String() )
+		
+				ok
+			ok
+
+		ok
+
+
+		if nNthOccurrence = pnAt
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForm
+
+		def OccursForTheNthTimeAtCS(n, pIn, pnAt, pCaseSensitive)
+			return This.OccursForTheNthTimeCS(n, pIn, pnAt, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def OccursForTheNthTime(n, pIn, pnAt)
+		return This.OccursForTheNthTimeCS(n, pIn, pnAt, TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def OccursForTheNthTimeAt(n, pIn, pnAt)
+			return This.OccursForTheNthTime(n, pIn, pnAt)
+
+		#>
+
+	   #----------------------------------------------------#
+	  #  CHECKING IF STRING OCCURS FOR THE FIRST TIME,     #
+	 #  IN AN OTHER STRING OR LIST, AT A GIVEN POSITION   #
+	#----------------------------------------------------#
+
+	def OccursForTheFirstTimeCS(pIn, pnAt, pCaseSensitive)
+		return This.OccursForTheNthTimeCS(1, pIn, pnAt, pCaseSensitive)
+
+		def OccursForTheFirstTimeAtCS(pIn, pnAt, pCaseSensitive)
+			return This.OccursForTheFirstTimeCS(pIn, pnAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def OccursForTheFirstTime(pIn, pnAt)
+		return This.OccursForTheFirstTimeCS(pIn, pnAt, TRUE)
+
+		def OccursForTheFirstTimeAt(pIn, pnAt)
+			return This.OccursForTheFirstTime(pIn, pnAt)
+
+	   #----------------------------------------------------#
+	  #  CHECKING IF STRING OCCURS FOR THE LAST TIME,      #
+	 #  IN AN OTHER STRING OR LIST, AT A GIVEN POSITION   #
+	#----------------------------------------------------#
+
+	def OccursForTheLastTimeCS(pIn, pnAt, pCaseSensitive)
+		nLast = Q(pIn).FindLastCS(This.Content(), pCaseSensitive)
+		return This.OccursForTheNthTimeCS(nLast, pIn, pnAt, pCaseSensitive)
+
+		def OccursForTheLastTimeAtCS(pIn, pnAt, pCaseSensitive)
+			return This.OccursForTheLastTimeCS(pIn, pnAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def OccursForTheLastTime(pIn, pnAt)
+		return This.OccursForTheLastTimeCS(pIn, pnAt, TRUE)
+
+		def OccursForTheLastTimeAt(pIn, pnAt)
+			return This.OccursForTheLastTime(pIn, pnAt)
