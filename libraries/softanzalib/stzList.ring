@@ -13193,7 +13193,25 @@ class stzList from stzObject
 
 		# Doing the job
 
-		bResult = StzStringQ(pcSubStr).IsBoundedByIn(This.List(), pIn)
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		oSubStr = new stzString(pcSubStr)
+		bResult = FALSE
+
+		if This.IsListOfPairs()
+			bResult = TRUE
+
+			for i = 1 to nLen
+				bResult = oSubStr.IsBoundedByIn(aContent[i], pIn)
+				if bResult = FALSE
+					exit
+				ok
+			next
+		else
+			bResult = oSubStr.IsBoundedByIn(aContent, pIn)
+		ok
+
 		return bResult
 
 	#-- WITHOUT CASESENSITIVITY
