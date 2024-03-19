@@ -797,6 +797,12 @@ func IsEven(n)
 	func @IsEven(n)
 		return IsEven(n)
 
+	func IsZawji(n)
+		return IsEven(n)
+
+	func @IsZawji(n)
+		return IsEven(n)
+
 func IsOdd(n)
 	if isList(n)
 		return IsOddList(n)
@@ -805,6 +811,12 @@ func IsOdd(n)
 	return n % 2 != 0
 
 	func @IsOdd(n)
+		return IsOdd(n)
+
+	func IsFardi(n)
+		return IsOdd(n)
+
+	func @IsFardi(n)
 		return IsOdd(n)
 
 #---- ROUNDS

@@ -2984,6 +2984,24 @@ func ComputableForm(pValue)
 			cChar = "'"
 		ok
 
+		n1 = oQStr.indexof('"', 1, 0) + 1
+		n2 = oQStr.indexof("'", 1, 0) + 1
+
+		if n1 = 0 and n2 = 0
+			cChar = '"'
+
+		but n1 = 0
+			cChar = '"'
+
+		but n2 = 0
+			cChar = "'"
+
+		but n1 < n2
+			cChar = "'"
+		else
+			cChar = '"'
+		ok
+
 		cResult = cChar + pValue + cChar
 		return cResult
 

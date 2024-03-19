@@ -310,6 +310,9 @@ func Vl(paVals)
 		_oldVar = _var
 	ok
 
+func Length(p)
+	return len(p)
+
 # Used for ternary operator in Python
 
 func _if(pExpressionOrBoolean)

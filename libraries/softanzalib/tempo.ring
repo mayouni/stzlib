@@ -2414,7 +2414,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzNumber(10)
@@ -2435,34 +2435,80 @@ proff()
 
 /*----------------
 
-? Q("*").OccursNTimes(3, :In = "a*b*c*d") #--> TRUE
-? Q("*").OccursNTimes(3, :In = [ "a", "*", "b", "*", "c", "*", "d" ]) #--> TRUE
+pron()
+
+? Q("*").OccursNTimes(3, :In = "a*b*c*d")
+#--> TRUE
+
+? Q("*").OccursNTimes(3, :In = [ "a", "*", "b", "*", "c", "*", "d" ])
+#--> TRUE
+
+proff()
 
 /*----------------
 
-? Q("*").OccursForTheFirstTime( :In = "a*b*c*d", :AtPosition = 2 ) #--> TRUE
+pron()
+
+? Q("*").OccursForTheFirstTime( :In = "a*b*c*d", :AtPosition = 2 )
+#--> TRUE
+
+? Q("*").OccursForTheLastTime( :In = "a*b*c*d", :AtPosition = 6 )
+#--> TRUE
+
 ? Q("*").OccursForTheLastTime( :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 6 ) #--> TRUE
+#--> TRUE
 
-? Q("*").OccursForTheNthTime( 1, :In = "a*b*c*d", :AtPosition = 2 ) #--> TRUE
-? Q("*").OccursForTheNthTime( 2, :In = "a*b*c*d", :AtPosition = 4 ) #--> TRUE
-? Q("*").OccursForTheNthTime( 3, :In = "a*b*c*d", :AtPosition = 6 ) #--> TRUE
+? Q("*").OccursForTheNthTime( 1, :In = "a*b*c*d", :AtPosition = 2 )
+#--> TRUE
 
-? Q("*").OccursForTheNthTime( 1, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 2 ) #--> TRUE
-? Q("*").OccursForTheNthTime( 2, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 4 ) #--> TRUE
-? Q("*").OccursForTheNthTime( 3, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 6 ) #--> TRUE
+? Q("*").OccursForTheNthTime( 2, :In = "a*b*c*d", :AtPosition = 4 )
+#--> TRUE
+
+? Q("*").OccursForTheNthTime( 3, :In = "a*b*c*d", :AtPosition = 6 )
+#--> TRUE
+
+? Q("*").OccursForTheNthTime( 1, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 2 )
+#--> TRUE
+
+? Q("*").OccursForTheNthTime( 2, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 4 )
+#--> TRUE
+
+? Q("*").OccursForTheNthTime( 3, :In = [ "a", "*", "b", "*", "c", "*", "d" ], :AtPosition = 6 )
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s)
 
 /*----------------
+
+pron()
 
 aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
 
-? Q("shirt").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 1 )	#--> TRUE
-? Q("shoes").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 2 )	#--> TRUE
-? Q("shirt").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 3 )	#--> FALSE
-? Q("bag").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 4 )	#--> TRUE
-? Q("hat").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 5 )	#--> TRUE
-? Q("shoes").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 6 )	#--> FALSE
+? Q("shirt").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 1 )
+#--> TRUE
 
-/*----------------
+? Q("shoes").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 2 )
+#--> TRUE
+
+? Q("shirt").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 3 )
+#--> FALSE
+
+? Q("bag").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 4 )
+#--> TRUE
+
+? Q("hat").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 5 )
+#--> TRUE
+
+? Q("shoes").OccursForTheFirstTime( :In = aShoppingCart, :AtPosition = 6 )
+#--> FALSE
+
+proff()
+# Executed in 0.04 second(s)
+
+/*---------------- #TODO: check it after including substringsbetween()
+
+pron()
 
 aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
 
@@ -2471,9 +2517,11 @@ aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
 }')
 #--> [ 1, 2, 4, 5 ]
 
-/*----------------
+proff()
 
-  load "stzlib.ring"
+/*================ #TODO: check it after including substringsbetween()
+
+pron()
 
   # Suppose a customer added all these items to his shopping cart in an
   # ecommerce website:
@@ -2494,15 +2542,25 @@ aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
 
   #--> [ [ "Shirt", 2 ], [ "shoes", 2 ], [ "bag", 1 ], [ "hat", 1 ] ]
 
+proff()
+
 /*=========
 
-? ComputableForm('len    var1 = "    value "  and var2 =  " 12   " ')
+pron()
+
+? ComputableForm('len    var1 = "    value "  and var2 =  " 12   " ') + NL
 #--> 'len var1 = "    value " and var2 = " 12   "'
 
 ? ComputableForm("len    var1 = '    value '  and var2 =  ' 12   ' ")
-#--> 'len var1 = "    value " and var2 = " 12   "'
+#--> "len    var1 = '    value '  and var2 =  ' 12   ' "
+
+proff()
+# Executed in 0.02 second(s)
 
 /*================= CHECK PERFORMANCE
+#TODO: check it after including FindSubStringsW()
+
+pron()
 
 o1 = new stzString("Av♥♥c♥♥")
 ? @@( o1.FindSubStringsW('{
@@ -2516,7 +2574,12 @@ o1 = new stzString("Av♥♥c♥♥")
 #	[ "♥c", [ 4 ] 	]
 # ]
 
-/*------------- ERROR
+proff()
+
+/*------------- # TODO: check ERROR
+#TODO: check it after including FindSubStringsW()
+
+pron()
 
 o1 = new stzString("Av♥♥c♥♥")
 ? @@( o1.FindSubStringsW('{
@@ -2530,24 +2593,47 @@ o1 = new stzString("Av♥♥c♥♥")
 # The problem is that the evaluated code has spaces removed, like this:
 # bOk = ( Q( @item ).NumberOfChars()=2andNOTQ( @item ).Contains("♥") )
 
+proff()
+
 /*=================
+
+pron()
 
 o1 = new stzString("I love ")
 o1.AddSubString("Ring")
-? o1.Content() #--> I love Ring
+? o1.Content()
+#--> I love Ring
+
+proff()
 
 #-----------------
 
+pron()
+
 o1 = new stzString("Ring")
-o1.ExtendToNChars(10, :Using = ".")
-? o1.Content() #--> "Ring.........."
+o1.ExtendToNCharsXT(10, :Using = ".")
+? o1.Content()
+#--> "Ring.........."
+
+proff()
+# Executed in 0.01 second(s)
 
 /*=================
 
-? Q("-♥-").IsBoundedBy("-") #--> TRUE
-? Q("♥").IsBoundedByIB("-", :In = "... -♥- ...") #ERROR
+pron()
 
-/*---------------- ERROR
+? Q("-♥-").IsBoundedBy("-")
+#--> TRUE
+
+? Q("♥").IsBoundedByIB("-", :In = "... -♥- ...")
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s)
+
+/*---------------- #TODO: check it again after including findsubstringsbetween()
+
+pron()
 
 o1 = new stzString("Av♥♥c♥♥")
 
@@ -2556,11 +2642,15 @@ o1 = new stzString("Av♥♥c♥♥")
 	Q(@SubString).IsBoundedBy@_( "Q(@Char).IsLowercase()", "_" ) 
 
 }')
-/*
+
+proff()
 
 /*----------------
 
-? StzCharQ(1049).Content() #--> Й
+pron()
+
+? StzCharQ(1049).Content() + NL
+#--> Й
 
 ? @@( StzListOfCharsQ(1000 : 1009).Content() ) + NL
 #--> [ "Ϩ", "ϩ", "Ϫ", "ϫ", "Ϭ", "ϭ", "Ϯ", "ϯ", "ϰ", "ϱ" ]
@@ -2579,6 +2669,13 @@ Q("℺℻ℚ") {
 
 }
 
+proff()
+# Executed in 0.23 second(s)
+
+/*-------------- #TODO: Use the normal way (ExecutableSection) and check for perf
+
+pron()
+
 ? @@( Q("℺℻ℚ").Yield('[ @char, Q(@char).Unicode(), Q(@char).CharName() ]') )
 #--> [
 # 	[ "℺", 8506, "ROTATED CAPITAL Q" ],
@@ -2586,7 +2683,12 @@ Q("℺℻ℚ") {
 # 	[ "ℚ", 8474, "DOUBLE-STRUCK CAPITAL Q" ]
 #    ]
 
-/*==============
+proff()
+# Executed in 0.22 second(s)
+
+/*============== #TODO: check it again after including substringsbetween()
+
+pron()
 
 # What are the unique letters in this sentence?
 # "sun is hot but fun"
@@ -2613,39 +2715,167 @@ Q("℺℻ℚ") {
 #--> [ "s", "u", "n", "i", "h", "o", "t", "b", "f" ]
 # Which turns out to be more natural, isn't it?
 
+proff()
+
 /*----------------
+
+pron()
 
 ? len("طيبة") #--> 8
-? StzStringQ("طيبة").NumberOfChars() #--> 4
-? StzStringQ("طيبة").NumberOfBytes() #--> 8
+
+? StzStringQ("طيبة").NumberOfChars()
+#--> 4
+
+? StzStringQ("طيبة").NumberOfBytes()
+#--> 8
+
+proff()
+# Executed in 0.03 second(s)
 
 /*----------------
+
+pron()
 
 o1 = Q("TAYOUBAAOOAA")
-? o1.LastAndFirstChars() #--> [ "A", "T" ]
+? o1.LastAndFirstChars()
+#--> [ "A", "T" ]
+
+proff()
+
+/*---------------- #TODO: Check it after including between()
+
+pron()
+
+o1 = new stzList([ "A", "B", "♥", "♥", "C", "♥", "♥", "D", "♥","♥" ])
+? o1.FindWXT('{ @CurrentItem = @NextItem }')	#--> [ 3, 6, 9 ]
+
+? o1.FindFirstWXT(' @CurrentItem = @NextItem ')	#--> 3
+? o1.FindLastWXT(' @CurrentItem = @NextItem ')	#--> 9
+? o1.FindNthWXT(2, ' @CurrentItem = @NextItem ')	#--> 6
+
+proff()
 
 /*----------------
 
-o1 = new stzList([ "A", "B", "♥", "♥", "C", "♥", "♥", "D", "♥","♥" ])
-? o1.FindW('{ @CurrentItem = @NextItem }')	#--> [ 3, 6, 9 ]
-
-? o1.FindFirstW(' @CurrentItem = @NextItem ')	#--> 3
-? o1.FindLastW(' @CurrentItem = @NextItem ')	#--> 9
-? o1.FindNthW(2, ' @CurrentItem = @NextItem ')	#--> 6
-
-/*---------------- TODO: FIX ERROR!
+pron()
 
 o1 = new stzList("A":"E")
-? o1 / 3
+? @@( o1 / 3 )
+#--> [ [ "A", "B" ], [ "C", "D" ], [ "E" ] ]
 
-/*---------------- TODO. Logical error in SplitToNParts()
+proff()
+# Executed in 0.04 second(s)
+
+/*-------
+
+pron()
+
+aList = []
+for i = 1 to 5
+	aList + [1]
+next
+
+? @@(aList)
+
+proff()
+
+/*=======
+*/
+pron()
+
+o1 = new stzSplitter(12)
+
+? @@( o1.SplitToNParts(0) ) + NL
+#--> [ ]
+
+? @@( o1.SplitToNParts(1) ) + NL
+#--> [ [ 1, 12 ] ]
+
+? @@( o1.SplitToNParts(2) ) + NL
+#--> [ [ 1, 6 ], [ 7, 12 ] ]
+
+? @@( o1.SplitToNParts(3) ) + NL
+#--> [ [ 1, 4 ], [ 5, 8 ], [ 9, 12 ] 
+
+? @@( o1.SplitToNParts(4) ) + NL
+#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 9 ], [ 10, 12 ] ]
+
+? @@( o1.SplitToNParts(5) ) + NL
+#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 8 ], [ 9, 10 ], [ 11, 12 ] ]
+
+? @@( o1.SplitToNParts(6) ) + NL
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ], [ 9, 10 ], [ 11, 12 ] ]
+
+? @@( o1.SplitToNParts(7) ) + NL
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ], [ 9, 10 ], [ 11 ], [ 12 ] ]
+
+? @@( o1.SplitToNParts(8) ) + NL
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ], [ 9 ], [ 10 ], [ 11 ], [ 12 ] ]
+
+? @@( o1.SplitToNParts(9) ) + NL
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7 ], [ 8 ], [ 9 ], [ 10 ], [ 11 ], [ 12 ] ]
+
+? @@( o1.SplitToNParts(10) ) + NL
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5 ], [ 6 ], [ 7 ], [ 8 ], [ 9 ], [ 10 ], [ 11 ], [ 12 ] ]
+
+? @@( o1.SplitToNParts(11) ) + NL
+#--> [ [ 1, 2 ], [ 3 ], [ 4 ], [ 5 ], [ 6 ], [ 7 ], [ 8 ], [ 9 ], [ 10 ], [ 11 ], [ 12 ] ]
+
+? @@( o1.SplitToNParts(12) ) + NL
+#--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 3 ], [ 4, 4 ], [ 5, 5 ], [ 6, 6 ], [ 7, 7 ], [ 8, 8 ], [ 9, 9 ], [ 10, 10 ], [ 11, 11 ], [ 12, 12 ] ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzSplitter(12)
+
+? @@( o1.SplitToNParts(13) )
+#--> Error message
+
+? @@( o1.SplitToNParts(-2) )
+#--> Error message
+
+proff()
+
+/*---------
+*/
+pron()
 
 o1 = Q("ABCDEFGHIJ")
-? o1 / 10	#!--> [ "A" ,"B", "C", "D", "E", "F", "G", "H", "I", "J" ]
-? o1 / 9	#!--> [ "AB", "C", "D", "E", "F", "G", "H", "I", "J" ]
-? o1 / 8	#!--> [ "AB", "CD", "E", "F", "G", "H", "I", "J" ]
-? o1 / 7	#!--> [ "ABC", "DE"", "F", "G", "H", "I", "J" ]
-? o1 / 6	#!--> [ "ABC", "DEF", "G", "H", "I", "J" ]
+
+//? @@( o1 / 10 ) + NL
+#--> [ "A" ,"B", "C", "D", "E", "F", "G", "H", "I", "J" ]
+
+//? @@( o1 / 9 ) + NL
+#!--> [ "AB", "C", "D", "E", "F", "G", "H", "I", "J" ]
+
+? @@( o1 / 8 ) + NL
+#!--> [ "AB", "CD", "E", "F", "G", "H", "I", "J" ]
+
+//? o1 / 7	#!--> [ "ABC", "DE"", "F", "G", "H", "I", "J" ]
+//? o1 / 6	#!--> [ "ABC", "DEF", "G", "H", "I", "J" ]
+
+
+//? o1 / 5
+# 
+
+//? o1 / 4
+
+//? o1 / 3
+
+//? o1 / 2
+
+//? o1 / 1
+
+//? o1 / 0
+#--> [ ]
+
+proff()
+
 
 /*----------------
 
@@ -2845,7 +3075,6 @@ o1 = new stzString("ring __ ring __ ring __ ring")
 ? o1.FindNthOccurrence(2, "ring")
 
 /*=========================================
-*/
 
 pron()
 
@@ -2998,7 +3227,7 @@ o1 = new stzString("__3__6__9__")
 #--> [ "__3", "__6", "__9", "__" ]
 
 /*==================
-*/
+
 pron()
 
 o1 = new stzList([ "a", "abcde", "abc", "ab", "b", "abcd" ])
@@ -3197,7 +3426,6 @@ proff()
 # Executed in 0.03 second(s)
 
 /*---------
-*/
 
 pron()
 
@@ -3404,7 +3632,7 @@ o1 = new stzString("~*~~*--")
 proff()
 
 /*---------- #TODO: Check erros
-*/
+
 pron()
 
 o1 = new stzString("~--*~~*~~")

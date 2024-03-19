@@ -26359,11 +26359,11 @@ class stzList from stzObject
 		def RepeatedTrailingItemQ()
 			return Q(This.RepeatedTrailingItem())
 
-		def TrailingRepeadtedItem()
+		def TrailingRepeatedItem()
 			return This.RepeatedTrailingItem()
 
 			def TrailingRepeatedItemQ()
-				return Q(This.TrailingRepeadtedItem())
+				return Q(This.TrailingRepeatedItem())
 
 		def TrailingItem()
 			return This.RepeatedTrailingItem()
@@ -26641,18 +26641,18 @@ class stzList from stzObject
 				This.RemoveLeadingAndTrailingRepeatedItems()
 				return This
 	
-	def RepeadtedLeadingAndTrailingItemsRemoved()
+	def RepeatedLeadingAndTrailingItemsRemoved()
 		aResult = This.Copy().RemoveRepeatedLEadingAndTrailingItems()
 		return aResult
 
-		def RepeadtedTrailingAndLeadingItemsRemoved()
-			return This.RepeadtedLeadingAndTrailingItemsRemoved()
+		def RepeatedTrailingAndLeadingItemsRemoved()
+			return This.RepeatedLeadingAndTrailingItemsRemoved()
 
 		def LeadingAndTrailingItemsRemoved()
-			return This.RepeadtedLeadingAndTrailingItemsRemoved()
+			return This.RepeatedLeadingAndTrailingItemsRemoved()
 
 		def TrailingAndLeadingItemsRemoved()
-			return This.RepeadtedLeadingAndTrailingItemsRemoved()
+			return This.RepeatedLeadingAndTrailingItemsRemoved()
 	
 	  #-----------------------------#
 	 #   REPLACING LEADING ITEMS   #
@@ -26890,7 +26890,7 @@ class stzList from stzObject
 		aResult = This.Copy().ReplaceRepeatedLeadingItemAndTrailingItemQ(pItem1, pItem2).Content()
 		return aResult
 	
-		def RepeadtedTrailingItemAndLeadingItemReplaced(pItem1, pItem2)
+		def RepeatedTrailingItemAndLeadingItemReplaced(pItem1, pItem2)
 			This.RepeatedLeadingcharAndTrailingItemReplaced(pItem1, pItem2)
 	
 		def TrailingItemAndLeadingItemReplaced(pItem1, pItem2)
@@ -27423,7 +27423,7 @@ class stzList from stzObject
 	def ExtendToPositionWith(n, pValue)
 
 		if isString(pValue) and pValue = :ItemsRepeated
-			This.ExtendToPositionWithItemsRepeadted(n)
+			This.ExtendToPositionWithItemsRepeated(n)
 			return
 		ok
 
@@ -27505,16 +27505,6 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionMisspelledForms
-
-		def ExtendToWithItemsRepeadted(n)
-			This.ExtendToPositionWithItemsRepeated(n)
-
-		def ExtendToPositionWithItemsRepeadted(n)
-			This.ExtendToPositionWithItemsRepeated(n)
-
-		#>
-
 	def ExtendedToPositionWithItemsRepeated(n)
 		aResult = This.Copy().ExtendToPositionWithItemsRepeatedQ(n).Content()
 		return aResult
@@ -27530,12 +27520,6 @@ class stzList from stzObject
 		#>
 
 		#< @FunctionMisspelledForm
-
-		def ExtendedToWithItemsRepeadted(n)
-			return This.ExtendedToPositionWithItemsRepeated(n)
-
-		def ExtendtedToWithItemsRepeadted(n)
-			return This.ExtendedToPositionWithItemsRepeated(n)
 
 		def ExtendtedToWithItemsRepeated(n)
 			return This.ExtendedToPositionWithItemsRepeated(n)
@@ -27627,7 +27611,7 @@ class stzList from stzObject
 		EXAMPLE 3
 
 		o1 = new stzList([ "A", "B", "C" ])
-		o1.ExtendXT( :ToPosition = 5, :With = :ItemsRepeadted )
+		o1.ExtendXT( :ToPosition = 5, :With = :ItemsRepeated )
 		# Or: o1.ExtendXT( :ToPosition = 5, :ByRepeatingItems )
 		o1.Show()
 		#--> [ "A", "B", "C", "A", "B" ])
@@ -27670,7 +27654,7 @@ class stzList from stzObject
 				if isString(pWith[2]) and
 				   ( pWith[2] = :ItemsRepeated or pWith[2] = :RepeatingItems )
 
-					This.ExtendToPositionWithItemsRepeadted(n[2])
+					This.ExtendToPositionWithItemsRepeated(n[2])
 					#NOTE this is a misspelled form --> ...Repea(d)ted()
 					return
 	
@@ -27688,7 +27672,7 @@ class stzList from stzObject
 					n = n[2]
 				ok
 
-				This.ExtendToPositionWithItemsRepeadted(n)
+				This.ExtendToPositionWithItemsRepeated(n)
 				return
 
 			# Case 5: o1.ExtendXT( :ToPostion = 5, :WithItemsIn = [ "D", "E" ])

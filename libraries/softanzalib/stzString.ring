@@ -1447,9 +1447,10 @@ class stzString from stzObject
 	#--------------------------------------------------------------#
 
 	def ExtendToPositionWith(n, pcChar)
+
 		if CheckParams()
 			if isString(pcChar) and pcChar = :CharsRepeated
-				This.ExtendToPositionWithCharsRepeadted(n)
+				This.ExtendToPositionWithCharsRepeated(n)
 				return
 			ok
 	
@@ -1482,8 +1483,53 @@ class stzString from stzObject
 			This.ExtendToPositionWith(n, pcChar)
 
 			def ExtendToWithQ(n, pcChar)
-				This.ExtendToWith(n, pcChar)
-				return This
+				return This.ExtendToPositionWithQ(n, pcChar)
+
+		def ExtendToNCharsWith(n, pcChar)
+			This.ExtendToPositionWith(n, pcChar)
+			
+			def ExtendToNCharsWithQ(n, pcChar)
+				return This.ExtendToPositionWithQ(n, pcChar)
+
+		#--
+
+		def ExtendToPositionUsing(n, pcChar)
+			This.ExtendToPositionWith(n, pcChar)
+
+			def ExtendToPositionUsingQ(n, pcChar)
+				return This.ExtendToPositionWithQ(n, pcChar)
+
+		def ExtendToUsing(n, pcChar)
+			This.ExtendToPositionUsing(n, pcChar)
+
+			def ExtendToUsingQ(n, pcChar)
+				return This.ExtendToPositionWithQ(n, pcChar)
+
+		def ExtendToNCharsUsing(n, pcChar)
+			This.ExtendToPositionWith(n, pcChar)
+			
+			def ExtendToNCharsUsingQ(n, pcChar)
+				return This.ExtendToPositionWithQ(n, pcChar)
+
+		#--
+
+		def ExtendToPositionBy(n, pcChar)
+			This.ExtendToPositionWith(n, pcChar)
+
+			def ExtendToPositionByQ(n, pcChar)
+				return This.ExtendToPositionWithQ(n, pcChar)
+
+		def ExtendToBy(n, pcChar)
+			This.ExtendToPositionBy(n, pcChar)
+
+			def ExtendToByQ(n, pcChar)
+				return This.ExtendToPositionWithQ(n, pcChar)
+
+		def ExtendToNCharsBy(n, pcChar)
+			This.ExtendToPositionWith(n, pcChar)
+			
+			def ExtendToNCharsByQ(n, pcChar)
+				return This.ExtendToPositionWithQ(n, pcChar)
 
 		#>
 
@@ -1492,8 +1538,37 @@ class stzString from stzObject
 		cResult = This.Copy().ExtendToPositionWithQ(n, pcChar)
 		return This
 
+		#< @FunctionAlternativeForms
+
 		def ExtendedToWith(n, pcChar)
-			return This.ExtendedToPositionWith(n, pcChar)
+			This.ExtendedToPositionWith(n, pcChar)
+
+		def ExtendedToNCharsWith(n, pcChar)
+			This.ExtendedToPositionWith(n, pcChar)
+			
+		#--
+
+		def ExtendedToPositionUsing(n, pcChar)
+			This.ExtendedToPositionWith(n, pcChar)
+
+		def ExtendedToUsing(n, pcChar)
+			This.ExtendToPositionUsing(n, pcChar)
+
+		def ExtendedToNCharsUsing(n, pcChar)
+			This.ExtendToPositionWith(n, pcChar)
+			
+		#--
+
+		def ExtendedToPositionBy(n, pcChar)
+			This.ExtendedToPositionWith(n, pcChar)
+
+		def ExtendedToBy(n, pcChar)
+			This.ExtendToPositionBy(n, pcChar)
+
+		def ExtendedToNCharsBy(n, pcChar)
+			This.ExtendToPositionWith(n, pcChar)
+			
+		#>
 
 		#< @FunctionMisspelledForm
 
@@ -1506,13 +1581,13 @@ class stzString from stzObject
 	 #  EXTENDING THE STRING TO A GIVEN POSITION BY REPEATING THE STRING CHARS  #
 	#--------------------------------------------------------------------------#
 
-	def ExtendToPositionWithCharsRepeadted(n)
+	def ExtendToPositionWithCharsRepeated(n)
 		This.ExtendToPositionWithCharsIn(n, This.Chars())
 
 		#< @FunctionFluentForm
 
-		def ExtendToPositionWithCharsRepeadtedQ(n)
-			This.ExtendToPositionWithCharsRepeadted(n)
+		def ExtendToPositionWithCharsRepeatedQ(n)
+			This.ExtendToPositionWithCharsRepeated(n)
 			return This
 
 		#>
@@ -1520,36 +1595,39 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def ExtendToWithCharsRepeated(n)
-			This.ExtendToPositionWithCharsRepeadted(n)
+			This.ExtendToPositionWithCharsRepeated(n)
 
 			def ExtendToWithCharsRepeatedQ(n)
-				This.ExtendToWithCharsRepeated(n)
-				return This
+				return This.ExtendToPositionWithCharsRepeatedQ(n)
 
 		def ExtendToPositionByRepeadingChars(n)
-			This.ExtendToPositionWithCharsRepeadted(n)
+			This.ExtendToPositionWithCharsRepeated(n)
 
 			def ExtendToPositionByRepeadingCharsQ(n)
-				This.ExtendToPositionByRepeadingChars(n)
-				return This
+				return This.ExtendToPositionWithCharsRepeatedQ(n)
+
 
 		def ExtendToByRepeatingChars(n)
-			This.ExtendToPositionWithCharsRepeadted(n)
+			This.ExtendToPositionWithCharsRepeated(n)
 
 			def ExtendToByRepeatingCharsQ(n)
-				This.ExtendToByRepeatingChars(n)
-				return This
+				return This.ExtendToPositionWithCharsRepeatedQ(n)
 
-		#>
 
-		#< @FunctionMisspelledForm
+		#--
 
-		def ExtendToWithCharsRepeadted(n)
-			This.ExtendToPositionWithCharsRepeadted(n)
+		def ExtendToByCharsRepeated(n)
+			This.ExtendToPositionWithCharsRepeated(n)
 
-			def ExtendToWithCharsRepeadtedQ(n)
-				This.ExtendToWithCharsRepeadted(n)
-				return This
+			def ExtendToByCharsRepeatedQ(n)
+				return This.ExtendToPositionWithCharsRepeatedQ(n)
+
+		def ExtendToUsingCharsRepeated(n)
+			This.ExtendToPositionWithCharsRepeated(n)
+
+			def ExtendToUsingCharsRepeatedQ(n)
+				return This.ExtendToPositionWithCharsRepeatedQ(n)
+
 		#>
 
 	def ExtendedToPositionWithCharsRepeated(n)
@@ -1559,20 +1637,21 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def ExtendedToWithCharsRepeated(n)
-			This.ExtendToPositionWithCharsRepeated(n)
+			return This.ExtendedToPositionWithCharsRepeated(n)
 
 		def ExtendedToPositionByRepeadingChars(n)
-			This.ExtendToPositionWithCharsRepeated(n)
+			return This.ExtendedToPositionWithCharsRepeated(n)
 
 		def ExtendedToByRepeatingChars(n)
-			This.ExtendToPositionWithCharsRepeated(n)
+			return This.ExtendedToPositionWithCharsRepeated(n)
 
-		#>
+		#--
 
-		#< @FunctionMisspelledForm
+		def ExtendedToByCharsRepeated(n)
+			return This.ExtendedToPositionWithCharsRepeated(n)
 
-		def ExtendedToWithCharsRepeadted(n)
-			This.ExtendToPositionWithCharsRepeated(n)
+		def ExtendedToUsingCharsRepeated(n)
+			return This.ExtendedToPositionWithCharsRepeated(n)
 
 		#>
 
@@ -1618,14 +1697,25 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def ExtendToWithCharsIn(n, pacChars)
 			return This.ExtendToPositionWithCharsIn(n, pacChars)
 
 			def ExtendToWithCharsInQ(n, pacChars)
-				This.ExtendToWithCharsIn(n, pacChars)
-				return This
+				return This.ExtendToPositionWithCharsInQ(n, pacChars)
+
+		def ExtendToByCharsIn(n, pacChars)
+			return This.ExtendToPositionWithCharsIn(n, pacChars)
+
+			def ExtendToByCharsInQ(n, pacChars)
+				return This.ExtendToPositionWithCharsInQ(n, pacChars)
+
+		def ExtendToUsingCharsIn(n, pacChars)
+			return This.ExtendToPositionWithCharsIn(n, pacChars)
+
+			def ExtendToUsingCharsInQ(n, pacChars)
+				return This.ExtendToPositionWithCharsInQ(n, pacChars)
 
 		#>
 
@@ -1633,8 +1723,55 @@ class stzString from stzObject
 		cResult = This.Copy().ExtendToPositionWithCharsInQ(n, pacChars).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def ExtendedToWithCharsIn(n, pacChars)
 			return This.ExtendedToPositionWithCharsIn(n, pacChars)
+
+		def ExtendedToByCharsIn(n, pacChars)
+			return This.ExtendedToPositionWithCharsIn(n, pacChars)
+
+		def ExtendedToUsingCharsIn(n, pacChars)
+			return This.ExtendedToPositionWithCharsIn(n, pacChars)
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  EXTENDING THE STRING TO A GIVEN POSITION WITH A GIVEN CHAR  #
+	#--------------------------------------------------------------#
+
+	def ExtendToNCharsXT(n, pUsing)
+		if isList(pUsing) and Q(pUsing).IsUsingOrByOrWithNamedParam()
+			pUsing = pUsing[2]
+		ok
+
+		This.ExtendToNCharsUsing(n, pUsing)
+
+		#< @FunctionFluentFom
+
+		def ExtendToNCharsXTQ(n, pUsing)
+			This.ExtendToNCharsXT(n, pUsing)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ExtendToNPositionsXT(n, pUsing)
+			This.ExtendToNCharsXT(n, pUsing)
+
+		#>
+
+	def ExtendedToNCharsXT(n, pUsing)
+		cResult = This.ExtendToNCharsXTQ(n, pUsing).Content()
+		return cResult
+
+		#< @FunctionAlternativeForm
+
+		def ExtendedToNPositionsXT(n, pUsing)
+			This.ExtendedToNCharsXT(n, pUsing)
+
+		#>
 
 	  #-----------------------------------------#
 	 #  EXTENDING THE STRING - A GENERAL FORM  #
@@ -1659,7 +1796,7 @@ class stzString from stzObject
 		EXAMPLE 3
 
 		o1 = new stzString("ABC")
-		o1.ExtendXT( :ToPosition = 5, :With = :CharsRepeadted )
+		o1.ExtendXT( :ToPosition = 5, :With = :CharsRepeated )
 		o1.Show()
 		#--> "ABCDEAB"
 
@@ -1673,9 +1810,16 @@ class stzString from stzObject
 		EXAMPLE 5
 
 		o1 = new stzString("ABC")
-		o1.ExtendXT( :ToPostion = 5, :WithCharsIn = [ "D", "E" ])
+		o1.ExtendXT( :ToPosition = 5, :WithCharsIn = [ "D", "E" ])
 		o1.Show()
 		#--> "ABCDEDE"
+
+		EXAMPL 6
+
+		o1 = new stzString("ABC")
+		o1.ExtendXT( :ToNChars = 7, :Withc = "." )
+		o1.Show()
+		#--> "ABC...."
 
 		*/
 
@@ -1693,6 +1837,22 @@ class stzString from stzObject
 
 			ok
 
+		# Case ExtendXT( :ToNChars, 5 )
+		but isString(n) and n = :ToNChars and isNumber(pWith)
+			This.ExtendToPosition(n)
+
+		# Case ExtendXT( :ToNChars = 5, :Using = "." )
+		but isList(n) and Q(n).IsToNCharsNamedParam()
+			if isList(pWith) and Q(pWith).IsUsingOrWithOrByNamedParam()
+				pwith = pWith[2]
+			ok
+
+			if NOT isString(pWith)
+				StzRaise("Incorrect param type! pWith must be a string.")
+			ok
+
+			This.ExtendToNCharsUsing(n[2], pWith)
+
 		but isList(n) and Q(n).IsToOrToPositionNamedParam()
 
 			if isList(pWith) and Q(pWith).IsWithOrUsingOrByNamedParam() 
@@ -1701,7 +1861,7 @@ class stzString from stzObject
 				if isString(pWith[2]) and
 				   ( pWith[2] = :CharsRepeated or pWith[2] = :RepeatingChars )
 
-					This.ExtendToPositionWithCharsRepeadted(n[2])
+					This.ExtendToPositionWithCharsRepeated(n[2])
 					#NOTE this is a misspelled form --> ...Repea(d)ted()
 					return
 	
@@ -1719,7 +1879,7 @@ class stzString from stzObject
 					n = n[2]
 				ok
 
-				This.ExtendToPositionWithCharsRepeadted(n)
+				This.ExtendToPositionWithCharsRepeated(n)
 				return
 
 			# Case 5: o1.ExtendXT( :ToPostion = 5, :WithCharsIn = "DE")
@@ -34850,7 +35010,7 @@ class stzString from stzObject
 
 		oCondition = new stzString(pcCondition)
 
-		if oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
+		if NOT oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
 			StzRaise("Incorrect syntax! pcCondition must contain either @char or @substring but not both.")
 		ok
 
@@ -43767,7 +43927,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	def SplitToNParts(n)
 		aSections = StzSplitterQ( This.NumberOfChars() ).
 				SplitToNParts(n)
-
+? @@(aSections)
 		aResult = This.Sections(aSections)
 
 		return aResult
@@ -68273,7 +68433,7 @@ ici		//...
 		def UniqueCharsCSQ(pCaseSensitive)
 			return This.UniqueCharsQRCS(:stzList, pCaseSensitive)
 
-		def UniqueCharsQRCS(pcReturnTyp, pCaseSensitivee)
+		def UniqueCharsQRCS(pcReturnType, pCaseSensitivee)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -68327,21 +68487,77 @@ ici		//...
 
 	#-- WITHOUT CASESENSITIVITY
 
+	def UniqueChars()
+		return This.UniqueCharsCS(TRUE)
+
+		#< @FunctionFluentForms
+
+		def UniqueCharsQ()
+			return This.UniqueCharsQRCS(:stzList, TRUE)
+
+		def UniqueCharsQR(pcReturnTyp)
+			return This.UniqueCharsQRCS(pcReturnType, TRUE)
+
+		#>
+
+		#< @FunctionALternativeForm
+
+		def ToSetOfChars()
+			return This.UniqueChars()
+	
+			def ToSetOfCharsQ()
+				return This.UniqueCharsQ()
+	
+			def ToSetOfCharsQR(pcReturnType)
+				return This.UniqueCharsQR(pcReturnType)
+	
+		def CharsU()
+			return This.UniqueChars()
+
+			def CharsUQ()
+				return This.UniqueCharsQ()
+
+			def CharsUQR(pcReturnType)
+				return This.UniqueCharsQR(pcReturnType)
+
+		def CharsWithoutDuplication()
+			return This.UniqueChars()
+
+			def CharsWithoutDuplicationQ()
+				return This.UniqueCharsQ()
+
+			def CharsWithoutDuplicationQR(pcReturnType)
+				return This.UniqueCharsQR(pcReturnType)
+
+		#>
 
 	  #-----------------------------#
 	 #  REMOVING DUPLICATED CHARS  #
 	#-----------------------------#
 
-	def RemoveDuplicatedChars()
-		cNewString = This.UniqueCharsQR(:stzListOfStrings).Concatenated()
+	def RemoveDuplicatedCharsCS(pCaseSensitive)
+		cNewString = This.UniqueCharsCSQR(pCaseSensitive, :stzListOfStrings).Concatenated()
 		This.Update(cNewString)
+
+		def RemoveDuplicatedCharsCSQ(pCaseSensitive)
+			This.RemoveDuplicatedCharsCS(pCaseSensitive)
+			return This
+	
+	def DuplicatedCharsRemovedCS(pCaseSensitive)
+		cResult = This.Copy().RemoveDuplicatedCharsCSQ(pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveDuplicatedChars()
+		This.RemoveDuplicatedCharsCS(TRUE)
 
 		def RemoveDuplicatedCharsQ()
 			This.RemoveDuplicatedChars()
 			return This
 	
 	def DuplicatedCharsRemoved()
-		cResult = This.Copy().RemoveDuplicatedCharsQ().Content()
+		cResult = This.Copy().RemoveDuplicatedCharsQ(pCaseSensitive).Content()
 		return cResult
 
 	  #---------------------------------------#
@@ -71686,6 +71902,11 @@ ici		//...
 	#=========================================#
 
 	def Yield(pcCode)
+		if NOT isString(pcCode)
+			StzRaise("Incorrect param type! pcCode must be a string.")
+		ok
+
+		pcCode = Q(pcCode).ReplaceManyCSQ(["@char", "@substring"], "@item", FALSE).Content()
 		return This.CharsQ().YieldFrom( 1:This.NumberOfChars(), pcCode )
 
 		#< @FunctionFluentForm
