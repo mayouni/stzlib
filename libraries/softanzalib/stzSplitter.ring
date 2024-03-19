@@ -1132,35 +1132,100 @@ class stzSplitter from stzListOfNumbers
 			ok
 		ok
 
+		nLen = This.NumberOfItems()
+
+		if NOT (n >= 0 and n <= nLen)
+			StzRaise("Incorrect value! n must be between 0 and " + nLen + " (the size of the list).")
+		ok
+		
+		aResult = []
+	
+		# Early checks
+	
 		if n = 0
 			return []
-
-		but n < 0 or n > This.NumberOfItems()
-			StzRaise("Can't be splitted! n must not be less then 0 or greater then the number of items in the list.")
+	
+		but n = 1
+			return [ [ 1, nLen ] ]
 		ok
+	
+		# Case where the list is even (simpler)
+		# ~> each part takes nLen / n items
+	
+		if nLen % n = 0
+			nSize = nLen / n
+	
+			aResult + [ 1, nSize ]
+			for i = 2 to n
+				n1 = aResult[i-1][2] + 1
+				n2 = n1 + nSize - 1
+				aResult + [n1, n2]
+			next
+	
+		else # Case where the list is odd (more complex)
+		     # We want the larger sections to be returned first
 
-		nNumberOfPositions = This.NumberOfPositions()
+			if n <= nLen / 2
 
-		if NOT Q(n).IsBetween(1, nNumberOfPositions )
-			return [ [] ]
+				nRest = nLen % n # We've got nRest items to distribute
+						 # over the largest sections at the
+						 # beginning of the list
+	
+				nSize = nLen - nRest * n # This the size of the normal parts
+		
+				# We initiate the output list with the first large section
+				# ~> A large section is just a normal sectin to wich we add 1
+				
+				aResult + [ 1, nSize + 1 ]
+		
+				# Now we add all the other resting items (we distribite them)
+				# to the noral lists in the beginning, one by one
+		
+				if nRest > 1
+					for i = 2 to nRest
+						n1 = aResult[1][2] + 1
+						n2 = n1 + nSize
+						aResult + [ n1, n2 ]
+					next
+				ok
+		
+				# Finally, we add the remaining normal parts
+		
+				if nRest + 1 < n
+					for i = nRest + 1 to n
+						n1 = aResult[i-1][2] + 1
+						n2 = n1 + nSize - 1
+						aResult + [n1, n2]
+					next
+				ok
+
+			else
+
+				nHalf = 0+ Q(nLen / 2).IntegerPart()
+				nDiff = n - nHalf
+
+				aSplits = This.SplitToNParts(nHalf)
+				aResult = []
+				for i = 1 to nHalf - nDiff
+					aResult + aSplits[i]
+				next
+
+				nStart = len(aResult) + 1
+				nEnd = nStart + nDiff - 1
+
+				for i = nStart to nEnd
+					aSection = aSplits[i]
+					n1 = aSection[1]
+					n2 = aSection[2]
+					aResult + [ n1 ] + [ n2 ]
+				next
+
+			ok
 		ok
-
-		nLen =  ( nNumberOfPositions - ( nNumberOfPositions % n ) ) / n
-		# Replace with the following when ready:
-		# nLen = 0+ Q( This.NumberOfItems() / n ).IntegerPart()
-
-		aResult = []
-
-		for i = 1 to n*nLen step nLen
-			aResult + [ i, i + nLen-1 ]
-		next
-
-		if aResult[ len(aResult) ][2] != nNumberOfPositions
-			aResult[ len(aResult) ][2] = nNumberOfPositions
-		ok
-
+	
+		# And we return the result
 		return aResult
-
+	
 
 		def SplitsToNParts(n)
 			return This.SplitToNParts(n)

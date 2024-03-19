@@ -5668,8 +5668,15 @@ class stzObject
 	#----------------------------------------------------#
 
 	def OccursForTheLastTimeCS(pIn, pnAt, pCaseSensitive)
-		nLast = Q(pIn).FindLastCS(This.Content(), pCaseSensitive)
-		return This.OccursForTheNthTimeCS(nLast, pIn, pnAt, pCaseSensitive)
+		if isList(pIn) and Q(pIn).IsInNamedParam()
+			pIn = pIn[2]
+		ok
+
+		obj = Q(pIn)
+		nPos = obj.FindLastCS(This.Content(), pCaseSensitive)
+		nLast = obj.NumberOfOccurrenceCS(This.Content(), pCaseSensitive)
+
+		return This.OccursForTheNthTimeCS(nLast, pIn, nPos, pCaseSensitive)
 
 		def OccursForTheLastTimeAtCS(pIn, pnAt, pCaseSensitive)
 			return This.OccursForTheLastTimeCS(pIn, pnAt, pCaseSensitive)
