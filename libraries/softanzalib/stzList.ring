@@ -11880,13 +11880,27 @@ class stzList from stzObject
 
 	def RemoveItemsAtPositions(panPos)
 
-		if NOT isList(panPos)
-			StzRaise("Incorrect pram! panPos must be a list.")
-		ok
+		if CheckParams()
 
-		nLen = len(panPos)
-		if nLen = 0
-			return
+			if NOT isList(panPos)
+				StzRaise("Incorrect pram! panPos must be a list.")
+			ok
+			nLen = len(panPos)
+			if nLen = 0
+				return
+			ok
+	
+			for i = 1 to nLen
+				if isString(panpos[i])
+					if panPos[i] = :First or panPos[i] = :FirstPosition
+						paPos[i] = 1
+	
+					but panPos[i] = :Last or panPos[i] = :LastPosition
+						paPos[i] = This.NumberOfItems()
+					ok
+				ok
+			next
+
 		ok
 
 		anPosSorted = ring_sort(panPos)
@@ -34044,6 +34058,28 @@ class stzList from stzObject
 	#------------------------------------------#
 
 	def FindTheseOccurrencesCS(panOccurr, pItem, pCaseSensitive)
+		if CheckParams()
+			if NOT isList(panOccurr)
+				StzRaise("incorrect param type! panOccurr must be a list.")
+			ok
+
+			nLen = len(panOccurr)
+			for i = 1 to nLen
+				if isString(panOccurr[i])
+					if panOccurr[i] = :First or panOccurr[i] = :FirstOccurrence
+						panOccurr[i] = 1
+					but panOccurr[i] = :Last or panOccurr[i] = :LastOccurrence
+						panOccurr[i] = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+					ok
+				ok
+			next
+
+			if NOT @IsListOfNumbers(panOccurr)
+				StzRaise("Incorrect param type! panOccurr must be a list of numbers.")
+			ok
+
+		ok
+
 		anPositions = This.FindAllCS(pItem, pCaseSensitive)
 		return Q(anPositions).ItemsAt(panOccurr)
 
@@ -35879,9 +35915,28 @@ class stzList from stzObject
 	#======================================#
 
 	def ItemsAtPositions(panPos)
-		if NOT isList(panPos) and Q(panPos).IsListOfNumbers()
-			StzRaise("Incorrect param type! panPos must be a list of numbers.")
+		if CheckParams()
+			if NOT isList(panPos)
+				StzRaise("incorrect param type! panPos must be a list.")
+			ok
+
+			nLen = len(panPos)
+			for i = 1 to nLen
+				if isString(panPos[i])
+					if panPos[i] = :First or panPos[i] = :FirstPosition
+						panPos[i] = 1
+					but panPos[i] = :Last or panPos[i] = :LastPosition
+						panOccurr[i] = This.NumberOfItemsCS(pCaseSensitive)
+					ok
+				ok
+			next
+
+			if NOT @IsListOfNumbers(panPos)
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+
 		ok
+
 
 		aResult = []
 		nLen = len(panPos)
@@ -39459,8 +39514,6 @@ class stzList from stzObject
 
 	#TODO : RangeZ(), RangeZZ(), RangeXT(), RangeXTZ(), and RangeXTZZ()
 
-
-
 	  #---------------------------------------#
 	 #   GETIING MANY SECTIONS (OR SLICES)   #
 	#---------------------------------------#
@@ -39497,31 +39550,70 @@ class stzList from stzObject
 
 		#>
 
-	  #---------------------------------------------------#
-	 #   GETIING MANY SECTIONS (OR SLICES) -- EXTENDED   #
-	#---------------------------------------------------#
+	  #--------------------------------------------#
+	 #   GETIING MANY SECTIONS (OR SLICES) -- XT  #
+	#--------------------------------------------#
 
-	def SectionsCSXT(pItem1, pItem2, pCaseSensitive)
+	def SectionsXT(paSections)
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
+
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+
+		ok
+
+		if len(paSections) = 0
+			return []
+		ok
+
+		aResult = []
+
+		for aSection in paSections
+			aResult + This.SectionXT( aSection[1], aSection[2] )
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ManySectionsXT(paSections)
+			return This.SectionsXT(paSections)
+
+		def SlicesXT(paSections)
+			return This.SectionsXT(paSections)
+
+		def ManySlicesXT(paSections)
+			return This.SectionsXT(paSections)
+
+		#>
+
+	  #--------------------------------------------#
+	 #   GETIING THE SECTIONS BETWEEN TWO ITEMS   #
+	#--------------------------------------------#
+
+	def SectionsBetweenCS(pItem1, pItem2, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzList([ "T", "A", "Y", "O", "U", "B", "T", "A" ])
-		? o1.SectionsXT( :From = "T", :To = "A" )
+		? o1.SectionsBetween( "T", :And = "A" )
 		#--> [ ["T", "A"], [ "T", "A", "Y", "O", "U", "B", "T", "A" ], ["T", "A"] ]
 
 		*/
 
-		if isList(pItem1) and Q(pItem1).IsFromNamedParam()
-			pItem1 = pItem1[2]
-		ok
+		if CheckParams()
+	
+			if isList(pItem2) and Q(pItem2).IsAndNamedParam()
+				pItem2 = pItem2[2]
+			ok
 
-		if isList(pItem2) and Q(pItem2).IsToNamedParam()
-			pItem2 = pItem2[2]
 		ok
 
 		anSections = []
 
 		anPos1 = This.FindAllCS(pItem1, pCaseSensitive) #--> [ 1, 7 ]
 		anPos2 = This.FindAllCS(pItem2, pCaseSensitive) #--> [ 2, 8 ]
+
+		#TODO
+		# Use for/to instead of for/in ~> Better performance!
 
 		for n1 in anPos1
 			for n2 in anPos2
@@ -39539,19 +39631,19 @@ class stzList from stzObject
 		#< @FunctionAlternativeForm
 
 		def SectionsBetweenItemsCS(pItem1, pItem2, pCaseSensitive)
-			return This.SectionsCSXT(pItem1, pItem2, pCaseSensitive)
+			return This.SectionsBetweenCS(pItem1, pItem2, pCaseSensitive)
 
 		#>
 
 	#-- WTHOUT CASESENSITIVITY
 
-	def SectionsXT(pItem1, pItem2)
-		return This.SectionsCSXT(pItem1, pItem2, TRUE)
+	def SectionsBetween(pItem1, pItem2)
+		return This.SectionsBetweenCS(pItem1, pItem2, TRUE)
 
 		#< @FunctionAlternativeForm
 
 		def SectionsBetweenItems(pItem1, pItem2)
-			return This.SectionsXT(pItem1, pItem2)
+			return This.SectionsBetween(pItem1, pItem2)
 
 		#>
 
