@@ -265,13 +265,13 @@ class stzSplitter from stzListOfNumbers
 	 #   SPLITTING AT MANY POSITIONS   #
 	#---------------------------------#
 
-	def SplitAtPositions(panPositions)
+	def SplitAtPositions(panPos)
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
-			StzRaise("Incorrect param type! panPositions must be a list of numbers.")
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
-		aPairs = This.GetPairsFromPositions(panPositions)
+		aPairs = This.GetPairsFromPositions(panPos)
 
 		for i = 1 to len(aPairs) - 1
 			aPairs[i][2]--
@@ -282,22 +282,22 @@ class stzSplitter from stzListOfNumbers
 
 		#< @FunctionAlternativeForms
 
-		def SplitAtThesePositions(panPositions)
-			return This.SplitAtPositions(panPositions)
+		def SplitAtThesePositions(panPos)
+			return This.SplitAtPositions(panPos)
 
-		def SplitAtManyPositions(panPositions)
-			return This.SplitAtPositions(panPositions)
+		def SplitAtManyPositions(panPos)
+			return This.SplitAtPositions(panPos)
 
 		#--
 
-		def SplitsAtPositions(panPositions)
-			return This.SplitAtPositions(panPositions)
+		def SplitsAtPositions(panPos)
+			return This.SplitAtPositions(panPos)
 
-		def SplitsAtThesePositions(panPositions)
-			return This.SplitAtPositions(panPositions)
+		def SplitsAtThesePositions(panPos)
+			return This.SplitAtPositions(panPos)
 
-		def SplitsAtManyPositions(panPositions)
-			return This.SplitAtPositions(panPositions)
+		def SplitsAtManyPositions(panPos)
+			return This.SplitAtPositions(panPos)
 
 		#>
 
@@ -370,15 +370,15 @@ class stzSplitter from stzListOfNumbers
 	 #   SPLITTING BEFORE MANY POSITIONS   #
 	#-------------------------------------#
 
-	def SplitBeforePositions(panPositions)
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
-			StzRaise("Incorrect param type! panPositions must be a list of numbers.")
+	def SplitBeforePositions(panPos)
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
-		aPairs = This.GetPairsFromPositions(panPositions)
+		aPairs = This.GetPairsFromPositions(panPos)
 		/*
 		Main list 	 --> 1:10
-		panPositions	 --> [ 3, 6, 8 ]
+		panPos	 --> [ 3, 6, 8 ]
 		List of pairs	 --> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
 		Eexpected result --> [ [ 1, 2 ], [ 3, 5 ], [ 6, 7 ], [ 8, 10 ] ]
 
@@ -403,22 +403,22 @@ class stzSplitter from stzListOfNumbers
 
 		#< @FunctionAlternativeForms
 
-		def SplitBeforeThesePositions(panPositions)
-			return This.SplitBeforePositions(panPositions)
+		def SplitBeforeThesePositions(panPos)
+			return This.SplitBeforePositions(panPos)
 
-		def SplitBeforeManyPositions(panPositions)
-			return This.SplitBeforePositions(panPositions)
+		def SplitBeforeManyPositions(panPos)
+			return This.SplitBeforePositions(panPos)
 
 		#--
 
-		def SplitsBeforePositions(panPositions)
-			return This.SplitsBeforePositions(panPositions)
+		def SplitsBeforePositions(panPos)
+			return This.SplitsBeforePositions(panPos)
 
-		def SplitsBeforeThesePositions(panPositions)
-			return This.SplitBeforePositions(panPositions)
+		def SplitsBeforeThesePositions(panPos)
+			return This.SplitBeforePositions(panPos)
 
-		def SplitsBeforeManyPositions(panPositions)
-			return This.SplitBeforePositions(panPositions)
+		def SplitsBeforeManyPositions(panPos)
+			return This.SplitBeforePositions(panPos)
 
 		#>
 
@@ -484,15 +484,15 @@ class stzSplitter from stzListOfNumbers
 	 #   SPLITTING AFTER MANY POSITIONS   #
 	#------------------------------------#
 
-	def SplitAfterPositions(panPositions)
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
-			StzRaise("Incorrect param type! panPositions must be a list of numbers.")
+	def SplitAfterPositions(panPos)
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
 		aResult = []
 
-		if len(panPositions) > 0
-			anPos = StzListOfNumbersQ(panPositions).AddedToEach(1)
+		if len(panPos) > 0
+			anPos = StzListOfNumbersQ(panPos).AddedToEach(1)
 			aResult = This.SplitBeforePositions(anPos)
 		ok
 
@@ -500,22 +500,22 @@ class stzSplitter from stzListOfNumbers
 
 		#< @FunctionAlternativeForms
 
-		def SplitAfterThesePositions(panPositions)
-			return This.SplitAfterPositions(panPositions)
+		def SplitAfterThesePositions(panPos)
+			return This.SplitAfterPositions(panPos)
 
-		def SplitAfterManyPositions(panPositions)
-			return This.SplitAfterPositions(panPositions)
+		def SplitAfterManyPositions(panPos)
+			return This.SplitAfterPositions(panPos)
 
 		#--
 
-		def SplitsAfterPositions(panPositions)
-			return This.SplitAfterPositions(panPositions)
+		def SplitsAfterPositions(panPos)
+			return This.SplitAfterPositions(panPos)
 
-		def SplitsAfterThesePositions(panPositions)
-			return This.SplitAfterPositions(panPositions)
+		def SplitsAfterThesePositions(panPos)
+			return This.SplitAfterPositions(panPos)
 
-		def SplitsAfterManyPositions(panPositions)
-			return This.SplitAfterPositions(panPositions)
+		def SplitsAfterManyPositions(panPos)
+			return This.SplitAfterPositions(panPos)
 
 		#>
 
@@ -1446,18 +1446,18 @@ class stzSplitter from stzListOfNumbers
 	 #   Utility functions used by the other methods above   #
 	#=======================================================#
 
-	def GetPairsFromPositions(panPositions) #TODO: A general function, can move to stzListOfNumbers
+	def GetPairsFromPositions(panPos) #TODO: A general function, can move to stzListOfNumbers
 		/*
 		Main list 	--> 1:10
-		panPositions	--> [ 3, 6, 8 ]
+		panPos	--> [ 3, 6, 8 ]
 		List of pairs	--> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
 		*/
 
 		nLen = This.NumberOfPositions()
-		panPositions + nLen
+		panPos + nLen
 
 		# Eliminating doubble positions
-		aPos = StzListQ(panPositions).ToSet()
+		aPos = StzListQ(panPos).ToSet()
 
 		# Doing the job
 
