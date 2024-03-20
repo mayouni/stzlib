@@ -2780,7 +2780,7 @@ next
 proff()
 
 /*=======
-*/
+
 pron()
 
 o1 = new stzSplitter(12)
@@ -2807,25 +2807,25 @@ o1 = new stzSplitter(12)
 #--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ], [ 9, 10 ], [ 11, 12 ] ]
 
 ? @@( o1.SplitToNParts(7) ) + NL
-#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ], [ 9, 10 ], [ 11 ], [ 12 ] ]
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ], [ 9, 10 ], [ 11, 11 ], [ 12, 12 ] ]
 
 ? @@( o1.SplitToNParts(8) ) + NL
-#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ], [ 9 ], [ 10 ], [ 11 ], [ 12 ] ]
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ], [ 9, 9 ], [ 10, 10 ], [ 11, 11 ], [ 12, 12 ] ]
 
 ? @@( o1.SplitToNParts(9) ) + NL
-#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7 ], [ 8 ], [ 9 ], [ 10 ], [ 11 ], [ 12 ] ]
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 7 ], [ 8, 8 ], [ 9, 9 ], [ 10, 10 ], [ 11, 11 ], [ 12, 12 ] ]
 
 ? @@( o1.SplitToNParts(10) ) + NL
-#--> [ [ 1, 2 ], [ 3, 4 ], [ 5 ], [ 6 ], [ 7 ], [ 8 ], [ 9 ], [ 10 ], [ 11 ], [ 12 ] ]
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 5 ], [ 6, 6 ], [ 7, 7 ], [ 8, 8 ], [ 9, 9 ], [ 10, 10 ], [ 11, 11 ], [ 12, 12 ] ]
 
 ? @@( o1.SplitToNParts(11) ) + NL
-#--> [ [ 1, 2 ], [ 3 ], [ 4 ], [ 5 ], [ 6 ], [ 7 ], [ 8 ], [ 9 ], [ 10 ], [ 11 ], [ 12 ] ]
+#--> [ [ 1, 2 ], [ 3, 3 ], [ 4, 4 ], [ 5, 5 ], [ 6, 6 ], [ 7, 7 ], [ 8, 8 ], [ 9, 9 ], [ 10, 10 ], [ 11, 11 ], [ 12, 12 ] ]
 
 ? @@( o1.SplitToNParts(12) ) + NL
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 3 ], [ 4, 4 ], [ 5, 5 ], [ 6, 6 ], [ 7, 7 ], [ 8, 8 ], [ 9, 9 ], [ 10, 10 ], [ 11, 11 ], [ 12, 12 ] ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*---------
 
@@ -2834,101 +2834,191 @@ pron()
 o1 = new stzSplitter(12)
 
 ? @@( o1.SplitToNParts(13) )
-#--> Error message
+#--> Error message: Incorrect value! n must be between 0 and 12 (the size of the list)
 
 ? @@( o1.SplitToNParts(-2) )
-#--> Error message
+#--> Error message: Incorrect value! n must be between 0 and 12 (the size of the list)
 
 proff()
 
 /*---------
-*/
+
 pron()
 
-o1 = Q("ABCDEFGHIJ")
+o1 = new stzSplitter(10)
+? @@(o1.SplitToNParts(3) ) + NL
+#--> [ [ 1, 4 ], [ 5, 7 ], [ 8, 10 ] ]
 
-//? @@( o1 / 10 ) + NL
+o1 = new stzSplitter(11)
+? @@(o1.SplitToNParts(3) ) + NL
+#--> [ [ 1, 4 ], [ 5, 8 ], [ 9, 11 ] ]
+
+o1 = new stzSplitter(17)
+? @@(o1.SplitToNParts(5) ) + NL
+# [ [ 1, 4 ], [ 5, 8 ], [ 9, 11 ], [ 12, 14 ], [ 15, 17 ] ]
+
+o1 = new stzSplitter(78)
+? @@(o1.SplitToNParts(12) )
+#--> [
+# 	[  1,  7 ], [  8, 14 ], [ 15, 21 ],
+# 	[ 22, 28 ], [ 29, 35 ], [ 36, 42 ],
+#	[ 43, 48 ], [ 49, 54 ], [ 55, 60 ],
+#	[ 61, 66 ], [ 67, 72 ], [ 73, 78 ]
+# ]
+
+o1 = new stzSplitter(0)
+? @@(o1.SplitToNParts(5) )
+#--> []
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzString("ABCDEFGHIJ")
+
+? @@( o1 / 10 ) + NL
 #--> [ "A" ,"B", "C", "D", "E", "F", "G", "H", "I", "J" ]
 
-//? @@( o1 / 9 ) + NL
-#!--> [ "AB", "C", "D", "E", "F", "G", "H", "I", "J" ]
+? @@( o1 / 9 ) + NL
+#--> [ "AB", "C", "D", "E", "F", "G", "H", "I", "J" ]
 
 ? @@( o1 / 8 ) + NL
-#!--> [ "AB", "CD", "E", "F", "G", "H", "I", "J" ]
+#--> [ "AB", "CD", "E", "F", "G", "H", "I", "J" ]
 
-//? o1 / 7	#!--> [ "ABC", "DE"", "F", "G", "H", "I", "J" ]
-//? o1 / 6	#!--> [ "ABC", "DEF", "G", "H", "I", "J" ]
+? @@( o1 / 7 ) + NL
+#--> [ "AB", "CD", "EF", "G", "H", "I", "J" ]
 
+? @@( o1 / 6 ) + NL
+#--> [ "AB", "CD", "EF", "GH", "I", "J" ]
 
-//? o1 / 5
-# 
+? @@( o1 / 5 ) + NL
+#--> [ "AB", "CD", "EF", "GH", "IJ" ]
 
-//? o1 / 4
+? @@( o1 / 4 ) + NL
+#--> [ "ABC", "DEF", "GH", "IJ" ]
 
-//? o1 / 3
+? @@( o1 / 3 ) + NL
+#--> [ "ABCD", "EFG", "HIJ" ]
 
-//? o1 / 2
+? @@( o1 / 2 ) + NL
+#--> [ "ABCDE", "FGHIJ" ]
 
-//? o1 / 1
+o1 = new stzString("ABCDEFGHIJ") + NL
+? @@( o1 / 1 ) + NL
+#--> [ "ABCDEFGHIJ" ]
 
-//? o1 / 0
+? @@( o1 / 0 )
 #--> [ ]
 
 proff()
 
+/*---------
 
-/*----------------
+pron()
+
+o1 = new stzString("ABCDEFGHIJ")
+? @@( o1 / 89 )
+#--> Error message: Incorrect value! n must be between 0 and 10 (the size of the list).
+
+proff()
+
+/*=============
+
+pron()
 
 o1 = Q("AB♥♥C♥♥D♥♥")
-? o1.FindCharsW(' @Char = "♥" ') #--> [ 3, 4, 6, 7, 9, 10 ]
+? o1.FindCharsW(' @Char = "♥" ')
+#--> [ 3, 4, 6, 7, 9, 10 ]
 
-? o1.FindCharsW(' @CurrentChar = @NextChar ')	 #--> [ 3, 6, 9 ] 
-? o1.FindNthCharW(2, '@CurrentChar = @NextChar') #--> 6
-? o1.FindFirstCharW('@CurrentChar = @NextChar')	 #--> 3
+? o1.FindCharsW(' @CurrentChar = @NextChar ')
+#--> [ 3, 6, 9 ] 
+
+? o1.FindNthCharW(2, '@CurrentChar = @NextChar') + NL
+#--> 6
+
+? o1.FindFirstCharW('@CurrentChar = @NextChar') + NL
+#--> 3
+
 ? o1.FindLastCharW('@CurrentChar = @NextChar')	 #--> 9
+#--> 9
+
+proff()
+# Executed in 1.38 second(s)
 
 /*----------------
+
+pron()
 
 @T = Q("TAYOUBA")
-? @T.Section( :From = "A", :To = "B" ) #--> AYOUB
+? @T.Section( :From = "A", :To = "B" )
+#--> AYOUB
+
 ? @T.Section( :From = :FirstChar, :To = @T.First("A") )
+#--> TA
+
+proff()
+# Executed in 0.04 second(s)
 
 /*----------------
+
+pron()
 
 o1 = new stzString("SOFTANZA")
-? o1.Section( :From = o1.PositionOfFirst("A"), :To = :LastChar ) #--> ANZA
-? o1.Section( :From = o1.First("A"), :To = :LastChar ) #--> ANZA
+
+? o1.Section( :From = o1.PositionOfFirst("A"), :To = :LastChar )
+#--> ANZA
+
+? o1.Section( :From = o1.First("A"), :To = :LastChar )
+#--> ANZA
+
+proff()
+# Executed in 0.02 second(s)
+
 
 /*----------------
 
-o1 = Q("TAYOUBTA")
-? o1.SectionsXT( :From = "T", :To = "A" )
-
-o1 = Q("TAYTOUBTA")
-? o1.SectionsXT( :From = "T", :To = "A" )
-
-o1 = Q("TAYTOAUBTA")
-? o1.SectionsXT( :From = "T", :To = "A" )
-
-/*----------------///////////////////////////////////////////////
+pron()
 
 o1 = Q([ "T","A","Y","T","O", "A", "U", "B", "T", "A" ])
-? o1.Section(:From = "A", :Tp = "T")
+? o1.Section(:From = "A", :To = "T")
 
-? @@( o1.SectionsXT( :From = "T", :To = "A" ) )
-#--> [ ["T", "A"], [ "T", "A", "Y", "O", "U", "B", "T", "A" ], ["T", "A"] ]
+? @@( o1.SectionsBetween( "T", :And = "A" ) )
+#--> [
+#	[ "T", "A" ],
+#	[ "T", "A", "Y", "T", "O", "A" ],
+#	[ "T", "A", "Y", "T", "O", "A", "U", "B", "T", "A" ],
+#	[ "T", "O", "A" ], [ "T", "O", "A", "U", "B", "T", "A" ],
+#	[ "T", "A" ]
+# ]
 
-/*----------------
+proff()
+# Executed in 0.02 second(s)
+
+/*---------------- #TODO: Implement these functions
+
+pron()
 
 o1 = new StzListOfLists([ [ "_", "♥", "_" ], [ "_", "_", "_" ],  [ "_", "♥", "_" ] ])
 ? o1.ContainsInEachList("♥")
-/*
+
 ? o1.ContainsInJustOneList("♥")
+
 ? o1.ContainsInNLists(3, "♥")
 ? o1.ContainsNOccurrencesInAllLists(3, "♥")
 ? o1.ConatinsNOccurrencesInEachList(1, "♥")
 ? o1.ContainsNOccurrencesInNLists(1, 3, "♥")
 ? o1.ContainsNOccurrencesInTheseLists([ [1, 1], [3, 2] ])
+
+proff()
+
+/*---------------- #todo: add these functions
+
+pron()
+
+o1 = new StzListOfLists([ [ "_", "♥", "_" ], [ "_", "_", "_" ],  [ "_", "♥", "_" ] ])
 
 aListOfLists = [ [ "_", "♥", "_" ], [ "_", "_", "_" ],  [ "_", "♥", "_" ] ]
 ? Q("♥").ExistsIn( aListOfLists  )
@@ -2940,30 +3030,61 @@ aListOfLists = [ [ "_", "♥", "_" ], [ "_", "_", "_" ],  [ "_", "♥", "_" ] ]
 ? Q("♥").ExistsNTimesInNLists(3, 2, aListOFLists )
 ? Q("♥").ExistsNTimesInTheseLists([ [1, 1], [3, 2] ])
 
+proff()
 
 /*----------
+
+pron()
 
 ? 3Hearts() #--> ♥♥♥
 ? 5Stars()  #--> ★★★★★
 
+proff()
+# Executed in 0.02 second(s)
+
 /*----------
+
+pron()
 
 o1 = new stzList([ "__", "ring", "__", "ring", "__", "ring" ])
-? o1.FindFirstNOccurrences(2, :Of = "ring") #--> [ 2, 4 ]
-? o1.FindLastNOccurrences(2, :Of = "ring")  #--> [ 4, 6 ]
 
-? o1.FindTheseOccurrences([2, 3], :Of = "ring") #--> [ 4, 6 ]
+? o1.FindFirstNOccurrences(2, :Of = "ring")
+#--> [ 2, 4 ]
+
+? o1.FindLastNOccurrences(2, :Of = "ring")
+#--> [ 4, 6 ]
+
+? o1.FindTheseOccurrences([2, 3], :Of = "ring")
+#--> [ 4, 6 ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*----------
 
+pron()
+
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
-? o1.FindNthOccurrence(3, "ring") #--> 5
+? o1.FindNthOccurrence(3, "ring")
+#--> 5
+
+proff()
+# Executed in 0.02 second(s)
 
 /*----------
+*/
+pron()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
-? o1.FindTheseOccurrences([ :First, :Last ], :Of = "ring") #--> [ 1, 7 ]
-? o1.FindTheseOccurrences([ 1, 4 ], "ring") #--> [ 1, 7 ]
+
+? o1.FindTheseOccurrences([ :First, :Last ], :Of = "ring")
+#--> [ 1, 7 ]
+
+? o1.FindTheseOccurrences([ 1, 4 ], "ring")
+#--> [ 1, 7 ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*----------
 

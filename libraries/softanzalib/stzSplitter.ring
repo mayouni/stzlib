@@ -1133,6 +1133,9 @@ class stzSplitter from stzListOfNumbers
 		ok
 
 		nLen = This.NumberOfItems()
+		if nLen = 0
+			return []
+		ok
 
 		if NOT (n >= 0 and n <= nLen)
 			StzRaise("Incorrect value! n must be between 0 and " + nLen + " (the size of the list).")
@@ -1165,50 +1168,79 @@ class stzSplitter from stzListOfNumbers
 		else # Case where the list is odd (more complex)
 		     # We want the larger sections to be returned first
 
+			# if the number of splits is under the half of list
+
 			if n <= nLen / 2
 
-				nRest = nLen % n # We've got nRest items to distribute
-						 # over the largest sections at the
-						 # beginning of the list
-	
-				nSize = nLen - nRest * n # This the size of the normal parts
-		
-				# We initiate the output list with the first large section
-				# ~> A large section is just a normal sectin to wich we add 1
-				
-				aResult + [ 1, nSize + 1 ]
-		
-				# Now we add all the other resting items (we distribite them)
-				# to the noral lists in the beginning, one by one
-		
+				# We calculate the number of main parts and
+				# how many items are remaining
+
+				nRest = nLen % n
+
+				nMain = nLen - nRest
+				nSize = nMain / n
+
+				# We split the list to get the main parts
+
+				aResult = [ [ 1, nSize ] ]
+				for i = 2 to n
+					n1 = aResult[i-1][2] + 1
+					n2 = n1 + nSize - 1
+					aResult + [ n1, n2 ]
+				next
+
+				# We start adding the remaining items to
+				# the main parts (starting with first)
+
+				aResult[1][2]++
+				for i = 2 to len(aResult)
+					aResult[i][1]++
+					aResult[i][2]++
+				next
+
+				# We do the same to add the remaining items
+				# to the main parts (other then the first)
+
 				if nRest > 1
 					for i = 2 to nRest
-						n1 = aResult[1][2] + 1
-						n2 = n1 + nSize
-						aResult + [ n1, n2 ]
-					next
-				ok
-		
-				# Finally, we add the remaining normal parts
-		
-				if nRest + 1 < n
-					for i = nRest + 1 to n
+						nDiff = aResult[i][2] - aResult[i][1]
 						n1 = aResult[i-1][2] + 1
-						n2 = n1 + nSize - 1
-						aResult + [n1, n2]
+						n2 = n1 + nDiff + 1
+						aResult[i][1] = n1
+						aResult[i][2] = n2
 					next
+
 				ok
 
-			else
+				for i = nRest + 1 to n
+					nDiff = aResult[i][2] - aResult[i][1]
+					n1 = aResult[i-1][2] + 1
+					n2 = n1 + nDiff
+					aResult[i][1] = n1
+					aResult[i][2] = n2
+				next
+				//aResult[n][2] = nLen
+
+			else # The number of splits is higher than the half of the list
+
+				# We calculate the half of the list and
+				# the difference between the half and n
 
 				nHalf = 0+ Q(nLen / 2).IntegerPart()
 				nDiff = n - nHalf
+
+				# We split the list on nHalf parts and we include
+				# just the (nHalf - ndiff) sections in the result
 
 				aSplits = This.SplitToNParts(nHalf)
 				aResult = []
 				for i = 1 to nHalf - nDiff
 					aResult + aSplits[i]
 				next
+
+				# We take the remaining (last nDiff) sections
+				# of the splits on half and we decompose them
+				# each section into two separate sections
 
 				nStart = len(aResult) + 1
 				nEnd = nStart + nDiff - 1
@@ -1217,13 +1249,13 @@ class stzSplitter from stzListOfNumbers
 					aSection = aSplits[i]
 					n1 = aSection[1]
 					n2 = aSection[2]
-					aResult + [ n1 ] + [ n2 ]
+					aResult + [ n1, n1 ] + [ n2, n2 ]
 				next
 
 			ok
 		ok
 	
-		# And we return the result
+		# Finally, we return the result
 		return aResult
 	
 

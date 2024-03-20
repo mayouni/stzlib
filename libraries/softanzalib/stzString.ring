@@ -24661,15 +24661,21 @@ class stzString from stzObject
 	#--------------------------------------------------#
 
 	def SectionsXT(paSections)
+		if CheckParams()
+			if NOT (isList(paSections) and IsListOfPairs(paSections))
+				StzRaise("Incorrect param type! paSections must be a list of pairs.")
+			ok
+		ok
 
-		aResult = []
+		nLen = len(paSections)
+		acResult = []
 
-		for aSection in paSections
-			cSection = This.Section( aSection[1], aSection[2] )
-			aResult + [ cSection, aSection ]
+		for i = 1 to nLen
+			cSection = This.SectionXT( aSection[i][1], aSection[i][2] )
+			acResult + cSection
 		next
 
-		return aResult
+		return acResult
 
 		#< @FunctionFluentForm
 
@@ -35218,21 +35224,24 @@ class stzString from stzObject
 	#----------------------------------------------------------------#
 
 	def FindNthCharW(n, pcCondition)
-		#TODO: Change implementation for better performance
+		#TODO
+		# Change implementation for better performance
 		# There is no need to traverse all the charsW and then
 		# returning the nth one.
 		#--> Add FindNextCharW() and use it instead.
 
-		if isString(n)
-			if n = :FirstChar or n = :First
-				n = 1
-			but n = :LastChar or n = :Last
-				n = nLen
+		if CheckParams()
+			if isString(n)
+				if n = :FirstChar or n = :First
+					n = 1
+				but n = :LastChar or n = :Last
+					n = len(This.FindCharsW(pcCondition))
+				ok
 			ok
-		ok
-
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
+	
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
 		ok
 
 		anPos = This.FindCharsW(pcCondition)
@@ -43927,7 +43936,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	def SplitToNParts(n)
 		aSections = StzSplitterQ( This.NumberOfChars() ).
 				SplitToNParts(n)
-? @@(aSections)
+
 		aResult = This.Sections(aSections)
 
 		return aResult
