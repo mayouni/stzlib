@@ -639,12 +639,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ValuesWithoutDuplication()
 			return This.UniqueValues()
 
-	def ValuesAtPositions(anPositions)
-		aResult = This.ValuesQ().ItemsAtPositions(anPositions)
+	def ValuesAtPositions(anPos)
+		aResult = This.ValuesQ().ItemsAtPositions(anPos)
 		return aResult
 
-		def ValuesAtThesePositions(anPositions)
-			return This.ValuesAtPositions(anPositions)
+		def ValuesAtThesePositions(anPos)
+			return This.ValuesAtPositions(anPos)
 
 	  #---------------------------#
 	 #   UPDATING THE HASHLIST   #

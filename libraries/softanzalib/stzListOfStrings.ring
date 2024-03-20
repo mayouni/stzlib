@@ -1118,90 +1118,90 @@ class stzListOfStrings from stzList
 	 #    THEIR POSITIONS IN THE LIST             #
 	#--------------------------------------------#
 
-	def StringItemsAtPositions(panPositions)
-		acResult = This.ToStzList().ItemsAtThesePositions(panPositions)
+	def StringItemsAtPositions(panPos)
+		acResult = This.ToStzList().ItemsAtThesePositions(panPos)
 		return acResult
 
-		def StringItemsAtPositionsQ(panPositions)
-			return This.StringItemsAtPositionsQR(panPositions, :stzList)
+		def StringItemsAtPositionsQ(panPos)
+			return This.StringItemsAtPositionsQR(panPos, :stzList)
 
-		def StringItemsAtPositionsQR(panPositions, pcReturnType)
+		def StringItemsAtPositionsQR(panPos, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.StringItemsAtPositions(panPositions) )
+				return new stzList( This.StringItemsAtPositions(panPos) )
 
 			on :stzListOfStrings
-				return new stzList( This.StringItemsAtPositions(panPositions) )
+				return new stzList( This.StringItemsAtPositions(panPos) )
 
 			other
 				StzRaise("Unsupported return type!")
 			off
 
-		def StringItemsAtThesePositions(panPositions)
-			return This.StringItemsAtPositions(panPositions)
+		def StringItemsAtThesePositions(panPos)
+			return This.StringItemsAtPositions(panPos)
 
-			def StringItemsAtThesePositionsQ(panPositions)
-				return This.StringItemsAtThesePositionsQR(panPositions, :stzList)
+			def StringItemsAtThesePositionsQ(panPos)
+				return This.StringItemsAtThesePositionsQR(panPos, :stzList)
 	
-			def StringItemsAtThesePositionsQR(panPositions, pcReturnType)
+			def StringItemsAtThesePositionsQR(panPos, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.StringItemsAtThesePositions(panPositions) )
+					return new stzList( This.StringItemsAtThesePositions(panPos) )
 	
 				on :stzListOfStrings
-					return new stzList( This.StringItemsAtThesePositions(panPositions) )
+					return new stzList( This.StringItemsAtThesePositions(panPos) )
 	
 				other
 					StzRaise("Unsupported return type!")
 				off
 
-		def StringsAtPositions(panPositions)
-			return This.StringItemsAtPositions(panPositions)
+		def StringsAtPositions(panPos)
+			return This.StringItemsAtPositions(panPos)
 
-			def StringsAtPositionsQ(panPositions)
-				return This.StringsAtPositionsQR(panPositions, :stzList)
+			def StringsAtPositionsQ(panPos)
+				return This.StringsAtPositionsQR(panPos, :stzList)
 	
-			def StringsAtPositionsQR(panPositions, pcReturnType)
+			def StringsAtPositionsQR(panPos, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.StringsAtPositions(panPositions) )
+					return new stzList( This.StringsAtPositions(panPos) )
 	
 				on :stzListOfStrings
-					return new stzList( This.StringsAtPositions(panPositions) )
+					return new stzList( This.StringsAtPositions(panPos) )
 	
 				other
 					StzRaise("Unsupported return type!")
 				off
 
-		def StringsAtThesePositions(panPositions)
-			return This.StringItemsAtPositions(panPositions)
+		def StringsAtThesePositions(panPos)
+			return This.StringItemsAtPositions(panPos)
 
-			def StringsAtThesePositionsQ(panPositions)
-				return This.StringsAtThesePositionsQR(panPositions, :stzList)
+			def StringsAtThesePositionsQ(panPos)
+				return This.StringsAtThesePositionsQR(panPos, :stzList)
 	
-			def StringsAtThesePositionsQR(panPositions, pcReturnType)
+			def StringsAtThesePositionsQR(panPos, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.StringsAtThesePositions(panPositions) )
+					return new stzList( This.StringsAtThesePositions(panPos) )
 	
 				on :stzListOfStrings
-					return new stzList( This.StringsAtThesePositions(panPositions) )
+					return new stzList( This.StringsAtThesePositions(panPos) )
 	
 				other
 					StzRaise("Unsupported return type!")
@@ -2913,11 +2913,11 @@ class stzListOfStrings from stzList
 			n = This.NumberOfOccurrenceOfStringCS(pcStr, pCaseSensitive)
 		ok
 
-		anPositions = This.FindAllCS(pcStr, pCaseSensitive)
+		anPos = This.FindAllCS(pcStr, pCaseSensitive)
 
-		del( anPositions, n)
+		del( anPos, n)
 
-		return anPositions
+		return anPos
 
 		#< @FunctionFluentForm
 
@@ -5800,16 +5800,16 @@ class stzListOfStrings from stzList
 
 		*/
 
-		anPositions = This.FindSubStringCS(pcSubStr, pCaseSensitive)
+		anPos = This.FindSubStringCS(pcSubStr, pCaseSensitive)
 		#--> [ [ 1, [ 1 ] ], [ 3, [ 1, 10 ] ] ]
 		#           --v--         ----v----
 		#             1               2
 		
 		nResult = 0
-		nLenPos = len(anPositions)
+		nLenPos = len(anPos)
 
 		for i = 1 to nLen
-			nResult += len(anPositions[i][2])
+			nResult += len(anPos[i][2])
 		next
 
 		return nResult
@@ -5844,16 +5844,16 @@ class stzListOfStrings from stzList
 
 		*/
 
-		anPositions = This.FindSubStringCS(pcSubStr, pCaseSensitive)
+		anPos = This.FindSubStringCS(pcSubStr, pCaseSensitive)
 		#--> [ [ 1, [ 1 ] ], [ 3, [ 1, 10 ] ] ]
 		#           --v--         ----v----
 		#             1               2
 		
 		aResult = []
-		nLen = len(anPositions)
+		nLen = len(anPos)
 
 		for i = 1 to nLen
-			aResult + [ anPositions[i][1], len(anPositions[i][2]) ]
+			aResult + [ anPos[i][1], len(anPos[i][2]) ]
 		next
 
 		return aResult
@@ -6608,7 +6608,7 @@ class stzListOfStrings from stzList
 	 #   FINDING GIVEN OCCURRENCES OF A SUBSTRING   #
 	#----------------------------------------------#
 
-	def FindTheseOccurrencesOfSubStringCS(panOccurrences, pcSubStr, pCaseSensitive)
+	def FindTheseOccurrencesOfSubStringCS(panOccurr, pcSubStr, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzListOfStrings([
@@ -6622,16 +6622,16 @@ class stzListOfStrings from stzList
 
 		*/
 
-		anPositions = This.FindSubStringCSXT(pcSubStr, pCaseSensitive)
+		anPos = This.FindSubStringCSXT(pcSubStr, pCaseSensitive)
 
-		aResult = Q(anPositions).ItemsAtPositions(panOccurrences)
+		aResult = Q(anPos).ItemsAtPositions(panOccurr)
 
 		return aResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindTheseOccurrencesOfSubString(panOccurrences, pcSubStr)
-		return This.FindTheseOccurrencesOfSubStringCS(panOccurrences, pcSubStr, TRUE)
+	def FindTheseOccurrencesOfSubString(panOccurr, pcSubStr)
+		return This.FindTheseOccurrencesOfSubStringCS(panOccurr, pcSubStr, TRUE)
 
 	  #------------------------------------------------#
 	 #   FINDING N LAST OCCURRENCES OF A SUBSTRING   #
@@ -8614,11 +8614,11 @@ class stzListOfStrings from stzList
 			StzRaise("Incorrect param! pcString must be a string.")
 		ok
 
-		anPositions = This.FindAllCS(pcString, pCaseSensitive)
-		nLen = len(anPositions)
+		anPos = This.FindAllCS(pcString, pCaseSensitive)
+		nLen = len(anPos)
 
 		for i = 1 to nLen
-			This.ReplaceStringAtPosition(anPositions[i], pcNewString)
+			This.ReplaceStringAtPosition(anPos[i], pcNewString)
 		next
 
 		#< @FunctionFluentForm
@@ -9214,11 +9214,11 @@ class stzListOfStrings from stzList
 			StzRaise("Incorrect param! pacNewSubStringItems must be a list of strings.")
 		ok
 
-		anPositions = This.FindCS(pcStrItem, pCaseSensitive)
-		nMin = Min([ len(anPositions), len(pacNewSubStringItems) ])
+		anPos = This.FindCS(pcStrItem, pCaseSensitive)
+		nMin = Min([ len(anPos), len(pacNewSubStringItems) ])
 
 		for i = nMin to 1 step -1
-			n = anPositions[i]
+			n = anPos[i]
 			cNewStrItem = pacNewSubStringItems[i]
 			This.ReplaceStringItemAtPositionN(n, cNewStrItem)
 		next
@@ -9317,10 +9317,10 @@ class stzListOfStrings from stzList
 			StzRaise("Incorrect param! pacNewSubStringItems must be a list of strings.")
 		ok
 
-		anPositions = This.FindAllCS(pcStrItem, pCaseSensitive)
+		anPos = This.FindAllCS(pcStrItem, pCaseSensitive)
 
 		i = 0
-		for nPos in anPositions
+		for nPos in anPos
 			i++
 			if i > len(pacNewSubStringItems)
 				i = 1
@@ -9406,51 +9406,51 @@ class stzListOfStrings from stzList
          #   STARTING AT A GIVEN POSITION                      #
 	#-----------------------------------------------------#
 
-	def ReplaceNextOccurrencesCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
+	def ReplaceNextOccurrencesCS(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
 
-		anPositions = This.FindNextOccurrencesCS(pcString, pnStartingAt, pCaseSensitive)
+		anPos = This.FindNextOccurrencesCS(pcString, pnStartingAt, pCaseSensitive)
 
-		This.ReplaceStringsAtPositions(anPositions, pcOtherString)
+		This.ReplaceStringsAtPositions(anPos, pcOtherStr)
 
-		def ReplaceNextOccurrencesCSQ(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
-			This.ReplaceNextOccurrencesCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
+		def ReplaceNextOccurrencesCSQ(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
+			This.ReplaceNextOccurrencesCS(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
 			return This
 
-		def ReplaceNextSCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
-			This.ReplaceNextOccurrencesCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
+		def ReplaceNextSCS(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
+			This.ReplaceNextOccurrencesCS(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
 
-			def ReplaceNextCSQ(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
-				This.ReplaceNextSCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
+			def ReplaceNextCSQ(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
+				This.ReplaceNextSCS(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
 				return This
 
-	def NextOccurrencesReplacedCSQ(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
+	def NextOccurrencesReplacedCSQ(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
 
 		acResult = This.Copy().
-				ReplaceNextOccurrencesCSQ(pcString, pcOtherString, pnStartingAt, pCaseSensitive).
+				ReplaceNextOccurrencesCSQ(pcString, pcOtherStr, pnStartingAt, pCaseSensitive).
 				Content()
 
 		return acResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceNextOccurrences(pcString, pcOtherString, pnStartingAt)
-		This.ReplaceNextOccurrencesCS(pcString, pcOtherString, pnStartingAt, TRUE)
+	def ReplaceNextOccurrences(pcString, pcOtherStr, pnStartingAt)
+		This.ReplaceNextOccurrencesCS(pcString, pcOtherStr, pnStartingAt, TRUE)
 
-		def ReplaceNextOccurrencesQ(pcString, pcOtherString, pnStartingAt)
-			This.ReplaceNextOccurrences(pcString, pcOtherString, pnStartingAt)
+		def ReplaceNextOccurrencesQ(pcString, pcOtherStr, pnStartingAt)
+			This.ReplaceNextOccurrences(pcString, pcOtherStr, pnStartingAt)
 			return This
 
-		def ReplaceNext(pcString, pcOtherString, pnStartingAt)
-			This.ReplaceNextOccurrences(pcString, pcOtherString, pnStartingAt)
+		def ReplaceNext(pcString, pcOtherStr, pnStartingAt)
+			This.ReplaceNextOccurrences(pcString, pcOtherStr, pnStartingAt)
 
-			def ReplaceNextQ(pcString, pcOtherString, pnStartingAt)
-				This.ReplaceNext(pcString, pcOtherString, pnStartingAt)
+			def ReplaceNextQ(pcString, pcOtherStr, pnStartingAt)
+				This.ReplaceNext(pcString, pcOtherStr, pnStartingAt)
 				return This
 
-	def NextOccurrencesReplacedQ(pcString, pcOtherString, pnStartingAt)
+	def NextOccurrencesReplacedQ(pcString, pcOtherStr, pnStartingAt)
 
 		acResult = This.Copy().
-				ReplaceNextOccurrencesQ(pcString, pcOtherString, pnStartingAt).
+				ReplaceNextOccurrencesQ(pcString, pcOtherStr, pnStartingAt).
 				Content()
 
 		return acResult
@@ -9459,51 +9459,51 @@ class stzListOfStrings from stzList
 	 #  REPLACING PREVIOUS OCCURRENCES OF A STRING-ITEM STARTING AT A GIVEN POSITION  #                        #
 	#--------------------------------------------------------------------------------#
 
-	def ReplacePreviousOccurrencesCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
+	def ReplacePreviousOccurrencesCS(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
 
-		anPositions = This.FindPreviousOccurrencesCS(pcString, pnStartingAt, pCaseSensitive)
+		anPos = This.FindPreviousOccurrencesCS(pcString, pnStartingAt, pCaseSensitive)
 
-		This.ReplaceStringsAtPositions(anPositions, pcOtherString)
+		This.ReplaceStringsAtPositions(anPos, pcOtherStr)
 
-		def ReplacePreviousOccurrencesCSQ(pcString, pcOtherString, pStartingAt, pCaseSensitive)
-			This.ReplacePreviousOccurrencesCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
+		def ReplacePreviousOccurrencesCSQ(pcString, pcOtherStr, pStartingAt, pCaseSensitive)
+			This.ReplacePreviousOccurrencesCS(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
 			return This
 
-		def ReplacePreviousCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
-			This.ReplacePreviousOccurrencesCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
+		def ReplacePreviousCS(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
+			This.ReplacePreviousOccurrencesCS(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
 
-			def ReplacePreviousCSQ(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
-				This.ReplacePreviousCS(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
+			def ReplacePreviousCSQ(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
+				This.ReplacePreviousCS(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
 				return This
 
-	def PreviousOccurrencesReplacedCSQ(pcString, pcOtherString, pnStartingAt, pCaseSensitive)
+	def PreviousOccurrencesReplacedCSQ(pcString, pcOtherStr, pnStartingAt, pCaseSensitive)
 
 		acResult = This.Copy().
-				ReplacePreviousOccurrencesCSQ(pcString, pcOtherString, pnStartingAt, pCaseSensitive).
+				ReplacePreviousOccurrencesCSQ(pcString, pcOtherStr, pnStartingAt, pCaseSensitive).
 				Content()
 
 		return acResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplacePreviousOccurrences(pcString, pcOtherString, pnStartingAt)
-		ReplacePreviousOccurrencesCS(pcString, pcOtherString, pnStartingAt, TRUE)
+	def ReplacePreviousOccurrences(pcString, pcOtherStr, pnStartingAt)
+		ReplacePreviousOccurrencesCS(pcString, pcOtherStr, pnStartingAt, TRUE)
 
-		def ReplacePreviousOccurrencesQ(pcString, pcOtherString, pnStartingAt)
-			This.ReplacePreviousOccurrences(pcString, pcOtherString, pnStartingAt)
+		def ReplacePreviousOccurrencesQ(pcString, pcOtherStr, pnStartingAt)
+			This.ReplacePreviousOccurrences(pcString, pcOtherStr, pnStartingAt)
 			return This
 
-		def ReplacePrevious(pcString, pcOtherString, pnStartingAt)
-			This.ReplacePreviousOccurrences(pcString, pcOtherString, pnStartingAt)
+		def ReplacePrevious(pcString, pcOtherStr, pnStartingAt)
+			This.ReplacePreviousOccurrences(pcString, pcOtherStr, pnStartingAt)
 
-			def ReplacePreviousQ(pcString, pcOtherString, pnStartingAt)
-				This.ReplacePrevious(pcString, pcOtherString, pnStartingAt)
+			def ReplacePreviousQ(pcString, pcOtherStr, pnStartingAt)
+				This.ReplacePrevious(pcString, pcOtherStr, pnStartingAt)
 				return This
 
-	def PreviousOccurrencesReplacedQ(pcString, pcOtherString, pnStartingAt)
+	def PreviousOccurrencesReplacedQ(pcString, pcOtherStr, pnStartingAt)
 
 		acResult = This.Copy().
-				ReplacePreviousOccurrencesQ(pcString, pcOtherString, pnStartingAt).
+				ReplacePreviousOccurrencesQ(pcString, pcOtherStr, pnStartingAt).
 				Content()
 
 		return acResult
@@ -9512,375 +9512,375 @@ class stzListOfStrings from stzList
 	 #   REPLACING NTH OCCURRENCE OF A STRING-ITEM    #
 	#------------------------------------------------#
 
-	def ReplaceNthOccurrenceCS(n, pcString, pcOtherString, pCaseSensitive)
+	def ReplaceNthOccurrenceCS(n, pcString, pcOtherStr, pCaseSensitive)
 		if isList(pcString) and StzListQ(pcString).IsOfNamedParam()
 			pcString = pcString[2]
 		ok
 
-		if isList(pcOtherString) and
-		   StzListQ(pcOtherString).IsWithOrByNamedParam()
+		if isList(pcOtherStr) and
+		   StzListQ(pcOtherStr).IsWithOrByNamedParam()
 		
-			pcOtherString = pcOtherString[2]
+			pcOtherStr = pcOtherStr[2]
 		ok
 
 		nStringPosition = This.FindNthOccurrenceCS(n, pcString, pCaseSensitive)
 
-		This.ReplaceStringAtPosition(nStringPosition, pcOtherString)
+		This.ReplaceStringAtPosition(nStringPosition, pcOtherStr)
 
-		def ReplaceNthOccurrenceCSQ(n, pcString, pcOtherString, pCaseSensitive)
-			This.ReplaceNthOccurrenceCS(n, pcString, pcOtherString, pCaseSensitive)
+		def ReplaceNthOccurrenceCSQ(n, pcString, pcOtherStr, pCaseSensitive)
+			This.ReplaceNthOccurrenceCS(n, pcString, pcOtherStr, pCaseSensitive)
 			return This
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceNthCS(n, pcString, pcOtherString, pCaseSensitive)
-			This.ReplaceNthOccurrenceCS(n, pcString, pcOtherString, pCaseSensitive)
+		def ReplaceNthCS(n, pcString, pcOtherStr, pCaseSensitive)
+			This.ReplaceNthOccurrenceCS(n, pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceNthCSQ(n, pcString, pcOtherString, pCaseSensitive)
-				This.ReplaceNthCS(n, pcString, pcOtherString, pCaseSensitive)
+			def ReplaceNthCSQ(n, pcString, pcOtherStr, pCaseSensitive)
+				This.ReplaceNthCS(n, pcString, pcOtherStr, pCaseSensitive)
 				return This
 
-		def ReplaceNthOccurrenceOfStringCS(n, pcStrItem, pcOtherString, pCaseSensitive)
-			This.ReplaceNthOccurrenceCS(n, pcString, pcOtherString, pCaseSensitive)
+		def ReplaceNthOccurrenceOfStringCS(n, pcStrItem, pcOtherStr, pCaseSensitive)
+			This.ReplaceNthOccurrenceCS(n, pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceNthOccurrenceOfStringCSQ(n, pcStrItem, pcOtherString, pCaseSensitive)
-				This.ReplaceNthOccurrenceOfStringCS(n, pcStrItem, pcOtherString, pCaseSensitive)
+			def ReplaceNthOccurrenceOfStringCSQ(n, pcStrItem, pcOtherStr, pCaseSensitive)
+				This.ReplaceNthOccurrenceOfStringCS(n, pcStrItem, pcOtherStr, pCaseSensitive)
 				return This
 
-		def ReplaceNthOccurrenceOfStringItemCS(n, pcStrItem, pcOtherString, pCaseSensitive)
-			This.ReplaceNthOccurrenceCS(n, pcString, pcOtherString, pCaseSensitive)
+		def ReplaceNthOccurrenceOfStringItemCS(n, pcStrItem, pcOtherStr, pCaseSensitive)
+			This.ReplaceNthOccurrenceCS(n, pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceNthOccurrenceOfStringItemCSQ(n, pcStrItem, pcOtherString, pCaseSensitive)
-				This.ReplaceNthOccurrenceOfStringItemCS(n, pcStrItem, pcOtherString, pCaseSensitive)
+			def ReplaceNthOccurrenceOfStringItemCSQ(n, pcStrItem, pcOtherStr, pCaseSensitive)
+				This.ReplaceNthOccurrenceOfStringItemCS(n, pcStrItem, pcOtherStr, pCaseSensitive)
 				return This
 
-		def ReplaceNthOccurrenceOfThisStringItemCS(n, pcStrItem, pcOtherString, pCaseSensitive)
-			This.ReplaceNthOccurrenceCS(n, pcString, pcOtherString, pCaseSensitive)
+		def ReplaceNthOccurrenceOfThisStringItemCS(n, pcStrItem, pcOtherStr, pCaseSensitive)
+			This.ReplaceNthOccurrenceCS(n, pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceNthOccurrenceOfThisStringItemCSQ(n, pcStrItem, pcOtherString, pCaseSensitive)
-				This.ReplaceNthOccurrenceOfThisStringItemCS(n, pcStrItem, pcOtherString, pCaseSensitive)
+			def ReplaceNthOccurrenceOfThisStringItemCSQ(n, pcStrItem, pcOtherStr, pCaseSensitive)
+				This.ReplaceNthOccurrenceOfThisStringItemCS(n, pcStrItem, pcOtherStr, pCaseSensitive)
 				return This
 
-		def ReplaceNthOccurrenceOfThisStringCS(n, pcStrItem, pcOtherString, pCaseSensitive)
-			This.ReplaceNthOccurrenceCS(n, pcString, pcOtherString, pCaseSensitive)
+		def ReplaceNthOccurrenceOfThisStringCS(n, pcStrItem, pcOtherStr, pCaseSensitive)
+			This.ReplaceNthOccurrenceCS(n, pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceNthOccurrenceOfThisStringCSQ(n, pcStrItem, pcOtherString, pCaseSensitive)
-				This.ReplaceNthOccurrenceOfThisStringCS(n, pcStrItem, pcOtherString, pCaseSensitive)
+			def ReplaceNthOccurrenceOfThisStringCSQ(n, pcStrItem, pcOtherStr, pCaseSensitive)
+				This.ReplaceNthOccurrenceOfThisStringCS(n, pcStrItem, pcOtherStr, pCaseSensitive)
 				return This
 			
 		#>
 
-	def NthOccurrenceReplacedCS(n, pcString, pcOtherString, pCaseSensitive)
+	def NthOccurrenceReplacedCS(n, pcString, pcOtherStr, pCaseSensitive)
 
 		aResult  = This.Copy().
-				ReplaceNthOccurrenceCSQ(n, pcString, pcOtherString, pCaseSensitive).
+				ReplaceNthOccurrenceCSQ(n, pcString, pcOtherStr, pCaseSensitive).
 				Content()
 
 		return aResult
 
-		def NthReplacedCS(n, pcString, pcOtherString, pCaseSensitive)
-			return This.NthOccurrenceReplacedCS(n, pcString, pcOtherString, pCaseSensitive)
+		def NthReplacedCS(n, pcString, pcOtherStr, pCaseSensitive)
+			return This.NthOccurrenceReplacedCS(n, pcString, pcOtherStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceNthOccurrence(n, pcString, pcOtherString)
-		ReplaceNthOccurrenceCS(n, pcString, pcOtherString, TRUE)
+	def ReplaceNthOccurrence(n, pcString, pcOtherStr)
+		ReplaceNthOccurrenceCS(n, pcString, pcOtherStr, TRUE)
 
-		def ReplaceNthOccurrenceQ(n, pcString, pcOtherString)
-			This.ReplaceNthOccurrence(n, pcString, pcOtherString)
+		def ReplaceNthOccurrenceQ(n, pcString, pcOtherStr)
+			This.ReplaceNthOccurrence(n, pcString, pcOtherStr)
 			return This
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceNth(n, pcString, pcOtherString)
-			This.ReplaceNthOccurrence(n, pcString, pcOtherString)
+		def ReplaceNth(n, pcString, pcOtherStr)
+			This.ReplaceNthOccurrence(n, pcString, pcOtherStr)
 
-			def ReplaceNthQ(n, pcString, pcOtherString)
-				This.ReplaceNth(n, pcString, pcOtherString)
+			def ReplaceNthQ(n, pcString, pcOtherStr)
+				This.ReplaceNth(n, pcString, pcOtherStr)
 				return This
 
-		def ReplaceNthOccurrenceOfString(n, pcStrItem, pcOtherString)
-			This.ReplaceNthOccurrence(n, pcString, pcOtherString)
+		def ReplaceNthOccurrenceOfString(n, pcStrItem, pcOtherStr)
+			This.ReplaceNthOccurrence(n, pcString, pcOtherStr)
 
-			def ReplaceNthOccurrenceOfStringQ(n, pcStrItem, pcOtherString)
-				This.ReplaceNthOccurrenceOfString(n, pcStrItem, pcOtherString)
+			def ReplaceNthOccurrenceOfStringQ(n, pcStrItem, pcOtherStr)
+				This.ReplaceNthOccurrenceOfString(n, pcStrItem, pcOtherStr)
 				return This
 
-		def ReplaceNthOccurrenceOfStringItem(pcStrItem, pcOtherString)
-			This.ReplaceNthOccurrence(n, pcString, pcOtherString)
+		def ReplaceNthOccurrenceOfStringItem(pcStrItem, pcOtherStr)
+			This.ReplaceNthOccurrence(n, pcString, pcOtherStr)
 
-			def ReplaceNthOccurrenceOfStringItemQ(pcStrItem, pcOtherString)
-				This.ReplaceNthOccurrenceOfStringItem(pcStrItem, pcOtherString)
+			def ReplaceNthOccurrenceOfStringItemQ(pcStrItem, pcOtherStr)
+				This.ReplaceNthOccurrenceOfStringItem(pcStrItem, pcOtherStr)
 				return This
 
-		def ReplaceNthOccurrenceOfThisStringItem(pcStrItem, pcOtherString)
-			This.ReplaceNthOccurrence(n, pcString, pcOtherString)
+		def ReplaceNthOccurrenceOfThisStringItem(pcStrItem, pcOtherStr)
+			This.ReplaceNthOccurrence(n, pcString, pcOtherStr)
 
-			def ReplaceNthOccurrenceOfThisStringItemQ(pcStrItem, pcOtherString)
-				This.ReplaceNthOccurrenceOfThisStringItem(pcStrItem, pcOtherString)
+			def ReplaceNthOccurrenceOfThisStringItemQ(pcStrItem, pcOtherStr)
+				This.ReplaceNthOccurrenceOfThisStringItem(pcStrItem, pcOtherStr)
 				return This
 
-		def ReplaceNthOccurrenceOfThisString(n, pcStrItem, pcOtherString)
-			This.ReplaceNthOccurrence(n, pcString, pcOtherString)
+		def ReplaceNthOccurrenceOfThisString(n, pcStrItem, pcOtherStr)
+			This.ReplaceNthOccurrence(n, pcString, pcOtherStr)
 
-			def ReplaceNthOccurrenceOfThisStringQ(n, pcStrItem, pcOtherString)
-				This.ReplaceNthOccurrenceOfThisString(n, pcStrItem, pcOtherString)
+			def ReplaceNthOccurrenceOfThisStringQ(n, pcStrItem, pcOtherStr)
+				This.ReplaceNthOccurrenceOfThisString(n, pcStrItem, pcOtherStr)
 				return This
 			
 		#>
 
-	def NthOccurrenceReplaced(n, pcString, pcOtherString)
+	def NthOccurrenceReplaced(n, pcString, pcOtherStr)
 
 		aResult  = This.Copy().
-				ReplaceNthOccurrenceQ(n, pcString, pcOtherString).
+				ReplaceNthOccurrenceQ(n, pcString, pcOtherStr).
 				Content()
 
 		return aResult
 
-		def NthReplaced(n, pcString, pcOtherString)
-			return This.NthOccurrenceReplaced(n, pcString, pcOtherString)
+		def NthReplaced(n, pcString, pcOtherStr)
+			return This.NthOccurrenceReplaced(n, pcString, pcOtherStr)
 
 	  #---------------------------------------------#
 	 #   REPLACING FIRST OCCURRENCE OF A STRING    #
 	#---------------------------------------------#
 
-	def ReplaceFirstOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
-		This.ReplaceNthOccurrenceCS(1, pcString, pcOtherString, pCaseSensitive)
+	def ReplaceFirstOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
+		This.ReplaceNthOccurrenceCS(1, pcString, pcOtherStr, pCaseSensitive)
 
-		def ReplaceFirstOccurrenceCSQ(pcString, pcOtherString, pCaseSensitive)
-			This.ReplaceFirstOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceFirstOccurrenceCSQ(pcString, pcOtherStr, pCaseSensitive)
+			This.ReplaceFirstOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
 			return This
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceFirstCS(pcString, pcOtherString, pCaseSensitive)
-			This.ReplaceFirstOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceFirstCS(pcString, pcOtherStr, pCaseSensitive)
+			This.ReplaceFirstOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceFirstCSQ(pcString, pcOtherString, pCaseSensitive)
-				This.ReplaceFirstCS(pcString, pcOtherString, pCaseSensitive)
+			def ReplaceFirstCSQ(pcString, pcOtherStr, pCaseSensitive)
+				This.ReplaceFirstCS(pcString, pcOtherStr, pCaseSensitive)
 				return This
 
-		def ReplaceFirstOccurrenceOfStringCS(pcStrItem, pcOtherString, pCaseSensitive)
-			This.ReplaceFirstOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceFirstOccurrenceOfStringCS(pcStrItem, pcOtherStr, pCaseSensitive)
+			This.ReplaceFirstOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceFirstOccurrenceOfStringCSQ(pcStrItem, pcOtherString, pCaseSensitive)
-				This.ReplaceFirstOccurrenceOfStringCS(pcStrItem, pcOtherString, pCaseSensitive)
+			def ReplaceFirstOccurrenceOfStringCSQ(pcStrItem, pcOtherStr, pCaseSensitive)
+				This.ReplaceFirstOccurrenceOfStringCS(pcStrItem, pcOtherStr, pCaseSensitive)
 				return This
 
-		def ReplaceFirstOccurrenceOfStringItemCS(pcStrItem, pcOtherString, pCaseSensitive)
-			This.ReplaceFirstOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceFirstOccurrenceOfStringItemCS(pcStrItem, pcOtherStr, pCaseSensitive)
+			This.ReplaceFirstOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceFirstOccurrenceOfStringItemCSQ(pcStrItem, pcOtherString, pCaseSensitive)
-				This.ReplaceFirstOccurrenceOfStringItemCS(pcStrItem, pcOtherString, pCaseSensitive)
+			def ReplaceFirstOccurrenceOfStringItemCSQ(pcStrItem, pcOtherStr, pCaseSensitive)
+				This.ReplaceFirstOccurrenceOfStringItemCS(pcStrItem, pcOtherStr, pCaseSensitive)
 				return This
 
-		def ReplaceFirstOccurrenceOfThisStringItemCS(pcStrItem, pcOtherString, pCaseSensitive)
-			This.ReplaceFirstOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceFirstOccurrenceOfThisStringItemCS(pcStrItem, pcOtherStr, pCaseSensitive)
+			This.ReplaceFirstOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceFirstOccurrenceOfThisStringItemCSQ(pcStrItem, pcOtherString, pCaseSensitive)
-				This.ReplaceFirstOccurrenceOfThisStringItemCS(pcStrItem, pcOtherString, pCaseSensitive)
+			def ReplaceFirstOccurrenceOfThisStringItemCSQ(pcStrItem, pcOtherStr, pCaseSensitive)
+				This.ReplaceFirstOccurrenceOfThisStringItemCS(pcStrItem, pcOtherStr, pCaseSensitive)
 				return This
 
-		def ReplaceFirstOccurrenceOfThisStringCS(pcStrItem, pcOtherString, pCaseSensitive)
-			This.ReplaceFirstOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceFirstOccurrenceOfThisStringCS(pcStrItem, pcOtherStr, pCaseSensitive)
+			This.ReplaceFirstOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceFirstOccurrenceOfThisStringCSQ(pcStrItem, pcOtherString, pCaseSensitive)
-				This.ReplaceFirstOccurrenceOfThisStringCS(pcStrItem, pcOtherString, pCaseSensitive)
+			def ReplaceFirstOccurrenceOfThisStringCSQ(pcStrItem, pcOtherStr, pCaseSensitive)
+				This.ReplaceFirstOccurrenceOfThisStringCS(pcStrItem, pcOtherStr, pCaseSensitive)
 				return This
 			
 		#>
 
-	def FirstOccurrenceReplacedCS(pcString, pcOtherString, pCaseSensitive)
+	def FirstOccurrenceReplacedCS(pcString, pcOtherStr, pCaseSensitive)
 
 		aResult  = This.Copy().
-				ReplaceFirstOccurrenceCSQ(pcString, pcOtherString, pCaseSensitive).
+				ReplaceFirstOccurrenceCSQ(pcString, pcOtherStr, pCaseSensitive).
 				Content()
 
 		return aResult
 
-		def FirstReplacedCS(pcString, pcOtherString, pCaseSensitive)
-			return This.FirstOccurrenceReplacedCS(pcString, pcOtherString, pCaseSensitive)
+		def FirstReplacedCS(pcString, pcOtherStr, pCaseSensitive)
+			return This.FirstOccurrenceReplacedCS(pcString, pcOtherStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceFirstOccurrence(pcString, pcOtherString)
-		This.ReplaceFirstOccurrenceCS(pcString, pcOtherString, TRUE)
+	def ReplaceFirstOccurrence(pcString, pcOtherStr)
+		This.ReplaceFirstOccurrenceCS(pcString, pcOtherStr, TRUE)
 
-		def ReplaceFirstOccurrenceQ(pcString, pcOtherString)
-			This.ReplaceFirstOccurrence(pcString, pcOtherString)
+		def ReplaceFirstOccurrenceQ(pcString, pcOtherStr)
+			This.ReplaceFirstOccurrence(pcString, pcOtherStr)
 			return This
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceFirst(pcString, pcOtherString)
-			This.ReplaceFirstOccurrence(pcString, pcOtherString)
+		def ReplaceFirst(pcString, pcOtherStr)
+			This.ReplaceFirstOccurrence(pcString, pcOtherStr)
 
-			def ReplaceFirstQ(pcString, pcOtherString)
-				This.ReplaceFirst(pcString, pcOtherString)
+			def ReplaceFirstQ(pcString, pcOtherStr)
+				This.ReplaceFirst(pcString, pcOtherStr)
 				return This
 
-		def ReplaceFirstOccurrenceOfString(pcStrItem, pcOtherString)
-			This.ReplaceFirstOccurrence(pcString, pcOtherString)
+		def ReplaceFirstOccurrenceOfString(pcStrItem, pcOtherStr)
+			This.ReplaceFirstOccurrence(pcString, pcOtherStr)
 
-			def ReplaceFirstOccurrenceOfStringQ(pcStrItem, pcOtherString)
-				This.ReplaceFirstOccurrenceOfString(pcStrItem, pcOtherString)
+			def ReplaceFirstOccurrenceOfStringQ(pcStrItem, pcOtherStr)
+				This.ReplaceFirstOccurrenceOfString(pcStrItem, pcOtherStr)
 				return This
 
-		def ReplaceFirstOccurrenceOfStringItem(pcStrItem, pcOtherString)
-			This.ReplaceFirstOccurrence(pcString, pcOtherString)
+		def ReplaceFirstOccurrenceOfStringItem(pcStrItem, pcOtherStr)
+			This.ReplaceFirstOccurrence(pcString, pcOtherStr)
 
-			def ReplaceFirstOccurrenceOfStringItemQ(pcStrItem, pcOtherString)
-				This.ReplaceFirstOccurrenceOfStringItem(pcStrItem, pcOtherString)
+			def ReplaceFirstOccurrenceOfStringItemQ(pcStrItem, pcOtherStr)
+				This.ReplaceFirstOccurrenceOfStringItem(pcStrItem, pcOtherStr)
 				return This
 
-		def ReplaceFirstOccurrenceOfThisStringItem(pcStrItem, pcOtherString)
-			This.ReplaceFirstOccurrence(pcString, pcOtherString)
+		def ReplaceFirstOccurrenceOfThisStringItem(pcStrItem, pcOtherStr)
+			This.ReplaceFirstOccurrence(pcString, pcOtherStr)
 
-			def ReplaceFirstOccurrenceOfThisStringItemQ(pcStrItem, pcOtherString)
-				This.ReplaceFirstOccurrenceOfThisStringItem(pcStrItem, pcOtherString)
+			def ReplaceFirstOccurrenceOfThisStringItemQ(pcStrItem, pcOtherStr)
+				This.ReplaceFirstOccurrenceOfThisStringItem(pcStrItem, pcOtherStr)
 				return This
 
-		def ReplaceFirstOccurrenceOfThisString(pcStrItem, pcOtherString)
-			This.ReplaceFirstOccurrence(pcString, pcOtherString)
+		def ReplaceFirstOccurrenceOfThisString(pcStrItem, pcOtherStr)
+			This.ReplaceFirstOccurrence(pcString, pcOtherStr)
 
-			def ReplaceFirstOccurrenceOfThisStringQ(pcStrItem, pcOtherString)
-				This.ReplaceFirstOccurrenceOfThisString(pcStrItem, pcOtherString)
+			def ReplaceFirstOccurrenceOfThisStringQ(pcStrItem, pcOtherStr)
+				This.ReplaceFirstOccurrenceOfThisString(pcStrItem, pcOtherStr)
 				return This
 
 		#>
 
-	def FirstOccurrenceReplaced(pcString, pcOtherString)
+	def FirstOccurrenceReplaced(pcString, pcOtherStr)
 
 		aResult  = This.Copy().
-				ReplaceFirstOccurrenceQ(pcString, pcOtherString).
+				ReplaceFirstOccurrenceQ(pcString, pcOtherStr).
 				Content()
 
 		return aResult
 
-		def FirstReplaced(pcString, pcOtherString)
-			return This.FirstOccurrenceReplaced(pcString, pcOtherString)
+		def FirstReplaced(pcString, pcOtherStr)
+			return This.FirstOccurrenceReplaced(pcString, pcOtherStr)
 
 	  #---------------------------------------------#
 	 #   REPLACING LAST OCCURRENCE OF A STRING     #
 	#---------------------------------------------#
 
-	def ReplaceLastOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
+	def ReplaceLastOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
 		n = This.FindLastOccurrenceCS(pcString, pCaseSensitive)
 
-		This.ReplaceStringAtPosition(n, pcOtherString)
+		This.ReplaceStringAtPosition(n, pcOtherStr)
 
-		def ReplaceLastOccurrenceCSQ(pcString, pcOtherString, pCaseSensitive)
-			This.ReplaceLastOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceLastOccurrenceCSQ(pcString, pcOtherStr, pCaseSensitive)
+			This.ReplaceLastOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
 			return This
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceLastCS(pcString, pcOtherString, pCaseSensitive)
-			This.ReplaceLastOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceLastCS(pcString, pcOtherStr, pCaseSensitive)
+			This.ReplaceLastOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceLastCSQ(pcString, pcOtherString, pCaseSensitive)
-				This.ReplaceLastCS(pcString, pcOtherString, pCaseSensitive)
+			def ReplaceLastCSQ(pcString, pcOtherStr, pCaseSensitive)
+				This.ReplaceLastCS(pcString, pcOtherStr, pCaseSensitive)
 				return This
 
-		def ReplaceLastOccurrenceOfStringCS(pcStrItem, pcOtherString, pCaseSensitive)
-			This.ReplaceLastOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceLastOccurrenceOfStringCS(pcStrItem, pcOtherStr, pCaseSensitive)
+			This.ReplaceLastOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceLastOccurrenceOfStringCSQ(pcStrItem, pcOtherString, pCaseSensitive)
-				This.ReplaceLastOccurrenceOfStringCS(pcStrItem, pcOtherString, pCaseSensitive)
+			def ReplaceLastOccurrenceOfStringCSQ(pcStrItem, pcOtherStr, pCaseSensitive)
+				This.ReplaceLastOccurrenceOfStringCS(pcStrItem, pcOtherStr, pCaseSensitive)
 				return This
 
-		def ReplaceLastOccurrenceOfStringItemCS(pcStrItem, pcOtherString, pCaseSensitive)
-			This.ReplaceLastOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceLastOccurrenceOfStringItemCS(pcStrItem, pcOtherStr, pCaseSensitive)
+			This.ReplaceLastOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceLastOccurrenceOfStringItemCSQ(pcStrItem, pcOtherString, pCaseSensitive)
-				This.ReplaceLastOccurrenceOfStringItemCS(pcStrItem, pcOtherString, pCaseSensitive)
+			def ReplaceLastOccurrenceOfStringItemCSQ(pcStrItem, pcOtherStr, pCaseSensitive)
+				This.ReplaceLastOccurrenceOfStringItemCS(pcStrItem, pcOtherStr, pCaseSensitive)
 				return This
 
-		def ReplaceLastOccurrenceOfThisStringItemCS(pcStrItem, pcOtherString, pCaseSensitive)
-			This.ReplaceLastOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceLastOccurrenceOfThisStringItemCS(pcStrItem, pcOtherStr, pCaseSensitive)
+			This.ReplaceLastOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceLastOccurrenceOfThisStringItemCSQ(pcStrItem, pcOtherString, pCaseSensitive)
-				This.ReplaceLastOccurrenceOfThisStringItemCS(pcStrItem, pcOtherString, pCaseSensitive)
+			def ReplaceLastOccurrenceOfThisStringItemCSQ(pcStrItem, pcOtherStr, pCaseSensitive)
+				This.ReplaceLastOccurrenceOfThisStringItemCS(pcStrItem, pcOtherStr, pCaseSensitive)
 				return This
 
-		def ReplaceLastOccurrenceOfThisStringCS(pcStrItem, pcOtherString, pCaseSensitive)
-			This.ReplaceLastOccurrenceCS(pcString, pcOtherString, pCaseSensitive)
+		def ReplaceLastOccurrenceOfThisStringCS(pcStrItem, pcOtherStr, pCaseSensitive)
+			This.ReplaceLastOccurrenceCS(pcString, pcOtherStr, pCaseSensitive)
 
-			def ReplaceLastOccurrenceOfThisStringCSQ(pcStrItem, pcOtherString, pCaseSensitive)
-				This.ReplaceLastOccurrenceOfThisStringCS(pcStrItem, pcOtherString, pCaseSensitive)
+			def ReplaceLastOccurrenceOfThisStringCSQ(pcStrItem, pcOtherStr, pCaseSensitive)
+				This.ReplaceLastOccurrenceOfThisStringCS(pcStrItem, pcOtherStr, pCaseSensitive)
 				return This
 
 		#>
 
-	def LastOccurrenceReplacedCS(pcString, pcOtherString, pCaseSensitive)
+	def LastOccurrenceReplacedCS(pcString, pcOtherStr, pCaseSensitive)
 
 		aResult  = This.Copy().
-				ReplaceLastOccurrenceCSQ(pcString, pcOtherString, pCaseSensitive).
+				ReplaceLastOccurrenceCSQ(pcString, pcOtherStr, pCaseSensitive).
 				Content()
 
 		return aResult
 
-		def LastReplacedCS(pcString, pcOtherString, pCaseSensitive)
-			return This.LastOccurrenceReplacedCS(pcString, pcOtherString, pCaseSensitive)
+		def LastReplacedCS(pcString, pcOtherStr, pCaseSensitive)
+			return This.LastOccurrenceReplacedCS(pcString, pcOtherStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceLastOccurrence(pcString, pcOtherString)
-		ReplaceLastOccurrenceCS(pcString, pcOtherString, TRUE)
+	def ReplaceLastOccurrence(pcString, pcOtherStr)
+		ReplaceLastOccurrenceCS(pcString, pcOtherStr, TRUE)
 
-		def ReplaceLastOccurrenceQ(pcString, pcOtherString)
-			This.ReplaceLastOccurrence(pcString, pcOtherString)
+		def ReplaceLastOccurrenceQ(pcString, pcOtherStr)
+			This.ReplaceLastOccurrence(pcString, pcOtherStr)
 			return This
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceLast(pcString, pcOtherString, pCaseSensitive)
-			This.ReplaceLastOccurrence(pcString, pcOtherString)
+		def ReplaceLast(pcString, pcOtherStr, pCaseSensitive)
+			This.ReplaceLastOccurrence(pcString, pcOtherStr)
 
-			def ReplaceLastQ(pcString, pcOtherString, pCaseSensitive)
-				This.ReplaceLast(pcString, pcOtherString)
+			def ReplaceLastQ(pcString, pcOtherStr, pCaseSensitive)
+				This.ReplaceLast(pcString, pcOtherStr)
 				return This
 
-		def ReplaceLastOccurrenceOfString(pcStrItem, pcOtherString)
-			This.ReplaceLastOccurrence(pcString, pcOtherString)
+		def ReplaceLastOccurrenceOfString(pcStrItem, pcOtherStr)
+			This.ReplaceLastOccurrence(pcString, pcOtherStr)
 
-			def ReplaceLastOccurrenceOfStringQ(pcStrItem, pcOtherString)
-				This.ReplaceLastOccurrenceOfString(pcStrItem, pcOtherString)
+			def ReplaceLastOccurrenceOfStringQ(pcStrItem, pcOtherStr)
+				This.ReplaceLastOccurrenceOfString(pcStrItem, pcOtherStr)
 				return This
 
-		def ReplaceLastOccurrenceOfStringItem(pcStrItem, pcOtherString)
-			This.ReplaceLastOccurrence(pcString, pcOtherString)
+		def ReplaceLastOccurrenceOfStringItem(pcStrItem, pcOtherStr)
+			This.ReplaceLastOccurrence(pcString, pcOtherStr)
 
-			def ReplaceLastOccurrenceOfStringItemQ(pcStrItem, pcOtherString)
-				This.ReplaceLastOccurrenceOfStringItem(pcStrItem, pcOtherString)
+			def ReplaceLastOccurrenceOfStringItemQ(pcStrItem, pcOtherStr)
+				This.ReplaceLastOccurrenceOfStringItem(pcStrItem, pcOtherStr)
 				return This
 
-		def ReplaceLastOccurrenceOfThisStringItem(pcStrItem, pcOtherString)
-			This.ReplaceLastOccurrence(pcString, pcOtherString)
+		def ReplaceLastOccurrenceOfThisStringItem(pcStrItem, pcOtherStr)
+			This.ReplaceLastOccurrence(pcString, pcOtherStr)
 
-			def ReplaceLastOccurrenceOfThisStringItemQ(pcStrItem, pcOtherString)
-				This.ReplaceLastOccurrenceOfThisStringItem(pcStrItem, pcOtherString)
+			def ReplaceLastOccurrenceOfThisStringItemQ(pcStrItem, pcOtherStr)
+				This.ReplaceLastOccurrenceOfThisStringItem(pcStrItem, pcOtherStr)
 				return This
 
-		def ReplaceLastOccurrenceOfThisString(pcStrItem, pcOtherString)
-			This.ReplaceLastOccurrence(pcString, pcOtherString)
+		def ReplaceLastOccurrenceOfThisString(pcStrItem, pcOtherStr)
+			This.ReplaceLastOccurrence(pcString, pcOtherStr)
 
-			def ReplaceLastOccurrenceOfThisStringQ(pcStrItem, pcOtherString)
-				This.ReplaceLastOccurrenceOfThisString(pcStrItem, pcOtherString)
+			def ReplaceLastOccurrenceOfThisStringQ(pcStrItem, pcOtherStr)
+				This.ReplaceLastOccurrenceOfThisString(pcStrItem, pcOtherStr)
 				return This
 
 		#>
 
-	def LastOccurrenceReplaced(pcString, pcOtherString)
+	def LastOccurrenceReplaced(pcString, pcOtherStr)
 
 		aResult  = This.Copy().
-				ReplaceLastOccurrenceQ(pcString, pcOtherString).
+				ReplaceLastOccurrenceQ(pcString, pcOtherStr).
 				Content()
 
 		return aResult
 
-		def LastReplaced(pcString, pcOtherString)
-			return This.LastOccurrenceReplaced(pcString, pcOtherString)
+		def LastReplaced(pcString, pcOtherStr)
+			return This.LastOccurrenceReplaced(pcString, pcOtherStr)
 
 	  #----------------------------------------------------------------------------#
 	 #   REPLACING NEXT NTH OCCURRENCE OF A STRING STARTING AT A GIVEN POSITION   #
@@ -10084,21 +10084,21 @@ class stzListOfStrings from stzList
 			
 		oSection = This.SectionQR(pnStartingAt, :LastString, :stzListOfStrings)
 
-		anPositions = oSection.
+		anPos = oSection.
 			      FindAllCSQR(pcString, pCaseSensitive, :stzListOfNumbers).
 			      AddToEachQ(pnStartingAt-1).
 			      Content()
 
-		anPositionsToBeReplaced = []
+		anPosToBeReplaced = []
 		i = 0
 		for n in panList
 			i++
-			if i <= len(anPositions)
-				anPositionsToBeReplaced +  anPositions[n]
+			if i <= len(anPos)
+				anPosToBeReplaced +  anPos[n]
 			ok
 		next
 
-		This.ReplaceAllStringsAtThesePositions(anPositionsToBeReplaced, pcNewString)
+		This.ReplaceAllStringsAtThesePositions(anPosToBeReplaced, pcNewString)
 
 		#< @FunctionFluentForm
 
@@ -10344,18 +10344,18 @@ class stzListOfStrings from stzList
 			
 		oSection = This.SectionQR(1, pnStartingAt, :stzListOfStrings)
 
-		anPositions = oSection.FindAllCSQ(pcString, pCaseSensitive).Reversed()
+		anPos = oSection.FindAllCSQ(pcString, pCaseSensitive).Reversed()
 
-		anPositionsToBeReplaced = []
+		anPosToBeReplaced = []
 		i = 0
 		for n in panList
 			i++
-			if i <= len(anPositions)
-				anPositionsToBeReplaced +  anPositions[n]
+			if i <= len(anPos)
+				anPosToBeReplaced +  anPos[n]
 			ok
 		next
 
-		This.ReplaceAllStringsAtThesePositions(anPositionsToBeReplaced, pcNewString)
+		This.ReplaceAllStringsAtThesePositions(anPosToBeReplaced, pcNewString)
 
 		#< @FunctionFluentForm
 
@@ -10806,256 +10806,256 @@ class stzListOfStrings from stzList
 	 #   REPLACING MANY STRINGS BY POSITION    #
 	#=========================================#
 
-	def ReplaceStringsAtPositions(panPositions, pcOtherString)
+	def ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-		if isList(pcOtherString) and Q(pcOtherString).IsListOfStrings() and
-		   NOT Q(pcOtherString).IsWithOrByNamedParam()
+		if isList(pcOtherStr) and Q(pcOtherStr).IsListOfStrings() and
+		   NOT Q(pcOtherStr).IsWithOrByNamedParam()
 
-			pcOtherString = pcOtherString[2]
+			pcOtherStr = pcOtherStr[2]
 		ok
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
 
-			StzRaise("Incorrect param! panPositions must be a list of numbers.")
+			StzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
 
 		bDynamic = FALSE
 
-		if isList(pcOtherString) and Q(pcOtherString).IsWithOrByNamedParam()
-			if StzStringQ(pcOtherString[1]).LastChar() = "@"
+		if isList(pcOtherStr) and Q(pcOtherStr).IsWithOrByNamedParam()
+			if StzStringQ(pcOtherStr[1]).LastChar() = "@"
 				bDynamic = TRUE
 			ok
 		ok
 
 		if bDynamic
 			acStrings = []
-			for n in panPositions
+			for n in panPos
 				@string = This.StringAtPosition(n)
-				cCode = 'str = ' + StzCCodeQ(pcOtherString[2]).UnifiedFor(:stzListOfStrings)
+				cCode = 'str = ' + StzCCodeQ(pcOtherStr[2]).UnifiedFor(:stzListOfStrings)
 				eval(cCode)
 				acStrings + str
 			next
 
-			This.ReplaceStringsAtPositions1B1(panPositions, acStrings)
+			This.ReplaceStringsAtPositions1B1(panPos, acStrings)
 		else
 
-			anPositions = StzListQ(panPositions).SortedInDescending()
+			anPos = StzListQ(panPos).SortedInDescending()
 			
-			for n in anPositions
-				This.ReplaceStringAtPosition(n, pcOtherString)
+			for n in anPos
+				This.ReplaceStringAtPosition(n, pcOtherStr)
 			next
 		ok
 			
 
 		#< @FunctionFluentForm
 
-		def ReplaceStringsAtPositionsQ(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceStringsAtPositionsQ(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceStringItemsAtPositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceStringItemsAtPositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 			return This
 
-			def ReplaceStringItemsAtPositionsQ(panPositions, pcOtherString)
-				This.ReplaceStringItemsAtPositions(panPositions, pcOtherString)
+			def ReplaceStringItemsAtPositionsQ(panPos, pcOtherStr)
+				This.ReplaceStringItemsAtPositions(panPos, pcOtherStr)
 				return This
 
 		#--
 
-		def ReplaceManyAt(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceManyAt(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceManyAtQ(panPositions, pcOtherString)
-				This.ReplaceManyAt(panPositions, pcOtherString)
+			def ReplaceManyAtQ(panPos, pcOtherStr)
+				This.ReplaceManyAt(panPos, pcOtherStr)
 				return This
 
-		def ReplaceManyAtPositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceManyAtPositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceManyAtPositionsQ(panPositions, pcOtherString)
-				This.ReplaceManyAtPositions(panPositions, pcOtherString)
+			def ReplaceManyAtPositionsQ(panPos, pcOtherStr)
+				This.ReplaceManyAtPositions(panPos, pcOtherStr)
 				return This
 
-		def ReplaceManyStringsAt(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceManyStringsAt(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceManyStringsAtQ(panPositions, pcOtherString)
-				This.ReplaceManyStringsAt(panPositions, pcOtherString)
+			def ReplaceManyStringsAtQ(panPos, pcOtherStr)
+				This.ReplaceManyStringsAt(panPos, pcOtherStr)
 				return This
 
-		def ReplaceManyStringsAtPositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceManyStringsAtPositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceManyStringsAtPositionsQ(panPositions, pcOtherString)
-				This.ReplaceManyStringsAtPositions(panPositions, pcOtherString)
+			def ReplaceManyStringsAtPositionsQ(panPos, pcOtherStr)
+				This.ReplaceManyStringsAtPositions(panPos, pcOtherStr)
 				return This
 
-		def ReplaceManyAtThesePositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceManyAtThesePositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceManyAtThesePositionsQ(panPositions, pcOtherString)
-				This.ReplaceManyAtThesePositions(panPositions, pcOtherString)
+			def ReplaceManyAtThesePositionsQ(panPos, pcOtherStr)
+				This.ReplaceManyAtThesePositions(panPos, pcOtherStr)
 				return This
 
-		def ReplaceManyStringsAtThesePositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceManyStringsAtThesePositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceManyStringsAtThesePositionsQ(panPositions, pcOtherString)
-				This.ReplaceManyStringsAtThesePositions(panPositions, pcOtherString)
+			def ReplaceManyStringsAtThesePositionsQ(panPos, pcOtherStr)
+				This.ReplaceManyStringsAtThesePositions(panPos, pcOtherStr)
 				return This
 
-		def ReplaceManyStringItemsAt(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceManyStringItemsAt(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceManyStringItemsAtQ(panPositions, pcOtherString)
-				This.ReplaceManyStringItemsAt(panPositions, pcOtherString)
+			def ReplaceManyStringItemsAtQ(panPos, pcOtherStr)
+				This.ReplaceManyStringItemsAt(panPos, pcOtherStr)
 				return This
 
-		def ReplaceManyStringItemsAtPositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceManyStringItemsAtPositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceManyStringItemsAtPositionsQ(panPositions, pcOtherString)
-				This.ReplaceManyStringItemsAtPositions(panPositions, pcOtherString)
+			def ReplaceManyStringItemsAtPositionsQ(panPos, pcOtherStr)
+				This.ReplaceManyStringItemsAtPositions(panPos, pcOtherStr)
 				return This
 
-		def ReplaceManyStringItemsAtThesePositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceManyStringItemsAtThesePositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceManyStringItemsAtThesePositionsQ(panPositions, pcOtherString)
-				This.ReplaceManyStringItemsAtThesePositions(panPositions, pcOtherString)
+			def ReplaceManyStringItemsAtThesePositionsQ(panPos, pcOtherStr)
+				This.ReplaceManyStringItemsAtThesePositions(panPos, pcOtherStr)
 				return This
 
 		#--
 
-		def ReplaceStringsAtThesePositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceStringsAtThesePositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 		
-			def ReplaceStringsAtThesePositionsQ(panPositions, pcOtherString)
-				This.ReplaceStringsAtThesePositions(panPositions, pcOtherString)
+			def ReplaceStringsAtThesePositionsQ(panPos, pcOtherStr)
+				This.ReplaceStringsAtThesePositions(panPos, pcOtherStr)
 				return This
 
-		def ReplaceStringItemsAtThesePositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceStringItemsAtThesePositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 		
-			def ReplaceStringItemsAtThesePositionsQ(panPositions, pcOtherString)
-				This.ReplaceStringItemsAtThesePositions(panPositions, pcOtherString)
+			def ReplaceStringItemsAtThesePositionsQ(panPos, pcOtherStr)
+				This.ReplaceStringItemsAtThesePositions(panPos, pcOtherStr)
 				return This
 
 		#--
 
-		def ReplaceAllStringsAtPositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceAllStringsAtPositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 		
-			def ReplaceAllStringsAtPositionsQ(panPositions, pcOtherString)
-				This.ReplaceAllStringsAtPositions(panPositions, pcOtherString)
+			def ReplaceAllStringsAtPositionsQ(panPos, pcOtherStr)
+				This.ReplaceAllStringsAtPositions(panPos, pcOtherStr)
 				return This
 
-		def ReplaceAllStringItemsAtPositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceAllStringItemsAtPositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 		
-			def ReplaceAllStringItemsAtPositionsQ(panPositions, pcOtherString)
-				This.ReplaceAllStringItemsAtPositions(panPositions, pcOtherString)
+			def ReplaceAllStringItemsAtPositionsQ(panPos, pcOtherStr)
+				This.ReplaceAllStringItemsAtPositions(panPos, pcOtherStr)
 				return This
 
 		#--
 
-		def ReplaceAllStringsAtThesePositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceAllStringsAtThesePositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 		
-			def ReplaceAllStringsAtThesePositionsQ(panPositions, pcOtherString)
-				This.ReplaceAllStringsAtThesePositions(panPositions, pcOtherString)
+			def ReplaceAllStringsAtThesePositionsQ(panPos, pcOtherStr)
+				This.ReplaceAllStringsAtThesePositions(panPos, pcOtherStr)
 				return This
 
-		def ReplaceAllStringItemsAtThesePositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceAllStringItemsAtThesePositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 		
-			def ReplaceAllStringItemsAtThesePositionsQ(panPositions, pcOtherString)
-				This.ReplaceAllStringItemsAtThesePositions(panPositions, pcOtherString)
+			def ReplaceAllStringItemsAtThesePositionsQ(panPos, pcOtherStr)
+				This.ReplaceAllStringItemsAtThesePositions(panPos, pcOtherStr)
 				return This
 
 		#--
 
-		def ReplaceTheseStringsAtPositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceTheseStringsAtPositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceTheseStringsAtPositionsQ(panPositions, pcOtherString)
-				This.ReplaceTheseStringsAtPositions(panPositions, pcOtherString)
+			def ReplaceTheseStringsAtPositionsQ(panPos, pcOtherStr)
+				This.ReplaceTheseStringsAtPositions(panPos, pcOtherStr)
 				return This
 
-		def ReplaceTheseStringItemsAtPositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceTheseStringItemsAtPositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceTheseStringItemsAtPositionsQ(panPositions, pcOtherString)
-				This.ReplaceTheseStringItemsAtPositions(panPositions, pcOtherString)
-				return This
-
-		#--
-
-		def ReplaceTheseStringsAtThesePositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
-
-			def ReplaceTheseStringsAtThesePositionsQ(panPositions, pcOtherString)
-				This.ReplaceTheseStringsAtThesePositions(panPositions, pcOtherString)
-				return This
-
-		def ReplaceTheseStringItemsAtThesePositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
-
-			def ReplaceTheseStringItemsAtThesePositionsQ(panPositions, pcOtherString)
-				This.ReplaceTheseStringItemsAtThesePositions(panPositions, pcOtherString)
+			def ReplaceTheseStringItemsAtPositionsQ(panPos, pcOtherStr)
+				This.ReplaceTheseStringItemsAtPositions(panPos, pcOtherStr)
 				return This
 
 		#--
 
-		def ReplaceAllTheseStringsAtPositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceTheseStringsAtThesePositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceAllTheseStringsAtPositionsQ(panPositions, pcOtherString)
-				This.ReplaceAllTheseStringsAtPositions(panPositions, pcOtherString)
+			def ReplaceTheseStringsAtThesePositionsQ(panPos, pcOtherStr)
+				This.ReplaceTheseStringsAtThesePositions(panPos, pcOtherStr)
 				return This
 
-		def ReplaceAllTheseStringItemsAtPositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceTheseStringItemsAtThesePositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceAllTheseStringItemsAtPositionsQ(panPositions, pcOtherString)
-				This.ReplaceAllTheseStringItemsAtPositions(panPositions, pcOtherString)
+			def ReplaceTheseStringItemsAtThesePositionsQ(panPos, pcOtherStr)
+				This.ReplaceTheseStringItemsAtThesePositions(panPos, pcOtherStr)
 				return This
 
 		#--
 
-		def ReplaceAllTheseStringsAtThesePositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceAllTheseStringsAtPositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceAllTheseStringsAtThesePositionsQ(panPositions, pcOtherString)
-				This.ReplaceAllTheseStringsAtThesePositions(panPositions, pcOtherString)
+			def ReplaceAllTheseStringsAtPositionsQ(panPos, pcOtherStr)
+				This.ReplaceAllTheseStringsAtPositions(panPos, pcOtherStr)
 				return This
 
-		def ReplaceAllTheseStringItemsAtThesePositions(panPositions, pcOtherString)
-			This.ReplaceStringsAtPositions(panPositions, pcOtherString)
+		def ReplaceAllTheseStringItemsAtPositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
 
-			def ReplaceAllTheseStringItemsAtThesePositionsQ(panPositions, pcOtherString)
-				This.ReplaceAllTheseStringsAtThesePositions(panPositions, pcOtherString)
+			def ReplaceAllTheseStringItemsAtPositionsQ(panPos, pcOtherStr)
+				This.ReplaceAllTheseStringItemsAtPositions(panPos, pcOtherStr)
+				return This
+
+		#--
+
+		def ReplaceAllTheseStringsAtThesePositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
+
+			def ReplaceAllTheseStringsAtThesePositionsQ(panPos, pcOtherStr)
+				This.ReplaceAllTheseStringsAtThesePositions(panPos, pcOtherStr)
+				return This
+
+		def ReplaceAllTheseStringItemsAtThesePositions(panPos, pcOtherStr)
+			This.ReplaceStringsAtPositions(panPos, pcOtherStr)
+
+			def ReplaceAllTheseStringItemsAtThesePositionsQ(panPos, pcOtherStr)
+				This.ReplaceAllTheseStringsAtThesePositions(panPos, pcOtherStr)
 				return This
 
 		#>
 
-	def StringsAtThesePositionsReplaced(panPositions, pcOtherString)
-		aResult = This.Copy().ReplaceStringsAtPositionsQ(panPositions, pcOtherString).Content()
+	def StringsAtThesePositionsReplaced(panPos, pcOtherStr)
+		aResult = This.Copy().ReplaceStringsAtPositionsQ(panPos, pcOtherStr).Content()
 		return aResult
 
-		def StringItemsAtThesePositionsReplaced(panPositions, pcOtherString)
-			return This.StringsAtThesePositionsReplaced(panPositions, pcOtherString)
+		def StringItemsAtThesePositionsReplaced(panPos, pcOtherStr)
+			return This.StringsAtThesePositionsReplaced(panPos, pcOtherStr)
 
 	  #----------------------------------------------------------------#
 	 #  REPLACING STRINGS AT GIVEN POSITIONS BY OTHER GIVEN STRINGS   #
 	#----------------------------------------------------------------#
 
-	def ReplaceStringsByManyAtPositions(panPositions, pacOtherStrings)
+	def ReplaceStringsByManyAtPositions(panPos, pacOtherStrs)
 		/*
 		EXAMPLE
 		o1 = new stzListOfStrings([ "Heart", "_", "Star", "_", "Sun", "_" ])
@@ -11066,75 +11066,75 @@ class stzListOfStrings from stzList
 
 		# Checking params correctness
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
 
-			StzRaise("Incorrect param! panPositions must be a list of numbers.")
+			StzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
 
-		if StzListOfNumbersQ(panPositions).Max() > This.NumberOfStrings()
-			StzRaise("Incorrect value! panPositions contains at least one value out of range.")
+		if StzListOfNumbersQ(panPos).Max() > This.NumberOfStrings()
+			StzRaise("Incorrect value! panPos contains at least one value out of range.")
 		ok
 
-		if NOT ( isList(pacOtherStrings) and
-				( Q(pacOtherStrings).IsListOfStrings() or
-			 	  Q(pacOtherStrings).IsWithOrByNamedParam()
+		if NOT ( isList(pacOtherStrs) and
+				( Q(pacOtherStrs).IsListOfStrings() or
+			 	  Q(pacOtherStrs).IsWithOrByNamedParam()
 				) )
 
-			StzRaise("Incorrect param! pacOtherStrings must be a list of strings.")
+			StzRaise("Incorrect param! pacOtherStrs must be a list of strings.")
 		ok
 
-		if Q(pacOtherStrings).IsWithOrByNamedParam()
-			pacOtherStrings = pacOtherStrings[2]
+		if Q(pacOtherStrs).IsWithOrByNamedParam()
+			pacOtherStrs = pacOtherStrs[2]
 		ok
 
 		# Doing the job
 
-		nLen = len(panPositions)
+		nLen = len(panPos)
 		i = 0
-		for n in panPositions
+		for n in panPos
 			i++
 			if i <= nLen
-				This.ReplaceStringAtPosition(n, pacOtherStrings[i])
+				This.ReplaceStringAtPosition(n, pacOtherStrs[i])
 			ok
 		next
 
 		#< @FunctionFluentForm
 
-		def ReplaceStringsByManyAtPositionsQ(panPositions, pacOtherStrings)
-			This.ReplaceStringsByManyAtPositions(panPositions, pacOtherStrings)
+		def ReplaceStringsByManyAtPositionsQ(panPos, pacOtherStrs)
+			This.ReplaceStringsByManyAtPositions(panPos, pacOtherStrs)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceStringsAtPositionsByMany(panPositions, pacOtherStrings)
-			This.ReplaceStringsByManyAtPositions(panPositions, pacOtherStrings)
+		def ReplaceStringsAtPositionsByMany(panPos, pacOtherStrs)
+			This.ReplaceStringsByManyAtPositions(panPos, pacOtherStrs)
 
-			def ReplaceStringsAtPositionsByManyQ(panPositions, pacOtherStrings)
-				This.ReplaceStringsAtPositionsByMany(panPositions, pacOtherStrings)
+			def ReplaceStringsAtPositionsByManyQ(panPos, pacOtherStrs)
+				This.ReplaceStringsAtPositionsByMany(panPos, pacOtherStrs)
 				return This
 
-		def ReplaceStringItemsByManyAtPositions(panPositions, pacOtherStrings)
-			This.ReplaceStringsByManyAtPositions(panPositions, pacOtherStrings)
+		def ReplaceStringItemsByManyAtPositions(panPos, pacOtherStrs)
+			This.ReplaceStringsByManyAtPositions(panPos, pacOtherStrs)
 
-			def ReplaceStringItemsByManyAtPositionsQ(panPositions, pacOtherStrings)
-				This.ReplaceStringItemsByManyAtPositions(panPositions, pacOtherStrings)
+			def ReplaceStringItemsByManyAtPositionsQ(panPos, pacOtherStrs)
+				This.ReplaceStringItemsByManyAtPositions(panPos, pacOtherStrs)
 				return This
 		#>
 
-	def StringsAtPositionsReplacedByMany(panPositions, pacOtherStrings)
-		acResult = This.Copy().ReplaceStringsByManyAtPositionsQ(panPositions, pacOtherStrings).Content()
+	def StringsAtPositionsReplacedByMany(panPos, pacOtherStrs)
+		acResult = This.Copy().ReplaceStringsByManyAtPositionsQ(panPos, pacOtherStrs).Content()
 		return acResult
 
-		def StringItemsAtPositionsReplacedByMany(panPositions, pacOtherStrings)
-			return This.StringsAtPositionsReplacedByMany(panPositions, pacOtherStrings)
+		def StringItemsAtPositionsReplacedByMany(panPos, pacOtherStrs)
+			return This.StringsAtPositionsReplacedByMany(panPos, pacOtherStrs)
 
 	  #---------------------------------------------------------------------------#
 	 #  REPLACING STRINGS AT GIVEN POSITIONS BY OTHER GIVEN STRINGS -- EXTENDED  #
 	#---------------------------------------------------------------------------#
 
-	def ReplaceStringsByManyAtPositionsXT(panPositions, pacOtherStrings)
+	def ReplaceStringsByManyAtPositionsXT(panPos, pacOtherStrs)
 		/*
 		EXAMPLE
 		o1 = new stzListOfStrings([ "A", "_", "B", "_", "C", "_", "D" ])
@@ -11144,72 +11144,72 @@ class stzListOfStrings from stzList
 
 		# Checking params correctness
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
 
-			StzRaise("Incorrect param! panPositions must be a list of numbers.")
+			StzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
 
-		if StzListOfNumbersQ(panPositions).Max() > This.NumberOfStrings()
-			StzRaise("Incorrect value! panPositions contains at least one value out of range.")
+		if StzListOfNumbersQ(panPos).Max() > This.NumberOfStrings()
+			StzRaise("Incorrect value! panPos contains at least one value out of range.")
 		ok
 
-		if NOT ( isList(pacOtherStrings) and
-				( Q(pacOtherStrings).IsListOfStrings() or
-			 	  Q(pacOtherStrings).IsWithOrByNamedParam()
+		if NOT ( isList(pacOtherStrs) and
+				( Q(pacOtherStrs).IsListOfStrings() or
+			 	  Q(pacOtherStrs).IsWithOrByNamedParam()
 				) )
 
-			StzRaise("Incorrect param! pacOtherStrings must be a list of strings.")
+			StzRaise("Incorrect param! pacOtherStrs must be a list of strings.")
 		ok
 
-		if Q(pacOtherStrings).IsWithOrByNamedParam()
-			pacOtherStrings = pacOtherStrings[2]
+		if Q(pacOtherStrs).IsWithOrByNamedParam()
+			pacOtherStrs = pacOtherStrs[2]
 		ok
 
 		# Doing the job
 
-		nLen = len(pacOtherStrings)
+		nLen = len(pacOtherStrs)
 		i = 0
-		for n in panPositions
+		for n in panPos
 			i++
 			if i > nLen
 				i = 1
 			ok
 
-			This.ReplaceStringAtPosition(n, pacOtherStrings[i])
+			This.ReplaceStringAtPosition(n, pacOtherStrs[i])
 		next
 
 		#< @FunctionFluentForm
 
-		def ReplaceStringsByManyAtPositionsXTQ(panPositions, pacOtherStrings)
-			This.ReplaceStringsByManyAtPositionsXT(panPositions, pacOtherStrings)
+		def ReplaceStringsByManyAtPositionsXTQ(panPos, pacOtherStrs)
+			This.ReplaceStringsByManyAtPositionsXT(panPos, pacOtherStrs)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceStringsAtPositionsByManyXT(panPositions, pacOtherStrings)
-			This.ReplaceStringsByManyAtPositionsXT(panPositions, pacOtherStrings)
+		def ReplaceStringsAtPositionsByManyXT(panPos, pacOtherStrs)
+			This.ReplaceStringsByManyAtPositionsXT(panPos, pacOtherStrs)
 
-			def ReplaceStringsAtPositionsByManyXTQ(panPositions, pacOtherStrings)
-				This.ReplaceStringsAtPositionsByManyXT(panPositions, pacOtherStrings)
+			def ReplaceStringsAtPositionsByManyXTQ(panPos, pacOtherStrs)
+				This.ReplaceStringsAtPositionsByManyXT(panPos, pacOtherStrs)
 				return This
 
-		def ReplaceStringItemsByManyAtPositionsXT(panPositions, pacOtherStrings)
-			This.ReplaceStringsByManyAtPositionsXT(panPositions, pacOtherStrings)
+		def ReplaceStringItemsByManyAtPositionsXT(panPos, pacOtherStrs)
+			This.ReplaceStringsByManyAtPositionsXT(panPos, pacOtherStrs)
 
-			def ReplaceStringItemsByManyAtPositionsXTQ(panPositions, pacOtherStrings)
-				This.ReplaceStringItemsByManyAtPositionsXT(panPositions, pacOtherStrings)
+			def ReplaceStringItemsByManyAtPositionsXTQ(panPos, pacOtherStrs)
+				This.ReplaceStringItemsByManyAtPositionsXT(panPos, pacOtherStrs)
 				return This
 	
 		#>
 
-	def StringsAtPositionsReplacedByManyXT(panPositions, pacOtherStrings)
-		acResult = This.Copy().ReplaceStringsByManyAtPositionsXTQ(panPositions, pacOtherStrings).Content()
+	def StringsAtPositionsReplacedByManyXT(panPos, pacOtherStrs)
+		acResult = This.Copy().ReplaceStringsByManyAtPositionsXTQ(panPos, pacOtherStrs).Content()
 		return acResult
 
-		def StringItemsAtPositionsReplacedByManyXT(panPositions, pacOtherStrings)
-			return This.StringsAtPositionsReplacedByManyXT(panPositions, pacOtherStrings)
+		def StringItemsAtPositionsReplacedByManyXT(panPos, pacOtherStrs)
+			return This.StringsAtPositionsReplacedByManyXT(panPos, pacOtherStrs)
 
 	  #-------------------------------------------------------#
 	 #    REPLACING A SECTION OF STRINGS BY A GIVEN STRING   #
@@ -11257,19 +11257,19 @@ class stzListOfStrings from stzList
 			StzRaise("Incorrect param! pcNewStr must be a string.")
 		ok
 
-		anPositions = []
+		anPos = []
 		for anSection in paSections
 			n1 = anSection[1]
 			n2 = anSection[2]
 			anTemp = n1:n2
 			for n in anTemp
-				anPositions + n
+				anPos + n
 			next
 		next
 
-		anPositions = StzListQ(anPositions).RemoveDuplicatesQ().SortedInAscending()
+		anPos = StzListQ(anPos).RemoveDuplicatesQ().SortedInAscending()
 
-		This.ReplaceStringsAtPositions(anPositions, pcNewStr)
+		This.ReplaceStringsAtPositions(anPos, pcNewStr)
 
 	  #----------------------------------------------------------#
 	 #   REPLACING EACH STRING IN SECTION BY ONE GIVEN STRING   #
@@ -11496,7 +11496,7 @@ class stzListOfStrings from stzList
 			StzRaise("Incorrect param! paSections must be a list of strings.")
 		ok
 
-		anPositions = []
+		anPos = []
 
 		for anSection in paSections
 			n1 = anSection[1]
@@ -11508,14 +11508,14 @@ class stzListOfStrings from stzList
 				StzRaise("At least one position is out of range!")
 			ok
 
-			anPositions + ( n1 : n2 )
+			anPos + ( n1 : n2 )
 		next
 
-		anPositions = StzListQ( anPositions ).
+		anPos = StzListQ( anPos ).
 				MergeQ().RemoveDuplicatesQ().
 				SortedInAscending()
 
-		This.ReplaceStringsAtPositionsByMany(anPositions, pacOtherListOfStr)
+		This.ReplaceStringsAtPositionsByMany(anPos, pacOtherListOfStr)
 
 		def ReplaceSectionsByManyQ(paSections, pacOtherListOfStr)
 			This.ReplaceSectionsByMany(paSections, pacOtherListOfStr)
@@ -11544,20 +11544,20 @@ class stzListOfStrings from stzList
 			StzRaise("Incorrect param! paSections must be a list of strings.")
 		ok
 
-		anPositions = []
+		anPos = []
 
 		for anSection in paSections
 			n1 = anSection[1]
 			n2 = anSection[2]
 
-			anPositions + ( n1 : n2 )
+			anPos + ( n1 : n2 )
 		next
 
-		anPositions = StzListQ( anPositions ).
+		anPos = StzListQ( anPos ).
 				MergeQ().RemoveDuplicatesQ().
 				SortedInAscending()
 
-		This.ReplaceStringsAtPositionsByManyXT(anPositions, pacOtherListOfStr)
+		This.ReplaceStringsAtPositionsByManyXT(anPos, pacOtherListOfStr)
 
 		def ReplaceSectionsByManyXTQ(paSections, pacOtherListOfStr)
 			This.ReplaceSectionsByManyXT(paSections, pacOtherListOfStr)
@@ -11799,65 +11799,65 @@ class stzListOfStrings from stzList
 	 #  REPLACING ALL STRINGS IN THE LIST WITH A GIVEN NEW STRING  #
 	#-------------------------------------------------------------#
 
-	def ReplaceAllStringsWith(pcOtherString)
+	def ReplaceAllStringsWith(pcOtherStr)
 		aResult = []
 		for i = 1 to This.NumberOfStrings()
-			aResult + pcOtherString
+			aResult + pcOtherStr
 		next
 
 		This.Update( aResult )
 
 		#< @FunctionFluentForm
 
-		def ReplaceAllStringsWithQ(pcOtherString)
-			This.ReplaceAllStringsWith(pcOtherString)
+		def ReplaceAllStringsWithQ(pcOtherStr)
+			This.ReplaceAllStringsWith(pcOtherStr)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceAllStringItemsWith(pcOtherString)
-			This.ReplaceAllStringsWith(pcOtherString)
+		def ReplaceAllStringItemsWith(pcOtherStr)
+			This.ReplaceAllStringsWith(pcOtherStr)
 
-			def ReplaceAllStringItemsWithQ(pcOtherString)
-				This.ReplaceAllStringItemsWith(pcOtherString)
+			def ReplaceAllStringItemsWithQ(pcOtherStr)
+				This.ReplaceAllStringItemsWith(pcOtherStr)
 
-		def ReplaceAllWith(pcOtherString)
-			This.ReplaceAllStringsWith(pcOtherString)
+		def ReplaceAllWith(pcOtherStr)
+			This.ReplaceAllStringsWith(pcOtherStr)
 
-			def ReplaceAllWithQ(pcOtherString)
-				This.ReplaceAll(pcOtherString)
+			def ReplaceAllWithQ(pcOtherStr)
+				This.ReplaceAll(pcOtherStr)
 				return This
 
-		def ReplaceWith(pcOtherString)
-			This.ReplaceAllStringsWith(pcOtherString)
+		def ReplaceWith(pcOtherStr)
+			This.ReplaceAllStringsWith(pcOtherStr)
 
-			def ReplaceWithQ(pcOtherString)
-				This.ReplaceWith(pcOtherString)
+			def ReplaceWithQ(pcOtherStr)
+				This.ReplaceWith(pcOtherStr)
 				return This
 
 		#>
 
-	def AllStringsReplacedWith(pcOtherString)
-		aResult = This.Copy().ReplaceAllStringsWith(pcOtherString)
+	def AllStringsReplacedWith(pcOtherStr)
+		aResult = This.Copy().ReplaceAllStringsWith(pcOtherStr)
 		return aResult
 
-		def AllStringItemsReplacedWith(pcOtherString)
-			return This.AllStringsReplacedWith(pcOtherString)
+		def AllStringItemsReplacedWith(pcOtherStr)
+			return This.AllStringsReplacedWith(pcOtherStr)
 
 	  #------------------------------------------------#
 	 #   REPLACING STRINGS UNDER A GIVEN CONDITION    #
 	#------------------------------------------------#
 
-	def ReplaceStringsW(pCondition, pcOtherString)
+	def ReplaceStringsW(pCondition, pcOtherStr)
 
 		if NOT ( isString(pCondition) or isList(pCondition) )
 			StzRaise("Incorrect param type! pCondition must be string or list.")
 		ok
 
-		if NOT ( isString(pcOtherString) or isList(pcOtherString) )
-			StzRaise("Incorrect param type! pcOtherString must be string or list.")
+		if NOT ( isString(pcOtherStr) or isList(pcOtherStr) )
+			StzRaise("Incorrect param type! pcOtherStr must be string or list.")
 		ok 
 
 		if isList(pCondition) and StzListQ(pCondition).IsWhereNamedParam()
@@ -11872,15 +11872,15 @@ class stzListOfStrings from stzList
 
 		cReplace = :With
 
-		if isList(pcOtherString) and
-		   ( StzListQ(pcOtherString).IsByNamedParam() or StzListQ(pcOtherString).IsWithNamedParam() )
+		if isList(pcOtherStr) and
+		   ( StzListQ(pcOtherStr).IsByNamedParam() or StzListQ(pcOtherStr).IsWithNamedParam() )
 
-			cReplace = pcOtherString[1]
-			pcOtherString = pcOtherString[2]
+			cReplace = pcOtherStr[1]
+			pcOtherStr = pcOtherStr[2]
 		ok
 
 		if cReplace = :With@
-			if NOT isString(pcOtherString)
+			if NOT isString(pcOtherStr)
 				StzRaise("Incorrect value! The value provided after :With@ must be a string containing a Ring expression.")
 			ok
 		ok
@@ -11914,10 +11914,10 @@ class stzListOfStrings from stzList
 			
 				if bOk
 					if cReplace = :With
-						This.ReplaceStringAtPosition(@i, pcOtherString)
+						This.ReplaceStringAtPosition(@i, pcOtherStr)
 		
 					but cReplace = :With@
-						cValue = StzCCodeQ(pcOtherString).UnifiedFor(:stzList)
+						cValue = StzCCodeQ(pcOtherStr).UnifiedFor(:stzList)
 						cCode = "value = " + cValue
 						eval(cCode)
 						This.ReplaceStringAtPosition(@i, value)	
@@ -11930,36 +11930,36 @@ class stzListOfStrings from stzList
 	
 		#< @FunctionFluentForm
 
-		def ReplaceStringsWQ(pCondition, pcOtherString)
-			This.ReplaceStringsW(pCondition, pcOtherString)
+		def ReplaceStringsWQ(pCondition, pcOtherStr)
+			This.ReplaceStringsW(pCondition, pcOtherStr)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceStringItemsW(pCondition, pcOtherString)
-			This.ReplaceStringsW(pCondition, pcOtherString)
+		def ReplaceStringItemsW(pCondition, pcOtherStr)
+			This.ReplaceStringsW(pCondition, pcOtherStr)
 
-			def ReplaceStringItemsWQ(pCondition, pcOtherString)
-				This.ReplaceStringItemsW(pCondition, pcOtherString)
+			def ReplaceStringItemsWQ(pCondition, pcOtherStr)
+				This.ReplaceStringItemsW(pCondition, pcOtherStr)
 				return This
 
-		def ReplaceW(pCondition, pcOtherString)
-			This.ReplaceStringsW(pCondition, pcOtherString)
+		def ReplaceW(pCondition, pcOtherStr)
+			This.ReplaceStringsW(pCondition, pcOtherStr)
 
-			def ReplaceWQ(pCondition, pcOtherString)
-				This.ReplaceW(pCondition, pcOtherString)
+			def ReplaceWQ(pCondition, pcOtherStr)
+				This.ReplaceW(pCondition, pcOtherStr)
 				return This
 
 		#>
 
-	def StringsReplacedW(pCondition, pcOtherString)
-		aResult = This.Copy().ReplaceStringsW(pCondition, pcOtherString)
+	def StringsReplacedW(pCondition, pcOtherStr)
+		aResult = This.Copy().ReplaceStringsW(pCondition, pcOtherStr)
 		return aResult
 
-		def StringItemsReplacedW(pcCondition, pcOtherString)
-			return This.StringsReplacedW(pcCondition, pcOtherString)
+		def StringItemsReplacedW(pcCondition, pcOtherStr)
+			return This.StringsReplacedW(pcCondition, pcOtherStr)
 
 	  #==============================================================================#
 	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING IN THE LIST WITH A NEW SUBSTRING   #
@@ -12242,7 +12242,7 @@ stop()
 			StzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
 		ok
 
-		anPositions = This.FindSubStringCS(pcSubStr, pCaseSensitive)
+		anPos = This.FindSubStringCS(pcSubStr, pCaseSensitive)
 
 		nNumberOfSubStr = This.NumberOfSubStringsCS(pcSubStr, pCaseSensitive)
 
@@ -12410,26 +12410,26 @@ stop()
 	 #   REPLACING A SUBSTRING AT MANY POSITIONS   #
 	#---------------------------------------------#
 
-	def ReplaceSubStringAtPositionsCS(panPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
+	def ReplaceSubStringAtPositionsCS(panPos, pcSubStr, pcNewSubStr, pCaseSensitive)
 		
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! panPositions must be a list of pairs of numbers.")
+		if NOT ( isList(panPos) and Q(panPos).IsListOfPairsOfNumbers() )
+			StzRaise("Incorrect param type! panPos must be a list of pairs of numbers.")
 		ok
 
-		for anPos in panPositions
+		for anPos in panPos
 			This.ReplaceSubStringAtPositionCS(anPos, pcSubStr, pcNewSubStr, pCaseSensitive)
 		next
 		
-		def ReplaceSubStringAtThesePositionsCS(panPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringAtPositionsCS(panPositions, pcSubStr, pcNewSubStr, pCaseSensitive)
+		def ReplaceSubStringAtThesePositionsCS(panPos, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringAtPositionsCS(panPos, pcSubStr, pcNewSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceSubStringAtPositions(panPositions, pcSubStr, pcNewSubStr)
-		This.ReplaceSubStringAtPositionsCS(panPositions, pcSubStr, pcNewSubStr, TRUE)
+	def ReplaceSubStringAtPositions(panPos, pcSubStr, pcNewSubStr)
+		This.ReplaceSubStringAtPositionsCS(panPos, pcSubStr, pcNewSubStr, TRUE)
 
-		def ReplaceSubStringAtThesePositions(panPositions, pcSubStr, pcNewSubStr)
-			This.ReplaceSubStringAtPositions(panPositions, pcSubStr, pcNewSubStr)
+		def ReplaceSubStringAtThesePositions(panPos, pcSubStr, pcNewSubStr)
+			This.ReplaceSubStringAtPositions(panPos, pcSubStr, pcNewSubStr)
 
 	  #==============================================================================#
 	 #  REPLACING, INSIDE A GIVEN STRING, ALL THE OCCURRENCES OF A GIVEN SUBSTRING  #
@@ -12566,10 +12566,10 @@ stop()
 			pcString = pcString[2]
 		ok
 
-		anPositions = This.FindAllCS(pcString, pCaseSensitive)
+		anPos = This.FindAllCS(pcString, pCaseSensitive)
 
-		for i = len(anPositions) to 1 step -1
-			n = anPositions[i]
+		for i = len(anPos) to 1 step -1
+			n = anPos[i]
 			This.RemoveStringAtPosition(n)
 		next
 
@@ -12726,15 +12726,15 @@ stop()
 	 #   REMOVING GIVEN OCCURRENCES OF A STRING-ITEM IN THE LIST   #
 	#-------------------------------------------------------------#
 
-	def RemoveOccurrences(panOccurrences, pcString)
-		for n in panOccurrences
+	def RemoveOccurrences(panOccurr, pcString)
+		for n in panOccurr
 			This.RemoveOccurrence(n, pcString)
 		next
 
 		#< @FunctionFluentForm
 
-		def RemoveOccurrencesQ(panOccurrences, pcString)
-			This.RemoveOccurrences(panOccurrences, pcString)
+		def RemoveOccurrencesQ(panOccurr, pcString)
+			This.RemoveOccurrences(panOccurr, pcString)
 			return This
 
 		#>
@@ -12742,7 +12742,7 @@ stop()
 		#< @FunctionAlternativeForm
 
 		def RemoveManyOccurrences(paOccurrences, pcString)
-			This.RemoveOccurrences(panOccurrences, pcString)
+			This.RemoveOccurrences(panOccurr, pcString)
 
 			def RemoveManyOccurrencesQ(paOccurrences, pcString)
 				This.RemoveOccurrencesOfString(paOccurrences, pcString)
@@ -12751,14 +12751,14 @@ stop()
 		#--
 
 		def RemoveOccurrencesOfString(paOccurrences, pcString)
-			This.RemoveOccurrences(panOccurrences, pcString)
+			This.RemoveOccurrences(panOccurr, pcString)
 
 			def RemoveOccurrencesOfStringQ(paOccurrences, pcString)
 				This.RemoveOccurrencesOfString(paOccurrences, pcString)
 				return This
 
 		def RemoveManyOccurrencesOfString(paOccurrences, pcString)
-			This.RemoveOccurrences(panOccurrences, pcString)
+			This.RemoveOccurrences(panOccurr, pcString)
 
 			def RemoveManyOccurrencesOfStringQ(paOccurrences, pcString)
 				This.RemoveManyOccurrencesOfString(paOccurrences, pcString)
@@ -12767,14 +12767,14 @@ stop()
 		#--
 
 		def RemoveOccurrencesOfStringItem(paOccurrences, pcString)
-			This.RemoveOccurrences(panOccurrences, pcString)
+			This.RemoveOccurrences(panOccurr, pcString)
 
 			def RemoveOccurrencesOfStringItemQ(paOccurrences, pcString)
 				This.RemoveOccurrencesOfStringItem(paOccurrences, pcString)
 				return This
 
 		def RemoveManyOccurrencesOfStringItem(paOccurrences, pcString)
-			This.RemoveOccurrences(panOccurrences, pcString)
+			This.RemoveOccurrences(panOccurr, pcString)
 
 			def RemoveManyOccurrencesOfStringItemQ(paOccurrences, pcString)
 				This.RemoveManyOccurrencesOfStringItem(paOccurrences, pcString)
@@ -12782,52 +12782,52 @@ stop()
 
 		#--
 
-		def RemoveTheseOccurrences(panOccurrences, pcString)
-			This.RemoveOccurrences(panOccurrences, pcString)
+		def RemoveTheseOccurrences(panOccurr, pcString)
+			This.RemoveOccurrences(panOccurr, pcString)
 
-			def RemoveTheseOccurrencesQ(panOccurrences, pcString)
-				This.RemoveTheseOccurrences(panOccurrences, pcString)
+			def RemoveTheseOccurrencesQ(panOccurr, pcString)
+				This.RemoveTheseOccurrences(panOccurr, pcString)
 				return This
 
 		#--
 
-		def RemoveTheseOccurrencesOfString(panOccurrences, pcString)
-			This.RemoveOccurrences(panOccurrences, pcString)
+		def RemoveTheseOccurrencesOfString(panOccurr, pcString)
+			This.RemoveOccurrences(panOccurr, pcString)
 
-			def RemoveTheseOccurrencesOfStringQ(panOccurrences, pcString)
-				This.RemoveTheseOccurrencesOfString(panOccurrences, pcString)
+			def RemoveTheseOccurrencesOfStringQ(panOccurr, pcString)
+				This.RemoveTheseOccurrencesOfString(panOccurr, pcString)
 				return This
 
-		def RemoveTheseOccurrencesOfStringItem(panOccurrences, pcString)
-			This.RemoveOccurrences(panOccurrences, pcString)
+		def RemoveTheseOccurrencesOfStringItem(panOccurr, pcString)
+			This.RemoveOccurrences(panOccurr, pcString)
 
-			def RemoveTheseOccurrencesOfStringItemQ(panOccurrences, pcString)
-				This.RemoveTheseOccurrencesOfStringItem(panOccurrences, pcString)
+			def RemoveTheseOccurrencesOfStringItemQ(panOccurr, pcString)
+				This.RemoveTheseOccurrencesOfStringItem(panOccurr, pcString)
 				return This
 
 		#>
 
-	def OccurrencesRemoved(panOccurrences, pcString)
-		aResult = This.Copy.RemoveOccurrencesQ(panOccurrences, pcString).Content()
+	def OccurrencesRemoved(panOccurr, pcString)
+		aResult = This.Copy.RemoveOccurrencesQ(panOccurr, pcString).Content()
 		return aResult
 
-		def TheseOccurrencesRemoved(panOccurrences, pcString)
-			return This.OccurrencesRemoved(panOccurrences, pcString)
+		def TheseOccurrencesRemoved(panOccurr, pcString)
+			return This.OccurrencesRemoved(panOccurr, pcString)
 
-		def TheseOccurrencesOfThisStringRemoved(panOccurrences, pcString)
-			return This.OccurrencesRemoved(panOccurrences, pcString)
+		def TheseOccurrencesOfThisStringRemoved(panOccurr, pcString)
+			return This.OccurrencesRemoved(panOccurr, pcString)
 
-		def TheseOccurrencesOfThisStringItemRemoved(panOccurrences, pcString)
-			return This.OccurrencesRemoved(panOccurrences, pcString)
+		def TheseOccurrencesOfThisStringItemRemoved(panOccurr, pcString)
+			return This.OccurrencesRemoved(panOccurr, pcString)
 
-		def ManyOccurrencesRemoved(panOccurrences, pcString)
-			return This.OccurrencesRemoved(panOccurrences, pcString)
+		def ManyOccurrencesRemoved(panOccurr, pcString)
+			return This.OccurrencesRemoved(panOccurr, pcString)
 
-		def ManyOccurrencesOfThisStringRemoved(panOccurrences, pcString)
-			return This.OccurrencesRemoved(panOccurrences, pcString)
+		def ManyOccurrencesOfThisStringRemoved(panOccurr, pcString)
+			return This.OccurrencesRemoved(panOccurr, pcString)
 
-		def ManyOccurrencesOfThisStringItemRemoved(panOccurrences, pcString)
-			return This.OccurrencesRemoved(panOccurrences, pcString)
+		def ManyOccurrencesOfThisStringItemRemoved(panOccurr, pcString)
+			return This.OccurrencesRemoved(panOccurr, pcString)
 
 	  #-------------------------------------------------#
 	 #   REMOVING MANY STRING-ITEMS AT THE SAME TIME   #
@@ -13340,21 +13340,21 @@ stop()
 			
 		oSection = This.SectionQR(pnStartingAt, :LastString, :stzListOfStrings)
 
-		anPositions  = 	oSection.
+		anPos  = 	oSection.
 				FindAllCSQR(pcString, pCaseSensitive, :stzListOfNumbers).
 				AddToEachQ(pnStartingAt-1).
 				Content()
 
-		anPositionsToBeRemoved = []
+		anPosToBeRemoved = []
 		i = 0
 		for n in panList
 			i++
-			if i <= len(anPositions)
-				anPositionsToBeRemoved +  anPositions[n]
+			if i <= len(anPos)
+				anPosToBeRemoved +  anPos[n]
 			ok
 		next
 
-		This.RemoveStringsAtThesePositions(anPositionsToBeRemoved)
+		This.RemoveStringsAtThesePositions(anPosToBeRemoved)
 
 		#< @FunctionFluentForm
 
@@ -13596,18 +13596,18 @@ stop()
 			
 		oSection = This.SectionQR(1, pnStartingAt, :stzListOfStrings)
 
-		anPositions = oSection.FindAllCSQ(pcString, pCaseSensitive).Reversed()
+		anPos = oSection.FindAllCSQ(pcString, pCaseSensitive).Reversed()
 
-		anPositionsToBeRemoved = []
+		anPosToBeRemoved = []
 		i = 0
 		for n in panList
 			i++
-			if i <= len(anPositions)
-				anPositionsToBeRemoved + anPositions[n]
+			if i <= len(anPos)
+				anPosToBeRemoved + anPos[n]
 			ok
 		next
 
-		This.RemoveStringsAtThesePositions(anPositionsToBeRemoved)
+		This.RemoveStringsAtThesePositions(anPosToBeRemoved)
 
 		#< @FunctionFluentForm
 
@@ -14168,137 +14168,137 @@ stop()
 	 #  REMOVING MANY STRINGS BY SPECIFYING THEIR POSITIONS  #
 	#=======================================================#
 
-	def RemoveStringsAtPositions(panPositions)
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
-			StzRaise("Incorrect param type! panPositions must be a list of numbers.")
+	def RemoveStringsAtPositions(panPos)
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
-		nLen = len(panPositions)
+		nLen = len(panPos)
 		if nLen = 0
 			return
 		ok
 
-		panPositions = ring_sort(panPositions)
+		panPos = ring_sort(panPos)
 
 		for i = nLen to 1 step -1
 
-			This.RemoveStringAtPosition(panPositions[i])
+			This.RemoveStringAtPosition(panPos[i])
 
 		next
 
 		#< @FunctionFluentForm
 
-		def RemoveStringsAtPositionsQ(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveStringsAtPositionsQ(panPos)
+			This.RemoveStringsAtPositions(panPos)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveStringItemsAtPositions(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveStringItemsAtPositions(panPos)
+			This.RemoveStringsAtPositions(panPos)
 
-			def RemoveStringItemsAtPositionsQ(panPositions)
-				This.RemoveStringItemsAtPositions(panPositions)
+			def RemoveStringItemsAtPositionsQ(panPos)
+				This.RemoveStringItemsAtPositions(panPos)
 				return This
 
 		#--
 
-		def RemoveManyAt(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveManyAt(panPos)
+			This.RemoveStringsAtPositions(panPos)
 
-			def RemoveManyAtQ(panPositions)
-				This.RemoveManyAt(panPositions)
+			def RemoveManyAtQ(panPos)
+				This.RemoveManyAt(panPos)
 				return This
 
-		def RemoveManyAtPositions(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveManyAtPositions(panPos)
+			This.RemoveStringsAtPositions(panPos)
 
-			def RemoveManyAtPositionsQ(panPositions)
-				This.RemoveManyAtPositions(panPositions)
+			def RemoveManyAtPositionsQ(panPos)
+				This.RemoveManyAtPositions(panPos)
 				return This
 
-		def RemoveAtPositions(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveAtPositions(panPos)
+			This.RemoveStringsAtPositions(panPos)
 
-			def RemoveAtPositionsQ(panPositions)
-				This.RemoveAtPositions(panPositions)
+			def RemoveAtPositionsQ(panPos)
+				This.RemoveAtPositions(panPos)
 				return This
 
-		def RemoveManyStringsAt(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveManyStringsAt(panPos)
+			This.RemoveStringsAtPositions(panPos)
 
-			def RemoveManyStringsAtQ(panPositions)
-				This.RemoveManyStringsAt(panPositions)
+			def RemoveManyStringsAtQ(panPos)
+				This.RemoveManyStringsAt(panPos)
 				return This
 
-		def RemoveManyStringsAtPositions(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveManyStringsAtPositions(panPos)
+			This.RemoveStringsAtPositions(panPos)
 
-			def RemoveManyStringsAtPositionsQ(panPositions)
-				This.RemoveManyStringsAtPositions(panPositions)
+			def RemoveManyStringsAtPositionsQ(panPos)
+				This.RemoveManyStringsAtPositions(panPos)
 				return This
 
-		def RemoveManyAtThesePositions(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveManyAtThesePositions(panPos)
+			This.RemoveStringsAtPositions(panPos)
 
-			def RemoveManyAtThesePositionsQ(panPositions)
-				This.RemoveManyAtThesePositions(panPositions)
+			def RemoveManyAtThesePositionsQ(panPos)
+				This.RemoveManyAtThesePositions(panPos)
 				return This
 
-		def RemoveManyStringsAtThesePositions(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveManyStringsAtThesePositions(panPos)
+			This.RemoveStringsAtPositions(panPos)
 
-			def RemoveManyStringsAtThesePositionsQ(panPositions)
-				This.RemoveManyStringsAtThesePositions(panPositions)
+			def RemoveManyStringsAtThesePositionsQ(panPos)
+				This.RemoveManyStringsAtThesePositions(panPos)
 				return This
 
-		def RemoveManyStringItemsAt(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveManyStringItemsAt(panPos)
+			This.RemoveStringsAtPositions(panPos)
 
-			def RemoveManyStringItemsAtQ(panPositions)
-				This.RemoveManyStringItemsAt(panPositions)
+			def RemoveManyStringItemsAtQ(panPos)
+				This.RemoveManyStringItemsAt(panPos)
 				return This
 
-		def RemoveManyStringItemsAtPositions(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveManyStringItemsAtPositions(panPos)
+			This.RemoveStringsAtPositions(panPos)
 
-			def RemoveManyStringItemsAtPositionsQ(panPositions)
-				This.RemoveManyStringItemsAtPositions(panPositions)
+			def RemoveManyStringItemsAtPositionsQ(panPos)
+				This.RemoveManyStringItemsAtPositions(panPos)
 				return This
 
-		def RemoveManyStringItemsAtThesePositions(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveManyStringItemsAtThesePositions(panPos)
+			This.RemoveStringsAtPositions(panPos)
 
-			def RemoveManyStringItemsAtThesePositionsQ(panPositions)
-				This.RemoveManyStringItemsAtThesePositions(panPositions)
+			def RemoveManyStringItemsAtThesePositionsQ(panPos)
+				This.RemoveManyStringItemsAtThesePositions(panPos)
 				return This
 
 		#--
 
-		def RemoveStringsAtThesePositions(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveStringsAtThesePositions(panPos)
+			This.RemoveStringsAtPositions(panPos)
 
-			def RemoveStringsAtThesePositionsQ(panPositions)
-				This.RemoveStringsAtThesePositions(panPositions)
+			def RemoveStringsAtThesePositionsQ(panPos)
+				This.RemoveStringsAtThesePositions(panPos)
 				return This
 
-		def RemoveStringItemsAtThesePositions(panPositions)
-			This.RemoveStringsAtPositions(panPositions)
+		def RemoveStringItemsAtThesePositions(panPos)
+			This.RemoveStringsAtPositions(panPos)
 
-			def RemoveStringItemsAtThesePositionsQ(panPositions)
-				This.RemoveStringsAtThesePositions(panPositions)
+			def RemoveStringItemsAtThesePositionsQ(panPos)
+				This.RemoveStringsAtThesePositions(panPos)
 				return This
 
 		#>
 		
-	def StringsAtThesePositionsRemoved(panPositions)
-		aResult = This.Copy().RemoveStringsAtThesePositionsQ(panPositions).Content()
+	def StringsAtThesePositionsRemoved(panPos)
+		aResult = This.Copy().RemoveStringsAtThesePositionsQ(panPos).Content()
 		return aResult
 
-		def StringItemsAtThesePositionsRemoved(panPositions)
-			return This.StringsAtThesePositionsRemoved(panPositions)
+		def StringItemsAtThesePositionsRemoved(panPos)
+			return This.StringsAtThesePositionsRemoved(panPos)
 
 	  #---------------------------------#
 	 #   REMOVING A RANGE OF STRINGS   #
@@ -14468,12 +14468,12 @@ stop()
 			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
-		anPositions = StzListOfPairsQ(paSections).
+		anPos = StzListOfPairsQ(paSections).
 				ExpandedIfPairsOfNumbersQ().
 				MergeQ().RemoveDuplicatesQ().Content()
 
 
-		This.RemoveStringsAtPositions(anPositions)
+		This.RemoveStringsAtPositions(anPos)
 
 		def RemoveManySectionsQ(paRanges)
 			This.RemoveManySections(paRanges)
@@ -15474,8 +15474,8 @@ stop()
 	#------------------------------------------------------#
 
 	def RemoveSubStringsW(pcCondition)
-		anPositions = This.FindSubStringsW(pcCondition)
-		This.RemoveSubStringsAtThesePositions(anPositions)
+		anPos = This.FindSubStringsW(pcCondition)
+		This.RemoveSubStringsAtThesePositions(anPos)
 		#< @FunctionFluentForm
 
 		def RemoveSubStringsWQ(pcCondition)
@@ -15541,38 +15541,38 @@ stop()
 	 #   CHECKING IF STRINGS AT GIVEN POSITIONS VERIFY A GIVEN CONDITION   #
 	#-------------------------------------------------------------------#
 
-	def CheckOnW(panPositions, pcCondition)
+	def CheckOnW(panPos, pcCondition)
 
-		return This.StringsQ().CheckOnW(panPositions, pcCondition)
+		return This.StringsQ().CheckOnW(panPos, pcCondition)
 
 		#< @FunctionAlternativeForms
 
-		def VerifyOnW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifyOnW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def CheckOn(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def CheckOn(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def VerifyOn(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifyOn(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def CheckOnPositionsW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def CheckOnPositionsW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def VerifiyOnPositionsW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifiyOnPositionsW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def CheckOnThesePositionsW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def CheckOnThesePositionsW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def VerifyThesePositionsW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifyThesePositionsW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def CheckOnPositions(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def CheckOnPositions(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def VerifyOnPositions(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifyOnPositions(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 		#>
 
 	  #------------------------------------------------------------------#
@@ -15734,8 +15734,8 @@ stop()
 	 #   YIELDING INFORMATION FROM STRINGS AT GIVEN POSITIONS   #
 	#----------------------------------------------------------#
 
-	def YieldFrom(panPositions, pcCode)
-		return This.StringsQ().YieldFrom(panPositions, pcCode)
+	def YieldFrom(panPos, pcCode)
+		return This.StringsQ().YieldFrom(panPos, pcCode)
 
 		#< @FunctionFluentForm
 
@@ -15765,8 +15765,8 @@ stop()
 
 		#< @FunctionAlternativeForms
 
-		def YieldFromPositions(panPositions, pcCode)
-			return This.YieldFrom(panPositions, pcCode)
+		def YieldFromPositions(panPos, pcCode)
+			return This.YieldFrom(panPos, pcCode)
 
 			def YieldFromPositionsQ(paPositions, pcCode)
 				return This.YieldFromPositionsQR(paPositions, pcCode, :stzList)
@@ -15790,8 +15790,8 @@ stop()
 					StzRaise("Unsupported return type!")
 				off
 
-		def YieldFromCharsAt(panPositions, pcCode)
-			return This.YieldFrom(panPositions, pcCode)
+		def YieldFromCharsAt(panPos, pcCode)
+			return This.YieldFrom(panPos, pcCode)
 
 			def YieldFromCharsAtQ(paPositions, pcCode)
 				return This.YieldFromCharsAtQR(paPositions, pcCode, :stzList)
@@ -15815,8 +15815,8 @@ stop()
 					StzRaise("Unsupported return type!")
 				off
 
-		def YieldFromCharsAtPositions(panPositions, pcCode)
-			return This.YieldOn(panPositions, pcCode)
+		def YieldFromCharsAtPositions(panPos, pcCode)
+			return This.YieldOn(panPos, pcCode)
 
 			def YieldFromCharsAtPositionsQ(paPositions, pcCode)
 				return This.YieldFromCharsAtPositionsQR(paPositions, pcCode, :stzList)
@@ -15843,8 +15843,8 @@ stop()
 					StzRaise("Unsupported return type!")
 			off
 
-		def HarvestFromPositions(panPositions, pcCode)
-			return This.HarvestFrom(panPositions, pcCode)
+		def HarvestFromPositions(panPos, pcCode)
+			return This.HarvestFrom(panPos, pcCode)
 
 			def HarvestFromPositionsQ(paPositions, pcCode)
 				return This.HarvestFromPositionsQR(paPositions, pcCode, :stzList)
@@ -15868,8 +15868,8 @@ stop()
 					StzRaise("Unsupported return type!")
 				off
 
-		def HarvestFromCharsAt(panPositions, pcCode)
-			return This.HarvestFrom(panPositions, pcCode)
+		def HarvestFromCharsAt(panPos, pcCode)
+			return This.HarvestFrom(panPos, pcCode)
 
 			def HarvestFromCharsAtQ(paPositions, pcCode)
 				return This.HarvestFromCharsAtQR(paPositions, pcCode, :stzList)
@@ -15893,8 +15893,8 @@ stop()
 					StzRaise("Unsupported return type!")
 				off
 
-		def HarvestFromCharsAtPositions(panPositions, pcCode)
-			return This.HarvestOn(panPositions, pcCode)
+		def HarvestFromCharsAtPositions(panPos, pcCode)
+			return This.HarvestOn(panPos, pcCode)
 
 			def HarvestFromCharsAtPositionsQ(paPositions, pcCode)
 				return This.HarvestFromCharsAtPositionsQR(paPositions, pcCode, :stzList)
@@ -16004,8 +16004,8 @@ stop()
 			anSectionsExpanded + Q(aSection).ExpandedIfPairOfNumbers()
 		next
 
-		for anPositions in anSectionsExpanded
-			aResult + This.YieldFromPositions(anPositions, pcCode)
+		for anPos in anSectionsExpanded
+			aResult + This.YieldFromPositions(anPos, pcCode)
 		next
 
 		return aResult
@@ -16215,14 +16215,14 @@ stop()
 	 #   PERFORMING ACTIONS ON STRINGS IN GIVEN POSITIONS   #
 	#------------------------------------------------------#
 
-	def PerformOn(panPositions, pcCode)
+	def PerformOn(panPos, pcCode)
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
 
-			StzRaise("Invalid param type! panPositions must be a list of numbers.")
+			StzRaise("Invalid param type! panPos must be a list of numbers.")
 		ok
 
-		if len(panPositions) = 0
+		if len(panPos) = 0
 			return
 		ok
 
@@ -16250,7 +16250,7 @@ stop()
 
 		cCode = oCode.Content()
 	
-		for @i in panPositions
+		for @i in panPos
 
 			@string = This[ @i ]
 			bEval = TRUE
@@ -16277,22 +16277,22 @@ stop()
 
 		#--
 
-		def PerformOnQ(panPositions, pcCode)
-			This.PerformOn(panPositions, pcCode)
+		def PerformOnQ(panPos, pcCode)
+			This.PerformOn(panPos, pcCode)
 			return This
 
-		def PerformOnPositions(panPositions, pcCode)
-			This.PerformOn(panPositions, pcCode)
+		def PerformOnPositions(panPos, pcCode)
+			This.PerformOn(panPos, pcCode)
 
-			def PerformOnPositionsQ(panPositions, pcCode)
-				This.PerformOnPositions(panPositions, pcCode)
+			def PerformOnPositionsQ(panPos, pcCode)
+				This.PerformOnPositions(panPos, pcCode)
 				return This
 
-		def PerformOnThesePositions(panPositions, pcCode)
-			This.PerformOn(panPositions, pcCode)
+		def PerformOnThesePositions(panPos, pcCode)
+			This.PerformOn(panPos, pcCode)
 
-			def PerformOnThesePositionsQ(panPositions, pcCode)
-				This.PerformOnThesePositions(panPositions, pcCode)
+			def PerformOnThesePositionsQ(panPos, pcCode)
+				This.PerformOnThesePositions(panPos, pcCode)
 				return This
 
 	  #--------------------------------------------------------#
@@ -16301,11 +16301,11 @@ stop()
 
 	def PerformOnSections(paSections, pcCode)
 
-		anPositions = StzListOfPairsQ(paSections).
+		anPos = StzListOfPairsQ(paSections).
 				ExpandedIfPairsOfNumbersQ().MergeQ().
 				RemoveDuplicatesQ().SortedInAscending()
 
-		This.PerformOnPositions(anPositions, pcCode)
+		This.PerformOnPositions(anPos, pcCode)
 
 		#--
 
@@ -17659,8 +17659,8 @@ stop()
 	#------------------------------------------------#
 
 	def RemoveDuplicatesOfStringCS(pcStr, pCaseSensitive)
-		anPositions = This.FindDuplicatesOfStringCS(pcStr, pCaseSensitive)
-		This.RemoveStringsAtPositions(anPositions)
+		anPos = This.FindDuplicatesOfStringCS(pcStr, pCaseSensitive)
+		This.RemoveStringsAtPositions(anPos)
 
 		#< @FunctionFluentForm
 
@@ -19701,8 +19701,8 @@ stop()
 
 			but isList(pValue)
 				if len(pValue) > 0
-					anPositions = This.FindMany(pValue)
-					This.RemoveItemsAtPositions(anPositions)
+					anPos = This.FindMany(pValue)
+					This.RemoveItemsAtPositions(anPos)
 				ok
 			ok
 

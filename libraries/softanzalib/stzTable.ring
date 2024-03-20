@@ -10298,26 +10298,26 @@ Class stzTable from stzObject
 	 #  INSERTING MANY COLUMNS IN DIFFERENT POSITIONS  # // TODO
 	#-------------------------------------------------#
 
-	def InsertColumnsInThesePositions(panPositions, paColsData) // TODO
+	def InsertColumnsInThesePositions(panPos, paColsData) // TODO
 		StzRaise("Inexistant feature in this release!")
 
-		def InsertColsInThesePositions(panPositions, paColsData)
-			return This.InsertColumnsInThesePositions(panPositions, paColsData)
+		def InsertColsInThesePositions(panPos, paColsData)
+			return This.InsertColumnsInThesePositions(panPos, paColsData)
 
-		def InsertColumnsBeforeThesePositions(panPositions, paColsData)
-			return This.InsertColumnsInThesePositions(panPositions, paColsData)
+		def InsertColumnsBeforeThesePositions(panPos, paColsData)
+			return This.InsertColumnsInThesePositions(panPos, paColsData)
 
-	def InsertColumnsAfterThesePositions(panPositions, paColsData) // TODO
+	def InsertColumnsAfterThesePositions(panPos, paColsData) // TODO
 		StzRaise("Inexistant feature in this release!")
 
-		def InsertColsAfterThesePositions(panPositions, paColsData)
-			This.InsertColumnsAfterThesePositions(panPositions, paColsData)
+		def InsertColsAfterThesePositions(panPos, paColsData)
+			This.InsertColumnsAfterThesePositions(panPos, paColsData)
 
-	def InsertColumnsAtThesePositions(panPositions, paColsData) // TODO
+	def InsertColumnsAtThesePositions(panPos, paColsData) // TODO
 		StzRaise("Inexistant feature in this release!")
 
-		def InsertColsAtThesePositions(panPositions, paColsData)
-			This.InsertColumnsAtThesePositions(panPositions, paColsData)
+		def InsertColsAtThesePositions(panPos, paColsData)
+			This.InsertColumnsAtThesePositions(panPos, paColsData)
 
 	  #==================#
 	 #  INSERTING ROWS  # // TODO
@@ -10361,13 +10361,13 @@ Class stzTable from stzObject
 	 #  INSERTING MANY ROWS IN MANY POSITIONS  #
 	#-----------------------------------------#
 
-	def InsertRowsAtThesePositions(panPositions, paRowsData)
+	def InsertRowsAtThesePositions(panPos, paRowsData)
 		StzRaise("Inexistant feature in this release!")
 
-		def InsertRowsBeforeThesePositions(panPositions, paRowsData)
-			return This.InsertRowsInThesePositions(panPositions, paRowsData)
+		def InsertRowsBeforeThesePositions(panPos, paRowsData)
+			return This.InsertRowsInThesePositions(panPos, paRowsData)
 
-	def InsertRowsAfterThesePositions(panPositions, paRowsData)
+	def InsertRowsAfterThesePositions(panPos, paRowsData)
 		StzRaise("Inexistant feature in this release!")
 
 	  #===================================================#

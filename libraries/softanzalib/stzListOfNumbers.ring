@@ -990,9 +990,9 @@ class stzListOfNumbers from stzList
 		for i = 1 to nLen
 
 			cNumber     = ""+ anNumbers[i]
-			anPositions = This.ToStzList().FindAll(anNumbers[i])
+			anPos = This.ToStzList().FindAll(anNumbers[i])
 
-			aResult + [ cNumber, anPositions ]
+			aResult + [ cNumber, anPos ]
 		next
 
 		return aResult
@@ -1409,9 +1409,9 @@ class stzListOfNumbers from stzList
 		for i = 1 to nLen
 
 			cNumber     = ""+ anNumbers[i]
-			anPositions = This.ToStzList().FindAll(anNumbers[i])
+			anPos = This.ToStzList().FindAll(anNumbers[i])
 
-			aResult + [ cNumber, anPositions ]
+			aResult + [ cNumber, anPos ]
 		next
 
 		return aResult
@@ -3188,10 +3188,10 @@ class stzListOfNumbers from stzList
 	 #   PERFORMING ACTIONS ON NUMBERS IN GIVEN POSITIONS   #
 	#------------------------------------------------------#
 
-	def PerformOn(panPositions, pcCode)
+	def PerformOn(panPos, pcCode)
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
-			StzRaise("Invalid param type! panPositions must be a list of numbers.")
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+			StzRaise("Invalid param type! panPos must be a list of numbers.")
 		ok
 
 		if NOT isString(pcCode)
@@ -3214,11 +3214,11 @@ class stzListOfNumbers from stzList
 		ok
 
 		cCode = oCode.Content()
-		nLenPos = len(panPositions)
+		nLenPos = len(panPos)
 		nLen = this.NumberOfNumbers()
 
 		for i = 1 to nLenPos
-			@i = panPositions[i]
+			@i = panPos[i]
 			@number = This[ @i ]
 			bEval = TRUE
 
@@ -3244,22 +3244,22 @@ class stzListOfNumbers from stzList
 
 		#--
 
-		def PerformOnQ(panPositions, pcCode)
-			This.PerformOn(panPositions, pcCode)
+		def PerformOnQ(panPos, pcCode)
+			This.PerformOn(panPos, pcCode)
 			return This
 
-		def PerformOnPositions(panPositions, pcCode)
-			This.PerformOn(panPositions, pcCode)
+		def PerformOnPositions(panPos, pcCode)
+			This.PerformOn(panPos, pcCode)
 
-			def PerformOnPositionsQ(panPositions, pcCode)
-				This.PerformOnPositions(panPositions, pcCode)
+			def PerformOnPositionsQ(panPos, pcCode)
+				This.PerformOnPositions(panPos, pcCode)
 				return This
 
-		def PerformOnThesePositions(panPositions, pcCode)
-			This.PerformOn(panPositions, pcCode)
+		def PerformOnThesePositions(panPos, pcCode)
+			This.PerformOn(panPos, pcCode)
 
-			def PerformOnThesePositionsQ(panPositions, pcCode)
-				This.PerformOnThesePositions(panPositions, pcCode)
+			def PerformOnThesePositionsQ(panPos, pcCode)
+				This.PerformOnThesePositions(panPos, pcCode)
 				return This
 
 	  #--------------------------------------------------------#
@@ -3268,11 +3268,11 @@ class stzListOfNumbers from stzList
 
 	def PerformOnSections(paSections, pcCode)
 
-		anPositions = StzListOfPairsQ(paSections).
+		anPos = StzListOfPairsQ(paSections).
 				ExpandedIfPairsOfNumbersQ().MergeQ().
 				RemoveDuplicatesQ().SortedInAscending()
 
-		This.PerformOnPositions(anPositions, pcCode)
+		This.PerformOnPositions(anPos, pcCode)
 
 		#--
 
@@ -4743,7 +4743,7 @@ class stzListOfNumbers from stzList
 
 	def AnyNumberOutsidePosition(n)
 		anPositons = Q(1 : This.NumberOfItems()) - n
-		nRandom = AnyNumberIn(anPositions)
+		nRandom = AnyNumberIn(anPos)
 		nResult = This.Number(nRandom)
 
 		return nResult
@@ -4818,7 +4818,7 @@ class stzListOfNumbers from stzList
 
 	def AnyNumberOutsidePositionZ(n)
 		anPositons = Q(1 : This.NumberOfItems()) - n
-		nRandom = AnyNumberIn(anPositions)
+		nRandom = AnyNumberIn(anPos)
 		aResult = [ This.Number(nRandom), nRandom ]
 
 		return aResult
@@ -6192,8 +6192,8 @@ class stzListOfNumbers from stzList
 			but isList(pValue) and Q(pValue).IsListofNumbers()
 				if len(pValue) > 0
 					oStzList = This.ToStzList()
-					anPositions = oStzList.FindMany(pValue)
-					oStzList.RemoveItemsAtPositions(anPositions)
+					anPos = oStzList.FindMany(pValue)
+					oStzList.RemoveItemsAtPositions(anPos)
 					anResult = oStzList.Content()
 					return anResult
 				ok
@@ -6201,8 +6201,8 @@ class stzListOfNumbers from stzList
 			but @IsStzList(pValue) and pValue.IsListOfNumbers()
 				if len(pValue.Content()) > 0
 					oStzList = This.ToStzList()
-					anPositions = oStzList.FindMany(pValue.Content())
-					oStzList.RemoveItemsAtPositions(anPositions)
+					anPos = oStzList.FindMany(pValue.Content())
+					oStzList.RemoveItemsAtPositions(anPos)
 					anResult = oStzList.Content()
 					This.UpdateWith(anResult)
 				ok

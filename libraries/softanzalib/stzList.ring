@@ -7862,13 +7862,13 @@ class stzList from stzObject
 
 		nMin = Min([ len(panPos), len(paNewItems) ])
 
-		anPositions = Q(panPos).SectionQ(1, nMin).SortedInDescending()
+		anPos = Q(panPos).SectionQ(1, nMin).SortedInDescending()
 		aNewItems   = Q(paNewItems).SectionQ(1, nMin).SortedInDescending()
 
 		# Doing the job
 
 		for i = 1 to nMin
-			This.ReplaceAnyItemAtPositionNCS(anPositions[i], aNewItems[i], pCaseSensitive)
+			This.ReplaceAnyItemAtPositionNCS(anPos[i], aNewItems[i], pCaseSensitive)
 		next
 
 		#< @FunctionFluentForm
@@ -8468,9 +8468,9 @@ class stzList from stzObject
 	 #  REPLACING GIVEN OCCURRENCES OF AN ITEM BY MANY OTHER SUBSTRINGS  #
 	#===================================================================#
 
-	def ReplaceOccurrencesCS(panOccurrences, pItem, pNewItem, pCaseSensitive)
-		anPos = This.FindTheseOccurrencesCS(panOccurrences, pItem, pCaseSensitive)
-		This.ReplaceItemAtPositionsCS(panPos, pItem, pNewItem, pCaseSensitive)
+	def ReplaceOccurrencesCS(panOccurr, pItem, pNewItem, pCaseSensitive)
+		anPos = This.FindTheseOccurrencesCS(panOccurr, pItem, pCaseSensitive)
+		This.ReplaceItemAtPositionsCS(anPos, pItem, pNewItem, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -8481,26 +8481,26 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceTheseOccurrencesCS(panOccurrences, pItem, pNewItem, pCaseSensitive)
-			This.ReplaceOccurrencesCS(panOccurrences, pItem, pNewItem, pCaseSensitive)
+		def ReplaceTheseOccurrencesCS(panOccurr, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceOccurrencesCS(panOccurr, pItem, pNewItem, pCaseSensitive)
 
-			def ReplaceTheseOccurrencesCSQ(panOccurrences, pItem, pNewItem, pCaseSensitive)
-				This.ReplaceTheseOccurrencesCS(panOccurrences, pItem, pNewItem, pCaseSensitive)
+			def ReplaceTheseOccurrencesCSQ(panOccurr, pItem, pNewItem, pCaseSensitive)
+				This.ReplaceTheseOccurrencesCS(panOccurr, pItem, pNewItem, pCaseSensitive)
 				return This
 
 		#>
 
-	def OccurrencesReplacedCS(panOccurrences, pItem, pNewItem, pCaseSensitive)
+	def OccurrencesReplacedCS(panOccurr, pItem, pNewItem, pCaseSensitive)
 		aResult = This.Copy().ReplaceOccurrencesCSQ(panPos, pItem, pNewItem, pCaseSensitive).Content()
 		return aResult
 
-		def TheseOccurrencesReplacedCS(panOccurrences, pItem, pNewItem, pCaseSensitive)
-			return This.OccurrencesReplacedCS(panOccurrences, pItem, pNewItem, pCaseSensitive)
+		def TheseOccurrencesReplacedCS(panOccurr, pItem, pNewItem, pCaseSensitive)
+			return This.OccurrencesReplacedCS(panOccurr, pItem, pNewItem, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceOccurrences(panOccurrences, pItem, pNewItem)
-		This.ReplaceOccurrencesCS(panOccurrences, pItem, pNewItem, TRUE)
+	def ReplaceOccurrences(panOccurr, pItem, pNewItem)
+		This.ReplaceOccurrencesCS(panOccurr, pItem, pNewItem, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -8511,28 +8511,28 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceTheseOccurrences(panOccurrences, pItem, pNewItem)
-			This.ReplaceOccurrences(panOccurrences, pItem, pNewItem)
+		def ReplaceTheseOccurrences(panOccurr, pItem, pNewItem)
+			This.ReplaceOccurrences(panOccurr, pItem, pNewItem)
 
-			def ReplaceTheseOccurrencesQ(panOccurrences, pItem, pNewItem)
-				This.ReplaceTheseOccurrences(panOccurrences, pItem, pNewItem)
+			def ReplaceTheseOccurrencesQ(panOccurr, pItem, pNewItem)
+				This.ReplaceTheseOccurrences(panOccurr, pItem, pNewItem)
 				return This
 
 		#>
 
-	def OccurrencesReplaced(panOccurrences, pItem, pNewItem)
+	def OccurrencesReplaced(panOccurr, pItem, pNewItem)
 		aResult = This.Copy().ReplaceOccurrencesQ(panPos, pItem, pNewItem).Content()
 		return aResult
 
-		def TheseOccurrencesReplaced(panOccurrences, pItem, pNewItem)
-			return This.OccurrencesReplaced(panOccurrences, pItem, pNewItem)
+		def TheseOccurrencesReplaced(panOccurr, pItem, pNewItem)
+			return This.OccurrencesReplaced(panOccurr, pItem, pNewItem)
 
 	  #------------------------------------------------------------------#
 	 #  REPLACING GIVEN OCCURRENCES OF A SUBSTRING BY MANY OTHER ITEMS  #
 	#------------------------------------------------------------------#
 
-	def ReplaceOccurrencesByManyCS(panOccurrences, pItem, paNewItems, pCaseSensitive)
-		anPos = This.FindTheseOccurrencesCS(panOccurrences, pItem, pCaseSensitive)
+	def ReplaceOccurrencesByManyCS(panOccurr, pItem, paNewItems, pCaseSensitive)
+		anPos = This.FindTheseOccurrencesCS(panOccurr, pItem, pCaseSensitive)
 		This.ReplaceItemAtPositionsByManyCS(anPos, pItem, paNewItems, pCaseSensitive)
 
 		#< @FunctionFluentForm
@@ -8545,10 +8545,10 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceOccurrencesByTheseCS(panOccurrences, pItem, paNewItems, pCaseSensitive)
-			This.ReplaceOccurrencesByManyCS(panOccurrences, pItem, paNewItems, pCaseSensitive)
+		def ReplaceOccurrencesByTheseCS(panOccurr, pItem, paNewItems, pCaseSensitive)
+			This.ReplaceOccurrencesByManyCS(panOccurr, pItem, paNewItems, pCaseSensitive)
 
-			def ReplaceOccurrencesByTheseCSQ(panOccurrences, pItem, paNewItems, pCaseSensitive)
+			def ReplaceOccurrencesByTheseCSQ(panOccurr, pItem, paNewItems, pCaseSensitive)
 				return This.ReplaceOccurrencesByManyCSQ(panPos, pItem, paNewItems, pCaseSensitive)
 
 		#>
@@ -8564,8 +8564,8 @@ class stzList from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceOccurrencesByMany(panOccurrences, pItem, paNewItems)
-		this.ReplaceOccurrencesByManyCS(panOccurrences, pItem, paNewItems, TRUE)
+	def ReplaceOccurrencesByMany(panOccurr, pItem, paNewItems)
+		this.ReplaceOccurrencesByManyCS(panOccurr, pItem, paNewItems, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -8577,10 +8577,10 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceOccurrencesByThese(panOccurrences, pItem, paNewItems)
-			This.ReplaceOccurrencesByMany(panOccurrences, pItem, paNewItems)
+		def ReplaceOccurrencesByThese(panOccurr, pItem, paNewItems)
+			This.ReplaceOccurrencesByMany(panOccurr, pItem, paNewItems)
 
-			def ReplaceOccurrencesByTheseQ(panOccurrences, pItem, paNewItems)
+			def ReplaceOccurrencesByTheseQ(panOccurr, pItem, paNewItems)
 				return This.ReplaceOccurrencesByManyQ(panPos, pItem, paNewItems)
 
 		#>
@@ -8598,7 +8598,7 @@ class stzList from stzObject
 	 #  REPLACING GIVEN OCCURRENCES OF A SUBSTRING BY MANY OTHER ITEMS -- XT  #
 	#------------------------------------------------------------------------#
 
-	def ReplaceOccurrencesByManyCSXT(panOccurrences, pItem, paNewItems, pCaseSensitive)
+	def ReplaceOccurrencesByManyCSXT(panOccurr, pItem, paNewItems, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzList([ "A", "B", "*", "*", "*", "*",  "*" ])
@@ -8607,7 +8607,7 @@ class stzList from stzObject
 		#--> [ "A", "B", "#1", "#2", "#1", "#2", "#1" ]
 		*/
 
-		anPos = This.FindTheseOccurrencesCS(panOccurrences, pItem, pCaseSensitive)
+		anPos = This.FindTheseOccurrencesCS(panOccurr, pItem, pCaseSensitive)
 		This.ReplaceItemAtPositionsByManyCSXT(anPos, pItem, paNewItems, pCaseSensitive)
 
 		#< @FunctionFluentForm
@@ -8620,10 +8620,10 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceOccurrencesByTheseCSXT(panOccurrences, pItem, paNewItems, pCaseSensitive)
-			This.ReplaceOccurrencesByManyCSXT(panOccurrences, pItem, paNewItems, pCaseSensitive)
+		def ReplaceOccurrencesByTheseCSXT(panOccurr, pItem, paNewItems, pCaseSensitive)
+			This.ReplaceOccurrencesByManyCSXT(panOccurr, pItem, paNewItems, pCaseSensitive)
 
-			def ReplaceOccurrencesByTheseCSXTQ(panOccurrences, pItem, paNewItems, pCaseSensitive)
+			def ReplaceOccurrencesByTheseCSXTQ(panOccurr, pItem, paNewItems, pCaseSensitive)
 				return This.ReplaceOccurrencesByManyCSXTQ(panPos, pItem, paNewItems, pCaseSensitive)
 
 		#>
@@ -8637,8 +8637,8 @@ class stzList from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceOccurrencesByManyXT(panOccurrences, pItem, paNewItems)
-		this.ReplaceOccurrencesByManyCSXT(panOccurrences, pItem, paNewItems, TRUE)
+	def ReplaceOccurrencesByManyXT(panOccurr, pItem, paNewItems)
+		this.ReplaceOccurrencesByManyCSXT(panOccurr, pItem, paNewItems, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -8650,10 +8650,10 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceOccurrencesByTheseXT(panOccurrences, pItem, paNewItems)
-			This.ReplaceOccurrencesByManyXT(panOccurrences, pItem, paNewItems)
+		def ReplaceOccurrencesByTheseXT(panOccurr, pItem, paNewItems)
+			This.ReplaceOccurrencesByManyXT(panOccurr, pItem, paNewItems)
 
-			def ReplaceOccurrencesByTheseXTQ(panOccurrences, pItem, paNewItems)
+			def ReplaceOccurrencesByTheseXTQ(panOccurr, pItem, paNewItems)
 				return This.ReplaceOccurrencesByManyXTQ(panPos, pItem, paNewItems)
 
 		#>
@@ -8684,12 +8684,12 @@ class stzList from stzObject
 			pDynamicItem = pDynamicItem[2]
 		ok
 
-		anPositions = This.FindAllCSQ(pItem, pCaseSensitive).SortedInDescending()
+		anPos = This.FindAllCSQ(pItem, pCaseSensitive).SortedInDescending()
 
 
 		@Item = pItem
 
-		@NumberOfOccurrences = len(anPositions)
+		@NumberOfOccurrences = len(anPos)
 		@NumberOfOccurrence  = @NumberOfOccurrences
 		@NumberOfItems  = @NumberOfOccurrences
 		@NumberOfItems  = @NumberOfOccurrence
@@ -8701,7 +8701,7 @@ class stzList from stzObject
 
 		aitem = []
 
-		for @Position in anPositions
+		for @Position in anPos
 
 			@CurrentPosition = @Position
 
@@ -8710,12 +8710,12 @@ class stzList from stzObject
 			@CurrentOccurrence = i
 
 			if i > 1
-				@PreviousPosition = anPositions[i - 1]
+				@PreviousPosition = anPos[i - 1]
 				@PreviousOccurrence = i - 1
 			ok
 
 			if i < @NumberOfOccurrence
-				@NextPosition = anPositions[i + 1]
+				@NextPosition = anPos[i + 1]
 				@NextOccurrence = i + 1
 			ok
 			
@@ -8734,7 +8734,7 @@ class stzList from stzObject
 		aItems = StzListQ(aItems).SortedInDescending()
 	
 		i = 0
-		for @Position in anPositions
+		for @Position in anPos
 			i++
 			item = aItems[i]
 			This.ReplaceItemAtPositionNCS(@Position, pItem, item, pCaseSensitive)
@@ -8782,8 +8782,8 @@ class stzList from stzObject
 
 	def ReplaceNextOccurrencesCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
 
-		anPositions = This.FindNextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
-		This.ReplaceItemsAtPositions(anPositions, pOtherItem)
+		anPos = This.FindNextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
+		This.ReplaceItemsAtPositions(anPos, pOtherItem)
 
 		#< @FunctionFluentForm
 
@@ -8897,8 +8897,8 @@ class stzList from stzObject
 
 	def ReplacePreviousOccurrencesCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
 
-		anPositions = This.FindPreviousOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
-		This.ReplaceItemsAtPositions(anPositions, pOtherItem)
+		anPos = This.FindPreviousOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
+		This.ReplaceItemsAtPositions(anPos, pOtherItem)
 
 		def ReplacePreviousOccurrencesCSQ(pItem, pOtherItem, pStartingAt, pCaseSensitive)
 			This.ReplacePreviousOccurrencesCS(pItem, pOtherItem, pnStartingAt, pCaseSensitive)
@@ -9432,23 +9432,23 @@ class stzList from stzObject
 			
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
 
-		anPositions = oSection.
+		anPos = oSection.
 			      FindAllCSQR(pItem, pCaseSensitive, :stzListOfNumbers).
 			      AddToEachQ(pnStartingAt-1).
 			      Content()
 
-		anPositionsToBeReplaced = []
+		anPosToBeReplaced = []
 
 		nLen = len(panList)
-		nLenPos = len(anPositions)
+		nLenPos = len(anPos)
 
 		for i = 1 to nLen
 			if i <= nLenPos
-				anPositionsToBeReplaced +  anPositions[panList[i]]
+				anPosToBeReplaced +  anPos[panList[i]]
 			ok
 		next
 
-		This.ReplaceAllItemsAtThesePositions(anPositionsToBeReplaced, pNewItem)
+		This.ReplaceAllItemsAtThesePositions(anPosToBeReplaced, pNewItem)
 
 		#< @FunctionFluentForm
 
@@ -9704,19 +9704,19 @@ class stzList from stzObject
 			
 		oSection = This.SectionQ(1, pnStartingAt)
 
-		anPositions = oSection.FindAllCSQ(pItem, pCaseSensitive).ItemsReversed()
+		anPos = oSection.FindAllCSQ(pItem, pCaseSensitive).ItemsReversed()
 
-		anPositionsToBeReplaced = []
+		anPosToBeReplaced = []
 		nLen = len(panList)
-		nLenPos = len(anPositions)
+		nLenPos = len(anPos)
 
 		for i = 1 to nLen
 			if i <= nLenPos
-				anPositionsToBeReplaced +  anPositions[panList[i]]
+				anPosToBeReplaced +  anPos[panList[i]]
 			ok
 		next
 
-		This.ReplaceAllItemsAtThesePositionsCS(anPositionsToBeReplaced, pNewItem, pCaseSensitive)
+		This.ReplaceAllItemsAtThesePositionsCS(anPosToBeReplaced, pNewItem, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -10110,9 +10110,9 @@ class stzList from stzObject
 	def ReplaceEachItemInRange(n, nRange, pNewItem)
 
 		anSection = RangeToSection([ n, nRange ])
-		anPositions = ring_sort( StzListOfPairsQ(anSection).ExpandedIfPairsOfNumbers() )
+		anPos = ring_sort( StzListOfPairsQ(anSection).ExpandedIfPairsOfNumbers() )
 
-		This.ReplaceItemsAtThesePositions(anPositions, pNewItem)
+		This.ReplaceItemsAtThesePositions(anPos, pNewItem)
 
 		def ReplaceEachItemInRangeQ(n, nRange, pNewItem)
 			This.ReplaceEachItemInRange(n, nRange, pNewItem)
@@ -10249,8 +10249,8 @@ class stzList from stzObject
 
 	def ReplaceItemsW(pCondition, pOtherItem)
 
-		anPositions = This.FindItemsW(pCondition)
-		This.ReplaceItemsAtPositions(anPositions, pOtherItem)
+		anPos = This.FindItemsW(pCondition)
+		This.ReplaceItemsAtPositions(anPos, pOtherItem)
 
 		#< @FunctionFluentForm
 
@@ -10338,11 +10338,11 @@ class stzList from stzObject
 			ok
 		ok
 
-		anPositions = This.FindAllCS(pItem, pCaseSensitive)
-		nLenPos = len(anPositions)
+		anPos = This.FindAllCS(pItem, pCaseSensitive)
+		nLenPos = len(anPos)
 
 		for i = nLenPos to 1 step -1
-			This.RemoveItemAtPosition(anPositions[i])
+			This.RemoveItemAtPosition(anPos[i])
 		next
 
 		#< @FunctionFluentForm
@@ -10442,15 +10442,50 @@ class stzList from stzObject
 	 #   REMOVING GIVEN OCCURRENCES OF AN ITEM IN THE LIST   #TODO: Add CASESENSITIVITY
 	#-------------------------------------------------------#
 
-	def RemoveOccurrences(panOccurrences, pItem)
-		for n in panOccurrences
-			This.RemoveNthOccurrence(n, pItem)
+	def RemoveOccurrences(panOccurr, pItem)
+		if CheckParams()
+			if NOT isList(panOccurr)
+				StzRaise("incorrect param type! panOccurr must be a list.")
+			ok
+
+			nLen = len(panOccurr)
+
+			if isList(panOccurr[nLen]) and
+			   Q(panOccurr[i]).IsAndNamedParam()
+
+				panOccurr[i] = panOccurr[i][2]
+			ok
+
+			for i = 1 to nLen
+				if isString(panOccurr[i])
+					if panOccurr[i] = :First or panOccurr[i] = :FirstOccurrence
+						panOccurr[i] = 1
+					but panOccurr[i] = :Last or panOccurr[i] = :LastOccurrence
+						panOccurr[i] = This.NumberOfOccurrences(pItem)
+					ok
+				ok
+			next
+		ok
+
+		if NOT ( isList(panOccurr) and @IsListOfNumbers(panOccurr) )
+			StzRaise("Incorrect param type! panOccurr must be a list of numbers.")
+		ok
+
+		anPos = This.FindTheseOccurrences(panOccurr, pItem)
+		This.RemoveItemsAtPositions(anPos)
+
+		#TODO
+		# See why this alternative implementations leads an error
+		/*
+		for i = 1 to nLen
+			This.RemoveNthOccurrence(panOccurr[i], pItem)
 		next
+		*/
 
 		#< @FunctionFluentForm
 
-		def RemoveOccurrencesQ(panOccurrences, pItem)
-			This.RemoveOccurrences(panOccurrences, pItem)
+		def RemoveOccurrencesQ(panOccurr, pItem)
+			This.RemoveOccurrences(panOccurr, pItem)
 			return This
 
 		#>
@@ -10458,36 +10493,36 @@ class stzList from stzObject
 		#< @FunctionAlternativeForm
 
 		def RemoveManyOccurrences(paOccurrences, pItem)
-			This.RemoveOccurrences(panOccurrences, pItem)
+			This.RemoveOccurrences(panOccurr, pItem)
 
 			def RemoveManyOccurrencesQ(paOccurrences, pItem)
 				This.RemoveManyOccurrences(paOccurrences, pItem)
 				return This
 
-		def RemoveTheseOccurrences(panOccurrences, pItem)
-			This.RemoveOccurrences(panOccurrences, pItem)
+		def RemoveTheseOccurrences(panOccurr, pItem)
+			This.RemoveOccurrences(panOccurr, pItem)
 
-			def RemoveTheseOccurrencesQ(panOccurrences, pItem)
-				This.RemoveTheseOccurrences(panOccurrences, pItem)
+			def RemoveTheseOccurrencesQ(panOccurr, pItem)
+				This.RemoveTheseOccurrences(panOccurr, pItem)
 				return This
 
 		#>
 
-	def OccurrencesRemoved(panOccurrences, pItem)
-		aResult = This.Copy.RemoveOccurrencesQ(panOccurrences, pItem).Content()
+	def OccurrencesRemoved(panOccurr, pItem)
+		aResult = This.Copy.RemoveOccurrencesQ(panOccurr, pItem).Content()
 		return aResult
 
-		def TheseOccurrencesRemoved(panOccurrences, pItem)
-			return This.OccurrencesRemoved(panOccurrences, pItem)
+		def TheseOccurrencesRemoved(panOccurr, pItem)
+			return This.OccurrencesRemoved(panOccurr, pItem)
 
-		def TheseOccurrencesOfThisItemRemoved(panOccurrences, pItem)
-			return This.OccurrencesRemoved(panOccurrences, pItem)
+		def TheseOccurrencesOfThisItemRemoved(panOccurr, pItem)
+			return This.OccurrencesRemoved(panOccurr, pItem)
 
-		def ManyOccurrencesOfThisItemRemoved(panOccurrences, pItem)
-			return This.OccurrencesRemoved(panOccurrences, pItem)
+		def ManyOccurrencesOfThisItemRemoved(panOccurr, pItem)
+			return This.OccurrencesRemoved(panOccurr, pItem)
 
-		def ManyOccurrencesRemoved(panOccurrences, pItem)
-			return This.OccurrencesRemoved(panOccurrences, pItem)
+		def ManyOccurrencesRemoved(panOccurr, pItem)
+			return This.OccurrencesRemoved(panOccurr, pItem)
 
 	  #------------------------------------------#
 	 #   REMOVING MANY ITEMS AT THE SAME TIME   #
@@ -10701,8 +10736,8 @@ class stzList from stzObject
 	#-------------------------------------------------#
 
 	def RemoveNthOccurrenceCS(n, pItem, pCaseSensitive)
-		n = This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
-		This.RemoveItemAtPosition( n )
+		nPos = This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+		This.RemoveItemAtPosition( nPos )
 
 		#< @FunctionFluentForm
 
@@ -11173,22 +11208,22 @@ class stzList from stzObject
 			
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
 
-		anPositions  = 	oSection.
+		anPos  = 	oSection.
 				FindAllCSQR(pItem, pCaseSensitive, :stzListOfNumbers).
 				AddToEachQ(pnStartingAt-1).
 				Content()
 
-		anPositionsToBeRemoved = []
+		anPosToBeRemoved = []
 		nLen = len(panList)
-		nLenPos = len(anPositions)
+		nLenPos = len(anPos)
 
 		for i = 1 to nLen
 			if i <= nLenPos
-				anPositionsToBeRemoved +  anPositions[panList[i]]
+				anPosToBeRemoved +  anPos[panList[i]]
 			ok
 		next
 
-		This.RemoveItemsAtThesePositionsCS(anPositionsToBeRemoved, pCaseSensitive)
+		This.RemoveItemsAtThesePositionsCS(anPosToBeRemoved, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -11447,19 +11482,19 @@ class stzList from stzObject
 			
 		oSection = This.SectionQ(1, pnStartingAt)
 
-		anPositions = oSection.FindAllCSQ(pItem, pCaseSensitive).ItemsReversed()
+		anPos = oSection.FindAllCSQ(pItem, pCaseSensitive).ItemsReversed()
 
-		anPositionsToBeRemoved = []
+		anPosToBeRemoved = []
 		nLen = len(panList)
-		nLenPositions = len(anPositions)
+		nLenPositions = len(anPos)
 
 		for i = 1 to nLen
 			if i <= nLenPso
-				anPositionsToBeRemoved + anPositions[panList[i]]
+				anPosToBeRemoved + anPos[panList[i]]
 			ok
 		next
 
-		This.RemoveItemsAtThesePositionsCS(anPositionsToBeRemoved, pCaseSensitive)
+		This.RemoveItemsAtThesePositionsCS(anPosToBeRemoved, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -11911,76 +11946,74 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def RemoveItemsAtPositionsQ(panPositions)
-			This.RemoveItemsAtPositions(panPositions)
+		def RemoveItemsAtPositionsQ(panPos)
+			This.RemoveItemsAtPositions(panPos)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def RemoveManyAt(panPositions)
-			This.RemoveItemsAtPositions(panPositions)
+		def RemoveItemsAt(panPos)
+			This.RemoveItemsAtPositions(panPos)
 
-			def RemoveManyAtQ(panPositions)
-				This.RemoveManyAt(panPositions)
-				return This
+			def RemoveItemsAtQ(panPos)
+				return This.RemoveItemsAtPositionsQ(panPos)
 
-		def RemoveManyAtPositions(panPositions)
-			This.RemoveItemsAtPositions(panPositions)
+		def RemoveManyAt(panPos)
+			This.RemoveItemsAtPositions(panPos)
 
-			def RemoveManyAtPositionsQ(panPositions)
-				This.RemoveManyAtPositions(panPositions)
-				return This
+			def RemoveManyAtQ(panPos)
+				return This.RemoveItemsAtPositionsQ(panPos)
 
-		def RemoveManyItemsAt(panPositions)
-			This.RemoveItemsAtPositions(panPositions)
+		def RemoveManyAtPositions(panPos)
+			This.RemoveItemsAtPositions(panPos)
 
-			def RemoveManyItemsAtQ(panPositions)
-				This.RemoveManyItemsAt(panPositions)
-				return This
+			def RemoveManyAtPositionsQ(panPos)
+				return This.RemoveItemsAtPositionsQ(panPos)
 
-		def RemoveManyItemsAtPositions(panPositions)
-			This.RemoveItemsAtPositions(panPositions)
+		def RemoveManyItemsAt(panPos)
+			This.RemoveItemsAtPositions(panPos)
 
-			def RemoveManyItemsAtPositionsQ(panPositions)
-				This.RemoveManyItemsAtPositions(panPositions)
-				return This
+			def RemoveManyItemsAtQ(panPos)
+				return This.RemoveItemsAtPositionsQ(panPos)
 
-		def RemoveManyAtThesePositions(panPositions)
-			This.RemoveItemsAtPositions(panPositions)
+		def RemoveManyItemsAtPositions(panPos)
+			This.RemoveItemsAtPositions(panPos)
 
-			def RemoveManyAtThesePositionsQ(panPositions)
-				This.RemoveManyAtThesePositions(panPositions)
-				return This
+			def RemoveManyItemsAtPositionsQ(panPos)
+				return This.RemoveItemsAtPositionsQ(panPos)
 
-		def RemoveManyItemsAtThesePositions(panPositions)
-			This.RemoveItemsAtPositions(panPositions)
+		def RemoveManyAtThesePositions(panPos)
+			This.RemoveItemsAtPositions(panPos)
 
-			def RemoveManyItemsAtThesePositionsQ(panPositions)
-				This.RemoveManyItemsAtThesePositions(panPositions)
-				return This
+			def RemoveManyAtThesePositionsQ(panPos)
+				return This.RemoveItemsAtPositionsQ(panPos)
+
+		def RemoveManyItemsAtThesePositions(panPos)
+			This.RemoveItemsAtPositions(panPos)
+
+			def RemoveManyItemsAtThesePositionsQ(panPos)
+				return This.RemoveItemsAtPositionsQ(panPos)
 
 		#--
 
-		def RemoveItemsAtThesePositions(panPositions)
-			This.RemoveItemsAtPositions(panPositions)
+		def RemoveItemsAtThesePositions(panPos)
+			This.RemoveItemsAtPositions(panPos)
 
-			def RemoveItemsAtThesePositionsQ(panPositions)
-				This.RemoveItemsAtThesePositions(panPositions)
-				return This
+			def RemoveItemsAtThesePositionsQ(panPos)
+				return This.RemoveItemsAtPositionsQ(panPos)
 
-		def RemoveAtPositions(panPositions)
-			This.RemoveItemsAtPositions(panPositions)
+		def RemoveAtPositions(panPos)
+			This.RemoveItemsAtPositions(panPos)
 
-			def RemoveAtPositionsQ(panPositions)
-				This.RemoveAtPositions(panPositions)
-				return This
+			def RemoveAtPositionsQ(panPos)
+				return This.RemoveItemsAtPositionsQ(panPos)
 
 		#>
 		
-	def ItemsAtThesePositionsRemoved(panPositions)
-		aResult = This.Copy().RemoveItemsAtThesePositionsQ(panPositions).Content()
+	def ItemsAtThesePositionsRemoved(panPos)
+		aResult = This.Copy().RemoveItemsAtThesePositionsQ(panPos).Content()
 		return aResult
 
 	  #-------------------------------#
@@ -19590,11 +19623,11 @@ class stzList from stzObject
 
 		# Doing the job
 
-		anPositions = []
+		anPos = []
 
 		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
 
-		anPositions = []
+		anPos = []
 		nLen = This.NumberOfItems()
 
 		nStart = 1
@@ -19612,25 +19645,25 @@ class stzList from stzObject
 			eval(cCode)
 
 			if bOk
-				anPositions + @i
+				anPos + @i
 			ok
 	
 		next
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 
 		def WalkWXT(pcCondition, pReturn)
@@ -19724,7 +19757,7 @@ class stzList from stzObject
 		aList = This.Content()
 		nLen = This.NumberOfItems()
 
-		anPositions = []
+		anPos = []
 
 		nStart = 1
 		nEnd   = nLen
@@ -19741,30 +19774,30 @@ class stzList from stzObject
 
 			if bOk
 				if bWalkBefore = FALSE
-					anPositions + @i
+					anPos + @i
 				ok
 
 				exit
 			ok
 
-			anPositions + @i
+			anPos + @i
 			
 		next
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 
 	def WalkUntilBeforeXT(pcCondition, pReturn)
@@ -19832,7 +19865,7 @@ class stzList from stzObject
 
 		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
 
-		anPositions = []
+		anPos = []
 		nLen = This.NumberOfItems()
 
 		nStart = 1
@@ -19853,23 +19886,23 @@ class stzList from stzObject
 				exit
 			ok
 
-			anPositions + @i
+			anPos + @i
 		next
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 
 	  #================#
@@ -19928,7 +19961,7 @@ class stzList from stzObject
 
 		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
 
-		anPositions = []
+		anPos = []
 		nLen = This.NumberOfItems()
 
 		nStart = 1
@@ -19946,7 +19979,7 @@ class stzList from stzObject
 			eval(cCode)
 
 			if bOk
-				anPositions = @i : nEnd
+				anPos = @i : nEnd
 				exit
 			ok
 
@@ -19954,19 +19987,19 @@ class stzList from stzObject
 		next
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 
 	  #===================#
@@ -20017,25 +20050,25 @@ class stzList from stzObject
 
 		# Doing the job
 
-		anPositions = []
+		anPos = []
 		nLen = This.NumberOfItems()
 
-		anPositions = n1 : n2
+		anPos = n1 : n2
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 
 	  #===================================#
@@ -20070,26 +20103,26 @@ class stzList from stzObject
 
 		# Doing the job
 
-		anPositions = 1 : This.NumberOfItems()
+		anPos = 1 : This.NumberOfItems()
 
 		for i = This.NumberOfItems()-1 to 1 step -1
-			anPositions + i
+			anPos + i
 		next
 		
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 
 	  #-----------------------------------#
@@ -20124,26 +20157,26 @@ class stzList from stzObject
 
 		# Doing the job
 
-		anPositions = This.NumberOfItems() : 1
+		anPos = This.NumberOfItems() : 1
 
 		for i = 2 to This.NumberOfItems()
-			anPositions + i
+			anPos + i
 		next
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 
 	  #===============================================#
@@ -20203,26 +20236,26 @@ class stzList from stzObject
 
 		# Doing the job
 
-		anPositions = []
+		anPos = []
 
 		for i = 1 to This.NumberOfItems() step n
-			anPositions + i
+			anPos + i
 		next
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 
 		#< @FunctionAlterntives
@@ -20303,26 +20336,26 @@ class stzList from stzObject
 
 		# Doing the job
 
-		anPositions = []
+		anPos = []
 
 		for i = This.NumberOfItems() to 1 step -n
-			anPositions + i
+			anPos + i
 		next
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 
 		#< @FunctionAlternativeForms
@@ -20462,16 +20495,16 @@ class stzList from stzObject
 
 		# Doing the job
 
-		anPositions = []
+		anPos = []
 
 		if n < 0
 
 			StzRaise("Can't proceed. n must be positive!")
 		but n = 0
-			anPositions = [1]
+			anPos = [1]
 
 		else
-			anPositions = [1]
+			anPos = [1]
 			nstep = 1
 			i = 0
 			
@@ -20479,26 +20512,26 @@ class stzList from stzObject
 				i++
 				nStep += (n * i)
 				if nStep <= This.NumberOfItems()
-					anPositions + nStep
+					anPos + nStep
 				ok
 			end
 
 		ok
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 
 		#< @FunctionAlternativeForms
@@ -20693,16 +20726,16 @@ class stzList from stzObject
 
 		# Doing the job
 
-		anPositions = []
+		anPos = []
 
 		if n < 0
 			StzRaise("Can't proceed. n must be positive!")
 
 		but n = 0
-			anPositions = [ This.NumberOfItems() ]
+			anPos = [ This.NumberOfItems() ]
 
 		else
-			anPositions = [ This.NumberOfItems() ]
+			anPos = [ This.NumberOfItems() ]
 			nStep = This.NumberOfItems()
 			i = 0
 			
@@ -20710,26 +20743,26 @@ class stzList from stzObject
 				i++
 				nStep -= (n * i)
 				if nStep > 0
-					anPositions + nStep
+					anPos + nStep
 				ok
 			end
 	
 		ok
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 
 		#< @FunctionAlternativeForms
@@ -20883,33 +20916,33 @@ class stzList from stzObject
 		ok
 
 		i = nStart
-		anPositions = [ i ]
+		anPos = [ i ]
 
 		while Q(i + pnForward).IsBetween(1, nLen) and
 		      Q(i + pnForward - pnBackward).IsBetween(1, nLen)
 
 			i = i + pnForward
-			anPositions + i
+			anPos + i
 
 			i = i - pnBackward
-			anPositions + i
+			anPos + i
 
 		end
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 	
 		#< @FunctionAlternativeForm
@@ -21007,33 +21040,33 @@ class stzList from stzObject
 		ok
 
 		i = nStart
-		anPositions = [ nStart ]
+		anPos = [ nStart ]
 
 		while Q(i - pnBackward).IsBetween(1, nLen) and
 		      Q(i - pnBackward + pnForward ).IsBetween(1, nLen)
 
 			i = i - pnBackward
-			anPositions + i
+			anPos + i
 
 			i = i + pnForward
-			anPositions + i
+			anPos + i
 
 		end
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 
 		#< @FunctionAlternativeForm
@@ -21127,34 +21160,34 @@ class stzList from stzObject
 		aList = This.List()
 		nLen = len(aList)
 
-		anPositions = [ 1 ]
+		anPos = [ 1 ]
 
 		for i = 1 to nLen
 			nPosFromStart = i + pnFromStart
 			nPosFromEnd   = nLen - i - pnFromEnd + 1
 
 			if nPosFromEnd >= nPosFromStart
-				anPositions + nPosFromStart
+				anPos + nPosFromStart
 				if nPosFromEnd != nPosFromStart
-					anPositions + nPosFromEnd
+					anPos + nPosFromEnd
 				ok
 			ok
 		next
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 	
 		#< @FunctionAlternativeForm
@@ -21253,7 +21286,7 @@ class stzList from stzObject
 		aList = This.List()
 		nLen = len(aList)
 
-		anPositions = [ 7 ]
+		anPos = [ 7 ]
 
 		for i = nLen to 1 step -1
 
@@ -21261,28 +21294,28 @@ class stzList from stzObject
 			nPosFromStart = nLen - i + 1
 
 			if nPosFromEnd >= nPosFromStart
-				anPositions + nPosFromEnd
+				anPos + nPosFromEnd
 				
 				if nPosFromStart != nPosFromEnd
-					anPositions + nPosFromStart
+					anPos + nPosFromStart
 				ok
 			ok
 		next
 
 		if pReturn = :WalkedItems
-			return This.ItemsAt(anPositions)
+			return This.ItemsAt(anPos)
 
 		but pReturn = :WalkedPositions
-			return anPositions
+			return anPos
 
 		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPositions))
+			return This.ItemAt(len(anPos))
 
 		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPositions[len(anPositions)]
+			return anPos[len(anPos)]
 
 		else
-			return anPositions
+			return anPos
 		end
 
 		#< @FunctionAlternativeForm
@@ -21388,7 +21421,7 @@ class stzList from stzObject
 	 #   CHECKING IF ITEMS AT GIVEN POSITIONS VERIFY A GIVEN CONDITION   #
 	#-------------------------------------------------------------------#
 
-	def CheckOnW(panPositions, pcCondition)
+	def CheckOnW(panPos, pcCondition)
 		#< @MotherFunction = YES | @RingBased #>
 
 		/* EXAMPLE
@@ -21401,11 +21434,11 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
-			StzRaise("Invalid param type! panPositions must be a list of numbers.")
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+			StzRaise("Invalid param type! panPos must be a list of numbers.")
 		ok
 
-		if len(panPositions) = 0
+		if len(panPos) = 0
 			return FALSE
 		ok
 
@@ -21425,11 +21458,11 @@ class stzList from stzObject
 		cCode = "bOk = ( " + pcCode + " )"
 		oCode = StzStringQ(cCode)
 		
-		nLenPositions = len(panPositions)
+		nLenPositions = len(panPos)
 		bResult = TRUE
 
 		for n = 1 to nLenPositions
-			@i = panPositions[n]
+			@i = panPos[n]
 			@item = This[ @i ]
 			bEval = TRUE
 
@@ -21460,30 +21493,30 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def CheckOn(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def CheckOn(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def CheckOnPositionsW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def CheckOnPositionsW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def CheckOnThesePositionsW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def CheckOnThesePositionsW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def CheckOnPositions(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def CheckOnPositions(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
 
-		def VerifyOn(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifyOn(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def VerifyOnPositionsW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifyOnPositionsW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def VerifyOnThesePositionsW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifyOnThesePositionsW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def VerifyOnPositions(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifyOnPositions(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
 		#>
 
@@ -21491,18 +21524,18 @@ class stzList from stzObject
 	 #   CHECKING IF ITEMS AT GIVEN POSITIONS VERIFY A GIVEN CONDITION -- EXTENDED  #
 	#------------------------------------------------------------------------------#
 
-	def CheckOnWXT(panPositions, pcCondition)
+	def CheckOnWXT(panPos, pcCondition)
 		#< @MotherFunction = YES | @RingBased #>
 
 		if This.IsEmpty()
 			return FALSE
 		ok
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
-			StzRaise("Invalid param type! panPositions must be a list of numbers.")
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+			StzRaise("Invalid param type! panPos must be a list of numbers.")
 		ok
 
-		if len(panPositions) = 0
+		if len(panPos) = 0
 			return FALSE
 		ok
 
@@ -21518,11 +21551,11 @@ class stzList from stzObject
 		cCode = 'bOk = ( ' + oCCode.Transpiled() + ' )'
 		oCode = StzStringQ(cCode)
 		
-		nLenPositions = len(panPositions)
+		nLenPositions = len(panPos)
 		bResult = TRUE
 
 		for n = 1 to nLenPositions
-			@i = panPositions[n]
+			@i = panPos[n]
 			@item = This[ @i ]
 			bEval = TRUE
 
@@ -21553,30 +21586,30 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def CheckOnXT(panPositions, pcCondition)
-			return This.CheckOnWXT(panPositions, pcCondition)
+		def CheckOnXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
 
-		def CheckOnPositionsWXT(panPositions, pcCondition)
-			return This.CheckOnWXT(panPositions, pcCondition)
+		def CheckOnPositionsWXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
 
-		def CheckOnThesePositionsWXT(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def CheckOnThesePositionsWXT(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def CheckOnPositionsXT(panPositions, pcCondition)
-			return This.CheckOnWXT(panPositions, pcCondition)
+		def CheckOnPositionsXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
 
 
-		def VerifyOnXT(panPositions, pcCondition)
-			return This.CheckOnWXT(panPositions, pcCondition)
+		def VerifyOnXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
 
-		def VerifyOnPositionsWXT(panPositions, pcCondition)
-			return This.CheckOnWXT(panPositions, pcCondition)
+		def VerifyOnPositionsWXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
 
-		def VerifyOnThesePositionsWXT(panPositions, pcCondition)
-			return This.CheckOnWXT(panPositions, pcCondition)
+		def VerifyOnThesePositionsWXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
 
-		def VerifyOnPositionsXT(panPositions, pcCondition)
-			return This.CheckOnWXT(panPositions, pcCondition)
+		def VerifyOnPositionsXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
 
 		#>
 
@@ -21608,11 +21641,11 @@ class stzList from stzObject
 			aSectionsExpanded + StzListQ(aPair).ExpandedIfPairOfNumbers()
 		next
 
-		anPositionsMerged = ListsMerge( aSectionsExpanded )
+		anPosMerged = ListsMerge( aSectionsExpanded )
 
-		anPositions = StzListQ(anPositionsMerged).ToSet()
+		anPos = StzListQ(anPosMerged).ToSet()
 
-		bResult = This.CheckOnW(anPositions, pcCondition)
+		bResult = This.CheckOnW(anPos, pcCondition)
 		return bResult
 
 		#< @FunctionAlternativeForm
@@ -21665,11 +21698,11 @@ class stzList from stzObject
 			aSectionsExpanded + StzListQ(aPair).ExpandedIfPairOfNumbers()
 		next
 
-		anPositionsMerged = ListsMerge( aSectionsExpanded )
+		anPosMerged = ListsMerge( aSectionsExpanded )
 
-		anPositions = StzListQ(anPositionsMerged).ToSet()
+		anPos = StzListQ(anPosMerged).ToSet()
 
-		bResult = This.CheckOnWXT(anPositions, pcCondition)
+		bResult = This.CheckOnWXT(anPos, pcCondition)
 		return bResult
 
 		#< @FunctionAlternativeForm
@@ -22018,20 +22051,20 @@ class stzList from stzObject
 		@PreviousItem should be expressed using This[@-1] and so on...
 	*/
 
-	def YieldFrom(panPositions, pcCode)
+	def YieldFrom(panPos, pcCode)
 
 		#< @MotherFunction #>
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
 			StzRaise("Incorrect param! paPositions must be a list of numbers.")
 		ok
 
-		if len(panPositions) = 0
+		if len(panPos) = 0
 			return []
 		ok
 
-		panPositions = ring_sort(panPositions)
-		nLenPositions = len(panPositions)
+		panPos = ring_sort(panPos)
+		nLenPositions = len(panPos)
 
 		if NOT isString(pcCode)
 			StzRaise("Invalid param type! Condition must be a string.")
@@ -22060,7 +22093,7 @@ class stzList from stzObject
 		nLenList = This.NumberOfItems()
 
 		for i = 1 to nLenPositions
-			@i = panPositions[i]
+			@i = panPos[i]
 			@item = This[ @i ]
 
 			bEval = TRUE
@@ -22116,8 +22149,8 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def YieldFromPositions(panPositions, pcCode)
-			return This.YieldFrom(panPositions, pcCode)
+		def YieldFromPositions(panPos, pcCode)
+			return This.YieldFrom(panPos, pcCode)
 
 			def YieldFromPositionsQ(paPositions, pcCode)
 				return This.YieldFromPositionsQR(paPositions, pcCode, :stzList)
@@ -22141,8 +22174,8 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 				off
 
-		def YieldFromItemsAt(panPositions, pcCode)
-			return This.YieldFrom(panPositions, pcCode)
+		def YieldFromItemsAt(panPos, pcCode)
+			return This.YieldFrom(panPos, pcCode)
 
 			def YieldFromItemsAtQ(paPositions, pcCode)
 				return This.YieldFromItemsAtQR(paPositions, pcCode, :stzList)
@@ -22166,8 +22199,8 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 				off
 
-		def YieldFromItemsAtPositions(panPositions, pcCode)
-			return This.YieldOn(panPositions, pcCode)
+		def YieldFromItemsAtPositions(panPos, pcCode)
+			return This.YieldOn(panPos, pcCode)
 
 			def YieldFromItemsAtPositionsQ(paPositions, pcCode)
 				return This.YieldFromItemsAtPositionsQR(paPositions, pcCode, :stzList)
@@ -22194,8 +22227,8 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 			off
 
-		def HarvestFrom(panPositions, pcCode)
-			return This.HarvestFrom(panPositions, pcCode)
+		def HarvestFrom(panPos, pcCode)
+			return This.HarvestFrom(panPos, pcCode)
 
 			def HarvestFromQ(paPositions, pcCode)
 				return This.HarvestFromQR(paPositions, pcCode, :stzList)
@@ -22219,8 +22252,8 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 				off
 
-		def HarvestFromPositions(panPositions, pcCode)
-			return This.HarvestFrom(panPositions, pcCode)
+		def HarvestFromPositions(panPos, pcCode)
+			return This.HarvestFrom(panPos, pcCode)
 
 			def HarvestFromPositionsQ(paPositions, pcCode)
 				return This.HarvestFromPositionsQR(paPositions, pcCode, :stzList)
@@ -22244,8 +22277,8 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 				off
 
-		def HarvestFromItemsAt(panPositions, pcCode)
-			return This.HarvestFrom(panPositions, pcCode)
+		def HarvestFromItemsAt(panPos, pcCode)
+			return This.HarvestFrom(panPos, pcCode)
 
 			def HarvestFromItemsAtQ(paPositions, pcCode)
 				return This.HarvestFromItemsAtQR(paPositions, pcCode, :stzList)
@@ -22269,8 +22302,8 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 				off
 
-		def HarvestFromItemsAtPositions(panPositions, pcCode)
-			return This.HarvestOn(panPositions, pcCode)
+		def HarvestFromItemsAtPositions(panPos, pcCode)
+			return This.HarvestOn(panPos, pcCode)
 
 			def HarvestFromItemsAtPositionsQ(paPositions, pcCode)
 				return This.HarvestFromItemsAtPositionsQR(paPositions, pcCode, :stzList)
@@ -22317,17 +22350,17 @@ class stzList from stzObject
 
 	*/
 
-	def YieldFromXT(panPositions, pcCode)
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+	def YieldFromXT(panPos, pcCode)
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
 			StzRaise("Incorrect param! paPositions must be a list of numbers.")
 		ok
 
-		if len(panPositions) = 0
+		if len(panPos) = 0
 			return []
 		ok
 
-		panPositions = ring_sort(panPositions)
-		nLenPositions = len(panPositions)
+		panPos = ring_sort(panPos)
+		nLenPositions = len(panPos)
 
 		if NOT isString(pcCode)
 			StzRaise("Invalid param type! Condition must be a string.")
@@ -22352,7 +22385,7 @@ class stzList from stzObject
 		nLenList = This.NumberOfItems()
 
 		for i = 1 to nLenPositions
-			@i = panPositions[i]
+			@i = panPos[i]
 			@item = This[ @i ]
 
 			bEval = TRUE
@@ -22407,8 +22440,8 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def YieldFromPositionsXT(panPositions, pcCode)
-			return This.YieldFromXT(panPositions, pcCode)
+		def YieldFromPositionsXT(panPos, pcCode)
+			return This.YieldFromXT(panPos, pcCode)
 
 			def YieldFromPositionsXTQ(paPositions, pcCode)
 				return This.YieldFromPositionsXTQR(paPositions, pcCode, :stzList)
@@ -22432,8 +22465,8 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 				off
 
-		def YieldFromItemsAtXT(panPositions, pcCode)
-			return This.YieldFromXT(panPositions, pcCode)
+		def YieldFromItemsAtXT(panPos, pcCode)
+			return This.YieldFromXT(panPos, pcCode)
 
 			def YieldFromItemsAtXTQ(paPositions, pcCode)
 				return This.YieldFromItemsAtXTQR(paPositions, pcCode, :stzList)
@@ -22457,8 +22490,8 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 				off
 
-		def YieldFromItemsAtPositionsXT(panPositions, pcCode)
-			return This.YieldOnXT(panPositions, pcCode)
+		def YieldFromItemsAtPositionsXT(panPos, pcCode)
+			return This.YieldOnXT(panPos, pcCode)
 
 			def YieldFromItemsAtPositionsXTQ(paPositions, pcCode)
 				return This.YieldFromItemsAtPositionsXTQR(paPositions, pcCode, :stzList)
@@ -22485,8 +22518,8 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 			off
 
-		def HarvestFromXT(panPositions, pcCode)
-			return This.HarvestFromXT(panPositions, pcCode)
+		def HarvestFromXT(panPos, pcCode)
+			return This.HarvestFromXT(panPos, pcCode)
 
 			def HarvestFromXTQ(paPositions, pcCode)
 				return This.HarvestFromXTQR(paPositions, pcCode, :stzList)
@@ -22510,8 +22543,8 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 				off
 
-		def HarvestFromPositionsXT(panPositions, pcCode)
-			return This.HarvestFromXT(panPositions, pcCode)
+		def HarvestFromPositionsXT(panPos, pcCode)
+			return This.HarvestFromXT(panPos, pcCode)
 
 			def HarvestFromPositionsXTQ(paPositions, pcCode)
 				return This.HarvestFromPositionsXTQR(paPositions, pcCode, :stzList)
@@ -22535,8 +22568,8 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 				off
 
-		def HarvestFromItemsAtXT(panPositions, pcCode)
-			return This.HarvestFromXT(panPositions, pcCode)
+		def HarvestFromItemsAtXT(panPos, pcCode)
+			return This.HarvestFromXT(panPos, pcCode)
 
 			def HarvestFromItemsAtXTQ(paPositions, pcCode)
 				return This.HarvestFromItemsAtXTQR(paPositions, pcCode, :stzList)
@@ -22560,8 +22593,8 @@ class stzList from stzObject
 					StzRaise("Unsupported return type!")
 				off
 
-		def HarvestFromItemsAtPositionsXT(panPositions, pcCode)
-			return This.HarvestOnXT(panPositions, pcCode)
+		def HarvestFromItemsAtPositionsXT(panPos, pcCode)
+			return This.HarvestOnXT(panPos, pcCode)
 
 			def HarvestFromItemsAtPositionsXTQ(paPositions, pcCode)
 				return This.HarvestFromItemsAtPositionsXTQR(paPositions, pcCode, :stzList)
@@ -22609,9 +22642,9 @@ class stzList from stzObject
 			@item = Q(@item).ExpandedIfPairOfNumbers()
 		}').Content()
 	
-		anPositions = ListsMergeQ( anSectionsExpanded ).DuplicatesRemoved()
+		anPos = ListsMergeQ( anSectionsExpanded ).DuplicatesRemoved()
 
-		return This.YieldFrom(anPositions, pcCode)
+		return This.YieldFrom(anPos, pcCode)
 
 		#< @FunctionFluentForm
 
@@ -22732,8 +22765,8 @@ class stzList from stzObject
 			anSectionsExpanded + Q(aSection).ExpandedIfPairOfNumbers()
 		next
 
-		for anPositions in anSectionsExpanded
-			aResult + This.YieldFromPositions(anPositions, pcCode)
+		for anPos in anSectionsExpanded
+			aResult + This.YieldFromPositions(anPos, pcCode)
 		next
 
 		return aResult
@@ -22863,9 +22896,9 @@ class stzList from stzObject
 			@item = Q(@item).ExpandedIfPairOfNumbers()
 		}').Content()
 	
-		anPositions = ListsMergeQ( anSectionsExpanded ).DuplicatesRemoved()
+		anPos = ListsMergeQ( anSectionsExpanded ).DuplicatesRemoved()
 
-		return This.YieldFromXT(anPositions, pcCode)
+		return This.YieldFromXT(anPos, pcCode)
 
 		#< @FunctionFluentForm
 
@@ -22986,8 +23019,8 @@ class stzList from stzObject
 			anSectionsExpanded + Q(aSection).ExpandedIfPairOfNumbers()
 		next
 
-		for anPositions in anSectionsExpanded
-			aResult + This.YieldFromPositionsXT(anPositions, pcCode)
+		for anPos in anSectionsExpanded
+			aResult + This.YieldFromPositionsXT(anPos, pcCode)
 		next
 
 		return aResult
@@ -23122,8 +23155,8 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pcCondition must be astring.")
 		ok
 
-		anPositions = This.FindW(pcCondition)
-		aResult = This.YieldFrom(anPositions, pcCode)
+		anPos = This.FindW(pcCondition)
+		aResult = This.YieldFrom(anPos, pcCode)
 
 		return aResult
 
@@ -23210,8 +23243,8 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pcCondition must be astring.")
 		ok
 
-		anPositions = This.FindWXT(pcCondition)
-		aResult = This.YieldFromXT(anPositions, pcCode)
+		anPos = This.FindWXT(pcCondition)
+		aResult = This.YieldFromXT(anPos, pcCode)
 
 		return aResult
 
@@ -23533,14 +23566,14 @@ class stzList from stzObject
 	 #   PERFORMIN ACTIONS ON CHARS IN GIVEN POSITIONS   #
 	#---------------------------------------------------#
 
-	def PerformOn(panPositions, pcCode)
+	def PerformOn(panPos, pcCode)
 		#< @MotherFunction > ReplaceAt() | @RingBased #>
 
-		if NOT ( isList(panPositions) and (Q(panPositions).IsListOfNumbers() or len(panPositions) = 0) )
-			StzRaise("Invalid param type! panPositions must be a list of numbers.")
+		if NOT ( isList(panPos) and (Q(panPos).IsListOfNumbers() or len(panPos) = 0) )
+			StzRaise("Invalid param type! panPos must be a list of numbers.")
 		ok
 
-		if len(panPositions) = 0
+		if len(panPos) = 0
 			return
 		ok
 
@@ -23572,7 +23605,7 @@ class stzList from stzObject
 
 		@i = 0
 		
-		for @i in panPositions
+		for @i in panPos
 
 			bEval = TRUE
 
@@ -23598,11 +23631,11 @@ class stzList from stzObject
 
 		#--
 
-		def PerformOnQ(panPositions, pcCode)
-			This.PerformOn(panPositions, pcCode)
+		def PerformOnQ(panPos, pcCode)
+			This.PerformOn(panPos, pcCode)
 			return This
 
-		def PerformOnQR(panPositions, pcCode)
+		def PerformOnQR(panPos, pcCode)
 			if IsList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -23616,16 +23649,16 @@ class stzList from stzObject
 				return This
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.PerformOn(panPositions, pcCode) )
+				return new stzListOfStrings( This.PerformOn(panPos, pcCode) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.PerformOn(panPositions, pcCode) )
+				return new stzListOfNumbers( This.PerformOn(panPos, pcCode) )
 
 			on :stzListOfLists
-				return new stzListOfLists( This.PerformOn(panPositions, pcCode) )
+				return new stzListOfLists( This.PerformOn(panPos, pcCode) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.PerformOn(panPositions, pcCode) )
+				return new stzListOfPairs( This.PerformOn(panPos, pcCode) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -23633,14 +23666,14 @@ class stzList from stzObject
 
 		#--
 
-		def PerformOnPositions(panPositions, pcCode)
-			This.PerformOn(panPositions, pcCode)
+		def PerformOnPositions(panPos, pcCode)
+			This.PerformOn(panPos, pcCode)
 
-			def PerformOnPositionsQ(panPositions, pcCode)
-				This.PerformOnPositions(panPositions, pcCode)
+			def PerformOnPositionsQ(panPos, pcCode)
+				This.PerformOnPositions(panPos, pcCode)
 				return This
 	
-			def PerformOnPositionsQR(panPositions, pcCode, pcReturnType)
+			def PerformOnPositionsQR(panPos, pcCode, pcReturnType)
 				if IsList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
@@ -23654,16 +23687,16 @@ class stzList from stzObject
 					return This
 	
 				on :stzListOfStrings
-					return new stzListOfStrings( This.PerformOnPositions(panPositions, pcCode) )
+					return new stzListOfStrings( This.PerformOnPositions(panPos, pcCode) )
 	
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.PerformOnPositions(panPositions, pcCode) )
+					return new stzListOfNumbers( This.PerformOnPositions(panPos, pcCode) )
 	
 				on :stzListOfLists
-					return new stzListOfLists( This.PerformOnPositions(panPositions, pcCode) )
+					return new stzListOfLists( This.PerformOnPositions(panPos, pcCode) )
 	
 				on :stzListOfPairs
-					return new stzListOfPairs(This.PerformOnPositions(panPositions, pcCode) )
+					return new stzListOfPairs(This.PerformOnPositions(panPos, pcCode) )
 	
 				other
 					StzRaise("Unsupported return type!")
@@ -23671,14 +23704,14 @@ class stzList from stzObject
 
 		#--
 
-		def PerformOnThesePositions(panPositions, pcCode)
-			This.PerformOn(panPositions, pcCode)
+		def PerformOnThesePositions(panPos, pcCode)
+			This.PerformOn(panPos, pcCode)
 
-			def PerformOnThesePositionsQ(panPositions, pcCode)
-				This.PerformOnThesePositions(panPositions, pcCode)
+			def PerformOnThesePositionsQ(panPos, pcCode)
+				This.PerformOnThesePositions(panPos, pcCode)
 				return This
 
-			def PerformOnThesePositionsQR(panPositions, pcCode, pcReturnType)
+			def PerformOnThesePositionsQR(panPos, pcCode, pcReturnType)
 				if IsList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
@@ -23692,16 +23725,16 @@ class stzList from stzObject
 					return This
 	
 				on :stzListOfStrings
-					return new stzListOfStrings( This.PerformOnThesePositions(panPositions, pcCode) )
+					return new stzListOfStrings( This.PerformOnThesePositions(panPos, pcCode) )
 	
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.PerformOnThesePositions(panPositions, pcCode) )
+					return new stzListOfNumbers( This.PerformOnThesePositions(panPos, pcCode) )
 	
 				on :stzListOfLists
-					return new stzListOfLists( This.PerformOnThesePositions(panPositions, pcCode) )
+					return new stzListOfLists( This.PerformOnThesePositions(panPos, pcCode) )
 	
 				on :stzListOfPairs
-					return new stzListOfPairs( This.PerformOnThesePositions(panPositions, pcCode) )
+					return new stzListOfPairs( This.PerformOnThesePositions(panPos, pcCode) )
 	
 				other
 					StzRaise("Unsupported return type!")
@@ -23735,9 +23768,9 @@ class stzList from stzObject
 			@item = Q(@item).ExpandedIfPairOfNumbers()
 		}').Content()
 	
-		anPositions = ListsMergeQ( anSectionsExpanded ).DuplicatesRemoved()
+		anPos = ListsMergeQ( anSectionsExpanded ).DuplicatesRemoved()
 
-		This.PerformOn(anPositions, pcCode)
+		This.PerformOn(anPos, pcCode)
 
 		#--
 
@@ -23838,12 +23871,12 @@ class stzList from stzObject
 		# No need to purify the pcCondition code here,
 		# FindItemsW() will do it
 
-		anPositions = This.FindItemsW(pcCondition)
+		anPos = This.FindItemsW(pcCondition)
 
 		# Do not purify pcAction code here,
 		# PerformOn() will do it
 
-		This.PerformOn(anPositions, pcAction)
+		This.PerformOn(anPos, pcAction)
 
 		#< @FunctionFluentForm
 
@@ -24725,11 +24758,11 @@ class stzList from stzObject
 		aResult  = []
 
 		for pClass in aCLasses
-			anPositions = This.FindAll(pClass)
+			anPos = This.FindAll(pClass)
 
 			cClass = @@( pClass )
 
-			aResult + [ cClass, anPositions ]
+			aResult + [ cClass, anPos ]
 
 		next
 
@@ -27123,12 +27156,12 @@ class stzList from stzObject
 				return This
 			
 			but @IsStzNumber(pValue)	
-				anPositions = This.FindAll(pValue.NumericValue())
-				This.RemoveItemsAtPositions(anPositions)
+				anPos = This.FindAll(pValue.NumericValue())
+				This.RemoveItemsAtPositions(anPos)
 
 			else
-				anPositions = This.FindAll(pValue)
-				aResult = This.RemoveItemsAtPositions(anPositions)
+				anPos = This.FindAll(pValue)
+				aResult = This.RemoveItemsAtPositions(anPos)
 				return This.Content()
 			ok
 
@@ -27270,16 +27303,16 @@ class stzList from stzObject
 
 		#>
 
-	def ItemsInPositions(panPositions)
+	def ItemsInPositions(panPos)
 		aResult = []
-		for n in panPositions
+		for n in panPos
 			aResult + This.Item(n)
 		next
 
 		return aResult
 
-		def ItemsInPositionsQ(panPositions)
-			return new stzList( This.ItemsInPositions(panPositions) ) 
+		def ItemsInPositionsQ(panPos)
+			return new stzList( This.ItemsInPositions(panPos) ) 
 
 	def Minus(paOtherList)
 		/*
@@ -31276,8 +31309,8 @@ class stzList from stzObject
 	#-----------------------------------------#
 
 	def RemoveDuplicatesOfItemCS(pItem, pCaseSensitive)
-		anPositions = This.FindDuplicatesOfItemCS(pItem, pCaseSensitive)
-		This.RemoveItemsAtPositions(anPositions)
+		anPos = This.FindDuplicatesOfItemCS(pItem, pCaseSensitive)
+		This.RemoveItemsAtPositions(anPos)
 
 		#< @FunctionFluentForm
 
@@ -33753,7 +33786,7 @@ class stzList from stzObject
 			ok
 	
 			if NOT isNumber(n)
-				SrzRaise("Incorrect  param type! n must be a number.")
+				StzRaise("Incorrect  param type! n must be a number.")
 			ok
 	
 			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
@@ -34064,6 +34097,11 @@ class stzList from stzObject
 			ok
 
 			nLen = len(panOccurr)
+
+			if isList(panOccurr[nLen]) and Q(panOccurr[nLen]).IsAndNamedParam()
+				panOccurr[nLen] = panOccurr[nLen][2]
+			ok
+
 			for i = 1 to nLen
 				if isString(panOccurr[i])
 					if panOccurr[i] = :First or panOccurr[i] = :FirstOccurrence
@@ -34080,8 +34118,8 @@ class stzList from stzObject
 
 		ok
 
-		anPositions = This.FindAllCS(pItem, pCaseSensitive)
-		return Q(anPositions).ItemsAt(panOccurr)
+		anPos = This.FindAllCS(pItem, pCaseSensitive)
+		return Q(anPos).ItemsAt(panOccurr)
 
 		def FindOccurrencesCS(panOccurr, pItem, pCaseSensitive)
 			return This.FindTheseOccurrencesCS(panOccurr, pItem, pCaseSensitive)
@@ -34971,14 +35009,14 @@ class stzList from stzObject
 	def VizFindAllOccurrencesCS(pItem, pCaseSensitive)
 		
 		cResult = This.ToCodeQ().Simplified()
-		anPositions = Q(cResult).FindAllCS( @@(pItem), pCaseSensitive )
+		anPos = Q(cResult).FindAllCS( @@(pItem), pCaseSensitive )
 
 		nLen = StzStringQ(cResult).NumberOfChars()
 
 		cViz = " "
 		for i = 1 to nLen - 2
 			
-			if StzNumberQ(i).IsOneOfThese(anPositions)
+			if StzNumberQ(i).IsOneOfThese(anPos)
 				cViz += "^"
 			else
 				cViz += "-"
@@ -35430,9 +35468,9 @@ class stzList from stzObject
 
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
 
-		anPositions = oSection.FindAllCS(pItem, pCaseSensitive)
+		anPos = oSection.FindAllCS(pItem, pCaseSensitive)
 		
-		anResult = StzListOfNumbersQ(anPositions).
+		anResult = StzListOfNumbersQ(anPos).
 			   AddToEachQ(pnStartingAt - 1 ).
 			   Content()
 
@@ -35502,9 +35540,9 @@ class stzList from stzObject
 
 		oSection = This.SectionQ(1, pnStartingAt)
 
-		anPositions = oSection.FindAllCS(pcSubStr, pCaseSensitive)
+		anPos = oSection.FindAllCS(pcSubStr, pCaseSensitive)
 		
-		return anPositions
+		return anPos
 
 		#< @FunctionAlternativeForm
 
@@ -35542,8 +35580,8 @@ class stzList from stzObject
 
 		We can't use this solution:
 
-			anPositions = This.YieldW('@position', pcCondition)
-			return anPositions
+			anPos = This.YieldW('@position', pcCondition)
+			return anPos
 
 		because YieldW() uses the current function FindW() --> Stackoverfolw!
 		*/
@@ -36118,8 +36156,8 @@ class stzList from stzObject
 		--> Stackoverflow!
 		*/
 
-		anPositions = This.FindAllItemsW(pcCondition)
-		aResult = This.ItemsAtThesePositions(anPositions)
+		anPos = This.FindAllItemsW(pcCondition)
+		aResult = This.ItemsAtThesePositions(anPos)
 
 		return aResult
 
@@ -36321,8 +36359,8 @@ class stzList from stzObject
 		--> Stackoverflow!
 		*/
 
-		anPositions = This.FindAllItemsWXT(pcCondition)
-		aResult = This.ItemsAtThesePositions(anPositions)
+		anPos = This.FindAllItemsWXT(pcCondition)
+		aResult = This.ItemsAtThesePositions(anPos)
 
 		return aResult
 
@@ -36536,9 +36574,9 @@ class stzList from stzObject
 		*/
 
 		aItems = This.ItemsW(pcCondition)
-		anPositions = This.FindItemsW(pcCondition)
+		anPos = This.FindItemsW(pcCondition)
 
-		aPairs = StzListQ( aItems ).AssociatedWith( anPositions )
+		aPairs = StzListQ( aItems ).AssociatedWith( anPos )
 	
 		aUniqueItems = StzListQ(aItems).ToSet()
 
@@ -36590,9 +36628,9 @@ class stzList from stzObject
 		*/
 
 		aItems = This.ItemsWXT(pcCondition)
-		anPositions = This.FindItemsWXT(pcCondition)
+		anPos = This.FindItemsWXT(pcCondition)
 
-		aPairs = StzListQ( aItems ).AssociatedWith( anPositions )
+		aPairs = StzListQ( aItems ).AssociatedWith( anPos )
 	
 		aUniqueItems = StzListQ(aItems).ToSet()
 
@@ -37864,8 +37902,8 @@ class stzList from stzObject
 	#--------------------------------------------#
 
 	def RemoveLists()
-		anPositions = This.FindLists()
-		This.RemoveItemsAtThesePositions(anPositions)
+		anPos = This.FindLists()
+		This.RemoveItemsAtThesePositions(anPos)
 
 		def RemoveListsQ()
 			This.RemoveLists()
@@ -38084,8 +38122,8 @@ class stzList from stzObject
 	#------------------------------------#
 
 	def RemoveNonLists()
-		anPositions = This.FindNonLists()
-		This.RemoveItemsAtThesePositions(anPositions)
+		anPos = This.FindNonLists()
+		This.RemoveItemsAtThesePositions(anPos)
 
 		def RemoveNonListsQ()
 			This.RemoveNonLists()
@@ -38403,8 +38441,8 @@ class stzList from stzObject
 	#--------------------------------------------------------------------#
 
 	def InsertAfterW( pcCondition, pNewItem )
-		anPositions = This.FindItemsW(pcCondition)
-		This.InsertAfterManyPositions( anPositions, pNewItem )
+		anPos = This.FindItemsW(pcCondition)
+		This.InsertAfterManyPositions( anPos, pNewItem )
 
 		#< @FunctionFluentForm
 
@@ -38426,8 +38464,8 @@ class stzList from stzObject
 		o1.InsertBeforeW( :Where = '{ StzStringQ(item).IsUppercase() }', "*" )
 		*/
 
-		anPositions = This.FindItemsW(pcCondition)
-		This.InsertBeforeThesePositions(anPositions, pNewItem)
+		anPos = This.FindItemsW(pcCondition)
+		This.InsertBeforeThesePositions(anPos, pNewItem)
 
 		#< @FunctionFluentForm
 
@@ -38448,74 +38486,74 @@ class stzList from stzObject
 	 #  INSERTING MANY ITEMS AFTER OR BEFORE A GIVEN SET OF POSITIONS  #
 	#-----------------------------------------------------------------#
 
-	def InsertAfterManyPositions(panPositions, pItem)
+	def InsertAfterManyPositions(panPos, pItem)
 
-		for i = 1 to len(panPositions)
-			n = panPositions[i] + i - 1
+		for i = 1 to len(panPos)
+			n = panPos[i] + i - 1
 			This.InsertAfter(n, pItem)
 		next
 
 		#< @FunctionFluentForm
 
-		def InsertAfterManyPositionsQ(panPositions, pItem)
-			This.InsertAfterManyPositions(panPositions, pItem)
+		def InsertAfterManyPositionsQ(panPos, pItem)
+			This.InsertAfterManyPositions(panPos, pItem)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def InsertAfterThesePositions(panPositions, pItem)
-			This.InsertAfterManyPositions(panPositions, pItem)
+		def InsertAfterThesePositions(panPos, pItem)
+			This.InsertAfterManyPositions(panPos, pItem)
 
-			def InsertAfterThesePositionsQ(panPositions, pItem)
-				This.InsertAfterThesePositions(panPositions, pItem)
+			def InsertAfterThesePositionsQ(panPos, pItem)
+				This.InsertAfterThesePositions(panPos, pItem)
 				return This
 
-		def InsertAfterPositions(panPositions, pItem)
-			This.InsertAfterPositions(panPositions, pItem)
+		def InsertAfterPositions(panPos, pItem)
+			This.InsertAfterPositions(panPos, pItem)
 
-			def InsertAfterPositionsQ(panPositions, pItem)
-				This.InsertAfterThesePositions(panPositions, pItem)
+			def InsertAfterPositionsQ(panPos, pItem)
+				This.InsertAfterThesePositions(panPos, pItem)
 				return This
 
 		#>
 
-	def InsertBeforeManyPositions(panPositions, pItem)
-		for i = 1 to len(panPositions)
-			n = panPositions[i] + i - 1
+	def InsertBeforeManyPositions(panPos, pItem)
+		for i = 1 to len(panPos)
+			n = panPos[i] + i - 1
 			This.InsertBefore(n, pItem)
 		next
 
 		#< @FunctionFluentForm
 		
-		def InsertBeforeManyPositionsQ(panPositions, pItem)
-			This.InsertBeforeManyPositions(panPositions, pItem)
+		def InsertBeforeManyPositionsQ(panPos, pItem)
+			This.InsertBeforeManyPositions(panPos, pItem)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def InsertBeforeThesePositions(panPositions, pItem)
-			This.InsertBeforeManyPositions(panPositions, pItem)
+		def InsertBeforeThesePositions(panPos, pItem)
+			This.InsertBeforeManyPositions(panPos, pItem)
 
-			def InsertBeforeThesePositionsQ(panPositions, pItem)
-				This.InsertBeforeThesePositions(panPositions, pItem)
+			def InsertBeforeThesePositionsQ(panPos, pItem)
+				This.InsertBeforeThesePositions(panPos, pItem)
 				return This
 
-		def InsertBeforePositions(panPositions, pItem)
-			This.InsertBeforeManyPositions(panPositions, pItem)
+		def InsertBeforePositions(panPos, pItem)
+			This.InsertBeforeManyPositions(panPos, pItem)
 
-			def InsertBeforePositionsQ(panPositions, pItem)
-				This.InsertBeforeThesePositions(panPositions, pItem)
+			def InsertBeforePositionsQ(panPos, pItem)
+				This.InsertBeforeThesePositions(panPos, pItem)
 				return This
 
-		def InsertAtPositions(panPositions, pItem)
-			This.InsertBeforeManyPositions(panPositions, pItem)
+		def InsertAtPositions(panPos, pItem)
+			This.InsertBeforeManyPositions(panPos, pItem)
 
-			def InsertAtPositionsQ(panPositions, pItem)
-				This.InsertBeforeThesePositions(panPositions, pItem)
+			def InsertAtPositionsQ(panPos, pItem)
+				This.InsertBeforeThesePositions(panPos, pItem)
 				return This
 
 		#>
@@ -38925,9 +38963,9 @@ class stzList from stzObject
 	 #    SPLITTING AT GIVEN POSITIONS   #
 	#-----------------------------------#
 
-	def SplitAtPositions(panPositions)
+	def SplitAtPositions(panPos)
 		oSplitter = new stzSplitter(This.NumberOfItems())
-		aSections = oSplitter.SplitAtPositions(panPositions)
+		aSections = oSplitter.SplitAtPositions(panPos)
 		aResult = This.Sections(aSections)
 
 		return aResult
@@ -38968,18 +39006,18 @@ class stzList from stzObject
 	 #    SPLITTING BEFORE MANY POSITIONS   #
 	#--------------------------------------#
 
-	def SplitBeforePositions(panPositions)
+	def SplitBeforePositions(panPos)
 
 		oSplitter = new stzSplitter(This.NumberOfItems())
-		aSections = oSplitter.SplitBeforePositions(panPositions)
+		aSections = oSplitter.SplitBeforePositions(panPos)
 
 		aResult = This.Sections(aSections)
 		return aResult
 
 		#< @FunctionFluentForm
 
-		def SplitBeforePositionsQ(panPositions)
-			return new stzListOfLists( This.SplitBeforePositions(panPositions) )
+		def SplitBeforePositionsQ(panPos)
+			return new stzListOfLists( This.SplitBeforePositions(panPos) )
 
 		#>
 
@@ -39008,17 +39046,17 @@ class stzList from stzObject
 	 #    SPLITTING AFTER MANY POSITIONS   #
 	#-------------------------------------#
 
-	def SplitAfterPositions(panPositions)
+	def SplitAfterPositions(panPos)
 		oSplitter = new stzSplitter(This.NumberOfItems())
-		aSections = oSplitter.SplitAfterPositions(panPositions)
+		aSections = oSplitter.SplitAfterPositions(panPos)
 
 		aResult = This.Sections(aSections)
 		return aResult
 
 		#< @FunctionFluentForm
 
-		def SplitAfterPositionsQ(panPositions)
-			return new stzListOfLists( This.SplitAfterPositions(panPositions) )
+		def SplitAfterPositionsQ(panPos)
+			return new stzListOfLists( This.SplitAfterPositions(panPos) )
 
 		#>
 
@@ -39053,8 +39091,8 @@ class stzList from stzObject
 	#-----------------------------------------------------------#
 
 	def SplitBeforeW(pCondition)
-		anPositions = This.FindW(pcCondition)
-		aResult = This.SplitBeforePositions(anPositions)
+		anPos = This.FindW(pcCondition)
+		aResult = This.SplitBeforePositions(anPos)
 
 		return aResult	
 
@@ -39075,8 +39113,8 @@ class stzList from stzObject
 	#-----------------------------------------------------------#
 
 	def SplitAfterW(pCondition)
-		anPositions = This.FindW(pcCondition)
-		aResult = This.SplitAfterPositions(anPositions)
+		anPos = This.FindW(pcCondition)
+		aResult = This.SplitAfterPositions(anPos)
 
 		return aResult	
 

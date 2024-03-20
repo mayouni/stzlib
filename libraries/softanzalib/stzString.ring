@@ -5773,34 +5773,34 @@ class stzString from stzObject
 	 #    GETTING A MARQUER BY MANY POSITIONS    #
 	#===========================================#
 
-	def MarquerByPositions(panPositions)
-		cMarquer = This.MarquerByPosition(panPositions[1])
+	def MarquerByPositions(panPos)
+		cMarquer = This.MarquerByPosition(panPos[1])
 		anPos = This.FindMarquer(cMarquer)
 
 		cResult = ""
 
-		if StzListQ(panPositions).IsIncludedIn(anPos)
+		if StzListQ(panPos).IsIncludedIn(anPos)
 			cResult = cMarquer
 		ok
 
 		return cResult
 
 
-		def MarquerByOccurrences(panPositions)
-			return This.MarquerByPositions(panPositions)
+		def MarquerByOccurrences(panPos)
+			return This.MarquerByPositions(panPos)
 
 	  #-------------------------------------------#
 	 #    GETTING MARQUERS BY THEIR POSITIONS    #
 	#===========================================#
 
-	def MarquersByPositions(panPositions)
+	def MarquersByPositions(panPos)
 		oHash = new stzHashList( MarquersUZ() )
-		acResult = oHash.KeysByValues(panPositions)
+		acResult = oHash.KeysByValues(panPos)
 
 		return acResult
 
-		def MarquersByOccurrences(panPositions)
-			return This.MarquersByPositions(panPositions)
+		def MarquersByOccurrences(panPos)
+			return This.MarquersByPositions(panPos)
 
 	  #----------------------------------#
 	 #   FINDING MARQUERS AS SECTIONS   #
@@ -6083,9 +6083,9 @@ class stzString from stzObject
 
 	def MarquersAndPositionsSortedInAscending()
 		acMarquers  = This.MarquersSortedInAscending()
-		anPositions = This.MarquersPositionsSortedInAscending()
+		anPos = This.MarquersPositionsSortedInAscending()
 
-		aResult = Association([ acMarquers, anPositions ])
+		aResult = Association([ acMarquers, anPos ])
 
 		return aResult
 
@@ -6151,9 +6151,9 @@ class stzString from stzObject
 
 	def MarquersAndPositionsSortedInDescending()
 		acMarquers  = This.MarquersSortedInDescending()
-		anPositions = This.MarquersPositionsSortedInDescending()
+		anPos = This.MarquersPositionsSortedInDescending()
 
-		aResult = StzPairOfListsQ( acMarquers, anPositions ).Associate()
+		aResult = StzPairOfListsQ( acMarquers, anPos ).Associate()
 
 		return aResult
 
@@ -6213,7 +6213,7 @@ class stzString from stzObject
 		acMarquers  = This.MarquersSortedInAscending()
 		nLen = len(acMarquers)
 
-		anPositions = This.MarquersPositionsSortedInAscending()
+		anPos = This.MarquersPositionsSortedInAscending()
 
 		aResult = []
 		i = 0
@@ -6222,7 +6222,7 @@ class stzString from stzObject
 			cMarquer = acMarquers[i]
 			nLenMarquer = Q(cMarquer).NumberOfChars()
 
-			n1 = anPositions[i]
+			n1 = anPos[i]
 			n2 = n1 + nLenMarquer - 1
 		
 			aResult + [ cMarquer, [ n1, n2 ] ]
@@ -6293,7 +6293,7 @@ class stzString from stzObject
 		acMarquers  = This.MarquersSortedInDescending()
 		nLenMarquers = len(acMarquers)
 
-		anPositions = This.MarquersPositionsSortedInAscending()
+		anPos = This.MarquersPositionsSortedInAscending()
 
 		aResult = []
 		i = 0
@@ -6302,7 +6302,7 @@ class stzString from stzObject
 			cMarquer = acMarquers[i]
 			nLenMarquer = Q(cMarquer).NumberOfChars()
 
-			n1 = anPositions[i]
+			n1 = anPos[i]
 			n2 = n1 + nLenMarquers - 1
 		
 			aResult + [ cMarquer, [ n1, n2 ] ]
@@ -25444,8 +25444,8 @@ class stzString from stzObject
 	#--------------------------------------------------------#
 
 	def InsertBeforeW(pcCondition, pcSubStr)
-		anPositions = This.FindW(pcCondition)
-		This.InsertBeforePositions( anPositions, pcSubStr )
+		anPos = This.FindW(pcCondition)
+		This.InsertBeforePositions( anPos, pcSubStr )
 
 		#< @FunctionFluentForm
 
@@ -25558,19 +25558,19 @@ class stzString from stzObject
 		ok
 
 		nLen = StzStringQ(pcSubStr)
-		anPositions = []
+		anPos = []
 
 		if n = 1
-			anPositions + 1
+			anPos + 1
 
 		else
 		
 			for i = (nLen + 1) to This.NumberOfChars() step n
-				anPositions + ( i - 1 )
+				anPos + ( i - 1 )
 			next
 		ok
 
-		This.InsertBeforeThesePositions(anPositions, pcSubStr)
+		This.InsertBeforeThesePositions(anPos, pcSubStr)
 
 		#< @FunctionFluentForm
 
@@ -25614,15 +25614,15 @@ class stzString from stzObject
 		ok
 
 		nLen = StzStringQ(pcSubStr).NumberOfChars()
-		anPositions = []
+		anPos = []
 
 		if n > 1
 			for i = 1 to This.NumberOfChars() - nLen - 1 step n
-				anPositions + ( i + 1 )
+				anPos + ( i + 1 )
 			next
 		ok
 
-		This.InsertAfterThesePositions(anPositions, pcSubStr)
+		This.InsertAfterThesePositions(anPos, pcSubStr)
 
 		#< @FunctionFluentForm
 
@@ -25667,8 +25667,8 @@ class stzString from stzObject
 	#--------------------------------------------------------#
 
 	def InsertAfterW( pcCondition, pcSubStr )
-		anPositions = This.FindW(pcCondition)
-		This.InsertAfterPositions( anPositions, pcSubStr )
+		anPos = This.FindW(pcCondition)
+		This.InsertAfterPositions( anPos, pcSubStr )
 
 		#< @FunctionFluentForm
 
@@ -25714,8 +25714,8 @@ class stzString from stzObject
 	 #   INSERTING A SUBSTRING AFTER MANY POSITIONS   #
 	#------------------------------------------------#
 
-	 def InsertAfterPositions(panPositions, pcSubStr)
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+	 def InsertAfterPositions(panPos, pcSubStr)
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
 
 			stzRaise("Incorrect param! paPositions must be a list of numbers.")
 		ok
@@ -25724,7 +25724,7 @@ class stzString from stzObject
 			stzRaise("Incorrect param! pcSubStr must be a string.")
 		ok
 
-		anPos = ring_sort(panPositions)
+		anPos = ring_sort(panPos)
 		nLen = len(anPos)
 
 		for i = nLen to 1 step -1
@@ -25733,132 +25733,132 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def InsertAfterPositionsQ(panPositions, pcSubStr)
-			This.InsertAfterPositions(panPositions, pcSubStr)
+		def InsertAfterPositionsQ(panPos, pcSubStr)
+			This.InsertAfterPositions(panPos, pcSubStr)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def InsertAfterManyPositions(panPositions, pcSubstr)
-			This.InsertAfterPositions(panPositions, pcSubStr)
+		def InsertAfterManyPositions(panPos, pcSubstr)
+			This.InsertAfterPositions(panPos, pcSubStr)
 
-			def InsertAfterManyPositionsQ(panPositions, pcSubstr)
-				This.InsertAfterManyPositions(panPositions, pcSubstr)
+			def InsertAfterManyPositionsQ(panPos, pcSubstr)
+				This.InsertAfterManyPositions(panPos, pcSubstr)
 				return This
 
-		def InsertAfterThesePositions(panPositions, pcSubstr)
-			This.InsertAfterPositions(panPositions, pcSubStr)
+		def InsertAfterThesePositions(panPos, pcSubstr)
+			This.InsertAfterPositions(panPos, pcSubStr)
 
-			def InsertAfterThesePositionsQ(panPositions, pcSubstr)
-				This.InsertAfterThesePositions(panPositions, pcSubstr)
+			def InsertAfterThesePositionsQ(panPos, pcSubstr)
+				This.InsertAfterThesePositions(panPos, pcSubstr)
 				return This
 
 		#--
 
-		def InsertSubStringAfterPositions(panPositions, pcSubStr)
-			This.InsertAfterPositions(panPositions, pcSubStr)
+		def InsertSubStringAfterPositions(panPos, pcSubStr)
+			This.InsertAfterPositions(panPos, pcSubStr)
 
-			def InsertSubStringAfterPositionsQ(panPositions, pcSubStr)
-				This.InsertSubStringAfterPositions(panPositions, pcSubStr)
+			def InsertSubStringAfterPositionsQ(panPos, pcSubStr)
+				This.InsertSubStringAfterPositions(panPos, pcSubStr)
 				return This
 
-		def InsertSubStringAfterManyPositions(panPositions, pcSubstr)
-			This.InsertAfterPositions(panPositions, pcSubStr)
+		def InsertSubStringAfterManyPositions(panPos, pcSubstr)
+			This.InsertAfterPositions(panPos, pcSubStr)
 
-			def InsertSubStringAfterManyPositionsQ(panPositions, pcSubstr)
-				This.InsertSubStringAfterManyPositions(panPositions, pcSubstr)
+			def InsertSubStringAfterManyPositionsQ(panPos, pcSubstr)
+				This.InsertSubStringAfterManyPositions(panPos, pcSubstr)
 				return This
 
-		def InsertSubStringAfterThesePositions(panPositions, pcSubstr)
-			This.InsertAfterPositions(panPositions, pcSubStr)
+		def InsertSubStringAfterThesePositions(panPos, pcSubstr)
+			This.InsertAfterPositions(panPos, pcSubStr)
 
-			def InsertSubStringAfterThesePositionsQ(panPositions, pcSubstr)
-				This.InsertSubStringAfterThesePositions(panPositions, pcSubstr)
+			def InsertSubStringAfterThesePositionsQ(panPos, pcSubstr)
+				This.InsertSubStringAfterThesePositions(panPos, pcSubstr)
 				return This
 
 		#>
 
-	def SubStringInsertedAfterThesePositions(anPositions, pcSubStr)
-		cResult = This.Copy().InsertAfterThesePositionsQ(panPositions, pcSubStr).Content()
+	def SubStringInsertedAfterThesePositions(anPos, pcSubStr)
+		cResult = This.Copy().InsertAfterThesePositionsQ(panPos, pcSubStr).Content()
 		return cResult
 
-		def SubStringInsertedAfterManyPositions(anPositions, pcSubStr)
-			return This.SubStringInsertedAfterThesePositions(anPositions, pcSubStr)
+		def SubStringInsertedAfterManyPositions(anPos, pcSubStr)
+			return This.SubStringInsertedAfterThesePositions(anPos, pcSubStr)
 
-		def SubStringInsertedAfterPositions(anPositions, pcSubStr)
-			return This.SubStringInsertedAfterThesePositions(anPositions, pcSubStr)
+		def SubStringInsertedAfterPositions(anPos, pcSubStr)
+			return This.SubStringInsertedAfterThesePositions(anPos, pcSubStr)
 
 	  #-------------------------------------------------#
 	 #   INSERTING A SUBSTRING BEFORE MANY POSITIONS   #
 	#-------------------------------------------------#
 
-	 def InsertBeforePositions(panPositions, pcSubStr)
+	 def InsertBeforePositions(panPos, pcSubStr)
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
 
-			stzRaise("Incorrect param! panPositions must be a list of numbers.")
+			stzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
 
 		if isList(pcSubStr) and Q(pcSubStr).IsStringOrSubStringNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
 
-		anPositions = StzListOfNumbersQ(panPositions).SubStructFromEachQ(1).Content()
-		This.InsertAfterThesePositions(anPositions, pcSubStr)
+		anPos = StzListOfNumbersQ(panPos).SubStructFromEachQ(1).Content()
+		This.InsertAfterThesePositions(anPos, pcSubStr)
 
 		#< @FunctionFluentForm
 
-		def InsertBeforePositionsQ(panPositions, pcSubStr)
-			This.InsertBeforePositions(panPositions, pcSubStr)
+		def InsertBeforePositionsQ(panPos, pcSubStr)
+			This.InsertBeforePositions(panPos, pcSubStr)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def InsertBeforeManyPositions(panPositions, pcSubStr)
-			This.InsertBeforePositions(panPositions, pcSubStr)
+		def InsertBeforeManyPositions(panPos, pcSubStr)
+			This.InsertBeforePositions(panPos, pcSubStr)
 
-		def InsertBeforeThesePositions(panPositions, pcSubStr)
+		def InsertBeforeThesePositions(panPos, pcSubStr)
 
-			This.InsertBeforePositions(panPositions, pcSubStr)
+			This.InsertBeforePositions(panPos, pcSubStr)
 			
 		#--
 
-		def InsertSubStringBeforePositions(panPositions, pcSubStr)
-			This.InsertBeforePositions(panPositions, pcSubStr)
+		def InsertSubStringBeforePositions(panPos, pcSubStr)
+			This.InsertBeforePositions(panPos, pcSubStr)
 
-			def InsertSubStringBeforePositionsQ(panPositions, pcSubStr)
-				This.InsertSubStringBeforePositions(panPositions, pcSubStr)
+			def InsertSubStringBeforePositionsQ(panPos, pcSubStr)
+				This.InsertSubStringBeforePositions(panPos, pcSubStr)
 				return This
 
-		def InsertSubStringBeforeManyPositions(panPositions, pcSubstr)
-			This.InsertBeforePositions(panPositions, pcSubStr)
+		def InsertSubStringBeforeManyPositions(panPos, pcSubstr)
+			This.InsertBeforePositions(panPos, pcSubStr)
 
-			def InsertSubStringBeforeManyPositionsQ(panPositions, pcSubstr)
-				This.InsertSubStringBeforeManyPositions(panPositions, pcSubstr)
+			def InsertSubStringBeforeManyPositionsQ(panPos, pcSubstr)
+				This.InsertSubStringBeforeManyPositions(panPos, pcSubstr)
 				return This
 
-		def InsertSubStringBeforeThesePositions(panPositions, pcSubstr)
-			This.InsertBeforePositions(panPositions, pcSubStr)
+		def InsertSubStringBeforeThesePositions(panPos, pcSubstr)
+			This.InsertBeforePositions(panPos, pcSubStr)
 
-			def InsertSubStringBeforeThesePositionsQ(panPositions, pcSubstr)
-				This.InsertSubStringBeforeThesePositions(panPositions, pcSubstr)
+			def InsertSubStringBeforeThesePositionsQ(panPos, pcSubstr)
+				This.InsertSubStringBeforeThesePositions(panPos, pcSubstr)
 				return This
 
 		#>
 
-	def SubStringInsertedBeforeThesePositions(anPositions, pcSubStr)
-		cResult = This.Copy().InsertBeforeThesePositionsQ(panPositions, pcSubStr).Content()
+	def SubStringInsertedBeforeThesePositions(anPos, pcSubStr)
+		cResult = This.Copy().InsertBeforeThesePositionsQ(panPos, pcSubStr).Content()
 		return cResult
 
-		def SubStringInsertedBeforeManyPositions(anPositions, pcSubStr)
-			return This.SubStringInsertedBeforeThesePositions(anPositions, pcSubStr)
+		def SubStringInsertedBeforeManyPositions(anPos, pcSubStr)
+			return This.SubStringInsertedBeforeThesePositions(anPos, pcSubStr)
 
-		def SubStringInsertedBeforePositions(anPositions, pcSubStr)
-			return This.SubStringInsertedBeforeThesePositions(anPositions, pcSubStr)
+		def SubStringInsertedBeforePositions(anPos, pcSubStr)
+			return This.SubStringInsertedBeforeThesePositions(anPos, pcSubStr)
 
 
 	  #-----------------------------------------------------------------------------#
@@ -27279,11 +27279,11 @@ class stzString from stzObject
 			stzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
 		ok
 
-		anPositions = This.FindCS(pcSubStr, pCaseSensitive)
-		nMin = Min([ len(anPositions), len(pacNewSubStr) ])
+		anPos = This.FindCS(pcSubStr, pCaseSensitive)
+		nMin = Min([ len(anPos), len(pacNewSubStr) ])
 	
 		for i = nMin to 1 step -1
-			n = anPositions[i]
+			n = anPos[i]
 			cNewSubStr = pacNewSubStr[i]
 			This.ReplaceSubStringAtPositionNCS(n, pcSubStr, cNewSubStr, pCaseSensitive)
 		next
@@ -27380,15 +27380,15 @@ class stzString from stzObject
 
 		# doing the job
 
-		anPositions = This.FindCSQ(pcSubStr, pCaseSensitive).SortedInDescending()
-		nLen = len(anPositions)
+		anPos = This.FindCSQ(pcSubStr, pCaseSensitive).SortedInDescending()
+		nLen = len(anPos)
 
 		acNewSubStrings = StzListQ(pacNewSubStr).SortedInDescending()
 		nLen2 = len(acNewSubStrings)
 	
 		n = 0
 		for i = 1 to nLen
-			nPos = anPositions[i]
+			nPos = anPos[i]
 			n++
 			if n > nLen2
 				n = 1
@@ -27972,13 +27972,13 @@ class stzString from stzObject
 
 		nMin = Min([ len(panPos), len(pacNewSubStr) ])
 
-		anPositions 	= Q(panPos).SectionQ(1, nMin).SortedInDescending()
+		anPos 	= Q(panPos).SectionQ(1, nMin).SortedInDescending()
 		acNewSubStrings	= Q(pacNewSubStr).SectionQ(1, nMin).SortedInDescending()
 
 		# Doing the job
 
 		for i = 1 to nMin
-			nPos = anPositions[i]
+			nPos = anPos[i]
 			cNewSubStr = acNewSubStrings[i]
 
 			This.ReplaceSubStringAtPositionNCS(nPos, pcSubStr, cNewSubStr, pCaseSensitive)
@@ -28025,8 +28025,8 @@ class stzString from stzObject
 	 #  REPLACING GIVEN OCCURRENCES OF A SUBSTRING BY MANY OTHER SUBSTRINGS  #
 	#=======================================================================#
 
-	def ReplaceOccurrencesCS(panOccurrences, pcSubStr, pcNewSubStr, pCaseSensitive)
-		anPos = This.FindTheseOccurrencesCS(panOccurrences, pcSubStr, pCaseSensitive)
+	def ReplaceOccurrencesCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+		anPos = This.FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
 		This.ReplaceSubStringAtPositionsCS(panPos, pcSubStr, pcNewSubStr, pCaseSensitive)
 
 		#< @FunctionFluentForm
@@ -28038,26 +28038,26 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceTheseOccurrencesCS(panOccurrences, pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.ReplaceOccurrencesCS(panOccurrences, pcSubStr, pcNewSubStr, pCaseSensitive)
+		def ReplaceTheseOccurrencesCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceOccurrencesCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
 
-			def ReplaceTheseOccurrencesCSQ(panOccurrences, pcSubStr, pcNewSubStr, pCaseSensitive)
-				This.ReplaceTheseOccurrencesCS(panOccurrences, pcSubStr, pcNewSubStr, pCaseSensitive)
+			def ReplaceTheseOccurrencesCSQ(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+				This.ReplaceTheseOccurrencesCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
 				return This
 
 		#>
 
-	def OccurrencesReplacedCS(panOccurrences, pcSubStr, pcNewSubStr, pCaseSensitive)
+	def OccurrencesReplacedCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
 		aResult = This.Copy().ReplaceOccurrencesCSQ(panPos, pcSubStr, pcNewSubStr, pCaseSensitive).Content()
 		return aResult
 
-		def TheseOccurrencesReplacedCS(panOccurrences, pcSubStr, pcNewSubStr, pCaseSensitive)
-			return This.OccurrencesReplacedCS(panOccurrences, pcSubStr, pcNewSubStr, pCaseSensitive)
+		def TheseOccurrencesReplacedCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.OccurrencesReplacedCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceOccurrences(panOccurrences, pcSubStr, pcNewSubStr)
-		This.ReplaceOccurrencesCS(panOccurrences, pcSubStr, pcNewSubStr, TRUE)
+	def ReplaceOccurrences(panOccurr, pcSubStr, pcNewSubStr)
+		This.ReplaceOccurrencesCS(panOccurr, pcSubStr, pcNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -28068,30 +28068,30 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceTheseOccurrences(panOccurrences, pcSubStr, pcNewSubStr)
-			This.ReplaceOccurrences(panOccurrences, pcSubStr, pcNewSubStr)
+		def ReplaceTheseOccurrences(panOccurr, pcSubStr, pcNewSubStr)
+			This.ReplaceOccurrences(panOccurr, pcSubStr, pcNewSubStr)
 
-			def ReplaceTheseOccurrencesQ(panOccurrences, pcSubStr, pcNewSubStr)
-				This.ReplaceTheseOccurrences(panOccurrences, pcSubStr, pcNewSubStr)
+			def ReplaceTheseOccurrencesQ(panOccurr, pcSubStr, pcNewSubStr)
+				This.ReplaceTheseOccurrences(panOccurr, pcSubStr, pcNewSubStr)
 				return This
 
 		#>
 
-	def OccurrencesReplaced(panOccurrences, pcSubStr, pcNewSubStr)
+	def OccurrencesReplaced(panOccurr, pcSubStr, pcNewSubStr)
 		aResult = This.Copy().ReplaceOccurrencesQ(panPos, pcSubStr, pcNewSubStr).Content()
 		return aResult
 
-		def TheseOccurrencesReplaced(panOccurrences, pcSubStr, pcNewSubStr)
-			return This.OccurrencesReplaced(panOccurrences, pcSubStr, pcNewSubStr)
+		def TheseOccurrencesReplaced(panOccurr, pcSubStr, pcNewSubStr)
+			return This.OccurrencesReplaced(panOccurr, pcSubStr, pcNewSubStr)
 
 	  #-----------------------------------------------------------------------#
 	 #  REPLACING GIVEN OCCURRENCES OF A SUBSTRING BY MANY OTHER SUBSTRINGS  #
 	#-----------------------------------------------------------------------#
 
-	def ReplaceOccurrencesByManyCS(panOccurrences, pcSubStr, pacNewSubStr, pCaseSensitive)
+	def ReplaceOccurrencesByManyCS(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
 		#TODO: Add "These" as alternatibe of "Many"
 
-		anPos = This.FindTheseOccurrencesCS(panOccurrences, pcSubStr, pCaseSensitive)
+		anPos = This.FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
 		This.ReplaceSubStringAtPositionsByManyCS(anPos, pcSubStr, pacNewSubStr, pCaseSensitive)
 
 		#< @FunctionFluentForm
@@ -28104,11 +28104,11 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceTheseOccurrencesByManyCS(panOccurrences, pcSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceOccurrencesByManyCS(panOccurrences, pcSubStr, pacNewSubStr, pCaseSensitive)
+		def ReplaceTheseOccurrencesByManyCS(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+			This.ReplaceOccurrencesByManyCS(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
 
-			def ReplaceTheseOccurrencesByManyCSQ(panOccurrences, pcSubStr, pacNewSubStr, pCaseSensitive)
-				This.ReplaceTheseOccurrencesByManyCS(panOccurrences, pcSubStr, pacNewSubStr, pCaseSensitive)
+			def ReplaceTheseOccurrencesByManyCSQ(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+				This.ReplaceTheseOccurrencesByManyCS(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
 				return This
 
 		#>
@@ -28122,8 +28122,8 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceOccurrencesByMany(panOccurrences, pcSubStr, pacNewSubStr)
-		this.ReplaceOccurrencesByManyCS(panOccurrences, pcSubStr, pacNewSubStr, TRUE)
+	def ReplaceOccurrencesByMany(panOccurr, pcSubStr, pacNewSubStr)
+		this.ReplaceOccurrencesByManyCS(panOccurr, pcSubStr, pacNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -28135,11 +28135,11 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceTheseOccurrencesByMany(panOccurrences, pcSubStr, pacNewSubStr)
-			This.ReplaceOccurrencesByMany(panOccurrences, pcSubStr, pacNewSubStr)
+		def ReplaceTheseOccurrencesByMany(panOccurr, pcSubStr, pacNewSubStr)
+			This.ReplaceOccurrencesByMany(panOccurr, pcSubStr, pacNewSubStr)
 
-			def ReplaceTheseOccurrencesByManyQ(panOccurrences, pcSubStr, pacNewSubStr)
-				This.ReplaceTheseOccurrencesByMany(panOccurrences, pcSubStr, pacNewSubStr)
+			def ReplaceTheseOccurrencesByManyQ(panOccurr, pcSubStr, pacNewSubStr)
+				This.ReplaceTheseOccurrencesByMany(panOccurr, pcSubStr, pacNewSubStr)
 				return This
 
 		#>
@@ -28155,10 +28155,10 @@ class stzString from stzObject
 	 #  REPLACING GIVEN OCCURRENCES OF A SUBSTRING BY MANY OTHER SUBSTRINGS -- XT  #
 	#-----------------------------------------------------------------------------#
 
-	def ReplaceOccurrencesByManyCSXT(panOccurrences, pcSubStr, pacNewSubStr, pCaseSensitive)
+	def ReplaceOccurrencesByManyCSXT(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
 		#TODO: Add "These" as alternatibe of "Many"
 
-		anPos = This.FindTheseOccurrencesCS(panOccurrences, pcSubStr, pCaseSensitive)
+		anPos = This.FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
 		This.ReplaceSubStringAtPositionsByManyCSXT(anPos, pcSubStr, pacNewSubStr, pCaseSensitive)
 
 		#< @FunctionFluentForm
@@ -28171,11 +28171,11 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceTheseOccurrencesByManyCSXT(panOccurrences, pcSubStr, pacNewSubStr, pCaseSensitive)
-			This.ReplaceOccurrencesByManyCSXT(panOccurrences, pcSubStr, pacNewSubStr, pCaseSensitive)
+		def ReplaceTheseOccurrencesByManyCSXT(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+			This.ReplaceOccurrencesByManyCSXT(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
 
-			def ReplaceTheseOccurrencesByManyCSXTQ(panOccurrences, pcSubStr, pacNewSubStr, pCaseSensitive)
-				This.ReplaceTheseOccurrencesByManyCSXT(panOccurrences, pcSubStr, pacNewSubStr, pCaseSensitive)
+			def ReplaceTheseOccurrencesByManyCSXTQ(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+				This.ReplaceTheseOccurrencesByManyCSXT(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
 				return This
 
 		#>
@@ -28189,8 +28189,8 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceOccurrencesByManyXT(panOccurrences, pcSubStr, pacNewSubStr)
-		this.ReplaceOccurrencesByManyCSXT(panOccurrences, pcSubStr, pacNewSubStr, TRUE)
+	def ReplaceOccurrencesByManyXT(panOccurr, pcSubStr, pacNewSubStr)
+		this.ReplaceOccurrencesByManyCSXT(panOccurr, pcSubStr, pacNewSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -28202,11 +28202,11 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceTheseOccurrencesByManyXT(panOccurrences, pcSubStr, pacNewSubStr)
-			This.ReplaceOccurrencesByManyXT(panOccurrences, pcSubStr, pacNewSubStr)
+		def ReplaceTheseOccurrencesByManyXT(panOccurr, pcSubStr, pacNewSubStr)
+			This.ReplaceOccurrencesByManyXT(panOccurr, pcSubStr, pacNewSubStr)
 
-			def ReplaceTheseOccurrencesByManyXTQ(panOccurrences, pcSubStr, pacNewSubStr)
-				This.ReplaceTheseOccurrencesByManyXT(panOccurrences, pcSubStr, pacNewSubStr)
+			def ReplaceTheseOccurrencesByManyXTQ(panOccurr, pcSubStr, pacNewSubStr)
+				This.ReplaceTheseOccurrencesByManyXT(panOccurr, pcSubStr, pacNewSubStr)
 				return This
 
 		#>
@@ -28240,12 +28240,12 @@ class stzString from stzObject
 			stzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
 		ok	
 
-		anPositions = This.FindAllCSQ(pcSubStr, pCaseSensitive).SortedInDescending()
+		anPos = This.FindAllCSQ(pcSubStr, pCaseSensitive).SortedInDescending()
 
 
 		@SubString = pcSubStr
 
-		@NumberOfOccurrences = len(anPositions)
+		@NumberOfOccurrences = len(anPos)
 		@NumberOfOccurrence  = @NumberOfOccurrences
 		@NumberOfSubStrings  = @NumberOfOccurrences
 		@NumberOfSubStrings  = @NumberOfOccurrence
@@ -28257,7 +28257,7 @@ class stzString from stzObject
 
 		acNewSubStr = []
 
-		for @Position in anPositions
+		for @Position in anPos
 
 			@CurrentPosition = @Position
 
@@ -28266,12 +28266,12 @@ class stzString from stzObject
 			@CurrentOccurrence = i
 
 			if i > 1
-				@PreviousPosition = anPositions[i - 1]
+				@PreviousPosition = anPos[i - 1]
 				@PreviousOccurrence = i - 1
 			ok
 
 			if i < @NumberOfOccurrence
-				@NextPosition = anPositions[i + 1]
+				@NextPosition = anPos[i + 1]
 				@NextOccurrence = i + 1
 			ok
 			
@@ -28290,7 +28290,7 @@ class stzString from stzObject
 		acNewSubStr = StzListQ(acNewSubStr).SortedInDescending()
 	
 		i = 0
-		for @Position in anPositions
+		for @Position in anPos
 			i++
 			cNewSubStr = acNewSubStr[i]
 			This.ReplaceSubStringAtPositionNCS(@Position, pcSubStr, cNewSubStr, pCaseSensitive)
@@ -28333,11 +28333,11 @@ class stzString from stzObject
 			stzRaise("Incorrect param! pcCondition must be a string.")
 		ok
 
-		anPositions = This.FindAllCS(pcSubStr, pCaseSensitive)
+		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
 
 		@SubString = pcSubStr
 
-		@NumberOfOccurrences = ringlen(anPositions)
+		@NumberOfOccurrences = ringlen(anPos)
 		@NumberOfOccurrence  = @NumberOfOccurrences
 		@NumberOfSubStrings  = @NumberOfOccurrences
 		@NumberOfSubStrings  = @NumberOfOccurrence
@@ -28352,11 +28352,11 @@ class stzString from stzObject
 				RemoveTheseBoundsQ(["{","}"]).
 				Content()
 
-		anPositionsW = []
+		anPosW = []
 
 		
 		i = 0
-		for @Position in anPositions #TODO: replace for/in with for loop
+		for @Position in anPos #TODO: replace for/in with for loop
 
 			i++
 			@CurrentPosition = @Position
@@ -28365,12 +28365,12 @@ class stzString from stzObject
 			@CurrentOccurrence = i
 
 			if i > 1
-				@PreviousPosition = anPositions[i - 1]
+				@PreviousPosition = anPos[i - 1]
 				@PreviousOccurrence = i - 1
 			ok
 
 			if i < @NumberOfOccurrence
-				@NextPosition = anPositions[i + 1]
+				@NextPosition = anPos[i + 1]
 				@NextOccurrence = i + 1
 			ok
 
@@ -28378,12 +28378,12 @@ class stzString from stzObject
 			eval(cCode)
 
 			if bOk
-				anPositionsW + @Position
+				anPosW + @Position
 			ok
 
 		next
 
-		This.ReplaceSubStringAtPositionsCS(anPositionsW, pcSubStr, pcNewSubStr, pCaseSensitive)
+		This.ReplaceSubStringAtPositionsCS(anPosW, pcSubStr, pcNewSubStr, pCaseSensitive)
 
 		def ReplaceSubStringWCSQ(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
 			This.ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
@@ -29543,83 +29543,83 @@ class stzString from stzObject
 
 	#TODO : Add case sensitivity
 
-	def ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+	def ReplaceCharsAtPositions(panPos, pcNewSubStr)
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
 
-		if isList(panPositions) and len(panPositions) = 0
+		if isList(panPos) and len(panPos) = 0
 			return
 		ok
 
-		# Checking the correctness of panPositions param
+		# Checking the correctness of panPos param
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
 
-			stzRaise("Incorrect param! panPositions must be list of numbers.")
+			stzRaise("Incorrect param! panPos must be list of numbers.")
 		ok
 
-		anPositions = Q(panPositions).SortedInDescending()
+		anPos = Q(panPos).SortedInDescending()
 
-		for n in anPositions
+		for n in anPos
 			This.ReplaceCharAtPositionN(n, pcNewSubStr)
 		next
 
 		#< @FunctionFluentForm
 
-		def ReplaceCharsAtPositionsQ(panPositions, pcNewSubStr)
-			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+		def ReplaceCharsAtPositionsQ(panPos, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPos, pcNewSubStr)
 			return This
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceCharsAt(panPositions, pcNewSubStr)
-			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+		def ReplaceCharsAt(panPos, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPos, pcNewSubStr)
 
-		def ReplaceCharsAtThesePositions(panPositions, pcNewSubStr)
-			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+		def ReplaceCharsAtThesePositions(panPos, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPos, pcNewSubStr)
 
 		#--
 
-		def ReplaceAnyCharsAtPositions(panPositions, pcNewSubStr)
-			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+		def ReplaceAnyCharsAtPositions(panPos, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPos, pcNewSubStr)
 
-		def ReplaceAnyCharsAt(panPositions, pcNewSubStr)
-			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+		def ReplaceAnyCharsAt(panPos, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPos, pcNewSubStr)
 
-		def ReplaceAnyCharsAtThesePositions(panPositions, pcNewSubStr)
-			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+		def ReplaceAnyCharsAtThesePositions(panPos, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPos, pcNewSubStr)
 
 		#>
 
 		#< @FunctionMisspelledForm
 
-		def RepalceCharsAtPositions(panPositions, pcNewSubStr)
-			This.ReplaceCharsAtPositions(panPositions, pcNewSubStr)
+		def RepalceCharsAtPositions(panPos, pcNewSubStr)
+			This.ReplaceCharsAtPositions(panPos, pcNewSubStr)
 
 		#>
 
-	def CharsReplacedAtPositions(panPositions, pcNewSubStr)
-		cResult = This.Copy().ReplaceCharsAtPositionsQ(panPositions, pcNewSubStr).Content()
+	def CharsReplacedAtPositions(panPos, pcNewSubStr)
+		cResult = This.Copy().ReplaceCharsAtPositionsQ(panPos, pcNewSubStr).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
 
-		def CharsReplacedAtThesePositions(panPositions, pcNewSubStr)
-			return This.CharsReplacedAtPositions(panPositions, pcNewSubStr)
+		def CharsReplacedAtThesePositions(panPos, pcNewSubStr)
+			return This.CharsReplacedAtPositions(panPos, pcNewSubStr)
 
-		def CharsAtThesePositionsReplaced(panPositions, pcNewSubStr)
-			return This.CharsReplacedAtPositions(panPositions, pcNewSubStr)
+		def CharsAtThesePositionsReplaced(panPos, pcNewSubStr)
+			return This.CharsReplacedAtPositions(panPos, pcNewSubStr)
 
 		#--
 
-		def AnyCharsReplacedAtPositions(panPositions, pcNewSubStr)
-			return This.CharsReplacedAtPositions(panPositions, pcNewSubStr)
+		def AnyCharsReplacedAtPositions(panPos, pcNewSubStr)
+			return This.CharsReplacedAtPositions(panPos, pcNewSubStr)
 
-		def AnyCharsReplacedAtThesePositions(panPositions, pcNewSubStr)
-			return This.CharsReplacedAtPositions(panPositions, pcNewSubStr)
+		def AnyCharsReplacedAtThesePositions(panPos, pcNewSubStr)
+			return This.CharsReplacedAtPositions(panPos, pcNewSubStr)
 
-		def AnyCharsAtThesePositionsReplaced(panPositions, pcNewSubStr)
-			return This.CharsReplacedAtPositions(panPositions, pcNewSubStr)
+		def AnyCharsAtThesePositionsReplaced(panPos, pcNewSubStr)
+			return This.CharsReplacedAtPositions(panPos, pcNewSubStr)
 
 		#>
 	  #-----------------------------------------------------------#
@@ -29628,7 +29628,7 @@ class stzString from stzObject
 
 	#TODO: Add case sensitivity
 
-	def ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStr)
+	def ReplaceCharsAtPositionsByMany(panPos, pacNewSubStr)
 		#TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE
@@ -29638,70 +29638,70 @@ class stzString from stzObject
 		? o1.Content() #--> "abcdefghi"
 		*/
 
-		anPositions = StzListOfNumbersQ(panPositions).SortedInDescending()
+		anPos = StzListOfNumbersQ(panPos).SortedInDescending()
 
-		nMin = Min([ len(anPositions), len(pacNewSubStr) ])
-		anPositions = StzListQ(anPositions).SectionQ(1, nMin).SortedInDescending()
+		nMin = Min([ len(anPos), len(pacNewSubStr) ])
+		anPos = StzListQ(anPos).SectionQ(1, nMin).SortedInDescending()
 		acNewSubStrings = StzListQ(pacNewSubStr).SectionQ(1, nMin).SortedInDescending()
 
 		i = 0
 
-		nLen = len(anPositions)
+		nLen = len(anPos)
 
 		for i = 1 to nLen
-			This.ReplaceCharAtPosition(anPositions[i], acNewSubStrings[i])
+			This.ReplaceCharAtPosition(anPos[i], acNewSubStrings[i])
 		next
 
 		#< @FunctionFluentForm
 
-		def ReplaceCharsAtPositionsByManyQ(panPositions, pacNewSubStr)
-			This.ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStr)
+		def ReplaceCharsAtPositionsByManyQ(panPos, pacNewSubStr)
+			This.ReplaceCharsAtPositionsByMany(panPos, pacNewSubStr)
 			return This
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceCharsAtByMany(panPositions, pacNewSubStr)
-			This.ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStr)
+		def ReplaceCharsAtByMany(panPos, pacNewSubStr)
+			This.ReplaceCharsAtPositionsByMany(panPos, pacNewSubStr)
 
-		def ReplaceCharsAtThesePositionsByMany(panPositions, pacNewSubStr)
-			This.ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStr)
+		def ReplaceCharsAtThesePositionsByMany(panPos, pacNewSubStr)
+			This.ReplaceCharsAtPositionsByMany(panPos, pacNewSubStr)
 
 		#--
 
-		def ReplaceAnyCharsAtPositionsByMany(panPositions, pacNewSubStr)
-			This.ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStr)
+		def ReplaceAnyCharsAtPositionsByMany(panPos, pacNewSubStr)
+			This.ReplaceCharsAtPositionsByMany(panPos, pacNewSubStr)
 
-		def ReplaceAnyCharsAtByMany(panPositions, pacNewSubStr)
-			This.ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStr)
+		def ReplaceAnyCharsAtByMany(panPos, pacNewSubStr)
+			This.ReplaceCharsAtPositionsByMany(panPos, pacNewSubStr)
 
-		def ReplaceAnyCharsAtThesePositionsByMany(panPositions, pacNewSubStr)
-			This.ReplaceCharsAtPositionsByMany(panPositions, pacNewSubStr)
+		def ReplaceAnyCharsAtThesePositionsByMany(panPos, pacNewSubStr)
+			This.ReplaceCharsAtPositionsByMany(panPos, pacNewSubStr)
 
 		#>
 
-	def CharsReplacedAtPositionsByMany(panPositions, pacNewSubStr)
-		cResult = This.Copy().ReplaceCharsAtPositionsByManyQ(panPositions, pacNewSubStr).Content()
+	def CharsReplacedAtPositionsByMany(panPos, pacNewSubStr)
+		cResult = This.Copy().ReplaceCharsAtPositionsByManyQ(panPos, pacNewSubStr).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
 
-		def CharsReplacedAtThesePositionsByMany(panPositions, pacNewSubStr)
-			return This.CharsReplacedAtPositionsByMany(panPositions, pacNewSubStr)
+		def CharsReplacedAtThesePositionsByMany(panPos, pacNewSubStr)
+			return This.CharsReplacedAtPositionsByMany(panPos, pacNewSubStr)
 
-		def CharsAtThesePositionsReplacedByMany(panPositions, pacNewSubStr)
-			return This.CharsReplacedAtPositionsByMany(panPositions, pacNewSubStr)
+		def CharsAtThesePositionsReplacedByMany(panPos, pacNewSubStr)
+			return This.CharsReplacedAtPositionsByMany(panPos, pacNewSubStr)
 
 		#--
 
-		def AnyCharsReplacedAtPositionsByMany(panPositions, pacNewSubStr)
-			This.CharsReplacedAtPositionsByMany(panPositions, pacNewSubStr)
+		def AnyCharsReplacedAtPositionsByMany(panPos, pacNewSubStr)
+			This.CharsReplacedAtPositionsByMany(panPos, pacNewSubStr)
 
-		def AnyCharsReplacedAtThesePositionsByMany(panPositions, pacNewSubStr)
-			return This.CharsReplacedAtPositionsByMany(panPositions, pacNewSubStr)
+		def AnyCharsReplacedAtThesePositionsByMany(panPos, pacNewSubStr)
+			return This.CharsReplacedAtPositionsByMany(panPos, pacNewSubStr)
 
-		def AnyCharsAtThesePositionsReplacedByMany(panPositions, pacNewSubStr)
-			return This.CharsReplacedAtPositionsByMany(panPositions, pacNewSubStr)
+		def AnyCharsAtThesePositionsReplacedByMany(panPos, pacNewSubStr)
+			return This.CharsReplacedAtPositionsByMany(panPos, pacNewSubStr)
 
 		#>
 
@@ -29786,8 +29786,8 @@ class stzString from stzObject
 
 		# Doing the job
 
-		anPositions = This.FindCharsW(pcCondition)
-		This.ReplaceCharsAtPositions(anPositions, pcNewSubStr)
+		anPos = This.FindCharsW(pcCondition)
+		This.ReplaceCharsAtPositions(anPos, pcNewSubStr)
 
 
 		#< @FunctionFluentForm
@@ -31029,9 +31029,9 @@ class stzString from stzObject
 
 		nResult = 0
 
-		anPositions = This.FindSubStringCS(pcSubStr, pCaseSensitive)
+		anPos = This.FindSubStringCS(pcSubStr, pCaseSensitive)
 		i = 0
-		for n in anPositions
+		for n in anPos
 			i++
 			if n = nPos
 				nResult = i
@@ -33403,28 +33403,48 @@ class stzString from stzObject
 		? o1.FindOccurrences([ 2, 3 ], "ring") #--> [ 9, 17 ]
 		*/
 
-		if NOT ( isList(panOccurr) and Q(panOccurr).IsListOfNumbers() )
-			StzRaise("Incorrect param type! panOccurr must be a list of numbers.")
+		if CheckParams()
+			if NOT isList(panOccurr)
+				StzRaise("incorrect param type! panOccurr must be a list.")
+			ok
+
+			nLen = len(panOccurr)
+
+			if isList(panOccurr[nLen]) and Q(panOccurr[nLen]).IsAndNamedParam()
+				panOccurr[nLen] = panOccurr[nLen][2]
+			ok
+
+			for i = 1 to nLen
+				if isString(panOccurr[i])
+					if panOccurr[i] = :First or panOccurr[i] = :FirstOccurrence
+						panOccurr[i] = 1
+					but panOccurr[i] = :Last or panOccurr[i] = :LastOccurrence
+						panOccurr[i] = This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+					ok
+				ok
+			next
+
+			if NOT @IsListOfNumbers(panOccurr)
+				StzRaise("Incorrect param type! panOccurr must be a list of numbers.")
+			ok
+
+			if isList(pcSubStr) and Q(pcSubStr).IsOneTheseNamedParams([ :Of, :OfSubString ])
+				#NOTE
+				# that IsOneTheseNamedParams() is a misspelled form of
+				# IsOneOfTheseNamedParams(). I forgot "These" but hopefully
+				# Softanza forgave it ;)
+	
+				pcSubStr = pcSubStr[2]
+			ok
+
 		ok
 
-		if isList(pcSubStr) and Q(pcSubStr).IsOneTheseNamedParams([ :Of, :OfSubString ])
-			#NOTE that IsOneTheseNamedParams() is a misspelled form of
-			# IsOneOfTheseNamedParams(). I forgot "These" but hopefully
-			# Softanza forgave it ;)
-
-			pcSubStr = pcSubStr[2]
-		ok
-
-		if NOT isString(pcSubStr)
-			StzRaise("Incorrect param type! pcSubStr must be a string.")
-		ok
-
-		anPositions = This.FindAllCS(pcSubStr, pCaseSensitive)
+		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
 		nLenOccurr = len(panOccurr)
 
 		anResult = []
 		for i = 1 to nLenOccurr
-			anResult + anPositions[panOccurr[i]]
+			anResult + anPos[panOccurr[i]]
 		next
 
 		anResult = ring_sort(anResult)
@@ -33433,6 +33453,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindTheseOccurrencesCSZ(panOccurr, pcSubStr, pCaseSensitive)
+			return This.FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+
+		#--
+
+		def FindOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+			return This.FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
+
+		def FindOccurrencesCSZ(panOccurr, pcSubStr, pCaseSensitive)
 			return This.FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
 
 		#>
@@ -33445,6 +33473,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindTheseOccurrencesZ(panOccurr, pcSubStr)
+			return This.FindTheseOccurrences(panOccurr, pcSubStr)
+
+		#--
+
+		def FindOccurrences(panOccurr, pcSubStr)
+			return This.FindTheseOccurrences(panOccurr, pcSubStr)
+
+		def FindOccurrencesZ(panOccurr, pcSubStr)
 			return This.FindTheseOccurrences(panOccurr, pcSubStr)
 
 		#>
@@ -33797,9 +33833,9 @@ class stzString from stzObject
 		ok
 
 		oSection = This.SectionQ(1, pnStartingAt)
-		anPositions = oSection.FindAllCS(pcSubStr, pCaseSensitive)
+		anPos = oSection.FindAllCS(pcSubStr, pCaseSensitive)
 		
-		return anPositions
+		return anPos
 
 		def FindAllPreviousCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindAllPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
@@ -38254,14 +38290,14 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		ok
 
 		cResult = @@( This.Content() )
-		anPositions = This.FindAll( c )
+		anPos = This.FindAll( c )
 
 		nLen = StzStringQ(cResult).NumberOfChars()
 
 		cViz = " "
 		for i = 1 to nLen - 2
 			
-			if StzNumberQ(i).IsOneOfThese(anPositions)
+			if StzNumberQ(i).IsOneOfThese(anPos)
 				cViz += "^"
 			else
 				cViz += "-"
@@ -38418,9 +38454,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		oString = new stzString(cString)
 
-		anPositions = oString.FindAllCS( pcSubStr, :CS = bCaseSensitive )
+		anPos = oString.FindAllCS( pcSubStr, :CS = bCaseSensitive )
 
-		anVizPositions = StzListOfNumbersQ(anPositions).
+		anVizPositions = StzListOfNumbersQ(anPos).
 				 SubStructFromEachQ(1).Content()
 
 		nLen = oString.NumberOfChars()
@@ -39955,7 +39991,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #   REMOVING A SUBSTRING AT A SOME GIVEN POSITIONS    #
 	#-----------------------------------------------------#
 
-	def RemoveSubStringAtPositionsCS(panPositions, pcSubStr, pCaseSensitive)
+	def RemoveSubStringAtPositionsCS(panPos, pcSubStr, pCaseSensitive)
 
 		/* EXAMPLE
 		o1 = new stzString("ring php ring ruby ring python rping cshar ring")
@@ -39964,16 +40000,16 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		? o1.Content() #--> "ring php ruby python csharp"
 		*/
 
-		if NOT isList(panPositions) and Q(panPositions).IsListOfNumbers()
-			stzRaise("Incorrect param! panPositions must be a list of numbers.")
+		if NOT isList(panPos) and Q(panPos).IsListOfNumbers()
+			stzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
 
-		anPositions = Q(panPositions).SortedInAscending()
+		anPos = Q(panPos).SortedInAscending()
 
 		# Doing the job
 
-		for i = len(anPositions) to 1 step -1
-			n = anPositions[i]
+		for i = len(anPos) to 1 step -1
+			n = anPos[i]
 
 			This.RemoveSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
 		next
@@ -39997,8 +40033,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveSubStringAtPositions(panPositions, pcSubStr)
-		This.RemoveSubStringAtPositionsCS(panPositions, pcSubStr, TRUE)
+	def RemoveSubStringAtPositions(panPos, pcSubStr)
+		This.RemoveSubStringAtPositionsCS(panPos, pcSubStr, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -40116,11 +40152,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #   CONTAINING A SUBSTRING AT GIVEN (MANY) POSITIONS   #
 	#======================================================#
 
-	def ContainsAtPositionsCS(panPositions, pcSubStr, pCaseSensitive)
+	def ContainsAtPositionsCS(panPos, pcSubStr, pCaseSensitive)
 
-		if isList(panPositions) and
-		   Q(panPositions).IsOneOfTheseNamedParams([ :Positions, :SubString ])
-			panPositions = panPositions[2]
+		if isList(panPos) and
+		   Q(panPos).IsOneOfTheseNamedParams([ :Positions, :SubString ])
+			panPos = panPos[2]
 		ok
 
 		if isList(pcSubStr) and
@@ -40128,26 +40164,26 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			pcSubStr = pcSubStr[2]
 		ok
 
-		if isString(panPositions) and isList(pcSubStr) and Q(pcSubStr).IsListOfNumbers()
+		if isString(panPos) and isList(pcSubStr) and Q(pcSubStr).IsListOfNumbers()
 			temp = pcSubStr
-			pcSubStr = panPositions
-			panPositions = temp
+			pcSubStr = panPos
+			panPos = temp
 		ok
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOfNumbers() )
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
 
-			stzRaise("Incorrect param type! panPositions must be a list of numbers.")
+			stzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
 		if isList(pcSubStr) and Q(pcSubStr).IsListOfStrings()
-			return This.ContainsSubStringsAtPositionsCS(panPositions, pcSubStr, pCaseSensitive)
+			return This.ContainsSubStringsAtPositionsCS(panPos, pcSubStr, pCaseSensitive)
 		ok
 
 		bResult = TRUE
-		nLen = len(panPositions)
+		nLen = len(panPos)
 
 		for i = 1 to nLen
-			if NOT This.ContainsSubStringAtPositionCS(panPositions[i], pcSubStr, pCaseSensitive)
+			if NOT This.ContainsSubStringAtPositionCS(panPos[i], pcSubStr, pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -40157,26 +40193,26 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionAlternativeForms
 
-		def ContainsSubStringAtPositionsCS(panPositions, pcSubStr, pCaseSensitive)
-			return This.ContainsAtPositionsCS(panPositions, pcSubStr, pCaseSensitive)
+		def ContainsSubStringAtPositionsCS(panPos, pcSubStr, pCaseSensitive)
+			return This.ContainsAtPositionsCS(panPos, pcSubStr, pCaseSensitive)
 
-		def ContainsSubStringAtThesePositionsCS(panPositions, pcSubStr, pCaseSensitive)
-			return This.ContainsAtPositionsCS(panPositions, pcSubStr, pCaseSensitive)
+		def ContainsSubStringAtThesePositionsCS(panPos, pcSubStr, pCaseSensitive)
+			return This.ContainsAtPositionsCS(panPos, pcSubStr, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsAtPositions(panPositions, pcSubStr)
-		return This.ContainsAtPositionsCS(panPositions, pcSubStr, TRUE)
+	def ContainsAtPositions(panPos, pcSubStr)
+		return This.ContainsAtPositionsCS(panPos, pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def ContainsSubStringAtPositions(panPositions, pcSubStr)
-			return This.ContainsAtPositions(panPositions, pcSubStr)
+		def ContainsSubStringAtPositions(panPos, pcSubStr)
+			return This.ContainsAtPositions(panPos, pcSubStr)
 
-		def ContainsSubStringAtThesePositions(panPositions, pcSubStr)
-			return This.ContainsAtPositions(panPositions, pcSubStr)
+		def ContainsSubStringAtThesePositions(panPos, pcSubStr)
+			return This.ContainsAtPositions(panPos, pcSubStr)
 
 		#>
 
@@ -40184,11 +40220,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #   CONTAINING SUBSTRINGS AT GIVEN POSITIONS    #
 	#-----------------------------------------------#
 
-	def ContainsSubStringsAtPositionsCS(panPositions, pacSubStr, pCaseSensitive)
+	def ContainsSubStringsAtPositionsCS(panPos, pacSubStr, pCaseSensitive)
 
-		if NOT ( isList(panPositions) and Q(panPositions).IsListOFNumbers() )
+		if NOT ( isList(panPos) and Q(panPos).IsListOFNumbers() )
 
-			stzRaise("Incorrect param type! panPositions must be a list of numbers.")
+			stzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
 		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
@@ -40196,15 +40232,15 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			stzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
-		if NOT ( len(panPositions) = len(pacSubStr) )
-			stzRaise("Incorrect values! panPositions and pacSubStr lists must have same number of items.")
+		if NOT ( len(panPos) = len(pacSubStr) )
+			stzRaise("Incorrect values! panPos and pacSubStr lists must have same number of items.")
 		ok
 
 		bResult = TRUE
 
 		#TODO: change for in with for loop --> better performance
 		i = 0
-		for n in panPositions
+		for n in panPos
 			i++
 			if NOT This.ContainsSubStringAtPosition(n, pacSubStr[i])
 				bResult = FALSE
@@ -40216,32 +40252,32 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionAlternativeForms
 
-		def ContainsSubStringsAtThesePositionsCS(panPositions, pacSubStr, pCaseSensitive)
-			return This.ContainsSubStringsAtPositionsCS(panPositions, pacSubStr, pCaseSensitive)
+		def ContainsSubStringsAtThesePositionsCS(panPos, pacSubStr, pCaseSensitive)
+			return This.ContainsSubStringsAtPositionsCS(panPos, pacSubStr, pCaseSensitive)
 
-		def ContainsSubStringsAtCS(panPositions, pacSubStr, pCaseSensitive)
-			return This.ContainsSubStringsAtPositionsCS(panPositions, pacSubStr, pCaseSensitive)
+		def ContainsSubStringsAtCS(panPos, pacSubStr, pCaseSensitive)
+			return This.ContainsSubStringsAtPositionsCS(panPos, pacSubStr, pCaseSensitive)
 
-		def ContainsManyAtCS(panPositions, pacSubStr, pCaseSensitive)
-			return This.ContainsSubStringsAtPositionsCS(panPositions, pacSubStr, pCaseSensitive)
+		def ContainsManyAtCS(panPos, pacSubStr, pCaseSensitive)
+			return This.ContainsSubStringsAtPositionsCS(panPos, pacSubStr, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsSubStringsAtPositions(panPositions, pacSubStr)
-		return This.ContainsSubStringsAtPositionsCS(panPositions, pacSubStr, TRUE)
+	def ContainsSubStringsAtPositions(panPos, pacSubStr)
+		return This.ContainsSubStringsAtPositionsCS(panPos, pacSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
 		def ContainsSubStringsAtThesePositions(n, pacSubStr)
-			return This.ContainsSubStringsAtPositions(panPositions, pacSubStr)
+			return This.ContainsSubStringsAtPositions(panPos, pacSubStr)
 
-		def ContainsSubStringsAt(panPositions, pacSubStr)
-			return This.ContainsSubStringsAtPositions(panPositions, pacSubStr)
+		def ContainsSubStringsAt(panPos, pacSubStr)
+			return This.ContainsSubStringsAtPositions(panPos, pacSubStr)
 
-		def ContainsManyAt(panPositions, pacSubStr)
-			return This.ContainsSubStringsAtPositions(panPositions, pacSubStr)
+		def ContainsManyAt(panPos, pacSubStr)
+			return This.ContainsSubStringsAtPositions(panPos, pacSubStr)
 
 		#>
 
@@ -44137,8 +44173,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		else
 
-			anPositions = This.FindW(pcCondition)
-			aResult = This.SplitAtPositions(anPositions)
+			anPos = This.FindW(pcCondition)
+			aResult = This.SplitAtPositions(anPos)
 		ok
 
 		return aResult
@@ -44181,13 +44217,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsW(pcCondition)
+			anPos = This.FindSubStringsW(pcCondition)
 
 		else
-			anPositions = This.FindCharsW(pcCondition)
+			anPos = This.FindCharsW(pcCondition)
 		ok
 
-		aResult = This.SplitBeforePositions(anPositions)
+		aResult = This.SplitBeforePositions(anPos)
 
 		return aResult
 
@@ -44229,13 +44265,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsW(pcCondition)
+			anPos = This.FindSubStringsW(pcCondition)
 
 		else
-			anPositions = This.FindCharsW(pcCondition)
+			anPos = This.FindCharsW(pcCondition)
 		ok
 
-		aResult = This.SplitAfterPositions(anPositions)
+		aResult = This.SplitAfterPositions(anPos)
 
 		return aResult
 
@@ -46035,8 +46071,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		else
 
-			anPositions = This.FindW(pcCondition)
-			anResult = This.FindSplitsAtPositionsZ(anPositions)
+			anPos = This.FindW(pcCondition)
+			anResult = This.FindSplitsAtPositionsZ(anPos)
 		ok
 
 		return anResult
@@ -46064,13 +46100,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsW(pcCondition)
+			anPos = This.FindSubStringsW(pcCondition)
 
 		else
-			anPositions = This.FindCharsW(pcCondition)
+			anPos = This.FindCharsW(pcCondition)
 		ok
 
-		anResult = This.FindSplitsBeforePositions(anPositions)
+		anResult = This.FindSplitsBeforePositions(anPos)
 
 		return anResult
 
@@ -46097,13 +46133,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsW(pcCondition)
+			anPos = This.FindSubStringsW(pcCondition)
 
 		else
-			anPositions = This.FindCharsW(pcCondition)
+			anPos = This.FindCharsW(pcCondition)
 		ok
 
-		anResult = This.FindSplitsAfterPositions(anPositions)
+		anResult = This.FindSplitsAfterPositions(anPos)
 
 		return anResult
 
@@ -48352,8 +48388,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		else
 
-			anPositions = This.FindWCS(pcCondition, pCaseSensitive)
-			aResult = This.FindSplitsAtPositionsCSZZ(anPositions, pCaseSensitive)
+			anPos = This.FindWCS(pcCondition, pCaseSensitive)
+			aResult = This.FindSplitsAtPositionsCSZZ(anPos, pCaseSensitive)
 
 		ok
 
@@ -48402,13 +48438,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsWCS(pcCondition, pCaseSensitive)
+			anPos = This.FindSubStringsWCS(pcCondition, pCaseSensitive)
 
 		else
-			anPositions = This.FindCharsWCS(pcCondition, pCaseSensitive)
+			anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
 		ok
 
-		aResult = This.FindSplitsBeforePositionsCSZZ(anPositions, pCaseSensitive)
+		aResult = This.FindSplitsBeforePositionsCSZZ(anPos, pCaseSensitive)
 
 		return aResult
 
@@ -48455,13 +48491,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsWCS(pcCondition, pCaseSensitive)
+			anPos = This.FindSubStringsWCS(pcCondition, pCaseSensitive)
 
 		else
-			anPositions = This.FindCharsWCS(pcCondition, pCaseSensitive)
+			anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
 		ok
 
-		aResult = This.FindSplitsAfterPositionsCSZZ(anPositions, pCaseSensitive)
+		aResult = This.FindSplitsAfterPositionsCSZZ(anPos, pCaseSensitive)
 
 		return aResult
 
@@ -50144,8 +50180,8 @@ ici		//...
 
 		else
 
-			anPositions = This.FindW(pcCondition)
-			nResult = This.FindNthSplitAtPositionsZ(n, anPositions)
+			anPos = This.FindW(pcCondition)
+			nResult = This.FindNthSplitAtPositionsZ(n, anPos)
 		ok
 
 		return nResult
@@ -50173,13 +50209,13 @@ ici		//...
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsW(pcCondition)
+			anPos = This.FindSubStringsW(pcCondition)
 
 		else
-			anPositions = This.FindCharsW(pcCondition)
+			anPos = This.FindCharsW(pcCondition)
 		ok
 
-		nResult = This.FindNthSplitBeforePositions(n, anPositions)
+		nResult = This.FindNthSplitBeforePositions(n, anPos)
 
 		return nResult
 
@@ -50206,13 +50242,13 @@ ici		//...
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsW(pcCondition)
+			anPos = This.FindSubStringsW(pcCondition)
 
 		else
-			anPositions = This.FindCharsW(pcCondition)
+			anPos = This.FindCharsW(pcCondition)
 		ok
 
-		nResult = This.FindNthSplitAfterPositions(n, anPositions)
+		nResult = This.FindNthSplitAfterPositions(n, anPos)
 
 		return nResult
 
@@ -51785,8 +51821,8 @@ ici		//...
 
 		else
 
-			anPositions = This.FindW(pcCondition)
-			aResult = This.FindNthSplitAtPositionsZZ(n, anPositions)
+			anPos = This.FindW(pcCondition)
+			aResult = This.FindNthSplitAtPositionsZZ(n, anPos)
 		ok
 
 		return aResult
@@ -51814,13 +51850,13 @@ ici		//...
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsW(pcCondition)
+			anPos = This.FindSubStringsW(pcCondition)
 
 		else
-			anPositions = This.FindCharsW(pcCondition)
+			anPos = This.FindCharsW(pcCondition)
 		ok
 
-		aResult = This.FindNthSplitBeforePositionsZZ(n, anPositions)
+		aResult = This.FindNthSplitBeforePositionsZZ(n, anPos)
 
 		return aResult
 
@@ -51847,13 +51883,13 @@ ici		//...
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsW(pcCondition)
+			anPos = This.FindSubStringsW(pcCondition)
 
 		else
-			anPositions = This.FindCharsW(pcCondition)
+			anPos = This.FindCharsW(pcCondition)
 		ok
 
-		aResult = This.FindNthSplitAfterPositionsZZ(n, anPositions)
+		aResult = This.FindNthSplitAfterPositionsZZ(n, anPos)
 
 		return aResult
 
@@ -53472,8 +53508,8 @@ ici		//...
 
 		else
 
-			anPositions = This.FindW(pcCondition)
-			nResult = This.FindLastSplitAtPositionsZ(anPositions)
+			anPos = This.FindW(pcCondition)
+			nResult = This.FindLastSplitAtPositionsZ(anPos)
 		ok
 
 		return nResult
@@ -53501,13 +53537,13 @@ ici		//...
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsW(pcCondition)
+			anPos = This.FindSubStringsW(pcCondition)
 
 		else
-			anPositions = This.FindCharsW(pcCondition)
+			anPos = This.FindCharsW(pcCondition)
 		ok
 
-		nResult = This.FindLastSplitBeforePositions(anPositions)
+		nResult = This.FindLastSplitBeforePositions(anPos)
 
 		return nResult
 
@@ -53534,13 +53570,13 @@ ici		//...
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsW(pcCondition)
+			anPos = This.FindSubStringsW(pcCondition)
 
 		else
-			anPositions = This.FindCharsW(pcCondition)
+			anPos = This.FindCharsW(pcCondition)
 		ok
 
-		nResult = This.FindLastSplitAfterPositions(anPositions)
+		nResult = This.FindLastSplitAfterPositions(anPos)
 
 		return nResult
 
@@ -55113,8 +55149,8 @@ ici		//...
 
 		else
 
-			anPositions = This.FindW(pcCondition)
-			aResult = This.FindLastSplitAtPositionsZZ(anPositions)
+			anPos = This.FindW(pcCondition)
+			aResult = This.FindLastSplitAtPositionsZZ(anPos)
 		ok
 
 		return aResult
@@ -55142,13 +55178,13 @@ ici		//...
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsW(pcCondition)
+			anPos = This.FindSubStringsW(pcCondition)
 
 		else
-			anPositions = This.FindCharsW(pcCondition)
+			anPos = This.FindCharsW(pcCondition)
 		ok
 
-		aResult = This.FindLastSplitBeforePositionsZZ(anPositions)
+		aResult = This.FindLastSplitBeforePositionsZZ(anPos)
 
 		return aResult
 
@@ -55175,13 +55211,13 @@ ici		//...
 		ok
 
 		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPositions = This.FindSubStringsW(pcCondition)
+			anPos = This.FindSubStringsW(pcCondition)
 
 		else
-			anPositions = This.FindCharsW(pcCondition)
+			anPos = This.FindCharsW(pcCondition)
 		ok
 
-		aResult = This.FindLastSplitAfterPositionsZZ(anPositions)
+		aResult = This.FindLastSplitAfterPositionsZZ(anPos)
 
 		return aResult
 
@@ -56389,9 +56425,9 @@ ici		//...
 
 		cThisString = This.LowercaseQ().ToStzText().DiacriticsRemoved()
 
-		cOtherString = StzStringQ(pcOtherStr).LowercaseQ().ToStzText().DiacriticsRemoved()
+		cOtherStr = StzStringQ(pcOtherStr).LowercaseQ().ToStzText().DiacriticsRemoved()
 
-		if cThisString = cOtherString
+		if cThisString = cOtherStr
 			return TRUE
 		ok
 
@@ -58475,9 +58511,9 @@ ici		//...
 			ok
 		ok
 
-		anPositions = This.FindCharsWhereQ( pcCondition ).SortedInDescending()
+		anPos = This.FindCharsWhereQ( pcCondition ).SortedInDescending()
 
-		for for n in anPositions
+		for for n in anPos
 			This.RemoveCharAtPosition(n)
 		next
 
@@ -68674,15 +68710,15 @@ ici		//...
 	 #   CHARS AT A GIVEN POSITIONS   #
 	#--------------------------------#
 	
-	def CharsAtPositions(panPositions)
-		if NOT ( isList(panPositions) and Q(panPositions).IsListofNumbers() )
-			stzRaise("Incorrect param! panPositions must be a list of numbers.")
+	def CharsAtPositions(panPos)
+		if NOT ( isList(panPos) and Q(panPos).IsListofNumbers() )
+			stzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
 
 		acResult = []
 
 		#TODO: Replace for/in with for --> better performance
-		for n in panPositions
+		for n in panPos
 			acResult + This.CharAt(n)
 		next
 
@@ -68691,9 +68727,9 @@ ici		//...
 		#< @FunctionFluentForm
 
 		def CharsAtPositionsQ(panPosirtions)
-			return This.CharsAtPositionsQR(panPositions, :stzList)
+			return This.CharsAtPositionsQR(panPos, :stzList)
 
-		def CharsAtPositionsQR(panPositions, pcReturnType)
+		def CharsAtPositionsQR(panPos, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnTypeNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
@@ -68704,13 +68740,13 @@ ici		//...
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.CharsAtPositionsQR(panPositions, pcReturnType) )
+				return new stzList( This.CharsAtPositionsQR(panPos, pcReturnType) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.CharsAtPositionsQR(panPositions, pcReturnType) )
+				return new stzListOfStrings( This.CharsAtPositionsQR(panPos, pcReturnType) )
 
 			on :stzListOfChars
-				return new stzListOfChars( This.CharsAtPositionsQR(panPositions, pcReturnType) )
+				return new stzListOfChars( This.CharsAtPositionsQR(panPos, pcReturnType) )
 
 			other
 				stzRaise("Unsupported param type!")
@@ -68720,23 +68756,23 @@ ici		//...
 
 		#< @FunctionAlternativeForm
 
-		def CharsAtThesePositons(panPositions)
-			return This.CharsAtPositions(panPositions)
+		def CharsAtThesePositons(panPos)
+			return This.CharsAtPositions(panPos)
 
-			def CharsAtThesePositionsQ(panPositions)
-				return This.CharsAtQR(panPositions, :stzList)
+			def CharsAtThesePositionsQ(panPos)
+				return This.CharsAtQR(panPos, :stzList)
 
-			def CharsAtThesePositionsQR(panPositions, pcReturnType)
-				return This.CharsAtPositionsQR(panPositions, pcReturnType)
+			def CharsAtThesePositionsQR(panPos, pcReturnType)
+				return This.CharsAtPositionsQR(panPos, pcReturnType)
 
-		def CharsAt(panPositions)
-			return This.CharsAtPositions(panPositions)
+		def CharsAt(panPos)
+			return This.CharsAtPositions(panPos)
 
-			def CharsAtQ(panPositions)
-				return This.CharsAtQR(panPositions, :stzList)
+			def CharsAtQ(panPos)
+				return This.CharsAtQR(panPos, :stzList)
 
-			def CharsAtQR(panPositions, pcReturnType)
-				return This.CharsAtPositionsQR(panPositions, pcReturnType)
+			def CharsAtQR(panPos, pcReturnType)
+				return This.CharsAtPositionsQR(panPos, pcReturnType)
 
 		#>
 
@@ -70917,11 +70953,11 @@ ici		//...
 
 		# Doing the job
 
-		anPositions = []
+		anPos = []
 		acChars = []
 
 		for i = pnFromPosition to pnToPosition step pnStep
-			anPositions + i
+			anPos + i
 			acChars + This.Char(i)
 		next
 
@@ -70929,7 +70965,7 @@ ici		//...
 
 
 		if pcReturn = :WalkedPositions
-			aResult = anPositions
+			aResult = anPos
 
 		but pcReturn = :WalkedChars
 			aResult = acChars
@@ -71840,38 +71876,38 @@ ici		//...
 	 #   CHECKING IF STRINGS AT GIVEN POSITIONS VERIFY A GIVEN CONDITION   #
 	#-------------------------------------------------------------------#
 
-	def CheckOnW(panPositions, pcCondition)
+	def CheckOnW(panPos, pcCondition)
 
-		return This.CharsQ().CheckOnW(panPositions, pcCondition)
+		return This.CharsQ().CheckOnW(panPos, pcCondition)
 
 		#< @FunctionAlternativeForms
 
-		def VerifyOnW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifyOnW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def CheckOn(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def CheckOn(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def VerifyOn(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifyOn(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def CheckOnPositionsW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def CheckOnPositionsW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def VerifiyOnPositionsW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifiyOnPositionsW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def CheckOnThesePositionsW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def CheckOnThesePositionsW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def VerifyThesePositionsW(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifyThesePositionsW(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def CheckOnPositions(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def CheckOnPositions(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 
-		def VerifyOnPositions(panPositions, pcCondition)
-			return This.CheckOnW(panPositions, pcCondition)
+		def VerifyOnPositions(panPos, pcCondition)
+			return This.CheckOnW(panPos, pcCondition)
 		#>
 
 	  #------------------------------------------------------------------#
@@ -72038,8 +72074,8 @@ ici		//...
 	 #   YIELDING INFORMATION FROM CHARS AT GIVEN POSITIONS   #
 	#--------------------------------------------------------#
 
-	def YieldFrom(panPositions, pcCode)
-		return This.CharsQ().YieldFrom(panPositions, pcCode)
+	def YieldFrom(panPos, pcCode)
+		return This.CharsQ().YieldFrom(panPos, pcCode)
 
 		#< @FunctionFluentForm
 
@@ -72069,8 +72105,8 @@ ici		//...
 
 		#< @FunctionAlternativeForms
 
-		def YieldFromPositions(panPositions, pcCode)
-			return This.YieldFrom(panPositions, pcCode)
+		def YieldFromPositions(panPos, pcCode)
+			return This.YieldFrom(panPos, pcCode)
 
 			def YieldFromPositionsQ(paPositions, pcCode)
 				return This.YieldFromPositionsQR(paPositions, pcCode, :stzList)
@@ -72094,8 +72130,8 @@ ici		//...
 					stzRaise("Unsupported return type!")
 				off
 
-		def YieldFromCharsAt(panPositions, pcCode)
-			return This.YieldFrom(panPositions, pcCode)
+		def YieldFromCharsAt(panPos, pcCode)
+			return This.YieldFrom(panPos, pcCode)
 
 			def YieldFromCharsAtQ(paPositions, pcCode)
 				return This.YieldFromCharsAtQR(paPositions, pcCode, :stzList)
@@ -72119,8 +72155,8 @@ ici		//...
 					stzRaise("Unsupported return type!")
 				off
 
-		def YieldFromCharsAtPositions(panPositions, pcCode)
-			return This.YieldOn(panPositions, pcCode)
+		def YieldFromCharsAtPositions(panPos, pcCode)
+			return This.YieldOn(panPos, pcCode)
 
 			def YieldFromCharsAtPositionsQ(paPositions, pcCode)
 				return This.YieldFromCharsAtPositionsQR(paPositions, pcCode, :stzList)
@@ -72147,8 +72183,8 @@ ici		//...
 					stzRaise("Unsupported return type!")
 			off
 
-		def HarvestFromPositions(panPositions, pcCode)
-			return This.HarvestFrom(panPositions, pcCode)
+		def HarvestFromPositions(panPos, pcCode)
+			return This.HarvestFrom(panPos, pcCode)
 
 			def HarvestFromPositionsQ(paPositions, pcCode)
 				return This.HarvestFromPositionsQR(paPositions, pcCode, :stzList)
@@ -72172,8 +72208,8 @@ ici		//...
 					stzRaise("Unsupported return type!")
 				off
 
-		def HarvestFromCharsAt(panPositions, pcCode)
-			return This.HarvestFrom(panPositions, pcCode)
+		def HarvestFromCharsAt(panPos, pcCode)
+			return This.HarvestFrom(panPos, pcCode)
 
 			def HarvestFromCharsAtQ(paPositions, pcCode)
 				return This.HarvestFromCharsAtQR(paPositions, pcCode, :stzList)
@@ -72197,8 +72233,8 @@ ici		//...
 					stzRaise("Unsupported return type!")
 				off
 
-		def HarvestFromCharsAtPositions(panPositions, pcCode)
-			return This.HarvestOn(panPositions, pcCode)
+		def HarvestFromCharsAtPositions(panPos, pcCode)
+			return This.HarvestOn(panPos, pcCode)
 
 			def HarvestFromCharsAtPositionsQ(paPositions, pcCode)
 				return This.HarvestFromCharsAtPositionsQR(paPositions, pcCode, :stzList)
@@ -72309,8 +72345,8 @@ ici		//...
 			anSectionsExpanded + Q(aSection).ExpandedIfPairOfNumbers()
 		next
 
-		for anPositions in anSectionsExpanded
-			aResult + This.YieldFromPositions(anPositions, pcCode)
+		for anPos in anSectionsExpanded
+			aResult + This.YieldFromPositions(anPos, pcCode)
 		next
 
 		return aResult
@@ -72535,33 +72571,33 @@ ici		//...
 	 #   PERFORMING ACTIONS ON CHARS IN GIVEN POSITIONS   #
 	#----------------------------------------------------#
 
-	def PerformOn(panPositions, pcCode)
+	def PerformOn(panPos, pcCode)
 
 		This.UpdateWith(
 			This.CharsQ().
-			PerformOnQ(panPositions, pcCode).
+			PerformOnQ(panPos, pcCode).
 			ToStzListOfStrings().
 			Concatenated()
 		)
 
 		#--
 
-		def PerformOnQ(panPositions, pcCode)
-			This.PerformOn(panPositions, pcCode)
+		def PerformOnQ(panPos, pcCode)
+			This.PerformOn(panPos, pcCode)
 			return This
 
-		def PerformOnPositions(panPositions, pcCode)
-			This.PerformOn(panPositions, pcCode)
+		def PerformOnPositions(panPos, pcCode)
+			This.PerformOn(panPos, pcCode)
 
-			def PerformOnPositionsQ(panPositions, pcCode)
-				This.PerformOnPositions(panPositions, pcCode)
+			def PerformOnPositionsQ(panPos, pcCode)
+				This.PerformOnPositions(panPos, pcCode)
 				return This
 
-		def PerformOnThesePositions(panPositions, pcCode)
-			This.PerformOn(panPositions, pcCode)
+		def PerformOnThesePositions(panPos, pcCode)
+			This.PerformOn(panPos, pcCode)
 
-			def PerformOnThesePositionsQ(panPositions, pcCode)
-				This.PerformOnThesePositions(panPositions, pcCode)
+			def PerformOnThesePositionsQ(panPos, pcCode)
+				This.PerformOnThesePositions(panPos, pcCode)
 				return This
 
 	  #------------------------------------------------------#
@@ -74979,6 +75015,7 @@ ici		//...
 		def FindPositionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 			return This.FindCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAll(pcSubStr)
@@ -75034,23 +75071,6 @@ ici		//...
 				
 		def FindPositionsQR(pcSubStr, pcReturnType)
 			return This.FindQR(pcSubStr, pcReturnType)
-
-	def FindOccurrences(pcSubStr)
-		if isList(pcSubStr) and
-		   Q(pcSubStr).IsOneOfTheseNamedParams([ :Of, :OfSubString ])
-			pcSubStr = pcSubStr[2]
-		ok
-	
-		return This.Find(pcSubStr)
-	
-		def FindOccurrencesQ(pcSubStr)
-			return This.FindOccurrencesQR(pcSubStr, :stzList)
-				
-		def FindOccurrencesQR(pcSubStr, pcReturnType)
-			return This.FindAllQR(pcSubStr, pcReturnType)
-	
-	def FindAllOccurrences(pcSubStr)
-		return This.FindOccurrences(pcSubStr)
 
 	  #-------------------------------------------#
 	 #  FINDING A SUBSTRING AT A GIVEN POSITION  #

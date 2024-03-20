@@ -3072,7 +3072,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
@@ -3088,97 +3088,176 @@ proff()
 
 /*----------
 
+pron()
+
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
-anPos = o1.FindTheseOccurrences([ :First, :Last ], :Of = "ring") #--> [ 1, 7 ]
+
+anPos = o1.FindTheseOccurrences([ :First, :Last ], :Of = "ring")
+#--> [ 1, 7 ]
+
 o1.RemoveItemsAtPositions(anPos)
-? @@( o1.Content() ) #--> [ "__", "ring", "__", "ring", "__" ]
+? @@( o1.Content() )
+#--> [ "__", "ring", "__", "ring", "__" ]
+
+proff()
+# Executed in 0.04 second(s)
 
 /*----------
+
+pron()
+
+o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
+? o1.FindTheseOccurrences([1, 4], "ring")
+o1.RemoveItemsAtPositions([1, 7])
+? @@( o1.content() )
+
+proff()
+# Executed in 0.01 second(s)
+
+/*----------
+
+pron()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 o1.RemoveOccurrences([ :First, :Last ], :Of = "ring" )
-? @@( o1.Content() ) #--> [ "__", "ring", "__", "ring", "__" ]
+? @@( o1.Content() )
+#--> [ "__", "ring", "__", "ring", "__" ]
+
+proff()
+# Executed in 0.04 second(s)
 
 /*----------
+
+pron()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
-o1.ReplaceOccurrences([ :First, :Last ], :Of = "ring", :With = 3Hearts() )
-? @@( o1.Content() ) #--> [ "♥♥♥", "__", "ring", "__", "ring", "__", "♥♥♥" ]
+o1.ReplaceOccurrences([ :First, :And = :Last ], :Of = "ring", :With = 3Hearts() )
+? @@( o1.Content() )
+#--> [ "♥♥♥", "__", "ring", "__", "ring", "__", "♥♥♥" ]
+
+proff()
+# Executed in 0.11 second(s)
 
 /*----------
+
+pron()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 o1.ReplaceFirstNOccurrences(2, :Of = "ring", :With = 2Stars() )
-? @@( o1.Content() ) #--> [ "★★", "__", "★★", "__", "ring", "__", "ring" ]
+? @@( o1.Content() )
+#--> [ "★★", "__", "★★", "__", "ring", "__", "ring" ]
 
-/*-------------------------------
+proff()
+# Executed in 0.03 second(s)
+
+/*------
+
+pron()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 o1.ReplaceLastNOccurrences(2, :Of = "ring", :With = 2Stars() )
 ? @@( o1.Content() ) #--> [ "ring", "__", "ring", "__", "★★", "__", "★★" ]
 
-/*
-
-RemoveFirstNOccurrences
-ReplaceFirstNOccurrences
+proff()
+# Executed in 0.03 second(s)
 
 /*==============
 
+pron()
+
 o1 = new stzString("ring __ ring __ ring __ ring")
-? o1.FindTheseOccurrences([ :First, :Last ], "ring") #--> [ 1, 25 ]
-? o1.FindTheseOccurrences([ 1, 4 ], "ring") #--> [ 1, 25 ]
+
+? o1.FindTheseOccurrences([ :First, :And = :Last ], "ring")
+#--> [ 1, 25 ]
+
+? o1.FindTheseOccurrences([ 1, 4 ], "ring")
+#--> [ 1, 25 ]
+
+proff()
+# Executed in 0.02 second(s)
 
 /*----------
 
-o1 = new stzString("ring __ ring __ ring __ ring")
-? o1.SubStringOccurrenceByPosition(9, "ring") #--> 2
+pron()
 
-? o1.SubStringPositionByOccurrence(2, "ring") #--> 9
-# Alternativcely to this, you can say:
-? o1.FindNthOccurrence(2, "ring")
+o1 = new stzString("ring __ ring __ ring __ ring")
+? o1.SubStringOccurrenceByPosition(9, "ring")
+#--> 2
+
+? o1.SubStringPositionByOccurrence(2, "ring") # or FindNthOccurrence(2, "ring")
+#--> 9
+
+proff()
+# Executed in 0.02 second(s)
 
 /*----------
 
+pron()
+
 o1 = new stzString("ring __ ring __ ring __ ring")
-anPos = o1.FindFirstNOccurrences(3, "ring")
+anPos = o1.FindFirstNOccurrences(3, "ring") #--> [ 1, 9, 17 ]
+
 o1.ReplaceSubStringAtPositions(anPos, "ring", Heart())
+
 ? o1.Content()
 #--> ♥ __ ♥ __ ♥ __ ring
 
+proff()
+# Executed in 0.03 second(s)
+
 /*----------
+
+pron()
 
 o1 = new stzString("ring __ ring __ ring __ ring")
 o1.ReplaceFirstNOccurrences(3, "ring", Heart())
 ? o1.Content()
 #--> ♥ __ ♥ __ ♥ __ ring
 
+proff()
+# Executed in 0.03 second(s)
+
 /*----------
+
+pron()
 
 o1 = new stzString("ring __ ring __ ring __ ring")
-anPos = o1.FindFirstNOccurrences(3, "ring")
 o1.RemoveSubStringAtPosition(1, "ring")
 ? o1.Content()
+#-->  __ ring __ ring __ ring
+
+proff()
+# Executed in 0.03 second(s)
 
 /*----------
+
+pron()
 
 o1 = new stzString("ring __ ring __ ring __ ring")
 anPos = o1.FindFirstNOccurrences(3, "ring")
 o1.RemoveSubStringAtPositions(anPos, "ring")
-? o1.Content() #--> " __  __  __ ring"
+? o1.Content()
+#--> " __  __  __ ring"
+
+proff()
+# Executed in 0.03 second(s)
 
 /*----------
 
+pron()
+
 o1 = new stzString("ring __ ring __ ring __ ring")
-? o1.FindOccurrences([ 2, 3 ], "ring") #--> [ 9, 17 ]
+? o1.FindOccurrences([ 2, 3 ], "ring")
+#--> [ 9, 17 ]
 
 o1 = new stzString("ring __ ring __ ring __ ring")
 o1.RemoveOccurrences([2, 3], "ring")
-? o1.Content()
-#--> "ring __  __  __ ring"
+? o1.Content() + NL
+#--> ring __  __  __ ring
 
 o1 = new stzString("ring __ ring __ ring __ ring")
 o1.RemoveFirstNOccurrences(3, "ring")
-? o1.Content()
+? o1.Content() + NL
 #--> " __  __  __ ring"
 
 o1 = new stzString("ring __ ring __ ring __ ring")
@@ -3186,27 +3265,37 @@ o1.RemoveLastNOccurrences(3, "ring")
 ? o1.Content()
 #--> "ring __  __  __ "
 
+proff()
+# Executed in 0.03 second(s)
+
 /*----------
-
-o1 = new stzString("ring __ ring __ ring __ ring")
-? o1.SubStringOccurrenceByPosition(9, "ring") #--> 2
-
-? o1.SubStringPositionByOccurrence(2, "ring") #--> 9
-# Alternativcely to this, you can say:
-? o1.FindNthOccurrence(2, "ring")
-
-/*=========================================
 
 pron()
 
-# In Softanza, you can divide the content of a string to 3 parts
+o1 = new stzString("ring __ ring __ ring __ ring")
+
+? o1.SubStringOccurrenceByPosition(9, "ring")
+#--> 2
+
+? o1.SubStringPositionByOccurrence(2, "ring") # o1.FindNthOccurrence(2, "ring")
+#--> 9
+
+proff()
+# Executed in 0.01 second(s)
+
+/*================ @narration
+*/
+pron()
+
+# In Softanza, you can divide the content of a string into 3 parts
 cNumbers = "ABCDEFG"
-? Q(cNumbers) / 3 #--> [ "ABC", "DEF", "G" ]
+? Q(cNumbers) / 3
+#--> [ "ABC", "DE", "FG" ]
 
 # Those 3 parts can be "named" parts:
 
 ? Q(cNumbers) / [ "Hussein", "Haneen", "Teeba" ]
-#--> [ :Hussein = "ABC", :Haneen = "DEF", :Teeba = "G" ]
+#--> [ :Hussein = "ABC", :Haneen = "DE", :Teeba = "FG" ]
 
 # And you can configure the share of each part at your will:
 ? Q(cNumbers) / [ :Hussein = 3, :Haneen = 1, :Teeba = 3 ]

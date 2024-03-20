@@ -115,10 +115,10 @@ load "stzlib.ring"
 	      REPLACE        |             SOME OCCURRENCES OF A SUBSTRING              |
 	+====================+==========================================================+
 	|       BY A         |                          (5)                             |
-	|     SUBSTRING      |    ReplaceSome(panOccurrences, cSubStr, cNewSubStr)      | 
+	|     SUBSTRING      |    ReplaceSome(panOccurr, cSubStr, cNewSubStr)      | 
 	+--------------------+----------------------------------------------------------+
 	|      BY MANY       |                          (6)                             |
-	|    SUBSTRINGS      | ReplaceSomeByMany(panOccurrences, cSubStr, acSubStr) |
+	|    SUBSTRINGS      | ReplaceSomeByMany(panOccurr, cSubStr, acSubStr) |
 	+--------------------+----------------------------------------------------------+
 
 	Let's illstrate those two scnearios with examples:
@@ -158,10 +158,10 @@ load "stzlib.ring"
 	|     BY A SUBSTRING      |          ReplaceSubStringAtPosition(n, pcSubStr, pcNewSubStr)        | 
 	+-------------------------+----------------------------------------------------------------------+
 	| AT SOME GIVEN POSITIONS |                                (8)                                   |
-	|     BY A SUBSTRING      |     ReplaceSubStringAtPositions(panPositions, substr, pcNewSubStr)   |
+	|     BY A SUBSTRING      |     ReplaceSubStringAtPositions(panPos, substr, pcNewSubStr)   |
 	+-------------------------+----------------------------------------------------------------------+
 	| AT SOME GIVEN POSITIONS |                                (9)                                   |
-	|    BY MANY SUBSTRINGS   | ReplaceSubStringAtPositionsByMany(panPositions, substr, pacNewSubStr)|
+	|    BY MANY SUBSTRINGS   | ReplaceSubStringAtPositionsByMany(panPos, substr, pacNewSubStr)|
 	+-------------------------+----------------------------------------------------------------------+
 
 	These are the corresponding examples of the 3 scenarios above:

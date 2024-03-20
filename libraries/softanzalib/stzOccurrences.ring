@@ -1,13 +1,13 @@
 
-func StzOccurrenceQ(panOccurrences, pcSubStr, pcStr)
-	return new stzOccurrences(panOccurrences, pcSubStr, pcStr)
+func StzOccurrenceQ(panOccurr, pcSubStr, pcStr)
+	return new stzOccurrences(panOccurr, pcSubStr, pcStr)
 
 class stzOccurrences
 	@anOccurrences
 	@cSubStr
 	@cStr
 
-	def init(panOccurrences, pcSubStr, pcStr)
+	def init(panOccurr, pcSubStr, pcStr)
 		if isList(pcSubStr) and Q(pcSubStr).IsOfOrOfSubStringNamedParam()
 			pcSubStr = pcSubStr[2]
 		ok
@@ -16,7 +16,7 @@ class stzOccurrences
 			pcStr = pcStr[2]
 		ok
 
-		@anOccurrences = panOccurrences
+		@anOccurrences = panOccurr
 		@pcSubStr = pcSubStr
 		@pcStr = pcStr
 
