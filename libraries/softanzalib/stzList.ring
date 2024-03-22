@@ -32038,6 +32038,33 @@ class stzList from stzObject
 	def ContainsBoth(pItem1, pItem2)
 		return This.ContainsBothCS(pItem1, pItem2, TRUE)
 
+	  #-----------------------------------------------------------#
+	 #    CONTAINING ONE GIVEN ITEM OR AN OTHER (BUT NOT BOTH)   #
+	#-----------------------------------------------------------#
+
+	def ContainsEitherCS(pItem1, pItem2, pCaseSensitive)
+		if isList(pItem2) and Q(pItem2).IsOrNamedParam()
+			pItem2 = pItem2[2]
+		ok
+
+		#NOTE
+		# We can solve it quickly like this:
+		# return This.ContainsOnlyOneOfTheseCS([ pItem1, pItem2 ], pCaseSensitive)
+
+		b1 = This.ContainsCS(pItem1, pCaseSensitive)
+		b2 = This.ContainsCS(pItem2, pCaseSensitive)
+
+		if (b1 = 1 and b2 = 0) or (b1 = 0 and b2 = 1)
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsEither(pItem1, pItem2)
+		return This.ContainsEitherCS(pItem1, pItem2, TRUE)
+
 	  #--------------------------------------------------------------------#
 	 #  CHECKING IF EACH ONE OF THE GIVEN ITEMS EXISTS IN THE GIVEN LIST  #
 	#--------------------------------------------------------------------#
@@ -32245,23 +32272,18 @@ class stzList from stzObject
 		#>
 
 	  #-----------------------------------------------------------#
-	 #  CHECKING IF THE LIST CONTAINS ANY OF THE PROVIDED ITEMS  #
+	 #  CHECKING IF THE LIST CONTAINS ONE OF THE PROVIDED ITEMS  #
 	#-----------------------------------------------------------#
-
-	def ContainsAnyCS(pSetOfItems, pCaseSensitive)
-		/*
-		Example:
-
-		o1 = new stzList([ :monday, :monday, :monday ])
-		? o1.ContainsAny([ :sunday, :monday, :saturday, :wednesday, :thirsday, :friday, :saturday ])
-		#--> TRUE
-
-		*/
+	
+	def ContainsOneOfTheseCS(paItems, pCaseSensitive)
+		
+		aItems = Q(paItems).WithoutDupplication()
+		nLen = len(paItems)
 
 		bResult = FALSE
 
-		for item in pSetOfItems
-			if This.NumberOfOccurrenceCS(item, pCaseSensitive) = This.NumberOfItems()
+		for i = 1 to nLen
+			if This.ContainsCS( paItems[i],  pCaseSensitive)
 				bResult = TRUE
 				exit
 			ok
@@ -32271,62 +32293,62 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+		def ContainsAnyCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
 
 		def ContainsAnyOneOfTheseCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
 
 		def ContainsAnyOfTheseCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
 
 		def IsMadeOfOneOfTheseCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
 
 		def IsMadeOfAnyOfTheseCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
 
 		def ContainsOneCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
 
 		def ContainsOneOfTheCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
 
 		def ContainsAnyOfTheCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsAnyCS(pSetOfItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsAny(pSetOfItems)
-		return This.ContainsAnyCS(pSetOfItems, TRUE)
+	def ContainsOneOfThese(pSetOfItems)
+		return This.ContainsOneOfTheseCS(pSetOfItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def ContainsOneOfThese(pSetOfItems)
-			return This.ContainsAny(pSetOfItems)
+		def ContainsAny(pSetOfItems)
+			return This.ContainsOneOfThese(pSetOfItems)
 
 		def ContainsAnyOneOfThese(pSetOfItems)
-			return This.ContainsAny(pSetOfItems)
+			return This.ContainsOneOfThese(pSetOfItems)
 
 		def ContainsAnyOfThese(pSetOfItems)
-			return This.ContainsAny(pSetOfItems)
+			return This.ContainsOneOfThese(pSetOfItems)
 
 		def IsMadeOfOneOfThese(pSetOfItems)
-			return This.ContainsAny(pSetOfItems)
+			return This.ContainsOneOfThese(pSetOfItems)
 
 		def IsMadeOfAnyOfThese(pSetOfItems)
-			return This.ContainsAny(pSetOfItems)
+			return This.ContainsOneOfThese(pSetOfItems)
 
 		def ContainsOne(pSetOfItems)
-			return This.ContainsAny(pSetOfItems)
+			return This.ContainsOneOfThese(pSetOfItems)
 
 		def ContainsOneOfThe(pSetOfItems)
-			return This.ContainsAny(pSetOfItems)
+			return This.ContainsOneOfThese(pSetOfItems)
 
 		def ContainsAnyOfThe(pSetOfItems)
-			return This.ContainsAny(pSetOfItems)
+			return This.ContainsOneOfThese(pSetOfItems)
 
 		#>
 
@@ -32334,70 +32356,41 @@ class stzList from stzObject
 	 #  CHECKING IF THE LIST CONTAINS ONLY ONE OF THE PROVIDED ITEMS  #
 	#----------------------------------------------------------------#
 
-	def ContainsOnlyOneCS(paItems, pCaseSensitive)
-		bResult = FALSE
-		for item in paItems
-			if This.IsMadeOfItemCS(item, pCaseSensitive)
-				bResult = TRUE
-				exit
+	def ContainsOnlyOneOfTheseCS(paItems, pCaseSensitive)
+		if CheckParam()
+			if NOT (isList(paItems) and @IsListOfStrings(paItems))
+				StzRaise("Incorrect param type! paItems must be a list of strings.")
 			ok
+		ok
+
+		if EarlyCheck()
+			if len(paItems) = 0
+				return FALSE
+			ok
+		ok
+
+		aItems = @WithoutDuplication(paItems)
+		nLen = len(aItems)
+
+		anOccurr = []
+		
+		for i = 1 to nLen
+			anOccurr + This.ContainsCS(aItems[i], pCaseSensitive)
 		next
-		return bResult
+		
+		nOnes  = Q(anOccurr).HowMany(1)
+		nZeros = Q(anOccurr).HowMany(0)
 
-		#< @FunctionAlternativeForms
+		if nOnes = 1 and nZeros = nLen - 1
+			return TRUE
+		else
+			return FALSE
+		ok
 
-		def ContainsOnlyOneOfTheseCS(paItems, pCaseSensitive)
-			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
+	#-- WTIHOUT CASESENSITIVITY
 
-		def IsMadeOfOnlyOneOfTheseCS(paItems, pCaseSensitive)
-			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
-
-		def ContainsAnItemFromCS(paItems, pCaseSensitive)
-			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
-
-		def ContainsAnItemFromTheseCS(paItems, pCaseSensitive)
-			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
-
-		def ContainsOneItemFromCS(paItems, pCaseSensitive)
-			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
-
-		def ContainsOneItemFromTheseCS(paItems, pCaseSensitive)
-			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
-
-		def ContainsOnlyOneOfTheCS(paItems, pCaseSensitive)
-			return This.ContainsOnlyOneCS(paItems, pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ContainsOnlyOne(paItems)
-		return This.ContainsOnlyOneCS(paItems, TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def ContainsOnlyOneOfThese(paItems)
-			return This.ContainsOnlyOne(paItems)
-
-		def IsMadeOfOnlyOneOfThese(paItems)
-			return This.ContainsOnlyOne(paItems)
-
-		def ContainsAnItemFrom(paItems)
-			return This.ContainsOnlyOne(paItems)
-
-		def ContainsAnItemFromThese(paItems)
-			return This.ContainsOnlyOne(paItems)
-
-		def ContainsOneItemFrom(paItems)
-			return This.ContainsOnlyOne(paItems)
-
-		def ContainsOneItemFromThese(paItems)
-			return This.ContainsOnlyOne(paItems)
-
-		def ContainsOnlyOneOfThe(paItems)
-			return This.ContainsOnlyOne(paItems)
-
-		#>
+	def ContainsOnlyOneOfThese(paItems)
+		return This.ContainsOnlyOneOfTheseCS(paItems, TRUE)
 
 	  #---------------------------------------------------------#
 	 #  CHECKING IF THE LIST CONTAINS N OF THE PROVIDED ITEMS  #

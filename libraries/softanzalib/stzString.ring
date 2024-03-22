@@ -35052,7 +35052,7 @@ class stzString from stzObject
 
 		oCondition = new stzString(pcCondition)
 
-		if NOT oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
+		if oCondition.ContainsBothCS("@char", :Or = "@substring", :CS = FALSE)
 			StzRaise("Incorrect syntax! pcCondition must contain either @char or @substring but not both.")
 		ok
 
@@ -39596,7 +39596,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	  #------------------------------------------------#
 	 #    CONTAINING BOTH OF THE GIVEN SUBSTRINGS     #
-	#------------------------------------------------#
+	#================================================#
 
 	def ContainsBothCS(pcStr1, pcStr2, pCaseSensitive)
 		if isList(pcStr2) and Q(pcStr2).IsAndNamedParam()
@@ -39610,6 +39610,73 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	def ContainsBoth(pcStr1, pcStr2)
 		return This.ContainsBothCS(pcStr1, pcStr2, TRUE)
 	
+	  #----------------------------------------------------------------#
+	 #    CONTAINING ONE GIVEN SUBSTRING OR AN OTHER (BUT NOT BOTH)   #
+	#----------------------------------------------------------------#
+
+	def ContainsEitherCS(pcStr1, pcStr2, pCaseSensitive)
+		if isList(pcStr2) and Q(pcStr2).IsOrNamedParam()
+			pcStr2 = pcStr2[2]
+		ok
+
+		#NOTE
+		# We can solve it quickly like this:
+		# return This.ContainsOnlyOneOfTheseCS([ pcStr1, pcStr2 ], pCaseSensitive)
+
+		b1 = This.ContainsCS(pcStr1, pCaseSensitive)
+		b2 = This.ContainsCS(pcStr2, pCaseSensitive)
+
+		if (b1 = 1 and b2 = 0) or (b1 = 0 and b2 = 1)
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsEither(pcStr1, pcStr2)
+		return This.ContainsEitherCS(pcStr1, pcStr2, TRUE)
+
+	  #--------------------------------------------------#
+	 #  CONTAONING ONLY ONE OF THE PROVIDED SUBSTRINGS  #
+	#--------------------------------------------------#
+
+	def ContainsOnlyOneOfTheseCS(pacSubStr, pCaseSensitive)
+		if CheckParam()
+			if NOT (isList(pacSubStr) and @IsListOfStrings(pacSubStr))
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
+		ok
+
+		if EarlyCheck()
+			if len(pacSubStr) = 0
+				return FALSE
+			ok
+		ok
+
+		acSubStr = @WithoutDuplication(pacSubStr)
+		nLen = len(acSubStr)
+
+		anOccurr = []
+		
+		for i = 1 to nLen
+			anOccurr + This.ContainsCS(acSubStr[i], pCaseSensitive)
+		next
+		
+		nOnes  = Q(anOccurr).HowMany(1)
+		nZeros = Q(anOccurr).HowMany(0)
+
+		if nOnes = 1 and nZeros = nLen - 1
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#-- WTIHOUT CASESENSITIVITY
+
+	def ContainsOnlyOneOfThese(pacSubStr)
+		return This.ContainsOnlyOneOfTheseCS(pacSubStr, TRUE)
+
 	  #---------------------------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING (OR MANY SUBSTRINGS) IN A GIVEN SECTION  #
 	#=============================================================================================#
@@ -42411,7 +42478,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return []
 		ok
 
-		if len(anPos)
+		if len(anPos) = 0
 			return [ This.Content() ]
 		ok
 

@@ -53,7 +53,7 @@ _bParamCheck = TRUE  # Activates the "# Checking params region" in softanza func
 
 		     # Use the SetParamCheckingTo(FALSE)
 
-_bEarlyChek = TRUE   # Used for the same reason as _bParamCheck
+_bEarlyCheck = TRUE   # Used for the same reason as _bParamCheck
 
 _time0 = 0 # Used by StartProfiler() and StopProfiler() functions
 

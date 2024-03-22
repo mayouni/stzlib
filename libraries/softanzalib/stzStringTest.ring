@@ -1,5 +1,41 @@
 load "stzlib.ring"
 
+/*====
+
+pron()
+
+o1 = new stzString("me you all the others")
+? o1.ContainsEither("me", :or = "you")
+#--> FALSE
+
+o1 = new stzString("me and all the others")
+? o1.ContainsEither("me", :or = "you")
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s)
+
+/*----
+*/
+pron()
+
+o1 = new stzString("me you all the others")
+	? o1.ContainsOneOfThese([ "me", "you" ])
+	#--> TRUE
+	
+	? o1.ContainsOnlyOneOfThese([ "me", "you" ])
+	#--> FALSE
+
+o1 = new stzString("me and all the others")
+	? o1.ContainsOnlyOneOfThese([ "me", "you" ])
+	#--> TRUE
+
+	? o1.ContainsOneOfThese([ "me", "you" ])
+	#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
+
 /*===
 
 pron()
