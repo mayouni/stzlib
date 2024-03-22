@@ -3331,11 +3331,24 @@ proff()
 pron()
 
 o1 = new stzSplitter(10)
+
 ? @@( o1.SplitBeforepositions([3,7]) )
 #--> [ [ 1, 2 ], [ 3, 6 ], [ 7, 10 ] ]
 
 proff()
 # Executed in 0.03 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzString("1234567890")
+
+? @@( o1.SplitXT( :atPosition = 15) ) # Note that position 15 is out of the string
+#-->[ "1234567890" ]
+
+proff()
+# Executed in 0.06 second(s)
 
 /*------
 
@@ -3383,30 +3396,37 @@ o1 = new stzList(1:10)
 #--> [ [ 1, 2, 3, 4 ], [ 6, 7, 8, 9, 10 ] ]
 
 ? @@( o1.SplitXT( :at = [3, 7] ) ) + NL
-#--> [ "12", "456", "890" ]
+#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+# List is returned as-is (no split) because the item [3, 7] does not exist in 1:10
+
+# If you want to say by [3, 7] the positions 3 and 7, be explicit and write:
+? @@( o1.SplitXT( :atPositions = [3, 7] ) ) + NL
+#--> [ [ 1, 2 ], [ 4, 5, 6 ], [ 8, 9, 10 ] ]
+
 
 ? @@( o1.SplitXT( :before = 5 ) ) + NL
-#--> [ "1234", "567890" ]
+#--> [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8, 9, 10 ] ]
 
-? @@( o1.SplitXT( :before = [3, 7] ) ) + NL
-#--> [ "12", "3456", "7890" ]
+? @@( o1.SplitXT( :beforePositions = [3, 7] ) ) + NL
+#--> [ [ 1, 2 ], [ 3, 4, 5, 6 ], [ 7, 8, 9, 10 ] ]
 
-? @@( o1.SplitXT( :after = 5 ) ) + NL
-#--> [ "12345", "67890" ]
+? @@( o1.SplitXT( :AfterPosition = 5 ) ) + NL
+#--> [ [ 1, 2, 3, 4, 5 ], [ 6, 7, 8, 9, 10 ] ]
 
-? @@( o1.SplitXT( :after = [3, 7] ) ) + NL
-#--> [ "123", "4567", "890" ]
+? @@( o1.SplitXT( :AfterPositions = [3, 7] ) ) + NL
+#--> [ [ 1, 2, 3 ], [ 4, 5, 6, 7 ], [ 8, 9, 10 ] ]
 
-? @@( o1.SplitXT( :ToPartsOfNChars = 3 ) ) + NL # or :ToPartsOfExactlyNChars
-#--> [ "123", "456", "789" ]
+? @@( o1.SplitXT( :ToPartsOfNItems = 3 ) ) + NL # or :ToPartsOfExactlyNChars
+#--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
 
-? @@( o1.SplitXT( :ToPartsOfNCharsXT = 3 ) ) + NL # remaining part is added
-#--> [ "123", "456", "789", "0" ]
+? @@( o1.SplitXT( :ToPartsOfNItemsXT = 3 ) ) + NL # remaining part is added
+#--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ], [ 10 ] ]
 
 ? @@( o1.SplitXT( :ToNParts = 4 ) )
-#--> [ "123", "456", "78", "90" ]
+#--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
 proff()
+# Executed in 0.39 second(s)
 
 /*================
 

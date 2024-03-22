@@ -41365,12 +41365,17 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#===================================#
 
 	def SplitAtPosition(n)
+
 		if This.IsEmpty()
 			return []
 		ok
 
 		if NOT isNumber(n)
 			StzRaise("Incorrect pram type! n must be a number.")
+		ok
+
+		if NOT ( n >= 1 and n <= This.NumberOfChars() )
+			return [ This.Content() ]
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtPosition(n)
@@ -41430,6 +41435,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
+		ok
+
+		if len(anPos) = 0
+			return [ This.Content() ]
 		ok
 
 		aSections = StzSplitterQ(This.NumberOfChars()).SplitAtPositions(anPos)
@@ -41903,7 +41912,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		ok
 
 		anPos = This.FindManyCS(pacSubStr, pCaseSensitive)
-
 		acResult = This.SplitAtPositions(anPos)
 		return acResult
 
@@ -42337,6 +42345,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
+		if NOT ( n >= 1 and n <= This.NumberOfChars() )
+			return [ This.Content() ]
+		ok
+
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitBeforePosition(n)
 		acResult = This.Sections( aSections )
 
@@ -42397,6 +42409,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		if This.IsEmpty()
 			return []
+		ok
+
+		if len(anPos)
+			return [ This.Content() ]
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitBeforePositions(anPos)
@@ -43054,6 +43070,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
+		if NOT ( n >= 1 and n <= This.NumberOfChars() )
+			return [ This.Content() ]
+		ok
+
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAfterPosition(n)
 		acResult = This.Sections( aSections )
 
@@ -43107,6 +43127,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	def SplitAfterPositions(anPos)
 		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
+		ok
+
+		if len(anPos) = 0
+			return [ This.Content() ]
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAfterPositions(anPos)
@@ -56007,161 +56031,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def IsUnicodeGreaterThanInLocale(pcOtherStr, pLocale)
 			return This.UnicodeCompareWithInLocale(pcOtherNumber, pLocale) = :Greater
 
-	  #-----------------------------------------------#
-	 #     COMPARING THE STRING TO OTHER STRINGS     #
-	#===============================================#
-
-/*	def IsEqualToCS(pcOtherStr, pCaseSensitive)
-		# A check made to enable some external code
-		# In Ring context use IsEqualToQ()
-
-		if isObject(pcOtherStr)
-
-			if isString(pcOtherStr.Content()) and
-			   This.Content() = pcOtherStr.Content()
-
-				return pcOtherStr
-			else
-				return FALSE
-			ok
-		ok
-
-		if NOT isString(pcOtherStr)
-			return FALSE
-		ok
-
-		# Resolving pCaseSensitive
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if isString(pCaseSensitive)
-			if Q(pCaseSensitive).IsOneOfThese([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
-
-				pCaseSensitive = TRUE
-			
-			but Q(pCaseSensitive).IsOneOfThese([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
-
-				pCaseSensitive = FALSE
-			ok
-
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
-		ok
-
-		# Doing the job
-
-		if pCaseSensitive = TRUE
-			# We do a double-check for potential performance gain
-			if This.NumberOfChars() != Q(pcOtherStr).NumberOfChars()
-				return FALSE
-
-			else
-				return This.String() = pcOtherStr
-			ok
-
-		else // pCaseSensitive = FALSE
-			return This.Lowercased() = StzStringQ(pcOtherStr).Lowercased()
-		ok
-		
-		#< @FunctionFluentForm
-
-		def IsEqualToCSQ(pcOtherStr)
-
-			bResult = FALSE
-
-			if isString(pcOtherStr)
-				bResult = This.IsEqualToCS(pcOtherStr, pCaseSensitive)
-				
-			ok
-
-			if bResult = TRUE
-				return This
-			else
-				return new stzFalsObject
-			ok
-
-		#>
-
-		def IsEqualWithCS(pcOtherStr, pCaseSensitive)
-			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
-
-			def IsEqualWithCSQ(pcOtherStr, pCaseSensitive)
-				return This.IsEqualToCSQ(pcOtherStr)
-
-		#< @FunctionPassiveForm
-
-		def IsNotEqualToCS(pcOtherStr, pCaseSensitive)
-			return NOT This.IsEqualToCS(pcOtherStr, pCaseSensitive)
-
-		def IsNotEqualWithCS(pcOtherStr, pCaseSensitive)
-			return NOT This.IsEqualToCS(pcOtherStr, pCaseSensitive)
-
-		def IsDifferentFromCS(pcOtherStr, pCaseSensitive)
-			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
-	
-		def IsDifferentToCS(pcOtherStr, pCaseSensitive)
-			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
-
-		def IsDifferentOfCS(pcOtherStr, pCaseSensitive)
-			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
-
-		#>
-
-		#< @FunctionMisspelledForm
-
-		def IsEqualtToCS(pcOtherStr, pCaseSensitive)
-			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
-
-		#>
-
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def IsEqualTo(pcOtherStr)
-		return This.IsEqualToCS(pcOtherStr, TRUE)
-
-		def IsEqualToQ(pcOtherStr)
-			return This.IsEqualToCS(pcOther, TRUE)
-
-		def IsEqualWith(pcOtherStr)
-			return This.IsEqualTo(pcOtherStr)
-
-			def IsEqualWithQ(pcOtherStr)
-				return This.IsEqualToQ(pcOtherStr)
-
-		#< @FunctionPassiveForm
-
-		def IsNotEqualTo(pcOtherStr)
-			return NOT This.IsEqualTo(pcOtherStr)
-
-		def IsNotEqualWith(pcOtherStr)
-			return NOT This.IsEqualTo(pcOtherStr)
-
-		def IsDifferentFrom(pcOtherStr)
-			return This.IsNotEqualTo(pcOtherStr)
-	
-		def IsDifferentTo(pcOtherStr)
-			return This.IsNotEqualTo(pcOtherStr)
-
-		def IsDifferentOf(pcOtherStr)
-			return This.IsNotEqualTo(pcOtherStr)
-
-		#>
-
-		#< @FunctionMisspelledForm
-
-		def IsEqualtTo(pcOtherStr)
-			return This.IsEqualTo(pcOtherStr)
-
-		#>
-*/
 	  #--------------------------------------------------------------#
 	 #  CHECKING IF THE STRING IS STRICTLY EQUAL TO ANOTHER STRING  #
 	#--------------------------------------------------------------#
