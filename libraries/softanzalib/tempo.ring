@@ -3283,59 +3283,130 @@ o1 = new stzString("ring __ ring __ ring __ ring")
 proff()
 # Executed in 0.01 second(s)
 
+/*========
+
+pron()
+
+o1 = new stzHashList([ [ "hussein", 3 ], [ "haneen", 1 ], [ "teeba", 3 ] ])
+? o1.ValuesQR(:stzListOfNumbers).sum()
+#--> 7
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----
+
+pron()
+
+? sum(1:10)
+#--> 55
+
+proff()
+# Executed in 0.02 second(s)
+
 /*================ @narration
-*/
+
 pron()
 
 # In Softanza, you can divide the content of a string into 3 parts
-cNumbers = "ABCDEFG"
+cLetters = "ABCDEFG"
+
 ? Q(cNumbers) / 3
 #--> [ "ABC", "DE", "FG" ]
 
 # Those 3 parts can be "named" parts:
 
-? Q(cNumbers) / [ "Hussein", "Haneen", "Teeba" ]
+? Q(cLetters) / [ "Hussein", "Haneen", "Teeba" ]
 #--> [ :Hussein = "ABC", :Haneen = "DE", :Teeba = "FG" ]
 
 # And you can configure the share of each part at your will:
-? Q(cNumbers) / [ :Hussein = 3, :Haneen = 1, :Teeba = 3 ]
+? Q(cLetters) / [ :Hussein = 3, :Haneen = 1, :Teeba = 3 ]
 #--> [ :Hussein = "ABC", :Haneen = "D", :Teeba = "EFG" ]
 
 proff()
-#--> Executed in 0.07 second(s)
-
-#================
-
+#--> Executed in 0.03 second(s)
 
 /*====================
 
+pron()
+
+o1 = new stzSplitter(10)
+? @@( o1.SplitBeforepositions([3,7]) )
+#--> [ [ 1, 2 ], [ 3, 6 ], [ 7, 10 ] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------
+
+pron()
+
 o1 = new stzString("1234567890")
-? @@( o1.Split( :at = 5) )
+
+? @@( o1.SplitXT( :at = 5) ) + NL
 #--> [ "1234", "67890" ]
 
-? @@( o1.Split( :at = [3, 7] ) )
+? @@( o1.SplitXT( :at = [3, 7] ) ) + NL
 #--> [ "12", "456", "890" ]
 
-? @@( o1.Split( :before = 5 ) )
+? @@( o1.SplitXT( :before = 5 ) ) + NL
 #--> [ "1234", "567890" ]
 
-? @@( o1.Split( :before = [3, 7] ) )
+? @@( o1.SplitXT( :before = [3, 7] ) ) + NL
 #--> [ "12", "3456", "7890" ]
 
-? @@( o1.Split( :after = 5 ) )
+? @@( o1.SplitXT( :after = 5 ) ) + NL
 #--> [ "12345", "67890" ]
 
-? @@( o1.Split( :after = [3, 7] ) )
+? @@( o1.SplitXT( :after = [3, 7] ) ) + NL
 #--> [ "123", "4567", "890" ]
 
-? @@( o1.Split( :ToPartsOfNItems = 3 ) )
-#--> [ "123", "456", "789", "0" ]
-
-? @@( o1.Split( :ToPartsOfExactlyNItems = 3 ) )
+? @@( o1.SplitXT( :ToPartsOfNChars = 3 ) ) + NL # or :ToPartsOfExactlyNChars
 #--> [ "123", "456", "789" ]
 
-? @@( o1.Split( :ToNParts = 4 ) )
-#--> [ "12", "34", "56", "7890" ]
+? @@( o1.SplitXT( :ToPartsOfNCharsXT = 3 ) ) + NL # remaining part is added
+#--> [ "123", "456", "789", "0" ]
+
+? @@( o1.SplitXT( :ToNParts = 4 ) )
+#--> [ "123", "456", "78", "90" ]
+
+proff()
+# Executed in 0.39 second(s)
+
+/*------
+*/
+pron()
+
+o1 = new stzList(1:10)
+
+? @@( o1.SplitXT( :at = 5) ) + NL
+#--> [ [ 1, 2, 3, 4 ], [ 6, 7, 8, 9, 10 ] ]
+
+? @@( o1.SplitXT( :at = [3, 7] ) ) + NL
+#--> [ "12", "456", "890" ]
+
+? @@( o1.SplitXT( :before = 5 ) ) + NL
+#--> [ "1234", "567890" ]
+
+? @@( o1.SplitXT( :before = [3, 7] ) ) + NL
+#--> [ "12", "3456", "7890" ]
+
+? @@( o1.SplitXT( :after = 5 ) ) + NL
+#--> [ "12345", "67890" ]
+
+? @@( o1.SplitXT( :after = [3, 7] ) ) + NL
+#--> [ "123", "4567", "890" ]
+
+? @@( o1.SplitXT( :ToPartsOfNChars = 3 ) ) + NL # or :ToPartsOfExactlyNChars
+#--> [ "123", "456", "789" ]
+
+? @@( o1.SplitXT( :ToPartsOfNCharsXT = 3 ) ) + NL # remaining part is added
+#--> [ "123", "456", "789", "0" ]
+
+? @@( o1.SplitXT( :ToNParts = 4 ) )
+#--> [ "123", "456", "78", "90" ]
+
+proff()
 
 /*================
 

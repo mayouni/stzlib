@@ -118,8 +118,19 @@ func Max(panNumbers)
 	return nResult
 
 func Sum(panNumbers)
-	oListOfNumbers = new stzListOfNumbers(panNumbers)
-	return oListOfNumbers.Sum()
+	if CheckParams()
+		if NOT ( isList(panNumbers) and IsListOfNumbers(panNumbers) )
+			StzRaise("Incorrect param type! panNumbers must be a list of numbers.")
+		ok
+	ok
+
+	nResult = 0
+	nLen = len(panNumbers)
+	for i = 1 to nLen
+		nResult += panNumbers[i]
+	next
+
+	return nResult
 
 func Product(panNumbers)
 	oListOfNumbers = new stzListOfNumbers(panNumbers)
@@ -2393,13 +2404,15 @@ class stzListOfNumbers from stzList
 		return nResult
 
 	def Sum()
-		nResult = 0
-		nLen = This.NumberOfItems()
+		
 		anContent = This.Content()
+		nLen = len(anContent)
+		nResult = 0
 
 		for i = 1 to nLen
 			nResult += anContent[i]
 		next
+
 		return nResult
 
 	def Mean()
