@@ -38558,578 +38558,6 @@ class stzList from stzObject
 
 		#>
 
-	  #----------------------------------------------#
-	 #    SPLITTING THE LIST USING THE GIVEN ITEM   #
-	#----------------------------------------------#
-
-	def SplitCS(pItem, pCaseSensitive)
-		if isList(pItem) and Q(pItem).IsUsingNamedParam()
-			pItem = pItem[2]
-		ok
-
-		anPos = This.FindAllCS(pItem, pCaseSensitive)
-		aResult = This.SplitAtPositions(anPos)
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def SplitCSQ(pItem, pCaseSensitive)
-			return This.SplitCSQR(pItem, pCaseSensitive, :stzList)
-
-		def SplitCSQR(pItem, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitCS(pItem, pCaseSensitive) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.SplitCS(pItem, pCaseSensitive) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.SplitCS(pItem, pCaseSensitive) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitCS(pItem, pCaseSensitive) )
- 
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SplitCS(pItem, pCaseSensitive) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def SplitUsingCS(pItem, pCaseSensitive)
-			This.SplitCS(pItem, pCaseSensitive)
-
-			def SplitUsingCSQ(pItem, pCaseSensitive)
-				return This.SplitUsingCSQR(pItem, pCaseSensitive, pcReturnType)
-	
-			def SplitUsingCSQR(pItem, pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.SplitUsingCS(pItem, pCaseSensitive) )
-	
-				on :stzListOfLists
-					return new stzListOfLists( This.SplitUsingCS(pItem, pCaseSensitive) )
-	
-				on :stzListOfPairs
-					return new stzListOfPairs( This.SplitUsingCS(pItem, pCaseSensitive) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.SplitUsingCS(pItem, pCaseSensitive) )
-	 
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.SplitUsingCs(pItem, pCaseSensitive) )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-
-		def SplitAtCS(pItem, pCaseSensitive)
-			return This.SplitCS(pItem, pCaseSensitive)
-
-			def SplitAtCSQ(pItem, pCaseSensitive)
-				return This.SplitAtCSQR(pItem, pCaseSensitive, :stzList)
-
-			def SplitAtCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.SplitCSQR(pItem, pCaseSensitive, pcReturnType)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def Split(pItem)
-		if isList(pItem) and Q(pItem).IsUsingNamedParam()
-			pItem = pItem[2]
-		ok
-
-		anPos = This.FindAll(pItem)
-		aResult = This.SplitAtPositions(anPos)
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def SplitQ(pItem)
-			return This.SplitQR(pItem, :stzList)
-
-		def SplitQR(pItem, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Split(pItem) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.Split(pItem) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.Split(pItem) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.Split(pItem) )
- 
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Split(pItem) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def SplitUsing(pItem)
-			This.Split(pItem)
-
-			def SplitUsingQ(pItem)
-				return This.SplitUsingQR(pItem, pcReturnType)
-	
-			def SplitUsingQR(pItem, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.SplitUsing(pItem) )
-	
-				on :stzListOfLists
-					return new stzListOfLists( This.SplitUsing(pItem) )
-	
-				on :stzListOfPairs
-					return new stzListOfPairs( This.SplitUsing(pItem) )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.SplitUsing(pItem) )
-	 
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.SplitUsing(pItem) )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-
-		def SplitAt(pItem)
-			return This.Split(pItem)
-
-			def SplitAtQ(pItem)
-				return This.SplitAtQR(pItem, :stzList)
-
-			def SplitAtQR(pItem, pcReturnType)
-				return This.SplitQR(pItem, pcReturnType)
-
-		#>
-
-	  #----------------------------------------------------------------------#
-	 #    SPLITTING THE LIST AT POSITIONS RETURNED BY THE GIVEN CONDITION   #
-	#----------------------------------------------------------------------#
-
-	def SplitW(pcCondition)
-		anPos = FindW(pcCondition)
-		aResult = SplitAtPositions(anPos)
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def SplitWQ(pcCondition)
-			return This.SplitWQR(pcCondition, :stzList)
-
-		def SplitWQR(pcCondition, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitW(pcCondition) )
-
-			/* ... */
-			off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def SplitAtW(pcCondition)
-			return This.SplitW(pcCondition)
-
-		#>
-
-	  #---------------------------------------------------------------------------------#
-	 #    SPLITTING THE LIST AT POSITIONS RETURNED BY THE GIVEN CONDITION -- EXTENDED  #
-	#---------------------------------------------------------------------------------#
-
-	def SplitWXT(pcCondition)
-		anPos = This.FindWXT(pcCondition)
-
-		aResult = This.SplitAtPositions(anPos)
-
-		return aResult
-
-		def SplitAtWXT(pcCondition)
-			return This.SplitWXT(pcCondition)
-
-	  #------------------------------------#
-	 #    SPLITTING TO PARTS OF N ITEMS   #
-	#------------------------------------#
-	
-	def SplitToPartsOfNItems(n)
-		oSplitter = new stzSplitter(This.NumberOfItems())
-		aSplitted = oSplitter.SplitToPartsOfNItems(n)
-
-		if isString(aSplitted) and aSplitted = NULL
-			return NULL
-
-		but len(aSplitted) = 1
-			aResult = []
-			aResult + This.List()
-
-		but len(aSplitted) = This.NumberOfItems()
-			aResult = []
-
-			for item in This.List()
-				aResult + [ item ]
-			next
-
-		else
-			# Tranforming the sections of positions contained in aSplitted
-			# to sublists of the actual items corresponding to those sections
-	
-			aResult = []
-	
-			for aSection in aSplitted
-				aResult + This.Section( aSection[1], aSection[2] )
-			next
-		ok
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def SplitToPartsOfNItemsQ(n)
-			return This.SplitToPartsOfNItemsQR(n, :stzList)
-
-		def SplitToPartsOfNItemsQR(n, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitToPartsOfNItems(n) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.SplitToPartsOfNItems(n) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.SplitToPartsOfNItems(n) )
-	
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitToPartsOfNItems(n) )
-	
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SplitToPartsOfNItems(n) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-	
-		#< @FunctionAlternativeForms
-
-		def SplitToPartsOfN(n)
-			return This.SplitToPartsOfNItems(n)
-
-			#< @FunctionFluentForm
-
-			def SplitToPartsOfNQ(n)
-				return This.SplitToPartsOfNItemsQR(n, :stzList)
-	
-			def SplitToPartsOfNQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
-
-			#>
-
-		def SplitToPartsOf(n)
-			return This.SplitToPartsOfNItems(n)
-
-			#< @FunctionFluentForm
-
-			def SplitToPartsOfQ(n)
-				return This.SplitToPartsOfNItemsQR(n, :stzList)
-	
-			def SplitToPartsOfQR(n, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
-
-			#>
-
-		def SplitToParts(n)
-			if isList(n) and StzListQ(n).IsOfNamedParam()
-				n = n[2]
-			ok
-
-			return This.SplitToPartsOf(n)
-
-			def SplitToPartsQ(n)
-				return This.SplitToPartsQR(n, :stzList)
-	
-			def SplitToPartsQR(n, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
-
-		#--
-
-		def SplitToListsOfNItems(n)
-			return This.SplitToPartsOfNItems(n)
-
-		def SplitToListsOfN(n)
-			return This.SplitToPartsOfNItems(n)
-
-			#< @FunctionFluentForm
-
-			def SplitToListsOfNQ(n)
-				return This.SplitToListsOfNItemsQR(n, :stzList)
-	
-			def SplitToListsOfNQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.SplitToListsOfNItemsQR(n, pcReturnType)
-
-			#>
-
-		def SplitToListsOf(n)
-			return This.SplitToPartsOfNItems(n)
-
-			#< @FunctionFluentForm
-
-			def SplitToListsOfQ(n)
-				return This.SplitToListsOfNItemsQR(n, :stzList)
-	
-			def SplitToListsOfQR(n, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.SplitToListsOfNItemsQR(n, pcReturnType)
-
-			#>
-
-		def SplitToLists(n)
-			if isList(n) and StzListQ(n).IsOfNamedParam()
-				n = n[2]
-			ok
-
-			return This.SplitToPartsOf(n)
-
-			def SplitToListsQ(n)
-				return This.SplitToListsQR(n, :stzList)
-	
-			def SplitToListsQR(n, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				return This.SplitToListsOfNItemsQR(n, pcReturnType)
-
-		#>
-
-	  #-----------------------------------#
-	 #    SPLITTING AT GIVEN POSITIONS   #
-	#-----------------------------------#
-
-	def SplitAtPositions(panPos)
-		oSplitter = new stzSplitter(This.NumberOfItems())
-		aSections = oSplitter.SplitAtPositions(panPos)
-		aResult = This.Sections(aSections)
-
-		return aResult
-
-	  #-------------------------------------#
-	 #  SPLITTING BEFORE A GIVEN POSITION  #
-	#-------------------------------------#
-
-	def SplitBeforePosition(n)
-		oSplitter = new stzSplitter(This.NumberOfItems())
-		aSections = This.SplitBeforePosition(n)
-		aResult = This.Sections(aSections)
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def SplitBeforePositionQ(n)
-			return new stzListOfLists( This.SplitBeforePosition(n) )
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def SplitBefore(n)
-			return  This.SplitBeforePosition(n)
-
-			#< @FunctionFluentForm
-
-			def SplitBeforeQ(n)
-				return new stzListOfLists( This.SplitBefore(n) )
-
-			#>
-
-		#>
-
-	  #--------------------------------------#
-	 #    SPLITTING BEFORE MANY POSITIONS   #
-	#--------------------------------------#
-
-	def SplitBeforePositions(panPos)
-
-		oSplitter = new stzSplitter(This.NumberOfItems())
-		aSections = oSplitter.SplitBeforePositions(panPos)
-
-		aResult = This.Sections(aSections)
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def SplitBeforePositionsQ(panPos)
-			return new stzListOfLists( This.SplitBeforePositions(panPos) )
-
-		#>
-
-	  #---------------------------------------#
-	 #    SPLITTING AFTER A GIVEN POSITION   #
-	#---------------------------------------#
-
-	def SplitAfterPosition(n)
-		return This.SplitAfterPosistions([n])
-
-		#< @FunctionFluentForm
-
-		def SplitAfterPositionQ(n)
-			return new stzList( This.SplitAfterPosition(n) )
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def SplitAfter(n)
-			return  This.SplitAfterPositions(n)
-
-		#>
-
-	  #-------------------------------------#
-	 #    SPLITTING AFTER MANY POSITIONS   #
-	#-------------------------------------#
-
-	def SplitAfterPositions(panPos)
-		oSplitter = new stzSplitter(This.NumberOfItems())
-		aSections = oSplitter.SplitAfterPositions(panPos)
-
-		aResult = This.Sections(aSections)
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def SplitAfterPositionsQ(panPos)
-			return new stzListOfLists( This.SplitAfterPositions(panPos) )
-
-		#>
-
-	  #---------------------------#
-	 #    SPLITTING TO N PARTS   #
-	#---------------------------#
-
-	def SplitToNParts(n)
-		if CheckParams()
-			if NOT isNumber(n)
-				StzRaise("Incorrect param type! n must be a number.")
-			ok
-		ok
-
-		aSections = StzSplitterQ(1:This.NumberOfItems()).SplitToNParts(n)
-		This.UpdateWith( This.Sections(aSections) )
-
-		#< @FunctionFluentForm
-
-		def SplitToNPartsQ(n)
-			This.SplitToNParts(n)
-			return This
-
-		#>
-
-	def SplittedToNParts(n)
-		aResult = This.Copy().SplitToNPartsQ(n).Content()
-		return aResult
-
-	  #-----------------------------------------------------------#
-	 #    SPLITTING BEFORE AN ITEM VERIFYING A GIVEN CONDITION   #
-	#-----------------------------------------------------------#
-
-	def SplitBeforeW(pCondition)
-		anPos = This.FindW(pcCondition)
-		aResult = This.SplitBeforePositions(anPos)
-
-		return aResult	
-
-		def SplitBeforeWQ(pCondition)
-			return new stzList( This.SplitBeforeW(pCondition) )
-
-		def SplittedBeforeW(pcCondition)
-			return This.SplitBeforeW(pCondition)
-
-		def SplitBeforeWhere(pCondition)
-			return This.SplitBeforeW(pCondition)
-
-		def SplittedBeforeWhere(pcCondition)
-			return This.SplitBeforeW(pCondition)
-
-	  #-----------------------------------------------------------#
-	 #    SPLITTING AFTER AN ITEM VERIFYING A GIVEN CONDITION    #
-	#-----------------------------------------------------------#
-
-	def SplitAfterW(pCondition)
-		anPos = This.FindW(pcCondition)
-		aResult = This.SplitAfterPositions(anPos)
-
-		return aResult	
-
-		def SplitAfterWQ(pCondition)
-			return new stzList( This.SplitAfterW(pCondition) )
-
-		def SplittedAfterW(pcCondition)
-			return This.SplitAfterW(pCondition)
-
-		def SplitAfterWhere(pCondition)
-			return This.SplitAfterW(pCondition)
-
-		def SplittedAfterWhere(pcCondition)
-			return This.SplitAfterW(pCondition)
-
 	  #================================================#
 	 #    GETTING A SECTION (OR SLICE) OF THE LIST    #
 	#================================================#
@@ -43750,6 +43178,248 @@ class stzList from stzObject
 
 	#--
 
+	def IsToNPartsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToNParts)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToPartsOfNCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNChars)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToPartsOfNItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNItems)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToPartsOfNStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNStringss)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToPartsOfNSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNSubStringss)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#==
+
+	def IsAtWhereNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AtWhere)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsWhereOrAtWhereNamedParam()
+		if This.IsWhereNamedParam() or This.IsAtWhereNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAtWhereOrWhereNamedParam()
+		if This.IsWhereNamedParam() or This.IsAtWhereNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsWhereOrAtWhereNamedParams()
+		if This.IsWhereNamedParam() or This.IsAtWhereNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAtWhereOrWhereNamedParams()
+		if This.IsWhereNamedParam() or This.IsAtWhereNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsBeforeWhereNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeWhere)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeOrBeforeWhereNamedParam()
+		if This.IsWhereNamedParam() or This.IsBeforeWhereNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeWhereOrBeforeNamedParam()
+		if This.IsWhereNamedParam() or This.IsBeforeWhereNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeOrBeforeWhereNamedParams()
+		if This.IsWhereNamedParam() or This.IsBeforeWhereNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeWhereOrBeforeNamedParams()
+		if This.IsWhereNamedParam() or This.IsBeforeWhereNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	#--
+
+	def IsAfterWhereNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterWhere)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterOrAfterWhereNamedParam()
+		if This.IsWhereNamedParam() or This.IsAfterWhereNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterWhereOrAfterNamedParam()
+		if This.IsWhereNamedParam() or This.IsAfterWhereNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterOrAfterWhereNamedParams()
+		if This.IsWhereNamedParam() or This.IsAfterWhereNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAfterWhereOrAfterNamedParams()
+		if This.IsWhereNamedParam() or This.IsAfterWhereNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#==
+
+	def IsToPartsOfExactlyNItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfExactlyNItems)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToPartsOfExactlyNCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfExactlyNChars)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToPartsOfExactlyNStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfExactlyNStrings)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToPartsOfExactlyNSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfExactlyNSubStrings)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsToPartsOfNItemsXT()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNItemsXT)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToPartsOfNCharsXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNCharsXT)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToPartsOfNStringsXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNStringsXT)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToPartsOfNSubStringsXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToPartsOfNSubStringsXT)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#==
+
 	def IsToItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :ToItem)
@@ -47813,6 +47483,122 @@ vvv
 		else
 			return FALSE
 		ok
+
+	#==
+
+	def IsUsingItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingItem)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUsingThisItemNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingThisItem)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUsingItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingItems)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUsingTheseItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingTheseItems)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsUsingStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingString)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUsingThisStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingThisString)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUsingStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingStrings)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUsingTheseStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingTheseStrings)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsUsingSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingSubString)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUsingThisSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingThisSubString)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUsingSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingSubStrings)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUsingTheseSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingTheseSubStrings)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#==
 
 	def IsByItemsInNamedParam()
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and

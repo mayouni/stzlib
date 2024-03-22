@@ -46,12 +46,14 @@ _LastValue = NULL
 
 _bThese = FALSE	# Used in case like this: Q(1:5) - These(3:5) --> [1,2]
 
-_bParamCheck = TRUE # Activates the "# Checking params region" in softanza functions
+_bParamCheck = TRUE  # Activates the "# Checking params region" in softanza functions
 		     #--> Set it to FALSE if the functions are used inside large loops
 		     # so you can gain performance (the checks can then be made once,
 		     # by yourself, outside the loop).
 
 		     # Use the SetParamCheckingTo(FALSE)
+
+_bEarlyChek = TRUE   # Used for the same reason as _bParamCheck
 
 _time0 = 0 # Used by StartProfiler() and StopProfiler() functions
 
@@ -731,6 +733,57 @@ func ParamChecking()
 	#>
 
 #--
+
+func EarlyCheck()
+	return _bEarlyCheck
+
+	func EarlyChecks()
+		return _bEarlyCheck
+
+func EarlyCheckOn()
+	_bEarlyCheck = TRUE
+
+	ActivateEarlyCheck()
+		_bEarlyCheck = TRUE
+
+	func EarlyChecksOn()
+		_bEarlyCheck = TRUE
+
+	func ActivateEarlyChecks()
+		_bEarlyCheck = TRUE
+
+func EarlyCheckOff()
+	_bEarlyCheck = FALSE
+
+	DeactivateEarlyCheck()
+		_bEarlyCheck = FALSE
+
+	func EarlyChecksOff()
+		_bEarlyCheck = FALSE
+
+	func DectivateEarlyChecks()
+		_bEarlyCheck = FALSE
+
+func SetEarlyCheck(b)
+	if CheckParams()
+		if NOT (isNumber(b) and (b = 0 or b = 1) )
+			StzRaise("Incorrect param! b must be a boolean (TRUE or FALSE).")
+		ok
+	ok
+
+	_bEarlyCheck = b
+
+	func SetEarlyCheckTo(b)
+		SetEarlyCheck(b)
+
+	func SetEarlyChecks(b)
+		SetEarlyCheck(b)
+
+	func SetEarlyChecksTo(b)
+		SetEarlyCheck(b)
+
+#--
+
 
 func IsCaseSensitive(p)
 

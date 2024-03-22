@@ -40759,13 +40759,16 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	
 	# Add ..IB() extensions to all those functions
 
-	def SplitXTCS(pSubStrOrPos, pCaseSensitive)
+	#todo
+	# Make same feature in stzList
+
+	#todo
+	# add to...() as alternative of SplitTo..() all over the library
+
+
+	def SplitCSXT(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
-		ok
-
-		if isList(pSubStrOrPos) and Q(pSubStrOrPos).IsUsingNamedParam()
-			pSubStrOrPos = pSubStrOrPos[2]
 		ok
 
 		if isString(pSubStrOrPos)
@@ -40865,38 +40868,44 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			# SPLITTING BETWEEN
 
 			but oParam.IsBetweenNamedParam() and
-				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
+				isList(pSubStrOrPos) and len(pSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and Q(pcSubStrOrPos[2]).IsAndNamedParam()
-					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
+				if isList(pSubStrOrPos[2]) and Q(pSubStrOrPos[2]).IsAndNamedParam()
+					pSubStrOrPos[2] = pSubStrOrPos[2][2]
 				ok
 
-				return This.SplitBetweenCS(pcSubStrOrPos[1], pcSubStrOrPos[2], pCaseSensitive)
+				return This.SplitBetweenCS(pSubStrOrPos[1], pSubStrOrPos[2], pCaseSensitive)
 
 			but oParam.IsBetweenPositionsNamedParam()
-				return This.SplitBetweenPositions(pcSubStrOrPos[1], pcSubStrOrPos[2])
+				return This.SplitBetweenPositions(pSubStrOrPos[1], pSubStrOrPos[2])
 
 			but oParam.IsBetweenSubStringsNamedParam()
-				return This.SplitBetweenSubStringsCS(pcSubStrOrPos[1], pcSubStrOrPos[2], pCaseSensitive)
+				return This.SplitBetweenSubStringsCS(pSubStrOrPos[1], pSubStrOrPos[2], pCaseSensitive)
 
 			# SPLITTING TO PARTS
 
 			but oParam.IsToNPartsNamedParam()
-				return This.SplitToNParts(pcSubStrOrPos[2])
+				return This.SplitToNParts(pSubStrOrPos[2])
 
 			but oParam.IsToPartsOfNCharsNamedParam()
-				return This.SplitToPartsOfNChars(pcSubStrOrPos[2])
+				return This.SplitToPartsOfNChars(pSubStrOrPos[2])
+
+			but oParam.IsToPartsOfExactlyNCharsNamedParam()
+				return This.SplitToPartsOfExactlyNChars(pSubStrOrPos[2])
+
+			but oParam.IsToPartsOfNCharsXTNamedParam()
+				return This.SplitToPartsOfNCharsXT(pSubStrOrPos[2])
 
 			# SPLITTING WHERE
 
 			but oParam.IsWhereOrAtWhereNamedParam()
-				return This.SplitAtW(pcSubStrOrPos[2])
+				return This.SplitAtW(pSubStrOrPos[2])
 
 			but oParam.IsBeforeWhereNamedParam()
-				return This.SplitBeforeW(pcSubStrOrPos[2])
+				return This.SplitBeforeW(pSubStrOrPos[2])
 
 			but oParam.IsAfterWhereNamedParam()
-				return This.SplitAfterW(pcSubStrOrPos[2])
+				return This.SplitAfterW(pSubStrOrPos[2])
 
 			ok
 		else
@@ -40905,19 +40914,19 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionFluentForm
 
-		def SplitXTCSQ(pSubStrOrPos, pCaseSensitive)
-			return This.SplitXTCSQR(pSubStrOrPos, pCaseSensitive, :stzList)
+		def SplitCSXTQ(pSubStrOrPos, pCaseSensitive)
+			return This.SplitCSXTQR(pSubStrOrPos, pCaseSensitive, :stzList)
 
-		def SplitXTCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+		def SplitCSXTQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
+				return new stzList( This.SplitCSXT(pSubStrOrPos, pCaseSensitive) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
+				return new stzListOfStrings( This.SplitCSXT(pSubStrOrPos, pCaseSensitive) )
 
 			on :stzListOfChars
-				return new stzListOfChars( This.SplitXTCS(pSubStrOrPos, pCaseSensitive) )
+				return new stzListOfChars( This.SplitCSXT(pSubStrOrPos, pCaseSensitive) )
 
 			other
 				StzRaise("Unsupported param type!")
@@ -40925,13 +40934,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#>
 
-	def SplittedXTCS(pSubStrOrPos, pCaseSensitive)
-		return This.SplitXTCS(pSubStrOrPos, pCaseSensitive)
+	def SplittedCSXT(pSubStrOrPos, pCaseSensitive)
+		return This.SplitCSXT(pSubStrOrPos, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitXT(pSubStrOrPos)
-		return This.SplitXTCS(pSubStrOrPos, TRUE)
+		return This.SplitCSXT(pSubStrOrPos, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -40939,19 +40948,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return This.SplitXTQR(pSubStrOrPos, :stzList)
 
 		def SplitXTQR(pSubStrOrPos, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitXT(pSubStrOrPos) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitXT(pSubStrOrPos) )
-
-			on :stzListOfChars
-				return new stzListOfChars( This.SplitXT(pSubStrOrPos) )
-
-			other
-				StzRaise("Unsupported param type!")
-			off
+			return This.SplitCSXTQR(pSubStrOrPos, TRUE, pcReturnType)
 
 		#>
 
@@ -40962,13 +40959,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #  SPLITTING THE STRING -- XTZ/EXTENDED  #
 	#----------------------------------------#
 
-	def SplitXTCSZ(pSubStrOrPos, pCaseSensitive)
+	def SplitCSXTZ(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
-		ok
-
-		if isList(pSubStrOrPos) and Q(pSubStrOrPos).IsUsingNamedParam()
-			pSubStrOrPos = pSubStrOrPos[2]
 		ok
 
 		if isString(pSubStrOrPos)
@@ -41106,13 +41099,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			StzRaise("Incorrect param type! pSubStrOrPos must be position(s), string(s), or section(s).")
 		ok
 
-	def SplittedXTCSZ(pSubStrOrPos, pCaseSensitive)
-		return This.SplitXTCSZ(pSubStrOrPos, pCaseSensitive)
+	def SplittedCSXTZ(pSubStrOrPos, pCaseSensitive)
+		return This.SplitCSXTZ(pSubStrOrPos, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitXTZ(pSubStrOrPos)
-		return This.SplitXTCSZ(pSubStrOrPos, TRUE)
+		return This.SplitCSXTZ(pSubStrOrPos, TRUE)
 
 	def SplittedXTZ(pSubStrOrPos)
 		return This.SplitXTZ(pSubStrOrPos)
@@ -41121,13 +41114,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #  SPLITTING THE STRING -- XTZZ/EXTENDED  #
 	#-----------------------------------------#
 
-	def SplitXTCSZZ(pSubStrOrPos, pCaseSensitive)
+	def SplitCSXTZZ(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
-		ok
-
-		if isList(pSubStrOrPos) and Q(pSubStrOrPos).IsUsingNamedParam()
-			pSubStrOrPos = pSubStrOrPos[2]
 		ok
 
 		if isString(pSubStrOrPos)
@@ -41265,13 +41254,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			StzRaise("Incorrect param type! pSubStrOrPos must be position(s), string(s), or section(s).")
 		ok
 
-	def SplittedXTCSZZ(pSubStrOrPos, pCaseSensitive)
-		return This.SplitXTCSZZ(pSubStrOrPos, pCaseSensitive)
+	def SplittedCSXTZZ(pSubStrOrPos, pCaseSensitive)
+		return This.SplitCSXTZZ(pSubStrOrPos, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitXTZZ(pSubStrOrPos)
-		return This.SplitXTCSZZ(pSubStrOrPos, TRUE)
+		return This.SplitCSXTZZ(pSubStrOrPos, TRUE)
 
 	def SplittedXTZZ(pSubStrOrPos)
 		return This.SplitXTZZ(pSubStrOrPos)
@@ -41900,9 +41889,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def SplittedZZ(pcSubStr)
 			return This.SplitZZ(pcSubStr)
 
-	  #-----------------------------------#
-	 #   SPLITTING AT GIVEN SUBSTRINGS   #
-	#===================================#
+	  #----------------------------------#
+	 #   SPLITTING AT MANY SUBSTRINGS   #
+	#==================================#
 
 	def SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
 		if CheckParams()
@@ -42399,12 +42388,15 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#-------------------------------------#
 
 	def SplitBeforePositions(anPos)
-		if This.IsEmpty()
-			return []
+
+		if CheckParams()
+			if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
+				StzRaise("Incorrect param type! anPos must be a list of numbers.")
+			ok
 		ok
 
-		if NOT ( isList(anPos) and Q(anPos).IsListOfNumbers() )
-			StzRaise("Incorrect param type! anPos must be a list of numbers.")
+		if This.IsEmpty()
+			return []
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitBeforePositions(anPos)
@@ -43872,7 +43864,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#------------------------------------#
 
 	def SplitBetweenSubStringsCS(pacSubStr, pCaseSensitive)
-		aSections = This.FindAsSections(pacSubStr, pCaseSensitive)
+		aSections = This.FindAsSectionsCS(pacSubStr, pCaseSensitive)
 		acResult = This.SplitBetweenSections(aSections)
 		return acResult
 
@@ -44314,13 +44306,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #   FINDING THE SPLITS   #
 	#========================#
 
-	def FindSplitsXTCS(pSubStrOrPos, pCaseSensitive)
+	def FindSplitsCSXT(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
-		ok
-
-		if isList(pSubStrOrPos) and Q(pSubStrOrPos).IsUsingNamedParam()
-			pSubStrOrPos = pSubStrOrPos[2]
 		ok
 
 		if isString(pSubStrOrPos)
@@ -44461,14 +44449,14 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#< @FunctionAlternativeForm
 
 		def FindSplitsCSXTZ(pSubStrOrPos, pCaseSensitive)
-			return This.FindSplitsXTCS(pSubStrOrPos, pCaseSensitive)
+			return This.FindSplitsCSXT(pSubStrOrPos, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsXT(pSubStrOrPos)
-		return This.FindSplitsXTCS(pSubStrOrPos, TRUE)
+		return This.FindSplitsCSXT(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -44620,22 +44608,21 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#=========================================#
 
 	def FindSplitsAtSubStringCS(pcSubStr, pCaseSensitive)
-		if This.IsEmpty()
-			return []
+
+		#TODO
+		# Add early check where needed in all the library
+		# ~> better performance when the function is used in large loops
+
+		if EarlyCheck()
+			if This.IsEmpty()
+				return []
+			ok
 		ok
 
 		if CheckParams()
 
 			if NOT isString(pcSubStr)
 				StzRaise("Incorrect param type! pcsubStr must be a string.")
-			ok
-	
-			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-				pCaseSensitive = pCaseSensitive[2]
-			ok
-	
-			if NOT IsBoolean(pCaseSensitive)
-				StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 			ok
 
 		ok
@@ -46154,13 +46141,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #   FINDING THE SPLITS AS SECTIONS -- ZZ/EXTENDED  #
 	#==================================================#
 
-	def FindSplitsXTCSZZ(pSubStrOrPos, pCaseSensitive)
+	def FindSplitsCSXTZZ(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
-		ok
-
-		if isList(pSubStrOrPos) and Q(pSubStrOrPos).IsUsingNamedParam()
-			pSubStrOrPos = pSubStrOrPos[2]
 		ok
 
 		if isString(pSubStrOrPos)
@@ -46300,15 +46283,15 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionAlternativeForm
 
-		def FindSplitsAsSectionsXTCS(pSubStrOrPos, pCaseSensitive)
-			return This.FindSplitsAsSectionsXTCSZZ(pSubStrOrPos, pCaseSensitive)
+		def FindSplitsAsSectionsCSXT(pSubStrOrPos, pCaseSensitive)
+			return This.FindSplitsAsSectionsCSXTZZ(pSubStrOrPos, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSplitsXTZZ(pSubStrOrPos)
-		return This.FindSplitsXTCSZZ(pSubStrOrPos, TRUE)
+		return This.FindSplitsCSXTZZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -48524,13 +48507,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #   FINDING THE NTH SPLIT   #
 	#===========================#
 
-	def FindNthSplitXTCS(n, pSubStrOrPos, pCaseSensitive)
+	def FindNthSplitCSXT(n, pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
-		ok
-
-		if isList(pSubStrOrPos) and Q(pSubStrOrPos).IsUsingNamedParam()
-			pSubStrOrPos = pSubStrOrPos[2]
 		ok
 
 		if isString(pSubStrOrPos)
@@ -48670,15 +48649,15 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionAlternativeForm
 
-		def FindNthSplitXTCSZ(pSubStrOrPos, pCaseSensitive)
-			return This.FindNthSplitXTCS(n, pSubStrOrPos, pCaseSensitive)
+		def FindNthSplitCSXTZ(pSubStrOrPos, pCaseSensitive)
+			return This.FindNthSplitCSXT(n, pSubStrOrPos, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitXT(n, pSubStrOrPos)
-		return This.FindNthSplitXTCS(n, pSubStrOrPos, TRUE)
+		return This.FindNthSplitCSXT(n, pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -49124,7 +49103,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
 		ok
 
-ici		//...
+		StzRaise("Feature not implemented yet!")
 
 		#< @FunctionAlternativeForms
 
@@ -50263,13 +50242,9 @@ ici		//...
 	 #   FINDING THE NTH SPLIT AS SECTION -- ZZ/EXTENDED  #
 	#====================================================#
 
-	def FindNthSplitXTCSZZ(n, pSubStrOrPos, pCaseSensitive)
+	def FindNthSplitCSXTZZ(n, pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
-		ok
-
-		if isList(pSubStrOrPos) and Q(pSubStrOrPos).IsUsingNamedParam()
-			pSubStrOrPos = pSubStrOrPos[2]
 		ok
 
 		if isString(pSubStrOrPos)
@@ -50409,15 +50384,15 @@ ici		//...
 
 		#< @FunctionAlternativeForm
 
-		def FindNthSplitAsSectionXTCS(n, pSubStrOrPos, pCaseSensitive)
-			return This.FindNthSplitXTCSZZ(n, pSubStrOrPos, pCaseSensitive)
+		def FindNthSplitAsSectionCSXT(n, pSubStrOrPos, pCaseSensitive)
+			return This.FindNthSplitCSXTZZ(n, pSubStrOrPos, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthSplitXTZZ(n, pSubStrOrPos)
-		return This.FindNthSplitXTCSXT(n, pSubStrOrPos, TRUE)
+		return This.FindNthSplitCSXTXT(n, pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -50569,14 +50544,6 @@ ici		//...
 
 		if NOT isString(pcSubStr)
 			StzRaise("Incorrect param type! pcsubStr must be a string.")
-		ok
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
 		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
@@ -51904,13 +51871,9 @@ ici		//...
 	 #   FINDING THE LAST SPLIT   #
 	#============================#
 
-	def FindLastSplitXTCS(pSubStrOrPos, pCaseSensitive)
+	def FindLastSplitCSXT(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
-		ok
-
-		if isList(pSubStrOrPos) and Q(pSubStrOrPos).IsUsingNamedParam()
-			pSubStrOrPos = pSubStrOrPos[2]
 		ok
 
 		if isString(pSubStrOrPos)
@@ -52050,15 +52013,15 @@ ici		//...
 
 		#< @FunctionAlternativeForm
 
-		def FindLastSplitXTCSZ(pSubStrOrPos, pCaseSensitive)
-			return This.FindLastSplitXTCS(pSubStrOrPos, pCaseSensitive)
+		def FindLastSplitCSXTZ(pSubStrOrPos, pCaseSensitive)
+			return This.FindLastSplitCSXT(pSubStrOrPos, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitXT(pSubStrOrPos)
-		return This.FindLastSplitXTCS(pSubStrOrPos, TRUE)
+		return This.FindLastSplitCSXT(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -52216,14 +52179,6 @@ ici		//...
 
 		if NOT isString(pcSubStr)
 			StzRaise("Incorrect param type! pcsubStr must be a string.")
-		ok
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
 		aSections = This.FindCS(pcSubStr, pCaseSensitive)
@@ -53591,13 +53546,9 @@ ici		//...
 	 #   FINDING THE LAST SPLIT AS SECTION -- ZZ/EXTENDED  #
 	#=====================================================#
 
-	def FindLastSplitXTCSZZ(pSubStrOrPos, pCaseSensitive)
+	def FindLastSplitCSXTZZ(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
 			return []
-		ok
-
-		if isList(pSubStrOrPos) and Q(pSubStrOrPos).IsUsingNamedParam()
-			pSubStrOrPos = pSubStrOrPos[2]
 		ok
 
 		if isString(pSubStrOrPos)
@@ -53737,15 +53688,15 @@ ici		//...
 
 		#< @FunctionAlternativeForm
 
-		def FindLastSplitAsSectionXTCS(pSubStrOrPos, pCaseSensitive)
-			return This.FindLastSplitXTCSZZ(pSubStrOrPos, pCaseSensitive)
+		def FindLastSplitAsSectionCSXT(pSubStrOrPos, pCaseSensitive)
+			return This.FindLastSplitCSXTZZ(pSubStrOrPos, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastSplitZZXT(pSubStrOrPos)
-		return This.FindLastSplitXTCSZZ(pSubStrOrPos, TRUE)
+		return This.FindLastSplitCSXTZZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -53897,14 +53848,6 @@ ici		//...
 
 		if NOT isString(pcSubStr)
 			StzRaise("Incorrect param type! pcsubStr must be a string.")
-		ok
-
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if NOT IsBoolean(pCaseSensitive)
-			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
 		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
@@ -72829,7 +72772,7 @@ ici		//...
 				return Q(aResult)
 
 			but isList(pValue) and Q(pValue).IsHashList()
-
+? "ici"
 				oHashList = new stzHashList(pValue)
 
 				# All the values except the last one must be numbers
@@ -72868,7 +72811,7 @@ ici		//...
 				ok
 
 				# The sum of shares must be equal to the number of chars
-				
+
 				if NOT StzHashListQ(pValue).ValuesQR(:stzListOfNumbers).Sum() = This.NumberOfChars()
 					stzRaise("Incorrect values! The sum of numbers must be equal to the number of chars!")
 				ok
@@ -72878,7 +72821,7 @@ ici		//...
 				nLenValue = len(pValue)
 				aResult = []
 				n = 1
-				for i = 1 to nLen
+				for i = 1 to nLenValue
 					aPair = pValue[i]
 					cShare = This.Range(n, aPair[2])
 					n += aPair[2]
