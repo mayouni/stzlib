@@ -3387,7 +3387,7 @@ proff()
 # Executed in 0.39 second(s)
 
 /*------
-*/
+
 pron()
 
 o1 = new stzList(1:10)
@@ -3428,7 +3428,9 @@ o1 = new stzList(1:10)
 proff()
 # Executed in 0.39 second(s)
 
-/*================
+*================
+
+pron()
 
 o1 = new stzString("ONE_TWO")
 ? @@( o1.SplitAt(4) )	# or SplitAtPosition(4)
@@ -3438,7 +3440,12 @@ o1 = new stzString("ONE_TWO_THREE")
 ? @@( o1.SplitAt([ 4, 8 ]) ) # or SplitAtPositions([4, 8])
 #--> [ "ONE", "TWO", "THREE" ]
 
+proff()
+# Executed in 0.03 second(s)
+
 /*------------------
+
+pron()
 
 o1 = new stzString("ONE_TWO")
 ? @@( o1.SplitBefore(4) ) # or SplitBeforePosition(4)
@@ -3448,58 +3455,81 @@ o1 = new stzString("ONE_TWO_THREE")
 ? @@( o1.SplitBefore([ 4, 8 ]) ) # or SplitBeforePositions([ 4, 8 ])
 #--> [ "ONE", "_TWO", "_THREE" ]
 
+proff()
+# Executed in 0.03 second(s)
+
 /*------------------
+
+pron()
 
 o1 = new stzString("ONE_TWO")
 ? @@( o1.SplitAfter(4) ) # or SplitAfterPosition(4)
 #--> [ "ONE_", "TWO" ]
 
 o1 = new stzString("ONE_TWO_THREE")
-? @@( o1.SplitAfterPositions([ 4, 8 ]) ) # or SplitAfterPositions([ 4, 8 ])
+? @@( o1.SplitAfter([ 4, 8 ]) ) # or SplitAfterPositions([ 4, 8 ])
 #--> [ "ONE_", "TWO_", "THREE" ]
+
+proff()
+# Executed in 0.06 second(s)
 
 /*==================
 
+pron()
+
 o1 = new stzString("ABCDE")
-? @@( o1.SplitToNParts(5) )
+? @@( o1.SplitToNParts(5) ) + NL
 #--> [ "A", "B", "C", "D", "E" ]
 
 o1 = new stzString("AB12CD34")
-? @@( o1.SplitToPartsOfNChars(2) )
+? @@( o1.SplitToPartsOfNChars(2) ) + NL
 #--> [ "AB", "12", "CD", "34" ]
 
 o1 = new stzString("ABC123DEF456")
-? @@( o1.SplitToPartsOfNChars(3))
+? @@( o1.SplitToPartsOfNChars(3)) + NL
 #--> [ "ABC", "123", "DEF", "456" ]
 
 o1 = new stzString("ABCD1234EF")
-? @@( o1.SplitToPartsOfNChars(4))
+? @@( o1.SplitToPartsOfNChars(4)) + NL # SplitToPartsOfExactlyNChars
+#--> [ "ABCD", "1234" ]
+
+? @@( o1.SplitToPartsOfNCharsXT(4)) # The remaining part is also returned
 #--> [ "ABCD", "1234", "EF" ]
 
-? @@( o1.SplitToPartsOfExactlyNChars(4))
-#--> [ "ABCD", "1234" ]
+proff()
+# Executed in 0.03 second(s)
 
 /*===================
 
+pron()
+
 ? Q(0).IsMultipleOf(3) #--> FALSE
 
+proff()
+# Executed in 0.02 second(s)
+
 /*------------------
+*/
+pron()
 
 o1 = new stzString("123456789012")
-? @@( o1.SplitW( 'Q(0+@char).IsMultipleOf(3)' ) )
+? @@( o1.SplitW( 'Q(0+@char).IsMultipleOf(3)' ) ) + NL
 #--> [ "12", "45", "78", "012" ]
 
-? @@( o1.SplitW( :Where = 'Q(0+@char).IsMultipleOf(3)' ) )
+? @@( o1.SplitW( :Where = 'Q(0+@char).IsMultipleOf(3)' ) ) + NL
 #--> [ "12", "45", "78", "012" ]
 
-? @@( o1.SplitW( :At = 'Q(0+@char).IsMultipleOf(3)' ) )
+? @@( o1.SplitW( :At = 'Q(0+@char).IsMultipleOf(3)' ) ) + NL
 #--> [ "12", "45", "78", "012" ]
 
-? @@( o1.SplitAtW( :Where = 'Q(0+@char).IsMultipleOf(3)' ) )
+? @@( o1.SplitAtW( :Where = 'Q(0+@char).IsMultipleOf(3)' ) ) + NL
 #--> [ "12", "45", "78", "012" ]
 
 ? @@( o1.SplitAtW( 'Q(0+@char).IsMultipleOf(3)' ) )
 #--> [ "12", "45", "78", "012" ]
+
+proff()
+# Executed in 1.31 second(s)
 
 /*------------------
 
@@ -3615,7 +3645,7 @@ pron()
 	? oStr.FindFirst("Ring")
 	#--> 16
 
-	#NOTE : Find(cSubStr) returns all the occurrences of cSubStr
+	# In Softanza, we can also return all the occurrences of cSubStr
 
 	? oStr.Find("Ring") # equivalent to FindAll("Ring")
 	#--> [ 16 ]
