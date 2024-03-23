@@ -100,7 +100,7 @@ o1 = new stzHashList([
 # And when you use FindInLists or FindItems then VALUES are not found.
 
 proff()
-# Executed in 0.18 second(s)
+# Executed in 0.04 second(s)
 
 /*------------- TODO
 
@@ -114,8 +114,10 @@ o1 = new stzHashList([
 	:Five	= :can
 ])
 
-? o1.FindValueOritem(:can) # called also FindVitem(:can)
+? o1.FindValueOrItem(:can) # called also FindVitem(:can)
 #--> [ 1, 2, 5 ]
+
+proff()
 
 /*---------------- FINDING ITEMS INSIDE VALUES THAT ARE LISTS
 
@@ -136,7 +138,7 @@ o1 = new stzHashList([
 #--> [ "can", [ [ 2, [ 3, 5 ] ], [ 4, [ 1 ] ] ] ]
 
 ? @@( o1.FindTheseItems([ :can, :will ]) ) + NL
-#--> [ [ 2, 2 ], [ 2, 3 ], [ 2, 5 ], [ 4, 1 ], [ 4, 2 ], [ 5, 1 ] ]
+#--> [ [ 2, 3 ], [ 2, 5 ], [ 4, 1 ], [ 2, 2 ], [ 4, 2 ], [ 5, 1 ] ]
 
 ? @@( o1.TheseItemsZ([ :can, :will ]) ) + NL
 #--> [
@@ -145,7 +147,7 @@ o1 = new stzHashList([
 # ]
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.04 second(s)
 
 /*-----------
 
@@ -163,6 +165,7 @@ o1 = new stzHashList([
 #--> [ [ 2, [ 2 ] ], [ 4, [ 2, 3 ] ], [ 5, [ 1 ] ] ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*-----------
 
@@ -260,7 +263,8 @@ o1 = new stzHashList([
 #--> [ @hashlist ]
 
 proff()
-# Executed in 0.26 second(s)
+# Executed in 0.07 second(s) in Ring 1.19
+# Executed in 0.26 second(s) in Ring 1.17
 
 /*-----------
 
@@ -315,28 +319,7 @@ o1 = new stzHashList([
 #--> [ [ [ "can", "will" ], [ 5 ] ], [ [ "will" ], [ 6, 16 ] ] ]
 
 proff()
-# Executed in 0.11 second(s)
-
-/*--------
-
-pron()
-
-o1 = new stzListOfLists([
-	[ :is, :will, :can, :some, :can ],
-	[ :can, :will ],
-	[ :will ]
-])
-
-? @@( o1.Index() )
-#--> [
-#	[ "is", 	[ [ 1, 1 ] ] ],
-#	[ "will", 	[ [ 1, 2 ], [ 2, 2 ], [ 3, 1 ] ] ],
-#	[ "can", 	[ [ 1, 3 ], [ 1, 5 ], [ 2, 1 ] ] ],
-#	[ "some", 	[ [ 1, 4 ] ] ]
-# ]
-
-proff()
-# Executed in 0.09 second(s)
+# Executed in 0.05 second(s)
 
 /*-----------
 
@@ -363,7 +346,7 @@ o1 = new stzHashList([
 # ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.02 second(s)
 
 /*-----------
 
@@ -381,7 +364,7 @@ o1 = new stzHashList([
 #--> [ "is", "will", "can", "some" ]
 
 ? @@( o1.FindItems() ) + NL
-#--> [ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 2, 4 ], [ 2, 5 ], [ 4, 1 ], [ 4, 2 ], [ 5, 1 ] ]
+#--> [ [ 1, 1 ], [ 3, 1 ], [ 2, 1 ], [ 2, 2 ], [ 4, 2 ], [ 5, 1 ], [ 2, 3 ], [ 2, 5 ], [ 4, 1 ], [ 2, 4 ] ]
 
 ? @@( o1.ItemsZ() )
 #--> [
@@ -392,7 +375,7 @@ o1 = new stzHashList([
 # ]
 
 proff()
-# Executed in 0.16 second(s)
+# Executed in 0.06 second(s)
 
 /*-----------
 
@@ -421,7 +404,7 @@ o1 = new stzHashList([
 #--> [ 1, 2, 3, 4, 5, 6, 7 ]
 
 proff()
-# second(s)
+# Executed in 0.03 second(s)
 
 /*=============
 
@@ -434,7 +417,7 @@ o1 = new stzHashList([
 	:four	= "nor this will be classified",
 	:five	= [ "guess", "if", "this", "will", "be", "classified" ],
 	:six	= "and this",
-	:seven	= "and this" #TODO: use an object an test
+	:seven	= "and this" #TODO: use an object and test
 ])
 
 ? o1.HowManyKlassInLists()
@@ -454,7 +437,7 @@ o1 = new stzHashList([
 # ]
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.04 second(s)
 
 /*-------------
 */
@@ -470,7 +453,7 @@ o1 = new stzHashList([
 	:seven 	= :white,
 	:eight	= :yellow
 ])
-/*
+
 # Info about all classes available in the hash list
 
 ? o1.NumberOfKlasses()
@@ -480,16 +463,19 @@ o1 = new stzHashList([
 #--> [ :red, :white, :green, :yellow ]
 
 ? @@( o1.KlassesSizes() )
-#-->
+#--> [ 2, 3, 2, 1 ]
 
 ? @@( o1.KlassesSizesXT() )
-
+#--> [ [ "red", 2 ], [ "white", 3 ], [ "green", 2 ], [ "yellow", 1 ] ]
 
 ? @@( o1.KlassesFreqs() ) + NL
 #--> [ 0.25, 0.38, 0.25, 0.13 ]
 
 ? @@( o1.KlassesFreqsXT() ) + NL
 #--> [ [ "red", 0.25 ], [ "white", 0.38 ], [ "green", 0.25 ], [ "yellow", 0.13 ] ]
+
+? @@( reverse( sort( o1.KlassesFreqsXT(), 2 ) ) ) + NL
+#--> [ [ "white", 0.38 ], [ "red", 0.25 ], [ "green", 0.25 ], [ "yellow", 0.12 ] ]
 
 # Info about one class
 
@@ -524,29 +510,39 @@ o1 = new stzHashList([
 
 ? @@( o1.TheseKlassesFreqsXT([ :white, :green ]) ) + NL
 #--> [ [ "white", 0.38 ], [ "green", 0.25 ] ]
-*/
 
 # Strongest and weakest classes
 
-? o1.StrongestKlass()
-#--> :yelllow
+? o1.StrongestKlass() + NL
+#--> :white
 
 ? o1.StrongestKlassXT()
+#--> [ :white, 0.38 ]
 
-? o1.WeakestKlass()
+? o1.WeakestKlass() + NL
 #--> :yellow
 
 ? o1.WeakestKlassXT()
+#--> [ :yellow, 0.12 ]
 
-/*
-# ? o1.Top3Classes()	#--> [ :white, :red, :green ]
-# ? o1.Top3ClassesXT()	#--> [ :white = 3, :red = 2, :red = 2 ]
 
-? o1.StrongestNClasses(2)
-? o1.WeakestNCLasses(2)
-*/
+? o1.TopNClasses(2)
+#--> [ :white, :red ])
+
+? o1.Top3Classes()
+#--> [ :white, :red, :green ]
+
+? o1.Top3ClassesXT()
+#--> [ :white = 0.38, :red = 0.25, :green = 0.25 ]
+
+? o1.StrongestNClasses(3)
+#--> [ :red, :white, :green ])
+
+? o1.WeakestNCLasses(3)
+#--> [ :red, :green, :yellow ])
 
 proff()
+# Executed in 0.88 second(s)
 
 /*----------------
 
@@ -654,7 +650,7 @@ proff()
 
 pron()
 
-# You need to pay attention to the syntax you use in creating a stzHashlList
+# You need to pay attention to the syntax you use in creating a stzHashList
 # Hence, the follwing syntax is incorrect:
 
 //o1 = new stzHashList( [ "one" = 1, "two" = 2 ] )

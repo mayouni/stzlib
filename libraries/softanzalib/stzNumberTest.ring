@@ -1,5 +1,24 @@
 load "stzlib.ring"
 
+pron()
+
+
+? Q(120602061.1).HowMany(0)
+#--> 4	bacause decimals() = 2 by default and then 120602061.1 is actually 120602061.10
+
+? Q("120602061.1").HowMany(0)
+
+? Q(120602061.10).HowMany(1)
+#--> 3
+
+? Q(120602061.1).HowMany(20)
+#--> 2
+
+? Q(120602061.1).HowMany("06")
+#--> 2
+
+proff()
+
 /*======
 
 pron()

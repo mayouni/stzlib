@@ -2,7 +2,7 @@ load "stzlib.ring"
 
 
 /*=====
-*/
+
 pron()
 
 ? Round(2.398)
@@ -25,7 +25,7 @@ proff()
 # Executed in 0.09 second(s)
 
 /*-----
-*/
+
 pron()
 
 ? Q(2.5).RoundedToXT(3)

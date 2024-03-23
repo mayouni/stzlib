@@ -3509,7 +3509,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*------------------
-*/
+
 pron()
 
 o1 = new stzString("123456789012")
@@ -3529,9 +3529,11 @@ o1 = new stzString("123456789012")
 #--> [ "12", "45", "78", "012" ]
 
 proff()
-# Executed in 1.31 second(s)
+# Executed in 1.28 second(s)
 
 /*------------------
+
+pron()
 
 o1 = new stzString("__3__6__9__")
 
@@ -3544,7 +3546,12 @@ o1 = new stzString("__3__6__9__")
 ? @@( o1.SplitBeforeW( :Where = 'Q(0+@char).IsMultipleOf(3)' ) )
 #--> [ "__", "3__", "6__", "9__" ]
 
+proff()
+# Executed in 0.85 second(s)
+
 /*------------------
+
+pron()
 
 o1 = new stzString("__3__6__9__")
 
@@ -3557,29 +3564,87 @@ o1 = new stzString("__3__6__9__")
 ? @@( o1.SplitAfterW( :Where = 'Q(0+@char).IsMultipleOf(3)' ) )
 #--> [ "__3", "__6", "__9", "__" ]
 
+proff()
+# Executed in 0.74 second(s)
+
+/*------------------ #TODO: check it after including SubStringsBetween()
+
+pron()
+
+o1 = new stzList([ "__", 3, "__", 6, "__", 9, "__" ])
+
+? @@( o1.SplitW( :After = 'Q(@item).IsMultipleOf(3)' ) )
+#--> [ "__3", "__6", "__9", "__" ]
+
+? @@( o1.SplitAfterW( 'Q(@item).IsMultipleOf(3)' ) )
+#--> [ "__3", "__6", "__9", "__" ]
+
+? @@( o1.SplitAfterW( :Where = 'Q(@item).IsMultipleOf(3)' ) )
+#--> [ "__3", "__6", "__9", "__" ]
+
+proff()
+# Executed in 0.74 second(s)
+
 /*==================
 
 pron()
 
-o1 = new stzList([ "a", "abcde", "abc", "ab", "b", "abcd" ])
+o1 = new stzList([ "a", "abcade", "abc", "ab", "b", "aaa", "abcdaaa" ])
 
-o1.SortInAscendingBy('len(@item)')
-? o1.Content()
+o1.SortUpBy('len(@item)') + NL
+? @@( o1.Content() )
+#--> [ "b", "a", "ab", "aaa", "abc", "abcade", "abcdaaa" ]
+
+? o1.SortDownBy('Q(@item).HowMany("a")') # or SortInDescendingBy()
+? @@( o1.Content() )
+#--< [ "abcdaaa", "aaa", "abcade", "a", "ab", "abc", "b" ]
 
 proff()
+# Executed in 0.18 second(s)
 
 /*------------------
 
-o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
-o1.SortInDescendingBy('len(@item)')
-? o1.Content()
+pron()
 
+o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
+o1.SortDownBy('len(@item)')
+? o1.Content()
 #--> [ "abcde", "abcd", "abc", "ab", "a" ]
 
+proff()
+# Executed in 0.10 second(s)
+
 /*==================
+*/
+pron()
+
+o1 = new stzString("TUNIS gafsa NABEUL beja")
+
+? @@( o1.Parts(:Using = 'Q(@char).CharCase()' ) ) + NL
+#--> [ [ "TUNIS", "uppercase" ], [ " gafsa ", "lowercase" ], [ "NABEUL", "uppercase" ], [ " beja", "lowercase" ] ]
+
+? @@( o1.PartsClassified('Q(@char).CharCase()') )
+#--> [
+#	[ "uppercase", [ "TUNIS", "NABEUL" ] ] ],
+#	[ "lowercase", [ " gafsa ", " beja" ] ]
+# ]
+
+
+proff()
+
+/*------------
+pron()
 
 o1 = new stzList([ "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ])
 ? o1.SortedBy(' Q(@item).NumberOfChars() ')
+
+o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
+? o1.SortedBy(' Q(@item).HowMany(0) ')
+
+? @@( o1.ClassifiedBy(' Q(@item).HowMany(0) ') )
+
+proff()
+
 /*
 o1 = new stzString("abcd")
 ? o1.SubStrings()

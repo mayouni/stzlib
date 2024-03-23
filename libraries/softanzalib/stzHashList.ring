@@ -86,7 +86,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 				There is a bug in Ring 1.14 (4th, may. 2021)
 				Read about it here: https://groups.google.com/g/ring-lang/c/fY6Lh-LDwJg
 
-				The bug occurs when you privide a hashlist using the '=' syntax
+				The bug occurs when you provide a hashlist using the '=' syntax
 				and you have the keys containing numbers, like this:
 
 				aList = [
@@ -104,12 +104,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 				--> Check it and if so, remove this comment!
 				*/
 
-				# Lowercasing all the keys of the hashlist
+/*				# Lowercasing all the keys of the hashlist
 				nLen = len(p)
 				for i = 1 to nLen
 					p[i][1] = StzStringQ(p[i][1]).Lowercased()
 				next
-
+*/
 				@aContent = p
 
 			else
@@ -189,10 +189,15 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 
 	def Keys()
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		aResult = []
-		for i = 1 to This.NumberOfPairs()
-			aResult + This.Content()[i][1]
+		
+		for i = 1 to nLen
+			aResult + aContent[i][1]
 		next
+
 		return aResult
 
 		def KeysQ()
@@ -220,9 +225,13 @@ class stzHashList from stzList # Also called stzAssociativeList
 			off
 
 	def KeysForValue(pValue)
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		aResult = []
 
-		for aPair in This.HashList()
+		for i = 1 to nLen
+			aPair = aContent[i]
 			if Q(aPair[2]).IsStrictlyEqualTo(pValue)
 				aResult + aPair[1]
 			ok
@@ -2120,21 +2129,39 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		ok
 
-		aItemsZ = This.ItemsZ()
-		nLen = len(aItemsZ)
+		# step 1 : we get the items and their positions (see format
+		# the example in TheseItemsZ() function
 
+		aTemp1 = This.TheseItemsZ(paItems)
+		nLen = len(aTemp1)
+
+		# Step 2 : we  take the postions (pairs) and put them in a list
+
+		aTemp2 = []
+
+		for i = 1 to nLen
+			aPos = aTemp1[i][2]
+			nLenPos = len(aPos)
+
+			for j = 1 to nLenPos
+				aTemp2 + aPos[j]
+			next
+		next
+
+		# Step 2 : we factorise the obtained list to get the positions
+
+		nLen = len(aTemp2)
 		aResult = []
 
 		for i = 1 to nLen
-			if Q(aItemsZ[i][1]).IsOneOfThese(paItems)
-				nLenPos = len(aItemsZ[i][2])
-				for j = 1 to nLenPos
-					aResult + aItemsZ[i][2][j]
-				next
-			ok
+			nLenPos = len(aTemp2[i][2])
+			for j = 1 to nLenPos
+				aResult + [ aTemp2[i][1], aTemp2[i][2][j] ]
+			next
 		next
 
-		aResult = QR(aResult, :stzListOfPairs).Sorted()
+		# Step 4 : we return the result
+
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -2183,12 +2210,29 @@ class stzHashList from stzList # Also called stzAssociativeList
 		aResult = []
 
 		for i = 1 to nLen
-
 			aResult + [ paItems[i], This.FindItem(paItems[i]) ]
-
 		next
 
 		return aResult
+
+		#< @FunctionFluentForms
+
+		def TheseItemsZQ(paItems)
+			return This.TheseItemsZQR(:stzList)
+
+		def TheseItemsZQR(paItems, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.TheseItemsZ(paItems))
+			on :stzHashList
+				return new stzHashList(This.TheseItemsZ(paItems))
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def TheseItemsInListZ(paItems)
 			return This.TheseItemsZ(paItems)
@@ -2196,30 +2240,35 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def TheseItemsInListsZ(paItems)
 			return This.TheseItemsZ(paItems)
 
+		#<
+
 	def Items()
 
 		aResult = U( This.ValuesQ().OnlyListsQ().Merged() )
 		return aResult
 
 	def FindItems()
-		
-		aItems = This.Items()
-		nLen = len(aItems)
+	
+		aIndex = This.Copy().ListifyQ().ValuesQR(:stzListOfLists).IndexXT()
 
-		aIndex = This.Copy().ListifyQ().ValuesQR(:stzListOfLists).Index()
+		aItems = This.Items()
+		nLen = len(aIndex)
 
 		aResult = []
-		for i = 1 to nLen
-			aResult + aIndex[aItems[i]]
-		next
 
-		aResult = Q(aResult).MergeQ().ToStzListOfPairs().Sorted()
+		for i = 1 to nLen
+			aPairs = aIndex[i][2]
+			nLenPairs = len(aPairs)
+			for j = 1 to nLenPairs
+				aResult + aPairs[j]
+			next
+		next
 
 		return aResult
 
 	def ItemsZ()
 		
-		aIndex = This.Copy().ListifyQ().ValuesQR(:stzListOfLists).Index()
+		aIndex = This.Copy().ListifyQ().ValuesQR(:stzListOfLists).IndexXT()
 
 		aItems = This.Items()
 		anPos = QR(aIndex, :stzHashList).FindTheseKeys(aItems)
@@ -2464,10 +2513,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def Classify()
 
 		aResult = []
-		aClasses = This.Classes()
+		acClasses = This.Classes()
+		nlen = len(acClasses)
 
-		for cClass in aClasses
-			aResult + [ cClass, This.KeysForValue(cClass) ]
+		for i = 1 to nLen
+			aResult + [ acClasses[i], This.KeysForValue(acClasses[i]) ]
 		next
 
 		return aResult
@@ -3654,10 +3704,19 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#=====================================#
 
 	def NStrongestClasses(n)
-		anPos = QR(This.ClassesFrequencies(), :stzListOfNumbers).FindNGreatestNumbers(n)
-		acResult = Q(This.Classes()).ItemsAtPositions(anPos)
-		return acResult
+		aClassesXT = ring_reverse( ring_sort2( ClassesXT(), 2 ) )
+		nLen = len(aClassesXT)
 
+		n = @Min([ n, nLen ])
+
+		aResult = []
+
+		for i = 1 to n
+			aResult + aClassesXT[i][1]
+		next
+
+		return aResult
+		
 		#< @FunctionAlternativeForms
 
 		def NStrongestKlasses(n)
@@ -3681,18 +3740,26 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def StrongestNCateg(n)
 			return This.NStrongestClasses(n)
 
+		#--
+
+		def TopNClasses(n)
+			return This.NStrongestClasses(n)
+
+		def NTopClasses(n)
+			return This.NStrongestClasses(n)
+
 		#>
 
 	def NStrongestClassesXT(n)
+		aClassesXT = ring_reverse( ring_sort2( ClassesXT(), 2 ) )
+		nLen = len(aClassesXT)
+		n = Min([ n, nLen ])
 
-//		anPos     = QR(This.ClassesFrequencies(), :stzListOfNumbers).FindNGreatestNumbers(n)
+		aResult = []
 
-		anPos = Q(This.ClassesFrequencies()).SortQ().LastNItemsQ(3).SortedInDescending()
-
-		acClasses = Q(This.Classes()).ItemsAtPositions(anPos)
-		anFreqs   = Q(This.ClassesFrequencies()).ItemsAtPositions(anPos)
-
-		aResult   = Association([ acClasses, anFreqs ])
+		for i = 1 to n
+			aResult + aClassesXT[i]
+		next
 
 		return aResult
 
@@ -3742,12 +3809,26 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def StrongestNCategAndTheirFrequencies(n)
 			return This.NStrongestClassesXT(n)
 
+		#--
+
+		def TopNClassesXT(n)
+			return This.NStrongestClassesXT(n)
+
+		def NTopClassesXT(n)
+			return This.NStrongestClassesXT(n)
+
+		def TopNClassesAndTheirFrequencies(n)
+			return This.NStrongestClassesXT(n)
+
+		def NTopClassesAndTheirFrequencies(n)
+			return This.NStrongestClassesXT(n)
+
 		#>
 
 	#--
 
 	def StrongestClass()
-		return This.StrongestNClasses(1)
+		return This.StrongestNClasses(1)[1]
 
 		#< @FunctionAlternativeForms
 
@@ -3775,7 +3856,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def StrongestClassXT()
-		return This.StrongestNClassesXT(1)
+		return This.StrongestNClassesXT(1)[1]
 
 		#< @FunctionAlternativeForms
 
@@ -3917,9 +3998,17 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#===================================#
 
 	def NWeakestClasses(n)
-		anPos = QR(This.ClassesFrequencies(), :stzListOfNumbers).FindNLowestNumbers(n)
-		acResult = Q(This.Classes()).ItemsAtPositions(anPos)
-		return acResult
+		aClassesXT = ring_sort2( ClassesXT(), 2 )
+		nLen = len(aClassesXT)
+		n = Min([ n, nLen ])
+
+		aResult = []
+
+		for i = 1 to n
+			aResult + aClassesXT[i][1]
+		next
+
+		return aResult
 
 		#< @FunctionAlternativeForms
 
@@ -3944,15 +4033,26 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def WeakestNCateg(n)
 			return This.NWeakestClasses(n)
 
+		#--
+
+		def BottomNClasses(n)
+			return This.NWeakestClasses(n)
+
+		def NBottomClasses(n)
+			return This.NWeakestClasses(n)
+
 		#>
 
 	def NWeakestClassesXT(n)
-		anPos     = QR(This.ClassesFrequencies(), :stzListOfNumbers).FindNSmallestNumbers(n)
+		aClassesXT = ring_sort2( ClassesXT(), 2 )
+		nLen = len(aClassesXT)
+		n = Min([ n, nLen ])
 
-		acClasses = Q(This.Classes()).ItemsAtPositions(anPos)
-		anFreqs   = Q(This.ClassesFrequencies()).ItemsAtPositions(anPos)
+		aResult = []
 
-		aResult   = Association([ acClasses, anFreqs ])
+		for i = 1 to n
+			aResult + aClassesXT[i]
+		next
 
 		return aResult
 
@@ -4005,12 +4105,26 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def WeakestNCategAndTheirFrequencies(n)
 			return This.NWeakestClassesXT(n)
 
+		#--
+
+		def BottomNClassesXT(n)
+			return This.NWeakestClassesXT(n)
+
+		def NBottomClassesXT(n)
+			return This.NWeakestClassesXT(n)
+
+		def BottomNClassesAndTheirFrequencies(n)
+			return This.NWeakestClassesXT(n)
+
+		def NBottomClassesAndTheirFrequencies(n)
+			return This.NWeakestClassesXT(n)
+
 		#>
 
 	#--
 
 	def WeakestClass()
-		return This.WeakestNClasses(1)
+		return This.WeakestNClasses(1)[1]
 
 		#< @FunctionAlternativeForms
 
@@ -4038,7 +4152,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def WeakestClassXT()
-		return This.WeakestNClassesXT(1)
+		return This.WeakestNClassesXT(1)[1]
 
 		#< @FunctionAlternativeForms
 
