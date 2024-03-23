@@ -5918,6 +5918,37 @@ class stzNumber from stzObject
 	def LCM(pOtherNumber)
 		return pvtCalculate("LCM", pOtherNumber)
 
+
+	def Methods()
+		return ring_methods(This)
+
+	def Attributes()
+		return ring_attributes(This)
+
+	def ClassName()
+		return "stznumber"
+
+		def StzClassName()
+			return This.ClassName()
+
+		def StzClass()
+			return This.ClassName()
+
+	def IsNamedObject()
+		return FALSE
+
+	def HowMany(n)
+		if isNumber(n)
+			n = "" + n
+		ok
+
+		if NOT isString(n)
+			StzRaise("Incorrect param type! n must be a number or string.")
+		ok
+		
+		nResult = This.ToStzString().HowMany(n)
+		return nResult
+
 	  #-------------------------------------#
 	 #    INTERNAL KITCHEN OF THE CLASS    #
 	#-------------------------------------#
@@ -6049,21 +6080,3 @@ class stzNumber from stzObject
 		StzDecimals(nCurrentRound)
 
 		return cResult
-
-	def Methods()
-		return ring_methods(This)
-
-	def Attributes()
-		return ring_attributes(This)
-
-	def ClassName()
-		return "stznumber"
-
-		def StzClassName()
-			return This.ClassName()
-
-		def StzClass()
-			return This.ClassName()
-
-	def IsNamedObject()
-		return FALSE

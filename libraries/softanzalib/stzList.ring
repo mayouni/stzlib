@@ -25038,51 +25038,32 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def CategorizeSF()
+		def ClassifiedSF()
+			return This.Classify@C()
+
+		def CategorisedSF()
 			return This.ClassifySF()
 
-			def Categorize@CQ()
-				return This.Categorize@CQR(:stzList)
-	
-			def Categorize@CQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+		def CategorizedSF()
+			return This.ClassifySF()
 
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.CategorizeSF() )
-	
-				on :stzHashList
-					return new stzHashList( This.CategorizeSF() )
-	
-				other
-					StzRaise("Unssupported return type!")
-	
-				off
+		def CategorizeSF()
+			return This.Classify@C()
+
+			def CategorizeSFQ()
+				return This.Classify@CQ()
+
+			def CategorizeSFQR(pcReturnType)
+				return This.Classify@CQR(pcReturnType)
 
 		def CategoriseSF()
 			return This.ClassifySF()
 
 			def Categorise@CQ()
-				return This.Categorise@CQR(:stzList)
+				return This.Classify@CQ()
 	
 			def Categorise@CQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.CategoriseSF() )
-	
-				on :stzHashList
-					return new stzHashList( This.CategoriseSF() )
-	
-				other
-					StzRaise("Unssupported return type!")
-	
-				off
+				return This.Classify@CQR(pcReturnType)
 
 		#>
 
@@ -25126,20 +25107,9 @@ class stzList from stzObject
 				return This.Classes@CQR(:stzList)
 	
 			def Categories@CQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+				return This.Classes@CQR(pcReturnType)
 
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.CategoriesSF() )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.CategoriesSF() )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
+		#>
 
 	def KlassSF(pcClass)
 		aResult = []
@@ -25813,6 +25783,12 @@ class stzList from stzObject
 		def ItemsAreSortedInAscending()
 			return This.IsSortedInAscending()
 
+		def IsSortedUp()
+			return This.IsSortedInAscending()
+
+		def ItemsAreSortedUp()
+			return This.IsSortedInAscending()
+
 	def IsSortedInDescending()
 		/*
 		The idea is to sort a copy of the list in descending order
@@ -25826,6 +25802,12 @@ class stzList from stzObject
 
 		def ItemsAreSortedInDescending()
 			return This.IsSortedInDescending()
+
+		def IsSortedDown()
+			return This.IsSortedInAscending()
+
+		def ItemsAreSortedDown()
+			return This.IsSortedInAscending()
 
 	def IsUnsorted()
 		return NOT This.IsSorted()
@@ -25971,13 +25953,19 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def Sort()
 			This.SortInAscending()
 
 			def SortQ()
 				return This.SortInAscendingQ()
+
+		def SortUp()
+			This.SortInAscending()
+
+			def SortUpQ()
+				return This.SortQ()
 
 		#>
 
@@ -25987,16 +25975,13 @@ class stzList from stzObject
 			This.SortInAscending()
 
 			def SortInAsendingQ()
-				This.SortInAsending()
-				return This
-
+				return This.SortQ()
 
 		def SortInAssending()
 			This.SortInAscending()
 
 			def SortInAssendingQ()
-				This.SortInAssending()
-				return This
+				return This.SortQ()
 
 		#>
 
@@ -26011,6 +25996,9 @@ class stzList from stzObject
 			return This.SortedInAscending()
 
 		def SortedInAssending()
+			return This.SortedInAscending()
+
+		def SortedUp()
 			return This.SortedInAscending()
 
 	  #-----------------------------------#
@@ -26030,6 +26018,16 @@ class stzList from stzObject
 		
 		#>
 	
+		#< @FunctionAlternativeForms
+
+		def SortDown()
+			This.SortInDescending()
+
+			def SortDownQ()
+				return This.SortInDescendingQ()
+
+		#>
+
 		#< @FunctionMisspelledForms
 
 		def SortInDesending()
@@ -26057,6 +26055,9 @@ class stzList from stzObject
 			return This.SortedInDescending()
 
 		def SortedInDessending()
+			return This.SortedInDescending()
+
+		def SortedDown()
 			return This.SortedInDescending()
 
 	  #-------------------------------------------#
@@ -26108,22 +26109,31 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pcExpr must be a string containing @item keyword.")
 		ok
 
-		acContent = This.Content()
-		nLen = len(acContent)
+		if This.IsListOfNumbers() or This.IsListOfStrings()
+		# A Ring-based solution using the sort(alist, nCol) function
 
-		cCode = 'value = ' + Q(pcExpr).TheseBoundsRemoved("{", "}")
-		aValues = []
-		
-		for @i = 1 to nLen
-			@item = acContent[@i]
-			eval(cCode)
-			aValues + value
-		next
+			acContent = This.Content()
+			nLen = len(acContent)
+	
+			cCode = 'value = ' + Q(pcExpr).TheseBoundsRemoved("{", "}")
+			aValues = []
+			
+			for @i = 1 to nLen
+				@item = acContent[@i]
+				eval(cCode)
+				aValues + [ acContent[@i], value ]
+			next
+	
+			aSorted = ring_sort2(aValues, 2)
+	
+			aResult = []
+			for i = 1 to nLen
+				aResult + aSorted[i][1]
+			next
+	
+			This.Update(aResult)
 
-		oTable = new stzTable([ :COL1 = acContent, :COL2 = aValues ])
-		acSorted = oTable.SortByQ(:COL2).Col(1)
-
-		This.Update(acSorted)
+		ok
 
 		#< @FunctionFluentForm
 
@@ -26133,14 +26143,19 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def SortInAscendingBy(pcExpr)
 			This.SortBy(pcExpr)
 
 			def SortInAscendingByQ(pcExpr)
-				This.SortInAscendingBy(pcExpr)
-				return This
+				return This.SortByQ(pcExpr)
+
+		def SortUpBy(pcExpr)
+			This.SortBy(pcExpr)
+
+			def SortUpByQ(pcExpr)
+				return This.SortByQ(pcExpr)
 
 		#>
 
@@ -26151,25 +26166,34 @@ class stzList from stzObject
 		def SortedInAscendingBy(pcExpr)
 			return This.SortedBy(pcExpr)
 
+		def SortedUpBy(pcExpr)
+			return This.SortedBy(pcExpr)
+
 	  #-----------------------------------------#
 	 #  SORTING THE ITEM BY - IN DESCENDING  #
 	#-----------------------------------------#
  
 	def SortInDescendingBy(pcExpr)
 		This.SortInAscendingBy(pcExpr)
-		This.ReverseQ()
+		This.Reverse()
 
 		def SortInDescendingByQ(pcExpr)
 			This.SortInDescendingBy(pcExpr)
 			return This
 
+		def SortDownBy(pcExpr)
+			This.SortInDescendingBy(pcExpr)
+
+			def SortDownByQ(pcExpr)
+				return This.SortInDescendingByQ(pcExpr)
+
 	def SortedInDescendingBy(pcExpr)
 		aResult = This.Copy().SortInDescendingByQ(pcExpr).Content()
 		return aResult
 
-		def SortedInDescendingByQ(pcExpr)
+		def SortedDownBy(pcExpr)
 			return This.SortedInDescendingBy(pcExpr)
-
+		
 	  #=======================================#
 	 #     ASSOCIATE WITH AN ANOTHER LIST    #
 	#=======================================#
@@ -31046,7 +31070,6 @@ class stzList from stzObject
 	#=========================================#
 
 	def RemoveDuplicatesCS(pCaseSensitive)
-
 		anPos = This.FindDuplicatesCS(pCaseSensitive)
 		This.RemoveItemsAtPositions(anPos)
 
@@ -61872,6 +61895,10 @@ vvv
 	#----------------------------------------#
 
 	def SplitBeforeW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -61916,6 +61943,10 @@ vvv
 	#---------------------------------------#
 
 	def SplitAfterW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -63648,6 +63679,10 @@ vvv
 	#--------------------------------------------#
 
 	def FindSplitsBeforeW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -63677,6 +63712,10 @@ vvv
 	#-------------------------------------------#
 
 	def FindSplitsAfterW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -65793,12 +65832,13 @@ vvv
 
 	def FindSplitsAtWCSZZ(pcCondition, pCaseSensitive)
 
-		if This.IsEmpty()
-			return []
+		if EarlyCheck()
+			if This.IsEmpty()
+				return []
+			ok
 		ok
 
 		if CheckParams()
-
 			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
 				pcCondition = pcCondition[2]
 			ok
@@ -65806,7 +65846,6 @@ vvv
 			if NOT isString(pcCondition)
 				StzRaise("Incorrect param type! pcCondition must be a string.")
 			ok
-
 		ok
 
 		aResult = []
@@ -65863,7 +65902,10 @@ vvv
 		ok
 
 		if CheckParams()
-
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+	
 			if NOT isString(pcCondition)
 				StzRaise("Incorrect param type! pcCondition must be a string.")
 			ok
@@ -65912,11 +65954,13 @@ vvv
 		ok
 
 		if CheckParams()
-
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+	
 			if NOT isString(pcCondition)
 				StzRaise("Incorrect param type! pcCondition must be a string.")
 			ok
-
 		ok
 
 		oCondition = new stzString(pcCondition)
@@ -67544,6 +67588,10 @@ vvv
 	#-----------------------------------------------#
 
 	def FindNthSplitBeforeW(n, pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -67573,6 +67621,10 @@ vvv
 	#----------------------------------------------#
 
 	def FindNthSplitAfterW(n, pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -69106,6 +69158,10 @@ vvv
 	#--------------------------------------------------------------#
 
 	def FindNthSplitBeforeWZZ(n, pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -69135,6 +69191,10 @@ vvv
 	#------------------------------------------------------------#
 
 	def FindNthSplitAfterWZZ(n, pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -70722,6 +70782,10 @@ vvv
 	#------------------------------------------------#
 
 	def FindLastSplitBeforeW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -70751,6 +70815,10 @@ vvv
 	#-----------------------------------------------#
 
 	def FindLastSplitAfterW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -72288,6 +72356,10 @@ vvv
 	#---------------------------------------------------------------#
 
 	def FindLastSplitBeforeWZZ(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -72317,6 +72389,10 @@ vvv
 	#-------------------------------------------------------------#
 
 	def FindLastSplitAfterWZZ(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok

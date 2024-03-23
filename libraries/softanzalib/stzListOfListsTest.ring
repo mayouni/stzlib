@@ -1,5 +1,34 @@
 load "stzlib.ring"
 
+/*--------
+*/
+pron()
+
+o1 = new stzListOfLists([
+	[ :is, :will, :can, :some, :can ],
+	[ :can, :will ],
+	[ :will ]
+])
+
+? @@( o1.Index() ) + NL
+#--> [
+#	[ "is", [ 1 ] ],
+#	[ "will", [ 1, 2, 3 ] ],
+#	[ "can", [ 1, 1, 2 ] ], [ "some", [ 1 ] ]
+# ]
+
+? @@( o1.IndexXT() )
+#--> [
+#	[ "is", 	[ [ 1, 1 ] ] ],
+#	[ "will", 	[ [ 1, 2 ], [ 2, 2 ], [ 3, 1 ] ] ],
+#	[ "can", 	[ [ 1, 3 ], [ 1, 5 ], [ 2, 1 ] ] ],
+#	[ "some", 	[ [ 1, 4 ] ] ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+
 /*===
 
 pron()

@@ -105,8 +105,11 @@ func Min(panNumbers)
 		StzRaise("Incorrect param! panNumbers must be a list of numbers!")
 	ok
 
-	nResult = StzListOfNumbersQ(panNumbers).Min()
+	nResult = ring_sort(panNumbers)[1]
 	return nResult
+
+	func @Min(panNumbers)
+		return Min(panNumbers)
 
 func Max(panNumbers)
 
@@ -114,8 +117,11 @@ func Max(panNumbers)
 		StzRaise("Incorrect param! panNumbers must be a list of numbers!")
 	ok
 
-	nResult = StzListOfNumbersQ(panNumbers).Max()
+	nResult = ring_reverse( ring_sort(panNumbers) )[1]
 	return nResult
+
+	func @Max(panNumbers)
+		return Max(panNumbers)
 
 func Sum(panNumbers)
 	if CheckParams()
@@ -132,9 +138,15 @@ func Sum(panNumbers)
 
 	return nResult
 
+	func @Sum(panNumbers)
+		return Sum(panNumbers)
+
 func Product(panNumbers)
 	oListOfNumbers = new stzListOfNumbers(panNumbers)
 	return oListOfNumbers.Product()
+
+	func @Product(panNumbers)
+		return Product(panNumbers)
 
 func MultiplicationsYieldingN(n)
 	aResult = []
@@ -593,7 +605,7 @@ class stzListOfNumbers from stzList
 			acStrings + ( ""+ anContent[i] )
 		next
 
-		oResult = new stzListOfStrings(acResult)
+		oResult = new stzListOfStrings(acStrings)
 		return oResult
 
 	def NumbersTurnedToStrings()
@@ -616,843 +628,735 @@ class stzListOfNumbers from stzList
 		def Number(n)
 			return This.NumberAt(n)
 
-	  #-------------------------#
-	 #     MAXIMUM NUMBER(S)   #
-	#-------------------------#
+	  #================================#
+	 #  FINDING THE LOWEST N NUMBERS  #
+	#================================#
 
-	def Max()
-		if len(This.Content()) = 0
-			StzRaise("Can't proceed! Because the list is empty.")
-		ok
-
-		aSorted = This.Sorted()
-		nLen = len(aSorted)
-		nResult = aSorted[nLen]
-		return nResult
-
-		def MaxQ(n)
-			return This.MaxQR(n, :stzNumber)
-
-		def MaxQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzNumber
-				return new stzNumber( This.Max() )
-
-			on :stzString
-				return new stzString( This.Max() )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		def MaxNumber()
-			return This.Max()
-
-			def MaxNumberQ(n)
-				return This.MaxNumberQR(n, :stzNumber)
-	
-			def MaxNumberQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzNumber
-					return new stzNumber( This.MaxNumber(n) )
-	
-				on :stzString
-					return new stzString( This.MaxNumber(n) )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-
-	def FindMax()
-		nMax = This.Max()
-		anResult = This.FindAll(nMax)
+	def NLowestNumbers(n)
+		anResult = This.ToStzList().RemoveDuplicatesQ().SortUpQ().FirstNItems(n)
 		return anResult
 
-		def FindAllMax()
-			return This.FindMax()
+		#< @FunctionAlternativeForms
+
+		def MinNNumbers(n)
+			return This.NLowestNumbers(n)
+
+		def NMinNumbers(n)
+			return This.NLowestNumbers(n)
+
+		def NMin(n)
+			return This.NLowestNumbers(n)
+
+		def MinN(n)
+			return This.NLowestNumbers(n)
+
+		def NSmallestNumbers(n)
+			return This.NLowestNumbers(n)
+
+		def SmallestNNumbers(n)
+			return This.NLowestNumbers(n)
+
+		def SmallestN(n)
+			return This.NLowestNumbers(n)
+
+		def LowestNNumbers(n)
+			return This.NLowestNumbers(n)
+
+		def LowestN(n)
+			return This.NLowestNumbers(n)
+
+		def NSmallest(n)
+			return This.NLowestNumbers(n)
+
+		#--
+
+		def NBottomNumbers(n)
+			return This.NLowestNumbers(n)
+
+		def BottomNNumbers(n)
+			return This.NLowestNumbers(n)
+
+		def NBottom(n)
+			return This.NLowestNumbers(n)
+
+		def BottomN(n)
+			return This.NLowestNumbers(n)
+
+		#>
+
+	def FindNLowestNumbers(n)
+		anNumbers = This.NLowestNumbers(n)
+		anResult  = This.FindMany(anNumbers)
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindMinNNumbers(n)
+			return This.FindNLowestNumbers(n)
+
+		def FindNMinNumbers(n)
+			return This.FindNLowestNumbers(n)
+
+		def FindNMin(n)
+			return This.FindNLowestNumbers(n)
+
+		def FindMinN(n)
+			return This.FindNLowestNumbers(n)
+
+		def FindNSmallestNumbers(n)
+			return This.FindNLowestNumbers(n)
+
+		def FindSmallestNNumbers(n)
+			return This.FindNLowestNumbers(n)
+
+		def FindSmallestN(n)
+			return This.FindNLowestNumbers(n)
+
+		def FindLowestNNumbers(n)
+			return This.FindNLowestNumbers(n)
+
+		def FindLowestN(n)
+			return This.FindNLowestNumbers(n)
+
+		def FindNSmallest(n)
+			return This.FindNLowestNumbers(n)
+
+		#--
+
+		def FindNBottomNumbers(n)
+			return This.FindNLowestNumbers(n)
+
+		def FindBottomNNumbers(n)
+			return This.FindNLowestNumbers(n)
+
+		def FindNBottom(n)
+			return This.FindNLowestNumbers(n)
+
+		def FindBottomN(n)
+			return This.FindNLowestNumbers(n)
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  GETTING THE LOWEST N NUMBERS ALONG WITH THEIR POSITIONS  #
+	#------------------------------------------------------------#
+
+	def NLowestNumbersZ(n)
+		aResult = @Association([ This.NLowestNumbers(n), This.FindNLowestNumbers(n) ])
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def FindMaxNumber()
-			return This.FindMax()
+		def MinNNumbersZ(n)
+			return This.NLowestNumbersZ(n)
 
-		def MaxPosition()
-			return This.FindMAx()
+		def NMinNumbersZ(n)
+			return This.NLowestNumbersZ(n)
 
-		def PositionOfMaxNumber()
-			return This.FindMax()
+		def NMinZ(n)
+			return This.NLowestNumbersZ(n)
 
-		def MaxNumberPosition()
-			return This.FindMax()
+		def MinNZ(n)
+			return This.NLowestNumbersZ(n)
 
-		def FindGreatestNumber()
-			return This.FindMax()
+		def NSmallestNumbersZ(n)
+			return This.NLowestNumbersZ(n)
 
-		def FindLargestNumber()
-			return This.FindMax()
+		def SmallestNNumbersZ(n)
+			return This.NLowestNumbersZ(n)
 
-		#>
+		def SmallestNZ(n)
+			return This.NLowestNumbersZ(n)
 
-	def Top(n)
-		aResult = This.ToStzList().RemoveDuplicatesQ().SortInAscendingQ().Section(1, n)
+		def LowestNNumbersZ(n)
+			return This.NLowestNumbersZ(n)
 
-		return aResult
+		def LowestNZ(n)
+			return This.NLowestNumbersZ(n)
 
-		def TopQ(n)
-			return This.TopQR(n, :stzList)
-	
-		def TopQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Top(n) )
-	
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Top(n) )
-
-			on :stzListOfStrings
-				return StzListOfNumbersQ(This.Top(n)).ToStzListOfStrings()
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		def TopNumbers(n)
-			return This.Top(n)
-	
-			def TopNumbersQ(n)
-				return This.TopNumbersQR(n, :stzList)
-	
-			def TopNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.TopNumbers(n) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.TopNumbers(n) )
-	
-				on :stzListOfStrings
-					return StzListOfNumbersQ(This.TopNumbers(n)).ToStzListOfStrings()
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-	
-		def NTopNumbers(n)
-			return This.Top(n)
-
-			def NTopNumbersQ(n)
-				return This.NTopNumbersQR(n, :stzList)
-	
-			def NTopNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.NTopNumbers(n) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.NTopNumbers(n) )
-	
-				on :stzListOfStrings
-					return StzListOfNumbersQ(This.NTopNumbers(n)).ToStzListOfStrings()
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-
-		def TopNNumbers(n)
-			return This.Top(n)
-
-			def TopNNumbersQ(n)
-				return This.TopNNumbersQR(n, :stzList)
-	
-			def TopNNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.TopNNumbers(n) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.TopNNumbers(n) )
-	
-				on :stzListOfStrings
-					return StzListOfNumbersQ(This.TopNNumbers(n)).ToStzListOfStrings()
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-
-		def MaxNumbers(n)
-			return This.Top(n)
-	
-			#< @FunctionFluentForm
-	
-			def MaxNumbersQ(n)
-				return This.MaxNumbersQR(n, :stzList)
-	
-			def MaxNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.MaxNumbers(n) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.MaxNumbers(n) )
-	
-				on :stzListOfStrings
-					return StzListOfNumbersQ(This.MaxNumbers(n)).ToStzListOfStrings()
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-
-		def MaxNNumbers(n)
-			return This.Top(n)
-
-			def MaxNNumbersQ(n)
-				return This.MaxNNumbersQR(n, :stzList)
-	
-			def MaxNNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.MaxNNumbers(n) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.MaxNNumbers(n) )
-	
-				on :stzListOfStrings
-					return StzListOfNumbersQ(This.MaxNNumbers(n)).ToStzListOfStrings()
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-
-		def NMaxNumbers(n)
-			return This.Top(n)
-
-			def NMaxNumbersQ(n)
-				return This.NMaxNumbersQR(n, :stzList)
-	
-			def NMaxNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.NMaxNumbers(n) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.NMaxNumbers(n) )
-	
-				on :stzListOfStrings
-					return StzListOfNumbersQ(This.NMaxNumbers(n)).ToStzListOfStrings()
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-		#>
-
-	def TopTenNumbers()
-		return This.Top(10)
-
-		def Top10Numbers()
-			return This.TopTenNumbers()
-
-		def TopTen()
-			return This.TopTenNumbers()
-
-		def Top10()
-			return This.TopTenNumbers()
-
-	def TopFiveNumbers()
-		return This.Top(5)
-		
-		def Top5Numbers()
-			return This.TopFiveNumbers()
-
-		def TopFive()
-			return This.TopFiveNumbers()
-
-		def Top5()
-			return This.TopFiveNumbers()
-
-	def TopThreeNumbers()
-		return This.Top(3)
-
-		def Top3Numbers()
-			return This.TopThreeNumbers()
-
-		def TopThree()
-			return This.TopThreeNumbers()
-
-		def Top3()
-			return This.TopThreeNumbers()
-
-	def FindTop(n)
-		anNumbers = This.Top(n)
-		nLen = len(anNumbers)
-
-		aResult = []
-
-		for i = 1 to nLen
-			aResult + This.FindAll(anNumbers[i])
-		next
-
-		aResult = StzListQ(aResult).FlattenQ().SortedInAscending()
-
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def FindMaxNumbers(n)
-			return This.FindTop(n)
-
-		def FindTopNumbers(n)
-			return This.FindTop(n)
-
-		def FindTopNNumbers(n)
-			return This.FindTop(n)
+		def NSmallestZ(n)
+			return This.NLowestNumbersZ(n)
 
 		#--
 
-		def FindNGreatestNumbers(n)
-			return This.FindTop(n)
+		#--
 
-		def FindGreatestNNumbers(n)
-			return This.FindTop(n)
+		def NBottomNumbersZ(n)
+			return This.NLowestNumbersZ(n)
 
-		def FindGreatestN(n)
-			return This.FindTop(n)
+		def BottomNNumbersZ(n)
+			return This.NLowestNumbersZ(n)
 
-		def FindNLargestNumbers(n)
-			return This.FindTop(n)
+		def NBottomZ(n)
+			return This.NLowestNumbersZ(n)
 
-		def FindLargestNNumbers(n)
-			return This.FindTop(n)
+		def BottomNZ(n)
+			return This.NLowestNumbersZ(n)
 
-		def FindLargestN(n)
-			return This.FindTop(n)
+		#==
+
+		def MinNNumbersAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
+
+		def NMinNumbersAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
+
+		def NMinAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
+
+		def MinNAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
+
+		def NSmallestNumbersAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
+
+		def SmallestNNumbersAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
+
+		def SmallestNAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
+
+		def LowestNNumbersAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
+
+		def LowestNAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
+
+		def NSmallestAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
 
 		#--
 
-		def FindNGreatest(n)
-			return This.FindTop(n)
+		def NBottomNumbersAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
 
-		def PositionsOfTop(n)
-			return This.FindTop(n)
+		def BottomNNumbersAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
 
-		def TopPositions(n)
-			return This.FindTop(n)
+		def NBottomAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
 
-		def PositionsOfTopNumbers(n)
-			return This.FindTop(n)
-
-		def TopNumbersPositions()
-			return This.FindTop(n)
-
-		def PositionsOfTopNNumbers(n)
-			return This.FindTop(n)
-
-		def TopNNumbersPositions(n)
-			return This.FindTop(n)
+		def BottomNAndTheirPositions(n)
+			return This.NLowestNumbersZ(n)
 
 		#>
 
-
-	def TopNumbersAndTheirPositions(n)
-
-		anNumbers = This.Top(n)
-		nLen = len(anNumbers)
-
-		aResult = []
-
-		for i = 1 to nLen
-
-			cNumber     = ""+ anNumbers[i]
-			anPos = This.ToStzList().FindAll(anNumbers[i])
-
-			aResult + [ cNumber, anPos ]
-		next
-
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def TopNNumbersAndTheirPositions(n)
-			return This.TopNumbersAndTheirPositions(n)
-
-		def MaxNumbersAndTheirPositions(n)
-			return This.TopNumbersAndTheirPositions(n)
-
-		#--
-
-		def TopNumbersZ(n)
-			return This.TopNumbersAndTheirPositions(n)
-
-		def TopNNumbersZ(n)
-			return This.TopNumbersAndTheirPositions(n)
-
-		def MaxNumbersZ(n)
-			return This.TopNumbersAndTheirPositions(n)
-
-		def TopZ(n)
-			return This.TopNumbersAndTheirPositions(n)
-
-		def MaxZ(n)
-			return This.TopNumbersAndTheirPositions(n)
-
-		#>
-
-	  #-------------------------#
-	 #     MINIMUM NUMBER(S)   #
-	#-------------------------#
+	#==
 
 	def Min()
-		if len(This.Content()) = 0
-			StzRaise("Can't proceed! Because the list is empty.")
-		ok
-
-		aSorted = This.Sorted()
-		nLen = len(aSorted)
-		nResult = aSorted[1]
+		anContent = This.Content()
+		nResult = ring_sort( anContent )[1]
 		return nResult
-
-		def MinQ(n)
-			return This.MinQR(n, :stzNumber)
-
-		def MinQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzNumber
-				return new stzNumber( This.Min() )
-
-			on :stzString
-				return new stzString( This.Min() )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
 
 		def MinNumber()
 			return This.Min()
 
-			def MinNumberQ(n)
-				return This.MinNumberQR(n, :stzNumber)
-	
-			def MinNumberQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+	def MinZ()
+		return This.TopNZ(1)[1]
 
-				switch pcReturnType
-				on :stzNumber
-					return new stzNumber( This.MinNumber(n) )
-	
-				on :stzString
-					return new stzString( This.MinNumber(n) )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
+		def MinNumberZ()
+			return This.MinZ()
 
-	def FindMin()
-		nMin = This.Min()
-		anResult = This.FindAll(nMin)
+		def MinAndItsPosition()
+			return This.MinZ()
+
+		def MinNumberAndItsPosition()
+			return This.MinZ()
+
+	#--
+
+	def Bottom3()
+		return This.BottomN(3)
+
+	def Bottom3Numbers()
+		return This.BottomN(3)
+
+	def Bottom5()
+		return This.BottomN(5)
+
+	def Bottom5Numbers()
+		return This.BottomN(5)
+
+	def Bottom7()
+		return This.BottomN(7)
+
+	def Bottom7Numbers()
+		return This.BottomN(7)
+
+	def Bottom10()
+		return This.BottomN(10)
+
+	def Bottom10Numbers()
+		return This.BottomN(10)
+
+	#--
+
+	def FindBottom3()
+		return This.FindBottomN(3)
+
+	def FindBottom3Numbers()
+		return This.FindBottomN(3)
+
+	def FindBottom5()
+		return This.FindBottomN(5)
+
+	def FindBottom5Numbers()
+		return This.FindBottomN(5)
+
+	def FindBottom7()
+		return This.FindBottomN(7)
+
+	def FindBottom7Numbers()
+		return This.FindBottomN(7)
+
+	def FindBottom10()
+		return This.FindBottomN(10)
+
+	def FindBottom10Numbers()
+		return This.FindBottomN(10)
+
+	#--
+
+	def Bottom3Z()
+		return This.BottomNZ(3)
+
+	def Bottom3NumbersZ()
+		return This.BottomNZ(3)
+
+	def Bottom5Z()
+		return This.BottomNZ(5)
+
+	def Bottom5NumbersZ()
+		return This.BottomNZ(5)
+
+	def Bottom7Z()
+		return This.BottomNZ(7)
+
+	def Bottom7NumbersZ()
+		return This.BottomNZ(7)
+
+	def Bottom10Z()
+		return This.BottomNZ(10)
+
+	def Bottom10NumbersZ()
+		return This.BottomNZ(10)
+
+	def Bottom3AndTheirPositions()
+		return This.BottomNZ(3)
+
+	def Bottom3NumbersAndTheirPositions()
+		return This.BottomNZ(3)
+
+	def Bottom5AndTheirPositions()
+		return This.BottomNZ(5)
+
+	def Bottom5NumbersAndTheirPositions()
+		return This.BottomNZ(5)
+
+	def Bottom7AndTheirPositions()
+		return This.BottomNZ(7)
+
+	def Bottom7NumbersAndTheirPositions()
+		return This.BottomNZ(7)
+
+	def Bottom10AndTheirPositions()
+		return This.BottomNZ(10)
+
+	def Bottom10NumbersAndTheirPositions()
+		return This.BottomNZ(10)
+
+	  #=================================#
+	 #  FINDING THE LARGEST N NUMBERS  #
+	#=================================#
+
+	def NLargestNumbers(n)
+		anResult = This.ToStzList().RemoveDuplicatesQ().SortUpQ().LastNItems(n)
 		return anResult
 
-		def FindAllMin()
-			return This.FindMin()
+		#< @FunctionAlternativeForms
+
+		def MaxNNumbers(n)
+			return This.NLargestNumbers(n)
+
+		def NMaxNumbers(n)
+			return This.NLargestNumbers(n)
+
+		def NMax(n)
+			return This.NLargestNumbers(n)
+
+		def MaxN(n)
+			return This.NLargestNumbers(n)
+
+		def NBiggestNumbers(n)
+			return This.NLargestNumbers(n)
+
+		def BiggestNNumbers(n)
+			return This.NLargestNumbers(n)
+
+		def BiggestN(n)
+			return This.NLargestNumbers(n)
+
+		def LargestNNumbers(n)
+			return This.NLargestNumbers(n)
+
+		def LargestN(n)
+			return This.NLargestNumbers(n)
+
+		def NBiggest(n)
+			return This.NLargestNumbers(n)
+
+		#--
+
+		def NGreatestNumbers(n)
+			return This.NLargestNumbers(n)
+
+		def GreatestNNumbers(n)
+			return This.NLargestNumbers(n)
+
+		def NGreatest(n)
+			return This.NLargestNumbers(n)
+
+		def GreatestN(n)
+			return This.NLargestNumbers(n)
+
+		#==
+
+		def NTopNumbers(n)
+			return This.NLargestNumbers(n)
+
+		def TopNNumbers(n)
+			return This.NLargestNumbers(n)
+
+		def NTop(n)
+			return This.NLargestNumbers(n)
+
+		def TopN(n)
+			return This.NLargestNumbers(n)
+
+		#>
+
+	def FindNLargestNumbers(n)
+		anNumbers = This.NLargestNumbers(n)
+		anResult  = This.FindMany(anNumbers)
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindMaxNNumbers(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindNMaxNumbers(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindNMax(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindMaxN(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindNBiggestNumbers(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindBiggestNNumbers(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindBiggestN(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindLargestNNumbers(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindLargestN(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindNBiggest(n)
+			return This.FindNLargestNumbers(n)
+
+		#--
+
+		def FindNGreatestNumbers(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindGreatestNNumbers(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindNGreatest(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindGreatestN(n)
+			return This.FindNLargestNumbers(n)
+
+		#==
+
+		def FindNTopNumbers(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindTopNNumbers(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindNTop(n)
+			return This.FindNLargestNumbers(n)
+
+		def FindTopN(n)
+			return This.FindNLargestNumbers(n)
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  GETTING THE LARGEST N NUMBERS ALONG WITH THEIR POSITIONS  #
+	#------------------------------------------------------------#
+
+	def NLargestNumbersZ(n)
+		aResult = Association([ This.NLargestNumbers(n), This.FindNLargestNumbers(n) ])
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def FindMinNumber()
-			return This.FindMin()
+		def MaxNNumbersZ(n)
+			return This.NLargestNumbersZ(n)
 
-		def MinPosition()
-			return This.FindMAx()
+		def NMaxNumbersZ(n)
+			return This.NLargestNumbersZ(n)
 
-		def PositionOfMinNumber()
-			return This.FindMin()
+		def NMaxZ(n)
+			return This.NLargestNumbersZ(n)
 
-		def MinNumberPosition()
-			return This.FindMin()
+		def MaxNZ(n)
+			return This.NLargestNumbersZ(n)
 
-		def FindSmallestNumber()
-			return This.FindMin()
+		def NBiggestNumbersZ(n)
+			return This.NLargestNumbersZ(n)
 
-		def FindLowestNumber()
-			return This.FindMin()
+		def BiggestNNumbersZ(n)
+			return This.NLargestNumbersZ(n)
 
-		#>
+		def BiggestNZ(n)
+			return This.NLargestNumbersZ(n)
 
-	def Bottom(n)
-		aResult = This.ToStzList().RemoveDuplicatesQ().SortInDescendingQ().Section(1, n)
+		def LargestNNumbersZ(n)
+			return This.NLargestNumbersZ(n)
 
-		return aResult
+		def LargestNZ(n)
+			return This.NLargestNumbersZ(n)
 
-		def BottomQ(n)
-			return This.BottomQR(n, :stzList)
-	
-		def BottomQR(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Bottom(n) )
-	
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Bottom(n) )
-
-			on :stzListOfStrings
-				return StzListOfNumbersQ(This.Bottom(n)).ToStzListOfStrings()
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		def BottomNumbers(n)
-			return This.Bottom(n)
-	
-			def BottomNumbersQ(n)
-				return This.BottomNumbersQR(n, :stzList)
-	
-			def BottomNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.BottomNumbers(n) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.BottomNumbers(n) )
-	
-				on :stzListOfStrings
-					return StzListOfNumbersQ(This.BottomNumbers(n)).ToStzListOfStrings()
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-	
-		def NBottomNumbers(n)
-			return This.Bottom(n)
-
-			def NBottomNumbersQ(n)
-				return This.NBottomNumbersQR(n, :stzList)
-	
-			def NBottomNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.NBottomNumbers(n) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.NBottomNumbers(n) )
-	
-				on :stzListOfStrings
-					return StzListOfNumbersQ(This.NBottomNumbers(n)).ToStzListOfStrings()
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-
-		def BottomNNumbers(n)
-			return This.Bottom(n)
-
-			def BottomNNumbersQ(n)
-				return This.BottomNNumbersQR(n, :stzList)
-	
-			def BottomNNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.BottomNNumbers(n) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.BottomNNumbers(n) )
-	
-				on :stzListOfStrings
-					return StzListOfNumbersQ(This.BottomNNumbers(n)).ToStzListOfStrings()
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-
-		def MinNumbers(n)
-			return This.Bottom(n)
-	
-			#< @FunctionFluentForm
-	
-			def MinNumbersQ(n)
-				return This.MinNumbersQR(n, :stzList)
-	
-			def MinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.MinNumbers(n) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.MinNumbers(n) )
-	
-				on :stzListOfStrings
-					return StzListOfNumbersQ(This.MinNumbers(n)).ToStzListOfStrings()
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-
-		def MinNNumbers(n)
-			return This.Bottom(n)
-
-			def MinNNumbersQ(n)
-				return This.MinNNumbersQR(n, :stzList)
-	
-			def MinNNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.MinNNumbers(n) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.MinNNumbers(n) )
-	
-				on :stzListOfStrings
-					return StzListOfNumbersQ(This.MinNNumbers(n)).ToStzListOfStrings()
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-
-		def NMinNumbers(n)
-			return This.Bottom(n)
-
-			def NMinNumbersQ(n)
-				return This.NMinNumbersQR(n, :stzList)
-	
-			def NMinNumbersQR(n, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.NMinNumbers(n) )
-	
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.NMinNumbers(n) )
-	
-				on :stzListOfStrings
-					return StzListOfNumbersQ(This.NMinNumbers(n)).ToStzListOfStrings()
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-		#>
-
-	def BottomTenNumbers()
-		return This.Bottom(10)
-
-		def Bottom10Numbers()
-			return This.BottomTenNumbers()
-
-		def BottomTen()
-			return This.BottomTenNumbers()
-
-		def Bottom10()
-			return This.BottomTenNumbers()
-
-	def BottomFiveNumbers()
-		return This.Bottom(5)
-		
-		def Bottom5Numbers()
-			return This.BottomFiveNumbers()
-
-		def BottomFive()
-			return This.BottomFiveNumbers()
-
-		def Bottom5()
-			return This.BottomFiveNumbers()
-
-	def BottomThreeNumbers()
-		return This.Bottom(3)
-
-		def Bottom3Numbers()
-			return This.BottomThreeNumbers()
-
-		def BottomThree()
-			return This.BottomThreeNumbers()
-
-		def Bottom3()
-			return This.BottomThreeNumbers()
-
-	def FindBottom(n)
-		anNumbers = This.Bottom(n)
-		nLen = len(anNumbers)
-
-		aResult = []
-
-		for i = 1 to nLen
-			aResult + This.FindAll(anNumbers[i])
-		next
-
-		aResult = stzListQ(aResult).FlattenQ().SortedInAscending()
-
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def FindMinNumbers(n)
-			return This.FindBottom(n)
-
-		def FindBottomNumbers(n)
-			return This.FindBottom(n)
-
-		def FindBottomNNumbers(n)
-			return This.FindBottom(n)
+		def NBiggestZ(n)
+			return This.NLargestNumbersZ(n)
 
 		#--
 
-		def FindNSmallestNumbers(n)
-			return This.FindBottom(n)
+		def NGreatestNumbersZ(n)
+			return This.NLargestNumbersZ(n)
 
-		def FindSmallestNNumbers(n)
-			return This.FindBottom(n)
+		def GreatestNNumbersZ(n)
+			return This.NLargestNumbersZ(n)
 
-		def FindSmallestN(n)
-			return This.FindBottom(n)
+		def NGreatestZ(n)
+			return This.NLargestNumbersZ(n)
 
-		def FindNLowestNumbers(n)
-			return This.FindBottom(n)
+		def GreatestNZ(n)
+			return This.NLargestNumbersZ(n)
 
-		def FindLowestNNumbers(n)
-			return This.FindBottom(n)
+		#==
 
-		def FindLowestN(n)
-			return This.FindBottom(n)
+		def MaxNNumbersAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
-		#--
+		def NMaxNumbersAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
-		def FindNSmallest(n)
-			return This.FindBottom(n)
+		def NMaxAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
-		def PositionsOfBottom(n)
-			return This.FindBottom(n)
+		def MaxNAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
-		def BottomPositions(n)
-			return This.FindBottom(n)
+		def NBiggestNumbersAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
-		def PositionsOfBottomNumbers(n)
-			return This.FindBottom(n)
+		def BiggestNNumbersAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
-		def BottomNumbersPositions()
-			return This.FindBottom(n)
+		def BiggestNAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
-		def PositionsOfBottomNNumbers(n)
-			return This.FindBottom(n)
+		def LargestNNumbersAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
-		def BottomNNumbersPositions(n)
-			return This.FindBottom(n)
+		def LargestNAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
-		#>
-
-
-	def BottomNumbersAndTheirPositions(n)
-
-		anNumbers = This.Bottom(n)
-		nLen = len(anNumbers)
-
-		aResult = []
-
-		for i = 1 to nLen
-
-			cNumber     = ""+ anNumbers[i]
-			anPos = This.ToStzList().FindAll(anNumbers[i])
-
-			aResult + [ cNumber, anPos ]
-		next
-
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def BottomNNumbersAndTheirPositions(n)
-			return This.BottomNumbersAndTheirPositions(n)
-
-		def MinNumbersAndTheirPositions(n)
-			return This.BottomNumbersAndTheirPositions(n)
+		def NBiggestAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
 		#--
 
-		def BottomNumbersZ(n)
-			return This.BottomNumbersAndTheirPositions(n)
+		def NGreatestNumbersAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
-		def BottomNNumbersZ(n)
-			return This.BottomNumbersAndTheirPositions(n)
+		def GreatestNNumbersAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
-		def MinNumbersZ(n)
-			return This.BottomNumbersAndTheirPositions(n)
+		def NGreatestAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
-		def BottomZ(n)
-			return This.BottomNumbersAndTheirPositions(n)
+		def GreatestNAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
-		def MinZ(n)
-			return This.BottomNumbersAndTheirPositions(n)
+		#==
+
+		def NTopNumbersZ(n)
+			return This.NLargestNumbersZ(n)
+
+		def TopNNumbersZ(n)
+			return This.NLargestNumbersZ(n)
+
+		def NTopZ(n)
+			return This.NLargestNumbersZ(n)
+
+		def TopNZ(n)
+			return This.NLargestNumbersZ(n)
+
+		#--
+
+		def NTopNumbersAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
+
+		def TopNNumbersAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
+
+		def NTopAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
+
+		def TopNAndTheirPositions(n)
+			return This.NLargestNumbersZ(n)
 
 		#>
+
+	#==
+
+	def Max()
+		anContent = This.Content()
+		nResult = ring_reverse( ring_sort( anContent ) )[1]
+		return nResult
+
+		def MaxNumber()
+			return This.Max()
+
+	def MaxZ()
+		return This.TopNZ(1)[1]
+
+		def MaxNumberZ()
+			return This.MaxZ()
+
+		def MaxAndItsPosition()
+			return This.MaxZ()
+
+		def MaxNumberAndItsPosition()
+			return This.MaxZ()
+
+	#--
+
+	def Top3()
+		return This.TopN(3)
+
+	def Top3Numbers()
+		return This.TopN(3)
+
+	def Top5()
+		return This.TopN(5)
+
+	def Top5Numbers()
+		return This.TopN(5)
+
+	def Top7()
+		return This.TopN(7)
+
+	def Top7Numbers()
+		return This.TopN(7)
+
+	def Top10()
+		return This.TopN(10)
+
+	def Top10Numbers()
+		return This.TopN(10)
+
+	#--
+
+	def FindTop3()
+		return This.FindTopN(3)
+
+	def FindTop3Numbers()
+		return This.FindTopN(3)
+
+	def FindTop5()
+		return This.FindTopN(5)
+
+	def FindTop5Numbers()
+		return This.FindTopN(5)
+
+	def FindTop7()
+		return This.FindTopN(7)
+
+	def FindTop7Numbers()
+		return This.FindTopN(7)
+
+	def FindTop10()
+		return This.FindTopN(10)
+
+	def FindTop10Numbers()
+		return This.FindTopN(10)
+
+	#--
+
+	def Top3Z()
+		return This.TopNZ(3)
+
+	def Top3NumbersZ()
+		return This.TopNZ(3)
+
+	def Top5Z()
+		return This.TopNZ(5)
+
+	def Top5NumbersZ()
+		return This.TopNZ(5)
+
+	def Top7Z()
+		return This.TopNZ(7)
+
+	def Top7NumbersZ()
+		return This.TopNZ(7)
+
+	def Top10Z()
+		return This.TopNZ(10)
+
+	def Top10NumbersZ()
+		return This.TopNZ(10)
+
+	def Top3AndTheirPositions()
+		return This.TopNZ(3)
+
+	def Top3NumbersAndTheirPositions()
+		return This.TopNZ(3)
+
+	def Top5AndTheirPositions()
+		return This.TopNZ(5)
+
+	def Top5NumbersAndTheirPositions()
+		return This.TopNZ(5)
+
+	def Top7AndTheirPositions()
+		return This.TopNZ(7)
+
+	def Top7NumbersAndTheirPositions()
+		return This.TopNZ(7)
+
+	def Top10AndTheirPositions()
+		return This.TopNZ(10)
+
+	def Top10NumbersAndTheirPositions()
+		return This.TopNZ(10)
 
 	  #==========================================================================#
 	 #  NEAREST NUMBER IN THE LIST TO A GIVEN NUMBER COMING BEFORE OR AFTER IT  #

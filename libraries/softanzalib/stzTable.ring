@@ -10845,17 +10845,30 @@ Class stzTable from stzObject
 	def Sort(pCol)
 		This.SortInAscending(pCol)
 
+		#< @FluentForm
+
 		def SortQ(pCol)
 			This.Sort(pCol)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def SortBy(pCol)
 			This.Sort(pCol)
 
 			def SortByQ(pCol)
-				This.SortBy(pCol)
-				return This
-	
+				return This.SortQ(pCol)
+
+		def SortUp(pCol)
+			This.Sort(pCol)
+
+			def SortUpQ(pCol)
+				return This.SortQ(pCol)
+
+		#>
+
 	def Sorted(pCol)
 		aResult = This.Copy().SortInAscendingQ().Content()
 		return aResult

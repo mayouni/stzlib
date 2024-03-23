@@ -146,7 +146,7 @@ func Association(paLists)
 	# Unifiying the sizes of all the lists
 
 	nMax = Max(anLen)
-	
+
 	for i = 1 to nLen
 
 		if anLen[i] < nMax
@@ -1842,6 +1842,95 @@ class stzListOfLists from stzList
 
 	def Indexed()
 		return This.Index()
+
+	  #--------------------#
+	 #   INDEXING -- XT   #
+	#--------------------#
+
+	def IndexCSXT(pCaseSensitive)
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT @IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be TRUE or FALSE.")
+		ok
+
+		aLists = @aContent
+
+		if pCaseSensitive = FALSE
+			aLists = This.Lowercased()
+		ok
+
+		nLenLists = len(aLists)
+
+		# Early cheks
+
+		if nLenLists = 0
+			return []
+		ok
+
+		# Doing the job
+
+		aItems = This.FlattenedQ().WithoutDuplicationCS(pCaseSensitive)
+		nLenItems = len(aItems)
+
+		aResult = []
+	
+		for i = 1 to nLenItems
+			aPos = []
+
+			for j = 1 to nLenLists
+				nLen = len(aLists[j])
+				for w = 1 to nLen
+					if ring_type(aLists[j][w]) = ring_type(aItems[i]) and
+					   aLists[j][w] = aItems[i]
+
+						aPos + [ j, w ]
+					ok
+				next
+			next
+
+			aResult + [ aItems[i], aPos ]
+
+		next
+
+		return aResult
+
+		def IndexCSXTQ()
+			return This.IndexCSXTQR(:stzList, pCaseSensitive)
+
+		def IndexCSXTQR(pcReturnType, pCaseSensitive)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.IndexCSXT(pCaseSensitive) )
+
+			on :stzHashList
+				return new stzHashList( This.IndexCSXT(pCaseSensitive) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.IndexCSXT(pCaseSensitive) )
+
+			other
+				StzRaise("Insupported return type!")
+			off
+
+	def IndexedCSXT(pCaseSensitive)
+		return This.IndexCSXT(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IndexXT()
+		return This.IndexCSXT(TRUE)
+
+		def IndexXTQ()
+			return This.IndexXTQR(:stzList)
+
+		def IndexXTQR(pcReturnType)
+			return This.IndexCSXTQR(pcReturnType, TRUE)
+
+	def IndexedXT()
+		return This.IndexXT()
 
 	  #------------#
 	 #   ENTRY    #

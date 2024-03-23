@@ -8378,7 +8378,7 @@ class stzListOfStrings from stzList
 			on :stzList
 				return new stzList( This.StringItemsContainingNTimesTheSubstringCSXT(n, pcSubstr, pCaseSensitive) )
 
-			on :stzHashlList
+			on :stzHashList
 				return new stzHashList( This.StringItemsContainingNTimesTheSubstringCSXT(n, pcSubstr, pCaseSensitive) )
 
 			other

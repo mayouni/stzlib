@@ -1,5 +1,48 @@
 load "stzlib.ring"
 
+pron()
+
+? Min([ 2, 4 ])
+#--> 2
+
+? Max([ 2, 4 ])
+#--> 4
+
+proff()
+# Executed in 0.02 second(s)
+
+/*------
+
+pron()
+
+? @@( Association([ [1,2,3] , [1,3,8] ]) )
+#--> [ [ 1, 1 ], [ 2, 3 ], [ 3, 8 ] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------
+*/
+pron()
+
+o1 = new stzListOfNumbers([ 2, 7, 3, 10, 5, 4, 9, 1, 6, 8 ])
+
+? o1.NSmallestNumbers(3) # Or Bottom3()
+#--> [ 1, 2, 3 ]
+
+? @@( o1.Bottom3Z() ) # Or Bottom3AndTheirPositions()
+
+# [ [ 1, 1 ], [ 2, 3 ], [ 3, 8 ] ]
+
+? o1.NLargestNumbers(3)
+#--> [ 8, 9, 10 ]
+
+? @@( o1.Top3Z() )
+# [ [ 8, 4 ], [ 9, 7 ], [ 10, 10 ] ]
+
+proff()
+# Executed in 0.06 second(s)
+
 /*---------------
 
 pron()

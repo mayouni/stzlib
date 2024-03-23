@@ -4683,6 +4683,10 @@ class stzString from stzObject
 
 	def SubStringsW(pcCondition)
 		if CheckParams()
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+	
 			if NOT isString(pcCondition)
 				StzRaise("Incorrect param type! pcCondition must be a string.")
 			ok
@@ -4710,6 +4714,10 @@ class stzString from stzObject
 
 	def SubStringsWZ(pcCondition)
 		if CheckParams()
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+	
 			if NOT isString(pcCondition)
 				StzRaise("Incorrect param type! pcCondition must be a string.")
 			ok
@@ -4737,6 +4745,10 @@ class stzString from stzObject
 
 	def SubStringsWZZ(pcCondition)
 		if CheckParams()
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+	
 			if NOT isString(pcCondition)
 				StzRaise("Incorrect param type! pcCondition must be a string.")
 			ok
@@ -6399,11 +6411,21 @@ class stzString from stzObject
 				This.SortMarquers()
 				return This
 
+		def SortMarquersUp()
+			This.SortMarquersInAscending()
+
+			def SortMarquersUpQ()
+				This.SortMarquers()
+				return This
+
 	def StringWithMaquersSortedInAscending()
 		cResult = This.Copy().SortMarquersInAscendingQ().Content()
 		return cResult
 
 		def StringWithMarquersSorted()
+			return This.StringWithMaquersSortedInAscending()
+
+		def StringWithMarquersSortedUp()
 			return This.StringWithMaquersSortedInAscending()
 
 	def SortMarquersInDescending()
@@ -6442,9 +6464,19 @@ class stzString from stzObject
 			This.SortMarquersInDescending()
 			return This
 
+		def SortDownMarquers()
+			This.SortMarquersInDescending()
+	
+			def SortDownMarquersQ()
+				This.SortDownMarquers()
+				return This
+
 	def StringWithMaquersSortedInDescending()
 		cResult = This.Copy().SortMarquersInDescendingQ().Content()
 		return cResult
+
+		def StringWithMaquersSortedDown()
+			return This.StringWithMaquersSortedInDescending()
 
 	  #--------------------------------------------#
 	 #  REPLACING MARQUERS WITH GIVEN SUBSTRINGS  #
@@ -44289,6 +44321,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#----------------------------------------#
 
 	def SplitBeforeW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pccondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -44337,6 +44373,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#---------------------------------------#
 
 	def SplitAfterW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -46167,6 +46207,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#--------------------------------------------#
 
 	def FindSplitsBeforeW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -46200,6 +46244,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#-------------------------------------------#
 
 	def FindSplitsAfterW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -48499,6 +48547,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		if CheckParams()
 
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+	
 			if NOT isString(pcCondition)
 				StzRaise("Incorrect param type! pcCondition must be a string.")
 			ok
@@ -48552,6 +48604,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		if CheckParams()
 
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+	
 			if NOT isString(pcCondition)
 				StzRaise("Incorrect param type! pcCondition must be a string.")
 			ok
@@ -50268,6 +50324,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#-----------------------------------------------#
 
 	def FindNthSplitBeforeW(n, pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -50301,6 +50361,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#----------------------------------------------#
 
 	def FindNthSplitAfterW(n, pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -51897,6 +51961,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#--------------------------------------------------------------#
 
 	def FindNthSplitBeforeWZZ(n, pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -51930,6 +51998,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#------------------------------------------------------------#
 
 	def FindNthSplitAfterWZZ(n, pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -53572,6 +53644,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#------------------------------------------------#
 
 	def FindLastSplitBeforeW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -53605,6 +53681,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#-----------------------------------------------#
 
 	def FindLastSplitAfterW(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -55201,6 +55281,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#---------------------------------------------------------------#
 
 	def FindLastSplitBeforeWZZ(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -55234,6 +55318,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#-------------------------------------------------------------#
 
 	def FindLastSplitAfterWZZ(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -55360,7 +55448,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		@char = This.FirstChar()
 		@i = 1
-? ccode + NL
+
 		eval(cCode)
 		cPrevious = cPartionner
 
@@ -55464,7 +55552,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		return aResult
 
 		def PartsAsSectionsQ(pcPractionner)
-			return PartsAsSectionsQ(pcPractionner, :stzList)
+			return PartsAsSectionsQR(pcPractionner, :stzList)
 
 		def PartsAsSectionsQR(pcPartionner, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnTyp).IsUsingNamedParam()
@@ -55480,31 +55568,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 			on :stzHashList@C
 				return new stzHashList( This.PartsAsSectionsSF(pcPartionner) )
-
-			other
-				stzRaise("Unsupported return type!")
-			off
-
-	def PartsAsSectionsClassified(pcPartionner)
-		oPartsAsSections = This.PartsAsSectionsQ(:stzHashlList)
-		aResult = oPartsAsSections.Classify(pcPartionner)
-
-		return aResult
-
-		def PartsAsSectionsClassifiedQ(pcPractionner)
-			return PartsAsSectionsClassifiedQR(pcPractionner, :stzList)
-
-		def PartsAsSectionsClassifiedQR(pcPartionner, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnTyp).IsUsingNamedParam()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.PartsAsSectionsClassified(pcPartionner) )
-
-			on :stzHashList
-				return new stzHashList( This.PartsAsSectionsClassified(pcPartionner) )
 
 			other
 				stzRaise("Unsupported return type!")
@@ -55610,6 +55673,18 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		def Classify(pcClassifier)
 			return This.PartsClassified(pcClassifier)
+
+		#--
+
+		def PartsClassifiedBy(pcClassifier)
+			return This.PartsClassified(pcClassifier)
+
+		def ClassifiedBy(pcClassifier)
+			return This.PartsClassified(pcClassifier)
+
+		def ClassifyBy(pcClassifier)
+			return This.PartsClassified(pcClassifier)
+
 
 	  #-------------------------------------------------------------#
 	 #  GETTINING THE PARTS OF STRING VERIFYING A GIVEN CONDITION  #TODO
@@ -55793,12 +55868,23 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionAlternativeForms
 
+		def SortCharsUp()
+			This.SortCharsInAscending()
+
+			def SortCharsUpQ()
+				return This.SortCharsInAscendingQ()
+
 		def SortInAscending()
 			This.SortCharsInAscending()
 
 			def SortInAscendingQ()
-				This.SortInAscending()
-				return This
+				return This.SortCharsInAscendingQ()
+
+		def SortUp()
+			This.SortCharsInAscending()
+
+			def SortUpQ()
+				return This.SortCharsInAscendingQ()
 
 		def SortChars()
 			This.SortCharsInAscending()
@@ -55820,6 +55906,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		cResult = This.Copy().SortCharsInAscendingQ().Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def SortedInAscending()
 			return This.StringWithCharsSortedInAscending()
 
@@ -55831,6 +55919,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		def CharsSortedInAscending()
 			return This.SortedInAscending()
+
+		#--
+
+		def StringWithCharsSortedUp()
+			return This.StringWithCharsSortedInAscending()
+
+		#>
 
 	  #-------------------------------------------------#
 	 #  SORTING THE CHARS OF THE STRING IN DESCENDING  #
@@ -55861,13 +55956,23 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionAlternativeForms
 
+		def SortCharsDown()
+			This.SortCharsInDescending()
+
+			def SortCharsDownQ()
+				return This.SortCharsInDescendingQ()
+
 		def SortInDescending()
 			This.SortCharsInDescending()
 
 			def SortInDescendingQ()
-				This.SortInDescending()
-				return This
+				return This.SortCharsInDescendingQ()
 
+		def SortDown()
+			This.SortCharsInDescending()
+
+			def SortDownQ()
+				return This.SortCharsInDescendingQ()
 		#>
 
 	#--
@@ -55876,13 +55981,24 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		cResult = This.Copy().SortInDescendingQ().Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
+		def StringWithCharsSortedDown()
+			return This.StringWithCharsSortedInDescending()
+
 		def SortedInDescending()
-			cResult = This.StringWithCharsSortedInDescending()
-			return cResult
+			return This.StringWithCharsSortedInDescending()
+
+		def SortedDown()
+			return This.StringWithCharsSortedInDescending()
 
 		def CharsSortedInDescending()
-			cResult = This.StringWithCharsSortedInDescending()
-			return cResult
+			return This.StringWithCharsSortedInDescending()
+
+		def CharsSortedDown()
+			return This.StringWithCharsSortedInDescending()
+
+		#>
 
 	  #====================================================#
 	 #  COMPARING THE STRING TO AN OTHER PROVIDED STRING  #
@@ -63313,6 +63429,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	def ExtractW(pcCondition)
 		if CheckParams()
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+	
 			if NOT isString(pcCondition)
 				SteRaise("Incorrect param type! pcCondition must be a string.")
 			ok
