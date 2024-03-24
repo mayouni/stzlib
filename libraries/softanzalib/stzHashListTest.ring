@@ -440,7 +440,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzHashList([
@@ -545,7 +545,7 @@ proff()
 # Executed in 0.88 second(s)
 
 /*----------------
-
+*/
 pron()
 
 o1 = new stzHashList([
@@ -554,10 +554,14 @@ o1 = new stzHashList([
 	:three 	= :white
 ])
 
-o1.PerformOnKeys(' { @key += @i }')
+o1.PerformOnKeys('{ @key += @i }')
 ? o1.Keys() #--> [ :on1, :two2, :three3 ]
 
+o1.PerformOnValues('{ @value = @i }')
+? o1.Values()
+
 proff()
+# Executed in 0.09 second(s)
 
 /*----------------
 
