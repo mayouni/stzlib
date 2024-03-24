@@ -323,11 +323,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return bResult
 
 	def ValuesAndKeys()
+		aValues = This.Values()
+		nLen = len(aValues)
+
 		aResult = []
 
-		i = 0
-		for value in This.Values()
-			i++
+		fori = 1 to nLen
 			aResult + [ value, This.NthKey(i) ]
 		next
 
@@ -348,7 +349,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 				StzRaise("Can't update a key with the value of an existant key!")
 
 			else
-				This.ReplaceNthKey(@i, :With = @key)
+				This.ReplaceNthKey(@i, @key)
 			ok
 		next
 
@@ -366,8 +367,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		for @i = 1 to This.NumberOfPairs()
 			@value = This.NthValue(@i)
-			eval(pcCode)
-			This.ReplaceNthValue(@i, :With = @value)
+
+			eval(cCode)
+			This.ReplaceNthValue(@i, @value)
 		next
 
 		def PerformOnValuesQ(pcCode)
@@ -786,9 +788,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 		next
 	
 	def UpdateValue(pValue, pNewValue)
-		aTemp = This.FindValue(pValue)
-		for n in aTemp
-			This.UpdateNthValue(n, pNewValue)
+		anPos = This.FindValue(pValue)
+		nLen = len(anPos)
+
+		for i to nLen
+			This.UpdateNthValue(anPos[i], pNewValue)
 		next
 	
 	def UpdateFirstOccurrenceOfValue(pValue, pNewValue)
@@ -802,13 +806,22 @@ class stzHashList from stzList # Also called stzAssociativeList
 		This.UpdateNthValue(n, pValue, pNewValue)
 
 	def UpdateAllPairsWith(paPair)
-		if isList(paPair) and @IsPairAndKeyIsString(paPair)
-			for aPair in This.Content()
-				aPair = paPair
-			next
-		else
-			StzRaise("Syntax error! The value you provided is not a string key pair.")
+		if CheckParams()
+			if not isList(paPair)
+				StzRaise("Incorrect param type! paPair must be a list.")
+			ok
+
+			if Not @IsPairAndKeyIsString(paPair)
+				StzRaise("Incorrect param type! paPair must be a pair and its first item must be a string.")
+			ok
 		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		for i = 1 to nLen
+			aContent[i] = paPair
+		next
 
 	  #-----------------------------#
 	 #  REVERSING KEYS AND VALUES  #
@@ -901,8 +914,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 				return This
 
 	def RemovePairsByKeys(pacKeys)
-		for pcKey in pacKeys
-			This.RemovePairByKey(pcKey)
+		if CheckParams()
+			if NOT (isList(pacKeys) and @IsListOStrings(pacKeys))
+				StzRaise("Incorrect param type! pacKeys must be a list of strings.")
+			ok
+		ok
+
+		nLen = len(pacKeys)
+
+		for i = 1 to nLen
+			This.RemovePairByKey(pacKeys[i])
 		next
 
 	def RemovePairsByValue(pValue)
@@ -916,8 +937,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This
 
 	def RemovePairsByValues(paValues)
-		for value in paValues
-			This.RemovePairsByValue(value)
+		if CheckParams()
+			if NOT isList(paValues)
+				StzRaise("Incorrect param type! paValues must be a list.")
+			ok
+		ok
+
+		nLen = len(paValues)
+
+		for i = 1 to nLen
+			This.RemovePairsByValue(paValues[i])
 		next
 
 	  #--------------------#
@@ -941,9 +970,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def ReplaceValue(pValue, pNewValue)
 		anPos = This.FindAllOccurrencesOfValue(pValue)
-
-		for n in anPos
-			This.HashList()[n][2] = pNewValue
+		nLen = len(anPos)
+		for i = 1 to nLen
+			This.HashList()[anPos[i]][2] = pNewValue
 		next
 
 		def ReplaceValueQ(pValue, pNewValue)
@@ -1058,22 +1087,30 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#-----------------#
 
 	def FindPair(paPair)
-		if isList(paPair) and @IsPairAndKeyIsString(paPair)
-			nResult = 0
-			n = 0
-			for aPair in Content()
-				n++
-				if Q(aPair[1]).IsEqualTo(paPair[1]) and
-				   Q(aPair[2]).IsEqualTo(paPair[2])
-
-					nResult = n
-					exit
-				ok	
-			next
-			return nResult
-		else
-			StzRaise("Can't search the list." + NL + "Because paPair is not a pair!")
+		if NOT isList(paPair)
+			StzRaise("Incorrect param type! paPair must be a list.")
 		ok
+
+		if NOT @IsPairAndKeyIsString(paPair)
+			StzRaise("Can't search the list." + NL + "Because paPair is not a pair!")
+		ok 
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		nResult = 0
+
+		for i = 1 to nLen
+			aPair = aContent[i]
+			if Q(aPair[1]).IsEqualTo(paPair[1]) and
+			   Q(aPair[2]).IsEqualTo(paPair[2])
+
+				nResult = i
+				exit
+			ok	
+		next
+		return nResult
+
 
 	def ContainsPair(paPair)
 		if FindPair(paPair) > 0
@@ -2389,10 +2426,14 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindKeysByItem(pItem)
 		anPos = This.FindItemInList(pItem)
+		nLen = len(anPos)
+
 		anResult = []
-		for n in anPos
-			anResult + n
+
+		for i = 1 to nLen
+			anResult + anPos[i]
 		next
+
 		return anResult
 
 		def FindKeysByItemInList(pItem)
@@ -2467,10 +2508,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def KeysByItemInList(pValue)
 		anPos = This.FindKeysByItemInList()
+		nLen = len(anPos)
+
 		aResult = []
 
-		for n in anPos
-			aResult + This.Key(n)
+		for i = 1 to nLen
+			aResult + This.Key(anPos[i])
 		next
 
 		return aResult
