@@ -3616,11 +3616,12 @@ proff()
 
 /*==================
 */
+
 pron()
 
 o1 = new stzString("TUNIS gafsa NABEUL beja")
 
-? @@( o1.Parts(:Using = 'Q(@char).CharCase()' ) ) + NL
+//? @@( o1.Parts(:Using = 'Q(@char).CharCase()' ) ) + NL
 #--> [ [ "TUNIS", "uppercase" ], [ " gafsa ", "lowercase" ], [ "NABEUL", "uppercase" ], [ " beja", "lowercase" ] ]
 
 ? @@( o1.PartsClassified('Q(@char).CharCase()') )
@@ -3629,8 +3630,8 @@ o1 = new stzString("TUNIS gafsa NABEUL beja")
 #	[ "lowercase", [ " gafsa ", " beja" ] ]
 # ]
 
-
 proff()
+# Executed in 0.80 second(s)
 
 /*------------
 pron()

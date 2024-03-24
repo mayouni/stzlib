@@ -4,6 +4,21 @@ load "stzlib.ring"
 
 pron()
 
+o1 = new stzListOfPairs([
+	[ "name", "foued" ], [ "lastname", "kamel" ], [ "job", "manufacturer" ]
+])
+
+o1.ToStzHashList().Show()
+#--> 'name': [ "foued" ]
+#    'lastname': [ "kamel" ]
+#    'job': [ "manufacturer" ]
+
+proff()
+
+/*-------
+
+pron()
+
 o1 = new stzListOfPairs([ [1.0, 2.0], [16.0, 17.34], [23.0, 25], [8.20, 10.0] ])
 
 ? @@( o1.SortedInAscending() ) + NL
@@ -29,8 +44,8 @@ o1 = new stzListOfPairs([ [1,2], [8, 10], [16, 17], [23, 25] ])
 proff()
 # Executed in 0.20 second(s)
 
-/*------------
-*/
+/*------------ TODO: check it!
+
 pron()
 
 o1 = new stzListOfPairs([ ["01","02"], ["16", "17"], ["23", "25"], ["08", "10"] ])
@@ -84,8 +99,8 @@ o1 = new stzListOfPairs([
 proff()
 # Executed in 0.05 second(s)
 
-/*-----------
-*/
+/*----------- #TODO: check it!
+
 pron()
 
 o1 = new stzListOfPairs([
@@ -246,25 +261,40 @@ o1 = new stzListOfPairs([
 ? @@( o1.YieldW('[ This[@i][2], This[@i+1][1] ]',
 		:Where = 'This[@i][2] = This[@i+1][1]-1') )
 
-/*
-o1.MergeContiguous()
-? o1.Content()
-#--> [ [1, 4], [6, 10], [12, 15] ]
-
 StopProfiler()
 
+/*----
+
+pron()
+
+o1 = new stzListOfPairs([
+	[ 1, 4], [6, 8], [9, 10], [12, 13], [13, 15]
+])
+
+o1.MergeContiguous() # Or MergeAdjuscent()
+? @@( o1.Content() )
+#--> [ [1, 4], [6, 10], [12, 15] ]
+
+proff()
+# Executed in 0.03 second(s)
+
 /*-----------------
+
+pron()
 
 o1 = new stzListOfPairs([ [ 9, 10 ], [ 1, 2 ], [ 6, 6 ] ])
 o1.SortInAscending()
 ? @@( o1.Content() )
 #--> [ [ 1, 2 ], [ 6, 6 ], [ 9, 10 ] ]
 
+proff()
+
 /*-----------------
 
 StartProfiler()
 
 ? Q([ [ 18, 22 ], [ 8, 12], [ 3, 5] ]).IsListOfPairs()
+#-->  tRUE
 
 StopProfiler()
 # Executed in 0.01 second(s)
@@ -280,6 +310,8 @@ o1 = new stzListOfPairs([ [ 18, 22 ], [ 8, 12], [ 3, 5] ])
 StopProfiler()
 
 /*-----------------
+*/
+pron()
 
 o1 = new stzListOfPairs([
 	1:2, 1:2, [9,9], 1:2, 1:2, [9,9], 1:2, 1:2, [9,9]
@@ -309,6 +341,8 @@ o1 = new stzListOfPairs([
 
 ? o1.LastNOccurrencesXT(2, :Of = [9,9], :StartingAt = 10)
 #--> [6, 9]
+
+proff()
 
 /*------
 

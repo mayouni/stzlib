@@ -24710,7 +24710,7 @@ class stzList from stzObject
 	  #=====================================#
 	 #    CLASSIFYING (OR CATEGORIZING)    #
 	#=====================================#
-
+	
 	def AllItemsAreContiguousLists()
 		bResult = TRUE
 

@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*-------------------- #TODO: Check output error
-
+*/
 pron()
 
 StzTableQ([
