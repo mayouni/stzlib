@@ -104,12 +104,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 				--> Check it and if so, remove this comment!
 				*/
 
-/*				# Lowercasing all the keys of the hashlist
+				# Lowercasing all the keys of the hashlist
 				nLen = len(p)
 				for i = 1 to nLen
 					p[i][1] = StzStringQ(p[i][1]).Lowercased()
 				next
-*/
+
 				@aContent = p
 
 			else
@@ -4809,6 +4809,8 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#==============#
 
 	def Show()
+		This.ToStzTable().Show()
+/*
 		cStr = ""
 		for i = 1 to This.NumberOfPairs()
 			cStr += "'" + This.NthKey(i) + "'" + ": " + @@(This.NthValue(i))
@@ -4817,7 +4819,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		next
 		? cStr
-
+*/
 		#< @FuntionMisspelledForm
 
 		def Shwo()
@@ -4880,3 +4882,21 @@ this: lefttoright
 			ok
 
 		ok
+
+	  #---------------------------------------------#
+	 #  TRANSFORMING THE HASHLIST INTO A STZTABLE  #
+	#---------------------------------------------#
+
+	def ToStzTable()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aTable = aContent
+
+		for i = 1 to nLen
+
+
+		next
+
+		oResult = new stzTable(aTable)
+		return oResult

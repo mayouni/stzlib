@@ -1,5 +1,22 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzHashList([
+	:name = 	[ "foued", "karima", "wissal" ],
+	:prename = 	[ "kamel", "ayouni", "salhi"  ],
+	:job = 		[ "tutor", "coach",  "tutor"  ]
+])
+
+o1.ToStzTable().Shwo()
+#-->   NAME   PRENAME     JOB
+#      ----- --------- ----
+#       foued     kamel   tutor
+#      karima    ayouni   coach
+#      wissal     salhi   tutor
+
+proff()
+
 /*--------------
 
 pron()

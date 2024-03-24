@@ -16,11 +16,24 @@ func RangeToSection(paRange)
 	ok
 
 func RangesToSections(panRanges)
+	#TODO:
+	# Replace for/in by for
+
+	#UPDATE
+	# Done!
+
+	if CheckParams()
+		if not isList(panRanges)
+			StzRaise("Incorrect param type! panRanges must be a list.")
+		ok
+	ok
+
 	anSections = []
-	#TODO: Replace for/in by for
-	for anRange in panRanges
-		anSections + RangeToSection(anRange)
+
+	for i = 1 to nLen
+		anSections + RangeToSection(panRanges[i])
 	next
+
 	return anSections
 
 func SectionToRange(panSection)
@@ -35,12 +48,25 @@ func SectionToRange(panSection)
 	ok
 
 func SectionsToRanges(paSections)
-	anRanges = []
-	#TODO: Replace for/in by for
-	for anSection in paSections
-		anRanges + SectionToRange(anSection)
+	#TODO:
+	# Replace for/in by for
+
+	#UPDATE
+	# Done!
+
+	if CheckParams()
+		if not isList(panRanges)
+			StzRaise("Incorrect param type! panRanges must be a list.")
+		ok
+	ok
+
+	anSections = []
+
+	for i = 1 to nLen
+		anSections + SectionToRange(panRanges[i])
 	next
-	return anRanges
+
+	return anSections
 
 func ListThatHasMoreNumberOfItems(paList1, paList2)
 	oList1 = new stzList(aList1)
@@ -158,9 +184,13 @@ class stzListOfPairs from stzListOfLists
 	#---------------------------------------------#
 
 	def PairsAreMadeOfEqualItems()
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		bResult = TRUE
-		for aPair in Content()
-			if Q(aPair[1]).IsEqualTo(aPair[2])
+
+		for i = 1 to nLen
+			if Q(aContent[i][1]).IsEqualTo(aContent[i][2])
 				bResult = FALSE
 			ok
 		next
@@ -168,13 +198,15 @@ class stzListOfPairs from stzListOfLists
 
 	  #----------------------------#
 	 #  FIRST ITEMS OF EACH PAIR  #
-	#----------------------------#
+	#============================#
 
 	def FirstItems()
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		aResult = []
 
-		for aPair in This.ListOfPairs()
+		for i = 1 to nLen
 			aResult + aPair[1]
 		next
 
@@ -227,16 +259,76 @@ class stzListOfPairs from stzListOfLists
 
 		#>
 
+	  #----------------------------------------------------#
+	 #  FIRST ITEMS OF EACH PAIR -- WITHOUT DUPPLICATION  #
+	#----------------------------------------------------#
+
+	def FirstItemsU()
+		aResult = This.FirstItemsQ().WithoutDuplication()
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def FirstItemsUQ()
+			return This.FirstItemsUQR(:stzList)
+
+		def FirstItemsUQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.FirstItemsU() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.FirstItemsU() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.FirstItemsU() )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.FirstItemsU() )
+
+			on :stzListOfPairs
+				return new stzListOfNumbers( This.FirstItemsU() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def FirstItemsOfEachPairU()
+			return This.FirstItemsU()
+
+		def FirstItemsInEachPairU()
+			return This.FirstItemsU()
+
+		def FirstValuesU()
+			return This.FirstItemsU()
+
+		def FirstValuesOfEachPairU()
+			return This.FirstItemsU()
+
+		def FirstValuesInEachPairU()
+			return This.FirstItemsU()
+
+		#TODO
+		# add ...WithoutDupplication() and Unique... alternatives
+
+		#>
+
 	  #-----------------------------#
 	 #  SECOND ITEMS OF EACH PAIR  #
-	#-----------------------------#
+	#=============================#
 
 	def SecondItems()
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		aResult = []
 
-		for aPair in This.ListOfPairs()
-			aResult + aPair[2]
+		for i = 1 to nLen
+			aResult + aContent[i][2]
 		next
 
 		return aResult
@@ -288,9 +380,66 @@ class stzListOfPairs from stzListOfLists
 
 		#>
 
+	  #-----------------------------------------------------#
+	 #  SECOND ITEMS OF EACH PAIR -- WITHOUT DUPPLICATION  #
+	#-----------------------------------------------------#
+
+	def SecondItemsU()
+		aResult = This.SecondItemsQ().WithoutDuplication()
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def SecondItemsUQ()
+			return This.SecondItemsUQR(:stzList)
+
+		def SecondItemsUQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SecondItemsU() )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.SecondItemsU() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SecondItemsU() )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.SecondItemsU() )
+
+			on :stzListOfPairs
+				return new stzListOfNumbers( This.SecondItemsU() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SecondItemsOfEachPairU()
+			return This.SecondItemsU()
+
+		def SecondItemsInEachPairU()
+			return This.SecondItemsU()
+
+		def SecondValuesU()
+			return This.SecondItemsU()
+
+		def SecondValuesOfEachPairU()
+			return This.SecondItemsU()
+
+		def SecondValuesInEachPairU()
+			return This.SecondItemsU()
+
+		#TODO
+		# add ...WithoutDupplication() and Unique... alternatives
+
+		#>
 	  #--------------------#
 	 #  REPLACING A PAIR  #
-	#--------------------#
+	#====================#
 
 	def ReplacePair(n, paNewPair)
 		if isList(paNewPair) and Q(paNewPair).IsPair()
@@ -574,10 +723,13 @@ class stzListOfPairs from stzListOfLists
 	#==================================================================#
 
 	def ExpandedIfPairsOfNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		aResult = []
 
-		for aPair in This.ListOfPairs()
-			if isNumber(aPair[1]) and isNumber(aPair[2])
+		for i = 1 to nLen
+			if isNumber(aContent[i][1]) and isNumber(aContent[i][2])
 				aResult + StzListQ(aPair).ExpandedIfPairOfNumbers()
 			ok
 		next
@@ -610,114 +762,150 @@ class stzListOfPairs from stzListOfLists
 	  #-------------------------------------------------#
 	 #   SWAPPING THE ITEMS IN THE PAIRS OF THE LIST   #
 	#-------------------------------------------------#
-		
-	def Swap()
-		aResult = Association([ This.SecondItems(), This.FirstItems() ])
-		This.UpdateWith(aResult)
 
-		def SwapQ()
-			This.Swap()
-			return This
+	def SwapItems()
+		nLen = len(@aContent)
 
-		def SwapItems()
-			This.Swap()
-
-			def SwapItemsQ()
-				This.SwapItems()
-				return This
-
-	def Swapped()
-		aResult = This.ListOfPairs()
-
-		for aPair in aResult
-			temp = aPair[1]
-			aPair[1] = aPair[2]
-			aPair[2] = temp
+		for i = 1 to nLen
+			temp = @aContent[i][1]
+			@aContent[i][1] = @aContent[i][2]
+			@aContent[i][2] = temp
 		next
 
-		return aResult
 
-		def ItemsSwapped()
-			return This.Swapped()
-
-	  #-------------------------------------#
-	 #   REVERSING THE PAIRS OF THE LIST   #
-	#-------------------------------------#
-
-	def ReversePairs()	
-
-		aResult = ring_reverse(This.ListOfPairs())
-
-		This.Update( aResult )
-
-		def ReversePairsQ()
-			This.ReversePairs()
+		#< @FunctionFluentForm
+			
+		def SwapItemsQ()
+			This.SwapItems()
 			return This
 
-			def ReverseQ()
-				return This.ReverseItemsQ()
+		#>
 
-	def ReversedPairs()
-		aResult = This.Copy().ReversePairsQ().Content()
-		return aResult
+		#< @FunctionAlternativeForms
+
+		def ReverseItems()
+			This.SwapItems()
+
+			def ReverseItemsQ()
+				return This.SwapItemsQ()
+
+		def InverseItems()
+			This.SwapItems()
+
+			def InverseItemsQ()
+				return This.SwapItemsQ()
+
+		#>
+
+	def ItemsSwapped()
+		aResult = This.Copy().SwapItemsQ().Content()
+		return aReslult
+
+		def ItemsReversed()
+			return This.ItemsSwapped()
+
+		def ItemsInversed()
+			return This.ItemsSwapped()
+
+	  #------------------------------------#
+	 #   SWAPPING THE PAIRS OF THE LIST   #
+	#------------------------------------#
+
+	def SwapPairs()
+		@aContent[1] = aTemp
+		@aContent[1] = @aContent[2]
+		@aContent[2] = aTemp
+
+		#< @FunctionFluentForm
+
+		def SwapPairsQ()
+			This.SwapPairs()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReversePairs()
+			This.SwapPairs()
+
+			def ReversePairsQ()
+				return This.SwapPairsQ()
+
+		def InversePairs()
+			This.SwapPairs()
+
+			def InversePairsQ()
+				return This.SwapPairsQ()
+
+		#--
+
+		def Swap()
+			This.SwapPairs()
+
+			def SwapQ()
+				return This.SwapPairsQ()
+
+		def Reverse()
+			This.SwapPairs()
+
+			def ReverseQ()
+				return This.SwapPairsQ()
+
+		def Inverse()
+			This.SwapPairs()
+
+			def InverseQ()
+				return This.SwapPairsQ()
+
+		#>
+
+
+	def PairsSwapped()
+		aResult = This.Copy().SwapPairsQ().Content()
+		return aReslult
 
 		#< @FunctionAlternativeForms
 
 		def PairsReversed()
-			return This.ReversedPairs()
+			return This.PairsSwapped()
+
+		def PairsInversed()
+			return This.PairsSwapped()
+
+		#--
+
+		def Swapped()
+			return This.PairsSwapped()
 
 		def Reversed()
-			return This.ReversedPairs()
+			return This.PairsSwapped()
+
+		def Inversed()
+			return This.PairsSwapped()
 
 		#>
-
-	  #--------------------------------------------------#
-	 #   REVERSING ITEMS INSIDE THE PAIRS OF THE LIST   #
-	#--------------------------------------------------#
-
-	def ReverseItemsInPairs()
-		for aPair in This.ListOfPairs()
-			aPair = Q(aPair).Reversed()
-		next
-
-		def ReverseItemsInPairsQ()
-			This.ReverseItemsInPairs()
-			return This
-
-		def ReversePairsContent()
-			This.ReverseItemsInPairs()
-
-			def ReversePairsContentQ()
-				This.ReversePairsContent()
-				return This
-
-	def ItemsInPairsReversed()
-		aResult = This.Copy().ReverseItemsInPairsQ().Content()
-		return aResult
-
-		def PairsContentReversed()
-			return This.ItemsInPairsReversed()
 
 	  #---------------------------------------------------------------#
 	 #   CHECKING IF THE PAIRS ARE SECTIONS AND IF THEY ARE SORTED   #
 	#---------------------------------------------------------------#
+	#--> Each pair is made of numbers
 
 	def IsListOfSections()
 
-		# Each pair is made of numbers
+		aContent = This.Content()
+		nLen = len(aContent)	
 
-		bIsMadeOfNumbers = TRUE
+		bResult = TRUE
 
-		for aPair in This.ListOfPairs()
-			if NOT StzListQ(aPair).IsMadeOfNumbers()
+		for i = 1 to nLen
+			if NOT @IsListOfNumbers(aContent[i])
 				bIsMadeOfNumbers = FALSE
 				exit
 			ok
 		next
 
-		# Returning the result
-
-		return bIsMadeOfNumbers
+		return bResult
 
 	def IsSortedListOfSections()
 
@@ -762,10 +950,13 @@ class stzListOfPairs from stzListOfLists
 	#---------------------------------------------#
 
 	def ContainsInAnyPair(pItem)
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		bResult = FALSE
 		
-		for aPair in This.ListOfPairs()
-			if StzListQ(aPair).Contains(pItem)
+		for i = 1 to nLen
+			if StzListQ(aContent[i]).Contains(pItem)
 				bResult = TRUE
 				exit
 			ok
@@ -778,7 +969,8 @@ class stzListOfPairs from stzListOfLists
 	#------------------------------#
 
 	def MergeContiguous()
-		/* EXAMPLE
+		#EXAMPLE
+		/*
 
 		o1 = new stzListOfPairs([
 			[ 1, 4], [6, 8], [9, 10], [12, 13], [13, 15] ]
@@ -789,29 +981,69 @@ class stzListOfPairs from stzListOfLists
 
 		*/
 
+		#NOTE
+		/* Can be solved qucickly like this
+
 		aResult = YieldW('{ [This[@i][2], This[@i+1][1]] }',
 			:Where = '{ This[@i][2] = This[@i+1][1] + 1 }')
 
 		? aResult
-/*
+
+		But the fellowing implementation is more performant.
+		*/
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		aResult = []
 
-		nLen = This.NumberOfPairs()
 		for i = 1 to nLen - 1
 			aCurrentPair = This.Pair(i)
 			aNextPair = This.Pair(i+1)
 
-			bContinguous = FALSE
-
-			if aCurrenPair[2] = aNextPair[1] or
-			   aCurrenPair[2] = aNextPair[1] - 1
+			if aCurrentPair[2] = aNextPair[1] or
+			   aCurrentPair[2] = aNextPair[1] - 1
 				bContiguous = TRUE
+
+				aResult + [ aCurrentPair[1], aNextPair[2] ]
+				i++
+
+			else
+				bContiguous = FALSE
+				aResult + aCurrentPair
 			ok
 
-		
 		next
-*/
+
+		if bContiguous = FALSE
+			aResult = aContent[nLen]
+		ok
+
+		This.UpdateWith(aResult)
 		
+
+		def MergeContiguousQ()
+			This.MergeContiguous()
+			return This
+
+		def MergeAdjuscent()
+			This.MergeContiguous()
+
+			def MergeAdjuscentQ()
+				return This.MergeContiguousQ()
+
+	def ContiguousPairsMerged()
+		aResult = This.Copy().MergecontiguousQ().Content()
+		return aResult
+
+		def AdjuscentPairsMerged()
+			return This.ContiguousPairsMerged()
+
+		def ContiguousMerged()
+			return This.ContiguousPairsMerged()
+
+		def AdjuscentMerged()
+			return This.ContiguousPairsMerged()
 
 	  #===================================================#
 	 #  CHECKING IF THE TWO VALUES ARE ANOGRAMS STRINGS  #
@@ -1454,3 +1686,18 @@ class stzListOfPairs from stzListOfLists
 	#=====================================================#
 
 	def ToStzHashList()
+		if NOT This.FirstItemsAreAllStrings()
+			StzRais("Can't transform the list of pairs into a stzHashList! First items of the pairs must all be strings.")
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aHash = []
+
+		for i = 1 to nLen
+			aHash + [ aContent[i][1], [ aContent[i][2] ] ]
+		next
+
+		oResult = new stzHashList(aHash)
+		return oResult

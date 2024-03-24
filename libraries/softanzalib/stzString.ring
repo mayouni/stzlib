@@ -55390,7 +55390,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	*/
 
-	def PartsAsSubstrings(pcPartionner)
+	def PartsAsSubstrings(pcPartionner) # Same as Parts(), made to distinguish it from ParsAsSections()
 		/*
 		Examples:
 
@@ -55497,11 +55497,14 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			on :stzList
 				return new stzList( This.PartsAsSubstrings(pcPartionner) )
 
+			on :stzListOfPairs
+				return new stzListOfPairs( This.PartsAsSubstrings(pcPartionner) )
+
 			on :stzHashList
-				return new stzHashList( This.PartsAsSubStrings(pcPartionner) )
+				return This.ToHashList()
 
 			other
-				stzRaise("Unsupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 	
 		#>
@@ -55512,7 +55515,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return This.PartsAsSubstrings(pcPartionner)
 
 			def PartsQ(pcPartionner)
-				return new stzList( This.Parts(pcPartionner) )
+				return This.PartsAsSubStringsQ(pcPartionner)
+
+			def PartsQR(pcPartionner, pcReturnType)
+				return  This.PartsAsSubStringsQR(pcPartionner, pcReturnType)
 
 		#>
 
@@ -55665,8 +55671,21 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			stzRaise("Incorrect param type! pcClassifier must be a string.")
 		ok
 
-		aResult  = This.UniquePartsQR(pcClassifier, :stzListOfPairs).
-				SwapItemsQ().ToStzHashList().Classifiy()
+		oParts = This.PartsQR(pcClassifier, :stzListOfPairs)
+		acClasses = oParts.SecondItemsU()
+		nLenClass = len(acClasses)
+
+		aContent = oParts.Content()
+		nLen = len(aContent)
+
+		aResult = []
+		for i = 1 to nLenClass
+			aResult + [ acClasses[i], [] ]
+		next
+
+		for i = 1 to nLen
+			aResult[ aContent[i][2] ] + aContent[i][1]
+		next
 
 		return aResult
 
