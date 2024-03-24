@@ -328,7 +328,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		aResult = []
 
-		fori = 1 to nLen
+		for i = 1 to nLen
 			aResult + [ value, This.NthKey(i) ]
 		next
 
@@ -791,7 +791,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		anPos = This.FindValue(pValue)
 		nLen = len(anPos)
 
-		for i to nLen
+		for i = 1 to nLen
 			This.UpdateNthValue(anPos[i], pNewValue)
 		next
 	
@@ -949,39 +949,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.RemovePairsByValue(paValues[i])
 		next
 
-	  #--------------------#
-	 #  REPLACING VALUES  #
-	#--------------------#
-
-	def ReplaceValueByKey(pcKey, pNewValue)
-		n = This.FindKey(pckey)
-		This.HashList()[n][2] = pNewValue
-
-		def ReplaceValueByKeyQ(pcKey, pNewValue)
-			This.ReplaceValueByKey(pcKey, pNewValue)
-			return This
-
-		def ReplaceByKey(pcKey, pNewValue)
-			This.ReplaceValueByKey(pcKey, pNewValue)
-
-			def ReplaceByKeyQ(pcKey, pNewValue)
-				This.ReplaceByKey(pcKey, pNewValue)
-				return This
-
-	def ReplaceValue(pValue, pNewValue)
-		anPos = This.FindAllOccurrencesOfValue(pValue)
-		nLen = len(anPos)
-		for i = 1 to nLen
-			This.HashList()[anPos[i]][2] = pNewValue
-		next
-
-		def ReplaceValueQ(pValue, pNewValue)
-			This.ReplaceValue(pValue, pNewValue)
-			return This
-
 	  #------------------#
 	 #  REPLACING KEYS  #
-	#------------------#
+	#==================#
 
 	def ReplaceKey(pcKey, pcNewKey)
 		n = This.FindKey(pcKey)
@@ -1016,9 +986,65 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReplaceLastKey(pcNewKey)
 			return This
 
+	  #--------------------#
+	 #  REPLACING VALUES  #
+	#====================#
+
+	def ReplaceValue(pValue, pNewValue)
+		n = This.FindValue(pValue)
+		This.ReplaceNthValue(n, pNewValue)
+
+		def ReplaceValueQ(pValue, pNewValue)
+			This.ReplaceValue(pValue, pNewValue)
+			return this
+
+	def ReplaceNthValue(n, pNewValue)
+		if isList(pNewValue) and Q(pNewValue).IsWithNamedParam()
+			pNewValue = pNewValue[2]
+		ok
+
+		This.NthPair(n)[2] = pNewValue
+
+		def ReplaceNthValueQ(n, pNewValue)
+			This.ReplaceNthValue(n, pNewValue)
+			return This
+
+	def ReplaceFirstValue(pNewValue)
+		This.ReplaceNthValue(1, pNewValue)
+
+		def ReplaceFirstValueQ(pNewValue)
+			This.ReplaceFirstValue(pNewValue)
+			return This
+
+	def ReplaceLastValue(pNewValue)
+		This.ReplaceNthValue(This.NumberOfValues(), pNewValue)
+
+		def ReplaceLastValueQ(pNewValue)
+			This.ReplaceLastValue(pNewValue)
+			return This
+
+	  #--------------------#
+	 #  REPLACING VALUES  #
+	#--------------------#
+
+	def ReplaceValueByKey(pcKey, pNewValue)
+		n = This.FindKey(pckey)
+		This.HashList()[n][2] = pNewValue
+
+		def ReplaceValueByKeyQ(pcKey, pNewValue)
+			This.ReplaceValueByKey(pcKey, pNewValue)
+			return This
+
+		def ReplaceByKey(pcKey, pNewValue)
+			This.ReplaceValueByKey(pcKey, pNewValue)
+
+			def ReplaceByKeyQ(pcKey, pNewValue)
+				This.ReplaceByKey(pcKey, pNewValue)
+				return This
+
 	  #-------------------#
 	 #  REPLACING PAIRS  #
-	#-------------------#
+	#===================#
 
 	def ReplacePair(paPair, paNewPair)
 		n = This.FindPair(paPair)

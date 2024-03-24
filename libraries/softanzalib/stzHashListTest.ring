@@ -557,7 +557,7 @@ o1 = new stzHashList([
 o1.PerformOnKeys('{ @key += @i }')
 ? o1.Keys() #--> [ :on1, :two2, :three3 ]
 
-o1.PerformOnValues('{ @value = @i }')
+o1.PerformOnValues('{ @value += @i }')
 ? o1.Values()
 
 proff()
