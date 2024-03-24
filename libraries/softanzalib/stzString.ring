@@ -55563,6 +55563,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			on :stzList
 				return new stzList( This.PartsAsSections(pcPartionner) )
 
+			on :stzListOfPairs
+				return new stzListOfPairs( This.PartsAsSections(pcPartionner) )
+
 			on :stzHashList
 				return new stzHashList( This.PartsAsSections(pcPartionner) )
 
@@ -55617,8 +55620,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			on :stzList
 				return new stzList(This.UniqueParts(pcPartionner))
 
-			on :stzListOfStrings
-				return new stzListOfStrings(This.UniqueParts(pcPartionner))
+			on :stzListOfPairs
+				return new stzListOfPairs(This.UniqueParts(pcPartionner))
 
 			other
 				stzRaise("Unsupported return type!")
@@ -55662,9 +55665,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			stzRaise("Incorrect param type! pcClassifier must be a string.")
 		ok
 
-		aResult = This.UniquePartsQ(pcClassifier).
-				ToStzHashList().
-				Classify()
+		aResult  = This.UniquePartsQR(pcClassifier, :stzListOfPairs).
+				SwapItemsQ().ToStzHashList().Classifiy()
 
 		return aResult
 
