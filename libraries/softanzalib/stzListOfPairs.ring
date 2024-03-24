@@ -832,3 +832,625 @@ class stzListOfPairs from stzListOfLists
 
 	def AreAnagrams()
 		return This.AreAnagramsCS(TRUE)
+
+	  #===============================================#
+	 #  CHECKING IF THE FIRST ITEMS ARE ALL NUMBERS  #
+	#===============================================#
+
+	def FirstItemsAreNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT isNumber(aContent[i][1])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def FirstItemsAreAllNumbers()
+			return This.FirstItemsAreNumbers()
+
+		def FirstItemsAreOnlyNumbers()
+			return This.FirstItemsAreNumbers()
+
+		def FirstItemsAreJustNumbers()
+			return This.FirstItemsAreNumbers()
+
+	  #-----------------------------------------------#
+	 #  CHECKING IF THE FIRST ITEMS ARE ALL STRINGS  #
+	#-----------------------------------------------#
+
+	def FirstItemsAreStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT isString(aContent[i][1])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def FirstItemsAreAllStrings()
+			return This.FirstItemsAreStrings()
+
+		def FirstItemsAreOnlyStrings()
+			return This.FirstItemsAreStrings()
+
+		def FirstItemsAreJustStrings()
+			return This.FirstItemsAreStrings()
+
+	  #---------------------------------------------#
+	 #  CHECKING IF THE FIRST ITEMS ARE ALL CHARS  #
+	#---------------------------------------------#
+
+	def FirstItemsAreChars()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsChar(aContent[i][1])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def FirstItemsAreAllChars()
+			return This.FirstItemsAreChars()
+
+		def FirstItemsAreOnlyChars()
+			return This.FirstItemsAreChars()
+
+		def FirstItemsAreJustChars()
+			return This.FirstItemsAreChars()
+
+	  #---------------------------------------------#
+	 #  CHECKING IF THE FIRST ITEMS ARE ALL LISTS  #
+	#---------------------------------------------#
+
+	def FirstItemsAreLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT isList(aContent[i][1])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def FirstItemsAreAllLists()
+			return This.FirstItemsAreLists()
+
+		def FirstItemsAreOnlyLists()
+			return This.FirstItemsAreLists()
+
+		def FirstItemsAreJustLists()
+			return This.FirstItemsAreLists()
+
+	  #-----------------------------------------------#
+	 #  CHECKING IF THE FIRST ITEMS ARE ALL OBJECTS  #
+	#-----------------------------------------------#
+
+	def FirstItemsAreObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT isObject(aContent[i][1])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def FirstItemsAreAllObjects()
+			return This.FirstItemsAreObjects()
+
+		def FirstItemsAreOnlyObjects()
+			return This.FirstItemsAreObjects()
+
+		def FirstItemsAreJustObjects()
+			return This.FirstItemsAreObjects()
+
+	  #--------------------------------------------------#
+	 #  CHECKING IF THE FIRST ITEMS ARE ALL STZOBJECTS  #
+	#--------------------------------------------------#
+
+	def FirstItemsAreStzObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzObject(aContent[i][1])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def FirstItemsAreAllStzObjects()
+			return This.FirstItemsAreStzObjects()
+
+		def FirstItemsAreOnlyStzObjects()
+			return This.FirstItemsAreStzObjects()
+
+		def FirstItemsAreJustStzObjects()
+			return This.FirstItemsAreStzObjects()
+
+	  #------------------------------------------------#
+	 #  CHECKING IF THE FIRST ITEMS ARE ALL STZCHARS  #
+	#------------------------------------------------#
+
+	def FirstItemsAreStzChars()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzChar(aContent[i][1])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def FirstItemsAreAllStzChars()
+			return This.FirstItemsAreStzChars()
+
+		def FirstItemsAreOnlyStzChars()
+			return This.FirstItemsAreStzChars()
+
+		def FirstItemsAreJustStzChars()
+			return This.FirstItemsAreStzChars()
+
+	  #--------------------------------------------------#
+	 #  CHECKING IF THE FIRST ITEMS ARE ALL STZSTRINGS  #
+	#--------------------------------------------------#
+
+	def FirstItemsAreStzStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzString(aContent[i][1])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def FirstItemsAreAllStzStrings()
+			return This.FirstItemsAreStzStrings()
+
+		def FirstItemsAreOnlyStzStrings()
+			return This.FirstItemsAreStzStrings()
+
+		def FirstItemsAreJustStzStrings()
+			return This.FirstItemsAreStzStrings()
+
+	  #--------------------------------------------------#
+	 #  CHECKING IF THE FIRST ITEMS ARE ALL STZNUMBERS  #
+	#--------------------------------------------------#
+
+	def FirstItemsAreStzNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzNumber(aContent[i][1])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def FirstItemsAreAllStzNumbers()
+			return This.FirstItemsAreStzNumbers()
+
+		def FirstItemsAreOnlyStzNumbers()
+			return This.FirstItemsAreStzNumbers()
+
+		def FirstItemsAreJustStzNumbers()
+			return This.FirstItemsAreStzNumbers()
+
+	  #------------------------------------------------#
+	 #  CHECKING IF THE FIRST ITEMS ARE ALL STZLISTS  #
+	#------------------------------------------------#
+
+	def FirstItemsAreStzLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzList(aContent[i][1])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def FirstItemsAreAllStzLists()
+			return This.FirstItemsAreStzLists()
+
+		def FirstItemsAreOnlyStzLists()
+			return This.FirstItemsAreStzLists()
+
+		def FirstItemsAreJustStzLists()
+			return This.FirstItemsAreStzLists()
+
+	  #----------------------------------------------------#
+	 #  CHECKING IF THE FIRST ITEMS ARE ALL STZHASHLISTS  #
+	#----------------------------------------------------#
+
+	def FirstItemsAreStzHashLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzHashList(aContent[i][1])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def FirstItemsAreAllStzHashLists()
+			return This.FirstItemsAreStzHashLists()
+
+		def FirstItemsAreOnlyStzHashLists()
+			return This.FirstItemsAreStzHashLists()
+
+		def FirstItemsAreJustStzHashLists()
+			return This.FirstItemsAreStzHashLists()
+
+	  #================================================#
+	 #  CHECKING IF THE SECOND ITEMS ARE ALL NUMBERS  #
+	#================================================#
+
+	def SecondItemsAreNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT isNumber(aContent[i][2])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def SecondItemsAreAllNumbers()
+			return This.SecondItemsAreNumbers()
+
+		def SecondItemsAreOnlyNumbers()
+			return This.SecondItemsAreNumbers()
+
+		def SecondItemsAreJustNumbers()
+			return This.SecondItemsAreNumbers()
+
+	  #------------------------------------------------#
+	 #  CHECKING IF THE SECOND ITEMS ARE ALL STRINGS  #
+	#------------------------------------------------#
+
+	def SecondItemsAreStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT isString(aContent[i][2])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def SecondItemsAreAllStrings()
+			return This.SecondItemsAreStrings()
+
+		def SecondItemsAreOnlyStrings()
+			return This.SecondItemsAreStrings()
+
+		def SecondItemsAreJustStrings()
+			return This.SecondItemsAreStrings()
+
+	  #----------------------------------------------#
+	 #  CHECKING IF THE SECOND ITEMS ARE ALL CHARS  #
+	#----------------------------------------------#
+
+	def SecondItemsAreChars()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsChar(aContent[i][2])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def SecondItemsAreAllChars()
+			return This.SecondItemsAreChars()
+
+		def SecondItemsAreOnlyChars()
+			return This.SecondItemsAreChars()
+
+		def SecondItemsAreJustChars()
+			return This.SecondItemsAreChars()
+
+	  #----------------------------------------------#
+	 #  CHECKING IF THE SECOND ITEMS ARE ALL LISTS  #
+	#----------------------------------------------#
+
+	def SecondItemsAreLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT isList(aContent[i][2])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def SecondItemsAreAllLists()
+			return This.SecondItemsAreLists()
+
+		def SecondItemsAreOnlyLists()
+			return This.SecondItemsAreLists()
+
+		def SecondItemsAreJustLists()
+			return This.SecondItemsAreLists()
+
+	  #------------------------------------------------#
+	 #  CHECKING IF THE SECOND ITEMS ARE ALL OBJECTS  #
+	#------------------------------------------------#
+
+	def SecondItemsAreObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT isObject(aContent[i][2])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def SecondItemsAreAllObjects()
+			return This.SecondItemsAreObjects()
+
+		def SecondItemsAreOnlyObjects()
+			return This.SecondItemsAreObjects()
+
+		def SecondItemsAreJustObjects()
+			return This.SecondItemsAreObjects()
+
+	  #---------------------------------------------------#
+	 #  CHECKING IF THE SECOND ITEMS ARE ALL STZOBJECTS  #
+	#---------------------------------------------------#
+
+	def SecondItemsAreStzObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzObject(aContent[i][2])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def SecondItemsAreAllStzObjects()
+			return This.SecondItemsAreStzObjects()
+
+		def SecondItemsAreOnlyStzObjects()
+			return This.SecondItemsAreStzObjects()
+
+		def SecondItemsAreJustStzObjects()
+			return This.SecondItemsAreStzObjects()
+
+	  #-------------------------------------------------#
+	 #  CHECKING IF THE SECOND ITEMS ARE ALL STZCHARS  #
+	#-------------------------------------------------#
+
+	def SecondItemsAreStzChars()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzChar(aContent[i][2])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def SecondItemsAreAllStzChars()
+			return This.SecondItemsAreStzChars()
+
+		def SecondItemsAreOnlyStzChars()
+			return This.SecondItemsAreStzChars()
+
+		def SecondItemsAreJustStzChars()
+			return This.SecondItemsAreStzChars()
+
+	  #---------------------------------------------------#
+	 #  CHECKING IF THE SECOND ITEMS ARE ALL STZSTRINGS  #
+	#---------------------------------------------------#
+
+	def SecondItemsAreStzStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzString(aContent[i][2])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def SecondItemsAreAllStzStrings()
+			return This.SecondItemsAreStzStrings()
+
+		def SecondItemsAreOnlyStzStrings()
+			return This.SecondItemsAreStzStrings()
+
+		def SecondItemsAreJustStzStrings()
+			return This.SecondItemsAreStzStrings()
+
+	  #---------------------------------------------------#
+	 #  CHECKING IF THE SECOND ITEMS ARE ALL STZNUMBERS  #
+	#---------------------------------------------------#
+
+	def SecondItemsAreStzNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzNumber(aContent[i][2])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def SecondItemsAreAllStzNumbers()
+			return This.SecondItemsAreStzNumbers()
+
+		def SecondItemsAreOnlyStzNumbers()
+			return This.SecondItemsAreStzNumbers()
+
+		def SecondItemsAreJustStzNumbers()
+			return This.SecondItemsAreStzNumbers()
+
+	  #-------------------------------------------------#
+	 #  CHECKING IF THE SECOND ITEMS ARE ALL STZLISTS  #
+	#-------------------------------------------------#
+
+	def SecondItemsAreStzLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzList(aContent[i][2])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def SecondItemsAreAllStzLists()
+			return This.SecondItemsAreStzLists()
+
+		def SecondItemsAreOnlyStzLists()
+			return This.SecondItemsAreStzLists()
+
+		def SecondItemsAreJustStzLists()
+			return This.SecondItemsAreStzLists()
+
+	  #-----------------------------------------------------#
+	 #  CHECKING IF THE SECOND ITEMS ARE ALL STZHASHLISTS  #
+	#-----------------------------------------------------#
+
+	def SecondItemsAreStzHashLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsStzHashList(aContent[i][2])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def SecondItemsAreAllStzHashLists()
+			return This.SecondItemsAreStzHashLists()
+
+		def SecondItemsAreOnlyStzHashLists()
+			return This.SecondItemsAreStzHashLists()
+
+		def SecondItemsAreJustStzHashLists()
+			return This.SecondItemsAreStzHashLists()
+
+	  #=====================================================#
+	 #  TRANSFORMING THE LIST OF PAIRS INTO A STZHASHLIST  #
+	#=====================================================#
+
+	def ToStzHashList()
