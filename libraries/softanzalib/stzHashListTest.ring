@@ -545,29 +545,27 @@ proff()
 # Executed in 0.88 second(s)
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzHashList([
-	:one 	= :red,
-	:two 	= :white,
-	:three 	= :white
+	:one 	= "red",
+	:two 	= "white",
+	:three 	= "white"
 ])
 
 o1.PerformOnKeys('{ @key += @i }')
-? o1.Keys() #--> [ :on1, :two2, :three3 ]
+? o1.Keys()
+#--> [ :one1, :two2, :three3 ]
 
 o1.PerformOnValues('{ @value += @i }')
 ? o1.Values()
+#--> [ "red1", "red2", "Red3" ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.12 second(s)
 
-/*----------------
-
-performOnValues()
-
-/*----------------
+/*---------------- @narration
 
 pron()
 
@@ -582,17 +580,17 @@ pron()
 		:Negative	= [ :no, :not, :must, :difficult, :problem ]
 	])
 
-# If you need to find the value :nice, you won't be able to get using:
-	? @@(o1.FindValue(:nice))	#--> [ ]
+# If you need to find the value :nice, you won't be able to get it using:
+	? @@(o1.FindValue(:nice)) + NL	#--> [ ]
 
 
 # That's because there is no sutch value equal to the string :nice in all
 # the three pairs of the hashlist.
 
-# In fact, these values are all of type list. So you want to find one of them
+# In fact, these values are all of type list. So if you want to find one of them
 # you should provide it as a hole list, like that:
 
-	? @@( o1.FindValue([ :is, :will, :can, :some ]) )	#--> [ 2 ]
+	? @@( o1.FindValue([ :is, :will, :can, :some ]) ) + NL	#--> [ 2 ]
 
 # Now, because finding directly an item (which is an item of a value of type list)
 # is something that you will need in practice, in many data-driven applications,
@@ -600,7 +598,33 @@ pron()
 
 # Hence, you can find :nice directly by saying:
 
-	? @@( o1.FindItem(:nice) ) #--> [ 1 ]
+	? @@( o1.FindItem(:nice) ) + NL
+	#--> [ 1, [ 2 ] ]	# exists in pair 1 at position 2
+
+	# if there was two :nice strings in the first pair, then
+	# the result will be [ 1, [ 2, 4 ] ] for example.
+
+# And you can find many items at once:
+
+	? @@( o1.FindTheseItems([ :nice, :will, :must ]) ) + NL
+	#--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 3 ] ]
+
+# And find all the existing items:
+
+	? @@( o1.FindItems() ) + NL
+	#--> [
+	# 	[ 1, 1 ], [ 1, 2 ], [ 1, 3 ], [ 1, 4 ], [ 1, 5 ],
+	# 	[ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 2, 4 ],
+	# 	[ 3, 1 ], [ 3, 2 ], [ 3, 3 ], [ 3, 4 ], [ 3, 5 ]
+	# ]
+
+# You can return the items and their positions in the same time:
+
+	? @@( o1.TheseItemsZ([ :glad, :can ]) )
+	#--> [
+	# 	[ "glad", [ [ 1, [ 3 ] ] ] ],
+	# 	[ "can", [ [ 2, [ 3 ] ] ] ]
+	# ]
 
 proff()
 # Executed in 0.04 second(s)
@@ -636,7 +660,8 @@ o1 = new stzHashList([
 #--> [ "saudi_arabia", "iraq", "japan" ]
 
 proff()
-# Executed in 1.54 second(s)
+# Executed in 0.10 second(s) in Ring 1.19
+# Executed in 1.54 second(s) in Ring 1.17
 
 /*---------------
 
@@ -671,6 +696,7 @@ o1 = new stzHashList( [ ["one", 1], [ "two", 2] ] )
 ? o1.Keys() #--> [ "one", "two" ]
 
 proff()
+# Executed in 0.01 second(s)
 
 /*--------------- 
 
@@ -693,7 +719,7 @@ o1 = new stzHashList([
 #--> [ 4 ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*---------------
 
@@ -711,7 +737,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*--------------
-
+*/
 pron()
 
 o1 = new stzHashList([ [ "NAME", "Mansour"] , [ "AGE" , 45 ] ])
