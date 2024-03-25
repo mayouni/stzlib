@@ -964,14 +964,29 @@ class stzListOfPairs from stzListOfLists
 
 		return bResult
 
-	  #------------------------------#
-	 #   MERGING CONTIGUOUS PAIRS   #
-	#------------------------------#
+	  #=============================#
+	 #   MERGING AJJUSCENT PAIRS   #
+	#=============================#
+
+	#NOTE
+	# The function is made for pairs of numbers
+	#TODO
+	# Test it and see it has a meaning when used with pairs of strings or lists
+
+	#--
+
+	#TODO
+	# See if the term ADJUSCENT can be considered an alternative in stzList
+	# to the term CONTINGUOUS
+	#UPDATE
+	# I don't think so becase CONTIGUOUS is used to mean CONTINUOUS in stzList
+	#TODO
+	# Remove the term CONTIGUOUS in stzList and leave only CONTINUOUS
+
 
 	def MergeContiguous()
 		#EXAMPLE
 		/*
-
 		o1 = new stzListOfPairs([
 			[ 1, 4], [6, 8], [9, 10], [12, 13], [13, 15] ]
 		])
@@ -1044,6 +1059,82 @@ class stzListOfPairs from stzListOfLists
 
 		def AdjuscentMerged()
 			return This.ContiguousPairsMerged()
+
+	  #---------------------------------------------------#
+	 #  MERGING THE INCLUDED PAIRS IN THE LIST OF PAIRS  #
+	#---------------------------------------------------#
+
+	#NOTE
+	# The code of the function has been generated (mostly) by Gemini AI
+	# using the fellowing prompts : https://g.co/gemini/share/2ecc1b47c465
+
+	# I left the naming style as proposed by Gemini as recognition of its
+	# nice performance regarding this algorithm ;)
+
+	# I just adapted the code to fit with a method inside a class, and
+	# replace the for/in loop with a standard for loop (X2 performance gain)
+
+	# The fact that Softanza contains the "Min() and Max()" functions, and the
+	# fact that Ring "if [] returns FALSE", helped a lot in leaving the code
+	# proposed by Gemini as is.
+
+	def MergeIncluded()
+		merged_pairs = []
+		current_pair = :None
+
+		aPairs = This.Content()
+		nLen = len(aPairs)
+
+		for i = 1 to nLen
+			if current_pair = :None
+				# Initialize current_pair if it's None
+		     		 current_pair = aPairs[i]
+		   	 else
+		     		# Check if the new pair fits within the current one
+		      		if aPairs[i][1] <= current_pair[2]
+		       			# Update current_pair to include the new pair
+		        		current_pair[1] = min([aPairs[i][1], current_pair[1]])
+		        		current_pair[2] = max([aPairs[i][2], current_pair[2]])
+			
+		      		else
+				        # Add the current merged pair to the result and start a new one
+				        merged_pairs + current_pair
+				        current_pair = aPairs[i]
+				ok
+			ok
+		next
+
+		# Add the last merged pair (if any)
+		if current_pair
+		    merged_pairs + current_pair
+		ok
+
+		This.UpdateWith( merged_pairs )
+
+		#< @FunctionFluentForm
+
+		def MergeIncludedQ()
+			This.MergeIncluded()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def MergeInclusive()
+			This.MergeIncluded()
+
+			def MergeInclusiveQ()
+				return This.MergeIncludedQ()
+
+		#>
+
+	def IncludedPairsMerged()
+		aResult = This.Copy().MergeIncludedQ().Content()
+		return aResult
+
+		def InclusivePairsMerged()
+			return This.IncludedPairsMerged()
 
 	  #===================================================#
 	 #  CHECKING IF THE TWO VALUES ARE ANOGRAMS STRINGS  #
