@@ -4106,6 +4106,44 @@ class stzString from stzObject
 
 		#>
 
+	    #------------------------------------------------------------#
+	   #   FINDING ALL THE POSITIONS OF ALLPOSSIBLE SUBSTRINGS IN   #
+	  #   THE STRING WHERE A GIVEN CONDITION IS VERIFIED AND       #
+	 #   RETURNING THEM AS SECTIONS                               #
+	#------------------------------------------------------------#
+
+	def FindAllSubStringsAsSectionsW(pcCondition)
+		acSubStrings = This.SubStringsW(pcCondition)
+		aResult = This.FindManyAsSections(acSubStrings)
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllSubStringsWZZ(pCaseSensitive)
+			return This.FindSubStringsAsSectionsW(pCaseSensitive)
+
+		def FindAllPossibleSubStringsAsSectionsW(pCaseSensitive)
+			return This.FindSubStringsAsSectionsW(pCaseSensitive)
+
+		def FindAllPossibleSubStringsWZZ(pCaseSensitive)
+			return This.FindSubStringsAsSectionsW(pCaseSensitive)
+
+		#--
+
+		def FindSubStringsAsSectionsW(pCaseSensitive)
+			return This.FindAllSubStringsAsSectionsW(pCaseSensitive)
+
+		def FindSubStringsWZZ(pCaseSensitive)
+			return This.FindSubStringsAsSectionsW(pCaseSensitive)
+
+		def FindPossibleSubStringsAsSectionsW(pCaseSensitive)
+			return This.FindSubStringsAsSectionsW(pCaseSensitive)
+
+		def FindPossibleSubStringsWZZ(pCaseSensitive)
+			return This.FindSubStringsAsSectionsW(pCaseSensitive)
+
+		#>
+
 	  #-----------------------------------------------#
 	 #  ALL POSSIBLE SUBSTRINGS AND THEIR POSITIONS  #
 	#-----------------------------------------------#
@@ -44271,13 +44309,17 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#------------------------------------#
 
 	def SplitAtW(pcCondition)
-			
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
 
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
+		if CheckParams()
+
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+	
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+
 		ok
 
 		aResult = []
@@ -44287,6 +44329,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		if Q(pcCondition).ContainsCS("@SubString", :CS = FALSE)
 
 			aSections = This.FindSubStringsAsSectionsW(pcCondition)
+? @@(aSections)
+sfd
 			aResult = This.SplitAtSections(aSections)
 
 		else

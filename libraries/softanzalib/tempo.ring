@@ -3640,8 +3640,8 @@ o1 = new stzString("TUNIS tunis GAFSA gafsa NABEUL nabeul BEJA beja")
 proff()
 # Executed in 0.03 second(s)
 
-/*================== @narration
-*/
+/*================== #todo write a @narration
+
 pron()
 
 o1 = new stzString("TUNIS gafsa NABEUL beja NABEUL beja")
@@ -3691,7 +3691,7 @@ o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 proff()
 
 /*------------
-*/
+
 pron()
 
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
@@ -3704,17 +3704,27 @@ o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 # ]
 
 proff()
-#--> Executed in 0.12 second(s)
+#--> Executed in 0.24 second(s)
 
-/*
+/*----------------
+
+pron()
+
 o1 = new stzString("abcd")
-? o1.SubStrings()
+? @@( o1.SubStrings() )
+#--> [ "a", "ab", "abc", "abcd", "b", "bc", "bcd", "c", "cd", "d" ]
+
+proff()
+# Executed in 0.01 second(s)
 
 /*------------------
-
+*/
+pron()
 
 o1 = new stzString( "ABCabcEFGijHI" )
 ? o1.SplitW( 'Q(@SubString).IsLowercase()' )
+
+proff()
 
 #===========
 

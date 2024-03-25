@@ -1,5 +1,20 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzListOfPairs([
+	[ 4, 4 ], [ 4, 5 ], [ 4, 6 ], [ 5, 5 ], [ 5, 6 ], [ 6, 6 ],
+	[ 10, 10 ], [ 10, 11 ], [ 11, 11 ],
+	[15, 20], [12, 22]
+])
+
+o1.MergeInclusive()
+? @@( o1.Content() )
+#--> [ [ 4, 6 ], [ 10, 11 ], [ 12, 22 ] ]
+
+proff()
+# Executed in 0.03 second(s)
+
 /*-------
 
 pron()
