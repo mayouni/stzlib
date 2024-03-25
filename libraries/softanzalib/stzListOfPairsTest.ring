@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*-------
+
 pron()
 
 o1 = new stzListOfPairs([
@@ -14,6 +16,10 @@ o1.MergeInclusive()
 
 proff()
 # Executed in 0.03 second(s)
+
+#NOTE
+# The code of the function has been generated (mostly) by Gemini AI
+# using the fellowing prompts : https://g.co/gemini/share/2ecc1b47c465*
 
 /*-------
 

@@ -113,7 +113,7 @@ class stzItem from stzItemCS
 			paList = paList[2]
 		ok
 
-		if NOT BothAreStrings(pItem, paList)
+		if NOT @BothAreStrings(pItem, paList)
 			StzRaise("Incorrect param type! pItem and paList must both be strings.")
 		ok
 

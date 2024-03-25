@@ -3326,7 +3326,7 @@ func Stz(cType, pInfo)
 
 	cInfo = pInfo
 
-	If NOT BothAreStrings(cType, :And = cInfo)
+	if NOT @BothAreStrings(cType, :And = cInfo)
 		StzRaise("Incorrect params type! Botht cType and cInfo must be strings.")
 	ok
 

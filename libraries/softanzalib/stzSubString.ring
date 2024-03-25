@@ -236,7 +236,7 @@ class stzSubString from stzSubStringCS
 			pcStr = pcStr[2]
 		ok
 
-		if NOT BothAreStrings(pcSubStr, pcStr)
+		if NOT @BothAreStrings(pcSubStr, pcStr)
 			StzRaise("Incorrect param type! pcSubStr and pcStr must both be strings.")
 		ok
 
@@ -254,7 +254,7 @@ class stzSubStringCS
 			pcStr = pcStr[2]
 		ok
 
-		if NOT BothAreStrings(pcSubStr, pcStr)
+		if NOT @BothAreStrings(pcSubStr, pcStr)
 			StzRaise("Incorrect param type! pcSubStr and pcStr must both be strings.")
 		ok
 

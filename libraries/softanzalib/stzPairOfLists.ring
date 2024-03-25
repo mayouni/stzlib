@@ -11,7 +11,7 @@ class stzPairOfLists from stzPair
 	@aList2
 
 	def init(paList1, paList2)
-		if NOT BothAreLists(paList1, paList2)
+		if NOT @BothAreLists(paList1, paList2)
 			StzRaise("Can not create object!")
 		ok
 

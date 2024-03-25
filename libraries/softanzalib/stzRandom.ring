@@ -2223,7 +2223,7 @@ func RandomNumberIn(panNumbers)
 
 	func RandomNumberBetween(nMin, nMax)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -2325,7 +2325,7 @@ func RandomNumberInZ(panNumbers)
 
 	func RandomNumberBetweenZ(nMin, nMax)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -2372,7 +2372,7 @@ func RandomNumberInXT(panNumbers, nSeed)
 
 	func RandomNumberBetweenXT(nMin, nMax, nSeed)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -2425,7 +2425,7 @@ func RandomNumberInXTZ(panNumbers, nSeed)
 
 	func RandomNumberBetweenXTZ(nMin, nMax, nSeed)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -2478,7 +2478,7 @@ func SomeRandomNumbersIn(panNumbers)
 
 	func SomeRandomNumbersBetween(nMin, nMax)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -2531,7 +2531,7 @@ func SomeRandomNumbersInZ(panNumbers)
 
 	func SomeRandomNumbersBetweenZ(nMin, nMax)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -2580,7 +2580,7 @@ func SomeRandomNumbersInXT(panNumbers, nSeed)
 
 	func SomeRandomNumbersBetweenXT(nMin, nMax, nSeed)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -2627,7 +2627,7 @@ func SomeRandomNumbersInXTZ(panNumbers, nSeed)
 
 	func SomeRandomNumbersBetweenXTZ(nMin, nMax, nSeed)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -2690,7 +2690,7 @@ func SomeRandomNumbersInU(panNumbers)
 
 	func SomeRandomNumbersBetweenU(nMin, nMax)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -2758,7 +2758,7 @@ func SomeRandomNumbersInUZ(panNumbers)
 
 	func SomeRandomNumbersBetweenUZ(nMin, nMax)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -2822,7 +2822,7 @@ func SomeRandomNumbersInXTU(panNumbers, nSeed)
 
 	func SomeRandomNumbersBetweenXTU(nMin, nMax, nSeed)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -2885,7 +2885,7 @@ func SomeRandomNumbersInXTUZ(panNumbers, nSeed)
 
 	func SomeRandomNumbersBetweenXTUZ(nMin, nMax, nSeed)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -2952,7 +2952,7 @@ func NRandomNumbersIn(n, panNumbers)
 
 	func NRandomNumbersBetween(n, nMin, nMax)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -3006,7 +3006,7 @@ func NRandomNumbersInZ(n, panNumbers)
 
 	func NRandomNumbersBetweenZ(n, nMin, nMax)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -3045,7 +3045,7 @@ func NRandomNumbersInXT(n, panNumbers, nSeed)
 
 	func NRandomNumbersBetweenXT(n, nMin, nMax, nSeed)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -3082,7 +3082,7 @@ func NRandomNumbersInXTZ(n, panNumbers, nSeed)
 
 	func NRandomNumbersBetweenXTZ(n, nMin, nMax, nSeed)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -3152,7 +3152,7 @@ func NRandomNumbersInU(n, panNumbers)
 
 	func NRandomNumbersBetweenU(n, nMin, nMax)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -3236,7 +3236,7 @@ func NRandomNumbersInUZ(n, panNumbers)
 
 	func NRandomNumbersBetweenUZ(n, nMin, nMax)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -3303,7 +3303,7 @@ func NRandomNumbersInXTU(n, panNumbers, nSeed)
 
 	func NRandomNumbersBetweenXTU(n, nMin, nMax, nSeed)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok
@@ -3368,7 +3368,7 @@ func NRandomNumbersInXTUZ(n, panNumbers, nSeed)
 
 	func NRandomNumbersBetweenXTUZ(n, nMin, nMax, nSeed)
 		if CheckParams()
-			if NOT BothAreNumbers(nMin, nMax)
+			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
 		ok

@@ -202,7 +202,7 @@ func NumbersXT(n1, n2)
 		n2 = n2[2]
 	ok
 
-	if NOT BothAreNumbers(n1, n2)
+	if NOT @BothAreNumbers(n1, n2)
 		StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 	ok
 
@@ -229,7 +229,7 @@ func NumbersBetween(n1, n2)
 			n2 = n2[2]
 		ok
 	
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 	
@@ -363,7 +363,7 @@ func NegativeNumbersIn(paList)
 
 func PositiveNumbersBetween(n1, n2)
 	if CheckParams()
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 	ok
@@ -379,7 +379,7 @@ func PositiveNumbersBetween(n1, n2)
 
 func NegativeNumbersBetween(n1, n2)
 	if CheckParams()
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 	ok
@@ -4413,7 +4413,7 @@ class stzListOfNumbers from stzList
 			n2 = n2[2]
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 
@@ -4466,7 +4466,7 @@ class stzListOfNumbers from stzList
 			n2 = n2[2]
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 
@@ -4521,7 +4521,7 @@ class stzListOfNumbers from stzList
 			n2 = n2[2]
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 
@@ -4591,7 +4591,7 @@ class stzListOfNumbers from stzList
 			n2 = n2[2]
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
 
