@@ -8810,7 +8810,7 @@ Class stzTable from stzObject
 				paNewValues = paNewValues[2]
 			ok
 	
-			if NOT BothAreLists(paCellsPos, paNewValues)
+			if NOT @BothAreLists(paCellsPos, paNewValues)
 				StzRaise("Incorrect param types! paCellsPos and paNewValues must be both lists.")
 			ok
 
@@ -9035,7 +9035,7 @@ Class stzTable from stzObject
 
 	def ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
-		if NOT BothAreLists(paCellsPos, paNewValues)
+		if NOT @BothAreLists(paCellsPos, paNewValues)
 			StzRaise("Incorrect param types! paCellsPos and paNewValues must both be lists.")
 		ok
 

@@ -52,7 +52,7 @@ func LC(p)
 
 func CharsBetween(c1, c2)
 	if CheckParams()
-		if NOT BothAreChars(c1, c2)
+		if NOT @BothAreChars(c1, c2)
 			StzRaise("Incorrect param type!")
 		ok
 	ok
@@ -74,7 +74,7 @@ func CharsBetween(c1, c2)
 
 func NumberOfCharsBetween(c1, c2)
 	if CheckParams()
-		if NOT BothAreChars(c1, c2)
+		if NOT @BothAreChars(c1, c2)
 			StzRaise("Incorrect param type!")
 		ok
 	ok

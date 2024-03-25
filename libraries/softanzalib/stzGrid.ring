@@ -206,7 +206,7 @@ class stzGrid from stzObject
 					nH = nH[2]
 				ok
 
-				if NOT BothAreNumbers(nV, nH)
+				if NOT @BothAreNumbers(nV, nH)
 					StzRaise("Incorrect param! p must be a pair of numbers.")
 				ok
 

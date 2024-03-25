@@ -10872,11 +10872,11 @@ class stzString from stzObject
 
 	def FindSectionBoundsZZ(n1, n2, nCharsBefore, nCharsAfter)
 		if CheckParams()
-			if NOT BothAreNumbers(n1, n2)
+			if NOT @BothAreNumbers(n1, n2)
 				StzRaise("Incorrect params types! Both n1 and n2 must be numbers.")
 			ok
 
-			if NOT BothAreNumbers(nCharsBefore, nCharsAfter)
+			if NOT @BothAreNumbers(nCharsBefore, nCharsAfter)
 				StzRaise("Incorrect params types! Both nCharsBefore and nCharsAfter must be numbers.")
 			ok
 		ok
@@ -11139,7 +11139,7 @@ class stzString from stzObject
 				paHarvest[2] = paHarvest[2][2]
 			ok
 	
-			if NOT BothAreNumbers(paHarvest[1], paHarvest[2])
+			if NOT @BothAreNumbers(paHarvest[1], paHarvest[2])
 				stzRaise("Incorrect param! paHarvest must be a pair of numbers.")
 			ok
 	
@@ -24079,7 +24079,7 @@ class stzString from stzObject
 
 			# Params must be numbers
 	
-			if NOT BothAreNumbers(n1, n2)
+			if NOT @BothAreNumbers(n1, n2)
 				StzRaise("Incorrect params! n1 and n2 must be numbers.")
 			ok
 
@@ -30989,7 +30989,7 @@ class stzString from stzObject
 			pSubStr2 = pSubStr2[2]
 		ok
 
-		if NOT BothAreStrings(pSubStr1, pSubStr2)
+		if NOT @BothAreStrings(pSubStr1, pSubStr2)
 			stzRaise("Incorrect params types! Both pSubStr1 and pSubStr2 must be strings.")
 		ok
 
@@ -33937,7 +33937,7 @@ class stzString from stzObject
 			nStart = nStart[2]
 		ok
 
-		if NOT BothAreNumbers(n, nStart)
+		if NOT @BothAreNumbers(n, nStart)
 			StzRaise("Incorrect param type! n and nStart must be numbers.")
 		ok
 
@@ -34057,7 +34057,7 @@ class stzString from stzObject
 			ok
 		ok
 
-		if NOT BothAreNumbers(n, nStart)
+		if NOT @BothAreNumbers(n, nStart)
 			StzRaise("Incorrect param type! n and nStart must be numbers.")
 		ok
 
@@ -35251,7 +35251,7 @@ class stzString from stzObject
 
 	def FindSubStringAsSectionsW(pcSubStr, pcCondition)
 		if CheckParams()
-			if NOT BothAreSrings(pcSubStr, pcCondition)
+			if NOT @BothAreSrings(pcSubStr, pcCondition)
 				StzRaise("Incorrect param type! pcSubStr and pcCondition must be both strings.")
 			ok
 		ok
@@ -38167,7 +38167,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			pcChar2 = pcChar2[2]
 		ok
 
-		if NOT BothAreChars(pcChar1, pcChar2)
+		if NOT @BothAreChars(pcChar1, pcChar2)
 			stzRaise("Incorrect params types! pcChar1 and pcChar2 must be chars.")
 		ok
 
@@ -42858,7 +42858,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return []
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 		ok
 
@@ -42917,7 +42917,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return []
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 		ok
 
@@ -43541,7 +43541,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	def SplitAfterSection(n1, n2)
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -43597,7 +43597,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	def SplitAfterSectionIB(n1, n2)
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -44257,8 +44257,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#=======================================#
 
 	def SplitW(pcCondition)
+		#EXAMPLE
 		/*
-		? StzSplitterQ(1:5).SplitW('Q(@item).IsMultipleOf(2)')
+		o1 = new stzString( "ABCabcEFGijHI" )
+		? o1.SplitW( 'Q(@SubString).IsLowercase()' )
+		#--> [ "ABC", "EFG", "HI" ]
 		*/
 
 		if isList(pcCondition)
@@ -44329,8 +44332,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		if Q(pcCondition).ContainsCS("@SubString", :CS = FALSE)
 
 			aSections = This.FindSubStringsAsSectionsW(pcCondition)
-? @@(aSections)
-sfd
+			aSections = StzListOfPairsQ(aSections).MergeInclusiveQ().Content()
+
 			aResult = This.SplitAtSections(aSections)
 
 		else
@@ -45467,7 +45470,7 @@ sfd
 			return []
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 		ok
 
@@ -45498,7 +45501,7 @@ sfd
 			return []
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 		ok
 
@@ -45832,7 +45835,7 @@ sfd
 
 	def FindSplitsAfterSection(n1, n2)
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -45860,7 +45863,7 @@ sfd
 
 	def FindSplitsAfterSectionIB(n1, n2)
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -47318,7 +47321,7 @@ sfd
 
 		if CheckParams()
 
-			if NOT BothAreNumbers(n1, n2)
+			if NOT @BothAreNumbers(n1, n2)
 				StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 			ok
 
@@ -47375,7 +47378,7 @@ sfd
 
 		if CheckParams()
 
-			if NOT BothAreNumbers(n1, n2)
+			if NOT @BothAreNumbers(n1, n2)
 				StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 			ok
 
@@ -47878,7 +47881,7 @@ sfd
 
 		if CheckParams()
 
-			if NOT BothAreNumbers(n1, n2)
+			if NOT @BothAreNumbers(n1, n2)
 				StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 			ok
 		ok
@@ -47934,7 +47937,7 @@ sfd
 
 		if CheckParams()
 
-			if NOT BothAreNumbers(n1, n2)
+			if NOT @BothAreNumbers(n1, n2)
 				StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 			ok
 		ok
@@ -49582,7 +49585,7 @@ sfd
 			return []
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 		ok
 
@@ -49613,7 +49616,7 @@ sfd
 			return []
 		ok
 
-		if NOT BothAreNumbers(n, n1, n2)
+		if NOT @BothAreNumbers(n, n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 		ok
 
@@ -49947,7 +49950,7 @@ sfd
 
 	def FindNthSplitAfterSection(n, n1, n2)
 
-		if NOT BothAreNumbers(n, n1, n2)
+		if NOT @BothAreNumbers(n, n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -49975,7 +49978,7 @@ sfd
 
 	def FindNthSplitAfterSectionIB(n, n1, n2)
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -51228,7 +51231,7 @@ sfd
 			return []
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 		ok
 
@@ -51259,7 +51262,7 @@ sfd
 			return []
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 		ok
 
@@ -51590,7 +51593,7 @@ sfd
 
 	def FindNthSplitAfterSectionZZ(n, n1, n2)
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -51618,7 +51621,7 @@ sfd
 
 	def FindNthSplitAfterSectionIBZZ(n, n1, n2)
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -52902,7 +52905,7 @@ sfd
 			return []
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 		ok
 
@@ -52933,7 +52936,7 @@ sfd
 			return []
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 		ok
 
@@ -53267,7 +53270,7 @@ sfd
 
 	def FindLastSplitAfterSection(n1, n2)
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -53295,7 +53298,7 @@ sfd
 
 	def FindLastSplitAfterSectionIB(n1, n2)
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -54548,7 +54551,7 @@ sfd
 			return []
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 		ok
 
@@ -54579,7 +54582,7 @@ sfd
 			return []
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 		ok
 
@@ -54910,7 +54913,7 @@ sfd
 
 	def FindLastSplitAfterSectionZZ(n1, n2)
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -54938,7 +54941,7 @@ sfd
 
 	def FindLastSplitAfterSectionIBZZ(n1, n2)
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -59062,7 +59065,7 @@ sfd
 				panSection2 = panSection2[2]
 			ok
 	
-			if NOT BothArePairsOfNumbers(panSection1, panSection2)
+			if NOT @BothArePairsOfNumbers(panSection1, panSection2)
 				StzRaise("Incorrect param type! panSection1 and panSection2 must be both pairs of number.")
 			ok
 		ok
@@ -70382,7 +70385,7 @@ sfd
 			n2 = This.NumberOfItems()
 		ok
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			stzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 

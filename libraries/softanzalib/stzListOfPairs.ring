@@ -1079,6 +1079,20 @@ class stzListOfPairs from stzListOfLists
 	# proposed by Gemini as is.
 
 	def MergeIncluded()
+		#EXAMPLE
+		/*
+		o1 = new stzListOfPairs([
+			[ 4, 4 ], [ 4, 5 ], [ 4, 6 ], [ 5, 5 ], [ 5, 6 ], [ 6, 6 ],
+			[ 10, 10 ], [ 10, 11 ], [ 11, 11 ],
+			[15, 20], [12, 22]
+		])
+		
+		o1.MergeInclusive()
+		? @@( o1.Content() )
+		#--> [ [ 4, 6 ], [ 10, 11 ], [ 12, 22 ] ]
+
+		*/
+
 		merged_pairs = []
 		current_pair = :None
 

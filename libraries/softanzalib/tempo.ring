@@ -3723,8 +3723,14 @@ pron()
 
 o1 = new stzString( "ABCabcEFGijHI" )
 ? o1.SplitW( 'Q(@SubString).IsLowercase()' )
+#--> [ "ABC", "EFG", "HI" ]
 
 proff()
+#--> Executed in 0.74 second(s)
+
+#NOTE
+# This function was impossible to implement without implementing
+# the MergeIncusive() in stzListOfPairs
 
 #===========
 

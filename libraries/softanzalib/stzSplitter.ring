@@ -542,7 +542,7 @@ class stzSplitter from stzListOfNumbers
 
 		*/
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -604,7 +604,7 @@ class stzSplitter from stzListOfNumbers
 		#>
 
 	def SplitAtSectionIB(n1, n2)
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -689,7 +689,7 @@ class stzSplitter from stzListOfNumbers
 		aSectionToBeSplitted = 1 : This.NumberOfPositions()
 
 		for i = len(aSections) to 1 step -1
-			aSplits = StzSplitterQ(aSectionToBeSplitted).SplitAtSection( aSections[i] )
+			aSplits = StzSplitterQ(aSectionToBeSplitted).SplitAtSection(aSections[i][1], aSections[i][2])
 			nLenSplits = len(aSplits)
 
 			aSectionToBeSplitted = aSplits[1][1] : aSplits[1][2]
@@ -806,7 +806,7 @@ class stzSplitter from stzListOfNumbers
 
 	def SplitBeforeSection(n1, n2)
 
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect pram type! panSection must be a pair of numbers.")
 		ok
 
@@ -828,7 +828,7 @@ class stzSplitter from stzListOfNumbers
 		#>
 
 	def SplitBeforeSectionIB(n1, n2)
-		if NOT BothAreNumbers(n1, n2)
+		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect pram type! panSection must be a pair of numbers.")
 		ok
 
