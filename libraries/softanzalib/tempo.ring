@@ -3615,36 +3615,96 @@ proff()
 # Executed in 0.10 second(s)
 
 /*==================
-*/
 
 pron()
 
-o1 = new stzString("TUNIS gafsa NABEUL beja")
+o1 = new stzString("TUNISiiiGAFSAIIIBEJAiiiSFAXIIIGBELLI")
+? @@( o1.splitcs("iii", :cs = false) )
+#--> [ "TUNIS", "GAFSA", "BEJA", "SFAX", "GBELLI" ]
 
-//? @@( o1.Parts(:Using = 'Q(@char).CharCase()' ) ) + NL
-#--> [ [ "TUNIS", "uppercase" ], [ " gafsa ", "lowercase" ], [ "NABEUL", "uppercase" ], [ " beja", "lowercase" ] ]
+proff()
+# Executed in 0.02 second(s)
 
-? @@( o1.PartsClassified('Q(@char).CharCase()') )
+/*------------------
+
+pron()
+
+o1 = new stzString("TUNIS tunis GAFSA gafsa NABEUL nabeul BEJA beja")
+
+? @@( o1.Words() ) + NL
+#--> [ "TUNIS", "tunis", "GAFSA", "gafsa", "NABEUL", "nabeul", "BEJA", "beja" ]
+
+? @@( o1.WordsCS(FALSE) ) + NL
+#--< [ "TUNIS", "GAFSA", "NABEUL", "BEJA" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*================== @narration
+*/
+pron()
+
+o1 = new stzString("TUNIS gafsa NABEUL beja NABEUL beja")
+
+? @@( o1.Parts(:Using = 'Q(@char).CharCase()' ) ) + NL
 #--> [
-#	[ "uppercase", [ "TUNIS", "NABEUL" ] ] ],
-#	[ "lowercase", [ " gafsa ", " beja" ] ]
+# 	[ "TUNIS", "uppercase" ],
+# 	[ " gafsa ", "lowercase" ],
+#	[ "NABEUL", "uppercase" ],
+#	[ " beja ", "lowercase" ],
+#	[ "NABEUL", "uppercase" ],
+#	[ " beja", "lowercase" ]
+# ]
+
+? @@( o1.PartsClassified( :Using = 'Q(@char).CharCase()') ) + NL
+#--> [
+# 	[ "uppercase", [ "TUNIS", "NABEUL" ] ],
+# 	[ "lowercase", [ " gafsa ", " beja ", " beja" ] ]
+# ]
+
+? @@( o1.WordsClassified( :Using = 'Q(@word).WordCase()') )
+#--> [
+# 	[ "lowercase", [ "gafsa", "beja" ] ],
+# 	[ "uppercase", [ "TUNIS", "NABEUL" ] ]
 # ]
 
 proff()
-# Executed in 0.80 second(s)
+# Executed in 0.52 second(s)
 
-/*------------
+/*------------ #TODO: fix the order
+
 pron()
 
 o1 = new stzList([ "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ])
 ? o1.SortedBy(' Q(@item).NumberOfChars() ')
 
+proff()
+# Executed in 0.13 second(s)
+
+/*------------ #TODO: fix the order
+
+pron()
+
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 ? o1.SortedBy(' Q(@item).HowMany(0) ')
 
+proff()
+
+/*------------
+*/
+pron()
+
+o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 ? @@( o1.ClassifiedBy(' Q(@item).HowMany(0) ') )
+#--> [
+# 	[ "0", [ 8, 2 ] ],
+#	[ "1", [ 170, 0, 150 ] ],
+#	[ "2", [ 3007, 2100, 2100 ] ],
+#	[ "3", [ 10001 ] ]
+# ]
 
 proff()
+#--> Executed in 0.12 second(s)
 
 /*
 o1 = new stzString("abcd")
