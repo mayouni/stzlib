@@ -997,6 +997,9 @@ class stzString from stzObject
 			return :Hybridcase
 		ok
 
+		def WordCase()
+			return This.StringCase()
+
 	  #---------------------------------------------#
 	 #  IF THE STRING IS A CHAR, GETTING ITS CASE  #
 	#---------------------------------------------#
@@ -41621,17 +41624,17 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 				StzRaise("Incorrect param type! pcsubStr must be a string.")
 			ok
 	
-			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-				pCaseSensitive = pCaseSensitive[2]
-			ok
-	
-			if NOT IsBoolean(pCaseSensitive)
-				StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
-			ok
-
 		ok
 
-		acResult = QStringListToList( QStringObject().split(pcSubStr, 0, pCaseSensitive) )
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		acResult = QStringListToList( This.QStringObject().split(pcSubStr, 0, pCaseSensitive) )
 		return acResult
 
 		#< @FunctionFluentForm
@@ -55663,7 +55666,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#---------------------------------------#
 
 	def PartsClassified(pcClassifier)
-		if isList(pcClassifier) and Q(pcClassifier).IsUsingNamedParam()
+		if isList(pcClassifier) and Q(pcClassifier).IsByOrUsingNamedParam()
 			pcClassifier = pcClassifier[2]
 		ok
 
@@ -55675,7 +55678,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		acClasses = oParts.SecondItemsU()
 		nLenClass = len(acClasses)
 
-		aContent = oParts.Content()
+		aContent = oParts.ToSetQ().Content()
 		nLen = len(aContent)
 
 		aResult = []
@@ -55688,6 +55691,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		next
 
 		return aResult
+
+		#< @FunctionAlternativeForms
 
 		def Classified(pcClassifier)
 			return This.PartsClassified(pcClassifier)
@@ -55706,6 +55711,18 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def ClassifyBy(pcClassifier)
 			return This.PartsClassified(pcClassifier)
 
+		#--
+
+		def PartsClassifiedUsing(pcClassifier)
+			return This.PartsClassified(pcClassifier)
+
+		def ClassifiedUsing(pcClassifier)
+			return This.PartsClassified(pcClassifier)
+
+		def ClassifyUsing(pcClassifier)
+			return This.PartsClassified(pcClassifier)
+
+		#>
 
 	  #-------------------------------------------------------------#
 	 #  GETTINING THE PARTS OF STRING VERIFYING A GIVEN CONDITION  #TODO
@@ -55723,7 +55740,68 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		*/
 
 		StzRaise("Function unavailable yet!")
-		
+
+	  #---------------------------------------------#
+	 #  WORDS CLASSIFIED USING A GIVEN EXPRESSION  #
+	#=============================================#
+
+	def WordsClassified(pcExpr)
+
+		if CheckParams()
+			if isList(pcExpr) and Q(pcExpr).IsByOrUsingNamedParams()
+				pcExpr = pcExpr[2]
+			ok
+			if NOT isString(pcExpr)
+				StzRaise("Incorrect param type! pcExpr must be a string.")
+			ok
+		ok
+
+		cExpr = Q(pcExpr).TrimQ().RemoveTheseBoundsQ("{", "}").Trimmed()
+
+		if NOT Q(cExpr).ContainsOneOfTheseCS([ "@word", "@i" ], FALSE)
+			StzRaise("Can't proceed! pcExpr must contain the keyword @word and/or @i.")
+		ok
+
+		cCode = ' value = (' + pcExpr + ')'
+
+		oContent = This.WordsCSQ(FALSE).ToSetQ()
+		aContent = oContent.Content()
+		nLen = len(aContent)
+
+		aValues = []
+
+		for @i = 1 to nLen
+			@word = aContent[@i]
+			eval(cCode)
+			aValues + value
+		next
+
+		oValues = StzListQ(aValues)
+
+		aValuesU = Q(aValues).ToSetQ().StringifyQ().Sorted()
+		nLenVal = len(aValuesU)
+
+		#--
+
+		aResult = []
+
+		for i = 1 to nLenVal
+			anPos = oValues.FindAll(aValuesU[i])
+			aResult + [ aValuesU[i], oContent.ItemsAtPositions(anPos) ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def WordsClassifiedBy(pcExpr)
+			return This.WordsClassified(pcExpr)
+
+		def WordsClassifiedUsing(pcExpr)
+			return This.WordsClassified(pcExpr)
+
+		#>
+
 	  #=============================#
 	 #     DIVIDING THE STRING     #
 	#=============================#
@@ -74507,14 +74585,14 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #  GETTING THE LIST OF WORDS IN THE STRING  #
 	#===========================================#
 
-	#NOTE: stzString has a limites understanding of what a word is.
-	# In fact, it just a substring bounded by two spaces (or one space
+	#NOTE: stzString has a limited understanding of what a word is.
+	# In fact, i't just a substring bounded by two spaces (or one space
 	# if it is at the start or the end of the substring.
 
 	# To get a more appealling meaning of Word(), use stzText instead.
 
 	def WordsCS(pCaseSensitive)
-		acResult = This.SplitCS(" ", pCaseSensitive)
+		acResult = This.SplitQ(" ").ToSetCS(pCaseSensitive)
 		return acResult
 
 		def WordsCSQ(pCaseSensitive)
@@ -74541,9 +74619,75 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def WordsQR(pcReturnType)
 			return This.WordsCSQR(TRUE, pcReturnType)
 
+	  #---------------------------------------------------#
+	 #   GETTING THE LIST OF WORDS WITHOUT DUPPLICATION  #
+	#---------------------------------------------------#
+
+	def WordsCSU(pCaseSensitive)
+		acResult = This.WordsCSQ(pCaseSensitive).ToSet()
+		return acResult
+
+		#< @FunctionFulentForms
+
+		def WordsCSUQ(pCaseSensitive)
+			return WordsCSUQR(pCaseSensitive, :stzList)
+
+		def WordsCSUQR(pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.WordsCSu(pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.WordsCSU(pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def UniqueWordsCS(pCaseSensitive)
+			return This.WordsCSU(pCaseSensitive)
+
+		def UniqueWordsCSQ(pCaseSensitive)
+			return This.WordsCSUQ(pCaseSensitive)
+
+		def UniqueWordsCSQR(pCaseSensitive, pcReturnType)
+			return ThisWordsCSUQR(pCaseSensitive, pcReturnType)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def WordsU()
+		return This.WordsCSU(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def WordsUQ()
+			return This.WordsUQR(:stzList)
+
+		def WordsUQR(pcReturnType)
+			return This.WordsCSUQR(TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def UniqueWords()
+			return This.WordsU()
+
+		def UniqueWordsQ()
+			return This.WordsUQ()
+
+		def UniqueWordsQR(pcReturnType)
+			return ThisWordsUQR(pcReturnType)
+
+		#>
+		
 	  #------------------------------------------------------------------------#
 	 #  CHECKING IF THE GIVEN SUSBSTRING CORRESPONDS TO A WORD OF THE STRING  #
-	#------------------------------------------------------------------------#
+	#========================================================================#
 
 	def SubStringIsWordCS(pcSubStr, pCaseSensitive) #TODO: Check for performance!
 		bResult = This.WordsCSQ(pCaseSensitive).ContainsCS(pcSubStr, pCaseSensitive)

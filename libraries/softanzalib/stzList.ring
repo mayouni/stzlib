@@ -25181,9 +25181,74 @@ class stzList from stzObject
 		def ClassesXTSF()
 			return This.ClassesAndTheirFrequenciesSF()
 
-	  #-----------------------------------------------------#
+	  #--------------------------------------------------------#
+	 #   CLASSIFYING THE LIST ITEMS USING A GIVEN EXPRESSION  #
+	#--------------------------------------------------------#
+
+	def ClassifyBy(pcExpr)
+		#EXAMPLE
+		/*
+		o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
+		? @@( o1.ClassifiedBy(' Q(@item).HowMany(0) ') )
+		#--> [
+		# 	[ "0", [ 8, 2 ] ],
+		#	[ "1", [ 170, 0, 150 ] ],
+		#	[ "2", [ 3007, 2100, 2100 ] ],
+		#	[ "3", [ 10001 ] ]
+		# ]
+		*/
+
+		#NOTE
+		# duplicates in the list are automatically removed and not
+		# couted in the classification
+
+		if CheckParams()
+			if NOT isString(pcExpr)
+				StzRaise("Incorrect param type! pcExpr must be a string.")
+			ok
+		ok
+
+		cExpr = Q(pcExpr).TrimQ().RemoveTheseBoundsQ("{", "}").Trimmed()
+		if NOT Q(cExpr).ContainsOneOfTheseCS([ "@item", "@i" ], FALSE)
+			StzRaise("Can't proceed! pcExpr must contain the keyword @item and/or @i.")
+		ok
+
+		cCode = ' value = (' + pcExpr + ')'
+
+		oContent = This.ToSetQ()
+		aContent = oContent.Content()
+		nLen = len(aContent)
+
+		aValues = []
+
+		for @i = 1 to nLen
+			@item = aContent[@i]
+			eval(cCode)
+			aValues + value
+		next
+
+		oValues = StzListQ(aValues)
+
+		aValuesU = Q(aValues).ToSetQ().StringifyQ().Sorted()
+		nLenVal = len(aValuesU)
+
+		#--
+
+		aResult = []
+
+		for i = 1 to nLenVal
+			anPos = oValues.FindAll(aValuesU[i])
+			aResult + [ aValuesU[i], oContent.ItemsAtPositions(anPos) ]
+		next
+
+		return aResult
+
+		def ClassifiedBy(pcExpr)
+			return This.ClassifyBy(pcExpr)
+
+	  #=====================================================#
 	 #   THE LIST IS MADE OF CONTIGUOUS CHARS OR NUMBERS   #
-	#-----------------------------------------------------#
+	#=====================================================#
 
 	def IsContiguous()
 		bResult = FALSE
@@ -31272,17 +31337,32 @@ class stzList from stzObject
 		def ToSet()
 			return This.DuplicatesRemoved()
 
+			def ToSetQ()
+				return new stzList(this.ToSet())
+
 		def ToSetOfItems()
 			return This.DuplicatesRemoved()
+
+			def ToSetOfItemsQ()
+				return This.ToSetQ()
 
 		def UniqueItems()
 			return This.DuplicatesRemoved()
 
+			def UniqueItemsQ()
+				return This.ToSetQ()
+
 		def ItemsU()
 			return This.DuplicatesRemoved()
 
+			def ItemsUQ()
+				return This.ToSetQ()
+
 		def ItemsWithoutDuplication()
 			return This.DuplicatesRemoved()
+
+			def ItemsWithoutDuplicationQ()
+				return This.ToSetQ()
 
 		def DuplicatedItemsRemoved()
 			return This.DuplicatesRemoved()
@@ -31298,11 +31378,20 @@ class stzList from stzObject
 		def WithoutDuplicates()
 			return This.DuplicatesRemoved()
 
+			def WithoutDuplicatesQ()
+				return This.ToSetQ()
+
 		def WithoutDuplication()
 			return This.DuplicatesRemoved()
 
+			def WithoutDuplicationQ()
+				return This.ToSetQ()
+
 		def WithoutDuplications()
 			return This.DuplicatesRemoved()
+
+			def WithoutDuplicationsQ()
+				return This.ToSetQ()
 
 		#>
 
@@ -47710,6 +47799,24 @@ vvv
 		else
 			return FALSE
 		ok
+
+	#--
+
+	def IsByOrUsingNamedParam()
+		if This.IsByNamedParam() or This.IsUsingNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsByOrUsingNamedParams()
+			return This.IsByOrUsingNamedParam()
+
+		def IsUsingOrByNamedParam()
+			return This.IsByOrUsingNamedParam()
+
+		def IsUsingOrByNamedParams()
+			return This.IsByOrUsingNamedParam()
 
 	#--
 
