@@ -3718,7 +3718,7 @@ proff()
 # Executed in 0.01 second(s)
 
 /*------------------
-*/
+
 pron()
 
 o1 = new stzString( "ABCabcEFGijHI" )
@@ -3734,17 +3734,15 @@ proff()
 
 #===========
 
-
-/*-----------
-
 pron()
 
 oStr = new stzString("Welcome to the Ring programming language")
-? oStr.SectionCS(:From = "RING", :To = :LastChar, :CaseSensitive = FALSE))
+? oStr.SectionCS( :From = "RING", :To = :LastChar, :CaseSensitive = FALSE )
 #--> Ring programming language
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.02 second(s) in Ring 1.19
+# Executed in 0.06 second(s) in Ring 1.17
 
 /*-----------
 
@@ -3752,19 +3750,19 @@ pron()
 
 oStr = new stzString("Welcome to the Ring programming language")
 ? oStr.Section(:From = "Ring", :To = "language")
-# Ring programming language
+#--> Ring programming language
 
 proff()
 # Executed in 0.06 second(s)
 
-/*-----------
+/*----------- @narration
 
 pron()
 
-# Softanza make programming in Ring more expressive.
+# Softanza make programming in Ring even more expressive.
 
-# To showcase this, let's consider how substr() function
-# is used in Ring, and how Softanza offers a better way.
+# To showcase this, let's consider how substr() function is used in Ring,
+# and how Softanza offers it's way of making the same thing.
 
 # In Ring, the substr() function does many things:
 #	--> Finding a substring
@@ -3773,7 +3771,7 @@ pron()
 #	--> Replacing a sbstring by an other substring (with or without casesensitivity)
 
 # We are going to perform all these actions, using substr() and then Softanza,
-# side by side, so you can make sense of the expressiveness of the library...
+# side by side, so you can make sense of the differences...
 
 # Finding a substring
 
@@ -3802,7 +3800,7 @@ pron()
 	# In Softanza we say:
 
 	oStr = new stzString("Welcome to the Ring programming language")
-	? oStr.Section(:From = "RING", :To = :LastChar) # Or simply Section("Ring", :End)
+	? oStr.Section(:From = "Ring", :To = :LastChar) + NL # Or simply Section("Ring", :End)
 	#--> Ring programming language
 
 # Getting the substring made of n given chars starting at a given position
@@ -3815,7 +3813,7 @@ pron()
 	# In Softanza we say:
 
 	oStr = new stzString("Welcome to the Ring programming language")
-	? oStr.Range("Ring", 4)
+	? oStr.Range("Ring", 4) + NL
 	#--> Ring
 
 # Replacing a sbstring by an other substring
@@ -3827,7 +3825,7 @@ pron()
 	# In Softanza we say:
 	oStr = new stzString("Welcome to Python programming language")
 	oStr.Replace("Python", :With = "Ring")
-	? oStr.Content()
+	? oStr.Content() + NL
 	#--> Welcome to Ring programming language
 
 # Replacing a sbstring by an other substring with Case Sensitivity
@@ -3849,18 +3847,27 @@ pron()
 
 	oStr = new stzString("Welcome to Python programming language")
 	oStr.ReplaceCS("PYTHON", :With = "Ring", TRUE)
-	? oStr.Content()
+	? oStr.Content() + NL
 	#--> Welcome to Python programming language
+
+	# Or without specifying case sensitivty like this:
+
+	oStr = new stzString("Welcome to Python programming language")
+	oStr.Replace("Python", :With = "Ring")
+	? oStr.Content()
+	#--> Welcome to Ring programming language
 	
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.03 second(s) in Ring 1.19
+# Executed in 0.11 second(s) in Rin 1.17
 
-/*---------
+/*--------- #perf #todo Check it after including FindBetween()
 
+#NOTE
 # Performance of stzString (using QString2 in background) is astonishing!
 
 
-# Ket's compose a large string
+# Let's compose a large string
 
 str = "1|2|1|__*__|[ 10* 11* 12 ]|B|2|1|__*__|A*|3|__*__|B|[ 10* 11* 12 ]|B|"
 
@@ -3907,14 +3914,26 @@ aList = [ ["mahmoud", 15000] , ["ahmed", 14000 ] , ["samir", 16000 ] , ["mohamme
 o1 = new stzListOfPairs(aList) # Or stzListOfLists() if you want
 
 ? @@( o1.Sorted() ) + NL
-#--> [ [ "ahmed", 14000 ], [ "ibrahim", 11000 ], [ "mahmoud", 15000 ], [ "mohammed", 12000 ], [ "samir", 16000 ] ]
+#--> [
+#	[ "ahmed", 14000 ],
+#	[ "ibrahim", 11000 ],
+#	[ "mahmoud", 15000 ],
+#	[ "mohammed", 12000 ],
+#	[ "samir", 16000 ]
+# ]
 
-? @@( o1.SortedBy(2) )
-#--> [ [ "ibrahim", 11000 ], [ "mohammed", 12000 ], [ "ahmed", 14000 ], [ "mahmoud", 15000 ], [ "samir", 16000 ] ]
+? @@( o1.SortedOn(2) )
+#--> [
+#	[ "ibrahim", 11000 ],
+#	[ "mohammed", 12000 ],
+#	[ "ahmed", 14000 ],
+#	[ "mahmoud", 15000 ],
+#	[ "samir", 16000 ]
+# ]
 
 proff()
 
-#--> Executed in 0.05 second(s)
+#--> Executed in 0.03 second(s)
 
 /*---------
 

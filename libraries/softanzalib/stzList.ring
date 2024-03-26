@@ -13754,6 +13754,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfNumbers()
 			return This.IsListOfNumbers()
 
+		#--
+
+		def AreNumbers()
+			return This.IsListOfNumbers()
+
+		def AreAllNumbers()
+			return This.IsListOfNumbers()
+
+		def AllAreNumbers()
+			return This.IsListOfNumbers()
+
 		#>
 
 	  #--------------------------------------------------------#
@@ -13810,6 +13821,17 @@ class stzList from stzObject
 			return This.IsListOfListsOfNumbers()
 
 		def IsOnlyMadeOfListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		#--
+
+		def AreListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def AreAllListsOfNumbers()
+			return This.IsListOfListsOfNumbers()
+
+		def AllAreListsOfNumbers()
 			return This.IsListOfListsOfNumbers()
 
 		#>
@@ -13870,6 +13892,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfDecimalNumbers()
 			return This.IsListOfDecimalNumbers()
 
+		#--
+
+		def AreDecimalNumbers()
+			return This.IsListOfDecimalNumbers()
+
+		def AreAllDecimalNumbers()
+			return This.IsListOfDecimalNumbers()
+
+		def AllAreDecimalNumbers()
+			return This.IsListOfDecimalNumbers()
+
 		#>
 
 	  #----------------------------------------------------------------#
@@ -13926,6 +13959,17 @@ class stzList from stzObject
 			return This.IsListOfListsOfDecimalNumbers()
 
 		def IsOnlyMadeOfListsOfDecimalNumbers()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		#--
+
+		def ArelistsOfDecimalNumbers()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		def AreAlllistsOfDecimalNumbers()
+			return This.IsListOfListsOfDecimalNumbers()
+
+		def AllArelistsOfDecimalNumbers()
 			return This.IsListOfListsOfDecimalNumbers()
 
 		#>
@@ -13986,6 +14030,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfBinaryNumbers()
 			return This.IsListOfBinaryNumbers()
 
+		#--
+
+		def AreBinaryNumbers()
+			return This.IsListOfBinaryNumbers()
+
+		def AreAllBinaryNumbers()
+			return This.IsListOfBinaryNumbers()
+
+		def AllAreBinaryNumbers()
+			return This.IsListOfBinaryNumbers()
+
 		#>
 
 	  #---------------------------------------------------------------#
@@ -14042,6 +14097,17 @@ class stzList from stzObject
 			return This.IsListOfListsOfBinaryNumbers()
 
 		def IsOnlyMadeOfListsOfBinaryNumbers()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		#--
+
+		def AreListsOfBinaryNumbers()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		def AreAllListsOfBinaryNumbers()
+			return This.IsListOfListsOfBinaryNumbers()
+
+		def AllAreListsOfBinaryNumbers()
 			return This.IsListOfListsOfBinaryNumbers()
 
 		#>
@@ -14102,6 +14168,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfOctalNumbers()
 			return This.IsListOfOctalNumbers()
 
+		#--
+
+		def AreOctalNumbers()
+			return This.IsListOfOctalNumbers()
+
+		def AreAllOctalNumbers()
+			return This.IsListOfOctalNumbers()
+
+		def AllAreOctalNumbers()
+			return This.IsListOfOctalNumbers()
+
 		#>
 
 	  #--------------------------------------------------------------#
@@ -14158,6 +14235,17 @@ class stzList from stzObject
 			return This.IsListOfListsOfOctalNumbers()
 
 		def IsOnlyMadeOfListsOfOctalNumbers()
+			return This.IsListOfListsOfOctalNumbers()
+
+		#--
+
+		def AreListsOfOctalNumbers()
+			return This.IsListOfListsOfOctalNumbers()
+
+		def AreAllListsOfOctalNumbers()
+			return This.IsListOfListsOfOctalNumbers()
+
+		def AllAreListsOfOctalNumbers()
 			return This.IsListOfListsOfOctalNumbers()
 
 		#>
@@ -14218,6 +14306,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfHexNumbers()
 			return This.IsListOfHexNumbers()
 
+		#--
+
+		def AreHexNumbers()
+			return This.IsListOfHexNumbers()
+
+		def AreAllHexNumbers()
+			return This.IsListOfHexNumbers()
+
+		def AllAreHexNumbers()
+			return This.IsListOfHexNumbers()
+
 		#>
 
 	  #------------------------------------------------------------#
@@ -14274,6 +14373,17 @@ class stzList from stzObject
 			return This.IsListOfListsOfHexNumbers()
 
 		def IsOnlyMadeOfListsOfHexNumbers()
+			return This.IsListOfListsOfHexNumbers()
+
+		#--
+
+		def AreListsOfHexNumbers()
+			return This.IsListOfListsOfHexNumbers()
+
+		def AreAllListsOfHexNumbers()
+			return This.IsListOfListsOfHexNumbers()
+
+		def AllAreListsOfHexNumbers()
 			return This.IsListOfListsOfHexNumbers()
 
 		#>
@@ -14371,6 +14481,26 @@ class stzList from stzObject
 		def IsOnlyMadeOfQBytesListObjects()
 			return This.IsListOfQBytesLists()
 
+		#--
+
+		def AreQBytesList()
+			return This.IsListOfQBytesLists()
+
+		def AreAllQBytesList()
+			return This.IsListOfQBytesLists()
+
+		def AllAreQBytesList()
+			return This.IsListOfQBytesLists()
+
+		def AreQBytesListObjects()
+			return This.IsListOfQBytesLists()
+
+		def AreAllQBytesListObjects()
+			return This.IsListOfQBytesLists()
+
+		def AllAreQBytesListObjects()
+			return This.IsListOfQBytesLists()
+
 		#>
 
 	  #-----------------------------------------------#
@@ -14427,6 +14557,17 @@ class stzList from stzObject
 			return This.IsListOfStrings()
 
 		def IsOnlyMadeOfStrings()
+			return This.IsListOfStrings()
+
+		#--
+
+		def AreStrings()
+			return This.IsListOfStrings()
+
+		def AreAllStrings()
+			return This.IsListOfStrings()
+
+		def AllAreStrings()
 			return This.IsListOfStrings()
 
 		#>
@@ -14487,6 +14628,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStrings()
 			return This.IsListOfListsOfStrings()
 
+		#--
+
+		def AreListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def AreAllListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
+		def AllAreListsOfStrings()
+			return This.IsListOfListsOfStrings()
+
 		#>
 
 	  #---------------------------------------------#
@@ -14543,6 +14695,17 @@ class stzList from stzObject
 			return This.IsListOfLists()
 
 		def IsOnlyMadeOfLists()
+			return This.IsListOfLists()
+
+		#--
+
+		def AreLists()
+			return This.IsListOfLists()
+
+		def AreAllLists()
+			return This.IsListOfLists()
+
+		def AllAreLists()
 			return This.IsListOfLists()
 
 		#>
@@ -14603,6 +14766,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfLists()
 			return This.IsListOfListsOfLists()
 
+		#--
+
+		def AreListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def AreAllListsOfLists()
+			return This.IsListOfListsOfLists()
+
+		def AllAreListsOfLists()
+			return This.IsListOfListsOfLists()
+
 		#>
 
 	  #-----------------------------------------------#
@@ -14659,6 +14833,17 @@ class stzList from stzObject
 			return This.IsListOfObjects()
 
 		def IsOnlyMadeOfObjects()
+			return This.IsListOfObjects()
+
+		#--
+
+		def AreObjects()
+			return This.IsListOfObjects()
+
+		def AreAllObjects()
+			return This.IsListOfObjects()
+
+		def AllAreObjects()
 			return This.IsListOfObjects()
 
 		#>
@@ -14720,6 +14905,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfObjects()
 			return This.IsListOfListsOfObjects()
 
+		#--
+
+		def AreListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def AreAllListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
+		def AllAreListsOfObjects()
+			return This.IsListOfListsOfObjects()
+
 		#>
 
 	  #---------------------------------------------#
@@ -14776,6 +14972,17 @@ class stzList from stzObject
 			return This.IsListOfChars()
 
 		def IsOnlyMadeOfChars()
+			return This.IsListOfChars()
+
+		#--
+
+		def AreChars()
+			return This.IsListOfChars()
+
+		def AreAllChars()
+			return This.IsListOfChars()
+
+		def AllAreChars()
 			return This.IsListOfChars()
 
 		#>
@@ -14836,6 +15043,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfChars()
 			return This.IsListOfListsOfChars()
 
+		#--
+
+		def AreListsOfChars()
+			return This.IsListOfListsOfChars()
+
+		def AreAllListsOfChars()
+			return This.IsListOfListsOfChars()
+
+		def AllAreListsOfChars()
+			return This.IsListOfListsOfChars()
+
 		#>
 
 	  #---------------------------------------------#
@@ -14892,6 +15110,17 @@ class stzList from stzObject
 			return This.IsListOfPairs()
 
 		def IsOnlyMadeOfPairs()
+			return This.IsListOfPairs()
+
+		#--
+
+		def ArePairs()
+			return This.IsListOfPairs()
+
+		def AreAllPairs()
+			return This.IsListOfPairs()
+
+		def AllArePairs()
 			return This.IsListOfPairs()
 
 		#>
@@ -14952,6 +15181,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfPairs()
 			return This.IsListOfListsOfPairs()
 
+		#--
+
+		def AreListsOfPairs()
+			return This.IsListOfListsOfPairs()
+
+		def AreAllListsOfPairs()
+			return This.IsListOfListsOfPairs()
+
+		def AllAreListsOfPairs()
+			return This.IsListOfListsOfPairs()
+
 		#>
 
 	  #--------------------------------------------#
@@ -15008,6 +15248,17 @@ class stzList from stzObject
 			return This.IsListOfSets()
 
 		def IsOnlyMadeOfSets()
+			return This.IsListOfSets()
+
+		#--
+
+		def AreSets()
+			return This.IsListOfSets()
+
+		def AreAllSets()
+			return This.IsListOfSets()
+
+		def AllAreSets()
 			return This.IsListOfSets()
 
 		#>
@@ -15068,6 +15319,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfSets()
 			return This.IsListOfListsOfSets()
 
+		#--
+
+		def AreListsOfSets()
+			return This.IsListOfListsOfSets()
+
+		def AreAllListsOfSets()
+			return This.IsListOfListsOfSets()
+
+		def AllAreListsOfSets()
+			return This.IsListOfListsOfSets()
+
 		#>
 
 	  #-------------------------------------------------#
@@ -15124,6 +15386,17 @@ class stzList from stzObject
 			return This.IsListOfHashLists()
 
 		def IsOnlyMadeOfHashLists()
+			return This.IsListOfHashLists()
+
+		#--
+
+		def AreHashLists()
+			return This.IsListOfHashLists()
+
+		def AreAllHashLists()
+			return This.IsListOfHashLists()
+
+		def AllAreHashLists()
 			return This.IsListOfHashLists()
 
 		#>
@@ -15184,6 +15457,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfHashLists()
 			return This.IsListOfListsOfHashLists()
 
+		#--
+
+		def AreListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def AreAllListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
+		def AllAreListsOfHashLists()
+			return This.IsListOfListsOfHashLists()
+
 		#>
 
 	  #---------------------------------------------#
@@ -15240,6 +15524,17 @@ class stzList from stzObject
 			return This.IsListOfGrids()
 
 		def IsOnlyMadeOfGrids()
+			return This.IsListOfGrids()
+
+		#--
+
+		def AreGrids()
+			return This.IsListOfGrids()
+
+		def AreAllGrids()
+			return This.IsListOfGrids()
+
+		def AllAreGrids()
 			return This.IsListOfGrids()
 
 		#>
@@ -15300,6 +15595,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfGrids()
 			return This.IsListOfListsOfGrids()
 
+		#--
+
+		def AreListsOfGrids()
+			return This.IsListOfListsOfGrids()
+
+		def AreAllListsOfGrids()
+			return This.IsListOfListsOfGrids()
+
+		def AllAreListsOfGrids()
+			return This.IsListOfListsOfGrids()
+
 		#>
 
 	  #----------------------------------------------#
@@ -15356,6 +15662,17 @@ class stzList from stzObject
 			return This.IsListOfTables()
 
 		def IsOnlyMadeOfTables()
+			return This.IsListOfTables()
+
+		#--
+
+		def AreTables()
+			return This.IsListOfTables()
+
+		def AreAllTables()
+			return This.IsListOfTables()
+
+		def AllAreTables()
 			return This.IsListOfTables()
 
 		#>
@@ -15416,6 +15733,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfTables()
 			return This.IsListOfListsOfTables()
 
+		#--
+
+		def AreListsOfTables()
+			return This.IsListOfListsOfTables()
+
+		def AreAllListsOfTables()
+			return This.IsListOfListsOfTables()
+
+		def AllAreListsOfTables()
+			return This.IsListOfListsOfTables()
+
 		#>
 
 	  #---------------------------------------------#
@@ -15472,6 +15800,17 @@ class stzList from stzObject
 			return This.IsListOfTrees()
 
 		def IsOnlyMadeOfTrees()
+			return This.IsListOfTrees()
+
+		#--
+
+		def AreTrees()
+			return This.IsListOfTrees()
+
+		def AreAllTrees()
+			return This.IsListOfTrees()
+
+		def AllAreTrees()
 			return This.IsListOfTrees()
 
 		#>
@@ -15532,6 +15871,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfTrees()
 			return This.IsListOfListsOfTrees()
 
+		#--
+
+		def AreListsOfTrees()
+			return This.IsListOfListsOfTrees()
+
+		def AreAllListsOfTrees()
+			return This.IsListOfListsOfTrees()
+
+		def AllAreListsOfTrees()
+			return This.IsListOfListsOfTrees()
+
 		#>
 
 	  #--------------------------------------------------#
@@ -15588,6 +15938,17 @@ class stzList from stzObject
 			return This.IsListOfStzNumbers()
 
 		def IsOnlyMadeOfStzNumbers()
+			return This.IsListOfStzNumbers()
+
+		#--
+
+		def AreStzNumbers()
+			return This.IsListOfStzNumbers()
+
+		def AreAllStzNumbers()
+			return This.IsListOfStzNumbers()
+
+		def AllAreStzNumbers()
 			return This.IsListOfStzNumbers()
 
 		#>
@@ -15648,6 +16009,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzNumbers()
 			return This.IsListOfListsOfStzNumbers()
 
+		#--
+
+		def AreListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def AreAllListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
+		def AllAreListsOfStzNumbers()
+			return This.IsListOfListsOfStzNumbers()
+
 		#>
 
 	  #---------------------------------------------------------#
@@ -15704,6 +16076,17 @@ class stzList from stzObject
 			return This.IsListOfStzDecimalNumbers()
 
 		def IsOnlyMadeOfStzDecimalNumbers()
+			return This.IsListOfStzDecimalNumbers()
+
+		#--
+
+		def AreStzDecimalNumbers()
+			return This.IsListOfStzDecimalNumbers()
+
+		def AreAllStzDecimalNumbers()
+			return This.IsListOfStzDecimalNumbers()
+
+		def AllAreStzDecimalNumbers()
 			return This.IsListOfStzDecimalNumbers()
 
 		#>
@@ -15764,6 +16147,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzDecimalNumbers()
 			return This.IsListOfListsOfStzDecimalNumbers()
 
+		#--
+
+		def AreListsOfStzDecimalNumbers()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
+		def AreAllListsOfStzDecimalNumbers()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
+		def AllAreListsOfStzDecimalNumbers()
+			return This.IsListOfListsOfStzDecimalNumbers()
+
 		#>
 
 	  #--------------------------------------------------------#
@@ -15820,6 +16214,17 @@ class stzList from stzObject
 			return This.IsListOfStzBinaryNumbers()
 
 		def IsOnlyMadeOfStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		#--
+
+		def AreStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		def AreAllStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		def AllAreStzBinaryNumbers()
 			return This.IsListOfStzBinaryNumbers()
 
 		#>
@@ -15880,6 +16285,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzBinaryNumbers()
 			return This.IsListOfListsOfStzBinaryNumbers()
 
+		#--
+
+		def AreListsOfStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		def AreAllListsOfStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
+		def AllAreListsOfStzBinaryNumbers()
+			return This.IsListOfStzBinaryNumbers()
+
 		#>
 
 	  #-------------------------------------------------------#
@@ -15936,6 +16352,17 @@ class stzList from stzObject
 			return This.IsListOfStzOctalNumbers()
 
 		def IsOnlyMadeOfStzOctalNumbers()
+			return This.IsListOfStzOctalNumbers()
+
+		#--
+
+		def AreStzOctalNumbers()
+			return This.IsListOfStzOctalNumbers()
+
+		def AreAllStzOctalNumbers()
+			return This.IsListOfStzOctalNumbers()
+
+		def AllAreStzOctalNumbers()
 			return This.IsListOfStzOctalNumbers()
 
 		#>
@@ -15996,6 +16423,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzOctalNumbers()
 			return This.IsListOfListsOfStzOctalNumbers()
 
+		#--
+
+		def AreListsOfStzOctalNumbers()
+			return This.IsListOfListsOfStzOctalNumbers()
+
+		def AreAllListsOfStzOctalNumbers()
+			return This.IsListOfListsOfStzOctalNumbers()
+
+		def AllAreListsOfStzOctalNumbers()
+			return This.IsListOfListsOfStzOctalNumbers()
+
 		#>
 
 	  #-----------------------------------------------------#
@@ -16052,6 +16490,17 @@ class stzList from stzObject
 			return This.IsListOfStzHexNumbers()
 
 		def IsOnlyMadeOfStzHexNumbers()
+			return This.IsListOfStzHexNumbers()
+
+		#--
+
+		def AreStzHexNumbers()
+			return This.IsListOfStzHexNumbers()
+
+		def AreAllStzHexNumbers()
+			return This.IsListOfStzHexNumbers()
+
+		def AllAreStzHexNumbers()
 			return This.IsListOfStzHexNumbers()
 
 		#>
@@ -16112,12 +16561,23 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzHexNumbers()
 			return This.IsListOfListsOfStzHexNumbers()
 
+		#--
+
+		def AreListsOfStzHexNumbers()
+			return This.IsListOfListsOfStzHexNumbers()
+
+		def AreAllListsOfStzHexNumbers()
+			return This.IsListOfListsOfStzHexNumbers()
+
+		def AllAreListsOfStzHexNumbers()
+			return This.IsListOfListsOfStzHexNumbers()
+
 		#>
 	  #------------------------------------------------------#
 	 #  CHECKING THAT THE LIST IS A LIST OF STZLISTOFBYTES  #
 	#======================================================#
 
-	def IsListOfStzListOfBytes()
+	def IsListOfStzListsOfBytes()
 		nLen = len(@aContent)
 		if nLen = 0
 			return FALSE
@@ -16137,37 +16597,48 @@ class stzList from stzObject
 		#< @FunctionAlternativeForms
 
 		def IsAListOfStzListOfBytes()
-			return This.IsListOfStzListOfBytes()
+			return This.IsListOfStzListsOfBytes()
 
-		def ItemsAreStzListOfBytes()
-			return This.IsListOfStzListOfBytes()
+		def ItemsAreStzListsOfBytes()
+			return This.IsListOfStzListsOfBytes()
 
-		def ItemsAreAllStzListOfBytes()
-			return This.IsListOfStzListOfBytes()
+		def ItemsAreAllStzListsOfBytes()
+			return This.IsListOfStzListsOfBytes()
 
-		def AllItemsAreStzListOfBytes()
-			return This.IsListOfStzListOfBytes()
+		def AllItemsAreStzListsOfBytes()
+			return This.IsListOfStzListsOfBytes()
 
-		def ContainsOnlyStzListOfBytes()
-			return This.IsListOfStzListOfBytes()
+		def ContainsOnlyStzListsOfBytes()
+			return This.IsListOfStzListsOfBytes()
 
-		def ContainsStzListOfBytesOnly()
-			return This.IsListOfStzListOfBytes()
+		def ContainsStzListsOfBytesOnly()
+			return This.IsListOfStzListsOfBytes()
 
-		def IsMadeOfStzListOfBytes()
-			return This.IsListOfStzListOfBytes()
+		def IsMadeOfStzListsOfBytes()
+			return This.IsListOfStzListsOfBytes()
 
-		def IsMadeOfOnlyStzListOfBytes()
-			return This.IsListOfStzListOfBytes()
+		def IsMadeOfOnlyStzListsOfBytes()
+			return This.IsListOfStzListsOfBytes()
 
-		def IsMadeOfStzListOfBytesOnly()
-			return This.IsListOfStzListOfBytes()
+		def IsMadeOfStzListsOfBytesOnly()
+			return This.IsListOfStzListsOfBytes()
 
-		def IsMadeOnlyOfStzListOfBytes()
-			return This.IsListOfStzListOfBytes()
+		def IsMadeOnlyOfStzListsOfBytes()
+			return This.IsListOfStzListsOfBytes()
 
-		def IsOnlyMadeOfStzListOfBytes()
-			return This.IsListOfStzListOfBytes()
+		def IsOnlyMadeOfStzListsOfBytes()
+			return This.IsListOfStzListsOfBytes()
+
+		#--
+
+		def AreStzListsOfBytes()
+			return This.IsListOfStzNumbers()
+
+		def AreAllStzListsOfBytes()
+			return This.IsListOfStzListsOfBytes()
+
+		def AllAreStzListsOfBytes()
+			return This.IsListOfStzListsOfBytes()
 
 		#>
 
@@ -16225,6 +16696,17 @@ class stzList from stzObject
 			return This.IsListOfStzStrings()
 
 		def IsOnlyMadeOfStzStrings()
+			return This.IsListOfStzStrings()
+
+		#--
+
+		def AreStzStrings()
+			return This.IsListOfStzStrings()
+
+		def AreAllStzStrings()
+			return This.IsListOfStzStrings()
+
+		def AllAreStzStrings()
 			return This.IsListOfStzStrings()
 
 		#>
@@ -16285,6 +16767,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzStrings()
 			return This.IsListOfListsOfStzStrings()
 
+		#--
+
+		def AreListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def AreAllListsofStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
+		def AllAreListsOfStzStrings()
+			return This.IsListOfListsOfStzStrings()
+
 		#>
 
 	  #------------------------------------------------#
@@ -16341,6 +16834,17 @@ class stzList from stzObject
 			return This.IsListOfStzLists()
 
 		def IsOnlyMadeOfStzLists()
+			return This.IsListOfStzLists()
+
+		#--
+
+		def AreStzLists()
+			return This.IsListOfStzLists()
+
+		def AreAllStzLists()
+			return This.IsListOfStzLists()
+
+		def AllAreStzLists()
 			return This.IsListOfStzLists()
 
 		#>
@@ -16401,6 +16905,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzLists()
 			return This.IsListOfListsOfStzLists()
 
+		#--
+
+		def AreListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def AreAllListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
+		def AllAreListsOfStzLists()
+			return This.IsListOfListsOfStzLists()
+
 		#>
 
 	  #--------------------------------------------------#
@@ -16457,6 +16972,17 @@ class stzList from stzObject
 			return This.IsListOfStzObjects()
 
 		def IsOnlyMadeOfStzObjects()
+			return This.IsListOfStzObjects()
+
+		#--
+
+		def AreStzObjects()
+			return This.IsListOfStzObjects()
+
+		def AreAllStzObjects()
+			return This.IsListOfStzObjects()
+
+		def AllAreStzObjects()
 			return This.IsListOfStzObjects()
 
 		#>
@@ -16517,6 +17043,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzObjects()
 			return This.IsListOfListsOfStzObjects()
 
+		#--
+
+		def AreListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def AreAllListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
+		def AllAreListsOfStzObjects()
+			return This.IsListOfListsOfStzObjects()
+
 		#>
 
 	  #------------------------------------------------#
@@ -16573,6 +17110,17 @@ class stzList from stzObject
 			return This.IsListOfStzChars()
 
 		def IsOnlyMadeOfStzChars()
+			return This.IsListOfStzChars()
+
+		#--
+
+		def AreStzChars()
+			return This.IsListOfStzChars()
+
+		def AreAllStzChars()
+			return This.IsListOfStzChars()
+
+		def AllAreStzChars()
 			return This.IsListOfStzChars()
 
 		#>
@@ -16633,6 +17181,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzChars()
 			return This.IsListOfListsOfStzChars()
 
+		#--
+
+		def AreListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def AreAllListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
+		def AllAreListsOfStzChars()
+			return This.IsListOfListsOfStzChars()
+
 		#>
 
 	  #------------------------------------------------#
@@ -16689,6 +17248,17 @@ class stzList from stzObject
 			return This.IsListOfStzPairs()
 
 		def IsOnlyMadeOfStzPairs()
+			return This.IsListOfStzPairs()
+
+		#--
+
+		def AreStzPairs()
+			return This.IsListOfStzPairs()
+
+		def AreAllStzPairs()
+			return This.IsListOfStzPairs()
+
+		def AllAreStzPairs()
 			return This.IsListOfStzPairs()
 
 		#>
@@ -16749,6 +17319,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzPairs()
 			return This.IsListOfListsOfStzPairs()
 
+		#--
+
+		def AreListsOfStzPairs()
+			return This.IsListOfListsOfStzPairs()
+
+		def AreAllListsOfStzPairs()
+			return This.IsListOfListsOfStzPairs()
+
+		def AllAreListsOfStzPairs()
+			return This.IsListOfListsOfStzPairs()
+
 		#>
 
 	  #-----------------------------------------------#
@@ -16806,6 +17387,17 @@ class stzList from stzObject
 
 		def IsOnlyMadeOfStzSets()
 			return This.IsListOfStzSets()
+
+		#--
+
+		def AreStzSets()
+			return This.IsListOfStzNumbers()
+
+		def AreAllStzSets()
+			return This.IsListOfStzNumbers()
+
+		def AllAreStzSets()
+			return This.IsListOfStzNumbers()
 
 		#>
 
@@ -16865,6 +17457,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzSets()
 			return This.IsListOfListsOfStzSets()
 
+		#--
+
+		def AreListsOfStzSets()
+			return This.IsListOfStzNumbers()
+
+		def AreAllListsOfStzSets()
+			return This.IsListOfStzNumbers()
+
+		def AllAreListsOfStzSets()
+			return This.IsListOfStzNumbers()
+
 		#>
 
 	  #----------------------------------------------------#
@@ -16921,6 +17524,17 @@ class stzList from stzObject
 			return This.IsListOfStzHashLists()
 
 		def IsOnlyMadeOfStzHashLists()
+			return This.IsListOfStzHashLists()
+
+		#--
+
+		def AreStzHashLists()
+			return This.IsListOfStzHashLists()
+
+		def AreAllStzHashLists()
+			return This.IsListOfStzHashLists()
+
+		def AllAreStzHashLists()
 			return This.IsListOfStzHashLists()
 
 		#>
@@ -16981,6 +17595,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzHashLists()
 			return This.IsListOfListsOfStzHashLists()
 
+		#--
+
+		def AreListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def AreAllListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
+		def AllAreListsOfStzHashLists()
+			return This.IsListOfListsOfStzHashLists()
+
 		#>
 
 	  #------------------------------------------------#
@@ -17037,6 +17662,17 @@ class stzList from stzObject
 			return This.IsListOfStzGrids()
 
 		def IsOnlyMadeOfStzGrids()
+			return This.IsListOfStzGrids()
+
+		#--
+
+		def AreStzGrids()
+			return This.IsListOfStzGrids()
+
+		def AreAllStzGrids()
+			return This.IsListOfStzGrids()
+
+		def AllAreStzGrids()
 			return This.IsListOfStzGrids()
 
 		#>
@@ -17097,6 +17733,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzGrids()
 			return This.IsListOfListsOfStzGrids()
 
+		#--
+
+		def AreListsOfStzGrids()
+			return This.IsListOfListsOfStzGrids()
+
+		def AreAllListsOfStzGrids()
+			return This.IsListOfListsOfStzGrids()
+
+		def AllAreListsOfStzGrids()
+			return This.IsListOfListsOfStzGrids()
+
 		#>
 
 	  #-------------------------------------------------#
@@ -17153,6 +17800,17 @@ class stzList from stzObject
 			return This.IsListOfStzTables()
 
 		def IsOnlyMadeOfStzTables()
+			return This.IsListOfStzTables()
+
+		#--
+
+		def AreStzTables()
+			return This.IsListOfStzTables()
+
+		def AreAllStzTables()
+			return This.IsListOfStzTables()
+
+		def AllAreStzTables()
 			return This.IsListOfStzTables()
 
 		#>
@@ -17213,6 +17871,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzTables()
 			return This.IsListOfListsOfStzTables()
 
+		#--
+
+		def AreListsOfStzTables()
+			return This.IsListOfListsOfStzTables()
+
+		def AreAllListsOfStzTables()
+			return This.IsListOfListsOfStzTables()
+
+		def AllAreListsOfStzTables()
+			return This.IsListOfListsOfStzTables()
+
 		#>
 
 	  #------------------------------------------------#
@@ -17269,6 +17938,17 @@ class stzList from stzObject
 			return This.IsListOfStzTrees()
 
 		def IsOnlyMadeOfStzTrees()
+			return This.IsListOfStzTrees()
+
+		#--
+
+		def AreStzTrees()
+			return This.IsListOfStzTrees()
+
+		def AreAllStzTrees()
+			return This.IsListOfStzTrees()
+
+		def AllAreStzTrees()
 			return This.IsListOfStzTrees()
 
 		#>
@@ -17329,6 +18009,17 @@ class stzList from stzObject
 		def IsOnlyMadeOfListsOfStzTrees()
 			return This.IsListOfListsOfStzTrees()
 
+		#--
+
+		def AreListsOfStzTrees()
+			return This.IsListOfListsOfStzTrees()
+
+		def AreAllListsOfStzTrees()
+			return This.IsListOfListsOfStzTrees()
+
+		def AllAreListsOfStzTrees()
+			return This.IsListOfListsOfStzTrees()
+
 		#>
 
 	#==
@@ -17377,6 +18068,17 @@ class stzList from stzObject
 			return This.IsListOfNumbersInStrings()
 
 		def IsMadeOfNumbersInStringsOnly()
+			return This.IsListOfNumbersInStrings()
+
+		#--
+
+		def AreNumbersInStrings()
+			return This.IsListOfNumbersInStrings()
+
+		def AreAllNumbersInStrings()
+			return This.IsListOfNumbersInStrings()
+
+		def AllAreNumbersInStrings()
 			return This.IsListOfNumbersInStrings()
 
 		#>
@@ -17525,6 +18227,17 @@ class stzList from stzObject
 		def IsMadeOfListsOfStringsAndNumbersOnly()
 			return This.IsListOfNumbersAndStrings()
 
+		#--
+
+		def AreNumbersAndStrings()
+			return This.IsListOfNumbersAndStrings()
+
+		def AreAllNumbersAndStrings()
+			return This.IsListOfNumbersAndStrings()
+
+		def AllAreNumbersAndStrings()
+			return This.IsListOfNumbersAndStrings()
+
 		#>
 
 	def IsListOfNumbersOrListOfStrings()
@@ -17535,6 +18248,12 @@ class stzList from stzObject
 		ok
 
 		def IsListOfStringsOrListOfNumbers()
+			return This.IsListOfNumbersOrListOfStrings()
+
+		def AreOnlyNumbersOrOnlyStrings()
+			return This.IsListOfNumbersOrListOfStrings()
+
+		def AreOnlyStringsOrOnlyNumbers()
 			return This.IsListOfNumbersOrListOfStrings()
 
 	def IsListOfStringsAndPairsOfStrings()
@@ -17559,6 +18278,14 @@ class stzList from stzObject
 			return This.IsListOfStringsAndPairsOfStrings()
 
 		def IsAListOfPairsOfStringsAndstrings()
+			return This.IsListOfStringsAndPairsOfStrings()
+
+		#--
+
+		def AreStringsAndPairsOfStrings()
+			return This.IsListOfStringsAndPairsOfStrings()
+
+		def ArePairsOfStringsAndStrings()
 			return This.IsListOfStringsAndPairsOfStrings()
 
 		#>
@@ -17587,6 +18314,14 @@ class stzList from stzObject
 		def IsAListOfPairsOfNumbersAndNumbers()
 			return This.IsListOfNumbersAndPairsOfNumbers()
 
+		#--
+
+		def AreNumbersAndPairsOfStrings()
+			return This.IsListOfNumbersAndPairsOfNumbers()
+
+		def ArePairsOfStringsAndNumbers()
+			return This.IsListOfNumbersAndPairsOfNumbers()
+
 		#>
 
 	def IsListOfListsAndPairsOfLists()
@@ -17613,6 +18348,14 @@ class stzList from stzObject
 		def IsAListOfPairsOfListsAndLists()
 			return This.IsListOfListsAndPairsOfLists()
 
+		#--
+
+		def AreListsAndPairsOfLists()
+			return This.IsListOfListsAndPairsOfLists()
+
+		def ArePairsOfListsAndLists()
+			return This.IsListOfListsAndPairsOfLists()
+
 		#>
 
 	def IsListOfObjectsAndPairsOfObjects()
@@ -17637,6 +18380,14 @@ class stzList from stzObject
 			return This.IsListOfObjectsAndPairsOfObjects()
 
 		def IsAListOfPairsOfObjectsAndObjects()
+			return This.IsListOfObjectsAndPairsOfObjects()
+
+		#--
+
+		def AreObjectsAndPairsOfObjects()
+			return This.IsListOfObjectsAndPairsOfObjects()
+
+		def ArePairsOfObjectsAndObjects()
 			return This.IsListOfObjectsAndPairsOfObjects()
 
 		#>
@@ -17697,6 +18448,9 @@ class stzList from stzObject
 
 
 		def IsAListOfPairsOfStrings()
+			return This.IsListOfPairsOfStrings()
+
+		def ArePairsOfStrings()
 			return This.IsListOfPairsOfStrings()
 
 	def IsPairOfNumbers()
@@ -17802,6 +18556,14 @@ class stzList from stzObject
 		def IsAListOfSections()
 			return This.IsListOfPairsOfNumbers()
 
+		#--
+
+		def ArePairsOfNumbers()
+			return This.IsListOfPairsOfNumbers()
+
+		def AreSections()
+			IsListOfPairsOfNumbers
+
 		#>
 
 	def IsPairOfSections()
@@ -17874,6 +18636,9 @@ class stzList from stzObject
 		def IsAListOfPairsOfSections()
 			return This.IsListOfPairsOfSections
 
+		def ArePairsOfSections()
+			return This.IsListOfPairsOfSections()
+
 	def IsPairOfLists()
 		aContent = This.Content()
 		nlen = len(aContent)
@@ -17944,6 +18709,9 @@ class stzList from stzObject
 		def IsAListOfPairsOfLists()
 			return This.IsListOfPairsOfLists()
 
+		def ArePairsOfLists()
+			return This.IsListOfPairsOfLists()
+
 	def IsPairOfObjects()
 		aContent = This.Content()
 		nlen = len(aContent)
@@ -17993,7 +18761,6 @@ class stzList from stzObject
 		#>
 
 	def IsListOfPairsOfObjects()
-
 		aContent = This.Content()
 		nLen = len(aContent)
 
@@ -18012,6 +18779,9 @@ class stzList from stzObject
 		return bResult
 
 		def IsAListOfPairsOfObjects()
+			return This.IsListOfPairsOfObjects()
+
+		def ArePairsOfObjects()
 			return This.IsListOfPairsOfObjects()
 
 	def IsPairAndKeyIsString()
@@ -18231,6 +19001,9 @@ class stzList from stzObject
 		next
 
 		return bResult
+
+		def AreNamedObjects()
+			return This.IsListOfNamedObjects()
 
 	#--
 
@@ -19015,6 +19788,9 @@ class stzList from stzObject
 
 		return bResult
 
+		def ArePairsOfStzObjects()
+			return This.IsListOfPairsOfStzObjects()
+
 	def IsListOfPairsOfStzNumbers()
 		bResult = TRUE
 		nLen = len(@aContent)
@@ -19028,6 +19804,9 @@ class stzList from stzObject
 
 		return bResult
 	
+		def ArePairsOfStzNumbers()
+			return This.IsListOfPairsOfStzNumbers()
+
 	def IsListOfPairsOfStzStrings()
 		bResult = TRUE
 		nLen = len(@aContent)
@@ -19041,8 +19820,11 @@ class stzList from stzObject
 
 		return bResult
 	
+		def ArePairsOfStzStrings()
+			return This.IsListOfPairsOfStzStrings()
+
 	def IsListOfPairsOfStzLists()
-			bResult = TRUE
+		bResult = TRUE
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
@@ -19054,8 +19836,11 @@ class stzList from stzObject
 
 		return bResult
 
+		def ArePairsOfStzlists()
+			return This.IsListOfPairsOfStzLists()
+
 	def IsListOfPairsOfNumberAndString()
-			bResult = TRUE
+		bResult = TRUE
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
@@ -19067,8 +19852,11 @@ class stzList from stzObject
 
 		return bResult
 
+		def ArePairsOfNumberAndString()
+			return This.IsListOfPairsOfNumberAndString()
+
 	def IsListOfPairsOfStringAndNumber()
-			bResult = TRUE
+		bResult = TRUE
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
@@ -19080,8 +19868,11 @@ class stzList from stzObject
 
 		return bResult
 
+		def ArePairsOfStringAndNumber()
+			return This.IsListOfPairsOfStringAndNumber()
+
 	def IsListOfPairsOfNumberAndList()
-			bResult = TRUE
+		bResult = TRUE
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
@@ -19093,8 +19884,11 @@ class stzList from stzObject
 
 		return bResult
 
+		def ArePairsOfNumberAndList()
+			return This.IsListOfPairsOfNumberAndList()
+
 	def IsListOfPairsOfListAndNumber()
-			bResult = TRUE
+		bResult = TRUE
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
@@ -19106,8 +19900,11 @@ class stzList from stzObject
 
 		return bResult
 
+		def ArePairsOfListAndNumber()
+			return This.IsListOfPairsOfListAndNumber()
+
 	def IsListOfPairsOfNumberAndObject()
-			bResult = TRUE
+		bResult = TRUE
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
@@ -19119,8 +19916,11 @@ class stzList from stzObject
 
 		return bResult
 
+		def ArePairsOfNumberAndObject()
+			return This.IsListOfPairsOfNumberAndObject()
+
 	def IsListOfPairsOfObjectAndNumber()
-			bResult = TRUE
+		bResult = TRUE
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
@@ -19132,8 +19932,11 @@ class stzList from stzObject
 
 		return bResult
 
+		def ArePairsOfObjectAndNumber()
+			return This.IsListOfPairsOfObjectAndNumber()
+
 	def IsListOfPairsOfStringAndList()
-			bResult = TRUE
+		bResult = TRUE
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
@@ -19145,8 +19948,11 @@ class stzList from stzObject
 
 		return bResult
 
+		def ArePairsOfStringAndList()
+			return This.IsListOfPairsOfStringAndList()
+
 	def IsListOfPairsOfListAndString()
-			bResult = TRUE
+		bResult = TRUE
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
@@ -19158,8 +19964,11 @@ class stzList from stzObject
 
 		return bResult
 
+		def ArePairsOfListAndString()
+			return This.IsListOfPairsOfListAndString()
+
 	def IsListOfPairsOfStringAndObject()
-			bResult = TRUE
+		bResult = TRUE
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
@@ -19171,8 +19980,11 @@ class stzList from stzObject
 
 		return bResult
 
+		def ArePairsOfStringAndObject()
+			return This.IsListOfPairsOfStringAndObject()
+
 	def IsListOfPairsOfObjectAndString()
-			bResult = TRUE
+		bResult = TRUE
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
@@ -19183,6 +19995,9 @@ class stzList from stzObject
 		next
 
 		return bResult
+
+		def AreairsOfObjectAndString()
+			return This.IsListOfPairsOfObjectAndString()
 
 	def IsListOfPairsOfListAndObject()
 		bResult = TRUE
@@ -19197,6 +20012,9 @@ class stzList from stzObject
 
 		return bResult
 
+		def ArePairsOfListAndObject()
+			return This.IsListOfPairsOfListAndObject()
+
 	def IsListOfPairsOfObjectAndList()
 		bResult = TRUE
 		nLen = len(@aContent)
@@ -19209,6 +20027,9 @@ class stzList from stzObject
 		next
 
 		return bResult
+
+		def ArePairsOfObjectAndList()
+			return This.IsListOfPairsOfObjectAndList()
 
 	def IsListOfPairsOfChars()
 		bResult = TRUE
@@ -19223,6 +20044,9 @@ class stzList from stzObject
 
 		return bResult	
 
+		def ArePairsOfChars()
+			return This.IsListOfPairsOfChars()
+
 	  #----------------------------#
 	 #   SAME TYPE & SAME VALUE   #
 	#----------------------------#
@@ -19231,6 +20055,9 @@ class stzList from stzObject
 		return This.IsPureList()
 
 		def AllItemsHaveSameType()
+			return This.ItemsHaveSameType()
+
+		def AreOfSametype()
 			return This.ItemsHaveSameType()
 
 	def ItemsHaveSameValue()
@@ -19269,6 +20096,9 @@ class stzList from stzObject
 		return bResult
 
 		def AllItemsHaveSameValue()
+			return This.ItemsHaveSameValue()
+
+		def AreOfSameValue()
 			return This.ItemsHaveSameValue()
 
 	  #-----------------------------------#
@@ -19325,6 +20155,9 @@ class stzList from stzObject
 		def AreEqualCS(pCaseSensitive)
 			return This.ItemsAreAllEqualCS(pCaseSensitive)
 
+		def AreAllEqualCS(pCaseSensitive)
+			return This.ItemsAreAllEqualCS(pCaseSensitive)
+
 		#>
 
 	#-- CASESENSITIVITY
@@ -19342,6 +20175,10 @@ class stzList from stzObject
 
 		def AreEqual(pCaseSensitive)
 			return This.ItemsAreAllEqual()
+
+		def AreAllEqual(pCaseSensitive)
+			return This.ItemsAreAllEqual()
+
 
 		#>
 
@@ -19369,6 +20206,9 @@ class stzList from stzObject
 			return This.AllItemsAreEqualTo(pValue)
 
 		def IsMadeOfItemsEqualTo(pValue)
+			return This.AllItemsAreEqualTo(pValue)
+
+		def AreAllEqualTo(pValue)
 			return This.AllItemsAreEqualTo(pValue)
 
 	  #---------------------------------------------------------------#
@@ -24241,6 +25081,26 @@ class stzList from stzObject
 			return This.AllItemsAreNumbersOrStrings()
 
 		def IsMadeOfStringsOrNumbers()
+			return This.AllItemsAreNumbersOrStrings()
+
+		#--
+
+		def AreNumbersOrStrings()
+			return This.AllItemsAreNumbersOrStrings()
+
+		def AreStringsOrNumbers()
+			return This.AllItemsAreNumbersOrStrings()
+
+		def AreAllNumbersOrStrings()
+			return This.AllItemsAreNumbersOrStrings()
+
+		def AreAllStringsOrNumbers()
+			return This.AllItemsAreNumbersOrStrings()
+
+		def AllAreNumbersOrStrings()
+			return This.AllItemsAreNumbersOrStrings()
+
+		def AllAreStringsOrNumbers()
 			return This.AllItemsAreNumbersOrStrings()
 
 		#>
@@ -72523,3 +73383,4 @@ vvv
 			return This.FindLastSplitAfterWZZ(pcCondition)
 
 		#>
+

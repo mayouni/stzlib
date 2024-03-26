@@ -3018,7 +3018,73 @@ func ShowShortXT(paList, p)
 
 	#>
 
+#------
+
 func ComputableForm(pValue)
+	return ComputableFormXT(pValue, " ", "")
+
+	#< @FunctionFluentForm
+
+	func ComputableFormQ(pValue)
+		return new stzString( ComputableForm(pValue) )
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func @@(pValue)
+		return ComputableForm(pValue)
+
+		func @@Q(pValue)
+			return new stzString( @@(pValue) )
+
+	func CF(pValue)
+		return ComputableForm(pValue)
+
+		func CFQ(pValue)
+			return new stzString( CF(pValue) )
+
+	func @ComputableForm(pValue)
+		return ComputableForm(pValue)
+
+		func @ComputableFormQ(pValue)
+			return new stzString( @ComputableForm(pValue) )
+
+	#>
+
+func ComputableFormNL(pValue)
+	return ComputableFormXT(pValue, NL, TAB)
+
+	#< @FunctionFluentForm
+
+	func ComputableFormNLQ(pValue)
+		return new stzString( ComputableFormNL(pValue) )
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	func @@NL(pValue)
+		return ComputableFormNL(pValue)
+
+		func @@NLQ(pValue)
+			return new stzString( @@NL(pValue) )
+
+	func CFNL(pValue)
+		return ComputableFormNL(pValue)
+
+		func CFNLQ(pValue)
+			return new stzString( CFNL(pValue) )
+
+	func @ComputableFormNL(pValue)
+		return ComputableFormNL(pValue)
+
+		func @ComputableFormNLQ(pValue)
+			return new stzString( @ComputableFormNL(pValue) )
+
+	#>
+
+func ComputableFormXT(pValue, cSep1, cSep2)
 
 	if isNumber(pValue)
 		return ""+ pValue
@@ -3069,12 +3135,12 @@ func ComputableForm(pValue)
 			return "[ ]"
 		ok
 
-		cResult = "[ "
+		cResult = "[" + cSep1
 
 		for i = 1 to nLen
 			if isNumber(aContent[i])
 				cResult += "" +
-					   aContent[i] + ", "
+					   cSep2 + aContent[i] + "," + cSep1
 
 			but isString(aContent[i])
 				cChar = '"'
@@ -3089,14 +3155,14 @@ func ComputableForm(pValue)
 					cChar = "'"
 				ok
 		
-				cResult += (cChar + aContent[i] + cChar + ", ")
+				cResult += (cSep2 + cChar + aContent[i] + cChar + "," + cSep1)
 
 
 			but isList(aContent[i])
-				cResult += ( ComputableForm(aContent[i]) + ", ")
+				cResult += ( cSep2 + ComputableForm(aContent[i]) + "," + cSep1)
 
 			but isObject(aContent[i])
-				cResult += ObjectVarName(aContent[i]) + ", "
+				cResult += ( cSep2 + ObjectVarName(aContent[i]) + "," + cSep1 )
 
 			ok
 
@@ -3105,7 +3171,7 @@ func ComputableForm(pValue)
 		oQStr = new QString2()
 		oQStr.append(cResult)
 		oQStr.replace( (oQStr.count() - 2), 2, "" )
-		oQStr.append(" ]")
+		oQStr.append(cSep1 + "]")
 
 		cResult = oQStr.mid(0, oQStr.count())
 		return cResult
@@ -3118,32 +3184,34 @@ func ComputableForm(pValue)
 
 	#< @FunctionFluentForm
 
-	func ComputableFormQ(pValue)
-		return new stzString( ComputableForm(pValue) )
+	func ComputableFormXTQ(pValue, cSep1, cSep2)
+		return new stzString( ComputableFormXT(pValue, c) )
 
 	#>
 
 	#< @FunctionAlternativeForms
 
-	func @@(pValue)
-		return ComputableForm(pValue)
+	func @@XT(pValue, cSep1, cSep2)
+		return ComputableFormXT(pValue, cSep1, cSep2)
 
-		func @@Q(pValue)
-			return new stzString( @@(pValue) )
+		func @@XTQ(pValue, cSep1, cSep2)
+			return new stzString( @@XT(pValue, cSep1, cSep2) )
 
-	func CF(pValue)
-		return ComputableForm(pValue)
+	func CFXT(pValue, cSep1, cSep2)
+		return ComputableFormXT(pValue, cSep1, cSep2)
 
-		func CFQ(pValue)
-			return new stzString( CF(pValue) )
+		func CFXTQ(pValue, cSep1, cSep2)
+			return new stzString( CFXT(pValue, cSep1, cSep2) )
 
-	func @ComputableForm(pValue)
-		return ComputableForm(pValue)
+	func @ComputableFormXT(pValue, cSep1, cSep2)
+		return ComputableFormXT(pValue, cSep1, cSep2)
 
-		func @ComputableFormQ(pValue)
-			return new stzString( @ComputableForm(pValue) )
+		func @ComputableFormXTQ(pValue, cSep1, cSep2)
+			return new stzString( @ComputableFormXT(pValue, cSep1, cSep2) )
 
 	#>
+
+#---
 
 func YaAllah()
 	return "يَا أَلله"

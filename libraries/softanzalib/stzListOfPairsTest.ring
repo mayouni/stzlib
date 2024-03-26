@@ -1,5 +1,36 @@
 load "stzlib.ring"
 
+pron()
+
+o1 = new stzListOfpairs([
+	[ "mahmoud", 	15000 ],
+	[ "ahmed", 	14000 ],
+	[ "samir", 	16000 ],
+	[ "mohammed", 	12000 ],
+	[ "ibrahim", 	11000 ]
+])
+
+? @@NL( o1.SortedOn(1) ) + NL # Or just Sorted()
+#--> [
+#	[ "ahmed", 14000 ],
+#	[ "ibrahim", 11000 ],
+#	[ "mahmoud", 15000 ],
+#	[ "mohammed", 12000 ],
+#	[ "samir", 16000 ]
+# ]
+
+? @@( o1.SortedOn(2) )
+#--> [
+#	[ "ibrahim", 11000 ],
+#	[ "mohammed", 12000 ],
+#	[ "ahmed", 14000 ],
+#	[ "mahmoud", 15000 ],
+#	[ "samir", 16000 ]
+# ]
+
+
+proff()
+
 /*-------
 
 pron()
