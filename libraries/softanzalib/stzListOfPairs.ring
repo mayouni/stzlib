@@ -207,7 +207,7 @@ class stzListOfPairs from stzListOfLists
 		aResult = []
 
 		for i = 1 to nLen
-			aResult + aPair[1]
+			aResult + aContent[i][1]
 		next
 
 		return aResult
@@ -484,99 +484,18 @@ class stzListOfPairs from stzListOfLists
 
 	def SortInAscending()
 
-		aSorted = This.ToStzList().SortedInAscending()
+		if This.FirstItemsQ().AreStringsOrNumbers() and
+		   This.SecondItemsQ().AreStringsOrNumbers()
 
-		if NOT This.IsListOfPairsOfNumbers()
-			This.UpdateWith(aSorted)
-			return
+			asorted = ring_sort2( This.Content(), 1 )
+
+		else
+			aStringified = This.Stringified()
+
 		ok
 
-		# Special case of pair of list of numbers
-
-		# Flattening the list of pairs
-
-		aFlat = Q(aSorted).Flattened()
-		nLen = len(aFlat)
-
-		# Transforming the strings to stzNumbers
-
-		aStzNumbers = []
-		for i = 1 to nLen
-			aStzNumbers + StzNumberQ(aFlat[i])
-		next
-
-		# Getting the max number of digits on both the
-		# interger and decimal parts of the numbers
-
-		nMaxInt = 0
-		nMaxDec = 0
-
-		for i = 1 to nLen
-
-			nInt = aStzNumbers[i].NumberOfIntegers()
-			if nInt > nMaxInt
-				nMaxInt = nInt
-			ok
-
-			nDec = aStzNumbers[i].NumberOfDecimals()
-			if nDec > nMaxDec
-				nMaxDec = nDec
-			ok
-
-		next
-
-		# Adjusting the numbers by adding 0s left and right
-		# to fill the values of nMaxInt and nMaxDec
-
-		aAdjust = []
-		aPair = []
-
-		for i = 1 to nLen
-
-			# Adjusting the decimal part by rounding it to nMaxDec
-
-			cNumber = aStzNumbers[i].RoundedToXT(nMaxDec)
-
-			# Adjusting the integr part
-
-			nInt = nMaxInt - aStzNumbers[i].NumberOfIntegers()
-			cTempStr = ""
-			for j = 1 to nInt
-				cTempStr += "0"
-			next
-			cNumber = cTempStr + cNumber
-
-			aPair + cNumber
-
-			if len(aPair) = 2
-				aAdjust + ( "[ " + aPair[1] + ", " + aPair[2] + " ]" )
-				aPair = []
-			ok
-		next
-
-		# Sorting the pairs of numbers
-
-		aSorted = Q(aAdjust).SortedInAscending()
-
-		# Composing and evaluating the content of the list
-
-		nLen = len(aSorted)
-
-		cCode = 'aResult = [ '
-		
-		for i = 1 to nLen
-			cCode += aSorted[i]
-			if i < nLen
-				cCode += ', '
-			ok
-		next
-		
-		cCode += ' ]'
-
-		eval(cCode)
-
-		This.UpdateWith(aResult)
-		
+		This.UpdateWith(aSorted)
+	
 		def Sort()
 			This.SortInAscending()
 
@@ -635,9 +554,167 @@ class stzListOfPairs from stzListOfLists
 
 		return bResult
 
-	  #------------------------------#
+	  #-------------------------------------#
+	 #  SORTING THE PAIRS ON THE NTH ITEM  #
+	#-------------------------------------#
+
+	def SortOn(n)
+		if CheckParams()
+			if NOT ( isNumber(n) and (n=1 or n=2) )
+				StzRaise("Incorrect param! n must be a number equal to 1 or 2.")
+			ok
+		ok
+
+		if This.FirstItemsQ().AreStringsOrNumbers() and
+		   This.SecondItemsQ().AreStringsOrNumbers()
+
+			aSorted = ring_sort2( This.Content(), n )
+			This.UpdateWith(aSorted)
+
+		else
+			aContent = This.Content()
+			aStringified = This.Copy().Stringified()
+		ok
+
+		
+		#< @FunctionFluentForm
+
+		def SortOnQ(n)
+			This.SortOn(n)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SortInAscendingOn(n)
+			This.SortOn(n)
+
+			def SortInAscendingOnQ(n)
+				return This.SortOnQ(n)
+			
+		def SortOnInAscending(n)
+			This.SortOn(n)
+
+			def SortOnInAscendingQ(n)
+				return This.SortOnQ(n)
+
+		def SortUpOn(n)
+			This.SortOn(n)
+
+			def SortUpOnQ(n)
+				return This.SortOnQ(n)
+
+		def SortOnUp(n)
+			This.SortOn(n)
+
+			def SortOnUQ(n)
+				return This.SortOnQ(n)
+
+		#>
+
+	def SortedOn(n)
+		aResult = This.Copy().SortOnQ(n).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SortedInAscendingOn(n)
+			return This.SortedOn(n)
+
+		def SortedOnInAscending(n)
+			return This.SortedOn(n)
+
+		def SortedUpOn(n)
+			return This.SortedOn(n)
+
+		def SortedOnUp(n)
+			return This.SortedOn(n)
+
+		#>
+
+	  #---------------------------------------#
+	 #  SORTING THE PAIRS ON THE FIRST ITEM  #
+	#---------------------------------------#
+
+	def SortFirstItems()
+		This.SortOn(1)
+
+		#< @FunctionAlternativeForms
+
+		def SortFirstItemsInAscendingOn(n)
+			This.SortFirstItemsOn(n)
+
+			def SortFirstItemsInAscendingOnQ(n)
+				return This.SortFirstItemsOnQ(n)
+			
+		def SortFirstItemsOnInAscending(n)
+			This.SortFirstItemsOn(n)
+
+			def SortFirstItemsOnInAscendingQ(n)
+				return This.SortFirstItemsOnQ(n)
+
+		def SortFirstItemsUpOn(n)
+			This.SortFirstItemsOn(n)
+
+			def SortFirstItemsUpOnQ(n)
+				return This.SortFirstItemsOnQ(n)
+
+		def SortFirstItemsOnUp(n)
+			This.SortFirstItemsOn(n)
+
+			def SortFirstItemsOnUQ(n)
+				return This.SortFirstItemsOnQ(n)
+
+		#>
+
+	def FirstItemsSortedOn(n)
+		aResult = This.Copy().SortFirstItemsOnQ(n).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SortFirstItemsedInAscendingOn(n)
+			return This.SortFirstItemsedOn(n)
+
+		def SortFirstItemsedOnInAscending(n)
+			return This.SortFirstItemsedOn(n)
+
+		def SortFirstItemsedUpOn(n)
+			return This.SortFirstItemsedOn(n)
+
+		def SortFirstItemsedOnUp(n)
+			return This.SortFirstItemsedOn(n)
+
+		#>
+
+	  #----------------------------------------#
+	 #  SORTING THE PAIRS ON THE SECOND ITEM  #
+	#----------------------------------------#
+
+	def SortSecondItems()
+		This.SortOn(2)
+
+		def SortSecondItemsQ(n)
+			This.SortSecondItems()
+			return This
+
+		def SortOnSecondItems()
+			This.SortSecondItems()
+
+			def SortInSecondItemsQ()
+				return This.SoertSecondItemsQ()
+
+	def SecondItemsSorted()
+		aResult = This.Copy().SortOnQ(n).Content()
+		return aResult
+
+		def SortedOnSecondItems(n)
+			return This.SecondItemsSorted()
+
+	  #==============================#
 	 #  SORTING PAIRS IN ASCENDING  #
-	#------------------------------#
+	#==============================#
 
 	def SortItemsInAscending()
 
