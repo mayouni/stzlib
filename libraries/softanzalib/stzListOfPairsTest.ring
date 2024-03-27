@@ -1,5 +1,54 @@
 load "stzlib.ring"
 
+/*-----
+*/
+pron()
+
+# Softanza can sort items inside the pairs of a list of pairs
+
+o1 = new stzListOfPairs([ [ 2, 1 ], [ 4, 3 ], [ 6, 5 ] ])
+
+o1.SortInside() # or SortItems() or SortItemsInsidePairs()
+? @@( o1.Content() ) + NL
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ]
+
+# And you can sort them up and down
+
+o1.SortDownInside()
+? @@( o1.Content() )
+#--> [ [ 2, 1 ], [ 4, 3 ], [ 6, 5 ] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-----
+
+pron()
+
+# Softanza can sort lists of pairs containing columns with
+# heteregenious data (not only strings or only numbers like
+# it is the case for native Sort(aList, nCol) in Ring)
+
+o1 = new stzListOfpairs([
+	[ "mahmoud", 	34000 	],
+	[ "ahmed", 	:None	],
+	[ "samir", 	1:2	],
+	[ "mohammed", 	:New	],
+	[ "ibrahim", 	10700	]
+])
+
+? @@( o1.SortedOn(2) )
+#--> [
+#	[ "mahmoud", 	34000 	],
+#	[ "ahmed", 	"none" 	],
+#	[ "samir", 	[1, 2] 	],
+#	[ "mohammed", 	"new" 	],
+#	[ "ibrahim", 	10700 	]
+# ]
+proff()
+
+/*-------
+
 pron()
 
 o1 = new stzListOfpairs([
@@ -19,7 +68,7 @@ o1 = new stzListOfpairs([
 #	[ "samir", 16000 ]
 # ]
 
-? @@( o1.SortedOn(2) )
+? @@NL( o1.SortedOn(2) )
 #--> [
 #	[ "ibrahim", 11000 ],
 #	[ "mohammed", 12000 ],
@@ -28,8 +77,8 @@ o1 = new stzListOfpairs([
 #	[ "samir", 16000 ]
 # ]
 
-
 proff()
+# Executed in 0.04 second(s)
 
 /*-------
 
