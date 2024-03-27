@@ -4408,10 +4408,10 @@ class stzListOfStrings from stzList
 		def FindNextNthOccurrenceOfStringCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
-		def FindNthNextOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+		def FindNthNextOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
-		def FindNthNextOccurrenceOfStringCS(n, pcStrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+		def FindNthNextOccurrenceOfStringCS(n, pcStrItem, pnStartingAt,  pCaseSensitive)
 			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 		def FindNextNthCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
@@ -4554,10 +4554,10 @@ class stzListOfStrings from stzList
 		def FindNextNthOccurrenceOfStringSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
-		def FindNthNextOccurrenceOfStringItemSCS(n, pcStrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+		def FindNthNextOccurrenceOfStringItemSCS(n, pcStrItem, pnStartingAt,  pCaseSensitive)
 			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
-		def FindNthNextOccurrenceOfStringSCS(n, pcStrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+		def FindNthNextOccurrenceOfStringSCS(n, pcStrItem, pnStartingAt,  pCaseSensitive)
 			return This.FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
 		def FindNextNthSCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
@@ -4694,10 +4694,10 @@ class stzListOfStrings from stzList
 		def FindNextNthOccurrenceOfString(n, pcStrItem, pnStartingAt)
 			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
-		def FindNthNextOccurrenceOfStringItem(n, pcStrItem, pnStartingAt, pnStartingAt)
+		def FindNthNextOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
-		def FindNthNextOccurrenceOfString(n, pcStrItem, pnStartingAt, pnStartingAt)
+		def FindNthNextOccurrenceOfString(n, pcStrItem, pnStartingAt)
 			return This.FindNextNthOccurrenceOfStringItem(n, pcStrItem, pnStartingAt)
 
 		def FindNextNth(n, pcStrItem, pnStartingAt)
@@ -5410,7 +5410,7 @@ class stzListOfStrings from stzList
 		def FindPreviousStringCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 	
-		def FindPreviousOccurrenceOfThisStringItemCS(pcStrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+		def FindPreviousOccurrenceOfThisStringItemCS(pcStrItem, pnStartingAt,  pCaseSensitive)
 			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 	
 		def FindPreviousOccurrenceOfThisStringCS(pcStrItem, pnStartingAt, pCaseSensitive)
@@ -5443,10 +5443,10 @@ class stzListOfStrings from stzList
 		def PreviousOccurrenceOfStringItemPositionsCS(pcStrItem, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
-		def PositionsOfPreviousOccurrenceOfStringCS(pcStrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+		def PositionsOfPreviousOccurrenceOfStringCS(pcStrItem, pnStartingAt,  pCaseSensitive)
 			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 
-		def PreviousOccurrenceOfStringPositionsCS(pcStrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+		def PreviousOccurrenceOfStringPositionsCS(pcStrItem, pnStartingAt,  pCaseSensitive)
 			return This.FindPreviousOccurrenceOfStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
 	
 		def PositionsOfPreviousOccurrenceOfThisStringItemCS(pcStrItem, pnStartingAt, pCaseSensitive)
@@ -5486,7 +5486,7 @@ class stzListOfStrings from stzList
 		def FindPreviousString(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
-		def FindPreviousOccurrenceOfThisStringItem(pcStrItem, pnStartingAt, pnStartingAt)
+		def FindPreviousOccurrenceOfThisStringItem(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
 		def FindPreviousOccurrenceOfThisString(pcStrItem, pnStartingAt)
@@ -5519,10 +5519,10 @@ class stzListOfStrings from stzList
 		def PreviousOccurrenceOfStringItemPositions(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 
-		def PositionsOfPreviousOccurrenceOfString(pcStrItem, pnStartingAt, pnStartingAt)
+		def PositionsOfPreviousOccurrenceOfString(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 
-		def PreviousOccurrenceOfStringPositions(pcStrItem, pnStartingAt, pnStartingAt)
+		def PreviousOccurrenceOfStringPositions(pcStrItem, pnStartingAt)
 			return This.FindPreviousOccurrenceOfStringItem(pcStrItem, pnStartingAt)
 	
 		def PositionsOfPreviousOccurrenceOfThisStringItem(pcStrItem, pnStartingAt)

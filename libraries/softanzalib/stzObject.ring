@@ -4904,7 +4904,7 @@ class stzObject
 		#--
 
 		def FirstNSCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindFirstNOccurrencesSCS(n, pStrOrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+			return This.FindFirstNOccurrencesSCS(n, pStrOrItem, pnStartingAt,  pCaseSensitive)
 
 		def NFirstSCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
 			return This.FindFirstNOccurrencesSCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
@@ -4948,7 +4948,7 @@ class stzObject
 		#--
 
 		def FirstNS(n, pStrOrItem, pnStartingAt)
-			return This.FindFirstNOccurrencesS(n, pStrOrItem, pnStartingAt, pnStartingAt)
+			return This.FindFirstNOccurrencesS(n, pStrOrItem, pnStartingAt)
 
 		def NFirstS(n, pStrOrItem, pnStartingAt)
 			return This.FindFirstNOccurrencesCSS(n, pStrOrItem, pnStartingAt)
@@ -5104,7 +5104,7 @@ class stzObject
 		#--
 
 		def LastNSCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-			return This.FindLastNOccurrencesSCS(n, pStrOrItem, pnStartingAt, pnStartingAt, pCaseSensitive)
+			return This.FindLastNOccurrencesSCS(n, pStrOrItem, pnStartingAt,  pCaseSensitive)
 
 		def NLastSCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
 			return This.FindLastNOccurrencesSCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
@@ -5148,26 +5148,26 @@ class stzObject
 		#--
 
 		def LastNS(n, pStrOrItem, pnStartingAt)
-			return This.FindLastNOccurrencesS(n, pStrOrItem, pnStartingAt, pnStartingAt)
+			return This.FindLastNOccurrencesS(n, pStrOrItem, pnStartingAt)
 
 		def NLastS(n, pStrOrItem, pnStartingAt)
-			return This.FindLastNOccurrencesS(n, pStrOrItem, pnStartingAt, pnStartingAt)
+			return This.FindLastNOccurrencesS(n, pStrOrItem, pnStartingAt)
 
 		#--
 
 		def FindLastSN(n, pStrOrItem,pnStartingAt)
-			return This.FindLastNOccurrencesS(n, pStrOrItem, pnStartingAt, pnStartingAt)
+			return This.FindLastNOccurrencesS(n, pStrOrItem, pnStartingAt)
 
 		def FindNLastS(n, pStrOrItem, pnStartingAt)
-			return This.FindLastNOccurrencesS(n, pStrOrItem, pnStartingAt, pnStartingAt)
+			return This.FindLastNOccurrencesS(n, pStrOrItem, pnStartingAt)
 
 		#--
 
 		def LastNOccurrencesS(n, pStrOrItem, pnStartingAt)
-			return This.FindLastNOccurrencesS(n, pStrOrItem, pnStartingAt, pnStartingAt)
+			return This.FindLastNOccurrencesS(n, pStrOrItem, pnStartingAt)
 
 		def NLastOccurrencesS(n, pStrOrItem, pnStartingAt)
-			return This.FindLastNOccurrencesS(n, pStrOrItem, pnStartingAt, pnStartingAt)
+			return This.FindLastNOccurrencesS(n, pStrOrItem, pnStartingAt)
 
 		#>
 

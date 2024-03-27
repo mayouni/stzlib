@@ -4708,7 +4708,7 @@ class stzList from stzObject
 
 		# Doing the job
 
-		acResult = This.SectionQ(pnStartingAt, pnStartingAt + n - 1).Items()
+		acResult = This.SectionQ(pnStartingAt, pnStarting + n - 1).Items()
 
 		return acResult
 
@@ -32957,7 +32957,7 @@ class stzList from stzObject
 			bResult = Q(p).ContainsManyCS( This.List(), pCaseSensitive )
 
 		on "STRING"
-			cListStringified = This.Stringified()
+			cListStringified = StzListQ(This.Content()).Stringified()
 			bResult = StzStringQ(p).ContainsCS(cListStringified, pCaseSensitive)
 
 		other
@@ -34420,9 +34420,26 @@ class stzList from stzObject
 	 #  FINDING ALL OCCURRENCES OF AN ITEM  #
 	#======================================#
 
-	#TODO:
+	#TODO
 	# Compare the code of this function and the FindDuplicates() function
 	#-> See if there is a window of enhancement
+
+	#NOTE
+	# The function uses This.Stringified() to turn the items of the list
+	# into strings before finding them (necessary to find items other than
+	# numbers and strings). Hence, when the function is called on a
+	# child class like for example:
+
+	# StzListOfPairs([ [1,3], [9, 9], [12, 15], [9, 9] ]).FindAll([9, 9])
+
+	# and when the list is stringified, an error message will be raised
+	# when the list of pairs is updated (Can't update the list of pairs
+	# with a list of strings).
+
+	# To avoid this problem, we force stzList to apply This.Stringified()
+	# on itself and not in its child classes, by using instead of it:
+
+	# StzListQ(this.Content()).Stringified()
 
 	def FindAllOccurrencesCS(pItem, pCaseSensitive)
 		/* EXAMPLE
@@ -34462,7 +34479,7 @@ class stzList from stzObject
 
 		ok
 
-		acContent = This.Stringified()
+		acContent = StzListQ(This.Content()).Stringified()
 		nLen = len(acContent)
 
 		# Managing case sensitivity
@@ -34783,7 +34800,7 @@ class stzList from stzObject
 			cItem = Q(pItem).Stringified()
 		ok
 
-		acContent = This.Stringified()
+		acContent = StzListQ(This.Content()).Stringified()
 		nLen = len(acContent)
 
 		# Managing case sensitivity
@@ -34979,9 +34996,10 @@ class stzList from stzObject
 			ok
 		ok
 
+		acReversed = ring_reverse( StzListQ(This.Content()).Stringified() )
+
 		# Reversing the list after stringifying it
 
-		acReversed = ring_reverse( This.Stringified() )
 		nLen = len(acReversed)
 
 		# Stringifying the item to look for
