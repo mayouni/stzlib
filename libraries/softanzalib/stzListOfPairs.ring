@@ -119,7 +119,7 @@ class stzListOfPairs from stzListOfLists
 			@aContent = paListOfPairs
 
 		else
-			StzRaise("Can't update the list pairs! The value you provided is not a list of pairs.")
+			StzRaise("Can't update the stzListOfPairs object! The value you provided is not a list of pairs.")
 		ok
 
 	def ToStzList()

@@ -6951,9 +6951,9 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def NthNextMarquerAndItsPositionQ(n, pnStartingAt)
-			return This.NthNextMarquerAndItsPositionQR(n, pnStartingAt, pnStartingAt, :stzList)
+			return This.NthNextMarquerAndItsPositionQR(n, pnStartingAt,  :stzList)
 
-		def NthNextMarquerAndItsPositionQR(n, pnStartingAt, pnStartingAt, pcReturnType)
+		def NthNextMarquerAndItsPositionQR(n, pnStartingAt,  pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -9534,7 +9534,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		cResult = This.Section(pnStartingAt, pnStartingAt + n - 1)
+		cResult = This.Section(pnStartingAt,  pnStartingAt + n - 1)
 		return cResult
 
 		#< @FunctionFluentForm

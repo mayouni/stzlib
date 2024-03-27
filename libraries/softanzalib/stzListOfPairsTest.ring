@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*-----
-*/
+
 pron()
 
 # Softanza can sort items inside the pairs of a list of pairs
@@ -428,22 +428,23 @@ o1 = new stzListOfPairs([
 ? o1.NFirstOccurrences(2, :Of = [9,9]) 
 #--> [3, 6]
 
-? o1.NFirstOccurrencesXT(2, :Of = [9,9], :StartingAt = 1)
+? o1.NFirstOccurrencesS(2, :Of = [9,9], :StartingAt = 1)
 #--> [3, 6]
 
 ? o1.NLastOccurrences(2, :Of = [9,9])
 #--> [6, 9]
 
-? o1.NLastOccurrencesXT(2, [9,9], :StartingAt = 1)
+? o1.NLastOccurrencesS(2, [9,9], :StartingAt = 1)
 #--> [6, 9]
 
-? o1.NFirstOccurrencesXT(2, :Of = [9,9], :StartingAt = 6)
+? o1.NFirstOccurrencesS(2, :Of = [9,9], :StartingAt = 6)
 #--> [6, 9]
 
-? o1.LastNOccurrencesXT(2, :Of = [9,9], :StartingAt = 10)
+? o1.LastNOccurrencesS(2, :Of = [9,9], :StartingAt = 4)
 #--> [6, 9]
 
 proff()
+# Executed in 0.07 second(s)
 
 /*------
 
