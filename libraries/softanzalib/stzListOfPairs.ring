@@ -1,5 +1,6 @@
 
-#TODO/FUTURE: Support CaseSensitivity
+#TODO
+# Add CaseSensitivity
 
 func StzListOfPairsQ(paLists)
 	return new stzListOfPairs(paLists)
@@ -1049,7 +1050,7 @@ class stzListOfPairs from stzListOfLists
 
 		for i = 1 to nLen
 			if isNumber(aContent[i][1]) and isNumber(aContent[i][2])
-				aResult + StzListQ(aPair).ExpandedIfPairOfNumbers()
+				aResult + StzListQ(aContent[i]).ExpandedIfPairOfNumbers()
 			ok
 		next
 
@@ -1083,14 +1084,15 @@ class stzListOfPairs from stzListOfLists
 	#-------------------------------------------------#
 
 	def SwapItems()
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
 
 		for i = 1 to nLen
-			temp = @aContent[i][1]
-			@aContent[i][1] = @aContent[i][2]
-			@aContent[i][2] = temp
+			aResult + [ aContent[i][2], aContent[i][1] ]
 		next
 
+		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 			
@@ -1114,11 +1116,53 @@ class stzListOfPairs from stzListOfLists
 			def InverseItemsQ()
 				return This.SwapItemsQ()
 
+		#--
+
+		def SwapPairs()
+			This.SwapItems()
+
+			def SwapPairsQ()
+				return This.SwapItemsQ()
+
+		def ReversePairs()
+			This.SwapItems()
+
+			def ReversePairsQ()
+				return This.SwapItemsQ()
+
+		def InversePairs()
+			This.SwapItems()
+
+			def InversePairsQ()
+				return This.SwapItemsQ()
+
+		#--
+
+		def Reverse()
+			This.SwapItems()
+
+			def ReverseQ()
+				return This.SwapItemsQ()
+
+		def Inverse()
+			This.SwapItems()
+
+			def InverseQ()
+				return This.SwapItemsQ()
+
+		def Swap()
+			This.SwapItems()
+
+			def SwapQ()
+				return This.SwapItemsQ()
+
 		#>
 
 	def ItemsSwapped()
 		aResult = This.Copy().SwapItemsQ().Content()
-		return aReslult
+		return aResult
+
+		#< @FunctionAlternativeForms
 
 		def ItemsReversed()
 			return This.ItemsSwapped()
@@ -1126,82 +1170,27 @@ class stzListOfPairs from stzListOfLists
 		def ItemsInversed()
 			return This.ItemsSwapped()
 
-	  #------------------------------------#
-	 #   SWAPPING THE PAIRS OF THE LIST   #
-	#------------------------------------#
-
-	def SwapPairs()
-		@aContent[1] = aTemp
-		@aContent[1] = @aContent[2]
-		@aContent[2] = aTemp
-
-		#< @FunctionFluentForm
-
-		def SwapPairsQ()
-			This.SwapPairs()
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def ReversePairs()
-			This.SwapPairs()
-
-			def ReversePairsQ()
-				return This.SwapPairsQ()
-
-		def InversePairs()
-			This.SwapPairs()
-
-			def InversePairsQ()
-				return This.SwapPairsQ()
-
 		#--
 
-		def Swap()
-			This.SwapPairs()
-
-			def SwapQ()
-				return This.SwapPairsQ()
-
-		def Reverse()
-			This.SwapPairs()
-
-			def ReverseQ()
-				return This.SwapPairsQ()
-
-		def Inverse()
-			This.SwapPairs()
-
-			def InverseQ()
-				return This.SwapPairsQ()
-
-		#>
-
-
-	def PairsSwapped()
-		aResult = This.Copy().SwapPairsQ().Content()
-		return aReslult
-
-		#< @FunctionAlternativeForms
+		def PairsSwapped()
+			return This.ItemsSwapped()
 
 		def PairsReversed()
-			return This.PairsSwapped()
+			return This.ItemsSwapped()
 
 		def PairsInversed()
-			return This.PairsSwapped()
+			return This.ItemsSwapped()
 
 		#--
 
-		def Swapped()
-			return This.PairsSwapped()
-
 		def Reversed()
-			return This.PairsSwapped()
+			return This.ItemsSwapped()
 
 		def Inversed()
-			return This.PairsSwapped()
+			return This.ItemsSwapped()
+
+		def Swapped()
+			return This.ItemsSwapped()
 
 		#>
 
@@ -1242,7 +1231,7 @@ class stzListOfPairs from stzListOfLists
 		bResult = FALSE
 
 		If This.IsListOfSections() and
-		   This.MergeQ().IsSortedInAscending()
+		   This.ToStzList().MergeQ().IsSortedInAscending()
 
 				bResult = TRUE
 
@@ -1282,6 +1271,25 @@ class stzListOfPairs from stzListOfLists
 		next
 
 		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ContainsThisInAnyPair(pItem)
+			return This.ContainsInAnyPair(pItem)
+
+		def ContainsInAllPairs(pItem)
+			return This.ContainsInAnyPair(pItem)
+
+		def ContainsThisInAllPairs(pItem)
+			return This.ContainsInAnyPair(pItem)
+
+		def ContainsInside(pItem)
+			return This.ContainsInAnyPair(pItem)
+
+		def ContainsThisInside(pItem)
+			return This.ContainsInAnyPair(pItem)
+
+		#>
 
 	  #=============================#
 	 #   MERGING AJJUSCENT PAIRS   #

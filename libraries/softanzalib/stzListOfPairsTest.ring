@@ -411,7 +411,7 @@ o1 = new stzListOfPairs([ [ 18, 22 ], [ 8, 12], [ 3, 5] ])
 StopProfiler()
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzListOfPairs([
@@ -444,12 +444,18 @@ o1 = new stzListOfPairs([
 #--> [6, 9]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.08 second(s)
 
 /*------
 
+pron()
+
 o1 = new stzListOfPairs([ ["A", "B"], ["C", "♥"], ["E", "F"] ])
-? o1.ContainsInAnyPair("♥") # TRUE
+? o1.ContainsInAllPairs("♥") # Or ContainsInside()
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
 
 /*------
 
@@ -463,28 +469,51 @@ o1 = new stzListOfPairs([
 #--> [ [ 22, 18 ], [ 12, 8 ], [ 5, 3 ] ]
 
 proff()
+# Executed in 0.03 second(s)
 
-/*------
+/*------ #todo check perf
+
+pron()
 
 o1 = new stzListOfPairs([
 	[ 3, 5], [ 8, 12], [ 18, 22 ]
 ])
 
-? o1.IsListOfSections() 		 #--> TRUE
-? o1.IsSortedListOfSections() 		 #--> TRUE
-? o1.IsListOfSectionsSortedInAscending() #--> TRUE
+? o1.IsListOfSections()
+#--> TRUE
 
-/*------
+? o1.IsSortedListOfSections()
+#--> TRUE
+
+? o1.IsListOfSectionsSortedInAscending()
+#--> TRUE
+
+proff()
+# Executed in 0.06 second(s)
+
+/*------  #todo check perf
+
+pron()
 
 o1 = new stzListOfPairs([
 	[ 18, 22 ], [ 8, 12], [ 3, 5]
 ])
 
-? o1.IsListOfSections() 		  #--> TRUE
-? o1.IsSortedListOfSections() 		  #--> TRUE
-? o1.IsListOfSectionsSortedInDescending() #--> TRUE
+? o1.IsListOfSections()
+ #--> TRUE
+
+? o1.IsSortedListOfSections() 
+#--> TRUE
+
+? o1.IsListOfSectionsSortedInDescending()
+#--> TRUE
+
+proff()
+# Executed in 0.06 second(s)
 
 /*------------
+*/
+pron()
 
 o1 = new stzListOfPairs([
 	[ 3, 5], [8, 12], [20, 23]
@@ -494,4 +523,8 @@ o1 = new stzListOfPairs([
 #--> [ [ 3, 4, 5 ], [ 8, 9, 10, 11, 12 ], [ 20, 21, 22, 23 ] ]
 
 anPos = o1.ExpandedIfPairsOfNumbersQ().MergeQ().RemoveDuplicatesQ().SortedInAscending()
-? @@( anPos ) #--> [ 3, 4, 5, 8, 9, 10, 11, 12, 20, 21, 22, 23 ]
+? @@( anPos )
+#--> [ 3, 4, 5, 8, 9, 10, 11, 12, 20, 21, 22, 23 ]
+
+proff()
+# Executed in 0.04 second(s)
