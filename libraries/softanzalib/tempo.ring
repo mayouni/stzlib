@@ -3935,21 +3935,7 @@ proff()
 
 #--> Executed in 0.03 second(s)
 
-/*---------
-
-pron()
-
-o1 = new QString2()
-o1.append("tunis * tunis * tunis")
-? o1.count()
-#--> 17
-
-? o1.indexof("*", 6, 0) # Params --> str, startat, casesensitive
-#--> 6
-
-proff()
-
-/*--------
+/*====== #todo check perf
 
 pron()
 
@@ -3960,11 +3946,54 @@ next
 aList + "A" + "*" + "B" + "C" + "*" + "D" + "*" + "E"
 
 o1 = new stzList(aList)
-? o1.FindNext("*", :startingat = 2)
-#--> 5
+? o1.FindPrevious("*", :startingat = 1_900_008)
+#--> 1900007
 
 proff()
-#--> Executed in 28.26 second(s)
+#--> Executed in 34.97 second(s)
+
+/*====== #todo check perf #update done!
+*/
+pron()
+
+# Constructing the large list (takes 0.84 seconds)
+
+aList = []
+for i = 1 to 1_900_000
+	aList + "sometext"
+next
+aList + "A" + "*" + "B" + "C" + "*" + "D" + "*" + "E"
+
+# Using the optimised @FindNthS() function (based on native Ring find())
+
+? @FindNthS(aList, 3, "*", 1_000_000) # takes 0.78 seconds
+
+? @FindNext(aList, "*", 1_000_000) # takes 0.74 second(s)
+#--> 1900002
+
+? @@( @FindAll(aList, "*") ) # Executed in 1.42 second(s)
+
+#--> [ 1900002, 1900005, 1900007 ]
+
+
+# Creating the stzList object (takes 1.08 seconds)
+
+o1 = new stzList(aList)
+	
+	? @@( o1.FindFirst("*") ) # Takes 1.49 seconds
+	#--> 1900002
+
+	? o1.Findnext("*", :startingat = 1_000_000) # Takes 0.74 seconds
+	#--> 1900002
+	
+	? o1.FindNextNthS(3, "*", 1_000_000) # Takes 0.84 second(s)
+	#--> 1900007
+
+	? o1.FindAll("*") # Takes 1.57 seconds
+	#--> [ 1900002, 1900005, 1900007 ]
+
+proff()
+#--> Executed in 8.98 second(s)
 
 /*-----------
 
