@@ -15,7 +15,6 @@ load "typehints.ring"
 t1 = clock()
 
 load "stzGlobal.ring"
-
 load "stzTest.ring"
 
 load "stzObject.ring"

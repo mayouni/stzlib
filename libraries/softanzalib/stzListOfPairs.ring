@@ -711,7 +711,7 @@ class stzListOfPairs from stzListOfLists
 		#>
 
 	def FirstItemsSorted()
-		aResult = This.Copy().SortOnQ(n).Content()
+		aResult = This.Copy().SortOnQ(1).Content()
 		return aResult
 
 		#< @FunctionAlternativeForm
@@ -789,7 +789,7 @@ class stzListOfPairs from stzListOfLists
 		#>
 
 	def SecondItemsSorted()
-		aResult = This.Copy().SortOnQ(n).Content()
+		aResult = This.Copy().SortOnQ(2).Content()
 		return aResult
 
 		#< @FunctionAlternativeForms

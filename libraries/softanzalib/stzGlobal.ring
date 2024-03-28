@@ -57,6 +57,8 @@ _bEarlyCheck = TRUE   # Used for the same reason as _bParamCheck
 
 _time0 = 0 # Used by StartProfiler() and StopProfiler() functions
 
+_MinValueForComputableShortFormXT = 10
+
 cCacheFileName = "stzcache.txt"
 _CacheFileHandler = NULL
 
@@ -454,6 +456,16 @@ func LastValue()
 
 func SetLastValue(value)
 	_LastValue = value
+
+func MinValueForComputableShortFormXT()
+	return _MinValueForComputableShortFormXT
+
+func SetValueForComputableShortFormXT(n)
+	if NOT isNumber(n)
+		StzRaise("Incorrect param type! n must be a number.")
+	ok
+
+	_MinValueForComputableShortFormXT = n
 
 func These(p)
 	_bThese = TRUE
@@ -2890,16 +2902,24 @@ func ShowShortN(paList, n)
 
 	#>
 
-func ComputableShortFormXT(paList, p)
+func ComputableShortFormXT(paListOrStr, p)
 
-	if NOT isList(paList)
-		StzRaise("Incorrect param type! paList must be a list.")
+	if NOT ( isList(paListOrStr) or isString(paListOrStr) )
+		StzRaise("Incorrect param type! paListOrStr must be a list or string.")
 	ok
 
-	nLen = len(paList)
+	if isList(paListOrStr)
+		oList = new stzList(paListOrStr)
+		nLen = len(paList)
+		cThings = "items"
+	else
+		oStr = new StzString(paListOrStr)
+		nLen = oStr.NumberOfChars()
+		cThings = "chars"
+	ok
 
-	if nLen < 10
-		return ComputableForm(paList)
+	if nLen < MinValueForComputableShortFormXT()
+		return ComputableForm(paListOrStr)
 	ok
 
 	if NOT ( isNumber(p) or (isList(p) and Q(p).IsPairOfNumbers()) )
@@ -2919,60 +2939,77 @@ func ComputableShortFormXT(paList, p)
 	ok
 
 	if n1 + n2 >= nLen
-		StzRaise("Incorrect value(s)! The number of items to show exceeds the size of the list.")
+		StzRaise("Incorrect value(s)! The number of" + cThings = " to show exceeds the size of the list.")
 	ok
 
-	aContent = Q(paList).
+	aContent = Q(paListOrStr).
 			FirstNItemsQ(n1).
 			AddQ("...").
-			AddManyQ( Q(paList).LastNItems(n2) ).
+			AddManyQ( Q(paListOrStr).LastNItems(n2) ).
 			Content()
 
 	nLen = len(aContent)
 
-	if nLen = 0
-		return "[ ]"
-	ok
-
-	cResult = "[ "
-
-	for i = 1 to nLen
-		if isNumber(aContent[i])
-			cResult += "" +
-				   aContent[i] + ", "
-
-		but isString(aContent[i])
-			cChar = '"'
-		
-			oQStr = new QString2()
-			oQStr.append(aContent[i])
-			c1 = oQStr.mid(0, 1)
-			c2 = oQStr.mid(oQStr.count()-1, 1)
-		
-			if c1 = '"' or
-			   c2 = '"'
-				cChar = "'"
-			ok
-		
-			cResult += (cChar + aContent[i] + cChar + ", ")
-
-		but isList(aContent[i])
-			cResult += ( ComputableForm(aContent[i]) + ", ")
-
-		but isObject(aContent[i])
-			cResult += ObjectVarName(aContent[i]) + ", "
-	
+	if isList(paListOrStr)
+		if nLen = 0
+			return "[ ]"
 		ok
+	
+		cResult = "[ "
+	
+		for i = 1 to nLen
+			if isNumber(aContent[i])
+				cResult += "" +
+					   aContent[i] + ", "
+	
+			but isString(aContent[i])
+				cChar = '"'
+			
+				oQStr = new QString2()
+				oQStr.append(aContent[i])
+				c1 = oQStr.mid(0, 1)
+				c2 = oQStr.mid(oQStr.count()-1, 1)
+			
+				if c1 = '"' or
+				   c2 = '"'
+					cChar = "'"
+				ok
+			
+				cResult += (cChar + aContent[i] + cChar + ", ")
+	
+			but isList(aContent[i])
+				cResult += ( ComputableForm(aContent[i]) + ", ")
+	
+			but isObject(aContent[i])
+				cResult += ObjectVarName(aContent[i]) + ", "
+		
+			ok
+	
+		next
 
-	next
+		oQStr = new QString2()
+		oQStr.append(cResult)
+		oQStr.replace( (oQStr.count() - 2), 2, "" )
+		oQStr.append(" ]")
+	
+		cResult = oQStr.mid(0, oQStr.count())
+		return cResult
 
-	oQStr = new QString2()
-	oQStr.append(cResult)
-	oQStr.replace( (oQStr.count() - 2), 2, "" )
-	oQStr.append(" ]")
+	else # Case paListOrStr is string
+		if nLen = 0
+			return ""
+		ok
+	
+		cResult = ""
+	
+		for i = 1 to nLen
+			cResult += aContent[i]
+	
+		next
 
-	cResult = oQStr.mid(0, oQStr.count())
-	return cResult
+		return cResult
+
+	ok
 
 	#< @FunctionFluentForm
 

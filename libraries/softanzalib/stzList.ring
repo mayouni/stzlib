@@ -3637,7 +3637,7 @@ func @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
 		ok
 
 		if NOT (isString(pItem) or isNumber(pItem))
-			StzRaise("Can't proceed! pItem must be a number or string.")
+			return -1
 		ok
 
 		if NOT isNumber(nStart)
@@ -3672,7 +3672,12 @@ func @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
 	n = 0
 
 	while TRUE
-		nPos = find(aContent, pItem)
+		try
+			nPos = find(aContent, pItem)
+		catch
+			return -1
+		done
+
 		if nPos = 0
 			exit
 		ok
@@ -3800,7 +3805,7 @@ func @FindAllCS(aList, pItem, pCaseSensitive)
 		ok
 
 		if NOT (isString(pItem) or isNumber(pItem))
-			StzRaise("Can't proceed! pItem must be a number or string.")
+			return -1
 		ok
 
 		if isList(pCaseSensitive) and IsCaseSensitive(pCaseSensitive)
@@ -3812,6 +3817,14 @@ func @FindAllCS(aList, pItem, pCaseSensitive)
 		ok
 	ok
 
+	nLen = len(aList)
+
+	if EarlyCheck()
+		if nLen = 0
+			return []
+		ok
+	ok
+
 	if pCaseSensitive = FALSE 
 		if isString(pItem)
 			pItem = lower(pItem)
@@ -3820,7 +3833,6 @@ func @FindAllCS(aList, pItem, pCaseSensitive)
 		aList = StzListQ(aList).Lowercased()
 	ok
 
-	nLen = len(aList)
 	aContent = aList
 
 	anResult = []
@@ -3828,7 +3840,12 @@ func @FindAllCS(aList, pItem, pCaseSensitive)
 	n = 0
 
 	while TRUE
-		nPos = find(aContent, pItem)
+		try
+			nPos = find(aContent, pItem)
+		catch
+			return -1
+		done
+
 		if nPos = 0
 			exit
 		ok
@@ -34702,12 +34719,24 @@ class stzList from stzObject
 		# Remying on a Ring-native solution (using the @FindAll() optimised
 		# function, provided by Softannza at the global level)
 
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if EarlyCheck()
+			if nLen = 0
+				return []
+			ok
+		ok
+
 		anResult = @FindAllCS( This.Content(), pItem, pCaseSensitive)
-		if len(anResult) > 0
+
+		if isList(anResult) > 0
 			return anResult
 
-		else
-		# Otherwise, we rely on an advanced Softanza solution that finds
+		else # the returned value is -1 ~> @FindAll() was not able to compute pItem
+		     # because it was not a number or string
+
+		# we rely on an advanced Softanza solution that finds
 		# not only numbers and strings (base on the strangifying of the list)
 
 			cItem = ""
@@ -35039,7 +35068,7 @@ class stzList from stzObject
 
 		nResult = @FindNthSCS(This.Content(), n, pItem, 1, pCaseSensitive)
 
-		if nResult > 0
+		if nResult != -1
 			return nResult
 
 		else
@@ -36344,7 +36373,7 @@ class stzList from stzObject
 
 		nResult = @FindNthSCS( This.Content(), n, pItem, pnStartingAt, pCaseSensitive )
 
-		if nResult > 0
+		if nResult != -1
 			return nResult
 		else
 		# else we remy on a Softanza solution
@@ -36590,7 +36619,7 @@ class stzList from stzObject
 
 		nResult = @FindNextCS(This.Content(), "*", 1_000_000, pCaseSensitive)
 
-		if nResult > 0
+		if nResult != -1
 			return nResult
 
 		else

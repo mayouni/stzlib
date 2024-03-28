@@ -9963,6 +9963,20 @@ class stzString from stzObject
 			def FirstNCharsQR(n, pcReturnType)
 				return This.NFirstCharsQR(n, pcReturnType)
 
+		#-- item as alternative of char #TODO generalise it!
+
+		def NFirstItems(n)
+			return This.NFirstChars(n)
+
+			def NFirstItemsQ(n)
+				return This.NFirstCharsQ(n)
+
+		def FirstNItems(n)
+			return This.NFirstChars(n)
+
+			def FirstNItemsQ(n)
+				return This.NFirstCharsQ(n)
+
 		#>
 
 		#< @FunctionSpecificForms
@@ -10249,6 +10263,20 @@ class stzString from stzObject
 
 			def LastNCharsQR(n, pcReturnType)
 				return This.NLastCharsQR(n, pcReturnType)
+
+		#-- item as alternative of char #TODO generalise it!
+
+		def NLastItems(n)
+			return This.NLastChars(n)
+
+			def NLastItemsQ(n)
+				return This.NLastCharsQ(n)
+
+		def LastNItems(n)
+			return This.NLastChars(n)
+
+			def LastNItemsQ(n)
+				return This.NLastCharsQ(n)
 
 		#>
 
@@ -39268,8 +39296,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		# ? Q("_/♥\_").ContainsXT("♥", :Between = ["/", :And = "\"])
 		but isString(p1) and isList(p2) and (Q(p2).IsBetweenNamedParam() or Q(p2).IsBoundedByNamedParam())
 
-			if Q(p2[2][2]).IsAndNamedParam()
-				p2[2][2] = p2[2][2][2]
+			if Q(p2[2]).IsAndNamedParam()
+				p2[2] = p2[2][2]
 			ok
 
 			if Q(p2[2]).isListOfStrings()
@@ -39284,8 +39312,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		# ? Q("..<<--♥♥♥-->>..").ContainsXT("♥♥♥", :InBetween = ["<<", ">>"])
 		but isString(p1) and isList(p2) and Q(p2).IsInBetweenNamedParam()
 
-			if Q(p2[2][2]).IsAndNamedParam()
-				p2[2][2] = p2[2][2][2]
+			if Q(p2[2]).IsAndNamedParam()
+				p2[2] = p2[2][2]
 			ok
 
 			if Q(p2[2]).isListOfStrings()
@@ -39301,16 +39329,16 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		but isString(p1) and isList(p2) and Q(p2).IsBetweenSubStringsNamedParam()
 
-			if Q(p2[2][2]).IsAndNamedParam()
-				p2[2][2] = p2[2][2][2]
+			if Q(p2[2]).IsAndNamedParam()
+				p2[2] = p2[2][2]
 			ok
 
 			return This.ContainsSubStringBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
 		
 		but isString(p1) and isList(p2) and Q(p2).IsBetweenPositionsNamedParam()
 
-			if Q(p2[2][2]).IsAndNamedParam()
-				p2[2][2] = p2[2][2][2]
+			if Q(p2[2]).IsAndNamedParam()
+				p2[2] = p2[2][2]
 			ok
 
 			return This.ContainsSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
@@ -39361,8 +39389,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		
 		# ? Q("__/♥\__/^^\__").ContainsXT( [], :Between = ["/","\"] )
 		but isList(p1) and len(p1) = 0 and isList(p2) and Q(p2).IsBetweenNamedParam()
-			if Q(p2[2][2]).IsAndNamedParam()
-				p2[2][2] = p2[2][2][2]
+			if Q(p2[2]).IsAndNamedParam()
+				p2[2] = p2[2][2]
 			ok
 		
 			return This.ContainsSubStringsBetweenCS(p2[2][1], p2[2][2], pCaseSensitive)
