@@ -407,8 +407,7 @@ pron()
 
 proff()
 
-/*================ #TODO: check error in :uppercase valyes
-		   #~> they must be in uppercase!
+/*================
 
 pron()
 
@@ -416,11 +415,11 @@ o1 = new stzString("mmmMMMaaAAAiii")
 ? @@( o1.Classify(:Using = 'Q(@char).CharCase()') )
 #--> [
 #	[ "lowercase", [ "mmm", "aa", "iii" ] ],
-#	[ "uppercase", [ "mmm", "aaa" ] ]
+#	[ "uppercase", [ "MMM", "AAA" ] ]
 # ]
 
 proff()
-# Executed in 0.42 second(s)
+# Executed in 0.17 second(s)
 
 /*================
 
@@ -438,28 +437,36 @@ o1 = new stzString("---,---;---[---]---:---")
 #--> [ "---,", "---;", "---[", "---]", "---:", "---" ]
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.08 second(s)
 
-/*================
+/*================ #TODO check it after including ContainsBetween() and
+#		         containssubstringbetweenpositionscs
 
 pron()
 
-? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", :Position = 3, :AndPosition = 5)
+//? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", :Position = 3, :AndPosition = 5)
 #--> TRUE
 
-? Q("^^♥♥♥^^").ContainsInSection("♥♥♥", 3, 5)
-#--> TRUE
-
-? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :BetweenPositions = [ 3, :And = 5])
-#--> TRUE
-
-? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :InSection = [3, 5])
+//? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :BetweenPositions = [ 3, :And = 5])
 #--> TRUE
 
 proff()
 # Executed in 0.06 second(s)
 
 /*--------------
+
+pron()
+
+? Q("^^♥♥♥^^").ContainsInSection("♥♥♥", 3, 5)
+#--> TRUE
+
+? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :InSection = [3, 5])
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s)
+
+/*-------------- # TODO: check after including ContainsBetween()
 
 pron()
 
@@ -472,7 +479,7 @@ pron()
 proff()
 # Executed in 0.49 second(s)
 
-/*--------------
+/*-------------- #TODO check it after including ContainsSubstringBetweencs()
 
 pron()
 
@@ -484,12 +491,14 @@ pron()
 proff()
 #--> Executed in 0.48 second(s)
 
-/*--------------
+/*-------------- #TODO check it after including ContainsSubstringBetweencs()
+
+pron()
 
 ? Q("..<<--♥♥♥-->>..").ContainsXT("♥♥♥", :InBetween = ["<<", ">>"])
 #--> TRUE
 
-StopProfiler()
+proff()
 # Executed in 0.05 second(s)
 
 /*==================
@@ -501,6 +510,7 @@ o1 = new stzString("__♥♥♥__/♥♥♥\__♥♥♥__")
 #--> [9, 11]
 
 StopProfiler()
+# Executed in 0.01 second(s)
 
 /*================
 
@@ -519,10 +529,10 @@ o1 = new stzString("__♥♥♥__/♥♥♥\__♥♥♥__")
 #--> [ "__/", "\__" ]
 
 StopProfiler()
-# Executed in 0.04
+# Executed in 0.03
 
 /*========= CHECKING BOUNDS - XT
-	
+
 StartProfiler()
 		
 	o1 = new stzString("♥")
@@ -539,7 +549,7 @@ StartProfiler()
 	#--> TRUE
 	
 StopProfiler()
-# Executed in 0.20 second(s)
+# Executed in 0.12 second(s)
 
 /*====  FINDING SUBSTRING, BASIC & EXTENDED
 
@@ -580,7 +590,7 @@ StartProfiler()
 	#--> TRUE
 	
 StopProfiler()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*======== CHECKING CONTAINMENT - EXTENDED
 
@@ -2009,10 +2019,11 @@ o1 = new stzString("<<word>> and __word__")
 proff()
 # Executed in 0.11 second(s)
 
-/*------ #TODO: check it
+/*------ #TODO: check it after including ContainsSubStringBoundedBy()
 
 pron()
 
+o1 = new stzString("<<word>> and __word__")
 ? o1.SubStringQ( "word" ).IsBoundedBy(["<<", ">>"])
 #--> TRUE
 
@@ -2107,14 +2118,14 @@ proff()
 pron()
 
 o1 = Q("ABAAC")
-? @@( o1.SubStrings() ) + NL
+? @@NL( o1.SubStrings() ) + NL
 #--> [
 # 	"A", "AB", "ABA", "ABAA",
 # 	"ABAAC", "B", "BA", "BAA",
 # 	"BAAC", "A", "AA", "AAC", "A", "AC", "C"
 # ]
 
-? @@( o1.SubStringsZ() ) + NL
+? @@NL( o1.SubStringsZ() ) + NL
 #--> [
 # 	[ "A", [ 1, 3, 4 ] ],
 # 	[ "AB", [ 1 ] ],
@@ -2131,7 +2142,7 @@ o1 = Q("ABAAC")
 #	[ "C", [ 5 ] ]
 # ]
 
-? @@( o1.SubStringsZZ() )
+? @@NL( o1.SubStringsZZ() )
 #--> [
 #	[ "A", [ [ 1, 1 ], [ 3, 3 ], [ 4, 4 ] ] ],
 #	[ "AB", [ [ 1, 2 ] ] ],
@@ -2149,7 +2160,7 @@ o1 = Q("ABAAC")
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*=================
 
@@ -3600,7 +3611,7 @@ o1.SortUpBy('len(@item)') + NL
 #--< [ "abcdaaa", "aaa", "abcade", "a", "ab", "abc", "b" ]
 
 proff()
-# Executed in 0.18 second(s)
+# Executed in 0.07 second(s)
 
 /*------------------
 
@@ -3965,16 +3976,16 @@ next
 aList + "A" + "*" + "B" + "C" + "*" + "D" + "*" + "E"
 
 # Using the optimised @FindNthS() function (based on native Ring find())
-
-? @FindNthS(aList, 3, "*", 1_000_000) # takes 0.78 seconds
+/*
+? @FindNthS(aList, 3, "*", 1_000_000) # takes 1.58 seconds
 
 ? @FindNext(aList, "*", 1_000_000) # takes 0.74 second(s)
 #--> 1900002
-
-? @@( @FindAll(aList, "*") ) # Executed in 1.42 second(s)
+*/
+? @@( @FindAll(aList, "*") ) # Executed in 2.23 second(s)
 
 #--> [ 1900002, 1900005, 1900007 ]
-
+/*
 
 # Creating the stzList object (takes 1.08 seconds)
 
@@ -3991,59 +4002,40 @@ o1 = new stzList(aList)
 
 	? o1.FindAll("*") # Takes 1.57 seconds
 	#--> [ 1900002, 1900005, 1900007 ]
-
+*/
 proff()
 #--> Executed in 8.98 second(s)
 
-/*-----------
+/*========== #perf
+
+# Comparing two implementations of the concatenation of a large lists of strings:
+# one with native Ring (list and += "") and one with Qt QStringList().join
+# see the next 2 examples...
+
+# NOTE: before Ring 1.19, the Ring-based implementation was faster, now the
+# Qt-based one is faster.
+
+# TODO: do the necessary to adopt it in all relevant places in the library.
 
 pron()
 
+# Concatenating a large list of numbers and strings (1.9M items)
+# takes about 10 seconds in Ring 1.19
+
 # Preparing the large list to work on
+
 	aList = []
 	for i = 1 to 1_900_000
 		aList + "sometext"
 	next
 	aList + "A" + "*" + "B" + "C" + "*" + "D" + "*" + "E"
-	# Takes 1.20 seconds
-
-	o1 = new stzList(aList)
-	# takes 1 second
-
-	aHash = []
-	aSeen = []
-
-	for i = 1 to 1_900_008
-		n = o1.FindNext(aList[i], i)
-		
-		if n = 0
-			aSeen + aList[i]
-			aHash + [ aList[i], [i] ]
-		ok
-	next
-
-proff()
-
-/*-----------
-
-pron()
-
-# Preparing the large list to work on
-	aList = []
-	for i = 1 to 1_900_000
-		aList + "sometext"
-	next
-	aList + "A" + "*" + "B" + "C" + "*" + "D" + "*" + "E"
-	# Takes 1.20 seconds
-
+	# Takes 0.83 seconds in Ring 1.19
+	# Took 1.20 seconds in Ring 1.17
 
 	# Creating the stzList object
 
-	o1 = new stzList(aList)
+	o1 = new stzList(aList) # Takes 1.04 second(s)
 	
-	? ELpasedTime()
-	# Takes 1.32 seconds
-
 	# Concatenating the items of the list
 	
 	aContent = aList
@@ -4056,13 +4048,20 @@ pron()
 		cResult += aContent[i] + cSep
 	next
 
-
-
 proff()
-# Executed in 13.00 second(s)
+# Executed in 11.16 second(s)
 
-/*--------------------
+/*-------------------- #TODO use QStringList().joint() to concatenate lists of strings
 
+#NOTE
+# Before Ring 1.19, adding large data inside a qstringlist() object was very slow.
+# That's why I avoided it in concatenating lists of strings. In Ring 1.19, as we
+# can see by running this example, this is done quicly.
+
+#TODO
+# Revist the places in Softanza where concatneation of list of strings is done
+# and see if there will be performance gain by using QStringList().joint
+#~> Look especially at Stringify() which is used in many finding algorithms!
 
 pron()
 
@@ -4078,21 +4077,18 @@ pron()
 		o1.append(aList[i])
 	next
 	
-	? ElpasedTime()
-	# (takes 11.87 seconds)
+	# Takes 4.09 seconds in Ring 1.19
+	# Took 11.87 seconds in Ring 1.17
 
 # Concatenating the strings in one string
 
-	str = o1.join("")
-	# Takes 0.05 seconds
+	str = o1.join("") # Take 0.32 seconds! very quick! #TODO use it
 
+	//? ShowShortXT(str, 8)
 proff()
-# (takes 11.63 seconds)
+# Executed in 4.04 second(s)
 
-
-#======
-
-/*----------
+#====== #TODO check it after including FindBetween()
 
 pron()
 
@@ -4103,7 +4099,7 @@ o1 = new stzString("...<<*>>...<<*>>...")
 
 proff()
 
-/*----------
+/*---------- #TODO check it after including FindBetween()
 
 pron()
 
@@ -4113,15 +4109,18 @@ o1 = new stzString("...<<--*-->>...")
 
 proff()
 
-/*----------
+/*---------- #TODO check it after including FindBetween()
 
 pron()
 
 o1 = new stzString('..."*"..."*"...')
+? o1.FindXT( "*", :BoundedBy = '"' )
 
-//? o1.FindXT( "*", :BoundedBy = '"' )
+proff()
 
 /*----------
+
+pron()
 
 o1 = new stzString('..."*"..."*"...')
 
@@ -4129,16 +4128,17 @@ o1 = new stzString('..."*"..."*"...')
 #--> [ 5, 11 ]
 
 ? o1.FindInSection("*", 4, 14)
+#--> [ 5, 11 ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.0é second(s)
 
 /*---------- #TODO: Check errors
 
 pron()
 
 o1 = new stzString("~*~~*--")
-? o1.FindBefore( "*", "--")
+//? o1.FindBefore( "*", "--")
 ? o1.FindXT( "*", :Before = "--")
 
 proff()
@@ -4152,55 +4152,39 @@ o1 = new stzString("~*~~*--")
 
 proff()
 
-/*---------- #TODO: Check erros
+/*---------- #TODO: Check error
 
 pron()
 
 o1 = new stzString("~--*~~*~~")
+
 ? o1.FindXT( "*", :After = "--")
+
+? o1.FindXT( "*", :AfterPosition = 3)
+#--> [ 4, 7 ]
 
 proff()
 
-/*----------
+/*--------- #TODO: add example and test
 
-# FindXT( "*", :AfterPosition = 3)
+# ? o1.FindXT( :3rd = "*", :Between = [ "<<", ">>" ])
 
-/*----------
+# ? o1.FindXT( :3rd = "*", :BoundedBy = '"' ])
 
-# FindXT( :3rd = "*", :Between = [ "<<", ">>" ])
+# ? o1.FindXT( :3rd = "*", :InSection = [5, 24] ])
 
-/*----------
+# ? o1.FindXT( :3rd = "*", :Before = '!' ])
 
-# FindXT( :3rd = "*", :BoundedBy = '"' ])
+# ? o1.FindXT( :3rd = "*", :BeforePosition = 12 ])
 
-/*----------
+# ? o1.FindXT( :3rd = "*", :After = '!' ])
 
-# FindXT( :3rd = "*", :InSection = [5, 24] ])
+# ? o1.FindXT( :3rd = "*", :AfterPosition = 12 ])
 
-/*----------
+# ? o1.FindXT( :AnySubString, :Between = ["<<", ">>" )
 
-# FindXT( :3rd = "*", :Before = '!' ])
+# ? o1.FindXT( :Any, :BoundedBy = '"' )
 
-/*----------
+# ? o1.FindXT( "*", :InSection = [5, 24] )
 
-# FindXT( :3rd = "*", :BeforePosition = 12 ])
-
-/*----------
-
-# FindXT( :3rd = "*", :After = '!' ])
-
-/*----------
-
-# FindXT( :3rd = "*", :AfterPosition = 12 ])
-
-/*----------
-
-# FindXT( :AnySubString, :Between = ["<<", ">>" )
-
-/*----------
-
-# FindXT( :Any, :BoundedBy = '"' )
-
-/*----------
-
-# FindXT( "*", :InSection = [5, 24] )
+proff()
