@@ -3619,6 +3619,239 @@ func ObjectsIn(paList)
 
 	#>
 
+#===
+
+# A softanza function that uses the native Find() function in Ring
+# to find the nth occurrence of an item in a list
+#-> Used by stzList when possible (for better performance)
+
+func @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	if CheckParams()
+		if NOT isList(aList)
+			StzRaise("Incorrect param type! aList must be a list.")
+		ok
+
+		if NOT isNumber(nth)
+			StzRaise("Incorrect param type! nth must be a number.")
+		ok
+
+		if NOT (isString(pItem) or isNumber(pItem))
+			StzRaise("Can't proceed! pItem must be a number or string.")
+		ok
+
+		if NOT isNumber(nStart)
+			StzRaise("Incorrect param type! nStart must be a number.")
+		ok
+
+		if isList(pCaseSensitive) and IsCaseSensitive(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+	ok
+
+	if pCaseSensitive = FALSE 
+		if isString(pItem)
+			pItem = lower(pItem)
+		ok
+
+		aList = StzListQ(aList).Lowercased()
+	ok
+
+	nLen = len(aList)
+	aContent = []
+
+	for i = nStart to nLen
+		aContent + aList[i]
+	next
+
+	nPos = -1
+	n = 0
+
+	while TRUE
+		nPos = find(aContent, pItem)
+		if nPos = 0
+			exit
+		ok
+
+		n++
+		if n = nth
+			exit
+		ok
+
+		aContent[nPos] += (""+ aContent[nPos]+1)
+		
+	end
+
+	nResult = nPos + nStart - 1
+	return nResult
+
+	func FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func FindNthStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func @FindNthStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	#--
+
+	func @FindNthNextSCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func @FindNextNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func FindNextNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func FindNthNextSCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+
+	func FindNthNextStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func FindNextNthStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+
+	func @FindNextNthStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func @FindNthNextStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	#>
+
+func @FindNthS(aList, nth, pItem, nStart)
+	return @FindNthSCS(aList, nth, pItem, nStart, TRUE)
+
+	#< @FunctionAlternativeForms
+
+	func @FindNthStartingAt(aList, nth, pItem, nStart)
+		return @FindNthS(aList, nth, pItem, nStart)
+
+	func FindNthS(aList, nth, pItem, nStart)
+		return @FindNthS(aList, nth, pItem, nStart)
+
+	func FindNthStartingAt(aList, nth, pItem, nStart)
+		return @FindNthS(aList, nth, pItem, nStart)
+
+	#--
+
+	func @FindNthNextS(aList, nth, pItem, nStart)
+		return @FindNthS(aList, nth, pItem, nStart)
+
+	func @FindNextNthS(aList, nth, pItem, nStart)
+		return @FindNthS(aList, nth, pItem, nStart)
+
+	func FindNextNthS(aList, nth, pItem, nStart)
+		return @FindNthS(aList, nth, pItem, nStart)
+
+	func FindNthNextS(aList, nth, pItem, nStart)
+		return @FindNthS(aList, nth, pItem, nStart)
+
+
+	func FindNthNextStartingAt(aList, nth, pItem, nStart)
+		return @FindNthS(aList, nth, pItem, nStart)
+
+	func FindNextNthStartingAt(aList, nth, pItem, nStart)
+		return @FindNthS(aList, nth, pItem, nStart)
+
+
+	func @FindNextNthStartingAt(aList, nth, pItem, nStart)
+		return @FindNthS(aList, nth, pItem, nStart)
+
+	func @FindNthNextStartingAt(aList, nth, pItem, nStart)
+		return @FindNthSCS(aList, nth, pItem, nStart)
+
+	#>
+
+#==
+
+func @FindNextCS(aList, pItem, nStart, pCaseSensitive)
+	return @FindNthNextSCS(aList, 1, pItem, nStart, pCaseSensitive)
+
+	func FindNextCS(aList, pItem, nStart, pCaseSensitive)
+		return @FindNextCS(aList, pItem, nStart, pCaseSensitive)
+
+func @FindNext(aList, pItem, nStart)
+	return @FindNextCS(aList, pItem, nStart, TRUE)
+
+	func FindNext(aList, pItem, nStart)
+		return @FindNext(aList, pItem, nStart)
+
+#===
+
+# A softanza function that uses the native Find() function in Ring
+# to find the nth occurrence of an item in a list
+#-> Used by stzList when possible (for better performance)
+
+func @FindAllCS(aList, pItem, pCaseSensitive)
+
+	if CheckParams()
+		if NOT isList(aList)
+			StzRaise("Incorrect param type! aList must be a list.")
+		ok
+
+		if NOT (isString(pItem) or isNumber(pItem))
+			StzRaise("Can't proceed! pItem must be a number or string.")
+		ok
+
+		if isList(pCaseSensitive) and IsCaseSensitive(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT IsBoolean(pCaseSensitive)
+			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+	ok
+
+	if pCaseSensitive = FALSE 
+		if isString(pItem)
+			pItem = lower(pItem)
+		ok
+
+		aList = StzListQ(aList).Lowercased()
+	ok
+
+	nLen = len(aList)
+	aContent = aList
+
+	anResult = []
+	nPos = -1
+	n = 0
+
+	while TRUE
+		nPos = find(aContent, pItem)
+		if nPos = 0
+			exit
+		ok
+
+		anResult + nPos
+		aContent[nPos] += (""+ aContent[nPos]+1)
+		
+	end
+
+	
+	return anResult
+
+	func FindAllCS(aList, pItem, pCaseSensitive)
+		return @FindAllCS(aList, pItem, pCaseSensitive)
+
+
+func @FindAll(aList, pItem)
+	return @FindAllCS(aList, pItem, TRUE)
+
+	func FindAll(aList, pItem)
+		return @FindAll(aList, pItem)
+
+
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -3884,7 +4117,8 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfItems()
-		return This.NumberOfItemsCS(TRUE)
+		nResult = len(@aContent)
+		return nResult
 
 		#< @FuntionFluentForm
 
@@ -34465,46 +34699,56 @@ class stzList from stzObject
 
 		ok
 
-		# Doing the job
+		# Remying on a Ring-native solution (using the @FindAll() optimised
+		# function, provided by Softannza at the global level)
 
-		cItem = ""
-		if isList(pItem)
-			cItem = @@(pItem)
-
-		but isObject(pItem) and @IsStzObject(pItem) and pItem.IsNamed()
-			cItem = pItem.ObjectName()
+		anResult = @FindAllCS( This.Content(), pItem, pCaseSensitive)
+		if len(anResult) > 0
+			return anResult
 
 		else
-			cItem = Q(pItem).Stringified()
+		# Otherwise, we rely on an advanced Softanza solution that finds
+		# not only numbers and strings (base on the strangifying of the list)
 
-		ok
-
-		acContent = StzListQ(This.Content()).Stringified()
-		nLen = len(acContent)
-
-		# Managing case sensitivity
-
-		if pCaseSensitive = FALSE
-			cItem = ring_lower(cItem)
-
+			cItem = ""
+			if isList(pItem)
+				cItem = @@(pItem)
+	
+			but isObject(pItem) and @IsStzObject(pItem) and pItem.IsNamed()
+				cItem = pItem.ObjectName()
+	
+			else
+				cItem = Q(pItem).Stringified()
+	
+			ok
+	
+			acContent = StzListQ(This.Content()).Stringified()
+			nLen = len(acContent)
+	
+			# Managing case sensitivity
+	
+			if pCaseSensitive = FALSE
+				cItem = ring_lower(cItem)
+	
+				for i = 1 to nLen
+					if NOT ring_isLower(acContent[i])
+						acContent[i] = ring_lower(acContent[i])
+					ok
+				next
+			ok
+	
+			# Getting the occurrences
+	
+			anResult = []
+	
 			for i = 1 to nLen
-				if NOT ring_isLower(acContent[i])
-					acContent[i] = ring_lower(acContent[i])
+				if acContent[i] = cItem
+					anResult + i
 				ok
 			next
+	
+			return anResult
 		ok
-
-		# Getting the occurrences
-
-		anResult = []
-
-		for i = 1 to nLen
-			if acContent[i] = cItem
-				anResult + i
-			ok
-		next
-
-		return anResult
 
 		#< @FunctionFluentForm
 
@@ -34766,7 +35010,7 @@ class stzList from stzObject
 
 			if isString(n)
 				if n = :First or n = :FirstOccurrence
-					return This.FindfirstCS(pItem, pCaseSensitive)
+					return This.FindFirstCS(pItem, pCaseSensitive)
 	
 				but n = :Last or n = :LastOccurrence
 					return This.FindLastCS(pItem, pCaseSensitive)
@@ -34791,45 +35035,54 @@ class stzList from stzObject
 
 		ok
 
-		# Doing the job
+		# Trying to use the Ring native find() function
 
-		cItem = ""
-		if isList(pItem) or @IsNamedObject(pItem)
-			cItem = @@(pItem)
+		nResult = @FindNthSCS(This.Content(), n, pItem, 1, pCaseSensitive)
+
+		if nResult > 0
+			return nResult
+
 		else
-			cItem = Q(pItem).Stringified()
-		ok
-
-		acContent = StzListQ(This.Content()).Stringified()
-		nLen = len(acContent)
-
-		# Managing case sensitivity
-
-		if pCaseSensitive = FALSE
-			cItem = ring_lower(cItem)
-
+		# Otherwise, stringifying the list and doing the job
+	
+			cItem = ""
+			if isList(pItem) or @IsNamedObject(pItem)
+				cItem = @@(pItem)
+			else
+				cItem = Q(pItem).Stringified()
+			ok
+	
+			acContent = StzListQ(This.Content()).Stringified()
+			nLen = len(acContent)
+	
+			# Managing case sensitivity
+	
+			if pCaseSensitive = FALSE
+				cItem = ring_lower(cItem)
+	
+				for i = 1 to nLen
+					if NOT ring_isLower(acContent[i])
+						acContent[i] = ring_lower(acContent[i])
+					ok
+				next
+			ok
+	
+			# Counting the occurrences
+	
+			nOccurr = 0
+	
 			for i = 1 to nLen
-				if NOT ring_isLower(acContent[i])
-					acContent[i] = ring_lower(acContent[i])
+	
+				if acContent[i] = cItem
+					nOccurr++
+					if nOccurr = n
+						return i
+					ok
 				ok
 			next
+	
+			return 0
 		ok
-
-		# Counting the occurrences
-
-		nOccurr = 0
-
-		for i = 1 to nLen
-
-			if acContent[i] = cItem
-				nOccurr++
-				if nOccurr = n
-					return i
-				ok
-			ok
-		next
-
-		return 0
 
 		#< @FunctionAlternativeForms
 
@@ -36087,10 +36340,17 @@ class stzList from stzObject
 
 		ok
 
-		# Doing the job
+		# Trying to use the Ring native find() function first
 
-		nResult = This.SectionQ(pnStartingAt + 1, This.NumberOfItems()).
-			FindNthCS(n, pItem, pCaseSensitive) + pnStartingAt
+		nResult = @FindNthSCS( This.Content(), n, pItem, pnStartingAt, pCaseSensitive )
+
+		if nResult > 0
+			return nResult
+		else
+		# else we remy on a Softanza solution
+			nResult = This.SectionQ(pnStartingAt + 1, This.NumberOfItems()).
+				FindNthCS(n, pItem, pCaseSensitive) + pnStartingAt
+		ok
 
 		return nResult
 
@@ -36126,6 +36386,20 @@ class stzList from stzObject
 			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
 
 		def FindNextNthSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		#--
+
+		def FindNthOccurrenceSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def FindNthOccurrenceStartingAtCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def FindNthSCS( n, pItem, nStart, pCaseSensitive )
+			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
+
+		def FindNthStartingAtCS( n, pItem, nStart, pCaseSensitive )
 			return This.FindNthNextOccurrenceCS( n, pItem, nStart, pCaseSensitive )
 
 		#>
@@ -36170,6 +36444,20 @@ class stzList from stzObject
 			return This.FindNthNextOccurrence( n, pItem, nStart )
 
 		def FindNthNextS( n, pItem, nStart )
+			return This.FindNthNextOccurrence( n, pItem, nStart )
+
+		#--
+
+		def FindNthOccurrenceS( n, pItem, nStart )
+			return This.FindNthNextOccurrence( n, pItem, nStart )
+
+		def FindNthOccurrenceStartingAt( n, pItem, nStart )
+			return This.FindNthNextOccurrence( n, pItem, nStart )
+
+		def FindNthS( n, pItem, nStart )
+			return This.FindNthNextOccurrence( n, pItem, nStart )
+
+		def FindNthStartingAt( n, pItem, nStart )
 			return This.FindNthNextOccurrence( n, pItem, nStart )
 
 		#>
@@ -36285,22 +36573,41 @@ class stzList from stzObject
 
 		*/
 
-		if isList(pItem) and Q(pItem).IsOfNamedParam()
-			pItem = pItem[2]
+		if CheckParams()
+
+			if isList(pItem) and Q(pItem).IsOfNamedParam()
+				pItem = pItem[2]
+			ok
+	
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+
 		ok
 
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
+		# Trying with a Ring-based solution first (efficient if the list is
+		# made of strings or numbers and if the item is a string or number)
+
+		nResult = @FindNextCS(This.Content(), "*", 1_000_000, pCaseSensitive)
+
+		if nResult > 0
+			return nResult
+
+		else
+		# Otherwise we rely on an advance Softanza solution, based on the
+		# fact of stringifying the items of the list, and permitting the
+		# finding of not only numbers and strings, but also lists and
+		# named objects...
+
+			nResult = This.SectionQ(pnStartingAt + 1, :Last).
+				FindFirstCS(pItem, pCaseSensitive)
+	
+			if nResult != 0
+				nResult += pnStartingAt
+			ok
+
+			return nResult
 		ok
-
-		nResult = This.SectionQ(pnStartingAt + 1, :Last).
-			FindFirstCS(pItem, pCaseSensitive)
-
-		if nResult != 0
-			nResult += pnStartingAt
-		ok
-
-		return nResult
 
 		#< @FunctionAlternativeForms
 
