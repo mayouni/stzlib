@@ -4197,14 +4197,28 @@ proff()
 # Executed in 0.0é second(s)
 
 /*---------- #TODO: Check errors
-
+*/
 pron()
 
-o1 = new stzString("~*~~*--")
-//? o1.FindBefore( "*", "--")
-? o1.FindXT( "*", :Before = "--")
+o1 = new stzString("~*~~*--*-")
+
+? o1.FindBefore("*", "--")
+#--> [ 2, 5 ]
+
+? o1.FindXT("*", :Before = "--")
+#--> [ 2, 5 ]
+
+? o1.FindAfter("*", "~")
+#--> [ 5, 8 ]
+
+? o1.FindXT("*", :After = "~")
+#--> [ 5, 8 ]
+
+? o1.FindInSection("*", 2, :lastchar)
+#--> [ 2, 5, 8 ]
 
 proff()
+# Executed in 0.01 second(s)
 
 /*---------- #TODO: Check errors
 
