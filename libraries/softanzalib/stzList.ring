@@ -42955,11 +42955,11 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 			item = aContent[i]
-			if isNumber(item)
-				cItem = ""+ item
-
-			but isString(item)
+			if isString(item)
 				cItem = item
+
+			but isNumber(item)
+				cItem = ""+ item
 
 			but isList(item)
 				cItem = @@(item)
