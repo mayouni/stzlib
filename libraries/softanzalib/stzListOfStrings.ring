@@ -170,26 +170,7 @@ class stzListOfStrings from stzList
 				])
 			done
 		ok
-/*
-		but isList(pList) and
-		   ( Q(pList).IsEmpty() or Q(pList).IsListOfStrings() )
-? ElapsedTime()
-			@oQStrList = new QStringList()	
-			nLen = len(pList)
 
-			for i = 1 to nLen
-				@oQStrList.append(pList[i])	
-			next
-	
-		else
-			StzRaise([
-				:Where = "stzListOfStrings (104) > Init()",
-				:What = "Can't create the list of strings.",
-				:Why  = "Items of the list you provided are not all strings.",
-				:Todo = "Provide a list formed exclusively from strings."
-			])
-		ok
-*/		
 	  #---------------#
 	 #    GENENRAL   #
 	#---------------#

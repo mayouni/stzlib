@@ -4015,6 +4015,7 @@ proff()
 # Qt-based one is faster.
 
 # TODO: do the necessary to adopt it in all relevant places in the library.
+# UpDATE done!
 
 pron()
 
@@ -4050,7 +4051,7 @@ pron()
 proff()
 # Executed in 11.16 second(s)
 
-/*-------------------- #TODO use QStringList().joint() to concatenate lists of strings
+/*-------------------- #perf
 
 #NOTE
 # Before Ring 1.19, adding large data inside a qstringlist() object was very slow.
@@ -4061,6 +4062,8 @@ proff()
 # Revist the places in Softanza where concatneation of list of strings is done
 # and see if there will be performance gain by using QStringList().joint
 #~> Look especially at Stringify() which is used in many finding algorithms!
+
+#UPDATE done!
 
 pron()
 
@@ -4087,8 +4090,8 @@ pron()
 proff()
 # Executed in 4.04 second(s)
 
-/*---------
-*/
+/*--------- #perf
+
 pron()
 
 	aList = []
@@ -4099,10 +4102,54 @@ pron()
 
 	o1 = new stzListOfStrings(aList)
 
-	o1.Concatenate()
+	str = o1.Concatenate()
+
+	# To show a part of the large concatenated string
+	# ? ShowShortXT(str, 7)
 
 proff()
-# Executed in 31.20 second(s)
+# Executed in 9.58 second(s)
+
+/*--------- #perf
+
+pron()
+
+	aList = []
+	for i = 1 to 1_900_000
+		aList + i
+	next
+	for i = 1 to 400
+		aList + 1:3
+	next
+
+	aList + "A" + "*" + "B" + "C" + "*" + "D" + "*" + "E"
+
+	o1 = new stzList(aList)
+	o1.Stringify()
+
+proff()
+# Executed in 6.82 second(s)
+
+/*--------- #perf
+
+pron()
+
+	aList = []
+	for i = 1 to 1_900_000
+		aList + i
+	next
+	for i = 1 to 400
+		aList + 1:3
+	next
+
+	aList + "A" + "*" + "B" + "C" + "*" + "D" + "*" + "E"
+
+	o1 = new stzList(aList)
+	o1.ToCode()
+
+proff()
+# Executed in 9.28 second(s)
+
 
 /*====== #TODO check it after including FindBetween()
 
