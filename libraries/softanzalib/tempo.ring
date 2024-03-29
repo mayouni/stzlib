@@ -4196,8 +4196,8 @@ o1 = new stzString('..."*"..."*"...')
 proff()
 # Executed in 0.0é second(s)
 
-/*---------- #TODO: Check errors
-*/
+/*----------
+
 pron()
 
 o1 = new stzString("~*~~*--*-")
@@ -4220,27 +4220,55 @@ o1 = new stzString("~*~~*--*-")
 proff()
 # Executed in 0.01 second(s)
 
-/*---------- #TODO: Check errors
+/*----------
 
 pron()
 
 o1 = new stzString("~*~~*--")
-? o1.FindXT( "*", :BeforePosition = 10)
+? o1.FindXT( "*", :BeforePosition = 6)
+#--> [ 2, 5 ]
 
 proff()
+# Executed in 0.02 second(s)
 
-/*---------- #TODO: Check error
+/*----------
 
 pron()
 
 o1 = new stzString("~--*~~*~~")
 
 ? o1.FindXT( "*", :After = "--")
+#--> [ 4, 7 ]
 
 ? o1.FindXT( "*", :AfterPosition = 3)
 #--> [ 4, 7 ]
 
 proff()
+# Executed in 0.02 second(s)
+
+/*---------- #TODO
+*/
+pron()
+
+o1 = new stzList([ "~", "*", "~", "~", "*", "--", "*", "-" ])
+
+? o1.FindBefore("*", "--")
+#--> [ 2, 5 ]
+
+? o1.FindXT("*", :Before = "--")
+#--> [ 2, 5 ]
+
+? o1.FindAfter("*", "~")
+#--> [ 5, 7 ]
+
+? o1.FindXT("*", :After = "~")
+#--> [ 5, 7 ]
+
+? o1.FindInSection("*", 2, :LastItem)
+#--> [ 2, 5, 7 ]
+
+proff()
+# Executed in 0.02 second(s)
 
 /*--------- #TODO: add example and test
 
