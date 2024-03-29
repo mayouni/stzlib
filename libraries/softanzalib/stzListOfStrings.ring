@@ -148,20 +148,39 @@ class stzListOfStrings from stzList
 
 	// Initiates the object from a QStringList or a normal list of strings
 	def init(pList)
-	
+
 		if IsQStringList(pList)
 			@oQStrList = pList
 
+		else
+			try
+				@oQStrList = new QStringList()	
+				nLen = len(pList)
+	
+				for i = 1 to nLen
+					@oQStrList.append(pList[i])	
+				next
+	
+			catch
+				StzRaise([
+					:Where = "stzListOfStrings > Init()",
+					:What = "Can't create the list of strings",
+					:Why  = "Incorrect param type",
+					:Todo = "Provide a QStringList object or a list of strings."
+				])
+			done
+		ok
+/*
 		but isList(pList) and
 		   ( Q(pList).IsEmpty() or Q(pList).IsListOfStrings() )
-
+? ElapsedTime()
 			@oQStrList = new QStringList()	
 			nLen = len(pList)
 
 			for i = 1 to nLen
 				@oQStrList.append(pList[i])	
 			next
-			
+	
 		else
 			StzRaise([
 				:Where = "stzListOfStrings (104) > Init()",
@@ -170,7 +189,7 @@ class stzListOfStrings from stzList
 				:Todo = "Provide a list formed exclusively from strings."
 			])
 		ok
-		
+*/		
 	  #---------------#
 	 #    GENENRAL   #
 	#---------------#
@@ -1669,7 +1688,7 @@ class stzListOfStrings from stzList
 
 	def Concatenate()
 		#< @QtBased >
-
+? ElapsedTime()
 		acResult = This.QStringListObject().join("")
 		return acResult
 
