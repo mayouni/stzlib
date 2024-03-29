@@ -35843,42 +35843,30 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			# FindXT( "*", :Before = "--")
 			but oP2.IsBeforeNamedParam()
 				if isString(p2[2])
-					nPos = This.FindFirstCS(p2, pCaseSensitive)
-					if nPos > 0
-						return This.FindXTCS( p1, :InSection = [1, nPos], pCaseSensitive )
-
-					else
-						return []
-					ok
+					return This.FindBeforeSubStringCS(p1, p2[2], pCaseSensitive)
 
 				but isNumber(p2[2])
-					return This.FindXTCS( p1, :InSection = [1, p2[2]], pCaseSensitive )
+					return This.FindBeforepositionCS(p1, p2[2], pCaseSensitive)
 
 				ok
 
 			# FindXT( "*", :BeforePosition = 10)
 			but oP2.IsBeforePositionNamedParam()
-				return This.FindXTCS( p1, :InSection = [1, p2[2]], pCaseSensitive )
+				return This.FindBeforePositionCS( p1, p2[2], pCaseSensitive )
 
 			# FindXT( "*", :After = "--")
 			but oP2.IsAfterNamedParam()
 				if isString(p2[2])
-					nPos = This.FindFirstCS(p2, pCaseSensitive)
-					if nPos > 0
-						return This.FindXTCS( p1, :InSection = [nPos, :LastChar], pCaseSensitive )
-
-					else
-						return []
-					ok
+					return This.FindAfterSubStringCS(p1, p2[2], pCaseSensitive)
 
 				but isNumber(p2[2])
-					return This.FindXTCS( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
+					return This.FindAfterPositionCS(p1, p2[2], pCaseSensitive)
 
 				ok
 
 			# FindXT( "*", :AfterPosition = 3)
 			but oP2.IsAfterPositionNamedParam()
-				return This.FindXTCS( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
+				return This.FindAfterPositionCS( p1, p2[2], pCaseSensitive )
 
 			# FindXT( :3rd = "*", :Between = [ "<<", ">>" ])
 			but isList(p1) and isString(p1[2]) and
@@ -36019,9 +36007,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	# 	FindLastNOccurrencesS(n, pcStr, pnStartingAt)
 
 	# I'm experimenting wiith this technique of abstraction
-	# to make them usable form stzString and stzList
+	# to make them usable also form stzString and stzList
 
-	# Son I'm not decided yet to keep them or reimmplement
+	#TODO
+	# Frankly, I'm not decided yet to keep them or reimplement
 	# them in each class apart. Think about the pros and cons!
 	
 	  #=================================================#
@@ -36612,9 +36601,711 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#>
 
-	  #----------------------------------------------------------------------#
+	  #=======================================================================================#
+	 #  FINDING THE OCCURRENCES OF A SUBSTRING BEFORE A GIVEN POSITION OR A GIVEN SUBSTRING  #
+	#=======================================================================================#
+
+	def FindBeforeCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		if NOT (isNumber(pPosOrSubStr) or isString(pPosOrSubStr))
+			StzRaise("Incorrect param type! pPosOrSubStr must be a number or a string.")
+		ok
+
+		if isNumber(pPosOrSubStr)
+			return This.FindBeforePositionCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+		else
+			return This.FindBeforeSubStringCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforeCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindBeforeCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		def FindOccurrencesBeforeCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindBeforeCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		#--
+
+		def FindBeforeCSZ(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindBeforeCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		def FindAllBeforeCSZ(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindBeforeCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		def FindOccurrencesBeforeCSZ(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindBeforeCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBefore(pcSubStr, pPosOrSubStr)
+		return This.FindBeforeCS(pcSubStr, pPosOrSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBefore(pcSubStr, pPosOrSubStr)
+			return This.FindBefore(pcSubStr, pPosOrSubStr)
+
+		def FindOccurrencesBefore(pcSubStr, pPosOrSubStr)
+			return This.FindBefore(pcSubStr, pPosOrSubStr)
+
+		#--
+
+		def FindBeforeZ(pcSubStr, pPosOrSubStr)
+			return This.FindBefore(pcSubStr, pPosOrSubStr)
+
+		def FindAllBeforeZ(pcSubStr, pPosOrSubStr)
+			return This.FindBefore(pcSubStr, pPosOrSubStr)
+
+		def FindOccurrencesBeforeZ(pcSubStr, pPosOrSubStr)
+			return This.FindBefore(pcSubStr, pPosOrSubStr)
+
+		#>
+
+	   #-----------------------------------------------------------------------#
+	  #   FINDING THE OCCURRENCES OF A SUBSTRING BEFORE A GIVEN POSITION OR   #
+	 #   A GIVEN SUBSTRING AND RETURNING THEIM AS SECTIONS -- ZZ/EXTENSION   #
+	#-----------------------------------------------------------------------#
+
+	def FindBeforeAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		if NOT (isNumber(pPosOrSubStr) or isString(pPosOrSubStr))
+			StzRaise("Incorrect param type! pPosOrSubStr must be a number or a string.")
+		ok
+
+		if isNumber(pPosOrSubStr)
+			return This.FindBeforePositionAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+		else
+			return This.FindBeforeSubStringAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforeAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindBeforeAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		def FindOccurrencesBeforeAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindBeforeAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		#--
+
+		def FindBeforeCSZZ(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindBeforeAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		def FindAllBeforeCSZZ(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindBeforeAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		def FindOccurrencesBeforeCSZZ(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindBeforeAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBeforeAsSections(pcSubStr, pPosOrSubStr)
+		return This.FindBeforeAsSectionsCS(pcSubStr, pPosOrSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforeAsSections(pcSubStr, pPosOrSubStr)
+			return This.FindBeforeAsSections(pcSubStr, pPosOrSubStr)
+
+		def FindOccurrencesBeforeAsSections(pcSubStr, pPosOrSubStr)
+			return This.FindBeforeAsSections(pcSubStr, pPosOrSubStr)
+
+		#--
+
+		def FindBeforeZZ(pcSubStr, pPosOrSubStr)
+			return This.FindBeforeAsSections(pcSubStr, pPosOrSubStr)
+
+		def FindAllBeforeZZ(pcSubStr, pPosOrSubStr)
+			return This.FindBeforeAsSections(pcSubStr, pPosOrSubStr)
+
+		def FindOccurrencesBeforeZZ(pcSubStr, pPosOrSubStr)
+			return This.FindBeforeAsSections(pcSubStr, pPosOrSubStr)
+
+		#>
+
+	  #------------------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES OF A SUBSTRING BEFORE A GIVEN POSITION  #
+	#==================================================================# 
+
+	def FindBeforePositionCS(pcSubStr, pnPos, pCaseSensitive)
+		anResult = This.FindInSectionCS(pcSubStr, 1, pnPos, pCaseSensitive)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforePositionCS(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindBeforePositionCS(pcSubStr, pnPos, pCaseSensitive)
+
+		def FindOccurrencesBeforePositionCS(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindBeforePositionCS(pcSubStr, pnPos, pCaseSensitive)
+
+		#--
+
+		def FindBeforePositionCSZ(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindBeforePositionCS(pcSubStr, pnPos, pCaseSensitive)
+
+		def FindAllBeforePositionCSZ(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindBeforePositionCS(pcSubStr, pnPos, pCaseSensitive)
+
+		def FindOccurrencesBeforePositionCSZ(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindBeforePositionCS(pcSubStr, pnPos, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBeforePosition(pcSubStr, pnPos)
+		return This.FindBeforePositionCS(pcSubStr, pnPos, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforePosition(pcSubStr, pnPos)
+			return This.FindBeforePosition(pcSubStr, pnPos)
+
+		def FindOccurrencesBeforePosition(pcSubStr, pnPos)
+			return This.FindBeforePosition(pcSubStr, pnPos)
+
+		#--
+
+		def FindBeforePositionZ(pcSubStr, pnPos)
+			return This.FindBeforePosition(pcSubStr, pnPos)
+
+		def FindAllBeforePositionZ(pcSubStr, pnPos)
+			return This.FindBeforePosition(pcSubStr, pnPos)
+
+		def FindOccurrencesBeforePositionZ(pcSubStr, pnPos)
+			return This.FindBeforePosition(pcSubStr, pnPos)
+
+		#>
+
+	  #--------------------------------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES (AS SECTIONS) OF A SUBSTRING BEFORE A GIVEN POSITION  #
+	#--------------------------------------------------------------------------------# 
+
+	def FindBeforePositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+		aResult = This.FindInSectionAsSectionsCS(pcSubStr, 1, pnPos, pCaseSensitive)
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforePositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindBeforePositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+
+		def FindOccurrencesBeforePositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindBeforePositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+
+		#--
+
+		def FindBeforePositionCSZZ(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindBeforePositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+
+		def FindAllBeforePositionCSZZ(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindBeforePositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+
+		def FindOccurrencesBeforePositionCSZZ(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindBeforePositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBeforePositionAsSections(pcSubStr, pnPos)
+		return This.FindBeforePositionAsSectionsCS(pcSubStr, pnPos, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforePositionAsSections(pcSubStr, pnPos)
+			return This.FindBeforePositionAsSections(pcSubStr, pnPos)
+
+		def FindOccurrencesBeforePositionAsSections(pcSubStr, pnPos)
+			return This.FindBeforePositionAsSections(pcSubStr, pnPos)
+
+		#--
+
+		def FindBeforePositionZZ(pcSubStr, pnPos)
+			return This.FindBeforePositionAsSections(pcSubStr, pnPos)
+
+		def FindAllBeforePositionZZ(pcSubStr, pnPos)
+			return This.FindBeforePositionAsSections(pcSubStr, pnPos)
+
+		def FindOccurrencesBeforePositionZZ(pcSubStr, pnPos)
+			return This.FindBeforePositionAsSections(pcSubStr, pnPos)
+
+		#>
+
+	  #-------------------------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES OF A SUBSTRING BEFORE A GIVEN OTHER SUBSTRING  #
+	#=========================================================================# 
+
+	def FindBeforeSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		nPos = This.FindFirstCS(pcOtherSubStr, pCaseSensitive)
+		anResult = This.FindInSectionCS(pcSubStr, 1, nPos, pCaseSensitive)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforeSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		def FindOccurrencesBeforeSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		#--
+
+		def FindBeforeSubStringCSZ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		def FindAllBeforeSubStringCSZ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		def FindOccurrencesBeforeSubStringCSZ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBeforeSubString(pcSubStr, pcOtherSubStr)
+		return This.FindBeforeSubStringCS(pcSubStr, pcOtherSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforeSubString(pcSubStr, pcOtherSubStr)
+			return This.FindBeforeSubString(pcSubStr, pcOtherSubStr)
+
+		def FindOccurrencesBeforeSubString(pcSubStr, pcOtherSubStr)
+			return This.FindBeforeSubString(pcSubStr, pcOtherSubStr)
+
+		#--
+
+		def FindBeforeSubStringZ(pcSubStr, pcOtherSubStr)
+			return This.FindBeforeSubString(pcSubStr, pcOtherSubStr)
+
+		def FindAllBeforeSubStringZ(pcSubStr, pcOtherSubStr)
+			return This.FindBeforeSubString(pcSubStr, pcOtherSubStr)
+
+		def FindOccurrencesBeforeSubStringZ(pcSubStr, pcOtherSubStr)
+			return This.FindBeforeSubString(pcSubStr, pcOtherSubStr)
+
+		#>
+
+	  #---------------------------------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES (AS SECTIONS) OF A SUBSTRING BEFORE A GIVEN SUBSTRING  #
+	#---------------------------------------------------------------------------------# 
+
+	def FindBeforeSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		nPos = This.FindFirstCS(pcOtherSubStr, pCaseSensitive)
+		aResult = This.FindInSectionAsSectionsCS(1, nPos, pCaseSensitive)
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforeSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		def FindOccurrencesBeforeSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		#--
+
+		def FindBeforeSubStringCSZZ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		def FindAllBeforeSubStringCSZZ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		def FindOccurrencesBeforeSubStringCSZZ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBeforeSubStringAsSections(pcSubStr, pcOtherSubStr)
+		return This.FindBeforeSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforeSubStringAsSections(pcSubStr, pcOtherSubStr)
+			return This.FindBeforeSubStringAsSections(pcSubStr, pcOtherSubStr)
+
+		def FindOccurrencesBeforeSubStringAsSections(pcSubStr, pcOtherSubStr)
+			return This.FindBeforeSubStringAsSections(pcSubStr, pcOtherSubStr)
+
+		#--
+
+		def FindBeforeSubStringZZ(pcSubStr, pcOtherSubStr)
+			return This.FindBeforeSubStringAsSections(pcSubStr, pcOtherSubStr)
+
+		def FindAllBeforeSubStringZZ(pcSubStr, pcOtherSubStr)
+			return This.FindBeforeSubStringAsSections(pcSubStr, pcOtherSubStr)
+
+		def FindOccurrencesBeforeSubStringZZ(pcSubStr, pcOtherSubStr)
+			return This.FindBeforeSubStringAsSections(pcSubStr, pcOtherSubStr)
+
+		#>
+
+	  #======================================================================================#
+	 #  FINDING THE OCCURRENCES OF A SUBSTRING AFTER A GIVEN POSITION OR A GIVEN SUBSTRING  #
+	#======================================================================================#
+
+	def FindAfterCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		if NOT (isNumber(pPosOrSubStr) or isString(pPosOrSubStr))
+			StzRaise("Incorrect param type! pPosOrSubStr must be a number or a string.")
+		ok
+
+		if isNumber(pPosOrSubStr)
+			return This.FindAfterPositionCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+		else
+			return This.FindAfterSubStringCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindAfterCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		def FindOccurrencesAfterCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindAfterCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		#--
+
+		def FindAfterCSZ(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindAfterCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		def FindAllAfterCSZ(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindAfterCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		def FindOccurrencesAfterCSZ(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindAfterCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAfter(pcSubStr, pPosOrSubStr)
+		return This.FindAfterCS(pcSubStr, pPosOrSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfter(pcSubStr, pPosOrSubStr)
+			return This.FindAfter(pcSubStr, pPosOrSubStr)
+
+		def FindOccurrencesAfter(pcSubStr, pPosOrSubStr)
+			return This.FindAfter(pcSubStr, pPosOrSubStr)
+
+		#--
+
+		def FindAfterZ(pcSubStr, pPosOrSubStr)
+			return This.FindAfter(pcSubStr, pPosOrSubStr)
+
+		def FindAllAfterZ(pcSubStr, pPosOrSubStr)
+			return This.FindAfter(pcSubStr, pPosOrSubStr)
+
+		def FindOccurrencesAfterZ(pcSubStr, pPosOrSubStr)
+			return This.FindAfter(pcSubStr, pPosOrSubStr)
+
+		#>
+
+	   #-----------------------------------------------------------------------#
+	  #   FINDING THE OCCURRENCES OF A SUBSTRING AFTER A GIVEN POSITION OR    #
+	 #   A GIVEN SUBSTRING AND RETURNING THEIM AS SECTIONS -- ZZ/EXTENSION   #
+	#-----------------------------------------------------------------------#
+
+	def FindAfterAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		if NOT (isNumber(pPosOrSubStr) or isString(pPosOrSubStr))
+			StzRaise("Incorrect param type! pPosOrSubStr must be a number or a string.")
+		ok
+
+		if isNumber(pPosOrSubStr)
+			return This.FindAfterPositionAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+		else
+			return This.FindAfterSubStringAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindAfterAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		def FindOccurrencesAfterAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindAfterAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		#--
+
+		def FindAfterCSZZ(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindAfterAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		def FindAllAfterCSZZ(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindAfterAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		def FindOccurrencesAfterCSZZ(pcSubStr, pPosOrSubStr, pCaseSensitive)
+			return This.FindAfterAsSectionsCS(pcSubStr, pPosOrSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAfterAsSections(pcSubStr, pPosOrSubStr)
+		return This.FindAfterAsSectionsCS(pcSubStr, pPosOrSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterAsSections(pcSubStr, pPosOrSubStr)
+			return This.FindAfterAsSections(pcSubStr, pPosOrSubStr)
+
+		def FindOccurrencesAfterAsSections(pcSubStr, pPosOrSubStr)
+			return This.FindAfterAsSections(pcSubStr, pPosOrSubStr)
+
+		#--
+
+		def FindAfterZZ(pcSubStr, pPosOrSubStr)
+			return This.FindAfterAsSections(pcSubStr, pPosOrSubStr)
+
+		def FindAllAfterZZ(pcSubStr, pPosOrSubStr)
+			return This.FindAfterAsSections(pcSubStr, pPosOrSubStr)
+
+		def FindOccurrencesAfterZZ(pcSubStr, pPosOrSubStr)
+			return This.FindAfterAsSections(pcSubStr, pPosOrSubStr)
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES OF A SUBSTRING AFTER A GIVEN POSITION  #
+	#=================================================================# 
+
+	def FindAfterPositionCS(pcSubStr, pnPos, pCaseSensitive)
+		nLen = This.NumberOfChars()
+		anResult = This.FindInSectionCS(pcSubStr, pnPos, nLen, pCaseSensitive)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterPositionCS(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindAfterPositionCS(pcSubStr, pnPos, pCaseSensitive)
+
+		def FindOccurrencesAfterPositionCS(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindAfterPositionCS(pcSubStr, pnPos, pCaseSensitive)
+
+		#--
+
+		def FindAfterPositionCSZ(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindAfterPositionCS(pcSubStr, pnPos, pCaseSensitive)
+
+		def FindAllAfterPositionCSZ(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindAfterPositionCS(pcSubStr, pnPos, pCaseSensitive)
+
+		def FindOccurrencesAfterPositionCSZ(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindAfterPositionCS(pcSubStr, pnPos, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAfterPosition(pcSubStr, pnPos)
+		return This.FindAfterPositionCS(pcSubStr, pnPos, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterPosition(pcSubStr, pnPos)
+			return This.FindAfterPosition(pcSubStr, pnPos)
+
+		def FindOccurrencesAfterPosition(pcSubStr, pnPos)
+			return This.FindAfterPosition(pcSubStr, pnPos)
+
+		#--
+
+		def FindAfterPositionZ(pcSubStr, pnPos)
+			return This.FindAfterPosition(pcSubStr, pnPos)
+
+		def FindAllAfterPositionZ(pcSubStr, pnPos)
+			return This.FindAfterPosition(pcSubStr, pnPos)
+
+		def FindOccurrencesAfterPositionZ(pcSubStr, pnPos)
+			return This.FindAfterPosition(pcSubStr, pnPos)
+
+		#>
+
+	  #-------------------------------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES (AS SECTIONS) OF A SUBSTRING AFTER A GIVEN POSITION  #
+	#-------------------------------------------------------------------------------# 
+
+	def FindAfterPositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+		nLen = This.NumberOfChars()
+		aResult = This.FindInSectionAsSectionsCS(pcSubStr, pnPos, nLen, pCaseSensitive)
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterPositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindAfterPositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+
+		def FindOccurrencesAfterPositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindAfterPositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+
+		#--
+
+		def FindAfterPositionCSZZ(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindAfterPositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+
+		def FindAllAfterPositionCSZZ(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindAfterPositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+
+		def FindOccurrencesAfterPositionCSZZ(pcSubStr, pnPos, pCaseSensitive)
+			return This.FindAfterPositionAsSectionsCS(pcSubStr, pnPos, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAfterPositionAsSections(pcSubStr, pnPos)
+		return This.FindAfterPositionAsSectionsCS(pcSubStr, pnPos, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterPositionAsSections(pcSubStr, pnPos)
+			return This.FindAfterPositionAsSections(pcSubStr, pnPos)
+
+		def FindOccurrencesAfterPositionAsSections(pcSubStr, pnPos)
+			return This.FindAfterPositionAsSections(pcSubStr, pnPos)
+
+		#--
+
+		def FindAfterPositionZZ(pcSubStr, pnPos)
+			return This.FindAfterPositionAsSections(pcSubStr, pnPos)
+
+		def FindAllAfterPositionZZ(pcSubStr, pnPos)
+			return This.FindAfterPositionAsSections(pcSubStr, pnPos)
+
+		def FindOccurrencesAfterPositionZZ(pcSubStr, pnPos)
+			return This.FindAfterPositionAsSections(pcSubStr, pnPos)
+
+		#>
+
+	  #------------------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES OF A SUBSTRING AFTER A GIVEN SUBSTRING  #
+	#==================================================================# 
+
+	def FindAfterSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		nPos = This.FindLastCS(pcOtherSubStr, pCaseSensitive)
+		nLen = This.NumberOfChars()
+		anResult = This.FindInSectionCS(pcSubStr, nPos, nLen, pCaseSensitive)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		def FindOccurrencesAfterSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		#--
+
+		def FindAfterSubStringCSZ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		def FindAllAfterSubStringCSZ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		def FindOccurrencesAfterSubStringCSZ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterSubStringCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAfterSubString(pcSubStr, pcOtherSubStr)
+		return This.FindAfterSubStringCS(pcSubStr, pcOtherSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterSubString(pcSubStr, pcOtherSubStr)
+			return This.FindAfterSubString(pcSubStr, pcOtherSubStr)
+
+		def FindOccurrencesAfterSubString(pcSubStr, pcOtherSubStr)
+			return This.FindAfterSubString(pcSubStr, pcOtherSubStr)
+
+		#--
+
+		def FindAfterSubStringZ(pcSubStr, pcOtherSubStr)
+			return This.FindAfterSubString(pcSubStr, pcOtherSubStr)
+
+		def FindAllAfterSubStringZ(pcSubStr, pcOtherSubStr)
+			return This.FindAfterSubString(pcSubStr, pcOtherSubStr)
+
+		def FindOccurrencesAfterSubStringZ(pcSubStr, pcOtherSubStr)
+			return This.FindAfterSubString(pcSubStr, pcOtherSubStr)
+
+		#>
+
+	  #--------------------------------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES (AS SECTIONS) OF A SUBSTRING AFTER A GIVEN SUBSTRING  #
+	#--------------------------------------------------------------------------------# 
+
+	def FindAfterSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+		nPos = This.FindLastCS(pcOtherSubStr, pCaseSensitive)
+		nLen = This.NumberOfChars()
+		aResult = This.FindInSectionAsSectionsCS(pcSubStr, nPos, nLen, pCaseSensitive)
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		def FindOccurrencesAfterSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		#--
+
+		def FindAfterSubStringCSZZ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		def FindAllAfterSubStringCSZZ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		def FindOccurrencesAfterSubStringCSZZ(pcSubStr, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAfterSubStringAsSections(pcSubStr, pcOtherSubStr)
+		return This.FindAfterSubStringAsSectionsCS(pcSubStr, pcOtherSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterSubStringAsSections(pcSubStr, pcOtherSubStr)
+			return This.FindAfterSubStringAsSections(pcSubStr, pcOtherSubStr)
+
+		def FindOccurrencesAfterSubStringAsSections(pcSubStr, pcOtherSubStr)
+			return This.FindAfterSubStringAsSections(pcSubStr, pcOtherSubStr)
+
+		#--
+
+		def FindAfterSubStringZZ(pcSubStr, pcOtherSubStr)
+			return This.FindAfterSubStringAsSections(pcSubStr, pcOtherSubStr)
+
+		def FindAllAfterSubStringZZ(pcSubStr, pcOtherSubStr)
+			return This.FindAfterSubStringAsSections(pcSubStr, pcOtherSubStr)
+
+		def FindOccurrencesAfterSubStringZZ(pcSubStr, pcOtherSubStr)
+			return This.FindAfterSubStringAsSections(pcSubStr, pcOtherSubStr)
+
+		#>
+
+	  #======================================================================#
 	 #  GETTING NUMBER OF OCCURRENCES OF A SUBSTRING IN THE GIVEN SECTIONS  #
-	#----------------------------------------------------------------------#
+	#======================================================================#
 
 #TODO: Add
 #	FindNearest("hi", :To = "emm")
