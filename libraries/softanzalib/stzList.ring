@@ -40139,7 +40139,7 @@ class stzList from stzObject
 			#--
 
 			if isString(n1) and (n1 = :End or n1 = :EndOfList)
-				n1 = This.NumberOfChars()
+				n1 = This.NumberOfItems()
 			ok
 
 			if NOT isNumber(n2)
@@ -41890,6 +41890,175 @@ class stzList from stzObject
 		def FindNthOccurrenceOfGreatest(n)
 			return This.FindNthLargestItem(n)
 
+	  #=====================================#
+	 #  FINDING THINGS, THE EXTENDED FORM  #
+	#=====================================#
+
+	def FindXTCS(p1, p2, pCaseSensitive)
+
+		if ( isString(p1) OR ( isList(p1) and Q(p1).IsSubStringNamedParam() ) ) AND
+		   ( isList(p2) )
+
+			oP2 = Q(p2)
+
+			# FindXT( "*", :Between = [ "<<", :And = ">>" ])
+			if  oP2.IsBetweenNamedParam()
+				p2 = p2[2]
+				return This.FindBetweenCS(p1, p2[1], p2[2], pCaseSensitive)
+
+			# FindXT( "*", :BoundedBy = '"' )
+			but oP2.IsBoundedByNamedParam()
+				return This.FindBoundedByCS(p1, p2[2], pCaseSensitive)
+
+			# FindXT( "*", :InBetween = [ "<<", :And = ">>" ])
+			but  oP2.IsInBetweenNamedParam()
+				p2 = p2[2]
+				return This.FindInBetweenCS(p1, p2[1], p2[2], pCaseSensitive)
+
+			# FindXT( "*", :BetweenIB = [ "<<", :And = ">>" ])
+			but  oP2.IsBetweenIBNamedParam()
+				p2 = p2[2]
+				return This.FindBetweenCSIB(p1, p2[1], p2[2], pCaseSensitive)
+
+			# FindXT("word", :StartingAt = 12)
+			but oP2.IsStartingAtNamedParam()
+				p2 = p2[2]
+				return This.FindSCS(p1, p2,pCaseSensitive)
+
+			# FindXT( "*", :InSection = [10 , 14 ] )
+			but oP2.IsInSectionNamedParam()
+				return This.FindInSectionCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
+
+			# FindXT( "*", :InSections = [ [10,14], [19, 23] ] )
+			but oP2.IsInSectionsNamedParam()
+				return This.FindInSectionsCS(p1, p2[2], pCaseSensitive)
+
+			# FindXT( "*", :Before = "--")
+			but oP2.IsBeforeNamedParam()
+				return This.FindBeforeItemCS(p1, p2[2], pCaseSensitive)
+
+			# FindXT( "*", :BeforePosition = 10)
+			but oP2.IsBeforePositionNamedParam()
+				return This.FindBeforePositionCS( p1, p2[2], pCaseSensitive )
+
+			# FindXT( "*", :After = "--")
+			but oP2.IsAfterNamedParam()
+				return This.FindAfterItemCS(p1, p2[2], pCaseSensitive)
+
+			# FindXT( "*", :AfterPosition = 3)
+			but oP2.IsAfterPositionNamedParam()
+				return This.FindAfterPositionCS( p1, p2[2], pCaseSensitive )
+
+			# FindXT( :3rd = "*", :Between = [ "<<", ">>" ])
+			but isList(p1) and isString(p1[2]) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsBetweenNamedParam() and
+			    isList(p2[2]) and Q(p2[2]).IsPair()
+
+				n = 0+ Q(p1[1]).FirstNumber()
+				return This.FindNthBetweenCS(n, p1[2], p2[1], p2[2], pCaseSensitive)
+
+			# FindXT( :3rd = "*", :BoundedBy = '"' ])
+			but isList(p1) and  isString(p1[2]) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsBoundedByNamedParam()
+
+				n = 0+ Q(p1[1]).FirstNumber()
+				return This.FindNthBoundedByCS(n, p1[2], p2, pCaseSensitive)
+
+			# FindXT( :3rd = "*", :InSection = [5, 24] ])
+			but isList(p1) and isString(p1[2]) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsInSectionNamedParam() and
+			    isList(p2[2]) and Q(p2[2]).IsPair()
+
+				n = 0+ Q(p1[1]).FirstNumber()
+				nPos = This.SectionQ(p2[2][1], p2[2][2]).FindNthCS(n, p1[2], pCaseSensitive)
+				nPos += p2[2][1]
+
+				return nPos
+
+			# FindXT( :3rd = "*", :Before = '!' ])
+			but isList(p1) and isString(p1[2]) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsBeforeNamedParam()
+
+				n = This.FindFirstCS(p2[2], pCaseSensitive)
+				return This.FindBeforePositionCS( p1[2], n, pCaseSensitive)
+
+			# FindXT( :3rd = "*", :BeforePosition = 12 ])
+			but isList(p1) and isString(p1[2]) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsBeforePositionNamedParam()
+
+				return This.FindBeforePositionCS( p1[2], p2[2], pCaseSensitive )
+
+			# FindXT( :3rd = "*", :After = '!' ])
+			but isList(p1) and isString(p1[2]) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsAfterNamedParam()
+
+				n = This.FindLastCS(p2[2], pCaseSensitive)
+				return This.FindAfterPositionCS( p1[2], n, pCaseSensitive)
+
+
+			# FindXT( :3rd = "*", :AfterPosition = 12 ])
+			but isList(p1) and isString(p1[2]) and
+			    isString(p1[1]) and
+			    Q(p1[1]).StartsWithANumber() and
+			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
+
+			    isList(p2) and Q(p2).IsAfterPositionNamedParam()
+
+				return This.FindAfterPositionCS( p1[2], p2[2], pCaseSensitive )
+
+			# FindXT( :AnySubString, :Between = ["<<", ">>" )
+			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
+			    isList(p2) and Q(p2).IsBetweenNamedParam() and
+			    isList(p2[2]) and Q(p2[2]).IsPairOfStrings()
+
+				return This.FindAnyBetweenCS(p2[2][1], p2[2][1], pCaseSensitive)
+
+			# FindXT( :Any, :BoundedBy = '"' )
+			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
+			    isList(p2) and Q(p2).IsBoundedByNamedParam()
+
+				return This.FindAnyBoundedByCS(p2[2], pCaseSensitive)
+
+			# FindXT( "*", :InSection = [5, 24] )
+			but isList(p2) and Q(p2).IsInSectionNamedParam() and Q(p2).IsPairOfNumbers()
+
+				nPos = This.SectionQ(p2[1], p2[2]).FindCS(p1, pCaseSensitive)
+				nResult = nPos + p2[1]
+				return nResult
+			ok
+		ok
+
+		StzRaise("Unsupported syntax!")
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindXT(p1, p2)
+		return This.FindXTCS(p1, p2, TRUE)
+
 	  #=====================================================#
 	 #  FINDING OCCURRENCES OF AN ITEM IN A GIVEN SECTION  #
 	#=====================================================#
@@ -41926,7 +42095,7 @@ class stzList from stzObject
 					n2 = 1
 				ok
 			ok
-	
+
 			if NOT isNumber(n2)
 				StzRaise("Incorrect param type! n2 must be a number.")
 			ok
@@ -42371,6 +42540,466 @@ class stzList from stzObject
 
 		def FindLastInManySectionsZ(pItem, paSections)
 			return This.FindLastInSections(pItem, paSections)
+
+		#>
+
+	  #====================================================================================#
+	 #  FINDING THE OCCURRENCES OF AN ITEM BEFORE A GIVEN POSITION OR A GIVEN OTHER ITEM  #
+	#====================================================================================#
+
+	def FindBeforeCS(pItem, pPosOrItem, pCaseSensitive)
+
+		if CheckParams()
+			if isList(pPosOrItem) and Q(pPosOrItem).IsPositionNamedParam()
+				return This.FindbeforePositionCS(pItem, pPosOrItem[2], pCaseSensitive)
+			ok
+		ok
+
+		return This.FindBeforeItemCS(pItem, pPosOrItem, pCaseSensitive)
+
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforeCS(pItem, pPosOrItem, pCaseSensitive)
+			return This.FindBeforeCS(pItem, pPosOrItem, pCaseSensitive)
+
+		def FindOccurrencesBeforeCS(pItem, pPosOrItem, pCaseSensitive)
+			return This.FindBeforeCS(pItem, pPosOrItem, pCaseSensitive)
+
+		#--
+
+		def FindBeforeCSZ(pItem, pPosOrItem, pCaseSensitive)
+			return This.FindBeforeCS(pItem, pPosOrItem, pCaseSensitive)
+
+		def FindAllBeforeCSZ(pItem, pPosOrItem, pCaseSensitive)
+			return This.FindBeforeCS(pItem, pPosOrItem, pCaseSensitive)
+
+		def FindOccurrencesBeforeCSZ(pItem, pPosOrItem, pCaseSensitive)
+			return This.FindBeforeCS(pItem, pPosOrItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBefore(pItem, pPosOrItem)
+		return This.FindBeforeCS(pItem, pPosOrItem, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBefore(pItem, pPosOrItem)
+			return This.FindBefore(pItem, pPosOrItem)
+
+		def FindOccurrencesBefore(pItem, pPosOrItem)
+			return This.FindBefore(pItem, pPosOrItem)
+
+		#--
+
+		def FindBeforeZ(pItem, pPosOrItem)
+			return This.FindBefore(pItem, pPosOrItem)
+
+		def FindAllBeforeZ(pItem, pPosOrItem)
+			return This.FindBefore(pItem, pPosOrItem)
+
+		def FindOccurrencesBeforeZ(pItem, pPosOrItem)
+			return This.FindBefore(pItem, pPosOrItem)
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES OF AN ITEM BEFORE A GIVEN POSITION  #
+	#==============================================================# 
+
+	def FindBeforePositionCS(pItem, pnPos, pCaseSensitive)
+
+		if EarlyCheck()
+			if This.NumberOfItems() = 0
+				return 0
+			ok
+		ok
+
+		anResult = This.FindInSectionCS(pItem, 1, pnPos, pCaseSensitive)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforePositionCS(pItem, pnPos, pCaseSensitive)
+			return This.FindBeforePositionCS(pItem, pnPos, pCaseSensitive)
+
+		def FindOccurrencesBeforePositionCS(pItem, pnPos, pCaseSensitive)
+			return This.FindBeforePositionCS(pItem, pnPos, pCaseSensitive)
+
+		#--
+
+		def FindBeforePositionCSZ(pItem, pnPos, pCaseSensitive)
+			return This.FindBeforePositionCS(pItem, pnPos, pCaseSensitive)
+
+		def FindAllBeforePositionCSZ(pItem, pnPos, pCaseSensitive)
+			return This.FindBeforePositionCS(pItem, pnPos, pCaseSensitive)
+
+		def FindOccurrencesBeforePositionCSZ(pItem, pnPos, pCaseSensitive)
+			return This.FindBeforePositionCS(pItem, pnPos, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBeforePosition(pItem, pnPos)
+		return This.FindBeforePositionCS(pItem, pnPos, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforePosition(pItem, pnPos)
+			return This.FindBeforePosition(pItem, pnPos)
+
+		def FindOccurrencesBeforePosition(pItem, pnPos)
+			return This.FindBeforePosition(pItem, pnPos)
+
+		#--
+
+		def FindBeforePositionZ(pItem, pnPos)
+			return This.FindBeforePosition(pItem, pnPos)
+
+		def FindAllBeforePositionZ(pItem, pnPos)
+			return This.FindBeforePosition(pItem, pnPos)
+
+		def FindOccurrencesBeforePositionZ(pItem, pnPos)
+			return This.FindBeforePosition(pItem, pnPos)
+
+		#>
+
+	  #----------------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES OF AN ITEM BEFORE A GIVEN OTHER ITEM  #
+	#================================================================# 
+
+	def FindBeforeItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+		if EarlyCheck()
+			if This.NumberOfItems() = 0
+				return 0
+			ok
+		ok
+
+		nPos = This.FindFirstCS(pcOtherSubStr, pCaseSensitive)
+		if nPos = 0
+			return 0
+		ok
+
+		anResult = This.FindInSectionCS(pItem, 1, nPos, pCaseSensitive)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforeItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+
+		def FindOccurrencesBeforeItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+
+		#--
+
+		def FindBeforeItemCSZ(pItem, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+
+		def FindAllBeforeItemCSZ(pItem, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+
+		def FindOccurrencesBeforeItemCSZ(pItem, pcOtherSubStr, pCaseSensitive)
+			return This.FindBeforeItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBeforeItem(pItem, pcOtherSubStr)
+		return This.FindBeforeItemCS(pItem, pcOtherSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllBeforeItem(pItem, pcOtherSubStr)
+			return This.FindBeforeItem(pItem, pcOtherSubStr)
+
+		def FindOccurrencesBeforeItem(pItem, pcOtherSubStr)
+			return This.FindBeforeItem(pItem, pcOtherSubStr)
+
+		#--
+
+		def FindBeforeItemZ(pItem, pcOtherSubStr)
+			return This.FindBeforeItem(pItem, pcOtherSubStr)
+
+		def FindAllBeforeItemZ(pItem, pcOtherSubStr)
+			return This.FindBeforeItem(pItem, pcOtherSubStr)
+
+		def FindOccurrencesBeforeItemZ(pItem, pcOtherSubStr)
+			return This.FindBeforeItem(pItem, pcOtherSubStr)
+
+		#>
+
+	  #============================================================================#
+	 #  FINDING THE OCCURRENCES OF A ITEM AFTER A GIVEN POSITION OR A GIVEN ITEM  #
+	#============================================================================#
+
+	def FindAfterCS(pItem, pPosOrItem, pCaseSensitive)
+
+		if isList(pPosOrItem) and Q(pPosOrItem).IsPositionNamedParam()
+			return This.FindAfterPositionCS(pItem, pPosOrItem[2], pCaseSensitive)
+		else
+			return This.FindAfterItemCS(pItem, pPosOrItem, pCaseSensitive)
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterCS(pItem, pPosOrItem, pCaseSensitive)
+			return This.FindAfterCS(pItem, pPosOrItem, pCaseSensitive)
+
+		def FindOccurrencesAfterCS(pItem, pPosOrItem, pCaseSensitive)
+			return This.FindAfterCS(pItem, pPosOrItem, pCaseSensitive)
+
+		#--
+
+		def FindAfterCSZ(pItem, pPosOrItem, pCaseSensitive)
+			return This.FindAfterCS(pItem, pPosOrItem, pCaseSensitive)
+
+		def FindAllAfterCSZ(pItem, pPosOrItem, pCaseSensitive)
+			return This.FindAfterCS(pItem, pPosOrItem, pCaseSensitive)
+
+		def FindOccurrencesAfterCSZ(pItem, pPosOrItem, pCaseSensitive)
+			return This.FindAfterCS(pItem, pPosOrItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAfter(pItem, pPosOrItem)
+		return This.FindAfterCS(pItem, pPosOrItem, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfter(pItem, pPosOrItem)
+			return This.FindAfter(pItem, pPosOrItem)
+
+		def FindOccurrencesAfter(pItem, pPosOrItem)
+			return This.FindAfter(pItem, pPosOrItem)
+
+		#--
+
+		def FindAfterZ(pItem, pPosOrItem)
+			return This.FindAfter(pItem, pPosOrItem)
+
+		def FindAllAfterZ(pItem, pPosOrItem)
+			return This.FindAfter(pItem, pPosOrItem)
+
+		def FindOccurrencesAfterZ(pItem, pPosOrItem)
+			return This.FindAfter(pItem, pPosOrItem)
+
+		#>
+
+	  #-------------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES OF AN ITEM AFTER A GIVEN POSITION  #
+	#=============================================================# 
+
+	def FindAfterPositionCS(pItem, pnPos, pCaseSensitive)
+		nLen = This.NumberOfItems()
+		if nLen = 0
+			return 0
+		ok
+
+		anResult = This.FindInSectionCS(pItem, pnPos, nLen, pCaseSensitive)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterPositionCS(pItem, pnPos, pCaseSensitive)
+			return This.FindAfterPositionCS(pItem, pnPos, pCaseSensitive)
+
+		def FindOccurrencesAfterPositionCS(pItem, pnPos, pCaseSensitive)
+			return This.FindAfterPositionCS(pItem, pnPos, pCaseSensitive)
+
+		#--
+
+		def FindAfterPositionCSZ(pItem, pnPos, pCaseSensitive)
+			return This.FindAfterPositionCS(pItem, pnPos, pCaseSensitive)
+
+		def FindAllAfterPositionCSZ(pItem, pnPos, pCaseSensitive)
+			return This.FindAfterPositionCS(pItem, pnPos, pCaseSensitive)
+
+		def FindOccurrencesAfterPositionCSZ(pItem, pnPos, pCaseSensitive)
+			return This.FindAfterPositionCS(pItem, pnPos, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAfterPosition(pItem, pnPos)
+		return This.FindAfterPositionCS(pItem, pnPos, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterPosition(pItem, pnPos)
+			return This.FindAfterPosition(pItem, pnPos)
+
+		def FindOccurrencesAfterPosition(pItem, pnPos)
+			return This.FindAfterPosition(pItem, pnPos)
+
+		#--
+
+		def FindAfterPositionZ(pItem, pnPos)
+			return This.FindAfterPosition(pItem, pnPos)
+
+		def FindAllAfterPositionZ(pItem, pnPos)
+			return This.FindAfterPosition(pItem, pnPos)
+
+		def FindOccurrencesAfterPositionZ(pItem, pnPos)
+			return This.FindAfterPosition(pItem, pnPos)
+
+		#>
+
+	  #---------------------------------------------------------------#
+	 #  FINDING THE OCCURRENCES OF A NITEM AFTER A GIVEN OTHER ITEM  #
+	#===============================================================# 
+
+	def FindAfterItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+		nLen = This.NumberOfItems()
+		if nLen = 0
+			return 0
+		ok
+
+		nPos = This.FindLastCS(pcOtherSubStr, pCaseSensitive)
+		if nPos = 0
+			return 0
+		ok
+
+		anResult = This.FindInSectionCS(pItem, nPos, nLen, pCaseSensitive)
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+
+		def FindOccurrencesAfterItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+
+		#--
+
+		def FindAfterItemCSZ(pItem, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+
+		def FindAllAfterItemCSZ(pItem, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+
+		def FindOccurrencesAfterItemCSZ(pItem, pcOtherSubStr, pCaseSensitive)
+			return This.FindAfterItemCS(pItem, pcOtherSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAfterItem(pItem, pcOtherSubStr)
+		return This.FindAfterItemCS(pItem, pcOtherSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAllAfterItem(pItem, pcOtherSubStr)
+			return This.FindAfterItem(pItem, pcOtherSubStr)
+
+		def FindOccurrencesAfterItem(pItem, pcOtherSubStr)
+			return This.FindAfterItem(pItem, pcOtherSubStr)
+
+		#--
+
+		def FindAfterItemZ(pItem, pcOtherSubStr)
+			return This.FindAfterItem(pItem, pcOtherSubStr)
+
+		def FindAllAfterItemZ(pItem, pcOtherSubStr)
+			return This.FindAfterItem(pItem, pcOtherSubStr)
+
+		def FindOccurrencesAfterItemZ(pItem, pcOtherSubStr)
+			return This.FindAfterItem(pItem, pcOtherSubStr)
+
+		#>
+
+	  #==================================================================#
+	 #  GETTING NUMBER OF OCCURRENCES OF AN ITEM IN THE GIVEN SECTIONS  #
+	#==================================================================#
+
+#TODO: Add
+#	FindNearest("hi", :To = "emm")
+#	FindNearest("hi", :ToPositio = 10)
+
+	def NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		nResult = len( This.FindItemInSectionsCS(pItem, paSections, pCaseSensitive) )
+		return nResult
+
+		#< @FunctionalternativeForms
+
+		def NumberOfOccurrenceOfItemInSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def NumberOfOccurrencesInSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def NumberOfOccurrenceInTheseSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def NumberOfOccurrencesInTheseSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def NumberOfOccurrenceOfItemInTheseSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def NumberOfOccurrencesOfItemInTheseSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def HowManyOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def HowManyOccurrencesInSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def HowManyOccurrenceOfItemInSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def HowManyOccurrencesOfItemInSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfOccurrenceInSections(pItem, paSections)
+		return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, TRUE)
+
+		#< @FunctionalternativeForms
+
+		def NumberOfOccurrenceOfItemInSections(pItem, paSections)
+			return This.NumberOfOccurrenceInSections(pItem, paSections)
+
+		def NumberOfOccurrencesInSections(pItem, paSections)
+			return This.NumberOfOccurrenceInSections(pItem, paSections)
+
+		def NumberOfOccurrenceInTheseSections(pItem, paSections)
+			return This.NumberOfOccurrenceInSections(pItem, paSections)
+
+		def NumberOfOccurrencesInTheseSections(pItem, paSections)
+			return This.NumberOfOccurrenceInSections(pItem, paSections)
+
+		def NumberOfOccurrenceOfItemInTheseSections(pItem, paSections)
+			return This.NumberOfOccurrenceInSections(pItem, paSections)
+
+		def NumberOfOccurrencesOfItemInTheseSections(pItem, paSections)
+			return This.NumberOfOccurrenceInSections(pItem, paSections)
+
+		def HowManyOccurrenceInSections(pItem, paSections)
+			return This.NumberOfOccurrenceInSections(pItem, paSections)
+
+		def HowManyOccurrencesInSections(pItem, paSections)
+			return This.NumberOfOccurrenceInSections(pItem, paSections)
+
+		def HowManyOccurrenceOfItemInSections(pItem, paSections)
+			return This.NumberOfOccurrenceInSections(pItem, paSections)
+
+		def HowManyOccurrencesOfItemInSections(pItem, paSections)
+			return This.NumberOfOccurrenceInSections(pItem, paSections)
 
 		#>
 
@@ -44820,8 +45449,8 @@ class stzList from stzObject
 		ok
 
 	def IsDownToCharNamedParam()
-		if This.NumberOfChars() = 2 and
-		   ( isString(This.Char(1)) and This.Char(1) = :DownToChar)
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :DownToChar)
 
 			return TRUE
 		else
@@ -44829,8 +45458,8 @@ class stzList from stzObject
 		ok
 
 	def IsDownToCharAtNamedParam()
-		if This.NumberOfChars() = 2 and
-		   ( isString(This.Char(1)) and This.Char(1) = :DownToCharAt)
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :DownToCharAt)
 
 			return TRUE
 		else
@@ -44838,8 +45467,8 @@ class stzList from stzObject
 		ok
 
 	def IsDownToCharAtPositionNamedParam()
-		if This.NumberOfChars() = 2 and
-		   ( isString(This.Char(1)) and This.Char(1) = :DownToCharAtPosition)
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :DownToCharAtPosition)
 
 			return TRUE
 		else
