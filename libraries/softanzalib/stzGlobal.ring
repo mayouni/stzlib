@@ -2910,7 +2910,7 @@ func ComputableShortFormXT(paListOrStr, p)
 
 	if isList(paListOrStr)
 		oList = new stzList(paListOrStr)
-		nLen = len(paList)
+		nLen = len(paListOrStr)
 		cThings = "items"
 	else
 		oStr = new StzString(paListOrStr)
