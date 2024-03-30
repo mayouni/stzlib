@@ -10292,7 +10292,7 @@ class stzList from stzObject
 		return acResult
 
 		def TheseSectionsReplacedByThese(paSections, paOtherListOfStr)
-			return This. ManySectionsReplacedByMany(paSections, paOtherListOfStr)
+			return This.ManySectionsReplacedByMany(paSections, paOtherListOfStr)
 
 	  #--------------------------------------------#
 	 #   REPLACING A RANGE OF ITEMS IN THE LIST   #
@@ -10913,7 +10913,7 @@ class stzList from stzObject
 		#--
 
 		def RemoveItemsExceptCS(paItems, pCaseSensitive)
-			return This. RemoveItemsOtherThanCS(paItems, pCaseSensitive)
+			return This.RemoveItemsOtherThanCS(paItems, pCaseSensitive)
 
 		def RemoveItemsExceptTheseCS(paItems, pCaseSensitive)
 			return This.RemoveItemsOtherThanCS(paItems, pCaseSensitive)
@@ -10965,7 +10965,7 @@ class stzList from stzObject
 			return This.RemoveItemsOtherThan(paItems)
 
 		def RemoveAllExceptThese(paItems)
-			return This. RemoveItemsOtherThan(paItems)
+			return This.RemoveItemsOtherThan(paItems)
 
 		def RemoveAllBut(paItems)
 			return This.RemoveItemsOtherThan(paItems)
@@ -27292,21 +27292,44 @@ class stzList from stzObject
 			nLen = len(acContent)
 	
 			cCode = 'value = ' + Q(pcExpr).TheseBoundsRemoved("{", "}")
-			aValues = []
+			aValuesXT = []
 			
 			for @i = 1 to nLen
 				@item = acContent[@i]
 				eval(cCode)
-				aValues + [ acContent[@i], value ]
+				aValuesxt + [ acContent[@i], value ]
 			next
-	
-			aSorted = ring_sort2(aValues, 2)
-	
-			aResult = []
+
+			//aSorted = aValuesXT//ring_sort2(aValuesXT, 2)
+//? @@(aSorted) + NL
+
+			aValues = []
 			for i = 1 to nLen
-				aResult + aSorted[i][1]
+				aValues + aValuesXT[i][2]
 			next
-	
+
+			oValues = new stzList(aValues)
+
+			aValuesU = @WithoutDupplication(aValues)
+			nLenU = len(aValuesU)
+
+			aSorted = []
+
+			for i = 1 to nLenU
+				anPos = oValues.Find(aValuesU[i])
+				aSorted + [ This.ItemsAtPositionsQ(anPos).Sorted(), aValuesU[i] ]
+			next
+
+			aSorted = ring_sort2(aSorted, 2)
+
+			aResult = []
+			for i = 1 to nLenU
+				nLenTemp = len(aSorted[i][1])
+				for j = 1 to nLenTemp
+					aResult + aSorted[i][1][j]
+				next
+			next
+
 			This.Update(aResult)
 
 		ok
@@ -29984,6 +30007,9 @@ class stzList from stzObject
 	  #  FINING NEAREST OCCURRENCE OF AN ITEM TO A GIVEN POSITION,  #
 	 #  SECTION, OR GIVEN OTHER ITEM                               #
 	#=============================================================#
+
+	#TODO
+	# Add FindNNearest(n, pItem, pToPositionSectionOrItem, pCaseSensitive)
 
 	def FindNearestCS(pItem, pToPositionSectionOrItem, pCaseSensitive)
 
@@ -36933,7 +36959,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthPreviousOccurrence(n, pItem, nStart)
-		return This. FindNthPreviousOccurrenceCS(n, pItem, nStart, TRUE)
+		return This.FindNthPreviousOccurrenceCS(n, pItem, nStart, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -46879,7 +46905,7 @@ class stzList from stzObject
 
 	def IsInStringNNamedParam()
 		if This.NumberOfItems() = 2 and
-vvv
+
 		   ( isString(This.Item(1)) and Q(This.Item(1)).IsOneOfThese([
 					:InStringAt, :InStringItemAt,
 					:inStringAtPosition, :InStringItemAtPosition,
@@ -57735,16 +57761,16 @@ vvv
 		#< @FunctionAlternativeForms
 
 		def NPositions(n)
-			return This. NRandomPositions(n)
+			return This.NRandomPositions(n)
 
 		def AnyNPositions(n)
-			return This. NRandomPositions(n)
+			return This.NRandomPositions(n)
 
 		def AnyRandomNPositions(n)
-			return This. NRandomPositions(n)
+			return This.NRandomPositions(n)
 
 		def AnyNRandomPositions(n)
-			return This. NRandomPositions(n)
+			return This.NRandomPositions(n)
 
 		#>
 
@@ -58503,7 +58529,7 @@ vvv
 		#--
 
 		def NRandomItemsExceptCS(pItem, pCaseSensitive)
-			return This. NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCS(pItem, pCaseSensitive)
 
 		def NItemsExceptCS(pItem, pCaseSensitive)
 			return This.NRandomItemsOtherThanCS(pItem, pCaseSensitive)
@@ -58522,10 +58548,10 @@ vvv
 		#--
 
 		def AnyNRandomItemsExceptCS(pItem, pCaseSensitive)
-			return This. NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCS(pItem, pCaseSensitive)
 
 		def AnyRandomNItemsExceptCS(pItem, pCaseSensitive)
-			return This. NRandomItemsOtherThanCS(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCS(pItem, pCaseSensitive)
 
 		def AnyNItemsExceptCS(pItem, pCaseSensitive)
 			return This.NRandomItemsOtherThanCS(pItem, pCaseSensitive)
@@ -58545,7 +58571,7 @@ vvv
 		#--
 
 		def NRandomItemsExcept(pItem)
-			return This. NRandomItemsOtherThan(pItem)
+			return This.NRandomItemsOtherThan(pItem)
 
 		def NItemsExcept(pItem)
 			return This.NRandomItemsOtherThan(pItem)
@@ -58564,10 +58590,10 @@ vvv
 		#--
 
 		def AnyNRandomItemsExcept(pItem)
-			return This. NRandomItemsOtherThan(pItem)
+			return This.NRandomItemsOtherThan(pItem)
 
 		def AnyRandomNItemsExcept(pItem)
-			return This. NRandomItemsOtherThan(pItem)
+			return This.NRandomItemsOtherThan(pItem)
 
 		def AnyNItemsExcept(pItem)
 			return This.NRandomItemsOtherThan(pItem)
@@ -58595,7 +58621,7 @@ vvv
 		#--
 
 		def NRandomItemsExceptCSZ(pItem, pCaseSensitive)
-			return This. NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
 
 		def NItemsExceptCSZ(pItem, pCaseSensitive)
 			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
@@ -58614,10 +58640,10 @@ vvv
 		#--
 
 		def AnyNRandomItemsExceptCSZ(pItem, pCaseSensitive)
-			return This. NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
 
 		def AnyRandomNItemsExceptCSZ(pItem, pCaseSensitive)
-			return This. NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
 
 		def AnyNItemsExceptCSZ(pItem, pCaseSensitive)
 			return This.NRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
@@ -58637,7 +58663,7 @@ vvv
 		#--
 
 		def NRandomItemsExceptZ(pItem)
-			return This. NRandomItemsOtherThanZ(pItem)
+			return This.NRandomItemsOtherThanZ(pItem)
 
 		def NItemsExceptZ(pItem)
 			return This.NRandomItemsOtherThanZ(pItem)
@@ -58656,10 +58682,10 @@ vvv
 		#--
 
 		def AnyNRandomItemsExceptZ(pItem)
-			return This. NRandomItemsOtherThanZ(pItem)
+			return This.NRandomItemsOtherThanZ(pItem)
 
 		def AnyRandomNItemsExceptZ(pItem)
-			return This. NRandomItemsOtherThanZ(pItem)
+			return This.NRandomItemsOtherThanZ(pItem)
 
 		def AnyNItemsExceptZ(pItem)
 			return This.NRandomItemsOtherThanZ(pItem)

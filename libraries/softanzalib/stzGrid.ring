@@ -1271,7 +1271,7 @@ class stzGrid from stzObject
 		#< @FunctionAlternativess
 
 		def FillWithD(paList, pcDirection)
-			This. FillWithXT(paList, pcDirection)
+			This.FillWithXT(paList, pcDirection)
 
 			def FillWithDQ(paList, pcDirection)
 				This.FillWithD(paList, pcDirection)

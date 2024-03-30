@@ -1762,7 +1762,7 @@ ici	def FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnS
 		#--
 
 		def  FindPreviousNthSubStringBetweenSCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
-			return This. FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
 
 		def FindNthPreviousSubStringBetweenSCS(n, pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
 			return This.FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
@@ -3607,7 +3607,7 @@ ici	def FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnS
 
 		def NthSubStringBoundedBySCSIBZZ(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 			if isString(pacBounds)
-				return This. NthSubStringBetweenSCSIBZZ(n, pcSubStr, pacBounds, pacBounds, pnStartingAt, pCaseSensitive)
+				return This.NthSubStringBetweenSCSIBZZ(n, pcSubStr, pacBounds, pacBounds, pnStartingAt, pCaseSensitive)
 
 			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
 				return This.NthSubStringBetweenSCSIBZZ(n, pcSubStr, pacBounds[1], pacBounds[2], pnStartingAt, pCaseSensitive)
@@ -4095,7 +4095,7 @@ ici	def FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnS
 	#-- WITHOUT CASESENSITIVITY
 
 	def  NthSubStringBetweenDIBZZ(n, pcSubStr, pcBound1, pcBound2, pcDirection)
-		return This. NthSubStringBetweenDCSIBZZ(n, pcSubStr, pcBound1, pcBound2, pcDirection, TRUE)
+		return This.NthSubStringBetweenDCSIBZZ(n, pcSubStr, pcBound1, pcBound2, pcDirection, TRUE)
 
 		#< @FunctionAlternativeForms
 

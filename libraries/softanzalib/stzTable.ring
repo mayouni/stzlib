@@ -3077,7 +3077,7 @@ Class stzTable from stzObject
 		#--
 
 		def FindValueCS(pCellValue, pCaseSensitive)
-			return This. FindCellCS(pCellValue, pCaseSensitive)
+			return This.FindCellCS(pCellValue, pCaseSensitive)
 			
 		def OccurrencesOfValueCS(pCellValue, pCaseSensitive)
 			return This.FindCellCS(pCellValue, pCaseSensitive)
@@ -3098,7 +3098,7 @@ Class stzTable from stzObject
 		#--
 	
 		def FindValue(pCellValue)
-			return This. FindCell(pCellValue)
+			return This.FindCell(pCellValue)
 					
 		def OccurrencesOfValue(pCellValue)
 			return This.FindCell(pCellValue)

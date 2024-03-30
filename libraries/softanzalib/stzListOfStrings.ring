@@ -5859,7 +5859,7 @@ class stzListOfStrings from stzList
 		return aResult
 
 		def NumberOfOccurrencesOfSubStringCSXT(pcSubStr, pCaseSensitive)
-			return This. NumberOfOccurrenceOfSubStringCSXT(pcSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubStringCSXT(pcSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 

@@ -3687,17 +3687,35 @@ proff()
 pron()
 
 o1 = new stzList([ "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ])
-? o1.SortedBy(' Q(@item).NumberOfChars() ')
+? @@( o1.SortedBy(' Q(@item).NumberOfChars() ') )
+#--> [ "a", "b", "c", "d", "ab", "bc", "cd", "abc", "bcd", "abcd" ]
 
 proff()
-# Executed in 0.13 second(s)
+# Executed in 0.06 second(s)
 
-/*------------ #TODO: fix the order
+
+/*----------- #ring
 
 pron()
 
+
+? @@NL( ring_sort2([
+	[ [ 2100, 3007 ], 2 ],
+	[ [ 0, 150, 170 ], 1 ],
+	[ [ 2, 8 ], 0 ],
+	[ [ 10001 ], 3 ]
+], 2) )
+
+
+proff()
+
+/*------------
+*/
+pron()
+
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
-? o1.SortedBy(' Q(@item).HowMany(0) ')
+? @@( o1.SortedBy(' Q(@item).HowMany(0) ') )
+#--> [ 2, 8, 0, 150, 170, 2100, 3007, 10001 ]
 
 proff()
 
@@ -3946,7 +3964,7 @@ proff()
 
 #--> Executed in 0.03 second(s)
 
-/*====== #todo check perf
+/*====== #todo check perf #update done!
 
 pron()
 
@@ -4084,7 +4102,7 @@ pron()
 
 # Concatenating the strings in one string
 
-	str = o1.join("") # Take 0.32 seconds! very quick! #TODO use it
+	str = o1.join("") # Take 0.32 seconds!
 
 	//? ShowShortXT(str, 8)
 proff()
@@ -4246,7 +4264,7 @@ o1 = new stzString("~--*~~*~~")
 proff()
 # Executed in 0.02 second(s)
 
-/*---------- #TODO
+/*----------
 
 pron()
 
@@ -4270,7 +4288,7 @@ o1 = new stzList([ "~", "*", "~", "~", "*", "--", "*", "-" ])
 proff()
 # Executed in 0.02 second(s)
 
-/*-=====
+/*======
 
 pron()
 
@@ -4303,6 +4321,7 @@ o1 = new stzString("♥....♥...YOU..♥.....YOU.♥")
 #--> 25
 
 proff()
+# Executed in 0.02 second(s)
 
 /*---------
 
@@ -4310,7 +4329,6 @@ pron()
 
 #                   1    6   0 2  15    21  25
 o1 = new stzString("♥....♥...YOU..♥.....YOU.♥")
-
 
 ? o1.FindNearest("♥", :To = 17 )
 #--> 15
@@ -4337,6 +4355,7 @@ o1 = new stzString("♥....♥...YOU..♥.....YOU.♥")
 #--> 25
 
 proff()
+# Executed in 0.08 second(s)
 
 /*---------
 
@@ -4369,7 +4388,7 @@ o1 = new stzString("♥♥♥....♥♥♥...YOU..♥♥♥.....YOU.♥♥♥")
 #--> [ 31, 33 ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.07 second(s)
 
 /*---------
 
@@ -4477,7 +4496,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*---------
-*/
+
 pron()
 
 o1 = new stzList([
@@ -4505,9 +4524,35 @@ o1 = new stzString("♥♥♥....♥♥♥...YOU..♥♥♥.....YOU.♥♥♥")
 proff()
 # Executed in 0.03 second(s)
 
-/*======== #TODO: add example and test
+/*----
 
-# ? o1.FindXT( :3rd = "*", :Between = [ "<<", ">>" ])
+pron()
+
+o1 = new stzString("...*...*...*...")
+? o1.FindXT( "*", :InSection = [5, 10] )
+#--> 8
+
+proff()
+
+/*----------- #TODO Check after including findbetweencs() adn findboundedbycs()
+
+pron()
+
+o1 = new stzString("...<<*>>...<<*>>...<<*>>...")
+
+? o1.FindXT( :AnySubString, :Between = ["<<", ">>"] )
+
+? o1.FindXT( :Any, :BoundedBy = '"' )
+
+proff()
+
+/*======== #TODO: add the :3rd syntax to these functions
+
+pron()
+
+o1 = new stzString("...<<*>>...<<*>>...<<*>>...")
+
+? o1.FindXT( :3rd = "*", :Between = [ "<<", ">>" ])
 
 # ? o1.FindXT( :3rd = "*", :BoundedBy = '"' ])
 
@@ -4520,11 +4565,5 @@ proff()
 # ? o1.FindXT( :3rd = "*", :After = '!' ])
 
 # ? o1.FindXT( :3rd = "*", :AfterPosition = 12 ])
-
-# ? o1.FindXT( :AnySubString, :Between = ["<<", ">>" )
-
-# ? o1.FindXT( :Any, :BoundedBy = '"' )
-
-# ? o1.FindXT( "*", :InSection = [5, 24] )
 
 proff()
