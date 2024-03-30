@@ -29980,6 +29980,393 @@ class stzList from stzObject
 
 		#>
 
+	   #=============================================================#
+	  #  FINING NEAREST OCCURRENCE OF AN ITEM TO A GIVEN POSITION,  #
+	 #  SECTION, OR GIVEN OTHER ITEM                               #
+	#=============================================================#
+
+	def FindNearestCS(pItem, pToPositionSectionOrItem, pCaseSensitive)
+
+		oParam = Q(pToPositionSectionOrItem)
+		if oParam.IsToNamedParam()
+			return This.FindNearestToItemCS(pItem, pToPositionSectionOrItem[2], pCaseSensitive)
+
+		but oParam.IsToPositionNamedParam()
+			return This.FindNearestToPositionCS(pItem, pToPositionSectionOrItem[2], pCaseSensitive)
+
+		but oParam.IsToPositionsNamedParam()
+			return This.FindNearestToPositionsCS(pItem, pToPositionSectionOrItem[2], pCaseSensitive)
+
+		but oParam.IsToSectionNamedParam()
+
+			n1 = pToPositionSectionOrItem[2][1]
+			n2 = pToPositionSectionOrItem[2][2]
+
+			return This.FindNearestToSectionCS(pItem, n1, n2, pCaseSensitive)
+
+		but oParam.IsToSectionsNamedParam()
+			return This.FindNearestToSectionsCS(pItem, pToPositionSectionOrItem[2], pCaseSensitive)
+
+		but oParam.IsToItemNamedParam()
+			return This.FindNearestToItemCS(pItem, pToPositionSectionOrItem[2], pCaseSensitive)
+
+		but oParam.IsToItemsNamedParam()
+			return This.FindNearestToItemsCS(pItem, pToPositionSectionOrItem[2], pCaseSensitive)
+
+		else
+			return This.FindNearestToItemCS(pItem, pToPositionSectionOrItem[2], pCaseSensitive)
+
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNearest(pItem, pToPositionSectionOrItem)
+		return This.FindNearestCS(pItem, pToPositionSectionOrItem, TRUE)
+
+	  #-----------------------------------------------------------------#
+	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO A GIVEN POSITION  #
+	#=================================================================#
+
+	def FindNearestToPositionCS(pItem, pnPos, pCaseSensitive)
+		if EarlyCheck()
+			if This.NumberOfItems() = 0
+				return 0
+			ok
+		ok
+
+		if CheckParams()
+
+			if isString(pnPos)
+				if pnPos = :FirstItem
+					pnPos = 1
+				but pnPos = :LastItem
+					pnPos = This.NumberOfItems()
+				ok
+			ok
+	
+			if NOT isNumber(pnPos)
+				StzRaise("Incorrect param type! pnPos must be a number.")
+			ok
+
+		ok
+
+		if NOT pnPos > 0 and pnPos < This.NumberOfItems()
+			StzRaise("Index out of range!")
+		ok
+
+		anPos = This.FindAllCS(pItem, pCaseSensitive)
+		nLenPos = len(anPos)
+		if nLenPos = 0
+			return 0
+		ok
+
+		anDiff = []
+		for i = 1 to nLenPos
+			anDiff + Abs(pnPos - anPos[i])
+		next
+
+		nResult = anPos[ ring_find(anDiff, Min(anDiff)) ]
+		return nResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNearestToPosition(pItem, pnPos)
+		return This.FindNearestToPositionCS(pItem, pnPos, TRUE)
+	
+	  #------------------------------------------------------------------------#
+	 #  FINDING THE NEAREST OCCURRENCES OF AN ITEM TO A GIVEN POSITION -- XT  #
+	#------------------------------------------------------------------------#
+	# XT --> Returns both nearest positions, before and after
+
+	def FindNearestToPositionCSXT(pItem, pnPos, pCaseSensitive)
+		if CheckParams()
+			if NOT isNumber(pnPos)
+				StzRaise("Incorrect param type! pnPos must be a number.")
+			ok
+		ok
+
+		if pnPos < 1 ans pnPos > This.NumberOfItems()
+			StzRaise("Index out of range! pnPost must be inside the list.")
+		ok
+
+		anResult = This.FindNearestToSectionCSXT(pItem, pnPos, pnPos, pCaseSensitive)
+
+		return anResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNearestToPositionXT(pItem, pnPos)
+		return This.FindNearestToPositionCSXT(pItem, pnPos, TRUE)
+
+	  #----------------------------------------------------------------#
+	 #  FINDING NEAREST OCCURRENCE OF AN ITEM TO THE GIVEN POSITIONS  #
+	#----------------------------------------------------------------#
+
+	def FindNearestToPositionsCS(pItem, panPos, pCaseSensitive)
+	
+		nLenList = This.NumberOfItems()
+
+		if EarlyCheck()
+			if nLenList = 0
+				return 0
+			ok
+		ok
+
+		if CheckParams()
+
+			if NOT (isList(panPos) and @IsListOfNumbers(panPos))
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+
+		ok
+
+		nLenPos = len(panPos)
+		if nLenPos = 0
+			return 0
+		ok
+
+		anNearest = []
+		anDiff = []
+
+		for i = 1 to nLenPos
+			anTemp = This.FindNearestToPositionCSXT(pItem, panPos[i], pCaseSensitive)
+			nDiff1 = panPos[i] - anTemp[1]
+			nDiff2 = anTemp[2] - panPos[i]
+
+			if nDiff1 < nDiff2
+				anNearest + anTemp[1]
+				anDiff + nDiff1
+	
+			else
+				anNearest + anTemp[2]
+				anDiff + nDiff2
+			ok
+		next
+
+		nResult = anNearest[ ring_find(anDiff, Min(anDiff)) ]
+		return nResult
+
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNearestToPositions(pItem, panPos)
+		return This.FindNearestToPositionsCS(pItem, panPos, TRUE)
+
+	  #----------------------------------------------------------------#
+	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO A GIVEN SECTION  #
+	#================================================================#
+
+	def FindNearestToSectionCS(pItem, n1, n2, pCaseSensitive)
+
+		nLenList = This.NumberOfItems()
+
+		if EarlyCheck()
+			if nLenList = 0
+				return 0
+			ok
+		ok
+
+		if CheckParams()
+
+			if isString(n1)
+				if n1 = :FirstItem
+					n1 = 1
+
+				but n1 = :LastItem
+					n1 = nLenList
+				ok
+			ok
+			if isString(n2)
+				if n2 = :LastItem
+					n2 = nLenList
+
+				but n2 = :FirstItem
+					n2 = 1
+				ok
+			ok
+	
+			if NOT ( isNumber(n1) and isNumber(n2) )
+				StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
+			ok
+
+		ok
+
+		if NOT ( (n1 > 0 and n1 < nLenList) and (n2 > 0 and n2 < nLenList) )
+			StzRaise("Index out of range! n1 and n2 must be both inside the list.")
+		ok
+
+		nNearestBefore = This.SectionQ(1, n1).
+				 FindNearestToPositionCS(pItem, n1, pCaseSensitive)
+		nDistBefore = n1 - nNearestBefore
+
+		nNearestAfter  = This.SectionQ(n2, nLenList).
+				 FindNearestToPositionCS(pItem, 1, pCaseSensitive) + n2 - 1
+
+		nDistAfter = nNearestAfter - n2
+		
+		if nDistBefore < nDistAfter
+			nResult = nNearestBefore
+		else
+			nResult = nNearestAfter
+		ok
+
+		return nResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNearestToSection(pItem, n1, n2)
+		return This.FindNearestToSectionCS(pItem, n1, n2, TRUE)
+
+	  #---------------------------------------------------------------------#
+	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO A GIVEN SECTION -- XT #
+	#---------------------------------------------------------------------#
+	# XT --> Returns both nearest positions, before and after
+
+	def FindNearestToSectionCSXT(pItem, n1, n2, pCaseSensitive)
+
+		nLenList = This.NumberOfItems()
+
+		if EarlyCheck()
+			if nLenList = 0
+				return 0
+			ok
+		ok
+
+		if CheckParams()
+
+			if isString(n1)
+				if n1 = :FirstItem
+					n1 = 1
+
+				but n1 = :LastItem
+					n1 = nLenList
+				ok
+			ok
+			if isString(n2)
+				if n2 = :LastItem
+					n2 = nLenList
+
+				but n2 = :FirstItem
+					n2 = 1
+				ok
+			ok
+	
+			if NOT ( isNumber(n1) and isNumber(n2) )
+				StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
+			ok
+
+		ok
+
+		if NOT ( (n1 > 0 and n1 < nLenList) and (n2 > 0 and n2 < nLenList) )
+			StzRaise("Index out of range! n1 and n2 must be both inside the list.")
+		ok
+
+		nNearestBefore = This.SectionQ(1, n1).
+				 FindNearestToPositionCS(pItem, n1, pCaseSensitive)
+
+		nNearestAfter  = This.SectionQ(n2, nLenList).
+				 FindNearestToPositionCS(pItem, 1, pCaseSensitive) + n2 - 1
+
+		anResult = [ nNearestBefore, nNearestAfter ]
+		return anResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNearestToSectionXT(pItem, n1, n2)
+		return This.FindNearestToSectionCSXT(pItem, n1, n2, TRUE)
+
+	  #-------------------------------------------------------------#
+	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO THE SECTIONS  #
+	#-------------------------------------------------------------#
+
+	def FindNearestToSectionsCS(pItem, paSections, pCaseSensitive)
+
+		nLenList = This.NumberOfItems()
+
+		if EarlyCheck()
+			if nLenList = 0
+				return 0
+			ok
+		ok
+
+		if CheckParams()
+
+			if NOT ( isList(paSections) and @IsListOfPairsOfNumbers(paSections) )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+
+		ok
+
+		nLenSections = len(paSections)
+		anNearest = []
+		anDiff = []
+
+		for i = 1 to nLenSections
+			anTemp = This.FindNearestToSectionCSXT(pItem, paSections[i][1], paSections[i][2], pCaseSensitive)
+			nDiff1 = paSections[i][1] - anTemp[1]
+			nDiff2 = anTemp[2] - paSections[i][2]
+
+			if nDiff1 < nDiff2
+				anNearest + anTemp[1]
+				anDiff + nDiff1
+	
+			else
+				anNearest + anTemp[2]
+				anDiff + nDiff2
+			ok
+		next
+
+		nResult = anNearest[ ring_find(anDiff, Min(anDiff)) ]
+		return nResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNearestToSections(pItem, paSections)
+		return This.FindNearestToSectionsCS(pItem, paSections, TRUE)
+
+	  #-------------------------------------------------------------------#
+	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO A GIVEN OTHER ITEM  #
+	#===================================================================#
+
+	def FindNearestToItemCS(pItem, pcOtherItem, pCaseSensitive)
+
+		anPos = This.FindAllCS(pcOtherItem, pCaseSensitive)
+
+		nLenPos = len(anPos)
+		if nLenPos = 0
+			return 0
+		ok
+
+		nResult = This.FindNearestToPositionsCS(pItem, anPos, pCaseSensitive)
+
+		return nResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNearestToItem(pItem, pcOtherSubStr)
+		return This.FindNearestToItemCS(pItem, pcOtherSubStr, TRUE)
+
+	  #------------------------------------------------------------------#
+	 #  FINDING THE NEAREST OCCURRENCE OF AN ITEM TO GIVEN OTHER ITEMS  #
+	#------------------------------------------------------------------#
+
+	def FindNearestToItemsCS(pItem, pacOtherItems, pCaseSensitive)
+
+		anPos = This.FindManyCS(pacOtherItems, pCaseSensitive)
+
+		nLenPos = len(anPos)
+		if nLenPos = 0
+			return 0
+		ok
+
+		nResult = This.FindNearestToPositionsCS(pItem, anPos, pCaseSensitive)
+		return nResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNearestToItems(pItem, pacOtherItems)
+		return This.FindNearestToItemsCS(pItem, pcOtherSubStr, TRUE)
+
 	  #==================================================#
 	 #  CHECKING IF AN ITEM IS DUPPLICATED IN THE LIST  #
 	#==================================================#
@@ -45392,6 +45779,15 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsToItemsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToItems)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsUntilItemNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :UntilItem)
@@ -46650,6 +47046,16 @@ vvv
 			return FALSE
 		ok
 
+	def IsToNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToNumbers )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsToStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToString )
@@ -46700,6 +47106,16 @@ vvv
 			return FALSE
 		ok
 
+	def IsToListsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsToPairNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToPair )
@@ -46733,6 +47149,16 @@ vvv
 	def IsToObjectNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToObject )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToObjectsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToObjects )
 
 			return TRUE
 
