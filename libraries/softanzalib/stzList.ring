@@ -1704,8 +1704,8 @@ func IsListOfPairsOfStrings(paList)
 	#>
 
 func IsPairOfNumbers(paPair)
-	if isList(paList) and len(paList) = 2 and
-	   isNumber(paList[1]) and isNumber(paList[2])
+	if isList(paPair) and len(paPair) = 2 and
+	   isNumber(paPair[1]) and isNumber(paPair[2])
 
 		return TRUE
 	else
@@ -46670,6 +46670,16 @@ vvv
 			return FALSE
 		ok
 
+	def IsToSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToSubStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsToCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToChar )
@@ -54569,6 +54579,26 @@ vvv
 
 		def IsSectionsOrInSectionsNamedParams()
 			return This.IsSectionsOrInSectionsNamedParam()
+
+	def IsToSectionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToSection )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToSectionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToSections )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#==
 
 	def IsListSizeNamedParam()
 		if This.NumberOfItems() = 2 and
