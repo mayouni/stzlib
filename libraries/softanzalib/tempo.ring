@@ -4247,7 +4247,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*---------- #TODO
-*/
+
 pron()
 
 o1 = new stzList([ "~", "*", "~", "~", "*", "--", "*", "-" ])
@@ -4270,7 +4270,124 @@ o1 = new stzList([ "~", "*", "~", "~", "*", "--", "*", "-" ])
 proff()
 # Executed in 0.02 second(s)
 
-/*--------- #TODO: add example and test
+/*-=====
+
+pron()
+
+#                   1    6   0 2  15     22
+o1 = new stzString("♥....♥...YOU..♥......♥")
+
+? o1.FindNearestToPosition("♥", 10)
+#--> 6
+
+? o1.FindNearestToPositionXT("♥", 10)
+#--> [ 6, 15 ]
+
+? o1.FindNearestToSection("♥", 10, 12)
+#--> 15
+
+? o1.FindNearestToSectionXT("♥", 10, 12)
+#--> [ 6, 15 ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------
+
+pron()
+
+#                   1    6   0 2  15    21  25
+o1 = new stzString("♥....♥...YOU..♥.....YOU.♥")
+
+? o1.FindNearestToSections("♥", [ [ 10, 12 ], [ 21, 23 ] ])
+#--> 25
+
+proff()
+
+/*---------
+
+pron()
+
+#                   1    6   0 2  15    21  25
+o1 = new stzString("♥....♥...YOU..♥.....YOU.♥")
+
+
+? o1.FindNearest("♥", :To = 17 )
+#--> 15
+
+? o1.FindNearest("♥", :ToPosition = 17 )
+#--> 15
+
+? o1.FindNearest("♥", :To = [10, 12] )
+#--> 15
+
+? o1.FindNearest("♥", :ToSection = [10, 12] )
+#--> 15
+
+? o1.FindNearest("♥", :To = [ [ 10, 12 ], [ 21, 23 ] ] )
+#--> 25
+
+? o1.FindNearest("♥", :ToSections = [ [ 10, 12 ], [ 21, 23 ] ] )
+#--> 25
+
+? o1.FindNearest("♥", :To = "YOU")
+#--> 25
+
+? o1.FindNearest("♥", :ToSubString = "YOU")
+#--> 25
+
+proff()
+
+/*---------
+
+pron()
+#                                14           27
+o1 = new stzString("♥♥♥....♥♥♥...YOU..♥♥♥.....YOU.♥♥♥")
+
+? o1.FindNearestZZ("♥♥♥", :To = 14 )
+#--> [ 19, 21 ]
+
+? o1.FindNearestZZ("♥♥♥", :ToPosition = 14 )
+#--> [ 19, 21 ]
+
+? o1.FindNearestZZ("♥♥♥", :To = [14, 16] )
+#--> [ 19, 21 ]
+
+? o1.FindNearestZZ("♥♥♥", :ToSection = [14, 16] )
+#--> [ 19, 21 ]
+
+? o1.FindNearestZZ("♥♥♥", :To = [ [ 14, 16 ], [ 27, 29 ] ] )
+#--> [ 31, 33 ]
+
+? o1.FindNearestZZ("♥♥♥", :ToSections = [ [ 14, 16 ], [ 27, 29 ] ] )
+#--> [ 31, 33 ]
+
+? o1.FindNearestZZ("♥♥♥", :To = "YOU")
+#--> [ 31, 33 ]
+
+? o1.FindNearestZZ("♥♥♥", :ToSubString = "YOU")
+#--> [ 31, 33 ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*---------
+*/
+pron()
+
+#                                14           27
+o1 = new stzString("♥♥♥....♥♥♥...YOU..♥♥♥.....YOU.♥♥♥")
+
+? o1.FindNearestToSubString("♥♥♥", "YOU")
+#--> 31
+
+? o1.FindNearestToSubStringZZ("♥♥♥", "YOU")
+#--> [ 31, 33 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*======== #TODO: add example and test
 
 # ? o1.FindXT( :3rd = "*", :Between = [ "<<", ">>" ])
 
