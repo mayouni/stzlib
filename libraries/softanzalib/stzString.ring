@@ -22192,7 +22192,7 @@ class stzString from stzObject
 		ok
 
 		def ReplaceRepeatedLeadingCharsCSQ(cNewSubStr, pCaseSensitive)
-			This. ReplaceRepeatedLeadingCharsCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceRepeatedLeadingCharsCS(cNewSubStr, pCaseSensitive)
 			return This
 
 		def ReplaceLeadingCharsCS(cNewSubStr, pCaseSensitive)
@@ -22239,7 +22239,7 @@ class stzString from stzObject
 		ok
 
 		def ReplaceRepeatedTrailingCharsCSQ(cNewSubStr, pCaseSensitive)
-			This. ReplaceRepeatedTrailingCharsCS(cNewSubStr, pCaseSensitive)
+			This.ReplaceRepeatedTrailingCharsCS(cNewSubStr, pCaseSensitive)
 			return This
 
 		def ReplaceTrailingCharsCS(cNewSubStr, pCaseSensitive)
@@ -37307,43 +37307,81 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #  SECTION, OR GIVEN OTHER SUBSTRING                              #
 	#=================================================================#
 
+	#TODO
+	# Add FindNNearest(n, pItem, pToPositionSectionOrItem, pCaseSensitive)
+
 	def FindNearestCS(pcSubStr, pToPositionSectionOrSubStr, pCaseSensitive)
+
 		if CheckParams()
-			if isList(pToPositionSectionOrSubStr)
-				oParam = Q(pToPositionSectionOrSubStr)
-
-				if oParam.IsToNamedParam() or oParam.IsToPositionNamedParam() or
-				   oParam.IsToSectionNamedParam() or oParam.IsToSectionsNamedParam() or
-				   oParam.IsToSubStringNamedParam()
-
-					pToPositionSectionOrSubStr = pToPositionSectionOrSubStr[2]
-				ok
+			if NOT isString(pcSubStr)
+				StzString("Incorrect param type! pcSubStr must be a string.")
 			ok
 
-			if NOT ( isNumber(pToPositionSectionOrSubStr) or @IsPairOfNumbers(pToPositionSectionOrSubStr) or
-				 @IsListOfPairsOfNumbers(pToPositionSectionOrSubStr) or
+			if NOT ( isNumber(pToPositionSectionOrSubStr) or
+				 isList(pToPositionSectionOrSubStr) or
 				 isString(pToPositionSectionOrSubStr) )
 
-				StzRaise("Incorrect param type! pToPositionSectionOrSubStr must be a number, a string, a pair of numbers or a list of numbers.")
+				StzRaise("Incorrect param type! pToPositionSectionOrSubStr must be " +
+					 "a number, a list of numbers, a string or a list.")
+
 			ok
 		ok
 
 		if isNumber(pToPositionSectionOrSubStr)
 			return This.FindNearestToPositionCS(pcSubStr, pToPositionSectionOrSubStr, pCaseSensitive)
 
-		but isList(pToPositionSectionOrSubStr)
-
-			if @IsPairOfNumbers(pToPositionSectionOrSubStr)
-				n1 = pToPositionSectionOrSubStr[1]
-				n2 = pToPositionSectionOrSubStr[2]
-				return This.FindNearestToSectionCS(pcSubStr, n1, n2, pCaseSensitive)
-
-			but @IsListOfPairsOfNumbers(pToPositionSectionOrSubStr)
-				return This.FindNearestToSectionsCS(pcSubStr, pToPositionSectionOrSubStr, pCaseSensitive)
-			ok
-
 		but isString(pToPositionSectionOrSubStr)
 			return This.FindNearestToSubStringCS(pcSubStr, pToPositionSectionOrSubStr, pCaseSensitive)
+
+		else // isList()
+
+			if @IsListOfNumbers(pToPositionSectionOrSubStr)
+				return This.FindNearestToPositionsCS(pcSubStr, pToPositionSectionOrSubStr, pCaseSensitive)
+	
+			but @IsPairOfNumbers(pToPositionSectionOrSubStr)
+				return This.FindNearestTSectionCS(pcSubStr, pToPositionSectionOrSubStr, pCaseSensitive)
+	
+			but @IsListOfPairsOfNumbers(pToPositionSectionOrSubStr)
+
+				return This.FindNearestToSectionsCS(pcSubStr, pToPositionSectionOrSubStr, pCaseSensitive)
+	
+	
+			but @IsListOfStrings(pToPositionSectionOrSubStr)
+				return This.FindNearestToSubStringsCS(pcSubStr, pToPositionSectionOrSubStr, pCaseSensitive)
+	
+			but isList(pToPositionSectionOrSubStr)
+				oParam = Q(pToPositionSectionOrSubStr)
+		
+				if oParam.IsToNamedParam()
+					return This.FindNearestCS(pcSubStr, pToPositionSectionOrSubStr[2], pCaseSensitive)
+		
+				but oParam.IsToPositionNamedParam()
+					return This.FindNearestCS(pcSubStr, pToPositionSectionOrSubStr[2], pCaseSensitive)
+		
+				but oParam.IsToPositionsNamedParam()
+					return This.FindNearestToPositionsCS(pcSubStr, pToPositionSectionOrSubStr[2], pCaseSensitive)
+		
+				but oParam.IsToSectionNamedParam()
+		
+					n1 = pToPositionSectionOrSubStr[2][1]
+					n2 = pToPositionSectionOrSubStr[2][2]
+		
+					return This.FindNearestToSectionCS(pcSubStr, n1, n2, pCaseSensitive)
+		
+				but oParam.IsToSectionsNamedParam()
+					return This.FindNearestToSectionsCS(pcSubStr, pToPositionSectionOrSubStr[2], pCaseSensitive)
+		
+				but oParam.IsToSubStringNamedParam()
+					return This.FindNearestToSubStringCS(pcSubStr, pToPositionSectionOrSubStr[2], pCaseSensitive)
+		
+				but oParam.IsToSubStringsNamedParam()
+					return This.FindNearestToSubStringsCS(pcSubStr, pToPositionSectionOrSubStr[2], pCaseSensitive)
+		
+				ok
+	
+			ok
+
+			return 0
 		ok
 
 	#-- WITHOUT CASESENSITIVITY
@@ -37426,9 +37464,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	def FindNearestToPosition(pcSubStr, pnPos)
 		return This.FindNearestToPositionCS(pcSubStr, pnPos, TRUE)
 
-	  #---------------------------------------------------------------------#
-	 #  FINDING THE NEAREST OCCURRENCE OF A SUBSTRING TO A GIVEN POSITION  #
-	#  AND RETURNING IT AS A SECTION                                      #
+	   #---------------------------------------------------------------------#
+	  #  FINDING THE NEAREST OCCURRENCE OF A SUBSTRING TO A GIVEN POSITION  #
+	 #  AND RETURNING IT AS A SECTION                                      #
 	#--------------------------------------------------------------------#
 
 	def FindNearestToPositionCSZZ(pcSubStr, pnPos, pCaseSensitive)
@@ -37479,6 +37517,65 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	def FindNearestToPositionXT(pcSubStr, pnPos)
 		return This.FindNearestToPositionCSXT(pcSubStr, pnPos, TRUE)
+
+	  #----------------------------------------------------------------#
+	 #  FINDING NEAREST OCCURRENCE OF AN ITEM TO THE GIVEN POSITIONS  #
+	#================================================================#
+
+	def FindNearestToPositionsCS(pcSubStr, panPos, pCaseSensitive)
+	
+		nLenStr = This.NumberOfChars()
+
+		if EarlyCheck()
+			if nLenStr = 0
+				return 0
+			ok
+		ok
+
+		if CheckParams()
+
+			if NOT (isList(panPos) and @IsListOfNumbers(panPos))
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+
+		ok
+
+		nLenPos = len(panPos)
+		if nLenPos = 0
+			return 0
+		ok
+
+		anNearest = []
+		anDiff = []
+
+		for i = 1 to nLenPos
+			anTemp = This.FindNearestToPositionCSXT(pcSubStr, panPos[i], pCaseSensitive)
+			nDiff1 = panPos[i] - anTemp[1]
+			nDiff2 = anTemp[2] - panPos[i]
+
+			if nDiff1 < nDiff2
+				anNearest + anTemp[1]
+				anDiff + nDiff1
+	
+			else
+				anNearest + anTemp[2]
+				anDiff + nDiff2
+			ok
+		next
+
+		nResult = anNearest[ ring_find(anDiff, Min(anDiff)) ]
+		return nResult
+
+		def FindNearestToPositionsCSZ(pcSubStr, panPos, pCaseSensitive)
+			return This.FindNearestToPositionsCS(pcSubStr, panPos, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNearestToPositions(pcSubStr, panPos)
+		return This.FindNearestToPositionsCS(pcSubStr, panPos, TRUE)
+
+		def FindNearestToPositionsZ(pcSubStr, panPos)
+			return This.FindNearestToPositions(pcSubStr, panPos)
 
 	  #--------------------------------------------------------------------#
 	 #  FINDING THE NEAREST OCCURRENCE OF A SUBSTRING TO A GIVEN SECTION  #
@@ -37692,6 +37789,20 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		def FindNearestToSubStringAsSection(pcSubStr, pcOtherSubStr)
 			return This.FindNearestToSubStringZZ(pcSubStr, pcOtherSubStr)
+
+	  #---------------------------------------------------------------------------#
+	 #  FINDING THE NEAREST OCCURRENCE OF A SUBSTRING TO GIVEN OTHER SUBSTRINGS  #
+	#===========================================================================#
+
+	def FindNearestToSubStringsCS(pcSubStr, pacOtherSubStr, pCaseSensitive)
+		aSections = This.FindManyAsSectionsCS(pacOtherSubStr, pCaseSensitive)
+		nResult = This.FindNearestToSectionsCS(pcSubStr, aSections, pCaseSensitive)
+		return nResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNearestToSubStrings(pcSubStr, pacOtherSubStr)
+		return This.FindNearestToSubStringsCS(pcSubStr, pacOtherSubStr, TRUE)
 
 	  #======================================================================#
 	 #  GETTING NUMBER OF OCCURRENCES OF A SUBSTRING IN THE GIVEN SECTIONS  #
@@ -57975,7 +58086,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		return This.Copy().RemoveManySubstringsCS(pacSubStr, pCaseSensitive).Content()
 
 		def SubstringsRemovedCS(pacSubStr, pCaseSensitive)
-			return This. ManySubstringsRemovedCS(pacSubStr, pCaseSensitive)
+			return This.ManySubstringsRemovedCS(pacSubStr, pCaseSensitive)
 
 	#-- CASEèSENSITIVE
 
@@ -58010,7 +58121,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		return This.Copy().RemoveManySubstrings(pacSubStr).Content()
 
 		def SubstringsRemoved(pacSubStr)
-			return This. ManySubstringsRemoved(pacSubStr)
+			return This.ManySubstringsRemoved(pacSubStr)
 
 		def TheseRemoved(pacSubStr)
 			return This.ManySubstringsRemoved(pacSubStr)

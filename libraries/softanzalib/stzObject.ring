@@ -4084,7 +4084,7 @@ class stzObject
 
 		def OfCSBM(n, pCaseSensitive)
 			SetMainObject()
-			return This. OfCSB(n, pCaseSensitive)
+			return This.OfCSB(n, pCaseSensitive)
 
 		def OfCSBMM(n, pCaseSensitive)
 			return MainObject()

@@ -330,7 +330,7 @@ class stzListOfBytes from stzList
 			return This.UnicodeOfNthByte(n)
 
 		def UnicodeOfByteN(n)
-			return This. UnicodeOfNthByte(n)
+			return This.UnicodeOfNthByte(n)
 
 		#--
 
@@ -341,7 +341,7 @@ class stzListOfBytes from stzList
 			return This.UnicodeOfNthByte(n)
 
 		def BytecodeOfByteN(n)
-			return This. UnicodeOfNthByte(n)
+			return This.UnicodeOfNthByte(n)
  
 	def Bytecodes()
 		aResult = []
