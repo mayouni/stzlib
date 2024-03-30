@@ -3868,6 +3868,28 @@ func @FindAll(aList, pItem)
 	func FindAll(aList, pItem)
 		return @FindAll(aList, pItem)
 
+func IsRingSortable(pListOrString)
+	if CheckParams()
+		if NOT ( isString(pListOrString) or isList(pListOrString) )
+			StzRaise("Incorrect param type! pListOrString must be a list or string.")
+		ok
+	ok
+
+	if isString(pListOrString)
+		return TRUE
+
+	else // isList()
+		if @IsListOfNumbers(pListOrString) or @IsListOfStrings(pListOrString) or
+		   @IsListOfNumbersAndStrings(pListOrString)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+	ok
+
+	func @IsRingSortable(pListOrString)
+		return IsRingSortable(pListOrString)
 
   /////////////////
  ///   CLASS   ///
@@ -27267,9 +27289,9 @@ class stzList from stzObject
 		def SortedInReverseOrder()
 			return This.SortedInReverse()
 
-	  #---------------------------------------#
-	 #  SORTING THE ITEM BY - IN ASCENDING  #
-	#--------------------------------------#
+	  #--------------------------------------------------------------#
+	 #  SORTING THE ITEM BY AN EVALUATED EXPRESSION - IN ASCENDING  #
+	#--------------------------------------------------------------#
  
 	def SortBy(pcExpr)
 		/* EXAMPLE
@@ -27285,54 +27307,71 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pcExpr must be a string containing @item keyword.")
 		ok
 
-		if This.IsListOfNumbers() or This.IsListOfStrings()
-		# A Ring-based solution using the sort(alist, nCol) function
+		# Doing the job
 
-			acContent = This.Content()
-			nLen = len(acContent)
-	
-			cCode = 'value = ' + Q(pcExpr).TheseBoundsRemoved("{", "}")
-			aValuesXT = []
-			
-			for @i = 1 to nLen
-				@item = acContent[@i]
-				eval(cCode)
-				aValuesxt + [ acContent[@i], value ]
-			next
+		acContent = This.Content()
+		nLen = len(acContent)
 
-			//aSorted = aValuesXT//ring_sort2(aValuesXT, 2)
-//? @@(aSorted) + NL
+		# Evaluating pcExpr on all the items and getting a list
+		# containing the items and their relative evals
+		# (so we can ultimately sort theim by thoses evals)
 
-			aValues = []
-			for i = 1 to nLen
-				aValues + aValuesXT[i][2]
-			next
+		cCode = 'value = ' + Q(pcExpr).TheseBoundsRemoved("{", "}")
+		aValuesXT = []
+		avalues = []
 
-			oValues = new stzList(aValues)
+		for @i = 1 to nLen
+			@item = acContent[@i]
+			eval(cCode)
+			aValuesxt + [ acContent[@i], value ]
+			aValues + value
+		next
 
-			aValuesU = @WithoutDupplication(aValues)
-			nLenU = len(aValuesU)
+		# Taking the evals in a stzList (so we can find items in theim)
 
-			aSorted = []
+		oValues = new stzList(aValues)
 
-			for i = 1 to nLenU
-				anPos = oValues.Find(aValuesU[i])
-				aSorted + [ This.ItemsAtPositionsQ(anPos).Sorted(), aValuesU[i] ]
-			next
+		# Getting the unique values (evals) in a list (so we can use
+		# them to construct the final result)
 
+		aValuesU = @WithoutDupplication(aValues)
+		nLenU = len(aValuesU)
+
+		aSorted = []
+
+		for i = 1 to nLenU
+			anPos = oValues.Find(aValuesU[i])
+			aSorted + [ This.ItemsAtPositionsQ(anPos).Sorted(), aValuesU[i] ]
+		next
+
+		# Now we are going to sort the items (first column in aSorted)
+		# by the values in its second column()
+
+		# We we if we can use a Ring-based sort, otherwise we rely on
+		# a Softanza sort (Ring sort, when feasible, is more performant)
+
+		if @IsRingSortable(aValuesU)
 			aSorted = ring_sort2(aSorted, 2)
-
-			aResult = []
-			for i = 1 to nLenU
-				nLenTemp = len(aSorted[i][1])
-				for j = 1 to nLenTemp
-					aResult + aSorted[i][1][j]
-				next
-			next
-
-			This.Update(aResult)
-
+		else
+			aSorted = StzListOfPairsQ(aSorted).SortedOn(2)
 		ok
+
+		# Now, the items in the first column are sorted, and grouped
+		# inside inner pairs of the form [ itemValue, evaluatedValue ]
+		# Here, we parse them and extract them in a list
+
+		aResult = []
+		for i = 1 to nLenU
+			nLenTemp = len(aSorted[i][1])
+			for j = 1 to nLenTemp
+				aResult + aSorted[i][1][j]
+			next
+		next
+
+		# And finally we update the list object content
+
+		This.Update(aResult)
+
 
 		#< @FunctionFluentForm
 
