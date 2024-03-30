@@ -4372,7 +4372,125 @@ proff()
 # Executed in 0.05 second(s)
 
 /*---------
+
+pron()
+
+#                                14           27
+o1 = new stzString("♥♥♥....♥♥♥...YOU..♥♥♥.....YOU.♥♥♥")
+
+? o1.FindNearestToSubString("♥♥♥", "YOU")
+#--> 31
+
+? o1.FindNearestToSubStringZZ("♥♥♥", "YOU")
+#--> [ 31, 33 ]
+
+proff()
+# Executed in 0.03 second(s)
+
+#=========
+
+pron()
+
+o1 = new stzList([
+	"♥", ".", ".", ".", "♥", ".", ".", "YOU", ".", "♥" ,".", ".", ".", "♥"
+])
+
+? o1.FindNearestToPosition("♥", 8)
+#--> 10
+
+? o1.FindNearestToPositionXT("♥", 8)
+#--> [ 5, 10 ]
+
+? o1.FindNearestToSection("♥", 8, 10)
+#--> 10
+
+? o1.FindNearestToSectionXT("♥", 5, 10)
+#--> [ 6, 15 ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzList([
+	"♥", ".", ".", ".", "♥", ".", ".", "YOU", ".", "♥" ,".", ".", ".", "♥"
+])
+
+
+? o1.FindNearestToSections("♥", [ [ 4, 7 ], [ 10, 12 ] ])
+#--> 10
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzList([
+	"♥", ".", ".", ".", "♥", ".", ".", "YOU", ".", "♥" ,".", ".", ".", "♥"
+])
+
+
+? o1.FindNearestToPosition("♥", 7)
+#--> 5
+
+? o1.FindNearestToPositions("♥", [ 3, 13 ])
+#--> 14
+
+? o1.findNearestToItem("♥", "YOU")
+#--> 10
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzList([
+	"♥", ".", ".", ".", "♥", ".", ".", "YOU", ".", "♥" ,".", ".", ".", "♥"
+])
+
+
+? o1.FindNearest("♥", :To = "YOU" )
+#--> 10
+
+? o1.FindNearest("♥", :ToItem = "YOU" )
+#--> 10
+
+? o1.FindNearest("♥", :ToPosition = 7 )
+#--> 5
+
+? o1.FindNearest("♥", :ToPositions = [7, 11] )
+#--> 10
+
+? o1.FindNearest("♥", :ToSection = [7, 10] )
+#--> 10
+
+? o1.FindNearest("♥", :ToSections =  [ [ 4, 7 ], [ 9, 12 ] ] )
+#--> 14
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------
 */
+pron()
+
+o1 = new stzList([
+	"♥", ".", ".", "ME", "♥", ".", ".", "YOU", ".", "♥" ,".", "ME", ".", "♥"
+])
+
+? o1.FindNearest("♥", :ToItems = [ "YOU", "ME" ])
+#--> 5
+
+proff()
+
+/*---------
+
 pron()
 
 #                                14           27
