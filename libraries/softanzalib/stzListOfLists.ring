@@ -821,9 +821,9 @@ class stzListOfLists from stzList
 
 		#>
 
-	  #-----------------------------#
-	 #  GETTING THE MISSING ITEMS  #
-	#=============================#
+	  #------------------------------------------------------#
+	 #  FINDING THE MISSING POSITIONS IN THE LIST OF LISTS  #
+	#======================================================#
 
 	func FindMissingItems()
 		nMin = This.MinSize()
@@ -854,6 +854,44 @@ class stzListOfLists from stzList
 
 		def MissingPositions()
 			return This.FindMissingItems()
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #  GETTING THE NUMBER OF MISSING POSISITONS IN THE LIST OF LISTS  #
+	#-----------------------------------------------------------------#
+
+	def NumberOfMissingItems()
+
+		nMin = This.MinSize()
+		nMaxSize = This.MaxSize()
+	
+		aContent = This.Content()
+		nLen = len(aContent)
+	
+		nResult = 0
+		for i = 1 to nLen
+			nLenList = len(aContent[i])
+			if nLenList < nMaxSize
+				nResult += (nMaxSize - nLenList)
+			ok
+		next
+	
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfMissingPositions()
+			return This.NumberOfMissingItems()
+
+		def HowManyMissingItems()
+			return This.NumberOfMissingItems()
+
+		def HowManyMissingPositions()
+			return This.NumberOfMissingItems()
+
+		def HowManyMissing()
+			return This.NumberOfMissingItems()
 
 		#>
 
