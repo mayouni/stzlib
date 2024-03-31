@@ -27291,7 +27291,7 @@ class stzList from stzObject
 
 	  #--------------------------------------------------------------#
 	 #  SORTING THE ITEM BY AN EVALUATED EXPRESSION - IN ASCENDING  #
-	#--------------------------------------------------------------#
+	#==============================================================#
  
 	def SortBy(pcExpr)
 		/* EXAMPLE
@@ -27317,8 +27317,8 @@ class stzList from stzObject
 		# (so we can ultimately sort theim by thoses evals)
 
 		cCode = 'value = ' + Q(pcExpr).TheseBoundsRemoved("{", "}")
-		aValuesXT = []
-		avalues = []
+		aValuesXT = []  # This we host the items and the values
+		avalues = []	# This will contain only the values
 
 		for @i = 1 to nLen
 			@item = acContent[@i]
@@ -27407,9 +27407,9 @@ class stzList from stzObject
 		def SortedUpBy(pcExpr)
 			return This.SortedBy(pcExpr)
 
-	  #-----------------------------------------#
+	  #---------------------------------------#
 	 #  SORTING THE ITEM BY - IN DESCENDING  #
-	#-----------------------------------------#
+	#---------------------------------------#
  
 	def SortInDescendingBy(pcExpr)
 		This.SortInAscendingBy(pcExpr)
