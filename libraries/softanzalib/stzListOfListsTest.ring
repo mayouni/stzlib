@@ -2,6 +2,45 @@ load "stzlib.ring"
 
 /*--------
 */
+
+pron()
+
+aList = [
+	[ "mohannad", 	100, "hi", "ring" ],
+	[ "karim", 	20 , "hi" ],
+	[ "salem", 	67 ]
+]
+
+o1 = new stzListOfLists(aList)
+
+? @@( o1.Sizes() )
+#--> [ 4, 2, 2 ]
+
+? o1.MinSize()
+#--> 2
+
+? o1.Maxsize()
+#--> 4
+
+? @@( o1.FindMissing() ) + NL
+#--> [ [ 2, 4 ], [ 3, 3 ], [ 3, 4 ] ]
+
+proff()
+
+/*--------
+
+
+/*
+o1.Extend()
+
+? @@SP( o1.Content() )
+
+//? @@SP( sort(aList, 3) )
+*/
+proff()
+
+/*--------
+
 pron()
 
 o1 = new stzListOfLists([
@@ -10,14 +49,14 @@ o1 = new stzListOfLists([
 	[ :will ]
 ])
 
-? @@( o1.Index() ) + NL
+? @@NL( o1.Index() ) + NL
 #--> [
 #	[ "is", [ 1 ] ],
 #	[ "will", [ 1, 2, 3 ] ],
 #	[ "can", [ 1, 1, 2 ] ], [ "some", [ 1 ] ]
 # ]
 
-? @@( o1.IndexXT() )
+? @@NL( o1.IndexXT() )
 #--> [
 #	[ "is", 	[ [ 1, 1 ] ] ],
 #	[ "will", 	[ [ 1, 2 ], [ 2, 2 ], [ 3, 1 ] ] ],
@@ -26,8 +65,7 @@ o1 = new stzListOfLists([
 # ]
 
 proff()
-# Executed in 0.03 second(s)
-
+# Executed in 0.04 second(s)
 
 /*===
 

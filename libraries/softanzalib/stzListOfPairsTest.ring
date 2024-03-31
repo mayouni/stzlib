@@ -22,7 +22,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-----
-
+*/
 pron()
 
 # Softanza can sort lists of pairs containing columns with
@@ -45,7 +45,9 @@ o1 = new stzListOfpairs([
 #	[ "mohammed", 	"new" 	],
 #	[ "ibrahim", 	10700 	]
 # ]
+
 proff()
+# Executed in 0.03 second(s)
 
 /*-------
 

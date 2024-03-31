@@ -3105,20 +3105,63 @@ func ComputableFormNL(pValue)
 		return ComputableFormNL(pValue)
 
 		func @@NLQ(pValue)
-			return new stzString( @@NL(pValue) )
+			return ComputableFormNLQ(pValue)
 
 	func CFNL(pValue)
 		return ComputableFormNL(pValue)
 
 		func CFNLQ(pValue)
-			return new stzString( CFNL(pValue) )
+			return ComputableFormNLQ(pValue)
 
 	func @ComputableFormNL(pValue)
 		return ComputableFormNL(pValue)
 
 		func @ComputableFormNLQ(pValue)
-			return new stzString( @ComputableFormNL(pValue) )
+			return ComputableFormNLQ(pValue)
 
+	#--
+
+	func @@SP(pValue)
+		return ComputableFormNL(pValue)
+
+		func @@SPQ(pValue)
+			return ComputableFormNLQ(pValue)
+
+	func ComputableFormSP(pValue)
+		return ComputableFormNL(pValue)
+
+		func ComputableFormSPQ(pValue)
+			return ComputableFormNLQ(pValue)
+
+	func @ComputableFormSP(pValue)
+		return ComputableFormNL(pValue)
+
+		func @ComputableFormSPQ(pValue)
+			return ComputableFormNLQ(pValue)
+
+	func ComputableFormSpacified(pValue)
+		return ComputableFormNL(pValue)
+
+		func ComputableFormSpacifiedQ(pValue)
+			return ComputableFormNLQ(pValue)
+
+	func @ComputableFormSpacified(pValue)
+		return ComputableFormNL(pValue)
+
+		func @ComputableFormSpacifiedQ(pValue)
+			return ComputableFormNLQ(pValue)
+
+	func CFSP(pValue)
+		return ComputableFormNL(pValue)
+
+		func CFSPQ(pValue)
+			return ComputableFormNLQ(pValue)
+
+	func @CFSP(pValue)
+		return ComputableFormNL(pValue)
+
+		func @CFSPQ(pValue)
+			return ComputableFormNLQ(pValue)
 	#>
 
 func ComputableFormXT(pValue, cSep1, cSep2)

@@ -515,10 +515,31 @@ class stzListOfLists from stzList
 		anResult = []
 
 		for i = 1 to nLen
-			aResult + len(aContent[i])
+			anResult + len(aContent[i])
 		next
 
-		return aResult
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def ListsSizes()
+			return This.Sizes()
+
+		def SizeOfEachList()
+			return This.Sizes()
+
+		#--
+
+		def ListsNumbersOfItems()
+			return This.Sizes()
+
+		def NumbersOfItems()
+			return This.Sizes()
+
+		def NumberOfItemsOfEachList()
+			return This.Sizes()
+
+		#>
 
 	  #-----------------------------------------------#
 	 #  CHECKING IF LISTS HAVE SAME NUMBER OF ITEMS  #
@@ -553,6 +574,9 @@ class stzListOfLists from stzList
 			return This.ListsHaveSameNumberOfItems()
 
 		def IsHomolog()
+			return This.ListsHaveSameNumberOfItems()
+
+		def IsUniform()
 			return This.ListsHaveSameNumberOfItems()
 
 		#--
@@ -712,7 +736,9 @@ class stzListOfLists from stzList
 
 		#>
 
-	#TODO: adds "big", "great", and "large" as alternatives all over the library
+	#TODO
+	# add* "big", "great", and "large" as alternatives all over the library
+
 	def BiggestLists()
 		anPos = This.FindBiggestLists()
 		aResult = This.ItemsAtPositions(anPos)
@@ -795,9 +821,45 @@ class stzListOfLists from stzList
 
 		#>
 
+	  #-----------------------------#
+	 #  GETTING THE MISSING ITEMS  #
+	#=============================#
+
+	func FindMissingItems()
+		nMin = This.MinSize()
+		nMaxSize = This.MaxSize()
+	
+		aContent = This.Content()
+		nLen = len(aContent)
+	
+		aResult = []
+		for i = 1 to nLen
+			nLenList = len(aContent[i])
+			if nLenList < nMaxSize
+				for j = nLenList + 1 to nMaxSize
+					aResult + [ i, j ]
+				next
+			ok
+		next
+	
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindMissing()
+			return This.FindMissingItems()
+
+		def FindMissingPositions()
+			return This.FindMissingItems()
+
+		def MissingPositions()
+			return This.FindMissingItems()
+
+		#>
+
 	  #--------------------------#
 	 #   ITEMS AT POSITION N    #
-	#--------------------------#
+	#==========================#
 
 	def ItemsAtPositionN(n)
 		aResult = []
@@ -915,10 +977,18 @@ class stzListOfLists from stzList
 
 		return nResult
 
+		#< @FunctionAlternativeForms
+
 		def FindSmallest()
 			return This.FindSmallestList()
 
+		def FindMinList()
+			return This.FindSmallestList()
+
+		#>
+
 	def SmallestList()
+		#NOTE
 		# Returns the smallest list
 		# If they are many, returns only the first
 		# To return them all, use SmallestLists()
@@ -941,18 +1011,32 @@ class stzListOfLists from stzList
 		aResult = This.NthList(nPos)
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def Smallest()
 			return This.SmallestList()
+
+		def MinList()
+			return This.SmallestList()
+
+		#>
 
 	def SmallestListZ()
 		aResult = [ This.SmallestList(), This.FindSmallestList() ]
 		return aResult
+
+		#< @FunctionAlternativeForms
 
 		def SmallestZ()
 			return This.SmallestListZ()
 
 		def SmallestListAndItsPosition()
 			return This.SmallestListZ()
+
+		def MinListAndItsPosition()
+			return This.SmallestListZ()
+
+		#>
 
 	  #-------------------------#
 	 #  SIZE OF SMALLEST LIST  #
@@ -962,11 +1046,18 @@ class stzListOfLists from stzList
 		nResult = len( This.SmallestList() )
 		return nResult
 
+		#< @FunctionAlternativeForms
+
 		def SmallestListSize()
 			return This.SizeOfSmallestList()
 
 		def SmallestSize()
 			return This.SizeOfSmallestList()
+
+		def MinSize()
+			return This.SizeOfSmallestList()
+
+		#>
 
 	  #----------------#
 	 #  LARGEST LIST  #
@@ -990,8 +1081,15 @@ class stzListOfLists from stzList
 
 		return nResult
 
+		#< @FunctionAlternativeForms
+
 		def FindLargest()
 			return This.FindLargestList()
+
+		def FindMaxList()
+			return This.FindLargestList()
+
+		#>
 
 	def LargestList()
 		
@@ -1013,6 +1111,7 @@ class stzListOfLists from stzList
 		aResult = This.NthList(nPos)
 		return aResult
 
+		#< @FunctionAlternativeForms
 
 		def BiggestList()
 			return This.LargestList()
@@ -1022,6 +1121,11 @@ class stzListOfLists from stzList
 
 		def Biggest()
 			return This.LargestList()
+
+		def MaxList()
+			return This.LargestList()
+
+		#>
 
 	def LargestListZ()
 		aResult = [ This.LargestList(), This.FindLargestList() ]
@@ -1038,6 +1142,9 @@ class stzListOfLists from stzList
 		def BiggestZ()
 			return This.LargestListZ()
 
+		def MaxListZ()
+			return This.LargestListZ()
+
 		#--
 
 		def LargestListAndItsPosition()
@@ -1052,6 +1159,9 @@ class stzListOfLists from stzList
 		def BiggestAndItsPosition()
 			return This.LargestListZ()
 
+		def MaxListAndItsPosition()
+			return This.LargestListZ()
+
 		#>
 
 	  #------------------------#
@@ -1061,6 +1171,8 @@ class stzListOfLists from stzList
 	def SizeOfLargestList()
 		nResult = len( This.LargestList() )
 		return nResult
+
+		#< @FunctionAlternativeForms
 
 		def LargestListSize()
 			return This.SizeOfLargestList()
@@ -1077,6 +1189,20 @@ class stzListOfLists from stzList
 		def BiggestSize()
 			return This.SizeOfLargestList()
 	
+		def MaxSize()
+			return This.SizeOfLargestList()
+
+		def MaxNumberOfItems()
+			return This.SizeOfLargestList()
+
+		def LargestNumberOfItems()
+			return This.SizeOfLargestList()
+
+		def BiggestNumberOfItems()
+			return This.SizeOfLargestList()
+
+		#>
+
 	  #---------------------#
 	 #  SIZE OF NTH LIST   #
 	#---------------------#
@@ -1123,17 +1249,30 @@ class stzListOfLists from stzList
 			def AdjustQ()
 				return This.ExtendQ()
 
+		def Justify()
+			This.Extend()
+
+			def JustifyQ()
+				return This.ExtendQ()
+
 		#>
 
 	def Extended()
 		aResult = This.Copy().ExtendQ().Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def EachListExtended()
 			return This.Extended()
 
 		def Adjusted()
 			return This.Extended()
+
+		def Justified()
+			return This.Extended()
+
+		#>
 
 	  #----------------------------------------------------------------#
 	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS WITH A GIVEN ITEM  #
@@ -1152,19 +1291,64 @@ class stzListOfLists from stzList
 
 		#< @FunctionAlternativeForm
 
-		def ExtendEachListXT()
-			This.ExtendXT()
+		def ExtendEachListXT(pItem)
+			This.ExtendXT(pItem)
 
-			def ExtendEachListXTQ()
-				return This.ExtendXTQ()
+			def ExtendEachListXTQ(pItem)
+				return This.ExtendXTQ(pItem)
+
+		def JustifyXT(pItem)
+			This.ExtendXT(pItem)
+
+			def JustifyXTQ(pItem)
+				return This.ExtendXTQ(pItem)
+
+		#--
+
+		def ExtendWith(pItem)
+			This.ExtendXT(pItem)
+
+			def ExtendWithQ(pItem)
+				return This.ExtendXTQ(pItem)
+
+		def ExtendEachListWith(pItem)
+			This.ExtendWith(pItem)
+
+			def ExtendEachListWithQ(pItem)
+				return This.ExtendWithQ(pItem)
+
+		def JustifyWith(pItem)
+			This.ExtendWith(pItem)
+
+			def JustifyWithQ(pItem)
+				return This.ExtendWithQ(pItem)
+
 		#>
 
-	def ExtendedXT()
+	def ExtendedXT(pItem)
 		aResult = This.Copy().ExtendXTQ().Content()
 		return aResult
 
-		def EachListExtendedXT()
-			return This.ExtendedXT()
+		#< @FunctionAlternativeForms
+
+		def EachListExtendedXT(pItem)
+			return This.ExtendedXT(pItem)
+
+		def JustifiedXT(pItem)
+			return This.ExtendedXT(pItem)
+
+		#--
+
+		def ExtendedWith(pItem)
+			return This.ExtendedXT(pItem)
+
+		def EachListExtendedWith(pItem)
+			return This.ExtendedXT(pItem)
+
+		def JustifiedWith(pItem)
+			return This.ExtendedXT(pItem)
+
+		#>
 
 	  #------------------------------------------------------------------------------------#
 	 #  EXTENDING (EACH LIST IN) THE LIST OF LISTS TO A GIVEN POSITION WITH A NULL VALUE  #
@@ -2448,13 +2632,28 @@ class stzListOfLists from stzList
 		def ListsSortedInDescending()
 			return This.SortedInDescendning()
 
+	#-----------------------------------------------#
+	#  SORTING THE LIST OF LISTS ON A GIVEN COLUMN  #
+	#===============================================#
+
+	def SortOn(n)
+
+		This.Find
+		# Adjusting the lists by adding ""s so they are of the same size
+
+		aSortedXT = This.AdjustQ().ToStzlistOfPairsQ().Sorted()
+		ring_sort(aList, n)
+
 	  #-----------------------------------------------#
 	 #  SORTING THE LIST OF LISTS BY A GIVEN COLUMN  #
 	#===============================================#
 	#TODO: Sorting by many columns
 
 	def SortBy(n)
-		This.UpdateBy(This.SortedBy(n))
+		if This.IsEmpty()
+			return
+		ok
+
 
 	def SortedBy(n)
 		if This.IsEmpty()
@@ -2469,73 +2668,6 @@ class stzListOfLists from stzList
 
 		aSorted = ring_sortXT(aShrinked, n)
 		return aSorted
-
-	  #======================================================================#
-	 #  FINDING EXTRA-ITEMS BASED ON LISTS HAVING SMALLEST NUMBER OF ITEMS  #
-	#======================================================================#
-
-	def FindExtraItems()
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		nMin = This.SmallestSize()
-
-		aResult = []
-
-		for i = 1 to nLen
-
-			anPos = []
-
-			nLenList = len(aContent[i])
-			if nLenList > nMin
-				anPos = (nMin + 1) : nLenList
-			ok
-
-			aResult + [ i, anPos ]
-		next
-
-		return aResult
-
-		def FindExtraItemsZ()
-			return This.FindExtraItems()
-
-	  #----------------------------------------------------------------------#
-	 #  GETTING EXTRA-ITEMS BASED ON LISTS HAVING SMALLEST NUMBER OF ITEMS  #
-	#----------------------------------------------------------------------#
-	# The logical inverse of Shrinked()
-
-	def ExtraItems()
-
-		aContent = This.Content()
-
-		aPos = This.FindExtraItems()
-		nLen = len(aPos)
-
-		aResult = []
-
-		for i = 1 to nLen
-			aItems = []
-			nLenItems = len(aPos[i][2])
-
-			for j = 1 to nLenItems
-				aItems + aContent[i][aPos[i][2][j]]
-			next
-
-			aResult + aItems
-		next
-
-		return aResult
-
-	  #--------------------------------------------------#
-	 #  GETTING EXTRA-ITEMS ALONG WITH THEIR POSITIONS  #
-	#--------------------------------------------------#
-
-	def ExtraItemsZ()
-		aResult = Associtation([ This.ExtraItems(), This.FindExtraItems() ])
-		return aResult
-
-		def ExtraItemsAndTheirPositions()
-			return This.ExtraItemsZ()
 
 	  #===========================================#
 	 #  REMOVING DUPLICATES INSIDE THE NTH LIST  #

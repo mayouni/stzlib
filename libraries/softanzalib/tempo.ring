@@ -3714,10 +3714,27 @@ proff()
 pron()
 
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
+
 ? @@( o1.SortedBy(' Q(@item).HowMany(0) ') )
 #--> [ 2, 8, 0, 150, 170, 2100, 3007, 10001 ]
 
+? @@( o1.SortedDownBy( ' Q(@item).HowMany(0) ') )
+#--> [ 10001, 3007, 2100, 170, 150, 0, 8, 2 ]
+
 proff()
+# Executed in 0.08 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzList([ 1:3, "tunis", [], 1:2, "t", "" ])
+? @@( o1.SortedBy(' Q(@item).Size() ') )
+
+#--> [ "", [ ], 't', [ 1, 2 ], [ 1, 2, 3 ], 'tunis' ]
+
+proff()
+# Executed in 0.07 second(s)
 
 /*------------
 
