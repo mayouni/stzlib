@@ -1985,7 +1985,7 @@ class stzListOfLists from stzList
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT @IsBoolean(pCaseSensitive)
+		if NOT ( isList(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			StzRaise("Incorrect param type! pCaseSensitive must be TRUE or FALSE.")
 		ok
 
@@ -2074,7 +2074,7 @@ class stzListOfLists from stzList
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT @IsBoolean(pCaseSensitive)
+		if NOT ( isList(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			StzRaise("Incorrect param type! pCaseSensitive must be TRUE or FALSE.")
 		ok
 
@@ -2525,7 +2525,7 @@ class stzListOfLists from stzList
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT @IsBoolean(pCaseSensitive)
+		if NOT ( isList(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			StzRaise("Incorrect param type! pCaseSensitive must be TRUE or FALSE.")
 		ok
 
@@ -2581,15 +2581,70 @@ class stzListOfLists from stzList
 		def Intersection()
 			return This.CommonItems()
 
-	  #==========================================#
-	 #  SORTING THE LIST OF LISTS IN ASCENDING  #
-	#==========================================#
+	  #================================================#
+	 #  GETTING THE NTH COLOUMN IN THE LIST OF LISTS  #
+	#================================================#
+
+	def NthColumn(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			if NOT ( n > 0 and n <= This.MaxSize() )
+				StzRaise("Index out of range! n must be between 1 and the size of the largest list.")
+			ok
+		ok
+
+		aContent = This.Adjusted()
+		nLen = len(aContent)
+
+		if EarlyCheck()
+			if nLen = 0
+				return []
+			ok
+		ok
+
+		oMissing = StzListQ(This.FindMissing())
+		
+		aResult = []
+
+		for i = 1 to nLen
+			if NOT oMissing.Contains([ i, n ])
+				aResult + aContent[i][n]
+			ok
+		next
+
+		return aResult
+
+		def NthColumnQ()
+			return new stzList(This.NthColumn(n))
+
+		def NthCol(n)
+			return This.NthColumn(n)
+
+			def NthColQ(n)
+				return This.NthColumnQ(n)
+
+	  #===============================#
+	 #  SORTING THE LISTS ASCENDING  #
+	#===============================#
 
 	def SortNthList(n)
 		aSorted = StzListQ(This.Content()[n]).Sorted()
 		@aContent[n] = aSorted
 
-	def Sort()
+		def SortNthListQ(n)
+			This.SortNthList(n)
+			return This
+
+		def SortupNthList(n)
+			This.SortNthList(n)
+
+			def SortupNthListQ(n)
+				return This.SortNthListQ(n)
+
+	def SortLists()
 		nLen = This.NumberOfLists()
 		for i = 1 to nLen
 			This.SortNthList(i)
@@ -2597,115 +2652,245 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def SortQ()
-			This.Sort()
+		def SortListsQ()
+			This.SortLists()
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SortInAscending()
-			This.Sort()
-
-			def SortInAscendingQ()
-				return This.SortQ()
-
-		def SortLists()
-			This.Sort()
-
-			def SortListsQ()
-				return This.SortQ()
-
 		def SortListsInAscending()
-			This.Sort()
+			This.SortLists()
 
 			def SortListsInAscendingQ()
-				return This.SortQ()
+				return This.SortListsQ()
+
+		#--
+
+		def SortupLists()
+			This.SortLists()
+
+			def SortupListsQ()
+				return This.SortListsInAscendingQ()
+
 		#>
 
-	def Sorted()
-		aResult = This.Copy().SortQ().Content()
+	def ListsSorted()
+		aResult = This.Copy().SortListsQ().Content()
 		return aResult
-
-		def SortedInAscending()
-			return This.Sorted()		
-
-		def ListsSorted()
-			return This.Sorted()
 
 		def ListsSortedInAscending()
 			return This.Sorted()
 
-	  #-------------------------------------------#
-	 #  SORTING THE LIST OF LISTS IN DESCENDING  #
-	#-------------------------------------------#
+		def ListsSortedUp()
+			return This.Sorted()
 
-	def SortInDescending()
-		aResult = ring_reverse( This.SortedInAscending() )
+	  #-----------------------------------#
+	 #  SORTING THE LISTS IN DESCENDING  #
+	#-----------------------------------#
+
+	def SortListsInDescending()
+		aResult = ring_reverse( This.ListsSortedInAscending() )
 		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
-		def SortInDescendingQ()
-			This.SortInDescending()
+		def SortListsInDescendingQ()
+			This.SortListsInDescending()
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def SortListsInDescending()
-			This.SortInDescending()
+		def SortDownLists()
+			This.SortListsInDescending()
 
-			def SortListsInDescendingQ()
+			def SortDownListsQ()
 				return This.SortInDescendingQ()
 
 		#>
 
-	def SortedInDescendning()
-		aResult = This.Copy().SortInDescendingQ().Content()
+	def ListsSortedInDescending()
+		aResult = This.Copy().SortListsInDescendingQ().Content()
 		return aResult
 
-		def ListsSortedInDescending()
+		def ListsSortedDown()
 			return This.SortedInDescendning()
 
-	#-----------------------------------------------#
-	#  SORTING THE LIST OF LISTS ON A GIVEN COLUMN  #
+	  #-----------------------------------------------#
+	 #  SORTING THE LIST OF LISTS ON A GIVEN COLUMN  #
 	#===============================================#
 
 	def SortOn(n)
 
-		This.Find
-		# Adjusting the lists by adding ""s so they are of the same size
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
 
-		aSortedXT = This.AdjustQ().ToStzlistOfPairsQ().Sorted()
-		ring_sort(aList, n)
-
-	  #-----------------------------------------------#
-	 #  SORTING THE LIST OF LISTS BY A GIVEN COLUMN  #
-	#===============================================#
-	#TODO: Sorting by many columns
-
-	def SortBy(n)
-		if This.IsEmpty()
-			return
+			if n < 1 or n > This.Maxsize()
+				StzRaise("Index out of range! n must be between 1 and the size of the largest list.")
+			ok
 		ok
 
+		# Storing the content of the list of lists locally
+		# (better for performance on large lists)
 
-	def SortedBy(n)
-		if This.IsEmpty()
-			return
-		ok
+		aContent = This.Content()
+		nLen = len(aContent)
 
-		aShrinked = This.Shrinked()
-		nLen = len(ashrinked[1])
 		if nLen = 0
 			return
 		ok
 
-		aSorted = ring_sortXT(aShrinked, n)
-		return aSorted
+		# String the positions of the missing items
+
+		aMissing = This.FindMissing()
+		nLenMissing = len(aMissing)
+
+		# Filling the missing items in the list with empty strings
+		# (to have a uniformed list of lists that we can sort)
+
+		aAdjusted = This.Adjusted()
+
+		# Adding an ID at the beginning of the adjusted lines of
+		# the list of lists (to maintain their position after sorting)
+
+		aAdjustedXT = []
+
+		for i = 1 to nLen
+			aAdjustedXT + [ i ]
+			nLenList = len(aAdjusted[i])
+			for j = 1 to nLenList
+				aAdjustedXT[i] + aAdJusted[i][j]
+			next
+		next
+
+		# Now we sort the adjusted list
+
+		if @IsRingSortable( This.NthColumn(n) )
+			aResult = ring_sort2( aAdjustedXT, n + 1)
+		else
+			# The column n contains items other then numbers or strings
+
+			aPairs = []
+			for i = 1 to nLen
+				aPairs + [ aAdjustedXT[i][1], aAdjustedXT[i][n+1] ]
+			next
+
+			aPairsSorted = @SortOn( aPairs, 2 )
+
+			# the logic of sorting is based on ring_sort2() native function
+
+			aResult = []
+			for i = 1 to nLen
+				aResult + aAdjustedXT[aPairsSorted[i][1]]
+			next
+			
+		ok
+
+		# Then we remove the empty strings added by the Justify() function
+
+		nLen = len(aResult)
+
+		anIDs = []
+		for i = 1 to nLen
+			anIDs + aResult[i][1]
+		next
+
+		anPos = []
+		for i = 1 to nLenMissing
+			anPos + ring_find(anIDs, aMissing[i][1])
+		next
+
+		for i = nLenMissing to 1 step -1
+			ring_remove(aResult[anPos[i]], aMissing[i][2]+1)
+		next
+
+		# Finally we remove the IDs we added at the begining of the lists
+
+		for i = 1 to nLen
+			ring_remove(aResult[i], 1)
+		next
+
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm
+
+		def SortOnQ(n)
+			This.SortOn(n)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SortUpOn(n)
+			This.SortOn(n)
+
+			def SortUpOnQ(n)
+				This.SortOn(n)
+				return This
+
+		def SortInAscendingOn(n)
+			This.SortOn(n)
+
+			def SortInAscendingOnQ(n)
+				return This.SortOnQ(n)
+
+		#>
+
+	def SortedOn(n)
+		aResult = This.Copy().SortOnQ(n).Content()
+		return aResult
+
+		def SortedUpOn(n)
+			return This.SortedOn(n)
+
+		def SortedInAscendingOn(n)
+			return This.SortedOn(n)
+
+	  #-------------------------------------------------------------#
+	 #  SORTING THE LIST OF LISTS IN DESCENDING ON A GIVEN COLUMN  #
+	#-------------------------------------------------------------#
+
+	def SortDownOn(n)
+		aResult = ring_reverse( This.SortOn(n) )
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def SortDownOnQ(n)
+			This.SortDownOn(n)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SortInDescendingOn(n)
+			This.SortDown(n)
+
+			def SortInDescendingOnQ(n)
+				return This.SortDownOnQ(n)
+
+		#>
+
+	def SortedDownOn(n)
+		aResult = This.Copy().SortDownOnQ(n).Content()
+		return aResult
+
+		def SortedInDescendingOn(n)
+			return This.SortedDownOn(n)
+
+	  #--------------------------------------------#
+	 #  SORT THE LIST OF LISTS ON THE FIRST ITEM  #
+	#============================================#
+
+	def Sort()
+		This.SortOn(1)
 
 	  #===========================================#
 	 #  REMOVING DUPLICATES INSIDE THE NTH LIST  #
@@ -2817,7 +3002,7 @@ class stzListOfLists from stzList
 			def ToListInStringSFQ()
 				return new stzString( This.ToListInStringSF() )
 
-	def ToStzList() #NOTE: normally, we don't need it since stzList is the mother class
+	def ToStzList()
 		return new stzList( This.Content() )
 
 	def ToStzListQ()
@@ -2834,7 +3019,25 @@ class stzListOfLists from stzList
 
 		return aResult
 
-	def ToStzListOfStrings()
-		if This.IsListOfStrings()
-			return new stzListOfStrings( This.Content() )
+
+	def IsListOfPairs()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT (isList(aContent[i]) and len(aContent[i]) = 2)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def ToStzListOfpairs()
+		if This.IsListOfPairs()
+			return new stzListOfPairs(This.Content())
+		else
+			StzRaise("Can't transform the list of lists into a list of pairs! Lists are not all pairs.")
 		ok

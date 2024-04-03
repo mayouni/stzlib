@@ -11604,7 +11604,7 @@ Class stzTable from stzObject
 		if isString(pUnderlineHeader) and pUnderLineHeader = NULL
 			bUnderLineHeader = FALSE
 
-		but isNumber(pUnderLineHeader) and IsBoolean(pUnderLineHeader)
+		but isNumber(pUnderLineHeader) and ( pUnderLineHeader = 0 or pUnderLineHeader = 1 )
 			bUnderLineHeader = pUnderLineHeader
 
 		else

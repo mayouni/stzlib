@@ -2580,7 +2580,7 @@ class stzListOfStrings from stzList
 
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
@@ -3535,7 +3535,7 @@ class stzListOfStrings from stzList
 
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
@@ -4847,7 +4847,7 @@ class stzListOfStrings from stzList
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
@@ -7329,7 +7329,7 @@ class stzListOfStrings from stzList
 
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
@@ -17554,7 +17554,7 @@ stop()
 
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 

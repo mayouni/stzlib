@@ -1,17 +1,14 @@
 load "stzlib.ring"
 
 /*--------
-*/
 
 pron()
 
-aList = [
+o1 = new stzListOfLists([
 	[ "mohannad", 	100, "hi", "ring" ],
 	[ "karim", 	20 , "hi" ],
 	[ "salem", 	67 ]
-]
-
-o1 = new stzListOfLists(aList)
+])
 
 ? o1.HowManyMissing()
 #--> 3
@@ -44,15 +41,127 @@ proff()
 
 /*--------
 
+pron()
 
-/*
-o1.Extend()
+? @IsListofLists([
+	[ "mohannad", 	100, "hi", "ring" ],
+	[ "karim", 	20 , "hi" ],
+	[ "salem", 	67 ]
+])
+#--> TRUE
+
+proff()
+
+/*--------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "mohannad", 	100, "him", "ring" ],
+	[ "karim", 	20 , "hi" ],
+	[ "salem", 	67 ]
+])
+
+? @@( o1.NthList(3) ) + NL
+#--> [ "salem", 67 ]
+
+? @@( o1.NthCol(3) )
+#--> [ "him", "hi" ]
+
+? @@( o1.NthCol(4) )
+#--> [ "ring"]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*--------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "mohannad", 	100, "him", "ring" ],
+	[ "karim", 	20 , ["hi"] ],
+	[ "salem", 	67 ]
+])
+
+o1.Sort()
 
 ? @@SP( o1.Content() )
+#--> [
+#	[ "karim", 20, [ "hi" ] ],
+#	[ "mohannad", 100, "him", "ring" ],
+#	[ "salem", 67 ]
+# ]
 
-//? @@SP( sort(aList, 3) )
-*/
 proff()
+# Executed in 0.03 second(s)
+
+/*--------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "mohannad", 	100, "him", "ring" ],
+	[ "karim", 	20 , "hi" ],
+	[ "salem", 	67 ]
+])
+
+
+? @@SP( o1.SortedOn(3) ) + NL
+#--> [
+#	[ "salem", 67 ],
+#	[ "karim", 20, "hi" ],
+#	[ "mohannad", 100, "him", "ring" ]
+# ]
+
+? @@SP( o1.SortedOn(2) ) + NL
+#--> [
+#	[ "karim", 20, "hi" ],
+#	[ "salem", 67 ],
+#	[ "mohannad", 100, "him", "ring" ]
+# ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*--------
+
+pron()
+
+//? @@( StzListQ([ "him", [ "him" ], "" ]).Sorted() )
+
+o1 = new stzList([ "him", [ "him" ], "" ])
+o1.Stringify()
+? @@( o1.Content() )
+o1.Sort()
+
+proff()
+
+/*--------
+*/
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "mohannad", 	100, 	"him", 		"ring" 	],
+	[ "karim", 	20 , 	[ 89, 14, 10 ] 		],
+	[ "salem", 	67 , 	"h" 			],
+	[ "hatem",	1200, 	[ "xyz", "www" ] 	],
+	[ "selim",	199, 	1500			]
+])
+
+
+? @@SP( o1.SortedOn(3) )
+#--> [
+#	[ "selim", 199,    1500 			],
+#	[ "hatem", 1200,   [ "xyz", "www" ] 		],
+#	[ "karim", 20,     [ 89, 14, 10 ] 		],
+#	[ "salem", 67,     "h" 				],
+#	[ "mohannad", 100, "him", 		"ring" 	]
+# ]
+
+proff()
+# Executed in 0.05 second(s)
 
 /*--------
 
