@@ -16,8 +16,692 @@
 func StzListQ(paList)
 	return new stzList(paList)
 
+#==========
 
-#===
+func @SortList(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	nLen = len(paList)
+
+	if nLen = 0
+		return []
+	ok
+	
+	anNumbers = []
+	acStrings = []
+	aaLists   = []
+	aoObjects = []
+
+	for i = 1 to nLen
+		if isNumber(paList[i])
+			anNumbers + paList[i]
+
+		but isString(paList[i])
+			acStrings + paList[i]
+
+		but isList(paList[i])
+			aaLists + paList[i]
+
+		else // isObject()
+			aoObjects + paList[i]
+		ok
+	next
+
+	aResult = []
+
+	nLenNumbers = len(anNumbers)
+	nLenStrings = len(acStrings)
+	nLenLists = len(aaLists)
+	nLenObjects = len(aoObjects)
+
+	anNumbersSorted = ring_sort(anNumbers)
+	for i = 1 to nLenNumbers
+		aResult + anNumbersSorted[i]
+	next
+
+	acStringsSorted = ring_sort(acStrings)
+	for i = 1 to nLenStrings
+		aResult + acStringsSorted[i]
+	next
+
+	aaListsSorted = []
+	for i = 1 to nLenLists
+		aResult + @SortList(aaLists[i])
+	next
+	
+	for i = 1 to nLenObjects
+		aResult + aoObjects[i]
+	next
+
+	return aResult
+
+
+	func SortList(paList)
+		return @Sort(paList)
+
+func ListsSizes(paLists)
+	if CheckParams()
+		if NOT isList(paLists) and @IsListOfLists(paLists)
+			StzRaise("Incorrect param type! paLists must be a list of lists.")
+		ok
+	ok
+
+	nLen = len(paLists)
+
+	if nLen = 0
+		return []
+	ok
+
+	anResult = []
+
+	for i = 1 to nLen
+		anResult + len(paLists[i])
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+	func ListsNumbersOfItems(paLists)
+		return ListsSizes(paList)
+
+	func SizeOfEachListIn(paLists)
+		return ListsSizes(paList)
+
+	func SizeInEachList(paLists)
+		return ListsSizes(paList)
+
+	func NumberOfItemsOfEachListIn(paLists)
+		return ListsSizes(paList)
+
+	func NumberOfItemsOfEachList(paLists)
+		return ListsSizes(paList)
+
+	#--
+
+	func @ListsSizes(paList)
+		return ListsSizes(paList)
+
+	func @ListsNumbersOfItems(paLists)
+		return ListsSizes(paList)
+
+	func @SizeOfEachListIn(paLists)
+		return ListsSizes(paList)
+
+	func @SizeInEachList(paLists)
+		return ListsSizes(paList)
+
+	func @NumberOfItemsOfEachListIn(paLists)
+		return ListsSizes(paList)
+
+	func @NumberOfItemsOfEachList(paLists)
+		return ListsSizes(paList)
+	
+	#>
+
+func Types(paList)
+	if NOT isList(paList)
+		StzRaise("Incorrect param type! paList must be a list.")
+	ok
+
+	nLen = len(palist)
+	acResult = []
+
+	for i = 1 to nLen
+		acResult + type(paList[i])
+	next
+
+	return acResult
+
+	func ListTypes(paList)
+		return Types(paList)
+
+	func @Types(paList)
+		return Types(paList)
+
+	func @ListTypes(paList)
+		return Types(paList)
+
+func Sizes(paList)
+	if NOT isList(paList)
+		StzRaise("Incorrect param type! paList must be a list.")
+	ok
+
+	if NOT ( IsListOfStrings(paList) or
+		 IsListOfLists(paList) or
+		 IsListOfStringsAndLists(paList) )
+
+		StzRaise("Incorrect param type! paList must be alist of strings or/and lists.")
+
+	ok
+
+	nLen = len(palist)
+	anResult = []
+
+	for i = 1 to nLen
+		if isString(paList[i])
+			anResult + StzStringQ(paList[i]).Size()
+
+		else // isList()
+			anResult + len(paList[i])
+		ok
+	next
+
+	return anResult
+
+	func ListSizes(paList)
+		return Sizes(paList)
+
+	func @Sizes(paList)
+		return Sizes(paList)
+
+	func @ListSizes(paList)
+		return Sizes(paList)
+
+func ListsBySize(paLists)
+	if CheckParams()
+		if NOT isList(paLists) and @IsListOfLists(paLists)
+			StzRaise("Incorrect param type! paLists must be a list of lists.")
+		ok
+	ok
+
+	nLen = len(paLists)
+
+	if nLen = 0
+		return []
+	ok
+
+	anSizesU = UniqueItems( ListsSizes(paLists) )
+	nLenU = len(anSizesU)
+
+	aResult = []
+	for i = 1 to nLenU
+		aTempLists = []
+		for j = 1 to nLen
+			if len(paLists[j]) = anSizesU[i]
+				aTempLists + paLists[j]
+			ok
+		next
+
+		aResult + [ anSizesU[i], aTempLists ]
+	next
+
+	return aResult
+
+	func ListsAndSizes()
+		return ListsBySize(paList)
+
+	func ListsAndTheirSizes()
+		return ListsBySize(paList)
+
+	func @ListsBySize(paList)
+		return ListsBySize(paList)
+
+	func @ListsAndSizes()
+		return ListsBySize(paList)
+
+	func @ListsAndTheirSizes()
+		return ListsBySize(paList)
+
+func SortListsBySize(paLists)
+	if CheckParams()
+		if NOT isList(paLists) and @IsListOfLists(paLists)
+			StzRaise("Incorrect param type! paLists must be a list of lists.")
+		ok
+	ok
+
+	nLen = len(paLists)
+
+	if nLen = 0
+		return []
+	ok
+
+	anSizesXT = []
+	for i = 1 to nLen
+		anSizesXT + [ paLists[i], len(paLists[i]) ]
+	next
+
+	aSortedXT = ring_sort2(anSizesXT, 2)
+
+	aResult = []
+	for i = 1 to nLen
+		aResult + aSortedXT[i][1]
+	next
+
+	return aResult
+
+	def @SortListsBySize(paLists)
+		return SortListsBySize(paLists)
+
+func ListsAndTheirTypes(paLists)
+	if CheckParams()
+		if NOT isList(paLists) and @IsListOfLists(paLists)
+			StzRaise("Incorrect param type! paLists must be a list of lists.")
+		ok
+	ok
+
+	nLen = len(paLists)
+
+	if nLen = 0
+		return []
+	ok
+
+	aResult = []
+
+	for i = 1 to nLen
+
+		cTypeXT = ""
+		nLenList = len(paLists[i])
+		for j = 1 to nLenList
+
+			cType = ""
+
+			switch type(paLists[i][j])
+			on "NUMBER"
+				cType = "0"
+			on "STRING"
+				cType = "1"
+			on "LIST"
+				cType = "3"
+			on "OBJECT"
+				cType = "4"
+			off
+
+			cTypeXT += cType
+		next
+
+		nLenTypeXT = len(cTypeXT)
+		c = cTypeXT[1]
+		nDiff = StzListOfListsQ(paLists).MaxSize() - nLenTypeXT
+		if nDiff > 0
+			cTemp = ""
+			for j = 1 to nDiff
+				cTemp += c
+			next
+
+			cTypeXT = cTemp + cTypeXT
+		ok
+
+		aResult + [ paLists[i], cTypeXT ]
+
+	next
+
+	return aResult
+
+	func @ListsAndTheirTypes(paLists)
+		return ListsAndTheirTypes(paLists)
+
+	func ListsAndTheirType(paLists)
+		return ListsAndTheirTypes(paLists)
+
+	func @ListsAndTheirType(paLists)
+		return ListsAndTheirTypes(paLists)
+
+func ListsByType(paLists)
+	if CheckParams()
+		if NOT isList(paLists) and @IsListOfLists(paLists)
+			StzRaise("Incorrect param type! paLists must be a list of lists.")
+		ok
+	ok
+
+	nLen = len(paLists)
+
+	if nLen = 0
+		return []
+	ok
+
+	aListsAndTheirTypes = @ListsAndTheirTypes(paLists)
+	
+	acTypesU = @WithoutDupplicates( StzListOfListsQ(aListsAndTheirTypes).NthCol(2) )
+	nLenTypes = len(acTypesU)
+
+	aResult = []
+
+	for i = 1 to nLenTypes
+		aTempLists = []
+		for j = 1 to nLen
+			if aListsAndTheirTypes[j][2] = acTypesU[i]
+				aTempLists + aListsAndTheirTypes[j][1]
+			ok
+		next
+		aResult + [ acTypesU[i], aTempLists ]
+	next
+
+	return aResult
+
+	func @ListsByType(paLists)
+		return ListsByType(paLists)
+
+func SortListsByType(paLists)
+	if CheckParams()
+		if NOT isList(paLists) and @IsListOfLists(paLists)
+			StzRaise("Incorrect param type! paLists must be a list of lists.")
+		ok
+	ok
+
+	nLen = len(paLists)
+
+	if nLen = 0
+		return []
+	ok
+
+	nMaxSize = len(paLists[1])
+	for i = 2 to nLen
+		nLenList = len(paLists[i])
+		if nLenList > nMaxSize
+			nMaxSize = nLenList
+		ok
+	next
+
+	aListsByType = @ListsAndTheirTypes(paLists)
+	aListsByTypeSorted = ring_sort2(aListsByType, 2)
+
+	aResult = []
+	for i = 1 to nLen
+		aResult + aListsByTypeSorted[i][1]
+	next
+
+	return aResult
+
+	func @SortListsByType(paLists)
+		return SortListsByType(paLists)
+
+func SortLists(paLists)
+	if NOT @IsListOfLists(paLists)
+		StzRaise("Incorrect param type! paLists must be a list of lists.")
+	ok
+
+	if @IsListOfListsOfNumbers(paLists) or
+	   @IsListOfListsOfStrings(paLists) or
+	   @IsListOfListsOfLists(paLists) or
+	   @IsListOfListsOfObjects(paLists)
+
+		return SortListsBySize(paLists)
+
+	else // @IsListOfHybridLists
+		
+		aResult = []
+		nLen = len(paLists)
+
+		# Managing lists of numbers
+
+		aListsOfNumbers = []
+		for i = 1 to nLen
+			if @IsListOfNumbers(paLists[i])
+				aListsOfNumbers + paLists[i]
+			ok
+		next
+
+		nLenListOfNumbers = len(aListsOfNumbers)
+		aListsOfNumbersSorted = @SortListsBySize(aListsOfNumbers)
+
+		for i = 1 to nLenListOfNumbers
+			aResult + aListsOfNumbersSorted[i]
+		next
+
+		# Managing lists of strings
+
+		aListsOfStrings = []
+		for i = 1 to nLen
+			if @IsListOfStrings(paLists[i])
+				aListsOfStrings + paLists[i]
+			ok
+		next
+
+		nLenListOfStrings = len(aListsOfStrings)
+		aListsOfStringsSorted = @SortListsBySize(aListsOfStrings)
+
+		for i = 1 to nLenListOfStrings
+			aResult + aListsOfStringsSorted[i]
+		next
+
+		# Managing lists of lists
+
+		aListsOfLists = []
+		for i = 1 to nLen
+			if @IsListOfLists(paLists[i])
+				aListsOfLists + paLists[i]
+			ok
+		next
+
+		nLenListOfLists = len(aListsOfLists)
+		aListsOfListsSorted = @SortListsBySize(aListsOfLists)
+
+		for i = 1 to nLenListOfLists
+			aResult + aListsOfListsSorted[i]
+		next
+
+		# Managing lists of objects
+
+		for i = 1 to nLen
+			if @IsListOfObjects(paLists[i])
+				aResult + paLists[i]
+			ok
+		next
+
+		# Managing hybrid lists
+
+		aHybridLists = []
+		for i = 1 to nLen
+			if @IsHybridList(paLists[i])
+				aHybridLists + paLists[i]
+			ok
+		next
+
+		nLenaHybridLists = len(aHybridLists)
+		aListsOfListsSorted = @SortListsBySize(aHybridLists)
+
+		for i = 1 to nLenaHybridLists
+			aResult + aListsOfListsSorted[i]
+		next
+
+		# Returning the result
+
+		return aResult
+	ok
+
+	func @SortLists(paLists)
+		return SortLists(paLists)
+
+func SortOn(paLists, n)
+	if CheckParam()
+		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
+			StzRaise("Incorrect param type! paList must be a list of lists.")
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+	ok
+
+	try
+		aResult = ring_sort2(paLists, n)
+		return aResult
+
+	catch
+		# Saving the positions of the items of the
+		# column we are going to use for the sort
+
+		nLen = len(paLists)
+
+		# Getting the nth column data
+
+		aCol = StzListOfListsQ(paLists).AdjustQ().NthCol(n)
+
+		nLenCol = len(aCol)
+
+		# Setting the container for the sorted column and
+		# separating the items of the column by type
+
+		aColSorted = []
+
+		anNumbers = []
+		acStrings = []
+
+		aaListsOfNumbers = []
+		aaListsOfStrings = []
+		aaListsOfLists = []
+		aaListsOfObjects = []
+		aaListsOfHybridLists = []
+
+		aoObjects = []
+	
+
+		for i = 1 to nLen
+			if isNumber(aCol[i])
+				anNumbers + aCol[i]
+	
+			but isString(aCol[i])
+				acStrings + aCol[i]
+	
+			but isList(aCol[i])
+				if @IsListOfNumbers(aCol[i])
+					aaListsOfNumbers + aCol[i]
+
+				but @IsListOfStrings(aCol[i])
+					aaListsOfStrings + aCol[i]
+
+				but @IsListOfList(aCol[i])
+					aaListsOfLists + aCol[i]
+
+				but @IsListOfObjects(aCol[i])
+					aaListsOfStrings + aCol[i]
+
+				else
+					aaListsOfHybridLists + aCol[i]
+				ok
+	
+			else // isObject()
+				aoObjects + aCol[i]
+			ok
+		next
+
+		# Sorting the numbers in the column,
+		# and adding them to the sorted column
+
+		anNumbersSorted = ring_sort(anNumbers)
+		nLenNumbers = len(anNumbers)
+
+		for i = 1 to nLenNumbers
+			aColSorted + anNumbersSorted[i]
+		next
+
+		# Sorting the strings in the column,
+		# and adding them to the sorted column
+
+		nLenStrings = len(acStrings)
+		acStringsSorted = ring_sort(acStrings)
+
+		for i = 1 to nLenStrings
+			aColSorted + acStringsSorted[i]
+		next
+
+		# Sorting the lists of numbers in the column,
+		# and adding them to the sorted column
+
+		nLenListsOfNumbers = len(aaListsOfNumbers)
+		aaListsOfNumbersSorted = @SortListsBySize(aaListsOfNumbers)
+
+		for i = 1 to nLenListsOfNumbers
+			aColSorted + aaListsOfNumbersSorted[i]
+		next
+
+		# Sorting the lists of strings in the column,
+		# and adding them to the sorted column
+
+		nLenListsOfStrings = len(aaListsOfStrings)
+		aaListsOfStringsSorted = @SortListsBySize(aaListsOfStrings)
+
+		for i = 1 to nLenListsOfStrings
+			aColSorted + aaListsOfStringsSorted[i]
+		next
+
+		# Sorting the lists of lists in the column,
+		# and adding them to the sorted column
+
+		nLenListsOfLists = len(aaListsOfLists)
+		aaListsOfListsSorted = @SortListsBySize(aaListsOfLists)
+
+		for i = 1 to nLenListsOfLists
+			aColSorted + aaListsOfListsSorted[i]
+		next
+
+		# Adding the lists of objects to the sorted column
+		# (#NOTE: lists of objects can't be sorted, may in the future)
+
+		nLenListsOfObjects = len(aaListsOfObjects)
+
+		for i = 1 to nLenListsOfObjects
+			aColSorted + aaListsOfObjects[i]
+		next
+
+		# Sorting the lists of hybrid lists in the column,
+		# and adding them to the sorted column
+
+		nLenListsOfHybridLists = len(aaListsOfHybridLists)
+
+		for i = 1 to nLenListsOfHybridLists
+			aColSorted + @SortList(aaListsOfHybridLists[i])
+		next
+
+		# Getting the objects in the column in the order of their
+		# appearence (#NOTE: in the future, objects may also be sorted)
+
+		nLenObjects = len(aoObjects)
+		for i = 1 to nLenObjects
+			aColSorted + aoObjects[i]
+		next
+	
+		# Finding the old and new position of each item (before and
+		# after the sort operation)
+
+		aItemsU = UniqueItems(aCol)
+
+		nLenU = len(aItemsU)
+
+		oOldCol = new stzList(aCol)
+		oNewCol = new stzList(aColSorted)
+
+		aPosOldNew = []
+
+		for i = 1 to nlenU
+			anOldPos = oOldCol.Find(aItemsU[i])
+			anNewPos = oNewCol.Find(aItemsU[i])
+			nLenPos = len(anNewPos)
+
+			for j = 1 to nLenPos
+				aPosOldNew + [ anOldPos[j], anNewPos[j] ]
+			next
+		next
+
+		# Reorganising the hole list based on how the itmes have
+		# changed their position before and after the sort operation
+
+		aResult = 1:nLen
+
+		for i = 1 to nLen
+			aResult[aPosOldNew[i][1]] = paLists[aPosOldNew[i][2]]
+		next
+
+		# Finally!
+
+		return aResult
+	done
+
+	func @SortOn(paLists, n)
+		return SortOn(paLists, n)
+
+	func SortListsOn(paLists, n)
+		return SortOn(paLists, n)
+
+	func @SortListsOn(paLists, n)
+		return SortOn(paLists, n)
+
+#==========
 
 func IsListOfNumbers(paList)
 	if NOT isList(paList)
@@ -300,6 +984,46 @@ func IsListOfLists(paList)
 
 	func @IsAListOfLists(paList)
 		return IsListOfLists(paList)
+
+	#>
+
+func IsListOfHybridLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	return StzListQ(paList).IsListOfHybridLists()
+
+	#< @FunctionAlternativeForms
+
+	func @IsListOfHybridLists(paList)
+		return IsListOfHybridLists(paList)
+
+	func IsAListOfHybridLists(paList)
+		return IsListOfHybridLists(paList)
+
+	func @IsAListOfHybridLists(paList)
+		return IsListOfHybridLists(paList)
+
+	#>
+
+func IsListOfListsOfHybridLists(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	return StzListQ(paList).IsListOfListsOfHybridLists()
+
+	#< @FunctionAlternativeForms
+
+	func @IsListOfListsOfHybridLists(paList)
+		return IsListOfListsOfHybridLists(paList)
+
+	func IsAListOfListsOfHybridLists(paList)
+		return IsListOfListsOfHybridLists(paList)
+
+	func @IsAListOfListsOfHybridLists(paList)
+		return IsListOfListsOfHybridLists(paList)
 
 	#>
 
@@ -2748,6 +3472,9 @@ func U(p)
 	func WithoutDuplicates(p)
 		return U(p)
 
+	func WithoutDupplicates(p)
+		return U(p)
+
 	func Unique(p)
 		return U(p)
 
@@ -2757,7 +3484,22 @@ func U(p)
 	func @WithoutDuplicates(p)
 		return U(p)
 
+	func @WithoutDupplicates(p)
+		return U(p)
+
 	func @Unique(p)
+		return U(p)
+
+	func UniqueItems(p)
+		return U(p)
+
+	func @UniqueItems(p)
+		return U(p)
+
+	func ToSet(p)
+		return U(p)
+
+	func @ToSet(p)
 		return U(p)
 
 func L(p)
@@ -2960,7 +3702,7 @@ func AreBothEqualCS(p1, p2, pCaseSensitive)
 		pCaseSensitive = pCaseSensitive[2]
 	ok
 
-	if NOT IsBoolean(pCaseSensitive)
+	if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 		StzRaise("Incorrect param! pCaseSensitive must be TRUE or FALSE.")
 	ok
 
@@ -3053,7 +3795,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 		pCaseSensitive = pCaseSensitive[2]
 	ok
 
-	if NOT IsBoolean(pCaseSensitive)
+	if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 		StzRaise("Incorrect param! pCaseSensitive must be TRUE or FALSE.")
 	ok
 
@@ -3648,7 +4390,7 @@ func @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 	ok
@@ -3812,7 +4554,7 @@ func @FindAllCS(aList, pItem, pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 	ok
@@ -3879,14 +4621,44 @@ func IsRingSortable(pListOrString)
 		return TRUE
 
 	else // isList()
-		if @IsListOfNumbers(pListOrString) or @IsListOfStrings(pListOrString) or
-		   @IsListOfNumbersAndStrings(pListOrString)
 
+		aList = pListOrString
+		nLen = len(aList)
+		if nLen = 0
 			return TRUE
-		else
+
+		but nLen = 1
+			if isNumber(aList[1]) or isString(aList[1])
+				return TRUE
+			ok
+		ok
+
+
+		if NOT ( isNumber(aList[1]) or isString(aList[1]) )
 			return FALSE
 		ok
+
+		if isNumber(aList[1])
+			for i = 2 to nLen
+				if NOT isNumber(aList[i])
+					return FALSE
+				ok
+			next
+
+			return TRUE
+
+		but isString(alist[1])
+			for i = 2 to nLen
+				if NOT isString(aList[i])
+					return FALSE
+				ok
+			next
+
+			return TRUE
+		ok
+
 	ok
+
 
 	func @IsRingSortable(pListOrString)
 		return IsRingSortable(pListOrString)
@@ -10927,6 +11699,14 @@ class stzList from stzObject
 		anPos = This.FindItemsOtherThanCS(paItems, pCaseSensitive)
 		This.RemoveItemsAtPositions(anPos)
 
+		#< @FunctionFluentForm
+
+		def RemoveItemsOtherThanCSQ(paItems, pCaseSensitive)
+			This.RemoveItemsOtherThanCS(paItems, pCaseSensitive)
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def RemoveItemsOtherThanTheseCS(paItems, pCaseSensitive)
@@ -10954,7 +11734,7 @@ class stzList from stzObject
 		#>
 
 	def ItemsOtherThanTheseRemovedCS(paItems, pCaseSensitive)
-		aResult = Q( This.Copy().RemoveItemsOtherThanCS(paItems, pCaseSensitive) ).Content()
+		aResult = This.Copy().RemoveItemsOtherThanCSQ(paItems, pCaseSensitive).Content()
 		return aResult
 
 		def ItemsRemovedExceptCS(paItems, pCaseSensitive)
@@ -10967,6 +11747,14 @@ class stzList from stzObject
 
 	def RemoveItemsOtherThan(paItems)
 		return This.RemoveItemsOtherThanCS(paItems, TRUE)
+
+		#< @FunctionFluentForm
+
+		def RemoveItemsOtherThanQ(paItems)
+			This.RemoveItemsOtherThan(paItems)
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
@@ -10995,7 +11783,7 @@ class stzList from stzObject
 		#>
 
 	def ItemsOtherThanTheseRemoved(paItems)
-		aResult = Q( This.Copy().RemoveItemsOtherThan(paItems) ).Content()
+		aResult = This.Copy().RemoveItemsOtherThanQ(paItems).Content()
 		return aResult
 
 		def ItemsRemovedExcept(paItems)
@@ -13706,13 +14494,14 @@ class stzList from stzObject
 			return This.ISDeepList()
 
 	def IsHybridList()	// Contains items of different types
-		if NOT This.ContainsOnlyNumbers() or
-		   NOT This.ContainsOnlyStrings() or
-		   NOT This.ContainsOnlyLists() or
-		   NOT This.ContainsOnlyObjects()
-			return TRUE
-		else
+		if This.ContainsOnlyNumbers() or
+		   This.ContainsOnlyStrings() or
+		   This.ContainsOnlyLists() or
+		   This.ContainsOnlyObjects()
+
 			return FALSE
+		else
+			return TRUE
 		ok
 
 		def IsAHybridList()
@@ -13723,6 +14512,7 @@ class stzList from stzObject
 		   This.ContainsOnlyStrings() or
 		   This.ContainsOnlyLists() or
 		   This.ContainsOnlyObjects()
+
 			return TRUE
 		else
 			return FALSE
@@ -13970,6 +14760,147 @@ class stzList from stzObject
 			return This.IsListOfListsOfSameSize()
 
 		#>
+
+	  #----------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF HYBRID LISTS  #
+	#====================================================#
+
+	def IsListOfHybridLists()
+		if NOT This.IsListOfLists()
+			return FALSE
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT @IsHybridList(aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfHybridLists()
+			return This.IsListOfHybridLists()
+
+		def ItemsAreHybridLists()
+			return This.IsListOfHybridLists()
+
+		def ItemsAreAllHybridLists()
+			return This.IsListOfHybridLists()
+
+		def AllItemsAreHybridLists()
+			return This.IsListOfHybridLists()
+
+		def ContainsOnlyHybridLists()
+			return This.IsListOfHybridLists()
+
+		def ContainsHybridListsOnly()
+			return This.IsListOfHybridLists()
+
+		def IsMadeOfHybridLists()
+			return This.IsListOfHybridLists()
+
+		def IsMadeOfOnlyHybridLists()
+			return This.IsListOfHybridLists()
+
+		def IsMadeOfHybridListsOnly()
+			return This.IsListOfHybridLists()
+
+		def IsMadeOnlyOfHybridLists()
+			return This.IsListOfHybridLists()
+
+		def IsOnlyMadeOfHybridLists()
+			return This.IsListOfHybridLists()
+
+		#--
+
+		def AreHybridLists()
+			return This.IsListOfHybridLists()
+
+		def AreAllHybridLists()
+			return This.IsListOfHybridLists()
+
+		def AllAreHybridLists()
+			return This.IsListOfHybridLists()
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS MADE OF LISTS OF HYBRID LISTS  #
+	#-----------------------------------------------------------#
+
+	def IsListOfListsOfHybridLists(paList)
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aoStzLists = This.ToStzlists()
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT aoStzLists.IsHybridList()
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfListsOfHybridLists()
+			return This.IsListOfListsOfHybridLists()
+
+		def ItemsAreListsOfHybridLists()
+			return This.IsListOfListsOfHybridLists()
+
+		def ItemsAreAllListsOfHybridLists()
+			return This.IsListOfListsOfHybridLists()
+
+		def AllItemsAreListsOfHybridLists()
+			return This.IsListOfListsOfHybridLists()
+
+		def ContainsOnlyListsOfHybridLists()
+			return This.IsListOfListsOfHybridLists()
+
+		def ContainsListsOfHybridListsOnly()
+			return This.IsListOfListsOfHybridLists()
+
+		def IsMadeOfListsOfHybridLists()
+			return This.IsListOfListsOfHybridLists()
+
+		def IsMadeOfOnlyListsOfHybridLists()
+			return This.IsListOfListsOfHybridLists()
+
+		def IsMadeOfListsOfHybridListsOnly()
+			return This.IsListOfListsOfHybridLists()
+
+		def IsMadeOnlyOfListsOfHybridLists()
+			return This.IsListOfListsOfHybridLists()
+
+		def IsOnlyMadeOfListsOfHybridLists()
+			return This.IsListOfListsOfHybridLists()
+
+		#--
+
+		def AreListsOfHybridLists()
+			return This.IsListOfListsOfHybridLists()
+
+		def AreAllListsOfHybridLists()
+			return This.IsListOfListsOfHybridLists()
+
+		def AllAreListsOfHybridLists()
+			return This.IsListOfListsOfHybridLists()
+
+		#>
+
 
 	  #-----------------------------------------------#
 	 #  CHECKING THAT THE LIST IS A LIST OF NUMBERS  #
@@ -20333,6 +21264,9 @@ class stzList from stzObject
 		def AreOfSametype()
 			return This.ItemsHaveSameType()
 
+		def IsMadeOfItemsOfSameType()
+			return This.ItemsHaveSameType()
+
 	def ItemsHaveSameValue()
 		aContent = This.Content()
 		nLen = len(aContent)
@@ -20372,6 +21306,9 @@ class stzList from stzObject
 			return This.ItemsHaveSameValue()
 
 		def AreOfSameValue()
+			return This.ItemsHaveSameValue()
+
+		def IsMadeOfItemsOfSameValue()
 			return This.ItemsHaveSameValue()
 
 	  #-----------------------------------#
@@ -20431,6 +21368,12 @@ class stzList from stzObject
 		def AreAllEqualCS(pCaseSensitive)
 			return This.ItemsAreAllEqualCS(pCaseSensitive)
 
+		def IsMadeOfEqualItemsCS(pCaseSensitive)
+			return This.ItemsAreAllEqualCS(pCaseSensitive)
+
+		def IsMadeOfItemsThatAreEqualCS(pCaseSensitive)
+			return This.ItemsAreAllEqualCS(pCaseSensitive)
+
 		#>
 
 	#-- CASESENSITIVITY
@@ -20452,6 +21395,11 @@ class stzList from stzObject
 		def AreAllEqual(pCaseSensitive)
 			return This.ItemsAreAllEqual()
 
+		def IsMadeOfEqualItems()
+			return This.ItemsAreAllEqual()
+
+		def IsMadeOfItemsThatAreEqual()
+			return This.ItemsAreAllEqual()
 
 		#>
 
@@ -27080,6 +28028,7 @@ class stzList from stzObject
 	#----------------------------------#
  
 	def SortInAscending()
+dfdf
 		/*
 		Ring native sort() function can sort a list made:
 			- only of numbers
@@ -27125,19 +28074,24 @@ class stzList from stzObject
 
 		aResult = []
 
-		if This.IsMadeOfNumbers() This.IsMadeOfStrings()
+		if @IsRingSortable(This.Content())
 			aResult = ring_sort( This.Content() )
 
 		else
 			aNumbers = ring_sort( This.OnlyNumbers() )
-	
 			aStrings = ring_sort( This.OnlyStrings() )
 
-			aLists = StzListOfListsQ( This.OnlyLists() ).Sorted()
+			aListsOfNumbers = this.OnlyListsOfNumbersQ().SortedBy('Q(@item).Size()')
+			aListsOfStrings = This.OnlyListsOfStringsQ().SortedBy('Q(@item).Size()')
+			aListsOfLists   = This.OnlyListsOfListsQ().SortedBy('Q(@item).Size()')
+			aListsOfObjects = This.OnlyListsOfObjectsQ().SortedBy('Q(@item).Size()')
 
-			aObjects = This.OnlyObjects()
+			aoObjects = This.OnlyObjects()
 	
-			aResult = ListsMerge([ aNumbers, aStrings, aLists, aObjects ])
+			aResult = ListsMerge([
+				aNumbers, aStrings, aListsOfNumbers, aListsOfStrings, aListsOfLists,
+				aListsOfObjects, aoObjects
+			])
 		ok
 
 		This.Update( aResult )
@@ -27353,7 +28307,7 @@ class stzList from stzObject
 		if @IsRingSortable(aValuesU)
 			aSorted = ring_sort2(aSorted, 2)
 		else
-			aSorted = StzListOfPairsQ(aSorted).SortedOn(2)
+			aSorted = @SortOn(aSorted, 2)
 		ok
 
 		# Now, the items in the first column are sorted, and grouped
@@ -39407,33 +40361,6 @@ class stzList from stzObject
 		def StringsCapitalized()
 			return This.StringsCapitalised()
 
-	  #=====================================#
-	 #   ITEMS OF TYPE LISTS OF STRINGS    #
-	#=====================================#
-
-	def ListsOfStrings()
-		aResult = []
-		for item in this.List()
-			if isList(item) and Q(item).IsListOfStrings()
-				aResult + item
-			ok
-		next
-
-		return aResult
-
-	def NumberOfListsOfStrings()
-		return len(This.ListsOfStrings())
-
-		def CountListsOfStrings()
-			return This.NumberOfListsOfStrings()
-
-		def HowManyListsOfStrings()
-			return This.NumberOfListsOfStrings()
-
-		def HowManyListOfStrings()
-			return This.NumberOfListsOfStrings()
-
-
 	#----
 
 	def LowercaseListsOfStrings()
@@ -39767,6 +40694,558 @@ class stzList from stzObject
 
 		def ListsAtAnyLevelHaveSameSize()
 			return This.ListsAtAnyLevelHaveSameNumberOfItems()
+
+	  #--------------------------------------------#
+	 #  FINDING THE LISTS OF NUMBERS IN THE LIST  #
+	#============================================#
+
+	def FindListsOfNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isList(aContent[i]) and @IsListOfNumbers(aContent[i])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	  #------------------------------------------------------#
+	 #  GETTING THE NUMBER OF LISTS OF NUMBERS IN THE LIST  #
+	#------------------------------------------------------#
+
+	def NumberOfListsOfNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		nResult = 0
+
+		for i = 1 to nLen
+			if isList(aContent[i]) and @IsListOfNumbers(aContent[i])
+				nResult++
+			ok
+		next
+
+		return nResult
+
+		def HowManyListsOfNumbers()
+			return This.NumberOfListsOfNumbers()
+
+		def HowManyListOfNumbers()
+			return This.NumberOfListsOfNumbers()
+
+		def CountListsOfNumbers()
+			return This.NumberOfListsOfNumbers()
+
+	  #--------------------------------------------#
+	 #  GETTING THE LISTS OF NUMBERS IN THE LIST  #
+	#--------------------------------------------#
+
+	def ListsOfNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if isList(aContent[i]) and @IsListOfNumbers(aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+
+		return aResult
+
+		#< @FunctionFluentForms
+
+		def ListsOfNumbersQ()
+			return new stzList(This.ListsOfNumbers())
+
+		def ListOfNumbersQQ()
+			return new stzListOfNumbers(This.ListsOfNumbers())
+
+		def ListOfNumbersQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.ListsOfNumbers())
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers(This.ListsOfNumbers())
+
+			other
+				StzRaise("Insupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def OnlyListsOfNumbers()
+			return This.ListsOfNumbers()
+
+			def OnlyListsOfNumbersQ()
+				return This.ListsOfNumbersQ()
+
+			def OnlyListsOfNumbersQQ()
+				return This.ListOfNumbersQQ()
+
+			def OnlyListsOfNumbersQR(pcReturnType)
+				return This.ListOfNumbersQR(pcReturnType)
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #  GETTING THE LISTS OF NUMBERS IN THE LIST WITHOUT DUPPLICATION  #
+	#-----------------------------------------------------------------#
+
+	def UniqueListOfNumbers()
+		aResult = @WithoutDupplication(This.ListsOfNumbers())
+		return aResult
+
+		def ListsOfNumbersU()
+			return This.UniqueListsOfNumbers()
+
+	  #-----------------------------------------------------------------------#
+	 #  GETTING THE LISTS OF NUMBERS IN THE LIST ALONG WITH THEIR POSITIONS  #
+	#-----------------------------------------------------------------------#
+
+	def ListsOfNumbersZ()
+		aListsU = This.UniqueListsOfNumbers()
+		nLenU = len(aListsU)
+
+		aResult = []
+
+		for i = 1 to nLenU
+			anPos = This.FindAll(aListsU[i])
+			aResult + [ aListsU[i], anPos ]
+		next
+
+		return aResult
+
+		def OnlyListsOfNumbersZ()
+			return This.ListsOfNumbersZ()
+
+		def ListsOfNumbersAndTheirPositions()
+			return This.ListsOfNumbersZ()
+
+		def OnlyListsOfNumbersAndTheirPositions()
+			return This.ListsOfNumbersZ()
+
+	  #--------------------------------------------#
+	 #  FINDING THE LISTS OF STRINGS IN THE LIST  #
+	#============================================#
+
+	def FindListsOfStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isList(aContent[i]) and @IsListOfStrings(aContent[i])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	  #------------------------------------------------------#
+	 #  GETTING THE NUMBER OF LISTS OF STRINGS IN THE LIST  #
+	#------------------------------------------------------#
+
+	def NumberOfListsOfStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		nResult = 0
+
+		for i = 1 to nLen
+			if isList(aContent[i]) and @IsListOfStrings(aContent[i])
+				nResult++
+			ok
+		next
+
+		return nResult
+
+		def HowManyListsOfStrings()
+			return This.NumberOfListsOfStrings()
+
+		def HowManyListOfStrings()
+			return This.NumberOfListsOfStrings()
+
+		def CountListsOfStrings()
+			return This.NumberOfListsOfStrings()
+
+	  #--------------------------------------------#
+	 #  GETTING THE LISTS OF STRINGS IN THE LIST  #
+	#--------------------------------------------#
+
+	def ListsOfStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if isList(aContent[i]) and @IsListOfStrings(aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+
+		return anResult
+
+		#< @FunctionFluentForms
+
+		def ListsOfStringsQ()
+			return new stzList(This.ListsOfStrings())
+
+		def ListOfStringsQQ()
+			return new stzListOfStrings(This.ListsOfStrings())
+
+		def ListOfStringsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.ListsOfStrings())
+
+			on :stzListOfStrings
+				return new stzListOfStrings(This.ListsOfStrings())
+
+			other
+				StzRaise("Insupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def OnlyListsOfStrings()
+			return This.ListsOfStrings()
+
+			def OnlyListsOfStringsQ()
+				return This.ListsOfStringsQ()
+
+			def OnlyListsOfStringsQQ()
+				return This.ListOfStringsQQ()
+
+			def OnlyListsOfStringsQR(pcReturnType)
+				return This.ListOfStringsQR(pcReturnType)
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #  GETTING THE LISTS OF STRINGS IN THE LIST WITHOUT DUPPLICATION  #
+	#-----------------------------------------------------------------#
+
+	def UniqueListOfStrings()
+		aResult = @WithoutDupplication(This.ListsOfStrings())
+		return aResult
+
+		def ListsOfStringsU()
+			return This.UniqueListsOfStrings()
+
+	  #-----------------------------------------------------------------------#
+	 #  GETTING THE LISTS OF STRINGS IN THE LIST ALONG WITH THEIR POSITIONS  #
+	#-----------------------------------------------------------------------#
+
+	def ListsOfStringsZ()
+		aListsU = This.UniqueListsOfStrings()
+		nLenU = len(aListsU)
+
+		aResult = []
+
+		for i = 1 to nLenU
+			anPos = This.FindAll(aListsU[i])
+			aResult + [ aListsU[i], anPos ]
+		next
+
+		return aResult
+
+		def OnlyListsOfStringsZ()
+			return This.ListsOfStringsZ()
+
+		def ListsOfStringsAndTheirPositions()
+			return This.ListsOfStringsZ()
+
+		def OnlyListsOfStringsAndTheirPositions()
+			return This.ListsOfStringsZ()
+
+	  #------------------------------------------#
+	 #  FINDING THE LISTS OF LISTS IN THE LIST  #
+	#==========================================#
+
+	def FindListsOfLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isList(aContent[i]) and @IsListOfLists(aContent[i])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	  #----------------------------------------------------#
+	 #  GETTING THE NUMBER OF LISTS OF LISTS IN THE LIST  #
+	#----------------------------------------------------#
+
+	def NumberOfListsOfLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		nResult = 0
+
+		for i = 1 to nLen
+			if isList(aContent[i]) and @IsListOfLists(aContent[i])
+				nResult++
+			ok
+		next
+
+		return nResult
+
+		def HowManyListsOfLists()
+			return This.NumberOfListsOfLists()
+
+		def HowManyListOfLists()
+			return This.NumberOfListsOfLists()
+
+		def CountListsOfLists()
+			return This.NumberOfListsOfLists()
+
+	  #------------------------------------------#
+	 #  GETTING THE LISTS OF LISTS IN THE LIST  #
+	#------------------------------------------#
+
+	def ListsOfLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if isList(aContent[i]) and @IsListOfLists(aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+
+		return anResult
+
+		#< @FunctionFluentForms
+
+		def ListsOfListsQ()
+			return new stzList(This.ListsOfLists())
+
+		def ListOfListsQQ()
+			return new stzListOfLists(This.ListsOfLists())
+
+		def ListOfListsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.ListsOfLists())
+
+			on :stzListOfLists
+				return new stzListOfLists(This.ListsOfLists())
+
+			other
+				StzRaise("Insupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def OnlyListsOfLists()
+			return This.ListsOfLists()
+
+			def OnlyListsOfListsQ()
+				return This.ListsOfListsQ()
+
+			def OnlyListsOfListsQQ()
+				return This.ListOfListsQQ()
+
+			def OnlyListsOfListsQR(pcReturnType)
+				return This.ListOfListsQR(pcReturnType)
+
+		#>
+
+	  #---------------------------------------------------------------#
+	 #  GETTING THE LISTS OF LISTS IN THE LIST WITHOUT DUPPLICATION  #
+	#---------------------------------------------------------------#
+
+	def UniqueListOfLists()
+		aResult = @WithoutDupplication(This.ListsOfLists())
+		return aResult
+
+		def ListsOfListsU()
+			return This.UniqueListsOfLists()
+
+	  #---------------------------------------------------------------------#
+	 #  GETTING THE LISTS OF LISTS IN THE LIST ALONG WITH THEIR POSITIONS  #
+	#---------------------------------------------------------------------#
+
+	def ListsOfListsZ()
+		aListsU = This.UniqueListsOfLists()
+		nLenU = len(aListsU)
+
+		aResult = []
+
+		for i = 1 to nLenU
+			anPos = This.FindAll(aListsU[i])
+			aResult + [ aListsU[i], anPos ]
+		next
+
+		return aResult
+
+		def OnlyListsOfListsZ()
+			return This.ListsOfListsZ()
+
+		def ListsOfListsAndTheirPositions()
+			return This.ListsOfListsZ()
+
+		def OnlyListsOfListsAndTheirPositions()
+			return This.ListsOfListsZ()
+
+	  #--------------------------------------------#
+	 #  FINDING THE LISTS OF OBJECTS IN THE LIST  #
+	#============================================#
+
+	def FindListsOfObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isList(aContent[i]) and @IsListOfObjects(aContent[i])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	  #------------------------------------------------------#
+	 #  GETTING THE NUMBER OF LISTS OF OBJECTS IN THE LIST  #
+	#------------------------------------------------------#
+
+	def NumberOfListsOfObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		nResult = 0
+
+		for i = 1 to nLen
+			if isList(aContent[i]) and @IsListOfObjects(aContent[i])
+				nResult++
+			ok
+		next
+
+		return nResult
+
+		def HowManyListsOfObjects()
+			return This.NumberOfListsOfObjects()
+
+		def HowManyListOfObjects()
+			return This.NumberOfListsOfObjects()
+
+		def CountListsOfObjects()
+			return This.NumberOfListsOfObjects()
+
+	  #--------------------------------------------#
+	 #  GETTING THE LISTS OF OBJECTS IN THE LIST  #
+	#--------------------------------------------#
+
+	def ListsOfObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if isList(aContent[i]) and @IsListOfObjects(aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+
+		return anResult
+
+		#< @FunctionFluentForms
+
+		def ListsOfObjectsQ()
+			return new stzList(This.ListsOfObjects())
+
+		def ListOfObjectsQQ()
+			return new stzListOfObjects(This.ListsOfObjects())
+
+		def ListOfObjectsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.ListsOfObjects())
+
+			on :stzListOfObjects
+				return new stzListOfObjects(This.ListsOfObjects())
+
+			other
+				StzRaise("Insupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def OnlyListsOfObjects()
+			return This.ListsOfObjects()
+
+			def OnlyListsOfObjectsQ()
+				return This.ListsOfObjectsQ()
+
+			def OnlyListsOfObjectsQQ()
+				return This.ListOfObjectsQQ()
+
+			def OnlyListsOfObjectsQR(pcReturnType)
+				return This.ListOfObjectsQR(pcReturnType)
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #  GETTING THE LISTS OF OBJECTS IN THE LIST WITHOUT DUPPLICATION  #
+	#-----------------------------------------------------------------#
+
+	def UniqueListOfObjects()
+		aResult = @WithoutDupplication(This.ListsOfObjects())
+		return aResult
+
+		def ListsOfObjectsU()
+			return This.UniqueListsOfObjects()
+
+	  #-----------------------------------------------------------------------#
+	 #  GETTING THE LISTS OF OBJECTS IN THE LIST ALONG WITH THEIR POSITIONS  #
+	#-----------------------------------------------------------------------#
+
+	def ListsOfObjectsZ()
+		aoObjectsU = This.UniqueListsOfObjects()
+		nLenU = len(aoObjectsU)
+
+		aResult = []
+
+		for i = 1 to nLenU
+			anPos = This.FindAll(aoObjectsU[i])
+			aResult + [ aoObjectsU[i], anPos ]
+		next
+
+		return aResult
+
+		def OnlyListsOfObjectsZ()
+			return This.ListsOfObjectsZ()
+
+		def ListsOfObjectsAndTheirPositions()
+			return This.ListsOfObjectsZ()
+
+		def OnlyListsOfObjectsAndTheirPositions()
+			return This.ListsOfObjectsZ()
 
 	  #===============================================#
 	 #  GETTING THE NUMBERS AND STRINGS IN THE LIST  #
@@ -40919,7 +42398,8 @@ class stzList from stzObject
 			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
-		aSorted = StzListOfPairsQ(paSections).SortedInAscending()
+		aSorted = StzListOfPairsQ(paSections).ItemsSortedInAscending()
+? @@(aSorted)
 		#--> [ [3,5], [7,8] ]
 		nLen = len(aSorted)
 
@@ -43586,26 +45066,26 @@ class stzList from stzObject
 		def ObjectsAndTheirPositions()
 			return This.Objects()
 
-	def TheseObjectsZ(paObjects)
+	def TheseObjectsZ(paoObjects)
 
 		if CheckParams() = TRUE
-			if NOT ( isList(paObjects) and Q(paObjects).EachItemIsEitherA(:String, :Or, :Object) )
-				StzRaise("Incorrect param type! paObjects must be a list of strings and objects.")
+			if NOT ( isList(paoObjects) and Q(paoObjects).EachItemIsEitherA(:String, :Or, :Object) )
+				StzRaise("Incorrect param type! paoObjects must be a list of strings and objects.")
 			ok
 	
 		ok
 
 		# Doing the job
 
-		nLen = len(paObjects)
+		nLen = len(paoObjects)
 		aResult = []
 		acSeen = []
 
 		for i = 1 to nLen
-			if isObject(paObjects[i])
-				cName = @ObjectVarName(paObjects[i])
+			if isObject(paoObjects[i])
+				cName = @ObjectVarName(paoObjects[i])
 			else
-				cName = paObjects[i]
+				cName = paoObjects[i]
 			ok
 
 			if ring_find(acSeen, cName) = 0
@@ -46775,14 +48255,30 @@ class stzList from stzObject
 	#--
 
 	def IsCaseSensitiveNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and (This.Item(1) = :Casesensitive or This.Item(1) = :CS) ) and
-		   IsBoolean(This.Item(2))
+		aContent = This.Content()
+		nLen = len(aContent)
 
-			return TRUE
-		else
+		if NOT nLen = 2
 			return FALSE
 		ok
+
+		if NOT isString(aContent[1])
+			return FALSE
+		ok
+
+		if NOT isNumber(aContent[2])
+			return FALSE
+		ok
+
+		if NOT ( aContent[1] = :CaseSensitive or aContent[1] = :CS )
+			return FALSE
+		ok
+
+		if NOT ( aContent[2] = 0 or aContent[2] = 1 )
+			return FALSE
+		ok
+
+		return TRUE
 
 	def IsRangeNamedParam()
 
@@ -50395,7 +51891,7 @@ class stzList from stzObject
 			return This.IsWithOrByNamedParam()
 
 	def IsUsingNamedParam()
-		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
+		if len(This.Content()) = 2 and ( isString(This.Item(1)) and
 			( This.Item(1) = :Using or This.Item(1) = :Using@ ) )
 
 			return TRUE

@@ -323,7 +323,7 @@ func _if(pExpressionOrBoolean)
 		cCode = 'bTemp = (' + pExpressionOrBoolean + ')'
 		eval(cCode)
 
-	but IsBoolean(pExpressionOrBoolean)
+	but ( isNumber(pExpressionOrBoolean) and (pExpressionOrBoolean = 0 or pExpressionOrBoolean = 1) )
 		bTemp = pExpressionOrBoolean
 	ok
 

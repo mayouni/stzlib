@@ -660,7 +660,7 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 
 	ok
 
-	if NOT IsBoolean(pCaseSensitive)
+	if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 		stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 	ok
 
@@ -3570,7 +3570,7 @@ class stzString from stzObject
 	
 			ok
 	
-			if NOT IsBoolean(pCaseSensitive)
+			if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 				stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 			ok
 		ok
@@ -26980,7 +26980,7 @@ class stzString from stzObject
 				pCaseSensitive = pCaseSensitive[2]
 			ok
 	
-			if NOT IsBoolean(pCaseSensitive)
+			if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 				stzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSe).")
 			ok
 
@@ -30962,7 +30962,7 @@ class stzString from stzObject
 
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
@@ -31056,7 +31056,7 @@ class stzString from stzObject
 
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
@@ -31169,7 +31169,7 @@ class stzString from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
@@ -32090,7 +32090,7 @@ class stzString from stzObject
 
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 		
@@ -32858,7 +32858,7 @@ class stzString from stzObject
 
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
@@ -34232,7 +34232,7 @@ class stzString from stzObject
 	
 			ok
 	
-			if NOT IsBoolean(pCaseSensitive)
+			if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 				stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 			ok
 
@@ -34376,7 +34376,7 @@ class stzString from stzObject
 	
 			ok
 	
-			if NOT IsBoolean(pCaseSensitive)
+			if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 				stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 			ok
 		ok
@@ -39653,7 +39653,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		# when boxing is required
 
 		if StzHashListQ(paOptions).ContainsKey(:Boxed) and
-		   IsBoolean(paOptions[ :Boxed ]) and paOptions[ :Boxed ] = TRUE
+		   isNumber(paOptions[ :Boxed ]) and paOptions[ :Boxed ] = 1
 
 			return This.VizFindBoxedXT(pcSubStr, paOptions)
 		ok
@@ -39673,7 +39673,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		bCaseSensitive = TRUE
 		if ( isString(paOptions[:CaseSensitive]) and paOptions[:CaseSensitive] != NULL ) or
-		   ( isNumber(paOptions[:CaseSensitive]) and IsBoolean(paOptions[:CaseSensitive])  )
+		   ( isNumber(paOptions[:CaseSensitive]) and (paOptions[:CaseSensitive] = 0 or paOptions[:CaseSensitive] = 1)  )
 
 			bCaseSensitive = paOptions[:CaseSensitive]
 		ok
@@ -39690,14 +39690,14 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		bNumbered = FALSE
 		if ( isString(paOptions[:Numbered]) and paOptions[:Numbered] != NULL ) or
-		   ( isNumber(paOptions[:Numbered]) and IsBoolean(paOptions[:Numbered])  )
+		   ( isNumber(paOptions[:Numbered]) and ( paOptions[:Numbered] = 0 or paOptions[:Numbered] = 1 )  )
 
 			bNumbered = paOptions[:Numbered]
 		ok
 
 		bSpacified = FALSE
 		if ( isString(paOptions[:Spacified]) and paOptions[:Spacified] != NULL ) or
-		   ( isNumber(paOptions[:Spacified]) and IsBoolean(paOptions[:Spacified])  )
+		   ( isNumber(paOptions[:Spacified]) and ( paOptions[:Spacified] = 0 or paOptions[:Spacified] = 1 )  )
 
 			bSpacified = paOptions[:Spacified]
 		ok
@@ -39707,7 +39707,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		bCorrect = TRUE
 		acWhy = [] # Will host the reasons of the errors
 
-		If NOT IsBoolean(bCaseSensitive)
+		If NOT ( isNumber(bCaseSensitive) and (bCaseSensitive = 0 or bCaseSensitive = 1) )
 
 			bCorrect = FALSE
 			acWhy + ":CaseSensitive option must be a boolean"
@@ -39731,13 +39731,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			acWhy + ":PositionSign and :BlankSign options must be different"
 		ok
 
-		If NOT IsBoolean(bNumbered)
+		If NOT ( isNumber(bNumbered) and (bNumbered = 0 or bNumbered = 1) )
 
 			bCorrect = FALSE
 			acWhy + ":Numbered option must be a boalean"
 		ok
 
-		If NOT IsBoolean(bSpacified)
+		If NOT ( isNumber(bSpacified) and (bSpacified = 0 or bSpacified = 1) )
 
 			bCorrect = FALSE
 			acWhy + ":Spacified option must be a boalean"
@@ -40114,7 +40114,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			stzRaise("Incorrect param! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
@@ -42902,7 +42902,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
 		ok
 
@@ -57505,7 +57505,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 
@@ -59558,46 +59558,42 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	def RemoveManySections(paSections)
  		/* EXAMPLE
 		
-		o1 = new stzString("**word1***word2**word3***")
+		o1 = new stzString("**Word1***Word2**Word3***")
+
 		? o1.Sections([ [1,2], [8, 10], [16, 17], [23, 25] ])
 		#--> [ "**", "***", "**", "***" ]
 		
-		o1.RemoveManySections([
+		o1.RemoveSections([
 			[1,2], [8, 10], [16, 17], [23, 25]
 		])
 		
-		? o1.Content() #--> "blablablablabla"
+		? o1.Content()
+		#--> "Word1Word2Word3"
 
 		*/
 
-		if isList(paSections)
-			oSections = new stzList(paSections)
-			anPos = oSections.FindAll([])
-			oSections.RemoveItemsAtPositions(anPos)
-			paSections = oSections.Content()
-			
+		if NOT ( isList(paSections) and @IsListOfPairsOfNumbers(paSections) )
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-
-			stzRaise([
-				:Where = "stzString > RemoveManySections(paSections)",
-				:What  = "Can't remove many sections from the string.",
-				:Why   = "The value is you provided (paSections) is not a list of pairs of numbers."
-			])
-
-		ok
 
 		nLen = len(paSections)
 		if nLen = 0
 			return
 		ok
 
-		aSorted = QR(paSections, :stzListOfPairs).SortedInDescending()
+		acAntiSections = This.AntiSections(paSections)
+		nLen = len(acAntiSections)
+
+		cResult = ""
 
 		for i = 1 to nLen
-			This.RemoveSection(aSorted[i][1], aSorted[i][2])
+			cResult += acAntiSections[i]
 		next
+		
+		This.UpdateWith(cResult)
+
+		#< @FunctionAlternativeForms
 
 		def RemoveManySectionsQ(paListOfSections)
 			This.RemoveManySections(paListOfSections)
@@ -59609,6 +59605,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			def RemoveSectionsQ(paListOfSections)
 				This.RemoveSections(paListOfSections)
 				return This
+
+		#>
 
 	def ManySectionsRemoved(paListOfSections)
 		cResult = This.Copy().RemoveManySectionsQ(paListOfSections).Content()
@@ -70345,7 +70343,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		ok
 
-		if NOT IsBoolean(pCaseSensitive)
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
 		ok
 

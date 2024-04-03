@@ -3710,6 +3710,27 @@ pron()
 proff()
 
 /*------------
+
+pron()
+
+? @IsListOfPairsOfNumbers([ [ 1, 2 ], [ 8, 10 ], [ 16, 17 ], [ 23, 25 ] ])
+#--> TRUE
+
+proff()
+
+/*------------ #ring
+*/
+pron()
+
+? @@( ring_sort([]) )
+#--> []
+
+? @@( ring_sort2([], 3) )
+#--> []
+
+proff()
+
+/*------------
 */
 pron()
 

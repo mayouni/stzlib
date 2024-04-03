@@ -1,5 +1,5 @@
 
-func StzListOfNamedObject(paObjects)
+func StzListOfNamedObject(paoObjects)
 
 func IsListOfNamedObjects(paList)
 	if CheckParams()

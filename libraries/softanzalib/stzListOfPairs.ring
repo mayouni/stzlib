@@ -589,24 +589,11 @@ class stzListOfPairs from stzListOfLists
 			aItems = This.LastItems()
 		ok
 
-		if @AreStrings(aItems) or @AreNumbers(aItems)
+		if @IsRingSortable(aItems)
 			aSorted = ring_sort2( This.Content(), n )
 
 		else
-
-			acItems = StzListQ(aItems).Stringified()
-			nLen = len(acItems)
-
-			aContent = This.Content()
-			for i = 1 to nLen
-				aContent[i] + acItems[i]
-			next
-
-			aSorted = []
-			for i = 1 to nLen
-				aSorted + [ aContent[i][1], aContent[i][2] ]
-			next
-
+			aSorted = @SortOn( This.Content(), n )
 		ok
 
 		This.UpdateWith(aSorted)
@@ -929,6 +916,14 @@ class stzListOfPairs from stzListOfLists
 			@aContent[i] = Q(@aContent[i]).SortedInAscending()
 		next
 
+		#< @FunctionFluntForm
+
+		def SortItemsInAscendingQ()
+			This.SortItemsInAscending()
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def SortInsideInAscending()
@@ -971,17 +966,17 @@ class stzListOfPairs from stzListOfLists
 
 		#>
 
-	def ItemsSortedInAsecending()
-		aResult = Q( This.Copy().SortItemsInAscending() ).Content()
+	def ItemsSortedInAscending()
+		aResult = This.Copy().SortItemsInAscendingQ().Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
 
 		def ItemsSorted()
-			return This.ItemsSortedInAsecending()
+			return This.ItemsSortedInAscending()
 
 		def ItemsSortedUp()
-			return This.ItemsSortedInAsecending()
+			return This.ItemsSortedInAscending()
 
 		#>
 
@@ -996,6 +991,14 @@ class stzListOfPairs from stzListOfLists
 		for i = 1 to nLen
 			@aContent[i] = Q(@aContent[i]).SortedInDescending()
 		next
+
+		#< @FunctionFluntForm
+
+		def SortItemsInDescendingQ()
+			This.SortItemsInDescending()
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
@@ -1028,7 +1031,7 @@ class stzListOfPairs from stzListOfLists
 		#>
 
 	def ItemsSortedInDesecending()
-		aResult = Q( This.Copy().SortItemsInDescending() ).Content()
+		aResult = This.Copy().SortItemsInDescendingQ().Content()
 		return aResult
 
 		#< @FunctionAlternativeForm

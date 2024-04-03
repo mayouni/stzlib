@@ -9,12 +9,12 @@ class stzObjects from stzListOfObjects
 class stzListOfObjects from stzList
 	@aContent = []
 
-	def init(paObjects)
-		if isList(paObjects) and Q(paObjects).IsListOfObjects()
-			@aContent = paObjects
+	def init(paoObjects)
+		if isList(paoObjects) and Q(paoObjects).IsListOfObjects()
+			@aContent = paoObjects
 
 		else
-			StzRaise("Incorrect param type! paObjects must be a list of objects.")
+			StzRaise("Incorrect param type! paoObjects must be a list of objects.")
 		ok
 
 	def Content()

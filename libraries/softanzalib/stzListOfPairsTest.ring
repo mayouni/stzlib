@@ -22,7 +22,35 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-----
-*/
+
+pron()
+
+? Q( :CS = FALSE ).IsCaseSensitiveNamedParam()
+#--> TRUE
+
+proff()
+#--> Executed in 0.02 second(s)
+
+/*------ #ring
+
+pron()
+
+# Ring can sort  columns made of only numbers or only strings
+? @@NL( ring_sort2([
+	[ "mahmoud", 	34000 	],
+	[ "ahmed", 	:None	],
+	[ "samir", 	10	],
+	[ "mohammed", 	:New	],
+	[ "ibrahim", 	10700	],
+	[ "hamed",	12	]
+], 2) )
+#--> Ring error message: Bad parameter type! In sort() In function ring_sort2() in
+
+proff()
+
+
+/*------
+
 pron()
 
 # Softanza can sort lists of pairs containing columns with
@@ -32,9 +60,10 @@ pron()
 o1 = new stzListOfpairs([
 	[ "mahmoud", 	34000 	],
 	[ "ahmed", 	:None	],
-	[ "samir", 	1:2	],
+	[ "samir", 	1:3	],
 	[ "mohammed", 	:New	],
-	[ "ibrahim", 	10700	]
+	[ "ibrahim", 	1:2	],
+	[ "hamed",	12	]
 ])
 
 ? @@( o1.SortedOn(2) )
@@ -48,6 +77,412 @@ o1 = new stzListOfpairs([
 
 proff()
 # Executed in 0.03 second(s)
+
+/*=====
+
+Alpha, Baker, Charlie, Dog, Easy, Fox, George, Harry, Igloo, Jack, King, Larry
+
+/*------
+
+pron()
+
+aLists = [
+	[ "Dog", 	370 ],
+	[ "Fox", 	120 ],
+	[ "Charlie", 	 89 ],
+	[ "Baker",	493 ],
+	[ "Easy", 	100 ],
+	[ "Alpha",	 45 ]
+]
+
+? @@NL( SortOn(aLists, 1) ) + NL
+#--> [
+#	[ "Alpha", 45 ],
+#	[ "Baker", 493 ],
+#	[ "Charlie", 89 ],
+#	[ "Dog", 370 ],
+#	[ "Easy", 100 ],
+#	[ "Fox", 120 ]
+# ]
+
+? @@NL( SortOn(aLists, 2) ) + NL
+#--> [
+#	[ "Alpha", 45 ],
+#	[ "Charlie", 89 ],
+#	[ "Easy", 100 ],
+#	[ "Fox", 120 ],
+#	[ "Dog", 370 ],
+#	[ "Baker", 493 ]
+# ]
+
+proff()
+
+/*---------------
+
+pron()
+
+aLists = [
+	[ "A":"C", 1:3, [ 5, "E", 7 ], [1] ]
+]
+
+? @@NL( @SortListsByType(aLists) )
+
+proff()
+
+/*---------------
+
+pron()
+
+aLists = [
+	[ "Dog", 	370,	"white",	TRUE	],
+	[ 1:3, 		120,	"blue",		FALSE	],
+	[ "Charlie", 	1:3,	"white" 		],
+	[ 630,		493 				],
+	[ "Easy", 	5:8 				],
+	[ 1001,	 	45,	"green" 		],
+	[ "King"					],
+	[ 1:2,		"nine"				]
+]
+
+? @@NL( @SortLists(aLists) ) + NL # Or SortListsByType()
+#-- [
+#	[ 630, 493 ],
+#	[ 1001, 45, "green" ],
+#	[ "Dog", 370, "white", 1 ],
+#	[ "King" ],
+#	[ "Easy", [ 5, 6, 7, 8 ] ],
+#	[ "Charlie", [ 1, 2, 3 ], "white" ],
+#	[ [ 1, 2, 3 ], 120, "blue", 0 ],
+#	[ [ 1, 2 ], "nine" ]
+# ]
+
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------------
+
+pron()
+
+aLists = [
+	[ 5, 6, 7, 8 ], [ 1, 2, 3 ], [ 4 ]
+]
+
+? @@( SortLists(aLists) )
+#--> [ [ 4 ], [ 1, 2, 3 ], [ 5, 6, 7, 8 ] ]
+
+proff()
+
+/*---------------
+
+pron()
+
+? @@( SortListsBySize([ [ 1, 2, 3 ], [ 5, 6, 7, 8 ], [ 1 ] ]) )
+# [ [ 1 ], [ 1, 2, 3 ], [ 5, 6, 7, 8 ] ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------------
+
+pron()
+
+aLists = [
+	[ "Dog", 	370,	"white",	TRUE	],
+	[ "Fox", 	120,	"blue",		FALSE	],
+	[ "Charlie", 	1:3,	"white" 		],
+	[ "Baker",	493 				],
+	[ "Easy", 	5:8 				],
+	[ "Alpha",	 45,	"green" 		],
+	[ "King"					]
+]
+
+? @@NL( SortOn(aLists, 1) ) + NL
+#--> [
+#	[ "Alpha", 45, "green" ],
+#	[ "Baker", 493 ],
+#	[ "Charlie", [ 1, 2, 3 ], "white" ],
+#	[ "Dog", 370, "white", 1 ],
+#	[ "Easy", [ 5, 6, 7, 8 ] ],
+#	[ "Fox", 120, "blue", 0 ],
+#	[ "King" ]
+# ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------------
+
+pron()
+
+aLists = [
+	[ "Dog", 	370,	"white",	TRUE	],
+	[ "Fox", 	120,	"blue",		FALSE	],
+	[ "Charlie", 	1:3,	"white" 		],
+	[ "Baker",	493 				],
+	[ "Easy", 	5:8 				],
+	[ "Alpha",	 45,	"green" 		],
+	[ "King", 	[1]				]
+]
+
+? @@NL( ListsAndTheirTypes(aLists) ) + NL
+#--> [
+#	[ [ "Dog", 370, "white", 1 ], "1010" ],
+#	[ [ "Fox", 120, "blue", 0 ], "1010" ],
+#	[ [ "Charlie", [ 1, 2, 3 ], "white" ], "1131" ],
+#	[ [ "Baker", 493 ], "1110" ],
+#	[ [ "Easy", [ 5, 6, 7, 8 ] ], "1113" ],
+#	[ [ "Alpha", 45, "green" ], "1101" ],
+#	[ [ "King", [ 1 ] ], "1113" ]
+# ]
+
+? @@NL( @sortOn( ListsByType(aLists), 1 ) ) + NL
+#--> [
+#	[ "1010", [ [ "Dog", 370, "white", 1 ], [ "Fox", 120, "blue", 0 ] ] ],
+#	[ "1101", [ [ "Alpha", 45, "green" ] ] ],
+#	[ "1110", [ [ "Baker", 493 ] ] ],
+#	[ "1113", [ [ "Easy", [ 5, 6, 7, 8 ] ], [ "King", [ 1 ] ] ] ],
+#	[ "1131", [ [ "Charlie", [ 1, 2, 3 ], "white" ] ] ]
+# ]
+
+? @@NL( @SortListsByType(aLists) )
+#--> [
+#	[ "Fox", 120, "blue", 0 ],
+#	[ "Dog", 370, "white", 1 ],
+#	[ "Alpha", 45, "green" ],
+#	[ "Baker", 493 ],
+#	[ "King", [ 1 ] ],
+#	[ "Easy", [ 5, 6, 7, 8 ] ],
+#	[ "Charlie", [ 1, 2, 3 ], "white" ]
+# ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*---------------
+
+pron()
+
+aLists = [
+	[ "Dog", 	370,	"white",	TRUE	],
+	[ "Fox", 	120,	"blue",		FALSE	],
+	[ "Charlie", 	1:3,	"white" 		],
+	[ "Baker",	493 				],
+	[ "Easy", 	5:8 				],
+	[ "Alpha",	 45,	"green" 		],
+	[ "King", 	[1]				]
+]
+
+? @@SP( SortLists(aLists) ) + NL
+#--> [
+#	[ "Alpha", 45, "green" ],
+#	[ "Baker", 493 ],
+#	[ "Charlie", [ 1, 2, 3 ], "white" ],
+#	[ "Dog", 370, "white", 1 ],
+#	[ "Easy", [ 5, 6, 7, 8 ] ],
+#	[ "Fox", 120, "blue", 0 ],
+#	[ "King", [ 1 ] ]	  ]
+# ]
+
+proff()
+# Executed in 0.01 second(s)
+
+/*======= SortLists()
+
+pron()
+
+# If the list is made of lists of numbers or lists of strings,
+# then the lists are sorted by size
+
+? @@( SortLists([ [ 1, 2, 3 ], [ 5, 6, 7, 8 ], [ 1 ] ]) )
+#--> [ [ 1 ], [ 1, 2, 3 ], [ 5, 6, 7, 8 ] ]
+
+? @@( SortLists([ [ "K", "L", "M" ], [ "G" ], [ "W", "N" ] ]) )
+#--> [ [ "G" ], [ "W", "N" ], [ "K", "L", "M" ] ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------------
+
+pron()
+
+# If the list is made of lists of numbers and strings, then the
+# lists of numbers are sorted first, and then the lists of strings
+# are sorted after them
+
+? @@NL( SortLists([
+	[ 1, 2, 3 ], [ "K", "L", "M" ], [ 5, 6, 7, 8 ],
+	[ "G" ], [ 1 ], [ "W", "N" ] ]
+) )
+#--> [
+#	[ 1 ],
+#	[ 1, 2, 3 ],
+#	[ 5, 6, 7, 8 ],
+#	[ "G" ],
+#	[ "W", "N" ],
+#	[ "K", "L", "M" ]
+# ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------------
+
+pron()
+
+proff()
+
+/*---------------
+
+pron()
+
+# If the list is made of lists of lists
+
+aLists = [
+	[ 10:12, 3:5, "A":"C", [5] ],
+
+	[ "B":"D", [12] ],
+
+	[ 7, 2, [ "B":"D", 10, 8 ] ]
+]
+
+
+? @@NL( SortListsBySize( aLists ) ) + NL
+#--> [
+#	[ [ "B", "C", "D" ], [ 12 ] ],
+#	[ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ],
+#	[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ]
+# ]
+
+? @@NL( ListsBySize(aLists) )
+#--> [
+#	[ 4, [ [ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ] ] ],
+#	[ 2, [ [ [ "B", "C", "D" ], [ 12 ] ] ] ],
+#	[ 3, [ [ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ] ] ]
+# ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*-------------------
+
+pron()
+
+? IshybridList([ 10, [ "B", "C", "D" ], [ 12 ] ])
+#--> TRUE
+
+? IsHybridList([ "A", [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ])
+#--> TRUE
+
+? IsHybridList([ "B":"D", [12] ])
+#--> TRUE
+
+? IsListOfHybridLists([
+	[ 10, [ "B", "C", "D" ], [ 12 ] ],
+	[ "B":"D", [12] ],
+	[ "A", [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ]
+])
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------------
+
+pron()
+
+aLists = [
+	[ 10:12, 3:5, "A":"C", [5] ],
+
+	[ "B":"D", [12] ],
+
+	[ 7, 2, [ "B":"D", 10, 8 ] ]
+]
+
+? IsListOfHybridLists(aLists)
+#--> FALSE
+
+? IsHybridList([ 10:12, 3:5, "A":"C", [5] ])
+#--> FALSE
+
+? IsPureList([ 10:12, 3:5, "A":"C", [5] ])
+#--> TRUE	(all items are of type LIST
+
+proff()
+# Executed in 0.02 second(s)
+
+/*-------------------
+
+pron()
+
+? IsHybridList([ 7, 2, [ "B":"D", 10, 8 ] ])
+#--> TRUE
+
+? Types([ 7, 2, [ "B":"D", 10, 8 ] ])
+#--> [ "NUMBER", "NUMBER", "LIST" ])
+
+proff()
+# Executed in 0.01 second(s)
+
+/*-------------------
+*/
+pron()
+
+# If the list is made of lists of lists, then the pure lists
+# (made of same items of the same type) are sorted first (by
+# their size), and then the hybrid lists are sorted (also
+# by their size)
+
+aLists = [
+	[ 10:12, 3:5, "A":"C", [5] ],
+
+	[ "B":"D", [12] ],
+
+	[ 7, 2, [ "B":"D", 10, 8 ] ]
+]
+
+? @@NL( SortLists(aLists) )
+#--> [
+#	[ [ "B", "C", "D" ], [ 12 ] ],
+#	[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
+#
+#	[ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ]
+# ]
+
+proff()
+
+/*========
+
+pron()
+
+aLists = [
+	[ "Dog", 	370,	"white",	TRUE	],
+	[ "Fox", 	120,	"blue",		FALSE	],
+	[ "Charlie", 	1:3,	"white" 		],
+	[ "Baker",	493 				],
+	[ "Easy", 	5:8 				],
+	[ "Alpha",	 45,	"green" 		],
+	[ "King", 	[1]				]
+]
+
+? @@( @SortList( StzListOfListsQ(aLists).NthCol(2) ) ) + NL
+
+//? @@SP( SortListsOn(aLists, 2) )
+#--> [
+#	[ "Charlie", 	[ 1, 2, 3 ], 	"white" ],
+#	[ "Fox",	120, 		"blue", 	0 ],
+#	[ "Alpha", 	45, 		"green" ],
+#	[ "Baker", 	493 ],
+#	[ "King", 	[ 1 ] ],
+#	[ "Dog", 	370, 		"white", 1 ],
+#	[ "Easy", 	[ 5, 6, 7, 8 ] ]
+# ]
+
+proff()
+
+
+
 
 /*-------
 
