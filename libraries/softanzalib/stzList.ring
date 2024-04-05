@@ -602,8 +602,9 @@ func SortOn(paLists, n)
 		next
 		nHowManyNumbers = len(anNumbersPos)
 
-		# The number without decimal part are adjusted
-		# first, by adding a dot and some 0s to them
+		# The numbers without decimal part are adjusted
+		# first, by adding a dot and some 0s to them,
+		# and then the numbers with dots are adjusted
 
 		for i = 1 to nHowManyNumbers
 
@@ -653,10 +654,8 @@ func SortOn(paLists, n)
 
 		next
 
-? Q(aCol).ItemsAt(anNumbersPos)
-dfdf
-		# We update the list with the adjusted numbers
-		# In the same time we stringify other items
+		# Now we stringify the items of the column that
+		# are not numbers (usning @@() ~> ComputableForm())
 
 		for i = 1 to nLen
 			if NOT isNumber(aCol[i])
@@ -664,20 +663,10 @@ dfdf
 				loop
 			ok
 
-			# case of numbers
-
-			cNumber = "" + aCol[i]
-
-			nDotPos = substr(cNumber, ".")
-
-
-			
-			aCol[i] = cNumber
-
 		next
 
 		# Sorting the nth (stringified) column
-sd
+
 		acColSorted = ring_sort(aCol)
 
 		# Finding the old and new position of each item (before and
