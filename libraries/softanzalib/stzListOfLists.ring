@@ -2617,7 +2617,7 @@ class stzListOfLists from stzList
 
 		return aResult
 
-		def NthColumnQ()
+		def NthColumnQ(n)
 			return new stzList(This.NthColumn(n))
 
 		def NthCol(n)

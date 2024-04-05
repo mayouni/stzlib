@@ -78,7 +78,7 @@ o1 = new stzListOfpairs([
 proff()
 # Executed in 0.03 second(s)
 
-/*=====
+/*=====::::::::::::::::::::::::::::
 
 Alpha, Baker, Charlie, Dog, Easy, Fox, George, Harry, Igloo, Jack, King, Larry
 
@@ -116,18 +116,32 @@ aLists = [
 # ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*---------------
 
 pron()
 
 aLists = [
-	[ "A":"C", 1:3, [ 5, "E", 7 ], [1] ]
+	"A":"C", 1:3, [ 5, "E", 7 ], [1]
 ]
 
-? @@NL( @SortListsByType(aLists) )
+? @@nl( @SortLists(aLists) ) + NL
+#--> [
+
+#	# First come pure lists (made of items of the same type)
+
+#	[ 1 ],
+#	[ 1, 2, 3 ],
+#	[ "A", "B", "C" ],
+
+#	# Then come hybrid lists
+
+#	[ 5, "E", 7 ]
+# ]
 
 proff()
+# Executed in 0.03 second(s)
 
 /*---------------
 
@@ -144,23 +158,28 @@ aLists = [
 	[ 1:2,		"nine"				]
 ]
 
-? @@NL( @SortLists(aLists) ) + NL # Or SortListsByType()
+? @@NL( @SortLists(aLists) )
 #-- [
-#	[ 630, 493 ],
-#	[ 1001, 45, "green" ],
-#	[ "Dog", 370, "white", 1 ],
-#	[ "King" ],
-#	[ "Easy", [ 5, 6, 7, 8 ] ],
-#	[ "Charlie", [ 1, 2, 3 ], "white" ],
-#	[ [ 1, 2, 3 ], 120, "blue", 0 ],
-#	[ [ 1, 2 ], "nine" ]
-# ]
+#	# First comes pure lists (all items are of the same type)
 
+#	[ 630, 493 ],
+#	[ "King" ],
+
+#	# Then hyrid lists are sorted based on their size
+
+#	[ "Easy", [ 5, 6, 7, 8 ] ],
+#	[ [ 1, 2 ], "nine" ],
+
+#	[ 1001, 45, "green" ],
+#	[ "Charlie", [ 1, 2, 3 ], "white" ],
+
+#	[ "Dog", 370, "white", 1 ],
+#	[ [ 1, 2, 3 ], 120, "blue", 0 ]
+# ]
 
 proff()
 # Executed in 0.02 second(s)
 
-/*---------------
 
 pron()
 
@@ -172,6 +191,7 @@ aLists = [
 #--> [ [ 4 ], [ 1, 2, 3 ], [ 5, 6, 7, 8 ] ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*---------------
 
@@ -197,7 +217,7 @@ aLists = [
 	[ "King"					]
 ]
 
-? @@NL( SortOn(aLists, 1) ) + NL
+? @@NL( SortOn(aLists, 1) )
 #--> [
 #	[ "Alpha", 45, "green" ],
 #	[ "Baker", 493 ],
@@ -215,49 +235,60 @@ proff()
 
 pron()
 
+o1 = new stzListOfStrings([ "130", "12500", "17" ])
+
+? o1.AdjustedToRightUsing(".")
+#-->
+# ..130
+# 12500
+# ...17
+
+#TODO
+# Add this feature to stzListOfNumbers
+
+proff()
+# Executed in 0.07 second(s)
+#TODO: Rethink stzListOfStrings main container
+# Problem: QStringList() takes time in constructing the object
+
+
+/*---------------
+
+
+*/
+pron()
+
+
 aLists = [
-	[ "Dog", 	370,	"white",	TRUE	],
-	[ "Fox", 	120,	"blue",		FALSE	],
-	[ "Charlie", 	1:3,	"white" 		],
-	[ "Baker",	493 				],
-	[ "Easy", 	5:8 				],
-	[ "Alpha",	 45,	"green" 		],
-	[ "King", 	[1]				]
+	[ "Dog", 	   370,		"white",	TRUE	   ],
+	[ "Fox", 	4120.34,	"blue",		FALSE	   ],
+	[ "Charlie", 	   1:3,		"white" 		   ],
+	[ "Baker",	493.12				   	   ],
+	[ "Easy", 	   5:8 				  	   ],
+	[ "Alpha",	    45,		"green" 		   ],
+	[ "King", 	   [1]				   	   ],
+	[ 1250,		  "ON"				   	   ],
+	[ "Dog", 	  370, 		"white", 	1, 	10 ],
+	[ "175",	  12.1 ],
+	[ "han",	   7 ]
 ]
 
-? @@NL( ListsAndTheirTypes(aLists) ) + NL
+? @@NL( SortOn(aLists, 2) )
 #--> [
-#	[ [ "Dog", 370, "white", 1 ], "1010" ],
-#	[ [ "Fox", 120, "blue", 0 ], "1010" ],
-#	[ [ "Charlie", [ 1, 2, 3 ], "white" ], "1131" ],
-#	[ [ "Baker", 493 ], "1110" ],
-#	[ [ "Easy", [ 5, 6, 7, 8 ] ], "1113" ],
-#	[ [ "Alpha", 45, "green" ], "1101" ],
-#	[ [ "King", [ 1 ] ], "1113" ]
-# ]
-
-? @@NL( @sortOn( ListsByType(aLists), 1 ) ) + NL
-#--> [
-#	[ "1010", [ [ "Dog", 370, "white", 1 ], [ "Fox", 120, "blue", 0 ] ] ],
-#	[ "1101", [ [ "Alpha", 45, "green" ] ] ],
-#	[ "1110", [ [ "Baker", 493 ] ] ],
-#	[ "1113", [ [ "Easy", [ 5, 6, 7, 8 ] ], [ "King", [ 1 ] ] ] ],
-#	[ "1131", [ [ "Charlie", [ 1, 2, 3 ], "white" ] ] ]
-# ]
-
-? @@NL( @SortListsByType(aLists) )
-#--> [
-#	[ "Fox", 120, "blue", 0 ],
-#	[ "Dog", 370, "white", 1 ],
-#	[ "Alpha", 45, "green" ],
-#	[ "Baker", 493 ],
-#	[ "King", [ 1 ] ],
-#	[ "Easy", [ 5, 6, 7, 8 ] ],
-#	[ "Charlie", [ 1, 2, 3 ], "white" ]
+#	"120",
+#	"370",
+#	"370",
+#	"45", ****
+#	"493",
+#	"ON",
+#	"[ 1 ]",
+#	"[ 1, 2, 3 ]",
+#	"[ 5, 6, 7, 8 ]"
 # ]
 
 proff()
-# Executed in 0.05 second(s)
+
+# Executed in 0.04 second(s)
 
 /*---------------
 
@@ -429,28 +460,139 @@ proff()
 */
 pron()
 
-# If the list is made of lists of lists, then the pure lists
-# (made of same items of the same type) are sorted first (by
-# their size), and then the hybrid lists are sorted (also
-# by their size)
+aLists = [
+	[ 10:12, 3:5, "A":"C", [5] ], 	# a pure list made of 4 LISTS
+
+	[ "A":"B", "C":"D" ],
+	[ 3:5, 10:12, 14:15, [20] ],
+
+	[ "B":"D", [12] ],		# a pure list made of 2 LISTS
+
+	[ 7, 2, [ "B":"D", 10, 8 ] ]	# a hybrid list made of 2 NUMBERS and 1 LIST
+]
+
+? @@NL( SortLists(aLists) ) + NL
+#--> [
+#	[ [ "B", "C", "D" ], [ 12 ] ],
+#	[ [ "A", "B" ], [ "C", "D" ] ],
+#	[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
+#	[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ],
+#	[ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ]
+# ]
+
+? @@NL( SortListsByType(aLists) ) + NL
+#--> [
+#	[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ],
+#	[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
+
+#	[ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ],
+
+#	[ [ "B", "C", "D" ], [ 12 ] ],
+#	[ [ "A", "B" ], [ "C", "D" ] ]
+# ]
+
+? @@NL( ListsByType(aLists) ) + NL
+#--> [
+#	[ "3333",
+#		[ [ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
+#		[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ] ]
+#	],
+
+#	[ "__33",
+#		[ [ [ "A", "B" ], [ "C", "D" ] ],
+#		[ [ "B", "C", "D" ], [ 12 ] ] ]
+#	],
+
+#	[ "_003",
+#		[ [ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ] ]
+#	]
+# ]
+
+? @@NL( SortedListsByType(aLists) )
+#--> [
+#	[ "3333",
+#		[ [ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
+#		[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ] ]
+#	],
+
+#	[ "_003",
+#		[ [ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ] ]
+#	],
+
+#	[ "__33",
+#		[ [ [ "A", "B" ], [ "C", "D" ] ], [ [ "B", "C", "D" ], [ 12 ] ] ]
+#	]
+# ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-------------------
+*/
+pron()
 
 aLists = [
 	[ 10:12, 3:5, "A":"C", [5] ],
+
+	[ "A":"B", "C":"D" ],
+	[ 3:5, 10:12, 14:15, [20] ],
 
 	[ "B":"D", [12] ],
 
 	[ 7, 2, [ "B":"D", 10, 8 ] ]
 ]
 
-? @@NL( SortLists(aLists) )
-#--> [
+? @@NL( SortListsBySize(aLists) ) + NL
+# [
 #	[ [ "B", "C", "D" ], [ 12 ] ],
+#	[ [ "A", "B" ], [ "C", "D" ] ],
+#	[ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ],
 #	[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
-#
-#	[ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ]
+#	[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ]
+# ]
+
+? @@NL( ListsBySize(aLists) ) + NL
+# [
+#	[ 4, [ 
+#		[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
+#		[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ]
+#	     ]
+#	],
+
+#	[ 2, [
+#		[ [ "A", "B" ], [ "C", "D" ] ],
+#		[ [ "B", "C", "D" ], [ 12 ] ]
+#	     ]
+#	],
+
+#	[ 3, [
+#		[ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ]
+#	     ]
+#	]
+# ]
+
+? @@NL( SortedListsBySize(aLists) )
+#--> [
+#	[ 2, [
+#		[ [ "A", "B" ], [ "C", "D" ] ],
+#		[ [ "B", "C", "D" ], [ 12 ] ]
+#	     ]
+#	],
+
+#	[ 3, [
+#		[ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ]
+#	     ]
+#	],
+
+#	[ 4, [
+#		[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
+#		[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ]
+#	     ]
+#	]
 # ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*========
 

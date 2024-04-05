@@ -18687,6 +18687,30 @@ stop()
 
 		#>
 
+	  #---------------------------------------#
+	 #    ALIGNING THE STRINGS TO THE LEFT   #
+	#---------------------------------------#
+
+	def AlignToLeftUsing(pcChar)
+		AlignXT(:Max, pcChar, :Left)
+
+		def AlignToLeftUsingQ(pcChar)
+			This.AlignToLeftUsing(pcChar)
+			return This
+
+		def AdjustToLeftUsing(pcChar)
+			This.AlignToLeftUsing(pcChar)
+
+			def AdjustToLeftUsingQ(pcChar)
+				return This.AlignToLeftUsingQ(pcChar)
+
+	def AlignedToLeftUsing(pcChar)
+		cResult = This.Copy().AlignToLeftUsingQ(pcChar).Content()
+		return cResult
+
+		def AdjustedToLeftUsing(pcChar)
+			return This.AlignedToLeftUsing(pcChar)
+
 	  #=====================================#
 	 #  ALIGNING THE STRINGS TO THE RIGHT  #
 	#=====================================#
@@ -18786,6 +18810,30 @@ stop()
 
 		def  AdjustedToRightXT(pnWidth, pcChar)
 			return This.RightAlignedXT(pnWidth, pcChar)
+
+	  #----------------------------------------#
+	 #    ALIGNING THE STRINGS TO THE RIGHT   #
+	#----------------------------------------#
+
+	def AlignToRightUsing(pcChar)
+		AlignXT(:Max, pcChar, :Right)
+
+		def AlignToRightUsingQ(pcChar)
+			This.AlignToRightUsing(pcChar)
+			return This
+
+		def AdjustToRightUsing(pcChar)
+			This.AlignToRightUsing(pcChar)
+
+			def AdjustToRightUsingQ(pcChar)
+				return This.AlignToRightUsingQ(pcChar)
+
+	def AlignedToRightUsing(pcChar)
+		cResult = This.Copy().AlignToRightUsingQ(pcChar).Content()
+		return cResult
+
+		def AdjustedToRightUsing(pcChar)
+			return This.AlignedToRightUsing(pcChar)
 
 	  #======================================#
 	 #  ALIGNING THE STRINGS TO THE CENTER  #

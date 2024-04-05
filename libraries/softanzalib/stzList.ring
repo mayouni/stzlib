@@ -277,6 +277,19 @@ func SortListsBySize(paLists)
 	def @SortListsBySize(paLists)
 		return SortListsBySize(paLists)
 
+func SortedListsBySize(aLists) 
+	aResult = SortListsOn( ListsBySize(aLists), 1 )
+	return aResult
+
+	func SortListsBySizeXT(paLists)
+		return SortedListsBySize(aLists) 
+
+	func @SortedListsBySize(aLists) 
+		return SortedListsBySize(aLists) 
+
+	func @SortListsBySizeXT(paLists)
+		return SortedListsBySize(aLists) 
+
 func ListsAndTheirTypes(paLists)
 	if CheckParams()
 		if NOT isList(paLists) and @IsListOfLists(paLists)
@@ -302,20 +315,22 @@ func ListsAndTheirTypes(paLists)
 
 			switch type(paLists[i][j])
 			on "NUMBER"
-				cType = "0"
+				cType = "0NUMBER"
 			on "STRING"
-				cType = "1"
+
+				cType = "1STRING"
 			on "LIST"
-				cType = "3"
+				cType = "2LIST"
+
 			on "OBJECT"
-				cType = "4"
+f				cType = "3OBJECT"
 			off
 
 			cTypeXT += cType
 		next
 
 		nLenTypeXT = len(cTypeXT)
-		c = cTypeXT[1]
+		c = "" //"_"
 		nDiff = StzListOfListsQ(paLists).MaxSize() - nLenTypeXT
 		if nDiff > 0
 			cTemp = ""
@@ -409,6 +424,19 @@ func SortListsByType(paLists)
 
 	func @SortListsByType(paLists)
 		return SortListsByType(paLists)
+
+func SortedListsByType(aLists) 
+	aResult = SortListsOn( ListsByType(aLists), 1 )
+	return aResult
+
+	func SortListsByTypeXT(paLists)
+		return SortedListsByType(aLists) 
+
+	func @SortedListsByType(aLists) 
+		return SortedListsByType(aLists) 
+
+	func @SortListsByTypeXT(paLists)
+		return SortedListsByType(aLists) 
 
 func SortLists(paLists)
 	if NOT @IsListOfLists(paLists)
@@ -518,144 +546,140 @@ func SortOn(paLists, n)
 		ok
 	ok
 
-	try
+	aCol = StzListOfListsQ(paLists).AdjustQ().NthCol(n)
+
+	if @IsRingSortable(aCol)
 		aResult = ring_sort2(paLists, n)
 		return aResult
 
-	catch
-		# Saving the positions of the items of the
-		# column we are going to use for the sort
+	else
+		# If the nth column contains numbers then
+		# we adjust them before we stringify them
 
-		nLen = len(paLists)
+		# We start by getting the max left and right
+		# number of digits (integer and decimal parts)
 
-		# Getting the nth column data
+		nLen = len(aCol)
 
-		aCol = StzListOfListsQ(paLists).AdjustQ().NthCol(n)
+		nMaxSize = 0
+		nMaxLeft = 0
+		nMaxRight = 0
 
-		nLenCol = len(aCol)
-
-		# Setting the container for the sorted column and
-		# separating the items of the column by type
-
-		aColSorted = []
-
-		anNumbers = []
-		acStrings = []
-
-		aaListsOfNumbers = []
-		aaListsOfStrings = []
-		aaListsOfLists = []
-		aaListsOfObjects = []
-		aaListsOfHybridLists = []
-
-		aoObjects = []
-	
+		anNumbersPos = []
 
 		for i = 1 to nLen
 			if isNumber(aCol[i])
-				anNumbers + aCol[i]
-	
-			but isString(aCol[i])
-				acStrings + aCol[i]
-	
-			but isList(aCol[i])
-				if @IsListOfNumbers(aCol[i])
-					aaListsOfNumbers + aCol[i]
 
-				but @IsListOfStrings(aCol[i])
-					aaListsOfStrings + aCol[i]
+				anNumbersPos + i
 
-				but @IsListOfList(aCol[i])
-					aaListsOfLists + aCol[i]
+				cNumber = ""+ aCol[i]
 
-				but @IsListOfObjects(aCol[i])
-					aaListsOfStrings + aCol[i]
+				nSize = len(cNumber)
+				if nSize > nMaxSize
+					nMaxSize = nSize
+				ok
+
+				nDotPos = substr( cNumber, "." )
+
+				if nDotPos = 0
+					nLenLeft = nSize
+					nLenRight = 0
 
 				else
-					aaListsOfHybridLists + aCol[i]
+					nLenLeft = nDotPos - 1
+					nLenRight = nSize - nDotPos
+
 				ok
-	
-			else // isObject()
-				aoObjects + aCol[i]
+
+				if nLenLeft > nMaxLeft
+					nMaxLeft = nLenLeft
+				ok
+
+				if nLenRight > nMaxRight
+					nMaxRight = nLenRight
+				ok
 			ok
 		next
+		nHowManyNumbers = len(anNumbersPos)
 
-		# Sorting the numbers in the column,
-		# and adding them to the sorted column
+		# The number without decimal part are adjusted
+		# first, by adding a dot and some 0s to them
 
-		anNumbersSorted = ring_sort(anNumbers)
-		nLenNumbers = len(anNumbers)
+		for i = 1 to nHowManyNumbers
 
-		for i = 1 to nLenNumbers
-			aColSorted + anNumbersSorted[i]
+			nPos = anNumbersPos[i]
+			cNumber = ""+ aCol[nPos]
+			nLenNumber = len(cNumber)
+			nPosDot = substr(cNumber, ".")
+			
+			if nPosDot = 0
+				
+				nAddLeft = nMaxLeft - nLenNumber
+				nAddRight = nMaxRight
+
+				cExtLeft = ""
+				cExtRight = ""
+
+				for j = 1 to nAddLeft
+					cExtLeft += "0"
+				next
+
+				for j = 1 to nAddRight
+					cExtRight += "0"
+				next
+
+				cNumber = cExtLeft + cNumber + "." + cExtRight
+
+			else
+				nAddLeft = nMaxLeft - (nPosDot - 1)
+				nAddRight = nMaxRight - (nLenNumber - nPosDot)
+
+				cExtLeft = ""
+				cExtRight = ""
+
+				for j = 1 to nAddLeft
+					cExtLeft += "0"
+				next
+
+				for j = 1 to nAddRight
+					cExtRight += "0"
+				next
+
+				cNumber = cExtLeft + cNumber + cExtRight
+
+			ok
+
+			aCol[nPos] = cNumber
+
 		next
 
-		# Sorting the strings in the column,
-		# and adding them to the sorted column
+? Q(aCol).ItemsAt(anNumbersPos)
+dfdf
+		# We update the list with the adjusted numbers
+		# In the same time we stringify other items
 
-		nLenStrings = len(acStrings)
-		acStringsSorted = ring_sort(acStrings)
+		for i = 1 to nLen
+			if NOT isNumber(aCol[i])
+				aCol[i] = @@(aCol[i])
+				loop
+			ok
 
-		for i = 1 to nLenStrings
-			aColSorted + acStringsSorted[i]
+			# case of numbers
+
+			cNumber = "" + aCol[i]
+
+			nDotPos = substr(cNumber, ".")
+
+
+			
+			aCol[i] = cNumber
+
 		next
 
-		# Sorting the lists of numbers in the column,
-		# and adding them to the sorted column
+		# Sorting the nth (stringified) column
+sd
+		acColSorted = ring_sort(aCol)
 
-		nLenListsOfNumbers = len(aaListsOfNumbers)
-		aaListsOfNumbersSorted = @SortListsBySize(aaListsOfNumbers)
-
-		for i = 1 to nLenListsOfNumbers
-			aColSorted + aaListsOfNumbersSorted[i]
-		next
-
-		# Sorting the lists of strings in the column,
-		# and adding them to the sorted column
-
-		nLenListsOfStrings = len(aaListsOfStrings)
-		aaListsOfStringsSorted = @SortListsBySize(aaListsOfStrings)
-
-		for i = 1 to nLenListsOfStrings
-			aColSorted + aaListsOfStringsSorted[i]
-		next
-
-		# Sorting the lists of lists in the column,
-		# and adding them to the sorted column
-
-		nLenListsOfLists = len(aaListsOfLists)
-		aaListsOfListsSorted = @SortListsBySize(aaListsOfLists)
-
-		for i = 1 to nLenListsOfLists
-			aColSorted + aaListsOfListsSorted[i]
-		next
-
-		# Adding the lists of objects to the sorted column
-		# (#NOTE: lists of objects can't be sorted, may in the future)
-
-		nLenListsOfObjects = len(aaListsOfObjects)
-
-		for i = 1 to nLenListsOfObjects
-			aColSorted + aaListsOfObjects[i]
-		next
-
-		# Sorting the lists of hybrid lists in the column,
-		# and adding them to the sorted column
-
-		nLenListsOfHybridLists = len(aaListsOfHybridLists)
-
-		for i = 1 to nLenListsOfHybridLists
-			aColSorted + @SortList(aaListsOfHybridLists[i])
-		next
-
-		# Getting the objects in the column in the order of their
-		# appearence (#NOTE: in the future, objects may also be sorted)
-
-		nLenObjects = len(aoObjects)
-		for i = 1 to nLenObjects
-			aColSorted + aoObjects[i]
-		next
-	
 		# Finding the old and new position of each item (before and
 		# after the sort operation)
 
@@ -664,7 +688,7 @@ func SortOn(paLists, n)
 		nLenU = len(aItemsU)
 
 		oOldCol = new stzList(aCol)
-		oNewCol = new stzList(aColSorted)
+		oNewCol = new stzList(acColSorted)
 
 		aPosOldNew = []
 
@@ -684,13 +708,13 @@ func SortOn(paLists, n)
 		aResult = 1:nLen
 
 		for i = 1 to nLen
-			aResult[aPosOldNew[i][1]] = paLists[aPosOldNew[i][2]]
+			aResult[aPosOldNew[i][2]] = paLists[aPosOldNew[i][1]]
 		next
 
 		# Finally!
 
 		return aResult
-	done
+	ok
 
 	func @SortOn(paLists, n)
 		return SortOn(paLists, n)
