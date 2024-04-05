@@ -6248,3 +6248,268 @@ class stzListOfNumbers from stzList
 
 			def CanBeDivisedByQ(n)
 				return This.IsDividableByQ(n)	
+
+	  #==================================================+===============#
+	 #  JSUTIFYING THE LIST OF NUMBERS (RETURNED AS A LIST OF STRINGS)  #
+	#=================================================+================#
+
+	def Adjust()
+		acResult = This.AdjustUsing(" ")
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def AdjustQ()
+			return new stzList( This.Adjust() )
+
+		def AdjustQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Adjust() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.Adjust() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def Adjusted()
+			return This.Adjust()
+
+			def AdjustedQ()
+				return This.AdjustQ()
+
+			def AdjustedQR(pcReturnType)
+				return This.AdjustQR(pcReturnType)
+
+		def Justified()
+			return This.Adjust()
+
+			def JustifiedQ()
+				return This.AdjustQ()
+
+			def JustifiedQR(pcReturnType)
+				return This.AdjustQR(pcReturnType)
+
+		def Justify()
+			return This.Adjust()
+
+			def JustifyQ()
+				return This.AdjustQ()
+
+			def JustifyQR(pcReturnType)
+				return This.AdjustQR(pcReturnType)
+		#>
+
+	  #---------------------------------------------------------#
+	 #  JSUTIFYING THE NUMBERS IN THE LIST USING A GIVEN CHAR  #
+	#---------------------------------------------------------#
+
+	def AdjustUsing(c)
+		if CheckParams()
+			if NOT (isString(c) and @IsChar(c))
+				StzRaise("Incorrect param type! c must be a char.")
+			ok
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		nMaxSize = 0
+		nMaxLeft = 0
+		nMaxRight = 0
+
+		for i = 1 to nLen
+
+			cNumber = ""+ aContent[i]
+
+			nSize = len(cNumber)
+			if nSize > nMaxSize
+				nMaxSize = nSize
+			ok
+
+			nDotPos = substr( cNumber, "." )
+
+			if nDotPos = 0
+				nLenLeft = nSize
+				nLenRight = 0
+
+			else
+				nLenLeft = nDotPos - 1
+				nLenRight = nSize - nDotPos
+
+			ok
+
+			if nLenLeft > nMaxLeft
+				nMaxLeft = nLenLeft
+			ok
+
+			if nLenRight > nMaxRight
+				nMaxRight = nLenRight
+			ok
+
+		next
+
+		# The number without decimal part are adjusted
+		# first, by adding a dot and some 0s to them
+
+		for i = 1 to nLen
+
+			cNumber = ""+ aContent[i]
+			nLenNumber = len(cNumber)
+			nPosDot = substr(cNumber, ".")
+			
+			if nPosDot = 0
+				
+				nAddLeft = nMaxLeft - nLenNumber
+				nAddRight = nMaxRight
+
+				cExtLeft = ""
+				cExtRight = ""
+
+				for j = 1 to nAddLeft
+					cExtLeft += c
+				next
+
+				for j = 1 to nAddRight
+					cExtRight += "0"
+				next
+
+				cNumber = cExtLeft + cNumber + "." + cExtRight
+
+			else
+				nAddLeft = nMaxLeft - (nPosDot - 1)
+				nAddRight = nMaxRight - (nLenNumber - nPosDot)
+
+				cExtLeft = ""
+				cExtRight = ""
+
+				for j = 1 to nAddLeft
+					cExtLeft += c
+				next
+
+				for j = 1 to nAddRight
+					cExtRight += "0"
+				next
+
+				cNumber = cExtLeft + cNumber + cExtRight
+
+			ok
+
+			aContent[i] = cNumber
+
+		next
+
+		return aContent
+
+		#< @FunctionFluentForm
+
+		def AdjustUsingQ(c)
+			return new stzList( This.AdjustUsing(c) )
+
+		def AdjustUsingQR(c, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.AdjustUsing(c) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.AdjustUsing(c) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def AdjustedUsing(c)
+			return This.AdjustUsing(c)
+
+			def AdjustedUsingQ(c)
+				return This.AdjustUsingQ(c)
+
+			def AdjustedUsingQR(c, pcReturnType)
+				return This.AdjustUsingQR(c, pcReturnType)
+
+		def JustifiedUsing(c)
+			return This.AdjustUsing(c)
+
+			def JustifiedUsingQ(c)
+				return This.AdjustUsingQ(c)
+
+			def JustifiedUsingQR(c, pcReturnType)
+				return This.AdjustUsingQR(c, pcReturnType)
+
+		def JustifyUsing(c)
+			return This.AdjustUsing(c)
+
+			def JustifyUsingQ(c)
+				return This.AdjustUsingQ(c)
+
+			def JustifyUsingQR(c, pcReturnType)
+				return This.AdjustUsingQR(c, pcReturnType)
+
+		#>
+
+	  #-------------------------------------------------------#
+	 #  JSUTIFYING THE NUMBERS IN THE LIST -- EXTENDED FORM  #
+	#-------------------------------------------------------#
+
+	def AdjustXT()
+		acResult = This.AdjustUsing("0")
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def AdjustXTQ()
+			return new stzList( This.AdjustXT() )
+
+		def AdjustXTQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.AdjustXT() )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.AdjustXT() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def AdjustedXT()
+			return This.AdjustXT()
+
+			def AdjustedXTQ()
+				return This.AdjustXTQ()
+
+			def AdjustedXTQR(pcReturnType)
+				return This.AdjustXTQR(pcReturnType)
+
+		def JustifiedXT()
+			return This.AdjustXT()
+
+			def JustifiedXTQ()
+				return This.AdjustXTQ()
+
+			def JustifiedXTQR(pcReturnType)
+				return This.AdjustXTQR(pcReturnType)
+
+		def JustifyXT()
+			return This.AdjustXT()
+
+			def JustifyXTQ()
+				return This.AdjustXTQ()
+
+			def JustifyXTQR(pcReturnType)
+				return This.AdjustXTQR(pcReturnType)
+		#>
