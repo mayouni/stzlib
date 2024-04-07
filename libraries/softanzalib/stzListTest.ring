@@ -16,7 +16,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*----
-*/
+
 pron()
 
 o1 = new stzList([ "me", "you", "all", "the", "others" ])
@@ -92,10 +92,10 @@ o1.Stringify()
 proff()
 
 /*-------- QStringifying the items of a list
-*/
+
 pron()
 
-# QStringifying a list : All items are forced to becom QString objects
+# QStringifying a list : All items are forced to become QString objects
 o1 = new stzList([ 120, "abc", 1:3 ])
 aQStrings = o1.QStringified()
 #--> A list containing 3 QString objects
@@ -113,10 +113,10 @@ aQStrings = o1.QStringified()
 #--> [ 1, 2, 3 ]
 
 proff()
-# Executed in 0.01 second(s)
+# Executed in 0.02 second(s)
 
 /*====== @perf
-*/
+
 pron()
 
 # Constructing a large deep list of 1 million items
@@ -166,18 +166,17 @@ proff()
 pron()
 
 # PERFORMANCE TIP - FOR LARGE LISTS: Using Merge() function directly
-# is better than using it through a stzListOfLists object
+# can be better than using it through a stzListOfLists object
 
 Merge([ 1 : 1_000_000, 1_000_001 : 2_000_000 ])
-# Executed in 1.67 second(s)
+# Executed in 1.19 second(s)
 
 StzListOfListsQ([ 1 : 1_000_000, 1_000_001 : 2_000_000 ]).Merged()
-# Executed in 2.59 second(s)
+# Executed in 1.93 second(s)
 
 proff()
-# Executed in 4.32 second(s)
+# Executed in 3.15 second(s)
 
-/*--------
 /*=====
 
 pron()
@@ -264,7 +263,7 @@ aMyList = [ "Hi", o1, "how", 1:3, o2, "are", o3, "you?", 1:3, o3, 99 ]
 	#--> ERROR: Line 689 Can't find an unnamed object!
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.03 second(s)
 
 /*====
 
@@ -489,7 +488,6 @@ proff()
 # Executed in 0.02 second(s)
 
 /*---
-*/
 
 pron()
 
@@ -509,19 +507,30 @@ o1 = new stzList([
 ? o1.TypesU()
 #--> [ "NUMBER", "STRING", "LIST", "OBJECT" ]
 
-? @@( o1.ItemsAndTheirTypes() ) + NL
+? @@XT( o1.ItemsAndTheirTypes(), NL, ("#" + TAB) ) + NL
 #--> [
-#	[ 1, "NUMBER" ], [ 2, "NUMBER" ], [ 3, "NUMBER" ],
-#	[ "A", "STRING" ], [ "B", "STRING" ], [ "C", "STRING" ],
-#	[ 7, "NUMBER" ], [ 8, "NUMBER" ],
-#	[ [ 1, 2, 3 ], "LIST" ], [ [ 4, 5, 6, 7, 8 ], "LIST" ], [ [ 9, 10, 11, 12 ], "LIST" ],
-#	[ "D", "STRING" ], [ "E", "STRING" ],
+#	[ 1, "NUMBER" ],
+#	[ 2, "NUMBER" ],
+#	[ 3, "NUMBER" ],
+#	[ "A", "STRING" ],
+#	[ "B", "STRING" ],
+#	[ "C", "STRING" ],
+#	[ 7, "NUMBER" ],
+#	[ 8, "NUMBER" ],
+#	[ [ 1, 2, 3 ], "LIST" ],
 #	[ [ 4, 5, 6, 7, 8 ], "LIST" ],
-#	[ 11, "NUMBER" ], [ 12, "NUMBER" ],
-#	[ @nullobject, "OBJECT" ], [ @trueobject, "OBJECT" ], [ @falseobject, "OBJECT" ]
+#	[ [ 9, 10, 11, 12 ], "LIST" ],
+#	[ "D", "STRING" ],
+#	[ "E", "STRING" ],
+#	[ [ 4, 5, 6, 7, 8 ], "LIST" ],
+#	[ 11, "NUMBER" ],
+#	[ 12, "NUMBER" ],
+#	[ @nullobject, "OBJECT" ],
+#	[ @trueobject, "OBJECT" ],
+#	[ @falseobject, "OBJECT" ]
 # ]
 
-? @@( o1.TypesAndTheirSections() ) # same as TypesZZ()
+? @@NL( o1.TypesAndTheirSections() ) # same as TypesZZ()
 #--> [
 #	[ "NUMBER", [ [ 1, 3 ], [ 7, 8 ], [ 15, 16 ] ] ],
 #	[ "STRING", [ [ 4, 6 ], [ 12, 13 ] ] ],
@@ -530,7 +539,7 @@ o1 = new stzList([
 # ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
 
 /*===== @narration: activating and deactivating CheckParams()
 
@@ -2130,7 +2139,7 @@ o1.SortBy('len(@item)')
 #--> [ "a", "ab", "abc", "abcd", "abcde" ]
 
 proff()
-# Executed in 0.28 second(s)
+# Executed in 0.11 second(s)
 
 /*==============
 
@@ -4052,11 +4061,11 @@ next
 proff()
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzList([ "Ab", "Im", "Ab", "Cf", "Fd", "Ab", "Cf" ])
-? @@( o1.FindItems() ) # Or PositionsOfEachItem()
+? @@( o1.ItemsZ() ) # Or ItemsAndTheirPositions()
 #--> [
 #	[ "Ab", [ 1, 3, 6 ] ],
 #	[ "Im", [ 2 ] ],
@@ -4067,12 +4076,14 @@ o1 = new stzList([ "Ab", "Im", "Ab", "Cf", "Fd", "Ab", "Cf" ])
 proff()
 # Executed in 0.03 second(s)
 
-/*----------
+/*---------- #TODO fix performance problem
 
 pron()
 
 o1 = new stzList(1:20_000 + 3 + 5 + 7 + 10 + 100 + 1000)
-? @@( o1.PositionsOfEachItemQ().First7Items() ) # Or FindItems()
+ShowShort( o1.ItemsZ() )
+
+//? @@( Q( o1.ItemsZ() ).First7Items() ) # Or FindItems()
 #--> [
 #	[ "1", [ 1 ] ],
 #	[ "2", [ 2 ] ],
@@ -4129,7 +4140,7 @@ o1.Show()
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
 /*----------
 
@@ -4730,7 +4741,7 @@ StopProfiler()
 # Executed in 7.55 second(s) in Ring 1.17
 
 /*------------
-*/
+
 pron()
 
 o1 = new stzString("12♥4♥67")
@@ -4742,25 +4753,24 @@ o1 = new stzString("12♥4♥67")
 #--> 3
 
 proff()
+# Executed in 0.02 second(s)
 
 /*------------
 
-*/
 pron()
 
 o1 = new stzList([ "1", "2", "♥", "4", "♥", "6", "7" ])
 
-//? o1.FindPrevious("♥", :StartingAt = 5)
+? o1.FindPrevious("♥", :StartingAt = 5)
 #--> 3
 
 ? o1.FindNthPrevious(2, "♥", :StartingAt = 6)
-
+#--> 5
 
 proff()
+# Executed in 0.04 second(s)
 
-/*------------
-
-*/
+/*------------ #perf
 
 StartProfiler()
 
@@ -4783,28 +4793,28 @@ StartProfiler()
 		aLargeListOfStr + "_"
 	next i
 
-	#NOTE: Internally, FindNthPrevious() useses native
+	#NOTE
+	# Internally, FindNthPrevious() useses native
 	# ring_reverse() function which has a good performance:
 	# 
 	# ring_reverse(aLargeListOfStr)
-	# Executed in 0.16 second(s)
 # 
 
 # Finding previous "♥"
 
 	o1 = new stzList(aLargeListOfStr)
 
-//	? o1.FindPrevious("♥", :StartingAt = 5)
+	? o1.FindPrevious("♥", :StartingAt = 5)
 	#--> 3
 
 	? o1.FindNthPrevious(2, "♥", :StartingAt = 120_000)
-	#--> 100_004
+	#--> 119999
 
-//	? o1.FindNthPrevious(3, "♥", :StartingAt = 150_000)
-	#--> 3
+	? o1.FindNthPrevious(3, "♥", :StartingAt = 150_000)
+	#--> 149999
 
 StopProfiler()
-# Executed in 4.71 second(s) in Ring 1.19 (64 bits)
+# Executed in 1.62 second(s) in Ring 1.19 (64 bits)
 # Executed in 7.51 second(s)
 
 /*------------
@@ -4856,39 +4866,31 @@ StartProfiler()
 
 	? o1.NumberOfOccurrence("♥")
 	#--> 2
-	# Executed in 1.66 second(s)
 
 	? o1.FindFirst("♥")
 	#--> 100003
-	# Executed in 2.92 second(s)
 	
 	? o1.FindLast("♥")
 	#--> 100006
-	# Executed in 3.09 second(s)
 
 	? o1.FindNth(2, "♥")
 	#--> 100006
-	# Executed in 5.32 second(s)
 
 	? o1.FindNext("♥", :StartingAt = 3)
-	#--> 100003
-	# Executed in 2.92 second(s)
-
+	#--> 999999
 
 	? o1.FindNthNext(2, "♥", :StartingAt = 3)
 	#--> 100006
-	# Executed in 8.92 second(s)
 	
 	? o1.FindPrevious("♥", :StartingAt = 120_000)
 	#--> 100006
-	# Executed in 3.27 second(s)
 
 	? o1.FindNthPrevious(2, "♥", :StartingAt = 33)
-	#--> 3
-	# Executed in 2.90 second(s)
+	#--> 32
 
 StopProfiler()
-# Executed in 31.56 second(s)
+# Executed in 5.54 second(s) in Ring 1.17
+# Executed in 31.56 second(s) in Ring 1.17
 
 /*------------ TODO, Check performance
 
@@ -4913,14 +4915,15 @@ StartProfiler()
 		aLargeListOfStr + "_"
 	next i
 
-? ElapsedTime()
 # Removing dupicates
 
 	o1 = new stzList(aLargeListOfStr)
-//? o1.FindDuplicates()
+	? ShowShort( o1.FindDuplicates() )
+	#--> [ 2, 3, 4, "...", 150012, 150013, 150014 ]
+	# Executed in 9 seconds
 
-	//o1.RemoveDuplicates()
-	//? o1.Content()
+	o1.RemoveDuplicates() # Takes a lot of time!!
+	? ShowShort( o1.Content() )
 
 StopProfiler()
 # Executed in 3.58 second(s)
@@ -6365,7 +6368,6 @@ StzListQ(' "ا" : "ج" ') {
 }
 
 /*----------------- @Narration : Use of the L() small function
-*/
 
 pron()
 
@@ -8455,7 +8457,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*---------------
-*/
+
 pron()
 
 # When you write this:
@@ -8579,14 +8581,16 @@ proff()
 # Executed in 0.12 second(s)
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzNumber(12500)
 
 ? o1 - "500"
+#--> 12000
 
 proff()
+# Executed in 0.04 second(s)
 
 /*===========
 
@@ -8646,17 +8650,28 @@ o1 = new stzList([ "A", 1:3, obj, "B", [ "C", 4:5, [ "V", 6:8, ["T", 9:12 ,"K"] 
 
 
 /*---------------------
-*/
-//? StzListQ([ 1:3, 4:7, 8:10 ]).MergeQ().Content()
-#NOTE: lists are merged only when they are lists of lists (Why? Think of it - TODO)
 
-/*----------------------
+pron()
+
+? @@( Q([ 0, 1:3, 4:7, 8:10 ]).Merged() )
+#--> [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*----------------------  #TODO check again
+*
+pron()
 
 o1 = new stzList([ :Water, :Milk, :Cofee, :Tea, :Sugar, " ",:Honey ])
 ? o1.WalkUntil('@Item = :Milk') #--> [ 1, 2 ]
 ? o1.WalkUntil('@Item = " "')	#--> [ 1, 2, 3, 4, 5, 6 ]
 
+proff()
+
 /*---------------------- TODO: refactored: reveiw it after completing stzWalker
+
+pron()
 
 StzListQ( "A":"J" ) {
 	AddWalker( :Named = :Walker1, :StartingAt = 1, :EndingAt = 10, :NStep = 1 )
@@ -8669,6 +8684,7 @@ StzListQ( "A":"J" ) {
 	? Yield( 'type(@item)', :WhileWalkingListBy = :Walker1 )
 }
 
+proff()
 
 /*----------------------
 
@@ -8713,19 +8729,19 @@ o1 - :Honey
 
 #====================== DISTRIBUTING ITEMS OVER THE ITEMS OF AN OTHER LIST
 
-/*
-Softanza can distribute the items of a list over the items of an other,
-called metaphorically 'Beneficiary Items'  as they benfit from that
-distribution.
+pron()
+
+# Softanza can distribute the items of a list over the items of an other,
+# called metaphorically 'Beneficiary Items'  as they benfit from that
+# distribution.
 		
-The distribution is defined by the share of each item.
+# The distribution is defined by the share of each item.
 		
-The share of each item determines how many items should be given to
-the each beneficiary item.
+# The share of each item determines how many items should be given to
+# the each beneficiary item.
 		
-Let's see:	
-*/
-/*
+# Let's see:	
+
 o1 = new stzList([ "water", "coca", "milk", "spice", "cofee", "tea", "honey" ] )
 ? @@( o1.DistributeOver([ "arem", "mohsen", "hamma" ]) ) + NL
 #--> :
@@ -8751,7 +8767,7 @@ o1 = new stzList([ "water", "coca", "milk", "spice", "cofee", "tea", "honey" ] )
 # ]
 
 # But if you try to share more items then it exists in the list (1 + 2 + 6 > 7!):
-? @@( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 1, 2, 6 ] ) )
+//? @@( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 1, 2, 6 ] ) )
 # Softanza won't let you do so and tells you why:
 
 #   	What : Can't distribute the items of the main list over the items of
@@ -8761,12 +8777,17 @@ o1 = new stzList([ "water", "coca", "milk", "spice", "cofee", "tea", "honey" ] )
 #   	Todo : Provide a share list where the sum of its items is equal to
 #	       the number of items of the list.
 
-/*-----------------
+proff()
+# Executed in 0.02 second(s)
+
+/*----------------- #TODO checki it again
+
+pron()
 
 # The distribution of the items of a list can be made directly using
 # the "/" operator on the list object:
 
-o1 = new stzList(' "♥1" : "♥6" ')
+o1 = new stzList( L(' "♥1" : "♥6" ' ) ) # or simplie o1 = LQ(' "♥1" : "♥6" ')
 ? @@( o1 / 8 )
 #--> [ [ "♥1" ], [ "♥2" ], [ "♥3" ], [ "♥4" ], [ "♥5" ], [ "♥6" ], [ ], [ ] ]
 
@@ -8774,22 +8795,31 @@ o1 = new stzList(' "♥1" : "♥6" ')
 #--> The beneficiary items can be of any type. In practice, they are
 # strings and hence the returned result is a hashlist.
 
+proff()
+
 /*-----------------
 
+pron()
+
 o1 = new stzList(1:12)
-? @@( o1.DistributeOver([ "Mansoor", "Teeba", "Haneen", "Hussein", "Sherihen" ]) )
+? @@( o1.DistributeOver([ "Mansour", "Teeba", "Haneen", "Hussein", "Sherihen" ]) )
 #-->
 # [
-#	[ "Mansoor",  [ 1, 2, 3 ] ],
+#	[ "Mansour",  [ 1, 2, 3 ] ],
 #	[ "Teeba",    [ 4, 5, 6 ] ],
 #	[ "Haneen",   [ 7, 8    ] ],
 #	[ "Hussein",  [ 9, 10   ] ],
 #	[ "Sherihen", [ 11, 12  ] ]
 # ]
 
+proff()
+# Executed in 0.02 second(s)
+
 /*-----------------
 
-o1 = new stzList(' "♥1" : "♥9" ')
+pron()
+
+o1 = new stzList( L(' "♥1" : "♥9" ') )
 ? @@( o1 / [ "Mansoor", "Teeba", "Haneen" ] )
 #-->
 # [
@@ -8798,13 +8828,7 @@ o1 = new stzList(' "♥1" : "♥9" ')
 #	[ "Haneen", 	[ "♥7", "♥8", "♥9" ] ]
 # ]
 
-/*---------------------
-
-o1 = new stzString("Python")
-o2 = new stzString("Ring")
-
-oList = new stzList([ o1, o2 ])
-? oList.ApplyCode("oEachObject.Content()", :ToObjects)
+proff()
 
 /*---------------------
 

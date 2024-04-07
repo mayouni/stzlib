@@ -18,524 +18,37 @@ func StzListQ(paList)
 
 #==========
 
-func @SortList(paList)
-	if CheckParams()
-		if NOT isList(paList)
-			StzRaise("Incorrect param type! paList must be a list.")
-		ok
-	ok
-
-	nLen = len(paList)
-
-	if nLen = 0
-		return []
-	ok
-	
-	anNumbers = []
-	acStrings = []
-	aaLists   = []
-	aoObjects = []
-
-	for i = 1 to nLen
-		if isNumber(paList[i])
-			anNumbers + paList[i]
-
-		but isString(paList[i])
-			acStrings + paList[i]
-
-		but isList(paList[i])
-			aaLists + paList[i]
-
-		else // isObject()
-			aoObjects + paList[i]
-		ok
-	next
-
-	aResult = []
-
-	nLenNumbers = len(anNumbers)
-	nLenStrings = len(acStrings)
-	nLenLists = len(aaLists)
-	nLenObjects = len(aoObjects)
-
-	anNumbersSorted = ring_sort(anNumbers)
-	for i = 1 to nLenNumbers
-		aResult + anNumbersSorted[i]
-	next
-
-	acStringsSorted = ring_sort(acStrings)
-	for i = 1 to nLenStrings
-		aResult + acStringsSorted[i]
-	next
-
-	aaListsSorted = []
-	for i = 1 to nLenLists
-		aResult + @SortList(aaLists[i])
-	next
-	
-	for i = 1 to nLenObjects
-		aResult + aoObjects[i]
-	next
-
-	return aResult
-
-
-	func SortList(paList)
-		return @Sort(paList)
-
-func ListsSizes(paLists)
-	if CheckParams()
-		if NOT isList(paLists) and @IsListOfLists(paLists)
-			StzRaise("Incorrect param type! paLists must be a list of lists.")
-		ok
-	ok
-
-	nLen = len(paLists)
-
-	if nLen = 0
-		return []
-	ok
-
-	anResult = []
-
-	for i = 1 to nLen
-		anResult + len(paLists[i])
-	next
-
-	return anResult
-
-	#< @FunctionAlternativeForms
-
-	func ListsNumbersOfItems(paLists)
-		return ListsSizes(paList)
-
-	func SizeOfEachListIn(paLists)
-		return ListsSizes(paList)
-
-	func SizeInEachList(paLists)
-		return ListsSizes(paList)
-
-	func NumberOfItemsOfEachListIn(paLists)
-		return ListsSizes(paList)
-
-	func NumberOfItemsOfEachList(paLists)
-		return ListsSizes(paList)
-
-	#--
-
-	func @ListsSizes(paList)
-		return ListsSizes(paList)
-
-	func @ListsNumbersOfItems(paLists)
-		return ListsSizes(paList)
-
-	func @SizeOfEachListIn(paLists)
-		return ListsSizes(paList)
-
-	func @SizeInEachList(paLists)
-		return ListsSizes(paList)
-
-	func @NumberOfItemsOfEachListIn(paLists)
-		return ListsSizes(paList)
-
-	func @NumberOfItemsOfEachList(paLists)
-		return ListsSizes(paList)
-	
-	#>
-
-func Types(paList)
-	if NOT isList(paList)
-		StzRaise("Incorrect param type! paList must be a list.")
-	ok
-
-	nLen = len(palist)
-	acResult = []
-
-	for i = 1 to nLen
-		acResult + type(paList[i])
-	next
-
-	return acResult
-
-	func ListTypes(paList)
-		return Types(paList)
-
-	func @Types(paList)
-		return Types(paList)
-
-	func @ListTypes(paList)
-		return Types(paList)
-
-func Sizes(paList)
-	if NOT isList(paList)
-		StzRaise("Incorrect param type! paList must be a list.")
-	ok
-
-	if NOT ( IsListOfStrings(paList) or
-		 IsListOfLists(paList) or
-		 IsListOfStringsAndLists(paList) )
-
-		StzRaise("Incorrect param type! paList must be alist of strings or/and lists.")
-
-	ok
-
-	nLen = len(palist)
-	anResult = []
-
-	for i = 1 to nLen
-		if isString(paList[i])
-			anResult + StzStringQ(paList[i]).Size()
-
-		else // isList()
-			anResult + len(paList[i])
-		ok
-	next
-
-	return anResult
-
-	func ListSizes(paList)
-		return Sizes(paList)
-
-	func @Sizes(paList)
-		return Sizes(paList)
-
-	func @ListSizes(paList)
-		return Sizes(paList)
-
-func ListsBySize(paLists)
-	if CheckParams()
-		if NOT isList(paLists) and @IsListOfLists(paLists)
-			StzRaise("Incorrect param type! paLists must be a list of lists.")
-		ok
-	ok
-
-	nLen = len(paLists)
-
-	if nLen = 0
-		return []
-	ok
-
-	anSizesU = UniqueItems( ListsSizes(paLists) )
-	nLenU = len(anSizesU)
-
-	aResult = []
-	for i = 1 to nLenU
-		aTempLists = []
-		for j = 1 to nLen
-			if len(paLists[j]) = anSizesU[i]
-				aTempLists + paLists[j]
-			ok
-		next
-
-		aResult + [ anSizesU[i], aTempLists ]
-	next
-
-	return aResult
-
-	func ListsAndSizes()
-		return ListsBySize(paList)
-
-	func ListsAndTheirSizes()
-		return ListsBySize(paList)
-
-	func @ListsBySize(paList)
-		return ListsBySize(paList)
-
-	func @ListsAndSizes()
-		return ListsBySize(paList)
-
-	func @ListsAndTheirSizes()
-		return ListsBySize(paList)
-
 func SortListsBySize(paLists)
-	if CheckParams()
-		if NOT isList(paLists) and @IsListOfLists(paLists)
+	if CheckParam()
+		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
 			StzRaise("Incorrect param type! paLists must be a list of lists.")
 		ok
 	ok
 
 	nLen = len(paLists)
 
-	if nLen = 0
-		return []
-	ok
-
-	anSizesXT = []
 	for i = 1 to nLen
-		anSizesXT + [ paLists[i], len(paLists[i]) ]
+		ring_insert(paLists[i], len(paLists[i]), 1)
 	next
 
-	aSortedXT = ring_sort2(anSizesXT, 2)
-
-	aResult = []
-	for i = 1 to nLen
-		aResult + aSortedXT[i][1]
-	next
-
-	return aResult
-
-	def @SortListsBySize(paLists)
-		return SortListsBySize(paLists)
-
-func SortedListsBySize(aLists) 
-	aResult = SortListsOn( ListsBySize(aLists), 1 )
-	return aResult
-
-	func SortListsBySizeXT(paLists)
-		return SortedListsBySize(aLists) 
-
-	func @SortedListsBySize(aLists) 
-		return SortedListsBySize(aLists) 
-
-	func @SortListsBySizeXT(paLists)
-		return SortedListsBySize(aLists) 
-
-func ListsAndTheirTypes(paLists)
-	if CheckParams()
-		if NOT isList(paLists) and @IsListOfLists(paLists)
-			StzRaise("Incorrect param type! paLists must be a list of lists.")
-		ok
-	ok
-
-	nLen = len(paLists)
-
-	if nLen = 0
-		return []
-	ok
-
-	aResult = []
+	SortListsOn(paLists, 1)
 
 	for i = 1 to nLen
-
-		cTypeXT = ""
-		nLenList = len(paLists[i])
-		for j = 1 to nLenList
-
-			cType = ""
-
-			switch type(paLists[i][j])
-			on "NUMBER"
-				cType = "0NUMBER"
-			on "STRING"
-
-				cType = "1STRING"
-			on "LIST"
-				cType = "2LIST"
-
-			on "OBJECT"
-f				cType = "3OBJECT"
-			off
-
-			cTypeXT += cType
-		next
-
-		nLenTypeXT = len(cTypeXT)
-		c = "" //"_"
-		nDiff = StzListOfListsQ(paLists).MaxSize() - nLenTypeXT
-		if nDiff > 0
-			cTemp = ""
-			for j = 1 to nDiff
-				cTemp += c
-			next
-
-			cTypeXT = cTemp + cTypeXT
-		ok
-
-		aResult + [ paLists[i], cTypeXT ]
-
+		ring_remove(paLists[i], 1)
 	next
 
-	return aResult
+	return paLists
 
-	func @ListsAndTheirTypes(paLists)
-		return ListsAndTheirTypes(paLists)
-
-	func ListsAndTheirType(paLists)
-		return ListsAndTheirTypes(paLists)
-
-	func @ListsAndTheirType(paLists)
-		return ListsAndTheirTypes(paLists)
-
-func ListsByType(paLists)
-	if CheckParams()
-		if NOT isList(paLists) and @IsListOfLists(paLists)
-			StzRaise("Incorrect param type! paLists must be a list of lists.")
-		ok
-	ok
-
-	nLen = len(paLists)
-
-	if nLen = 0
-		return []
-	ok
-
-	aListsAndTheirTypes = @ListsAndTheirTypes(paLists)
-	
-	acTypesU = @WithoutDupplicates( StzListOfListsQ(aListsAndTheirTypes).NthCol(2) )
-	nLenTypes = len(acTypesU)
-
-	aResult = []
-
-	for i = 1 to nLenTypes
-		aTempLists = []
-		for j = 1 to nLen
-			if aListsAndTheirTypes[j][2] = acTypesU[i]
-				aTempLists + aListsAndTheirTypes[j][1]
-			ok
-		next
-		aResult + [ acTypesU[i], aTempLists ]
-	next
-
-	return aResult
-
-	func @ListsByType(paLists)
-		return ListsByType(paLists)
-
-func SortListsByType(paLists)
-	if CheckParams()
-		if NOT isList(paLists) and @IsListOfLists(paLists)
-			StzRaise("Incorrect param type! paLists must be a list of lists.")
-		ok
-	ok
-
-	nLen = len(paLists)
-
-	if nLen = 0
-		return []
-	ok
-
-	nMaxSize = len(paLists[1])
-	for i = 2 to nLen
-		nLenList = len(paLists[i])
-		if nLenList > nMaxSize
-			nMaxSize = nLenList
-		ok
-	next
-
-	aListsByType = @ListsAndTheirTypes(paLists)
-	aListsByTypeSorted = ring_sort2(aListsByType, 2)
-
-	aResult = []
-	for i = 1 to nLen
-		aResult + aListsByTypeSorted[i][1]
-	next
-
-	return aResult
-
-	func @SortListsByType(paLists)
-		return SortListsByType(paLists)
-
-func SortedListsByType(aLists) 
-	aResult = SortListsOn( ListsByType(aLists), 1 )
-	return aResult
-
-	func SortListsByTypeXT(paLists)
-		return SortedListsByType(aLists) 
-
-	func @SortedListsByType(aLists) 
-		return SortedListsByType(aLists) 
-
-	func @SortListsByTypeXT(paLists)
-		return SortedListsByType(aLists) 
+	func @SortListsBySize(paLists)
+		return nSortListsBySize(paLists)
 
 func SortLists(paLists)
-	if NOT @IsListOfLists(paLists)
-		StzRaise("Incorrect param type! paLists must be a list of lists.")
-	ok
+	return SortListsOn(palists, 1)
 
-	if @IsListOfListsOfNumbers(paLists) or
-	   @IsListOfListsOfStrings(paLists) or
-	   @IsListOfListsOfLists(paLists) or
-	   @IsListOfListsOfObjects(paLists)
+	func @SortLists(paList)
+		return SortLists(paList)
 
-		return SortListsBySize(paLists)
-
-	else // @IsListOfHybridLists
-		
-		aResult = []
-		nLen = len(paLists)
-
-		# Managing lists of numbers
-
-		aListsOfNumbers = []
-		for i = 1 to nLen
-			if @IsListOfNumbers(paLists[i])
-				aListsOfNumbers + paLists[i]
-			ok
-		next
-
-		nLenListOfNumbers = len(aListsOfNumbers)
-		aListsOfNumbersSorted = @SortListsBySize(aListsOfNumbers)
-
-		for i = 1 to nLenListOfNumbers
-			aResult + aListsOfNumbersSorted[i]
-		next
-
-		# Managing lists of strings
-
-		aListsOfStrings = []
-		for i = 1 to nLen
-			if @IsListOfStrings(paLists[i])
-				aListsOfStrings + paLists[i]
-			ok
-		next
-
-		nLenListOfStrings = len(aListsOfStrings)
-		aListsOfStringsSorted = @SortListsBySize(aListsOfStrings)
-
-		for i = 1 to nLenListOfStrings
-			aResult + aListsOfStringsSorted[i]
-		next
-
-		# Managing lists of lists
-
-		aListsOfLists = []
-		for i = 1 to nLen
-			if @IsListOfLists(paLists[i])
-				aListsOfLists + paLists[i]
-			ok
-		next
-
-		nLenListOfLists = len(aListsOfLists)
-		aListsOfListsSorted = @SortListsBySize(aListsOfLists)
-
-		for i = 1 to nLenListOfLists
-			aResult + aListsOfListsSorted[i]
-		next
-
-		# Managing lists of objects
-
-		for i = 1 to nLen
-			if @IsListOfObjects(paLists[i])
-				aResult + paLists[i]
-			ok
-		next
-
-		# Managing hybrid lists
-
-		aHybridLists = []
-		for i = 1 to nLen
-			if @IsHybridList(paLists[i])
-				aHybridLists + paLists[i]
-			ok
-		next
-
-		nLenaHybridLists = len(aHybridLists)
-		aListsOfListsSorted = @SortListsBySize(aHybridLists)
-
-		for i = 1 to nLenaHybridLists
-			aResult + aListsOfListsSorted[i]
-		next
-
-		# Returning the result
-
-		return aResult
-	ok
-
-	func @SortLists(paLists)
-		return SortLists(paLists)
-
-func SortOn(paLists, n)
+func SortListsOn(paLists, n)
 	if CheckParam()
 		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
 			StzRaise("Incorrect param type! paList must be a list of lists.")
@@ -705,14 +218,124 @@ func SortOn(paLists, n)
 		return aResult
 	ok
 
-	func @SortOn(paLists, n)
-		return SortOn(paLists, n)
-
-	func SortListsOn(paLists, n)
-		return SortOn(paLists, n)
+	#< @FunctionAlternativeForms
 
 	func @SortListsOn(paLists, n)
-		return SortOn(paLists, n)
+		return SortListsOn(paLists, n)
+
+	func SortOn(paLists, n)
+		return SortListsOn(paLists, n)
+
+	func @SortOn(paLists, n)
+		return SortListsOn(paLists, n)
+
+	#>
+
+func @SortList(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	nLen = len(paList)
+
+	if nLen = 0
+		return []
+	ok
+	
+	anNumbers = []
+	acStrings = []
+	aaLists   = []
+	aoObjects = []
+
+	for i = 1 to nLen
+		if isNumber(paList[i])
+			anNumbers + paList[i]
+
+		but isString(paList[i])
+			acStrings + paList[i]
+
+		but isList(paList[i])
+			aaLists + paList[i]
+
+		else // isObject()
+			aoObjects + paList[i]
+		ok
+	next
+
+	aResult = []
+
+	nLenNumbers = len(anNumbers)
+	nLenStrings = len(acStrings)
+	nLenLists = len(aaLists)
+	nLenObjects = len(aoObjects)
+
+	anNumbersSorted = ring_sort(anNumbers)
+	for i = 1 to nLenNumbers
+		aResult + anNumbersSorted[i]
+	next
+
+	acStringsSorted = ring_sort(acStrings)
+	for i = 1 to nLenStrings
+		aResult + acStringsSorted[i]
+	next
+
+	aaListsSorted = @SortListson(aaLists, 1)
+	for i = 1 to nLenLists
+		aResult + aaListsSorted[i]
+	next
+	
+	for i = 1 to nLenObjects
+		aResult + aoObjects[i]
+	next
+
+	return aResult
+
+
+	func SortList(paList)
+		return @Sort(paList)
+
+func @Sort(p)
+	if NOT (isString(p) or isList(p))
+		StzRaise("Incorrect param type! p must be a string or list.")
+	ok
+
+	if isString(p)
+		return ring_sort(p)
+
+	else // isList()
+
+		if @IsListOfNumbers(p) or @IsListOfStrings(p)
+			return ring_sort(p)
+		ok
+
+		if @IsListOfLists(p)
+			return @SortListsOn(1)
+
+		else
+			return @SortList(p)
+		ok
+	ok
+
+func SortListBy(paList, pcExpr)
+	return StzListQ(paList).SortedBy(pcExpr)
+
+	func @SortListBy(paList, pcExpr)
+		return SortListBy(paList, pcExpr)
+
+func SortBy(paList, pcExpr)
+	if CheckParams()
+		if NOT isList(paList)
+			Stzraise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	return StzListQ(paList).SortedBy(pcExpr)
+
+
+	func @SortBy(pcExpr)
+		return SortBy(pcExpr)
 
 #==========
 
@@ -28041,7 +27664,7 @@ class stzList from stzObject
 	#----------------------------------#
  
 	def SortInAscending()
-dfdf
+
 		/*
 		Ring native sort() function can sort a list made:
 			- only of numbers
@@ -28085,34 +27708,12 @@ dfdf
 
 		*/
 
-		aResult = []
-
-		if @IsRingSortable(This.Content())
-			aResult = ring_sort( This.Content() )
-
-		else
-			aNumbers = ring_sort( This.OnlyNumbers() )
-			aStrings = ring_sort( This.OnlyStrings() )
-
-			aListsOfNumbers = this.OnlyListsOfNumbersQ().SortedBy('Q(@item).Size()')
-			aListsOfStrings = This.OnlyListsOfStringsQ().SortedBy('Q(@item).Size()')
-			aListsOfLists   = This.OnlyListsOfListsQ().SortedBy('Q(@item).Size()')
-			aListsOfObjects = This.OnlyListsOfObjectsQ().SortedBy('Q(@item).Size()')
-
-			aoObjects = This.OnlyObjects()
-	
-			aResult = ListsMerge([
-				aNumbers, aStrings, aListsOfNumbers, aListsOfStrings, aListsOfLists,
-				aListsOfObjects, aoObjects
-			])
-		ok
-
+		aResult = @SortList( This.Content() )
 		This.Update( aResult )
 
 		#< @FunctionFluentForm
 
 		def SortInAscendingQ()
-
 			This.SortInAscending()
 			return This
 
@@ -28171,7 +27772,6 @@ dfdf
 	#-----------------------------------#
 
 	def SortInDescending()
-
 		aResult = ring_reverse( This.SortedInAscending() )
 		This.Update( aResult )
 
@@ -28274,70 +27874,26 @@ dfdf
 			StzRaise("Incorrect param! pcExpr must be a string containing @item keyword.")
 		ok
 
-		# Doing the job
+		aContent = This.Content()
+		nLen = len(aContent)
 
-		acContent = This.Content()
-		nLen = len(acContent)
+		aContentXT = []
 
-		# Evaluating pcExpr on all the items and getting a list
-		# containing the items and their relative evals
-		# (so we can ultimately sort theim by thoses evals)
-
-		cCode = 'value = ' + Q(pcExpr).TheseBoundsRemoved("{", "}")
-		aValuesXT = []  # This we host the items and the values
-		avalues = []	# This will contain only the values
+		cCode = ' value = (' + pcExpr + ')'
 
 		for @i = 1 to nLen
-			@item = acContent[@i]
+			@item = aContent[@i]
 			eval(cCode)
-			aValuesxt + [ acContent[@i], value ]
-			aValues + value
+			aContentXT + [ @item, value ]
 		next
 
-		# Taking the evals in a stzList (so we can find items in theim)
+		aContentXT = @SortOn(aContentXT, 2)
 
-		oValues = new stzList(aValues)
-
-		# Getting the unique values (evals) in a list (so we can use
-		# them to construct the final result)
-
-		aValuesU = @WithoutDupplication(aValues)
-		nLenU = len(aValuesU)
-
-		aSorted = []
-
-		for i = 1 to nLenU
-			anPos = oValues.Find(aValuesU[i])
-			aSorted + [ This.ItemsAtPositionsQ(anPos).Sorted(), aValuesU[i] ]
+		for i = 1 to nLen
+			ring_remove(aContentXT[i], 2)
 		next
 
-		# Now we are going to sort the items (first column in aSorted)
-		# by the values in its second column()
-
-		# We we if we can use a Ring-based sort, otherwise we rely on
-		# a Softanza sort (Ring sort, when feasible, is more performant)
-
-		if @IsRingSortable(aValuesU)
-			aSorted = ring_sort2(aSorted, 2)
-		else
-			aSorted = @SortOn(aSorted, 2)
-		ok
-
-		# Now, the items in the first column are sorted, and grouped
-		# inside inner pairs of the form [ itemValue, evaluatedValue ]
-		# Here, we parse them and extract them in a list
-
-		aResult = []
-		for i = 1 to nLenU
-			nLenTemp = len(aSorted[i][1])
-			for j = 1 to nLenTemp
-				aResult + aSorted[i][1][j]
-			next
-		next
-
-		# And finally we update the list object content
-
-		This.Update(aResult)
+		This.UpdateWith(aContentXT)
 
 
 		#< @FunctionFluentForm

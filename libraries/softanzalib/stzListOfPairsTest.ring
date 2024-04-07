@@ -116,7 +116,7 @@ aLists = [
 # ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.04 second(s)
 
 /*---------------
 
@@ -126,7 +126,7 @@ aLists = [
 	"A":"C", 1:3, [ 5, "E", 7 ], [1]
 ]
 
-? @@nl( @SortLists(aLists) ) + NL
+? @@NL( @SortLists(aLists) ) + NL
 #--> [
 
 #	# First come pure lists (made of items of the same type)
@@ -141,7 +141,7 @@ aLists = [
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*---------------
 
@@ -180,6 +180,7 @@ aLists = [
 proff()
 # Executed in 0.02 second(s)
 
+/*---------------
 
 pron()
 
@@ -191,7 +192,7 @@ aLists = [
 #--> [ [ 4 ], [ 1, 2, 3 ], [ 5, 6, 7, 8 ] ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*---------------
 
@@ -229,7 +230,7 @@ aLists = [
 # ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.04 second(s)
 
 /*---------------
 
@@ -244,20 +245,20 @@ o1 = new stzListOfStrings([ "130", "12500", "17" ])
 # ...17
 
 #TODO
-# Add this feature to stzListOfNumbers
+# Add this feature to stzListOfNumbers #UPDATE done!
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.09 second(s)
+
 #TODO: Rethink stzListOfStrings main container
 # Problem: QStringList() takes time in constructing the object
 
-
 /*---------------
 
-
-*/
 pron()
 
+# SortOn(list, nthCol) stringifies the nth column and then
+# sorts the lists based on it
 
 aLists = [
 	[ "Dog", 	   370,		"white",	TRUE	   ],
@@ -294,7 +295,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*---------------
-
+*/
 pron()
 
 aLists = [
