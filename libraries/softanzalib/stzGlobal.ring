@@ -973,8 +973,20 @@ func ring_trim(str)
 	func @trim(str)
 		return trim(str)
 
-func ring_insert(paList, n, pItem)
-	insert(paList, n, pItem)
+
+func ring_insert(paList, n, item)
+	#NOTE
+	# We change the behaviour of the Ring function, since
+	# it actually means in Ring insertAfter() and not insert()
+
+	if CheckParam()
+		if NOT isList(paList) 
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	insert(paList, n-1, item)
+	return paList
 
 func ring_find(paList, pItem)
 	return find(paList, pItem)
@@ -1068,12 +1080,31 @@ func ring_right(str, n)
 
 func ring_del(paList, n)
 	del(paList, n)
+	return paList
+
+	#NOTE
+	# Some Ring standard functions make the action in place and does nit
+	# return anything. Others do the action and return the result.
+	#~>
+	# The ring_...() functions familty always do the action and return
+	# the result. So you are free to say:
+
+	# 	aList = [ 1, 1, 2, 3 ]
+	# 	ring_remove(aList, 1, 1)
+	# 	? aList
+	# 	#--> [ 1, 2, 3 ]
+
+	# Or directly:
+
+	# 	? ring_remove([ 1, 1, 2, 3 ], 1, 1)
+	# 	#--> [ 1, 2, 3 ]
+	
 
 	func ring_remove(paList, n) # An alternative I added to the Ring semantics
-		del(paList, n)
+		return ring_del(paList, n)
 
 	func remove(paList, n)	    # Idem
-		del(paList, n)
+		return ring_del(paList, n)
 
 func ring_copy(p1, p2)
 	return copy(p1, p2)

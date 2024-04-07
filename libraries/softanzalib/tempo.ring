@@ -1,6 +1,138 @@
 load "stzlib.ring"
 
-/*=====
+/*====== #ring
+
+# Some Ring standard functions make the action in place and does not
+# return anything. Others do the action and return the result.
+
+#~>
+# The ring_...() functions familty always do the action and return
+# the result. So you are free to say:
+
+	aList = [ 1, 1, 2, 3 ]
+	ring_remove(aList, 1, 1)
+	? aList
+	#--> [ 1, 2, 3 ]
+
+# Or directly:
+
+	? ring_remove([ 1, 1, 2, 3 ], 1, 1)
+	#--> [ 1, 2, 3 ]
+
+/*====== #ring
+
+pron()
+
+# ring_insert() corrects the behaviour of the standard insert()
+# function, since the standard function, as is, meanse actually
+# InsertAfter() and not insert (before, which what we expect)
+
+? ring_insert(2:3, 1, 1)
+#--> [ 1, 2, 3 ]
+
+# In fact, if we use the standart function
+
+alist = 2:3
+insert(aList, 1, 1)
+? aList
+#--> [ 2, 1, 3 ]
+
+proff()
+# Executed in 0.01 second(s)
+
+/*======
+
+pron()
+
+? @@SP( SortLists([
+	[ "Dog", 	370 ],
+	[ "Fox", 	120 ],
+	[ "Charlie", 	1:3 ],
+	[ "Baker",	493 ],
+	[ "Easy", 	5:8 ]	 
+]) )
+#--> [
+#	[ "Baker", 493 ],
+#	[ "Charlie", [ 1, 2, 3 ] ],
+#	[ "Dog", 370 ],
+#	[ "Easy", [ 5, 6, 7, 8 ] ],
+#	[ "Fox", 120 ]
+# ]
+
+proff()
+# Executed in 0.04 second(s)
+
+#------
+
+pron()
+
+? @@SP( SortListsBySize([ 1:7, 1:3, 1:5 ]) )
+#--> [
+#	[ 2, 3, 4, 5, 6, 1, 7 ],
+#	[ 2, 1, 3 ],
+#	[ 2, 3, 4, 1, 5 ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+#------
+
+pron()
+
+aLists = [
+	[ "Dog", 	370,	"white",	TRUE	],
+	[ "Fox", 	120,	"blue",		FALSE	],
+	[ "Charlie", 	1:3,	"white" 		],
+	[ "Baker",	493 				],
+	[ "Easy", 	5:8 				],
+	[ "Alpha",	 45,	"green" 		],
+	[ "King"					]
+]
+
+? @@SP( SortListsOn(aLists, 2) )
+#--> [
+#	[ "King" ],
+#	[ "Alpha", 45, "green" ],
+#	[ "Fox", 120, "blue", 0 ],
+#	[ "Dog", 370, "white", 1 ],
+#	[ "Baker", 493 ],
+#	[ "Charlie", [ 1, 2, 3 ], "white" ],
+#	[ "Easy", [ 5, 6, 7, 8 ] ]
+# ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*----------
+
+pron()
+
+? @@NL( SortList([ "charlie", 17, 10, 4:7, "fox", 1:3, "aplha" ]) )
+#--> [
+#	10,
+#	17,
+#	"aplha",
+#	"charlie",
+#	"fox",
+#	[ 1, 2, 3 ],
+#	[ 4, 5, 6, 7 ]
+# ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*---------
+
+pron()
+
+? SortBy([ "a", "abcde", "abc", "ab", "abcd" ], 'len(@item)')
+#--> [ "a", "ab", "abc", "abcd", "abcde" ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*===========================
 
 emm = [
 
