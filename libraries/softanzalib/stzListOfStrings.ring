@@ -2009,59 +2009,26 @@ class stzListOfStrings from stzList
 				This.SwapString(n1, n2)
 		#>
 
-	  #==========================================#
-	 #    ِCHECKING IF THE STRINGS ARE SORTED    #
-	#==========================================#
-
-	def IsSorted()
-		return This.IsSortedInAscending() or This.IsSortedInDescending()
-
-		def StringsAreSorted()
-			return This.IsSorted()
-
-	def IsUnsorted()
-		return NOT This.IsSorted()
-
-		def StringsAreUnsorted()
-			return This.IsUnsorted()
-
-	def IsNotSorted()
-		return NOT This.IsSorted()
-
-		def StringsAreNotSorted()
-			return This.IsNotSorted()
-
-	def IsSortedInAscending()
-		bResult = This.Copy().SortInAscendingQ().ToStzList().IsStrictlyEqualTo( This.ListOfStrings() )
-		return bResult
-
-		def StringsAreSortedInAscending()
-			return This.IsSortedInAscending()
-
-	def IsSortedInDescending()
-		bResult = This.Copy().SortInDescendingQ().ToStzList().IsStrictlyEqualTo( This.ListOfStrings() )
-		return bResult
-
-		def StringsAreSortedInDescending()
-			return This.IsSortedInDescending()
-
-	  #------------------------------------#
+	  #====================================#
 	 #  SORTING THE STRINGS IN ASCENDING  #
-	#------------------------------------#
+	#====================================#
 
 	def SortInAscending()
 		This.QStringListObject().sort()
 
+		#< @FunctionAlternativeForms
+
 		def SortInAscendingQ()
 			This.SortInAscending()
 			return This
-	
-		def SortStringsInAscending()
-			This.SortInascending()
 
-			def SortStringsInAscendingQ()
-				This.SortStringsInAscending()
-				return This
+		def SortUp()
+			This.SortInAscending()
+
+			def SortUpQ()
+				return This.SortInAscendingQ()
+
+		#>
 
 	def SortedInAscending()
 		oQCopy = This.QStringListObject()
@@ -2069,7 +2036,7 @@ class stzListOfStrings from stzList
 
 		return QStringListContent(oQCopy)
 
-		def StringsSortedInAscending()
+		def SortedUp()
 			return This.SortedInAscending()
 
 	  #-------------------------------------#
@@ -2077,210 +2044,102 @@ class stzListOfStrings from stzList
 	#-------------------------------------#
 
 	def SortInDescending()
-		This.Update( This.SortedInDescending() )
+		This.Update( This.QStringListObject().sort() )
 
 		def SortInDescendingQ()
 			This.SortInDescending()
 			return This
 
-		def SortStringsInDescending()
-			This.SortInDescending()
+		def SortDown()
+			This.SortInDesending()
 
-			def SortStringsInDescendingQ()
-				This.SortStringsInDescending()
-				return This
+			def SortDownQ()
+				return This.SortInDescendingQ()
 
 	def SortedInDescending()
-		oQCopy = This.QStringListObject()
-		oQCopy.sort()
-
-		acResult = ListReverse( QStringListContent(oQCopy) )
+		acResult = This.QStringListObject().sort()
 		return acResult
 
-		def StringsSortedInDescending()
+		def SortedDown()
 			return This.SortedInDescending()
-		
-	  #-----------------------------------------#
-	 #  GETTING THE SORT ORDER OF THE STRINGS  #
-	#-----------------------------------------#
-
-	def SortingOrder()
-
-		cResult = :Unsorted
-
-		if This.IsSortedInAscending()
-			cResult = :Ascending
-
-		but This.IsSortedInDescending()
-			cResult = :Descending
-
-		ok
-		
-		return cResult
  
-	  #----------------------------------------#
-	 #  SORTING THE STRING BY - IN ASCENDING  #
-	#----------------------------------------#
+	  #-----------------------------------------------------------------#
+	 #  SORTING THE STRINGS BY AN EVALUATED EXPRESSION - IN ASCENDING  #
+	#=================================================================#
  
-	def SortInAscendingBy(pcExpr)
-		/* EXAMPLE
-		o1 = new stzListOfStrings([ "a", "abcde", "abc", "ab", "abcd" ])
-		o1.SortBy('len(@string)')
-		? o1.Content()
+	def SortBy(pcExpr)
 
-		#--> [ "a", "ab", "abc", "abcd", "abcde" ]
-
-		*/
-
-		if NOT (isString(pcExpr) and Q(pcExpr).ContainsOneOfTheseCS([ "This[@i]", "@string" ], :CS = FALSE))
-			StzRaise("Incorrect param! pcExpr must be a string containing This[@i] or @string keyword.")
+		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@string", :CS = FALSE))
+			StzRaise("Incorrect param! pcExpr must be a string containing @string keyword.")
 		ok
 
-		acContent = This.Content()
-		nLen = len(acContent)
+		pcExpr = Q(pcExpr).ReplaceQ("@string", "@item").Content()
 
-		cCode = 'value = ' + Q(pcExpr).TheseBoundsRemoved("{", "}")
-		aValues = []
-		
-		for @i = 1 to nLen
-			@string = acContent[@i]
-			eval(cCode)
-			aValues + value
-		next
-
-		oTable = new stzTable([ :COL1 = acContent, :COL2 = aValues ])
-		acSorted = oTable.SortInDescendingByQ(:COL2).Col(1)
-
-		This.Update(acSorted)
+		aContent = This.ToStzList().SortedBy(pcExpr)
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
-		def SortInAscendingByQ(pcExpr)
-			This.SortInAscendingBy(pcExpr)
+		def SortByQ(pcExpr)
+			This.SortBy(pcExpr)
 			return This
+
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SortBy(pcExpr)
-			return This.SortInAscendingBy(pcExpr)
+		def SortInAscendingBy(pcExpr)
+			This.SortBy(pcExpr)
 
-			def SortByQ(pcExpr)
-				This.SortBy(pcExpr)
-				return This
+			def SortInAscendingByQ(pcExpr)
+				return This.SortByQ(pcExpr)
 
-		#>
+		def SortUpBy(pcExpr)
+			This.SortBy(pcExpr)
 
-		#< @FunctionMisspelledForm
-
-		def SortInAsendingBy(pcExpr)
-			This.SortInAscendingBy(pcExpr)
-
-			def SortInAsendingByQ(pcExpr)
-				This.SortInAsendingBy(pcExpr)
-				return This
+			def SortUpByQ(pcExpr)
+				return This.SortByQ(pcExpr)
 
 		#>
 
-	def SortedInAscendingBy(pcExpr)
-		acResult = This.Copy().SortInAscendingByQ(pcExpr).Content()
-		return acResult
+	def SortedBy(pcExpr)
+		aResult = This.Copy().SortByQ(pcExpr).Content()
+		return aResult
 
-		def SortedBy(pcExpr)
-			return This.SortedInInAscendingBy(pcExpr)
+		def SortedInAscendingBy(pcExpr)
+			return This.SortedBy(pcExpr)
 
-		#< @FunctionMisspelledForm
+		def SortedUpBy(pcExpr)
+			return This.SortedBy(pcExpr)
 
-		def SortedInAsendingBy(pcExpr)
-			return This.SortedInAscendingBy(pcExpr)
-
-		#>
-
-	  #-----------------------------------------#
-	 #  SORTING THE STRING BY - IN DESCENDING  #
-	#-----------------------------------------#
+	  #--------------------------------------------------------#
+	 #  SORTING THE STRINGS BY AN EXPRESSION - IN DESCENDING  #
+	#--------------------------------------------------------#
  
 	def SortInDescendingBy(pcExpr)
-		acSorted = This.Copy().SortInAscendingByQ(pcExpr).Reversed()
-		This.Update(acSorted)
-
-		#< @FunctionFluentForm
+		This.SortInAscendingBy(pcExpr)
+		This.Reverse()
 
 		def SortInDescendingByQ(pcExpr)
 			This.SortInDescendingBy(pcExpr)
 			return This
 
-		#>
-
-		#< @FunctionMisspelledForm
-
-		def SortInDesendingBy(pcExpr)
+		def SortDownBy(pcExpr)
 			This.SortInDescendingBy(pcExpr)
 
-		#>
+			def SortDownByQ(pcExpr)
+				return This.SortInDescendingByQ(pcExpr)
 
 	def SortedInDescendingBy(pcExpr)
-		acContent = This.Copy().SortInDescendingByQ(pcExpr).Content()
-		return acContent
-
-		#< @FunctionMisspelledForm
-
-		def SortedInDesendingBy(pcExpr)
-			return This.SortedInDescendingBy(pcExpr)
-
-		#>
-
-	  #---------------------------------------#
-	 #     ASSOCIATE WITH AN ANOTHER LIST    #
-	#---------------------------------------#
-
-	// Returns an Associative List (HashList) from the main list and an other list
-
-	def AssociateWith(paOtherList)
-		/* EXAMPLE
-
-		o1 = new stzList([ "Name", "Age", "Job" ])
-		o1.AssociateWith([ "Ali", 24, "Programmer" ])
-		? o1.Content()
-
-		#--> [ "Name" = "Ali", "Age" = 24, "Job" = "Programmer" ]
-
-		TEST: What idf the first list contains items that are not strings?
-		This leads to a ListOfLists but not to a HashList!
-
-		*/
-
-		if NOT isList(paOtherList)
-			StzRaise("Incorrect param type! paOtherList must be a list.")
-		ok
-
-		nLenOtherList = len(paOtherList)
-		nLen = This.NumberOfItems()
-		aContent = This.Content()
-
-		aResult = []
-		for i = 1 to nLen
-			otherItem = NULL
-			if i <= nLenOtherList
-				otherItem = paOtherList[i]
-			ok
-
-			aResult + [ aContent[i], otherItem ]
-		next
-
-		This.Update( aResult )
-
-		def AssociateWithQ(paOtherList)
-			This.AssociateWith(paOtherList)
-			return This
-
-	def AssociatedWith(paOtherList)
-		aResult = This.Copy().AssociateWithQ(paOtherList).Content()
+		aResult = This.Copy().SortInDescendingByQ(pcExpr).Content()
 		return aResult
+
+		def SortedDownBy(pcExpr)
+			return This.SortedInDescendingBy(pcExpr)
 
 	  #----------------------------------------------------#
 	 #     SORTING THE CHARS OF EACH STRING IN THE LIST   #
-	#----------------------------------------------------#
+	#====================================================#
 
 	def CharsSortingOrders()
 		acResult = []
@@ -2519,6 +2378,54 @@ class stzListOfStrings from stzList
 		for i = 1 to nLen
 			aResult + Q(acContent[i]).StringWithWordsSortedInDescending()
 		next
+
+	  #=======================================#
+	 #     ASSOCIATE WITH AN ANOTHER LIST    #
+	#=======================================#
+
+	// Returns an Associative List (HashList) from the main list and an other list
+
+	def AssociateWith(paOtherList)
+		/* EXAMPLE
+
+		o1 = new stzList([ "Name", "Age", "Job" ])
+		o1.AssociateWith([ "Ali", 24, "Programmer" ])
+		? o1.Content()
+
+		#--> [ "Name" = "Ali", "Age" = 24, "Job" = "Programmer" ]
+
+		TEST: What idf the first list contains items that are not strings?
+		This leads to a ListOfLists but not to a HashList!
+
+		*/
+
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+
+		nLenOtherList = len(paOtherList)
+		nLen = This.NumberOfItems()
+		aContent = This.Content()
+
+		aResult = []
+		for i = 1 to nLen
+			otherItem = NULL
+			if i <= nLenOtherList
+				otherItem = paOtherList[i]
+			ok
+
+			aResult + [ aContent[i], otherItem ]
+		next
+
+		This.Update( aResult )
+
+		def AssociateWithQ(paOtherList)
+			This.AssociateWith(paOtherList)
+			return This
+
+	def AssociatedWith(paOtherList)
+		aResult = This.Copy().AssociateWithQ(paOtherList).Content()
+		return aResult
 
 	  #==============================================================#
 	 #     FINDING A STRING OR SUBSTRING IN THE LIST OF STRINGS     #
@@ -20133,3 +20040,4 @@ stop()
 
 		def LastCharsQM()
 			return @MainObject()
+

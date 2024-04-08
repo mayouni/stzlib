@@ -281,7 +281,7 @@ func @SortList(paList)
 		aResult + acStringsSorted[i]
 	next
 
-	aaListsSorted = @SortListson(aaLists, 1)
+	aaListsSorted = @SortListsOn(aaLists, 1)
 	for i = 1 to nLenLists
 		aResult + aaListsSorted[i]
 	next

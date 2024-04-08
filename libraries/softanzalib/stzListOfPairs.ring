@@ -500,102 +500,69 @@ class stzListOfPairs from stzListOfLists
 		aResult = This.Copy().StringifyItemsQ().Content()
 		return aResult
 
-	  #=============================================================================#
-	 #  CHECKING IF THE LIST OF PAIRS IS SORTED IN ASCENDING (ON THE FIRST ITEMS)  #
-	#=============================================================================#
+	  #=========================================#
+	 #  SORTING THE LIST OF PAIRS IN ASCENDING  #
+	#==========================================#
 
-	def IsSortedInAscending()
-		return This.IsSortedInAscendingOn(1)
+	def Sort()
+		This.SortOn(1)
 
-		def IsSorted()
-			return This.IsSortedInAscending()
+		def SortQ()
+			This.Sort()
+			return This
 
-		def IsSortedUp()
-			return This.IsSortedInAscending()
+		def SortUp()
+			This.Sort()
 
-		def IsSortedOnFirstItems()
-			return This.IsSortedInAscending()
+			def SortUpQ()
+				return This.SortQ()
 
-		def IsSortedInAscendingOnFirtsItems()
-			return This.IsSortedInAscending()
+		def SortInAscending()
+			This.Sort()
 
-		def IsSortedUpOnFirstItems()
-			return This.IsSortedInAscending()
+			def SortInAscendingQ()
+				return This.SortQ()
 
-	  #-------------------------------------------------------------------------------------------#
-	 #  CHECKING IF THE LIST OF PAIRS IS SORTED IN ASCENDING ON THE NTH (FIRST OR SECOND) ITEMS  #
-	#-------------------------------------------------------------------------------------------#
+	def Sorted()
+		aResult = This.Copy().SortQ().Content()
+		return aResult
 
-	def IsSortedInAscendingOn(n)
-		aSorted = This.SortedInAscendingOn(n)
-		cSorted = StzListQ(aSorted).ToCode()
-		
-		bResult = This.ToCodeQ().IsEqualTo(cSorted)
+		def SortedInAscending()
+			return This.Sorted()
 
-		return bResult
+		def SortedUp()
+			return This.Sorted()
 
-		def IsSortedOn(n)
-			return This.IsSortedInAscendingOn(n)
+	  #-------------------------------------------#
+	 #  SORTING THE LIST OF PAIRS IN DESCENDING  #
+	#-------------------------------------------#
 
-		def IsSortedUpOn(n)
-			return This.IsSortedInAscendingOn(n)
+	def SortDown()
+		This.SortDownOn(1)
 
-	  #------------------------------------------------------------------------------#
-	 #  CHECKING IF THE LIST OF PAIRS IS SORTED IN DESCENDING (ON THE FIRST ITEMS)  #
-	#------------------------------------------------------------------------------#
+		def SortDownQ()
+			This.SortDown()
+			return This
 
-	def IsSortedInDescending()
-		return This.IsSortedInDescendingOn(1)
+		def SortInDescending()
+			This.SortDown()
 
-		def IsSortedDown()
-			return This.IsSortedInDescending()
+			def SortInDescendingQ()
+				return This.SortDownQ()
 
-		def IsSortedInDescendingOnFirstItems()
-			return This.IsSortedInDescending()
+	def SortedDown()
+		aResult = This.Copy().SortDownQ().Content()
+		return aResult
 
-		def IsSortedDownOnFirstItems()
-			return This.IsSortedInDescending()
+		def SortedInDescending()
+			return This.Sorted()
 
-	  #--------------------------------------------------------------------------------------------#
-	 #  CHECKING IF THE LIST OF PAIRS IS SORTED IN DESCENDING ON THE NTH (FIRST OR SECOND) ITEMS  #
-	#--------------------------------------------------------------------------------------------#
-
-	def IsSortedInDescendingOn(n)
-		aSorted = This.SortedInDescendingOn(n)
-		cSorted = StzListQ(aSorted).ToCode()
-		
-		bResult = This.ToCodeQ().IsEqualTo(cSorted)
-
-		return bResult
-
-		def IsSortedDownOn(n)
-			return This.IsSortedInAscendingDown(n)
-
-	  #----------------------------------------------------#
-	 #  SORTING THE PAIRS ON NTH (FIRST OR SECOND) ITEMS  #
-	#====================================================#
+	  #------------------------------------------------------------------#
+	 #  SORTING THE PAIRS ON NTH (FIRST OR SECOND) COLUMN IN ASCENDING  #
+	#==================================================================#
 
 	def SortOn(n)
-		if CheckParams()
-			if NOT ( isNumber(n) and (n=1 or n=2) )
-				StzRaise("Incorrect param! n must be a number equal to 1 or 2.")
-			ok
-		ok
-
-		aItems = []
-		if n = 1
-			aItems = This.FirstItems()
-		else
-			aItems = This.LastItems()
-		ok
-
-		if @IsRingSortable(aItems)
-			aSorted = ring_sort2( This.Content(), n )
-
-		else
-			aSorted = @SortOn( This.Content(), n )
-		ok
-
+		aResult = @SortOn(This.Content(), n)
 		This.UpdateWith(aSorted)
 
 		#< @FunctionFluentForm
@@ -629,7 +596,7 @@ class stzListOfPairs from stzListOfLists
 		def SortOnUp(n)
 			This.SortOn(n)
 
-			def SortOnUQ(n)
+			def SortOnUpQ(n)
 				return This.SortOnQ(n)
 
 		#>
@@ -654,152 +621,8 @@ class stzListOfPairs from stzListOfLists
 
 		#>
 
-	  #----------------------------------------#
-	 #  SORTING THE PAIRS ON THE FIRST ITEMS  #
-	#----------------------------------------#
-
-	def SortFirstItems()
-		This.SortOn(1)
-
-		#< @FunctionFluentForm
-
-		def SortFirstItemsQ()
-			This.SortFirstItems()
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def Sort()
-			This.SortFirstItems()
-
-			def SortQ()
-				return This.SortFirstItemsQ()
-
-		def SortUp()
-			This.SortFirstItems()
-
-			def SortUpQ()
-				return This.SortFirstItemsQ()
-
-		def SortUpFirstItems()
-			This.SortFirstItems()
-
-			def SortUpFirstItemsQ()
-				return This.SortFirstItemsQ()
-
-		def SortFirstItemsUp()
-			This.SortFirstItems()
-
-			def SortFirstItemsUpQ()
-				return This.SortFirstItemsQ()
-
-		#>
-
-	def FirstItemsSorted()
-		aResult = This.Copy().SortOnQ(1).Content()
-		return aResult
-
-		#< @FunctionAlternativeForm
-
-		def FirstItemsSortedUp()
-			return This.FirstItemsSorted()
-
-		def Sorted()
-			return This.FirstItemsSorted()
-
-		def SortedUp()
-			return This.FirstItemsSorted()
-
-		#>
-
-	  #-----------------------------------------#
-	 #  SORTING THE PAIRS ON THE SECOND ITEMS  #
-	#-----------------------------------------#
-
-	def SortSecondItems()
-		This.SortOn(2)
-
-		#< @FunctionFluentForm
-
-		def SortSecondItemsQ()
-			This.SortSecondItems()
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def SortSecondItemsInAscending()
-			This.SortSecondItems()
-
-			def SortSecondItemsInAscendingQ()
-				return This.SortSecondItemsQ()
-
-		def SortUpSecondItems()
-			This.SortSecondItems()
-
-			def SortUpSecondItemsQ()
-				return This.SortSecondItemsQ()
-
-		def SortSecondItemsUp()
-			This.SortSecondItems()
-
-			def SortSecondItemsUpQ()
-				return This.SortSecondItemsQ()
-
-		def SortLastItemsInAscending()
-			This.SortSecondItems()
-
-			def SortLastItemsInAscendingQ()
-				return This.SortSecondItemsQ()
-
-		def SortLastItems()
-			This.SortSecondItems()
-
-			def SortLastItemsQ()
-				return This.SortSecondItemsQ()
-
-		def SortUpLastItems()
-			This.SortSecondItems()
-
-			def SortUpLastItemsQ()
-				return This.SortSecondItemsQ()
-
-		def SortLastItemsUp()
-			This.SortSecondItems()
-
-			def SortLastItemsUpQ()
-				return This.SortSecondItemsQ()
-
-		#>
-
-	def SecondItemsSorted()
-		aResult = This.Copy().SortOnQ(2).Content()
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def SecondItemsSortedInAscending()
-			return This.SecondItemsSorted()
-
-		def LastItemsSortedInAscending()
-			return This.SecondItemsSorted()
-
-		def SecondItemsSortedUp()
-			return This.SecondItemsSorted()
-
-		def LastItemsSorted()
-			return This.SecondItemsSorted()
-
-		def LastItemsSortedUp()
-			return This.SecondItemsSorted()
-
-		#>
-
 	  #---------------------------------------------------------#
-	 #  SORTING THE PAIRS DOWN ON NTH (FIRST IR SECOND) ITEMS  #
+	 #  SORTING THE PAIRS DOWN ON NTH (FIRST OR SECOND) ITEMS  #
 	#=========================================================#
 
 	def SortInDescendingOn(n)
@@ -853,193 +676,79 @@ class stzListOfPairs from stzListOfLists
 
 		#>
 
-	  #---------------------------------------------#
-	 #  SORTING THE PAIRS DOWN ON THE FIRST ITEMS  #
-	#---------------------------------------------#
+	  #---------------------------------------------------------------#
+	 #  SORTING THE PAIRS BY AN EVALUATED EXPRESSION - IN ASCENDING  #
+	#===============================================================#
+ 
+	def SortBy(pcExpr)
 
-	def SortSecondItemsInDescending()
-		This.SortInDescendingOn(2)
+		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@pair", :CS = FALSE))
+			StzRaise("Incorrect param! pcExpr must be a string containing @pair keyword.")
+		ok
+
+		pcExpr = Q(pcExpr).ReplaceQ("@pair", "@item").Content()
+
+		aContent = This.ToStzList().SortedBy(pcExpr)
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
-		def SortSecondItemsInDescendingQ()
-			This.SortSecondItemsInDescending()
+		def SortByQ(pcExpr)
+			This.SortBy(pcExpr)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SortDown()
-			This.SortSecondItemsInDescending()
+		def SortInAscendingBy(pcExpr)
+			This.SortBy(pcExpr)
 
-			def SortDownQ()
-				return This.SortSecondItemsInDescendingQ()
+			def SortInAscendingByQ(pcExpr)
+				return This.SortByQ(pcExpr)
 
-		def SortDownSecondItems()
-			This.SortSecondItemsInDescending()
+		def SortUpBy(pcExpr)
+			This.SortBy(pcExpr)
 
-			def SortDownSecondItemsQ()
-				return This.SortSecondItemsInDescendingQ()
-
-		def SortSecondItemsDown()
-			This.SortSecondItemsInDescending()
-
-			def SortSecondItemsDownQ()
-				return This.SortSecondItemsInDescendingQ()
+			def SortUpByQ(pcExpr)
+				return This.SortByQ(pcExpr)
 
 		#>
 
-	def SecondItemsSortedInDescending()
-		aResult = This.Copy().SortSecondItemsInDescendingQ(n).Content()
+	def SortedBy(pcExpr)
+		aResult = This.Copy().SortByQ(pcExpr).Content()
 		return aResult
 
-		#< @FunctionAlternativeForm
+		def SortedInAscendingBy(pcExpr)
+			return This.SortedBy(pcExpr)
 
-		def SecondItemsSortedDown()
-			return This.SecondItemsSorted()
+		def SortedUpBy(pcExpr)
+			return This.SortedBy(pcExpr)
 
-		def SortedDown()
-			return This.SecondItemsSorted()
+	  #------------------------------------------------------#
+	 #  SORTING THE PAIRS BY AN EXPRESSION - IN DESCENDING  #
+	#------------------------------------------------------#
+ 
+	def SortInDescendingBy(pcExpr)
+		This.SortInAscendingBy(pcExpr)
+		This.Reverse()
 
-		#>
-
-	  #=============================================#
-	 #  SORTING ITEMS (INSIDE PAIRS) IN ASCENDING  #
-	#=============================================#
-
-	def SortItemsInAscending()
-
-		nLen = len(@aContent)
-
-		for i = 1 to nLen
-			@aContent[i] = Q(@aContent[i]).SortedInAscending()
-		next
-
-		#< @FunctionFluntForm
-
-		def SortItemsInAscendingQ()
-			This.SortItemsInAscending()
+		def SortInDescendingByQ(pcExpr)
+			This.SortInDescendingBy(pcExpr)
 			return This
 
-		#>
+		def SortDownBy(pcExpr)
+			This.SortInDescendingBy(pcExpr)
 
-		#< @FunctionAlternativeForms
+			def SortDownByQ(pcExpr)
+				return This.SortInDescendingByQ(pcExpr)
 
-		def SortInsideInAscending()
-			This.SortItemsInAscending()
-
-		def SortInSideInPairsInAscending()
-			This.SortItemsInAscending()
-
-		def SortItemsInsideInAscending()
-			This.SortItemsInAscending()
-
-		def SortItemsInsidePairsInAscending()
-			This.SortItemsInAscending()
-
-		def SortItems()
-			This.SortItemsInAscending()
-
-		def SortInside()
-			This.SortItemsInAscending()
-
-		def SortItemsInside()
-			This.SortItemsInAscending()
-
-		def SortItemsInsidePairs()
-			This.SortItemsInAscending()
-
-		#--
-
-		def SortUpItems()
-			This.SortItemsInAscending()
-
-		def SortItemsUp()
-			This.SortItemsInAscending()
-
-		def SortUpInside()
-			This.SortItemsInAscending()
-
-		def SortInsideUp()
-			This.SortItemsInAscending()
-
-		#>
-
-	def ItemsSortedInAscending()
-		aResult = This.Copy().SortItemsInAscendingQ().Content()
+	def SortedInDescendingBy(pcExpr)
+		aResult = This.Copy().SortInDescendingByQ(pcExpr).Content()
 		return aResult
 
-		#< @FunctionAlternativeForms
-
-		def ItemsSorted()
-			return This.ItemsSortedInAscending()
-
-		def ItemsSortedUp()
-			return This.ItemsSortedInAscending()
-
-		#>
-
-	  #--------------------------------------#
-	 #  SORTING ITEMS INSIDE IN DESCENDING  #
-	#--------------------------------------#
-
-	def SortItemsInDescending()
-
-		nLen = len(@aContent)
-
-		for i = 1 to nLen
-			@aContent[i] = Q(@aContent[i]).SortedInDescending()
-		next
-
-		#< @FunctionFluntForm
-
-		def SortItemsInDescendingQ()
-			This.SortItemsInDescending()
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def SortInsideInDescending()
-			This.SortItemsInDescending()
-
-		def SortInSideInPairsInDescending()
-			This.SortItemsInDescending()
-
-		def SortItemsInsideInDescending()
-			This.SortItemsInDescending()
-
-		def SortItemsInsidePairsInDescending()
-			This.SortItemsInDescending()
-
-		#--
-
-		def SortDownItems()
-			This.SortItemsInDescending()
-
-		def SortItemsDown()
-			This.SortItemsInDescending()
-
-		def SortdownInside()
-			This.SortItemsInDescending()
-
-		def SortInsideDown()
-			This.SortItemsInDescending()
-
-		#>
-
-	def ItemsSortedInDesecending()
-		aResult = This.Copy().SortItemsInDescendingQ().Content()
-		return aResult
-
-		#< @FunctionAlternativeForm
-
-		def ItemsSortedDown()
-			return This.ItemsSortedInDesecending()
-
-		#>
+		def SortedDownBy(pcExpr)
+			return This.SortedInDescendingBy(pcExpr)
 
 	  #==================================================================#
 	 #  RETURNING AN EXPANDED LIST OF NUMBERS OUT OF THE LIST OF PAIRS  #
