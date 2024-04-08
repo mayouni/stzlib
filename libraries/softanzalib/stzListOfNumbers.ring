@@ -4,7 +4,7 @@
 #---------------------------------------------------------------------------#
 #									    #
 # 	Description	: The core class for managing lists of numbers      #
-#	Version		: V1.0 (2020-2023)				    #
+#	Version		: V1.0 (2020-2024)				    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #
 #---------------------------------------------------------------------------#
@@ -6513,3 +6513,131 @@ class stzListOfNumbers from stzList
 			def JustifyXTQR(pcReturnType)
 				return This.AdjustXTQR(pcReturnType)
 		#>
+
+	  #====================================#
+	 #  SORTING THE NUMBERS IN ASCENDING  #
+	#====================================#
+
+	def SortInAscending()
+		aResult = @Sort(This.Content())
+		This.UpdateWith(aResult)
+
+		#< @FunctionAlternativeForms
+
+		def SortInAscendingQ()
+			This.SortInAscending()
+			return This
+
+		def SortUp()
+			This.SortInAscending()
+
+			def SortUpQ()
+				return This.SortInAscendingQ()
+
+		#>
+
+	def SortedInAscending()
+		aResult = This.Copy().SortInAscendingQ().Content()
+		return aResult
+
+		def SortedUp()
+			return This.SortedInAscending()
+
+	  #-------------------------------------#
+	 #  SORTING THE NUMBERS IN DESCENDING  #
+	#-------------------------------------#
+
+	def SortInDescending()
+		aResult = ring_reverse( @Sort(This.Content() )
+		return aResult
+
+		def SortInDescendingQ()
+			This.SortInDescending()
+			return This
+
+		def SortDown()
+			This.SortInDesending()
+
+			def SortDownQ()
+				return This.SortInDescendingQ()
+
+	def SortedInDescending()
+		acResult = This.Copy().SortInDescendingQ().Content()
+		return acResult
+
+		def SortedDown()
+			return This.SortedInDescending()
+ 
+	  #-----------------------------------------------------------------#
+	 #  SORTING THE STRINGS BY AN EVALUATED EXPRESSION - IN ASCENDING  #
+	#=================================================================#
+ 
+	def SortBy(pcExpr)
+
+		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@number", :CS = FALSE))
+			StzRaise("Incorrect param! pcExpr must be a string containing @number keyword.")
+		ok
+
+		pcExpr = Q(pcExpr).ReplaceQ("@number", "@item").Content()
+
+		aContent = This.ToStzList().SortedBy(pcExpr)
+		This.UpdateWith(aContent)
+
+		#< @FunctionFluentForm
+
+		def SortByQ(pcExpr)
+			This.SortBy(pcExpr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SortInAscendingBy(pcExpr)
+			This.SortBy(pcExpr)
+
+			def SortInAscendingByQ(pcExpr)
+				return This.SortByQ(pcExpr)
+
+		def SortUpBy(pcExpr)
+			This.SortBy(pcExpr)
+
+			def SortUpByQ(pcExpr)
+				return This.SortByQ(pcExpr)
+
+		#>
+
+	def SortedBy(pcExpr)
+		aResult = This.Copy().SortByQ(pcExpr).Content()
+		return aResult
+
+		def SortedInAscendingBy(pcExpr)
+			return This.SortedBy(pcExpr)
+
+		def SortedUpBy(pcExpr)
+			return This.SortedBy(pcExpr)
+
+	  #--------------------------------------------------------#
+	 #  SORTING THE NUMBERS BY AN EXPRESSION - IN DESCENDING  #
+	#--------------------------------------------------------#
+ 
+	def SortInDescendingBy(pcExpr)
+		aResult = ring_reverse( This.SortedInAscendingBy(pcExpr) )
+		This.UpdateWith(aResult)
+
+		def SortInDescendingByQ(pcExpr)
+			This.SortInDescendingBy(pcExpr)
+			return This
+
+		def SortDownBy(pcExpr)
+			This.SortInDescendingBy(pcExpr)
+
+			def SortDownByQ(pcExpr)
+				return This.SortInDescendingByQ(pcExpr)
+
+	def SortedInDescendingBy(pcExpr)
+		aResult = This.Copy().SortInDescendingByQ(pcExpr).Content()
+		return aResult
+
+		def SortedDownBy(pcExpr)
+			return This.SortedInDescendingBy(pcExpr)

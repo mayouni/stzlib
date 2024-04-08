@@ -2626,12 +2626,12 @@ class stzListOfLists from stzList
 			def NthColQ(n)
 				return This.NthColumnQ(n)
 
-	  #===============================#
-	 #  SORTING THE LISTS ASCENDING  #
-	#===============================#
+	  #==================================#
+	 #  SORTING NTH LIST IN  ASCENDING  #
+	#==================================#
 
 	def SortNthList(n)
-		aSorted = StzListQ(This.Content()[n]).Sorted()
+		aSorted = @SortList(This.Content()[n])
 		@aContent[n] = aSorted
 
 		def SortNthListQ(n)
@@ -2644,80 +2644,147 @@ class stzListOfLists from stzList
 			def SortupNthListQ(n)
 				return This.SortNthListQ(n)
 
-	def SortLists()
-		nLen = This.NumberOfLists()
-		for i = 1 to nLen
-			This.SortNthList(i)
-		next
+		def SortUpNthListInAscending(n)
+			This.SortNthList(n)
+
+			def SortUpNthListInAscendingQ(n)
+				return This.SortNthListQ(n)
+
+	def NthListSorted(n)
+		aResult = This.Copy().SortNthListInAscending()
+
+		def NthListSortedUp(n)
+			return NthListSorted(n)
+
+		def NthListSortedInAscending(n)
+			return NthListSorted(n)
+
+	  #----------------------------------#
+	 #  SORTING NTH LIST IN DESCENDING  #
+	#----------------------------------#
+
+	def SortDownNthList(n)
+		aSorted = ring_reverse( @SortList(This.Content()[n]) )
+		@aContent[n] = aSorted
+
+		def SortDownNthListQ(n)
+			This.SortDownNthList(n)
+			return This
+
+		def SortNthListInDescending(n)
+			This.SortDownNthList(n)
+
+			def SortNthListInDescendingQ(n)
+				return This.SortNthListQ(n)
+
+	def NthListSortedDown(n)
+		aResult = This.Copy().SortDownNthListQ(n).Content()
+		return aResult
+
+		def NthListSortedInDescending(n)
+			return NthListSortedDown(n)
+
+	  #--------------------------------------------------------------------------#
+	 #  CHECKING IF THE LIST OF LISTS IS SORTED IN ASCENDING ON THE NTH COLUMN  #
+	#--------------------------------------------------------------------------#
+
+	def IsSortedInAscendingOn(n)
+		bResult = This.ColQ(n).IsSortedInAscending()
+		return bResult
+
+		def IsSortedUpOn(n)
+			return This.IsSortedInAscendingDown(n)
+
+		def IsSortedOn(n)
+			return This.IsSortedInAscendingDown(n)
+
+	  #---------------------------------------------------------------------------#
+	 #  CHECKING IF THE LIST OF LISTS IS SORTED IN DESCENDING ON THE NTH COLUMN  #
+	#---------------------------------------------------------------------------#
+
+	def IsSortedInDescendingOn(n)
+		bResult = This.ColQ(n).IsSortedInDescending()
+		return bResult
+
+		def IsSortedDownOn(n)
+			return This.IsSortedInDescendingDown(n)
+
+	  #----------------------------------#
+	 #  SORTING THE LISTS IN ASCENDING  #
+	#==================================#
+
+	def Sort()
+		aSorted = @SortLists(This.Content())
+		return aSorted
 
 		#< @FunctionFluentForm
 
-		def SortListsQ()
-			This.SortLists()
+		def SortQ()
+			This.Sort()
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SortListsInAscending()
-			This.SortLists()
+		def SortInAscending()
+			This.Sort()
 
-			def SortListsInAscendingQ()
-				return This.SortListsQ()
+			def SortInAscendingQ()
+				return This.SortQ()
 
 		#--
 
-		def SortupLists()
-			This.SortLists()
+		def SortUp()
+			This.Sort()
 
-			def SortupListsQ()
-				return This.SortListsInAscendingQ()
+			def SortUpQ()
+				return This.SortQ()
 
 		#>
 
-	def ListsSorted()
-		aResult = This.Copy().SortListsQ().Content()
+	def Sorted()
+		aResult = This.Copy().SortQ().Content()
 		return aResult
 
-		def ListsSortedInAscending()
+		def SortedInAscending()
 			return This.Sorted()
 
-		def ListsSortedUp()
+		def SortedUp()
 			return This.Sorted()
 
 	  #-----------------------------------#
 	 #  SORTING THE LISTS IN DESCENDING  #
 	#-----------------------------------#
 
-	def SortListsInDescending()
-		aResult = ring_reverse( This.ListsSortedInAscending() )
-		This.UpdateWith(aResult)
+	def SortDown()
+		aSorted = ring_reverse( @SortLists(This.Content()) )
+		return aSorted
 
 		#< @FunctionFluentForm
 
-		def SortListsInDescendingQ()
-			This.SortListsInDescending()
+		def SortDownQ()
+			This.SortDown()
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def SortDownLists()
-			This.SortListsInDescending()
+		def SortInDescending()
+			This.SortDown()
 
-			def SortDownListsQ()
-				return This.SortInDescendingQ()
+			def SortInDescendingQ()
+				return This.SortDownQ()
 
 		#>
 
-	def ListsSortedInDescending()
-		aResult = This.Copy().SortListsInDescendingQ().Content()
+	def SortedDown()
+		aResult = This.Copy().SortDownQ().Content()
 		return aResult
 
-		def ListsSortedDown()
-			return This.SortedInDescendning()
+		def SortedInDescending()
+			return This.SortedDown()
 
 	  #-----------------------------------------------#
 	 #  SORTING THE LIST OF LISTS ON A GIVEN COLUMN  #
@@ -2725,96 +2792,7 @@ class stzListOfLists from stzList
 
 	def SortOn(n)
 
-		if CheckParams()
-			if NOT isNumber(n)
-				StzRaise("Incorrect param type! n must be a number.")
-			ok
-
-			if n < 1 or n > This.Maxsize()
-				StzRaise("Index out of range! n must be between 1 and the size of the largest list.")
-			ok
-		ok
-
-		# Storing the content of the list of lists locally
-		# (better for performance on large lists)
-
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		if nLen = 0
-			return
-		ok
-
-		# String the positions of the missing items
-
-		aMissing = This.FindMissing()
-		nLenMissing = len(aMissing)
-
-		# Filling the missing items in the list with empty strings
-		# (to have a uniformed list of lists that we can sort)
-
-		aAdjusted = This.Adjusted()
-
-		# Adding an ID at the beginning of the adjusted lines of
-		# the list of lists (to maintain their position after sorting)
-
-		aAdjustedXT = []
-
-		for i = 1 to nLen
-			aAdjustedXT + [ i ]
-			nLenList = len(aAdjusted[i])
-			for j = 1 to nLenList
-				aAdjustedXT[i] + aAdJusted[i][j]
-			next
-		next
-
-		# Now we sort the adjusted list
-
-		if @IsRingSortable( This.NthColumn(n) )
-			aResult = ring_sort2( aAdjustedXT, n + 1)
-		else
-			# The column n contains items other then numbers or strings
-
-			aPairs = []
-			for i = 1 to nLen
-				aPairs + [ aAdjustedXT[i][1], aAdjustedXT[i][n+1] ]
-			next
-
-			aPairsSorted = @SortOn( aPairs, 2 )
-
-			# the logic of sorting is based on ring_sort2() native function
-
-			aResult = []
-			for i = 1 to nLen
-				aResult + aAdjustedXT[aPairsSorted[i][1]]
-			next
-			
-		ok
-
-		# Then we remove the empty strings added by the Justify() function
-
-		nLen = len(aResult)
-
-		anIDs = []
-		for i = 1 to nLen
-			anIDs + aResult[i][1]
-		next
-
-		anPos = []
-		for i = 1 to nLenMissing
-			anPos + ring_find(anIDs, aMissing[i][1])
-		next
-
-		for i = nLenMissing to 1 step -1
-			ring_remove(aResult[anPos[i]], aMissing[i][2]+1)
-		next
-
-		# Finally we remove the IDs we added at the begining of the lists
-
-		for i = 1 to nLen
-			ring_remove(aResult[i], 1)
-		next
-
+		aResult = @SortListsOn(This.Content(), n)
 		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
@@ -2885,12 +2863,79 @@ class stzListOfLists from stzList
 		def SortedInDescendingOn(n)
 			return This.SortedDownOn(n)
 
-	  #--------------------------------------------#
-	 #  SORT THE LIST OF LISTS ON THE FIRST ITEM  #
-	#============================================#
+	  #---------------------------------------------------------------#
+	 #  SORTING THE LISTS BY AN EVALUATED EXPRESSION - IN ASCENDING  #
+	#===============================================================#
+ 
+	def SortBy(pcExpr)
 
-	def Sort()
-		This.SortOn(1)
+		if NOT (isString(pcExpr) and Q(pcExpr).ContainsCS("@list", :CS = FALSE))
+			StzRaise("Incorrect param! pcExpr must be a string containing @list keyword.")
+		ok
+
+		pcExpr = Q(pcExpr).ReplaceQ("@list", "@item").Content()
+
+		aContent = This.ToStzList().SortedBy(pcExpr)
+		This.UpdateWith(aContent)
+
+		#< @FunctionFluentForm
+
+		def SortByQ(pcExpr)
+			This.SortBy(pcExpr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SortInAscendingBy(pcExpr)
+			This.SortBy(pcExpr)
+
+			def SortInAscendingByQ(pcExpr)
+				return This.SortByQ(pcExpr)
+
+		def SortUpBy(pcExpr)
+			This.SortBy(pcExpr)
+
+			def SortUpByQ(pcExpr)
+				return This.SortByQ(pcExpr)
+
+		#>
+
+	def SortedBy(pcExpr)
+		aResult = This.Copy().SortByQ(pcExpr).Content()
+		return aResult
+
+		def SortedInAscendingBy(pcExpr)
+			return This.SortedBy(pcExpr)
+
+		def SortedUpBy(pcExpr)
+			return This.SortedBy(pcExpr)
+
+	  #------------------------------------------------------#
+	 #  SORTING THE LISTS BY AN EXPRESSION - IN DESCENDING  #
+	#------------------------------------------------------#
+ 
+	def SortInDescendingBy(pcExpr)
+		This.SortInAscendingBy(pcExpr)
+		This.Reverse()
+
+		def SortInDescendingByQ(pcExpr)
+			This.SortInDescendingBy(pcExpr)
+			return This
+
+		def SortDownBy(pcExpr)
+			This.SortInDescendingBy(pcExpr)
+
+			def SortDownByQ(pcExpr)
+				return This.SortInDescendingByQ(pcExpr)
+
+	def SortedInDescendingBy(pcExpr)
+		aResult = This.Copy().SortInDescendingByQ(pcExpr).Content()
+		return aResult
+
+		def SortedDownBy(pcExpr)
+			return This.SortedInDescendingBy(pcExpr)
 
 	  #===========================================#
 	 #  REMOVING DUPLICATES INSIDE THE NTH LIST  #
