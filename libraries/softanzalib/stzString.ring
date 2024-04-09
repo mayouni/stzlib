@@ -57302,6 +57302,12 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#--
 
+		def SortedUp()
+			return This.SortedInAscending()
+
+		def CharSortedUp()
+			return This.SortedInAscending()
+
 		def StringWithCharsSortedUp()
 			return This.StringWithCharsSortedInAscending()
 
@@ -72064,6 +72070,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#--
 
 		def IsTheInvertedCopyOf(pcOtherStr)
+			return This.IsReverseOf(pcOtherStr)
+
+		#--
+
+		def ReverseOfB(pcOtherStr)
 			return This.IsReverseOf(pcOtherStr)
 
 		#>

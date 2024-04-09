@@ -6548,7 +6548,7 @@ class stzListOfNumbers from stzList
 	#-------------------------------------#
 
 	def SortInDescending()
-		aResult = ring_reverse( @Sort(This.Content() )
+		aResult = ring_reverse( @Sort(This.Content()) )
 		return aResult
 
 		def SortInDescendingQ()
