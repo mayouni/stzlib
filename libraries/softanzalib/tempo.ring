@@ -135,7 +135,7 @@ pron()
 proff()
 # Executed in 0.04 second(s)
 
-/*=========================== FUTURE/ NAtural
+/*=========================== #TODO FUTURE Natural-Coding
 
 emm = [
 
@@ -147,15 +147,16 @@ emm = [
 BeforeQ("ring").IsUppercasedFQ()//RemoveFFQ("i").FromIt()
 ? @@(Future())
 
-//? BeforeQ().UppercasingFQ("ring").RemoveFF("i")
+? BeforeQ().UppercasingFQ("ring").RemoveFF("i")
 
+func BeforeQ(value)
+	return new stzBefore(value)
 
 class stzBefore
 	obj
 
 	def init(value)
 		obj = Q(value)
-
 
 /*=====
 
@@ -345,7 +346,7 @@ proff()
 # Executed in 0.07 second(s)
 
 /*------
-*/
+
 pron()
 
 ? QM("ring").IsAQ(:String).
