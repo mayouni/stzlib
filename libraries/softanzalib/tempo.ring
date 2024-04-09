@@ -1,12 +1,13 @@
 load "stzlib.ring"
 
 /*====== #ring
+pron()
 
 # Some Ring standard functions make the action in place and does not
 # return anything. Others do the action and return the result.
 
 #~>
-# The ring_...() functions familty always do the action and return
+# The ring_...() functions always do the action and return
 # the result. So you are free to say:
 
 	aList = [ 1, 1, 2, 3 ]
@@ -18,6 +19,8 @@ load "stzlib.ring"
 
 	? ring_remove([ 1, 1, 2, 3 ], 1, 1)
 	#--> [ 1, 2, 3 ]
+
+proff()
 
 /*====== #ring
 
@@ -102,7 +105,7 @@ aLists = [
 # ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*----------
 
@@ -120,7 +123,7 @@ pron()
 # ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*---------
 
@@ -132,7 +135,7 @@ pron()
 proff()
 # Executed in 0.04 second(s)
 
-/*===========================
+/*=========================== FUTURE/ NAtural
 
 emm = [
 
@@ -171,6 +174,7 @@ pron()
 #--> 3
 
 proff()
+# Executed in 0.07 second(s)
 
 /*----
 
@@ -178,7 +182,7 @@ pron()
 
 SetLastValue(3)
 
-? Q("AnnIE").VowelNB()
+? Q("AnnIE").VowelNB() # ~> N: Number, B: Binary
 #--> TRUE
 
 SetLastValue(2)
@@ -197,13 +201,12 @@ proff()
 
 pron()
 
-Q("hi")
+QM("hi")
 ? MainObject().Content()
 #--> "hi"
 
 proff()
 # Executed in 0.01 second(s)
-
 
 /*======= #natural-coding #semantic-eloquence
 
@@ -224,13 +227,13 @@ pron()
 ? Q("ring").IsA(:String)
 #--> TRUE
 
-? Q("ring").IsAXTQ([ :Lowercase, :Latin, :String ]).WhichQ().HasQ().ItsQ().LengthQ().EqualTo(4)
+? QM("ring").IsAXTQ([ :Lowercase, :Latin, :String ]).WhichQ().HasAQ().LengthQ().EqualTo(4)
 #--> TRUE
 
-? TheStringQ("ring").IsAQ([ :Lowercase, :Latin, :String ]).WithQ().LengthQ().Of(4)
+? TheStringQM("ring").IsAQ([ :Lowercase, :Latin, :String ]).WithAQ().LengthQ().Of(4)
 #--> TRUE
 
-? TheWordQ("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WithAQ().LengthQ().OfXT(4, :Letters)
+? TheWordQM("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WithAQ().LengthQ().OfXT(4, :Letters)
 #--> TRUE
 
 ? TheWordQM("ring").IsAQ([ :Lowercase, :Latin, :Word ]).
@@ -249,11 +252,11 @@ pron()
 ? Q("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WhichQ().HasTheNumberQ(4).AsAQ().NumberOfCharsB()
 #--> TRUE
 
-? Q("ring").IsTheQ([ :Lowercase, :string ]).WhichQ().IsTheReverseOf("gnir")
+? Q("ring").IsTheQ([ :Lowercase, :string ]).WhichIsQ().TheQ().ReverseOfB("gnir")
 #--> TRUE
 
 proff()
-# Executed in 0.19 second(s)
+# Executed in 0.21 second(s)
 
 /*-----------
 
@@ -295,7 +298,7 @@ pron()
 proff()
 # Executed in 0.03 second(s)
 
-/*------
+/*======
 
 pron()
 
@@ -330,20 +333,19 @@ pron()
 ? Q([ "Ring", :and = "ruby" ]).AreTwoQ(:strings).HavingQ().TheirQ().FirstCharCSQ(WhatEverCaseItHas).EqualTo(TheLetter("R"))
 #-> TRUE
 
-
 ? Q([ "Ring", :and = "Bing" ]).
-  AreBothQ(:strings).HavingMQ().AllTheirQ().FirstCharsQ().InUppercaseQ().AndQ().TheirQM().LastCharQ().EqualTo("g")
+  AreBothQ(:strings).HavingMQ().TheirQ().FirstCharsQ().InUppercaseQ().AndQ().TheirQM().LastCharQ().EqualTo("g")
 #-> TRUE
 
 ? Q([ "Ring", :and = "Bing" ]).
-  AreBothQ(:strings).HavingMQ().AllTheirQ().FirstCharsQ().InUppercaseQ().AndQ().TheirQM().LastCharQ().EqualTo("g")
+  AreBothQ(:strings).HavingMQ().TheirQ().FirstCharsQ().InUppercaseQ().AndQ().TheirQM().LastCharQ().EqualTo("g")
 #-> TRUE
 
 proff()
 # Executed in 0.07 second(s)
 
 /*------
-
+*/
 pron()
 
 ? QM("ring").IsAQ(:String).
@@ -362,7 +364,6 @@ pron()
 
 proff()
 # Executed in 0.05 second(s)
-
 
 /*=====
 
@@ -3571,7 +3572,7 @@ o1 = new stzList(1:10)
 proff()
 # Executed in 0.39 second(s)
 
-*================
+/*================
 
 pron()
 
@@ -3672,7 +3673,7 @@ o1 = new stzString("123456789012")
 #--> [ "12", "45", "78", "012" ]
 
 proff()
-# Executed in 1.28 second(s)
+# Executed in 1.06 second(s)
 
 /*------------------
 
@@ -3690,7 +3691,7 @@ o1 = new stzString("__3__6__9__")
 #--> [ "__", "3__", "6__", "9__" ]
 
 proff()
-# Executed in 0.85 second(s)
+# Executed in 0.53 second(s)
 
 /*------------------
 
@@ -3708,7 +3709,7 @@ o1 = new stzString("__3__6__9__")
 #--> [ "__3", "__6", "__9", "__" ]
 
 proff()
-# Executed in 0.74 second(s)
+# Executed in 0.54 second(s)
 
 /*------------------ #TODO: check it after including SubStringsBetween()
 
@@ -3743,7 +3744,7 @@ o1.SortUpBy('len(@item)') + NL
 #--< [ "abcdaaa", "aaa", "abcade", "a", "ab", "abc", "b" ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.09 second(s)
 
 /*------------------
 
@@ -3755,7 +3756,7 @@ o1.SortDownBy('len(@item)')
 #--> [ "abcde", "abcd", "abc", "ab", "a" ]
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.04 second(s)
 
 /*==================
 
@@ -3814,7 +3815,7 @@ o1 = new stzString("TUNIS gafsa NABEUL beja NABEUL beja")
 proff()
 # Executed in 0.52 second(s)
 
-/*------------ #TODO: fix the order
+/*------------
 
 pron()
 
@@ -3851,7 +3852,7 @@ pron()
 proff()
 
 /*------------ #ring
-*/
+
 pron()
 
 ? @@( ring_sort([]) )
@@ -3863,7 +3864,17 @@ pron()
 proff()
 
 /*------------
-*/
+
+pron()
+
+? @@( SortBy([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ], ' Q(@item).HowMany(0) ') )
+#--> [ 8, 2, 150, 0, 170, 3007, 2100, 10001 ]
+
+proff()
+# Executed in 0.09 second(s)
+
+/*------------
+
 pron()
 
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
@@ -3871,11 +3882,20 @@ o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 ? @@( o1.SortedBy(' Q(@item).HowMany(0) ') )
 #--> [ 2, 8, 0, 150, 170, 2100, 3007, 10001 ]
 
+proff()
+# Executed in 0.08 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
+
 ? @@( o1.SortedDownBy( ' Q(@item).HowMany(0) ') )
 #--> [ 10001, 3007, 2100, 170, 150, 0, 8, 2 ]
 
 proff()
-# Executed in 0.08 second(s)
+#--> Executed in 0.18 second(s)
 
 /*------------
 
@@ -3887,9 +3907,9 @@ o1 = new stzList([ 1:3, "tunis", [], 1:2, "t", "" ])
 #--> [ "", [ ], 't', [ 1, 2 ], [ 1, 2, 3 ], 'tunis' ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s)
 
-/*------------
+/*===========
 
 pron()
 

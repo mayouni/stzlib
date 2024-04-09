@@ -311,7 +311,7 @@ func @Sort(p)
 		ok
 
 		if @IsListOfLists(p)
-			return @SortListsOn(1)
+			return @SortListsOn(p, 1)
 
 		else
 			return @SortList(p)
@@ -27888,12 +27888,13 @@ class stzList from stzObject
 		next
 
 		aContentXT = @SortOn(aContentXT, 2)
+		aResult = []
 
 		for i = 1 to nLen
-			ring_remove(aContentXT[i], 2)
+			aResult + aContentXT[i][1]
 		next
 
-		This.UpdateWith(aContentXT)
+		This.UpdateWith(aResult)
 
 
 		#< @FunctionFluentForm
@@ -27935,8 +27936,8 @@ class stzList from stzObject
 	#---------------------------------------#
  
 	def SortInDescendingBy(pcExpr)
-		This.SortInAscendingBy(pcExpr)
-		This.Reverse()
+		aResult = ring_reverse( This.SortedInAscendingBy(pcExpr) )
+		This.UpdateWith(aResult)
 
 		def SortInDescendingByQ(pcExpr)
 			This.SortInDescendingBy(pcExpr)
@@ -27949,7 +27950,7 @@ class stzList from stzObject
 				return This.SortInDescendingByQ(pcExpr)
 
 	def SortedInDescendingBy(pcExpr)
-		aResult = This.Copy().SortInDescendingByQ(pcExpr).Content()
+		aResult = ring_reverse( This.SortedInAscendingBy(pcExpr) )
 		return aResult
 
 		def SortedDownBy(pcExpr)
@@ -41967,11 +41968,14 @@ class stzList from stzObject
 			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
 		ok
 
-		aSorted = StzListOfPairsQ(paSections).ItemsSortedInAscending()
-? @@(aSorted)
+		nLen = len(paSections)
+		aSorted = []
+		for i = 1 to nLen
+			aSorted + ring_sort(paSections[i])
+		next
 		#--> [ [3,5], [7,8] ]
-		nLen = len(aSorted)
 
+		
 		aAntiSections = []
 		n1 = 1
 

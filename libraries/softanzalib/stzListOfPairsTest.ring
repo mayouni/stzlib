@@ -4,27 +4,6 @@ load "stzlib.ring"
 
 pron()
 
-# Softanza can sort items inside the pairs of a list of pairs
-
-o1 = new stzListOfPairs([ [ 2, 1 ], [ 4, 3 ], [ 6, 5 ] ])
-
-o1.SortInside() # or SortItems() or SortItemsInsidePairs()
-? @@( o1.Content() ) + NL
-#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ]
-
-# And you can sort them up and down
-
-o1.SortDownInside()
-? @@( o1.Content() )
-#--> [ [ 2, 1 ], [ 4, 3 ], [ 6, 5 ] ]
-
-proff()
-# Executed in 0.03 second(s)
-
-/*-----
-
-pron()
-
 ? Q( :CS = FALSE ).IsCaseSensitiveNamedParam()
 #--> TRUE
 
@@ -828,15 +807,6 @@ o1.Sort() # Or SortInAscending()
 proff()
 #--> Executed in 0.05 second(s)
 
-/*------------
-
-pron()
-
-o1 = new stzListOfPairs([ [ 1, 2 ], [ 4, 3 ], [ 6, 5 ] ])
-o1.SortInside()
-? @@( o1.Content() )
-#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ]
-
 proff()
 
 /*------------
@@ -850,21 +820,6 @@ o1.SortInDescending()
 
 proff()
 #--> Executed in 0.05 second(s)
-
-/*------------
-
-pron()
-
-o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
-o1.SortInSideInDescending()
-? @@(o1.Content())
-#--> [ [ 7, 4 ], [ 3, 1 ], [ 9, 8 ] ]
-
-proff()
-#--> Executed in 0.06 second(s)
-
-/*------
-
 
 /*======
 

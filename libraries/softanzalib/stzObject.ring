@@ -3241,20 +3241,20 @@ class stzObject
 	def WhichIs()
 		return This
 
-		def WichIsQ()
-			return This.WichIs()
+		def WhichIsQ()
+			return This.WhichIs()
 
-		def WichIsM()
+		def WhichIsM()
 			SetMainObject(This)
 			return This
 
-			def WichIsMQ()
-				return This.WichIsM()
+			def WhichIsMQ()
+				return This.WhichIsM()
 
 		def WhichIsQM()
 			return MainObject()
 
-		def WichiIsMM()
+		def WhichIsMM()
 			return MainObject()
 
 		#--
@@ -3278,20 +3278,35 @@ class stzObject
 	def WhichAre()
 		return This
 
-		def WichAreQ()
-			return This.WichAre()
+		def WhichAreQ()
+			return This.WhichAre()
 
-		def WichAreM()
+		def WhichAreM()
 			SetMainObject(This)
 			return This
 
-			def WichAreMQ()
-				return This.WichAreM()
-
-		def WhicAreMQ()
+		def WhichAreMQ()
 			return MainObject()
 
-		def WichAreMM()
+		def WhichAreMM()
+			return MainObject()
+
+		#--
+
+		def ThatAre()
+			return This
+
+		def ThatAreQ()
+			return This.ThatAre()
+
+		def ThatAreM()
+			SetMainObject(This)
+			return This
+
+			def ThatAreMQ()
+				return This.ThatAreM()
+
+		def ThatiAreMM()
 			return MainObject()
 
 	def WhichAreBoth()
@@ -3514,18 +3529,41 @@ class stzObject
 		def OnlyQ(value)
 			return Only(value)
 
-		def OnLyQM()
+		def OnLyQM(value)
+			SetLastValue(value)
 			return MainObject()
 
-		def OnlyMQ()
+		def OnlyMQ(value)
 			SetMainObject(This)
-			return this.OnlyQ()
+			return this.OnlyQ(value)
 
-		def OnlyM()
+		def OnlyM(value)
 			SetMainObject(This)
-			return This.OnlyM()
+			return This.OnlyM(value)
 
-		def OnlyMM()
+		def OnlyMM(value)
+			return MainObject()
+
+	def A()
+		return This
+
+		def AQ()
+			return This
+
+		def AQM()
+			return This
+
+		#--
+
+		def AM()
+			SetMainObject(This)
+			return This
+
+		def AMQ()
+			SetMainObject(This)
+			return This
+
+		def AMM()
 			return MainObject()
 
 	def Their()
@@ -3904,6 +3942,26 @@ class stzObject
 			SetMainObject(This)
 			return This.HasQ()
 
+	def HasA()
+		return This
+
+		def HasAM()
+			SetMainObject(This)
+			return This
+
+		def HasAMM()
+			return MainObject()
+
+		def HasAQ()
+			return This.HasA()
+
+		def HasAQM()
+			return MainObject()
+
+		def HasaMQ()
+			SetMainObject(This)
+			return This.HasAQ()
+
 	def HasN(n)
 		if CheckParams()
 			if NOT isNumber(n)
@@ -3911,7 +3969,8 @@ class stzObject
 			ok
 		ok
 
-		return This.HasN(n)
+		SetLastValue(n)
+		return This
 
 		def HasNM(n)
 			if CheckParams()
@@ -3993,7 +4052,7 @@ class stzObject
 	#==
 
 	def OfCS(n, pCaseSensitive)
-		return This.IsEqualToCS(pCaseSensitive)
+		return This.IsEqualToCS(n, pCaseSensitive)
 
 		def OfCSM(n, pCaseSensitive)
 			SetMainObject(This)
