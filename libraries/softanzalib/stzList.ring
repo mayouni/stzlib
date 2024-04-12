@@ -2104,6 +2104,20 @@ func IsListOfPairsOfNumbers(paList)
 	func @IsAListOfPairsOfNumbers(paList)
 		return IsListOfPairsOfNumbers(paList)
 
+	#--
+
+	func IsListOfSections(paList)
+		return IsListOfPairsOfNumbers(paList)
+
+	func @IsListOfSections(paList)
+		return IsListOfPairsOfNumbers(paList)
+
+	func IsAListOfSections(paList)
+		return IsListOfPairsOfNumbers(paList)
+
+	func @IsAListOfSections(paList)
+		return IsListOfPairsOfNumbers(paList)
+
 	#>
 
 func IsPairOfSections(paPair)

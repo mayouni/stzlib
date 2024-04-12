@@ -155,7 +155,7 @@ aList = [ [1,2,3], [4,5,6], 7:9 ]
 
 proff()
 
-/*------
+/*------ #TODO future
 
 pron()
 
@@ -177,16 +177,64 @@ o1.Show()
 give any
 proff()
 
-/*----------------- #TODO: Check output error "R in g"
+/*=========
+
 pron()
 
+o1 = new stzString("the last mile")
+
+o1.InsertAfterPosition(8, ">>")
+o1.InsertBeforePosition(5, "<<")
+
+? o1.Content()
+#--> the <<last>> mile
+
+proff()
+# Executed in 0.02 second(s)
+
+#---
+
+pron()
+
+o1 = new stzString("the last mile")
+
+o1.BoundSection(5, 8, [ "<<", ">>" ])
+? o1.Content()
+#--> the <<last>> mile
+
+proff()
+# Executed in 0.02 second(s)
+
+#---
+*/
+pron()
+
+o1 = new stzString("its the last mile now")
+o1.BoundSections([ [5, 7], [9, 12], [14, 17] ], "_")
+? o1.Content()
+#--> its _the_ _last_ _mile_ now
+
+proff()
+# Executed in 0.04 second(s)
+
+/*----------------- #TODO: Check output error "R in g"
+pron()
+*/
 o1 = new stzString("IbelieveinRingfutureandengageforit!")
 
-o1.SpacifyTheseSubStrings([
+aSections = o1.FindManyAsSections([
 	"believe", "in", "Ring", "future", "and", "engage", "for"
 ])
 
+o1.BoundSections(aSections, " ")
+
 ? o1.Content()
+
+//o1.SpacifyTheseSubStrings([
+//	"believe", "in", "Ring", "future", "and", "engage", "for"
+//])
+
+//? o1.Content()
 #--> I believe in Ring future and engage for it!
 
 proff()
