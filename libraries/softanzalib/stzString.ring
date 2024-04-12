@@ -1154,13 +1154,13 @@ class stzString from stzObject
 				pcSubStr = pcSubStr[2]
 				This.ReplaceFirstCS(pcSubStr, (pcSubStr + pcNewSubStr), pCaseSensitive)
 
-			# Adding atfer last
+			# Adding after last
 
 			but oSubStr.IsOneOfTheseNamedParams([ :AfterLast, :ToLast ])
 				pcSubStr = pcSubStr[2]
 				This.ReplaceLastCS(pcSubStr, (pcSubStr + pcNewSubStr), pCaseSensitive)
 
-			# Adding atfer these/many
+			# Adding after these/many
 
 			but oSubStr.IsOneOfTheseNamedParams([ :AfterThese, :ToThese, :AfterMany, :toMany ])
 				pcSubStr = pcSubStr[2]
@@ -2317,15 +2317,53 @@ class stzString from stzObject
 	
 		#>
 
-		#< @FunctionAlternativeForm	// TODO: replace with @FunctionAlternativeFormForm
+		#< @FunctionAlternativeForm
 
 		def Uppercase() # Understand it as a verb that "uppercases" the string
 			This.ApplyUppercase()
 
 			def UppercaseQ()
-				This.Uppercase()
+				return This.ApplyUppercaseQ()
+
+		def UppercaseIt()
+			This.ApplyUppercase()
+
+			def UppercaseItQ()
+				return This.ApplyUppercaseQ()
+
+		#>
+
+		#< @FunctionFutureForms
+
+		def UppercaseF()
+			@AddFuture(:Uppercase)
+
+			def UppercaseFQ()
+				@AddFuture(:Uppercase)
 				return This
-	
+
+		def UppercaseFF()
+			@ExecuteFutureXT(This, FutureOrder())
+
+			def UppercaseFFQ()
+				@ExecuteFutureXT(This, FutureOrder())
+				return This
+		#--
+
+		def UppercasingF(pcStr)
+			@AddFuture(:Uppercase)
+
+			def UppercasingFQ(pcStr)
+				@AddFuture(:Uppercase)
+				return new stzString(pcStr)
+
+		def UppercasingFF(pcStr)
+			@ExecuteFutureXT(This, FutureOrder())
+
+			def UppercasingFFQ(pcStr)
+				@ExecuteFutureXT(This, FutureOrder())
+				return new stzString(pcStr)
+
 		#>
 
 	def Uppercased()
@@ -2480,48 +2518,48 @@ class stzString from stzObject
 		#< @FunctionFutureForms
 
 		def IsUppercaseF()
-			AddFuture(:Uppercase)
+			@AddFutureXT(:Uppercase, @FutureOrder())
 
-		def IsUppeercaseFQ()
-			AddFuture(:Uppercase)
-			return This.IsUpperercaseQ()
-
+			def IsIsUppercaseFQ()
+				@AddFutureXT(:Uppercase, @FutureOrder())
+				return This
+	
 		#--
 
 		def IsUppercasedF()
-			AddFuture(:Uppercase)
-
-		def IsUppercasedFQ()
-			AddFuture(:Uppercase)
-			return This.IsUpperercaseQ()
-
+			@AddFutureXT(:Uppercase, @FutureOrder())
+		
+			def IsUppercasedFQ()
+				@AddFutureXT(:Uppercase, @FutureOrder())
+				return This
+	
 		#--
 
 		def IsUpperF()
-			AddFuture(:Uppercase)
+			@AddFutureXT(:Uppercase, @FutureOrder())
 
-		def IsUpperFQ()
-			AddFuture(:Uppercase)
-			return This.IsUpperercaseQ()
-
+			def IsUpperFQ()
+				@AddFutureXT(:Uppercase, @FutureOrder())
+				return This
+	
 		#--
 
 		def IsInUppercaseF()
-			AddFuture(:Uppercase)
+			@AddFutureXT(:Uppercase, @FutureOrder())
 
-		def IsInUppercaseFQ()
-			AddFuture(:Uppercase)
-			return This.IsUpperercaseQ()
-
+			def IsInUppercaseFQ()
+				@AddFutureXT(:Uppercase, @FutureOrder())
+				return This
+	
 		#--
 
 		def InUppercaseF()
-			AddFuture(:Uppercase)
-
-		def IsUppercaseFQ()
-			AddFuture(:Uppercase)
-			return This.IsUpperercaseQ()
-
+			@AddFutureXT(:Uppercase, @FutureOrder())
+	
+			def IsUppercaseFQ()
+				@AddFutureXT(:Uppercase, @FutureOrder())
+				return This
+	
 		#>
 
 	def IsUppercaseInLocale(pLocale)
@@ -11774,6 +11812,18 @@ class stzString from stzObject
 	#====================================#
 
 	def AddBounds(pacBounds)
+		if NOT ( isString(pacBounds) or ( isList(pacBounds) and len(pacBounds) = 2) )
+			StzRaise("Incorrect param type! pacBounds must be a string or a pair.")
+		ok
+
+		if isList(pacBounds[2]) and Q(pacBounds[2]).IsAndNamedParam()
+			pacBounds[2] = pacBounds[2][2]
+		ok
+
+		if NOT isString(pacBounds[1])
+			StzRaise("Incorrect param type! the first item of pacBounds must be a string.")
+		ok
+
 		if isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
 			cBound1 = pacBounds[1]
 			cBound2 = pacBounds[2]
@@ -11783,22 +11833,35 @@ class stzString from stzObject
 			cBound2 = pacBounds
 
 		else
-			StzString("Incorrect param type! pacBounds mus tbe a string or pair of strings.")
+			StzRaise("Incorrect param type! pacBounds must tbe a string or pair of strings.")
 		ok
 
 		cResult = cBound1 + This.String() + cBound2
 		This.UpdateWith( cResult )
 
+		#< @FunctionFluentForm
+
 		def AddBoundsQ(pacBounds)
 			This.AddBounds(pacBounds)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def BoundWith(pacBounds)
 			This.AddBounds(pacBounds)
 
 			def BoundWithQ(pacBounds)
-				This.BoundWith(pacBounds)
-				return This
+				return This.AddBoundsQ(pacBounds)
+
+		def BoundItWith(pacBounds)
+			This.AddBounds(pacBounds)
+
+			def BoundItWithQ(pacBounds)
+				return This.AddBoundsQ(pacBounds)
+
+		#>
 
 	def StringWithBoundsAdded(pacBounds)
 		cResult = This.Copy().AddBoundsQ(pacBounds).Content()
@@ -57900,9 +57963,33 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		This.ReplaceCS(pSubstr, "", pCaseSensitive)
 
+		#< @FunctionFluentForm
+
 		def RemoveCSQ(pSubStr, pCaseSensitive)
 			This.RemoveCS(pSubStr, pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionFutureForm
+
+		def RemoveCSFF(pSubStr, pCaseSensitive)
+			if _cFutureOrder = :Before
+				This.RemoveCS(pSubStr, pCaseSensitive)
+				@ExecuteActions(@FutureActions(), This)
+
+			but _cFutureOrder = :After
+				@ExecuteActions(@FutureActions(), This)
+				This.RemoveCS(pSubStr, pCaseSensitive)
+			ok
+
+			@CleanFuture()
+
+			def RemoveCSFFQ(pSubStr, pCaseSensitive)
+				This.RemoveCSFF(pSubStr, pCaseSensitive)
+				return This
+
+		#>			
 
 	def RemovedCS(pSubStr, pCaseSensitive)
 		cResult = This.Copy().RemoveCSQ(pSubStr, pCaseSensitive).Content()
@@ -57916,7 +58003,17 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def RemoveQ(pcSubStr)
 			This.Remove(pcSubStr)
 			return This
-	
+
+		#< @FunctionFutureForm
+
+		def RemoveFF(pSubStr)
+			return This.RemoveCSFF(pSubStr, TRUE)
+
+			def RemoveFFQ(pSubStr)
+				return This.RemoveCSFFQ(pSubStr, TRUE)
+
+		#>		
+
 	def Removed(pSubStr)
 		cResult = This.Copy().RemoveQ(pSubStr).Content()
 		return cResult
@@ -58564,7 +58661,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 				This.ReplaceFirstCS(p2, cNewSubStr, pCaseSensitive)
 
-			# Removeing atfer last
+			# Removeing after last
 			#TODO: Add example here for better readability
 			but oP2.IsOneOfTheseNamedParams([ :AfterLast, :ToLast ])
 				p2 = p2[2] + p1
@@ -65396,6 +65493,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 				This.Spacify()
 				return This
 
+		def SpacifyIt()
+			This.SpacifyChars()
+
+			def SpacifyItQ()
+				This.Spacify()
+				return This
+
 	#-- PASSIVE FORM : TODO - Add this title for each passive form in the library
 
 	def CharsSpacified()
@@ -65408,12 +65512,42 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#--
 
 		def CharsSpacifiedQ()
-		#TODO : Add the fluent form of each passive form in the libraray
+		#TODO
+		# Add the fluent form of each passive form in the libraray
+
 			oResult = This.Copy().SpacifyCharsQ()
 			return oResult
 
 			def SpacifiedQ()
 				return This.CharsSpacifiedQ()
+
+		#< @FunctionFutureForm
+
+		def SpacifiedFQ()
+			@AddFutureXT(:Spacify, _cFutureOrder)
+			return This
+
+		#>
+
+	#--
+
+	def IsSpacified()
+		if This.IsEqualTo(This.Spacified())
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionFutureForm
+
+		def IsSpacifiedF()
+			@AddFutureXT(:Spacify, _cFutureOrder)
+
+		def IsSpacifiedFQ()
+			@AddFutureXT(:Spacify, _cFutureOrder)
+			return This
+
+		#>
 
 	  #----------------------------------------------------------------#
 	 #   SPACIFYING THE CHARS OF THE STRING USING A GIVEN SEPARATOR   #
@@ -72701,7 +72835,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 				# and tranform it to a normal syntax
 	
 				aListMembers = QStringListToList( oCopy.QStringObject().split( ":", 0, 0 ) )
-				#NOTE: could be written { aListMembers = oCopy.Split( :Using = ":" ) } atfer
+				#NOTE: could be written { aListMembers = oCopy.Split( :Using = ":" ) } after
 				# terminating Split() funtion in Softanza.
 
 				cMember1 = aListMembers[1]
@@ -72935,7 +73069,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			# and tranform it to a normal syntax
 
 			aListMembers = QStringListToList( This.QStringObject().split( ":", 0, 0 ) )
-			#NOTE: could be written { aListMembers = This.Split( :Using = ":" ) } atfer
+			#NOTE: could be written { aListMembers = This.Split( :Using = ":" ) } after
 			# terminating Split() funtion in Softanza.
 					
 			cMember1 = aListMembers[1]
@@ -80709,4 +80843,3 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	def AnySectionsBoundedByReplacedXT(pcBound1, pcBound2, pcNewSubStr)
 		return This.SectionsBetweenReplacedXT(pcBound1, pcBound2, pcNewSubStr)
-

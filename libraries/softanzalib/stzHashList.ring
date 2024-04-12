@@ -39,14 +39,14 @@ func StzNamedHashList(paNamed)
 	func StzHashListXTQ(paNamed)
 		return StzNamedHashList(paNamed)
 
-func sHashList(paList)
+func IsHashList(paList)
 	oTempList = new stzList(paList)
 	return oTempList.IsHashList()
 
 	#< @FunctionAlternativeForms
 
 	func @IsHashList(paList)
-		return @IsHashList(paList)
+		return IsHashList(paList)
 
 	func IsAHashList(paList)
 		return @IsHashList(paList)

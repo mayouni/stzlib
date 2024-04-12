@@ -41975,7 +41975,6 @@ class stzList from stzObject
 		next
 		#--> [ [3,5], [7,8] ]
 
-		
 		aAntiSections = []
 		n1 = 1
 
