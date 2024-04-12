@@ -11581,7 +11581,8 @@ class stzString from stzObject
 	 #  SUBSTRINGS INSIDE A GIVEN STRING                      #
 	#--------------------------------------------------------#
 
-	#NOTE: It's more elegant to use this function indirectly from IsBoundedBy()
+	#NOTE
+	# It's more elegant to use this function indirectly from IsBoundedBy()
 	# to which we add the param :In, like this:
 
 	# Q("♥").IsBoundedBy([ "-", :In = "-♥-" ])
@@ -11866,6 +11867,8 @@ class stzString from stzObject
 	def StringWithBoundsAdded(pacBounds)
 		cResult = This.Copy().AddBoundsQ(pacBounds).Content()
 
+		#< @FunctionAlternativeForms
+
 		def StringBoundedWith(pacBounds)
 			return This.StringWithBoundsAdded(pacBounds)
 
@@ -11877,6 +11880,8 @@ class stzString from stzObject
 
 		def StringBoundedBy(pacBounds)
 			return This.StringWithBoundsAdded(pacBounds)
+
+		#>
 
 	  #------------------------------------------#
 	 #  BOUNDING A SECTION WITH TWO SUBSTRINGS  #
@@ -11890,6 +11895,9 @@ class stzString from stzObject
 
 			if isList(pacBounds) and Q(pacBounds).IsWithOrUsingOrByNamedParam()
 				pacBounds = pacBounds[2]
+				if isList(pacBounds[2]) and Q(pacBounds[2]).IsAndNamedParam()
+					pacBounds[2] = pacBounds[2][2]
+				ok
 			ok
 
 			if isString(pacBounds)
@@ -11910,10 +11918,56 @@ class stzString from stzObject
 		This.InsertAfterPosition(n2, pacBounds[2])
 		This.InsertBeforePosition(n1, pacBounds[1])
 
+		#< @FunctionFluentForm
+
+		def BoundSectionQ(n1, n2, pacBounds)
+			This.BoundSection(n1, n2, pacBounds)
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForms
 
-		def InsertAroundSection(n1, n2, pacBounds)
+		def InsertAroundSection(pacBounds, n1, n2)
 			This.BoundSection(n1, n2, pacBounds)
+
+			def InsertAroundSectionQ(pacBounds, n1, n2)
+				return This.BoundSectionQ(n1, n2, pacBounds)
+
+		def AddBoundsToSection(pacBounds, n1, n2)
+			This.BoundSection(n1, n2, pacBounds)
+
+			def AddBoundsToSectionQ(pacBounds, n1, n2)
+				return This.BoundSectionQ(pacBounds, n1, n2)
+
+		def AddBoundToSection(pcBound, n1, n2)
+			This.BoundSection(n1, n2, pcBound)
+
+			def AddBoundToSectionQ(pcBound, n1, n2)
+				return This.BoundSectionQ(n1, n2, pcBound)
+
+		#>
+
+	def SectionBounded(n1, n2, pacBounds)
+		acResult = This.Copy().BoundSectionQ(n1, n2, pacBounds).Content()
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def InsertedAroundSection(pacBounds, n1, n2)
+			return This.SectionBounded(n1, n2, pacBounds)
+
+		def SubStringsInsertedAroundSection(pacBounds, n1, n2)
+			return This.SectionBounded(n1, n2, pacBounds)
+
+		def SubStringInsertedAroundSection(pacBounds, n1, n2)
+			return This.SectionBounded(n1, n2, pacBounds)
+
+		def BoundsAddedToSection(pacBounds, n1, n2)
+			return This.SectionBounded(n1, n2, pacBounds)
+
+		def BoundAddedToSection(pcSubStr, n1, n2)
+			return This.SectionBounded(n1, n2, pcSubStr)
 
 		#>
 
@@ -11929,6 +11983,9 @@ class stzString from stzObject
 
 			if isList(pacBounds) and Q(pacBounds).IsWithOrUsingOrByNamedParam()
 				pacBounds = pacBounds[2]
+				if isList(pacBounds[2]) and Q(pacBounds[2]).IsAndNamedParam()
+					pacBounds[2] = pacBounds[2][2]
+				ok
 			ok
 
 			if isString(pacBounds)
@@ -11953,16 +12010,257 @@ class stzString from stzObject
 			This.InsertBeforePosition(n1, pacBounds[1])
 		next
 
-		#< @FunctionAlternativeForms
 
-		def InsertAroundSections(aSections, pacBounds)
+		#< @FunctionFluentForm
+
+		def BoundSectionsQ(aSections, pacBounds)
 			This.BoundSections(aSections, pacBounds)
+			return This
 
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def InsertAroundSections(pacBounds, aSections)
+			This.BoundSections(aSections, pacBounds)
+
+			def InsertAroundSectionsQ(pacBounds, aSections)
+				return This.BoundSectionsQ(aSections, pacBounds)
+
+		def AddBoundsToSections(pacBounds, aSections)
+			This.BoundSections(aSections, pacBounds)
+
+			def AddBoundsToSectionsQ(pacBounds, aSections)
+				return This.BoundSectionsQ(aSections, pacBounds)
+
+		def AddBoundToSections(pcSubStr, aSections)
+			This.BoundSections(aSections, pcSubStr)
+
+			def AddBoundToSectionsQ(pcSubStr, aSections)
+				return This.BoundSectionsQ(aSections, pcSubStr)
+
+		#>
+
+	def SectionsBounded(aSections, pacBounds)
+		acResult = This.Copy().BoundSectionsQ(aSections, pacBounds).Content()
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def InsertedAroundSections(pacBounds, aSections)
+			return This.SectionsBounded(aSections, pacBounds)
+
+		def BoundsAddedToSections(pacBounds, aSections)
+			return This.SectionsBounded(aSections, pacBounds)
+
+		def BoundAddedToSections(pcSubStr, aSections)
+			return This.SectionsBounded(pcSubStr, aSections)
+
+		#>
+
+	  #------------------------------------------------#
+	 #  BOUNDING A SUBSTRING BY TWO OTHER SUBSTRINGS  #
+	#------------------------------------------------#
+
+	def BoundCS(pcSubStr, pacBounds, pCaseSensitive)
+		
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+		This.BoundSections(aSections, pacBounds)
+
+		#< @FunctionFluentForm
+
+		def BoundCSQ(pcSubStr, pacBounds, pCaseSensitive)
+			This.BoundCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def BoundSubStringCS(pcSubStr, pacBounds, pCaseSensitive)
+			This.BoundCS(pcSubStr, pacBounds, pCaseSensitive)
+
+			def BoundSubStringCSQ(pcSubStr, pacBounds, pCaseSensitive)
+				return This.BoundCSQ(pcSubStr, pacBounds, pCaseSensitive)
+
+		def InsertAroundSubStringCS(pacBounds, pcSubStr, pCaseSensitive)
+			This.BoundCS(pcSubStr, pacBounds, pCaseSensitive)
+
+			def InsertAroundSubStringCSQ(pacBounds, pcSubStr, pCaseSensitive)
+				return This.BoundCSQ(pcSubStr, pacBounds, pCaseSensitive)
+
+		def AddBoundsToSubStringCS(pacBounds, pcSubStr, pCaseSensitive)
+			This.BoundCS(pcSubStr, pacBounds, pCaseSensitive)
+
+			def AddBoundsToSubStringCSQ(pacBounds, pcSubStr, pCaseSensitive)
+				return This.BoundCSQ(pcSubStr, pacBounds, pCaseSensitive)
+
+		def AddBoundToSubStringCS(pacBounds, pcSubStr, pCaseSensitive)
+			This.BoundCS(pcSubStr, pacBounds, pCaseSensitive)
+
+			def AddBoundToSubStringCSQ(pacBounds, pcSubStr, pCaseSensitive)
+				return This.BoundCSQ(pcSubStr, pacBounds, pCaseSensitive)
+
+		#>
+
+
+	def SubStringBoundedCS(pcSubStr, pacBounds, pCaseSensitive)
+		cResult = This.Copy().BoundCSQ(pcSubStr, pacBounds, pCaseSensitive).Content()
+		return cResult
+
+		def BoundsAddedToSubStringCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This.SubStringBoundedCS(pcSubStr, pacBounds, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Bound(pcSubStr, pacBounds)
+		This.BoundCS(pcSubStr, pacBounds, TRUE)
+
+		#< @FunctionFluentForm
+
+		def BoundQ(pcSubStr, pacBounds)
+			This.Bound(pcSubStr, pacBounds)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def BoundSubString(pcSubStr, pacBounds)
+			This.Bound(pcSubStr, pacBounds)
+
+			def BoundSubStringQ(pcSubStr, pacBounds)
+				return This.BoundQ(pcSubStr, pacBounds)
+
+		def InsertAroundSubString(pacBounds, pcSubStr)
+			This.Bound(pcSubStr, pacBounds)
+
+			def InsertAroundSubStringQ(pacBounds, pcSubStr)
+				return This.BoundQ(pcSubStr, pacBounds)
+
+		def AddBoundsToSubString(pacBounds, pcSubStr)
+			This.Bound(pcSubStr, pacBounds)
+
+			def AddBoundsToSubStringQ(pacBounds, pcSubStr)
+				return This.BoundQ(pcSubStr, pacBounds)
+
+		def AddBoundToSubString(pacBounds, pcSubStr)
+			This.Bound(pcSubStr, pacBounds)
+
+			def AddBoundToSubStringQ(pacBounds, pcSubStr)
+				return This.BoundQ(pcSubStr, pacBounds)
+
+		#>
+
+	def SubStringBounded(pcSubStr, pacBounds)
+		return This.SubStringBoundedCS(pcSubStr, pacBounds, TRUE)
+
+		def BoundsAddedToSubString(pcSubStr, pacBounds)
+			return This.SubStringBounded(pcSubStr, pacBounds)
+
+	  #----------------------------------------------------#
+	 #  BOUNDING MANY SUBSTRINGS BY TWO OTHER SUBSTRINGS  #
+	#----------------------------------------------------#
+
+	def BoundManyCS(pacSubStr, pacBounds, pCaseSensitive)
+		aSections = This.FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
+		This.BoundSections(aSections, pacBounds)
+
+		#< @FunctionFluentForm
+
+		def BoundManyCSQ(pcSubStr, pacBounds, pCaseSensitive)
+			This.BoundManyCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def BoundSubStringsCS(pacSubStr, pacBounds, pCaseSensitive)
+			This.BoundManyCS(pacSubStr, pacBounds, pCaseSensitive)
+
+			def BoundSubStringsCSQ(pacSubStr, pacBounds, pCaseSensitive)
+				return This.BoundManyCSQ(pcSubStr, pacBounds, pCaseSensitive)
+
+		def InsertAroundSubStringsCS(pacBounds, pacSubStr, pCaseSensitive)
+			This.BoundManyCS(pacSubStr, pacBounds, pCaseSensitive)
+
+			def InsertAroundSubStringsCSQ(pacBounds, pacSubStr, pCaseSensitive)
+				return This.BoundManyCSQ(pacSubStr, pacBounds, pCaseSensitive)
+
+		def AddBoundsToSubStringsCS(pacBounds, pacSubStr, pCaseSensitive)
+			This.BoundManyCS(pacSubStr, pacBounds, pCaseSensitive)
+
+			def AddBoundsToSubStringsCSQ(pacBounds, pacSubStr, pCaseSensitive)
+				return This.BoundManyCSQ(pacSubStr, pacBounds, pCaseSensitive)
+
+		def AddBoundToSubStringsCS(pacBounds, pacSubStr, pCaseSensitive)
+			This.BoundManyCS(pacSubStr, pacBounds, pCaseSensitive)
+
+			def AddBoundToSubStringsCSQ(pacBounds, pcSubStr, pCaseSensitive)
+				return This.BoundManyCSQ(pacSubStr, pacBounds, pCaseSensitive)
+
+		#>
+
+
+	def SubStringsBoundedCS(pacSubStr, pacBounds, pCaseSensitive)
+		cResult = This.Copy().BoundManyCSQ(pacSubStr, pacBounds, pCaseSensitive).Content()
+		return cResult
+
+		def BoundsAddedToSubStringsCS(pacSubStr, pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedCS(pacSubStr, pacBounds, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BoundMany(pacSubStr, pacBounds)
+		This.BoundManyCS(pacSubStr, pacBounds, TRUE)
+
+		#< @FunctionFluentForm
+
+		def BoundManyQ(pcSubStr, pacBounds)
+			This.BoundMany(pcSubStr, pacBounds)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def BoundSubStrings(pacSubStr, pacBounds)
+			This.BoundMany(pacSubStr, pacBounds)
+
+			def BoundSubStringsQ(pacSubStr, pacBounds)
+				return This.BoundManyQ(pcSubStr, pacBounds)
+
+		def InsertAroundSubStrings(pacBounds, pacSubStr)
+			This.BoundMany(pacSubStr, pacBounds)
+
+			def InsertAroundSubStringsQ(pacBounds, pacSubStr)
+				return This.BoundManyQ(pacSubStr, pacBounds)
+
+		def AddBoundsToSubStrings(pacBounds, pacSubStr)
+			This.BoundMany(pacSubStr, pacBounds)
+
+			def AddBoundsToSubStringsQ(pacBounds, pacSubStr)
+				return This.BoundManyQ(pacSubStr, pacBounds)
+
+		def AddBoundToSubStrings(pacBounds, pacSubStr)
+			This.BoundMany(pacSubStr, pacBounds)
+
+			def AddBoundToSubStringsQ(pacBounds, pcSubStr)
+				return This.BoundManyQ(pacSubStr, pacBounds)
+
+		#>
+
+	def SubStringsBounded(pacSubStr, pacBounds)
+		cResult = This.Copy().BoundManyQ(pacSubStr, pacBounds).Content()
+		return cResult
+
+		def BoundsAddedToSubStrings(pacSubStr, pacBounds)
+			return This.SubStringsBounded(pacSubStr, pacBounds)
+
 	  #--------------------------------------------------------------------#
 	 #  CHECKING IF A GIVEN SUBSTRING IS BOUNDED BY TWO OTHER SUBSTRINGS  #
-	#--------------------------------------------------------------------#
+	#====================================================================#
 
 	def SubStringIsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
@@ -18724,266 +19022,6 @@ class stzString from stzObject
 
 	def ContainsTheseBounds(pacBounds)
 		return This.ContainsTheseBoundsCS(pacBounds, TRUE)
-
-
-	  #------------------------------------------------------------------------#
-	 #   ADDING BOUNDS TO THE OCCURRENCES OF A SUBSTRING INSIDE THE STRING    #
-	#------------------------------------------------------------------------#
-
-	def AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		anSections = This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive).Reversed()
-	
-		for aSection in anSections
-			n1 = aSection[1]
-			n2 = aSection[2]
-
-			nLenBound2 = StzStringQ(pcBound2).NumberOfChars()
-
-			if n2 < This.NumberOfChars() and
-			   This.Section(n2 + 1, n2 + nLenBound2) != pcBound2
-
-				This.InsertAfter(n2, pcBound2)
-			ok
-
-			nLenBound1 = StzStringQ(pcBound1).NumberOfChars()
-
-			if n1 > 1 and
-			   This.Section(n1 - nLenBound1, n1 - 1) != pcBound1
-
-				This.InsertBefore(n1, pcBound1)
-			ok
-		next
-
-		#< @FunctionFluentForm
-
-		def AddBoundsToSubStringCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-			This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def AddTheseBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-			This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-
-			def AddTheseBoundsToSubStringCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-				This.AddTheseBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-				return This
-
-		def AddSubStringBoundsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-			if isList(pcSubStr) and Q(pcSubStr).IsToOrToSubStringNamedParam()
-				pcSubStr = pcSubStr[2]
-			ok
-
-			This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-
-			def AddSubStringBoundsCSQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-				This.AddSubStringBoundsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-				return This
-
-		#-- NOTE: The semantics change here, as we use the verbal form "Bound"
-		#-- and not the plural form "Bounds" as it is the case above. Hence,
-		#-- the user expects to provide either one bound or two, at his will:
-
-		def BoundSubStringCS(pcSubStr, pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsWithOrByOrUsingNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			cBound1 = ""
-			cBound2 = ""
-
-			if isString(pacBounds)
-				cBound1 = pacBounds
-				cBound2 = pacBounds
-
-			but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-				cBound1 = pacBounds[1]
-				cBound2 = pacBounds[2]
-
-			else
-				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
-			ok
-
-			This.AddBoundsToSubStringCS(pcSubStr, cBound1, cBound2, pCaseSensitive)
-
-
-			def BoundSubStringCSQ(pcSubStr, pacBounds, pCaseSensitive)
-				This.BoundSubStringCS(pcSubStr, pacBounds, pCaseSensitive)
-				return This
-
-		def BoundSubStringWithCS(pcSubStr, pacBounds, pCaseSensitive)
-			This.BoundSubStringCS(pcSubStr, pacBounds, pCaseSensitive)
-
-			def BoundSubStringWithCSQ(pcSubStr, pacBounds, pCaseSensitive)
-				This.BoundSubStringWithCS(pcSubStr, pacBounds, pCaseSensitive)
-				return This
-
-		def BoundSubStringByCS(pcSubStr, pacBounds, pCaseSensitive)
-			This.BoundSubStringCS(pcSubStr, pacBounds, pCaseSensitive)
-
-			def BoundSubStringByCSQ(pcSubStr, pacBounds, pCaseSensitive)
-				This.BoundSubStringByCS(pcSubStr, pacBounds, pCaseSensitive)
-				return This
-
-		def BoundSubStringUsingCS(pcSubStr, pacBounds, pCaseSensitive)
-			This.BoundSubStringCS(pcSubStr, pacBounds, pCaseSensitive)
-
-			def BoundSubStringUsingCSQ(pcSubStr, pacBounds, pCaseSensitive)
-				This.BoundSubStringUsingCS(pcSubStr, pacBounds, pCaseSensitive)
-				return This
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
-		This.AddBoundsToSubStringCS(pcSubStr, pcBound1, pcBound2, TRUE)
-
-		#< @FunctionFluentForm
-
-		def AddBoundsToSubStringQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def AddTheseBoundsToSubString(pcSubStr, pcBound1, pcBound2)
-			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
-
-			def AddTheseBoundsToSubStringQ(pcSubStr, pcBound1, pcBound2)
-				This.AddTheseBoundsToSubString(pcSubStr, pcBound1, pcBound2)
-				return This
-
-		def AddSubStringBounds(pcSubStr, pcBound1, pcBound2)
-			This.AddBoundsToSubString(pcSubStr, pcBound1, pcBound2)
-
-			def AddSubStringBoundsQ(pcSubStr, pcBound1, pcBound2)
-				This.AddSubStringBounds(pcSubStr, pcBound1, pcBound2)
-				return This
-
-		#-- NOTE: The semantics change here, as we use the verbal form "Bound"
-		#-- and not the plural form "Bounds" as it is the case above. Hence,
-		#-- the user expects to provide either one bound or two, at his will:
-
-		def BoundSubString(pcSubStr, pacBounds)
-			This.BoundSubStringCS(pcSubStr, pacBounds, TRUE)
-
-			def BoundSubStringQ(pcSubStr, pacBounds)
-				This.BoundSubString(pcSubStr, pacBounds)
-				return This
-
-		def BoundSubStringWith(pcSubStr, pacBounds)
-			This.BoundSubString(pcSubStr, pacBounds)
-
-			def BoundSubStringWithQ(pcSubStr, pacBounds)
-				This.BoundSubStringWith(pcSubStr, pacBounds)
-				return This
-
-		def BoundSubStringBy(pcSubStr, pacBounds)
-			This.BoundSubString(pcSubStr, pacBounds)
-
-			def BoundSubStringByQ(pcSubStr, pacBounds)
-				This.BoundSubStringBy(pcSubStr, pacBounds)
-				return This
-
-		def BoundSubStringUsing(pcSubStr, pacBounds)
-			This.BoundSubString(pcSubStr, pacBounds)
-
-			def BoundSubStringUsingQ(pcSubStr, pacBounds)
-				This.BoundSubStringUsing(pcSubStr, pacBounds)
-				return This
-
-		#>
-
-	  #---------------------------------------------------------#
-	 #   ADDING BOUNDS TO MANYS SUBSTRINGS AT THE SAME TIME    #
-	#---------------------------------------------------------#
-
-	def AddBoundsToManySubStringsCS(pacSubStr, pcBound1, pcBound2, pCaseSensitive)
-
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
-			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
-		ok
-
-		nLen = len(pacSubStr)
-
-		for i = 1 to nLen
-			This.AddBoundsToSubStringCS(pacSubStr[i], pcBound1, pcBound2, pCaseSensitive)
-		next
-
-		#< @FunctionFluentForm
-
-		def AddBoundsToManySubStringsCSQ(pacSubStr, pcBound1, pcBound2, pCaseSensitive)
-			This.AddBoundsToManySubStringsCS(pacSubStr, pcBound1, pcBound2, pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def AddBoundsToSubStringsCS(pacSubStr, pcBound1, pcBound2, pCaseSensitive)
-			This.AddBoundsToManySubStringsCS(pacSubStr, pcBound1, pcBound2, pCaseSensitive)
-
-			def AddBoundsToSubStringsCSQ(pacSubStr, pcBound1, pcBound2, pCaseSensitive)
-				This.AddBoundsToSubStringsCS(pacSubStr, pcBound1, pcBound2, pCaseSensitive)
-				return This
-
-		def BoundManySubStringsWithCS(pacSubStr,  pcBound1, pcBound2, pCaseSensitive)
-			This.AddBoundsToManySubStringsCS(pacSubStr, pcBound1, pcBound2, pCaseSensitive)
-
-			def BoundManySubStringsWithCSQ(pacSubStr, pcBound1, pcBound2, pCaseSensitive)
-				This.BoundManySubStringsWithCS(pacSubStr, pcBound1, pcBound2, pCaseSensitive)
-				return This
-
-		def BoundSubStringsWithCS(pacSubStr,  pcBound1, pcBound2, pCaseSensitive)
-			This.AddBoundsToManySubStringsCS(pacSubStr, pcBound1, pcBound2, pCaseSensitive)
-
-			def BoundSubStringsWithCSQ(pacSubStr, pcBound1, pcBound2, pCaseSensitive)
-				This.BoundSubStringsWithCS(pacSubStr, pcBound1, pcBound2, pCaseSensitive)
-				return This
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def AddBoundsToManySubStrings(pacSubStr, pcBound1, pcBound2)
-		This.AddBoundsToManySubStringsCS(pacSubStr, pcBound1, pcBound2, TRUE)
-
-		#< @FunctionFluentForm
-
-		def AddBoundsToManySubStringsQ(pacSubStr, pcBound1, pcBound2)
-			This.AddBoundsToManySubStrings(pacSubStr, pcBound1, pcBound2)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def AddBoundsToSubStrings(pacSubStr, pcBound1, pcBound2)
-			This.AddBoundsToManySubStrings(pacSubStr, pcBound1, pcBound2)
-
-			def AddBoundsToSubStringsQ(pacSubStr, pcBound1, pcBound2)
-				This.AddBoundsToSubStrings(pacSubStr, pcBound1, pcBound2)
-				return This
-
-		def BoundManySubStringsWith(pacSubStr,  pcBound1, pcBound2)
-			This.AddBoundsToManySubStrings(pacSubStr, pcBound1, pcBound2)
-
-			def BoundManySubStringsWithQ(pacSubStr, pcBound1, pcBound2)
-				This.BoundManySubStringsWith(pacSubStr, pcBound1, pcBound2)
-				return This
-
-		def BoundSubStringsWith(pacSubStr,  pcBound1, pcBound2)
-			This.AddBoundsToManySubStrings(pacSubStr, pcBound1, pcBound2)
-
-			def BoundSubStringsWithQ(pacSubStr, pcBound1, pcBound2)
-				This.BoundSubStringsWith(pacSubStr, pcBound1, pcBound2)
-				return This
-
-		#>
 
 	  #============================#
 	 #   REPEATED LEADING CHARS   #

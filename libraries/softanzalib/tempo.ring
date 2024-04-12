@@ -206,7 +206,7 @@ proff()
 # Executed in 0.02 second(s)
 
 #---
-*/
+
 pron()
 
 o1 = new stzString("its the last mile now")
@@ -216,6 +216,22 @@ o1.BoundSections([ [5, 7], [9, 12], [14, 17] ], "_")
 
 proff()
 # Executed in 0.04 second(s)
+
+#---
+*/
+pron()
+
+o1 = new stzString("its the last mile now")
+o1.Bound("last", :By = [ "<<", :and = ">>" ]) # or BoundSubString() or InsertAroundSubString()
+? o1.Content() + NL
+#--> its the <<last>> mile now
+
+o1.Bound([ "the", "mile" ], :By = [ "<<", ">>" ]) # or BoundSubStrings()
+? o1.Content()
+#--> its <<the>> <<last>> <<mile>> now
+
+proff()
+# Executed in 0.06 second(s)
 
 /*----------------- #TODO: Check output error "R in g"
 pron()
