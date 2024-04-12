@@ -11878,6 +11878,88 @@ class stzString from stzObject
 		def StringBoundedBy(pacBounds)
 			return This.StringWithBoundsAdded(pacBounds)
 
+	  #------------------------------------------#
+	 #  BOUNDING A SECTION WITH TWO SUBSTRINGS  #
+	#------------------------------------------#
+
+	def BoundSection(n1, n2, pacBounds)
+		if CheckParams()
+			if NOT ( isNumber(n1) and isNumber(n2) )
+				StzRaise("Incorrect param type! n1 and n2 must be numbers.")
+			ok
+
+			if isList(pacBounds) and Q(pacBounds).IsWithOrUsingOrByNamedParam()
+				pacBounds = pacBounds[2]
+			ok
+
+			if isString(pacBounds)
+				pacTemp = []
+				pacTemp + pacBounds + pacBounds
+				pacBounds = pacTemp
+			ok
+
+			if NOT ( isList(pacBounds) and @IsPairOfStrings(pacBounds) )
+				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
+			ok
+		ok
+
+		aSection = ring_sort([n1, n2])
+		n1 = aSection[1]
+		n2 = aSection[2]
+
+		This.InsertAfterPosition(n2, pacBounds[2])
+		This.InsertBeforePosition(n1, pacBounds[1])
+
+		#< @FunctionAlternativeForms
+
+		def InsertAroundSection(n1, n2, pacBounds)
+			This.BoundSection(n1, n2, pacBounds)
+
+		#>
+
+	  #----------------------------------------------#
+	 #  BOUNDING MANY SECTIONS WITH TWO SUBSTRINGS  #
+	#----------------------------------------------#
+
+	def BoundSections(aSections, pacBounds)
+		if CheckParams()
+			if NOT (isList(aSections) and @IsListOfPairsOfNumbers(aSections))
+				StzRaise("Incorrect param type! aSections must be a list of pairs of numbers.")
+			ok
+
+			if isList(pacBounds) and Q(pacBounds).IsWithOrUsingOrByNamedParam()
+				pacBounds = pacBounds[2]
+			ok
+
+			if isString(pacBounds)
+				pacTemp = []
+				pacTemp + pacBounds + pacBounds
+				pacBounds = pacTemp
+			ok
+
+			if NOT ( isList(pacBounds) and @IsPairOfStrings(pacBounds) )
+				StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
+			ok
+		ok
+
+		aSections = StzListOfPairsQ(aSections).Sorted()
+		nLen = len(aSections)
+
+		for i = nLen to 1 step -1
+			n1 = aSections[i][1]
+			n2 = aSections[i][2]
+	
+			This.InsertAfterPosition(n2, pacBounds[2])
+			This.InsertBeforePosition(n1, pacBounds[1])
+		next
+
+		#< @FunctionAlternativeForms
+
+		def InsertAroundSections(aSections, pacBounds)
+			This.BoundSections(aSections, pacBounds)
+
+		#>
+
 	  #--------------------------------------------------------------------#
 	 #  CHECKING IF A GIVEN SUBSTRING IS BOUNDED BY TWO OTHER SUBSTRINGS  #
 	#--------------------------------------------------------------------#
@@ -25677,7 +25759,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def InsertAfterPosition(nPos, pcSubStr)
-			This.InsertAfer(nPos, pcSubStr)
+			This.InsertAfter(nPos, pcSubStr)
 
 			def InsertAfterePositionQ(nPos, pcSubStr)
 				This.InsertAfterPosition(nPos, pcSubStr)

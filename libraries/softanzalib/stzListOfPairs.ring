@@ -563,7 +563,7 @@ class stzListOfPairs from stzListOfLists
 
 	def SortOn(n)
 		aResult = @SortOn(This.Content(), n)
-		This.UpdateWith(aSorted)
+		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
