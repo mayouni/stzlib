@@ -2105,11 +2105,23 @@ class stzObject
 			StzRaise("Type error: you must provide an object or an object varname inside a string!")
 		ok
 
-	def Object()
+	def Content()
 		return @oObject
 
-		def ObjectQ()
-			return new stzObject( This )
+		def Object()
+			return This.Content()
+
+		def ReturnIt() # Used for natural-coding
+			return This.Content()
+
+		def AndReturnIt()
+			return This.Content()
+
+		def ThenReturnIt()
+			return This.Content()
+
+		def AndThenReturnit()
+			return This.Content()
 
 	def VarName()
 		return @cVarName
@@ -2255,9 +2267,6 @@ class stzObject
 		])
 
 		return aResult
-
-		def Content() #TODO: Shoud this be like that?
-			return This.ObjectAttributesAndValues()
 
 		def AttributesXT()
 			return This.ObjectAttributesAndValues()
@@ -3423,6 +3432,55 @@ class stzObject
 		def WitchBothAreMM()
 			return MainObject()
 
+	def FromIt()
+		return This.Content()
+
+		def FromItQ()
+			return This
+		
+	def FromQ()
+		return This
+
+	def FromThem()
+		return This.Content()
+
+		def FromThemQ()
+			return This
+
+
+	def FinallyQ()
+		return This
+
+		def FinallyMQ()
+			SetMainObject(This)
+			return This
+
+		def FinallyM()
+			SetMainObject(This)
+			return This
+
+	def AndFinallyQ()
+		return This
+
+		def AndFinallyMQ()
+			SetMainObject(This)
+			return This
+
+		def AndFinallyM()
+			SetMainObject(This)
+			return This
+
+	def ThenQ()
+		return This
+
+		def ThenMQ()
+			SetMainObject(This)
+			return This
+
+		def ThenM()
+			SetMainObject(This)
+			return This
+
 	def AndThen()
 		return This
 
@@ -3431,7 +3489,7 @@ class stzObject
 
 			def AndThenMQ()
 				SetMainObject(This)
-				return This.AndThenQ()
+				return This
 
 			def AndThenQM()
 				return MainObject()
