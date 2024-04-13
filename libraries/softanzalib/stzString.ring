@@ -12002,14 +12002,41 @@ class stzString from stzObject
 		aSections = StzListOfPairsQ(aSections).Sorted()
 		nLen = len(aSections)
 
+		if nLen = 0
+			return
+
+		but nLen = 1
+			This.BoundSection(aSections[1][1], aSections[1][2], pacBounds)
+			return
+		ok
+
+		# If some sections are included in others then remove them
+		#TODO
+		# Turn this to a method RemoveIncluded() in stzListOfPairs
+
+		aSectionsXT = [] + aSections[1]
+		for i = 2 to nLen
+			if ( aSections[i][1] > aSections[i-1][1] and aSections[i][1] < aSections[i-1][2] ) and
+			   ( aSections[i][2] > aSections[i-1][1] and aSections[i][2] < aSections[i-1][2] )
+
+				// do nothing
+			else
+
+				aSectionsXT + aSections[i]
+			ok
+		next
+
+		# Inserting the bounds around the sections
+
+		nLen = len(aSectionsXT)
+
 		for i = nLen to 1 step -1
-			n1 = aSections[i][1]
-			n2 = aSections[i][2]
-	
+			n1 = aSectionsXT[i][1]
+			n2 = aSectionsXT[i][2]
+
 			This.InsertAfterPosition(n2, pacBounds[2])
 			This.InsertBeforePosition(n1, pacBounds[1])
 		next
-
 
 		#< @FunctionFluentForm
 
@@ -65752,22 +65779,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		anSections = This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive).Reversed()
-	
-		for aSection in anSections
-			n1 = aSection[1]
-			n2 = aSection[2]
+		aSections = This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
+		This.BoundSections(aSections, " ")
 
-			if n2 < This.NumberOfChars() and
-			   This.CharAt(n2 + 1) != " "
-
-				This.InsertAfter(n2, " ")
-			ok
-
-			if n1 > 1 and This.CharAt(n1 - 1) != " "
-				This.InsertBefore(n1, " ")
-			ok
-		next
 
 		def SpacifySubStringCSQ(pcSubStr, pCaseSensitive)
 			This.SpacifySubStringCS(pcSubStr, pCaseSensitive)
@@ -65914,65 +65928,44 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		ok
 
-		acSubStr = StzListQ(pacSubStr).WithoutDuplicates()
-		nLen = len(acSubStr)
+		aSections = This.FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
+		nLen = len(aSections)
 
-		acNewSubStr = []
+		if nLen = 0
+			return
 
-		for i = 1 to nLen
-			acNewSubStr + ( pcSep + acSubStr[i] + pcSep )
-		next
-
-		This.ReplaceManyByManyCS(acSubStr, acNewSubStr, pCaseSensitive)
-		This.Trim()
-
-/*
-		# Removing duplicates from the provided substrings
-
-		pacSubStr = Q(pacSubStr).DuplicatesRemoved()
-		nLen = len(pacSubStr)
-
-		# Among the substrings provided, idenifying those that
-		# actually exist in the string (others are ignored)
-
-		acSubStr = []
-		for i = 1 to nLen
-			if This.ContainsCS(pacSubStr[i], pCaseSensitive)
-				acSubStr + pacSubStr[i]
-			ok
-		next
-		#--> [ "believe", "in", "Ring", "future", "and", "engage", "for" ]
-		nLenSubStr = len(acSubStr)
-
-		if nLenSubStr = 0
+		but nLen = 1
+			This.BoundSection(aSections[1][1], aSections[1][2], " ")
 			return
 		ok
 
-		# Sorting the substrings in descending order
+		# If some sections are included in others then remove them
+		#TODO
+		# Turn this to a method RemoveIncluded() in stzListOfPairs
 
-		acSubStr = QR(acSubStr, :stzListOfStrings).SortedInDescendingBy('Q(@string).NumberOfChars()')
-		nLenSubStr = len(acSubStr)
+		aSectionsXT = [] + aSections[1]
+		for i = 2 to nLen
+			if ( aSections[i][1] > aSections[i-1][1] and aSections[i][1] < aSections[i-1][2] ) and
+			   ( aSections[i][2] > aSections[i-1][1] and aSections[i][2] < aSections[i-1][2] )
 
-		aSections = []
-		aSectionsNow = [ [ 1, This.NumberOfChars() ] ]
+				// do nothing
+			else
 
-		for i = 1 to nLenSubStr
-
-			aTempSections = This.FindInSectionsAsSectionsCS(
-					acSubStr[i], aSectionsNow, pCaseSensitive)
-
-			nLenTemp = len(aTempSections)
-
-			for j = 1 to nLenTemp
-				aSections + aTempSections[j]
-			next
-
-			aSectionsNow = This.FindAntiSections( aSections )
-
+				aSectionsXT + aSections[i]
+			ok
 		next
 
-		This.SpacifySections(aSections)
-*/
+		# Inserting the bounds around the sections
+
+		nLen = len(aSectionsXT)
+		This.InsertAfterPosition(aSectionsXT[nLen][2], " ")
+
+		for i = nLen to 1 step -1
+			n1 = aSectionsXT[i][1]
+			This.InsertBeforePosition(n1, " ")
+		next
+
+		
 
 		#< @FunctionFluentForm
 

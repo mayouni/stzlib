@@ -218,7 +218,7 @@ proff()
 # Executed in 0.04 second(s)
 
 #---
-*/
+
 pron()
 
 o1 = new stzString("its the last mile now")
@@ -233,24 +233,17 @@ o1.Bound([ "the", "mile" ], :By = [ "<<", ">>" ]) # or BoundSubStrings()
 proff()
 # Executed in 0.06 second(s)
 
-/*----------------- #TODO: Check output error "R in g"
-pron()
+/*-----------------
 */
+pron()
+
 o1 = new stzString("IbelieveinRingfutureandengageforit!")
 
-aSections = o1.FindManyAsSections([
+o1.SpacifyTheseSubStrings([
 	"believe", "in", "Ring", "future", "and", "engage", "for"
 ])
 
-o1.BoundSections(aSections, " ")
-
 ? o1.Content()
-
-//o1.SpacifyTheseSubStrings([
-//	"believe", "in", "Ring", "future", "and", "engage", "for"
-//])
-
-//? o1.Content()
 #--> I believe in Ring future and engage for it!
 
 proff()
