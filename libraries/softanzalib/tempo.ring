@@ -1,6 +1,7 @@
 load "stzlib.ring"
 
 /*====== #ring
+
 pron()
 
 # Some Ring standard functions make the action in place and does not
@@ -10,17 +11,18 @@ pron()
 # The ring_...() functions always do the action and return
 # the result. So you are free to say:
 
-	aList = [ 1, 1, 2, 3 ]
-	ring_remove(aList, 1, 1)
+	aList = [ 2, 3 ]
+	ring_insert(aList, 1, 1)
 	? aList
 	#--> [ 1, 2, 3 ]
 
 # Or directly:
 
-	? ring_remove([ 1, 1, 2, 3 ], 1, 1)
+	? ring_insert([ 2, 3 ], 1, 1)
 	#--> [ 1, 2, 3 ]
 
 proff()
+# Executed in 0.01 second(s)
 
 /*====== #ring
 
@@ -40,6 +42,7 @@ insert(aList, 1, 1)
 ? aList
 #--> [ 2, 1, 3 ]
 
+proff()
 # Executed in 0.01 second(s)
 
 /*======
@@ -104,7 +107,7 @@ aLists = [
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 /*----------
 
@@ -142,6 +145,7 @@ pron()
 #--> TRUE
 
 proff()
+# Executed in 0.02 second(s)
 
 /*=====
 
@@ -154,6 +158,7 @@ aList = [ [1,2,3], [4,5,6], 7:9 ]
 # [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*------ #TODO future
 
@@ -231,10 +236,10 @@ o1.Bound([ "the", "mile" ], :By = [ "<<", ">>" ]) # or BoundSubStrings()
 #--> its <<the>> <<last>> <<mile>> now
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.09 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("IbelieveinRingfutureandengageforit!")
@@ -247,6 +252,7 @@ o1.SpacifyTheseSubStrings([
 #--> I believe in Ring future and engage for it!
 
 proff()
+# Executed in 0.07 second(s)
 
 /*-----------------
 
@@ -268,6 +274,7 @@ o1 = new stzHashList([
 #--> #1
 
 proff()
+# Executed in 0.02 second(s)
 
 /*-----------------
 
@@ -287,7 +294,7 @@ o1.RemoveTheseBounds("{{","}")
 #--> ring}
 
 proff()
-# Executed in 0.12
+# Executed in 0.03 second(s)
 
 /*------------
 
@@ -308,7 +315,7 @@ o1 = new stzString("Abc285XY&من")
 #--> [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
 
 proff()
-# Executed in 0.57 second(s)
+# Executed in 0.32 second(s)
 
 /*------------
 
@@ -331,7 +338,8 @@ o1 = new stzString("Abc285XY&من")
 #--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
 
 proff()
-#--> Executed in 0.25 second(s)
+#--> Executed in 0.10 second(s) in Ring 1.20
+#--> Executed in 0.12 second(s) in Ring 1.19
 
 /*------------
 
@@ -346,6 +354,7 @@ o1 = new stzList([ "A", "B", "A", "A", "B", "B", "C" ])
 #--> [ "A", "B", "C" ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*------------
 
@@ -362,15 +371,22 @@ o1 = new stzString("ABCAAB")
 proff()
 # Executed in 0.04 second(s)
 
+/*------- TODO: fix it
+
+? StzCharQ("🔻")
+#!--> ERROR MESSAGE: Can't create the char object
+
+
 /*-------- TODO: erronous char name
 
 pron()
 
 ? StzCharQ(63).Content()
+#--> ?
 
 ? Q("🔻").Unicode()
 
-? QQ("🔻").Name() #TODO: Correct this
+? StzStringQ("🔻").CharName() #TODO: Correct this
 #!--> QUESTION MARK
 
 proff()
@@ -387,10 +403,11 @@ o1 = new stzString("mmmMMMaaAAAiii")
 # ]
 
 proff()
-# Executed in 0.17 second(s)
+# Executed in 0.14 second(s) in Ring 1.20
+# Executed in 0.18 second(s) in Ring 1.19
 
 /*================
-
+*/
 pron()
 
 o1 = new stzString("---,---;---[---]---:---")
@@ -2976,7 +2993,7 @@ o1 = Q([ "T","A","Y","T","O", "A", "U", "B", "T", "A" ])
 proff()
 # Executed in 0.02 second(s)
 
-/*---------------- #TODO: Implement these functions
+/*---------------- #TODO/FUTURE: Implement these functions
 
 pron()
 
@@ -2993,7 +3010,7 @@ o1 = new StzListOfLists([ [ "_", "♥", "_" ], [ "_", "_", "_" ],  [ "_", "♥",
 
 proff()
 
-/*---------------- #todo: add these functions
+/*---------------- #todo/future: add these functions
 
 pron()
 
@@ -4571,7 +4588,7 @@ o1 = new stzString("...<<*>>...<<*>>...<<*>>...")
 
 proff()
 
-/*======== #TODO: add the :3rd syntax to these functions
+/*======== #TODO/FUTURE: add the :3rd syntax to these functions
 
 pron()
 

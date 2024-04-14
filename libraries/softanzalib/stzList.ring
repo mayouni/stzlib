@@ -59,6 +59,13 @@ func SortListsOn(paLists, n)
 		ok
 	ok
 
+	if len(paLists) = 0
+		return []
+	ok
+
+? @@(n)
+? @@NL( StzListOfListsQ(paLists).Adjusted() )
+
 	aCol = StzListOfListsQ(paLists).AdjustQ().NthCol(n)
 
 	if @IsRingSortable(aCol)
