@@ -1052,13 +1052,13 @@ func ring_del(paList, n)
 	# the result. So you are free to say:
 
 	# 	aList = [ 1, 1, 2, 3 ]
-	# 	ring_remove(aList, 1, 1)
+	# 	ring_insert(aList, 1, 1)
 	# 	? aList
 	# 	#--> [ 1, 2, 3 ]
 
 	# Or directly:
 
-	# 	? ring_remove([ 1, 1, 2, 3 ], 1, 1)
+	# 	? ring_insert([ 1, 1, 2, 3 ], 1, 1)
 	# 	#--> [ 1, 2, 3 ]
 	
 
