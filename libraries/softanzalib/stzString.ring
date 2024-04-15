@@ -15762,8 +15762,18 @@ class stzString from stzObject
 		aSectionsZZ = This.FindTheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
 		anResult = []
 
-		if NOT @IsPairOfEmptyLists(aSectionsZZ) > 1
-			anResult = [ aSectionsZZ[1][1], aSectionsZZ[2][1] ]
+		if NOT @IsPairOfEmptyLists(aSectionsZZ)
+			n1 = 0
+			if len(aSectionsZZ[1]) > 0
+				n1 = aSectionsZZ[1][1]
+			ok
+
+			n2 = 0
+			if len(aSectionsZZ[2]) > 0
+				n2 = aSectionsZZ[2][1]
+			ok
+
+			anResult = [ n1, n2 ]
 		ok
 
 		return anResult
