@@ -12879,32 +12879,34 @@ class stzList from stzObject
 
 		# Doing the job
 
-		nLen = This.NumberOfItems()
+		nLen = len(@aContent)
 
-		anPart1 = []
-		if n1 > 1
-			anPart1 = 1 : (n1 - 1)
+		if nLen = 0
+			return
 		ok
 
-		if n2 > nLen
-			n2 = nLen
+		if n1 = n2
+			This.removeItemAtPosition(n1)
+			return
 		ok
 
-		anPart2 = []
-		if n2 = nLen
-			anPart2 = [ ]
-		else
-			anPart2 = (n2 + 1) : nLen
+		if n2 < n1
+			nTemp = n1
+			n1 = n2
+			n2 = nTemp
 		ok
 
-		nLenPart2 = len(anPart2)
+		aResult = []
 
-		anPos = anPart1
-		for i = 1 to nLenPart2
-			anPos + anPart2[i]
+		for i = 1 to n1 - 1
+			aResult + @aContent[i]
 		next
 
-		This.UpdateWith( This.ItemsAtPositions(anPos) )
+		for i = n2 + 1 to nLen
+			aResult + @aContent[i]
+		next
+
+		@aContent = aResult
 
 		#< @FunctionFluentForm
 

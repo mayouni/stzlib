@@ -1026,7 +1026,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*============
-*/
+
 pron()
 
 o1 = new stzString("<<<word>>>")
@@ -1035,7 +1035,7 @@ o1.RemoveSections([ [8,10], [1,3] ])
 #--> word
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.03 second(s)
 
 /*---------
 
@@ -1045,8 +1045,9 @@ o1 = new stzString("<<<word>>>")
 o1.RemoveSections([])
 ? o1.Content()
 #--> <<<word>>>
+
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
 /*---------
 
@@ -1060,7 +1061,7 @@ o1 = new stzString("word>>>")
 #--> [ ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*---------
 
@@ -1071,9 +1072,11 @@ o1 = new stzList([ [ ], [ 5, 7 ] ])
 #--> FALSE
 
 proff()
+# Executed in 0.01 second(s)
 
+/*--------- TODO/FUTURE: add _ for more readable numbers
 
-/*--------- TODO: add _ for more readable numbers
+pron()
 
 ? @@(1587345327)
 #--> '1_587_345_327'
@@ -1081,17 +1084,20 @@ proff()
 ? @@([ 1, 2, 999997, 999998, 1000000 ])
 #--> [ 1, 2, 999_997, 999_998, 1_000_000 ]
 
-/*---------
+proff()
+# Executed in 0.02 second(s)
 
-pron()
+/*--------- #perf
+
+pron()	
 
 o1 = new stzList( 1 : 1_000_000 )
 o1.RemoveSection(5, 999_996)
-? @@( o1.Content() )
+? ShowShortXT( o1.Content(), 7 )
 #--> [ 1, 2, 3, 4, 999_997, 999_998, 999_999, 1_000_000 ]
 
 proff()
-# Executed in 0.73 second(s)
+# Executed in 0.51 second(s)
 
 /*---------
 
@@ -1106,7 +1112,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*---------
-
+*/
 pron()
 
 o1 = new stzList([ "<", "<", "w", "o", "r", "d", ">", ">", ">" ])
