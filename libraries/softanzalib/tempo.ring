@@ -407,7 +407,7 @@ proff()
 # Executed in 0.18 second(s) in Ring 1.19
 
 /*================
-*/
+
 pron()
 
 o1 = new stzString("---,---;---[---]---:---")
@@ -590,13 +590,23 @@ StartProfiler()
 	? Q("__♥__").ContainsXT("♥", [])
 	#--> TRUE
 
+	? Q("__-♥-__").ContainsXT(["_", "-", "♥"], [])
+	#--> TRUE
+
+	? Q("__♥__").ContainsXT([], "♥")
+	#--> TRUE
+
+StopProfiler()
+# Executed in 0.02 second(s)
+
+/*---------- #TODO test it after including ContainsSubStringBoundedBy()
+
+pron()
+
 	? Q("_-♥-_").ContainsXT("♥", :BoundedBy = "-")
 	#--> TRUE
 
 	? Q("_/♥\_").ContainsXT("♥", :Between = ["/", :And = "\"])
-	#--> TRUE
-
-	? Q("__-♥-__").ContainsXT(["_", "-", "♥"], [])
 	#--> TRUE
 
 	? Q("__-♥-__-•-__").ContainsXT(["♥", "•"], :BoundedBy = "-")
@@ -605,17 +615,12 @@ StartProfiler()
 	? Q("__/♥\__/•\__").ContainsXT(["♥", "•"], :Between = ["/", :And = "\"])
 	#--> TRUE
 
-	? Q("__♥__").ContainsXT([], "♥")
-	#--> TRUE
-
 	? Q("__/♥\__/^^^\__").ContainsXT( [], :BoundedBy = ["/", :And = "\"] )
 	#--> TRUE
 
 	? Q("__/♥\__/^^\__").ContainsXT( [], :Between = ["/", "\"] )	
 	#--> TRUE
-
-StopProfiler()
-# Executed in 0.04 second(s)
+ proff()
 
 /*----------
 
@@ -650,10 +655,11 @@ StartProfiler()
 	? Q("__---__").ContainsXT(:Chars, W('Q(@Char).IsEither("_", :Or = "-")'))
 	#--> TRUE
 
-#NOTE: Conditional code will be quicker of you replace Q(@Char) with Q(This[@i])
+#NOTE: Conditional code will be quicker if you replace Q(@Char) with Q(This[@i])
 
 StopProfiler()
-# Executed in 9.14 second(s)
+# Executed in 0.41 second(s) in Ring 1.20
+# Executed in 0.44 second(s) in Ring 1.19
 
 /*------
 
@@ -681,9 +687,13 @@ Pron()
 	? Q("_softanza_loves_ring_").ContainsXT(:NoneOfThese, ["python", "php", "ruby"])
 	#--> TRUE
 Proff()
-# Executed in 0.08 second(s)
+# Executed in 0.03 second(s)
 
-/*------------ TODO: Check performance! Rethink the subStrings() design
+/*------------ #perf
+
+#TODO: Check performance! Rethink the subStrings() design
+#UPDATE: done! After redesigning SubStrings() function,
+# performance went down from 144.36 seconds to 0.32 seconds!
 
 StartProfiler()
 
@@ -699,13 +709,13 @@ StartProfiler()
 	#--> TRUE
 
 StopProfiler()
-# Executed in 144.36 second(s)
+# Executed in 0.32 second(s)
 
 /*======== USING ADDXT() - EXTENDED
 
 StartProfiler()
 	
-	Q("Ring programmin guage.") {
+	Q("Ring programmin language.") {
 	
 		AddXT("g", :After = "programmin") # You can use :To instead of :After
 		? Content()
@@ -714,8 +724,8 @@ StartProfiler()
 	}
 
 StopProfiler()
-#--> Executed in 0.04 second(s)
-	
+#--> Ring programming Language.
+
 /*-----------
 
 StartProfiler()
@@ -728,7 +738,8 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s) in Ring 1.20
+# Executed in 0.05 second(s) in Ring 1.19
 
 /*-----------
 
@@ -742,7 +753,8 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.06 second(s)
+# Executed in 0.02 second(s) in Ring 1.20
+# Executed in 0.10 second(s) in Ring 1.19
 
 /*-----------------
 
@@ -756,7 +768,8 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.07 second(s)
+# Executed in 0.02 second(s) in Ring 1.20
+# Executed in 0.12 second(s) in Ring 1.19
 	
 /*-----------------
 
@@ -770,7 +783,8 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.04 second(s)
+# Executed in 0.04 second(s) in Ring 1.20
+# Executed in 0.18 second(s) in Ring 1.19
 
 /*===------------
 
@@ -783,7 +797,7 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.09 second(s)
+# Executed in 0.04 second(s)
 
 /*---------
 
@@ -797,7 +811,7 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.09 second(s)
+# Executed in 0.04 second(s)
 
 /*---------
 
@@ -811,7 +825,7 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.10 second(s)
+# Executed in 0.04 second(s)
 
 /*---------
 
@@ -825,7 +839,7 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.10 second(s)
+# Executed in 0.04 second(s)
 
 /*---------
 
@@ -839,7 +853,7 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.10 second(s)
+# Executed in 0.05 second(s)
 
 /*===------------
 
@@ -865,7 +879,7 @@ StartProfiler()
 		? Content()
 		#--> __/♥\__/♥\__/♥\__
 	}
-	# Executed in 0.11 second(s)
+	# Executed in 0.05 second(s)
 	
 StopProfiler()
 
@@ -881,8 +895,7 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.12 second(s)
-
+# Executed in 0.05 second(s)
 
 /*-----------------
 
@@ -910,11 +923,9 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.14 second(s)
+# Executed in 0.07 second(s)
 
 #=======
-
-/*--------
 
 pron()
 
@@ -930,7 +941,7 @@ proff()
 pron()
 
 o1 = new stzList([ [ 1, 3 ], [ 8, 10 ], [ 12, 13 ], [ 18, 19 ], [ 21, 21 ], [ 26, 26 ] ])
-? @@( o1.SplitToListsOfNItems(2) )
+? @@SP( o1.SplitToListsOfNItems(2) )
 #--> [ 
 #	[ [ 1, 3 ], [ 8, 10 ] ],
 #	[ [ 12, 13 ], [ 18, 19 ] ],
@@ -938,13 +949,14 @@ o1 = new stzList([ [ 1, 3 ], [ 8, 10 ], [ 12, 13 ], [ 18, 19 ], [ 21, 21 ], [ 26
 # ]
 
 proff()
+# Executed in 0.03 second(s)
 
 /*========
-
+*/
 pron()
 
 o1 = new stzString("<<<word>>>")
-
+/*
 ? @@( o1.StringBounds() ) # Or simply Bounds()
 #--> [ "<<<", ">>>" ]
 
@@ -957,22 +969,22 @@ o1 = new stzString("<<<word>>>")
 #--
 
 ? @@( o1.FindTheseBoundsAsSections("***", "***") )
-#--> []
+#--> [ [ ], [ ] ]
 
 ? @@( o1.FindTheseBoundsAsSections("<<<", "***") )
-#--> [ [ 1, 3 ] ]
+#--> [ [ 1, 3 ], [ ] ]
 
 ? @@( o1.FindTheseBoundsAsSections("***", ">>>") )
-#--> [ [ 8, 10 ] ]
+#--> [ [ ], [ 8, 10 ] ]
 
 ? @@( o1.FindTheseBoundsAsSections("<<<", ">>>") ) + NL
 #--> [ [ 1, 3 ], [ 8, 10 ] ]
 
 #--
-
+*/
 ? @@( o1.FindTheseBounds("***", "***") )
 #--> []
-
+/*
 ? @@( o1.FindTheseBounds("<<<", "***") )
 #--> [ [ 1, 3 ] ]
 
@@ -1008,10 +1020,9 @@ o1 = new stzString("<<<word>>>")
 
 ? @@( o1.TheseBoundsZZ("<<<", ">>>") ) + NL
 #--> [ [ "<<<", [ 1, 3 ] ], [ ">>>", [ 8, 10 ] ] ]
-
-
+*/
 proff()
-# Executed in 1.82 second(s)
+# Executed in 0.16 second(s)
 
 /*============
 

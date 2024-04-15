@@ -2916,6 +2916,25 @@ func IsListOfPairsOfChars(paList)
 
 	#>
 
+func IsPairOfEmptyLists(paList)
+	if isList(paList) and len(paList) = 2 and
+	   isList(paList[1]) and len(paList[1]) = 0 and
+	   isList(paList[2]) and len(paList[2]) = 0
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func IsAPairOfEmptyLists(paList)
+		return IsPairOfEmptyLists(paList)
+
+	func @IsPairOfEmptyLists(paList)
+		return IsPairOfEmptyLists(paList)
+
+	func @IsAPairOfEmptyLists(paList)
+		return IsPairOfEmptyLists(paList)
+
 func IsPairOf(pcType, paPair)
 	if NOT ( isList(paPair) and len(paPair) = 2 )
 		return FALSE
@@ -19545,6 +19564,57 @@ class stzList from stzObject
 
 		def IsMadeOfAPairOfListsOnly()
 			return This.IsPairOfLists()
+
+		#>
+
+	def IsPairOfEmptyLists()
+		aContent = This.Content()
+		nlen = len(aContent)
+
+		if nLen = 2 and
+		   isList(aContent[1]) and len(aContent[1]) = 0 and
+		   isList(aContent[2]) and len(aContent[2]) = 0
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsAPairOfEmptyLists()
+			return This.IsPairOfEmptyLists()
+
+		def ContainsOnlyPairOfEmptyLists()
+			return This.IsPairOfEmptyLists()
+
+		def ContainsOnlyAPairOfEmptyLists()
+			return This.IsPairOfEmptyLists()
+
+		def ContainsPairOfEmptyLists()
+			return This.IsPairOfEmptyLists()
+
+		def ContainsAPairOfEmptyLists()
+			return This.IsPairOfEmptyLists()
+
+		def IsMadeOfPairOfEmptyLists()
+			return This.IsPairOfEmptyLists()
+
+		def IsMadeOfAPairOfEmptyLists()
+			return This.IsPairOfEmptyLists()
+
+		def IsMadeOfOnlyPairOfEmptyLists()
+			return This.IsPairOfEmptyLists()
+
+		def IsMadeOfOnlyAPairOfEmptyLists()
+			return This.IsPairOfEmptyLists()
+
+		def IsMadeOfPairOfEmptyListsOnly()
+			return This.IsPairOfEmptyLists()
+
+		def IsMadeOfAPairOfEmptyListsOnly()
+			return This.IsPairOfEmptyLists()
 
 		#>
 
@@ -50428,6 +50498,26 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsToTheseNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToThis )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToManyNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToMany )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsToPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToPosition )
@@ -65296,12 +65386,38 @@ class stzList from stzObject
 			def SplitToPartsOfExactlyNItemsQR(n, pcReturnType)
 				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
 
+		#--
+
+		def SplitToListsOfNItems(n)
+			return This.SplitToPartsOfNItems(n)
+
+			def SplitToListsOfNItemsQ(n)
+				return This.SplitToPartsOfNItemsQ(n)
+
+			def SplitToListsOfNItemsQR(n, pcReturnType)
+				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
+
+		def SplitToListsOfExactlyNItems(n)
+			return This.SplitToPartsOfNItems(n)
+
+			def SplitToListsOfExactlyNItemsQ(n)
+				return This.SplitToPartsOfExactlyNItemsQR(n, :stzList)
+
+			def SplitToListsOfExactlyNItemsQR(n, pcReturnType)
+				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
+
 		#>
 
 	def SplittedToPartsOfNItems(n)
 		return This.SplitToPartsOfNItems(n)
 
 		def SplittedToPartsOfExactlyNItems(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplittedToListsOfNItems(n)
+			return This.SplittedToPartsOfNItems(n)
+
+		def SplittedToListsOfExactlyNItems(n)
 			return This.SplitToPartsOfNItems(n)
 
 	  #----------------------------------------------#

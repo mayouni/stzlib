@@ -1277,6 +1277,99 @@ class stzString from stzObject
 	def AddedXT(pcNewSubStr, pcSubStr)
 		return This.Copy().AddXTQ(pcNewSubStr, pcSubStr).Content()
 
+	   #--------------------------------------------------------------------#
+	  #   ADDING A SUBSTRING AFTER A POSITION, MANY POSITIONS, A SECTION,  #
+	 #   MANY SECTIONS, OR AFTER THE OCCURRENCES OF AN OTHER SUBSTRING    #
+	#--------------------------------------------------------------------#
+
+	#TODO
+	# Add these functions
+
+	def AddAfter()
+		StzRaise("Function not yet implemented!")
+
+	def AddAfterPosition()
+		StzRaise("Function not yet implemented!")
+
+	def AddAfterPositions()
+		StzRaise("Function not yet implemented!")
+
+	def AddAfterSection()
+		StzRaise("Function not yet implemented!")
+
+	def AddAfterSections()
+		StzRaise("Function not yet implemented!")
+
+	def AddAfterSubString()
+		StzRaise("Function not yet implemented!")
+
+	def AddAfterSubStrings()
+		StzRaise("Function not yet implemented!")
+
+	def AddAfterNthOccurrenceOfSubString()
+		StzRaise("Function not yet implemented!")
+
+	def AddAfterTheseOccurrencesOfSubString()
+		StzRaise("Function not yet implemented!")
+
+	   #---------------------------------------------------------------------#
+	  #   ADDING A SUBSTRING BEFORE A POSITION, MANY POSITIONS, A SECTION,  #
+	 #   MANY SECTIONS, OR AFTER THE OCCURRENCES OF AN OTHER SUBSTRING     #
+	#---------------------------------------------------------------------#
+
+	#TODO
+	# Add these functions
+
+	def AddBefore()
+		StzRaise("Function not yet implemented!")
+
+	def AddBeforePosition()
+		StzRaise("Function not yet implemented!")
+
+	def AddBeforePositions()
+		StzRaise("Function not yet implemented!")
+
+	def AddBeforeSection()
+		StzRaise("Function not yet implemented!")
+
+	def AddBeforeSections()
+		StzRaise("Function not yet implemented!")
+
+	def AddBeforeSubString()
+		StzRaise("Function not yet implemented!")
+
+	def AddBeforeSubStrings()
+		StzRaise("Function not yet implemented!")
+
+	def AddBeforeNthOccurrenceOfSubString()
+		StzRaise("Function not yet implemented!")
+
+	def AddBeforeTheseOccurrencesOfSubString()
+		StzRaise("Function not yet implemented!")
+
+	   #--------------------------------------------------------------------#
+	  #  ADDING A SUBSTRING AROUND A SECTION, MANY SECTIONS, A SUBSTRING,  #
+	 #  OR MANY SUBSTRINGS (BOUNDING THEM WITH THE SUBSTRING)             #
+	#--------------------------------------------------------------------#
+	
+	#TODO
+	# Add these functions
+
+	def AddAround()
+		StzRaise("Function not yet implemented!")
+
+	def AddAroundSection()
+		StzRaise("Function not yet implemented!")
+
+	def AddAroundSections()
+		StzRaise("Function not yet implemented!")
+
+	def AddAroundSubString()
+		StzRaise("Function not yet implemented!")
+
+	def AddAroundSubStrings()
+		StzRaise("Function not yet implemented!")
+
 	  #=================================================#
 	 #  EXTENDING THE STRING WITH THE GIVEN SUBSTRING  #
 	#=================================================#
@@ -13316,13 +13409,13 @@ class stzString from stzObject
 		if This.ContainsLeadingAndTrailingCharsCS(pCaseSensitive)
 
 			acResult = [
-				This.LeadingCharsCS(pCaseSensitive),
-				This.TrailingCharsCS(pCaseSensitive)
+				This.LeadingCharsAsStringCS(pCaseSensitive),
+				This.TrailingCharsAsStringCS(pCaseSensitive)
 			]
 
 		else
 
-			acResult = This.FirstAndLastChars()
+			acResult = This.FirstAndLastCharsAsString()
 		ok
 
 		return acResult
@@ -15611,18 +15704,22 @@ class stzString from stzObject
 
 	def FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
 
-		nLen = This.NumberOfChars()
+		nLen  = This.NumberOfChars()
 		nLen1 = StzStringQ(pcBound1).NumberOfChars()
 		nLen2 = StzStringQ(pcBound2).NumberOfChars()
 
-		aResult = [ [0,0], [0,0] ]
+		aFirstBoundSection  = []
+		aSecondBoundSection = []
 
-		if This.FirstNCharsAsStringQ(nLen1).IsEqualToCS(pcBound1, pCaseSensitive) AND
-		   This.LastNCharsAsStringQ(nLen2).IsEqualToCS(pcBound2, pCaseSensitive)
-
-			aResult = [ [1, nLen1], [(nLen - nLen2 + 1), nLen] ]
-
+		if This.FirstNCharsAsStringQ(nLen1).IsEqualToCS(pcBound1, pCaseSensitive)
+			aFirstBoundSection = [ 1, nLen1 ]
 		ok
+
+		if This.LastNCharsAsStringQ(nLen2).IsEqualToCS(pcBound2, pCaseSensitive)
+			aSecondBoundSection = [ (nLen - nLen2 + 1), nLen ]
+		ok
+
+		aResult = [ aFirstBoundSection, aSecondBoundSection ]
 
 		return aResult
 
@@ -15663,7 +15760,12 @@ class stzString from stzObject
 
 	def FindTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
 		aSectionsZZ = This.FindTheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
-		anResult = [ aSectionsZZ[1][1], aSectionsZZ[2][1] ]
+		anResult = []
+
+		if NOT @IsPairOfEmptyLists(aSectionsZZ) > 1
+			anResult = [ aSectionsZZ[1][1], aSectionsZZ[2][1] ]
+		ok
+
 		return anResult
 
 		#< @FunctionAlternativeForms
