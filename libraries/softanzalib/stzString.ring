@@ -15825,13 +15825,13 @@ class stzString from stzObject
 		aBound1Z = [ "", 0 ]
 		aBound2Z = [ "", 0 ]
 
-		if nLen1 > 0
+		if This.BeginsWithCS(pcBound1, pCaseSensitive)
 			aBound1Z = [ pcBound1, 1 ]
 		ok
 
-		if nLen2 > 0
+		if This.EndsWithCS(pcBound2, pCaseSensitive)
 			nLen = This.NumberOfChars()
-			aBound2Z = [ pcBound1, (nLen - nLen2 + 1) ]
+			aBound2Z = [ pcBound2, (nLen - nLen2 + 1) ]
 		ok
 
 		aResult = [ aBound1Z, aBound2Z ]
@@ -15855,24 +15855,26 @@ class stzString from stzObject
 
 	def TheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
 
-		aBounds = This.StringBoundsCSZZ(pCaseSensitive)
-
-		nLen = len(aBounds)
-		if nLen = 0
-			return []
+		if NOT (isString(pcBound1) and isString(pcBound2))
+			StzRaise("Incorrect param type! pcBound1 and pcBound2 must be strings.")
 		ok
 
-		aResult = []
+		nLen1 = StzStringQ(pcBound1).NumberOfChars()
+		nLen2 = StzStringQ(pcBound2).NumberOfChars()
 
-		cBound1 = aBounds[1][1]
-		if StzStringQ(cBound1).IsEqualToCS(pcBound1, pCaseSensitive)
-			aResult + aBounds[1]
+		aBound1ZZ = [ "", [] ]
+		aBound2ZZ = [ "", [] ]
+
+		if This.BeginsWithCS(pcBound1, pCaseSensitive)
+			aBound1ZZ = [ pcBound1, [ 1, nLen1 ] ]
 		ok
 
-		cBound2 = aBounds[2][1]
-		if StzStringQ(cBound2).IsEqualToCS(pcBound2, pCaseSensitive)
-			aResult + aBounds[2]
+		if This.EndsWithCS(pcBound2, pCaseSensitive)
+			nLen = This.NumberOfChars()
+			aBound2ZZ = [ pcBound2, [ (nLen - nLen2 + 1), nLen ] ]
 		ok
+
+		aResult = [ aBound1ZZ, aBound2ZZ ]
 
 		return aResult
 
@@ -59946,16 +59948,12 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return
 		ok
 
-		acAntiSections = This.AntiSections(paSections)
-		nLen = len(acAntiSections)
+		aSorted = @SortLists(paSections)
+		nLen = len(aSorted)
 
-		cResult = ""
-
-		for i = 1 to nLen
-			cResult += acAntiSections[i]
+		for i = nLen to 1 step -1
+			This.RemoveSection(aSorted[i][1], aSorted[i][2])
 		next
-		
-		This.UpdateWith(cResult)
 
 		#< @FunctionAlternativeForms
 
