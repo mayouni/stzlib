@@ -952,11 +952,11 @@ proff()
 # Executed in 0.03 second(s)
 
 /*========
-*/
+
 pron()
 
 o1 = new stzString("<<<word>>>")
-/*
+
 ? @@( o1.StringBounds() ) # Or simply Bounds()
 #--> [ "<<<", ">>>" ]
 
@@ -995,15 +995,15 @@ o1 = new stzString("<<<word>>>")
 #--> [ 1, 8 ]
 
 #--
-*/
+
 ? @@( o1.TheseBoundsZ("***", "***") )
-#--> [ [ "***", 1 ], [ "***", 8 ] ]
-/*
+#--> [ [ '', 0 ], [ "", 0 ] ]
+
 ? @@( o1.TheseBoundsZ("<<<", "***") )
-#--> [ [ "<<<", 1 ] ]
+#--> [ [ "<<<", 1 ], [ "", 0 ] ]
 
 ? @@( o1.TheseBoundsZ("***", ">>>") )
-#--> [ [ ">>>", 8 ] ]
+#--> [ [ "", 0 ], [ '>>>', 8 ] ]
 
 ? @@( o1.TheseBoundsZ("<<<", ">>>") ) + NL
 #--> [ [ "<<<", 1 ], [ ">>>", 8 ] ]
@@ -1011,28 +1011,29 @@ o1 = new stzString("<<<word>>>")
 #--
 
 ? @@( o1.TheseBoundsZZ("***", "***") )
-#--> []
+#--> [ [ "", [ ] ], [ "", [ ] ] ]
 
 ? @@( o1.TheseBoundsZZ("<<<", "***") )
-#--> [ [ "<<<", [ 1, 3 ] ] ]
+#--> [ [ "<<<", [ 1, 3 ] ], [ "", [ ] ] ]
 
 ? @@( o1.TheseBoundsZZ("***", ">>>") )
-#--> [ [ ">>>", [ 8, 10 ] ] ]
+#--> [ [ "", [ ] ], [ '>>>', [ 8, 10 ] ] ]
 
 ? @@( o1.TheseBoundsZZ("<<<", ">>>") ) + NL
 #--> [ [ "<<<", [ 1, 3 ] ], [ ">>>", [ 8, 10 ] ] ]
-*/
+
 proff()
-# Executed in 0.16 second(s)
+# Executed in 0.05 second(s)
 
 /*============
-
+*/
 pron()
 
 o1 = new stzString("<<<word>>>")
 o1.RemoveSections([ [8,10], [1,3] ])
 ? o1.Content()
 #--> word
+
 proff()
 # Executed in 0.06 second(s)
 
