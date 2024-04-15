@@ -15815,24 +15815,26 @@ class stzString from stzObject
 
 	def TheseStringBoundsCSZ(pcBound1, pcBound2, pCaseSensitive)
 
-		aBounds = This.StringBoundsCSZ(pCaseSensitive)
-
-		nLen = len(aBounds)
-		if nLen = 0
-			return []
+		if NOT (isString(pcBound1) and isString(pcBound2))
+			StzRaise("Incorrect param type! pcBound1 and pcBound2 must be strings.")
 		ok
 
-		aResult = []
+		nLen1 = StzStringQ(pcBound1).NumberOfChars()
+		nLen2 = StzStringQ(pcBound2).NumberOfChars()
 
-		cBound1 = aBounds[1][1]
-		if StzStringQ(cBound1).IsEqualToCS(pcBound1, pCaseSensitive)
-			aResult + aBounds[1]
+		aBound1Z = [ "", 0 ]
+		aBound2Z = [ "", 0 ]
+
+		if nLen1 > 0
+			aBound1Z = [ pcBound1, 1 ]
 		ok
 
-		cBound2 = aBounds[2][1]
-		if StzStringQ(cBound2).IsEqualToCS(pcBound2, pCaseSensitive)
-			aResult +aBounds[2]
+		if nLen2 > 0
+			nLen = This.NumberOfChars()
+			aBound2Z = [ pcBound1, (nLen - nLen2 + 1) ]
 		ok
+
+		aResult = [ aBound1Z, aBound2Z ]
 
 		return aResult
 
