@@ -13183,7 +13183,7 @@ class stzString from stzObject
 	#==================================================#
 
 	def IsBoundedCS(pCaseSensitive)
-		if len(This.BoundsCS(pCaseSensitive)) > 0
+		if This.NumberOfChars() > 2
 			return TRUE
 		else
 			return FALSE
@@ -13402,6 +13402,12 @@ class stzString from stzObject
 		? o1.Bounds()
 		#--> [ "---, "___" ]
 
+		EXAMPLE 3
+
+		o1 = new stzString("Ring")
+		? o1.Bounds()
+		#--> [ "R", "g" ]
+
 		*/
 
 		acResult = []
@@ -13415,7 +13421,7 @@ class stzString from stzObject
 
 		else
 
-			acResult = This.FirstAndLastCharsAsString()
+			acResult = [ This.FirstChar(), This.LastChar() ]
 		ok
 
 		return acResult
@@ -27277,22 +27283,7 @@ class stzString from stzObject
 	
 			but isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithOrByOrUsingNamedParam()
 				
-				if isString(pcNewSubStr[2])
-					bWellFormed = TRUE
-					# Detecting the case where a conditonal value is provided
-					# via the :With@ or :By@ keywords
-	
-					if Q(pcNewSubStr[1]).IsOneOfThese([ :With@, :By@ ])
-						pcNewSubStr = pcNewSubStr[2]
-		
-						This.ReplaceSubStringCS@(pcSubStr, pcNewSubStr, pCaseSensitive)
-						return
-		
-					else
-						pcNewSubStr = pcNewSubStr[2]
-					ok
-
-				but isList(pcNewSubStr[2])
+				if isList(pcNewSubStr[2])
 					return This.ReplaceByManyCS(pcSubStr, pcNewSubStr[2], pCaseSensitive)
 				ok
 
@@ -30740,13 +30731,6 @@ class stzString from stzObject
 			if pSubStr[1] = :With
 				pSubStr = pSubStr[2]
 
-			but pSubStr[1] = :With@
-
-				cCode = 'pSubStr = ' +
-				StzStringQ(pSubStr[2]).
-				TrimQ().RemoveTheseBoundsQ(["{","}"]).Content()
-
-				eval(cCode)
 			ok
 		ok
 
@@ -31663,6 +31647,11 @@ class stzString from stzObject
 		def FindFirstOccurrenceCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindFirstAsSectionCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindAsSectionCS(pcSubStr, pCaseSensitive)
+			return This.FindFirstAsSection(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -31687,6 +31676,11 @@ class stzString from stzObject
 			return This.FindFirstAsSection(pcSubStr)
 
 		def FindFirstOccurrenceZZ(pcSubStr)
+			return This.FindFirstAsSection(pcSubStr)
+
+		#--
+
+		def FindAsSection(pcSubStr)
 			return This.FindFirstAsSection(pcSubStr)
 
 		#>
@@ -35919,7 +35913,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#----------------------------------------------------------------------------#
 
 	def FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
-
 		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
@@ -40131,7 +40124,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 					
 				ok
 
-				ReplaceW( :Where = cCondition, :With@ = cReplacement@ )
+				
+
+				ReplaceW( :Where = cCondition, :With = eval(cReplacement@) )
 
 			}
 
@@ -59938,10 +59933,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		*/
 
+		if isList(paSections)
+			paSections = StzListQ(paSections).ItemRemoved([])
+		ok
+
 		if NOT ( isList(paSections) and @IsListOfPairsOfNumbers(paSections) )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
-
 
 		nLen = len(paSections)
 		if nLen = 0
@@ -60330,20 +60328,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	
 			if n2 = :FirstChar or n2 = :StartOfString or n2 = :First
 				n2 = 1
-			ok
-
-			#--
-
-			if isList(pcNewSubStr) and Q(pcNewSubStr).IsWithOrByNamedParam()
-	
-				if Q(pcNewSubStr[1]).LastChar() = "@"
-	
-					acTemp = eval@( pcNewSubStr[2], :On = This.SectionQ(n1, n2).Chars() )
-					pcNewSubStr = QR(acTemp, :stzListOfStrings).Concatenated()
-	
-				else
-					pcNewSubStr = pcNewSubStr[2]
-				ok
 			ok
 
 		ok

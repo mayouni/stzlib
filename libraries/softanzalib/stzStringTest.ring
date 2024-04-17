@@ -6578,19 +6578,6 @@ o1.ReplaceW(' Q(@char).IsNotLetter() ', :With = " ")
 StopProfiler()
 #--> Executed in 0.14 second(s)
 
-#--------------------
-
-StartProfiler()
-
-o1 = new stzString("♥♥♥a★★★b♥♥♥")
-
-o1.ReplaceW(' Q(@char).IsLetter() ', :With@ = " Q(@CurrentChar).Uppercased() ")
-? o1.Content()
-#--> ♥♥♥A★★★B♥♥♥
-
-StopProfil er()
-#--> Executed in 0.26 second(s)
-
 /*==================
 
 o1 = new stzString("_♥_★_♥_")
@@ -10555,17 +10542,6 @@ StzStringQ("1a2b3c") {
 	? Content() #--> 1*2*3*
 }
 
-/*------------------- TODO: Fix erro when using :With@
-*
-StzStringQ("1a2b3c") {
-	ReplaceCharsW(
-		:Where = '{ StzCharQ(@char).IsLetter() and StzCharQ(@char).isLowercase() }',
-		:With@  = '{ StzCharQ(@char).Uppercased() }'
-	)
-
-	? Content() #--> 112A32
-}
-
 /*====================
 
 ? StringInvert("LIFE") 	#--> ƎℲI⅂
@@ -10920,18 +10896,6 @@ o1.ReplaceCharsWhere(
 
 ? StzCharQ("س").Name() #--> ARABIC LETTER SEEN
 ? StzCharQ("ص").Name() #--> ARABIC LETTER SAD
-
-/*--------------- TODO: Fix Error when using :With@
-
-o1 = new stzString("Use these two letters: س and ص.")
-
-o1.ReplaceCharsW(
-	:Where = '{ @char != " " and StzCharQ(@Char).IsArabicLetter() }',
-	:With@ = 'StzCharQ(@char).Name()'
-)
-
-? o1.Content()
-#--> "Use these two letters: LATIN CAPITAL LETTER U and LATIN SMALL LETTER S."
 
 /*==============
 
@@ -11514,13 +11478,6 @@ o1 = new stzstring("123456789")
 o1.ReplaceSection(4, 6, :with = "***")
 ? o1.Content()
 #--> "123***789"
-
-/*-------------
-
-o1 = new stzstring("abcDEFgehij")
-o1.ReplaceSection(4, 6, :With@ = "Q(@section).Lowercased()")
-? o1.Content()
-#--> abcdefgehij
 
 /*-------------------
 

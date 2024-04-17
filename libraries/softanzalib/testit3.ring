@@ -21,12 +21,6 @@ load "stzlib.ring"
 
 /*----------
 
-	o1 = new stzList([ "A", "b", "C" ])
-	o1.ReplaceAnyItemAtPosition(2, :With@ = "upper(@item)")
-	? o1.Content()	#--> [ "A", "B", "C" ]
-
-/*----------
-
 	StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 		ReplaceNextNthOccurrences([2, 3], :of = "A", :with = "*",  :StartingAt = 3)
 		? Content() # !--> [ "A" , "B", "A", "C", "*", "D", "*" ]

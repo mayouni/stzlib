@@ -105,8 +105,8 @@ pron()
 
 proff()
 
-/*======== Some small functions
-*/
+/*======== Some small functions #perf (Ring 1.19 quicker than 1.20)
+
 pron()
 
 # Returning a number in the form of string using S() abbreviation
@@ -162,9 +162,10 @@ pron()
 ? LoS([ "A", 12, "B", 14, "C", 20 ]) #--> ["A", "B", "C"]
 
 proff()
-# Executed in 0.38 second(s)
+# Executed in 0.14 second(s) in Ring 1.20
+# Executed in 0.11 second(s) in Ring 1.19
 
-/*======== Desabling param checking to enhance performance
+/*======== #perf Desabling param checking to enhance performance
 #TODO: Generalize this feature to all Softanza functions
 
 
@@ -234,42 +235,51 @@ next
 
 proff()
 
-/*===========
+/*=========== #perf #narration
 
 pron()
 
-# The Ring for loop is quick! Hence it loops 500
-# thousand times in a fraction of second:
+# The Ring for loop is quick! Hence it loops 5 million
+#  times in a fraction of second:
 
 for i = 1 to 5_000_000
 	// Do nothing
 next
 
 proff()
-# Executed in 0.44 second(s)
+# Executed in 0.11 second(s) in Ring 1.20
+# Executed in 0.12 second(s) in Ring 1.19
+# Executed in 0.44 second(s) in Ring 1.17
 
 /*-----
-*/
+
 pron()
-# Contrariwise, this Ring for/in loop takes too long to complete:
+# Contrariwise, this Ring for/in loop takes too long to complete!
+# (500 thousand times and not 5 million like in the example above!)
 
 for n in 1:500_000
 	// Do nothing
 next
 
+# In Notepad 1.19+, click on the pause button on the right of the Input control
+# at the bottom of the Output window to stop the execution;
+
 proff()
 
-/*----
+/*---- #perf
+
+pron()
 
 # The ForEach alternative, by Softanza, solves the For/in
-# weakness and performs the same loop in less than 2 seconds!
+# weakness and performs the same loop in a second!
 
 ForEach( :number, :in = 1 : 500_000 ) {
 	// Do nothing
 }
 
 proff()
-# Executed in 2.04 second(s)
+# Executed in 1.07 second(s) in Ring 1.20
+# Executed in 2.04 second(s) in Ring 1.18
 
 # But ForEach offers more flexibility...
 
@@ -278,26 +288,6 @@ proff()
 pron()
 
 ForEach( :number, :in = 1:5 ) {
-
-	# Meta programming region
-
-//	? NumberOfVars()
-	#--> 1
-
-//	? @@( Vars() )
-	#--> [ "number" ]
-
-
-//	? @@( Values() )
-	#--> [ 1, 2, 3, 4, 5 ]
-
-//	? NumberOfValues()
-	#--> 5
-
-//	? @@( Content() )
-	#--> [
-	# 	[ "number", [ 1, 2, 3, 4, 5 ] ]
-	# ]
 
 	# The code you want to execute in the loop
 
@@ -308,6 +298,7 @@ ForEach( :number, :in = 1:5 ) {
 }
 
 proff()
+# Executed in 0.04 second(s)
 
 /*----------
 
@@ -315,46 +306,13 @@ pron()
 
 ForEach( [ :name, :age ], :in = [ [ "Teebah", 12], ["Haneen", 8], ["Hussein", 2] ] ) {
 
-//	? @NumberOfVars()
-	#--> 2
-
-//	? @@( @Vars() )
-	#--> [ "name", "age" ]
-
-//	? @NumberOfValues()
-	#--> 3
-
-//	? @@( @Values() )
-	#--> [ [ "Teebah", 12 ], [ "Haneen", 8 ], [ "Hussein", 2 ] ]
-
-	//? @@( @Var(1) ) #TODO
-	#--> :name
-
-	// ? @@( @Value(2) ) #TODO
-	#--> ["Haneen", 8]
-
-	//? @@( @Value([ 2, :ForVar = :name ]) ) # Or @ValueXT(2, :ForVar = 1 ] #TODO
-	#--> ...
-
-//	? @@( @Content() )
-	#--> [
-	# 	[ "name", [ "teeba", "haneen", "hussein" ] ],
-	# 	[ "age",  [   12        8,        2      ] ]
-	# ]
-
-	// @Step = 2 #TODO
-	// @ForIterations = [ 1, 3]) #TODO
-	// @Where = '{}'
-
-	//@Iterations = [1, 3]
-
 	X([ [1, 3], '
 		? v(:name) + TAB + v(:age)
 	'])
 	#--> teebah	12
 	#    haneen	8
 	#    hussein	2
-/*
+
 	? ""
 	Xn( 3, '
 		? v(:name) + TAB + v(:age)
@@ -369,7 +327,6 @@ ForEach( [ :name, :age ], :in = [ [ "Teebah", 12], ["Haneen", 8], ["Hussein", 2]
 	#    Hussein	2
 
 }
-
 
 proff()
 # Executed in 0.05 second(s)
@@ -393,7 +350,7 @@ ForEach( :number, :in = 1:5 ) { X('
 proff()
 # Executed in 0.04 second(s)
 
-/*----------
+/*---------- #perf (more performant in Ring 1.19 then in Ring 1.20)
 
 pron()
 
@@ -407,24 +364,24 @@ ForEach( [ :name, :age ], :in = [ [ "teebah", 12], ["haneen", 8], ["hussein", 2]
 #    hussein	2
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.09 second(s) in Ring 1.20
+# Executed in 0.05 second(s) in Ring 1.19
 
 /*----------
 
 pron()
 
+aNumbers = []
+
 ForEach( :number, :in = 1:100 ) { X('
-	? v(number)
+	aNumbers + v(number)
 ')}
-#--> 1
-#    2
-#    3
-#    ...
-#    99
-#    100
+
+? ShowShort(aNumbers)
+#--> [ 1, 2, 3, "...", 98, 99, 100 ]
 
 proff()
-# Executed in 0.42 second(s)
+# Executed in 0.30 second(s)
 
 /*-----------
 
@@ -593,7 +550,7 @@ o1 = new stzString("...emm...eh..emm...eh")
 proff()
 
 /*------------
-*/
+
 pron()
 
 o1 = new stzString("...|---|....|--|..--")
@@ -609,16 +566,19 @@ o1 = new stzString("...|---|....|--|..--")
 # You can use the ..Z() and ..ZZ() extensions:
 
 ? @@( o1.FindZ("--") )
+#--> [ 5, 6, 14, 19 ]
 
 ? @@( o1.FindZZ("--") )
+#--> [ [ 5, 6 ], [ 6, 7 ], [ 14, 15 ], [ 19, 20 ] ]
 
-/*
-? o1.BoundedBy("|")
 ? @@( o1.FindAsSections([ "---", "--" ]) )
+#--> [ [ 5, 6 ], [ 5, 7 ], [ 6, 7 ], [ 14, 15 ], [ 19, 20 ] ]
 
-//? @@( o1.FindAsSections( o1.BoundedBy("|") ) )
-*/
+//? o1.BoundedBy("|") #TODO: test it after including substringsbetween()
+//? @@( o1.FindAsSections( o1.BoundedBy("|") ) ) # Idem
+
 proff()
+# Executed in 0.07 second(s)
 
 /*------------
 
@@ -653,7 +613,7 @@ o1 = new stzString("SOanzNZA")
 
 proff()
 
-/*-----------
+/*----------- #TODO/FUTURE
 
 pron()
 
@@ -664,19 +624,6 @@ o1.ReplaceSection(3, 5, :With@ = 'Q(@char).Uppercased()')
 
 proff()
 # Executed in 1.09
-
-/*---------------
-*/
-# eval@ is useful internally when writing Conditional Code.
-# Especially when a dynamic named param is used, like in
-# the following example:
-
-StartProfiler()
-
-	? eval@(:With@ = '2 + 3')
-	#--> 5
-
-StopProfiler()
 
 /*===================
 

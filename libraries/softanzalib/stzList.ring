@@ -10563,19 +10563,6 @@ class stzList from stzObject
 
 		*/
 
-		# Checking the pcNewSubStr param
-
-		if isList(pNewItem) and Q(pNewItem).IsWithOrByNamedParam()
-
-			if Q(pNewItem[1]).LastChar() = "@"
-
-				pNewItem = eval@( pNewItem[2], :On = This.Section(n1, n2) )
-
-			else
-				pNewItem = pNewItem[2]
-			ok
-		ok
-
 		This.RemoveSectionQ(n1, n2)
 		This.InsertBefore(n1, pNewItem)
 
@@ -12837,6 +12824,8 @@ class stzList from stzObject
 
 	def RemoveSection(n1, n2)
 
+		nLen = len(@aContent)
+
 		# Checking params correctness
 
 		if CheckParams() = TRUE
@@ -12871,29 +12860,38 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 			ok
 
-			if n1 = 0 or n2 = 0
-				StzRaise("Incorrect param value! n1 and n2 must be different of zero.")
+			if (n1 < 1 or n1 > nLen)
+				StzRaise("Incorrect param value! n1 is out of range.")
+			ok
+
+			if (n2 < 1 or n2 > nLen)
+				StzRaise("Incorrect param value! n2 is out of range.")
+			ok
+
+			if n2 < n1
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
 			ok
 
 		ok
 
 		# Doing the job
 
-		nLen = len(@aContent)
-
-		if nLen = 0
-			return
-		ok
-
-		if n1 = n2
-			This.removeItemAtPosition(n1)
-			return
-		ok
-
-		if n2 < n1
-			nTemp = n1
-			n1 = n2
-			n2 = nTemp
+		if EarlyCheck()
+			if nLen = 0
+				return
+			ok
+		
+			if (n1 = 1 and n2 = nLen) or (n1 = nLen and n2 = 1)
+				@aContent = []
+				return
+			ok
+	
+			if n1 = n2
+				This.removeItemAtPosition(n1)
+				return
+			ok
 		ok
 
 		aResult = []
@@ -29845,7 +29843,8 @@ class stzList from stzObject
 	  #----------------------#
 	 #     FROM/TO LIST     #
 	#----------------------#
-	#TODO: Do it for all Softanza classes()
+	#TODO
+	# Do it for all Softanza classes()
 
 	def ToStzSet()
 		return new stzSet( This.ToSet() )
