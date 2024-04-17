@@ -5761,19 +5761,6 @@ o1.ExtendToXT(5, :With = "♥")
 ? @@( o1.Content() )
 #--> [ "A", "B", "C", "♥", "♥" ]
 
-# Extending a list by its own items
-
-o1 = new stzList([ "A", "B", "C" ])
-o1.ExtendToXT(5, :With@ = "@items" )
-? @@( o1.Content() )
-#--> [ "A", "B", "C", "A", "B" ]
-
-# Extending a list by the items of an other list
-o1 = new stzList([ "A", "B", "C" ])
-o1.ExtendToXT(8, :With@ = [1, 2, 3] )
-? @@( o1.Content() )
-#--> [ "A", "B", "C", 1, 2, 3, 0, 0 ]
-
 /*-----------------
 
 o1 = new stzList([ ".",".",".","4","5","6",".",".","." ])
@@ -6783,11 +6770,6 @@ o1.ReplaceNextNthOccurrence( 2, :Of = "_", :With = "5", :StartingAt = 3)
 ? @@( o1.Content() )
 #--> [ "1", "_", "3", "_", "5" ]
 
-o1 = new stzList([ "1", "_", "3", "_", "_" ])
-o1.ReplaceNextNthOccurrence( 2, :Of = "_", :With@ = '{ 8 - 3 }', :StartingAt = 3)
-? @@( o1.Content() )
-#--> [ "1", "_", "3", "_", "5" ]
-
 /*------------------
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
@@ -7340,17 +7322,6 @@ o1 = new stzList([ "mio", "mix", "mia", "mio", "mix", "miz", "mix" ])
 o1 = new stzList([ :Char, :String, :Number, :List, :Object, :CObject, :QObject, :Byte ])
 ? o1.RemoveItemsAtThesePositionsQ( 6:8 ).Content()
 #--> [ :Char, :String, :Number, :List, :Object ]
-
-/*-----------------------
-
-StartProfiler()
-
-	o1 = new stzList([ "A", "b", "C" ])
-	o1.ReplaceAt(2, :With@ = "upper(@item)")
-	? o1.Content()	#--> [ "A", "B", "C" ]
-
-StopProfiler()
-#--> Executed in 0.08 second(s)
 
 /*==========================
 
@@ -7908,13 +7879,6 @@ o1 = new stzList([ "A", "b", "C" ])
 o1.ReplaceAt(2, :With = "B")
 ? o1.Content() #--> [ "A", "B", "C" ]
 
-# Or you can use the dynamic form of :With@ to evaluate
-# a piece of Ring code that returns the replaced value
-
-o1 = new stzList([ "A", "b", "C" ])
-o1.ReplaceAt(2, :With@ = ' Q(@item).Uppercased() ')
-? o1.Content()	#--> [ "A", "B", "C" ]
-
 /*----------------------
 
 o1 = new stzList([ "A", "a", "A" ])
@@ -7964,36 +7928,12 @@ o1.ReplaceAt([2, 5], "♥")
 StartProfiler()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
-o1.ReplaceAt(5, :with@ = '{ @item * 2 }')
-? @@( o1.Content() )
-#--> [ "♥", 2, "♥", "♥", 10 ]
-
-StopProfiler()
-#--> Executed in 0.01 second(s)
-
-/*----------------------
-
-StartProfiler()
-
-o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 o1.ReplaceItemsAtPositions([2, 5], :With = "♥")
 ? @@( o1.Content() )
 #--> [ "♥", "♥", "♥", "♥", "♥" ]
 
 StopProfiler()
 #--> Executed in 0.01 second(s)
-
-/*----------------------
-
-StartProfiler()
-
-o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
-o1.ReplaceItemsAtPositions([1, 3, 4], :With@ = '@Position')
-? @@( o1.Content() )
-#--> [ "♥", "A", "♥", "♥", "A" ]
-
-StopProfiler()
-#--> Executed in 0.08 second(s)
 
 /*----------------------
 
@@ -8011,21 +7951,8 @@ StzListQ( [ 1, "a", 2, "b", 3, "c" ] ) {
 	? Content() #--> [ 1, "*", 2, "*", 3, "*" ]
 }
 
-? ElapsedTime() #--> 0.28 second(s)
-
-# Or by a dynamic value given in a conditional code after :By@ or :With@, like this:
-
-StzListQ( [1, "a", 2, "b", 3, "c" ]) {
-	ReplaceItemsW(
-		:Where = '{ isString(@item) and Q(@item).isLowercase() }',
-		:By@ = '{ Q(@item).Uppercased() }'
-	)
-
-	? Content() #--> [ 1, "A", 2, "B", 3, "C" ]
-}
-
 StopProfiler()
-#--> Executed in 0.60 second(s)
+#--> Executed in 0.28 second(s)
 
 /*=================
 

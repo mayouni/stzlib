@@ -709,7 +709,7 @@ func EarlyCheck()
 func EarlyCheckOn()
 	_bEarlyCheck = TRUE
 
-	ActivateEarlyCheck()
+	func ActivateEarlyCheck()
 		_bEarlyCheck = TRUE
 
 	func EarlyChecksOn()
@@ -721,7 +721,7 @@ func EarlyCheckOn()
 func EarlyCheckOff()
 	_bEarlyCheck = FALSE
 
-	DeactivateEarlyCheck()
+	func DeactivateEarlyCheck()
 		_bEarlyCheck = FALSE
 
 	func EarlyChecksOff()
@@ -3839,48 +3839,6 @@ func StopProfiler()
 
 	func ProfilerOff()
 		StopProfiler()
-
-func eval@(pcExpr, paItems) #WARNING: if you change paItems name,
-			    # change it also in the evaluated code
-
-	# Checking params
-
-	if isList(pcExpr) and Q(pcExpr).IsExpressionNamedParam()
-		pcExpr = pcExpr[2]
-	ok
-
-	if NOT isString(pcExpr)
-		StzRaise("Incorrect param type! pcExpr must be a string.")
-	ok
-
-	if isList(paItems) and
-	   Q(paItems).IsOneOfTheseNamedParams([ :On, :OnItems ])
-
-		paItems = paItems[2]
-	ok
-
-	if NOT isList(paItems)
-		StzRaise("Incorrect param type! paItems must be a list.")
-	ok
-
-	nLen = len(paItems)
-
-	# Doing the job
-
-	aResult = []
-	cExpr = StzCCodeQ(pcExpr).Transpiled()
-
-	cCode = 'value = (' +
-		Q(cExpr).ReplaceCSQ("This", "paItems", :CS = FALSE).Content() +
-		')'
-? cCode
-
-	for @i = 1 to nLen
-		eval(cCode)
-		aResult + value
-	next
-
-	return aResult
 
 func Todo()
 	return TodoXT(:InCurrent)

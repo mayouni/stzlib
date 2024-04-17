@@ -175,26 +175,12 @@ load "stzlib.ring"
 
 	? @@( o1.Content() ) #--> [ "A", "♥", "C" ]
 
-/*---- REPLACING STRING-ITEM BY POSITION USING A DYNAMIC VALUE
-
-	o1 = new stzListOfStrings([ "A", "b", "C" ])
-	o1.ReplaceStringAtPosition(2, :With@ = 'upper(@string)' )
-
-	? @@( o1.Content() ) #--> [ "A", "B", "C" ]
-
 /*--- REPLACING MANY STRING-ITEMS BY POSITION
 
 	o1 = new stzListOfStrings([ "A", "b", "C", "d" ])
 	o1.ReplaceStringsAtPositions([ 2, 4 ], :With = "♥" )
 
 	? @@( o1.Content() ) #--> [ "A", "♥", "C", "♥" ]
-
-/*---- REPLACING MANY STRINGS BY POSITION USING A DYNAMIC VALUE
-
-	o1 = new stzListOfStrings([ "ONE", "two", "THREE", "four" ])
-	o1.ReplaceStringsAtPositions([ 2, 4 ], :With@ = 'upper(@string)' )
-
-	? @@( o1.Content() ) #--> [ "ONE", "TWO", "THREE", "FOUR" ]
 
 /*---- REPLACING STRINGS AT GIVEN POSITIONS BY OTHER GIVEN STRINGS
 
@@ -309,20 +295,6 @@ load "stzlib.ring"
 				 
 #____________________________________________________________________________________
 
-/*==== REPLACING STRING-ITEMS WITH A DYNAMIC VALUE
-
-	IconOf = [
-		:Heart = "♥",
-		:Star  = "★",
-		:Sun   = "🌞"
-	]
-
-
-	o1 = new stzListOfStrings([ "heart", "sun", "star" ])
-	o1.ReplaceStrings(:With@ = '{ IconOf[@string] }')
-	? @@( o1.Content() ) #--> [ "♥", "🌞", "★" ]
-
-
 /*==== REPLACING STRINGS UNDER A GIVEN CONDITION
 
 	o1 = new stzListOfStrings([ "♥", "_", "♥", "___", "♥♥", "_" ])
@@ -337,37 +309,10 @@ load "stzlib.ring"
 	o1.ReplaceSubString("heart", :With = "♥")
 	? @@( o1.Content() ) #--> [ "My ♥ and", "your ♥ and", "any other ♥" ]
 
-/*---- REPLACING SOME SUBSTRINGS FROM EACH STRING IN THE LIST OF STRINGS
-/*---- WITH A GIVEN STRING
-
-	o1 = new stzListOfStrings([ "My country and", "your nation and", "any other state or country" ])
-	o1.ReplaceSubStrings([ "country", "nation", "state" ], :With = "♥")
-	? @@( o1.Content() ) #--> [ "My ♥ and", "your ♥ and", "any other ♥" ]
-
-	#-- REPLACING SUBSTRINGS IN EACH STRING WITH A DYNAMIC VALUE
-
-	IconOf = [
-		:Heart = "♥",
-		:Star  = "★",
-		:Sun   = "🌞"
-	]
-
-	o1 = new stzListOfStrings([ "lorem heart ipsum star", "sun ipsum star", "lorem heart ipusm sun" ])
-	o1.ReplaceSubStrings( [ "heart", "star", "sun" ], :With@ = '{ IconOf[@SubString] }' )
-	? @@( o1.Content() ) #--> [ "lorem ♥ ipsum ★", "🌞 ipsum ★", "lorem ♥ ipusm 🌞" ]
-
-
-
 /*---- REPLACING A SUBSTRING IN THE NTH STRING BY A GIVEN NEW SUBSTRING
 
 	o1 = new stzListOfStrings([ "Nice flower", "Nice heart", "Nice feeling" ])
 	o1.ReplaceSubStringAtPosition(2, "heart", :With = "♥")
-	? @@( o1.Content() ) #--> [ "Nice flower", "Nice ♥", "Nice feeling" ]
-
-	#-- REPLACING A SUBSTRING IN THE NTH STRING BY A DYNAMIC VALUE
-
-	o1 = new stzListOfStrings([ "Nice heart", "Many hearts", "Programming by heart" ])
-	o1.ReplaceSubStringAtPosition(2, "heart", :With@ = "Heart()")
 	? @@( o1.Content() ) #--> [ "Nice flower", "Nice ♥", "Nice feeling" ]
 
 /*---- REPLACING MANY SUBSTRINGS BY MANY OTHERS
@@ -388,12 +333,6 @@ load "stzlib.ring"
 	o1.ReplaceSubStringNInStringN(13, 2, "heart", :With = "♥")
 	
 	? @@( o1.Content() ) #--> [ "<<", "heart lorem ♥ ipsum heart and heart", ">>" ]
-
-	#-- REPLACING A SUBSTRING AT POSITION N IN THE STRING AT POSITION N WITH A DYNAMIC VALUE
-/*
-
-	o1 = new stzListOfStrings([ "<<", "heart lorem heart ipsum heart and heart", ">>" ])
-	o1.ReplaceSubStringNInStringN(13, 2, "heart", :With@ = "upper(@SubString)")
 	
 	? @@( o1.Content() ) #--> [ "<<", [ "<<", "heart lorem HEART ipsum heart and heart", ">>" ]
 

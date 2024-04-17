@@ -10337,7 +10337,8 @@ class stzListOfStrings from stzList
 			o1 = new stzListOfStrings([ "ONE", "two" ])
 			o1.ReplaceStringAtPosition(2, :With = "TWO")
 			? o1.Content	#--> [ "ONE", "TWO" ]
-		Example 2:
+
+		Example 2: #TODO/FUTURE
 			o1 = new stzListOfStrings([ "A", "b", "C" ])
 			o1.ReplaceStringAtPosition(2, :With@ = "upper(@string)")
 			? o1.Content()	#--> [ "A", "B", "C" ]
@@ -10368,22 +10369,6 @@ class stzListOfStrings from stzList
 
 		if NOT (  Q(n).IsBetween(1, This.NumberOfStrings()) )
 			StzRaise("Position out of range!")
-		ok
-
-		if isList(pcOtherStr) and Q(pcOtherStr).IsWithOrByNamedParam()
-
-			if Q(pcOtherStr[1]).LastChar() = "@"
-
-				cCode = StzCCodeQ(pcOtherStr[2]).UnifiedFor(:stzListOfStrings)
-				cCode = "pcOtherStr = " + cCode
-	
-				@string = This.StringAtPosition(n)
-				eval(cCode)
-
-			else
-				pcOtherStr = pcOtherStr[2]
-			ok
-
 		ok
 
 		if NOT isString(pcOtherStr)
@@ -11771,12 +11756,6 @@ class stzListOfStrings from stzList
 			cCondition = pCondition[2]
 		ok
 
-		# There are two possible forms of replacement: With and With@
-		# The first one is used to replace with normal string, while the
-		# second one to replace with@ a dynamic code.
-
-		# By default, the first form is used.
-
 		cReplace = :With
 
 		if isList(pcOtherStr) and
@@ -11784,12 +11763,6 @@ class stzListOfStrings from stzList
 
 			cReplace = pcOtherStr[1]
 			pcOtherStr = pcOtherStr[2]
-		ok
-
-		if cReplace = :With@
-			if NOT isString(pcOtherStr)
-				StzRaise("Incorrect value! The value provided after :With@ must be a string containing a Ring expression.")
-			ok
 		ok
 
 		cCondition = StzCCodeQ(cCondition).UnifiedFor(:stzList)
@@ -11822,13 +11795,6 @@ class stzListOfStrings from stzList
 				if bOk
 					if cReplace = :With
 						This.ReplaceStringAtPosition(@i, pcOtherStr)
-		
-					but cReplace = :With@
-						cValue = StzCCodeQ(pcOtherStr).UnifiedFor(:stzList)
-						cCode = "value = " + cValue
-						eval(cCode)
-						This.ReplaceStringAtPosition(@i, value)	
-		
 					ok
 				ok
 			ok
@@ -12155,10 +12121,11 @@ stop()
 
 		acNewSubStr = pacNewSubStr
 
-		if len(acNewSubStr) < nNumberOfSubStr
-			acNewSubStr = Q(pacNewSubStr).
-					  ExtendToXTQ( nNumberOfSubStr, :With@ = '@items' ).
-					  Content()
+		nLenNew = len(acNewSubStr)
+		if nLenNew < nNumberOfSubStr
+			for i = 1 to (nNumberOfSubStr - nLenNew)
+				acNewSubStr + pacNewSubStr[i]
+			next
 		ok
 
 		This.ReplaceSubStringByManyCS(pcSubStr, acNewSubStr, pCaseSensitive)

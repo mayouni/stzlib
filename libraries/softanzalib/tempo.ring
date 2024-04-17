@@ -1097,14 +1097,26 @@ o1.RemoveSection(5, 999_996)
 #--> [ 1, 2, 3, 4, 999_997, 999_998, 999_999, 1_000_000 ]
 
 proff()
-# Executed in 0.51 second(s)
+# Executed in 0.52 second(s)
 
+/*--------- #perf
+
+pron()	
+
+o1 = new stzList( 1 : 1_000_000 )
+o1.RemoveSection(1, 1_000_000)
+? @@( o1.Content() )
+//? ShowShortXT( o1.Content(), 7 )
+#--> [ 1, 2, 3, 4, 999_997, 999_998, 999_999, 1_000_000 ]
+
+proff()
+# Executed in 0.44 second(s)
 /*---------
 
 pron()
 
 o1 = new stzList([ "w", "o", "r", "d", ">", ">", ">" ])
-o1.RemoveSection(1, 4)
+o1.RemoveSection(1, 9)
 ? @@( o1.Content() )
 #--> [ ">", ">", ">" ]
 
@@ -1112,7 +1124,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*---------
-*/
+
 pron()
 
 o1 = new stzList([ "<", "<", "w", "o", "r", "d", ">", ">", ">" ])
@@ -1122,7 +1134,7 @@ o1.RemoveSections([ [ 1, 2 ], [ 7, 9 ] ])
 #--> [ "w", "o", "r", "d" ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.10 second(s)
 
 /*---------
 
@@ -1131,10 +1143,9 @@ pron()
 o1 = new stzString("word>>>")
 o1.RemoveSections([ [ ], [ 5, 7 ] ])
 ? o1.Content()
-#--> word
+#--> ERR: Incorrect param type! paSections must be a list of pairs of numbers.
 
 proff()
-# Executed in 0.05 second(s)
 
 /*---------
 
@@ -1143,7 +1154,7 @@ pron()
 o1 = new stzString("<<<word")
 o1.RemoveSections([ [ 1, 3 ], [ ] ])
 ? o1.Content()
-#--> word
+#--> ERR: Incorrect param type! paSections must be a list of pairs of numbers.
 
 proff()
 # Executed in 0.05 second(s)
@@ -1152,26 +1163,37 @@ proff()
 
 pron()
 
+# Each string is bounded by default by its first and last chars
+
 o1 = new stzString("word>>>")
 ? @@( o1.Bounds() )
-#--> []
+#--> [ "w", ">" ]
 
 ? o1.ContainsBounds() # Or ? o1.IsBounded()
-#--> FALSE
+#--> TRUE
+
+# When the string contains some leading and trailing repeated chars,
+# then they are considered to be the bounds of that string
+
+o1 = new stzString("<<<word>>>")
+? @@( o1.Bounds() )
+#--> [ "<<<", ">>>" ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*---------
 
 pron()
 
 o1 = new stzString("word>>>")
-o1.RemoveBounds() # Has no effect because the string is not bounded
+o1.RemoveBounds() # There's no leading and trailing chars (both), so
+		  # the first and last chars are considered bound ~> removed
 ? o1.Content()
-#--> word>>>
+#-->ord>>
+
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.05 second(s)
 
 /*--------
 
@@ -1187,12 +1209,13 @@ o1.RemoveTheseBounds("<<<", "***") # Remove only the first bound
 ? o1.Content()
 #--> word>>>
 
-o1.RemoveBounds() # Has no effect because the string is no longer bounded
-#--> word>>>
+o1.RemoveBounds() # First and last chars are considered the bounds ~> removed
 ? o1.Content()
+#--> ord>>
+
 
 proff()
-# Executed in 0.33 second(s)
+# Executed in 0.07 second(s)
 
 /*--------
 
@@ -1204,7 +1227,7 @@ o1.RemoveFirstBound()
 #--> word>>>
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.03 second(s)
 
 /*--------
 
@@ -1216,7 +1239,7 @@ o1.RemoveLastBound() # Or o1.RemovesecondBound()
 #--> <<<word
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.04 second(s)
 
 /*--------
 
@@ -1231,14 +1254,25 @@ o1 = new stzString("<<<word>>> <<word>> <word>")
 #--> [ ">>>", ">>", ">" ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.05 second(s)
 
-/*=======
+/*------
+
+pron()
+
+o1 = new stzString("[word] <word> (word)")
+o1.RemoveBoundsOf("word")
+? o1.Content()
+#--> word word word
+
+proff()
+# Executed in 0.08 second(s)
+
+/*------
 
 pron()
 
 o1 = new stzString("<<<word>>> <<word>> <word>")
-
 o1.RemoveBoundsOf("word")
 ? o1.Content()
 #--> word word word
@@ -1256,7 +1290,6 @@ o1.RemoveFirstBounds(:Of = "word") # Or o1.RemoveLeftBounds(:Of = "word")
 #--> word>>> word>> word>
 
 ? o1.Content()
-
 
 proff()
 # Executed in 0.08 second(s)
@@ -1284,7 +1317,7 @@ o1.SwapSections([1, 3], [8, 10]) # or o1.SwapSections([8, 10], [1, 3])
 #--> <<<word>>>
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.03 second(s)
 
 /*----------
 
@@ -1296,7 +1329,7 @@ o1.SwapSections([1, 3], [8, 10]) # or o1.SwapSections([8, 10], [1, 3])
 #--> [ "<", "<", "<", "w", "o", "r", "d", ">", ">", ">" ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.08 second(s)
 
 /*---------
 
@@ -1329,7 +1362,7 @@ o1.SwapBoundsOf("word")
 proff()
 # Executed in 0.07 second(s)
 
-/*=========
+/*========= #TODO Test after including ...Between()
 
 pron()
 
@@ -1362,24 +1395,7 @@ o1.ReplaceSections([ [1, 3], [9, 11] ], "***")
 #--> *** ABC *** DEF
 
 proff()
-# Executed in 0.04 second(s)
-
-/*----------------
-
-pron()
-
-o1 = new stzString("12345 ABC 123 DEF")
-
-o1.ReplaceSection( 11, 13, :With@ = ' Q("*").RepeatedNTimes( Q(@Section).Size() ) ' )
-? o1.Content()
-#--> 12345 ABC *** DEF
-
-o1.ReplaceSection( 1, 5, :With@ = ' Q("*").RepeatedNTimes( Q(@Section).Size() ) ' )
-? o1.Content()
-#--> ***** ABC *** DEF
-
-proff()
-# Executed in 0.36 second(s)
+# Executed in 0.07 second(s)
 
 /*----------------
 
@@ -1398,27 +1414,6 @@ o1.ReplaceSections(
 
 proff()
 # Executed in 0.05 second(s)
-
-/*----------------
-
-pron()
-
-o1 = new stzString("12345 ABC 123 DEF")
-
-o1.ReplaceSections(
-	[ [1, 5] , [11, 13] ],
-
-	:With@ = '{
-		Q("*").RepeatedNTimes( Q(@Section).Size() )
-	}'
-)
-
-? o1.Content()
-
-#--> *** ABC *** DEF
-
-proff()
-# Executed in 0.22 second(s)
 
 /*----------------
 
@@ -2382,19 +2377,6 @@ aAntiSections = o1.FindAntiSections( o1.FindAnyBetweenAsSections('"','"') )
 o1.ReplaceSections(aAntiSections, :With = '|***|')
 ? o1.Content()
 #--> '|***|<    withspaces    >|***|<nospaces>|***|'
-
-proff()
-
-/*---------------- #Todo: Check after including findanybetween()
-
-pron()
-
-o1 = new stzString(' this code    :   txt1  = "<    leave spaces    >"   and this    code:  txt2 =   "< leave spaces >"  ')
-aAntiSections = o1.FindAntiSections( o1.FindAnyBetweenAsSections('"','"') )
-
-o1.ReplaceSections(aAntiSections, :With@ = ' Q(@Section).Simplified() ')
-? o1.Content()
-#--> this code : txt1 = "<    leave spaces    >" and this code: txt2 = "< leave spaces >"
 
 proff()
 

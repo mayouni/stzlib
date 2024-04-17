@@ -257,7 +257,7 @@ load "stzlib.ring"
 	
 		? o1.Content() #--> [ "♥ ipsum", "lorem ♥", "♥" ]
 
-		#-- CASE OF DYNAMIC VALUE
+		#-- CASE OF DYNAMIC VALUE #TODO/FUTURE
 
 		IconOf = [ :Heart = "♥" ]
 
@@ -285,7 +285,7 @@ load "stzlib.ring"
 
 		? @@( o1.Content() ) #--> [ "♥ ipsum ♥", "lorem ♥ ipsum ♥", "♥" ]
 
-		#--> Todo: Dynamic Value
+		#--> Todo: Dynamic Value #TODO/FUTURE
 
 		Numbers = [ "1", "2", "3"]
 
@@ -562,7 +562,7 @@ load "stzlib.ring"
 */		o1.RemoveW( :Where = '{ Q(@char).IsOneOfThese(["o", "a"]) }')
 		? o1.Content() #--> SOFTANZA!
 
-/*		Or like this:
+/*		Or like this: #TODO/FUTURE
 */		o1.ReplaceW( '{ @char = "o" or @char = "a"', :With@ = 'Q(@char).Uppercased() }' )
 		? o1.Content() #--> SOOOOOFTAAAAANZA!
 	
