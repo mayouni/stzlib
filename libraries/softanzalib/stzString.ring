@@ -27276,19 +27276,20 @@ class stzString from stzObject
 	
 			# Checking the correctness of pcNewSubStr param
 	
+			if isList(pcNewSubStr) and Q(pcNewSubStr).IsWithOrUsingOrByNamedParam()
+				pcNewSubStr = pcNewSubStr[2]
+			ok
+
+			if isList(pcNewSubStr)
+				return This.ReplaceByManyCS(pcSubStr, pcNewSubStr[2], pCaseSensitive)
+			ok
+
+			#--
+
 			bWellFormed = FALSE
 	
 			if isString(pcNewSubStr)
 				bWellFormed = TRUE
-	
-			but isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithOrByOrUsingNamedParam()
-				
-				if isList(pcNewSubStr[2])
-					return This.ReplaceByManyCS(pcSubStr, pcNewSubStr[2], pCaseSensitive)
-				ok
-
-			but isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsOneOfTheseNamedParams([ :ByMany, :WithMany, :UsingMany ])
-				return This.ReplaceByManyCS(pcSubStr, pcNewSubStr[2], pCaseSensitive)
 			ok
 	
 			# Checking the correctness of pCaseSensitive param
@@ -35532,7 +35533,6 @@ class stzString from stzObject
 		ok
 
 		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ')'
-
 		nLen = This.NumberOfChars()
 		anResult = []
 
@@ -60294,6 +60294,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 				StzRaise("Incorrect param type! n1 must be a number or string.")
 			ok
 
+			if isList(pcNewSubStr) and Q(pcNewSubStr).IsWithNamedParam()
+				pcNewSubStr = pcNewSubStr[2]
+			ok
+
 			if isString(n1) and NOT Q(n1).IsOneOfThese([
 				:First, :FirstChar, :StartOfString,
 				:Last,  :LastChar,  :EndOfString ])
@@ -60332,7 +60336,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		ok
 
-		# doing the job
+		# Doing the job
 
 		nQtStart = n1 - 1
 		nQtRange = n2 - n1 + 1
@@ -74560,7 +74564,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 				return Q(aResult)
 
 			but isList(pValue) and Q(pValue).IsHashList()
-? "ici"
 				oHashList = new stzHashList(pValue)
 
 				# All the values except the last one must be numbers

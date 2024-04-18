@@ -61778,6 +61778,7 @@ class stzList from stzObject
 	def NListified(n)
 		aResult = This.Copy().NListifyQ(n).Content()
 		return aResult
+
 	  #============================================================#
 	 #  NUMBERIFYING THE LIST BY TRANFORMING EACH ITEM TO NUMBER  #
 	#============================================================#
@@ -61795,25 +61796,25 @@ class stzList from stzObject
 
 			if isNumber(aContent[i])
 				n = aContent[i]
+				aResult + n
 
 			but isString(aContent[i])
-
-				if Q(aContent[i]).IsNumberInString()
-					n = (0+ aContent[i])
-
-				else
-					n = Q(aContent[i]).NumberOfChars()
-				ok
-
+				cNumber = StzStringQ(acontent[i]).RemoveQ("_").Content()
+				n = 0+ cNumber
+				aResult + n
+				
 			but isList(aContent[i])
-				n = len(aContent[i])
+				anNumberified = StzListQ(aContent[i]).Numberified()
+				nLenList = len(anNumberified)
+				for j = 1 to nLenList
+					aResult + anNumberified[j]
+				next
 
 			but isObject(aContent[i]) and Q(aContent[i]).IsStzNumber()
-				aList + aContent[i].NumericValue()
-
+				n = aContent[i].NumericValue()
+				aResult + n
 			ok
 
-			aResult + n
 		next
 
 		This.UpdateWith(aResult)
