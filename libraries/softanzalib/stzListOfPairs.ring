@@ -29,6 +29,7 @@ func RangesToSections(panRanges)
 		ok
 	ok
 
+	nLen = len(panRanges)
 	anSections = []
 
 	for i = 1 to nLen
@@ -56,18 +57,19 @@ func SectionsToRanges(paSections)
 	# Done!
 
 	if CheckParams()
-		if not isList(panRanges)
-			StzRaise("Incorrect param type! panRanges must be a list.")
+		if not isList(paSections)
+			StzRaise("Incorrect param type! paSections must be a list.")
 		ok
 	ok
 
-	anSections = []
-
+	nLen = len(paSections)
+	anRanges = []
+	
 	for i = 1 to nLen
-		anSections + SectionToRange(panRanges[i])
+		anRanges + SectionToRange(paSections[i])
 	next
 
-	return anSections
+	return anRanges
 
 func ListThatHasMoreNumberOfItems(paList1, paList2)
 	oList1 = new stzList(aList1)

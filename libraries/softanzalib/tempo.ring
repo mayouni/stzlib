@@ -1097,7 +1097,7 @@ o1.RemoveSection(5, 999_996)
 #--> [ 1, 2, 3, 4, 999_997, 999_998, 999_999, 1_000_000 ]
 
 proff()
-# Executed in 0.52 second(s)
+# Executed in 0.38 second(s)
 
 /*--------- #perf
 
@@ -1106,17 +1106,17 @@ pron()
 o1 = new stzList( 1 : 1_000_000 )
 o1.RemoveSection(1, 1_000_000)
 ? @@( o1.Content() )
-//? ShowShortXT( o1.Content(), 7 )
-#--> [ 1, 2, 3, 4, 999_997, 999_998, 999_999, 1_000_000 ]
+#--> [ ]
 
 proff()
-# Executed in 0.44 second(s)
+# Executed in 0.47 second(s)
+
 /*---------
 
 pron()
 
 o1 = new stzList([ "w", "o", "r", "d", ">", ">", ">" ])
-o1.RemoveSection(1, 9)
+o1.RemoveSection(1, 4)
 ? @@( o1.Content() )
 #--> [ ">", ">", ">" ]
 
@@ -1134,7 +1134,7 @@ o1.RemoveSections([ [ 1, 2 ], [ 7, 9 ] ])
 #--> [ "w", "o", "r", "d" ]
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.07 second(s)
 
 /*---------
 
@@ -1151,10 +1151,34 @@ proff()
 
 pron()
 
+o1 = new stzString("word>>>")
+o1.RemoveSection(5, 7)
+? o1.Content()
+#--> word
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------
+
+pron()
+
 o1 = new stzString("<<<word")
 o1.RemoveSections([ [ 1, 3 ], [ ] ])
 ? o1.Content()
 #--> ERR: Incorrect param type! paSections must be a list of pairs of numbers.
+
+proff()
+# Executed in 0.05 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzString("<<<word")
+o1.RemoveSection(1, 3)
+? o1.Content()
+#--> word
 
 proff()
 # Executed in 0.05 second(s)
@@ -1180,7 +1204,7 @@ o1 = new stzString("<<<word>>>")
 #--> [ "<<<", ">>>" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*---------
 
@@ -1190,7 +1214,7 @@ o1 = new stzString("word>>>")
 o1.RemoveBounds() # There's no leading and trailing chars (both), so
 		  # the first and last chars are considered bound ~> removed
 ? o1.Content()
-#-->ord>>
+#--> ord>>
 
 proff()
 # Executed in 0.05 second(s)
@@ -1201,7 +1225,7 @@ pron()
 
 o1 = new stzString("<<<word>>>")
 
-o1.RemoveTheseBounds("***", "***") # Nothiong happens
+o1.RemoveTheseBounds("***", "***") # Nothing happens
 ? o1.Content()
 #--> <<<word>>>
 
@@ -1213,9 +1237,8 @@ o1.RemoveBounds() # First and last chars are considered the bounds ~> removed
 ? o1.Content()
 #--> ord>>
 
-
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s)
 
 /*--------
 
@@ -1266,7 +1289,7 @@ o1.RemoveBoundsOf("word")
 #--> word word word
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.05 second(s)
 
 /*------
 
@@ -1278,7 +1301,7 @@ o1.RemoveBoundsOf("word")
 #--> word word word
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.07 second(s)
 
 /*---------
 
@@ -1292,7 +1315,7 @@ o1.RemoveFirstBounds(:Of = "word") # Or o1.RemoveLeftBounds(:Of = "word")
 ? o1.Content()
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.05 second(s)
 
 /*---------
 
@@ -1305,7 +1328,7 @@ o1.RemoveLastBounds(:Of = "word") # Or o1.RemoveRightBounds(:Of = "word")
 #--> <<<word <<word <word
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.05 second(s)
 
 /*========= SWAPPING TWO SECTIONS
 
@@ -1317,7 +1340,7 @@ o1.SwapSections([1, 3], [8, 10]) # or o1.SwapSections([8, 10], [1, 3])
 #--> <<<word>>>
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*----------
 
@@ -1329,7 +1352,7 @@ o1.SwapSections([1, 3], [8, 10]) # or o1.SwapSections([8, 10], [1, 3])
 #--> [ "<", "<", "<", "w", "o", "r", "d", ">", ">", ">" ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.05 second(s)
 
 /*---------
 
@@ -1348,7 +1371,7 @@ o1.SwapSections([4, 6], [11, 13])
 #--> ...<<<word>>>....
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*---------
 
@@ -1360,7 +1383,7 @@ o1.SwapBoundsOf("word")
 #--> <<<word>>> <<word>> <word>
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.06 second(s)
 
 /*========= #TODO Test after including ...Between()
 
@@ -1395,7 +1418,7 @@ o1.ReplaceSections([ [1, 3], [9, 11] ], "***")
 #--> *** ABC *** DEF
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.06 second(s)
 
 /*----------------
 
@@ -1440,6 +1463,7 @@ o1.SortInAscending()
 #--> [ [ 1, 3 ], [ 4, 7 ], [ 8, 9 ] ]
 
 proff()
+# Executed in 0.05 second(s)
 
 /*----------------
 
@@ -1451,6 +1475,7 @@ o1.SortInDescending()
 #--> [ [ 9, 8 ], [ 7, 4 ], [ 3, 1 ] ]
 
 proff()
+# Executed in 0.05 second(s)
 
 /*----------------
 
@@ -1465,7 +1490,7 @@ o1 = new stzListOfPairs([ [1,3], [4, 7], [8, 9] ])
 #--> TRUE
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.09 second(s)
 
 /*----------------
 
@@ -1481,6 +1506,7 @@ o1 = new stzListOfPairs([ [9,8], [7,4], [3,1] ])
 #--> TRUE
 
 proff()
+# Executed in 0.07 second(s)
 
 /*----------------
 
@@ -1491,6 +1517,7 @@ o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 #--> 2
 
 proff()
+# Executed in 0.03 second(s)
 
 /*======================
 
@@ -1514,7 +1541,7 @@ o1 = new stzList("A":"J")
 #--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
 proff()
-# Executed in 0.13 second(s)
+# Executed in 0.07 second(s)
 
 /*----------------
 
@@ -1537,7 +1564,7 @@ o1 = new stzString("ABCDEFGHIJ")
 #--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.07 second(s)
 
 /*=================
 
@@ -1556,7 +1583,7 @@ pron()
 #--> [ [3, 4], [8, 10] ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*=================
 
@@ -1573,7 +1600,7 @@ o1 = new stzList([ [ "ONE", "TWO" ], [ "THREE", "FOUR" ], [ "FIVE", "SIX" ] ])
 #--> TRUE
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*----------------
 
@@ -1590,7 +1617,7 @@ o1 = new stzList([ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ] ])
 #--> TRUE
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*=================
 
@@ -1608,7 +1635,7 @@ o1 = new stzString("AB♥CD♥EF♥GH")
 #--> [ "AB", "♥CD", "♥EF", "♥GH" ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.08 second(s)
 
 /*----------------
 
@@ -1623,7 +1650,7 @@ o1 = new stzString("AB♥♥C♥♥D♥♥E")
 #--> [ "AB", "♥♥", "C♥", "♥D", "♥♥" ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.03 second(s)
 
 /*=================
 
@@ -1638,7 +1665,7 @@ o1 = new stzString("ABCDE")
 # ]
 
 proff()
-# Executed in 0.17 second(s)
+# Executed in 0.03 second(s)
 
 /*================ LEADING AND TRAILING CHARS
 
@@ -1667,7 +1694,7 @@ o1 = new stzString("<<<word>>>")
 #--> ">>>"
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.03 second(s)
 
 /*================ WORKING WITH BOUNDS OF THE STRING
 
@@ -1685,6 +1712,7 @@ o1 = new stzString("<<<word>>>")
 #--> [ [ 1, 3 ], [ 8, 10 ] ]
 
 proff()
+# Executed in 0.03 second(s)
 
 /*------------------
 
@@ -1725,7 +1753,8 @@ o1 = new stzString("<<<word>>>")
 #--> [ ">>>", [ 8, 10 ] ]
 
 proff()
-# Executed in 0.35 second(s)
+# Executed in 0.06 second(s) in Ring 1.20
+# Executed in 0.35 second(s) in Ring 1.18
 
 /*------------------
 
@@ -1747,6 +1776,7 @@ o1 = new stzString("<<<word>>>")
 	#--> [ [ 8, 10 ], [ 1, 3 ] ]
 
 proff()
+# Executed in 0.04 second(s)
 
 /*------------------
 
@@ -1777,19 +1807,18 @@ o1 = new stzString("<<<word>>>")
 #--
 
 ? @@( o1.BoundsZZ() )
-#--> .BoundZ
+#--> [ [ "<<<", [ 1, 3 ] ], [ ">>>", [ 8, 10 ] ] ]
 
 	? @@( o1.FirstAndLastBoundsZZ() )
-	#--> .BoundZ
+	#--> [ [ "<<<", [ 1, 3 ] ], [ ">>>", [ 8, 10 ] ] ]
 
 	? @@( o1.LastAndFirstBoundsZZ() )
 	#--> [ [ ">>>", [ 8, 10 ] ], [ "<<<", [ 1, 3 ] ] ]
 
-
 proff()
-# Executed in 0.13 second(s)
+# Executed in 0.09 second(s)
 
-/*--------------
+/*================ WORKING WITH BOUNDS INSIDE THE STRING
 
 pron()
 
@@ -1799,20 +1828,21 @@ o1.SwapBounds()
 #--> <<word>>
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.03 second(s)
 
-/*================ WORKING WITH BOUNDS INSIDE THE STRING
+/*--------------
 
 pron()
 
 o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
-? @@( o1.FindSubStringBoundsAsSections("word") )
+? @@( o1.FindSubStringBoundsAsSections("word") ) # Or FindSubStringBoundsZZ()
 #--> [ [ 1, 3 ], [ 8, 10 ], [ 13, 15 ], [ 20, 22 ], [ 28, 30 ], [ 35, 37 ] ]
 
 ? @@( o1.FindSubStringBounds("word") )
 #--> [ 1, 8, 13, 20, 28, 35 ]
 
 proff()
+# Executed in 0.06 second(s)
 
 /*------------------
 
@@ -1822,22 +1852,22 @@ o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
 
 # Bounds of the entire string
 
-? @@( o1.FindStringBoundsAsSections() ) + NL
+? @@( o1.FindStringBoundsAsSections() ) + NL # Or FindStringBoundsZZ()
 #--> [ [ 1, 3 ], [ 35, 37 ] ]
 
 # Bounds of a particular substring inside the string
 
-? @@( o1.FindSubStringBoundsAsSections("word") ) + NL
+? @@( o1.FindSubStringBoundsAsSections("word") ) + NL # Or FindSubStringBoundsZZ()
 #--> [ [ 1, 3 ], [ 8, 10 ], [ 13, 15 ], [ 20, 22 ], [ 28, 30 ], [ 35, 37 ] ]
 
-? @@( o1.FindFirstBoundsOfAsSections("word") ) + NL
+? @@( o1.FindFirstBoundsOfAsSections("word") ) + NL # Or FindFirstBoundsOfZZ()
 #--> [ [ 1, 3 ], [ 13, 15 ], [ 28, 30 ] ]
 
 ? @@( o1.FindFirstBoundsOf("word") ) + NL
 #--> [ 1, 13, 28 ]
 
 proff()
-# Executed in 0.18 second(s)
+# Executed in 0.07 second(s)
 
 /*------------------
 
@@ -1852,6 +1882,8 @@ o1 = new stzString("<<<word>>>, (((word))) and {{{word}}}")
 #--> [ 8, 20, 35 ]
 
 proff()
+# Executed in 0.07 second(s)
+
 /*=============
 
 pron()
@@ -1862,7 +1894,7 @@ o1 = new stzString("123♥^♥789")
 #--> [ "123", "789" ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.03 second(s)
 
 /*----------------
 
@@ -1880,7 +1912,7 @@ o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 #--> TRUE
 
 proff()
-# Executed in 0.16 second(s)
+# Executed in 0.54 second(s)
 
 /*================
 
@@ -1903,6 +1935,7 @@ o1.Objectify()
 #--> [ "stznumber", "stzstring", "stzlist" ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*---------------
 
@@ -1914,7 +1947,7 @@ o1.Numberify()
 #--> [ 5, 12, 3, 4 ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.04 second(s)
 
 /*---------------
 
@@ -1958,7 +1991,7 @@ o1.Pairify() # transform all items to pairs
 ? @@( o1.Content() )
 #--> [
 #	[ "<<", ">>" ],
-#	[ "__", "__" ],
+#	[ "__", "" ],
 #	[ "--", "--" ]
 # ]
 
@@ -1976,7 +2009,7 @@ o1.Pairify()
 ? @@( o1.Content() )
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*--------------
 
@@ -1984,12 +2017,11 @@ pron()
 
 o1 = new stzList([ ["<<", ">>"] ])
 o1.Pairify()
-#--> [ [ "<<", "" ], [ ">>", "" ] ]
-
 ? @@( o1.Content() )
 #--> [ [ "<<", ">>" ] ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*--------------
 
@@ -1999,6 +2031,7 @@ pron()
 #--> [ [ "<<", ">>" ], [ "__", "" ] ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*==============
 
@@ -2016,7 +2049,7 @@ o1 = new stzString("<<word>> and __word__")
 #--> TRUE
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.15 second(s)
 
 /*------ #TODO: check it after including ContainsSubStringBoundedBy()
 
@@ -2065,7 +2098,7 @@ o1 = new stzList([ [ "<<", ">>" ], ["__", "__" ] ])
 #--> TRUE
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.10 second(s)
 
 /*----------------
 
@@ -2076,7 +2109,7 @@ o1 = new stzList([ [ "<<", ">>" ], ["__", "__" ], [ "@", "@" ] ])
 #--> FALSE
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.14 second(s)
 
 /*----------------
 
@@ -2103,11 +2136,15 @@ pron()
 
 o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 
-? o1.SubStringIsBoundedBy("♥♥", "aa") #--> TRUE
-? o1.SubStringIsBoundedBy("♥♥", "bb") #--> TRUE
+? o1.SubStringIsBoundedBy("♥♥", "aa")
+#--> TRUE
+? o1.SubStringIsBoundedBy("♥♥", "bb")
+#--> TRUE
 
-? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] ) #--> TRUE
-? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ]) #--> TRUE
+? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] )
+#--> TRUE
+? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ])
+#--> TRUE
 
 proff()
 # Executed in 0.14 second(s)
@@ -2274,11 +2311,11 @@ proff()
 pron()
 
 o1 = new stzString("blabla bla <<word>> bla bla <<word>>")
-? o1.FindAsSections("word") # Or FindSubStringAsSections() or FindZZ()
+? @@( o1.FindAsSections("word") ) # Or FindSubStringAsSections() or FindZZ()
 #--> [ [14, 17], [31, 34] ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 /*---------------- #Todo: Check after including findanybetween()
 
@@ -2365,7 +2402,7 @@ pron()
 #--> "this code: txt1 ="
 
 proff()
-# Executed in 0.01 second(s)
+# Executed in 0.04 second(s)
 
 /*--------------- #Todo: Check after including findanybetween()
 
@@ -2393,7 +2430,7 @@ o1 = new stzString("ONE")
 #--> FALSE
 
 proff()
-# Executed in 0.01 second(s)
+# Executed in 0.02 second(s)
 
 /*----------------
 
@@ -2420,12 +2457,15 @@ o1 = new stzNumber(10)
 
 o1 = new stzList(1:3)
 ? o1.Occurs( :Before = 1:7, :In = [ 1:2, "TWO", 1:3, 1:7, "THREE" ] )
+#--> TRUE
 
 o1 = new stzObject(ANullObject())
 ? o1.Comes( :Before = "NULL", :In = [ 1, 2, ANullObject(), "NULL" ] )
+#--> TRUE
 
 o1 = new stzString("one")
 ? o1.Happens( :Before = "two", :In = [ "one", "two", "three" ] )
+#--> TRUE
 
 proff()
 # Executed in 0.06 second(s)
@@ -2441,6 +2481,7 @@ pron()
 #--> TRUE
 
 proff()
+# Executed in 0.06 second(s)
 
 /*----------------
 
@@ -2474,7 +2515,7 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.06 second(s)
 
 /*----------------
 
@@ -2552,7 +2593,7 @@ pron()
 #--> "len    var1 = '    value '  and var2 =  ' 12   ' "
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*================= CHECK PERFORMANCE
 #TODO: check it after including FindSubStringsW()
@@ -2602,6 +2643,7 @@ o1.AddSubString("Ring")
 #--> I love Ring
 
 proff()
+# Executed in 0.01 second(s)
 
 #-----------------
 
@@ -2613,7 +2655,7 @@ o1.ExtendToNCharsXT(10, :Using = ".")
 #--> "Ring.........."
 
 proff()
-# Executed in 0.01 second(s)
+# Executed in 0.02 second(s)
 
 /*=================
 
@@ -2667,7 +2709,7 @@ Q("℺℻ℚ") {
 }
 
 proff()
-# Executed in 0.23 second(s)
+# Executed in 0.17 second(s)
 
 /*-------------- #TODO: Use the normal way (ExecutableSection) and check for perf
 
@@ -2681,7 +2723,7 @@ pron()
 #    ]
 
 proff()
-# Executed in 0.22 second(s)
+# Executed in 0.14 second(s)
 
 /*============== #TODO: check it again after including substringsbetween()
 
@@ -2738,17 +2780,22 @@ o1 = Q("TAYOUBAAOOAA")
 #--> [ "A", "T" ]
 
 proff()
+# Executed in 0.01 second(s)
 
 /*---------------- #TODO: Check it after including between()
 
 pron()
 
 o1 = new stzList([ "A", "B", "♥", "♥", "C", "♥", "♥", "D", "♥","♥" ])
-? o1.FindWXT('{ @CurrentItem = @NextItem }')	#--> [ 3, 6, 9 ]
+? o1.FindWXT('{ @CurrentItem = @NextItem }')
+#--> [ 3, 6, 9 ]
 
-? o1.FindFirstWXT(' @CurrentItem = @NextItem ')	#--> 3
-? o1.FindLastWXT(' @CurrentItem = @NextItem ')	#--> 9
-? o1.FindNthWXT(2, ' @CurrentItem = @NextItem ')	#--> 6
+? o1.FindFirstWXT(' @CurrentItem = @NextItem ')
+#--> 3
+? o1.FindLastWXT(' @CurrentItem = @NextItem ')
+#--> 9
+? o1.FindNthWXT(2, ' @CurrentItem = @NextItem ')
+#--> 6
 
 proff()
 
@@ -2763,7 +2810,7 @@ o1 = new stzList("A":"E")
 proff()
 # Executed in 0.04 second(s)
 
-/*-------
+/*------- #ring
 
 pron()
 
@@ -2773,6 +2820,7 @@ for i = 1 to 5
 next
 
 ? @@(aList)
+#--> [ [ 1 ], [ 1 ], [ 1 ], [ 1 ], [ 1 ] ]
 
 proff()
 
@@ -2822,7 +2870,7 @@ o1 = new stzSplitter(12)
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 3 ], [ 4, 4 ], [ 5, 5 ], [ 6, 6 ], [ 7, 7 ], [ 8, 8 ], [ 9, 9 ], [ 10, 10 ], [ 11, 11 ], [ 12, 12 ] ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 /*---------
 
@@ -2903,7 +2951,6 @@ o1 = new stzString("ABCDEFGHIJ")
 ? @@( o1 / 2 ) + NL
 #--> [ "ABCDE", "FGHIJ" ]
 
-o1 = new stzString("ABCDEFGHIJ") + NL
 ? @@( o1 / 1 ) + NL
 #--> [ "ABCDEFGHIJ" ]
 
@@ -2911,6 +2958,7 @@ o1 = new stzString("ABCDEFGHIJ") + NL
 #--> [ ]
 
 proff()
+# Executed in 0.12 second(s)
 
 /*---------
 
@@ -2943,7 +2991,8 @@ o1 = Q("AB♥♥C♥♥D♥♥")
 #--> 9
 
 proff()
-# Executed in 1.38 second(s)
+# Executed in 0.99 second(s) in Ring 1.20
+# Executed in 1.38 second(s) in Ring 1.18
 
 /*----------------
 
@@ -2979,15 +3028,17 @@ proff()
 
 pron()
 
-o1 = Q([ "T","A","Y","T","O", "A", "U", "B", "T", "A" ])
-? o1.Section(:From = "A", :To = "T")
+o1 = new stzList([ "T","A","Y","T","O", "A", "U", "B", "T", "A" ])
+? @@( o1.Section(:From = "A", :To = "T") ) + NL
+#--< [ "A", "Y", "T", "O", "A", "U", "B", "T" ]
 
-? @@( o1.SectionsBetween( "T", :And = "A" ) )
+? @@SP( o1.SectionsBetween( "T", :And = "A" ) )
 #--> [
 #	[ "T", "A" ],
 #	[ "T", "A", "Y", "T", "O", "A" ],
 #	[ "T", "A", "Y", "T", "O", "A", "U", "B", "T", "A" ],
-#	[ "T", "O", "A" ], [ "T", "O", "A", "U", "B", "T", "A" ],
+#	[ "T", "O", "A" ],
+#	[ "T", "O", "A", "U", "B", "T", "A" ],
 #	[ "T", "A" ]
 # ]
 
@@ -3055,7 +3106,7 @@ o1 = new stzList([ "__", "ring", "__", "ring", "__", "ring" ])
 #--> [ 4, 6 ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 /*----------
 
@@ -3066,7 +3117,7 @@ o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 #--> 5
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*----------
 
@@ -3081,7 +3132,7 @@ o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 #--> [ 1, 7 ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*----------
 
@@ -3090,6 +3141,7 @@ pron()
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 
 anPos = o1.FindTheseOccurrences([ :First, :Last ], :Of = "ring")
+? anPos
 #--> [ 1, 7 ]
 
 o1.RemoveItemsAtPositions(anPos)
@@ -3097,7 +3149,7 @@ o1.RemoveItemsAtPositions(anPos)
 #--> [ "__", "ring", "__", "ring", "__" ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*----------
 
@@ -3105,11 +3157,14 @@ pron()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 ? o1.FindTheseOccurrences([1, 4], "ring")
+#--> [ 1, 7 ]
+
 o1.RemoveItemsAtPositions([1, 7])
 ? @@( o1.content() )
+#--> [ "__", "ring", "__", "ring", "__" ]
 
 proff()
-# Executed in 0.01 second(s)
+# Executed in 0.02 second(s)
 
 /*----------
 
@@ -3121,7 +3176,7 @@ o1.RemoveOccurrences([ :First, :Last ], :Of = "ring" )
 #--> [ "__", "ring", "__", "ring", "__" ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*----------
 
@@ -3133,7 +3188,7 @@ o1.ReplaceOccurrences([ :First, :And = :Last ], :Of = "ring", :With = 3Hearts() 
 #--> [ "♥♥♥", "__", "ring", "__", "ring", "__", "♥♥♥" ]
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.09 second(s)
 
 /*----------
 
@@ -3145,7 +3200,7 @@ o1.ReplaceFirstNOccurrences(2, :Of = "ring", :With = 2Stars() )
 #--> [ "★★", "__", "★★", "__", "ring", "__", "ring" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*------
 
@@ -3153,10 +3208,11 @@ pron()
 
 o1 = new stzList([ "ring", "__", "ring", "__", "ring", "__", "ring" ])
 o1.ReplaceLastNOccurrences(2, :Of = "ring", :With = 2Stars() )
-? @@( o1.Content() ) #--> [ "ring", "__", "ring", "__", "★★", "__", "★★" ]
+? @@( o1.Content() )
+#--> [ "ring", "__", "ring", "__", "★★", "__", "★★" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.11 second(s)
 
 /*==============
 
@@ -3192,7 +3248,9 @@ proff()
 pron()
 
 o1 = new stzString("ring __ ring __ ring __ ring")
-anPos = o1.FindFirstNOccurrences(3, "ring") #--> [ 1, 9, 17 ]
+anPos = o1.FindFirstNOccurrences(3, "ring")
+? anPos
+#--> [ 1, 9, 17 ]
 
 o1.ReplaceSubStringAtPositions(anPos, "ring", Heart())
 
@@ -3224,7 +3282,7 @@ o1.RemoveSubStringAtPosition(1, "ring")
 #-->  __ ring __ ring __ ring
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
 /*----------
 
@@ -3232,6 +3290,9 @@ pron()
 
 o1 = new stzString("ring __ ring __ ring __ ring")
 anPos = o1.FindFirstNOccurrences(3, "ring")
+? @@( anPos )
+#--> [ 1, 9, 17 ]
+
 o1.RemoveSubStringAtPositions(anPos, "ring")
 ? o1.Content()
 #--> " __  __  __ ring"
@@ -3263,7 +3324,7 @@ o1.RemoveLastNOccurrences(3, "ring")
 #--> "ring __  __  __ "
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*----------
 
@@ -3278,14 +3339,14 @@ o1 = new stzString("ring __ ring __ ring __ ring")
 #--> 9
 
 proff()
-# Executed in 0.01 second(s)
+# Executed in 0.02 second(s)
 
 /*========
 
 pron()
 
 o1 = new stzHashList([ [ "hussein", 3 ], [ "haneen", 1 ], [ "teeba", 3 ] ])
-? o1.ValuesQR(:stzListOfNumbers).sum()
+? o1.ValuesQR(:stzListOfNumbers).Sum()
 #--> 7
 
 proff()
@@ -3308,7 +3369,7 @@ pron()
 # In Softanza, you can divide the content of a string into 3 parts
 cLetters = "ABCDEFG"
 
-? Q(cNumbers) / 3
+? Q(cLetters) / 3
 #--> [ "ABC", "DE", "FG" ]
 
 # Those 3 parts can be "named" parts:
@@ -3321,7 +3382,7 @@ cLetters = "ABCDEFG"
 #--> [ :Hussein = "ABC", :Haneen = "D", :Teeba = "EFG" ]
 
 proff()
-#--> Executed in 0.03 second(s)
+#--> Executed in 0.07 second(s)
 
 /*====================
 
@@ -3329,7 +3390,7 @@ pron()
 
 o1 = new stzSplitter(10)
 
-? @@( o1.SplitBeforepositions([3,7]) )
+? @@( o1.SplitBeforePositions([3,7]) )
 #--> [ [ 1, 2 ], [ 3, 6 ], [ 7, 10 ] ]
 
 proff()
@@ -3345,7 +3406,7 @@ o1 = new stzString("1234567890")
 #-->[ "1234567890" ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.02 second(s)
 
 /*------
 
@@ -3423,7 +3484,7 @@ o1 = new stzList(1:10)
 #--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
 proff()
-# Executed in 0.39 second(s)
+# Executed in 0.42 second(s)
 
 /*================
 
@@ -3494,7 +3555,7 @@ o1 = new stzString("ABCD1234EF")
 #--> [ "ABCD", "1234", "EF" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 /*===================
 
@@ -3526,21 +3587,78 @@ o1 = new stzString("123456789012")
 #--> [ "12", "45", "78", "012" ]
 
 proff()
-# Executed in 1.06 second(s)
+# Executed in 0.85 second(s)
+
+/*==================)
+
+pron()
+
+? Q("12_500").IsNumberInString()
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s)
 
 /*------------------
 
 pron()
 
+o1 = new stzString("one = 12_500 two = 17_500 three = 88")
+? o1.Numbers()
+#--> [ "12_500", "17_500", "88" ]
+
+proff()
+# Executed in 0.06 second(s)
+
+/*------------------
+
+pron()
+
+? ToNumber(5) # or Val(5)
+#--> 5
+
+? ToNumber("12.5")
+#--> 12.50
+
+? ToNumber("12_500")
+#--> 12500
+
+proff()
+# Executed in 0.02 second(s)
+
+/*------------------
+*/
+pron()
+
+? Numberify(5)
+#--> 5
+
+? Numberify("12.5")
+#--> 12.50
+
+? Numberify("12_550")
+#--> 12550
+
+? Numberify([ "5", "12.5", "12_550" ])
+#--> [ 5, 12.50, 12550 ]
+
+proff()
+# Executed in 0.02
+
+/*------------------
+
+*/
+pron()
+
 o1 = new stzString("__3__6__9__")
 
-? @@( o1.SplitW( :Before = 'Q(0+@char).IsMultipleOf(3)' ) )
+? @@( o1.SplitW( :Before = 'Q(val(@char)).IsMultipleOf(3)' ) )
 #--> [ "__", "3__", "6__", "9__" ]
 
-? @@( o1.SplitBeforeW( 'Q(0+@char).IsMultipleOf(3)' ) )
+? @@( o1.SplitBeforeW( 'Q(val(@char)).IsMultipleOf(3)' ) )
 #--> [ "__", "3__", "6__", "9__" ]
 
-? @@( o1.SplitBeforeW( :Where = 'Q(0+@char).IsMultipleOf(3)' ) )
+? @@( o1.SplitBeforeW( :Where = 'Q(val(@char)).IsMultipleOf(3)' ) )
 #--> [ "__", "3__", "6__", "9__" ]
 
 proff()

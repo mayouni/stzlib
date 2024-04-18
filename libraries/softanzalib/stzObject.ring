@@ -4753,13 +4753,36 @@ class stzObject
 			return This.NumericValue()
 
 		but This.IsAString()
-			return  0+ This.Content()
+			if This.IsNumberInString()
+				cNumber = StzStringQ(This.Content()).RemoveQ("_").Content()
+				return 0+ cNumber
 
-		but This.IsAList()
-			return This.NumberOfItems()
+			else
+				StzRaise("Incorrect value! The string do not contain a well formed number.")
+			ok
 
 		else
 			StzRaise("Can't cast the object into a number.")
+		ok
+
+	def Numberified()
+		if This.IsANumber()
+			return This.NumbericValue()
+
+		but This.IsAString()
+			if This.IsNumberInString()
+				cNumber = StzStringQ(This.Content()).RemoveQ("_").Content()
+				return 0+ cNumber
+
+			else
+				StzRaise("Incorrect value! The string do not contain a well formed number.")
+			ok
+
+		but This.IsAList()
+			return StzListQ(This.Content()).Numberified()
+
+		else
+			StzRaise("Incorrect param type! Objects can't be numberified.")
 		ok
 
 	  #------------------------------------------------------#
