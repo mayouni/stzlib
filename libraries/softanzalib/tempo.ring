@@ -3894,24 +3894,86 @@ pron()
 proff()
 # Executed in 0.02 second(s)
 
-/*------------ #TODO: correct result
-*/
+/*------------
+
 pron()
 
+myObjName = StzNamedObjectQ(:myobjname = ANullObject())
+
 aList = [
-	[ "a", 1, "_" ],
+	[ "a", 1, "_" ], myObjName, 
 	[ "f", 1, "_" ], [ "a", 1, "_" ], [ "b", 1, "_" ], [ "c", 1, "_" ], [ "d", 1, "_" ],
 	[ "cd", 2, "_" ], [ "bc", 2, "_" ], [ "ab", 2, "_" ], 
-	[ "bcd", 3, "_" ], [ "abc", 3, "_" ], 
+	[ "bcd", 3, "_" ], [ "abc", 3, "_" ], myObjName,
 	[ 5.7, 0, "_" ], [ "", 0, "_" ],
-	[ "abcd", 4, "_" ]
+	[ "abcd", 4, "_" ], myObjName
 ]
 
 ? @@NL( StzListQ(aList).ItemsZ() )
+#--> [
+#	[ [ "a", 1, "_" ], [ 1, 4 ] ],
+#	[ myobjname, [ 2, 13, 17 ] ],
+#	[ [ "f", 1, "_" ], [ 3 ] ],
+#	[ [ "b", 1, "_" ], [ 5 ] ],
+#	[ [ "c", 1, "_" ], [ 6 ] ],
+#	[ [ "d", 1, "_" ], [ 7 ] ],
+#	[ [ "cd", 2, "_" ], [ 8 ] ],
+#	[ [ "bc", 2, "_" ], [ 9 ] ],
+#	[ [ "ab", 2, "_" ], [ 10 ] ],
+#	[ [ "bcd", 3, "_" ], [ 11 ] ],
+#	[ [ "abc", 3, "_" ], [ 12 ] ],
+#	[ [ 5.70, 0, "_" ], [ 14 ] ],
+#	[ [ "", 0, "_" ], [ 15 ] ],
+#	[ [ "abcd", 4, "_" ], [ 16 ] ]
+# ]
 
 proff()
+# Executed in 0.03 second(s)
+
+/*==========
+
+pron()
+
+o1 = new stzListOfLists([
+	[ 1 ],
+	[ "one", "two" ],
+	[ ]
+])
+
+o1.AddCol([ 2, "three", 0 ])
+? @@NL( o1.Content() )
+#--> [
+#	[ 1, 2 ],
+#	[ "one", "two", "three" ],
+#	[ 0 ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*----------
+*/
+pron()
+
+o1 = new stzListOfLists([
+	[ 1 ],
+	[ "one", "two" ],
+	[ ]
+])
+
+o1.AddColXT([ 2, "three", 0 ])
+? @@NL( o1.Content() )
+#--> [[
+	[ 1, 	 "", 	2 	],
+	[ "one", "two", "three" ],
+	[ "", 	 "", 	 0 	]
+]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*----------
+
 */
 pron()
 
@@ -3944,7 +4006,7 @@ aList = [
 #	[ "abcd", 4 ]
 # ]
 
-? @@NL( @SortOn(aList, 2) )
+? @@NL( @SortOn2(aList, 2) )
 #--> [
 #	[ 5.70, 0 ],
 #	[ "", 0 ],

@@ -2626,6 +2626,78 @@ class stzListOfLists from stzList
 			def NthColQ(n)
 				return This.NthColumnQ(n)
 
+	  #==========================================#
+	 #  ADDING A COLUMN AT THE END OF THE LIST  #
+	#==========================================#
+
+	def AddCol(paList)
+		/* EXAMPLE
+
+		o1 = new stzListOfLists([
+			[ 1 ],
+			[ "one", "two" ],
+			[ ]
+		])
+		
+		o1.AddCol([ 2, "three", 0 ])
+		? @@NL( o1.Content() )
+		#--> [
+		#	[ 1, 2 ],
+		#	[ "one", "two", "three" ],
+		#	[ 0 ]
+		# ]
+
+		*/
+
+		if CheckParams()
+			if NOT isList(paList)
+				StzRaise("Incorrect param! paList must be a list.")
+			ok
+		ok
+
+		nMin = Min([ len(@aContent), len(paList) ])
+
+		for i = 1 to nMin
+			@aContent[i] + paList[i]
+		next
+
+	  #------------------------------------------------------#
+	 #  ADDING A COLUMN AT THE END OF THE LIST -- EXTENDED  #
+	#------------------------------------------------------#
+	# Justifies the lists and then adds the column
+
+	def AddColXT(paList)
+		/* EXAMPLE
+
+		o1 = new stzListOfLists([
+			[ 1 ],
+			[ "one", "two" ],
+			[ ]
+		])
+		
+		o1.AddCol([ 2, "three", 0 ])
+		? @@NL( o1.Content() )
+		#--> [
+		#	[ 1, 2 ],
+		#	[ "one", "two", "three" ],
+		#	[ 0 ]
+		# ]
+
+		*/
+
+		if CheckParams()
+			if NOT isList(paList)
+				StzRaise("Incorrect param! paList must be a list.")
+			ok
+		ok
+
+		This.Justify()
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			@aContent[i] + paList[i]
+		next	
+
 	  #==================================#
 	 #  SORTING NTH LIST IN  ASCENDING  #
 	#==================================#
