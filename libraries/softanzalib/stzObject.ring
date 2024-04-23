@@ -124,6 +124,12 @@ func StzNamedObject(paNamed)
 	func StzNamedObjectXTQ(paNamed)
 		return StzNamedObject(paNamed)
 
+func NamedObject(pcObjName)
+	? @@(_avars)
+	if CheckParams()
+		
+	ok
+
 func StzObjectMethods()
 	return Stz(:Object, :Methods)
 

@@ -48,6 +48,175 @@ func SortLists(paLists)
 	func @SortLists(paList)
 		return SortLists(paList)
 
+func SortListsOn2(paLists, n)
+	if CheckParam()
+		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
+			StzRaise("Incorrect param type! paList must be a list of lists.")
+		ok
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+	ok
+
+	nLen = len(paLists)
+	if nLen = 0
+		return []
+
+	but nLen < 2
+		return paLists
+	ok
+
+	oListsAdjusted = StzListOfListsQ(paLists).AdjustQ()
+	aNthCol = oListsAdjusted.NthCol(n)
+
+	# Adding a copy of the nth column at the end of list
+
+	# ~> we need it to restore the original values after
+	# the column is stringified
+
+	oListsAjusted.AddCol( aNthCol )
+
+	# ~> the column is stringified to make it possible to
+	# sort hetegerenous data types
+
+	# If the nth column contains numbers then
+	# we adjust them before we stringify them
+
+	# We start by getting the max left and right
+	# number of digits (integer and decimal parts)
+
+	nMaxSize = 0
+	nMaxLeft = 0
+	nMaxRight = 0
+
+	anNumbersPos = []
+
+	for i = 1 to nLen
+		if isNumber(aNthCol[i])
+
+			anNumbersPos + i
+
+			cNumber = ""+ aNthCol[i]
+
+			nSize = len(cNumber)
+			if nSize > nMaxSize
+				nMaxSize = nSize
+			ok
+
+			nDotPos = substr( cNumber, "." )
+
+			if nDotPos = 0
+				nLenLeft = nSize
+				nLenRight = 0
+
+			else
+				nLenLeft = nDotPos - 1
+				nLenRight = nSize - nDotPos
+
+			ok
+
+			if nLenLeft > nMaxLeft
+				nMaxLeft = nLenLeft
+			ok
+
+			if nLenRight > nMaxRight
+				nMaxRight = nLenRight
+			ok
+		ok
+	next
+	nHowManyNumbers = len(anNumbersPos)
+
+	# The numbers without decimal part are adjusted
+	# first, by adding a dot and some 0s to them,
+	# and then the numbers with dots are adjusted
+
+	for i = 1 to nHowManyNumbers
+
+		nPos = anNumbersPos[i]
+		cNumber = ""+ aNthCol[nPos]
+		nLenNumber = len(cNumber)
+		nPosDot = substr(cNumber, ".")
+			
+		if nPosDot = 0
+				
+			nAddLeft = nMaxLeft - nLenNumber
+			nAddRight = nMaxRight
+
+			cExtLeft = ""
+			cExtRight = ""
+
+			for j = 1 to nAddLeft
+				cExtLeft += "0"
+			next
+
+			for j = 1 to nAddRight
+				cExtRight += "0"
+			next
+
+			cNumber = cExtLeft + cNumber + "." + cExtRight
+
+		else
+			nAddLeft = nMaxLeft - (nPosDot - 1)
+			nAddRight = nMaxRight - (nLenNumber - nPosDot)
+
+			cExtLeft = ""
+			cExtRight = ""
+
+			for j = 1 to nAddLeft
+				cExtLeft += "0"
+			next
+
+			for j = 1 to nAddRight
+				cExtRight += "0"
+			next
+
+			cNumber = cExtLeft + cNumber + cExtRight
+
+		ok
+
+		aNthCol[nPos] = cNumber
+
+	next
+
+	# Now we stringify the items of the column that
+	# are not numbers (usning @@() ~> ComputableForm())
+
+	for i = 1 to nLen
+		if NOT isNumber(aNthCol[i])
+			aNthCol[i] = @@(aNthCol[i])
+			loop
+		ok
+
+	next
+
+	# Reconstructing the original list with the new stringified column
+
+	aListsAjdjusted = oListsAdjusted.Content()
+	aListsAjdjusted_WithNthColStringified = []
+
+	for i = 1 to nLen
+		aRow = aListsAjdjusted[i]
+		aRow[n] = aNthCol[i]
+		aListsAjdjusted_WithNthColStringified + aRow
+	next
+? @@NL(aListsAjdjusted_WithNthColStringified)
+
+	# Sorting the nth (stringified) column on that list
+
+	#< @FunctionAlternativeForms
+
+	func @SortListsOn2(paLists, n)
+		return SortListsOn2(paLists, n)
+
+	func SortOn2(paLists, n)
+		return SortListsOn2(paLists, n)
+
+	func @SortOn2(paLists, n)
+		return SortListsOn2(paLists, n)
+
+	#>
+
 func SortListsOn(paLists, n)
 	if CheckParam()
 		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
@@ -30471,47 +30640,11 @@ class stzList from stzObject
 			next
 
 			aResult + [ aList[i], anPos ]
-
+			acSeen + acListStringified[i]
 		next
 
 		return aResult
-/*
-		# Doing the job
 
-		aItems = StzListQ(aList).WithoutDuplicationCS(pCaseSensitive)
-		nLenItems = len(aItems)
-
-		aResult = []
-	
-		for i = 1 to nLenItems
-			anPos = []
-			for j = 1 to nLenList
-				if ( ( isNumber(aItems[i]) and isNumber(aList[j]) ) or
-				     ( isString(aItems[i]) and isString(aList[j])) ) and
-
-				   aItems[i] = aList[j]
-
-					anPos + j
-
-				but ( isList(aItems[i]) and isList(aList[j]) ) and
-				    @@(aItems[i]) = @@(aList[j])
-
-					anPos + j
-
-				but ( isObject(aItems[i]) and isList(aList[j]) ) and
-				    ( @IsNamedObject(aItems[i]) and @IsNamedObject(aList[j]) ) and
-
-				    aItems[i].ObjectName() = aList[j].ObjectNamed()
-
-					anPos + j
-					
-				ok
-			next
-			aResult + [ aItems[i], anPos ]
-		next
-			
-		return aResult
-*/
 		#< @FunctionAlternativeForm
 
 		def FindItemsCSZ(pCaseSensitive)
