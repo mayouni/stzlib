@@ -3627,7 +3627,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*------------------
-*/
+
 pron()
 
 ? Numberify(5)
@@ -3647,22 +3647,14 @@ proff()
 
 /*------------------
 
-*/
 pron()
 
-o1 = new stzString("__3__6__9__")
-
-? @@( o1.SplitW( :Before = 'Q(val(@char)).IsMultipleOf(3)' ) )
-#--> [ "__", "3__", "6__", "9__" ]
-
-? @@( o1.SplitBeforeW( 'Q(val(@char)).IsMultipleOf(3)' ) )
-#--> [ "__", "3__", "6__", "9__" ]
-
-? @@( o1.SplitBeforeW( :Where = 'Q(val(@char)).IsMultipleOf(3)' ) )
-#--> [ "__", "3__", "6__", "9__" ]
+o1 = new stzString("12_500")
+? o1.ToNumber()
+#--> 12500
 
 proff()
-# Executed in 0.53 second(s)
+# Executed in 0.02 second(s)
 
 /*------------------
 
@@ -3670,17 +3662,35 @@ pron()
 
 o1 = new stzString("__3__6__9__")
 
-? @@( o1.SplitW( :After = 'Q(0+@char).IsMultipleOf(3)' ) )
+? @@( o1.SplitW( :Before = 'StzCharQ(@char).IsANumber() and Q(0+ @char).IsMultipleOf(3)' ) )
+#--> [ "__", "3__", "6__", "9__" ]
+
+? @@( o1.SplitBeforeW( 'StzCharQ(@char).IsANumber() and Q(0+ @char).IsMultipleOf(3)' ) )
+#--> [ "__", "3__", "6__", "9__" ]
+
+? @@( o1.SplitBeforeW( :Where = 'StzCharQ(@char).IsANumber() and Q(0+ @char).IsMultipleOf(3)' ) )
+#--> [ "__", "3__", "6__", "9__" ]
+
+proff()
+# Executed in 0.74 second(s)
+
+/*------------------
+
+pron()
+
+o1 = new stzString("__3__6__9__")
+
+? @@( o1.SplitW( :After = 'StzCharQ(@char).IsANumber() and Q(0+@char).IsMultipleOf(3)' ) )
 #--> [ "__3", "__6", "__9", "__" ]
 
-? @@( o1.SplitAfterW( 'Q(0+@char).IsMultipleOf(3)' ) )
+? @@( o1.SplitAfterW( 'StzCharQ(@char).IsANumber() and Q(0+@char).IsMultipleOf(3)' ) )
 #--> [ "__3", "__6", "__9", "__" ]
 
-? @@( o1.SplitAfterW( :Where = 'Q(0+@char).IsMultipleOf(3)' ) )
+? @@( o1.SplitAfterW( :Where = 'StzCharQ(@char).IsANumber() and Q(0+@char).IsMultipleOf(3)' ) )
 #--> [ "__3", "__6", "__9", "__" ]
 
 proff()
-# Executed in 0.54 second(s)
+# Executed in 0.66 second(s)
 
 /*------------------ #TODO: check it after including SubStringsBetween()
 
@@ -3708,14 +3718,16 @@ o1 = new stzList([ "a", "abcade", "abc", "ab", "b", "aaa", "abcdaaa" ])
 
 o1.SortUpBy('len(@item)') + NL
 ? @@( o1.Content() )
-#--> [ "b", "a", "ab", "aaa", "abc", "abcade", "abcdaaa" ]
+#--> [ "a", "b", "ab", "aaa", "abc", "abcade", "abcade" ]
+
+#TODO
 
 ? o1.SortDownBy('Q(@item).HowMany("a")') # or SortInDescendingBy()
 ? @@( o1.Content() )
-#--< [ "abcdaaa", "aaa", "abcade", "a", "ab", "abc", "b" ]
+#--> [ "aaa", "abcade", "abcade", "abc", "ab", "a", "b" ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.08 second(s)
 
 /*------------------
 
@@ -3734,7 +3746,7 @@ proff()
 pron()
 
 o1 = new stzString("TUNISiiiGAFSAIIIBEJAiiiSFAXIIIGBELLI")
-? @@( o1.splitcs("iii", :cs = false) )
+? @@( o1.Splitcs("iii", :CS = FALSE) )
 #--> [ "TUNIS", "GAFSA", "BEJA", "SFAX", "GBELLI" ]
 
 proff()
@@ -3784,18 +3796,189 @@ o1 = new stzString("TUNIS gafsa NABEUL beja NABEUL beja")
 # ]
 
 proff()
-# Executed in 0.52 second(s)
+# Executed in 2.02 second(s)
+
+/*------------ #ring #sort #narration
+#NOTE: read this discussion with Mahmoud
+# https://groups.google.com/g/ring-lang/c/bwWg4Qy6_e4
+
+pron()
+
+# Ring provides a powerful function for sorting a list of lists
+# based on a given column. Here is an example:
+
+aList = [
+	[ "a", 1 ], [ "b", 1 ], [ "c", 1 ], [ "d", 1 ],
+	[ "ab", 2 ], [ "cd", 2 ],
+	[ "abc", 3 ],
+	[ "abcd", 4 ],
+	[ "bccd", 4 ],
+	[ "bc", 2 ],
+	[ "bcd", 3 ],
+	[ "dda", 3 ]
+]
+
+? @@SP( sort(aList, 2) ) + NL
+#--> [
+#	[ "c", 1 ],
+#	[ "d", 1 ],
+#	[ "a", 1 ],
+#	[ "b", 1 ],
+#
+#	[ "bc", 2 ],
+#	[ "cd", 2 ],
+#	[ "ab", 2 ],
+#
+#	[ "bcd", 3 ],
+#	[ "abc", 3 ],
+#	[ "dda", 3 ],
+#
+#	[ "abcd", 4 ],
+#	[ "bccd", 4 ]
+# ]
+
+# Unfortunately, the lists with the same value in the nth column
+# are not sorted. Not only that, but even their initial order
+# (is not preserved! Softanza proposes a corrective function
+# to deal with that:
+
+? @@SP( ring_sort2(aList, 2) )
+#--> [
+#	[ "a", 1 ],
+#	[ "b", 1 ],
+#	[ "c", 1 ],
+#	[ "d", 1 ],
+
+#	[ "ab", 2 ],
+#	[ "bc", 2 ],
+#	[ "cd", 2 ],
+
+#	[ "abc", 3 ],
+#	[ "bcd", 3 ],
+#	[ "dda", 3 ],
+
+#	[ "abcd", 4 ],
+#	[ "bccd", 4 ]
+# ]
+
+# This function is used in the background for sorting
+# tables and lists of lists.
+
+proff()
+# Executed in 0.02 second(s)
 
 /*------------
 
 pron()
 
-o1 = new stzList([ "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ])
-? @@( o1.SortedBy(' Q(@item).NumberOfChars() ') )
-#--> [ "a", "b", "c", "d", "ab", "bc", "cd", "abc", "bcd", "abcd" ]
+aList = [ "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ]
+? @@SP( sorton(aList, 2) )
 
 proff()
-# Executed in 0.06 second(s)
+
+/*------------
+
+pron()
+
+? @@SP(
+	StzListQ([ "D", "B", "A", "C", "B", "B" ]).ItemsZ()
+)
+
+#--> [
+#	[ "D", [ 1 ] ],
+#	[ "B", [ 2, 5, 6 ] ],
+#	[ "A", [ 3 ] ],
+#	[ "C", [ 4 ] ]
+# ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*------------ #TODO: correct result
+*/
+pron()
+
+aList = [
+	[ "a", 1, "_" ],
+	[ "f", 1, "_" ], [ "a", 1, "_" ], [ "b", 1, "_" ], [ "c", 1, "_" ], [ "d", 1, "_" ],
+	[ "cd", 2, "_" ], [ "bc", 2, "_" ], [ "ab", 2, "_" ], 
+	[ "bcd", 3, "_" ], [ "abc", 3, "_" ], 
+	[ 5.7, 0, "_" ], [ "", 0, "_" ],
+	[ "abcd", 4, "_" ]
+]
+
+? @@NL( StzListQ(aList).ItemsZ() )
+
+proff()
+
+/*----------
+*/
+pron()
+
+aList = [
+	[ "a", 1, "_" ],
+	[ "f", 1, "_" ], [ "a", 1, "_" ], [ "b", 1, "_" ], [ "c", 1, "_" ], [ "d", 1, "_" ],
+	[ "cd", 2, "_" ], [ "bc", 2, "_" ], [ "ab", 2, "_" ], 
+	[ "bcd", 3, "_" ], [ "abc", 3, "_" ], 
+	[ 5.7, 0, "_" ], [ "", 0, "_" ],
+	[ "abcd", 4, "_" ]
+]
+
+//? @@NL( ring_sort2(aList, 2) ) + nl
+#--> [
+#	[ "", 0 ],
+#	[ 5.70, 0 ],
+#
+#	[ "d", 1 ],
+#	[ "c", 1 ],
+#	[ "f", 1 ],
+#	[ "a", 1 ],
+#	[ "b", 1 ],
+#
+#	[ "ab", 2 ],
+#	[ "bc", 2 ],
+#	[ "cd", 2 ],
+#
+#	[ "bcd", 3 ],
+#	[ "abc", 3 ],
+#	[ "abcd", 4 ]
+# ]
+
+? @@NL( @SortOn(aList, 2) )
+#--> [
+#	[ 5.70, 0 ],
+#	[ "", 0 ],
+#
+#	[ "a", 1 ],
+#	[ "b", 1 ],
+#	[ "c", 1 ],
+#	[ "d", 1 ],
+#	[ "f", 1 ],
+#
+#	[ "ab", 2 ],
+#	[ "bc", 2 ],
+#	[ "cd", 2 ],
+#
+#	[ "abc", 3 ],
+#	[ "bcd", 3 ],
+#
+#	[ "abcd", 4 ]
+# ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------------
+*/
+pron()
+
+o1 = new stzList([ "f", "a", "b", "c", "d", "ab", 5.7, "cd", "abc", "abcd", "bc", "bcd" ])
+? @@( o1.SortedBy(' Q(@item).NumberOfChars() ') )
+#--> [ "c", "d", "a", "b", "bc", "cd", "ab", "bcd", "abc", "abcd" ]
+#--> [ "a", "b", "c", "d", "ab", "bc", "cd", "abc", "bcd", "abc" ]
+
+proff()
+# Executed in 0.05 second(s)
 
 
 /*----------- #ring

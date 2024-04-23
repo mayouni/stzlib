@@ -59,168 +59,170 @@ func SortListsOn(paLists, n)
 		ok
 	ok
 
-	if len(paLists) = 0
+	nLenLists = len(paLists)
+	if nLenLists = 0
 		return []
+
+	but nLenLists < 2
+		return paLists
 	ok
 
 	aCol = StzListOfListsQ(paLists).AdjustQ().NthCol(n)
+	aColU = @UniqueItemsIn(aCol)
 
-	if @IsRingSortable(aCol)
-		aResult = ring_sort2(paLists, n)
-		return aResult
+	# If the nth column contains numbers then
+	# we adjust them before we stringify them
 
-	else
-		# If the nth column contains numbers then
-		# we adjust them before we stringify them
+	# We start by getting the max left and right
+	# number of digits (integer and decimal parts)
 
-		# We start by getting the max left and right
-		# number of digits (integer and decimal parts)
+	nLen = len(aCol)
 
-		nLen = len(aCol)
+	nMaxSize = 0
+	nMaxLeft = 0
+	nMaxRight = 0
 
-		nMaxSize = 0
-		nMaxLeft = 0
-		nMaxRight = 0
+	anNumbersPos = []
 
-		anNumbersPos = []
+	for i = 1 to nLen
+		if isNumber(aCol[i])
 
-		for i = 1 to nLen
-			if isNumber(aCol[i])
+			anNumbersPos + i
 
-				anNumbersPos + i
+			cNumber = ""+ aCol[i]
 
-				cNumber = ""+ aCol[i]
-
-				nSize = len(cNumber)
-				if nSize > nMaxSize
-					nMaxSize = nSize
-				ok
-
-				nDotPos = substr( cNumber, "." )
-
-				if nDotPos = 0
-					nLenLeft = nSize
-					nLenRight = 0
-
-				else
-					nLenLeft = nDotPos - 1
-					nLenRight = nSize - nDotPos
-
-				ok
-
-				if nLenLeft > nMaxLeft
-					nMaxLeft = nLenLeft
-				ok
-
-				if nLenRight > nMaxRight
-					nMaxRight = nLenRight
-				ok
+			nSize = len(cNumber)
+			if nSize > nMaxSize
+				nMaxSize = nSize
 			ok
-		next
-		nHowManyNumbers = len(anNumbersPos)
 
-		# The numbers without decimal part are adjusted
-		# first, by adding a dot and some 0s to them,
-		# and then the numbers with dots are adjusted
+			nDotPos = substr( cNumber, "." )
 
-		for i = 1 to nHowManyNumbers
-
-			nPos = anNumbersPos[i]
-			cNumber = ""+ aCol[nPos]
-			nLenNumber = len(cNumber)
-			nPosDot = substr(cNumber, ".")
-			
-			if nPosDot = 0
-				
-				nAddLeft = nMaxLeft - nLenNumber
-				nAddRight = nMaxRight
-
-				cExtLeft = ""
-				cExtRight = ""
-
-				for j = 1 to nAddLeft
-					cExtLeft += "0"
-				next
-
-				for j = 1 to nAddRight
-					cExtRight += "0"
-				next
-
-				cNumber = cExtLeft + cNumber + "." + cExtRight
+			if nDotPos = 0
+				nLenLeft = nSize
+				nLenRight = 0
 
 			else
-				nAddLeft = nMaxLeft - (nPosDot - 1)
-				nAddRight = nMaxRight - (nLenNumber - nPosDot)
-
-				cExtLeft = ""
-				cExtRight = ""
-
-				for j = 1 to nAddLeft
-					cExtLeft += "0"
-				next
-
-				for j = 1 to nAddRight
-					cExtRight += "0"
-				next
-
-				cNumber = cExtLeft + cNumber + cExtRight
+				nLenLeft = nDotPos - 1
+				nLenRight = nSize - nDotPos
 
 			ok
 
-			aCol[nPos] = cNumber
-
-		next
-
-		# Now we stringify the items of the column that
-		# are not numbers (usning @@() ~> ComputableForm())
-
-		for i = 1 to nLen
-			if NOT isNumber(aCol[i])
-				aCol[i] = @@(aCol[i])
-				loop
+			if nLenLeft > nMaxLeft
+				nMaxLeft = nLenLeft
 			ok
 
-		next
+			if nLenRight > nMaxRight
+				nMaxRight = nLenRight
+			ok
+		ok
+	next
+	nHowManyNumbers = len(anNumbersPos)
 
-		# Sorting the nth (stringified) column
+	# The numbers without decimal part are adjusted
+	# first, by adding a dot and some 0s to them,
+	# and then the numbers with dots are adjusted
 
-		acColSorted = ring_sort(aCol)
+	for i = 1 to nHowManyNumbers
 
-		# Finding the old and new position of each item (before and
-		# after the sort operation)
+		nPos = anNumbersPos[i]
+		cNumber = ""+ aCol[nPos]
+		nLenNumber = len(cNumber)
+		nPosDot = substr(cNumber, ".")
+			
+		if nPosDot = 0
+				
+			nAddLeft = nMaxLeft - nLenNumber
+			nAddRight = nMaxRight
 
-		aItemsU = UniqueItems(aCol)
+			cExtLeft = ""
+			cExtRight = ""
 
-		nLenU = len(aItemsU)
-
-		oOldCol = new stzList(aCol)
-		oNewCol = new stzList(acColSorted)
-
-		aPosOldNew = []
-
-		for i = 1 to nlenU
-			anOldPos = oOldCol.Find(aItemsU[i])
-			anNewPos = oNewCol.Find(aItemsU[i])
-			nLenPos = len(anNewPos)
-
-			for j = 1 to nLenPos
-				aPosOldNew + [ anOldPos[j], anNewPos[j] ]
+			for j = 1 to nAddLeft
+				cExtLeft += "0"
 			next
+
+			for j = 1 to nAddRight
+				cExtRight += "0"
+			next
+
+			cNumber = cExtLeft + cNumber + "." + cExtRight
+
+		else
+			nAddLeft = nMaxLeft - (nPosDot - 1)
+			nAddRight = nMaxRight - (nLenNumber - nPosDot)
+
+			cExtLeft = ""
+			cExtRight = ""
+
+			for j = 1 to nAddLeft
+				cExtLeft += "0"
+			next
+
+			for j = 1 to nAddRight
+				cExtRight += "0"
+			next
+
+			cNumber = cExtLeft + cNumber + cExtRight
+
+		ok
+
+		aCol[nPos] = cNumber
+
+	next
+
+	# Now we stringify the items of the column that
+	# are not numbers (usning @@() ~> ComputableForm())
+
+	for i = 1 to nLen
+		if NOT isNumber(aCol[i])
+			aCol[i] = @@(aCol[i])
+			loop
+		ok
+
+	next
+
+	# Sorting the nth (stringified) column
+
+	acColSorted = ring_sort(aCol)
+
+	# Sorting the first columns for the same nth columns
+
+	acColSortedU = @UniqueItemsIn(acColSorted)
+	nLenColSortedU = len(acColSortedU)
+	aTemp = []
+
+	for i = 1 to nLenColSortedU
+		aTemp + [ acColSortedU[i], [] ]
+	next
+
+	for i = 1 to nLenLists
+		nPos = ring_find(acColSortedU, aCol[i])
+
+		aTemp[nPos][2] + paLists[i][1]
+		aTemp[nPos][2] = @sort(aTemp[nPos][2])
+
+	next
+
+	# Composing the result
+
+	aResult = []
+//? @@(stzListOfListsQ(paLists).NthCol(n)) + NL
+//? @@(sort(aColU)) + NL
+//? @@(acColSortedU) + NL
+
+	nLenTemp = len(aTemp)
+	aColUSorted = @sort(aColU)
+
+	for i = 1 to nLenTemp
+		nLenList = len(aTemp[i][2])
+		for j = 1 to nLenList
+			aResult + [ aTemp[i][2][j], aColUSorted[i] ]
 		next
+	next
 
-		# Reorganising the hole list based on how the itmes have
-		# changed their position before and after the sort operation
-
-		aResult = 1:nLen
-
-		for i = 1 to nLen
-			aResult[aPosOldNew[i][2]] = paLists[aPosOldNew[i][1]]
-		next
-
-		# Finally!
-
-		return aResult
-	ok
+	
+	return aResult
 
 	#< @FunctionAlternativeForms
 
@@ -3167,6 +3169,12 @@ func U(p)
 		return U(p)
 
 	func @UniqueItems(p)
+		return U(p)
+
+	func UniqueItemsIn(p)
+		return U(p)
+
+	func @UniqueItemsIn(p)
 		return U(p)
 
 	func ToSet(p)
@@ -27976,6 +27984,7 @@ class stzList from stzObject
 		next
 
 		aContentXT = @SortOn(aContentXT, 2)
+
 		aResult = []
 
 		for i = 1 to nLen
@@ -30441,6 +30450,32 @@ class stzList from stzObject
 			return []
 		ok
 
+		acListStringified = []
+		for i = 1 to nLenList
+			acListStringified + @@(aList[i])
+		next
+
+		aResult = []
+		acSeen = []
+		for i = 1 to nLenList
+			if ring_find(acSeen, acListStringified[i])
+				loop
+			ok
+
+			anPos = []
+
+			for j = 1 to nLenList
+				if acListStringified[i] = acListStringified[j]
+					anPos + j
+				ok
+			next
+
+			aResult + [ aList[i], anPos ]
+
+		next
+
+		return aResult
+/*
 		# Doing the job
 
 		aItems = StzListQ(aList).WithoutDuplicationCS(pCaseSensitive)
@@ -30451,17 +30486,32 @@ class stzList from stzObject
 		for i = 1 to nLenItems
 			anPos = []
 			for j = 1 to nLenList
-				if ring_type(aItems[i]) = ring_type(aList[j]) and
+				if ( ( isNumber(aItems[i]) and isNumber(aList[j]) ) or
+				     ( isString(aItems[i]) and isString(aList[j])) ) and
+
 				   aItems[i] = aList[j]
 
 					anPos + j
+
+				but ( isList(aItems[i]) and isList(aList[j]) ) and
+				    @@(aItems[i]) = @@(aList[j])
+
+					anPos + j
+
+				but ( isObject(aItems[i]) and isList(aList[j]) ) and
+				    ( @IsNamedObject(aItems[i]) and @IsNamedObject(aList[j]) ) and
+
+				    aItems[i].ObjectName() = aList[j].ObjectNamed()
+
+					anPos + j
+					
 				ok
 			next
 			aResult + [ aItems[i], anPos ]
 		next
 			
 		return aResult
-
+*/
 		#< @FunctionAlternativeForm
 
 		def FindItemsCSZ(pCaseSensitive)
