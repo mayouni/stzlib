@@ -67671,7 +67671,21 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	def HtmlEscaped()
 		return This.EscapeHtmlQ().Content()
-	
+
+	  #=======================================#
+	 #  TRANSFORMING THE STRING TO A NUMBER  #
+	#=======================================#
+
+	def ToNumber()
+		if This.IsNumberInString()
+			cNumber = This.Copy().RemoveQ("_").Content()
+			nResult = 0+ cNumber
+			return nResult
+
+		else
+			StzRaise("Incorrect value! The string does not contain a well formed number.")
+		ok
+
 	  #------------------------------------------------#
 	 #    UNICODE CODES OF THE CHARS OF THE STRING    #
 	#------------------------------------------------#
