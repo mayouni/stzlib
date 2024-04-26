@@ -48,6 +48,158 @@ func SortLists(paLists)
 	func @SortLists(paList)
 		return SortLists(paList)
 
+func ListsStringifyXT(paListOfLists)
+	if CheckParams()
+		if NOT ( isList(paListOfLists) and @IsListOfLists(paListOfLists) )
+			StzRaise("Incorrect param type! paListOfLists must be a list of Lists.")
+		ok
+	ok
+
+	aResult = []
+	nLen = len(paListOfLists)
+
+	for i = 1 to nLen
+		aResult + ListStringifyXT(paListOfLists[i])
+	next
+
+	return aResult
+
+	func @ListsStringifyXT(paListOfLists)
+		return ListsStringifyXT(paListOfLists)
+
+func ListStringifyXT(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	# If list contains numbers then we adjust
+	# them before we stringify them
+
+	# We start by getting the max left and right
+	# number of digits (integer and decimal parts)
+
+	nLen = len(paList)
+
+	nMaxSize = 0
+	nMaxLeft = 0
+	nMaxRight = 0
+
+	anNumbersPos = []
+
+	for i = 1 to nLen
+		if isNumber(paList[i])
+
+			anNumbersPos + i
+
+			cNumber = ""+ paList[i]
+
+			nSize = len(cNumber)
+			if nSize > nMaxSize
+				nMaxSize = nSize
+			ok
+
+			nDotPos = substr( cNumber, "." )
+
+			if nDotPos = 0
+				nLenLeft = nSize
+				nLenRight = 0
+
+			else
+				nLenLeft = nDotPos - 1
+				nLenRight = nSize - nDotPos
+
+			ok
+
+			if nLenLeft > nMaxLeft
+				nMaxLeft = nLenLeft
+			ok
+
+			if nLenRight > nMaxRight
+				nMaxRight = nLenRight
+			ok
+		ok
+	next
+	nHowManyNumbers = len(anNumbersPos)
+
+	# The numbers without decimal part are adjusted
+	# first, by adding a dot and some 0s to them,
+	# and then the numbers with dots are adjusted
+
+	for i = 1 to nHowManyNumbers
+		nPos = anNumbersPos[i]
+
+		# Early check
+
+		if paList[nPos] = 0
+			paList[nPos] = "0."
+			loop
+		ok
+
+		# In case where the number is not a zero
+
+		cNumber = ""+ paList[nPos]
+		nLenNumber = len(cNumber)
+		nPosDot = substr(cNumber, ".")
+			
+		if nPosDot = 0
+				
+			nAddLeft = nMaxLeft - nLenNumber
+			nAddRight = nMaxRight
+
+			cExtLeft = ""
+			cExtRight = ""
+
+			for j = 1 to nAddLeft
+				cExtLeft += "0"
+			next
+
+			for j = 1 to nAddRight
+				cExtRight += "0"
+			next
+
+			cNumber = cExtLeft + cNumber + "." + cExtRight
+
+		else
+			nAddLeft = nMaxLeft - (nPosDot - 1)
+			nAddRight = nMaxRight - (nLenNumber - nPosDot)
+
+			cExtLeft = ""
+			cExtRight = ""
+
+			for j = 1 to nAddLeft
+				cExtLeft += "0"
+			next
+
+			for j = 1 to nAddRight
+				cExtRight += "0"
+			next
+
+			cNumber = cExtLeft + cNumber + cExtRight
+
+		ok
+
+		paList[nPos] = cNumber
+
+	next
+
+	# Now we stringify the items of the column that
+	# are not numbers (usning @@() ~> ComputableForm())
+
+	for i = 1 to nLen
+		if NOT isNumber(paList[i])
+			paList[i] = @@(paList[i])
+			loop
+		ok
+
+	next
+
+	return paList
+
+	func @ListStringifyXT(paList)
+		return ListStringifyXT(paList)
+
 func SortListsOn2(paLists, n)
 	if CheckParam()
 		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
@@ -67,331 +219,93 @@ func SortListsOn2(paLists, n)
 		return paLists
 	ok
 
-	oListsAdjusted = StzListOfListsQ(paLists).AdjustQ()
-	aNthCol = oListsAdjusted.NthCol(n)
-
-	# Adding a copy of the nth column at the end of list
-
-	# ~> we need it to restore the original values after
-	# the column is stringified
-
-	oListsAjusted.AddCol( aNthCol )
-
-	# ~> the column is stringified to make it possible to
-	# sort hetegerenous data types
-
-	# If the nth column contains numbers then
-	# we adjust them before we stringify them
-
-	# We start by getting the max left and right
-	# number of digits (integer and decimal parts)
-
-	nMaxSize = 0
-	nMaxLeft = 0
-	nMaxRight = 0
-
-	anNumbersPos = []
+	# Adjusting the lists up to the nth column
+	# (we do this to male it possible using Ring sort() function)
 
 	for i = 1 to nLen
-		if isNumber(aNthCol[i])
-
-			anNumbersPos + i
-
-			cNumber = ""+ aNthCol[i]
-
-			nSize = len(cNumber)
-			if nSize > nMaxSize
-				nMaxSize = nSize
-			ok
-
-			nDotPos = substr( cNumber, "." )
-
-			if nDotPos = 0
-				nLenLeft = nSize
-				nLenRight = 0
-
-			else
-				nLenLeft = nDotPos - 1
-				nLenRight = nSize - nDotPos
-
-			ok
-
-			if nLenLeft > nMaxLeft
-				nMaxLeft = nLenLeft
-			ok
-
-			if nLenRight > nMaxRight
-				nMaxRight = nLenRight
-			ok
-		ok
-	next
-	nHowManyNumbers = len(anNumbersPos)
-
-	# The numbers without decimal part are adjusted
-	# first, by adding a dot and some 0s to them,
-	# and then the numbers with dots are adjusted
-
-	for i = 1 to nHowManyNumbers
-
-		nPos = anNumbersPos[i]
-		cNumber = ""+ aNthCol[nPos]
-		nLenNumber = len(cNumber)
-		nPosDot = substr(cNumber, ".")
-			
-		if nPosDot = 0
-				
-			nAddLeft = nMaxLeft - nLenNumber
-			nAddRight = nMaxRight
-
-			cExtLeft = ""
-			cExtRight = ""
-
-			for j = 1 to nAddLeft
-				cExtLeft += "0"
+		nLenList = len(paLists)
+		if nLenList < n
+			nDif = n - nLenList
+			for j = 1 to nDiff
+				paLists[i] + NULL
 			next
-
-			for j = 1 to nAddRight
-				cExtRight += "0"
-			next
-
-			cNumber = cExtLeft + cNumber + "." + cExtRight
-
-		else
-			nAddLeft = nMaxLeft - (nPosDot - 1)
-			nAddRight = nMaxRight - (nLenNumber - nPosDot)
-
-			cExtLeft = ""
-			cExtRight = ""
-
-			for j = 1 to nAddLeft
-				cExtLeft += "0"
-			next
-
-			for j = 1 to nAddRight
-				cExtRight += "0"
-			next
-
-			cNumber = cExtLeft + cNumber + cExtRight
-
-		ok
-
-		aNthCol[nPos] = cNumber
-
-	next
-
-	# Now we stringify the items of the column that
-	# are not numbers (usning @@() ~> ComputableForm())
-
-	for i = 1 to nLen
-		if NOT isNumber(aNthCol[i])
-			aNthCol[i] = @@(aNthCol[i])
-			loop
 		ok
 
 	next
 
-	# Reconstructing the original list with the new stringified column
+	if n = 1
+		# We stringify only the first column and then
+		# sort the list on it using ring_sort2(list, n)
 
-	aListsAjdjusted = oListsAdjusted.Content()
-	aListsAjdjusted_WithNthColStringified = []
+		aFirstCol = []
+		for i = 1 to nLen
+			aFirstCol + paLists[i][1]
+		next
 
-	for i = 1 to nLen
-		aRow = aListsAjdjusted[i]
-		aRow[n] = aNthCol[i]
-		aListsAjdjusted_WithNthColStringified + aRow
-	next
-? @@NL(aListsAjdjusted_WithNthColStringified)
+		aFirstColXT = ListStringifyXT(aFirstCol)
 
-	# Sorting the nth (stringified) column on that list
+		# Adding this stringified colum as the very first
+		# column of the list, sorting it using ring_sort2()
+		# and then removing this stringified column
 
-	#< @FunctionAlternativeForms
+		for i = 1 to nLen
+			ring_insert(paLists[i], 1, aFirstColXT[i])
+		next
 
-	func @SortListsOn2(paLists, n)
-		return SortListsOn2(paLists, n)
+		# Now we sort the list of lists using ring_sort2()
 
-	func SortOn2(paLists, n)
-		return SortListsOn2(paLists, n)
+		paLists = ring_sort2(paLists, 1)
 
-	func @SortOn2(paLists, n)
-		return SortListsOn2(paLists, n)
+		# finally we compose the result by excluding
+		# the very first coumumn 
 
-	#>
+		for i = 1 to nLen
+			ring_remove(paLists[i], 1)
+		next
 
-func SortListsOn(paLists, n)
-	if CheckParam()
-		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
-			StzRaise("Incorrect param type! paList must be a list of lists.")
-		ok
-
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-	ok
-
-	nLenLists = len(paLists)
-	if nLenLists = 0
-		return []
-
-	but nLenLists < 2
 		return paLists
 	ok
 
-	aCol = StzListOfListsQ(paLists).AdjustQ().NthCol(n)
-	aColU = @UniqueItemsIn(aCol)
+	# In this case, the nth column is not the first column.
+	# We need to sort not only the nth column, but:
 
-	# If the nth column contains numbers then
-	# we adjust them before we stringify them
+	# 	1. sort the first column
+	# 	2. sort the items of the first column that have same value
 
-	# We start by getting the max left and right
-	# number of digits (integer and decimal parts)
 
-	nLen = len(aCol)
+	# We fellow the same logic of the previous case, but for two
+	# two columns and not only one column
 
-	nMaxSize = 0
-	nMaxLeft = 0
-	nMaxRight = 0
+		# We stringify the nth and first columns
 
-	anNumbersPos = []
-
-	for i = 1 to nLen
-		if isNumber(aCol[i])
-
-			anNumbersPos + i
-
-			cNumber = ""+ aCol[i]
-
-			nSize = len(cNumber)
-			if nSize > nMaxSize
-				nMaxSize = nSize
-			ok
-
-			nDotPos = substr( cNumber, "." )
-
-			if nDotPos = 0
-				nLenLeft = nSize
-				nLenRight = 0
-
-			else
-				nLenLeft = nDotPos - 1
-				nLenRight = nSize - nDotPos
-
-			ok
-
-			if nLenLeft > nMaxLeft
-				nMaxLeft = nLenLeft
-			ok
-
-			if nLenRight > nMaxRight
-				nMaxRight = nLenRight
-			ok
-		ok
-	next
-	nHowManyNumbers = len(anNumbersPos)
-
-	# The numbers without decimal part are adjusted
-	# first, by adding a dot and some 0s to them,
-	# and then the numbers with dots are adjusted
-
-	for i = 1 to nHowManyNumbers
-
-		nPos = anNumbersPos[i]
-		cNumber = ""+ aCol[nPos]
-		nLenNumber = len(cNumber)
-		nPosDot = substr(cNumber, ".")
-			
-		if nPosDot = 0
-				
-			nAddLeft = nMaxLeft - nLenNumber
-			nAddRight = nMaxRight
-
-			cExtLeft = ""
-			cExtRight = ""
-
-			for j = 1 to nAddLeft
-				cExtLeft += "0"
-			next
-
-			for j = 1 to nAddRight
-				cExtRight += "0"
-			next
-
-			cNumber = cExtLeft + cNumber + "." + cExtRight
-
-		else
-			nAddLeft = nMaxLeft - (nPosDot - 1)
-			nAddRight = nMaxRight - (nLenNumber - nPosDot)
-
-			cExtLeft = ""
-			cExtRight = ""
-
-			for j = 1 to nAddLeft
-				cExtLeft += "0"
-			next
-
-			for j = 1 to nAddRight
-				cExtRight += "0"
-			next
-
-			cNumber = cExtLeft + cNumber + cExtRight
-
-		ok
-
-		aCol[nPos] = cNumber
-
-	next
-
-	# Now we stringify the items of the column that
-	# are not numbers (usning @@() ~> ComputableForm())
-
-	for i = 1 to nLen
-		if NOT isNumber(aCol[i])
-			aCol[i] = @@(aCol[i])
-			loop
-		ok
-
-	next
-
-	# Sorting the nth (stringified) column
-
-	acColSorted = ring_sort(aCol)
-
-	# Sorting the first columns for the same nth columns
-
-	acColSortedU = @UniqueItemsIn(acColSorted)
-	nLenColSortedU = len(acColSortedU)
-	aTemp = []
-
-	for i = 1 to nLenColSortedU
-		aTemp + [ acColSortedU[i], [] ]
-	next
-
-	for i = 1 to nLenLists
-		nPos = ring_find(acColSortedU, aCol[i])
-
-		aTemp[nPos][2] + paLists[i][1]
-		aTemp[nPos][2] = @sort(aTemp[nPos][2])
-
-	next
-
-	# Composing the result
-
-	aResult = []
-//? @@(stzListOfListsQ(paLists).NthCol(n)) + NL
-//? @@(sort(aColU)) + NL
-//? @@(acColSortedU) + NL
-
-	nLenTemp = len(aTemp)
-	aColUSorted = @sort(aColU)
-
-	for i = 1 to nLenTemp
-		nLenList = len(aTemp[i][2])
-		for j = 1 to nLenList
-			aResult + [ aTemp[i][2][j], aColUSorted[i] ]
+		aNthAndFirstCols = []
+		for i = 1 to nLen
+			aNthAndFirstCols + [ paLists[i][n], paLists[i][1] ]
 		next
-	next
 
-	
-	return aResult
+		aNthAndFirstColsXT = ListsStringifyXT(aNthAndFirstCols)
+
+		# Adding the stringifief nth and first columns (concatenated)
+		# at the begining of the list (as the first column)
+
+		for i = 1 to nLen
+			ring_insert(paLists[i], 1, aNthAndFirstColsXT[i][1] + aNthAndFirstColsXT[i][2])
+		next
+
+		# Now we sort the list of lists using ring_sort2(), first on
+		# the nth column (which is the first column now in the list)
+
+		paLists = ring_sort2(paLists, 1)
+
+		# finally we compose the result by excluding
+		# the very first coumumn 
+
+		for i = 1 to nLen
+			ring_remove(paLists[i], 1)
+		next
+
+		return paLists
+
 
 	#< @FunctionAlternativeForms
 
