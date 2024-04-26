@@ -3974,7 +3974,6 @@ proff()
 
 /*----------
 
-*/
 pron()
 
 aList = [
@@ -4039,13 +4038,26 @@ proff()
 */
 pron()
 
-o1 = new stzList([ "f", "a", "b", "c", "d", "ab", 5.7, "cd", "abc", "abcd", "bc", "bcd" ])
-? @@( o1.SortedBy(' Q(@item).NumberOfChars() ') )
-#--> [ "c", "d", "a", "b", "bc", "cd", "ab", "bcd", "abc", "abcd" ]
-#--> [ "a", "b", "c", "d", "ab", "bc", "cd", "abc", "bcd", "abc" ]
+o1 = new stzList([ "f", "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ])
+? o1.SortedBy(' Q(@item).NumberOfChars() ')
+#--> [ 
+#	a
+#	b
+#	c
+#	d
+#	f
+#
+#	ab
+#	bc
+#	cd
+#
+#	abc
+#	bcd
+#	abcd
+# ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.04 second(s)
 
 
 /*----------- #ring

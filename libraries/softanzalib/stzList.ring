@@ -200,7 +200,7 @@ func ListStringifyXT(paList)
 	func @ListStringifyXT(paList)
 		return ListStringifyXT(paList)
 
-func SortListsOn2(paLists, n)
+func SortListsOn(paLists, n)
 	if CheckParam()
 		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
 			StzRaise("Incorrect param type! paList must be a list of lists.")
