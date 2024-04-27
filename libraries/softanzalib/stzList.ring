@@ -219,7 +219,7 @@ func SortListsOn(paLists, n)
 		return paLists
 	ok
 
-	# Early check
+	# Early check: using Ring sort() in priority
 
 	if IsRingSortableOn(paLists, n)
 		return ring_sort2(paLists, n)

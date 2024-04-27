@@ -2760,6 +2760,15 @@ class stzListOfLists from stzList
 	 #  CHECKING IF THE LIST OF LISTS IS SORTED IN ASCENDING ON THE NTH COLUMN  #
 	#--------------------------------------------------------------------------#
 
+	def IsSortedInAscending()
+		return This.IsSortedInAscendingOn(1)
+
+		def IsSortedUp()
+			return This.IsSortedInAscending()
+
+		def IsSorted()
+			return This.IsSortedInAscending()
+
 	def IsSortedInAscendingOn(n)
 		bResult = This.ColQ(n).IsSortedInAscending()
 		return bResult
@@ -2773,6 +2782,12 @@ class stzListOfLists from stzList
 	  #---------------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST OF LISTS IS SORTED IN DESCENDING ON THE NTH COLUMN  #
 	#---------------------------------------------------------------------------#
+
+	def IsSortedInDescending()
+		return This.IsSortedInDescendingOn(1)
+
+		def IsSortedDown()
+			return This.IsSortedInDescending()
 
 	def IsSortedInDescendingOn(n)
 		bResult = This.ColQ(n).IsSortedInDescending()
