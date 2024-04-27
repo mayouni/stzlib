@@ -506,6 +506,21 @@ class stzListOfPairs from stzListOfLists
 	 #  SORTING THE LIST OF PAIRS IN ASCENDING  #
 	#==========================================#
 
+	def IsSortedInAscending()
+		oCopy = This
+		oCopy.SortInAsending()
+		if oCopy.IsEqualTo(This.Content())
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsSorted()
+			return This.IsSortedInAscending()
+
+		def IsSortedUp()
+			return This.IsSortedInAscending()
+
 	def Sort()
 		This.SortOn(1)
 
@@ -538,6 +553,18 @@ class stzListOfPairs from stzListOfLists
 	  #-------------------------------------------#
 	 #  SORTING THE LIST OF PAIRS IN DESCENDING  #
 	#-------------------------------------------#
+
+	def IsSortedInDescending()
+		oCopy = This
+		oCopy.SortInDesending()
+		if oCopy.IsEqualTo(This.Content())
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsSortedDown()
+			return This.IsSortedInDescending()
 
 	def SortDown()
 		This.SortDownOn(1)

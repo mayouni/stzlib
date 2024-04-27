@@ -1383,7 +1383,7 @@ o1.SwapBoundsOf("word")
 #--> <<<word>>> <<word>> <word>
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.05 second(s)
 
 /*========= #TODO Test after including ...Between()
 
@@ -1418,7 +1418,7 @@ o1.ReplaceSections([ [1, 3], [9, 11] ], "***")
 #--> *** ABC *** DEF
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.04 second(s)
 
 /*----------------
 
@@ -1436,7 +1436,7 @@ o1.ReplaceSections(
 #--> *** ABC *** DEF
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.03 second(s)
 
 /*----------------
 
@@ -1490,14 +1490,13 @@ o1 = new stzListOfPairs([ [1,3], [4, 7], [8, 9] ])
 #--> TRUE
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.05 second(s)
 
 /*----------------
-
+*/
 pron()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
-
 ? o1.IsSortedInDescending()
 #--> FALSE
 
@@ -1541,7 +1540,7 @@ o1 = new stzList("A":"J")
 #--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s)
 
 /*----------------
 
@@ -1564,7 +1563,7 @@ o1 = new stzString("ABCDEFGHIJ")
 #--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s)
 
 /*=================
 
@@ -1635,7 +1634,7 @@ o1 = new stzString("AB♥CD♥EF♥GH")
 #--> [ "AB", "♥CD", "♥EF", "♥GH" ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.05 second(s)
 
 /*----------------
 
@@ -4515,7 +4514,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*-------
-*/
+
 pron()
 
 aList = [
@@ -4582,7 +4581,7 @@ o1 = new stzListOfPairs(aList) # Or stzListOfLists() if you want
 
 proff()
 
-#--> Executed in 0.05 second(s)
+#--> Executed in 0.04 second(s)
 
 /*====== #todo check perf #update done!
 
@@ -4599,13 +4598,13 @@ o1 = new stzList(aList)
 #--> 1900007
 
 proff()
-#--> Executed in 34.97 second(s)
+#--> Executed in 28.07 second(s)
 
 /*====== #todo check perf #update done!
 
 pron()
 
-# Constructing the large list (takes 0.84 seconds)
+# Constructing the large list
 
 aList = []
 for i = 1 to 1_900_000
@@ -4613,18 +4612,24 @@ for i = 1 to 1_900_000
 next
 aList + "A" + "*" + "B" + "C" + "*" + "D" + "*" + "E"
 
+? ElapsedTime()
+#--> 0.82 second(s)
+
 # Using the optimised @FindNthS() function (based on native Ring find())
 
 ? @FindNthS(aList, 3, "*", 1_000_000)
+#--> 1900007
 
 ? @FindNext(aList, "*", 1_000_000)
 #--> 1900002
 
 ? @@( @FindAll(aList, "*") )
-
 #--> [ 1900002, 1900005, 1900007 ]
 
-# Creating the stzList object (takes 1.08 seconds)
+? ElpasedTime()
+#--> 3.73 second(s)
+
+# Creating the stzList object
 
 o1 = new stzList(aList)
 	
@@ -4687,7 +4692,8 @@ pron()
 	next
 
 proff()
-# Executed in 11.16 second(s)
+# Executed in 10.99 second(s) in Ring 1.20
+# Executed in 11.16 second(s) in Ring 1.19
 
 /*-------------------- #perf
 
@@ -4726,7 +4732,8 @@ pron()
 
 	//? ShowShortXT(str, 8)
 proff()
-# Executed in 4.04 second(s)
+# Executed in 3.98 second(s) in Ring 1.20
+# Executed in 4.04 second(s) in Ring 1.19
 
 /*--------- #perf
 
@@ -4766,7 +4773,7 @@ pron()
 	o1.Stringify()
 
 proff()
-# Executed in 6.82 second(s)
+# Executed in 8.26 second(s)
 
 /*--------- #perf
 
@@ -4832,7 +4839,7 @@ o1 = new stzString('..."*"..."*"...')
 #--> [ 5, 11 ]
 
 proff()
-# Executed in 0.0é second(s)
+# Executed in 0.02 second(s)
 
 /*----------
 
@@ -4856,7 +4863,7 @@ o1 = new stzString("~*~~*--*-")
 #--> [ 2, 5, 8 ]
 
 proff()
-# Executed in 0.01 second(s)
+# Executed in 0.03 second(s)
 
 /*----------
 
@@ -4975,7 +4982,7 @@ o1 = new stzString("♥....♥...YOU..♥.....YOU.♥")
 #--> 25
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.07 second(s)
 
 /*---------
 
@@ -5024,7 +5031,7 @@ o1 = new stzString("♥♥♥....♥♥♥...YOU..♥♥♥.....YOU.♥♥♥")
 #--> [ 31, 33 ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 #=========
 
@@ -5142,7 +5149,7 @@ o1 = new stzString("♥♥♥....♥♥♥...YOU..♥♥♥.....YOU.♥♥♥")
 #--> [ 31, 33 ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 /*----
 
@@ -5153,6 +5160,7 @@ o1 = new stzString("...*...*...*...")
 #--> 8
 
 proff()
+# Executed in 0.01 second(s)
 
 /*----------- #TODO Check after including findbetweencs() adn findboundedbycs()
 
