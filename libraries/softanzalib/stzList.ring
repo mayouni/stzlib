@@ -423,8 +423,8 @@ func SortBy(paList, pcExpr)
 	return StzListQ(paList).SortedBy(pcExpr)
 
 
-	func @SortBy(pcExpr)
-		return SortBy(pcExpr)
+	func @SortBy(paList, pcExpr)
+		return SortBy(paList, pcExpr)
 
 #==========
 
@@ -27081,7 +27081,7 @@ class stzList from stzObject
 	 #   CLASSIFYING THE LIST ITEMS USING A GIVEN EXPRESSION  #
 	#--------------------------------------------------------#
 
-	def ClassifyBy(pcExpr)
+	def ClassifyByCS(pcExpr, pCaseSensitive)
 		#EXAMPLE
 		/*
 		o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
@@ -27104,6 +27104,8 @@ class stzList from stzObject
 			ok
 		ok
 
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
 		cExpr = Q(pcExpr).TrimQ().RemoveTheseBoundsQ("{", "}").Trimmed()
 		if NOT Q(cExpr).ContainsOneOfTheseCS([ "@item", "@i" ], FALSE)
 			StzRaise("Can't proceed! pcExpr must contain the keyword @item and/or @i.")
@@ -27111,36 +27113,88 @@ class stzList from stzObject
 
 		cCode = ' value = (' + pcExpr + ')'
 
-		oContent = This.ToSetQ()
-		aContent = oContent.Content()
+		aContent = This.Content()
 		nLen = len(aContent)
 
-		aValues = []
+		aResult = []
+		oaSeen = new stzList([])
 
 		for @i = 1 to nLen
 			@item = aContent[@i]
 			eval(cCode)
-			aValues + value
-		next
 
-		oValues = StzListQ(aValues)
+			n = oaSeen.FindFirstCS(value, bCaseSensitive)
+			if n = 0
+				aResult + [ value, [ @item ] ]
+				oaSeen.Add(value)
 
-		aValuesU = Q(aValues).ToSetQ().StringifyQ().Sorted()
-		nLenVal = len(aValuesU)
+			else
+				aResult[n][2] + @item
+			ok
 
-		#--
-
-		aResult = []
-
-		for i = 1 to nLenVal
-			anPos = oValues.FindAll(aValuesU[i])
-			aResult + [ aValuesU[i], oContent.ItemsAtPositions(anPos) ]
 		next
 
 		return aResult
 
+		#< @FunctionFluentForms
+
+		def ClassifyByCSQ(pcExpr, pCaseSensitive)
+			return This.ClassifyByCSQR(pcExpr, pCaseSensitive, :stzList)
+
+		def ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.ClassifiedByCS(pcExpr, pCaseSensitive) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.ClassifiedByCS(pcExpr, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ClassifiedByCS(pcExpr, pCaseSensitive)
+			return This.ClassifyByCS(pcExpr, pCaseSensitive)
+
+			def ClassifiedByCSQ(pcExpr, pCaseSensitive)
+				return This.ClassifiedByCSCSQR(pcExpr, TRUE, :stzList)
+
+			def ClassifiedByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ClassifyBy(pcExpr)
+		return This.ClassifyByCS(pcExpr, TRUE)
+
+		#< @FunctionFluentForms
+
+		def ClassifyByQ(pcExpr)
+			return This.ClassifyByCSQ(pcExpr, TRUE)
+
+		def ClassifyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+			return This.ClassifiyByCSQR(pcExpr, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def ClassifiedBy(pcExpr)
 			return This.ClassifyBy(pcExpr)
+
+			def ClassifiedByQ(pcExpr)
+				return This.ClassifyByCSQ(pcExpr, TRUE)
+	
+			def ClassifiedByQR(pcExpr, pcReturnType)
+				return This.ClassifiyByCSQR(pcExpr, TRUE, pcReturnType)
+	
+		#>
 
 	  #=====================================================#
 	 #   THE LIST IS MADE OF CONTIGUOUS CHARS OR NUMBERS   #
@@ -29948,6 +30002,7 @@ class stzList from stzObject
 		return new stzListOfLists(This.Content())
 
 	def ToStzListOfPairs()
+? @@NL( This.Content() )
 		return new stzListOfPairs(This.Content())
 
 	def ToStzListOfStrings()

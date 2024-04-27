@@ -4035,7 +4035,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*------------
-*/
+
 pron()
 
 o1 = new stzList([ "f", "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ])
@@ -4059,7 +4059,6 @@ o1 = new stzList([ "f", "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bc
 proff()
 # Executed in 0.04 second(s)
 
-
 /*----------- #ring
 
 pron()
@@ -4072,8 +4071,15 @@ pron()
 	[ [ 10001 ], 3 ]
 ], 2) )
 
+#--> [
+#	[ [ 2, 8 ], 		0 ],
+#	[ [ 0, 150, 170 ], 	1 ],
+#	[ [ 2100, 3007 ], 	2 ],
+#	[ [ 10001 ], 		3 ]
+# ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*------------
 
@@ -4083,6 +4089,7 @@ pron()
 #--> TRUE
 
 proff()
+# Executed in 0.02 second(s)
 
 /*------------ #ring
 
@@ -4095,16 +4102,26 @@ pron()
 #--> []
 
 proff()
+# Executed in 0.02 second(s)
 
 /*------------
 
 pron()
 
 ? @@( SortBy([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ], ' Q(@item).HowMany(0) ') )
-#--> [ 8, 2, 150, 0, 170, 3007, 2100, 10001 ]
+#--> [
+#	2,
+#	8,
+#	10001,
+#	2100,
+#	3007,
+#	150,
+#	170,
+#	0
+# ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.04 second(s)
 
 /*------------
 
@@ -4113,10 +4130,19 @@ pron()
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 
 ? @@( o1.SortedBy(' Q(@item).HowMany(0) ') )
-#--> [ 2, 8, 0, 150, 170, 2100, 3007, 10001 ]
+#--> [
+#	2,
+#	8,
+#	10001,
+#	2100,
+#	3007,
+#	150,
+#	170,
+#	0
+# ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.04 second(s)
 
 /*------------
 
@@ -4128,7 +4154,7 @@ o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 #--> [ 10001, 3007, 2100, 170, 150, 0, 8, 2 ]
 
 proff()
-#--> Executed in 0.18 second(s)
+#--> Executed in 0.06 second(s)
 
 /*------------
 
@@ -4140,14 +4166,53 @@ o1 = new stzList([ 1:3, "tunis", [], 1:2, "t", "" ])
 #--> [ "", [ ], 't', [ 1, 2 ], [ 1, 2, 3 ], 'tunis' ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*===========
 
 pron()
 
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
-? @@( o1.ClassifiedBy(' Q(@item).HowMany(0) ') )
+aClasses = o1.ClassifyBy(' Q(@item).HowMany(0) ')
+
+? @@NL( aClasses )
+#--> [
+#	[ 2, [ 3007, 2100 ] ],
+#	[ 1, [ 170, 0, 150 ] ],
+#	[ 0, [ 8, 2 ] ],
+#	[ 3, [ 10001 ] ]
+# ]
+
+# If you want the first column to be sorted  you can do it like this
+
+? @@NL( @SortLists( aClasses ) ) # or direcly @SortLists(aClasses)
+#--> [
+#	[ 0, [ 8, 2 ] ],
+#	[ 1, [ 170, 0, 150 ] ],
+#	[ 2, [ 3007, 2100 ] ],
+#	[ 3, [ 10001 ] ]
+# ]
+
+# It's also possible to pass throw stzListOfLists like this:
+
+? @@NL( StzListOfListsQ(aClasses).SortedOn(1) ) # or directly .Sorted()
+#--> [
+#	[ 0, [ 8, 2 ] ],
+#	[ 1, [ 170, 0, 150 ] ],
+#	[ 2, [ 3007, 2100 ] ],
+#	[ 3, [ 10001 ] ]
+# ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-----------
+
+pron()
+
+
+o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
+? @@NL( o1.ClassifiedByQR(' Q(@item).HowMany(0) ', :stzListOflists).SortedOn(1) )
 #--> [
 # 	[ "0", [ 8, 2 ] ],
 #	[ "1", [ 170, 0, 150 ] ],
@@ -4156,20 +4221,70 @@ o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 # ]
 
 proff()
-#--> Executed in 0.24 second(s)
+#--> Executed in 0.06 second(s)
 
 /*----------------
 
 pron()
 
 o1 = new stzString("abcd")
-? @@( o1.SubStrings() )
+acSubStrings = o1.SubStrings()
+? @@( acSubStrings )
 #--> [ "a", "ab", "abc", "abcd", "b", "bc", "bcd", "c", "cd", "d" ]
 
-proff()
-# Executed in 0.01 second(s)
+# If you want, you can sort them :
 
-/*------------------
+? sort(acSubStrings) # Ring standar function is ised here
+#--> [
+#	"a",
+#	"ab",
+#	"abc",
+#	"abcd",
+#
+#	"b",
+#	"bc",
+#	"bcd",
+#
+#	"c",
+#	"cd",
+#
+#	"d"
+# ]
+
+# If you want to sort them by the number of chars :
+
+? SortBy( acSubStrings, 'Q(@item).NumberOfChars()' ) # It's a Softanza function
+#--> [
+#	a
+#	b
+#	c
+#	d
+#
+#	ab
+#	bc
+#	cd
+#
+#	abc
+#	bcd
+#
+#	abcd
+# ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*================
+*/
+pron()
+
+o1 = new stzString( "ABCabcEFGijHI" )
+//? o1.SubStringsW('Q(@SubString).IsUppercase()')
+
+? o1.PartsW('Q(@char).IsUppercase()')
+
+proff()
+
+/*----------------
 
 pron()
 
