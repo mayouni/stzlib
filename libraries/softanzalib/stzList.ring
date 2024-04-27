@@ -221,7 +221,7 @@ func SortListsOn(paLists, n)
 
 	# Early check
 
-	if IsRingSortable(paLists)
+	if IsRingSortableOn(paLists, n)
 		return ring_sort2(paLists, n)
 	ok
 
@@ -4431,6 +4431,41 @@ func IsRingSortable(pListOrString)
 	func @IsRingSortable(pListOrString)
 		return IsRingSortable(pListOrString)
 
+func IsRingSortableOn(paListOfLists, n)
+	if NOT ( isList(paListOfLists) and IsListOfLists(paListOfLists) )
+		return FALSE
+	ok
+
+	if NOT isNumber(n)
+		StzRaise("Incorrect param type! n must be a number.")
+	ok
+
+	nLenMin = len(paListOfLists[1])
+	nLen = len(paListOfLists)
+
+	for i = 1 to nLen
+		nLenList = len(paListOfLists[i])
+		if nLenList < nLenMin
+			nLenMin = nLenList
+		ok
+
+		if NOT ( isListOfNumbers(paListOfLists[i]) or
+			 isListOfStrings(paListOfLists[i]) or
+			 isListofNumbersAndstrings(paListOfLists[i]) )
+
+			return FALSE
+		ok
+	next
+
+	if n > nLenMin
+		return FALSE
+	ok
+
+	return TRUE
+
+	func @IsRingSortableOn(paListOfLists, n)
+		return IsRingSortableOn(paListOfLists, n)
+	
   /////////////////
  ///   CLASS   ///
 /////////////////
