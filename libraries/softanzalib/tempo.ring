@@ -4468,7 +4468,7 @@ proff()
 # Executed in ... second(s)
 
 /*=======
-*/
+
 pron()
 
 ? IsRingSortable("ring")
@@ -4509,6 +4509,46 @@ aList = [
 	[ "ibrahim" , 11000 ]
 ]
 ? IsRingSortable(aList)
+#--> FALSE
+
+proff()
+# Executed in 0.02 second(s)
+
+/*-------
+*/
+pron()
+
+aList = [
+	[ "ali", 12 ],
+	[ "jed", 10 ],
+	[ "sam",  8 ]
+]
+? IsRingSortableOn(aList, 2)
+#--> TRUE
+
+aList = [
+	"kim",
+	[ "ali", 12 ],
+	[ "jed", 10 ],
+	[ "sam",  8 ]
+]
+? IsRingSortableOn(aList, 2)
+#--> FALSE
+
+aList = [
+	[ "ali", 12 	],
+	[ "jed", 10, 22 ],
+	[ "sam",  8 	]
+]
+? IsRingSortableOn(aList, 2)
+#--> TRUE
+
+aList = [
+	[ "ali", 12 	],
+	[ "jed", 10, 22 ],
+	[ "sam",  8 	]
+]
+? IsRingSortableOn(aList, 3)
 #--> FALSE
 
 proff()
