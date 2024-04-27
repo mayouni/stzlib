@@ -4294,7 +4294,7 @@ proff()
 #--> Executed in 0.24 second(s)
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzString( "ABCabcEFGijHI" )
@@ -4317,8 +4317,7 @@ oStr = new stzString("Welcome to the Ring programming language")
 #--> Ring programming language
 
 proff()
-# Executed in 0.02 second(s) in Ring 1.19
-# Executed in 0.06 second(s) in Ring 1.17
+# Executed in 0.04 second(s)
 
 /*-----------
 
@@ -4329,7 +4328,7 @@ oStr = new stzString("Welcome to the Ring programming language")
 #--> Ring programming language
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.04 second(s)
 
 /*----------- @narration
 
@@ -4363,7 +4362,7 @@ pron()
 
 	# In Softanza, we can also return all the occurrences of cSubStr
 
-	? oStr.Find("Ring") # equivalent to FindAll("Ring")
+	? oStr.Find("Ring") # or FindAll("Ring")
 	#--> [ 16 ]
 
 # Getting the substring starting at a given position
@@ -4434,14 +4433,16 @@ pron()
 	#--> Welcome to Ring programming language
 	
 proff()
-# Executed in 0.03 second(s) in Ring 1.19
+# Executed in 0.03 second(s) in Ring 1.20
 # Executed in 0.11 second(s) in Rin 1.17
 
 /*--------- #perf #todo Check it after including FindBetween()
 
 #NOTE
-# Performance of stzString (using QString2 in background) is astonishing!
+# Performance of stzString (using QString2 in background,
+# and not QString ) is astonishing!
 
+pron()
 
 # Let's compose a large string
 
@@ -4450,38 +4451,70 @@ str = "1|2|1|__*__|[ 10* 11* 12 ]|B|2|1|__*__|A*|3|__*__|B|[ 10* 11* 12 ]|B|"
 for i = 1 to 1_000_000
 	str += "SomeStringHereAndThere"
 next
-# Executed in 13.31 second(s)
-
-pron()
+# Takes 10.75 second(s) in Ring 1.20
+# Executed in 13.31 second(s) in Ring 1.17
 
 str += "|1|2|1|__*__|[ 10* 11* 12 ]|B|2|1|__*__|A*|3|__*__|B|[ 10* 11* 12 ]|B|"
+
 o1 = new stzString(str)
+# The construction of the Softanza object takes 0.12 second(s)
+
 ? @@(o1.FindThisBoundedBy("1", "|"))
 
 #TODO: Try to compose the string by pushing the first part in the middle or a the end,
 # and if stzString is still as performant!
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in ... second(s)
 
-/*--------- TODO: review sort in stztable (I may use this Ring native solution)
-
+/*=======
+*/
 pron()
 
-aList = [ ["mahmoud", 15000] , ["ahmed", 14000 ] , ["samir", 16000 ] , ["mohammed", 12000 ] , ["ibrahim",11000 ] ]
+? IsRingSortable("ring")
+#--> TRUE
 
-aSorted = sort(aList, 1)
-? @@(aSorted) + NL
-#--> [ [ "ahmed", 14000 ], [ "ibrahim", 11000 ], [ "mahmoud", 15000 ], [ "mohammed", 12000 ], [ "samir", 16000 ] ]
+? IsRingSortable(1:3)
+#--> TRUE
 
-aSorted = sort(aList, 2)
-? @@(aSorted)
-#--> [ [ "ibrahim", 11000 ], [ "mohammed", 12000 ], [ "ahmed", 14000 ], [ "mahmoud", 15000 ], [ "samir", 16000 ] ]
+? IsRingSortable("A":"C")
+#--> TRUE
+
+? IsRingSortable([ "Q", "t", 6 ])
+#--> TRUE
+
+? IsRingSortable([ "A", 1:3 ])
+#--> FALSE
+
+aList = [
+	[ "mahmoud", 15000], [ "ahmed", 14000 ],
+	[ "samir", 16000 ] , [ "mohammed", 12000 ],
+	[ "ibrahim", 11000 ]
+]
+? IsRingSortable(aList)
+#--> TRUE
+
+aList = [
+	[ "mahmoud", 15000], [ "ahmed", 14000 ],
+	[ "samir", 16000 ] , [ "mohammed", 12000 ],
+	[ "ibrahim", [], 11000 ]
+]
+? IsRingSortable(aList)
+#--> FALSE
+
+aList = [
+	[ "mahmoud", 15000], [ "ahmed", 14000 ],
+	[ "samir", 16000 ] , [" mohammed", 12000 ],
+	"gary",
+	[ "ibrahim" , 11000 ]
+]
+? IsRingSortable(aList)
+#--> FALSE
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
-/*---------
+/*-------
 
 pron()
 
@@ -4489,7 +4522,7 @@ aList = [ ["mahmoud", 15000] , ["ahmed", 14000 ] , ["samir", 16000 ] , ["mohamme
 
 o1 = new stzListOfPairs(aList) # Or stzListOfLists() if you want
 
-? @@( o1.Sorted() ) + NL
+? @@NL( o1.Sorted() ) + NL
 #--> [
 #	[ "ahmed", 14000 ],
 #	[ "ibrahim", 11000 ],
@@ -4498,7 +4531,7 @@ o1 = new stzListOfPairs(aList) # Or stzListOfLists() if you want
 #	[ "samir", 16000 ]
 # ]
 
-? @@( o1.SortedOn(2) )
+? @@NL( o1.SortedOn(2) )
 #--> [
 #	[ "ibrahim", 11000 ],
 #	[ "mohammed", 12000 ],
@@ -4509,7 +4542,7 @@ o1 = new stzListOfPairs(aList) # Or stzListOfLists() if you want
 
 proff()
 
-#--> Executed in 0.03 second(s)
+#--> Executed in 0.05 second(s)
 
 /*====== #todo check perf #update done!
 
