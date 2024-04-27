@@ -4274,18 +4274,27 @@ proff()
 # Executed in 0.04 second(s)
 
 /*================
-*/
+
 pron()
 
 o1 = new stzString( "ABCabcEFGijHI" )
-//? o1.SubStringsW('Q(@SubString).IsUppercase()')
+? @@( o1.SubStringsW('Q(@SubString).IsUppercase()') )
+#--> [ "A", "AB", "ABC", "B", "BC", "C", "E", "EF", "EFG", "F", "FG", "G", "H", "HI", "I" ]
 
-? o1.PartsW('Q(@char).IsUppercase()')
+? @@SP( o1.PartsBy('Q(@char).CharCase()') )
+#--> [
+#	[ "ABC", "uppercase" ],
+#	[ "abc", "lowercase" ],
+#	[ "EFG", "uppercase" ],
+#	[ "ij", "lowercase" ],
+#	[ "HI", "uppercase" ]
+# ]
 
 proff()
+#--> Executed in 0.24 second(s)
 
 /*----------------
-
+*/
 pron()
 
 o1 = new stzString( "ABCabcEFGijHI" )
@@ -4293,7 +4302,7 @@ o1 = new stzString( "ABCabcEFGijHI" )
 #--> [ "ABC", "EFG", "HI" ]
 
 proff()
-#--> Executed in 0.74 second(s)
+#--> Executed in 0.32 second(s)
 
 #NOTE
 # This function was impossible to implement without implementing

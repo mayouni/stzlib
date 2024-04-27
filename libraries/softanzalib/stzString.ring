@@ -4308,6 +4308,7 @@ class stzString from stzObject
 	def FindAllSubStringsAsSectionsWCS(pcCondition, pCaseSensitive)
 		acSubStrings = This.SubStringsWCS(pcCondition, pCaseSensitive)
 		aResult = This.FindManyAsSectionsCS(acSubStrings, pCaseSensitive)
+
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -45990,7 +45991,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		pcCondition = Q(pcCondition).TrimQ().TheseBoundsRemoved( "{","}" )
 
 		if Q(pcCondition).ContainsCS("@SubString", :CS = FALSE)
-
 			aSections = This.FindSubStringsAsSectionsW(pcCondition)
 			aSections = StzListOfPairsQ(aSections).MergeInclusiveQ().Content()
 
@@ -57100,7 +57100,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	*/
 
-	def PartsAsSubstrings(pcPartionner) # Same as Parts(), made to distinguish it from ParsAsSections()
+	def PartsAsSubstrings(pcPartionner)
+	# Same as Parts(), made to distinguish it from ParsAsSections()
 		/*
 		Examples:
 
@@ -57230,6 +57231,56 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			def PartsQR(pcPartionner, pcReturnType)
 				return  This.PartsAsSubStringsQR(pcPartionner, pcReturnType)
 
+		def PartsBy(pcPartionner)
+			return This.PartsAsSubstrings(pcPartionner)
+
+			def PartsByQ(pcPartionner)
+				return This.PartsAsSubStringsQ(pcPartionner)
+
+			def PartsByQR(pcPartionner, pcReturnType)
+				return  This.PartsAsSubStringsQR(pcPartionner, pcReturnType)
+
+
+		#--
+
+		def PartsAsSubStringsBy(pcPartionner)
+			return This.PartsAsSubstrings(pcPartionner)
+
+			def PartsAsSubStringsByQ(pcPartionner)
+				return This.PartsAsSubStringsQ(pcPartionner)
+
+			def PartsAsSubStringsByQR(pcPartionner, pcReturnType)
+				return  This.PartsAsSubStringsQR(pcPartionner, pcReturnType)
+
+		def PartsByAsSubStrings(pcPartionner)
+			return This.PartsAsSubstrings(pcPartionner)
+
+			def PartsByAsSubStringsQ(pcPartionner)
+				return This.PartsAsSubStringsQ(pcPartionner)
+
+			def PartsByAsSubStringsQR(pcPartionner, pcReturnType)
+				return  This.PartsAsSubStringsQR(pcPartionner, pcReturnType)
+
+		#--
+
+		def PartsAsSubStringsUsing(pcPartionner)
+			return This.PartsAsSubstrings(pcPartionner)
+
+			def PartsAsSubStringsUsingQ(pcPartionner)
+				return This.PartsAsSubStringsQ(pcPartionner)
+
+			def PartsAsSubStringsUsingQR(pcPartionner, pcReturnType)
+				return  This.PartsAsSubStringsQR(pcPartionner, pcReturnType)
+
+		def PartsUsingAsSubStrings(pcPartionner)
+			return This.PartsAsSubstrings(pcPartionner)
+
+			def PartsUsingAsSubStringsQ(pcPartionner)
+				return This.PartsAsSubStringsQ(pcPartionner)
+
+			def PartsUsingAsSubStringsQR(pcPartionner, pcReturnType)
+				return  This.PartsAsSubStringsQR(pcPartionner, pcReturnType)
+
 		#>
 
 	def PartsAsSections(pcPartionner)
@@ -57267,8 +57318,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	
 		return aResult
 
-		def PartsAsSectionsQ(pcPractionner)
-			return PartsAsSectionsQR(pcPractionner, :stzList)
+		#< @FunctionFluentForms
+
+		def PartsAsSectionsQ(pcPartionner)
+			return PartsAsSectionsQR(pcPartionner, :stzList)
 
 		def PartsAsSectionsQR(pcPartionner, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnTyp).IsUsingNamedParam()
@@ -57292,6 +57345,39 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 				stzRaise("Unsupported return type!")
 			off
 
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PartsByAsSections(pcPartionner)
+			return This.PartsAsSections(pcPartionner)
+
+			def PartsByAsSectionsQ(pcPartionner)
+				return PartsAsSectionsQR(pcPartionner, :stzList)
+	
+			def PartsByAsSectionsQR(pcPartionner, pcReturnType)
+	 			return This.PartsAsSectionsQR(pcPartionner, pcReturnType)
+
+		def PartsAsSectionsBy(pcPartionner)
+			return This.PartsAsSections(pcPartionner)
+
+			def PartsAsSectionsByQ(pcPartionner)
+				return PartsAsSectionsQR(pcPartionner, :stzList)
+	
+			def PartsAsSectionsByQR(pcPartionner, pcReturnType)
+	 			return This.PartsAsSectionsQR(pcPartionner, pcReturnType)
+
+		def PartsAsSectionsUsing(pcPartionner)
+			return This.PartsAsSections(pcPartionner)
+
+			def PartsAsSectionsUsingQ(pcPartionner)
+				return PartsAsSectionsQR(pcPartionner, :stzList)
+	
+			def PartsAsSectionsUsingQR(pcPartionner, pcReturnType)
+	 			return This.PartsAsSectionsQR(pcPartionner, pcReturnType)
+
+		#>
+
 	#--
 
 	def PartsAsSubstringsAndSections(pcPartionner)
@@ -57306,6 +57392,12 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		return aResult
 
+		def PartsAsSubstringsAndSectionsBy(pcPartionner)
+			return This.PartsAsSubstringsAndSections(pcPartionner)
+
+		def PartsAsSubstringsAndSectionsUsing(pcPartionner)
+			return This.PartsAsSubstringsAndSections(pcPartionner)
+
 	def PartsAsSectionsAndSubstrings(pcPartionner)
 		aSubStr = This.PartsAsSubstrings(pcPartionner)
 		aSections   = This.PartsAsSections(pcPartionner)
@@ -57317,6 +57409,12 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		next
 
 		return aResult
+
+		def PartsAsSectionsAndSubstringsBy(pcPartionner)
+			return This.PartsAsSectionsAndSubstrings(pcPartionner)
+
+		def PartsAsSectionsAndSubstringsUsing(pcPartionner)
+			return This.PartsAsSectionsAndSubstrings(pcPartionner)
 
 	  #------------------------------------#
 	 #     UNIQUE PARTS OF THE STRING     #
@@ -57364,6 +57462,26 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 				return This.UniquePartsQ(pcPartionner)
 
 			def PartsWithoutDuplicationQR(pcPartionner, pcReturnType)
+				return This.UniquePartsQR(pcPartionner, pcReturnType)
+
+		#--
+
+		def UniquePartsBy(pcPartionner)
+			return This.UniqueParts(pcPartionner)
+
+			def UniquePartsByQ(pcPartionner)
+				return This.UniquePartsQR(pcPartionner, :stzList)
+		
+			def UniquePartsByQR(pcPartionner, pcReturnType)
+				return This.UniquePartsQR(pcPartionner, pcReturnType)
+
+		def UniquePartsUsing(pcPartionner)
+			return This.UniqueParts(pcPartionner)
+
+			def UniquePartsUsingQ(pcPartionner)
+				return This.UniquePartsQR(pcPartionner, :stzList)
+		
+			def UniquePartsUsingQR(pcPartionner, pcReturnType)
 				return This.UniquePartsQR(pcPartionner, pcReturnType)
 
 		#>
