@@ -219,6 +219,12 @@ func SortListsOn(paLists, n)
 		return paLists
 	ok
 
+	# Early check
+
+	if IsRingSortable(paLists)
+		return ring_sort2(paLists, n)
+	ok
+
 	# Adjusting the lists up to the nth column
 	# (we do this to male it possible using Ring sort() function)
 
@@ -4383,46 +4389,44 @@ func IsRingSortable(pListOrString)
 
 	if isString(pListOrString)
 		return TRUE
+	ok
 
-	else // isList()
+	# Case of a list
 
-		aList = pListOrString
-		nLen = len(aList)
-		if nLen = 0
-			return TRUE
+	if IsListOfNumbers(pListOrString) or
+	   IsListOfStrings(pListOrString) or
+	   IsListOfNumbersAndStrings(pListOrString)
 
-		but nLen = 1
-			if isNumber(aList[1]) or isString(aList[1])
-				return TRUE
+		return TRUE
+	ok
+
+	if NOT isListofLists(pListOrString)
+		nLen = len(pListOrString)
+		for i = 1 to nLen
+			if NOT ( isNumber(pListOrString[i]) or
+				 isString(pListOrString[i]) )
+
+				return FALSE
 			ok
-		ok
+		next
 
+	else
+		nLen = len(pListOrString)
 
-		if NOT ( isNumber(aList[1]) or isString(aList[1]) )
-			return FALSE
-		ok
+		for i = 1 to nLen
 
-		if isNumber(aList[1])
-			for i = 2 to nLen
-				if NOT isNumber(aList[i])
-					return FALSE
-				ok
-			next
+			if NOT (IsListOfNumbers(pListOrString[i]) or
+	   			IsListOfStrings(pListOrString[i]) or
+	  			IsListOfNumbersAndStrings(pListOrString[i]))
 
-			return TRUE
+				return FALSE
 
-		but isString(alist[1])
-			for i = 2 to nLen
-				if NOT isString(aList[i])
-					return FALSE
-				ok
-			next
-
-			return TRUE
-		ok
+			ok
+		next
 
 	ok
 
+	return TRUE
 
 	func @IsRingSortable(pListOrString)
 		return IsRingSortable(pListOrString)
