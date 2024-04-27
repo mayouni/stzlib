@@ -30002,7 +30002,6 @@ class stzList from stzObject
 		return new stzListOfLists(This.Content())
 
 	def ToStzListOfPairs()
-? @@NL( This.Content() )
 		return new stzListOfPairs(This.Content())
 
 	def ToStzListOfStrings()
