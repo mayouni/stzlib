@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*====== #ring
-
+*/
 pron()
 
 # Some Ring standard functions make the action in place and does not
@@ -1493,7 +1493,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
@@ -1505,7 +1505,7 @@ o1 = new stzListOfPairs([ [9,8], [7,4], [3,1] ])
 #--> TRUE
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.05 second(s)
 
 /*----------------
 
@@ -2048,7 +2048,7 @@ o1 = new stzString("<<word>> and __word__")
 #--> TRUE
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.12 second(s)
 
 /*------ #TODO: check it after including ContainsSubStringBoundedBy()
 
@@ -2069,13 +2069,12 @@ pron()
 	? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
 	#--> TRUE
 
-
 	o1 = new stzList([ [ "<<", ">>" ], [ "__", "__" ] ])
 	? o1.AreBoundsOf("word", :In = "<<word>> and __word__")
 	#--> TRUE
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.10 second(s)
 
 /*----------------
 
@@ -2092,12 +2091,12 @@ proff()
 
 pron()
 
-o1 = new stzList([ [ "<<", ">>" ], ["__", "__" ] ])
-? o1.AreBoundsOf("word", :In = "<<word>> and __word__ @word@")
+o1 = new stzList([ [ "<<", ">>" ], ["__", "__" ], [ "@", "@" ] ])
+? o1.AreBoundsOf("word", :In = "<<word>> __word__ @word@")
 #--> TRUE
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.11 second(s)
 
 /*----------------
 
@@ -2108,7 +2107,7 @@ o1 = new stzList([ [ "<<", ">>" ], ["__", "__" ], [ "@", "@" ] ])
 #--> FALSE
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.11 second(s)
 
 /*----------------
 
@@ -2142,7 +2141,7 @@ o1 = new stzString("aa♥♥aaa bb♥♥bbb")
 
 ? o1.SubStringIsBoundedBy("♥♥", [ "aa", "aaa" ] )
 #--> TRUE
-? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], ["bb","bbb"] ])
+? o1.SubStringIsBoundedBy("♥♥", [ [ "aa","aaa" ], [ "bb","bbb" ] ])
 #--> TRUE
 
 proff()
