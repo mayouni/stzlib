@@ -10606,7 +10606,7 @@ pron()
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
 
-? @@(o1.PartsAsSubstrings( :Using = 'StzCharQ(@char).CharCase()' )) # or simply o1.Parts('StzCharQ(@char)')
+? @@(o1.PartsAsSubstringsUsing('StzCharQ(@char).CharCase()' )) # or simply o1.PartsUsing('StzCharQ(@char)')
 # [
 # 	[ "H", "uppercase" ],
 # 	[ "anine", "lowercase" ],
@@ -10630,7 +10630,7 @@ proff()
 /*-----------------
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? @@(o1.PartsAsSections( :Using = 'StzCharQ(@char).CharCase()' ))
+? @@(o1.PartsAsSectionsUsing( 'StzCharQ(@char).CharCase()' ))
 
 #--> [
 # 	[ [ 1, 1 ], 	"uppercase" 	],
@@ -10653,7 +10653,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 /*-----------------
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? @@( o1.PartsAsSubstringsAndSections( :Using = 'StzCharQ(@char).CharCase()' ) )
+? @@( o1.PartsAsSubstringsAndSectionsUsing( 'StzCharQ(@char).CharCase()' ) )
 
 #-->
 # [ 	
@@ -10677,7 +10677,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 /*-----------------
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? @@( o1.PartsAsSectionsAndSubstrings( :Using = 'StzCharQ(@char).CharCase()' ) )
+? @@( o1.PartsAsSectionsAndSubstringsUsing( 'StzCharQ(@char).CharCase()' ) )
 
 #-->
 # [ 	
@@ -10701,7 +10701,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 /*-----------------
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? @@( o1.PartsClassified( :Using = 'StzCharQ(@char).Script()' ) )
+? @@( o1.PartsClassifiedUsing( 'StzCharQ(@char).Script()' ) )
 
 #--> [
 #	:latin	 	= [ "Hanine", "is", "a", "nice", "years", "old", "girl" ],
@@ -10715,7 +10715,7 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
 
-? @@( o1.Parts('{ StzCharQ(@char).Script() }') )
+? @@( o1.PartsUsing('{ StzCharQ(@char).Script() }') )
 
 #--> [
 #	[ "Hanine", "latin" 	],
@@ -10752,13 +10752,13 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 #	:arabic		= [ "حنين", "جميلة", "وعمرها", "سنوات" ],
 #     ]
 
-? o1.UniquePartsQ('StzCharQ(@char).Script()').ToStzHashList().Klass(:arabic)
+? o1.UniquePartsUsingQ('StzCharQ(@char).Script()').ToStzHashList().Klass(:arabic)
 #--> Gives [ "حنين", "جميلة", "وعمرها", "سنوات" ]
 
 /*-----------------
 
 o1 = new stzString("AM23-X ")
-? o1.Parts('StzCharQ(@char).CharType()')
+? o1.PartsUsing('StzCharQ(@char).CharType()')
 #--> [
 #	"AM" = :Letter_Uppercase,
 #	"23" = :Number_Decimaldigit,
@@ -10770,7 +10770,7 @@ o1 = new stzString("AM23-X ")
 /*-----------------
 
 o1 = new stzString("Abc285XY&من")
-? o1.Parts('{
+? o1.PartsUsing('{
 	StzCharQ(@char).CharType()
 }')
 
@@ -10786,7 +10786,7 @@ o1 = new stzString("Abc285XY&من")
 /*-----------------
 
 o1 = new stzString("maliNIGERtogoSENEGAL")
-? o1.Parts(:Using = '{ StzCharQ(@char).CharCase() }')
+? o1.PartsUsing('{ StzCharQ(@char).CharCase() }')
 #--> [ 	
 #	"mali" 		= :Lowercase,
 # 	"NIGER" 	= :Uppercase,
@@ -10794,7 +10794,7 @@ o1 = new stzString("maliNIGERtogoSENEGAL")
 #	"SENEGAL" 	= :Uppercase
 #    ]
 
-? o1.PartsAsSections(:Using = '{ StzCharQ(@char).CharCase() }')
+? o1.PartsAsSectionsUsing(:'{ StzCharQ(@char).CharCase() }')
 #--> [ 	
 #	[1, 4  ] = :Lowercase,
 # 	[5, 9  ] = :Uppercase,
@@ -10805,19 +10805,19 @@ o1 = new stzString("maliNIGERtogoSENEGAL")
 /*-----------------
 
 o1 = new stzString("Abc285XY&من")
-? o1.Parts( :Using = 'StzCharQ(@char).IsLetter()' )
+? o1.PartsUsing( 'StzCharQ(@char).IsLetter()' )
 #--> Gives:
 # [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
 
-? o1.Parts(:Using = "StzCharQ(@char).Orientation()")
+? o1.PartsUsing("StzCharQ(@char).Orientation()")
 #--> Gives:
 # [ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
 
-? o1.Parts(:Using = "StzCharQ(@char).IsUppercase()")
+? o1.PartsUsing("StzCharQ(@char).IsUppercase()")
 #--> Gives:
 # [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
 
-? o1.Parts(:Using = "StzCharQ(@char).CharCase()")
+? o1.PartsUsing("StzCharQ(@char).CharCase()")
 #--> Gives:
 # [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
 
@@ -11575,7 +11575,7 @@ o1 = new stzString("سلام عليكم ياأهل مصر hello الكرام")
 /*----------------
 
 o1 = new stzString("ring language isسلام  a nice language")
-? @@( o1.Parts(:Using = 'StzCharQ(@char).Orientation()') ) + NL
+? @@( o1.PartsUsing( 'StzCharQ(@char).Orientation()') ) + NL
 #--> [
 # 	[ "ring language is", "lefttoright" ],
 o# 	[ "سلام", "righttoleft" ],
@@ -11583,7 +11583,7 @@ o# 	[ " a nice language", "lefttoright" ]
 # ]
 
 o1 = new stzString("سلام عليكم ياأهل مصر hello الكرام")
-? @@( o1.Parts(:By = 'StzCharQ(@char).Orientation()') )
+? @@( o1.PartsBy( 'StzCharQ(@char).Orientation()') ) #TODO add PartitionBy() and PartionedBy()
 #--> [
 o# 	[ "سلام", "righttoleft",
 o# 	[ " ", "lefttoright" ],
@@ -12119,7 +12119,7 @@ o1 = new stzString("100011")
 /*---------------
 
 o1 = new stzString("Приве́т नमस्ते שָׁלוֹם")
-? @@( o1.Parts( :Using = "StzCharQ(@char).Script()" ) )
+? @@( o1.PartsUsing( "StzCharQ(@char).Script()" ) )
 #--> [
 # 	[ "Приве", "cyrillic" 	],
 # 	[ "́", 	   "inherited" 	],

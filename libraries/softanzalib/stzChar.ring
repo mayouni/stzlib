@@ -2721,10 +2721,10 @@ class stzChar from stzObject
 		return StzListQ( ArabicDiacriticsUnicodes() ).Contains( This.Unicode() )
 
 	def IsDiacritic()
-		return  StzListQ( DiacriticsUnicodes() ).Contains( This.Unicode() )
+		return StzListQ( DiacriticsUnicodes() ).Contains( This.Unicode() )
 
 	def IsDiacricised()
-		return  StzListQ( DiacricizedUnicodes() ).Contains( This.Unicode() )
+		return StzListQ( DiacricizedUnicodes() ).Contains( This.Unicode() )
 
 	def RemoveLatinDiacritic()
 

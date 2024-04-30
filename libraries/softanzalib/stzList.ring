@@ -4578,6 +4578,65 @@ class stzList from stzObject
 
 		#>
 
+	  #--------------------------------------------------------#
+	 #  GETTING THE CONTENT OF THE LIST WITHOUT DUPPLICATION  #
+	#--------------------------------------------------------#
+
+	def ContentCSU(pCaseSensitive)
+		return This.WithoutDuplicationCS(FALSE)
+
+
+		#< @FunctionAlternativeForm
+
+		def ContentCSUQ(pCaseSensitive)
+			return new stzList(This.ContentU())
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ValueCSU(pCaseSensitive)
+			return This.ContentCSU(pCaseSensitive)
+
+			def ValueCSUQ(pCaseSensitive)
+				return This.ContentCSUQ(pCaseSensitive)
+
+		def ListCSU(pCaseSensitive)
+			return This.ContentCSU(pCaseSensitive)
+
+			def ListCSUQ(pCaseSensitive)
+				return This.ContentCSUQ(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContentU()
+		return This.WithoutDuplication()
+
+		#< @FunctionAlternativeForm
+
+		def ContentUQ()
+			return new stzList(This.ContentU())
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ValueU()
+			return This.ContentU()
+
+			def ValueUQ()
+				return This.ContentUQ()
+
+		def ListU()
+			return This.ContentU()
+
+			def ListUQ()
+				return This.ContentUQ()
+
+		#>
+
 	  #------------------------------#
 	 #  GETTING A COPY OF THE LIST  #
 	#------------------------------#
@@ -21193,7 +21252,7 @@ class stzList from stzObject
 				ok
 
 			but isString(aContent[i]) or isList(aContent[i])
-				if NOT oFirstItem.IsEqualtToCS(aContent[i], pCaseSensitive)
+				if NOT oFirstItem.IsEqualToCS(aContent[i], pCaseSensitive)
 					bResult = FALSE
 					exit
 				ok
@@ -26728,6 +26787,9 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def classified()
+			return this.classify()
+
 		def Categorize()
 			return This.Classify()
 
@@ -27134,7 +27196,7 @@ class stzList from stzObject
 		*/
 
 		#NOTE
-		# duplicates in the list are automatically removed and not
+		# Duplicates in the list are automatically removed and not
 		# couted in the classification
 
 		if CheckParams()
@@ -27152,14 +27214,14 @@ class stzList from stzObject
 
 		cCode = ' value = (' + pcExpr + ')'
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		aContentU = This.ContentU()
+		nLen = len(aContentU)
 
 		aResult = []
 		oaSeen = new stzList([])
 
 		for @i = 1 to nLen
-			@item = aContent[@i]
+			@item = aContentU[@i]
 			eval(cCode)
 
 			n = oaSeen.FindFirstCS(value, bCaseSensitive)
@@ -27194,15 +27256,100 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def ClassifiedByCS(pcExpr, pCaseSensitive)
 			return This.ClassifyByCS(pcExpr, pCaseSensitive)
 
 			def ClassifiedByCSQ(pcExpr, pCaseSensitive)
-				return This.ClassifiedByCSCSQR(pcExpr, TRUE, :stzList)
+				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
 
 			def ClassifiedByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+
+		def ClassifiedUsingCS(pcExpr, pCaseSensitive)
+			return This.ClassifyByCS(pcExpr, pCaseSensitive)
+
+			def ClassifiedUsingCSQ(pcExpr, pCaseSensitive)
+				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
+
+			def ClassifiedUsingCSQR(pcExpr, pCaseSensitive, pcReturnType)
+				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+
+		def ClassifiedWithCS(pcExpr, pCaseSensitive)
+			return This.ClassifyByCS(pcExpr, pCaseSensitive)
+
+			def ClassifiedWithCSQ(pcExpr, pCaseSensitive)
+				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
+
+			def ClassifiedWithCSQR(pcExpr, pCaseSensitive, pcReturnType)
+				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+
+		#--
+
+		def ClassifyPartsCS(pcClassifExpr, pCaseSensitive)
+			return This.ClassifyByCS(pcExpr, pCaseSensitive)
+
+			def ClassifyPartsCSQ(pcClassifExpr, pCaseSensitive)
+				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
+
+			def ClassifyPartsCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
+				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+
+		def ClassifyPartsByCS(pcClassifExpr, pCaseSensitive)
+			return This.ClassifyByCS(pcExpr, pCaseSensitive)
+
+			def ClassifyPartsByCSQ(pcClassifExpr, pCaseSensitive)
+				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
+
+			def ClassifyPartsByCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
+				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+
+		def ClassifyPartsWithCS(pcClassifExpr, pCaseSensitive)
+			return This.ClassifyByCS(pcExpr, pCaseSensitive)
+
+			def ClassifyPartsWithCSQ(pcClassifExpr, pCaseSensitive)
+				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
+
+			def ClassifyPartsWithCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
+				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+
+		def ClassifyPartsUsingCS(pcClassifExpr, pCaseSensitive)
+			return This.ClassifyByCS(pcExpr, pCaseSensitive)
+
+			def ClassifyPartsUsingCSQ(pcClassifExpr, pCaseSensitive)
+				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
+
+			def ClassifyPartsUsingCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
+				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+
+		#--
+
+		def PartsClassifiedCS(pcClassifExpr, pCaseSensitive)
+			return This.ClassifyByCS(pcExpr, pCaseSensitive)
+
+			def PartsClassifiedCSQ(pcClassifExpr, pCaseSensitive)
+				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
+
+			def PartsClassifiedCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
+				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+
+		def PartsClassifiedWithCS(pcClassifExpr, pCaseSensitive)
+			return This.ClassifyByCS(pcExpr, pCaseSensitive)
+
+			def PartsClassifiedWithCSQ(pcClassifExpr, pCaseSensitive)
+				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
+
+			def PartsClassifiedWithCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
+				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+
+		def PartsClassifiedUsingCS(pcClassifExpr, pCaseSensitive)
+			return This.ClassifyByCS(pcExpr, pCaseSensitive)
+
+			def PartsClassifiedUsingCSQ(pcClassifExpr, pCaseSensitive)
+				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
+
+			def PartsClassifiedUsingCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
 				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
 
 		#>
@@ -27222,17 +27369,227 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def ClassifiedBy(pcExpr)
 			return This.ClassifyBy(pcExpr)
 
 			def ClassifiedByQ(pcExpr)
-				return This.ClassifyByCSQ(pcExpr, TRUE)
-	
+				return This.ClassifiedByQR(pcExpr, :stzList)
+
 			def ClassifiedByQR(pcExpr, pcReturnType)
-				return This.ClassifiyByCSQR(pcExpr, TRUE, pcReturnType)
+				return This.ClassifiyByQR(pcExpr, pcReturnType)
+
+		def ClassifiedUsing(pcExpr)
+			return This.ClassifyBy(pcExpr)
+
+			def ClassifiedUsingQ(pcExpr)
+				return This.ClassifiedByQR(pcExpr, :stzList)
+
+			def ClassifiedUsingQR(pcExpr, pcReturnType)
+				return This.ClassifiyByQR(pcExpr, pcReturnType)
+
+		def ClassifiedWith(pcExpr)
+			return This.ClassifyBy(pcExpr)
+
+			def ClassifiedWithQ(pcExpr)
+				return This.ClassifiedByQR(pcExpr, :stzList)
+
+			def ClassifiedWithQR(pcExpr, pcReturnType)
+				return This.ClassifiyByQR(pcExpr, pcReturnType)
+
+		#--
+
+		def ClassifyParts(pcClassifExpr)
+			return This.ClassifyBy(pcExpr)
+
+			def ClassifyPartsQ(pcClassifExpr)
+				return This.ClassifiedByQR(pcExpr, :stzList)
+
+			def ClassifyPartsQR(pcClassifExpr, pcReturnType)
+				return This.ClassifiyByQR(pcExpr, pcReturnType)
+
+		def ClassifyPartsBy(pcClassifExpr)
+			return This.ClassifyBy(pcExpr)
+
+			def ClassifyPartsByQ(pcClassifExpr)
+				return This.ClassifiedByQR(pcExpr, :stzList)
+
+			def ClassifyPartsByQR(pcClassifExpr, pcReturnType)
+				return This.ClassifiyByQR(pcExpr, pcReturnType)
+
+		def ClassifyPartsWith(pcClassifExpr)
+			return This.ClassifyBy(pcExpr)
+
+			def ClassifyPartsWithQ(pcClassifExpr)
+				return This.ClassifiedByQR(pcExpr, :stzList)
+
+			def ClassifyPartsWithQR(pcClassifExpr, pcReturnType)
+				return This.ClassifiyByQR(pcExpr, pcReturnType)
+
+		def ClassifyPartsUsing(pcClassifExpr)
+			return This.ClassifyBy(pcExpr)
+
+			def ClassifyPartsUsingQ(pcClassifExpr)
+				return This.ClassifiedByQR(pcExpr, :stzList)
+
+			def ClassifyPartsUsingQR(pcClassifExpr, pcReturnType)
+				return This.ClassifiyByCSQR(pcExpr, pcReturnType)
+
+		#--
+
+		def PartsClassified(pcClassifExpr)
+			return This.ClassifyBy(pcExpr)
+
+			def PartsClassifiedQ(pcClassifExpr)
+				return This.ClassifiedByQR(pcExpr, :stzList)
+
+			def PartsClassifiedQR(pcClassifExpr, pcReturnType)
+				return This.ClassifiyByQR(pcExpr, pcReturnType)
+
+		def PartsClassifiedWith(pcClassifExpr)
+			return This.ClassifyBy(pcExpr)
+
+			def PartsClassifiedWithQ(pcClassifExpr)
+				return This.ClassifiedByQR(pcExpr, :stzList)
+
+			def PartsClassifiedWithQR(pcClassifExpr, pcReturnType)
+				return This.ClassifiyByQR(pcExpr, pcReturnType)
+
+		def PartsClassifiedUsing(pcClassifExpr)
+			return This.ClassifyBy(pcExpr)
+
+			def PartsClassifiedUsingQ(pcClassifExpr)
+				return This.ClassifiedByQR(pcExpr, :stzList)
+
+			def PartsClassifiedUsingQR(pcClassifExpr, pcReturnType)
+				return This.ClassifiyByQR(pcExpr, pcReturnType)
+
+		#>
+
+	  #----------------------------------------#
+	 #  GETTING THE PARTS OF THE LIST USING   #
+	#========================================#
+
+	def PartsCS(pCaseSensitive)
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen < 2
+			return aContent
+		ok
+
+		aPart = [ aContent[1] ]
+
+		aResult = []
+
+		for i = 2 to nLen
+			if Q(aContent[i]).IsEqualToCS(aContent[i-1], pCaseSensitive)
+				aPart + aContent[i]
+			else
+				aResult + aPart
+				aPart = [ aContent[i] ]
+			ok
+
+		next
+
+		aResult + aPart
+
+		return aResult
+
+	def Parts()
+		return This.PartsCS(TRUE)
+
+	  #--------------------------------------------------------------------#
+	 #  GETTING THE PARTS OF THE LIST USING A GIVEN ParTITION EXPRESSION  #
+	#--------------------------------------------------------------------#
+
+	def PartsBy(pcPartitionExpr)
+
+		if CheckParams()
+
+			if isList(pcPartitionExpr) and
+			   StzListQ(pcPartitionExpr).IsOneOfTheseNamedParams([ :Using, :By, :With ])
 	
+				pcPartitionExpr = pcPartitionExpr[2]
+	
+				if NOT isString(pcPartitionExpr)
+					StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
+				ok
+
+				if NOT StzStringQ(pcPartitionExpr).ContainsCS("@item", FALSE)
+					StzRaise("Incorrect syntax! pcPartitionExpr must contains the @item keyword.")
+				ok
+			ok
+		ok
+
+		if This.NumberOfItems() = 0
+			return []
+		ok
+
+		cCode = StzStringQ(pcPartitionExpr).
+				SimplifyQ().
+				RemoveTheseBoundsQ("{","}").
+				Content()
+
+		cCode = "cPartitionExpr = ( " + cCode + " )"
+
+		if This.NumberOfItems() = 1
+			@item = This.FirstItem()
+			eval(cCode)
+			aResult = [ @item, cPartitionExpr ]
+
+			return aResult
+		ok
+
+		aPart = [ This.FirstItem() ]
+		aParts = []
+
+		@item = This.FirstItem()
+		@i = 1
+
+		eval(cCode)
+		cPrevious = cPartitionExpr
+
+		for @i = 2 to This.NumberOfItems()
+
+			currentItem = This.Item(@i)
+			oCurrentItem = Q(currentItem)
+			@item = currentItem
+
+			eval(cCode)
+			cCurrent = cPartitionExpr
+
+			oPreviousItem = Q(This.Item(@i-1))
+			@item = oPreviousItem.Content()
+			eval(cCode)
+			cPrevious = cPartitionExpr
+
+			if cCurrent = cPrevious
+				aPart + currentItem
+
+			else
+				aParts + [ aPart, cPrevious ]
+				aPart = currentItem
+			ok
+
+		end
+
+		oLastItem = This.LastItemQ()
+		@item = oLastItem.Content()
+		eval(cCode)
+		aParts + [ aPart, cPartitionExpr ]
+
+		return aParts
+
+		#< @FunctionAlternativeForms
+
+		def PartsUsing(pcPartitionExpr)
+			return This.PartsBy(pcPartitionExpr)
+
+		def PartsWith(pcPartitionExpr)
+			return This.PartsBy(pcPartitionExpr)
+
 		#>
 
 	  #=====================================================#
@@ -58821,7 +59178,7 @@ class stzList from stzObject
 		n = ARandomNumberIn(anPos)
 		result = This.ItemAt(n)
 
-		return  result
+		return result
 
 		#< @FunctionAlternativeForms
 

@@ -2191,7 +2191,7 @@ class stzListOfStrings from stzList
 		return nResult
 
 	def NumberOfStringsWhereCharsAreSorted()
-		return  This.NumberOfStringsWhereCharsAreSortedInAscending() +
+		return This.NumberOfStringsWhereCharsAreSortedInAscending() +
 			This.NumberOfStringsWhereCharsAreSortedInDescending()
 
 	def NumberOfStringsWhereCharsAreUnsorted()
@@ -2320,7 +2320,7 @@ class stzListOfStrings from stzList
 		return nResult
 
 	def NumberOfStringsWhereWordsAreSorted()
-		return  This.NumberOfStringsWhereWordsAreSortedInAscending() +
+		return This.NumberOfStringsWhereWordsAreSortedInAscending() +
 			This.NumberOfStringsWhereWordsAreSortedInDescending()
 
 	def NumberOfStringsWhereWordsAreUnsorted()

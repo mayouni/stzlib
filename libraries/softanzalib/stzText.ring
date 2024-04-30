@@ -2953,7 +2953,7 @@ class stzText from stzString
 	def ContainsWord(pcWord)
 
 		if This.SetOfWordsQ().Contains( StzStringQ(pcWord).Lowercased() )
-			return  TRUE
+			return TRUE
 		else
 			return FALSE
 		ok
