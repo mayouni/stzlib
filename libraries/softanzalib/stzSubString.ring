@@ -40,7 +40,7 @@ func SubStringQ(pcSubStr)
 		return SubStringQ(pcSubStr)
 
 	func TheSubString(pcSubStr)
-		return  SubStringQ(pcSubStr)
+		return SubStringQ(pcSubStr)
 
 func TheSubStringInCSQ( pcSubstr, pcInStr, pCaseSensitive )
 	if isList(pcInStr) and Q(pcInStr).IsInOrInStringNamedParam()

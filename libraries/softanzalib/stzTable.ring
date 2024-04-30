@@ -12037,7 +12037,7 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! pRow must be a number.")
 		ok
 
-		return  pRow
+		return pRow
 
 		def RowToNumber(pRow)
 			return This.RowToRowNumber(pRow)

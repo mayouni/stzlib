@@ -38,7 +38,7 @@ func ItemQ(pItem)
 		return ItemQ(pItem)
 
 	func TheItem(pItem)
-		return  ItemQ(pItem)
+		return ItemQ(pItem)
 
 func TheItemInCSQ( pItem, paList, pCaseSensitive )
 	if isList(paList) and Q(paList).IsInOrInListNamedParam()

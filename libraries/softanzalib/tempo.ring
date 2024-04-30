@@ -1,7 +1,347 @@
 load "stzlib.ring"
 
-/*====== #ring
+/*=============================
+
+pron()
+
+o1 = new stzString("mmmMMMaaAAAiii")
+? @@( o1.Parts() ) # Or Partioned() or Partion() as a verb (to partition)
+#--> [ "mmm", "MMM", "aa", "AAA", "iii" ]
+
+? @@( o1.PartsCS(FALSE) )
+#--> [ "mmmmmm", "aaaaa", "iii" ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*----- #perf
+
+pron()
+
+cLargeStr = ""
+for i = 1 to 100_000
+	cLargeStr += "mmmMMMaaAAAiii"
+next
+
+o1 = new stzString(clargeStr)
+? @@( ShowShortXT( o1.Parts() , 3) )
+#--> [ "mmm", "MMM", "aa", "...", "aa", "AAA", "iii" ]
+# Executed in 49.09 second(s)
+         
+proff()
+
+/*-------------
 */
+pron()
+
+o1 = new stzString("mmmMMMaaAAAiii")
+
+? @@( o1.FindParts() ) + NL # or FindPartsZ()
+#--> [ 1, 4, 7, 9, 12 ]
+
+? @@( o1.FindPartsAsSections() ) + NL # or FindPartsZZ() or PartsAsSections()
+#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 8 ], [ 9, 11 ], [ 12, 14 ] ]
+
+? @@( o1.PartsZ() ) + NL # Or PartsAndTheirPositions()
+#--> [ [ "mmm", 1 ], [ "MMM", 4 ], [ "aa", 7 ], [ "AAA", 9 ], [ "iii", 12 ] ]
+
+? @@NL( o1.PartsZZ() ) # Or PartsAndTheirSections()
+#--> [
+#	[ "mmm", [ 1, 3 ]   ],
+#	[ "MMM", [ 4, 6 ]   ],
+#	[ "aa",  [ 7, 8 ]   ],
+#	[ "AAA", [ 9, 11 ]  ],
+#	[ "iii", [ 12, 14 ] ]
+# ]
+
+# Executed in 0.02 second(s)
+         
+proff()
+
+/*========
+*/
+pron()
+
+o1 = new stzString("mmmMMMaaAAAiii")
+? @@( o1.PartsUsing('Q(@Char).CharCase()') ) # Or PartionedUsing() or PartionUsing() as a verb (to partition)
+#--> ...
+
+? @@( o1.PartsUsingCS('Q(@Char).CharCase()', FALSE) )
+#--> ....
+
+proff()
+# Executed in 0.02 second(s)
+
+/*----- #perf
+
+pron()
+
+cLargeStr = ""
+for i = 1 to 100_000
+	cLargeStr += "mmmMMMaaAAAiii"
+next
+
+o1 = new stzString(clargeStr)
+? @@( ShowShortXT( o1.PartsUsing('Q(@Char).CharCase()') , 3) )
+#--> [ "mmm", "MMM", "aa", "...", "aa", "AAA", "iii" ]
+# Executed in 49.09 second(s)
+         
+proff()
+
+/*-------------
+
+pron()
+
+o1 = new stzString("mmmMMMaaAAAiii")
+
+? @@( o1.FindPartsUsing('Q(@Char).CharCase()') ) + NL # or FindPartsUsingZ()
+#--> ....
+
+? @@( o1.FindPartsAsSectionsUsing('Q(@Char).CharCase()') ) + NL # or FindPartsUsingZZ() or PartsAsSectionsUsing()
+#--> ...
+? @@( o1.PartsUsingZ('Q(@Char).CharCase()') ) + NL # Or PartsAndTheirPositionsUsing()
+#--> [ [ "mmm", 1 ], [ "MMM", 4 ], [ "aa", 7 ], [ "AAA", 9 ], [ "iii", 12 ] ]
+
+? @@NL( o1.PartsUsingZZ('Q(@Char).CharCase()') ) # Or PartsAndTheirSections()
+#--> ...
+
+# Executed in 0.02 second(s)
+         
+proff()
+
+
+
+
+
+
+
+
+
+/*=============================
+/*=============================
+/*=============================
+*/
+pron()
+
+o1 = new stzString("mmmMMMaaAAAiii")
+? @@NL( o1.PartsUsing('Q(@char).CharCase()') )
+#--> [
+#	[ "mmm", "lowercase" ],
+#	[ "MMM", "uppercase" ],
+#	[ "aa", "lowercase" ],
+#	[ "AAA", "uppercase" ],
+#	[ "iii", "lowercase" ]
+# ]
+# Executed in 0.14 second(s)
+
+? @@NL( o1.ClassifyBy( 'Q(@char).CharCase()' ) )
+#--> [
+#	[ "lowercase", [ "mmm", "aa", "iii" ] ],
+#	[ "uppercase", [ "MMM", "AAA" ] ]
+# ]
+
+proff()
+# Executed in 0.24 second(s)
+
+/*---------------
+
+*/
+pron()
+
+o1 = new stzList([
+	"m", "m", "m",
+	"M", "M", "M",
+	"a", "a",
+	"A", "A", "A",
+	"i", "i", "i"
+])
+
+? @@NL( o1.Parts() )
+#--> [
+#	[ "m", "m", "m" ],
+#	[ "M", "M", "M" ],
+#	[ "a", "a" ],
+#	[ "A", "A", "A" ],
+#	[ "i", "i", "i" ]
+# ]
+
+? @@NL( o1.PartsCS(FALSE) )
+#--> [
+#	[ "m", "m", "m", "M", "M", "M" ],
+#	[ "a", "a", "A", "A", "A" ],
+#	[ "i", "i", "i" ]
+# ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzList([
+	"m", "m", "m",
+	"M", "M", "M",
+	"a", "a",
+	"A", "A", "A",
+	"i", "i", "i"
+])
+
+? @@NL( o1.PartsUsing('Q(@item).CharCase()') )
+#--> [
+#	[ "mmm", "lowercase" ],
+#	[ "MMM", "uppercase" ],
+#	[ "aa", "lowercase" ],
+#	[ "AAA", "uppercase" ],
+#	[ "iii", "lowercase" ]
+# ]
+
+? @@NL( o1.ClassifyBy('Q(@item).CharCase()') ) + NL
+#--> [
+#	[ "lowercase", [ "m", "a", "i" ] ],
+#	[ "uppercase", [ "M", "A" ] ]
+# ]
+
+proff()
+# Executed in 0.45 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzString("Abc285XY&من")
+
+? o1.PartsAsSubstrings( :Using = 'Q(@char).IsLetter()' )
+#--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
+
+? o1.PartsAsSubstrings( :Using = 'Q(@char).Orientation()' )
+#--> [ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
+
+? o1.PartsAsSubstrings( :Using = 'Q(@char).IsUppercase()' )
+#--> [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
+
+? o1.PartsAsSubstrings(:Using = 'Q(@char).CharCase()' )
+#--> [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
+
+proff()
+# Executed in 0.32 second(s)
+
+/*------------
+
+pron()
+
+o1 = new stzString("abc")
+? o1.CharCase()
+#--> ERROR: Can't proceeed. You must provide a char.
+#    To get the case of a string, use StringCase().
+
+proff()
+
+/*------------
+
+pron()
+
+o1 = new stzString("Abc285XY&من")
+
+? o1.PartsAsSubstrings( :Using = 'Q(@char).IsLetter()' )
+#--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
+
+proff()
+#--> Executed in 0.10 second(s) in Ring 1.20
+#--> Executed in 0.12 second(s) in Ring 1.19
+
+/*================== #todo write a @narration
+
+pron()
+
+o1 = new stzString("TUNIS gafsa NABEUL beja NABEUL beja")
+
+? @@( o1.PartsUsing( 'Q(@char).CharCase()' ) ) + NL
+#--> [
+# 	[ "TUNIS", "uppercase" ],
+# 	[ " gafsa ", "lowercase" ],
+#	[ "NABEUL", "uppercase" ],
+#	[ " beja ", "lowercase" ],
+#	[ "NABEUL", "uppercase" ],
+#	[ " beja", "lowercase" ]
+# ]
+
+? @@( o1.PartsClassified( :Using = 'Q(@char).CharCase()') ) + NL
+#--> [
+# 	[ "uppercase", [ "TUNIS", "NABEUL" ] ],
+# 	[ "lowercase", [ " gafsa ", " beja ", " beja" ] ]
+# ]
+
+? @@( o1.WordsClassified( :Using = 'Q(@word).WordCase()') )
+#--> [
+# 	[ "lowercase", [ "gafsa", "beja" ] ],
+# 	[ "uppercase", [ "TUNIS", "NABEUL" ] ]
+# ]
+
+proff()
+# Executed in 2.02 second(s)
+
+/*===========
+
+pron()
+
+o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
+aClasses = o1.ClassifyBy(' Q(@item).HowMany(0) ')
+
+? @@NL( aClasses )
+#--> [
+#	[ 2, [ 3007, 2100 ] ],
+#	[ 1, [ 170, 0, 150 ] ],
+#	[ 0, [ 8, 2 ] ],
+#	[ 3, [ 10001 ] ]
+# ]
+
+# If you want the first column to be sorted  you can do it like this
+
+? @@NL( @SortLists( aClasses ) ) # or direcly @SortLists(aClasses)
+#--> [
+#	[ 0, [ 8, 2 ] ],
+#	[ 1, [ 170, 0, 150 ] ],
+#	[ 2, [ 3007, 2100 ] ],
+#	[ 3, [ 10001 ] ]
+# ]
+
+# It's also possible to pass throw stzListOfLists like this:
+
+? @@NL( StzListOfListsQ(aClasses).SortedOn(1) ) # or directly .Sorted()
+#--> [
+#	[ 0, [ 8, 2 ] ],
+#	[ 1, [ 170, 0, 150 ] ],
+#	[ 2, [ 3007, 2100 ] ],
+#	[ 3, [ 10001 ] ]
+# ]
+
+proff()
+# Executed in 0.05 second(s)
+
+/*-----------
+
+pron()
+
+
+o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
+? @@NL( o1.ClassifiedByQR(' Q(@item).HowMany(0) ', :stzListOflists).SortedOn(1) )
+#--> [
+# 	[ "0", [ 8, 2 ] ],
+#	[ "1", [ 170, 0, 150 ] ],
+#	[ "2", [ 3007, 2100, 2100 ] ],
+#	[ "3", [ 10001 ] ]
+# ]
+
+proff()
+#--> Executed in 0.06 second(s)
+
+
+
+
+
+/*====== #ring
+
 pron()
 
 # Some Ring standard functions make the action in place and does not
@@ -300,51 +640,6 @@ proff()
 
 pron()
 
-o1 = new stzString("Abc285XY&من")
-
-? o1.PartsAsSubstrings( :Using = 'Q(@char).IsLetter()' )
-#--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
-
-? o1.PartsAsSubstrings( :Using = 'Q(@char).Orientation()' )
-#--> [ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
-
-? o1.PartsAsSubstrings( :Using = 'Q(@char).IsUppercase()' )
-#--> [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
-
-? o1.PartsAsSubstrings(:Using = 'Q(@char).CharCase()' )
-#--> [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
-
-proff()
-# Executed in 0.32 second(s)
-
-/*------------
-
-pron()
-
-o1 = new stzString("abc")
-? o1.CharCase()
-#--> ERROR: Can't proceeed. You must provide a char.
-#    To get the case of a string, use StringCase().
-
-proff()
-
-/*------------
-
-pron()
-
-o1 = new stzString("Abc285XY&من")
-
-? o1.PartsAsSubstrings( :Using = 'Q(@char).IsLetter()' )
-#--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
-
-proff()
-#--> Executed in 0.10 second(s) in Ring 1.20
-#--> Executed in 0.12 second(s) in Ring 1.19
-
-/*------------
-
-pron()
-
 o1 = new stzList([ "A", "B", "A", "A", "B", "B", "C" ])
 
 ? o1.NumberOfItemsU() # Or NumberOfUniqueItems()
@@ -390,21 +685,6 @@ pron()
 #!--> QUESTION MARK
 
 proff()
-
-/*================
-
-pron()
-
-o1 = new stzString("mmmMMMaaAAAiii")
-? @@( o1.Classify(:Using = 'Q(@char).CharCase()') )
-#--> [
-#	[ "lowercase", [ "mmm", "aa", "iii" ] ],
-#	[ "uppercase", [ "MMM", "AAA" ] ]
-# ]
-
-proff()
-# Executed in 0.14 second(s) in Ring 1.20
-# Executed in 0.18 second(s) in Ring 1.19
 
 /*================
 
@@ -3765,37 +4045,6 @@ o1 = new stzString("TUNIS tunis GAFSA gafsa NABEUL nabeul BEJA beja")
 proff()
 # Executed in 0.03 second(s)
 
-/*================== #todo write a @narration
-
-pron()
-
-o1 = new stzString("TUNIS gafsa NABEUL beja NABEUL beja")
-
-? @@( o1.Parts(:Using = 'Q(@char).CharCase()' ) ) + NL
-#--> [
-# 	[ "TUNIS", "uppercase" ],
-# 	[ " gafsa ", "lowercase" ],
-#	[ "NABEUL", "uppercase" ],
-#	[ " beja ", "lowercase" ],
-#	[ "NABEUL", "uppercase" ],
-#	[ " beja", "lowercase" ]
-# ]
-
-? @@( o1.PartsClassified( :Using = 'Q(@char).CharCase()') ) + NL
-#--> [
-# 	[ "uppercase", [ "TUNIS", "NABEUL" ] ],
-# 	[ "lowercase", [ " gafsa ", " beja ", " beja" ] ]
-# ]
-
-? @@( o1.WordsClassified( :Using = 'Q(@word).WordCase()') )
-#--> [
-# 	[ "lowercase", [ "gafsa", "beja" ] ],
-# 	[ "uppercase", [ "TUNIS", "NABEUL" ] ]
-# ]
-
-proff()
-# Executed in 2.02 second(s)
-
 /*------------ #ring #sort #narration
 #NOTE: read this discussion with Mahmoud
 # https://groups.google.com/g/ring-lang/c/bwWg4Qy6_e4
@@ -4165,61 +4414,6 @@ o1 = new stzList([ 1:3, "tunis", [], 1:2, "t", "" ])
 
 proff()
 # Executed in 0.03 second(s)
-
-/*===========
-
-pron()
-
-o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
-aClasses = o1.ClassifyBy(' Q(@item).HowMany(0) ')
-
-? @@NL( aClasses )
-#--> [
-#	[ 2, [ 3007, 2100 ] ],
-#	[ 1, [ 170, 0, 150 ] ],
-#	[ 0, [ 8, 2 ] ],
-#	[ 3, [ 10001 ] ]
-# ]
-
-# If you want the first column to be sorted  you can do it like this
-
-? @@NL( @SortLists( aClasses ) ) # or direcly @SortLists(aClasses)
-#--> [
-#	[ 0, [ 8, 2 ] ],
-#	[ 1, [ 170, 0, 150 ] ],
-#	[ 2, [ 3007, 2100 ] ],
-#	[ 3, [ 10001 ] ]
-# ]
-
-# It's also possible to pass throw stzListOfLists like this:
-
-? @@NL( StzListOfListsQ(aClasses).SortedOn(1) ) # or directly .Sorted()
-#--> [
-#	[ 0, [ 8, 2 ] ],
-#	[ 1, [ 170, 0, 150 ] ],
-#	[ 2, [ 3007, 2100 ] ],
-#	[ 3, [ 10001 ] ]
-# ]
-
-proff()
-# Executed in 0.05 second(s)
-
-/*-----------
-
-pron()
-
-
-o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
-? @@NL( o1.ClassifiedByQR(' Q(@item).HowMany(0) ', :stzListOflists).SortedOn(1) )
-#--> [
-# 	[ "0", [ 8, 2 ] ],
-#	[ "1", [ 170, 0, 150 ] ],
-#	[ "2", [ 3007, 2100, 2100 ] ],
-#	[ "3", [ 10001 ] ]
-# ]
-
-proff()
-#--> Executed in 0.06 second(s)
 
 /*----------------
 

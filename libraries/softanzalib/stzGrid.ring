@@ -536,7 +536,7 @@ class stzGrid from stzObject
 		if This.HasCentralNode()
 			aPosition = [ This.RankOfCentralVLine(),
 				      This.RankOfCentralHLine() ]
-			return  aPosition
+			return aPosition
 		ok
 
 		def CentralNodePosition()

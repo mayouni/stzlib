@@ -28959,7 +28959,7 @@ class stzString from stzObject
 			This.ReplaceBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
 
 			def ReplaceSubstringBoundedByCSQ(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
-				This.ReplaceSubstringBoundedByCSCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+				This.ReplaceSubstringBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
 				return This
 	
 		#>
@@ -40462,6 +40462,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#>
 
+		#< @FunctionMisspelledForm
+
+		def IsEqualtToCS(pcOtherStr, pCaseSensitive)
+			return This.IsEqualtToCS(pcOtherStr, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsEqualTo(pcOtherStr)
@@ -40501,7 +40508,14 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 				return This.IsEqualToQ(pcOtherStr)
 
 		#>
-	
+
+		#< @FunctionMisspelledForm
+
+		def IsEqualtTo(pcOtherStr)
+			return This.IsEqualtTo()
+
+		#>
+
 	  #======================================#
 	 #   CONTAINMENT OF A GIVEN SUBSTRING   #
 	#======================================#
@@ -57060,30 +57074,377 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#>
 
-	  #======================================================#
-	 #  PARTIONONING A STRING BASED ON A GIVEN PARTIONNER   #
-	#======================================================#
+	  #====================================#
+	 #  GETTING THE PARTS OF THE STRING   #
+	#====================================#
+
+	def PartsCS(pCaseSensitive)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			aContent = This.CharsQ().Lowercased()
+		else
+			aContent = This.Chars()
+		ok
+
+		nLen = len(aContent)
+
+		if nLen < 2
+			return aContent
+		ok
+
+		cPart = aContent[1]
+
+		aResult = []
+
+		for i = 2 to nLen
+
+			if aContent[i] = aContent[i-1]
+				cPart += aContent[i]
+			else
+				aResult + cPart
+				cPart = aContent[i]
+			ok
+	
+		next
+	
+		aResult + cPart
+
+		return aResult
+
+		#< @FunctionFluentForms
+
+		def PartsCSQ(pCaseSensitive)
+			return This.PartsCSQR(pCaseSensitive, :stzList)
+
+		def PartsCSQR(pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.PartsCS(pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.PartsCS(pCaseSensitive) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.PartsCS(pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PartitionCS(pCaseSensitive) # A verb: to partition
+			return This.PartsCS(pCaseSensitive)
+
+			def PartitionCSQ(pCaseSensitive)
+				return This.PartitionCSQR(pCaseSensitive, :stzList)
+
+			def PartitionCSQR(pCaseSensitive, pcReturnType)
+				return This.PartsCSQR(pCaseSensitive, pcReturnType)
+
+		def PartionedCS(pCaseSensitive)
+			return This.PartsCS(pCaseSensitive)
+
+			def PartionedCSQ(pCaseSensitive)
+				return This.PartionedCSQR(pCaseSensitive, :stzList)
+
+			def PartionedCSQR(pCaseSensitive, pcReturnType)
+				return This.PartsCSQR(pCaseSensitive, pcReturnType)
+
+		#>
+
+	#-- WITHOUT CASESESENSITIVITY
+
+	def Parts()
+		return This.PartsCS(TRUE)
+
+		#< @FunctionFluentForms
+
+		def PartsQ()
+			return This.PartsQR(:stzList)
+
+		def PartsQR(pcReturnType)
+			return This.PartsCSQR(TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def Partition() # A verb: to partition
+			return This.Parts()
+
+			def PartitionQ()
+				return This.PartitionQR(:stzList)
+
+			def PartitionQR(pcReturnType)
+				return This.PartsQR(pcReturnType)
+
+		def Partioned()
+			return This.Parts()
+
+			def PartionedQ()
+				return This.PartionedQR(:stzList)
+
+			def PartionedQR(pcReturnType)
+				return This.PartsQR(pcReturnType)
+
+		#>
+
+	  #----------------------------------------------------#
+	 #  FINDING THE POSITIONS OF THE PARTS OF THE STRING  #
+	#----------------------------------------------------#
+
+	def FindPartsCS(pCaseSensitive)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			aContent = This.CharsQ().Lowercased()
+		else
+			aContent = This.Chars()
+		ok
+
+		nLen = len(aContent)
+
+		if nLen < 2
+			return aContent
+		ok
+
+		cPart = aContent[1]
+
+		aResult = [ 1 ]
+
+		for i = 2 to nLen
+
+			if aContent[i] != aContent[i-1]
+				aResult + i
+			ok
+	
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindPartsCSZ(pCaseSensitive)
+			return This.FindPartsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESESENSITIVITY
+
+	def FindParts()
+		return This.FindPartsCS(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindPartsZ()
+			return This.FindParts()
+
+		#>
+
+	  #----------------------------------------------------#
+	 #  FINDING THE POSITIONS OF THE PARTS OF THE STRING  #
+	#----------------------------------------------------#
+
+	def FindPartsAsSectionsCS(pCaseSensitive)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			aContent = This.CharsQ().Lowercased()
+		else
+			aContent = This.Chars()
+		ok
+
+		nLen = len(aContent)
+
+		if nLen < 2
+			return aContent
+		ok
+
+		cPart = aContent[1]
+
+		aResult = [ [1] ]
+		nLenResult = 1
+
+		for i = 2 to nLen
+
+			if aContent[i] != aContent[i-1]
+
+				aResult[nLenResult] + (i-1)
+				aResult + [ i ]
+				nLenResult++
+			ok
+	
+		next
+
+		aResult[len(aResult)] + nLen
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindPartAsSectionsCSZ(pCaseSensitive)
+			return This.FindPartsAsSectionsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESESENSITIVITY
+
+	def FindPartsAsSections()
+		return This.FindPartsAsSectionsCS(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindPartAsSectionsZ()
+			return This.FindPartsAsSections()
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  GETTING THE PARTS OF THE STRING ALONG WITH THEIR POSITIONS  #
+	#--------------------------------------------------------------#
+
+	def PartsCSZ(pCaseSensitive)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			aContent = This.CharsQ().Lowercased()
+		else
+			aContent = This.Chars()
+		ok
+
+		nLen = len(aContent)
+
+		if nLen < 2
+			return aContent
+		ok
+
+		cPart = aContent[1]
+
+		aResult = []
+		n = 0
+
+		for i = 2 to nLen
+			
+			if aContent[i] = aContent[i-1]
+				cPart += aContent[i]
+				n++
+			else
+				aResult + [ cPart, i-n-1 ]
+				cPart = aContent[i]
+				n = 0
+			ok
+	
+		next
+	
+		aResult + [ cPart, nLen-n ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def PartsAndTheirPositionsCS(pCaseSensitive)
+			return This.PartsCSZ(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESESENSITIVITY
+
+	def PartsZ()
+		return This.PartsCSZ(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def PartAndTheirPositions()
+			return This.PartsZ()
+
+		#>
+
+	  #-------------------------------------------------------------#
+	 #  GETTING THE PARTS OF THE STRING ALONG WITH THEIR SECTIONS  #
+	#-------------------------------------------------------------#
+
+	def PartsCSZZ(pCaseSensitive)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			aContent = This.CharsQ().Lowercased()
+		else
+			aContent = This.Chars()
+		ok
+
+		nLen = len(aContent)
+
+		if nLen < 2
+			return aContent
+		ok
+
+		cPart = aContent[1]
+
+		aResult = []
+		n = 0
+
+		for i = 2 to nLen
+			
+			if aContent[i] = aContent[i-1]
+				cPart += aContent[i]
+				n++
+			else
+				aResult + [ cPart, [ i-n-1, i-1 ] ]
+				cPart = aContent[i]
+				n = 0
+			ok
+	
+		next
+	
+		aResult + [ cPart, [ nLen-n, nLen ] ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def PartsAndTheirSectionsCS(pCaseSensitive)
+			return This.PartsCSZZ(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESESENSITIVITY
+
+	def PartsZZ()
+		return This.PartsCSZZ(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def PartAndTheirSections()
+			return This.PartsZZ()
+
+		#>
+
+	  #---------------------------------------------------------------#
+	 #  PARTIONONING A STRING BASED ON A GIVEN PARTITION EXPRESSION  #
+	#===============================================================#
 
 	/* Note:
 
 	This function analyzes the string, by sequentially partitioning
-	its content, using a given "partition expression", a "partionner",
+	its content, using a given "partition expression", a "PartitionExpr",
 	for short. Hence, it serves in answering this kind of question:
 
 	How is the string composed in term of some char criteria
 	(the char beeing, for example, lowercase or uppercase, or
 	left-oriented or right-oriented).
 
-	The partionner is what we should provide to the method in
+	The PartitionExpr is what we should provide to the method in
 	a param as a conditional code containing the @char keyword.
 
 	For example:
 
 	o1 = new stzString("TUNIS gafsa NABEUL beja")
-	? o1.Parts(:Using = 'Q(@char).CharCase()' ) #NOTE: Parts() is the simple
+	? o1.PartsUsing( 'Q(@char).CharCase()' ) #NOTE: Parts() is the simple
 						    # form of PartsAsSubstrings()
 
-	Uses the CharCase() method in stzChar as a partionner.	
+	Uses the CharCase() method in stzChar as a PartitionExpr.	
 
 	And because this method returns a string equal to :Uppercase or
 	:Lowercase or NULL, then the classification done will return:
@@ -57100,56 +57461,65 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	*/
 
-	def PartsAsSubstrings(pcPartionner)
+	def PartsAsSubstringsUsing(pcPartitionExpr)
 	# Same as Parts(), made to distinguish it from ParsAsSections()
 		/*
 		Examples:
 
 		o1 = new stzString("Abc285XY&من")
 		
-		? o1.PartsAsSubstrings( :Using = 'Q(@char).IsLetter()' )
+		? o1.PartsUsing( 'Q(@char).IsLetter()' )
 		#--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
 		
-		? o1.PartsAsSubstrings( :Using = 'Q(@char).Orientation()' )
+		? o1.PartsUsing('Q(@char).Orientation()' )
 		#--> [ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
 		
-		? o1.PartsAsSubstrings( :Using = 'Q(@char).IsUppercase()' )
+		? o1.PartsUsing( 'Q(@char).IsUppercase()' )
 		#--> [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
 		
-		? o1.PartsAsSubstrings(:Using = 'Q(@char).CharCase()' )
+		? o1.PartsUsing( 'Q(@char).CharCase()' )
 		#--> [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
 
 		*/
 
 		if CheckParams()
+			if NOT isString(pcPartitionExpr)
+				stzRaise("Incorrect param type!")
+			ok
 
-			if isList(pcPartionner) and
-			   StzListQ(pcPartionner).IsOneOfTheseNamedParams([ :Using, :By, :With ])
-	
-				pcPartionner = pcPartionner[2]
-	
-				if NOT isString(pcPartionner)
-					stzRaise("Incorrect param type!")
-				ok
+			if NOT StzStringQ(pcPartitionExpr).ContainsCS("@char", FALSE)
+				StzRais("Incorrect syntax! pcPartitionExpr must contain the @char keyword.")
 			ok
 		ok
 
-		if This.NumberOfChars() = 0
-			return []
-		ok
+		pcPartitionExpr = StzStringQ(pcPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = 'value = (' + pcPartitionExpr + ')'
 
-		cCode = StzStringQ(pcPartionner).
-				SimplifyQ().
-				RemoveTheseBoundsQ("{","}").
-				ReplaceCSQ("@item", "@char", :CaseSensitive = FALSE).
-				Content()
+		acChars = This.Chars()
+		nLen = len(acChars)
 
-		cCode = "cPartionner = ( " + cCode + " )"
+		aValues = []
 
+		for @i = 1 to nLen
+			@char = acChars[@i]
+			eval(cCode)
+			aValues + value
+		next
+
+		aResult = []
+		acPart = []
+		
+		for i = 1 to nLen
+
+		next
+
+		return aResult
+
+/*
 		if This.NumberOfChars() = 1
 			@char = This.FirstChar()
 			eval(cCode)
-			aResult = [ @char, cPartionner ]
+			aResult = [ @char, cPartitionExpr ]
 
 			return aResult
 		ok
@@ -57161,7 +57531,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		@i = 1
 
 		eval(cCode)
-		cPrevious = cPartionner
+		cPrevious = cPartitionExpr
 
 		for @i = 2 to This.NumberOfChars()
 
@@ -57170,12 +57540,12 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			@char = cCurrentChar
 
 			eval(cCode)
-			cCurrent = cPartionner
+			cCurrent = cPartitionExpr
 
 			oPreviousChar = new stzChar(This.Char(@i-1))
 			@char = oPreviousChar.Content()
 			eval(cCode)
-			cPrevious = cPartionner
+			cPrevious = cPartitionExpr
 
 			if cCurrent = cPrevious
 				cPart += cCurrentChar
@@ -57190,26 +57560,26 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		oLastChar = This.LastCharQ()
 		@char = oLastChar.Content()
 		eval(cCode)
-		aParts + [ cPart, cPartionner ]
+		aParts + [ cPart, cPartitionExpr ]
 
 		return aParts
 
 		#< @FunctionFluentForm
 
-		def PartsAsSubstringsQ(pcPractionner)
+		def PartsAsSubstringsUsingQ(pcPractionner)
 			return PartsAsSubstringsQ(pcPractionner, :stzList)
 
-		def PartsAsSubstringsQR(pcPartionner, pcReturnType)
+		def PartsAsSubstringsUsingQR(pcPartitionExpr, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnTyp).IsUsingNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.PartsAsSubstrings(pcPartionner) )
+				return new stzList( This.PartsAsSubstringsUsing(pcPartitionExpr) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.PartsAsSubstrings(pcPartionner) )
+				return new stzListOfPairs( This.PartsAsSubstringsUsing(pcPartitionExpr) )
 
 			on :stzHashList
 				return This.ToHashList()
@@ -57219,74 +57589,93 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			off
 	
 		#>
-
+*/
 		#< @FunctionAlternativeForm
 
-		def Parts(pcPartionner)
-			return This.PartsAsSubstrings(pcPartionner)
+		def PartsUsing(pcPartitionExpr)
+			return This.PartsAsSubstringsUsing(pcPartitionExpr)
 
-			def PartsQ(pcPartionner)
-				return This.PartsAsSubStringsQ(pcPartionner)
+			def PartsUsingQ(pcPartitionExpr)
+				return This.PartsAsSubStringsUsingQ(pcPartitionExpr)
 
-			def PartsQR(pcPartionner, pcReturnType)
-				return  This.PartsAsSubStringsQR(pcPartionner, pcReturnType)
+			def PartsUsingQR(pcPartitionExpr, pcReturnType)
+				return This.PartsAsSubStringsUsingQR(pcPartitionExpr, pcReturnType)
 
-		def PartsBy(pcPartionner)
-			return This.PartsAsSubstrings(pcPartionner)
+		def PartsBy(pcPartitionExpr)
+			return This.PartsAsSubstringsUsing(pcPartitionExpr)
 
-			def PartsByQ(pcPartionner)
-				return This.PartsAsSubStringsQ(pcPartionner)
+			def PartsByQ(pcPartitionExpr)
+				return This.PartsAsSubStringsUsingQ(pcPartitionExpr)
 
-			def PartsByQR(pcPartionner, pcReturnType)
-				return  This.PartsAsSubStringsQR(pcPartionner, pcReturnType)
+			def PartsByQR(pcPartitionExpr, pcReturnType)
+				return This.PartsAsSubStringsUsingQR(pcPartitionExpr, pcReturnType)
 
+		def PartsWith(pcPartitionExpr)
+			return This.PartsAsSubstringsUsing(pcPartitionExpr)
 
-		#--
+			def PartsWithQ(pcPartitionExpr)
+				return This.PartsAsSubStringsUsingQ(pcPartitionExpr)
 
-		def PartsAsSubStringsBy(pcPartionner)
-			return This.PartsAsSubstrings(pcPartionner)
-
-			def PartsAsSubStringsByQ(pcPartionner)
-				return This.PartsAsSubStringsQ(pcPartionner)
-
-			def PartsAsSubStringsByQR(pcPartionner, pcReturnType)
-				return  This.PartsAsSubStringsQR(pcPartionner, pcReturnType)
-
-		def PartsByAsSubStrings(pcPartionner)
-			return This.PartsAsSubstrings(pcPartionner)
-
-			def PartsByAsSubStringsQ(pcPartionner)
-				return This.PartsAsSubStringsQ(pcPartionner)
-
-			def PartsByAsSubStringsQR(pcPartionner, pcReturnType)
-				return  This.PartsAsSubStringsQR(pcPartionner, pcReturnType)
+			def PartsWithQR(pcPartitionExpr, pcReturnType)
+				return This.PartsAsSubStringsUsingQR(pcPartitionExpr, pcReturnType)
 
 		#--
 
-		def PartsAsSubStringsUsing(pcPartionner)
-			return This.PartsAsSubstrings(pcPartionner)
+		def PartsAsSubStringsBy(pcPartitionExpr)
+			return This.PartsAsSubstringsUsing(pcPartitionExpr)
 
-			def PartsAsSubStringsUsingQ(pcPartionner)
-				return This.PartsAsSubStringsQ(pcPartionner)
+			def PartsAsSubStringsByQ(pcPartitionExpr)
+				return This.PartsAsSubStringsUsingQ(pcPartitionExpr)
 
-			def PartsAsSubStringsUsingQR(pcPartionner, pcReturnType)
-				return  This.PartsAsSubStringsQR(pcPartionner, pcReturnType)
+			def PartsAsSubStringsByQR(pcPartitionExpr, pcReturnType)
+				return This.PartsAsSubStringsUsingQR(pcPartitionExpr, pcReturnType)
 
-		def PartsUsingAsSubStrings(pcPartionner)
-			return This.PartsAsSubstrings(pcPartionner)
+		def PartsByAsSubStrings(pcPartitionExpr)
+			return This.PartsAsSubstringsUsing(pcPartitionExpr)
 
-			def PartsUsingAsSubStringsQ(pcPartionner)
-				return This.PartsAsSubStringsQ(pcPartionner)
+			def PartsByAsSubStringsQ(pcPartitionExpr)
+				return This.PartsAsSubStringsUsingQ(pcPartitionExpr)
 
-			def PartsUsingAsSubStringsQR(pcPartionner, pcReturnType)
-				return  This.PartsAsSubStringsQR(pcPartionner, pcReturnType)
+			def PartsByAsSubStringsQR(pcPartitionExpr, pcReturnType)
+				return This.PartsAsSubStringsUsingQR(pcPartitionExpr, pcReturnType)
+
+		#--
+
+		def PartsUsingAsSubStrings(pcPartitionExpr)
+			return This.PartsAsSubstringsUsing(pcPartitionExpr)
+
+			def PartsUsingAsSubStringsQ(pcPartitionExpr)
+				return This.PartsAsSubStringsUsingQ(pcPartitionExpr)
+
+			def PartsUsingAsSubStringsQR(pcPartitionExpr, pcReturnType)
+				return This.PartsAsSubStringsUsingQR(pcPartitionExpr, pcReturnType)
+
+		#--
+
+		def PartsAsSubStringsWith(pcPartitionExpr)
+			return This.PartsAsSubstringsUsing(pcPartitionExpr)
+
+			def PartsAsSubStringsWithQ(pcPartitionExpr)
+				return This.PartsAsSubStringsUsingQ(pcPartitionExpr)
+
+			def PartsAsSubStringsWithQR(pcPartitionExpr, pcReturnType)
+				return This.PartsAsSubStringsUsingQR(pcPartitionExpr, pcReturnType)
+
+		def PartsWithAsSubStrings(pcPartitionExpr)
+			return This.PartsAsSubstringsUsing(pcPartitionExpr)
+
+			def PartsWithAsSubStringsQ(pcPartitionExpr)
+				return This.PartsAsSubStringsUsingQ(pcPartitionExpr)
+
+			def PartswithAsSubStringsQR(pcPartitionExpr, pcReturnType)
+				return This.PartsAsSubStringsUsingQR(pcPartitionExpr, pcReturnType)
 
 		#>
 
-	def PartsAsSections(pcPartionner)
+	def PartsAsSectionsUsing(pcPartitionExpr)
 		/*
 		o1 = new stzString("TUNIS1250XT")
-		? o1.PartsAsSections( :Using = :IsNumber )
+		? o1.PartsAsSectionsUsing( "Q(@item).IsNumber()" )
 		--> Gives
 			[
 				[ [ 1,  5], FALSE ],
@@ -57295,16 +57684,17 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			]
 		*/
 
-		aParts = This.PartsAsSubstrings(pcPartionner)
-	
+		aParts = This.PartsAsSubstringsUsing(pcPartitionExpr)
+		nLen = len(aParts)
+
 		aResult = []
 		n1 = 1
 		n2 = 1
 		aSection = []
 	
-		i = 0
-		for aPair in aParts
-			i++
+		for @i = 1 to nLen
+
+			aPair = aParts[@i]
 			cPart = aPair[1]
 			nLenPart = StzStringQ(cPart).NumberOfChars()
 
@@ -57320,26 +57710,26 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionFluentForms
 
-		def PartsAsSectionsQ(pcPartionner)
-			return PartsAsSectionsQR(pcPartionner, :stzList)
+		def PartsAsSectionsUsingQ(pcPartitionExpr)
+			return PartsAsSectionsUsingQR(pcPartitionExpr, :stzList)
 
-		def PartsAsSectionsQR(pcPartionner, pcReturnType)
+		def PartsAsSectionsUsingQR(pcPartitionExpr, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnTyp).IsUsingNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.PartsAsSections(pcPartionner) )
+				return new stzList( This.PartsAsSectionsUsing(pcPartitionExpr) )
 
 			on :stzListOfPairs
-				return new stzListOfPairs( This.PartsAsSections(pcPartionner) )
+				return new stzListOfPairs( This.PartsAsSectionsUsing(pcPartitionExpr) )
 
 			on :stzHashList
-				return new stzHashList( This.PartsAsSections(pcPartionner) )
+				return new stzHashList( This.PartsAsSectionsUsing(pcPartitionExpr) )
 
 			on :stzHashList@C
-				return new stzHashList( This.PartsAsSectionsSF(pcPartionner) )
+				return new stzHashList( This.PartsAsSectionsUsingSF(pcPartitionExpr) )
 
 			other
 				stzRaise("Unsupported return type!")
@@ -57349,40 +57739,62 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionAlternativeForms
 
-		def PartsByAsSections(pcPartionner)
-			return This.PartsAsSections(pcPartionner)
+		def PartsUsingAsSections(pcPartitionExpr)
+			return This.PartsAsSectionsUsing(pcPartitionExpr)
 
-			def PartsByAsSectionsQ(pcPartionner)
-				return PartsAsSectionsQR(pcPartionner, :stzList)
+			def PartsUsingAsSectionsQ(pcPartitionExpr)
+				return PartsAsSectionsUsingQR(pcPartitionExpr, :stzList)
 	
-			def PartsByAsSectionsQR(pcPartionner, pcReturnType)
-	 			return This.PartsAsSectionsQR(pcPartionner, pcReturnType)
+			def PartsUsingAsSectionsQR(pcPartitionExpr, pcReturnType)
+	 			return This.PartsAsSectionsUsingQR(pcPartitionExpr, pcReturnType)
 
-		def PartsAsSectionsBy(pcPartionner)
-			return This.PartsAsSections(pcPartionner)
+		#--
 
-			def PartsAsSectionsByQ(pcPartionner)
-				return PartsAsSectionsQR(pcPartionner, :stzList)
+		def PartsByAsSections(pcPartitionExpr)
+			return This.PartsAsSectionsUsing(pcPartitionExpr)
+
+			def PartsByAsSectionsQ(pcPartitionExpr)
+				return PartsAsSectionsUsingQR(pcPartitionExpr, :stzList)
 	
-			def PartsAsSectionsByQR(pcPartionner, pcReturnType)
-	 			return This.PartsAsSectionsQR(pcPartionner, pcReturnType)
+			def PartsByAsSectionsQR(pcPartitionExpr, pcReturnType)
+	 			return This.PartsAsSectionsUsingQR(pcPartitionExpr, pcReturnType)
 
-		def PartsAsSectionsUsing(pcPartionner)
-			return This.PartsAsSections(pcPartionner)
+		def PartsAsSectionsBy(pcPartitionExpr)
+			return This.PartsAsSectionsUsing(pcPartitionExpr)
 
-			def PartsAsSectionsUsingQ(pcPartionner)
-				return PartsAsSectionsQR(pcPartionner, :stzList)
+			def PartsAsSectionsByQ(pcPartitionExpr)
+				return PartsAsSectionsUsingQR(pcPartitionExpr, :stzList)
 	
-			def PartsAsSectionsUsingQR(pcPartionner, pcReturnType)
-	 			return This.PartsAsSectionsQR(pcPartionner, pcReturnType)
+			def PartsAsSectionsByQR(pcPartitionExpr, pcReturnType)
+	 			return This.PartsAsSectionsUsingQR(pcPartitionExpr, pcReturnType)
+
+		#--
+
+		def PartsWithAsSections(pcPartitionExpr)
+			return This.PartsAsSectionsUsing(pcPartitionExpr)
+
+			def PartsWithAsSectionsQ(pcPartitionExpr)
+				return PartsAsSectionsUsingQR(pcPartitionExpr, :stzList)
+	
+			def PartsWithAsSectionsQR(pcPartitionExpr, pcReturnType)
+	 			return This.PartsAsSectionsUsingQR(pcPartitionExpr, pcReturnType)
+
+		def PartsAsSectionsWith(pcPartitionExpr)
+			return This.PartsAsSectionsUsing(pcPartitionExpr)
+
+			def PartsAsSectionsWithQ(pcPartitionExpr)
+				return PartsAsSectionsUsingQR(pcPartitionExpr, :stzList)
+	
+			def PartsAsSectionsWithQR(pcPartitionExpr, pcReturnType)
+	 			return This.PartsAsSectionsUsingQR(pcPartitionExpr, pcReturnType)
 
 		#>
 
 	#--
 
-	def PartsAsSubstringsAndSections(pcPartionner)
-		aSubStr = This.PartsAsSubstrings(pcPartionner)
-		aSections   = This.PartsAsSections(pcPartionner)
+	def PartsAsSubstringsAndSectionsUsing(pcPartitionExpr)
+		aSubStr = This.PartsAsSubstringsUsing(pcPartitionExpr)
+		aSections   = This.PartsAsSectionsUsing(pcPartitionExpr)
 
 		aResult = []
 
@@ -57392,15 +57804,15 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		return aResult
 
-		def PartsAsSubstringsAndSectionsBy(pcPartionner)
-			return This.PartsAsSubstringsAndSections(pcPartionner)
+		def PartsAsSubstringsAndSectionsBy(pcPartitionExpr)
+			return This.PartsAsSubstringsAndSectionsUsing(pcPartitionExpr)
 
-		def PartsAsSubstringsAndSectionsUsing(pcPartionner)
-			return This.PartsAsSubstringsAndSections(pcPartionner)
+		def PartsAsSubstringsAndSectionsWith(pcPartitionExpr)
+			return This.PartsAsSubstringsAndSectionsUsing(pcPartitionExpr)
 
-	def PartsAsSectionsAndSubstrings(pcPartionner)
-		aSubStr = This.PartsAsSubstrings(pcPartionner)
-		aSections   = This.PartsAsSections(pcPartionner)
+	def PartsAsSectionsAndSubstringsUsing(pcPartitionExpr)
+		aSubStr = This.PartsAsSubstringsUsing(pcPartitionExpr)
+		aSections   = This.PartsAsSectionsUsing(pcPartitionExpr)
 
 		aResult = []
 
@@ -57410,32 +57822,32 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		return aResult
 
-		def PartsAsSectionsAndSubstringsBy(pcPartionner)
-			return This.PartsAsSectionsAndSubstrings(pcPartionner)
+		def PartsAsSectionsAndSubstringsBy(pcPartitionExpr)
+			return This.PartsAsSectionsAndSubstringsUsing(pcPartitionExpr)
 
-		def PartsAsSectionsAndSubstringsUsing(pcPartionner)
-			return This.PartsAsSectionsAndSubstrings(pcPartionner)
+		def PartsAsSectionsAndSubstringsWith(pcPartitionExpr)
+			return This.PartsAsSectionsAndSubstringsUsing(pcPartitionExpr)
 
 	  #------------------------------------#
 	 #     UNIQUE PARTS OF THE STRING     #
 	#------------------------------------#
 
-	def UniqueParts(pcPartionner)
-		aResult = This.PartsQ(pcPartionner).DuplicatesRemoved()
+	def UniquePartsUsing(pcPartitionExpr)
+		aResult = This.PartsUsingQ(pcPartitionExpr).DuplicatesRemoved()
 		return aResult
 
 		#< @FunctionFluentForms
 
-		def UniquePartsQ(pcPartionner)
-			return This.UniquePartsQR(pcPartionner, :stzList)
+		def UniquePartsUsingQ(pcPartitionExpr)
+			return This.UniquePartsUsingQR(pcPartitionExpr, :stzList)
 	
-		def UniquePartsQR(pcPartionner, pcReturnType)
+		def UniquePartsUsingQR(pcPartitionExpr, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList(This.UniqueParts(pcPartionner))
+				return new stzList(This.UniquePartsUsing(pcPartitionExpr))
 
 			on :stzListOfPairs
-				return new stzListOfPairs(This.UniqueParts(pcPartionner))
+				return new stzListOfPairs(This.UniquePartsUsing(pcPartitionExpr))
 
 			other
 				stzRaise("Unsupported return type!")
@@ -57446,43 +57858,43 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionAlternativeForm
 
-		def PartsU(pcPartitionner)
-			return This.UniqueParts(pcPartionner)
+		def PartsUsingU(pcPartitionner)
+			return This.UniquePartsUsing(pcPartitionExpr)
 
-			def PartsUQ(pcPartionner)
-				return This.UniquePartsQ(pcPartionner)
+			def PartsUsingUQ(pcPartitionExpr)
+				return This.UniquePartsUsingQ(pcPartitionExpr)
 
-			def PartsUQR(pcPartionner, pcReturnType)
-				return This.UniquePartsQR(pcPartionner, pcReturnType)
+			def PartsUsingUQR(pcPartitionExpr, pcReturnType)
+				return This.UniquePartsUsingQR(pcPartitionExpr, pcReturnType)
 
-		def PartsWithoutDuplication(pcPartitionner)
-			return This.UniqueParts(pcPartionner)
+		def PartsWithoutDuplicationUsing(pcPartitionner)
+			return This.UniquePartsUsing(pcPartitionExpr)
 
-			def PartsWithoutDuplicationQ(pcPartionner)
-				return This.UniquePartsQ(pcPartionner)
+			def PartsWithoutDuplicationUsingQ(pcPartitionExpr)
+				return This.UniquePartsUsingQ(pcPartitionExpr)
 
-			def PartsWithoutDuplicationQR(pcPartionner, pcReturnType)
-				return This.UniquePartsQR(pcPartionner, pcReturnType)
+			def PartsWithoutDuplicationUsingQR(pcPartitionExpr, pcReturnType)
+				return This.UniquePartsUsingQR(pcPartitionExpr, pcReturnType)
 
 		#--
 
-		def UniquePartsBy(pcPartionner)
-			return This.UniqueParts(pcPartionner)
+		def UniquePartsBy(pcPartitionExpr)
+			return This.UniquePartsUsing(pcPartitionExpr)
 
-			def UniquePartsByQ(pcPartionner)
-				return This.UniquePartsQR(pcPartionner, :stzList)
+			def UniquePartsByQ(pcPartitionExpr)
+				return This.UniquePartsUsingQR(pcPartitionExpr, :stzList)
 		
-			def UniquePartsByQR(pcPartionner, pcReturnType)
-				return This.UniquePartsQR(pcPartionner, pcReturnType)
+			def UniquePartsByQR(pcPartitionExpr, pcReturnType)
+				return This.UniquePartsUsingQR(pcPartitionExpr, pcReturnType)
 
-		def UniquePartsUsing(pcPartionner)
-			return This.UniqueParts(pcPartionner)
+		def UniquePartsWith(pcPartitionExpr)
+			return This.UniquePartsUsing(pcPartitionExpr)
 
-			def UniquePartsUsingQ(pcPartionner)
-				return This.UniquePartsQR(pcPartionner, :stzList)
+			def UniquePartsWithQ(pcPartitionExpr)
+				return This.UniquePartsUsingQR(pcPartitionExpr, :stzList)
 		
-			def UniquePartsUsingQR(pcPartionner, pcReturnType)
-				return This.UniquePartsQR(pcPartionner, pcReturnType)
+			def UniquePartsWithQR(pcPartitionExpr, pcReturnType)
+				return This.UniquePartsUsingQR(pcPartitionExpr, pcReturnType)
 
 		#>
 
@@ -57490,16 +57902,16 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #     PARTS OF THE STRING CLASSIFIED    #
 	#---------------------------------------#
 
-	def PartsClassified(pcClassifier)
-		if isList(pcClassifier) and Q(pcClassifier).IsByOrUsingNamedParam()
-			pcClassifier = pcClassifier[2]
+	def PartsClassifiedBy(pcClassifExpr)
+		if isList(pcClassifExpr) and Q(pcClassifExpr).IsByOrUsingNamedParam()
+			pcClassifExpr = pcClassifExpr[2]
 		ok
 
-		if NOT isString(pcClassifier)
-			stzRaise("Incorrect param type! pcClassifier must be a string.")
+		if NOT isString(pcClassifExpr)
+			stzRaise("Incorrect param type! pcClassifExpr must be a string.")
 		ok
 
-		oParts = This.PartsQR(pcClassifier, :stzListOfPairs)
+		oParts = This.PartsUsingQR(pcClassifExpr, :stzListOfPairs)
 		acClasses = oParts.SecondItemsU()
 		nLenClass = len(acClasses)
 
@@ -57519,33 +57931,42 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionAlternativeForms
 
-		def Classified(pcClassifier)
-			return This.PartsClassified(pcClassifier)
+		def ClassifiedBy(pcClassifExpr)
+			return This.PartsClassifiedBy(pcClassifExpr)
 
-		def Classify(pcClassifier)
-			return This.PartsClassified(pcClassifier)
+		def ClassifyBy(pcClassifExpr)
+			return This.PartsClassifiedBy(pcClassifExpr)
 
-		#--
-
-		def PartsClassifiedBy(pcClassifier)
-			return This.PartsClassified(pcClassifier)
-
-		def ClassifiedBy(pcClassifier)
-			return This.PartsClassified(pcClassifier)
-
-		def ClassifyBy(pcClassifier)
-			return This.PartsClassified(pcClassifier)
+		def ClassifyPartsBy(pcClassifExpr)
+			return This.PartsClassifiedBy(pcClassifExpr)
 
 		#--
 
-		def PartsClassifiedUsing(pcClassifier)
-			return This.PartsClassified(pcClassifier)
+		def PartsClassifiedUsing(pcClassifExpr)
+			return This.PartsClassifiedBy(pcClassifExpr)
 
-		def ClassifiedUsing(pcClassifier)
-			return This.PartsClassified(pcClassifier)
+		def ClassifiedUsing(pcClassifExpr)
+			return This.PartsClassifiedBy(pcClassifExpr)
 
-		def ClassifyUsing(pcClassifier)
-			return This.PartsClassified(pcClassifier)
+		def ClassifyUsing(pcClassifExpr)
+			return This.PartsClassifiedBy(pcClassifExpr)
+
+		def ClassifyPartsUsing(pcClassifExpr)
+			return This.PartsClassifiedBy(pcClassifExpr)
+
+		#--
+
+		def PartsClassifiedWith(pcClassifExpr)
+			return This.PartsClassifiedBy(pcClassifExpr)
+
+		def ClassifiedWith(pcClassifExpr)
+			return This.PartsClassifiedBy(pcClassifExpr)
+
+		def ClassifyWith(pcClassifExpr)
+			return This.PartsClassifiedBy(pcClassifExpr)
+
+		def ClassifyPartsWith(pcClassifExpr)
+			return This.PartsClassifiedBy(pcClassifExpr)
 
 		#>
 
@@ -57624,6 +58045,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		def WordsClassifiedUsing(pcExpr)
 			return This.WordsClassified(pcExpr)
+
+		def ClassifyWordss(pcClassifExpr)
+			return This.wordsClassified(pcClassifExpr)
 
 		#>
 
@@ -68686,7 +69110,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		return NOT This.ContainsLocaleSeparator()
 
 	def ContainsOneLocaleSeparator()
-		return  This.ContainsNTimes(1, "_") or
+		return This.ContainsNTimes(1, "_") or
 			This.ContainsNTimes(1, "_")
 
 	def IsLocaleSeparator()
