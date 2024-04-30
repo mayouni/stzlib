@@ -31,7 +31,7 @@ o1 = new stzString(clargeStr)
 proff()
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzString("mmmMMMaaAAAiii")
@@ -59,18 +59,80 @@ o1 = new stzString("mmmMMMaaAAAiii")
 proff()
 
 /*========
-*/
+
 pron()
 
 o1 = new stzString("mmmMMMaaAAAiii")
-? @@( o1.PartsUsing('Q(@Char).CharCase()') ) # Or PartionedUsing() or PartionUsing() as a verb (to partition)
-#--> ...
+//? @@NL( o1.PartsUsing('Q(@Char).CharCase()') ) # Or PartionedUsing() or PartionUsing() as a verb (to partition)
+#--> [
+#	[ "mmm", "lowercase" ],
+#	[ "MMM", "uppercase" ],
+#	[ "aa", "lowercase" ],
+#	[ "AAA", "uppercase" ],
+#	[ "iii", "lowercase" ]
+# ]
+# Takes 0.04 second(s)
 
+# Same as :
+? @@( o1.PartsUsingCS('Q(@Char).CharCase()', TRUE) )
+
+
+# But if you turn CaseSensitivity to FALSE, you get:
 ? @@( o1.PartsUsingCS('Q(@Char).CharCase()', FALSE) )
-#--> ....
+#--> [ [ "mmmmmmaaaaaiii", "lowercase" ] ]
+
+# In fact, Softanza detects an illusive situation where
+# you use CharCase() as a partitionner (which means that
+# the partition will be made based on wether the char
+# is in lowercase or in uppercase), and in the same time,
+# you ordonnate Softanza to deactivate CaseSensitivty!
+
+# Hence, Softanza will wisely turn everything to lowercase
+# and return the hole string as one part.
+
+# NOTE: In practice you would never need it, but keep this
+# exception in mind in case you face it.
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.04 second(s)
+
+/*-----
+*/
+pron()
+
+? @@( Q("285").IsLowercase() )
+#--> NULL
+
+? Q("a285").IsLowercase()
+#--> TRUE
+
+? @@( Q("@&#!").IsUppercase() )
+#--> NULL
+
+? Q("@&#!ABC").IsUppercase()
+#--> TRUE
+
+proff()
+
+/*-----
+*/
+pron()
+
+o1 = new stzString("Abc285XY&من")
+		
+? @@( o1.PartsUsing( 'Q(@char).IsLetter()' ) ) + NL
+#--> [ [ "Abc", 1 ], [ "285", 0 ], [ "XY", 1 ], [ "&", 0 ], [ "من", 1 ] ]
+		
+? @@( o1.PartsUsing('Q(@char).Orientation()' ) ) + NL
+#--> [ [ "Abc285XY&", "lefttoright" ], [ "من", "righttoleft" ] ]
+		
+? @@( o1.PartsUsing( 'Q(@char).IsUppercase()' ) ) + NL
+#--> [ "A" = 1, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
+		
+? @@( o1.PartsUsing( 'Q(@char).CharCase()' ) )
+#--> [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
+
+proff()
 
 /*----- #perf
 
@@ -264,18 +326,6 @@ o1 = new stzString("TUNIS gafsa NABEUL beja NABEUL beja")
 #	[ " beja ", "lowercase" ],
 #	[ "NABEUL", "uppercase" ],
 #	[ " beja", "lowercase" ]
-# ]
-
-? @@( o1.PartsClassified( :Using = 'Q(@char).CharCase()') ) + NL
-#--> [
-# 	[ "uppercase", [ "TUNIS", "NABEUL" ] ],
-# 	[ "lowercase", [ " gafsa ", " beja ", " beja" ] ]
-# ]
-
-? @@( o1.WordsClassified( :Using = 'Q(@word).WordCase()') )
-#--> [
-# 	[ "lowercase", [ "gafsa", "beja" ] ],
-# 	[ "uppercase", [ "TUNIS", "NABEUL" ] ]
 # ]
 
 proff()
