@@ -70491,7 +70491,19 @@ proff()
 	#------------------------------#
 
 	def UniqueCharsCS(pCaseSensitive)
-		acResult = This.CharsQR(:stzListOfStrings).DuplicatesRemovedCS(pCaseSensitive)
+
+		acChars = This.CharsCS(pCaseSensitive)
+		nLen = len(acChars)
+
+		acResult = []
+
+		for i = 1 to nLen
+			c = acChars[i]
+			if ring_find(acResult, c) = 0
+				acrEsult + c
+			ok
+		next
+
 		return acResult
 
 		#< @FunctionFluentForms
@@ -70549,6 +70561,15 @@ proff()
 			def CharsWithoutDuplicationCSQR(pCaseSensitive, pcReturnType)
 				return This.UniqueCharsQRCS(pcReturnType, pCaseSensitive)
 
+		def CharsWithoutDuplicatesCS(pCaseSensitive)
+			return This.UniqueCharsCS(pCaseSensitive)
+
+			def CharsWithoutDuplicatesCSQ(pCaseSensitive)
+				return This.UniqueCharsCSQ(pCaseSensitive)
+
+			def CharsWithoutDuplicatesCSQR(pCaseSensitive, pcReturnType)
+				return This.UniqueCharsQRCS(pcReturnType, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -70593,6 +70614,15 @@ proff()
 				return This.UniqueCharsQ()
 
 			def CharsWithoutDuplicationQR(pcReturnType)
+				return This.UniqueCharsQR(pcReturnType)
+
+		def CharsWithoutDuplicates()
+			return This.UniqueChars()
+
+			def CharsWithoutDuplicatesQ()
+				return This.UniqueCharsQ()
+
+			def CharsWithoutDuplicatesQR(pcReturnType)
 				return This.UniqueCharsQR(pcReturnType)
 
 		#>

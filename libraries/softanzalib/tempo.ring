@@ -160,8 +160,25 @@ o1 = new stzString("ring")
 proff()
 # Executed in 0.01 second(s)
 
+/*-----
+
+pron()
+
+o1 = new stzString("mmmMMMaaAAAiii")
+? @@( o1.Chars() )
+#--> [ "m", "m", "m", "M", "M", "M", "a", "a", "A", "A", "A", "i", "i", "i" ]
+
+? @@( o1.CharsCS(false) )
+#--> [ "m", "a", "i" ]
+
+? @@( o1.CharsU() ) # Or UniqueChars() or CharsWithoutDupplication()
+#--> [ "m", "M", "a", "A", "i" ]
+
+proff()
+# Executed in 0.02 second(s)
+
 /*----- #perf
-*/
+
 pron()
 
 cLargeStr = ""
@@ -175,7 +192,24 @@ o1.Chars()
 #NOTE: to show the ouutput use ShowShort()
 
 proff()
-# Executed in 7.39 second(s)
+# Executed in 7.80 second(s)
+
+/*----- #perf
+*/
+pron()
+
+cLargeStr = ""
+for i = 1 to 100_000
+	cLargeStr += "mmmMMMaaAAAiii"
+next
+# Take 0.10 second(s)
+
+o1 = new stzString(clargeStr)
+o1.CharsU() # Or UniqueChars()
+#NOTE: to show the ouutput use ShowShort()
+
+proff()
+# Executed in 11.90 second(s)
 
 /*----- #perf
 */
