@@ -27255,24 +27255,6 @@ class stzList from stzObject
 			def ClassifyPartsCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
 				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
 
-		def ClassifyPartsByCS(pcClassifExpr, pCaseSensitive)
-			return This.ClassifyByCS(pcExpr, pCaseSensitive)
-
-			def ClassifyPartsByCSQ(pcClassifExpr, pCaseSensitive)
-				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
-
-			def ClassifyPartsByCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
-				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
-
-		def ClassifyPartsWithCS(pcClassifExpr, pCaseSensitive)
-			return This.ClassifyByCS(pcExpr, pCaseSensitive)
-
-			def ClassifyPartsWithCSQ(pcClassifExpr, pCaseSensitive)
-				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
-
-			def ClassifyPartsWithCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
-				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
-
 		def ClassifyPartsUsingCS(pcClassifExpr, pCaseSensitive)
 			return This.ClassifyByCS(pcExpr, pCaseSensitive)
 
@@ -27368,24 +27350,6 @@ class stzList from stzObject
 			def ClassifyPartsQR(pcClassifExpr, pcReturnType)
 				return This.ClassifiyByQR(pcExpr, pcReturnType)
 
-		def ClassifyPartsBy(pcClassifExpr)
-			return This.ClassifyBy(pcExpr)
-
-			def ClassifyPartsByQ(pcClassifExpr)
-				return This.ClassifiedByQR(pcExpr, :stzList)
-
-			def ClassifyPartsByQR(pcClassifExpr, pcReturnType)
-				return This.ClassifiyByQR(pcExpr, pcReturnType)
-
-		def ClassifyPartsWith(pcClassifExpr)
-			return This.ClassifyBy(pcExpr)
-
-			def ClassifyPartsWithQ(pcClassifExpr)
-				return This.ClassifiedByQR(pcExpr, :stzList)
-
-			def ClassifyPartsWithQR(pcClassifExpr, pcReturnType)
-				return This.ClassifiyByQR(pcExpr, pcReturnType)
-
 		def ClassifyPartsUsing(pcClassifExpr)
 			return This.ClassifyBy(pcExpr)
 
@@ -27463,93 +27427,9 @@ class stzList from stzObject
 	 #  GETTING THE PARTS OF THE LIST USING A GIVEN ParTITION EXPRESSION  #
 	#--------------------------------------------------------------------#
 
-	def PartsBy(pcPartitionExpr)
+	def PartsUsing(pcPartitionExpr)
 
-		if CheckParams()
-
-			if isList(pcPartitionExpr) and
-			   StzListQ(pcPartitionExpr).IsOneOfTheseNamedParams([ :Using, :By, :With ])
-	
-				pcPartitionExpr = pcPartitionExpr[2]
-	
-				if NOT isString(pcPartitionExpr)
-					StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
-				ok
-
-				if NOT StzStringQ(pcPartitionExpr).ContainsCS("@item", FALSE)
-					StzRaise("Incorrect syntax! pcPartitionExpr must contains the @item keyword.")
-				ok
-			ok
-		ok
-
-		if This.NumberOfItems() = 0
-			return []
-		ok
-
-		cCode = StzStringQ(pcPartitionExpr).
-				SimplifyQ().
-				RemoveTheseBoundsQ("{","}").
-				Content()
-
-		cCode = "cPartitionExpr = ( " + cCode + " )"
-
-		if This.NumberOfItems() = 1
-			@item = This.FirstItem()
-			eval(cCode)
-			aResult = [ @item, cPartitionExpr ]
-
-			return aResult
-		ok
-
-		aPart = [ This.FirstItem() ]
-		aParts = []
-
-		@item = This.FirstItem()
-		@i = 1
-
-		eval(cCode)
-		cPrevious = cPartitionExpr
-
-		for @i = 2 to This.NumberOfItems()
-
-			currentItem = This.Item(@i)
-			oCurrentItem = Q(currentItem)
-			@item = currentItem
-
-			eval(cCode)
-			cCurrent = cPartitionExpr
-
-			oPreviousItem = Q(This.Item(@i-1))
-			@item = oPreviousItem.Content()
-			eval(cCode)
-			cPrevious = cPartitionExpr
-
-			if cCurrent = cPrevious
-				aPart + currentItem
-
-			else
-				aParts + [ aPart, cPrevious ]
-				aPart = currentItem
-			ok
-
-		end
-
-		oLastItem = This.LastItemQ()
-		@item = oLastItem.Content()
-		eval(cCode)
-		aParts + [ aPart, cPartitionExpr ]
-
-		return aParts
-
-		#< @FunctionAlternativeForms
-
-		def PartsUsing(pcPartitionExpr)
-			return This.PartsBy(pcPartitionExpr)
-
-		def PartsWith(pcPartitionExpr)
-			return This.PartsBy(pcPartitionExpr)
-
-		#>
+		# TODO
 
 	  #=====================================================#
 	 #   THE LIST IS MADE OF CONTIGUOUS CHARS OR NUMBERS   #

@@ -57541,7 +57541,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		else
 			acContent = This.Chars()
 		ok
-
+proff()
 		# Early check
 
 		nLen = len(acContent)
@@ -69801,16 +69801,30 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		return new stzChar(c)
 
 	def CharsCS(pCaseSensitive)
-		cContent = This.Content()
-		nLen = This.NumberOfChars()
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
+		oQStr = This.QStringObject()
+		nLen = oQStr.count()
 		acResult = []
 
-		for i = 1 to nLen
-			acResult + This.Char(i)
-		next
+		if bCaseSensitive = TRUE
+			for i = 0 to nLen - 1
+				acResult + oQStr.at(i)
+			next
+
+		else
+			for i = 0 to nLen - 1
+				c = lower( oQStr.at(i) )
+				if ring_find(acResult, c) = 0
+					acResult + c
+				ok
+			next
+
+		ok
 
 		return acResult
+
+		#< @FunctionFluentForms
 
 		def CharsCSQ(pCaseSensitive)
 			return This.CharsCSQR(pCaseSensitive, :stzList)
@@ -69838,6 +69852,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			other
 				stzRaise("Unsupported return type!")
 			off
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -70622,17 +70638,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			stzRaise("Incorrect param type! n should be a number.")
 		ok
 
-		cResult = ""
-		nLen = This.NumberOfChars()
-
-		if n = 0 or n > nLen
-			return cResult
-		ok
-
-		if n < 0
-			n = nLen + n + 1
-		ok
-
+		nLen = @oQString.count()
 		cResult = @oQString.mid(n-1, 1)
 		return cResult
 
