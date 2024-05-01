@@ -141,20 +141,24 @@ proff()
 # Executed in 0.24 second(s)
 
 /*=====
-*/
+
 pron()
 
 o1 = new stzString("ring")
 ? o1.NthChar(3)
-#--> n
+#--> "n"
 
-? o1.NthChar(0)
+? @@( o1.NthChar(0) )
 #--> NULL
 
-? o1.NthChar(77)
+? @@( o1.NthChar(77) )
 #--> NULL
+
+? @@( o1.Chars() )
+#--> [ "r", "i", "n", "g" ]
 
 proff()
+# Executed in 0.01 second(s)
 
 /*----- #perf
 */
@@ -168,8 +172,10 @@ next
 
 o1 = new stzString(clargeStr)
 o1.Chars()
+#NOTE: to show the ouutput use ShowShort()
 
 proff()
+# Executed in 7.39 second(s)
 
 /*----- #perf
 */
