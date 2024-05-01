@@ -3419,47 +3419,6 @@ func CallMethod( pcMethod, paOnObjects )
 	next
 	return aResult
 
-func AreChars(paChars)
-	bResult = TRUE
-	for c in paChars
-		if NOT ( isString(c) and @IsChar(c) )
-			bResult = FALSE
-			exit
-		ok
-	next
-	return bResult
-
-	func @AreChars(paChars)
-		return AreChars(paChars)
-
-func AreBothChars(p1, p2)
-	return AreChars([ p1, p2 ])
-
-	func BothAreChars(p1, p2)
-		return AreBothChars(p1, p2)
-	
-	func @AreBothChars(p1, p2)
-		return AreBothChars(p1, p2)
-
-	func @BothAreChars(p1, p2)
-		return AreBothChars(p1, p2)
-
-func AreBothAsciiChars(p1, p2)
-	if IsAsciiChar(p1) and IsAsciiChar(p2)
-		return TRUE
-	else
-		return FALSE
-	ok
-
-	func BothAreAsciiChars(p1, p2)
-		return AreBothAsciiChars(p1, p2)
-
-	func @AreBothAsciiChars(p1, p2)
-		return AreBothAsciiChars(p1, p2)
-
-	func @BothAreAsciiChars(p1, p2)
-		return AreBothAsciiChars(p1, p2)
-
 #====
 
 func AreBothEqualCS(p1, p2, pCaseSensitive)

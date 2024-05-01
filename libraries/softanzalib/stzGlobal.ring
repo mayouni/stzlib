@@ -2686,62 +2686,6 @@ func IsRingOrStzType(pcStr)
 
 	#-- #TODO: Add other alternatives (see IsRingType() and IsStzType() functions)
 
-func StringIsChar(pcStr)
-	try
-		new stzChar(pcStr)
-		return TRUE
-	catch
-		return FALSE
-	end
-
-	#< @FunctionAlternativeForms
-
-	func IsChar(pcStr)
-		oStzString = new stzString(pcStr)
-		return oStzString.IsChar()
-
-	func @IsChar(pcStr)
-		return IsChar(pcStr)
-
-	func StringIsAChar(pcStr)
-		return StringIsChar(pcStr)
-
-	func IsAChar(pcStr)
-		return StringIsChar(pcStr)
-
-	func @IsAChar(pcStr)
-		return StringIsChar(pcStr)
-
-	func @StringIsAChar(pcStr)
-		return StringIsChar(pcStr)
-
-	#>
-
-func CharIsLetter(pcStr)
-	oStzChar = new stzChar(pcStr)
-	return oStzChar.IsLetter()
-
-	#< @FunctionAlternativeForms
-
-	func IsLetter(pcStr)
-		return CharIsLetter(pcStr)
-
-	func @IsLetter(pcStr)
-		return CharIsLetter(pcStr)
-
-	func CharIsALetter(pcStr)
-		return CharIsLetter(pcStr)
-
-	func @CharIsALetter(pcStr)
-		return CharIsLetter(pcStr)
-
-	func IsALetter(pcStr)
-		return CharIsLetter(pcStr)
-
-	func @IsALetter(pcStr)
-		return CharIsLetter(pcStr)
-
-	#>
 
 func StzLen(p)
 	if isString(p)
