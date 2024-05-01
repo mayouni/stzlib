@@ -195,7 +195,7 @@ proff()
 # Executed in 7.80 second(s)
 
 /*----- #perf
-*/
+
 pron()
 
 cLargeStr = ""
@@ -206,87 +206,61 @@ next
 
 o1 = new stzString(clargeStr)
 o1.CharsU() # Or UniqueChars()
-#NOTE: to show the ouutput use ShowShort()
+#NOTE: to show the output use ShowShort()
 
 proff()
 # Executed in 11.90 second(s)
 
 /*----- #perf
-*/
+
 pron()
 
 cLargeStr = ""
-for i = 1 to 100_000
-	cLargeStr += "mmmMMMaaAAAiii"
+for i = 1 to 1_000
+	cLargeStr += "mmMMMaaAA"
 next
 # Take 0.10 second(s)
 
 o1 = new stzString(clargeStr)
 
-? @@( ShowShortXT( o1.PartsUsing('Q(@Char).CharCase()') , 3) )
-#--> [ "mmm", "MMM", "aa", "...", "aa", "AAA", "iii" ]
-# Executed in 49.09 second(s)
+o1.PartsUsing('Q(@Char).CharCase()')
+#--> [ "mm", "MMM", "aa", "...", "MMM", "aa", "AA" ]
+
+#NOTE: to show a part of the output, use ShowShortXT( )
          
 proff()
+# Executed in 49.87 second(s)
 
 /*-------------
-
+*/
 pron()
 
 o1 = new stzString("mmmMMMaaAAAiii")
 
 ? @@( o1.FindPartsUsing('Q(@Char).CharCase()') ) + NL # or FindPartsUsingZ()
-#--> ....
+#--> [ 1, 4, 7, 9, 12 ]
 
 ? @@( o1.FindPartsAsSectionsUsing('Q(@Char).CharCase()') ) + NL # or FindPartsUsingZZ() or PartsAsSectionsUsing()
-#--> ...
+#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 8 ], [ 9, 11 ], [ 12, 14 ] ]
+
 ? @@( o1.PartsUsingZ('Q(@Char).CharCase()') ) + NL # Or PartsAndTheirPositionsUsing()
 #--> [ [ "mmm", 1 ], [ "MMM", 4 ], [ "aa", 7 ], [ "AAA", 9 ], [ "iii", 12 ] ]
 
 ? @@NL( o1.PartsUsingZZ('Q(@Char).CharCase()') ) # Or PartsAndTheirSections()
-#--> ...
-
-# Executed in 0.02 second(s)
+#--> [
+#	[ "mmm", [ 1, 3 ] ],
+#	[ "MMM", [ 4, 6 ] ],
+#	[ "aa", [ 7, 8 ] ],
+#	[ "AAA", [ 9, 11 ] ],
+#	[ "iii", [ 12, 14 ] ]
+# ]
          
 proff()
+# Executed in 0.35 second(s)
+
+/*================
 
 
-
-
-
-
-
-
-
-/*=============================
-/*=============================
-/*=============================
-*/
-pron()
-
-o1 = new stzString("mmmMMMaaAAAiii")
-? @@NL( o1.PartsUsing('Q(@char).CharCase()') )
-#--> [
-#	[ "mmm", "lowercase" ],
-#	[ "MMM", "uppercase" ],
-#	[ "aa", "lowercase" ],
-#	[ "AAA", "uppercase" ],
-#	[ "iii", "lowercase" ]
-# ]
-# Executed in 0.14 second(s)
-
-? @@NL( o1.ClassifyBy( 'Q(@char).CharCase()' ) )
-#--> [
-#	[ "lowercase", [ "mmm", "aa", "iii" ] ],
-#	[ "uppercase", [ "MMM", "AAA" ] ]
-# ]
-
-proff()
-# Executed in 0.24 second(s)
-
-/*---------------
-
-*/
 pron()
 
 o1 = new stzList([
@@ -350,65 +324,12 @@ proff()
 
 pron()
 
-o1 = new stzString("Abc285XY&من")
-
-? o1.PartsAsSubstrings( :Using = 'Q(@char).IsLetter()' )
-#--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
-
-? o1.PartsAsSubstrings( :Using = 'Q(@char).Orientation()' )
-#--> [ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
-
-? o1.PartsAsSubstrings( :Using = 'Q(@char).IsUppercase()' )
-#--> [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
-
-? o1.PartsAsSubstrings(:Using = 'Q(@char).CharCase()' )
-#--> [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
-
-proff()
-# Executed in 0.32 second(s)
-
-/*------------
-
-pron()
-
 o1 = new stzString("abc")
 ? o1.CharCase()
 #--> ERROR: Can't proceeed. You must provide a char.
 #    To get the case of a string, use StringCase().
 
 proff()
-
-/*------------
-
-pron()
-
-o1 = new stzString("Abc285XY&من")
-
-? o1.PartsAsSubstrings( :Using = 'Q(@char).IsLetter()' )
-#--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
-
-proff()
-#--> Executed in 0.10 second(s) in Ring 1.20
-#--> Executed in 0.12 second(s) in Ring 1.19
-
-/*================== #todo write a @narration
-
-pron()
-
-o1 = new stzString("TUNIS gafsa NABEUL beja NABEUL beja")
-
-? @@( o1.PartsUsing( 'Q(@char).CharCase()' ) ) + NL
-#--> [
-# 	[ "TUNIS", "uppercase" ],
-# 	[ " gafsa ", "lowercase" ],
-#	[ "NABEUL", "uppercase" ],
-#	[ " beja ", "lowercase" ],
-#	[ "NABEUL", "uppercase" ],
-#	[ " beja", "lowercase" ]
-# ]
-
-proff()
-# Executed in 2.02 second(s)
 
 /*===========
 
