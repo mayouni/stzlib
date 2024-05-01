@@ -57503,7 +57503,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	]
 
 	*/
-
+ 
 	def PartsUsingCS(pcPartitionExpr, pCaseSensitive)
 		/*
 		Examples:
@@ -57541,7 +57541,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		else
 			acContent = This.Chars()
 		ok
-proff()
+
 		# Early check
 
 		nLen = len(acContent)
@@ -57665,6 +57665,314 @@ proff()
 				return This.PartsUsingQR(pcPartitionExpr, pcReturnType)
 
 		#>
+
+	  #-------------------------------#
+	 #  FINDING PARTS IN THE STRING  #
+	#===============================#
+
+	def FindPartsUsingCS(pcPartitionExpr, pCaseSensitive)
+		if CheckParams()
+			if NOT isString(pcPartitionExpr)
+				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
+			ok
+
+			if NOT StzStringQ(pcPartitionExpr).ContainsCS("@char", FALSE)
+				stzRaise("Syntax error! pcPartitionExpr must contain the @Char keyword.")
+			ok
+		ok
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Early check
+
+		nLen = len(acContent)
+
+		if nLen < 2
+			return acContent
+		ok
+
+		# Computing the values by evaluation the
+		# expression against all the items
+
+		cCode = StzStringQ(pcPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = 'value = (' + cCode + ')'
+		acValues = [] # Values stringified (to be used for comparison)
+		aValues = []  # Values in their original types
+
+		for @i = 1 to nLen
+			@char = acContent[@i]
+			eval(cCode)
+			acValues + @@(value)
+			aValues + value
+		next
+
+		# Getting the parts
+
+		cPart = acContent[1]
+
+		anResult = [ 1 ]
+
+		for i = 2 to nLen
+
+			if acValues[i] = acValues[i-1]
+				cPart += acContent[i]
+			else
+				anResult + i
+				cPart = acContent[i]
+			ok
+	
+		next
+
+		return anResult
+
+		def FindPartsUsingCSZ(pcPartitionExpr, pCaseSensitive)
+			return This.FindPartsUsingCS(pcPartitionExpr, pCaseSensitive)
+
+	def FindPartsUsing(pcPartitionExpr)
+		return This.FindPartsUsingCS(pcPartitionExpr, TRUE)
+
+		def FindPartsUsingZ(pcPartitionExpr)
+			return This.FindPartsUsing(pcPartitionExpr)
+
+	  #-------------------------------------------------------------------------#
+	 #  FINDING PARTS IN THE STRING AND RETURNING THEIR POSITIONS AS SECTIONS  #
+	#=========================================================================#
+
+	def FindPartsAsSectionsUsingCS(pcPartitionExpr, pCaseSensitive)
+		if CheckParams()
+			if NOT isString(pcPartitionExpr)
+				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
+			ok
+
+			if NOT StzStringQ(pcPartitionExpr).ContainsCS("@char", FALSE)
+				stzRaise("Syntax error! pcPartitionExpr must contain the @Char keyword.")
+			ok
+		ok
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Early check
+
+		nLen = len(acContent)
+
+		if nLen < 2
+			return acContent
+		ok
+
+		# Computing the values by evaluation the
+		# expression against all the items
+
+		cCode = StzStringQ(pcPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = 'value = (' + cCode + ')'
+		acValues = [] # Values stringified (to be used for comparison)
+		aValues = []  # Values in their original types
+
+		for @i = 1 to nLen
+			@char = acContent[@i]
+			eval(cCode)
+			acValues + @@(value)
+			aValues + value
+		next
+
+		# Getting the parts
+
+		cPart = acContent[1]
+
+		aResult = [ [ 1 ] ]
+
+		for i = 2 to nLen
+
+			if acValues[i] = acValues[i-1]
+				cPart += acContent[i]
+			else
+				aResult[len(aResult)] + (i-1)
+				aResult + [i]
+				cPart = acContent[i]
+			ok
+	
+		next
+
+		aResult[len(aResult)] + nLen
+		return aResult
+
+		def FindPartsUsingCSZZ(pcPartitionExpr, pCaseSensitive)
+			return This.FindPartsAsSectionsUsingCS(pcPartitionExpr, pCaseSensitive)
+
+	def FindPartsAsSectionsUsing(pcPartitionExpr)
+		return This.FindPartsAsSectionsUsingCS(pcPartitionExpr, TRUE)
+
+		def FindPartsUsingZZ(pcPartitionExpr)
+			return This.FindPartsAsSectionsUsing(pcPartitionExpr)
+
+	  #----------------------------------------------------------#
+	 #  GETTING PARTS IN THE STRING ALONG WITH THEIR POSITIONS  #
+	#==========================================================#
+
+	def PartsUsingCSZ(pcPartitionExpr, pCaseSensitive)
+		if CheckParams()
+			if NOT isString(pcPartitionExpr)
+				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
+			ok
+
+			if NOT StzStringQ(pcPartitionExpr).ContainsCS("@char", FALSE)
+				stzRaise("Syntax error! pcPartitionExpr must contain the @Char keyword.")
+			ok
+		ok
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Early check
+
+		nLen = len(acContent)
+
+		if nLen < 2
+			return acContent
+		ok
+
+		# Computing the values by evaluation the
+		# expression against all the items
+
+		cCode = StzStringQ(pcPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = 'value = (' + cCode + ')'
+		acValues = [] # Values stringified (to be used for comparison)
+		aValues = []  # Values in their original types
+
+		for @i = 1 to nLen
+			@char = acContent[@i]
+			eval(cCode)
+			acValues + @@(value)
+			aValues + value
+		next
+
+		# Getting the parts
+
+		cPart = acContent[1]
+
+		aResult = []
+		n = 0
+
+		for i = 2 to nLen
+			
+			if acValues[i] = acValues[i-1]
+				cPart += acContent[i]
+				n++
+			else
+				aResult + [ cPart, i-n-1 ]
+				cPart = acContent[i]
+				n = 0
+			ok
+	
+		next
+	
+		aResult + [ cPart, nLen-n ]
+
+		return aResult
+
+		def PartsAndTheirPositionsUsingCS(pcPartitionExpr, pCaseSensitive)
+			return This.PartsUsingCSZ(pcPartitionExpr, pCaseSensitive)
+
+	def PartsUsingZ(pcPartitionExpr)
+		return This.PartsUsingCSZ(pcPartitionExpr, TRUE)
+
+		def PartsAndTheirPositionsUsing(pcPartitionExpr)
+			return This.PartsUsingZ(pcPartitionExpr)
+
+	  #-----------------------------------------------------------------------------#
+	 #  gettING PARTS IN THE STRING AND RETURNING THEM ALO?G WITH THEIR POSITIONS  #
+	#=============================================================================#
+
+	def PartsUsingCSZZ(pcPartitionExpr, pCaseSensitive)
+		if CheckParams()
+			if NOT isString(pcPartitionExpr)
+				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
+			ok
+
+			if NOT StzStringQ(pcPartitionExpr).ContainsCS("@char", FALSE)
+				stzRaise("Syntax error! pcPartitionExpr must contain the @Char keyword.")
+			ok
+		ok
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Early check
+
+		nLen = len(acContent)
+
+		if nLen < 2
+			return acContent
+		ok
+
+		# Computing the values by evaluation the
+		# expression against all the items
+
+		cCode = StzStringQ(pcPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = 'value = (' + cCode + ')'
+		acValues = [] # Values stringified (to be used for comparison)
+		aValues = []  # Values in their original types
+
+		for @i = 1 to nLen
+			@char = acContent[@i]
+			eval(cCode)
+			acValues + @@(value)
+			aValues + value
+		next
+
+		# Getting the parts
+
+		cPart = acContent[1]
+
+		aResult = []
+		n = 0
+
+		for i = 2 to nLen
+			
+			if acValues[i] = acValues[i-1]
+				cPart += acContent[i]
+				n++
+			else
+				aResult + [ cPart, [ i-n-1, i-1 ] ]
+				cPart = acContent[i]
+				n = 0
+			ok
+	
+		next
+	
+		aResult + [ cPart, [ nLen-n, nLen ] ]
+
+		return aResult
+
+		def PartsAndTheirSectionsUsingCS(pcPartitionExpr, pCaseSensitive)
+			return This.PartsUsingCSZZ(pcPartitionExpr, pCaseSensitive)
+
+	def PartsUsingZZ(pcPartitionExpr)
+		return This.PartsUsingCSZZ(pcPartitionExpr, TRUE)
+
+		def PartsAndTheirSectionsUsing(pcPartitionExpr)
+			return This.PartsUsingZZ(pcPartitionExpr)
 
 	  #=============================#
 	 #     DIVIDING THE STRING     #
