@@ -50,6 +50,91 @@ func LC(p)
 		func LoCQ(p)
 			return LCQ(p)
 
+func AreChars(paChars)
+	if CheckParams()
+		if NOT islist(pacChars)
+			StzRaise("Incorrect param type! pacChars must be a list.")
+		ok
+	ok
+
+	nLen = len(pacChars)
+	bResult = TRUE
+
+	for i = 1 to nLen
+		if NOT ( isString(paChars[i]) and @IsChar(paChars[i]) )
+			bResult = FALSE
+			exit
+		ok
+	next
+	return bResult
+
+	func @AreChars(paChars)
+		return AreChars(paChars)
+
+func AreBothChars(p1, p2)
+	return AreChars([ p1, p2 ])
+
+	func BothAreChars(p1, p2)
+		return AreBothChars(p1, p2)
+	
+	func @AreBothChars(p1, p2)
+		return AreBothChars(p1, p2)
+
+	func @BothAreChars(p1, p2)
+		return AreBothChars(p1, p2)
+
+func AreBothAsciiChars(p1, p2)
+	if IsAsciiChar(p1) and IsAsciiChar(p2)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func BothAreAsciiChars(p1, p2)
+		return AreBothAsciiChars(p1, p2)
+
+	func @AreBothAsciiChars(p1, p2)
+		return AreBothAsciiChars(p1, p2)
+
+	func @BothAreAsciiChars(p1, p2)
+		return AreBothAsciiChars(p1, p2)
+
+#--
+
+func AreLetters(paLetters)
+	if CheckParams()
+		if NOT islist(pacLetters)
+			StzRaise("Incorrect param type! pacLetters must be a list.")
+		ok
+	ok
+
+	nLen = len(pacLetters)
+	bResult = TRUE
+
+	for i = 1 to nLen
+		if NOT ( isString(paLetters[i]) and @IsLetter(paLetters[i]) )
+			bResult = FALSE
+			exit
+		ok
+	next
+	return bResult
+
+	func @AreLetters(paLetters)
+		return AreLetters(paLetters)
+
+func AreBothLetters(p1, p2)
+	return AreLetters([ p1, p2 ])
+
+	func BothAreLetters(p1, p2)
+		return AreBothLetters(p1, p2)
+	
+	func @AreBothLetters(p1, p2)
+		return AreBothLetters(p1, p2)
+
+	func @BothAreLetters(p1, p2)
+		return AreBothLetters(p1, p2)
+#--
+
 func CharsBetween(c1, c2)
 	if CheckParams()
 		if NOT @BothAreChars(c1, c2)

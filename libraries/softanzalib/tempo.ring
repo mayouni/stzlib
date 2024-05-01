@@ -97,7 +97,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*-----
-*/
+
 pron()
 
 ? @@( Q("285").IsLowercase() )
@@ -111,6 +111,28 @@ pron()
 
 ? Q("@&#!ABC").IsUppercase()
 #--> TRUE
+
+? @@( Q("محمود").IsLowercase() )
+#--> NULL
+
+proff()
+# Executed in 0.06 second(s)
+
+/*-----
+*/
+pron()
+
+? Q("mmm").CharsCase() # Or StringCase() or Kase() (Case() is reserved!)
+#--> lowercase
+
+? Q("Amm").CharsCase()
+#--> capitalcase
+
+? Q("MMM").CharsCase()
+#--> uppercase
+
+? Q("mmmAAA").CharsCase()
+#--> hybridcase
 
 proff()
 
@@ -127,12 +149,25 @@ o1 = new stzString("Abc285XY&من")
 #--> [ [ "Abc285XY&", "lefttoright" ], [ "من", "righttoleft" ] ]
 		
 ? @@( o1.PartsUsing( 'Q(@char).IsUppercase()' ) ) + NL
-#--> [ "A" = 1, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
+#--> [
+#	[ "A", 1 ],
+#	[ "bc", 0 ],
+#	[ "285", NULL ],
+#	[ "XY", 1],
+#o	[ "&من", NULL ]
+# ]
 		
 ? @@( o1.PartsUsing( 'Q(@char).CharCase()' ) )
-#--> [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
+#--> [
+#	[ "A", "uppercase" ],
+#	[ "bc", "lowercase" ],
+#	[ "285", NULL ],
+#	[ "XY", "uppercase" ],
+#o	[ "&من", NULL ]
+# ]
 
 proff()
+# Executed in 0.18 second(s)
 
 /*----- #perf
 

@@ -971,31 +971,35 @@ class stzString from stzObject
 	#==================================#
 
 	def StringCase()
+		if NOT This.ContainsLatinLetters()
+			return NULL
+
+		ok
 
 		if This.IsLowercase()
-
 			return :Lowercase
 
 		but This.IsUppercase()
-
 			return :Uppercase
 
 		but This.IsCapitalcase()
-
 			return :Capitalcase
 
 		but This.IsTitlecase()
-
 			return :Titlecase
 
 		but This.IsCaseFold()
-
 			return :Casefold
 
 		else
-
 			return :Hybridcase
 		ok
+
+		def CharsCase()
+			return This.StringCase()
+
+		def Kase()
+			return This.StringCase()
 
 		def WordCase()
 			return This.StringCase()
@@ -1043,7 +1047,13 @@ class stzString from stzObject
 	#--------------------------------------------#
 
 	def IsHybridcase()
-		return Q( This.StringCase() ).IsNotOneOfThese([ StringCases() ])
+		if NOT This.ContainsLatinLetters()
+			return NULL
+
+		ok
+
+		bResult = Q( This.StringCase() ).IsNotOneOfThese([ StringCases() ])
+		return bResult
 
 		def IsHybridCased()
 			return This.IsHybridcase()
@@ -2230,16 +2240,15 @@ class stzString from stzObject
 	#----------------------------------------#
 
 	def IsLowercase()
-	
-		if NOT This.ContainsLetters()
+		if NOT This.ContainsLatinLetters()
 			return NULL
 
+		ok
+
+		if This.Lowercased() = This.String()
+			return TRUE
 		else
-			if This.Lowercased() = This.String()
-				return TRUE
-			else
-				return FALSE
-			ok
+			return FALSE
 		ok
 
 
@@ -2563,16 +2572,15 @@ class stzString from stzObject
 		#>
 
 	def IsUppercase()
-
-		if NOT This.ContainsLetters()
+		if NOT This.ContainsLatinLetters()
 			return NULL
 
+		ok
+
+		if This.Uppercased() = This.String()
+			return TRUE
 		else
-			if This.Uppercased() = This.String()
-				return TRUE
-			else
-				return FALSE
-			ok
+			return FALSE
 		ok
 
 		#< @FunctionFluentForm
@@ -3364,7 +3372,16 @@ class stzString from stzObject
 		#>
 
 	def IsCapitalcase()
-		return This.CapitalCased() = This.String()
+		if NOT This.ContainsLatinLetters()
+			return NULL
+
+		ok
+
+		if This.CapitalCased() = This.String()
+			return TRUE
+		else
+			return FALSE
+		ok
 		
 		#< @FunctionAlternativeForms
 
@@ -3531,8 +3548,15 @@ class stzString from stzObject
 
 
 	def IsTitlecase()
-		
-		return This.TitleCased() = This.String()
+		if NOT This.ContainsLatinLetters()
+			return NULL
+		ok
+
+		if This.TitleCased() = This.String()
+			return TRUE
+		else
+			return FALSE
+		ok
 
 		#< @FunctionAlternativeForms
 
@@ -3599,8 +3623,9 @@ class stzString from stzObject
 		return @oQString.toCasefolded()
 
 	def IsCaseFolded()
-		If This.IsEmpty()
-			return FALSE
+		if NOT This.ContainsLatinLetters()
+			return NULL
+
 		ok
 
 		if This.Copy().CaseFolded() = This.Content()
@@ -29965,7 +29990,7 @@ class stzString from stzObject
 
 	#TODO : Add case sensitivity
 
-	def ReplaceCharAtPosition(n, pcNewChar)
+	def ReplaceCharAtPosition(n, pcNewSubStr)
 		#< @MotherFunction = ReplaceSection() > @QtBased = TRUE #>
 
 		This.ReplaceSection(n, n, pcNewSubStr)
@@ -42481,11 +42506,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		ok
 
 	def ContainsLetters()
+		aoChars = This.TolistOfStzChars()
+		nLen = len(aoChars)
+
 		bResult = FALSE
-		nLen = This.NumberOfChars()
-		
+
 		for i = 1 to nLen
-			if This.CharQ(i).IsLetter()
+			if aoChars[i].IsLetter()
 				bResult = TRUE
 				exit
 			ok
@@ -42499,28 +42526,31 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#>
 
-	def ContainsTheLetters(pacLetters)
-		if Q(pacLetters).IsListOfLetters()
-			bResult = TRUE
-			oStr = This.UppercaseQ()
-
-			pacLetters = StzListOfCharsQ(pacLetters).Uppercased()
-			for cLetter in pacLetters
-				if oStr.ContainsNo(cLetter)
-					bResult = FALSE
-					exit
-				ok
-			next
-
-			return bResult
+	def ContainsTheseLetters(pacLetters)
+		if CheckParam()
+			if NOT isList(pacLetters)
+				StzRaise("Incorrect param type! pacLetters must be a alist.")
+			ok
 		ok
 
+		if NOT @AreLetters(pacLetters)
+			StzRaise("Incorrect param type! pacLetters must be a list of letters.")
+		ok
+
+		bResult = This.ContainsTheseCS(pacLetters, FALSE)
+		return bResult
+
+		def ContainsTheLetters(pacLetters)
+			return This.ContainsTheseLetters(pacLetters)
+
 	def ContainsArabicLetters()
+		aoChars = This.TolistOfStzChars()
+		nLen = len(aoChars)
+
 		bResult = FALSE
-		nLen = This.NumberOfChars()
 
 		for i = 1 to nLen
-			if This.CharQ(i).IsArabicLetter()
+			if aoChars[i].IsArabicLetter()
 				bResult = TRUE
 				exit
 			ok
@@ -42535,11 +42565,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#>
 
 	def ContainsLatinLetters()
+		aoChars = This.TolistOfStzChars()
+		nLen = len(aoChars)
+
 		bResult = FALSE
-		nLen = This.NumberOfChars()
 
 		for i = 1 to nLen
-			if This.CharQ(i).IsLatinLetter()
+			if aoChars[i].IsLatinLetter()
 				bResult = TRUE
 				exit
 			ok
@@ -42554,11 +42586,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#>
 
 	def ContainsLettersInScript(pcScript)
+		aoChars = This.TolistOfStzChars()
+		nLen = len(aoChars)
+
 		bResult = FALSE
-		nLen = This.NumberOfChars()
 
 		for i = 1 to nLen
-			if This.CharQ(i).IsLetterInScript(pcScript)
+			if aoChars[i].IsLetterInScript(pcScript)
 				bResult = TRUE
 				exit
 			ok
