@@ -69803,18 +69803,17 @@ proff()
 	def CharsCS(pCaseSensitive)
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
-		oQStr = This.QStringObject()
-		nLen = oQStr.count()
+		nLen = @oQString.count()
 		acResult = []
 
 		if bCaseSensitive = TRUE
-			for i = 0 to nLen - 1
-				acResult + oQStr.at(i)
+			for i = 1 to nLen
+				acResult + @oQString.mid(i-1, 1)
 			next
 
 		else
-			for i = 0 to nLen - 1
-				c = lower( oQStr.at(i) )
+			for i = 1 to nLen
+				c = lower( @oQString.mid(i-1, 1) )
 				if ring_find(acResult, c) = 0
 					acResult + c
 				ok
