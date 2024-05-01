@@ -1,36 +1,7 @@
 load "stzlib.ring"
 
-/*=============================
 
-pron()
-
-o1 = new stzString("mmmMMMaaAAAiii")
-? @@( o1.Parts() ) # Or Partioned() or Partion() as a verb (to partition)
-#--> [ "mmm", "MMM", "aa", "AAA", "iii" ]
-
-? @@( o1.PartsCS(FALSE) )
-#--> [ "mmmmmm", "aaaaa", "iii" ]
-
-proff()
-# Executed in 0.02 second(s)
-
-/*----- #perf
-
-pron()
-
-cLargeStr = ""
-for i = 1 to 100_000
-	cLargeStr += "mmmMMMaaAAAiii"
-next
-
-o1 = new stzString(clargeStr)
-? @@( ShowShortXT( o1.Parts() , 3) )
-#--> [ "mmm", "MMM", "aa", "...", "aa", "AAA", "iii" ]
-# Executed in 49.09 second(s)
-         
-proff()
-
-/*-------------
+/*========
 
 pron()
 
@@ -63,7 +34,7 @@ proff()
 pron()
 
 o1 = new stzString("mmmMMMaaAAAiii")
-//? @@NL( o1.PartsUsing('Q(@Char).CharCase()') ) # Or PartionedUsing() or PartionUsing() as a verb (to partition)
+? @@NL( o1.PartsUsing('Q(@Char).CharCase()') ) # Or PartionedUsing() or PartionUsing() as a verb (to partition)
 #--> [
 #	[ "mmm", "lowercase" ],
 #	[ "MMM", "uppercase" ],
@@ -75,7 +46,6 @@ o1 = new stzString("mmmMMMaaAAAiii")
 
 # Same as :
 ? @@( o1.PartsUsingCS('Q(@Char).CharCase()', TRUE) )
-
 
 # But if you turn CaseSensitivity to FALSE, you get:
 ? @@( o1.PartsUsingCS('Q(@Char).CharCase()', FALSE) )
@@ -94,7 +64,7 @@ o1 = new stzString("mmmMMMaaAAAiii")
 # exception in mind in case you face it.
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.74 second(s)
 
 /*-----
 
@@ -119,7 +89,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*-----
-*/
+
 pron()
 
 ? Q("mmm").CharsCase() # Or StringCase() or Kase() (Case() is reserved!)
@@ -135,9 +105,10 @@ pron()
 #--> hybridcase
 
 proff()
+# Executed in 0.12 second(s)
 
 /*-----
-*/
+
 pron()
 
 o1 = new stzString("Abc285XY&من")
@@ -167,18 +138,51 @@ o1 = new stzString("Abc285XY&من")
 # ]
 
 proff()
-# Executed in 0.18 second(s)
+# Executed in 0.24 second(s)
+
+/*=====
+*/
+pron()
+
+o1 = new stzString("ring")
+? o1.NthChar(3)
+#--> n
+
+? o1.NthChar(0)
+#--> NULL
+
+? o1.NthChar(77)
+#--> NULL
+
+proff()
 
 /*----- #perf
-
+*/
 pron()
 
 cLargeStr = ""
 for i = 1 to 100_000
 	cLargeStr += "mmmMMMaaAAAiii"
 next
+# Take 0.10 second(s)
 
 o1 = new stzString(clargeStr)
+o1.Chars()
+
+proff()
+
+/*----- #perf
+*/
+pron()
+
+cLargeStr = ""
+for i = 1 to 100_000
+	cLargeStr += "mmmMMMaaAAAiii"
+next
+# Take 0.10 second(s)
+
+o1 = new stzString(clargeStr)
+
 ? @@( ShowShortXT( o1.PartsUsing('Q(@Char).CharCase()') , 3) )
 #--> [ "mmm", "MMM", "aa", "...", "aa", "AAA", "iii" ]
 # Executed in 49.09 second(s)
@@ -4558,7 +4562,7 @@ o1 = new stzString( "ABCabcEFGijHI" )
 ? @@( o1.SubStringsW('Q(@SubString).IsUppercase()') )
 #--> [ "A", "AB", "ABC", "B", "BC", "C", "E", "EF", "EFG", "F", "FG", "G", "H", "HI", "I" ]
 
-? @@SP( o1.PartsBy('Q(@char).CharCase()') )
+? @@SP( o1.PartsUsing('Q(@char).CharCase()') )
 #--> [
 #	[ "ABC", "uppercase" ],
 #	[ "abc", "lowercase" ],
@@ -4568,7 +4572,7 @@ o1 = new stzString( "ABCabcEFGijHI" )
 # ]
 
 proff()
-#--> Executed in 0.24 second(s)
+#--> Executed in 0.68 second(s)
 
 /*----------------
 

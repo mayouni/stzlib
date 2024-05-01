@@ -11583,7 +11583,7 @@ o# 	[ " a nice language", "lefttoright" ]
 # ]
 
 o1 = new stzString("سلام عليكم ياأهل مصر hello الكرام")
-? @@( o1.PartsBy( 'StzCharQ(@char).Orientation()') ) #TODO add PartitionBy() and PartionedBy()
+? @@( o1.PartsUsing( 'StzCharQ(@char).Orientation()') ) #TODO add PartitionBy() and PartionedBy()
 #--> [
 o# 	[ "سلام", "righttoleft",
 o# 	[ " ", "lefttoright" ],
