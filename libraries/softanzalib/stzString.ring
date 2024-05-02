@@ -57254,8 +57254,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return aContent
 		ok
 
-		cPart = aContent[1]
-
 		aResult = [ 1 ]
 
 		for i = 2 to nLen
@@ -57305,8 +57303,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		if nLen < 2
 			return aContent
 		ok
-
-		cPart = aContent[1]
 
 		aResult = [ [1] ]
 		nLenResult = 1
@@ -57484,8 +57480,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	For example:
 
 	o1 = new stzString("TUNIS gafsa NABEUL beja")
-	? o1.PartsUsing( 'Q(@char).CharCase()' ) #NOTE: Parts() is the simple
-						    # form of PartsAsSubstrings()
+	? o1.PartsUsing( 'Q(@char).CharCase()' ) 
 
 	Uses the CharCase() method in stzChar as a PartitionExpr.	
 

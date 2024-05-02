@@ -27235,64 +27235,6 @@ class stzList from stzObject
 			def ClassifiedUsingCSQR(pcExpr, pCaseSensitive, pcReturnType)
 				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
 
-		def ClassifiedWithCS(pcExpr, pCaseSensitive)
-			return This.ClassifyByCS(pcExpr, pCaseSensitive)
-
-			def ClassifiedWithCSQ(pcExpr, pCaseSensitive)
-				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
-
-			def ClassifiedWithCSQR(pcExpr, pCaseSensitive, pcReturnType)
-				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
-
-		#--
-
-		def ClassifyPartsCS(pcClassifExpr, pCaseSensitive)
-			return This.ClassifyByCS(pcExpr, pCaseSensitive)
-
-			def ClassifyPartsCSQ(pcClassifExpr, pCaseSensitive)
-				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
-
-			def ClassifyPartsCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
-				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
-
-		def ClassifyPartsUsingCS(pcClassifExpr, pCaseSensitive)
-			return This.ClassifyByCS(pcExpr, pCaseSensitive)
-
-			def ClassifyPartsUsingCSQ(pcClassifExpr, pCaseSensitive)
-				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
-
-			def ClassifyPartsUsingCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
-				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
-
-		#--
-
-		def PartsClassifiedCS(pcClassifExpr, pCaseSensitive)
-			return This.ClassifyByCS(pcExpr, pCaseSensitive)
-
-			def PartsClassifiedCSQ(pcClassifExpr, pCaseSensitive)
-				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
-
-			def PartsClassifiedCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
-				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
-
-		def PartsClassifiedWithCS(pcClassifExpr, pCaseSensitive)
-			return This.ClassifyByCS(pcExpr, pCaseSensitive)
-
-			def PartsClassifiedWithCSQ(pcClassifExpr, pCaseSensitive)
-				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
-
-			def PartsClassifiedWithCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
-				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
-
-		def PartsClassifiedUsingCS(pcClassifExpr, pCaseSensitive)
-			return This.ClassifyByCS(pcExpr, pCaseSensitive)
-
-			def PartsClassifiedUsingCSQ(pcClassifExpr, pCaseSensitive)
-				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
-
-			def PartsClassifiedUsingCSQR(pcClassifExpr, pCaseSensitive, pcReturnType)
-				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
-
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -27330,106 +27272,871 @@ class stzList from stzObject
 			def ClassifiedUsingQR(pcExpr, pcReturnType)
 				return This.ClassifiyByQR(pcExpr, pcReturnType)
 
-		def ClassifiedWith(pcExpr)
-			return This.ClassifyBy(pcExpr)
-
-			def ClassifiedWithQ(pcExpr)
-				return This.ClassifiedByQR(pcExpr, :stzList)
-
-			def ClassifiedWithQR(pcExpr, pcReturnType)
-				return This.ClassifiyByQR(pcExpr, pcReturnType)
-
-		#--
-
-		def ClassifyParts(pcClassifExpr)
-			return This.ClassifyBy(pcExpr)
-
-			def ClassifyPartsQ(pcClassifExpr)
-				return This.ClassifiedByQR(pcExpr, :stzList)
-
-			def ClassifyPartsQR(pcClassifExpr, pcReturnType)
-				return This.ClassifiyByQR(pcExpr, pcReturnType)
-
-		def ClassifyPartsUsing(pcClassifExpr)
-			return This.ClassifyBy(pcExpr)
-
-			def ClassifyPartsUsingQ(pcClassifExpr)
-				return This.ClassifiedByQR(pcExpr, :stzList)
-
-			def ClassifyPartsUsingQR(pcClassifExpr, pcReturnType)
-				return This.ClassifiyByCSQR(pcExpr, pcReturnType)
-
-		#--
-
-		def PartsClassified(pcClassifExpr)
-			return This.ClassifyBy(pcExpr)
-
-			def PartsClassifiedQ(pcClassifExpr)
-				return This.ClassifiedByQR(pcExpr, :stzList)
-
-			def PartsClassifiedQR(pcClassifExpr, pcReturnType)
-				return This.ClassifiyByQR(pcExpr, pcReturnType)
-
-		def PartsClassifiedWith(pcClassifExpr)
-			return This.ClassifyBy(pcExpr)
-
-			def PartsClassifiedWithQ(pcClassifExpr)
-				return This.ClassifiedByQR(pcExpr, :stzList)
-
-			def PartsClassifiedWithQR(pcClassifExpr, pcReturnType)
-				return This.ClassifiyByQR(pcExpr, pcReturnType)
-
-		def PartsClassifiedUsing(pcClassifExpr)
-			return This.ClassifyBy(pcExpr)
-
-			def PartsClassifiedUsingQ(pcClassifExpr)
-				return This.ClassifiedByQR(pcExpr, :stzList)
-
-			def PartsClassifiedUsingQR(pcClassifExpr, pcReturnType)
-				return This.ClassifiyByQR(pcExpr, pcReturnType)
-
 		#>
 
-	  #----------------------------------------#
-	 #  GETTING THE PARTS OF THE LIST USING   #
-	#========================================#
+
+	  #==================================#
+	 #  GETTING THE PARTS OF THE LIST   #
+	#==================================#
 
 	def PartsCS(pCaseSensitive)
-		aContent = This.Content()
-		nLen = len(aContent)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
-		if nLen < 2
-			return aContent
+		if bCaseSensitive = FALSE
+			acContent = This.StringifyQ().Lowercased()
+		else
+			acContent = This.Stringified()
 		ok
 
-		aPart = [ aContent[1] ]
+		nLen = len(@aContent)
+
+		if nLen < 2
+			return @aContent
+		ok
+
+		aPart = [ @aContent[1] ]
 
 		aResult = []
 
 		for i = 2 to nLen
-			if Q(aContent[i]).IsEqualToCS(aContent[i-1], pCaseSensitive)
-				aPart + aContent[i]
+
+			if acContent[i] = acContent[i-1]
+				aPart + @aContent[i]
 			else
 				aResult + aPart
-				aPart = [ aContent[i] ]
+				aPart = [ @aContent[i] ]
 			ok
-
+	
 		next
-
+	
 		aResult + aPart
 
 		return aResult
 
+		#< @FunctionFluentForms
+
+		def PartsCSQ(pCaseSensitive)
+			return This.PartsCSQR(pCaseSensitive, :stzList)
+
+		def PartsCSQR(pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.PartsCS(pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfLists( This.PartsCS(pCaseSensitive) )
+
+			on :stzListOfChars
+				return new stzListOfPairs( This.PartsCS(pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PartitionCS(pCaseSensitive) # A verb: to partition
+			return This.PartsCS(pCaseSensitive)
+
+			def PartitionCSQ(pCaseSensitive)
+				return This.PartitionCSQR(pCaseSensitive, :stzList)
+
+			def PartitionCSQR(pCaseSensitive, pcReturnType)
+				return This.PartsCSQR(pCaseSensitive, pcReturnType)
+
+		def PartionedCS(pCaseSensitive)
+			return This.PartsCS(pCaseSensitive)
+
+			def PartionedCSQ(pCaseSensitive)
+				return This.PartionedCSQR(pCaseSensitive, :stzList)
+
+			def PartionedCSQR(pCaseSensitive, pcReturnType)
+				return This.PartsCSQR(pCaseSensitive, pcReturnType)
+
+		#>
+
+	#-- WITHOUT CASESESENSITIVITY
+
 	def Parts()
 		return This.PartsCS(TRUE)
 
-	  #--------------------------------------------------------------------#
-	 #  GETTING THE PARTS OF THE LIST USING A GIVEN ParTITION EXPRESSION  #
-	#--------------------------------------------------------------------#
+		#< @FunctionFluentForms
 
-	def PartsUsing(pcPartitionExpr)
+		def PartsQ()
+			return This.PartsQR(:stzList)
 
-		# TODO
+		def PartsQR(pcReturnType)
+			return This.PartsCSQR(TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def Partition() # A verb: to partition
+			return This.Parts()
+
+			def PartitionQ()
+				return This.PartitionQR(:stzList)
+
+			def PartitionQR(pcReturnType)
+				return This.PartsQR(pcReturnType)
+
+		def Partioned()
+			return This.Parts()
+
+			def PartionedQ()
+				return This.PartionedQR(:stzList)
+
+			def PartionedQR(pcReturnType)
+				return This.PartsQR(pcReturnType)
+
+		#>
+
+	  #--------------------------------------------------#
+	 #  FINDING THE POSITIONS OF THE PARTS OF THE LIST  #
+	#--------------------------------------------------#
+
+	def FindPartsCS(pCaseSensitive)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			acContent = This.StringifyQ().Lowercased()
+		else
+			acContent = This.Stringified()
+		ok
+
+		nLen = len(@aContent)
+
+		if nLen < 2
+			return @aContent
+		ok
+
+		aResult = [ 1 ]
+
+		for i = 2 to nLen
+
+			if acContent[i] != acContent[i-1]
+				aResult + i
+			ok
+	
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindPartsCSZ(pCaseSensitive)
+			return This.FindPartsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESESENSITIVITY
+
+	def FindParts()
+		return This.FindPartsCS(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindPartsZ()
+			return This.FindParts()
+
+		#>
+
+	  #--------------------------------------------------#
+	 #  FINDING THE POSITIONS OF THE PARTS OF THE LIST  #
+	#--------------------------------------------------#
+
+	def FindPartsAsSectionsCS(pCaseSensitive)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			acContent = This.StringifiQ().Lowercased()
+		else
+			aContent = This.Stringified()
+		ok
+
+		nLen = len(@aContent)
+
+		if nLen < 2
+			return @aContent
+		ok
+
+		aResult = [ [1] ]
+		nLenResult = 1
+
+		for i = 2 to nLen
+
+			if acContent[i] != acContent[i-1]
+
+				aResult[nLenResult] + (i-1)
+				aResult + [ i ]
+				nLenResult++
+			ok
+	
+		next
+
+		aResult[len(aResult)] + nLen
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindPartAsSectionsCSZ(pCaseSensitive)
+			return This.FindPartsAsSectionsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESESENSITIVITY
+
+	def FindPartsAsSections()
+		return This.FindPartsAsSectionsCS(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindPartAsSectionsZ()
+			return This.FindPartsAsSections()
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  GETTING THE PARTS OF THE LIST ALONG WITH THEIR POSITIONS  #
+	#--------------------------------------------------------------#
+
+	def PartsCSZ(pCaseSensitive)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			acContent = This.StringifiQ().Lowercased()
+		else
+			acContent = This.Lowercased()
+		ok
+
+		nLen = len(@aContent)
+
+		if nLen < 2
+			return @aContent
+		ok
+
+		aPart = [ @aContent[1] ]
+
+		aResult = []
+		n = 0
+
+		for i = 2 to nLen
+			
+			if acContent[i] = acContent[i-1]
+				aPart + @aContent[i]
+				n++
+			else
+				aResult + [ aPart, i-n-1 ]
+				aPart = [ @aContent[i] ]
+				n = 0
+			ok
+	
+		next
+	
+		aResult + [ aPart, nLen-n ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def PartsAndTheirPositionsCS(pCaseSensitive)
+			return This.PartsCSZ(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESESENSITIVITY
+
+	def PartsZ()
+		return This.PartsCSZ(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def PartAndTheirPositions()
+			return This.PartsZ()
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #  GETTING THE PARTS OF THE LIST ALONG WITH THEIR SECTIONS  #
+	#-----------------------------------------------------------#
+
+	def PartsCSZZ(pCaseSensitive)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			acContent = This.StringifyQ().Lowercased()
+		else
+			acContent = This.Stringified()
+		ok
+
+		nLen = len(@aContent)
+
+		if nLen < 2
+			return @aContent
+		ok
+
+		aPart = [ @aContent[1] ]
+
+		aResult = []
+		n = 0
+
+		for i = 2 to nLen
+			
+			if acContent[i] = acContent[i-1]
+				aPart + @aContent[i]
+				n++
+			else
+				aResult + [ aPart, [ i-n-1, i-1 ] ]
+				aPart = [ @aContent[i] ]
+				n = 0
+			ok
+	
+		next
+	
+		aResult + [ aPart, [ nLen-n, nLen ] ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def PartsAndTheirSectionsCS(pCaseSensitive)
+			return This.PartsCSZZ(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESESENSITIVITY
+
+	def PartsZZ()
+		return This.PartsCSZZ(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def PartAndTheirSections()
+			return This.PartsZZ()
+
+		#>
+
+	  #---------------------------------------------------------------#
+	 #  PARTIONONING A LIST BASED ON A GIVEN PARTITION EXPRESSION  #
+	#===============================================================#
+
+	/* Note:
+
+	This function analyzes the list, by sequentially partitioning
+	its content, using a given "partition expression", a "PartitionExpr",
+	for short. Hence, it serves in answering this kind of question:
+
+	How is the list composed in term of some item criteria
+	(the item beeing, for example, lowercase or uppercase, or
+	left-oriented or right-oriented).
+
+	The PartitionExpr is what we should provide to the method in
+	a param as a conditional code containing the @item keyword.
+
+	For example:
+
+	o1 = new stzList([ "TUNIS", "gafsa", "NABEUL", "beja" ])
+	? o1.PartsUsing( 'Q(@item).StringCase()' )
+
+	Uses the Kase() method in stzString as a PartitionExpr.	
+
+	And because this method returns a string equal to :Uppercase or
+	:Lowercase or NULL, then the classification done will return:
+
+	[
+		[ "TUNIS" ] = :Uppercase,
+		[ " " ] = NULL,
+		[ "gafsa" ] = :Lowercase,
+		[ " " ] = NULL,
+		[ "NABEUL" ] = :Uppercase,
+		[ " " ] = NULL,
+		[ "beja" ] = :Lowercase
+	]
+
+	*/
+ 
+	def PartsUsingCS(paPartitionExpr, pCaseSensitive)
+		/*
+		Examples:
+
+		o1 = new stzList([ "A", "b", "c", "28", "5", "X", "Y", "&", "من" ])
+		
+		? o1.PartsUsing( 'Q(@item).IsLetter()' )
+		#--> [
+		#	[ "A", "b", "c" ] = TRUE,
+		#	["28", "5" ] = FALSE,
+		# 	[ "X", "Y" ] = TRUE,
+		#o	[ "&", "من" ] = FALSE
+		# ]
+		
+		? o1.PartsUsing('Q(@item).Orientation()' )
+		#--> [
+		#	[ A", "b", "c", "28", "5", "X", "Y", "&" ] = :LeftToRight,
+		#o	[ "من" = :RightToLeft ]
+		# ]
+		
+		? o1.PartsUsing( 'Q(@item).IsUppercase()' )
+		#--> [
+		# 	[ "A" ]  = TRUE,
+		#	[ "b", "c", "28", "5" ] = FALSE,
+		#	[ "X", Y" ] = TRUE,
+		#o	[ "&", "من" = FALSE
+		# ]
+		
+		? o1.PartsUsing( 'Q(@item).Kase()' )
+		#--> [
+		#	[ "A" ] = :Uppercase,
+		#	[ "b", "c" ] = :Lowercase,
+		#	[ "28", "5" ] = NULL,
+		#	[ "X", "Y" ] = :Uppercase,
+		#o	[ "&", "من" ] = NULL
+		# ]
+
+		*/
+
+		if CheckParams()
+			if NOT isString(paPartitionExpr)
+				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
+			ok
+
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", FALSE)
+				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
+			ok
+		ok
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			acContent = This.StringifyQ().Lowercased()
+		else
+			acContent = This.Stringified()
+		ok
+
+		# Early check
+
+		nLen = len(@aContent)
+
+		if nLen < 2
+			return @aContent
+		ok
+
+		# Computing the values by evaluation the
+		# expression against all the items
+
+		cCode = StzStringQ(paPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = 'value = (' + cCode + ')'
+		acValues = [] # Values stringified (to be used for comparison)
+		aValues = []  # Values in their original types
+
+		for @i = 1 to nLen
+			@item = acContent[@i]
+			eval(cCode)
+			acValues + @@(value)
+			aValues + value
+		next
+
+		# Getting the parts
+
+		aPart = [ @aContent[1] ]
+
+		aResult = []
+
+		for i = 2 to nLen
+
+			if acValues[i] = acValues[i-1]
+				aPart + @aContent[i]
+			else
+				aResult + [ aPart, aValues[i-1] ]
+				aPart = [ @aContent[i] ]
+			ok
+	
+		next
+	
+		aResult + [ aPart, aValues[nLen] ]
+
+		return aResult
+
+		#< @FunctionFluentForms
+
+		def PartsUsingCSQ(paPartitionExpr, pCaseSensitive)
+			return This.PartsUsingCSQR(paPartitionExpr, pCaseSensitive, :stzList)
+
+		def PartsUsingCSQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.PartsUsingCS(paPartitionExpr, pCaseSensitive) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.PartsUsingCS(paPartitionExpr, pCaseSensitive) )
+
+			on :stzListOfChars
+				return new stzListOfPairs( This.PartsUsingCS(paPartitionExpr, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PartitionUsingCS(paPartitionExpr, pCaseSensitive) # A verb: to partition
+			return This.PartsUsingCS(paPartitionExpr, pCaseSensitive)
+
+			def PartitionUsingCSQ(paPartitionExpr, pCaseSensitive)
+				return This.PartitionUsingCSQR(paPartitionExpr, pCaseSensitive, :stzList)
+
+			def PartitionCSUsingQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+				return This.PartsUsingCSQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+
+		def PartionedUsingCS(paPartitionExpr, pCaseSensitive)
+			return This.PartsUsingCS(paPartitionExpr, pCaseSensitive)
+
+			def PartionedUsingCSQ(paPartitionExpr, pCaseSensitive)
+				return This.PartionedUsingCSQR(paPartitionExpr, pCaseSensitive, :stzList)
+
+			def PartionedUsingCSQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+				return This.PartsUsingCSQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+
+		#>
+
+	#-- WITHOUT CASESESENSITIVITY
+
+	def PartsUsing(paPartitionExpr)
+		return This.PartsUsingCS(paPartitionExpr, TRUE)
+
+		#< @FunctionFluentForms
+
+		def PartsUsingQ(paPartitionExpr)
+			return This.PartsUsingQR(paPartitionExpr, :stzList)
+
+		def PartsUsingQR(paPartitionExpr, pcReturnType)
+			return This.PartsUsingCSQR(paPartitionExpr, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PartitionUsing(paPartitionExpr) # A verb: to partition
+			return This.PartsUsing(paPartitionExpr)
+
+			def PartitionUsingQ(paPartitionExpr)
+				return This.PartitionUsingQR(paPartitionExpr, :stzList)
+
+			def PartitionUsingQR(paPartitionExpr, pcReturnType)
+				return This.PartsUsingQR(paPartitionExpr, pcReturnType)
+
+		def PartionedUsing(paPartitionExpr)
+			return This.PartsUsing(paPartitionExpr)
+
+			def PartionedUsingQ(paPartitionExpr)
+				return This.PartionedUsingQR(paPartitionExpr, :stzList)
+
+			def PartionedUsingQR(paPartitionExpr, pcReturnType)
+				return This.PartsUsingQR(paPartitionExpr, pcReturnType)
+
+		#>
+
+	  #-----------------------------#
+	 #  FINDING PARTS IN THE LIST  #
+	#=============================#
+
+	def FindPartsUsingCS(paPartitionExpr, pCaseSensitive)
+		if CheckParams()
+			if NOT isString(paPartitionExpr)
+				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
+			ok
+
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", FALSE)
+				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
+			ok
+		ok
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			acContent = This.StringifyQ().Lowercased()
+		else
+			acContent = This.Stringified()
+		ok
+
+		# Early check
+
+		nLen = len(@aContent)
+
+		if nLen < 2
+			return @aContent
+		ok
+
+		# Computing the values by evaluation the
+		# expression against all the items
+
+		cCode = StzStringQ(paPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = 'value = (' + cCode + ')'
+		acValues = [] # Values stringified (to be used for comparison)
+		aValues = []  # Values in their original types
+
+		for @i = 1 to nLen
+			@item = acContent[@i]
+			eval(cCode)
+			acValues + @@(value)
+			aValues + value
+		next
+
+		# Getting the parts
+
+		aPart = @aContent[1]
+
+		anResult = [ 1 ]
+
+		for i = 2 to nLen
+
+			if acValues[i] != acValues[i-1]
+				anResult + i
+			ok
+	
+		next
+
+		return anResult
+
+		def FindPartsUsingCSZ(paPartitionExpr, pCaseSensitive)
+			return This.FindPartsUsingCS(paPartitionExpr, pCaseSensitive)
+
+	def FindPartsUsing(paPartitionExpr)
+		return This.FindPartsUsingCS(paPartitionExpr, TRUE)
+
+		def FindPartsUsingZ(paPartitionExpr)
+			return This.FindPartsUsing(paPartitionExpr)
+
+	  #-------------------------------------------------------------------------#
+	 #  FINDING PARTS IN THE LIST AND RETURNING THEIR POSITIONS AS SECTIONS  #
+	#=========================================================================#
+
+	def FindPartsAsSectionsUsingCS(paPartitionExpr, pCaseSensitive)
+		if CheckParams()
+			if NOT isString(paPartitionExpr)
+				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
+			ok
+
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", FALSE)
+				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
+			ok
+		ok
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			acContent = This.Stringifq().Lowercased()
+		else
+			acContent = This.Stringified()
+		ok
+
+		# Early check
+
+		nLen = len(@aContent)
+
+		if nLen < 2
+			return @aContent
+		ok
+
+		# Computing the values by evaluation the
+		# expression against all the items
+
+		cCode = StzStringQ(paPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = 'value = (' + cCode + ')'
+		acValues = [] # Values stringified (to be used for comparison)
+		aValues = []  # Values in their original types
+
+		for @i = 1 to nLen
+			@item = acContent[@i]
+			eval(cCode)
+			acValues + @@(value)
+			aValues + value
+		next
+
+		# Getting the parts
+
+		aResult = [ [ 1 ] ]
+
+		for i = 2 to nLen
+
+			if acValues[i] != acValues[i-1]
+				aResult[len(aResult)] + (i-1)
+				aResult + [i]
+			ok
+	
+		next
+
+		aResult[len(aResult)] + nLen
+		return aResult
+
+		def FindPartsUsingCSZZ(paPartitionExpr, pCaseSensitive)
+			return This.FindPartsAsSectionsUsingCS(paPartitionExpr, pCaseSensitive)
+
+	def FindPartsAsSectionsUsing(paPartitionExpr)
+		return This.FindPartsAsSectionsUsingCS(paPartitionExpr, TRUE)
+
+		def FindPartsUsingZZ(paPartitionExpr)
+			return This.FindPartsAsSectionsUsing(paPartitionExpr)
+
+	  #----------------------------------------------------------#
+	 #  GETTING PARTS IN THE LIST ALONG WITH THEIR POSITIONS  #
+	#==========================================================#
+
+	def PartsUsingCSZ(paPartitionExpr, pCaseSensitive)
+		if CheckParams()
+			if NOT isString(paPartitionExpr)
+				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
+			ok
+
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", FALSE)
+				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
+			ok
+		ok
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			acContent = This.StringifyQ().Lowercased()
+		else
+			acContent = This.Stringified()
+		ok
+
+		# Early check
+
+		nLen = len(aContent)
+
+		if nLen < 2
+			return @aContent
+		ok
+
+		# Computing the values by evaluation the
+		# expression against all the items
+
+		cCode = StzStringQ(paPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = 'value = (' + cCode + ')'
+		acValues = [] # Values stringified (to be used for comparison)
+		aValues = []  # Values in their original types
+
+		for @i = 1 to nLen
+			@item = acContent[@i]
+			eval(cCode)
+			acValues + @@(value)
+			aValues + value
+		next
+
+		# Getting the parts
+
+		aPart = [ @aContent[1] ]
+
+		aResult = []
+		n = 0
+
+		for i = 2 to nLen
+			
+			if acValues[i] = acValues[i-1]
+				aPart + @aContent[i]
+				n++
+			else
+				aResult + [ aPart, i-n-1 ]
+				aPart = [ @aContent[i] ]
+				n = 0
+			ok
+	
+		next
+	
+		aResult + [ aPart, nLen-n ]
+
+		return aResult
+
+		def PartsAndTheirPositionsUsingCS(paPartitionExpr, pCaseSensitive)
+			return This.PartsUsingCSZ(paPartitionExpr, pCaseSensitive)
+
+	def PartsUsingZ(paPartitionExpr)
+		return This.PartsUsingCSZ(paPartitionExpr, TRUE)
+
+		def PartsAndTheirPositionsUsing(paPartitionExpr)
+			return This.PartsUsingZ(paPartitionExpr)
+
+	  #-----------------------------------------------------------------------------#
+	 #  gettING PARTS IN THE LIST AND RETURNING THEM ALO?G WITH THEIR POSITIONS  #
+	#=============================================================================#
+
+	def PartsUsingCSZZ(paPartitionExpr, pCaseSensitive)
+		if CheckParams()
+			if NOT isString(paPartitionExpr)
+				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
+			ok
+
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", FALSE)
+				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
+			ok
+		ok
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			aContent = This.StringifyQ().Lowercased()
+		else
+			aContent = This.Stringified()
+		ok
+
+		# Early check
+
+		nLen = len(aContent)
+
+		if nLen < 2
+			return @aContent
+		ok
+
+		# Computing the values by evaluation the
+		# expression against all the items
+
+		cCode = StzStringQ(paPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = 'value = (' + cCode + ')'
+		acValues = [] # Values stringified (to be used for comparison)
+		aValues = []  # Values in their original types
+
+		for @i = 1 to nLen
+			@item = acContent[@i]
+			eval(cCode)
+			acValues + @@(value)
+			aValues + value
+		next
+
+		# Getting the parts
+
+		aPart = [ @aContent[1] ]
+
+		aResult = []
+		n = 0
+
+		for i = 2 to nLen
+			
+			if acValues[i] = acValues[i-1]
+				aPart + @aContent[i]
+				n++
+			else
+				aResult + [ aPart, [ i-n-1, i-1 ] ]
+				aPart = [ @aContent[i] ]
+				n = 0
+			ok
+	
+		next
+	
+		aResult + [ aPart, [ nLen-n, nLen ] ]
+
+		return aResult
+
+		def PartsAndTheirSectionsUsingCS(paPartitionExpr, pCaseSensitive)
+			return This.PartsUsingCSZZ(paPartitionExpr, pCaseSensitive)
+
+	def PartsUsingZZ(paPartitionExpr)
+		return This.PartsUsingCSZZ(paPartitionExpr, TRUE)
+
+		def PartsAndTheirSectionsUsing(paPartitionExpr)
+			return This.PartsUsingZZ(paPartitionExpr)
 
 	  #=====================================================#
 	 #   THE LIST IS MADE OF CONTIGUOUS CHARS OR NUMBERS   #
