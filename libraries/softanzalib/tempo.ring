@@ -138,7 +138,7 @@ o1 = new stzString("Abc285XY&من")
 # ]
 
 proff()
-# Executed in 0.24 second(s)
+# Executed in 0.16 second(s)
 
 /*=====
 
@@ -232,7 +232,7 @@ proff()
 # Executed in 49.87 second(s)
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzString("mmmMMMaaAAAiii")
@@ -256,10 +256,9 @@ o1 = new stzString("mmmMMMaaAAAiii")
 # ]
          
 proff()
-# Executed in 0.35 second(s)
+# Executed in 0.38 second(s)
 
 /*================
-
 
 pron()
 
@@ -288,10 +287,10 @@ o1 = new stzList([
 # ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.03 second(s)
 
 /*---------------
-
+*/
 pron()
 
 o1 = new stzList([
@@ -311,7 +310,7 @@ o1 = new stzList([
 #	[ "iii", "lowercase" ]
 # ]
 
-? @@NL( o1.ClassifyBy('Q(@item).CharCase()') ) + NL
+//? @@NL( o1.ClassifyBy('Q(@item).CharCase()') ) + NL
 #--> [
 #	[ "lowercase", [ "m", "a", "i" ] ],
 #	[ "uppercase", [ "M", "A" ] ]
