@@ -27280,7 +27280,12 @@ class stzList from stzObject
 	#==================================#
 
 	def PartsCS(pCaseSensitive)
+
+		# Getting the boolean behind pCaseSensitive
+
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Stringifying the list and reparing it case sensitivity
 
 		if bCaseSensitive = FALSE
 			acContent = This.StringifyQ().Lowercased()
@@ -27288,11 +27293,15 @@ class stzList from stzObject
 			acContent = This.Stringified()
 		ok
 
+		# Early check
+
 		nLen = len(@aContent)
 
 		if nLen < 2
-			return @aContent
+			return [ [ @aContent ] ]
 		ok
+
+		# Doing the job
 
 		aPart = [ @aContent[1] ]
 
@@ -27398,7 +27407,12 @@ class stzList from stzObject
 	#--------------------------------------------------#
 
 	def FindPartsCS(pCaseSensitive)
+
+		# Getting the boolean behind pCaseSensitive
+
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Stringifying the list and reparing it case sensitivity
 
 		if bCaseSensitive = FALSE
 			acContent = This.StringifyQ().Lowercased()
@@ -27406,11 +27420,15 @@ class stzList from stzObject
 			acContent = This.Stringified()
 		ok
 
+		# Early check
+
 		nLen = len(@aContent)
 
 		if nLen < 2
-			return @aContent
+			return [ 1 ]
 		ok
+
+		# Doing the job
 
 		aResult = [ 1 ]
 
@@ -27448,19 +27466,28 @@ class stzList from stzObject
 	#--------------------------------------------------#
 
 	def FindPartsAsSectionsCS(pCaseSensitive)
+
+		# Getting the boolean behind pCaseSensitive
+
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
+		# Stringifying the list and reparing it case sensitivity
+
 		if bCaseSensitive = FALSE
-			acContent = This.StringifiQ().Lowercased()
+			acContent = This.StringifyQ().Lowercased()
 		else
-			aContent = This.Stringified()
+			acContent = This.Stringified()
 		ok
+
+		# Early check
 
 		nLen = len(@aContent)
 
 		if nLen < 2
-			return @aContent
+			return [ [ 1, nLen ] ]
 		ok
+
+		# Doing the job
 
 		aResult = [ [1] ]
 		nLenResult = 1
@@ -27503,19 +27530,28 @@ class stzList from stzObject
 	#--------------------------------------------------------------#
 
 	def PartsCSZ(pCaseSensitive)
+
+		# Getting the boolean behind pCaseSensitive
+
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
+		# Stringifying the list and reparing it case sensitivity
+
 		if bCaseSensitive = FALSE
-			acContent = This.StringifiQ().Lowercased()
+			acContent = This.StringifyQ().Lowercased()
 		else
-			acContent = This.Lowercased()
+			acContent = This.Stringified()
 		ok
+
+		# Early check
 
 		nLen = len(@aContent)
 
 		if nLen < 2
-			return @aContent
+			return [ [ @aContent, 1 ] ]
 		ok
+
+		# Doing the job
 
 		aPart = [ @aContent[1] ]
 
@@ -27563,7 +27599,12 @@ class stzList from stzObject
 	#-----------------------------------------------------------#
 
 	def PartsCSZZ(pCaseSensitive)
+
+		# Getting the boolean behind pCaseSensitive
+
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Stringifying the list and reparing it case sensitivity
 
 		if bCaseSensitive = FALSE
 			acContent = This.StringifyQ().Lowercased()
@@ -27571,11 +27612,15 @@ class stzList from stzObject
 			acContent = This.Stringified()
 		ok
 
+		# Early check
+
 		nLen = len(@aContent)
 
 		if nLen < 2
-			return @aContent
+			return [ [ @aContent, [ 1, nLen ] ] ]
 		ok
+
+		# Doing the job
 
 		aPart = [ @aContent[1] ]
 
@@ -27706,20 +27751,35 @@ class stzList from stzObject
 			ok
 		ok
 
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
-
-		if bCaseSensitive = FALSE
-			acContent = This.StringifyQ().Lowercased()
-		else
-			acContent = This.Stringified()
-		ok
-
 		# Early check
 
 		nLen = len(@aContent)
 
 		if nLen < 2
-			return @aContent
+			return [ [ @aContent ] ]
+		ok
+
+		# Getting the boolean behind pCaseSensitive
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(paPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ @aContent ] ]
+		ok
+
+		# Preparing the data for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.StringifyQ().Lowercased()
+		else
+			acContent = This.Stringified()
 		ok
 
 		# Computing the values by evaluation the
@@ -27748,13 +27808,13 @@ class stzList from stzObject
 			if acValues[i] = acValues[i-1]
 				aPart + @aContent[i]
 			else
-				aResult + [ aPart, aValues[i-1] ]
+				aResult + aPart
 				aPart = [ @aContent[i] ]
 			ok
 	
 		next
 	
-		aResult + [ aPart, aValues[nLen] ]
+		aResult + aPart
 
 		return aResult
 
@@ -27838,6 +27898,207 @@ class stzList from stzObject
 
 		#>
 
+	   #---------------------------------------------------------------------#
+	  #  PARTIONONING A LIST BASED ON A GIVEN PARTITION EXPRESSION AND      #
+	 #  RETURNING THE PARTS ALONG WITH THEIR RESPECTIVE EXPRESSION VALUES  #
+	#=====================================================================#
+ 
+	def PartsUsingCSXT(paPartitionExpr, pCaseSensitive)
+		/*
+		Examples:
+
+		o1 = new stzList([ "A", "b", "c", "28", "5", "X", "Y", "&", "من" ])
+		
+		? o1.PartsUsingXT( 'Q(@item).IsLetter()' )
+		#--> [
+		#	[ "A", "b", "c" ] = TRUE,
+		#	["28", "5" ] = FALSE,
+		# 	[ "X", "Y" ] = TRUE,
+		#o	[ "&", "من" ] = FALSE
+		# ]
+		
+		? o1.PartsUsingXT('Q(@item).Orientation()' )
+		#--> [
+		#	[ A", "b", "c", "28", "5", "X", "Y", "&" ] = :LeftToRight,
+		#o	[ "من" = :RightToLeft ]
+		# ]
+		
+		? o1.PartsUsingXT( 'Q(@item).IsUppercase()' )
+		#--> [
+		# 	[ "A" ]  = TRUE,
+		#	[ "b", "c", "28", "5" ] = FALSE,
+		#	[ "X", Y" ] = TRUE,
+		#o	[ "&", "من" = FALSE
+		# ]
+		
+		? o1.PartsUsingXT( 'Q(@item).Kase()' )
+		#--> [
+		#	[ "A" ] = :Uppercase,
+		#	[ "b", "c" ] = :Lowercase,
+		#	[ "28", "5" ] = NULL,
+		#	[ "X", "Y" ] = :Uppercase,
+		#o	[ "&", "من" ] = NULL
+		# ]
+
+		*/
+
+		if CheckParams()
+			if NOT isString(paPartitionExpr)
+				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
+			ok
+
+			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", FALSE)
+				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
+			ok
+		ok
+
+		# Early check
+
+		nLen = len(@aContent)
+
+		if nLen < 2
+			return [ [ @aContent, NULL ] ]
+		ok
+
+		# Getting the boolean behind pCaseSensitive
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(paPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ @aContent, NULL ] ]
+		ok
+
+		# Preparing the data for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.StringifyQ().Lowercased()
+		else
+			acContent = This.Stringified()
+		ok
+
+		# Computing the values by evaluation the
+		# expression against all the items
+
+		cCode = StzStringQ(paPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = 'value = (' + cCode + ')'
+		acValues = [] # Values stringified (to be used for comparison)
+		aValues = []  # Values in their original types
+
+		for @i = 1 to nLen
+			@item = acContent[@i]
+			eval(cCode)
+			acValues + @@(value)
+			aValues + value
+		next
+
+		# Getting the parts
+
+		aPart = [ @aContent[1] ]
+
+		aResult = []
+
+		for i = 2 to nLen
+
+			if acValues[i] = acValues[i-1]
+				aPart + @aContent[i]
+			else
+				aResult + [ aPart, aValues[i-1] ]
+				aPart = [ @aContent[i] ]
+			ok
+	
+		next
+	
+		aResult + [ aPart, aValues[nLen] ]
+
+		return aResult
+
+		#< @FunctionFluentForms
+
+		def PartsUsingCSXTQ(paPartitionExpr, pCaseSensitive)
+			return This.PartsUsingCSXTQR(paPartitionExpr, pCaseSensitive, :stzList)
+
+		def PartsUsingCSXTQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.PartsUsingCSXT(paPartitionExpr, pCaseSensitive) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.PartsUsingCSXT(paPartitionExpr, pCaseSensitive) )
+
+			on :stzListOfChars
+				return new stzListOfPairs( This.PartsUsingCSXT(paPartitionExpr, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PartitionUsingCSXT(paPartitionExpr, pCaseSensitive) # A verb: to partition
+			return This.PartsUsingCSXT(paPartitionExpr, pCaseSensitive)
+
+			def PartitionUsingCSXTQ(paPartitionExpr, pCaseSensitive)
+				return This.PartitionUsingCSXTQR(paPartitionExpr, pCaseSensitive, :stzList)
+
+			def PartitionCSUsingXTQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+				return This.PartsUsingCSXTQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+
+		def PartionedUsingCSXT(paPartitionExpr, pCaseSensitive)
+			return This.PartsUsingCSXT(paPartitionExpr, pCaseSensitive)
+
+			def PartionedUsingCSXTQ(paPartitionExpr, pCaseSensitive)
+				return This.PartionedUsingCSXTQR(paPartitionExpr, pCaseSensitive, :stzList)
+
+			def PartionedUsingCSXTQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+				return This.PartsUsingCSXTQR(paPartitionExpr, pCaseSensitive, pcReturnType)
+
+		#>
+
+	#-- WITHOUT CASESESENSITIVITY
+
+	def PartsUsingXT(paPartitionExpr)
+		return This.PartsUsingCSXT(paPartitionExpr, TRUE)
+
+		#< @FunctionFluentForms
+
+		def PartsUsingXTQ(paPartitionExpr)
+			return This.PartsUsingXTQR(paPartitionExpr, :stzList)
+
+		def PartsUsingXTQR(paPartitionExpr, pcReturnType)
+			return This.PartsUsingCSXTQR(paPartitionExpr, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PartitionUsingXT(paPartitionExpr) # A verb: to partition
+			return This.PartsUsingXT(paPartitionExpr)
+
+			def PartitionUsingXTQ(paPartitionExpr)
+				return This.PartitionUsingXTQR(paPartitionExpr, :stzList)
+
+			def PartitionUsingXTQR(paPartitionExpr, pcReturnType)
+				return This.PartsUsingXTQR(paPartitionExpr, pcReturnType)
+
+		def PartionedUsingXT(paPartitionExpr)
+			return This.PartsUsingXT(paPartitionExpr)
+
+			def PartionedUsingXTQ(paPartitionExpr)
+				return This.PartionedUsingXTQR(paPartitionExpr, :stzList)
+
+			def PartionedUsingXTQR(paPartitionExpr, pcReturnType)
+				return This.PartsUsingXTQR(paPartitionExpr, pcReturnType)
+
+		#>
+
 	  #-----------------------------#
 	 #  FINDING PARTS IN THE LIST  #
 	#=============================#
@@ -27853,20 +28114,35 @@ class stzList from stzObject
 			ok
 		ok
 
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
-
-		if bCaseSensitive = FALSE
-			acContent = This.StringifyQ().Lowercased()
-		else
-			acContent = This.Stringified()
-		ok
-
 		# Early check
 
 		nLen = len(@aContent)
 
 		if nLen < 2
-			return @aContent
+			return [ 1 ]
+		ok
+
+		# Getting the boolean behind pCaseSensitive
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(paPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ 1 ]
+		ok
+
+		# Preparing the data for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.StringifyQ().Lowercased()
+		else
+			acContent = This.Stringified()
 		ok
 
 		# Computing the values by evaluation the
@@ -27924,23 +28200,38 @@ class stzList from stzObject
 			ok
 		ok
 
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
-
-		if bCaseSensitive = FALSE
-			acContent = This.Stringifq().Lowercased()
-		else
-			acContent = This.Stringified()
-		ok
-
 		# Early check
 
 		nLen = len(@aContent)
 
 		if nLen < 2
-			return @aContent
+			return [ [ 1, nLen ] ]
 		ok
 
-		# Computing the values by evaluation the
+		# Getting the boolean behind pCaseSensitive
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(paPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ 1, nLen ] ]
+		ok
+
+		# Preparing the data for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.StringifyQ().Lowercased()
+		else
+			acContent = This.Stringified()
+		ok
+
+		# Computing the values by evaluating the
 		# expression against all the items
 
 		cCode = StzStringQ(paPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
@@ -27969,6 +28260,7 @@ class stzList from stzObject
 		next
 
 		aResult[len(aResult)] + nLen
+
 		return aResult
 
 		def FindPartsUsingCSZZ(paPartitionExpr, pCaseSensitive)
@@ -27995,20 +28287,35 @@ class stzList from stzObject
 			ok
 		ok
 
+		# Early check
+
+		nLen = len(@aContent)
+
+		if nLen < 2
+			return [ [ @aContent ] ]
+		ok
+
+		# Getting the boolean behind pCaseSensitive
+
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(paPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ @aContent ] ]
+		ok
+
+		# Preparing the data for case sensitivity
 
 		if bCaseSensitive = FALSE
 			acContent = This.StringifyQ().Lowercased()
 		else
 			acContent = This.Stringified()
-		ok
-
-		# Early check
-
-		nLen = len(aContent)
-
-		if nLen < 2
-			return @aContent
 		ok
 
 		# Computing the values by evaluation the
@@ -28074,20 +28381,35 @@ class stzList from stzObject
 			ok
 		ok
 
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
-
-		if bCaseSensitive = FALSE
-			aContent = This.StringifyQ().Lowercased()
-		else
-			aContent = This.Stringified()
-		ok
-
 		# Early check
 
-		nLen = len(aContent)
+		nLen = len(@aContent)
 
 		if nLen < 2
-			return @aContent
+			return [ [ @aContent, [1, nLen] ] ]
+		ok
+
+		# Getting the boolean behind pCaseSensitive
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(paPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ @aContent, [1, nLen] ] ]
+		ok
+
+		# Preparing the data for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.StringifyQ().Lowercased()
+		else
+			acContent = This.Stringified()
 		ok
 
 		# Computing the values by evaluation the
