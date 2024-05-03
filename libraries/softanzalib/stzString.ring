@@ -57122,38 +57122,48 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#====================================#
 
 	def PartsCS(pCaseSensitive)
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
-		if bCaseSensitive = FALSE
-			aContent = This.CharsQ().Lowercased()
-		else
-			aContent = This.Chars()
-		ok
+		# Early Check
 
-		nLen = len(aContent)
+		nLen = This.NumberOfChars()
 
 		if nLen < 2
-			return aContent
+			return [ This.Content() ]
 		ok
 
-		cPart = aContent[1]
+		# Getting the boolean from pCaseSensitive
 
-		aResult = []
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Getting the list of chars of the string and
+		# preparing it for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Doing the job
+
+		cPart = acContent[1]
+
+		acResult = []
 
 		for i = 2 to nLen
 
-			if aContent[i] = aContent[i-1]
-				cPart += aContent[i]
+			if acContent[i] = acContent[i-1]
+				cPart += acContent[i]
 			else
-				aResult + cPart
-				cPart = aContent[i]
+				acResult + cPart
+				cPart = acContent[i]
 			ok
 	
 		next
 	
-		aResult + cPart
+		acResult + cPart
 
-		return aResult
+		return acResult
 
 		#< @FunctionFluentForms
 
@@ -57240,31 +57250,41 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#----------------------------------------------------#
 
 	def FindPartsCS(pCaseSensitive)
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
-		if bCaseSensitive = FALSE
-			aContent = This.CharsQ().Lowercased()
-		else
-			aContent = This.Chars()
-		ok
+		# Eraly check
 
-		nLen = len(aContent)
+		nLen = This.NumberOfChars()
 
 		if nLen < 2
-			return aContent
+			return [ 1 ]
 		ok
 
-		aResult = [ 1 ]
+		# Getting the boolean form pCaseSensitive
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Getting the list of chars and preparing
+		# them for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Doing the job
+
+		anResult = [ 1 ]
 
 		for i = 2 to nLen
 
-			if aContent[i] != aContent[i-1]
-				aResult + i
+			if acContent[i] != acContent[i-1]
+				anResult + i
 			ok
 	
 		next
 
-		return aResult
+		return anResult
 
 		#< @FunctionAlternativeForms
 
@@ -57290,26 +57310,36 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#----------------------------------------------------#
 
 	def FindPartsAsSectionsCS(pCaseSensitive)
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
-		if bCaseSensitive = FALSE
-			aContent = This.CharsQ().Lowercased()
-		else
-			aContent = This.Chars()
-		ok
+		# Early check
 
-		nLen = len(aContent)
+		nLen = This.NumberOfChars()
 
 		if nLen < 2
-			return aContent
+			return [ This.Content() ]
 		ok
 
-		aResult = [ [1] ]
+		# Getting the boolean from pCaseSensitive
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Getting the list of chars and preparing
+		# it for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Doing the job
+
+		aResult = [ [ 1 ] ]
 		nLenResult = 1
 
 		for i = 2 to nLen
 
-			if aContent[i] != aContent[i-1]
+			if acContent[i] != acContent[i-1]
 
 				aResult[nLenResult] + (i-1)
 				aResult + [ i ]
@@ -57318,7 +57348,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	
 		next
 
-		aResult[len(aResult)] + nLen
+		aResult[ len(aResult) ] + nLen
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -57345,33 +57375,43 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#--------------------------------------------------------------#
 
 	def PartsCSZ(pCaseSensitive)
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
-		if bCaseSensitive = FALSE
-			aContent = This.CharsQ().Lowercased()
-		else
-			aContent = This.Chars()
-		ok
+		# Early check
 
-		nLen = len(aContent)
+		nLen = This.NumberOfChars()
 
 		if nLen < 2
-			return aContent
+			return [ [ This.Content(), [ 1, nLen ] ] ]
 		ok
 
-		cPart = aContent[1]
+		# Getting the boolean from pCaseSensitive
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Getting the list of chars and preparing it
+		# for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Doing the job
+
+		cPart = acContent[1]
 
 		aResult = []
 		n = 0
 
 		for i = 2 to nLen
 			
-			if aContent[i] = aContent[i-1]
-				cPart += aContent[i]
+			if acContent[i] = acContent[i-1]
+				cPart += acContent[i]
 				n++
 			else
 				aResult + [ cPart, i-n-1 ]
-				cPart = aContent[i]
+				cPart = acContent[i]
 				n = 0
 			ok
 	
@@ -57405,33 +57445,43 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#-------------------------------------------------------------#
 
 	def PartsCSZZ(pCaseSensitive)
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
-		if bCaseSensitive = FALSE
-			aContent = This.CharsQ().Lowercased()
-		else
-			aContent = This.Chars()
-		ok
+		# Early check
 
-		nLen = len(aContent)
+		nLen = This.NumberOfChars()
 
 		if nLen < 2
-			return aContent
+			return [ [ This.Content(), [ 1, nLen ] ] ]
 		ok
 
-		cPart = aContent[1]
+		# Getting the boolean form pCaseSensitive
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Getting the list of chars and preparing
+		# it for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Doing the job
+
+		cPart = acContent[1]
 
 		aResult = []
 		n = 0
 
 		for i = 2 to nLen
 			
-			if aContent[i] = aContent[i-1]
-				cPart += aContent[i]
+			if acContent[i] = acContent[i-1]
+				cPart += acContent[i]
 				n++
 			else
 				aResult + [ cPart, [ i-n-1, i-1 ] ]
-				cPart = aContent[i]
+				cPart = acContent[i]
 				n = 0
 			ok
 	
@@ -57488,17 +57538,17 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	:Lowercase or NULL, then the classification done will return:
 
 	[
-		"TUNIS" = :Uppercase,
-		" " = NULL,
-		"gafsa" = :Lowercase,
-		" " = NULL,
-		"NABEUL" = :Uppercase,
-		" " = NULL,
-		"beja" = :Lowercase
+		"TUNIS",	# expression value ~> Uppercase
+		" ",		# expression value ~> NULL
+		"gafsa",	# expression value ~> Lowercase
+		" ",		# expression value ~> NULL
+		"NABEUL",	# expression value ~> Uppercase
+		" ",		# expression value ~> NULL
+		"beja"		# expression value ~> Lowercase
 	]
 
 	*/
- 
+
 	def PartsUsingCS(pcPartitionExpr, pCaseSensitive)
 		/*
 		Examples:
@@ -57506,16 +57556,16 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		o1 = new stzString("Abc285XY&من")
 		
 		? o1.PartsUsing( 'Q(@char).IsLetter()' )
-		#--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
+		#--> [ "Abc", "285", "XY", "&", "من" ]
 		
 		? o1.PartsUsing('Q(@char).Orientation()' )
-		#--> [ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
+		#--> [ "Abc285XY&", "من" ]
 		
 		? o1.PartsUsing( 'Q(@char).IsUppercase()' )
-		#--> [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
+		#--> [ "A", "bc285", "XY", "&من" ]
 		
 		? o1.PartsUsing( 'Q(@char).CharCase()' )
-		#--> [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
+		#--> [ "A", "bc", "285", "XY", "&من" ]
 
 		*/
 
@@ -57529,7 +57579,32 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			ok
 		ok
 
+		# Getting the list of chars and preparing
+		# it to case sensitivity
+
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(pcPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ This.Content() ] ]
+		ok
+
+		# Early check
+
+		nLen = This.NumberOfChars()
+
+		if nLen < 2
+			return [ [ This.Content() ] ]
+		ok
+
+		# Getting the list of chars and preparing
+		# it to case sensitivity
 
 		if bCaseSensitive = FALSE
 			acContent = This.CharsQ().Lowercased()
@@ -57537,49 +57612,38 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			acContent = This.Chars()
 		ok
 
-		# Early check
-
-		nLen = len(acContent)
-
-		if nLen < 2
-			return acContent
-		ok
-
-		# Computing the values by evaluation the
+		# Computing the values by evaluating the
 		# expression against all the items
 
 		cCode = StzStringQ(pcPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
 		cCode = 'value = (' + cCode + ')'
 		acValues = [] # Values stringified (to be used for comparison)
-		aValues = []  # Values in their original types
 
 		for @i = 1 to nLen
 			@char = acContent[@i]
 			eval(cCode)
 			acValues + @@(value)
-			aValues + value
 		next
 
 		# Getting the parts
 
 		cPart = acContent[1]
-
-		aResult = []
+		acResult = []
 
 		for i = 2 to nLen
 
 			if acValues[i] = acValues[i-1]
 				cPart += acContent[i]
 			else
-				aResult + [ cPart, aValues[i-1] ]
+				acResult + cPart
 				cPart = acContent[i]
 			ok
 	
 		next
 	
-		aResult + [ cPart, aValues[nLen] ]
+		acResult + cPart
 
-		return aResult
+		return acResult
 
 		#< @FunctionFluentForms
 
@@ -57661,6 +57725,190 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#>
 
+	  #---------------------------------------------------------------------------#
+	 #  PARTIONONING A STRING BASED ON A GIVEN PARTITION EXPRESSION -- EXTENDED  #
+	#===========================================================================#
+	# Returns the parts and their corresponding evaluated expressions
+
+	def PartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+		/*
+ 
+		Examples:
+
+		o1 = new stzString("Abc285XY&من")
+		
+		? o1.PartsUsing( 'Q(@char).IsLetter()' )
+		#--> [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
+		
+		? o1.PartsUsing('Q(@char).Orientation()' )
+		#--> [ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
+		
+		? o1.PartsUsing( 'Q(@char).IsUppercase()' )
+		#--> [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
+		
+		? o1.PartsUsing( 'Q(@char).CharCase()' )
+		#--> [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
+
+		*/
+
+		if CheckParams()
+			if NOT isString(pcPartitionExpr)
+				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
+			ok
+
+			if NOT StzStringQ(pcPartitionExpr).ContainsCS("@char", FALSE)
+				stzRaise("Syntax error! pcPartitionExpr must contain the @Char keyword.")
+			ok
+		ok
+
+		# Getting the list of chars and preparing
+		# it to case sensitivity
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(pcPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ This.Content(), NULL ] ]
+		ok
+
+		# Early check
+
+		nLen = This.NumberOfChars()
+
+		if nLen < 2
+			return [ [ This.Content(), NULL ] ]
+		ok
+
+		# Getting the list of chars and 
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Computing the values by evaluating the
+		# expression against all the items
+
+		cCode = StzStringQ(pcPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = 'value = (' + cCode + ')'
+		acValues = [] # Values stringified (to be used for comparison)
+		aValues = []  # Values in their original types
+
+		for @i = 1 to nLen
+			@char = acContent[@i]
+			eval(cCode)
+			acValues + @@(value)
+			aValues + value
+		next
+
+		# Getting the parts
+
+		cPart = acContent[1]
+
+		aResult = []
+
+		for i = 2 to nLen
+
+			if acValues[i] = acValues[i-1]
+				cPart += acContent[i]
+			else
+				aResult + [ cPart, aValues[i-1] ]
+				cPart = acContent[i]
+			ok
+	
+		next
+	
+		aResult + [ cPart, aValues[nLen] ]
+
+		return aResult
+
+		#< @FunctionFluentForms
+
+		def PartsUsingCSXTQ(pcPartitionExpr, pCaseSensitive)
+			return This.PartsUsingCSXTQR(pcPartitionExpr, pCaseSensitive, :stzList)
+
+		def PartsUsingCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.PartsUsingCSXT(pcPartitionExpr, pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.PartsUsingCSXT(pcPartitionExpr, pCaseSensitive) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.PartsUsingCSXT(pcPartitionExpr, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PartitionUsingCSXT(pcPartitionExpr, pCaseSensitive) # A verb: to partition
+			return This.PartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+
+			def PartitionUsingCSXTQ(pcPartitionExpr, pCaseSensitive)
+				return This.PartitionUsingCSXTQR(pcPartitionExpr, pCaseSensitive, :stzList)
+
+			def PartitionUsingCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
+				return This.PartsUsingCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
+
+		def PartionedUsingCSXT(pcPartitionExpr, pCaseSensitive)
+			return This.PartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+
+			def PartionedUsingCSXTQ(pcPartitionExpr, pCaseSensitive)
+				return This.PartionedUsingCSXTQR(pcPartitionExpr, pCaseSensitive, :stzList)
+
+			def PartionedUsingCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
+				return This.PartsUsingCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
+
+		#>
+
+	#-- WITHOUT CASESESENSITIVITY
+
+	def PartsUsingXT(pcPartitionExpr)
+		return This.PartsUsingCSXT(pcPartitionExpr, TRUE)
+
+		#< @FunctionFluentForms
+
+		def PartsUsingXTQ(pcPartitionExpr)
+			return This.PartsUsingXTQR(pcPartitionExpr, :stzList)
+
+		def PartsUsingXTQR(pcPartitionExpr, pcReturnType)
+			return This.PartsUsingXTCSQR(pcPartitionExpr, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PartitionUsingXT(pcPartitionExpr) # A verb: to partition
+			return This.PartsUsingXT(pcPartitionExpr)
+
+			def PartitionUsingXTQ(pcPartitionExpr)
+				return This.PartitionUsingXTQR(pcPartitionExpr, :stzList)
+
+			def PartitionUsingXTQR(pcPartitionExpr, pcReturnType)
+				return This.PartsUsingXTQR(pcPartitionExpr, pcReturnType)
+
+		def PartionedUsingXT(pcPartitionExpr)
+			return This.PartsUsingXT(pcPartitionExpr)
+
+			def PartionedUsingXTQ(pcPartitionExpr)
+				return This.PartionedUsingXTQR(pcPartitionExpr, :stzList)
+
+			def PartionedUsingXTQR(pcPartitionExpr, pcReturnType)
+				return This.PartsUsingXTQR(pcPartitionExpr, pcReturnType)
+
+		#>
+
 	  #-------------------------------#
 	 #  FINDING PARTS IN THE STRING  #
 	#===============================#
@@ -57676,7 +57924,23 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			ok
 		ok
 
+		# Getting the boolean form pCaseSensitive
+
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(pcPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ 1 ]
+		ok
+
+		# Getting the list of chars and preparing
+		# it for case sensitivity
 
 		if bCaseSensitive = FALSE
 			acContent = This.CharsQ().Lowercased()
@@ -57686,10 +57950,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		# Early check
 
-		nLen = len(acContent)
+		nLen = This.NumberOfChars()
 
 		if nLen < 2
-			return acContent
+			return [ 1 ]
 		ok
 
 		# Computing the values by evaluation the
@@ -57698,13 +57962,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		cCode = StzStringQ(pcPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
 		cCode = 'value = (' + cCode + ')'
 		acValues = [] # Values stringified (to be used for comparison)
-		aValues = []  # Values in their original types
 
 		for @i = 1 to nLen
 			@char = acContent[@i]
 			eval(cCode)
 			acValues + @@(value)
-			aValues + value
 		next
 
 		# Getting the parts
@@ -57750,20 +58012,36 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			ok
 		ok
 
+		# Early check
+
+		nLen = This.NumberOfChars()
+
+		if nLen < 2
+			return [ [ 1, nLen ] ]
+		ok
+
+		# Getting the boolean form pCaseSensitive
+
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(pcPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ 1, nLen ] ]
+		ok
+
+		# Getting the list of chars and preparing
+		# it for case sensitivity
 
 		if bCaseSensitive = FALSE
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
-		ok
-
-		# Early check
-
-		nLen = len(acContent)
-
-		if nLen < 2
-			return acContent
 		ok
 
 		# Computing the values by evaluation the
@@ -57772,13 +58050,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		cCode = StzStringQ(pcPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
 		cCode = 'value = (' + cCode + ')'
 		acValues = [] # Values stringified (to be used for comparison)
-		aValues = []  # Values in their original types
 
 		for @i = 1 to nLen
 			@char = acContent[@i]
 			eval(cCode)
 			acValues + @@(value)
-			aValues + value
 		next
 
 		# Getting the parts
@@ -57826,20 +58102,34 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			ok
 		ok
 
+		# Early check
+
+		nLen = This.Content()
+
+		if nLen < 2
+			return [ [ This.Content(), 1 ] ]
+		ok
+
+		# Getting the boolean from pCaseSensitive
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(pcPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ This.Content(), 1 ] ]
+		ok
+
+		# Getting the list of chars and preparing it for casesensitivity
 
 		if bCaseSensitive = FALSE
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
-		ok
-
-		# Early check
-
-		nLen = len(acContent)
-
-		if nLen < 2
-			return acContent
 		ok
 
 		# Computing the values by evaluation the
@@ -57848,13 +58138,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		cCode = StzStringQ(pcPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
 		cCode = 'value = (' + cCode + ')'
 		acValues = [] # Values stringified (to be used for comparison)
-		aValues = []  # Values in their original types
 
 		for @i = 1 to nLen
 			@char = acContent[@i]
 			eval(cCode)
 			acValues + @@(value)
-			aValues + value
 		next
 
 		# Getting the parts
@@ -57905,20 +58193,34 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			ok
 		ok
 
+		# Early check
+
+		nLen = This.Content()
+
+		if nLen < 2
+			return [ [ This.Content(), [ 1, nLen ] ] ]
+		ok
+
+		# Getting the boolean from pCaseSensitive
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(pcPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ This.Content(), [ 1, nLen ] ] ]
+		ok
+
+		# Getting the list of chars and preparing it for casesensitivity
 
 		if bCaseSensitive = FALSE
 			acContent = This.CharsQ().Lowercased()
 		else
 			acContent = This.Chars()
-		ok
-
-		# Early check
-
-		nLen = len(acContent)
-
-		if nLen < 2
-			return acContent
 		ok
 
 		# Computing the values by evaluation the
@@ -57927,13 +58229,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		cCode = StzStringQ(pcPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
 		cCode = 'value = (' + cCode + ')'
 		acValues = [] # Values stringified (to be used for comparison)
-		aValues = []  # Values in their original types
 
 		for @i = 1 to nLen
 			@char = acContent[@i]
 			eval(cCode)
 			acValues + @@(value)
-			aValues + value
 		next
 
 		# Getting the parts
