@@ -290,7 +290,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*---------------
-*/
+
 pron()
 
 o1 = new stzList([
@@ -301,25 +301,161 @@ o1 = new stzList([
 	"i", "i", "i"
 ])
 
-? @@NL( o1.PartsUsing('Q(@item).CharCase()') )
+? @@( o1.FindParts() )
+#--> [ 1, 4, 7, 9, 12 ]
+
+? @@( o1.FindPartsAsSections() ) + NL
+#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 8 ], [ 9, 11 ], [ 12, 14 ] ]
+
+? @@( o1.FindPartsCS(FALSE) )
+#--> [ 1, 7, 12 ]
+
+? @@( o1.FindPartsAsSectionsCS(FALSE) )
+#--> [ [ 1, 6 ], [ 7, 11 ], [ 12, 14 ] ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzList([
+	"m", "m", "m",
+	"M", "M", "M",
+	"a", "a",
+	"A", "A", "A",
+	"i", "i", "i"
+])
+
+? @@NL( o1.PartsZ() ) + NL
 #--> [
-#	[ "mmm", "lowercase" ],
-#	[ "MMM", "uppercase" ],
-#	[ "aa", "lowercase" ],
-#	[ "AAA", "uppercase" ],
-#	[ "iii", "lowercase" ]
+#	[ [ "m", "m", "m" ], 1 ],
+#	[ [ "M", "M", "M" ], 4 ],
+#	[ [ "a", "a" ], 7 ],
+#	[ [ "A", "A", "A" ], 9 ],
+#	[ [ "i", "i", "i" ], 12 ]
 # ]
 
-//? @@NL( o1.ClassifyBy('Q(@item).CharCase()') ) + NL
+? @@NL( o1.PartsCSZ(FALSE) ) + NL
 #--> [
-#	[ "lowercase", [ "m", "a", "i" ] ],
-#	[ "uppercase", [ "M", "A" ] ]
+#	[ [ "m", "m", "m", "M", "M", "M" ], 1 ],
+#	[ [ "a", "a", "A", "A", "A" ], 7 ],
+#	[ [ "i", "i", "i" ], 12 ]
+# ]
+
+? @@NL( o1.PartsZZ() ) + NL
+#--> [
+#	[ [ "m", "m", "m" ], [ 1, 3 ] ],
+#	[ [ "M", "M", "M" ], [ 4, 6 ] ],
+#	[ [ "a", "a" ], [ 7, 8 ] ],
+#	[ [ "A", "A", "A" ], [ 9, 11 ] ],
+#	[ [ "i", "i", "i" ], [ 12, 14 ] ]
+# ]
+
+? @@NL( o1.PartsCSZZ(FALSE) ) + NL
+#--> [
+#	[ [ "m", "m", "m", "M", "M", "M" ], [ 1, 6 ] ],
+#	[ [ "a", "a", "A", "A", "A" ], [ 7, 11 ] ],
+#	[ [ "i", "i", "i" ], [ 12, 14 ] ]
 # ]
 
 proff()
-# Executed in 0.45 second(s)
+# Executed in 0.03 second(s)
 
-/*------------
+/*---------------
+
+pron()
+
+o1 = new stzList([
+	"m", "m", "m",
+	"M", "M", "M",
+	"a", "a",
+	"A", "A", "A",
+	"i", "i", "i"
+])
+
+? @@NL( o1.PartsUsing('Q(@item).CharCase()') ) + NL
+#--> [
+#	[ "m", "m", "m" ],
+#	[ "M", "M", "M" ],
+#	[ "a", "a" ],
+#	[ "A", "A", "A" ],
+#	[ "i", "i", "i" ]
+# ]
+
+? @@NL( o1.PartsUsingXT('Q(@item).CharCase()') ) + NL
+#--> [
+#	[ [ "m", "m", "m" ], "lowercase" ],
+#	[ [ "M", "M", "M" ], "uppercase" ],
+#	[ [ "a", "a" ], "lowercase" ],
+#	[ [ "A", "A", "A" ], "uppercase" ],
+#	[ [ "i", "i", "i" ], "lowercase" ]
+# ]
+
+proff()
+# Executed in 0.24 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzList([
+	"m", "m", "m",
+	"M", "M", "M",
+	"a", "a",
+	"A", "A", "A",
+	"i", "i", "i"
+])
+
+? @@( o1.FindPartsUsing('Q(@item).CharCase()') )
+#--> [ 1, 4, 7, 9, 12 ]
+
+? @@( o1.FindPartsAsSectionsUsing('Q(@item).CharCase()') ) + NL
+#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 8 ], [ 9, 11 ], [ 12, 14 ] ]
+
+proff()
+# Executed in 0.24 second(s)
+
+/*---------------
+
+pron()
+
+o1 = new stzList([
+	"m", "m", "m",
+	"M", "M", "M",
+	"a", "a",
+	"A", "A", "A",
+	"i", "i", "i"
+])
+
+# If you deactivate CaseSensitivity with CS = FALSE and
+# try to partition the list using CharCase(), then
+# Softanza detects it and return the hole list as one part
+
+? @@( o1.FindPartsUsingCS('Q(@item).CharCase()', FALSE) )
+#--> [ 1 ]
+
+? @@( o1.FindPartsAsSectionsUsingCS('Q(@item).CharCase()',FALSE) )
+#--> [ [ 1, 14 ] ]
+
+? @@( o1.PartsUsingCS('Q(@item).CharCase()', FALSE) ) + NL
+#--> [
+#	[ [ "m", "m", "m", "M", "M", "M", "a", "a", "A", "A", "A", "i", "i", "i" ] ]
+# ]
+
+? @@( o1.PartsUsingCSZZ('Q(@item).CharCase()', FALSE) ) + NL
+#--> [
+#	[
+#		[ "m", "m", "m", "M", "M", "M", "a", "a", "A", "A", "A", "i", "i", "i" ],
+#		[ 1, 14 ]
+#	]
+# ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*=======================
 
 pron()
 
