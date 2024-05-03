@@ -1,5 +1,191 @@
 load "stzlib.ring"
 
+/*========
+
+pron()
+
+o1 = new stzString("mmmMMMaaAAAiii")
+
+? @@( o1.FindParts() ) + NL
+# [ 1, 4, 7, 9, 12 ]
+
+? @@( o1.FindPartsCS(FALSE) ) + NL
+# [ 1, 7, 12 ]
+
+? @@( o1.FindPartsAsSections() ) + NL
+#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 8 ], [ 9, 11 ], [ 12, 14 ] ]
+
+? @@( o1.FindPartsAsSectionsCS(FALSE) )
+#--> [ [ 1, 6 ], [ 7, 11 ], [ 12, 14 ] ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*--------
+
+pron()
+
+o1 = new stzString("mmmMMMaaAAAiii")
+
+? @@( o1.Parts() )
+#--> [ "mmm", "MMM", "aa", "AAA", "iii" ]
+
+? @@( o1.PartsCS(FALSE) )
+#--> [ "mmmmmm", "aaaaa", "iii" ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*--------
+
+pron()
+
+o1 = new stzString("mmmMMMaaAAAiii")
+
+? @@NL( o1.PartsZ() ) + NL
+#--> [
+#	[ "mmm", 1 ],
+#	[ "MMM", 4 ],
+#	[ "aa", 7 ],
+#	[ "AAA", 9 ],
+#	[ "iii", 12 ]
+# ]
+
+? @@NL( o1.PartsCSZ(FALSE) ) + NL
+#--> [
+#	[ "mmmmmm", 1 ],
+#	[ "aaaaa", 7 ],
+#	[ "iii", 12 ]
+# ]
+
+? @@NL( o1.PartsZZ() ) + NL
+#--> [
+#	[ "mmm", [ 1, 3 ] ],
+#	[ "MMM", [ 4, 6 ] ],
+#	[ "aa", [ 7, 8 ] ],
+#	[ "AAA", [ 9, 11 ] ],
+#	[ "iii", [ 12, 14 ] ]
+# ]
+
+? @@NL( o1.PartsCSZZ(FALSE) )
+#--> [
+#	[ "mmmmmm", [ 1, 6 ] ],
+#	[ "aaaaa", [ 7, 11 ] ],
+#	[ "iii", [ 12, 14 ] ]
+# ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*===-----
+
+pron()
+
+o1 = new stzString("mmmMMMaaAAAiii")
+
+? @@( o1.FindPartsUsing('Q(@Char).CharCase()') ) + NL
+# [ 1, 4, 7, 9, 12 ]
+
+? @@( o1.FindPartsUsingCS('Q(@Char).CharCase()', FALSE) ) + NL
+# [ 1 ]
+/*
+? @@( o1.FindPartsAsSectionsUsing('Q(@Char).CharCase()') ) + NL
+#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 8 ], [ 9, 11 ], [ 12, 14 ] ]
+
+? @@( o1.FindPartsAsSectionsUsingCS('Q(@Char).CharCase()', FALSE) )
+#--> [ [ 1, 14 ] ]
+
+proff()
+# Executed in 0.49 second(s)
+
+/*--------
+*/
+pron()
+
+o1 = new stzString("mmmMMMaaAAAiii")
+
+? @@( o1.PartsUsing('Q(@Char).CharCase()') ) + NL
+#--> [ "mmm", "MMM", "aa", "AAA", "iii" ]
+
+? @@( o1.PartsUsingCS('Q(@Char).CharCase()', FALSE) ) + NL
+#--> [ [ "mmmMMMaaAAAiii" ] ]
+
+? @@NL( o1.PartsUsingXT('Q(@Char).CharCase()') ) + NL
+#--> [
+#	[ "mmm", "lowercase" ],
+#	[ "MMM", "uppercase" ],
+#	[ "aa", "lowercase" ],
+#	[ "AAA", "uppercase" ],
+#	[ "iii", "lowercase" ]
+# ]
+
+? @@( o1.PartsUsingCSXT('Q(@Char).CharCase()', FALSE) )
+#--> [ [ "mmmMMMaaAAAiii", "" ] ]
+
+proff()
+# Executed in 0.20 second(s)
+
+/*--------
+
+pron()
+
+o1 = new stzString("mmmMMMaaAAAiii")
+
+? @@NL( o1.PartsUsingZ('Q(@Char).CharCase()') ) + NL
+#--> [
+#	[ "mmm", 1 ],
+#	[ "MMM", 4 ],
+#	[ "aa", 7 ],
+#	[ "AAA", 9 ],
+#	[ "iii", 12 ]
+# ]
+
+? @@NL( o1.PartsUsingCSZ('Q(@Char).CharCase()', FALSE) ) + NL
+#--> [
+#	[ "mmmmmm", 1 ],
+#	[ "aaaaa", 7 ],
+#	[ "iii", 12 ]
+# ]
+
+? @@NL( o1.PartsUsingZZ('Q(@Char).CharCase()') ) + NL
+#--> [
+#	[ "mmm", [ 1, 3 ] ],
+#	[ "MMM", [ 4, 6 ] ],
+#	[ "aa", [ 7, 8 ] ],
+#	[ "AAA", [ 9, 11 ] ],
+#	[ "iii", [ 12, 14 ] ]
+# ]
+
+? @@NL( o1.PartsUsingCSZZ('Q(@Char).CharCase()', FALSE) )
+#--> [
+#	[ "mmmmmm", [ 1, 6 ] ],
+#	[ "aaaaa", [ 7, 11 ] ],
+#	[ "iii", [ 12, 14 ] ]
+# ]
+
+proff()
+# Executed in 0.02 second(s)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*========
 
