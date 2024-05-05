@@ -26660,10 +26660,10 @@ class stzList from stzObject
 		def HasSameContentAs(paOtherList)
 			return This.HasSameContent(paOtherList)
 
-	  #=====================================#
-	 #    CLASSIFYING (OR CATEGORIZING)    #
-	#=====================================#
-	
+	  #==================================================#
+	 #  CHECKING IF ALL THE ITEMS ARE CONTIGUOUS LISTS  #
+	#==================================================#
+
 	def AllItemsAreContiguousLists()
 		bResult = TRUE
 
@@ -26679,7 +26679,11 @@ class stzList from stzObject
 		def AllItemsAreContinuousLists()
 			return This.AllItemsAreContiguousLists()
 
-	def Classify()
+	  #=====================================#
+	 #    CLASSIFYING (OR CATEGORIZING)    #
+	#=====================================#
+	
+	def ClassifyCS(pCaseSensitive)
 
 		/* EXAMPLE
 
@@ -26705,6 +26709,17 @@ class stzList from stzObject
 		}
 		*/
 
+		nLen = This.NumberOfItems()
+
+		aResult = This.StringsUQ().Lowercased()
+
+		if This.ContainsItemsOtherThanStrings()
+			aResult + :Undefined
+		ok
+
+		return aResult
+
+/*
 		aClasses = This.UniqueItems()
 
 		cClass   = ""
@@ -26720,7 +26735,7 @@ class stzList from stzObject
 		next
 
 		return aResult
-
+*/
 		#< @FunctionFluentForm
 
 		def ClassifyQ()
@@ -26797,7 +26812,9 @@ class stzList from stzObject
 
 		#>
 
-	#--
+	#--------------------------------------------#
+	#   GETTING THE LIST OF CLASSES IN THE LIST  #
+	#============================================#
 
 	def Classes()
 
@@ -36460,6 +36477,401 @@ class stzList from stzObject
 
 	def ContainsAtAnyLevel(pItem) #TODO
 		// TODO
+
+	  #------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS ITEMS THAT ARE NOT STRINGS  #
+	#============================================================#
+
+	def ContainsItemsOtherThanStrings()
+		if This.ContainsNumbers() or
+		   This.ContainsLists() or
+		   This.ContainsObjects()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def ContainsItemsThatAreNotStrings()
+			return This.ContainsItemsOtherThanStrings()
+
+		def ContainsItemsWhichAreNotStrings()
+			return This.ContainsItemsOtherThanStrings()
+
+		#--
+
+		def IsMadeOfItemsOtherThanStrings()
+			return This.ContainsItemsOtherThanStrings()
+
+		def IsMadeOfItemsThatAreNotStrings()
+			return This.ContainsItemsOtherThanStrings()
+
+		def IsMadeOfItemsWhichAreNotStrings()
+			return This.ContainsItemsOtherThanStrings()
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS ITEMS THAT ARE NOT NUMBERS  #
+	#------------------------------------------------------------#
+
+	def ContainsItemsOtherThanNumbers()
+		if This.ContainsStrings() or
+		   This.ContainsLists() or
+		   This.ContainsObjects()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def ContainsItemsThatAreNotNumbers()
+			return This.ContainsItemsOtherThanNumbers()
+
+		def ContainsItemsWhichAreNotNumbers()
+			return This.ContainsItemsOtherThanNumbers()
+
+		#--
+
+		def IsMadeOfItemsOtherThanNumbers()
+			return This.ContainsItemsOtherThanNumbers()
+
+		def IsMadeOfItemsThatAreNotNumbers()
+			return This.ContainsItemsOtherThanNumbers()
+
+		def IsMadeOfItemsWhichAreNotNumbers()
+			return This.ContainsItemsOtherThanNumbers()
+
+		#>
+
+	  #----------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS ITEMS THAT ARE NOT LISTS  #
+	#----------------------------------------------------------#
+
+	def ContainsItemsOtherThanLists()
+		if This.ContainsNumbers() or
+		   This.ContainsStrings() or
+		   This.ContainsObjects()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def ContainsItemsThatAreNotLists()
+			return This.ContainsItemsOtherThanLists()
+
+		def ContainsItemsWhichAreNotLists()
+			return This.ContainsItemsOtherThanLists()
+
+		#--
+
+		def IsMadeOfItemsOtherThanLists()
+			return This.ContainsItemsOtherThanLists()
+
+		def IsMadeOfItemsThatAreNotLists()
+			return This.ContainsItemsOtherThanLists()
+
+		def IsMadeOfItemsWhichAreNotLists()
+			return This.ContainsItemsOtherThanLists()
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS ITEMS THAT ARE NOT OBJECTS  #
+	#------------------------------------------------------------#
+
+	def ContainsItemsOtherThanObjects()
+		if This.ContainsNumbers() or
+		   This.ContainsStrings() or
+		   This.ContainsLists()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def ContainsItemsThatAreNotObjects()
+			return This.ContainsItemsOtherThanObjects()
+
+		def ContainsItemsWhichAreNotObjects()
+			return This.ContainsItemsOtherThanObjects()
+
+		#--
+
+		def IsMadeOfItemsOtherThanObjects()
+			return This.ContainsItemsOtherThanObjects()
+
+		def IsMadeOfItemsThatAreNotObjects()
+			return This.ContainsItemsOtherThanObjects()
+
+		def IsMadeOfItemsWhichAreNotObjects()
+			return This.ContainsItemsOtherThanObjects()
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS ONLY ITEMS THAT ARE NOT STRINGS  #
+	#=================================================================#
+
+	def ContainsOnlyItemsOtherThanStrings()
+
+		if This.ContainsStrings()
+			return FALSE
+		ok
+
+		if This.ContainsNumbers() or
+		   This.ContainsLists() or
+		   This.ContainsObjects()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def ContainsOnlyItemsThatAreNotStrings()
+			return This.ContainsOnlyItemsOtherThanStrings()
+
+		def ContainsOnlyItemsWhichAreNotStrings()
+			return This.ContainsOnlyItemsOtherThanStrings()
+
+		#--
+
+		def IsMadeOfOnlyItemsOtherThanStrings()
+			return This.ContainsOnlyItemsOtherThanStrings()
+
+		def IsMadeOfOnlyItemsThatAreNotStrings()
+			return This.ContainsOnlyItemsOtherThanStrings()
+
+		def IsMadeOfOnlyItemsWhichAreNotStrings()
+			return This.ContainsOnlyItemsOtherThanStrings()
+
+		#==
+
+		def ContainsItemsThatAreNotStringsOnly()
+			return This.ContainsOnlyItemsOtherThanStrings()
+
+		def ContainsItemsWhichAreNotStringsOnly()
+			return This.ContainsOnlyItemsOtherThanStrings()
+
+		#--
+
+		def ContainsItemsOtherThanStringsOnly()
+			return This.ContainsOnlyItemsOtherThanStrings()
+
+		def IsMadeOfItemsOtherThanStringsOnly()
+			return This.ContainsOnlyItemsOtherThanStrings()
+
+		def IsMadeOfItemsThatAreNotStringsOnly()
+			return This.ContainsOnlyItemsOtherThanStrings()
+
+		def IsMadeOfItemsWhichAreNotStringsOnly()
+			return This.ContainsOnlyItemsOtherThanStrings()
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS ONLY ITEMS THAT ARE NOT NUMBERS  #
+	#-----------------------------------------------------------------#
+
+	def ContainsOnlyItemsOtherThanNumbers()
+
+		if This.ContainsNumbers()
+			return FALSE
+		ok
+
+		if This.ContainsStrings() or
+		   This.ContainsLists() or
+		   This.ContainsObjects()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def ContainsOnlyItemsThatAreNotNumbers()
+			return This.ContainsOnlyItemsOtherThanNumbers()
+
+		def ContainsOnlyItemsWhichAreNotNumbers()
+			return This.ContainsOnlyItemsOtherThanNumbers()
+
+		#--
+
+		def IsMadeOfOnlyItemsOtherThanNumbers()
+			return This.ContainsOnlyItemsOtherThanNumbers()
+
+		def IsMadeOfOnlyItemsThatAreNotNumbers()
+			return This.ContainsOnlyItemsOtherThanNumbers()
+
+		def IsMadeOfOnlyItemsWhichAreNotNumbers()
+			return This.ContainsOnlyItemsOtherThanNumbers()
+
+		#==
+
+		def ContainsItemsThatAreNotNumbersOnly()
+			return This.ContainsOnlyItemsOtherThanNumbers()
+
+		def ContainsItemsWhichAreNotNumbersOnly()
+			return This.ContainsOnlyItemsOtherThanObjects()
+
+		#--
+
+		def ContainsItemsOtherThanNumbersOnly()
+			return This.ContainsOnlyItemsOtherThanNumbers()
+
+		def IsMadeOfItemsOtherThanNumbersOnly()
+			return This.ContainsOnlyItemsOtherThanNumbers()
+
+		def IsMadeOfItemsThatAreNotNumbersOnly()
+			return This.ContainsOnlyItemsOtherThanNumbers()
+
+		def IsMadeOfItemsWhichAreNotNumbersOnly()
+			return This.ContainsOnlyItemsOtherThanNumbers()
+
+		#>
+
+	  #---------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS ONLY ITEMS THAT ARE NOT LISTS  #
+	#---------------------------------------------------------------#
+
+	def ContainsOnlyItemsOtherThanLists()
+
+		if This.ContainsLists()
+			return FALSE
+		ok
+
+		if This.ContainsNumbers() or
+		   This.ContainsStrings() or
+		   This.ContainsObjects()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def ContainsOnlyItemsThatAreNotLists()
+			return This.ContainsOnlyItemsOtherThanLists()
+
+		def ContainsOnlyItemsWhichAreNotLists()
+			return This.ContainsOnlyItemsOtherThanLists()
+
+		#--
+
+		def IsMadeOfOnlyItemsOtherThanLists()
+			return This.ContainsOnlyItemsOtherThanLists()
+
+		def IsMadeOfOnlyItemsThatAreNotLists()
+			return This.ContainsOnlyItemsOtherThanLists()
+
+		def IsMadeOfOnlyItemsWhichAreNotLists()
+			return This.ContainsOnlyItemsOtherThanLists()
+
+		#==
+
+		def ContainsItemsThatAreNotlistsOnly()
+			return This.ContainsOnlyItemsOtherThanLists()
+
+		def ContainsItemsWhichAreNotListsOnly()
+			return This.ContainsOnlyItemsOtherThanLists()
+
+		#--
+
+		def ContainsItemsOtherThanListsOnly()
+			return This.ContainsOnlyItemsOtherThanLists()
+
+		def IsMadeOfItemsOtherThanListsOnly()
+			return This.ContainsOnlyItemsOtherThanLists()
+
+		def IsMadeOfItemsThatAreNotListsOnly()
+			return This.ContainsOnlyItemsOtherThanLists()
+
+		def IsMadeOfItemsWhichAreNotListsOnly()
+			return This.ContainsOnlyItemsOtherThanLists()
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS ONLY ITEMS THAT ARE NOT OBJECTS  #
+	#-----------------------------------------------------------------#
+
+	def ContainsOnlyItemsOtherThanObjects()
+		if This.ContainsObjects()
+			return FALSE
+		ok
+
+		if This.ContainsNumbers() or
+		   This.ContainsStrings() or
+		   This.ContainsLists()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def ContainsOnlyItemsThatAreNotObjects()
+			return This.ContainsOnlyItemsOtherThanObjects()
+
+		def ContainsOnlyItemsWhichAreNotObjects()
+			return This.ContainsOnlyItemsOtherThanObjects()
+
+		#--
+
+		def IsMadeOfOnlyItemsOtherThanObjects()
+			return This.ContainsOnlyItemsOtherThanObjects()
+
+		def IsMadeOfOnlyItemsThatAreNotObjects()
+			return This.ContainsOnlyItemsOtherThanObjects()
+
+		def IsMadeOfOnlyItemsWhichAreNotObjects()
+			return This.ContainsOnlyItemsOtherThanObjects()
+
+		#==
+
+		def ContainsItemsThatAreNotObjectsOnly()
+			return This.ContainsOnlyItemsOtherThanObjects()
+
+		def ContainsItemsWhichAreNotObjectsOnly()
+			return This.ContainsOnlyItemsOtherThanObjects()
+
+		#--
+
+		def ContainsItemsOtherThanObjectsOnly()
+			return This.ContainsOnlyItemsOtherThanObjects()
+
+		def IsMadeOfItemsOtherThanObjectsOnly()
+			return This.ContainsOnlyItemsOtherThanObjects()
+
+		def IsMadeOfItemsThatAreNotObjectsOnly()
+			return This.ContainsOnlyItemsOtherThanObjects()
+
+		def IsMadeOfItemsWhichAreNotObjectsOnly()
+			return This.ContainsOnlyItemsOtherThanObjects()
+
+		#>
 
 	  #======================#
 	 #    LIST STRUCTURE    #

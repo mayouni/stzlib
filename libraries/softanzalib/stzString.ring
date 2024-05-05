@@ -995,6 +995,11 @@ class stzString from stzObject
 			return :Hybridcase
 		ok
 
+		#< @FunctionAlternativeForms
+
+		def CharCase()
+			return This.StringCase()
+
 		def CharsCase()
 			return This.StringCase()
 
@@ -1004,17 +1009,7 @@ class stzString from stzObject
 		def WordCase()
 			return This.StringCase()
 
-	  #---------------------------------------------#
-	 #  IF THE STRING IS A CHAR, GETTING ITS CASE  #
-	#---------------------------------------------#
-
-	def CharCase() #TODO: unable to use Case() as a name. See why?
-		if This.NumberOfChars() = 1
-			return This.StringCase()
-
-		else
-			StzRaise("Can't proceeed. You must provide a char. To get the case of a string, use StringCase().")
-		ok
+		#>
 
 	  #---------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING HAS THE SAME CASE AS AN OTHER GIVEN STRING  #
@@ -58104,7 +58099,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		# Early check
 
-		nLen = This.Content()
+		nLen = This.NumberOfChars()
 
 		if nLen < 2
 			return [ [ This.Content(), 1 ] ]
@@ -58195,7 +58190,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		# Early check
 
-		nLen = This.Content()
+		nLen = This.NumberOfChars()
 
 		if nLen < 2
 			return [ [ This.Content(), [ 1, nLen ] ] ]
