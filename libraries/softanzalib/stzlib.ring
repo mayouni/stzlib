@@ -10,9 +10,10 @@ load "internetlib.ring"
 load "typehints.ring"
 
 //? (clock()-t1)/clockspersecond()
+# 0.05 seconds in Ring 1.20 (64 bits)
 # 0.05 seconds in Ring 1.19 (64 bits)
 
-t1 = clock()
+//t1 = clock()
 
 load "stzGlobal.ring"
 load "stzTest.ring"
@@ -62,7 +63,6 @@ load "stzListOfBytesError.ring"
 load "stzChar.ring"
 load "stzCharError.ring"
 load "stzCharData.ring"
-
 load "stzListOfChars.ring"
 load "stzListOfCharsError.ring"
 
@@ -143,4 +143,7 @@ load "stzSection.ring"
 load "stzNaturalCode.ring"
 
 //? (clock()-t1)/clockspersecond()
+# Softanza startup time : 0.05 second(s) in Ring 1.20 (64 bits)
 # Softanza startup time : 0.09 second(s) in Ring 1.19 (64 bits)
+# Softanza startup time : 0.05 second(s) in Ring 1.18
+# Softanza startup time : 0.08 second(s) in Ring 1.18

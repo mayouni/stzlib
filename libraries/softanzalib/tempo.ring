@@ -559,6 +559,19 @@ o1 = new stzString("abc")
 proff()
 # Executed in 0.03 second(s)
 
+/*============
+*/
+pron()
+
+o1 = new stzList([ "Hello", "there!", ANullObject(), Q("9") ])
+
+o1.StringifyObjects()
+#--> [ "Hello", "there!", "@nullobject", "@noname" ]
+
+? o1.Content()
+
+proff()
+
 /*=========== CLASSIFYING A LIST
 */
 pron()

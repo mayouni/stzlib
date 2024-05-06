@@ -379,12 +379,14 @@ Dotless LETTERS
 	 #   PUNCTUATION   #
 	#-----------------#
 
-	#WARNING : The two unicode blocks GENERAL_PUNC and SUPPLEMENTAL_PUNCT
+	#WARNING
+	# The two unicode blocks GENERAL_PUNC and SUPPLEMENTAL_PUNCT
 	# do not contain basic punctuations like ",",";", and so on.
 	# Those are classified in the category "Other Punctuation". Listed here:
 	# https://www.compart.com/en/unicode/category/Po
 
-	#TODO --> Add them to this list of unicodes herefater, otherwise the
+	#TODO
+	# Add them to this list of unicodes herefater, otherwise the
 	# use of Punctuations() function would lead the user to error...
 
 	_anOtherPunctuationUnicodes	= [] #TODO: Comptete it
@@ -393,16 +395,16 @@ Dotless LETTERS
 
 	# Merging the three lists above
 	_anPunctuationUnicodes = []
-	for item in _anOtherPunctuationUnicodes
-		_anPunctuationUnicodes + item
+	for ___item___ in _anOtherPunctuationUnicodes
+		_anPunctuationUnicodes + ___item___
 	next
 
-	for item in _anGeneralPunctuationUnicodes
-		_anPunctuationUnicodes + item
+	for ___item___ in _anGeneralPunctuationUnicodes
+		_anPunctuationUnicodes + ___item___
 	next
 
-	for item in _anSupplementalPunctuationCodes
-		_anPunctuationUnicodes + item
+	for ___item___ in _anSupplementalPunctuationCodes
+		_anPunctuationUnicodes + ___item___
 	next
 
 	  #-------------------#
@@ -471,35 +473,35 @@ Dotless LETTERS
 
 	_anArabicPresentationFormUnicodes = []
 
-	for item in _anArabicPresentationFormAUnicodes
-		_anArabicPresentationFormUnicodes + item
+	for ___item___ in _anArabicPresentationFormAUnicodes
+		_anArabicPresentationFormUnicodes + ___item___
 	next
 
-	for item in _anArabicPresentationFormBUnicodes
-		_anArabicPresentationFormUnicodes + item
+	for ___item___ in _anArabicPresentationFormBUnicodes
+		_anArabicPresentationFormUnicodes + ___item___
 	next
 
 	# All Arabic unicodes
 
 	_anArabicUnicodes = []
 
-	for item in _anArabicBasicUnicodes
-		_anArabicUnicodes + item
+	for ___item___ in _anArabicBasicUnicodes
+		_anArabicUnicodes + ___item___
 	next
-	for item in _anArabicSupplementUnicodes
-		_anArabicUnicodes + item
+	for ___item___ in _anArabicSupplementUnicodes
+		_anArabicUnicodes + ___item___
 	next
-	for item in _anArabicExtendedAUnicodes
-		_anArabicUnicodes + item
+	for ___item___ in _anArabicExtendedAUnicodes
+		_anArabicUnicodes + ___item___
 	next
-	for item in _anArabicPresentationFormAUnicodes
-		_anArabicUnicodes + item
+	for ___item___ in _anArabicPresentationFormAUnicodes
+		_anArabicUnicodes + ___item___
 	next
-	for item in _anArabicPresentationFormBUnicodes
-		_anArabicUnicodes + item
+	for ___item___ in _anArabicPresentationFormBUnicodes
+		_anArabicUnicodes + ___item___
 	next
-	for item in _anArabicMathAlphabeticSymbolUnicodes
-		_anArabicUnicodes + item
+	for ___item___ in _anArabicMathAlphabeticSymbolUnicodes
+		_anArabicUnicodes + ___item___
 	next
 
 	# Arabic Dotless letters
@@ -620,11 +622,11 @@ Dotless LETTERS
 	
 	_anArabicHamzahUnicodes = []
 
-	for item in _anArabicHamzahKat3iahUnicodes
-		_anArabicHamzahUnicodes + item
+	for ___item___ in _anArabicHamzahKat3iahUnicodes
+		_anArabicHamzahUnicodes + ___item___
 	next
-	for item in _anArabicHamzahWasliahUnicodes
-		_anArabicHamzahUnicodes + item
+	for ___item___ in _anArabicHamzahWasliahUnicodes
+		_anArabicHamzahUnicodes + ___item___
 	next
 
 	  #-------------------#
@@ -644,29 +646,29 @@ Dotless LETTERS
 	
 	_anLatinUnicodes = []
 	
-	for item in _anLatinBasicUnicodes
-		_anLatinUnicodes + item
+	for ___item___ in _anLatinBasicUnicodes
+		_anLatinUnicodes + ___item___
 	next
-	for item in _anLatin1SupplementUnicodes
-		_anLatinUnicodes + item
+	for ___item___ in _anLatin1SupplementUnicodes
+		_anLatinUnicodes + ___item___
 	next
-	for item in _anLatinExtendedAUnicodes
-		_anLatinUnicodes + item
+	for ___item___ in _anLatinExtendedAUnicodes
+		_anLatinUnicodes + ___item___
 	next
-	for item in _anLatinExtendedBUnicodes
-		_anLatinUnicodes + item
+	for ___item___ in _anLatinExtendedBUnicodes
+		_anLatinUnicodes + ___item___
 	next
-	for item in _anLatinExtendedAdditionalUnicodes
-		_anLatinUnicodes + item
+	for ___item___ in _anLatinExtendedAdditionalUnicodes
+		_anLatinUnicodes + ___item___
 	next
-	for item in _anLatinExtendedCUnicodes
-		_anLatinUnicodes + item
+	for ___item___ in _anLatinExtendedCUnicodes
+		_anLatinUnicodes + ___item___
 	next
-	for item in _anLatinExtendedDUnicodes
-		_anLatinUnicodes + item
+	for ___item___ in _anLatinExtendedDUnicodes
+		_anLatinUnicodes + ___item___
 	next
-	for item in _anLatinExtendedEUnicodes
-		_anLatinUnicodes + item
+	for ___item___ in _anLatinExtendedEUnicodes
+		_anLatinUnicodes + ___item___
 	next
 
 	# Dotless chars
@@ -945,11 +947,11 @@ Dotless LETTERS
 
 	_anLatinCircledLetterUnicodes = []
 
-	for item in _anLatinCircledCapitalLetterUnicodes
-		_anLatinCircledLetterUnicodes + item
+	for ___item___ in _anLatinCircledCapitalLetterUnicodes
+		_anLatinCircledLetterUnicodes + ___item___
 	next
-	for item in _anLatinCircledSmallLetterUnicodes
-		_anLatinCircledLetterUnicodes + item
+	for ___item___ in _anLatinCircledSmallLetterUnicodes
+		_anLatinCircledLetterUnicodes + ___item___
 	next
 
 	# Invisible chars
@@ -1000,11 +1002,11 @@ Dotless LETTERS
 
 	_acWordNonLetterChars = []
 
-	for item in [ "_", "-", "*", "/", "\", "+" ]
-		_acWordNonLetterChars + item
+	for ___item___ in [ "_", "-", "*", "/", "\", "+" ]
+		_acWordNonLetterChars + ___item___
 	next
-	for item in ArabicNumbers()
-		_acWordNonLetterChars + item
+	for ___item___ in ArabicNumbers()
+		_acWordNonLetterChars + ___item___
 	next
 
 	/* Example of words containing those non-letter chars:
@@ -1311,39 +1313,39 @@ Dotless LETTERS
 	# Diacritics
 
 	_anDiacriticsUnicodes = []
-	for item in _anLatinDiacriticsUnicodes
-		_anDiacriticsUnicodes + item
+	for ___item___ in _anLatinDiacriticsUnicodes
+		_anDiacriticsUnicodes + ___item___
 	next
-	for item in _anArabicDiacriticsUnicodes
-		_anDiacriticsUnicodes + item
+	for ___item___ in _anArabicDiacriticsUnicodes
+		_anDiacriticsUnicodes + ___item___
 	next
-	for item in _anGreekDiacriticsUnicodes
-		_anDiacriticsUnicodes + item
+	for ___item___ in _anGreekDiacriticsUnicodes
+		_anDiacriticsUnicodes + ___item___
 	next
-	for item in _anHebrewDiacriticsUnicodes
-		_anDiacriticsUnicodes + item
+	for ___item___ in _anHebrewDiacriticsUnicodes
+		_anDiacriticsUnicodes + ___item___
 	next
 	
 	# Diacricized chars
 
 	_anDiacricizedUnicodes = []
 
-	for item in _anLatinDiacriticsUnicodes
-		_anDiacricizedUnicodes + item
+	for ___item___ in _anLatinDiacriticsUnicodes
+		_anDiacricizedUnicodes + ___item___
 	next
-	for item in _anGreekDiacriticsUnicodes
-		_anDiacricizedUnicodes + item
+	for ___item___ in _anGreekDiacriticsUnicodes
+		_anDiacricizedUnicodes + ___item___
 	next
 
 	# Diacricized chars -- EXTENDED
 
 	_aDiacricizedCharsXT = []
 
-	for item in _aLatinDiacriticsXT
-		_aDiacricizedCharsXT + item
+	for ___item___ in _aLatinDiacriticsXT
+		_aDiacricizedCharsXT + ___item___
 	next
-	for item in _aGreekDiacriticsXT
-		_aDiacricizedCharsXT + item
+	for ___item___ in _aGreekDiacriticsXT
+		_aDiacricizedCharsXT + ___item___
 	next
 
 	  #----------------------------------#

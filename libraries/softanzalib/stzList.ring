@@ -26715,19 +26715,21 @@ class stzList from stzObject
 		anPosUndefined = []
 		acSeen = []
 
-		for i = 1 to nLen
-			if NOT ( isString(@aContent[i]) or isObject(@aContent[i]) )
-				anPosUndefined + i
+		aResult = []
 
-			else
-				n = ring_find(acSeen, acContent[i])
-				if n = 0
-					aResult + [ aResult, [] ]
+		for i = 1 to nLen
+			
+			if isString(@aContent[i])
+
+				if ring_find(acSeen, acContent[i]) = 0
+					aResult + [ acContent[i], [] ]
 
 				else
 					aResult[ acContent[i] ][2] + i
 					acSeen + acContent[i]
 				ok
+			else
+				anPosUndefined + i
 			ok
 		next
 
@@ -47018,31 +47020,24 @@ class stzList from stzObject
 
 	def Stringify()
 
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		acResult = []
-		cItem = ""
+		nLen = len(@aContent)
 
 		for i = 1 to nLen
-			item = aContent[i]
-			if isString(item)
-				cItem = item
 
-			but isNumber(item)
-				cItem = ""+ item
+			if isString(@aContent[i])
+				loop
 
-			but isList(item)
-				cItem = @@(item)
+			but isNumber(@aContent[i])
+				@aContent[i] = ""+ @aContent[i]
 
-			but isObject(item)
-				cItem = @ObjectVarName(aContent[i])
+			but isList(@aContent[i])
+				@aContent[i] = @@(@aContent[i])
+
+			but isObject(@aContent[i])
+				@aContent[i] = @ObjectVarName(@aContent[i])
 			ok
 
-			acResult + cItem
 		next
-
-		This.UpdateWith(acResult)
 
 		#< @FunctionFluentForm
 
@@ -47083,30 +47078,22 @@ class stzList from stzObject
 		def ToListOfStringifiedItems()
 			return This.Stringified()
 
-	  #----------------------------------------#
-	 #  STRINGIFYING THE OBJECTS IN THE LIST  #
-	#----------------------------------------#
+	  #--------------------------------------#
+	 #  STRINGIFYING THE LISTS IN THE LIST  #
+	#--------------------------------------#
 
-	def StringifyObjects()
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		acResult = []
-		cItem = ""
+	def StringifyLists()
+		nLen = len(@aContent)
 
 		for i = 1 to nLen
-			item = aContent[i]
-			if isList(item)
-				cItem = @@(item)
+			if isList(@aContent[i])
+				@aContent[i] = @@(@aContent[i])	
 			ok
-
-			acResult + cItem
 		next
 
-		This.UpdateWith(acResult)
-
 		def StringifylistsQ()
-			return new stzList( This.Stringifylists() )
+			This.Stringifylists()
+			return This
 
 	def ListsStringified()
 		aResult = This.Copy().StringifyListsQ().Content()
@@ -47116,26 +47103,20 @@ class stzList from stzObject
 	 #  STRINGIFYING THE OBJECTS IN THE LIST  #
 	#----------------------------------------#
 
-	def StringifyLists()
-		aContent = This.Content()
-		nLen = len(aContent)
+	def StringifyObjects()
 
-		acResult = []
-		cItem = ""
+		nLen = len(@aContent)
 
 		for i = 1 to nLen
-			item = aContent[i]
-			if isObject(item)
-				cItem = @ObjectVarName(aContent[i])
+			if isObject(@aContent[i])
+				@aContent[i] = @ObjectVarName(@aContent[i])	
 			ok
-
-			acResult + cItem
 		next
 
-		This.UpdateWith(acResult)
 
 		def StringifyObjectsQ()
-			return new stzList( This.StringifyObjects() )
+			This.StringifyObjects()
+			return This
 
 	def ObjectsStringified()
 		aResult = This.Copy().StringifyObjectsQ().Content()
