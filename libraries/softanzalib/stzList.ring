@@ -15679,7 +15679,7 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT @IsList(@aContent[i])
+			if NOT isList(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
@@ -26683,7 +26683,7 @@ class stzList from stzObject
 	 #    CLASSIFYING (OR CATEGORIZING)    #
 	#=====================================#
 	
-	def ClassifyCS(pCaseSensitive)
+	def Classify()
 
 		/* EXAMPLE
 
@@ -26699,7 +26699,7 @@ class stzList from stzObject
 		]
 		
 		StzListQ(aList) {
-		 	? Classify()
+		 	? ClassifyZ()
 			#--> [
 			# 	:Arabic  = [ 1, 2, 8 ],
 			# 	:French  = [ 3 ],
@@ -26709,34 +26709,34 @@ class stzList from stzObject
 		}
 		*/
 
-		nLen = This.NumberOfItems()
+		acContent = This.StringifyObjectsQ().Lowercased()
 
-		aResult = This.StringsUQ().Lowercased()
+		nLen = len(@aContent)
+		anPosUndefined = []
+		acSeen = []
 
-		if This.ContainsItemsOtherThanStrings()
-			aResult + :Undefined
-		ok
+		for i = 1 to nLen
+			if NOT ( isString(@aContent[i]) or isObject(@aContent[i]) )
+				anPosUndefined + i
 
-		return aResult
+			else
+				n = ring_find(acSeen, acContent[i])
+				if n = 0
+					aResult + [ aResult, [] ]
 
-/*
-		aClasses = This.UniqueItems()
-
-		cClass   = ""
-		aResult  = []
-
-		for pClass in aCLasses
-			anPos = This.FindAll(pClass)
-
-			cClass = @@( pClass )
-
-			aResult + [ cClass, anPos ]
-
+				else
+					aResult[ acContent[i] ][2] + i
+					acSeen + acContent[i]
+				ok
+			ok
 		next
 
+		aResult + [ :@Undefined, anPosUndefined ]
+
+
 		return aResult
-*/
-		#< @FunctionFluentForm
+
+		#< @FunctionFluentForms
 
 		def ClassifyQ()
 			return This.ClassifyQR(:stzList)
@@ -26750,7 +26750,7 @@ class stzList from stzObject
 			on :stzList
 				return new stzList( This.Classify() )
 
-			on :stzHashList
+			on :stzListOfHashList
 				return new stzHashList( This.Classify() )
 
 			other
@@ -26812,8 +26812,8 @@ class stzList from stzObject
 
 		#>
 
-	#--------------------------------------------#
-	#   GETTING THE LIST OF CLASSES IN THE LIST  #
+	  #--------------------------------------------#
+	 #   GETTING THE LIST OF CLASSES IN THE LIST  #
 	#============================================#
 
 	def Classes()
@@ -41318,7 +41318,7 @@ class stzList from stzObject
 		#--> Stackovervlow!
 		*/
 
-		aContent = This.COntent()
+		aContent = This.Content()
 		nLen = len(aContent)
 		aResult = []
 
@@ -41378,6 +41378,28 @@ class stzList from stzObject
 				off
 
 		#>
+
+	#TODO
+	# Add NumbersU(), ListsU() and ObjectsU()
+
+	def StringsU()
+		#TODO
+		# Add caseSensitivity
+	
+		aContent = This.Content()
+		nLen = len(aContent)
+		acResult = []
+
+		for i = 1 to nLen
+			if isString(aContent[i]) and ring_find(acResult,aContent[i]) = 0
+				acResult + aContent[i]
+			ok
+		next
+
+		return acResult
+
+		def StringsUQ()
+			return new stzList( This.StringsU() )	
 
 	def FindString(paString) # Add case sensitivity
 
@@ -47060,6 +47082,64 @@ class stzList from stzObject
 
 		def ToListOfStringifiedItems()
 			return This.Stringified()
+
+	  #----------------------------------------#
+	 #  STRINGIFYING THE OBJECTS IN THE LIST  #
+	#----------------------------------------#
+
+	def StringifyObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		acResult = []
+		cItem = ""
+
+		for i = 1 to nLen
+			item = aContent[i]
+			if isList(item)
+				cItem = @@(item)
+			ok
+
+			acResult + cItem
+		next
+
+		This.UpdateWith(acResult)
+
+		def StringifylistsQ()
+			return new stzList( This.Stringifylists() )
+
+	def ListsStringified()
+		aResult = This.Copy().StringifyListsQ().Content()
+		return aResult
+
+	  #----------------------------------------#
+	 #  STRINGIFYING THE OBJECTS IN THE LIST  #
+	#----------------------------------------#
+
+	def StringifyLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		acResult = []
+		cItem = ""
+
+		for i = 1 to nLen
+			item = aContent[i]
+			if isObject(item)
+				cItem = @ObjectVarName(aContent[i])
+			ok
+
+			acResult + cItem
+		next
+
+		This.UpdateWith(acResult)
+
+		def StringifyObjectsQ()
+			return new stzList( This.StringifyObjects() )
+
+	def ObjectsStringified()
+		aResult = This.Copy().StringifyObjectsQ().Content()
+		return aResult
 
 	  #---------------------------------------------------------------------#
 	 #  Q-STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BECOME QSTRINGS)  #

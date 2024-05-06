@@ -247,11 +247,22 @@ class stzListOfLists from stzList
 
 		if CheckParams()
 
-		if NOT ( isList(paList) and
-		  	 ( len(paList) = 0 or @IsListOfLists(paList) ) )
-
-			StzRaise("Can't create the stzListOfLists object! You must provide a list that is empty or a list of lists.")
-		ok
+			if NOT isList(paList) 
+				StzRaise("Can't create the object! You must provide a list.")
+			ok
+	
+			bOk = TRUE
+			nLen = len(paList)
+	
+			for i = 1 to nLen
+				if NOT isList(paList[i])
+					bOk = FALSE
+				ok
+			next
+	
+			if NOT bOk
+				StzRaise("Can't create the object! You must provide a list of lists!")
+			ok
 
 		ok
 
@@ -2585,6 +2596,29 @@ class stzListOfLists from stzList
 	 #  GETTING THE NTH COLOUMN IN THE LIST OF LISTS  #
 	#================================================#
 
+	def NumberOfColumns()
+		nResult = This.MaxSiz()
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfCols()
+			return This.NumberOfColumns()
+
+		def CountColumns()
+			return This.NumberOfColumns()
+
+		def CountCols()
+			return This.NumberOfColumns()
+
+		def HowManyColumns()
+			return This.NumberOfColumns()
+
+		def HowManyCols()
+			return This.NumberOfColumns()
+
+		#>
+
 	def NthColumn(n)
 		if CheckParams()
 			if NOT isNumber(n)
@@ -2625,6 +2659,30 @@ class stzListOfLists from stzList
 
 			def NthColQ(n)
 				return This.NthColumnQ(n)
+
+	def FirstColumn()
+		return This.NthColumn(1)
+
+		def FirstColumnQ()
+			return new stzList(This.FirstColumn())
+
+		def FirstCol()
+			return This.FirstColumn()
+
+			def FirstColQ()
+				return This.FirstColumnQ()
+
+	def LastColumn()
+		return This.NthColumn(This)
+
+		def LastColumnQ()
+			return new stzList(This.LastColumn())
+
+		def LastCol()
+			return This.LastColumn()
+
+			def LastColQ()
+				return This.LastColumnQ()
 
 	  #==========================================#
 	 #  ADDING A COLUMN AT THE END OF THE LIST  #
@@ -3080,6 +3138,108 @@ class stzListOfLists from stzList
  
 		#>
 	
+	  #=================================#
+	 #  CLASSIFYING THE LIST OF LISTS  #
+	#=================================#
+
+	def Classify()
+		aContent = This.Content()
+
+		aClassesZ = This.FirstColQ().Classified()
+		nLen = len(aClassesZ)
+? @@NL(aClassesZ)
+		aResult = []
+
+		for i = 1 to nLen
+			cClass = aClassesZ[i][1]
+			nLenList = len(aClassesZ[i])
+
+			aItems = []
+			for j = 2 to nLenList
+				aItems + aContent[ aClassesZ[i][j] ]
+			next
+
+			aResult + [ cClass, aItems ]
+		next
+
+		return aResult
+
+		#< @FunctionFluentForms
+
+		def ClassifyQ()
+			return This.ClassifyQR(:stzList)
+
+		def ClassifyQR(pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Classify() )
+
+			on :stzListOfHashList
+				return new stzHashList( This.Classify() )
+
+			other
+				StzRaise("Unssupported return type!")
+
+			off
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def classified()
+			return this.classify()
+
+		def Categorize()
+			return This.Classify()
+
+			def CategorizeQ()
+				return This.CategorizeQR(:stzList)
+	
+			def CategorizeQR(pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.Categorize() )
+	
+				on :stzHashList
+					return new stzHashList( This.Categorize() )
+	
+				other
+					StzRaise("Unssupported return type!")
+	
+				off
+
+		def Categorise()
+			return This.Classify()
+
+			def CategoriseQ()
+				return This.CategoriseQR(:stzList)
+	
+			def CategoriseQR(pcReturnType)
+				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+					pcReturnType = pcReturnType[2]
+				ok
+
+				switch pcReturnType
+				on :stzList
+					return new stzList( This.Categorise() )
+	
+				on :stzHashList
+					return new stzHashList( This.Categorise() )
+	
+				other
+					StzRaise("Unssupported return type!")
+	
+				off
+
+		#>
+
 	  #==================================================#
 	 #  TRANSFORMING THE LIST OF LISTS TO OTHER FORMS   #
 	#==================================================#

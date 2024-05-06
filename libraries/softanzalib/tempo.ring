@@ -1,5 +1,18 @@
 load "stzlib.ring"
 
+/*==========
+
+pron()
+
+? Q([]).IsListOfLists()
+#--> FALSE
+
+? Q([ 1:3, 4:7, 8:10 ]).IsListOfLists()
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s)
+
 /*========== PARTS ON STZLISTS
 
 pron()
@@ -546,8 +559,67 @@ o1 = new stzString("abc")
 proff()
 # Executed in 0.03 second(s)
 
-/*===========
+/*=========== CLASSIFYING A LIST
 */
+pron()
+
+o1 = new stzList([
+	:Arabic,
+	:Arabic,
+	:French,
+	:English,
+
+	[ 1, 2, 3 ],
+	ANullObject(),
+ 	Q("Hello!"),
+	:Spanish,
+	:Spanish,
+	:English,
+	:Arabic,
+
+	Q(12),
+	12,
+	110,
+
+	"PERSIAN"
+])
+
+? @@NL( o1.Classify() )
+#--> 
+proff()
+# Executed in 0.02 second(s)
+
+/*-------
+*/
+pron()
+
+o1 = new stzListOfLists([
+	[ :Arabic, "arb1", "A100" ],
+	[ :Arabic, "arb2", "A200" ],
+	[ :French, "frn1", "F100" ],
+	[ :English, "eng1", "E100" ],
+
+	[ [ 1, 2, 3 ], "lst1", "L100" ],
+	[ ANullObject(), "nul1", "N100" ],
+ 
+	[ :Spanish, "spn1", "S100" ],
+	[ :Spanish, "spn2", "S200" ],
+	[ :English, "eng2", "E200" ],
+	[ :Arabic, "arb3", "A300" ],
+
+	[ 12, "num1", "N100" ],
+	[ 110, "num2", "N200" ],
+
+	[ "PERSIAN", "per1", "P100" ]
+])
+
+? @@NL( o1.Classify() )
+
+proff()
+# Executed in 0.04 second(s)
+
+/*-------
+
 pron()
 
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
