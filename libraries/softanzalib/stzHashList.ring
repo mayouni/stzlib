@@ -2613,28 +2613,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 			off						
 		#>
 
-		#< @FunctionAlternativeForms
-
-		def Categorise()
-			return This.Classify()
-
-			def CategoriseQ()
-				return This.ClassifyQ()
-	
-			def CategoriseQR(pcReturnType)
-				return This.ClassifyQR(pcReturnType)
-
-		def Categorize()
-			return This.Classify()
-
-			def CategorizeQ()
-				return This.ClassifyQ()
-
-			def CategorizeQR(pcReturnType)
-				return This.ClassifyQR(pcReturnType)
-						
-		#>
-
 	  #---------------------------------------------------------#
 	 #  GETTING THE NAMES OF KLASSES EXISTING IN THE HASHLIST  #
 	#---------------------------------------------------------#
@@ -2682,15 +2660,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 			def KlassesQR(pcReturnType)
 				return ClassesQR(pcReturnType)
-
-		def Categories()
-			return This.Classes()
-
-			def CategoriesQ()
-				return ClassesQ()
-
-			def CategoriesQR(pcReturnType)
-				return ClassesQR(pcReturnType)
 	
 		#>
 
@@ -2727,31 +2696,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ThisKlassExists(pcClass)
 			return This.ContainsClass(pcClass)
 
-		#--
-
-		def ContainsCategory(pcClass)
-			return This.ContainsClass(pcClass)
-
-		def CategoryExists(pcClass)
-			return This.ContainsClass(pcClass)
-
-		def ContainsThisCategory(pcClass)
-			return This.ContainsClass(pcClass)
-
-		def ThisCategoryExists(pcClass)
-			return This.ContainsClass(pcClass)
-
-		def ContainsCateg(pcClass)
-			return This.ContainsClass(pcClass)
-
-		def CategExists(pcClass)
-			return This.ContainsClass(pcClass)
-
-		def ContainsThisCateg(pcClass)
-			return This.ContainsClass(pcClass)
-
-		def ThisCategExists(pcClass)
-			return This.ContainsClass(pcClass)
 		#>
 
 	  #-------------------------------------------------------#
@@ -2787,38 +2731,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def TheseKlassesExist(pacClasses)
 			return This.ContainsClasses(pacClasses)
 
-		#--
-
-		def ContainsCategories(pacClasses)
-			return This.ContainsClasses(pacClasses)
-
-		def CategoriesExist(pacClasses)
-			return This.ContainsClasses(pacClasses)
-
-		def ContainsTheseCategories(pacClasses)
-			return This.ContainsClasses(pacClasses)
-
-		def TheseCategoriesExist(pacClasses)
-			return This.ContainsClasses(pacClasses)
-
-		def ContainsCategs(pacClasses)
-			return This.ContainsClass(pacClasses)
-
-		def CategsExist(pacClasses)
-			return This.ContainsClasses(pacClasses)
-
-		def ContainsTheseCateg(pacClasses)
-			return This.ContainsClasses(pacClasses)
-
-		def ContainsTheseCategs(pacClasses)
-			return This.ContainsClasses(pacClasses)
-
-		def TheseCategExist(pacClasses)
-			return This.ContainsClasses(pacClasses)
-
-		def TheseCategsExist(pacClasses)
-			return This.ContainsClasses(pacClasses)
-
 		#>
 
 	  #-------------------------------------------------------------#
@@ -2844,12 +2756,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.NumberOfClasses()
 
 		def HowManyKlass()
-			return This.NumberOfClasses()
-
-		def HowMayCategories()
-			return This.NumberOfClasses()
-
-		def HowManyCategory()
 			return This.NumberOfClasses()
 
 	  #-----------------------------------------------#
@@ -2888,24 +2794,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 		#< @FunctionAlternativeForms
-
-		def Category(pcClass)
-			return This.Klass(pcClass)
-
-			def CategoryQ(pcClass)
-				return This.KlassQ(pcClass)
-
-			def CategoryQR(pcClass, pcReturnType)
-				return This.KlassQR(pcClass, pcREturnType)
-
-		def Categ(pcClass)
-			return This.Klass(pcClass)
-
-			def CategQ(pcClass)
-				return This.KlassQ(pcClass)
-
-			def CategQR(pcClass, pcReturnType)
-				return This.KlassQR(pcClass, pcREturnType)
 
 		# We can't use Class() as an alternative, because it is reserved by Ring
 		# But we can use it for the follwoing fluent forms:
@@ -2979,36 +2867,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def SizeOfKlass(pcClass)
 			return This.NumberOfValuesInClass(pcClass)
 
-		def NumberOfValuesInCategory(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def HowManyValuesInCategory(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def HowManyValueInCategory(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def CategorySize(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def SizeOfCategory(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def NumberOfValuesInCateg(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def HowManyValuesInCateg(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def HowManyValueInCateg(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def CategSize(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def SizeOfCateg(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
 		#-- Adding ...This...() to the all the names above
 
 		def HowManyValuesInThisClass(pcClass)
@@ -3032,30 +2890,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def SizeOfThisKlass(pcClass)
 			return This.NumberOfValuesInClass(pcClass)
 
-		def NumberOfValuesInThisCategory(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def HowManyValuesInThisCategory(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def HowManyValueInThisCategory(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def SizeOfThisCategory(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def NumberOfValuesInThisCateg(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def HowManyValuesInThisCateg(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def HowManyValueInThisCateg(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
-		def SizeOfThisCateg(pcClass)
-			return This.NumberOfValuesInClass(pcClass)
-
 		#>
 
 	  #--------------------------------#
@@ -3077,17 +2911,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#< @FunctionAlternativeForms
 
 		def KlassesSizes()
-			return This.ClassesSizes()
-
-		#--
-
-		def CategoriesSizes()
-			return This.ClassesSizes()
-
-		def CategSizes()
-			return This.ClassesSizes()
-
-		def CategsSizes()
 			return This.ClassesSizes()
 
 		#--
@@ -3117,32 +2940,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#--
 
-		def CategoriesSizesXT()
-			return This.ClassesSizesXT()
-
-		def CategSizesXT()
-			return This.ClassesSizesXT()
-
-		def CategsSizesXT()
-			return This.ClassesSizesXT()
-
-		#--
-
 		def ClassesAndTheirSizes()
 			return This.ClassesSizesXT()
 
 		def KlassesAndTheirSizes()
-			return This.ClassesSizesXT()
-
-		#--
-
-		def CategoriesAndTheirSizes()
-			return This.ClassesSizesXT()
-
-		def CategAndTheirSizes()
-			return This.ClassesSizesXT()
-
-		def CategsAndTheirSizes()
 			return This.ClassesSizesXT()
 
 		#--
@@ -3187,23 +2988,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def SizesOfTheseKlasses(pacClasses)
 			return This.TheseClassesSizes(pacClasses)
 
-		def SizesOfThesecategories(pacClasses)
-			return This.TheseClassesSizes(pacClasses)
-
-		def SizesOfTheseCategs(pacClasses)
-			return This.TheseClassesSizes(pacClasses)
-
-		def SizesOfTheseCateg(pacClasses)
-			return This.TheseClassesSizes(pacClasses)
-
-		#--
-
-		def TheseCategoriesSizes(pacClasses)
-			return This.TheseClassesSizes(pacClasses)
-
-		def TheseCategsSizes(pacClasses)
-			return This.TheseClassesSizes(pacClasses)
-
 		#--
 
 		def NumberOfValuesInTheseClasses(pacClasses)
@@ -3216,24 +3000,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.TheseClassesSizes(pacClasses)
 
 		def NumbersOfValuesInTheseKlasses(pacClasses)
-			return This.TheseClassesSizes(pacClasses)
-
-		def NumberOfValuesInTheseCategories(pacClasses)
-			return This.TheseClassesSizes(pacClasses)
-
-		def NumbersOfValuesInTheseCategories(pacClasses)
-			return This.TheseClassesSizes(pacClasses)
-
-		def NumberOfValuesInTheseCategs(pacClasses)
-			return This.TheseClassesSizes(pacClasses)
-
-		def NumbersOfValuesInTheseCategs(pacClasses)
-			return This.TheseClassesSizes(pacClasses)
-
-		def NumberOfValuesInTheseCateg(pacClasses)
-			return This.TheseClassesSizes(pacClasses)
-
-		def NumbersOfValuesInTheseCateg(pacClasses)
 			return This.TheseClassesSizes(pacClasses)
 
 		#>
@@ -3266,23 +3032,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def SizesOfTheseKlassesXT(pacClasses)
 			return This.TheseClassesSizesXT(pacClasses)
 
-		def SizesOfThesecategoriesXT(pacClasses)
-			return This.TheseClassesSizesXT(pacClasses)
-
-		def SizesOfTheseCategsXT(pacClasses)
-			return This.TheseClassesSizesXT(pacClasses)
-
-		def SizesOfTheseCategXT(pacClasses)
-			return This.TheseClassesSizesXT(pacClasses)
-
-		#--
-
-		def TheseCategoriesSizesXT(pacClasses)
-			return This.TheseClassesSizesXT(pacClasses)
-
-		def TheseCategsSizesXT(pacClasses)
-			return This.TheseClassesSizesXT(pacClasses)
-
 		#--
 
 		def NumberOfValuesInTheseClassesXT(pacClasses)
@@ -3295,24 +3044,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.TheseClassesSizesXT(pacClasses)
 
 		def NumbersOfValuesInTheseKlassesXT(pacClasses)
-			return This.TheseClassesSizesXT(pacClasses)
-
-		def NumberOfValuesInTheseCategoriesXT(pacClasses)
-			return This.TheseClassesSizesXT(pacClasses)
-
-		def NumbersOfValuesInTheseCategoriesXT(pacClasses)
-			return This.TheseClassesSizesXT(pacClasses)
-
-		def NumberOfValuesInTheseCategsXT(pacClasses)
-			return This.TheseClassesSizesXT(pacClasses)
-
-		def NumbersOfValuesInTheseCategsXT(pacClasses)
-			return This.TheseClassesSizesXT(pacClasses)
-
-		def NumberOfValuesInTheseCategXT(pacClasses)
-			return This.TheseClassesSizesXT(pacClasses)
-
-		def NumbersOfValuesInTheseCategXT(pacClasses)
 			return This.TheseClassesSizesXT(pacClasses)
 
 		#>
@@ -3336,18 +3067,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ClassFrequency(pcClass)
 			return This.KlassFreq(pcClass)
 
-		def CategoryFrequency(pcClass)
-			return This.KlassFreq(pcClass)
-
-		def CategoryFreq(pcClass)
-			return This.KlassFreq(pcClass)
-
-		def CategFrequency(pcClass)
-			return This.KlassFreq(pcClass)
-
-		def CategFreq(pcClass)
-			return This.KlassFreq(pcClass)
-
 		#--
 
 		def FrequencyOfThisClass(pcClass)
@@ -3356,24 +3075,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FrequencyOfThisKlass(pcClass)
 			return This.KlassFreq(pcClass)
 
-		def FrequencyOfThisCategory(pcClass)
-			return This.KlassFreq(pcClass)
-
-		def FrequencyOfThisCateg(pcClass)
-			return This.KlassFreq(pcClass)
-
 		#--
 
 		def FreqOfThisClass(pcClass)
 			return This.KlassFreq(pcClass)
 
 		def FreqOfThisKlass(pcClass)
-			return This.KlassFreq(pcClass)
-
-		def FreqOfThisCategory(pcClass)
-			return This.KlassFreq(pcClass)
-
-		def FreqOfThisCateg(pcClass)
 			return This.KlassFreq(pcClass)
 
 		#>
@@ -3405,33 +3112,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def ClassFreqXT(pcClass)
 			return This.KlassFreqXT(pcClass)
 
-
-		#--
-
-		def CategoryAndItsFrequency(pcClass)
-			return This.KlassFreqXT(pcClass)
-
-		def CategoryAndItsFreq(pcClass)
-			return This.KlassFreqXT(pcClass)
-
-		def CategAndItsFrequency(pcClass)
-			return This.KlassFreqXT(pcClass)
-
-		def CategAndItsFreq(pcClass)
-			return This.KlassFreqXT(pcClass)
-
-		def CategoryFrequencyXT(pcClass)
-			return This.KlassFreqXT(pcClass)
-
-		def CategoryFreqXT(pcClass)
-			return This.KlassFreqXT(pcClass)
-
-		def CategFrequencyXT(pcClass)
-			return This.KlassFreqXT(pcClass)
-
-		def CategFreqXT(pcClass)
-			return This.KlassFreqXT(pcClass)
-
 		#--
 
 		def FrequencyOfThisClassXT(pcClass)
@@ -3440,24 +3120,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def FrequencyOfThisKlassXT(pcClass)
 			return This.KlassFreq(pcClass)
 
-		def FrequencyOfThisCategoryXT(pcClass)
-			return This.KlassFreq(pcClass)
-
-		def FrequencyOfThisCategXT(pcClass)
-			return This.KlassFreqXT(pcClass)
-
 		#--
 
 		def FreqOfThisClassXT(pcClass)
 			return This.KlassFreqXT(pcClass)
 
 		def FreqOfThisKlassXT(pcClass)
-			return This.KlassFreqXT(pcClass)
-
-		def FreqOfThisCategoryXT(pcClass)
-			return This.KlassFreqXT(pcClass)
-
-		def FreqOfThisCategXT(pcClass)
 			return This.KlassFreqXT(pcClass)
 
 		#>
@@ -3493,26 +3161,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def KlassesFreq()
 			return This.ClassesFrequencies()
 
-		#--
-
-		def CategoriesFrequencies()
-			return This.ClassesFrequencies()
-
-		def CategFrequencies()
-			return This.ClassesFrequencies()
-
-		def CategoriesFreqs()
-			return This.ClassesFrequencies()
-
-		def CategoriesFreq()
-			return This.ClassesFrequencies()
-
-		def CategsFrequencies()
-			return This.ClassesFrequencies()
-
-		def CategsFreqs()
-			return This.ClassesFrequencies()
-
 		#>
 
 	def ClassesFrequenciesXT()
@@ -3544,26 +3192,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#--
 
-		def CategoriesFrequenciesXT()
-			return This.ClassesFrequenciesXT()
-
-		def CategFrequenciesXT()
-			return This.ClassesFrequenciesXT()
-
-		def CategoriesFreqsXT()
-			return This.ClassesFrequenciesXT()
-
-		def CategoriesFreqXT()
-			return This.ClassesFrequenciesXT()
-
-		def CategsFrequenciesXT()
-			return This.ClassesFrequenciesXT()
-
-		def CategsFreqsXT()
-			return This.ClassesFrequenciesXT()
-
-		#--
-
 		def ClassesAndTheirFrequencies()
 			return This.ClassesFrequenciesXT()
 
@@ -3574,29 +3202,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.ClassesFrequenciesXT()
 
 		def KlassesAndTheirFreqs()
-			return This.ClassesFrequenciesXT()
-
-		#--
-
-		def CategoriesAndTheirFrequencies()
-			return This.ClassesFrequenciesXT()
-
-		def CategoriesAndTheirFreq()
-			return This.ClassesFrequenciesXT()
-
-		def CategoriesAndTheirFreqs()
-			return This.ClassesFrequenciesXT()
-
-		def CategAndTheirFrequencies()
-			return This.ClassesFrequenciesXT()
-
-		def CategsAndTheirFrequencies()
-			return This.ClassesFrequenciesXT()
-
-		def CategAndTheirFreqs()
-			return This.ClassesFrequenciesXT()
-
-		def CategsAndTheirFreqs()
 			return This.ClassesFrequenciesXT()
 
 		#>
@@ -3639,26 +3244,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def TheseKlassesFreq(pacClasses)
 			return This.TheseClassesFrequencies(pacClasses)
 
-		#--
-
-		def TheseCategoriesFrequencies(pacClasses)
-			return This.TheseClassesFrequencies(pacClasses)
-
-		def TheseCategFrequencies(pacClasses)
-			return This.TheseClassesFrequencies(pacClasses)
-
-		def TheseCategoriesFreqs(pacClasses)
-			return This.TheseClassesFrequencies(pacClasses)
-
-		def TheseCategoriesFreq(pacClasses)
-			return This.TheseClassesFrequencies(pacClasses)
-
-		def TheseCategsFrequencies(pacClasses)
-			return This.TheseClassesFrequencies(pacClasses)
-
-		def TheseCategsFreqs(pacClasses)
-			return This.TheseClassesFrequencies(pacClasses)
-
 		#>
 
 	def TheseClassesFrequenciesXT(pacClasses)
@@ -3697,39 +3282,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#--
 
-		def TheseCategoriesFrequenciesXT(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		def TheseCategFrequenciesXT(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		def TheseCategoriesFreqsXT(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		def TheseCategoriesFreqXT(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		def TheseCategsFrequenciesXT(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		def TheseCategsFreqsXT(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		#--
-
 		def TheseClassesAndTheirFrequencies(pacClasses)
 			return This.TheseClassesFrequenciesXT(pacClasses)
 
 		def TheseKlassesAndTheirFrequencies(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		def TheseCategoriesAndTheirFrequencies(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		def TheseCategsAndTheirFrequencies(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		def TheseCategAndTheirFrequencies(pacClasses)
 			return This.TheseClassesFrequenciesXT(pacClasses)
 
 		#--
@@ -3740,30 +3296,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def TheseKlassesAndTheirFreqs(pacClasses)
 			return This.TheseClassesFrequenciesXT(pacClasses)
 
-		def TheseCategoriesAndTheirFreqs(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		def TheseCategsAndTheirFreqs(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		def TheseCategAndTheirFreqs(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
 		#--
 
 		def TheseClassesAndTheirFreq(pacClasses)
 			return This.TheseClassesFrequenciesXT(pacClasses)
 
 		def TheseKlassesAndTheirFreq(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		def TheseCategoriesAndTheirFreq(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		def TheseCategsAndTheirFreq(pacClasses)
-			return This.TheseClassesFrequenciesXT(pacClasses)
-
-		def TheseCategAndTheirFreq(pacClasses)
 			return This.TheseClassesFrequenciesXT(pacClasses)
 
 		#>
@@ -3791,22 +3329,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def NStrongestKlasses(n)
 			return This.NStrongestClasses(n)
 
-		def NStrongestCategories(n)
-			return This.NStrongestClasses(n)
-
-		def NStrongestCateg(n)
-			return This.NStrongestClasses(n)
-
 		def StrongestNClasses(n)
 			return This.NStrongestClasses(n)
 
 		def StrongestNKlasses(n)
-			return This.NStrongestClasses(n)
-
-		def StrongestNCategories(n)
-			return This.NStrongestClasses(n)
-
-		def StrongestNCateg(n)
 			return This.NStrongestClasses(n)
 
 		#--
@@ -3837,22 +3363,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def NStrongestKlassesXT(n)
 			return This.NStrongestClassesXT(n)
 
-		def NStrongestCategoriesXT(n)
-			return This.NStrongestClassesXT(n)
-
-		def NStrongestCategXT(n)
-			return This.NStrongestClassesXT(n)
-
 		def StrongestNClassesXT(n)
 			return This.NStrongestClassesXT(n)
 
 		def StrongestNKlassesXT(n)
-			return This.NStrongestClassesXT(n)
-
-		def StrongestNCategoriesXT(n)
-			return This.NStrongestClassesXT(n)
-
-		def StrongestNCategXT(n)
 			return This.NStrongestClassesXT(n)
 
 		#--
@@ -3860,22 +3374,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def NStrongestKlassesAndTheirFrequencies(n)
 			return This.NStrongestClassesXT(n)
 
-		def NStrongestCategoriesAndTheirFrequencies(n)
-			return This.NStrongestClassesXT(n)
-
-		def NStrongestCategAndTheirFrequencies(n)
-			return This.NStrongestClassesXT(n)
-
 		def StrongestNClassesAndTheirFrequencies(n)
 			return This.NStrongestClassesXT(n)
 
 		def StrongestNKlassesAndTheirFrequencies(n)
-			return This.NStrongestClassesXT(n)
-
-		def StrongestNCategoriesAndTheirFrequencies(n)
-			return This.NStrongestClassesXT(n)
-
-		def StrongestNCategAndTheirFrequencies(n)
 			return This.NStrongestClassesXT(n)
 
 		#--
@@ -3904,22 +3406,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def StrongestKlass()
 			return This.StrongestClass()
 
-		def StrongestCategory()
-			return This.StrongestClass()
-
-		def StrongestCateg()
-			return This.StrongestClass()
-
 		def TopClass()
 			return This.StrongestClass()
 
 		def TopKlass()
-			return This.StrongestClass()
-
-		def TopCategory()
-			return This.StrongestClass()
-
-		def TopCateg()
 			return This.StrongestClass()
 
 		#>
@@ -3932,22 +3422,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def StrongestKlassXT()
 			return This.StrongestClassXT()
 
-		def StrongestCategoryXT()
-			return This.StrongestClassXT()
-
-		def StrongestCategXT()
-			return This.StrongestClassXT()
-
 		def TopClassXT()
 			return This.StrongestClassXT()
 
 		def TopKlassXT()
-			return This.StrongestClassXT()
-
-		def TopCategoryXT()
-			return This.StrongestClassXT()
-
-		def TopCategXT()
 			return This.StrongestClassXT()
 
 		#--
@@ -3958,22 +3436,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def StrongestKlassAndTheirFrequencies()
 			return This.StrongestClassXT()
 
-		def StrongestCategoryAndTheirFrequencies()
-			return This.StrongestClassXT()
-
-		def StrongestCategAndTheirFrequencies()
-			return This.StrongestClassXT()
-
 		def TopClassAndTheirFrequencies()
 			return This.StrongestClassXT()
 
 		def TopKlassAndTheirFrequencies()
-			return This.StrongestClassXT()
-
-		def TopCategoryAndTheirFrequencies()
-			return This.StrongestClassXT()
-
-		def TopCategAndTheirFrequencies()
 			return This.StrongestClassXT()
 
 		#>
@@ -3988,22 +3454,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def 3StrongestKlasses(n)
 			return This.Top3Classes(n)
 
-		def 3StrongestCategories(n)
-			return This.Top3Classes(n)
-
-		def 3StrongestCateg(n)
-			return This.Top3Classes(n)
-
 		def Strongest3Classes()
 			return This.Top3Classes(n)
 
 		def Strongest3Klasses(n)
-			return This.Top3Classes(n)
-
-		def Strongest3Categories(n)
-			return This.Top3Classes(n)
-
-		def Strongest3Categ(n)
 			return This.Top3Classes(n)
 
 		#>
@@ -4016,22 +3470,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def 3StrongestKlassesXT(n)
 			return This.Top3ClassesXT(n)
 
-		def 3StrongestCategoriesXT(n)
-			return This.Top3ClassesXT(n)
-
-		def 3StrongestCategXT(n)
-			return This.Top3ClassesXT(n)
-
 		def Strongest3ClassesXT()
 			return This.Top3ClassesXT(n)
 
 		def Strongest3KlassesXT(n)
-			return This.Top3ClassesXT(n)
-
-		def Strongest3CategoriesXT(n)
-			return This.Top3ClassesXT(n)
-
-		def Strongest3CategXT(n)
 			return This.Top3ClassesXT(n)
 
 		#--
@@ -4042,22 +3484,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def 3StrongestKlassesAndTheirFrequencies(n)
 			return This.Top3ClassesXT(n)
 
-		def 3StrongestCategoriesAndTheirFrequencies(n)
-			return This.Top3ClassesXT(n)
-
-		def 3StrongestCategAndTheirFrequencies(n)
-			return This.Top3ClassesXT(n)
-
 		def Strongest3ClassesAndTheirFrequencies()
 			return This.Top3ClassesXT(n)
 
 		def Strongest3KlassesAndTheirFrequencies(n)
-			return This.Top3ClassesXT(n)
-
-		def Strongest3CategoriesAndTheirFrequencies(n)
-			return This.Top3ClassesXT(n)
-
-		def Strongest3CategAndTheirFrequencies(n)
 			return This.Top3ClassesXT(n)
 
 		#>
@@ -4084,22 +3514,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def NWeakestKlasses(n)
 			return This.NWeakestClasses(n)
 
-		def NWeakestCategories(n)
-			return This.NWeakestClasses(n)
-
-		def NWeakestCateg(n)
-			return This.NWeakestClasses(n)
-
 		def WeakestNClasses(n)
 			return This.NWeakestClasses(n)
 
 		def WeakestNKlasses(n)
-			return This.NWeakestClasses(n)
-
-		def WeakestNCategories(n)
-			return This.NWeakestClasses(n)
-
-		def WeakestNCateg(n)
 			return This.NWeakestClasses(n)
 
 		#--
@@ -4130,22 +3548,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def NWeakestKlassesXT(n)
 			return This.NWeakestClassesXT(n)
 
-		def NWeakestCategoriesXT(n)
-			return This.NWeakestClassesXT(n)
-
-		def NWeakestCategXT(n)
-			return This.NWeakestClassesXT(n)
-
 		def WeakestNClassesXT(n)
 			return This.NWeakestClassesXT(n)
 
 		def WeakestNKlassesXT(n)
-			return This.NWeakestClassesXT(n)
-
-		def WeakestNCategoriesXT(n)
-			return This.NWeakestClassesXT(n)
-
-		def WeakestNCategXT(n)
 			return This.NWeakestClassesXT(n)
 
 		#--
@@ -4160,18 +3566,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.NWeakestClassesXT(n)
 
 		def WeakestNKlassesAndTheirFrequencies(n)
-			return This.NWeakestClassesXT(n)
-
-		def NWeakestCategoriesAndTheirFrequencies(n)
-			return This.NWeakestClassesXT(n)
-
-		def WeakestNCategoriesAndTheirFrequencies(n)
-			return This.NWeakestClassesXT(n)
-
-		def NWeakestCategsAndTheirFrequencies(n)
-			return This.NWeakestClassesXT(n)
-
-		def WeakestNCategAndTheirFrequencies(n)
 			return This.NWeakestClassesXT(n)
 
 		#--
@@ -4200,22 +3594,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def WeakestKlass()
 			return This.WeakestClass()
 
-		def WeakestCategory()
-			return This.WeakestClass()
-
-		def WeakestCateg()
-			return This.WeakestClass()
-
 		def BottomClass()
 			return This.WeakestClass()
 
 		def BottomKlass()
-			return This.WeakestClass()
-
-		def BottomCategory()
-			return This.WeakestClass()
-
-		def BottomCateg()
 			return This.WeakestClass()
 
 		#>
@@ -4228,22 +3610,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def WeakestKlassXT()
 			return This.WeakestClassXT()
 
-		def WeakestCategoryXT()
-			return This.WeakestClassXT()
-
-		def WeakestCategXT()
-			return This.WeakestClassXT()
-
 		def BottomClassXT()
 			return This.WeakestClassXT()
 
 		def BottomKlassXT()
-			return This.WeakestClassXT()
-
-		def BottomCategoryXT()
-			return This.WeakestClassXT()
-
-		def BottomCategXT()
 			return This.WeakestClassXT()
 
 		#--
@@ -4252,12 +3622,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.WeakestClassXT(n)
 
 		def WeakestKlassAndItsFrequency(n)
-			return This.WeakestClassXT(n)
-
-		def WeakestCategoryAndItsFrequency(n)
-			return This.WeakestClassXT(n)
-
-		def WeakestCategAndItsFrequency(n)
 			return This.WeakestClassXT(n)
 
 		#>
@@ -4272,24 +3636,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def 3WeakestKlasses(n)
 			return This.Bottom3Classes(n)
 
-		def 3WeakestCategories(n)
-			return This.Bottom3Classes(n)
-
-		def 3WeakestCateg(n)
-			return This.Bottom3Classes(n)
-
 		def Weakest3Classes()
 			return This.Bottom3Classes(n)
 
 		def Weakest3Klasses(n)
 			return This.Bottom3Classes(n)
-
-		def Weakest3Categories(n)
-			return This.Bottom3Classes(n)
-
-		def Weakest3Categ(n)
-			return This.Bottom3Classes(n)
-
 		#>
 
 	def Bottom3ClassesXT()
@@ -4300,46 +3651,21 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def 3WeakestKlassesXT(n)
 			return This.Bottom3ClassesXT(n)
 
-		def 3WeakestCategoriesXT(n)
-			return This.Bottom3ClassesXT(n)
-
-		def 3WeakestCategXT(n)
-			return This.Bottom3ClassesXT(n)
-
 		def Weakest3ClassesXT()
 			return This.Bottom3ClassesXT(n)
 
 		def Weakest3KlassesXT(n)
 			return This.Bottom3ClassesXT(n)
 
-		def Weakest3CategoriesXT(n)
-			return This.Bottom3ClassesXT(n)
-
-		def Weakest3CategXT(n)
-			return This.Bottom3ClassesXT(n)
-
 		#--
 
-
 		def 3WeakestKlassesAndTheirFrequencies(n)
-			return This.Bottom3ClassesXT(n)
-
-		def 3WeakestCategoriesAndTheirFrequencies(n)
-			return This.Bottom3ClassesXT(n)
-
-		def 3WeakestCategAndTheirFrequencies(n)
 			return This.Bottom3ClassesXT(n)
 
 		def Weakest3ClassesAndTheirFrequencies()
 			return This.Bottom3ClassesXT(n)
 
 		def Weakest3KlassesAndTheirFrequencies(n)
-			return This.Bottom3ClassesXT(n)
-
-		def Weakest3CategoriesAndTheirFrequencies(n)
-			return This.Bottom3ClassesXT(n)
-
-		def Weakest3CategAndTheirFrequencies(n)
 			return This.Bottom3ClassesXT(n)
 
 		#>
@@ -4392,24 +3718,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def KlassesInListQR(pcReturnType)
 				return This.CategoriesInListQR(pcReturnType)
 
-		def CategoriesInList()
-			return This.ClassesInList()
-
-			def CategoriesInListQ()
-				return This.ClassesInListQ()
-
-			def CategoriesInListQR(pcReturnType)
-				return This.ClassesInListQR(pcReturnType)
-
-		def CategsInList()
-			return This.ClassesInList()
-
-			def CategsInListQ()
-				return This.ClassesInListQ()
-
-			def CategsInListQR(pcReturnType)
-				return This.ClassesInListQR(pcReturnType)
-
 		#--
 
 		def ClassesInLists()
@@ -4423,24 +3731,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 			def KlassesInListsQR(pcReturnType)
 				return This.CategoriesInListQR(pcReturnType)
-
-		def CategoriesInLists()
-			return This.ClassesInList()
-
-			def CategoriesInListsQ()
-				return This.ClassesInListQ()
-
-			def CategoriesInListsQR(pcReturnType)
-				return This.ClassesInListQR(pcReturnType)
-
-		def CategsInLists()
-			return This.ClassesInList()
-
-			def CategsInListsQ()
-				return This.ClassesInListQ()
-
-			def CategsInListsQR(pcReturnType)
-				return This.ClassesInListQR(pcReturnType)
 
 		#>
 
@@ -4462,12 +3752,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def NumberOfCategInList()
 			return This.NumberOfClassesInList()
 
-		def HowManyCategoriesInList()
-			return This.NumberOfClassesInList()
-
-		def HowManyCategInList()
-			return This.NumberOfClassesInList()
-
 		def HowManyClassesInList()
 			return This.NumberOfClassesInList()
 
@@ -4486,18 +3770,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.NumberOfClassesInList()
 
 		def NumberOfKlassesInLists()
-			return This.NumberOfClassesInList()
-
-		def NumberOfCategoriesInLists()
-			return This.NumberOfClassesInList()
-
-		def NumberOfCategInLists()
-			return This.NumberOfClassesInList()
-
-		def HowManyCategoriesInLists()
-			return This.NumberOfClassesInList()
-
-		def HowManyCategInLists()
 			return This.NumberOfClassesInList()
 
 		def HowManyClassesInLists()
@@ -4554,24 +3826,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#< @FunctionAlternativeForms
 
-		def CategoriseInList()
-			return This.ClassifyInListQ()
-
-			def CategoriseInListQ()
-				return This.ClassifyInListQ()
-	
-			def CategoriseInListQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
-
-		def CategorizeInList()
-			return This.ClassifyInList()
-
-			def CategorizeInListQ()
-				return This.ClassifyInListQ()
-	
-			def CategorizeInListQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
-
 		def KlassifyInList()
 			return This.ClassifyInList()
 
@@ -4590,24 +3844,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 				return This.ClassifyInListQ()
 	
 			def ClassifyInListsQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
-
-		def CategoriseInLists()
-			return This.ClassifyInList()
-
-			def CategoriseInListsQ()
-				return This.ClassifyInListQ()
-	
-			def CategoriseInListsQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
-
-		def CategorizeInLists()
-			return This.ClassifyInLists()
-
-			def CategorizeInListsQ()
-				return This.ClassifyInListQ()
-	
-			def CategorizeInListsQR(pcReturnType)
 				return This.ClassifyInListQR(pcReturnType)
 
 		def KlassifyInLists()
@@ -4630,24 +3866,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def ClassifyItemsInListQR(pcReturnType)
 				return This.ClassifyInListQT(pcReturnType)
 
-		def CategoriseItemsInList()
-			return This.ClassifyInListQ()
-
-			def CategoriseItemsInListQ()
-				return This.ClassifyInListQ()
-	
-			def CategoriseItemsInListQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
-
-		def CategorizeItemsInList()
-			return This.ClassifyInList()
-
-			def CategorizeItemsInListQ()
-				return This.ClassifyInListQ()
-	
-			def CategorizeItemsInListQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
-
 		def KlassifyItemsInList()
 			return This.ClassifyInList()
 
@@ -4666,24 +3884,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 				return This.ClassifyInListQ()
 	
 			def ClassifyItemsInListsQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
-
-		def CategoriseItemsInLists()
-			return This.ClassifyInList()
-
-			def CategoriseItemsInListsQ()
-				return This.ClassifyInListQ()
-	
-			def CategoriseItemsInListsQR(pcReturnType)
-				return This.ClassifyInListQR(pcReturnType)
-
-		def CategorizeItemsInLists()
-			return This.ClassifyInLists()
-
-			def CategorizeItemsInListsQ()
-				return This.ClassifyInListQ()
-	
-			def CategorizeItemsInListsQR(pcReturnType)
 				return This.ClassifyInListQR(pcReturnType)
 
 		def KlassifyItemsInLists()
@@ -4739,24 +3939,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 			def ClassInListQR(pcClass, pcReturnType)
 				return This.KalssInListQR(pcClass)
 
-		def CategoryInList(pcClass)
-			return This.KlassInList(pcClass)
-
-			def CategoryInListQ(pcClass)
-				return This.KalssInListQ(pcClass)
-
-			def CategoryInListQR(pcClass, pcReturnType)
-				return This.KalssInListQR(pcClass)
-
-		def CategInList(pcClass)
-			return This.KlassInList(pcClass)
-
-			def CategInListQ(pcClass)
-				return This.KalssInListQ(pcClass)
-
-			def CategInListQR(pcClass, pcReturnType)
-				return This.KalssInListQR(pcClass)
-
 		#--
 
 		def KalssInLists(pcClass)
@@ -4775,24 +3957,6 @@ class stzHashList from stzList # Also called stzAssociativeList
 				return This.KalssInListQ(pcClass)
 
 			def ClassInListsQR(pcClass, pcReturnType)
-				return This.KalssInListQR(pcClass)
-
-		def CategoryInLists(pcClass)
-			return This.KlassInList(pcClass)
-
-			def CategoryInListsQ(pcClass)
-				return This.KalssInListQ(pcClass)
-
-			def CategoryInListsQR(pcClass, pcReturnType)
-				return This.KalssInListQR(pcClass)
-
-		def CategInLists(pcClass)
-			return This.KlassInList(pcClass)
-
-			def CategInListsQ(pcClass)
-				return This.KalssInListQ(pcClass)
-
-			def CategInListsQR(pcClass, pcReturnType)
 				return This.KalssInListQR(pcClass)
 
 		#>

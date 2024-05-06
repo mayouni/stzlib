@@ -3142,25 +3142,58 @@ class stzListOfLists from stzList
 	 #  CLASSIFYING THE LIST OF LISTS  #
 	#=================================#
 
-	def Classify()
-		aContent = This.Content()
+	#NOTE
+	# Classification is performed on the first column by default
+	# ~> to make it on another column, use ClassifyOn(nCol)
 
-		aClassesZ = This.FirstColQ().Classified()
-		nLen = len(aClassesZ)
-? @@NL(aClassesZ)
+	def Classify()
+		acContent = This.FirstColQ().StringifyObjectsQ().Lowercased()
+
+		nLen = len(acContent)
+		anPosUndefined = []
+		acSeen = []
+
 		aResult = []
 
 		for i = 1 to nLen
-			cClass = aClassesZ[i][1]
-			nLenList = len(aClassesZ[i])
+			
+			if isString(acContent[i])
 
-			aItems = []
-			for j = 2 to nLenList
-				aItems + aContent[ aClassesZ[i][j] ]
-			next
+				nLenList = len(@aContent[i])
 
-			aResult + [ cClass, aItems ]
+				if ring_find(acSeen, acContent[i]) = 0
+					aResult + [ acContent[i], [] ]
+
+					for j = 2 to nLenlist
+						aResult[ acContent[i] ] + @aContent[i][j]
+					next
+
+					acSeen + acContent[i]
+
+				else
+
+					for j = 2 to nLenList
+						aResult[ acContent[i] ] + @aContent[i][j]
+					next
+					
+				ok
+			else
+				anPosUndefined + i
+			ok
 		next
+
+		aResult + [ :@Undefined, [] ]
+
+		nLenUndefined = len(anPosUndefined)
+		for i = 1 to nLenUndefined
+			nPos = anPosUndefined[i]
+			nLenList = len(@aContent[nPos])
+
+			for j = 2 to nLenList
+				aResult[ :@Undefined ] + @aContent[nPos][j]
+			next
+		next
+		
 
 		return aResult
 
@@ -3187,56 +3220,10 @@ class stzListOfLists from stzList
 			off
 		#>
 
-		#< @FunctionAlternativeForms
+		#< @FunctionAlternativeForm
 
 		def classified()
 			return this.classify()
-
-		def Categorize()
-			return This.Classify()
-
-			def CategorizeQ()
-				return This.CategorizeQR(:stzList)
-	
-			def CategorizeQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.Categorize() )
-	
-				on :stzHashList
-					return new stzHashList( This.Categorize() )
-	
-				other
-					StzRaise("Unssupported return type!")
-	
-				off
-
-		def Categorise()
-			return This.Classify()
-
-			def CategoriseQ()
-				return This.CategoriseQR(:stzList)
-	
-			def CategoriseQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.Categorise() )
-	
-				on :stzHashList
-					return new stzHashList( This.Categorise() )
-	
-				other
-					StzRaise("Unssupported return type!")
-	
-				off
 
 		#>
 
