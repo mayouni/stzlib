@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*-------------- #TODO adjust lines under titles
+
 pron()
 
 o1 = new stzHashList([
@@ -647,7 +649,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*==================
-
+*/
 pron()
 
 o1 = new stzHashList([

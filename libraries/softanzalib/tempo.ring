@@ -560,7 +560,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*============
-*/
+
 pron()
 
 o1 = new stzList([ "Hello", "there!", ANullObject(), Q("9") ])
@@ -571,9 +571,10 @@ o1.StringifyObjects()
 ? o1.Content()
 
 proff()
+# Executed in 0.02 second(s)
 
 /*=========== CLASSIFYING A LIST
-*/
+
 pron()
 
 o1 = new stzList([
@@ -598,7 +599,17 @@ o1 = new stzList([
 ])
 
 ? @@NL( o1.Classify() )
-#--> 
+#--> [
+#	[ "arabic", [ 1, 2, 11 ] ],
+#	[ "french", [ 3 ] ],
+#	[ "english", [ 4, 10 ] ],
+#	[ "@nullobject", [ 6 ] ],
+#	[ "@noname", [ 7, 12 ] ],
+#	[ "spanish", [ 8, 9 ] ],
+#	[ "persian", [ 15 ] ],
+#	[ "@undefined", [ 5, 13, 14 ] ]
+# ]
+
 proff()
 # Executed in 0.02 second(s)
 
@@ -627,9 +638,18 @@ o1 = new stzListOfLists([
 ])
 
 ? @@NL( o1.Classify() )
+#--> [
+#	[ "arabic", 	 [ "arb1", "A100", "arb2", "A200", "arb3", "A300" ] ],
+#	[ "french", 	 [ "frn1", "F100" ] ],
+#	[ "english", 	 [ "eng1", "E100", "eng2", "E200" ] ],
+#	[ "@nullobject", [ "nul1", "N100" ] ],
+#	[ "spanish", 	 [ "spn1", "S100", "spn2", "S200" ] ],
+#	[ "persian", 	 [ "per1", "P100" ] ],
+#	[ "@undefined",  [ "lst1", "L100", "num1", "N100", "num2", "N200" ] ]
+# ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.05 second(s)
 
 /*-------
 

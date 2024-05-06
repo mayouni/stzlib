@@ -26711,7 +26711,7 @@ class stzList from stzObject
 
 		acContent = This.StringifyObjectsQ().Lowercased()
 
-		nLen = len(@aContent)
+		nLen = len(acContent)
 		anPosUndefined = []
 		acSeen = []
 
@@ -26719,14 +26719,15 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 			
-			if isString(@aContent[i])
+			if isString(acContent[i])
 
 				if ring_find(acSeen, acContent[i]) = 0
-					aResult + [ acContent[i], [] ]
+					aResult + [ acContent[i], [i] ]
+					acSeen + acContent[i]
 
 				else
-					aResult[ acContent[i] ][2] + i
-					acSeen + acContent[i]
+					aResult[ acContent[i] ] + i
+					
 				ok
 			else
 				anPosUndefined + i
@@ -26761,56 +26762,10 @@ class stzList from stzObject
 			off
 		#>
 
-		#< @FunctionAlternativeForms
+		#< @FunctionAlternativeForm
 
 		def classified()
 			return this.classify()
-
-		def Categorize()
-			return This.Classify()
-
-			def CategorizeQ()
-				return This.CategorizeQR(:stzList)
-	
-			def CategorizeQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.Categorize() )
-	
-				on :stzHashList
-					return new stzHashList( This.Categorize() )
-	
-				other
-					StzRaise("Unssupported return type!")
-	
-				off
-
-		def Categorise()
-			return This.Classify()
-
-			def CategoriseQ()
-				return This.CategoriseQR(:stzList)
-	
-			def CategoriseQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.Categorise() )
-	
-				on :stzHashList
-					return new stzHashList( This.Categorise() )
-	
-				other
-					StzRaise("Unssupported return type!")
-	
-				off
 
 		#>
 
@@ -26846,30 +26801,6 @@ class stzList from stzObject
 			off
 		#>
 
-		#< @FunctionAlternativeForm
-
-		def Categories()
-			return This.Classes()
-
-			def CategoriesQ()
-				return This.ClassesQR(:stzList)
-	
-			def CategoriesQR(pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.Categories() )
-	
-				on :stzListOfStrings
-					return new stzListOfStrings( This.Categories() )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
-
 	#--
 
 	def NumberOfClasses()
@@ -26878,13 +26809,7 @@ class stzList from stzObject
 		def NumberOfClassesQ()
 			return new stzNumber( This.NumberOfClasses() )
 
-		def NumberOfCategories()
-			return This.NumberOfClasses()
-
-			def NumberOfCategoriesQ()
-				return new stzNumber( This.NumberOfCategories() )
-
-		def CuontClasses()
+		def CountClasses()
 			return This.NumberOfClasses()
 
 		def HowManyClasses()
@@ -26893,18 +26818,11 @@ class stzList from stzObject
 		def HowManyClass()
 			return This.NumberOfClasses()
 
-
 	def Klass(pcClass)
 		return This.Classify()[pcClass]
 
 		def KlassQ(pcClass)
 			return new stzString(This.Klass(pcClass))
-
-		def Category(pcClass)
-			return This.Klass(pcClass)
-
-			def CategoryQ(pcClass)
-				return new stzString(This.Category(pcClass))
 
 	def NumberOfOccurrenceOfClass(pcClass)
 		nResult = StzListQ( This.Classes() ).NumberOfOccurrence( pcClass )
@@ -27016,30 +26934,6 @@ class stzList from stzObject
 		def ClassifiedSF()
 			return This.Classify@C()
 
-		def CategorisedSF()
-			return This.ClassifySF()
-
-		def CategorizedSF()
-			return This.ClassifySF()
-
-		def CategorizeSF()
-			return This.Classify@C()
-
-			def CategorizeSFQ()
-				return This.Classify@CQ()
-
-			def CategorizeSFQR(pcReturnType)
-				return This.Classify@CQR(pcReturnType)
-
-		def CategoriseSF()
-			return This.ClassifySF()
-
-			def Categorise@CQ()
-				return This.Classify@CQ()
-	
-			def Categorise@CQR(pcReturnType)
-				return This.Classify@CQR(pcReturnType)
-
 		#>
 
 	def ClassesSF()
@@ -27073,19 +26967,6 @@ class stzList from stzObject
 			off
 		#>
 
-		#< @FunctionAlternativeForm
-
-		def CategoriesSF()
-			return This.ClassesSF()
-
-			def Categories@CQ()
-				return This.Classes@CQR(:stzList)
-	
-			def Categories@CQR(pcReturnType)
-				return This.Classes@CQR(pcReturnType)
-
-		#>
-
 	def KlassSF(pcClass)
 		aResult = []
 
@@ -27098,12 +26979,6 @@ class stzList from stzObject
 
 		def Klass@CQ(pcClass)
 			return new stzString( This.KlassSF(pcClass) )
-
-		def CategorySF(pcClass)
-			return This.KlassSF(pcClass)
-
-			def Category@CQ(pcClass)
-				return new stzString( This.CategorySF(pcClass) )
 
 	def NumberOfOccurrenceOfClassSF(pcClass)
 		nResult = StzListQ( This.ClassesSF() ).NumberOfOccurrence( pcClass )
