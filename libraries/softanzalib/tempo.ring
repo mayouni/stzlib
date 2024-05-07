@@ -697,7 +697,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*------
-*/
+
 pron()
 
 o1 = new stzListOfLists([
@@ -717,6 +717,27 @@ o1.RemoveCol(2)
 
 proff()
 # Executed in 0.03 second(s)
+
+/*------
+*/
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B", 2 ],
+	[ "C", 3, 33 ]
+])
+
+o1.RemoveCols([ 2, 3 ])
+
+? @@NL( o1.Content() )
+#--> [
+#	[ "A" ],
+#	[ "B" ],
+#	[ "C" ]
+# ]
+
+proff()
 
 /*======
 
