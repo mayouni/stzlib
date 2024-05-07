@@ -1128,7 +1128,7 @@ class stzString from stzObject
 	 #  ADDING A SUBSTRING --EXTENDED  #
 	#=================================#
 
-	def AddXTCS(pcNewSubStr, pcSubStr, pCaseSensitive)
+	def AddCSXT(pcNewSubStr, pcSubStr, pCaseSensitive)
 		/*
 		o1 = new stzString("Ring programin language")
 		o1.AddXT("g", :To = "programmin")
@@ -1263,17 +1263,17 @@ class stzString from stzObject
 
 		ok
 
-		def AddXTCSQ(pcNewSubStr, pcSubStr, pCaseSensitive)
-			This.AddXTCS(pcNewSubStr, pcSubStr, pCaseSensitive)
+		def AddCSXTQ(pcNewSubStr, pcSubStr, pCaseSensitive)
+			This.AddCSXT(pcNewSubStr, pcSubStr, pCaseSensitive)
 			return This
 
 	def AddedCSXT(pcNewSubStr, pcSubStr, pCaseSensitive)
-		return This.Copy().AddXTCSQ(pcNewSubStr, pcSubStr, pCaseSensitive).Content()
+		return This.Copy().AddCSXTQ(pcNewSubStr, pcSubStr, pCaseSensitive).Content()
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def AddXT(pcNewSubStr, pcSubStr)
-		This.AddXTCSQ(pcNewSubStr, pcSubStr, TRUE)
+		This.AddCSXTQ(pcNewSubStr, pcSubStr, TRUE)
 
 		def AddXTQ(pcNewSubStr, pcSubStr)
 			This.AddXT(pcNewSubStr, pcSubStr)
@@ -11953,7 +11953,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def IsBoundOfXTCS(pcSubStr, pcInStr, pCaseSensitive)
+		def IsBoundOfCSXT(pcSubStr, pcInStr, pCaseSensitive)
 			return This.IsBoundOfCS(pcSubStr, pcInStr, pCaseSensitive)
 
 		def IsBoundOfInCS(pcSubStr, pcInStr, pCaseSensitive)
@@ -16382,10 +16382,10 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindSubStringBoundsXTCSZZ(pcSubStr, pUpToNChars,  pCaseSensitive)
+		def FindSubStringBoundsCSXTZZ(pcSubStr, pUpToNChars,  pCaseSensitive)
 			return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, pUpToNChars,  pCaseSensitive)
 
-		def FindBoundsOfAsSectionsXTCS(pcSubStr, pUpToNChars,  pCaseSensitive)
+		def FindBoundsOfAsSectionsCSXT(pcSubStr, pUpToNChars,  pCaseSensitive)
 			return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, pUpToNChars,  pCaseSensitive)
 
 		def FindBoundsOfCSXTZZ(pcSubStr, pUpToNChars,  pCaseSensitive)
@@ -16456,7 +16456,7 @@ class stzString from stzObject
 	 #  FINDING THE BOUNDS - UP TO N CHARS -- OF A GIVEN SUBSTRING IN THE STRING -- XT #
 	#---------------------------------------------------------------------------------#
 
-	def FindSubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
+	def FindSubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
 		if CheckParams()
 			if isList(pUpToNChars) and Q(pUpToNChars).IsUpToNCharsNamedParam()
 				pUpToNChars = pUpToNChars[2]
@@ -16472,21 +16472,21 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindSubStringBoundsXTCSZ(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.FindSubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
+		def FindSubStringBoundsCSXTZ(pcSubStr, pUpToNChars, pCaseSensitive)
+			return This.FindSubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
 
 		def FindBoundsOfCSXT(pcSubStr, pCaseSensitive)
-			return This.FindSubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
+			return This.FindSubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
 
 		def FindBoundsOfCSXTZ(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.FindSubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
+			return This.FindSubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubStringBoundsXT(pcSubStr, pUpToNChars)
-		return This.FindSubStringBoundsXTCS(pcSubStr, pUpToNChars, TRUE)
+		return This.FindSubStringBoundsCSXT(pcSubStr, pUpToNChars, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -17635,7 +17635,7 @@ class stzString from stzObject
 	 #  GETTING THE BOUNDS, UP TO N CHARS, OF A GIVEN SUBSTRING IN THE STRING -- XT  #
 	#-------------------------------------------------------------------------------#
 
-	def SubStringBoundSXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
+	def SubStringBoundSCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
 		/* EXAMPLE 1
 
 		o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
@@ -17644,23 +17644,23 @@ class stzString from stzObject
 
 		*/
 
-		aSections = This.FindBoundsOfAsSectionsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
+		aSections = This.FindBoundsOfAsSectionsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
 		acResult = This.Sections(aSections)
 
 		return acResult
 
 		#< @FunctionFluentForms
 
-		def SubStringBoundsXTCSQ(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.SubStringBoundsXTCSQR(pcSubStr, pUpToNChars, pCaseSensitive, :stzList)
+		def SubStringBoundsCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
+			return This.SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, :stzList)
 
-		def SubStringBoundsXTCSQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+		def SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList(This.SubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive))
+				return new stzList(This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive))
 
 			on :stzListOfStrings
-				return new stzListOfStrings(This.SubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive))
+				return new stzListOfStrings(This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive))
 
 			other
 				StzRaise("Unsupported return type!")
@@ -17670,58 +17670,58 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def BoundsOfXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.SubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
+		def BoundsOfCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
+			return This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
 
-			def BoundsXTOfCSQ(pcSubStr, pUpToNChars, pCaseSensitive)
-				return This.BoundsOfXTCSQR(pcSubStr, pUpToNChars, pCaseSensitive, :stzList)
+			def BoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
+				return This.BoundsOfCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, :stzList)
 
-			def BoundsOfXTCSQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsXTCSQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+			def BoundsOfCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
 		#--
 
-		def SubStringFirstAndLastBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.SubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
+		def SubStringFirstAndLastBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
+			return This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
 
-			def SubStringFirstAndLastBoundsXTCSQ(pcSubStr, pUpToNChars, pCaseSensitive)
-				return This.BoundsOfXTCSQ(pcSubStr, pUpToNChars, pCaseSensitive)
+			def SubStringFirstAndLastBoundsCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
+				return This.BoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
 
-			def SubStringFirstAndLastBoundsXTCSQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsXTCSQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+			def SubStringFirstAndLastBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
 
-		def SubStringFirstAndSecondBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.SubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
+		def SubStringFirstAndSecondBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
+			return This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
 
-			def SubStringFirstAndSecondBoundsXTCSQ(pcSubStr, pUpToNChars, pCaseSensitive)
-				return This.BoundsOfXTCSQ(pcSubStr, pUpToNChars, pCaseSensitive)
+			def SubStringFirstAndSecondBoundsCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
+				return This.BoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
 
-			def SubStringFirstAndSecondBoundsXTCSQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsXTCSQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+			def SubStringFirstAndSecondBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
 
-		def FirstAndLastBoundsOfXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.SubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
+		def FirstAndLastBoundsOfCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
+			return This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
 
-			def FirstAndLastBoundsOfXTCSQ(pcSubStr, pUpToNChars, pCaseSensitive)
-				return This.BoundsOfXTCSQ(pcSubStr, pUpToNChars, pCaseSensitive)
+			def FirstAndLastBoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
+				return This.BoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
 
-			def FirstAndLastBoundsOfXTCSQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsXTCSQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+			def FirstAndLastBoundsOfCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
 
-		def FirstAndSecondBoundsOfXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.SubStringBoundsXTCS(pcSubStr, pUpToNChars, pCaseSensitive)
+		def FirstAndSecondBoundsOfCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
+			return This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
 
-			def FirstAndSecondBoundsOfXTCSQ(pcSubStr, pUpToNChars, pCaseSensitive)
-				return This.BoundsOfXTCSQ(pcSubStr, pUpToNChars, pCaseSensitive)
+			def FirstAndSecondBoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
+				return This.BoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
 
-			def FirstAndSecondBoundsOfXTCSQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsXTCSQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+			def FirstAndSecondBoundsOfCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringBoundsXT(pcSubstr, pUpToNChars)
-		return This.SubStringBoundsXTCS(pcSubstr, pUpToNChars, TRUE)
+		return This.SubStringBoundsCSXT(pcSubstr, pUpToNChars, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -28183,7 +28183,7 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def ReplaceManyByManyXTCSQ(pacSubStr, pacNewSubStr, pCaseSensitive)
+		def ReplaceManyByManyCSXTQ(pacSubStr, pacNewSubStr, pCaseSensitive)
 			This.ReplaceManyByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
 			return This
 
@@ -28194,7 +28194,7 @@ class stzString from stzObject
 		def ReplaceManySubStringsByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
 			This.ReplaceManyByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
 
-			def ReplaceManySubStringsByManyXTCSQ(pacSubStr, pacNewSubStr, pCaseSensitive)
+			def ReplaceManySubStringsByManyCSXTQ(pacSubStr, pacNewSubStr, pCaseSensitive)
 				This.ReplaceManySubStringsByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
 				return This
 
@@ -28203,7 +28203,7 @@ class stzString from stzObject
 	#< @FunctionPassiveForm
 
 	def ManySubStringsReplaceByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
-		cResult = This.Copy().ReplaceManyByManyXTCSQ(pacSubStr, pacNewSubStr, pCaseSensitive).Content()
+		cResult = This.Copy().ReplaceManyByManyCSXTQ(pacSubStr, pacNewSubStr, pCaseSensitive).Content()
 		return cResult
 
 		def SubStringsReplaceByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
@@ -33125,14 +33125,14 @@ class stzString from stzObject
 	 #  FINDING NTH OCCURRENCE OF A SUBSTRING -- EXTENDED   #
 	#======================================================#
 
-	def FindNthXTCS(n, pcSubStr, paOption, pCaseSensitive)
+	def FindNthCSXT(n, pcSubStr, paOption, pCaseSensitive)
 		/* EXAMPLE
 		o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 		
 		? o1.FindNthXT(2, "word", :Between = ["<<", ">>"])
 		#--> 43
 		
-		? o1.FindNthXTCS(2, "WORD", :Between = ["<<", ">>"], :CS = FALSE)
+		? o1.FindNthCSXT(2, "WORD", :Between = ["<<", ">>"], :CS = FALSE)
 		#--> 43
 
 		? o1.FindNthXT(2, "word", :StartingAt = 5)
@@ -33174,21 +33174,21 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindNthXTCSZ(n, pcSubStr, paOption, pCaseSensitive)
-			return This.FindNthXTCS(n, pcSubStr, paOption, pCaseSensitive)
+		def FindNthCSXTZ(n, pcSubStr, paOption, pCaseSensitive)
+			return This.FindNthCSXT(n, pcSubStr, paOption, pCaseSensitive)
 
-		def FindNthSubstringXTCS(n, pcSubStr, paOption, pCaseSensitive)
-			return This.FindNthXTCS(n, pcSubStr, paOption, pCaseSensitive)
+		def FindNthSubstringCSXT(n, pcSubStr, paOption, pCaseSensitive)
+			return This.FindNthCSXT(n, pcSubStr, paOption, pCaseSensitive)
 
-		def FindNthSubstringXTCSZ(n, pcSubStr, paOption, pCaseSensitive)
-			return This.FindNthXTCS(n, pcSubStr, paOption, pCaseSensitive)
+		def FindNthSubstringCSXTZ(n, pcSubStr, paOption, pCaseSensitive)
+			return This.FindNthCSXT(n, pcSubStr, paOption, pCaseSensitive)
 
 		#>
 
 	#-- WTIHOUT CASESENSITIVITY
 
 	def FindNthXT(n, pcSubStr, paOption)
-		return This.FindNthXTCS(n, pcSubStr, paOption, TRUE)
+		return This.FindNthCSXT(n, pcSubStr, paOption, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -33207,26 +33207,26 @@ class stzString from stzObject
 	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING -- EXTENDED  #
 	#-------------------------------------------------------#
 
-	def FindFirstXTCS(pcSubStr, paOption, pCaseSensitive)
-		return This.FindNthXTCS(1, pcSubStr, paOption, pCaseSensitive)
+	def FindFirstCSXT(pcSubStr, paOption, pCaseSensitive)
+		return This.FindNthCSXT(1, pcSubStr, paOption, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
-		def FindFirstXTCSZ(pcSubStr, paOption, pCaseSensitive)
-			return This.FindFirstXTCS(pcSubStr, paOption, pCaseSensitive)
+		def FindFirstCSXTZ(pcSubStr, paOption, pCaseSensitive)
+			return This.FindFirstCSXT(pcSubStr, paOption, pCaseSensitive)
 
-		def FindFirstSubStringXTCS(pcSubStr, paOption, pCaseSensitive)
-			return This.FindFirstXTCS(pcSubStr, paOption, pCaseSensitive)
+		def FindFirstSubStringCSXT(pcSubStr, paOption, pCaseSensitive)
+			return This.FindFirstCSXT(pcSubStr, paOption, pCaseSensitive)
 
-		def FindFirstSubStringXTCSZ(pcSubStr, paOption, pCaseSensitive)
-			return This.FindFirstXTCS(pcSubStr, paOption, pCaseSensitive)
+		def FindFirstSubStringCSXTZ(pcSubStr, paOption, pCaseSensitive)
+			return This.FindFirstCSXT(pcSubStr, paOption, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstXT(pcSubStr, paOption)
-		return This.FindFirstXTCS(pcSubStr, paOption, TRUE)
+		return This.FindFirstCSXT(pcSubStr, paOption, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -33245,26 +33245,26 @@ class stzString from stzObject
 	 #  FINDING LAST OCCURRENCE OF A SUBSTRING -- EXTENDED  #
 	#------------------------------------------------------#
 
-	def FindLastXTCS(pcSubStr, paOption, pCaseSensitive)
-		return This.FindNthXTCS(:Last, pcSubStr, paOption, pCaseSensitive)
+	def FindLastCSXT(pcSubStr, paOption, pCaseSensitive)
+		return This.FindNthCSXT(:Last, pcSubStr, paOption, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
-		def FindLastXTCSZ(pcSubStr, paOption, pCaseSensitive)
+		def FindLastCSXTZ(pcSubStr, paOption, pCaseSensitive)
 			return This.FindLastCSXT(pcSubStr, paOption, pCaseSensitive)
 
-		def FindLastSubStringXTCS(pcSubStr, paOption, pCaseSensitive)
-			return This.FindLastXTCS(pcSubStr, paOption, pCaseSensitive)
+		def FindLastSubStringCSXT(pcSubStr, paOption, pCaseSensitive)
+			return This.FindLastCSXT(pcSubStr, paOption, pCaseSensitive)
 
-		def FindLastSubStringXTCSZ(pcSubStr, paOption, pCaseSensitive)
-			return This.FindLastXTCS(pcSubStr, paOption, pCaseSensitive)
+		def FindLastSubStringCSXTZ(pcSubStr, paOption, pCaseSensitive)
+			return This.FindLastCSXT(pcSubStr, paOption, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastXT(pcSubStr, paOption)
-		return This.FindLastXTCS(pcSubStr, paOption, TRUE)
+		return This.FindLastCSXT(pcSubStr, paOption, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -36255,7 +36255,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #  FINDING THINGS, THE EXTENDED FORM  #
 	#=====================================#
 
-	def FindXTCS(p1, p2, pCaseSensitive)
+	def FindCSXT(p1, p2, pCaseSensitive)
 
 		if ( isString(p1) OR ( isList(p1) and Q(p1).IsSubStringNamedParam() ) ) AND
 		   ( isList(p2) )
@@ -36445,13 +36445,14 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindXT(p1, p2)
-		return This.FindXTCS(p1, p2, TRUE)
+		return This.FindCSXT(p1, p2, TRUE)
 
 	  #========#
 	 #  NOTE  #
 	#========#
 
-	#NOTE: These fuctions are defined in stzObject:
+	#NOTE
+	# These fuctions are defined in stzObject:
 
 	# 	FindFirstNOccurrences(n, pStrOrItem)
 	# 	FindFirstNOccurrencesS(n, pcStr, pnStartingAt)
@@ -36470,7 +36471,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #  FINDING THINGS AS SECTIONS, THE EXTENDED FORM  #
 	#=================================================#
 
-	def FindAsSectionsXTCS(p1, p2, pCaseSensitive)
+	def FindAsSectionsCSXT(p1, p2, pCaseSensitive)
 
 		if ( isString(p1) OR ( isList(p1) and Q(p1).IsSubStringNamedParam() ) ) AND
 		   ( isList(p2) )
@@ -36518,40 +36519,40 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 				if isString(p2[2])
 					nPos = This.FindFirstCS(p2, pCaseSensitive)
 					if nPos > 0
-						return This.FindAsSectionsXTCS( p1, :InSection = [1, nPos], pCaseSensitive )
+						return This.FindAsSectionsCSXT( p1, :InSection = [1, nPos], pCaseSensitive )
 
 					else
 						return []
 					ok
 
 				but isNumber(p2[2])
-					return This.FindAsSectionsXTCS( p1, :InSection = [1, p2[2]], pCaseSensitive )
+					return This.FindAsSectionsCSXT( p1, :InSection = [1, p2[2]], pCaseSensitive )
 
 				ok
 
 			# FindAsSectionsXT( "*", :BeforePosition = 10)
 			but oP2.IsBeforePositionNamedParam()
-				return This.FindAsSectionsXTCS( p1, :InSection = [1, p2[2]], pCaseSensitive )
+				return This.FindAsSectionsCSXT( p1, :InSection = [1, p2[2]], pCaseSensitive )
 
 			# FindAsSectionsXT( "*", :After = "--")
 			but oP2.IsAfterNamedParam()
 				if isString(p2[2])
 					nPos = This.FindFirstAsSectionsCS(p2, pCaseSensitive)
 					if nPos > 0
-						return This.FindAsSectionsXTCS( p1, :InSection = [nPos, :LastChar], pCaseSensitive )
+						return This.FindAsSectionsCSXT( p1, :InSection = [nPos, :LastChar], pCaseSensitive )
 
 					else
 						return []
 					ok
 
 				but isNumber(p2[2])
-					return This.FindAsSectionsXTCS( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
+					return This.FindAsSectionsCSXT( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
 
 				ok
 
 			# FindAsSectionsXT( "*", :AfterPosition = 3)
 			but oP2.IsAfterPositionNamedParam()
-				return This.FindAsSectionsXTCS( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
+				return This.FindAsSectionsCSXT( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
 
 			# FindAsSectionsXT( :3rd = "*", :Between = [ "<<", ">>" ])
 			but isList(p1) and isString(p1[2]) and
@@ -36604,7 +36605,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 					return This.FindAsSectionCSXT( p1[2], :InSection = [1, n], pCaseSensitive)
 
 			 	but isNumber(p2[2])
-					return This.FindAsSectionsXTCS( p1[2], :InSection = [1, p2[2] ], pCaseSensitive )
+					return This.FindAsSectionsCSXT( p1[2], :InSection = [1, p2[2] ], pCaseSensitive )
 
 				else
 					StzRaise("Incorrect param type! :Before = ... must be fellowed by a string or number.")
@@ -36618,7 +36619,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 			    isList(p2) and Q(p2).IsBeforePositionNamedParam()
 
-				return This.FindAsSectionsXTCS( p1[2], :InSection = [ 1, p2[2] ], pCaseSensitive )
+				return This.FindAsSectionsCSXT( p1[2], :InSection = [ 1, p2[2] ], pCaseSensitive )
 
 
 			# FindAsSectionsXT( :3rd = "*", :After = '!' ])
@@ -36631,10 +36632,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 				if isString(p2[2])
 					n = This.FindLastCS(p2[2], pCaseSensitive)
-					return This.FindAsSectionsXTCS( p1[2], :InSection = [n, :LastChar], pCaseSensitive)
+					return This.FindAsSectionsCSXT( p1[2], :InSection = [n, :LastChar], pCaseSensitive)
 
 			 	but isNumber(p2[2])
-					return This.FindAsSectionsXTCS( p1[2], :InSection = [p2[2], :LastChar], pCaseSensitive )
+					return This.FindAsSectionsCSXT( p1[2], :InSection = [p2[2], :LastChar], pCaseSensitive )
 
 				else
 					StzRaise("Incorrect param type! :Before = ... must be fellowed by a string or number.")
@@ -36648,7 +36649,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 			    isList(p2) and Q(p2).IsAfterPositionNamedParam()
 
-				return This.FindAsSectionsXTCS( p1[2], :InSection = [ p2[2], :LastChar ], pCaseSensitive )
+				return This.FindAsSectionsCSXT( p1[2], :InSection = [ p2[2], :LastChar ], pCaseSensitive )
 
 			# FindAsSectionsXT( :AnySubString, :Between = ["<<", ">>" )
 			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
@@ -36690,14 +36691,14 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		# return definetly only one section
 		# like FindAsSectionXT( :3rd = "*" :InSection = ...)
 
-			return This.FindAsSectionsXTCS(p1, p2, pCaseSensitive)
+			return This.FindAsSectionsCSXT(p1, p2, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVE
 
 	def FindAsSectionsXT(p1, p2)
-		return This.FindAsSectionsXTCS(p1, p2, TRUE)
+		return This.FindAsSectionsCSXT(p1, p2, TRUE)
 
 	  #==========================================================#
 	 #  FINDING OCCURRENCES OF A SIUBSTRING IN A GIVEN SECTION  #
@@ -40901,7 +40902,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #   CHECKING CONATAINMENT -- EXTENDED   #
 	#---------------------------------------#
 
-	def ContainsXTCS(p1, p2, pCaseSensitive)
+	def ContainsCSXT(p1, p2, pCaseSensitive)
 
 		#=== GENERAL
 
@@ -41255,7 +41256,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#-- WITOUT CASESENSITIVITY
 
 	def ContainsXT(p1, p2)
-		return This.ContainsXTCS( p1, p2, TRUE)
+		return This.ContainsCSXT( p1, p2, TRUE)
 
 	  #----------------------------------------------#
 	 #    CONTAINING ONE OF THE GIVEN SUBSTRINGS    #
@@ -41642,7 +41643,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #  NUMBER OF OCCURRENCE OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
 	#=======================================================================#
 
-	def NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
+	def NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
 		/* EXAMPLE
 		
 		o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
@@ -41691,7 +41692,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceXT(pcSubStr, pacBetween)
-		return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, TRUE)
+		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, TRUE)
 
 	  #----------------------------------------------------------------------#
 	 #  GETTING THE NUMBER OF CHARS/SUBSTRINGS VERIFYING A GIVEN CONDITION  #
@@ -57878,7 +57879,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return This.PartsUsingXTQR(pcPartitionExpr, :stzList)
 
 		def PartsUsingXTQR(pcPartitionExpr, pcReturnType)
-			return This.PartsUsingXTCSQR(pcPartitionExpr, TRUE, pcReturnType)
+			return This.PartsUsingCSXTQR(pcPartitionExpr, TRUE, pcReturnType)
 
 		#>
 
@@ -59635,7 +59636,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #  REMOVING A SUBSTRING -- EXTENDED  #
 	#====================================#
 
-	def RemoveXTCS(p1, p2, pCaseSensitive)
+	def RemoveCSXT(p1, p2, pCaseSensitive)
 
 		# Q("/♥♥♥\__/♥\/♥♥\__/♥\__").RemoveXT("♥", [])
 		if isString(p1) and
@@ -59991,17 +59992,17 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			ok
 		ok
 
-		def RemoveXTCSQ(pcNewSubStr, pcSubStr, pCaseSensitive)
-			This.RemoveXTCS(pcNewSubStr, pcSubStr, pCaseSensitive)
+		def RemoveCSXTQ(pcNewSubStr, pcSubStr, pCaseSensitive)
+			This.RemoveCSXT(pcNewSubStr, pcSubStr, pCaseSensitive)
 			return This
 
-	def RemovedXTCS(pcNewSubStr, pcSubStr, pCaseSensitive)
-		return This.Copy().RemoveXTCSQ(pcNewSubStr, pcSubStr, pCaseSensitive).Content()
+	def RemovedCSXT(pcNewSubStr, pcSubStr, pCaseSensitive)
+		return This.Copy().RemoveCSXTQ(pcNewSubStr, pcSubStr, pCaseSensitive).Content()
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveXT(pcNewSubStr, pcSubStr)
-		This.RemoveXTCSQ(pcNewSubStr, pcSubStr, TRUE)
+		This.RemoveCSXTQ(pcNewSubStr, pcSubStr, TRUE)
 
 		def RemoveXTQ(pcNewSubStr, pcSubStr)
 			This.RemoveXT(pcNewSubStr, pcSubStr)
@@ -79148,20 +79149,20 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #  ALTERNATIVES OF NumberOfOccurrenceXT()  #
 	#------------------------------------------#
 
-	def NumberOfOccurrencesXTCS(pcSubStr, pacBetween, pCaseSensitive)
-		return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
+	def NumberOfOccurrencesCSXT(pcSubStr, pacBetween, pCaseSensitive)
+		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
 
-	def NumberOfOccurrenceOfSubstringXTCS(pcSubStr, pacBetween, pCaseSensitive)
-		return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
+	def NumberOfOccurrenceOfSubstringCSXT(pcSubStr, pacBetween, pCaseSensitive)
+		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
 
-	def NumberOfOccurrencesOfSubstringXTCS(pcSubStr, pacBetween, pCaseSensitive)
-		return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
+	def NumberOfOccurrencesOfSubstringCSXT(pcSubStr, pacBetween, pCaseSensitive)
+		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
 
-	def CountXTCS(pcSubStr, pacBetween, pCaseSensitive)
-		return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
+	def CountCSXT(pcSubStr, pacBetween, pCaseSensitive)
+		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
 
-	def HowManyXTCS(pcSubStr, pacBetween, pCaseSensitive)
-		return This.NumberOfOccurrenceXTCS(pcSubStr, pacBetween, pCaseSensitive)
+	def HowManyCSXT(pcSubStr, pacBetween, pCaseSensitive)
+		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 

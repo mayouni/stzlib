@@ -4159,7 +4159,7 @@ class stzObject
 		
 	#--
 
-	def OfXTCS(n, cIgnored, pCaseSensitive)
+	def OfCSXT(n, cIgnored, pCaseSensitive)
 		return This.OfCS(n, pCaseSensitive)
 
 		def OfXTCSM(n, cIgnored, pCaseSensitive)
@@ -4168,13 +4168,13 @@ class stzObject
 		def OfXTCSMM(n, cIgnored, pCaseSensitive)
 			return This.OfCSMM(n, pCaseSensitive)
 
-		def OfXTCSQ(n, cIgnored, pCaseSensitive)
+		def OfCSXTQ(n, cIgnored, pCaseSensitive)
 			return This.OfCSQ(n, pCaseSensitive)
 
-		def OfXTCSQM(n, cIgnored, pCaseSensitive)
+		def OfCSXTQM(n, cIgnored, pCaseSensitive)
 			return This.OfCSQM(n, pCaseSensitive)
 
-		def OfXTCSMQ(n, cIgnored, pCaseSensitive)
+		def OfCSXTMQ(n, cIgnored, pCaseSensitive)
 			return This.OfCSMQ(n, pCaseSensitive)
 
 	def OfXT(n, cIgnored)
