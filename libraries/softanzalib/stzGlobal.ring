@@ -969,81 +969,12 @@ func ring_sort2(paList, n)
 	aResult = sort(paList, n)
 	return aResult
 
-/*
-	if CheckParams()
-		if NOT (isList(paList) and @IsListOfLists(paList))
-			StzRaise("Incorrect param type! paList must be a list of lists.")
-		ok
-	
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-	ok
-
-	nLen = len(paList)
-	if nLen = 1
-		return paList
-	ok
-
-	aSortedByRing = sort(paList, n)
-	if n = 1
-		return aSortedByRing
-	ok
-	
-	# Case where n > 1, the lines with same value of nth colum
-	# should be sorted in ascending
-
-	aResult = []
-	aList = []
-	aTemp = [] + aSortedByRing[1]
-
-	nLast = 0
-
-	for i = 2 to nLen
-
-		if aSortedByRing[i][n] = aSortedByRing[i-1][n]
-			aTemp + aSortedByRing[i]
-
-		else
-		
-			nLenTemp = len(aTemp)
-			aTempSorted = sort(aTemp, 1)
-
-			nLenTemp = len(aTempSorted)
-			for j = 1 to nLenTemp
-				aResult + aTempSorted[j]
-			next
-
-			aTemp = [] + aSortedByRing[i]
-		ok
-	next
-
-	# Managing the last list
-
-	nLast = 0
-	
-	for i = nLen to 2 step -1
-		if aSortedByRing[i][n] != aSortedByRing[i][n-1]
-			nLast = nLen - i + 1
-		ok
-	next
-		
-	aTemp = []
-	for i = nLast to nLen
-		aTemp + aSortedByRing[i]
-	next
-
-	aTempSorted = sort(aTemp, 1)
-	nLenTemp = len(aTempSorted)
-	for j = 1 to nLenTemp
-		aResult + aTempSorted[j]
-	next
-
-
-	return aResult
-*/
 	func ring_sortXT(paList, n)
 		return sort(paList, n)
+
+func ring_swap(paList, n1, n2)
+	swap(paList, n1, n2)
+	return paList
 
 func ring_methods(obj)
 	return methods(obj)

@@ -574,7 +574,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*=========== CLASSIFYING A LIST
-*/
+
 pron()
 
 o1 = new stzList([
@@ -584,8 +584,10 @@ o1 = new stzList([
 	:English,
 
 	[ 1, 2, 3 ],
-	ANullObject(),
  	Q("Hello!"),
+	AFalseObject(),
+	ATrueObject(),
+
 	:Spanish,
 	:Spanish,
 	:English,
@@ -595,25 +597,129 @@ o1 = new stzList([
 	12,
 	110,
 
-	"PERSIAN"
+	StzNamedObjectQ( :Italian = Q("Gracia!") ),
+	"PERSIAN",
+
+	ANullObject()
 ])
 
 ? @@NL( o1.Classify() )
 #--> [
-#	[ "arabic", [ 1, 2, 11 ] ],
-#	[ "french", [ 3 ] ],
-#	[ "english", [ 4, 10 ] ],
-#	[ "@nullobject", [ 6 ] ],
-#	[ "@noname", [ 7, 12 ] ],
-#	[ "spanish", [ 8, 9 ] ],
-#	[ "persian", [ 15 ] ],
-#	[ "@undefined", [ 5, 13, 14 ] ]
+#	[ "arabic", 	[ 1, 2, 12 ] ],
+#	[ "french", 	[ 3 ] ],
+#	[ "english", 	[ 4, 11 ] ],
+#	[ "spanish", 	[ 9, 10 ] ],
+#	[ "italian", 	[ 16 ] ],
+#	[ "persian", 	[ 17 ] ],
+#	[ "@undefined", [ 5, 6, 7, 8, 13, 14, 15, 18 ] ]
 # ]
+
+
+proff()
+# Executed in 0.03 second(s)
+
+/*====== #ring
+
+pron()
+
+aList = [ "m", "mmm", "mm" ]
+swap(aList, 2, 3)
+? @@(aList)
 
 proff()
 # Executed in 0.02 second(s)
 
-/*-------
+/*------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B", 2, 22 ],
+	[ "C", 3, 33 ]
+])
+
+o1.SwapCols(3, 1)
+
+? @@NL( o1.Content() )
+#--> [
+#	[ 11, 1, "A" ],
+#	[ 22, 2, "B" ],
+#	[ 33, 3, "C" ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B", 2 ],
+	[ "C", 3, 33 ]
+])
+
+o1.SwapCols(3, 1)
+
+? @@NL( o1.Content() )
+#--> [
+#	[ 11, 1, "A" ],
+#	[ "B", 2 ],
+#	[ 33, 3, "C" ]
+# ]
+
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B", 2 ],
+	[ "C", 3, 33 ]
+])
+
+o1.RemoveCol(3)
+
+? @@NL( o1.Content() )
+#--> [
+#	[ "A", 1 ],
+#	[ "B", 2 ],
+#	[ "C", 3 ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------
+*/
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B", 2 ],
+	[ "C", 3, 33 ]
+])
+
+o1.RemoveCol(2)
+
+? @@NL( o1.Content() )
+#--> [
+#	[ "A", 11 ],
+#	[ "B" ],
+#	[ "C", 33 ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*======
+
 */
 pron()
 
@@ -640,17 +746,17 @@ o1 = new stzListOfLists([
 
 ? @@NL( o1.Classify() )
 #--> [
-#	[ "arabic", 	 [ "arb1", "A100", "arb2", "A200", "arb3", "A300" ] ],
-#	[ "french", 	 [ "frn1", "F100" ] ],
-#	[ "english", 	 [ "eng1", "E100", "eng2", "E200" ] ],
-#	[ "@nullobject", [ "nul1", "N100" ] ],
-#	[ "spanish", 	 [ "spn1", "S100", "spn2", "S200" ] ],
-#	[ "persian", 	 [ "per1", "P100" ] ],
-#	[ "@undefined",  [ "lst1", "L100", "num1", "N100", "num2", "N200" ] ]
+#	[ "arabic", 	[ "arb1", "A100", "arb2", "A200", "arb3", "A300" ] ],
+#	[ "french", 	[ "frn1", "F100" ] ],
+#	[ "english", 	[ "eng1", "E100", "eng2", "E200" ] ],
+#	[ "spanish", 	[ "spn1", "S100", "spn2", "S200" ] ],
+#	[ "persian", 	[ "per1", "P100" ] ],
+#	[ "@undefined", [ "lst1", "L100", "nul1", "N100", "num1", "N100", "num2", "N200", "non1", "X100" ] ]
 # ]
 
+
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.04 second(s)
 
 /*-------
 

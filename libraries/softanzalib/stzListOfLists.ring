@@ -2597,7 +2597,7 @@ class stzListOfLists from stzList
 	#================================================#
 
 	def NumberOfColumns()
-		nResult = This.MaxSiz()
+		nResult = This.MaxSize()
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -3147,7 +3147,7 @@ class stzListOfLists from stzList
 	# ~> to make it on another column, use ClassifyOn(nCol)
 
 	def Classify()
-		acContent = This.FirstColQ().StringifyObjectsQ().Lowercased()
+		acContent = This.FirstColQ().StringifyNamedObjectsQ().Lowercased()
 
 		nLen = len(acContent)
 		anPosUndefined = []
@@ -3156,8 +3156,16 @@ class stzListOfLists from stzList
 		aResult = []
 
 		for i = 1 to nLen
-			
+
 			if isString(acContent[i])
+
+				if acContent[i] = :@NullObject or
+				   acContent[i] = :@TrueObject or
+				   acContent[i] = :@FalseObject
+
+					anPosUndefined + i
+					loop
+				ok
 
 				nLenList = len(@aContent[i])
 
@@ -3226,6 +3234,282 @@ class stzListOfLists from stzList
 			return this.classify()
 
 		#>
+
+	  #------------------------------------------------#
+	 #  CLASSIFYING THE LIST BASED ON THE NTH COLUMN  #
+	#------------------------------------------------#
+
+	def ClassifyOn(pnColNumber)
+		oCopy = This.Copy().MoveCol(n, 1)
+		aResult = oCopy.Classify()
+		return aResult
+
+		#< @FunctionFluentForms
+
+		def ClassifyOnQ(pnColNumber)
+			return This.ClassifyOnQR(pnColNumber, :stzList)
+
+		def ClassifyOnQR(pnColNumber, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.ClassifyOn(pnColNumber) )
+
+			on :stzListOfHashList
+				return new stzHashList( This.ClassifyOn(pnColNumber) )
+
+			other
+				StzRaise("Unssupported return type!")
+
+			off
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def classifiedOn(pnColNumber)
+			return This.classifyOn(pnColNumber)
+
+		#>
+
+	  #===============================================#
+	 #  MOVING A COLUMN FROM A POSITION TO AN OTHER  #
+	#===============================================#
+
+	#   1 2 3 4 5
+	# 1 . . . . .
+	# 2 . . .
+	# 3 . . . . 
+
+	def MoveCol(n1, n2)
+		if CheckParams()
+			if isList(n1) and Q(n1).IsFromOrFromPositionNamedParam()
+				n1 = n1[2]
+			ok
+			if isList(n2) and Q(n2).IsToOrToPositionNamedParam()
+				n1 = n2[2]
+			ok
+
+			if NOT (isNumber(n1) and isNumber(n2))
+				StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
+			ok
+		ok
+
+		# Early checks
+
+		if n1 = n2
+			return
+		ok
+
+		nNumberOfCols = This.NumberOfCols()
+
+		if n1 < 1 or n1 > nNumberOfCols
+			return
+		ok
+
+		if n2 < 1 or n1 > nNumberOfCols
+			return
+		ok
+
+		# Doing the job
+
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			#...
+		next
+
+		#< @FunctionFluentForm
+
+		def MoveColQ(n1, n2)
+			This.MoveCol(n1, n2)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def MoveColumn(n1, n2)
+			This.MoveCol(n1, n2)
+
+			def MoveColumnQ(n1, n2)
+				return This.MoveColQ(n1, n2)
+
+		#>
+
+	def ColMoved(n1, n2)
+		aResult = This.Copy().MoveColQ(n1, n2).Content()
+		return aResult
+
+		def ColumnMoved(n1, n2)
+			return This.ColMoved(n1, n2)
+
+	  #=============================================#
+	 #  SWAPPING TWO COLUMNS IN THE LIST OF LISTS  #
+	#=============================================#
+
+	def SwapCols(n1, n2)
+		if CheckParams()
+			if isList(n1) and Q(n1).IsFromOrFromPositionNamedParam()
+				n1 = n1[2]
+			ok
+			if isList(n2) and Q(n2).IsToOrToPositionNamedParam()
+				n1 = n2[2]
+			ok
+
+			if NOT (isNumber(n1) and isNumber(n2))
+				StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
+			ok
+		ok
+
+		# Early checks
+
+		if n1 = n2
+			return
+		ok
+
+		nNumberOfCols = This.NumberOfCols()
+
+		if n1 < 1 or n1 > nNumberOfCols
+			return
+		ok
+
+		if n2 < 1 or n1 > nNumberOfCols
+			return
+		ok
+
+		# Doing the job
+
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			nLenList = len(@aContent[i])
+			if n1 <= nLenList and n2 <= nLenList
+				ring_swap(@aContent[i], n1, n2)
+			ok
+		next
+
+		#< @FunctionFluentForm
+
+		def SwapColsQ(n1, n2)
+			This.SwapCols(n1, n2)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SwapColumns(n1, n2)
+			This.SwapCols(n1, n2)
+
+			def SwapColumnsQ(n1, n2)
+				return This.SwapColsQ(n1, n2)
+
+		#>
+
+	def ColsSwapped(n1, n2)
+		aResult = This.Copy().SwapCols(n1, n2).Content()
+		return aResult
+
+		def ColumnsSwapped(n1, n2)
+			return This.ColsSwapped(n1, n2)
+
+	  #===========================================#
+	 #  INSERTING A COLUMN IN THE LIST OF LISTS  #
+	#===========================================#
+
+	  #=================================================#
+	 #  REMOVING A COLUMN FROM FROM THE LIST OF LISTS  #
+	#=================================================#
+	
+	def RemoveCol(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		# Early Check
+
+		nLen = len(@aContent)
+
+		if n < 1 or n > nLen
+			return
+		ok
+
+		# Doing the job
+
+		for i = 1 to nLen
+			nLenList = len(@aContent[i])
+			if n <= nLenList
+				ring_remove(@aContent[i], n)
+			ok
+		next
+
+		#< @FunctionFluentForm
+
+		def RemovColQ(n)
+			This.RemoveCol(n)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveNthCol(n)
+			This.RemoveCol(n)
+
+			def RemoveNthColQ(n)
+				return This.RemovColQ(n)
+
+		def RemoveColumn(n)
+			This.RemoveCol(n)
+
+			def RemoveColumnQ(n)
+				This.RemoveColumn(n)
+				return This
+
+		def RemoveNthColumn(n)
+			This.RemoveCol(n)
+
+			def RemoveNthColumnQ(n)
+				return This.RemovColQ(n)
+
+		#>
+
+	def ColRemoved(n)
+		aResult = This.Copy().RemoveColQ(n).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def NthColRemoved(n)
+			return This.ColRemoved(n)
+
+		def ColumnRemoved(n)
+			return This.ColRemoved(n)
+
+		def NthColumnRemoved(n)
+			return This.ColRemoved(n)
+
+		#>
+
+	  #------------------------------------------------#
+	 #  REMOVING MANY COLUMNS FROM THE LIST OF LISTS  #
+	#------------------------------------------------#
+	#TODO
+
+	  #===========================================#
+	 #  REPLACING A COLUMN IN THE LIST OF LISTS  #
+	#===========================================#
+	#TODO
+
+	  #-----------------------------------------------#
+	 #  REPLACING MANY COLUMNS IN THE LIST OF LISTS  #
+	#-----------------------------------------------#
+	#TODO
 
 	  #==================================================#
 	 #  TRANSFORMING THE LIST OF LISTS TO OTHER FORMS   #
