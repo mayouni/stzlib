@@ -574,7 +574,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*=========== CLASSIFYING A LIST
-
+*/
 pron()
 
 o1 = new stzList([
@@ -633,6 +633,7 @@ o1 = new stzListOfLists([
 
 	[ 12, "num1", "N100" ],
 	[ 110, "num2", "N200" ],
+	[ Q("hi!"), "non1", "X100" ],
 
 	[ "PERSIAN", "per1", "P100" ]
 ])

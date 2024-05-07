@@ -26709,7 +26709,7 @@ class stzList from stzObject
 		}
 		*/
 
-		acContent = This.StringifyObjectsQ().Lowercased()
+		acContent = This.StringifyNamedObjectsQ().Lowercased()
 
 		nLen = len(acContent)
 		anPosUndefined = []
@@ -47001,6 +47001,29 @@ class stzList from stzObject
 
 	def ObjectsStringified()
 		aResult = This.Copy().StringifyObjectsQ().Content()
+		return aResult
+
+	  #----------------------------------------------#
+	 #  STRINGIFYING THE NAMED OBJECTS IN THE LIST  #
+	#----------------------------------------------#
+
+	def StringifyNamedObjects()
+
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			if @IsNamedObject(@aContent[i])
+				@aContent[i] = @ObjectVarName(@aContent[i])	
+			ok
+		next
+
+
+		def StringifyNamedObjectsQ()
+			This.StringifyNamedObjects()
+			return This
+
+	def NamedObjectsStringified()
+		aResult = This.Copy().StringifyNamedObjectsQ().Content()
 		return aResult
 
 	  #---------------------------------------------------------------------#

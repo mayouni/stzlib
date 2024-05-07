@@ -2191,7 +2191,7 @@ class stzObject
 		#>
 
 	def IsNamed()
-		if This.Name() != :@NoName
+		if This.Name() != "" and This.Name() != :@NoName
 			return TRUE
 		else
 			return FALSE
