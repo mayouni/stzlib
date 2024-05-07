@@ -3499,7 +3499,93 @@ class stzListOfLists from stzList
 	  #------------------------------------------------#
 	 #  REMOVING MANY COLUMNS FROM THE LIST OF LISTS  #
 	#------------------------------------------------#
-	#TODO
+
+	def RemoveCols(anColNumbers)
+		if CheckParams()
+			if NOT ( isList(anColNumbers) and @IsListOfNumbers(anColNumbers) )
+				StzRaise("Incorrect param type! anColNumbers must be a list of numbers.")
+			ok
+		ok
+
+		nLen = len(@aContent)
+		anColNumbers = ring_sort(anColNumbers)
+		nLenCols = len(anColNumbers)
+
+		for i = nLenCols to 1 step -1
+			n = anColNumbers[i]
+			for j = 1 to nLen
+				nLenList = len(@aContent[j])
+				if n <= nLenList
+					ring_remove(@aContent[j], n)
+				ok
+			next
+		next
+
+		#< @FunctionFluentForm
+
+		def RemovColsQ(anColNumbers)
+			This.RemoveCols(anColNumbers)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveTheseCols(anColNumbers)
+			This.RemoveCols(anColNumbers)
+
+			def RemoveTheseColqQ(anColNumbers)
+				return This.RemovColsQ(n)
+
+		def RemoveManyCols(anColNumbers)
+			This.RemoveCols(anColNumbers)
+
+			def RemoveManyColqQ(anColNumbers)
+				return This.RemovColsQ(n)
+
+		def RemoveColumns(anColNumbers)
+			This.RemoveCols(anColNumbers)
+
+			def RemoveColumnsQ(anColNumbers)
+				This.RemoveColumns(anColNumbers)
+				return This
+
+		def RemoveTheseColumns(anColNumbers)
+			This.RemoveTheseCols(anColNumbers)
+
+			def RemoveTheseColumnsQ(anColNumbers)
+				return This.RemovCoslQ(anColNumbers)
+
+		def RemoveManyColumns(anColNumbers)
+			This.RemoveTheseCols(anColNumbers)
+
+			def RemoveManyColumnsQ(anColNumbers)
+				return This.RemovCoslQ(anColNumbers)
+
+		#>
+
+	def ColsRemoved(anColNumbers)
+		aResult = This.Copy().RemoveColsQ(anColNumbers).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def TheseColsRemoved(anColNumbers)
+			return This.ColsRemoved(anColNumbers)
+
+		def ManyColsRemoved(anColNumbers)
+			return This.ColsRemoved(anColNumbers)
+
+		def ColumnsRemoved(anColNumbers)
+			return This.ColsRemoved(anColNumbers)
+
+		def ManyColumnsRemoved(anColNumbers)
+			return This.ColsRemoved(anColNumbers)
+
+		def TheseColumnsRemoved(anColNumbers)
+			return This.ColsRemoved(anColNumbers)
+
+		#>
 
 	  #===========================================#
 	 #  REPLACING A COLUMN IN THE LIST OF LISTS  #
