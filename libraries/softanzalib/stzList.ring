@@ -16,7 +16,7 @@
 func StzListQ(paList)
 	return new stzList(paList)
 
-#==========
+#===
 
 func SortListsBySize(paLists)
 	if CheckParam()
@@ -26721,6 +26721,14 @@ class stzList from stzObject
 			
 			if isString(acContent[i])
 
+				if acContent[i] = :@NullObject or
+				   acContent[i] = :@TrueObject or
+				   acContent[i] = :@FalseObject
+
+					anPosUndefined + i
+					loop
+				ok
+
 				if ring_find(acSeen, acContent[i]) = 0
 					aResult + [ acContent[i], [i] ]
 					acSeen + acContent[i]
@@ -52391,6 +52399,29 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	def IsFromOrFromPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  (This.Item(1) = :FromPosition or This.Item(1) = :From)  )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsFromOrFromPositionNamedParams()
+			return This.IsFromOrFromPositionNamedParam()
+
+		def IsFromPositionOrFromNamedParam()
+			return This.IsFromOrFromPositionNamedParam()
+
+		def IsFromPositionOrFromNamedParams()
+			return This.IsFromOrFromPositionNamedParam()
+
+		#>
 
 	def IsFromPositionOfItemNamedParam()
 		if This.NumberOfItems() = 2 and
