@@ -7216,7 +7216,7 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def ReplaceManyByManyXTCSQ(paItems, paNewItems, pCaseSensitive)
+		def ReplaceManyByManyCSXTQ(paItems, paNewItems, pCaseSensitive)
 			This.ReplaceManyByManyCSXT(paItems, paNewItems, pCaseSensitive)
 			return This
 
@@ -7227,7 +7227,7 @@ class stzList from stzObject
 		def ReplaceManySubStringsByManyCSXT(paItems, paNewItems, pCaseSensitive)
 			This.ReplaceManyByManyCSXT(paItems, paNewItems, pCaseSensitive)
 
-			def ReplaceManySubStringsByManyXTCSQ(paItems, paNewItems, pCaseSensitive)
+			def ReplaceManySubStringsByManyCSXTQ(paItems, paNewItems, pCaseSensitive)
 				This.ReplaceManySubStringsByManyCSXT(paItems, paNewItems, pCaseSensitive)
 				return This
 
@@ -7236,7 +7236,7 @@ class stzList from stzObject
 	#< @FunctionPassiveForm
 
 	def ManySubStringsReplaceByManyCSXT(paItems, paNewItems, pCaseSensitive)
-		cResult = This.Copy().ReplaceManyByManyXTCSQ(paItems, paNewItems, pCaseSensitive).Content()
+		cResult = This.Copy().ReplaceManyByManyCSXTQ(paItems, paNewItems, pCaseSensitive).Content()
 		return cResult
 
 		def SubStringsReplaceByManyCSXT(paItems, paNewItems, pCaseSensitive)
@@ -8402,7 +8402,7 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def ReplaceAnyItemsAtPositionsByManyXTCSQ(panPos, paNewItems, pCaseSensitive)
+		def ReplaceAnyItemsAtPositionsByManyCSXTQ(panPos, paNewItems, pCaseSensitive)
 			This.ReplaceanyItemsAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
 			return This
 
@@ -8448,7 +8448,7 @@ class stzList from stzObject
 		#>
 
 	def AnyItemsAtPositionsReplacedByManyCSXT(panPos, paNewItems, pCaseSensitive)
-		cResult = This.Copy().ReplaceAnyItemsAtPositionsByManyXTCSQ(panPos, paNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceAnyItemsAtPositionsByManyCSXTQ(panPos, paNewItems, pCaseSensitive)
 		return cResult
 
 		#< @FunctionAlternativeforms
@@ -9026,7 +9026,7 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def ReplaceItemAtPositionsByManyXTCSQ(panPos, pItem, paNewItems, pCaseSensitive)
+		def ReplaceItemAtPositionsByManyCSXTQ(panPos, pItem, paNewItems, pCaseSensitive)
 			This.ReplaceItemAtPositionsByManyCSXT(panPos, pItem, paNewItems, pCaseSensitive)
 			return This
 
@@ -9037,7 +9037,7 @@ class stzList from stzObject
 		def ReplaceItemAtThesePositionsByManyCSXT(panPos, pItem, paNewItems, pCaseSensitive)
 			This.ReplaceItemAtPositionsByManyCSXT(panPos, pItem, paNewItems, pCaseSensitive)
 
-			def ReplaceItemAtThesePositionsByManyXTCSQ(panPos, pItem, paNewItems, pCaseSensitive)
+			def ReplaceItemAtThesePositionsByManyCSXTQ(panPos, pItem, paNewItems, pCaseSensitive)
 				This.ReplaceItemAtThesePositionsByManyCSXT(panPos, pItem, paNewItems, pCaseSensitive)
 				return This
 
@@ -9062,7 +9062,7 @@ class stzList from stzObject
 	#-- @FunctionPassiveForms
 
 	def ItemAtPositionsReplacedByManyCSXT(panPos, pItem, paNewItems, pCaseSensitive)
-		cResult = This.Copy().ReplaceItemAtPositionsByManyXTCSQ(panPos, pItem, paNewItems, pCaseSensitive).Content()
+		cResult = This.Copy().ReplaceItemAtPositionsByManyCSXTQ(panPos, pItem, paNewItems, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -9195,7 +9195,7 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def ReplaceAnyItemAtPositionsByManyXTCSQ(panPos, paNewItems, pCaseSensitive)
+		def ReplaceAnyItemAtPositionsByManyCSXTQ(panPos, paNewItems, pCaseSensitive)
 			This.ReplaceAnyItemAtPositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
 			return This
 
@@ -9206,7 +9206,7 @@ class stzList from stzObject
 		def ReplaceAnyItemAtThesePositionsByManyCSXT(panPos, paNewItems, pCaseSensitive)
 			This.ReplaceAnyItemAtPositionsByManyCSXT(panPos, pItem, paNewItems, pCaseSensitive)
 
-			def ReplaceAnyItemAtThesePositionsByManyXTCSQ(panPos, pItem, paNewItems, pCaseSensitive)
+			def ReplaceAnyItemAtThesePositionsByManyCSXTQ(panPos, pItem, paNewItems, pCaseSensitive)
 				This.ReplaceAnyItemAtThesePositionsByManyCSXT(panPos, pItem, paNewItems, pCaseSensitive)
 				return This
 
@@ -9238,7 +9238,7 @@ class stzList from stzObject
 	#-- @FunctionPassiveForms
 
 	def AnyItemAtPositionsReplacedByManyCSXT(panPos, paNewItems, pCaseSensitive)
-		cResult = This.Copy().ReplaceAnyItemAtPositionsByManyXTCSQ(panPos, paNewItems, pCaseSensitive).Content()
+		cResult = This.Copy().ReplaceAnyItemAtPositionsByManyCSXTQ(panPos, paNewItems, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -26768,6 +26768,12 @@ class stzList from stzObject
 			return this.classify()
 
 		#>
+
+	  #------------------------------------------#
+	 #  CLASSIFYING THE LIST ON A GIVEN COLUMN  #
+	#------------------------------------------#
+
+	def ClassifyOn(pnColNumber)
 
 	  #--------------------------------------------#
 	 #   GETTING THE LIST OF CLASSES IN THE LIST  #
@@ -45213,7 +45219,7 @@ class stzList from stzObject
 	 #  FINDING THINGS, THE EXTENDED FORM  #
 	#=====================================#
 
-	def FindXTCS(p1, p2, pCaseSensitive)
+	def FindCSXT(p1, p2, pCaseSensitive)
 
 		if ( isString(p1) OR ( isList(p1) and Q(p1).IsSubStringNamedParam() ) ) AND
 		   ( isList(p2) )
@@ -45376,7 +45382,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindXT(p1, p2)
-		return This.FindXTCS(p1, p2, TRUE)
+		return This.FindCSXT(p1, p2, TRUE)
 
 	  #=====================================================#
 	 #  FINDING OCCURRENCES OF AN ITEM IN A GIVEN SECTION  #
