@@ -639,6 +639,139 @@ o1 = new stzListOfLists([
 	[ "C", 3, 33 ]
 ])
 
+o1.MoveCol(3, 2)
+
+? @@NL( o1.Content() )
+#--> [
+#	[ "A", 11, 1 ],
+#	[ "B", 22, 2 ],
+#	[ "C", 33, 3 ]
+# ]
+proff()
+# Executed in 0.03 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B", 2, 22 ],
+	[ "C", 3, 33 ]
+])
+
+o1.MoveCol(3, 1)
+
+? @@NL( o1.Content() )
+#--> [
+#	[ 11, "A", 1 ],
+#	[ 22, "B", 2 ],
+#	[ 33, "C", 3 ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B", 2, 22 ],
+	[ "C", 3, 33 ]
+])
+
+o1.ReplaceCol(2, [ "a", "b", "c" ])
+
+? @@NL( o1.Content() )
+#--> [
+#	[ "A", "a", 11 ],
+#	[ "B", "b", 22 ],
+#	[ "C", "c", 33 ]
+# ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B", 2 ],
+	[ "C", 3, 33 ]
+])
+
+o1.ReplaceCol(3, [ "a", "b", "c" ])
+
+? @@NL( o1.Content() )
+#--> [
+#	[ "A", 1, "a" ],
+#	[ "B", 2 ],
+#	[ "C", 3, "c" ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------
+*/
+pron()
+
+o1 = new stzList([ ".", ".", "*", ".", ".", "." ])
+o1.Move(3, 5)
+? @@( o1.Content() )
+
+proff()
+# Executed in 0.02 second(s)
+
+/*------ #ring
+*/
+pron()
+
+#          1    2    3    4    5    6
+aList = [ ".", ".", "*", ".", ".", "." ]
+move(aList, 3, 5)
+? @@(aList)
+
+
+proff()
+
+/*------
+
+*/
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B", 2, 22 ],
+	[ "C", 3, 33 ]
+])
+
+o1.MoveCol(1, 3)
+
+? @@NL( o1.Content() )
+#--> [
+#	[ 11, "A", 1 ],
+#	[ 22, "B", 2 ],
+#	[ 33, "C", 3 ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B", 2, 22 ],
+	[ "C", 3, 33 ]
+])
+
 o1.SwapCols(3, 1) # Or SwapNthItems()
 
 ? @@NL( o1.Content() )

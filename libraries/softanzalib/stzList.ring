@@ -4425,6 +4425,45 @@ func IsRingSortableOn(paListOfLists, n)
 	func @IsRingSortableOn(paListOfLists, n)
 		return IsRingSortableOn(paListOfLists, n)
 	
+func Move(paList, n1, n2)
+
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+
+		if NOT isNumber(n1)
+			StzRaise("Incorrect param type! n1 must be a number.")
+		ok
+
+		if NOT isNumber(n2)
+			StzRaise("Incorrect param type! n2 must be a number.")
+		ok
+	ok
+
+	item = paList[n1]
+	ring_remove(paList, n1)
+	n = n2
+	if n1 > n2
+		n++
+	ok
+	ring_insert(paList, n2, item)
+	return paList
+
+
+	#< @FunctionAlternativeForms
+
+	func @Move(paList, n1, n2)
+		return Move(paList, n1, n2)
+
+	func MoveItems(paList, n1, n2)
+		return Move(paList, n1, n2)
+
+	func @MoveItems(paList, n1, n2)
+		return Move(paList, n1, n2)
+
+	#>
+
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -6173,87 +6212,117 @@ class stzList from stzObject
 
 		#>
 
-	  #---------------------------------------------#
+	  #=============================================#
 	 #  MOVING ITEM AT POSITION N1 TO POSITION N2  #
-	#---------------------------------------------#
+	#=============================================#
 
 	def Move(n1, n2)
 
 		# Checking params correctness
 
-		if isList(n1) and
-		   Q(n1).IsOneOfTheseNamedParams([
-			:From, :FromPosition,
-			:At, :AtPosition,
-			:Item, :ItemAt, :ItemAtPosition,
-			:FromItemAt, :FromItemAtPosition,
-			:ItemFrom, :ItemFromPosition
-		   ])
+		if CheckParams()
 
-			n1 = n1[2]
-		ok
+			if isList(n1) and
+			   Q(n1).IsOneOfTheseNamedParams([
+				:From, :FromPosition,
+				:At, :AtPosition,
+				:Item, :ItemAt, :ItemAtPosition,
+				:FromItemAt, :FromItemAtPosition,
+				:ItemFrom, :ItemFromPosition
+			   ])
+	
+				n1 = n1[2]
+			ok
+	
+			if isList(n2) and
+			   Q(n2).IsOneOfTheseNamedParams([
+				:To, :ToPosition, :ToItem, :ToItemAt,
+				:ToItemAtPosition, :ToPositionOfItem ])
+	
+				n2 = n2[2]
+			ok
+	
+			if isString(n1) and
+			   Q(n1).IsOneOfThese([ :First, :FirstPosition, :FirstItem ])
+					    
+				n1 = 1
+			ok
+	
+			if isString(n2) and
+			   Q(n1).IsOneOfThese([ :Last, :LastPosition, :LastItem ])
+	
+				n2 = This.NumberOfItems()
+			ok
+	
+			if NOT Q([n1, n2]).BothAreNumbers()
+				StzRaise("Incorrect param type! n1 and n2 must be numbers.")
+			ok
 
-		if isList(n2) and
-		   Q(n2).IsOneOfTheseNamedParams([
-			:To, :ToPosition, :ToItem, :ToItemAt,
-			:ToItemAtPosition, :ToPositionOfItem ])
-
-			n2 = n2[2]
-		ok
-
-		if isString(n1) and
-		   Q(n1).IsOneOfThese([ :First, :FirstPosition, :FirstItem ])
-				    
-			n1 = 1
-		ok
-
-		if isString(n2) and
-		   Q(n1).IsOneOfThese([ :Last, :LastPosition, :LastItem ])
-
-			n2 = This.NumberOfItems()
-		ok
-
-		if NOT Q([n1, n2]).BothAreNumbers()
-			StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
 		# Doing the job
-		
+
+		item = @aContent[n1]
+		ring_remove(@aContent, n1)
+		n = n2
 		if n1 > n2
-		# . . . 2 . . 1 . .
-		#       ^     |
-		#       |_____|
-
-			TempItem = This[n1]
-			This.RemoveAt(n1)
-			This.InsertBefore(n2, TempItem)
-
-		but n1 < n2
-		# . . . 1 . . 2 . .
-		#       |     ^
-		#       |_____|
-
-			TempItem = This[n1]
-
-			if n2 = This.NumberOfItems()
-				This.AddItem(TempItem)
-			else
-				This.InSertAfter(n2, TempItem)
-			ok
-
-			This.RemoveAt(n1)
+			n++
 		ok
+		ring_insert(@aContent, n2, item)
 
-		#< @FunctionAlternativeForm
+		#< @FunctionFluentForm
 
-		def MoveItem(n1, n2)
+		def MoveQ(n1, n2)
 			This.Move(n1, n2)
+			return This
 
 		#>
 
-	  #-----------------------------------------#
+	  #-------------------------------------------#
+	 #  MOVING A GIVEN ITEM TO A GIVEN POSITION  #
+	#-------------------------------------------#
+	#NOTE
+	# Only the first position of pItem in the list is moved
+
+	def MoveItemCS(pItem, n, pCaseSensitive)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		if n < 1 or n > len(@aContent)
+			return
+		ok
+
+		n1 = This.FindFirstCS(pItem, pCaseSensitive)
+		if n1 = 0
+			return
+		ok
+
+		This.Move(n1, n)
+
+
+		def MoveItemCSQ(pItem, n, pCaseSensitive)
+			This.MoveItemCS(pItem, n, pCaseSensitive)
+			return This
+
+	def ItemMovedCS(pItem, n, pCaseSensitive)
+		aResult = This.Copy().MoveItemCSQ(pItem, n, pCaseSensitive).Content()
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def MoveItem(pItem, n)
+		return This.MoveItemCS(pItem, n, TRUE)
+
+		def MoveItemQ(pItem, n)
+			This.MoveItem(pItem, n)
+			return This
+
+	  #=========================================#
 	 #  SWAPPING ITEMS AT TWO GIVEN POSITIONS  #
-	#-----------------------------------------#
+	#=========================================#
 
 	def Swap(n1, n2)
 		if isList(n1) and
