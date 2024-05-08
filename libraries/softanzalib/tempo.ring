@@ -717,7 +717,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*------
-*/
+
 pron()
 
 o1 = new stzList([ ".", ".", "*", ".", ".", "." ])
@@ -727,21 +727,33 @@ o1.Move(3, 5)
 proff()
 # Executed in 0.02 second(s)
 
-/*------ #ring
-*/
+/*------
+
 pron()
 
-#          1    2    3    4    5    6
-aList = [ ".", ".", "*", ".", ".", "." ]
-move(aList, 3, 5)
-? @@(aList)
+o1 = new stzList([ "one", "four", "two", "three", "five" ])
 
+o1.MoveItem("four", :ToPosition = 4)
+
+? @@( o1.Content() )
+#--> [ "one", "two", "three", "four", "five" ]
 
 proff()
 
 /*------
 
-*/
+pron()
+
+aList = [ "one", "four", "two", "three", "five" ]
+Move(aList, 2, 4) # Move() is a Softanza function
+? @@(aList)
+#--> [ "one", "two", "three", "four", "five" ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*------
+
 pron()
 
 o1 = new stzListOfLists([
@@ -754,8 +766,52 @@ o1.MoveCol(1, 3)
 
 ? @@NL( o1.Content() )
 #--> [
+#	[ 1, 11, "A" ],
+#	[ 2, 22, "B" ],
+#	[ 3, 33, "C" ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B", 2, 22 ],
+	[ "C", 3, 33 ]
+])
+
+o1.MoveCol(3, 1)
+
+? @@NL( o1.Content() )
+#--> [
 #	[ 11, "A", 1 ],
 #	[ 22, "B", 2 ],
+#	[ 33, "C", 3 ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------
+*/
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B", 2 ],
+	[ "C", 3, 33 ]
+])
+
+o1.MoveCol(3, 1)
+
+? @@NL( o1.Content() )
+#--> [
+#	[ 11, "A", 1 ],
+#	[ "B", 2 ],
 #	[ 33, "C", 3 ]
 # ]
 

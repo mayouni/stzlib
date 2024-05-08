@@ -6286,6 +6286,10 @@ class stzList from stzObject
 
 	def MoveItemCS(pItem, n, pCaseSensitive)
 		if CheckParams()
+			if isList(n) and Q(n).IsToOrToPositionNamedParam()
+				n = n[2]
+			ok
+
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
