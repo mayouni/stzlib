@@ -2670,6 +2670,12 @@ class stzListOfLists from stzList
 			def NthItemsQ(n)
 				return This.NthColumnQ(n)
 
+		def Col(n)
+			return This.NthColumn(n)
+
+			def ColQ(n)
+				return This.NthColumnQ(n)
+
 		#>
 
 	def FirstColumn()
@@ -3319,14 +3325,8 @@ class stzListOfLists from stzList
 	#===============================================#
 
 	def MoveCol(n1, n2)
-		if CheckParams()
-			if isList(n1) and Q(n1).IsFromOrFromPositionNamedParam()
-				n1 = n1[2]
-			ok
-			if isList(n2) and Q(n2).IsToOrToPositionNamedParam()
-				n1 = n2[2]
-			ok
 
+		if CheckParams()
 			if NOT (isNumber(n1) and isNumber(n2))
 				StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 			ok
@@ -3334,27 +3334,27 @@ class stzListOfLists from stzList
 
 		# Early checks
 
-		if n1 = n2
-			return
-		ok
-
 		nNumberOfCols = This.NumberOfCols()
 
 		if n1 < 1 or n1 > nNumberOfCols
 			return
 		ok
 
-		if n2 < 1 or n1 > nNumberOfCols
+		if n2 < 1 or n2 > nNumberOfCols
 			return
 		ok
 
 		# Doing the job
 
-		nLen = len(@aContent)
+		This.ReplaceCol(n2, This.Col(n1))
 
-		for i = 1 to nLen
-			#...
-		next
+		n = n1
+		if n1 < n2
+			n--
+		ok
+
+		This.RemoveCol(n)
+
 
 		#< @FunctionFluentForm
 
@@ -3396,10 +3396,17 @@ class stzListOfLists from stzList
 
 	def SwapCols(n1, n2)
 		if CheckParams()
-			if isList(n1) and Q(n1).IsFromOrFromPositionNamedParam()
+
+			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
+				:From, :FromPosition,
+				:Between, :BetweenPosition, :BetweenPositions ])
+				
 				n1 = n1[2]
 			ok
-			if isList(n2) and Q(n2).IsToOrToPositionNamedParam()
+
+			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+				:To, :ToPosition, :And, :AndPosition ])
+				
 				n1 = n2[2]
 			ok
 
@@ -3477,8 +3484,13 @@ class stzListOfLists from stzList
 
 	def InsertCol(n, paColData)
 		if CheckParams()
+
 			if NOT isList(paColData)
 				StzRaise("Incorrect param type! paColData must be a list.")
+			ok
+
+			if isList(n) and Q(n).IsAtOrAtPositionNamedParams()
+				n = n[2]
 			ok
 
 			if NOT isNumber(n)
@@ -3537,6 +3549,10 @@ class stzListOfLists from stzList
 	
 	def RemoveCol(n)
 		if CheckParams()
+			if isList(n) and Q(n).IsAtOrAtPositionNamedParam()
+				n = n[2]
+			ok
+
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -3621,6 +3637,10 @@ class stzListOfLists from stzList
 
 	def RemoveCols(anColNumbers)
 		if CheckParams()
+			if isList(anColNumbers) and Q(anColNumbers).IsAtOrAtPositionsNamedParams()
+				anColNumbers = anColNumbers[2]
+			ok
+
 			if NOT ( isList(anColNumbers) and @IsListOfNumbers(anColNumbers) )
 				StzRaise("Incorrect param type! anColNumbers must be a list of numbers.")
 			ok
@@ -3709,12 +3729,78 @@ class stzListOfLists from stzList
 	  #===========================================#
 	 #  REPLACING A COLUMN IN THE LIST OF LISTS  #
 	#===========================================#
-	#TODO
+
+	def ReplaceCol(n, paColData)
+
+		if CheckParams()
+			if isList(paColData) and Q(paColData).IsWithNamedParam()
+				paColData = paColData[2]
+			ok
+
+			if NOT isList(paColData)
+				StzRaise("Incorrect param type! paColData must be a list.")
+			ok
+
+			if isList(n) and Q(n).IsAtOrAtPositionNamedParams()
+				n = n[2]
+			ok
+
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		# Early check
+
+		nNumberOfCols = This.NumberOfCols()
+
+		if n < 1 or n > nNumberOfCols
+			return
+		ok
+
+		# Doing the job
+
+		nLen = len(@aContent)
+		nLenCol = len(paColData)
+
+		for i = 1 to nLen
+			nLenList = len(@aContent[i])
+
+			item = NULL
+			if i <= nLenCol
+				item = paColData[i]
+			ok
+
+			if n <= nLenList
+				@aContent[i][n] = item
+			ok
+
+		next
+
+		#< @FunctionFluentForm
+
+		def ReplaceColQ(n, paColData)
+			This.ReplaceCol(n, paColData)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceItems(n, paColData)
+			This.ReplaceCol(n, paColData)
+
+			def ReplaceItemsQ(n, paColData)
+				return This.ReplaceColQ(n, paColData)
+
+		#>		
 
 	  #-----------------------------------------------#
 	 #  REPLACING MANY COLUMNS IN THE LIST OF LISTS  #
 	#-----------------------------------------------#
-	#TODO
+
+	def ReplaceCols(panColNumbers, paColData)
+
 
 	  #==================================================#
 	 #  TRANSFORMING THE LIST OF LISTS TO OTHER FORMS   #
