@@ -3334,6 +3334,10 @@ class stzListOfLists from stzList
 
 		# Early checks
 
+		if n1 = n2
+			return
+		ok
+
 		nNumberOfCols = This.NumberOfCols()
 
 		if n1 < 1 or n1 > nNumberOfCols
@@ -3346,15 +3350,14 @@ class stzListOfLists from stzList
 
 		# Doing the job
 
-		This.ReplaceCol(n2, This.Col(n1))
+		nLen = len(@aContent)
 
-		n = n1
-		if n1 < n2
-			n--
-		ok
-
-		This.RemoveCol(n)
-
+		for i = 1 to nLen
+			nLenList = len(@aContent[i])
+			if n1 <= nLenList and n2 <= nLenList
+				@Move(@aContent[i], n1, n2)
+			ok
+		next
 
 		#< @FunctionFluentForm
 
@@ -3427,7 +3430,7 @@ class stzListOfLists from stzList
 			return
 		ok
 
-		if n2 < 1 or n1 > nNumberOfCols
+		if n2 < 1 or n2 > nNumberOfCols
 			return
 		ok
 
