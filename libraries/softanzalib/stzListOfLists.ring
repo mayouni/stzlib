@@ -3286,7 +3286,7 @@ class stzListOfLists from stzList
 	#------------------------------------------------#
 
 	def ClassifyOn(pnColNumber)
-		oCopy = This.Copy().MoveCol(n, 1)
+		oCopy = This.Copy().MoveColQ(pnColNumber, 1)
 		aResult = oCopy.Classify()
 		return aResult
 
@@ -3315,9 +3315,23 @@ class stzListOfLists from stzList
 
 		#< @FunctionAlternativeForm
 
-		def classifiedOn(pnColNumber)
+		def ClassifiedOn(pnColNumber)
 			return This.classifyOn(pnColNumber)
 
+		#--
+
+		def ClassifyOnCol(pnColNumber)
+			return This.classifyOn(pnColNumber)
+
+		def ClassifiedOnCol(pnColNumber)
+			return This.classifyOn(pnColNumber)
+
+		def ClassifyOnColumn(pnColNumber)
+			return This.classifyOn(pnColNumber)
+
+		def ClassifiedOnColumn(pnColNumber)
+			return This.classifyOn(pnColNumber)
+ 
 		#>
 
 	  #===============================================#

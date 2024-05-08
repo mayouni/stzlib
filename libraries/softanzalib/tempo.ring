@@ -797,7 +797,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*------
-*/
+
 pron()
 
 o1 = new stzListOfLists([
@@ -858,7 +858,6 @@ o1.SwapCols(3, 1) # Or SwapNthItems()
 #	[ "B", 2 ],
 #	[ 33, 3, "C" ]
 # ]
-
 
 proff()
 # Executed in 0.03 second(s)
@@ -927,6 +926,7 @@ o1.RemoveCols([ 2, 3 ])
 # ]
 
 proff()
+# Executed in 0.03 second(s)
 
 /*------
 
@@ -947,10 +947,11 @@ o1.InsertCol(2, [ "a", "b", "c" ]) # Or InsertItems()
 #	[ "C", "c", 3, 33 ]
 # ]
 
-proff
+proff()
+# Executed in 0.03 second(s)
 
 /*------
-*/
+
 pron()
 
 o1 = new stzListOfLists([
@@ -963,6 +964,7 @@ o1 = new stzListOfLists([
 #--> [ 1, 3 ]
 
 proff()
+# Executed in 0.03 second(s)
 
 /*------
 
@@ -988,7 +990,6 @@ proff()
 
 /*======
 
-*/
 pron()
 
 o1 = new stzListOfLists([
@@ -1022,11 +1023,50 @@ o1 = new stzListOfLists([
 #	[ "@undefined", [ "lst1", "L100", "nul1", "N100", "num1", "N100", "num2", "N200", "non1", "X100" ] ]
 # ]
 
+proff()
+# Executed in 0.04 second(s)
+
+/*--------
+
+*/
+pron()
+
+o1 = new stzListOfLists([
+	[ "arb1", :Arabic, "A100" ],
+	[ "arb2", :Arabic, "A200" ],
+	[ "frn1", :French, "F100" ],
+	[ "eng1", :English, "E100" ],
+
+	[ "lst1", [ 1, 2, 3 ], "L100" ],
+	[ "nul1", ANullObject(), "N100" ],
+ 
+	[ "spn1", :Spanish, "S100" ],
+	[ "spn2", :Spanish, "S200" ],
+	[ "eng2", :English, "E200" ],
+	[ "arb3", :Arabic, "A300" ],
+
+	[ "num1", 12, "N100" ],
+	[ "num2", 110, "N200" ],
+	[ "non1", Q("hi!"), "X100" ],
+
+	[ "per1", "PERSIAN", "P100" ]
+])
+
+? @@NL( o1.ClassifyOnCol(2) )
+#--> [
+#	[ "arabic", 	[ "arb1", "A100", "arb2", "A200", "arb3", "A300" ] ],
+#	[ "french", 	[ "frn1", "F100" ] ],
+#	[ "english", 	[ "eng1", "E100", "eng2", "E200" ] ],
+#	[ "spanish", 	[ "spn1", "S100", "spn2", "S200" ] ],
+#	[ "persian", 	[ "per1", "P100" ] ],
+#	[ "@undefined", [ "lst1", "L100", "nul1", "N100", "num1", "N100", "num2", "N200", "non1", "X100" ] ]
+# ]
+
 
 proff()
 # Executed in 0.04 second(s)
 
-/*-------
+/*========
 
 pron()
 
