@@ -2624,35 +2624,39 @@ class stzListOfLists from stzList
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
-
-			if NOT ( n > 0 and n <= This.MaxSize() )
-				StzRaise("Index out of range! n must be between 1 and the size of the largest list.")
-			ok
 		ok
 
-		aContent = This.Adjusted()
-		nLen = len(aContent)
+		nLen = len(@aContent)
 
 		if EarlyCheck()
 			if nLen = 0
 				return []
 			ok
+
+			if n < 1 or n > This.NumberOfCols()
+				return []
+			ok
 		ok
 
-		oMissing = StzListQ(This.FindMissing())
-		
 		aResult = []
 
 		for i = 1 to nLen
-			if NOT oMissing.Contains([ i, n ])
-				aResult + aContent[i][n]
+			nLenList = len(@aContent[i])
+			if n <= nLenList
+				aResult + @aContent[i][n]
 			ok
 		next
 
 		return aResult
 
+		#< @FunctionFluentForm
+
 		def NthColumnQ(n)
 			return new stzList(This.NthColumn(n))
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def NthCol(n)
 			return This.NthColumn(n)
@@ -2660,11 +2664,25 @@ class stzListOfLists from stzList
 			def NthColQ(n)
 				return This.NthColumnQ(n)
 
+		def NthItems(n)
+			return This.NthColumn(n)
+
+			def NthItemsQ(n)
+				return This.NthColumnQ(n)
+
+		#>
+
 	def FirstColumn()
 		return This.NthColumn(1)
 
+		#< @FunctionFluentForm
+
 		def FirstColumnQ()
 			return new stzList(This.FirstColumn())
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def FirstCol()
 			return This.FirstColumn()
@@ -2672,17 +2690,39 @@ class stzListOfLists from stzList
 			def FirstColQ()
 				return This.FirstColumnQ()
 
+		def FirstItems()
+			return This.NthColumn(1)
+
+			def FirstItemsQ()
+				return This.NthColumnQ(1)
+
+		#>
+
 	def LastColumn()
-		return This.NthColumn(This)
+		return This.NthColumn(This.NumberOfColumns())
+
+		#< @FunctionFluentForm
 
 		def LastColumnQ()
 			return new stzList(This.LastColumn())
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def LastCol()
 			return This.LastColumn()
 
 			def LastColQ()
 				return This.LastColumnQ()
+
+		def LastItems()
+			return This.LastColumn()
+
+			def LastItemsQ()
+				return This.LastColumnQ()
+
+		#>
 
 	  #==========================================#
 	 #  ADDING A COLUMN AT THE END OF THE LIST  #
@@ -3278,11 +3318,6 @@ class stzListOfLists from stzList
 	 #  MOVING A COLUMN FROM A POSITION TO AN OTHER  #
 	#===============================================#
 
-	#   1 2 3 4 5
-	# 1 . . . . .
-	# 2 . . .
-	# 3 . . . . 
-
 	def MoveCol(n1, n2)
 		if CheckParams()
 			if isList(n1) and Q(n1).IsFromOrFromPositionNamedParam()
@@ -3337,6 +3372,12 @@ class stzListOfLists from stzList
 			def MoveColumnQ(n1, n2)
 				return This.MoveColQ(n1, n2)
 
+		def MoveNthItems(n1, n2)
+			This.MoveCol(n1, n2)
+
+			def MoveNthItemsQ(n1, n2)
+				return This.MoveColQ(n1, n2)
+
 		#>
 
 	def ColMoved(n1, n2)
@@ -3344,6 +3385,9 @@ class stzListOfLists from stzList
 		return aResult
 
 		def ColumnMoved(n1, n2)
+			return This.ColMoved(n1, n2)
+
+		def NthItemsMoved(n1, n2)
 			return This.ColMoved(n1, n2)
 
 	  #=============================================#
@@ -3407,6 +3451,14 @@ class stzListOfLists from stzList
 			def SwapColumnsQ(n1, n2)
 				return This.SwapColsQ(n1, n2)
 
+		#--
+
+		def SwapNthItems(n1, n2)
+			This.SwapCols(n1, n2)
+
+			def SwapNthItemsQ(n1, n2)
+				return This.SwapColsQ(n1, n2)
+
 		#>
 
 	def ColsSwapped(n1, n2)
@@ -3416,9 +3468,68 @@ class stzListOfLists from stzList
 		def ColumnsSwapped(n1, n2)
 			return This.ColsSwapped(n1, n2)
 
+		def NthItemsSwapped(n1, n2)
+			return This.ColsSwapped(n1, n2)
+
 	  #===========================================#
 	 #  INSERTING A COLUMN IN THE LIST OF LISTS  #
 	#===========================================#
+
+	def InsertCol(n, paColData)
+		if CheckParams()
+			if NOT isList(paColData)
+				StzRaise("Incorrect param type! paColData must be a list.")
+			ok
+
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		# Early check
+
+		nNumberOfCols = This.NumberOfCols()
+
+		if n < 1 or n > nNumberOfCols
+			return
+		ok
+
+		# Doing the job
+
+		nLen = len(@aContent)
+		nLenCol = len(paColData)
+
+		for i = 1 to nLen
+			nLenList = len(@aContent[i])
+
+			item = NULL
+			if i <= nLenCol
+				item = paColData[i]
+			ok
+
+			if n <= nLenList
+				ring_insert(@aContent[i], n, item)
+			ok
+
+		next
+
+		#< @FunctionFluentForm
+
+		def InsertColQ(n, paColData)
+			This.InsertCol(n, paColData)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def InsertItems(n, paColData)
+			This.InsertCol(n, paColData)
+
+			def InsertItemsQ(n, paColData)
+				return This.InsertColQ(n, paColData)
+
+		#>
 
 	  #=================================================#
 	 #  REMOVING A COLUMN FROM FROM THE LIST OF LISTS  #
@@ -3468,13 +3579,18 @@ class stzListOfLists from stzList
 			This.RemoveCol(n)
 
 			def RemoveColumnQ(n)
-				This.RemoveColumn(n)
-				return This
+				return This.RemovColQ(n)
 
 		def RemoveNthColumn(n)
 			This.RemoveCol(n)
 
 			def RemoveNthColumnQ(n)
+				return This.RemovColQ(n)
+
+		def RemoveNthItems(n)
+			This.RemoveCol(n)
+
+			def RemoveNthItemsQ(n)
 				return This.RemovColQ(n)
 
 		#>
@@ -3492,6 +3608,9 @@ class stzListOfLists from stzList
 			return This.ColRemoved(n)
 
 		def NthColumnRemoved(n)
+			return This.ColRemoved(n)
+
+		def NthItemsRemoved(n)
 			return This.ColRemoved(n)
 
 		#>
@@ -3561,7 +3680,7 @@ class stzListOfLists from stzList
 
 			def RemoveManyColumnsQ(anColNumbers)
 				return This.RemovCoslQ(anColNumbers)
-
+	
 		#>
 
 	def ColsRemoved(anColNumbers)

@@ -639,7 +639,7 @@ o1 = new stzListOfLists([
 	[ "C", 3, 33 ]
 ])
 
-o1.SwapCols(3, 1)
+o1.SwapCols(3, 1) # Or SwapNthItems()
 
 ? @@NL( o1.Content() )
 #--> [
@@ -661,7 +661,7 @@ o1 = new stzListOfLists([
 	[ "C", 3, 33 ]
 ])
 
-o1.SwapCols(3, 1)
+o1.SwapCols(3, 1) # Or SwapNthItems()
 
 ? @@NL( o1.Content() )
 #--> [
@@ -684,7 +684,7 @@ o1 = new stzListOfLists([
 	[ "C", 3, 33 ]
 ])
 
-o1.RemoveCol(3)
+o1.RemoveCol(3) # Or RemoveNthItems()
 
 ? @@NL( o1.Content() )
 #--> [
@@ -706,7 +706,7 @@ o1 = new stzListOfLists([
 	[ "C", 3, 33 ]
 ])
 
-o1.RemoveCol(2)
+o1.RemoveCol(2) # Or RemoveNthItems()
 
 ? @@NL( o1.Content() )
 #--> [
@@ -719,7 +719,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*------
-*/
+
 pron()
 
 o1 = new stzListOfLists([
@@ -738,6 +738,64 @@ o1.RemoveCols([ 2, 3 ])
 # ]
 
 proff()
+
+/*------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B", 2 ],
+	[ "C", 3, 33 ]
+])
+
+o1.InsertCol(2, [ "a", "b", "c" ]) # Or InsertItems()
+
+? @@NL( o1.Content() )
+#--> [
+#	[ "A", "a", 1, 11 ],
+#	[ "B", "b", 2 ],
+#	[ "C", "c", 3, 33 ]
+# ]
+
+proff
+
+/*------
+*/
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B" ],
+	[ "C", 3, 33 ]
+])
+
+? o1.NthCol(2) # Or NthItems(2)
+#--> [ 1, 3 ]
+
+proff()
+
+/*------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "A", 1, 11 ],
+	[ "B" ],
+	[ "C", 3, 33 ]
+])
+
+o1.InsertCol(2, [ "a", "b", "c" ])
+
+? @@NL( o1.Content() )
+#--> [
+#	[ "A", "a", 1, 11 ],
+#	[ "B" ],
+#	[ "C", "c", 3, 33 ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*======
 
