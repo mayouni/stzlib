@@ -5869,7 +5869,7 @@ class stzNumber from stzObject
 		# Do nithing, the object is naturally stringified
 		# becauses it contains its value always as a string
 
-		def StringifiyQ()
+		def StringifyQ()
 			return new stzString( This.StringValue() )
 
 	def Stringified()

@@ -76692,7 +76692,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		# Do nothing, the object is naturally stringified
 		# becauses it is already a string
 
-		def StringifiyQ()
+		def StringifyQ()
 			return This
 
 	def Stringified()

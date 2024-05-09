@@ -2547,9 +2547,9 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def KeysByItem(pValue)
 			return This.KeysByItem(pValue)
 
-	  #------------------------------------------------#
-	 #  LISTIFIYING (ALL THE VALUES IN) THE HASHLIST  #
-	#------------------------------------------------#
+	  #-----------------------------------------------#
+	 #  LISTIFYING (ALL THE VALUES IN) THE HASHLIST  #
+	#-----------------------------------------------#
 
 	def Copy()
 		oCopy = new stzHashList(This.content())
