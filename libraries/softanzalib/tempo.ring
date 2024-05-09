@@ -1028,7 +1028,6 @@ proff()
 
 /*--------
 
-*/
 pron()
 
 o1 = new stzListOfLists([
@@ -1109,7 +1108,7 @@ proff()
 pron()
 
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
-? @@NL( o1.ClassifiedByQR(' Q(@item).HowMany(0) ', :stzListOflists).SortedOn(1) )
+? @@NL( o1.ClassifyByQR(' Q(@item).HowMany(0) ', :stzListOflists).SortedOn(1) )
 #--> [
 # 	[ "0", [ 8, 2 ] ],
 #	[ "1", [ 170, 0, 150 ] ],
@@ -1118,11 +1117,48 @@ o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 # ]
 
 proff()
-#--> Executed in 0.06 second(s)
+#--> Executed in 0.05 second(s)
 
+/*---
 
+pron()
 
+? CountryAbbreviation(:libya)
+#--> "LY"
 
+? CountryName("TN")
+#--> "tunisia"
+
+? CountryPhoneCode("TN")
+#--> "+216"
+
+proff()
+# Executed in 0.02 second(s)
+
+/*==----
+*/
+pron()
+
+o1 = new stzListOfLists([
+	[ "adel", "TN", "tunis" ],
+	[ "salah", "DZ", "alger" ],
+	[ "saber", "LY", "tripoli" ],
+	[ "amr", "TN", "sfax" ],
+	[ "mahdi", "LY", "benghazi" ],
+	[ "ahmed", "EG", "cairo" ],
+	[ "tamer", "EG", "nabatia" ]
+])
+
+? @@NL( o1.ClassifyOnBy(2, "CountryName(@item)") )
+#--> [
+#	[ "tunisia", [ "adel", "tunis", "amr", "sfax" ] ],
+#	[ "algeria", [ "salah", "alger" ] ],
+#	[ "libya", [ "saber", "tripoli", "mahdi", "benghazi" ] ],
+#	[ "egypt", [ "ahmed", "cairo", "tamer", "nabatia" ] ]
+# ]
+
+proff()
+# Executed in 0.07 second(s)
 
 /*====== #ring
 

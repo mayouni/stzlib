@@ -3236,18 +3236,20 @@ class stzListOfLists from stzList
 			ok
 		next
 
-		aResult + [ :@Undefined, [] ]
-
 		nLenUndefined = len(anPosUndefined)
-		for i = 1 to nLenUndefined
-			nPos = anPosUndefined[i]
-			nLenList = len(@aContent[nPos])
-
-			for j = 2 to nLenList
-				aResult[ :@Undefined ] + @aContent[nPos][j]
+		if nLenUndefined > 0
+			aResult + [ :@Undefined, [] ]
+	
+			
+			for i = 1 to nLenUndefined
+				nPos = anPosUndefined[i]
+				nLenList = len(@aContent[nPos])
+	
+				for j = 2 to nLenList
+					aResult[ :@Undefined ] + @aContent[nPos][j]
+				next
 			next
-		next
-		
+		ok
 
 		return aResult
 
@@ -3333,6 +3335,80 @@ class stzListOfLists from stzList
 			return This.classifyOn(pnColNumber)
  
 		#>
+
+	  #----------------------------------------------------------#
+	 #  CLASSIFYING THE LIST OF LISTS USING A GIVEN EXPRESSION  #
+	#----------------------------------------------------------#
+
+	def ClassifyBy(pcExpr)
+		return This.ClassifyOnBy(1, pcExpr)
+
+		#< @FunctionFluentForms
+
+		def ClassifyByQ(pcExpr)
+			return This.ClassifyByQR(pcExpr, :stzList)
+
+		def ClassifyByQR(pcExpr, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.ClassifyBy(pcExpr) )
+
+			on :stzListOfHashList
+				return new stzHashList( This.ClassifyBy(pcExpr) )
+
+			other
+				StzRaise("Unssupported return type!")
+
+			off
+		#>
+
+	def ClassifiedBy(pcExpr)
+		return This.ClassifyBy(pcExpr)
+
+	  #----------------------------------------------------------------------------#
+	 #  CLASSIFYING THE LIST OF LISTS ON A GIVEN COLUMN USING A GIVEN EXPRESSION  #
+	#----------------------------------------------------------------------------#
+
+	def ClassifyOnBy(nCol, pcExpr)
+
+		if CheckParams()
+			if NOT isNumber(nCol)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			if NOT isString(pcExpr)
+				StzRaise("Incorrect param type! pcExpr must be a string.")
+			ok
+
+			if NOT StzStringQ(pcExpr).ContainsCS("@item", FALSE)
+				StzRaise("Syntax error! pcExpr must contain the keword @item.")
+			ok
+		ok
+
+		cCode = 'value = (' + StzStringQ(pcExpr).TrimQ().TheseBoundsRemoved("{", "}") + ')'
+
+		aContent = This.Content()
+
+		aCol = This.Col(nCol)
+		nLenCol = len(aCol)
+
+		aResult = []
+
+		for @i = 1 to nLenCol
+			@item = aCol[@i]
+			eval(cCode)
+			ring_insert(aContent[@i], nCol, value)
+		next
+
+		aResult = StzListOfListsQ(aContent).
+				RemoveColQ(nCol+1).
+				ClassifyOn(nCol)
+
+		return aResult
 
 	  #===============================================#
 	 #  MOVING A COLUMN FROM A POSITION TO AN OTHER  #
@@ -3594,7 +3670,7 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def RemovColQ(n)
+		def RemoveColQ(n)
 			This.RemoveCol(n)
 			return This
 
@@ -3606,25 +3682,25 @@ class stzListOfLists from stzList
 			This.RemoveCol(n)
 
 			def RemoveNthColQ(n)
-				return This.RemovColQ(n)
+				return This.RemoveColQ(n)
 
 		def RemoveColumn(n)
 			This.RemoveCol(n)
 
 			def RemoveColumnQ(n)
-				return This.RemovColQ(n)
+				return This.RemoveColQ(n)
 
 		def RemoveNthColumn(n)
 			This.RemoveCol(n)
 
 			def RemoveNthColumnQ(n)
-				return This.RemovColQ(n)
+				return This.RemoveColQ(n)
 
 		def RemoveNthItems(n)
 			This.RemoveCol(n)
 
 			def RemoveNthItemsQ(n)
-				return This.RemovColQ(n)
+				return This.RemoveColQ(n)
 
 		#>
 
@@ -3679,7 +3755,7 @@ class stzListOfLists from stzList
 
 		#< @FunctionFluentForm
 
-		def RemovColsQ(anColNumbers)
+		def RemoveColsQ(anColNumbers)
 			This.RemoveCols(anColNumbers)
 			return This
 
@@ -3691,13 +3767,13 @@ class stzListOfLists from stzList
 			This.RemoveCols(anColNumbers)
 
 			def RemoveTheseColqQ(anColNumbers)
-				return This.RemovColsQ(n)
+				return This.RemoveColsQ(n)
 
 		def RemoveManyCols(anColNumbers)
 			This.RemoveCols(anColNumbers)
 
 			def RemoveManyColqQ(anColNumbers)
-				return This.RemovColsQ(n)
+				return This.RemoveColsQ(n)
 
 		def RemoveColumns(anColNumbers)
 			This.RemoveCols(anColNumbers)
@@ -3710,13 +3786,13 @@ class stzListOfLists from stzList
 			This.RemoveTheseCols(anColNumbers)
 
 			def RemoveTheseColumnsQ(anColNumbers)
-				return This.RemovCoslQ(anColNumbers)
+				return This.RemoveCoslQ(anColNumbers)
 
 		def RemoveManyColumns(anColNumbers)
 			This.RemoveTheseCols(anColNumbers)
 
 			def RemoveManyColumnsQ(anColNumbers)
-				return This.RemovCoslQ(anColNumbers)
+				return This.RemoveCoslQ(anColNumbers)
 	
 		#>
 

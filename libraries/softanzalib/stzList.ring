@@ -26815,8 +26815,9 @@ class stzList from stzObject
 			ok
 		next
 
-		aResult + [ :@Undefined, anPosUndefined ]
-
+		if len(anPosUndefined) > 0
+			aResult + [ :@Undefined, anPosUndefined ]
+		ok
 
 		return aResult
 
@@ -27182,13 +27183,13 @@ class stzList from stzObject
 		def ClassifyByCSQ(pcExpr, pCaseSensitive)
 			return This.ClassifyByCSQR(pcExpr, pCaseSensitive, :stzList)
 
-		def ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
+		def ClassifyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.ClassifiedByCS(pcExpr, pCaseSensitive) )
+				return new stzList( This.ClassifyByCS(pcExpr, pCaseSensitive) )
 
 			on :stzListOfLists
-				return new stzListOfLists( This.ClassifiedByCS(pcExpr, pCaseSensitive) )
+				return new stzListOfLists( This.ClassifyByCS(pcExpr, pCaseSensitive) )
 
 			other
 				StzRaise("Unsupported return type!")
@@ -27201,20 +27202,8 @@ class stzList from stzObject
 		def ClassifiedByCS(pcExpr, pCaseSensitive)
 			return This.ClassifyByCS(pcExpr, pCaseSensitive)
 
-			def ClassifiedByCSQ(pcExpr, pCaseSensitive)
-				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
-
-			def ClassifiedByCSQR(pcExpr, pCaseSensitive, pcReturnType)
-				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
-
 		def ClassifiedUsingCS(pcExpr, pCaseSensitive)
 			return This.ClassifyByCS(pcExpr, pCaseSensitive)
-
-			def ClassifiedUsingCSQ(pcExpr, pCaseSensitive)
-				return This.ClassifiedByCSQR(pcExpr, TRUE, :stzList)
-
-			def ClassifiedUsingCSQR(pcExpr, pCaseSensitive, pcReturnType)
-				return This.ClassifiyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -27228,8 +27217,8 @@ class stzList from stzObject
 		def ClassifyByQ(pcExpr)
 			return This.ClassifyByCSQ(pcExpr, TRUE)
 
-		def ClassifyByCSQR(pcExpr, pCaseSensitive, pcReturnType)
-			return This.ClassifiyByCSQR(pcExpr, TRUE, pcReturnType)
+		def ClassifyByQR(pcExpr, pcReturnType)
+			return This.ClassifyByCSQR(pcExpr, TRUE, pcReturnType)
 
 		#>
 
@@ -27238,20 +27227,8 @@ class stzList from stzObject
 		def ClassifiedBy(pcExpr)
 			return This.ClassifyBy(pcExpr)
 
-			def ClassifiedByQ(pcExpr)
-				return This.ClassifiedByQR(pcExpr, :stzList)
-
-			def ClassifiedByQR(pcExpr, pcReturnType)
-				return This.ClassifiyByQR(pcExpr, pcReturnType)
-
 		def ClassifiedUsing(pcExpr)
 			return This.ClassifyBy(pcExpr)
-
-			def ClassifiedUsingQ(pcExpr)
-				return This.ClassifiedByQR(pcExpr, :stzList)
-
-			def ClassifiedUsingQR(pcExpr, pcReturnType)
-				return This.ClassifiyByQR(pcExpr, pcReturnType)
 
 		#>
 

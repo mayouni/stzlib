@@ -341,6 +341,24 @@ func CountriesforWhichDefaultLanguageIs(cLangCode)
 func StzCountryQ(pcCountryIdentifier)
 	return new stzCountry(pcCountryIdentifier)
 
+func CountryName(pcCountryIdentifier)
+	return StzCountryQ(pcCountryIdentifier).Name()
+
+	func @CountryName(pcCountryIdentifier)
+		return CountryName(pcCountryIdentifier)
+
+func CountryPhoneCode(pcCountryIdentifier)
+	return StzCountryQ(pcCountryIdentifier).PhoneCode()
+
+	func @CountryPhoneCode(pcCountryIdentifier)
+		return CountryPhoneCode(pcCountryIdentifier)
+
+func CountryAbbreviation(pcCountryIdentifier)
+	return StzCountryQ(pcCountryIdentifier).Abbreviation()
+
+	func @CountryAbbreviation(pcCountryIdentifier)
+		return CountryAbbreviation(pcCountryIdentifier)
+
 class stzCountry
 	@aCountryInfo
 
