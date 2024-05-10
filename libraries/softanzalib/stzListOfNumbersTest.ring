@@ -962,7 +962,7 @@ proff()
 pron()
 
 o1 = new stzListOfStrings([ "i", "ring", "language" ])
-o1.SortInDescendingBy('Q(@string).NumberOfChars()')
+o1.SortByInDescending('Q(@string).NumberOfChars()')
 
 ? o1.Content()
 

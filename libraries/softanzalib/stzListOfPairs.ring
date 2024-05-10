@@ -567,7 +567,7 @@ class stzListOfPairs from stzListOfLists
 			return This.IsSortedInDescending()
 
 	def SortDown()
-		This.SortDownOn(1)
+		This.SortOnDown(1)
 
 		def SortDownQ()
 			This.SortDown()
@@ -604,22 +604,10 @@ class stzListOfPairs from stzListOfLists
 
 		#< @FunctionAlternativeForms
 
-		def SortInAscendingOn(n)
-			This.SortOn(n)
-
-			def SortInAscendingOnQ(n)
-				return This.SortOnQ(n)
-			
 		def SortOnInAscending(n)
 			This.SortOn(n)
 
 			def SortOnInAscendingQ(n)
-				return This.SortOnQ(n)
-
-		def SortUpOn(n)
-			This.SortOn(n)
-
-			def SortUpOnQ(n)
 				return This.SortOnQ(n)
 
 		def SortOnUp(n)
@@ -636,13 +624,7 @@ class stzListOfPairs from stzListOfLists
 
 		#< @FunctionAlternativeForms
 
-		def SortedInAscendingOn(n)
-			return This.SortedOn(n)
-
 		def SortedOnInAscending(n)
-			return This.SortedOn(n)
-
-		def SortedUpOn(n)
 			return This.SortedOn(n)
 
 		def SortedOnUp(n)
@@ -654,54 +636,36 @@ class stzListOfPairs from stzListOfLists
 	 #  SORTING THE PAIRS DOWN ON NTH (FIRST OR SECOND) ITEMS  #
 	#=========================================================#
 
-	def SortInDescendingOn(n)
-		aResult = ring_reverse( This.SortedInAscendingOn(n) )
+	def SortOnInDescending(n)
+		aResult = ring_reverse( This.SortedOnInAscending(n) )
 		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
-		def SortinDescendingOnQ(n)
-			This.SortInDescendingOn(n)
+		def SortOnInDescendingQ(n)
+			This.SortOnInDescending(n)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
-			
-		def SortOnInDescending(n)
-			This.SortInDescendingOn(n)
-
-			def SortOnInDescendingQ(n)
-				return This.SortinDescendingOnQ(n)
-
-		def SortDownOn(n)
-			This.SortInDescendingOn(n)
-
-			def SortDownOnQ(n)
-				return This.SortInDescendingOnQ(n)
 
 		def SortOnDown(n)
-			This.SortInDescendingOn(n)
+			This.SortOnInDescending(n)
 
 			def SortOnDownQ(n)
-				return This.SortInDescendingOnQ(n)
+				return This.SortOnInDescendingQ(n)
 
 		#>
 
-	def SortedInDescendingOn(n)
-		aResult = This.Copy().SortOnDescendingQ(n).Content()
+	def SortedOnInDescending(n)
+		aResult = This.Copy().SortOnInDescendingQ(n).Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def SortedOnInDescending(n)
-			return This.SortedInDescendingOn(n)
-
-		def SortedDownOn(n)
-			return This.SortedInDescendingOn(n)
-
 		def SortedOnDown(n)
-			return This.SortedInDescendingOn(n)
+			return This.SortedOnInDescending(n)
 
 		#>
 
@@ -730,16 +694,16 @@ class stzListOfPairs from stzListOfLists
 
 		#< @FunctionAlternativeForms
 
-		def SortInAscendingBy(pcExpr)
+		def SortByInAscending(pcExpr)
 			This.SortBy(pcExpr)
 
-			def SortInAscendingByQ(pcExpr)
+			def SortByInAscendingQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
-		def SortUpBy(pcExpr)
+		def SortByUp(pcExpr)
 			This.SortBy(pcExpr)
 
-			def SortUpByQ(pcExpr)
+			def SortByUpQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
 		#>
@@ -748,36 +712,36 @@ class stzListOfPairs from stzListOfLists
 		aResult = This.Copy().SortByQ(pcExpr).Content()
 		return aResult
 
-		def SortedInAscendingBy(pcExpr)
+		def SortedByInAscending(pcExpr)
 			return This.SortedBy(pcExpr)
 
-		def SortedUpBy(pcExpr)
+		def SortedByUp(pcExpr)
 			return This.SortedBy(pcExpr)
 
 	  #------------------------------------------------------#
 	 #  SORTING THE PAIRS BY AN EXPRESSION - IN DESCENDING  #
 	#------------------------------------------------------#
  
-	def SortInDescendingBy(pcExpr)
-		This.SortInAscendingBy(pcExpr)
+	def SortByInDescending(pcExpr)
+		This.SortByInAscending(pcExpr)
 		This.Reverse()
 
-		def SortInDescendingByQ(pcExpr)
-			This.SortInDescendingBy(pcExpr)
+		def SortByInDescendingQ(pcExpr)
+			This.SortByInDescending(pcExpr)
 			return This
 
-		def SortDownBy(pcExpr)
-			This.SortInDescendingBy(pcExpr)
+		def SortByDown(pcExpr)
+			This.SortByInDescending(pcExpr)
 
-			def SortDownByQ(pcExpr)
-				return This.SortInDescendingByQ(pcExpr)
+			def SortByDownQ(pcExpr)
+				return This.SortByInDescendingQ(pcExpr)
 
-	def SortedInDescendingBy(pcExpr)
-		aResult = This.Copy().SortInDescendingByQ(pcExpr).Content()
+	def SortedByInDescending(pcExpr)
+		aResult = This.Copy().SortByInDescendingQ(pcExpr).Content()
 		return aResult
 
-		def SortedDownBy(pcExpr)
-			return This.SortedInDescendingBy(pcExpr)
+		def SortedByDown(pcExpr)
+			return This.SortedByInDescending(pcExpr)
 
 	  #==================================================================#
 	 #  RETURNING AN EXPANDED LIST OF NUMBERS OUT OF THE LIST OF PAIRS  #

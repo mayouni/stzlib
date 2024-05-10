@@ -11054,19 +11054,19 @@ Class stzTable from stzObject
 			This.SortInAscending(pCol)
 			return This
 
-		def SortInAscendingBy(pCol)
+		def SortByInAscending(pCol)
 			This.SortInAscending(pCol)
 			return This
 
-			def SortInAscendingByQ(pCol)
-				This.SortInAscendingBy(pCol)
+			def SortByInAscendingQ(pCol)
+				This.SortByInAscending(pCol)
 				return This
 
 	def SortedInAscending(pCol)
 		aResult = This.Copy().SortInAscendingQ(pCol).Content()
 		return aResult
 
-		def SortedInAscendingBy(pCol)
+		def SortedByInAscending(pCol)
 			return This.SortedInAscending(pCol)
 
 	  #------------------------------------------------------#
@@ -11080,10 +11080,10 @@ Class stzTable from stzObject
 			This.SortInDescending(pCol)
 			return This
 
-		def SortInDescendingBy(pCol)
+		def SortByInDescending(pCol)
 			This.SortInDescending(pCol)
 
-			def SortInDescendingByQ(pCol)
+			def SortByInDescendingQ(pCol)
 				This.SortInDescending(pCol)
 				return This
 
@@ -11091,7 +11091,7 @@ Class stzTable from stzObject
 		acResult = This.Copy().SortInDescendingQ(pCol).Content()
 		return acResult
 
-		def SortedInDescendingBy(pCol)
+		def SortedByInDescending(pCol)
 			return This.SortedInDescending(pCol)
 
 	  #==============================================#

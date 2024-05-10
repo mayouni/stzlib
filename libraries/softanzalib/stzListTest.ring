@@ -2129,7 +2129,7 @@ o1.DeepReplace("me", :By = "you")
 proff()
 
 /*==============
-*/
+
 pron()
 
 o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
@@ -3431,34 +3431,34 @@ o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
 
 	? @@( o1.FirstHalf() )
 	#--> [ "1", "2", "3", "4" ]
-	? @@( o1.FirstHalfXT() )
+	? @@( o1.FirstHalfXT() ) + NL
 	#--> [ "1", "2", "3", "4", "5" ]
 	
 	? @@( o1.FirstHalfAndItsPosition() )
 	#--> [ [ "1", "2", "3", "4" ], 1 ]
-	? @@( o1.FirstHalfAndItsSection() )
+	? @@( o1.FirstHalfAndItsSection() ) + NL
 	#--> [ [ "1", "2", "3", "4" ], [ 1, 4 ] ]
 	
 	? @@( o1.FirstHalfAndItsPositionXT() )
 	#--> [ [ "1", "2", "3", "4", "5" ], 1 ]
-	? @@( o1.FirstHalfAndItsSectionXT() )
+	? @@( o1.FirstHalfAndItsSectionXT() ) + NL + "---" + NL
 	#--> [ [ "1", "2", "3", "4", "5" ], [ 1, 5 ] ]
 
 # SECOND HALF
 
 	? @@( o1.SecondHalf() )
 	#--> [ "5", "6", "7", "8", "9" ]
-	? @@( o1.SecondHalfXT() )
+	? @@( o1.SecondHalfXT() ) + NL
 	#--> [ "6", "7", "8", "9" ]
 	
 	? @@( o1.SecondHalfAndItsPosition() )
 	#--> [ [ "5", "6", "7", "8", "9" ], 5 ]
-	? @@( o1.SecondHalfAndItsSection() )
+	? @@( o1.SecondHalfAndItsSection() ) + NL
 	#--> [ [ "5", "6", "7", "8", "9" ], [ 5, 9 ] ]
 	
 	? @@( o1.SecondHalfAndItsPositionXT() )
 	#--> [ [ "6", "7", "8", "9" ], 6 ]
-	? @@( o1.SecondHalfAndItsSectionXT() )
+	? @@( o1.SecondHalfAndItsSectionXT() ) + NL + "---" + NL
 	#--> [ [ "6", "7", "8", "9" ], [ 6, 9 ] ]
 
 #-- THE TWO HALVES
@@ -3494,18 +3494,19 @@ o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
 	# ]
 
 proff()
-# Executed in 0.32 second(s)
+# Executed in 0.02 second(s) in Ring 1.20
+# Executed in 0.32 second(s) in Ring 1.17
 
 /*============
 
 pron()
 
 o1 = new stzListOfStrings([ "programming", "is" ])
-? o1.SortedInAscendingBy('Q(@string).NumberOfChars()')
+? o1.SortedByInAscending('Q(@string).NumberOfChars()')
 #--> [ "is", "programming" ]
 
 proff()
-# Executed in 0.20 second(s)
+# Executed in 0.02 second(s)
 
 /*------------
 
@@ -5680,16 +5681,8 @@ o1.SortBy('len(@item)')
 
 /*==============
 
-/* NOTE :
-	- RemoveNthItem(n) : Remove item at position n
+pron()
 
-	- RemoveNthXT(n, pItem) : Remove nth occurrence of pItem
-  	  (you can also use RemoveNthOccurrence(n, pItem)
-
-	- RemoveThisNthItem(n, pItem) : remove nth item only if it
-	  is equal to pItem
-*/
-/*
 o1 = new stzList([ "_", "A", "B", "C", "_", "D", "E", "_" ])
 
 o1.RemoveFirstItem()
@@ -5704,8 +5697,9 @@ o1.RemoveNth(2, "_")
 ? @@( o1.Content() )
 #--> [ "B", "C", "_", "D", "E" ]
 
-o1.RemoveFirstXT("_")
+o1.RemoveFirst("_")
 ? @@( o1.Content() )
+#--> [ "B", "C", "D", "E" ]
 
 o1.RemoveThisFirstItemCS("b", :CS = FALSE)
 ? @@( o1.Content() )
@@ -5716,6 +5710,9 @@ o1.RemoveNthItem(:Last) # CheckParams() should be TRUE, otherwise :Last raises a
 			# o1.RemoveLastItem() instead
 ? @@( o1.Content() )
 #--> [ "C", "D" ]
+
+proff()
+# Executed in 0.02 second(s)
 
 /*-----------------
 
@@ -8196,13 +8193,17 @@ o1.InsertAfterW( '{ StzStringQ(@item).IsLowercase() }', "*" )
 
 # Returns [ "a", "*", "b", "*", "C", "D", "e" ]
 
-/*----------------
+/*---------------- #TODO check it after icluding SubStringsBetween()
+
+pron()
 
 o1 = new stzList([ "a", "b", "C", "D", "e" ])
-o1.InsertBeforeW( '{ StzStringQ(@item).IsLowercase() }', "*" )
+o1.InsertBeforeW( '{ Q(@item).IsLowercase() }', "*" )
 ? o1.Content()
 
 # Returns [ "*", "a", "*", "b", "C", "D", "*", "e" ]
+
+proff()
 
 /*----------------
 
@@ -8707,22 +8708,26 @@ o1 = new stzList([ "water", "coca", "milk", "spice", "cofee", "tea", "honey" ] )
 proff()
 # Executed in 0.02 second(s)
 
-/*----------------- #TODO checki it again
+/*-----------------
 
 pron()
 
 # The distribution of the items of a list can be made directly using
 # the "/" operator on the list object:
 
-o1 = new stzList( L(' "♥1" : "♥6" ' ) ) # or simplie o1 = LQ(' "♥1" : "♥6" ')
-? @@( o1 / 8 )
-#--> [ [ "♥1" ], [ "♥2" ], [ "♥3" ], [ "♥4" ], [ "♥5" ], [ "♥6" ], [ ], [ ] ]
+o1 = new stzList( L(' "♥1" : "♥6" ' ) ) # or simply o1 = LQ(' "♥1" : "♥6" ')
+? @@( o1 / 6 )
+#-->[ [ "♥1" ], [ "♥2" ], [ "♥3" ], [ "♥4" ], [ "♥5" ], [ "♥6" ] ]
 
+//? o1 / 8
+#--> Error message:
+#--> Incorrect value! n must be between 0 and 6 (the size of the list)
 #NOTE
 #--> The beneficiary items can be of any type. In practice, they are
 # strings and hence the returned result is a hashlist.
 
 proff()
+# Executed in 0.08 second(s)
 
 /*-----------------
 

@@ -311,7 +311,7 @@ o1 = new stzListOfStrings([
 # ]
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzListOfStrings([ "A", "B", "C", "D", "E", "F"])
@@ -320,6 +320,7 @@ o1.ReplaceManyOneByOneCS([ "B", "D", "F"], :With = [ "1", "2", "3" ], :CS=TRUE)
 ? o1.Content()
 
 proff()
+# Executed in 0.04 second(s)
 
 /*-----------------
 
@@ -1038,22 +1039,35 @@ pron()
 
 o1 = new stzListOfStrings([ "tunis", "tripoli", "cairo", "casablanca" ])
 
-o1.SortInDescendingBy('Q(@string).NumberOfChars()')
+o1.SortByInDescending('Q(@string).NumberOfChars()')
 ? o1.Content()
 
 proff()
 
 *----------------
-*/
+
 pron()
 
 o1 = new stzListOfStrings([ "12", "12345", "123", "1" ])
 
-? o1.SortedInAscendingBy('Q(@string).NumberOfChars()')
-? o1.SortedInDescendingBy('Q(@string).NumberOfChars()')
+? o1.SortedByInAscending('Q(@string).NumberOfChars()')
+#--> [
+#	"1",
+#	"12",
+#	"123",
+#	"12345"
+# ]
+
+? o1.SortedByInDescending('Q(@string).NumberOfChars()')
+#--> [
+#	"12345",
+#	"123",
+#	"12",
+#	"1"
+# ]
 
 proff()
-# Executed in 0.42 second(s)
+# Executed in 0.05 second(s)
 
 /*--------------- TODO/FUTURE
 
@@ -1615,32 +1629,27 @@ o1 = new stzListOfStrings([
 proff()
 # Executed in 1.59 second(s)
 
-/*--------------
-*/
+/*-------------- #Note stzList has a more performant implementation (see example after this)
+
 pron()
 
 o1 = new stzListOfStrings([ "one", "ONE", "two", "TWO" ])
 
 ? o1.ContainsNonDuplicatedStringsCS(TRUE)
 #--> TRUE: In fact all strings are different when case sensitivity applies
-# Executed in 0.03 second(s)
 
 ? o1.ContainsNonDuplicatedStringsCS(FALSE)
 #--> FALSE: In fact, "one" equals "ONE" and "two" equals "TWO" when case sensitiviy
 # is applied. So, the list contains duplicated strings and the result is FALSE.
-# Executed in 0.14 second(s)
 
 ? @@( o1.NumberOfNonDuplicatedStringsCS(TRUE) )
 #--> 4
-# Executed in 0.12 second(s)
 
 ? @@( o1.FindNonDuplicatedStringsCS(TRUE) )
 #--> [ 1, 2, 3, 4 ]
-#--> Executed in 0.1é second(s)
 
 ? @@( o1.NonDuplicatedStringsCS(TRUE) )
 #--> [ "one", "ONE", "two", "TWO" ]
-# Executed in 0.12 second(s)
 
 ? @@( o1.NonDuplicatedStringsCSZ(TRUE) ) # Or NonDuplicatedStringsAndTheirPositionsCS()
 #--> [
@@ -1649,10 +1658,42 @@ o1 = new stzListOfStrings([ "one", "ONE", "two", "TWO" ])
 #	[ "two", 3 ],
 #	[ "TWO", 4 ]
 # ]
-# Executed in 0.15 second(s)
 
 proff()
-# Executed in 0.59 second(s)
+# Executed in 0.07 second(s)
+
+/*--------------
+
+pron()
+
+o1 = new stzList([ "one", "ONE", "two", "TWO" ])
+
+? o1.ContainsNonDuplicatedItemsCS(TRUE)
+#--> TRUE: In fact all strings are different when case sensitivity applies
+
+? o1.ContainsNonDuplicatedItemsCS(FALSE)
+#--> FALSE: In fact, "one" equals "ONE" and "two" equals "TWO" when case sensitiviy
+# is applied. So, the list contains duplicated strings and the result is FALSE.
+
+? @@( o1.NumberOfNonDuplicatedItemsCS(TRUE) )
+#--> 4
+
+? @@( o1.FindNonDuplicatedItemsCS(TRUE) )
+#--> [ 1, 2, 3, 4 ]
+
+? @@( o1.NonDuplicatedItemsCS(TRUE) )
+#--> [ "one", "ONE", "two", "TWO" ]
+
+? @@( o1.NonDuplicatedItemsCSZ(TRUE) ) # Or NonDuplicatedStringsAndTheirPositionsCS()
+#--> [
+#	[ "one", 1 ],
+#	[ "ONE", 2 ],
+#	[ "two", 3 ],
+#	[ "TWO", 4 ]
+# ]
+
+proff()
+# Executed in 0.02 second(s)
 
 /*=========
 

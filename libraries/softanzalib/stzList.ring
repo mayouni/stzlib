@@ -4340,6 +4340,19 @@ func @FindAll(aList, pItem)
 		return @FindAll(aList, pItem)
 
 func IsRingSortable(pListOrString)
+
+	# Ring can sort string ans lists.
+
+	# In the case of lists, only lists made of numbers and strings
+	# can be sorted. There is a special case though...
+
+	# If the list is a list of lists, then Ring can sort it on
+	# a given column, using ring(aList, nCol), but under a condition:
+
+	# the column must be made of numbers and/or strings and must not
+	# contain dupplicated items (because in this case, the output
+	# is not accurate, at a hiher level, and should be managed by Softanza)
+
 	if CheckParams()
 		if NOT ( isString(pListOrString) or isList(pListOrString) )
 			StzRaise("Incorrect param type! pListOrString must be a list or string.")
@@ -4357,40 +4370,76 @@ func IsRingSortable(pListOrString)
 	   IsListOfNumbersAndStrings(pListOrString)
 
 		return TRUE
-	ok
 
-	if NOT isListofLists(pListOrString)
-		nLen = len(pListOrString)
-		for i = 1 to nLen
-			if NOT ( isNumber(pListOrString[i]) or
-				 isString(pListOrString[i]) )
+	but IsListOfLists(pListOrString)
 
-				return FALSE
+		# Checking the columns one by one, and when we
+		# find a column that is made of numbers and/or
+		# strings and containing no dupplications, then
+		# that column make the list of lists sortable
+
+		oLoL = new stzListOfLists(pListOrString)
+		nCols = oLoL.NumberOfCols()
+
+		# Parsing all the columns one by one
+
+		for i = 1 to nCols
+
+			# Assuming the current column is Ring sortable
+
+			bColSortable = TRUE
+
+			# the column must contain only numbers and strings
+			# and should not contain dupplicated items
+
+			aCol = oLoL.Col(i)
+
+			nLenCol = len(aCol)
+			aSeen = []
+
+			for j = 1 to nLenCol
+
+				if NOT ( isString(aCol[j]) or isNumber(aCol[j]) )
+					bColSortable = FALSE
+					exit
+				else
+					if ring_find(aSeen, aCol[j]) = 0
+						aSeen + aCol[j]
+					else
+						bColSortable = FALSE
+						exit
+					ok
+				ok
+			next
+
+			if bColSortable # We've got a ring-sortable column!
+				return TRUE
 			ok
+
 		next
 
-	else
-		nLen = len(pListOrString)
+		# We parsed all the list of lists, column by column, and
+		# we did not find any ring-sortable column, so:
 
-		for i = 1 to nLen
-
-			if NOT (IsListOfNumbers(pListOrString[i]) or
-	   			IsListOfStrings(pListOrString[i]) or
-	  			IsListOfNumbersAndStrings(pListOrString[i]))
-
-				return FALSE
-
-			ok
-		next
+		return FALSE
 
 	ok
 
-	return TRUE
+	# In any other case
+
+	return FALSE
 
 	func @IsRingSortable(pListOrString)
 		return IsRingSortable(pListOrString)
 
 func IsRingSortableOn(paListOfLists, n)
+
+	# In Ring, with the standard ring() function, to sort a list of
+	# lists on a given column, that column must be made of numbers
+	# or strings only (no lists or objects), and must not contain
+	# dupllicated items (because in this case, the sorting result
+	# is not accurate - at a higher level)
+
 	if NOT ( isList(paListOfLists) and IsListOfLists(paListOfLists) )
 		return FALSE
 	ok
@@ -4399,26 +4448,23 @@ func IsRingSortableOn(paListOfLists, n)
 		StzRaise("Incorrect param type! n must be a number.")
 	ok
 
-	nLenMin = len(paListOfLists[1])
-	nLen = len(paListOfLists)
+
+	aCol = StzListOfListsQ(paListOfLists).Col(n)
+	nLen = len(aCol)
+
+	aSeen = []
 
 	for i = 1 to nLen
-		nLenList = len(paListOfLists[i])
-		if nLenList < nLenMin
-			nLenMin = nLenList
+		if NOT ( isNumber(aCol[i]) or isString(aCol[i]) )
+			return FALSE
 		ok
 
-		if NOT ( isListOfNumbers(paListOfLists[i]) or
-			 isListOfStrings(paListOfLists[i]) or
-			 isListofNumbersAndstrings(paListOfLists[i]) )
-
+		if ring_find(aSeen, aCol[i]) = 0
+			aSeen + aCol[i]
+		else
 			return FALSE
 		ok
 	next
-
-	if n > nLenMin
-		return FALSE
-	ok
 
 	return TRUE
 
@@ -29363,16 +29409,16 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def SortInAscendingBy(pcExpr)
+		def SortByInAscending(pcExpr)
 			This.SortBy(pcExpr)
 
-			def SortInAscendingByQ(pcExpr)
+			def SortByInAscendingQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
-		def SortUpBy(pcExpr)
+		def SortByUp(pcExpr)
 			This.SortBy(pcExpr)
 
-			def SortUpByQ(pcExpr)
+			def SortByUpQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
 		#>
@@ -29381,36 +29427,36 @@ class stzList from stzObject
 		aResult = This.Copy().SortByQ(pcExpr).Content()
 		return aResult
 
-		def SortedInAscendingBy(pcExpr)
+		def SortedByInAscending(pcExpr)
 			return This.SortedBy(pcExpr)
 
-		def SortedUpBy(pcExpr)
+		def SortedByUp(pcExpr)
 			return This.SortedBy(pcExpr)
 
 	  #---------------------------------------#
 	 #  SORTING THE ITEM BY - IN DESCENDING  #
 	#---------------------------------------#
  
-	def SortInDescendingBy(pcExpr)
-		aResult = ring_reverse( This.SortedInAscendingBy(pcExpr) )
+	def SortByInDescending(pcExpr)
+		aResult = ring_reverse( This.SortedByInAscending(pcExpr) )
 		This.UpdateWith(aResult)
 
-		def SortInDescendingByQ(pcExpr)
-			This.SortInDescendingBy(pcExpr)
+		def SortByInDescendingQ(pcExpr)
+			This.SortByInDescending(pcExpr)
 			return This
 
-		def SortDownBy(pcExpr)
-			This.SortInDescendingBy(pcExpr)
+		def SortByDown(pcExpr)
+			This.SortByInDescending(pcExpr)
 
-			def SortDownByQ(pcExpr)
-				return This.SortInDescendingByQ(pcExpr)
+			def SortByDownQ(pcExpr)
+				return This.SortByInDescendingQ(pcExpr)
 
-	def SortedInDescendingBy(pcExpr)
-		aResult = ring_reverse( This.SortedInAscendingBy(pcExpr) )
+	def SortedByInDescending(pcExpr)
+		aResult = ring_reverse( This.SortedByInAscending(pcExpr) )
 		return aResult
 
-		def SortedDownBy(pcExpr)
-			return This.SortedInDescendingBy(pcExpr)
+		def SortedByDown(pcExpr)
+			return This.SortedByInDescending(pcExpr)
 		
 	  #=======================================#
 	 #     ASSOCIATE WITH AN ANOTHER LIST    #
@@ -34181,6 +34227,12 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def ContainsNoDupplicationCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
+		def ContainsNoDupplicationsCS(pCaseSensitive)
+			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
+
 		def ContainsItemsThatAreNotDuplicatedCS(pCaseSensitive)
 			return This.ContainsNonDuplicatedItemsCS(pCaseSensitive)
 
@@ -34216,6 +34268,12 @@ class stzList from stzObject
 		return This.ContainsItemsThatAreNotDuplicatedCS(TRUE)
 
 		#< @FunctionAlternativeForms
+
+		def ContainsNoDupplication()
+			return This.ContainsNonDuplicatedItems()
+
+		def ContainsNoDupplications()
+			return This.ContainsNonDuplicatedItems()
 
 		def ContainsItemsThatAreNotDuplicated()
 			return This.ContainsNonDuplicatedItems()
@@ -34278,8 +34336,8 @@ class stzList from stzObject
 		# while relying on the performant native ring_find()
 
 		# We start by stringifying the list (casting all the items in to strings)
-		# so we can find not onlu numbers and strings, but also lists,
-		# and get relatively beeter performance on larger lists (up to 30K items)
+		# so we can find not only numbers and strings, but also lists,
+		# and get relatively better performance on larger lists (up to 30K items)
 
 
 		if pCaseSensitive = TRUE
@@ -34508,8 +34566,8 @@ class stzList from stzObject
 		# while relying on the performant native ring_find()
 
 		# We start by stringifying the list (casting all the items in to strings)
-		# so we can find not onlu numbers and strings, but also lists,
-		# and get relatively beeter performance on larger lists (up to 30K items)
+		# so we can find not only numbers and strings, but also lists,
+		# and get relatively better performance on larger lists (up to 30K items)
 
 
 		if pCaseSensitive = TRUE
@@ -34629,7 +34687,7 @@ class stzList from stzObject
 
 		aResult = []
 		for i = 1 to nLen
-			# By definition, a non duplicated items appears once
+			# By definition, a non duplicated item appears once
 			nPos = This.FindFirstCS(aNonDuplicated[i], pCaseSensitive)
 			aResult + [ aNonDuplicated[i], nPos ]
 		next
