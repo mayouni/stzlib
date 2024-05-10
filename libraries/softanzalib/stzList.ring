@@ -4435,10 +4435,12 @@ func IsRingSortable(pListOrString)
 func IsRingSortableOn(paListOfLists, n)
 
 	# In Ring, with the standard ring() function, to sort a list of
-	# lists on a given column, that column must be made of numbers
-	# or strings only (no lists or objects), and must not contain
-	# dupllicated items (because in this case, the sorting result
-	# is not accurate - at a higher level)
+	# lists on a given column, that column must:
+
+	# 1. the column of sort should have size as the first column
+	# 2. be made of numbers or strings only (no lists or objects),
+	# 3. must not contain dupllicated items (because in this case,
+	#    the sorting result is not accurate - from Softanza point of view)
 
 	if NOT ( isList(paListOfLists) and IsListOfLists(paListOfLists) )
 		return FALSE
@@ -4448,9 +4450,21 @@ func IsRingSortableOn(paListOfLists, n)
 		StzRaise("Incorrect param type! n must be a number.")
 	ok
 
-
-	aCol = StzListOfListsQ(paListOfLists).Col(n)
+	oLoL = StzListOfListsQ(paListOfLists)
+	aCol = oLoL.Col(n)
 	nLen = len(aCol)
+
+	# Early check: the column of sort should have
+	# the same number of items as the first column
+
+	if n > 1
+		aCol1 = oLoL.Col(1)
+		nLen1 = len(aCol1)
+
+		if nLen != nLen1
+			return FALSE
+		ok
+	ok
 
 	aSeen = []
 

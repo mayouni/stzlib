@@ -5258,23 +5258,22 @@ o1 = new stzList([ 1:3, "tunis", [], 1:2, "t", "" ])
 proff()
 # Executed in 0.03 second(s)
 
-/*---------------- #ring sort multi-list #narration (a bit long!)
-*/
+/*---------------- #ring sort multi-list #narration #chatgpt
+
 pron()
 
-# Ring sort() function can sort multilists (lists of lists)
-# on a given column (using sort(aList, n)) but under two
-# conditions :
+# The Ring sort() function can sort multi-lists (lists of lists)
+# based on a specified column (using sort(aList, n)), subject to
+# two conditions:
 
-# First, the column must contain only number and strings
-# (#~> lists and objects are not sortable in Ring)
+# Firstly, the column should only contain numbers and strings,
+# as lists and objects cannot be sorted in Ring.
 
-# Second, (a condition required by Softanza at a higher
-# level then Ring) ! the column must not contain any
-# dupplicated item
+# Secondly, as a requirement set by Softanza at a higher level than Ring,
+# the column must not contain any duplicated items (we will explain it).
 
-# To understand the various facers of this feature, let's
-# begin with a sample of a multilist that works:
+# To comprehend the various aspects of this feature, let's start with a
+# functional multi-list sample:
 
 aList = [
 	[ "emm", 3 ],
@@ -5282,11 +5281,13 @@ aList = [
 	[ ANullObject(), 2 ]
 ]
 
-# We use a Softanza function to check of the list is
-# sortable by Ring standard function sort(aLits, nCol)
+# We employ a Softanza function to check if the list is sortable by
+# the standard Ring function sort(aList, nCol)
 
 ? IsRingSortable(aList)
 #--> TRUE
+
+# Hence, Ring will sort it correctly:
 
 ? @@NL( sort( aList, 2 ) )
 #--> [
@@ -5295,9 +5296,8 @@ aList = [
 #	[ "emm", 3 ]
 # ]
 
-# Let's take an example of a multi-list that does not
-# work (where the column of sort contains a data type
-# other then number or string):
+# Now let's consider a multi-list example where sorting fails 
+# (due to a column containing a data type other than numbers or strings):
 
 aList = [
 	[ "emm", 3 ],
@@ -5305,19 +5305,20 @@ aList = [
 	[ ANullObject(), 2 ]
 ]
 
-# Softanza can detect that the list can not be sortable
-# directly by the native sort() fuction in Ring
+# Softanza detects that the list cannot be directly sorted by the
+# native sort() function in Ring
 
 ? IsRingSortable(aList)
 #--> FALSE
 
-# And so, if you try it, you get an error:
+# Consequently, attempting to sort it usng Ring sort() function
+# triggers an error:
 
 //? @@NL( sort( aList, 2 ) )
-#--> Error message (Ring-side): Bad parameter type! 
+#--> Error message (Ring-side): Bad parameter type!
 
-# Now, there is a fine detail you need to be aware of...
-# To illustrate by example let's take this list:
+# Now, there's an important detail to be aware of...
+# To illustrate this, let's consider the following list:
 
 aList = [
 	[ "b", 	 2 ],
@@ -5327,8 +5328,8 @@ aList = [
 	[ "c", 2 ]
 ]
 
-# When we sort it on the second colum, we expect to
-# get the fellowing result, right?
+# When sorting it based on the second column, we expect the
+# following result:
 #--> [
 #	[ "",    1 ],
 #	[ "a", 	 2 ],
@@ -5337,7 +5338,7 @@ aList = [
 #	[ "abc", 3 ]	
 # ]
 
-# Unfortunately, when we use Ring to sort it we get
+# However, when using Ring to sort it, we obtain:
 
 ? @@NL( sort(aList, 2) ) + NL
 #--> [
@@ -5348,13 +5349,13 @@ aList = [
 #	[ "abc", 3 ]
 # ]
 
-# As you see, the Ring sort() native function, because
-# is designed for efficiency, sorts the multilist on
-# the given colum (2 in our case) and does not care
-# of sorting the values of the first column accordingly!
+# As observed, the Ring sort() native function, designed for
+# efficiency, sorts the multi-list based on the given column
+# (2 in our case) without considering sorting the values of
+# the first column accordingly!
 
-# To solve this, at Softanza level, we provide the
-# SortOn() function that we can use like this:
+# To address this at the Softanza level, we provide the
+# SortOn() function, utilized as follows:
 
 ? @@NL( SortOn(aList, 2) ) + NL
 #--> [
@@ -5365,30 +5366,30 @@ aList = [
 #	[ "abc", 3 ]
 # ]
 
-# Internally, the Softanza SortOn() function checks
-# if the multilist we provide to it can be sorted
-# by Ring in the first place, otherwise it makes
-# the necessary job by itself!
+# Internally, the Softanza SortOn() function verifies if
+# the provided multi-list can be sorted by Ring in the
+# first place; otherwise, it performs the necessary
+# sorting itself!
 
-# That's why IsRingSortableOn() has been made!
-# And why it says that the current multilist is
-# not sortable by Ring:
+# This is why IsRingSortableOn() has been implemented!
+# It indicates that the current multi-list cannot be
+# sorted (accurately) by Ring:
 
 ? IsRingSortableOn(aList, 2)
 #--> FALSE
 
-# Not that if you use IsRingSortable() without the
-# On() at the end, then we get a different result:
+# Note that using IsRingSortable() without the On()
+# suffix yields a different result:
 
 ? IsRingSortable(aList)
 #--> TRUE
 
-# The reason for this is that the first column is
-# made by only strings and they are not dupplicated:
+# This is because the first column comprises only
+# strings without duplicates:
 # [ '', "c", "b", "a", "abc" ]
 
-# Hence if you rely on Ring sort() function it
-# will sort it, as you can see here:
+# Thus, if you rely on the Ring sort() function,
+# it will sort it accordingly:
 
 ? @@NL( sort(aList, 1) )
 #--> [
@@ -5399,16 +5400,17 @@ aList = [
 #	[ "c", 2 ]
 # ]
 
-# It was a bit long but I wanted to put it with the
-# necessary details so I can remeber them in the
-# future, and for you to learn an other effort
-# made by Softanza in engancing the native Ring features.
+# It was quite lengthy, but I included the necessary
+# details for future reference and for your understanding
+# of another enhancement by Softanza. A summary!
+
+# NOTE: The english of this narration has been enhanced by ChatGPT
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.04 second(s)
 
 /*----------------
-*/
+
 pron()
 
 aList = [
@@ -5425,8 +5427,21 @@ aList = [
 ]
 
 ? @@NL( SortOn(aList, 2) )
+#--> [
+#	[ "a", 1 ],
+#	[ "b", 1 ],
+#	[ "c", 1 ],
+#	[ "d", 1 ],
+#	[ "ab", 2 ],
+#	[ "bc", 2 ],
+#	[ "cd", 2 ],
+#	[ "abc", 3 ],
+#	[ "bcd", 3 ],
+#	[ "abcd", 4 ]
+# ]
 
 proff()
+# Executed in 0.03 second(s)
 
 /*----------------
 
@@ -5439,7 +5454,7 @@ acSubStrings = o1.SubStrings()
 
 # If you want, you can sort them :
 
-//? sort(acSubStrings) # Ring standar function is used here
+? sort(acSubStrings) # Ring standar function is used here
 #--> [
 #	"a",
 #	"ab",
@@ -5460,33 +5475,47 @@ acSubStrings = o1.SubStrings()
 
 ? SortBy( acSubStrings, 'Q(@item).NumberOfChars()' ) # It's a Softanza function
 #--> [
-#	a
-#	b
-#	c
-#	d
+#	"a",
+#	"b",
+#	"c",
+#	"d",
 #
-#	ab
-#	bc
-#	cd
+#	"ab",
+#	"bc",
+#	"cd",
 #
-#	abc
-#	bcd
+#	"abc",
+#	"bcd",
 #
-#	abcd
+#	"abcd"
 # ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.05 second(s)
 
 /*================
 
 pron()
 
 o1 = new stzString( "ABCabcEFGijHI" )
-? @@( o1.SubStringsW('Q(@SubString).IsUppercase()') )
-#--> [ "A", "AB", "ABC", "B", "BC", "C", "E", "EF", "EFG", "F", "FG", "G", "H", "HI", "I" ]
 
-? @@SP( o1.PartsUsing('Q(@char).CharCase()') )
+? @@( o1.SubStringsW('Q(@SubString).IsUppercase()') ) + NL
+#--> [
+#	"A", "AB", "ABC", "B", "BC",
+#	"C", "E", "EF", "EFG", "F",
+#	"FG", "G", "H", "HI", "I"
+# ]
+
+? @@SP( o1.PartsUsing('Q(@char).CharCase()') ) + NL
+#--> [
+#	"ABC",
+#	"abc",
+#	"EFG",
+#	"ij",
+#	"HI"
+# ]
+
+? @@SP( o1.PartsUsingXT('Q(@char).CharCase()') )
 #--> [
 #	[ "ABC", "uppercase" ],
 #	[ "abc", "lowercase" ],
@@ -5496,18 +5525,18 @@ o1 = new stzString( "ABCabcEFGijHI" )
 # ]
 
 proff()
-#--> Executed in 0.68 second(s)
+#--> Executed in 0.70 second(s)
 
 /*----------------
 
 pron()
 
 o1 = new stzString( "ABCabcEFGijHI" )
-? o1.SplitW( 'Q(@SubString).IsLowercase()' )
+? o1.SplitAtW( 'Q(@SubString).IsLowercase()' )
 #--> [ "ABC", "EFG", "HI" ]
 
 proff()
-#--> Executed in 0.32 second(s)
+#--> Executed in 0.59 second(s)
 
 #NOTE
 # This function was impossible to implement without implementing
@@ -5533,13 +5562,13 @@ oStr = new stzString("Welcome to the Ring programming language")
 #--> Ring programming language
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.06 second(s)
 
 /*----------- @narration
 
 pron()
 
-# Softanza make programming in Ring even more expressive.
+# Softanza makes programming in Ring even more expressive.
 
 # To showcase this, let's consider how substr() function is used in Ring,
 # and how Softanza offers it's way of making the same thing.
@@ -5692,24 +5721,30 @@ pron()
 #--> FALSE
 
 aList = [
-	[ "mahmoud", 15000], [ "ahmed", 14000 ],
-	[ "samir", 16000 ] , [ "mohammed", 12000 ],
+	[ "mahmoud", 15000],
+	[ "ahmed", 14000 ],
+	[ "samir", 16000 ] ,
+	[ "mohammed", 12000 ],
 	[ "ibrahim", 11000 ]
 ]
 ? IsRingSortable(aList)
 #--> TRUE
 
 aList = [
-	[ "mahmoud", 15000], [ "ahmed", 14000 ],
-	[ "samir", 16000 ] , [ "mohammed", 12000 ],
-	[ "ibrahim", [], 11000 ]
+	[ "mahmoud", 	15000],
+	[ "ahmed", 	14000 ],
+	[ "samir", 	16000 ] ,
+	[ "mohammed", 	12000 ],
+	[ "ibrahim", 	[], 	11000 ]
 ]
-? IsRingSortable(aList)
+? IsRingSortableOn(aList, 2)
 #--> FALSE
 
 aList = [
-	[ "mahmoud", 15000], [ "ahmed", 14000 ],
-	[ "samir", 16000 ] , [" mohammed", 12000 ],
+	[ "mahmoud", 15000],
+	[ "ahmed", 14000 ],
+	[ "samir", 16000 ] ,
+	[" mohammed", 12000 ],
 	"gary",
 	[ "ibrahim" , 11000 ]
 ]
@@ -5717,10 +5752,10 @@ aList = [
 #--> FALSE
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.03 second(s)
 
 /*-------
-
+*/
 pron()
 
 aList = [
@@ -5753,7 +5788,7 @@ aList = [
 	[ "jed", 10, 22 ],
 	[ "sam",  8 	]
 ]
-? IsRingSortableOn(aList, 3)
+? IsRingSortableOn(aList, 3) # column 2 should contain 3 items
 #--> FALSE
 
 proff()
