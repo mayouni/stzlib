@@ -1136,7 +1136,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*==----
-*/
+
 pron()
 
 o1 = new stzListOfLists([
@@ -1159,6 +1159,28 @@ o1 = new stzListOfLists([
 
 proff()
 # Executed in 0.07 second(s)
+
+/*==----
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "+216", "tunis", "sfax", "gabes" ],
+	[ "+227", "niamey", "maradi" ],
+	[ "+218", "tripoli", "misrata", "benghazi" ],
+	[ "+20", "cairo", "nabatia" ]
+])
+
+? @@NL( o1.ClassifyBy("CountryName(@item)") ) # or ClassifyOnBy(1, "CountryName(@item)")
+#--> [
+#	[ "tunisia", [ "tunis", "sfax", "gabes" ] ],
+#	[ "niger", [ "niamey", "maradi" ] ],
+#	[ "libya", [ "tripoli", "misrata", "benghazi" ] ],
+#	[ "egypt", [ "cair", "nabatia" ] ]
+# ]
+
+proff()
+# Executed in 0.16 second(s)
 
 /*====== #ring
 
@@ -4814,13 +4836,13 @@ pron()
 
 o1 = new stzList([ "a", "abcade", "abc", "ab", "b", "aaa", "abcdaaa" ])
 
-o1.SortUpBy('len(@item)') + NL
+o1.SortByUp('len(@item)') + NL
 ? @@( o1.Content() )
 #--> [ "a", "b", "ab", "aaa", "abc", "abcade", "abcade" ]
 
 #TODO
 
-? o1.SortDownBy('Q(@item).HowMany("a")') # or SortInDescendingBy()
+? o1.SortByDown('Q(@item).HowMany("a")') # or SortByInDescending()
 ? @@( o1.Content() )
 #--> [ "aaa", "abcade", "abcade", "abc", "ab", "a", "b" ]
 
@@ -4832,7 +4854,7 @@ proff()
 pron()
 
 o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
-o1.SortDownBy('len(@item)')
+o1.SortByDown('len(@item)')
 ? o1.Content()
 #--> [ "abcde", "abcd", "abc", "ab", "a" ]
 
@@ -4939,7 +4961,8 @@ proff()
 pron()
 
 aList = [ "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ]
-? @@SP( sorton(aList, 2) )
+? sorton(aList, 2)
+#--> Error message: Incorrect param type! paList must be a list of lists.
 
 proff()
 
@@ -5217,11 +5240,11 @@ pron()
 
 o1 = new stzList([ 3007, 2100, 170, 8, 10001, 2, 0, 150 ])
 
-? @@( o1.SortedDownBy( ' Q(@item).HowMany(0) ') )
+? @@( o1.SortedByDown( ' Q(@item).HowMany(0) ') )
 #--> [ 10001, 3007, 2100, 170, 150, 0, 8, 2 ]
 
 proff()
-#--> Executed in 0.06 second(s)
+#--> Executed in 0.05 second(s)
 
 /*------------
 
@@ -5235,18 +5258,188 @@ o1 = new stzList([ 1:3, "tunis", [], 1:2, "t", "" ])
 proff()
 # Executed in 0.03 second(s)
 
+/*---------------- #ring sort multi-list #narration (a bit long!)
+*/
+pron()
+
+# Ring sort() function can sort multilists (lists of lists)
+# on a given column (using sort(aList, n)) but under two
+# conditions :
+
+# First, the column must contain only number and strings
+# (#~> lists and objects are not sortable in Ring)
+
+# Second, (a condition required by Softanza at a higher
+# level then Ring) ! the column must not contain any
+# dupplicated item
+
+# To understand the various facers of this feature, let's
+# begin with a sample of a multilist that works:
+
+aList = [
+	[ "emm", 3 ],
+	[ 1:3, 1 ],
+	[ ANullObject(), 2 ]
+]
+
+# We use a Softanza function to check of the list is
+# sortable by Ring standard function sort(aLits, nCol)
+
+? IsRingSortable(aList)
+#--> TRUE
+
+? @@NL( sort( aList, 2 ) )
+#--> [
+#	[ [ 1, 2, 3 ], 1 ],
+#	[ @nullobject, 2 ],
+#	[ "emm", 3 ]
+# ]
+
+# Let's take an example of a multi-list that does not
+# work (where the column of sort contains a data type
+# other then number or string):
+
+aList = [
+	[ "emm", 3 ],
+	[ 1:3, 1:3 ], # Note that column 2 contains a list
+	[ ANullObject(), 2 ]
+]
+
+# Softanza can detect that the list can not be sortable
+# directly by the native sort() fuction in Ring
+
+? IsRingSortable(aList)
+#--> FALSE
+
+# And so, if you try it, you get an error:
+
+//? @@NL( sort( aList, 2 ) )
+#--> Error message (Ring-side): Bad parameter type! 
+
+# Now, there is a fine detail you need to be aware of...
+# To illustrate by example let's take this list:
+
+aList = [
+	[ "b", 	 2 ],
+	[ "a", 	 2 ],
+	[ "abc", 3 ],
+	[ "",    1 ],
+	[ "c", 2 ]
+]
+
+# When we sort it on the second colum, we expect to
+# get the fellowing result, right?
+#--> [
+#	[ "",    1 ],
+#	[ "a", 	 2 ],
+#	[ "b", 	 2 ],
+#	[ "c", 	 2 ],
+#	[ "abc", 3 ]	
+# ]
+
+# Unfortunately, when we use Ring to sort it we get
+
+? @@NL( sort(aList, 2) ) + NL
+#--> [
+#	[ "", 1 ],
+#	[ "c", 2 ],
+#	[ "b", 2 ],
+#	[ "a", 2 ],
+#	[ "abc", 3 ]
+# ]
+
+# As you see, the Ring sort() native function, because
+# is designed for efficiency, sorts the multilist on
+# the given colum (2 in our case) and does not care
+# of sorting the values of the first column accordingly!
+
+# To solve this, at Softanza level, we provide the
+# SortOn() function that we can use like this:
+
+? @@NL( SortOn(aList, 2) ) + NL
+#--> [
+#	[ "", 1 ],
+#	[ "a", 2 ],
+#	[ "b", 2 ],
+#	[ "c", 2 ],
+#	[ "abc", 3 ]
+# ]
+
+# Internally, the Softanza SortOn() function checks
+# if the multilist we provide to it can be sorted
+# by Ring in the first place, otherwise it makes
+# the necessary job by itself!
+
+# That's why IsRingSortableOn() has been made!
+# And why it says that the current multilist is
+# not sortable by Ring:
+
+? IsRingSortableOn(aList, 2)
+#--> FALSE
+
+# Not that if you use IsRingSortable() without the
+# On() at the end, then we get a different result:
+
+? IsRingSortable(aList)
+#--> TRUE
+
+# The reason for this is that the first column is
+# made by only strings and they are not dupplicated:
+# [ '', "c", "b", "a", "abc" ]
+
+# Hence if you rely on Ring sort() function it
+# will sort it, as you can see here:
+
+? @@NL( sort(aList, 1) )
+#--> [
+#	[ "", 1 ],
+#	[ "a", 2 ],
+#	[ "abc", 3 ],
+#	[ "b", 2 ],
+#	[ "c", 2 ]
+# ]
+
+# It was a bit long but I wanted to put it with the
+# necessary details so I can remeber them in the
+# future, and for you to learn an other effort
+# made by Softanza in engancing the native Ring features.
+
+proff()
+# Executed in 0.02 second(s)
+
+/*----------------
+*/
+pron()
+
+aList = [
+	[ "a", 1 ],
+	[ "ab", 2 ],
+	[ "abc", 3 ],
+	[ "abcd", 4 ],
+	[ "b", 1 ],
+	[ "bc", 2 ],
+	[ "bcd", 3 ],
+	[ "c", 1 ],
+	[ "cd", 2 ],
+	[ "d", 1 ]
+]
+
+? @@NL( SortOn(aList, 2) )
+
+proff()
+
 /*----------------
 
 pron()
 
 o1 = new stzString("abcd")
 acSubStrings = o1.SubStrings()
-? @@( acSubStrings )
+//? @@( acSubStrings )
 #--> [ "a", "ab", "abc", "abcd", "b", "bc", "bcd", "c", "cd", "d" ]
 
 # If you want, you can sort them :
 
-? sort(acSubStrings) # Ring standar function is ised here
+//? sort(acSubStrings) # Ring standar function is used here
 #--> [
 #	"a",
 #	"ab",

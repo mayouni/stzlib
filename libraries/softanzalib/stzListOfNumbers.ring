@@ -6593,16 +6593,16 @@ class stzListOfNumbers from stzList
 
 		#< @FunctionAlternativeForms
 
-		def SortInAscendingBy(pcExpr)
+		def SortByInAscending(pcExpr)
 			This.SortBy(pcExpr)
 
-			def SortInAscendingByQ(pcExpr)
+			def SortByInAscendingQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
-		def SortUpBy(pcExpr)
+		def SortByUp(pcExpr)
 			This.SortBy(pcExpr)
 
-			def SortUpByQ(pcExpr)
+			def SortByUpQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
 		#>
@@ -6611,33 +6611,33 @@ class stzListOfNumbers from stzList
 		aResult = This.Copy().SortByQ(pcExpr).Content()
 		return aResult
 
-		def SortedInAscendingBy(pcExpr)
+		def SortedByInAscending(pcExpr)
 			return This.SortedBy(pcExpr)
 
-		def SortedUpBy(pcExpr)
+		def SortedByUp(pcExpr)
 			return This.SortedBy(pcExpr)
 
 	  #--------------------------------------------------------#
 	 #  SORTING THE NUMBERS BY AN EXPRESSION - IN DESCENDING  #
 	#--------------------------------------------------------#
  
-	def SortInDescendingBy(pcExpr)
-		aResult = ring_reverse( This.SortedInAscendingBy(pcExpr) )
+	def SortByInDescending(pcExpr)
+		aResult = ring_reverse( This.SortedByInAscending(pcExpr) )
 		This.UpdateWith(aResult)
 
-		def SortInDescendingByQ(pcExpr)
-			This.SortInDescendingBy(pcExpr)
+		def SortByInDescendingQ(pcExpr)
+			This.SortByInDescending(pcExpr)
 			return This
 
-		def SortDownBy(pcExpr)
-			This.SortInDescendingBy(pcExpr)
+		def SortByDown(pcExpr)
+			This.SortByInDescending(pcExpr)
 
-			def SortDownByQ(pcExpr)
-				return This.SortInDescendingByQ(pcExpr)
+			def SortByDownQ(pcExpr)
+				return This.SortByInDescendingQ(pcExpr)
 
-	def SortedInDescendingBy(pcExpr)
-		aResult = This.Copy().SortInDescendingByQ(pcExpr).Content()
+	def SortedByInDescending(pcExpr)
+		aResult = This.Copy().SortByInDescendingQ(pcExpr).Content()
 		return aResult
 
-		def SortedDownBy(pcExpr)
-			return This.SortedInDescendingBy(pcExpr)
+		def SortedByDown(pcExpr)
+			return This.SortedByInDescending(pcExpr)

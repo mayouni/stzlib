@@ -1,0 +1,63 @@
+ALL POSSIBLE FUNCTIONS OF SORTING IN SOFTANZA
+
+sort
+	sortup
+	sortinascending
+
+	sortdown
+	sortindescending
+
+sorted
+	sortedup
+	sortedinascending
+
+	sorteddown
+	sortedindescending
+
+#--
+
+sorton
+	sortonup			sortupon
+	sortoninascending		sortinascendingon
+
+	sortondown			sortdownon
+	sortonindescending		sortindescendingon
+
+sortedon
+	sortedonup			sortedupon
+	sortedoninascending		sortedinascedningon
+
+	sortedondown			sorteddownon
+	sortedonindescending		sortedindescendingon
+
+#--
+
+sortby
+	sortbyup			sortupby
+	sortbyinascending		sortinascendingby
+
+	sortbydown			sortdownby
+	sortbyindescending		sortindescendingby
+
+sortedby
+	sortedbyup			sortedupby
+	sortedbyinascending		sortedinascedningby
+
+	sortedbydown			sorteddownby
+	sortedbyindescending		sortedindescendingby
+
+#--
+
+sortonby
+	sortonbyup			sortonupby		sortuponby		sortupbyon		sortbyonup		sortbyupon
+	sortonbyinascending		sortoninascendingby	sortinascendingonby	sortinascendingbyon	sortbyoninascending	sortbyinascendingon
+	sortonbydown			sortondownby		sortdownonby		sortdownbyon		sortbyondown		sortbydownon
+	sortonbyindescending		sortonindescendingby	sortindescendingonby	sortindescendingbyon	sortbyonindescending	sortbyindescendingon
+
+sortedonby
+	sortedonbyup			sortedonupby		sorteduponby		sortedupbyon		sortedbyonup		sortedbyupon
+	sortedonbyinascending		sortedoninascendingby	sortedinascendingonby	sortedinascendingbyon	sortedbyoninascending	sortedbyinascendingon
+	sortedonbydown			sortedondownby		sorteddownonby		sorteddownbyon		sortedbyondown		sortedbydownon
+	sortedonbyindescending		sortedonindescendingby	sortedindescendingonby	sortedindescendingbyon	sortedbyonindescending	
+
+
