@@ -216,6 +216,7 @@ func ListStringifyXT(paList)
 		return ListStringifyXT(paList)
 
 func SortListsOn(paLists, n)
+
 	if CheckParam()
 		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
 			StzRaise("Incorrect param type! paList must be a list of lists.")
@@ -341,11 +342,15 @@ func SortListsOn(paLists, n)
 	#>
 
 func @SortList(paList)
+
 	if CheckParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
 	ok
+
+	# The idea is to separate the items by type
+	# and then sort them
 
 	nLen = len(paList)
 
@@ -354,8 +359,16 @@ func @SortList(paList)
 	ok
 	
 	anNumbers = []
+
 	acStrings = []
+	nLenNull = 0
+	# Null strings are counted and will be put first in the sort
+
 	aaLists   = []
+	nLenEmptyLists = 0
+	# Empty lists are counted and will be added at the top
+	# of sorted lists (there is no need to sort them)
+
 	aoObjects = []
 
 	for i = 1 to nLen
@@ -363,10 +376,18 @@ func @SortList(paList)
 			anNumbers + paList[i]
 
 		but isString(paList[i])
-			acStrings + paList[i]
+			if paList[i] = ""
+				nLenNull++
+			else
+				acStrings + paList[i]
+			ok
 
 		but isList(paList[i])
-			aaLists + paList[i]
+			if len(paList[i]) = 0
+				nLenEmptyLists++
+			else
+				aaLists + paList[i]
+			ok
 
 		else // isObject()
 			aoObjects + paList[i]
@@ -380,21 +401,41 @@ func @SortList(paList)
 	nLenLists = len(aaLists)
 	nLenObjects = len(aoObjects)
 
+	# Adding the null values on the top of the result
+
+	for i = 1 to nLenNull
+		aResult + ""
+	next
+
+	# Sorting the numbers and adding them to the result
+
 	anNumbersSorted = ring_sort(anNumbers)
 	for i = 1 to nLenNumbers
 		aResult + anNumbersSorted[i]
 	next
+
+	# Sorting the (non-null) strings and adding them to the result
 
 	acStringsSorted = ring_sort(acStrings)
 	for i = 1 to nLenStrings
 		aResult + acStringsSorted[i]
 	next
 
+	# Adding the empty lists to the result
+
+	for i = 1 to nLenEmptyLists
+		aResult + []
+	next
+
+	# Sorting the (other non-empty) lists and adding them to the result
+
 	aaListsSorted = @SortListsOn(aaLists, 1)
 	for i = 1 to nLenLists
 		aResult + aaListsSorted[i]
 	next
-	
+
+	# Sorting the objects and adding them to the result
+
 	for i = 1 to nLenObjects
 		aResult + aoObjects[i]
 	next
@@ -4387,6 +4428,16 @@ func IsRingSortable(pListOrString)
 
 	but IsListOfLists(pListOrString)
 
+		# Early check: case where one of the lists is empty
+
+		nLen = len(pListOrString)
+
+		for i = 1 to nLen
+			if len(pListOrString[i]) = 0
+				return FALSE
+			ok
+		next
+
 		# Checking the columns one by one, and when we
 		# find a column that is made of numbers and/or
 		# strings and containing no dupplications, then
@@ -4463,6 +4514,18 @@ func IsRingSortableOn(paListOfLists, n)
 	if NOT isNumber(n)
 		StzRaise("Incorrect param type! n must be a number.")
 	ok
+
+	# Early check : case where at least one list is empty
+
+	nLen = len(paListOfLists)
+
+	for i = 1 to nLen
+		if len(paListOfLists[i]) = 0
+			return FALSE
+		ok
+	next
+
+	# getting the items in the column n
 
 	oLoL = StzListOfListsQ(paListOfLists)
 	aCol = oLoL.Col(n)
