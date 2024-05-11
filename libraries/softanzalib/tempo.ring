@@ -1325,10 +1325,36 @@ proff()
 
 pron()
 
+aLists = [
+	[ 370,	"Dog", 	"white", TRUE ],
+	[ 120,	"Fox", 	"blue",	FALSE ],
+	[ 1:3,	"Charlie", "white" ],
+	[ 493, "Baker" ],
+	[ 5:8, "Easy" ],
+	[ 45,	"Alpha", "green" ],
+	[ NULL, "King" ],
+	[ 0,	"Zero"  ],
+	[ [ ], "EmptyL" ]
+]
+
+? @@SP( SortListsOn(aLists, 1) )
+#--> [
+#	[ "", "King" ],
+#	[ 0, "Zero" ],
+#	[ 45, "Alpha", "green" ],
+#	[ 120, "Fox", "blue", 0 ],
+#	[ 370, "Dog", "white", 1 ],
+#	[ 493, "Baker" ],
+#	[ [ ], "EmptyL" ],
+#	[ [ 1, 2, 3 ], "Charlie", "white" ],
+#	[ [ 5, 6, 7, 8 ], "Easy" ]
+# ]
+
 proff()
+# Executed in 0.04 second(s)
 
 /*------
-*/
+
 pron()
 
 aLists = [
@@ -1379,7 +1405,7 @@ aList = [
 proff()
 
 /*--------
-
+*/
 pron()
 
 # If the list of lists contains an empty list,
@@ -1396,6 +1422,8 @@ aList = [
 
 ? IsRingSortable(aList)
 #--> FALSE
+
+? @@NL( @Sort(aList) )
 
 proff()
 
