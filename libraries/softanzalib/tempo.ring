@@ -306,7 +306,7 @@ o1 = new stzString("mmmMMMaaAAAiii")
 #--> [ [ 1, 14 ] ]
 
 proff()
-# Executed in 0.21 second(s)
+# Executed in 0.18 second(s)
 
 /*--------
 
@@ -333,7 +333,7 @@ o1 = new stzString("mmmMMMaaAAAiii")
 #--> [ [ "mmmMMMaaAAAiii", "" ] ]
 
 proff()
-# Executed in 0.20 second(s)
+# Executed in 0.18 second(s)
 
 /*--------
 
@@ -366,7 +366,7 @@ o1 = new stzString("mmmMMMaaAAAiii")
 #--> [ [ "mmmMMMaaAAAiii", [ 1, 14 ] ] ]
 
 proff()
-# Executed in 0.24 second(s)
+# Executed in 0.18 second(s)
 
 /*=======
 
@@ -414,7 +414,7 @@ o1 = new stzString("Abc285XY&من")
 # ]
 
 proff()
-# Executed in 0.47 second(s)
+# Executed in 0.31 second(s)
 
 /*----- #perf
 
@@ -434,7 +434,7 @@ o1.PartsUsing('Q(@Char).CharCase()')
 #NOTE: to show a part of the output, use ShowShortXT( )
          
 proff()
-# Executed in 62.34 second(s)
+# Executed in 51.81 second(s)
 
 /*========
 
@@ -456,7 +456,7 @@ pron()
 #--> NULL
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.05 second(s)
 
 /*-----
 
@@ -526,10 +526,10 @@ next
 
 o1 = new stzString(clargeStr)
 o1.Chars()
-#NOTE: to show the ouutput use ShowShort()
+#NOTE: to show the output use ShowShort()
 
 proff()
-# Executed in 7.80 second(s)
+# Executed in 7.32 second(s)
 
 /*----- #perf
 
@@ -546,7 +546,7 @@ o1.CharsU() # Or UniqueChars()
 #NOTE: to show the output use ShowShort()
 
 proff()
-# Executed in 11.90 second(s)
+# Executed in 11.20 second(s)
 
 /*=======================
 
@@ -739,6 +739,7 @@ o1.MoveItem("four", :ToPosition = 4)
 #--> [ "one", "two", "three", "four", "five" ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*------
 
@@ -882,7 +883,7 @@ o1.RemoveCol(3) # Or RemoveNthItems()
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 /*------
 
@@ -1024,7 +1025,7 @@ o1 = new stzListOfLists([
 # ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*--------
 
@@ -1063,7 +1064,7 @@ o1 = new stzListOfLists([
 
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*========
 
@@ -1101,7 +1102,7 @@ aClasses = o1.ClassifyBy(' Q(@item).HowMany(0) ')
 # ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.05 second(s)
 
 /*-----------
 
@@ -1140,10 +1141,10 @@ proff()
 pron()
 
 o1 = new stzListOfLists([
-	[ "adel", "TN", "tunis" ],
+	[ "adel",  "TN", "tunis" ],
 	[ "salah", "DZ", "alger" ],
 	[ "saber", "LY", "tripoli" ],
-	[ "amr", "TN", "sfax" ],
+	[ "amr",   "TN", "sfax" ],
 	[ "mahdi", "LY", "benghazi" ],
 	[ "ahmed", "EG", "cairo" ],
 	[ "tamer", "EG", "nabatia" ]
@@ -1180,7 +1181,7 @@ o1 = new stzListOfLists([
 # ]
 
 proff()
-# Executed in 0.16 second(s)
+# Executed in 0.09 second(s)
 
 /*====== #ring
 
@@ -1267,6 +1268,69 @@ proff()
 
 pron()
 
+# This function is used internally by ListsSortOn()
+
+? @@NL( ListStringifyXT([ 370, 120, 1:3, 493, 5:8, 45, NULL ]) )
+#--> [
+#	'"370."',
+#	'"120."',
+#	"[ 1, 2, 3 ]",
+#	'"493."',
+#	"[ 5, 6, 7, 8 ]",
+#	'"045."',
+#	'""'
+# ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*-----
+
+pron()
+		o1 = new stzListOfLists([
+			[ 1 ],
+			[ "one", "two" ],
+			[ ]
+		])
+		
+		o1.AddCol([ 2, "three", 0 ])
+		? @@NL( o1.Content() )
+		#--> [
+		#	[ 1, 2 ],
+		#	[ "one", "two", "three" ],
+		#	[ 0 ]
+		# ]
+proff()
+
+/*----
+
+pron()
+
+o1 = new stzListOfLists([])
+? @@( o1.Content() ) + NL
+
+o1.AddCol(1:3)
+
+? @@NL( o1.Content() )
+#--> [
+#	[ 1 ],
+#	[ 2 ],
+#	[ 3 ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*------
+
+pron()
+
+proff()
+
+/*------
+*/
+pron()
+
 aLists = [
 	[ "Dog", 	370,	"white",	TRUE	],
 	[ "Fox", 	120,	"blue",		FALSE	],
@@ -1274,12 +1338,14 @@ aLists = [
 	[ "Baker",	493 				],
 	[ "Easy", 	5:8 				],
 	[ "Alpha",	 45,	"green" 		],
-	[ "King"					]
+	[ "King",	NULL				],
+	[ "Zero",	0 ]
 ]
 
 ? @@SP( SortListsOn(aLists, 2) )
 #--> [
-#	[ "King" ],
+#	[ "King", "" ], #Note that NULL figures always on top of the sort
+#	[ "Zero", 0 ],
 #	[ "Alpha", 45, "green" ],
 #	[ "Fox", 120, "blue", 0 ],
 #	[ "Dog", 370, "white", 1 ],
@@ -5755,7 +5821,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-------
-*/
+
 pron()
 
 aList = [
@@ -5839,7 +5905,7 @@ o1 = new stzList(aList)
 #--> 1900007
 
 proff()
-#--> Executed in 28.07 second(s)
+#--> Executed in 19.15 second(s)
 
 /*====== #todo check perf #update done!
 
@@ -5854,7 +5920,7 @@ next
 aList + "A" + "*" + "B" + "C" + "*" + "D" + "*" + "E"
 
 ? ElapsedTime()
-#--> 0.82 second(s)
+#--> 0.92 second(s)
 
 # Using the optimised @FindNthS() function (based on native Ring find())
 
@@ -5868,7 +5934,7 @@ aList + "A" + "*" + "B" + "C" + "*" + "D" + "*" + "E"
 #--> [ 1900002, 1900005, 1900007 ]
 
 ? ElpasedTime()
-#--> 3.73 second(s)
+#--> 3.88 second(s)
 
 # Creating the stzList object
 
@@ -5887,7 +5953,7 @@ o1 = new stzList(aList)
 	#--> [ 1900002, 1900005, 1900007 ]
 
 proff()
-#--> Executed in 10.49 second(s)
+#--> Executed in 10.60 second(s)
 
 /*========== #perf
 
@@ -5933,7 +5999,7 @@ pron()
 	next
 
 proff()
-# Executed in 10.99 second(s) in Ring 1.20
+# Executed in 10.78 second(s) in Ring 1.20
 # Executed in 11.16 second(s) in Ring 1.19
 
 /*-------------------- #perf
@@ -5973,8 +6039,7 @@ pron()
 
 	//? ShowShortXT(str, 8)
 proff()
-# Executed in 3.98 second(s) in Ring 1.20
-# Executed in 4.04 second(s) in Ring 1.19
+# Executed in 4.07 second(s) 
 
 /*--------- #perf
 
@@ -5994,7 +6059,7 @@ pron()
 	# ? ShowShortXT(str, 7)
 
 proff()
-# Executed in 9.58 second(s)
+# Executed in 9.92 second(s)
 
 /*--------- #perf
 
@@ -6014,7 +6079,7 @@ pron()
 	o1.Stringify()
 
 proff()
-# Executed in 8.26 second(s)
+# Executed in 8.81 second(s)
 
 /*--------- #perf
 
@@ -6035,7 +6100,6 @@ pron()
 
 proff()
 # Executed in 9.28 second(s)
-
 
 /*====== #TODO check it after including FindBetween()
 
@@ -6104,7 +6168,7 @@ o1 = new stzString("~*~~*--*-")
 #--> [ 2, 5, 8 ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*----------
 
@@ -6223,7 +6287,7 @@ o1 = new stzString("♥....♥...YOU..♥.....YOU.♥")
 #--> 25
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.08 second(s)
 
 /*---------
 
@@ -6256,7 +6320,7 @@ o1 = new stzString("♥♥♥....♥♥♥...YOU..♥♥♥.....YOU.♥♥♥")
 #--> [ 31, 33 ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.08 second(s)
 
 /*---------
 
@@ -6327,7 +6391,7 @@ o1 = new stzList([
 ? o1.FindNearestToPositions("♥", [ 3, 13 ])
 #--> 14
 
-? o1.findNearestToItem("♥", "YOU")
+? o1.FindNearestToItem("♥", "YOU")
 #--> 10
 
 proff()
@@ -6390,7 +6454,7 @@ o1 = new stzString("♥♥♥....♥♥♥...YOU..♥♥♥.....YOU.♥♥♥")
 #--> [ 31, 33 ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*----
 
@@ -6401,7 +6465,7 @@ o1 = new stzString("...*...*...*...")
 #--> 8
 
 proff()
-# Executed in 0.01 second(s)
+# Executed in 0.02 second(s)
 
 /*----------- #TODO Check after including findbetweencs() adn findboundedbycs()
 

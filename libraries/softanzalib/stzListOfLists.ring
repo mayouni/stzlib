@@ -266,7 +266,11 @@ class stzListOfLists from stzList
 
 		ok
 
-		@aContent = paList
+		if len(paList) = 0
+			@aContent = [ paList ]
+		else
+			@aContent = paList
+		ok
 
 	  #-------------#
 	 #   GENERAL   #
@@ -2596,6 +2600,19 @@ class stzListOfLists from stzList
 	 #  GETTING THE NTH COLOUMN IN THE LIST OF LISTS  #
 	#================================================#
 
+	def Cols()
+		nLen = This.NumberOfCols()
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + This.Col(i)
+		next
+
+		return aResult
+
+		def Columns()
+			return This.Cols()
+
 	def NumberOfColumns()
 		nResult = This.MaxSize()
 		return nResult
@@ -2757,6 +2774,18 @@ class stzListOfLists from stzList
 			if NOT isList(paList)
 				StzRaise("Incorrect param! paList must be a list.")
 			ok
+		ok
+
+		nLen = len(paList)
+		if nLen = 0
+			return
+		ok
+
+		if nLen > 1 and len(@aContent) = 1 and len(@aContent[1]) = 0
+			
+			for i = 1 to nLen - 1
+				@aContent + []
+			next
 		ok
 
 		nMin = Min([ len(@aContent), len(paList) ])

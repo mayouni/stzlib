@@ -55,14 +55,28 @@ func ListsStringifyXT(paListOfLists)
 		ok
 	ok
 
-	aResult = []
-	nLen = len(paListOfLists)
+	if len(paListOfLists) = 0
+		return [ "" ]
+	ok
 
+	aCols = StzListOfListsQ(paListOfLists).Cols()
+	nLen = len(aCols)
+
+	acColsStringified = []
 	for i = 1 to nLen
-		aResult + ListStringifyXT(paListOfLists[i])
+		acColsStringified + ListStringifyXT(aCols[i])
 	next
 
+	oLoL = StzListOfListsQ([])
+
+	for i = 1 to nLen
+		oLoL.AddCol(acColsStringified[i])
+	next
+
+	aResult = oLoL.Content()
+
 	return aResult
+
 
 	func @ListsStringifyXT(paListOfLists)
 		return ListsStringifyXT(paListOfLists)
@@ -121,6 +135,7 @@ func ListStringifyXT(paList)
 			ok
 		ok
 	next
+
 	nHowManyNumbers = len(anNumbersPos)
 
 	# The numbers without decimal part are adjusted
@@ -226,7 +241,7 @@ func SortListsOn(paLists, n)
 	ok
 
 	# Adjusting the lists up to the nth column
-	# (we do this to male it possible using Ring sort() function)
+	# (we do this to make it possible using Ring sort() function)
 
 	for i = 1 to nLen
 		nLenList = len(paLists)
@@ -278,8 +293,7 @@ func SortListsOn(paLists, n)
 	# 	1. sort the first column
 	# 	2. sort the items of the first column that have same value
 
-
-	# We fellow the same logic of the previous case, but for two
+	# We fellow the same logic of the previous case, but for
 	# two columns and not only one column
 
 		# We stringify the nth and first columns
