@@ -1328,7 +1328,7 @@ pron()
 proff()
 
 /*------
-*/
+
 pron()
 
 aLists = [
@@ -1339,7 +1339,8 @@ aLists = [
 	[ "Easy", 	5:8 				],
 	[ "Alpha",	 45,	"green" 		],
 	[ "King",	NULL				],
-	[ "Zero",	0 ]
+	[ "Zero",	0 ],
+	[ "EmptyL",	[] ]
 ]
 
 ? @@SP( SortListsOn(aLists, 2) )
@@ -1361,13 +1362,65 @@ proff()
 
 pron()
 
-? @@NL( SortList([ "charlie", 17, 10, 4:7, "fox", 1:3, "aplha" ]) )
+aList = [
+	[ 4, 5, 6, 7 ],
+	[ 7 ],
+	[ 1, 2, 3 ]
+]
+
+? IsRingSortableOn(aList, 2)
+#--> FALSE
+
+# If you try you get an error
+
+? @@NL( ring_sort2(aList, 2) )
+#--> Bad parameter type! 
+
+proff()
+
+/*--------
+
+pron()
+
+# If the list of lists contains an empty list,
+# then it can't be sorted by Ring
+
+aList = [
+	[ 4, 5, 6, 7 ],
+	[ ],
+	[ 1, 2, 3 ]
+]
+
+? IsRingSortableOn(aList, 1)
+#--> FALSE
+
+? IsRingSortable(aList)
+#--> FALSE
+
+proff()
+
+/*----------
+*/
+pron()
+
+aList = [ "charlie", NULL, 17, 10, 4:7, [], "fox", 1:3, "aplha" ]
+
+# The list can't be sorted by Ring because it contains an []
+
+? IsRingSortable(aList)
+#--> FALSE
+
+# Softanza can sorft it and places the [] before all other lists
+
+? @@NL( SortList(aList) )
 #--> [
+#	"",
 #	10,
 #	17,
 #	"aplha",
 #	"charlie",
 #	"fox",
+#	[ ],
 #	[ 1, 2, 3 ],
 #	[ 4, 5, 6, 7 ]
 # ]
