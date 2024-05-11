@@ -492,7 +492,7 @@ func @SortList(paList)
 
 
 	func SortList(paList)
-		return @Sort(paList)
+		return @SortList(paList)
 
 func @Sort(p)
 	if NOT (isString(p) or isList(p))
@@ -509,6 +509,19 @@ func @Sort(p)
 		ok
 
 		if @IsListOfLists(p)
+			
+			# Case where one list is empty
+
+			nLen = len(p)
+			for i = 1 to nLen
+				if len(p[i]) = 0
+					return @SortList(p)
+				ok
+
+			next
+
+			# Other cases
+
 			return @SortListsOn(p, 1)
 
 		else
