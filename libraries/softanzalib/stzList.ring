@@ -241,6 +241,21 @@ func SortListsOn(paLists, n)
 		return ring_sort2(paLists, n)
 	ok
 
+	# Special case: when the nth column contains empty lists
+	# ~> we replace them by [0] so they are sorted first
+	# ~> we keep their number sot they are restored in the final result
+
+	nLenEmptyLists = 0
+	for i = 1 to nLen
+		nLenList = len(paLists[i])
+		if n <= nLenList
+			if isList(paLists[i][n]) and len(paLists[i][n]) = 0
+				paLists[i][n] + 0
+				nLenEmptyLists++
+			ok
+		ok
+	next
+
 	# Adjusting the lists up to the nth column
 	# (we do this to make it possible using Ring sort() function)
 
@@ -285,6 +300,23 @@ func SortListsOn(paLists, n)
 			ring_remove(paLists[i], 1)
 		next
 
+		# Restoring the [] lists from their [0] temporal form
+
+		for i = 1 to nLen
+			nLenList = len(paLists[i])
+			if nLenList > n # Note n = 1 but we leave it for expressiveness
+				if isList(paLists[i][n]) and len(paLists[i][n]) = 1 and paLists[i][n][1] = 0
+					if nLenEmptyLists > 0
+						ring_remove(paLists[i][n], 1)
+						nLenEmptyLists--
+					ok
+				ok
+			ok
+		next
+
+
+		# Returning the result
+
 		return paLists
 	ok
 
@@ -324,6 +356,22 @@ func SortListsOn(paLists, n)
 		for i = 1 to nLen
 			ring_remove(paLists[i], 1)
 		next
+
+		# Restoring the [] lists from their [0] temporal form
+
+		for i = 1 to nLen
+			nLenList = len(paLists[i])
+			if n <= nLenList
+				if isList(paLists[i][n]) and len(paLists[i][n]) = 1 and paLists[i][n][1] = 0
+					if nLenEmptyLists > 0
+						ring_remove(paLists[i][n], 1)
+						nLenEmptyLists--
+					ok
+				ok
+			ok
+		next
+
+		# Returning the result
 
 		return paLists
 

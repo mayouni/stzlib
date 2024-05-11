@@ -1328,7 +1328,7 @@ pron()
 proff()
 
 /*------
-
+*/
 pron()
 
 aLists = [
@@ -1340,7 +1340,7 @@ aLists = [
 	[ "Alpha",	 45,	"green" 		],
 	[ "King",	NULL				],
 	[ "Zero",	0 ],
-	[ "EmptyL",	[] ]
+	[ "EmptyL",	[ ] ]
 ]
 
 ? @@SP( SortListsOn(aLists, 2) )
@@ -1400,7 +1400,7 @@ aList = [
 proff()
 
 /*----------
-*/
+
 pron()
 
 aList = [ "charlie", NULL, 17, 10, 4:7, [], "fox", 1:3, "aplha" ]
@@ -1426,10 +1426,10 @@ aList = [ "charlie", NULL, 17, 10, 4:7, [], "fox", 1:3, "aplha" ]
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 /*---------
-
+*/
 pron()
 
 ? SortBy([ "a", "abcde", "abc", "ab", "abcd" ], 'len(@item)')
