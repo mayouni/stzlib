@@ -36064,6 +36064,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#----------------------------------------------------------------------------#
 
 	def FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
+
 		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
@@ -36081,7 +36082,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			next
 		next
 
-		aResult = Q(aResult).ToStzListOfPairs().Sorted()
+		if len(aResult) > 0
+			aResult = Q(aResult).ToStzListOfPairs().Sorted()
+		ok
 
 		return aResult
 
@@ -66804,6 +66807,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#----------------------------------------------#
 
 	def SpacifySubStringsCS(pacSubStr, pCaseSensitive)
+
 		/* EXAMPLE
 
 		o1 = new stzString("IbelieveinRingfutureandengageforit!")
@@ -66815,7 +66819,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#--> I believe in Ring future and engage for it!
 
 		*/
-
+? "here 1"
 		This.SpacifySubStringsUsingCS(pacSubStr, " ", pCaseSensitive)
 
 		#< @FuncionFluentForm
@@ -66891,7 +66895,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#----------------------------------------------------------------------#
 
 	def SpacifySubStringsUsingCS(pacSubStr, pcSep, pCaseSensitive)
-
+? "here 2"
 		if CheckParams()
 
 			if NOT ( isList(pacSubStr) and Q(pacSubStr).isListOfStrings() )
@@ -66906,6 +66910,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		ok
 
 		aSections = This.FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
+? "here3"
 		nLen = len(aSections)
 
 		if nLen = 0
@@ -66917,6 +66922,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		ok
 
 		# If some sections are included in others then remove them
+
 		#TODO
 		# Turn this to a method RemoveIncluded() in stzListOfPairs
 

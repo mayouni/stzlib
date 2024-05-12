@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*-------
-*/
+
 pron()
 
 o1 = new stzListOfNumbers([
@@ -57,7 +57,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*------
-*/
+
 pron()
 
 o1 = new stzListOfNumbers([ 2, 7, 3, 10, 5, 4, 9, 1, 6, 8 ])
@@ -76,7 +76,7 @@ o1 = new stzListOfNumbers([ 2, 7, 3, 10, 5, 4, 9, 1, 6, 8 ])
 # [ [ 8, 4 ], [ 9, 7 ], [ 10, 10 ] ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.04 second(s)
 
 /*---------------
 
@@ -969,37 +969,53 @@ o1.SortByInDescending('Q(@string).NumberOfChars()')
 proff()
 
 /*--------------------
-*/
 
 pron()
 
 o1 = new stzString("iloveringprogramminglanguage!!")
-o1.findmanyxt([ "i", "love", "ring", "programming" ])
+? @@( o1.FindManyZZ([ "i", "love", "ring", "programming" ]) )
+
+#--> [ [ 1, 1 ], [ 2, 5 ], [ 6, 9 ], [ 7, 7 ], [ 10, 20 ], [ 18, 18 ] ]
 
 proff()
-
-? @@( o1.FindManyZZ([ "i", "love", "ring", "programming" ]) )
-# sort substrings in ascending
-# for each substring
-#	find the sections
-#	perform the rempalcement using ReplaceInSections()
-#	remove those sections from future rempalcements
-#	 ~> sections = antisections
+# Executed in 0.07 second(s)
 
 /*--------------------
-*/
 
 pron()
 
-o1 = new stzString("iloveringprogramminglanguage!!")
-o1.AddXT(" ", :AfterThese = Q([ "i", "love", "ring", "programming" ]).Reversed())
-//o1.AddXT([ " ", " " ], :Around = "ring")
-
-//o1.SpacifySubStrings([ "i", "ring", "language" ])
-
-? o1.Content()
+o1 = new stzString("weloveringlanguage!")
+o1.AddXT(" ", :AfterThese = Q([ "we", "love", "ring", "language" ]).Reversed())
+#--> we love ring language !
 
 proff()
+# Executed in 0.03 second(s)
+
+/*------------------
+
+pron()
+
+o1 = new stzString("we loveringlanguage!")
+o1.AddXT([ " ", " " ], :Around = "ring")
+
+? o1.Content()
+# Executed in 0.04 second(s)
+
+proff()
+
+/*------------------
+
+pron()
+
+o1 = new stzString("weloveringlanguage!")
+
+o1.SpacifySubStrings([ "love", "ring", "language" ])
+
+? o1.Content()
+# we love ring language !
+
+proff()
+# Executed in 0.06 second(s)
 
 /*--------------------
 
@@ -1011,7 +1027,7 @@ o1 = new stzString("iloveringprogramminglanguage")
 #--> iloveringprogramminglanguage
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.02 second(s)
 
 /*--------------------
 
@@ -1024,44 +1040,76 @@ o1 = new stzString("iloveringprogramminglanguage")
 #--> ilovering programming language
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.05 second(s)
 
-/*-------------------
-*/
+/*------------------- #TODO check it when SubStringsBetween() is included
+
 pron()
 
 o1 = new stzListOfNumbers([ 4, 7, 36, 9, 20 ])
 o1.AddToEachW( 1, :Where = '{ Q(This[@i]).IsDividableBy(4) and This[@i] <= 20 }' )
 
-? @@(o1.Content()) #--> [ 5, 7, 36, 9, 21 ]
+? @@(o1.Content())
+#--> [ 5, 7, 36, 9, 21 ]
 
 proff()
 
-/*-------------------
+/*------------------- #TODO check it when SubStringsBetween() is included
+
+pron()
 
 o1 = new stzListOfNumbers([ 4, 14, 24, 34 ])
 o1.SubStructFromEachW( 10, :Where = '{ @number > 20 }' )
 ? @@(o1.Content()) #--> [ 4, 14, 14, 24 ]
 
+proff()
+
 /*-------------------
+
+pron()
 
 o1 = new stzListOfNumbers([ 5, 15, 25, 35 ])
 o1.DivideEachByW( 5, :Where = '{ @number > 20 }' )
-? @@(o1.Content()) #--> [ 5, 15, 5, 7 ]
+? @@(o1.Content())
+#--> [ 5, 15, 5, 7 ]
+
+proff()
+# Executed in 0.15 second(s)
 
 /*======
 
-?  MultiplicationsYieldingN(9) #--> [ [ 1, 9 ], [ 3, 3 ], [ 9, 1 ] ]
-?  MultiplicationsYieldingN_WithoutCommutation(9) #--> [ [ 1, 9 ], [ 3, 3 ] ]
+pron()
+
+?  MultiplicationsYieldingN(9)
+#--> [ [ 1, 9 ], [ 3, 3 ], [ 9, 1 ] ]
+
+?  MultiplicationsYieldingN_WithoutCommutation(9)
+#--> [ [ 1, 9 ], [ 3, 3 ] ]
+
+proff()
+# Executed in 0.02 second(s)
 
 /*--------------
+*/
+pron()
 
-o1 = new stzListOfNumbers([ 12, 10, 98, 23, 98, 7 ])
+o1 = new stzListOfNumbers([ 12, 10, 98, 3, 23, 98, 7 ])
+
+? o1.Min()
+#--> 3
+
+? o1.FindMin() + NL
+#--> 4
+
 ? o1.Max()
+#--> 98
+
 ? o1.FindMax()
+#--> 3
 
-? StzListQ([ 12, 10, 98, 23, 98, 7 ]).SortedInAscending()
 
+
+proff()
 
 /*--------------
 
