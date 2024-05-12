@@ -2474,16 +2474,19 @@ class stzListOfNumbers from stzList
 	#-----------------------------------------#
 
 	def ReplaceSectionWith(n1, n2, n)
-		for i = 1 to This.NumberOfNumber()
+		nLen = len(@anContent)
+		for i = 1 to nLen
 			if i >= n1 and i <= n2
-				This.Content()[i] = n
+				@anContent[i] = n
 			ok
 		next
-		
-		def ReplaceSectionWithQ(n1, n2, n)
-			return This.ReplaceSectionWithQR(n1, n2, n)
 
-		def ReplaceSectionWithQR(n1, n2, n)
+		#< @FunctionFluentForms
+
+		def ReplaceSectionWithQ(n1, n2, n)
+			return This.ReplaceSectionWithQR(n1, n2, n, :stzList)
+
+		def ReplaceSectionWithQR(n1, n2, n, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -2498,6 +2501,11 @@ class stzListOfNumbers from stzList
 			other
 				StzRaise("Unsupported return type!")
 			off
+
+		#>
+
+		def ReplaceNumbersInSectionWith(n1, n2, n)
+			This.ReplaceSectionWith(n1, n2, n)
 
 	  #----------------------------#
 	 #     CUMULATING NUMBERS     #
