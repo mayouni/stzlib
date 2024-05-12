@@ -2595,9 +2595,27 @@ class stzListOfNumbers from stzList
 			This.AddToEach(n)
 			return This
 
+		def AddToEachNumber(n)
+			This.AddToEach(n)
+
+			def AddToEachNumberQ(n)
+				return This. AddToEachQ(n)
+
+		def AddToEveryNumber(n)
+			This.AddToEach(n)
+
+			def AddToEveryNumberQ(n)
+				return This. AddToEachQ(n)
+
 	def AddedToEach(n)
 		anResult = This.Copy().AddToEachQ(n).Content()
 		return anResult
+
+		def AddedToEachNumber(n)
+			return This.AddedToEach(n)
+
+		def AddedToEveryNumber(n)
+			return This.AddedToEach(n)
 
 	  #------------------------------------------------#
 	 #     SubStructING A NUMBER FROM EACH NUMBER     #
@@ -2625,14 +2643,46 @@ class stzListOfNumbers from stzList
 
 		#< @FunctionAlternativeForms
 
+		def SubStructFromEachNumber(n)
+			This.SubStructFromEach(n)
+
+			def SubStructFromEachNumberQ(n)
+				return This.SubStructFromEachQ(n)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def SubstractFromEach(n)
 			This.SubStructFromEach(n)
+
+		def SubStractFromEachNumber(n)
+			This.SubStructFromEach(n)
+
+			def SubStractFromEachNumberQ(n)
+				return This.SubStructFromEachQ(n)
+
+		#--
 
 		def SubtractFromEach(n)
 			This.SubStructFromEach(n)
 
+		def SubtractFromEachNumber(n)
+			This.SubStructFromEach(n)
+
+			def SubtractFromEachNumberQ(n)
+				return This.SubStructFromEachQ(n)
+
+		#--
+
 		def SubtructFromEach(n)
 			This.SubStructFromEach(n)
+
+		def SubtructFromEachNumber(n)
+			This.SubStructFromEach(n)
+
+			def SubtructFromEachNumberQ(n)
+				return This.SubStructFromEachQ(n)
 
 		#>
 
@@ -2640,16 +2690,48 @@ class stzListOfNumbers from stzList
 		anResult = This.Copy().SubStructFromEachQ(n).Content()
 		return anResult
 
+		#< @FunctionAlternativeForm
+
+		def SubStructedFromEachNumber(n)
+			return This.SubStructedFromEach(n)
+
+		def SubStructedFromEveryNumber(n)
+			return This.SubStructedFromEach(n)
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def SubstractedFromEach(n)
 			return This.SubStructFromEach(n)
 
+		def SubstractedFromEachNumber(n)
+			return This.SubStructedFromEach(n)
+
+		def SubstractedFromEveryNumber(n)
+			return This.SubStructedFromEach(n)
+
+		#--
+
 		def SubtractedFromEach(n)
 			return This.SubStructFromEach(n)
 
+		def SubtractedFromEachNumber(n)
+			return This.SubStructedFromEach(n)
+
+		def SubtractedFromEveryNumber(n)
+			return This.SubStructedFromEach(n)
+
+		#--
+
 		def SubtructedFromEach(n)
 			return This.SubStructFromEach(n)
+
+		def SubtructedFromEachNumber(n)
+			return This.SubStructedFromEach(n)
+
+		def SubtructedFromEveryNumber(n)
+			return This.SubStructedFromEach(n)
 
 		#>
 
@@ -2669,13 +2751,39 @@ class stzListOfNumbers from stzList
 
 		This.Update(anResult)
 
+		#< @FunctionFluentForm
+
 		def MultiplyEachByQ(n)
 			This.MultiplyEachBy(n)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def MultiplyEachNumberBy(n)
+			This.MultiplyEachBy(n)
+
+			def MultiplyEachNumberByQ(n)
+				return This.MultiplyEachByQ(n)
+
+		def MultiplyEveryNumberBy(n)
+			This.MultiplyEachBy(n)
+
+			def MultiplyEveryNumberByQ(n)
+				return This.MultiplyEachByQ(n)
+ 
+		#>
+
 	def EachMultipliedBy(n)
 		anResult = This.Copy().MultiplyEachByQ(n).Content()
 		return anResult
+
+		def EachNumberMultipliedBy(n)
+			return This.EachMultipliedBy(n)
+
+		def EveryNumberMultipliedBy(n)
+			return This.EachMultipliedBy(n)
 
 	  #------------------------------------------#
 	 #     DIVIDING EACH NUMBER BY A NUMBER     # 
@@ -2693,27 +2801,53 @@ class stzListOfNumbers from stzList
 
 		This.Update(anResult)
 
+		#< @FunctionFluentForm
+
 		def DivideEachByQ(n)
 			This.DivideEachBy(n)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def DivideEachNumberBy(n)
+			This.DivideEachBy(n)
+
+			def DivideEachNumberByQ(n)
+				return This.DivideEachByQ(n)
+
+		def DivideEveryNumberBy(n)
+			This.DivideEachBy(n)
+
+			def DivideEveryNumberByQ(n)
+				return This.DivideEachByQ(n)
+
+		#>
 
 	def EachDividedBy(n)
 		anResult = This.Copy().DivideEachByQ(n).Content()
 		return anResult
 
+		def EachNumberDividedBy(n)
+			return This.EachDividedBy(n)
+
+		def EveryNumberDividedBy(n)
+			return This.EachDividedBy(n)
+
 	  #====================================#
 	 #   ADDING MANY NUMBERS ONE BY ONE   #
 	#====================================#
 
-	def AddManyOneByOne(paNumbers)
+	def AddManyOneByOne(panNumbers)
 
-		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
+		if NOT ( isList(panNumbers) and Q(panNumbers).IsListOfNumbers() )
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
 		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
-		nLen2 = len(paNumbers)
+		nLen2 = len(panNumbers)
 
 		nLen = nLen1
 		if nLen2 < nLen1
@@ -2723,37 +2857,50 @@ class stzListOfNumbers from stzList
 		anResult = []
 
 		for i = 1 to nLen
-			nSum = anContent[i] + paNumbers[i]
+			nSum = anContent[i] + panNumbers[i]
 			anResult + nSum
 		next
 
 		This.Update(anResult)
 
-		def AddManyOneByOneQ(paNumbers)
-			This.AddManyOneByOne(paNumbers)
+		#< @FunctionFluentForm
+
+		def AddManyOneByOneQ(panNumbers)
+			This.AddManyOneByOne(panNumbers)
 			return This
 
-	def ManyAddOneByOne(paNumbers)
-		anResult = This.Copy().AddManyOneByOneQ(n).Content()
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AddManyNumbersOneByOne(panNumbers)
+			This.AddManyOneByOne(panNumbers)
+
+			def AddManyNumbersOneByOneQ(panNumbers)
+				return This.AddManyOneByOneQ(panNumbers)
+
+		#>
+
+	def ManyAddOneByOne(panNumbers)
+		anResult = This.Copy().AddManyOneByOneQ(panNumbers).Content()
 		return anResult
+
+		def ManyNumbersAddedOneByOne(panNumbers)
+			return This.ManyAddOneByOne(panNumbers)
 
 	  #------------------------------------------#
 	 #   SubStructING MANY NUMBERS ONE BY ONE   #
 	#------------------------------------------#
 
-	def SubStructManyOneByOne(paNumbers)
+	def SubStructManyOneByOne(panNumbers)
 
-		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
-			StzRaise("Incorrect param type! You must provide a list of numbers.")
-		ok
-
-		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
+		if NOT ( isList(panNumbers) and Q(panNumbers).IsListOfNumbers() )
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
 		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
-		nLen2 = len(paNumbers)
+		nLen2 = len(panNumbers)
 
 		nLen = nLen1
 		if nLen2 < nLen1
@@ -2763,33 +2910,51 @@ class stzListOfNumbers from stzList
 		anResult = []
 
 		for i = 1 to nLen
-			nDif = anContent[i] - paNumbers[i]
+			nDif = anContent[i] - panNumbers[i]
 			anResult + nDif
 		next
 
 		This.Update(anResult)
 
-		def SubStructManyOneByOneQ(paNumbers)
-			This.SubStructManyOneByOne(paNumbers)
+		#< @FunctionFluentForm
+
+		def SubStructManyOneByOneQ(panNumbers)
+			This.SubStructManyOneByOne(panNumbers)
 			return This
 
-	def ManySubStructedOneByOne(paNumbers)
-		aResult = This.Copy().SubStructManyOneByOneQ(n).Content()
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SubStructManyNumbersOneByOne(panNumbers)
+			This.SubStructManyOneByOne(panNumbers)
+
+			def SubStructManyNumbersOneByOneQ(panNumbers)
+				return This.SubStructManyOneByOneQ(panNumbers)
+
+		#>
+
+	def ManySubStructedOneByOne(panNumbers)
+		aResult = This.Copy().SubStructManyOneByOneQ(panNumbers).Content()
 		return aResult
+
+		def ManyNumbersSubStructedOneByOne(panNumbers)
+			return This.ManyAddOneByOne(panNumbers)
+
 
 	  #----------------------------------------------------------------------#
 	 #   MULTIPLYING THE NUMBERS OF THE LIST WITH MANY NUMBERS ONE BY ONE   #
 	#----------------------------------------------------------------------#
 
-	def MultiplyWithManyOneByOne(paNumbers)
+	def MultiplyWithManyOneByOne(panNumbers)
 
-		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
+		if NOT ( isList(panNumbers) and Q(panNumbers).IsListOfNumbers() )
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
 		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
-		nLen2 = len(paNumbers)
+		nLen2 = len(panNumbers)
 
 		nLen = nLen1
 		if nLen2 < nLen1
@@ -2799,40 +2964,72 @@ class stzListOfNumbers from stzList
 		anResult = []
 
 		for i = 1 to nLen
-			nProd = anContent[i] * paNumbers[i]
+			nProd = anContent[i] * panNumbers[i]
 			anResult + nProd
 		next
 
 		This.Update(anResult)
 
+		#< @FunctionFluentForm
 
-		def MultiplyWithManyOneByOneQ(paNumbers)
-			This.MultiplyWithManyOneByOne(paNumbers)
+		def MultiplyWithManyOneByOneQ(panNumbers)
+			This.MultiplyWithManyOneByOne(panNumbers)
 			return This
 
-		def MultiplyByManyOneByOne(paNumbers)
-			return This.MultiplyWithManyOneByOne(paNumbers)
+		#>
 
-	def MultipliedWithManyOneByOne(paNumbers)
-		anResult = This.Copy().MultiplyWithManyOneByOneQ(n).Content()
+		#< @FunctionAlternativeForms
+
+		def MultiplyByManyOneByOne(panNumbers)
+			return This.MultiplyWithManyOneByOne(panNumbers)
+
+			def MultiplyByManyOneByOneQ(panNumbers)
+				return This.MultiplyWithManyOneByOneQ(panNumbers)
+
+		def MultiplyByManyNumbersOneByOne(panNumbers)
+			return This.MultiplyWithManyOneByOne(panNumbers)
+
+			def MultiplyByManyNumbersOneByOneQ(panNumbers)
+				return This.MultiplyWithManyOneByOneQ(panNumbers)
+
+		def MultiplyWithManyNumbersOneByOne(panNumbers)
+			return This.MultiplyWithManyOneByOne(panNumbers)
+
+			def MultiplyWithManyNumbersOneByOneQ(panNumbers)
+				return This.MultiplyWithManyOneByOneQ(panNumbers)
+
+		#>
+
+	def MultipliedWithManyOneByOne(panNumbers)
+		anResult = This.Copy().MultiplyWithManyOneByOneQ(panNumbers).Content()
 		return anResult
 
-		def MultipliedByManyOneByOne(paNumbers)
-			return This.MultipliedWithManyOneByOne(paNumbers)
+		#< @FunctionAlternativeForms
+
+		def MultipliedByManyOneByOne(panNumbers)
+			return This.MultipliedWithManyOneByOne(panNumbers)
+
+		def MultipliedByManyNumbersOneByOne(panNumbers)
+			return This.MultipliedWithManyOneByOne(panNumbers)
+
+		def MultipliedWithManyNumbersOneByOne(panNumbers)
+			return This.MultipliedWithManyOneByOne(panNumbers)
+
+		#>
 
 	  #-------------------------------------------------------------------#
 	 #   DEVIDING THE NUMBERS OF THE LIST WITH MANY NUMBERS ONE BY ONE   #
 	#-------------------------------------------------------------------#
 
-	def DivideByManyOneByOne(paNumbers)
+	def DivideByManyOneByOne(panNumbers)
 
-		if NOT ( isList(paNumbers) and Q(paNumbers).IsListOfNumbers() )
+		if NOT ( isList(panNumbers) and Q(panNumbers).IsListOfNumbers() )
 			StzRaise("Incorrect param type! You must provide a list of numbers.")
 		ok
 
 		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
-		nLen2 = len(paNumbers)
+		nLen2 = len(panNumbers)
 
 		nLen = nLen1
 		if nLen2 < nLen1
@@ -2842,19 +3039,25 @@ class stzListOfNumbers from stzList
 		anResult = []
 
 		for i = 1 to nLen
-			nDiv = anContent[i] / paNumbers[i]
+			nDiv = anContent[i] / panNumbers[i]
 			anResult + nDiv
 		next
 
 		This.Update(anResult)
 
-		def DivideByManyOneByOneQ(paNumbers)
-			This.DivideByManyOneByOne(paNumbers)
+		def DivideByManyOneByOneQ(panNumbers)
+			This.DivideByManyOneByOne(panNumbers)
 			return This
 
-	def DividedByManyOneByOne(paNumbers)
-		anResult = This.Copy().DivideByManyOneByOneQ(n).Content()
+		#TODO
+		# Add alternatives
+
+	def DividedByManyOneByOne(panNumbers)
+		anResult = This.Copy().DivideByManyOneByOneQ(panNumbers).Content()
 		return anResult
+
+		#TODO
+		# Add alternatives
 
 	  #===================================================#
 	 #   ADDING NUMBER TO EACH UNDER A GIVEN CONDITION   #
@@ -2915,9 +3118,15 @@ class stzListOfNumbers from stzList
 			This.AddToEachW(n)
 			return This
 
+		#TODO
+		# Add alternatives
+
 	def AddedToEachW(n)
 		aResult = This.Copy().AddToEachWQ(n).Content()
 		return aResult
+
+		#TODO
+		# Add alternatives
 
 	  #--------------------------------------------------------#
 	 #   SubStruct NUMBER FROM EACH UNDER A GIVEN CONDITION   #
@@ -2930,10 +3139,16 @@ class stzListOfNumbers from stzList
 			This.SubStructFromEachW(n)
 			return This
 
+		#TODO
+		# Add alternatives
+
 	def SubStructedFromEachW(n)
 		aResult = This.Copy().SubStructFromEachWQ(n).Content()
 		return aResult
 	
+		#TODO
+		# Add alternatives
+
 	  #--------------------------------------------------------------------#
 	 #   MULTIPLYING NUMBERS BY AN OTHER NUMBER UNDER A GIVEN CONDITION   #
 	#--------------------------------------------------------------------#
@@ -2996,12 +3211,18 @@ class stzListOfNumbers from stzList
 				This.MultiplyEachByW()
 				return This
 
+		#TODO
+		# Add other alternatives
+
 	def EachMultipliedWithW(n)
 		aResult = This.Copy().MultiplyEachWithWQ(n).Content()
 		return aResult
 
 		def EachMultipliedByW(n)
 			return This.EachMultipliedWithW(n)
+
+		#TODO
+		# Add other alternatives
 
 	  #-------------------------------------------------------------------#
 	 #   DIVIDE EACH NUMBER BY AN OTHER NUMBER UNDER A GIVEN CONDITION   #
@@ -3017,6 +3238,9 @@ class stzListOfNumbers from stzList
 		def DivideEachByW(n, pcCondition)
 			This.DivideEachWithW(n, pcCondition)
 
+		#TODO
+		# Add alternatives
+
 	def EachDividedWithW(n)
 		aResult = This.Copy().DivideEachWithWQ(n).Content()
 		return aResult
@@ -3024,6 +3248,9 @@ class stzListOfNumbers from stzList
 		def EachDividedByW(n)
 			return This.EachDividedWithW(n)
 	
+		#TODO
+		# Add alternatives
+
 	  #=====================================================#
 	 #     UPDATING THE LIST WITH A NEW LIST OF NUMBERS    #
 	#=====================================================#

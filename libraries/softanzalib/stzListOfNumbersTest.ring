@@ -1090,7 +1090,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzListOfNumbers([ 12, 10, 98, 3, 23, 98, 7 ])
@@ -1107,15 +1107,20 @@ o1 = new stzListOfNumbers([ 12, 10, 98, 3, 23, 98, 7 ])
 ? o1.FindMax()
 #--> 3
 
-
-
 proff()
+# Executed in 0.03 second(s)
 
 /*--------------
+*/
+Pron()
 
 o1 = new stzListOfNumbers(1:8)
 o1.AddToEveryNumber(2)
-? ListToCode( o1.Content() ) #--> [ 3, 4, 5, 6, 7, 8, 9, 10 ]
+? ListToCode( o1.Content() )
+#--> [ 3, 4, 5, 6, 7, 8, 9, 10 ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*--------------
 
