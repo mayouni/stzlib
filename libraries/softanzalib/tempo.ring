@@ -1942,10 +1942,10 @@ pron()
  proff()
 
 /*----------
-*/
+
 StartProfiler()
 
-/*	? Q("").ContainsXT(:Chars, []) # You can use NULL or FALSE instead of []
+	? Q("").ContainsXT(:Chars, []) # You can use NULL or FALSE instead of []
 	#--> FALSE
 	? Q("").ContainsXT([], :Chars) # You can use NULL or FALSE instead of []
 	#--> FALSE
@@ -1962,22 +1962,20 @@ StartProfiler()
 	#--> TRUE
 	? Q("__-♥-__").ContainsXT(:NoneOfTheseChars, ["A", "*", "B"])
 	#--> TRUE
-*/
-	? Q("__---_^_").ContainsXT(:CharsWhere, 'Q(This[@i]).IsEither("A", :Or = "^")' )
+
+	? Q("__---_^_").ContainsXT(:CharsWhere, 'Q(@Char).IsEither("A", :Or = "^")' )
 	#--> TRUE
-/*	? Q("__---__").ContainsXT(:CharsW, 'Q(This[@i]).IsEither("_", :Or = "-")')
+	? Q("__---__").ContainsXT(:CharsW, 'Q(@Char).IsEither("_", :Or = "-")')
 	#--> TRUE
-	? Q("__---__").ContainsXT(:Chars, :Where = 'Q(This[@i]).IsEither("_", :Or = "-")')
+	? Q("__---__").ContainsXT(:Chars, :Where = 'Q(@Char).IsEither("_", :Or = "-")')
 	#--> TRUE
-	? Q("__---__").ContainsXT(:Chars, Where(' Q(This[@i]).IsEither("_", :Or = "-") ') )
+	? Q("__---__").ContainsXT(:Chars, Where(' Q(@Char).IsEither("_", :Or = "-") ') )
 	#--> TRUE
-	? Q("__---__").ContainsXT(:Chars, W('Q(This[@i]).IsEither("_", :Or = "-")'))
+	? Q("__---__").ContainsXT(:Chars, W('Q(@Char).IsEither("_", :Or = "-")'))
 	#--> TRUE
-*/
-#NOTE: Conditional code will be quicker if you replace Q(@Char) with Q(This[@i])
 
 StopProfiler()
-# Executed in 0.35 second(s) in Ring 1.20
+# Executed in 0.34 second(s) in Ring 1.20
 # Executed in 0.44 second(s) in Ring 1.19
 
 /*------
@@ -2006,13 +2004,14 @@ Pron()
 	? Q("_softanza_loves_ring_").ContainsXT(:NoneOfThese, ["python", "php", "ruby"])
 	#--> TRUE
 Proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 /*------------ #perf
-
+*/
 #TODO: Check performance! Rethink the subStrings() design
 #UPDATE: done! After redesigning SubStrings() function,
-# performance went down from 144.36 seconds to 0.32 seconds!
+# performance of the following sample went down
+# from 144.36 seconds to 12.75 seconds!
 
 StartProfiler()
 
@@ -2028,7 +2027,7 @@ StartProfiler()
 	#--> TRUE
 
 StopProfiler()
-# Executed in 0.32 second(s)
+# Executed in 12.75 second(s)
 
 /*======== USING ADDXT() - EXTENDED
 

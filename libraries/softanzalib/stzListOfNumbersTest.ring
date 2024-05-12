@@ -1171,7 +1171,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*---------------
-*/
+
 pron()
 
 # CLIPPING THE NUMBERS IN THE LIST
@@ -1191,4 +1191,12 @@ proff()
 
 /*--------------
 
-//? o1.ReplaceSection(3, 5, 2) // --> [ 1, 2, 2, 2, 2, 6, 7, 8 ]
+pron()
+
+o1 = new stzListOfNumbers(1:8)
+o1.ReplaceSectionWith(3, 5, 2)
+#--> [ 1, 2, 2, 2, 2, 6, 7, 8 ]
+? @@( o1.Content() )
+
+proff()
+# Executed in 0.03 second(s)
