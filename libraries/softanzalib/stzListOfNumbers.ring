@@ -2402,21 +2402,26 @@ class stzListOfNumbers from stzList
 			return FALSE
 		ok
 
+	  #----------------------------------------------------#
+	 #  GETTING THE NUMBERS DIVIDABLE BY A GIVEN NUMBER   #
+	#----------------------------------------------------#
+
 	def DividableNumbersBy(n)
 		anContent = This.Content()
 		nLen = len(anContent)
 
-		aResult = []
+		anResult = []
 
 		for i = 1 to nLen
-			n = anContent[i]
-			oNumber = new stzNumber(n)
-			if oNumber.IsDividableBy(n)
-				aResult + n
+			if anContent[i] % 2 = 0
+				anResult + anContent[i]
 			ok
 		next
 
-		return aResult
+		return anResult
+
+		def NumbersDividableBy(n)
+			return This.DividableNumbersBy(n)
 
 	  #--------------------------------------#
 	 #     CLIPPING THE LIST OF NUMBERS     #
