@@ -1111,7 +1111,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*--------------
-*/
+
 Pron()
 
 o1 = new stzListOfNumbers(1:8)
@@ -1124,25 +1124,61 @@ proff()
 
 /*--------------
 
+pron()
+
 o1 = new stzListOfNumbers(1:8)
-o1.SubStructFromEveryItem(2)
-? ListToCode( o1.Content() ) #--> [ -1, 0, 1, 2, 3, 4, 5, 6 ]
+o1.SubStructFromEach(2)
+? ListToCode( o1.Content() )
+#--> [ -1, 0, 1, 2, 3, 4, 5, 6 ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*---------------
+
+pron()
+
 o1 = new stzListOfNumbers(1:8)
 
-? o1.sum() // --> 36
+? o1.sum()
+#--> 36
 
-? o1.Product() // --> 40320
+? o1.Product()
+#--> 40320
 
-? o1.Max() // --> 8
+? o1.Max()
+#--> 8
 
-? o1.Mean() // --> 4.5
+? o1.Mean()
+#--> 4.50
 
-? o1.ContainsADividableNumberBy(2) --> TRUE
+proff()
+# Executed in 0.03 second(s)
 
-? o1.DividableNumbersBy(2) #--> [ 2, 4, 6, 8 ]
+/*---------------
+*/
+pron()
+
+o1 = new stzListOfNumbers(1:8)
+
+? o1.ContainsADividableNumberBy(2) + NL
+#--> TRUE
+
+? @@( o1.DividableNumbersBy(2) )
+#--> [ 2, 4, 6, 8 ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*---------------
+*/
+pron()
+
+o1 = new stzListOfNumbers(1:8)
+
 
 ? o1.Clip(3,5) // --> [ 3, 3, 3, 4, 5, 5, 5, 5 ]
 
-? o1.UpdateSectionWith(3, 5, 2) // --> [ 1, 2, 2, 2, 2, 6, 7, 8 ]
+//? o1.ReplaceSection(3, 5, 2) // --> [ 1, 2, 2, 2, 2, 6, 7, 8 ]
+
+proff()
