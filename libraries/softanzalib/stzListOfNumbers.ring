@@ -2439,16 +2439,14 @@ class stzListOfNumbers from stzList
 		// --> Should return: [ 3, 3, 3, 4, 5, 5, 5, 5, 5 ])
 		*/
 
-		anContent = This.Content()
-		nLen = len(anContent)
+		nLen = len(@anContent)
 
 		for i = 1 to nLen
-			n = anContent[i]
+			if @anContent[i] < nMin
+				@anContent[i] = nMin
 
-			if n < nMin
-				n = nMin
-			but n > nMax
-				n = nMax
+			but @anContent[i] > nMax
+				@anContent[i] = nMax
 			ok
 		next
 

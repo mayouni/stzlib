@@ -1156,7 +1156,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*---------------
-*/
+
 pron()
 
 o1 = new stzListOfNumbers(1:8)
@@ -1174,11 +1174,21 @@ proff()
 */
 pron()
 
+# CLIPPING THE NUMBERS IN THE LIST
+# Limits the values of the list by adjusting the numbers outside
+# the provided range (nMin, nMax). Each number lesser then nMin
+# becomes equal to nMin. And each number greater then nMax becomes
+# equal to nMax.
+
 o1 = new stzListOfNumbers(1:8)
 
-
-? o1.Clip(3,5) // --> [ 3, 3, 3, 4, 5, 5, 5, 5 ]
-
-//? o1.ReplaceSection(3, 5, 2) // --> [ 1, 2, 2, 2, 2, 6, 7, 8 ]
+o1.Clip(3, 5)
+? @@( o1.Content() )
+#--> [ 3, 3, 3, 4, 5, 5, 5, 5 ]
 
 proff()
+# Executed in 0.03 second(s)
+
+/*--------------
+
+//? o1.ReplaceSection(3, 5, 2) // --> [ 1, 2, 2, 2, 2, 6, 7, 8 ]
