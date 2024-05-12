@@ -235,7 +235,15 @@ func SortListsOn(paLists, n)
 		return paLists
 	ok
 
-	# Early check: using Ring sort() in priority
+	# Early check1 : If One of the lists is empty
+
+	for i = 1 to nLen
+		if len(paLists[i]) = 0
+			return @SortList(paLists)
+		ok
+	next
+
+	# Early check2 : Using Ring sort() in priority
 
 	if IsRingSortableOn(paLists, n)
 		return ring_sort2(paLists, n)
