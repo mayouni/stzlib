@@ -11809,14 +11809,14 @@ class stzString from stzObject
 	 #  SUBSTRINGS INSIDE A GIVEN STRING                      #
 	#--------------------------------------------------------#
 
-	#NOTE
-	# It's more elegant to use this function indirectly from IsBoundedBy()
-	# to which we add the param :In, like this:
-
-	# Q("♥").IsBoundedBy([ "-", :In = "-♥-" ])
-
 	def IsBoundedByInCS(pacBounds, pIn, pCaseSensitive)
-		/* EXAMPLE
+
+		/* EXAMPLE 1
+
+		? Q("♥").IsBoundedByXT([ "-", :In = "-♥-" ])
+		#--> TRUE
+
+		EXAMPLE 2
 
 		o1 = new stzString("♥")
 		? o1.IsBoundedByIn([ "-", "-" ], :In = "... -♥- ...")
@@ -11901,6 +11901,14 @@ class stzString from stzObject
 		def IsBetweenInCSIB(pacBounds, pIn, pCaseSensitive)
 			return This.IsBetweenInCSIB(pacBounds, pIn, pCaseSensitive)
 
+		#--
+
+		def IsBoundedByCSXT(pacBounds, pIn, pCaseSensitive)
+			return This.IsBoundedByInCS(pacBounds, pIn, pCaseSensitive)
+
+		def IsBetweenCSXT(pacBounds, pIn, pCaseSensitive)
+			return This.IsBetweenCSIB(pacBounds, pIn, pCaseSensitive)
+
 		#>
 
 
@@ -11922,6 +11930,14 @@ class stzString from stzObject
 
 		def IsBetweenInIB(pacBounds, pIn)
 			return This.IsBetweenCSIB(pacBounds, pIn, TRUE)
+
+		#--
+
+		def IsBoundedByXT(pacBounds, pIn)
+			return This.IsBoundedByIn(pacBounds, pIn)
+
+		def IsBetweenXT(pacBounds, pIn)
+			return This.IsBetweenIB(pacBounds, pIn)
 
 		#>
 

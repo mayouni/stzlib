@@ -1405,7 +1405,7 @@ aList = [
 proff()
 
 /*--------
-*/
+
 pron()
 
 # If the list of lists contains an empty list,
@@ -1417,15 +1417,61 @@ aList = [
 	[ 1, 2, 3 ]
 ]
 
-? IsRingSortableOn(aList, 1)
-#--> FALSE
-
 ? IsRingSortable(aList)
 #--> FALSE
 
 ? @@NL( @Sort(aList) )
+#--> [
+#	[ ],
+#	[ 1, 2, 3 ],
+#	[ 4, 5, 6, 7 ]
+# ]
 
 proff()
+# Executed in 0.03 second(s)
+
+/*--------
+
+pron()
+
+aList = [
+	[ 4, 5, 6, 7 ],
+	[ ],
+	[ 1, 2, 3 ]
+]
+
+? IsRingSortableOn(aList, 1)
+#--> FALSE
+
+? @@NL( @SortOn(aList, 1 ) )
+#--> [
+#	[ ],
+#	[ 1, 2, 3 ],
+#	[ 4, 5, 6, 7 ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*--------
+
+pron()
+
+aList = [
+	[ 4, 5, 6, 7 ],
+	[ ],
+	[ 1, 2, 3 ]
+]
+
+? @@NL( @SortList(aList) )
+#--> [
+#	[ ],
+#	[ 1, 2, 3 ],
+#	[ 4, 5, 6, 7 ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*----------
 
@@ -1438,7 +1484,7 @@ aList = [ "charlie", NULL, 17, 10, 4:7, [], "fox", 1:3, "aplha" ]
 ? IsRingSortable(aList)
 #--> FALSE
 
-# Softanza can sorft it and places the [] before all other lists
+# Softanza can sort it and places the [] before all other lists
 
 ? @@NL( SortList(aList) )
 #--> [
@@ -1454,17 +1500,17 @@ aList = [ "charlie", NULL, 17, 10, 4:7, [], "fox", 1:3, "aplha" ]
 # ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*---------
-*/
+
 pron()
 
 ? SortBy([ "a", "abcde", "abc", "ab", "abcd" ], 'len(@item)')
 #--> [ "a", "ab", "abc", "abcd", "abcde" ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.09 second(s)
 
 /*===
 
@@ -1474,7 +1520,7 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*=====
 
@@ -1487,7 +1533,7 @@ aList = [ [1,2,3], [4,5,6], 7:9 ]
 # [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*------ #TODO future
 
@@ -1565,7 +1611,7 @@ o1.Bound([ "the", "mile" ], :By = [ "<<", ">>" ]) # or BoundSubStrings()
 #--> its <<the>> <<last>> <<mile>> now
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.06 second(s)
 
 /*-----------------
 
@@ -1583,7 +1629,7 @@ o1.SpacifyTheseSubStrings([
 proff()
 # Executed in 0.07 second(s)
 
-/*-----------------
+/*========
 
 pron()
 
@@ -1605,7 +1651,7 @@ o1 = new stzHashList([
 proff()
 # Executed in 0.02 second(s)
 
-/*-----------------
+/*========
 
 pron()
 
@@ -1623,7 +1669,7 @@ o1.RemoveTheseBounds("{{","}")
 #--> ring}
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 /*------------
 
@@ -1647,19 +1693,21 @@ pron()
 o1 = new stzString("ABCAAB")
 
 ? o1.CharsQ().WithoutDuplicates()
+#--> [ "A", "B", "C" ]
 
 ? o1.CharsU()
+#--> [ "A", "B", "C" ]
 
 ? U( o1.Chars() )
+#--> [ "A", "B", "C" ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*------- TODO: fix it
 
 ? StzCharQ("🔻")
 #!--> ERROR MESSAGE: Can't create the char object
-
 
 /*-------- TODO: erronous char name
 
@@ -1669,11 +1717,13 @@ pron()
 #--> ?
 
 ? Q("🔻").Unicode()
+#--> 53
 
 ? StzStringQ("🔻").CharName() #TODO: Correct this
 #!--> QUESTION MARK
 
 proff()
+# Executed in 0.11 second(s)
 
 /*================
 
@@ -1786,24 +1836,24 @@ StopProfiler()
 # Executed in 0.03
 
 /*========= CHECKING BOUNDS - XT
-
+*/
 StartProfiler()
 		
 	o1 = new stzString("♥")
-	? o1.IsBoundedByIB("-", :In = "...-♥-...") # You can use :Inside instead of :In
+	? o1.IsBoundedByXT("-", :In = "...-♥-...") # You can use :Inside instead of :In
 	#--> TRUE
 	
-	? o1.IsBoundedByIB(["/", "\"], :InSide = "__/♥\__")
+	? o1.IsBoundedByXT(["/", "\"], :InSide = "__/♥\__")
 	#--> TRUE
 		
-	? o1.IsBetweenIB(["/", "\"], :InSide = "__/♥\__")
+	? o1.IsBetweenXT(["/", "\"], :InSide = "__/♥\__")
 	#--> TRUE
 	
-	? o1.IsBetweenIB(["/", :And = "\"], :InSide = "__/♥\__")
+	? o1.IsBetweenXT(["/", :And = "\"], :InSide = "__/♥\__")
 	#--> TRUE
 	
 StopProfiler()
-# Executed in 0.12 second(s)
+# Executed in 0.50 second(s)
 
 /*====  FINDING SUBSTRING, BASIC & EXTENDED
 
