@@ -844,6 +844,31 @@ class stzListOfNumbers from stzList
 
 	#==
 
+	def FindMin()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		# Early check
+
+		if nLen = 0
+			return 0
+
+		but nLen = 1
+			return 1
+		ok
+
+		nResult = 1
+		nTempNumber = aContent[1]
+
+		for i = 2 to nLen
+			if aContent[i] < nTempNumber
+				nResult = i
+				nTempNumber = aContent[i]
+			ok
+		next
+
+		return nResult
+
 	def Min()
 		anContent = This.Content()
 		nResult = ring_sort( anContent )[1]
@@ -1235,6 +1260,31 @@ class stzListOfNumbers from stzList
 		#>
 
 	#==
+
+	def FindMax()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		# Early check
+
+		if nLen = 0
+			return 0
+
+		but nLen = 1
+			return 1
+		ok
+
+		nResult = 1
+		nTempNumber = aContent[1]
+
+		for i = 2 to nLen
+			if aContent[i] > nTempNumber
+				nResult = i
+				nTempNumber = aContent[i]
+			ok
+		next
+
+		return nResult
 
 	def Max()
 		anContent = This.Content()
@@ -2906,12 +2956,12 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 
-		cCondition = StzCCodeQ(cCondition).Transpiled()
+		cCondition = StzCCodeQ(pcCondition).Transpiled()
 		cCode = "bOk = (" + cCondition + ")"
 		oCode = new stzString(cCode)
 
 		for @i = 1 to nLen
-			@number = anContent[i]
+			@number = anContent[@i]
 			bEval = TRUE
 
 			if @i = nLen and

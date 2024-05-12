@@ -1836,7 +1836,7 @@ StopProfiler()
 # Executed in 0.03
 
 /*========= CHECKING BOUNDS - XT
-*/
+
 StartProfiler()
 		
 	o1 = new stzString("♥")
@@ -1853,7 +1853,7 @@ StartProfiler()
 	#--> TRUE
 	
 StopProfiler()
-# Executed in 0.50 second(s)
+# Executed in 0.10 second(s)
 
 /*====  FINDING SUBSTRING, BASIC & EXTENDED
 
@@ -1942,10 +1942,10 @@ pron()
  proff()
 
 /*----------
-
+*/
 StartProfiler()
 
-	? Q("").ContainsXT(:Chars, []) # You can use NULL or FALSE instead of []
+/*	? Q("").ContainsXT(:Chars, []) # You can use NULL or FALSE instead of []
 	#--> FALSE
 	? Q("").ContainsXT([], :Chars) # You can use NULL or FALSE instead of []
 	#--> FALSE
@@ -1962,22 +1962,22 @@ StartProfiler()
 	#--> TRUE
 	? Q("__-♥-__").ContainsXT(:NoneOfTheseChars, ["A", "*", "B"])
 	#--> TRUE
-
-	? Q("__---_^_").ContainsXT(:CharsWhere, 'Q(@char).IsEither("A", :Or = "^")' )
+*/
+	? Q("__---_^_").ContainsXT(:CharsWhere, 'Q(This[@i]).IsEither("A", :Or = "^")' )
 	#--> TRUE
-	? Q("__---__").ContainsXT(:CharsW, 'Q(@Char).IsEither("_", :Or = "-")')
+/*	? Q("__---__").ContainsXT(:CharsW, 'Q(This[@i]).IsEither("_", :Or = "-")')
 	#--> TRUE
-	? Q("__---__").ContainsXT(:Chars, :Where = 'Q(@Char).IsEither("_", :Or = "-")')
+	? Q("__---__").ContainsXT(:Chars, :Where = 'Q(This[@i]).IsEither("_", :Or = "-")')
 	#--> TRUE
-	? Q("__---__").ContainsXT(:Chars, Where(' Q(@Char).IsEither("_", :Or = "-") ') )
+	? Q("__---__").ContainsXT(:Chars, Where(' Q(This[@i]).IsEither("_", :Or = "-") ') )
 	#--> TRUE
-	? Q("__---__").ContainsXT(:Chars, W('Q(@Char).IsEither("_", :Or = "-")'))
+	? Q("__---__").ContainsXT(:Chars, W('Q(This[@i]).IsEither("_", :Or = "-")'))
 	#--> TRUE
-
+*/
 #NOTE: Conditional code will be quicker if you replace Q(@Char) with Q(This[@i])
 
 StopProfiler()
-# Executed in 0.41 second(s) in Ring 1.20
+# Executed in 0.35 second(s) in Ring 1.20
 # Executed in 0.44 second(s) in Ring 1.19
 
 /*------
