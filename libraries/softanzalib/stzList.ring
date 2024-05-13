@@ -29213,14 +29213,27 @@ class stzList from stzObject
 			return This.IsSorted()
 
 	def IsSortedInAscending()
-		/*
-		The idea is to sort a copy of the list in ascending order
-		and then compare the copy to the original list...
-		If they are identical, then the list is sorted in ascending order!
-		*/
 
-		aSortedInAscending = This.Copy().SortedInAscending()
-		bResult = This.IsIdenticalTo(aSortedInAscending)
+		# The idea is to sort a copy and then compare
+		# it to the original content
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aSorted = @SortList(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			cItem   = @@(aContent[i])
+			cSorted = @@(aSorted[i])
+
+			if cItem != cSorted
+				bResult = FALSE
+				exit
+			ok
+		next
+
 		return bResult
 
 		def ItemsAreSortedInAscending()
@@ -29233,14 +29246,23 @@ class stzList from stzObject
 			return This.IsSortedInAscending()
 
 	def IsSortedInDescending()
-		/*
-		The idea is to sort a copy of the list in descending order
-		and then compare the copy to the original list...
-		If they are identical, then the list is sorted in descending order!
-		*/
+		aContent = This.Content()
+		nLen = len(aContent)
 
-		aSortedInDescending = This.Copy().SortedInDescending()
-		bResult = This.IsIdenticalTo(aSortedInDescending)
+		aSorted = ring_reverse( @SortList(aContent) )
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			cItem   = @@(aContent[i])
+			cSorted = @@(aSorted[i])
+
+			if cItem != cSorted
+				bResult = FALSE
+				exit
+			ok
+		next
+
 		return bResult
 
 		def ItemsAreSortedInDescending()

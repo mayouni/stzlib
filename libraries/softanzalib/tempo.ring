@@ -2791,7 +2791,60 @@ o1.SortInDescending()
 proff()
 # Executed in 0.05 second(s)
 
-/*----------------
+/*---------------- #perf
+
+pron()
+
+# Let's construct a list of pairs of 20_000 items
+# Softanza takes 30 seconds to sort it
+
+aList = [ [4, 7], [3, 1], [8, 9], [6, 7 ] ]
+aLarge = []
+for i = 1 to 5_000
+	for j = 1 to 4
+		aLarge + aList[j]
+	next
+next
+
+
+@SortList(aLarge)
+
+proff()
+# Executed in 30.36 second(s)
+
+/*---------------- #perf
+
+pron()
+
+# Softanza check if a list of lists made of 20_000 items
+# is sorted or not in 29 second(s)
+
+aList = [ [4, 7], [3, 1], [8, 9], [6, 7 ] ]
+aLarge = []
+for i = 1 to 5_000
+	for j = 1 to 4
+		aLarge + aList[j]
+	next
+next
+
+o1 = new stzList(aLarge)
+? o1.IsSortedUp()
+
+proff()
+# Executed in 26.46 second(s)
+
+/*-----------------
+
+pron()
+
+o1 = new stzListOfPairs([ [1,3], [4, 7], [8, 9] ])
+? o1.IsSortedInAscending()
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-----------------
 */
 pron()
 
@@ -2800,12 +2853,8 @@ o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 ? o1.IsSortedInAscending()
 #--> FALSE
 
-o1 = new stzListOfPairs([ [1,3], [4, 7], [8, 9] ])
-? o1.IsSortedInAscending()
-#--> TRUE
-
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.03 second(s)
 
 /*----------------
 
