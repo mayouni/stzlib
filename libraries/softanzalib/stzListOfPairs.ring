@@ -507,13 +507,34 @@ class stzListOfPairs from stzListOfLists
 	#==========================================#
 
 	def IsSortedInAscending()
-		oCopy = This
-		oCopy.SortInAsending()
-		if oCopy.IsEqualTo(This.Content())
-			return TRUE
-		else
-			return FALSE
-		ok
+
+		# The idea is to sort a copy and then compare
+		# it to the original content
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aSorted = @SortList(aContent)
+
+		# We stringiy the items of the list of pairs and
+		# the itmes of the sorted copy to enabble the
+		# their comparison using the != operator
+
+		acContentStringified = This.ItemsStringified()
+		acSortedStringified = StzListOfPairsQ(aSorted).ItemsStringified()
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if (acSortedStringified[i][1] != acContentStringified[i][1]) or
+			   (acSortedStringified[i][2] != acContentStringified[i][2])
+
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
 
 		def IsSorted()
 			return This.IsSortedInAscending()
@@ -555,13 +576,33 @@ class stzListOfPairs from stzListOfLists
 	#-------------------------------------------#
 
 	def IsSortedInDescending()
-		oCopy = This
-		oCopy.SortInDesending()
-		if oCopy.IsEqualTo(This.Content())
-			return TRUE
-		else
-			return FALSE
-		ok
+		# The idea is to sort a copy and then compare
+		# it to the original content
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aSorted = ring_reverse( @SortList(aContent) )
+
+		# We stringiy the items of the list of pairs and
+		# the itmes of the sorted copy to enabble the
+		# their comparison using the != operator
+
+		acContentStringified = This.ItemsStringified()
+		acSortedStringified = StzListOfPairsQ(aSorted).ItemsStringified()
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if (acSortedStringified[i][1] != acContentStringified[i][1]) or
+			   (acSortedStringified[i][2] != acContentStringified[i][2])
+
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
 
 		def IsSortedDown()
 			return This.IsSortedInDescending()

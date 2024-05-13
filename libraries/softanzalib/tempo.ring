@@ -2007,7 +2007,7 @@ Proff()
 # Executed in 0.04 second(s)
 
 /*------------ #perf
-*/
+
 #TODO: Check performance! Rethink the subStrings() design
 #UPDATE: done! After redesigning SubStrings() function,
 # performance of the following sample went down
@@ -2037,12 +2037,12 @@ StartProfiler()
 	
 		AddXT("g", :After = "programmin") # You can use :To instead of :After
 		? Content()
-		#--> Ring programming guage.
+		#--> Ring programming language.
 	
 	}
 
 StopProfiler()
-#--> Ring programming Language.
+# Executed in 0.02 second(s)
 
 /*-----------
 
@@ -2185,7 +2185,7 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.06 second(s)
+# Executed in 0.04 second(s)
 
 /*-----------------
 
@@ -2197,9 +2197,9 @@ StartProfiler()
 		? Content()
 		#--> __/♥\__/♥\__/♥\__
 	}
-	# Executed in 0.05 second(s)
 	
 StopProfiler()
+# # Executed in 0.25 second(s)
 
 /*-----------------
 
@@ -2213,7 +2213,7 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.05 second(s)
+# Executed in 0.04 second(s)
 
 /*-----------------
 
@@ -2227,7 +2227,7 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.06 second(s)
+# Executed in 0.04 second(s)
 
 /*-----------------
 
@@ -2241,7 +2241,7 @@ StartProfiler()
 	}
 	
 StopProfiler()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s)
 
 #=======
 
@@ -2252,7 +2252,7 @@ o1 = new stzList(1:8)
 #--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ] ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*--------
 
@@ -2365,7 +2365,7 @@ o1.RemoveSections([])
 #--> <<<word>>>
 
 proff()
-# Executed in 0.01 second(s)
+# Executed in 0.02 second(s)
 
 /*---------
 
@@ -2415,7 +2415,7 @@ o1.RemoveSection(5, 999_996)
 #--> [ 1, 2, 3, 4, 999_997, 999_998, 999_999, 1_000_000 ]
 
 proff()
-# Executed in 0.38 second(s)
+# Executed in 0.30 second(s)
 
 /*--------- #perf
 
@@ -2427,7 +2427,7 @@ o1.RemoveSection(1, 1_000_000)
 #--> [ ]
 
 proff()
-# Executed in 0.47 second(s)
+# Executed in 0.30 second(s)
 
 /*---------
 
@@ -2461,9 +2461,10 @@ pron()
 o1 = new stzString("word>>>")
 o1.RemoveSections([ [ ], [ 5, 7 ] ])
 ? o1.Content()
-#--> ERR: Incorrect param type! paSections must be a list of pairs of numbers.
+#--> word
 
 proff()
+# Executed in 0.02 second(s)
 
 /*---------
 
@@ -2484,10 +2485,10 @@ pron()
 o1 = new stzString("<<<word")
 o1.RemoveSections([ [ 1, 3 ], [ ] ])
 ? o1.Content()
-#--> ERR: Incorrect param type! paSections must be a list of pairs of numbers.
+#--> word
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
 
 /*---------
 
@@ -2501,7 +2502,7 @@ o1.RemoveSection(1, 3)
 proff()
 # Executed in 0.05 second(s)
 
-/*---------
+/*--------- #narration
 
 pron()
 
@@ -2521,21 +2522,16 @@ o1 = new stzString("<<<word>>>")
 ? @@( o1.Bounds() )
 #--> [ "<<<", ">>>" ]
 
-proff()
-# Executed in 0.02 second(s)
-
-/*---------
-
-pron()
+# And when there's no leading and trailing chars (both), so
+# the first and last chars are considered bounds ~> removed
 
 o1 = new stzString("word>>>")
-o1.RemoveBounds() # There's no leading and trailing chars (both), so
-		  # the first and last chars are considered bound ~> removed
+o1.RemoveBounds() # T
 ? o1.Content()
 #--> ord>>
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.04 second(s)
 
 /*--------
 
@@ -2556,7 +2552,7 @@ o1.RemoveBounds() # First and last chars are considered the bounds ~> removed
 #--> ord>>
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*--------
 
@@ -2580,7 +2576,7 @@ o1.RemoveLastBound() # Or o1.RemovesecondBound()
 #--> <<<word
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*--------
 
@@ -2595,7 +2591,7 @@ o1 = new stzString("<<<word>>> <<word>> <word>")
 #--> [ ">>>", ">>", ">" ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.03 second(s)
 
 /*------
 
@@ -2619,7 +2615,7 @@ o1.RemoveBoundsOf("word")
 #--> word word word
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s)
 
 /*---------
 
@@ -2670,7 +2666,7 @@ o1.SwapSections([1, 3], [8, 10]) # or o1.SwapSections([8, 10], [1, 3])
 #--> [ "<", "<", "<", "w", "o", "r", "d", ">", ">", ">" ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.04 second(s)
 
 /*---------
 
@@ -2754,7 +2750,7 @@ o1.ReplaceSections(
 #--> *** ABC *** DEF
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 /*----------------
 
@@ -2771,17 +2767,17 @@ o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 proff()
 # Executed in 0.03 second(s)
 
-/*----------------
+/*=============
 
 pron()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [9, 8] ])
 o1.SortInAscending()
 ? @@( o1.Content() )
-#--> [ [ 1, 3 ], [ 4, 7 ], [ 8, 9 ] ]
+#--> [ [ 3, 1 ], [ 4, 7 ], [ 9, 8 ] ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.04 second(s)
 
 /*----------------
 
@@ -2790,16 +2786,17 @@ pron()
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
 o1.SortInDescending()
 ? @@( o1.Content() )
-#--> [ [ 9, 8 ], [ 7, 4 ], [ 3, 1 ] ]
+#--> [ [ 8, 9 ], [ 4, 7 ], [ 3, 1 ] ]
 
 proff()
 # Executed in 0.05 second(s)
 
 /*----------------
-
+*/
 pron()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
+
 ? o1.IsSortedInAscending()
 #--> FALSE
 
