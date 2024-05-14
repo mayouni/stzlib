@@ -330,7 +330,7 @@ proff()
 # Executed in 0.17 second(s) in Ring 1.17
 
 /*=============
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -363,9 +363,9 @@ o1 = new stzTable([
 #--> [1, 2]
 
 proff()
-# Executed in 0.21 second(s)
+# Executed in 0.09 second(s)
 
-/*-------------  #TODO: ERR Check underline
+/*-------------
 
 pron()
 
@@ -381,16 +381,16 @@ o1 = new stzTable([
 o1.RemoveRow(3)
 
 o1.Show()
-#--> COL1   COL2   COL3
-#    ------ ------- ------
-#       10     100    1000
-#       20     200    2000
-#       30     300    3000
+#-->   COL1   COL2   COL3
+#    ------ ------ ------
+#       10     100   1000
+#       20     200   2000
+#       30     300   3000
 
 proff()
-# Executed in 0.31 second(s)
+# Executed in 0.12 second(s)
 
-/*------------- #TODO: ERR Check underline
+/*-------------
 
 pron()
 
@@ -408,17 +408,17 @@ o1 = new stzTable([
 o1.RemoveRows([3, 5, 6])
 
 o1.Show()
-#--> COL1   COL2   COL3
+#-->   COL1    COL2   COL3
 #    ------ ------- ------
 #       10     100    1000
 #       20     200    2000
 #       30     300    3000
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.12 second(s)
 
 /*-------------
-
+*/
 pron()
 
 o1 = new stzTable([
