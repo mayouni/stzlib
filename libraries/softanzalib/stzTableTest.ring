@@ -261,7 +261,7 @@ proff()
 # Executed in 0.09 second(s)
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -326,10 +326,11 @@ o1 = new stzTable([
 #--> [ 3 ]
 
 proff()
-# Executed in 0.17 second(s)
+# Executed in 0.06 second(s) in Ring 1.20
+# Executed in 0.17 second(s) in Ring 1.17
 
 /*=============
-
+*/
 pron()
 
 o1 = new stzTable([

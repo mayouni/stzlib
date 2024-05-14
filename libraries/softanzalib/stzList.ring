@@ -38524,7 +38524,8 @@ class stzList from stzObject
 			ok
 		ok
 
-		aItems = Q(paItems).RemoveDuplicatesQ().Sorted()
+		aItems = U(paItems)
+		aItems = paItems
 		nLen = len(aItems)
 
 		anResult = []
