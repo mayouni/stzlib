@@ -10132,8 +10132,7 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		anPos = anPos = FindRowsExcept(panRows)
-
+		anPos = This.FindRowsExcept(panRows)
 		This.RemoveRows(anPos)
 
 		#< @FunctionAlternativeForms
@@ -10154,12 +10153,16 @@ Class stzTable from stzObject
 	#=====================#
 
 	def Erase()
-		#NOTE: Only data in cells is erased, columns and
+		#NOTE
+		# Only data in cells is erased, columns and
 		# rows remain as they are!
 
-		for line in This.Table()
-			for cell in line[2]
-				cell = NULL
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			nLenLine = len(@aContent[i][2])
+			for j = 1 to nLenLine
+				@aContent[i][2][j] = NULL
 			next
 		next
 
