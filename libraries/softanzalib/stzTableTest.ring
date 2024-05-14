@@ -178,7 +178,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*------
-*/
+
 pron()
 
 o1 = new stzList([ "A", "B", "C", "D", "E" ])
@@ -192,28 +192,33 @@ o1.ReplaceManyByManyXT([ "A", "B", "A", "D", "E" ], :With = [ "1", "2"])
 proff()
 # Executed in 0.09 second(s)
 
-/*=============  #TODO: ERR Check underline
+/*=============
 
 pron()
 
 o1 = new stzTable([
-	[ :name, :age, :score ],
+	[ :NAME, :AGE, :SCORE ],
 	[ "sam", 24,   10     ],
 	[ "dan", 36,   20     ],
 	[ "tom", 43,   30     ]
 ])
 
 o1.Show()
+#-->
+#	NAME   AGE   SCORE
+#	----- ----- ------
+#	 sam    24      10
+#	 dan    36      20
+#	 tom    43      30
 
-? o1.FindColsExcept([ :name, :score ])
-#--> NAME   AGE   SCORE
-#    ------ ------ -------
-#    sam     24       10
-#    dan     36       20
-#    tom     43       30
+? ""
 
-o1.RemoveCols([ 2 ])
+? @@( o1.FindColsExcept([ :NAME, :SCORE ]) )
+#--> [ 2 ]
 
+? ""
+
+o1.RemoveCol(2)
 o1.Show()
 #--> :NAME   :SCORE
 #    ------ -------
@@ -221,8 +226,59 @@ o1.Show()
 #    dan       20
 #    tom       30
 
+? ""
+
+o1.RemoveCols([ 1, 2 ])
+o1.Show() + NL
+
+#--> COL1
+#    ----
+#      ""
+
 proff()
-# Executed in 0.72 second(s)
+# Executed in 0.19 second(s)
+
+/*-------------
+
+pron()
+
+o1 = new stzTable([
+	[ :NAME, :AGE, :SCORE ],
+	[ "sam", 24,   10     ],
+	[ "dan", 36,   20     ],
+	[ "tom", 43,   30     ]
+])
+
+o1.RemoveCols([1, 2])
+o1.Show()
+#--> SCORE
+#    -----
+#       10
+#       20
+#       30
+
+proff()
+# Executed in 0.09 second(s)
+
+/*-------------
+*/
+pron()
+
+o1 = new stzTable([
+	[ :NAME, :AGE, :SCORE ],
+	[ "sam", 24,   10     ],
+	[ "dan", 36,   20     ],
+	[ "tom", 43,   30     ]
+])
+
+o1.RemoveAll()
+o1.Show()
+#--> COL1
+#    ----
+#      ""
+
+proff()
+# Executed in 0.07 second(s)
 
 /*=============
 

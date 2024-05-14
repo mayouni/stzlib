@@ -599,7 +599,7 @@ load "stzlib.ring"
 */		StzStringQ("hello!") {
 			EnforceConstraint('@.IsLowercase')
 			# Try to break the law:
-			Update(:With = "HELLO!")
+			UpdateWith("HELLO!")
 			#--> Softanza complains and raises an error!
 		}
 
