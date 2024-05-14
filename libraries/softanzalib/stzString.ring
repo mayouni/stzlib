@@ -31246,7 +31246,7 @@ class stzString from stzObject
 	#-----------------------------------------------#
 
 	def AddSubString(pcSubStr)
-		This.Update( :With = This.Content() + pcSubStr )
+		This.UpdateWith( This.Content() + pcSubStr )
 
 	  #------------------------------------------#
 	 #  ADDING A CHAR AT THE END OF THE STRING  #

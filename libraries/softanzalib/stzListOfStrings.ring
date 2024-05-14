@@ -18098,7 +18098,7 @@ stop()
 	#-----------------------------------#
 
 	def ApplyLowercase()
-		This.Update( :With = This.Lowercased() )
+		This.UpdateWith( This.Lowercased() )
 
 		def ApplyLowercaseQ()
 			This.ApplyLowercase()
@@ -18123,7 +18123,7 @@ stop()
 	#-----------------------------------#
 
 	def ApplyUppercase()
-		This.Update( :With = This.Uppercased() )
+		This.UpdateWith( This.Uppercased() )
 
 		def ApplyUppercaseQ()
 			This.ApplyUppercase()

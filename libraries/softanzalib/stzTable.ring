@@ -9993,25 +9993,12 @@ Class stzTable from stzObject
 
 	def RemoveColumn(pColNameOrNumber)
 		if This.NumberOfCols() = 1
-			This.RenameFirstCol(:With = :COL1)
-			This.EraseCol(1)
+			@aContent = [ :COL1, NULL ]
 			return
 		ok
 
-		if isList(pColNameOrNumber)
-			This.RemoveColumns(pColNameOrNumber)
-			return
-		ok
-
-		if isString(pColNameOrNumber)
-			cColName = pColNameOrNumber
-
-		but isNumber(pColNameOrNumber)
-			cColName = This.ColName(pColNameOrNumber)
-		ok
-
-		aResult = This.ToStzHashList().RemoveByKeyQ(cColName).Content()
-		This.Update( :With = aResult )
+		nCol = This.ColToColNumber(pColNameOrNumber)
+		ring_remove(@aContent, nCol)
 
 		def RemoveCol(pColNameOrNumber)
 			This.RemoveColumn(pColNameOrNumber)
@@ -10021,14 +10008,16 @@ Class stzTable from stzObject
 	#------------------------------#
 
 	def RemoveColumns(paColNamesOrNumbers)
-		paColNamesOrNumbers = StzListQ(paColNamesOrNumbers).DuplicatesRemoved()
+		anColNumbers = ring_sort( U(This.TheseColsToColNumbers(paColNamesOrNumbers)) )
+		nLen = len(anColNumbers)
 
-		aColNames = This.TheseColsToColNames(paColNamesOrNumbers)
-		nLen = len(aColNames)
-
-		for i = 1 to nLen
-			This.RemoveCol(aColNames[i])
+		for i = nLen to 1 step -1
+			ring_remove(@aContent, anColNumbers[i])
 		next
+
+		if len(@aContent) = 0
+			@aContent = [ :COL1 = [ NULL ] ]
+		ok
 
 		def RemoveCols(pColNamesOrNumbers)
 			This.RemoveColumns(pColNamesOrNumbers)
@@ -10073,6 +10062,19 @@ Class stzTable from stzObject
 			This.RemoveAllColsExcept(panRow)
 
 		#>
+
+	  #---------------------------------------------#
+	 #  REMOVING ALL THE COLUMNS AND ALL THE ROWS  #
+	#=============================================#
+
+	def RemoveAll()
+		@aContent = [ :COL1 = [ NULL ] ]
+
+		def RemoveAllCols()
+			This.RemoveAll()
+
+		def RemoveAllColumns()
+			This.RemoveAll()
 
 	  #------------------------#
 	 #  REMOVING A GIVEN ROW  #

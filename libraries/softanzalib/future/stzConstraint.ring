@@ -25,7 +25,7 @@
 			EnforceConstraint('{ @.IsUppercase }')
 
 			# Try to break the law:
-			Update(:With = "HELLO!")
+			UpdateWith("HELLO!")
 
 			#--> Softanza complains and raises an error!
 		}
