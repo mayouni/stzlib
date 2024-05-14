@@ -1,5 +1,48 @@
 load "stzlib.ring"
 
+/*========== #narration
+*/
+pron()
+
+# The function Size() has a generic meaning in Softanza.
+# Hence, it can be used with all types of objects.
+
+# Let's take the case of a stzNumber object.
+
+? Q(12602).Size()
+#--> 5
+
+# Means that 12605 is made of 5 chars.
+
+? Q(12.602).Size()
+#--> 5
+
+# Here we get 5 but normally we should count the "." char and get 6!
+
+# In fact, the value of number 12.602 (as any number in Ring) is
+# influenced by the current round active in Ring...
+
+? CurrentRound()
+#--> 2
+
+# Son 12.602 is'n actually 12.602 but is rounded by default de 2 decimals
+
+? 12.602
+#--> 12.60
+
+# Tou fet all the chars forming  the number 12.602, including the "." char,
+# we should set the round to 3 using this function:
+
+SetRound(3)
+
+# And now, we get the 6 we wait for:
+
+? Q(12.602).Size()
+#--> 6
+
+proff()
+# Executed in 0.02 second(s)
+
 /*==========
 
 pron()

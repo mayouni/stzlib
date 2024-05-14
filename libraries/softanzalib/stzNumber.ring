@@ -885,6 +885,9 @@ func SetActiveRound(n)
 
 	func SetStzRound(n)
 		SetActiveRound(n)
+
+	func SetRound(n)
+		SetActiveRound(n)
 	
 func StzRound(p)
 
@@ -1440,7 +1443,7 @@ class stzNumber from stzObject
 				ok
 			ok
 
-		# Case where a pair is provided
+		# Case 3 where a pair is provided
 		but isPair(pNumber)
 
 			if NOT @IsNumberOrString(pNumber[1])
@@ -1586,6 +1589,9 @@ class stzNumber from stzObject
 		# Returning the string form of the number
 
 		return @cNumber
+
+		def StringValueQ()
+			return new stzString( This.StringValue() )
 
 	  #------------------------------------#
 	 #  CHECKING IF THE NUMBER IS A CHAR  #
