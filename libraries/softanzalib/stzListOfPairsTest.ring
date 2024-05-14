@@ -539,11 +539,13 @@ o1 = new stzListOfPairs([
 ])
 
 o1.ToStzHashList().Show()
-#--> 'name': [ "foued" ]
-#    'lastname': [ "kamel" ]
-#    'job': [ "manufacturer" ]
+#-->
+#	 NAME   LASTNAME            JOB   AGE
+#	-----   --------   ------------   ---
+#	foued      kamel   manufacturer   120
 
 proff()
+# Executed in 0.14 second(s)
 
 /*-------
 

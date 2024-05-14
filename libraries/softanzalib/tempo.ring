@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*========== #narration
-*/
+
 pron()
 
 # The function Size() has a generic meaning in Softanza.
@@ -41,7 +41,7 @@ SetRound(3)
 #--> 6
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.05 second(s)
 
 /*==========
 
