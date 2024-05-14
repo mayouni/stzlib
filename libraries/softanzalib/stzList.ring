@@ -7509,8 +7509,9 @@ class stzList from stzObject
 				n++
 				if n > nLenNewItems
 					n = 1
+				else
+					aNewItems + paNewItems[n]
 				ok
-				aNewItems + paNewItems[n]
 			next
 		else
 			aNewItems = []
@@ -7519,7 +7520,7 @@ class stzList from stzObject
 			next
 		ok
 
-		# Calling the noral function
+		# Calling the normal function
 
 		This.ReplaceManyByManyCS(aItems, aNewItems, pCaseSensitive)
 

@@ -77,7 +77,6 @@ Class stzTable from stzObject
 		#--> Creates an empty table with just a column and a row
 		#TODO: Review this choice!
 		#NOTE: I forgot why ;(
-		#TODO: In the future leave a comment for the human history!
 
 		# Way 2: new stzTable([3, 4])
 		#--> Creates a tale of 3 columns and 4 rows, all cells are empty
@@ -170,7 +169,7 @@ Class stzTable from stzObject
 			insert(paTable, 0, acColNames)
 			This.Init(paTable)
 			return
-		
+
 		but Q(paTable).IsHashList()
 		# Way 5: The table is provided in the same format of how
 		# it is implemented in this class: a hashlist.
@@ -188,7 +187,6 @@ Class stzTable from stzObject
 		# 	1     Ali   Programmer    35000
 		# 	2   Dania      Manager    50000
 		# 	3     Han       Doctor    62500
-
 
 			# We need a supplemenatary check here of the case
 			# where the values of the hashlist are not list
@@ -10940,69 +10938,8 @@ Class stzTable from stzObject
 	
 		ok
 
-		n = This.FindCol(pCol)
+		/* ... */ #TODO
 
-		if This.RowQ(n).IsMadeOfNumbersOrStrings()
-
-			aResult = ring_sort2( This.Rows(), n )
-			if pcDirection = :InDescending
-				aResult = ring_reverse(aResult)
-			ok
-? ElapsedTime()
-			This.ReplaceRows(aResult)
-
-		else
-
-		ok
-/*
-		# STEP 1: Moving the column used in the sort at the first position
-		# while memorising its position (because we will move it back later)
-
-		nInitialColPos = This.ColToNumber(pCol)
-		This.MoveCol(pCol, :To = :FirstPosition)
-
-		# STEP 2: Turn the rows into a list of strings and sort them using
-		# the stzListOfStrings sorting service
-
-		ocRows = This.RowsQ()//.StringifyQ()//.ToStzListOfStrings()
-
-		if pcDirection = :Ascending or pcDirection = :InAscending
-			ocRows.SortInAscending()
-
-		but pcDirection = :Descending or pcDirection = :InDescending
-			ocRows.SortInDescending()
-		ok
-
-		acRows = ocRows.Content()
-		#--> [
-		# 	[ "R1", "a" ],
-		# 	[ "R1", "b" ],
-		# 	[ "R2", "ab" ],
-		# 	[ "R3", "abc" ],
-		# 	[ "R4", "abcd" ],
-		# 	[ "R5", "abcde" ]
-		#   ]
-
-		nLen = len(acRows)
-
-		# STEP 3: Turning the list of strings into rows by evaluation
-
-		aRows = []
-		for i = 1 to nLen
-			cCode = 'aRow = ' + acRows[i]
-			eval(cCode)
-			aRows + aRow
-		next
-
-		# STEP 4: Updating the table with these rows
-
-		This.ReplaceRows(:With = aRows)
-
-		# STEP 5: Moving back the column used in sorting to its
-		# initial position in the table
-
-		This.MoveCol(1, :ToPosition = nInitialColPos)
-*/
 		#< @FunctionFluentForm
 
 		def SortXTQ(pCol, pcDirection)
@@ -11691,7 +11628,7 @@ Class stzTable from stzObject
 			acAdjustedCols + acCurrentColAdjusted
 	
 		next
-		
+
 		# Putting the adjusted cells in a stzTable object
 
 		nLast = len(acAdjustedCols[1])
@@ -11729,6 +11666,8 @@ Class stzTable from stzObject
 
 		# Constructing the underline
 
+		nStart = 1
+
 		if bUnderlineHeader
 			cUnderline = ""
 			for i = 1 to nCols
@@ -11739,11 +11678,12 @@ Class stzTable from stzObject
 			next
 
 			cString += (NL + cUnderline)
+			nStart = 2
 		ok
 
 		# Constructing the rows
 
-		for j = 2 to nRows
+		for j = nStart to nRows
 			cRow = ""
 			if bShowRowNumbers
 				cRow += acRowNumbersAdjusted[j] + cSeparator
