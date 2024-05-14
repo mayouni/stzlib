@@ -5834,3 +5834,44 @@ class stzObject
 
 		def OccursForTheLastTimeAt(pIn, pnAt)
 			return This.OccursForTheLastTime(pIn, pnAt)
+
+	  #---------------------------------------------------------------#
+	 #  GETTING THE SIZE OF THE OBJECT ~> THE SIZE OF ITS CONTENT()  #
+	#---------------------------------------------------------------#
+
+	def Size()
+		aContent = This.Content()
+		nResult = 0
+
+		if isNumber(aContent)
+			nResult = StzNumberQ(aContent).Size()
+
+		but isString(aContent)
+			nResult = StzStringQ(aContent).Size()
+
+		but isList(aContent)
+			nResult = StzListQ(aContent).Size()
+
+		ok
+
+		return nResult
+
+	def SizeInBytes()
+		aContent = This.Content()
+		nResult = 0
+
+		if isNumber(aContent)
+			nResult = StzNumberQ(aContent).SizeInBytes()
+
+		but isString(aContent)
+			nResult = StzStringQ(aContent).SizeInBytes()
+
+		but isList(aContent)
+			nResult = StzListQ(aContent).SizeInBytes()
+
+		ok
+
+		return nResult
+
+		def HowManyBytes()
+			return SizeInBytes()

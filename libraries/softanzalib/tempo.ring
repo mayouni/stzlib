@@ -2845,7 +2845,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzListOfPairs([ [4, 7], [3, 1], [8, 9] ])
@@ -2869,7 +2869,7 @@ o1 = new stzListOfPairs([ [9,8], [7,4], [3,1] ])
 #--> TRUE
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.03 second(s)
 
 /*----------------
 
@@ -2988,7 +2988,7 @@ pron()
 
 o1 = new stzString("AB♥CD♥EF♥GH")
 
-? @@( o1.Split("♥") )
+? @@( o1.SplitAt("♥") )
 #--> [ "AA", "CD", "EF", "GH" ]
 
 ? @@( o1.SplitAfter("♥") )
@@ -3028,9 +3028,9 @@ o1 = new stzString("ABCDE")
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
-/*================ LEADING AND TRAILING CHARS
+/*================ REPEATED LEADING AND TRAILING CHARS
 
 pron()
 
@@ -3042,7 +3042,10 @@ o1 = new stzString("<<<word>>>")
 ? o1.NumberOfLeadingChars()
 #--> 3
 
-? o1.LeadingChars() + NL
+? o1.LeadingChars()
+#--> [ "<", "<", "<" ]
+
+? o1.LeadingCharsAsString()
 #--> "<<<"
 
 #--
@@ -3054,6 +3057,9 @@ o1 = new stzString("<<<word>>>")
 #--> 3
 
 ? o1.TrailingChars()
+#--> [ ">", ">", ">" ]
+
+? o1.TrailingCharsAsString()
 #--> ">>>"
 
 proff()
@@ -3191,7 +3197,7 @@ o1.SwapBounds()
 #--> <<word>>
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*--------------
 

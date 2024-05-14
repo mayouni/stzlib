@@ -3974,16 +3974,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def Show()
 		This.ToStzTable().Show()
-/*
-		cStr = ""
-		for i = 1 to This.NumberOfPairs()
-			cStr += "'" + This.NthKey(i) + "'" + ": " + @@(This.NthValue(i))
-			if i < This.NumberOfPairs()
-				cStr += NL
-			ok
-		next
-		? cStr
-*/
+
 		#< @FuntionMisspelledForm
 
 		def Shwo()
