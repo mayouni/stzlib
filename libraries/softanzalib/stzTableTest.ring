@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*--------------------
-*/
+
 pron()
 
 StzTableQ([
@@ -48,19 +48,134 @@ proff()
 
 pron()
 
-o1 = new stzTable([ [ "I", 1 ], [ AHeart(), 2 ], [ "Ring", 3 ], [ "Language", 4 ] ])
+o1 = new stzTable([
+	:col1 = [ "I", 1 ],
+	:col2 = [ AHeart(), 2 ],
+	:col3 = [ "Ring", 3 ],
+	:col4 = [ "Language", 4 ]
+])
 
+o1.Showxt([ :underlineheader = false ])
+#-->
+#	COL1 | COL2 | COL3 |     COL4
+#	   I |    ♥ | Ring | Language
+#	   1 |    2 |    3 |        4
+
+? ""
+
+o1.ShowXT([ :UnderlineHeader = TRUE ])
+#-->
+# COL1 | COL2 | COL3 |     COL4
+# -----------------------------
+#   I |    ♥ | Ring | Language
+#   1 |    2 |    3 |        4
+
+? ""
+
+o1.ShowXT([ :IntersectionChar = "+" ])
+#-->
+# COL1 | COL2 | COL3 |     COL4
+# -----+------+------+---------
+#   I |    ♥ | Ring | Language
+#   1 |    2 |    3 |        4
+
+proff()
+# Executed in 0.28 second(s)
+
+/*--------------------
+
+pron()
+
+o1 = new stzTable([
+	[ "I", 		1, 	11, 	111 ],
+	[ AHeart(), 	2, 	22, 	222 ],
+	[ "Ring", 	3, 	33, 	333 ],
+	[ "Language", 	4, 	44, 	444 ]
+])
+
+o1.ShowXT([ :UnderLineHeader = TRUE, :InterSectionChar = "+" ])
+#-->
+#	    COL1 | COL2 | COL3 | COL4
+#	---------+------+------+-----
+#	       I |    1 |   11 |  111
+#	       ♥ |    2 |   22 |  222
+#	    Ring |    3 |   33 |  333
+#	Language |    4 |   44 |  444
+
+proff()
+# Executed in 0.21 second(s)
+
+/*--------------------
+
+pron()
+
+o1 = new stzTable([
+	:col1 = [ "I", 1 ],
+	:col2 = [ AHeart(), 2 ],
+	:Col3 = [ "Ring", 3 ],
+	:Col4 = [ "Language", 4 ]
+])
+
+? o1.Show()
+#-->
+#	COL1   COL2   COL3       COL4
+#	----- ------ ------ ---------
+#	  I      ♥   Ring   Language
+#	  1      2      3          4
+
+proff()
+# Executed in 0.12 second(s)
+
+/*--------------------
+
+pron()
+
+o1 = new stzTable([ [ 10, "ten" ], [ 20, "twenty" ] ])
 o1.Show()
-#--> I   ♥   RING   LANGUAGE
-#    --- ---- ------- ----------
-#    1   2      3          4
+#-->
+#	COL1     COL2
+#	----- -------
+#	  10      ten
+#	  20   twenty
 
+proff()
+# Executed in 0.10 second(s)
+
+/*--------------------
+
+pron()
+
+o1 = new stzTable([
+	[ "I", 1 ],
+	[ AHeart(), 2 ],
+	[ "Ring", 3 ],
+	[ "Language", 4 ]
+])
+
+o1.ShowXT([ :UnderlineHeader = FALSE ])
+#-->
+# I | ♥ | RING | LANGUAGE
+# 1 | 2 |    3 |        4
+
+proff()
+# Executed in 0.09 second(s)
+
+/*--------------------
+
+pron()
+
+o1 = new stzTable([
+	[ "I", 1 ],
+	[ AHeart(), 2 ],
+	[ "Ring", 3 ],
+	[ "Language", 4 ]
+])
 
 ? o1.Rows()
 #--> [ 1, 2, 3, 4 ]
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.02 second(s)
 
 /*------
 */
