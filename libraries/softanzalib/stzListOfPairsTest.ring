@@ -274,7 +274,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*---------------
-*/
+
 pron()
 
 aLists = [
@@ -299,7 +299,7 @@ aLists = [
 # ]
 
 proff()
-# Executed in 0.01 second(s)
+# Executed in 0.03 second(s)
 
 /*======= SortLists()
 
@@ -309,13 +309,21 @@ pron()
 # then the lists are sorted by size
 
 ? @@( SortLists([ [ 1, 2, 3 ], [ 5, 6, 7, 8 ], [ 1 ] ]) )
-#--> [ [ 1 ], [ 1, 2, 3 ], [ 5, 6, 7, 8 ] ]
+#--> [
+#	[ 1 ],
+#	[ 1, 2, 3 ],
+#	[ 5, 6, 7, 8 ]
+# ]
 
 ? @@( SortLists([ [ "K", "L", "M" ], [ "G" ], [ "W", "N" ] ]) )
-#--> [ [ "G" ], [ "W", "N" ], [ "K", "L", "M" ] ]
+#--> [
+#	[ "G" ],
+#	[ "W", "N" ],
+#	[ "K", "L", "M" ]
+# ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.04 second(s)
 
 /*---------------
 
@@ -334,18 +342,12 @@ pron()
 #	[ 1, 2, 3 ],
 #	[ 5, 6, 7, 8 ],
 #	[ "G" ],
-#	[ "W", "N" ],
-#	[ "K", "L", "M" ]
+#	[ "K", "L", "M" ],
+#	[ "W", "N" ]
 # ]
 
 proff()
-# Executed in 0.02 second(s)
-
-/*---------------
-
-pron()
-
-proff()
+# Executed in 0.04 second(s)
 
 /*---------------
 
@@ -369,38 +371,31 @@ aLists = [
 #	[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ]
 # ]
 
-? @@NL( ListsBySize(aLists) )
-#--> [
-#	[ 4, [ [ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ] ] ],
-#	[ 2, [ [ [ "B", "C", "D" ], [ 12 ] ] ] ],
-#	[ 3, [ [ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ] ] ]
-# ]
-
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.04 second(s)
 
 /*-------------------
 
 pron()
 
-? IshybridList([ 10, [ "B", "C", "D" ], [ 12 ] ])
+? IsHybridList([ 10, [ "B", "C", "D" ], [ 12 ] ])
 #--> TRUE
 
 ? IsHybridList([ "A", [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ])
 #--> TRUE
 
 ? IsHybridList([ "B":"D", [12] ])
-#--> TRUE
+#--> FALSE
 
 ? IsListOfHybridLists([
 	[ 10, [ "B", "C", "D" ], [ 12 ] ],
 	[ "B":"D", [12] ],
 	[ "A", [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ]
 ])
-#--> TRUE
+#--> FALSE
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*-------------------
 
@@ -417,11 +412,26 @@ aLists = [
 ? IsListOfHybridLists(aLists)
 #--> FALSE
 
-? IsHybridList([ 10:12, 3:5, "A":"C", [5] ])
+? @@( Types(aLists) )
+#--> [ "LIST", "LIST", "LIST" ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*-------------------
+
+pron()
+
+aList = [ 10:12, 3:5, "A":"C", [5] ]
+
+? IsHybridList(aList)
 #--> FALSE
 
-? IsPureList([ 10:12, 3:5, "A":"C", [5] ])
-#--> TRUE	(all items are of type LIST
+? IsPureList(aList)
+#--> TRUE
+
+? @@( Types(alist) )
+#--> [ "LIST", "LIST", "LIST", "LIST" ]
 
 proff()
 # Executed in 0.02 second(s)
@@ -437,177 +447,31 @@ pron()
 #--> [ "NUMBER", "NUMBER", "LIST" ])
 
 proff()
-# Executed in 0.01 second(s)
-
-/*-------------------
-*/
-pron()
-
-aLists = [
-	[ 10:12, 3:5, "A":"C", [5] ], 	# a pure list made of 4 LISTS
-
-	[ "A":"B", "C":"D" ],
-	[ 3:5, 10:12, 14:15, [20] ],
-
-	[ "B":"D", [12] ],		# a pure list made of 2 LISTS
-
-	[ 7, 2, [ "B":"D", 10, 8 ] ]	# a hybrid list made of 2 NUMBERS and 1 LIST
-]
-
-? @@NL( SortLists(aLists) ) + NL
-#--> [
-#	[ [ "B", "C", "D" ], [ 12 ] ],
-#	[ [ "A", "B" ], [ "C", "D" ] ],
-#	[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
-#	[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ],
-#	[ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ]
-# ]
-
-? @@NL( SortListsByType(aLists) ) + NL
-#--> [
-#	[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ],
-#	[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
-
-#	[ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ],
-
-#	[ [ "B", "C", "D" ], [ 12 ] ],
-#	[ [ "A", "B" ], [ "C", "D" ] ]
-# ]
-
-? @@NL( ListsByType(aLists) ) + NL
-#--> [
-#	[ "3333",
-#		[ [ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
-#		[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ] ]
-#	],
-
-#	[ "__33",
-#		[ [ [ "A", "B" ], [ "C", "D" ] ],
-#		[ [ "B", "C", "D" ], [ 12 ] ] ]
-#	],
-
-#	[ "_003",
-#		[ [ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ] ]
-#	]
-# ]
-
-? @@NL( SortedListsByType(aLists) )
-#--> [
-#	[ "3333",
-#		[ [ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
-#		[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ] ]
-#	],
-
-#	[ "_003",
-#		[ [ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ] ]
-#	],
-
-#	[ "__33",
-#		[ [ [ "A", "B" ], [ "C", "D" ] ], [ [ "B", "C", "D" ], [ 12 ] ] ]
-#	]
-# ]
-
-proff()
-# Executed in 0.06 second(s)
-
-/*-------------------
-*/
-pron()
-
-aLists = [
-	[ 10:12, 3:5, "A":"C", [5] ],
-
-	[ "A":"B", "C":"D" ],
-	[ 3:5, 10:12, 14:15, [20] ],
-
-	[ "B":"D", [12] ],
-
-	[ 7, 2, [ "B":"D", 10, 8 ] ]
-]
-
-? @@NL( SortListsBySize(aLists) ) + NL
-# [
-#	[ [ "B", "C", "D" ], [ 12 ] ],
-#	[ [ "A", "B" ], [ "C", "D" ] ],
-#	[ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ],
-#	[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
-#	[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ]
-# ]
-
-? @@NL( ListsBySize(aLists) ) + NL
-# [
-#	[ 4, [ 
-#		[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
-#		[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ]
-#	     ]
-#	],
-
-#	[ 2, [
-#		[ [ "A", "B" ], [ "C", "D" ] ],
-#		[ [ "B", "C", "D" ], [ 12 ] ]
-#	     ]
-#	],
-
-#	[ 3, [
-#		[ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ]
-#	     ]
-#	]
-# ]
-
-? @@NL( SortedListsBySize(aLists) )
-#--> [
-#	[ 2, [
-#		[ [ "A", "B" ], [ "C", "D" ] ],
-#		[ [ "B", "C", "D" ], [ 12 ] ]
-#	     ]
-#	],
-
-#	[ 3, [
-#		[ 7, 2, [ [ "B", "C", "D" ], 10, 8 ] ]
-#	     ]
-#	],
-
-#	[ 4, [
-#		[ [ 10, 11, 12 ], [ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
-#		[ [ 3, 4, 5 ], [ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ]
-#	     ]
-#	]
-# ]
-
-proff()
 # Executed in 0.02 second(s)
 
-/*========
+/*-------------------
 
 pron()
 
 aLists = [
-	[ "Dog", 	370,	"white",	TRUE	],
-	[ "Fox", 	120,	"blue",		FALSE	],
-	[ "Charlie", 	1:3,	"white" 		],
-	[ "Baker",	493 				],
-	[ "Easy", 	5:8 				],
-	[ "Alpha",	 45,	"green" 		],
-	[ "King", 	[1]				]
+	[ 10:12, 	3:5, 		"A":"C", 		[5] 		], 	
+	[ "A":"B", 	"C":"D" 						],
+	[ 3:5,		10:12,	 	14:15, 			[20] 		],
+	[ "B":"D", 	[12] ],		
+	[ 7, 		2,		[ "B":"D", 10, 8 ] 			]
 ]
 
-? @@( @SortList( StzListOfListsQ(aLists).NthCol(2) ) ) + NL
-
-//? @@SP( SortListsOn(aLists, 2) )
+? @@NL( SortLists(aLists) ) + NL # Or SortOn(aList, 1)
 #--> [
-#	[ "Charlie", 	[ 1, 2, 3 ], 	"white" ],
-#	[ "Fox",	120, 		"blue", 	0 ],
-#	[ "Alpha", 	45, 		"green" ],
-#	[ "Baker", 	493 ],
-#	[ "King", 	[ 1 ] ],
-#	[ "Dog", 	370, 		"white", 1 ],
-#	[ "Easy", 	[ 5, 6, 7, 8 ] ]
+#	[ 7, 			2, [ [ "B", "C", "D" ], 10, 8 ] 	],
+#	[ [ "A", "B" ], 	[ "C", "D" ] ],
+#	[ [ "B", "C", "D" ], 	[ 12 ] ],
+#	[ [ 10, 11, 12 ], 	[ 3, 4, 5 ], [ "A", "B", "C" ], [ 5 ] ],
+#	[ [ 3, 4, 5 ], 		[ 10, 11, 12 ], [ 14, 15 ], [ 20 ] ]
 # ]
 
 proff()
-
-
-
+# Executed in 0.03 second(s)
 
 /*-------
 
@@ -623,20 +487,20 @@ o1 = new stzListOfpairs([
 
 ? @@NL( o1.SortedOn(1) ) + NL # Or just Sorted()
 #--> [
-#	[ "ahmed", 14000 ],
-#	[ "ibrahim", 11000 ],
-#	[ "mahmoud", 15000 ],
-#	[ "mohammed", 12000 ],
-#	[ "samir", 16000 ]
+#	[ "ahmed", 	14000 ],
+#	[ "ibrahim", 	11000 ],
+#	[ "mahmoud", 	15000 ],
+#	[ "mohammed", 	12000 ],
+#	[ "samir", 	16000 ]
 # ]
 
 ? @@NL( o1.SortedOn(2) )
 #--> [
-#	[ "ibrahim", 11000 ],
-#	[ "mohammed", 12000 ],
-#	[ "ahmed", 14000 ],
-#	[ "mahmoud", 15000 ],
-#	[ "samir", 16000 ]
+#	[ "ibrahim", 	11000 ],
+#	[ "mohammed", 	12000 ],
+#	[ "ahmed", 	14000 ],
+#	[ "mahmoud", 	15000 ],
+#	[ "samir", 	16000 ]
 # ]
 
 proff()
@@ -657,18 +521,21 @@ o1.MergeInclusive()
 #--> [ [ 4, 6 ], [ 10, 11 ], [ 12, 22 ] ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.04 second(s)
 
 #NOTE
 # The code of the function has been generated (mostly) by Gemini AI
 # using the fellowing prompts : https://g.co/gemini/share/2ecc1b47c465*
 
 /*-------
-
+ */
 pron()
 
 o1 = new stzListOfPairs([
-	[ "name", "foued" ], [ "lastname", "kamel" ], [ "job", "manufacturer" ]
+	[ "name", "foued" ],
+	[ "lastname", "kamel" ],
+	[ "job", "manufacturer" ],
+	[ "age", 120 ]
 ])
 
 o1.ToStzHashList().Show()
@@ -1050,7 +917,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*------------
-*/
+
 pron()
 
 o1 = new stzListOfPairs([

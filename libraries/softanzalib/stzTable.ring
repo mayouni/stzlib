@@ -11467,7 +11467,8 @@ Class stzTable from stzObject
 		*/
 
 		# Accelerating access using just one option provided in a string
-		# inclunding when no option is provided at all --> ShowXT(NULL) or ShowXT([])
+		# inclunding when no option is provided at all
+		#--> ShowXT(NULL) or ShowXT([])
 
 		if isString(paOptions)
 			if isNull(paOptions)
@@ -11662,8 +11663,12 @@ Class stzTable from stzObject
 		# Adjusting the widths of all cells
 
 		for i = 1 to nLen
-
+			
 			acCurrentColAdjusted = This.ColQ(i).Stringified() + (This.ColName(i))
+
+			# inserting the underline string in the header
+			cUnderline = StzStringQ("-").RepeatedNTimes( This.ColQ(i).MaxSize() )
+			ring_insert(acCurrentColAdjusted, 1, cUnderline)
 
 			oListOfStr = new stzListOfStrings(acCurrentColAdjusted)
 			acCurrentColAdjusted = oListOfStr.AdjustedTo(cAlignment)
@@ -11706,7 +11711,7 @@ Class stzTable from stzObject
 				cString += cSeparator
 			ok
 		next
-
+/*
 		# Underlining the header
 
 		cUnderLine = ""
@@ -11714,6 +11719,8 @@ Class stzTable from stzObject
 
 		if bUnderLineHeader or
 		   ( isString(pUnderLineHeader) and pUnderLineHeader = NULL and cUnderLineChar != NULL)
+
+			cString += (NL + cUnderLine)
 
 			cSep = oUnderLineChar.RepeatedNTimes( Q(cSeparator).NumberOfChars() )
 			cSep = Q(cSep).ReplaceMiddleCharQ(cIntersectionChar).Content()
@@ -11734,9 +11741,9 @@ Class stzTable from stzObject
 			next
 
 			cString += (NL + cUnderLine)
-			
+		
 		ok
-
+*/
 		# Constructing the rows
 
 		for j = 1 to nRows

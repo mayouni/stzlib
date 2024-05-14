@@ -18,6 +18,25 @@ func StzListQ(paList)
 
 #===
 
+func Types(paList)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	acResult = []
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		acResult + type(paList[i])
+	next
+
+	return acResult
+
+	func @Types(paList)
+		return Types(paList)
+
 func SortListsBySize(paLists)
 	if CheckParam()
 		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
@@ -5158,6 +5177,17 @@ class stzList from stzObject
 	
 		def HowManyItemU()
 			return This.NumberOfItemsU()
+
+	  #-----------------------------------------#
+	 #  GETTING THE SIZE OF THE LIST IN BYTES  #
+	#-----------------------------------------#
+	#TODO
+
+	def SizeInBytes()
+		StzRaise("Unavailable feature in this version!")
+
+		def HownManyBytes()
+			return This.SizeInBytes()
 
 	  #-----------------------------#
 	 #  GETTING THE LIST OF ITEMS  #
@@ -45360,6 +45390,108 @@ class stzList from stzObject
 			return This.EndsWithAObject()
 
 		#>
+
+	  #==============================================#
+	 #  GETTING THE SIZES OF THE ITEMS OF THE LIST  #
+	#==============================================#
+
+	def Sizes()
+		nLen = len(@aContent)
+		anResult = []
+
+		for i = 1 to nLen
+			nSize = 0
+
+			if isNumber(@aContent[i])
+				nSize = StzNumberQ(@aContent[i]).
+					StringValueQ().NumberOfChar()
+
+			but isString(@aContent[i])
+				oQString = new qstring2()
+				oQString.append(@aContent[i])
+				nSize = oQString.count()
+
+			but isList(@aContent[i])
+				nSize = len(@aContent[i])
+
+			else
+				if @IsStzObject(@aContent[i])
+					nSize = @aContent[i].Size()
+				ok
+			ok
+
+			anResult + nSize
+		next
+
+		return anResult
+
+	def MaxSize()
+		anSizes = This.Sizes()
+		nLen = len(anSizes)
+
+		# Early checks
+
+		if nLen = 0
+			return 0
+		but nLen = 1
+			return anSizes[1]
+		ok
+
+		# Doing the job
+
+		nResult = 0
+		anSeen = []
+
+		for i = 2 to nLen
+			if ring_find(anSeen, anSizes[i]) > 0
+				loop
+			ok
+
+			anSeen + anSizes[i]
+
+			if anSizes[i] > anSizes[i-1]
+				nResult = anSizes[i]
+			ok
+		next
+
+		return nResult
+
+		def LargestSize() # Note this is different from LargestItem()
+			return This.MaxSize()
+
+	def MinSize()
+		anSizes = This.Sizes()
+		nLen = len(anSizes)
+
+		# Early checks
+
+		if nLen = 0
+			return 0
+		but nLen = 1
+			return anSizes[1]
+		ok
+
+		# Doing the job
+
+		nResult = 0
+		anSeen = []
+
+		for i = 2 to nLen
+			if ring_find(anSeen, anSizes[i]) > 0
+				loop
+			ok
+
+			anSeen + anSizes[i]
+
+			if anSizes[i] < anSizes[i-1]
+				nResult = anSizes[i]
+			ok
+		next
+
+		return nResult
+
+		def SmallestSize() # Note this is different from SmallestItem()
+			return This.MinSize()
 
 	  #==========================================#
 	 #  SMALLEST AND LARGEST ITEMS IN THE LIST  #
