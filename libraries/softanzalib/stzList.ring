@@ -45404,7 +45404,7 @@ class stzList from stzObject
 
 			if isNumber(@aContent[i])
 				nSize = StzNumberQ(@aContent[i]).
-					StringValueQ().NumberOfChar()
+					StringValueQ().NumberOfChars()
 
 			but isString(@aContent[i])
 				oQString = new qstring2()
@@ -45426,68 +45426,14 @@ class stzList from stzObject
 		return anResult
 
 	def MaxSize()
-		anSizes = This.Sizes()
-		nLen = len(anSizes)
-
-		# Early checks
-
-		if nLen = 0
-			return 0
-		but nLen = 1
-			return anSizes[1]
-		ok
-
-		# Doing the job
-
-		nResult = 0
-		anSeen = []
-
-		for i = 2 to nLen
-			if ring_find(anSeen, anSizes[i]) > 0
-				loop
-			ok
-
-			anSeen + anSizes[i]
-
-			if anSizes[i] > anSizes[i-1]
-				nResult = anSizes[i]
-			ok
-		next
-
+		nResult = @Max(This.Sizes())
 		return nResult
 
 		def LargestSize() # Note this is different from LargestItem()
 			return This.MaxSize()
 
 	def MinSize()
-		anSizes = This.Sizes()
-		nLen = len(anSizes)
-
-		# Early checks
-
-		if nLen = 0
-			return 0
-		but nLen = 1
-			return anSizes[1]
-		ok
-
-		# Doing the job
-
-		nResult = 0
-		anSeen = []
-
-		for i = 2 to nLen
-			if ring_find(anSeen, anSizes[i]) > 0
-				loop
-			ok
-
-			anSeen + anSizes[i]
-
-			if anSizes[i] < anSizes[i-1]
-				nResult = anSizes[i]
-			ok
-		next
-
+		nResult = @Min(This.Sizes())
 		return nResult
 
 		def SmallestSize() # Note this is different from SmallestItem()

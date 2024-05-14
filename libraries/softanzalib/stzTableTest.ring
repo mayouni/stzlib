@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-/*-------------------- #TODO: Check output error
+/*--------------------
 */
 pron()
 
@@ -12,19 +12,18 @@ StzTableQ([
 	[ '•', 'HavingQ'	, 'stzListOfStrings' ],
 	[ ' ', 'AllTheirQ'	, 'stzListOfStrings' ]
 
-]).ShowXT([ :UnderLineChar = "-" ])
+]).ShowXT([ :IntersectionChar = "+" ])
 
-#!--> ERROR in the underline (incorrectly adjusted)
 #-->
-#	M | FUNCTION |          OBJECT
-#	---+-----------+--------
-#	   |         Q |          stzList
-#	   |  AreBothQ | stzListOfStrings
-#	 • |   HavingQ | stzListOfStrings
-#	   | AllTheirQ | stzListOfStrings
+#	M |  FUNCTION |           OBJECT
+#	--+-----------+-----------------
+#	  |         Q |          stzList
+#	  |  AreBothQ | stzListOfStrings
+#	• |   HavingQ | stzListOfStrings
+#	  | AllTheirQ | stzListOfStrings
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.15 second(s)
 
 /*--------------------
 

@@ -11620,7 +11620,11 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! You must provide a string in :UnderLineChar = ...")
 		ok
 
-		if cUnderLineChar = NULL
+		if cUnderLineChar != NULL
+			bUnderLineHeader = TRUE
+		ok
+
+		if bUnderLineHeader = TRUE and cUnderLineChar = ""
 			cUnderLineChar = "-"
 		ok
 
@@ -11632,8 +11636,15 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! You must provide a string in :InterSectionChar = ...")
 		ok
 
-		if cInterSectionChar = NULL
-			cInterSectionChar = "+"
+		if cInterSectionChar != NULL
+			bUnderLineHeader = TRUE
+			if cUnderLineChar = ""
+				cUnderLineChar = "-"
+			ok
+			cInterSectionChar = cUnderLineChar + cInterSectionChar + cUnderLineChar
+
+		else
+			cInterSectionChar = "---"
 		ok
 
 		#--
@@ -11663,12 +11674,16 @@ Class stzTable from stzObject
 		# Adjusting the widths of all cells
 
 		for i = 1 to nLen
-			
-			acCurrentColAdjusted = This.ColQ(i).Stringified() + (This.ColName(i))
 
-			# inserting the underline string in the header
-			cUnderline = StzStringQ("-").RepeatedNTimes( This.ColQ(i).MaxSize() )
-			ring_insert(acCurrentColAdjusted, 1, cUnderline)
+			cName = This.ColName(i)
+			acCurrentColAdjusted = This.ColQ(i).Stringified() + cName
+
+			if bUnderLineHeader and cUnderLineChar != ""
+				oColXT = This.ColQ(i).AddItemQ(cName)
+	
+				cUnderline = StzStringQ(cUnderLineChar).RepeatedNTimes( oColXT.MaxSize() )
+				ring_insert(acCurrentColAdjusted, 1, cUnderline)
+			ok
 
 			oListOfStr = new stzListOfStrings(acCurrentColAdjusted)
 			acCurrentColAdjusted = oListOfStr.AdjustedTo(cAlignment)
@@ -11711,42 +11726,24 @@ Class stzTable from stzObject
 				cString += cSeparator
 			ok
 		next
-/*
-		# Underlining the header
 
-		cUnderLine = ""
-		oUnderLineChar = Q(cUnderlineChar)
+		# Constructing the underline
 
-		if bUnderLineHeader or
-		   ( isString(pUnderLineHeader) and pUnderLineHeader = NULL and cUnderLineChar != NULL)
-
-			cString += (NL + cUnderLine)
-
-			cSep = oUnderLineChar.RepeatedNTimes( Q(cSeparator).NumberOfChars() )
-			cSep = Q(cSep).ReplaceMiddleCharQ(cIntersectionChar).Content()
-
-			if bShowRowNumbers
-				cUnderLine = oUnderLineChar.
-					     RepeatedNTimes( Q(acRowNumbersAdjusted[1]).NumberOfChars() ) + cSep
-
-			ok
-
-			for i = 1 to nLen
-				cUnderLine += oUnderLineChar.
-				RepeatedNTimes( This.ColNameQ(i).NumberOfChars() )
-
-				if i < nLen
-					cUnderLine += cSep
+		if bUnderlineHeader
+			cUnderline = ""
+			for i = 1 to nCols
+				cUnderline += oTable.Cell(i, 1)
+				if i < nCols
+					cUnderline += cInterSectionChar
 				ok
 			next
 
-			cString += (NL + cUnderLine)
-		
+			cString += (NL + cUnderline)
 		ok
-*/
+
 		# Constructing the rows
 
-		for j = 1 to nRows
+		for j = 2 to nRows
 			cRow = ""
 			if bShowRowNumbers
 				cRow += acRowNumbersAdjusted[j] + cSeparator
