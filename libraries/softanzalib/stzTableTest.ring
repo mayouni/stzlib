@@ -460,7 +460,7 @@ o1 = new stzTable([
 	[ "*",	    "*",      "*"   ]
 ])
 
-? o1.FindRowsExcept([ 1, 2, 3 ])
+? o1.FindRowsExceptAt([ 1, 2, 4 ])
 #--> [ 3, 5, 6 ]
 
 ? o1.FindRowsExcept([
