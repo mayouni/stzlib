@@ -459,7 +459,7 @@ o1 = new stzTable([
 	[ "*",	    "*",      "*"   ],
 	[ "*",	    "*",      "*"   ]
 ])
-
+/*
 ? o1.FindRowsExceptAt([ 1, 2, 4 ])
 #--> [ 3, 5, 6 ]
 
@@ -469,7 +469,7 @@ o1 = new stzTable([
 	[ 30,	    300,      3000  ]
 ])
 #--> [ 3, 5, 6 ]
-
+*/
 ? ""
 
 o1.RemoveAllRowsExcept([
@@ -479,7 +479,7 @@ o1.RemoveAllRowsExcept([
 ]) # Or RemoveRowsOtherThan()
 
 o1.Show()
-#--> COL1   COL2   COL3
+#-->  COL1    COL2   COL3
 #    ------ ------- ------
 #       10     100    1000
 #       20     200    2000

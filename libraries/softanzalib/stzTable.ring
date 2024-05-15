@@ -10334,6 +10334,7 @@ Class stzTable from stzObject
 	#---------------------------#
 
 	def RemoveNthRows(panRows)
+
 		if CheckParams()
 			if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
 				StzRaise("Incorrect param type! panRows must be a list of numbers.")
@@ -10413,12 +10414,12 @@ Class stzTable from stzObject
 		ok
 
 		if @IsListOfNumbers(pRowsOrRowsNumbers)
-			anPos = This.FindRowsExceptAt(pRowsOrRowsNumbers)
 			This.RemoveRowsAt(pRowsOrRowsNumbers)
 
 		else // @IsListOfLists(pRowsOrRowsNumbers)
+
 			anPos = This.FindRowsExceptThese(pRowsOrRowsNumbers)
-			This.RemoveRowsAt(pRowsOrRowsNumbers)
+			This.RemoveRowsAt(anPos)
 		ok
 
 
