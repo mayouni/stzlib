@@ -1389,7 +1389,7 @@ Dotless LETTERS
 		return acResult
 
 	func CommonLanguagesInScripts(pacScripts)
-		if NOT isList(pacScripts) and Q(pacScripts).IsListOfStrings()
+		if NOT ( isList(pacScripts) and Q(pacScripts).IsListOfStrings() )
 			StzRaise("Incorrect param type! pacScripts must be a list of strings.")
 		ok
 
@@ -1407,7 +1407,7 @@ Dotless LETTERS
 		return StzLangaugeQ(pcLang).Scripts()
 
 	func CommonScriptsForLanguages(pacLangs)
-		if NOT isList(pacLangs) and Q(pacLangs).IsListOfStrings()
+		if NOT ( isList(pacLangs) and Q(pacLangs).IsListOfStrings() )
 			StzRaise("Incorrect param type! pacLangs must be a list of strings.")
 		ok
 

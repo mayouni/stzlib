@@ -38140,7 +38140,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		if CheckParams()
 
-			if NOT isList(paSections) and @IsListOfPairsOfNumbers(paSections)
+			if NOT ( isList(paSections) and @IsListOfPairsOfNumbers(paSections) )
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 
@@ -59847,7 +59847,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 					p1 = aTemp	
 				ok
 
-				if NOT isList(p1) and Q(p1).ISPairOfStrings()
+				if NOT ( isList(p1) and @IsPairOfStrings(p1) )
 					StzRaise("Incorrect param type! p1 must be a string or a pair of strings.")
 				ok
 
@@ -65701,7 +65701,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			n = This.NumberOfSubStrings()
 		ok
 
-		if NOT isNumber(n) and Q(n).IsBetween(1, This.NumberOfSubStrings())
+		if NOT ( isNumber(n) and Q(n).IsBetween(1, This.NumberOfSubStrings()) )
 			StzRaise("Can't extract! n outside of range.")
 		ok
 
@@ -66024,9 +66024,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	def ExtractSection(n1, n2)
 
 		if CheckParams()
-			if NOT Q([n1, n2]).BothAreNumbers() and
+			if NOT ( Q([n1, n2]).BothAreNumbers() and
 		   	Q(n1).IsBetween(1, This.NumberOfSubStrings()) and
-		   	Q(n2).IsBetween(1, This.NumberOfSubStrings())
+		   	Q(n2).IsBetween(1, This.NumberOfSubStrings()) )
 
 				StzRaise("Can't extract! The section is outside the string.")
 			ok

@@ -151,7 +151,7 @@ class stzListOfSubstringsCS
 	@pCaseSensitive
 
 	def init(paSections, pcStr, pCaseSensitive)
-		if NOT isList(paSections) and Q(paSections).IsListOfPairsOfNumbers()
+		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
