@@ -9540,13 +9540,27 @@ Class stzTable from stzObject
 	#==============================#
 
 	def ReplaceCol(pCol, paNewCol)
-		if isList(paNewCol) and
-		   Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
-			paNewCol = paNewCol[2]
+		if CheckParams()
+			if isList(paNewCol) and
+			   Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+				paNewCol = paNewCol[2]
+			ok
+	
+			if NOT isList(paNewCol)
+				StzRaise("Incorrect param type! paNewCol must be a list.")
+			ok
 		ok
 
-		aColCells = This.ColAsPositions(pCol) # or .CellsInColAsPositions()
-		This.ReplaceCells(aColCells, paNewCol)
+		cCol = This.ColToColName(pCol)
+		nLen = Min([ len(paNewCol), This.NumberOfRows() ])
+
+		if nLen = 0
+			return
+		ok
+
+		for j = 1 to nLen
+			@aContent[cCol][j] = paNewCol[j]
+		next
 
 		#< @FunctionAlternativeForms
 
@@ -9579,7 +9593,9 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		for i = 1 to This.NumberOfCols()
+		nLen = This.NumberOfCols()
+
+		for i = 1 to nLen
 			This.ReplaceCol(i, paNewCol)
 		next
 
@@ -9692,28 +9708,41 @@ Class stzTable from stzObject
 		aRowCells = This.RowAsPositions(pnRow)
 		This.ReplaceCellsByMany(aRowCells, paNewRow)
 
+
+		def ReplaceRowWith(pnRow, panNewRow)
+			This.ReplaceRow(pnRow, paNewRow)
+	
+		def ReplaceRowBy(pnRow, panNewRow)
+			This.ReplaceRow(pnRow, paNewRow)
+
 	# Replacing all the rows with the provided rows
 
-	def ReplaceAllRows(paNewRows)
-		if isList(paNewRows) and
-		   Q(paNewRows).IsOneOfTheseNamedParams([ :With, :By, :Using ])
-			paNewRows = paNewRows[2]
+	def ReplaceAllRows(paNewRow)
+		if isList(paNewRow) and
+		   Q(paNewRow).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+			paNewRow = paNewRow[2]
 		ok
 
-		if NOT isList(paNewRows) 
-			StzRaise("Incorrect param type! paNewRows must be a list.")
+		if NOT isList(paNewRow) 
+			StzRaise("Incorrect param type! paNewRow must be a list.")
 		ok
 
-? ElapsedTime()
-		nLen = Min([ len(paNewRows), len(@aContent) ])
+		nLen = len(@aContent)
 
 		for i = 1 to nLen
-			@aContent[i][2] = paNewRows[i]
+			@aContent[i][2] = paNewRow
 		next
 
 
-		def ReplaceRows(paNewRows)
-			This.ReplaceAllRows(paNewRows)
+		def ReplaceRows(paNewRow)
+			This.ReplaceAllRows(paNewRow)
+
+		def ReplaceRowsWith(paNewRow)
+			This.ReplaceAllRows(paNewRow)
+	
+		def ReplaceRowsBy(paNewRow)
+			This.ReplaceAllRows(paNewRow)
+
 
 	#TODO: Add  ReplaceAllRowsXT(paNewRows)
 	#--> when all the provided rows are used --> restart from the 1st one
@@ -9725,6 +9754,13 @@ Class stzTable from stzObject
 
 		aCells = This.CellsInTheseRowsAsPositions(paRows)
 		This.ReplaceCells(aCells, paNewrows)
+
+
+		def ReplaceTheseRowsWith(paRows, paNewRows)
+			This.ReplaceTheseRows(paRows, paNewRows)
+
+		def ReplaceTheseRowsBy(paRows, paNewRows)
+			This.ReplaceTheseRows(paRows, paNewRows)
 
 	#TODO: Add  ReplaceThesesRowsXT()
 	#--> when all the provided rows are used --> restart from the 1st one
