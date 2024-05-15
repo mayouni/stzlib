@@ -1005,24 +1005,24 @@ Class stzTable from stzObject
 		def FindManyRows(paRows)
 			return This.FindRows(paRows)
 
-	  #--------------------------------------------#
-	 #  FINDINING ROWS OTHER THAN THOSE PROVIDED  #
-	#--------------------------------------------#
+	  #------------------------------------------------------------------#
+	 #  FINDINING ROWS OTHER THAN THOSE PROVIDED - AS ROWS OR POSITIONS #
+	#------------------------------------------------------------------#
 
 	def FindRowsExceptCS(paRows, pCaseSensitive)
-
-		anPos = This.FindRowsCS(paRows, pCaseSensitive)
-		nRows = This.NumberOfRows()
-
-		anResult = []
-
-		for i = 1 to nRows
-			if ring_find(anPos, i) = 0 and ring_find(anResult, i) = 0
-				anResult +i
+		if CheckParams()
+			if NOT isList(paRows) and ( @IsListOfNumbers(paRows) or @IsListOfLists(paRows) ) 
+				StzRaise("Incorrect param type! paRows must be a list of numbers or a list of lists.")
 			ok
-		next
+		ok
 
-		return anResult
+		if @IsListOfNumbers(paRows)
+			return This.FindRowsExceptAtCS(paRows, pCaseSensitive)
+
+		else // @IsListOfLists
+			return This.FindRowsExceptTheseCS(paRows, pCaseSensitive)
+		ok
+
 
 		def FindAllRowsExceptCS(paRows, pCaseSensitive)
 			return This.FindRowsExceptCS(paRows, pCaseSensitive)
@@ -1041,6 +1041,47 @@ Class stzTable from stzObject
 		def FindRowsOtherThan(paRows)
 			return This.FindRowsExcept(paRows)
 
+	  #------------------------------------------------------#
+	 #  FINDINING ROWS OTHER THAN THOSE PROVIDED (AS ROWS)  #
+	#------------------------------------------------------#
+
+	def FindRowsExceptTheseCS(paRows, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isList(paRows) and @IsListOfLists(paRows) )
+				StzRaise("Incorrect param type! paRows must be a list of lists.")
+			ok
+		ok
+
+		anPos = This.FindRowsCS(paRows, pCaseSensitive)
+		nRows = This.NumberOfRows()
+
+		anResult = []
+
+		for i = 1 to nRows
+			if ring_find(anPos, i) = 0 and ring_find(anResult, i) = 0
+				anResult +i
+			ok
+		next
+
+		return anResult
+
+		def FindAllRowsExceptTheseCS(paRows, pCaseSensitive)
+			return This.FindRowsExceptTheseCS(paRows, pCaseSensitive)
+
+		def FindRowsOtherThanTheseCS(paRows, pCaseSensitive)
+			return This.FindRowsExceptTheseCS(paRows, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRowsExceptThese(paRows)
+		return This.FindRowsExceptTheseCS(paRows, TRUE)
+
+		def FindAllRowsExceptThese(paRows)
+			return This.FindRowsExceptThese(paRows)
+
+		def FindRowsOtherThanThese(paRows)
+			return This.FindRowsExceptThese(paRows)
+
 	  #-----------------------------------------------------------#
 	 #  FINDINING ROWS OTHER THAN THOSE PROVIDED (َAS POSITIONS)  #
 	#-----------------------------------------------------------#
@@ -1057,36 +1098,36 @@ Class stzTable from stzObject
 		anResult = []
 
 		for i = 1 to nRows
-			if ring_find(anPos, i) = 0 and ring_find(anResult, i) = 0
+			if ring_find(panRowNumbers, i) = 0 and ring_find(anResult, i) = 0
 				anResult + i
 			ok
 		next
 
 		return anResult
 
-		def FindAllRowsExceptAtCS(paRows, pCaseSensitive)
-			return This.FindRowsExceptAtCS(paRows, pCaseSensitive)
+		def FindAllRowsExceptAtCS(panRowNumbers, pCaseSensitive)
+			return This.FindRowsExceptAtCS(panRowNumbers, pCaseSensitive)
 
-		def FindRowsOtherThanPositionsCS(paRows, pCaseSensitive)
-			return This.FindRowsExceptAtCS(paRows, pCaseSensitive)
+		def FindRowsOtherThanPositionsCS(panRowNumbers, pCaseSensitive)
+			return This.FindRowsExceptAtCS(panRowNumbers, pCaseSensitive)
 
-		def FindAllRowsExceptAtPositionsCS(paRows, pCaseSensitive)
-			return This.FindRowsExceptAtCS(paRows, pCaseSensitive)
+		def FindAllRowsExceptAtPositionsCS(panRowNumbers, pCaseSensitive)
+			return This.FindRowsExceptAtCS(panRowNumbers, pCaseSensitive)
 
  
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindRowsExceptAt(paRows)
-		return This.FindRowsExceptAtCS(paRows, TRUE)
+	def FindRowsExceptAt(panRowNumbers)
+		return This.FindRowsExceptAtCS(panRowNumbers, TRUE)
 
-		def FindAllRowsExceptAt(paRows)
-			return This.FindRowsExceptAt(paRows)
+		def FindAllRowsExceptAt(panRowNumbers)
+			return This.FindRowsExceptAt(panRowNumbers)
 
-		def FindRowsOtherThanPositions(paRows)
-			return This.FindRowsExceptAt(paRows)
+		def FindRowsOtherThanPositions(panRowNumbers)
+			return This.FindRowsExceptAt(panRowNumbers)
 
-		def FindAllRowsExceptAtPosiitons(paRows)
-			return This.FindRowsExceptAt(paRows)
+		def FindAllRowsExceptAtPosiitons(panRowNumbers)
+			return This.FindRowsExceptAt(panRowNumbers)
 
 	  #===============================================#
 	 #   GETTING A COLUMN DATA (IN A LIST OF CELLS)  #
