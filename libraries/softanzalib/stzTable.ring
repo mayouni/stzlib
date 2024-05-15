@@ -9718,6 +9718,7 @@ Class stzTable from stzObject
 	# Replacing all the rows with the provided rows
 
 	def ReplaceAllRows(paNewRow)
+
 		if isList(paNewRow) and
 		   Q(paNewRow).IsOneOfTheseNamedParams([ :With, :By, :Using ])
 			paNewRow = paNewRow[2]
@@ -9727,10 +9728,13 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! paNewRow must be a list.")
 		ok
 
-		nLen = len(@aContent)
+		nLenCols = Min([ len(paNewRow), len(@aContent) ])
+		nLenRows = This.NumberOfRows()
 
-		for i = 1 to nLen
-			@aContent[i][2] = paNewRow
+		for i = 1 to nLenCols
+			for j = 1 to nLenRows
+				@aContent[i][2][j] = paNewRow[i]
+			next
 		next
 
 
