@@ -732,42 +732,46 @@ proff()
 # Executed in 0.98 second(s) in Ring 1.17
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzTable([2, 3])
 
 o1.Fill( :With = "." )
 
-? o1.Show() + NL
-#--> #   COL1   COL2
-#    1      .      .
-#    2      .      .
-#    3      .      .
+? o1.Show()
+#--> COL1   COL2
+#    ----- -----
+#      .      .
+#      .      .
+#      .      .
 
 o1.ReplaceCol(:COL2, :With = [ "+", "+" ])
 ? o1.Show()
-#--> #   COL1   COL2
-#    1      .      +
-#    2      .      +
-#    3      .      .
+#--> COL1   COL2
+#    ----- -----
+#       .      +
+#       .      +
+#       .      .
 
 o1.ReplaceCol(:COL2, :With = [ "+", "+", "+" ]) + NL
 ? o1.Show()
-#--> #   COL1   COL2
-#    1      .      +
-#    2      .      +
-#    3      .      +
+#--> COL1   COL2
+#    ----- -----
+#       .      +
+#       .      +
+#       .      +
 
 o1.ReplaceCol(:COL2, :With = [ "+", "+", "+", "+", "+" ])
 ? o1.Show()
-#--> #   COL1   COL2
-#    1      .      +
-#    2      .      +
-#    3      .      +
+#--> COL1   COL2
+#    ----- -----
+#       .      +
+#       .      +
+#       .      +
 
 proff()
-# Executed in 0.29 second(s) in Ring 1.20
+# Executed in 0.28 second(s) in Ring 1.20
 # Executed in 1.31 second(s) in Ring 1.17
 
 /*--------------
@@ -775,34 +779,41 @@ proff()
 pron()
 
 o1 = new stzTable([3, 3])
+
 o1.Fill( :With = "." )
-o1.Show() + NL
-#--> #   COL1   COL2   COL3
-#    1      .      .      .
-#    2      .      .      .
-#    3      .      .      .
+
+? o1.Show() + NL
+#--> COL1   COL2   COL3
+#    ----- ------ -----
+#       .      .      .
+#       .      .      .
+#       .      .      .
 
 o1.ReplaceAllCols(:With = [ "A", "B", "C" ])
 o1.Show()
-#--> #   COL1   COL2   COL3
-#    1      A      A      A
-#    2      B      B      B
-#    3      C      C      C
+#--> COL1   COL2   COL3
+#    ----- ------ -----
+#       A      A      A
+#       B      B      B
+#       C      C      C
 
 proff()
-# Executed in 1.02 second(s)
+# Executed in 0.21 second(s) in Ring 1.20
+# Executed in 1.02 second(s) in Ring 1.1è
 
 /*----------------
-
+*/
 pron()
 
 o1 = new stzTable([3, 3])
+
 o1.Fill( :With = "." )
-o1.Show()
-#--> #   COL1   COL2   COL3
-#    1      .      .      .
-#    2      .      .      .
-#    3      .      .      .
+? o1.Show()
+#--> COL1   COL2   COL3
+#    ----- ------ -----
+#       .      .      .
+#       .      .      .
+#       .      .      .
 
 o1.Fill( :WithRow = [ "A", "B" ] )
 o1.Show()
@@ -812,7 +823,8 @@ o1.Show()
 #    3      A      B      .
 
 proff()
-# Executed in 1.09 second(s)
+# Executed in 0.23 second(s) in Ring 1.20
+# Executed in 1.09 second(s) in Ring 1.17
 
 /*----------------
 
