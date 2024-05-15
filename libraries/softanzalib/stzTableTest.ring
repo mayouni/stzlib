@@ -391,6 +391,34 @@ proff()
 # Executed in 0.12 second(s)
 
 /*-------------
+*/
+pron()
+
+o1 = new stzTable([
+	[ :COL1,    :COL2,    :COL3 ],
+	#----------------------------#
+	[ 10,	    100,      1000  ],
+	[ 20,	    200,      2000  ],
+	[ "*",	    "*",      "*"   ],
+	[ 30,	    300,      3000  ]
+])
+
+? o1.FindRow([ "*", "*", "*" ])
+#--> [ 3 ]
+
+o1.RemoveRow([ "*", "*", "*" ])
+
+o1.Show()
+#-->   COL1   COL2   COL3
+#    ------ ------ ------
+#       10     100   1000
+#       20     200   2000
+#       30     300   3000
+
+proff()
+# Executed in 0.14 second(s)
+
+/*-------------
 
 pron()
 
@@ -432,7 +460,20 @@ o1 = new stzTable([
 	[ "*",	    "*",      "*"   ]
 ])
 
-o1.RemoveAllRowsExcept([1, 2, 4]) # Or RemoveRowsOtherThan()
+? o1.FindRowsExcept([
+	[ 10,	    100,      1000  ],
+	[ 20,	    200,      2000  ],
+	[ 30,	    300,      3000  ]
+])
+#--> [ 3, 5, 6 ]
+
+? ""
+
+o1.RemoveAllRowsExcept([
+	[ 10,	    100,      1000  ],
+	[ 20,	    200,      2000  ],
+	[ 30,	    300,      3000  ]
+]) # Or RemoveRowsOtherThan()
 
 o1.Show()
 #--> COL1   COL2   COL3

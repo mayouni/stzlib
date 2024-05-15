@@ -817,17 +817,49 @@ Class stzTable from stzObject
 	 #  FINING COLUMNS BY NAME EXPET THOSE PROVIDED  #
 	#===============================================#
 
-	def FindColsExcept(paCols)
+	def FindColsExceptAt(panColNumbers)
 		if CheckParams()
-			if NOT isList(paCols)
-				aTemp = []
-				aTemp + paCols
-				paCols = aTemp
+			if NOT ( isList(panColNumbers) and @IsListOfLists(panColNumbers) )
+				StzRaise("Incorrect param type! apnColNumbers must be a list of numbers.")
 			ok
 		ok
 
-		anResult = Q(1:This.NumberOfCols()) - These( This.FindCols(paCols) )
+		anColNumbers = U(panColNumbers)
+		nLen = len(@aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if ring_find(anColNumbers, i) = 0
+				anResult + i
+			ok
+		next
+
 		return anResult
+
+		def FindColumnsExceptAt(panColNumbers)
+			return This.FindColsExceptAt(panColNumbers)
+
+		def FindColsExceptPositions(panColNumbers)
+			return This.FindColsExceptAt(panColNumbers)
+
+		def FindColumnsExceptPositions(panColNumbers)
+			return This.FindColsExceptAt(panColNumbers)
+
+
+	def FindColsExcept(paColNumbersOrColNames)
+		if CheckParams()
+			if NOT isList(paColNumbersOrColNamesOrColData)
+				StzRaise("Incorrect param type! paColNumbersOrColNamesOrColData must be a list.")
+			ok
+
+			if NOT ( @IsListOfNumbers(paColNumbersOrColNamesOrColData) or
+				 @IsListOfStrings(paColNumbersOrColNamesOrColData) )
+				StzRaise("Incorrect param type! paColNumbersOrColNames must be a list of numbers or a list of strings.")
+			ok
+		ok
+
+		anResult = Q(1:This.NumberOfCols()) - These( This.FindCols(paColNumbersOrColNames) )
 
 		#< @FunctionAlternativeForms
 
@@ -979,8 +1011,16 @@ Class stzTable from stzObject
 
 	def FindRowsExceptCS(paRows, pCaseSensitive)
 
-		anResult = Q(1:This.NumberOfRows()) -
-			   These( This.FindRowsCS(paRows, pCaseSensitive) )
+		anPos = This.FindRowsCS(paRows, pCaseSensitive)
+		nRows = This.NumberOfRows()
+
+		anResult = []
+
+		for i = 1 to nRows
+			if ring_find(anPos, i) = 0 and ring_find(anResult, i) = 0
+				anResult +i
+			ok
+		next
 
 		return anResult
 
@@ -1000,6 +1040,53 @@ Class stzTable from stzObject
 
 		def FindRowsOtherThan(paRows)
 			return This.FindRowsExcept(paRows)
+
+	  #-----------------------------------------------------------#
+	 #  FINDINING ROWS OTHER THAN THOSE PROVIDED (َAS POSITIONS)  #
+	#-----------------------------------------------------------#
+
+	def FindRowsExceptAtCS(panRowNumbers, pCaseSensitive)
+		if CheckParams()
+			if NOT ( isList(panRowNumbers) and @IsListOfNumbers(panRowNumbers) )
+				StzRaise("Incorrect param type! panRowNumbers must be a list of numbers.")
+			ok
+		ok
+
+		nRows = This.NumberOfRows()
+
+		anResult = []
+
+		for i = 1 to nRows
+			if ring_find(anPos, i) = 0 and ring_find(anResult, i) = 0
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+		def FindAllRowsExceptAtCS(paRows, pCaseSensitive)
+			return This.FindRowsExceptAtCS(paRows, pCaseSensitive)
+
+		def FindRowsOtherThanPositionsCS(paRows, pCaseSensitive)
+			return This.FindRowsExceptAtCS(paRows, pCaseSensitive)
+
+		def FindAllRowsExceptAtPositionsCS(paRows, pCaseSensitive)
+			return This.FindRowsExceptAtCS(paRows, pCaseSensitive)
+
+ 
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRowsExceptAt(paRows)
+		return This.FindRowsExceptAtCS(paRows, TRUE)
+
+		def FindAllRowsExceptAt(paRows)
+			return This.FindRowsExceptAt(paRows)
+
+		def FindRowsOtherThanPositions(paRows)
+			return This.FindRowsExceptAt(paRows)
+
+		def FindAllRowsExceptAtPosiitons(paRows)
+			return This.FindRowsExceptAt(paRows)
 
 	  #===============================================#
 	 #   GETTING A COLUMN DATA (IN A LIST OF CELLS)  #
@@ -9991,6 +10078,23 @@ Class stzTable from stzObject
 	 #  REMOVING A COLUMN  #
 	#=====================#
 
+	def RemoveNthCol(n)
+		if This.NumberOfCols() = 1
+			@aContent = [ :COL1, NULL ]
+			return
+		ok
+
+		ring_remove(@aContent, n)
+	
+		def RemoveColAt(n)
+			This.RemoveNthCol(n)
+
+		def RemoveNthColumn(n)
+			This.RemoveNthCol(n)
+
+		def RemoveColumnAt(n)
+			This.RemoveNthCol(n)
+	
 	def RemoveColumn(pColNameOrNumber)
 		if This.NumberOfCols() = 1
 			@aContent = [ :COL1, NULL ]
@@ -10006,6 +10110,29 @@ Class stzTable from stzObject
 	  #------------------------------#
 	 #  REMOVING THE GIVEN COLUMNS  #
 	#------------------------------#
+
+	def RemoveColumnsAt(panColNumbers)
+		if CheckParams()
+			if NOT ( isList(panColNumbers) and @IsListOfNumbers(panColNumbers) )
+				StzRaise("Incorrect param type! panColNumbers must be a list of numbers.")
+			ok
+		ok
+
+		anColNumbers = ring_sort( U(TpaColNamesOrNumbers) )
+		nLen = len(anColNumbers)
+
+		for i = nLen to 1 step -1
+			ring_remove(@aContent, anColNumbers[i])
+		next
+
+		def RemoveColsAt(panColNumbers)
+			This.RemoveColumnsAt(panColNumbers)
+
+		def RemoveNthCols(panColNumbers)
+			This.RemoveColumnsAt(panColNumbers)
+
+		def RemoveNthColumns(panColNumbers)
+			This.RemoveColumnsAt(panColNumbers)
 
 	def RemoveColumns(paColNamesOrNumbers)
 		anColNumbers = ring_sort( U(This.TheseColsToColNumbers(paColNamesOrNumbers)) )
@@ -10025,6 +10152,50 @@ Class stzTable from stzObject
 	  #--------------------------------------------------#
 	 #  REMOVING ALL THE COLUMNS EXCEPT THOSE PROVIDED  #
 	#--------------------------------------------------#
+
+	def RemoveAllColsExceptAt(panColNumbers)
+		This.RemoveAllColsExcept(paColNumbers)
+
+		#< @FunctionAlternativeForms
+
+		def RemoveColsExceptPositions(panColNumbers)
+			This.RemoveAllColsExceptAt(panColNumbers)
+
+		def RemoveColumnsExceptPositions(panColNumbers)
+			This.RemoveAllColsExceptAt(panColNumbers)
+
+		def RemoveAllColsExceptPositions(panColNumbers)
+			This.RemoveAllColsExceptAt(panColNumbers)
+
+		def RemoveAllColumnsExceptPositions(panColNumbers)
+			This.RemoveAllColsExceptAt(panColNumbers)
+
+		#--
+
+		def RemoveColsExceptAt(panColNumbers)
+			This.RemoveAllColsExceptAt(panColNumbers)
+
+		def RemoveAllColsOtherThanPositions(panColNumbers)
+			This.RemoveAllColsExceptAt(panColNumbers)
+
+		def RemoveColsOtherThanPositions(panColNumbers)
+			This.RemoveAllColsExceptAt(panColNumbers)
+
+		#--
+
+		def RemoveAllColumnsExceptAt(panColNumbers)
+			This.RemoveAllColsExceptAt(panColNumbers)
+
+		def RemoveColumnsExceptAt(panColNumbers)
+			This.RemoveAllColsExceptAt(panColNumbers)
+
+		def RemoveAllColumnsOtherThanPositions(panColNumbers)
+			This.RemoveAllColsExceptAt(panColNumbers)
+
+		def RemoveColumnsOtherThanPositions(panColNumbers)
+			This.RemoveAllColsExceptAt(panColNumbers)
+
+		#>
 
 	def RemoveAllColsExcept(paCols)
 		if CheckParams()
@@ -10080,30 +10251,48 @@ Class stzTable from stzObject
 	 #  REMOVING A GIVEN ROW  #
 	#========================#
 
-	def RemoveRow(pnRow)
+	def RemoveRow(pRowOrRowNumber)
 		if CheckParams()
-			if NOT isNumber(pnRow)
-				StzRaise("Incorrect param type! pnRow must be a number.")
+			if NOT ( isNumber(pRowOrRowNumber) or isList(pRowOrRowNumber) )
+				StzRaise("Incorrect param type! pRowOrRowNumber must be a number or list.")
+			ok
+		ok
+
+		if isNumber(pRowOrRowNumber)
+			This.RemoveNthRow(pRowOrRowNumber)
+
+		else
+			n = This.FindRow(pRowOrRowNumber)[1]
+			This.RemoveNthRow(n)
+		ok
+
+	def RemoveNthRow(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
 
 		nLen = len(@aContent)
 
 		for i = 1 to nLen
-			ring_remove(@aContent[i][2], pnRow)
+			ring_remove(@aContent[i][2], n)
 		next
 
-		def RemoveNthRow(pnRow)
-			This.EraseRow(pnRow)
+		def RemoveRowAt(n)
+			This.RemoveNthRow(n)
 
-		def RemoveRowN(pnRow)
-			This.EraseRow(pnRow)
+		def RemoveRowNumber(n)
+			This.RemoveNthRow(n)
+
+		def RemoveRowN(n)
+			This.RemoveNthRow(n)
 
 	  #---------------------------#
 	 #  REMOVING THE GIVEN ROWS  #
 	#---------------------------#
 
-	def RemoveRows(panRows)
+	def RemoveNthRows(panRows)
 		if CheckParams()
 			if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
 				StzRaise("Incorrect param type! panRows must be a list of numbers.")
@@ -10120,31 +10309,88 @@ Class stzTable from stzObject
 			next
 		next
 
+
+		def RemoveRowsAt(panRows)
+			This.RemoveNthRows(panRows)
+
+	def RemoveRows(pRowsOrRowsNumbers)
+		if CheckParams()
+			if NOT isList(panRows)
+				StzRaise("Incorrect param type! pRowsOrRowsNumbers must be a list of numbers.")
+			ok
+
+			if NOT @IsListOfNumbers(pRowsOrRowsNumbers) or @IsListOfLists(pRowsOrRowsNumbers)
+				StzRaise("Incorrect param type! pRowsOrRowsNumbers must be a list of numbers or a list of lists.")
+			ok
+		ok
+
+		if @IsListOfNumbers(pRowsOrRowsNumbers)
+			This.RemoveRowsAt(pRowsOrRowsNumbers)
+
+		else // @IsListOfLists(pRowsOrRowsNumbers)
+			anPos = This.FindTheseRows(pRowsOrRowsNumbers)
+			This.RemoveRowsAt(anPos)
+		ok
+
 	  #-----------------------------------------------#
 	 #  REMOVING ALL THE ROWS EXCEPT THOSE PROVIDED  #
 	#-----------------------------------------------#
 
-	def RemoveAllRowsExcept(panRows)
-
+	def RemoveAllRowsExceptAt(panRows)
 		if CheckParams()
 			if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
 				StzRaise("Incorrect param type! panRows must be a list of numbers.")
 			ok
 		ok
 
-		anPos = This.FindRowsExcept(panRows)
+		anPos = This.FindRowsExceptAt(panRows)
 		This.RemoveRows(anPos)
 
 		#< @FunctionAlternativeForms
 
-		def RemoveRowsExcept(panRow)
-			This.RemoveAllRowsExcept(panRow)
+		def RemoveRowsExceptAt(panRow)
+			This.RemoveAllRowsExceptAt(panRow)
 
-		def RemoveAllRowsOtherThan(panRow)
-			This.RemoveAllRowsExcept(panRow)
+		def RemoveAllRowsOtherThanPositions(panRow)
+			This.RemoveAllRowsExceptAt(panRow)
 
-		def RemoveRowsOtherThan(panRow)
-			This.RemoveAllRowsExcept(panRow)
+		def RemoveRowsOtherThanPositions(panRow)
+			This.RemoveAllRowsExceptAt(panRow)
+
+		#>
+
+	def RemoveAllRowsExcept(pRowsOrRowsNumbers)
+
+		if CheckParams()
+			if NOT isList(panRows)
+				StzRaise("Incorrect param type! pRowsOrRowsNumbers must be a list of numbers.")
+			ok
+
+			if NOT @IsListOfNumbers(pRowsOrRowsNumbers) or @IsListOfLists(pRowsOrRowsNumbers)
+				StzRaise("Incorrect param type! pRowsOrRowsNumbers must be a list of numbers or a list of lists.")
+			ok
+		ok
+
+		if @IsListOfNumbers(pRowsOrRowsNumbers)
+			anPos = This.FindRowsExceptAt(panRows)
+			This.RemoveRowsAt(anPos)
+
+		else // @IsListOfLists(pRowsOrRowsNumbers)
+			anPos = This.FindRowsExceptThese(pRowsOrRowsNumbers)
+			This.RemoveRowsAt(anPos)
+		ok
+
+
+		#< @FunctionAlternativeForms
+
+		def RemoveRowsExcept(pRowsOrRowsNumbers)
+			This.RemoveAllRowsExcept(pRowsOrRowsNumbers)
+
+		def RemoveAllRowsOtherThan(pRowsOrRowsNumbers)
+			This.RemoveAllRowsExcept(pRowsOrRowsNumbers)
+
+		def RemoveRowsOtherThan(pRowsOrRowsNumbers)
+			This.RemoveAllRowsExcept(pRowsOrRowsNumbers)
 
 		#>
 
