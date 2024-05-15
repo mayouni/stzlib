@@ -446,7 +446,7 @@ proff()
 # Executed in 0.12 second(s)
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -459,7 +459,7 @@ o1 = new stzTable([
 	[ "*",	    "*",      "*"   ],
 	[ "*",	    "*",      "*"   ]
 ])
-/*
+
 ? o1.FindRowsExceptAt([ 1, 2, 4 ])
 #--> [ 3, 5, 6 ]
 
@@ -469,7 +469,7 @@ o1 = new stzTable([
 	[ 30,	    300,      3000  ]
 ])
 #--> [ 3, 5, 6 ]
-*/
+
 ? ""
 
 o1.RemoveAllRowsExcept([
@@ -486,10 +486,10 @@ o1.Show()
 #       30     300    3000
 
 proff()
-# # Executed in 0.11 second(s)
+# # Executed in 0.19 second(s)
 
-/*============ A Softanza narration showing one of the uses of the XT()
-
+/*============ A Softanza #narration showing one of the uses of the XT()
+*/
 pron()
 
 # You create a table with this structure:
@@ -506,7 +506,7 @@ o1 = new stzTable([
 # And you want to show it on screen:
 
 ? o1.Show() + NL
-#--> COL1   COL2   COL3
+#-->  COL1    COL2   COL3
 #    ------ ------- ------
 #       10     100    1000
 #       20     200    2000
@@ -518,13 +518,12 @@ o1 = new stzTable([
 
 ? o1.ShowXT([]) + NL
 #--> COL1 | COL2 | COL3
-#    ------+-------+------
-#       10 |   100 |  1000
-#       20 |   200 |  2000
-#        * |     * |     *
-#       30 |   300 |  3000
+#    ----- ------ -----
+#      10 |  100 | 1000
+#      20 |  200 | 2000   
+#       * |    * |    *
 
-# Satisfied? No? You can change the default options at your will...
+# You can even even set the options at your will...
 
 ? o1.ShowXT([
 
