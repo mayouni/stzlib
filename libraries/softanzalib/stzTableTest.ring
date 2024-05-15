@@ -639,7 +639,7 @@ StopProfiler()
 # Executed in 1.56 second(s) in Ring 1.17
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -664,100 +664,111 @@ proff()
 # Executed in 0.13 second(s)
 
 /*--------------
-*/
+
 StartProfiler()
 
 o1 = new stzTable([3, 3])
 
 o1.Fill( :With = "." )
-o1.Show() + NL
-#--> #   COL1   COL2   COL3
-#    1      .      .      .
-#    2      .      .      .
-#    3      .      .      .
-/*
+? o1.Show()
+#--> COL1   COL2   COL3
+#    ----- ------ -----
+#       .      .      .
+#       .      .      .
+#       .      .      .
+
 o1.ReplaceRow(2, :With = [ "+", "+" ])
-o1.Show() + NL
-#--> #   COL1   COL2   COL3
-#    1      .      .      .
-#    2      +      +      .
-#    3      .      .      .
+? o1.Show()
+#--> COL1   COL2   COL3
+#    ----- ------ -----
+#       .      .      .
+#       +      +      .
+#       .      .      .
 
 o1.ReplaceRow(2, :With = [ "+", "+", "+" ])
-o1.Show() + NL
-#--> #   COL1   COL2   COL3
-#    1      .      .      .
-#    2      +      +      +
-#    3      .      .      .
+? o1.Show()
+#--> COL1   COL2   COL3
+#    ----- ------ -----
+#       .      .      .
+#       +      +      +
+#       .      .      .
 
 o1.ReplaceRow(2, :With = [ "+", "+", "+", "+", "+" ])
 o1.Show()
-#--> #   COL1   COL2   COL3
-#    1      .      .      .
-#    2      +      +      +
-#    3      .      .      .
-*/
+#--> COL1   COL2   COL3
+#    ----- ------ -----
+#       .      .      .
+#       +      +      +
+#       .      .      .
 
 StopProfiler()
-# Executed in 1.89 second(s)
+# Executed in 0.36 second(s) in Ring 1.20
+# Executed in 1.89 second(s) in Ring 1.17
 
 /*--------------
 
 pron()
 
 o1 = new stzTable([3, 3])
+
 o1.Fill( :With = "." )
-o1.Show() + NL
-#--> #   COL1   COL2   COL3
-#    1      .      .      .
-#    2      .      .      .
-#    3      .      .      .
+? o1.Show()
+#--> COL1   COL2   COL3
+#    ----- ------ -----
+#       .      .      .
+#       .      .      .
+#       .      .      .
 
 o1.ReplaceAllRows(:With = [ "+", "+", "+" ])
 o1.Show()
-#--> #   COL1   COL2   COL3
-#    1      +      +      +
-#    2      +      +      +
-#    3      +      +      +
+#--> COL1   COL2   COL3
+#   ----- ------ -----
+#      +      +      +
+#      +      +      +
+#      +      +      +
 
 proff()
-# Executed in 0.98 second(s)
+# Executed in 0.21 second(s) in Ring 1.20
+# Executed in 0.98 second(s) in Ring 1.17
 
 /*--------------
-
+*/
 pron()
 
 o1 = new stzTable([2, 3])
+
 o1.Fill( :With = "." )
-o1.Show() + NL
+
+? o1.Show() + NL
 #--> #   COL1   COL2
 #    1      .      .
 #    2      .      .
 #    3      .      .
 
 o1.ReplaceCol(:COL2, :With = [ "+", "+" ])
-o1.Show()
+? o1.Show()
 #--> #   COL1   COL2
 #    1      .      +
 #    2      .      +
 #    3      .      .
 
 o1.ReplaceCol(:COL2, :With = [ "+", "+", "+" ]) + NL
-o1.Show()
+? o1.Show()
 #--> #   COL1   COL2
 #    1      .      +
 #    2      .      +
 #    3      .      +
 
 o1.ReplaceCol(:COL2, :With = [ "+", "+", "+", "+", "+" ])
-o1.Show()
+? o1.Show()
 #--> #   COL1   COL2
 #    1      .      +
 #    2      .      +
 #    3      .      +
 
 proff()
-# Executed in 1.31 second(s)
+# Executed in 0.29 second(s) in Ring 1.20
+# Executed in 1.31 second(s) in Ring 1.17
 
 /*--------------
 
