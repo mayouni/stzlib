@@ -489,7 +489,7 @@ proff()
 # # Executed in 0.19 second(s)
 
 /*============ A Softanza #narration showing one of the uses of the XT()
-*/
+
 pron()
 
 # You create a table with this structure:
@@ -545,7 +545,7 @@ o1 = new stzTable([
 #    4 |  30   |  300  | 3000 
 
 proff()
-# Executed in 0.25 seconds(s) in Ring 1.19
+# Executed in 0.28 seconds(s) in Ring 1.19
 # Executed in 1.09 second(s) in Ring 1.17
 
 /*--------------
@@ -554,11 +554,12 @@ pron()
 
 o1 = new stzTable([3, 4])
 ? o1.Show()
-#--> 	:COL1  	:COL2  	:COL3
-#	NULL	NULL	NULL
-#	NULL	NULL	NULL
-#	NULL	NULL	NULL
-#	NULL	NULL	NULL
+#-->	COL1   COL2   COL3
+#	----- ------ -----
+#	""	""	'"
+#	""	""	'"
+#	""	""	'"
+#	""	""	'"
 
 proff()
 # Executed in 0.35 second(s)
@@ -579,10 +580,12 @@ o1.@([
 ])
 
 o1.Show()
-#--> :COL1  :COL2  :COL3
-#    NULL   NULL   NULL
+#--> 	COL2   COL3
+#	----- -----
+#	  ""     ''   
 
 proff()
+# Executed in 0.08 second(s)
 
 /*--------------
 
@@ -590,12 +593,10 @@ StartProfiler()
 
 o1 = new stzList([ "ONE", "two", "THREE", 1, 2 ])
 ? o1.ContainsCS("TwO", :CS=FALSE)
+#--> TRUE
 
 StopProfiler()
 #--> Executed in 0.02 second(s)
-
-/*
-cTable = This.HeaderToString() + NL + This.RowsToStringXT(paOptions)
 
 /*--------------
 
@@ -611,24 +612,15 @@ StartProfiler()
 	])
 
 	o1.Show()
-
-	? o1.MaxWidthInEachCol()
-	#--> [ 2, 5, 5 ]
-
-	? o1.MaxWidthInCol(:EMPLOYEE)
-	#--> 5
+	#--> ID   EMPLOYEE   SALARY
+	#    --- ---------- -------
+	#    10        Ali    35000
+	#    20      Dania    28900
+	#    30        Han    25982
+	#    40        Ali    12870
 
 	? o1.NthColName(:LastCol)
 	#--> :SALARY
-
-	? o1.RowToString(2)
-	#--> 20   Dania   28900
-
-	? o1.RowsToString()
-	#--> 1   10     Ali   35000
-	#    2   20   Dania   28900
-	#    3   30     Han   25982
-	#    4   40     Ali   12870
 
 	? @@( o1.CellsInColsAsPositions([ :EMPLOYEE, :SALARY ]) )
 	#--> [
@@ -643,10 +635,36 @@ StartProfiler()
 	#--> [ [ 2, 2 ], [ 3, 2 ], [ 2, 3 ], [ 3, 3 ], [ 2, 4 ], [ 3, 4 ] ]
 
 StopProfiler()
-# Executed in 1.56 second(s)
+# Executed in 0.17 second(s) in Ring 1.20
+# Executed in 1.56 second(s) in Ring 1.17
 
 /*--------------
+*/
+pron()
 
+o1 = new stzTable([
+	[ "NAME", "AGE", "RANGE" ],
+	[ "Sam",    42,      2   ],
+	[ "Dan",    24,    "_"   ],
+	[ "Alex",   34,      3   ]
+])
+
+? o1.Cell(3, 2)
+#--> "_"
+
+o1.ReplaceCell(3, 2, 1)
+o1.Show()
+#--> NAME   AGE   RANGE
+#    ----- ----- ------
+#     Sam    42       2
+#     Dan    24       1
+#    Alex    34       3
+
+proff()
+# Executed in 0.13 second(s)
+
+/*--------------
+*/
 StartProfiler()
 
 o1 = new stzTable([3, 3])
@@ -657,7 +675,7 @@ o1.Show() + NL
 #    1      .      .      .
 #    2      .      .      .
 #    3      .      .      .
-
+/*
 o1.ReplaceRow(2, :With = [ "+", "+" ])
 o1.Show() + NL
 #--> #   COL1   COL2   COL3
@@ -678,6 +696,7 @@ o1.Show()
 #    1      .      .      .
 #    2      +      +      +
 #    3      .      .      .
+*/
 
 StopProfiler()
 # Executed in 1.89 second(s)

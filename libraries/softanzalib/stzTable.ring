@@ -2298,7 +2298,7 @@ Class stzTable from stzObject
 		ok
 
 		cCol   = This.ColToName(pCol)
-		Result = This.Table()[cCol][pnRow]
+		Result = @aContent[cCol][pnRow]
 		return Result
 
 		#< @FunctionFluentForm
@@ -8693,10 +8693,13 @@ Class stzTable from stzObject
 			if isList(pNewCellValue) and Q(pNewCellValue).IsOneOfTheseNamedParams([ :By, :With, :Using ])
 				pNewCellValue = pNewCellValue[2]
 			ok
+			if NOT isNumber(pnRow)
+				StzRaise("Incorrect param type! pnRow must be a number.")
+			ok
 		ok
 
 		cCol = This.ColToName(pCol)
-		This.Table()[cCol][pnRow] = pNewCellValue
+		@aContent[cCol][pnRow] = pNewCellValue
 
 		#< @FunctionAlternativeForms
 
