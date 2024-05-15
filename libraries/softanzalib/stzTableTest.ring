@@ -391,7 +391,7 @@ proff()
 # Executed in 0.12 second(s)
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -459,6 +459,9 @@ o1 = new stzTable([
 	[ "*",	    "*",      "*"   ],
 	[ "*",	    "*",      "*"   ]
 ])
+
+? o1.FindRowsExcept([ 1, 2, 3 ])
+#--> [ 3, 5, 6 ]
 
 ? o1.FindRowsExcept([
 	[ 10,	    100,      1000  ],

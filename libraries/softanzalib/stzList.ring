@@ -13813,7 +13813,7 @@ class stzList from stzObject
 			n = This.NumberOfItems()
 		ok
 
-		if NOT isNumber(n) and Q(n).IsBetween(1, This.NumberOfItems())
+		if NOT ( isNumber(n) and Q(n).IsBetween(1, This.NumberOfItems()) )
 			StzRaise("Can't extract! n outside of range.")
 		ok
 
@@ -14140,9 +14140,9 @@ class stzList from stzObject
 	#--------------------------------------#
 
 	def ExtractSection(n1, n2)
-		if NOT Q([n1, n2]).BothAreNumbers() and
+		if NOT ( Q([n1, n2]).BothAreNumbers() and
 		   Q(n1).IsBetween(1, This.NumberOfItems()) and
-		   Q(n2).IsBetween(1, This.NumberOfItems())
+		   Q(n2).IsBetween(1, This.NumberOfItems()) )
 
 			StzRaise("Can't extract! The section is outside the list.")
 		ok
@@ -40474,7 +40474,7 @@ class stzList from stzObject
 	#----------------------------------------------#
 
 	def ItemsOutsidePositions(panPos)
-		if NOT isList(panPos) and Q(panPos).IsListOfNumbers()
+		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
@@ -62827,7 +62827,7 @@ class stzList from stzObject
 
 	def RandomizeSections(panSections)
 		if CheckParams() = TRUE # Generalise this all over the library
-			if NOT isList(panSections) and Q(panSections).IsListOfPairsOfNumbers()
+			if NOT ( isList(panSections) and @IsListOfPairsOfNumbers(panSections) )
 				StzRaise("Incorrect param type! panSections must be a list of pairs of numbers.")
 			ok
 		ok

@@ -10315,11 +10315,11 @@ Class stzTable from stzObject
 
 	def RemoveRows(pRowsOrRowsNumbers)
 		if CheckParams()
-			if NOT isList(panRows)
+			if NOT isList(pRowsOrRowsNumbers)
 				StzRaise("Incorrect param type! pRowsOrRowsNumbers must be a list of numbers.")
 			ok
 
-			if NOT @IsListOfNumbers(pRowsOrRowsNumbers) or @IsListOfLists(pRowsOrRowsNumbers)
+			if NOT ( @IsListOfNumbers(pRowsOrRowsNumbers) or @IsListOfLists(pRowsOrRowsNumbers) )
 				StzRaise("Incorrect param type! pRowsOrRowsNumbers must be a list of numbers or a list of lists.")
 			ok
 		ok
@@ -10362,22 +10362,22 @@ Class stzTable from stzObject
 	def RemoveAllRowsExcept(pRowsOrRowsNumbers)
 
 		if CheckParams()
-			if NOT isList(panRows)
+			if NOT isList(pRowsOrRowsNumbers)
 				StzRaise("Incorrect param type! pRowsOrRowsNumbers must be a list of numbers.")
 			ok
 
-			if NOT @IsListOfNumbers(pRowsOrRowsNumbers) or @IsListOfLists(pRowsOrRowsNumbers)
+			if NOT ( @IsListOfNumbers(pRowsOrRowsNumbers) or @IsListOfLists(pRowsOrRowsNumbers) )
 				StzRaise("Incorrect param type! pRowsOrRowsNumbers must be a list of numbers or a list of lists.")
 			ok
 		ok
 
 		if @IsListOfNumbers(pRowsOrRowsNumbers)
-			anPos = This.FindRowsExceptAt(panRows)
-			This.RemoveRowsAt(anPos)
+			anPos = This.FindRowsExceptAt(pRowsOrRowsNumbers)
+			This.RemoveRowsAt(pRowsOrRowsNumbers)
 
 		else // @IsListOfLists(pRowsOrRowsNumbers)
 			anPos = This.FindRowsExceptThese(pRowsOrRowsNumbers)
-			This.RemoveRowsAt(anPos)
+			This.RemoveRowsAt(pRowsOrRowsNumbers)
 		ok
 
 
@@ -10462,7 +10462,7 @@ Class stzTable from stzObject
 			pCol = This.ColName(pCol)
 		ok
 
-		if NOT isString(pCol) and This.HasColName(pCol)
+		if NOT ( isString(pCol) and This.HasColName(pCol) )
 			StzRaise("Incorrect column name!")
 		ok
 
@@ -10851,7 +10851,7 @@ Class stzTable from stzObject
 	#-------------------------------------------------------------------------#
 
 	def TheseColNames(panColNumbers)
-		if NOT (isList(panColNumbers) and Q(panColNumbers).IsListOfNumbers() )
+		if NOT ( isList(panColNumbers) and Q(panColNumbers).IsListOfNumbers() )
 			StzRaise("Incorrect param type! pacColNumbers muts be a list of numbers.")
 		ok
 
