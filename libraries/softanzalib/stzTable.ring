@@ -11759,11 +11759,16 @@ Class stzTable from stzObject
 		ok
 
 		if len(paOptions) = 0
-			return This.ToStringXT([ 
-					:Separator = " | ",
-					:Alignment = :Left,
-					:UnderLineHeader = FALSE,
-					:ShowRowNumbers = TRUE ])
+
+			cResult = This.ToStringXT([ 
+				:UnderLineHeader = TRUE,
+				:UnderLineChar = "-",
+				:InterSectionChar = " ",
+				//:Seprator = "   ",
+				:Alignment = :Right
+			])
+
+			return cResult
 
 		ok
 
@@ -11910,7 +11915,7 @@ Class stzTable from stzObject
 
 			if bUnderLineHeader and cUnderLineChar != ""
 				oColXT = This.ColQ(i).AddItemQ(cName)
-	
+
 				cUnderline = StzStringQ(cUnderLineChar).RepeatedNTimes( oColXT.MaxSize() )
 				ring_insert(acCurrentColAdjusted, 1, cUnderline)
 			ok
@@ -11963,6 +11968,15 @@ Class stzTable from stzObject
 
 		if bUnderlineHeader
 			cUnderline = ""
+			if bShowRowNumbers
+				nTemp = len( ""+ This.NumberOfRows() )
+				cTemp = ""
+				for i = 1 to nTemp
+					cTemp += cUnderLineChar
+				next
+				cUnderline = cTemp + cInterSectionChar
+			ok
+
 			for i = 1 to nCols
 				cUnderline += oTable.Cell(i, 1)
 				if i < nCols
