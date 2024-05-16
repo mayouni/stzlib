@@ -1272,7 +1272,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*=============== #narration #flexibility
-*/
+
 pron()
 
 # Softanza is so flexible! Let's see it in action, for example,
@@ -1327,6 +1327,7 @@ proff()
 
 /*==============
 
+*/
 StartProfiler()
 
 o1 = new stzTable([
@@ -1337,59 +1338,42 @@ o1 = new stzTable([
 	[ 30,	"Abraham",	48	]
 ])
 
-o1.Sort(:By = :NAME)
+o1.SortDown()
+? o1.Show()
+#--> ID      NAME   AGE
+#    --- --------- ----
+#    30   Abraham    48
+#    20     Hatem    46
+#    10     Karim    52
 
-o1.Show() + NL
-#-->
-# #	ID	NAME		AGE
-# 1	30	Abraham		48
-# 2	20	Hatem		46
-# 3	10	Karim		52
+o1.Sort()
+? o1.Show()
+#--> ID      NAME   AGE
+#    --- --------- ----
+#    10     Karim    52
+#    20     Hatem    46
+#    30   Abraham    48
 
-o1.Sort(:By = :ID)
-o1.Show() + NL
-#-->
-# #   ID      NAME   AGE
-# 1   10     Karim    52
-# 2   20     Hatem    46
-# 3   30   Abraham    48
+o1.SortOn(:AGE)
+? o1.Show()
+#--> ID      NAME   AGE
+#    --- --------- ----
+#    20     Hatem    46
+#    30   Abraham    48
+#    10     Karim    52
 
-o1.Sort(:By = :AGE)
+o1.SortOnDown(:AGE)
 o1.Show()
-#-->
-# #   ID      NAME   AGE
-# 1   20     Hatem    46
-# 2   30   Abraham    48
-# 3   10     Karim    52
+#--> ID      NAME   AGE
+#    --- --------- ----
+#    10     Karim    52
+#    30   Abraham    48
+#    20     Hatem    46
 
 StopProfiler()
-# Executed in 1.93 second(s)
+# Executed in 0.22 second(s)
 
-#NOTE/TODO: Show() function takes time! Optimise it...
-
-/*--------------
-
-pron()
-
-o1 = new stzTable([
-	[ :ID,	:NAME,		:AGE 	],
-	[ 10,	"Karim",	52   	],
-	[ 20,	"Hatem", 	46	],
-	[ 30,	"Abraham",	48	]
-])
-
-o1.SortInDescending(:By = :ID)	# Or if you want: o1.SortXT(:By = :ID, :InDescending)
-o1.Show()
-#-->
-# #   ID      NAME   AGE
-# 1   30   Abraham    48
-# 2   20     Hatem    46
-# 3   10     Karim    52
-
-proff()
-# Executed in 0.65 second(s)
-
-/*--------------
+/*===========
 
 pron()
 
@@ -1438,53 +1422,6 @@ o1 = new stzTable([
 
 proff()
 # Executed in 0.21 second(s)
-
-/*===============
-
-pron()
-
-o1 = new stzTable([
-	[  "COL1",   "COL2" ],
-	#-------------------#
-	[     "a",    "R1"  ],
-	[ "abcde",    "R5"  ],
-	[   "abc",    "R3"  ],
-	[    "ab",    "R2"  ],
-	[     "b",    "R1"  ],
-	[   "abcd",   "R4"  ]
-])
-
-o1.Sort(:By = :COL2)
-# or o1.SortInAscending(:By = :COL2)
-# or o1.SortXT(:By = :COL2, :InAscending)
-# o1.SortXT(:By = :COL2, :In = :Ascending)
-
-o1.Show() + NL
-#-->
-# #    COL1   COL2
-# 1       a     R1
-# 2       b     R1
-# 3      ab     R2
-# 4     abc     R3
-# 5    abcd     R4
-# 6   abcde     R5
-
-o1.SortInDescending(:By = :Col2)
-# or o1.SortXT(:By = :Col2, :InDescending)
-# or o1.SortXT(:By = :Col2, :In = :Descending)
-
-o1.Show()
-#-->
-# #    COL1   COL2
-# 1   abcde     R5
-# 2    abcd     R4
-# 3     abc     R3
-# 4      ab     R2
-# 5       b     R1
-# 6       a     R1
-
-proff()
-# Executed in 2.22 second(s)
 
 /*==============
 
