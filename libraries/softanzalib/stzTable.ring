@@ -11178,201 +11178,6 @@ Class stzTable from stzObject
 				StzRaise("Unsupported return type!")
 			off
 
-	  #======================================#
-	 #  SORTING THE TABLE BY A GIVEN COLUM  #
-	#======================================#
-
-	def Sort(pCol)
-		This.SortInAscending(pCol)
-
-		#< @FluentForm
-
-		def SortQ(pCol)
-			This.Sort(pCol)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def SortBy(pCol)
-			This.Sort(pCol)
-
-			def SortByQ(pCol)
-				return This.SortQ(pCol)
-
-		def SortUp(pCol)
-			This.Sort(pCol)
-
-			def SortUpQ(pCol)
-				return This.SortQ(pCol)
-
-		#>
-
-	def Sorted(pCol)
-		aResult = This.Copy().SortInAscendingQ().Content()
-		return aResult
-
-		def SortedBy(pCol)
-			return This.Sorted(pCol)
-
-	  #---------------------------------------------------#
-	 #  SORTING THE TABLE BY A GIVEN COLUMN -- EXTENDED  #
-	#---------------------------------------------------#
-
-	def SortXT(pCol, pcDirection)
-		/*
-		o1 = new stzTable([
-			[  "COL1",   "COL2" ],
-			[     "a",    "R1"  ],
-			[ "abcde",    "R5"  ],
-			[   "abc",    "R3"  ],
-			[    "ab",    "R2 " ],
-			[     "b",    "R1"  ],
-			[   abcd",    "R4"  ]
-		])
-
-		o1.Sort( :By = :COL2 )
-		o1.Show()
-		#-->
-		#    COL1   COL2
-		1       a   "R1"
-		2       b   "R1"
-		3      ab   "R2"
-		4     abc   "R3"
-		5    abcd   "R4"
-		6   abcde   "R5"
-
-		*/
-
-		# Checking params
-
-		if CheckParams()
-
-			if isList(pCol) and Q(pCol).
-				IsOneOfTheseNamedParams([ :By, :ByCol, :ByColumn ])
-	
-				pCol = pCol[2]
-			ok
-	
-			if NOT ( isNumber(pCol) or isString(pCol) )
-				StzRaise("Incorrect param type! pCol must be a number or string.")
-			ok
-	
-			if isNumber(pCol) and
-				NOT ( Q(pCol).IsBetween(1, This.NumberOfCol()) )
-
-				StzRaise("Incorrect param value! pCol must be a number between 1 and " + This.NumberOfCol() + ".")
-	
-			but isString(pCol) and NOT This.HasColName(pCol)
-				StzRaise("Incorrect param value! pCol must be a valid column name.")
-			ok
-	
-			if isList(pcDirection) and Q(pcdirection).IsInNamedParam()
-				pcDirection = pcDirection[2]
-			ok
-	
-			if NOT ( isString(pcDirection) and
-				 Q(pcDirection).IsOneOfThese([ :Ascending, :Descending, :InAscending, :InDescending ]) )
-	
-				StzRaise("Incorrect param! pcDirection must be :In = :Ascending or :In = :Descending.")
-			ok
-	
-		ok
-
-		/* ... */ #TODO
-
-		#< @FunctionFluentForm
-
-		def SortXTQ(pCol, pcDirection)
-			This.SortXT(pCol, pcDirection)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def SortByXT(pCol, pcDirection)
-			This.SortXT(pCol, pcDirection)
-
-			def SortByXTQ(pCol, pcDirection)
-				This.SortByXT(pCol, pcDirection)
-				return This
-
-		#>
-
-	def SortedXT(pCol, pcDirection)
-		aResult = This.Copy().SortXTQ(pCol, pcDirection).Content()
-		return aResult
-
-	  #-----------------------------------------------------#
-	 #  SORTING THE TABLE IN ASCENDING BY A GIVEN COLUMN   #
-	#-----------------------------------------------------#
-
-	def SortInAscending(pCol)
-		/* EXAMPLE
-		o1 = new stzTable([
-			[ :ID,	:NAME,		:AGE 	],
-			[ 10,	"Karim",	52   	],
-			[ 20,	"Hatem", 	46	],
-			[ 30,	"Abraham",	48	]
-		])
-		
-		? o1.Sort(:By = :NAME)
-		
-		#-->
-		# #	ID	NAME		AGE
-		# 1	30	Abraham		48
-		# 2	20	Hatem		46
-		# 3	10	Karim		52 
-		*/
-
-		This.SortXT(pCol, :InAscending)
-
-		def SortInAscendingQ(pCol)
-			This.SortInAscending(pCol)
-			return This
-
-		def SortByInAscending(pCol)
-			This.SortInAscending(pCol)
-			return This
-
-			def SortByInAscendingQ(pCol)
-				This.SortByInAscending(pCol)
-				return This
-
-	def SortedInAscending(pCol)
-		aResult = This.Copy().SortInAscendingQ(pCol).Content()
-		return aResult
-
-		def SortedByInAscending(pCol)
-			return This.SortedInAscending(pCol)
-
-	  #------------------------------------------------------#
-	 #  SORTING THE TABLE IN DESCENDING BY A GIVEN COLUMN   #
-	#------------------------------------------------------#
-
-	def SortInDescending(pCol)
-		This.SortXT(pCol, :InDescending)
-
-		def SortInDescendingQ(pCol)
-			This.SortInDescending(pCol)
-			return This
-
-		def SortByInDescending(pCol)
-			This.SortInDescending(pCol)
-
-			def SortByInDescendingQ(pCol)
-				This.SortInDescending(pCol)
-				return This
-
-	def SortedInDescending(pCol)
-		acResult = This.Copy().SortInDescendingQ(pCol).Content()
-		return acResult
-
-		def SortedByInDescending(pCol)
-			return This.SortedInDescending(pCol)
-
 	  #==============================================#
 	 #   MOVING A ROW FROM A POSITION TO AN OTHER   #
 	#==============================================#
@@ -11698,6 +11503,201 @@ Class stzTable from stzObject
 
 		def AreColumnsNames(pacColNames)
 			This.AreColNames(pacColNames)
+
+		#>
+
+	  #==================================#
+	 #  SORTING THE TABLE IN ASCENDING  #
+	#==================================#
+
+	def Sort()
+		This.SortOn(1)
+
+		#< @FunctionAlternativeForms
+
+		def SortUp()
+			This.Sort()
+
+		def SortOnAsecending()
+			This.Sort()
+
+		#>
+
+	  #-----------------------------------#
+	 #  SORTING THE TABLE IN DESCENDING  #
+	#-----------------------------------#
+
+	def SortDown()
+		This.SortOnDown(1)
+
+		def SortOnInDesending()
+			This.SortDown()
+
+	  #----------------------------------------------------#
+	 #  SORTING THE TABLE ON A GIVEN COLUMN IN ASCENDiNG  #
+	#====================================================#
+
+	#TODO
+	# Check performance on large tables
+
+	def SortOn(pCol)
+		nCol = This.ColToColNumber(pCol)
+		aRowsSorted = @SortOn( This.Rows(), nCol)
+
+		nLenRows = len(aRowsSorted)
+
+		for i = 1 to nLenRows
+			This.ReplaceRow(i, aRowsSorted[i])
+		next
+
+
+		#< @FunctionAlternativeForms
+
+		def SortOnUp(pCol)
+			This.SortOn(pCol)
+
+		def SortOnInAscending(pCol)
+			This.SortOn(pCol)
+
+		def SortOnCol(pCol)
+			This.SortOn(pCol)
+
+		def SortOnColUp(pCol)
+			This.SortOn(pCol)
+
+		def SortOnColInAscending(pCol)
+			This.SortOn(pCol)
+
+		def SortOnColumn(pCol)
+			This.SortOn(pCol)
+
+		def SortOnColumnUp(pCol)
+			This.SortOn(pCol)
+
+		def SortOnColumnInAscending(pCol)
+			This.SortOn(pCol)
+
+		#>
+
+	  #-----------------------------------------------------#
+	 #  SORTING THE TABLE ON A GIVEN COLUMN IN DESCENDiNG  #
+	#=====================================================#
+
+	def SortOnDown(pCol)
+
+		nCol = This.ColToColNumber(pCol)
+		aRowsSorted = ring_reverse( @SortOn( This.Rows(), nCol) )
+
+		nLenRows = len(aRowsSorted)
+
+		for i = 1 to nLenRows
+			This.ReplaceRow(i, aRowsSorted[i])
+		next
+
+		#< @FunctionAlternativeForms
+
+		def SortOnInDescending(nCol)
+			This.SortOnDown(nCol)
+
+		def SortOnColDown(nCol)
+			This.SortOnDown(nCol)
+
+		def SortInColInDescending(nCol)
+			This.SortOnDown(nCol)
+
+		def SortOnColumnDown(nCol)
+			This.SortOnDown(nCol)
+
+		def SortOnColumnInDescending(nCol)
+			This.SortOnDown(nCol)
+
+		#>
+
+	  #========================================================#
+	 #  SORTING THE TABLE BY A GIVEN EXPRESSION IN ASCENDING  #
+	#========================================================#
+
+	def SortBy(pcExpr)
+		This.SortOnBy(1, pcExpr)
+
+		def SortByUp(pcExpr)
+			This.SortBy(pcExpr)
+
+		def SortByInAsecending(pcExpr)
+			This.SortBy(pcExpr)
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  SORTING THE TABLE BY A GIVEN EXPRESSION IN DESCENDING  #
+	#---------------------------------------------------------#
+
+	def SortByDown(pcExpr)
+		This.SortOnByDown(1, pcExpr)
+
+		def SortOnByInDesending(pcExpr)
+			This.SortByDown(pcExpr)
+
+	  #--------------------------------------------------------------------------#
+	 #  SORTING THE TABLE ON A GIVEN COLUMN BY A GIVEN EXPRESSION IN ASCENDiNG  #
+	#==========================================================================#
+
+	def SortOnBy(nCol, pcExpr)
+
+		/* ... */
+
+		#< @FunctionAlternativeForms
+
+		def SortOnByUp(nCol, pcExpr)
+			This.SortOnBy(nCol, pcExpr)
+
+		def SortOnByInAscending(nCol, pcExpr)
+			This.SortOnBy(nCol, pcExpr)
+
+		def SortOnColBy(nCol, pcExpr)
+			This.SortOnBy(nCol, pcExpr)
+
+		def SortOnColByUp(nCol)
+			This.SortOnBy(nCol, pcExpr)
+
+		def SortOnColByInAscending(nCol, pcExpr)
+			This.SortOnBy(nCol, pcExpr)
+
+		def SortOnColumnBy(nCol, pcExpr)
+			This.SortOnBy(nCol, pcExpr)
+
+		def SortOnColumnByUp(nCol, pcExpr)
+			This.SortOnBy(nCol, pcExpr)
+
+		def SortOnColumnByInAscending(nCol, pcExpr)
+			This.SortOnBy(nCol, pcExpr)
+
+		#>
+
+	  #---------------------------------------------------------------------------#
+	 #  SORTING THE TABLE ON A GIVEN COLUMN BY A GIVEN EXPRESSION IN DESCENDiNG  #
+	#===========================================================================#
+
+	def SortOnByDown(nCol, pcExpr)
+
+		/* ... */
+
+		#< @FunctionAlternativeForms
+
+		def SortOnByInDescending(nCol, pcExpr)
+			This.SortOnByDown(nCol, pcExpr)
+
+		def SortOnColByDown(nCol, pcExpr)
+			This.SortOnByDown(nCol, pcExpr)
+
+		def SortInColByInDescending(nCol, pcExpr)
+			This.SortOnByDown(nCol, pcExpr)
+
+		def SortOnColumnByDown(nCol, pcExpr)
+			This.SortOnByDown(nCol, pcExpr)
+
+		def SortOnColumnByInDescending(nCol, pcExpr)
+			This.SortOnByDown(nCol, pcExpr)
 
 		#>
 
