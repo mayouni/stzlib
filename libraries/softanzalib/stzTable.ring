@@ -9545,10 +9545,16 @@ Class stzTable from stzObject
 			   Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
 				paNewCol = paNewCol[2]
 			ok
-	
-			if NOT isList(paNewCol)
-				StzRaise("Incorrect param type! paNewCol must be a list.")
-			ok
+
+		ok
+
+		if isString(paNewCol)
+			This.ReplaceColName(pCol, paNewCol)
+			return
+		ok
+
+		if isNumber(paNewCol)
+			paNewCol = This.Col(paNewCol)
 		ok
 
 		cCol = This.ColToColName(pCol)
