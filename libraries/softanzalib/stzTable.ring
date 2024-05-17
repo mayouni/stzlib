@@ -11645,16 +11645,12 @@ Class stzTable from stzObject
 	def SortOnBy(pCol, pcExpr)
 
 		nCol = This.ColToColNumber(pCol)
-
 		oLoL = new stzListOfLists( This.Rows() )
-
-? @@NL( oLol.Content() )
 		pcExpr = StzStringQ(pcExpr).ReplaceCSQ("@cell", "@item", FALSE).Content()
+
 		oLoL.SortOnBy(nCol, pcExpr)
-? pcExpr
-? @@NL( oLol.Content() )
-dfdf
-		aRowsSorted = oLol.Content()
+
+		aRowsSorted = oLoL.Content()
 		nLenRows = len(aRowsSorted)
 
 		for i = 1 to nLenRows
