@@ -1879,19 +1879,12 @@ Class stzTable from stzObject
 	 #  GETTING THE CELLS OF MANY ROWS  #
 	#----------------------------------#
 
-	def CellsInRows(pnRows)
-		if NOT ( isList(pnRows) and Q(pnRows).IsListOfNumbers() )
-			StzRaise("Incorrect param type! pnRows must be a list of numbers.")
+	def CellsInRows(panRows)
+		if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
+			StzRaise("Incorrect param type! panRows must be a list of numbers.")
 		ok
 
-		nLen = len(pnRows)
-		aResult = []
-
-		for n = 1 to nLen
-			aResult + This.CellsInRow(n)
-		next
-
-		aResult = Q(aResult).Flattened()
+		aResult = This.TheseCells(RowsAsPositions(panRows))
 		return aResult
 
 	  #-----------------------#

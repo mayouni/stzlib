@@ -1481,7 +1481,7 @@ proff()
 # Executed in 0.38 second(s)
 
 /*===========
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -1526,11 +1526,12 @@ o1 = new stzTable([
 ? @@( o1.CellsInCols([:COL1, :COL2]) ) + NL
 #--> [ "a", "abcde", "abc", "ab", "b", "abcd", "R1", "R5", "R3", "R2", "R1", "R4" ]
 
-? @@( o1.CellsInRows([1, 3, 5]) ) + NL
+? @@( o1.CellsInRows([1, 3, 5]) )
 #--> [ "a", "R1", "abc", "R3", "b", "R1" ]
 
 proff()
-# Executed in 0.21 second(s)
+# Executed in 0.04 second(s) in Ring 1.20
+# Executed in 0.21 second(s) in Ring 1.17
 
 /*==============
 
