@@ -1509,7 +1509,7 @@ proff()
 # Executed in 0.13 second(s) in Ring 1.17
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -1563,7 +1563,8 @@ o1 = new stzTable([
 #--> TRUE
 
 proff()
-# Executed in 0.33 second(s)
+# Executed in 0.07 second(s) in Ring 1.20
+# Executed in 0.33 second(s) in Ring 1.17
 
 /*==============
 
@@ -1576,13 +1577,13 @@ o1 = new stzTable([
 	[ 30,	"Karim",	48	]
 ])
 
-? @@( o1.SectionAsPositions([2, 2], [3, 3]) )
+? @@( o1.SectionAsPositions([2, 2], [3, 3]) ) + NL
 #--> [ [ 2, 2 ], [ 3, 2 ], [ 2, 3 ], [ 3, 3 ] ]
 
 ? @@(o1.Section([2, 2], [3, 3])) + NL
 #--> [ "Hatem", 46, "Karim", 48 ]
 
-? @@(o1.SectionZ([2, 2], [3, 3])) + NL # or SectionAndPosiition()
+? @@NL(o1.SectionZ([2, 2], [3, 3])) + NL # or SectionAndPosiition()
 #--> [
 #	[ [ 2, 2 ], "Hatem" ],
 #	[ [ 3, 2 ], 46 ],
@@ -1594,10 +1595,11 @@ o1 = new stzTable([
 #--> [ 10, "Imed", 52, 20, "Hatem", 46, 30, "Karim", 48 ]
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.06 second(s) in Ring 1.20
+# Executed in 0.15 second(s) in Ring 1.17
 
 /*==============
-
+*/
 pron()
 
 o1 = new stzTable([
@@ -1622,7 +1624,7 @@ o1 = new stzTable([
 #	[ "Karim", 	[ 2, 3 ] ],
 #	[ 48, 		[ 3, 3 ] ]
 # ]
-
+/*
 ? @@( o1.PositionsAndCells() ) + NL
 #--> [
 #	[ [ 1, 1 ],	10	 ],
@@ -1656,7 +1658,7 @@ o1 = new stzTable([
 #	[ "[ 2, 3 ]", "Karim" ],
 #	[ "[ 3, 3 ]", 48 ]
 # ]
-
+*/
 proff()
 # Executed in 0.36 second(s)
 
