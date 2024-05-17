@@ -1370,10 +1370,10 @@ o1.Show()
 #    20     Hatem    46
 
 StopProfiler()
-# Executed in 0.22 second(s)
+# Executed in 0.48 second(s)
 
-/*==============
-*/
+/*--------
+
 pron()
 
 o1 = new stzListOfLists([
@@ -1391,53 +1391,94 @@ o1.SortOnBy(2, "len(@item)")
 # ]
 
 proff()
+# Executed in 0.04 second(s)
 
-/*==============
-*/
+/*---------
+
 StartProfiler()
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
 	#-------------------------------#
-	[ 10,	"Karim",	52   	],
+	[ 10,	"Abdelkarim",	52   	],
 	[ 20,	"Hatem", 	46	],
 	[ 30,	"Abraham",	48	]
 ])
 
-o1.SortBy('@cell')
+o1.SortOnBy(:NAME, 'len(@cell)')
 ? o1.Show()
-#--> ID      NAME   AGE
-#    --- --------- ----
-#    30   Abraham    48
-#    20     Hatem    46
-#    10     Karim    52
-/*
-o1.SortByDown()
-? o1.Show()
-#--> ID      NAME   AGE
-#    --- --------- ----
-#    10     Karim    52
-#    20     Hatem    46
-#    30   Abraham    48
+#--> ID         NAME   AGE
+#    --- ------------ ----
+#    20        Hatem    46
+#    30      Abraham    48
+#    10   Abdelkarim    52
 
-o1.SortByOn(:AGE)
+o1.SortOnByDown(:NAME, 'len(@cell)')
 ? o1.Show()
-#--> ID      NAME   AGE
-#    --- --------- ----
-#    20     Hatem    46
-#    30   Abraham    48
-#    10     Karim    52
+#--> ID         NAME   AGE
+#    --- ------------ ----
+#    10   Abdelkarim    52
+#    30      Abraham    48
+#    20        Hatem    46
 
-o1.SortByOnDown(:AGE)
+o1.SortOn(:AGE)
+? o1.Show()
+#--> ID         NAME   AGE
+#    --- ------------ ----
+#    20        Hatem    46
+#    30      Abraham    48
+#    10   Abdelkarim    52
+
+o1.SortOnDown(:AGE)
 o1.Show()
-#--> ID      NAME   AGE
-#    --- --------- ----
-#    10     Karim    52
-#    30   Abraham    48
-#    20     Hatem    46
-*/
+#--> ID         NAME   AGE
+#    --- ------------ ----
+#    10   Abdelkarim    52
+#    30      Abraham    48
+#    20        Hatem    46
+
 StopProfiler()
-# Executed in 0.22 second(s)
+# Executed in 0.59 second(s)
+
+/*-------------
+*/
+pron()
+
+o1 = new stzTable([
+	[  "COL1",   "COL2" ],
+	#-------------------#
+	[     "a",    "R1"  ],
+	[ "abcde",    "R5"  ],
+	[   "abc",    "R3"  ],
+	[    "ab",    "R2"  ],
+	[     "b",    "R1"  ],
+	[   "abcd",   "R4"  ]
+])
+
+o1.SortOn(:COL2)
+? o1.Show() + NL
+#--> COL1   COL2
+#   ------ -----
+#       a     R1
+#       b     R1
+#      ab     R2
+#     abc     R3
+#    abcd     R4
+#   abcde     R5
+
+o1.SortOnDown(:COL2)
+o1.Show()
+#--> COL1   COL2
+#   ------ -----
+#   abcde     R5
+#    abcd     R4
+#     abc     R3
+#      ab     R2
+#       b     R1
+#       a     R1
+
+proff()
+# Executed in 0.38 second(s)
 
 /*===========
 
