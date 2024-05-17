@@ -11596,20 +11596,20 @@ Class stzTable from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def SortOnInDescending(nCol)
-			This.SortOnDown(nCol)
+		def SortOnInDescending(pCol)
+			This.SortOnDown(pCol)
 
-		def SortOnColDown(nCol)
-			This.SortOnDown(nCol)
+		def SortOnColDown(pCol)
+			This.SortOnDown(pCol)
 
-		def SortInColInDescending(nCol)
-			This.SortOnDown(nCol)
+		def SortInColInDescending(pCol)
+			This.SortOnDown(pCol)
 
-		def SortOnColumnDown(nCol)
-			This.SortOnDown(nCol)
+		def SortOnColumnDown(pCol)
+			This.SortOnDown(pCol)
 
-		def SortOnColumnInDescending(nCol)
-			This.SortOnDown(nCol)
+		def SortOnColumnInDescending(pCol)
+			This.SortOnDown(pCol)
 
 		#>
 
@@ -11642,35 +11642,50 @@ Class stzTable from stzObject
 	 #  SORTING THE TABLE ON A GIVEN COLUMN BY A GIVEN EXPRESSION IN ASCENDiNG  #
 	#==========================================================================#
 
-	def SortOnBy(nCol, pcExpr)
+	def SortOnBy(pCol, pcExpr)
 
-		/* ... */
+		nCol = This.ColToColNumber(pCol)
+
+		oLoL = new stzListOfLists( This.Rows() )
+
+? @@NL( oLol.Content() )
+		pcExpr = StzStringQ(pcExpr).ReplaceCSQ("@cell", "@item", FALSE).Content()
+		oLoL.SortOnBy(nCol, pcExpr)
+? pcExpr
+? @@NL( oLol.Content() )
+dfdf
+		aRowsSorted = oLol.Content()
+		nLenRows = len(aRowsSorted)
+
+		for i = 1 to nLenRows
+			This.ReplaceRow(i, aRowsSorted[i])
+		next
 
 		#< @FunctionAlternativeForms
 
-		def SortOnByUp(nCol, pcExpr)
-			This.SortOnBy(nCol, pcExpr)
+		def SortOnByUp(pCol, pcExpr)
+			This.SortOnBy(pCol, pcExpr)
 
-		def SortOnByInAscending(nCol, pcExpr)
-			This.SortOnBy(nCol, pcExpr)
+		def SortOnByInAscending(pCol, pcExpr)
+			This.SortOnBy(pCol, pcExpr)
 
-		def SortOnColBy(nCol, pcExpr)
-			This.SortOnBy(nCol, pcExpr)
+		def SortOnColBy(pCol, pcExpr)
+			This.SortOnBy(pCol, pcExpr)
 
-		def SortOnColByUp(nCol)
-			This.SortOnBy(nCol, pcExpr)
+		def SortOnColByUp(pCol)
+			This.SortOnBy(pCol, pcExpr)
 
-		def SortOnColByInAscending(nCol, pcExpr)
-			This.SortOnBy(nCol, pcExpr)
+		def SortOnColByInAscending(pCol, pcExpr)
+			This.SortOnBy(pCol, pcExpr)
 
-		def SortOnColumnBy(nCol, pcExpr)
-			This.SortOnBy(nCol, pcExpr)
+		def SortOnColumnBy(pCol, pcExpr)
+			This.SortOnBy(pCol, pcExpr)
 
-		def SortOnColumnByUp(nCol, pcExpr)
-			This.SortOnBy(nCol, pcExpr)
+		def SortOnColumnByUp(pCol, pcExpr)
+			This.SortOnBy(pCol, pcExpr)
 
-		def SortOnColumnByInAscending(nCol, pcExpr)
-			This.SortOnBy(nCol, pcExpr)
+		def SortOnColumnByInAscending(pCol, pcExpr)
+			This.SortOnBy(pCol, pcExpr)
 
 		#>
 
@@ -11678,26 +11693,37 @@ Class stzTable from stzObject
 	 #  SORTING THE TABLE ON A GIVEN COLUMN BY A GIVEN EXPRESSION IN DESCENDiNG  #
 	#===========================================================================#
 
-	def SortOnByDown(nCol, pcExpr)
+	def SortOnByDown(pCol, pcExpr)
 
-		/* ... */
+		nCol = This.ColToColNumber(pCol)
+
+		oLoL = new stzListOfLists( This.Rows() )
+		pcExpr = StzStringQ(pcExpr).ReplaceCSQ("@cell", "@item", FALSE).Content()
+		oLoL.SortOnByDown(nCol, pcExpr)
+
+		aRowsSorted = oLol.Content()
+		nLenRows = len(aRowsSorted)
+
+		for i = 1 to nLenRows
+			This.ReplaceRow(i, aRowsSorted[i])
+		next
 
 		#< @FunctionAlternativeForms
 
-		def SortOnByInDescending(nCol, pcExpr)
+		def SortOnByInDescending(pCol, pcExpr)
 			This.SortOnByDown(nCol, pcExpr)
 
 		def SortOnColByDown(nCol, pcExpr)
-			This.SortOnByDown(nCol, pcExpr)
+			This.SortOnByDown(pCol, pcExpr)
 
-		def SortInColByInDescending(nCol, pcExpr)
-			This.SortOnByDown(nCol, pcExpr)
+		def SortInColByInDescending(pCol, pcExpr)
+			This.SortOnByDown(pCol, pcExpr)
 
-		def SortOnColumnByDown(nCol, pcExpr)
-			This.SortOnByDown(nCol, pcExpr)
+		def SortOnColumnByDown(pCol, pcExpr)
+			This.SortOnByDown(pCol, pcExpr)
 
-		def SortOnColumnByInDescending(nCol, pcExpr)
-			This.SortOnByDown(nCol, pcExpr)
+		def SortOnColumnByInDescending(pCol, pcExpr)
+			This.SortOnByDown(pCol, pcExpr)
 
 		#>
 

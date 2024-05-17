@@ -3153,6 +3153,9 @@ class stzListOfLists from stzList
 	 #  SORTING THE LISTS BY AN EXPRESSION EVALUATED AGAINST A GIVEN COLUMN - IN ASCENDING  #
 	#======================================================================================#
 
+def SortOnByXT(nCol, pcExpr)
+#--> returns a hashlist with the evaluated expression
+
 	def SortOnBy(nCol, pcExpr)
 
 		nLen = len(@aContent)
@@ -3160,19 +3163,19 @@ class stzListOfLists from stzList
 		aCol = This.Col(nCol)
 		nLenCol = len(aCol)
 
-		cCode = 'value = ' + StzStringQ(pcExpr).TrimQ().TheseBoundsRemoved("{","}") + ')'
+		cCode = 'value = (' + StzStringQ(pcExpr).TrimQ().TheseBoundsRemoved("{","}") + ')'
 
 		aResult = []
 
 		for @i = 1 to nLenCol
 			@item = aCol[@i]
 			eval(cCode)
-			@ring_insert(@aContent[nCol], value)
+			ring_insert(@aContent[@i], 1, value)
 		next
 
-		This.SortOn(nCol)
-		This.RemoveCol(nCol)
-
+		@aContent = @SortLists(@aContent)
+		This.RemoveCol(1)
+		
 		#< @FunctionFluentForm
 
 		def SortOnByQ(nCol, pcExpr)

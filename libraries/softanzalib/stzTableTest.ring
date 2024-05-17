@@ -1327,7 +1327,6 @@ proff()
 
 /*==============
 
-*/
 StartProfiler()
 
 o1 = new stzTable([
@@ -1370,6 +1369,73 @@ o1.Show()
 #    30   Abraham    48
 #    20     Hatem    46
 
+StopProfiler()
+# Executed in 0.22 second(s)
+
+/*==============
+*/
+pron()
+
+o1 = new stzListOfLists([
+	[ 10, "Abdelkarim", 52 ],
+	[ 20, "Hatem", 46 ],
+	[ 30, "Abraham", 48 ]
+])
+
+o1.SortOnBy(2, "len(@item)")
+? @@NL( o1.Content() )
+#--> [
+#	[ 20, "Hatem", 46 ],
+#	[ 30, "Abraham", 48 ],
+#	[ 10, "Abdelkarim", 52 ]
+# ]
+
+proff()
+
+/*==============
+*/
+StartProfiler()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Karim",	52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Abraham",	48	]
+])
+
+o1.SortBy('@cell')
+? o1.Show()
+#--> ID      NAME   AGE
+#    --- --------- ----
+#    30   Abraham    48
+#    20     Hatem    46
+#    10     Karim    52
+/*
+o1.SortByDown()
+? o1.Show()
+#--> ID      NAME   AGE
+#    --- --------- ----
+#    10     Karim    52
+#    20     Hatem    46
+#    30   Abraham    48
+
+o1.SortByOn(:AGE)
+? o1.Show()
+#--> ID      NAME   AGE
+#    --- --------- ----
+#    20     Hatem    46
+#    30   Abraham    48
+#    10     Karim    52
+
+o1.SortByOnDown(:AGE)
+o1.Show()
+#--> ID      NAME   AGE
+#    --- --------- ----
+#    10     Karim    52
+#    30   Abraham    48
+#    20     Hatem    46
+*/
 StopProfiler()
 # Executed in 0.22 second(s)
 
