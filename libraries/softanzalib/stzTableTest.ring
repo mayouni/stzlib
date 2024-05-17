@@ -1441,7 +1441,7 @@ StopProfiler()
 # Executed in 0.59 second(s)
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -1481,11 +1481,12 @@ proff()
 # Executed in 0.38 second(s)
 
 /*===========
-
+*/
 pron()
 
 o1 = new stzTable([
 	[ :ID,	:NAME,		:AGE 	],
+
 	[ 10,	"Karim",	52   	],
 	[ 20,	"Hatem", 	46	],
 	[ 30,	"Abraham",	48	]
@@ -1498,16 +1499,17 @@ o1 = new stzTable([
 #--> [ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 3, 1 ], [ 3, 2 ], [ 3, 3 ] ]
 
 ? @@( o1.RowAsPositions(3) ) + NL
-#--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
+#--> [ [ 1, 3 ], [ 2, 3 ], [ 3, 3 ] ]
 
 ? @@( o1.RowsAsPositions([2, 3]) ) + NL
 #--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ], [ 1, 3 ], [ 2, 3 ], [ 3, 3 ] ]
 
 proff()
-# Executed in 0.13 second(s)
+# Executed in 0.03 second(s) in Ring 1.20
+# Executed in 0.13 second(s) in Ring 1.17
 
 /*--------------
-
+*/
 pron()
 
 o1 = new stzTable([

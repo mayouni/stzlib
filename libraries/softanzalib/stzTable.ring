@@ -2100,17 +2100,21 @@ Class stzTable from stzObject
 	#-------------------------------------------------------#
 
 	def RowAsPositions(pnRow)
-		if isString(pnRow)
-			if pnRow = :First or pnRow = :FirstRow
-				pnRow = 1
+		if CheckParams()
 
-			but pnRow = :Last or pnRow = :LastRow
-				pnRow = This.NumberOfRows()
+			if isString(pnRow)
+				if pnRow = :First or pnRow = :FirstRow
+					pnRow = 1
+	
+				but pnRow = :Last or pnRow = :LastRow
+					pnRow = This.NumberOfRows()
+				ok
 			ok
-		ok
+	
+			if NOT isNumber(pnRow)
+				StzRaise("Incorrect param type! pnRow must be a number.")
+			ok
 
-		if NOT isNumber(pnRow)
-			StzRaise("Incorrect param type! pnRow must be a number.")
 		ok
 
 		nNumberOfCols = This.NumberOfCols()
@@ -2183,18 +2187,17 @@ Class stzTable from stzObject
 	#----------------------------------------------------#
 
 	def RowsAsPositions(panRows)
-		nRows = len(panRows)
+		nNumberOfCols = This.NumberOfCols()
+		nLenRows = len(panRows)
+
 		aResult = []
 
-		for i = 1 to nRows
-
-			aPositions = This.CellsInRowAsPositions(panRows[i])
-			nLenPos    = len(aPositions)
-
-			for q = 1 to nLenPos
-				aResult + aPositions[q]
+		for i = 1 to nLenRows
+	
+			for j = 1 to nNumberOfCols
+				aResult + [ j, panRows[i] ]
 			next
-
+	
 		next
 
 		return aResult
