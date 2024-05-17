@@ -7922,6 +7922,12 @@ class stzList from stzObject
 			def ReplaceThisAtCSQ(n, pItem, pNewItem, pCaseSensitive)
 				return This.ReplaceAtCSQ(n, pItem, pNewItem, pCaseSensitive)
 
+		def ReplaceNthItemCS(n, pItem, pNewItem, pCaseSensitive)
+			This.ReplaceAtCS(n, pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceNthItemCSQ(n, pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceAtCSQ(n, pItem, pNewItem, pCaseSensitive)
+
 		#>
 
 	#-- @FunctionPassiveForm
@@ -7933,10 +7939,13 @@ class stzList from stzObject
 		#< @FunctionAlternativeForms
 
 		def ThisReplacedAtCS(n, pItem, pNewItem, pCaseSensitive)
-			return This.ReplacedAtCS(n, pItem, pNewItem, pCaseSensitive)
+			return This.ItemReplacedAtCS(n, pItem, pNewItem, pCaseSensitive)
 
 		def ThisItemReplacedAtCS(n, pItem, pNewItem, pCaseSensitive)
-			return This.ReplacedAtCS(n, pItem, pNewItem, pCaseSensitive)
+			return This.ItemReplacedAtCS(n, pItem, pNewItem, pCaseSensitive)
+
+		def NthItemReplacedCS(n, pItem, pNewItem, pCaseSensitive)
+			return This.ItemReplacedAtCS(n, pItem, pNewItem, pCaseSensitive)
 
 		#>
 
@@ -7967,6 +7976,12 @@ class stzList from stzObject
 			def ReplaceThisAtQ(n, pItem, pNewItem)
 				return This.ReplaceAtQ(n, pItem, pNewItem)
 
+		def ReplaceNthItem(n, pItem, pNewItem)
+			This.ReplaceAt(n, pItem, pNewItem)
+
+			def ReplaceNthItemQ(n, pItem, pNewItem)
+				return This.ReplaceAtQ(n, pItem, pNewItem)
+
 		#>
 
 	#-- @FunctionPassiveForm
@@ -7981,6 +7996,9 @@ class stzList from stzObject
 
 		def ThisItemReplacedAt(n, pItem, pNewItem)
 			return This.ReplacedAt(n, pItem, pNewItem)
+
+		def NthItemReplaced(n, pItem, pNewItem)
+			return This.ItemReplacedAt(n, pItem, pNewItem)
 
 		#>
 
@@ -10961,7 +10979,7 @@ class stzList from stzObject
 	#------------------------------#
 
 	def ReplaceFirstItem(pOtherItem)
-		This.ReplaceNthItem(1, pOtherItem)
+		@aContent[1] = pOtherItem
 
 		def ReplaceFirstItemQ(pOtherItem)
 			This.ReplaceFirstItem(pOtherItem)
@@ -10987,7 +11005,7 @@ class stzList from stzObject
 	#-----------------------------#
 
 	def ReplaceLastItem(pOtherItem)
-		This.ReplaceNthItem(This.NumberOfItems(), pOtherItem)
+		@aContent[ len(@aContent) ] = pOtherItem
 
 		def ReplaceLastItemQ(pOtherItem)
 			This.ReplaceLastItem(pOtherItem)

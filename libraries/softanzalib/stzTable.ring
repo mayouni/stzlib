@@ -2830,19 +2830,19 @@ Class stzTable from stzObject
 
 		if isList(panCellPos1)
 			if isString(panCellPos1[1]) and panCellPos1[1] = :FirstCol
-				panCellPos1 = Q(panCellPos1).FirstItemReplaced( :With = 1)
+				panCellPos1 = Q(panCellPos1).ReplaceAtQ(1, 1).Content()
 			ok
 
 			if isString(panCellPos1[2]) and panCellPos1[2] = :FirstRow
-				panCellPos1 = Q(panCellPos1).NthItemReplaced( 2, :With = 1)
+				panCellPos1 = Q(panCellPos1).ReplaceAtQ(2, 1).Content()
 			ok
 
 			if isString(panCellPos2[1]) and panCellPos2[1] = :LastCol
-				panCellPos2 = Q(panCellPos2).FirstItemReplaced( :With = This.NumberOfCol() )
+				panCellPos2 = Q(panCellPos2).ReplaceAtQ(1, This.NumberOfCol() ).Content()
 			ok
 
 			if isString(panCellPos2[2]) and panCellPos2[2] = :LastRow
-				panCellPos2 = Q(panCellPos2).NthItemReplaced( 2, :With = This.NumberOfRows() )
+				panCellPos2 = Q(panCellPos2).ReplaceAtQ( 2, This.NumberOfRows() ).Content()
 			ok
 		ok
 
