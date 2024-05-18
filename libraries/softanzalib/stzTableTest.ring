@@ -1777,7 +1777,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*==============
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -1811,7 +1811,7 @@ o1 = new stzTable([
 #--> [ 52, 46, 48 ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*--------------
 
@@ -1832,7 +1832,7 @@ o1 = new stzTable([
 #-->[ "age", 52, 46, 48 ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.03 second(s)
 
 /*==============
 
@@ -1849,7 +1849,7 @@ o1 = new stzTable([
 ? @@( o1.Row(2) ) + NL
 #--> [ 20, "Hatem", 46 ]
 
-? @@( o1.Rows() )
+? @@NL( o1.Rows() )
 #-->
 # [
 #	[ 10, "Imed",	52 ],
@@ -1858,7 +1858,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.03 second(s)
 
 /*==============
 
@@ -1872,30 +1872,56 @@ o1 = new stzTable([
 	[ 30,	"Karim",	48	]
 ])
 
-//o1.AddCol( :JOB = [ "Pilot", "Designer", "Author", "thing" ] )
-#--> Error message:
-# Incorrect number of cells! paColNameAndData must contain extactly 3 cells.
-
 o1.AddCol( :JOB = [ "Pilot", "Designer", "Author" ] )
 ? o1.Show()
-#-->
-# #   ID    NAME   AGE        JOB
-# 1   10    Imed   52      Pilot
-# 2   20   Hatem   46   Designer
-# 3   30   Karim   48     Author
+#--> ID    NAME   AGE        JOB
+#    --- ------- ----- ---------
+#    10    Imed    52      Pilot
+#    20   Hatem    46   Designer
+#    30   Karim    48     Authorr
 
 o1.RemoveCol(:JOB)
 o1.Show()
-#-->
-# #   ID    NAME   AGE
-# 1   10    Imed   52
-# 2   20   Hatem   46
-# 3   30   Karim   48
+#--> ID    NAME   AGE
+#    --- ------- ----
+#    10    Imed    52
+#    20   Hatem    46
+#    30   Karim    48
 
 proff()
-# Executed in 0.04 second(s) without Show() function
-# Executed in 1.05 second(s) with Show function
-#TODO: Show() function should be optimised!
+# Executed in 0.21 second(s)
+
+/*--------------
+*/
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:NAME,		:AGE 	],
+	#-------------------------------#
+	[ 10,	"Imed",		52   	],
+	[ 20,	"Hatem", 	46	],
+	[ 30,	"Karim",	48	]
+])
+
+o1.AddCol( :JOB = [ "Pilot", "Designer", "Author", "thing", "bye" ] )
+? o1.Shwo() # NOTE this is misspelled!
+
+#--> ID    NAME   AGE        JOB
+#    --- ------- ----- ---------
+#    10    Imed    52      Pilot
+#    20   Hatem    46   Designer
+#    30   Karim    48     Author
+
+o1.AddCol( :NATION = [ "Tunisia", "Egypt" ] )
+o1.Show()
+#--> ID    NAME   AGE        JOB    NATION
+#    --- ------- ----- ---------- --------
+#    10    Imed    52      Pilot   Tunisia
+#    20   Hatem    46   Designer     Egypt
+#    30   Karim    48     Author         
+
+proff()
+# Executed in 0.26 second(s)
 
 /*--------------
 
