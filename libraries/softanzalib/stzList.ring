@@ -15043,6 +15043,25 @@ Item and then position
 		aResult = This.Copy().RemoveZerosQ().Content()
 		return aResult
 
+	  #--------------------------------------#
+	 #  CHECKING IF ALL THE ITEMS ARE NULL  #
+	#--------------------------------------#
+
+	def AllItemsAreNull()
+
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			if NOT isString(@aContent[i])
+				return FALSE
+			ok
+			if @aContent[i] != NULL
+				return FALSE
+			ok
+		next
+
+		return TRUE
+
 	  #-------------------------------------#
 	 #    CHECKINK LIST CHARACTERISTICS    #
 	#-------------------------------------#

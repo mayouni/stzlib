@@ -1738,7 +1738,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*==============
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -1766,7 +1766,7 @@ o1 = new stzTable([
 ])
 
 o1.AddCol(:AGE = [ 55, 35, 28 ])
-? @@( o1.Content() )
+? @@NL( o1.Content() )
 #--> [
 #	[ "id", 	[ 10, 20, 30 ] 			],
 #	[ "name", 	[ "Imed", "Hatem", "Karim" ] 	],
@@ -1774,10 +1774,10 @@ o1.AddCol(:AGE = [ 55, 35, 28 ])
 # ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
 
 /*==============
-
+*/
 pron()
 
 o1 = new stzTable([
@@ -1793,7 +1793,7 @@ o1 = new stzTable([
 #--> TRUE
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.04 second(s)
 
 /*==============
 
