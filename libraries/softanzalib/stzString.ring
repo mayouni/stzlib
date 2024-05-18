@@ -27803,6 +27803,13 @@ class stzString from stzObject
 			def ReplaceSubStringsQ(pacSubStr, pcNewSubStr)
 				return This.ReplaceManyQ(pacSubStr, pNewSubstr)
 
+		def ReplaceTheseSubStrings(pacSubStr, pcNewSubStr)
+			This.ReplaceMany(pacSubStr, pNewSubstr)
+
+			def ReplaceTheseSubStringsQ(pacSubStr, pcNewSubStr)
+				return This.ReplaceManyQ(pacSubStr, pNewSubstr)
+
+
 		#>
 
 	def ManySubstringsReplaced(pacSubstr, pNewSubstr)
@@ -27872,8 +27879,27 @@ class stzString from stzObject
 			This.ReplaceByManyCS(cSubStr, pacNewSubStr, pCaseSensitive)
 
 			def ReplaceSubStringByManyCSQ(cSubStr, pacNewSubStr, pCaseSensitive)
-				This.ReplaceSubStringByManyCS(cSubStr, pacNewSubStr, pCaseSensitive)
-				return This
+				return This.ReplaceByManyCSQ(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplaceThisSubStringByManyCS(cSubStr, pacNewSubStr, pCaseSensitive)
+			This.ReplaceByManyCS(cSubStr, pacNewSubStr, pCaseSensitive)
+
+			def ReplaceThisSubStringByManyCSQ(cSubStr, pacNewSubStr, pCaseSensitive)
+				return This.ReplaceByManyCSQ(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		#--
+
+		def ReplaceByTheseCS(cSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplaceByManyCS(cSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplaceByTheseSubStringsCS(cSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplaceByManyCS(cSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplaceThisSubStringByTheseCS(cSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplaceByManyCS(cSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplaceThisSubStringByTheseSubStringsCS(cSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplaceByManyCS(cSubStr, pacNewSubStr, pCaseSensitive)
 
 		#>
 
@@ -27883,9 +27909,54 @@ class stzString from stzObject
 		cResult = This.Copy().ReplaceByManyCSQ(pcSubStr, pacNewSubStr, pCaseSensitive).Conten()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def SubStringReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
 			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
 
+		def TheseSubStringReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+ 
+		def ThisSubStringReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ThisReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		#--
+
+		def ReplacedByTheseCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplacedByTheseSubStringsCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def SubStringReplacedByTheseCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def SubStringReplacedByTheseSubStringsCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def TheseSubStringReplacedByTheseCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+ 
+		def TheseSubStringReplacedByTheseSubStringsCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+ 
+		def ThisSubStringReplacedByTheseCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ThisSubStringReplacedByTheseSubStringsCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ThisReplacedByTheseCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ThisReplacedByTheseSubStringsCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		#>
+		
 	#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -27908,6 +27979,26 @@ class stzString from stzObject
 			def ReplaceSubStringByManyQ(cSubStr, pacNewSubStr)
 				return This.ReplaceByManyQ(pcSubStr, pacNewSubStr)
 
+		def ReplaceThisSubStringByMany(cSubStr, pacNewSubStr)
+			This.ReplaceByMany(cSubStr, pacNewSubStr)
+
+			def ReplaceThisSubStringByManyQ(cSubStr, pacNewSubStr)
+				return This.ReplaceByManyQ(pcSubStr, pacNewSubStr)
+
+		#--
+
+		def ReplaceByThese(cSubStr, pacNewSubStr)
+			return This.ReplaceByMany(cSubStr, pacNewSubStr)
+
+		def ReplaceByTheseSubStrings(cSubStr, pacNewSubStr)
+			return This.ReplaceByMany(cSubStr, pacNewSubStr)
+
+		def ReplaceThisSubStringByThese(cSubStr, pacNewSubStr)
+			return This.ReplaceByMany(cSubStr, pacNewSubStr)
+
+		def ReplaceThisSubStringByTheseSubStrings(cSubStr, pacNewSubStr)
+			return This.ReplaceByMany(cSubStr, pacNewSubStr)
+
 		#>
 
 	#< @FunctionPassiveForms
@@ -27915,8 +28006,53 @@ class stzString from stzObject
 	def ReplacedByMany(pcSubStr, pacNewSubStr)
 		return This.ReplacedByManyCS(pcSubStr, pacNewSubStr, TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def SubStringReplacedByMany(pcSubStr, pacNewSubStr)
-			return This.ReplacedByManyC(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+
+		def TheseSubStringReplacedByMany(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+ 
+		def ThisSubStringReplacedByMany(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+
+		def ThisReplacedByMany(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+
+		#--
+
+		def ReplacedByThese(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+
+		def ReplacedByTheseSubStrings(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+
+		def SubStringReplacedByThese(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+
+		def SubStringReplacedByTheseSubStrings(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+
+		def TheseSubStringReplacedByThese(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+ 
+		def TheseSubStringReplacedByTheseSubStrings(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+ 
+		def ThisSubStringReplacedByThese(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+
+		def ThisSubStringReplacedByTheseSubStrings(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+
+		def ThisReplacedByThese(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+
+		def ThisReplacedByTheseSubStrings(pcSubStr, pacNewSubStr)
+			return This.ReplacedByMany(pcSubStr, pacNewSubStr)
+
+		#>
 
 	#>
 
@@ -27979,23 +28115,88 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceSubStringByManyCSXT(pcSubStr, pacNewSybStrings, pCaseSensitive)
-			This.ReplaceByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+		def ReplaceSubStringByManyCSXT(cSubStr, pacNewSubStr, pCaseSensitive)
+			This.ReplaceByManyCSXT(cSubStr, pacNewSubStr, pCaseSensitive)
 
-			def ReplaceSubStringByManyCSXTQ(pcSubStr, pacNewSybStrings, pCaseSensitive)
+			def ReplaceSubStringByManyCSXTQ(cSubStr, pacNewSubStr, pCaseSensitive)
 				return This.ReplaceByManyCSXTQ(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplaceThisSubStringByManyCSXT(cSubStr, pacNewSubStr, pCaseSensitive)
+			This.ReplaceByManyCSXT(cSubStr, pacNewSubStr, pCaseSensitive)
+
+			def ReplaceThisSubStringByManyCSXTQ(cSubStr, pacNewSubStr, pCaseSensitive)
+				return This.ReplaceByManyCSXTQ(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		#--
+
+		def ReplaceByTheseCSXT(cSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplaceByManyCSXT(cSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplaceByTheseSubStringsCSXT(cSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplaceByManyCSXT(cSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplaceThisSubStringByTheseCSXT(cSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplaceByManyCSXT(cSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplaceThisSubStringByTheseSubStringsCSXT(cSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplaceByManyCS(cSubStr, pacNewSubStr, pCaseSensitive)
 
 		#>
 
 	#< @FunctionPassiveForms
 
 	def ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
-		cResult = This.Copy().ReplaceByManyCSXTQ(pcSubStr, pacNewSubStr, pCaseSensitive).Content()
+		cResult = This.Copy().ReplaceByManyCSXTQ(pcSubStr, pacNewSubStr, pCaseSensitive).Conten()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def SubStringReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
 			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
 
+		def TheseSubStringReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+ 
+		def ThisSubStringReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ThisReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		#--
+
+		def ReplacedByTheseCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplacedByTheseSubStringsCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def SubStringReplacedByTheseCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def SubStringReplacedByTheseSubStringsCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def TheseSubStringReplacedByTheseCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+ 
+		def TheseSubStringReplacedByTheseSubStringsCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+ 
+		def ThisSubStringReplacedByTheseCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ThisSubStringReplacedByTheseSubStringsCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ThisReplacedByTheseCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ThisReplacedByTheseSubStringsCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		#>
+		
 	#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -28012,22 +28213,86 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ReplaceSubStringByManyXT(pcSubStr, pacNewSybStrings)
-			This.ReplaceByManyXT(pcSubStr, pacNewSubStr)
+		def ReplaceSubStringByManyXT(cSubStr, pacNewSubStr)
+			This.ReplaceByManyXT(cSubStr, pacNewSubStr)
 
-			def ReplaceSubStringByManyXTQ(pcSubStr, pacNewSybStrings)
+			def ReplaceSubStringByManyXTQ(cSubStr, pacNewSubStr)
 				return This.ReplaceByManyXTQ(pcSubStr, pacNewSubStr)
+
+		def ReplaceThisSubStringByManyXT(cSubStr, pacNewSubStr)
+			This.ReplaceByManyXT(cSubStr, pacNewSubStr)
+
+			def ReplaceThisSubStringByManyXTQ(cSubStr, pacNewSubStr)
+				return This.ReplaceByManyXTQ(pcSubStr, pacNewSubStr)
+
+		#--
+
+		def ReplaceByTheseXT(cSubStr, pacNewSubStr)
+			return This.ReplaceByManyXT(cSubStr, pacNewSubStr)
+
+		def ReplaceByTheseSubStringsXT(cSubStr, pacNewSubStr)
+			return This.ReplaceByManyXT(cSubStr, pacNewSubStr)
+
+		def ReplaceThisSubStringByTheseXT(cSubStr, pacNewSubStr)
+			return This.ReplaceByManyXT(cSubStr, pacNewSubStr)
+
+		def ReplaceThisSubStringByTheseSubStringsXT(cSubStr, pacNewSubStr)
+			return This.ReplaceByManyXT(cSubStr, pacNewSubStr)
 
 		#>
 
 	#< @FunctionPassiveForms
 
 	def ReplacedByManyXT(pcSubStr, pacNewSubStr)
-		cResult = This.Copy().ReplaceByManyXTQ(pcSubStr, pacNewSubStr).Content()
-		return cResult
+		return This.ReplacedByManyCSXT(pcSubStr, pacNewSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def SubStringReplacedByManyXT(pcSubStr, pacNewSubStr)
 			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+
+		def TheseSubStringReplacedByManyXT(pcSubStr, pacNewSubStr)
+			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+ 
+		def ThisSubStringReplacedByManyXT(pcSubStr, pacNewSubStr)
+			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+
+		def ThisReplacedByManyXT(pcSubStr, pacNewSubStr)
+			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+
+		#--
+
+		def ReplacedByTheseXT(pcSubStr, pacNewSubStr)
+			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+
+		def ReplacedByTheseSubStringsXT(pcSubStr, pacNewSubStr)
+			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+
+		def SubStringReplacedByTheseXT(pcSubStr, pacNewSubStr)
+			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+
+		def SubStringReplacedByTheseSubStringsXT(pcSubStr, pacNewSubStr)
+			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+
+		def TheseSubStringReplacedByTheseXT(pcSubStr, pacNewSubStr)
+			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+ 
+		def TheseSubStringReplacedByTheseSubStringsXT(pcSubStr, pacNewSubStr)
+			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+ 
+		def ThisSubStringReplacedByTheseXT(pcSubStr, pacNewSubStr)
+			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+
+		def ThisSubStringReplacedByTheseSubStringsXT(pcSubStr, pacNewSubStr)
+			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+
+		def ThisReplacedByTheseXT(pcSubStr, pacNewSubStr)
+			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+
+		def ThisReplacedByTheseSubStringsXT(pcSubStr, pacNewSubStr)
+			return This.ReplacedByManyXT(pcSubStr, pacNewSubStr)
+
+		#>
 
 	#>
 

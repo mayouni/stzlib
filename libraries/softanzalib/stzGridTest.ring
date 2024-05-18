@@ -66,9 +66,12 @@ o1 = new stzGrid(CharsBetween(" ", :And = "z") )
 proff()
 #--> Executed in 0.02 second(s)
 
-/*---------------
+/*--------------- #TODO check it
 */
 pron()
+
+? @@( CharsBetween("!", "p") )
+
 
 # Showing the chars between " " and "z" in a grid of 10 by 10
 StzGridQ([10, 10]).FillWithQ( CharsBetween("!", "p") ).Show()
@@ -111,7 +114,7 @@ proff()
 #--> Executed in 0.15 second(s)
 
 /*----------
-
+*/
 pron()
 
 o1 = new stzGrid(9)

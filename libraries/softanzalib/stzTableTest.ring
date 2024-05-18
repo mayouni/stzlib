@@ -1599,7 +1599,7 @@ proff()
 # Executed in 0.15 second(s) in Ring 1.17
 
 /*==============
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -1612,7 +1612,7 @@ o1 = new stzTable([
 ? @@( o1.Cells() ) + NL
 #--> [ 10, "Imed", 52, 20, "Hatem", 46, 30, "Karim", 48 ]
 
-? @@( o1.CellsXT() ) + NL # Same as CellsAndPositions() and CellsZ()
+? @@NL( o1.CellsAndPositions() ) + NL # Same as CellsZ()
 #--> [
 #	[ 10, 		[ 1, 1 ] ],
 #	[ "Imed", 	[ 2, 1 ] ],
@@ -1624,8 +1624,8 @@ o1 = new stzTable([
 #	[ "Karim", 	[ 2, 3 ] ],
 #	[ 48, 		[ 3, 3 ] ]
 # ]
-/*
-? @@( o1.PositionsAndCells() ) + NL
+
+? @@NL( o1.PositionsAndCells() ) + NL
 #--> [
 #	[ [ 1, 1 ],	10	 ],
 #	[ [ 2, 1 ],	"Imed"	 ],
@@ -1638,7 +1638,7 @@ o1 = new stzTable([
 #	[ [ 3, 3 ],	48	 ]
 # ]
 
-? @@( o1.CellsToHashList() ) + NL
+? @@( o1.CellsToHashList() ) + NL # (used internally by Softanza)
 #--> [
 #	"[ 1, 1 ]" = 10,
 #	"[ 2, 1 ]" = "Imed",
@@ -1651,16 +1651,17 @@ o1 = new stzTable([
 #	"[ 3, 3 ]" = 48
 # ]
 
-? @@( o1.SectionToHashList([2, 2], [3, 3]) )
+? @@( o1.SectionToHashList([2, 2], [3, 3]) ) # (idem)
 #--> [
 #	[ "[ 2, 2 ]", "Hatem" ],
 #	[ "[ 3, 2 ]", 46 ],
 #	[ "[ 2, 3 ]", "Karim" ],
 #	[ "[ 3, 3 ]", 48 ]
 # ]
-*/
+
 proff()
-# Executed in 0.36 second(s)
+# Executed in 0.09 second(s) in Ring 1.20
+# Executed in 0.36 second(s) in Ring 1.17
 
 /*==============
 
@@ -1686,7 +1687,7 @@ o1 = new stzTable([
 #--> "name"
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
 
 /*==============
 
@@ -1706,11 +1707,12 @@ o1 = new stzTable([
 #--> Error message:
 # Syntax error in (employee)! This column name is inexistant.
 
-? o1.Cell(5, 7) )
+? o1.Cell(5, 7 )
 #--> Error message:
 # Array Access (Index out of range) ! 
 
 proff()
+# Executed in 0.02 second(s)
 
 /*==============
 
@@ -1733,10 +1735,10 @@ o1 = new stzTable([
 #--> 12
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*==============
-
+*/
 pron()
 
 o1 = new stzTable([
@@ -1750,7 +1752,7 @@ o1 = new stzTable([
 #--> [ "id", "name", "age" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*==============
 

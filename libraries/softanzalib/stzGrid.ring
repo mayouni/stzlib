@@ -929,6 +929,7 @@ class stzGrid from stzObject
 		#>
 
 	def Show()
+
 		if @bShowRanks = TRUE
 			aTemp = []
 
