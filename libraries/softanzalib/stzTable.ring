@@ -9955,11 +9955,26 @@ Class stzTable from stzObject
 		if This.IsColName(paColNameAndData[1])
 			StzRaise("Can't add the column! The name your provided already exists.")
 		ok
-
+/*
 		if NOT len(paColNameAndData[2]) = This.NumberOfRows()
 			StzRaise("Incorrect number of cells! paColNameAndData must contain extactly " + This.NumberOfRows() + " cells.")
 		ok
+*/
 
+		nLen = len(paColNameAndData[2])
+		nRows = This.NumberOfRows()
+
+		if nLen < nRows
+			for i = nLen+1 to nRows
+				paColNameAndData[2] + NULL
+			next
+
+		but nLen > nRows
+			for i = nLen to nRows+1 step - 1
+				ring_remove(paColNameAndData[2], i)
+			next
+		ok
+			
 		This.Content() + paColNameAndData
 
 		def AddCol(paColNameAndData)
