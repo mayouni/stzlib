@@ -50,7 +50,7 @@ func LC(p)
 		func LoCQ(p)
 			return LCQ(p)
 
-func AreChars(paChars)
+func AreChars(pacChars)
 	if CheckParams()
 		if NOT islist(pacChars)
 			StzRaise("Incorrect param type! pacChars must be a list.")
@@ -61,15 +61,15 @@ func AreChars(paChars)
 	bResult = TRUE
 
 	for i = 1 to nLen
-		if NOT ( isString(paChars[i]) and @IsChar(paChars[i]) )
+		if NOT ( isString(pacChars[i]) and @IsChar(pacChars[i]) )
 			bResult = FALSE
 			exit
 		ok
 	next
 	return bResult
 
-	func @AreChars(paChars)
-		return AreChars(paChars)
+	func @AreChars(pacChars)
+		return AreChars(pacChars)
 
 func AreBothChars(p1, p2)
 	return AreChars([ p1, p2 ])
