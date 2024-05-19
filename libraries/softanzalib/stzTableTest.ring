@@ -2552,11 +2552,12 @@ proff()
 # Executed in 4.48 second(s) in Ring 1.17
 
 /*==============
-*/
+
 pron()
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME ],
+
 	[ "Andy", 	"Maestro" ],
 	[ "Alibaba", 	"Abraham" ],
 	[ "Alibaba",	"AliAli"  ]
@@ -2568,14 +2569,15 @@ o1 = new stzTable([
 ? @@( o1.FindInCell(:FIRSTNAME, 2, "ba") )
 #--> [ 4, 6 ]
 
-//? @@( o1.FindInCell(:LASTNAME, 3, "Ali") )
+? @@( o1.FindInCell(:LASTNAME, 3, "Ali") )
 #--> [ 1, 4 ]
 
 proff()
-# Executed in 0.18 second(s)
+# Executed in 0.05 second(s) in Ring 1.20
+# Executed in 0.18 second(s) in Ring 1.17
 
 /*--------------
-
+*/
 pron()
 
 o1 = new stzTable([

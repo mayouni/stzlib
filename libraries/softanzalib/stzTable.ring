@@ -4222,7 +4222,7 @@ Class stzTable from stzObject
 
 			oCell = This.CellQ(pCellCol, pCellRow)
 
-			if @IsStzFindable(oCell.IsStringOrList())
+			if @IsStzFindable(oCell)
 				anResult = oCell.FindCS(pCellValueOrSubValue, pCaseSensitive)
 
 			ok

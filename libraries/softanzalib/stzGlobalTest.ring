@@ -4,6 +4,28 @@ load "stzlib.ring"
 
 pron()
 
+? IsStzFindable("ring")
+#--> FALSE
+
+? IsStzFindable(1:20)
+#--> FALSE
+
+? IsStzFindable( Q("ring") ) # because Q() elevates "ring" to a stzString object
+#--> TRUE
+
+? IsStzFindable( Q(1:20) ) # because Q() elevates 1:20 to a stzList object
+#--> TRUE
+
+? IsStzFindable( ANullObject() ) # it's a stzObject but it is not findable!
+#--> FALSE
+
+proff()
+# Executed in 0.02 second(s)
+
+/*===
+
+pron()
+
 ? 3 : 5
 #--> [ 3, 5 ]
 
@@ -350,7 +372,7 @@ ForEach( :number, :in = 1:5 ) { X('
 proff()
 # Executed in 0.04 second(s)
 
-/*---------- #perf (more performant in Ring 1.19 then in Ring 1.20)
+/*----------
 
 pron()
 
@@ -364,8 +386,7 @@ ForEach( [ :name, :age ], :in = [ [ "teebah", 12], ["haneen", 8], ["hussein", 2]
 #    hussein	2
 
 proff()
-# Executed in 0.09 second(s) in Ring 1.20
-# Executed in 0.05 second(s) in Ring 1.19
+# Executed in 0.05 second(s) in Ring 1.20
 
 /*----------
 

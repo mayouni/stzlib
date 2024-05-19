@@ -1,5 +1,37 @@
 load "stzlib.ring"
 
+/*=======
+*/
+pron()
+
+	ForEach( :Item, :In = [ "a", "b", "c" ] ) { X('
+		? v(:Item)
+	') }
+	#--> "a"
+	#--> "b"
+	#--> "c"
+
+	? ""
+
+	ForEach( :Char, :In = "ABC" ) { X('
+		? v(:Char)
+	') }
+	#--> "A"
+	#--> "B"
+	#--> "C"
+
+	? ""
+
+	ForEach( [ :Char, :Number ], :In = [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ] ) { X('
+		? v(:Char) + v(:Number)
+	') }
+	#--> "A1"
+	#--> "B2"
+	#--> "C3'
+
+proff()
+#--> Executed in 0.11 second(s)
+
 /*========== #narration
 
 pron()
