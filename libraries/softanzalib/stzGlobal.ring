@@ -35,17 +35,19 @@ _aRingTypesXT = [
 	]
 
 @ = 0
-/*
-_aFindableStzTypes = [
-	:stzList, :stzHashList, :stzListOfHashLists,
-	:stzListOfLists, :stzListOfNumbers, :stzListOfUnicodes,
-	:stzListOfStrings, :stzListOfChars, :stzListOfPairs,
-	:stzListOfBytes, :stzSet, :stzListOfSets, :stzPair,
-	:stzPairOfNumbers, :stzPairOfLists, :stzTree, :stzGrid,
-	:stzWalker, :stzTable, :stzString, :stzMultiString,
-	:stzListInString, :stzText, :stzSection
+
+_aStzFindableTypes = [
+	:stzListOfNumbers, :stzListOfUnicodes, :stzString, :stzMultiString,
+	:stzSubString, :stzItem, :stzStopWords, :stzStopWordsData,
+	:stzListOfStrings, :stzListInString, :stzListOfBytes,
+	:stzCharData, :stzListOfChars, :stzList, :stzHashList,
+	:stzListOfHashLists, :stzSet, :stzListOfLists, :stzSplitter,
+	:stzListOfPairs, :stzPair, :stzPairOfNumbers, :stzPairOfLists,
+	:stzListOfSets, :stzTree, :stzWalker, :stzTable, :stzLocaleData,
+	:stzUnicodeData, :stzGrid, :stzListOfEntities, :stzText,
+	:stzConstraintsData, :stzSection
 ]
-*/
+
 _oMainObject = ANullObject() # Used for chains of truth
 _MainValue = NULL
 _LastValue = NULL
@@ -481,23 +483,27 @@ func These(p)
 func ForEach(p, pIn)
 	/* EXAMPLES
 
-	ForEach( :Item, :In = [ "a", "b", "c" ] ) {
+	ForEach( :Item, :In = [ "a", "b", "c" ] ) { X('
 		? v(:Item)
-	}
+	') }
 	#--> "a"
 	#--> "b"
 	#--> "c"
 
-	ForEach( :Char, :In = "ABC" ) {
+	? ""
+
+	ForEach( :Char, :In = "ABC" ) { X('
 		? v(:Char)
-	}
+	') }
 	#--> "A"
 	#--> "B"
 	#--> "C"
 
-	ForEach( [ :Char, :Number ], :In = [ "A" = 1, "B" = 2, "C" = 3 ] )
+	? ""
+
+	ForEach( [ :Char, :Number ], :In = [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ] ) { X('
 		? v(:Char) + v(:Number)
-	}
+	') }
 	#--> "A1"
 	#--> "B2"
 	#--> "C3'
@@ -4065,7 +4071,7 @@ func HowMany(paList)
 	#-- @FunctionMisspelledForms
 	#TODO: Add "Hwo" as an alternative of "Hwo" in all functions
 
-	def HwoMany(paList)
+	func HwoMany(paList)
 		return HowMany(paList)
 
 	func HwoManyItemsIn(paList)
@@ -4073,6 +4079,64 @@ func HowMany(paList)
 
 	func HwoManyItems(paList)
 		return HowManyItems(paList)
+
+func NewLine()
+	return NL
+
+	func NL()
+		return NL
+
+	func EmptyLine()
+		return NL
+
+func NumberOfStzFindableTypes()
+	return len(_aStzFindableTypes)
+
+func IsStzFindableType(cType)
+	if NOT isString(cType)
+		StzRaise("Incorrect param type! cType must be a string.")
+	ok
+
+	cType = lower(cType)
+	if ring_find( StzFindableTypes(), cType) > 0
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func IsAStzFindableType(cType)
+		return IsStzFindableType(cType)
+
+	func @IsStzFindableType(cType)
+		return IsStzFindableType(cType)
+
+	func @IsAStzFindableType(cType)
+		return IsStzFindableType(cType)
+
+func StzFindableTypes()
+	return _aStzFindableTypes
+
+func IsStzFindable(p)
+	if NOT ( isObject(p) and IsStzObject(p) )
+		return FALSE
+	ok
+
+	cStzType = p.StzType()
+	if ring_find( StzFindableTypes(), cStzType ) > 0
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func @IsStzFindable(p)
+		return IsStzFindable(p)
+
+  ////////////////////////
+ ///  GLOBAL CLASSES  ///
+////////////////////////
+
+#WARNING: Be careful! don't put global functions after theses classes,
+# because Ring will consider them as methods of the classes and not global functons!
 
 class stzForEachObjectOld
 	@acVars
@@ -4190,15 +4254,6 @@ class stzForEachObjectOld
 		next
 
 		return
-
-func NewLine()
-	return NL
-
-	func NL()
-		return NL
-
-	func EmptyLine()
-		return NL
 
 class stzForEachObject
 	@acVars
@@ -4455,19 +4510,4 @@ class stzForEachObject
 		else
 			return This.@VarsXT()[pcVar][@i]
 		ok
-
-func StzFindableTypes()
-	return _aStzFindableTypes
-
-func IsStzFindable(p)
-	if NOT ( isObject(p) and IsStzObject(p) )
-		return FALSE
-	ok
-
-	cStzType = p.StzType()
-	bResult = ring_find( StzFindableTypes(), cStzType )
-	return bResult
-
-	func @IsStzFindable(p)
-		return IsStzFindable(p)
 
