@@ -2577,24 +2577,26 @@ proff()
 # Executed in 0.18 second(s) in Ring 1.17
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME ],
+
 	[ "Andy", 	"Maestro" ],
 	[ "Alibaba", 	"Abraham" ],
 	[ "Alibaba",	"AliAli"  ]
 ])
 
-? @@( o1.ColCellsAsPositions(:ANY) )
+//? @@( o1.ColCellsAsPositions(:ANY) )
 #--> Error message:
-# Incorrect param value! pCol is not a valid column identifier.
+# Incorrect param value! "any" is not a valid column identifier.
 
 ? @@( o1.ColCellsAsPositions(:FIRSTNAME) )
 #--> [ [ 1, 1 ], [ 1, 2 ], [ 1, 3 ] ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*--------------
 
@@ -2611,7 +2613,7 @@ o1 = new stzTable([
 ? @@( o1.FindInCells( [ [1, 1], [1, 2], [1, 3] ], :Value = "Ali" ) ) + NL
 #--> [ [ 1, 2 ] ]
 
-? @@( o1.FindInCells( [ [1, 1], [1, 2], [1, 3] ], :SubValue = "Ali" ) ) + NL
+? @@NL( o1.FindInCells( [ [1, 1], [1, 2], [1, 3] ], :SubValue = "Ali" ) ) + NL
 #NOTE: In place of :SubValue = ... you can say :CellPart or :SubPart = ...
 
 #--> [
@@ -2619,13 +2621,14 @@ o1 = new stzTable([
 #	[ [ 1, 3 ], [ 1, 4 ] ]
 # ]
 
-? @@( o1.FindInCells( [ [1, 1], [1, 2], [1, 3] ], "Ali" ) )
+? @@NL( o1.FindInCells( [ [1, 1], [1, 2], [1, 3] ], "Ali" ) )
 #--> [
 #	[ [ 1, 2 ], [ 1 ] ],
 #	[ [ 1, 3 ], [ 1, 4 ] ]
 # ]
 
 proff()
+# Executed in 0.45 second(s)
 
 /*--------------
 
@@ -2643,14 +2646,14 @@ o1 = new stzTable([
 ? @@( o1.FindInCol( :FIRSTNAME, :Value = "Ali" ) ) + NL
 #--> [ [ 1, 2 ], [ 1, 4 ] ]
 
-? @@( o1.FindInCol( :FIRSTNAME, :SubValue = "Ali" ) ) + NL
+? @@NL( o1.FindInCol( :FIRSTNAME, :SubValue = "Ali" ) ) + NL
 #--> [
 #	[ [ 1, 2 ], [ 1 ] ],
 #	[ [ 1, 3 ], [ 1, 4 ] ],
 #	[ [ 1, 4 ], [ 1 ] ]
 # ]
 
-? @@( o1.FindInColCS( :LASTNAME, :SubValue = "A", :CS = FALSE ) )
+? @@NL( o1.FindInColCS( :LASTNAME, :SubValue = "A", :CS = FALSE ) )
 #-->[
 #	[ [ 2, 1 ], [ 2 ] ],
 #	[ [ 2, 2 ], [ 1, 4, 6 ] ],
@@ -2659,7 +2662,8 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.33 second(s)
+# Executed in 0.08 second(s) in Ring 1.20
+# Executed in 0.33 second(s) in Ring 1.17
 
 /*--------------
 
@@ -2672,14 +2676,14 @@ o1 = new stzTable([
 	[ "Alibaba",	"AliAli"  ]
 ])
 
-? @@( o1.FindInRow(3, :CellPart = "Ali") )
+? @@NL( o1.FindInRow(3, :CellPart = "Ali") )
 #--> [
 # 	[ [ 1, 3 ], [ 1 ] ],
 # 	[ [ 2, 3 ], [ 1, 4 ] ]
 # ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.03 second(s)
 
 /*--------------
 
@@ -2717,10 +2721,11 @@ o1 = new stzTable([
 #--> TRUE
 
 proff()
-# Executed in 0.14 second(s)
+
+# Executed in 0.16 second(s)
 
 /*--------------
-
+*/
 pron()
 
 o1 = new stzTable([

@@ -1583,7 +1583,7 @@ Class stzTable from stzObject
 
 	def ColAsPositions(pCol)
 		if NOT This.IsCol(pCol)
-			StzRaise("Incorrect param value! pCol is not a valid column identifier.")
+			StzRaise("Incorrect param value! " + @@(pCol) + " is not a valid column identifier.")
 		ok
 
 		nCol = This.ColToColNumber(pCol)
@@ -3731,6 +3731,12 @@ Class stzTable from stzObject
 		def CountCS(pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pValue, pCaseSensitive)
 
+		def HowManyOccurrenceCS(pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pValue, pCaseSensitive)
+
+		def HowManyOccurrencesCS(pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pValue, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -3745,6 +3751,12 @@ Class stzTable from stzObject
 
 		def Count(pValue)
 			return This.NumberOfOccurrence(pValue)
+
+		def HowManyOccurrence(pValue)
+			return This.NumberOfOccurrence(pValue)
+
+		def HowManyOccurrences(pValue)
+			return This.NumberOfOccurrenceCS(pValue)
 
 		#>
 
@@ -3789,6 +3801,32 @@ Class stzTable from stzObject
 		def CountValueCS(pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellCS(pValue, pCaseSensitive)
 
+		#--
+
+		def HowManyCellCS(pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCellCS(pValue, pCaseSensitive)
+
+		def HowManyCellsCS(pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCellCS(pValue, pCaseSensitive)
+
+		def HowManyOccurrenceOfCellCS(pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCellCS(pValue, pCaseSensitive)
+
+		def HowManyOccurrencesOfCellsCS(pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCellCS(pValue, pCaseSensitive)
+
+		def HowManyValueCS(pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCellCS(pValue, pCaseSensitive)
+
+		def HowManyValuesCS(pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCellCS(pValue, pCaseSensitive)
+
+		def HowManyOccurrenceOfValueCS(pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCellCS(pValue, pCaseSensitive)
+
+		def HowManyOccurrencesOfValueCS(pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfCellCS(pValue, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -3830,6 +3868,32 @@ Class stzTable from stzObject
 		def CountValue(pValue)
 			return This.NumberOfOccurrenceOfCell(pValue)
 
+		#--
+
+		def HowManyCell(pValue)
+			return This.NumberOfOccurrenceOfCell(pValue)
+
+		def HowManyCells(pValue)
+			return This.NumberOfOccurrenceOfCell(pValue)
+
+		def HowManyOccurrenceOfCell(pValue)
+			return This.NumberOfOccurrenceOfCell(pValue)
+
+		def HowManyOccurrencesOfCells(pValue)
+			return This.NumberOfOccurrenceOfCell(pValue)
+
+		def HowManyValue(pValue)
+			return This.NumberOfOccurrenceOfCell(pValue)
+
+		def HowManyValues(pValue)
+			return This.NumberOfOccurrenceOfCell(pValue)
+
+		def HowManyOccurrenceOfValue(pValue)
+			return This.NumberOfOccurrenceOfCell(pValue)
+
+		def HowManyOccurrencesOfValue(pValue)
+			return This.NumberOfOccurrenceOfCell(pValue)
+
 		#>
 
 	  #-----------------------------------------------------------#
@@ -3860,6 +3924,26 @@ Class stzTable from stzObject
 		def CountSubValueCS(pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfSubValueCS(pSubValue, pCaseSensitive)
 
+		#--
+
+		def HowManyOccurrenceOfSubValueCS(pSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubValueCS(pSubValue, pCaseSensitive)
+
+		def HowManyOccurrenceOfSubValuesCS(pSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubValueCS(pSubValue, pCaseSensitive)
+
+		def HowManyOccurrencesOfSubValueCS(pSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubValueCS(pSubValue, pCaseSensitive)
+
+		def HowManyOccurrencesOfSubValuesCS(pSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubValueCS(pSubValue, pCaseSensitive)
+
+		def HowManySubValueCS(pSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubValueCS(pSubValue, pCaseSensitive)
+
+		def HowManySubValuesCS(pSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubValueCS(pSubValue, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -3876,6 +3960,26 @@ Class stzTable from stzObject
 			return This.NumberOfOccurrenceOfSubValue(pSubValue)
 
 		def CountSubValue(pSubValue)
+			return This.NumberOfOccurrenceOfSubValue(pSubValue)
+
+		#--
+
+		def HowManyOccurrenceOfSubValue(pSubValue)
+			return This.NumberOfOccurrenceOfSubValue(pSubValue)
+
+		def HowManyOccurrenceOfSubValues(pSubValue)
+			return This.NumberOfOccurrenceOfSubValue(pSubValue)
+
+		def HowManyOccurrencesOfSubValue(pSubValue)
+			return This.NumberOfOccurrenceOfSubValue(pSubValue)
+
+		def HowManyOccurrencesOfSubValues(pSubValue)
+			return This.NumberOfOccurrenceOfSubValue(pSubValue)
+
+		def HowManySubValue(pSubValue)
+			return This.NumberOfOccurrenceOfSubValue(pSubValue)
+
+		def HowManySubValues(pSubValue)
 			return This.NumberOfOccurrenceOfSubValue(pSubValue)
 
 		#>
@@ -3937,6 +4041,12 @@ Class stzTable from stzObject
 		def CountCSXT(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
 			return This.NumberOfOccurrenceCSXT(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
 
+		def HowManyOccurrenceCSXT(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceCSXT(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
+
+		def HowManyOccurrencesCSXT(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
+			return This.NumberOfOccurrenceCSXT(pInCellsOrColOrRow, pValueOrSubValue, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -3950,6 +4060,12 @@ Class stzTable from stzObject
 			return This.NumberOfOccurrenceXT(pInCellsOrColOrRow, pValueOrSubValue)
 
 		def CountXT(pInCellsOrColOrRow, pValueOrSubValue)
+			return This.NumberOfOccurrenceXT(pInCellsOrColOrRow, pValueOrSubValue)
+
+		def HowManyOccurrenceXT(pInCellsOrColOrRow, pValueOrSubValue)
+			return This.NumberOfOccurrenceXT(pInCellsOrColOrRow, pValueOrSubValue)
+
+		def HowManyOccurrencesXT(pInCellsOrColOrRow, pValueOrSubValue)
 			return This.NumberOfOccurrenceXT(pInCellsOrColOrRow, pValueOrSubValue)
 
 		#>
@@ -4300,7 +4416,7 @@ Class stzTable from stzObject
 				cellValue = This.Cell(paCells[i][1], paCells[i][2])
 				oCell = Q(cellValue)
 
-				if IsStringOrList(cellValue)
+				if @IsStringOrList(cellValue)
 					if oCell.IsEqualToCS(pCellValueOrSubValue, pCaseSensitive)
 						aResult + paCells[i]
 					ok		
