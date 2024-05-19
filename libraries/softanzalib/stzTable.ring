@@ -4186,7 +4186,7 @@ Class stzTable from stzObject
 		return This.ContainsSubValueCS(pSubValue, TRUE)
 
 
-	/// WORKING ON SOME CELLS //////////////////////////////////////////////////////////////////////////
+	/// WORKING ON SOME CELLS //////////////////////////////////////////////////
 
 	  #=====================================================#
 	 #  FINDING A GIVEN VALUE OR SUBVALUE IN A GIVEN CELL  #
@@ -4221,7 +4221,8 @@ Class stzTable from stzObject
 			anResult = []
 
 			oCell = This.CellQ(pCellCol, pCellRow)
-			if oCell.IsStringOrList()
+
+			if @IsStzFindable(oCell.IsStringOrList())
 				anResult = oCell.FindCS(pCellValueOrSubValue, pCaseSensitive)
 
 			ok
@@ -9955,11 +9956,6 @@ Class stzTable from stzObject
 		if This.IsColName(paColNameAndData[1])
 			StzRaise("Can't add the column! The name your provided already exists.")
 		ok
-/*
-		if NOT len(paColNameAndData[2]) = This.NumberOfRows()
-			StzRaise("Incorrect number of cells! paColNameAndData must contain extactly " + This.NumberOfRows() + " cells.")
-		ok
-*/
 
 		nLen = len(paColNameAndData[2])
 		nRows = This.NumberOfRows()
@@ -10753,6 +10749,32 @@ Class stzTable from stzObject
 			return This.Cols()
 
 			def AllColumnsQ()
+				return This.ColsQ()
+
+		#--
+
+		def ColsData()
+			return This.Cols()
+
+			def ColsDataQ()
+				return This.ColsQ()
+
+		def ColumnsData()
+			return This.Cols()
+
+			def ColumnsDataQ()
+				return This.ColsQ()
+
+		def AllColsData()
+			return This.Cols()
+
+			def AllColsDataQ()
+				return This.ColsQ()
+
+		def AllColumnsData()
+			return This.Cols()
+
+			def AllColumnsDataQ()
 				return This.ColsQ()
 
 		#>

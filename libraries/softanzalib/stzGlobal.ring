@@ -35,7 +35,17 @@ _aRingTypesXT = [
 	]
 
 @ = 0
-
+/*
+_aFindableStzTypes = [
+	:stzList, :stzHashList, :stzListOfHashLists,
+	:stzListOfLists, :stzListOfNumbers, :stzListOfUnicodes,
+	:stzListOfStrings, :stzListOfChars, :stzListOfPairs,
+	:stzListOfBytes, :stzSet, :stzListOfSets, :stzPair,
+	:stzPairOfNumbers, :stzPairOfLists, :stzTree, :stzGrid,
+	:stzWalker, :stzTable, :stzString, :stzMultiString,
+	:stzListInString, :stzText, :stzSection
+]
+*/
 _oMainObject = ANullObject() # Used for chains of truth
 _MainValue = NULL
 _LastValue = NULL
@@ -4445,4 +4455,19 @@ class stzForEachObject
 		else
 			return This.@VarsXT()[pcVar][@i]
 		ok
+
+func StzFindableTypes()
+	return _aStzFindableTypes
+
+func IsStzFindable(p)
+	if NOT ( isObject(p) and IsStzObject(p) )
+		return FALSE
+	ok
+
+	cStzType = p.StzType()
+	bResult = ring_find( StzFindableTypes(), cStzType )
+	return bResult
+
+	func @IsStzFindable(p)
+		return IsStzFindable(p)
 

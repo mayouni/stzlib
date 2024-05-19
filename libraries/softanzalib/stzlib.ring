@@ -85,7 +85,7 @@ load "stzPairOfLists.ring"
 
 load "stzListOfSets.ring"
 load "stzListOfSetsError.ring"
-load "stzPairOfLists.ring"
+
 load "stzTree.ring"
 
 load "stzWalker.ring"
@@ -103,6 +103,7 @@ load "stzCurrency.ring"
 
 load "stzUnicodeData.ring"
 load "stzListParser.ring"
+
 load "stzGrid.ring"
 load "stzGridError.ring"
 load "stzCounter.ring"
