@@ -2725,7 +2725,7 @@ proff()
 # Executed in 0.16 second(s)
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -2762,7 +2762,8 @@ o1 = new stzTable([
 #--> 1
 
 proff()
-# Executed in 0.32 second(s)
+# Executed in 0.16 second(s) in Ring 1.20
+# Executed in 0.32 second(s) in Ring 1.17
 
 /*=====================
 
@@ -2770,6 +2771,7 @@ pron()
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
+
 	[ "Andy", 	"Maestro",	"Programmer" 	],
 	[ "Ali", 	"Abraham",	"Designer"	],
 	[ "Alibaba",	"AliAli",	"Tester"	]
@@ -2784,7 +2786,7 @@ o1 = new stzTable([
 ? o1.NumberOfOccurrenceInCols([ :FIRSTNAME, :LASTNAME ], :OfSubValue = "Ali") + NL
 #--> 4
 
-? @@( o1.FindInCols([ :FIRSTNAME, :LASTNAME ], :SubValue = "Ali") )
+? @@NL( o1.FindInCols([ :FIRSTNAME, :LASTNAME ], :SubValue = "Ali") )
 #--> [
 #	[ [ 1, 2 ], [ 1 ] ],
 #	[ [ 1, 3 ], [ 1 ] ],
@@ -2792,7 +2794,8 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.35 second(s)
+# Executed in 0.10 second(s) in Ring 1.20
+# Executed in 0.35 second(s) in Ring 1.17
 
 /*----------------------
 
@@ -2800,6 +2803,7 @@ pron()
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
+
 	[ "Andy", 	"Maestro",	"Programmer" 	],
 	[ "Ali", 	"Abraham",	"Designer"	],
 	[ "Alibaba",	"AliAli",	"Tester"	]
@@ -2812,16 +2816,16 @@ o1 = new stzTable([
 ? @@( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], :Value = "Ali" ) ) + NL # Added the :Value named param
 #--> [ [ 1, 2 ] ]
 
-? @@( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], :SubValue = "Ali" ) )
+? @@NL( o1.FindInCols( [ :FIRSTNAME, :LASTNAME ], :SubValue = "Ali" ) )
 #--> [
 #	[ [ 1, 2 ], [ 1 ] ],
 #	[ [ 1, 3 ], [ 1 ] ],
 #	[ [ 2, 3 ], [ 1, 4 ] ]
 # ]
 
-
 proff()
-# Executed in 0.28
+# Executed in 0.08 second(s) in Ring 1.20
+# Executed in 0.28 second(s) in Ring 1.17
 
 /*--------------
 
@@ -2829,6 +2833,7 @@ pron()
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
+
 	[ "Andy", 	"Maestro",	"Programmer" 	],
 	[ "Ali", 	"Abraham",	"Designer"	],
 	[ "Alibaba",	"AliAli",	"Tester"	]
@@ -2838,15 +2843,11 @@ o1 = new stzTable([
 #--> [ [ 1, 2 ] ]
 # Executed in 0.11 second(s)
 
-# If you need a better performance then use column numbers instead
-# of column names:
-
 ? @@( o1.FindInCols( [ 1, 2 ], "Ali" ) )
 #--> [ [ 1, 2 ] ]
-# Executed in 0.06 second(s)
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.04 second(s)
 
 /*--------------
 
@@ -2879,7 +2880,8 @@ o1 = new stzTable([
 # [ [ [ 2, 3 ], [ 1, 4 ] ] ]
 
 proff()
-# Executed in 0.40 second(s)
+# Executed in 0.14 second(s) in Ring 1.17
+# Executed in 0.40 second(s) in Ring 1.20
 
 /*==============
 
@@ -2887,6 +2889,7 @@ pron()
 
 o1 = new stzTable([
 	[ :FIRSTNAME,	:LASTNAME,	:JOB	 	],
+
 	[ "Andy", 	"Maestro",	"Programmer" 	],
 	[ "Ali", 	"Abraham",	"Designer"	],
 	[ "Alibaba",	"AliAli",	"Tester"	]
@@ -2918,7 +2921,8 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.26 second(s)
+# Executed in 0.11 second(s) in Ring 1.20
+# Executed in 0.26 second(s) in Ring 1.17
 
 /*--------------
 
@@ -2947,14 +2951,14 @@ o1 = new stzTable([
 ? o1.RowsContain([ 1, 3 ], :SubValue = "Ali") + NL
 #--> TRUE
 
-? @@( o1.FindInRows([ 1, 3 ], :SubValue = "Ali") )
+? @@NL( o1.FindInRows([ 1, 3 ], :SubValue = "Ali") )
 #--> [
 #	[ [ 1, 3 ], [ 1 ] ],
 #	[ [ 2, 3 ], [ 1, 4 ] ]
 # ]
 
 proff()
-# Executed in 0.20 second(s)
+# Executed in 0.16 second(s)
 
 /*===================
 
@@ -2981,7 +2985,8 @@ o1 = new stzTable([
 #--> [ [ 1, 2 ] ]
 
 proff()
-# Executed in 0.20 second(s)
+# Executed in 0.05 second(s) in Ring 1.20
+# Executed in 0.20 second(s) in Ring 1.17
 
 /*--------------
 
@@ -3006,7 +3011,8 @@ o1 = new stzTable([
 #--> [ [ 2, 2 ], [ 2, 3 ] ]
 
 proff()
-# Executed in 0.20 second(s)
+# Executed in 0.06 second(s) in Ring 1.20
+# Executed in 0.20 second(s) in Ring 1.17
 
 /*===============
 
@@ -3024,7 +3030,7 @@ o1 = new stzTable([
 ? @@( o1.Section([1,2], [3,2]) ) + NL
 #--> [ "Blue", "Red", "Red" ]
 
-? @@( o1.SectionZ([1,2], [3,2]) ) + NL
+? @@Nl( o1.SectionZ([1,2], [3,2]) ) + NL
 #--> [
 #	[ [ 1, 2 ], "Blue" ],
 #	[ [ 2, 2 ], "Red"  ],
@@ -3035,7 +3041,8 @@ o1 = new stzTable([
 #--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.04 second(s) in Ring 1.20
+# Executed in 0.12 second(s) in Ring 1.17
 
 /*==========
 
@@ -3061,13 +3068,14 @@ pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+
 	[     "Red",     "White",    "Yellow" ],
 	[    "Blue",       "Red",       "Red" ],
 	[    "Blue",     "Green",   "Magenta" ],
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? @@( o1.SectionZ(:From = :FirstCell, :To = [3,2]) )
+? @@NL( o1.SectionZ(:From = :FirstCell, :To = [3,2]) )
 #--> [
 #	[ [ 1, 1 ], "Red" 	],
 #	[ [ 2, 1 ], "White" 	],
@@ -3078,7 +3086,7 @@ o1 = new stzTable([
 #    ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.05 second(s)
 
 /*-----------
 
@@ -3086,6 +3094,7 @@ pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+
 	[     "Red",     "White",    "Yellow" ],
 	[    "Blue",       "Red",       "Red" ],
 	[    "Blue",     "Green",   "Magenta" ],
@@ -3093,7 +3102,7 @@ o1 = new stzTable([
 ])
 
 ? @@( o1.FindInSectionCS([1, 1], [3, 2], "red", TRUE) )
-#--> []
+#--> [ ]
 
 ? @@( o1.FindInSectionCS([1, 1], [3, 2], "Red", TRUE) )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
@@ -3102,7 +3111,7 @@ o1 = new stzTable([
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.05 second(s)
 
 /*-----------
 
@@ -3116,11 +3125,15 @@ o1 = new stzTable([
 	[ "Alibaba",	"AliAli",	"Tester"	]
 ])
 
-? @@( o1.FindInSection( :From = [1, 2], :To = [2, 3], :CellPart = "Ali" ) )
-#--> [ [ [ 1, 2 ], [ 1 ] ], [ [ 1, 3 ], [ 1 ] ], [ [ 2, 3 ], [ 1, 4 ] ] ]
+? @@NL( o1.FindInSection( :From = [1, 2], :To = [2, 3], :CellPart = "Ali" ) )
+#--> [
+#	[ [ 1, 2 ], [ 1 ] ],
+#	[ [ 1, 3 ], [ 1 ] ],
+#	[ [ 2, 3 ], [ 1, 4 ] ]
+# ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.10 second(s)
 
 /*-----------
 
@@ -3145,7 +3158,8 @@ o1 = new stzTable([
 #--> [3, 2]
 
 proff()
-# Executed in 0.22 second(s)
+# Executed in 0.09 second(s) in Ring 1.17
+# Executed in 0.22 second(s) in Ring 1.20
 
 /*-----------
 
@@ -3178,7 +3192,7 @@ o1 = new stzTable([
 #--> 3
 
 proff()
-# Executed in 0.33 second(s)
+# Executed in 0.24 second(s)
 
 /*-----------
 
@@ -3186,6 +3200,7 @@ pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+
 	[     "Red",     "White",    "Yellow" ],
 	[    "Blue",       "Red",       "Red" ],
 	[    "Blue",     "Green",   "Magenta" ],
@@ -3199,18 +3214,21 @@ o1 = new stzTable([
 #--> TRUE
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.06 second(s)
 
 /*==============
 
 pron()
 
-o1 = new stzString("Red")
-? o1.AdjustToRightWith("PALETTE1")
-#    "PALETTE1"
-#--> "     Red"
+o1 = new stzListOfStrings([ "Red", "PALETTE" ])
+? o1.AdjustedToRight()
+#--> [
+#	"    Red",
+#	"PALETTE"
+]
 
 proff()
+# Executed in 0.06 second(s)
 
 /*----------------
 
@@ -3218,22 +3236,24 @@ pron()
 
 o1 = new stzListOfStrings([ ":PALETTE1", "Red", "Blue", "Blue", "White" ])
 ? o1.AlignedToRight()
-#-->
-# :PALETTE1
-#       Red
-#      Blue
-#      Blue
-#     White
+#--> [
+# 	":PALETTE1",
+# 	"      Red",
+# 	"     Blue",
+# 	"     Blue",
+# 	"    White"
+# ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.06 second(s)
 
 /*===============
-
+*/
 pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+
 	[     "Red",     "White",    "Yellow" ],
 	[    "Blue",       "Red",       "Red" ],
 	[    "Blue",     "Green",   "Magenta" ],
@@ -3255,23 +3275,24 @@ o1 = new stzTable([
 	:ShowRowNumbers
 ])
 #-->
-#  # | :PALETTE1 | :PALETTE2 | :PALETTE3
-# ---+-----------+-----------+----------
-#  1 | Red       | White     | Yellow   
-#  2 | Blue      | Red       | Red      
-#  3 | Blue      | Green     | Magenta  
-#  4 | White     | Gray      | Black    
-#  5 | Red       | White     | Yellow   
-#  6 | Blue      | Red       | Red      
-#  7 | Blue      | Green     | Magenta  
-#  8 | White     | Gray      | Black    
-#  9 | Red       | White     | Yellow   
-# 10 | Blue      | Red       | Red      
-# 11 | Blue      | Green     | Magenta  
-# 12 | White     | Gray      | Black    
+#  # | PALETTE1 | PALETTE2 | PALETTE3
+# ---+----------+----------+----------
+#  1 | Red      | White    | Yellow   
+#  2 | Blue     | Red      | Red      
+#  3 | Blue     | Green    | Magenta  
+#  4 | White    | Gray     | Black    
+#  5 | Red      | White    | Yellow   
+#  6 | Blue     | Red      | Red      
+#  7 | Blue     | Green    | Magenta  
+#  8 | White    | Gray     | Black    
+#  9 | Red      | White    | Yellow   
+# 10 | Blue     | Red      | Red      
+# 11 | Blue     | Green    | Magenta  
+# 12 | White    | Gray     | Black    
 
 proff()
-# Executed in 0.74 second(s)
+# Executed in 0.26 second(s) in Ring 1.20
+# Executed in 0.74 second(s) in Ring 1.17
 
 /*==============
 
