@@ -4489,15 +4489,12 @@ Class stzTable from stzObject
 
 	def FindValueInCellsCS(paCells, pCellValue, pCaseSensitive)
 
-/*		bCheckCase = FALSE
-		if isString(pCellValue)
-			bCheckCase = TRUE
-		ok
-*/
 		aCellsXT = This.TheseCellsAndTheirPositions(paCells)
 
 		aResult = []
+
 		for i = 1 to len(aCellsXT)
+
 			CellValue = aCellsXT[i][1]
 			aCellPos  = aCellsXT[i][2]
 
@@ -4547,27 +4544,34 @@ Class stzTable from stzObject
 	#-----------------------------------------------#
 
 	def FindSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
-		bCheckCase = FALSE
-		if isString(pSubValue)
-			bCheckCase = TRUE
-		ok
 
 		aCellsXT = This.TheseCellsAndTheirPositions(paCells)
 
 		aResult = []
+
 		for i = 1 to len(aCellsXT)
+
 			cellValue = aCellsXT[i][1]
 			oCellValue = Q(cellValue)
 
 			aCellPos  = aCellsXT[i][2]
 
-			if @IsStringOrList(cellValue) # @ calls the global function
-						      # to avoid conflict with the
-						      # local one inherited from
-						      # stzList
+			if @BothAreStrings(cellValue, pSubValue) or
+			   @BothAreLists(cellValue, pSubValue)
 
 				if oCellValue.ContainsCS(pSubValue, pCaseSensitive)
 					aResult + [ aCellPos, oCellValue.FindAllCS(pSubValue, pCaseSensitive) ]
+				ok
+
+			but @BothAreNumbers(cellValue, pSubValue) or
+				( (isString(cellValue) and isNumber(pSubValue)) or
+			     	  (isNumber(cellValue) and @IsNumberInString(pSubValue))
+				)
+
+				oStzStrCellValue = new stzString(""+ cellValue)
+
+				if oStzStrCellValue.Contains(''+ pSubValue)
+					aResult + [ aCellPos, oStzStrCellValue.FindAll(""+ pSubValue) ]
 				ok
 			ok
 
