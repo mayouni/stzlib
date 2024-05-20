@@ -4087,7 +4087,7 @@ o1 = new stzListOfLists([
 proff()
 
 /*---------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -4098,7 +4098,6 @@ o1 = new stzTable([
 	[ 30,	"Ben",		25982	],
 	[ 40,	"ali",		"Ali"	]
 ])
-
 
 ? o1.Contains( :Cell = "Ali" ) # same as ? o1.ContainsCell("Ali")
 #--> TRUE
@@ -4151,7 +4150,8 @@ o1 = new stzTable([
 #--> [ [ 2, 3 ], 5 ]
 
 proff()
-# Executed in 0.65 second(s)
+# Executed in 0.07 second(s) in Ring 1.20
+# Executed in 0.65 second(s) in Ring 1.17
 
 /*-------------
 
@@ -4159,20 +4159,38 @@ pron()
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
+
 	[ 10,	"Ali",		35000	],
 	[ 20,	"Dan",		28900	],
-	[ 30,	"Ben",		25982	]
+	[ 30,	"Ben",		25982	],
+	[ 40,	"ali",		"ALI"	]
 ])
 
 ? o1.Count( :Value = "Ali" )
 #--> 1
-	# Same as o1.Count( :Cell = "Ali" )
-	# or: ? o1.NumberOfOccurrence( :OfCell = "Ali" )
-	# or: ? o1.CountOfCell( "Ali" )
-	# or: ? o1.CountOfValue("Ali")
+
+# Other alternatives of the same function:
+
+? o1.Count( :Cell = "Ali" )
+#--> 1
+
+? o1.NumberOfOccurrence( :OfCell = "Ali" )
+#--> 1
+
+? o1.CountOfCell( "Ali" )
+#--> 1
+
+? o1.CountOfValue("Ali")
+#--> 1
+
+? o1.HowMany("Ali")
+#--> 1
+
+? o1.HowManyOccurrences( :Of = "Ali" )
+#--> 1
 
 proff()
-# Executed in 0.49 second(s)
+# Executed in 0.07 second(s)
 
 /*-------------
 
@@ -4186,12 +4204,13 @@ o1 = new stzTable([
 ])
 
 ? o1.Count( :SubValue = "a" )
-#--> 1
+#--> 3
 
 ? o1.CountCS( :SubValue = "A", :CaseSensitive = FALSE )
 #--> 4
 
 proff()
+# Executed in 0.04 second(s)
 
 /*-------------
 
@@ -4212,15 +4231,18 @@ o1 = new stzTable([
 ? @@( o1.CellZ(:EMPLOYEE, 3) ) + NL
 #--> [ "Han", [2, 3] ]
 
-? o1.Count( :Cells = "Ali" ) #--> 2
+? o1.Count( :Cells = "Ali" )
+#--> 2
 	# Same as NumberOfOccurrence( :OfCell = "Ali" )
 	# Or you can say: ? o1.CountOfCell( "Ali" )
+	# Or: HowMany( :Cells = "Ali" )
 
 ? @@( o1.FindCell("Ali") ) + NL
 #--> [ [ 2, 1 ], [2, 4] ]
-#--> One occurrence of "Ali" in the cell [2, 1]
+#--> One occurrence of "Ali" in the cell [2, 1], and
+#    one in the cell [ 2, 4 ]
 
-? @@( o1.FindSubValue("a") ) + NL
+? @@NL( o1.FindSubValue("a") ) + NL
 #--> [
 #	[ [ 2, 2 ], [ 2, 5 ] ],
 #	[ [ 2, 3 ], [ 2 ] ]
@@ -4229,7 +4251,7 @@ o1 = new stzTable([
 #	--> 2 occurrences in cell [2, 2] ("Dania"), in the 2nd and 5th chars.
 #	--> 1 occurrence in cell [2, 3] ("Han"), in position 2.
 
-? @@( o1.FindSubValueCS("a", :CaseSensitive = FALSE) ) + NL
+? @@NL( o1.FindSubValueCS("a", :CaseSensitive = FALSE) ) + NL
 #--> [
 #	[ [ 2, 1 ], [ 1 ] ],
 #	[ [ 2, 2 ], [ 2, 5 ] ],
@@ -4246,7 +4268,8 @@ o1 = new stzTable([
 	# 	- one occurrence in the cell [2, 4] ("Ali") at the 1st char
 
 proff()
-# Executed in 1.54 second(s)
+# Executed in 0.08 second(s) in Ring 1.20
+# Executed in 1.54 second(s) in Ring 1.17
 
 /*=============
 
@@ -4268,10 +4291,10 @@ o1 = new stzTable([
 #--> [ [ 20, [ 1, 2 ] ], [ "Dania", [ 2, 2 ] ], [ "Han", [ 2, 3 ] ] ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.02 second(s)
 
 /*===============
-
+*/
 // Finding all occurrence of a value, or subvalue, in a given list of cells
 pron()
 
@@ -4287,7 +4310,7 @@ o1 = new stzTable([
 ? @@( o1.FindInCells( [ [1,2], [2,2], [2,3] ], :Value = "Dania" ) ) + NL
 #--> [ [2, 2] ]
 
-? @@( o1.FindInCells( [ [1,2], [2,2], [2,3] ], :SubValue = "a" ) )
+? @@NL( o1.FindInCells( [ [1,2], [2,2], [2,3] ], :SubValue = "a" ) )
 #--> [
 #	[ [ 2, 2 ], [ 2, 5 ] ],
 #	[ [ 2, 3 ], [ 2 ]    ]
@@ -4297,7 +4320,8 @@ o1 = new stzTable([
 #	- 1 occurrence in cell [2, 3] ("Han"), in position 2.
 
 proff()
-# Executed in 0.17 second(s)
+# Executed in 0.05 second(s) in Ring 1.20
+# Executed in 0.17 second(s) in Ring 1.17
 
 /*-------------
 // Finding nth occurrence of a value, or subvalue, in a given list of cells
