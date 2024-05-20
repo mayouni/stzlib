@@ -1,3 +1,35 @@
+# Designing a QML app SCRIPTABLE by Ring
+
+QmlApp() {
+	# Setting the window size
+    	width = 400
+    	height = 400
+    	visible = true
+
+	# Creating a button
+
+    	Button() {
+        	text = "Say Hello from Ring!"
+		onClick = SayHelloFromRing(This) # Calling Ring code
+	}
+
+	# Displaying the window
+
+	exec()
+}
+
+# The Ring code
+
+func SayHelloFromRing(oQMLApp)
+	oQMLApp.Console().Print("HELLO FROM RING!")
+
+
+
+
+
+
+
+
 load "stzlib.ring"
 
 #----------------#

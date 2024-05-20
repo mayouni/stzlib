@@ -3714,6 +3714,9 @@ Class stzTable from stzObject
 		def CountCS(pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pValue, pCaseSensitive)
 
+		def HowManyCS(pValue, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pValue, pCaseSensitive)
+
 		def HowManyOccurrenceCS(pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pValue, pCaseSensitive)
 
@@ -3735,11 +3738,14 @@ Class stzTable from stzObject
 		def Count(pValue)
 			return This.NumberOfOccurrence(pValue)
 
+		def HowMany(pValue)
+			return This.NumberOfOccurrence(pValue)
+
 		def HowManyOccurrence(pValue)
 			return This.NumberOfOccurrence(pValue)
 
 		def HowManyOccurrences(pValue)
-			return This.NumberOfOccurrenceCS(pValue)
+			return This.NumberOfOccurrence(pValue)
 
 		#>
 
@@ -4399,14 +4405,23 @@ Class stzTable from stzObject
 				cellValue = This.Cell(paCells[i][1], paCells[i][2])
 				oCell = Q(cellValue)
 
-				if @IsStringOrList(cellValue)
+				if @BothAreNumbers(cellValue, pCellValueOrSubValue)
+					if cellValue = pCellValueOrSubValue
+						aResult + paCells[i]
+					ok
+
+				but @BothAreStrings(cellValue, pCellValueOrSubValue) or
+				    @BothAreLists(cellValue, pCellValueOrSubValue)
+				
 					if oCell.IsEqualToCS(pCellValueOrSubValue, pCaseSensitive)
 						aResult + paCells[i]
-					ok		
-				else
+					ok
+				but @BothAreStzObjects( cellValue, pCellValueOrSubValue)
+
 					if oCell.IsEqualTo(pCellValueOrSubValue)
 						aResult + paCells[i]
 					ok
+
 				ok
 			next
 
