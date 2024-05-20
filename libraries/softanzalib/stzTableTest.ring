@@ -3248,7 +3248,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*===============
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -3291,7 +3291,7 @@ o1 = new stzTable([
 # 12 | White    | Gray     | Black    
 
 proff()
-# Executed in 0.26 second(s) in Ring 1.20
+# Executed in 0.30 second(s) in Ring 1.20
 # Executed in 0.74 second(s) in Ring 1.17
 
 /*==============
@@ -3300,28 +3300,29 @@ pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+
 	[     "Red",     "White",    "Yellow" ],
 	[    "Blue",       "Red",       "Red" ],
 	[    "Blue",     "Green",   "Magenta" ],
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? o1.ShowXT([ :ShowRowNumbers ])
-#-->
-#	#   PALETTE1   PALETTE2   PALETTE3
-#	1        Red      White     Yellow
-#	2       Blue        Red        Red
-#	3       Blue      Green    Magenta
-#	4      White       Gray      Black
+? o1.ShowXT([ :ShowRowNumbers, :IntersectionChar = " " ])
+#--> # | PALETTE1 | PALETTE2 | PALETTE3
+#    -- ---------- ---------- ---------
+#    0 |      Red |    White |   Yellow
+#    1 |     Blue |      Red |      Red
+#    2 |     Blue |    Green |  Magenta
+#    3 |    White |     Gray |    Black
 
-? @@( o1.SectionZ(:From = [1,2], :To = [3,2]) ) + NL
+? @@NL( o1.SectionZ(:From = [1,2], :To = [3,2]) ) + NL
 #--> [
 #	[ [ 1, 2 ], "Blue" 	],
 #	[ [ 2, 2 ], "Red" 	],
 #	[ [ 3, 2 ], "Red" 	]
 #    ]
 
-? @@( o1.FindInSection(:From = [1,2], :To = [3,2], :SubValue = "e") ) + NL
+? @@NL( o1.FindInSection(:From = [1,2], :To = [3,2], :SubValue = "e") ) + NL
 #--> [
 #	[ [ 1, 2 ], [ 4 ] ],
 #	[ [ 2, 2 ], [ 2 ] ],
@@ -3338,7 +3339,8 @@ o1 = new stzTable([
 #--> [ [ 3, 2 ], 2 ]
 
 proff()
-# Executed in 0.51 second(s)
+# Executed in 0.24 second(s) in Ring 1.20
+# Executed in 0.51 second(s) in Ring 1.17
 
 /*=============
 
@@ -3346,6 +3348,7 @@ pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+
 	[     "Red",     "White",    "Yellow" ],
 	[    "Blue",       "Red",       "Red" ],
 	[    "Blue",     "Green",   "Magenta" ],
@@ -3359,11 +3362,11 @@ o1 = new stzTable([
 ? @@( o1.FindAllOccurrences( :Of = "Red") )
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
-? @@( o1.FindCells([ "Red", "White" ]) ) # Colors of the Tunisian falg :D
+? @@( o1.FindCells([ "Red", "White" ]) ) # Colors of the Tunisian flag :D
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ], [ 2, 1 ], [ 1, 4 ] ]
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.09 second(s)
 
 /*-----------
 
@@ -3371,6 +3374,7 @@ pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+
 	[     "Red",     "White",    "Yellow" ],
 	[    "Blue",       "Red",       "Red" ],
 	[    "Blue",     "Green",   "Magenta" ],
@@ -3390,7 +3394,8 @@ o1 = new stzTable([
 #--> [ 3, 2 ]
 
 proff()
-# Executed in 0.38 second(s)
+# Executed in 0.10 second(s) in Ring 1.20
+# Executed in 0.38 second(s) in Ring 1.17
 
 /*-----------
 
@@ -3407,8 +3412,12 @@ o1 = new stzTable([
 ? o1.NumberOfOccurrence( :OfSubValue = "Ali" )
 #--> 4
 
-? @@( o1.FindAllOccurrences( :OfSubValue = "Ali" ) ) + NL
-#--> [ [ [ 1, 2 ], [ 1 ] ], [ [ 1, 3 ], [ 1 ] ], [ [ 2, 3 ], [ 1, 4 ] ] ]
+? @@NL( o1.FindAllOccurrences( :OfSubValue = "Ali" ) ) + NL
+#--> [
+#	[ [ 1, 2 ], [ 1 ] ],
+#	[ [ 1, 3 ], [ 1 ] ],
+#	[ [ 2, 3 ], [ 1, 4 ] ]
+# ]
 
 ? @@( o1.FindNthOccurrence( 2, :OfSubValue = "Ali" ) ) + NL
 #--> [ [ 1, 3 ], 1 ]
@@ -3423,7 +3432,7 @@ o1 = new stzTable([
 #--> [ [ 2, 3 ], 4 ]
 
 proff()
-# Executed in 0.39 second(s)
+# Executed in 0.69 second(s)
 
 /*-----------
 
@@ -3449,9 +3458,9 @@ o1 = new stzTable([
 ? @@( o1.FindNthInCol( 2, :LASTNAME, :SubValue = "Ali" ) )
 #--> [ [ 2, 3 ], 4 ]
 
-
 proff()
-# Executed in 0.38 second(s)
+# Executed in 0.11 second(s) in Ring 1.20
+# Executed in 0.38 second(s) in Ring 1.17
 
 /*-----------
 
@@ -3471,14 +3480,14 @@ o1 = new stzTable([
 ? o1.NumberOfOccurrenceInRow( 3, :OfSubValue = "Ali" )
 #--> 3
 
-? @@( o1.FindInRow( 3, :SubValue = "Ali" ) ) + NL
+? @@NL( o1.FindInRow( 3, :SubValue = "Ali" ) ) + NL
 #-->[ [ [ 1, 3 ], [ 1 ] ], [ [ 2, 3 ], [ 1, 4 ] ] ]
 
 ? @@( o1.FindNthInRow( 2, 3, :SubValue = "Ali" ) )
 #--> [ [ 2, 3 ], 1 ]
 
 proff()
-# Executed in 0.16 second(s)
+# Executed in 0.12 second(s)
 
 /*-----------
 
@@ -3486,6 +3495,7 @@ pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+
 	[     "Red",     "White",    "Yellow" ],
 	[    "Blue",       "Red",       "Red" ],
 	[    "Blue",     "Green",   "Magenta" ],
@@ -3505,7 +3515,7 @@ o1 = new stzTable([
 #--> [ "palette1", "palette2", "palette3" ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.03 second(s)
 
 /*==========
 
@@ -3522,7 +3532,7 @@ o1.AddRow([ 40, "Peter", 12500 ])
 #--> [ 40, "Peter", 12500 ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*==========
 
@@ -3530,6 +3540,7 @@ pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+
 	[     "Red",     "White",    "Yellow" ],
 	[    "Blue",       "Red",       "Red" ],
 	[    "Blue",     "Green",   "Magenta" ],
@@ -3553,7 +3564,7 @@ o1.RemoveCol(:PALETTE4)
 #--> [ "palette1", "palette2", "palette3" ]
 
 proff()
-# Executed in 0.13 second(s)
+# Executed in 0.04 second(s)
 
 /*----------
 
@@ -3561,20 +3572,24 @@ pron()
 
 o1 = new stzTable([
 	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+
 	[     "Red",     "White",    "Yellow" ],
 	[    "Blue",       "Red",       "Red" ],
 	[    "Blue",     "Green",   "Magenta" ],
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? o1.ColToColName(2) 	 #--> "palette2"
-? o1.ColToColName(:PALETTE2) #--> "palette2"
+? o1.ColToColName(2)
+#--> "palette2"
+
+? o1.ColToColName(:PALETTE2)
+#--> "palette2"
 
 ? o1.TheseColsToColNames([3, :PALETTE1, 2])
 #--> [ "palette3", "palette1", "palette2" ]
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.04 second(s)
 
 /*----------
 
@@ -3591,17 +3606,17 @@ o1 = new stzTable([
 ? o1.ColToColNumber(2)
 #--> 2
 
-? o1.ColToColNumber(:PALETTE2)
+? o1.ColToColNumber(:PALETTE2) + NL
 #--> 2
 
 ? o1.TheseColsToColsNumbers([:PALETTE3, :PALETTE1, 2])
 #--> [ 3, 1, 2 ]
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.03 second(s)
 
 /*----------
-
+*/
 pron()
 
 o1 = new stzTable([
@@ -3612,35 +3627,36 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? o1.ShowXT([ :ShowRowNumbers ])
-#-->
-#	#   PALETTE1   PALETTE2   PALETTE3
-#	1        Red      White     Yellow
-#	2       Blue        Red        Red
-#	3       Blue      Green    Magenta
-#	4      White       Gray      Black
+? o1.Show()
+#--> PALETTE1   PALETTE2   PALETTE3
+#    --------- ---------- ---------
+#        Red      White     Yellow
+#       Blue        Red        Red
+#       Blue      Green    Magenta
+#      White       Gray      Black
 
 
 o1.EraseCol(2)
-? o1.ShowXT([ :ShowRowNumbers ])
-#-->
-#	#   PALETTE1   PALETTE2   PALETTE3
-#	1        Red                Yellow
-#	2       Blue                   Red
-#	3       Blue               Magenta
-#	4      White                 Black
+? o1.Show()
+#--> PALETTE1   PALETTE2   PALETTE3
+#    --------- ---------- ---------
+#         Red               Yellow
+#        Blue                  Red
+#        Blue              Magenta
+#       White                Black
 
-
-o1.EraseCols([3 ,1])
-? o1.ShowXT([ :ShowRowNumbers ])
-#	#   PALETTE1   PALETTE2   PALETTE3
-#	1                                 
-#	2                                 
-#	3                                 
-#	4                                 
+o1.EraseCols([3 , 1])
+? o1.Show()
+#--> PALETTE1   PALETTE2   PALETTE3
+#    --------- ---------- ---------
+#                            
+#                               
+#                               
+#                               
+#    
 
 proff()
-# Executed in 0.78 second(s)
+# Executed in 0.36 second(s)
 
 /*----------
 

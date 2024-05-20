@@ -11007,7 +11007,7 @@ Class stzTable from stzObject
 			This.EraseColumns(pColNamesOrNumbers)
 
 	  #----------------#
-	 #  ERASING RAWS  #
+	 #  ERASING ROWS  #
 	#----------------#
 
 	def EraseRow(n)
@@ -11036,14 +11036,22 @@ Class stzTable from stzObject
 			StzRaise("Incorrect column name!")
 		ok
 
-		This.Table()[pCol][pnRow] = NULL
+		@aContent[pCol][2][pnRow] = NULL
 
 		def EraseCellAtPosition(pCol, pnRow)
 			This.EraseCell(pCol, pnRow)
 
 	def EraseCells(paCellsPos)
-		for cell in paCellsPos
-			This.EraseCell(cell[1], cell[2])
+		if NOT ( isList(paCellsPos) and @IsListOfPairsOfNumbers(paCellsPos) )
+			StzRaise("Incorrect param type! paCellsPos must be a list of pairs of numbers.")
+		ok
+
+		nLen = len(paCellsPos)
+
+		for i = 1 to nLen
+			nCol = paCellsPos[i][1]
+			nRow = paCellsPos[i][2]
+			@aContent[nCol][2][nRow] = NULL
 		next
 
 		def EraseCellsAtPositions(paCellsPos)
@@ -12521,7 +12529,11 @@ Class stzTable from stzObject
 
 		# Constructing the header()
 
-		acRowNumbers = (0 : (nRows-1)) + "#"
+		if bUnderLineHeader = TRUE
+			acRowNumbers = (0 : (nRows-1)) + "#"
+		else
+			acRowNumbers = (1 : nRows ) + "#"
+		ok
 
 		acRowNumbersAdjusted  = Q(acRowNumbers).
 					StringifyQ().
@@ -12573,7 +12585,10 @@ Class stzTable from stzObject
 			ok
 
 			for i = 1 to nCols
-				cRow += oTable.Cell(i, j)
+				cCell = oTable.Cell(i, j)
+
+				cRow += cCell
+				
 				if i < nCols
 					cRow += cSeparator
 				ok
