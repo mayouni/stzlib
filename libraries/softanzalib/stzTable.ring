@@ -4406,6 +4406,7 @@ Class stzTable from stzObject
 				oCell = Q(cellValue)
 
 				if @BothAreNumbers(cellValue, pCellValueOrSubValue)
+
 					if cellValue = pCellValueOrSubValue
 						aResult + paCells[i]
 					ok
@@ -4416,6 +4417,7 @@ Class stzTable from stzObject
 					if oCell.IsEqualToCS(pCellValueOrSubValue, pCaseSensitive)
 						aResult + paCells[i]
 					ok
+
 				but @BothAreStzObjects( cellValue, pCellValueOrSubValue)
 
 					if oCell.IsEqualTo(pCellValueOrSubValue)
@@ -4487,11 +4489,11 @@ Class stzTable from stzObject
 
 	def FindValueInCellsCS(paCells, pCellValue, pCaseSensitive)
 
-		bCheckCase = FALSE
+/*		bCheckCase = FALSE
 		if isString(pCellValue)
 			bCheckCase = TRUE
 		ok
-
+*/
 		aCellsXT = This.TheseCellsAndTheirPositions(paCells)
 
 		aResult = []
@@ -4499,11 +4501,20 @@ Class stzTable from stzObject
 			CellValue = aCellsXT[i][1]
 			aCellPos  = aCellsXT[i][2]
 
-			if isString(CellValue) and bCheckCase
+			if @BothAreNumbers(cellValue, pCellValue)
+				if cellValue = pCellValue
+					aResult + aCellPos
+				ok
+
+			but @BothAreStrings(cellValue, pCellValue) or
+			    @BothAreLists(cellValue, pCellValue)
+
 				if Q(CellValue).IsEqualToCS(pCellValue, pCaseSensitive)
 					aResult + aCellPos
 				ok
-			else
+
+			but @BothAreStzObjects(cellValue, pCellValue)
+
 				if Q(cellValue).IsEqualTo(pCellValue)
 					aResult + aCellPos
 				ok

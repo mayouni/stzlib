@@ -4294,7 +4294,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*===============
-*/
+
 // Finding all occurrence of a value, or subvalue, in a given list of cells
 pron()
 
@@ -4324,6 +4324,7 @@ proff()
 # Executed in 0.17 second(s) in Ring 1.17
 
 /*-------------
+
 // Finding nth occurrence of a value, or subvalue, in a given list of cells
 
 pron()
@@ -4332,7 +4333,8 @@ o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
 	[ 10,	"Ali",		35000	],
 	[ 20,	"Dania",	28900	],
-	[ 30,	"Han",		25982	]
+	[ 30,	"Han",		25982	],
+	[ 40,	"ali",		"ALI"	]
 ])
 
 ? @@( o1.FindNthInCells( 1, [ [1,2], [2,2], [2,3] ], :Value = "Dania" ) )
@@ -4343,7 +4345,7 @@ o1 = new stzTable([
 
 ? @@( o1.FindNthInCells( 2, [ [1,2], [2,2], [2,3] ], :SubValue = "a" ) ) 
 #--> [ [ 2, 2 ], 5 ]
-// Sames as: ? o1.FindNthSubValueInCells( 2, [ [1,2], [2,2], [2,3] ], "a" ) )
+// Same as:  @@( o1.FindNthSubValueInCells( 2, [ [1,2], [2,2], [2,3] ], "a" ) )
 
 ? @@( o1.FindFirstInCells([ [1,2], [2,2], [2,3] ], :Value = "Dania" ) )
 #--> [ 2, 2 ]
@@ -4352,7 +4354,28 @@ o1 = new stzTable([
 #--> [ 2, 2 ]
 
 proff()
-# Executed in 0.52 second(s)
+# Executed in 0.06 second(s) in Ring 1.20
+# Executed in 0.52 second(s) in Ring 1.17
+
+/*-------------
+*/
+pron()
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dania",	28900	],
+	[ 30,	"Han",		25982	],
+	[ 40,	"ali",		"ALI"	]
+])
+
+? @@( o1.FindNthInCells( 3, [ [2,1], [2,4], [3,4] ], :Value = "ali" ) )
+#--> []	// In fact, there is no a 3rd occurrence of 'ali" (in lowercase) in the table!
+
+? @@( o1.FindNthInCellsCS( 3, [ [2,1], [2,4], [3,4] ], :Value = "ali", :CS = FALSE ) )
+#--> [2, 4]
+
+proff()
+# Executed in 0.03 second(s)
 
 /*-------------
 
