@@ -3168,7 +3168,10 @@ Class stzTable from stzObject
 	#--------------------------------------------------#
 
 	def FindCellCS(pCellValue, pCaseSensitive)
-
+		aResult = StzListOfListsQ( This.Rows() ).FindInListsCS(pCellValue, pCaseSensitive)
+		return aResult
+		
+/*
 		bCheckCase = FALSE
 		if isString(pCellValue)
 			bCheck = TRUE
@@ -3193,7 +3196,7 @@ Class stzTable from stzObject
 		next
 
 		return aResult
-
+*/
 		#< @FunctionAlternativeForms
 			
 		def OccurrencesOfCellCS(pCellValue, pCaseSensitive)

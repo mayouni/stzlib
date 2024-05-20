@@ -1849,7 +1849,7 @@ proff()
 # Executed in 16.62 second(s) in Ring 1.17
 
 /*==============
-
+*/
 StartProfiler()
 
 o1 = new stzList([ "1", "🌞", "1", [ "2", "♥", "2", "🌞"], "1", [ "2", ["3", "🌞"] ] ])

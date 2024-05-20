@@ -415,6 +415,34 @@ class stzListOfLists from stzList
 	def LastList()
 		return This.NthList( This.NumberOfLists() )
 
+	  #------------------------------------#
+	 #  FINDING AN ITEM INSIDE THE LISTS  #
+	#------------------------------------#
+
+	def FindInListsCS(pItem, pCaseSensitive)
+		nLen = len(@aContent)
+		aResult = []
+
+		for i = 1 to nLen
+			anPos = @FindAllCS( @aContent[i], pItem, pCaseSensitive)
+			nLenPos = len(anPos)
+			atemp = []
+			for j = 1 to nLenPos
+				aResult + [ i, anPos[j] ]
+			next
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		#TODO
+
+		#>
+
+	def FindInLists(pItem)
+		return This.FindInListsCS(pItem, TRUE)
+	
 	  #------------------#
 	 #   LISTS WHERE    #
 	#------------------#
