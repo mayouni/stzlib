@@ -4258,7 +4258,7 @@ func @FindNthSCS(aList, nth, pItem, nStart, pCaseSensitive)
 			StzRaise("Incorrect param type! nStart must be a number.")
 		ok
 
-		if isList(pCaseSensitive) and IsCaseSensitive(pCaseSensitive)
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -4408,7 +4408,7 @@ func @FindNext(aList, pItem, nStart)
 #===
 
 # A softanza function that uses the native Find() function in Ring
-# to find the nth occurrence of an item in a list
+# to find the occurrences of an item in a given list
 #-> Used by stzList when possible (for better performance)
 
 func @FindAllCS(aList, pItem, pCaseSensitive)
@@ -4422,7 +4422,7 @@ func @FindAllCS(aList, pItem, pCaseSensitive)
 			return -1
 		ok
 
-		if isList(pCaseSensitive) and IsCaseSensitive(pCaseSensitive)
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 

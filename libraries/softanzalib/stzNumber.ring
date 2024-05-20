@@ -2304,7 +2304,7 @@ class stzNumber from stzObject
 
 	def IsEqualTo(pOtherNumber)
 		if CheckParams()
-			if NOT Q(pOtherNumber).IsNumberOrNumberInString()
+			if NOT @IsNumberOrNumberInString(pOtherNumber)
 				StzRaise("Incorrect param type! pOtherNumber must be a number or number in string.")
 			ok
 		ok

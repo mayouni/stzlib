@@ -1141,7 +1141,7 @@ func StzFind(pThing, paIn)
 #-----
 
 func IsNumberOrNumberInString(p)
-	if isNumber() or IsNumberInString(p)
+	if isNumber(p) or IsNumberInString(p)
 		return TRUE
 	else
 		return FALSE

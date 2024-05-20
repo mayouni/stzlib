@@ -4055,25 +4055,45 @@ proff()
 
 /*================
 */
+
+o1 = new stzListOfLists([
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dania",	28900	],
+	[ 30,	"Ben",		25982	],
+	[ 40,	"ali",		"Ali"	]
+])
+
+? @@( o1.FindInLists("Ali") )
+#--> [ [ 1, 2 ], [ 4, 3 ] ]
+
+? @@( o1.FindInListsCS("ali", :CS = FALSE) )
+#--> [ [ 1, 2 ], [ 4, 2 ], [ 4, 3 ] ]
+
+proff()
+
+/*---------
+*/
 pron()
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
+
 	[ 10,	"Ali",		35000	],
 	[ 20,	"Dania",	28900	],
-	[ 30,	"Ben",		25982	]
+	[ 30,	"Ben",		25982	],
+	[ 40,	"ali",		"Ali"	]
 ])
-
+/*
 ? o1.Contains( :Cell = "Ali" ) # same as ? o1.ContainsCell("Ali")
 #--> TRUE
 
 ? o1.Contains( :SubValue = "a" ) # same as ? o1.ContainsSubValue("a")
 #--> TRUE
-
-? @@( o1.FindCell("Ali") )
+*/
+? @@( o1.FindCellCS("Ali", FALSE) )
 #--> [ [ 2, 1 ] ]
 #--> One occurrence of "Ali" in the cell [2, 1]
-
+/*
 ? @@NL( o1.FindSubValueCS("a", :CaseSensitive = FALSE) )
 #--> [
 #	[ [ 2, 1 ], [ 1 ] ],
@@ -4082,7 +4102,7 @@ o1 = new stzTable([
 #--> 3 occurrences of "a" (or "A"):
 #	- 1 occurrence in cell [2, 1] ("Ali"), in position 1, and
 #	- 2 occurrences in cell [2, 2] ("Dania"), in positions 2 and 5
-
+*/
 proff()
 # Executed in 1.02 second(s)
 
