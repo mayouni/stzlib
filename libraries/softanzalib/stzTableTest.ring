@@ -3616,7 +3616,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -3670,34 +3670,90 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? o1.ShowXT([ :ShowRowNumbers ])
-#-->
-#	#   PALETTE1   PALETTE2   PALETTE3
-#	1        Red      White     Yellow
-#	2       Blue        Red        Red
-#	3       Blue      Green    Magenta
-#	4      White       Gray      Black
+? o1.Show()
+#--> PALETTE1   PALETTE2   PALETTE3
+#    --------- ---------- ---------
+#         Red      White     Yellow
+#        Blue        Red        Red
+#        Blue      Green    Magenta
+#       White       Gray      Black
 
 o1.EraseRow(2)
-? o1.ShowXT([ :ShowRowNumbers ])
-#-->
-#	#   PALETTE1   PALETTE2   PALETTE3
-#	1        Red      White     Yellow
-#	2                                 
-#	3       Blue      Green    Magenta
-#	4      White       Gray      Black
+? o1.Show()
+#--> PALETTE1   PALETTE2   PALETTE3
+#    --------- ---------- ---------
+#         Red      White     Yellow
+#                               
+#        Blue      Green    Magenta
+#       White       Gray      Black
 
 o1.EraseRows([3, 1])
-? o1.ShowXT([ :ShowRowNumbers ])
-#-->
-#	#   PALETTE1   PALETTE2   PALETTE3
-#	1                                 
-#	2                                 
-#	3                                 
-#	4      White       Gray      Black
+? o1.Show()
+#--> PALETTE1   PALETTE2   PALETTE3
+#    --------- ---------- ---------
+#                               
+#                               
+#                               
+#       White       Gray      Black
 
 proff()
-# Executed in 0.78 second(s)
+# Executed in 0.33 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzTable([
+	:COL1 = [ "to", "be", "removed" ]
+])
+? o1.Show()
+#--> COL1
+#    ----
+#    ""
+
+o1.RemoveCol(1)
+
+? @@( o1.Content() )
+#--> [ [ "col1", [ "" ] ] ]
+
+? @@( o1.Cell(1, 1) )
+#--> ""
+
+? o1.NumberOfCells()
+#--> 1
+
+? @@( o1.Cells() )
+#--> [ "" ]
+
+? o1.IsEmpty()
+#--> TRUE
+
+o1.Show()
+#--> COL1
+#    ----
+#    ""
+
+proff()
+# Executed in 0.10 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzTable([])
+o1.Show()
+#--> COL1
+#    ----
+#    ""
+
+? @@( o1.Col(1) )
+#--> [ "" ]
+
+? @@( o1.Cell(1, 1) )
+#--> ""
+
+proff()
+# Executed in 0.07 second(s)
 
 /*----------
 
@@ -3711,28 +3767,62 @@ o1 = new stzTable([
 	[   "White",      "Gray",     "Black" ]
 ])
 
-? o1.Show()
-#-->
-#	#   PALETTE1   PALETTE2   PALETTE3
-#	1        Red      White     Yellow
-#	2                                 
-#	3       Blue      Green    Magenta
-#	4      White       Gray      Black
+? o1.Cell(3, 2)
+#--> "Red"
 
-o1.RemoveCol(1)
-o1.RemoveCol(1)
-o1.RemoveCol(1)
+? o1.Cell(1, 1)
+#--> "Red"
 
-? o1.ShowXT([ :ShowRowNumbers ])
-#-->
-#	#   PALETTE1   PALETTE2   PALETTE3
-#	1                                 
-#	2                                 
-#	3                                 
-#	4      White       Gray      Black
+? o1.Cell(0, 2)
+#--> Error message: Array Access (Index out of range) 
 
 proff()
-# Executed in 0.40 second(s)
+# Executed in 0.02 second(s)
+
+/*----------
+*/
+pron()
+
+o1 = new stzTable([
+	[ :PALETTE1,   :PALETTE2,   :PALETTE3 ],
+	[     "Red",     "White",    "Yellow" ],
+	[    "Blue",       "Red",       "Red" ],
+	[    "Blue",     "Green",   "Magenta" ],
+	[   "White",      "Gray",     "Black" ]
+])
+
+? o1.Show()
+#--> PALETTE1   PALETTE2   PALETTE3
+#    --------- ---------- ---------
+#         Red      White     Yellow
+#        Blue        Red        Red
+#        Blue      Green    Magenta
+#       White       Gray      Black
+
+o1.RemoveCol(1)
+o1.RemoveCol(1)
+
+? o1.Show()
+#--> PALETTE3
+#    --------
+#      Yellow
+#         Red
+#     Magenta
+#       Black
+
+o1.RemoveCol(1)
+
+o1.Show()
+#--> COL1
+#    ----
+#    ""
+
+o1.RemoveCol(2)
+#--> Error message:
+#    Incorrect value! n must correspond to a valid number of column.
+
+proff()
+# Executed in 0.12 second(s)
 
 /*----------
 

@@ -4428,7 +4428,9 @@ class stzForEachObject
 				eval(cCode)
 				eval(pcCode)
 			next
+
 		else
+
 			for i = 1 to nLen
 				@i = @Iterations[i]
 				for j = 1 to len(@aValues[@i])
@@ -4438,6 +4440,7 @@ class stzForEachObject
 	
 				eval(pcCode)
 			next
+
 		ok
 
 		def Execute(pcCode)
@@ -4475,7 +4478,9 @@ class stzForEachObject
 				eval(cCode)
 				eval(pcCode)
 			next
+
 		else
+
 			for i = 1 to nLen
 				@i = anPos[i]
 				for j = 1 to len(@aValues[@i])
@@ -4485,6 +4490,7 @@ class stzForEachObject
 	
 				eval(pcCode)
 			next
+
 		ok
 
 		def ExecuteN(n, pcCode)

@@ -1134,6 +1134,7 @@ Class stzTable from stzObject
 	#===============================================#
 
 	def Col(p)
+
 		if isString(p)
 			oTemp = Q(p)
 			if oTemp.IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
@@ -1148,6 +1149,7 @@ Class stzTable from stzObject
 		ok
 
 		aResult = This.VerticalSection( p, 1, This.NumberOfRows() )
+
 		return aResult
 
 		#< @FunctionFluentForm
@@ -1499,12 +1501,14 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		if n = 0
-			return "#"
-
-		but n <= This.NumberOfColumns()
-			return This.ColNames()[n]
+		nLenCols = len(@aContent)
+			
+		if n < 1 or n > nLenCols
+			StzRaise("Index out of range! n must is not a valid number of column.")
 		ok
+
+		cResult = @aContent[n][1]
+		return cResult
 
 		def ColNameQ(n)
 			return new stzString( This.ColName(n) )
@@ -2293,9 +2297,9 @@ Class stzTable from stzObject
 
 		ok
 
-		cCol   = This.ColToName(pCol)
-		Result = @aContent[cCol][pnRow]
-		return Result
+		nCol   = This.ColToColNumber(pCol)
+		result = @aContent[nCol][2][pnRow]
+		return result
 
 		#< @FunctionFluentForm
 
@@ -2397,9 +2401,10 @@ Class stzTable from stzObject
 		*/
 
 		aResult = []
-		nLen    =  len(paCellsPos)
+		nLen =  len(paCellsPos)
 
 		for i = 1 to nLen
+
 			aResult + This.Cell( paCellsPos[i][1], paCellsPos[i][2] )
 		next
 
@@ -2905,6 +2910,7 @@ Class stzTable from stzObject
 	#-----------------------------------------------------#
 
 	def VerticalSection(pCol, n1, n2)
+
 		aCellsPos =  This.VerticalSectionAsPositions(pCol, n1, n2)
 		aResult = This.CellsAtPositions(aCellsPos)
 
@@ -10649,7 +10655,7 @@ Class stzTable from stzObject
 
 	def RemoveNthCol(n)
 		if This.NumberOfCols() = 1
-			@aContent = [ :COL1, NULL ]
+			@aContent = [ [ :COL1, [ NULL ] ] ]
 			return
 		ok
 
@@ -10665,12 +10671,13 @@ Class stzTable from stzObject
 			This.RemoveNthCol(n)
 	
 	def RemoveColumn(pColNameOrNumber)
-		if This.NumberOfCols() = 1
-			@aContent = [ :COL1, NULL ]
+		nCol = This.ColToColNumber(pColNameOrNumber)
+
+		if This.NumberOfCols() = 1 and nCol = 1
+			@aContent = [ [ :COL1, [ NULL ] ] ]
 			return
 		ok
 
-		nCol = This.ColToColNumber(pColNameOrNumber)
 		ring_remove(@aContent, nCol)
 
 		def RemoveCol(pColNameOrNumber)
@@ -12254,7 +12261,7 @@ Class stzTable from stzObject
 		? This.ToStringXT(paOptions)
 
 	def ToString()
-		cResult = This.ToStringXT([
+		aDefaultOptions = [
 			:Separator 	  = "   ",
 			:Alignment 	  = :Right,
 		
@@ -12263,7 +12270,9 @@ Class stzTable from stzObject
 			:IntersectionChar = " ",
 		
 			:ShowRowNumbers   = FALSE
-		])
+		]
+
+		cResult = This.ToStringXT(aDefaultOptions)
 		return cResult
 
 	def ToStringXT(paOptions)
@@ -12799,7 +12808,7 @@ Class stzTable from stzObject
 		ok
 
 		if NOT Q(p).IsBetween(1, This.NumberOfCols())
-			StzRaise("Incorrect value! n must be a number between 1 and " + This.NumberOfCols() + ".")
+			StzRaise("Incorrect value! n must correspond to a valid number of column.")
 		ok
 
 		nResult = p
