@@ -2304,14 +2304,15 @@ class stzNumber from stzObject
 
 	def IsEqualTo(pOtherNumber)
 		if CheckParams()
-			if NOT Q(pOtherNumber).IsNumberOrString()
-				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
+			if NOT Q(pOtherNumber).IsNumberOrNumberInString()
+				StzRaise("Incorrect param type! pOtherNumber must be a number or number in string.")
 			ok
 		ok
 
 		nCurrentRound = StzCurrentRound()
 
 		StzDecimals(This.Round())
+
 		bResult = (This.NumericValue() = 0+ pOtherNumber)
 		StzDecimals(nCurrentRound)
 
