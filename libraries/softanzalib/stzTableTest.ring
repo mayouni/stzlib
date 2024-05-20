@@ -3780,7 +3780,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -3837,33 +3837,31 @@ o1 = new stzTable([
 ])
 
 ? o1.Show()
-#-->
-#   PALETTE1   PALETTE2   PALETTE3
-#	1        Red      White     Yellow
-#	2       Blue        Red        Red
-#	3       Blue      Green    Magenta
-#	4      White       Gray      Black
+#--> PALETTE1   PALETTE2   PALETTE3
+#    --------- ---------- ---------
+#         Red      White     Yellow
+#        Blue        Red        Red
+#        Blue      Green    Magenta
+#       White       Gray      Black
 
 o1.RemoveCols([1, 2])
 ? o1.Show()
-#-->
-#	#   PALETTE3
-#	1     Yellow
-#	2        Red
-#	3    Magenta
-#	4      Black
+#--> PALETTE3
+#    --------
+#      Yellow
+#         Red
+#     Magenta
+#       Black
 
 o1.RemoveCol(:PALETTE3)
-? o1.ShowXT([ :ShowRowNumbers ])
-#-->
-#	#   COL1
-#	1       
-#	2       
-#	3       
-#	4 
+? o1.Show()
+#--> COL1
+#    ----
+#    ""
       
 proff()
-#--> Executed in 0.50 second(s)
+#--> Executed in 0.15 second(s) in Ring 1.20
+#--> Executed in 0.50 second(s) in Ring 1.17
 
 /*==========
 
@@ -3876,12 +3874,15 @@ o1 = new stzTable([
 ])
 
 o1.AddRow([ 40, "Peter", 12500 ])
-? o1.Row(4) #--> [ 40, "Peter", 12500 ]
+? o1.Row(4)
+#--> [ 40, "Peter", 12500 ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*==========
+
+pron()
 
 o1 = new stzTable([
 	[ :ID,	:EMPLOYEE,	:SALARY	],
@@ -3890,9 +3891,51 @@ o1 = new stzTable([
 	[ 30,	"Ben",		25982	]
 ])
 
-o1.AddCol( :TEMPO = [ NULL, NULL, NULL, NULL ])
-#--> Error message:
-# Incorrect number of cells! paColNameAndData must contain extactly 3 cells.
+o1.AddCol( :TEMPO = [ "any", "any", "any", "any" ])
+
+? @@( o1.Col(:TEMPO) )
+#--> [ "any", "any", "any" ]
+
+proff()
+#--> Executed in 0.02 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
+])
+
+o1.AddCol( :TEMPO = [ "any", "any" ])
+
+? @@( o1.Col(:TEMPO) )
+#--> [ "any", "any", "" ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE,	:SALARY	],
+	[ 10,	"Ali",		35000	],
+	[ 20,	"Dan",		28900	],
+	[ 30,	"Ben",		25982	]
+])
+
+o1.AddCol( :TEMPO = [ ])
+
+? @@( o1.Col(:TEMPO) )
+#--> [ "", "", "" ]
+
+proff()
+# Executed in 0.02 second(s)
 
 /*----------
 
@@ -3914,7 +3957,7 @@ o1.AddCol( :TEMPO = [ NULL, NULL, NULL ])
 #--> [ "", "", "" ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.02 second(s)
 
 /*----------
 
@@ -3932,56 +3975,62 @@ o1.AddCols([
 	:TWOS = [ 2, 2, 2 ]
 ])
 
-? @@( o1.Cols() )
+? @@NL( o1.Cols() ) + NL
 #--> [
 #	[ 10, 20, 30 ],
 #	[ "Ali", "Dan", "Ben" ],
 #	[ 35000, 28900, 25982 ],
-#	[ 1, 1, 1 ], [ 2, 2, 2 ]
+#	[ 1, 1, 1 ],
+#	[ 2, 2, 2 ]
 # ]
 
-? @@( o1.TheseColumns([ :ONES, :TWOS ]) )
+? @@( o1.TheseColumns([ :ONES, :TWOS ]) ) + NL
 #--> [ [ 1, 1, 1 ], [ 2, 2, 2 ] ]
 
-? @@( o1.TheseColumnsXT([ :ONES, :TWOS ]) )
-#--> [ [ "ones", [ 1, 1, 1 ] ], [ "twos", [ 2, 2, 2 ] ] ]
+? @@NL( o1.TheseColumnsXT([ :ONES, :TWOS ]) )
+#--> [
+#	[ "ones", [ 1, 1, 1 ] ],
+#	[ "twos", [ 2, 2, 2 ] ]
+# ]
 
 proff()
-# Executed in 0.30 second(s)
+# Executed in 0.05 second(s) in Ring 1.17
+# Executed in 0.30 second(s) in Ring 1.20
 
 /*==========
 
 pron()
 
 o1 = new stzTable([
-	[ :ID,	:EMPLOYEE,	:SALARY	],
-	[ 10,	"Ali",		35000	],
-	[ 20,	"Dan",		28900	],
-	[ 30,	"Ben",		25982	]
+	[ :ID,	:EMPLOYEE,	:SALARY,	:JOB 	],
+	[ 10,	"Ali",		35000,		"job1"	],
+	[ 20,	"Dan",		28900,		"job2"	],
+	[ 30,	"Ben",		25982,		"job3"	]
 ])
 
 ? o1.ShowXT([])
-#-->
-#	#   ID   EMPLOYEE   SALARY
-#	1   10        Ali    35000
-#	2   20        Dan    28900
-#	3   30        Ben    25982
+#--> ID | EMPLOYEE | SALARY |  JOB
+#    --- ---------- -------- -----
+#    10 |      Ali |  35000 | job1
+#    20 |      Dan |  28900 | job2
+#    30 |      Ben |  25982 | job3
 
-? @@( o1.SubTable([ :EMPLOYEE, :SALARY ]) ) + NL
+? @@NL( o1.SubTable([ :EMPLOYEE, :SALARY ]) ) + NL
 #--> [
 #	[ "employee", [ "Ali", "Dan", "Ben" ] ],
 #	[ "salary"  , [ 35000, 28900, 25982 ] ]
 #    ]
 
 o1.SubTableQR([ :EMPLOYEE, :SALARY ], :stzTable).Show()
-#-->
-#	#   EMPLOYEE   SALARY
-#	1        Ali    35000
-#	2        Dan    28900
-#	3        Ben    25982
+#--> EMPLOYEE   SALARY
+#    --------- -------
+#         Ali    35000
+#         Dan    28900
+#         Ben    25982
 
 proff()
-# Executed in 0.57 second(s)
+# Executed in 0.16 second(s) in Ring 1.20
+# Executed in 0.57 second(s) in Ring 1.17
 
 /*-----------
 
@@ -4005,7 +4054,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*================
-
+*/
 pron()
 
 o1 = new stzTable([
@@ -4025,7 +4074,7 @@ o1 = new stzTable([
 #--> [ [ 2, 1 ] ]
 #--> One occurrence of "Ali" in the cell [2, 1]
 
-? @@( o1.FindSubValueCS("a", :CaseSensitive = FALSE) )
+? @@NL( o1.FindSubValueCS("a", :CaseSensitive = FALSE) )
 #--> [
 #	[ [ 2, 1 ], [ 1 ] ],
 #	[ [ 2, 2 ], [ 2, 5 ] ]
