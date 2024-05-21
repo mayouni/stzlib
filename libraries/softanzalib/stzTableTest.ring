@@ -4944,41 +4944,64 @@ proff()
 # Executed in 0.09 second(s) in Ring 1.20
 # Executed in 0.72 second(s) in Ring 1.17
 
-/*-----------------
+/*----------------- #TODO write a #narration
 */
 pron()
 
 o1 = new stzTable([
-	[ :NATION,	:LANGUAGE ],
-	[ "Tunisia",	"Arabic"  ],
-	[ "France",	"French"  ],
-	[ "USA",	"English" ]
+	[ :NATION,	:LANGUAGE   ],
+	[ "Tunisia",	"Arabic"    ],
+	[ "France",	"French"    ],
+	[ "Egypt",	"English"   ],
+	[ "Belgium",	"Arabic"    ],
+	[ "Yemen",	"Haousa"    ]
 ])
 
 o1.ReplaceNthCol(2, [ "___", "___" ])
-o1.Show()
+? o1.Show()
 #-->  NATION   LANGUAGE
 #     -------- ---------
 #     Tunisia        ___
 #      France        ___
-#         USA          
+#       Egypt    English 
+#     Belgium     Arabic
+#       Yemen     Haousa
 
-
-/*
 o1.ReplaceCellsInCol(:LANGUAGE, :By = ".....")
-o1.Show()
+? o1.Show()
 #--> NATION   LANGUAGE
 #    -------- ---------
 #    Tunisia      .....
 #     France      .....
-#        USA      .....
+#      Egypt      .....
+#    Belgium      .....
+#      Yemen      .....
 
-? ""
+o1.ReplaceCol(:LANGUAGE, [ "Arabic", "French" ])
+? o1.Show()
+#-->  NATION   LANGUAGE
+#     -------- ---------
+#     Tunisia     Arabic
+#      France     French
+#       Egypt      .....
+#     Belgium      .....
+#      Yelmen      .....
 
-o1.ReplaceCol(:LANGUAGE, [ "Lang1", "Lang2" ])
+o1.ReplaceColXT(:LANGAUGE, [ "Arabic", "French" ])
+? o1.Show()
+
+o1.ReplaceColNameAndData(:LANGUAGE, :CONTINENT, [ "Africa", "Europe", "America" ])
 o1.Show()
-*/
+#-->  NATION   CONTINENT
+#     -------- ----------
+#     Tunisia      Africa
+#      France      Europe
+#       Egypt     America
+#     Belgium       .....
+#       Yemen       .....
+
+ReplaceColNameAndDataXT
 proff()
-# Executed in 0.19 second(s)
+# Executed in 0.16 second(s)
 
 //ReplaceCellsInRow
