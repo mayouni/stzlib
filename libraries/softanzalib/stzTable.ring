@@ -10056,7 +10056,7 @@ Class stzTable from stzObject
 			if i <= nLen
 				aCol + paCol[i]
 			else
-				aCol + NULL
+				aCol + @aContent[n][2][i]
 			ok
 		next
 
@@ -10079,14 +10079,15 @@ Class stzTable from stzObject
 	 #  REPLACING A COLUMN BY AN OTHER PROVIDED AS A COLUMN NAME AND A LIST OF ROWS  #
 	#-------------------------------------------------------------------------------#
 
-	def ReplaceColXT(pCol, pcColName, paColData)
+	def ReplaceColNameAndData(pCol, pcColName, paColData)
 		nCol = This.ColToColNumber(pCol)
-		This.ReplaceNthCol(n, pcColName, paColData)
+		This.ReplaceNthColName(nCol, pcColName)
+		This.ReplaceNthCol(nCol, paColData)
 
 		def ReplaceColumnXT(pCol, pccolName, paColData)
 			This.ReplaceColXT(pCol, pccolName, paColData)
 
-	def ReplaceNthColXT(n, pcColName, paColData)
+	def ReplaceNthColNamedAndData(n, pcColName, paColData)
 		if CheckParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
@@ -10120,14 +10121,14 @@ Class stzTable from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceNthColumnXT(n, pcColName, paColData)
-			This.ReplaceNthColXT(n, pcColName, paColData)
+		def ReplaceNthColumnNamedAndData(n, pcColName, paColData)
+			This.ReplaceNthColNamedAndData(n, pcColName, paColData)
 
-		def ReplaceColNXT(n, pcColName, paColData)
-			This.ReplaceNthColXT(n, pcColName, paColData)
+		def ReplaceColNNamedAndData(n, pcColName, paColData)
+			This.ReplaceNthColNamedAndData(n, pcColName, paColData)
 
-		def ReplaceColumnNXT(n, pcColName, paColData)
-			This.ReplaceNthColXT(n, pcColName, paColData)
+		def ReplaceColumnNNamedAndData(n, pcColName, paColData)
+			This.ReplaceNthColNamedAndData(n, pcColName, paColData)
 
 		#>
 
@@ -12071,6 +12072,13 @@ Class stzTable from stzObject
 	  #=============================#
 	 #   REPLACING A COLUMN NAME   #
 	#=============================#
+
+	def ReplaceNthColName(n, pcNewColName)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		This.ReplaceColName(n, pcNewColName)
 
 	def ReplaceColName(pCol, pcNewColName)
 		if isList(pcNewColName) and Q(pcNewColName).IsWithOrByNamedParam()
