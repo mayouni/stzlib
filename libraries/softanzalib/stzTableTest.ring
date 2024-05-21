@@ -4464,7 +4464,7 @@ proff()
 # Executed in 0.13 second(s) in Ring 1.17
 
 /*------------- @narration
-*/
+
 pron()
 
 # Softanza can find the values of a cell in a stzTable object,
@@ -4513,7 +4513,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*#================= ROW: FindInRow(), CountInRow(), ContainsInRow()
-*/
+
 pron()
 
 // Finding all occurrences of a value, or subvalue, in a row
@@ -4543,11 +4543,12 @@ o1 = new stzTable([
 #   ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.06 second(s)
 
 /*------------
 
 // Finding nth occurrence of a value in a row
+
 pron()
 
 o1 = new stzTable([
@@ -4561,6 +4562,7 @@ o1 = new stzTable([
 #--> [2, 2]
 
 # Or you can use this short form:
+
 ? @@( o1.FindNthInRow(1, 2, "Abraham") )
 #--> [2, 2]
 
@@ -4574,7 +4576,8 @@ o1 = new stzTable([
 #--> [2, 3]
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.05 second(s) in Ring 1.20
+# Executed in 0.14 second(s) in Ring 1.17
 
 #-----------
 
@@ -4598,7 +4601,7 @@ o1 = new stzTable([
 #--> [ [ 2, 2 ], 6 ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.05 second(s)
 
 #-----------
 
@@ -4620,7 +4623,7 @@ o1 = new stzTable([
 #--> 2
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s)
 
 #-----------
 
@@ -4649,7 +4652,7 @@ o1 = new stzTable([
 #--> TRUE
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.04 second(s)
 
 #================= COL: FindInCol(), CountInCol(), ContainsInCol()
 
@@ -4670,7 +4673,7 @@ o1 = new stzTable([
 ? @@( o1.FindInCol(2, :Value = "Ali") ) + NL
 #--> [ [ 2, 3 ] ]
 
-? @@( o1.FindInCol(:LASTNAME, :SubValue = "a" ) ) + NL
+? @@NL( o1.FindInCol(:LASTNAME, :SubValue = "a" ) ) + NL
 #--> [
 #	[ [ 2, 1 ], [ 2 ] ],
 #	[ [ 2, 2 ], [ 4, 6 ] ]
@@ -4684,11 +4687,13 @@ o1 = new stzTable([
 #   ]
 
 proff()
-# Executed in 0.35 second(s)
+# Executed in 0.07 second(s) in Ring 1.20
+# Executed in 0.35 second(s) in Ring 1.17
 
 /*------------
 
 pron()
+
 // Finding nth occurrence of a value in a Col
 
 o1 = new stzTable([
@@ -4702,6 +4707,7 @@ o1 = new stzTable([
 #--> [2, 2]
 
 # Or you can use this short form:
+
 ? @@( o1.FindNthInCol(1, 2, "Abraham") )
 #--> [2, 2]
 
@@ -4715,7 +4721,8 @@ o1 = new stzTable([
 #--> [1, 3]
 
 proff()
-# Executed in 0.43 second(s)
+# Executed in 0.08 second(s) in Ring 1.19
+# Executed in 0.43 second(s) in Ring 1.17
 
 /*-----------
 
@@ -4730,7 +4737,7 @@ o1 = new stzTable([
 	[ "Ali",	"Ali"     ]
 ])
 
-? @@( o1.FindInCol(:LASTNAME, :SubValue = "a") ) + NL
+? @@NL( o1.FindInCol(:LASTNAME, :SubValue = "a") ) + NL
 #--> [
 #	[ [ 2, 1 ], [ 2 ] 	],
 #	[ [ 2, 2 ], [ 4, 6 ] 	]
@@ -4743,11 +4750,13 @@ o1 = new stzTable([
 #--> [ [ 2, 1 ], 2 ]
 
 proff()
-# Executed in 0.28 second(s)
+# Executed in 0.08 second(s) in Ring 1.20
+# Executed in 0.28 second(s) in Ring 1.17
 
 /*-----------
 
 pron()
+
 // Counting the number of occurrences of a value, or subvalue, in a Col
 
 o1 = new stzTable([
@@ -4764,7 +4773,8 @@ o1 = new stzTable([
 #--> 2
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.04 second(s) in Ring 1.20
+# Executed in 0.14 second(s) in Ring 1.17
 
 /*-----------
 
@@ -4792,7 +4802,7 @@ o1 = new stzTable([
 #--> TRUE
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.04 second(s)
 
 /*=================
 
@@ -4810,11 +4820,11 @@ o1 = new stzTable([
 
 o1.ReplaceCell(:FIRSTNAME, 3, :With = "Saber")
 
-? @@( o1.Cell(:FIRSTNAME, 3) )
+? o1.Cell(:FIRSTNAME, 3)
 #--> "Saber"
 
 proff()
-# Executed in 0.16 second(s)
+# Executed in 0.04 second(s)
 
 /*-----------------
 
@@ -4836,7 +4846,7 @@ o1.ReplaceCell(2, 3, :With = "English")
 #--> "English"
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
 
 /*-----------------
 
@@ -4855,20 +4865,22 @@ o1.ReplaceCellsByMany(
 )
 
 o1.Show()
-#-->
-# #    NATION   LANGUAGE
-# 1   Tunisia     Arabic
-# 2    France     French
-# 3       USA    English
+#-->  NATION   LANGUAGE
+#    -------- ---------
+#    Tunisia     Arabic
+#     France     French
+#        USA    English
 
 proff()
-# Executed in 0.19 second(s)
+# Executed in 0.09 second(s) in Ring 1.20
+# Executed in 0.19 second(s) in Ring 1.17
 
 /*-----------------
 
 pron()
 
 o1 = new stzList([ "A", "B", "C" ])
+
 o1.ExtendXT(:To = 10, :ByRepeatingItems)
 ? @@( o1.Content() )
 #--> [ "A", "B", "C", "A", "B", "C", "A", "B", "C", "A" ]
@@ -4897,17 +4909,16 @@ o1.ReplaceCellsByManyXT(
 )
 
 o1.Show()
-#-->
-# :NATION   :LANGUAGE
-# -------- ----------
-#  France          01
-#     USA          02
-#   Niger          03
-#   Egypt          01
-#  Kuwait          02
+#--> NATION   LANGUAGE
+#    ------- ---------
+#    France         01
+#       USA         02
+#     Niger         03
+#     Egypt         01
+#    Kuwait         02
 
 proff()
-# Executed in 0.21 second(s)
+# Executed in 0.14 second(s)
 
 /*-----------------
 
@@ -4923,35 +4934,51 @@ o1 = new stzTable([
 o1.ReplaceAll("___", :By = ".....")
 
 o1.Show()
-#-->
-#	:NATION  :LANGUAGE
-#	  .....     Arabic
-#	 France      .....
-#	   USA      .....
+#--> NATION   LANGUAGE
+#    ------- ---------
+#     .....     Arabic
+#    France      .....
+#       USA      .....
 
 proff()
-# Executed in 0.72 second(s)
+# Executed in 0.09 second(s) in Ring 1.20
+# Executed in 0.72 second(s) in Ring 1.17
 
 /*-----------------
-
+*/
 pron()
 
 o1 = new stzTable([
 	[ :NATION,	:LANGUAGE ],
 	[ "Tunisia",	"Arabic"  ],
 	[ "France",	"French"  ],
-	[ "USA",	"english" ]
+	[ "USA",	"English" ]
 ])
 
-o1.ReplaceCellsInCol(:LANGUAGE, :By = ".....")
-
+o1.ReplaceNthCol(2, [ "___", "___" ])
 o1.Show()
-#-->
-# :NATION  :LANGUAGE
-# Tunisia      .....
-# France      .....
-#    USA      .....
+#-->  NATION   LANGUAGE
+#     -------- ---------
+#     Tunisia        ___
+#      France        ___
+#         USA          
 
+
+/*
+o1.ReplaceCellsInCol(:LANGUAGE, :By = ".....")
+o1.Show()
+#--> NATION   LANGUAGE
+#    -------- ---------
+#    Tunisia      .....
+#     France      .....
+#        USA      .....
+
+? ""
+
+o1.ReplaceCol(:LANGUAGE, [ "Lang1", "Lang2" ])
+o1.Show()
+*/
 proff()
 # Executed in 0.19 second(s)
 
+//ReplaceCellsInRow

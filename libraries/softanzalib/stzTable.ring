@@ -10017,51 +10017,140 @@ Class stzTable from stzObject
 
 		#>
 
-	  #==============================#
-	 #  REPLACING CELLS IN COLUMNS  #
-	#==============================#
+	  #=============================================================#
+	 #  REPLACING A COLUMN BY AN OTHER PROVIDED AS A LIST OF ROWS  #
+	#============================================================#
 
-	def ReplaceCol(pCol, paNewCol)
+	def ReplaceCol(pCol, paCol)
+		nCol = This.ColToColNumber(pCol)
+		This.ReplaceNthCol(nCol, paCol)
+
+		def ReplaceColumn(pCol, paCol)
+			This.ReplaceCol(pCol, paCol)
+
+	def ReplaceNthCol(n, paCol)
 		if CheckParams()
-			if isList(paNewCol) and
-			   Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
-				paNewCol = paNewCol[2]
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
 			ok
 
+			if IsList(paCol) and Q(paCol).IsByOrWithOrUsingNamedParam()
+				paCol = paCol[2]
+			ok
+
+			if NOT isList(paCol)
+				StzRaise("Incorrect param type! paCol must be a list.")
+			ok
 		ok
 
-		if isString(paNewCol)
-			This.ReplaceColName(pCol, paNewCol)
-			return
+		nRows = This.NumberOfRows()
+		nLen = len(paCol)
+
+		if nLen > nRows
+			nLen = nRows
 		ok
 
-		if isNumber(paNewCol)
-			paNewCol = This.Col(paNewCol)
-		ok
+		aCol = []
 
-		cCol = This.ColToColName(pCol)
-		nLen = Min([ len(paNewCol), This.NumberOfRows() ])
-
-		if nLen = 0
-			return
-		ok
-
-		for j = 1 to nLen
-			@aContent[cCol][j] = paNewCol[j]
+		for i = 1 to nRows
+			if i <= nLen
+				aCol + paCol[i]
+			else
+				aCol + NULL
+			ok
 		next
+
+		@aContent[n][2] = aCol
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceColumn(pCol, paNewCol)
-			This.ReplaceCol(pCol, pNewCol)
+		def ReplaceNthColumn(n, paCol)
+			This.ReplaceNthCol(n, paCol)
 
-		def ReplaceCellsInCol(pCol, paNewCol)
-			This.ReplaceCol(pCol, paNewCol)
+		def ReplaceColN(n, paCol)
+			This.ReplaceNthCol(n, paCol)
 
-		def ReplaceCellsInColumn(pCol, paNewCol)
-			This.ReplaceCol(pCol, paNewCol)
+		def ReplaceColumnN(n, paCol)
+			This.ReplaceNthCol(n, paCol)
 
 		#>
+
+	  #-------------------------------------------------------------------------------#
+	 #  REPLACING A COLUMN BY AN OTHER PROVIDED AS A COLUMN NAME AND A LIST OF ROWS  #
+	#-------------------------------------------------------------------------------#
+
+	def ReplaceColXT(pCol, pcColName, paColData)
+		nCol = This.ColToColNumber(pCol)
+		This.ReplaceNthCol(n, pcColName, paColData)
+
+		def ReplaceColumnXT(pCol, pccolName, paColData)
+			This.ReplaceColXT(pCol, pccolName, paColData)
+
+	def ReplaceNthColXT(n, pcColName, paColData)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			if isList(pcColName) and Q(pcColName).IsWithOrByOrUsingNamedParam()
+				pcColName = pcColName[2]
+			ok
+
+			if isList(paColData) and Q(paColData).IsAndNamedParam()
+				pacolData = paColData[2]
+			ok
+
+			if NOT isString(pcColName)
+				StzRaise("Incorrect param type! pcColName must be a string.")
+			ok
+
+			if NOT isList(paColData)
+				StzRaise("Incorrect param type! paColData must be a list.")
+			ok
+		ok
+
+		nMin = Min([ len(paColData), This.NumberOfRows() ])
+		aTemp = []
+		for i = 1 to nMin
+			aTemp + paColData[i]
+		next
+
+		@aContent[n][1] = pcColName
+		@aContent[n][2] = aTemp
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceNthColumnXT(n, pcColName, paColData)
+			This.ReplaceNthColXT(n, pcColName, paColData)
+
+		def ReplaceColNXT(n, pcColName, paColData)
+			This.ReplaceNthColXT(n, pcColName, paColData)
+
+		def ReplaceColumnNXT(n, pcColName, paColData)
+			This.ReplaceNthColXT(n, pcColName, paColData)
+
+		#>
+
+	  #------------------------------------------------------------------#
+	 #  REPLACING ALL THE CELLS OF A COLUMN BY THE SAME PROVIDED VALUE  #
+	#------------------------------------------------------------------#
+
+	def ReplaceCellsInCol(pCol, pCell)
+		if CheckParams()
+			if isList(pCell) and Q(pCell).IsWithOrByOrUsingNamedParam()
+				pCell = pCell[2]
+			ok
+		ok
+
+		nCol = This.ColToColNumber(pCol)
+		nRows = This.NumberOfRows()
+
+		for i = 1 to nRows
+			@aContent[nCol][2][i] = pCell
+		next
+
+		def ReplaceCellsInColumn(pCol, pCell)
+			This.ReplaceCellsInCol(pCol, pCell)
 
 	  #------------------------------------------------------------------------------------------------#
 	 #  REPLACING ALL THE COLUMNS IN THE TABLE WITH A GIVEN NEW COLUMN (PROVIDED AS A LIST OF CELLS)  #
