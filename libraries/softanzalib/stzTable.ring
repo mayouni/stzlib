@@ -10019,7 +10019,7 @@ Class stzTable from stzObject
 
 	  #=============================================================#
 	 #  REPLACING A COLUMN BY AN OTHER PROVIDED AS A LIST OF ROWS  #
-	#============================================================#
+	#=============================================================#
 
 	def ReplaceCol(pCol, paCol)
 		nCol = This.ColToColNumber(pCol)
@@ -10075,17 +10075,86 @@ Class stzTable from stzObject
 
 		#>
 
-	  #-------------------------------------------------------------------------------#
+	  #-------------------------------------------------------------------------#
+	 #  REPLACING A COLUMN BY AN OTHER PROVIDED AS A LIST OF ROWS -- EXTENDED  #
+	#-------------------------------------------------------------------------#
+	# ~> XT : If paCol has fewer items than required, it will be
+	# supplemented with its items starting from the first one.
+
+	def ReplaceColXT(pCol, paCol)
+		nCol = This.ColToColNumber(pCol)
+		This.ReplaceNthColXT(nCol, paCol)
+
+		def ReplaceColumnXT(pCol, paCol)
+			This.ReplaceColXT(pCol, paCol)
+
+	def ReplaceNthColXT(n, paCol)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+
+			if IsList(paCol) and Q(paCol).IsByOrWithOrUsingNamedParam()
+				paCol = paCol[2]
+			ok
+
+			if NOT isList(paCol)
+				StzRaise("Incorrect param type! paCol must be a list.")
+			ok
+		ok
+
+		nRows = This.NumberOfRows()
+		nLen = len(paCol)
+
+		if nLen > nRows
+			nLen = nRows
+		ok
+
+		aCol = []
+		j = 0
+
+		for i = 1 to nRows
+			if i <= nLen
+				aCol + paCol[i]
+			else
+				j++
+				if j > nLen
+					j = 1
+				ok
+				aCol + paCol[j]
+			ok
+		next
+
+		@aContent[n][2] = aCol
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceNthColumnXT(n, paCol)
+			This.ReplaceNthColXT(n, paCol)
+
+		def ReplaceColNXT(n, paCol)
+			This.ReplaceNthColXT(n, paCol)
+
+		def ReplaceColumnNXT(n, paCol)
+			This.ReplaceNthColXT(n, paCol)
+
+		#>
+
+	  #===============================================================================#
 	 #  REPLACING A COLUMN BY AN OTHER PROVIDED AS A COLUMN NAME AND A LIST OF ROWS  #
-	#-------------------------------------------------------------------------------#
+	#===============================================================================#
 
 	def ReplaceColNameAndData(pCol, pcColName, paColData)
 		nCol = This.ColToColNumber(pCol)
 		This.ReplaceNthColName(nCol, pcColName)
 		This.ReplaceNthCol(nCol, paColData)
 
-		def ReplaceColumnXT(pCol, pccolName, paColData)
-			This.ReplaceColXT(pCol, pccolName, paColData)
+		#< @FunctionAlternativeForm
+
+		def ReplaceColumnNamedAndData(pCol, pcColName, paColData)
+			This.ReplaceColNameAndData(pCol, pcColName, paColData)
+
+		#>
 
 	def ReplaceNthColNamedAndData(n, pcColName, paColData)
 		if CheckParams()
@@ -10132,9 +10201,44 @@ Class stzTable from stzObject
 
 		#>
 
-	  #------------------------------------------------------------------#
+	  #-------------------------------------------------------------------------------------------#
+	 #  REPLACING A COLUMN BY AN OTHER PROVIDED AS A COLUMN NAME AND A LIST OF ROWS -- EXTENDED  #
+	#-------------------------------------------------------------------------------------------#
+	# ~> XT : If paColData has fewer items than required, it will be
+	# supplemented with its items starting from the first one.
+
+	def ReplaceColNameAndDataXT(pCol, pcColName, paColData)
+		nCol = This.ColToColNumber(pCol)
+		This.ReplaceNthColName(nCol, pcColName)
+		This.ReplaceNthColXT(nCol, paColData)
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceColumnNamedAndDataXT(pCol, pcColName, paColData)
+			This.ReplaceColNameAndDataXT(pCol, pcColName, paColData)
+
+		#>
+
+	def ReplaceNthColNamedAndDataXT(n, pcColName, paColData)
+		This.ReplaceNthColName(n, pcColName)
+		This.ReplaceNthColXT(n, paColData)
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceNthColumnNamedAndDataXT(n, pcColName, paColData)
+			This.ReplaceNthColNamedAndDataXT(n, pcColName, paColData)
+
+		def ReplaceColNNamedAndDataXT(n, pcColName, paColData)
+			This.ReplaceNthColNamedAndDataXT(n, pcColName, paColData)
+
+		def ReplaceColumnNNamedAndDataXT(n, pcColName, paColData)
+			This.ReplaceNthColNamedAndDataXT(n, pcColName, paColData)
+
+		#>
+
+	  #==================================================================#
 	 #  REPLACING ALL THE CELLS OF A COLUMN BY THE SAME PROVIDED VALUE  #
-	#------------------------------------------------------------------#
+	#==================================================================#
 
 	def ReplaceCellsInCol(pCol, pCell)
 		if CheckParams()
