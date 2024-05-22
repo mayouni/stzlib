@@ -10073,6 +10073,20 @@ Class stzTable from stzObject
 		def ReplaceColumnN(n, paCol)
 			This.ReplaceNthCol(n, paCol)
 
+		#--
+
+		def ReplaceColAt(n, paCol)
+			This.ReplaceNthCol(n, paCol)
+
+		def ReplaceColAtPosition(n, paCol)
+			This.ReplaceNthCol(n, paCol)
+
+		def ReplaceColumnAt(n, paCol)
+			This.ReplaceNthCol(n, paCol)
+
+		def ReplaceColumnAtPosition(n, paCol)
+			This.ReplaceNthCol(n, paCol)
+
 		#>
 
 	  #-------------------------------------------------------------------------#
@@ -10138,7 +10152,122 @@ Class stzTable from stzObject
 		def ReplaceColumnNXT(n, paCol)
 			This.ReplaceNthColXT(n, paCol)
 
+		#--
+
+		def ReplaceColAtXT(n, paCol)
+			This.ReplaceNthColXT(n, paCol)
+
+		def ReplaceColAtPositionXT(n, paCol)
+			This.ReplaceNthColXT(n, paCol)
+
+		def ReplaceColumnAtXT(n, paCol)
+			This.ReplaceNthColXT(n, paCol)
+
+		def ReplaceColumnAtPositionXT(n, paCol)
+			This.ReplaceNthColXT(n, paCol)
+
 		#>
+
+	  #----------------------------------------------------------------------------------------#
+	 #  REPLACING COLUMNS AT GIVEN POSITIONS BY A GIVEN COLUMN (PROVIDED AS A LIST OF CELLS)  #
+	#----------------------------------------------------------------------------------------#
+
+	def ReplaceColsAt(panPos, paCol)
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+			StzRaise("Incorrect param type! panPos must be a list of numbers.")
+		ok
+
+		anPosU = U(panPos)
+		nLen = len(anPosU)
+
+		for i = 1 to nLen
+			This.ReplaceColAt(anPosU[i], paCol)
+		next
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceColsAtPositions(panPos, paCol)
+			This.ReplaceColsAt(panPos, paCol)
+
+		def ReplacesNthCols(panPos, paCol)
+			This.ReplaceColsAt(panPos, paCol)
+
+		def ReplaceColumnsAt(panPos, paCol)
+			This.ReplaceColsAt(panPos, paCol)
+
+		def ReplaceColumnsAtPositions(panPos, paCol)
+			This.ReplaceColsAt(panPos, paCol)
+
+		def ReplacesNthColumns(panPos, paCol)
+			This.ReplaceColsAt(panPos, paCol)
+
+		#>
+
+	  #----------------------------------------------------------------------------------------------------#
+	 #  REPLACING COLUMNS AT GIVEN POSITIONS BY A GIVEN COLUMN (PROVIDED AS A LIST OF CELLS) -- EXTENDED  #
+	#----------------------------------------------------------------------------------------------------#
+
+	def ReplaceColsAtXT(panPos, paCol)
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+			StzRaise("Incorrect param type! panPos must be a list of numbers.")
+		ok
+
+		anPosU = U(panPos)
+		nLen = len(anPosU)
+
+		for i = 1 to nLen
+			This.ReplaceColAtXT(anPosU[i], paCol)
+		next
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceColsAtPositionsXT(panPos, paCol)
+			This.ReplaceColsAtXT(panPos, paCol)
+
+		def ReplacesNthColsXT(panPos, paCol)
+			This.ReplaceColsAtXT(panPos, paCol)
+
+		def ReplaceColumnsAtXT(panPos, paCol)
+			This.ReplaceColsAtXT(panPos, paCol)
+
+		def ReplaceColumnsAtPositionsXT(panPos, paCol)
+			This.ReplaceColsAtXT(panPos, paCol)
+
+		def ReplacesNthColumnsXT(panPos, paCol)
+			This.ReplaceColsAtXT(panPos, paCol)
+
+		#>
+
+	  #-------------------------------------------------------------------------------------#
+	 #  REPLACING THE GIVEN COLUMNS WITH A GIVEN NEW COLUMN (PROVIDED AS A LIST OF CELLS)  #
+	#-------------------------------------------------------------------------------------#
+
+	def ReplaceTheseCols(paCols, paNewCol)
+		if Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+			paNewCol = paNewCol[2]
+		ok
+
+		anPos = This.ColsToColNumbers(paCols)
+		This.ReplaceColsAtPositions(anPos, paNewCol)
+
+		def ReplaceTheseColumns(paCols, paNewCol)
+			This.ReplaceTheseCols(paCols, paNewCol)
+
+
+	  #-------------------------------------------------------------------------------------------------#
+	 #  REPLACING THE GIVEN COLUMNS WITH A GIVEN NEW COLUMN (PROVIDED AS A LIST OF CELLS) -- EXTENDED  #
+	#-------------------------------------------------------------------------------------------------#
+
+	def ReplaceTheseColsXT(paCols, paNewCol)
+		if Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+			paNewCol = paNewCol[2]
+		ok
+
+		anPos = This.ColsToColNumbers(paCols)
+		This.ReplaceColsAtPositionsXT(anPos, paNewCol)
+
+		def ReplaceTheseColumnsXT(paCols, paNewCol)
+			This.ReplaceTheseColsXT(paCols, paNewCol)
 
 	  #===============================================================================#
 	 #  REPLACING A COLUMN BY AN OTHER PROVIDED AS A COLUMN NAME AND A LIST OF ROWS  #
@@ -10292,19 +10421,42 @@ Class stzTable from stzObject
 		def ReplaceColumns(paNewCol)
 			This.ReplaceAllCols(paNewCol)
 
-		#--
+		#>
 
-		def ReplaceAllCellsInAllCols(paNewCol)
-			This.ReplaceAllCols(paNewCol)
+	  #------------------------------------------------------------------------------------------------------------#
+	 #  REPLACING ALL THE COLUMNS IN THE TABLE WITH A GIVEN NEW COLUMN (PROVIDED AS A LIST OF CELLS) -- EXTENDED  #
+	#------------------------------------------------------------------------------------------------------------#
+	#TODO: check for performance
 
-		def ReplaceCellsInAllCols(paNewCol)
-			This.ReplaceAllCols(paNewCol)
+	def ReplaceAllColsXT(paNewCol)
+		if CheckParams()
 
-		def ReplaceAllCellsInAllColumns(paNewCol)
-			This.ReplaceAllCols(paNewCol)
+			if isList(paNewCol) and
+			   Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+				paNewCol = paNewCol[2]
+			ok
+	
+			if NOT isList(paNewCol) 
+				StzRaise("Incorrect param type! paNewCol must be a list.")
+			ok
+		ok
 
-		def ReplaceCellsInAllColumns(paNewCol)
-			This.ReplaceAllCols(paNewCol)
+		nLen = This.NumberOfCols()
+
+		for i = 1 to nLen
+			This.ReplaceColXT(i, paNewCol)
+		next
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceAllColumnsXT(paNewCol)
+			This.ReplaceAllColsXT(paNewCol)
+
+		def ReplaceColsXT(paNewCols)
+			This.ReplaceAllColsXT(paNewCols)
+
+		def ReplaceColumnsXT(paNewCol)
+			This.ReplaceAllColsXT(paNewCol)
 
 		#>
 
@@ -10322,22 +10474,6 @@ Class stzTable from stzObject
 
 	#TODO : Add ReplaceAllColsByManyXT()
 	#--> When the new provided cols are all used --> restart from the first one
-
-	  #------------------------------------------------------------------------------------------------#
-	 #  REPLACING THE GIVEN COLUMNS WITH A GIVEN NEW COLUMN (PROVIDED AS A LIST OF CELLS)  #
-	#------------------------------------------------------------------------------------------------#
-
-	def ReplaceTheseCols(paCols, paNewCol)
-		if Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
-			paNewCol = paNewCol[2]
-		ok
-
-		/* ... */
-
-		StzRaise("Insupported feature in this release!")
-
-		def ReplaceTheseColumns(paCols, paNewCol)
-			This.ReplaceTheseCols(paCols, paNewCol)
 
 	  #-----------------------------------------------------------------------------------#
 	 #  REPLACING THE GIVEN COLUMNS WITH THE GIVEN COLUMNS (PROVIDED AS LISTS OF CELLS)  #
@@ -10368,46 +10504,116 @@ Class stzTable from stzObject
 	#TODO: Add ReplaceTheseColsByManyXT()
 	#--> When the new provided cols are all used --> restart from the first one
 
-	  #===========================#
-	 #  REPLACING CELLS IN ROWS  #
-	#===========================#
+	  #===================================================================#
+	 #  REPLACING THE CELLS OF THE GIVEN ROW BY THE PRIVIDED CELL VALUE  #
+	#===================================================================#
+
+	def ReplaceCellsInRow(pnRow, pCell)
+		aNewRow = []
+		nLen = This.NumberOfCols()
+
+		for i = 1 to nLen
+			aNewRow + pCell
+		next
+
+		This.ReplaceRow(pnRow, aNewRow)
+
+	  #-----------------------------------------------------------------------------------------#
+	 #  REPLACING A ROW (DEFINED BY ITS NUMBER) BY AN OTHER ONE (PROVIDED AS A LIST OF CELLS)  #
+	#-----------------------------------------------------------------------------------------#
 
 	def ReplaceRow(pnRow, paNewRow)
-		if isList(pnRow) and
-		   ( Q(pnRow).IsAtNamedParam() or
-		     Q(pnRow).IsAtPositionNamedParam() )
-			pnRow = pnRow[2]
-		ok
-
-		if isList(paNewRow) and
-		   ( Q(paNewRow).IsOneOfTheseNamedParams([ :By, :With, :Using ]) or
-		     Q(paNewRow).IsByRowNamedParam() or
-		     Q(paNewRow).IsWithRowNamedParam() )
-
-			paNewRow = paNewRow[2]
+		if CheckParams()
+			if isList(pnRow) and
+			   ( Q(pnRow).IsAtNamedParam() or
+			     Q(pnRow).IsAtPositionNamedParam() )
+				pnRow = pnRow[2]
+			ok
+	
+			if isList(paNewRow) and
+			   ( Q(paNewRow).IsOneOfTheseNamedParams([ :By, :With, :Using ]) or
+			     Q(paNewRow).IsByRowNamedParam() or
+			     Q(paNewRow).IsWithRowNamedParam() )
+	
+				paNewRow = paNewRow[2]
+			ok
 		ok
 
 		aRowCells = This.RowAsPositions(pnRow)
 		This.ReplaceCellsByMany(aRowCells, paNewRow)
 
+		#< @FunctionAlternativeForm
 
-		def ReplaceRowWith(pnRow, panNewRow)
-			This.ReplaceRow(pnRow, paNewRow)
-	
-		def ReplaceRowBy(pnRow, panNewRow)
+		def ReplaceNthRow(pnRow, paNewRow)
 			This.ReplaceRow(pnRow, paNewRow)
 
-	# Replacing all the rows with the provided rows
+		def ReplaceRowN(pnRow, paNewRow)
+			This.ReplaceRow(pnRow, paNewRow)
 
-	def ReplaceAllRows(paNewRow)
+		def ReplaceRowAt(pnRow, paNewRow)
+			This.ReplaceRow(pnRow, paNewRow)
 
-		if isList(paNewRow) and
-		   Q(paNewRow).IsOneOfTheseNamedParams([ :With, :By, :Using ])
-			paNewRow = paNewRow[2]
+		def ReplaceRowAtPosition(pnRow, paNewRow)
+			This.ReplaceRow(pnRow, paNewRow)
+
+		#>
+
+	#-- EXTENDED FORM
+
+	def ReplaceRowXT(pnRow, paNewRow)
+		nNew  = len(paNewRow)
+		nRows = This.NumberOfRows()
+
+		n = 0
+
+		if nNew < nRows
+			for i = nNew + 1 to nRows
+				n++
+				if n > nNew
+					n = 1
+				ok
+				
+				paNewRow + paNewRow[n]
+			next
+
+		but nNew > nRows
+			for i = nNew to nRows + 1 step -1
+				ring_remove(paNewRow, i)
+			next
 		ok
 
-		if NOT isList(paNewRow) 
-			StzRaise("Incorrect param type! paNewRow must be a list.")
+		This.ReplaceRow(pnRow, paNewRow)
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceNthRowXT(pnRow, paNewRow)
+			This.ReplaceRowXT(pnRow, paNewRow)
+
+		def ReplaceRowNXT(pnRow, paNewRow)
+			This.ReplaceRowXT(pnRow, paNewRow)
+
+		def ReplaceRowAtXT(pnRow, paNewRow)
+			This.ReplaceRowXT(pnRow, paNewRow)
+
+		def ReplaceRowAtPositionXT(pnRow, paNewRow)
+			This.ReplaceRowXT(pnRow, paNewRow)
+
+		#>
+
+	  #--------------------------------------------------------------------------------#
+	 #  REPLACING ALL ROWS IN THE TABLE BY A GIVEN ROW (PROVIDED AS A LIST OF CELLS)  #
+	#--------------------------------------------------------------------------------#
+
+	def ReplaceAllRows(paNewRow)
+		if CheckParams()
+			if isList(paNewRow) and
+			   Q(paNewRow).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+				paNewRow = paNewRow[2]
+			ok
+	
+			if NOT isList(paNewRow) 
+				StzRaise("Incorrect param type! paNewRow must be a list.")
+			ok
 		ok
 
 		nLenCols = Min([ len(paNewRow), len(@aContent) ])
@@ -10419,6 +10625,7 @@ Class stzTable from stzObject
 			next
 		next
 
+		#< @FunctionAlternativeForms
 
 		def ReplaceRows(paNewRow)
 			This.ReplaceAllRows(paNewRow)
@@ -10429,27 +10636,149 @@ Class stzTable from stzObject
 		def ReplaceRowsBy(paNewRow)
 			This.ReplaceAllRows(paNewRow)
 
+		#>
 
-	#TODO: Add  ReplaceAllRowsXT(paNewRows)
-	#--> when all the provided rows are used --> restart from the 1st one
+	  #--------------------------------------------------------------------------------------------#
+	 #  REPLACING ALL ROWS IN THE TABLE BY A GIVEN ROW (PROVIDED AS A LIST OF CELLS) -- EXTENDED  #
+	#--------------------------------------------------------------------------------------------#
 
-	def ReplaceTheseRows(paRows, paNewRows)
+	def ReplaceAllRowsXT(paNewRow)
+		nRows = This.NumberOfRows()
+
+		for i = 1 to nRows
+			This.ReplaceRowXT(i, paNewRow)
+		next
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceRowsXT(paNewRow)
+			This.ReplaceAllRowsXT(paNewRow)
+
+		def ReplaceRowsWithXT(paNewRow)
+			This.ReplaceAllRowsXT(paNewRow)
+	
+		def ReplaceRowsByXT(paNewRow)
+			This.ReplaceAllRowsXT(paNewRow)
+
+		#>
+
+	  #----------------------------------------------------------------------------------#
+	 #  REPLACING ROWS AT GIVEN POSITIONS BY A GIVEN ROW (PROVIDED AS A LIST OF CELLS)  #
+	#----------------------------------------------------------------------------------#
+
+	def ReplaceRowsAt(panPos, paRow)
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+			StzRaise("Incorrect param type! panPos must be a list of numbers.")
+		ok
+
+		anPosU = U(panPos)
+		nLen = len(anPosU)
+
+		for i = 1 to nLen
+			This.ReplaceRowAt(anPosU[i], paRow)
+		next
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceRowsAtPositions(panPos, paRow)
+			This.ReplaceRowsAt(panPos, paRow)
+
+		def ReplacesNthRows(panPos, paRow)
+			This.ReplaceRowsAt(panPos, paRow)
+
+		def ReplaceRowumnsAt(panPos, paRow)
+			This.ReplaceRowsAt(panPos, paRow)
+
+		def ReplaceRowumnsAtPositions(panPos, paRow)
+			This.ReplaceRowsAt(panPos, paRow)
+
+		def ReplacesNthRowumns(panPos, paRow)
+			This.ReplaceRowsAt(panPos, paRow)
+
+		#>
+
+	  #----------------------------------------------------------------------------------------------#
+	 #  REPLACING ROWS AT GIVEN POSITIONS BY A GIVEN ROW (PROVIDED AS A LIST OF CELLS) -- EXTENDED  #
+	#----------------------------------------------------------------------------------------------#
+
+	def ReplaceRowsAtXT(panPos, paRow)
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+			StzRaise("Incorrect param type! panPos must be a list of numbers.")
+		ok
+
+		anPosU = U(panPos)
+		nLen = len(anPosU)
+
+		for i = 1 to nLen
+			This.ReplaceRowAtXT(anPosU[i], paRow)
+		next
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceRowsAtPositionsXT(panPos, paRow)
+			This.ReplaceRowsAtXT(panPos, paRow)
+
+		def ReplacesNthRowsXT(panPos, paRow)
+			This.ReplaceRowsAtXT(panPos, paRow)
+
+		def ReplaceRowumnsAtXT(panPos, paRow)
+			This.ReplaceRowsAtXT(panPos, paRow)
+
+		def ReplaceRowumnsAtPositionsXT(panPos, paRow)
+			This.ReplaceRowsAtXT(panPos, paRow)
+
+		def ReplacesNthRowumnsXT(panPos, paRow)
+			This.ReplaceRowsAtXT(panPos, paRow)
+
+		#>
+
+	  #-------------------------------------------------------------------------------#
+	 #  REPLACING THE GIVEN ROWS WITH A GIVEN NEW ROW (PROVIDED AS A LIST OF CELLS)  #
+	#-------------------------------------------------------------------------------#
+
+	def ReplaceTheseRows(panRowsNumbers, paNewRow)
+		if Q(paNewRow).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+			paNewRow = paNewRow[2]
+		ok
+
+		This.ReplaceRowsAtPositions(panRowsNumbers, paNewRow)
+
+		def ReplaceTheseRowumns(panRowsNumbers, paNewRow)
+			This.ReplaceTheseRows(panRowsNumbers, paNewRow)
+
+	  #-------------------------------------------------------------------------------------------#
+	 #  REPLACING THE GIVEN ROWS WITH A GIVEN NEW ROW (PROVIDED AS A LIST OF CELLS) -- EXTENDED  #
+	#-------------------------------------------------------------------------------------------#
+
+	def ReplaceTheseRowsXT(panRowsNumbers, paNewRow)
+		if Q(paNewRow).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+			paNewRow = paNewRow[2]
+		ok
+
+		This.ReplaceRowsAtPositionsXT(panRowsNumbers, paNewRow)
+
+		def ReplaceTheseRowumnsXT(panRowsNumbers, paNewRow)
+			This.ReplaceTheseRowsXT(panRowsNumbers, paNewRow)
+
+	  #===============================================================#
+	 #  REPLACING THE CELLS IN THE GIVEN ROWS BY THE PTOVIDED VALUE  #
+	#===============================================================#
+
+	def ReplaceCellsInTheseRows(paRows, pCell)
 		if Q(paNewrows).IsOneOfTheseNamedParams([ :With, :By, :Using ])
 			paNewrows = paNewrows[2]
 		ok
 
 		aCells = This.CellsInTheseRowsAsPositions(paRows)
-		This.ReplaceCells(aCells, paNewrows)
+		This.ReplaceCells(aCells, pCell)
 
 
-		def ReplaceTheseRowsWith(paRows, paNewRows)
-			This.ReplaceTheseRows(paRows, paNewRows)
+		def ReplaceTheseRowsWith(paRows, pCell)
+			This.ReplaceTheseRows(paRows, pCell)
 
-		def ReplaceTheseRowsBy(paRows, paNewRows)
-			This.ReplaceTheseRows(paRows, paNewRows)
+		def ReplaceTheseRowsBy(paRows, pCell)
+			This.ReplaceTheseRows(paRows, pCell)
 
-	#TODO: Add  ReplaceThesesRowsXT()
-	#--> when all the provided rows are used --> restart from the 1st one
 
 	  #===================================================#
 	 #  REPLACING ALL OCCURRENCE OF A CELL IN THE TABLE  #
@@ -12970,6 +13299,8 @@ Class stzTable from stzObject
 
 		return acResult
 
+		#< @FunctionAlternativeForms
+
 		def TheseColsToColsNames(paCols)
 			return This.TheseColsToColNames(paCols)
 
@@ -12990,6 +13321,34 @@ Class stzTable from stzObject
 
 		def TheseColumnsAsNames(paCols)
 			return This.TheseColsToColNames(paCols)
+
+		#--
+
+		def ColsToColNames(paCols)
+			return This.TheseColsToColNames(paCols)
+
+		def ColsToColsNames(paCols)
+			return This.TheseColsToColNames(paCols)
+
+		def ColsToColumnNames(paCols)
+			return This.TheseColsToColNames(paCols)
+
+		def ColsToColumnsNames(paCols)
+			return This.TheseColsToColNames(paCols)
+
+		def ColumnsToColNames(paCols)
+			return This.TheseColsToColNames(paCols)
+
+		def ColumnsToColsNames(paCols)
+			return This.TheseColsToColNames(paCols)
+
+		def ColumnsToColumnNames(paCols)
+			return This.TheseColsToColNames(paCols)
+
+		def ColumnsToColumnsNames(paCols)
+			return This.TheseColsToColNames(paCols)
+
+		#>
 
 	def ColToColNumber(p)
 		if isNumber(p) and p <= This.NumberOfCol()
@@ -13022,6 +13381,8 @@ Class stzTable from stzObject
 		nResult = p
 		return nResult
 
+		#< @functionAlternativeForms
+
 		def ColumnToColumnNumber(p)
 			return This.ColToColNumber(p)
 
@@ -13043,6 +13404,7 @@ Class stzTable from stzObject
 		def ColumnAsNumber(p)
 			return This.ColToColNumber(p)
 
+		#>
 
 	def TheseColsToColNumbers(paCols)
 		if NOT ( isList(paCols) and ( Q(paCols).IsListOfNumbers() or
@@ -13061,6 +13423,8 @@ Class stzTable from stzObject
 
 		return anResult
 
+		#< @FunctionAlternativeForms
+
 		def TheseColsToColsNumbers(paCols)
 			return This.TheseColsToColNumbers(paCols)
 
@@ -13078,6 +13442,34 @@ Class stzTable from stzObject
 
 		def TheseColsAsNumbers(paCols)
 			return This.TheseColsToColNumbers(paCols)
+
+		#--
+
+		def ColsToColNumbers(paCols)
+			return This.TheseColsToColNumbers(paCols)
+
+		def ColsToColsNumbers(paCols)
+			return This.TheseColsToColNumbers(paCols)
+
+		def ColsToColumnNumbers(paCols)
+			return This.TheseColsToColNumbers(paCols)
+
+		def ColsToColumnsNumbers(paCols)
+			return This.TheseColsToColNumbers(paCols)
+
+		def ColumnsToColNumbers(paCols)
+			return This.TheseColsToColNumbers(paCols)
+
+		def ColumnsToColsNumbers(paCols)
+			return This.TheseColsToColNumbers(paCols)
+
+		def ColumnsToColumnNumbers(paCols)
+			return This.TheseColsToColNumbers(paCols)
+
+		def ColumnsToColumnsNumbers(paCols)
+			return This.TheseColsToColNumbers(paCols)
+
+		#>
 
 	def RowToRowNumber(pRow)
 		if isList(pRow) and Q(pRow).IsOneOfTheseNamedParams([ :Row, :Rows, :InRow, :InRows, :OfRow, :OfRows ])
@@ -13118,11 +13510,21 @@ Class stzTable from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def TheseRowsToNumbers(paRows)
 			return This.TheseRowsToRowsNumbers(paRows)
 
 		def TheseRowsAsNumbers(paRows)
 			return This.TheseRowsToRowsNumbers(paRows)
+
+		def RowsToRowsNumbers(paRows)
+			return This.TheseRowsToRowsNumbers(paRows)
+
+		def RowsToRowNumbers(paRows)
+			return This.TheseRowsToRowsNumbers(paRows)
+
+		#>
 
 	  #=============================#
 	 #  USED BY SQL EXTERNAL CODE  #
