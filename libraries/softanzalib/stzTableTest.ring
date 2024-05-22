@@ -4,7 +4,7 @@ load "stzlib.ring"
 
 pron()
 
-# A table can be created in 5 different ways:
+# A table can be created in 6 different ways:
 
 # WAY 1 : Creating an empty table with just a column and a row with just an empty cell
 o1 = new stzTable([])
@@ -116,6 +116,45 @@ o1.Show()
 proff()
 # Executed in 0.18 second(s) in Ring 1.20
 # Executed in 0.47 second(s) in Ring 1.17
+
+/*---------
+*/
+# WAY 6: Creating a table from an external text file (EXPERIMENTAL)
+
+pron()
+
+# You can crate a table from an external data file.
+# The file can be in CSV format or any other text file.
+# Tha data inside the file must be separated by lines,
+# and the lines must be separated by TAB.
+
+o1 = new stzTable(:FromFile = "myTable.csv")
+? o1.Show()
+#--> NATION   LANGUAGE   CAPITAL   CONTINENT
+#   -------- ---------- --------- ----------
+#   Tunisia     Arabic     Tunis      Africa
+#    France     French     Paris      Europe
+#     Egypt    English     Cairo      Africa
+
+#~> #TODO see why all the records are not returned from file!
+
+o2 = new stzTable(:FromFile = "myHybridTable.txt")
+o2.Show()
+#--> NAME   AGE                          HOBBIES
+#   ----- ----- -                       -------
+#   Hela    24             [ "Sport", "Music" ]
+#    Jon    32   [ "Games", "Travel", "Sport" ]
+
+#~> #NOTE that numbers and lists are evaluated and retutned as native types
+
+#~> #NOTE lists in the text file must be take the form ['str1','str2','str3'],
+#   using single quotes (') and without spaces in between items
+
+#~> #TODO see wht all the records are not returned from file!
+#~> #TODO correct the headline when column contains lists
+
+proff()
+# # Executed in 0.43 second(s)
 
 /*=================
 
@@ -5317,35 +5356,3 @@ pron()
 
 proff()
 # Executed in 0.02 second(s)
-
-/*--------- @TODO fix it
-*/
-pron()
-
-# You can crate a table from an external data file.
-# The file can be in CSV format or any other text file.
-# Tha data inside the file must be separated by lines,
-# and the lines must be separated by TAB.
-
-o1 = new stzTable(:FromFile = "mytable.csv")
-? o1.Show()
-#--> NATION   LANGUAGE   CAPITAL   CONTINENT
-#   -------- ---------- --------- ----------
-#   Tunisia     Arabic     Tunis      Africa
-#    France     French     Paris      Europe
-#     Egypt    English     Cairo      Africa
-
-#~> #TODO see why all the records are not returned from file!
-
-o2 = new stzTable(:FromFile = "myHybridTable.txt")
-o2.Show()
-#--> NAME   AGE                          HOBBIES
-#   ----- ----- -                       -------
-#   Hela    24             [ "Sport", "Music" ]
-#    Jon    32   [ "Games", "Travel", "Sport" ]
-
-#~> #TODO see wht all the records are not returned from file!
-#~> #TODO correct the headline when column contains lists
-
-proff()
-# # Executed in 0.37 second(s)
