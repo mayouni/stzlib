@@ -5232,7 +5232,7 @@ proff()
 # Executed in 0.21 second(s)
 
 *---------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -5286,3 +5286,66 @@ o1.Show()
 
 proff()
 # Executed in 0.21 second(s)
+
+/*=========
+
+pron()
+
+o1 = new stzTable([
+	[ "NATION", "LANGUAGE", "CAPITAL", "CONTINENT" ],
+
+	[ "Tunisia", "Arabic", "Tunis", "Africa" ],
+	[ "France", "French", "Paris", "Europe" ],
+	[ "Egypt", "English", "Cairo", "Africa" ]
+])
+
+o1.Show()
+#--> NATION   LANGUAGE   CAPITAL   CONTINENT
+#   -------- ---------- --------- ----------
+#   Tunisia     Arabic     Tunis      Africa
+#    France     French     Paris      Europe
+#     Egypt    English     Cairo      Africa
+
+proff()
+# Executed in 0.10 second(s)
+
+/*---------
+
+pron()
+
+? Q(:FromFile = "mytable.csv").IsFromFileNamedParam()
+
+proff()
+# Executed in 0.02 second(s)
+
+/*--------- @TODO fix it
+*/
+pron()
+
+# You can crate a table from an external data file.
+# The file can be in CSV format or any other text file.
+# Tha data inside the file must be separated by lines,
+# and the lines must be separated by TAB.
+
+o1 = new stzTable(:FromFile = "mytable.csv")
+? o1.Show()
+#--> NATION   LANGUAGE   CAPITAL   CONTINENT
+#   -------- ---------- --------- ----------
+#   Tunisia     Arabic     Tunis      Africa
+#    France     French     Paris      Europe
+#     Egypt    English     Cairo      Africa
+
+#~> #TODO see why all the records are not returned from file!
+
+o2 = new stzTable(:FromFile = "myHybridTable.txt")
+o2.Show()
+#--> NAME   AGE                          HOBBIES
+#   ----- ----- -                       -------
+#   Hela    24             [ "Sport", "Music" ]
+#    Jon    32   [ "Games", "Travel", "Sport" ]
+
+#~> #TODO see wht all the records are not returned from file!
+#~> #TODO correct the headline when column contains lists
+
+proff()
+# # Executed in 0.37 second(s)

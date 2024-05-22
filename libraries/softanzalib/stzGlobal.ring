@@ -943,6 +943,11 @@ func ring_trim(str)
 	func @trim(str)
 		return trim(str)
 
+func ring_split(str, sep)
+	return split(str, sep)
+
+func ring_read(filePath)
+	return read(filePath)
 
 func ring_insert(paList, n, item)
 	#NOTE

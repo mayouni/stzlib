@@ -65,7 +65,7 @@ Class stzTable from stzObject
 
 	def init(paTable)
 
-		# A table can be created in 5 different ways
+		# A table can be created in 6 different ways
 
 		if NOT isList(paTable)
 			StzRaise("Incorrect param format! paTable must be a list.")
@@ -210,6 +210,68 @@ Class stzTable from stzObject
 					aTemp + paTable[i][2]
 					@aContent + [ paTable[i][1], aTemp ]
 				ok
+			next
+
+		but isList(paTable) and Q(paTable).IsFromFileNamedParam()
+
+			# Reading the data from the file
+
+			cdata = ring_read(paTable[2])
+
+			acLines = ring_split(cdata, NL)
+			nLen = len(acLines)
+
+			anLens = []
+			aTable = []
+
+			for i = 1 to nLen
+				if acLines[i] = ""
+					i++
+				ok
+
+				acLine = ring_split(acLines[i], ";")
+				nLen = len(acLine)
+				anLens + nLen
+				nMin = Min(anLens)
+
+				aRow = []
+
+				for j = 1 to nMin
+					cell = acLine[j]
+					if @IsNumberInString(cell)
+						cellValue = 0+ cell
+
+					but @IsListInString(cell)
+						cCode = 'cellValue = ' + cell
+						eval(cCode)
+
+					else
+						cellValue = cell
+					ok
+
+					aRow + cellValue
+
+				next
+
+				aTable + aRow
+			next
+
+			# Construction the table content
+
+			nLen = len(aTable)
+
+			for i = 1 to nLen
+				cCol = aTable[1][i]
+				@aContent + [ cCol, [] ]
+			next
+
+			for r = 2 to len(aTable)
+				i = 0
+				nLen = len(aTable[r])
+
+				for i = 1 to nLen
+					@aContent[i][2] + aTable[r][i]
+				next
 			next
 
 		else
