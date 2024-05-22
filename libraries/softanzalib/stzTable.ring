@@ -213,12 +213,19 @@ Class stzTable from stzObject
 			next
 
 		but isList(paTable) and Q(paTable).IsFromFileNamedParam()
+		# Way 5: The table is created from the content of a text file
+		#  ~> The first line of the file corrspond the column names
+		#  ~> The lines are separated by a NL
+		#  ~> The cells are separated by a ;
+		#  ~> Numbers and lists are imported in their native types
+		#  ~> Lists in the file must be in the form [item1,item2,item3], without spaces
 
 			# Reading the data from the file
 
 			cdata = ring_read(paTable[2])
+			#TODO should we close the file handle?
 
-			acLines = ring_split(cdata, NL)
+			acLines = ring_split(cData, NL)
 			nLen = len(acLines)
 
 			anLens = []
@@ -230,14 +237,17 @@ Class stzTable from stzObject
 				ok
 
 				acLine = ring_split(acLines[i], ";")
-				nLen = len(acLine)
-				anLens + nLen
+
+				nLenLine = len(acLine)
+				anLens + nLenLine
 				nMin = Min(anLens)
 
 				aRow = []
 
 				for j = 1 to nMin
+
 					cell = acLine[j]
+
 					if @IsNumberInString(cell)
 						cellValue = 0+ cell
 
@@ -254,23 +264,31 @@ Class stzTable from stzObject
 				next
 
 				aTable + aRow
+
 			next
 
 			# Construction the table content
 
-			nLen = len(aTable)
+			nLenTable = len(aTable)
+			nMin = 0
+			if nLenTable > 1
+				nMin = len(aTable[1])
+			ok
 
-			for i = 1 to nLen
-				cCol = aTable[1][i]
-				@aContent + [ cCol, [] ]
+			for i = 2 to nLenTable
+				nLenTemp = len(aTable[i])
+				if nLenTemp < nMin
+					nMin = nLenTemp
+				ok
 			next
 
-			for r = 2 to len(aTable)
-				i = 0
-				nLen = len(aTable[r])
+			for i = 1 to nMin
+				@aContent + [ aTable[1][i], [] ]
+			next
 
-				for i = 1 to nLen
-					@aContent[i][2] + aTable[r][i]
+			for i = 1 to nMin
+				for j = 2 to nLenTable
+					@aContent[i][2] + aTable[j][i]
 				next
 			next
 
