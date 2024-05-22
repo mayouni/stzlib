@@ -3266,6 +3266,20 @@ func IsListOfListsOfSameSize(paList)
 
 	#>
 
+func IsListInString(cStr)
+	bResult = StzStringQ(cStr).IsListInString()
+	return bResult
+
+	func IsAListInString(cStr)
+		return IsListInString(cStr)
+
+	func @IsListInString(cStr)
+		return IsListInString(cStr)
+
+	func @IsAListInString(cStr)
+		return IsListInString(cStr)
+
+
 #===
 
 func StzNamedList(paNamed)
@@ -50797,6 +50811,16 @@ Item and then position
 	def IsAndThenNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  (This.Item(1) = :AndThen or This.Item(1) = :AndThen@) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFromFileNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and  This.Item(1) = :FromFile
 
 			return TRUE
 
