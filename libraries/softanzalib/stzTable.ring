@@ -9429,21 +9429,10 @@ Class stzTable from stzObject
 
 		nLenCells  = len(paCellsPos)
 		nLenValues = len(paNewValues)
-		
-		if nLenValues >= nLenCells
+		nMin = Min([ nLenCells, nLenValues ])
 
-			aValues = Q(paNewValues).Section(1, nLenCells)
-		else
-	
-			aValues = Q(paNewValues).Section(1, nLenValues)
-			for i = nLenValues + 1 to nLenCells
-				aValues + This.Cell(paCellsPos[i][1], paCellsPos[i][2])
-			next
-		ok
-
-		i = 0
-		for i = 1 to len(paCellsPos)
-			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], aValues[i])
+		for i = 1 to nMin
+			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], paNewValues[i])
 		next
 
 		#< @FunctionAlternativeForms
@@ -9646,8 +9635,17 @@ Class stzTable from stzObject
 
 	def ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
-		if NOT @BothAreLists(paCellsPos, paNewValues)
-			StzRaise("Incorrect param types! paCellsPos and paNewValues must both be lists.")
+		if CheckParams()
+
+			if isList(paNewValues) and
+			   Q(paNewValues).IsOneOfTheseNamedParams([ :By, :With, :Using ])
+				paNewValues = paNewValues[2]
+			ok
+	
+			if NOT @BothAreLists(paCellsPos, paNewValues)
+				StzRaise("Incorrect param types! paCellsPos and paNewValues must be both lists.")
+			ok
+
 		ok
 
 		nLenPos = len(paCellsPos)

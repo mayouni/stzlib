@@ -599,7 +599,7 @@ o1.Show()
 #       30     300    3000
 
 proff()
-# # Executed in 0.19 second(s)
+# # Executed in 0.10 second(s)
 
 /*============ A Softanza #narration showing one of the uses of the XT()
 
@@ -658,7 +658,7 @@ o1 = new stzTable([
 #    4 |  30   |  300  | 3000 
 
 proff()
-# Executed in 0.28 seconds(s) in Ring 1.19
+# Executed in 0.18 seconds(s) in Ring 1.19
 # Executed in 1.09 second(s) in Ring 1.17
 
 /*--------------
@@ -1438,7 +1438,7 @@ o1.Show()
 #    20        Hatem    46
 
 StopProfiler()
-# Executed in 0.59 second(s)
+# Executed in 1.07 second(s)
 
 /*-------------
 
@@ -2107,7 +2107,7 @@ o1 = new stzTable([
 #--> [ "Imed", "Hatem", "Karim", 52, 46, 48 ]
 
 proff()
-# Executed in 0.07 second(s) in Ring 1.20
+# Executed in 0.04 second(s) in Ring 1.20
 # Executed in 0.31 second(s) in Ring 1.17
 
 /*--------------
@@ -2662,8 +2662,8 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.08 second(s) in Ring 1.20
-# Executed in 0.33 second(s) in Ring 1.17
+# Executed in 0.18 second(s) in Ring 1.20
+# Executed in 0.12 second(s) in Ring 1.17
 
 /*--------------
 
@@ -3459,8 +3459,8 @@ o1 = new stzTable([
 #--> [ [ 2, 3 ], 4 ]
 
 proff()
-# Executed in 0.11 second(s) in Ring 1.20
-# Executed in 0.38 second(s) in Ring 1.17
+# Executed in 0.38 second(s) in Ring 1.20
+# Executed in 0.15 second(s) in Ring 1.17
 
 /*-----------
 
@@ -3697,7 +3697,7 @@ o1.EraseRows([3, 1])
 #       White       Gray      Black
 
 proff()
-# Executed in 0.33 second(s)
+# Executed in 0.18 second(s)
 
 /*----------
 
@@ -4429,8 +4429,7 @@ aMyCells = [ [2,1], [2,3], [2,4] ]
 #    ]
 
 proff()
-# Executed in 0.09 second(s) in Ring 1.20
-# Executed in 0.21 second(s) in Ring 1.17
+# Executed in 0.46 second(s)
 
 /*-------------
 
@@ -5196,7 +5195,7 @@ proff()
 # Executed in 0.19 second(s)
 
 *---------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -5219,7 +5218,7 @@ o1.ReplaceTheseRows( [ 3, 5 ], [ "___", "___", "___" ] )
 #     Belgium     French   Brussel      Europe
 #         ___        ___       ___        Asia
 
-//o1.ReplaceTheseRowsXT( [ 3, 5 ], [ "___", "~~~" ] )
+o1.ReplaceTheseRowsXT( [ 3, 5 ], [ "___", "~~~" ] )
 o1.Show()
 #-->  NATION   LANGUAGE   CAPITAL   CONTINENT
 #     -------- ---------- --------- ----------
@@ -5228,6 +5227,62 @@ o1.Show()
 #         ___        ~~~       ___         ~~~
 #     Belgium     French   Brussel      Europe
 #         ___        ~~~       ___         ~~~
+
+proff()
+# Executed in 0.21 second(s)
+
+*---------
+*/
+pron()
+
+o1 = new stzTable([
+	[ :NATION,	:LANGUAGE,	:CAPITAL,	:CONTINENT   ],
+
+	[ "Tunisia",	"Arabic",	"Tunis",	"Africa"    ],
+	[ "France",	"French",	"Paris",	"Europe"    ],
+	[ "Egypt",	"English",	"Cairo",	"Africa"    ],
+	[ "Belgium",	"French",	"Brussel",	"Europe"    ],
+	[ "Yemen",	"Arabic",	"Sanaa",	"Asia"	    ]
+])
+
+o1.ReplaceCells(
+	[ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 3, 3 ], [ 4, 3 ] ],
+	:By = "___"
+)
+? o1.Show()
+#-->   NATION   LANGUAGE   CAPITAL   CONTINENT
+#     -------- ---------- --------- ----------
+#     Tunisia     Arabic     Tunis      Africa
+#      France     French     Paris      Europe
+#         ___        ___       ___      Africa
+#     Belgium     French   Brussel      Europe
+#         ___        ___       ___        Asia
+
+o1.ReplaceCellsByMany( 
+	[ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 3, 3 ], [ 4, 3 ] ],
+	:By = [ "~~~", "~~~", "~~~" ]
+)
+? o1.Show()
+#-->   NATION   LANGUAGE   CAPITAL   CONTINENT
+#     -------- ---------- --------- ----------
+#     Tunisia        ~~~     Tunis      Africa
+#      France        ~~~     Paris      Europe
+#       Egypt        ~~~       ___         ___
+#     Belgium     French   Brussel      Europe
+#       Yemen     Arabic     Sanaa        Asia
+
+o1.ReplaceCellsByManyXT( 
+	[ [ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 3, 3 ], [ 4, 3 ] ],
+	:By = [ "^^v^^", "~~^~~" ]
+)
+o1.Show()
+#-->  NATION   LANGUAGE   CAPITAL   CONTINENT
+#    -------- ---------- --------- ----------
+#    Tunisia      ^^v^^     Tunis      Africa
+#     France      ~~^~~     Paris      Europe
+#      Egypt      ^^v^^     ~~^~~       ^^v^^
+#    Belgium     French   Brussel      Europe
+#      Yemen     Arabic     Sanaa        Asia
 
 proff()
 # Executed in 0.21 second(s)
