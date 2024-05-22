@@ -4944,7 +4944,7 @@ proff()
 # Executed in 0.09 second(s) in Ring 1.20
 # Executed in 0.72 second(s) in Ring 1.17
 
-/*----------------- #TODO write a #narration
+/*============= #TODO write a #narration
 
 pron()
 
@@ -4953,8 +4953,8 @@ o1 = new stzTable([
 	[ "Tunisia",	"Arabic"    ],
 	[ "France",	"French"    ],
 	[ "Egypt",	"English"   ],
-	[ "Belgium",	"Arabic"    ],
-	[ "Yemen",	"Haousa"    ]
+	[ "Belgium",	"French"    ],
+	[ "Yemen",	"Arabic"    ]
 ])
 
 o1.ReplaceNthCol(2, [ "___", "___" ])
@@ -4964,8 +4964,8 @@ o1.ReplaceNthCol(2, [ "___", "___" ])
 #     Tunisia        ___
 #      France        ___
 #       Egypt    English 
-#     Belgium     Arabic
-#       Yemen     Haousa
+#     Belgium     Frencg
+#       Yemen     Arabic
 
 o1.ReplaceCellsInCol(:LANGUAGE, :By = ".....")
 ? o1.Show()
@@ -5011,7 +5011,6 @@ proff()
 # Executed in 0.28 second(s)
 
 /*---------
-*/
 
 pron()
 
@@ -5036,3 +5035,199 @@ o1.Show()
 
 proff()
 # Executed in 0.09 second(s)
+
+/*----------------- #TODO write a #narration
+
+pron()
+
+o1 = new stzTable([
+	[ :NATION,	:LANGUAGE,	:CAPITAL,	:CONTINENT   ],
+
+	[ "Tunisia",	"Arabic",	"Tunis",	"Africa"    ],
+	[ "France",	"French",	"Paris",	"Europe"    ],
+	[ "Egypt",	"English",	"Cairo",	"Africa"    ],
+	[ "Belgium",	"French",	"Brussel",	"Europe"    ],
+	[ "Yemen",	"Arabic",	"Sanaa",	"Asia"	    ]
+])
+
+o1.ReplaceRow(2, [ "___", "___" ]) # Or ReplaceNthRow()
+? o1.Show()
+#-->   NATION   LANGUAGE   CAPITAL   CONTINENT
+#     -------- ---------- --------- ----------
+#     Tunisia     Arabic     Tunis      Africa
+#         ___        ___     Paris      Europe
+#       Egypt    English     Cairo      Africa
+#     Belgium     French   Brussel      Europe
+#       Yemen     Arabic     Sanaa        Asia
+
+o1.ReplaceCellsInRow(2, :By = ".....")
+? o1.Show()
+#-->   NATION   LANGUAGE   CAPITAL   CONTINENT
+#     -------- ---------- --------- ----------
+#     Tunisia     Arabic     Tunis      Africa
+#       .....      .....     .....       .....
+#       Egypt    English     Cairo      Africa
+#     Belgium     French   Brussel      Europe
+#       Yemen     Arabic     Sanaa        Asia
+
+o1.ReplaceRowXT(2, [ "____", "~~~~" ])
+? o1.Show()
+#-->   NATION   LANGUAGE   CAPITAL   CONTINENT
+#     -------- ---------- --------- ----------
+#     Tunisia     Arabic     Tunis      Africa
+#       ____      ~~~~     ____           ~~~~
+#       Egypt    English     Cairo      Africa
+#     Belgium     French   Brussel      Europe
+#       Yemen     Arabic     Sanaa        Asia
+
+
+proff()
+# Executed in 0.28 second(s)
+
+/*---------
+
+pron()
+
+o1 = new stzTable([
+	[ :NATION,	:LANGUAGE,	:CAPITAL,	:CONTINENT   ],
+
+	[ "Tunisia",	"Arabic",	"Tunis",	"Africa"    ],
+	[ "France",	"French",	"Paris",	"Europe"    ],
+	[ "Egypt",	"English",	"Cairo",	"Africa"    ],
+	[ "Belgium",	"French",	"Brussel",	"Europe"    ],
+	[ "Yemen",	"Arabic",	"Sanaa",	"Asia"	    ]
+])
+
+o1.ReplaceRows([ "___", "___", "___" ])
+? o1.Show()
+#--> NATION   LANGUAGE   CAPITAL   CONTINENT
+#    ------- ---------- --------- ----------
+#       ___        ___       ___      Africa
+#       ___        ___       ___      Europe
+#       ___        ___       ___      Africa
+#       ___        ___       ___      Europe
+#       ___        ___       ___        Asia
+
+o1.ReplaceRowsXT([ "___", "~~~" ])
+o1.Show()
+#--> NATION   LANGUAGE   CAPITAL   CONTINENT
+#    ------- ---------- --------- ----------
+#       ___        ~~~       ___         ~~~
+#       ___        ~~~       ___         ~~~
+#       ___        ~~~       ___         ~~~
+#       ___        ~~~       ___         ~~~
+#       ___        ~~~       ___         ~~~
+
+proff()
+# Executed in 0.25 second(s)
+
+*---------
+
+pron()
+
+o1 = new stzTable([
+	[ :NATION,	:LANGUAGE,	:CAPITAL,	:CONTINENT   ],
+
+	[ "Tunisia",	"Arabic",	"Tunis",	"Africa"    ],
+	[ "France",	"French",	"Paris",	"Europe"    ],
+	[ "Egypt",	"English",	"Cairo",	"Africa"    ],
+	[ "Belgium",	"French",	"Brussel",	"Europe"    ],
+	[ "Yemen",	"Arabic",	"Sanaa",	"Asia"	    ]
+])
+
+o1.ReplaceCols([ "___", "___", "___" ])
+? o1.Show()
+#-->  NATION   LANGUAGE   CAPITAL   CONTINENT
+#     -------- ---------- --------- ----------
+#         ___        ___       ___         ___
+#         ___        ___       ___         ___
+#         ___        ___       ___         ___
+#     Belgium     French   Brussel      Europe
+#       Yemen     Arabic     Sanaa        Asia
+
+o1.ReplaceColsXT([ "___", "~~~" ])
+o1.Show()
+#--> NATION   LANGUAGE   CAPITAL   CONTINENT
+#     ------- ---------- --------- ----------
+#        ___        ___       ___         ___
+#        ~~~        ~~~       ~~~         ~~~
+#        ___        ___       ___         ___
+#        ~~~        ~~~       ~~~         ~~~
+#        ___        ___       ___         ___
+
+proff()
+# Executed in 0.20 second(s)
+
+*---------
+
+pron()
+
+o1 = new stzTable([
+	[ :NATION,	:LANGUAGE,	:CAPITAL,	:CONTINENT   ],
+
+	[ "Tunisia",	"Arabic",	"Tunis",	"Africa"    ],
+	[ "France",	"French",	"Paris",	"Europe"    ],
+	[ "Egypt",	"English",	"Cairo",	"Africa"    ],
+	[ "Belgium",	"French",	"Brussel",	"Europe"    ],
+	[ "Yemen",	"Arabic",	"Sanaa",	"Asia"	    ]
+])
+
+o1.ReplaceTheseCols( [ :LANGUAGE, :CONTINENT ], [ "___", "___", "___" ] )
+? o1.Show()
+#-->  NATION   LANGUAGE   CAPITAL   CONTINENT
+#     -------- ---------- --------- ----------
+#     Tunisia        ___     Tunis         ___
+#      France        ___     Paris         ___
+#       Egypt        ___     Cairo         ___
+#     Belgium     French   Brussel      Europe
+#       Yemen     Arabic     Sanaa        Asia
+
+o1.ReplaceTheseColsXT( [ :LANGUAGE, :CONTINENT ], [ "___", "~~~" ] )
+o1.Show()
+#-->  NATION   LANGUAGE   CAPITAL   CONTINENT
+#     -------- ---------- --------- ----------
+#     Tunisia        ___     Tunis         ___
+#      France        ~~~     Paris         ~~~
+#       Egypt        ___     Cairo         ___
+#     Belgium        ~~~   Brussel         ~~~
+#       Yemen        ___     Sanaa         ___
+
+proff()
+# Executed in 0.19 second(s)
+
+*---------
+*/
+pron()
+
+o1 = new stzTable([
+	[ :NATION,	:LANGUAGE,	:CAPITAL,	:CONTINENT   ],
+
+	[ "Tunisia",	"Arabic",	"Tunis",	"Africa"    ],
+	[ "France",	"French",	"Paris",	"Europe"    ],
+	[ "Egypt",	"English",	"Cairo",	"Africa"    ],
+	[ "Belgium",	"French",	"Brussel",	"Europe"    ],
+	[ "Yemen",	"Arabic",	"Sanaa",	"Asia"	    ]
+])
+
+o1.ReplaceTheseRows( [ 3, 5 ], [ "___", "___", "___" ] )
+? o1.Show()
+#-->   NATION   LANGUAGE   CAPITAL   CONTINENT
+#     -------- ---------- --------- ----------
+#     Tunisia     Arabic     Tunis      Africa
+#      France     French     Paris      Europe
+#         ___        ___       ___      Africa
+#     Belgium     French   Brussel      Europe
+#         ___        ___       ___        Asia
+
+//o1.ReplaceTheseRowsXT( [ 3, 5 ], [ "___", "~~~" ] )
+o1.Show()
+#-->  NATION   LANGUAGE   CAPITAL   CONTINENT
+#     -------- ---------- --------- ----------
+#     Tunisia     Arabic     Tunis      Africa
+#      France     French     Paris      Europe
+#         ___        ~~~       ___         ~~~
+#     Belgium     French   Brussel      Europe
+#         ___        ~~~       ___         ~~~
+
+proff()
+# Executed in 0.21 second(s)
