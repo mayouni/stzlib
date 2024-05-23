@@ -598,6 +598,12 @@ Class stzTable from stzObject
 		def IsColumnName(pcName)
 			return This.IsColName(pcName)
 
+		def IsAColName(pcName)
+			return This.IsColName(pcName)
+
+		def IsAColumnName(pcName)
+			return This.IsColName(pcName)
+
 		#>
 
 	  #------------------------------------------------------#
@@ -616,6 +622,12 @@ Class stzTable from stzObject
 		ok
 
 		def IsColumnNumber(n)
+			return This.IsColNumber(n)
+
+		def IsAColNumber(n)
+			return This.IsColNumber(n)
+
+		def IsAColumnNumber(n)
 			return This.IsColNumber(n)
 
 	  #-------------------------------------------------------------#
@@ -654,6 +666,34 @@ Class stzTable from stzObject
 			return This.IsColNameOrNumber(pCol)
 
 		def IsColumnIdentifier(pCol)
+			return This.IsColNameOrNumber(pCol)
+
+		#==
+
+		def IsAColNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
+
+		def IsACol(pCol)
+			return This.IsColNameOrNumber(pCol)
+
+		def IsAColmun(pcol)
+			return This.IsColNameOrNumber(pCol)
+
+		def IsAColNumberOrName(pCol)
+			return This.IsColNameOrNumber(pCol)
+
+		def IsAColIdentifier(pCol)
+			return This.IsColNameOrNumber(pCol)
+
+		#--
+
+		def IsAColumnNameOrNumber(pCol)
+			return This.IsColNameOrNumber(pCol)
+
+		def IsAColumnNumberOrName(pCol)
+			return This.IsColNameOrNumber(pCol)
+
+		def IsAColumnIdentifier(pCol)
 			return This.IsColNameOrNumber(pCol)
 
 		#>
@@ -13683,9 +13723,16 @@ Class stzTable from stzObject
 		*/
 
 		if CheckParams()
-			if NOT ( isList(paColNames) and Q(paColNames).IsHasHListOrListOfStrings() )
-				StzRaise("Incorrect param type! paColNames must be a hashlist.")
+			if NOT ( (isList(paColNames) and Q(paColNames).IsHasHListOrListOfStrings()) or
+				 (isString(paColNames) and This.IsAColName(paColNames)) )
+
+				StzRaise("Incorrect param type! paColNames must be a hashlist or a string containing a column name.")
 			ok
+		ok
+
+		if isString(paColNames)
+			n = This.ColToColNumber(paColNames)
+			return '( This.Cell(' + n + ', j) )'
 		ok
 
 		nLen = len(paColNames)
@@ -13705,6 +13752,53 @@ Class stzTable from stzObject
 		This.AddCols(acColNames)
 		This.RemoveCol(1)
 
+	  #==============================#
+	 #  ADDING A CALCULATED COLUMN  #
+	#==============================#
+
+	def AddCalculatedCol(pcColName, pcFormula)
+
+		if CheckParams()
+			if NOT @BothAreStrings(pcColName, pcFormula)
+				StzRaise("Incorrect param types! pcColName and pcFormula must be both strings.")
+			ok
+	
+			if ring_trim(pcColName) = ""
+				StzRaise("Can't proceed! You must provide a name for the calculated column.")
+			ok
+	
+			if This.IsAColName(pcColName)
+				StzRaise("Can't proceed! The column name you provided already exists.")
+			ok
+	
+			if ring_trim(pcFormula) = ""
+				StzRaise("Cant' proceed! You must provide a formula.")
+			ok
+		ok
+
+		aColData = []
+		nCols = This.NumberOfCols()
+		nRows = This.NumberOfRows()
+
+		# Preparing the formula expression
+
+		oForumla = new stzString(pcFormula)
+		for i = 1 to nCols
+			oForumla.ReplaceCS( ('@(:'+ This.ColName(i)+')'), 'This.Cell(' + i + ', j)', FAlSE)
+		next
+
+		pcFormula = oForumla.Content()
+		cCode = "value = " + pcFormula
+
+		for j = 1 to nRows
+			eval(cCode)
+			aColData + value
+
+		next		
+
+		@aContent + [ pcColName, aColData ]
+
+		
 #================
 /*
 #TODO: stzTable add (all) excel functions
