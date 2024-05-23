@@ -63,6 +63,9 @@ Class stzTable from stzObject
 	# data science operations on tables of data, where variables are
 	# always represented as columns.
 
+	@anCalculatedCols = []
+	@anCalculatedRows = []
+
 	def init(paTable)
 
 		# A table can be created in 6 different ways
@@ -13723,16 +13726,20 @@ Class stzTable from stzObject
 		*/
 
 		if CheckParams()
-			if NOT ( (isList(paColNames) and Q(paColNames).IsHasHListOrListOfStrings()) or
-				 (isString(paColNames) and This.IsAColName(paColNames)) )
+			if NOT ( isString(paColNames) or
+				 (isList(paColNames) and Q(paColNames).IsHasHListOrListOfStrings()) )
 
 				StzRaise("Incorrect param type! paColNames must be a hashlist or a string containing a column name.")
 			ok
 		ok
 
 		if isString(paColNames)
-			n = This.ColToColNumber(paColNames)
-			return '( This.Cell(' + n + ', j) )'
+			if This.IsAColName(paColNames)
+				n = This.ColToColNumber(paColNames)
+				return '( This.Cell(' + n + ', j) )'
+			else
+				return paColNames
+			ok
 		ok
 
 		nLen = len(paColNames)
@@ -13784,21 +13791,125 @@ Class stzTable from stzObject
 
 		oForumla = new stzString(pcFormula)
 		for i = 1 to nCols
-			oForumla.ReplaceCS( ('@(:'+ This.ColName(i)+')'), 'This.Cell(' + i + ', j)', FAlSE)
+			oForumla.ReplaceCS( ('@(:'+ This.ColName(i)+')'), 'This.Cell(' + i + ', i)', FAlSE)
 		next
 
 		pcFormula = oForumla.Content()
 		cCode = "value = " + pcFormula
 
-		for j = 1 to nRows
+		for i = 1 to nRows
 			eval(cCode)
 			aColData + value
 
 		next		
 
 		@aContent + [ pcColName, aColData ]
+		@anCalculatedCols + (nCols+1)
+
+	  #-----------------------------------------------#
+	 #  GETTING THE POSITIONS OF CALCULATED COLUMNS  #
+	#-----------------------------------------------#
+
+	def FindCalculatedCols()
+		return @anCalculatedCols
+
+		def FindCalculatedColumns()
+			return This.FindcalculatedCols()
+
+	  #--------------------------------------------------#
+	 #  GETTING THE CONTENT OF THE CALCULATED COLUMNS  #
+	#-------------------------------------------------#
+
+	def CalculatedCols()
+		aResult = This.TheseCols(@anCalculatedCols)
+		return aResult
+
+		def CalculatedColumns()
+			return This.CalculatedCols()
+
+	  #-----------------------------------------------#
+	 #  GETTING THE NAMES OF THE CALCULATED COLUMNS  #
+	#-----------------------------------------------#
+
+	def CalculatedColNames()
+		acResult = This.TheseColNames(@anCalculatedCols)
+		return acResult
+
+		def CalculatedColsNams()
+			return This.CalculatedColNames()
+
+		def CalculatedColumnNams()
+			return This.CalculatedColNames()
+
+		def CalculatedColumnsNams()
+			return This.CalculatedColNames()
+
+	  #===========================#
+	 #  ADDING A CALCULATED ROW  #
+	#===========================#
+
+	def AddCalculatedRow(pacFormulas)
+
+		if CheckParams()
+			if NOT ( isList(pacFormulas) and @IsListOfStrings(pacFormulas) )
+				StzRaise("Incorrect param type! pacFormulas must be a list of strings.")
+			ok
+		ok
+
+		aRowData = []
+		nLen = len(pacFormulas)
+		nCols = This.NumberOfCols()
+		nRows = This.NumberOfRows()
+		nMin = Min([ nRows, nLen ])
+
+		# Preparing the list of formulas
 
 		
+		aoForumlas = StzListQ(pacFormulas).ToListOfStzStrings()
+		acCodes = []
+		for i = 1 to nMin
+			cColName = This.ColName(i)
+			aoForumlas[i].ReplaceCS( ('@(:'+ cColName +')'), 'This.Col(:' + cColName + ')', FAlSE)
+			cCode =  aoForumlas[i].Content()
+			if cCode != ""
+				cCode = 'value = ' + cCode
+			ok
+			acCodes + cCode
+		next
+
+		for i = 1 to nMin
+			if acCodes[i] != ""
+				eval(acCodes[i])
+				aRowData + value
+			else
+				aRowData + " "
+			ok
+		next
+
+		if nMin < nCols
+			for i = nMin+1 to nCols
+				aRowData + ""
+			next
+		ok
+
+		This.AddRow(aRowData)
+		@anCalculatedRows + (nRows+1)
+
+	  #--------------------------------------------#
+	 #  GETTING THE POSITIONS OF CALCULATED ROWS  #
+	#--------------------------------------------#
+
+	def FindCalculatedRows()
+		return @anCalculatedRows
+
+	  #------------------------------------------#
+	 #  GETTING THE CONTENT OF CALCULATED ROWS  #
+	#------------------------------------------#
+
+	def CalculatedRows()
+		aResult = This.TheseRows(@anCalculatedRows)
+		return aResult
+
 #================
 /*
 #TODO: stzTable add (all) excel functions

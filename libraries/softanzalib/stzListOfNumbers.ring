@@ -148,6 +148,13 @@ func Product(panNumbers)
 	func @Product(panNumbers)
 		return Product(panNumbers)
 
+func Mean(panNumbers)
+	oListOfNumbers = new stzListOfNumbers(panNumbers)
+	return oListOfNumbers.Mean()
+
+	func Average(panNumbers)
+		return Mean(panNumbers)
+
 func MultiplicationsYieldingN(n)
 	aResult = []
 			
@@ -2371,6 +2378,9 @@ class stzListOfNumbers from stzList
 
 	def Mean()
 		return Sum() / (This.NumberOfNumbers())
+
+		def Average()
+			return Mean()
 
 	def MeanByCoefficient(paList)
 		// [ 16, 18, 20, 17 ]
