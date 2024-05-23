@@ -172,7 +172,7 @@ proff()
 # Executed in 0.44 second(s)
 
 /*----------
-*/
+
 pron()
 
 #NOTE
@@ -5435,3 +5435,39 @@ o1.Show()
 
 proff()
 # Executed in 0.08 second(s)
+
+#============
+*/
+pron()
+
+# Income in million dollars per year
+# Population in million people
+# Percapiat in dollars
+# Source: WolframAlpha
+
+o1 = new stzTable([
+
+	[ "COUNTRY",	"INCOME",	"POPULATION" 	],
+	#-----------------------------------------------#
+	[ "USA",	   25450,	        340	],
+	[ "China",	   18150,	       1430	],
+	[ "Japan",	    5310,		123	],
+	[ "Germany",	    4490,	         83.3	],
+	[ "India",	    3370,	       1430	]
+
+])
+
+o1.AddCalculatedCol(:PERCAPITA, '@(:INCOME) / @(:POPULATION)')
+o1.Show()
+
+#--> COUNTRY   INCOME   POPULATION   PERCAPITA
+#    -------- -------- ------------ ----------
+#        USA    25450          340       74.85
+#      China    18150         1430       12.69
+#      Japan     5310          123       43.17
+#    Germany     4490        83.30       53.90
+#      India     3370         1430        2.36
+
+//o1.AddCalculatedRow([ '', 'Sum(@INCOME)', 'Sum(@POPULATION)' ])
+
+proff()
