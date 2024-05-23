@@ -817,6 +817,18 @@ func IsIntegerInString(str)
 	func @IsIntegerInstring(str)
 		return IsIntegerInString(str)
 
+func IsNumberOrListInString(str)
+	return StzStringQ(str).IsNumberOrListInString()
+
+	func IsStringOrNumberInString(str)
+		return IsNumberOrListInString(str)
+
+	func @IsNumberOrListInString(str)
+		return IsNumberOrListInString(str)
+
+	func @IsStringOrNumberInString(str)
+		return IsNumberOrListInString(str)
+
 func IsRealInString(str)
 	return StzStringQ(str).IsRealInString()
 
@@ -69669,6 +69681,28 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#>
 
+	def RepresentsNumberOrListInString()
+		if This.RepresentsNumberInString() or
+		   This.RepresentsListInString()
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlaternativeForms
+
+		def RepresentsListOrNumberInString()
+			return This.RepresentsNumberOrListInString()
+
+		def IsNumberOrListInString()
+			return This.RepresentsNumberOrListInString()
+
+		def IsStringOrNumberInString()
+			return This.RepresentsNumberOrListInString()
+
+		#>
+
 	def RepresentsNumber()
 
 		oCopy = This.Copy()
@@ -74277,6 +74311,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		return bResult
 
+		def RepresentsListInString()
+			return This.IsListInString()
+
 	def IsListInNormalForm()
 		if NOT This.IsListInString()
 			return FALSE
@@ -74288,6 +74325,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return FALSE
 		ok
 
+		def RepresentsListInNormalForm()
+			return This.IsListInNormalForm()
+
 	def IsListInShortForm()
 		if This.IsListInString() and
 		  ( NOT This.IsListInNormalForm() )
@@ -74296,6 +74336,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		else
 			return FALSE
 		ok
+
+		def RepresentsListInShortForm()
+			return This.IsListInShortForm()
 
 	  #--------------------------------------------#
 	 #    CHECKING A CONTIGUOUS LIST IN STRING    #

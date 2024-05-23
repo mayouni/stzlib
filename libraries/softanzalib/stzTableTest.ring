@@ -1,5 +1,15 @@
 load "stzlib.ring"
 
+/*------- #ring
+
+pron()
+
+? @@( ring_trim("    ") )
+#--> ""
+	
+proff()
+# Executed in 0.02 second(s)
+
 /*=============== #narration 5 ways to create a stzTable
 
 pron()
@@ -118,7 +128,7 @@ proff()
 # Executed in 0.47 second(s) in Ring 1.17
 
 /*---------
-*/
+
 # WAY 6: Creating a table from an external text file (EXPERIMENTAL)
 
 pron()
@@ -126,7 +136,7 @@ pron()
 # You can crate a table from an external data file.
 # The file can be in CSV format or any other text file.
 # Tha data inside the file must be separated by lines,
-# and the lines must be separated by TAB.
+# and the lines must be separated by semicolon.
 
 o1 = new stzTable(:FromFile = "myTable.csv")
 ? o1.Show()
@@ -146,15 +156,45 @@ o2.Show()
 #    Jon    32   [ "Games", "Travel", "Sport" ]
 
 #~> #NOTE that numbers and lists are evaluated and retutned as native types
-
-#~> #NOTE lists in the text file must be take the form ['str1','str2','str3'],
-#   using single quotes (') and without spaces in between items
-
-#~> #TODO see wht all the records are not returned from file!
+#~> #NOTE lists in the text file must be take the form ['str1','str2','str3']
 #~> #TODO correct the headline when column contains lists
 
 proff()
-# # Executed in 0.43 second(s)
+# Executed in 0.44 second(s)
+
+/*----------
+*/
+pron()
+
+# If the file begins with an empty line, then Softanza adds
+# the names of columns automaticallys as :COL1, :COL2, etc
+
+o1 = new stzTable(:FromFile = "mytable_emptyline.txt")
+? o1.Show()
+#-->    COL1      COL2      COL3     COL4
+#    -------- --------- --------- -------
+#    Tunisia    Arabic     Tunis   Africa
+#     France    French     Paris   Europe
+#      Egypt   English     Cairo   Africa
+#    Belgium    French   Brussel   Europe
+#      Yemen    Arabic     Sanaa     Asia
+
+# Also, the first line is not empty but contains cells
+# that are not strings (numbers or lists), then Softanza
+# does the same (adds columns names)
+
+o1 = new stzTable(:FromFile = "mytable_line1_number.txt")
+? o1.Show()
+#-->    COL1       COL2      COL3      COL4
+#    -------- ---------- --------- --------
+#     NATION   LANGUAGE         1   COUNTRY
+#    Tunisia     Arabic     Tunis    Africa
+#     France     French     Paris    Europe
+#      Egypt    English     Cairo    Africa
+#    Belgium     French   Brussel    Europe
+#      Yemen     Arabic     Sanaa      Asia
+
+proff()
 
 /*=================
 
