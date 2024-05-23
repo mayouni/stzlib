@@ -1,5 +1,5 @@
 NAME;AGE;HOBBIES
 Hela;24;['Sport','Music']
-Jon;32;['Games','Travel','Sport']
-Ali;22;['Painting','Dansing']
+Jon  ;32;["Games",   'Travel','Sport' ]
+Ali;22;   [  'Painting',  'Dansing']
 Foued;43;['Music','Travel']

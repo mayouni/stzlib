@@ -75,11 +75,9 @@ Class stzTable from stzObject
 	
 		# Way 1: new stzTable([])
 		#--> Creates an empty table with just a column and a row
-		#TODO: Review this choice!
-		#NOTE: I forgot why ;(
 
 		# Way 2: new stzTable([3, 4])
-		#--> Creates a tale of 3 columns and 4 rows, all cells are empty
+		#--> Creates a table of 3 columns and 4 rows, all cells are empty
 
 		# Both ways (1 and 2) are made by the following code:
 		
@@ -173,6 +171,7 @@ Class stzTable from stzObject
 		but Q(paTable).IsHashList()
 		# Way 5: The table is provided in the same format of how
 		# it is implemented in this class: a hashlist.
+		# ~> the most performant way!
 
 		# EXAMPLE:
 
@@ -214,19 +213,68 @@ Class stzTable from stzObject
 
 		but isList(paTable) and Q(paTable).IsFromFileNamedParam()
 		# Way 5: The table is created from the content of a text file
+
 		#  ~> The first line of the file corrspond the column names
+
+		#  ~> If the first line is empty or contains a type other then
+		#     string, then Softanza adds column names :COL1, :COL2, etc.
+
 		#  ~> The lines are separated by a NL
 		#  ~> The cells are separated by a ;
 		#  ~> Numbers and lists are imported in their native types
-		#  ~> Lists in the file must be in the form [item1,item2,item3], without spaces
+		#  ~> Lists in the file must be in the form [item1,item2,item3]
 
 			# Reading the data from the file
 
-			cdata = ring_read(paTable[2])
+			cData = ring_read(paTable[2])
 			#TODO should we close the file handle?
+
+			# If the file is empty, make an empty table
+			#TODO should we raise an error instead?
+
+			if ring_trim(cData) = ""
+				@aContent = [ :COL1 = [ ] ]
+				return
+			ok
+
+			# Splitting the lines
 
 			acLines = ring_split(cData, NL)
 			nLen = len(acLines)
+
+			# Checking the first line
+
+			cLine1 = acLines[1]
+
+			bColNamesProvided = TRUE
+
+			if ring_trim(cLine1) = ""
+				bColNamesProvided = FALSE
+
+			else
+
+				acLine1Splits = ring_split(cLine1, ";")
+				nLen1 = len(acLine1Splits)
+
+				bMadeOfStrings = TRUE
+				for i = 1 to nLen1
+					if @IsNumberInString(acLine1Splits[i]) or
+					   @IsListInString(acLine1Splits[i])
+	
+						bMadeOfStrings = FALSE
+						exit
+					ok
+				next
+
+				if NOT bMadeOfStrings 
+					bColNamesProvided = FALSE
+				ok
+			ok
+			#NOTE
+			# ~> we will use bColNamesProvided later while
+			# constructing the header of the table
+
+			# Doing the job
 
 			anLens = []
 			aTable = []
@@ -269,6 +317,8 @@ Class stzTable from stzObject
 
 			# Construction the table content
 
+			# Defining the minimal number or rows provided
+
 			nLenTable = len(aTable)
 			nMin = 0
 			if nLenTable > 1
@@ -282,12 +332,25 @@ Class stzTable from stzObject
 				ok
 			next
 
-			for i = 1 to nMin
-				@aContent + [ aTable[1][i], [] ]
-			next
+			# Composing the header of the table
 
 			for i = 1 to nMin
-				for j = 2 to nLenTable
+				if bColNamesProvided
+					@aContent + [ aTable[1][i], [] ]
+				else
+					@aContent + [ "col"+i, [] ]
+				ok
+			next
+
+			# Composing the rows of the table
+
+			jStart = 1
+			if bColNamesProvided
+				jStart = 2
+			ok
+
+			for i = 1 to nMin
+				for j = jStart to nLenTable
 					@aContent[i][2] + aTable[j][i]
 				next
 			next
