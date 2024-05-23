@@ -13187,7 +13187,7 @@ Class stzTable from stzObject
 			if bUnderLineHeader and cUnderLineChar != ""
 				oColXT = This.ColQ(i).AddItemQ(cName)
 
-				cUnderline = StzStringQ(cUnderLineChar).RepeatedNTimes( oColXT.MaxSize() )
+				cUnderline = StzStringQ(cUnderLineChar).RepeatedNTimes( oColXT.StringifyQ().MaxSize() )
 				ring_insert(acCurrentColAdjusted, 1, cUnderline)
 			ok
 

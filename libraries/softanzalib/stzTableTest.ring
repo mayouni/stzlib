@@ -131,6 +131,11 @@ proff()
 
 # WAY 6: Creating a table from an external text file (EXPERIMENTAL)
 
+#NOTE
+# This example uses two files that exist in the default
+# director: "myTable.csv" and "myHybridTable.txt"
+# check them before you test the code.
+
 pron()
 
 # You can crate a table from an external data file.
@@ -139,21 +144,25 @@ pron()
 # and the lines must be separated by semicolon.
 
 o1 = new stzTable(:FromFile = "myTable.csv")
+
 ? o1.Show()
+
 #--> NATION   LANGUAGE   CAPITAL   CONTINENT
 #   -------- ---------- --------- ----------
 #   Tunisia     Arabic     Tunis      Africa
 #    France     French     Paris      Europe
 #     Egypt    English     Cairo      Africa
 
-#~> #TODO see why all the records are not returned from file!
-
 o2 = new stzTable(:FromFile = "myHybridTable.txt")
+
 o2.Show()
-#--> NAME   AGE                          HOBBIES
-#   ----- ----- -                       -------
+
+#--> NAME  AGE                         HOBBIES
+#   ----- ----- -------------------------------
 #   Hela    24             [ "Sport", "Music" ]
 #    Jon    32   [ "Games", "Travel", "Sport" ]
+#    Ali    22        [ "Painting", "Dansing" ]
+#  Foued    43            [ "Music", "Travel" ]
 
 #~> #NOTE that numbers and lists are evaluated and retutned as native types
 #~> #NOTE lists in the text file must be take the form ['str1','str2','str3']
@@ -166,10 +175,16 @@ proff()
 */
 pron()
 
+#NOTE
+# This example uses two files that exist in the default
+# director: "mytable_emptyline.txt" and "mytable_line1_number"
+# check them before you test the code.
+
 # If the file begins with an empty line, then Softanza adds
 # the names of columns automaticallys as :COL1, :COL2, etc
 
 o1 = new stzTable(:FromFile = "mytable_emptyline.txt")
+
 ? o1.Show()
 #-->    COL1      COL2      COL3     COL4
 #    -------- --------- --------- -------
@@ -184,10 +199,12 @@ o1 = new stzTable(:FromFile = "mytable_emptyline.txt")
 # does the same (adds columns names)
 
 o1 = new stzTable(:FromFile = "mytable_line1_number.txt")
+
 ? o1.Show()
+
 #-->    COL1       COL2      COL3      COL4
 #    -------- ---------- --------- --------
-#     NATION   LANGUAGE         1   COUNTRY
+#     NATION   LANGUAGE       125   COUNTRY
 #    Tunisia     Arabic     Tunis    Africa
 #     France     French     Paris    Europe
 #      Egypt    English     Cairo    Africa
@@ -195,6 +212,7 @@ o1 = new stzTable(:FromFile = "mytable_line1_number.txt")
 #      Yemen     Arabic     Sanaa      Asia
 
 proff()
+# Executed in 0.48 second(s)
 
 /*=================
 
@@ -5396,3 +5414,24 @@ pron()
 
 proff()
 # Executed in 0.02 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzTable([
+	[ :NAME, :HOBBIES		],
+	[ "kim", [ "Sport", "Music" ]	],
+	[ "Dan", [ "Gaming" ]		],
+	[ "Sam", [ "Music", "Travel" ]	]
+])
+
+o1.Show()
+#--> NAME                 HOBBIES
+#   ----- ----------------------
+#    kim    [ "Sport", "Music" ]
+#    Dan            [ "Gaming" ]
+#    Sam   [ "Music", "Travel" ]
+
+proff()
+# Executed in 0.08 second(s)
