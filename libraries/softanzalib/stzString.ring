@@ -3197,7 +3197,7 @@ class stzString from stzObject
 			anPos = [1]
 		else
 			anPos = StzListOfNumbersQ(anPos).AddedToEach(1)
-			ring_insert(anPos, 0, 1)
+			ring_insert(anPos, 1, 1)
 
 		ok
 

@@ -5468,6 +5468,9 @@ o1.AddCalculatedCol(:PERCAPITA, '@(:INCOME) / @(:POPULATION)')
 #    Germany     4490        83.30       53.90
 #      India     3370         1430        2.36
 
+o1.InsertCalculatedColAt(2, :CURRENCY, 'StzCountryQ(@(:COUNTRY)).CurrencyAbbreviation()')
+? o1.Show()
+
 ? @@( o1.FindCalculatedCols() ) + NL
 #--> [ 4 ]
 
@@ -5475,7 +5478,7 @@ o1.AddCalculatedCol(:PERCAPITA, '@(:INCOME) / @(:POPULATION)')
 #--> [ [ 74.83, 12.69, 43.10, 53.90, 2.36 ] ]
 
 #--
-
+/*
 o1.AddCalculatedRow([
 	'', 'Sum( @(:INCOME) )', 'Sum( @(:POPULATION) )', 'Average( @(:PERCAPITA) )'
 ])
@@ -5496,8 +5499,8 @@ o1.AddCalculatedRow([
 
 ? @@( o1.CalculatedRows() ) + NL
 #--> [ [ " ", 56770, 3406.90, 37.38 ] ]
-
+*/
 proff()
-# Executed in 0.12 second(s) without the Show() functions
-# Executed in 0.25 second(s) with the Show() functions
+# Executed in 0.06 second(s) without the Show() functions
+# Executed in 0.36 second(s) with the Show() functions
 

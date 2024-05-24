@@ -79,10 +79,28 @@ StzLocaleQ("ps-AF") {
 
 /*----------------
 
+pron()
+
+o1 = new stzString("chinese yuan")
+? o1.Capitalised()
+#--> Chinese Yuan
+
+proff()
+
+/*---------------
+*/
+
+pron()
+
 StzLocaleQ("zh-CN") {		
-	? CountryName()		#--> china
-	? LanguageName()	#--> literary_chinese
+	? CountryName()			#--> china
+	? LanguageName()		#--> literary_chinese
+	? Currency()			#--> Chinese Yuan
+	? CurrencyAbbreviation()	#--> CNY
 }
+
+proff()
+
 /*----------------
 
 ? StzLocaleQ("sm-WS").CountryName() #--> NULL! (see why)
