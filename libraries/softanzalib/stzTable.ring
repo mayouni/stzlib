@@ -13763,8 +13763,7 @@ Class stzTable from stzObject
 	 #  ADDING A CALCULATED COLUMN  #
 	#==============================#
 
-	def AddCalculatedCol(pcColName, pcFormula)
-
+	def InsertCalculatedCol(n, pcColName, pcFormula)
 		if CheckParams()
 			if NOT @BothAreStrings(pcColName, pcFormula)
 				StzRaise("Incorrect param types! pcColName and pcFormula must be both strings.")
@@ -13803,8 +13802,24 @@ Class stzTable from stzObject
 
 		next		
 
-		@aContent + [ pcColName, aColData ]
+		ring_insert(@aContent, n, [ pcColName, aColData ])
 		@anCalculatedCols + (nCols+1)
+
+		#< @FunctionAlternativeForms
+
+		def InsertCalculatedColAt(n, pcColName, pcFormula)
+			This.InsertCalculatedCol(n, pcColName, pcFormula)
+
+		def InsertCalculatedColumn(n, pcColName, pcFormula)
+			This.InsertCalculatedCol(n, pcColName, pcFormula)
+
+		def InsertCalculatedColumnAt(n, pcColName, pcFormula)
+			This.InsertCalculatedCol(n, pcColName, pcFormula)
+
+		#>
+
+	def AddCalculatedCol(pcColName, pcFormula)
+		This.InsertCalculatedCol(This.NumberOfCols()+1, pcColName, pcFormula)
 
 	  #-----------------------------------------------#
 	 #  GETTING THE POSITIONS OF CALCULATED COLUMNS  #

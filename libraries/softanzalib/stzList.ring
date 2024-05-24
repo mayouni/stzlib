@@ -45255,15 +45255,15 @@ Item and then position
 			return FALSE
 		ok
 		
-		if oKeys.Contains(:Language) and _(cLanguage).Q.IsNotLanguageName()
+		if oKeys.Contains(:Language) and Q(cLanguage).IsNotLanguageName()
 			return FALSE
 		ok
 
-		if oKeys.Contains(:Script) and _(cScript).Q.IsNotScriptName()
+		if oKeys.Contains(:Script) and Q(cScript).IsNotScriptName()
 			return FALSE
 		ok
 
-		if oKeys.Contains(:Country) and _(cCountry).Q.IsNotCountryName()
+		if oKeys.Contains(:Country) and Q(cCountry).IsNotCountryName()
 			return FALSE
 		ok
 

@@ -559,9 +559,11 @@ class stzLocale from stzObject
 	#--------------#
 
 	def CurrencyName()
+
 		for aCountryInfo in LocaleCountriesXT()
 			if aCountryInfo[1] = This.CountryNumber()
-				return StzStringQ(aCountryInfo[7]).ReplaceQ("_", " ").Capitalized()
+				cResult = StzStringQ(aCountryInfo[7]).ReplaceQ("_", " ").Capitalized()
+				return cResult
 			ok
 		next
 
@@ -1114,13 +1116,13 @@ class stzLocale from stzObject
 		*/
 		switch pcTypeOfSymbol
 		on :ISOSymbol
-			return @oQLocale.currencySymbol(0)	#--> CurrencyAbbreviation() in Softanza
+			return @oQLocale.currencySymbol(0)	#--> called CurrencyAbbreviation() in Softanza
 
 		on :NativeSymbol
-			return @oQLocale.currencySymbol(1)	#--> CurrencySymbol() in Softanza
+			return @oQLocale.currencySymbol(1)	#--> called CurrencySymbol() in Softanza
 
 		on :NativeName
-			return @oQLocale.currencySymbol(2)	#--> NativeName() In Softanza
+			return @oQLocale.currencySymbol(2)	#--> called NativeName() In Softanza
 
 		other
 			StzRaise(stzLocaleError(:CanNotProvideCurrencySymbol))
