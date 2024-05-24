@@ -559,10 +559,13 @@ class stzLocale from stzObject
 	#--------------#
 
 	def CurrencyName()
+		nLen = len(_aLocaleCountriesXT)
+		cNumber = This.CountryNumber()
 
-		for aCountryInfo in LocaleCountriesXT()
-			if aCountryInfo[1] = This.CountryNumber()
-				cResult = StzStringQ(aCountryInfo[7]).ReplaceQ("_", " ").Capitalized()
+		for i = 1 to nLen
+			
+			if _aLocaleCountriesXT[i][1] = cNumber
+				cResult = StzStringQ(_aLocaleCountriesXT[i][7]).ReplaceQ("_", " ").Capitalized()
 				return cResult
 			ok
 		next

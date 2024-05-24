@@ -1,13 +1,15 @@
 
 /*
-	TODO 1:
+	#TODO Replace all for/in loops by normal for loops
+
+	#TODO
 
 		In _aLocaleCountriesXT, and for the following country:
 			:Caribbean_Netherlands
 	
 		check if it already exists under another name, or it doesn't and should be added.
 
-	TODO 2:
+	#TODO
 
 		Not all items in _aLocaleCountriesXT are actually countries!
 
@@ -17,6 +19,7 @@
 
 		Also, create a list called _aContinents and link every country to its continent!
 
+	#INFO
 	Source of emoji flags: https://unicode.org/emoji/charts/full-emoji-list.html#country-flag
 
 */
@@ -444,7 +447,7 @@ class stzCountry
 			return Content()
 	
 	def NativeName()
-		return StzLocale([ :Country = This.Country() ]).CountryNativeName()
+		return StzLocale(This.LocaleAbbreviation()).CountryNativeName()
 
 
 	def Abbreviation()
@@ -455,6 +458,9 @@ class stzCountry
 
 	def LongAbbreviation()
 		return @aCountryInfo[4]
+
+		def AbbreviationXT()
+			return This.LongAbbreviation()
 
 	def LocaleAbbreviation()
 		return LocaleAbbreviationsXT()[ This.Country() ][1][1][2]
@@ -500,7 +506,7 @@ class stzCountry
 			return This.DefaultLanguage()
 
 	def LanguageNativeName()
-		return StzLocaleQ([ :Country = This.Name() ]).LanguageNativeName()
+		return StzLocaleQ(This.LocaleAbbreviation()).LanguageNativeName()
 
 		def DefaultLanguageNativeName()
 			return This.LanguageNativeName()
@@ -535,7 +541,7 @@ class stzCountry
 		method, because the Script information is locale-speciefic.
 		*/
 		
-		//return StzLocaleQ([ :Country = This.Name() ]).Script()
+		//return StzLocaleQ(This.LocaleAbbreviation()).Script()
 
 		cLanguage = This.DefaultLanguage()
 
@@ -567,13 +573,13 @@ class stzCountry
 			return This.Currency()
 
 	def CurrencyNativeName()
-		return StzLocaleQ([ :Country = This.Country() ]).CurrencyNativeName()
+		return StzLocaleQ(This.LocaleAbbreviation()).CurrencyNativeName()
 
 	def CurrencySymbol()
-		return StzLocaleQ([ :Country = This.Country() ]).CurrencySymbol()
+		return StzLocaleQ(This.LocaleAbbreviation()).CurrencySymbol()
 
 	def CurrencyAbbreviation()
-		return StzLocaleQ([ :Country = This.Country() ]).CurrencyAbbreviation()
+		return StzLocaleQ(This.LocaleAbbreviation()).CurrencyAbbreviation()
 
 	def CurrencyFractionalUnit()
 		return  @aCountryInfo[8]

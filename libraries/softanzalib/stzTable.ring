@@ -13803,7 +13803,7 @@ Class stzTable from stzObject
 		next		
 
 		ring_insert(@aContent, n, [ pcColName, aColData ])
-		@anCalculatedCols + (nCols+1)
+		@anCalculatedCols + n
 
 		#< @FunctionAlternativeForms
 
@@ -13821,12 +13821,20 @@ Class stzTable from stzObject
 	def AddCalculatedCol(pcColName, pcFormula)
 		This.InsertCalculatedCol(This.NumberOfCols()+1, pcColName, pcFormula)
 
+		#< @FunctionAlternativeForm
+
+		def AddCalculatedColumn(pcColName, pcFormula)
+			This.AddCalculatedCol(pcColName, pcFormula)
+
+		#>
+
 	  #-----------------------------------------------#
 	 #  GETTING THE POSITIONS OF CALCULATED COLUMNS  #
 	#-----------------------------------------------#
 
 	def FindCalculatedCols()
-		return @anCalculatedCols
+		anResult = ring_sort(@anCalculatedCols)
+		return anResult
 
 		def FindCalculatedColumns()
 			return This.FindcalculatedCols()
@@ -13836,7 +13844,8 @@ Class stzTable from stzObject
 	#-------------------------------------------------#
 
 	def CalculatedCols()
-		aResult = This.TheseCols(@anCalculatedCols)
+		anPos = This.FindCalculatedCols()
+		aResult = This.TheseCols(anPos)
 		return aResult
 
 		def CalculatedColumns()
@@ -13847,7 +13856,8 @@ Class stzTable from stzObject
 	#-----------------------------------------------#
 
 	def CalculatedColNames()
-		acResult = This.TheseColNames(@anCalculatedCols)
+		anPos = This.FindCalculatedCols()
+		acResult = This.TheseColNames(anPos)
 		return acResult
 
 		def CalculatedColsNams()

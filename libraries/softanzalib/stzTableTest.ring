@@ -5472,10 +5472,16 @@ o1.InsertCalculatedColAt(2, :CURRENCY, 'StzCountryQ(@(:COUNTRY)).CurrencyAbbrevi
 ? o1.Show()
 
 ? @@( o1.FindCalculatedCols() ) + NL
-#--> [ 4 ]
+#--> [ 2, 4 ]
 
-? @@( o1.CalculatedCols() ) + NL
-#--> [ [ 74.83, 12.69, 43.10, 53.90, 2.36 ] ]
+? o1.CalculatedColNames()
+#--> [ "currency", "population" ]
+
+? @@NL( o1.CalculatedCols() ) + NL
+#--> [
+#	[ "USD", "CNY", "JPY", "EUR", "INR" ],
+#	[ 340.10, 1430.10, 123.20, 83.30, 1430.20 ]
+# ]
 
 #--
 /*

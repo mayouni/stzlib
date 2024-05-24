@@ -91,7 +91,7 @@ class stzCurrency
 		ok
 
 	def ISOSymbol()
-		return StzLocaleQ([ :Country = This.Country() ]).CurrencyISOSymbol()
+		return StzLocaleQ(This.CountryLocaleAbbreviation()).CurrencyISOSymbol()
 
 		def ISOSymbolName()
 			return This.ISOSymbol()
@@ -102,7 +102,7 @@ class stzCurrency
 			return This.ISOSymbol()
 
 	def NativeSymbol()
-		return StzLocaleQ([ :Country = This.Country() ]).CurrencyNativeSymbol()
+		return StzLocaleQ(This.CountryLocaleAbbreviation()).CurrencyNativeSymbol()
 
 		def NativeSymbolName()
 			return This.NativeSymbol()
@@ -114,7 +114,7 @@ class stzCurrency
 			return This.Currency()
 	
 	def NativeName()
-		return StzLocaleQ([ :Country = This.Country() ]).CurrencyNativeName()
+		return StzLocaleQ(This.CountryLocaleAbbreviation()).CurrencyNativeName()
 
 	def Content()
 		return This.Currency()
@@ -135,6 +135,10 @@ class stzCurrency
 			ok
 		next
 		StzRaise(stzCurrencyError(:UnknowanCountry))
+
+	def CountryLocaleAbbreviation()
+		return LocaleAbbreviationsXT()[ This.Country() ][1][1][2]
+
 
 	PRIVATE
 

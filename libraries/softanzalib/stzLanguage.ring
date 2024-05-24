@@ -451,7 +451,7 @@ class stzLanguage
 			return This.Name()
 
 	def NativeName()
-		return StzLocaleQ([ :Language = This.Language() ]).LanguageNativeName()
+		return StzLocaleQ(This.DefaultCountryLocaleAbbreviation()).LanguageNativeName()
 
 	def Abbreviation()
 		return This.ShortAbbreviation()
@@ -486,6 +486,9 @@ class stzLanguage
 
 		def DefaultCountryNumber()
 			return This.DefaultCountryQtNumber()
+
+	def DefaultCountryLocaleAbbreviation()
+		return LocaleAbbreviationsXT()[ This.DefaultCountry() ][1][1][2]
 
 	def DefaultScript()
 
