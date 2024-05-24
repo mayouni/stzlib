@@ -23,18 +23,27 @@ SetDefaultLocale("ar-TN")
 
 /*---------------
 
-StzLocaleQ([ :Country = :Ttunisia ]) {
+pron()
+
+StzLocaleQ([ :Country = :Tunisia ]) {
 	? Abbreviation()	#--> ar_TN
-	? CountryName()		# !--> tunisia
+	? CountryName()		#--> tunisia
 }
+
+proff()
+# Executed in 0.03 second(s)
 
 /*---------------
 
+pron()
+
 StzCountryQ(:palau) {
 	? Name()		#--> palau
-
-	? LocaleAbbreviation() #--> "en-PW"
+	? LocaleAbbreviation() 	#--> "en-PW"
 }
+
+proff()
+# Executed in 0.02 second(s)
 
 /*---------------
 
@@ -88,7 +97,6 @@ o1 = new stzString("chinese yuan")
 proff()
 
 /*---------------
-*/
 
 pron()
 
@@ -100,10 +108,35 @@ StzLocaleQ("zh-CN") {
 }
 
 proff()
+# Executed in 0.04 second(s)
+
+/*---------------
+
+pron()
+
+StzCountryQ("china") {
+	? country()			#--> china
+	? abbreviation()		#--> CN
+
+	? longAbbreviation()		#--> CHN
+	# or AbbreviationXT()
+
+	? LocaleAbbreviation()
+
+	? Currency()			#--> chinese_yuan
+	? CurrencyAbbreviation()	#--> CNY
+}
+
+proff()
+# Executed in 0.03 second(s)
 
 /*----------------
 
+pron()
+
 ? StzLocaleQ("sm-WS").CountryName() #--> NULL! (see why)
+
+proff()
 
 /*----------------
 
@@ -147,8 +180,9 @@ oQLocale = new QLocale("cmn-CN")
 ? StzLocaleQ([ :Country = :China ]).CountryName() #--> NULL ! Todo: Why?
 ? StzCountryQ(:China).Language() #--> Chinese
 
-/*----------------------
-
+/*---------------------- #todo check it
+*/
+pron()
 # All these return the abbreviation ru_RU
 
 ? StzLocaleQ([ :Language = :Russian, :Script = :Latin, :Country = :Russia ]).Abbreviation()
@@ -158,6 +192,8 @@ oQLocale = new QLocale("cmn-CN")
 ? StzLocaleQ([ :Language = :Russian, :Script = :Latin ]).Abbreviation()
 ? StzLocaleQ([ :Language = :Russian, :Country = :Russia ]).Abbreviation()
 ? StzLocaleQ([ :Script = :Latin, :Country = :Russia ]).Abbreviation()
+
+proff()
 
 /*----------------------
 
