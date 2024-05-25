@@ -14011,6 +14011,23 @@ Class stzTable from stzObject
 		aResult = This.TheseRows(This.FindCalculatedRows())
 		return aResult
 
+	  #=================================#
+	 #  LAODING DATA FROM A TEXT FILE  #
+	#=================================#
+
+	def FromFile(pcFileName)
+		if CheckParam()
+			if NOT isString(pcFileName)
+				StzRaise("Incorrect param file! pcString must be a string.")
+			ok
+		ok
+
+		oTempTable = new stzTable(:FromFile = pcFileName)
+		@aContent = oTempTable.Content()
+
+		def FromCSV(pcFileName)
+			This.FromFile(pcFileName)
+
 #================
 /*
 #TODO: stzTable add (all) excel functions
