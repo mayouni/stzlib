@@ -5437,7 +5437,71 @@ proff()
 # Executed in 0.08 second(s)
 
 #============
+
+pron()
+
+o1 = new stzTable([
+
+	[ "COUNTRY",	"INCOME",	"POPULATION" 	],
+	#-----------------------------------------------#
+	[ "USA",	   25450,	        340.1	],
+	[ "China",	   18150,	       1430.1	],
+	[ "Japan",	    5310,		123.2	],
+	[ "Germany",	    4490,	         83.3	],
+	[ "India",	    3370,	       1430.2	]
+
+])
+
+o1.InsertRow(3, [ "Niger", 3616, 26.21 ])
+o1.Show()
+
+#--> COUNTRY   INCOME   POPULATION
+#    -------- -------- -----------
+#        USA    25450       340.10
+#      China    18150      1430.10
+#      Niger     3616        26.21
+#      Japan     5310       123.20
+#    Germany     4490        83.30
+#      India     3370      1430.20
+
+proff()
+# Executed in 0.02 second(s) without the Show() function
+# Executed in 0.10 second(s) with the Show() function
+
+/*-----------
 */
+pron()
+
+o1 = new stzTable([
+
+	[ "COUNTRY",	"INCOME",	"POPULATION" 	],
+	#-----------------------------------------------#
+	[ "USA",	   25450,	        340.1	],
+	[ "China",	   18150,	       1430.1	],
+	[ "Japan",	    5310,		123.2	],
+	[ "Germany",	    4490,	         83.3	],
+	[ "India",	    3370,	       1430.2	]
+
+])
+
+o1.InsertRowAt([ 2, 4, 5 ] , [ "~~~~~~~~", "~~~~~~~~", "~~~~~~~~" ])
+# Or InsertRowAtPositions() or InsertRow() or InsertRowAt() or
+# InsertRow( :At = ...) or InsertRow( :AtPositions = ...)
+
+o1.Show()
+#-->  COUNTRY     INCOME   POPULATION
+#    --------- ---------- -----------
+#         USA      25450       340.10
+#    ~~~~~~~~   ~~~~~~~~     ~~~~~~~~
+#       China      18150      1430.10
+#       Japan       5310       123.20
+#    ~~~~~~~~   ~~~~~~~~     ~~~~~~~~
+#     Germany       4490        83.30
+#    ~~~~~~~~   ~~~~~~~~     ~~~~~~~~
+#       India       3370      1430.20
+
+/*-----------
+
 pron()
 
 # Income in million dollars per year
@@ -5468,7 +5532,7 @@ o1.AddCalculatedCol(:PERCAPITA, '@(:INCOME) / @(:POPULATION)')
 #    Germany     4490        83.30       53.90
 #      India     3370         1430        2.36
 
-o1.InsertCalculatedColAt(2, :CURRENCY, 'StzCountryQ(@(:COUNTRY)).CurrencyAbbreviation()')
+o1.InsertCalculatedCol(2, :CURRENCY, 'StzCountryQ(@(:COUNTRY)).CurrencyAbbreviation()')
 ? o1.Show()
 
 ? @@( o1.FindCalculatedCols() ) + NL
@@ -5484,9 +5548,9 @@ o1.InsertCalculatedColAt(2, :CURRENCY, 'StzCountryQ(@(:COUNTRY)).CurrencyAbbrevi
 # ]
 
 #--
-/*
+
 o1.AddCalculatedRow([
-	'', 'Sum( @(:INCOME) )', 'Sum( @(:POPULATION) )', 'Average( @(:PERCAPITA) )'
+	'', '', 'Sum( @(:INCOME) )', 'Sum( @(:POPULATION) )', 'Average( @(:PERCAPITA) )'
 ])
 
 ? o1.Show()
@@ -5504,9 +5568,38 @@ o1.AddCalculatedRow([
 #--> [ 6 ]
 
 ? @@( o1.CalculatedRows() ) + NL
-#--> [ [ " ", 56770, 3406.90, 37.38 ] ]
-*/
+#--> [ [ " ", " ", 56770, 3406.90, 37.38 ] ]
+
 proff()
 # Executed in 0.06 second(s) without the Show() functions
-# Executed in 0.36 second(s) with the Show() functions
+# Executed in 0.42 second(s) with the Show() functions
 
+/*---------
+
+pron()
+
+o1 = new stzTable([
+	[ :NAME,	:AGE,	:JOB ],
+	[ "Folla",	22,	"Singer" ],
+	[ "Warda",	28,	"Painter"],
+	[ "Yasmine",	24,	"Danser" ]
+])
+? o1.Show()
+
+#-->     NAME   AGE       JOB
+#     -------- ----- --------
+#       Folla    22    Singer
+#       Warda    28   Painter
+#     Yasmine    24    Danser
+
+o1.InsertCol(3, [ :HOBBY, [ "Music", "Painting" ] ])
+? o1.Show()
+
+#-->    NAME   AGE       JOB      HOBBY
+#    -------- ----- --------- ---------
+#      Folla    22    Singer      Music
+#      Warda    28   Painter   Painting
+#    Yasmine    24    Danser          
+
+proff()
+# Executed in 0.16 second(s)
