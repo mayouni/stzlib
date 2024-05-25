@@ -11783,140 +11783,214 @@ Class stzTable from stzObject
 		This.EraseCells(aCellsPos)
 
 	  #======================#
-	 #  INSERTING A COLUMN  # // TODO
+	 #  INSERTING A COLUMN  #
 	#======================#
 
-	def InsertColumn(n, paColData) // TODO
-		StzRaise("Inexistant feature in this release!")
+	def InsertCol(n, paColData)
+		if CheckParams()
+			if isList(n) and Q(n).IsOneOfTheseNamedParams([
+					:At, :Before,
+					:AtPosition, :BeforePosition,
+					:AtPositions, :BeforePositions
+				])
 
-		def InsertCol(n, paColData)
-			return This.InsertColumn(n, paColData)
+				n = n[2]
+			ok
 
-		def InsertColumnBefore(n, paColData)
-			return This.InsertColumn(n, paColData)
+			if NOT ( isNumber(n) or ( isList(n) and @IsListOfNumbers(n) ) )
+				StzRaise("Incorrect param type! n must be a number or a list of numbers.")
+			ok
 
-		def InsertColBefore(n, paColData)
-			return This.InsertColumn(n, paColData)
-
-	def InsertColumnAfter(n, paColData) // TODO
-		StzRaise("Inexistant feature in this release!")
-
-		def InsertColAfter(n, paColData)
-			This.InsertColumnAfter(n, paColData)
-
-	def InsertColumnAt(n, paColData) // TODO
-		StzRaise("Inexistant feature in this release!")
-
-		def InsertColAt(n, paColData)
-			This.InsertColumnAt(n, paColData)
-
-	  #-----------------------------------------------#
-	 #  INSERTING MANY COLUMNS IN THE SAME POSITION  # // TODO
-	#-----------------------------------------------#
-
-	def InsertColumns(n, paColsData) // TODO
-		if isList(n) and Q(n).IsListOfNumbers()
-			This.InsertColumnsInThesePositions(n, paColsData)
+			if NOT ( isList(paColData) and len(paColData) > 1 and isString(paColData[1]) ) 
+				StzRaise("Incorrect param type! paColData must be a list with the first item beeing a string.")
+			ok
 		ok
 
-		StzRaise("Inexistant feature in this release!")
+		if isList(n)
+			This.InsertColAtPositions(n, paRowData)
+			return
+		ok
 
-		def InsertCols(n, paColsData)
-			return This.InsertColumns(n, paColsData)
+		# Preparing the column name and data
 
-		def InsertColumnsBefore(n, paColsData)
-			return This.InsertColumns(n, paColsData)
+		cColName = paColData[1]
+		paColData = paColData[2]
 
-		def InsertColsBefore(n, paColsData)
-			return This.InsertsColumn(n, paColsData)
+		nLenColData = len(paColData)
+		nRows = This.NumberOfRows()
+		nMin = Min([ nLenColData, nRows ])
 
-	def InsertColumnsAfter(n, paColsData) // TODO
-		StzRaise("Inexistant feature in this release!")
+		aColData = []
 
-		def InsertColsAfter(n, paColsData)
-			This.InsertColumnsAfter(n, paColsData)
+		for i = 1 to nMin
+			aColData + paColData[i]
+		next
 
-	def InsertColumnsAt(n, paColsData) // TODO
-		StzRaise("Inexistant feature in this release!")
+		if nLenColData < nRows
+			for i = nLenColData + 1 to nRows
+				aColData + ""
+			next
+		ok
 
-		def InsertColsAt(n, paColsData)
-			This.InsertColumnsAt(n, paColsData)
+		# Adding the column
 
-	  #-------------------------------------------------#
-	 #  INSERTING MANY COLUMNS IN DIFFERENT POSITIONS  # // TODO
-	#-------------------------------------------------#
+		@aContent + [ cColName, aColData ]
 
-	def InsertColumnsInThesePositions(panPos, paColsData) // TODO
-		StzRaise("Inexistant feature in this release!")
+		#< @FunctionAlternativeForms
 
-		def InsertColsInThesePositions(panPos, paColsData)
-			return This.InsertColumnsInThesePositions(panPos, paColsData)
+		def InsertColBefore(n, paRowData)
+			This.InsertCol(n, paRowData)
 
-		def InsertColumnsBeforeThesePositions(panPos, paColsData)
-			return This.InsertColumnsInThesePositions(panPos, paColsData)
+		def InsertColBeforePosition(n, paRowData)
+			This.InsertCol(n, paRowData)
 
-	def InsertColumnsAfterThesePositions(panPos, paColsData) // TODO
-		StzRaise("Inexistant feature in this release!")
+		#--
 
-		def InsertColsAfterThesePositions(panPos, paColsData)
-			This.InsertColumnsAfterThesePositions(panPos, paColsData)
+		def insertColAt(n, paRowData)
+			This.InsertCol(n, paRowData)
 
-	def InsertColumnsAtThesePositions(panPos, paColsData) // TODO
-		StzRaise("Inexistant feature in this release!")
+		def InsertColAtPosition(n, paRowData)
+			This.InsertCol(n, paRowData)
 
-		def InsertColsAtThesePositions(panPos, paColsData)
-			This.InsertColumnsAtThesePositions(panPos, paColsData)
+		#==
 
-	  #==================#
-	 #  INSERTING ROWS  # // TODO
-	#==================#
+		def InsertColumn(n, paRowData)
+			This.InsertCol(n, paRowData)
+
+		def InsertColumnBefore(n, paRowData)
+			This.InsertCol(n, paRowData)
+
+		def InsertColumnBeforePosition(n, paRowData)
+			This.InsertCol(n, paRowData)
+
+		#--
+
+		def insertColumnAt(n, paRowData)
+			This.InsertCol(n, paRowData)
+
+		def InsertColumnAtPosition(n, paRowData)
+			This.InsertCol(n, paRowData)
+
+		#>
+
+	def InsertColAfter(n, paRowData)
+		This.InsertColAt(n+1, paRowData)
+
+		#< @FunctionAlternativeForm
+
+		def InsertColAfterPosition(n, paRowData)
+			This.InsertColAfter(n, paRowData)
+
+		#--
+
+		def InsertColumnAfter(n, paRowData)
+			This.InsertColAfter(n, paRowData)
+
+		def InsertColumnAfterPosition(n, paRowData)
+			This.InsertColAfter(n, paRowData)
+
+		#>
+
+	  #===================#
+	 #  INSERTING A ROW  #
+	#===================#
 
 	def InsertRow(n, paRowData)
-		StzRaise("Inexistant feature in this release!")
+		if CheckParams()
+			if isList(n) and Q(n).IsOneOfTheseNamedParams([
+					:At, :Before,
+					:AtPosition, :BeforePosition,
+					:AtPositions, :BeforePositions
+				])
 
-		def InsertRowBefore(n, paRowData)
-			return This.InsertRow(n, paRowData)
+				n = n[2]
+			ok
 
-	def InsertRowAfter(n, paRowData)
-		StzRaise("Inexistant feature in this release!")
+			if NOT ( isNumber(n) or ( isList(n) and @IsListOfNumbers(n) ) )
+				StzRaise("Incorrect param type! n must be a number or a list of numbers.")
+			ok
 
-
-	def InsertRowAt(n, paRowData)
-		StzRaise("Inexistant feature in this release!")
-
-	  #--------------------------------------------#
-	 #  INSERTING MANY ROWS IN THE SAME POSITION  # // TODO
-	#--------------------------------------------#
-
-	def InsertRows(n, paRowsData)
-		if isList(n) and Q(n).IsListOfNumbers()
-			This.InsertRowsInThesePositions(n, paRowsData)
+			if NOT isList(paRowData)
+				StzRaise("Incorrect param type! paRowData must be a list.")
+			ok
 		ok
 
-		StzRaise("Inexistant feature in this release!")
+		if isList(n)
+			This.InsertRowAtPositions(n, paRowData)
+			return
+		ok
+
+		nCols = This.NumberOfCols()
+		nRows = This.NumberOfRows()
+		nRowData = len(parowData)
+		nMin = Min([nRowData , nCols ])
+
+		# Filling the missing cells by NULL
+
+		if nRowData < nCols
+			for i = nRowData+1 to nCols
+				paRowData + ""
+			next
+		ok
+
+		# Doing the job
+
+		for i = 1 to nCols
+			ring_insert(@aContent[i][2], n, paRowData[i])
+		next
 
 
-		def InsertRowsBefore(n, paRowsData)
-			return This.InsertRows(n, paRowsData)
+		#< @FunctionAlternativeForms
 
-	def InsertRowsAfter(n, paRowsData)
-		StzRaise("Inexistant feature in this release!")
+		def InsertRowBefore(n, paRowData)
+			This.InsertRow(n, paRowData)
 
-	def InsertRowsAt(n, paRowsData)
-		StzRaise("Inexistant feature in this release!")
+		def InsertRowBeforePosition(n, paRowData)
+			This.InsertRow(n, paRowData)
 
-	  #-----------------------------------------#
-	 #  INSERTING MANY ROWS IN MANY POSITIONS  #
-	#-----------------------------------------#
+		#--
 
-	def InsertRowsAtThesePositions(panPos, paRowsData)
-		StzRaise("Inexistant feature in this release!")
+		def insertRowAt(n, paRowData)
+			This.InsertRow(n, paRowData)
 
-		def InsertRowsBeforeThesePositions(panPos, paRowsData)
-			return This.InsertRowsInThesePositions(panPos, paRowsData)
+		def InsertRowAtPosition(n, paRowData)
+			This.InsertRow(n, paRowData)
 
-	def InsertRowsAfterThesePositions(panPos, paRowsData)
-		StzRaise("Inexistant feature in this release!")
+		#>
+
+	def InsertRowAfter(n, paRowData)
+		This.InsertRowAt(n+1, paRowData)
+
+		#< @FunctionAlternativeForm
+
+		def InsertRowAfterPosition(n, paRowData)
+			This.InsertRowAfter(n, paRowData)
+
+		#>
+
+	  #-------------------------------------#
+	 #  INSERTING A ROW IN MANY POSITIONS  #
+	#-------------------------------------#
+
+	def InsertRowAtPositions(panPos, paRow)
+		if CheckParams()
+			if NOT ( isList(panPos) and @isListOfNumbers(panPos) )
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+		ok
+
+		anPos = ring_sort(panPos)
+		nLen = len(anPos)
+
+		for i = nLen to 1 step -1
+			This.InsertRowAtPosition(panPos[i], paRow)
+		next
+
+		def InsertRows(panPos, paRow)
+			This.InsertRowAtPositions(panPos, paRow)
+
+		def InsertRowsAt(panPos, paRow)
+			InsertRowAtPositions(panPos, paRow)
 
 	  #===================================================#
 	 #  GETTING THE LIST OF COLUMNS (AS LISTS OF CELLS)  #
@@ -13873,8 +13947,7 @@ Class stzTable from stzObject
 	 #  ADDING A CALCULATED ROW  #
 	#===========================#
 
-	def AddCalculatedRow(pacFormulas)
-
+	def InsertCalculatedRow(n, pacFormulas)
 		if CheckParams()
 			if NOT ( isList(pacFormulas) and @IsListOfStrings(pacFormulas) )
 				StzRaise("Incorrect param type! pacFormulas must be a list of strings.")
@@ -13888,7 +13961,6 @@ Class stzTable from stzObject
 		nMin = Min([ nRows, nLen ])
 
 		# Preparing the list of formulas
-
 		
 		aoForumlas = StzListQ(pacFormulas).ToListOfStzStrings()
 		acCodes = []
@@ -13917,22 +13989,26 @@ Class stzTable from stzObject
 			next
 		ok
 
-		This.AddRow(aRowData)
-		@anCalculatedRows + (nRows+1)
+		This.InsertRow(n, aRowData)
+		@anCalculatedRows + n
+
+	def AddCalculatedRow(pacFormulas)
+		This.InsertCalculatedRow( This.NumberOfRows() + 1, pacFormulas)
 
 	  #--------------------------------------------#
 	 #  GETTING THE POSITIONS OF CALCULATED ROWS  #
 	#--------------------------------------------#
 
 	def FindCalculatedRows()
-		return @anCalculatedRows
+		anResult = ring_sort( @anCalculatedRows )
+		return anResult
 
 	  #------------------------------------------#
 	 #  GETTING THE CONTENT OF CALCULATED ROWS  #
 	#------------------------------------------#
 
 	def CalculatedRows()
-		aResult = This.TheseRows(@anCalculatedRows)
+		aResult = This.TheseRows(This.FindCalculatedRows())
 		return aResult
 
 #================
