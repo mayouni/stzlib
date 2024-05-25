@@ -143,7 +143,7 @@ pron()
 # Tha data inside the file must be separated by lines,
 # and the lines must be separated by semicolon.
 
-o1 = new stzTable(:FromFile = "myTable.csv")
+o1 = new stzTable(:FromFile = "mytable.csv")
 
 ? o1.Show()
 
@@ -5469,7 +5469,7 @@ proff()
 # Executed in 0.10 second(s) with the Show() function
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -5603,3 +5603,39 @@ o1.InsertCol(3, [ :HOBBY, [ "Music", "Painting" ] ])
 
 proff()
 # Executed in 0.16 second(s)
+
+#=================
+*/
+pron()
+
+o1 = new stzTable([])
+
+? o1.IsEmpty()
+#--> TRUE
+
+? o1.NumberOfCols()
+#--> 1
+
+? o1.NumberOfRows()
+#--> 1
+
+? o1.Show()
+
+#--> COL1
+#    ----
+#      ""
+
+o1.FromFile("mytable.txt")
+o1.Show()
+
+#-->  NATION   LANGUAGE   CAPITAL   CONTINENT
+#    -------- ---------- --------- ----------
+#    Tunisia     Arabic     Tunis      Africa
+#     France     French     Paris      Europe
+#      Egypt    English     Cairo      Africa
+#    Belgium     French   Brussel      Europe
+#      Yemen     Arabic     Sanaa        Asia
+
+proff()
+# Executed in 0.23 second(s) without the Show() functions
+# Executed in 0.33 second(s) with the Show() functions

@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*=======
-*/
+
 pron()
 
 	ForEach( :Item, :In = [ "a", "b", "c" ] ) { X('
@@ -30,7 +30,7 @@ pron()
 	#--> "C3'
 
 proff()
-#--> Executed in 0.11 second(s)
+#--> Executed in 0.08 second(s)
 
 /*========== #narration
 
@@ -1611,7 +1611,7 @@ proff()
 # Executed in 0.01 second(s)
 
 /*------ #TODO future
-
+*/
 pron()
 
 o1 = new stzTable([
