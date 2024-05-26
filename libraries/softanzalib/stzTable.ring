@@ -2943,7 +2943,20 @@ Class stzTable from stzObject
 			off
 
 		#>
-		
+
+		#< @FunctionAlternativeForms
+
+		def CellsInSection(panCellPos1, panCellPos2)
+			return This.Section( panCellPos1, panCellPos2 )
+
+			def CellsInSectionQ(panCellPos1, panCellPos2)
+				return This.SectionQ( panCellPos1, panCellPos2 )
+
+			def CellsInSectionQR( panCellPos1, panCellPos2, pcReturnType )
+				return This.SectionQR( panCellPos1, panCellPos2, pcReturnType )
+
+		#>
+
 	def SectionZ( panCellPos1, panCellPos2 )
 		
 		aResult = This.SectionAsPositionsQ(panCellPos1, panCellPos2).
@@ -2990,63 +3003,103 @@ Class stzTable from stzObject
 			def SectionAndItsPositionQR( panCellPos1, panCellPos2, pcReturnType )
 				return This.SectionZQR( panCellPos1, panCellPos2, pcReturnType )
 	
+		#--
+
+		def CellsInSectionZ( panCellPos1, panCellPos2 )
+			return This.SectionZ( panCellPos1, panCellPos2 )
+
+			def CellsInSectionZQ( panCellPos1, panCellPos2 )
+				return This.SectionZQ( panCellPos1, panCellPos2 )
+
+			def CellsInSectionZQR( panCellPos1, panCellPos2, pcReturnType )
+				return This.SectionZQR( panCellPos1, panCellPos2, pcReturnType )
+ 
+		def CellsInSectionAndPosition( panCellPos1, panCellPos2 )
+			return This.SectionZ( panCellPos1, panCellPos2 )
+
+			def CellsInSectionAndPositionQ( panCellPos1, panCellPos2 )
+				return This.SectionZQ( panCellPos1, panCellPos2 )
+
+			def CellsInSectionAndPositionQR( panCellPos1, panCellPos2, pcReturnType )
+				return This.SectionZQR( panCellPos1, panCellPos2, pcReturnType )
+	
+		def CellsInSectionAndItsPosition( panCellPos1, panCellPos2 )
+			return This.SectionZ( panCellPos1, panCellPos2 )
+
+			def CellsInSectionAndItsPositionQ( panCellPos1, panCellPos2 )
+				return This.SectionZQ( panCellPos1, panCellPos2 )
+
+			def CellsInSectionAndItsPositionQR( panCellPos1, panCellPos2, pcReturnType )
+				return This.SectionZQR( panCellPos1, panCellPos2, pcReturnType )
+	
 		#>
 
 	def SectionAsPositions( panCellPos1, panCellPos2 )
-		if isList(panCellPos1) and Q(panCellPos1).IsFromNamedParam()
-			panCellPos1 = panCellPos1[2]
-		ok
-
-		if isList(panCellPos2) and Q(panCellPos2).IsToNamedParam()
-			panCellPos2 = panCellPos2[2]
-		ok
-
-		if isString(panCellPos1)
-			if panCellPos1 = :First or panCellPos1 = :FirstCell
-				panCellPos1 = This.FirstCellPosition()
-
-			else
-				StzRaise("Syntax error in (" + panCellPos1 + ")! Allowed values are :First or :FirstCell.")
+		if CheckParams()
+			if isList(panCellPos1) and Q(panCellPos1).IsFromNamedParam()
+				panCellPos1 = panCellPos1[2]
+			ok
+	
+			if isList(panCellPos2) and Q(panCellPos2).IsToNamedParam()
+				panCellPos2 = panCellPos2[2]
+			ok
+	
+			if isString(panCellPos1)
+				if panCellPos1 = :First or panCellPos1 = :FirstCell
+					panCellPos1 = This.FirstCellPosition()
+	
+				else
+					StzRaise("Syntax error in (" + panCellPos1 + ")! Allowed values are :First or :FirstCell.")
+				ok
+			ok
+	
+			if isString(panCellPos2)
+				if panCellPos2 = :First or panCellPos2 = :LastCell
+					panCellPos2 = This.LastCellPosition()
+	
+				else
+					StzRaise("Syntax error in (" + panCellPos2 + ")! Allowed values are :Last or :LastCell.")
+				ok
+			ok
+	
+			if isList(panCellPos1)
+				if isString(panCellPos1[1]) and panCellPos1[1] = :FirstCol
+					panCellPos1 = Q(panCellPos1).ReplaceAtQ(1, 1).Content()
+				ok
+	
+				if isString(panCellPos1[2]) and panCellPos1[2] = :FirstRow
+					panCellPos1 = Q(panCellPos1).ReplaceAtQ(2, 1).Content()
+				ok
+	
+				if isString(panCellPos2[1]) and panCellPos2[1] = :LastCol
+					panCellPos2 = Q(panCellPos2).ReplaceAtQ(1, This.NumberOfCol() ).Content()
+				ok
+	
+				if isString(panCellPos2[2]) and panCellPos2[2] = :LastRow
+					panCellPos2 = Q(panCellPos2).ReplaceAtQ( 2, This.NumberOfRows() ).Content()
+				ok
+			ok
+	
+			if isList(panCellPos2)
+				if isString(panCellPos2[1]) and panCellPos2[1] = :LastCol
+					panCellPos2[1] = This.NumberOfCol()
+				ok
+	
+				if isString(panCellPos2[2]) and panCellPos2[2] = :LastRow
+					panCellPos2[2] = This.NumberOfRows()
+				ok
+	
+				if isString(panCellPos1[1]) and This.IsAColName((panCellPos1[1]))
+					panCellPos1[1] = This.ColToColNumber(panCellPos1[1])
+				ok
+	
+				if isString(panCellPos2[1]) and This.IsAColName((panCellPos2[1]))
+					panCellPos2[1] = This.ColToColNumber(panCellPos2[1])
+				ok
+	
 			ok
 		ok
-
-		if isString(panCellPos2)
-			if panCellPos2 = :First or panCellPos2 = :LastCell
-				panCellPos2 = This.LastCellPosition()
-
-			else
-				StzRaise("Syntax error in (" + panCellPos2 + ")! Allowed values are :Last or :LastCell.")
-			ok
-		ok
-
-		if isList(panCellPos1)
-			if isString(panCellPos1[1]) and panCellPos1[1] = :FirstCol
-				panCellPos1 = Q(panCellPos1).ReplaceAtQ(1, 1).Content()
-			ok
-
-			if isString(panCellPos1[2]) and panCellPos1[2] = :FirstRow
-				panCellPos1 = Q(panCellPos1).ReplaceAtQ(2, 1).Content()
-			ok
-
-			if isString(panCellPos2[1]) and panCellPos2[1] = :LastCol
-				panCellPos2 = Q(panCellPos2).ReplaceAtQ(1, This.NumberOfCol() ).Content()
-			ok
-
-			if isString(panCellPos2[2]) and panCellPos2[2] = :LastRow
-				panCellPos2 = Q(panCellPos2).ReplaceAtQ( 2, This.NumberOfRows() ).Content()
-			ok
-		ok
-
-		if isList(panCellPos2)
-			if isString(panCellPos2[1]) and panCellPos2[1] = :LastCol
-				panCellPos2[1] = This.NumberOfCol()
-			ok
-
-			if isString(panCellPos2[2]) and panCellPos2[2] = :LastRow
-				panCellPos2[2] = This.NumberOfRows()
-			ok
-
-		ok
+		# end of CheckParams()
 
 		if NOT ( isList(panCellPos1) and Q(panCellPos1).IsPairOfNumbers() and
 			 isList(panCellPos2) and Q(panCellPos2).IsPairOfNumbers() )
@@ -3054,19 +3107,44 @@ Class stzTable from stzObject
 			StzRaise("Incorrect params types! panCellPos1 and panCellPos2 must be pairs of numbers.")
 		ok
 
-		anPairs = Q([ panCellPos1, panCellPos2 ]).SortedInAscending()
-		nCol1   = anPairs[1][1]
-		nRow1   = anPairs[1][2]
-		nCol2   = anPairs[2][1]
-		nRow2   = anPairs[2][2]
+		# Doing the job
+
+		nCol1 = panCellPos1[1]
+		nRow1 = panCellPos1[2]
+
+		nCol2 = panCellPos2[1]
+		nRow2 = panCellPos2[2]
 
 		aResult = []
-		for u = nRow1 to nRow2
-			for v = nCol1 to nCol2
-				aResult + [ v, u ]
-			next v
-		next u
-	
+
+		# If only one column is concerned
+
+		if nCol1 = nCol2
+			for j = nRow1 to nRow2
+				aResult + [ nCol1, j ]
+			next
+
+			return aResult
+		ok
+
+		# If the sections span mote then one column
+
+		nRows = This.NumberOfRows()
+
+		# Adding all the cells except the last column
+
+		for i = nCol1 to nCol2 - 1
+			for j = nRow1 to nRows
+				aResult + [ i, j ]
+			next
+		next
+
+		# Adding the remaining cells in the last column
+
+		for j = 1 to nRow2
+			aResult + [ nCol2, j ]
+		next
+
 		return aResult
 
 		#< @FunctionFluentForm
@@ -3091,6 +3169,27 @@ Class stzTable from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def CellsInSectionAsPositions( panCellPos1, panCellPos2 )
+			return This.SectionAsPositions( panCellPos1, panCellPos2 )
+
+			def CellsInSectionAsPositionsQ( panCellPos1, panCellPos2 )
+				return This.SectionAsPositionsQ( panCellPos1, panCellPos2 )
+
+			def CellsInSectionAsPositionsQR( panCellPos1, panCellPos2, pcReturnType )
+				return This.SectionAsPositionsQR( panCellPos1, panCellPos2, pcReturnType )
+
+		#--
+
+		def FindSection(panCellPos1, panCellPos2)
+			return This.SectionAsPositions( panCellPos1, panCellPos2 )
+
+		def FindCellsInSection(panCellPos1, panCellPos2)
+			return This.SectionAsPositions( panCellPos1, panCellPos2 )
+
+		#>
+
 	  #-----------------------------------------------------#
 	 #   VERTICAL SECTIONS (SOME CELLS OF A GIVEN COLUMN)  #
 	#-----------------------------------------------------#
@@ -3101,6 +3200,16 @@ Class stzTable from stzObject
 		aResult = This.CellsAtPositions(aCellsPos)
 
 		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def VerticalSectionOfCells(pCol, n1, n2)
+			return This.VerticalSection(pCol, n1, n2)
+
+		def VerticalCellsSection(pCol, n1, n2)
+			return This.VerticalSection(pCol, n1, n2)
+
+		#>
 
 	def VerticalSectionAsPositions(pCol, n1, n2)
 		if isList(n1) and Q(n1).IsFromNamedParam()
@@ -3154,6 +3263,19 @@ Class stzTable from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def VerticalSectionZ(pCol, n1, n2)
+			return This.VerticalSectionAsPositions(pCol, n1, n2)
+
+		def VerticalSectionOfCellsAsPositions(pCol, n1, n2)
+			return This.VerticalSectionAsPositions(pCol, n1, n2)
+
+		def VerticalCellsSectionAsPositions(pCol, n1, n2)
+			return This.VerticalSectionAsPositions(pCol, n1, n2)
+
+		#>
+
 	  #----------------------------------------------------#
 	 #   HORIZONTAL SECTIONS (SOME CELLS OF A GIVEN ROW)  #
 	#----------------------------------------------------#
@@ -3163,6 +3285,16 @@ Class stzTable from stzObject
 		aResult = This.CellsAtPositions(aCellsPos)
 
 		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def HorizontalSectionOfCells(pCol, n1, n2)
+			return This.HorizontalSection(pCol, n1, n2)
+
+		def HorizontalCellsSection(pCol, n1, n2)
+			return This.HorizontalSection(pCol, n1, n2)
+
+		#>
 
 	def HorizontalSectionAsPositions(nRow, n1, n2)
 		if isString(nRow)
@@ -3206,15 +3338,18 @@ Class stzTable from stzObject
 
 		return aResult
 
-	  #----------------------------------------#
-	 #   FIRST CELL AND LAST CELL POSITIONS   #
-	#----------------------------------------#
+		#< @FunctionAlternativeForms
 
-	def FirstCellPosition()
-		return [1, 1]
+		def HorizontalSectionZ(pCol, n1, n2)
+			return This.HorizontalSectionAsPositions(pCol, n1, n2)
 
-	def LastCellPosition()
-		return [ This.NumberOfCol(), This.NumberOfRows() ]
+		def HorizontalSectionOfCellsAsPositions(pCol, n1, n2)
+			return This.HorizontalSectionAsPositions(pCol, n1, n2)
+
+		def HorizontalCellsSectionAsPositions(pCol, n1, n2)
+			return This.VerticalSectionAsPositions(pCol, n1, n2)
+
+		#>
 
 	  #-------------------------------------------------#
 	 #   CONVERTING A SECTION OF CELLS TO A HASHLIST   #
@@ -3731,6 +3866,16 @@ Class stzTable from stzObject
 	
 		def FindFirstOccurrence(pCellValueOrSubValue)
 			return This.FindFirst(pCellValueOrSubValue)	
+
+	  #----------------------------------------#
+	 #   FIRST CELL AND LAST CELL POSITIONS   #
+	#----------------------------------------#
+
+	def FirstCellPosition()
+		return [1, 1]
+
+	def LastCellPosition()
+		return [ This.NumberOfCol(), This.NumberOfRows() ]
 
 	  #---------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A CELL VALUE IN THE TABLE  #
@@ -14028,6 +14173,21 @@ Class stzTable from stzObject
 		def FromCSV(pcFileName)
 			This.FromFile(pcFileName)
 
+	  #================================#
+	 #  IMPLEMENTING EXCEL FUNCTIONS  #
+	#================================#
+
+	def SUM( paCell1, paCell2 )
+		aCells = This.CellsInSection(paCell1, paCell2)
+
+		if NOT @IsListOfNumbers(aCells)
+			return 0
+		ok
+
+		aResult = @Sum(aCells)
+
+		return aResult
+		
 #================
 /*
 #TODO: stzTable add (all) excel functions

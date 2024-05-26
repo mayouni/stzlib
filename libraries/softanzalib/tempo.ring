@@ -1610,28 +1610,6 @@ aList = [ [1,2,3], [4,5,6], 7:9 ]
 proff()
 # Executed in 0.01 second(s)
 
-/*------ #TODO future
-*/
-pron()
-
-o1 = new stzTable([
-	[ :Company, :Username, :Active, :Email, :EmailValid, :Firstname, :Infix, :Lastname,
-	  :Gender, :2FA_Status, :Last_Login, :Creation_Date, :Accounts, :Roles ]
-])
-
-
-
-o1.FromCSV(str) # Or LoadCSVString()
-o1.FromCSV(file) # Or LoadCSVFile
-
-o1.FromJSON(str) # Or LoadJSONString()
-o1.FromJSONXT(file) # Or LoadJSONFile()
-
-
-o1.Show()
-give any
-proff()
-
 /*=========
 
 pron()
