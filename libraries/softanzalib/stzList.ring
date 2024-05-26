@@ -50854,6 +50854,132 @@ Item and then position
 		def IsOfOrFromNamedParams()
 			return This.IsFromOrOfNamedParam()
 
+	#--
+
+	def IsFromCellNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromCell )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFromCellAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromCellAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFromCellAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromCellAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFromCellsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromCells )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFromCellsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromCellsAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFromCellsAtPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromCellsAtPositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsToCellNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToCell )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToCellAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToCellAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToCellAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToCellAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToCellsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToCells )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToCellsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToCellsAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToCellsAtPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToCellsAtPositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
 	def IsValueNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Value )

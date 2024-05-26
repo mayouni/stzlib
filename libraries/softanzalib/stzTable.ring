@@ -1334,7 +1334,7 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		aResult = This.VerticalSection( p, 1, This.NumberOfRows() )
+		aResult = This.ColSection( p, 1, This.NumberOfRows() )
 
 		return aResult
 
@@ -1980,7 +1980,7 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		aResult = This.HorizontalSection( n, 1, This.NumberOfCols() )
+		aResult = This.RowSection( n, 1, This.NumberOfCols() )
 		return aResult
 
 		#< @FunctionFluentForm
@@ -3205,70 +3205,71 @@ Class stzTable from stzObject
 
 		#>
 
-	  #-----------------------------------------------------#
-	 #   VERTICAL SECTIONS (SOME CELLS OF A GIVEN COLUMN)  #
-	#-----------------------------------------------------#
+	  #---------------------------------------------------#
+	 #   COLUMN SECTIONS (SOME CELLS OF A GIVEN COLUMN)  #
+	#===================================================#
 
-	def VerticalSection(pCol, n1, n2)
+	def ColSection(pCol, n1, n2)
 
-		aCellsPos =  This.VerticalSectionAsPositions(pCol, n1, n2)
+		aCellsPos =  This.ColSectionAsPositions(pCol, n1, n2)
 		aResult = This.CellsAtPositions(aCellsPos)
 
 		return aResult
 
-		#< @FunctionAlternativeForms
+		def ColumnSection(pCol, n1, n2)
+			return This.ColSection(pCol, n1, n2)
 
-		def VerticalSectionOfCells(pCol, n1, n2)
-			return This.VerticalSection(pCol, n1, n2)
+	def ColSectionAsPositions(pCol, n1, n2)
+		if CheckParams()
+			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
+				:From, :FromCell, :FromPosition, :FromCellAt, :FromCellAtPosition
+				])
 
-		def VerticalCellsSection(pCol, n1, n2)
-			return This.VerticalSection(pCol, n1, n2)
-
-		#>
-
-	def VerticalSectionAsPositions(pCol, n1, n2)
-		if isList(n1) and Q(n1).IsFromNamedParam()
-			n1 = n1[2]
-		ok
-
-		if isList(n2) and Q(n2).IsToNamedParam()
-			n2 = n2[2]
-		ok
-
-		if isString(pCol)
-			if Q(pCol).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
-				pCol = 1
-
-			but Q(pCol).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
-				pCol = This.NumberOfColumns()
-
-			but This.HasColName(pCol)
-				pCol = This.FindCol(pCol)
+				n1 = n1[2]
 			ok
-		ok
+	
+			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+				:To, :ToCell, :ToPosition, :ToCellAt, :ToCellAtPosition
+				])
 
-		if NOT isNumber(pCol)
-			StzRaise("Incorrect param type! pCol must be a number.")
-		ok
-
-		if isString(n1)
-			if n1 = :First or n1 = :FirstRow
-				n1 = 1
+				n2 = n2[2]
 			ok
-		ok
-
-		if NOT isNumber(n1)
-			StzRaise("Incorrect param type! n1 must be a number.")
-		ok
-
-		if isString(n2)
-			if n2 = :Last or n2 = :LastRow
-				n2 = This.NumberOfRows()
+	
+			if isString(pCol)
+				if Q(pCol).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+					pCol = 1
+	
+				but Q(pCol).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
+					pCol = This.NumberOfColumns()
+	
+				but This.HasColName(pCol)
+					pCol = This.FindCol(pCol)
+				ok
 			ok
-		ok
-
-		if NOT isNumber(n2)
-			StzRaise("Incorrect param type! n2 must be a number.")
+	
+			if NOT isNumber(pCol)
+				StzRaise("Incorrect param type! pCol must be a number.")
+			ok
+	
+			if isString(n1)
+				if n1 = :First or n1 = :FirstRow
+					n1 = 1
+				ok
+			ok
+	
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+	
+			if isString(n2)
+				if n2 = :Last or n2 = :LastRow
+					n2 = This.NumberOfRows()
+				ok
+			ok
+	
+			if NOT isNumber(n2)
+				StzRaise("Incorrect param type! n2 must be a number.")
+			ok
 		ok
 
 		aResult = []
@@ -3278,72 +3279,101 @@ Class stzTable from stzObject
 
 		return aResult
 
-		#< @FunctionAlternativeForms
+		#< @FunctionAlternativeForm
 
-		def VerticalSectionZ(pCol, n1, n2)
-			return This.VerticalSectionAsPositions(pCol, n1, n2)
+		def ColumnSectionAsPositions(pCol, n1, n2)
+			return This.ColSectionAsPositions(pCol, n1, n2)
 
-		def VerticalSectionOfCellsAsPositions(pCol, n1, n2)
-			return This.VerticalSectionAsPositions(pCol, n1, n2)
+		def FindColSection(pCol, n1, n2)
+			return This.ColSectionAsPositions(pCol, n1, n2)
 
-		def VerticalCellsSectionAsPositions(pCol, n1, n2)
-			return This.VerticalSectionAsPositions(pCol, n1, n2)
+		def FindColumnSection(pCol, n1, n2)
+			return This.ColSectionAsPositions(pCol, n1, n2)
+
+		def FindCellsInColSection(pCol, n1, n2)
+			return This.ColSectionAsPositions(pCol, n1, n2)
+
+		def FindCellsColumnSection(pCol, n1, n2)
+			return This.ColSectionAsPositions(pCol, n1, n2)
 
 		#>
 
+	  #--------------------------------------------------------------#
+	 #  GETTING CELLES IN A COL SECTION ALONG WITH THEIR POSITIONS  #
+	#--------------------------------------------------------------#
+
+	def CellsInColSectionZ(nCol, n1, n2)
+		anCellsPos = This.FindCellsInColSection(nCol, n1, n2)
+		aCells = This.CellsAtPositions(anCellsPos)
+		aResult = Association([ aCells, anCellsPos ])
+
+		return aResult
+
 	  #----------------------------------------------------#
 	 #   HORIZONTAL SECTIONS (SOME CELLS OF A GIVEN ROW)  #
-	#----------------------------------------------------#
+	#====================================================#
 
-	def HorizontalSection(nRow, n1, n2)
-		aCellsPos =  This.HorizontalSectionAsPositions(nRow, n1, n2)
+	def RowSection(nRow, n1, n2)
+		aCellsPos =  This.RowSectionAsPositions(nRow, n1, n2)
 		aResult = This.CellsAtPositions(aCellsPos)
 
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def HorizontalSectionOfCells(pCol, n1, n2)
-			return This.HorizontalSection(pCol, n1, n2)
-
-		def HorizontalCellsSection(pCol, n1, n2)
-			return This.HorizontalSection(pCol, n1, n2)
+		def CellsInRowSection(nRow, n1, n2)
+			return This.RowSection(nRow, n1, n2)
 
 		#>
 
-	def HorizontalSectionAsPositions(nRow, n1, n2)
-		if isString(nRow)
-			if Q(nRow).IsOneOfThese([ :First, :FirstRow ])
-				pRow = 1
+	def RowSectionAsPositions(nRow, n1, n2)
+		if CheckParams()
+			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
+				:From, :FromCell, :FromPosition, :FromCellAt, :FromCellAtPosition
+				])
 
-			but Q(nRow).IsOneOfThese([ :Last, :LastRow ])
-				nRow = This.NumberOfRows()
-
+				n1 = n1[2]
 			ok
-		ok
+	
+			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+				:To, :ToCell, :ToPosition, :ToCellAt, :ToCellAtPosition
+				])
 
-		if NOT isNumber(nRow)
-			StzRaise("Incorrect param type! nRow must be a number.")
-		ok
-
-		if isString(n1)
-			if Q(n1).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
-				n1 = 1
+				n2 = n2[2]
 			ok
-		ok
-
-		if NOT isNumber(n1)
-			StzRaise("Incorrect param type! n1 must be a number.")
-		ok
-
-		if isString(n2)
-			if Q(n2).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
-				n2 = This.NumberOfCols()
+	
+			if isString(nRow)
+				if Q(pCol).IsOneOfThese([ :First, :FirstRow])
+					nRow = 1
+	
+				but Q(nRow).IsOneOfThese([ :Last, :LastRow ])
+					nRow = This.NumberOfRows()
+				ok
 			ok
-		ok
+	
+			if NOT isNumber(nRow)
+				StzRaise("Incorrect param type! nRow must be a number.")
+			ok
+	
+			if isString(n1)
+				if n1 = :First or n1 = :FirstCol
+					n1 = 1
+				ok
+			ok
 
-		if NOT isNumber(n2)
-			StzRaise("Incorrect param type! n2 must be a number.")
+			if NOT isNumber(n1)
+				StzRaise("Incorrect param type! n1 must be a number.")
+			ok
+	
+			if isString(n2)
+				if n2 = :Last or n2 = :LastCol
+					n2 = This.NumberOfCols()
+				ok
+			ok
+	
+			if NOT isNumber(n2)
+				StzRaise("Incorrect param type! n2 must be a number.")
+			ok
 		ok
 
 		aResult = []
@@ -3353,22 +3383,30 @@ Class stzTable from stzObject
 
 		return aResult
 
-		#< @FunctionAlternativeForms
+		#< @FunctionAlternativeForm
 
-		def HorizontalSectionZ(pCol, n1, n2)
-			return This.HorizontalSectionAsPositions(pCol, n1, n2)
+		def FindRowSection(nRow, n1, n2)
+			return This.RowSectionAsPositions(nRow, n1, n2)
 
-		def HorizontalSectionOfCellsAsPositions(pCol, n1, n2)
-			return This.HorizontalSectionAsPositions(pCol, n1, n2)
-
-		def HorizontalCellsSectionAsPositions(pCol, n1, n2)
-			return This.VerticalSectionAsPositions(pCol, n1, n2)
+		def FindCellsInRowSection(nRow, n1, n2)
+			return This.RowSectionAsPositions(nRow, n1, n2)
 
 		#>
 
+	  #--------------------------------------------------------------#
+	 #  GETTING CELLES IN A ROW SECTION ALONG WITH THEIR POSITIONS  #
+	#--------------------------------------------------------------#
+
+	def CellsInRowSectionZ(nRow, n1, n2)
+		anCellsPos = This.FindCellsInRowSection(nRow, n1, n2)
+		aCells = This.CellsAtPositions(anCellsPos)
+		aResult = Association([ aCells, anCellsPos ])
+
+		return aResult
+
 	  #-------------------------------------------------#
 	 #   CONVERTING A SECTION OF CELLS TO A HASHLIST   #
-	#-------------------------------------------------#
+	#=================================================#
 
 	def SectionToHashList(panCellPos1, panCell2)
 		aResult = TheseCellsToHashList( This.SectionAsPositions(panCellPos1, panCell2) )
@@ -11751,7 +11789,7 @@ Class stzTable from stzObject
 		ok
 
 		nLen = len(@aContent)
-		anPos = ring_sort(panRows)
+		anPos = ring_sort( U(panRows) )
 		nLenPos = len(anPos)
 
 		for i = nLen to 1 step -1
@@ -12139,7 +12177,7 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		anPos = ring_sort(panPos)
+		anPos = ring_sort( U(panPos) )
 		nLen = len(anPos)
 
 		for i = nLen to 1 step -1

@@ -2471,7 +2471,7 @@ proff()
 # Executed in 0.55 second(s) in Ring 1.17
 
 /*===================
-
+*/
 pron()
 
 o1 = new stzTable([
@@ -2482,15 +2482,47 @@ o1 = new stzTable([
 	[ "003", "Sonia", 12740.30 ]
 ])
 
-? @@( o1.VerticalSection(:EMPLOYEE, :From = 2, :To = :LastRow) )
+? @@( o1.ColSection(:EMPLOYEE, :FromCellAt = 2, :To = :LastRow) ) + NL
 #--> [ "Henri", "Sonia" ]
 
-? @@( o1.VerticalSectionAsPositions(:EMPLOYEE, 2, :LastRow) )
+? @@( o1.FindCellsInColSection(:EMPLOYEE, 2, :LastRow) ) + NL # Or ColSectionAsPositions()
 #--> [ [ 2, 2 ], [ 2, 3 ] ]
 
+? @@NL( o1.CellsInColSectionZ(:EMPLOYEE, 2, :LastRow) )
+#--> [
+#	[ "Henri", [ 2, 2 ] ],
+#	[ "Sonia", [ 2, 3 ] ]
+# ]
+
 proff()
-# Executed in 0.03 second(s) in Ring 1.20
-# Executed in 0.10 second(s) in Ring 1.17
+# Executed in 0.04 second(s) in Ring 1.20
+# Executed in 0.12 second(s) in Ring 1.17
+
+/*--------------
+*/
+pron()
+
+o1 = new stzTable([
+	[ :ID,	:EMPLOYEE, :SALARY ],
+	#--------------------------#
+	[ "001", "Salem", 12499.20 ],
+	[ "002", "Henri", 10890.10 ],
+	[ "003", "Sonia", 12740.30 ]
+])
+
+? @@( o1.RowSection(2, :FromCell = 2, :To = :LastCol) ) + NL
+#--> [ "Henri", 10890.10 ]
+
+? @@( o1.FindCellsInRowSection(2, 2, :LastCol) ) + NL # Or RowSectionAsPositions()
+#--> [ [ 2, 2 ], [ 3, 2 ] ]
+
+? @@NL( o1.CellsInRowSectionZ(2, 2, 3) )
+#--> [
+#	[ "Henri", [ 2, 2 ] ],
+#	[ 10890.10, [ 3, 2 ] ]
+# ]
+
+proff()
 
 /*--------------
 
@@ -5682,7 +5714,29 @@ o1 = new stzTable([
 ? @@( o1.FindSection([ :POPULATION, 2 ], [ :POPULATION, 4 ]) ) + NL
 # [ [ 3, 2 ], [ 3, 3 ], [ 3, 4 ] ]
 
-//? @@( o1.VerticalSection() )
+proff()
+# Executed in 0.06 second(s)
+
+//? @@( o1.ColSection() )
+
+/*---------------
+*/
+
+/*---------
+*/
+pron()
+
+o1 = new stzTable([
+
+	[ "COUNTRY",	"INCOME",	"POPULATION" 	],
+	#-----------------------------------------------#
+	[ "USA",	   25450,	        340.1	],
+	[ "China",	   18150,	       1430.1	],
+	[ "Japan",	    5310,		123.2	],
+	[ "Germany",	    4490,	         83.3	],
+	[ "India",	    3370,	       1430.2	]
+
+])
 
 ? o1.Sum([ :INCOME, 1 ], [ :INCOME, 5 ])
 #--> 56770
