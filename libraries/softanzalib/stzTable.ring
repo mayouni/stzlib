@@ -3131,13 +3131,28 @@ Class stzTable from stzObject
 
 		nRows = This.NumberOfRows()
 
-		# Adding all the cells except the last column
+		# Adding the first column
 
-		for i = nCol1 to nCol2 - 1
-			for j = nRow1 to nRows
-				aResult + [ i, j ]
-			next
+		for j = nRow1 to nRows
+			aResult + [ nCol1, j ]
 		next
+
+		nCols = len( @aContent )
+		if nCols = 1
+			return
+		ok
+
+		# Adding all the cells except the first and last columns
+
+		if nCols > 2
+
+			for i = (nCol1 + 1) to (nCol2 - 1)
+				for j = nRow1 to nRows
+					aResult + [ i, j ]
+				next
+			next
+
+		ok
 
 		# Adding the remaining cells in the last column
 

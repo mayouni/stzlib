@@ -5685,6 +5685,7 @@ o1 = new stzTable([
 //? @@( o1.VerticalSection() )
 
 ? o1.Sum([ :INCOME, 1 ], [ :INCOME, 5 ])
+#--> 56770
 
 proff()
 
