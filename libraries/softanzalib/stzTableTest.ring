@@ -461,7 +461,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*------
-*/
+
 pron()
 
 o1 = new stzList([ "A", "B", "C", "D", "E" ])
@@ -473,7 +473,7 @@ o1.ReplaceManyByManyXT([ "A", "B", "A", "D", "E" ], :With = [ "1", "2"])
 #--> [ "1", "2", "C", "1", "2" ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.02 second(s)
 
 /*=============
 
@@ -519,7 +519,7 @@ o1.Show() + NL
 #      ""
 
 proff()
-# Executed in 0.19 second(s)
+# Executed in 0.13 second(s)
 
 /*-------------
 
@@ -534,6 +534,7 @@ o1 = new stzTable([
 
 o1.RemoveCols([1, 2])
 o1.Show()
+
 #--> SCORE
 #    -----
 #       10
@@ -541,7 +542,7 @@ o1.Show()
 #       30
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.07 second(s)
 
 /*-------------
 
@@ -556,12 +557,13 @@ o1 = new stzTable([
 
 o1.RemoveAll()
 o1.Show()
+
 #--> COL1
 #    ----
 #      ""
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.08 second(s)
 
 /*=============
 
@@ -587,7 +589,6 @@ o1 = new stzTable([
 ? o1.FindColsByName([ :FirstCol, :LastCol, :LastCol ])
 #--> [ 1, 4 ]
 
-
 #--
 
 ? o1.FindColByValue([ 100, 200, 300 ])
@@ -609,7 +610,7 @@ o1 = new stzTable([
 #--> [ 3 ]
 
 proff()
-# Executed in 0.06 second(s) in Ring 1.20
+# Executed in 0.05 second(s) in Ring 1.20
 # Executed in 0.17 second(s) in Ring 1.17
 
 /*=============
@@ -646,7 +647,7 @@ o1 = new stzTable([
 #--> [1, 2]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.03 second(s)
 
 /*-------------
 
@@ -671,7 +672,7 @@ o1.Show()
 #       30     300   3000
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.09 second(s)
 
 /*-------------
 
@@ -699,7 +700,7 @@ o1.Show()
 #       30     300   3000
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.12 second(s)
 
 /*-------------
 
@@ -719,6 +720,7 @@ o1 = new stzTable([
 o1.RemoveRows([3, 5, 6])
 
 o1.Show()
+
 #-->   COL1    COL2   COL3
 #    ------ ------- ------
 #       10     100    1000
@@ -726,7 +728,7 @@ o1.Show()
 #       30     300    3000
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.08 second(s)
 
 /*-------------
 
@@ -753,7 +755,7 @@ o1 = new stzTable([
 ])
 #--> [ 3, 5, 6 ]
 
-? ""
+#--
 
 o1.RemoveAllRowsExcept([
 	[ 10,	    100,      1000  ],
@@ -789,6 +791,7 @@ o1 = new stzTable([
 # And you want to show it on screen:
 
 ? o1.Show() + NL
+
 #-->  COL1    COL2   COL3
 #    ------ ------- ------
 #       10     100    1000
@@ -800,16 +803,17 @@ o1 = new stzTable([
 # Use the XT() extension:
 
 ? o1.ShowXT([]) + NL
-#--> COL1 | COL2 | COL3
-#    ----- ------ -----
-#      10 |  100 | 1000
-#      20 |  200 | 2000   
-#       * |    * |    *
+
+#--> # | COL1 | COL2 | COL3
+#    --+------+------+-----
+#    1 |   10 |  100 | 1000
+#    2 |   20 |  200 | 2000
+#    3 |    * |    * |    *
+#    4 |   30 |  300 | 3000
 
 # You can even even set the options at your will...
 
 ? o1.ShowXT([
-
 	:Separator 	  = " | ",
 	:Alignment 	  = :Center,
 
@@ -818,17 +822,17 @@ o1 = new stzTable([
 	:IntersectionChar = "+",
 
 	:ShowRowNumbers   = TRUE
-
 ])
-#--> # | :COL1 | :COL2 | :COL3
-#    --+-------+-------+------
-#    1 |  10   |  100  | 1000 
-#    2 |  20   |  200  | 2000 
-#    3 |   *   |   *   |   *  
-#    4 |  30   |  300  | 3000 
+
+#--> # | COL1 | COL2 | COL3
+#    --+------+------+-----
+#    1 |  10  | 100  | 1000
+#    2 |  20  | 200  | 2000
+#    3 |  *   |  *   |  *  
+#    4 |  30  | 300  | 3000
 
 proff()
-# Executed in 0.18 seconds(s) in Ring 1.19
+# Executed in 0.20 seconds(s) in Ring 1.20
 # Executed in 1.09 second(s) in Ring 1.17
 
 /*--------------
@@ -837,15 +841,15 @@ pron()
 
 o1 = new stzTable([3, 4])
 ? o1.Show()
-#-->	COL1   COL2   COL3
-#	----- ------ -----
-#	""	""	'"
-#	""	""	'"
-#	""	""	'"
-#	""	""	'"
+#-->  COL1   COL2   COL3
+#     ----- ------ -----
+#       ""     ""    '"
+#       ""     ""    '"
+#       ""     ""    '"
+#       ""     ""    '"
 
 proff()
-# Executed in 0.35 second(s)
+# Executed in 0.12 second(s)
 
 /*==========
 
@@ -894,7 +898,7 @@ StartProfiler()
 		[ 40,	 "Ali",		12870	]
 	])
 
-	o1.Show()
+	? o1.Show()
 	#--> ID   EMPLOYEE   SALARY
 	#    --- ---------- -------
 	#    10        Ali    35000
@@ -902,23 +906,23 @@ StartProfiler()
 	#    30        Han    25982
 	#    40        Ali    12870
 
-	? o1.NthColName(:LastCol)
+	? o1.NthColName(:LastCol) + NL
 	#--> :SALARY
 
-	? @@( o1.CellsInColsAsPositions([ :EMPLOYEE, :SALARY ]) )
+	? @@( o1.CellsInColsAsPositions([ :EMPLOYEE, :SALARY ]) ) + NL
 	#--> [
 	# 	[ 2, 1 ], [ 2, 2 ], [ 2, 3 ], [ 2, 4 ],
 	# 	[ 3, 1 ], [ 3, 2 ], [ 3, 3 ], [ 3, 4 ]
 	# ]
 
-	? o1.CellsToHashList()["[ 3, 4 ]"]
+	? o1.CellsToHashList()["[ 3, 4 ]"] + NL
 	#--> 12870
 
 	? @@( o1.SectionAsPositions([2,2], [3, 4]) )
 	#--> [ [ 2, 2 ], [ 3, 2 ], [ 2, 3 ], [ 3, 3 ], [ 2, 4 ], [ 3, 4 ] ]
 
 StopProfiler()
-# Executed in 0.17 second(s) in Ring 1.20
+# Executed in 0.11 second(s) in Ring 1.20
 # Executed in 1.56 second(s) in Ring 1.17
 
 /*--------------
@@ -932,10 +936,11 @@ o1 = new stzTable([
 	[ "Alex",   34,      3   ]
 ])
 
-? o1.Cell(3, 2)
+? o1.Cell(3, 2) + NL
 #--> "_"
 
 o1.ReplaceCell(3, 2, 1)
+
 o1.Show()
 #--> NAME   AGE   RANGE
 #    ----- ----- ------
@@ -944,7 +949,7 @@ o1.Show()
 #    Alex    34       3
 
 proff()
-# Executed in 0.13 second(s)
+# Executed in 0.09 second(s)
 
 /*--------------
 
@@ -985,7 +990,7 @@ o1.Show()
 #       .      .      .
 
 StopProfiler()
-# Executed in 0.36 second(s) in Ring 1.20
+# Executed in 0.22 second(s) in Ring 1.20
 # Executed in 1.89 second(s) in Ring 1.17
 
 /*--------------
@@ -995,6 +1000,7 @@ pron()
 o1 = new stzTable([3, 3])
 
 o1.Fill( :With = "." )
+
 ? o1.Show()
 #--> COL1   COL2   COL3
 #    ----- ------ -----
@@ -1003,6 +1009,7 @@ o1.Fill( :With = "." )
 #       .      .      .
 
 o1.ReplaceAllRows(:With = [ "+", "+", "+" ])
+
 o1.Show()
 #--> COL1   COL2   COL3
 #   ----- ------ -----
@@ -1011,7 +1018,7 @@ o1.Show()
 #      +      +      +
 
 proff()
-# Executed in 0.21 second(s) in Ring 1.20
+# Executed in 0.13 second(s) in Ring 1.20
 # Executed in 0.98 second(s) in Ring 1.17
 
 /*--------------
@@ -1054,7 +1061,7 @@ o1.ReplaceCol(:COL2, :With = [ "+", "+", "+", "+", "+" ])
 #       .      +
 
 proff()
-# Executed in 0.28 second(s) in Ring 1.20
+# Executed in 0.18 second(s) in Ring 1.20
 # Executed in 1.31 second(s) in Ring 1.17
 
 /*--------------
@@ -1081,7 +1088,7 @@ o1.Show()
 #       C      C      C
 
 proff()
-# Executed in 0.21 second(s) in Ring 1.20
+# Executed in 0.14 second(s) in Ring 1.20
 # Executed in 1.02 second(s) in Ring 1.1è
 
 /*----------------
@@ -1100,13 +1107,14 @@ o1.Fill( :With = "." )
 
 o1.Fill( :WithRow = [ "A", "B" ] )
 o1.Show()
-#--> #   COL1   COL2   COL3
-#    1      A      B      .
-#    2      A      B      .
-#    3      A      B      .
+#--> COL1   COL2   COL3
+#    ----- ------ -----
+#       A      B      .
+#       A      B      .
+#       A      B      .
 
 proff()
-# Executed in 0.23 second(s) in Ring 1.20
+# Executed in 0.14 second(s) in Ring 1.20
 # Executed in 1.09 second(s) in Ring 1.17
 
 /*----------------
@@ -1121,8 +1129,7 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.20
-# Executed in 0.03 second(s) in Ring 1.17
+# Executed in 0.02 second(s)
 
 /*----------------
 
@@ -1143,7 +1150,7 @@ o1.Show()
 #      C      c      3
 
 proff()
-# Executed in 0.12 second(s) in Ring 1.20
+# Executed in 0.09 second(s) in Ring 1.20
 # Executed in 0.54 second(s) in Ring 1.17
 
 /*----------------
@@ -1158,7 +1165,7 @@ pron()
 # ]
 
 proff()
-# Executed in 0.03 second(s) in Ring 1.20
+# Executed in 0.02 second(s) in Ring 1.20
 # Executed in 0.09 second(s) in Ring 1.17
 
 /*----------------
@@ -1174,7 +1181,7 @@ o1.Show()
 #       A      A      A
 
 proff()
-# Executed in 0.15 second(s) in Ring 1.20
+# Executed in 0.10 second(s) in Ring 1.20
 # Executed in 0.48 second(s) in Ring 1.17
 
 /*----------------
@@ -1184,6 +1191,7 @@ pron()
 o1 = new stzTable([3, 3])
 
 o1.Fill( :With = "." )
+
 ? o1.Show()
 #--> COL1   COL2   COL3
 #    ----- ------ -----
@@ -1191,8 +1199,9 @@ o1.Fill( :With = "." )
 #       .      .      .
 #       .      .      .
 
-o1.Fill( :WithCol = [ "A", "B" ] ) + NL
-?o1.Show()
+o1.Fill( :WithCol = [ "A", "B" ] )
+
+? o1.Show()
 #--> COL1   COL2   COL3
 #    ----- ------ -----
 #       A      A      A
@@ -1200,6 +1209,7 @@ o1.Fill( :WithCol = [ "A", "B" ] ) + NL
 #       .      .      .
 
 o1.Fill( :WithCol = [ "A", "B", "C" ] )
+
 o1.Show()
 #--> COL1   COL2   COL3
 #    ----- ------ -----
@@ -1208,7 +1218,7 @@ o1.Show()
 #       C      C      C
 
 proff()
-# Executed in 0.31 second(s) in Ring 1.20
+# Executed in 0.29 second(s) in Ring 1.20
 # Executed in 1.58 second(s) in Ring 1.19
 
 /*==============
@@ -1232,7 +1242,7 @@ o1.ReplaceCol(:AGE, :With = [ "_", "_", "_" ])
 #--> [ "_", "_", "_" ]
 
 proff()
-# Executed in 0.05 second(s) in Ring 1.19
+# Executed in 0.04 second(s) in Ring 1.19
 # Executed in 0.15 second(s) in Ring 1.17
 
 /*==============
@@ -1249,10 +1259,11 @@ o1 = new stzTable([
 ? o1.ColName(3)
 #--> :AGE
 
-? o1.ColName(:NAME)
+? o1.ColName(:NAME) + NL
 #--> :NAME
 
 o1.ReplaceColName(:NAME, :EMPLOYEE)
+
 o1.Show()
 #-->
 #    ID    EMPLOYEE  AGE
@@ -1262,7 +1273,7 @@ o1.Show()
 #    30   Abraham     48
 
 proff()
-# Executed in 0.12 second(s) in Ring 1.20
+# Executed in 0.10 second(s) in Ring 1.20
 # Executed in 0.48 second(s) in Ring 1.17
 
 /*--------------
@@ -1308,6 +1319,7 @@ o1 = new stzTable([
 ])
 
 o1.MoveRow( :From = 3, :To = 1 )
+
 o1.Show()
 #-->
 #   ID      NAME   AGE
@@ -1332,6 +1344,7 @@ o1 = new stzTable([
 ])
 
 o1.SwapRows( :BetweenPositions = 2, :And = 3 )
+
 ? o1.Show()
 #-->
 #   ID      NAME   AGE
@@ -1340,7 +1353,8 @@ o1.SwapRows( :BetweenPositions = 2, :And = 3 )
 #   30   Abraham    48
 #   20     Hatem    46
 
-o1.SwapColumns( :BetweenPosition = 2, :And = 3)
+o1.SwapColumns( :BetweenPosition = 2, :And = 3 )
+
 o1.Show()
 #-->
 #  ID   AGE      NAME
@@ -1350,7 +1364,7 @@ o1.Show()
 #  20    46     Hatem
 
 proff()
-# Executed in 0.22 second(s)
+# Executed in 0.30 second(s)
 # Executed in 1.05 second(s)
 
 /*==============
@@ -1377,7 +1391,7 @@ o1.Show()
 #   48   Abraham   30
 
 proff()
-# Executed in 0.12 second(s) in Ring 1.20
+# Executed in 0.09 second(s) in Ring 1.20
 # Executed in 0.48 second(s) in Ring 1.17
 
 /*--------------
@@ -1410,6 +1424,7 @@ o1 = new stzTable([
 ])
 
 o1.SwapColums( :AGE, :And = :NAME )
+
 o1.Show()
 #-->
 #   ID   AGE      NAME
@@ -1419,7 +1434,7 @@ o1.Show()
 #   30    48   Abraham
 
 proff()
-# Executed in 0.17 second(s) in Ring 1.20
+# Executed in 0.13 second(s) in Ring 1.20
 # Executed in 0.71 second(s) in Ring 1.17
 
 /*--------------
@@ -1442,7 +1457,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*=============== #narration #flexibility
-
+*/
 pron()
 
 # Softanza is so flexible! Let's see it in action, for example,
@@ -1457,21 +1472,30 @@ o1 = new stzTable([
 ])
 
 # And you want to replace the column :AGE like this:
+
 o1.ReplaceCol( :AGE, :By = [ 22, 20, 21 ] )
+
 # The column is changed:
+
 ? o1.Col(:AGE)
 #--> [ 22, 20, 21 ]
 
 # Now, if you want to change just the name of the column, then
 # pass the name instead of the list of values, like this:
+
 o1.ReplaceCol( :AGE, :By = :LENGTH )
+
 # then the name is changed:
+
 ? o1.ColName(3)
 #--> :LENGTH
-
+/*
 # Of course, you could use this specific function:
+
 o1.ReplaceColName( :LENGTH, :By = :AGE )
+
 # and the age turns back to its original name
+
 ? o1.ColName(3)
 #--> AGE
 
@@ -1484,14 +1508,16 @@ o1.ReplaceColName( :LENGTH, :By = :AGE )
 #    30   Abraham    21
 
 # You can even use a number of column as a second parameter:
+
 o1.ReplaceCol( :AGE, :By = 1 )
+
 o1.Show()
 #--> ID      NAME   AGE
 #    --- --------- ----
 #    10     Karim    10
 #    20     Hatem    20
 #    30   Abraham    30
-
+*/
 proff()
 # Executed in 0.22 second(s)
 

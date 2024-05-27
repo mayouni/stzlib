@@ -1035,17 +1035,18 @@ Class stzTable from stzObject
 
 	def FindColsExcept(paColNumbersOrColNames)
 		if CheckParams()
-			if NOT isList(paColNumbersOrColNamesOrColData)
-				StzRaise("Incorrect param type! paColNumbersOrColNamesOrColData must be a list.")
+			if NOT isList(paColNumbersOrColNames)
+				StzRaise("Incorrect param type! paColNumbersOrColNames must be a list.")
 			ok
 
-			if NOT ( @IsListOfNumbers(paColNumbersOrColNamesOrColData) or
-				 @IsListOfStrings(paColNumbersOrColNamesOrColData) )
+			if NOT ( @IsListOfNumbers(paColNumbersOrColNames) or
+				 @IsListOfStrings(paColNumbersOrColNames) )
 				StzRaise("Incorrect param type! paColNumbersOrColNames must be a list of numbers or a list of strings.")
 			ok
 		ok
 
 		anResult = Q(1:This.NumberOfCols()) - These( This.FindCols(paColNumbersOrColNames) )
+		return anResult
 
 		#< @FunctionAlternativeForms
 
@@ -10420,9 +10421,14 @@ Class stzTable from stzObject
 				paCol = paCol[2]
 			ok
 
-			if NOT isList(paCol)
-				StzRaise("Incorrect param type! paCol must be a list.")
+			if NOT ( isList(paCol) or isString(paCol) )
+				StzRaise("Incorrect param type! paCol must be a list or a string.")
 			ok
+		ok
+
+		if isString(paCol)
+			This.ReplaceColName(n, paCol)
+			return
 		ok
 
 		nRows = This.NumberOfRows()
