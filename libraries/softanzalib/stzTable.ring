@@ -10421,14 +10421,22 @@ Class stzTable from stzObject
 				paCol = paCol[2]
 			ok
 
-			if NOT ( isList(paCol) or isString(paCol) )
-				StzRaise("Incorrect param type! paCol must be a list or a string.")
+			if isList(paCol) and Q(paCol).IsColOrColNumberNamedParam(paCol)
+				paCol = paCol[2]
+			ok
+
+			if NOT ( isList(paCol) or isString(paCol) or isNumber(paCol) )
+				StzRaise("Incorrect param type! paCol must be a list or a string or number.")
 			ok
 		ok
 
 		if isString(paCol)
 			This.ReplaceColName(n, paCol)
 			return
+		ok
+
+		if isNumber(paCol)
+			paCol = This.Col(paCol)
 		ok
 
 		nRows = This.NumberOfRows()
