@@ -1457,7 +1457,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*=============== #narration #flexibility
-*/
+
 pron()
 
 # Softanza is so flexible! Let's see it in action, for example,
@@ -1496,10 +1496,9 @@ o1.ReplaceColName( :LENGTH, :By = :AGE )
 
 # and the age turns back to its original name
 
-? o1.ColName(3)
-#--> AGE
+? o1.ColName(3) + NL
+#--> :AGE
 
-? ""
 ? o1.Show()
 #--> ID      NAME   AGE
 #    --- --------- ----
@@ -1509,9 +1508,9 @@ o1.ReplaceColName( :LENGTH, :By = :AGE )
 
 # You can even use a number of column as a second parameter:
 
-o1.ReplaceCol( :AGE, :By = 1 )
+o1.ReplaceCol( :AGE, :ByColNumber = 1 )
 
-//o1.Show()
+o1.Show()
 #--> ID      NAME   AGE
 #    --- --------- ----
 #    10     Karim    10
@@ -1519,7 +1518,7 @@ o1.ReplaceCol( :AGE, :By = 1 )
 #    30   Abraham    30
 
 proff()
-# Executed in 0.22 second(s)
+# Executed in 0.15 second(s)
 
 /*==============
 
@@ -1534,6 +1533,7 @@ o1 = new stzTable([
 ])
 
 o1.SortDown()
+
 ? o1.Show()
 #--> ID      NAME   AGE
 #    --- --------- ----
@@ -1542,6 +1542,7 @@ o1.SortDown()
 #    10     Karim    52
 
 o1.Sort()
+
 ? o1.Show()
 #--> ID      NAME   AGE
 #    --- --------- ----
@@ -1550,6 +1551,7 @@ o1.Sort()
 #    30   Abraham    48
 
 o1.SortOn(:AGE)
+
 ? o1.Show()
 #--> ID      NAME   AGE
 #    --- --------- ----
@@ -1558,6 +1560,7 @@ o1.SortOn(:AGE)
 #    10     Karim    52
 
 o1.SortOnDown(:AGE)
+
 o1.Show()
 #--> ID      NAME   AGE
 #    --- --------- ----
@@ -1566,7 +1569,7 @@ o1.Show()
 #    20     Hatem    46
 
 StopProfiler()
-# Executed in 0.48 second(s)
+# Executed in 0.41 second(s)
 
 /*--------
 
@@ -1579,6 +1582,7 @@ o1 = new stzListOfLists([
 ])
 
 o1.SortOnBy(2, "len(@item)")
+
 ? @@NL( o1.Content() )
 #--> [
 #	[ 20, "Hatem", 46 ],
@@ -1602,6 +1606,7 @@ o1 = new stzTable([
 ])
 
 o1.SortOnBy(:NAME, 'len(@cell)')
+
 ? o1.Show()
 #--> ID         NAME   AGE
 #    --- ------------ ----
@@ -1634,7 +1639,7 @@ o1.Show()
 #    20        Hatem    46
 
 StopProfiler()
-# Executed in 1.07 second(s)
+# Executed in 0.40 second(s)
 
 /*-------------
 
@@ -1652,6 +1657,7 @@ o1 = new stzTable([
 ])
 
 o1.SortOn(:COL2)
+
 ? o1.Show() + NL
 #--> COL1   COL2
 #   ------ -----
@@ -1663,6 +1669,7 @@ o1.SortOn(:COL2)
 #   abcde     R5
 
 o1.SortOnDown(:COL2)
+
 o1.Show()
 #--> COL1   COL2
 #   ------ -----
@@ -1674,7 +1681,7 @@ o1.Show()
 #       a     R1
 
 proff()
-# Executed in 0.38 second(s)
+# Executed in 0.29 second(s)
 
 /*===========
 
@@ -1720,7 +1727,10 @@ o1 = new stzTable([
 ])
 
 ? @@( o1.CellsInCols([:COL1, :COL2]) ) + NL
-#--> [ "a", "abcde", "abc", "ab", "b", "abcd", "R1", "R5", "R3", "R2", "R1", "R4" ]
+#--> [
+#	"a", "abcde", "abc", "ab", "b", "abcd",
+#	"R1", "R5", "R3", "R2", "R1", "R4"
+# ]
 
 ? @@( o1.CellsInRows([1, 3, 5]) )
 #--> [ "a", "R1", "abc", "R3", "b", "R1" ]
@@ -1759,7 +1769,7 @@ o1 = new stzTable([
 #--> TRUE
 
 proff()
-# Executed in 0.07 second(s) in Ring 1.20
+# Executed in 0.05 second(s) in Ring 1.20
 # Executed in 0.33 second(s) in Ring 1.17
 
 /*==============
@@ -1773,25 +1783,26 @@ o1 = new stzTable([
 	[ 30,	"Karim",	48	]
 ])
 
-? @@( o1.SectionAsPositions([2, 2], [3, 3]) ) + NL
-#--> [ [ 2, 2 ], [ 3, 2 ], [ 2, 3 ], [ 3, 3 ] ]
+? @@( o1.SectionAsPositions([2, 2], [3, 3]) ) + NL # Or FindSections()
+#--> [ [ 2, 2 ], [ 2, 3 ], [ 3, 1 ], [ 3, 2 ], [ 3, 3 ] ]
 
 ? @@(o1.Section([2, 2], [3, 3])) + NL
-#--> [ "Hatem", 46, "Karim", 48 ]
+#--> [ "Hatem", "Karim", 52, 46, 48 ]
 
 ? @@NL(o1.SectionZ([2, 2], [3, 3])) + NL # or SectionAndPosiition()
 #--> [
 #	[ [ 2, 2 ], "Hatem" ],
+#	[ [ 2, 3 ], "Karim" ],
+#	[ [ 3, 1 ], 52 ],
 #	[ [ 3, 2 ], 46 ],
-#	[ [ 2, 3 ], "Karim"],
 #	[ [ 3, 3 ], 48 ]
 # ]
 
 ? @@( o1.Section(:FirstCell, :LastCell) )
-#--> [ 10, "Imed", 52, 20, "Hatem", 46, 30, "Karim", 48 ]
+#--> [ 10, 20, 30, "Imed", "Hatem", "Karim", 52, 46, 48 ]
 
 proff()
-# Executed in 0.06 second(s) in Ring 1.20
+# Executed in 0.03 second(s) in Ring 1.20
 # Executed in 0.15 second(s) in Ring 1.17
 
 /*==============
@@ -1806,7 +1817,7 @@ o1 = new stzTable([
 ])
 
 ? @@( o1.Cells() ) + NL
-#--> [ 10, "Imed", 52, 20, "Hatem", 46, 30, "Karim", 48 ]
+#--> [ 10, 20, 30, "Imed", "Hatem", "Karim", 52, 46, 48 ]
 
 ? @@NL( o1.CellsAndPositions() ) + NL # Same as CellsZ()
 #--> [
@@ -1856,7 +1867,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.09 second(s) in Ring 1.20
+# Executed in 0.03 second(s) in Ring 1.20
 # Executed in 0.36 second(s) in Ring 1.17
 
 /*==============
@@ -1873,7 +1884,7 @@ o1 = new stzTable([
 ? o1.NumberOfColumns()
 #--> 3
 
-? o1.HasCol(:NAME)
+? o1.HasCol(:NAME) + NL
 #--> TRUE
 
 ? o1.ColNames()
@@ -1901,11 +1912,11 @@ o1 = new stzTable([
 
 ? o1.Cell(:EMPLOYEE, 2)
 #--> Error message:
-# Syntax error in (employee)! This column name is inexistant.
+#   Syntax error in (employee)! This column name is inexistant.
 
 ? o1.Cell(5, 7 )
 #--> Error message:
-# Array Access (Index out of range) ! 
+#    Incorrect value! n must correspond to a valid number of column. 
 
 proff()
 # Executed in 0.02 second(s)
@@ -1985,11 +1996,12 @@ o1 = new stzTable([
 ])
 
 // A table is empty when all its cells are NULL
+
 ? o1.IsEmpty()
 #--> TRUE
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*==============
 
@@ -2021,14 +2033,14 @@ o1 = new stzTable([
 	[ 30,	"Karim",	48	]
 ])
 
-? @@( o1.FirstColXT() )
+? @@( o1.FirstColXT() ) + NL
 #--> [ "id", 10, 20, 30 ]
 
 ? @@( o1.LastColXT() )
 #-->[ "age", 52, 46, 48 ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*==============
 
@@ -2054,7 +2066,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*==============
 
@@ -2070,11 +2082,12 @@ o1 = new stzTable([
 
 o1.AddCol( :JOB = [ "Pilot", "Designer", "Author" ] )
 ? o1.Show()
+
 #--> ID    NAME   AGE        JOB
 #    --- ------- ----- ---------
 #    10    Imed    52      Pilot
 #    20   Hatem    46   Designer
-#    30   Karim    48     Authorr
+#    30   Karim    48     Author
 
 o1.RemoveCol(:JOB)
 o1.Show()
@@ -2085,7 +2098,7 @@ o1.Show()
 #    30   Karim    48
 
 proff()
-# Executed in 0.21 second(s)
+# Executed in 0.13 second(s)
 
 /*--------------
 
@@ -2114,10 +2127,10 @@ o1.Show()
 #    --- ------- ----- ---------- --------
 #    10    Imed    52      Pilot   Tunisia
 #    20   Hatem    46   Designer     Egypt
-#    30   Karim    48     Author         
+#    30   Karim    48     Author        ""
 
 proff()
-# Executed in 0.26 second(s)
+# Executed in 0.18 second(s)
 
 /*--------------
 
@@ -2132,6 +2145,7 @@ o1 = new stzTable([
 ])
 
 o1.RemoveCols([ :ID, :AGE ])
+
 ? @@( o1.Content() )
 #--> [ [ "name", [ "Imed", "Hatem", "Karim" ] ] ]
 
@@ -2154,11 +2168,15 @@ o1 = new stzTable([
 ? @@( o1.ColNames() ) + NL
 #--> [ "id", "name", "age" ]
 
-? @@( o1.Cols() ) # Or ColsData()
-#--> [ [ 10, 20, 30 ], [ "Imed", "Hatem", "Karim" ], [ 52, 46, 48 ] ]
+? @@NL( o1.Cols() ) # Or ColsData()
+#--> [
+#	[ 10, 20, 30 ],
+#	[ "Imed", "Hatem", "Karim" ],
+#	[ 52, 46, 48 ]
+# ]
  
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*==============
 
@@ -2346,7 +2364,7 @@ o1 = new stzTable([
 #--> [ "id", "name" ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*==============
 
@@ -2387,11 +2405,11 @@ o1.Show()
 #  NULL  NULL	     NULL
 
 proff()
-# Executed in 0.14 second(s) in Ring 1.20
+# Executed in 0.09 second(s) in Ring 1.20
 # Executed in 0.57 second(s) in Ring 1.17
 
 /*--------------
-
+*/
 pron()
 
 o1 = new stzTable([
