@@ -10421,7 +10421,7 @@ Class stzTable from stzObject
 				paCol = paCol[2]
 			ok
 
-			if isList(paCol) and Q(paCol).IsColOrColNumberNamedParam(paCol)
+			if isList(paCol) and Q(paCol).IsByColOrByColNumberNamedParam()
 				paCol = paCol[2]
 			ok
 
@@ -11969,7 +11969,8 @@ Class stzTable from stzObject
 			StzRaise("Incorrect column name!")
 		ok
 
-		@aContent[pCol][2][pnRow] = NULL
+		nCol = This.ColToColNumber(pCol)
+		@aContent[nCol][2][pnRow] = NULL
 
 		def EraseCellAtPosition(pCol, pnRow)
 			This.EraseCell(pCol, pnRow)

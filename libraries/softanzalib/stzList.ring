@@ -50550,21 +50550,21 @@ Item and then position
 		def IsByColumnNumberNamedParam()
 			return This.IsByColNumberNamedParam()
 
-	def IsByColOrColNumberNamedParam()
+	def IsByColOrByColNumberNamedParam()
 		if This.IsByColNumberNamedParam() or This.IsByColNumberNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsByColOrColNumberNamedParams()
-			return This.IsByColOrColNumberNamedParam()
+		def IsByColOrByColNumberNamedParams()
+			return This.IsByColOrByColNumberNamedParam()
 
-		def IsByColNumberOrColNamedParam()
-			return This.IsByColOrColNumberNamedParam()
+		def IsByColNumberOrByColNamedParam()
+			return This.IsByColOrByColNumberNamedParam()
 
 		def IsByColNumberOrColNamedParams()
-			return This.IsByColOrColNumberNamedParam()
+			return This.IsByColOrByColNumberNamedParam()
 
 	def IsByColsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -50578,18 +50578,18 @@ Item and then position
 		def IsByColumnsNumbersNamedParam()
 			return This.IsByColsNumbersNamedParam()
 
-	def IsByColsOrColsNumbersNamedParam()
+	def IsByColsOrByColsNumbersNamedParam()
 		if This.IsByColsNumbersNamedParam() or This.IsByColsNumbersNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsByColsOrColsNumbersNamedParams()
-			return This.IsByColsOrColsNumbersNamedParam()
+		def IsByColsOrByColsNumbersNamedParams()
+			return This.IsByColsOrByColsNumbersNamedParam()
 
-		def IsByColsNumbersOrColsNamedParam()
-			return This.IsByColsOrColsNumbersNamedParam()
+		def IsByColsNumbersOrByColsNamedParam()
+			return This.IsByColsOrByColsNumbersNamedParam()
 
 		def IsByColsNumbersOrColsNamedParams()
 			return This.IsByColsOrColsNumberNamedParam()
@@ -50608,21 +50608,21 @@ Item and then position
 		def IsInColumnNumberNamedParam()
 			return This.IsInColNumberNamedParam()
 
-	def IsInColOrColNumberNamedParam()
+	def IsInColOrInColNumberNamedParam()
 		if This.IsInColNumberNamedParam() or This.IsInColNumberNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsInColOrColNumberNamedParams()
-			return This.IsInColOrColNumberNamedParam()
+		def IsInColOrInColNumberNamedParams()
+			return This.IsInColOrInColNumberNamedParam()
 
-		def IsInColNumberOrColNamedParam()
-			return This.IsInColOrColNumberNamedParam()
+		def IsInColNumberOrInColNamedParam()
+			return This.IsInColOrInColNumberNamedParam()
 
-		def IsInColNumberOrColNamedParams()
-			return This.IsInColOrColNumberNamedParam()
+		def IsInColInNumberOrColNamedParams()
+			return This.IsInColOrInColNumberNamedParam()
 
 	def IsInColsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -50636,21 +50636,21 @@ Item and then position
 		def IsInColumnsNumbersNamedParam()
 			return This.IsInColsNumbersNamedParam()
 
-	def IsInColsOrColsNumbersNamedParam()
+	def IsInColsOrInColsNumbersNamedParam()
 		if This.IsInColsNumbersNamedParam() or This.IsInColsNumbersNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsInColsOrColsNumbersNamedParams()
-			return This.IsInColsOrColsNumbersNamedParam()
+		def IsInColsOrInColsNumbersNamedParams()
+			return This.IsInColsOrInColsNumbersNamedParam()
 
-		def IsInColsNumbersOrColsNamedParam()
-			return This.IsInColsOrColsNumbersNamedParam()
+		def IsInColsNumbersOrInColsNamedParam()
+			return This.IsInColsOrinColsNumbersNamedParam()
 
-		def IsInColsNumbersOrColsNamedParams()
-			return This.IsInColsOrColsNumberNamedParam()
+		def IsInColsNumbersOrInColsNamedParams()
+			return This.IsInColsOrInColsNumberNamedParam()
 
 	#--
 
@@ -50666,21 +50666,21 @@ Item and then position
 		def IsOfColumnNumberNamedParam()
 			return This.IsOfColNumberNamedParam()
 
-	def IsOfColOrColNumberNamedParam()
+	def IsOfColOrOfColNumberNamedParam()
 		if This.IsOfColNumberNamedParam() or This.IsOfColNumberNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsOfColOrColNumberNamedParams()
-			return This.IsOfColOrColNumberNamedParam()
+		def IsOfColOrOfColNumberNamedParams()
+			return This.IsOfColOrOfColNumberNamedParam()
 
-		def IsOfColNumberOrColNamedParam()
-			return This.IsOfColOrColNumberNamedParam()
+		def IsOfColNumberOrOfColNamedParam()
+			return This.IsOfColOrOfColNumberNamedParam()
 
-		def IsOfColNumberOrColNamedParams()
-			return This.IsOfColOrColNumberNamedParam()
+		def IsOfColNumberOrOfColNamedParams()
+			return This.IsOfColOrOfColNumberNamedParam()
 
 	def IsOfColsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -50694,21 +50694,21 @@ Item and then position
 		def IsOfColumnsNumbersNamedParam()
 			return This.IsOfColsNumbersNamedParam()
 
-	def IsOfColsOrColsNumbersNamedParam()
+	def IsOfColsOrOfColsNumbersNamedParam()
 		if This.IsOfColsNumbersNamedParam() or This.IsOfColsNumbersNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsOfColsOrColsNumbersNamedParams()
-			return This.IsOfColsOrColsNumbersNamedParam()
+		def IsOfColsOrOfColsNumbersNamedParams()
+			return This.IsOfColsOrOFColsNumbersNamedParam()
 
-		def IsOfColsNumbersOrColsNamedParam()
-			return This.IsOfColsOrColsNumbersNamedParam()
+		def IsOfColsNumbersOrOfColsNamedParam()
+			return This.IsOfColsOrOfColsNumbersNamedParam()
 
-		def IsOfColsNumbersOrColsNamedParams()
-			return This.IsOfColsOrColsNumberNamedParam()
+		def IsOfColsNumbersOrOfColsNamedParams()
+			return This.IsOfColsOrOfColsNumberNamedParam()
 
 	#--
 
@@ -50724,21 +50724,21 @@ Item and then position
 		def IsToColumnNumberNamedParam()
 			return This.IsToColNumberNamedParam()
 
-	def IsToColOrColNumberNamedParam()
+	def IsToColOrToColNumberNamedParam()
 		if This.IsToColNumberNamedParam() or This.IsToColNumberNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsToColOrColNumberNamedParams()
-			return This.IsToColOrColNumberNamedParam()
+		def IsToColOrToColNumberNamedParams()
+			return This.IsToColOrToColNumberNamedParam()
 
-		def IsToColNumberOrColNamedParam()
-			return This.IsToColOrColNumberNamedParam()
+		def IsToColNumberOrToColNamedParam()
+			return This.IsToColOrToColNumberNamedParam()
 
-		def IsToColNumberOrColNamedParams()
-			return This.IsToColOrColNumberNamedParam()
+		def IsToColNumberOrToColNamedParams()
+			return This.IsToColOrToColNumberNamedParam()
 
 	def IsToColsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -50752,21 +50752,21 @@ Item and then position
 		def IsToColumnsNumbersNamedParam()
 			return This.IsToColsNumbersNamedParam()
 
-	def IsToColsOrColsNumbersNamedParam()
+	def IsToColsOrToColsNumbersNamedParam()
 		if This.IsToColsNumbersNamedParam() or This.IsToColsNumbersNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsToColsOrColsNumbersNamedParams()
-			return This.IsToColsOrColsNumbersNamedParam()
+		def IsToColsOrToColsNumbersNamedParams()
+			return This.IsToColsOrToColsNumbersNamedParam()
 
-		def IsToColsNumbersOrColsNamedParam()
-			return This.IsToColsOrColsNumbersNamedParam()
+		def IsToColsNumbersOrToColsNamedParam()
+			return This.IsToColsOrToColsNumbersNamedParam()
 
-		def IsToColsNumbersOrColsNamedParams()
-			return This.IsToColsOrColsNumberNamedParam()
+		def IsToColsNumbersOrtoColsNamedParams()
+			return This.IsToColsOrToColsNumberNamedParam()
 
 	#--
 
@@ -50782,21 +50782,21 @@ Item and then position
 		def IsUsingColumnNumberNamedParam()
 			return This.IsUsingColNumberNamedParam()
 
-	def IsUsingColOrColNumberNamedParam()
+	def IsUsingColOrUsingColNumberNamedParam()
 		if This.IsUsingColNumberNamedParam() or This.IsUsingColNumberNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsUsingColOrColNumberNamedParams()
-			return This.IsUsingColOrColNumberNamedParam()
+		def IsUsingColOrUsingColNumberNamedParams()
+			return This.IsUsingColOrUsingColNumberNamedParam()
 
-		def IsUsingColNumberOrColNamedParam()
-			return This.IsUsingColOrColNumberNamedParam()
+		def IsUsingColNumberOrUsingColNamedParam()
+			return This.IsUsingColOrUsingColNumberNamedParam()
 
-		def IsUsingColNumberOrColNamedParams()
-			return This.IsUsingColOrColNumberNamedParam()
+		def IsUsingColNumberOrUsingColNamedParams()
+			return This.IsUsingColOrUsingColNumberNamedParam()
 
 	def IsUsingColsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -50810,21 +50810,21 @@ Item and then position
 		def IsUsingColumnsNumbersNamedParam()
 			return This.IsUsingColsNumbersNamedParam()
 
-	def IsUsingColsOrColsNumbersNamedParam()
+	def IsUsingColsOrUsingColsNumbersNamedParam()
 		if This.IsUsingColsNumbersNamedParam() or This.IsUsingColsNumbersNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsUsingColsOrColsNumbersNamedParams()
-			return This.IsUsingColsOrColsNumbersNamedParam()
+		def IsUsingColsOrUsingColsNumbersNamedParams()
+			return This.IsUsingColsOrUsingColsNumbersNamedParam()
 
-		def IsUsingColsNumbersOrColsNamedParam()
-			return This.IsUsingColsOrColsNumbersNamedParam()
+		def IsUsingColsNumbersOrUsingColsNamedParam()
+			return This.IsUsingColsOrUsingColsNumbersNamedParam()
 
-		def IsUsingColsNumbersOrColsNamedParams()
-			return This.IsUsingColsOrColsNumberNamedParam()
+		def IsUsingColsNumbersOrUsingColsNamedParams()
+			return This.IsUsingColsOrUsingColsNumberNamedParam()
 
 	#--
 
@@ -50840,21 +50840,21 @@ Item and then position
 		def IsWithColumnNumberNamedParam()
 			return This.IsWithColNumberNamedParam()
 
-	def IsWithColOrColNumberNamedParam()
+	def IsWithColOrWithColNumberNamedParam()
 		if This.IsWithColNumberNamedParam() or This.IsWithColNumberNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsWithColOrColNumberNamedParams()
-			return This.IsWithColOrColNumberNamedParam()
+		def IsWithColOrWithColNumberNamedParams()
+			return This.IsWithColOrWithColNumberNamedParam()
 
-		def IsWithColNumberOrColNamedParam()
-			return This.IsWithColOrColNumberNamedParam()
+		def IsWithColNumberOrWithColNamedParam()
+			return This.IsWithColOrWithColNumberNamedParam()
 
-		def IsWithColNumberOrColNamedParams()
-			return This.IsWithColOrColNumberNamedParam()
+		def IsWithColNumberOrWithColNamedParams()
+			return This.IsWithColOrWithColNumberNamedParam()
 
 	def IsWithColsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -50868,20 +50868,20 @@ Item and then position
 		def IsWithColumnsNumbersNamedParam()
 			return This.IsWithColsNumbersNamedParam()
 
-	def IsWithColsOrColsNumbersNamedParam()
+	def IsWithColsOrWithColsNumbersNamedParam()
 		if This.IsWithColsNumbersNamedParam() or This.IsWithColsNumbersNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsWithColsOrColsNumbersNamedParams()
-			return This.IsWithColsOrColsNumbersNamedParam()
+		def IsWithColsOrWithColsNumbersNamedParams()
+			return This.IsWithColsOrWithColsNumbersNamedParam()
 
-		def IsWithColsNumbersOrColsNamedParam()
-			return This.IsWithColsOrColsNumbersNamedParam()
+		def IsWithColsNumbersOrWithColsNamedParam()
+			return This.IsWithColsOrWithColsNumbersNamedParam()
 
-		def IsWithColsNumbersOrColsNamedParams()
+		def IsWithColsNumbersOrWithColsNamedParams()
 			return This.IsWithColsOrColsNumberNamedParam()
 
 	#==
@@ -50896,21 +50896,21 @@ Item and then position
 		ok
 
 
-	def IsByRowOrRowNumberNamedParam()
+	def IsByRowOrByRowNumberNamedParam()
 		if This.IsByRowNumberNamedParam() or This.IsByRowNumberNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsByRowOrRowNumberNamedParams()
-			return This.IsByRowOrRowNumberNamedParam()
+		def IsByRowOrByRowNumberNamedParams()
+			return This.IsByRowOrByRowNumberNamedParam()
 
-		def IsByRowNumberOrRowNamedParam()
-			return This.IsByRowOrRowNumberNamedParam()
+		def IsByRowNumberOrByRowNamedParam()
+			return This.IsByRowOrByRowNumberNamedParam()
 
-		def IsByRowNumberOrRowNamedParams()
-			return This.IsByRowOrRowNumberNamedParam()
+		def IsByRowNumberOrByRowNamedParams()
+			return This.IsByRowOrByRowNumberNamedParam()
 
 	def IsByRowsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -50921,21 +50921,21 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsByRowsOrRowsNumbersNamedParam()
+	def IsByRowsOrByRowsNumbersNamedParam()
 		if This.IsByRowsNumbersNamedParam() or This.IsByRowsNumbersNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsByRowsOrRowsNumbersNamedParams()
-			return This.IsByRowsOrRowsNumbersNamedParam()
+		def IsByRowsOrByRowsNumbersNamedParams()
+			return This.IsByRowsOrByRowsNumbersNamedParam()
 
-		def IsByRowsNumbersOrRowsNamedParam()
-			return This.IsByRowsOrRowsNumbersNamedParam()
+		def IsByRowsNumbersOrByRowsNamedParam()
+			return This.IsByRowsOrByRowsNumbersNamedParam()
 
-		def IsByRowsNumbersOrRowsNamedParams()
-			return This.IsByRowsOrRowsNumberNamedParam()
+		def IsByRowsNumbersOrByRowsNamedParams()
+			return This.IsByRowsOrByRowsNumberNamedParam()
 
 	#--
 
@@ -50948,21 +50948,21 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsInRowOrRowNumberNamedParam()
+	def IsInRowOrInRowNumberNamedParam()
 		if This.IsInRowNumberNamedParam() or This.IsInRowNumberNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsInRowOrRowNumberNamedParams()
-			return This.IsInRowOrRowNumberNamedParam()
+		def IsInRowOrInRowNumberNamedParams()
+			return This.IsInRowOrInRowNumberNamedParam()
 
-		def IsInRowNumberOrRowNamedParam()
-			return This.IsInRowOrRowNumberNamedParam()
+		def IsInRowNumberOrInRowNamedParam()
+			return This.IsInRowOrInRowNumberNamedParam()
 
-		def IsInRowNumberOrRowNamedParams()
-			return This.IsInRowOrRowNumberNamedParam()
+		def IsInRowNumberOrInRowNamedParams()
+			return This.IsInRowOrInRowNumberNamedParam()
 
 	def IsInRowsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -50973,21 +50973,21 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsInRowsOrRowsNumbersNamedParam()
+	def IsInRowsOrInRowsNumbersNamedParam()
 		if This.IsInRowsNumbersNamedParam() or This.IsInRowsNumbersNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsInRowsOrRowsNumbersNamedParams()
-			return This.IsInRowsOrRowsNumbersNamedParam()
+		def IsInRowsOrInRowsNumbersNamedParams()
+			return This.IsInRowsOrInRowsNumbersNamedParam()
 
-		def IsInRowsNumbersOrRowsNamedParam()
-			return This.IsInRowsOrRowsNumbersNamedParam()
+		def IsInRowsNumbersOrInRowsNamedParam()
+			return This.IsInRowsOrInRowsNumbersNamedParam()
 
-		def IsInRowsNumbersOrRowsNamedParams()
-			return This.IsInRowsOrRowsNumberNamedParam()
+		def IsInRowsNumbersOrInRowsNamedParams()
+			return This.IsInRowsOrInRowsNumberNamedParam()
 
 	#--
 
@@ -51000,21 +51000,21 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsOfRowOrRowNumberNamedParam()
+	def IsOfRowOrOfRowNumberNamedParam()
 		if This.IsOfRowNumberNamedParam() or This.IsOfRowNumberNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsOfRowOrRowNumberNamedParams()
-			return This.IsOfRowOrRowNumberNamedParam()
+		def IsOfRowOrOfRowNumberNamedParams()
+			return This.IsOfRowOrOfRowNumberNamedParam()
 
-		def IsOfRowNumberOrRowNamedParam()
-			return This.IsOfRowOrRowNumberNamedParam()
+		def IsOfRowNumberOrOfRowNamedParam()
+			return This.IsOfRowOrOfRowNumberNamedParam()
 
-		def IsOfRowNumberOrRowNamedParams()
-			return This.IsOfRowOrRowNumberNamedParam()
+		def IsOfRowNumberOrOfRowNamedParams()
+			return This.IsOfRowOrOfRowNumberNamedParam()
 
 	def IsOfRowsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -51025,21 +51025,21 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsOfRowsOrRowsNumbersNamedParam()
+	def IsOfRowsOrOfRowsNumbersNamedParam()
 		if This.IsOfRowsNumbersNamedParam() or This.IsOfRowsNumbersNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsOfRowsOrRowsNumbersNamedParams()
-			return This.IsOfRowsOrRowsNumbersNamedParam()
+		def IsOfRowsOrOfRowsNumbersNamedParams()
+			return This.IsOfRowsOrOfRowsNumbersNamedParam()
 
-		def IsOfRowsNumbersOrRowsNamedParam()
-			return This.IsOfRowsOrRowsNumbersNamedParam()
+		def IsOfRowsNumbersOrOfRowsNamedParam()
+			return This.IsOfRowsOrOfRowsNumbersNamedParam()
 
-		def IsOfRowsNumbersOrRowsNamedParams()
-			return This.IsOfRowsOrRowsNumberNamedParam()
+		def IsOfRowsNumbersOrOfRowsNamedParams()
+			return This.IsOfRowsOrOfRowsNumberNamedParam()
 
 	#--
 
@@ -51052,21 +51052,21 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsToRowOrRowNumberNamedParam()
+	def IsToRowOrToRowNumberNamedParam()
 		if This.IsToRowNumberNamedParam() or This.IsToRowNumberNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsToRowOrRowNumberNamedParams()
-			return This.IsToRowOrRowNumberNamedParam()
+		def IsToRowOrToRowNumberNamedParams()
+			return This.IsToRowOrToRowNumberNamedParam()
 
-		def IsToRowNumberOrRowNamedParam()
-			return This.IsToRowOrRowNumberNamedParam()
+		def IsToRowNumberOrToRowNamedParam()
+			return This.IsToRowOrToRowNumberNamedParam()
 
-		def IsToRowNumberOrRowNamedParams()
-			return This.IsToRowOrRowNumberNamedParam()
+		def IsToRowNumberOrToRowNamedParams()
+			return This.IsToRowOrToRowNumberNamedParam()
 
 	def IsToRowsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -51077,21 +51077,21 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsToRowsOrRowsNumbersNamedParam()
+	def IsToRowsOrToRowsNumbersNamedParam()
 		if This.IsToRowsNumbersNamedParam() or This.IsToRowsNumbersNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsToRowsOrRowsNumbersNamedParams()
-			return This.IsToRowsOrRowsNumbersNamedParam()
+		def IsToRowsOrToRowsNumbersNamedParams()
+			return This.IsToRowsOrToRowsNumbersNamedParam()
 
-		def IsToRowsNumbersOrRowsNamedParam()
-			return This.IsToRowsOrRowsNumbersNamedParam()
+		def IsToRowsNumbersOrToRowsNamedParam()
+			return This.IsToRowsOrToRowsNumbersNamedParam()
 
-		def IsToRowsNumbersOrRowsNamedParams()
-			return This.IsToRowsOrRowsNumberNamedParam()
+		def IsToRowsNumbersOrToRowsNamedParams()
+			return This.IsToRowsOrToRowsNumberNamedParam()
 
 	#--
 
@@ -51104,21 +51104,21 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsUsingRowOrRowNumberNamedParam()
+	def IsUsingRowOrUsingRowNumberNamedParam()
 		if This.IsUsingRowNumberNamedParam() or This.IsUsingRowNumberNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsUsingRowOrRowNumberNamedParams()
-			return This.IsUsingRowOrRowNumberNamedParam()
+		def IsUsingRowOrUsingRowNumberNamedParams()
+			return This.IsUsingRowOrUsingRowNumberNamedParam()
 
-		def IsUsingRowNumberOrRowNamedParam()
-			return This.IsUsingRowOrRowNumberNamedParam()
+		def IsUsingRowNumberOrUsingRowNamedParam()
+			return This.IsUsingRowOrUsingRowNumberNamedParam()
 
-		def IsUsingRowNumberOrRowNamedParams()
-			return This.IsUsingRowOrRowNumberNamedParam()
+		def IsUsingRowNumberOrUsingRowNamedParams()
+			return This.IsUsingRowOrUsingRowNumberNamedParam()
 
 	def IsUsingRowsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -51129,21 +51129,21 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsUsingRowsOrRowsNumbersNamedParam()
+	def IsUsingRowsOrUsingRowsNumbersNamedParam()
 		if This.IsUsingRowsNumbersNamedParam() or This.IsUsingRowsNumbersNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsUsingRowsOrRowsNumbersNamedParams()
-			return This.IsUsingRowsOrRowsNumbersNamedParam()
+		def IsUsingRowsOrUsingRowsNumbersNamedParams()
+			return This.IsUsingRowsOrUsingRowsNumbersNamedParam()
 
-		def IsUsingRowsNumbersOrRowsNamedParam()
-			return This.IsUsingRowsOrRowsNumbersNamedParam()
+		def IsUsingRowsNumbersOrUsingRowsNamedParam()
+			return This.IsUsingRowsOrUsingRowsNumbersNamedParam()
 
-		def IsUsingRowsNumbersOrRowsNamedParams()
-			return This.IsUsingRowsOrRowsNumberNamedParam()
+		def IsUsingRowsNumbersOrUsingRowsNamedParams()
+			return This.IsUsingRowsOrUsingRowsNumberNamedParam()
 
 	#--
 
@@ -51156,21 +51156,21 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsWithRowOrRowNumberNamedParam()
+	def IsWithRowOrWithRowNumberNamedParam()
 		if This.IsWithRowNumberNamedParam() or This.IsWithRowNumberNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsWithRowOrRowNumberNamedParams()
-			return This.IsWithRowOrRowNumberNamedParam()
+		def IsWithRowOrWithRowNumberNamedParams()
+			return This.IsWithRowOrWithRowNumberNamedParam()
 
-		def IsWithRowNumberOrRowNamedParam()
-			return This.IsWithRowOrRowNumberNamedParam()
+		def IsWithRowNumberOrWithRowNamedParam()
+			return This.IsWithRowOrWithRowNumberNamedParam()
 
-		def IsWithRowNumberOrRowNamedParams()
-			return This.IsWithRowOrRowNumberNamedParam()
+		def IsWithRowNumberOrWithRowNamedParams()
+			return This.IsWithRowOrWithRowNumberNamedParam()
 
 	def IsWithRowsNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -51181,21 +51181,21 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsWithRowsOrRowsNumbersNamedParam()
+	def IsWithRowsOrWithRowsNumbersNamedParam()
 		if This.IsWithRowsNumbersNamedParam() or This.IsWithRowsNumbersNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def IsWithRowsOrRowsNumbersNamedParams()
-			return This.IsWithRowsOrRowsNumbersNamedParam()
+		def IsWithRowsOrWithRowsNumbersNamedParams()
+			return This.IsWithRowsOrWithRowsNumbersNamedParam()
 
-		def IsWithRowsNumbersOrRowsNamedParam()
-			return This.IsWithRowsOrRowsNumbersNamedParam()
+		def IsWithRowsNumbersOrWithRowsNamedParam()
+			return This.IsWithRowsOrWithRowsNumbersNamedParam()
 
-		def IsWithRowsNumbersOrRowsNamedParams()
-			return This.IsWithRowsOrRowsNumberNamedParam()
+		def IsWithRowsNumbersOrWithRowsNamedParams()
+			return This.IsWithRowsOrWithRowsNumberNamedParam()
 
 	#==
 
