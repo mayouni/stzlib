@@ -13269,6 +13269,15 @@ Class stzTable from stzObject
 		return cResult
 
 	def ToStringXT(paOptions)
+		#wWARNING
+		# I wrote this function to show the "configurability"
+		# of Softanza as part of its "FLEXIBILITY" goal.
+		# But I'm not happy with its implementation, since it has
+		# many mooving parts. This goes against the "RELIABILITY"
+		# goal, because it complexifies the code and diminishes
+		# it's readbility and modifiability.
+		#TODO: Review this implentation!
+
 		/* EXAMPLE
 
 		? o1.toStringXT([
@@ -13347,10 +13356,10 @@ Class stzTable from stzObject
 		if len(paOptions) = 0
 
 			cResult = This.ToStringXT([ 
-				:UnderLineHeader = TRUE,
+				:Separator = " | ",
 				:UnderLineChar = "-",
-				:InterSectionChar = " ",
-				//:Seprator = "   ",
+				:IntersectionChar = "+",
+				:ShowRowNumbers = TRUE,
 				:Alignment = :Right
 			])
 
@@ -13378,7 +13387,7 @@ Class stzTable from stzObject
 
 		# Setting the default options
 
-		cSeparator = " | "
+		cSeparator = "   "
 		cAlignment = :Right
 		
 		bUnderlineHeader = TRUE
@@ -13393,7 +13402,7 @@ Class stzTable from stzObject
 
 		if pSeparator != NULL and isString(pSeparator)
 			if pSeparator = :Default
-				cSeparator = "  "
+				cSeparator = "   "
 			else
 				cSeparator = pSeparator
 			ok
@@ -13463,6 +13472,12 @@ Class stzTable from stzObject
 				cUnderLineChar = "-"
 			ok
 			cInterSectionChar = cUnderLineChar + cInterSectionChar + cUnderLineChar
+
+			if aOptions[:Separator] = "" and
+			   cSeparator = "   "
+
+				cSeparator = " | "
+			ok
 
 		else
 			cInterSectionChar = "---"

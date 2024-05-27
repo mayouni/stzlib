@@ -28,7 +28,7 @@ o1.Show()
 #     ""  
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.07 second(s)
 
 /*--------------
 
@@ -44,7 +44,7 @@ o1.Show()
 #     ""     ''     "'  
 
 proff()
-# Executed in 0.53 second(s)
+# Executed in 0.08 second(s)
 
 /*---------------
 
@@ -72,7 +72,7 @@ o1.Show()
 #   40        Ali    12870
 
 proff()
-# Executed in 0.15 second(s) in Ring 1.20
+# Executed in 0.08 second(s) in Ring 1.20
 # Executed in 0.61 second(s) in Ring 1.17
 
 /*---------------
@@ -99,7 +99,7 @@ o1.Show()
 #     40     Ali   12870
 
 proff()
-# Executed in 0.15 second(s) in Ring 1.20
+# Executed in 0.09 second(s) in Ring 1.20
 # Executed in 0.61 second(s) in Ring 1.17
 
 /*-----------------
@@ -124,7 +124,7 @@ o1.Show()
 #      Han       Doctor    62500
 
 proff()
-# Executed in 0.18 second(s) in Ring 1.20
+# Executed in 0.09 second(s) in Ring 1.20
 # Executed in 0.47 second(s) in Ring 1.17
 
 /*---------
@@ -141,7 +141,7 @@ pron()
 # You can crate a table from an external data file.
 # The file can be in CSV format or any other text file.
 # Tha data inside the file must be separated by lines,
-# and the lines must be separated by semicolon.
+# and the lines must be separated by semicolons.
 
 o1 = new stzTable(:FromFile = "mytable.csv")
 
@@ -166,10 +166,9 @@ o2.Show()
 
 #~> #NOTE that numbers and lists are evaluated and retutned as native types
 #~> #NOTE lists in the text file must be take the form ['str1','str2','str3']
-#~> #TODO correct the headline when column contains lists
 
 proff()
-# Executed in 0.44 second(s)
+# Executed in 0.49 second(s)
 
 /*----------
 
@@ -186,6 +185,7 @@ pron()
 o1 = new stzTable(:FromFile = "mytable_emptyline.txt")
 
 ? o1.Show()
+
 #-->    COL1      COL2      COL3     COL4
 #    -------- --------- --------- -------
 #    Tunisia    Arabic     Tunis   Africa
@@ -212,7 +212,7 @@ o1 = new stzTable(:FromFile = "mytable_line1_number.txt")
 #      Yemen     Arabic     Sanaa      Asia
 
 proff()
-# Executed in 0.48 second(s)
+# Executed in 0.46 second(s)
 
 /*=================
 
@@ -226,6 +226,10 @@ StzTableQ([
 	[ '•', 'HavingQ'	, 'stzListOfStrings' ],
 	[ ' ', 'AllTheirQ'	, 'stzListOfStrings' ]
 
+# When we specify just the intersection char, Softanza
+# add the values by default for the separator ("|")
+# and the underline char ("-")
+
 ]).ShowXT([ :IntersectionChar = "+" ])
 
 #-->
@@ -237,7 +241,7 @@ StzTableQ([
 #    | AllTheirQ | stzListOfStrings
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.10 second(s)
 
 /*--------------------
 
@@ -253,7 +257,7 @@ o1 = new stzTable([
 #--> [ "col1", "col2", "col3" ]
 
 ? o1.Row(2)
-#--> [ 20, "Hatem", 45 ]
+#--> [ 20, "Hatem", 46 ]
 
 proff()
 # Executed in 0.02 second(s)
@@ -269,25 +273,94 @@ o1 = new stzTable([
 	:COL4 = [ "Language", 4 ]
 ])
 
-? o1.ShowXT([ :UnderlineHeader = FALSE ])
-#-->
-#	COL1 | COL2 | COL3 |     COL4
-#	   I |    ♥ | Ring | Language
-#	   1 |    2 |    3 |        4
+? o1.ShowXT([
+	:Separator 	  = "   ",
+	:Alignment 	  = :Right,
+		
+	:UnderLineHeader  = TRUE,
+	:UnderLineChar 	  = "-",
+	:IntersectionChar = " ",
+		
+	:ShowRowNumbers   = FALSE
+])
 
-? o1.ShowXT([ :UnderlineHeader = TRUE ])
-#-->
-# COL1 | COL2 | COL3 |     COL4
-# -----------------------------
-#   I |    ♥ | Ring | Language
-#   1 |    2 |    3 |        4
+#--> COL1   COL2   COL3       COL4
+#    ----- ------ ------ ---------
+#       I      ♥   Ring   Language
+#       1      2      3          4
+
+proff()
+# Executed in 0.10 second(s)
+
+/*-------------------- @narration
+
+pron()
+
+o1 = new stzTable([
+	:COL1 = [ "I", 1 ],
+	:COL2 = [ AHeart(), 2 ],
+	:COL3 = [ "Ring", 3 ],
+	:COL4 = [ "Language", 4 ]
+])
+
+# By default, the colnames are underline using "-",
+# with a separator, cells are adjusted to the right,
+# and the row numbers are not showen
+
+? o1.Show()
+
+#--> COL1   COL2   COL3       COL4
+#    ----- ------ ------ ---------
+#       I      ♥   Ring   Language
+#       1      2      3          4
+
+# If you need a more sophisticated presentation,
+# than you can use the extended form the the
+# function, without speciying any options.
+
+# In this case, Softanza uses in the backgound,
+# the default values the options like this:
+# - the colanmes are underlined using "-"
+# - the cells are adjusted to the right
+# - the colnames and the cells are separated by "|"
+# - and the rows numbers are showen
+
+? o1.ShowXT([])
+
+#--> # | COL1 | COL2 | COL3 |     COL4
+#    --+------+------+------+---------
+#    1 |    I |    ♥ | Ring | Language
+#    2 |    1 |    2 |    3 |        4
+
+# If you deactivate the underlining of the header,
+# and you do not specify any other option, all
+# those options are deactivated
+
+? o1.ShowXT([ :UnderlineHeader = FALSE ])
+#--> COL1   COL2   COL3       COL4
+#       I      ♥   Ring   Language
+#       1      2      3          4
+
+# And when you activate the underlining of
+# the header, and don't set any other option,
+# only the header is underlined using the
+# default char "-"
+
+? o1.ShowXT([ :UnderLineHeader = TRUE ])
+#--> COL1   COL2   COL3       COL4
+#    -----------------------------
+#       I      ♥   Ring   Language
+#       1      2      3          4
+
+# But when you specify an intersection char,
+# without specifying any other option, all
+# the default options are used
 
 o1.ShowXT([ :IntersectionChar = "+" ])
-#-->
-# COL1 | COL2 | COL3 |     COL4
-# -----+------+------+---------
-#    I |    ♥ | Ring | Language
-#    1 |    2 |    3 |        4
+#--> COL1 | COL2 | COL3 |     COL4
+#    -----+------+------+---------
+#       I |    ♥ | Ring | Language
+#       1 |    2 |    3 |        4
 
 proff()
 # Executed in 0.24 second(s)
@@ -304,16 +377,16 @@ o1 = new stzTable([
 ])
 
 o1.ShowXT([ :UnderLineHeader = TRUE, :InterSectionChar = "+" ])
-#-->
-#	    COL1 | COL2 | COL3 | COL4
-#	---------+------+------+-----
-#	       I |    1 |   11 |  111
-#	       ♥ |    2 |   22 |  222
-#	    Ring |    3 |   33 |  333
-#	Language |    4 |   44 |  444
+
+#-->     COL1 | COL2 | COL3 | COL4
+#    ---------+------+------+-----
+#           I |    1 |   11 |  111
+#           ♥ |    2 |   22 |  222
+#        Ring |    3 |   33 |  333
+#    Language |    4 |   44 |  444
 
 proff()
-# Executed in 0.20 second(s)
+# Executed in 0.12 second(s)
 
 /*--------------------
 
@@ -349,7 +422,7 @@ o1.Show()
 #	  20   twenty
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.07 second(s)
 
 /*--------------------
 
@@ -364,11 +437,11 @@ o1 = new stzTable([
 
 o1.ShowXT([ :UnderlineHeader = FALSE ])
 #-->
-# I | ♥ | RING | LANGUAGE
-# 1 | 2 |    3 |        4
+# I   ♥   RING   LANGUAGE
+# 1   2      3          4
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.08 second(s)
 
 /*--------------------
 
@@ -388,7 +461,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*------
-
+*/
 pron()
 
 o1 = new stzList([ "A", "B", "C", "D", "E" ])
@@ -5740,9 +5813,5 @@ o1 = new stzTable([
 
 ? o1.Sum([ :INCOME, 1 ], [ :INCOME, 5 ])
 #--> 56770
-
-proff()
-
-
 
 proff()

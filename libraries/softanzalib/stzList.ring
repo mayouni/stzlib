@@ -39008,7 +39008,6 @@ Item and then position
 		ok
 
 		aItems = U(paItems)
-		aItems = paItems
 		nLen = len(aItems)
 
 		anResult = []
