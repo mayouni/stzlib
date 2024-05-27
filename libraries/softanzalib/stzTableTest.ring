@@ -1489,7 +1489,7 @@ o1.ReplaceCol( :AGE, :By = :LENGTH )
 
 ? o1.ColName(3)
 #--> :LENGTH
-/*
+
 # Of course, you could use this specific function:
 
 o1.ReplaceColName( :LENGTH, :By = :AGE )
@@ -1511,13 +1511,13 @@ o1.ReplaceColName( :LENGTH, :By = :AGE )
 
 o1.ReplaceCol( :AGE, :By = 1 )
 
-o1.Show()
+//o1.Show()
 #--> ID      NAME   AGE
 #    --- --------- ----
 #    10     Karim    10
 #    20     Hatem    20
 #    30   Abraham    30
-*/
+
 proff()
 # Executed in 0.22 second(s)
 

@@ -50286,6 +50286,36 @@ Item and then position
 		def IsColumnNamedParam()
 			return This.IsColNamedParam()
 
+	def IsColNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :ColNumber or This.Item(1) = :ColumnNumber) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsColumnNumberNamedParam()
+			return This.IsColNumberNamedParam()
+
+	def IsColOrColNumberNamedParam()
+		if This.IsColNumberNamedParam() or This.IsColNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsColOrColNumberNamedParams()
+			return This.IsColOrColNumberNamedParam()
+
+		def IsColNumberOrColNamedParam()
+			return This.IsColOrColNumberNamedParam()
+
+		def IsColNumberOrColNamedParams()
+			return This.IsColOrColNumberNamedParam()
+
+	#--
+
 	def IsOfColNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :OfCol or This.Item(1) = :OfColumn) )
@@ -50329,6 +50359,7 @@ Item and then position
 		def IsOfColumnOrOfColNamedParams()
 			return This.IsOfColOrColumnNamedParam()
 
+	#--
 
 	def IsInColNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -50373,6 +50404,8 @@ Item and then position
 		def IsInColumnOrInColNamedParams()
 			return This.IsInColOrColumnNamedParam()
 
+	#--
+
 	def IsColsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and (This.Item(1) = :Cols or This.Item(1) = :Columns) )
@@ -50384,6 +50417,36 @@ Item and then position
 
 		def IsColumnsNamedParam()
 			return This.IsColsNamedParam()
+
+	def IsColsNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :ColsNumbers or This.Item(1) = :ColumnsNumbers) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsColumnsNumbersNamedParam()
+			return This.IsColsNumbersNamedParam()
+
+	def IsColsOrColsNumberNamedParam()
+		if This.IsColsNumbersNamedParam() or This.IsColsNumbersNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsColsNumbersOrColsNamedParam()
+			return This.IsColsOrColsNumberNamedParam()
+
+		def IsColsOrColsNumberNamedParams()
+			return This.IsColsOrColsNumberNamedParam()
+
+		def IsColsNumbersOrColsNamedParams()
+			return This.IsColsOrColsNumberNamedParam()
+
+	#--
 
 	def IsOfColsNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -50428,6 +50491,7 @@ Item and then position
 		def IsOfColumnsOrOfColsNamedParams()
 			return This.IsOfColsOrColumnsNamedParam()
 
+	#--
 
 	def IsInColsNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -50472,7 +50536,668 @@ Item and then position
 		def IsInColumnsOrInColNamedParams()
 			return This.IsInColsOrColumnsNamedParam()
 
+	#==
+
+	def IsByColNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :ByColNumber or This.Item(1) = :ByColumnNumber) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsByColumnNumberNamedParam()
+			return This.IsByColNumberNamedParam()
+
+	def IsByColOrColNumberNamedParam()
+		if This.IsByColNumberNamedParam() or This.IsByColNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsByColOrColNumberNamedParams()
+			return This.IsByColOrColNumberNamedParam()
+
+		def IsByColNumberOrColNamedParam()
+			return This.IsByColOrColNumberNamedParam()
+
+		def IsByColNumberOrColNamedParams()
+			return This.IsByColOrColNumberNamedParam()
+
+	def IsByColsNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :ByColsNumbers or This.Item(1) = :ByColumnsNumbers) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsByColumnsNumbersNamedParam()
+			return This.IsByColsNumbersNamedParam()
+
+	def IsByColsOrColsNumbersNamedParam()
+		if This.IsByColsNumbersNamedParam() or This.IsByColsNumbersNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsByColsOrColsNumbersNamedParams()
+			return This.IsByColsOrColsNumbersNamedParam()
+
+		def IsByColsNumbersOrColsNamedParam()
+			return This.IsByColsOrColsNumbersNamedParam()
+
+		def IsByColsNumbersOrColsNamedParams()
+			return This.IsByColsOrColsNumberNamedParam()
+
 	#--
+
+	def IsInColNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :InColNumber or This.Item(1) = :InColumnNumber) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInColumnNumberNamedParam()
+			return This.IsInColNumberNamedParam()
+
+	def IsInColOrColNumberNamedParam()
+		if This.IsInColNumberNamedParam() or This.IsInColNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInColOrColNumberNamedParams()
+			return This.IsInColOrColNumberNamedParam()
+
+		def IsInColNumberOrColNamedParam()
+			return This.IsInColOrColNumberNamedParam()
+
+		def IsInColNumberOrColNamedParams()
+			return This.IsInColOrColNumberNamedParam()
+
+	def IsInColsNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :InColsNumbers or This.Item(1) = :InColumnsNumbers) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInColumnsNumbersNamedParam()
+			return This.IsInColsNumbersNamedParam()
+
+	def IsInColsOrColsNumbersNamedParam()
+		if This.IsInColsNumbersNamedParam() or This.IsInColsNumbersNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInColsOrColsNumbersNamedParams()
+			return This.IsInColsOrColsNumbersNamedParam()
+
+		def IsInColsNumbersOrColsNamedParam()
+			return This.IsInColsOrColsNumbersNamedParam()
+
+		def IsInColsNumbersOrColsNamedParams()
+			return This.IsInColsOrColsNumberNamedParam()
+
+	#--
+
+	def IsOfColNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :OfColNumber or This.Item(1) = :OfColumnNumber) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsOfColumnNumberNamedParam()
+			return This.IsOfColNumberNamedParam()
+
+	def IsOfColOrColNumberNamedParam()
+		if This.IsOfColNumberNamedParam() or This.IsOfColNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsOfColOrColNumberNamedParams()
+			return This.IsOfColOrColNumberNamedParam()
+
+		def IsOfColNumberOrColNamedParam()
+			return This.IsOfColOrColNumberNamedParam()
+
+		def IsOfColNumberOrColNamedParams()
+			return This.IsOfColOrColNumberNamedParam()
+
+	def IsOfColsNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :OfColsNumbers or This.Item(1) = :OfColumnsNumbers) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsOfColumnsNumbersNamedParam()
+			return This.IsOfColsNumbersNamedParam()
+
+	def IsOfColsOrColsNumbersNamedParam()
+		if This.IsOfColsNumbersNamedParam() or This.IsOfColsNumbersNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsOfColsOrColsNumbersNamedParams()
+			return This.IsOfColsOrColsNumbersNamedParam()
+
+		def IsOfColsNumbersOrColsNamedParam()
+			return This.IsOfColsOrColsNumbersNamedParam()
+
+		def IsOfColsNumbersOrColsNamedParams()
+			return This.IsOfColsOrColsNumberNamedParam()
+
+	#--
+
+	def IsToColNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :ToColNumber or This.Item(1) = :ToColumnNumber) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsToColumnNumberNamedParam()
+			return This.IsToColNumberNamedParam()
+
+	def IsToColOrColNumberNamedParam()
+		if This.IsToColNumberNamedParam() or This.IsToColNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsToColOrColNumberNamedParams()
+			return This.IsToColOrColNumberNamedParam()
+
+		def IsToColNumberOrColNamedParam()
+			return This.IsToColOrColNumberNamedParam()
+
+		def IsToColNumberOrColNamedParams()
+			return This.IsToColOrColNumberNamedParam()
+
+	def IsToColsNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :ToColsNumbers or This.Item(1) = :ToColumnsNumbers) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsToColumnsNumbersNamedParam()
+			return This.IsToColsNumbersNamedParam()
+
+	def IsToColsOrColsNumbersNamedParam()
+		if This.IsToColsNumbersNamedParam() or This.IsToColsNumbersNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsToColsOrColsNumbersNamedParams()
+			return This.IsToColsOrColsNumbersNamedParam()
+
+		def IsToColsNumbersOrColsNamedParam()
+			return This.IsToColsOrColsNumbersNamedParam()
+
+		def IsToColsNumbersOrColsNamedParams()
+			return This.IsToColsOrColsNumberNamedParam()
+
+	#--
+
+	def IsUsingColNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :UsingColNumber or This.Item(1) = :UsingColumnNumber) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsUsingColumnNumberNamedParam()
+			return This.IsUsingColNumberNamedParam()
+
+	def IsUsingColOrColNumberNamedParam()
+		if This.IsUsingColNumberNamedParam() or This.IsUsingColNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsUsingColOrColNumberNamedParams()
+			return This.IsUsingColOrColNumberNamedParam()
+
+		def IsUsingColNumberOrColNamedParam()
+			return This.IsUsingColOrColNumberNamedParam()
+
+		def IsUsingColNumberOrColNamedParams()
+			return This.IsUsingColOrColNumberNamedParam()
+
+	def IsUsingColsNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :UsingColsNumbers or This.Item(1) = :UsingColumnsNumbers) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsUsingColumnsNumbersNamedParam()
+			return This.IsUsingColsNumbersNamedParam()
+
+	def IsUsingColsOrColsNumbersNamedParam()
+		if This.IsUsingColsNumbersNamedParam() or This.IsUsingColsNumbersNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsUsingColsOrColsNumbersNamedParams()
+			return This.IsUsingColsOrColsNumbersNamedParam()
+
+		def IsUsingColsNumbersOrColsNamedParam()
+			return This.IsUsingColsOrColsNumbersNamedParam()
+
+		def IsUsingColsNumbersOrColsNamedParams()
+			return This.IsUsingColsOrColsNumberNamedParam()
+
+	#--
+
+	def IsWithColNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :WithColNumber or This.Item(1) = :WithColumnNumber) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsWithColumnNumberNamedParam()
+			return This.IsWithColNumberNamedParam()
+
+	def IsWithColOrColNumberNamedParam()
+		if This.IsWithColNumberNamedParam() or This.IsWithColNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsWithColOrColNumberNamedParams()
+			return This.IsWithColOrColNumberNamedParam()
+
+		def IsWithColNumberOrColNamedParam()
+			return This.IsWithColOrColNumberNamedParam()
+
+		def IsWithColNumberOrColNamedParams()
+			return This.IsWithColOrColNumberNamedParam()
+
+	def IsWithColsNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :WithColsNumbers or This.Item(1) = :WithColumnsNumbers) )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsWithColumnsNumbersNamedParam()
+			return This.IsWithColsNumbersNamedParam()
+
+	def IsWithColsOrColsNumbersNamedParam()
+		if This.IsWithColsNumbersNamedParam() or This.IsWithColsNumbersNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsWithColsOrColsNumbersNamedParams()
+			return This.IsWithColsOrColsNumbersNamedParam()
+
+		def IsWithColsNumbersOrColsNamedParam()
+			return This.IsWithColsOrColsNumbersNamedParam()
+
+		def IsWithColsNumbersOrColsNamedParams()
+			return This.IsWithColsOrColsNumberNamedParam()
+
+	#==
+
+	def IsByRowNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ByRowNumber )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+
+	def IsByRowOrRowNumberNamedParam()
+		if This.IsByRowNumberNamedParam() or This.IsByRowNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsByRowOrRowNumberNamedParams()
+			return This.IsByRowOrRowNumberNamedParam()
+
+		def IsByRowNumberOrRowNamedParam()
+			return This.IsByRowOrRowNumberNamedParam()
+
+		def IsByRowNumberOrRowNamedParams()
+			return This.IsByRowOrRowNumberNamedParam()
+
+	def IsByRowsNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ByRowsNumbers )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsByRowsOrRowsNumbersNamedParam()
+		if This.IsByRowsNumbersNamedParam() or This.IsByRowsNumbersNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsByRowsOrRowsNumbersNamedParams()
+			return This.IsByRowsOrRowsNumbersNamedParam()
+
+		def IsByRowsNumbersOrRowsNamedParam()
+			return This.IsByRowsOrRowsNumbersNamedParam()
+
+		def IsByRowsNumbersOrRowsNamedParams()
+			return This.IsByRowsOrRowsNumberNamedParam()
+
+	#--
+
+	def IsInRowNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InRowNumber )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInRowOrRowNumberNamedParam()
+		if This.IsInRowNumberNamedParam() or This.IsInRowNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInRowOrRowNumberNamedParams()
+			return This.IsInRowOrRowNumberNamedParam()
+
+		def IsInRowNumberOrRowNamedParam()
+			return This.IsInRowOrRowNumberNamedParam()
+
+		def IsInRowNumberOrRowNamedParams()
+			return This.IsInRowOrRowNumberNamedParam()
+
+	def IsInRowsNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :InRowsNumbers )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsInRowsOrRowsNumbersNamedParam()
+		if This.IsInRowsNumbersNamedParam() or This.IsInRowsNumbersNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInRowsOrRowsNumbersNamedParams()
+			return This.IsInRowsOrRowsNumbersNamedParam()
+
+		def IsInRowsNumbersOrRowsNamedParam()
+			return This.IsInRowsOrRowsNumbersNamedParam()
+
+		def IsInRowsNumbersOrRowsNamedParams()
+			return This.IsInRowsOrRowsNumberNamedParam()
+
+	#--
+
+	def IsOfRowNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :OfRowNumber )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfRowOrRowNumberNamedParam()
+		if This.IsOfRowNumberNamedParam() or This.IsOfRowNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsOfRowOrRowNumberNamedParams()
+			return This.IsOfRowOrRowNumberNamedParam()
+
+		def IsOfRowNumberOrRowNamedParam()
+			return This.IsOfRowOrRowNumberNamedParam()
+
+		def IsOfRowNumberOrRowNamedParams()
+			return This.IsOfRowOrRowNumberNamedParam()
+
+	def IsOfRowsNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :OfRowsNumbers )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsOfRowsOrRowsNumbersNamedParam()
+		if This.IsOfRowsNumbersNamedParam() or This.IsOfRowsNumbersNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsOfRowsOrRowsNumbersNamedParams()
+			return This.IsOfRowsOrRowsNumbersNamedParam()
+
+		def IsOfRowsNumbersOrRowsNamedParam()
+			return This.IsOfRowsOrRowsNumbersNamedParam()
+
+		def IsOfRowsNumbersOrRowsNamedParams()
+			return This.IsOfRowsOrRowsNumberNamedParam()
+
+	#--
+
+	def IsToRowNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToRowNumber )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToRowOrRowNumberNamedParam()
+		if This.IsToRowNumberNamedParam() or This.IsToRowNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsToRowOrRowNumberNamedParams()
+			return This.IsToRowOrRowNumberNamedParam()
+
+		def IsToRowNumberOrRowNamedParam()
+			return This.IsToRowOrRowNumberNamedParam()
+
+		def IsToRowNumberOrRowNamedParams()
+			return This.IsToRowOrRowNumberNamedParam()
+
+	def IsToRowsNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ToRowsNumbers )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsToRowsOrRowsNumbersNamedParam()
+		if This.IsToRowsNumbersNamedParam() or This.IsToRowsNumbersNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsToRowsOrRowsNumbersNamedParams()
+			return This.IsToRowsOrRowsNumbersNamedParam()
+
+		def IsToRowsNumbersOrRowsNamedParam()
+			return This.IsToRowsOrRowsNumbersNamedParam()
+
+		def IsToRowsNumbersOrRowsNamedParams()
+			return This.IsToRowsOrRowsNumberNamedParam()
+
+	#--
+
+	def IsUsingRowNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingRowNumber )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUsingRowOrRowNumberNamedParam()
+		if This.IsUsingRowNumberNamedParam() or This.IsUsingRowNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsUsingRowOrRowNumberNamedParams()
+			return This.IsUsingRowOrRowNumberNamedParam()
+
+		def IsUsingRowNumberOrRowNamedParam()
+			return This.IsUsingRowOrRowNumberNamedParam()
+
+		def IsUsingRowNumberOrRowNamedParams()
+			return This.IsUsingRowOrRowNumberNamedParam()
+
+	def IsUsingRowsNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :UsingRowsNumbers )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsUsingRowsOrRowsNumbersNamedParam()
+		if This.IsUsingRowsNumbersNamedParam() or This.IsUsingRowsNumbersNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsUsingRowsOrRowsNumbersNamedParams()
+			return This.IsUsingRowsOrRowsNumbersNamedParam()
+
+		def IsUsingRowsNumbersOrRowsNamedParam()
+			return This.IsUsingRowsOrRowsNumbersNamedParam()
+
+		def IsUsingRowsNumbersOrRowsNamedParams()
+			return This.IsUsingRowsOrRowsNumberNamedParam()
+
+	#--
+
+	def IsWithRowNumberNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :WithRowNumber )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsWithRowOrRowNumberNamedParam()
+		if This.IsWithRowNumberNamedParam() or This.IsWithRowNumberNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsWithRowOrRowNumberNamedParams()
+			return This.IsWithRowOrRowNumberNamedParam()
+
+		def IsWithRowNumberOrRowNamedParam()
+			return This.IsWithRowOrRowNumberNamedParam()
+
+		def IsWithRowNumberOrRowNamedParams()
+			return This.IsWithRowOrRowNumberNamedParam()
+
+	def IsWithRowsNumbersNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :WithRowsNumbers )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsWithRowsOrRowsNumbersNamedParam()
+		if This.IsWithRowsNumbersNamedParam() or This.IsWithRowsNumbersNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsWithRowsOrRowsNumbersNamedParams()
+			return This.IsWithRowsOrRowsNumbersNamedParam()
+
+		def IsWithRowsNumbersOrRowsNamedParam()
+			return This.IsWithRowsOrRowsNumbersNamedParam()
+
+		def IsWithRowsNumbersOrRowsNamedParams()
+			return This.IsWithRowsOrRowsNumberNamedParam()
+
+	#==
 
 	def IsRowNamedParam()
 		if This.NumberOfItems() = 2 and
