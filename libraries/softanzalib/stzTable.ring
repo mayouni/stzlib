@@ -14293,6 +14293,9 @@ Class stzTable from stzObject
 		def MEAN(paCell1, paCell2)
 			return AVERAGE(paCell1, paCell2)
 
+	def COUNT(paCell1, paCell2)
+		nResult = len( This.CellsInSection(paCell1, paCell2) )
+		return nResult
 
 #================
 /*
