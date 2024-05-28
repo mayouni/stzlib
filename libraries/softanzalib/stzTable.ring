@@ -14308,6 +14308,17 @@ Class stzTable from stzObject
 
 		return nResult
 
+	def MIN(paCell1, paCell2)
+		aCells = This.CellsInSection(paCell1, paCell2)
+
+		if NOT @IsListOfNumbers(aCells)
+			return 0
+		ok
+
+		nResult = @Min(aCells)
+
+		return nResult
+
 #================
 /*
 #TODO: stzTable add (all) excel functions
