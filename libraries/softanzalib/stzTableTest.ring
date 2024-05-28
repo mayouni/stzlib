@@ -2408,8 +2408,39 @@ proff()
 # Executed in 0.09 second(s) in Ring 1.20
 # Executed in 0.57 second(s) in Ring 1.17
 
+/*-------------- #ring #bug?
+
+pron()
+
+aList = [ "Aaa", "Bbb", "Ccc" ]
+? @@( aList["emm"] )
+#--> ""
+
+aList = [ :name = "Maiga", :job = "programmer" ]
+? @@( aList[2]["emm"] )
+#--> #--> ""
+
+proff()
+# Executed in 0.02 second(s)
+
+/*-------------- #ring
+
+pron()
+
+str = "ring"
+str[1] = "R"
+? str
+#--> Ring
+
+str[3] = "nnn"
+#--> Ring error message:
+# Error (R7) : Can't assign to a string letter more than one character
+
+proff()
+# Executed in 0.02 second(s)
+
 /*--------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -2584,11 +2615,11 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.12 second(s) in Ring 1.20
+# Executed in 0.10 second(s) in Ring 1.20
 # Executed in 0.55 second(s) in Ring 1.17
 
 /*===================
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -2616,7 +2647,7 @@ proff()
 # Executed in 0.12 second(s) in Ring 1.17
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -2640,6 +2671,7 @@ o1 = new stzTable([
 # ]
 
 proff()
+# Executed in 0.03 second(s)
 
 /*--------------
 
@@ -2715,7 +2747,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.05 second(s) in Ring 1.20
+# Executed in 0.04 second(s) in Ring 1.20
 # Executed in 0.18 second(s) in Ring 1.17
 
 /*==============
@@ -2794,7 +2826,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.09 second(s) in Ring 1.20
+# Executed in 0.07 second(s) in Ring 1.20
 # Executed in 4.48 second(s) in Ring 1.17
 
 /*==============
@@ -2834,12 +2866,12 @@ o1 = new stzTable([
 	[ "Alibaba",	"AliAli"  ]
 ])
 
-//? @@( o1.ColCellsAsPositions(:ANY) )
-#--> Error message:
-# Incorrect param value! "any" is not a valid column identifier.
-
 ? @@( o1.ColCellsAsPositions(:FIRSTNAME) )
 #--> [ [ 1, 1 ], [ 1, 2 ], [ 1, 3 ] ]
+
+? @@( o1.ColCellsAsPositions(:ANY) )
+#--> Error message:
+#    Incorrect param value! "any" is not a valid column identifier.
 
 proff()
 # Executed in 0.02 second(s)
@@ -2874,7 +2906,8 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.45 second(s)
+# Executed in 0.09 second(s) in Ring 1.20
+# Executed in 0.45 second(s) in Ring 1.17
 
 /*--------------
 
@@ -2908,7 +2941,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.18 second(s) in Ring 1.20
+# Executed in 0.07 second(s) in Ring 1.20
 # Executed in 0.12 second(s) in Ring 1.17
 
 /*--------------
@@ -2942,11 +2975,12 @@ o1 = new stzTable([
 	[ "Dan",	42   ]
 ])
 
-? o1.CellQ(:NAME, 2).Conttains("io") #NOTE: A misspelled form of Contains()
+? o1.CellQ(:NAME, 2).Conttains("io") // #NOTE: A misspelled form of Contains()
 #--> TRUE
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.02 second(s) in Ring 1.20
+# Executed in 0.08 second(s) in Ring 1.17
 
 /*--------------
 
@@ -2967,8 +3001,8 @@ o1 = new stzTable([
 #--> TRUE
 
 proff()
-
-# Executed in 0.16 second(s)
+# Executed in 0.04 second(s) in Ring 1.20
+# Executed in 0.16 second(s) in Ring 1.17
 
 /*--------------
 
@@ -3040,7 +3074,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.10 second(s) in Ring 1.20
+# Executed in 0.20 second(s) in Ring 1.20
 # Executed in 0.35 second(s) in Ring 1.17
 
 /*----------------------
@@ -3070,7 +3104,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.08 second(s) in Ring 1.20
+# Executed in 0.06 second(s) in Ring 1.20
 # Executed in 0.28 second(s) in Ring 1.17
 
 /*--------------
@@ -3126,8 +3160,8 @@ o1 = new stzTable([
 # [ [ [ 2, 3 ], [ 1, 4 ] ] ]
 
 proff()
-# Executed in 0.14 second(s) in Ring 1.17
-# Executed in 0.40 second(s) in Ring 1.20
+# Executed in 0.14 second(s) in Ring 1.20
+# Executed in 0.40 second(s) in Ring 1.17
 
 /*==============
 
@@ -3167,7 +3201,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.11 second(s) in Ring 1.20
+# Executed in 0.09 second(s) in Ring 1.20
 # Executed in 0.26 second(s) in Ring 1.17
 
 /*--------------
@@ -3204,7 +3238,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.16 second(s)
+# Executed in 0.12 second(s)
 
 /*===================
 
@@ -3231,7 +3265,7 @@ o1 = new stzTable([
 #--> [ [ 1, 2 ] ]
 
 proff()
-# Executed in 0.05 second(s) in Ring 1.20
+# Executed in 0.04 second(s) in Ring 1.20
 # Executed in 0.20 second(s) in Ring 1.17
 
 /*--------------
@@ -3274,17 +3308,26 @@ o1 = new stzTable([
 ])
 
 ? @@( o1.Section([1,2], [3,2]) ) + NL
-#--> [ "Blue", "Red", "Red" ]
+#--> [ "Blue", "Blue", "White", "Red", "Green", "Gray", "Yellow", "Red" ]
 
 ? @@Nl( o1.SectionZ([1,2], [3,2]) ) + NL
 #--> [
 #	[ [ 1, 2 ], "Blue" ],
-#	[ [ 2, 2 ], "Red"  ],
-#	[ [ 3, 2 ], "Red"  ]
-#    ]
+#	[ [ 1, 3 ], "Blue" ],
+#	[ [ 1, 4 ], "White" ],
+#	[ [ 2, 2 ], "Red" ],
+#	[ [ 2, 3 ], "Green" ],
+#	[ [ 2, 4 ], "Gray" ],
+#	[ [ 3, 1 ], "Yellow" ],
+#	[ [ 3, 2 ], "Red" ]
+# ]
 
 ? @@( o1.SectionAsPositions([1,2], [3,2]) )
-#--> [ [ 1, 2 ], [ 2, 2 ], [ 3, 2 ] ]
+#--> [
+#	[ 1, 2 ], [ 1, 3 ], [ 1, 4 ],
+#	[ 2, 2 ], [ 2, 3 ], [ 2, 4 ],
+#	[ 3, 1 ], [ 3, 2 ]
+# ]
 
 proff()
 # Executed in 0.04 second(s) in Ring 1.20
@@ -3306,7 +3349,7 @@ o1 = new stzTable([
 #--> [ [ 2, 2 ], [ 3, 2 ] ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
 
 /*----------
 
@@ -3323,16 +3366,20 @@ o1 = new stzTable([
 
 ? @@NL( o1.SectionZ(:From = :FirstCell, :To = [3,2]) )
 #--> [
-#	[ [ 1, 1 ], "Red" 	],
-#	[ [ 2, 1 ], "White" 	],
-#	[ [ 3, 1 ], "Yellow" 	],
-#	[ [ 1, 2 ], "Blue" 	],
-#	[ [ 2, 2 ], "Red" 	],
-#	[ [ 3, 2 ], "Red" 	]
-#    ]
+#	[ [ 1, 1 ], "Red" ],
+#	[ [ 1, 2 ], "Blue" ],
+#	[ [ 1, 3 ], "Blue" ],
+#	[ [ 1, 4 ], "White" ],
+#	[ [ 2, 1 ], "White" ],
+#	[ [ 2, 2 ], "Red" ],
+#	[ [ 2, 3 ], "Green" ],
+#	[ [ 2, 4 ], "Gray" ],
+#	[ [ 3, 1 ], "Yellow" ],
+#	[ [ 3, 2 ], "Red" ]
+# ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
 
 /*-----------
 
@@ -3357,7 +3404,7 @@ o1 = new stzTable([
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.03 second(s)
 
 /*-----------
 
@@ -3379,7 +3426,7 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.03 second(s)
 
 /*-----------
 
@@ -3404,7 +3451,7 @@ o1 = new stzTable([
 #--> [3, 2]
 
 proff()
-# Executed in 0.09 second(s) in Ring 1.17
+# Executed in 0.03 second(s) in Ring 1.17
 # Executed in 0.22 second(s) in Ring 1.20
 
 /*-----------
@@ -3438,7 +3485,8 @@ o1 = new stzTable([
 #--> 3
 
 proff()
-# Executed in 0.24 second(s)
+# Executed in 0.09 second(s) in Ring 1.20
+# Executed in 0.24 second(s) in Ring 1.17
 
 /*-----------
 
@@ -3460,7 +3508,7 @@ o1 = new stzTable([
 #--> TRUE
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.04 second(s)
 
 /*==============
 
@@ -3471,10 +3519,10 @@ o1 = new stzListOfStrings([ "Red", "PALETTE" ])
 #--> [
 #	"    Red",
 #	"PALETTE"
-]
+# ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.08 second(s)
 
 /*----------------
 
@@ -3516,6 +3564,7 @@ o1 = new stzTable([
 
 ? o1.ShowXT([
 	:Separator = " | ",
+	:IntersectionChar = "+",
 	:Alignment = :Left,
 	:UnderLineHeader,
 	:ShowRowNumbers
@@ -3537,7 +3586,7 @@ o1 = new stzTable([
 # 12 | White    | Gray     | Black    
 
 proff()
-# Executed in 0.30 second(s) in Ring 1.20
+# Executed in 0.16 second(s) in Ring 1.20
 # Executed in 0.74 second(s) in Ring 1.17
 
 /*==============
@@ -3556,24 +3605,33 @@ o1 = new stzTable([
 ? o1.ShowXT([ :ShowRowNumbers, :IntersectionChar = " " ])
 #--> # | PALETTE1 | PALETTE2 | PALETTE3
 #    -- ---------- ---------- ---------
-#    0 |      Red |    White |   Yellow
-#    1 |     Blue |      Red |      Red
-#    2 |     Blue |    Green |  Magenta
-#    3 |    White |     Gray |    Black
+#    1 |      Red |    White |   Yellow
+#    2 |     Blue |      Red |      Red
+#    3 |     Blue |    Green |  Magenta
+#    4 |    White |     Gray |    Black
 
 ? @@NL( o1.SectionZ(:From = [1,2], :To = [3,2]) ) + NL
 #--> [
-#	[ [ 1, 2 ], "Blue" 	],
-#	[ [ 2, 2 ], "Red" 	],
-#	[ [ 3, 2 ], "Red" 	]
-#    ]
+#	[ [ 1, 2 ], "Blue" ],
+#	[ [ 1, 3 ], "Blue" ],
+#	[ [ 1, 4 ], "White" ],
+#	[ [ 2, 2 ], "Red" ],
+#	[ [ 2, 3 ], "Green" ],
+#	[ [ 2, 4 ], "Gray" ],
+#	[ [ 3, 1 ], "Yellow" ],
+#	[ [ 3, 2 ], "Red" ]
+# ]
 
 ? @@NL( o1.FindInSection(:From = [1,2], :To = [3,2], :SubValue = "e") ) + NL
 #--> [
 #	[ [ 1, 2 ], [ 4 ] ],
+#	[ [ 1, 3 ], [ 4 ] ],
+#	[ [ 1, 4 ], [ 5 ] ],
 #	[ [ 2, 2 ], [ 2 ] ],
+#	[ [ 2, 3 ], [ 3, 4 ] ],
+#	[ [ 3, 1 ], [ 2 ] ],
 #	[ [ 3, 2 ], [ 2 ] ]
-#    ]
+# ]
 
 ? @@( o1.FindNthInSection(:First, :From = [1,2], :To = [3,2], :SubValue = "e") ) + NL
 #--> [ [ 1, 2 ], 4 ]
@@ -3585,7 +3643,7 @@ o1 = new stzTable([
 #--> [ [ 3, 2 ], 2 ]
 
 proff()
-# Executed in 0.24 second(s) in Ring 1.20
+# Executed in 0.20 second(s) in Ring 1.20
 # Executed in 0.51 second(s) in Ring 1.17
 
 /*=============
@@ -3609,10 +3667,10 @@ o1 = new stzTable([
 #--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ] ]
 
 ? @@( o1.FindCells([ "Red", "White" ]) ) # Colors of the Tunisian flag :D
-#--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ], [ 2, 1 ], [ 1, 4 ] ]
+#--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 2 ], [ 1, 4 ], [ 2, 1 ] ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.06 second(s)
 
 /*-----------
 
@@ -3640,7 +3698,7 @@ o1 = new stzTable([
 #--> [ 3, 2 ]
 
 proff()
-# Executed in 0.10 second(s) in Ring 1.20
+# Executed in 0.05 second(s) in Ring 1.20
 # Executed in 0.38 second(s) in Ring 1.17
 
 /*-----------
@@ -3668,17 +3726,18 @@ o1 = new stzTable([
 ? @@( o1.FindNthOccurrence( 2, :OfSubValue = "Ali" ) ) + NL
 #--> [ [ 1, 3 ], 1 ]
 
-? @@( o1.FindNth(2, :SubValue = "Ali") )
+? @@( o1.FindNth(2, :SubValue = "Ali") ) + NL
 #--> [ [ 1, 3 ], 1 ]
 
-? @@( o1.FindFirst(:SubValue = "Ali") )
+? @@( o1.FindFirst(:SubValue = "Ali") ) + NL
 #--> [ [ 1, 2 ], 1 ]
 
 ? @@( o1.FindLast(:SubValue = "Ali" ) )
 #--> [ [ 2, 3 ], 4 ]
 
 proff()
-# Executed in 0.69 second(s)
+# Executed in 0.15 second(s) in Ring 1.20
+# Executed in 0.69 second(s) in Ring 1.17
 
 /*-----------
 
@@ -3705,8 +3764,8 @@ o1 = new stzTable([
 #--> [ [ 2, 3 ], 4 ]
 
 proff()
-# Executed in 0.38 second(s) in Ring 1.20
-# Executed in 0.15 second(s) in Ring 1.17
+# Executed in 0.12 second(s) in Ring 1.20
+# Executed in 0.38 second(s) in Ring 1.17
 
 /*-----------
 
@@ -3727,13 +3786,16 @@ o1 = new stzTable([
 #--> 3
 
 ? @@NL( o1.FindInRow( 3, :SubValue = "Ali" ) ) + NL
-#-->[ [ [ 1, 3 ], [ 1 ] ], [ [ 2, 3 ], [ 1, 4 ] ] ]
+#-->[
+#	[ [ 1, 3 ], [ 1 ] ],
+#	[ [ 2, 3 ], [ 1, 4 ] ]
+# ]
 
 ? @@( o1.FindNthInRow( 2, 3, :SubValue = "Ali" ) )
 #--> [ [ 2, 3 ], 1 ]
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.09 second(s)
 
 /*-----------
 
@@ -3761,7 +3823,7 @@ o1 = new stzTable([
 #--> [ "palette1", "palette2", "palette3" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*==========
 
@@ -3828,7 +3890,7 @@ o1 = new stzTable([
 ? o1.ColToColName(2)
 #--> "palette2"
 
-? o1.ColToColName(:PALETTE2)
+? o1.ColToColName(:PALETTE2) + NL
 #--> "palette2"
 
 ? o1.TheseColsToColNames([3, :PALETTE1, 2])
@@ -3902,7 +3964,7 @@ o1.EraseCols([3 , 1])
 #    
 
 proff()
-# Executed in 0.36 second(s)
+# Executed in 0.20 second(s)
 
 /*----------
 
@@ -3953,9 +4015,11 @@ o1 = new stzTable([
 	:COL1 = [ "to", "be", "removed" ]
 ])
 ? o1.Show()
-#--> COL1
-#    ----
-#    ""
+#-->   COL1
+#   -------
+#        to
+#        be
+#   removed
 
 o1.RemoveCol(1)
 
@@ -3999,7 +4063,7 @@ o1.Show()
 #--> ""
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.09 second(s)
 
 /*----------
 
@@ -4255,11 +4319,12 @@ o1 = new stzTable([
 ])
 
 ? o1.ShowXT([])
-#--> ID | EMPLOYEE | SALARY |  JOB
-#    --- ---------- -------- -----
-#    10 |      Ali |  35000 | job1
-#    20 |      Dan |  28900 | job2
-#    30 |      Ben |  25982 | job3
+
+#--> # | ID | EMPLOYEE | SALARY |  JOB
+#    --+----+----------+--------+-----
+#    1 | 10 |      Ali |  35000 | job1
+#    2 | 20 |      Dan |  28900 | job2
+#    3 | 30 |      Ben |  25982 | job3
 
 ? @@NL( o1.SubTable([ :EMPLOYEE, :SALARY ]) ) + NL
 #--> [
@@ -4268,6 +4333,7 @@ o1 = new stzTable([
 #    ]
 
 o1.SubTableQR([ :EMPLOYEE, :SALARY ], :stzTable).Show()
+
 #--> EMPLOYEE   SALARY
 #    --------- -------
 #         Ali    35000
@@ -4275,7 +4341,7 @@ o1.SubTableQR([ :EMPLOYEE, :SALARY ], :stzTable).Show()
 #         Ben    25982
 
 proff()
-# Executed in 0.16 second(s) in Ring 1.20
+# Executed in 0.14 second(s) in Ring 1.20
 # Executed in 0.57 second(s) in Ring 1.17
 
 /*-----------
@@ -4297,9 +4363,11 @@ o1 = new stzTable([
 # ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*================
+
+pron()
 
 o1 = new stzListOfLists([
 	[ 10,	"Ali",		35000	],
@@ -4315,8 +4383,11 @@ o1 = new stzListOfLists([
 #--> [ [ 1, 2 ], [ 4, 2 ], [ 4, 3 ] ]
 
 proff()
+# Executed in 0.03 second(s)
 
 /*---------
+
+pron()
 
 o1 = new stzListOfLists([
 	[ 10, 20, 30, 40 ],
@@ -4331,6 +4402,7 @@ o1 = new stzListOfLists([
 #--> [ [ 2, 1 ], [ 2, 4 ], [ 3, 4 ] ]
 
 proff()
+# Executed in 0.03 second(s)
 
 /*---------
 
@@ -4621,7 +4693,7 @@ o1 = new stzTable([
 #--> [2, 4]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.10 second(s)
 
 /*------------- @narration
 
@@ -4642,8 +4714,12 @@ aMyCells = [ [2,1], [2,3], [2,4] ]
 
 # And get them along with their positions:
 
-? @@( o1.TheseCellsZ( aMyCells ) ) + NL
-#--> [ [ "Ali", [ 2, 1 ] ], [ "Han", [ 2, 3 ] ], [ "Ali", [ 2, 4 ] ] ]
+? @@NL( o1.TheseCellsZ( aMyCells ) ) + NL
+#--> [
+#	[ "Ali", [ 2, 1 ] ],
+#	[ "Han", [ 2, 3 ] ],
+#	[ "Ali", [ 2, 4 ] ]
+# ]
 
 # How many cell made of the value "Ali" does exist in those cells?
 
@@ -4675,7 +4751,8 @@ aMyCells = [ [2,1], [2,3], [2,4] ]
 #    ]
 
 proff()
-# Executed in 0.46 second(s)
+# Executed in 0.09 second(s) in Ring 1.20
+# Executed in 0.46 second(s) in Ring 1.17
 
 /*-------------
 
@@ -4788,7 +4865,7 @@ o1 = new stzTable([
 #   ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.16 second(s)
 
 /*------------
 
@@ -4924,7 +5001,7 @@ o1 = new stzTable([
 #	[ [ 2, 2 ], [ 4, 6 ] ]
 #    ]
 
-? @@( o1.FindInColCS(:LASTNAME, :SubValue = "a", :CS = FALSE ) )
+? @@NL( o1.FindInColCS(:LASTNAME, :SubValue = "a", :CS = FALSE ) )
 #--> [
 #	[ [ 2, 1 ], [ 2 ] 	],
 #	[ [ 2, 2 ], [ 1, 4, 6 ] ],
@@ -4932,7 +5009,7 @@ o1 = new stzTable([
 #   ]
 
 proff()
-# Executed in 0.07 second(s) in Ring 1.20
+# Executed in 0.21 second(s) in Ring 1.20
 # Executed in 0.35 second(s) in Ring 1.17
 
 /*------------
@@ -4966,7 +5043,7 @@ o1 = new stzTable([
 #--> [1, 3]
 
 proff()
-# Executed in 0.08 second(s) in Ring 1.19
+# Executed in 0.19 second(s) in Ring 1.19
 # Executed in 0.43 second(s) in Ring 1.17
 
 /*-----------
@@ -5082,7 +5159,7 @@ o1 = new stzTable([
 	[ "USA",	"___"     ]
 ])
 
-? o1.Cell(2, 3)
+? o1.Cell(2, 3) + NL
 #--> "___"
 
 o1.ReplaceCell(2, 3, :With = "English")
@@ -5131,7 +5208,7 @@ o1.ExtendXT(:To = 10, :ByRepeatingItems)
 #--> [ "A", "B", "C", "A", "B", "C", "A", "B", "C", "A" ]
 
 proff()
-# Executed in 0.01 second(s)
+# Executed in 0.02 second(s)
 
 /*-----------------
 
@@ -5163,7 +5240,7 @@ o1.Show()
 #    Kuwait         02
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.10 second(s)
 
 /*-----------------
 
@@ -5186,7 +5263,7 @@ o1.Show()
 #       USA      .....
 
 proff()
-# Executed in 0.09 second(s) in Ring 1.20
+# Executed in 0.13 second(s) in Ring 1.20
 # Executed in 0.72 second(s) in Ring 1.17
 
 /*============= #TODO write a #narration
@@ -5230,7 +5307,7 @@ o1.ReplaceCol(:LANGUAGE, [ "Arabic", "French" ])
 #      France     French
 #       Egypt      .....
 #     Belgium      .....
-#      Yelmen      .....
+#       Yemen      .....
 
 o1.ReplaceColXT(:LANGUAGE, [ "Arabic", "French" ])
 ? o1.Show()
@@ -5240,7 +5317,7 @@ o1.ReplaceColXT(:LANGUAGE, [ "Arabic", "French" ])
 #      France     French
 #       Egypt     Arabic
 #     Belgium     French
-#      Yelmen     Arabic
+#       Yemen     Arabic
 
 o1.ReplaceColNameAndData(:LANGUAGE, :CONTINENT, [ "Africa", "Europe", "Africa", "Europe", "Asia" ])
 o1.Show()
@@ -5270,6 +5347,7 @@ o1 = new stzTable([
 
 o1.ReplaceColNameAndDataXT( :CONTINENT, :LANGUAGE, [ "Arabic", "French" ] )
 o1.Show()
+
 #-->  NATION   LANGUAGE
 #    -------- ---------
 #    Tunisia     Arabic
@@ -5297,6 +5375,7 @@ o1 = new stzTable([
 
 o1.ReplaceRow(2, [ "___", "___" ]) # Or ReplaceNthRow()
 ? o1.Show()
+
 #-->   NATION   LANGUAGE   CAPITAL   CONTINENT
 #     -------- ---------- --------- ----------
 #     Tunisia     Arabic     Tunis      Africa
@@ -5327,7 +5406,7 @@ o1.ReplaceRowXT(2, [ "____", "~~~~" ])
 
 
 proff()
-# Executed in 0.28 second(s)
+# Executed in 0.35 second(s)
 
 /*---------
 
@@ -5345,6 +5424,7 @@ o1 = new stzTable([
 
 o1.ReplaceRows([ "___", "___", "___" ])
 ? o1.Show()
+
 #--> NATION   LANGUAGE   CAPITAL   CONTINENT
 #    ------- ---------- --------- ----------
 #       ___        ___       ___      Africa
@@ -5355,6 +5435,7 @@ o1.ReplaceRows([ "___", "___", "___" ])
 
 o1.ReplaceRowsXT([ "___", "~~~" ])
 o1.Show()
+
 #--> NATION   LANGUAGE   CAPITAL   CONTINENT
 #    ------- ---------- --------- ----------
 #       ___        ~~~       ___         ~~~
@@ -5364,9 +5445,9 @@ o1.Show()
 #       ___        ~~~       ___         ~~~
 
 proff()
-# Executed in 0.25 second(s)
+# Executed in 0.22 second(s)
 
-*---------
+/*---------
 
 pron()
 
@@ -5403,7 +5484,7 @@ o1.Show()
 proff()
 # Executed in 0.20 second(s)
 
-*---------
+/*---------
 
 pron()
 
@@ -5438,9 +5519,9 @@ o1.Show()
 #       Yemen        ___     Sanaa         ___
 
 proff()
-# Executed in 0.19 second(s)
+# Executed in 0.22 second(s)
 
-*---------
+/*---------
 
 pron()
 
@@ -5475,9 +5556,9 @@ o1.Show()
 #         ___        ~~~       ___         ~~~
 
 proff()
-# Executed in 0.21 second(s)
+# Executed in 0.26 second(s)
 
-*---------
+/*---------
 
 pron()
 
@@ -5546,6 +5627,7 @@ o1 = new stzTable([
 ])
 
 o1.Show()
+
 #--> NATION   LANGUAGE   CAPITAL   CONTINENT
 #   -------- ---------- --------- ----------
 #   Tunisia     Arabic     Tunis      Africa
@@ -5576,14 +5658,14 @@ o1 = new stzTable([
 ])
 
 o1.Show()
-#--> NAME                 HOBBIES
+#--> NAME                HOBBIES
 #   ----- ----------------------
 #    kim    [ "Sport", "Music" ]
 #    Dan            [ "Gaming" ]
 #    Sam   [ "Music", "Travel" ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.11 second(s)
 
 #============
 
@@ -5649,6 +5731,9 @@ o1.Show()
 #    ~~~~~~~~   ~~~~~~~~     ~~~~~~~~
 #       India       3370      1430.20
 
+proff()
+# Executed in 0.13 second(s)
+
 /*-----------
 
 pron()
@@ -5699,7 +5784,7 @@ o1.InsertCalculatedCol(2, :CURRENCY, 'StzCountryQ(@(:COUNTRY)).CurrencyAbbreviat
 #--
 
 o1.AddCalculatedRow([
-	'', '', 'Sum( @(:INCOME) )', 'Sum( @(:POPULATION) )', 'Average( @(:PERCAPITA) )'
+'', '', '@Sum( @(:INCOME) )', '@Sum( @(:POPULATION) )', '@Average( @(:PERCAPITA) )'
 ])
 
 ? o1.Show()
@@ -5720,8 +5805,7 @@ o1.AddCalculatedRow([
 #--> [ [ " ", " ", 56770, 3406.90, 37.38 ] ]
 
 proff()
-# Executed in 0.06 second(s) without the Show() functions
-# Executed in 0.42 second(s) with the Show() functions
+# Executed in 0.52 second(s)
 
 /*---------
 
@@ -5748,10 +5832,10 @@ o1.InsertCol(3, [ :HOBBY, [ "Music", "Painting" ] ])
 #    -------- ----- --------- ---------
 #      Folla    22    Singer      Music
 #      Warda    28   Painter   Painting
-#    Yasmine    24    Danser          
+#    Yasmine    24    Danser         ""  
 
 proff()
-# Executed in 0.16 second(s)
+# Executed in 0.15 second(s)
 
 #=================
 
@@ -5801,10 +5885,10 @@ pron()
 ? @@( StzListOfPairsQ([ [ 2, 2 ], [ 2, 4 ] ]).Sorted() )
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.05 second(s)
 
 /*---------
-*/
+
 pron()
 
 o1 = new stzTable([
@@ -5834,12 +5918,7 @@ o1 = new stzTable([
 proff()
 # Executed in 0.06 second(s)
 
-//? @@( o1.ColSection() )
-
-/*---------------
-*/
-
-/*---------
+/*========= EXCEL-Like functions
 */
 pron()
 

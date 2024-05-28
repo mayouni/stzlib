@@ -152,8 +152,18 @@ func Mean(panNumbers)
 	oListOfNumbers = new stzListOfNumbers(panNumbers)
 	return oListOfNumbers.Mean()
 
+	#< @FunctionAlternativeForms
+
 	func Average(panNumbers)
 		return Mean(panNumbers)
+
+	func @Mean(panNumbers)
+		return Mean(panNumbers)
+
+	func @Average(panNumbers)
+		return Mean(panNumbers)
+
+	#>
 
 func MultiplicationsYieldingN(n)
 	aResult = []
@@ -166,8 +176,14 @@ func MultiplicationsYieldingN(n)
 
 	return aResult
 
+	func @MultiplicationsYieldingN(n)
+		return MultiplicationsYieldingN(n)
+
 func MultiplicationsYielding(n)
 	return MultiplicationsYieldingN(n)
+
+	func @MultiplicationsYielding(n)
+		return MultiplicationsYielding(n)
 
 func MultiplicationsYieldingN_WithoutCommutation(n)
 	aResult = []
@@ -186,6 +202,9 @@ func MultiplicationsYieldingN_WithoutCommutation(n)
 
 	return aResult
 
+	func @MultiplicationsYieldingN_WithoutCommutation(n)
+		return MultiplicationsYieldingN_WithoutCommutation(n)
+
 func NZeros(n)
 	if CheckParams()
 		if NOT isNumber(n) and n >= 0
@@ -199,6 +218,9 @@ func NZeros(n)
 	next
 
 	return anResult
+
+	func @NZeros(n)
+		return NZeros(n)
 
 func NumbersXT(n1, n2)
 	if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :Between, :From ])
@@ -216,6 +238,8 @@ func NumbersXT(n1, n2)
 	anResult = n1 : n2
 	return anResult
 
+	#< @FunctionAlternativeForms
+
 	func NumbersBetweenXT(n1, n2)
 		return NumbersXT(n1, n2)
 	
@@ -224,6 +248,22 @@ func NumbersXT(n1, n2)
 	
 	func NumbersBetweenIB(n1, n2)
 		return NumbersXT(n1, n2)
+
+	#--
+
+	func @NumbersXT(n1, n2)
+		return NumbersXT(n1, n2)
+
+	func @NumbersBetweenXT(n1, n2)
+		return NumbersXT(n1, n2)
+	
+	func @NumbersIB(n1, n2)
+		return NumbersXT(n1, n2)
+	
+	func @NumbersBetweenIB(n1, n2)
+		return NumbersXT(n1, n2)
+
+	#>
 
 func NumbersBetween(n1, n2)
 	if CheckParams()
@@ -270,12 +310,19 @@ func CommonNumbers(paListsOfNumbers)
 
 	return CommonItems(paListsOfNumbers)
 
+	#< @FunctionAlternativeForms
+
 	func CommunNumbers(paListsOfNumbers)
 		return CommonNumbers(paListsOfNumbers)
 
 	func @CommonNumbers(paListsOfNumbers)
 		return CommonNumbers(paListsOfNumbers)
-	
+
+	func @CommunNumbers(paListsOfNumbers)
+		return CommonNumbers(paListsOfNumbers)
+
+	#>
+
 func NumbersIn(paList)
 	if CheckParams()
 		if NOT IsList(paList)
@@ -295,7 +342,6 @@ func NumbersIn(paList)
 	return anResult
 
 	#< @FunctionAlternativeForm
-
 
 	func @NumbersIn(paList)
 		return NumbersIn(paList)
