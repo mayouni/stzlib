@@ -14098,6 +14098,10 @@ Class stzTable from stzObject
 		pcFormula = oForumla.Content()
 		cCode = "value = " + pcFormula
 
+		@NumberOfRows = nRows
+		@NumberOfCols = nCols
+		@NumberOfColumns = nCols
+
 		for i = 1 to nRows
 			eval(cCode)
 			aColData + value
@@ -14202,6 +14206,10 @@ Class stzTable from stzObject
 			acCodes + cCode
 		next
 
+		@NumberOfRows = nRows
+		@NumberOfCols = nCols
+		@NumberOfColumns = nCols
+
 		for i = 1 to nMin
 			if acCodes[i] != ""
 				eval(acCodes[i])
@@ -14256,11 +14264,11 @@ Class stzTable from stzObject
 		def FromCSV(pcFileName)
 			This.FromFile(pcFileName)
 
-	  #================================#
-	 #  IMPLEMENTING EXCEL FUNCTIONS  #
-	#================================#
+	  #======================================================#
+	 #  EXCEL-LIKE FUNCTIONS APPLIED TO A SECTION OF CELLS  #
+	#=====================================================#
 
-	def SUM( paCell1, paCell2 )
+	def SUM(paCell1, paCell2)
 		aCells = This.CellsInSection(paCell1, paCell2)
 
 		if NOT @IsListOfNumbers(aCells)
@@ -14270,7 +14278,22 @@ Class stzTable from stzObject
 		aResult = @Sum(aCells)
 
 		return aResult
-		
+
+	def AVERAGE(paCell1, paCell2)
+		aCells = This.CellsInSection(paCell1, paCell2)
+
+		if NOT @IsListOfNumbers(aCells)
+			return 0
+		ok
+
+		aResult = @Average(aCells)
+
+		return aResult
+
+		def MEAN(paCell1, paCell2)
+			return AVERAGE(paCell1, paCell2)
+
+
 #================
 /*
 #TODO: stzTable add (all) excel functions
