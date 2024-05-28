@@ -14286,15 +14286,26 @@ Class stzTable from stzObject
 			return 0
 		ok
 
-		aResult = @Average(aCells)
+		nResult = @Average(aCells)
 
-		return aResult
+		return nResult
 
 		def MEAN(paCell1, paCell2)
 			return AVERAGE(paCell1, paCell2)
 
 	def COUNT(paCell1, paCell2)
 		nResult = len( This.CellsInSection(paCell1, paCell2) )
+		return nResult
+
+	def MAX(paCell1, paCell2)
+		aCells = This.CellsInSection(paCell1, paCell2)
+
+		if NOT @IsListOfNumbers(aCells)
+			return 0
+		ok
+
+		nResult = @Max(aCells)
+
 		return nResult
 
 #================
