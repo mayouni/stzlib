@@ -2400,9 +2400,11 @@ class stzListOfNumbers from stzList
 	#---------------------------#
 
 	def Product()
-		nResult = 1
-		nLen = This.NumberOfItems()
+
 		anContent = This.Content()
+		nLen = len(anContent)
+
+		nResult = 1
 
 		for i = 1 to nLen
 			nResult *= anContent[i]
