@@ -5923,7 +5923,7 @@ proff()
 # Executed in 0.11 second(s)
 
 /*---------- #narration
-*/
+
 pron()
 
 # If the column of sort is uniform (made of same item),
@@ -6002,7 +6002,7 @@ o1 = new stzTable([
 
 ])
 
-? o1.KOUNT([ :A, 1 ], [ :C, 3 ])
+? o1.KOUNT([ :A, 1 ], [ :C, 3 ]) # We use "K" because we have an other Count() method
 #--> 9
 
 ? o1.SUM([ :A, 1 ], [ :C, 3 ])
