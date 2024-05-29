@@ -237,6 +237,12 @@ func ListStringifyXT(paList)
 func SortListsOn(paLists, n)
 
 	if CheckParam()
+		if isNumber(paLists) and isList(n)
+			temp = paLists
+			paLists = n
+			n = temp
+		ok
+
 		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
 			StzRaise("Incorrect param type! paList must be a list of lists.")
 		ok
@@ -270,7 +276,7 @@ func SortListsOn(paLists, n)
 
 	# Special case: when the nth column contains empty lists
 	# ~> we replace them by [0] so they are sorted first
-	# ~> we keep their number sot they are restored in the final result
+	# ~> we keep their number so they are restored at the end
 
 	nLenEmptyLists = 0
 	for i = 1 to nLen
@@ -282,6 +288,46 @@ func SortListsOn(paLists, n)
 			ok
 		ok
 	next
+
+	# Special case: the nth column contains the same items
+	# ~> sort the column after, or if n is the last column,
+	# sort the column just before
+
+	oLoL = new stzListOfLists(paLists)
+
+	if oLol.ColQ(n).IsMadeOfSameItem()
+
+		nCols = oLol.NumberOfCols()
+
+		# Walking the columns backward and find the first
+		# one containing distinc items ~> sort on it
+
+		for i = nCols - 1 to 1 step -1
+			if NOT oLoL.ColQ(i).IsMadeOfSameItem()
+				return @SortListsOn(paLists, i)
+			ok
+		next
+
+		# ~> All the columns for n back to the first
+		# one are made of the same items!
+
+		# Walking the columns forward and find the first
+		# one containing distinc items ~> sort on it
+
+		if n < nCols
+			for i =  n + 1 to nCols
+				if NOT oLoL.ColQ(i).IsMadeOfSameItem()
+					return @SortListsOn(paLists, i)
+				ok
+			next
+		ok
+
+		# ~> All the columns are made of same items, there
+		# is no need to make any sort!
+
+		return
+
+	ok
 
 	# Adjusting the lists up to the nth column
 	# (we do this to make it possible using Ring sort() function)
@@ -1854,12 +1900,19 @@ func IsListOfListsOfStzTrees(paList)
 
 #===
 
+func IsUniformList(paList) # Is made of the same item
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	return StzListQ(paList).IsUniform()
+
 func IsDeepList(paList)
 	if NOT isList(paList)
 		return FALSE
 	ok
 
-	return StzListQ(paList).IsDeepList()
+	return StzListQ(paList).IsDeep()
 
 	#< @FunctionAlternativeForms
 
@@ -15080,12 +15133,57 @@ Item and then position
 	 #    CHECKINK LIST CHARACTERISTICS    #
 	#-------------------------------------#
 
-	def IsUnaryList()
+	def IsUniformCS(pCaseSensitive)
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen < 2
+			return TRUE
+		ok
+
+		if This.NumberOfOccurrenceCS(aContent[1], pCaseSensitive) = nLen
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsMadeOfSameItemCS(pCaseSensitive)
+			return This.IsUniformCS(pCaseSensitive)
+
+		def ItemsAreSameCS(pCaseSensitive)
+			return This.IsUniformCS(pCaseSensitive)
+
+		#>
+
+	def IsUniform()
+		return This.IsUniformCS(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def IsMadeOfSameItem()
+			return This.IsUniform()
+
+		def ItemsAreSame()
+			return This.IsUniform()
+
+		#>
+
+	#--
+
+	def IsUnary()
 		if This.NumberOfItems() = 1
 			return TRUE
 		else
 			return FALSE
 		ok
+
+		def IsUnaryList()
+			return This.IsUnary()
+
+		def IsAUnaryList()
+			return This.IsUnary()
 
 	def IsEmpty()
 		if This.NumberOfItems() = 0
@@ -15093,6 +15191,12 @@ Item and then position
 		else
 			return FALSE
 		ok
+
+		def IsEmptyList()
+			return This.IsEmpty()
+
+		def IsAnEmptyList()
+			return This.IsEmpty()
 
 	def IsDeepList()	// Contains at least an inner list
 		If This.Depth() > 1

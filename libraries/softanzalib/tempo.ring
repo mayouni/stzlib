@@ -1,5 +1,52 @@
 load "stzlib.ring"
 
+
+
+/*----- #ring
+pron()
+
+aList = [ "python", [ "ring", "good", "thing" ],"ruby"]
+? aList[ "ring" ]
+
+proff()
+
+/*------ #ring
+
+pron()
+
+# Pair starting with the keystring not found, a NULL is returned
+aList = [ "python", "ring", "ruby"]
+? @@( aList[ "ring" ] )
+#--> ""
+
+# Keystring not found, a pair is added
+aList[ "ring" ] = "good"
+? @@(aList)
+#--> [ "python", "ring", "ruby", [ "ring", "good" ] ]
+
+# Keystring exists in a pair, second item of the pair is returned
+? aList[ "ring" ] + NL
+#--> "good"
+
+# Adding the same pair again
+aList + [ "ring", "fluen" ]
+? @@(aList)
+#--> [ "python", "ring", "ruby", [ "ring", "good", "mm" ], [ "ring", "fluen" ] ]
+
+# If a keystring exists in many pairs, only the first pair is concerned
+? aList[ "ring" ]
+#--> "good"
+
+# Adding a pair with a keystring in a different case
+aList + [ "RING", "nice" ]
+? @@(aList)
+#--> [ "python", "ring", "ruby", [ "ring", "good" ], [ "RING", "nice" ] ]
+
+? aList[ "RING" ] + NL
+#--> "good"
+
+proff()
+
 /*=======
 
 pron()

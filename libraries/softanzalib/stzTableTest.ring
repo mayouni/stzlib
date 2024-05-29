@@ -5877,15 +5877,85 @@ proff()
 
 pron()
 
+? @@( @SortListsOn(1, [ [ 2, 2 ], [ 2, 4 ] ] ) ) # You can put the list before and it worlks!
+#--> [ [ 2, 2 ], [ 2, 4 ] ]
+
 ? @@( @SortLists([ [ 2, 4 ], [ 2, 2 ] ]) )
 #--> [ [ 2, 2 ], [ 2, 4 ] ]
 
 ? @@( @SortLists([ [ 2, 2 ], [ 2, 4 ] ]) ) # Uses SortOn(1, )
+#--> [ [ 2, 2 ], [ 2, 4 ] ]
 
-? @@( StzListOfPairsQ([ [ 2, 2 ], [ 2, 4 ] ]).Sorted() )
+? @@( StzListOfPairsQ([ [ 2, 2 ], [ 2, 4 ] ]).Sorted() ) + NL
+#--> [ [ 2, 2 ], [ 2, 4 ] ]
+
+# If the column of sort is the last column in the list, and
+# if it is made of the same item, then sort is performed
+# on the column just before
+
+? @@NL( SortListsOn( 3, [
+
+	[ 2, 3, 1 ],
+	[ 4, 2, 1 ],
+	[ 7, 4, 1 ]
+
+]) ) + NL
+#--> [
+#	[ 4, 2, 1 ],
+#	[ 2, 3, 1 ],
+#	[ 7, 4, 1 ]
+# ]
+
+? @@NL( SortListsOn( 2, [
+
+	[ 3, 1, 5 ],
+	[ 7, 1, 3 ],
+	[ 2, 1, 3 ]
+
+]) ) + NL
+#--> [
+#	[ 2, 1, 3 ],
+#	[ 3, 1, 5 ],
+#	[ 7, 1, 3 ]
+# ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.11 second(s)
+
+/*---------- #narration
+*/
+pron()
+
+# If the column of sort is uniform (made of same item),
+# Softanza looks backward to the columns coming before.
+
+# If a column with distinct items is found, the sort
+# is made on it.
+
+# Otherwise, it goes forward and checks the columns
+# coming after and does the same thing.
+
+# If a column with distinct items is found, the sort
+# is made on it.
+
+# Otherwise, all columns are made of same items, and
+# no sort is performed.
+
+? @@NL( SortListsOn( 3, [
+
+	[ 1, 1, 1, 3, 1 ],
+	[ 1, 1, 1, 7, 1 ],
+	[ 1, 1, 1, 2, 1 ]
+
+]) )
+#--> [
+#	[ 1, 1, 1, 2, 1 ],
+#	[ 1, 1, 1, 3, 1 ],
+#	[ 1, 1, 1, 7, 1 ]
+# ]
+
+proff()
+# Executed in 0.04 second(s)
 
 /*---------
 
