@@ -1849,7 +1849,7 @@ proff()
 # Executed in 16.62 second(s) in Ring 1.17
 
 /*==============
-*/
+
 StartProfiler()
 
 o1 = new stzList([ "1", "🌞", "1", [ "2", "♥", "2", "🌞"], "1", [ "2", ["3", "🌞"] ] ])
@@ -1862,7 +1862,7 @@ o1 = new stzList([ "1", "🌞", "1", [ "2", "♥", "2", "🌞"], "1", [ "2", ["3
 # 🌞 exists in level 1 at position 2, in level 2 at position 4, and in level 3 at position 2.
 
 StopProfiler()
-# Executed in 0.08 second(s)
+# Executed in 0.05 second(s)
 
 /*============
 
