@@ -40427,6 +40427,14 @@ Item and then position
 		def PreviousOccurrence_SCS( pItem, nStart, pCaseSensitive )
 			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
 
+		#==
+
+		def FindPreviousItemCS(pITem, nStart, pCaseSensitive)
+			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+
+		def FindPreviousItemSCS(pITem, nStart, pCaseSensitive)
+			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -40451,6 +40459,14 @@ Item and then position
 			return This.FindPreviousOccurrence(pItem, nStart)
 
 		def PreviousOccurrence_S( pItem, nStart )
+			return This.FindPreviousOccurrence(pItem, nStart)
+
+		#==
+
+		def FindPreviousItem(pITem, nStart)
+			return This.FindPreviousOccurrence(pItem, nStart)
+
+		def FindPreviousItemS(pITem, nStart)
 			return This.FindPreviousOccurrence(pItem, nStart)
 
 		#>

@@ -1,7 +1,6 @@
 load "stzlib.ring"
 
 
-
 /*----- #ring
 pron()
 
@@ -1845,10 +1844,10 @@ proff()
 
 /*================ #TODO check it after including ContainsBetween() and
 #		         containssubstringbetweenpositionscs
-
+*/
 pron()
 
-//? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", :Position = 3, :AndPosition = 5)
+? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", :Position = 3, :AndPosition = 5)
 #--> TRUE
 
 //? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :BetweenPositions = [ 3, :And = 5])
@@ -2401,7 +2400,7 @@ o1 = new stzString("<<<word>>>")
 #--
 
 ? @@( o1.FindTheseBounds("***", "***") )
-#--> []
+#--> [ ]
 
 ? @@( o1.FindTheseBounds("<<<", "***") )
 #--> [ 1, 0 ]
@@ -4617,7 +4616,7 @@ o1.RemoveItemsAtPositions(anPos)
 #--> [ "__", "ring", "__", "ring", "__" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*----------
 
@@ -4792,7 +4791,7 @@ o1.RemoveLastNOccurrences(3, "ring")
 #--> "ring __  __  __ "
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.04 second(s)
 
 /*----------
 
@@ -5111,7 +5110,7 @@ pron()
 #--> [ 5, 12.50, 12550 ]
 
 proff()
-# Executed in 0.02
+# Executed in 0.04
 
 /*------------------
 
@@ -5140,7 +5139,7 @@ o1 = new stzString("__3__6__9__")
 #--> [ "__", "3__", "6__", "9__" ]
 
 proff()
-# Executed in 0.74 second(s)
+# Executed in 0.69 second(s)
 
 /*------------------
 
@@ -5236,6 +5235,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*------------ #ring #sort #narration
+
 #NOTE: read this discussion with Mahmoud
 # https://groups.google.com/g/ring-lang/c/bwWg4Qy6_e4
 
@@ -5279,7 +5279,7 @@ aList = [
 # (is not preserved! Softanza proposes a corrective function
 # to deal with that:
 
-? @@SP( ring_sort2(aList, 2) )
+? @@SP( SortOn(aList, 2) )
 #--> [
 #	[ "a", 1 ],
 #	[ "b", 1 ],
@@ -5302,14 +5302,14 @@ aList = [
 # tables and lists of lists.
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.04 second(s)
 
 /*------------
 
 pron()
 
 aList = [ "a", "b", "c", "d", "ab", "cd", "abc", "abcd", "bc", "bcd" ]
-? sorton(aList, 2)
+? SortOn(aList, 2)
 #--> Error message: Incorrect param type! paList must be a list of lists.
 
 proff()
@@ -6016,7 +6016,7 @@ pron()
 	
 proff()
 # Executed in 0.03 second(s) in Ring 1.20
-# Executed in 0.11 second(s) in Rin 1.17
+# Executed in 0.11 second(s) in Ring 1.17
 
 /*--------- #perf #todo Check it after including FindBetween()
 

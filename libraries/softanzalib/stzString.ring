@@ -35054,6 +35054,20 @@ class stzString from stzObject
 		def FindPreviousSCSZ(pcSubStr, nStart, pCaseSensitive)
 			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
 
+		#--
+
+		def FindPreviousSubStringCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
+
+		def FindPreviousSubStringSCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
+
+		def FindPreviousSubStringSCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
+
+		def FindPreviousSubStringSCSZ(pcSubStr, nStart, pCaseSensitive)
+			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -35070,6 +35084,20 @@ class stzString from stzObject
 			return This.FindPrevious(pcSubStr, nStart)
 
 		def FindPreviousSZ(pcSubStr, nStart)
+			return This.FindPrevious(pcSubStr, nStart)
+
+		#--
+
+		def FindPreviousSubString(pcSubStr, nStart)
+			return This.FindPrevious(pcSubStr, nStart)
+
+		def FindPreviousSubStringS(pcSubStr, nStart)
+			return This.FindPrevious(pcSubStr, nStart)
+
+		def FindPreviousSubStringS(pcSubStr, nStart)
+			return This.FindPrevious(pcSubStr, nStart)
+
+		def FindPreviousSubStringSZ(pcSubStr, nStart)
 			return This.FindPrevious(pcSubStr, nStart)
 
 		#>
