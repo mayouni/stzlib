@@ -1,0 +1,298 @@
+ContainsSubStringBetween(pcSubStr, pcSubStr1, pcSubStr2)
+
+ContainsSubStringBoundedBy(pcSubStr, pacBounds)
+
+ContainsSubStringBetweenS(pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
+
+ContainsSubStringBoundedByS(pcSubStr, pacBounds, pnStartingAt)
+
+#===
+
+NumberOfOccurrenceBetween(pcSubStr, pcBound1, pcBound2)
+
+NumberOfOccurrenceBoundedBy(pcSubStr, pacBounds)
+
+NumberOfSubStringBetweenS(pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
+
+NumberOfSubStringBoundedByS(pcSubStr, pacBounds, pnStartingAt)
+
+#===
+
+ContainsNOccurrencesOfSubStringBetween(n, pcSubStr, pcSubStr, pcSubStr1, pcSubStr2)
+
+ContainsNOccurrencesOfSubStringBoudnedBy(n, pcSubstr, pacBounds)
+
+ContainsNOccurrencesOfSubStringBetweenS(n, pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
+
+ContainsNOccurrencesOfSubStringBoundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+
+#===
+
+FindSubStringBetween(pcSubStr, pcSubStr1, pcSubStr2)
+
+FindSubstringBoundedBy(pcSubStr, pacBounds)
+
+SubStringBetweenZ(pcSubStr, pcSubStr1, pcSubStr2)
+
+SubStringBoundedByZ(pcSubStr, pacBounds)
+
+FindSubStringBetweenZZ(pcSubStr, pcSubStr1, pcSubStr2, pcBound2)
+
+FindSubStringBoundedByZZ(pcSubStr, pacBounds)
+
+SubStringBetweenZZ(pcSubStr, pcSubStr1, pcSubSt2)
+
+SubStringBoundedByZZ(pcSubStr, pacBounds)
+
+#---
+
+FindSubStringBetweenIB(pcSubStr, pcSubStr1, pcSubStr2)
+
+FindSubStringBoundedByIB(pcSubStr, pacBounds)
+
+SubStringBetweenIBZ(pcSubStr, pcSubStr1, pcSubStr2)
+
+SubStringBoundedByIBZ(pcSubStr, pacBounds)
+
+#--
+
+FindSubStringBetweenIBZZ(pcSubStr, pcSubStr1, pcSubStr2)
+
+FindSubStringBoundedByIBZZ(pcSubStr, pacBounds)
+
+SubStringBetweenIBZZ(pcSubStr, pcSubStr1, pcsubStr2, pcBound2)
+
+SubStringBoundedByIBZZ(pcSubStr, pacBounds, pcBound2)
+
+#---
+
+FindSubStringBetweenS(pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
+
+FindSubStringBoundedByS(pcSubStr, pacBounds, pnStartingAt)
+
+SubStringBetweenSZ(pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
+
+SubStringBoundedBySZ(pcSubStr, pacBounds, pnStartingAt)
+
+#---
+
+FindSubStringBetweenSZZ(pcSubStr, pcSubStr1, pSubStr2, pnStartingAt)
+
+FindSubStringBoundedBySZZ(pcSubStr, pacBounds, pnStartingAt)
+
+SubStringBetweenSZZ(pcSubStr, pSubStr1, pcSubStr2, pnStartingAt)
+
+SubStringBoundedBySZZ(pcSubStr, pacBounds, pnStartingAt)
+
+#---
+
+FindSubStringBetweenSIB(pcSubStr, pSubStr1, pcSubStr2, pnStartingAt)
+
+FindSubStringBoundedBySIB(pcSubStr, pacBounds, pnStartingAt)
+
+SubStringBetweenSIBZ(pcSubStr, pcSubStr1, pcsubStr2, pnStartingAt)
+
+SubStringBoundedBySIBZ(pcSubStr, pacBounds, pnStartingAt)
+
+#---
+
+FindSubStringBetweenSIBZZ(pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
+
+FindSubStringBoundedBySIBZZ(pcSubStr, pacBounds, pnStartingAt)
+
+SubStringBetweenSIBZZ(pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
+
+SubStringBoundedBySIBZZ(pcSubStr, pacBounds, pnStartingAt)
+
+#===
+
+FindNextNthSubStringBetweenS(n, pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
+
+FindNextNthSubStringBoundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+
+FindNextSubStringBetweenS(pcSubStr,pcSubStr1, pcSubStr2, pnStartingAt)
+
+FindNextSubStringBoundedByS(pcSubStr, pacBounds, pnStartingAt)
+
+#---
+
+FindPreviousNthSubStringBetweenS(n, pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
+
+FindPreviousNthSubStringBoundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+
+FindPreviousSubStringBoundedByS(pcSubStr, pacBounds, pnStartingAt)
+
+FindPreviousSubStringBetweenS(pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
+
+#---
+
+FindNextNthSubStringBetweenSIB(n, pcSubStr, pcBound1, pcBound2, pnStartingAt)
+
+FindNthNextSubStringBoundedBySIB(n, pcSubStr, pacBounds, pnStartingAt)
+
+FindNextSubStringBetweenSIB(pcSubStr, pcBound1, pcBound2, pnStartingAt)
+
+FindNextSubStringBoundedBySIB(pcSubStr, pacBounds, pnStartingAt)
+
+#---
+
+FindPreviousNthSubStringBetweenSIB(n, pcSubStr, pcBound1, pcBound2, pnStartingAt)
+
+FindNthPreviousSubStringBoundedBySIB(n, pcSubStr, pacBounds, pnStartingAt)
+
+FindPreviousSubStringBetweenSIB(pcSubStr, pcBound1, pcBound2, pnStartingAt)
+
+FindPreviousSubStringBoundedBySIB(pcSubStr, pacBounds, pnStartingAt)
+
+#===
+
+FindNthSubStringBetween(n, pcSubStr, pcBound1, pcBound2)
+
+FindNthSubStringBoundedBy(n, pcSubStr, pacBounds)
+
+FindFirstSubStringBetween(pcSubStr, pcBound1, pcBound2)
+
+FindFirstSubStringBoundedBy(pcSubStr, pacBounds)
+
+FindLastSubStringBetween(pcSubStr, pcBound1, pcBound2)
+
+FindLastSubStringBoundedBy(pcSubStr, pacBounds)
+
+#---
+
+FindNthSubStringBetweenZZ(n, pcSubStr, pcBound1, pcBound2)
+
+FindNthSubStringBoundedByZZ(n, pcSubStr, pacBounds)
+
+FindNthSubStringBetweenIB(n, pcSubStr, pcBound1, pcBound2)
+
+FindNthSubStringBoundedByIB(n, pcSubStr, pacBounds)
+
+FindNthSubStringBetweenIBZZ(n, pcSubStr, pcBound1, pcBound2)
+
+FindNthSubStringBoundedByIBZZ(n, pcSubStr, pacBounds)
+
+#--
+
+FindNthSubStringBetweenS(n, pcSubStr, pcBound1, pcBound2, pnStartingAt)
+
+FindNthSubStringBoundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+
+FindNthSubStringBetweenSZZ(n, pcSubStr, pcBound1, pcBound2, pnStartingAt)
+
+FindNthSubStringBoundedBySZZ(n, pcSubStr, pacBounds, pnStartingAt)
+
+#--
+
+FindNthSubStringBetweenSIB(n, pcSubStr, pcBound1, pcBound2, pnStartingAt)
+
+FindNthSubStringBoundedBySIB(n, pcSubStr, pacBounds, pnStartingAt)
+
+FindNthSubStringBetweenSIBZZ(n, pcSubStr, pcBound1, pcBound2, pnStartingAt)
+
+FindNthSubStringBoundedBySIBZZ(n, pcSubStr, pacBounds, pnStartingAt)
+
+#====
+
+FindNthSubStringBetweenDZ(n, pcSubStr, pcBound1, pcBound2, pcDirection)
+
+FindNthSubStringBoundedByD(n, pcSubStr, pacBounds, pcDirection)
+
+FindNthSubStringBetweenAsSectionsD(n, pcSubStr, pcBound1, pcBound2, pcDirection)
+
+FindNthSubStringBoundedByAsSectionsD(n, pcSubStr, pacBounds, pcDirection)
+
+#---
+
+FindNthSubStringBetweenDIB(n, pcSubStr, pcBound1, pcBound2, pcDirection)
+
+FindNthSubStringBoundedByDIB(n, pcSubStr, pacBounds, pcDirection)
+
+FindNthSubStringBetweenAsSectionsDIB(n, pcSubStr, pcBound1, pcBound2, pcDirection)
+
+FindNthSubStringBoundedByDIBZZ(n, pcSubStr, pacBounds, pcDirection)
+
+#--
+
+FindNthSubStringBetweenSD(n, pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection)
+
+FindNthSubStringBoundedBySD(n, pcSubStr, pacBounds, pnStartingAt, pcDirection)
+
+FindNthSubStringBetweenSDZZ(n, pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection)
+
+FindNthSubStringBoundedBySDZZ(n, pcSubStr, pacBounds, pnStartingAt, pcDirection)
+
+#--
+
+FindNthSubStringBetweenSDIB(n, pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection)
+
+FindNthSubStringBoundedBySDIB(n, pcSubStr, pacBounds, pnStartingAt, pcDirection)
+
+FindNthSubStringBetweenSDIBZZ(n, pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection)
+
+FindNthSubStringBoundedBySDIBZZ(n, pcSubStr, pacBounds, pnStartingAt, pcDirection)
+
+#--
+
+FindFirstSubStringBetweenZZ(pcSubStr, pcBound1, pcBound2)
+
+FindFirstSubStringBoundedByZZ(pcSubStr, pacBounds)
+
+#--
+
+FindFirstSubStringBetweenIB(pcSubStr, pcBound1, pcBound2)
+
+FindFirstSubStringBoundedByIB(pcSubStr, pacBounds)
+
+FindFirstSubStringBetweenIBZZ(pcSubStr, pcBound1, pcBound2)
+
+FindFirstSubStringBoundedByIBZZ(pcSubStr, pacBounds)
+
+#--
+
+FindFirstSubStringBetweenS(pcSubStr, pcBound1, pcBound2, pnStartingAt)
+
+FindFirstSubStringBoundedByS(pcSubStr, pacBounds, pnStartingAt)
+
+FindFirstSubStringBetweenSZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt)
+
+FindFirstSubStringBoundedBySZZ(pcSubStr, pacBounds, pnStartingAt)
+
+#--
+
+FindFirstSubStringBetweenSIB(pcSubStr, pcBound1, pcBound2, pnStartingAt)
+
+FindFirstSubStringBoundedBySIB(pcSubStr, pacBounds, pnStartingAt)
+
+FindFirstSubStringBetweenSIBZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt)
+
+FindFirstSubStringBoundedBySIBZZ(pcSubStr, pacBounds, pnStartingAt)
+
+#--
+
+FindFirstSubStringBetweenD(pcSubStr, pcBound1, pcBound2, pcDirection)
+
+FindFirstSubStringBoundedByD(pcSubStr, pacBounds, pcDirection)
+
+FindFirstSubStringBetweenDZZ(pcSubStr, pcBound1, pcBound2, pcDirection)
+
+FindFirstSubStringBoundedByDZZ(pcSubStr, pacBounds, pcDirection)
+
+#--
+
+FindFirstSubStringBetweenDIB(pcSubStr, pcBound1, pcBound2, pcDirection)
+
+FindFirstSubStringBoundedByDIB(pcSubStr, pacBounds, pcDirection)
+
+FindFirstSubStringBetweenDIBZZ(pcSubStr, pcBound1, pcBound2, pcDirection)
+
+FindFirstSubStringBoundedByDIBZZ(pcSubStr, pacBounds, pcDirection)
+
+#--
+
+FindFirstSubStringBetweenSD(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection)
+
+FindFirstSubStringBoundedBySD(pcSubStr, pacBounds, pnStartingAt, pcDirection)
+
+
+
