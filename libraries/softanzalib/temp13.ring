@@ -119,7 +119,7 @@
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSubStringBetweenS(pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
-		return This.ContainsSubStringBetweenSCS(pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt, :CaseSensitive) = TRUE
+		return This.ContainsSubStringBetweenSCS(pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt, TRUE)
 
 	   #--------------------------------------------------------------#
 	  #  CHECKING IF THE STRING CONTAINS A SUBSTRING BOUNDED BY TWO  #
@@ -135,7 +135,7 @@
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSubStringBoundedByS(pcSubStr, pacBounds, pnStartingAt)
-		return This.ContainsSubStringBoundedBySCS(pcSubStr, pacBounds, pnStartingAt, :CaseSensitive) = TRUE
+		return This.ContainsSubStringBoundedBySCS(pcSubStr, pacBounds, pnStartingAt, TRUE)
 
 	  #---------------------------------------------------------------------------------#
 	 #  GETTING THE NUMBER OF OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
@@ -334,14 +334,14 @@
 	 #  CHECKING IF THE STRING CONTAINS N OCCURRENCES OF A SUBSTRING BOUNDED BY TWO SUBSTRINGS  #
 	#------------------------------------------------------------------------------------------#
 
-	def ContainsNOccurrencesOfSubStringBoudnedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
-		bResult = ( This.NumberOfOccurrenceBoudnedByCS(pcSubStr, pacBounds, pCaseSensitive) = n )
+	def ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+		bResult = ( This.NumberOfOccurrenceboundedByCS(pcSubStr, pacBounds, pCaseSensitive) = n )
 		return bResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsNOccurrencesOfSubStringBoudnedBy(n, pcSubstr, pacBounds)
-		return This.ContainsNOccurrencesOfSubStringBoudnedByCS(n, pcSubStr, pacBounds, TRUE)
+	def ContainsNOccurrencesOfSubStringboundedBy(n, pcSubstr, pacBounds)
+		return This.ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds, TRUE)
 
 	   #-----------------------------------------------------------------------#
 	  #  CHECKING IF THE STRING CONTAINS N OCCURRENCES OF A GIVEN SUBSTRING   #
@@ -488,7 +488,7 @@
 	#-- WITHOUT CASESENSITIVE
 
 	def FindSubstringBoundedBy(pcSubStr, pacBounds)
-		return This.FindSubStringSubStringBoundedByCS(pcSubStr, pacBounds, TRUE)
+		return This.FindSubStringBoundedByCS(pcSubStr, pacBounds, TRUE)
 
 		#< @FunctionAlternativeForms
 	
@@ -511,7 +511,7 @@
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringBetweenZ(pcSubStr, pcSubStr1, pcSubStr2)
-		return This.SubStringBetweenCSZ(pcSubStr, pcSubStr1, pcSubSt2, TRUE)
+		return This.SubStringBetweenCSZ(pcSubStr, pcSubStr1, pcSubStr2, TRUE)
 
 	  #---------------------------------------------------------------------------#
 	 #  GETTING THE SUBSTRING AND ITS POSITIONS BOUNDED BY TWO GIVEN SUBSTRINGS  #
@@ -604,26 +604,26 @@
 	 #  GETTING THE SUBSTRING AND ITS SECTIONS BETWEEN TWO GIVEN SUBSTRINGS  #
 	#=======================================================================#
 
-	def SubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubSt2, pCaseSensitive)
+	def SubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 		aResult = [ pcSubStr, This.FindSubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive) ]
 		return aResult
 
 		#< @FunctionAlternativeForm
 
-		def SubStringBetweenAsSectionsCS(pcSubStr, pcSubStr1, pcSubSt2, pCaseSensitive)
-			return This.SubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubSt2, pCaseSensitive)
+		def SubStringBetweenAsSectionsCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.SubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringBetweenZZ(pcSubStr, pcSubStr1, pcSubSt2)
-		return This.SubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubSt2, TRUE)
+	def SubStringBetweenZZ(pcSubStr, pcSubStr1, pcSubStr2)
+		return This.SubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, TRUE)
 
 		#< @FunctionAlternativeForm
 
-		def SubStringBetweenAsSections(pcSubStr, pcSubStr1, pcSubSt2)
-			return This.SubStringBetweenZZ(pcSubStr, pcSubStr1, pcSubSt2)
+		def SubStringBetweenAsSections(pcSubStr, pcSubStr1, pcSubStr2)
+			return This.SubStringBetweenZZ(pcSubStr, pcSubStr1, pcSubStr2)
 
 		#>
 
