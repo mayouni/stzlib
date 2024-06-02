@@ -24042,6 +24042,7 @@ class stzString from stzObject
 	def FindSubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		anPos = This.FindSubStringBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+
 		nLenStr = Q(pcSubStr).NumberOfChars()
 		nLenPos = len(anPos)
 
@@ -40645,11 +40646,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		# Early checks
 
 		if This.IsEmpty() or pcSubStr = NULL
-			return 0
+			return []
 		ok
 
 		if n1 = 0 or n2 = 0
-			return 0
+			return []
 		ok
 
 		# Doing the job
@@ -40871,7 +40872,14 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#=======================================================#
 	
 	def FindInSectionsCS(pcSubStr, paSections, pCaseSensitive)
-		anResult = StzListOfPairsQ( This.FindInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive) ).FirstItems()
+		aSections = This.FindInSectionsCSZZ(pcSubStr, paSections, pCaseSensitive)
+		nLen = len(aSections)
+
+		if nLen = 0
+			return []
+		ok
+
+		anResult = StzListOfPairsQ(aSections).FirstItems()
 		return anResult
 
 		#< @FunctionAlternativeForms
