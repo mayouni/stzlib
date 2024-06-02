@@ -25010,17 +25010,23 @@ class stzString from stzObject
 	#--------------------------------------------------------------------------------------------------------------------------#
 
 	def FindNextNthSubStringBoundedByCSIB(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
-		if isString(pacBounds)
-			return This.FindNextNthSubStringBetweenCSIB(n, pcSubStr, pacBounds, pacBounds, pnStartingAt, pCaseSensitive)
 
-		but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-			return This.FindNextNthSubStringBetweenCSIB(n, pcSubStr, pacBounds, pacBounds, pnStartingAt, pCaseSensitive)
+		nResult = this.FindNextNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+		if nResult > 0
 
-		else
-			StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			nLenBound1 = 0
+
+			if isString(pacBounds)
+				nLenBound1 = StzStringQ(pacBounds).NumberOfChars()
+
+			else
+				nLenBound1 = StzStringQ(pacBounds[1]).NumberOfChars()
+			ok
+
+			nResult -= nLenBound1
 		ok
 
-		return This.FindNextNthSubStringBetweenCSIB(n, pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		return nResult
 
 		#< @FunctionAlternativeForms
 
@@ -25120,17 +25126,23 @@ class stzString from stzObject
 	#---------------------------------------------------------------------------------------------------------#
 
 	def FindPreviousNthSubStringBoundedByCSIB(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
-		if isString(pacBounds)
-			return This.FindPreviousNthSubStringBetweenCSIB(n, pcSubStr, pacBounds, pacBounds, pnStartingAt, pCaseSensitive)
 
-		but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-			return This.FindPreviousNthSubStringBetweenCSIB(n, pcSubStr, pacBounds, pacBounds, pnStartingAt, pCaseSensitive)
+		nResult = this.FindPreviousNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+		if nResult > 0
 
-		else
-			StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			nLenBound1 = 0
+
+			if isString(pacBounds)
+				nLenBound1 = StzStringQ(pacBounds).NumberOfChars()
+
+			else
+				nLenBound1 = StzStringQ(pacBounds[1]).NumberOfChars()
+			ok
+
+			nResult -= nLenBound1
 		ok
 
-		return This.FindPreviousNthSubStringBetweenCSIB(n, pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
+		return nResult
 
 		#< @FunctionAlternativeForms
 
@@ -25483,15 +25495,24 @@ class stzString from stzObject
 	#---------------------------------------------------------------------------------------#
 
 	def FindNthSubStringBoundedByCSIB(n, pcSubStr, pacBounds, pCaseSensitive)
-		if isString(pacBounds)
-			return This.FindNthSubStringBetweenCSIB(n, pcSubStr, pacBounds, pacBounds, pCaseSensitive)
 
-		but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-			return TThis.FindNthSubStringBetweenCSIB(n, pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
+		nResult = this.FindNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
 
-		else
-			StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+		if nResult > 0
+
+			nLenBound1 = 0
+
+			if isString(pacBounds)
+				nLenBound1 = StzStringQ(pacBounds).NumberOfChars()
+
+			else
+				nLenBound1 = StzStringQ(pacBounds[1]).NumberOfChars()
+			ok
+
+			nResult -= nLenBound1
 		ok
+
+		return nResult
 
 		#< @FunctionAlternativeForm
 
