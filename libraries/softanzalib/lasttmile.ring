@@ -152,7 +152,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*===
-*/
+
 pron()
 #                       5              20     27
 #                       v              v      v
@@ -164,23 +164,42 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END")
 ? o1.FindNextNthSubStringBoundedByS(2, "ring", ["<<", ">>"], :StartingAt = 5)
 #--> 27
 
-//? o1.FindNextNthSubStringBoundedBySIB(2, "ring", ["<<", ">>"], 5)
+? o1.FindNextNthSubStringBoundedBySIB(2, "ring", ["<<", ">>"], :StartingAt = 5)
+#--> 25
 
-//FindNextSubStringBetweenS(pcSubStr,pcSubStr1, pcSubStr2, pnStartingAt)
+? o1.FindNextSubStringBoundedByS("ring", ["<<", ">>"], :StartingAt = 5)
+#--> 13
 
-//FindNextSubStringBoundedByS(pcSubStr, pacBounds, pnStartingAt)
+? o1.FindNextSubStringBoundedBySIB("ring", ["<<", ">>"], :StartingAt = 5)
+#--> 11
 
 proff()
+# Executed in 0.09 second(s)
 
 /*---
+*/
+pron()
+#                       5              20     27
+#                       v              v      v
+o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END")
 
-FindPreviousNthSubStringBetweenS(n, pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
+? o1.FindPreviousNthSubStringBetweenS(2, "ring", "START", "END", :StartingAt = 5)
+#--> 20
 
-FindPreviousNthSubStringBoundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+? o1.FindPreviousNthSubStringBoundedByS(2, "ring", ["<<", ">>"], :StartingAt = 5)
+#--> 27
 
-FindPreviousSubStringBoundedByS(pcSubStr, pacBounds, pnStartingAt)
+? o1.FindPreviousNthSubStringBoundedBySIB(2, "ring", ["<<", ">>"], :StartingAt = 5)
+#--> 25
 
-FindPreviousSubStringBetweenS(pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
+? o1.FindPreviousSubStringBoundedByS("ring", ["<<", ">>"], :StartingAt = 5)
+#--> 13
+
+? o1.FindPreviousSubStringBoundedBySIB("ring", ["<<", ">>"], :StartingAt = 5)
+#--> 11
+
+proff()
+# Executed in 0.09 second(s)
 
 /*---
 
