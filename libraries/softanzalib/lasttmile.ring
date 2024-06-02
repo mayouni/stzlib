@@ -176,16 +176,25 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END")
 proff()
 # Executed in 0.09 second(s)
 
-/*---
+/*--- #ring
+*
+pron()
+
+? ring_reverse("START")
+#--> TRATS
+
+proff()
+
+/*--------
 */
 pron()
-#                       5              20     27
-#                       v              v      v
-o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END")
+#                       5       13     20     27       36         47
+#                       v       v      v      v        v          v
+o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 
-? o1.FindPreviousNthSubStringBetweenS(2, "ring", "START", "END", :StartingAt = 5)
+? o1.FindPreviousNthSubStringBetweenS(3, "ring", "START", "END", :StartingAt = 5)
 #--> 20
-
+/*
 ? o1.FindPreviousNthSubStringBoundedByS(2, "ring", ["<<", ">>"], :StartingAt = 5)
 #--> 27
 
@@ -197,7 +206,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END")
 
 ? o1.FindPreviousSubStringBoundedBySIB("ring", ["<<", ">>"], :StartingAt = 5)
 #--> 11
-
+*/
 proff()
 # Executed in 0.09 second(s)
 
