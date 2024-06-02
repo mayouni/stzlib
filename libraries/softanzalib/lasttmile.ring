@@ -192,12 +192,12 @@ pron()
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 
-? o1.FindPreviousNthSubStringBetweenS(3, "ring", "START", "END", :StartingAt = 5)
+? o1.FindPreviousNthSubStringBetweenS(3, "ring", "START", "END", :StartingAt = 50)
 #--> 20
-/*
-? o1.FindPreviousNthSubStringBoundedByS(2, "ring", ["<<", ">>"], :StartingAt = 5)
-#--> 27
 
+? o1.FindPreviousNthSubStringBoundedByS(2, "ring", ["<<", ">>"], :StartingAt = 50)
+#--> 27
+/*
 ? o1.FindPreviousNthSubStringBoundedBySIB(2, "ring", ["<<", ">>"], :StartingAt = 5)
 #--> 25
 

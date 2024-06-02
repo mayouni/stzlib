@@ -24567,6 +24567,10 @@ class stzString from stzObject
 
 	def FindNextNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
 		nLast = This.NumberOfChars()
 		oSection = This.SectionQ(pnStartingAt, nLast)
 
@@ -24760,11 +24764,9 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! pnStartingAt  must be a number.")
 			ok
 		ok
-? @@(pnStartingAt)
-? this.section(1, pnStartingAt)
 
 		aSections = ring_reverse( This.SectionQ(1, pnStartingAt).FindSubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive) )
-? @@(aSections)
+
 		nLen = This.NumberOfOccurrenceInSectionsCS(pcSubStr, aSections, pCaseSensitive)
 		nResult = This.FindNthInSectionsCS(n, pcSubStr, aSections, pCaseSensitive)
 		
@@ -24834,28 +24836,35 @@ class stzString from stzObject
 	#---------------------------------------------------------------------------------------------------------#
 
 	def FindPreviousNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			pnStartingAt = pnStartingAt[2]
+		ok
+
 		nLast = This.NumberOfChars()
-		oSection = This.SectionQ(pnStartingAt, nLast).FindSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		oSection = This.SectionQ(1, pnStartingAt)
 
 		cBound1 = ""
 		cBound2 = ""
-		if isString(pcSubStr)
+		if isString(pacBounds)
 			cBound1 = pacBounds
 			cBound2 = pacBounds
-		else // Q(pacBounds).IsPairOfStrings()
+		else
 			cBound1 = pacBounds[1]
 			cBound2 = pacBounds[2]
 		ok
 
-		cBounded = pcBound1 + pcSubStr + pcBound2
+		cBounded = cBound1 + pcSubStr + cBound2
 		nLenBounded = Q(cBounded).NumberOfChars()
 		nStart = pnStartingAt
 		bContinue = TRUE
 		nTimes = 0
 
+		nResult = 0
+
 		while bContinue
 
-			nPos = oSection.FindPreviousCS(cBounded, nStart, pCaseSensitive)
+			nPos = oSection.FindPreviousSCS(cBounded, nStart, pCaseSensitive)
 
 			if nPos != 0
 
@@ -24866,15 +24875,13 @@ class stzString from stzObject
 					bContinue = FALSE
 
 				else
-					nStart = nPos - 1
+					nStart = nPos
 				ok
 
 			else
 				bContinue = FALSE
 			ok
 		end
-
-		nResult = ( nPos + pnStartingAt - 1 )
 
 		return nResult
 
@@ -24907,8 +24914,8 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindPreviousNthSubStringBoundedBy(n, pcSubStr, pcBound1, pcBound2, pnStartingAt)
-		return This.FindPreviousNthSubStringBoundedByCS(n, pcSubStr, pcBound1, pcBound2, pnStartingAt, TRUE)
+	def FindPreviousNthSubStringBoundedBy(n, pcSubStr, pacBounds, pnStartingAt)
+		return This.FindPreviousNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
