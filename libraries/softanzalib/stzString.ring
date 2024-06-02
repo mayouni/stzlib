@@ -24750,10 +24750,22 @@ class stzString from stzObject
 	#======================================================================================================#
 
 	def FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt, pCaseSensitive)
+		if CheckParams()
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param type! pnStartingAt  must be a number.")
+			ok
+		ok
+? @@(pnStartingAt)
+? this.section(1, pnStartingAt)
 
-		aSections = This.SectionQ(1, pnStartingAt).FindSubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
-		nLen = This.NumberOfOccurrenceInSectionsCS(pcSubStr, aSections)
-		nResult = This.FindNthInSectionsCS(nLen - n + 1, pcSubStr, aSections, pCaseSensitive)
+		aSections = ring_reverse( This.SectionQ(1, pnStartingAt).FindSubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive) )
+? @@(aSections)
+		nLen = This.NumberOfOccurrenceInSectionsCS(pcSubStr, aSections, pCaseSensitive)
+		nResult = This.FindNthInSectionsCS(n, pcSubStr, aSections, pCaseSensitive)
 		
 		return nResult
 
@@ -24787,7 +24799,7 @@ class stzString from stzObject
 	# WITHOUT CASESENSITIVITY
 
 	def FindPreviousNthSubStringBetween(n, pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
-		return This.FindPreviousNthSubStringBetween(n, pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt)
+		return This.FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -25535,19 +25547,31 @@ class stzString from stzObject
 
 	   #-------------------------------------------------------------------------#
 	  #  FINDING NTH OCCURRENCE OF A SUBSTRING BOUNDED BY TWO OTHER             #
-	 #  SUBSTRINGS INCLUDING BOUNDS AND RETURNING THEIR POSITIONS AS SECTIONS  #          #
+	 #  SUBSTRINGS INCLUDING BOUNDS AND RETURNING THEIR POSITIONS AS SECTIONS  #
 	#-------------------------------------------------------------------------#
 
 	def FindNthSubStringBoundedByCSIBZZ(n, pcSubStr, pacBounds, pCaseSensitive)
-		if isString(pacBounds)
-			return This.FindNthSubStringBetweenCSIBZZ(n, pcSubStr, pcBounds, pcBounds, pCaseSensitive)
 
-		but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-			return This.FindNthSubStringBetweenCSIBZZ(n, pcSubStr, pcBounds[1], pcBounds[2], pCaseSensitive)
+		anResult = this.FindNthSubStringBoundedByCSZZ(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+		if len(anResult) > 0
 
-		else
-			StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			nLenBound1 = 0
+			nLenBound2 = 0
+
+			if isString(pacBounds)
+				nLenBound1 = StzStringQ(pacBounds).NumberOfChars()
+				nLenBound2 = nLenBound1
+
+			else
+				nLenBound1 = StzStringQ(pacBounds[1]).NumberOfChars()
+				nLenBound2 = StzStringQ(pacBounds[2]).NumberOfChars()
+			ok
+
+			anResult[1] -= nLenBound1
+			anResult[2] += nLenBound2
 		ok
+
+		return anResult
 
 		#< @FunctionAlternativeForm
 
@@ -40618,11 +40642,17 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			ok
 		ok
 
-		# Doing the job
+		# Early checks
 
 		if This.IsEmpty() or pcSubStr = NULL
 			return 0
 		ok
+
+		if n1 = 0 or n2 = 0
+			return 0
+		ok
+
+		# Doing the job
 
 		anPos = This.SectionQ(n1, n2).FindCS(pcSubStr, pCaseSensitive)
 		nLen = len(anPos)
