@@ -3854,13 +3854,13 @@ func TodoInCurrent()
 		return TodoInCurrent()
 
 func TodoXT(pcCurrentOrFuture)
-	if NOT isString(pcCurrentOrFuture) and
+	if NOT ( isString(pcCurrentOrFuture) and
 	   Q(pcCurrentOrFuture).IsOneOfThese([
 		:Current, :InCurrent, :Future, :InFuture,
 		:CurrentRelease, :InCurrentRelease, :FutureRelease, :InFutureRelease,
 
 		# Misspelled variations
-		:Fture, :InFture, :FtureRelease, :InFtureRelease ])
+		:Fture, :InFture, :FtureRelease, :InFtureRelease ]) )
 
 		StzRaise("Incorrect param! pcCurrentOrFuture must be a string equal to :Current or :Future.")
 	ok

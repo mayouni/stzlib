@@ -1198,7 +1198,7 @@ Class stzTable from stzObject
 
 	def FindRowsExceptCS(paRows, pCaseSensitive)
 		if CheckParams()
-			if NOT isList(paRows) and ( @IsListOfNumbers(paRows) or @IsListOfLists(paRows) ) 
+			if NOT ( isList(paRows) and ( @IsListOfNumbers(paRows) or @IsListOfLists(paRows) )  )
 				StzRaise("Incorrect param type! paRows must be a list of numbers or a list of lists.")
 			ok
 		ok

@@ -2283,7 +2283,7 @@ ici	def FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnS
 			return This.FindNthSubStringBetweenCS(n, pcSubStr, pacBounds, pacBounds, pCaseSensitive)
 
 		but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-			return TThis.FindNthSubStringBetweenCS(n, pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
+			return This.FindNthSubStringBetweenCS(n, pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
 
 		else
 			StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
@@ -2398,7 +2398,7 @@ ici	def FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnS
 			return This.FindLastSubStringBetweenCS(pcSubStr, pacBounds, pacBounds, pCaseSensitive)
 
 		but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-			return TThis.FindLastSubStringBetweenCS(pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
+			return This.FindLastSubStringBetweenCS(pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
 
 		else
 			StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
@@ -2526,7 +2526,7 @@ ici	def FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnS
 			return This.FindNthSubStringBetweenCSIB(n, pcSubStr, pacBounds, pacBounds, pCaseSensitive)
 
 		but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-			return TThis.FindNthSubStringBetweenCSIB(n, pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
+			return This.FindNthSubStringBetweenCSIB(n, pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
 
 		else
 			StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
@@ -2910,7 +2910,7 @@ ici	def FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnS
 			pcDirection = pcDirection[2]
 		ok
 
-		if NOT isString(pcDirection) and (pcDirection = :Forward or pcDirection = :Backward)
+		if NOT ( isString(pcDirection) and (pcDirection = :Forward or pcDirection = :Backward) )
 			StzRaise("Incorrect param! pcDirection must be a string equal to :Forward or :Backward.")
 		ok
 
