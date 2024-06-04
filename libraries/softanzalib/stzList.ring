@@ -73555,7 +73555,7 @@ Item and then position
 
 		if CheckParams()
 
-			if NOT isNumber(n, nPos) and (n = 1 or n = 2)
+			if NOT ( isNumber(n, nPos) and (n = 1 or n = 2) )
 				StzRaise("Incorrect pram type! n must be a number equal to 1 or 2.")
 				# Because after splitting the string at a given position, there will
 				# be only two splits, right?
