@@ -271,7 +271,7 @@ load "stzlib.ring"
 
 	One of the amazing gymnastics provided to you in Softanza, is that you can
 	jump directly to the nth occurrence of a substring in the string, or walk in
-	any direction (foreward or backward) to position yourself on the NEXT or
+	any direction (Forward or backward) to position yourself on the NEXT or
 	PREVIOUS occurrence (or even nth occurrence!) of a given substring!
 
 	Let's see how easy it is to perform all of that...

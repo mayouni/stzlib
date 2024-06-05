@@ -94,7 +94,7 @@ class stzWalker from stzList
 			@nStep = nStep
 		ok
 
-		@cWalkingDirection = :Foreward
+		@cWalkingDirection = :Forward
 
 		cDirection = paWalkerOptions[ :Direction ]
 		if cDirection = :Backward
@@ -179,7 +179,7 @@ class stzWalker from stzList
 		
 		if NOT ( isString(pcDirection) and
 			 Q(pcDirection).IsToNamedParam() and
-			 Q(pcDirection).IsOneOfThese([ :Foreward, :Backward ]) )
+			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward ]) )
 
 			StzRaise("Incorrect param!")
 
@@ -191,17 +191,17 @@ class stzWalker from stzList
 		return @cWalkingDirection
 
 	def TurnAround()
-		if This.TalkingDirection() = :Foreward
+		if This.TalkingDirection() = :Forward
 			This.SetTalkingDirection(:To = :Backward)
 		else
-			This.SetTalkingDirection(:To = :Foreward)
+			This.SetTalkingDirection(:To = :Forward)
 		ok
 
 		def InverseWalkingDirection()
 			This.TurnAround()
 
-	def ShouldWalkForeward()
-		return This.WalkingDirection() = :Foreward
+	def ShouldWalkForward()
+		return This.WalkingDirection() = :Forward
 
 	def ShouldWalkBackward()
 		return This.WalkingDirection() = :Backward
@@ -239,8 +239,8 @@ class stzWalker from stzList
 	#--------------#
 
 	def Walk()
-		if This.ShouldWalkForeward()
-			return This.WalkForeward()
+		if This.ShouldWalkForward()
+			return This.WalkForward()
 
 		but This.ShouldWalkBackward()
 			return This.WalksBackward()
@@ -248,8 +248,8 @@ class stzWalker from stzList
 		ok
 
 	def WalkNSteps(n)
-		if This.ShouldWalkForeward()
-			return This.WalkNStepsForeward(n)
+		if This.ShouldWalkForward()
+			return This.WalkNStepsForward(n)
 
 		but This.ShouldWalkBackward()
 			return This.WalksNStepsBackward(n)
@@ -257,20 +257,20 @@ class stzWalker from stzList
 		ok
 
 	  #----------------------#
-	 #   WALKING FOREWARD   #
+	 #   WALKING Forward   #
 	#----------------------#
 
-	def WalkForeward()
-		return This.WalkNStepsforeward( This.Jump() )
+	def WalkForward()
+		return This.WalkNStepsForward( This.Jump() )
 
-	def WalkNStepsForeward(n)
+	def WalkNStepsForward(n)
 		///
 
-		def WalkForewardNSteps()
+		def WalkForwardNSteps()
 
-		def WalkNForeward(n)
+		def WalkNForward(n)
 
-		def WalkForewardN(n)
+		def WalkForwardN(n)
 
 	  #----------------------#
 	 #   WALKING BACKWARD   #
