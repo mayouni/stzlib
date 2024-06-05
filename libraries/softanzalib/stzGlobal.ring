@@ -766,6 +766,35 @@ func SetEarlyCheck(b)
 
 #--
 
+func Direction(p)
+	if isString(p)
+
+		p = lower(p)
+
+		if p = :Forward or p = :Backward
+			return p
+
+		else
+			StzRaise("Incorrect param! p must be a string containing :Forward or :Backward.")
+		ok
+
+	but isList(p)
+		if len(p) = 2 and Q(p).IsDirectionOrGoingNamedParam()
+			return p[2]
+
+		else
+			StzRaise("Incorrect param! p must be a named param containing :Forward or :Backward.")
+		ok
+
+	ok
+
+	StzRaise("Incorrect param type! p must be string or a list containing a named param.")
+
+	func @Direction(p)
+		return Direction(p)
+	
+#--
+
 
 func IsCaseSensitive(p)
 

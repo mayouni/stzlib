@@ -423,6 +423,24 @@ proff()
 
 /*======================================================================
 
+pron()
+
+? Direction(:forward)
+#--> "forward"
+
+? Direction(:backward)
+#--> "backward"
+
+? Direction(:Direction = :Forward)
+#--> "forward"
+
+? Direction(:Going = :Backward)
+#--> "backward"
+
+proff()
+# Executed in 0.02 second(s)
+s
+/*--------
 */
 pron()
 #                       5       13     20     27       36         47
@@ -435,12 +453,19 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 //? o1.FindNthSubStringBetweenD(3, "ring", "START", "END", :Direction = :Backward)
 #--> 20
 
-? o1.FindNthSubStringBetweenD(3, "ring", 5, 47, :Backward)
+//? o1.FindNthSubStringBetweenD(3, "ring", 5, 47, :Backward)
 #--> 20
-/*
-? o1.FindNthSubStringBoundedByD(2, "ring", [ "<<", ">>" ], :StartingAt = 3)
+
+? o1.FindNthSubStringBoundedByD(2, "ring", [ "<<", ">>" ], :Forward)
 #--> 27
 
+? o1.FindNthSubStringBoundedByD(2, "ring", [ "<<", ">>" ], :Backward)
+#--> 13
+
+? o1.FindNthPreviousSubStringBoundedBySIB(2, "ring", [ "<<", ">>" ], 58)
+#--> 11
+
+/*
 ? ""
 
 ? o1.FindFirstSubStringBetweenD("ring", "START", "END", :StartingAt = 3)
