@@ -60983,6 +60983,24 @@ Item and then position
 			return FALSE
 		ok
 
+	def IsDirectionOrGoingNamedParam()
+		if This.IsDirectionNamedParam() or This.IsGoingNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsGoingOrDirectionNamedParam()
+			return This.IsDirectionOrGoingNamedParam()
+
+		#--
+
+		def IsDirectionOrGoingNamedParams()
+			return This.IsDirectionOrGoingNamedParam()
+
+		def IsGoingOrDirectionNamedParams()
+			return This.IsDirectionOrGoingNamedParam()
+
 	def IsComingNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and

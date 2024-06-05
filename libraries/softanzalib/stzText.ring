@@ -3431,9 +3431,9 @@ class stzText from stzString
 		nResult = This.NumberOfLetters()
 		return nResult
 
-	  #-------------------------------------------------------------------------------------#
-	 #  GOINING FORWARAD IN THE TEXT STARTING AT A GIVEN POSITION UNTIL THEN END OF WORD   #
-        #-------------------------------------------------------------------------------------#
+	  #-----------------------------------------------------------------------------------#
+	 #  GOING FORWARAD IN THE TEXT STARTING AT A GIVEN POSITION UNTIL THEN END OF WORD   #
+        #-----------------------------------------------------------------------------------#
 
 	def ForwardToEndOfWord(nStart) # Starting at position n
 		/* Example:

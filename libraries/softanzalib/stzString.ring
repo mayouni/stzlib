@@ -25036,7 +25036,8 @@ class stzString from stzObject
 		ok
 
 		cBounded = cBound1 + pcSubStr + cBound2
-		nLenBounded = Q(cBounded).NumberOfChars()
+		nLenBound1= Q(cBound1).NumberOfChars()
+
 		nStart = pnStartingAt
 		bContinue = TRUE
 		nTimes = 0
@@ -25052,7 +25053,7 @@ class stzString from stzObject
 				nTimes++
 
 				if nTimes = n
-					nResult = nPos
+					nResult = nPos + nLenBound1
 					bContinue = FALSE
 
 				else
@@ -25499,7 +25500,7 @@ class stzString from stzObject
 
 	def FindPreviousNthSubStringBoundedByCSIB(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 
-		nResult = this.FindPreviousNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+		nResult = This.FindPreviousNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 		if nResult > 0
 
 			nLenBound1 = 0
@@ -25565,10 +25566,10 @@ class stzString from stzObject
 			return This.FindPreviousNthSubStringBoundedByIB(n, pcSubStr, pacBounds, pnStartingAt)
 
 		def FindNthPreviousSubStringBoundedBySIB(n, pcSubStr, pacBounds, pnStartingAt)
-			return This.FindPreviousNthSubStringBoundedByCSIB(n, pcSubStr, pacBounds)
+			return This.FindPreviousNthSubStringBoundedByIB(n, pcSubStr, pacBounds, pnStartingAt)
 
 		def FindPreviousNthSubStringBoundedBySIBZ(n, pcSubStr, pacBounds, pnStartingAt)
-			return This.FindPreviousNthSubStringBoundedByCSIB(n, pcSubStr, pacBounds, pnStartingAt)
+			return This.FindPreviousNthSubStringBoundedByIB(n, pcSubStr, pacBounds, pnStartingAt)
 
 		def FindNthPreviousSubStringBoundedBySIBZ(n, pcSubStr, pacBounds, pnStartingAt)
 			return This.FindPreviousNthSubStringBoundedByIB(n, pcSubStr, pacBounds, pnStartingAt)
@@ -26395,14 +26396,19 @@ class stzString from stzObject
 	#----------------------------------------------------#
 
 	def FindNthSubStringBoundedByDCS(n, pcSubStr, pacBounds, pcDirection, pCaseSensitive)
-		if isString(pacBounds)
-			return This.FindNthSubStringBetweenDCS(n, pcSubStr, pacBounds, pacBounds, pcDirection, pCaseSensitive)
+		
+		cDirection = @Direction(pcDirection)
 
-		but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-			return This.FindNthSubStringBetweenDCS(n, pcSubStr, pacBounds[1], pacBounds[2], pcDirection, pCaseSensitive)
+		if cDirection = "forward"
+			return This.FindNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+
+		but cDirection = "backward"
+			nLen = This.NumberOfChars()
+			return This.FindNthPreviousSubStringBoundedBySCS(n, pcSubStr, pacBounds, nLen, pCaseSensitive)
 
 		else
-			StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
+			StzRaise("Incorrect param! pcDirection must be a string containg :Forward or :Backward.")
+
 		ok
 
 		#< @FunctionAlternativeForm
@@ -38715,7 +38721,7 @@ class stzString from stzObject
 
 	   #==========================================================#
 	  #   FINDING THE POSITIONS OF SOME OCCURRENCES OF A GIVEN   #
-	 #   SUBSTRING GOINING IN A GIVEN DIRECTION                 #
+	 #   SUBSTRING GOING IN A GIVEN DIRECTION                   #
 	#==========================================================#
 
 	def FindTheseOccurrencesDCS(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
