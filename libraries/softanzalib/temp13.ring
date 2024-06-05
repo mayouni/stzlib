@@ -191,7 +191,7 @@
 		#< @FunctionAlternativeForms
 
 		def NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
-			return This.NumberOfOccurrenceBoundedByCS(pcSubStr, BoundedBy, pCaseSensitive)
+			return This.NumberOfOccurrenceBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
 		#-- Occurrences (with s)
 	
@@ -2465,7 +2465,7 @@ ici	def FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnS
 			return This.FindNthSubStringBetweenCSZZ(n, pcSubStr, pcBounds, pcBounds, pCaseSensitive)
 
 		but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-			return This.FindNthSubStringBetweenCSZZ(n, pcSubStr, pcBounds[1], pcBounds[2], pCaseSensitive)
+			return This.FindNthSubStringBetweenCSZZ(n, pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
 
 		else
 			StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
@@ -2593,7 +2593,7 @@ ici	def FindPreviousNthSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pnS
 			return This.FindNthSubStringBetweenCSIBZZ(n, pcSubStr, pcBounds, pcBounds, pCaseSensitive)
 
 		but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-			return This.FindNthSubStringBetweenCSIBZZ(n, pcSubStr, pcBounds[1], pcBounds[2], pCaseSensitive)
+			return This.FindNthSubStringBetweenCSIBZZ(n, pcSubStr, pacBounds[1], pacBounds[2], pCaseSensitive)
 
 		else
 			StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
