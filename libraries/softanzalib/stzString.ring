@@ -27545,6 +27545,7 @@ class stzString from stzObject
 	#-----------------------------------------------------#
 
 	def FindLastSubStringBoundedByDCS(pcSubStr, pacBounds, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 		return This.FindNthSubStringBoundedByDCS(nLast, pcSubStr, pacBounds, pcDirection, pCaseSensitive)
 
 		def FindLastSubStringBoundedByDCSZ(pcSubStr, pacBounds, pcDirection, pCaseSensitive)
@@ -27592,6 +27593,7 @@ class stzString from stzObject
 	#--------------------------------------------------------------------------#
 
 	def FindLastSubStringBoundedByDCSZZ(pcSubStr, pacBounds, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 		return This.FindNthSubStringBoundedByDCSZZ(nLast, pcSubStr, pacBounds, pcDirection, pCaseSensitive)
 
 		def FindLastSubStringBoundedByAsSectionsDCS(pcSubStr, pacBounds, pcDirection, pCaseSensitive)
@@ -27611,6 +27613,7 @@ class stzString from stzObject
 	#----------------------------------------------------------------#
 
 	def FindLastSubStringBoundedByDCSIB(pcSubStr, pacBounds, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 		return This.FindNthSubStringBoundedByDCSIB(nLast, pcSubStr, pacBounds, pcDirection, pCaseSensitive)
 
 		def FindLastSubStringBoundedByDCSIBZ(pcSubStr, pacBounds, pcDirection, pCaseSensitive)
@@ -27630,6 +27633,7 @@ class stzString from stzObject
 	#---------------------------------------------------------------------------------#
 
 	def FindLastSubStringBoundedByDCSIBZZ(pcSubStr, pacBounds, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 		return This.FindNthSubStringBoundedByDCSIBZZ(nLast, pcSubStr, pacBounds, pcDirection, pCaseSensitive)
 
 		def FindLastSubStringBoundedByAsSectionsDCSIB(pcSubStr, pacBounds, pcDirection, pCaseSensitive)
@@ -27677,6 +27681,7 @@ class stzString from stzObject
 	#---------------------------------------------------------------------------#
 
 	def FindLastSubStringBoundedBySDCS(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBoundedBySCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 		return This.FindNthSubStringBoundedBySDCS(nLast, pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 
 		def FindLastSubStringBoundedBySDCSZ(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
@@ -27697,7 +27702,7 @@ class stzString from stzObject
 
 	def FindLastSubStringBetweenSDCSZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 		nLast = This.NumberOfOccurrenceBetweenSCS(pcSubStr, pcBound1, pcBound2, pnStartingAt, pCaseSensitive)
-		return This.FindLastSubStringBetweenSDCSZZ(pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
+		return This.FindNthSubStringBetweenSDCSZZ(nLast, pcSubStr, pcBound1, pcBound2, pnStartingAt, pcDirection, pCaseSensitive)
 
 		#< @FunctionAlternativeForm
 	
@@ -27724,7 +27729,8 @@ class stzString from stzObject
 	#----------------------------------------------------------------------------------------#
 
 	def FindLastSubStringBoundedBySDCSZZ(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-		return This.FindBoundedBySDCSZZ(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBoundedBySCS(pcSubStr,pacBounds, pnStartingAt, pCaseSensitive)
+		return This.FindNthSubStringBoundedBySDCSZZ(nLast, pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 
 		def FindLastSubStringBoundedByAsSection_SDCS(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 			return This.FindLastSubStringBoundedBySDCSZZ(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
@@ -27743,6 +27749,7 @@ class stzString from stzObject
 	#-------------------------------------------------------------------------------------#
 
 	def FindLastSubStringBoundedBySDCSIB(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBoundedBySCS(pcSubStr,pacBounds, pnStartingAt, pCaseSensitive)
 		return This.FindNthSubStringBoundedBySDCSIB(nLast, pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 
 		def FindLastSubStringBoundedBySDCSIBZ(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
@@ -27762,7 +27769,8 @@ class stzString from stzObject
 	#================================================================================================#
 
 	def FindLastSubStringBoundedBySDCSIBZZ(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-		return This.FindLastSubStringBoundedBySDCSIBZZ(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceBoundedBySCS(pcSubStr,pacBounds, pnStartingAt, pCaseSensitive)
+		return This.FindNthSubStringBoundedBySDCSIBZZ(nLast, pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 
 		def FindLastSubStringBoundedByAsSectionsSDCSIB(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 			return This.FindLastSubStringBoundedBySDCSIBZZ(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)

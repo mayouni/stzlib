@@ -456,32 +456,43 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 //? o1.FindNthSubStringBetweenD(3, "ring", 5, 47, :Backward)
 #--> 20
 
-? o1.FindNthSubStringBoundedByD(2, "ring", [ "<<", ">>" ], :Forward)
+//? o1.FindNthSubStringBoundedByD(2, "ring", [ "<<", ">>" ], :Forward)
 #--> 27
 
-? o1.FindNthSubStringBoundedByD(2, "ring", [ "<<", ">>" ], :Backward)
+//? o1.FindNthSubStringBoundedByD(2, "ring", [ "<<", ">>" ], :Backward)
 #--> 13
 
-? o1.FindNthPreviousSubStringBoundedBySIB(2, "ring", [ "<<", ">>" ], 58)
+//? o1.FindNthPreviousSubStringBoundedBySIB(2, "ring", [ "<<", ">>" ], 58)
 #--> 11
 
-/*
 ? ""
 
-? o1.FindFirstSubStringBetweenD("ring", "START", "END", :StartingAt = 3)
+? o1.FindFirstSubStringBetweenD("ring", "START", "END", :Forward)
 #--> 13
 
-? o1.FindFirstSubStringBoundedByD("ring", [ "<<", ">>" ], :StartingAt = 3)
-#--> 13
-
-? o1.FindLastSubStringBetweenD("ring", "START", "END", :StartingAt = 3)
+? o1.FindFirstSubStringBetweenD("ring", "START", "END", :Backward)
 #--> 36
 
-? o1.FindLastSubStringBoundedByD("ring", [ "<<", ">>" ], :StartingAt = 3)
+? o1.FindFirstSubStringBoundedByD("ring", [ "<<", ">>" ], :Forward)
+#--> 13
+
+? o1.FindFirstSubStringBoundedByD("ring", [ "<<", ">>" ], :Backward)
 #--> 27
-*/
+
+? o1.FindLastSubStringBetweenD("ring", "START", "END", :Forward)
+#--> 36
+
+? o1.FindLastSubStringBetweenD("ring", "START", "END", :Backward)
+#--> 13
+
+? o1.FindLastSubStringBoundedByD("ring", [ "<<", ">>" ], :Forward)
+#--> 27
+
+? o1.FindLastSubStringBoundedByD("ring", [ "<<", ">>" ], :Backward)
+#--> 13
+
 proff()
-# Executed in 0.27 second(s)
+# Executed in 0.12 second(s)
 
 /*---
 
