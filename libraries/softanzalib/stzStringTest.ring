@@ -98,7 +98,7 @@ StartProfiler()
 # two bounds by saying:
 
 o1 = new stzString("txt <<ring>> txt <<php>>")
-? @@( o1.FindAnyBetween("<<",">>") )
+? @@( o1.FindAnyBoundedBy(["<<",">>"]) )
 #--> [7, 20]
 
 # In fact, the substring "ring" occures in position 7 and "php" in position 20.
@@ -107,7 +107,7 @@ o1 = new stzString("txt <<ring>> txt <<php>>")
 # the same (equal to "*" here):
 
 o1 = new stzString("*2*45*78*0*")
-? @@( o1.FindAnyBetween("*","*") )
+? @@( o1.FindAnyBoundedBy(["*","*"]) ) # or simply FindAnyBoundedBy("*")
 #--> [2, 7]
 
 # then you get "2" that starts at position 2 and "78" at position 7.
@@ -121,7 +121,7 @@ o1 = new stzString("*2*45*78*0*")
 # corresonds to a substring ("2") between "*" and "*". Then it
 # takes its position 2.
 
-# Then, Softanza restarts from position 3 and scans the remaining
+# Then, it restarts from position 3 and scans the remaining
 # substring "45*78*0*" for any other substring between "*" and "*".
 # It finds it at position 7 (substring "78").
 
@@ -1525,7 +1525,7 @@ proff()
 pron()
 
 o1 = new stzString("..<<Hi>>..<<Ring!>>..")
-? @@( o1.FindAnyBetweenAsSections("<<", ">>") )
+? @@( o1.FindAnyBoundedByAsSections("<<", ">>") )
 #--> [ [ 5, 6 ], [ 13, 17 ] ]
 
 proff()
@@ -1535,25 +1535,10 @@ proff()
 
 pron()
 
-o1 = new stzString("..<<Hi>>..<<Ring!>>..")
-
-? @@(o1.FindAnyBetweenAsSectionsS("<<", ">>", 3))
-#--> [ [ 5, 6 ], [ 13, 17 ] ]
-
-? @@(o1.FindAnyBetweenAsSectionsS("<<", ">>", 8))
-#--> [ [ 13, 17 ] ]
-
-proff()
-# Executed in 0.10 second(s)
-
-/*-----------
-
-pron()
-
 #                     3    8   3
 o1 = new stzString("**aa***aa**aa***")
 
-? @@(o1.FindAnyBetweenAsSections("aa", "aa"))
+? @@(o1.FindAnyBoundedByAsSections("aa", "aa"))
 #--> [ [ 5, 7 ], [ 10, 11 ] ]
 
 proff()
@@ -1566,7 +1551,7 @@ pron()
 #                       5 7  01    
 o1 = new stzString("**aa***aa**aa***")
 
-? @@(o1.FindAnyBetweenAsSectionsS("aa", "aa", :startingat = 2))
+? @@(o1.FindAnyBoundedByAsSectionsS("aa", "aa", :startingat = 2))
 #--> [ [ 5, 7 ], [ 10, 11 ] ]
 
 proff()
@@ -2102,7 +2087,7 @@ proff()
 pron()
 
 o1 = new stzString("<<***>>**<<***>>")
-? @@( o1.FindAnyBetweenAsSections("<<", ">>") )
+? @@( o1.FindAnyBoundedByAsSections("<<", ">>") )
 #--> [ [ 3, 5 ], [ 12, 14 ] ]
 
 proff()
@@ -2737,10 +2722,10 @@ proff()
 pron()
 
 o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
-? @@( o1.FindInBetweenAsSections( "hi!", "<<", ">>" ) )
+? @@( o1.FindBetweenAsSections( "hi!", "<<", ">>" ) )
 #--> [ [ 8, 10 ], [ 29, 31 ] ]
 
-? @@( o1.FindInBetween( "hi!", "<<", ">>" ) )
+? @@( o1.FindBetween( "hi!", "<<", ">>" ) )
 #--> [ 8, 29 ]
 
 proff()
@@ -2751,7 +2736,7 @@ proff()
 pron()
 
 ? @@( Q("..<<--♥♥♥--♥♥♥-->>..<<---♥♥♥>>..").
-	FindInBetweenAsSections("♥♥♥", "<<", ">>") )
+	FindBetweenAsSections("♥♥♥", "<<", ">>") ) # Or Simply FindBetweenZZ()
 #--> [ [ 7, 9 ], [ 12, 14 ], [ 26, 28 ] ]
 
 proff()
@@ -3023,25 +3008,25 @@ pron()
 
 o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
 
-# Inside the substrings bounded by "<<" and ">>", find the
+# Inside the substrings encolsed between "<<" and ">>", find the
 # occurrences of the substring "hi!"
 
-? o1.FindInBetween( "hi!", "<<", ">>" )
+? o1.FindBetween( "hi!", "<<", ">>" )
 #--> [8, 29]
 
 # Written in a near-natural form:
 
-? o1.FindXT( "hi!", :InBetween = ["<<", ">>"] )
+? o1.FindXT( "hi!", :Between = ["<<", :And = ">>"] )
 #--> [8, 29]
 
 # Yielding the sections not just the positions
 
-? o1.FindInBetweenAsSections( "hi!", "<<", ">>" )
+? o1.FindBetweenAsSections( "hi!", "<<", ">>" )
 #--> [ [8, 10], [29, 31] ]
 
 # Written in a near-natural form:
 
-? o1.FindAsSectionsXT( "hi!", :InBetween = ["<<", ">>"] )
+? o1.FindAsSectionsXT( "hi!", :Between = ["<<", :And = ">>"] )
 #--> [ [8, 10], [29, 31] ]
 
 proff()
@@ -3548,12 +3533,12 @@ StopProfiler()
 pron()
 
 o1 = new stzString("bla bla /.../ and /---/!")
-o1.ReplaceAnyBetween("/", "/", "bla")
+o1.ReplaceAnyBoundedBy(["/", "/"], "bla")
 ? o1.Content()
 #--> bla bla /bla/ and /bla/!
 
 o1 = new stzString("bla bla /.../ and /---/!")
-o1.ReplaceAnyBetweenIB("/", "/", "bla")
+o1.ReplaceAnyBoundedByIB(["/", "/"], "bla")
 ? o1.Content()
 #--> bla bla bla and bla!
 
@@ -4087,22 +4072,22 @@ pron()
 #                   1  4 6  9 1   567      456
 o1 = new stzString("...<<ring>>...<<softanza>>...")
 
-? @@( o1.FindAnyBetween("<<",">>") )
+? @@( o1.FindAnyBoundedBy(["<<",">>"]) )
 #--> [6, 17]
 
-? @@( o1.FindAnyBetweenAsSections("<<",">>") )
+? @@( o1.FindAnyBoundedByAsSections(["<<",">>"]) )
 #--> [ [6, 9], [17, 24] ]
 
-? @@( o1.AnyBetween("<<",">>") )
+? @@( o1.AnyBoundedBy(["<<",">>"]) )
 #--> ["ring", "softanza"]
 
-? @@( o1.FindAnyBetweenIB("<<",">>") )
+? @@( o1.FindAnyBoundedByIB(["<<",">>"]) )
 #--> [4, 15]
 
-? @@( o1.FindAnyBetweenAsSectionsIB("<<",">>") )
+? @@( o1.FindAnyBoundedByAsSectionsIB(["<<",">>"]) )
 #--> [ [4, 11], [15, 26] ]
 
-? @@( o1.AnyBetweenIB("<<",">>") )
+? @@( o1.AnyBoundedByIB(["<<",">>"]) )
 #--> ["<<ring>>", "<<softanza>>"]
 
 proff()
@@ -4685,28 +4670,28 @@ StartProfiler()
 o1 = new stzString("I love <<Ring>> and <<Softanza>>!")
 
 # Finding the positions of substrings enclosed between << and >>
-? @@( o1.FindanyBetween("<<",">>") )
+? @@( o1.FindanyBoundedBy([ "<<",">>" ]) )
 #--> [10, 23]
 
-	# Returning the same result as sections
-	? @@( o1.FindAnyBetweenAsSections("<<",">>") )
+	# Returning the same result but as sections
+	? @@( o1.FindAnyBoundedByAsSections([ "<<",">>"] ) ) # Or simply FindAnyBoundedByZZ()
 	#--> [ [10, 13], [23, 30] ]
 
 	# Getting the substrings themselves
-	? @@( o1.AnyBetween("<<",">>") ) # Or SubStringsBetween("<<", :And = ">>")
+	? @@( o1.AnyBoundedBy([ "<<",">>" ]) ) # Or SubStringsBoundedBy([ "<<", :And = ">>" ])
 	#--> [ "Ring", "Softanza" ]
 
 # Now, we need to do the same thing but we want to return the
 # bounding chars << and >> in the result as well. To do so,
-# we can use the IB/extended version of the same functions like this:
+# we can use the IB/extended form of the same functions like this:
 
-? @@( o1.FindAnyBetweenIB("<<",">>") )
+? @@( o1.FindAnyBoundeByIB([ "<<",">>" ]) )
 #--> [8, 21]
 
-	? @@( o1.FindAnyBetweenAsSectionsIB("<<",">>") )
+	? @@( o1.FindAnyBoundedByAsSectionsIB([ "<<", ">>" ]) ) # Or Simply FindAnyBoundedByZZ()
 	#--> [ [ 8, 15 ], [ 21, 32 ] ]
 
-	? @@( o1.AnyBetweenIB("<<",">>") )
+	? @@( o1.AnyBoundedByIB([ "<<",">>" ]) )
 	#--> [ <<Ring>>, <<Softanza>> ]
 
 StopProfiler()
@@ -4732,17 +4717,16 @@ o1 = new stzString('[
 
 ]')
 
-//? @@( o1.DeepFindAnyBetweenAsSections("[", "]") )
+//? @@( o1.DeepFindAnyBoundedByAsSections("[", "]") )
 
-aList = o1.DeepSubStringsBetweenIB("[", "]")
+aList = o1.DeepSubStringsBoundedByIB("[", "]")
 nLen = len(aList)
 for i = 1 to nLen
 	? aList[i] + NL + NL + "--" + NL
 next
 
 proff()
-
-#--> Executed in 0.61 second(s)
+# Executed in 0.61 second(s)
 
 /*=============
 
@@ -4909,12 +4893,13 @@ proff()
 /*-------------
 
 pron()
-
+#                      4      11      19   24
+#                      v      v       v    v
 o1 = new stzString("   r  in  g  is a rin  g  ")
-? @@( o1.FindAnyBetweenAsSectionsIB("r","g") )
+? @@( o1.FindAnyBoundedByIBZZ([ "r", "g" ]) )
 #--> [ [ 4, 11 ], [ 19, 24 ] ]
 
-? o1.SubStringsBetweenIBQR("r","g", :stzListOfStrings).WithoutSapces()
+? o1.SubStringsBoundedByIBQR([ "r","g" ], :stzListOfStrings).WithoutSapces()
 #NOTE: WithoutSapces() is misspelled and the correct form is WithoutSpaces!
 # Despite that, softanza accepts it ;)
 #--> [ "ring", "ring" ]
@@ -4922,7 +4907,7 @@ o1 = new stzString("   r  in  g  is a rin  g  ")
 proff()
 #--> Executed in 0.07 second(s)
 
-/*-------------- SUBSTRONGS & SUBSTREAKS
+/*-------------- SUBSTRONGS & SUBSTRINKS #narration #funny
 
 pron()
 
@@ -4934,7 +4919,7 @@ o1 = new stzListOfStrings([
 #--> [ "Ring" ]
 # In fact, "Ring" contains "in" and "in" is an item from the list
 
-? o1.SubStreaks() # the strings that are contained in other strings from the list
+? o1.SubStrinks() # the strings that are contained IN other strings from the list
 #--> [ "in" ]
 # In fact, "in" is contained in the item "Ring"
 
@@ -5550,16 +5535,13 @@ pron()
 #                     3    8   3
 o1 = new stzString("**aa***aa**aa***")
 
-? @@(o1.FindAnyBetweenAsSectionsS("aa", "aa", 1))
+? @@(o1.FindAnyBoundedByAsSectionsS("aa", "aa", 1))
 #--> [ [ 5, 7 ], [ 10, 11 ] ]
 
-? @@(o1.FindAnyBetweenAsSectionsD("aa", "aa", :Backward))
+? @@(o1.FindAnyBoundedByDZZ("aa", "aa", :Backward))
 #--> [ [ 10, 11 ], [ 5, 7 ] ]
 
-? @@(o1.FindAnyBetweenAsSectionsS("aa", "aa", :StartingAt = 3))
-#--> [ [ 10, 11 ] ]
-
-? @@(o1.FindAnyBetweenAsSectionsSD("aa", "aa", :StartingAt = 3, :Going = :Forward))
+? @@(o1.FindAnyBoundedBySZZ("aa", "aa", :StartingAt = 3))
 #--> [ [ 10, 11 ] ]
 
 proff()

@@ -19734,15 +19734,15 @@ stop()
 	 #  GETTING THE LIST OF SUBSTREACKS IN THE LIST  #
 	#-----------------------------------------------#
 
-	// A substreak is any string containg other strings from the list
+	// A SubStrink is any string contained IN other strings from the list
 
-	def SubStreaksCS(pCaseSensitive)
+	def SubStrinksCS(pCaseSensitive)
 		/* EXAMPLE
 		o1 = new stzListOfStrings([
 			"I", "believe", "in", "Ring", "future", "and", "engage", "for", "it!"
 		])
 		
-		? o1.SubStreaks()
+		? o1.SubStrinks()
 		#--> [ "in" ]
 		# In fact "in" is contained in "Ring" and "Ring" is an item from the list
 		*/
@@ -19769,44 +19769,44 @@ stop()
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStreaks()
-		return This.SubStreaksCS(TRUE)
+	def SubStrinks()
+		return This.SubStrinksCS(TRUE)
 
 	  #-----------------------------------#
-	 #  SUBSTRONGS AND THEIR SUBSTREAKS  #TODO
+	 #  SUBSTRONGS AND THEIR SubStrinkS  #TODO
 	#-----------------------------------#
 
-	def SubStrongsAndTheirSubStreaksCS(pCaseSensitive)
+	def SubStrongsAndTheirSubStrinksCS(pCaseSensitive)
 		/* ... */
 
-		def SubStrongsAndSubStreaksCS(pCaseSensitive)
-			return This.SubStrongsAndTheirSubStreaksCS(pCaseSensitive)
+		def SubStrongsAndSubStrinksCS(pCaseSensitive)
+			return This.SubStrongsAndTheirSubStrinksCS(pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStrongsAndTheirSubStreaks()
-		return This.SubStrongsAndTheirSubStreaksCS(TRUE)
+	def SubStrongsAndTheirSubStrinks()
+		return This.SubStrongsAndTheirSubStrinksCS(TRUE)
 
-		def SubStrongsAndSubStreaks()
-			return This.SubStrongsAndTheirSubStreaks()
+		def SubStrongsAndSubStrinks()
+			return This.SubStrongsAndTheirSubStrinks()
 
 	  #-----------------------------------#
-	 #  SUBSTREAKS AND THEIR SUBSTRONGS  #TODO
+	 #  SubStrinkS AND THEIR SUBSTRONGS  #TODO
 	#-----------------------------------#
 
-	def SubStreaksAndTheirSubStrongsCS(pCaseSensitive)
+	def SubStrinksAndTheirSubStrongsCS(pCaseSensitive)
 		/* ... */
 
-		def SubStreaksAndSubStrongsCS(pCaseSensitive)
-			return This.SubStreaksAndTheirSubStrongsCS(pCaseSensitive)
+		def SubStrinksAndSubStrongsCS(pCaseSensitive)
+			return This.SubStrinksAndTheirSubStrongsCS(pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStreaksAndTheirSubStrongs()
-		return This.SubStreaksAndTheirSubStrongsCS(TRUE)
+	def SubStrinksAndTheirSubStrongs()
+		return This.SubStrinksAndTheirSubStrongsCS(TRUE)
 
-		def SubStreaksAndSubStrongs()
-			return This.SubStreaksAndTheirSubStrongs()
+		def SubStrinksAndSubStrongs()
+			return This.SubStrinksAndTheirSubStrongs()
 
 	  #----------------------------------#
 	 #  FINDING SUBSTRONGS IN THE LIST  #TODO
@@ -19827,22 +19827,22 @@ stop()
 			return This.FindSubStrongs()
 
 	  #----------------------------------#
-	 #  FINDING SUBSTREAKS IN THE LIST  #TODO
+	 #  FINDING SubStrinkS IN THE LIST  #TODO
 	#----------------------------------#
 
-	def FindSubStreaksCS(pCaseSensitive)
+	def FindSubStrinksCS(pCaseSensitive)
 		/* ... */
 
-		def FindAllSubStreaksCS(pCaseSensitive)
-			return This.FindFindSubStreaksCS(pCaseSensitive)
+		def FindAllSubStrinksCS(pCaseSensitive)
+			return This.FindFindSubStrinksCS(pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindSubStreaks()
+	def FindSubStrinks()
 		/* ... */
 
-		def FindAllSubStreaks()
-			return This.FindSubStreaks()
+		def FindAllSubStrinks()
+			return This.FindSubStrinks()
 
 
 	#==
