@@ -46215,11 +46215,6 @@ Item and then position
 			but oP2.IsBoundedByNamedParam()
 				return This.FindBoundedByCS(p1, p2[2], pCaseSensitive)
 
-			# FindXT( "*", :InBetween = [ "<<", :And = ">>" ])
-			but  oP2.IsInBetweenNamedParam()
-				p2 = p2[2]
-				return This.FindInBetweenCS(p1, p2[1], p2[2], pCaseSensitive)
-
 			# FindXT( "*", :BetweenIB = [ "<<", :And = ">>" ])
 			but  oP2.IsBetweenIBNamedParam()
 				p2 = p2[2]
@@ -57811,41 +57806,11 @@ Item and then position
 
 		else
 			return FALSE
-		ok
-
-	def IsInBetweenNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :InBetween )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsInBetweenXTNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :InBetweenXT )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
+		ok	
 
 	def IsBetweenIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenIB )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsInBetweenIBNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :InBetweenIB )
 
 			return TRUE
 
@@ -57863,16 +57828,6 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsInBetweenIBSNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :InBetweenIBS )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
 	def IsBetweenSNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenS )
@@ -57883,29 +57838,9 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsInBetweenSNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :InBetweenS )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
 	def IsBetweenCSNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCS )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsInBetweenCSNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :InBetweenCS )
 
 			return TRUE
 

@@ -603,24 +603,11 @@ pron()
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 
-
-? o1.FindNthSubStringBetweenSDZZ(3, "ring", "START", "END", :StartingAt = 3)
-#--> [ 27, 30 ]
-
-? o1.FindNthSubStringBetweenSDZZ(3, "ring", 5, 47, :StartingAt = 3)
-#--> [ 27, 30 ]
-
 ? o1.FindNthSubStringBoundedBySDZZ(2, "ring", [ "<<", ">>" ], :StartingAt = 3)
 #--> [ 27, 30 ]
 
-? o1.FindFirstSubStringBetweenSDZZ("ring", "START", "END", :StartingAt = 3)
-#--> [ 13, 16 ]
-
 ? o1.FindFirstSubStringBoundedBySDZZ("ring", [ "<<", ">>" ], :StartingAt = 3)
 #--> [ 13, 16 ]
-
-? o1.FindLastSubStringBetweenSDZZ("ring", "START", "END", :StartingAt = 3)
-#--> [ 36, 39 ]
 
 ? o1.FindLastSubStringBoundedBySDZZ("ring", [ "<<", ">>" ], :StartingAt = 3)
 #--> [ 27, 30 ]

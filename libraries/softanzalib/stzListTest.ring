@@ -1062,7 +1062,8 @@ aList = "ا" : "ج"
 #--> [ 1, 2, 3 ]
 
 proff()
-# Executed in 0.60 second(s)
+# Executed in 0.24 second(s) in Ring 1.20
+# Executed in 0.60 second(s) in Ring 1.17
 
 /*---
 

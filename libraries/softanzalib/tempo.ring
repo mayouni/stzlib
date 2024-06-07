@@ -1894,16 +1894,6 @@ pron()
 proff()
 #--> Executed in 0.48 second(s)
 
-/*-------------- #TODO check it after including ContainsSubstringBetweencs()
-
-pron()
-
-? Q("..<<--♥♥♥-->>..").ContainsXT("♥♥♥", :InBetween = ["<<", ">>"])
-#--> TRUE
-
-proff()
-# Executed in 0.05 second(s)
-
 /*==================
 
 StartProfiler()
@@ -6394,15 +6384,6 @@ o1 = new stzString("...<<*>>...<<*>>...")
 
 proff()
 
-/*---------- #TODO check it after including FindBetween()
-
-pron()
-
-# 		           8
-o1 = new stzString("...<<--*-->>...")
-? @@( o1.FindXT( "*", :InBetween = [ "<<", ">>" ]) ) # or :InSubStringsBetween
-
-proff()
 
 /*---------- #TODO check it after including FindBetween()
 
