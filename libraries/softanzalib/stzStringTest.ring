@@ -16,7 +16,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*----
-*/
+
 pron()
 
 o1 = new stzString("me you all the others")
@@ -7721,10 +7721,10 @@ o1 = new stzString("and **<Ring>** and _<<PHP>>_ AND <Python/> and _<<<Ruby>>>_ 
 /*=================
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? o1.SubstringsBetween("<<", :and = ">>")
+? o1.SubstringsBoundedBy([ "<<", :and = ">>" ])
 #--> [ "word", "noword", "word" ]
 
-? o1.UniqueSubStringsBetween("<<", :and = ">>")
+? o1.UniqueSubStringsBoundedBy("<<", :and = ">>")
 #--> [ "word", "noword" ]
 
 /*-----------------
@@ -7860,13 +7860,13 @@ o1 = new stzString("How many words in <<many many words>>? So many!")
 #--> [ [ 5, 8 ], [ 21, 24 ], [ 26, 29 ], [ 43, 46 ] ]
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? @@( o1.AnySubstringsBetween("<<", :and = ">>") )
+? @@( o1.AnySubstringsBoundedBy([ "<<", :and = ">>" ]) )
 #--> [ "word", "noword", "word" ]
 
-? @@( o1.FindSubStringsBetween("<<", :and = ">>") ) + NL
+? @@( o1.FindSubStringsBoundedBy([ "<<", :and = ">>" ]) ) + NL
 #--> [ 11, 28, 43 ]
 
-? @@( o1.FindAnyBetweenAsSections("<<",">>") )
+? @@( o1.FindAnyBoundedByAsSections([ "<<",">>" ]) )
 #--> [ [ 11, 14 ], [ 28, 33 ], [ 43, 46 ] ]
 
 
@@ -7874,9 +7874,9 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 /*----------------
 
 o1 = new stzString("bla bla <<word1>> bla bla <<word2>> bla <<word3>>")
-? o1.NthSubStringBetween(2, "<<", ">>") #--> "word2"
+? o1.NthSubStringBoundedBy(2, [ "<<", ">>" ] ) #--> "word2"
 # or you can say:
-? o1.NthSubStringXT(2, :Between = ["<<", ">>"]) #--> "word2"
+? o1.NthSubStringXT(2, :BoundedBy = ["<<", ">>"]) #--> "word2"
 
 /*----------------
 
@@ -7887,14 +7887,14 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 /*----------------
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
-? o1.FindNthBetween(2, "word", "<<", ">>")
+? o1.FindNthBoundedBy(2, "word", [ "<<", ">>" ])
 #--> 28
-? o1.FindNthSectionBetween(2, "word", "<<", ">>")
+? o1.FindNthSectionBoundedBy(2, "word", [ "<<", ">>" ])
 #--> [28, 31]
 
-? o1.FindNthXT(2, "word", :Between = ["<<", ">>"])
+? o1.FindNthXT(2, "word", :BoundedBy = ["<<", ">>"])
 #--> 28
-? o1.FindNthSectionXT(2, "word", :Between = ["<<", ">>"])
+? o1.FindNthSectionXT(2, "word", :BoundedBy = ["<<", ">>"])
 
 /*================
 
@@ -7960,14 +7960,14 @@ o1.RemoveCharsW('{ lower(@char) = "x" }')
 /*=================
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? o1.FindBetweenCS("word", "<<", ">>", :CaseSensitive = FALSE)
+? o1.FindBoundedByCS("word", [ "<<", ">>" ], :CaseSensitive = FALSE)
 #--> [ 11, 43 ]
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? o1.FindNthXT(2, "word", :Between = ["<<", ">>"])
+? o1.FindNthXT(2, "word", :BoundedBy = ["<<", ">>"])
 #--> 43
 
-? o1.FindNthSectionXT(2, "word", :Between = ["<<", ">>"])
+? o1.FindNthSectionXT(2, "word", :BoundedBy = ["<<", ">>"])
 #--> [43, 46]
 
 ? o1.FindNthXT(2, "word", :ReturnSection)
@@ -8200,13 +8200,13 @@ proff()
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? o1.FindBetweenCS("word", "<<", ">>", :CaseSensitive = FALSE)
+? o1.FindBoundedByCS("word", [ "<<", ">>" ], :CaseSensitive = FALSE)
 #--> [ 11, 43 ]
 
-? o1.FindBetweenAsSections("word", "<<", ">>")
+? o1.FindBoundedByAsSections("word", [ "<<", ">>" ])
 #--> [ [11, 14], [43, 46] ]
 
-? o1.FindXT("word", :Between = [ "<<", ">>" ])
+? o1.FindXT("word", :BoundedBy = [ "<<", ">>" ])
 #--> [ 11, 43 ]
 
 proff()
@@ -8216,10 +8216,17 @@ proff()
 
 pron()
 
+#                       +----------------------+
+#                       |                      |
+#                       V                      V
 o1 = new stzString("my <<word>> and your <<word>>")
 ? o1.FindXT("word", :Between = [ "<<", ">>" ])
 #--> [6, 24]
 
+#                       +----+            +----+
+#                       |    |            |    |
+#                       V    V            V    V
+o1 = new stzString("my <<word>> and your <<word>>")
 ? o1.FindXT("word", :BoundedBy = [ "<<", ">>" ])
 #--> [6, 24]
 
@@ -8231,7 +8238,7 @@ proff()
 pron()
 
 o1 = new stzString("my <<word>> and your <<word>>")
-? o1.FindBetween("word", "<<", ">>")
+? o1.FindBoundedBy("word", "<<", ">>")
 #--> [6, 24]
 
 proff()
@@ -8242,7 +8249,7 @@ pron()
 
 o1 = new stzString("my **word** and your **word**")
 
-? o1.FindBetween("word", "**", "**")
+? o1.FindBoundedBy("word", "**", "**")
 #--> [6, 24]
 
 ? o1.FindXT("word", :BoundedBy = "**")
@@ -8266,18 +8273,18 @@ proff()
 # Executed in 0.08 second(s)
 
 /*-----------------
-
+*/
 pron()
 
 o1 = new stzString("12*♥*56*♥*")
 
-? o1.FirstXT("♥", :Between = [ "*", "*"])
+? o1.FindFirstXT("♥", :Between = [ "*", "*"])
 #--> 4
 
-? o1.FirstXT("♥", :BoundedBy = [ "*", "*"])
+? o1.FindFirstXT("♥", :BoundedBy = [ "*", "*"])
 #--> 4
 
-? o1.FirstXT("♥", :BoundedBy = "*")
+? o1.FindFirstXT("♥", :BoundedBy = "*")
 #--> 4
 
 proff()

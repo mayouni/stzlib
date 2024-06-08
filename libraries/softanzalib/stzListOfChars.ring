@@ -4,7 +4,7 @@
 #---------------------------------------------------------------------------#
 #									    #
 # 	Description	: The core class for managing lists of chars        #
-#	Version		: V1.0 (2020-2023)				    #
+#	Version		: V1.0 (2020-2024)				    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #
 #---------------------------------------------------------------------------#
