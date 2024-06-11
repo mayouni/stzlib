@@ -51529,6 +51529,38 @@ Item and then position
 
 	#--
 
+	def IsEndiingAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :EndingAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEndingAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :EndingAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEndingAtOccurrenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :EndingAtOccurrence )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
 	def IsStoppingAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StoppingAt )
