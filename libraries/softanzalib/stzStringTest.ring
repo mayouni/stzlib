@@ -8278,7 +8278,7 @@ pron()
 
 o1 = new stzString("12*♥*56*♥*")
 
-? o1.FindFirstXT("♥", :Between = [ "*", "*"])
+//? o1.FindFirstXT("♥", :Between = [ "*", "*"])
 #--> 4
 
 ? o1.FindFirstXT("♥", :BoundedBy = [ "*", "*"])

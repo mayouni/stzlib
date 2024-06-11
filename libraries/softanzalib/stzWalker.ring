@@ -4,12 +4,6 @@ func With(p)
 func Named(c)
 	return c
 
-func StartingAt(n)
-	return n
-
-func EndingAt(n)
-	return n
-
 func JumpsATime(n)
 	return [ :JumpsATime , n ]
 

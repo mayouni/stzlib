@@ -2962,7 +2962,7 @@ class stzObject
 	def Are(pcType)
 		/* Example
 
-		? Q([ 10, 2à, 3à ]).Are(:Numbers)
+		? Q([ 10, 20, 30 ]).Are(:Numbers)
 
 		--> TRUE
 		*/

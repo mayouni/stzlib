@@ -1,5 +1,5 @@
 
-#TODO: general - study the cmpatibility of softanza comments
+#TODO: general - study the compatibility of softanza comments
 # with JSDoc (https://jsdoc.app/)
 #--> Create a generator of a static web site documentation
 
@@ -763,6 +763,76 @@ func SetEarlyCheck(b)
 
 	func SetEarlyChecksTo(b)
 		SetEarlyCheck(b)
+
+#--
+
+func StartingAt(p)
+	if isNumber(p)
+		return p
+
+	but isString(p)
+		p = lower(p)
+
+		if p = :first
+			return 1
+
+		but p = :Last
+			// do nothing
+
+		else
+			StzRaise("Incorrect param type! p, when it is a string, must be a equal to :First or :Last").
+		ok
+
+	but isList(p)
+		if len(p) = 2 and Q(p).IsStartingAtNamedParam()
+			return p[2]
+
+		else
+			StzRaise("Incorrect param! p, when it is a list, must be a named param of the form :StartingAt = number.")
+		ok
+	ok
+
+	StzRaise("Incorrect param type! p must be string or a list containing a named param.")
+
+	func @StartingAt(p)
+		return StartingAt(p)
+
+func StoppingAt(p)
+	if isNumber(p)
+		return p
+
+	but isString(p)
+		p = lower(p)
+
+		if p = :first
+			return 1
+
+		but p = :Last
+			// do nothing
+
+		else
+			StzRaise("Incorrect param type! p, when it is a string, must be a equal to :First or :Last").
+		ok
+
+	but isList(p)
+		if len(p) = 2 and Q(p).IsStoppingAtNamedParam()
+			return p[2]
+
+		else
+			StzRaise("Incorrect param! p, when it is a list, must be a named param of the form :StoppingAt = number.")
+		ok
+	ok
+
+	StzRaise("Incorrect param type! p must be string or a list containing a named param.")
+
+	func @StoppingAt(p)
+		return StoppingAt(p)
+
+	func EndingAt(p)
+		return StoppingAt(p)
+
+	func @EndingAt(p)
+		return StoppingAt(p)
 
 #--
 
