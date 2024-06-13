@@ -12098,7 +12098,7 @@ stop()
 		This.ReplaceSubStringByManyCS(pcSubStr, pacNewSubStr, TRUE)
 
 	  #----------------------------------------------------------------------------#
-	 #    REPLACING A SUBSTRING BY MANY SUBSTRINGS -- EXTENDED (RETURN TO FIST)   #
+	 #    REPLACING A SUBSTRING BY MANY SUBSTRINGS -- EXTENDED (RETURN TO FIRST)   #
 	#----------------------------------------------------------------------------#
 
 	def ReplaceSubStringByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)

@@ -1016,7 +1016,7 @@ proff()
 
 pron()
 
-put "What's your firts name?"
+put "What's your Firsts name?"
 gname = getstring()
 print( Interpolate("It's nice to meet you {fnmae}!") )
 #--> It's nice to meet you {fnmae}!

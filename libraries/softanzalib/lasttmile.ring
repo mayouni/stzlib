@@ -13,17 +13,83 @@ proff()
 
 
 /*=====
-*/
+
 pron()
 #                       5     11             26        36    42      50
 o1 = new stzString("The <<Ring>> programming <<language>> is >>Waooo!<<")
 ? o1.FindTheseBounds("<<", ">>")
+#--> [ 5, 11, 26, 36 ]
+
+proff()
+#--> Executed in 0.01 second(s)
+
+/*---- #narration #generated #ai #gemini
+*/
+pron()
+
+# The FindTheseBounds(cBound1, cBound2) function helps you locate
+# substrings within a larger string that are marked by specific
+# starting and ending characters (or substrings).
+
+# These characters are called bounding characters (or substrings).
+
+# Here's how it works:
+
+#~> CASE 1 - MATCHING PAIRS:
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	# The function searches for occurrences of the first
+	# bounding character (cBound1) followed by the second bounding
+	# character (cBound2). It then returns a list containing the
+	# starting positions of these matching pairs.
+	
+	#                           v---v          v-------v
+	o1 = new stzString("bla bal <<hi>> bla bla <<there!>>")
+	? o1.FindTheseBounds("<<", ">>")
+	#--> [ 9, 13, 24, 32 ]
+	
+	# In this case, both << and >> appear in matching pairs, so the function
+	# returns the starting positions of all occurrences.
+
+#~> CASE 2 - IGNORING UNMATCHED ENDINGS:
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	# If cBound2 appears before cBound1, that occurrence is ignored.
+	# The function prioritizes finding the # first cBound1 and then
+	# searches for its matching cBound2.
+	
+	#                              v---------------v
+	o1 = new stzString("bla >> bla << bla bla <<hi!>>")
+	? o1.FindTheseBounds("<<", ">>")
+	#--> [ 12, 28 ]
+
+# Here, the initial >> is ignored because it doesn't have a preceding <<.
+# The function finds the first valid pair at position 23 (<<hi!>>) and
+# returns its starting position along with the position of the matching >>.
+
+
+#~> CASE 3 - SKIPPING NESTED BOUNDINGS:
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	# If a cBound1 is found within an existing
+	# bounded substring (marked by another cBound1 and cBound2 pair), the
+	# inner cBound1 is ignored. The function focuses on finding the outermost
+	# cBound1 that has a matching cBound2.
+	
+	#                   v-------------------------v
+	o1 = new stzString("<<bla<< blabal <<hi>> bla >>")
+	? o1.FindTheseBounds("<<", ">>")
+	#--> [ 1, 20 ]
+	
+	# The inner << (within "<<bla<<") is ignored because it's part of
+	# an unclosed bounding. The function finds the first valid outer
+	# pair (<<hi>>) at position 1 and returns its starting position
+	# along with the matching >>.
+	
 
 proff()
 
-/*----
-
-*/
+/*======
 pron()
 #                         +------.--.--+
 #                         |      :  :  |
