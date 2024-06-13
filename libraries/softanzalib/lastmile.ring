@@ -173,7 +173,7 @@ o1 = new stzString("I love the <<Ring>> programming <<language>>: <<Ring>> is ni
 ? @@( o1.SubStringsBoundedBy([ "<<", ">>" ]) ) + NL
 #--> [ "Ring", "language", "Ring" ]
 
-? @@( o1.findSubStringsBoundedBy([ "<<", ">>" ]) )
+? @@( o1.FindSubStringsBoundedBy([ "<<", ">>" ]) ) + NL
 #--> [ 12, 18, 33, 43, 47, 53 ]
 
 ? @@SP( o1.SubStringsBoundedByZ([ "<<", ">>" ]) ) + NL
@@ -182,10 +182,14 @@ o1 = new stzString("I love the <<Ring>> programming <<language>>: <<Ring>> is ni
 #	[ "language", [ 35 ] ]
 # ]
 
-//? @@SP( o1.SubStringsBoundedByZZ([ "<<", ">>" ]) )
+? @@SP( o1.SubStringsBoundedByZZ([ "<<", ">>" ]) )
+#--> [
+#	[ "Ring",     [ [ 14, 17 ], [ 49, 52 ] ] ],
+#	[ "language", [ [ 35, 42 ] ] ]
+# ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.02 second(s)
 
 #--
 /*
