@@ -27252,8 +27252,8 @@ class stzString from stzObject
 		nLen = len(aSections)
 
 		aResult = []
-		cSeen = []
-		cSeenLower = []
+		acSeen = []
+		acSeenLower = []
 
 		n = 0
 
@@ -27272,22 +27272,31 @@ class stzString from stzObject
 
 				if bCaseSensitive = TRUE
 
-					nFoundAt = ring_find(cSeen, cSubStr)
+					nFoundAt = @ring_find(acSeen, cSubStr)
 
 					if nFoundAt = 0
 						aResult + [ cSubStr, [ n1 ] ]
+						acSeen + cSubStr
 
 					else
-						aResult[nFoundAt][2] + n 1
+						aResult[nFoundAt][2] + n1
 					ok
 
 				else
-					FoundAt = ]ring_find(cSeenLower, ring_lower(cSubStr))
+					nFoundAt = @ring_find(acSeenLower, ring_lower(cSubStr))
+
+					if nFoundAt = 0
+						aResult + [ cSubStr, [ n1 ] ]
+						acSeenLower + cSubStr
+					else
+						aResult[nFoundAt][2] + n1
+					ok
+
 				ok
 			ok
 		next
 
-		return acResult
+		return aResult
 
 
 		#< @FunctionAlternativeForms

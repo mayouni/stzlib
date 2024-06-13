@@ -166,28 +166,24 @@ proff()
 /*======
 */
 pron()
-#                         +------.--.--+
-#                         |      :  :  |
-#                         V      :  :  V
-o1 = new stzString("I love the <<Ring>> programming <<language>>!")
+
+o1 = new stzString("I love the <<Ring>> programming <<language>>: <<Ring>> is nice!")
 
 
 ? @@( o1.SubStringsBoundedBy([ "<<", ">>" ]) ) + NL
-#--> [ "Ring", "language" ]
+#--> [ "Ring", "language", "Ring" ]
 
 ? @@( o1.findSubStringsBoundedBy([ "<<", ">>" ]) )
+#--> [ 12, 18, 33, 43, 47, 53 ]
 
-/*
 ? @@SP( o1.SubStringsBoundedByZ([ "<<", ">>" ]) ) + NL
 #--> [
-#	[ "Ring", 12 ],
-#	[ "language", 18 ],
-#	[ "", 33 ],
-#	[ "", 43 ]
+#	[ "Ring",     [ 14, 49 ] ],
+#	[ "language", [ 35 ] ]
 # ]
 
-? @@SP( o1.SubStringsBoundedByZZ([ "<<", ">>" ]) )
-*/
+//? @@SP( o1.SubStringsBoundedByZZ([ "<<", ">>" ]) )
+
 proff()
 # Executed in 0.06 second(s)
 
