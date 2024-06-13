@@ -164,7 +164,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*======
-*/
+
 pron()
 
 o1 = new stzString("I love the <<Ring>> programming <<language>>: <<Ring>> is nice!")
@@ -192,9 +192,17 @@ proff()
 # Executed in 0.02 second(s)
 
 #--
-/*
+*/
+
+pron()
+#                                      20
+o1 = new stzString("Ring programming language")
+
 ? o1.ContainsSubStringBoundedByS("ramm", ["prog", "ing"], 5)
 #--> TRUE
+
+? o1.ContainsSubStringBoundedBySD("ramm", [ "prog", "ing" ], :StartingAt = 20, :Going = :Backward)
+#--> tRUE
 
 proff()
 # Executed in 0.06 second(s)

@@ -23659,6 +23659,29 @@ class stzString from stzObject
 	def ContainsSubStringBoundedByS(pcSubStr, pacBounds, pnStartingAt)
 		return This.ContainsSubStringBoundedBySCS(pcSubStr, pacBounds, pnStartingAt, TRUE)
 
+	   #-------------------------------------------------------------------------#
+	  #  CHECKING IF THE STRING CONTAINS A SUBSTRING BOUNDED BY TWO OTHER       #
+	 #  SUBSTRINGS STARTING AT A GIVEN POSITION -- GOiNG IN A GIVEN DIRECTION  #
+	#-------------------------------------------------------------------------#
+
+	def ContainsSubStringBoundedBySDCS(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
+		nLen = This.NumberOfChars()
+		cDirection = @Direction(pcDirection)
+
+		if cDirection = :forward
+			bResult = This.SectionQ(pnStartingAt, nLen).ContainsSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+
+		else
+			bResult = This.SectionQ(1, pnStartingAt).ContainsSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+		ok
+
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsSubStringBoundedBySD(pcSubStr, pacBounds, pnStartingAt, pcDirection)
+		return This.ContainsSubStringBoundedBySDCS(pcSubStr, pacBounds, pnStartingAt, pcDirection, TRUE)
+
 	  #---------------------------------------------------------------------------------#
 	 #  GETTING THE NUMBER OF OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	#=================================================================================#
