@@ -24,7 +24,7 @@ proff()
 #--> Executed in 0.01 second(s)
 
 /*---- #narration #generated #ai #gemini
-*/
+
 pron()
 
 # The FindTheseBounds(cBound1, cBound2) function helps you locate
@@ -36,7 +36,6 @@ pron()
 # Here's how it works:
 
 #~> CASE 1 - MATCHING PAIRS:
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	# The function searches for occurrences of the first
 	# bounding character (cBound1) followed by the second bounding
@@ -52,7 +51,6 @@ pron()
 	# returns the starting positions of all occurrences.
 
 #~> CASE 2 - IGNORING UNMATCHED ENDINGS:
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	# If cBound2 appears before cBound1, that occurrence is ignored.
 	# The function prioritizes finding the # first cBound1 and then
@@ -63,13 +61,12 @@ pron()
 	? o1.FindTheseBounds("<<", ">>")
 	#--> [ 12, 28 ]
 
-# Here, the initial >> is ignored because it doesn't have a preceding <<.
-# The function finds the first valid pair at position 23 (<<hi!>>) and
-# returns its starting position along with the position of the matching >>.
+	# Here, the initial >> is ignored because it doesn't have a preceding <<.
+	# The function finds the first valid pair at position 23 (<<hi!>>) and
+	# returns its starting position along with the position of the matching >>.
 
 
 #~> CASE 3 - SKIPPING NESTED BOUNDINGS:
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	# If a cBound1 is found within an existing
 	# bounded substring (marked by another cBound1 and cBound2 pair), the
@@ -88,6 +85,42 @@ pron()
 	
 
 proff()
+# Executed in 0.02 second(s)
+
+/*---
+*/
+pron()
+
+o1 = new stzString("bla bal <<<hi>>> bla bla <<<there!>>>")
+
+? @@( o1.FindTheseBounds("<<<", ">>>") )
+#--> [ 9, 14, 26, 35 ]
+
+? @@( o1.FindTheseBoundsZZ("<<<", ">>>") ) + NL
+#--> [ [ 9, 11 ], [ 14, 16 ], [ 26, 28 ], [ 35, 37 ] ]
+
+#--
+
+o1 = new stzString("bla >>> bla <<< bla bla <<<hi!>>>")
+
+? @@( o1.FindTheseBounds("<<<", ">>>") )
+#--> [ 13, 31 ]
+
+? @@( o1.FindTheseBoundsZZ("<<<", ">>>") ) + NL
+# [ [ 13, 15 ], [ 31, 33 ] ]
+
+#--
+
+o1 = new stzString("<<<bla<<< blabal <<<hi>>> bla >>>")
+
+? @@( o1.FindTheseBounds("<<<", ">>>") )
+#--> [ 1, 23 ]
+
+? @@( o1.FindTheseBoundsZZ("<<<", ">>>") )
+#--> [ [ 1, 3 ], [ 23, 25 ] ]
+
+proff()
+# Executed in 0.02 second(s)
 
 /*======
 pron()

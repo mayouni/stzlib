@@ -15867,47 +15867,6 @@ class stzString from stzObject
 
 		#>
 
-	  #------------------------------------------------------------------------------------#
-	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) IN THE STRING AND RETURNING THEIR SECTIONS  #
-	#====================================================================================#
-
-	def FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-
-
-
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def FindTheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
-			return This.FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-
-		def FindTheseBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-			return This.FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-
-		def FindTheseBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
-			return This.FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindTheseStringBoundsAsSections(pcBound1, pcBound2)
-		return This.FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def FindTheseStringBoundsZZ(pcBound1, pcBound2)
-			return This.FindTheseStringBoundsAsSections(pcBound1, pcBound2)
-
-		def FindTheseBoundsAsSections(pcBound1, pcBound2)
-			return This.FindTheseStringBoundsAsSections(pcBound1, pcBound2)
-
-		def FindTheseBoundsZZ(pcBound1, pcBound2)
-			return This.FindTheseStringBoundsAsSections(pcBound1, pcBound2)
-
-		#>
-
 	  #-------------------------------------------------------------------------------------#
 	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) IN THE STRING AND RETURNING THEIR POSITIONS  #
 	#=====================================================================================#
@@ -15982,34 +15941,84 @@ class stzString from stzObject
 
 		#>
 
+	  #------------------------------------------------------------------------------------#
+	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) IN THE STRING AND RETURNING THEIR SECTIONS  #
+	#------------------------------------------------------------------------------------#
+
+	#NOTE #AI #CHATGPT
+	# This function has been designed by the aid of ChatGPT
+
+	def FindTheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
+		/* EXAMPLE
+
+		#                       5     11             26        36    42
+		o1 = new stzString("The <<Ring>> programming <<language>> is <<Waooo!>>")
+		? o1.FindTheseBounds("<<", ">>")
+
+		*/
+
+		nLen = This.NumberOfChars()
+		nLenBound1 = StzStringQ(pcBound1).NumberOfChars()
+		nLenBound2 = StzStringQ(pcBound2).NumberOfChars()
+
+		aResult = []
+		nPos = 1
+
+		while nPos < nLen
+
+	        	n1 = This.FindFirstSCS(pcBound1, nPos, pCaseSensitive)
+
+	        	if n1 = 0
+	            		exit
+	       		 ok
+
+	        	n2 = This.FindFirstSCS(pcBound2, n1 + nLenBound1, pCaseSensitive)
+	       		if n2 = 0
+	            		exit
+			ok
+	        
+	       		aResult + [ n1, n1 + nLenBound1 - 1 ] + [ n2, n2 + nLenBound2 - 1 ]     
+	        	nPos = n2
+	    	end
+	    
+	   	return aResult
+
+
+		#< @FunctionAlternativeForms
+
+		def FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindTheseStringBoundsCSzz(pcBound1, pcBound2, pCaseSensitive)
+
+		def FindTheseBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindTheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
+
+		def FindTheseBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindTheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindTheseStringBoundsZZ(pcBound1, pcBound2)
+		return This.FindTheseStringBoundsCSZZ(pcBound1, pcBound2, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindTheseStringBoundsAsSections(pcBound1, pcBound2)
+			return This.FindTheseStringBoundsZZ(pcBound1, pcBound2)
+
+		def FindTheseBoundsZZ(pcBound1, pcBound2)
+			return This.FindTheseStringBoundsZZ(pcBound1, pcBound2)
+
+		def FindTheseBoundsAsSections(pcBound1, pcBound2)
+			return This.FindTheseStringBoundsZZ(pcBound1, pcBound2)
+
+		#>
 	  #-----------------------------------------------------------------------------#
 	 #  GETTING THE GIVEN TWO BOUNDS (IF ANY) OF THE STRING ALONG THEIR POSITIONS  #
 	#-----------------------------------------------------------------------------#
 
 	def TheseStringBoundsCSZ(pcBound1, pcBound2, pCaseSensitive)
-
-		if NOT (isString(pcBound1) and isString(pcBound2))
-			StzRaise("Incorrect param type! pcBound1 and pcBound2 must be strings.")
-		ok
-
-		nLen1 = StzStringQ(pcBound1).NumberOfChars()
-		nLen2 = StzStringQ(pcBound2).NumberOfChars()
-
-		aBound1Z = [ "", 0 ]
-		aBound2Z = [ "", 0 ]
-
-		if This.BeginsWithCS(pcBound1, pCaseSensitive)
-			aBound1Z = [ pcBound1, 1 ]
-		ok
-
-		if This.EndsWithCS(pcBound2, pCaseSensitive)
-			nLen = This.NumberOfChars()
-			aBound2Z = [ pcBound2, (nLen - nLen2 + 1) ]
-		ok
-
-		aResult = [ aBound1Z, aBound2Z ]
-
-		return aResult
 
 		def TheseBoundsCSZ(pcBound1, pcBound2, pCaseSensitive)
 			return This.TheseStringBoundsCSZ(pcBound1, pcBound2, pCaseSensitive)
@@ -16028,28 +16037,7 @@ class stzString from stzObject
 
 	def TheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
 
-		if NOT (isString(pcBound1) and isString(pcBound2))
-			StzRaise("Incorrect param type! pcBound1 and pcBound2 must be strings.")
-		ok
 
-		nLen1 = StzStringQ(pcBound1).NumberOfChars()
-		nLen2 = StzStringQ(pcBound2).NumberOfChars()
-
-		aBound1ZZ = [ "", [] ]
-		aBound2ZZ = [ "", [] ]
-
-		if This.BeginsWithCS(pcBound1, pCaseSensitive)
-			aBound1ZZ = [ pcBound1, [ 1, nLen1 ] ]
-		ok
-
-		if This.EndsWithCS(pcBound2, pCaseSensitive)
-			nLen = This.NumberOfChars()
-			aBound2ZZ = [ pcBound2, [ (nLen - nLen2 + 1), nLen ] ]
-		ok
-
-		aResult = [ aBound1ZZ, aBound2ZZ ]
-
-		return aResult
 
 		def TheseBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
 			return This.TheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
