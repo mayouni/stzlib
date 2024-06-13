@@ -23850,6 +23850,11 @@ class stzString from stzObject
 		? o1.FindSubStringBetween("A", "*", "*")
 		#--> [4]
 
+
+		EXAMPLE 4:
+
+		#TODO add an example using positions FindSubStringBetween("ring", 5, 30)
+		
 		*/
 
 		# Doing the job
@@ -32766,76 +32771,196 @@ class stzString from stzObject
 			This.ReplaceSubStringW(pcSubStr, pcCondition, pcNewSubStr)
 			return This
 		
-	  #-------------------------------------------------------------------------#
-	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
-	#-------------------------------------------------------------------------#
+	  #---------------------------------------------------------------------------------------#
+	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS (OR POSITIONS) #
+	#=======================================================================================#
 
-	def ReplaceBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
+	def ReplaceSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
 		aSections = This.FindSubStringBetweenAsSectionsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		This.ReplaceSections(aSections, pcNewSubStr)
 
 		#< @FunctionFluentForm
 
-		def ReplaceBetweenCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
-			This.ReplaceBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
+		def ReplaceSubStringBetweenCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
+			This.ReplaceSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
 			return This
 
 		#>
 
-		#< @FunctionAlternativeForm # (look to others in bottom of file)
+		#< @FunctionALternativeForm
 
-		def ReplaceSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			This.ReplaceBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
+		def ReplaceThisBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
+			This.ReplaceSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
 
-			def ReplaceSubStringBetweenCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-				This.ReplaceSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-	
+			def ReplaceThisBetweenCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
+				return This.ReplaceSubStringBetweenCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
+
 		#>
 
-	def SubStringBetweenReplacedCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
-		cResult = This.ReplaceBetweenCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive).Content()
-		return cResult
+		#< @FunctionPassiveForm
+
+		def SubStringBetweenReplacedCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
+			cResult = This.Copy().ReplaceSubStringBetweenCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive).Content()
+			return cResult
+
+		#>
 
 	#--- WITHOUT CASESENSITIVITY
 
-	def ReplaceBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
-		return This.ReplaceBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, TRUE)
+	def ReplaceSubStringBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
+		return This.ReplaceSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, TRUE)
 
-		#< @FunctionAlternativeForm # (look to others in bottom of file)
+		#< @FunctionFluentForm
 
-		def ReplaceSubStringBetween(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
-			This.ReplaceBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
-
-			def ReplaceSubStringBetweenQ(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
-				This.ReplaceSubStringBetween(pcSubStr, pcBound1, pcBound2, pcNewSubStr)
+		def ReplaceSubStringBetweenQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
+			This.ReplaceSubStringBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
+			return This
 
 		#>
 
-	def SubStringBetweenReplaced(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
-		return This.SubStringBetweenReplacedCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, TRUE)
+		#< @FunctionALternativeForm
 
+		def ReplaceThisBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
+			This.ReplaceSubStringBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
 
-#TODO: Add...
-#	def ReplaceIBS()
+			def ReplaceThisBetweenQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
+				return This.ReplaceSubStringBetweenQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
+
+		#>
+
+		#< @FunctionPassiveForm
+
+		def SubStringBetweenReplaced(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
+			cResult = This.Copy().ReplaceSubStringBetweenQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr).Content()
+			return cResult
+
+		#>
+
+	  #-----------------------------------------------------------------------#
+	 #  REPLACING THE SUBSTRING BETWEEN TWO OTHER SUBSTRINGS (OR POSITIONS)  #
+	#-----------------------------------------------------------------------#
+
+	def ReplaceBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+		if CheckParams()
+			if NOT ( @BothAreStrings(pcBound1, pcBound2) or @BothAreNumbers(pcBound1, pcBound2) )
+				StzRaise("Incorrect params types! pcBound1, pcBound2 must be both strings or numbers.")
+			ok
+		ok
+
+		n1 = 0
+		n2 = 0
+
+		if @BothAreStrings(pcBound1, pcBound2)
+
+			n1 = This.FindFirstCS(pcBound1, pCaseSensitice)
+			if n1 = 0
+				return
+			else
+				n1 += StzStringQ(pcBound1).NumberOfChars()
+			ok
+
+			n2 = This.FindFirstCS(pcBound2, pCaseSensitice)
+			if n2 = 0
+				return
+			else
+				n2 += StzStringQ(pcBound2).NumberOfChars() - 1
+			ok
+
+		else // @BothAreNumbers
+
+			if n1 = 0 or n1 = This.NumberOfChars() Or n2 < 2 or n1 = n2
+				return
+			ok
+				
+			n1++
+			n2--
+
+		ok
+
+		This.ReplaceSection(n1, n2, pcNewSubStr)
+
+		#< @FunctionFluentForm
+
+		def ReplaceBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+			This.ReplaceBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceAnyBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+			This.ReplaceBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceAnyBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+				return This.ReplaceBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceAnySubStringBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+			This.ReplaceBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceAnySubStringBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+				return This.ReplaceBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceAnySectionBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+			This.ReplaceBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceAnySectionBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+				return This.ReplaceBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceBetween(pcBound1, pcBound2, pcNewSubStr)
+		This.ReplaceBetweenCS(pcBound1, pcBound2, pcNewSubStr, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceBetweenQ(pcBound1, pcBound2, pcNewSubStr)
+			This.ReplaceBetween(pcBound1, pcBound2, pcNewSubStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceAnyBetween(pcBound1, pcBound2, pcNewSubStr)
+			This.ReplaceBetween(pcBound1, pcBound2, pcNewSubStr)
+
+			def ReplaceAnyBetweenQ(pcBound1, pcBound2, pcNewSubStr)
+				return This.ReplaceBetweenQ(pcBound1, pcBound2, pcNewSubStr)
+
+		def ReplaceAnySubStringBetween(pcBound1, pcBound2, pcNewSubStr)
+			This.ReplaceBetween(pcBound1, pcBound2, pcNewSubStr)
+
+			def ReplaceAnySubStringBetweenQ(pcBound1, pcBound2, pcNewSubStr)
+				return This.ReplaceBetweenQ(pcBound1, pcBound2, pcNewSubStr)
+
+		def ReplaceAnySectionBetween(pcBound1, pcBound2, pcNewSubStr)
+			This.ReplaceBetween(pcBound1, pcBound2, pcNewSubStr)
+
+			def ReplaceAnySectionBetweenQ(pcBound1, pcBound2, pcNewSubStr)
+				return This.ReplaceBetweenQ(pcBound1, pcBound2, pcNewSubStr)
+
+		#>
+
+	#------------
+
+	#TODO
+	#Add
+	# def ReplaceIBS() # Inculd Bounds Starting At
 
 	  #----------------------------------------------------------------------------#
 	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
-	#----------------------------------------------------------------------------#
+	#============================================================================#
 
-	def ReplaceBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+	def ReplaceSubStringBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
 		aSections = This.FindSubStringBoundedByAsSectionsCS(pcSubStr, pacBounds, pCaseSensitive)
 		This.ReplaceSections(aSections, pcNewSubStr)
 
-		def ReplaceBoundedByCSQ(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
-			This.ReplaceBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+		def ReplaceSubStringBoundedByCSQ(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
 			return This
-
-		def ReplaceSubstringBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
-			This.ReplaceBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
-
-			def ReplaceSubstringBoundedByCSQ(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
-				This.ReplaceSubstringBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
-				return This
 
 	def SubstringBoundedByReplacedCS(pcSubStr, pacBounds, pcNewSubstr, pCaseSensitive)
 		return This.Copy().ReplaceSubstringBoundedByCSQ(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive).Content()
@@ -32845,19 +32970,12 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
-		return This.ReplaceBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, TRUE)
+	def ReplaceSubStringBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
+		return This.ReplaceSubStringBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, TRUE)
 
-		def ReplaceBoundedByQ(pcSubStr, pacBounds, pcNewSubStr)
-			This.ReplaceBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
+		def ReplaceSubStringBoundedByQ(pcSubStr, pacBounds, pcNewSubStr)
+			This.ReplaceSubStringBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
 			return This
-
-		def ReplaceSubstringBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
-			This.ReplaceBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
-
-			def ReplaceSubstringBoundedByQ(pcSubStr, pacBounds, pcNewSubStr)
-				This.ReplaceSubstringBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
-				return This
 
 	def SubstringBoundedByReplaced(pcSubStr, pacBounds, pcNewSubstr)
 		return This.Copy().ReplaceSubstringBoundedByQ(pcSubStr, pacBounds, pcNewSubStr).Content()
@@ -33636,101 +33754,6 @@ class stzString from stzObject
 			off
 
 		#>
-
-	  #========================================================#
-	 #  REPLACING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
-	#========================================================#
-
-	def ReplaceAnyBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		aSections = This.FindAnyBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-		This.ReplaceSections(aSections, pcNewSubStr)
-
-		#< @FunctionFluentForm
-
-		def ReplaceAnyBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			This.ReplaceAnyBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm: SeeBottomOfFile >
-
-	def SubStringsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive).Content()
-		return acResult
-
-		def AnySubStringsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			return This.SubStringsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceAnyBetween(pcBound1, pcBound2, pcNewSubStr)
-		return This.ReplaceAnyBetweenCS(pcBound1, pcBound2, pcNewSubStr, TRUE)
-
-		def ReplaceAnyBetweenQ(pcBound1, pcBound2, pcNewSubStr)
-			This.ReplaceAnyBetween(pcBound1, pcBound2, pcNewSubStr)
-			return This
-
-		#< @FunctionAlternativeForms: SeeBottomOfFile >
-
-	def SubStringsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-		acResult = This.Copy().ReplaceAnyBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, TRUE).Content()
-		return acResult
-
-		def AnySubStringsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-			return This.SubStringsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-
-	  #--------------------------------------------------------------------#
-	 #  REPLACING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- EXTENDED  #
-	#--------------------------------------------------------------------#
-	#--> Bounds are also replaced (TODO: Generalise this feature)
-
-	def ReplaceAnyBetweenCSIB(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-		aSections = This.FindAnyBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-
-		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
-			pcBound2 = pcBound2[2]
-		ok
-
-		nLen1 = StzStringQ(pcBound1).NumberOfChars()
-		nLen2 = StzStringQ(pcBound2).NumberOfChars()
-
-		for i = 1 to len(aSections)
-			aSections[i][1] = aSections[i][1] - nLen1
-			aSections[i][2] = aSections[i][2] + nLen2
-		next
-
-		This.ReplaceSections(aSections, pcNewSubStr)
-
-		#< @FunctionFluentForm
-
-		def ReplaceAnyBetweenCSIBQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			This.ReplaceAnyBetweenCSIB(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms: SeeBottomOfFile >
-
-	def SubStringsBetweenReplacedCSXT(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		acResult = This.Copy().ReplaceBetweenCSIBQ(pcBound1, pcBound2, pcNewSubStr, TRUE).Content()
-		return acResult
-
-		#< @FunctionAlternativeForms: SeeBottomOfFile >
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceAnyBetweenIB(pcBound1, pcBound2, pcNewSubStr)
-		return This.ReplaceAnyBetweenCSIB(pcBound1, pcBound2, pcNewSubStr, TRUE)
-
-		#< @FunctionAlternativeForms: SeeBottomOfFile >
-
-	def SubStringsBetweenReplacedXT(pcBound1, pcBound2, pcNewSubStr)
-		acResult = This.Copy().ReplaceBetweenCSIBQ(pcBound1, pcBound2, pcNewSubStr, TRUE).Content()
-		return acResult
-
-		#< @FunctionAlternativeForms: SeeBottomOfFile >
 
 	  #==============================================================#
 	 #   REPLACING A CHAR AT A GIVEN POSITION BY A GIVEN SUBSTRING  #
@@ -82687,354 +82710,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def ReplaceAllOccurrencesOfSubstringQ(pcSubStr, pcNewSubStr)
 			This.ReplaceAllOccurrencesOfSubstringCS(pcSubStr, pcNewSubStr)
 			return This		
-
-	  #------------------------------------#
-	 #  ALTERNATIVES OF ReplaceBetween()  #
-	#------------------------------------#
-
-	def ReplaceThisSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
-		This.ReplaceBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
-
-		def ReplaceThisSubStringBetweenCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
-			This.ReplaceThisSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
-			return This
-
-	def ReplaceThisBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
-		This.ReplaceBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
-
-		def ReplaceThisBetweenCSQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
-			This.ReplacethisBetweenCS(pcSubStr, pcBound1, pcBound2, pcNewSubstr, pCaseSensitive)
-			return This
-
-	#--
-
-	def ReplaceThisSubStringBoundedByCS(pcSubStr, pacBounds, pcNewSubStr, pCaseSensitive)
-		return This.ReplaceThisSubStringBetweenCS(pcSubStr, pacBounds[1], pacBounds[2], pcNewSubstr, pCaseSensitive)
-
-		def ReplaceThisSubStringBoundedByCSQ(pcSubStr, pacBounds, pcNewSubstr, pCaseSensitive)
-			This.ReplaceThisSubStringBoundedByCS(pcSubStr, pacBounds, pcNewSubstr, pCaseSensitive)
-			return This
-
-	def ReplaceThisBoundedByCS(pcSubStr, pacBounds, pcNewSubstr, pCaseSensitive)
-		This.ReplaceThisSubStringBetweenCS(pcSubStr, pacBounds[1], pacBounds[2], pcNewSubstr, pCaseSensitive)
-
-		def ReplaceThisBoundedByCSQ(pcSubStr, pacBounds, pcNewSubstr, pCaseSensitive)
-			This.ReplaceThisBoundedByCS(pcSubStr, pacBounds, pcNewSubstr, pCaseSensitive)
-			return This
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceThisSubStringBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
-		This.ReplaceBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
-
-		def ReplaceThisSubStringBetweenQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
-			This.ReplaceThisSubStringBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
-			return This
-
-	def ReplaceThisBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
-		This.ReplaceBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
-
-		def ReplaceThisBetweenQ(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
-			This.ReplacethisBetween(pcSubStr, pcBound1, pcBound2, pcNewSubstr)
-			return This
-
-	#--
-
-	def ReplaceThisSubStringBoundedBy(pcSubStr, pacBounds, pcNewSubStr)
-		return This.ReplaceThisSubStringBetween(pcSubStr, pacBounds[1], pacBounds[2], pcNewSubstr)
-
-		def ReplaceThisSubStringBoundedByQ(pcSubStr, pacBounds, pcNewSubstr)
-			This.ReplaceThisSubStringBoundedBy(pcSubStr, pacBounds, pcNewSubstr)
-			return This
-
-	def ReplaceThisBoundedBy(pcSubStr, pacBounds, pcNewSubstr)
-		This.ReplaceThisSubStringBetween(pcSubStr, pacBounds[1], pacBounds[2], pcNewSubstr)
-
-		def ReplaceThisBoundedByQ(pcSubStr, pacBounds, pcNewSubstr)
-			This.ReplaceThisBoundedBy(pcSubStr, pacBounds, pcNewSubstr)
-			return This
-
-	  #---------------------------------------#
-	 #  ALTERNATIVES OF ReplaceAnyBetween()  #
-	#---------------------------------------#
-
-	def ReplaceSubStringsBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		This.ReplaceAnyBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-		def ReplaceSubStringsBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			return This
-
-	def ReplaceAnySubStringBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		This.ReplaceAnyBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-		def ReplaceAnySubStringBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			This.ReplaceAnySubStringBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			return This
-
-	def ReplaceAnySubStringsBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		This.ReplaceAnyBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-		def ReplaceAnySubStringsBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			This.ReplaceAnySubStringsBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			return This
-
-	#--
-
-	def ReplaceAnyBoundedByCS(pacBounds, pcNewSubStr, pCaseSensitive)
-		if isString(pacBounds)
-			This.ReplaceAnyBetweenCS(pacBounds, pacBounds, pcNewSubStr, pCaseSensitive)
-
-		but isList(pacBounds) and Q(pacBounds).IsListOfPairs()
-			This.ReplaceAnyBetweenCS(pacBounds[1], pacBounds[2], pcNewSubStr, pCaseSensitive)
-
-		else
-			StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
-		ok
-
-		def ReplaceAnyBoundedByCSQ(pacBounds, pcNewSubStr, pCaseSensitive)
-			This.ReplaceAnyBoundedByCS(pacBounds, pcNewSubStr, pCaseSensitive)
-			return This
-
-	def ReplaceSubStringsBoundedByCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		This.ReplaceAnyBoundedByCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-		def ReplaceSubStringsBoundedByCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSubStringsBoundedByCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			return This
-
-	def ReplaceAnySubStringBoundedByCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		This.ReplaceAnyBoundedByCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-		def ReplaceAnySubStringBoundedByCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			This.ReplaceAnySubStringBoundedByCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			return This
-
-	def ReplaceAnySubStringsBoundedByCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		This.ReplaceAnyBoundedByCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-		def ReplaceAnySubStringsBoundedByCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			This.ReplaceAnySubStringsBoundedByCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			return This
-
-	#-- Allowing the use of "SECTION" instead of "SUBSTRING"
-
-	def ReplaceSectionsBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		This.ReplaceAnyBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-		def ReplaceSectionsBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSectionsBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			return This
-
-	def ReplaceAnySectionBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		This.ReplaceAnyBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-		def ReplaceAnySectionBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			This.ReplaceAnySectionBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			return This
-
-	def ReplaceAnySectionsBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		This.ReplaceAnyBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-		def ReplaceAnySectionsBetweenCSQ(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			This.ReplaceAnySectionsBetweenCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-			return This
-
-	#--
-
-	def ReplaceSectionsBoundedByCS(pacBounds, pcNewSubStr, pCaseSensitive)
-		This.ReplaceAnyBoundedByCS(pacBounds, pcNewSubStr, pCaseSensitive)
-
-		def ReplaceSectionsBoundedByCSQ(pacBounds, pcNewSubStr, pCaseSensitive)
-			This.ReplaceSectionsBoundedByCS(pacBounds, pcNewSubStr, pCaseSensitive)
-			return This
-
-	def ReplaceAnySectionBoundedByCS(pacBounds, pcNewSubStr, pCaseSensitive)
-		This.ReplaceAnyBoundedByCS(ppacBounds, pcNewSubStr, pCaseSensitive)
-
-		def ReplaceAnySectionBoundedByCSQ(pacBounds, pcNewSubStr, pCaseSensitive)
-			This.ReplaceAnySectionBoundedByCS(pacBounds, pcNewSubStr, pCaseSensitive)
-			return This
-
-	def ReplaceAnySectionsBoundedByCS(pacBounds, pcNewSubStr, pCaseSensitive)
-		This.ReplaceAnyBoundedByCS(pacBounds, pcNewSubStr, pCaseSensitive)
-
-		def ReplaceAnySectionsBoundedByCSQ(pacBounds, pcNewSubStr, pCaseSensitive)
-			This.ReplaceAnySectionsBoundedByCS(pacBounds, pcNewSubStr, pCaseSensitive)
-			return This
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def ReplaceSubStringsBetween(pcBound1, pcBound2, pcNewSubStr)
-		This.ReplaceAnyBetween(pcBound1, pcBound2, pcNewSubStr)
-
-		def ReplaceSubStringsBetweenQ(pcBound1, pcBound2, pcNewSubStr)
-			This.ReplaceSubStringsBetween(pcBound1, pcBound2, pcNewSubStr)
-			return This
-
-	def ReplaceAnySubStringBetween(pcBound1, pcBound2, pcNewSubStr)
-		This.ReplaceAnyBetween(pcBound1, pcBound2, pcNewSubStr)
-
-		def ReplaceAnySubStringBetweenQ(pcBound1, pcBound2, pcNewSubStr)
-			This.ReplaceAnySubStringBetween(pcBound1, pcBound2, pcNewSubStr)
-			return This
-
-	def ReplaceAnySubStringsBetween(pcBound1, pcBound2, pcNewSubStr)
-		This.ReplaceAnyBetween(pcBound1, pcBound2, pcNewSubStr)
-
-		def ReplaceAnySubStringsBetweenQ(pcBound1, pcBound2, pcNewSubStr)
-			This.ReplaceAnySubStringsBetween(pcBound1, pcBound2, pcNewSubStr)
-			return This
-
-	#--
-
-	def ReplaceAnyBoundedBy(pacBounds, pcNewSubStr)
-		return This.ReplaceAnyBoundedByCS(pacBounds, pcNewSubStr, TRUE)
-
-	def ReplaceSubStringsBoundedBy(pcBound1, pcBound2, pcNewSubStr)
-		This.ReplaceAnyBoundedBy(pcBound1, pcBound2, pcNewSubStr)
-
-		def ReplaceSubStringsBoundedByQ(pcBound1, pcBound2, pcNewSubStr)
-			This.ReplaceSubStringsBoundedBy(pcBound1, pcBound2, pcNewSubStr)
-			return This
-
-	def ReplaceAnySubStringBoundedBy(pcBound1, pcBound2, pcNewSubStr)
-		This.ReplaceAnyBoundedBy(pcBound1, pcBound2, pcNewSubStr)
-
-		def ReplaceAnySubStringBoundedByQ(pcBound1, pcBound2, pcNewSubStr)
-			This.ReplaceAnySubStringBoundedBy(pcBound1, pcBound2, pcNewSubStr)
-			return This
-
-	def ReplaceAnySubStringsBoundedBy(pcBound1, pcBound2, pcNewSubStr)
-		This.ReplaceAnyBoundedBy(pcBound1, pcBound2, pcNewSubStr)
-
-		def ReplaceAnySubStringsBoundedByQ(pcBound1, pcBound2, pcNewSubStr)
-			This.ReplaceAnySubStringsBoundedBy(pcBound1, pcBound2, pcNewSubStr)
-			return This
-
-	#-- Allowing the use of "SECTION" instead of "SUBSTRING"
-
-	def ReplaceSectionsBetween(pcBound1, pcBound2, pcNewSubStr)
-		This.ReplaceAnyBetween(pcBound1, pcBound2, pcNewSubStr)
-
-		def ReplaceSectionsBetweenQ(pcBound1, pcBound2, pcNewSubStr)
-			This.ReplaceSectionsBetween(pcBound1, pcBound2, pcNewSubStr)
-			return This
-
-	def ReplaceAnySectionBetween(pcBound1, pcBound2, pcNewSubStr)
-		This.ReplaceAnyBetween(pcBound1, pcBound2, pcNewSubStr)
-
-		def ReplaceAnySectionBetweenQ(pcBound1, pcBound2, pcNewSubStr)
-			This.ReplaceAnySectionBetween(pcBound1, pcBound2, pcNewSubStr)
-			return This
-
-	def ReplaceAnySectionsBetween(pcBound1, pcBound2, pcNewSubStr)
-		This.ReplaceAnyBetween(pcBound1, pcBound2, pcNewSubStr)
-
-		def ReplaceAnySectionsBetweenQ(pcBound1, pcBound2, pcNewSubStr)
-			This.ReplaceAnySectionsBetween(pcBound1, pcBound2, pcNewSubStr)
-			return This
-
-	#--
-
-	def ReplaceSectionsBoundedBy(pacBounds, pcNewSubStr)
-		This.ReplaceAnyBoundedBy(pacBounds, pcNewSubStr)
-
-		def ReplaceSectionsBoundedByQ(pacBounds, pcNewSubStr)
-			This.ReplaceSectionsBoundedBy(pacBounds, pcNewSubStr)
-			return This
-
-	def ReplaceAnySectionBoundedBy(pacBounds, pcNewSubStr)
-		This.ReplaceAnyBoundedBy(pacBounds, pcNewSubStr)
-
-		def ReplaceAnySectionBoundedByQ(pacBounds, pcNewSubStr)
-			This.ReplaceAnySectionBoundedBy(pacBounds, pcNewSubStr)
-			return This
-
-	def ReplaceAnySectionsBoundedBy(pacBounds, pcNewSubStr)
-		This.ReplaceAnyBoundedBy(pacBounds, pcNewSubStr)
-
-		def ReplaceAnySectionsBoundedByQ(pacBounds, pcNewSubStr)
-			This.ReplaceAnySectionsBoundedBy(pacBounds, pcNewSubStr)
-			return This
-
-	  #-----------------------------------------------#
-	 #  ALTERNATIVES OF SubStringsBetweenReplaced()  #
-	#-----------------------------------------------#
-
-	def AnyBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		return This.SubStringsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-	def AnySubStringBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		return This.SubStringsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-	#--
-
-	def AnyBoundedByReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		return This.SubStringsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-	def AnySubStringBoundedByReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		return This.SubStringsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-	def AnySubStringsBoundedByReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		return This.SubStringsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-	#-- Allowing the use of "SECTION" instead of "SUBSTRING"
-
-	def AnySectionBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		return This.SectionsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-	def AnySectionsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		return This.SectionsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-	#--
-
-	def SectionsBoundedByReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		return This.SectionsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-	def AnySectionBoundedByReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		return This.SectionsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-	def AnySectionsBoundedByReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-		return This.SectionsBetweenReplacedCS(pcBound1, pcBound2, pcNewSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def AnyBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-		return This.SubStringsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-
-	def AnySubStringBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-		return This.SubStringsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-
-	#--
-
-	def AnyBoundedByReplaced(pcBound1, pcBound2, pcNewSubStr)
-		return This.SubStringsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-
-	def AnySubStringBoundedByReplaced(pcBound1, pcBound2, pcNewSubStr)
-		return This.SubStringsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-
-	def AnySubStringsBoundedByReplaced(pcBound1, pcBound2, pcNewSubStr)
-		return This.SubStringsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-
-	#-- Allowing the use of "SECTION" instead of "SUBSTRING"
-
-	def AnySectionBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-		return This.SectionsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-
-	def AnySectionsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-		return This.SectionsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-
-	#--
-
-	def SectionsBoundedByReplaced(pcBound1, pcBound2, pcNewSubStr)
-		return This.SectionsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-
-	def AnySectionBoundedByReplaced(pcBound1, pcBound2, pcNewSubStr)
-		return This.SectionsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
-
-	def AnySectionsBoundedByReplaced(pcBound1, pcBound2, pcNewSubStr)
-		return This.SectionsBetweenReplaced(pcBound1, pcBound2, pcNewSubStr)
 
 	  #----------------------------#
 	 #  ALTERNATIVES OF Remove()  #
