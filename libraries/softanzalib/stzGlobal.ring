@@ -834,6 +834,25 @@ func StoppingAt(p)
 	func @EndingAt(p)
 		return StoppingAt(p)
 
+#==
+
+func Bounds(pBounds)
+	if isString(pBounds)
+		return [ pBounds, pBounds ]
+
+	but isList(pBounds) and len(pBounds) = 2 and
+	    isString(pBounds[1]) and isString(pBounds[2])
+
+		return pBounds
+
+	else
+		StzRaise("Incorrect param type! pBounds must be a string or a pair of strings.")
+
+	ok
+
+	func @Bounds(pBounds)
+		return Bounds(pBounds)
+
 #--
 
 func Direction(p)
@@ -3146,6 +3165,12 @@ func ComputableForm(pValue)
 	#>
 
 	#< @FunctionAlternativeForms
+
+	func 🕶(pValue)
+		return ComputableForm(pValue)
+
+	func 😎(pValue)
+		return ComputableForm(pValue)
 
 	func @@(pValue)
 		return ComputableForm(pValue)
