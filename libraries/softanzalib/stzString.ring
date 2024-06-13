@@ -27351,7 +27351,59 @@ class stzString from stzObject
 	#-------------------------------------------------------------------------------------------#
 
 	def SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
-		/* ... */
+
+		bCaseSensitive = @CaseSensitive(pCaseSensitive)
+
+		aSections = This.FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+		nLen = len(aSections)
+
+		aResult = []
+		acSeen = []
+		acSeenLower = []
+
+		n = 0
+
+		for i = 1 to nLen
+			n++
+			if n = 3
+				n = 1
+			ok
+
+			if n = 1
+				n1 = aSections[i][2] + 1
+
+			but n = 2
+				n2 = aSections[i][1] - 1
+				cSubStr =  This.Section(n1, n2)
+
+				if bCaseSensitive = TRUE
+
+					nFoundAt = @ring_find(acSeen, cSubStr)
+
+					if nFoundAt = 0
+						aResult + [ cSubStr, [ [ n1, n2 ] ] ]
+						acSeen + cSubStr
+
+					else
+						aResult[nFoundAt][2] + [ n1, n2 ]
+					ok
+
+				else
+					nFoundAt = @ring_find(acSeenLower, ring_lower(cSubStr))
+
+					if nFoundAt = 0
+						aResult + [ cSubStr, [ [ n1, n2 ] ] ]
+						acSeenLower + cSubStr
+					else
+						aResult[nFoundAt][2] + [ n1, n2 ]
+					ok
+
+				ok
+			ok
+		next
+
+		return aResult
+
 
 		#< @FunctionAlternativeForms
 
