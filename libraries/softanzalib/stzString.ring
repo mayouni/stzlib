@@ -27023,7 +27023,14 @@ class stzString from stzObject
 	 #  FINFING ANY SUBSTRING BOUNDED BY TOW OTHER SUBSTRINGS  #
 	#=========================================================#
 
-	def FindAnySubStringBoundedBy()
+	def FindAnySubStringBoundedByCS(pacBounds, pCaseSensitive)
+		cBound1 = @Bounds(pacBounds)[1]
+		cBound2 = @Bounds(pacBounds)[2]
+
+
+
+		return This.FindTheseBoundsCS(cBound1, cBound2, pCaseSensitive)
+
 		def FindAnyBoundedBy()
 	
 		def FindAnyBoundedByZ()

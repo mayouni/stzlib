@@ -1,5 +1,6 @@
 load "stzlib.ring"
 
+
 /*======
 
 pron()
@@ -88,7 +89,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*---
-*/
+
 pron()
 
 o1 = new stzString("bla bal <<<hi>>> bla bla <<<there!>>>")
@@ -96,7 +97,7 @@ o1 = new stzString("bla bal <<<hi>>> bla bla <<<there!>>>")
 ? @@( o1.FindTheseBounds("<<<", ">>>") )
 #--> [ 9, 14, 26, 35 ]
 
-? @@( o1.FindTheseBoundsZZ("<<<", ">>>") ) + NL
+? @@( o1.FindTheseBoundsAsSections("<<<", ">>>") )
 #--> [ [ 9, 11 ], [ 14, 16 ], [ 26, 28 ], [ 35, 37 ] ]
 
 #--
@@ -123,13 +124,14 @@ proff()
 # Executed in 0.02 second(s)
 
 /*======
+*/
 pron()
 #                         +------.--.--+
 #                         |      :  :  |
 #                         V      :  :  V
 o1 = new stzString("I love the <<Ring>> programming <<language>>!")
 
-/*
+
 ? o1.ContainsSubStringBetween("Ring", "love", "program")
 #--> TRUE
 
@@ -140,12 +142,16 @@ o1 = new stzString("I love the <<Ring>> programming <<language>>!")
 
 ? o1.ContainsSubStringBoundedBy("Ring", [ "<<", ">>" ])
 #--> TRUE
-*/
+
 
 ? @@( o1.FindTheseBoundsZZ("<<", ">>") )
+#--> [ [ 12, 13 ], [ 18, 19 ], [ 33, 34 ], [ 43, 44 ] ]
+
+? @@( o1.Sections( o1.FindTheseBoundsZZ("<<", ">>") ) )
+#--> [ "<<", ">>", "<<", ">>" ]
 
 
-//? o1.FindAnyBoundedBy(["<<", ">>"]) + NL
+? @@( o1.FindAnyBoundedBy([ "<<", ">>" ]) )
 
 proff()
 
