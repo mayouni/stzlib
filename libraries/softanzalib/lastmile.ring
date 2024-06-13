@@ -192,7 +192,6 @@ proff()
 # Executed in 0.02 second(s)
 
 #--
-*/
 
 pron()
 #                                      20
@@ -202,10 +201,10 @@ o1 = new stzString("Ring programming language")
 #--> TRUE
 
 ? o1.ContainsSubStringBoundedBySD("ramm", [ "prog", "ing" ], :StartingAt = 20, :Going = :Backward)
-#--> tRUE
+#--> TRUE
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.24 second(s)
 
 /*===
 
@@ -226,19 +225,34 @@ proff()
 # Executed in 0.06 second(s)
 
 /*===
+*/
+pron()
+
+o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
+
+? @@( o1.FindSubStringBetween("ring", "START", "END") )
+#--> [ ]
+
+proff()
+# Executed in 0.01 second(s)
+
+/*---
 
 pron()
 
-o1 = new stzString("THE START <<ring>> ring <<ring>> THE END")
+o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
 
-? o1.ContainsNOccurrencesOfSubStringBetween(3, "ring", "ring", "END")
+//? o1.ContainsNOccurrencesOfSubStringBetween(3, "ring", "START", "END")
 #--> TRUE
-
+/*
 ? o1.ContainsNOccurrencesOfSubStringboundedBy(2, "ring", [ "<<", ">>" ])
 #--> TRUE
 
-? o1.ContainsNOccurrencesOfSubStringBoundedByS(2, "ring", [ "<<", ">>" ], 5)
+? o1.ContainsNOccurrencesOfSubStringBoundedByS(2, "ring", [ "<<", ">>" ], :StartingAt = 5)
+#--> TRUE
 
+? o1.ContainsNOccurrencesOfSubStringBoundedByS(2, "ring", [ "<<", ">>" ], :StartingAt = 34)
+*/
 proff()
 # Executed in 0.05 second(s)
 

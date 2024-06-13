@@ -23824,10 +23824,36 @@ class stzString from stzObject
 
 		return bResult
 
+		#< @FunctionAlternativeForms
+
+		def ContainsNOccurrenceOfSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		def ContainsNOccurrenceBetweenCS(n, pcSubStr, pacBounds, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		def ContainsNOccurrencesBetweenCS(n, pcSubStr, pacBounds, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNOccurrencesOfSubStringBetween(n, pcSubStr, pcSubStr1, pcSubStr2)
 		return This.ContainsNOccurrencesOfSubStringBetweenCS(n, pcSubStr, pcSubStr1, pcSubStr2, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ContainsNOccurrenceOfSubStringBetween(n, pcSubStr, pcSubStr1, pcSubStr2)
+			return This.ContainsNOccurrencesOfSubStringBetween(n, pcSubStr, pcSubStr1, pcSubStr2)
+
+		def ContainsNOccurrenceBetween(n, pcSubStr, pacBounds)
+			return This.ContainsNOccurrencesOfSubStringBetween(n, pcSubStr, pcSubStr1, pcSubStr2)
+
+		def ContainsNOccurrencesBetween(n, pcSubStr, pacBounds)
+			return This.ContainsNOccurrencesOfSubStringBetween(n, pcSubStr, pcSubStr1, pcSubStr2)
+
+		#>
 
 	  #------------------------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS N OCCURRENCES OF A SUBSTRING BOUNDED BY TWO SUBSTRINGS  #
@@ -23837,10 +23863,75 @@ class stzString from stzObject
 		bResult = ( This.NumberOfOccurrenceboundedByCS(pcSubStr, pacBounds, pCaseSensitive) = n )
 		return bResult
 
+		#< @FunctionAlternativeForms
+
+		def ContainsNOccurrenceOfSubStringBoundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+
+		def ContainsNOccurrenceBoundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+
+		def ContainsNOccurrencesBoundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsNOccurrencesOfSubStringboundedBy(n, pcSubstr, pacBounds)
 		return This.ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ContainsNOccurrenceOfSubStringBoundedBy(n, pcSubStr, pacBounds)
+			return This.ContainsNOccurrencesOfSubStringboundedBy(n, pcSubStr, pacBounds)
+
+		def ContainsNOccurrenceBoundedBy(n, pcSubStr, pacBounds)
+			return This.ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds)
+
+		def ContainsNOccurrencesBoundedBy(n, pcSubStr, pacBounds)
+			return This.ContainsNOccurrencesOfSubStringboundedBy(n, pcSubStr, pacBounds)
+
+		#>
+
+	  #----------------------------------------------------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS N OCCURRENCES OF A SUBSTRING BOUNDED BY TWO SUBSTRINGS STARTING AT A GIVEN POSITION  #
+	#-----------------------------------------------------------------------------------------------------------------------#
+
+	def ContainsNOccurrencesOfSubStringboundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+		bResult = ( This.NumberOfOccurrenceboundedBySCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive) = n )
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ContainsNOccurrenceOfSubStringBoundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+
+		def ContainsNOccurrenceBoundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+
+		def ContainsNOccurrencesBoundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsNOccurrencesOfSubStringboundedByS(n, pcSubstr, pacBounds, pnStartingAt)
+		return This.ContainsNOccurrencesOfSubStringboundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ContainsNOccurrenceOfSubStringBoundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+			return This.ContainsNOccurrencesOfSubStringboundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+
+		def ContainsNOccurrenceBoundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+			return This.ContainsNOccurrencesOfSubStringboundedBySCS(n, pcSubStr, pacBounds, pnStartingAt)
+
+		def ContainsNOccurrencesBoundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+			return This.ContainsNOccurrencesOfSubStringboundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+
+		#>
 
 	  #========================================================================================================#
 	 #  FINDING OCCURRENCES OF A SUBSTRING BETWEEN THE FIRST AND LAST OCCURRENCE OF AN OTHER giVEN SUBSTRING  #
@@ -23894,12 +23985,31 @@ class stzString from stzObject
 		n2 = pcSubStr2
 
 		if @BothAreStrings(pcSubStr1, pcSubStr2)
+
 			n1 = This.FindFirstCS(pcSubStr1, pCaseSensitive)
+
+			if n1 = 0
+				return []
+			ok
+
 			n1 += StzStringQ(pcSubStr1).NumberOfChars()
 
-			n2 = This.FindLastCS(pcSubStr2, pCaseSensitive) - 1
+			#--
+
+			n2 = This.FindLastCS(pcSubStr2, pCaseSensitive)
+
+			if n2 = 0
+				return []
+			ok
+
+			n2--
 
 		else // @bothAreNumbers()
+
+			if n1 = 0 or n2 = 0
+				return []
+			ok
+
 			n1 += 1
 			n2 -= 1
 		ok
