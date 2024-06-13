@@ -15912,6 +15912,9 @@ class stzString from stzObject
 	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) IN THE STRING AND RETURNING THEIR POSITIONS  #
 	#=====================================================================================#
 
+	#NOTE #AI #CHATGPT
+	# This function has been designed by the aid of ChatGPT
+
 	def FindTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
 		/* EXAMPLE
 
@@ -15921,20 +15924,32 @@ class stzString from stzObject
 
 		*/
 
-		anPos1 = This.FindCS(pcBound1, pCaseSensitive)
-		nLen1 = len(anPos1)
-? @@(anPos1)
+		nLen = This.NumberOfChars()
+		nLenBound1 = StzStringQ(pcBound1).NumberOfChars()
+		nLenBound2 = StzStringQ(pcBound2).NumberOfChars()
 
-		anPos2 = This.FindCS(pcBound2, pCaseSensitive)
-		nLen2 = len(anPos2)
-? @@(anPos2)
-return
 		anResult = []
+		nPos = 1
 
+		while nPos < nLen
 
+	        	n1 = This.FindFirstSCS(pcBound1, nPos, pCaseSensitive)
 
+	        	if n1 = 0
+	            		exit
+	       		 ok
 
-		return anResult
+	        	n2 = This.FindFirstSCS(pcBound2, n1 + nLenBound1, pCaseSensitive)
+	       		if n2 = 0
+	            		exit
+			ok
+	        
+	       		anResult + n1 + n2      
+	        	nPos = n2
+	    	end
+	    
+	   	return anResult
+
 
 		#< @FunctionAlternativeForms
 
@@ -27029,7 +27044,7 @@ return
 	def SubStringsBoundedBy()
 		def BoundedBy()
 	
-		def AnySybStringsBoundedBy()
+		def AnySubStringsBoundedBy()
 		def ANyBoundedBy()
 	
 	def SubStringsBoundedByZ()
@@ -34238,7 +34253,7 @@ return
 
 		#>
 
-	def FirtOccurrenceReplacedCS(pcSubStr, pcNewSubStr, pCaseSensitive)
+	def FirstOccurrenceReplacedCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		return This.Copy().ReplaceFirstOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
 
 	#-- WITHOUT CASESENSITIVITY
@@ -34265,7 +34280,7 @@ return
 
 		#>
 
-	def FirtOccurrenceReplaced(pcSubStr, pcNewSubStr)
+	def FirstOccurrenceReplaced(pcSubStr, pcNewSubStr)
 		return This.Copy().ReplaceFirstOccurrenceQ(pcSubStr, pcNewSubStr).Content()
 
 	  #--------------------------------------------------#
@@ -37418,7 +37433,7 @@ return
 
 		#< @FunctionMisspelledForm
 
-		def FirtDZ(n, pcSubStr, pcDirection)
+		def FistDZ(n, pcSubStr, pcDirection)
 			return This.FirstDZ(n, pcSubStr, pcDirection)
 
 		#>
@@ -37465,7 +37480,7 @@ return
 
 		#< @FunctionMisspelledForm
 
-		def FirtDZZ(n, pcSubStr, pcDirection)
+		def FistDZZ(n, pcSubStr, pcDirection)
 			return This.FirstDZZ(n, pcSubStr, pcDirection)
 
 		#>
@@ -39705,7 +39720,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return This.FindLastSubStringW(pcCondition)
 
 	  #============================================#
-	 #  FINDING MANY SYBSTRINGS IN THE SAME TIME  # 
+	 #  FINDING MANY SUBSTRINGS IN THE SAME TIME  # 
 	#============================================#
 
 	def FindManyCS(pacSubStr, pCaseSensitive)
@@ -39825,7 +39840,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#>
 
 	  #----------------------------------------------------------------------------#
-	 #  FINDING MANY SYBSTRINGS IN THE SAME TIME -- RETURN POSITIONS AS SECTIONS  # 
+	 #  FINDING MANY SUBSTRINGS IN THE SAME TIME -- RETURN POSITIONS AS SECTIONS  # 
 	#----------------------------------------------------------------------------#
 
 	def FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
