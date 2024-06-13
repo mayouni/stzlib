@@ -124,13 +124,12 @@ proff()
 # Executed in 0.02 second(s)
 
 /*======
-*/
+
 pron()
 #                         +------.--.--+
 #                         |      :  :  |
 #                         V      :  :  V
 o1 = new stzString("I love the <<Ring>> programming <<language>>!")
-
 
 ? o1.ContainsSubStringBetween("Ring", "love", "program")
 #--> TRUE
@@ -147,13 +146,50 @@ o1 = new stzString("I love the <<Ring>> programming <<language>>!")
 ? @@( o1.FindTheseBoundsZZ("<<", ">>") )
 #--> [ [ 12, 13 ], [ 18, 19 ], [ 33, 34 ], [ 43, 44 ] ]
 
-? @@( o1.Sections( o1.FindTheseBoundsZZ("<<", ">>") ) )
+? @@( o1.Sections( o1.FindTheseBoundsZZ("<<", ">>") ) ) + NL
 #--> [ "<<", ">>", "<<", ">>" ]
 
+#-- 
 
 ? @@( o1.FindAnyBoundedBy([ "<<", ">>" ]) )
+#--> [ 12, 18, 33, 43 ]
+
+? @@( o1.FindAnyBoundedByZZ([ "<<", ">>" ]) )
+#--> [ [ 12, 13 ], [ 18, 19 ], [ 33, 34 ], [ 43, 44 ] ]
+
+? @@( o1.Sections( o1.FindAnyBoundedByZZ([ "<<", ">>" ]) ) ) + NL
+#--> [ "<<", ">>", "<<", ">>" ]
 
 proff()
+# Executed in 0.04 second(s)
+
+/*======
+*/
+pron()
+#                         +------.--.--+
+#                         |      :  :  |
+#                         V      :  :  V
+o1 = new stzString("I love the <<Ring>> programming <<language>>!")
+
+
+? @@( o1.SubStringsBoundedBy([ "<<", ">>" ]) ) + NL
+#--> [ "Ring", "language" ]
+
+? @@( o1.findSubStringsBoundedBy([ "<<", ">>" ]) )
+
+/*
+? @@SP( o1.SubStringsBoundedByZ([ "<<", ">>" ]) ) + NL
+#--> [
+#	[ "Ring", 12 ],
+#	[ "language", 18 ],
+#	[ "", 33 ],
+#	[ "", 43 ]
+# ]
+
+? @@SP( o1.SubStringsBoundedByZZ([ "<<", ">>" ]) )
+*/
+proff()
+# Executed in 0.06 second(s)
 
 #--
 /*
