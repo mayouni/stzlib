@@ -577,7 +577,7 @@ proff()
 # Executed in 0.08 second(s)
 
 /*----
-*/
+
 pron()
 #                       5     11     18     25
 #                       v     v      v      v
@@ -595,18 +595,18 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 ? ""
 
 ? o1.FindNthSubStringBoundedBySIBZZ(2, "ring", [ "<<", ">>" ], :StartingAt = 3)
-#--> [ 25, 32 ]
+#--> [ 25, 28 ]
 
 ? o1.FindFirstSubStringBoundedBySIBZZ("ring", [ "<<", ">>" ], :StartingAt = 3)
-#--> [ 11, 18 ]
+#--> [ 11, 28 ]
 
 ? o1.FindLastSubStringBoundedBySIBZZ("ring", [ "<<", ">>" ], :StartingAt = 3)
-#--> [ 25, 32 ]
+#--> [ 25, 28 ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.14 second(s)
 
-/*======================================================================
+/*=========
 
 pron()
 
@@ -626,20 +626,11 @@ proff()
 # Executed in 0.02 second(s)
 
 /*--------
-
+*/
 pron()
 #                       5       13     20     27       36         47
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
-
-? o1.FindNthSubStringBetweenD(3, "ring", "START", "END", :Forward)
-#--> 27
-
-? o1.FindNthSubStringBetweenD(3, "ring", "START", "END", :Direction = :Backward)
-#--> 20
-
-? o1.FindNthSubStringBetweenD(3, "ring", 5, 47, :Backward)
-#--> 20
 
 ? o1.FindNthSubStringBoundedByD(2, "ring", [ "<<", ">>" ], :Forward)
 #--> 27
@@ -652,23 +643,11 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 
 ? ""
 
-? o1.FindFirstSubStringBetweenD("ring", "START", "END", :Forward)
-#--> 13
-
-? o1.FindFirstSubStringBetweenD("ring", "START", "END", :Backward)
-#--> 36
-
 ? o1.FindFirstSubStringBoundedByD("ring", [ "<<", ">>" ], :Forward)
 #--> 13
 
 ? o1.FindFirstSubStringBoundedByD("ring", [ "<<", ">>" ], :Backward)
 #--> 27
-
-? o1.FindLastSubStringBetweenD("ring", "START", "END", :Forward)
-#--> 36
-
-? o1.FindLastSubStringBetweenD("ring", "START", "END", :Backward)
-#--> 13
 
 ? o1.FindLastSubStringBoundedByD("ring", [ "<<", ">>" ], :Forward)
 #--> 27
@@ -686,15 +665,6 @@ pron()
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 
-? @@( o1.FindNthSubStringBetweenDZZ(3, "ring", "START", "END", :Forward) )
-#--> [ 27, 30 ]
-
-? @@( o1.FindNthSubStringBetweenDZZ(3, "ring", "START", "END", :Direction = :Backward) )
-#--> [ 20, 23 ]
-
-? @@( o1.FindNthSubStringBetweenDZZ(3, "ring", 5, 47, :Backward) )
-#--> [ 20, 23 ]
-
 ? @@( o1.FindNthSubStringBoundedByDZZ(2, "ring", [ "<<", ">>" ], :Forward) )
 #--> [ 27, 30 ]
 
@@ -706,23 +676,11 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 
 ? ""
 
-? @@( o1.FindFirstSubStringBetweenDZZ("ring", "START", "END", :Forward) )
-#--> [ 13, 16 ]
-
-? @@( o1.FindFirstSubStringBetweenDZZ("ring", "START", "END", :Backward) )
-#--> [ 36, 39 ]
-
 ? @@( o1.FindFirstSubStringBoundedByDZZ("ring", [ "<<", ">>" ], :Forward) )
 #--> [ 13, 16 ]
 
 ? @@( o1.FindFirstSubStringBoundedByDZZ("ring", [ "<<", ">>" ], :Backward) )
 #--> [ 27, 30 ]
-
-? @@( o1.FindLastSubStringBetweenDZZ("ring", "START", "END", :Forward) )
-#--> [ 36, 39 ]
-
-? @@( o1.FindLastSubStringBetweenDZZ("ring", "START", "END", :Backward) )
-#--> [ 13, 16 ]
 
 ? @@( o1.FindLastSubStringBoundedByDZZ("ring", [ "<<", ">>" ], :Forward) )
 #--> [ 27, 30 ]
@@ -971,11 +929,7 @@ FindFirstSubStringBoundedBySIBZZ(pcSubStr, pacBounds, pnStartingAt)
 
 /*--
 
-FindFirstSubStringBetweenD(pcSubStr, pcBound1, pcBound2, pcDirection)
-
 FindFirstSubStringBoundedByD(pcSubStr, pacBounds, pcDirection)
-
-FindFirstSubStringBetweenDZZ(pcSubStr, pcBound1, pcBound2, pcDirection)
 
 FindFirstSubStringBoundedByDZZ(pcSubStr, pacBounds, pcDirection)
 
@@ -1023,11 +977,7 @@ FindLastSubStringBoundedBySIBZZ(pcSubStr, pacBounds, pnStartingAt)
 
 /*--
 
-FindLastSubStringBetweenD(pcSubStr, pcBound1, pcBound2, pcDirection)
-
 FindLastSubStringBoundedByD(pcSubStr, pacBounds, pcDirection)
-
-FindLastSubStringBetweenDZZ(pcSubStr, pcBound1, pcBound2, pcDirection)
 
 FindLastSubStringBoundedByDZZ(pcSubStr, pacBounds, pcDirection)
 
