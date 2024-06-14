@@ -23874,6 +23874,20 @@ class stzString from stzObject
 		def ContainsNOccurrencesBoundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
 			return This.ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
 
+		#--
+
+		def ContainsExactlyNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+
+		def ContainsExactlyNOccurrenceOfSubStringBoundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+
+		def ContainsExactlyNOccurrenceBoundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+
+		def ContainsExactlyNOccurrencesBoundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -23890,6 +23904,20 @@ class stzString from stzObject
 			return This.ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds)
 
 		def ContainsNOccurrencesBoundedBy(n, pcSubStr, pacBounds)
+			return This.ContainsNOccurrencesOfSubStringboundedBy(n, pcSubStr, pacBounds)
+
+		#--
+
+		def ContainsExactlyNOccurrencesOfSubStringboundedBy(n, pcSubStr, pacBounds)
+			return This.ContainsNOccurrencesOfSubStringboundedBy(n, pcSubStr, pacBounds)
+
+		def ContainsExactlyNOccurrenceOfSubStringBoundedBy(n, pcSubStr, pacBounds)
+			return This.ContainsNOccurrencesOfSubStringboundedBy(n, pcSubStr, pacBounds)
+
+		def ContainsExactlyNOccurrenceBoundedBy(n, pcSubStr, pacBounds)
+			return This.ContainsNOccurrencesOfSubStringboundedBy(n, pcSubStr, pacBounds)
+
+		def ContainsExactlyNOccurrencesBoundedBy(n, pcSubStr, pacBounds)
 			return This.ContainsNOccurrencesOfSubStringboundedBy(n, pcSubStr, pacBounds)
 
 		#>
@@ -23913,6 +23941,20 @@ class stzString from stzObject
 		def ContainsNOccurrencesBoundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 			return This.ContainsNOccurrencesOfSubStringboundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 
+		#--
+
+		def ContainsExactlyNOccurrencesOfSubStringboundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+
+		def ContainsExactlyNOccurrenceOfSubStringBoundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+
+		def ContainsExactlyNOccurrenceBoundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+
+		def ContainsExactlyNOccurrencesBoundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+			return This.ContainsNOccurrencesOfSubStringboundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -23929,6 +23971,20 @@ class stzString from stzObject
 			return This.ContainsNOccurrencesOfSubStringboundedBySCS(n, pcSubStr, pacBounds, pnStartingAt)
 
 		def ContainsNOccurrencesBoundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+			return This.ContainsNOccurrencesOfSubStringboundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+
+		#--
+
+		def ContainsExactlyNOccurrencesOfSubStringboundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+			return This.ContainsNOccurrencesOfSubStringboundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+
+		def ContainsExactlyNOccurrenceOfSubStringBoundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+			return This.ContainsNOccurrencesOfSubStringboundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+
+		def ContainsExactlyNOccurrenceBoundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+			return This.ContainsNOccurrencesOfSubStringboundedByS(n, pcSubStr, pacBounds, pnStartingAt)
+
+		def ContainsExactlyNOccurrencesBoundedByS(n, pcSubStr, pacBounds, pnStartingAt)
 			return This.ContainsNOccurrencesOfSubStringboundedByS(n, pcSubStr, pacBounds, pnStartingAt)
 
 		#>
@@ -25835,7 +25891,7 @@ class stzString from stzObject
 	   #---------------------------------------------------------------#
 	  #  FINDING NTH OCCURRENCE OF A SUBSTRING BOUNDED BY TWO OTHER   #
 	 #  SUBSTRINGSSTARTING AT A GIVEN POSITION AND INCLUDING BOUNDS  #
-	#---------------------------------------------------------------#
+	#===============================================================#
 
 	def FindNthSubStringBoundedBySCSIB(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 		nPos = This.FindNthSubStringBoundedBySCS(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
@@ -25879,19 +25935,22 @@ class stzString from stzObject
 	   #-----------------------------------------------------------------------------------#
 	  #  FINDING NTH OCCURRENCE OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS STARTING   #
 	 #  AT A GIVEN POSITION, INCLUDING BOUNDS, AND RETURNING THE POSITIONS AS SECTIONS   #
-	#-----------------------------------------------------------------------------------#
+	#===================================================================================#
 
 	def FindNthSubStringBoundedBySCSIBZZ(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
-		if isString(pacBounds)
-			return This.FindNthSubStringBetweenSCSIBZZ(n, pcSubStr, pacBounds, pacBounds, pnStartingAt, pCaseSensitive)
 
-		but isList(pacBounds) and Q(pacBounds).IsPairOfStrings()
-			return This.FindNthSubStringBetweenSCSIBZZ(n, pcSubStr, pacBounds[1], pacBounds[2], pnStartingAt, pCaseSensitive)
+		aResult = []
+		nPos = This.FindNthSubStringBoundedBySCSIB(n, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 
-		else
-			StzRaise("Incorrect param type! pacBounds must be string or pair of strings.")
+		if nPos > 0
+
+			nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+			aResult = [ nPos, nPos + nLenSubStr - 1 ]
 
 		ok
+
+		return aResult
+
 
 		#< @FunctionAlternativeForm
 
@@ -26456,7 +26515,7 @@ class stzString from stzObject
 	#----------------------------------------------------------------#
 
 	def FindFirstSubStringBoundedBySCSIB(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
-		return This.NthFirstSubStringBoundedBySCSIB(1, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+		return This.FindNthSubStringBoundedBySCSIB(1, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForm
 
@@ -26851,7 +26910,8 @@ class stzString from stzObject
 	#----------------------------------------------------------------#
 
 	def FindLastSubStringBoundedBySCSIB(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
-		return This.NthLastSubStringBoundedBySCSIB(nLast, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+		nLast = this.NumberOfOccurrenceOfSubStringBoundedBySCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+		return This.FindNthSubStringBoundedBySCSIB(nLast, pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 
 		def FindLastSubStringBoundedBySCSIBZ(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 			return This.FindLastSubStringBoundedBySCSIB(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
