@@ -12,7 +12,6 @@ o1 = new stzString("Ring programming language!")
 proff()
 # Executed in 0.02 second(s)
 
-
 /*=====
 
 pron()
@@ -204,7 +203,7 @@ o1 = new stzString("Ring programming language")
 #--> TRUE
 
 proff()
-# Executed in 0.24 second(s)
+# Executed in 0.08 second(s)
 
 /*===
 
@@ -225,7 +224,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*===
-*/
+
 pron()
 
 o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
@@ -242,19 +241,59 @@ pron()
 
 o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
 
-//? o1.ContainsNOccurrencesOfSubStringBetween(3, "ring", "START", "END")
-#--> TRUE
-/*
-? o1.ContainsNOccurrencesOfSubStringboundedBy(2, "ring", [ "<<", ">>" ])
-#--> TRUE
+? o1.ContainsNOccurrencesOfSubStringBetween(3, "ring", "START", "END")
+#--> FALSE
 
-? o1.ContainsNOccurrencesOfSubStringBoundedByS(2, "ring", [ "<<", ">>" ], :StartingAt = 5)
-#--> TRUE
+# Becase there is no "END" substring in the string
 
-? o1.ContainsNOccurrencesOfSubStringBoundedByS(2, "ring", [ "<<", ">>" ], :StartingAt = 34)
-*/
+? o1.ContainsNOccurrencesOfSubStringBetween(3, "ring", "SMART", "THE")
+#--> FALSE
+
+# Because there is no "SMART" substring in the string.
+
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
+
+/*---------- #todo #narration
+
+pron()
+
+o1 = new stzString("...<<ring>>...<<ring>>...<<ring>>...")
+
+? o1.ContainsNOccurrenceOfSubStringBoundedBy(2, "ring", [ "<<", ">>" ])
+#--> FALSE
+
+? o1.NumberOfOccurrenceOfSubStringBoundedBy("ring", [ "<<", ">>" ])
+#--> 3
+
+? o1.ContainsNOccurrenceofSubStringBoundedBy(3, "ring", [ "<<", ">>" ])
+#--> TRUE
+
+proff()
+# Executed in 0.06 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
+
+? o1.ContainsNOccurrencesOfSubStringboundedBy(3, "ring", [ "<<", ">>" ])
+#--> TRUE
+
+? o1.ContainsNOccurrencesOfSubStringBoundedByS(3, "ring", [ "<<", ">>" ], :StartingAt = 5)
+#--> TRUE
+
+#--
+
+? o1.NumberOfOccurrenceOfSubStringBoundedByS("ring", [ "<<", ">>" ], :StartingAt = 34)
+#--> 1
+
+? o1.ContainsNOccurrencesOfSubStringBoundedByS(1, "ring", [ "<<", ">>" ], :StartingAt = 34)
+#--> TRUE
+
+proff()
+# Executed in 0.15 second(s)
 
 /*===
 
@@ -262,10 +301,10 @@ pron()
 
 o1 = new stzString("THE START <<ring>> ring <<ring>> _ring_ THE END")
 
-? o1.FindSubStringBetween("ring", "START", "END")
+? @@( o1.FindSubStringBetween("ring", "START", "END") )
 #--> [ 13, 20, 27, 35 ]
 
-? o1.FindSubstringBoundedBy("ring", [ "<<", ">>" ])
+? @@( o1.FindSubstringBoundedBy("ring", [ "<<", ">>" ]) )
 #--> [ 13, 27 ]
 
 ? @@( o1.FindSubstringBoundedBy("ring", "_") ) + NL
@@ -282,7 +321,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> _ring_ THE END")
 
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.06 second(s)
 
 /*---
 
@@ -349,7 +388,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END")
 #--> 11
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*-----
 
@@ -371,7 +410,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END")
 #--> [ 11, 14 ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*--- #ring
 
@@ -394,13 +433,13 @@ pron()
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 
 ? o1.FindPreviousNthSubStringBoundedByS(2, "ring", ["<<", ">>"], :StartingAt = 50)
-#--> 11
+#--> 13
 
 ? o1.FindPreviousNthSubStringBoundedBySIB(2, "ring", ["<<", ">>"], :StartingAt = 50) + NL
-#--> 9
+#--> 11
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
 
 /*===
 
@@ -432,6 +471,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 #--> 27
 
 proff()
+# Executed in 0.06 second(s)
 
 /*---
 
@@ -463,7 +503,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 #--> [ 27, 30 ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.04 second(s)
 
 /*----
 
@@ -493,9 +533,9 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 #--> [ 25, 32 ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s)
 
-/*======================================================================
+/*====
 
 pron()
 #                       5       13     20     27       36         47
@@ -515,7 +555,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 #--> 27
 
 proff()
-# Executed in 0.27 second(s)
+# Executed in 0.05 second(s)
 
 /*---
 
@@ -537,7 +577,7 @@ proff()
 # Executed in 0.08 second(s)
 
 /*----
-
+*/
 pron()
 #                       5     11     18     25
 #                       v     v      v      v
