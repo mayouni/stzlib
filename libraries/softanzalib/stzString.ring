@@ -27426,7 +27426,7 @@ class stzString from stzObject
 
 		#>
 
-
+# TODO: Adding the ...BoundedBy... and ...Between... functions in stzList
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~ LASTMILE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37392,21 +37392,21 @@ class stzString from stzObject
 		oOption = Q(paOption)
 
 		if oOption.IsBoundedByNamedParam()
-			return This.FindNthBoundeByCS(n, pcSubStr, paOption[2], pCaseSensitive)
+			return This.FindNthSubStringBoundedByCS(n, pcSubStr, paOption[2], pCaseSensitive)
 
 
 		# CASE 2: ? o1.NthXT(2, "word", :Between = ["<<",">>"])
 		but oOption.IsBetweenNamedParam()
-			return This.FindNthBetweenCS(n, pcSubStr, paOption[1], paOption[2], pCaseSensitive)
+			return This.FindNthSubStringBetweenCS(n, pcSubStr, paOption[1], paOption[2], pCaseSensitive)
 
 
 		# CASE 3: ? o1.FindNthXT(2, "word", :StartingAt = 5)
 		but oOption.IsStartingAtNamedParam()
-			return This.FindNthSCS(n, pcSubStr, paOption[2], pCaseSensitive)
+			return This.FindNthSubStringSCS(n, pcSubStr, paOption[2], pCaseSensitive)
 
 		# Case 4: ? o1.FindNthXT(2, "word"; :GoingFrom = :Backward)
 		but oOption.IsGoingFromNamedParam()
-			return This.FindNthDCS(n, pcSubStr, paOption[2], pCaseSensitive)
+			return This.FindNthSubStringDCS(n, pcSubStr, paOption[2], pCaseSensitive)
 
 		else
 			stzRaise("Incorrect format!")
@@ -63715,7 +63715,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		This.RemoveSections(aSections)
 
 
-	def SubStringBoundeByRemovedCSIB(pcSubStr, pacBounds, pCaseSensitive)
+	def SubStringBoundedByRemovedCSIB(pcSubStr, pacBounds, pCaseSensitive)
 		cResult = This.Copy().RemoveSubStringBoundedByCSIBQ(pcSubStr, pacBounds, pCaseSensitive).Content()
 		return cResult
 
