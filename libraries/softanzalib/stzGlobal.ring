@@ -905,13 +905,29 @@ func IsCaseSensitive(p)
 		return IsCaseSensitive(p)
 
 func CaseSensitive(p)
-	if IsCaseSensitive(p)
-		if isNumber(p)
-			return p
-		else // A nameed param of the form :CS = TRUE for example
-			return p[2]
+
+	if isNumber(p)
+		if p = 1
+			return TRUE
+		but p = 0
+			return FALSE
 		ok
+
+	but isList(p) and StzListQ(p).IsCaseSensitiveNamedParam()
+		p = p[2]
+
+		if isNumber(p)
+			if p = 1
+				return TRUE
+			but p = 0
+				return FALSE
+			ok
+		ok
+
+	else
+		StzRaise("Incorrect param type! p must be a bolean or a list of the form :CaseSensitive = TRUE or FALSE.")
 	ok
+
 
 	func @CaseSensitive(p)
 		return CaseSensitive(p)
