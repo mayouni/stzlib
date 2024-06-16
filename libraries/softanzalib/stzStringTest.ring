@@ -4685,7 +4685,7 @@ o1 = new stzString("I love <<Ring>> and <<Softanza>>!")
 # bounding chars << and >> in the result as well. To do so,
 # we can use the IB/extended form of the same functions like this:
 
-? @@( o1.FindAnyBoundeByIB([ "<<",">>" ]) )
+? @@( o1.FindAnyBoundedByIB([ "<<",">>" ]) )
 #--> [8, 21]
 
 	? @@( o1.FindAnyBoundedByAsSectionsIB([ "<<", ">>" ]) ) # Or Simply FindAnyBoundedByZZ()
@@ -8278,7 +8278,7 @@ pron()
 
 o1 = new stzString("12*♥*56*♥*")
 
-//? o1.FindFirstXT("♥", :Between = [ "*", "*"])
+? o1.FindFirstXT("♥", :Between = [ "*", "*"])
 #--> 4
 
 ? o1.FindFirstXT("♥", :BoundedBy = [ "*", "*"])
