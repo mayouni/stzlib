@@ -13374,6 +13374,8 @@ class stzString from stzObject
 	#=================================================#
 
 	def FindBoundsCS(pCaseSensitive)
+		#TODO
+		# Reveiew it! Many be non accurate
 
 		aResult = [
 			This.FindLeadingCharsCS(pCaseSensitive),
@@ -25525,6 +25527,33 @@ class stzString from stzObject
 
 		#>
 
+	  #-------------------------------------------------------------#
+	 #  FINDING ANY NTH SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
+	#-------------------------------------------------------------#
+
+	def FindAnyNthSubStringBoundedByCS(n, pacBounds, pCaseSensitive)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		nResult = 0
+		anPos = This.FindTheseBoundsCS(pacBounds, pCaseSensitive)
+
+		if n <= len(anPos)
+			cBound1 = @Bounds(pacBounds)[1]
+			nLenBound1 = StzStringQ(cBound1).NumberOfChars()
+			nResult = anPos[n] + nLenBound1
+		ok
+
+		return nResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAnyNthSubStringBoundedBy(n, pacBounds)
+		return This.FindAnyNthSubStringBoundedByCS(n, pacBounds, TRUE)
+
 	  #---------------------------------------------------------------------#
 	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING BOUNDED BY TWO SUBSTRINGS  #
 	#=====================================================================#
@@ -25970,8 +25999,6 @@ class stzString from stzObject
 			return This.FindNthSubStringBoundedBySIBZZ(n, pcSubStr, pacBounds, pnStartingAt)
 
 		#>
-
-	//// ADDING DIRECTION AS A PARAMETER (D) /////
 
 	#NOTE
 	# ...Between...() functions is not DIRECTION-aware and can not have an D() extension
@@ -27020,194 +27047,138 @@ class stzString from stzObject
 		def FindLastSubStringBoundedByAsSectionsSDIB(pcSubStr, pacBounds, pnStartingAt, pcDirection)
 			return This.FindLastSubStringBoundedBySDIBZZ(pcSubStr, pacBounds, pnStartingAt, pcDirection)
 
-~~~www~~~~~~~~~~~#todo~~~~~~~~~~~~~~~~~~
+	  #=================================================================#
+	 #  FINDING THE SUBSTRINGS BOUNDED BY ONE OR TWO OTHER SUBSTRINGS  #
+	#=================================================================#
 
-	  #---------------------------------------------------------#
-	 #  FINFING ANY SUBSTRING BOUNDED BY TOW OTHER SUBSTRINGS  #
-	#=========================================================#
+	def FindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
-	def FindAnySubStringBoundedByCS(pacBounds, pCaseSensitive)
+		acBounds = @Bounds(pacBounds)
+		cBound1 = acBounds[1]
+		cBound2 = acBounds[2]
 
-		#NOTE
-		# ~> No need to check params! @Bounds() will do it
-		# and raises an errors if necesssary
+		aSections = This.FindTheseBoundsCSZZ(cBound1, cBound2, pCaseSensitive)
 
-		#INFO #narration
-		# ~> Like @Direction() or @CaseSensitive() functions,
-		# @Bounds() function helps in checjing the pacBounds
-		# param, sees if it is well formed (a string or a
-		# pair of strings), and returns it in a uniformed
-		# form to let us simplify our code and think about
-		# the solution without hassel.
+		nLen = len(aSections)
 
-		# @Bounds() returns alway a pair of strings,
-		# @CaseSensitive() returns always TRUE or FALSE, and
-		# @Direction returns :Forward or :Backward.
+		anResult = []
 
-		# DOING THE JOB
+		for i = 1 to nLen step 2
+			anResult + aSections[i][2]++
+		next
 
-		cBound1 = @Bounds(pacBounds)[1]
-		cBound2 = @Bounds(pacBounds)[2]
-
-		return This.FindTheseBoundsCS(cBound1, cBound2, pCaseSensitive)
+		return anResult
 
 		#< @FunctionAlternativeForms
 
-		def FindAnyBoundedByCS(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCS(pacBounds, pCaseSensitive)
-
-		def FindAnyBoundedByCSZ(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCS(pacBounds, pCaseSensitive)
-
-		#-- Plural
-
-		def FindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCS(pacBounds, pCaseSensitive)
-
-		def FindSubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCS(pacBounds, pCaseSensitive)
+		def FindAnySubStringBoundedByCS(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
 		def FindAnySubStringsBoundedByCS(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCS(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		#--
+
+		def FindSubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		def FindAnySubStringBoundedByCSZ(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
 		def FindAnySubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCS(pacBounds, pCaseSensitive)
-
-		#>
-
-	#--
-
-	def FindAnySubStringBoundedBy(pacBounds)
-		return This.FindAnySubStringBoundedByCS(pacBounds, TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def FindAnyBoundedBy(pacBounds)
-			return This.FindAnySubStringBoundedBy(pacBounds)
-
-		def FindAnyBoundedByZ(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCS(pacBounds, pCaseSensitive)
-
-		#-- Plural
-
-		def FindSubStringsBoundedBy(pacBounds)
-			return This.FindAnySubStringBoundedBy(pacBounds)
-
-		def FindSubStringsBoundedByZ(pacBounds)
-			return This.FindAnySubStringBoundedBy(pacBounds)
-
-		def FindAnySubStringsBoundedBy(pacBounds)
-			return This.FindAnySubStringBoundedBy(pacBounds)
-
-		def FindAnySubStringsBoundedByZ(pacBounds)
-			return This.FindAnySubStringBoundedBy(pacBounds)
-
-		#>
-
-	  #-------------------------------------------------------------------------#
-	 #  FINFING ANY SUBSTRING BOUNDED BY TOW OTHER SUBSTRINGS -- ZZ/EXTENSION  #
-	#=========================================================================#
-
-	def FindAnySubStringBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		cBound1 = @Bounds(pacBounds)[1]
-		cBound2 = @Bounds(pacBounds)[2]
-
-		return This.FindTheseBoundsCSZZ(cBound1, cBound2, pCaseSensitive)
-
-		#< @FunctionAlternativeForms
-
-		def FindAnyBoundedByCSZZ(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		#--
-
-		def FindAnySubStringBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		def FindAnyBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		#== Plural
-
-		def FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		def FindAnySubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		#--
-
-		def FindSubStringsBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		def FindAnySubStringsBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
-			return This.FindAnySubStringBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAnySubStringBoundedByZZ(pacBounds)
-		return This.FindAnySubStringBoundedByCSZZ(pacBounds, TRUE)
+	def FindSubStringsBoundedBy(pacBounds)
+		return This.FindSubStringsBoundedByCS(pacBounds, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def FindAnyBoundedByZZ(pacBounds)
-			return This.FindAnySubStringBoundedByZZ(pacBounds)
+		def FindAnySubStringBoundedBy(pacBounds)
+			return This.FindSubStringsBoundedBy(pacBounds)
+
+		def FindAnySubStringsBoundedBy(pacBounds)
+			return This.FindSubStringsBoundedBy(pacBounds)
 
 		#--
 
-		def FindAnySubStringBoundedByAsSections(pacBounds)
-			return This.FindAnySubStringBoundedByZZ(pacBounds)
+		def FindSubStringsBoundedByZ(pacBounds)
+			return This.FindSubStringsBoundedBy(pacBounds)
 
-		def FindAnyBoundedByAsSections(pacBounds)
-			return This.FindAnySubStringBoundedByZZ(pacBounds)
+		def FindAnySubStringBoundedByZ(pacBounds)
+			return This.FindSubStringsBoundedBy(pacBounds)
 
-		#== Plural
-
-		def FindSubStringsBoundedByZZ(pacBounds)
-			return This.FindAnySubStringBoundedByZZ(pacBounds)
-
-		def FindAnySubStringsBoundedByZZ(pacBounds)
-			return This.FindAnySubStringBoundedByZZ(pacBounds)
-
-		#--
-
-		def FindSubStringsBoundedByAsSections(pacBounds)
-			return This.FindAnySubStringBoundedByZZ(pacBounds)
-
-		def FindAnySubStringsBoundedByAsSections(pacBounds)
-			return This.FindAnySubStringBoundedByZZ(pacBounds)
+		def FindAnySubStringsBoundedByZ(pacBounds)
+			return This.FindSubStringsBoundedBy(pacBounds)
 
 		#>
 
-	  #----------------------------------------------------------------#
-	 #  GETTING THE SUBSTRING BOUNDED BY ONE OR TWO OTHER SUBSTRINGS  #
-	#----------------------------------------------------------------#
+	  #---------------------------------------------------------------------------------#
+	 #  FINDING THE SUBSTRINGS BOUNDED BY ONE OR TWO OTHER SUBSTRINGS -- ZZ/EXTENSION  #
+	#=================================================================================#
+
+	def FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+
+		acBounds = @Bounds(pacBounds)
+		cBound1 = acBounds[1]
+		cBound2 = acBounds[2]
+
+		aSections = This.FindTheseBoundsCSZZ(cBound1, cBound2, pCaseSensitive)
+
+		nLen = len(aSections)
+		if nLen = 0
+			return []
+		ok
+
+		aResult = []
+
+		for i = 1 to nLen step 2
+			aResult + [ aSections[i][2]++, aSections[i+1][1]-- ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAnySubStringBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+
+		def FindAnySubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStringsBoundedByZZ(pacBounds)
+		return This.FindSubStringsBoundedByCSZZ(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAnySubStringBoundedByZZ(pacBounds)
+			return This.FindSubStringsBoundedByZZ(pacBounds)
+
+		def FindAnySubStringsBoundedByZZ(pacBounds)
+			return This.FindSubStringsBoundedByZZ(pacBounds)
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #  GETTING THE SUBSTRINGS BOUNDED BY ONE OR TWO OTHER SUBSTRINGS  #
+	#-----------------------------------------------------------------#
 
 	def SubStringsBoundedByCS(pacBounds, pCaseSensitive)
 		aSections = This.FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 		nLen = len(aSections)
 
 		acResult = []
-		n = 0
 
-		for i = 1 to nLen
-			n++
-			if n = 3
-				n = 1
-			ok
-
-			if n = 1
-				n1 = aSections[i][2] + 1
-
-			but n = 2
-				n2 = aSections[i][1] - 1
-
-				acResult + This.Section(n1, n2)
-			ok
-		next
+		if nLen > 0
+			acResult = This.Sections(aSections)
+		ok
 
 		return acResult
 
@@ -27454,6 +27425,8 @@ class stzString from stzObject
 			return This.ubStringsBoundedByCSZZ(pacBounds)
 
 		#>
+
+
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~ LASTMILE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81402,16 +81375,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#>
 
-		#< @FunctionMisspelledForm
-
-		def SubSgtringIsWordCS(pcSubStr, pCaseSensitive)
-			return This.SubStringIsWord(pcSubStr, pCaseSensitive)
-
-		#TODO: Generalise this misspelled form to all functions
-		# containing SubString in their names
-
-		#>
-
 	#-- WITHOUT CASESENSITIVITY
 
 	def SubStringIsWord(pcSubStr)
@@ -81421,13 +81384,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		def SubStringIsAWord(pcSubStr)
 			return SubStringIsWord(pcSubStr)
-
-		#>
-
-		#< @FunctionMisspelledForm
-
-		def SubSgtringIsWord(pcSubStr)
-			return This.SubStringIsWord(pcSubStr)
 
 		#>
 

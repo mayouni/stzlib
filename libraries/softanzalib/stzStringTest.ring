@@ -6159,15 +6159,15 @@ proff()
 # Executed in 0.17 second(s)
 
 /*========================
-/* NOTE :
-	- RemoveNthItem(n) : Remove item at position n
 
-	- RemoveNthXT(n, pItem) : Remove nth occurrence of pItem
-  	  (you can also use RemoveNthOccurrence(n, pItem)
-
-	- RemoveThisNthItem(n, pItem) : remove nth item only if it
-	  is equal to pItem
-*/
+#NOTE :
+#	- RemoveNthItem(n) : Remove item at position n
+#
+#	- RemoveNthXT(n, pItem) : Remove nth occurrence of pItem
+# 	  (you can also use RemoveNthOccurrence(n, pItem)
+#
+#	- RemoveThisNthItem(n, pItem) : remove nth item only if it
+#	  is equal to pItem
 
 /*
 o1 = new stzString("_ABC_DE_")

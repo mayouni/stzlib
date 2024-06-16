@@ -1,6 +1,5 @@
 load "stzlib.ring"
 
-
 /*======
 
 pron()
@@ -273,7 +272,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*----------
-
+*/
 pron()
 
 o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
@@ -369,7 +368,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*===
-
+*/
 pron()
 #                       5              20     27
 #                       v              v      v
@@ -506,7 +505,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*----
-
+*/
 pron()
 #                       5     11     18     25
 #                       v     v      v      v
@@ -626,7 +625,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*--------
-*/
+
 pron()
 #                       5       13     20     27       36         47
 #                       v       v      v      v        v          v
@@ -656,7 +655,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 #--> 13
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.06 second(s)
 
 /*------
 
@@ -689,9 +688,9 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 #--> [ 13, 16 ]
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.08 second(s)
 
-/*=============//////////////////////
+/*=============
 
 pron()
 #                       5     11            25
@@ -722,7 +721,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 #--> 11
 
 proff()
-#Executed in 0.08 second(s)
+#Executed in 0.06 second(s)
 
 /*------
 
@@ -737,7 +736,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 ? @@( o1.FindNthSubStringBoundedByDIBZZ(2, "ring", [ "<<", ">>" ], :Backward) )
 #--> [ 11, 18 ]
 
-////? @@( o1.FindNthPreviousSubStringBoundedByDSIBZZ(2, "ring", [ "<<", ">>" ], :StartingAt = 58) )
+? @@( o1.FindNthPreviousSubStringBoundedBySIBZZ(2, "ring", [ "<<", ">>" ], :StartingAt = 58) )
 #--> [ 11, 14 ]
 
 ? ""
@@ -757,7 +756,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 proff()
 # Executed in 0.06 second(s)
 
-/*======================================================================
+/*======
 
 pron()
 #                       5       13     20     27       36         47
@@ -824,7 +823,7 @@ proff()
 # Executed in 0.11 second(s)
 
 /*----
-*/
+
 pron()
 #                       5     11     18     25     32
 #                       v     v      v      v      v
@@ -853,153 +852,99 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 proff()
 # Executed in 0.08 second(s)
 
-/*======================================================================
+#===============
 
 
+pron()
 
+o1 = new stzString("...<<ring>> ... <<ruby>> ... <<php>> ...")
 
+? @@( o1.FindSubStringsBoundedBy([ "<<", ">>" ]) ) + NL
+#--> [ 6, 19, 32 ]
 
+? @@( o1.FindSubStringsBoundedByZZ([ "<<", ">>" ]) ) + NL
+#--> [ [ 6, 9 ], [ 19, 22 ], [ 32, 34 ] ]
 
+? @@( o1.SubStringsBoundedBy([ "<<", ">>" ]) )
+# [ "ring", "ruby", "php" ]
 
+proff()
+# Executed in 0.02 second(s)
 
+/*-----
 
+pron()
 
+#                       5  8
+#                       v--v
+o1 = new stzString("RingRingRing")
+? o1.FindSubStringBoundedByZZ("Ring", "Ring")
+#--> [ 5, 8 ]
 
+# Same as
+? o1.FindSubStringBoundedByZZ("Ring", [ "Ring", "Ring" ])
+#--> [ 5, 8 ]
 
 
+proff()
+# Executed in 0.04 second(s)
 
-///////////////////////////////////////////////
-///////////////////////////////////////////////
-///////////////////////////////////////////////
+/*=====
 
-/*---
+pron()
 
-FindNthSubStringBoundedByDIB(n, pcSubStr, pacBounds, pcDirection)
+? IsCaseSensitive(:CS = FALSE)
+#--> FALSE
 
-FindNthSubStringBoundedByDIBZZ(n, pcSubStr, pacBounds, pcDirection)
+? IsCaseSensitive(:CS = TRUE)
+#--> TRUE
 
-/*--
+? @@( CaseSensitive(:CS = FALSE) )
+#--> FALSE
 
-FindNthSubStringBoundedBySD(n, pcSubStr, pacBounds, pnStartingAt, pcDirection)
+proff()
 
-FindNthSubStringBoundedBySDZZ(n, pcSubStr, pacBounds, pnStartingAt, pcDirection)
+/*---- #narration
+*/
+pron()
 
-/*--
+# ~> Like @Direction() or @CaseSensitive() functions,
+# @Bounds() function helps in checking the pacBounds
+# param, sees if it is well formed (a string or a
+# pair of strings), and returns it in a uniformed
+# form to let us simplify our code and think about
+# the solution without hassel.
 
-FindNthSubStringBoundedBySDIB(n, pcSubStr, pacBounds, pnStartingAt, pcDirection)
+# @Bounds() returns alway a pair of strings,
+# @CaseSensitive() returns always TRUE or FALSE, and
+# @Direction returns :Forward or :Backward.
 
-FindNthSubStringBoundedBySDIBZZ(n, pcSubStr, pacBounds, pnStartingAt, pcDirection)
+? @Bounds(["<<", ">>"])
+#--> [ "<<", ">>" ]
 
+? @Bounds("_")
+#--> [ "_", "_" ]
 
+? @CaseSensitive(:CaseSensitive = TRUE)
+#--> TRUE
 
+? @@( @CaseSensitive(:CS = FALSE) )
+#--> FALSE
 
+? @CaseSensitive(TRUE)
+#--> TRUE
 
+? @CaseSensitive(FALSE)
+#--> FALSE
 
+? @Direction(:Direction = :Forward)
+#--> "forward"
 
+? @Direction(:Going = :Backward)
+#--> "backward"
 
+? @Direction(:Forward)
+#--> "forward"
 
-
-
-
-
-
-/*--
-
-FindFirstSubStringBetweenZZ(pcSubStr, pcBound1, pcBound2)
-
-FindFirstSubStringBoundedByZZ(pcSubStr, pacBounds)
-
-/*--
-
-FindFirstSubStringBoundedByIB(pcSubStr, pacBounds)
-
-FindFirstSubStringBoundedByIBZZ(pcSubStr, pacBounds)
-
-/*--
-
-FindFirstSubStringBoundedByS(pcSubStr, pacBounds, pnStartingAt)
-
-FindFirstSubStringBoundedBySZZ(pcSubStr, pacBounds, pnStartingAt)
-
-/*--
-
-FindFirstSubStringBoundedBySIB(pcSubStr, pacBounds, pnStartingAt)
-
-FindFirstSubStringBoundedBySIBZZ(pcSubStr, pacBounds, pnStartingAt)
-
-/*--
-
-FindFirstSubStringBoundedByD(pcSubStr, pacBounds, pcDirection)
-
-FindFirstSubStringBoundedByDZZ(pcSubStr, pacBounds, pcDirection)
-
-/*--
-
-FindFirstSubStringBoundedByDIB(pcSubStr, pacBounds, pcDirection)
-
-FindFirstSubStringBoundedByDIBZZ(pcSubStr, pacBounds, pcDirection)
-
-/*--
-
-FindFirstSubStringBoundedBySD(pcSubStr, pacBounds, pnStartingAt, pcDirection)
-
-FindFirstSubStringBoundedBySDZZ(pcSubStr, pacBounds, pnStartingAt, pcDirection)
-
-/*--
-
-FindFirstSubStringBoundedBySDIB(pcSubStr, pacBounds, pnStartingAt, pcDirection)
-
-FindFirstSubStringBoundedBySDIBZZ(pcSubStr, pacBounds, pnStartingAt, pcDirection)
-
-/*--
-
-FindLastSubStringBetweenZZ(pcSubStr, pcBound1, pcBound2)
-
-FindLastSubStringBoundedByZZ(pcSubStr, pacBounds)
-
-/*--
-
-FindLastSubStringBoundedByIB(pcSubStr, pacBounds)
-
-FindLastSubStringBoundedByIBZZ(pcSubStr, pacBounds)
-
-/*--
-
-FindLastSubStringBoundedByS(pcSubStr, pacBounds, pnStartingAt)
-
-FindLastSubStringBoundedBySZZ(pcSubStr, pacBounds, pnStartingAt)
-
-/*--
-
-FindLastSubStringBoundedBySIB(pcSubStr, pacBounds, pnStartingAt)
-
-FindLastSubStringBoundedBySIBZZ(pcSubStr, pacBounds, pnStartingAt)
-
-/*--
-
-FindLastSubStringBoundedByD(pcSubStr, pacBounds, pcDirection)
-
-FindLastSubStringBoundedByDZZ(pcSubStr, pacBounds, pcDirection)
-
-/*--
-
-FindLastSubStringBoundedByDIB(pcSubStr, pacBounds, pcDirection)
-
-FindLastSubStringBoundedByDIBZZ(pcSubStr, pacBounds, pcDirection)
-
-/*--
-
-FindLastSubStringBoundedBySD(pcSubStr, pacBounds, pnStartingAt, pcDirection)
-
-FindLastSubStringBoundedBySDZZ(pcSubStr, pacBounds, pnStartingAt, pcDirection)
-
-/*--
-
-FindLastSubStringBoundedBySDIB(pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-
-FindLastSubStringBoundedBySDIBZZ(pcSubStr, pacBounds, pnStartingAt, pcDirection)
-
-/*--
-
-
-
+? @Direction(:Backward)
+#--> "backward"
