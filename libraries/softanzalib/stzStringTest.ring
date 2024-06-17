@@ -8385,6 +8385,9 @@ pron()
 
 o1 = new stzString("bla word bla <<word>> bla bla <<word>> bla <<word>> word")
 
+? @@( o1.SubStringBounds("word") )
+#--> [ "<<", ">>", "<<", ">>", "<<", ">>" ]
+
 o1.RemoveBoundedSubStringIB("word")
 ? o1.Content()
 #--> bla  bla  bla bla  bla  word
