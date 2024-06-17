@@ -16474,6 +16474,47 @@ class stzString from stzObject
 
 		#>
 
+	  #-------------------------------------------------------------------------#
+	 #  FINDING THE BOUNDS OF A GIVEN SUBSTRING IN THE STRING -- IB/EXTENSION  #
+	#-------------------------------------------------------------------------#
+
+	def FindSubStringBoundsCSIB(pcSubStr, pCaseSensitive)
+		aSections = This.FindSubStringBoundsCSIBZZ(pcSubStr, pCaseSensitive)
+		anResult = QR(aSections, :stzListOfPairs).FirstItems()
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBoundsCSIBZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringBoundsCSIB(pcSubStr, pCaseSensitive)
+
+		def FindBoundsOfCSIB(pcSubStr, pCaseSensitive)
+			return This.FindSubStringBoundsCSIB(pcSubStr, pCaseSensitive)
+
+		def FindBoundsOfCSIBZ(pcSubStr, pCaseSensitive)
+			return This.FindSubStringBoundsCSIB(pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStringBoundsIB(pcSubStr)
+		return This.FindSubStringBoundsCSIB(pcSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBoundsIBZ(pcSubStr)
+			return This.FindSubStringBoundsIB(pcSubStr)
+
+		def FindBoundsOfIB(pcSubStr)
+			return This.FindSubStringBoundsIB(pcSubStr)
+
+		def FindBoundsOfIBZ(pcSubStr)
+			return This.FindSubStringBoundsIB(pcSubStr)
+
+		#>
+
 	  #-----------------------------------------------------------------#
 	 #  FINDING THE GEIVEN SUBSTRING WHEN IT IS BOUNDED IN THE STRING  #
 	#=================================================================#
@@ -16529,6 +16570,60 @@ class stzString from stzObject
 			return This.FindBoundedSubStringZZ(pcSubStr)
 
 	  #---------------------------------------------------------------------------------#
+	 #  FINDING THE GEIVEN SUBSTRING WHEN IT IS BOUNDED IN THE STRING -- IB/EXTENSION  #
+	#=================================================================================#
+
+	def FindBoundedSubStringCSIB(pcSubStr, pCaseSensitive)
+		anSections = This.FindBoundedSubStringCSIBZZ(pcSubStr, pCaseSensitive)
+		nLen = len(anSections)
+
+		anResult = []
+
+		for i = 1 to nLen step 2
+			anResult + anSections[i][2]++
+		next
+
+		return anResult
+
+		def FindBoundedSubStringCSIBZ(pcSubStr, pCaseSensitive)
+			return This.FindBoundedSubStringCSIB(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBoundedSubStringIB(pcSubStr)
+		return This.FindBoundedSubStringCSIB(pcSubStr, TRUE)
+
+		def FindBoundedSubStringIBZ(pcSubStr)
+			return This.FindBoundedSubStringIB(pcSubStr)
+
+	  #-----------------------------------------------------------------------------------#
+	 #  FINDING THE GEIVEN SUBSTRING WHEN IT IS BOUNDED IN THE STRING -- IBZZ/EXTENSION  #
+	#-----------------------------------------------------------------------------------#
+
+	def FindBoundedSubStringCSIBZZ(pcSubStr, pCaseSensitive)
+		anSections = This.FindSubStringBoundsCSZZ(pcSubStr, pCaseSensitive)
+		nLen = len(anSections)
+
+		aResult = []
+
+		for i = 1 to nLen step 2
+			aResult + [ anSections[i][1], anSections[i+1][2] ]
+		next
+
+		return aResult
+
+		def FindBoundedSubStringAsSectionsCSIB(pcSubStr, pCaseSensitive)
+			return This.FindBoundedSubStringCSIBZZ(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBoundedSubStringIBZZ(pcSubStr)
+		return This.FindBoundedSubStringCSIBZZ(pcSubStr, TRUE)
+
+		def FindBoundedSubStringAsSectionsIB(pcSubStr)
+			return This.FindBoundedSubStringZZIB(pcSubStr)
+
+	  #=================================================================================#
 	 #  FINDING THE BOUNDS - UP TO N CHARS -- OF A GIVEN SUBSTRING IN THE STRING -- XT #
 	#=================================================================================#
 
@@ -18595,6 +18690,35 @@ class stzString from stzObject
 			return This.SubStringLastBoundsRemoved()
 
 		#>
+
+	  #-----------------------------------------------------#
+	 #  REMOVING A SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS  #
+	#=====================================================#
+
+	def RemoveBoundedSubStringCS(pcSubStr, pCaseSensitive)
+		aSections = This.FindBoundedSubStringCSZZ(pcSubStr, pCaseSensitive)
+		This.RemoveSections(aSections)
+
+		def RemoveBoundedSubStringCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveBoundedSubStringCS(pcSubStr, pCaseSensitive)
+			return This
+
+	def BoundedSubStringRemovedCS(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveBoundedSubStringCSQ(pcSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveBoundedSubString(pcSubStr)
+		This.RemoveBoundedSubStringCS(pcSubStr, TRUE)
+
+		def RemoveBoundedSubStringQ(pcSubStr)
+			This.RemoveBoundedSubString(pcSubStr)
+			return This
+
+	def BoundedSubStringRemoved(pcSubStr)
+		cResult = This.Copy().RemoveBoundedSubStringQ(pcSubStr)
+		return This
 
 	  #-------------------------------------------------------#
 	 #  REMOVING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS  #
