@@ -8380,7 +8380,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*--------
-*/
+
 pron()
 
 o1 = new stzString("bla word bla <<word>> bla bla <<word>> bla <<word>> word")
@@ -8390,7 +8390,7 @@ o1 = new stzString("bla word bla <<word>> bla bla <<word>> bla <<word>> word")
 
 o1.RemoveBoundedSubStringIB("word")
 ? o1.Content()
-#--> bla  bla  bla bla  bla  word
+#--> bla word bla  bla bla  bla  word
 
 proff()
 # Executed in 0.05 second(s)
@@ -8399,10 +8399,29 @@ proff()
 */
 pron()
 
-o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>> word")
+#                       5     11             26        36    42     50
+#                       v     v              v         v     v      v
+o1 = new stzString("The <<Ring>> programming <<language>> is <<Waooo!>>")
 
-o1.RemoveSubStringBounds("word", [ "<<", ">>" ])
+? @@( o1.FindTheseBounds("<<", ">>") ) + NL
+#--> [ 5, 11, 26, 36, 42, 50 ]
 
+? @@( o1.FindTheseBoundsZZ("<<", ">>") )
+#--> [ [ 5, 6 ], [ 11, 12 ], [ 26, 27 ], [ 36, 37 ], [ 42, 43 ], [ 50, 51 ] ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*--------
+*/
+pron()
+
+o1 = new stzString("bla word bla <<word>> bla bla <<word>> bla <<word>> word")
+
+? o1.FindTheseSubStringBounds("word", [ "<<", ">>" ])
+
+o1.RemoveTheseSubStringBounds("word", [ "<<", ">>" ])
+? o1.Content()
 
 
 # or, more naturally, you can say:

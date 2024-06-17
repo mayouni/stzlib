@@ -15876,7 +15876,7 @@ class stzString from stzObject
 	#NOTE #AI #CHATGPT
 	# This function has been designed by the aid of ChatGPT
 
-	def FindTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
+	def FindTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
 		/* EXAMPLE
 
 		#                       5     11             26        36    42
@@ -15914,29 +15914,17 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindTheseStringBoundsCSZ(pcBound1, pcBound2, pCaseSensitive)
-			return This.FindTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
-
-		def FindTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
-			return This.FindTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
-
 		def FindTheseBoundsCSZ(pcBound1, pcBound2, pCaseSensitive)
-			return This.FindTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindTheseStringBounds(pcBound1, pcBound2)
-		return This.FindTheseStringBoundsCS(pcBound1, pcBound2, TRUE)
+	def FindTheseBounds(pcBound1, pcBound2)
+		return This.FindTheseBoundsCS(pcBound1, pcBound2, TRUE)
 
 		#< @FunctionAlternativeForms
-
-		def FindTheseStringBoundsZ(pcBound1, pcBound2)
-			return This.FindTheseStringBounds(pcBound1, pcBound2)
-
-		def FindTheseBounds(pcBound1, pcBound2)
-			return This.FindTheseStringBounds(pcBound1, pcBound2)
 
 		def FindTheseBoundsZ(pcBound1, pcBound2)
 			return This.FindTheseStringBounds(pcBound1, pcBound2)
@@ -15950,14 +15938,7 @@ class stzString from stzObject
 	#NOTE #AI #CHATGPT
 	# This function has been designed by the aid of ChatGPT
 
-	def FindTheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
-		/* EXAMPLE
-
-		#                       5     11             26        36    42
-		o1 = new stzString("The <<Ring>> programming <<language>> is <<Waooo!>>")
-		? o1.FindTheseBounds("<<", ">>")
-
-		*/
+	def FindTheseBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
 
 		nLen = This.NumberOfChars()
 		nLenBound1 = StzStringQ(pcBound1).NumberOfChars()
@@ -15988,144 +15969,60 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-			return This.FindTheseStringBoundsCSzz(pcBound1, pcBound2, pCaseSensitive)
-
-		def FindTheseBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
-			return This.FindTheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
-
 		def FindTheseBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-			return This.FindTheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindTheseBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindTheseStringBoundsZZ(pcBound1, pcBound2)
-		return This.FindTheseStringBoundsCSZZ(pcBound1, pcBound2, TRUE)
+	def FindTheseBoundsZZ(pcBound1, pcBound2)
+		return This.FindTheseBoundsCSZZ(pcBound1, pcBound2, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def FindTheseStringBoundsAsSections(pcBound1, pcBound2)
-			return This.FindTheseStringBoundsZZ(pcBound1, pcBound2)
-
-		def FindTheseBoundsZZ(pcBound1, pcBound2)
-			return This.FindTheseStringBoundsZZ(pcBound1, pcBound2)
-
 		def FindTheseBoundsAsSections(pcBound1, pcBound2)
-			return This.FindTheseStringBoundsZZ(pcBound1, pcBound2)
+			return This.FindTheseBoundsZZ(pcBound1, pcBound2)
 
 		#>
-	  #-----------------------------------------------------------------------------#
-	 #  GETTING THE GIVEN TWO BOUNDS (IF ANY) OF THE STRING ALONG THEIR POSITIONS  #
-	#-----------------------------------------------------------------------------#
-
-	def TheseStringBoundsCSZ(pcBound1, pcBound2, pCaseSensitive)
-
-		def TheseBoundsCSZ(pcBound1, pcBound2, pCaseSensitive)
-			return This.TheseStringBoundsCSZ(pcBound1, pcBound2, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def TheseStringBoundsZ(pcBound1, pcBound2)
-		return This.TheseStringBoundsCSZ(pcBound1, pcBound2, TRUE)
-
-		def TheseBoundsZ(pcBound1, pcBound2)
-			return This.TheseStringBoundsZ(pcBound1, pcBound2)
-
-	  #----------------------------------------------------------------------------#
-	 #  GETTING THE GIVEN TWO BOUNDS (IF ANY) OF THE STRING ALONG THEIR SECTIONS  #
-	#----------------------------------------------------------------------------#
-
-	def TheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
-
-
-
-		def TheseBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
-			return This.TheseStringBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def TheseStringBoundsZZ(pcBound1, pcBound2)
-		return This.TheseStringBoundsCSZZ(pcBound1, pcBound2, TRUE)
-
-		def TheseBoundsZZ(pcBound1, pcBound2)
-			return This.TheseStringBoundsZZ(pcBound1, pcBound2)
-
 
 	  #--------------------------------------------------------#
 	 #  REMOVING THE GIVEN TWO BOUNDS (IF ANY) IN THE STRING  #
 	#========================================================#
 
-	def RemoveTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
+	def RemoveTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
 
-		aSections = This.FindTheseStringBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
+		aSections = This.FindTheseBoundsAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
 		This.RemoveSections(aSections)
 
 		#< @FunctionFluentForm
 
-		def RemoveTheseStringBoundsCSQ(pcBound1, pcBound2, pCaseSensitive)
-			This.RemoveTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
+		def RemoveTheseBoundsCSQ(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
 			return This
 
 		#>
 
-		#< @FunctionAlternativeForm
-
-		def RemoveTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
-			This.RemoveTheseStringBoundsCS(pcBound1, pcBound2, pCaseSensitive)
-
-			def RemoveTheseBoundsCSQ(pcBound1, pcBound2, pCaseSensitive)
-				This.RemoveTheseBoundsCS(pcBound1, pcBound2, pCaseSensitive)
-				return This
-
-		#>
-
-	def TheseStringBoundsRemovedCS(pcBound1, pcBound2, pCaseSensitive)
-		cResult = This.Copy().RemoveTheseStringBoundsCSQ(pcBound1, pcBound2, pCaseSensitive).Content()
+	def TheseBoundsRemovedCS(pcBound1, pcBound2, pCaseSensitive)
+		cResult = This.Copy().RemoveTheseBoundsCSQ(pcBound1, pcBound2, pCaseSensitive).Content()
 		return cResult
-
-		#< @FunctionAlternativeForm
-
-		def TheseBoundsRemovedCS(pcBound1, pcBound2, pCaseSensitive)
-			return This.TheseStringBoundsRemovedCS(pcBound1, pcBound2, pCaseSensitive)
-
-		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def RemoveTheseStringBounds(pcBound1, pcBound2)
-		return This.RemoveTheseStringBoundsCS(pcBound1, pcBound2, TRUE)
+	def RemoveTheseBounds(pcBound1, pcBound2)
+		return This.RemoveTheseBoundsCS(pcBound1, pcBound2, TRUE)
 
 		#< @FunctionFluentForm
 
-		def RemoveTheseStringBoundsQ(pcBound1, pcBound2)
-			This.RemoveTheseStringBounds(pcBound1, pcBound2)
+		def RemoveTheseBoundsQ(pcBound1, pcBound2)
+			This.RemoveTheseBounds(pcBound1, pcBound2)
 			return This
 
 		#>
 
-		#< @FunctionAlternativeForm
-
-		def RemoveTheseBounds(pcBound1, pcBound2)
-			This.RemoveTheseStringBounds(pcBound1, pcBound2)
-
-			def RemoveTheseBoundsQ(pcBound1, pcBound2)
-				This.RemoveTheseBounds(pcBound1, pcBound2)
-				return This
-
-		#>
-
-	def TheseStringBoundsRemoved(pcBound1, pcBound2)
-		cResult = This.Copy().RemoveTheseStringBoundsQ(pcBound1, pcBound2).Content()
+	def TheseBoundsRemoved(pcBound1, pcBound2)
+		cResult = This.Copy().RemoveStringBoundsQ(pcBound1, pcBound2).Content()
 		return cResult
-
-		#< @FunctionAlternativeForm
-
-		def TheseBoundsRemoved(pcBound1, pcBound2)
-			return This.TheseStringBoundsRemoved(pcBound1, pcBound2)
-
-		#>
 
 	  #---------------------------------#
 	 #  SWAPPING BOUNDS OF THE STRING  #
@@ -18759,7 +18656,7 @@ class stzString from stzObject
 	  #-------------------------------------------------------#
 	 #  REMOVING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS  #
 	#=======================================================#
-www
+
 	def RemoveTheseSubStringBoundsCS(pcSubStr, pacBounds, pCaseSensitive)
 		aSections = This.FindTheseSubStringBoundsCSZZ(pcSubStr, pacBounds, pCaseSensitive)
 		This.RemoveSections(aSections)
@@ -18770,11 +18667,11 @@ www
 
 	#-- WITHOUT CASESENSITIVE
 
-	def RemoveTheseSubStringBounds(pcSubStr, pacBounds, pCaseSensitive)
-		This.RemoveTheseSubStringBounds(pcSubStr, pacBounds, TRUE)
+	def RemoveTheseSubStringBounds(pcSubStr, pacBounds)
+		This.RemoveTheseSubStringBoundsCS(pcSubStr, pacBounds, TRUE)
 
-		def RemoveTheseSubStringBoundsQ(pcSubStr, pacBounds, pCaseSensitive)
-			This.RemoveTheseSubStringBounds(pcSubStr, pacBounds, pCaseSensitive)
+		def RemoveTheseSubStringBoundsQ(pcSubStr, pacBounds)
+			This.RemoveTheseSubStringBounds(pcSubStr, pacBounds)
 			return This
 
 	  #----------------------------------------#
