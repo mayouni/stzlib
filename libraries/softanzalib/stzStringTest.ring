@@ -8351,7 +8351,7 @@ proff()
 # Executed in 0.07 second(s)
 
 /*--------
-*/
+
 pron()
 #                           9      16        26     33    39     46
 #                           v------v         v------v     v------v
@@ -8364,9 +8364,10 @@ o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>> word")
 #--> [ [ 11, 14 ], [ 28, 31 ], [ 41, 44 ] ]
 
 proff()
+# Executed in 0.04 second(s)
 
 /*--------
-*/
+
 pron()
 
 o1 = new stzString("bla word bla <<word>> bla bla <<word>> bla <<word>> word")

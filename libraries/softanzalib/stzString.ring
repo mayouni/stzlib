@@ -18720,6 +18720,35 @@ class stzString from stzObject
 		cResult = This.Copy().RemoveBoundedSubStringQ(pcSubStr)
 		return This
 
+	  #---------------------------------------------------------------------#
+	 #  REMOVING A SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IB/EXTENSION  #
+	#---------------------------------------------------------------------#
+
+	def RemoveBoundedSubStringCSIB(pcSubStr, pCaseSensitive)
+		aSections = This.FindBoundedSubStringCSIBZZ(pcSubStr, pCaseSensitive)
+		This.RemoveSections(aSections)
+
+		def RemoveBoundedSubStringCSIBQ(pcSubStr, pCaseSensitive)
+			This.RemoveBoundedSubStringCSIB(pcSubStr, pCaseSensitive)
+			return This
+
+	def BoundedSubStringRemovedCSIB(pcSubStr, pCaseSensitive)
+		cResult = This.Copy().RemoveBoundedSubStringCSIBQ(pcSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveBoundedSubStringIB(pcSubStr)
+		This.RemoveBoundedSubStringCSIB(pcSubStr, TRUE)
+
+		def RemoveBoundedSubStringIBQ(pcSubStr)
+			This.RemoveBoundedSubStringIB(pcSubStr)
+			return This
+
+	def BoundedSubStringRemovedIB(pcSubStr)
+		cResult = This.Copy().RemoveBoundedSubStringIBQ(pcSubStr)
+		return This
+
 	  #-------------------------------------------------------#
 	 #  REMOVING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS  #
 	#=======================================================#
