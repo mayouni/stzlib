@@ -8273,7 +8273,7 @@ proff()
 # Executed in 0.08 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("12*♥*56*♥*")
@@ -8299,46 +8299,82 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
 ? @@( o1.FindBetween("word", "<<", ">>") )
 #--> [ 11 ]
 
-? @@( o1.FindBetweenAsSections("word", "<<", ">>") )
+? @@( o1.FindBetweenAsSections("word", "<<", ">>") ) + NL
 #--> [ [ 11, 14 ] ]
 
-? @@( o1.FindAnyBetween("<<",">>") )
+#--
+
+? @@( o1.FindAnyBoundedBy([ "<<",">>" ]) )
 #--> [ 11, 28, 43 ]
 
-? @@( o1.FindAnyBetweenAsSections("<<",">>") )
+? @@( o1.FindAnyBoundedByAsSections([ "<<",">>" ]) )
 #--> [ [ 11, 14 ], [ 28, 33 ], [ 43, 49 ] ]
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.02 second(s)
 
 /*=================
 
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
-o1.ReplaceAnyBetween("<<", ">>", :With = "word")
+
+o1.ReplaceSubStringsBoundedBy([ "<<", ">>" ], "wrod")
 ? o1.Content()
 #--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.05 second(s)
 
-/*================ NNC : Near Natural Code
+/*================ FindBoundedSubString() VS FindSubStringBounds()
+*/
+pron()
+#                             11               28           41
+#                             v                v            v
+o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>> word")
 
+? @@( o1.FindBoundedSubString("word") ) + NL
+#--> [ 11, 28, 41 ]
+
+? @@( o1.FindBoundedSubStringZZ("word") )
+#--> [ [ 11, 14 ], [ 28, 31 ], [ 41, 44 ] ]
+
+? "--"
+
+? @@( o1.FindSubStringBounds("word") ) + NL
+#--> [ 9, 15, 26, 32, 39, 45 ]
+
+? @@( o1.FindSubStringBoundsZZ("word") ) + NL
+#--< [ [ 9, 10 ], [ 15, 16 ], [ 26, 27 ], [ 32, 33 ], [ 39, 40 ], [ 45, 46 ] ]
+
+proff()
+# Executed in 0.07 second(s)
+
+/*--------
+*/
 pron()
 
-o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
-o1.RemoveTheseBoundsOfSubString("<<", ">>", "word") # Or RemoveSubStringBounds()
-? o1.Content() + NL
-#--> "bla bla word bla bla word bla word"
+o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>> word")
+
+o1.RemoveBoundedSubString("word")
+
+/*--------
+*/
+pron()
+
+o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>> word")
+
+o1.RemoveSubStringBounds("word", [ "<<", ">>" ])
+
+
 
 # or, more naturally, you can say:
-
+/*
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 o1.RemoveTheseBoundsXT(["<<", ">>"], :OfSubString = "word")
 ? o1.Content()
 #--> "bla bla word bla bla word bla word"
-
+*/
 proff()
 # Executed in 0.07 second(s)
 

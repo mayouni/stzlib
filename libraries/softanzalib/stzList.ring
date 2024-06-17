@@ -14990,7 +14990,7 @@ Item and then position
 		ok
 	
 		if This.FirstItemQ().IsEqualToCS(pItem1, pCaseSensitive) and
-		   This.LastItemQ().IsEqualToCS(pItem2, pCaseSensitice)
+		   This.LastItemQ().IsEqualToCS(pItem2, pCaseSensitive)
 
 			return TRUE
 		else
@@ -33313,7 +33313,7 @@ Item and then position
 	 #  CHECKING IF MANY ITEMS ARE DUPLICATED IN THE LIST  #
 	#-----------------------------------------------------#
 
-	def ItemsAreDuplicatedCS(paItems, pCaseSensitice)
+	def ItemsAreDuplicatedCS(paItems, pCaseSensitive)
 		if NOT isList(paItems)
 			StzRaise("Incorrect param type! paItems must be a list.")
 		ok
@@ -33331,7 +33331,7 @@ Item and then position
 		return bResult
 
 		def ItemsAreDuplicatesCS(paItems, pCaseSensitive)
-			return This.ItemsAreDuplicatedCS(paItems, pCaseSensitice)
+			return This.ItemsAreDuplicatedCS(paItems, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
