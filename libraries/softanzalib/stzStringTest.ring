@@ -8327,7 +8327,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*================ FindBoundedSubString() VS FindSubStringBounds()
-*/
+
 pron()
 #                             11               28           41
 #                             v                v            v
@@ -8353,10 +8353,43 @@ proff()
 /*--------
 */
 pron()
-
+#                           9      16        26     33    39     46
+#                           v------v         v------v     v------v
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>> word")
 
+? @@( o1.FindBoundedSubStringIB("word") ) + NL
+#--> [ 11, 28, 41 ]
+
+? @@( o1.FindBoundedSubStringIBZZ("word") )
+#--> [ [ 11, 14 ], [ 28, 31 ], [ 41, 44 ] ]
+
+proff()
+
+/*--------
+*/
+pron()
+
+o1 = new stzString("bla word bla <<word>> bla bla <<word>> bla <<word>> word")
+
 o1.RemoveBoundedSubString("word")
+? o1.Content()
+#--> bla  bla <<>> bla bla <<>> bla <<>> word
+
+proff()
+# Executed in 0.05 second(s)
+
+/*--------
+*/
+pron()
+
+o1 = new stzString("bla word bla <<word>> bla bla <<word>> bla <<word>> word")
+
+o1.RemoveBoundedSubStringIB("word")
+? o1.Content()
+#--> bla  bla  bla bla  bla  word
+
+proff()
+# Executed in 0.05 second(s)
 
 /*--------
 */
