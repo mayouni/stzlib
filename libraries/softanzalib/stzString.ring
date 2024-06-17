@@ -16238,7 +16238,7 @@ class stzString from stzObject
 	#=======================================================================================#
 
 	def FindSubStringBoundsUpToNCharsAsSectionsCS(pcSubStr, n,  pCaseSensitive)
-		#< @MotherFunctionOf = FindSubStringBoundsAsSectionsCS() #>
+		#< @MotherFunctionOf = FindAsSectionsCS() #>
 
 		if checkParams()
 			if NOT isNumber(n)
@@ -16283,7 +16283,7 @@ class stzString from stzObject
 
 			n1 = aSections[i][1]
 			c = acChars[n1-1]
-
+			
 			for j = n1 - 2 to 1 step - 1
 				nTemp++
 				if nTemp = n or acChars[j] != c
@@ -16291,7 +16291,11 @@ class stzString from stzObject
 				ok
 			next
 
-			aResult + [ j + 1, n1 - 1 ]
+			# Empty chars can't be part of a bound
+
+			if NOT @trim(This.Section(j + 1, n1 - 1)) = ""
+				aResult + [ j + 1, n1 - 1 ]
+			ok
 
 			#--
 
@@ -16307,8 +16311,11 @@ class stzString from stzObject
 				ok
 			next
 
-			aResult + [ n1 + 1, j - 1 ]
+			# Empty chars can't be part of a bound
 
+			if NOT @trim(This.Section(n1 + 1, j - 1)) = ""
+				aResult + [ n1 + 1, j - 1 ]
+			ok
 		next
 
 		return aResult
