@@ -8406,13 +8406,17 @@ o1 = new stzString("The <<Ring>> programming <<language>> is <<Waooo!>>")
 ? @@( o1.FindTheseBounds("<<", ">>") ) + NL
 #--> [ 5, 11, 26, 36, 42, 50 ]
 
-? @@( o1.FindTheseBoundsZZ("<<", ">>") )
+? @@( o1.FindTheseBoundsZZ("<<", ">>") ) + NL
 #--> [ [ 5, 6 ], [ 11, 12 ], [ 26, 27 ], [ 36, 37 ], [ 42, 43 ], [ 50, 51 ] ]
+
+o1.RemoveTheseBounds("<<", ">>")
+? o1.Content()
+#--> The Ring programming language is Waooo!
 
 proff()
 # Executed in 0.02 second(s)
 
-/*--------
+/*=======
 */
 pron()
 
