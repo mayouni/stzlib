@@ -15869,6 +15869,138 @@ class stzString from stzObject
 
 		#>
 
+	  #--------------------------------------#
+	 #  FINDING THE GIVEN SUBSTRING BOUNDS  #
+	#======================================#
+
+	def FindTheseSubStringBoundsCS(pcSubStr, pacBounds, pCaseSensitive)
+
+		acBounds = @Bounds(pacBounds)
+		cBound1 = acBounds[1]
+		cBound2 = acBounds[2]
+
+		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
+		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+
+		aSections = This.FindSubStringBoundsCSZZ(pcSubStr, pCaseSensitive)
+		nLen = len(aSections)
+
+		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		anResult = []
+
+		for i = 1 to nLen step 2
+
+			# Checking the bounds
+
+			if aSections[i][2] - aSections[i][1] + 1 != nLenBound1
+				loop
+			ok
+
+			if aSections[i+1][2] - aSections[i+1][1] + 1 != nLenBound2
+				loop
+			ok
+
+			if NOT This.SectionQ(aSections[i][1], aSections[i][2]).IsEqualToCS(cBound1, pCaseSensitive)
+				loop
+			ok
+
+			if NOT This.SectionQ(aSections[i+1][1], aSections[i+1][2]).IsEqualToCS(cBound2, pCaseSensitive)
+				loop
+			ok
+
+			# Checking the substring
+
+			n1 = aSections[i][2]+1
+			n2 = aSections[i+1][1]-1
+
+			if NOT (n2 - n1 + 1 = nLenSubStr)
+				loop
+			ok
+
+			if This.SectionQ(n1, n2).IsEqualToCS(pcSubStr, pCaseSensitive)
+				anResult + aSections[i][1] + aSections[i+1][1]
+			ok
+		next
+
+		return anResult
+
+		def FindTheseSubStringBoundsCSZ(pcSubStr, pacBounds, pCaseSensitive)
+			return This.FindTheseSubStringBoundsCS(pcSubStr, pacBounds, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindTheseSubStringBounds(pcSubStr, pacBounds)
+		return This.FindTheseSubStringBoundsCS(pcSubStr, pacBounds, TRUE)
+
+		def FindTheseSubStringBoundsZ(pcSubStr, pacBounds)
+			return This.FindTheseSubStringBounds(pcSubStr, pacBounds)
+
+	  #------------------------------------------------------#
+	 #  FINDING THE GIVEN SUBSTRING BOUNDS -- ZZ/EXTENSION  #
+	#------------------------------------------------------#
+
+	def FindTheseSubStringBoundsCSZZ(pcSubStr, pacBounds, pCaseSensitive)
+
+		acBounds = @Bounds(pacBounds)
+		cBound1 = acBounds[1]
+		cBound2 = acBounds[2]
+
+		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
+		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+
+		aSections = This.FindSubStringBoundsCSZZ(pcSubStr, pCaseSensitive)
+		nLen = len(aSections)
+
+		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		aResult = []
+
+		for i = 1 to nLen step 2
+
+			# Checking the bounds
+
+			if aSections[i][2] - aSections[i][1] + 1 != nLenBound1
+				loop
+			ok
+
+			if aSections[i+1][2] - aSections[i+1][1] + 1 != nLenBound2
+				loop
+			ok
+
+			if NOT This.SectionQ(aSections[i][1], aSections[i][2]).IsEqualToCS(cBound1, pCaseSensitive)
+				loop
+			ok
+
+			if NOT This.SectionQ(aSections[i+1][1], aSections[i+1][2]).IsEqualToCS(cBound2, pCaseSensitive)
+				loop
+			ok
+
+			# Checking the substring
+
+			n1 = aSections[i][2]+1
+			n2 = aSections[i+1][1]-1
+
+			if NOT (n2 - n1 + 1 = nLenSubStr)
+				loop
+			ok
+
+			if This.SectionQ(n1, n2).IsEqualToCS(pcSubStr, pCaseSensitive)
+				aResult + aSections[i] + aSections[i+1]
+			ok
+		next
+
+		return aResult
+
+		def FindTheseSubStringBoundsAsSectionsCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This.FindTheseSubStringBoundsCSZZ(pcSubStr, pacBounds, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindTheseSubStringBoundsZZ(pcSubStr, pacBounds)
+		return This.FindTheseSubStringBoundsCSZZ(pcSubStr, pacBounds, TRUE)
+
+		def FindTheseSubStringBoundsAsSections(pcSubStr, pacBounds)
+			return This.FindTheseSubStringBoundsZZ(pcSubStr, pacBounds)
+
 	  #-------------------------------------------------------------------------------------#
 	 #  FINDING THE GIVEN TWO BOUNDS (IF ANY) IN THE STRING AND RETURNING THEIR POSITIONS  #
 	#=====================================================================================#

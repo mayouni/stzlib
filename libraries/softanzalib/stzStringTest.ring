@@ -8396,7 +8396,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*--------
-*/
+
 pron()
 
 #                       5     11             26        36    42     50
@@ -8417,15 +8417,33 @@ proff()
 # Executed in 0.02 second(s)
 
 /*=======
-*/
+
 pron()
 
-o1 = new stzString("bla word bla <<word>> bla bla <<word>> bla <<word>> word")
+o1 = new stzString("bla <<nonword>> bla")
+? @@( o1.FindSubStringBoundsZZ("word") )
+#--> [ [ 9, 9 ], [ 14, 15 ] ]
 
-? o1.FindTheseSubStringBounds("word", [ "<<", ">>" ])
+proff()
 
-o1.RemoveTheseSubStringBounds("word", [ "<<", ">>" ])
-? o1.Content()
+/*------
+*/
+pron()
+#                                14    20                        46    52
+#                                v     v                         v     v
+o1 = new stzString("bla word bla <<word>> bla bla <<noword>> bla <<word>> word _word_")
+
+? @@( o1.FindSubStringBoundsZZ("word") ) + NL
+#--> [ 14, 20, 46, 52 ]
+
+? @@( o1.FindTheseSubStringBounds("word", [ "<<", ">>" ]) ) + NL
+# [ 14, 20, 46, 52 ]
+
+? @@( o1.FindTheseSubStringBoundsZZ("word", [ "<<", ">>" ]) )
+#--> [ [ 14, 15 ], [ 20, 21 ], [ 46, 47 ], [ 52, 53 ] ]
+
+//o1.RemoveTheseSubStringBounds("word", [ "<<", ">>" ])
+//? o1.Content()
 
 
 # or, more naturally, you can say:
