@@ -8439,12 +8439,14 @@ o1 = new stzString("bla word bla <<word>> bla bla <<noword>> bla <<word>> word _
 ? @@( o1.FindTheseSubStringBounds("word", [ "<<", ">>" ]) ) + NL
 # [ 14, 20, 46, 52 ]
 
-? @@( o1.FindTheseSubStringBoundsZZ("word", [ "<<", ">>" ]) )
+? @@( o1.FindTheseSubStringBoundsZZ("word", [ "<<", ">>" ]) ) + NL
 #--> [ [ 14, 15 ], [ 20, 21 ], [ 46, 47 ], [ 52, 53 ] ]
 
-//o1.RemoveTheseSubStringBounds("word", [ "<<", ">>" ])
-//? o1.Content()
+o1.RemoveTheseSubStringBounds("word", [ "<<", ">>" ])
+#--> bla word bla word bla bla <<noword>> bla word word _word_
 
+? o1.Content()
+# Executed in 0.06 second(s)
 
 # or, more naturally, you can say:
 /*
