@@ -8427,7 +8427,7 @@ o1 = new stzString("bla <<nonword>> bla")
 proff()
 
 /*------
-*/
+
 pron()
 #                                14    20                        46    52
 #                                v     v                         v     v
@@ -8448,41 +8448,36 @@ o1.RemoveTheseSubStringBounds("word", [ "<<", ">>" ])
 ? o1.Content()
 # Executed in 0.06 second(s)
 
-# or, more naturally, you can say:
-/*
-o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
-o1.RemoveTheseBoundsXT(["<<", ">>"], :OfSubString = "word")
-? o1.Content()
-#--> "bla bla word bla bla word bla word"
-*/
-proff()
-# Executed in 0.07 second(s)
+pron()
 
-/*------ ReplaceBetween
+/*------
 
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-o1.ReplaceBetween("noword", "<<", ">>", :With = "word")
+
+o1.ReplaceSubStringBoundedBy("noword", [ "<<", ">>" ], :With = "word")
 ? o1.Content() + NL
 #--> bla bla <<word>> bla bla <<word>> bla <<word>>
 
 # or, more naturally, you can say:
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-o1.ReplaceXT("noword", :Between = ["<<", ">>"], :With = "word")
+o1.ReplaceXT("noword", :BoundedBy = ["<<", ">>"], :With = "word")
 ? o1.Content()
 #--> bla bla <<word>> bla bla <<word>> bla <<word>>
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.06 second(s) in Ring 1.20
+# Executed in 0.12 second(s) in Ring 1.19
 
 /*------ ReplaceBoundedBy
 
 pron()
 
 o1 = new stzString("bla bla --word-- bla bla --nword- bla --word--")
-o1.ReplaceBoundedBy("word", "--", :With = "WORD")
+
+o1.ReplaceSubStringBoundedBy("word", "--", :With = "WORD")
 ? o1.Content() + NL
 #--> bla bla --WORD-- bla bla --nword- bla --WORD--
 
@@ -8494,21 +8489,22 @@ o1.ReplaceXT("word", :BoundedBy = "--", :With = "word")
 #--> bla bla --WORD-- bla bla --nword- bla --WORD--
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.07 second(s) in Ring 1.20
+# Executed in 0.15 second(s) in Ring 1.19
 
-/*------ ReplaceBetweenIB
-
+/*------ ReplaceBoundedIB
+*/
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>.")
-o1.ReplaceBetweenIB("word", "<<", ">>", "WORD")
+o1.ReplaceSubStringBoundedByIB("word", [ "<<", ">>" ], "WORD")
 ? o1.Content() + NL
 #--> bla bla WORD bla bla WORD bla WORD.
 
 # or, more naturally, you can say:
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>.")
-o1.ReplaceXT("word", :BetweenIB = ["<<", ">>"], :With = "WORD")
+o1.ReplaceXT("word", :BoundedByIB = ["<<", ">>"], :With = "WORD")
 ? o1.Content()
 #-->
 
