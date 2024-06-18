@@ -33336,7 +33336,7 @@ Item and then position
 	#-- WITHOUT CASESENSITIVITY
 
 	def ItemsAreDuplicated(paItems)
-		return This.ItemsAreDuplicatedCS(paItems, :CaseSensitice = TRUE)
+		return This.ItemsAreDuplicatedCS(paItems, TRUE)
 		
 		def ItemsAreDuplicates(paItems)
 			return This.ItemsAreDuplicated(paItems)

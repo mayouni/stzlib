@@ -8554,7 +8554,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def SubStringsOccurringNTimesQ(n)
-			return This.SubStringsOccurringNTimes(n)
+			return new stzList( This.SubStringsOccurringNTimes(n) )
 
 		#>
 
@@ -16153,7 +16153,7 @@ class stzString from stzObject
 		#>
 
 	def TheseBoundsRemoved(pcBound1, pcBound2)
-		cResult = This.Copy().RemoveStringBoundsQ(pcBound1, pcBound2).Content()
+		cResult = This.Copy().RemoveTheseBoundsQ(pcBound1, pcBound2).Content()
 		return cResult
 
 	  #---------------------------------#
@@ -27888,6 +27888,299 @@ class stzString from stzObject
 
 		def AnySubStringsBoundedByAndTheirSections(acBounds)
 			return This.ubStringsBoundedByCSZZ(pacBounds)
+
+		#>
+
+~~~~~~~~~~~~~~~~~~~~
+
+	  #---------------------------------------------------------------------------------#
+	 #  FINDING THE SUBSTRINGS BOUNDED BY ONE OR TWO OTHER SUBSTRINGS -- IB/EXTENSION  #
+	#=================================================================================#
+
+	def FindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+		anPos = This.FindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+		nLen = len(anPos)
+
+		acBounds = @Bounds(pacBounds)
+		cBound1 = acBounds[1]
+
+		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
+
+		anResult = []
+
+		for i = 1 to nLen
+			anResult + ( anPos[i] - nLenBound1 )
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAnySubStringBoundedByCSIB(pacBounds, pCaseSenitive)
+			return This.FindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		#--
+
+		def FindSubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		def FindAnySubStringBoundedByCSIBZ(pacBounds, pCaseSenitive)
+			return This.FindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStringsBoundedByIB(pacBounds)
+		return This.FindSubStringsBoundedByCSIB(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAnySubStringBoundedByIB(pacBounds)
+			return This.FindSubStringsBoundedByIB(pacBounds)
+
+		#--
+
+		def FindSubStringsBoundedByIBZ(pacBounds)
+			return This.FindSubStringsBoundedByIB(pacBounds)
+
+		def FindAnySubStringBoundedByIBZ(pacBounds)
+			return This.FindSubStringsBoundedByIB(pacBounds)
+
+		#>
+
+	  #-----------------------------------------------------------------------------------#
+	 #  FINDING THE SUBSTRINGS BOUNDED BY ONE OR TWO OTHER SUBSTRINGS -- IBZZ/EXTENSION  #
+	#-----------------------------------------------------------------------------------#
+
+	def FindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+		aSections = This.FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+		nLen = len(aSections)
+
+		acBounds = @Bounds(pacBounds)
+		cBound1 = acBounds[1]
+		cBound2 = acBounds[2]
+
+		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
+		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+
+		aResult = []
+
+		for i = 1 to nLen
+			n1 = aSections[i][1] - nLenBound1
+			n2 = aSections[i][2] + nLenBound2
+
+			aResult + [ n1, n2 ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAnySubStringBoundedByCSIBZZ(pacBounds, pCaseSenitive)
+			return This.FindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSenitive)
+
+		#--
+
+		def FindAnySubStringBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		def FindAnySubStringsBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStringsBoundedByIBZZ(pacBounds)
+		return This.FindSubStringsBoundedByCSIBZZ(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAnySubStringBoundedByIBZZ(pacBounds)
+			return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+		#--
+
+		def FindAnySubStringBoundedByAsSectionsIB(pacBounds)
+			return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+		def FindAnySubStringsBoundedByAsSectionsIB(pacBounds)
+			return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+		#>
+
+	  #----------------------------------------------------------------------#
+	 #  GETTING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IB/EXTENSION  #
+	#----------------------------------------------------------------------#
+
+	def SubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		aSections = This.FindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+		acResult = This.Sections(aSections)
+
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def AnySubStringBoundedByCSIB(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		#--
+
+		def AnySubStringBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		def AnySubStringsBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBoundedByIB(pacBounds)
+		return This.SubStringsBoundedByCSIB(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def AnySubStringBoundedByIB(pacBounds)
+			return This.SubStringsBoundedByIB(pacBounds)
+
+		#--
+
+		def AnySubStringBoundedByAsSectionsIB(pacBounds)
+			return This.SubStringsBoundedByIB(pacBounds)
+
+		def AnySubStringsBoundedByAsSectionsIB(pacBounds)
+			return This.FindSubStringsBoundedByIB(pacBounds)
+
+		#>
+
+	  #-----------------------------------------------------------------------#
+	 #  GETTING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IBZ/EXTENSION  #
+	#-----------------------------------------------------------------------#
+
+	def SubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
+
+		acSubStr = This.SubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+		anPos  = This.FindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		nLen = len(acSubStr)
+
+		bCaseSensitive = @CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			for i = 1 to nLen
+				acSubStr[i] = @ring_lower(acSubStr[i])
+			next
+		ok
+
+		#--
+
+		aResult = []
+		acSeen = []
+
+		for i = 1 to nLen
+			nFound = @ring_find(acSeen, acSubStr[i])
+			if nFound = 0
+				aResult + [ acSubStr[i], anPos[i] ]
+				acSeen + acSubStr[i]
+			
+			else
+				n = @ring_find(acSeen, acSubStr[i])
+				aResult[n] + anPos[i]
+
+			ok
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def AnySubStringBoundedByCSIBZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
+
+		def AnySubStringsBoundedByCSIBZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBoundedByIBZ(pacBounds)
+		return This.SubStringsBoundedByCSIBZ(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def AnySubStringBoundedByIBZ(pacBounds)
+			return This.SubStringsBoundedByIBZ(pacBounds)
+
+		def AnySubStringsBoundedByIBZ(pacBounds)
+			return This.SubStringsBoundedByIBZ(pacBounds)
+
+		#>
+
+	  #------------------------------------------------------------------------#
+	 #  GETTING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IBZZ/EXTENSION  #
+	#------------------------------------------------------------------------#
+
+	def SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		acSubStr   = This.SubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+		aSections  = This.FindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		nLen = len(acSubStr)
+
+		bCaseSensitive = @CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			for i = 1 to nLen
+				acSubStr[i] = @ring_lower(acSubStr[i])
+			next
+		ok
+
+		#--
+
+		aResult = []
+		acSeen = []
+
+		for i = 1 to nLen
+			nFound = @ring_find(acSeen, acSubStr[i])
+			if nFound = 0
+				aResult + [ acSubStr[i], aSections[i] ]
+				acSeen + acSubStr[i]
+			
+			else
+				n = @ring_find(acSeen, acSubStr[i])
+				aResult[n] + aSections[i]
+
+			ok
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def AnySubStringBoundedByCSIBZZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		def AnySubStringsBoundedByCSIBZZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBoundedByIBZZ(pacBounds)
+		return This.SubStringsBoundedByCSIBZZ(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def AnySubStringBoundedByIBZZ(pacBounds)
+			return This.SubStringsBoundedByIBZZ(pacBounds)
+
+		def AnySubStringsBoundedByIBZZ(pacBounds)
+			return This.SubStringsBoundedByCSIBZZ(pacBounds)
 
 		#>
 
@@ -64107,25 +64400,51 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		aSections = This.FindSubStringsExceptCSZZ(pacSubStr, pCaseSensitive)
 		This.RemoveSections(aSections)
 
+		#< @FunctionFluentForm
+
+		def RemoveSubStringsExceptCSQ(pacSubStr, pCaseSensitive)
+			This.RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def RemoveSubStringsExceptCSZ(pacSubStr, pCaseSensitive)
 			This.RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
 
+			def RemoveSubStringsExceptCSZQ(pacSubStr)
+				return This.RemoveSubStringsExceptCSQ(pacSubStr, pCaseSensitive)
+
 		def RemoveSubStringsOtherThanCS(pacSubStr, pCaseSensitive)
 			This.RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+			def RemoveSubStringsOtherThanCSQ(pacSubStr)
+				return This.RemoveSubStringsExceptCSQ(pacSubStr, pCaseSensitive)
 
 		def RemoveSubStringsOtherThanCSZ(pacSubStr, pCaseSensitive)
 			This.RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
 
+			def RemoveSubStringsOtherThanCSZQ(pacSubStr, pCaseSensitive)
+				return This.RemoveSubStringsExceptCSQ(pacSubStr, pCaseSensitive)
+
 		def RemoveAllExceptCS(pacSubStr, pCaseSensitive)
 			This.RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+			def RemoveAllExceptCSQ(pacSubStr, pCaseSensitive)
+				return This.RemoveSubStringsExceptCSQ(pacSubStr, pCaseSensitive)
 
 		def RemoveExceptCS(pacSubStr, pCaseSensitive)
 			This.RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
 
+			def RemoveExceptCSQ(pacSubStr)
+				return This.RemoveSubStringsExceptCSQ(pacSubStr, pCaseSensitive)
+
 		def RemoveAllButCS(pacSubStr, pCaseSensitive)
 			This.RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
+
+			def RemoveAllButCSQ(pacSubStr)
+				return This.RemoveSubStringsExceptCSQ(pacSubStr, pCaseSensitive)
 
 		#>
 
@@ -64134,31 +64453,56 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	def RemoveSubStringsExcept(pacSubStr)
 		This.RemoveSubStringsExceptCS(pacSubStr, TRUE)
 
+		#< @FunctionFluentForm
+
+		def RemoveSubStringsExceptQ(pacSubStr)
+			return This.RemoveSubStringsExceptCSQ(pacSubStr, TRUE)
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def RemoveSubStringsExceptZ(pacSubStr)
 			This.RemoveSubStringsExcept(pacSubStr)
 
+			def RemoveSubStringsExceptZQ(pacSubStr)
+				return This.RemoveSubStringsExceptQ(pacSubStr)
+
 		def RemoveSubStringsOtherThan(pacSubStr)
 			This.RemoveSubStringsExcept(pacSubStr)
 
-		def RemoveSubStringsOtherThanZ(pacSubStr)
-			This.RemoveSubStringsExcept(pacSubStr)
+			def RemoveSubStringsOtherThanQ(pacSubStr)
+				return This.RemoveSubStringsExceptQ(pacSubStr)
 
-		def RemoveExcept(pacSubStr)
-			This.RemoveSubStringsExcept(pacSubStr)
+		def RemoveSubStringsOtherThanZ(pacSubStr)
+			This.RemoveSubStringsExcep(pacSubStr)
+
+			def RemoveSubStringsOtherThanZQ(pacSubStr)
+				return This.RemoveSubStringsExceptQ(pacSubStr)
 
 		def RemoveAllExcept(pacSubStr)
 			This.RemoveSubStringsExcept(pacSubStr)
 
+			def RemoveAllExceptQ(pacSubStr)
+				return This.RemoveSubStringsExceptQ(pacSubStr)
+
+		def RemoveExcept(pacSubStr)
+			This.RemoveSubStringsExcept(pacSubStr)
+
+			def RemoveExceptQ(pacSubStr)
+				return This.RemoveSubStringsExceptQ(pacSubStr)
+
 		def RemoveAllBut(pacSubStr)
 			This.RemoveSubStringsExcept(pacSubStr)
 
+			def RemoveAllButQ(pacSubStr)
+				return This.RemoveSubStringsExceptQ(pacSubStr)
+
 		#>
 
-	  #========================================================================#
-	 #  REMOVING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
-	#========================================================================#
+	  #===========================================================================#
+	 #  REMOVING ALL OCCURRENCES OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
+	#===========================================================================#
 
 	def RemoveSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		aSections = This.FindSubStringBetweenAsSectionsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
@@ -64174,9 +64518,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	def RemoveSubStringBetween(pcSubStr, pcBound1, pcBound2)
 		This.RemoveSubStringBetweenCS(pcSubStr,pcBound1, pcBound2, TRUE)
 
-	  #------------------------------------------------------------------------#
-	 #  REMOVING A SUBSTRING BETWEEN TWO BOUNDS STARTING AT A GIVEN POSITION  #
-	#------------------------------------------------------------------------#
+	  #---------------------------------------------------------------------------#
+	 #  REMOVING A SUBSTRING BOUNDED BY TWO BOUNDS STARTING AT A GIVEN POSITION  #
+	#---------------------------------------------------------------------------#
 
 	def RemoveSubStringBoundedBySCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 		aSections = This.FindubStringBoundedByAsSectionsSCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
@@ -64195,9 +64539,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		cResult = This.Copy().RemoveSubStringBoundedBySQ(pcSubStr, pacBounds, pnStartingAt).Content()
 		return cResult
 
-	  #-----------------------------------------------------------------------------------#
-	 #  REMOVING OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- IB/EXTENDED  #
-	#-----------------------------------------------------------------------------------#
+	  #--------------------------------------------------------------------------------------#
+	 #  REMOVING OCCURRENCES OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS -- IB/EXTENDED  #
+	#--------------------------------------------------------------------------------------#
 	#NOTE: encolsing substrings (bounds) are also removed
 
 	def RemoveSubStringBoundedByCSIB(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
@@ -64216,7 +64560,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		This.RemoveSections(aSections)
 
-
 	def SubStringBoundedByRemovedCSIB(pcSubStr, pacBounds, pCaseSensitive)
 		cResult = This.Copy().RemoveSubStringBoundedByCSIBQ(pcSubStr, pacBounds, pCaseSensitive).Content()
 		return cResult
@@ -64229,6 +64572,95 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	def SubStringBoundedByRemovedIB(pcSubStr, pcBound1, pcBound2)
 		return This.RemoveSubStringBoundedByIB(pcSubStr, pacBounds, TRUE)
 
+~~~~~~~~
+
+	  #-------------------------------------------------------#
+	 #  REMOVING ANY BOUNDED SUSBSTRING BY THE GIVEN BOUNDS  #
+	#=======================================================#
+
+	def RemoveAnySubStringBoundedByCS(pacBounds, pCaseSensitive)
+		aSections = This.FindAnySubStringBoundedByCSZZ(pacBounds, pCaseSensitive)
+		This.RemoveSections(aSections)
+
+		def RemoveSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			This.RemoveAnySubStringBoundedByCS(pacBounds, pCaseSensitive)
+
+	#-- WIHTOUT CASESENSITIVITY
+
+	def RemoveAnySubStringBoundedBy(pacBounds)
+		This.RemoveAnySubStringBoundedByCS(pacBounds, TRUE)
+
+		def RemoveAnySubStringBoundedByQ(pacBounds)
+			This.RemoveAnySubStringBoundedBy(pacBounds)
+			return This
+
+	  #-----------------------------------------------------------------------#
+	 #  REMOVING ANY BOUNDED SUSBSTRING BY THE GIVEN BOUNDS -- IB/EXTENSION  #
+	#-----------------------------------------------------------------------#
+
+	def RemoveAnySubStringBoundedByIBCS(pacBounds, pCaseSensitive)
+		aSections = This.FindAnySubStringBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+		This.RemoveSections(aSections)
+
+		def RemoveSubStringsBoundedByIBCS(pacBounds, pCaseSensitive)
+			This.RemoveAnySubStringBoundedByIBCS(pacBounds, pCaseSensitive)
+
+	#-- WIHTOUT CASESENSITIVITY
+
+	def RemoveAnySubStringBoundedByIB(pacBounds)
+		This.RemoveAnySubStringBoundedByIBCS(pacBounds, TRUE)
+
+		def RemoveAnySubStringBoundedByIBQ(pacBounds)
+			This.RemoveAnySubStringBoundedByIB(pacBounds)
+			return This
+
+	  #-----------------------------------------------------------------------------#
+	 #  REMOVING ANY SUBSTRING BOUNDED BY TWO BOUNDS STARTING AT A GIVEN POSITION  #
+	#-----------------------------------------------------------------------------#
+
+	def RemoveAnySubStringBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
+		aSections = This.FindAnySubStringBoundedByAsSectionsSCS(pacBounds, pnStartingAt, pCaseSensitive)
+		This.RemoveSections(aSections)
+
+		def RemoveAnySubStringsBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
+			This.RemoveAnySubStringBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
+
+		def RemoveSubStringsBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
+			This.RemoveAnySubStringBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
+
+	def AnySubtringBoundedByRemovedSCS(pacBounds, pnStartingAt, pCaseSensitive)
+		cResult = This.Copy().RemoveAnySubStringBoundedBySCSQ(pacBounds, pnStartingAt, pCaseSensitive).Content()
+		return cResult
+
+		def AnySubtringsBoundedByRemovedSCS(pacBounds, pnStartingAt, pCaseSensitive)
+			return This.AnySubtringBoundedByRemovedSCS(pacBounds, pnStartingAt, pCaseSensitive)
+
+		def SubtringsBoundedByRemovedSCS(pacBounds, pnStartingAt, pCaseSensitive)
+			return This.AnySubtringBoundedByRemovedSCS(pacBounds, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVE
+
+	def RemoveAnySubStringBoundedByS(pacBounds, pnStartingAt)
+		This.RemoveAnySubStringBoundedBySCS(pacBounds, pnStartingAt, TRUE)
+
+		def RemoveAnySubStringsBoundedByS(pacBounds, pnStartingAt)
+			This.RemoveAnySubStringBoundedByS(pacBounds, pnStartingAt)
+
+		def RemoveSubStringsBoundedByS(pacBounds, pnStartingAt)
+			This.RemoveAnySubStringBoundedByS(pacBounds, pnStartingAt)
+
+	def AnySubStringBoundedByRemovedS(pacBounds, pnStartingAt)
+		cResult = This.Copy().RemoveAnySubStringBoundedBySQ(pacBounds, pnStartingAt).Content()
+		return cResult
+
+		def AnySubtringsBoundedByRemovedS(pacBounds, pnStartingAt)
+			return This.AnySubtringBoundedByRemovedS(pacBounds, pnStartingAt)
+
+		def SubtringsBoundedByRemovedS(pacBounds, pnStartingAt)
+			return This.AnySubtringBoundedByRemovedS(pacBounds, pnStartingAt)
+
+
+~~~~~~~
 	  #====================================#
 	 #  REMOVING A SUBSTRING -- EXTENDED  #
 	#====================================#
