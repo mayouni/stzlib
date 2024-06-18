@@ -24660,7 +24660,7 @@ class stzString from stzObject
 		aResult = []
 
 		for i = 1 to nLen
-			n1 = aSections[i][1] - nLenBound1 + 1
+			n1 = aSections[i][1] - nLenBound1
 			n2 = aSections[i][2]  + nLenBound2
 			aResult + [ n1, n2 ]
 		next
