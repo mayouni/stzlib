@@ -8471,7 +8471,7 @@ proff()
 # Executed in 0.06 second(s) in Ring 1.20
 # Executed in 0.12 second(s) in Ring 1.19
 
-/*------ ReplaceBoundedBy
+/*------ ReplaceSubStringBoundedBy
 
 pron()
 
@@ -8492,8 +8492,8 @@ proff()
 # Executed in 0.07 second(s) in Ring 1.20
 # Executed in 0.15 second(s) in Ring 1.19
 
-/*------ ReplaceBoundedIB
-*/
+/*------ ReplaceSubStringBoundedIB
+
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>.")
@@ -8509,92 +8509,62 @@ o1.ReplaceXT("word", :BoundedByIB = ["<<", ">>"], :With = "WORD")
 #-->
 
 proff()
-# Executed in 0.14 second(s)
-
-/*------ ReplaceBoundedByIB
-
-pron()
-
-o1 = new stzString("bla bla --word-- bla bla --word-- bla --word--.")
-o1.ReplaceBoundedByIB("word", "--", "WORD")
-? o1.Content() + NL
-#--> bla bla WORD bla bla WORD bla WORD.
-
-# or, mor naturally, you can say:
-
-o1 = new stzString("bla bla --word-- bla bla --word-- bla --word--.")
-o1.ReplaceXT("word", :BoundedByIB = "--", :With = "WORD")
-? o1.Content()
-#--> 
-
-proff()
+# Executed in 0.09 second(s)
 
 /*------ 
 
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-o1.RemoveAnyBetween("<<", ">>")
+o1.RemoveAnySubStringBoundedBy([ "<<", ">>" ])
 ? o1.Content()	#--> "bla bla <<>> bla bla <<>> bla <<>>"
 #--> bla bla <<>> bla bla <<>> bla <<>>
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.03 second(s) in Ring 1.20
+# Executed in 0.07 second(s) in Ring 1.19
 
-/*----------------
+/*------ 
 
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-o1.RemoveSubStringBetween("noword", "<<", ">>") # Short form of RemoveBetween()
+o1.RemoveAnySubStringBoundedByIB([ "<<", ">>" ])
 ? o1.Content()
-#--> bla bla <<word>> bla bla <<>> bla <<word>>
-
-# Or, more naturally, you can say:
-
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-o1.RemoveXT("noword", :Between = ["<<", ">>"])
-? o1.Content()
-#--> bla bla <<word>> bla bla <<>> bla <<word>>
+#--> "bla bla  bla bla  bla"
 
 proff()
-# Executed in 0.17 second(s)
+# Executed in 0.03 second(s)
 
 /*----------------- RemoveBetween RemoveAt
 
 pron()
 
-# EXAMPLE 1:
-
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-o1.RemoveXT("word", :Between = ["<<", ">>"])
-? o1.Content() + NL
-#--> bla bla <<>> bla bla <<noword>> bla <<>>
-		
-# EXAMPLE 2
-
+# EXAMPLE 1
+#                             11
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.RemoveXT("word", :AtPosition = 11)
 ? o1.Content() + NL
-#--> bla bla <<>> bla bla <<noword>> bla <<>>
+#--> bla bla <<>> bla bla <<noword>> bla <<word>>
 
-# EXAMPLE 3
-
+# EXAMPLE 2
+#                             11                              43
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 o1.RemoveXT("word", :AtPositions = [ 11, 43 ])
 ? o1.Content()
 #--> bla bla <<>> bla bla <<noword>> bla <<>>
 
 proff()
-# Executed in 0.20 second(s)
+# Executed in 0.02 second(s) in Ring 1.20
+# Executed in 0.20 second(s) in Ring 1.17
 
 /*-----------------
-
+*/
 pron()
 
 o1 = new stzString("<<Go!>>")
-? o1.TheseBoundsRemoved("<<", ">>") #--> "Go!"
-# Executed in 0.04 second(s)
+? o1.TheseBoundsRemoved("<<", ">>")
+#--> "Go!"
 
 proff()
 # Executed in 0.04 second(s)
