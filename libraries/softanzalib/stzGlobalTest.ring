@@ -575,6 +575,7 @@ proff()
 pron()
 
 o1 = new stzString("...|---|....|--|..--")
+
 ? @@( o1.Find("--") )
 #--> [ 5, 6, 14, 19 ]
 
@@ -592,14 +593,40 @@ o1 = new stzString("...|---|....|--|..--")
 ? @@( o1.FindZZ("--") )
 #--> [ [ 5, 6 ], [ 6, 7 ], [ 14, 15 ], [ 19, 20 ] ]
 
-? @@( o1.FindAsSections([ "---", "--" ]) )
+? @@( o1.FindAsSections([ "---", "--" ]) ) + NL
 #--> [ [ 5, 6 ], [ 5, 7 ], [ 6, 7 ], [ 14, 15 ], [ 19, 20 ] ]
 
-//? o1.BoundedBy("|") #TODO: test it after including substringsbetween()
-//? @@( o1.FindAsSections( o1.BoundedBy("|") ) ) # Idem
+? @@( o1.BoundedBy("|") )
+#--> [ "---", "....", "--" ]
+
+? @@( o1.FindSubStringsBoundedByZZ("|") )# Idem
+#--> [ [ 5, 7 ], [ 9, 12 ], [ 14, 15 ] ]
 
 proff()
 # Executed in 0.07 second(s)
+
+/*------------ #todo write a #narration
+
+pron()
+
+o1 = new stzString("...|---|....|--|..--")
+
+? @@( o1.FindAsSections([ "---", "....", "--" ]) ) + NL
+#--> [ [ 5, 6 ], [ 5, 7 ], [ 6, 7 ], [ 9, 12 ], [ 14, 15 ], [ 19, 20 ] ]
+
+? @@( o1.Sections( o1.FindAsSections([ "---", "....", "--" ]) ) ) + NL
+
+#--> [ "--", "---", "--", "....", "--", "--" ]
+
+? @@NL( o1.TheseSubStringsZZ([ "---", "....", "--" ]) )
+#--> [
+#	[ "---", [ [ 5, 7 ] ] ],
+#	[ "....", [ [ 9, 12 ] ] ],
+#	[ "--", [ [ 5, 6 ], [ 6, 7 ], [ 14, 15 ], [ 19, 20 ] ] ]
+# ]
+
+proff()
+# Executed in 0.08 second(s)
 
 /*------------
 
@@ -607,14 +634,19 @@ pron()
 
 o1 = new stzString('   str = "  ...  "     and   str !=    "  *** " ')
 
-? @@( o1.BoundedBy('"') )
-#--> [ "  ...  ", "  *** " ]
-# Executed in 0.06 second(s)
+? @@NL( o1.BoundedBy('"') ) + NL
+#--> [
+#	"  ...  ",
+#	"     and   str !=    ",
+#	"  *** "
+# ]
+
 
 ? @@( o1.FindAsSections( o1.BoundedBy('"') ) )
-#--> [ [11, 17], ...
+#--> [ [ 11, 17 ], [ 19, 39 ], [ 41, 46 ] ]
 
 proff()
+# Executed in 0.07 second(s)
 
 /*------------
 
@@ -624,15 +656,7 @@ pron()
 #--> 'str = "  ...  " and str != "  *** "'
 
 proff()
-
-/*-----------
-
-pron()
-
-o1 = new stzString("SOanzNZA")
-//o1.ReplaceSectionW(3, 5, 'Q(@char).IsLowercase()', 'Q(@Char).Uppercased()')
-
-proff()
+# Executed in 0.02 second(s)
 
 /*----------- #TODO/FUTURE
 
@@ -1065,7 +1089,7 @@ o1 = new stzString("A")
 #--> [ 1, 2, "a" ]
 
 /*================ @narration: chars looking similar but are different!
-*/
+
 # Look at theses statements and guess their results:
 
 StartProfiler()
@@ -1104,9 +1128,11 @@ StartProfiler()
 	# ]
 
 StopProfiler()
-# Executed in 0.20 second(s)
+# Executed in 0.18 second(s)
 
 #====
+*/
+pron()
 
 ChangeRingKeyword load ＃
 ＃ "stzlib.ring"
@@ -1119,3 +1145,6 @@ ChangeRingKeyword load ＃
 
 ? QQ("＃").Name()
 #--> FULLWIDTH NUMBER SIGN
+
+proff()
+# Executed in 0.07 second(s)

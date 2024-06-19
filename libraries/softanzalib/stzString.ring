@@ -27516,6 +27516,13 @@ class stzString from stzObject
 		def FindAnyBoundedByCSZ(pacBounds, pCaseSensitive)
 			return This.FindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
+		#--
+
+		def FindBoundedByCS(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		def FindBoundedByCSZ(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -27550,6 +27557,14 @@ class stzString from stzObject
 
 		def FindAnyBoundedByZ(pacBounds)
 			return This.FindSubStringsBoundedBy(pacBounds)
+
+		#--
+
+		def FindBoundedBy(pacBounds)
+			return This.FindSubStringsBoundedByCS(pacBounds)
+
+		def FindBoundedByZ(pacBounds)
+			return This.FindSubStringsBoundedByCS(pacBounds)
 
 		#>
 
@@ -27602,6 +27617,14 @@ class stzString from stzObject
 		def FindAnySubStringsBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
 			return This.FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
+		#--
+
+		def FindBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+
+		def FindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -27631,6 +27654,14 @@ class stzString from stzObject
 			return This.FindSubStringsBoundedByZZ(pacBounds)
 
 		def FindAnySubStringsBoundedByAsSections(pacBounds)
+			return This.FindSubStringsBoundedByZZ(pacBounds)
+
+		#--
+
+		def FindBoundedByZZ(pacBounds)
+			return This.FindSubStringsBoundedByZZ(pacBounds)
+
+		def FindBoundedByAsSections(pacBounds)
 			return This.FindSubStringsBoundedByZZ(pacBounds)
 
 		#>
@@ -27929,6 +27960,20 @@ class stzString from stzObject
 		def FindAnySubStringBoundedByCSIBZ(pacBounds, pCaseSenitive)
 			return This.FindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
 
+		#--
+
+		def FindBoundedByCSIB(pacBounds, pCaseSenitive)
+			return This.FindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		def FindBoundedByCSIBZ(pacBounds, pCaseSenitive)
+			return This.FindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		def FindAnyBoundedByCSIB(pacBounds, pCaseSenitive)
+			return This.FindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		def FindAnyBoundedByCSIBZ(pacBounds, pCaseSenitive)
+			return This.FindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -27947,6 +27992,20 @@ class stzString from stzObject
 			return This.FindSubStringsBoundedByIB(pacBounds)
 
 		def FindAnySubStringBoundedByIBZ(pacBounds)
+			return This.FindSubStringsBoundedByIB(pacBounds)
+
+		#--
+
+		def FindBoundedByIB(pacBounds)
+			return This.FindSubStringsBoundedByIB(pacBounds)
+
+		def FindBoundedByIBZ(pacBounds)
+			return This.FindSubStringsBoundedByIB(pacBounds)
+
+		def FindAnyBoundedByIB(pacBounds)
+			return This.FindSubStringsBoundedByIB(pacBounds)
+
+		def FindAnyBoundedByIBZ(pacBounds)
 			return This.FindSubStringsBoundedByIB(pacBounds)
 
 		#>
@@ -27990,6 +28049,20 @@ class stzString from stzObject
 		def FindAnySubStringsBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
 			return This.FindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
 
+		#--
+
+		def FindBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		def FindAnyBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		def FindBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		def FindAnyBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -28008,6 +28081,20 @@ class stzString from stzObject
 			return This.FindSubStringsBoundedByIBZZ(pacBounds)
 
 		def FindAnySubStringsBoundedByAsSectionsIB(pacBounds)
+			return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+		#--
+
+		def FindBoundedByIBZZ(pacBounds)
+			return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+		def FindAnyBoundedByIBZZ(pacBounds)
+			return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+		def FindBoundedByAsSectionsIB(pacBounds)
+			return This.FindSubStringsBoundedByIBZZ(pacBounds)
+
+		def FindAnyBoundedByAsSectionsIB(pacBounds)
 			return This.FindSubStringsBoundedByIBZZ(pacBounds)
 
 		#>
@@ -28036,6 +28123,14 @@ class stzString from stzObject
 		def AnySubStringsBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
 			return This.FindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
 
+		#--
+
+		def BoundedByCSIB(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		def AnyBoundedByCSIB(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -28055,6 +28150,14 @@ class stzString from stzObject
 
 		def AnySubStringsBoundedByAsSectionsIB(pacBounds)
 			return This.FindSubStringsBoundedByIB(pacBounds)
+
+		#--
+
+		def BoundedByIB(pacBounds)
+			return This.SubStringsBoundedByIB(pacBounds)
+
+		def AnyBoundedByIB(pacBounds)
+			return This.SubStringsBoundedByIB(pacBounds)
 
 		#>
 
@@ -28105,6 +28208,14 @@ class stzString from stzObject
 		def AnySubStringsBoundedByCSIBZ(pacBounds, pCaseSenitive)
 			return This.SubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
 
+		#--
+
+		def BoundedByCSIBZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
+
+		def AnyBoundedByCSIBZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -28118,6 +28229,14 @@ class stzString from stzObject
 			return This.SubStringsBoundedByIBZ(pacBounds)
 
 		def AnySubStringsBoundedByIBZ(pacBounds)
+			return This.SubStringsBoundedByIBZ(pacBounds)
+
+		#--
+
+		def BoundedByIBZ(pacBounds)
+			return This.SubStringsBoundedByIBZ(pacBounds)
+
+		def AnyBoundedByIBZ(pacBounds)
 			return This.SubStringsBoundedByIBZ(pacBounds)
 
 		#>
@@ -28169,6 +28288,27 @@ class stzString from stzObject
 		def AnySubStringsBoundedByCSIBZZ(pacBounds, pCaseSenitive)
 			return This.SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
 
+		#--
+
+		def BoundedByCSIBZZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		def AnyBoundedByCSIBZZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		#==
+
+		def SubStringsBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		#--
+
+		def BoundedByAsSectionsCSIB(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		def AnyBoundedByAsSectionsCSIB(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -28183,6 +28323,19 @@ class stzString from stzObject
 
 		def AnySubStringsBoundedByIBZZ(pacBounds)
 			return This.SubStringsBoundedByCSIBZZ(pacBounds)
+
+		#==
+
+		def SubStringsBoundedByAsSectionsIB(pacBounds)
+			return This.SubStringsBoundedByIBZZ(pacBounds)
+
+		#--
+
+		def BoundedByAsSectionsIB(pacBounds)
+			return This.SubStringsBoundedByIBZZ(pacBounds)
+
+		def AnyBoundedByAsSectionsIB(pacBounds)
+			return This.SubStringsBoundedByBZZ(pacBounds)
 
 		#>
 

@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+#TODO #FUTUR
+
 /* DO NOT TEST: UNDER DEVELOPMENT
 
 /*
@@ -76,7 +78,7 @@ StzStringQ("softanza") {
 ? GenConstraint(:MustHave@8@CharsAnd@2@Spaces, :stzString)
 
 func ConstraintNameNumberOfDynamicParts(pcName)
-	return StzStringQ(pcName).SubstringsBetweenQ("@","@").NumberOfItems()
+	return len( StzStringQ(pcName).SubstringsBoundedBy([ "@","@" ]) )
 
 func ConstraintNameContainsDynamicParts(pcName)
 	if ConstraintNameNumberOfDynamicParts(pcName) > 0
@@ -110,7 +112,7 @@ func GenConstraint(pcConstraintName, pcStzClass)
 		Step 1. Extract the dynamic parts --> [ "8", "2" ]
 		*/
 		oConstraint = new stzString(pcConstraintName)
-		acDynParts = oConstraint.SubstringsBetween("@","@")
+		acDynParts = oConstraint.SubstringsBoundedBy([ "@","@" ])
 
 		/*
 
@@ -118,7 +120,7 @@ func GenConstraint(pcConstraintName, pcStzClass)
 		--> :MustHave@_@CharsIncluding@_@Spaces
 		*/
 
-		cConstraintName@_@ = oConstraint.ReplaceSubstringsBetweenQ("@","@", :With = "_").Content()
+		cConstraintName@_@ = oConstraint.ReplaceSubstringsBoundedByQ([ "@","@" ], :With = "_").Content()
 
 		/*
 		Step 3. Check if sutch a template exists in the repo
