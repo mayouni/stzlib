@@ -252,21 +252,34 @@ class stzCCode
 
 	def ExecutableSection()
 		# This version of the function assumes that the conditional
-		# code uses only This[@i] like code. No @NextItem, @PreviousI,
+		# code uses only This[@i]-like code. No @NextItem, @PreviousI,
 		# and other keywords can be use here.
 
-		# You can always Replace them by a This[@i] like alternative.
-		# For example @NewtItem can be written as This[@i + 1], and
+		# You can always Replace them by an This[@i]-like alternative.
+		# For example @NextItem can be written as This[@i + 1], and
 		# @PreviousItem can be written as This[@i - 1], and so on.
 
 		# This will lead to a better speed. But if expressivenes is
 		# a priority over performance, then you can use them and call
 		# the extended version of the function insetead: ExecutableSectionXT()
 
-		acSubStr = This.CodeQ().SubStringsBetween("[","]")
+		#WARNING
+
+		# An important detail: In general, ExectuableSection, returnes a
+		# section of the form [ 3, 12 ], for example, to say that the
+		# conditional code can run from item 2 to item 12. But, if the last
+		# item is enveoved, and because stzCCode class does not know it,
+		# then [ 3, :last ] is  returned instead.
+
+		# Therefore, it's your responsibility, in the code that called
+		# stzCCode, to check that case, and replace :last the the
+		# NumberOfItems() function applied to your object.
+
+		acSubStr = This.CodeQ().SubStringsBoundedBy([ "[","]" ])
 		nLenSubStr = len(acSubStr)
 
 		acNumbersAfter = []
+
 		for i = 1 to nLenSubStr
 			acNumbers = Q(acSubStr[i]).NumbersAfter("@i")
 			if len(acNumbers) > 0
@@ -351,7 +364,7 @@ class stzCCode
 
 		oCode = new stzString( This.Transpiled() )
 	
-		acSubStr = oCode.Between("[","]")
+		acSubStr = oCode.SubStringsBoundedBy([ "[","]" ])
 		nLenSubStr = len(acSubStr)
 
 		acNumbersAfter = []

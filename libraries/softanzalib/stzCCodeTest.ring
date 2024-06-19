@@ -46,7 +46,7 @@ proff()
 # Executed in 0.18 second(s)
 
 /*----------
-
+*/
 StartProfiler()
 
 o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
@@ -68,7 +68,7 @@ StopProfiler()
 # Executed in 0.16 second(s)
 
 /*----------
-
+*/
 StartProfiler()
 
 # When you use keywords other then This[@i] an alike in your

@@ -24581,7 +24581,7 @@ Item and then position
 		aSection = StzCCodeQ(pcCode).ExecutableSection()
 		n1 = aSection[1]
 		n2 = aSection[2]
-
+		
 		if isString(n2) and n2 = :Last
 			n2 = nLen
 		ok
@@ -40634,6 +40634,20 @@ Item and then position
 
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]
+
+		#--
+
+		#WARNING: Very important check!
+		# Read explanation in the stzCCode file --> ExectutableSection() method
+		#TODO
+		# check that this is done for all places where
+		# ExecutableSection() is used in the lmibrary
+
+			if isString(nEnd) and nEnd = :last
+				nEnd = nLen
+			ok
+
+		#--
 
 		if nEnd < 0
 			nEnd += nLen

@@ -34029,7 +34029,7 @@ class stzString from stzObject
 
 	#TODO
 	#Add
-	# def ReplaceIBS() # Inculd Bounds Starting At
+	# def ReplaceIBS() # Include Bounds Starting At
 
 	  #----------------------------------------------------------------------------------#
 	 #  REPLACING ALL OCCURRENCES OF A GIVEN SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
