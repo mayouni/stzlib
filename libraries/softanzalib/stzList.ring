@@ -40739,6 +40739,9 @@ Item and then position
 
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]
+		if isString(nEnd) and nEnd = :Last
+			nEnd = nLen
+		ok
 
 		if nEnd < 0
 			nEnd += nLen

@@ -1406,7 +1406,7 @@ o1.ReplaceAllExcept([ "Ring", "&", "Softanza" ], [ "1", "2", "3"])
 proff()
 
 /*======== #narration
-*/
+
 pron()
 
 o1 = new stzString("okay one pepsi two three ")
@@ -1443,12 +1443,14 @@ pron()
 
 o1 = new stzString("okay one pepsi two three ")
 ? o1.SplitQ(" ").FindWXT(' Q(@item).ContainsAnyOfThese( Q("vwto").Chars() ) ')
+#--> [ 1, 2, 4, 5 ]
 
 proff()
-# Executed in 0.58 second(s)
+# Executed in 0.21 second(s) in Ring 1.20
+# Executed in 0.58 second(s) in Ring 1.17
 
 /*=======
-
+*/
 pron()
 
 o1 = new stzString("ABC")
@@ -1457,7 +1459,7 @@ o1.Show()
 #--> "ABC  "
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
 /*=============
 

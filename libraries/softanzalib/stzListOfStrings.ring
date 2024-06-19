@@ -8456,11 +8456,8 @@ class stzListOfStrings from stzList
 			
 			n1 = anSection[1]
 			n2 = anSection[2]
-
-			if n1 = :First
-				n1 = 1
-
-			but n2 = :Last
+			
+			if isString(né) and  n2 = :Last
 				n2 = nLen
 			ok
 
