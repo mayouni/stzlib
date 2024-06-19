@@ -1,38 +1,51 @@
 load "stzlib.ring"
 
-/*----------
-
+/*---------- #narration between() VS boundedby()
+*/
 pron()
-
+#                         7  10
+# BETWEEN ~>           xxx[--v----------------]xxx
 o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
-? o1.Between("<<<",">>>")
+# BOUNDEDBY ~>         xxx[--]xxx   xxx[------]xxx
+        
+# In Softanza, BETWEEN returns the substring between
+# two substrings or positions
+
+? o1.Between("<<<", ">>>") # Or SubStringBetween()
+#--> "ring>>>___<<<softanza"
+
+? o1.Between(6, 11) + NL # Equivalent to Section(7, 10)
+#--> "ring"
+
+# But BOUNDEDBY returns the substrings bounded by
+# two other substrings, so you write:
+
+? o1.BoundedBy([ "<<<", ">>>" ])
 #--> [ "ring", "softanza" ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.03 second(s)
 
 /*----------
 
 pron()
 
 o1 = new stzString('{ This[@i] = This[@i + 1] + 5 }')
-? @@( o1.FindAnyBetweenAsSectionsIB("[", :And = "]") )
+? @@( o1.FindSubStringsBoundedByIBZZ([ "[", "]" ]) )
 #--> [ [ 7, 10 ], [ 18, 25 ] ]
 
-? @@( o1.BetweenIB("[", :And = "]") )
+? @@( o1.SubStringsBoundedByIB([ "[", "]" ]) )
 #--> [ "[@i]", "[@i + 1]" ]
 
-? @@( o1.FindAnyBetweenAsSections("[", "]") )
+? @@( o1.FindAnySubStringBoundedByZZ([ "[", "]" ]) )
 #--> [ [8, 9], [19, 24] ]
-
-? @@( o1.Between("[", :And = "]") )
-#--> [ "@i", "@i + 1" ]
 
 ? o1.NumbersAfter("@i")
 #--> [ +1, +5 ]
 
 proff()
-# Executed in 0.29 second(s)
+# Executed in 0.07 second(s) in ring 1.20
+# Executed in 0.29 second(s) in ring 1.17
 
 /*----------
 
@@ -43,7 +56,8 @@ o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
 #--> [ "-3", "+3", "10" ]
 
 proff()
-# Executed in 0.18 second(s)
+# Executed in 0.09 second(s) in ring 1.20
+# Executed in 0.18 second(s) in Ring 1.17
 
 /*----------
 */
