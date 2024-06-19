@@ -6857,8 +6857,8 @@ class stzString from stzObject
 		def MarkTheseSubStringsCS(pacSubStr, pCaseSensitive)
 			This.ReplaceSubstringsWithMarquersCS(pacSubStr, pCaseSensitive)
 
-			def MarkTheseSubStringsCSQ(acSubStr, pCaseSensitive)
-				This.MarkTheseSubStringsCS(acSubStr, pCaseSensitive)
+			def MarkTheseSubStringsCSQ(pacSubStr, pCaseSensitive)
+				This.MarkTheseSubStringsCS(pacSubStr, pCaseSensitive)
 				return This
 
 		def MarkSubStringsCS(pacSubStr, pCaseSensitive)
@@ -24387,7 +24387,7 @@ class stzString from stzObject
 			ok
 		ok
 
-		if NOT ( @BothAreStrings(pSubStrOrPos1, pSubStrOrPos2) or @BotheAreNumbers(pSubStrOrPos1, pSubStrOrPos2) )
+		if NOT ( @BothAreStrings(pSubStrOrPos1, pSubStrOrPos2) or @BothAreNumbers(pSubStrOrPos1, pSubStrOrPos2) )
 			StzRaise("Incorrect params types! pSubStrOrPos1 and pSubStrOrPos2 must be both strings or numbers.")
 		ok
 
@@ -24411,7 +24411,11 @@ class stzString from stzObject
 			ok
 
 		else // @BothAreNumber
+
+			n1 = pSubStrOrPos1
 			n1++
+
+			n2 = pSubStrOrPos2
 			n2--
 		ok
 
@@ -27650,14 +27654,14 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def BoundedByCS(acBounds, pCaseSensitive)
-			return This.ubStringsBoundedByCS(pacBounds, pCaseSensitive)
+		def BoundedByCS(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
-		def AnySubStringsBoundedByCS(acBounds, pCaseSensitive)
-			return This.ubStringsBoundedByCS(pacBounds, pCaseSensitive)
+		def AnySubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
-		def AnyBoundedByCS(acBounds, pCaseSensitive)
-			return This.ubStringsBoundedByCS(pacBounds, pCaseSensitive)
+		def AnyBoundedByCS(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -27668,14 +27672,14 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def BoundedBy(acBounds)
-			return This.ubStringsBoundedBy(pacBounds)
+		def BoundedBy(pacBounds)
+			return This.SubStringsBoundedBy(pacBounds)
 
 		def AnySubStringsBoundedBy(acBounds)
-			return This.ubStringsBoundedBy(pacBounds)
+			return This.SubStringsBoundedBy(pacBounds)
 
-		def AnyBoundedBy(acBounds)
-			return This.ubStringsBoundedBy(pacBounds)
+		def AnyBoundedBy(pacBounds)
+			return This.SubStringsBoundedBy(pacBounds)
 
 		#>
 
@@ -27741,13 +27745,13 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def BoundedByCSZ(acBounds, pCaseSensitive)
-			return This.ubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
 
 		def AnySubStringsBoundedByCSZ(acBounds, pCaseSensitive)
-			return This.ubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
 
 		def AnyBoundedByCSZ(acBounds, pCaseSensitive)
-			return This.ubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
 
 		#--
 
@@ -27755,7 +27759,7 @@ class stzString from stzObject
 			return This.SubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
 
 		def AnySubStringsBoundedByAndTheirPositionsCS(acBounds, pCaseSensitive)
-			return This.ubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -27767,13 +27771,13 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def BoundedByZ(acBounds)
-			return This.ubStringsBoundedByZ(pacBounds)
+			return This.SubStringsBoundedByZ(pacBounds)
 
 		def AnySubStringsBoundedByZ(acBounds)
-			return This.ubStringsBoundedByZ(pacBounds)
+			return This.SubStringsBoundedByZ(pacBounds)
 
 		def AnyBoundedByZ(acBounds)
-			return This.ubStringsBoundedByZ(pacBounds)
+			return This.SubStringsBoundedByZ(pacBounds)
 
 		#--
 
@@ -27781,7 +27785,7 @@ class stzString from stzObject
 			return This.SubStringsBoundedByZ(pacBounds)
 
 		def AnySubStringsBoundedByAndTheirPositions(acBounds)
-			return This.ubStringsBoundedByCSZ(pacBounds)
+			return This.SubStringsBoundedByCSZ(pacBounds)
 
 		#>
 	
@@ -27847,13 +27851,13 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def BoundedByCSZZ(acBounds, pCaseSensitive)
-			return This.ubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
 		def AnySubStringsBoundedByCSZZ(acBounds, pCaseSensitive)
-			return This.ubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
 		def AnyBoundedByCSZZ(acBounds, pCaseSensitive)
-			return This.ubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
 		#--
 
@@ -27861,7 +27865,7 @@ class stzString from stzObject
 			return This.SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
 		def AnySubStringsBoundedByAndTheirSectionsCS(acBounds, pCaseSensitive)
-			return This.ubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -27873,13 +27877,13 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def BoundedByZZ(acBounds)
-			return This.ubStringsBoundedByZZ(pacBounds)
+			return This.SubStringsBoundedByZZ(pacBounds)
 
 		def AnySubStringsBoundedByZZ(acBounds)
-			return This.ubStringsBoundedByZZ(pacBounds)
+			return This.SubStringsBoundedByZZ(pacBounds)
 
 		def AnyBoundedByZZ(acBounds)
-			return This.ubStringsBoundedByZZ(pacBounds)
+			return This.SubStringsBoundedByZZ(pacBounds)
 
 		#--
 
@@ -27887,11 +27891,9 @@ class stzString from stzObject
 			return This.SubStringsBoundedByZZ(pacBounds)
 
 		def AnySubStringsBoundedByAndTheirSections(acBounds)
-			return This.ubStringsBoundedByCSZZ(pacBounds)
+			return This.SubStringsBoundedByCSZZ(pacBounds)
 
 		#>
-
-~~~~~~~~~~~~~~~~~~~~
 
 	  #---------------------------------------------------------------------------------#
 	 #  FINDING THE SUBSTRINGS BOUNDED BY ONE OR TWO OTHER SUBSTRINGS -- IB/EXTENSION  #
@@ -33991,6 +33993,9 @@ class stzString from stzObject
 			ok
 
 		else // @BothAreNumbers
+
+			n1 = pcBound1
+			n2 = pcBound2
 
 			if n1 = 0 or n1 = This.NumberOfChars() Or n2 < 2 or n1 = n2
 				return
