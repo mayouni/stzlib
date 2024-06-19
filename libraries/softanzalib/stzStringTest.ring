@@ -90,8 +90,8 @@ o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥
 proff()
 # Executed in 0.01 second(s)
 
-#==== @narration : #TODO Test it after fixing FindBetween and cie
-/*
+#==== @narration
+
 StartProfiler()
 
 # You can find the positions of any substring occurring between
@@ -108,47 +108,18 @@ o1 = new stzString("txt <<ring>> txt <<php>>")
 
 o1 = new stzString("*2*45*78*0*")
 ? @@( o1.FindAnyBoundedBy(["*","*"]) ) # or simply FindAnyBoundedBy("*")
-#--> [2, 7]
+#--> [ 2, 4, 7, 10 ]
 
-# then you get "2" that starts at position 2 and "78" at position 7.
-# Let's understand what happened to get this result:
-
-	# the positions	:  12345678901
-	# the string	: "*2*45*78*0*"
-	# the occurences:   ^    ^
-
-# Softanza starts scanning the string. First, it finds that "*2*"
-# corresonds to a substring ("2") between "*" and "*". Then it
-# takes its position 2.
-
-# Then, it restarts from position 3 and scans the remaining
-# substring "45*78*0*" for any other substring between "*" and "*".
-# It finds it at position 7 (substring "78").
-
-# Until now, we have positions 2 and 7.
-
-# Again, Softanza retrives "*78*" from "45*78*0*". Now the substring
-# to be scanned is "45*". There is no substrings between "*" and "*".
-# So the result [2, 7] is returned.
-
-# Now, you would ask me: What if I want to get all the positions of
-# substrings separated by the char "*", like this:
+# Let's craft a visual explanation of what happened:
 
 	# the positions	:  12345678901
 	# the string	: "*2*45*78*0*"
 	# the occurences:   ^ ^  ^  ^
 	#--> [2, 4, 7, 10]
 
-# Then you can use FindSplitsBy() function and
-# pass the "*" char as a parameter like this:
-
-? @@( o1.FindSplitsBy("*"))
-#--> [ 2, 4, 7, 10 ]
-
-? @@( o1.SeparatedBy("*") )
-? @@( o1.FindSeparatedBy("*") )
 
 StopProfiler()
+# Executed in 0.02 second(s)
 
 /*=======
 
@@ -1434,8 +1405,8 @@ o1.ReplaceAllExcept([ "Ring", "&", "Softanza" ], [ "1", "2", "3"])
 
 proff()
 
-/*========
-
+/*======== #narration
+*/
 pron()
 
 o1 = new stzString("okay one pepsi two three ")
@@ -1448,6 +1419,7 @@ cMyConditionIsVerified = '
 
 # Using the condition to find the words verifying it (using FindW())
 # after the string is splitted (using Split())
+? cMyConditionIsVerified
 
 ? o1.SplitQ(" ").FindWhere(cMyConditionIsVerified) # Or .FindW() for short!
 #--> [ 1, 2, 4, 5 ]
@@ -1459,10 +1431,11 @@ cMyConditionIsVerified = '
 
 # In general, any function in Softanza, like Find() and Items() here,
 # can be used as they are, or exented with the W() letter, so we can
-# instruct them to their job upon a given condition.
+# instruct them to do their job upon a given condition.
 
 proff()
-# Executed in 0.24 second(s)
+# Executed in 0.16 second(s) in Ring 1.20
+# Executed in 0.24 second(s) in Ring 1.19
 
 /*----------
 
@@ -8559,7 +8532,7 @@ proff()
 # Executed in 0.20 second(s) in Ring 1.17
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("<<Go!>>")
@@ -8569,7 +8542,7 @@ o1 = new stzString("<<Go!>>")
 proff()
 # Executed in 0.04 second(s)
 
-/*=================
+/*================= #narration
 
 pron()
 
@@ -8578,7 +8551,8 @@ pron()
 
 o1 = new stzString("let's say welcome to everyone!")
 o1.RemoveFromLeft("let's say ")
-? o1.Content() #--> welcome to everyone!
+? o1.Content()
+#--> welcome to everyone!
 
 # But when right-to-left strings are used, this can be confusing,
 # since left is no longer at the start of the string, nor the
@@ -8591,6 +8565,7 @@ o1.RemoveFromLeft("let's say ")
 
 o1 = new stzString("هذه الكلمات الّتي سوف تبقى")
 ? o1.NRightCharsAsSubstring(4) #--> "هذه "
+
 o1.RemoveFromRight("هذه ")
 ? o1.Content() #--> "الكلمات الّتي سوف تبقى"
 
@@ -8609,7 +8584,8 @@ o1.RemoveFromStart("هذه ")
 ? o1.Content() #--> "الكلمات الّتي سوف تبقى"
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.02 second(s) in Ring 1.20
+# Executed in 0.07 second(s) in Ring 1.17
 
 /*========================
 

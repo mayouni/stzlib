@@ -3160,12 +3160,9 @@ class stzListOfNumbers from stzList
 		aSection = oCCode.ExecutableSection()
 
 		nStart = aSection[1]
-		if nStart = :First
-			nStart = 1
-		ok
 
 		nEnd = aSection[2]
-		if nEnd = :Last
+		if isString(nEnd) and nEnd = :Last
 			nEnd = nLen
 		ok
 
