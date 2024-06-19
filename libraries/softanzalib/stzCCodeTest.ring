@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
-/*---------- #narration between() VS boundedby()
-*/
+/*--------
+
 pron()
 #                         7  10
 # BETWEEN ~>           xxx[--v----------------]xxx
@@ -27,7 +27,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*----------
-
+*
 pron()
 
 o1 = new stzString('{ This[@i] = This[@i + 1] + 5 }')
@@ -41,7 +41,7 @@ o1 = new stzString('{ This[@i] = This[@i + 1] + 5 }')
 #--> [ [8, 9], [19, 24] ]
 
 ? o1.NumbersAfter("@i")
-#--> [ +1, +5 ]
+#--> [ "+1", "+5" ]
 
 proff()
 # Executed in 0.07 second(s) in ring 1.20
@@ -60,7 +60,7 @@ proff()
 # Executed in 0.18 second(s) in Ring 1.17
 
 /*----------
-*/
+
 StartProfiler()
 
 o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
@@ -68,7 +68,8 @@ o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
 #--> [4, -3]
 
 StopProfiler()
-# Executed in 0.22 second(s).
+# Executed in 0.05 second(s) in Ring 1.20
+# Executed in 0.22 second(s) in ring 1.17
 
 /*----------
 
@@ -79,10 +80,11 @@ o1 = new stzString('This[@i] = This[@i + 1] + @i - 2')
 #--> [ "+1", "-2" ]
 
 StopProfiler()
-# Executed in 0.16 second(s)
+# Executed in 0.09 second(s) in Ring 1.20
+# Executed in 0.16 second(s) in ring 1.17
 
 /*----------
-*/
+
 StartProfiler()
 
 # When you use keywords other then This[@i] an alike in your
@@ -107,8 +109,13 @@ StartProfiler()
 	? o1.Transpiled()
 	#--> This[@i] = This[@i + 1] + 5
 
+# In fact, when we check it directly:
+	? StzCCodeQ('This[@i] = This[@i + 1] + 5').ExecutableSection()
+	#--> [ 1, -1 ]
+
 StopProfiler()
-# Executed in 0.43 second(s)
+# Executed in 0.17 second(s) in ring 1.20
+# Executed in 0.43 second(s) in Ring 1.17
 
 /*----------
 
@@ -119,7 +126,8 @@ StartProfiler()
 	#--> [ 2, :Last ]
 
 StopProfiler()
-# Executed in 0.26 second(s)
+# Executed in 0.12 second(s) in Ring 1.20
+# Executed in 0.26 second(s) in Ring 1.17
 
 /*----------
 
@@ -130,9 +138,10 @@ StartProfiler()
 	#--> [ 5, :Last ]
 
 StopProfiler()
-# Executed in 0.14 second(s)
+# Executed in 0.06 second(s) in Ring 1.20
+# Executed in 0.14 second(s) in Ring 1.17
 
-/*----------
+/*---------- #narration #perf
 
 StartProfiler()
 
@@ -142,15 +151,15 @@ StartProfiler()
 	o1 = new stzCCode('{ This[@i] = -This[@i] }')
 	? o1.ExecutableSection()
 	#--> [ 1, :Last ]
-	# Executed in 0.06 second(s)
+	# Executed in 0.04 second(s)
 
 	o1 = new stzCCode('{ @number = -@number }')
 	? o1.ExecutableSectionXT()
 	#--> [ 1, :Last ]
-	# Executed in 0.22 second(s)
+	# Executed in 0.14 second(s)
 
 StopProfiler()
-# Executed in 0.28 second(s)
+# Executed in 0.12 second(s)
 
 /*----------
 
@@ -164,7 +173,8 @@ StartProfiler()
 	#--> [ 1, :Last ]
 
 StopProfiler()
-# Executed in 0.36 second(s)
+# Executed in 0.11 second(s) in Ring 1.20
+# Executed in 0.36 second(s) in Ring 1.17
 
 /*----------
 
@@ -175,10 +185,11 @@ StartProfiler()
 	#--> [ 1, -1 ]
 
 StopProfiler()
-# Executed in 0.28 second(s)
+# Executed in 0.12 second(s) in Ring 1.20
+# Executed in 0.28 second(s) in Ring 1.17
 
 /*----------
-
+*/
 StartProfiler()
 
 	o1 = new stzCCode('{
@@ -189,4 +200,5 @@ StartProfiler()
 	#--> [ 1, -1 ]
 
 StopProfiler()
-# Executed in 0.29 second(s)
+# Executed in 0.13 second(s) in Ring 1.20
+# Executed in 0.29 second(s) in Ring 1.17
