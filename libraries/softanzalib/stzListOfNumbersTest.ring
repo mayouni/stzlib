@@ -1042,7 +1042,7 @@ o1 = new stzString("iloveringprogramminglanguage")
 proff()
 # Executed in 0.05 second(s)
 
-/*------------------- #TODO check it when SubStringsBetween() is included
+/*-------------------
 
 pron()
 
@@ -1050,28 +1050,31 @@ o1 = new stzListOfNumbers([ 4, 7, 36, 9, 20 ])
 o1.AddToEachW( 1, :Where = '{ Q(This[@i]).IsDividableBy(4) and This[@i] <= 20 }' )
 
 ? @@(o1.Content())
-#--> [ 5, 7, 36, 9, 21 ]
+#--> [ 5, 21 ]
 
 proff()
-
-/*------------------- #TODO check it when SubStringsBetween() is included
-
-pron()
-
-o1 = new stzListOfNumbers([ 4, 14, 24, 34 ])
-o1.SubStructFromEachW( 10, :Where = '{ @number > 20 }' )
-? @@(o1.Content()) #--> [ 4, 14, 14, 24 ]
-
-proff()
+# Executed in 0.17 second(s)
 
 /*-------------------
 
 pron()
 
+o1 = new stzListOfNumbers([ 4, 14, 24, 34 ])
+o1.SubStructFromEachW( 10, :Where = '{ @number > 20 }' )
+? @@(o1.Content())
+#--> [ 14, 24 ]
+
+proff()
+# Executed in 0.11 second(s)
+
+/*-------------------
+*/
+pron()
+
 o1 = new stzListOfNumbers([ 5, 15, 25, 35 ])
 o1.DivideEachByW( 5, :Where = '{ @number > 20 }' )
 ? @@(o1.Content())
-#--> [ 5, 15, 5, 7 ]
+#--> [ 5, 7 ]
 
 proff()
 # Executed in 0.15 second(s)
