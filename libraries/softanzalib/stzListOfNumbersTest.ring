@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-/*-------
+/*=====
 
 pron()
 
@@ -33,7 +33,7 @@ decimals(3)
 proff()
 # Executed in 0.03 second(s)
 
-/*-------
+/*=====
 
 pron()
 
@@ -46,17 +46,17 @@ pron()
 proff()
 # Executed in 0.02 second(s)
 
-/*------
+/*=====
 
 pron()
 
-? @@( Association([ [1,2,3] , [1,3,8] ]) )
+? @@( Association([ [ 1, 2, 3 ] , [ 1, 3, 8 ] ]) )
 #--> [ [ 1, 1 ], [ 2, 3 ], [ 3, 8 ] ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
-/*------
+/*====
 
 pron()
 
@@ -65,7 +65,7 @@ o1 = new stzListOfNumbers([ 2, 7, 3, 10, 5, 4, 9, 1, 6, 8 ])
 ? o1.NSmallestNumbers(3) # Or Bottom3()
 #--> [ 1, 2, 3 ]
 
-? @@( o1.Bottom3Z() ) # Or Bottom3AndTheirPositions()
+? @@( o1.Bottom3Z() ) + NL # Or Bottom3AndTheirPositions()
 
 # [ [ 1, 1 ], [ 2, 3 ], [ 3, 8 ] ]
 
@@ -78,7 +78,7 @@ o1 = new stzListOfNumbers([ 2, 7, 3, 10, 5, 4, 9, 1, 6, 8 ])
 proff()
 # Executed in 0.04 second(s)
 
-/*---------------
+/*=====
 
 pron()
 
@@ -88,7 +88,7 @@ pron()
 proff()
 # Executed in 0.01 second(s)
 
-/*---------------
+/*=====
 
 pron()
 
@@ -107,9 +107,10 @@ o1 = new stzNumber("1234567.1234567")
 #--> 28
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.05 second(s) in Ring 1.20
+# Executed in 0.11 second(s) in ring 1.18
 
-/*=================
+/*================= #todo write a #narration
 
 pron()
 
@@ -127,28 +128,33 @@ pron()
 #--> [ 2, 4 ]
 
 # If you want to get a stzNumber object as an output add Q() to the second member:
-? Q([ 1, 2, 3, 4, 5]) - Q( These([1, 3 , 5]) )
+
+? ( Q([ 1, 2, 3, 4, 5]) - Q( These([1, 3 , 5]) ) ).Content()
+#  \____________________ _______________________/
+#                       V
+#               A stzList object
+
 #--> [ 2, 4 ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.04 second(s)
 
 /*----------------
 
 pron()
 
-? Q([1, 2, "*", 3 ]) - "*"
+? Q([1, "*", 2, "*", 3 ]) - "*"
 #--> [ 1, 2, 3 ]
 
-? Q([1, 2, "*", 3 ]) - Q("*")
-#--> A stzList object containg [ 1, 2, 3 ]
+? ( Q([1,"*",  2, "*", 3 ]) - Q("*") ).Content()
+# \_______________ _____________/
+#                 V
+#          A stzList object
 
-# To check it add ( ... ).Content() around it:
-
-? ( Q([1, 2, "*", 3 ]) - Q("*") ).Content()
+#--> [ 1, 2, 3 ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
 
 /*----------------
 
@@ -157,16 +163,15 @@ pron()
 ? Q([1, 2, 3 ]) + 4
 #--> [ 1, 2, 3, 4 ]
 
-? Q([1, 2, 3 ]) + Q(4)
-#--> A stzList object containg [ 1, 2, 3, 4 ]
-
-# To check it add ( ... ).Content() around it:
-
 ? ( Q([1, 2, 3 ]) + Q(4) ).Content()
+# \___________ __________/
+#             V
+#         A StzList object
+
 # [ 1, 2, 3, 4 ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
 
 /*----------------
 
@@ -175,16 +180,16 @@ pron()
 ? Q([1, 2, 3 ]) * 4
 #--> [ 4, 8, 12 ]
 
-? Q([1, 2, 3 ]) * Q(4)
-#--> A stzList object containg [ 4, 8, 12 ]
-
-# To check it add ( ... ).Content() around it:
-
 ? ( Q([1, 2, 3 ]) * Q(4) ).Content()
-# [ 4, 8, 12 ]
+# \___________ __________/
+#             V
+#       A stzList object
+
+#--> [ 4, 8, 12 ]
+
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
 
 /*----------------
 
@@ -193,31 +198,47 @@ pron()
 ? Q(["A", "B" ]) * 3
 #--> [ "A", "B", "A", "B", "A", "B" ]
 
-? Q(["A", "B" ]) * Q(3)
-#--> A stzList object containg [ 4, 8, 12 ]
-
-# To check it add ( ... ).Content() around it:
-
 ? ( Q(["A", "B" ]) * Q(3) ).Content()
-# [ "A", "B", "A", "B", "A", "B" ]
+# \____________ __________/
+#              V
+#      A stzList object
+
+#--> [ "A", "B", "A", "B", "A", "B" ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
+
+/*----------------
+*/
+pron()
+
+? @@( Q(["one", "two", "three", "four", "five", "six" ]) / 3 ) + NL
+#--> [ [ "one", "two" ], [ "three", "four" ], [ "five", "six" ] ]
+
+? @@( ( Q(["one", "two", "three", "four", "five", "six" ]) / Q(3) ).Content() )
+#     \______________________________ ____________________________/
+#                                    V
+#                           a stzList object
+
+#--> [ [ "one", "two" ], [ "three", "four" ], [ "five", "six" ] ]
+
+proff()
+# Executed in 0.04 second(s)
 
 /*----------------
 
+*/
 pron()
 
 ? Q([4, 44, 444 ]) / 4
 #--> [ 1, 11, 111 ]
 
-? Q([4, 44, 444 ]) / Q(4)
-#--> A stzList object containg [ 1, 11, 111 ]
-
-# To check it add ( ... ).Content() around it:
-
 ? ( Q([4, 44, 444 ]) / Q(4) ).Content()
-# [ 1, 11, 111 ]
+# \____________ ___________/
+#              V
+#     a stzList object
+
+#--> [ 1, 11, 111 ]
 
 proff()
 # Executed in 0.05 second(s)
@@ -957,16 +978,18 @@ o1 = new stzString("iloveringprogramminglanguage!!")
 proff()
 
 
-/*-------------------- #TODO: Check error
+/*--------------------
 
 pron()
 
 o1 = new stzListOfStrings([ "i", "ring", "language" ])
 o1.SortByInDescending('Q(@string).NumberOfChars()')
 
-? o1.Content()
+? @@( o1.Content() )
+#--> [ "language", "ring", "i" ]
 
 proff()
+# Executed in 0.06 second(s)
 
 /*--------------------
 
@@ -1068,7 +1091,7 @@ proff()
 # Executed in 0.11 second(s)
 
 /*-------------------
-*/
+
 pron()
 
 o1 = new stzListOfNumbers([ 5, 15, 25, 35 ])
@@ -1077,7 +1100,7 @@ o1.DivideEachByW( 5, :Where = '{ @number > 20 }' )
 #--> [ 5, 7 ]
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.11 second(s)
 
 /*======
 
