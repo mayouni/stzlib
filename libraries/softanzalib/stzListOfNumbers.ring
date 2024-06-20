@@ -3136,16 +3136,18 @@ class stzListOfNumbers from stzList
 
 		# Checking params
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+	
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+	
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
 		ok
 
 		# Doing the job
@@ -3167,7 +3169,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		cCode = oCCode.Transpiled()
-		cCode = 'bOk + (' + cCode + ')'
+		cCode = 'bOk = (' + cCode + ')'
 
 		anResult = []
 
@@ -3180,9 +3182,13 @@ class stzListOfNumbers from stzList
 
 		This.Update( anResult )
 
+		#< @FunctionFluentForm
+
 		def AddToEachWQ(n)
 			This.AddToEachW(n)
 			return This
+
+		#>
 
 		#TODO
 		# Add alternatives
@@ -3221,54 +3227,63 @@ class stzListOfNumbers from stzList
 
 	def MultiplyEachWithW(n, pcCondition)
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
+		# Checking params
+
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+	
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+	
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
 		ok
 
-
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
+		# Doing the job
 
 		anContent = This.Content()
 		nLen = len(anContent)
+		if nLen = 0
+			return []
+		ok
 
-		cCondition = StzCCodeQ(pcCondition).Transpiled()
-		cCode = "bOk = (" + cCondition + ")"
-		oCode = new stzString(cCode)
+		oCCode = StzCCodeQ(pcCondition)
+		aSection = oCCode.ExecutableSection()
 
-		for @i = 1 to nLen
-			@number = anContent[@i]
-			bEval = TRUE
+		nStart = aSection[1]
 
-			if @i = nLen and
-			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[i+1]", :CS = FALSE )
+		nEnd = aSection[2]
+		if isString(nEnd) and nEnd = :Last
+			nEnd = nLen
+		ok
 
-				bEval = FALSE
+		cCode = oCCode.Transpiled()
+		cCode = 'bOk = (' + cCode + ')'
 
-			ok
+		anResult = []
 
-			if @i = 1 and
-			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[i-1]", :CS = FALSE )
-
-				bEval = TRUE
-			ok
-
-			if bEval
-				eval(cCode)
-				if bOk
-					@number *= n
-				ok
+		for @i = nStart to nEnd
+			eval(cCode)
+			if bOk
+				anResult + (anContent[@i] * n)
 			ok
 		next
+
+		This.Update( anResult )
+
+		#< @FunctionFluentForm
 
 		def MultiplyEachWithWQ(n)
 			This.MultiplyEachWithW(n)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def MultiplyEachByW()
 			This.MultiplyEachWithW(n, pcCondition)
@@ -3276,6 +3291,8 @@ class stzListOfNumbers from stzList
 			def MultiplyEachByWQ()
 				This.MultiplyEachByW()
 				return This
+
+		#>
 
 		#TODO
 		# Add other alternatives
