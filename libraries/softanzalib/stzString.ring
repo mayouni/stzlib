@@ -27778,7 +27778,7 @@ class stzString from stzObject
 		def BoundedByCSZ(acBounds, pCaseSensitive)
 			return This.SubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
 
-		def AnySubStringsBoundedByCSZ(acBounds, pCaseSensitive)
+		def AnySubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
 			return This.SubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
 
 		def AnyBoundedByCSZ(acBounds, pCaseSensitive)
@@ -27801,13 +27801,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def BoundedByZ(acBounds)
+		def BoundedByZ(pacBounds)
 			return This.SubStringsBoundedByZ(pacBounds)
 
-		def AnySubStringsBoundedByZ(acBounds)
+		def AnySubStringsBoundedByZ(pacBounds)
 			return This.SubStringsBoundedByZ(pacBounds)
 
-		def AnyBoundedByZ(acBounds)
+		def AnyBoundedByZ(pacBounds)
 			return This.SubStringsBoundedByZ(pacBounds)
 
 		#--
@@ -27881,13 +27881,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def BoundedByCSZZ(acBounds, pCaseSensitive)
+		def BoundedByCSZZ(pacBounds, pCaseSensitive)
 			return This.SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
-		def AnySubStringsBoundedByCSZZ(acBounds, pCaseSensitive)
+		def AnySubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 			return This.SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
-		def AnyBoundedByCSZZ(acBounds, pCaseSensitive)
+		def AnyBoundedByCSZZ(pacBounds, pCaseSensitive)
 			return This.SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
 		#--
@@ -27895,7 +27895,7 @@ class stzString from stzObject
 		def SubStringsBoundedByAndTheirSectionsCS(pacBounds, pCaseSensitive)
 			return This.SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
-		def AnySubStringsBoundedByAndTheirSectionsCS(acBounds, pCaseSensitive)
+		def AnySubStringsBoundedByAndTheirSectionsCS(pacBounds, pCaseSensitive)
 			return This.SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
 		#>
@@ -27907,13 +27907,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def BoundedByZZ(acBounds)
+		def BoundedByZZ(pacBounds)
 			return This.SubStringsBoundedByZZ(pacBounds)
 
-		def AnySubStringsBoundedByZZ(acBounds)
+		def AnySubStringsBoundedByZZ(pacBounds)
 			return This.SubStringsBoundedByZZ(pacBounds)
 
-		def AnyBoundedByZZ(acBounds)
+		def AnyBoundedByZZ(pacBounds)
 			return This.SubStringsBoundedByZZ(pacBounds)
 
 		#--
@@ -28338,6 +28338,58 @@ class stzString from stzObject
 			return This.SubStringsBoundedByBZZ(pacBounds)
 
 		#>
+
+	  #================================================#
+	 #   FINDING SUBSTRINGS BOUNDED BY NESTED BOUNDS  #
+	#================================================#
+
+	def DeepFindBoundedByCSZZ(pacBounds, pCaseSensitive)
+
+		pacBounds = @Bounds(pacBounds)
+		cBound1 = pacBounds[1]
+		cBound2 = pacBounds[2]
+
+		sections = []  # Initialize an empty list to store sections
+    		stack = []  # Initialize an empty stack to handle nested bounds
+
+    		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
+    		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+
+		nLenStr = This.NumberOfChars()
+
+   		for i = 1 to nLenStr
+
+       			if This.SectionQ(i, i + nLenBound1 - 1).IsEqualToCS(cBound1, pCaseSensitive)
+
+				stack + i
+
+        		but This.SectionQ(i, i + nLenBound2 - 1).IsEqualToCS(cBound2, pCaseSensitive)
+
+	   			nLenStack = len(stack)
+
+            			if nLenStack > 0
+			                # if the ending bound is found and stack is not empty,
+					# pop the last starting bound position
+			  
+	            			  startPos = stack[nLenStack]
+	
+	               			# Remove the last element from the stack
+	
+	                		ring_del(stack, nLenStack)
+	
+	                		# Append the section to sections list
+	
+	                		sections + [ startPos + 1 , i + nLenBound2 - 2]
+	            		ok
+        		ok
+   		next
+? ""
+    		return sections
+
+		#-- WITHOUT CASESENSITIVITY
+
+		def DeepFindBoundedByZZ(pacBounds)
+			return This.DeepFindBoundedByCSZZ(pacBounds, TRUE)
 
 # TODO: Adding the ...BoundedBy... and ...Between... functions in stzList
 
