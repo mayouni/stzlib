@@ -19,7 +19,7 @@ describing the difference between NumPy and Pandas (Pyhthon ecosystem):
 https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-pandas-c31fa921a43
 
 #TODO (Future): use Apache Arrow as a C++ backend for stzLargeTable
-# https://arrow.apache.org/
+# https://arrow.apache.org/ and https://arrow.apache.org/cookbook/py/
 
 	Apache Arrow is a software development platform for
 	building high performance applications that process
@@ -35,12 +35,17 @@ https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-
 	type system (included nested and user-defined data types)
 	designed to support the needs of analytic database
 	systems, data frame libraries, and more.
+#TODO Use Apache Parquet as a storage Format
 
 #TODO: Add support of Excel functions (see at the bottom of the file)
+#UPDATA: These Excel-like functions are now supported:
+#--> SUM, PRODUCT, AVERAGE, KOUNT, MAX, and MIN
 
 #TODO: Add Paging feature
 
 #TODO : Support SQL statements
+
+#TODO: Add the Join() feature to manage linked tables
 
 */
 
