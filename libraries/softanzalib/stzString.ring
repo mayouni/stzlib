@@ -28339,57 +28339,149 @@ class stzString from stzObject
 
 		#>
 
-	  #================================================#
-	 #   FINDING SUBSTRINGS BOUNDED BY NESTED BOUNDS  #
-	#================================================#
+~~~~~~~~~~
 
-	def DeepFindBoundedByCSZZ(pacBounds, pCaseSensitive)
+	  #==================================================================================#
+	 #  DEEPFINDING OCCURRENCES OF SUBSTRINGS ENCLOSED BETWEEN TWO BOUNDING SUBSTRINGS  #
+	#==================================================================================#
 
-		pacBounds = @Bounds(pacBounds)
-		cBound1 = pacBounds[1]
-		cBound2 = pacBounds[2]
+	/* TODO */
 
-		sections = []  # Initialize an empty list to store sections
-    		stack = []  # Initialize an empty stack to handle nested bounds
+	  #-----------------------------------------------------------------------------------------------#
+	 #  DEEP-FINDING SECTIONS OF SUBSTRINGS ENCLOSED BETWEEN TWO BOUNDING SUBSTRINGS -- ZZ/EXTENDED  #
+	#-----------------------------------------------------------------------------------------------#
+	# Bounding substrings are NOT counted in the result
 
-    		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
-    		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+	def DeepFindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+		aSections = This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+		nLen = len(aSections)
 
-		nLenStr = This.NumberOfChars()
+		aResult = []
+		for i = 1 to nLen
+			aSections[i][1] = aSections[i][1] + 1
+			aSections[i][2] = aSections[i][2] - 1
+			
+		next
 
-   		for i = 1 to nLenStr
+		return aSections
 
-       			if This.SectionQ(i, i + nLenBound1 - 1).IsEqualToCS(cBound1, pCaseSensitive)
+		#< @FunctionAlternativeForms
 
-				stack + i
+		def DeepFindBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
-        		but This.SectionQ(i, i + nLenBound2 - 1).IsEqualToCS(cBound2, pCaseSensitive)
+		#--
 
-	   			nLenStack = len(stack)
+		def DeepFindSubStringsBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
-            			if nLenStack > 0
-			                # if the ending bound is found and stack is not empty,
-					# pop the last starting bound position
-			  
-	            			  startPos = stack[nLenStack]
-	
-	               			# Remove the last element from the stack
-	
-	                		ring_del(stack, nLenStack)
-	
-	                		# Append the section to sections list
-	
-	                		sections + [ startPos + 1 , i + nLenBound2 - 2]
-	            		ok
-        		ok
-   		next
-? ""
-    		return sections
+		def DeepFindBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
-		#-- WITHOUT CASESENSITIVITY
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DeepFindSubStringsBoundedByZZ(pacBounds)
+		return This.DeepFindSubStringsBoundedByCSZZ(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def DeepFindBoundedByZZ(pacBounds)
-			return This.DeepFindBoundedByCSZZ(pacBounds, TRUE)
+			return This.DeepFindSubStringsBoundedByZZ(pacBounds)
+
+		#--
+
+		def DeepFindSubStringsBoundedByAsSections(pacBounds)
+			return This.DeepFindSubStringsBoundedByZZ(pacBounds)
+
+		def DeepFindBoundedByAsSections(pacBounds)
+			return This.DeepFindSubStringsBoundedByZZ(pacBounds)
+
+		#>
+
+	  #-------------------------------------------------------------------------------------------------#
+	 #  DEEP-FINDING SECTIONS OF SUBSTRINGS ENCLOSED BETWEEN TWO BOUNDING SUBSTRINGS -- IBZZ/EXTENDED  #
+	#-------------------------------------------------------------------------------------------------#
+	# Bounding substrings are counted in the result
+
+	def DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		# Getting the bouning substrings
+
+		acBounds = @Bounds(pacBounds)
+		cBound1 = acBounds[1]
+		cBound2 = acBounds[2]
+
+		# Doing the job (using a numerical solution based of the bounds positions)
+
+		nNumberOfSections = This.NumberOfOccurrenceCS(cBound1, pCaseSensitive)
+
+		aList1 = This.FindAllCS(cBound1, pCaseSensitive)
+		aList2 = This.FindAllCS(cBound2, pCaseSensitive)
+		
+		aList = Q(aList1).MergeWithQ(aList2).Sorted()
+		nLenList = len(aList)
+		aSections = []
+		
+		while TRUE
+		
+			for i = 2 to nLenList
+			
+				if ring_find(aList1, aList[i-1]) > 0 and
+				   ring_find(aList2, aList[i]) > 0
+			
+					aSections + [ aList[i-1], aList[i] ]
+					if len(aSections) = nNumberOfSections
+						exit 2
+					ok
+		
+				ok
+			next
+			
+			aList = Q(aList).ManyRemoved(Q(aSections).Merged())
+			nLenList = len(aList)
+		
+		end
+
+		return aSections
+
+		#< @FunctionAlternativeForms
+
+		def DeepFindBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		#--
+
+		def DeepFindSubStringsBoundedByAsSectionsIBCS(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		def DeepFindBoundedByAsSectionsIBCS(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSiTiVITY
+
+	def DeepFindAnyBetweenAsSectionsIB(pacBounds)
+		return This.DeepFindAnyBetweenAsSectionsCSIB(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def DeepFindBoundedByIBZZ(pacBounds)
+			return This.DeepFindSubStringsBoundedByIBZZ(pacBounds)
+
+		#--
+
+		def DeepFindSubStringsBoundedByAsSectionsIB(pacBounds)
+			return This.DeepFindSubStringsBoundedByIBZZ(pacBounds)
+
+		def DeepFindBoundedByAsSectionsIB(pacBounds)
+			return This.DeepFindSubStringsBoundedByIBZZ(pacBounds)
+
+		#>
+
+
 
 # TODO: Adding the ...BoundedBy... and ...Between... functions in stzList
 
@@ -29530,7 +29622,6 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Section(n1, n2)
-
 		cResult = This.SectionCS(n1, n2, TRUE)
 		return cResult
 
@@ -45067,232 +45158,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	def NthSubStringW(n, pcCondition)
 		return This.SubStringsW()[n]
 
-	  #=======================================================================#
-	 #  DEEPFINDING OCCURRENCES OF ANY SUBSTRING ENCLOSED BETWEEN TWO CHARS  #
-	#=======================================================================#
-
-	/* TODO */
-
-	  #--------------------------------------------------------------------#
-	 #  DEEPFINDING SECTIONS OF ANY SUBSTRING ENCLOSED BETWEEN TWO CHARS  #
-	#--------------------------------------------------------------------#
-	# Bounding chars are NOT counted in the result
-
-	def DeepFindAnyBetweenAsSectionsCS(pcChar1, pcChar2, pCaseSensitive)
-		aSections = This.DeepFindAnyBetweenAsSectionsCSIB(pcChar1, pcChar2, pCaseSensitive)
-		nLen = len(aSections)
-
-		aResult = []
-		for i = 1 to nLen
-			aSections[i][1] = aSections[i][1] + 1
-			aSections[i][2] = aSections[i][2] - 1
-			
-		next
-
-		return aSections
-
-	  #--------------------------------------------------------------------------------#
-	 #  DEEPFINDING SECTIONS OF ANY SUBSTRING ENCLOSED BETWEEN TWO CHARS -- EXTENDED  #
-	#--------------------------------------------------------------------------------#
-	# Bounding chars are counted in the result
-
-	def DeepFindAnyBetweenAsSectionsCSIB(pcChar1, pcChar2, pCaseSensitive)
-
-		# Checking the params
-
-		if isList(pcChar1) and Q(pcChar1).IsSubStringNamedParam()
-			pcChar1 = pcChar1[2]
-		ok
-
- 		if isList(pcChar2) and
-			( Q(pcChar2).IsAndNamedParam() or
-			  Q(pcChar2).IsAndSubStringNamedParam() )
-
-			pcChar2 = pcChar2[2]
-		ok
-
-		if NOT @BothAreChars(pcChar1, pcChar2)
-			stzRaise("Incorrect params types! pcChar1 and pcChar2 must be chars.")
-		ok
-
-
-		# Doing the job (sometimes we undertake a bit of magic ;)
-
-		nNumberOfSections = This.NumberOfOccurrenceCS(pcChar1, pCaseSensitive)
-
-		aList1 = This.FindAllCS(pcChar1, pCaseSensitive)
-		aList2 = This.FindAllCS(pcChar2, pCaseSensitive)
-		
-		aList = Q(aList1).MergeWithQ(aList2).Sorted()
-		nLenList = len(aList)
-		aSections = []
-		
-		while TRUE
-		
-			for i = 2 to nLenList
-			
-				if ring_find(aList1, aList[i-1]) > 0 and
-				   ring_find(aList2, aList[i]) > 0
-			
-					aSections + [ aList[i-1], aList[i] ]
-					if len(aSections) = nNumberOfSections
-						exit 2
-					ok
-		
-				ok
-			next
-			
-			aList = Q(aList).ManyRemoved(Q(aSections).Merged())
-			nLenList = len(aList)
-		
-		end
-
-		return aSections
-
-		#< @FunctionFluentForm
-
-		def DeepFindanyBetweenAsSectionsCSIBQ(pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.DeepFindAnyBetweenAsSectionsCSIBQR(pcSubStr1, pcSubStr2, pCaseSensitive, :stzList)
-
-		def DeepFindAnyBetweenAsSectionsCSIBQR(pcSubStr1, pcSubStr2, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			#TODO: Generalize this check
-
-			if NOT isString(pcReturnType)
-				stzRaise("Incorrect param! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.DeepFindAnyBetweenAsSectionsCSIB(pcSubStr1, pcSubStr2, pCaseSensitive) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.DeepFindAnyBetweenAsSectionsCSIB(pcSubStr1, pcSubStr2, pCaseSensitive) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.DeepFindAnyBetweenAsSectionsCSIB(pcSubStr1, pcSubStr2, pCaseSensitive) )
-
-			other
-				stzRaise("Unsupported return type!")
-			off
-
-		#>
-
-	#-- WITHOUT CASESENSiTiVITY
-
-	def DeepFindAnyBetweenAsSectionsIB(pcSubStr1, pcSubStr2)
-		return This.DeepFindAnyBetweenAsSectionsCSIB(pcSubStr1, pcSubStr2, TRUE)
-
-		#< @FunctionFluentForm
-
-		def DeepFindAnyBetweenAsSectionsIBQ(pcSubStr1, pcSubStr2)
-			return This.DeepFindAnyBetweenAsSectionsIBQR(pcSubStr1, pcSubStr2, :stzList)
-
-		def DeepFindAnyBetweenAsSectionsIBQR(pcSubStr1, pcSubStr2, pcReturnType)
-			return This.DeepFindAnyBetweenAsSectionsCSIBQR(pcSubStr1, pcSubStr2, TRUE, pcReturnType)
-
-		#>
-
-	  #-----------------------------------------------------------#
-	 #   EXTRACTING DEEP-SUBSTRINGS ENCLOSED BETWEEN TWO CHARS   #TODO: Generealize to substrings not only chars
-	#-----------------------------------------------------------#
-	# Bouding chars are NOT counted in the result
-
-	def DeepAnyBetweenCS(pcChar1, pcChar2, pCaseSensitive)
-
-		aSections = This.DeepFindAnyBetweenAsSectionsCS(pcChar1, pcChar2, pCaseSensitive)
-		acResult = This.Sections(aSections)
-
-		return acResult
-
-		#< @FunctionFluentForm
-
-		def DeepAnyBetweenCSQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.DeepAnyBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.DeepAnyBetweenCS(pcSubStr1, pcSubStr2, pCaseSensitive) )
-
-			other
-				stzRaise("Unsupported return type!")
-			off
-			
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def DeepAnyBetween(pcChar1, pcChar2)
-		return This.DeepAnyBetweenCS(pcChar1, pcChar2, TRUE)
-
-		#< @FunctionFluentForm
-
-		def DeepAnyBetweenQ(pcChar1, pcChar2)
-			return This.DeepAnyBetweenQR(pcChar1, pcChar2, pCaseSensitive, :stzList)
-
-		def DeepAnyBetweenQR(pcChar1, pcChar2, pcReturnType)
-			return This.DeepAnyBetweenCSQR(pcChar1, pcChar2, TRUE, pcReturnType)
-			
-		#>
-
-	  #-----------------------------------------------------------------------#
-	 #   EXTRACTING DEEP-SUBSTRINGS ENCLOSED BETWEEN TWO CHARS -- EXTENDED   # 
-	#-----------------------------------------------------------------------#
-	# Bound chars are counted in the result
-
-	def DeepAnyBetweenCSIB(pcChar1, pcChar2, pCaseSensitive)
-
-		aSections = This.DeepFindAnyBetweenAsSectionsCSIB(pcChar1, pcChar2, pCaseSensitive)
-		acResult = This.Sections(aSections)
-
-		return acResult
-
-		#< @FunctionFluentForm
-
-		def DeepAnyBetweenCSIBQ(pcChar1, pcChar2, pCaseSensitive)
-			return This.DeepAnyBetweenCSIBQR(pcChar1, pcChar2, pCaseSensitive, :stzList)
-
-		def DeepAnyBetweenCSIBQR(pcChar1, pcChar2, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.DeepAnyBetweenCSIB(pcSubStr1, pcSubStr2, pCaseSensitive) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.DeepAnyBetweenCSIB(pcSubStr1, pcSubStr2, pCaseSensitive) )
-
-			other
-				stzRaise("Unsupported return type!")
-			off
-			
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def DeepAnyBetweenIB(pcChar1, pcChar2)
-		return This.DeepAnyBetweenCSIB(pcChar1, pcChar2, TRUE)
-
-		#< @FunctionFluentForm
-
-		def DeepAnyBetweenIBQ(pcChar1, pcChar2)
-			return This.DeepAnysBetweenIBQR(pcChar1, pcChar2, pCaseSensitive, :stzList)
-
-		def DeepAnyBetweenIBQR(pcChar1, pcChar2, pcReturnType)
-			return This.DeepAnyBetweenCSIBQR(pcChar1, pcChar2, TRUE, pcReturnType)
-			
-		#>
-
 	  #========================================#
 	 #  VISUALLY FINDING CHARS IN THE STRING  #
 	#========================================#
@@ -45372,7 +45237,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			stzRaise("Incorrect options! :CaseSensitive and its short form :CS must not be used both.")
 		ok
 
-		# Unfying the :CaseSensitive / :CS keyword
+		# Unfyiing the :CaseSensitive / :CS keyword
 
 		n = StzHashListQ(paOptions).FindKey(:CS)
 		if n > 0
@@ -45464,7 +45329,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#--> Let's do the job!
 
 		if bSpacified
-			cString= @@( This.Spacified() )
+			cString = @@( This.Spacified() )
 		else
 			cString = @@( This.Content() )
 		ok
