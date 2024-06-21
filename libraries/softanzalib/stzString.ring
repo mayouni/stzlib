@@ -28360,6 +28360,9 @@ class stzString from stzObject
 
 		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
 		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+		if nLenBound2 > 1
+			nLenBound2++
+		ok
 
 		aSections = This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
 		nLen = len(aSections)
