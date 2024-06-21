@@ -1450,7 +1450,7 @@ proff()
 # Executed in 0.58 second(s) in Ring 1.17
 
 /*=======
-*/
+
 pron()
 
 o1 = new stzString("ABC")
@@ -4672,8 +4672,8 @@ o1 = new stzString("I love <<Ring>> and <<Softanza>>!")
 StopProfiler()
 #--> Executed in 0.12 second(s)
 
-/*----------- /////////////  TODO   /////////////////////
-
+/*-----------
+*/
 pron()
 
 o1 = new stzString('[
@@ -4692,16 +4692,12 @@ o1 = new stzString('[
 
 ]')
 
-//? @@( o1.DeepFindAnyBoundedByAsSections("[", "]") )
+? @@( o1.DeepFindBoundedByZZ([ "[", "]" ]) ) + NL
+#--> [ [ 17, 29 ], [ 77, 84 ], [ 103, 109 ], [ 66, 119 ], [ 51, 128 ], [ 42, 132 ], [ 2, 135 ] ]
 
-aList = o1.DeepSubStringsBoundedByIB("[", "]")
-nLen = len(aList)
-for i = 1 to nLen
-	? aList[i] + NL + NL + "--" + NL
-next
 
 proff()
-# Executed in 0.61 second(s)
+# Executed in 0.05 second(s)
 
 /*=============
 

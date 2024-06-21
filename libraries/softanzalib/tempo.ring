@@ -1,5 +1,27 @@
 load "stzlib.ring"
 
+/*===== #todo add #narration
+*/
+
+pron()
+#                               15  16
+# BOUNDED BY >>         5   9    \  /    23 25
+#                       v---v     vv      v-v
+o1 = new stzString("---[ [===]---[==] ]--[===]--")
+# DEEP BOUNDED BY >>    | \_/     \/ |    \_/
+#		        | 7 9   15 16|   23 25
+#                       \____________/
+#                        5         18
+                   
+? @@( o1.FindBoundedByZZ([ "[", "]"]) ) + NL
+#--> [ [ 7, 9 ], [ 15, 16 ], [ 5, 18 ], [ 23, 25 ] ]
+
+? @@( o1.DeepFindBoundedByZZ([ "[", "]" ]) )
+#--> [ [ 7, 9 ], [ 15, 16 ], [ 5, 18 ], [ 23, 25 ] ]
+
+proff()
+
+
 
 /*----- #ring
 pron()

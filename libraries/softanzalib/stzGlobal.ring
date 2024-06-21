@@ -2944,6 +2944,9 @@ func StzLen(p)
 		StzRaise("Unsupported parameter type!")
 	ok
 
+	func @StzLen(p)
+		return StzLen(p)
+
 func Unicode(p)
 	if isList(p) and Q(p).IsOfNamedParam()
 		p = p[2]

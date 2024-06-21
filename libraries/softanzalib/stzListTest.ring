@@ -1850,7 +1850,7 @@ proff()
 # Executed in 16.62 second(s) in Ring 1.17
 
 /*==============
-
+*/
 StartProfiler()
 
 o1 = new stzList([ "1", "🌞", "1", [ "2", "♥", "2", "🌞"], "1", [ "2", ["3", "🌞"] ] ])
@@ -1863,7 +1863,7 @@ o1 = new stzList([ "1", "🌞", "1", [ "2", "♥", "2", "🌞"], "1", [ "2", ["3
 # 🌞 exists in level 1 at position 2, in level 2 at position 4, and in level 3 at position 2.
 
 StopProfiler()
-# Executed in 0.05 second(s)
+# Executed in 0.03 second(s)
 
 /*============
 
@@ -5475,7 +5475,17 @@ StartProfiler()
 o1 = new stzString("---[ [===]---[=] ]--[=]--")
 #                   ...^.^...0...^.6.8..^.3..
 
-? o1.DeepFindBetweenAsSections("[", "]")
+? @@( o1.FindBoundedByZZ([ "[", "]" ]) )
+#--> [ [ 5, 9 ], [ 15, 15 ], [ 22, 22 ] ]
+
+? @@( o1.BoundedBy([ "[", "]" ]) )
+#--> [ " [===", "=", "=" ]
+
+#-- #TODO
+
+//? @@( o1.DeepFindBoundedByZZ([ "[", "]" ]) )
+
+//? @@( o1.DeepBoundedBy([ "[", "]" ]) )
 
 StopProfiler()
 
@@ -5503,23 +5513,23 @@ o1 = new stzString("[••[•[••]•[••]]••[••]]")
 StopProfiler()
 
 /*-----------
-
+*/
 StartProfiler()
  #                  ...4.6...v...4.v.v..1.v..
 o1 = new stzString("---[ [===]---[=] ]--[=]--")
 #                   ...^.^...0...^.6.8..^.3..
 
-? @@( o1.FindAnyBetween("[","]") )
+? @@( o1.FindAnyBoundedBy([ "[", "]" ]) )
 #--> [ 5, 7, 15, 22 ]
 
-? @@( o1.FindAnyBetweenAsSections("[","]") )
+? @@( o1.FindAnyBoundedByAsSections([ "[", "]" ]) )
 #--> [ [ 5, 9 ], [ 7, 15 ], [ 15, 17 ], [ 22, 22 ] ]
 
-? @@( o1.BetweenZZ("[","]") )
+? @@( o1.BoundedByZZ([ "[", "]" ]) )
 #--> [
 #	[ " [===", 	[ [ 5, 9 ] ] ],
 #	[ "===]---[=", 	[ [ 7, 15 ] ] ],
-#	[ "=] ", 		[ [ 15, 17 ] ] ],
+#	[ "=] ", 	[ [ 15, 17 ] ] ],
 #	[ "=", 		[ [ 7, 7 ], [ 8, 8 ], [ 9, 9 ], [ 15, 15 ], [ 22, 22 ] ] ]
 #]
 
@@ -5527,15 +5537,15 @@ StopProfiler()
 # Executed in 0.22 second(s)
 
 /*-----------
-
+*/
 StartProfiler()
-	o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
-	? o1.SubstringsBetween("<<", ">>")
 
-	#--> [ "word1", "word2" ]
+o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
+? o1.SubstringsBoundedBy([ "<<", ">>" ])
+#--> [ "word1", "word2" ]
 
 StopProfiler()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*----------- TODO
 
