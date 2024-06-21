@@ -28353,17 +28353,30 @@ class stzString from stzObject
 	# Bounding substrings are NOT counted in the result
 
 	def DeepFindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+
+		acBounds = @Bounds(pacBounds)
+		cBound1 = acBounds[1]
+		cBound2 = acBounds[2]
+
+		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
+		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+
 		aSections = This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
 		nLen = len(aSections)
 
 		aResult = []
+
 		for i = 1 to nLen
-			aSections[i][1] = aSections[i][1] + 1
-			aSections[i][2] = aSections[i][2] - 1
-			
+			n1 = aSections[i][1] + nLenBound1
+			n2 = aSections[i][2] - nLenBound2
+			if nLenBound2 > 1
+				n2++
+			ok
+
+			aResult + [ n1, n2 ]
 		next
 
-		return aSections
+		return aResult
 
 		#< @FunctionAlternativeForms
 
@@ -28413,35 +28426,39 @@ class stzString from stzObject
 		cBound1 = acBounds[1]
 		cBound2 = acBounds[2]
 
+		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+
 		# Doing the job (using a numerical solution based of the bounds positions)
 
 		nNumberOfSections = This.NumberOfOccurrenceCS(cBound1, pCaseSensitive)
 
 		aList1 = This.FindAllCS(cBound1, pCaseSensitive)
+
 		aList2 = This.FindAllCS(cBound2, pCaseSensitive)
-		
+		aList2 = StzListOfNumbersQ(aList2).AddedToEach(nLenBound2 - 1)
+
 		aList = Q(aList1).MergeWithQ(aList2).Sorted()
 		nLenList = len(aList)
 		aSections = []
-		
+
 		while TRUE
-		
+
 			for i = 2 to nLenList
-			
+
 				if ring_find(aList1, aList[i-1]) > 0 and
 				   ring_find(aList2, aList[i]) > 0
-			
+
 					aSections + [ aList[i-1], aList[i] ]
 					if len(aSections) = nNumberOfSections
 						exit 2
 					ok
-		
+
 				ok
 			next
-			
+
 			aList = Q(aList).ManyRemoved(Q(aSections).Merged())
 			nLenList = len(aList)
-		
+
 		end
 
 		return aSections
@@ -28463,8 +28480,8 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSiTiVITY
 
-	def DeepFindAnyBetweenAsSectionsIB(pacBounds)
-		return This.DeepFindAnyBetweenAsSectionsCSIB(pacBounds, TRUE)
+	def DeepFindSubStringsBoundedByIBZZ(pacBounds)
+		return This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -28476,7 +28493,7 @@ class stzString from stzObject
 		def DeepFindSubStringsBoundedByAsSectionsIB(pacBounds)
 			return This.DeepFindSubStringsBoundedByIBZZ(pacBounds)
 
-		def DeepFindBoundedByAsSectionsIB(pacBounds)
+		def DeepFindBoundedByAsSectionsIBpacBounds(pacBounds)
 			return This.DeepFindSubStringsBoundedByIBZZ(pacBounds)
 
 		#>

@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*===== #todo add #narration #visuality : FindBounded VS DeepFindBounded
-*/
+
 pron()
 #                               15  16
 # BOUNDED BY >>         5   9    \  /    23 25
@@ -21,14 +21,58 @@ o1 = new stzString("---[ [===]---[==] ]--[===]--")
 proff()
 
 /*------
-*/
-pron()
 
+pron()
+#                              15   16
+#                         7 9    \ /
+#                       v v v     vv v    v v
 o1 = new stzString("---< <===>---<==> >--<===>--")
+#                       | | |     || |    | |
+#                       | \_/     \/ |    \_/
+#                       \____________/   22 25
+#                       5           18
 
 ? @@( o1.DeepFindSubStringsBoundedByZZ([ "<", ">" ]) )
+#--> [ [ 7, 9 ], [ 15, 16 ], [ 23, 25 ], [ 5, 18 ] ]
 
 proff()
+# Executed in 0.02 second(s)
+
+/*------
+
+pron()
+#                                   19   20
+#                        6  9 11      \ /       30 32
+#                        v  v v       vv  v      v v
+o1 = new stzString("---<< <<===>>---<<==>> >>--<<===>>--")
+#                        |  | |       ||  |      | |
+#                        |  \_/       \/  |      \_/
+#                        \________________/     30 32
+#                       6                23
+
+? @@( o1.DeepFindSubStringsBoundedByZZ([ "<<", ">>" ]) )
+#--> [ [ 9, 11 ], [ 19, 20 ], [ 30, 32 ], [ 6, 23 ] ]
+
+proff()
+# Executed in 0.04 second(s)
+
+/*------
+*/
+pron()
+#                                      
+#                      4   8       16  20     27  31 34      42
+#                      v   v       v   v      v   v  v       v
+o1 = new stzString("---@<< @<<===>>@---@<<==>>@ >>@--@<<===>>@--")
+#                      |   |       |   |      |   |  |       |
+#                      |   \_______/   \______/   |  \_______/
+#                      \__________________________/  34     42
+#                      4                         31
+
+? @@( o1.DeepFindSubStringsBoundedByIBZZ([ "@<<", ">>@" ]) )
+#--> [ [ 11, 13 ], [ 23, 24 ], [ 37, 39 ], [ 7, 28 ] ]
+
+proff()
+# Executed in 0.04 second(s)
 
 /*==== #ring
 pron()
