@@ -28359,6 +28359,7 @@ class stzString from stzObject
 		ok
 
 		aSections = This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
 		nLen = len(aSections)
 
 		anResult = []
@@ -28392,6 +28393,7 @@ class stzString from stzObject
 			return This.DeepFindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
 		def FindNestedSubStringsCS(pacBounds, pCaseSensitive)
+
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
@@ -28854,7 +28856,7 @@ class stzString from stzObject
 	# Bounding substrings are counted in the result
 
 	def DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-
+? "hi"
 		# Getting the bouning substrings
 
 		acBounds = @Bounds(pacBounds)
@@ -28870,6 +28872,9 @@ class stzString from stzObject
 		aList1 = This.FindAllCS(cBound1, pCaseSensitive)
 
 		aList2 = This.FindAllCS(cBound2, pCaseSensitive)
+? @@(aList2)
+? @@(nlenbound2)
+
 		aList2 = StzListOfNumbersQ(aList2).AddedToEach(nLenBound2 - 1)
 
 		aList = Q(aList1).MergeWithQ(aList2).Sorted()
