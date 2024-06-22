@@ -2668,13 +2668,13 @@ class stzListOfNumbers from stzList
 			This.AddToEach(n)
 
 			def AddToEachNumberQ(n)
-				return This. AddToEachQ(n)
+				return This.AddToEachQ(n)
 
 		def AddToEveryNumber(n)
 			This.AddToEach(n)
 
 			def AddToEveryNumberQ(n)
-				return This. AddToEachQ(n)
+				return This.AddToEachQ(n)
 
 	def AddedToEach(n)
 		anResult = This.Copy().AddToEachQ(n).Content()
