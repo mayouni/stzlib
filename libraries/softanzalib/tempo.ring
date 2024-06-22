@@ -22,7 +22,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*------
-
+*/
 pron()
 #                              15   16
 #                         7 9    \  /
@@ -33,8 +33,13 @@ o1 = new stzString("---< <===>---<==> >--<===>--")
 #                       \____________/   23 25
 #                       5           18
 
-? @@( o1.DeepFindSubStringsBoundedByZZ([ "<", ">" ]) )
+? @@( o1.DeepFindSubStringsBoundedByZZ([ "<", ">" ]) ) + NL
 #--> [ [ 7, 9 ], [ 15, 16 ], [ 23, 25 ], [ 5, 18 ] ]
+
+# Same as:
+
+? @@( o1.FindNestedSubStrings(:BoundedBy = [ "<<", ">>" ]) )
+
 
 proff()
 # Executed in 0.03 second(s)

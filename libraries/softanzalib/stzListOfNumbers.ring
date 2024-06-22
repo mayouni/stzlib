@@ -2649,8 +2649,10 @@ class stzListOfNumbers from stzList
 	def AddToEach(n)
 		
 		anContent = This.Content()
-
 		nLen = len(anContent)
+		if nLen = 0
+			return
+		ok
 
 		anResult = []
 
@@ -2693,6 +2695,9 @@ class stzListOfNumbers from stzList
 	def SubStructFromEach(n)
 		anContent = This.Content()
 		nLen = len(anContent)
+		if nLen = 0
+			return
+		ok
 
 		anResult = []
 
@@ -2811,6 +2816,9 @@ class stzListOfNumbers from stzList
 	def MultiplyEachBy(n)
 		anContent = This.Content()
 		nLen = len(anContent)
+		if nLen = 0
+			return
+		ok
 
 		anResult = []
 
@@ -2861,6 +2869,9 @@ class stzListOfNumbers from stzList
 	def DivideEachBy(n)
 		anContent = This.Content()
 		nLen = len(anContent)
+		if nLen = 0
+			return
+		ok
 
 		anResult = []
 
@@ -2916,6 +2927,10 @@ class stzListOfNumbers from stzList
 
 		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
+		if nLen1 = 0
+			return
+		ok
+
 		nLen2 = len(panNumbers)
 
 		nLen = nLen1
@@ -2969,6 +2984,10 @@ class stzListOfNumbers from stzList
 
 		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
+		if nLen1 = 0
+			return
+		ok
+
 		nLen2 = len(panNumbers)
 
 		nLen = nLen1
@@ -3023,6 +3042,10 @@ class stzListOfNumbers from stzList
 
 		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
+		if nLen1 = 0
+			return
+		ok
+
 		nLen2 = len(panNumbers)
 
 		nLen = nLen1
@@ -3098,6 +3121,10 @@ class stzListOfNumbers from stzList
 
 		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
+		if nLen1 = 0
+			return
+		ok
+
 		nLen2 = len(panNumbers)
 
 		nLen = nLen1
