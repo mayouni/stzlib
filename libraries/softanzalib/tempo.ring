@@ -87,8 +87,12 @@ o1 = new stzString("---@<< @<<===>>@---@<<==>>@ >>@--@<<===>>@--")
 #                      \__________________________/  34     42
 #                      4                         31
 
-? @@( o1.DeepFindSubStringsBoundedByIBZZ([ "@<<", ">>@" ]) )
+? @@( o1.DeepFindSubStringsBoundedByIBZZ([ "@<<", ">>@" ]) ) + NL
 #--> [ [ 8, 16 ], [ 20, 27 ], [ 34, 42 ], [ 4, 31 ] ]
+
+# Same as:
+
+? @@( o1.FindNestedSubStringsIBZZ(:BoundedBy = [ "@<<", ">>@" ]) )
 
 proff()
 # Executed in 0.04 second(s)
