@@ -219,8 +219,9 @@ class stzGrid from stzObject
 				next i
 
 			else
-				if Q(p).IsListOf(:ListsOfStrings) and
-				   Q(p).SublistsHaveSameNumberOfItems()
+? @@NL(p)
+				if @IsListOfListsOfStrings(p) and
+				   StzListOfListsQ(p).ListsHaveSameNumberOfItems()
 
 					nV = len( p[1] )
 					nH = len(p)
@@ -230,6 +231,7 @@ class stzGrid from stzObject
 					next
 
 				ok
+? "emm"
 			ok
 
 		on "STRING"
@@ -1204,7 +1206,12 @@ class stzGrid from stzObject
 	  #------------------------------------------#
 	 #  FILLING THE GRID WITH A LIST OF ITEMS   #
 	#------------------------------------------#
-	#NOTE: Currently, only adding a list of chars is allowed
+	#NOTE
+	# Currently, only adding a list of chars is allowed
+
+	#TODO
+	# Review this restriction! Because it is imposed by
+	# show() function and not  by any logical constraint!
 
 	def FillWith(paList)
 		This.FillWithXT(paList, :Direction = :Horizontally)
@@ -1238,7 +1245,7 @@ class stzGrid from stzObject
 		aTemp = []
 
 		if pcDirection = :Default or pcDirection = :Horizontally
-
+? "ici"
 			aTemp = []
 			nV = This.NumberOfVLines()
 

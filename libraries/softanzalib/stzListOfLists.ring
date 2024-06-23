@@ -600,10 +600,11 @@ class stzListOfLists from stzList
 			return TRUE
 		ok
 
+		nLenList = len(aContent[1])
 		bResult = TRUE
 
 		for i = 2 to nLen
-			if len( aContent ) != len( aContent[i-1] )
+			if len( aContent[i] ) != nLenList
 				bResult = FALSE
 				exit
 			ok
