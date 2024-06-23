@@ -1,20 +1,42 @@
 load "stzlib.ring"
 
 /*---------
+*/
+pron()
 
+? Char(34)
+#--> "
+
+? @@( Char(34) )
+#--> '"'
+
+? @@( '"')
+#--> '"'
+
+? @@( "'" )
+#--> "'"
+
+? @@( "'ring'" )
+#--> "'ring'"
+
+? @@( '"ring"' )
+#--> '"ring"'
+
+? @@( '"""ring"' )
+#--> '"""ring"'
+
+proff()
+# Executed in 0.02 second(s)
+
+/*----------
+*/
 pron()
 
 o1 = new stzString(@@( [ " ", "!", "'+ char(34) +'", "#", "y"] ))
-? o1.Replace( @@("'+ char(34) +'"), @@('"') )
+o1.Replace( @@("'+ char(34) +'"), @@('"') )
 
-? o1.Content()
-#--> [
-#	" ",
-#	"!",
-#	'"', // Note that " is encolsed by tow (')s
-#	"#",
-#	"y"
-# ]
+?o1.Content()
+#--> '[ " ", "!", """, "#", "y" ]'
 
 proff()
 # Executed in 0.03 second(s)

@@ -3429,6 +3429,18 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 	if isNumber(pValue)
 		return ""+ pValue
 
+	but IsChar(pValue)
+		if pValue = '"'
+			cBound = "'"
+			cResult = cBound + pValue + cBound
+			return cResult
+
+		else
+			cBound = '"'
+			cResult = cBound + pValue + cBound
+			return cResult
+		ok
+
 	but isString(pValue)
 
 		cChar = '"'
