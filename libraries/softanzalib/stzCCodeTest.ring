@@ -1,6 +1,6 @@
 load "stzlib.ring"
 
-/*--------
+/*-------- #narration BETWEEN vs BOUNDEDBY
 
 pron()
 #                         7  10
@@ -18,7 +18,7 @@ o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
 #--> "ring"
 
 # But BOUNDEDBY returns the substrings bounded by
-# two other substrings, so you write:
+# two other substrings, like this:
 
 ? o1.BoundedBy([ "<<<", ">>>" ])
 #--> [ "ring", "softanza" ]
@@ -27,7 +27,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*----------
-*
+
 pron()
 
 o1 = new stzString('{ This[@i] = This[@i + 1] + 5 }')

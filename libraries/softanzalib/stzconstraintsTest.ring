@@ -142,8 +142,8 @@ func GenConstraint(pcConstraintName, pcStzClass)
 		acExpressions@_@ = []
 		for cExpression in acExpressions
 			oExpression = new stzString(cExpression)
-			if len( oExpression.SubstringsBetween("@","@") ) > 0
-				cExpression@_@ = oExpression.ReplaceSubstringsBetweenQ("@","@", :With = "_").Content()
+			if len( oExpression.SubstringsBoundedBy("@") ) > 0
+				cExpression@_@ = oExpression.ReplaceSubstringsBoundedByQ("@", "_").Content()
 				acExpressions@_@ + cExpression@_@
 			ok
 
