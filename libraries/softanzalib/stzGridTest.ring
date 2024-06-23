@@ -86,7 +86,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*=============
-*/
+
 pron()
 
 aList = [
@@ -107,18 +107,15 @@ aList = [
 #--> TRUE
 
 proff()
+# Executed in 0.03 second(s)
 
 /*--------------- #TODO check it
 */
 pron()
 
-# Showing the chars between " " and "z" in a grid of 10 by 10
-//StzGridQ([10, 10]).FillWithQ( CharsBetween("!", "p") ).Show()
+# Showing the chars between "!" and "p" in a grid of 10 by 8
 
-o1 = new stzGrid([ 10, 8 ])
-o1.FillWith( CharsBetween("!", "p") )
-
-
+StzGridQ([10, 8]).FillWithQ( CharsBetween("!", "p") ).Show()
 #-->
 #   ! " # $ % & ' ( ) *
 #   + , - . / 0 1 2 3 4
@@ -129,8 +126,24 @@ o1.FillWith( CharsBetween("!", "p") )
 #   ] ^ _ ` a b c d e f
 #   g h i j k l m n o p
 
+# Note that if you provide a large grid, say 10X10, the supplementary
+# lines are left empty, as you can observe it here:
+
+StzGridQ([10, 10]).FillWithQ( CharsBetween("!", "p") ).Show()
+#-->
+#   ! " # $ % & ' ( ) *
+#   + , - . / 0 1 2 3 4
+#   5 6 7 8 9 : ; < = >
+#   ? @ A B C D E F G H
+#   I J K L M N O P Q R
+#   S T U V W X Y Z [ \
+#   ] ^ _ ` a b c d e f
+#   g h i j k l m n o p
+#                      
+#                      
+
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.10 second(s)
 
 /*---------------
 

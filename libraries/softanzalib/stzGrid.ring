@@ -219,7 +219,7 @@ class stzGrid from stzObject
 				next i
 
 			else
-? @@NL(p)
+
 				if @IsListOfListsOfStrings(p) and
 				   StzListOfListsQ(p).ListsHaveSameNumberOfItems()
 
@@ -231,7 +231,7 @@ class stzGrid from stzObject
 					next
 
 				ok
-? "emm"
+
 			ok
 
 		on "STRING"
@@ -1224,7 +1224,7 @@ class stzGrid from stzObject
 
 		# Checking params
 
-		if NOT ( isList(paList) and Q(paList).IsListOfChars() )
+		if NOT ( isList(paList) and Q(paList).IsListOfChars() ) #TODO: Review this limitation!
 			StzRaise("Incorrect param type! paList must be a list of chars.")
 		ok
 
@@ -1245,7 +1245,9 @@ class stzGrid from stzObject
 		aTemp = []
 
 		if pcDirection = :Default or pcDirection = :Horizontally
-? "ici"
+
+			# Composing the grid value
+
 			aTemp = []
 			nV = This.NumberOfVLines()
 
@@ -1260,6 +1262,25 @@ class stzGrid from stzObject
 			next
 
 			aTemp = StzListOfListsQ(aTemp).Extended()
+
+			# Completing the grid with empty lines if required
+
+			nLenTemp = len(aTemp)
+			nH = THis.NumberOfHLines()
+
+			if nLenTemp < nH
+				aTempLine = []
+				for i = 1 to nV
+					aTempLine + ""
+				next
+	
+				nDiff = nH - nLenTemp
+				for i = 1 to nDiff
+					aTemp + aTempLine
+				next
+			ok
+
+			# Setting the new value of the grid
 
 			This.SetGrid(aTemp)
 
