@@ -948,3 +948,145 @@ pron()
 
 ? @Direction(:Backward)
 #--> "backward"
+
+#=========
+
+/*===== #todo add #narration #visuality : FindBounded VS DeepFindBounded
+
+pron()
+#                               15  16
+# BOUNDED BY >>         5   9    \  /    23 25
+#                       v---v     vv      v-v
+o1 = new stzString("---[ [===]---[==] ]--[===]--")
+#                       | \_/     \/ |    \_/
+# DEEP BOUNDED BY >>    | 7 9   15 16|   23 25
+#                       \____________/
+#                        5         18
+       
+? @@( o1.FindBoundedByZZ([ "[", "]"]) ) + NL
+#-->[ [ 5, 9 ], [ 15, 16 ], [ 23, 25 ] ]
+
+
+? @@( o1.DeepFindBoundedByZZ([ "[", "]" ]) )
+#--> [ [ 7, 9 ], [ 15, 16 ], [ 23, 25 ], [ 5, 18 ] ]
+
+
+proff()
+# Executed in 0.02 second(s)
+
+/*------
+
+pron()
+#                              15   16
+#                         7 9    \  /
+#                       v v v     vv v    v v
+o1 = new stzString("---< <===>---<==> >--<===>--")
+#                       | | |     || |    | |
+#                       | \_/     \/ |    \_/
+#                       \____________/   23 25
+#                       5           18
+
+? @@( o1.DeepFindSubStringsBoundedByZZ([ "<", ">" ]) ) + NL
+#--> [ [ 7, 9 ], [ 15, 16 ], [ 23, 25 ], [ 5, 18 ] ]
+
+# Same as:
+
+? @@( o1.FindNestedSubStrings(:BoundedBy = [ "<", ">" ]) )
+#--> [ 7, 15, 23, 5 ]
+
+# Or simply:
+
+? @@( o1.FindNestedSubStrings([ "<", ">" ]) )
+#--> [ 7, 15, 23, 5 ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*------
+*/
+pron()
+#                                   19  20
+#                        6  9 11     \  /        30 32
+#                        v  v v       vv  v      v v
+o1 = new stzString("---<< <<===>>---<<==>> >>--<<===>>--")
+#                        |  | |       ||  |      | |
+#                        |  \_/       \/  |      \_/
+#                        \________________/     30 32
+#                       6                23
+
+
+? @@( o1.DeepFindSubStringsBoundedByZZ([ "<<", ">>" ]) ) + NL
+#--> [ [ 9, 11 ], [ 19, 20 ], [ 30, 32 ], [ 6, 23 ] ]
+
+# Same as:
+
+? @@( o1.FindNestedSubStringsZZ([ "<<", ">>" ]) ) + NL
+#--> [ [ 9, 11 ], [ 19, 20 ], [ 30, 32 ], [ 6, 23 ] ]
+
+
+? @@NL( o1.NestedSubStringsZZ([ "<<", ">>" ]) )
+#--> [
+#	[ "===", [ 9, 11 ] ],
+#	[ "==", [ 19, 20 ] ],
+#	[ "===", [ 30, 32 ] ],
+#	[ " <<===>>---<<==>> ", [ 6, 23 ] ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
+
+/*===----
+
+pron()
+#                                      
+#                      4 6   10 14 17 19 22  26
+#                      v v   v   v  v v  v   v
+o1 = new stzString("---< <===>---<==> >--<===>--")
+#                      | |   |   |  | |  |   |
+#                      | \___/   \__/ |  \___/
+#                      \______________/  22 26
+#                      4             19
+
+? @@( o1.DeepFindSubStringsBoundedByIBZZ([ "<", ">" ]) ) + NL
+#--> [ [ 6, 10 ], [ 14, 17 ], [ 22, 26 ], [ 4, 19 ] ]
+
+# Same as:
+
+? @@( o1.FindNestedSubStringsIBZZ(:BoundedBy = [ "<", ">" ]) )
+#--> [ [ 6, 10 ], [ 14, 17 ], [ 22, 26 ], [ 4, 19 ] ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*------
+
+pron()
+#                                      
+#                      4   8       16  20     27  31 34      42
+#                      v   v       v   v      v   v  v       v
+o1 = new stzString("---@<< @<<===>>@---@<<==>>@ >>@--@<<===>>@--")
+#                      |   |       |   |      |   |  |       |
+#                      |   \_______/   \______/   |  \_______/
+#                      \__________________________/  34     42
+#                      4                         31
+
+? @@( o1.DeepFindSubStringsBoundedByIBZZ([ "@<<", ">>@" ]) ) + NL
+#--> [ [ 8, 16 ], [ 20, 27 ], [ 34, 42 ], [ 4, 31 ] ]
+
+# Same as:
+
+? @@( o1.FindNestedSubStringsIBZZ(:BoundedBy = [ "@<<", ">>@" ]) ) + NL
+#--> [ [ 8, 16 ], [ 20, 27 ], [ 34, 42 ], [ 4, 31 ] ]
+
+#--
+
+? @@NL( o1.NestedSubStringsIBZZ([ "@<<", ">>@" ]) ) # Or DeepSubStringsBoundedByIBZZ()
+#--> [
+#	[ "@<<===>>@", [ 8, 16 ] ],
+#	[ "@<<==>>@", [ 20, 27 ] ],
+#	[ "@<<===>>@", [ 34, 42 ] ],
+#	[ "@<< @<<===>>@---@<<==>>@ >>@", [ 4, 31 ] ]
+# ]
+
+proff()
+# Executed in 0.03 second(s)
