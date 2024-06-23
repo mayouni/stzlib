@@ -2651,7 +2651,7 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 		if nLen = 0
-			return
+			StzRaise("Can't add anything! Because the list is empty.")
 		ok
 
 		anResult = []
@@ -2696,7 +2696,7 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 		if nLen = 0
-			return
+			StzRaise("Can't substruct anything! Because the list is empty.")
 		ok
 
 		anResult = []
@@ -2817,7 +2817,7 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 		if nLen = 0
-			return
+			StzRaise("Can't multiply anything! Because the list is empty.")
 		ok
 
 		anResult = []
@@ -2870,7 +2870,7 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 		if nLen = 0
-			return
+			StzRaise("Can't divide anything! Because the list is empty.")
 		ok
 
 		anResult = []
@@ -2928,7 +2928,7 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
 		if nLen1 = 0
-			return
+			StzRaise("Can't add anything! Because the list is empty.")
 		ok
 
 		nLen2 = len(panNumbers)
@@ -2985,7 +2985,7 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
 		if nLen1 = 0
-			return
+			StzRaise("Can't substruct anything! Because the list is empty.")
 		ok
 
 		nLen2 = len(panNumbers)
@@ -3043,7 +3043,7 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
 		if nLen1 = 0
-			return
+			StzRaise("Can't multiply anything! Because the list is empty.")
 		ok
 
 		nLen2 = len(panNumbers)
@@ -3122,7 +3122,7 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen1 = This.NumberOfNumbers()
 		if nLen1 = 0
-			return
+			StzRaise("Can't divide anything! Because the list is empty.")
 		ok
 
 		nLen2 = len(panNumbers)
@@ -3182,7 +3182,7 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 		if nLen = 0
-			return []
+			StzRaise("Can't add anything! Because the list is empty.")
 		ok
 
 		oCCode = StzCCodeQ(pcCondition)
@@ -3275,7 +3275,7 @@ class stzListOfNumbers from stzList
 		anContent = This.Content()
 		nLen = len(anContent)
 		if nLen = 0
-			return []
+			StzRaise("Can't multiply anything! Because the list is empty.")
 		ok
 
 		oCCode = StzCCodeQ(pcCondition)
