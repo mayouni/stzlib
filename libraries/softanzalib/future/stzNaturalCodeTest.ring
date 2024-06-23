@@ -40,19 +40,20 @@ proff()
 /*-----------------------
 */
 NaturalCode() {
+
 	SetDialogBetween([ :Sun, :Moon ])
 	SetTalker(:Sun).TalkingTo(:Moon) # Or just SetTalker(:Sun) because they'r only two
 
 	Let('
 		It.Seems.That._(:you).hate(:me)
 
-		DialogFacts() #--> [ '_(:Sun).Think._(:Moon).Hate(:Sun)' ]
+		DialogFacts() #--> [ '_(:Sun).Thinks._(:Moon).Hates(:Sun)' ]
 	')
 
 	# :Sun talking and answering himself
 	Say('
 		It.Seems.What()		#--> That._(:Moon).hates(:Me)
-		Do(:Moon).Hates(:Me)	#--> MAYBE
+		Does(:Moon).Hates(:Me)	#--> MAYBE
 	')
 
 	# :Moon taking the floor
@@ -63,34 +64,34 @@ NaturalCode() {
 			Is(:Someone, :Talking).To(:Me)	#--> YES
 			WhoIs(:Talking).To(:Me)	# :Moon
 		
-			DialogFacts()  #--> [ '_(:Sun).Think._(:Moon).Hate(:Sun)' ]
+			DialogFacts()  #--> [ '_(:Sun).Thinks._(:Moon).Hates(:Sun)' ]
 	
 		SetTalker(:Moon).TalkingTo(:Sun)
 
 			I.DoNot.hate(:you)
 	')
 
-	DialogFacts() 	#--> [ '_(:Sun).Thinks._(:Moon).Hate(:Sun)',
-			# 	'_(:Moon).DoNot.Hate(:Sun)' ]
+	DialogFacts() 	#--> [ '_(:Sun).Thinks._(:Moon).Hatse(:Sun)',
+			# 	'_(:Moon).Says.DoNot.Hates(:Sun)' ]
 
-	Do(:Moon).Hate(:Sun)	#--> No
-	Do(:Sun).Think(:Moon).Hate(:Sun) #--> Yes
+	Does(:Moon).Hates(:Sun)	#--> No
+	Does(:Sun).Thinks(:Moon).Hates(:Sun) #--> Yes
 
-	Do([ :Son, :Moon ]).Agree() #--> No
+	Do([ :Son, :Moon ]).Agree() 	#--> No
 
-	Do(:Sun).Asked(:Moon)	#--> Yes
-	Do(:Moon).Answerd(:Sun)	#--> Yes
-	Do(:Sun).ReactedTo(:Moon) #--> No
+	Does(:Sun).Asked(:Moon)		#--> Yes
+	Does(:Moon).Answerd(:Sun)	#--> Yes
+	Do(:Sun).ReactedTo(:Moon) 	#--> No
 
 	Say('
 		SetTalker(:Sun).TalkingTo(:Moon)
 		I.Recognize._(:you).DoNot.Hate(:me)
 	')
 
-	DialogFacts() 	#--> [ '_(:Sun).Thinks._(:Moon).Hate(:Sun)',
-			# 	'_(:Moon).DoNot.Hate(:Sun)',
-			# 	'_(:Sun).Recognize._(:Moon).DoNot.Hate(:Sun)' ]
+	DialogFacts() 	#--> [ '_(:Sun).Thinks._(:Moon).Hates(:Sun)',
+			# 	'_(:Moon).Says.DoNot.Hates(:Sun)',
+			# 	'_(:Sun).Recognizes._(:Moon).DoNot.Hates(:Sun)' ]
 
-	Do(:Sun).Recognize._(:Moon).DoNot.Hate(:Sun) #--> Yes
-	Do([ :Son, :Moon ]).Agree() #--> Yes
+	Does(:Sun).Recognize._(:Moon).DoNot.Hates(:Sun) #--> Yes
+	Does([ :Son, :Moon ]).Agree() #--> Yes
 }
