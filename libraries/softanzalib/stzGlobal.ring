@@ -3503,20 +3503,39 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 				ok
 
 			but isString(aContent[i])
+
 				cChar = '"'
-		
+	
 				oQStr = new QString2()
 				oQStr.append(aContent[i])
 				c1 = oQStr.mid(0, 1)
 				c2 = oQStr.mid(oQStr.count()-1, 1)
-		
+	
 				if c1 = '"' or
-				   c2 = '"'
+			  		c2 = '"'
 					cChar = "'"
 				ok
-		
+	
+				n1 = oQStr.indexof('"', 1, 0) + 1
+				n2 = oQStr.indexof("'", 1, 0) + 1
+	
+				if n1 = 0 and n2 = 0
+					cChar = '"'
+	
+				but n1 = 0
+					cChar = '"'
+	
+				but n2 = 0
+					cChar = "'"
+	
+				but n1 < n2
+					cChar = "'"
+				else
+					cChar = '"'
+				ok
+	
 				cResult += (cSep2 + cChar + aContent[i] + cChar + "," + cSep1)
-
+	
 
 			but isList(aContent[i])
 				cResult += ( cSep2 + ComputableForm(aContent[i]) + "," + cSep1)
