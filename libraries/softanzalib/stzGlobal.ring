@@ -3477,9 +3477,6 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 
 	but isList(pValue)
 
-		#NOTE: I duplicate the same code as StzListQ().ToCode() here
-		# so @@() can hopefully be more performant when used in large loops
-
 		aContent = pValue
 		nLen = len(aContent)
 
@@ -3540,7 +3537,7 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 		return cResult
 
 	but isObject(pValue)
-? "isobject"
+
 		cResult = ObjectVarName(pValue)
 		return cResult
 
