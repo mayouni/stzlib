@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*---------
-*/
+
 pron()
 
 ? Char(34)
@@ -31,6 +31,8 @@ proff()
 /*----------
 */
 pron()
+
+"'"'"
 
 o1 = new stzString(@@( [ " ", "!", "'+ char(34) +'", "#", "y"] ))
 o1.Replace( @@("'+ char(34) +'"), @@('"') )

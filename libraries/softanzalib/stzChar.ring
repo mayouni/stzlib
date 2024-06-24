@@ -102,6 +102,10 @@ func StzCharClass()
 		return StzCharClass()
 
 func IsAsciiChar(c)
+	if NOT isString(c)
+		return FALSE
+	ok
+
 	return StzCharQ(c).IsAscii()
 
 	#< @FunctionAlternativeForms
@@ -116,7 +120,12 @@ func IsAsciiChar(c)
 		return IsAsciiChar(c)
 
 	#>
+
 func StringIsChar(pcStr)
+	if NOT isString(pcStr)
+		return FALSE
+	ok
+
 	try
 		new stzChar(pcStr)
 		return TRUE
@@ -148,6 +157,10 @@ func StringIsChar(pcStr)
 	#>
 
 func CharIsLetter(pcStr)
+	if NOT isString(pcStr)
+		return FALSE
+	ok
+
 	oStzChar = new stzChar(pcStr)
 	return oStzChar.IsLetter()
 
@@ -184,6 +197,10 @@ func HexUnicodeToUnicode(cHex)
 	return nResult
 
 func CharToUnicode(c)
+	if NOT isString(c)
+		StzRaise("Can't proceed! You must provide a char in a string type.")
+	ok
+
 	return StzCharQ(c).Unicode()
 
 	def CharUnicode(c)

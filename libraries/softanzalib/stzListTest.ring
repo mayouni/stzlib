@@ -1844,13 +1844,56 @@ pron()
 	#--> [ "*", "_", "_", "*" ]
 
 proff()
-# Executed in  4.09 second(s) in Ring 1.18 (64 bits)
+# Executed in  4.09 second(s) in Ring 1.19 (64 bits)
 # Executed in  4.53 second(s) in Ring 1.19 (32 bits)
 # Executed in  7.40 second(s) in Ring 1.18
 # Executed in 16.62 second(s) in Ring 1.17
 
-/*==============
+/*============== #TODO check it
+
+? IsChar("🌞")
+#!--> FALSE
+#~> Should return TRUE!
+
+? StzCharQ("🌞").Content()
+#!--> Can not create char object!
+#~> Should be able to create it...
+
+/*=============
 */
+pron()
+
+? isNumber([ "'" ])
+#--> FALSE
+
+? @@( "🌞" )
+#--> "🌞"
+
+? @@([ 1, 2 ])
+
+? @@([ '"' ])
+
+? @@([ "'" ])
+
+? Computableformxt([ "'" ], "", "")
+
+? @@([ "1", "🌞", "ring" ])
+
+proff()
+
+/*-----
+
+pron()
+
+aList = [ "1", "🌞", "1", [ "2", "♥", "2", "🌞"], "1", [ "2", ["3", "🌞"] ] ]
+
+? Q(aList).ToCode()
+
+//? @@(aList)
+
+proff()
+/*-----
+
 StartProfiler()
 
 o1 = new stzList([ "1", "🌞", "1", [ "2", "♥", "2", "🌞"], "1", [ "2", ["3", "🌞"] ] ])
@@ -2862,7 +2905,7 @@ pron()
 #--> "[ [ 6, 8 ], [ 16, 18 ] ]"
 
 #--
-
+*/
 ? List2Code([ "A", '"B"', "'C'" ]) # Ring standard function
 #--> [
 #	"A",

@@ -3429,7 +3429,7 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 	if isNumber(pValue)
 		return ""+ pValue
 
-	but IsChar(pValue)
+	but isString(pValue) and IsChar(pValue)
 		if pValue = '"'
 			cBound = "'"
 			cResult = cBound + pValue + cBound
@@ -3442,7 +3442,6 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 		ok
 
 	but isString(pValue)
-
 		cChar = '"'
 
 		oQStr = new QString2()
@@ -3477,6 +3476,7 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 		return cResult
 
 	but isList(pValue)
+
 		#NOTE: I duplicate the same code as StzListQ().ToCode() here
 		# so @@() can hopefully be more performant when used in large loops
 
@@ -3493,6 +3493,17 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 			if isNumber(aContent[i])
 				cResult += "" +
 					   cSep2 + aContent[i] + "," + cSep1
+
+			but isString(acontent[i]) and IsChar(aContent[i])
+				if aContent[i] = '"'
+					cBound = "'"
+					cResult += (cSep2 + cBound + aContent[i]  + cBound + "," + cSep1)
+		
+				else
+					cBound = '"'
+					cResult += ( cSep2 + cBound + aContent[i]  + cBound + "," + cSep1 )
+	
+				ok
 
 			but isString(aContent[i])
 				cChar = '"'
@@ -3529,9 +3540,12 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 		return cResult
 
 	but isObject(pValue)
+? "isobject"
 		cResult = ObjectVarName(pValue)
 		return cResult
 
+	else
+		StzRaise("Can't proceed! The @@() function is enabled to recognize the format of the data provided.")
 	ok
 
 	#< @FunctionFluentForm
@@ -3798,6 +3812,7 @@ func new_stz(cType, p)
 
 # Returns the softanza object related to the type of p
 func Q(p)
+
 	oResult = AFalseObject()
 
 	if isString(p)
@@ -4043,6 +4058,7 @@ func ElapsedTime()
 		#ERRor and don't want to be blocked for that.
 
 func ElapsedTimeXT(pIn)
+
 	if isList(pIn) and Q(pIn).IsInNamedParam()
 		pIn = pIn[2]
 	ok
@@ -4056,11 +4072,7 @@ func ElapsedTimeXT(pIn)
 		StzRaise("Incorrect value of pIn param! Allowed values are: " +
 		":Clocks, :Seconds, :Minutes and :Hours.")
 	ok
-/*
-	if Q(pIn).FirstNChars(2) != "in"
-		pIn = "in" + pIn
-	ok
-*/
+
 	switch pIn
 	on :Clocks
 		return clock() - _time0 + " clocks"
@@ -4098,10 +4110,13 @@ func StartProfiler()
 		StartProfiler()
 
 func StopProfiler()
+
 	nCurrentRound = StzCurrentRound()
 
 	StzDecimals(2)
+
 	? NL + "Executed in " + ElapsedTime()
+
 	StzDecimals(nCurrentRound)
 
 	ResetTimer()
