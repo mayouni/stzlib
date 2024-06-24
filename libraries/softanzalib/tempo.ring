@@ -1,5 +1,18 @@
 load "stzlib.ring"
 
+/*=====
+*/
+
+pron()
+
+o1 = new stzString("---<<ring>>---<<ruby>>---<<python>>---")
+
+? @@( o1.SplitAtMany([ "<<", ">>" ]) ) + NL # Or simply SplitAt([ "<<", ">>" ])
+#--> [ "---", "ring", "---", "ruby", "---", "python", "---" ]
+
+
+proff()
+#--> Executed in 0.10 second(s)
 
 /*==== #ring
 pron()
