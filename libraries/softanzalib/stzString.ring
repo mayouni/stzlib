@@ -28248,12 +28248,9 @@ class stzString from stzObject
 
 		#>
 
-~~~~~~~~~~
-
 	  #===================================================================================#
 	 #  DEEP-FINDING OCCURRENCES OF SUBSTRINGS ENCLOSED BETWEEN TWO BOUNDING SUBSTRINGS  #
 	#===================================================================================#
-	# ~> FINDDING NESTED SUBSTRINGS BOUNDED BY TWO GIVEN SUBSTRINGS
 
 	def DeepFindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
@@ -28295,43 +28292,12 @@ class stzString from stzObject
 
 		#==
 
-		def FindNestedSubStringsBoundedByCS(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
-
-		def FindNestedBoundedByCS(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
-
-		def FindNestedSubStringsCS(pacBounds, pCaseSensitive)
-
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This.DeepFindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
-
-		def FindNestedCS(pacBounds, pCaseSensitive)
-			return This.FindNestedSubStringsCS(pacBounds, pCaseSensitive)
-
 		func DeepFindSubStringsCS(pacBounds, pCaseSensitive)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
 			return This.DeepFindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
-
-		#--
-
-		def FindNestedSubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
-
-		def FindNestedBoundedByCSZ(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
-
-		def FindNestedSubStringsCSZ(pacBounds, pCaseSensitive)
-			return This.FindNestedSubStringsCS(pacBounds, pCaseSensitive)
-
-		def FindNestedCSZ(pacBounds, pCaseSensitive)
-			return This.FindNestedSubStringsCS(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -28352,37 +28318,6 @@ class stzString from stzObject
 
 		def DeepFindBoundedByZ(pacBounds)
 			return This.DeepFindSubStringsBoundedBy(pacBounds)
-
-		#==
-
-		def FindNestedSubStringsBoundedBy(pacBounds)
-			return This.DeepFindSubStringsBoundedBy(pacBounds)
-
-		def FindNestedBoundedBy(pacBounds)
-			return This.DeepFindSubStringsBoundedBy(pacBounds)
-
-		def FindNestedSubStrings(pacBounds)
-			return This.FindNestedSubStringsCS(pacBounds, TRUE)
-
-		def FindNested(pacBounds)
-			return This.FindNestedSubStrings(pacBounds)
-
-		def DeepFindSubStrings(pacBounds)
-			return This.FindNestedSubStrings(pacBounds)
-
-		#--
-
-		def FindNestedSubStringsBoundedByZ(pacBounds)
-			return This.DeepFindSubStringsBoundedBy(pacBounds)
-
-		def FindNestedBoundedByZ(pacBounds)
-			return This.DeepFindSubStringsBoundedBy(pacBounds)
-
-		def FindNestedSubStringsZ(pacBounds)
-			return This.FindNestedSubStrings(pacBounds)
-
-		def FindNestedZ(pacBounds)
-			return This.FindNestedSubStrings(pacBounds)
 
 		#>
 
@@ -28435,45 +28370,15 @@ class stzString from stzObject
 
 		#==
 
-		def FindNestedSubStringsBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		def FindNestedBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		def FindNestedSubStringsAsSectionsCS(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+		def DeepFindSubStringsCSZZ(pacBounds, pCaseSensitive)
+			if isList(pacBounds) and Q(pacBounds).IsBoundsOrBoundedByNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
 			return This.DeepFindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		def FindNestedAsSectionsCS(pacBounds, pCaseSensitive)
-			return This.FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
 
 		def DeepFindSubStringsAsSectionsCS(pacBounds, pCaseSensitive)
-			return This.FindNestedSubStringsAsSectionsCS(pacBounds, pCaseSensitive)
-
-		def DeepFindSubStringsCSZZ(pacBounds, pCaseSensitive)
-			return This.FindNestedSubStringsAsSectionsCS(pacBounds, pCaseSensitive)
-
-		#--
-
-		def FindNestedSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		def FindNestedBoundedByCSZZ(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		def FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This.DeepFindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		def FindNestedCSZZ(pacBounds, pCaseSensitive)
-			return This.FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsCSZZ(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -28497,53 +28402,21 @@ class stzString from stzObject
 
 		#==
 
-		def FindNestedSubStringsBoundedByAsSections(pacBounds)
-			return This.DeepFindSubStringsBoundedByZZ(pacBounds)
-
-		def FindNestedBoundedByAsSections(pacBounds)
-			return This.DeepFindSubStringsBoundedByZZ(pacBounds)
-
-		def FindNestedSubStringsAsSections(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+		def DeepFindSubStringsZZ(pacBounds)
+			if isList(pacBounds) and Q(pacBounds).IsBoundsOrBoundedByNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
 			return This.DeepFindSubStringsBoundedByZZ(pacBounds)
-
-		def FindNestedAsSections(pacBounds)
-			return This.FindNestedSubStringsZZ(pacBounds)
 
 		def DeepFindSubStringsAsSections(pacBounds)
-			return This.FindNestedSubStringsAsSections(pacBounds)
-
-		def DeepFindSubStringsZZ(pacBounds)
-			return This.FindNestedSubStringsAsSections(pacBounds)
-
-
-		#--
-
-		def FindNestedSubStringsBoundedByZZ(pacBounds)
-			return This.DeepFindSubStringsBoundedByZZ(pacBounds)
-
-		def FindNestedBoundedByZZ(pacBounds)
-			return This.DeepFindSubStringsBoundedByZZ(pacBounds)
-
-		def FindNestedSubStringsZZ(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This.DeepFindSubStringsBoundedByZZ(pacBounds)
-
-		def FindNestedZZ(pacBounds)
-			return This.FindNestedSubStringsZZ(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsZZ(pacBounds)
 
 		#>
 
 	  #-----------------------------------------------------------------------#
 	 # GETTING THE DEEP-SUBSTRINGS ENCLOSED BETWEEN TWO BOUNDING SUBSTRINGS  #
 	#-----------------------------------------------------------------------#
-	# GETTING THE NESTED SUBSTRINGS ENCLOSED BEWTEEN TWO BOUNDING SUBSTRINGS
 
 	def DeepSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 		aSections = This.DeepFindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
@@ -28554,18 +28427,12 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NestedSubStringsBoundedByCS(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByCS(pacBounds, pCaseSensitive)
-	
-		def NestedSubStringsCS(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+		def DeepSubStringsCS(pacBounds, pCaseSensitive)
+			if isList(pacBounds) and Q(pacBounds).IsBoundsOrBoundedByNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
-			return This.DeepSubStringsBoundedByCS(pacBounds, pCaseSensitive)
-
-		def DeepSubStringsCS(pacBounds, pCaseSensitive)
-			return This.NestedSubStringsCS(pacBounds, pCaseSensitive)
+			return This.DeepSubStringsBoundedByCS(pacBounds, pCaseSensitive)(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -28576,25 +28443,18 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NestedSubStringsBoundedBy(pacBounds)
-			return This.DeepSubStringsBoundedBy(pacBounds)
-
-		def NestedSubStrings(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+		def DeepSubStrings(pacBounds)
+			if isList(pacBounds) and Q(pacBounds).IsBoundsOrBoundedByNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
 			return This.DeepSubStringsBoundedBy(pacBounds)
-
-		def DeepSubStrings(pacBounds)
-			return This.NestedSubStringsBoundedBy(pacBounds)
 
 		#>
 
 	  #--------------------------------------------------------------------------------------#
 	 # GETTING THE DEEP-SUBSTRINGS ENCLOSED BETWEEN TWO BOUNDING SUBSTRINGS -- Z/EXTENDED   #
 	#--------------------------------------------------------------------------------------#
-	# GETTING THE NESTED SUBSTRINGS ENCLOSED BEWTEEN TWO BOUNDING SUBSTRINGS -- Z/EXTENDED
 
 	def DeepSubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
 		acSubStr = This.DeepSubStringsBoundedByCS(pacBounds, pCaseSensitive)
@@ -28607,34 +28467,20 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NestedSubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
-
-		#--
-
 		def DeepSubStringsBoundedByAndTheirPositionsCS(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
-
-		def NestedSubStringsBoundedByAndTheirPositionsCS(pacBounds, pCaseSensitive)
 			return This.DeepSubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
 
 		#==
 
-		def NestedSubStringsAndTheirPositionsCS(pacBounds, pCaseSensitive)
+		def DeepSubStringsCSZ(pacBounds, pCaseSensitive)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
 			return This.DeepSubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
 
-		def NestedSubStringsCSZ(pacBounds, pCaseSensitive)
-			return This.NestedSubStringsAndTheirPositionsCS(pacBounds, pCaseSensitive)
-
 		def DeepSubStringsAndTheirPositionsCS(pacBounds, pCaseSensitive)
-			return This.NestedSubStringsAndTheirPositionsCS(pacBounds, pCaseSensitive)
-
-		def DeepSubStringsCSZ(pacBounds, pCaseSensitive)
-			return This.NestedSubStringsAndTheirPositionsCS(pacBounds, pCaseSensitive)
+			return This.DeepSubStringsCSZ(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -28645,41 +28491,26 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NestedSubStringsBoundedByZ(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByZ(pacBounds, pCaseSensitive)
-
-		#--
-
 		def DeepSubStringsBoundedByAndTheirPositions(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByZ(pacBounds, pCaseSensitive)
-
-		def NestedSubStringsBoundedByAndTheirPositions(pacBounds, pCaseSensitive)
 			return This.DeepSubStringsBoundedByZ(pacBounds, pCaseSensitive)
 
 		#==
 
-		def NestedSubStringsAndTheirPositions(pacBounds)
+		def DeepSubStringsZ(pacBounds)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
 			return This.DeepSubStringsBoundedByZ(pacBounds)
 
-		def NestedSubStringsZ(pacBounds)
-			return This.NestedSubStringsAndTheirPositions(pacBounds)
-
 		def DeepSubStringsAndTheirPositions(pacBounds)
-			return This.NestedSubStringsAndTheirPositions(pacBounds)
-
-		def DeepSubStringsZ(pacBounds)
-			return This.NestedSubStringsAndTheirPositions(pacBounds)
+			return This.DeepSubStringsZ(pacBounds)
 
 		#>
 
 	  #--------------------------------------------------------------------------------------#
 	 # GETTING THE DEEP-SUBSTRINGS ENCLOSED BETWEEN TWO BOUNDING SUBSTRINGS -- ZZ/EXTENDED  #
 	#--------------------------------------------------------------------------------------#
-	# GETTING THE NESTED SUBSTRINGS ENCLOSED BEWTEEN TWO BOUNDING SUBSTRINGS -- ZZ/EXTENDED
 
 	def DeepSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 		acSubStr  = This.DeepSubStringsBoundedByCS(pacBounds, pCaseSensitive)
@@ -28692,38 +28523,20 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NestedSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		def NestedSubStringsCSZZ(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This. DeepSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
-
-		#--
-
 		def DeepSubStringsBoundedByAndTheirSectionsCS(pacBounds, pCaseSensitive)
 			return This.DeepSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
 
-		def NestedSubStringsBoundedByAndTheirSectionsCS(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+		#==
 
-		#== 
-
-		def NestedSubStringsAndTheirSectionsCS(pacBounds, pCaseSensitive)
+		def DeepSubStringsCSZZ(pacBounds, pCaseSensitive)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
-			return This. DeepSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.DeepSubStringsBoundedByCSZZZ(pacBounds, pCaseSensitive)
 
 		def DeepSubStringsAndTheirSectionsCS(pacBounds, pCaseSensitive)
-			NestedSubStringsAndTheirSectionsCS(pacBounds, pCaseSensitive)
-
-		def DeepSubStringsCSZZ(pacBounds, pCaseSensitive)
-			NestedSubStringsAndTheirSectionsCS(pacBounds, pCaseSensitive)
+			return This.DeepSubStringsCSZZ(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -28734,44 +28547,26 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NestedSubStringsBoundedByZZ(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByZZ(pacBounds, pCaseSensitive)
-
-		def NestedSubStringsZZ(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This. DeepSubStringsBoundedByZZ(pacBounds)
-		#--
-
 		def DeepSubStringsBoundedByAndTheirSections(pacBounds, pCaseSensitive)
 			return This.DeepSubStringsBoundedByZZ(pacBounds, pCaseSensitive)
 
-		def NestedSubStringsBoundedByAndTheirSections(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByZZ(pacBounds, pCaseSensitive)
+		#==
 
-		#== 
-
-		def NestedSubStringsAndTheirSections(pacBounds)
+		def DeepSubStringsZZ(pacBounds)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
-			return This. DeepSubStringsBoundedByZZ(pacBounds)
+			return This.DeepSubStringsBoundedByZZZ(pacBounds)
 
 		def DeepSubStringsAndTheirSections(pacBounds)
-			return This.NestedSubStringsAndTheirSections(pacBounds)
-
-		def DeepSubStringsZZ(pacBounds)
-			return This.NestedSubStringsAndTheirSections(pacBounds)
+			return This.DeepSubStringsZZ(pacBounds)
 
 		#>
 
 	  #-----------------------------------------------------------------------------------------------#
 	 #  DEEP-FINDING SECTIONS OF SUBSTRINGS ENCLOSED BETWEEN TWO BOUNDING SUBSTRINGS -- IB/EXTENDED  #
 	#===============================================================================================#
-	# Bounding substrings are counted in the result
 
 	def DeepFindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
 
@@ -28793,42 +28588,17 @@ class stzString from stzObject
 		def DeepFindBoundedByCSIBZ(pacBounds, pCaseSensitive)
 			return This.DeepFindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
 
-
 		#==
 
-		def FindNestedSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
-
-		def FindNestedBoundedByCSIB(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-
-		def FindNestedSubStringsCSIB(pacBounds, pCaseSensitive)
+		def DeepFindSubStringsCSIBZ(pacBounds, pCaseSensitive)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
-			return This.DeepFindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
 
-		def FindNestedCSIB(pacBounds, pCaseSensitive)
-			return This.FindNestedSubStringsCSIB(pacBounds, pCaseSensitive)
-
-		#--
-
-		def FindNestedSubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
-
-		def FindNestedBoundedByCSIBZ(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-
-		def FindNestedSubStringsCSIBZ(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This.DeepFindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
-
-		def FindNestedCSIBZ(pacBounds, pCaseSensitive)
-			return This.FindNestedSubStringsCSIB(pacBounds, pCaseSensitive)
+		def DeepFindSubStringsAndTheirPositionsIBCS(pacBounds, pCaseSensitive)
+			return This.DeepDindSubStringsCSIBZ(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -28850,49 +28620,23 @@ class stzString from stzObject
 		def DeepFindBoundedByIBZ(pacBounds)
 			return This.DeepFindSubStringsBoundedByIB(pacBounds)
 
-
 		#==
 
-		def FindNestedSubStringsBoundedByIB(pacBounds)
-			return This.DeepFindSubStringsBoundedByIB(pacBounds)
-
-		def FindNestedBoundedByIB(pacBounds)
-			return This.DeepFindSubStringsBoundedByIB(pacBounds)
-
-		def FindNestedSubStringsIB(pacBounds)
+		def DeepFindSubStringsIBZ(pacBounds)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
-			return This.DeepFindSubStringsBoundedByIB(pacBounds)
+			return This.DeepFindSubStringsBoundedByIBZ(pacBounds)
 
-		def FindNestedIB(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByIB(pacBounds)
-
-		#--
-
-		def FindNestedSubStringsBoundedByIBZ(pacBounds)
-			return This.DeepFindSubStringsBoundedByIB(pacBounds)
-
-		def FindNestedBoundedByIBZ(pacBounds)
-			return This.DeepFindSubStringsBoundedByIB(pacBounds)
-
-		def FindNestedSubStringsIBZ(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This.DeepFindSubStringsBoundedByIB(pacBounds)
-
-		def FindNestedIBZ(pacBounds)
-			return This.DeepFindSubStringsBoundedByIB(pacBounds)
+		def DeepFindSubStringsAndTheirPositionsIB(pacBounds)
+			return This.DeepDindSubStringsIBZ(pacBounds)
 
 		#>
 
 	  #-------------------------------------------------------------------------------------------------#
 	 #  DEEP-FINDING SECTIONS OF SUBSTRINGS ENCLOSED BETWEEN TWO BOUNDING SUBSTRINGS -- IBZZ/EXTENDED  #
 	#-------------------------------------------------------------------------------------------------#
-	# Bounding substrings are counted in the result
 
 	def DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
 
@@ -28972,35 +28716,15 @@ class stzString from stzObject
 
 		#==
 
-		def FindNestedSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-
-		def FindNestedBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-
-		def FindNestedSubStringsCSIBZZ(pacBounds, pCaseSensitive)
+		def DeepFindSubStringsCSIBZZ(pacBounds, pCaseSensitive)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
 			return This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
 
-		def FindNestedCSIBZZ(pacBounds, pCaseSensitive)
-			return This.FindNestedSubStringsCSIBZZ(pacBounds, pCaseSensitive)
-
-		#--
-
-		def FindNestedSubStringsBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-
-		def FindNestedBoundedByAsSectionsCSIB(pacBounds, pCaseSensitive)
-			return This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-
-		def FindNestedSubStringsAsSectionsCSIB(pacBounds, pCaseSensitive)
-			return This.FindNestedSubStringsCSIBZZ(pacBounds, pCaseSensitive)
-
-		def FindNestedAsSectionsCSIB(pacBounds, pCaseSensitive)
-			return This.FindNestedSubStringsCSIBZZ(pacBounds, pCaseSensitive)
+		def DeepFindSubStringsAndTheirSectionsIBCS(pacBounds, pCaseSensitive)
+			return This.DeepDindSubStringsCSIBZZ(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -29024,42 +28748,21 @@ class stzString from stzObject
 
 		#==
 
-		def FindNestedSubStringsBoundedByIBZZ(pacBounds)
-			return This.DeepFindSubStringsBoundedByIBZZ(pacBounds)
-
-		def FindNestedBoundedByIBZZ(pacBounds)
-			return This.DeepFindSubStringsBoundedByIBZZ(pacBounds)
-
-		def FindNestedSubStringsIBZZ(pacBounds)
+		def DeepFindSubStringsIBZZ(pacBounds)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
 			return This.DeepFindSubStringsBoundedByIBZZ(pacBounds)
 
-		def FindNestedIBZZ(pacBounds)
-			return This.FindNestedSubStringsIBZZ(pacBounds)
-
-		#--
-
-		def FindNestedSubStringsBoundedByAsSectionsIB(pacBounds)
-			return This.DeepFindSubStringsBoundedByIBZZ(pacBounds)
-
-		def FindNestedBoundedByAsSectionsIB(pacBounds)
-			return This.DeepFindSubStringsBoundedByIBZZ(pacBounds)
-
-		def FindNestedSubStringsAsSectionsIB(pacBounds)
-			return This.FindNestedSubStringsIBZZ(pacBounds)
-
-		def FindNestedAsSectionsIB(pacBounds)
-			return This.FindNestedSubStringsIBZZ(pacBounds)
+		def DeepFindSubStringsAndTheirSectionsIB(pacBounds)
+			return This.DeepDindSubStringsIBZZ(pacBounds)
 
 		#>
 
 	  #-----------------------------------------------------------------------#
 	 # GETTING THE DEEP-SUBSTRINGS ENCLOSED BETWEEN TWO BOUNDING SUBSTRINGS  #
 	#-----------------------------------------------------------------------#
-	# GETTING THE NESTED SUBSTRINGS ENCLOSED BEWTEEN TWO BOUNDING SUBSTRINGS
 
 	def DeepSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
 		aSections = This.DeepFindSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
@@ -29068,18 +28771,12 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NestedSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
-
-		def NestedSubStringsCSIB(pacBounds, pCaseSensitive)
+		def DeepSubStringsCSIB(pacBounds, pCaseSensitive)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
 			return This.DeepSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
-
-		def DeepSubStringsCSIB(pacBounds, pCaseSensitive)
-			return This.NestedSubStringsCSIB(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -29090,25 +28787,18 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NestedSubStringsBoundedByIB(pacBounds)
-			return This.DeepSubStringsBoundedByIB(pacBounds)
-
-		def NestedSubStringsIB(pacBounds)
+		def DeepSubStringsIB(pacBounds)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
 			return This.DeepSubStringsBoundedByIB(pacBounds)
 
-		def DeepSubStringsIB(pacBounds)
-			return This.NestedSubStringsIB(pacBounds)
-
 		#>
 
 	  #----------------------------------------------------------------------------------------#
 	 # GETTING THE DEEP-SUBSTRINGS ENCLOSED BETWEEN TWO BOUNDING SUBSTRINGS -- IBZ/EXTENDED   #
 	#----------------------------------------------------------------------------------------#
-	# GETTING THE NESTED SUBSTRINGS ENCLOSED BEWTEEN TWO BOUNDING SUBSTRINGS -- Z/EXTENDED
 
 	def DeepSubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
 		acSubStr = This.DeepSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
@@ -29121,32 +28811,8 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NestedSubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
-
-		def NestedSubStringsCSIBZ(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This.DeepSubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
-
-		#--
-
 		def DeepSubStringsBoundedByAndTheirPositionsCSIB(pacBounds, pCaseSensitive)
 			return This.DeepSubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
-
-		def NestedSubStringsBoundedByAndTheirPositionsCSIB(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
-
-		def NestedSubStringsAndTheirPositionsCSIB(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This.DeepSubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
-
-		#--
 
 		def DeepSubStringsCSIBZ(pacBounds, pCaseSensitive)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
@@ -29154,6 +28820,9 @@ class stzString from stzObject
 			ok
 
 			return This.DeepSubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive)
+
+		def DeepSubStringsAndTheirPositionsCSIB(pacBounds, pCaseSensitive)
+			return This.DeepSubStringsCSIBZ(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -29164,32 +28833,8 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NestedSubStringsBoundedByIBZ(pacBounds)
-			return This.DeepSubStringsBoundedByIBZ(pacBounds)
-
-		def NestedSubStringsIBZ(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This.DeepSubStringsBoundedByIBZ(pacBounds)
-
-		#--
-
 		def DeepSubStringsBoundedByAndTheirPositionsIB(pacBounds)
-			return This.DeepSubStringsBoundedByCIBZ(pacBounds)
-
-		def NestedSubStringsBoundedByAndTheirPositionsIB(pacBounds)
 			return This.DeepSubStringsBoundedByIBZ(pacBounds)
-
-		def NestedSubStringsAndTheirPositionsIB(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This.DeepSubStringsBoundedByIBZ(pacBounds)
-
-		#--
 
 		def DeepSubStringsIBZ(pacBounds)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
@@ -29198,12 +28843,14 @@ class stzString from stzObject
 
 			return This.DeepSubStringsBoundedByIBZ(pacBounds)
 
+		def DeepSubStringsAndTheirPositionsIB(pacBounds)
+			return This.DeepSubStringsIBZ(pacBounds)
+
 		#>
 
 	  #----------------------------------------------------------------------------------------#
 	 # GETTING THE DEEP-SUBSTRINGS ENCLOSED BETWEEN TWO BOUNDING SUBSTRINGS -- IBZZ/EXTENDED  #
 	#----------------------------------------------------------------------------------------#
-	# GETTING THE NESTED SUBSTRINGS ENCLOSED BEWTEEN TWO BOUNDING SUBSTRINGS -- IBZZ/EXTENDED
 
 	def DeepSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
 		acSubStr  = This.DeepSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
@@ -29216,32 +28863,8 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NestedSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-
-		def NesetdSubStringsCSIBZZ(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This.DeepSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-
-		#--
-
 		def DeepSubStringsBoundedByAndTheirSectionsCSIB(pacBounds, pCaseSensitive)
 			return This.DeepSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-
-		def NestedSubStringsBoundedByAndTheirSectionsCSIB(pacBounds, pCaseSensitive)
-			return This.DeepSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-
-		def NestedSubStringsAndTheirSectionsCSIB(pacBounds, pCaseSensitive)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This.DeepSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
-
-		#--
 
 		def DeepSubStringsCSIBZZ(pacBounds, pCaseSensitive)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
@@ -29249,6 +28872,9 @@ class stzString from stzObject
 			ok
 
 			return This.DeepSubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive)
+
+		def DeepSubStringsAndTheirSectionsCSIB(pacBounds, pCaseSensitive)
+			return This.DeepSubStringsCSIBZZ(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -29259,39 +28885,18 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def NestedSubStringsBoundedByIBZZ(pacBounds)
-			return This.DeepSubStringsBoundedByIBZZ(pacBounds)
-
-		def NestedSubStringsIBZZ(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This.DeepSubStringsBoundedByIBZZ(pacBounds)
-
-		#--
-
 		def DeepSubStringsBoundedByAndTheirSectionsIB(pacBounds)
 			return This.DeepSubStringsBoundedByIBZZ(pacBounds)
-
-		def NestedSubStringsBoundedByAndTheirSectionsIB(pacBounds)
-			return This.DeepSubStringsBoundedByIBZZ(pacBounds)
-
-		def NestedSubStringsAndTheirSectionsIB(pacBounds)
-			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
-				pacBounds = pacBounds[2]
-			ok
-
-			return This.DeepSubStringsBoundedByIBZZ(pacBounds)
-
-		#--
 
 		def DeepSubStringsIBZZ(pacBounds)
 			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
 				pacBounds = pacBounds[2]
 			ok
 
-			return This.DeepSubStringsBoundedByCSIB(pacBounds)
+			return This.DeepSubStringsBoundedByIBZZ(pacBounds)
+
+		def DeepSubStringsAndTheirSectionsIB(pacBounds)
+			return This.DeepSubStringsIBZZ(pacBounds)
 
 		#>
 
