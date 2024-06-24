@@ -28901,11 +28901,81 @@ class stzString from stzObject
 		#>
 
 
-# TODO: Adding the ...BoundedBy... and ...Between... functions in stzList
+~~~~~~~~~~~~~
+
+	  #==============================================================#
+	 #  FINDING NESTED SUBSTRINGS ENCLOSED BETWEN TWO GOVEN BOUNDS  #
+	#==============================================================#
+
+	def FindNestedSubStringsCS(pacBounds, pCaseSensitive)
+
+		/* ... */
+
+		#< @FunctionAlternativeForms
+
+
+		def FindNestedSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCS(pacBounds, pCaseSensitive)
+
+		def FindNestedBoundedByCS(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCS(pacBounds, pCaseSensitive)
+
+		def FindNestedCS(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCS(pacBounds, pCaseSensitive)
+
+
+		#==
+
+		def FindNestedSubStringsCSZ(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCS(pacBounds, pCaseSensitive)
+
+		def FindNestedSubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCS(pacBounds, pCaseSensitive)
+
+		def FindNestedBoundedByCSZ(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCS(pacBounds, pCaseSensitive)
+
+		def FindNestedCSZ(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCS(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNestedSubStrings(pacBounds)
+		return This.FindNestedSubStringsCS(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNestedSubStringsBoundedBy(pacBounds)
+			return This.FindNestedSubStrings(pacBounds)
+
+		def FindNestedBoundedBy(pacBounds)
+			return This.FindNestedSubStrings(pacBounds)
+
+		def FindNested(pacBounds)
+			return This.FindNestedSubStrings(pacBounds)
+
+		#==
+
+		def FindNestedSubStringsZ(pacBounds)
+			return This.FindNestedSubStrings(pacBounds)
+
+		def FindNestedSubStringsBoundedByZ(pacBounds)
+			return This.FindNestedSubStrings(pacBounds)
+
+		def FindNestedBoundedByZ(pacBounds)
+			return This.FindNestedSubStrings(pacBounds)
+
+		def FindNestedZ(pacBounds)
+			return This.FindNestedSubStrings(pacBounds)
+
+		#>
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~ LASTMILE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TODO: Adding the ...BoundedBy... and ...Between... functions in stzList
 
 	  #=============================================#
 	 #   GETTING A RANDOM POSITION IN THE STRING   #
