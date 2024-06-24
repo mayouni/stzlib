@@ -49687,8 +49687,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	
 		ok
 
-		anPos = This.FindManyCS(pacSubStr, pCaseSensitive)
-		acResult = This.SplitAtPositions(anPos)
+		aSections = This.FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
+		acResult = This.SplitAtSections(aSections)
+
 		return acResult
 
 		#< @FunctionFluentForm
@@ -49714,6 +49715,15 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#>
 
 		#< @FunctionAlternativeForms
+
+		def SplitAtManyCS(pacSubStr, pCaseSensitive)
+			return This.SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
+
+			def SplitAtManyCSQ(pacSubStr, pCaseSensitive)
+				return This.SplitAtSubStringsCSQ(pcSubStr, pCaseSensitive)
+
+			def SplitAtManyCSQR(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitAtTheseSubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
@@ -49746,6 +49756,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def SplittedAtManySubStringsCS(pacSubStr, pCaseSensitive)
 			return This.SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
 
+		def SplittedAtManyCS(pacSubStr, pCaseSensitive)
+			return This.SplitAtSubStringsCS(pacSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -49764,6 +49777,15 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#>
 
 		#< @FunctionAlternativeForms
+
+		def SplitAtMany(pacSubStr)
+			return This.SplitAtSubStrings(pacSubStr)
+
+			def SplitAtManyQ(pacSubStr)
+				return This.SplitAtSubStringsQ(pcSubStr)
+
+			def SplitAtManyQR(pacSubStr, pcReturnType)
+				return This.SplitAtSubStringsQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		def SplitAtTheseSubStrings(pacSubStr)
 			return This.SplitAtSubStrings(pacSubStr)
@@ -49795,6 +49817,158 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		def SplittedAtManySubStrings(pacSubStr)
 			return This.SplitAtSubStrings(pacSubStr)
+
+		def SplittedAtMany(pacSubStr)
+			return This.SplittedAtSubStrings(pacSubStr)
+
+		#>
+
+	  #------------------------------------------------#
+	 #   SPLITTING AT MANY SUBSTRINGS -- IB/EXTENDED  #
+	#================================================#
+
+	def SplitAtSubStringsCSIB(pacSubStr, pCaseSensitive)
+		if CheckParams()
+
+			if This.IsEmpty()
+				return []
+			ok
+	
+		ok
+
+		aSections = This.FindManyAsSectionsCSIB(pacSubStr, pCaseSensitive)
+		acResult = This.SplitAtSections(aSections)
+
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def SplitAtSubStringsCSIBQ(pcSubStr, pCaseSensitive)
+			return This.SplitAtSubStringsCSIBQR(pcSubStr, pCaseSensitive, :stzList)
+
+		def SplitAtSubStringsCSIBQR(pcSubStr, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAtSubStringsCSIB(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAtSubStringsCSIB(pcSubStr, pCaseSensitive) )
+
+			on :stzListOfChars
+				return new stzListOfChars( This.SplitAtSubStringsCSIB(pcSubStr, pCaseSensitive) )
+
+			other
+				StzRaise("Unsupported param type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SplitAtManyCSIB(pacSubStr, pCaseSensitive)
+			return This.SplitAtSubStringsCSIB(pacSubStr, pCaseSensitive)
+
+			def SplitAtManyCSIBQ(pacSubStr, pCaseSensitive)
+				return This.SplitAtSubStringsCSIBQ(pcSubStr, pCaseSensitive)
+
+			def SplitAtManyCSIBQR(pacSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSIBQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		def SplitAtTheseSubStringsCSIB(pacSubStr, pCaseSensitive)
+			return This.SplitAtSubStringsCSIB(pacSubStr, pCaseSensitive)
+
+			def SplitAtTheseSubStringsCSIBQ(pcSubStr, pCaseSensitive)
+				return This.SplitAtTheseSubStringsCSIBQR(pcSubStr, pCaseSensitive, :stzList)
+	
+			def SplitAtTheseSubStringsCSIBQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSIBQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		def SplitAtManySubStringsCSIB(pacSubStr, pCaseSensitive)
+			return This.SplitAtSubStringsCSIB(pacSubStr, pCaseSensitive)
+
+			def SplitAtManySubStringsCSIBQ(pcSubStr, pCaseSensitive)
+				return This.SplitAtManySubStringsCSIBQR(pcSubStr, pCaseSensitive, :stzList)
+	
+			def SplitAtManySubStringsCSIBQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSIBQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAtSubStringsCSIB(pacSubStr, pCaseSensitive)
+		return This.SplitAtSubStringsCSIB(pacSubStr, pCaseSensitive)
+
+		#< @FunctionAlternativeForms
+
+		def SplittedAtTheseSubStringsCSIB(pacSubStr, pCaseSensitive)
+			return This.SplitAtSubStringsCSIB(pacSubStr, pCaseSensitive)
+
+		def SplittedAtManySubStringsCSIB(pacSubStr, pCaseSensitive)
+			return This.SplitAtSubStringsCSIB(pacSubStr, pCaseSensitive)
+
+		def SplittedAtManyCSIB(pacSubStr, pCaseSensitive)
+			return This.SplitAtSubStringsCSIB(pacSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAtSubStringsIB(pacSubStr)
+		return This.SplitAtSubStringsCSIB(pacSubStr, TRUE)
+
+		#< @FunctionFluentForm
+
+		def SplitAtSubStringsIBQ(pcSubStr, pCaseSensitive)
+			return This.SplitAtSubStringsQR(pcSubStr, pCaseSensitive, :stzList)
+
+		def SplitAtSubStringsIBQR(pcSubStr, pCaseSensitive, pcReturnType)
+			return This.SplitAtSubStringsCSIBQR(pcSubStr, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def SplitAtManyIB(pacSubStr)
+			return This.SplitAtSubStringsIB(pacSubStr)
+
+			def SplitAtManyIBQ(pacSubStr)
+				return This.SplitAtSubStringsIBQ(pcSubStr)
+
+			def SplitAtManyIBQR(pacSubStr, pcReturnType)
+				return This.SplitAtSubStringsIBQR(pcSubStr, pCaseSensitive, pcReturnType)
+
+		def SplitAtTheseSubStringsIB(pacSubStr)
+			return This.SplitAtSubStringsIB(pacSubStr)
+
+			def SplitAtTheseSubStringsIBQ(pcSubStr, pCaseSensitive)
+				return This.SplitAtTheseSubStringsIBQR(pcSubStr, pCaseSensitive, :stzList)
+	
+			def SplitAtTheseSubStringsIBQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSIBQR(pcSubStr, TRUE, pcReturnType)
+	
+		def SplitAtManySubStringsIB(pacSubStr)
+			return This.SplitAtSubStringsIB(pacSubStr)
+
+			def SplitAtManySubStringsIBQ(pcSubStr, pCaseSensitive)
+				return This.SplitAtManySubStringsQR(pcSubStr, pCaseSensitive, :stzList)
+	
+			def SplitAtManySubStringsIBQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsCSIBQR(pcSubStr, TRUE, pcReturnType)
+
+		#>
+
+	def SplittedAtSubStringsIB(pacSubStr)
+		return This.SplitAtSubStringsIB(pacSubStr)
+
+		#< @FunctionAlternativeForms
+
+		def SplittedAtTheseSubStringsIB(pacSubStr)
+			return This.SplitAtSubStringsIB(pacSubStr)
+
+		def SplittedAtManySubStringsIB(pacSubStr)
+			return This.SplitAtSubStringsIB(pacSubStr)
+
+		def SplittedAtManyIB(pacSubStr)
+			return This.SplittedAtSubStringsIB(pacSubStr)
 
 		#>
 
@@ -50017,7 +50191,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	  #----------------------------------------------------#
 	 #   SPLITTING BEFORE A GIVEN POSITION OR SUBSTRING   #
-	#----------------------------------------------------#
+	#====================================================#
 
 	def SplitBeforeCS(pSubStrOrPos, pCaseSensitive)
 		if This.IsEmpty()
