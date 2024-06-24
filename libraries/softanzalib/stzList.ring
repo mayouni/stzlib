@@ -47834,54 +47834,8 @@ Item and then position
 	#------------------------------------------------------------#
 
 	def ToCode()
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		if nLen = 0
-			return "[ ]"
-		ok
-
-		cResult = "[ "
-
-		for i = 1 to nLen
-			if isNumber(aContent[i])
-				cResult += "" +
-					   aContent[i] + ", "
-
-			but isString(aContent[i])
-				cChar = '"'
-	
-				oQStr = new QString2()
-				oQStr.append(aContent[i])
-				c1 = oQStr.mid(0, 1)
-				c2 = oQStr.mid(oQStr.count()-1, 1)
-		
-				if c1 = '"' or
-				   c2 = '"'
-					cChar = "'"
-				ok
-	
-				cResult += (cChar + aContent[i] + cChar + ", ")
-
-
-			but isList(aContent[i])
-				cResult += ( @ComputableForm(aContent[i]) + ", ")
-
-			but isObject(aContent[i])
-				cResult += @ObjectVarName(aContent[i]) + ", "
-
-			ok
-
-		next
-
-		oQStr = new QString2()
-		oQStr.append(cResult)
-		oQStr.replace( (oQStr.count() - 2), 2, "" )
-		oQStr.append(" ]")
-
-		cResult = oQStr.mid(0, oQStr.count())
+		cResult = @@( This.Content() )
 		return cResult
-
 
 		def ToCodeQ()
 			return new stzString(This.ToCode())
