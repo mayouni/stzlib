@@ -218,7 +218,7 @@ func Script(p)
 		StzRaise("Incorrect param type! p must be a char, string, stzChar, stzString, or stzText.")
 	ok
 
-	if IsChar(p)
+	if isString(p) and IsChar(p)
 		return StzCharQ(p).Script()
 
 	but isString(p)
