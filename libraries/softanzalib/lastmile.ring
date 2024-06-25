@@ -272,7 +272,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
@@ -292,7 +292,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> THE E<<ring>>ND")
 #--> TRUE
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.09 second(s)
 
 /*===
 

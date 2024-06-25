@@ -28909,8 +28909,8 @@ class stzString from stzObject
 
 	def FindNestedSubStringsCS(pacBounds, pCaseSensitive)
 
-		aResult = This.AntiFindCS(pacBounds, pCaseSensitive)
-		return aResult
+		anResult = This.AntiFindCS(pacBounds, pCaseSensitive)
+		return anResult
 
 		#< @FunctionAlternativeForms
 
@@ -28970,6 +28970,198 @@ class stzString from stzObject
 
 		def FindNestedZ(pacBounds)
 			return This.FindNestedSubStrings(pacBounds)
+
+		#>
+
+	  #------------------------------------------------------------------------------#
+	 #  FINDING NESTED SUBSTRINGS ENCLOSED BETWEN TWO GOVEN BOUNDS -- ZZ/EXTENSION  #
+	#==============================================================================#
+
+	def FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+		aResult = This.AntiFindCSZZ(pacBounds, pCaseSensitive)
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNestedSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+		def FindNestedBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+		def FindNestedCSZZ(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+
+		#==
+
+		def FindNestedSubStringsAsSectionsCS(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+		def FindNestedSubStringsBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+		def FindNestedBoundedByAsSectionsCS(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+		def FindNestedAsSectionsCS(pacBounds, pCaseSensitive)
+			return This.FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNestedSubStringsZZ(pacBounds)
+		return This.FindNestedSubStringsCSZZ(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNestedSubStringsBoundedByZZ(pacBounds)
+			return This.FindNestedSubStringsZZ(pacBounds)
+
+		def FindNestedBoundedByZZ(pacBounds)
+			return This.FindNestedSubStringsZZ(pacBounds)
+
+		def FindNestedZZ(pacBounds)
+			return This.FindNestedSubStringsZZ(pacBounds)
+
+		#==
+
+		def FindNestedSubStringsAsSections(pacBounds)
+			return This.FindNestedSubStringsZZ(pacBounds)
+
+		def FindNestedSubStringsBoundedByAsSections(pacBounds)
+			return This.FindNestedSubStringsZZ(pacBounds)
+
+		def FindNestedBoundedByAsSections(pacBounds)
+			return This.FindNestedSubStringsZZ(pacBounds)
+
+		def FindNestedAsSections(pacBounds)
+			return This.FindNestedSubStringsZZ(pacBounds)
+
+		#>
+
+	  #----------------------------------------------------------#
+	 #  GETTING THE NESTED SUBSTRINGS BETWEEN TWO GIVEN BOUNDS  #
+	#----------------------------------------------------------#
+
+	def NestedSubStringsCS(pacBounds, pCaseSensitive)
+		aSections = This.FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+		acResult = This.Sections(aSections)
+
+		return acResult
+
+		#< @FunctionAlternativeForm
+
+		def NestedSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NestedSubStringsCS(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NestedSubStrings(pacBounds)
+		return This.NestedSubStringsCS(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def NestedSubStringsBoundedBy(pacBounds)
+			return This.NestedSubStrings(pacBounds)
+
+		#>
+
+	  #------------------------------------------------------------------------#
+	 #  GETTING THE NESTED SUBSTRINGS BETWEEN TWO GIVEN BOUNDS -- Z/EXTENDED  #
+	#------------------------------------------------------------------------#
+
+	def NestedSubStringsCSZ(pacBounds, pCaseSensitive)
+		acSubStr = This.NestedSubStringsCS(pacBounds, pCaseSensitive)
+		anPos = This.FindNestedSubStringsCS(pacBounds, pCaseSensitive)
+
+		aResult = @Association([ acSubStr, anPos ])
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def NestedSubStringsBoundedByCSZ(pacBounds, pCaseSensitive)
+			return This.NestedSubStringsCSZ(pacBounds, pCaseSensitive)
+
+		#--
+
+		def NestedSubStringsAndTheirPositionsCS(pacBounds, pCaseSensitive)
+			return This.NestedSubStringsCSZ(pacBounds, pCaseSensitive)
+
+		def NestedSubStringsBoundedByAndTheirPositionsCS(pacBounds, pCaseSensitive)
+			return This.NestedSubStringsCSZ(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NestedSubStringsZ(pacBounds)
+		return This.NestedSubStringsCSZ(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def NestedSubStringsBoundedByZ(pacBounds)
+			return This.NestedSubStringsZ(pacBounds)
+
+		#--
+
+		def NestedSubStringsAndTheirPositions(pacBounds)
+			return This.NestedSubStringsZ(pacBounds)
+
+		def NestedSubStringsBoundedByAndTheirPositions(pacBounds)
+			return This.NestedSubStringsZ(pacBounds)
+
+		#>
+
+	  #-------------------------------------------------------------------------#
+	 #  GETTING THE NESTED SUBSTRINGS BETWEEN TWO GIVEN BOUNDS -- ZZ/EXTENDED  #
+	#-------------------------------------------------------------------------#
+
+	def NestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+		acSubStr = This.NestedSubStringsCS(pacBounds, pCaseSensitive)
+		aSections = This.FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+		aResult = @Association([ acSubStr, aSections ])
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def NestedSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+			return This.NestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+		#--
+
+		def NestedSubStringsAndTheirSectionsCS(pacBounds, pCaseSensitive)
+			return This.NestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+		def NestedSubStringsBoundedByAndTheirSectionsCS(pacBounds, pCaseSensitive)
+			return This.NestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NestedSubStringsZZ(pacBounds)
+		return This.NestedSubStringsCSZZ(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def NestedSubStringsBoundedByZZ(pacBounds)
+			return This.NestedSubStringsZZ(pacBounds)
+
+		#--
+
+		def NestedSubStringsAndTheirSections(pacBounds)
+			return This.NestedSubStringsZZ(pacBounds)
+
+		def NestedSubStringsBoundedByAndTheirSections(pacBounds)
+			return This.NestedSubStringsZZ(pacBounds)
 
 		#>
 
