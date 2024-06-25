@@ -257,7 +257,12 @@ class stzListOfStrings from stzList
 		return new stzListOfStrings( This.Content() )
 		
 	def StringsW(pcCondition)
-		return This.YieldW('This[@i]', pcCondition)
+		pcCondition = StzStringQ(pcCondition).ReplaceCSQ("@string", "This[@i]", FALSE).Content()
+		acResult = This.YieldW('This[@i]', pcCondition)
+
+		return acResult
+
+		#< @FunctionFluentForms
 
 		def StringsWQ(pcCondition)
 			return StringsWQR(pcCondition, :stzList)
@@ -282,11 +287,16 @@ class stzListOfStrings from stzList
 				StzRaise("Unsupported return type!")
 			off
 
+		#>
+
 	def UniqueStringsW(pcCondition)
+		pcCondition = StzStringQ(pcCondition).ReplaceCSQ("@string", "This[@i]", FALSE).Content()
 		acResult = This.YieldWQR('This[@i]', pcCondition, :stzListOfStrings).
 				DuplicatesRemoved()
 
 		return acResult
+
+		#< @FunctionFluentForms
 
 		def UniqueStringsWQ(pcCondition)
 			return UniqueStringsWQR(pcCondition, :stzList)
@@ -311,11 +321,17 @@ class stzListOfStrings from stzList
 				StzRaise("Unsupported return type!")
 			off
 
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def StringsUW(pcCondition)
 			return This.UniqueStringsW(pcCondition)
 
 		def StringsWithoutDuplicationW(pcCondition)
 			return This.UniqueStringsW(pcCondition)
+
+		#>
 
 	  #--------------------------------------------------#
 	 #    GETTING THE NUMBER OF STRINGS IN THE LIST     #

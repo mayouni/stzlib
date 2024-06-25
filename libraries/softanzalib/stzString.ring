@@ -3812,10 +3812,16 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
+		QStringContent = new QString2()
+		QStringContent.append(cContent)
+
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = substr(cContent, i, j-i+1)
+				//cSubStr = substr(cContent, i, j-i+1)
+
+				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
+
 				if pCaseSensitive = TRUE
 					acResult + cSubStr
 
@@ -5024,6 +5030,7 @@ class stzString from stzObject
 		acSubStr = This.SubStringsCS(pCaseSensitive)
 		nLen = len(acSubStr)
 
+		pcCondition = StzStringQ(pcCondition).TrimQ().RemoveTheseBoundsQ("{", "}").Content()
 		cCode = 'bOk = (' + pcCondition + ')'
 
 		aResult = []
@@ -23857,56 +23864,56 @@ class stzString from stzObject
 	 #  GETTING THE NUMBER OF OCCURRENCE OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
 	#===================================================================================#
 
-	def NumberOfOccurrrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+	def NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 		nResult = len(This.FindSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive))
 		return nResult
 
 		#< @FunctionAlternativeForms
 
 		def NumberOfOccurrencesOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
-			return This.NumberOfOccurrrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
 		def HowManyOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
-			return This.NumberOfOccurrrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
 		def HowManyOccurrencesOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
-			return This.NumberOfOccurrrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
 		def HowManyTimeSubStringIsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
-			return This.NumberOfOccurrrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
 		def HowManyTimesSubStringIsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
-			return This.NumberOfOccurrrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
 		def HowOftenSubStringIsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
-			return This.NumberOfOccurrrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+			return This.NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfOccurrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
-		return This.NumberOfOccurrrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, TRUE)
+		return This.NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBounds, TRUE)
 
 		#< @FunctionAlternativeForms
 
 		def NumberOfOccurrencesOfSubStringBoundedBy(pcSubStr, pacBounds)
-			return This.NumberOfOccurrrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
+			return This.NumberOfOccurrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
 
 		def HowManyOccurrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
-			return This.NumberOfOccurrrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
+			return This.NumberOfOccurrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
 
 		def HowManyOccurrencesOfSubStringBoundedBy(pcSubStr, pacBounds)
-			return This.NumberOfOccurrrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
+			return This.NumberOfOccurrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
 
 		def HowManyTimeSubStringIsBoundedBy(pcSubStr, pacBounds)
-			return This.NumberOfOccurrrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
+			return This.NumberOfOccurrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
 
 		def HowManyTimesSubStringIsBoundedBy(pcSubStr, pacBounds)
-			return This.NumberOfOccurrrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
+			return This.NumberOfOccurrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
 
 		def HowOftenSubStringIsBoundedBy(pcSubStr, pacBounds)
-			return This.NumberOfOccurrrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
+			return This.NumberOfOccurrenceOfSubStringBoundedBy(pcSubStr, pacBounds)
 
 		#>
 
@@ -27835,10 +27842,10 @@ class stzString from stzObject
 
 		#--
 
-		def FindLastBoundedByZZ(pcSubStr, pacBounds, pCaseSensitive)
+		def FindLastBoundedByZZ(pcSubStr, pacBounds)
 			return This.FindLastSubStringBoundedByZZ(pcSubStr, pacBounds)
 
-		def FindLastBoundedByAsSection(pcSubStr, pacBounds, pCaseSensitive)
+		def FindLastBoundedByAsSection(pcSubStr, pacBounds)
 			return This.FindLastSubStringBoundedByZZ(pcSubStr, pacBounds)
 
 		#>

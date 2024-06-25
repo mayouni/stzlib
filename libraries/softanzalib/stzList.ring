@@ -22410,45 +22410,48 @@ Item and then position
 
 		# Checking params
 
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
-
-			pReturn = pReturn[2]
-		ok
-
-		if NOT ( isString(pReturn) and
-
-			 Q(pReturn).IsOneOfThese([
-				:WalkedPositions, :WalkedItems,
-				:LastPosition, :LastWalkedPosition,
-				:LastItem, :LastWalkedItem,
-				:Default
-			]) )
-
-			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
-				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
-		ok
-
-		if pReturn = :Default
-			pReturn = :WalkedPositions
-		ok
-
-		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
-			pcDirection = pcDirection[2]
-		ok
-
-		if NOT ( isString(pcDirection) and
-			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
-
-			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
-		ok
-
-		if pcDirection = :Default
-			pcDirection = :Forward
+		if CheckParams()
+	
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+	
+			if isList(pReturn) and
+			   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+	
+				pReturn = pReturn[2]
+			ok
+	
+			if NOT ( isString(pReturn) and
+	
+				 Q(pReturn).IsOneOfThese([
+					:WalkedPositions, :WalkedItems,
+					:LastPosition, :LastWalkedPosition,
+					:LastItem, :LastWalkedItem,
+					:Default
+				]) )
+	
+				StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
+					 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
+			ok
+	
+			if pReturn = :Default
+				pReturn = :WalkedPositions
+			ok
+	
+			if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+				pcDirection = pcDirection[2]
+			ok
+	
+			if NOT ( isString(pcDirection) and
+				 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
+	
+				StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
+			ok
+	
+			if pcDirection = :Default
+				pcDirection = :Forward
+			ok
 		ok
 
 		# Doing the job
@@ -22471,7 +22474,7 @@ Item and then position
 		ok
 
 		for @i = nStart to nEnd step nStep
-			
+			@item = @aContent[@i]
 			eval(cCode)
 
 			if bOk
@@ -22600,6 +22603,7 @@ Item and then position
 		ok
 
 		for @i = nStart to nEnd step nStep
+			@item = @aContent[@i]
 			eval(cCode)
 
 			if bOk
@@ -22709,7 +22713,7 @@ Item and then position
 		ok
 
 		for @i = nStart to nEnd step nStep
-			
+			@item = @aContent[@i]
 			eval(cCode)
 
 			if NOT bOk
@@ -22805,7 +22809,7 @@ Item and then position
 		ok
 
 		for @i = nStart to nEnd step nStep
-			
+			@item = @aContent[@i]
 			eval(cCode)
 
 			if bOk
@@ -24293,7 +24297,7 @@ Item and then position
 
 		for n = 1 to nLenPositions
 			@i = panPos[n]
-			@item = This[ @i ]
+			@item = @aContent[@i]
 			bEval = TRUE
 
 			if @i = This.NumberOfItems() and
@@ -24386,7 +24390,7 @@ Item and then position
 
 		for n = 1 to nLenPositions
 			@i = panPos[n]
-			@item = This[ @i ]
+			@item = @aContent[@i]
 			bEval = TRUE
 
 			if @i = This.NumberOfItems() and
@@ -24924,7 +24928,7 @@ Item and then position
 
 		for i = 1 to nLenPositions
 			@i = panPos[i]
-			@item = This[ @i ]
+			@item = @aContent[@i]
 
 			bEval = TRUE
 
@@ -25216,7 +25220,7 @@ Item and then position
 
 		for i = 1 to nLenPositions
 			@i = panPos[i]
-			@item = This[ @i ]
+			@item = @aContent[@i]
 
 			bEval = TRUE
 
@@ -26433,13 +26437,15 @@ Item and then position
 		cCode = oCode.Content()
 		oCode = StzStringQ(cCode)
 
+		nLen = This.NumberOfItems()
+
 		@i = 0
 		
 		for @i in panPos
 
 			bEval = TRUE
 
-			if @i = This.NumberOfItems() and
+			if @i = nLen and
 			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i+1]", :CS=FALSE )
 
 				bEval = FALSE
@@ -26452,8 +26458,8 @@ Item and then position
 			ok
 
 			if bEval
-
-			eval(cCode)
+				@item = @aContent[@i]
+				eval(cCode)
 				This.ReplaceAt(@i, @item)
 			ok
 
@@ -36482,6 +36488,7 @@ Item and then position
 		bResult = FALSE
 
 		for @i = 1 to nLen
+			@item = @aContent[@i]
 			eval(cCode)
 			if bOk
 				bResult = TRUE
@@ -40657,9 +40664,12 @@ Item and then position
 
 		cCode = 'bOk = (' + Q(pcCondition).TrimQ().TheseBoundsRemoved("{","}") + ')'
 
+
 		anResult = []
 
 		for @i = nStart to nEnd
+			@item = @aContent[@i]
+ 
 			eval(cCode)
 			if bOk
 				anResult + @i
@@ -40753,6 +40763,7 @@ Item and then position
 		anResult = []
 
 		for @i = nStart to nEnd
+			@item = @aContent[@i]
 			eval(cCode)
 			if bOk
 				anResult + @i
@@ -48637,13 +48648,12 @@ Item and then position
 
 		# Doing the job
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = This.NumberOfItems()
 
 		bResult = TRUE
 
 		for @i = 1 to nLen
-
+			@item = @aContent[@i]
 			eval(cCode)
 
 			if NOT bOk
@@ -48747,7 +48757,7 @@ Item and then position
 
 			bResult = TRUE
 			for @i = 1 to nLen
-				@item = This.Item(@i)
+				@item = @aContent[@i]
 				eval(cCode)
 				if NOT bOk
 					bResult = FALSE
@@ -48794,7 +48804,7 @@ Item and then position
 
 			bResult = TRUE
 			for @i = 1 to nLen
-				@item = This.Item(@i)
+				@item = @aContent[@i]
 				eval(cCode)
 				if NOT bOk
 					bResult = FALSE
