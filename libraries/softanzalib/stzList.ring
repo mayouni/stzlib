@@ -72691,6 +72691,16 @@ Item and then position
 			return FALSE
 		ok
 
+	def IsToPositionOfNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToPositionOf )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsToOrToPositionNamedParam()
 
 		if This.IsToNamedParam() or This.IsToPositionNamedParam()
@@ -78132,6 +78142,27 @@ Item and then position
 		else
 			return FALSE
 		ok
+
+	def IsSubstringOrSubstringsNamedParam()
+		if This.IsSubStringNamedParam() or
+		   This.IsSubStringsNamedParam()
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsSubStringsOrSubStringNamedParam()
+			return This.IsSubstringOrSubstringsNamedParam()
+
+		#--
+
+		def IsSubstringOrSubstringsNamedParams()
+			return This.IsSubstringOrSubstringsNamedParam()
+
+		def IsSubStringsOrSubStringNamedParams()
+			return This.IsSubstringOrSubstringsNamedParam()
+
 
 	def IsThisSubStringNamedParam()
 		if This.NumberOfItems() = 2 and

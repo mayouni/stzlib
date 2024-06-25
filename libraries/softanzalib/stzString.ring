@@ -42915,11 +42915,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			if NOT isNumber(n1)
 				StzRaise("Incorrect param type! n1 must be a number.")
 			ok
-	
-			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToPositionOf ])
+
+			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToPositionOf, :And, :AndPosition ])
 				n2 = n2[2]
 			ok
-	
+
 			if isString(n2)
 				if Q(n2).IsOneOfThese([ :Last, :LastChar ])
 					n2 = This.NumberOfChars()
@@ -42927,7 +42927,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 					n2 = 1
 				ok
 			ok
-	
+
 			if NOT isNumber(n2)
 				StzRaise("Incorrect param type! n2 must be a number.")
 			ok
