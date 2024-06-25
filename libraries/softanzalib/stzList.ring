@@ -24284,12 +24284,7 @@ Item and then position
 			StzRaise("Incorrect param! pcCondition must be a string.")
 		ok
 
-		pcCode = Q(pcCondition).
-			 TrimQ().
-			 RemoveTheseBoundsQ("{", "}").
-			 Content()
-
-		cCode = "bOk = ( " + pcCode + " )"
+		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
 		oCode = StzStringQ(cCode)
 		
 		nLenPositions = len(panPos)
@@ -24914,13 +24909,7 @@ Item and then position
 			return aTemp
 		ok
 
-		pcCode = Q(pcCode).
-			 TrimQ().
-			 RemoveTheseBoundsQ("{", "}").
-			 ReplaceCSQ("@list", "This.Content()", :CS = FALSE).
-			 Content()
-
-		cCode = "aResult + ( " + pcCode + " )"
+		cCode = "aResult + ( " + StzCCodeQ(pcCode).Transpiled() + " )"
 		oCode = StzStringQ(cCode)
 		
 		aResult = []
@@ -27978,12 +27967,13 @@ Item and then position
 
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
-		cExpr = Q(pcExpr).TrimQ().RemoveTheseBoundsQ("{", "}").Trimmed()
-		if NOT Q(cExpr).ContainsOneOfTheseCS([ "@item", "@i" ], FALSE)
-			StzRaise("Can't proceed! pcExpr must contain the keyword @item and/or @i.")
+		oExpr = new stzString(pcExpr)
+		if NOT oExpr.ContainsOneOfTheseCS([ "@i", "@item" ], FALSE)
+			StzRaise("Cant't proceed! The classifier must contain the keyword @i or @item or both.")
 		ok
 
-		cCode = ' value = (' + pcExpr + ')'
+		cExpr = Q(pcExpr).TrimQ().RemoveTheseBoundsQ("{", "}").Trimmed()
+		cCode = ' value = (' + cExpr + ')'
 
 		aContentU = This.ContentU()
 		nLen = len(aContentU)
@@ -40662,8 +40652,7 @@ Item and then position
 			nEnd = nLen
 		ok
 
-		cCode = 'bOk = (' + Q(pcCondition).TrimQ().TheseBoundsRemoved("{","}") + ')'
-
+		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
 
 		anResult = []
 
