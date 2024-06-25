@@ -1873,9 +1873,8 @@ o1 = new stzString("---,---;---[---]---:---")
 proff()
 # Executed in 0.08 second(s)
 
-/*================ #TODO check it after including ContainsBetween() and
-#		         containssubstringbetweenpositionscs
-*/
+/*================
+
 pron()
 
 #     2    7
@@ -1887,7 +1886,7 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.03 second(s)
 
 /*--------------
 
@@ -1902,8 +1901,8 @@ pron()
 proff()
 # Executed in 0.02 second(s)
 
-/*-------------- # TODO: check after including ContainsBetween()
-
+/*--------------
+*/
 pron()
 
 ? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", "^^", "^^")
@@ -1913,7 +1912,8 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.49 second(s)
+# Executed in 0.02 second(s) in Ring 1.20
+# Executed in 0.49 second(s) in Ring 1.17
 
 /*-------------- #TODO check it after including ContainsSubstringBetweencs()
 
