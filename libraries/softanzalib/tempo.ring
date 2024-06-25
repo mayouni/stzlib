@@ -3760,12 +3760,21 @@ o1 = new stzListOfStrings([
 proff()
 # Executed in 0.40 second(s)
 
-/*================
-*/
+/*================ #TODO check it!
+
+pron()
+
+? Q("#1 : #3").ToList()
+#--> Sould produce [ "#1", "#2", "#3" ])
+
+proff()
+
+/*-----------
+
 pron()
 
 o1 = new stzString("Av♥♥c♥♥")
-? @@NL( o1.SubStrings() )
+? @@NL( o1.SubStringsU() )
 #--> [
 #	"A",
 #	"Av",
@@ -3797,9 +3806,10 @@ o1 = new stzString("Av♥♥c♥♥")
 #	"♥"
 # ]
 
+# If you want the list of uniques substrings, use: SubStringsU()
 
 proff()
-
+# Executed in 0.02 second(s)
 
 /*------
 */
@@ -3810,10 +3820,11 @@ o1 = new stzString("Av♥♥c♥♥")
 ? o1.FindAll("♥♥")
 #--> [ 3, 6 ]
 
-? o1.FindSubStringsW('{ @SubString = "♥♥" }')
+? @@( o1.FindSubStringsW('{ @SubString = "♥♥" }') )
 #--> [ 3, 6 ]
 
 proff()
+# Executed in 0.08 second(s)
 
 /*=============== #Todo: check after including SubstringsBetween()
 

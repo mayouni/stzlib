@@ -3818,8 +3818,6 @@ class stzString from stzObject
 		for i = 1 to nLen
 			for j = i to nLen
 
-				//cSubStr = substr(cContent, i, j-i+1)
-
 				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
 
 				if pCaseSensitive = TRUE
@@ -3900,10 +3898,12 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
+		QStringContent = new QString2()
+		QStringContent.append(cContent)
+
 		for i = 1 to nLen
 			for j = i to nLen
-
-				cSubStr = substr(cContent, i, j-i+1)
+				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
 	
 				if ring_find(acResult, cSubStr) = 0
 					acResult + cSubStr
@@ -4020,10 +4020,13 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
+		QStringContent = new QString2()
+		QStringContent.append(cContent)
+
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = substr(cContent, i, j-i+1)
+				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
 				if pCaseSensitive = TRUE
 					if ring_find(anResult, i) = 0
 						anResult + i
@@ -4206,10 +4209,13 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
+		QStringContent = new QString2()
+		QStringContent.append(cContent)
+
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = substr(cContent, i, j-i+1)
+				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
 				if pCaseSensitive = TRUE
 					aResult + [ i, j ]
 					acSubStr + cSubStr
@@ -4290,8 +4296,8 @@ class stzString from stzObject
 
 	def FindAllSubStringsWCS(pcCondition, pCaseSensitive)
 		acSubStrings = This.SubStringsWCS(pcCondition, pCaseSensitive)
-		aResult = This.FindManyCS(acSubStrings, pCaseSensitive)
-		return aResult
+		anResult = U( This.FindManyCS(acSubStrings, pCaseSensitive) )
+		return anResult
 
 		#< @FunctionAlternativeForms
 
@@ -4443,10 +4449,13 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
+		QStringContent = new QString2()
+		QStringContent.append(cContent)
+
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = substr(cContent, i, j-i+1)
+				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
 				nPos = ring_find(acSubStr, cSubStr)
 				if nPos = 0
 					aResult + [ cSubStr, [ i ] ]
@@ -4618,11 +4627,15 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
+		QStringContent = new QString2()
+		QStringContent.append(cContent)
+
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = substr(cContent, i, j-i+1)
+				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
 				nPos = ring_find(acSubStr, cSubStr)
+
 				if nPos = 0
 					aResult + [ cSubStr, [ [ i, j ] ] ]
 					acSubStr + cSubStr
@@ -4795,10 +4808,14 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
+		QStringContent = new QString2()
+		QStringContent.append(cContent)
+
+
 		for i = 1 to nLen
 			for j = i to nLen
 				if n = j-i+1
-					cSubStr = substr(cContent, i, j-i+1)
+					cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
 					acResult + cSubStr
 				ok
 			next
@@ -4845,10 +4862,13 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
+		QStringContent = new QString2()
+		QStringContent.append(cContent)
+
 		for i = 1 to nLen
 			for j = i to nLen
 				if n = j-i+1
-					cSubStr = substr(cContent, i, j-i+1)
+					cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
 				
 					if ring_find(acResult, cSubStr) = 0
 						acResult + cSubStr
@@ -81487,7 +81507,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def ToListInStringSFQ()
 			return new stzString( This.ToListInStringSF() )
 
-	def ToList()
+	def ToList() #TODO # Check it!
+
 		/*
 		NOTE: Currently, it works only for a case like this:
 		Q("#1 : #3").ToList() and gives [ "#1", "#2", "#3" ]
@@ -81584,6 +81605,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 				nDec1 = 0
 				nDec2 = 0
+
+				#TODO # Check if substr() upports all unicode chars!
 
 				nPos1 = substr(cPart1, ".")
 				if nPos1 > 0
