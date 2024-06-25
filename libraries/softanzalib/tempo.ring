@@ -1878,10 +1878,12 @@ proff()
 */
 pron()
 
-? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", :Position = 3, :AndPosition = 5)
+#     2    7
+? Q("^^♥♥♥^^").ContainsSubStringBetween("♥♥♥", :Position = 2, :AndPosition = 7)
 #--> TRUE
 
-//? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :BetweenPositions = [ 3, :And = 5])
+#     2   6
+? Q("^^♥♥♥^^").ContainsXT("♥♥♥", :BetweenPositions = [ 2, :And = 6])
 #--> TRUE
 
 proff()

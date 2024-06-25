@@ -23828,9 +23828,34 @@ class stzString from stzObject
 		def ContainsBetween(pcSubStr, pcSubStr1, pcSubStr2)
 			return This.ContainsSubStringBetween(pcSubStr, pcSubStr1, pcSubStr2)
 
-	  #------------------------------------------------------------------------------#
-	 #  CHECKING IF THE STRING CONTAINS A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS #
-	#------------------------------------------------------------------------------#
+	  #---------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A SUBSTRING BETWEEN TWO GIVEN POSITIONS  #
+	#---------------------------------------------------------------------------#
+
+	def ContainsSubStringBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
+
+		anPos = This.FindSubStringBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
+
+		if len(anPos) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def ContainsBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
+			return This.ContainsSubStringBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsSubStringBetweenPositions(pcSubStr, n1, n2)
+		return This.ContainsSubStringBetweenPositionsCS(pcSubStr, n1, n2, TRUE)
+
+		def ContainsBetweenPositions(pcSubStr, n1, n2)
+			return This.ContainsSubStringBetweenPositions(pcSubStr, n1, n2)
+
+	  #-------------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
+	#===============================================================================#
 
 	def ContainsSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
@@ -24296,6 +24321,19 @@ class stzString from stzObject
 		# Doing the job
 
 		if CheckParams()
+			if isList(pcSubStr1) and
+				( StzListQ(pcSubStr1).IsPositionOrPositionsNamedParam() or
+				StzListQ(pcSubStr1).IsSubStringOrSubStringsNamedParam() )
+
+				pcSubStr1 = pcSubStr1[2]
+			ok
+
+			if isList(pcSubStr2) and
+				StzListQ(pcSubStr2).IsAndOrAndPositionOrAndSubStringNamedParam()
+
+				pcSubStr2 = pcSubStr2[2]
+			ok
+
 			if NOT ( @AreBothStrings(pcSubStr1, pcSubStr2) or
 				 @AreBothNumbers(pcSubStr1, pcSubStr2) )
 
@@ -28299,6 +28337,17 @@ class stzString from stzObject
 
 			return This.DeepFindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
+		def DeepFindCS(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsCS(pacBounds, pCaseSensitive)
+
+		#--
+
+		func DeepFindSubStringsCSZ(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsCS(pacBounds, pCaseSensitive)
+
+		def DeepFindCSZ(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsCS(pacBounds, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -28318,6 +28367,26 @@ class stzString from stzObject
 
 		def DeepFindBoundedByZ(pacBounds)
 			return This.DeepFindSubStringsBoundedBy(pacBounds)
+
+		#==
+
+		func DeepFindSubStrings(pacBounds)
+			if isList(pacBounds) and Q(pacBounds).IsBoundedByOrBoundsNamedParam()
+				pacBounds = pacBounds[2]
+			ok
+
+			return This.DeepFindSubStringsBoundedBy(pacBounds)
+
+		def DeepFind(pacBounds)
+			return This.DeepFindSubStrings(pacBounds)
+
+		#--
+
+		func DeepFindSubStringsZ(pacBounds)
+			return This.DeepFindSubStrings(pacBounds)
+
+		def DeepFindZ(pacBounds)
+			return This.DeepFindSubStrings(pacBounds)
 
 		#>
 
@@ -28380,6 +28449,12 @@ class stzString from stzObject
 		def DeepFindSubStringsAsSectionsCS(pacBounds, pCaseSensitive)
 			return This.DeepFindSubStringsCSZZ(pacBounds, pCaseSensitive)
 
+		def DeepFindCSZZ(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+		def DeepFindAsSectionsCS(pacBounds, pCaseSensitive)
+			return This.DeepFindSubStringsCSZZ(pacBounds, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -28402,6 +28477,8 @@ class stzString from stzObject
 
 		#==
 
+		#==
+
 		def DeepFindSubStringsZZ(pacBounds)
 			if isList(pacBounds) and Q(pacBounds).IsBoundsOrBoundedByNamedParam()
 				pacBounds = pacBounds[2]
@@ -28410,6 +28487,12 @@ class stzString from stzObject
 			return This.DeepFindSubStringsBoundedByZZ(pacBounds)
 
 		def DeepFindSubStringsAsSections(pacBounds)
+			return This.DeepFindSubStringsZZ(pacBounds)
+
+		def DeepFindZZ(pacBounds)
+			return This.DeepFindSubStringsZZ(pacBounds)
+
+		def DeepFindAsSections(pacBounds)
 			return This.DeepFindSubStringsZZ(pacBounds)
 
 		#>

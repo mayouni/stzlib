@@ -5667,7 +5667,7 @@ o1 = new stzString('[[[
 
 ]]]')
 
-o1.Simplify() # To remove NLs, TABs and overspaces
+o1.Simplify() # To remove NLs, TABs and overspaces from the string
 
 ? @@NL( o1.NestedSubStrings(:BoundedBy = [ "[[[", "]]]" ]) ) # Or DeepSubStrings() or SubStringsBoundedBy()
 

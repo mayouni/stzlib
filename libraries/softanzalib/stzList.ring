@@ -79794,3 +79794,25 @@ Item and then position
 			return FALSE
 		ok
 
+	#--
+
+	def IsAndOrAndPositionOrAndSubStringNamedParam()
+		if This.IsAndNamedParam() or
+		   This.IsAndPositionNamedParam() or
+		   This.IsAndSubstringNamedParam()
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAndOrAndSubStringOrAndPositionNamedParam()
+			return This.IsAndOrAndPositionOrAndSubStringNamedParam()
+
+		#--
+
+		def IsAndOrAndPositionOrAndSubStringNamedParams()
+			return This.IsAndOrAndPositionOrAndSubStringNamedParam()
+
+		def IsAndOrAndSubStringOrAndPositionNamedParams()
+			return This.IsAndOrAndSubStringOrAndPositionNamedParam()
