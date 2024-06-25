@@ -23862,6 +23862,13 @@ class stzString from stzObject
 		# Checking params
 
 		if CheckParams()
+			if isList(pacBounds) and len(pacBounds) = 2 and
+			   isList(pacBounds[2]) and len(pacBounds[2]) = 2 and pacBounds[2][1] = :And
+				aTemp = []
+				aTemp + pacBounds[1] + pacBounds[2][2]
+				pacBounds = aTemp
+			ok
+				
 			if NOT (isString(pacBounds) or (isList(pacBounds) and Q(pacBounds).IsPairOfStrings()) )
 				StzRaise("Incorrect params types! pacBounds must be a string or pair of strings.")
 			ok
@@ -24488,10 +24495,18 @@ class stzString from stzObject
 		# Checking params
 
 		if CheckParams()
+
 			if NOT isString(pcSubStr)
 				StzRaise("Incorrect param type! pcSubStr must be a string.")
 			ok
 	
+			if isList(pacBounds) and len(pacBounds) = 2 and
+			   isList(pacBounds[2]) and len(pacBounds[2]) = 2 and pacBounds[2][1] = :And
+				aTemp = []
+				aTemp + pacBounds[1] + pacBounds[2][2]
+				pacBounds = aTemp
+			ok
+
 			if NOT ( isString(pacBounds) or (isList(pacBounds) and Q(pacBounds).IsPairOfStrings()) )
 				StzRaise("Incorrect param type! pacBounds must be a string or pair of strings.")
 			ok
@@ -46974,8 +46989,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		# ? Q("_/♥\_").ContainsXT("♥", :Between = ["/", :And = "\"])
 		but isString(p1) and isList(p2) and (Q(p2).IsBetweenNamedParam() or Q(p2).IsBoundedByNamedParam())
 
-			if Q(p2[2]).IsAndNamedParam()
-				p2[2] = p2[2][2]
+			if Q(p2[2][2]).IsAndNamedParam()
+				aTemp = []
+				aTemp + p2[2][1] + p2[2][2][2]
+				p2[2] = aTemp
 			ok
 
 			if Q(p2[2]).isListOfStrings()
