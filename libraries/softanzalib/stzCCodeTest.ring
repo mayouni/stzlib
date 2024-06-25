@@ -1,5 +1,18 @@
 load "stzlib.ring"
 
+/*--------
+
+pron()
+
+? StzCCodeQ(' @CurrentItem = @NextItem ').ExecutableSection()
+#--> [ 1, :Last ]
+
+? StzCCodeQ(' @CurrentItem = @NextItem ').ExecutableSectionXT()
+#--> [ 1, -1 ]
+
+proff()
+# Executed in 0.11 second(s)
+
 /*-------- #narration BETWEEN vs BOUNDEDBY
 
 pron()
