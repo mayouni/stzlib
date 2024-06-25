@@ -2051,15 +2051,15 @@ pron()
 	? Q("_/♥\_").ContainsXT("♥", :Between = ["/", :And = "\"])
 	#--> TRUE
 
-/*	? Q("__-♥-__-•-__").ContainsXT(["♥", "•"], :BoundedBy = "-")
+	? Q("__-♥-__-•-__").ContainsXT(["♥", "•"], :BoundedBy = "-")
 	#--> TRUE
 	
-	? Q("__/♥\__/•\__").ContainsXT(["♥", "•"], :Between = ["/", :And = "\"])
+	? Q("__/♥\__/•\__").ContainsXT(["♥", "•"], :BoundedBy = ["/", :And = "\"])
 	#--> TRUE
 
 	? Q("__/♥\__/^^^\__").ContainsXT( [], :BoundedBy = ["/", :And = "\"] )
 	#--> TRUE
-
+/*
 	? Q("__/♥\__/^^\__").ContainsXT( [], :Between = ["/", "\"] )	
 	#--> TRUE
 */
