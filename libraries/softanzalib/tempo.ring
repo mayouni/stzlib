@@ -1902,7 +1902,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*--------------
-*/
+
 pron()
 
 ? Q("^^♥♥♥^^").ContainsBetween("♥♥♥", "^^", "^^")
@@ -1915,7 +1915,7 @@ proff()
 # Executed in 0.02 second(s) in Ring 1.20
 # Executed in 0.49 second(s) in Ring 1.17
 
-/*-------------- #TODO check it after including ContainsSubstringBetweencs()
+/*--------------
 
 pron()
 
@@ -1925,7 +1925,8 @@ pron()
 #--> TRUE
 
 proff()
-#--> Executed in 0.48 second(s)
+#--> Executed in 0.02 second(s) in Ring 1.20
+#--> Executed in 0.48 second(s) in Ring 1.17
 
 /*==================
 
@@ -1936,7 +1937,7 @@ o1 = new stzString("__♥♥♥__/♥♥♥\__♥♥♥__")
 #--> [9, 11]
 
 StopProfiler()
-# Executed in 0.01 second(s)
+# Executed in 0.02 second(s)
 
 /*================
 
@@ -1975,7 +1976,7 @@ StartProfiler()
 	#--> TRUE
 	
 StopProfiler()
-# Executed in 0.10 second(s)
+# Executed in 0.12 second(s)
 
 /*====  FINDING SUBSTRING, BASIC & EXTENDED
 
@@ -2041,7 +2042,7 @@ StopProfiler()
 # Executed in 0.02 second(s)
 
 /*---------- #TODO test it after including ContainsSubStringBoundedBy()
-
+*/
 pron()
 
 	? Q("_-♥-_").ContainsXT("♥", :BoundedBy = "-")
@@ -2050,7 +2051,7 @@ pron()
 	? Q("_/♥\_").ContainsXT("♥", :Between = ["/", :And = "\"])
 	#--> TRUE
 
-	? Q("__-♥-__-•-__").ContainsXT(["♥", "•"], :BoundedBy = "-")
+/*	? Q("__-♥-__-•-__").ContainsXT(["♥", "•"], :BoundedBy = "-")
 	#--> TRUE
 	
 	? Q("__/♥\__/•\__").ContainsXT(["♥", "•"], :Between = ["/", :And = "\"])
@@ -2061,6 +2062,7 @@ pron()
 
 	? Q("__/♥\__/^^\__").ContainsXT( [], :Between = ["/", "\"] )	
 	#--> TRUE
+*/
  proff()
 
 /*----------

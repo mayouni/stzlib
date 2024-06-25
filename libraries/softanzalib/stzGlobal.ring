@@ -837,6 +837,16 @@ func StoppingAt(p)
 #==
 
 func Bounds(pBounds)
+
+	if CheckParams()
+		if isList(pacBounds) and len(pacBounds) = 2 and
+		   isList(pacBounds[2]) and len(pacBounds[2]) = 2 and pacBounds[2][1] = :And
+			aTemp = []
+			aTemp + pacBounds[1] + pacBounds[2][2]
+			pacBounds = aTemp
+		ok
+	ok
+
 	if isString(pBounds)
 		return [ pBounds, pBounds ]
 
