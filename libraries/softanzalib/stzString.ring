@@ -23924,7 +23924,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ContainsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+		def ContainsThisSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 			return This.ContainsSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
 
 		#>
@@ -23936,7 +23936,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def ContainsBoundedBy(pcSubStr, pacBounds)
+		def ContainsThisSubStringBoundedBy(pcSubStr, pacBounds)
 			return This.ContainsSubStringBoundedBy(pcSubStr, pacBounds)
 
 		#>
@@ -27520,7 +27520,137 @@ class stzString from stzObject
 		def FindLastSubStringBoundedByAsSectionsSDIB(pcSubStr, pacBounds, pnStartingAt, pcDirection)
 			return This.FindLastSubStringBoundedBySDIBZZ(pcSubStr, pacBounds, pnStartingAt, pcDirection)
 
-	  #=================================================================#
+	  #=========================================================================================#
+	 #  CHECKING IF THE STRING CONTAINS ANY SUBSTRINGS BOUNDED BY ONE OR TWO OTHER SUBSTRINGS  #
+	#=========================================================================================#
+
+	def ContainsSubstringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		acBounds = @Bounds(pacBounds)
+
+		n1 = This.FindFirstCS(acBounds[1], pCaseSensitive)
+		if n1 = 0
+			return FALSE
+		ok
+
+		n2 = This.FindFirstCS(acBounds[2], pCaseSensitive)
+		if n2 = 0
+			return FALSE
+		ok
+
+		if n2 > n1
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def ContainsAnySubStringBoundedByCS(pacBounds, pCaseSensitive)
+			return This.ContainsSubstringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		def ContainsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.ContainsSubstringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		def ContainsAtLeastASubStringBoundedByCS(pacBounds, pCaseSensitive)
+			return This.ContainsSubstringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsSubstringsBoundedBy(pacBounds)
+		return This.ContainsSubstringsBoundedByCS(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ContainsAnySubStringBoundedBy(pacBounds)
+			return This.ContainsSubstringsBoundedBy(pacBounds)
+
+		def ContainsBoundedBy(pacBounds)
+			return This.ContainsSubstringsBoundedBy(pacBounds)
+
+		def ContainsAtLeastASubStringBoundedBy(pacBounds)
+			return This.ContainsSubstringsBoundedBy(pacBounds)
+
+		#>
+
+	  #--------------------------------------------------------------------#
+	 #  GETTING THE NUMBER OF SUBSTRINGS BOUNDED BY THE GIVEN SUBSTRINGS  #
+	#--------------------------------------------------------------------#
+
+	def NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+		nResult = len( This.FindSubStringsBoundedByCS(pacBounds, pCaseSensitive) )
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfOccurrencesOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		def NumberOfOccurrenceOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		def HowManySubStringBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		def HowManySubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+
+		def HowManyOccurrenceOfSubStringBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+
+		def HowManyOccurrenceOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+
+		def HowManyOccurrencesOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		def HowManyOccurrencesOfSubStringBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfSubStringsBoundedBy(pacBounds)
+		return This.NumberOfSubStringsBoundedByCS(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfOccurrencesOfSubStringsBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+		def NumberOfOccurrenceOfSubStringsBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+		def HowManySubStringBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+		def HowManySubStringsBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+
+		def HowManyOccurrenceOfSubStringBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+
+		def HowManyOccurrenceOfSubStringsBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+
+		def HowManyOccurrencesOfSubStringsBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+		def HowManyOccurrencesOfSubStringBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+		#>
+
+	  #-----------------------------------------------------------------#
 	 #  FINDING THE SUBSTRINGS BOUNDED BY ONE OR TWO OTHER SUBSTRINGS  #
 	#=================================================================#
 
