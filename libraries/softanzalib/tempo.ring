@@ -2823,8 +2823,8 @@ o1.SwapBoundsOf("word")
 proff()
 # Executed in 0.05 second(s)
 
-/*========= #TODO Test after including ...Between()
-*/
+/*=========
+
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
@@ -2845,7 +2845,7 @@ o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
 #--> [41, 44]
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.06 second(s)
 
 /*---------
 
@@ -3545,7 +3545,7 @@ o1 = new stzString("<<word>> and __word__")
 proff()
 # Executed in 0.12 second(s)
 
-/*------ #TODO: check it after including ContainsSubStringBoundedBy()
+/*------
 
 pron()
 
@@ -3554,7 +3554,8 @@ o1 = new stzString("<<word>> and __word__")
 #--> TRUE
 
 proff()
-# Executed in 0.27 second(s)
+# Executed in 0.03 second(s) in Ring 1.20
+# Executed in 0.27 second(s) in Ring 1.17
 
 /*----------------
 
@@ -3721,7 +3722,7 @@ pron()
 proff()
 # Executed in 0.03 second(s)
 
-/*================= #Todo: check after including SubstringsBetween()
+/*=================
 
 pron()
 
@@ -3733,8 +3734,9 @@ o1 = new stzList(["A", "AA", "B", "BB", "C", "CC", "CC" ])
 #--> [ "AA", "BB", "CC" ]
 
 proff()
+# Executed in 0.04 second(s)
 
-/*---------------- #Todo: check after including SubstringsBetween()
+/*----------------
 
 pron()
 
@@ -3756,14 +3758,60 @@ o1 = new stzListOfStrings([
 #--> [ "Av♥♥c", "Av♥♥c♥", "Av♥♥c♥♥" ]
 
 proff()
+# Executed in 0.40 second(s)
 
-/*================ #Todo: check after including SubstringsBetween()
-
+/*================
+*/
 pron()
 
 o1 = new stzString("Av♥♥c♥♥")
-? o1.FindAll("♥♥") #--> [ 3, 6 ]
-? o1.FindSubStringsW('{ @SubString = "♥♥" }') #--> [ 3, 6 ]
+? @@NL( o1.SubStrings() )
+#--> [
+#	"A",
+#	"Av",
+#	"Av♥",
+#	"Av♥♥",
+#	"Av♥♥c",
+#	"Av♥♥c♥",
+#	"Av♥♥c♥♥",
+#	"v",
+#	"v♥",
+#	"v♥♥",
+#	"v♥♥c",
+#	"v♥♥c♥",
+#	"v♥♥c♥♥",
+#	"♥",
+#	"♥♥",
+#	"♥♥c",
+#	"♥♥c♥",
+#	"♥♥c♥♥",
+#	"♥",
+#	"♥c",
+#	"♥c♥",
+#	"♥c♥♥",
+#	"c",
+#	"c♥",
+#	"c♥♥",
+#	"♥",
+#	"♥♥",
+#	"♥"
+# ]
+
+
+proff()
+
+
+/*------
+*/
+pron()
+
+o1 = new stzString("Av♥♥c♥♥")
+
+? o1.FindAll("♥♥")
+#--> [ 3, 6 ]
+
+? o1.FindSubStringsW('{ @SubString = "♥♥" }')
+#--> [ 3, 6 ]
 
 proff()
 

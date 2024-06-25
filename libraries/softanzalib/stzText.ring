@@ -3201,7 +3201,7 @@ class stzText from stzString
 		def EachWordReplacedCS(pacWords, pacNewWords, pCaseSensitive)
 			return This.WordsReplacedCS(pacWords, pacNewWords, pCaseSensitive)
 		
-		def AllOccurrrencesOfWordsReplacedCS(pacWords, pacNewWords, pCaseSensitive)
+		def AllOccurrencesOfWordsReplacedCS(pacWords, pacNewWords, pCaseSensitive)
 			return This.WordsReplacedCS(pacWords, pacNewWords, pCaseSensitive)
 		
 
@@ -3264,7 +3264,7 @@ class stzText from stzString
 		def EachWordReplaced(pacWords, pacNewWords)
 			return This.WordsReplaced(pacWords, pacNewWords)
 		
-		def AllOccurrrencesOfWordsReplaced(pacWords, pacNewWords)
+		def AllOccurrencesOfWordsReplaced(pacWords, pacNewWords)
 			return This.WordsReplaced(pacWords, pacNewWords)
 		
 	  #--------------------------------#
