@@ -5050,7 +5050,7 @@ class stzString from stzObject
 		acSubStr = This.SubStringsCS(pCaseSensitive)
 		nLen = len(acSubStr)
 
-		pcCondition = StzStringQ(pcCondition).TrimQ().RemoveTheseBoundsQ("{", "}").Content()
+		pcCondition = StzStringQ(pcCondition).SimplifyQ().RemoveTheseBoundsQ("{", "}").Content()
 		cCode = 'bOk = (' + pcCondition + ')'
 
 		aResult = []
@@ -5087,7 +5087,7 @@ class stzString from stzObject
 			ok
 		ok
 
-		acSubStr = This.SubStringsUCSZ() # Or UniqueSubStringsZ()
+		acSubStr = U( This.SubStringsWCS(pcCondition, pCaseSensitive) ) # Or UniqueSubStrings()
 		aResult = This.TheseSubStringsCSZ(acSubStr, pCaseSensitive)
 
 		return aResult
@@ -5112,7 +5112,7 @@ class stzString from stzObject
 			ok
 		ok
 
-		acSubStr = This.SubStringsUCSZ() # Or UniqueSubStringsZ()
+		acSubStr = U( This.SubStringsWCS(pccondition, pCaseSensitive) )
 		aResult = This.TheseSubStringsCSZZ(acSubStr, pCaseSensitive)
 
 		return aResult
@@ -32126,7 +32126,7 @@ class stzString from stzObject
 		acResult = []
 
 		for i = 1 to nLen
-			cSection = This.SectionXT( aSection[i][1], aSection[i][2] )
+			cSection = This.SectionXT( paSections[i][1], paSections[i][2] )
 			acResult + cSection
 		next
 

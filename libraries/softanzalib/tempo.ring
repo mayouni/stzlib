@@ -3812,7 +3812,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*------
-*/
+
 pron()
 
 o1 = new stzString("Av♥♥c♥♥")
@@ -3826,37 +3826,41 @@ o1 = new stzString("Av♥♥c♥♥")
 proff()
 # Executed in 0.08 second(s)
 
-/*=============== #Todo: check after including SubstringsBetween()
+/*===============
 
 pron()
 
 o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
-? o1.SubstringsBetween("<<", ">>")
+? o1.SubstringsBoundedBy([ "<<", ">>" ])
 #--> [ "word1", "word2" ]
 
-o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
-? o1.SubstringsBetween('"', '"')
-#--> [ "    value ", " 12   " ]
+o2 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
+? @@( o2.SubstringsBoundedBy('"') )
+#--> [ "    value ", "  and var2 =  ", " 12   " ]
 
 proff()
+# Executed in 0.02 second(s)
 
-/*---------------- #Todo: check after including SubstringsBetween()
+/*----------------
+
 pron()
 
 o1 = new stzString('len    var1 = "    value "  and var2 =  " 12   " ')
-? @@( o1.SubStringsBetween('"','"') )
-#--> [ " value ", " 12 " ]
 
-? @@( o1.SubStringsBetweenIB('"','"') )
-#--> [ [ " value ", [ 16, 25 ] ], [ " 12 ", [ 42, 47 ] ] ]
+? @@( o1.SubStringsBoundedBy('"') ) + NL
+#--> [ "    value ", "  and var2 =  ", " 12   " ]
 
-? @@( o1.FindSubStringsBetween('"','"') )
-#--> [ 16, 42 ]
+? @@( o1.SubStringsBoundedByIB('"') ) + NL
+#--> [[ '"    value "', '"  and var2 =  "', '" 12   "' ]
 
-? @@( o1.FindSubStringsBetweenIB('"','"') )
-#--> [ [ 16, " value " ], [ 42, " 12 " ] ]
+? @@( o1.FindSubStringsBoundedBy('"') )
+#--> [ 16, 27, 42 ]
+
+? @@( o1.FindSubStringsBoundedByIB('"') )
+#--> [ 15, 26, 41 ]
 
 proff()
+# Executed in 0.02 second(s)
 
 /*================
 
@@ -3869,82 +3873,19 @@ o1 = new stzString("blabla bla <<word>> bla bla <<word>>")
 proff()
 # Executed in 0.04 second(s)
 
-/*---------------- #Todo: Check after including findanybetween()
+/*----------------
 
 pron()
 
 o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
-? o1.FindAnyBetween("<<", ">>")
+? @@( o1.FindAnyBoundedBy([ "<<", ">>" ]) ) + NL
 #--> [ 14, 32 ]
 
-o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
-? o1.FindAnyBetweenAsSections("<<", ">>")
+o2 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
+? @@( o2.FindAnyBoundedByAsSections([ "<<", ">>" ]) )
 #--> [ [14, 18], [32, 36] ]
 
 proff()
-
-/*---------------- #Todo: Check after including findanybetween()
-
-o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
-aSections = o1.FindAnyBetweenAsSections('"', '"')
-#--> [ [24 ,41], [56, 63] ]
-
-aAntiSections = o1.FindAntiSections(aSections)
-#--> [ [1, 23], [42, 55], [64, 66] ]
-
-? o1.Sections(aAntiSections)
-#--> [
-#	' this code:   txt1  = "',
-#	'"   and txt2="',
-#	'"  '
-#    ]
-
-/*---------------- #Todo: Check after including findanybetween()
-
-o1 = new stzString(' this code:   txt1  = "    withspaces    "   and txt2="nospaces"  ')
-aBetween = o1.FindAnyBetweenAsSections('"', '"')
-#--> [ [24 ,41], [56, 63] ]
-
-? o1.Sections( aBetween )
-#--> [ '    withspaces    ', 'nospaces' ]
-
-? o1.SectionsXT( aBetween )
-#--> [
-#	[ '    withspaces    ', [24 ,41] ],
-#	[ ''nospaces', [56, 63] ]
-#    ]
-
-? o1.AntiSections( aBetween )
-#--> [
-#	' this code:   txt1  = "',
-#	'"   and txt2="',
-#	'"  '
-#    ]
-
-? o1.AntiSectionsXT( aBetween )
-#--> [
-#	[ ' this code:   txt1  = "', [1, 23] ],
-#	[ '"   and txt2="', [42, 55] ],
-#	[ '"  ', [64, 66] ]
-#    ]
-
-? o1.SectionsAndAntiSections( aBetween )
-#--> [
-#	' this code:   txt1  = "',
-#	'    withspaces    ',
-#	'"   and txt2="',
-#	'nospaces',
-#	'"  '
-#    ]
-
-? o1.SectionsAndAntiSectionsXT( aBetween )
-#--> [
-#	[ ' this code:   txt1  = "', [1, 23] ],
-#	[ '    withspaces    ', [24, 41] ],
-#	[ '"   and txt2="', [42, 55] ],
-#	[ 'nospaces', [56, 63] ],
-#	[ '"  ', [64, 66] ]
-#    ]
 
 /*---------------
 
@@ -3955,19 +3896,6 @@ pron()
 
 proff()
 # Executed in 0.04 second(s)
-
-/*--------------- #Todo: Check after including findanybetween()
-
-pron()
-
-o1 = new stzString(' this code:   txt1  = "<    withspaces    >"   and txt2="<nospaces>"  ')
-aAntiSections = o1.FindAntiSections( o1.FindAnyBetweenAsSections('"','"') )
-
-o1.ReplaceSections(aAntiSections, :With = '|***|')
-? o1.Content()
-#--> '|***|<    withspaces    >|***|<nospaces>|***|'
-
-proff()
 
 /*==============
 
@@ -4096,7 +4024,7 @@ aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
 proff()
 # Executed in 0.04 second(s)
 
-/*---------------- #TODO: check it after including substringsbetween()
+/*----------------
 
 pron()
 
@@ -4108,8 +4036,9 @@ aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
 #--> [ 1, 2, 4, 5 ]
 
 proff()
+# Executed in 0.19 second(s)
 
-/*================ #TODO: check it after including substringsbetween()
+/*================ #narration
 
 pron()
 
@@ -4121,10 +4050,21 @@ pron()
   # You are asked, as a programmer of the website, to extract the number of times
   # each item has been added...
 
-  # In Softanza, using the Yielder Metaphor, you can solve it naturally like this:
+  # In natural thinking, you yould resolve it like this:
+
+  # 	- In the shopping cart,
+
+  # 	- yield each item and how many times the item exists in the cart
+
+  # 	- but, of course, do it only when the item occures for the first time in the cart
+  #       (because you don't need to yield  its occurrences again and again!)
+
+  # In Softanza, using the Yielder Metaphor, you express the same thinking in code:
+
 
   ? Q(aShoppingCart).YieldW('
-	[ @item, This.NumberOfOccurrence( :Of = @item ) ]',
+
+	[ @item, This.HowMany( @item ) ]',
 
 	:Where = '
 	Q(@item).OccursForTheFirstTime( :In = aShoppingCart, :At = @CurrentPosition )'
@@ -4133,6 +4073,7 @@ pron()
   #--> [ [ "Shirt", 2 ], [ "shoes", 2 ], [ "bag", 1 ], [ "hat", 1 ] ]
 
 proff()
+# Executed in 0.28 second(s)
 
 /*=========
 
@@ -4147,43 +4088,39 @@ pron()
 proff()
 # Executed in 0.01 second(s)
 
-/*================= CHECK PERFORMANCE
-#TODO: check it after including FindSubStringsW()
+/*=================
 
 pron()
 
 o1 = new stzString("Av♥♥c♥♥")
-? @@( o1.FindSubStringsW('{
+
+? @@NL( o1.SubStringsWZ('{
 	Q(@SubString).NumberOfChars() = 2	
 }') )
 #--> [
-#	[ "Av", [ 1 ] 	],
-#	[ "♥♥", [ 3, 6] ],
-#	[ "c♥", [ 5 ] 	],
-#	[ "v♥", [ 2 ] 	],
-#	[ "♥c", [ 4 ] 	]
+#	[ "Av", [ 1 ] ],
+#	[ "v♥", [ 2 ] ],
+#	[ "♥♥", [ 3, 6 ] ],
+#	[ "♥c", [ 4 ] ],
+#	[ "c♥", [ 5 ] ]
 # ]
 
 proff()
+# Executed in 0.50 second(s)
 
-/*------------- # TODO: check ERROR
-#TODO: check it after including FindSubStringsW()
-
+/*-------------
+*/
 pron()
 
 o1 = new stzString("Av♥♥c♥♥")
-? @@( o1.FindSubStringsW('{
+? @@( o1.SubStringsWZZ('{
 	Q(@SubString).NumberOfChars() = 2 and NOT Q(@SubString).Contains("♥")
 }') )
 
-#--> ERROR
-# Line 11126 Error (R3) : Calling Function without definition !: 2andnotq 
-# In method findallitemsw() in file D:\GitHub\SoftanzaLib\libraries\softanzalib\stzList.ring
-
-# The problem is that the evaluated code has spaces removed, like this:
-# bOk = ( Q( @item ).NumberOfChars()=2andNOTQ( @item ).Contains("♥") )
+#--> [ [ "Av", [ [ 1, 2 ] ] ] ]
 
 proff()
+# Executed in 0.10 second(s)
 
 /*=================
 
