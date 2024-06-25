@@ -1,5 +1,7 @@
 load "stzlib.ring"
 
+/*=====
+
 pron()
 
 #  FIND >>              5  8   13  16   21  26
@@ -18,7 +20,6 @@ proff()
 # Executed in 0.08 second(s)
 
 /*=====
-*/
 
 pron()
 
