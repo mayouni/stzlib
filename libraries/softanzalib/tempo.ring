@@ -1,20 +1,21 @@
 load "stzlib.ring"
 
-/*======
-*/
 pron()
 
-#  FIND >>              4  7   11 14    18  23
+#  FIND >>              5  8   13  16   21  26
 #                       v--v    v--v    v----v
 o1 = new stzString("----ring----ruby----python---")
 #  ANTIFIND >>      ^--^    ^--^    ^--^
-#                   
+#                   1  4    9  12  17  30
+            
 ? @@( o1.FindAsSections([ "ring", "ruby", "python" ]) ) + NL
 #--> [ [ 4, 7 ], [ 11, 14 ], [ 18, 23 ] ]
 
 ? @@( o1.AntiFindAsSections([ "ring", "ruby", "python" ]) )
+#--> [ [ 1, 4 ], [ 9, 12 ], [ 17, 20 ], [ 27, 29 ] ]
 
 proff()
+# Executed in 0.08 second(s)
 
 /*=====
 */
