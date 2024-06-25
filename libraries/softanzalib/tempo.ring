@@ -4109,7 +4109,7 @@ proff()
 # Executed in 0.50 second(s)
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzString("Av♥♥c♥♥")
@@ -4159,20 +4159,6 @@ pron()
 proff()
 # Executed in 0.04 second(s)
 
-/*---------------- #TODO: check it again after including findsubstringsbetween()
-
-pron()
-
-o1 = new stzString("Av♥♥c♥♥")
-
-? o1.FindW('{
-	Q(@SubString).NumberOfChars() = 2 and
-	Q(@SubString).IsBoundedBy@_( "Q(@Char).IsLowercase()", "_" ) 
-
-}')
-
-proff()
-
 /*----------------
 
 pron()
@@ -4214,24 +4200,21 @@ pron()
 proff()
 # Executed in 0.14 second(s)
 
-/*============== #TODO: check it again after including substringsbetween()
+/*==============
 
 pron()
 
 # What are the unique letters in this sentence?
 # "sun is hot but fun"
 
-# To solve it, you can usz stzString and say:
+# To solve it, you can usث stzString and say:
 
-? @@( Q("sun is hot but fun").RemoveSpacesQ().UniqueChars() )
+? @@( Q("sun is hot but fun").RemoveSpacesQ().UniqueChars() ) + NL
 #--> [ "s", "u", "n", "i", "h", "o", "t", "b", "f" ]
 
-# Or you can use stzList and stzListOfStrings and say:
+# Or you can use stzList and say:
 
-? @@( Q([ "sun", "is", "hot", "but", "fun" ]).
-	YieldQR('{ Q(@String).Chars() }', :stzListOfLists).
-	MergeQ().UniqueItems()
-)
+? @@( Q([ "sun", "is", "hot", "but", "fun" ]).UniqueItems() ) + NL
 #--> [ "s", "u", "n", "i", "h", "o", "t", "b", "f" ]
 
 # The solutions above uses "strings" and "chars" concepts which both
@@ -4239,11 +4222,11 @@ pron()
 # a higher semantic level, you can rely on "text" and "letter" concepts
 # from the stzText domain:
 
-? TQ("sun is hot but fun").UniqueLetters()
+? @@( TQ("sun is hot but fun").UniqueLetters() )
 #--> [ "s", "u", "n", "i", "h", "o", "t", "b", "f" ]
-# Which turns out to be more natural, isn't it?
 
 proff()
+# Executed in 0.46 second(s)
 
 /*----------------
 
@@ -4272,21 +4255,28 @@ proff()
 # Executed in 0.01 second(s)
 
 /*---------------- #TODO: Check it after including between()
-
+*/
 pron()
 
 o1 = new stzList([ "A", "B", "♥", "♥", "C", "♥", "♥", "D", "♥","♥" ])
-? o1.FindWXT('{ @CurrentItem = @NextItem }')
+
+? @@( o1.FindWXT('{ @CurrentItem = @NextItem }') ) + NL
 #--> [ 3, 6, 9 ]
 
 ? o1.FindFirstWXT(' @CurrentItem = @NextItem ')
 #--> 3
+
+? o1.FindFirstWXT(' @CurrentItem = @PreviousItem ')
+#--> 4
+
 ? o1.FindLastWXT(' @CurrentItem = @NextItem ')
 #--> 9
+
 ? o1.FindNthWXT(2, ' @CurrentItem = @NextItem ')
 #--> 6
 
 proff()
+# Executed in 1.32 second(s)
 
 /*----------------
 

@@ -40638,7 +40638,7 @@ Item and then position
 		# Read explanation in the stzCCode file --> ExectutableSection() method
 		#TODO
 		# check that this is done for all places where
-		# ExecutableSection() is used in the lmibrary
+		# ExecutableSection() is used in the library
 
 			if isString(nEnd) and nEnd = :last
 				nEnd = nLen
@@ -40748,7 +40748,8 @@ Item and then position
 			nEnd = nLen
 		ok
 
-		cCode = 'bOk = (' + Q(cCode).TrimQ().TheseBoundsRemoved("{","}") + ')'
+		cCode = 'bOk = (' + cCode + ')'
+
 		anResult = []
 
 		for @i = nStart to nEnd
@@ -40946,9 +40947,9 @@ Item and then position
 	 #  FINDING LAST ITEM VERIFYING A GIVEN CONDITION -- EXTENDED  #
 	#-------------------------------------------------------------#
 
-	def FindLastWXT(pcCondition) #TODO: Check for performance
-		n = This.NumberOfItemsW(pcCondition)
-		return FindNthWXT(n, pcCondition)
+	def FindLastWXT(pcCondition) #TODO # Check for performance
+		n = This.NumberOfItemsWXT(pcCondition)
+		return This.FindNthWXT(n, pcCondition)
 
 		def FindLastItemWXT(pcCondition)
 			return This.FindLastWXT(pcCondition)
@@ -43970,7 +43971,7 @@ Item and then position
 
 	  #--------------------------------------------------#
 	 #     COUNTING ITEMS VERIFYING A GIVEN CONDITION   #
-	#--------------------------------------------------#
+	#==================================================#
 
 	def CountItemsW(pCondition)
 		aItems = This.FindW(pCondition)
@@ -44032,9 +44033,74 @@ Item and then position
 
 		#>
 
+	  #------------------------------------------------------------#
+	 #     COUNTING ITEMS VERIFYING A GIVEN CONDITION -- XTended  #
+	#------------------------------------------------------------#
+
+	def CountItemsWXT(pCondition)
+		aItems = This.FindWXT(pCondition)
+		nResult = len(aItems)
+
+		return nResult
+		
+		#< @AlternativeFunctionNames
+
+		def CountWXT(pCondition)
+			return This.CountItemsWXT(pCondition)
+
+		def NumberOfOccurrenceWXT(pCondition)
+			return This.CountItemsWXT(pCondition)
+
+		def NumberOfOccurrencesWXT(pCondition)
+			return This.CountItemsWXT(pCondition)
+
+		def NumberOfItemsWXT(pCondition)
+			return This.CountItemsWXT(pCondition)
+
+		def HowManyItemsWXT(pcCondition)
+			return This.CountItemsWXT(pCondition)
+
+		def HowManyItemWXT(pcCondition)
+			return This.CountItemsWXT(pCondition)
+
+		#>
+			
+	def NumberOfUniqueItemsWXT(pCondition)
+		return len( This.UniqueItemsWXT(pCondition) )
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfItemsUWXT(pCondition)
+			return This.NumberOfUniqueItemsWXT(pCondition)
+
+		def CountUniqueItemsWXT(pccondition)
+			return This.NumberOfUniqueItemsWXT(pCondition)
+
+		def CountItemsUWXT(pccondition)
+			return This.NumberOfUniqueItemsWXT(pCondition)
+
+		def HowManyUniqueItemsWXT(pcCondition)
+			return This.NumberOfUniqueItemsWXT(pCondition)
+
+		def HowManyUniqueItemWXT(pcCondition)
+			return This.NumberOfUniqueItemsWXT(pCondition)
+
+		def HowManyItemsUWXT(pcCondition)
+			return This.NumberOfUniqueItemsWXT(pCondition)
+
+		def HowManyItemUWXT(pcCondition)
+			return This.NumberOfUniqueItemsWXT(pCondition)
+
+		def NumberOfItemsWithoutDuplicationWXT(pCondition)
+			return This.NumberOfUniqueItemsWXT(pCondition)
+
+		#>
+
 	  #--------------------------------------------------------------------#
 	 #  INSERTING ITEM AFTER OR BEFORE ITEMS VERIFYING A GIVEN CONDITION  #
-	#--------------------------------------------------------------------#
+	#====================================================================#
+#TODO add ..WXT() forms to all ...W() functions
+#~> XT enables the use of expressive concifions not limited to @i and This[@i]
 
 	def InsertAfterW( pcCondition, pNewItem )
 		anPos = This.FindItemsW(pcCondition)
