@@ -2041,14 +2041,14 @@ StartProfiler()
 StopProfiler()
 # Executed in 0.02 second(s)
 
-/*---------- #TODO test it after including ContainsSubStringBoundedBy()
-*/
+/*----------
+
 pron()
 
 	? Q("_-♥-_").ContainsXT("♥", :BoundedBy = "-")
 	#--> TRUE
 
-	? Q("_/♥\_").ContainsXT("♥", :Between = ["/", :And = "\"])
+	? Q("_/♥\_").ContainsXT("♥", :BoundedBy = ["/", :And = "\"])
 	#--> TRUE
 
 	? Q("__-♥-__-•-__").ContainsXT(["♥", "•"], :BoundedBy = "-")
@@ -2059,11 +2059,12 @@ pron()
 
 	? Q("__/♥\__/^^^\__").ContainsXT( [], :BoundedBy = ["/", :And = "\"] )
 	#--> TRUE
-/*
-	? Q("__/♥\__/^^\__").ContainsXT( [], :Between = ["/", "\"] )	
+
+	? Q("__/♥\__/^^\__").ContainsXT( [], :BoundedBy = ["/", "\"] )	
 	#--> TRUE
-*/
- proff()
+
+proff()
+# Executed in 0.05 second(s)
 
 /*----------
 
@@ -2099,8 +2100,7 @@ StartProfiler()
 	#--> TRUE
 
 StopProfiler()
-# Executed in 0.34 second(s) in Ring 1.20
-# Executed in 0.44 second(s) in Ring 1.19
+# Executed in 0.44 second(s)
 
 /*------
 
@@ -2824,23 +2824,24 @@ proff()
 # Executed in 0.05 second(s)
 
 /*========= #TODO Test after including ...Between()
-
+*/
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
-? o1.NumberOfSectionsBetween("word", "<<", ">>")
+
+? o1.NumberOfOccurrenceOfSubStringBoundedBy("word", [ "<<", ">>" ])
 #--> 3
 	
-? @@( o1.FindSubStringBetweenAsSections("word", "<<", ">>") )
+? @@( o1.FindSubStringBoundedByAsSections("word", [ "<<", ">>" ]) )
 #--> [ [11, 14], [28, 31], [41, 44] ]
 	
-? @@( o1.FindNthBetweenAsSection(2, "word", "<<", ">>") )
+? @@( o1.FindNthBoundedByAsSection(2, "word", [ "<<", ">>" ]) )
 #--> [28, 31]
 	
-? @@( o1.FindFirstBetweenAsSection("word", "<<", ">>") )
+? @@( o1.FindFirstBoundedByAsSection("word", [ "<<", ">>" ]) )
 #--> [11, 14]
 	
-? @@( o1.FindLastBetweenAsSection("word", "<<", ">>") )
+? @@( o1.FindLastBoundedByAsSection("word", [ "<<", ">>" ]) )
 #--> [41, 44]
 
 proff()

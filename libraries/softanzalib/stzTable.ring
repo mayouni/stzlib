@@ -7524,7 +7524,7 @@ Class stzTable from stzObject
 		def HowManyOccurrencesOfValueInColCS(pCol, pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellInColCS(pCol, pValue, pCaseSensitive)
 
-		def HowManyOccurencesOfValueInColumnCS(pCol, pValue, pCaseSensitive)
+		def HowManyOccurrencesOfValueInColumnCS(pCol, pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellInColCS(pCol, pValue, pCaseSensitive)
 
 		#>
@@ -7644,7 +7644,7 @@ Class stzTable from stzObject
 		def HowManyOccurrencesOfValueInCol(pCol, pValue)
 			return This.NumberOfOccurrenceOfCellInCol(pCol, pValue)
 
-		def HowManyOccurencesOfValueInColumn(pCol, pValue)
+		def HowManyOccurrencesOfValueInColumn(pCol, pValue)
 			return This.NumberOfOccurrenceOfCellInCol(pCol, pValue)
 
 		#>
@@ -7702,7 +7702,7 @@ Class stzTable from stzObject
 		def HowManyOccurrencesOfSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 
-		def HowManyOccurencesOfSubValueInColumnCS(pCol, pSubValue, pCaseSensitive)
+		def HowManyOccurrencesOfSubValueInColumnCS(pCol, pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfSubValueInColCS(pCol, pSubValue, pCaseSensitive)
 
 		#>
@@ -7758,7 +7758,7 @@ Class stzTable from stzObject
 		def HowManyOccurrencesOfSubValueInCol(pCol, pSubValue)
 			return This.NumberOfOccurrenceOfSubValueInCol(pCol, pSubValue)
 
-		def HowManyOccurencesOfSubValueInColumn(pCol, pSubValue)
+		def HowManyOccurrencesOfSubValueInColumn(pCol, pSubValue)
 			return This.NumberOfOccurrenceOfSubValueInCol(pCol, pSubValue)
 
 		#>
@@ -8619,7 +8619,7 @@ Class stzTable from stzObject
 		def HowManyOccurrencesOfValueInColsCS(paCols, pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellInColsCS(paCols, pValue, pCaseSensitive)
 
-		def HowManyOccurencesOfValueInColumnsCS(paCols, pValue, pCaseSensitive)
+		def HowManyOccurrencesOfValueInColumnsCS(paCols, pValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfCellInColsCS(paCols, pValue, pCaseSensitive)
 
 		#>
@@ -8739,7 +8739,7 @@ Class stzTable from stzObject
 		def HowManyOccurrencesOfValueInCols(paCols, pValue)
 			return This.NumberOfOccurrenceOfCellInCols(paCols, pValue)
 
-		def HowManyOccurencesOfValueInColumns(paCols, pValue)
+		def HowManyOccurrencesOfValueInColumns(paCols, pValue)
 			return This.NumberOfOccurrenceOfCellInCols(paCols, pValue)
 
 		#>
@@ -8797,7 +8797,7 @@ Class stzTable from stzObject
 		def HowManyOccurrencesOfSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 
-		def HowManyOccurencesOfSubValueInColumnsCS(paCols, pSubValue, pCaseSensitive)
+		def HowManyOccurrencesOfSubValueInColumnsCS(paCols, pSubValue, pCaseSensitive)
 			return This.NumberOfOccurrenceOfSubValueInColsCS(paCols, pSubValue, pCaseSensitive)
 
 		#>
@@ -8853,7 +8853,7 @@ Class stzTable from stzObject
 		def HowManyOccurrencesOfSubValueInCols(paCols, pSubValue)
 			return This.NumberOfOccurrenceOfSubValueInCols(paCols, pSubValue)
 
-		def HowManyOccurencesOfSubValueInColumns(paCols, pSubValue)
+		def HowManyOccurrencesOfSubValueInColumns(paCols, pSubValue)
 			return This.NumberOfOccurrenceOfSubValueInCols(paCols, pSubValue)
 
 		#>
