@@ -114,7 +114,7 @@ o1 = new stzString("*2*45*78*0*")
 
 	# the positions	:  12345678901
 	# the string	: "*2*45*78*0*"
-	# the occurences:   ^ ^  ^  ^
+	# the Occurrences:   ^ ^  ^  ^
 	#--> [2, 4, 7, 10]
 
 

@@ -5132,7 +5132,7 @@ StopProfiler()
 StartProfiler()
 
 o1 = new stzList(["__", "♥", "_", "__", "♥", "♥", "__", "♥" ])
-? o1.NumberOfOccurence("♥") #NOTE that this is a misspelled form (lacks an "r")
+? o1.NumberOfOccurrence("♥") #NOTE that this is a misspelled form (lacks an "r")
 			    # but Softanza is kind to accept it
 #--> 4
 
