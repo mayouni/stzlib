@@ -28909,7 +28909,8 @@ class stzString from stzObject
 
 	def FindNestedSubStringsCS(pacBounds, pCaseSensitive)
 
-		/* ... */
+		aResult = This.AntiFindCS(pacBounds, pCaseSensitive)
+		return aResult
 
 		#< @FunctionAlternativeForms
 
@@ -37729,8 +37730,10 @@ class stzString from stzObject
 
 	def AntiFindCSZZ(pcSubStr, pCaseSensitive)
 
-		return Q(1:This.NumberOfChars()).
+		aResult = StzListQ(1:This.NumberOfChars()).
 			FindAntiSections( This.FindCSZZ(pcSubStr, pCaseSensitive) )
+
+		return aResult
 
 		#< @FunctionAlternativeForms
 
@@ -37770,7 +37773,7 @@ class stzString from stzObject
 	  #---------------------------------------------------------#
 	 #  FINDING THE ONLY ANTI-SECTION (IF ANY) OF A SUBSTRING  #
 	#---------------------------------------------------------#
-	# @SpecialForm of AntiFindAsSections (with s at the end)
+	# @SpecialForm of AntiFindAsSections (without s at the end)
 
 	def AntiFindAsSectionCS(pcSubStr, pCaseSensitive)
 		aSections = This.AntiFindAsSectionsCS(pcSubStr, pCaseSensitive)
@@ -37798,6 +37801,68 @@ class stzString from stzObject
 
 		def AntiFindSubStringAsSection(pcSubStr)
 			return This.AntiFindAsSection(pcSubStr)
+
+		#>
+
+	  #------------------------------------------------#
+	 #  FINDING THE ANTI-SECTIONS OF MANY SUBSTRINGS  #
+	#================================================#
+
+	def AntiFindManyCSZZ(pacSubStr, pCaseSensitive)
+
+		aResult = StzListQ(1:This.NumberOfChars()).
+			FindAntiSections( This.FindManyCSZZ(pacSubStr, pCaseSensitive) )
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def AntiFindManyAsSectionsCS(pacSubStr, pCaseSensitive)
+			return This.AntiFindManyCSZZ(pacSubStr, pCaseSensitive)
+
+		#--
+
+		def AntiFindManySubStringsCSZZ(pacSubStr, pCaseSensitive)
+			return This.AntiFindManyCSZZ(pacSubStr, pCaseSensitive)
+
+		def AntiFindManySubStringsAsSectionsCS(pacSubStr, pCaseSensitive)
+			return This.AntiFindManyCSZZ(pacSubStr, pCaseSensitive)
+
+		#==
+
+		def AntiFindTheseSubStringsCSZZ(pacSubStr, pCaseSensitive)
+			return This.AntiFindManyCSZZ(pacSubStr, pCaseSensitive)
+
+		def AntiFindTheseSubStringsAsSectionsCS(pacSubStr, pCaseSensitive)
+			return This.AntiFindManyCSZZ(pacSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def AntiFindManyZZ(pcSubStr)
+		return This.AntiFindManyAsSectionsCS(pcSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def AntiFindManyAsSections(pacSubStr)
+			return This.AntiFindManyZZ(pacSubStr)
+
+		#--
+
+		def AntiFindManySubStringsZZ(pacSubStr)
+			return This.AntiFindManyZZ(pacSubStr)
+
+		def AntiFindManySubStringsAsSections(pacSubStr)
+			return This.AntiFindManyZZ(pacSubStr)
+
+		#==
+
+		def AntiFindTheseSubStringsZZ(pacSubStr)
+			return This.AntiFindManyZZ(pacSubStr)
+
+		def AntiFindTheseSubStringsAsSections(pacSubStr)
+			return This.AntiFindManyZZ(pacSubStr)
 
 		#>
 
