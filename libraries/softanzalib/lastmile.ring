@@ -368,7 +368,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*===
-*/
+
 pron()
 #                       5              20     27
 #                       v              v      v
@@ -505,7 +505,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*----
-*/
+
 pron()
 #                       5     11     18     25
 #                       v     v      v      v
@@ -532,7 +532,7 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 #--> [ 25, 32 ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.07 second(s)
 
 /*====
 
@@ -905,7 +905,7 @@ pron()
 proff()
 
 /*---- #narration
-*/
+
 pron()
 
 # ~> Like @Direction() or @CaseSensitive() functions,
@@ -949,7 +949,8 @@ pron()
 ? @Direction(:Backward)
 #--> "backward"
 
-#=========
+proff()
+# Executed in 0.02 second(s)
 
 /*===== #todo add #narration #visuality : FindBounded VS DeepFindBounded
 
@@ -970,12 +971,11 @@ o1 = new stzString("---[ [===]---[==] ]--[===]--")
 ? @@( o1.DeepFindBoundedByZZ([ "[", "]" ]) )
 #--> [ [ 7, 9 ], [ 15, 16 ], [ 23, 25 ], [ 5, 18 ] ]
 
-
 proff()
 # Executed in 0.02 second(s)
 
 /*------
-
+*/
 pron()
 #                              15   16
 #                         7 9    \  /
@@ -991,12 +991,12 @@ o1 = new stzString("---< <===>---<==> >--<===>--")
 
 # Same as:
 
-? @@( o1.FindNestedSubStrings(:BoundedBy = [ "<", ">" ]) )
+? @@( o1.DeepFindSubStrings(:BoundedBy = [ "<", ">" ]) )
 #--> [ 7, 15, 23, 5 ]
 
 # Or simply:
 
-? @@( o1.FindNestedSubStrings([ "<", ">" ]) )
+? @@( o1.DeepFind([ "<", ">" ]) )
 #--> [ 7, 15, 23, 5 ]
 
 proff()

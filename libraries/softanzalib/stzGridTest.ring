@@ -29,19 +29,17 @@ proff()
 # Executed in 0.02 second(s)
 
 /*----------
-*/
-pron()
 
-"'"'"
+pron()
 
 o1 = new stzString(@@( [ " ", "!", "'+ char(34) +'", "#", "y"] ))
 o1.Replace( @@("'+ char(34) +'"), @@('"') )
 
 ?o1.Content()
-#--> '[ " ", "!", """, "#", "y" ]'
+#--> [ " ", "!", '"', "#", "y" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*---------
 
@@ -133,7 +131,7 @@ aList = [
 proff()
 # Executed in 0.03 second(s)
 
-/*--------------- #TODO check it
+/*---------------
 */
 pron()
 
