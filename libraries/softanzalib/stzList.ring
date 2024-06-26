@@ -36468,17 +36468,27 @@ Item and then position
 
 	  #---------------------------#
 	 #  CONDITIONAL CONTAINMENT  #
-	#---------------------------#
+	#===========================#
 
 	def ContainsW(pcCondition)
 
-		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ')'
-		nLen = This.NumberOfItems()
+		nLen = len(@aContent)
+
+		oCode = new stzCCode(pcCondition)
+		anSection = oCode.ExecutableSection()
+
+		n1 = aSection[1]
+		n2 = aSection[2]
+		if n2 = :Last
+			n2 = nLen
+		ok
+
+		cCode = 'bOk = (' + cCode + ')'
+		
 
 		bResult = FALSE
 
 		for @i = 1 to nLen
-			@item = @aContent[@i]
 			eval(cCode)
 			if bOk
 				bResult = TRUE
@@ -36487,6 +36497,14 @@ Item and then position
 		next
 
 		return bResult
+
+	  #--------------------------------------#
+	 #  CONDITIONAL CONTAINMENT -- XTended  #
+	#--------------------------------------#
+
+	def ContainsWXT(pcCondition)
+		oCode = new stzCCode(pcCondition)
+		oCode.Transpile()
 
 	  #-------------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS CONTAINED IN A GIVEN LIST OR ITEM  #
@@ -40750,9 +40768,9 @@ Item and then position
 		# Identifying the executable section
 
 		nLen = This.NumberOfItems()
-		cCode = StzCCodeQ(pcCondition).Transpiled()
 
-		aExecutableSection = StzCCodeQ(cCode).ExecutableSectionXT()
+		cCode = StzCCodeQ(pcCondition).Transpiled()
+		aExecutableSection = StzCCodeQ(cCode).ExecutableSection()
 
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]

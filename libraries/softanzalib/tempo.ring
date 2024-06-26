@@ -4255,7 +4255,7 @@ proff()
 # Executed in 0.01 second(s)
 
 /*========================= #AI #claude-ai #narration ...WXT() vs ...W()
-# Narraion enhanced by ClaudeAI, both from structural and linsguistic sdand points.
+# Narraion enhanced by ClaudeAI, both from structural and linsguistic stand points.
 
 */
 pron()
@@ -4343,7 +4343,9 @@ pron()
 	#--> 9
 	
 	? o1.FindNthWXT(2, ' @CurrentItem = @NextItem ') + NL
-	# Executed in 1.32 second(s)
+	#--> 6
+
+	# Executed in 1.24 second(s)
 
 	? "---" + NL + NL
 
@@ -4368,14 +4370,16 @@ pron()
 	#--> 9
 	
 	? o1.FindNthW(2, ' This[@i] = This[@i+1] ') + NL
-	# Executed in 0.80 second(s)
+	#--> 6
+
+	# Executed in 0.90 second(s)
 	
 	? "---" + NL + NL
 
 	#NOTE # on Performance Comparison
 
 	# The performance gain from using `W()` instead of `WXT()`
-	# (1.32 seconds vs 0.80 seconds in our example) becomes more
+	# (1.24 seconds vs 0.90 seconds in our example) becomes more
 	# significant when running complex conditional codes on
 	# large datasets.
 
@@ -4386,8 +4390,9 @@ pron()
 	# unnecessary performance cost due to the transpiling process:
 
 
-	? o1.FindNthWXT(2, ' This[@i] = This[@i+1] ') #--> 6
-	# Executed in 0.23 second(s)
+	? o1.FindNthWXT(2, ' This[@i] = This[@i+1] ')
+	#--> 6
+	# Executed in 0.20 second(s)
 	
 	? o1.FindNthW(2, ' This[@i] = This[@i+1] ') #--> 6
 	# Executed in 0.15 second(s)
@@ -4412,6 +4417,7 @@ pron()
 		@Char != "X"
 	}')
 	#--> [ 1, 2, 5, 8 ]
+	# Executed in 0.26 second(s)
 
 	# However, this isn't possible in the `W()` form.
 
@@ -4438,7 +4444,7 @@ pron()
 # and performance based on your specific needs.
 
 proff()
-# Executed in 2.78 second(s)
+# Executed in 2.65 second(s)
 
 /*----------------
 
