@@ -1,0 +1,84 @@
+/*---------------- #narration ...WXT() vs ...W()
+*/
+pron()
+
+o1 = new stzList([ "A", "B", "♥", "♥", "C", "♥", "♥", "D", "♥","♥" ])
+
+# WXT() is used whne the condition expression contains sphisticated
+# keywords other then the "@i" and "This[@i]"-like keywords.
+
+# Therefore, this option is more expressive but less performant:
+
+	? @@( o1.FindWXT('{ @CurrentItem = @NextItem }') ) + NL
+	#--> [ 3, 6, 9 ]
+	
+	? o1.FindFirstWXT(' @CurrentItem = @NextItem ')
+	#--> 3
+	
+	? o1.FindFirstWXT(' @CurrentItem = @PreviousItem ')
+	#--> 4
+	
+	? o1.FindLastWXT(' @CurrentItem = @NextItem ')
+	#--> 9
+	
+	? o1.FindNthWXT(2, ' @CurrentItem = @NextItem ') + NL
+
+	# # Executed in 1.32 second(s)
+
+# While the W() option, restricts you in expressing your conditions,
+# whatever their complexity is, only by using "@i" and "This[@i]".
+
+# Hence, the same previous conditions become (note that @CurrentItem
+# becomes This[@i], @NextItem becomes This[@i+1], etc) :
+
+? "---" + NL + NL
+
+	? @@( o1.FindW(' This[@i] = This[@i+1] ') ) + NL
+	#--> [ 3, 6, 9 ]
+	
+	? o1.FindFirstW(' This[@i] = This[@i+1] ')
+	#--> 3
+	
+	? o1.FindFirstW(' This[@i] =This[@i-1] ')
+	#--> 4
+	
+	? o1.FindLastW(' This[@i] = This[@i+1] ')
+	#--> 9
+	
+	? o1.FindNthW(2, ' This[@i] = This[@i+1] ') + NL
+
+	# Executed in 0.80 second(s)
+
+	#NOTE # This performance gain form 1.32 to 0.8 should be
+	# considered in magnitude when running complex conditional codes
+	# on large data 
+	
+? "---" + NL + NL
+
+# When you use just basic keywords (say @i and This[@i]-like) WXT() function,
+# your code will work, but you will pay an unnecessary performance tax of transpiling
+# the code (by looking for all the possible sphisticaded keywords you may use):
+
+	? o1.FindNthWXT(2, ' This[@i] = This[@i+1] ') #--> 6
+	# Executed in 0.23 second(s)
+
+	# While the XT form should be omoiited and you get the same result
+	# in a better speed :
+
+	? o1.FindNthW(2, ' This[@i] = This[@i+1] ') #--> 6
+	# Executed in 0.15 second(s)
+
+# In the inverse-case, when you use a sphisticaded keyword in a normal W()
+# conditional code, then Ring will raise an error when the code is evaluated:
+
+	//? o1.FindFirstW(' This[@i] = @PreviousItem ')
+	#--> Using uninitialized variable: @previousitem
+
+#NOTE A small but important detail: in WXT() you can bound the conditional code by { and },
+# but in the normal W() form, you can't. The rationale behind this is always the same:
+# expressiveness against performance.
+
+#--> 6
+
+proff()
+# Executed in 1.32 second(s)
