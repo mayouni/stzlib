@@ -24,9 +24,15 @@ func StzConditionalCodeQ(cCode)
 class stzConditionalCode from stzCCode 
 
 class stzCCode
+
 	@cContent
 
+	  #---------------------------------#
+	 #  INITIALIZING THE CCODE OBJECT  #
+	#---------------------------------#
+
 	def init(cCode)
+
 		if NOT isString(cCode)
 			
 			StzRaise([
@@ -40,25 +46,31 @@ class stzCCode
 
 		@cContent = cCode
 
+	  #-------------------------------------------#
+	 #  GETTING THE CONTENT OF THE CCODE OBJECT  #
+	#-------------------------------------------#
+
 	def Content()
 		return @cContent
 
 		def ContentQ()
 			return new stzString( This.Content() )
 
-	def CCode()
-		return This.Content()
-
-		def CCodeQ()
-			return This.ContentQ()
-
-		def Code()
+		def CCode()
 			return This.Content()
+
+			def CCodeQ()
+				return This.ContentQ()
+
+			def Code()
+				return This.Content()
 	
 			def CodeQ()
 				return This.ContentQ()
 
-	#----
+	  #--------------------------------------#
+	 #  GETTING A COPY OF THE CCODE OBJECT  #
+	#--------------------------------------#
 
 	def Update(cNewCode)
 		if isList(cNewCode) and Q(cNewCode).IsWithOrByOrUsingNamedParam()
@@ -113,12 +125,32 @@ class stzCCode
 
 		#>
 
-	#---
+	  #--------------------------------------#
+	 #  GETTING A COPY OF THE CCODE OBJECT  #
+	#--------------------------------------#
 
 	def Copy()
 		return new stzCCode( This.Content() )
 
-	def Transpiled()
+	  #----------------------------------------------------------------------------#
+	 #  TRANSPILING THE CODE BY TURNING SOPHISTICATED KEYWORDS TO BASIC KEYWORDS  #
+	#============================================================================#
+
+	def Transpile()
+
+		#INFO
+		# Transpiling is the process of translating the provided
+		# conditional code by replacing sophisticated keywords
+		# (like @CurrentItem, @NextItem, etc.) with their
+		# basic equivalents using only @i and This[@i]. For example:
+	
+		# 	- @CurrentItem becomes This[@i]
+		# 	- @NextItem becomes This[@i+1]
+		# 	- @PreviousItem becomes This[@i-1]
+	
+		# By escence, Softanza uses it internaali with `..WXT()`
+		# forms of conditiobal functions, enabling them to be more
+		# expressive, but it also introduces a performance overhead.
 
 		cCode = StzStringQ(This.Code()).
 			TrimQ().
@@ -248,20 +280,17 @@ class stzCCode
 
 			Trimmed()
 
+		@cContent = cResult
+
+	def Transpiled()
+		cResult = This.Copy().TranspileQ().Content()
 		return cResult
 
+	  #-----------------------------------------------------#
+	 #  IDENTIFIYING THE EXECUTABLE SECTION FROM THE CODE  #
+	#=====================================================#
+
 	def ExecutableSection()
-		# This version of the function assumes that the conditional
-		# code uses only This[@i]-like code. No @NextItem, @PreviousI,
-		# and other keywords can be use here.
-
-		# You can always Replace them by an This[@i]-like alternative.
-		# For example @NextItem can be written as This[@i + 1], and
-		# @PreviousItem can be written as This[@i - 1], and so on.
-
-		# This will lead to a better speed. But if expressivenes is
-		# a priority over performance, then you can use them and call
-		# the extended version of the function insetead: ExecutableSectionXT()
 
 		#WARNING
 
@@ -361,7 +390,7 @@ class stzCCode
 		# form, you can't. The rationale behind this is always
 		# the same: expressiveness against performance.
 
-
+/*
 	def ExecutableSectionXT()
 		# A less performant version with more chekcs.
 
