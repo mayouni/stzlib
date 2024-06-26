@@ -40652,12 +40652,30 @@ Item and then position
 			nEnd = nLen
 		ok
 
-		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
+		#WARNING # Don't transpile conditional code in ..W() functions!
+		# Only ...WXT() must contain Transpile() feature.
+		# Therefore, the fellowing line is incorrect:
+
+		# cCode = 'bOk = ( ' + StzCCodeQ(pcCondition).Transpiled() + ' )'
+
+		# And you should put simply:
+
+		cCode = 'bOk = (' + pcCondition + ' )'
+
+		# Doing the job
 
 		anResult = []
 
 		for @i = nStart to nEnd
-			@item = @aContent[@i]
+
+			#WARNING # In a ..W() function, this loop must not contain
+			# any keyword like @item, @CurrentItem, and so on. We just
+			# need to use @i as an ietrator, since the conditional code
+			# is contrained the @i and This[@i] keywords.
+
+			# Hence, the fellowing line is not necessary:
+
+			//@item = @aContent[@i]
  
 			eval(cCode)
 			if bOk

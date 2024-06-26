@@ -267,15 +267,30 @@ class stzCCode
 
 		# An important detail: In general, ExectuableSection, returnes a
 		# section of the form [ 3, 12 ], for example, to say that the
-		# conditional code can run from item 2 to item 12. But, if the last
-		# item is enveoved, and because stzCCode class does not know it,
-		# then [ 3, :last ] is  returned instead.
+		# conditional code can run from item 2 to item 12 without raising
+		# the rather distrupting "Out of range access" error. But, if the
+		# last item is envolved, and because stzCCode class does not know
+		# it, then [ 3, :last ] is returned instead.
 
-		# Therefore, it's your responsibility, in the code that called
-		# stzCCode, to check that case, and replace :last the the
-		# NumberOfItems() function applied to your object.
+		# Therefore, it's the responsibility of the the code that called
+		# stzCCode, to check that speciefic case, and replace :last the
+		# the NumberOfItems() value applied to the calling object scope.
 
-		acSubStr = This.CodeQ().SubStringsBoundedBy([ "[","]" ])
+		oCode = new stzString( This.Code() )
+
+		# The first check we must do, is that the consitional code must
+		# contains the @i or This[@i] keywords
+
+		#NOTE # If you include sphisticaed keywords like @CurrentItem,
+		# @NextItem and so on, they will be ignored. To instruct Softanza
+		# to understand them and apply them, you must use the ..XT()
+		# alternative of this function instead (ExecutableSectionXT())
+
+		if NOT oCode.Copy().RemoveSpacesQ().ContainsOneOfTheseCS([ "@i", "This[@i]" ], FALSE)
+			StzRaise("Can't proceed! The conditional code provided does not contain @i or This[@i] keywords.")
+		ok
+
+		acSubStr = oCode.SubStringsBoundedBy([ "[","]" ])
 		nLenSubStr = len(acSubStr)
 
 		acNumbersAfter = []
@@ -340,6 +355,13 @@ class stzCCode
 
 		return anResult
 
+		#NOTE
+		# A small but important detail: in WXT() you can bound
+		# the conditional code by { and }, but in the normal W()
+		# form, you can't. The rationale behind this is always
+		# the same: expressiveness against performance.
+
+
 	def ExecutableSectionXT()
 		# A less performant version with more chekcs.
 
@@ -356,14 +378,23 @@ class stzCCode
 
 		/* EXAMPLE
 
-		o1 = new stzCCode('{ This[ @i ] = This[ @i + 3 ] }')
+		o1 = new stzCCode('{ @CurrentItem = This[ @i + 3 ] }')
 		? o1.ExecutableSection()
 		#--> [ 1, -4 ]
 
 		*/
 
+		#NOTE # The fellowing line is the sole difference between
+		# ExectuableSection() and ExecutablesSectionXT() alternatives.
+
+		# Transpiling the condisonal code provided to turn any
+		# sophisticaed keyword (like @CurrentItem, @NextItem, etc)
+		# to their basic alternatives (This[@i], This[@+i], etc)
+
 		oCode = new stzString( This.Transpiled() )
 	
+		# Doing the job to get the borners of the executable section
+
 		acSubStr = oCode.SubStringsBoundedBy([ "[","]" ])
 		nLenSubStr = len(acSubStr)
 
