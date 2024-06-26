@@ -282,6 +282,10 @@ class stzCCode
 
 		@cContent = cResult
 
+		def TranspileQ()
+			This.Transpile()
+			return new stzString( This.Code() )
+
 	def Transpiled()
 		cResult = This.Copy().TranspileQ().Content()
 		return cResult
