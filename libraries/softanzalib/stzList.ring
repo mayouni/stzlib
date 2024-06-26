@@ -36472,19 +36472,34 @@ Item and then position
 
 	def ContainsW(pcCondition)
 
+		if CheckParams()
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+		ok
+
 		nLen = len(@aContent)
+
+		# Getting the executable section
 
 		oCode = new stzCCode(pcCondition)
 		anSection = oCode.ExecutableSection()
 
-		n1 = aSection[1]
-		n2 = aSection[2]
+		n1 = anSection[1]
+		n2 = anSection[2]
 		if n2 = :Last
 			n2 = nLen
 		ok
 
-		cCode = 'bOk = (' + cCode + ')'
+		# Composing the conditional code
+
+		cCode = 'bOk = (' + oCode.Content() + ')'
 		
+		# Evaluating the code against the items
 
 		bResult = FALSE
 
@@ -36496,6 +36511,8 @@ Item and then position
 			ok
 		next
 
+		# Returning the result
+
 		return bResult
 
 	  #--------------------------------------#
@@ -36503,8 +36520,52 @@ Item and then position
 	#--------------------------------------#
 
 	def ContainsWXT(pcCondition)
+
+		if CheckParams()
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+		ok
+
+		nLen = len(@aContent)
+
+		# Transpiling the conditional code
+
 		oCode = new stzCCode(pcCondition)
 		oCode.Transpile()
+
+		# Getting the executable section
+
+		anSection = oCode.ExecutableSection()
+		n1 = anSection[1]
+		n2 = anSection[2]
+		if n2 = :Last
+			n2 = nLen
+		ok
+
+		# Composing the conditional code
+
+		cCode = 'bOk = ( ' + oCode.Content() + ' )'
+
+		# Evaluating the code against the list items
+
+		bResult = FALSE
+
+		for @i = 1 to nLen
+			eval(cCode)
+			if bOk
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		# Getting the result
+
+		return bResult
 
 	  #-------------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS CONTAINED IN A GIVEN LIST OR ITEM  #
@@ -40632,25 +40693,26 @@ Item and then position
 
 		because YieldW() uses the current function FindW() --> Stackoverfolw!
 		*/
-		
-		# Managing params
 
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
+		if CheckParams()
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
 
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param! pcCondition must be a string.")
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
 		ok
 
 		# Identifying the executable section
-		nLen = This.NumberOfItems()
-		aExecutableSection = StzCCodeQ(pcCondition).ExecutableSection()
 
+		nLen = len(@aContent)
+
+		oCode = new stzCCode(pcCondition)
+
+		aExecutableSection = oCode.ExecutableSection()
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]
-
-		#--
 
 		#WARNING: Very important check!
 		# Read explanation in the stzCCode file --> ExectutableSection() method
@@ -40658,11 +40720,9 @@ Item and then position
 		# check that this is done for all places where
 		# ExecutableSection() is used in the library
 
-			if isString(nEnd) and nEnd = :last
-				nEnd = nLen
-			ok
-
-		#--
+		if isString(nEnd) and nEnd = :last
+			nEnd = nLen
+		ok
 
 		if nEnd < 0
 			nEnd += nLen
@@ -40670,15 +40730,17 @@ Item and then position
 			nEnd = nLen
 		ok
 
-		#WARNING # Don't transpile conditional code in ..W() functions!
-		# Only ...WXT() must contain Transpile() feature.
-		# Therefore, the fellowing line is incorrect:
+		# Composing the code to be evaluated bu the loop
 
-		# cCode = 'bOk = ( ' + StzCCodeQ(pcCondition).Transpiled() + ' )'
+			#WARNING # Don't transpile conditional code in ..W() functions!
+			# Only ...WXT() must contain Transpile() feature.
+			# Therefore, the fellowing line is incorrect:
+	
+			# cCode = 'bOk = ( ' + StzCCodeQ(pcCondition).Transpiled() + ' )'
+	
+			# And you should put simply:
 
-		# And you should put simply:
-
-		cCode = 'bOk = (' + pcCondition + ' )'
+		cCode = 'bOk = (' + oCode.Content() + ' )'
 
 		# Doing the job
 
@@ -40686,15 +40748,11 @@ Item and then position
 
 		for @i = nStart to nEnd
 
-			#WARNING # In a ..W() function, this loop must not contain
-			# any keyword like @item, @CurrentItem, and so on. We just
-			# need to use @i as an ietrator, since the conditional code
-			# is contrained the @i and This[@i] keywords.
+			#WARNING
+			# You don't need to use any sophisticated keywords
+			# like @item = @aContent[@i], since the code is
+			# supposed to contain only @ and This[@i]-like keywords
 
-			# Hence, the fellowing line is not necessary:
-
-			//@item = @aContent[@i]
- 
 			eval(cCode)
 			if bOk
 				anResult + @i
@@ -40755,26 +40813,30 @@ Item and then position
 
 	def FindAllItemsWXT(pcCondition)
 		
-		# Managing params
+		if CheckParams()
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
 
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param! pcCondition must be a string.")
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
 		ok
 
 		# Identifying the executable section
 
-		nLen = This.NumberOfItems()
+		nLen = len(@aContent)
 
-		cCode = StzCCodeQ(pcCondition).Transpiled()
-		aExecutableSection = StzCCodeQ(cCode).ExecutableSection()
+		oCode = new stzCCode(pcCondition)
+		oCode.Transpile() # The sole difference with ..W() form of the function
 
+		# Getting the bounds of the executable section
+
+		aExecutableSection = oCode.ExecutableSection()
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]
-		if isString(nEnd) and nEnd = :Last
+
+		if isString(nEnd) and nEnd = :last
 			nEnd = nLen
 		ok
 
@@ -40784,12 +40846,21 @@ Item and then position
 			nEnd = nLen
 		ok
 
-		cCode = 'bOk = (' + cCode + ')'
+		# Composing the code to be evaluated by the loop
+
+		cCode = 'bOk = (' + oCode.Content() + ' )'
+
+		# Doing the job
 
 		anResult = []
 
 		for @i = nStart to nEnd
-			@item = @aContent[@i]
+
+			#WARNING
+			# You don't need to use any sophisticated keywords
+			# like @item = @aContent[@i], since the code has
+			# been already transpiled.
+
 			eval(cCode)
 			if bOk
 				anResult + @i
@@ -40843,7 +40914,7 @@ Item and then position
 
 	  #--------------------------------------------------#
 	 #  FINDING FIRST ITEM VERIFYING A GIVEN CONDITION  #
-	#--------------------------------------------------#
+	#==================================================#
 
 	def FindFirstW(pcCondition)
 		return This.FindNthW(1, pcCondition)

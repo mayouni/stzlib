@@ -4345,7 +4345,7 @@ pron()
 	? o1.FindNthWXT(2, ' @CurrentItem = @NextItem ') + NL
 	#--> 6
 
-	# Executed in 1.24 second(s)
+	# Executed in 1.20 second(s)
 
 	? "---" + NL + NL
 
@@ -4372,7 +4372,7 @@ pron()
 	? o1.FindNthW(2, ' This[@i] = This[@i+1] ') + NL
 	#--> 6
 
-	# Executed in 0.90 second(s)
+	# Executed in 0.82 second(s)
 	
 	? "---" + NL + NL
 
@@ -4444,7 +4444,7 @@ pron()
 # and performance based on your specific needs.
 
 proff()
-# Executed in 2.65 second(s)
+# Executed in 2.50 second(s)
 
 /*----------------
 
