@@ -1,5 +1,30 @@
 load "stzlib.ring"
 
+/*--- #narration #semantic-precision
+*/
+pron()
+
+# In Softanza ContainsLetters() is different from ContainsOnlyLetters()
+
+o1 = new stzString("123 ABCDEF")
+	? o1.ContainsLetters() # Coudd contains non letters
+	#--> TRUE
+	
+	? o1.ContainsOnlyLetters() # same as IsAlphabetic()
+	#--> FALSE
+
+o2 = new stzString("ABCDEF")
+	? o2.ContainsLetters()
+	#--> TRUE
+	
+	? o2.ContainsOnlyLetters()
+	#--> TRUE
+
+#TODO add sample on ContainsNumbersAndLetters() vs ContainsNumbersOrLetters()
+
+proff()
+# Executed in 0.07 second(s)
+
 /*-- # ring
 
 pron()
@@ -41,11 +66,13 @@ proff()
 */
 pron()
 
-o1 = new stzString("The quick brown fox jumps over the lazy dog. The Fox is quick!")
+o1 = new stzString("The quick brown fox")
 
 ? @@(  o1.SubStringsWCSXTZZ('len(@SubString) = 5 and Q(@SubString).IsAlphabetic()', TRUE) )
+#--> [ [ "quick", [ 5, 9 ] ], [ "brown", [ 11, 15 ] ] ]
 
 proff()
+# Executed in 2.26 second(s)
 
 /*-----
 */
