@@ -5851,7 +5851,7 @@ class stzString from stzObject
 		*/
 
 		cResult = This.LinesQR(:stzListOfStrings).
-			       RemoveWXTQ(pcCondition).
+			       RemoveWXtQ(pcCondition).
 			       ConcatenatedUsing(NL)
 
 		This.Update(cResult)
