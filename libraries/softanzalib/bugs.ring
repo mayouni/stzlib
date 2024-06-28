@@ -2,7 +2,8 @@ load "stzlib.ring"
 
 
 
-/*
+/*-------
+*/
 o1 = new stzString("
 ABCDEF
 GHIJKL
@@ -14,8 +15,10 @@ RSTUVW
 
 o1.RemoveLinesW(' Q(This[@i]).IsMadeOfNumbers() ')
 //o1.RemoveLinesWXT(' Q(@Line).IsMadeOfNumbers() ')
+
+? NL + "****" + NL
 ? o1.Content()
-*/
+
 proff()
 
 /*-----
