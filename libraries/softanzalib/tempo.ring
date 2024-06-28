@@ -1,11 +1,22 @@
 load "stzlib.ring"
 
 /*=====
+*/
+pron()
+
+o1 = new stzString("---3--")
+? o1.ContainsNumbers()
+
+proff()
+
+/*--------
 
 pron()
 
 ? Q("984332").IsMadeOfNumbers()
 #--> TRUE
+
+? Q("").IsMadeOfNumbers()
 
 proff()
 

@@ -5875,6 +5875,27 @@ class stzString from stzObject
 			This.RemoveEmptyLines()
 			return This
 
+	  #===========================================#
+	 #  CHECKING IF THE STRING CONTAINS NUMBERS  #
+	#===========================================#
+
+	def ContainsNumbers()
+		acDigits = "0" : "9"
+		nLen = len(acDigits)
+
+		cContent = This.Content()
+		bResult = FALSE
+
+		for i = 1 to nLen
+			n = This.FindFirst(acDigits[i])
+			if n > 0
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		return bResult
+
 	  #========================#
 	 #  NORMALIZING MARQUERS  #
 	#========================#
@@ -78150,6 +78171,14 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#========================================#
 
 	def AllCharsAreNumbers()
+		# EarlyCheck
+
+		if This.IsEmpty() or NOT This.ContainsNumbers()
+			return FALSE
+		ok
+
+		# Doing the job
+
 		bResult = FALSE
 
 		try

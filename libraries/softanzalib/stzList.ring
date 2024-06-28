@@ -40716,6 +40716,7 @@ Item and then position
 	#===================================================#
 
 	def FindAllItemsW(pcCondition)
+
 		/*
 		pcCondition can only contain the @i and This[@i...] keywords.
 		@NextItem, @PreviousItem, @item ans so on can not be used.
@@ -40782,8 +40783,9 @@ Item and then position
 	
 			# And you should put simply:
 
-		cCode = 'bOk = (' + oCode.Content() + ' )'
-
+		cCode = 'bOk = (' + pcCondition + ' )'
+? @@( This.Content() )
+dfdf
 		# Doing the job
 
 		anResult = []
