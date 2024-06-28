@@ -4,6 +4,15 @@ load "stzlib.ring"
 
 pron()
 
+? Q("984332").IsMadeOfNumbers()
+#--> TRUE
+
+proff()
+
+/*=====
+
+pron()
+
 #  FIND >>              5  8   13  16   21  26
 #                       v--v    v--v    v----v
 o1 = new stzString("----ring----ruby----python---")
