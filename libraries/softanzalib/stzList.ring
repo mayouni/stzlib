@@ -40876,6 +40876,7 @@ Item and then position
 		# Getting the bounds of the executable section
 
 		aExecutableSection = oCode.ExecutableSection()
+
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]
 
