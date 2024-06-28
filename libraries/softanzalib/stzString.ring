@@ -97,6 +97,15 @@ func IsNotString(pcStr)
 		return IsNotString(pcStr)
 
 
+func @IsAlpha(cStr)
+	return StzStringQ(cStr).IsAlpha()
+
+	func IsAlphabetical(cStr)
+		return @IsAlpha(cStr)
+
+	func @IsAlphabetical(cStr)
+		return @IsAlpha(cStr)
+
 func IsNullString(cStr)
 	if isString(cStr) and cStr != NULL
 		return TRUE
@@ -5213,7 +5222,7 @@ class stzString from stzObject
 	#=====================================================================================#
 
 	def SubStringsWCS(pcCondition, pCaseSensitive)
-		acResult = This.SubStringsCSQ(pCaseSensitive).ItemsW(pCaseSensitive)
+		acResult = This.SubStringsCSQ(pCaseSensitive).ItemsW(pcCondition)
 		return acResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -5226,7 +5235,7 @@ class stzString from stzObject
 	#-----------------------------------------------------------------------------------------------------#
 
 	def SubStringsWCSXT(pcCondition, pCaseSensitive)
-		acResult = This.SubStringsCSQ(pCaseSensitive).ItemsWXT(pCaseSensitive)
+		acResult = This.SubStringsCSQ(pCaseSensitive).ItemsWXT(pcCondition)
 		return acResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -5967,6 +5976,11 @@ class stzString from stzObject
 	 #  GETTING THE LIST OF MARQUERS IN THE STRING  #
 	#==============================================#
 
+	#WRANING #TODO
+	# This function uses evaluated functions like WalkforwardW(), inside the main loop,
+	# along with a fluent chain of calls (This.SectionQ().OnlyNumbersQ().Remove... etc).
+	# ~> Check their impact on performance when using large dataset.
+
 	def Marquers()
 		anPos = This.FindAll("#")
 		nLen = len(anPos)
@@ -5980,7 +5994,7 @@ class stzString from stzObject
 		for i = 1 to nLen
 			n = anPos[i]
 			n1 = n + 1
-			n2 = This.WalkForwardW( :StartingAt = n+1, :Until = '{ NOT StzStringQ(@char).RepresentsNumberInDecimalForm() }' )
+			n2 = This.WalkForwardW( :StartingAt = n+1, :Until = ' NOT StzStringQ(This[@i]).RepresentsNumberInDecimalForm() ' )
 			# ~> TODO: Replace this with a normal static code (better performance)
 
 			if n1 != n2
@@ -38883,6 +38897,12 @@ class stzString from stzObject
 		next
 
 		return bResult
+
+		def IsAplhabetical()
+			return This.ContainsOnlyLetters()
+
+		def IsAlpha()
+			return This.ContainsOnlyLetters()
 
 	  #=========================================================#
 	 #  CHEHCKING IF THE STRING STARTS WITH A GIVEN SUBSTRING  #

@@ -13144,7 +13144,7 @@ Item and then position
 		}		
 
 		*/
-
+		#TODO # Review this implementation for performance!
 		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
 		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
 
