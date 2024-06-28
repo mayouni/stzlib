@@ -41296,15 +41296,15 @@ Item and then position
 	 #   GETTING ITEMS VERIFYING A GIVEN CONDITION   #
 	#===============================================#
 
-	/*
+	/* #NOTE
 	Note the semantic difference between "Getting" items, and "Finding" items.
 		-> Getting items return the items themselves, while
 		-> Finding items return their positions as numbers
-		-> Their sections can also be found using FindAsSection()
+		-> Their sections can also be found using FindAsSections() or simply FindZZ()
 	*/
 
 	def ItemsW(pcCondition)
-		/* WARNING
+		/* #WARNING
 
 		Do not use this solution:
 
@@ -41321,7 +41321,7 @@ Item and then position
 		#< @FunctionFluentForms
 
 		def ItemsWQ(pcCondition)
-			return ItemsWQR(pcCondition, :stzList)
+			return This.ItemsWQR(pcCondition, :stzList)
 
 		def ItemsWQR(pcCondition, pcReturnType)
 			if isList(pcCondition) and Q(pcCondition).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -41494,27 +41494,9 @@ Item and then position
 
 	  #----------------------------------------------------------#
 	 #   GETTING ITEMS VERIFYING A GIVEN CONDITION -- EXTENDED  #
-	#----------------------------------------------------------#
-
-	/* NOTE
-	A Less performant alternative to ItemsW() function.
-	Provides transpiling and executable section features.
-
-	UPDATE: I think this was fixed and the olny one to use is
-	the normal ItemsW()..
-	--> TODO: If so, remove this function!
-
-	*/
+	#==========================================================#
 
 	def ItemsWXT(pcCondition)
-		/* WARNING
-
-		Do not use this solution:
-
-			return This.YieldWXT('@item', pcCondition)
-
-		--> Stackoverflow!
-		*/
 
 		anPos = This.FindAllItemsWXT(pcCondition)
 		aResult = This.ItemsAtThesePositions(anPos)
@@ -41697,6 +41679,61 @@ Item and then position
 
 			def ItemsWithoutDuplicationWQ(pCondition)
 				return This.UniqueItemsWQ(pCondition)
+
+		#--
+
+		def ItemsWU(pCondition)
+			return This.UniqueItemsW(pCondition)
+
+			def ItemsWUQ(pCondition)
+				return This.UniqueItemsWQ(pCondition)
+
+		#>
+
+	  #----------------------------------------------------------------------#
+	 #   GETTING UNIQUE ITEMS VERIFYING A GIVEN CONDITION -- WXT/EXTENSION  #
+	#----------------------------------------------------------------------#
+
+	def UniqueItemsWXT(pCondition)
+
+		aResult = This.ItemsWXTQ(pCondition).ToSet()
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def UniqueItemsWXTQ(pCondition)
+			return new stzList( This.UniqueItemsWXT(pCondition) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def UniqueItemsWhereXT(pCondition)
+			return This.UniqueItemsWXT(pCondition)
+
+			def UniqueItemsWhereXTQ(pCondition)
+				return This.UniqueItemsWXTQ(pCondition)
+
+		def ItemsWithoutDuplicationWXT(pCondition)
+			return This.UniqueItemsWXT(pCondition)
+
+			def ItemsWithoutDuplicationWXTQ(pCondition)
+				return This.UniqueItemsWXTQ(pCondition)
+
+		#--
+
+		def ItemsWXTU(pCondition)
+			return This.UniqueItemsWXTU(pCondition)
+
+			def ItemsWXTUQ(pCondition)
+				return This.UniqueItemsWXTUQ(pCondition)
+
+		def ItemsWUXT(pCondition)
+			return This.UniqueItemsWXTU(pCondition)
+
+			def ItemsWUXTQ(pCondition)
+				return This.UniqueItemsWXTUQ(pCondition)
+
 		#>
 
 	  #===============================================#
@@ -41749,14 +41786,15 @@ Item and then position
 			for v = 1 to nLenAPairs
 				aPair = aPairs[v]
 
-				if Q(pItem).IsNumberOrString() and Q(aPair[1]).IsNumberOrString()
+				if ( isNumber(pItem) or isString(pItem) ) and
+				   ( isNumber(aPair[1]) or isString(aPair[1]) )
 
 					if aPair[1] = pItem
 						anItemPositions + aPair[2]
 					ok
 
 				else
-					if Q(aPair[1]).IsStrictlyEqualTo(pItem)
+					if Q(aPair[1]).IsStrictlyEqualTo(pItem) # #TODO Check performance!
 						anItemPositions + aPair[2]
 					ok
 				ok
@@ -41769,8 +41807,15 @@ Item and then position
 
 		return aResult
 
-		def ItemsAndTheirPositionsWhere()
+		#< @FunctionAlternativeForms
+
+		def ItemsAndTheirPositionsWhere(pcCondition)
 			return This.ItemsAndTheirPositionsW(pcCondition)
+
+		def ItemsWZ(pCondition)
+			return This.ItemsAndTheirPositionsW(pcCondition)
+
+		#>
 
 	   #======================================================#
 	  #   GETTING UNIQUE ITEMS VERIFYING A GIVEN CONDITION 	 #
@@ -41778,10 +41823,12 @@ Item and then position
 	#======================================================#
 
 	def ItemsAndTheirPositionsWXT(pcCondition)
-		/*
+		/* #INFO
 		This version is less performant then ItemsAndTheirPositionsW()
 		but provides more features, like transpiling the conditional
-		code for :stzList and idenfifying the executable section.
+		code, allowing us to compose more expressive conditions, usinf
+		not only @i and This[@i]-like conditions, but also @Item,
+		@CurrentItem, @NextItem, @PreviousItem, and so on.
 		*/
 
 		aItems = This.ItemsWXT(pcCondition)
@@ -41803,14 +41850,14 @@ Item and then position
 			for v = 1 to nLenAPairs
 				aPair = aPairs[v]
 
-				if Q(pItem).IsNumberOrString() and Q(aPair[1]).IsNumberOrString()
-
+				if ( isNumber(pItem) or isString(pItem) ) and
+				   ( isNumber(aPair[1]) or isString(aPair[1]) )
 					if aPair[1] = pItem
 						anItemPositions + aPair[2]
 					ok
 
 				else
-					if Q(aPair[1]).IsStrictlyEqualTo(pItem)
+					if Q(aPair[1]).IsStrictlyEqualTo(pItem) # #TODO Check performance!
 						anItemPositions + aPair[2]
 					ok
 				ok
@@ -41823,8 +41870,18 @@ Item and then position
 
 		return aResult
 
-		def ItemsAndTheirPositionsWhereXT()
+		#< @FunctionAlternativeForms
+
+		def ItemsAndTheirPositionsWhereXT(pcCondition)
 			return This.ItemsAndTheirPositionsW(pcCondition)
+
+		def ItemsWXTUZ(pcCondition)
+			return This.ItemsAndTheirPositionsW(pcCondition)
+
+		def ItemsWUXTZ(pcCondition)
+			return This.ItemsAndTheirPositionsW(pcCondition)
+
+		#>
 
 	  #=================================#
 	 #   GETTING ITEMS OF TYPE NUMBER  #
@@ -44206,8 +44263,6 @@ Item and then position
 	  #--------------------------------------------------------------------#
 	 #  INSERTING ITEM AFTER OR BEFORE ITEMS VERIFYING A GIVEN CONDITION  #
 	#====================================================================#
-#TODO add ..WXT() forms to all ...W() functions
-#~> XT enables the use of expressive concifions not limited to @i and This[@i]
 
 	def InsertAfterW( pcCondition, pNewItem )
 		anPos = This.FindItemsW(pcCondition)
@@ -44251,9 +44306,55 @@ Item and then position
 				This.InsertAt(pcCondition, pNewItem)
 				return This
 
+	  #------------------------------------------------------------------------------------#
+	 #  INSERTING ITEM AFTER OR BEFORE ITEMS VERIFYING A GIVEN CONDITION -- WXT/EXTENDED  #
+	#------------------------------------------------------------------------------------#
+
+	def InsertAfterWXT( pcCondition, pNewItem )
+		anPos = This.FindItemsWXT(pcCondition)
+		This.InsertAfterManyPositions( anPos, pNewItem )
+
+		#< @FunctionFluentForm
+
+		def InsertAfterWXTQ( pcCondition, pNewItem )
+			This.InsertAfterWXT( pCondition, pNewItem )
+			return This
+
+		#>
+
+		def InsertAfterWhereXT(pcCondition, pNewItem)
+			This.InsertAfterWXT(pCondition, pNewItem)
+
+			def InsertAfterWhereXTQ(pcCondition, pNewItem)
+				This.InsertAfterWhereXT(pcCondition, pNewItem)
+				return This
+
+	def InsertBeforeWXT(pcCondition, pNewItem)
+		/*
+		o1.InsertBeforeWXT( :Where = '{ StzStringQ(item).IsUppercase() }', "*" )
+		*/
+
+		anPos = This.FindItemsWXT(pcCondition)
+		This.InsertBeforeThesePositions(anPos, pNewItem)
+
+		#< @FunctionFluentForm
+
+		def InsertBeforeWXTQ(pcCondition, pNewItem)
+			This.InsertBeforeWXT(pcCondition, pNewItem)
+			return This
+
+		#>
+
+		def InsertAtWXT(pcCondition, pNewItem)
+			This.InsertBeforeWXT(pcCondition, pNewItem)
+
+			def InsertAtWXTQ(pcCondition, pNewItem)
+				This.InsertAtXT(pcCondition, pNewItem)
+				return This
+
 	  #-----------------------------------------------------------------#
 	 #  INSERTING MANY ITEMS AFTER OR BEFORE A GIVEN SET OF POSITIONS  #
-	#-----------------------------------------------------------------#
+	#=================================================================#
 
 	def InsertAfterManyPositions(panPos, pItem)
 
@@ -57187,34 +57288,66 @@ Item and then position
 	def SplittedW(pcConditon)
 		return This.SplitW(pcCondition)
 
-	  #------------------------------------#
-	 #    SPLITTING AT A GIVEN CONDTION   #
-	#------------------------------------#
+	  #-----------------------------------------------------#
+	 #    SPLITTING UNDER A GIVEN CONDTION -- XT/EXTENDED  #
+	#-----------------------------------------------------#
 
-	def SplitAtW(pcCondition)
-			
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
+	def SplitWXT(pcCondition)
+		/*
+		? StzListQ(1:5).SplitWXT('Q(@item).IsMultipleOf(2)')
+		*/
 
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
+		if isList(pcCondition)
 
-		aResult = []
+			if Q(pcCondition).IsWhereNamedParam()
+				return This.SplitAtWXT(pcCondition[2])
 
-		pcCondition = Q(pcCondition).TrimQ().TheseBoundsRemoved( "{","}" )
+			but Q(pcCondition).IsAtNamedParam()
+				return This.SplitAtWXT(pcCondition[2])
 
-		if Q(pcCondition).ContainsCS("@Item", :CS = FALSE)
+			but Q(pcCondition).IsBeforeNamedParam()
+				return This.SplitBeforeWXT(pcCondition[2])
 
-			aSections = This.FindItemsAsSectionsW(pcCondition)
-			aResult = This.SplitAtSections(aSections)
+			but Q(pcCondition).IsAfterNamedParam()
+				return This.SplitAfterWXT(pcCondition[2])
 
+			ok
+		
 		else
 
-			anPos = This.FindW(pcCondition)
-			aResult = This.SplitAtPositions(anPos)
+			return This.SplitAtWXT(pcCondition)
 		ok
+
+		#< @FunctionFluentForms
+
+		def SplitWXTQ(pcCondition)
+			return This.SplitWXTQR(pcCondition, :stzList)
+
+		def SplitWXTQR(pcCondition, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitWXT(pcCondition) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitWXT(pcCondition) )
+			on :stzListOfItems
+				return new stzListOfItems( This.SplitWXT(pcCondition) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def SplittedWXT(pcConditon)
+		return This.SplitWXT(pcCondition)
+
+	  #------------------------------------#
+	 #    SPLITTING AT A GIVEN CONDTION   #
+	#====================================#
+
+	def SplitAtW(pcCondition)
+
+		anPos = This.FindW(pcCondition)
+		aResult = This.SplitAtPositions(anPos)
 
 		return aResult
 
@@ -57240,28 +57373,44 @@ Item and then position
 	def SplittedAtW(pcConditon)
 		return This.SplitAtW(pcCondition)
 
+	  #---------------------------------------------------#
+	 #    SPLITTING AT A GIVEN CONDTION -- WXT/EXTENDED  #
+	#---------------------------------------------------#
+
+	def SplitAtWXT(pcCondition)
+		anPos = This.FindWXT(pcCondition)
+		aResult = This.SplitAtPositions(anPos)
+
+		return aResult
+
+		#< @FunctionFluentForms
+
+		def SplitAtWXTQ(pcCondition)
+			return This.SplitAtWXTQR(pcCondition, :stzList)
+
+		def SplitAtWXTQR(pcCondition, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAtWXT(pcCondition) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAtWXT(pcCondition) )
+			on :stzListOfItems
+				return new stzListOfItems( This.SplitAtWXT(pcCondition) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def SplittedAtWXT(pcConditon)
+		return This.SplitAtWXT(pcCondition)
+
 	  #----------------------------------------#
 	 #    SPLITTING BEFORE A GIVEN CONDTION   #
-	#----------------------------------------#
+	#========================================#
 
 	def SplitBeforeW(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsCS("@Item",  :CaseSensitive = FALSE)
-			anPos = This.FindItemsW(pcCondition)
-
-		else
-			anPos = This.FindItemsW(pcCondition)
-		ok
-
+		anPos = This.FindItemsW(pcCondition)
 		aResult = This.SplitBeforePositions(anPos)
 
 		return aResult
@@ -57288,28 +57437,44 @@ Item and then position
 	def SplittedBeforeW(pcConditon)
 		return This.SplitBeforeW(pcCondition)
 
+	  #------------------------------------------------------#
+	 #    SPLITTING BEFORE A GIVEN CONDTION -- XT/EXTENDED  #
+	#------------------------------------------------------#
+
+	def SplitBeforeWXT(pcCondition)
+		anPos = This.FindItemsWXT(pcCondition)
+		aResult = This.SplitBeforePositions(anPos)
+
+		return aResult
+
+		#< @FunctionFluentForms
+
+		def SplitBeforeWXTQ(pcCondition)
+			return This.SplitBeforeWXTQR(pcCondition, :stzList)
+
+		def SplitBeforeWXTQR(pcCondition, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitBeforeWXT(pcCondition) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitBeforeWXT(pcCondition) )
+			on :stzListOfItems
+				return new stzListOfItems( This.SplitBeforeWXT(pcCondition) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def SplittedBeforeWXT(pcConditon)
+		return This.SplitBeforeWXT(pcCondition)
+
 	  #---------------------------------------#
 	 #    SPLITTING AFTER A GIVEN CONDTION   #
-	#---------------------------------------#
+	#=======================================#
 
 	def SplitAfterW(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsCS("@Item",  :CaseSensitive = FALSE)
-			anPos = This.FindItemsW(pcCondition)
-
-		else
-			anPos = This.FindItemsW(pcCondition)
-		ok
-
+		anPos = This.FindItemsW(pcCondition)
 		aResult = This.SplitAfterPositions(anPos)
 
 		return aResult
@@ -57336,9 +57501,41 @@ Item and then position
 	def SplittedAfterW(pcConditon)
 		return This.SplitAfterW(pcCondition)
 
-	  #----------------------------------------------------------------#
-	 #  NTH Item AFTER SPLITTING STRING USING A GIVEN SEPARATOR  #
-	#================================================================#
+	  #------------------------------------------------------#
+	 #    SPLITTING AFTER A GIVEN CONDTION -- WXT/EXTENDED  #
+	#------------------------------------------------------#
+
+	def SplitAfterWXT(pcCondition)
+		anPos = This.FindItemsWXT(pcCondition)
+		aResult = This.SplitAfterPositions(anPos)
+
+		return aResult
+
+		#< @FunctionFluentForms
+
+		def SplitAfterWXTQ(pcCondition)
+			return This.SplitAfterWXTQR(pcCondition, :stzList)
+
+		def SplitAfterWXTQR(pcCondition, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAfterWXT(pcCondition) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAfterWXT(pcCondition) )
+			on :stzListOfItems
+				return new stzListOfItems( This.SplitAfterWXT(pcCondition) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+	def SplittedAfterWXT(pcConditon)
+		return This.SplitAfterWXT(pcCondition)
+
+	  #-----------------------------------------------------------#
+	 #  NTH ITEM AFTER SPLITTING STRING USING A GIVEN SEPARATOR  #
+	#===========================================================#
 	# Utility function used to simplify code in stzListOfStrings
 
 	def NthItemAfterSplittingStringUsing(n, cSep)
@@ -58986,34 +59183,48 @@ Item and then position
 
 		#>
 
-	  #-----------------------------------------#
-	 #   FINSING SPLITS  AT A GIVEN CONDTION   #
-	#-----------------------------------------#
+	  #---------------------------------------------------------#
+	 #   FINDING SPLITS UNDER A GIVEN CONDTION -- XT/EXTENDED  #
+	#---------------------------------------------------------#
 
-	def FindSplitsAtW(pcCondition)
-			
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
+	def FindSplitsWXT(pcCondition)
 
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
+		if isList(pcCondition)
 
-		aResult = []
+			if Q(pcCondition).IsWhereNamedParam()
+				return This.FindSplitsAtWXT(pcCondition[2])
 
-		pcCondition = Q(pcCondition).TrimQ().TheseBoundsRemoved( "{","}" )
+			but Q(pcCondition).IsAtNamedParam()
+				return This.FindSplitsAtWXT(pcCondition[2])
 
-		if Q(pcCondition).ContainsCS("@Item", :CS = FALSE)
+			but Q(pcCondition).IsBeforeNamedParam()
+				return This.FindSplitsBeforeWXT(pcCondition[2])
 
-			aSections = This.FindItemsW(pcCondition)
-			anResult = This.FindSplitsAtSectionsZ(aSections)
+			but Q(pcCondition).IsAfterNamedParam()
+				return This.FindSplitsAfterWXT(pcCondition[2])
 
+			ok
+		
 		else
 
-			anPos = This.FindW(pcCondition)
-			anResult = This.FindSplitsAtPositionsZ(anPos)
+			return This.FindSplitsAtWXTZ(pcCondition)
 		ok
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsWXTZ(pcCondition)
+			return This.FindSplitsWXTZ(pcCondition)
+
+		#>
+
+	  #--------------------------------------------------------#
+	 #   FINDING SPLITS AT A POSITION UNDER A GIVEN CONDTION  #
+	#========================================================#
+
+	def FindSplitsAtW(pcCondition)
+		
+		anPos = This.FindW(pcCondition)
+		anResult = This.FindSplitsAtPositions(anPos)
 
 		return anResult
 
@@ -59024,28 +59235,30 @@ Item and then position
 
 		#>
 
+	  #------------------------------------------------------------------------#
+	 #   FINDING SPLITS AT A POSITION UNDER A GIVEN CONDTION -- WXT/EXTENDED  #
+	#------------------------------------------------------------------------#
+
+	def FindSplitsAtWXT(pcCondition)
+		
+		anPos = This.FindWXT(pcCondition)
+		anResult = This.FindSplitsAtPositions(anPos)
+
+		return anResult
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsAtWXTZ(pcCondition)
+			return This.FindSplitsAtWXT(pcCondition)
+
+		#>
+
 	  #--------------------------------------------#
 	 #   FINDING SPLITS BEFORE A GIVEN CONDTION   #
-	#--------------------------------------------#
+	#============================================#
 
 	def FindSplitsBeforeW(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsCS("@Item",  :CaseSensitive = FALSE)
-			anPos = This.FindItemsW(pcCondition)
-
-		else
-			anPos = This.FindItemsW(pcCondition)
-		ok
-
+		anPos = This.FindItemsW(pcCondition)
 		anResult = This.FindSplitsBeforePositions(anPos)
 
 		return anResult
@@ -59057,28 +59270,29 @@ Item and then position
 
 		#>
 
+	  #-----------------------------------------------------------#
+	 #   FINDING SPLITS BEFORE A GIVEN CONDTION -- WXT/EXTENDED  #
+	#-----------------------------------------------------------#
+
+	def FindSplitsBeforeWXT(pcCondition)
+		anPos = This.FindItemsWXT(pcCondition)
+		anResult = This.FindSplitsBeforePositions(anPos)
+
+		return anResult
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsBeforeWXTZ(pcCondition)
+			return This.FindSplitsBeforeWXT(pcCondition)
+
+		#>
+
 	  #-------------------------------------------#
 	 #   FINDING SPLITS AFTER A GIVEN CONDTION   #
-	#-------------------------------------------#
+	#===========================================#
 
 	def FindSplitsAfterW(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsCS("@Item",  :CaseSensitive = FALSE)
-			anPos = This.FindItemsW(pcCondition)
-
-		else
-			anPos = This.FindItemsW(pcCondition)
-		ok
-
+		anPos = This.FindItemsW(pcCondition)
 		anResult = This.FindSplitsAfterPositions(anPos)
 
 		return anResult
@@ -59087,6 +59301,23 @@ Item and then position
 
 		def FindSplitsAfterWZ(pcCondition)
 			return This.FindSplitsAfterW(pcCondition)
+
+		#>
+
+	  #----------------------------------------------------------#
+	 #   FINDING SPLITS AFTER A GIVEN CONDTION -- WXT/EXTENDED  #
+	#----------------------------------------------------------#
+
+	def FindSplitsAfterWXT(pcCondition)
+		anPos = This.FindItemsWXT(pcCondition)
+		anResult = This.FindSplitsAfterPositions(anPos)
+
+		return anResult
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsAfterWXTZ(pcCondition)
+			return This.FindSplitsAfterWXT(pcCondition)
 
 		#>
 
@@ -62896,33 +63127,51 @@ Item and then position
 
 		#>
 
+	  #-------------------------------------------------------------#
+	 #   FINDING NTH SPLIT UNDER A GIVEN CONDTION -- WXT/EXTENDED  #
+	#-------------------------------------------------------------#
+
+	def FindNthSplitWXT(n, pcCondition)
+		/*
+		? StzSplitterQ(1:5).FindNthSplitW('Q(@item).IsMultipleOf(2)')
+		*/
+
+		if isList(pcCondition)
+
+			if Q(pcCondition).IsWhereNamedParam()
+				return This.FindNthSplitAtWXT(n, pcCondition[2])
+
+			but Q(pcCondition).IsAtNamedParam()
+				return This.FindNthSplitAtWXT(n, pcCondition[2])
+
+			but Q(pcCondition).IsBeforeNamedParam()
+				return This.FindNthSplitBeforeWXT(n, pcCondition[2])
+
+			but Q(pcCondition).IsAfterNamedParam()
+				return This.FindNthSplitAfterWXT(n, pcCondition[2])
+
+			ok
+		
+		else
+
+			return This.FindNthSplitAtWXTZ(n, pcCondition)
+		ok
+
+		#< @FunctionAlternativeForm
+
+		def FindNthSplitWXTZ(n, pcCondition)
+			return This.FindNthSplitWXTZ(n, pcCondition)
+
+		#>
+
 	  #-------------------------------------------#
 	 #   FINSING NTH SPLIT AT A GIVEN CONDTION   #
-	#-------------------------------------------#
+	#===========================================#
 
 	def FindNthSplitAtW(n, pcCondition)
 			
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-
-		pcCondition = Q(pcCondition).TrimQ().TheseBoundsRemoved( "{","}" )
-
-		if Q(pcCondition).ContainsCS("@Item", :CS = FALSE)
-
-			aSections = This.FindItemsW(pcCondition)
-			nResult = This.FindNthSplitAtSectionsZ(n, aSections)
-
-		else
-
-			anPos = This.FindW(pcCondition)
-			nResult = This.FindNthSplitAtPositionsZ(n, anPos)
-		ok
+		anPos = This.FindW(pcCondition)
+		nResult = This.FindNthSplitAtPositionsZ(n, anPos)
 
 		return nResult
 
@@ -62933,28 +63182,30 @@ Item and then position
 
 		#>
 
+	  #----------------------------------------------------------#
+	 #   FINSING NTH SPLIT AT A GIVEN CONDTION -- WXT/EXTENDED  #
+	#----------------------------------------------------------#
+
+	def FindNthSplitAtWXT(n, pcCondition)
+			
+		anPos = This.FindWXT(pcCondition)
+		nResult = This.FindNthSplitAtPositions(n, anPos)
+
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindNthSplitAtWXTZ(n, pcCondition)
+			return This.FindNthSplitAtWXT(n, pcCondition)
+
+		#>
+
 	  #-----------------------------------------------#
 	 #   FINDING NTH SPLIT BEFORE A GIVEN CONDTION   #
-	#-----------------------------------------------#
+	#===============================================#
 
 	def FindNthSplitBeforeW(n, pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsCS("@Item",  :CaseSensitive = FALSE)
-			anPos = This.FindItemsW(pcCondition)
-
-		else
-			anPos = This.FindItemsW(pcCondition)
-		ok
-
+		anPos = This.FindItemsW(pcCondition)
 		nResult = This.FindNthSplitBeforePositions(n, anPos)
 
 		return nResult
@@ -62966,28 +63217,29 @@ Item and then position
 
 		#>
 
+	  #---------------------------------------------------------------#
+	 #   FINDING NTH SPLIT BEFORE A GIVEN CONDTION -- WXT/EXTENSION  #
+	#---------------------------------------------------------------#
+
+	def FindNthSplitBeforeWXT(n, pcCondition)
+		anPos = This.FindItemsWXT(pcCondition)
+		nResult = This.FindNthSplitBeforePositions(n, anPos)
+
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindNthSplitBeforeWXTZ(n, pcCondition)
+			return This.FindNthSplitBeforeWXT(n, pcCondition)
+
+		#>
+
 	  #----------------------------------------------#
 	 #   FINDING NTH SPLIT AFTER A GIVEN CONDTION   #
-	#----------------------------------------------#
+	#==============================================#
 
 	def FindNthSplitAfterW(n, pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsCS("@Item",  :CaseSensitive = FALSE)
-			anPos = This.FindItemsW(pcCondition)
-
-		else
-			anPos = This.FindItemsW(pcCondition)
-		ok
-
+		anPos = This.FindItemsW(pcCondition)
 		nResult = This.FindNthSplitAfterPositions(n, anPos)
 
 		return nResult
@@ -62996,6 +63248,23 @@ Item and then position
 
 		def FindNthSplitAfterWZ(pcCondition)
 			return This.FindNthSplitAfterW(pcCondition)
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #   FINDING NTH SPLIT AFTER A GIVEN CONDTION  -- WXT/EXTENDED  #
+	#--------------------------------------------------------------#
+
+	def FindNthSplitAfterWXT(n, pcCondition)
+		anPos = This.FindItemsWXT(pcCondition)
+		nResult = This.FindNthSplitAfterPositions(n, anPos)
+
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindNthSplitAfterWXTZ(pcCondition)
+			return This.FindNthSplitAfterWXT(pcCondition)
 
 		#>
 
@@ -64467,32 +64736,12 @@ Item and then position
 
 	  #---------------------------------------------------------#
 	 #    FINSING NTH SPLIT (AS SECTION) AT A GIVEN CONDTION   #
-	#---------------------------------------------------------#
+	#=========================================================#
 
 	def FindNthSplitAtWZZ(n, pcCondition)
 			
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		aResult = []
-
-		pcCondition = Q(pcCondition).TrimQ().TheseBoundsRemoved( "{","}" )
-
-		if Q(pcCondition).ContainsCS("@Item", :CS = FALSE)
-
-			aSections = This.FindItemsAsSectionsW(pcCondition)
-			aResult = This.FindNthSplitAtSectionsZZ(n, aSections)
-
-		else
-
-			anPos = This.FindW(pcCondition)
-			aResult = This.FindNthSplitAtPositionsZZ(n, anPos)
-		ok
+		aSections = This.FindItemsAsSectionsW(pcCondition)
+		aResult = This.FindNthSplitAtSectionsZZ(n, aSections)
 
 		return aResult
 
@@ -64503,28 +64752,30 @@ Item and then position
 
 		#>
 
+	  #------------------------------------------------------------------------#
+	 #    FINSING NTH SPLIT (AS SECTION) AT A GIVEN CONDTION -- WXT/EXTENDED  #
+	#------------------------------------------------------------------------#
+
+	def FindNthSplitAtWXTZZ(n, pcCondition)
+			
+		aSections = This.FindItemsAsSectionsWXT(pcCondition)
+		aResult = This.FindNthSplitAtSectionsZZ(n, aSections)
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def FindNthSplitAtAsSectionWXT(n, pcCondition)
+			return This.FindNthSplitAtWXTZZ(n, pcCondition)
+
+		#>
+
 	  #--------------------------------------------------------------#
 	 #    FINDING NTH SPLIT (AS SECTIONS) BEFORE A GIVEN CONDTION   #
-	#--------------------------------------------------------------#
+	#==============================================================#
 
 	def FindNthSplitBeforeWZZ(n, pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsCS("@Item",  :CaseSensitive = FALSE)
-			anPos = This.FindItemsW(pcCondition)
-
-		else
-			anPos = This.FindItemsW(pcCondition)
-		ok
-
+		anPos = This.FindItemsW(pcCondition)
 		aResult = This.FindNthSplitBeforePositionsZZ(n, anPos)
 
 		return aResult
@@ -64536,28 +64787,29 @@ Item and then position
 
 		#>
 
+	  #-----------------------------------------------------------------------------#
+	 #    FINDING NTH SPLIT (AS SECTIONS) BEFORE A GIVEN CONDTION -- WXT/EXTENDED  #
+	#-----------------------------------------------------------------------------#
+
+	def FindNthSplitBeforeWXTZZ(n, pcCondition)
+		anPos = This.FindItemsWXT(pcCondition)
+		aResult = This.FindNthSplitBeforePositionsZZ(n, anPos)
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def FindNthSplitBeforeAsSectionWXT(n, pcCondition)
+			return This.FindNthSplitBeforeWXTZZ(n, pcCondition)
+
+		#>
+
 	  #------------------------------------------------------------#
 	 #    FINDING NTH SPLIT (AS SECTION) AFTER A GIVEN CONDTION   #
-	#------------------------------------------------------------#
+	#============================================================#
 
 	def FindNthSplitAfterWZZ(n, pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsCS("@Item",  :CaseSensitive = FALSE)
-			anPos = This.FindItemsW(pcCondition)
-
-		else
-			anPos = This.FindItemsW(pcCondition)
-		ok
-
+		anPos = This.FindItemsW(pcCondition)
 		aResult = This.FindNthSplitAfterPositionsZZ(n, anPos)
 
 		return aResult
@@ -64566,6 +64818,23 @@ Item and then position
 
 		def FindNthSplitAfterAsSectionW(n, pcCondition)
 			return This.FindNthSplitAfterWZZ(n, pcCondition)
+
+		#>
+
+	  #---------------------------------------------------------------------------#
+	 #    FINDING NTH SPLIT (AS SECTION) AFTER A GIVEN CONDTION -- WXT/EXTENDED  #
+	#---------------------------------------------------------------------------#
+
+	def FindNthSplitAfterWXTZZ(n, pcCondition)
+		anPos = This.FindItemsWXT(pcCondition)
+		aResult = This.FindNthSplitAfterPositionsZZ(n, anPos)
+
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def FindNthSplitAfterAsSectionWXT(n, pcCondition)
+			return This.FindNthSplitAfterWXTZZ(n, pcCondition)
 
 		#>
 
@@ -66090,33 +66359,51 @@ Item and then position
 
 		#>
 
+	  #--------------------------------------------------------------#
+	 #   FINDING LAST SPLIT UNDER A GIVEN CONDTION -- WXT/EXTENDED  #
+	#--------------------------------------------------------------#
+
+	def FindLastSplitWXT(pcCondition)
+		/*
+		? StzSplitterQ(1:5).FindLastSplitWXT('Q(@item).IsMultipleOf(2)')
+		*/
+
+		if isList(pcCondition)
+
+			if Q(pcCondition).IsWhereNamedParam()
+				return This.FindLastSplitAtWXT(pcCondition[2])
+
+			but Q(pcCondition).IsAtNamedParam()
+				return This.FindLastSplitAtWXT(pcCondition[2])
+
+			but Q(pcCondition).IsBeforeNamedParam()
+				return This.FindLastSplitBeforeWXT(pcCondition[2])
+
+			but Q(pcCondition).IsAfterNamedParam()
+				return This.FindLastSplitAfterWXT(pcCondition[2])
+
+			ok
+		
+		else
+
+			return This.FindLastSplitAtWXTZ(pcCondition)
+		ok
+
+		#< @FunctionAlternativeForm
+
+		def FindLastSplitWXTZ(pcCondition)
+			return This.FindLastSplitWXTZ(pcCondition)
+
+		#>
+
 	  #--------------------------------------------#
-	 #   FINSING LAST SPLIT AT A GIVEN CONDTION   #
-	#--------------------------------------------#
+	 #   FINDING LAST SPLIT AT A GIVEN CONDTION   #
+	#============================================#
 
 	def FindLastSplitAtW(pcCondition)
 			
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-
-		pcCondition = Q(pcCondition).TrimQ().TheseBoundsRemoved( "{","}" )
-
-		if Q(pcCondition).ContainsCS("@Item", :CS = FALSE)
-
-			aSections = This.FindItemsW(pcCondition)
-			nResult = This.FindLastSplitAtSectionsZ(aSections)
-
-		else
-
-			anPos = This.FindW(pcCondition)
-			nResult = This.FindLastSplitAtPositionsZ(anPos)
-		ok
+		anPos = This.FindW(pcCondition)
+		nResult = This.FindLastSplitAtPositions(anPos)
 
 		return nResult
 
@@ -66127,28 +66414,30 @@ Item and then position
 
 		#>
 
+	  #-----------------------------------------------------------#
+	 #   FINDING LAST SPLIT AT A GIVEN CONDTION -- WXT/EXTENDED  #
+	#-----------------------------------------------------------#
+
+	def FindLastSplitAtWXT(pcCondition)
+			
+		anPos = This.FindWXT(pcCondition)
+		nResult = This.FindLastSplitAtPositions(anPos)
+
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindLastSplitAtWXTZ(pcCondition)
+			return This.FindLastSplitAtWXT(pcCondition)
+
+		#>
+
 	  #------------------------------------------------#
 	 #   FINDING LAST SPLIT BEFORE A GIVEN CONDTION   #
-	#------------------------------------------------#
+	#================================================#
 
 	def FindLastSplitBeforeW(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsCS("@Item",  :CaseSensitive = FALSE)
-			anPos = This.FindItemsW(pcCondition)
-
-		else
-			anPos = This.FindItemsW(pcCondition)
-		ok
-
+		anPos = This.FindItemsW(pcCondition)
 		nResult = This.FindLastSplitBeforePositions(anPos)
 
 		return nResult
@@ -66160,28 +66449,29 @@ Item and then position
 
 		#>
 
+	  #---------------------------------------------------------------#
+	 #   FINDING LAST SPLIT BEFORE A GIVEN CONDTION -- WXT/EXTENDED  #
+	#---------------------------------------------------------------#
+
+	def FindLastSplitBeforeWXT(pcCondition)
+		anPos = This.FindItemsWXT(pcCondition)
+		nResult = This.FindLastSplitBeforePositions(anPos)
+
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindLastSplitBeforeWXTZ(pcCondition)
+			return This.FindLastSplitBeforeWXT(pcCondition)
+
+		#>
+
 	  #-----------------------------------------------#
 	 #   FINDING LAST SPLIT AFTER A GIVEN CONDTION   #
-	#-----------------------------------------------#
+	#===============================================#
 
 	def FindLastSplitAfterW(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsCS("@Item",  :CaseSensitive = FALSE)
-			anPos = This.FindItemsW(pcCondition)
-
-		else
-			anPos = This.FindItemsW(pcCondition)
-		ok
-
+		anPos = This.FindItemsW(pcCondition)
 		nResult = This.FindLastSplitAfterPositions(anPos)
 
 		return nResult
@@ -66190,6 +66480,23 @@ Item and then position
 
 		def FindLastSplitAfterWZ(pcCondition)
 			return This.FindLastSplitAfterW(pcCondition)
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #   FINDING LAST SPLIT AFTER A GIVEN CONDTION -- WXT/EXTENDED  #
+	#--------------------------------------------------------------#
+
+	def FindLastSplitAfterWXT(pcCondition)
+		anPos = This.FindItemsWXT(pcCondition)
+		nResult = This.FindLastSplitAfterPositions(anPos)
+
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindLastSplitAfterWXTZ(pcCondition)
+			return This.FindLastSplitAfterWXT(pcCondition)
 
 		#>
 
@@ -67663,36 +67970,50 @@ Item and then position
 
 		#>
 
+	  #----------------------------------------------------------------------------#
+	 #    FINDING LAST SPLIT (AS SECTION) UNDER A GIVEN CONDTION -- WXT/EXTENDED  #
+	#----------------------------------------------------------------------------#
+
+	def FindLastSplitWXTZZ(pcCondition)
+
+		if isList(pcCondition)
+
+			if Q(pcCondition).IsWhereNamedParam()
+				return This.FindLastSplitAtWXTZZ(pcCondition[2])
+
+			but Q(pcCondition).IsAtNamedParam()
+				return This.FindLastSplitAtWXTZZ(pcCondition[2])
+
+			but Q(pcCondition).IsBeforeNamedParam()
+				return This.FindLastSplitBeforeWXTZZ(pcCondition[2])
+
+			but Q(pcCondition).IsAfterNamedParam()
+				return This.FindLastSplitAfterWXTZZ(pcCondition[2])
+
+			ok
+		
+		else
+
+			return This.FindLastSplitAtWXTZZ(pcCondition)
+		ok
+
+		#< @FunctionAlternativeForm
+
+		def FindLastSplitAsSectionWXT(pcCondition)
+			return This.FindLastSplitWXTZZ(pcCondition)
+
+		#>
+
 	  #----------------------------------------------------------#
 	 #    FINSING LAST SPLIT (AS SECTION) AT A GIVEN CONDTION   #
-	#----------------------------------------------------------#
+	#==========================================================#
 
 	def FindLastSplitAtWZZ(pcCondition)
 			
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
+		anPos = This.FindW(pcCondition)
+		nResult = This.FindLastSplitAtPositionsZZ(anPos)
 
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		aResult = []
-
-		pcCondition = Q(pcCondition).TrimQ().TheseBoundsRemoved( "{","}" )
-
-		if Q(pcCondition).ContainsCS("@Item", :CS = FALSE)
-
-			aSections = This.FindItemsAsSectionsW(pcCondition)
-			aResult = This.FindLastSplitAtSectionsZZ(aSections)
-
-		else
-
-			anPos = This.FindW(pcCondition)
-			aResult = This.FindLastSplitAtPositionsZZ(anPos)
-		ok
-
-		return aResult
+		return nResult
 
 		#< @FunctionAlternativeForm
 
@@ -67701,31 +68022,33 @@ Item and then position
 
 		#>
 
-	  #---------------------------------------------------------------#
-	 #    FINDING LAST SPLIT (AS SECTIONS) BEFORE A GIVEN CONDTION   #
-	#---------------------------------------------------------------#
+	  #-------------------------------------------------------------------------#
+	 #    FINSING LAST SPLIT (AS SECTION) AT A GIVEN CONDTION -- WXT/EXTENDED  #
+	#-------------------------------------------------------------------------#
+
+	def FindLastSplitAtWXTZZ(pcCondition)
+			
+		anPos = This.FindWXT(pcCondition)
+		nResult = This.FindLastSplitAtPositionsZZ(anPos)
+
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindLastSplitAtAsSectionWXT(pcCondition)
+			return This.FindLastSplitAtWXTZZ(pcCondition)
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #    FINDING LAST SPLIT (AS SECTION) BEFORE A GIVEN CONDTION   #
+	#==============================================================#
 
 	def FindLastSplitBeforeWZZ(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
+		anPos = This.FindW(pcCondition)
+		nResult = This.FindLastSplitBeforeZZ(anPos)
 
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsCS("@Item",  :CaseSensitive = FALSE)
-			anPos = This.FindItemsW(pcCondition)
-
-		else
-			anPos = This.FindItemsW(pcCondition)
-		ok
-
-		aResult = This.FindLastSplitBeforePositionsZZ(anPos)
-
-		return aResult
+		return nResult
 
 		#< @FunctionAlternativeForm
 
@@ -67734,36 +68057,54 @@ Item and then position
 
 		#>
 
+	  #-----------------------------------------------------------------------------#
+	 #    FINDING LAST SPLIT (AS SECTION) BEFORE A GIVEN CONDTION -- WXT/EXTENDED  #
+	#-----------------------------------------------------------------------------#
+
+	def FindLastSplitBeforeWXTZZ(pcCondition)
+		anPos = This.FindWXT(pcCondition)
+		nResult = This.FindLastSplitBeforeZZ(anPos)
+
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindLastSplitBeforeAsSectionWXT(pcCondition)
+			return This.FindLastSplitBeforeWXTZZ(pcCondition)
+
+		#>
+
 	  #-------------------------------------------------------------#
 	 #    FINDING LAST SPLIT (AS SECTION) AFTER A GIVEN CONDTION   #
-	#-------------------------------------------------------------#
+	#=============================================================#
 
 	def FindLastSplitAfterWZZ(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
+		anPos = This.FindW(pcCondition)
+		nResult = This.FindLastSplitAfterZZ(anPos)
 
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsCS("@Item",  :CaseSensitive = FALSE)
-			anPos = This.FindItemsW(pcCondition)
-
-		else
-			anPos = This.FindItemsW(pcCondition)
-		ok
-
-		aResult = This.FindLastSplitAfterPositionsZZ(anPos)
-
-		return aResult
+		return nResult
 
 		#< @FunctionAlternativeForm
 
 		def FindLastSplitAfterAsSectionW(pcCondition)
 			return This.FindLastSplitAfterWZZ(pcCondition)
+
+		#>
+
+	  #----------------------------------------------------------------------------#
+	 #    FINDING LAST SPLIT (AS SECTION) AFTER A GIVEN CONDTION -- WXT/EXTENDED  #
+	#----------------------------------------------------------------------------#
+
+	def FindLastSplitAfterWXTZZ(pcCondition)
+		anPos = This.FindWXT(pcCondition)
+		nResult = This.FindLastSplitAfterZZ(anPos)
+
+		return nResult
+
+		#< @FunctionAlternativeForm
+
+		def FindLastSplitAfterAsSectionWXT(pcCondition)
+			return This.FindLastSplitAfterWXTZZ(pcCondition)
 
 		#>
 
