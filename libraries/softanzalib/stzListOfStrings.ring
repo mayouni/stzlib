@@ -11813,67 +11813,12 @@ class stzListOfStrings from stzList
 
 	  #------------------------------------------------#
 	 #   REPLACING STRINGS UNDER A GIVEN CONDITION    #
-	#------------------------------------------------#
+	#================================================#
 
 	def ReplaceStringsW(pCondition, pcOtherStr)
+		acResult = This.ToStzListQ().ReplaceItemsWQ(pCondition, pcOtherStr).Content()
+		This.Update(acResult)
 
-		if NOT ( isString(pCondition) or isList(pCondition) )
-			StzRaise("Incorrect param type! pCondition must be string or list.")
-		ok
-
-		if NOT ( isString(pcOtherStr) or isList(pcOtherStr) )
-			StzRaise("Incorrect param type! pcOtherStr must be string or list.")
-		ok 
-
-		if isList(pCondition) and StzListQ(pCondition).IsWhereNamedParam()
-			cCondition = pCondition[2]
-		ok
-
-		cReplace = :With
-
-		if isList(pcOtherStr) and
-		   ( StzListQ(pcOtherStr).IsByNamedParam() or StzListQ(pcOtherStr).IsWithNamedParam() )
-
-			cReplace = pcOtherStr[1]
-			pcOtherStr = pcOtherStr[2]
-		ok
-
-		cCondition = StzCCodeQ(cCondition).UnifiedFor(:stzList)
-		oCondition = new stzString(cCondition)
-
-		#NOTE: Don't change the name of vars @i and @item
-		# because they'r used by the evaluated conditional-code.
-
-		for @i = 1 to This.NumberOfStrings()
-
-			@item = This[@i]
-			bEval = TRUE
-
-			if @i = This.NumberOfStrings() and
-			   oCondition.Copy().RemoveSpacesQ().ContainsCS("This[i+1]", :CS = FALSE)
-
-				bEval = FALSE
-			ok
-
-			if @i = 1 and
-			   oCondition.Copy().RemoveSpacesQ().ContainsCS("This[i-1]", :CS = FALSE)
-
-				bEval = FALSE
-			ok
-
-			if bEval
-				cCode = 'bOk = ( ' + cCondition + ' )'
-				eval(cCode)
-			
-				if bOk
-					if cReplace = :With
-						This.ReplaceStringAtPosition(@i, pcOtherStr)
-					ok
-				ok
-			ok
-
-		next
-	
 		#< @FunctionFluentForm
 
 		def ReplaceStringsWQ(pCondition, pcOtherStr)
@@ -11906,6 +11851,47 @@ class stzListOfStrings from stzList
 
 		def StringItemsReplacedW(pcCondition, pcOtherStr)
 			return This.StringsReplacedW(pcCondition, pcOtherStr)
+
+	  #---------------------------------------------------------------#
+	 #   REPLACING STRINGS UNDER A GIVEN CONDITION -- WXT/EXTENDED   #
+	#---------------------------------------------------------------#
+
+	def ReplaceStringsWXT(pCondition, pcOtherStr)
+		acResult = This.ToStzListQ().ReplaceItemsWXTQ(pCondition, pcOtherStr).Content()
+		This.Update(acResult)
+
+		#< @FunctionFluentForm
+
+		def ReplaceStringsWXTQ(pCondition, pcOtherStr)
+			This.ReplaceStringsWXT(pCondition, pcOtherStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceStringItemsWXT(pCondition, pcOtherStr)
+			This.ReplaceStringsWXT(pCondition, pcOtherStr)
+
+			def ReplaceStringItemsWXTQ(pCondition, pcOtherStr)
+				This.ReplaceStringItemsWXT(pCondition, pcOtherStr)
+				return This
+
+		def ReplaceWXT(pCondition, pcOtherStr)
+			This.ReplaceStringsWXT(pCondition, pcOtherStr)
+
+			def ReplaceWXTQ(pCondition, pcOtherStr)
+				This.ReplaceWXT(pCondition, pcOtherStr)
+				return This
+
+		#>
+
+	def StringsReplacedWXT(pCondition, pcOtherStr)
+		aResult = This.Copy().ReplaceStringsWXT(pCondition, pcOtherStr)
+		return aResult
+
+		def StringItemsReplacedWXT(pcCondition, pcOtherStr)
+			return This.StringsReplacedWXT(pcCondition, pcOtherStr)
 
 	  #==============================================================================#
 	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING IN THE LIST WITH A NEW SUBSTRING   #
@@ -13252,6 +13238,8 @@ stop()
 		}		
 
 		*/
+
+		#TODO # Review this dynamiuc check for performance!
 
 		if NOT ( isList(panList) and StzListQ(panList).IsListOfNumbers() and
 		         StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " +
