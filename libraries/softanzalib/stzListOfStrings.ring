@@ -4247,9 +4247,13 @@ class stzListOfStrings from stzList
 
 	def FindStringItemsW(pcCondition)
 
-		acResult = This.ToStzList().FindW(pcCondition)
+		anResult = This.ToStzList().FindW(pcCondition)
+		return anResult
 
-		return acResult
+		#WARNING
+		# Do not remove ToStzList() --> Stack overflow!
+
+		
 
 		#< @FunctionAlternativeForms
 
@@ -14076,10 +14080,9 @@ stop()
 		ok
 
 		panPos = ring_sort(panPos)
-		oQStr = This.QStringListObject()
 
 		for i = nLen to 1 step -1
-			oQStr.removeAt(i-1)
+			@oQStrList.removeAt(panPos[i]-1)
 		next
 
 		#< @FunctionFluentForm

@@ -1,10 +1,28 @@
 load "stzlib.ring"
 
 
+/*-------
+
+pron()
+
+o1 = new stzList([
+	"",
+	"ABCDEF", "GHIJKL", "123346",
+	"MNOPQU", "RSTUVW", "984332",
+	""
+])
+
+? o1.FindW('  Q(This[@i]).IsMadeOfNumbers()  ')
+#--> [ 4, 7 ]
+
+proff()
+# Executed in 0.12 second(s)
 
 /*-------
 */
-o1 = new stzString("
+pron()
+
+o1 = new stzString(" 
 ABCDEF
 GHIJKL
 123346
@@ -14,12 +32,17 @@ RSTUVW
 ")
 
 o1.RemoveLinesW(' Q(This[@i]).IsMadeOfNumbers() ')
-//o1.RemoveLinesWXT(' Q(@Line).IsMadeOfNumbers() ')
+#-->
+#
+# ABCDEF
+# GHIJKL
+# MNOPQU
+# RSTUVW
+#
 
-? NL + "****" + NL
-? o1.Content()
 
 proff()
+# Executed in 0.15 second(s)
 
 /*-----
 

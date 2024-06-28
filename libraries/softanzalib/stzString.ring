@@ -5896,6 +5896,9 @@ class stzString from stzObject
 
 		return bResult
 
+	#TODO
+	# Add ContainsNumbersXT() that finds other types of numbers other then decimal
+
 	  #========================#
 	 #  NORMALIZING MARQUERS  #
 	#========================#

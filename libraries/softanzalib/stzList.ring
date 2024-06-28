@@ -40784,8 +40784,7 @@ Item and then position
 			# And you should put simply:
 
 		cCode = 'bOk = (' + pcCondition + ' )'
-? @@( This.Content() )
-dfdf
+
 		# Doing the job
 
 		anResult = []
