@@ -14076,9 +14076,10 @@ stop()
 		ok
 
 		panPos = ring_sort(panPos)
+		oQStr = This.QStringListObject()
 
 		for i = nLen to 1 step -1
-			@ring_del(@acContent, i)
+			oQStr.removeAt(i-1)
 		next
 
 		#< @FunctionFluentForm

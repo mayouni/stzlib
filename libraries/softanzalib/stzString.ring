@@ -5812,7 +5812,7 @@ class stzString from stzObject
 		cResult = This.LinesQR(:stzListOfStrings).
 			       RemoveWQ(pcCondition).
 			       ConcatenatedUsing(NL)
-? cResult
+
 		This.Update(cResult)
 
 		def RemoveLinesWQ(pcCondition)
@@ -78150,20 +78150,15 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#========================================#
 
 	def AllCharsAreNumbers()
-		nLen = This.NumberOfChars()
+		bResult = FALSE
 
-		if nLen = 0 or (nLen = 1 and NOT This.FirstCharQ().IsANumber() )
-			return FALSE
-		ok
-
-		bResult = TRUE
-		
-		for i = 1 to nLen
-			if NOT This.CharQ(i).IsANumber()
-				bResult = FALSE
-				exit
+		try
+			if isNumber( 0+ This.Content() )
+				bResult = TRUE
 			ok
-		next
+		catch
+			// Do nothing
+		done
 
 		return bResult
 
