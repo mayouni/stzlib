@@ -33352,7 +33352,7 @@ class stzString from stzObject
 
 	  #---------------------------------------------------#
 	 #    INSERTING A SUBSTRING (BEFORE) EVERY N CHARS   #
-	#---------------------------------------------------#
+	#===================================================#
 
 	def InsertBeforeEveryNChars(n, pcSubStr)
 		if CheckParams()
@@ -33472,7 +33472,7 @@ class stzString from stzObject
 	   #--------------------------------------------------------#
 	  #    INSERTING A SUBSTRING AFTER A POSITION DEFINED      #
 	 #    BY A GIVEN CONDITION APPLIED ON THE STRING CHARS    #
-	#--------------------------------------------------------#
+	#========================================================#
 
 	def InsertAfterW( pcCondition, pcSubStr )
 		anPos = This.FindW(pcCondition)
@@ -33518,9 +33518,58 @@ class stzString from stzObject
 		def SubStringInsertedAfterWhere(pcCondition, pcSubStr)
 			return This.SubStringInsertedAfterW(pcCondition, pcSubStr)
 
+	   #------------------------------------------------------------------#
+	  #    INSERTING A SUBSTRING AFTER A POSITION DEFINED BY A GIVEN     #
+	 #    CONDITION  APPLIED ON THE STRING CHARS -- WXT/EXTENDED        #
+	#------------------------------------------------------------------#
+
+	def InsertAfterWXT(pcCondition, pcSubStr)
+		anPos = This.FindWXT(pcCondition)
+		This.InsertAfterPositions( anPos, pcSubStr )
+
+		#< @FunctionFluentForm
+
+		def InsertAfterWXTQ(pcCondition, pcSubStr)
+			This.InsertAfterWXT(pcCondition, pcSubStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def InsertSubStringAfterWXT(pcCondition, pcSubStr)
+			This.InsertAfterWXT(pcCondition, pcSubStr)
+
+			def InsertSubStringAfterWXTQ(pcCondition, pcSubStr)
+				This.InsertSubStringAfterWXT(pcCondition, pcSubStr)
+				return This
+
+		def InsertAtWXT(pcCondition, pcSubStr)
+			This.InsertAfterWXT(pcCondition, pcSubStr)
+
+			def InsertAtWXTQ(pcCondition, pcSubStr)
+				This.InsertAtWXT(pcCondition, pcSubStr)
+				return This
+
+		def InsertSubstringAtWXT(pcCondition, pcSubStr)
+			This.InsertAfterWXT(pcCondition, pcSubStr)
+
+			def InsertSubstringAtWXTQ(pcCondition, pcSubStr)
+				This.InsertSubStringAtWXT(pcCondition, pcSubStr)
+				return This
+
+		#>
+
+	def SubStringInsertedAfterWXT(pcCondition, pcSubStr)
+		cResult = This.Copy().InsertAfterWXTQ(pcCondition, pcSubStr).Content()
+		return cResult
+
+		def SubStringInsertedAtWXT(pcCondition, pcSubStr)
+			return This.SubStringInsertedAfterWXT(pcCondition, pcSubStr)
+
 	  #------------------------------------------------#
 	 #   INSERTING A SUBSTRING AFTER MANY POSITIONS   #
-	#------------------------------------------------#
+	#================================================#
 
 	 def InsertAfterPositions(panPos, pcSubStr)
 		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
