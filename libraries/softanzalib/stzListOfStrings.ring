@@ -4243,7 +4243,7 @@ class stzListOfStrings from stzList
 
 	  #--------------------------------------------------------#
 	 #    FINDING STRING-ITEMS VERIYING A GIVEN CONDITION     #
-	#--------------------------------------------------------#
+	#========================================================#
 
 	def FindStringItemsW(pcCondition)
 
@@ -4298,9 +4298,65 @@ class stzListOfStrings from stzList
 
 		#>
 
+	  #-----------------------------------------------------------------------#
+	 #    FINDING STRING-ITEMS VERIYING A GIVEN CONDITION -- WXT/EXTENDED    #
+	#-----------------------------------------------------------------------#
+
+	def FindStringItemsWXT(pcCondition)
+
+		anResult = This.ToStzList().FindWXT(pcCondition)
+		return anResult
+
+		#WARNING
+		# Do not remove ToStzList() --> Stack overflow!
+
+		
+		#< @FunctionAlternativeForms
+
+		def FindStringsWXT(pcCondition)
+			return This.FindStringItemsWXT(pcCondition)
+	
+		def FindWXT(pcCondition)
+			return This.FindStringItemsWXT(pcCondition)
+
+		def FindAllWXT(pcCondition)
+			return This.FindStringItemsWXT(pcCondition)
+
+		def FindWhereXT(pcCondition)
+			return This.FindStringItemsWXT(pcCondition)
+
+		def FindAllWhereXT(pcCondition)
+			return This.FindStringItemsWXT(pcCondition)
+
+		def StringsPositionsWXT(pcCondition)
+			return This.FindStringItemsWXT(pcCondition)
+
+		def PositionsOfStringsWXT(pcCondition)
+			return This.FindStringItemsWXT(pcCondition)
+
+		def StringsPositionsWhereXT(pcCondition)
+			return This.FindStringItemsWXT(pcCondition)
+
+		def PositionsOfStringsWhereXT(pcCondition)
+			return This.FindStringItemsWXT(pcCondition)
+
+		def StringItemsPositionsWXT(pcCondition)
+			return This.FindStringItemsWXT(pcCondition)
+
+		def PositionsOfStringItemsWXT(pcCondition)
+			return This.FindStringItemsWXT(pcCondition)
+
+		def StringItemsPositionsWhereXT(pcCondition)
+			return This.FindStringItemsWXT(pcCondition)
+
+		def PositionsOfStringItemsWhereXT(pcCondition)
+			return This.FindStringItemsWXT(pcCondition)
+
+		#>
+
 	  #-----------------------------------------------------------------------------#
 	 #  FINDING NEXT NTH OCCURRENCE OF A STRING-ITEM STARTING AT A GIVEN POSITION  #           #
-	#-----------------------------------------------------------------------------#
+	#=============================================================================#
 
 	def FindNextNthOccurrenceOfStringItemCS(n, pcStrItem, pnStartingAt, pCaseSensitive)
 
@@ -14423,14 +14479,14 @@ stop()
 
 	  #----------------------------------------------#
 	 #   REMOVING STRINGS UNDER A GIVEN CONDITION   #
-	#----------------------------------------------#
+	#==============================================#
 
 	def RemoveW(pCondition)
 		/*
 		Example:
 
 		o1 = new stzListOfStrings([ "1", "a", "2", "b", "3", "c" ])
-		o1.RemoveAllStringsW(:Where = '{ StzCharQ(@string).IsANumber() }')
+		o1.RemoveAllStringsW(:Where = '{ StzCharQ(This[@i]).IsANumber() }')
 		? o1.Content()
 
 		#--> Gives: [ "a", "b", "c" ]
@@ -14473,6 +14529,59 @@ stop()
 
 		def StringItemsRemovedW(pCondition)
 			return This.StringsRemovedW(pCondition)
+
+	  #-------------------------------------------------------------#
+	 #   REMOVING STRINGS UNDER A GIVEN CONDITION -- WXT/EXTENDED  #
+	#-------------------------------------------------------------#
+
+	def RemoveWXT(pCondition)
+		/*
+		Example:
+
+		o1 = new stzListOfStrings([ "1", "a", "2", "b", "3", "c" ])
+		o1.RemoveAllStringsWXT(:Where = '{ StzCharQ(@string).IsANumber() }')
+		? o1.Content()
+
+		#--> Gives: [ "a", "b", "c" ]
+		*/
+
+		# Checking the provided param for the pCondition
+
+		anPos = This.FindWXT(pCondition)
+		This.RemoveStringsAtThesePositions(anPos)
+
+		#< @FunctionFluentForm
+
+		def RemoveWXTQ(pCondition)
+			This.RemoveWXT(pCondition)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveStringsWXT(pCondition)
+			This.RemoveWXT(pCondition)
+
+			def RemoveStringsWXTQ(pCondition)
+				This.RemoveStringsWXT(pCondition)
+				return This
+
+		def RemoveStringItemsWXT(pCondition)
+			This.RemoveWXT(pCondition)
+
+			def RemoveStringItemsWXTQ(pCondition)
+				This.RemoveStringItemsWXT(pCondition)
+				return This
+
+		#>
+
+	def StringsRemovedWXT(pCondition)
+		aResult = This.Copy().RemoveStringsWXTQ(pCondition).Content()
+		return aResult
+
+		def StringItemsRemovedWXT(pCondition)
+			return This.StringsRemovedWXT(pCondition)
 
 	  #================================================================#
 	 #     CHECKING IF THE LIST IS "BOUNDED' BY TWO GIVEN STRINGS     #
