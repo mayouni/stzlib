@@ -100,11 +100,44 @@ func IsNotString(pcStr)
 func @IsAlpha(cStr)
 	return StzStringQ(cStr).IsAlpha()
 
+	#< @FunctionAlternativeForms
+
 	func IsAlphabetical(cStr)
 		return @IsAlpha(cStr)
 
 	func @IsAlphabetical(cStr)
 		return @IsAlpha(cStr)
+
+	#--
+
+	func IsAlphabetic(cStr)
+		return @IsAlpha(cStr)
+
+	func @IsAlphabetic(cStr)
+		return @IsAlpha(cStr)
+
+	#>
+
+func @IsAlnum(cStr)
+	return StzStringQ(cStr).IsAlnum()
+
+	#< @FunctionAlternativeForms
+
+	func IsAlphaNumerical(cStr)
+		return @IsAlnum(cStr)
+
+	func @IsAlphaNumerical(cStr)
+		return @IsAlnum(cStr)
+
+	#--
+
+	func IsAlphaNumeric(cStr)
+		return @IsAlnum(cStr)
+
+	func @IsAlphanumeric(cStr)
+		return @IsAlnum(cStr)
+
+	#>
 
 func IsNullString(cStr)
 	if isString(cStr) and cStr != NULL
@@ -38868,17 +38901,36 @@ class stzString from stzObject
 	#========================================#
 	#TODO: Reorganize it with similar functions
 
-	def ContainsOnlySpaces()
-		if This.content() = ""
+
+	def ContainsOnlySpaces() #NOTE # this is different from ContainsSpaces()
+		
+		if This.Trimmed() = ""
+			return TRUE
+		else
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
+		def IsMadeOfSpaces()
+			return This.ContainsOnlySpaces()
+
+		def IsMadeOfOnlySpaces()
+			return This.ContainsOnlySpaces()
+
+		def IsBlank()
+			return This.ContainsOnlySpaces()
+
+		#>
+
+	def ContainsOnlyLetters() #NOTE # this is different from ContainsLetters()
+		aoChars = This.CharsQ().ToListOfStzChars() #NOTE # this is different from ToStzListOfChars()
+		nLen = len(aoChars)
+
 		bResult = TRUE
 
-		for i = 1 to This.NumberOfChars()
-			c = This.NthChar(i)
-
-			if c != " "
+		for i = 1 to nLen
+			if NOT aoChars[i].IsLetter()
 				bResult = FALSE
 				exit
 			ok
@@ -38886,23 +38938,93 @@ class stzString from stzObject
 
 		return bResult
 
-	def ContainsOnlyLetters()
-		bResult = TRUE
+		#< @FunctionAlternativeForms
 
-		for i = 1 to This.NumberOfChars()
-			if NOT This.CharAtQ(i).IsLetter()
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
+		def IsAlphabetic()
+			return This.ContainsOnlyLetters()
 
 		def IsAplhabetical()
 			return This.ContainsOnlyLetters()
 
 		def IsAlpha()
 			return This.ContainsOnlyLetters()
+
+		def IsMadeOfOnlyLetters()
+			return This.ContainsOnlyLetters()
+
+		#>
+
+	def ContainsLettersAndNumbers()
+		if This.ContainsLetters() or This.ContainsNumbers()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def ContainsNumbersAndLetters()
+			return This.ContainsLettersAndNumbers() 
+
+		def IsMadeOfNumbersAndLetters()
+			return This.ContainsLettersAndNumbers() 
+
+		def IsMadeOfLettersAndNumbers()
+			return This.ContainsLettersAndNumbers() 
+
+	def ContainsOnlyLettersOrNumbers()
+		if This.ContainsOnlyLetters() or This.ContainsOnlyNumbers()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def ContainsOnlyNumbersOrLetters()
+			return This.ContainsOnlyLettersOrNumbers()
+
+		def IsMadeOfOnlyNumbersOrLetters()
+			return This.ContainsOnlyLettersOrNumbers()
+
+		def IsMadeOfNumbersOrLetters()
+			return This.ContainsOnlyLettersOrNumbers()
+
+	def ContainsOnlyLettersAndNumbers()
+		aoChars = This.CharsQ().ToListOfStzChars()
+		nLen = len(aoChars)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT aoChars[i].IsLetterOrNumber()
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#<@ FunctionAlternativeForms
+
+		def ContainsOnlyNumbersAndLetters()
+			return This.ContainsOnlyLettersAndNumbers()
+
+		def IsMadeOfOnlyLettersAndNumbers()
+			return This.ContainsOnlyLettersAndNumbers()
+
+		def IsMadeOfOnlyNumbersAndLetters()
+			return This.ContainsOnlyLettersAndNumbers()
+
+		def IsAlphaNum()
+			return This.ContainsOnlyLettersAndNumbers()
+
+		def IsAlphaNumerical()
+			return This.ContainsOnlyLettersAndNumbers()
+
+		def IsAlphaNumeric()
+			return This.ContainsOnlyLettersAndNumbers()
+
+		def IsAlNum()
+			return This.ContainsOnlyLettersAndNumbers()
+
+		#>
 
 	  #=========================================================#
 	 #  CHEHCKING IF THE STRING STARTS WITH A GIVEN SUBSTRING  #
@@ -79864,40 +79986,19 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			stzRaise("You must provide a list of chars!")
 		ok
 
+		def ContainsOnlyTheseCharsCS(acChars, pCaseSensitive)
+			return This.IsMadeOfTheseCharsCS(acChars, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def IsMadeOfTheseChars(acChars)
 		return This.IsMadeOfTheseCharsCS(acChars, TRUE)
 
-	  #---------------------------------------------#
-	 #  CHECKING IF THE STRING IS MADE OF LETTERS  #
-	#---------------------------------------------#
+		def ContainsOnlyTheseChars(acChars, pCaseSensitive)
+			return This.IsMadeOfTheseChars(acChars)
 
-	def IsMadeOfLetters()
-		bResult = TRUE
-
-		for i = 1 to This.NumberOfChars()
-			if This.CharQ(i).IsNotALetter()
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
-
-	  #-----------------------------------------------#
-	 #   CHEKCIKNG IF THE STRING IS MADE OF SPACES   #
-	#-----------------------------------------------#
-	
-	def IsMadeOfSpaces()
-		if This.NumberOfSpaces() = This.NumberOfChars()
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		def IsBlank()
-			return This.IsMadeOfSpaces()
+	#TODO
+	# Add ContainsOnly...() alternative to all IsMadeOf...() functions and vice versa
 
 	  #-----------------#
 	 #   MULTIPLY BY   #	TODO: reclassify it with other calculations
