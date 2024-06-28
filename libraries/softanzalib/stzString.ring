@@ -33200,7 +33200,7 @@ class stzString from stzObject
 	   #--------------------------------------------------------#
 	  #    INSERTING A SUBSTRING BEFORE A POSITION DEFINED     #
 	 #    BY A GIVEN CONDITION APPLIED ON THE STRING CHARS    #
-	#--------------------------------------------------------#
+	#========================================================#
 
 	def InsertBeforeW(pcCondition, pcSubStr)
 		anPos = This.FindW(pcCondition)
@@ -33224,14 +33224,14 @@ class stzString from stzObject
 				return This
 
 		def InsertAtW(pcCondition, pcSubStr)
-			This.InsertBefore(pcCondition, pcSubStr)
+			This.InsertBeforeW(pcCondition, pcSubStr)
 
 			def InsertAtWQ(pcCondition, pcSubStr)
 				This.InsertAtW(pcCondition, pcSubStr)
 				return This
 
 		def InsertSubstringAtW(pcCondition, pcSubStr)
-			This.InsertBefore(pcCondition, pcSubStr)
+			This.InsertBeforeW(pcCondition, pcSubStr)
 
 			def InsertSubstringAtWQ(pcCondition, pcSubStr)
 				This.InsertSubStringAtW(pcCondition, pcSubStr)
@@ -33245,6 +33245,55 @@ class stzString from stzObject
 
 		def SubStringInsertedAtW(pcCondition, pcSubStr)
 			return This.SubStringInsertedBeforeW(pcCondition, pcSubStr)
+
+	   #------------------------------------------------------------------#
+	  #    INSERTING A SUBSTRING BEFORE A POSITION DEFINED BY A GIVEN    #
+	 #    CONDITION  APPLIED ON THE STRING CHARS -- WXT/EXTENDED        #
+	#------------------------------------------------------------------#
+
+	def InsertBeforeWXT(pcCondition, pcSubStr)
+		anPos = This.FindWXT(pcCondition)
+		This.InsertBeforePositions( anPos, pcSubStr )
+
+		#< @FunctionFluentForm
+
+		def InsertBeforeWXTQ(pcCondition, pcSubStr)
+			This.InsertBeforeWXT(pcCondition, pcSubStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def InsertSubStringBeforeWXT(pcCondition, pcSubStr)
+			This.InsertBeforeWXT(pcCondition, pcSubStr)
+
+			def InsertSubStringBeforeWXTQ(pcCondition, pcSubStr)
+				This.InsertSubStringBeforeWXT(pcCondition, pcSubStr)
+				return This
+
+		def InsertAtWXT(pcCondition, pcSubStr)
+			This.InsertBeforeWXT(pcCondition, pcSubStr)
+
+			def InsertAtWXTQ(pcCondition, pcSubStr)
+				This.InsertAtWXT(pcCondition, pcSubStr)
+				return This
+
+		def InsertSubstringAtWXT(pcCondition, pcSubStr)
+			This.InsertBeforeWXT(pcCondition, pcSubStr)
+
+			def InsertSubstringAtWXTQ(pcCondition, pcSubStr)
+				This.InsertSubStringAtWXT(pcCondition, pcSubStr)
+				return This
+
+		#>
+
+	def SubStringInsertedBeforeWXT(pcCondition, pcSubStr)
+		cResult = This.Copy().InsertBeforeWXTQ(pcCondition, pcSubStr).Content()
+		return cResult
+
+		def SubStringInsertedAtWXT(pcCondition, pcSubStr)
+			return This.SubStringInsertedBeforeWXT(pcCondition, pcSubStr)
 
 	  #----------------------------------------------------#
 	 #    INSERTING A SUBSTRING AFTER A GIVEN POSITION    #
