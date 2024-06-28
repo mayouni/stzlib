@@ -1149,6 +1149,14 @@ class stzChar from stzObject
 		def IsNumberOrLetter()
 			return This.IsLetterOrNumber()
 
+		#--
+
+		def IsALetterOrNumber()
+			return This.IsLetterOrNumber()
+
+		def IsANumberOrLetter()
+			return This.IsLetterOrNumber()
+
 		#>
 		
 	def IsLetterOrSpace()

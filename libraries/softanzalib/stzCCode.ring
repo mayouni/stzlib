@@ -169,10 +169,12 @@ class stzCCode
 				"@items", "@allItems", "@item",
 			
 				"@chars", "@allChars", "@char",
+
 				"@strings", "@allStrings", "@string",
 				"@strinItems", "@allStringItems", "@StringItem",
-
-				
+				"@SubStrings", "@allSubStrings", "@SubString",
+				"@Lines", "@allLines", "@Line",
+	
 				"@numbers","@allNumbers", "@number",
 				
 				"@lists", "@allLists", "@list",
@@ -186,7 +188,9 @@ class stzCCode
 				"-@Number",
 
 				"@NextItem",
-				"@NextChar","@NextString","@NextStringItem",
+				"@NextChar","@NextString","@NextStringItem", "@NextSubString",
+				"@NextLine",
+
 				"@NextNumber",
 				
 				"@NextList","@NextPair",
@@ -196,7 +200,8 @@ class stzCCode
 
 				"@PreviousItem",
 				"@PreviousChar",
-				"@PreviousString","@PreviousStringItem",
+				"@PreviousString","@PreviousStringItem", "@PreviousSubString",
+				"@PreviousLine",
 				"@PreviousNumber",
 
 				"@PreviousList","@PreviousPair",
@@ -211,7 +216,8 @@ class stzCCode
 								
 				" @chars ","@allChars",
 				" @strings ","@allStrings",
-				
+				" @SubStrings ","@allSubStrings",
+				" @Lines ",
 				" @numbers ","@allNumbers",
 				
 				" @lists ","@allLists",
@@ -232,6 +238,7 @@ class stzCCode
 				" @item ", " @EachItem ", " @CurrentItem ",
 				" @char ", " @EachChar ", " @CurrentChar ",
 				" @string", " @EachString ", " @CurrentString ",
+				" @SubString", " @EachSubString ", " @CurrentSubString ",
 				" @line", " @EachLine ", " @CurrentLine ",
 
 				" @number ", " @EachNumber ", " @CurrentNumber ",
@@ -253,7 +260,8 @@ class stzCCode
 				
 			ReplaceManyCSQ([
 				" @NextItem ",
-				" @NextChar ", " @NextString ", " @NextStringItem ",
+				" @NextChar ", " @NextString ", " @NextStringItem ", " @NextSubString ",
+				" @NextLine ",
 				" @NextNumber ",
 				
 				" @NextList ", " @NextPair ",
@@ -269,7 +277,8 @@ class stzCCode
 			ReplaceManyCSQ([
 				" @PreviousItem ",
 				" @PreviousChar ",
-				" @PreviousString ", " @PreviousStringItem ",
+				" @PreviousString ", " @PreviousStringItem ", " @PreviousSubString ",
+				" @PreviousLine ",
 				" @PreviousNumber ",
 
 				" @PreviousList ", " @PreviousPair ",
