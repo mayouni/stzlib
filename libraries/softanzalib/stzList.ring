@@ -14112,14 +14112,14 @@ Item and then position
 
 	  #--------------------------------------------#
 	 #   REMOVING ITEMS UNDER A GIVEN CONDITION   #
-	#--------------------------------------------#
+	#============================================#
 
 	def RemoveW(pCondition)
 		/*
 		Example:
 
 		o1 = new stzList([ "1", "a", "2", "b", "3", "c" ])
-		o1.RemoveAllItemsW(:Where = '{ StzCharQ(@item).IsANumber() }')
+		o1.RemoveAllItemsW(:Where = '{ StzCharQ(This[@i]).IsANumber() }')
 		? o1.Content()
 
 		#--> Gives: [ "a", "b", "c" ]
@@ -14128,7 +14128,6 @@ Item and then position
 		# Checking the provided param for the pCondition
 
 		anPos = This.FindW(pCondition)
-
 		This.RemoveItemsAtThesePositions(anPos)
 
 		#< @FunctionFluentForm
@@ -14152,6 +14151,49 @@ Item and then position
 
 	def ItemsRemovedW(pCondition)
 		aResult = This.Copy().RemoveItemsWQ(pCondition).Content()
+		return aResult
+
+	  #------------------------------------------------------------#
+	 #   REMOVING ITEMS UNDER A GIVEN CONDITION -- WXT/EXTENDED   #
+	#------------------------------------------------------------#
+
+	def RemoveWXT(pCondition)
+		/*
+		Example:
+
+		o1 = new stzList([ "1", "a", "2", "b", "3", "c" ])
+		o1.RemoveAllItemsWXT(:Where = '{ StzCharQ(@item).IsANumber() }')
+		? o1.Content()
+
+		#--> Gives: [ "a", "b", "c" ]
+		*/
+
+		# Checking the provided param for the pCondition
+
+		anPos = This.FindWXT(pCondition)
+		This.RemoveItemsAtThesePositions(anPos)
+
+		#< @FunctionFluentForm
+
+		def RemoveWXTQ(pCondition)
+			This.RemoveWXT(pCondition)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveItemsWXT(pCondition)
+			This.RemoveWXT(pCondition)
+
+			def RemoveItemsWXTQ(pCondition)
+				This.RemoveItemsWXT(pCondition)
+				return This
+
+		#>
+
+	def ItemsRemovedWXT(pCondition)
+		aResult = This.Copy().RemoveItemsWXTQ(pCondition).Content()
 		return aResult
 
 	  #====================================#
