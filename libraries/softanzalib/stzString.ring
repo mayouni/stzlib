@@ -4556,7 +4556,7 @@ class stzString from stzObject
 			return This.FindSubStringsAsSectionsWXT(pcCondition)
 
 		#>
-www
+
 	  #===============================================#
 	 #  ALL POSSIBLE SUBSTRINGS AND THEIR POSITIONS  #
 	#===============================================#
@@ -5333,26 +5333,20 @@ www
 	  #----------------------------------------------------#
 	 #  GETTING THE GIVEN SUBSTRINGS AND THEIR POSITIONS  #
 	#====================================================#
-	#TODO: Check performance
-	#~> Use same implementation as SubStrings()
 
 	def TheseSubStringsCSZ(pacSubStr, pCaseSensitive)
 		if CheckParams()
-			if NOT (isList(pacSubStr) and Q(pacSubStr).IsListOfStrings())
+			if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 			ok
 		ok
 
-		acSubStr = Q(pacSubStr).ToSet()
-		nLen = len(acSubStr)
-
-		aResult = []
-
-		for i = 1 to nLen
-			aResult + [ pacSubStr[i], This.FindCS(pacSubStr[i], pCaseSensitive) ]
-		next
+		aSubStrU = U( pacSubStr ) # U removes duplicates
+		anPos = This.FindManyCS(aSubStrU, pCaseSensitive)
+		aResult = @Association([ aSubStrU, anPos ])
 
 		return aResult
+
 
 		def TheseSubStringsAndTheirPositionsCS(pacSubStr, pCaseSensitive)
 			return This.TheseSubStringsCSZ(pacSubStr, pCaseSensitive)
@@ -5370,23 +5364,15 @@ www
 	#---------------------------------------------------#
 
 	def TheseSubStringsCSZZ(pacSubStr, pCaseSensitive)
-	#TODO: Check performance
-	#~> Use same implementation as SubStrings()
-
 		if CheckParams()
-			if NOT (isList(pacSubStr) and Q(pacSubStr).IsListOfStrings())
+			if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 			ok
 		ok
 
-		acSubStr = Q(pacSubStr).ToSet()
-		nLen = len(acSubStr)
-
-		aResult = []
-
-		for i = 1 to nLen
-			aResult + [ pacSubStr[i], This.FindCSZZ(pacSubStr[i], pCaseSensitive) ]
-		next
+		aSubStrU = U( pacSubStr ) # U removes duplicates
+		anPos = This.FindManyCSZZ(aSubStrU, pCaseSensitive)
+		aResult = @Association([ aSubStrU, anPos ])
 
 		return aResult
 
@@ -5794,9 +5780,50 @@ www
 
 	  #------------------------------------------#
 	 #  REMOVING LINES UNDER A GIVEN CONDITION  #
-	#------------------------------------------#
+	#==========================================#
 
 	def RemoveLinesW(pcCondition)
+		/* EXAMPLE
+
+		o1 = new stzString("
+
+		ABCDEF
+		GHIJKL
+		123346
+		MNOPQU
+		RSTUVW
+		984332
+
+		")
+
+		o1.RemoveLinesW(' Q(This[@i]).IsMadeOfNumbers() ')
+		? o1.Content()
+
+		#--> "
+
+		ABCDEF
+		GHIJKL
+		MNOPQU
+		RSTUVW
+
+		"
+		*/
+
+		cResult = This.LinesQR(:stzListOfStrings).
+			       RemoveWQ(pcCondition).
+			       ConcatenatedUsing(NL)
+? cResult
+		This.Update(cResult)
+
+		def RemoveLinesWQ(pcCondition)
+			This.RemoveLinesW(pcCondition)
+			return This
+
+	  #------------------------------------------#
+	 #  REMOVING LINES UNDER A GIVEN CONDITION  #
+	#==========================================#
+
+	def RemoveLinesWXT(pcCondition)
 		/* EXAMPLE
 
 		o1 = new stzString("
@@ -5823,23 +5850,19 @@ www
 		"
 		*/
 
-		oListOfStr = This.LinesQR(:stzListOfStrings)
-
-		pcCondition = Q(pcCondition).
-			      ReplaceCSQ("@line", "This[@i]", :CS = FALSE).
-			      Content()
-
-		cResult = oListOfStr.RemoveWQ(pcCondition).ConcatenatedUsing(NL)
+		cResult = This.LinesQR(:stzListOfStrings).
+			       RemoveWXTQ(pcCondition).
+			       ConcatenatedUsing(NL)
 
 		This.Update(cResult)
 
-		def RemoveLinesWQ(pcCondition)
-			This.RemoveLinesW(pcCondition)
+		def RemoveLinesWXTQ(pcCondition)
+			This.RemoveLinesWXT(pcCondition)
 			return This
 
 	  #------------------------#
 	 #  REMOVING EMPTY LINES  #
-	#------------------------#
+	#========================#
 
 	def RemoveEmptyLines()
 		cResult = This.LinesQR(:stzListOfStrings).

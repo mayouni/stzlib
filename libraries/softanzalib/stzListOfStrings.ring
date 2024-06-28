@@ -13591,15 +13591,20 @@ stop()
 			ok
 		ok
 
-		if NOT ( isNumber(n) and n != 0 )
-			StzRaise("Incorrect param! n must be a number different from zero.")
+		if NOT isNumber(n)
+			StzRaise("Incorrect param! n must be a number.")
+		ok
+
+		nLen = This.NumberOfStrings()
+
+		if n <= 0 or n > nLen
+			StzRaise("Incorrect param! n must be a number between 1 and " + nLen + ".")
+
 		ok
 
 		# Doing the job (Qt-side)
 
-		if n <= This.NumberOfStrings()
-			This.QStringListObject().removeAt(n-1)
-		ok
+		This.QStringListObject().removeAt(n-1)
 
 		#< @FunctionFluentForm
 
@@ -14056,8 +14061,9 @@ stop()
 	#=======================================================#
 
 	def RemoveStringsAtPositions(panPos)
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
-			StzRaise("Incorrect param type! panPos must be a list of numbers.")
+
+		if NOT isList(panPos)
+			StzRaise("Incorrect param type! panPos must be a list.")
 		ok
 
 		nLen = len(panPos)
@@ -14065,12 +14071,14 @@ stop()
 			return
 		ok
 
+		if NOT @IsListOfNumbers(panPos)
+			StzRaise("Incorrect param type! panPos must be a list of numbers.")
+		ok
+
 		panPos = ring_sort(panPos)
 
 		for i = nLen to 1 step -1
-
-			This.RemoveStringAtPosition(panPos[i])
-
+			@ring_del(@acContent, i)
 		next
 
 		#< @FunctionFluentForm
