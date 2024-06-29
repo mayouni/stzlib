@@ -49,6 +49,12 @@ func ParagraphSeparator()
 func DefaultLanguage()
 	return _cDefaultLanguage
 
+func Language(cText)
+	return StzTextQ(cText).Language()
+
+	func @Language(cText)
+		return Language(Text)
+
 func StzTextQ(pcStr)
 	return new stzText(pcStr)
 
@@ -76,9 +82,11 @@ func IsStzText(p)
 	func @IsStzText(p)
 		return IsStzText(p)
 
-# Useful four finding instances of WORDS (an not substrings!) inside a string
+# Useful four finding instances of WORDS (and not substrings!) inside a string
 func PossibleWordInstancesXT(pcWord, cWordPositionInSentence)
-	
+	#INFO # There is a Qt function that does this : QTextBoundaryFinder
+	#TODO # Include it in RingQt and then use it to detect words, sentence, lines etc
+
 	/* REMINDER (from stzCharData.ring)
 
 	# Word and sentence separators
@@ -512,13 +520,15 @@ func SubstringsNotAllowedInEndOfWord()
 
 class stzText from stzString
 	@oQString
-	@cLanguage = DefaultLanguage()
+	@cLanguage
 
 	def init(pcStr)
 		if isString(pcStr)
 			@cContent = pcStr
 			@oQString = new QString2()
 			@oQString.append(pcStr)
+
+			@cLanguage = StzScriptQ( This.Script() ).DefaultLanguage()
 
 		but @IsStzString(pcStr)
 			@oQString = pcStr.QStringObject()
@@ -557,7 +567,7 @@ class stzText from stzString
 	 #     SCRIPT     #
 	#----------------#
 
-	/*
+	/* #INFO
 	From: https://bit.ly/3lnjMoV
 
 	"Code for Inherited Script" does not refer to a particular script
@@ -614,7 +624,7 @@ class stzText from stzString
 			# scripts, then the main script we should return to the user
 			# is :Arabic itself.
 
-			# This beeing explainde, the following algorithm becomes obvious!
+			# This beeing explained, the following algorithm becomes obvious!
 
 			if This.NumberOfScripts() <= 3
 				oScripts = StzListQ( This.Scripts() )

@@ -11,7 +11,7 @@ _aLocaleScriptsXT = [
 		- here in stzScript.ring, and
 		- in stzCharData
 
-		By consequence, two sets of functions exits:
+		By consequence, two sets of functions exist:
 		- LocaleScripts() in this files (stzScript.ring), and
 		- UnicodeScripts() in stzCharData.ring
 
@@ -23,7 +23,8 @@ _aLocaleScriptsXT = [
 	*/
 	#     1		    2				3		      4
 	#  QtNumber 	ScriptName 		ScriptAbbreviation 	DefaultLanguage
-	
+
+	[ "0" ,		:Common,		"Zyyy",			:undefined				],	
 	[ "1" , 	:Arabic, 		"Arab", 		:arabic 			],
 	[ "2" , 	:Cyrillic, 		"Cyrl", 		:russian 			],
 	[ "3" , 	:Deseret, 		"Dsrt", 		:english 			],
@@ -38,7 +39,7 @@ _aLocaleScriptsXT = [
 	[ "12" , 	:Cherokee, 		"Cher", 		:cherokee 			],
 	[ "13" , 	:Devanagari, 		"Deva", 		:bhojpuri 			], # or :bodo or :hindi or :fijian or :konkani and many others
 	[ "14" , 	:Ethiopic, 		"Ethi", 		:oromo 				], # or :amharic or :blin or :geez or :tigre or :tigrinya
-	[ "15" , 	:Georgian, 		"Geor", 		:Georgian 			],
+	[ "15" , 	:Georgian, 		"Geor", 		:georgian 			],
 	[ "16" , 	:Greek, 		"Grek", 		:ancient_greek 			],
 	[ "17" , 	:Gujarati, 		"Gujr", 		:gujarati 			],
 	[ "18" , 	:Hebrew, 		"Hebr", 		:hebrew 			],
@@ -70,132 +71,132 @@ _aLocaleScriptsXT = [
 					 							  	   # but we didn't include it because Qt unicode
 					  							  	   # don't support it
 	[ "44" , 	:Canadian_Aboriginal, 	"Cans", 		:cree 				], # or :inuktitut or :cree or :ojibwa
-	[ "45" , 	:Carian, 		"Cari", 		NULL 				],
+	[ "45" , 	:Carian, 		"Cari", 		:undefined 				],
 	[ "46" , 	:Chakma, 		"Cakm", 		:chakma 			],
-	[ "47" , 	:Cham, 			"Cham", 		NULL 				],
+	[ "47" , 	:Cham, 			"Cham", 		:undefined			],
 	[ "48" , 	:Coptic, 		"Copt", 		:coptic 			],
-	[ "49" , 	:Cypriot, 		"Cprt", 		NULL 				],
+	[ "49" , 	:Cypriot, 		"Cprt", 		:undefined 				],
 	[ "50" , 	:Egyptian_Hieroglyphs, 	"Egyp", 		:ancient_egyptian 		], # There is also :Egyptian_Demotic (egyd)
-						                     				   # and :Egyptian_Hieratic (egyh)
-	[ "51" , 	:Fraser, 		"Lisu", 		NULL 				], # Called also :Lisu
-	[ "52" , 	:Glagolitic, 		"Glag", 		NULL 				],
+						                     				   	   # and :Egyptian_Hieratic (egyh)
+	[ "51" , 	:Fraser, 		"Lisu", 		:undefined			], # Called also :Lisu
+	[ "52" , 	:Glagolitic, 		"Glag", 		:undefined			],
 	[ "53" , 	:Gothic, 		"Goth", 		:gothic 			],
-	[ "54" , 	:Han, 			"Hant", 		NULL 				],
-	[ "55" , 	:Hangul, 		"Hang", 		NULL 				],
-	[ "56" , 	:Hanunoo, 		"Hano", 		NULL 				],
-	[ "57" , 	:Imperial_Aramaic, 	"Armi", 		NULL 				],
-	[ "58" , 	:Inscriptional_Pahlavi, "Phli", 		NULL 				],
-	[ "59" , 	:Inscriptional_Parthian,"Prti", 		NULL 				],
+	[ "54" , 	:Han, 			"Hant", 		:undefined			],
+	[ "55" , 	:Hangul, 		"Hang", 		:undefined			],
+	[ "56" , 	:Hanunoo, 		"Hano", 		:undefined			],
+	[ "57" , 	:Imperial_Aramaic, 	"Armi", 		:undefined			],
+	[ "58" , 	:Inscriptional_Pahlavi, "Phli", 		:undefined			],
+	[ "59" , 	:Inscriptional_Parthian,"Prti", 		:undefined			],
 	[ "60" , 	:Javanese, 		"Java", 		:javanese 			],
-	[ "61" , 	:Kaithi, 		"Kthi", 		NULL 				],
-	[ "62" , 	:Katakana, 		"Kana", 		NULL 				],
-	[ "63" , 	:Kayah_Li, 		"Kali", 		NULL 				],
-	[ "64" , 	:Kharoshthi, 		"Khar", 		NULL 				],
-	[ "65" , 	:Lanna, 		"Lana", 		NULL 				], # Called also :Tai_Tham
-	[ "66" , 	:Lepcha, 		"Lepc", 		NULL 				], # Called also :Róng. Note that the default language is
-					  							   # called :lepcha but we don't include it because Qt Unicode
-					  							   # does not recognize it!
-	[ "67" , 	:Limbu, 		"Limb", 		NULL 				], # The default language is called :limbu but we don't include it
+	[ "61" , 	:Kaithi, 		"Kthi", 		:undefined			],
+	[ "62" , 	:Katakana, 		"Kana", 		:undefined			],
+	[ "63" , 	:Kayah_Li, 		"Kali", 		:undefined			],
+	[ "64" , 	:Kharoshthi, 		"Khar", 		:undefined			],
+	[ "65" , 	:Lanna, 		"Lana", 		:undefined			], # Called also :Tai_Tham
+	[ "66" , 	:Lepcha, 		"Lepc", 		:undefined			], # Called also :Róng. Note that the default language is
+					  							           # called :lepcha but we don't include it because Qt Unicode
+					  							           # does not recognize it!
+	[ "67" , 	:Limbu, 		"Limb", 		:undefined			], # The default language is called :limbu but we don't include it
 	[ "68" , 	:Linear_B, 		"Linb", 		:ancient_greek 			],
-	[ "69" , 	:Lycian, 		"Lyci", 		NULL 				], # The default language is called :lycian but we don't include it
-	[ "70" , 	:Lydian, 		"Lydi", 		NULL 				], # The default language is called :lydian but we don't include it
-	[ "71" , 	:Mandaean, 		"Mand", 		NULL 				], # Called also :Mandaic. Note that the default language is calle :Classical_Mandaic
-					    							   # but we don't inlcude it because Qt Uniocde does not recognise it
+	[ "69" , 	:Lycian, 		"Lyci", 		:undefined			], # The default language is called :lycian but we don't include it
+	[ "70" , 	:Lydian, 		"Lydi", 		:undefined			], # The default language is called :lydian but we don't include it
+	[ "71" , 	:Mandaean, 		"Mand", 		:undefined			], # Called also :Mandaic. Note that the default language is calle :Classical_Mandaic
+					    							           # but we don't inlcude it because Qt Uniocde does not recognise it
 	[ "72" , 	:Meitei_Mayek, 		"Mtei", 		:manipuri 			], # Called also :Meithei and :Meetei
-	[ "73" , 	:Meroitic_Hieroglyphs, 	"Mero", 		NULL 				],
-	[ "74" , 	:Meroitic_Cursive, 	"Merc", 		NULL 				], # The default language is called :Meroitic_Cursive but
-						    						   # we don't include it beceause Qt Unicode does not know it
+	[ "73" , 	:Meroitic_Hieroglyphs, 	"Mero", 		:undefined			],
+	[ "74" , 	:Meroitic_Cursive, 	"Merc", 		:undefined			], # The default language is called :Meroitic_Cursive but
+						    						           # we don't include it beceause Qt Unicode does not know it
 	[ "75" , 	:Nko, 			"Nkoo", 		:nko 				], # Spelled N’Ko
-	[ "76" , 	:New_Tai_Lue, 		"Talu", 		NULL 				], # The default language for this script is Lü, but
-					      							   # we don't include it beceause Qt Unicode does not know it
+	[ "76" , 	:New_Tai_Lue, 		"Talu", 		:undefined			], # The default language for this script is Lü, but
+					      							           # we don't include it beceause Qt Unicode does not know it
 	[ "77" , 	:Ogham, 		"Ogam", 		:old_irish 			],
 	[ "78" , 	:Ol_Chiki, 		"Olck", 		:santali 			],
-	[ "79" , 	:Old_Italic, 		"Ital", 		NULL 				], # This script is used in these languages: Umbrian, Oscan and Etruscan
-					      							   # we don't include them beceause Qt Unicode does not know them
+	[ "79" , 	:Old_Italic, 		"Ital", 		:undefined			], # This script is used in these languages: Umbrian, Oscan and Etruscan
+					      							           # we don't include them beceause Qt Unicode does not know them
 	[ "80" , 	:Old_Persian, 		"Xpeo", 		:old_persian 			],
-	[ "81" , 	:Old_South_Arabian, 	"Sarb", 		NULL 				], # This script is used for language Sabaean, but
-						     						   # we don't include it beceause Qt Unicode does not know it
-	[ "82" , 	:Orkhon, 		"Orkh", 		NULL 				], # Called also :Old_Turkic and :Orkhon_Runic
-												   #NOTE that the language corresponding to this script
-												   # is :Old_Turkish, but we don't include it because Qt Unicode										   # does not knowt it
+	[ "81" , 	:Old_South_Arabian, 	"Sarb", 		:undefined			], # This script is used for language Sabaean, but
+						     						           # we don't include it beceause Qt Unicode does not know it
+	[ "82" , 	:Orkhon, 		"Orkh", 		:undefined			], # Called also :Old_Turkic and :Orkhon_Runic
+												           #NOTE that the language corresponding to this script
+												           # is :Old_Turkish, but we don't include it because Qt Unicode										   # does not knowt it
 	[ "83" , 	:Osmanya, 		"Osma", 		:somali 			],
 	[ "84" , 	:Phags_Pa, 		"Phag", 		:literary_chinese 		], # may also be :mandarin_chineese ?
 	[ "85" , 	:Phoenician, 		"Phnx", 		:phoenician 			],
-	[ "86" , 	:Pollard_Phonetic, 	"Plrd", 		NULL 				], # Called also :Pollard and :Miao
-												   # This script corresponds to this language :Large_Flowery_Miao
-												   # but we don't include it beceause Qt Unicode does not know it
-	[ "87" , 	:Rejang, 		"Rjng", 		NULL 				], # Called also :Redjang and :Kaganga
-												   # This script corresponds to the  language of the same name :Rejang
-												   # but we don't include it beceause Qt Unicode does not know it
+	[ "86" , 	:Pollard_Phonetic, 	"Plrd", 		:undefined			], # Called also :Pollard and :Miao
+												           # This script corresponds to this language :Large_Flowery_Miao
+												           # but we don't include it beceause Qt Unicode does not know it
+	[ "87" , 	:Rejang, 		"Rjng", 		:undefined			], # Called also :Redjang and :Kaganga
+												           # This script corresponds to the  language of the same name :Rejang
+												           # but we don't include it beceause Qt Unicode does not know it
 	[ "88" , 	:Runic, 		"Runr", 		:german 			], # can also be :old_norse
 	[ "89" , 	:Samaritan, 		"Samr", 		:aramaic 			],
 	[ "90" , 	:Saurashtra, 		"Saur", 		:saurashtra 			],
 	[ "91" , 	:Sharada, 		"Shrd", 		:sanskrit 			], # Called also :Śāradā
 	[ "92" , 	:Shavian, 		"Shaw", 		:english 			], # Called also :Shaw
-	[ "93" , 	:Sora_Sompeng, 		"Sora", 		NULL 				], # The script is used in :Sora language
-												   # but we don't include it beceause Qt Unicode does not know it
+	[ "93" , 	:Sora_Sompeng, 		"Sora", 		:undefined			], # The script is used in :Sora language
+												           # but we don't include it beceause Qt Unicode does not know it
 	[ "94" , 	:Cuneiform, 		"Xsux", 		:Akkadian 			], # Called also :Sumero_Akkadian
 	[ "95" , 	:Sundanese, 		"Sund", 		:sundanese 			],
-	[ "96" , 	:Syloti_Nagri, 		"Sylo", 		NULL 				], # This script is used in :Sylheti language
-												   # but we don't include it beceause Qt Unicode does not know it
+	[ "96" , 	:Syloti_Nagri, 		"Sylo", 		:undefined			], # This script is used in :Sylheti language
+												           # but we don't include it beceause Qt Unicode does not know it
 	[ "97" , 	:Tagalog, 		"Tglg", 		:filipino 			], # Called also :Baybayin and :Alibata
-	[ "98" , 	:Tagbanwa, 		"Tagb", 		NULL 				], # This script is used in :Tagbanwa language
-												   # but we don't include it beceause Qt Unicode does not know it
+	[ "98" , 	:Tagbanwa, 		"Tagb", 		:undefined			], # This script is used in :Tagbanwa language
+												           # but we don't include it beceause Qt Unicode does not know it
 	[ "99" , 	:Tai_Le, 		"Tale", 		:tai_nua 			],
 	[ "100" , 	:Tai_Viet, 		"Tavt", 		:tai_dam 			],
 	[ "101" , 	:Takri, 		"Takr", 		:dogri 				], # Called also :Ṭākrī and :Ṭāṅkrī
 	[ "102" , 	:Ugaritic, 		"Ugar", 		:ugaritic 			],
-	[ "103" , 	:Braille, 		"Brai", 		NULL 				],
-	[ "104" , 	:Hiragana, 		"Hira", 		NULL 				],
-	[ "105" , 	:Caucasian_Albanian, 	"Aghb", 		NULL 				], # This script is used in :Lezghian language
-												   # but we don't include it beceause Qt Unicode does not know it
-	[ "106" , 	:Bassa_Vah, 		"Bass", 		NULL 				],
+	[ "103" , 	:Braille, 		"Brai", 		:undefined 			],
+	[ "104" , 	:Hiragana, 		"Hira", 		:undefined 			],
+	[ "105" , 	:Caucasian_Albanian, 	"Aghb", 		:undefined 			], # This script is used in :Lezghian language
+												           # but we don't include it beceause Qt Unicode does not know it
+	[ "106" , 	:Bassa_Vah, 		"Bass", 		:undefined			],
 	[ "107" , 	:Duployan, 		"Dupl", 		:french 			], # Called also :Duployan_Shorthand and :Duployan_Stenography
 	[ "108" , 	:Elbasan, 		"Elba", 		:albanian 			],
 	[ "109" , 	:Grantha, 		"Gran", 		:sanskrit 			],
-	[ "110" , 	:Pahawh_Hmong, 		"Hmng", 		NULL 				], # This script is used in :Hmong language
-												   # but we don't include it beceause Qt Unicode does not know it
+	[ "110" , 	:Pahawh_Hmong, 		"Hmng", 		:undefined			], # This script is used in :Hmong language
+												           # but we don't include it beceause Qt Unicode does not know it
 	[ "111" , 	:Khojki, 		"Khoj", 		:sindhi 			],
-	[ "112" , 	:Linear_A, 		"Lina", 		NULL 				], # This script is used in :Linear_A language
-												   # but we don't include it beceause Qt Unicode does not know it
+	[ "112" , 	:Linear_A, 		"Lina", 		:undefined			], # This script is used in :Linear_A language
+												           # but we don't include it beceause Qt Unicode does not know it
 	[ "113" , 	:Mahajani, 		"Mahj", 		:hindi 				],
 	[ "114" , 	:Manichaean, 		"Mani", 		:persian 			],
-	[ "115" , 	:Mende_Kikakui, 	"Mend", 		NULL 				],
+	[ "115" , 	:Mende_Kikakui, 	"Mend", 		:undefined			],
 	[ "116" , 	:Modi, 			"Modi", 		:marathi 			], # Spelled also :Moḍī
-	[ "117" , 	:Mro, 			"Mroo", 		NULL 				], # Spelled also :Mru
-												   # This script is used in :Mru language
-												   # but we don't include it beceause Qt Unicode does not know it
-	[ "118" , 	:Old_North_Arabian, 	"Narb", 		NULL 				], # Called also :Ancient_North_Arabian
-												   # This script is used in :Ancient_North_Arabian language
-												   # but we don't include it beceause Qt Unicode does not know it
+	[ "117" , 	:Mro, 			"Mroo", 		:undefined			], # Spelled also :Mru
+												           # This script is used in :Mru language
+												           # but we don't include it beceause Qt Unicode does not know it
+	[ "118" , 	:Old_North_Arabian, 	"Narb", 		:undefined			], # Called also :Ancient_North_Arabian
+												           # This script is used in :Ancient_North_Arabian language
+												           # but we don't include it beceause Qt Unicode does not know it
 	[ "119" , 	:Nabataean, 		"Nbat", 		:aramaic 			],
 	[ "120" , 	:Palmyrene, 		"Palm", 		:aramaic 			],
-	[ "121" , 	:Pau_Cin_Hau, 		"Pauc", 		NULL 				],
+	[ "121" , 	:Pau_Cin_Hau, 		"Pauc", 		:undefined			],
 	[ "122" , 	:Old_Permic, 		"Perm", 		:komi 				],
 	[ "123" , 	:Psalter_Pahlavi, 	"Phlp", 		:pahlavi 			],
 	[ "124" , 	:Siddham, 		"Sidd", 		:sanskrit 			], # Called also :Siddhaṃ and :Siddhamātṛkā
 	[ "125" , 	:Khudawadi, 		"Sind", 		:sindhi 			], # Called alos :Sindhi
 	[ "126" , 	:Tirhuta, 		"Tirh", 		:maithili 			],
-	[ "127" , 	:Varang_Kshiti, 	"Wara", 		NULL 				], # Called also :Warang_Citi
-												   # This script is used in :Ho language
-												   # but we don't include it beceause Qt Unicode does not know it
-	[ "128" , 	:Ahom, 			"Ahom", 		NULL 				], # Called also :Tai_Ahom
-	[ "129" , 	:Anatolian_Hieroglyphs, "Hluw", 		NULL 				], # Called also :Luwian_Hieroglyphs and Hittite_Hieroglyphs
-	[ "130" , 	:Hatran, 		"Hatr", 		NULL 				],
-	[ "131" , 	:Multani, 		"Mult", 		NULL 				],
-	[ "132" , 	:Old_Hungarian, 	"Hung", 		NULL 				], # Called also :Hungarian_Runic
-	[ "133" , 	:Sign_Writing, 		"Sgnw", 		NULL 				], # should we consider :american_sign_language
-												   # as a default language for this script ?
+	[ "127" , 	:Varang_Kshiti, 	"Wara", 		:undefined			], # Called also :Warang_Citi
+												           # This script is used in :Ho language
+												           # but we don't include it beceause Qt Unicode does not know it
+	[ "128" , 	:Ahom, 			"Ahom", 		:undefined			], # Called also :Tai_Ahom
+	[ "129" , 	:Anatolian_Hieroglyphs, "Hluw", 		:undefined			], # Called also :Luwian_Hieroglyphs and Hittite_Hieroglyphs
+	[ "130" , 	:Hatran, 		"Hatr", 		:undefined			],
+	[ "131" , 	:Multani, 		"Mult", 		:undefined			],
+	[ "132" , 	:Old_Hungarian, 	"Hung", 		:undefined			], # Called also :Hungarian_Runic
+	[ "133" , 	:Sign_Writing, 		"Sgnw", 		:undefined			], # should we consider :american_sign_language
+												           # as a default language for this script ?
 	[ "134" , 	:Adlam, 		"Adlm", 		:fulah 				],
-	[ "135" , 	:Bhaiksuki, 		"Bhks", 		NULL 				],
-	[ "136" , 	:Marchen, 		"Marc", 		NULL 				],
+	[ "135" , 	:Bhaiksuki, 		"Bhks", 		:undefined			],
+	[ "136" , 	:Marchen, 		"Marc", 		:undefined			],
 	[ "137" , 	:Newa, 			"Newa", 		:newari 			], # Called also :Newar, :Newari, and :Nepāla_Lipi
 	[ "138" , 	:Osage, 		"Osge", 		:osage 				],
-	[ "139" , 	:Tangut, 		"Tang", 		NULL 				],
+	[ "139" , 	:Tangut, 		"Tang", 		:undefined			],
 	[ "140" , 	:Han_With_Bopomofo, 	"Hanb", 		:literary_chinese 		], # Alias for Han + Bopomofo
-												   # We considered here the same default language we put for
-												   # the :Bopofomo script (could also be :mandarin_chinese ?)
-	[ "141" , 	:Jamo, 			"Jamo", 		NULL 				] #  Jamo subset of Hangul
+												           # We considered here the same default language we put for
+												           # the :Bopofomo script (could also be :mandarin_chinese ?)
+	[ "141" , 	:Jamo, 			"Jamo", 		:undefined			]  #  Jamo subset of Hangul
 ]
 
 func LocaleScriptsXT()
@@ -325,10 +326,10 @@ class stzScript
 			next		
 
 		but oStr.IsLocaleAbbreviation()
-			// TODO
+			StzRaise("Not implemented yet!")
 
 		else
-			StzRaise(stzScriptError(:UnsupportedScriptIdentifier))
+			StzRaise("Unsupported script identifier!")
 		ok
 
 	def Script()

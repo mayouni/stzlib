@@ -186,6 +186,15 @@ func CharIsLetter(pcStr)
 
 	#>
 
+func CharName(c)
+	return StzCharQ(c).Name()
+
+	func Name(c)
+		return CharName(c)
+
+	func @Name(c)
+		return CharName(c)
+
 func UnicodeToHexUnicode(n)
 	oChar = new stzChar(n)
 	cResult = oChar.HexUnicode()
