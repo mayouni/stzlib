@@ -1636,6 +1636,13 @@ class stzChar from stzObject
 		def Language()
 			return This.DefaultLanguage()
 
+		#< @FunctionMisspelledForm
+
+		def Langauge()
+			return This.Language()
+
+		#>
+
 	  #-----------#
 	 #   SCRIPT  #
 	#-----------#

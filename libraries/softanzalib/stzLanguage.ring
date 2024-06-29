@@ -450,6 +450,11 @@ class stzLanguage
 		def Language()
 			return This.Name()
 
+		#-- @Misspelled
+
+		def Langauge()
+			return This.Name()
+
 	def NativeName()
 		return StzLocaleQ(This.DefaultCountryLocaleAbbreviation()).LanguageNativeName()
 

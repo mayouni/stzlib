@@ -55,6 +55,14 @@ func Language(cText)
 	func @Language(cText)
 		return Language(Text)
 
+	#-- @Misspelled
+
+	func Langauge(cText)
+		return Language(cText)
+
+	func @Langauge(cText)
+		return Language(cText)
+
 func StzTextQ(pcStr)
 	return new stzText(pcStr)
 
@@ -560,8 +568,18 @@ class stzText from stzString
 	def SetLanguage(pcLanguage)
 		@cLanguage = pcLanguage
 
+		#-- @Misspelled
+
+		def SetLangauge(pcLanguage)
+			This.SetLanguage(pcLanguage)
+
 	def Language()
 		return @cLanguage
+
+		#-- @Misspelled
+
+		def Langauge()
+			return This.Language()
 
 	  #----------------#
 	 #     SCRIPT     #

@@ -356,10 +356,26 @@ class stzScript
 	def DefaultLanguage()
 		return @aScriptInfo@[4]
 
+		#-- @Alternatives
+
 		def DefaultLanguageName()
 			return This.DefaultLanguage()
 
 		def Language()
+			return This.DefaultLanguage()
+
+		def LanguageName()
+			return This.DefaultLanguage()
+
+		#-- @Misspelled
+
+		def DefaultLangauge()
+			return This.DefaultLanguage()
+
+		def DefaultLangaugeName()
+			return This.DefaultLanguage()
+
+		def Langauge()
 			return This.DefaultLanguage()
 
 		def LangaugeName()
@@ -381,6 +397,8 @@ class stzScript
 			ok
 		next
 
+		#-- @Alternatives
+
 		def DefaultLanguageNumber()
 			return This.DefaultLanguageQtNumber()
 
@@ -388,6 +406,20 @@ class stzScript
 			return This.DefaultLanguageQtNumber()
 
 		def LanguageNumber()
+			return This.DefaultLanguageQtNumber()
+
+		#-- @Misspelled
+
+		def DefaultLangaugeQtNumber()
+			return This.DefaultLanguageQtNumber()
+
+		def DefaultLangaugeNumber()
+			return This.DefaultLanguageQtNumber()
+
+		def LangaugeQtNumber()
+			return This.DefaultLanguageQtNumber()
+
+		def LangaugeNumber()
 			return This.DefaultLanguageQtNumber()
 
 	def DefaultLanguageAbbreviation()
@@ -399,7 +431,17 @@ class stzScript
 			ok
 		next
 
+		#-- @Alternative
+
 		def LanguageAbbreviation()
+			return This.DefaultLanguageAbbreviation()
+
+		#-- @Misspelled
+
+		def LangaugeAbbreviation()
+			return This.DefaultLanguageAbbreviation()
+
+		def DefaultLangaugeAbbreviation()
 			return This.DefaultLanguageAbbreviation()
 
 	def DefaultCountry()
