@@ -4363,6 +4363,11 @@ class stzString from stzObject
 		def FindPossibleSubStringsWCSZ(pcCondition, pCaseSensitive)
 			return This.FindAllSubStringsWCS(pcCondition, pCaseSensitive)
 
+		#--
+
+		def FindWCS(pcCondition, pCaseSensitive)
+			return This.FindAllSubStringsWCS(pcCondition, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIIVTY
@@ -4391,6 +4396,11 @@ class stzString from stzObject
 
 		def FindPossibleSubStringsWZ(pcCondition)
 			return This.FindAllSubStringsWCS(pcCondition)
+
+		#--
+
+		def FindW(pcCondition)
+			return This.FindAllSubStringsW(pcCondition)
 
 		#>
 
@@ -4426,6 +4436,11 @@ class stzString from stzObject
 		def FindPossibleSubStringsWCSXTZ(pcCondition, pCaseSensitive)
 			return This.FindAllSubStringsWCSXT(pcCondition, pCaseSensitive)
 
+		#--
+
+		def FindWCSXT(pcCondition, pCaseSensitive)
+			return This.FindAllSubStringsWCSXT(pcCondition, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIIVTY
@@ -4454,6 +4469,11 @@ class stzString from stzObject
 
 		def FindPossibleSubStringsWXTZ(pcCondition)
 			return This.FindAllSubStringsWCSXT(pcCondition)
+
+		#--
+
+		def FindWXT(pcCondition)
+			return This.FindAllSubStringsWXT(pcCondition)
 
 		#>
 
@@ -4494,6 +4514,14 @@ class stzString from stzObject
 		def FindPossibleSubStringsWCSZZ(pcCondition, pCaseSensitive)
 			return This.FindSubStringsAsSectionsWCS(pcCondition, pCaseSensitive)
 
+		#--
+
+		def FindWCSZZ(pcCondition, pCaseSensitive)
+			return This.FindSubStringsAsSectionsWCS(pcCondition, pCaseSensitive)
+
+		def FindAsSectionsWCSZZ(pcCondition, pCaseSensitive)
+			return This.FindSubStringsAsSectionsWCS(pcCondition, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIIVTY
@@ -4524,6 +4552,14 @@ class stzString from stzObject
 			return This.FindSubStringsAsSectionsWCS(pcCondition)
 
 		def FindPossibleSubStringsWZZ(pcCondition)
+			return This.FindSubStringsAsSectionsW(pcCondition)
+
+		#--
+
+		def FindWZZ(pcCondition)
+			return This.FindSubStringsAsSectionsW(pcCondition)
+
+		def FindAsSectionsWZZ(pcCondition)
 			return This.FindSubStringsAsSectionsW(pcCondition)
 
 		#>
@@ -4565,6 +4601,14 @@ class stzString from stzObject
 		def FindPossibleSubStringsWCSZZXT(pcCondition, pCaseSensitive)
 			return This.FindSubStringsAsSectionsWCSXT(pcCondition, pCaseSensitive)
 
+		#--
+
+		def FindWCSZZXT(pcCondition, pCaseSensitive)
+			return This.FindSubStringsAsSectionsWCSXT(pcCondition, pCaseSensitive)
+
+		def FindAsSectionsWCSZZXT(pcCondition, pCaseSensitive)
+			return This.FindSubStringsAsSectionsWCSXT(pcCondition, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIIVTY
@@ -4595,6 +4639,14 @@ class stzString from stzObject
 			return This.FindSubStringsAsSectionsWCSXT(pcCondition)
 
 		def FindPossibleSubStringsWXTZZ(pcCondition)
+			return This.FindSubStringsAsSectionsWXT(pcCondition)
+
+		#--
+
+		def FindWZZXT(pcCondition)
+			return This.FindSubStringsAsSectionsWXT(pcCondition)
+
+		def FindAsSectionsWZZXT(pcCondition)
 			return This.FindSubStringsAsSectionsWXT(pcCondition)
 
 		#>
@@ -36400,85 +36452,34 @@ class stzString from stzObject
 			This.ReplaceSubString@(pcSubStr, pcDynamicStr)
 			return This
 
+vvv
 	  #---------------------------------------------------#
 	 #   REPLACING A SUBSTRING UNDER A GIVEN CONDITION   #
-	#---------------------------------------------------#
+	#===================================================#
 
 	#TODO : Generalize the CS check to all W() functions in the library
 
-vvv	def ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
+	def ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzString("ring php ring ruby ring pyhton ring")
-		o1.ReplaceSubStringW("ring", :Where = '{ Q(@Position).IsMultipleOf(10) }', :With = "♥♥♥")
+		o1.ReplaceSubStringW("ring", :Where = '{ Q(@i).IsMultipleOf(10) }', :With = "♥♥♥")
 
 		? o1.Content() #--> "ring php ♥♥♥ ruby ♥♥♥ pyhton ring"
 
 		*/
 
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
+		aSections = This.FindSubStringWCS(pcSubStr, pcCondition, pCaseSensitive)
+		This.ReplaceSections(aSections, pcNewSubStr)
 
-		if NOT isString(pcCondition)
-			stzRaise("Incorrect param! pcCondition must be a string.")
-		ok
-
-		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
-
-		@SubString = pcSubStr
-
-		@NumberOfOccurrences = len(anPos)
-		@NumberOfOccurrence  = @NumberOfOccurrences
-		@NumberOfSubStrings  = @NumberOfOccurrences
-		@NumberOfSubStrings  = @NumberOfOccurrence
-
-		i = 0
-		@CurrentPosition = 0
-		@PreviousPosition = 0
-		@NextPosition = 0
-
-		cCondition = StzStringQ(pcCondition).
-				SimplifyQ().
-				RemoveTheseBoundsQ(["{","}"]).
-				Content()
-
-		anPosW = []
-
-		
-		i = 0
-		for @Position in anPos #TODO: replace for/in with for loop
-
-			i++
-			@CurrentPosition = @Position
-
-			@Occurrence = i
-			@CurrentOccurrence = i
-
-			if i > 1
-				@PreviousPosition = anPos[i - 1]
-				@PreviousOccurrence = i - 1
-			ok
-
-			if i < @NumberOfOccurrence
-				@NextPosition = anPos[i + 1]
-				@NextOccurrence = i + 1
-			ok
-
-			cCode = "bOk = ( " + cCondition + " )"
-			eval(cCode)
-
-			if bOk
-				anPosW + @Position
-			ok
-
-		next
-
-		This.ReplaceSubStringAtPositionsCS(anPosW, pcSubStr, pcNewSubStr, pCaseSensitive)
 
 		def ReplaceSubStringWCSQ(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
 			This.ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
 			return This
+
+	def SubStringReplacedWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceSubStringCSWQ(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive).Content()
+		return cResult
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -36488,7 +36489,50 @@ vvv	def ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
 		def ReplaceSubStringWQ(pcSubStr, pcCondition, pcNewSubStr)
 			This.ReplaceSubStringW(pcSubStr, pcCondition, pcNewSubStr)
 			return This
-		
+
+	def SubStringReplacedW(pcSubStr, pcCondition, pcNewSubStr)
+		cResult = This.Copy().ReplaceSubStringWQ(pcSubStr, pcCondition, pcNewSubStr).Content()
+		return cResult
+
+	  #------------------------------------------------------------------#
+	 #   REPLACING A SUBSTRING UNDER A GIVEN CONDITION -- WXT/EXTENDED  #
+	#------------------------------------------------------------------#
+
+	def ReplaceSubStringWCSXT(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("ring php ring ruby ring pyhton ring")
+		o1.ReplaceSubStringWXT("ring", :Where = '{ Q(@Position).IsMultipleOf(10) }', :With = "♥♥♥")
+
+		? o1.Content() #--> "ring php ♥♥♥ ruby ♥♥♥ pyhton ring"
+
+		*/
+
+		aSections = This.FindSubStringWCSXT(pcSubStr, pcCondition, pCaseSensitive)
+		This.ReplaceSections(aSections, pcNewSubStr)
+
+
+		def ReplaceSubStringWCSXTQ(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringWCSXT(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
+			return This
+
+	def SubStringReplacedWCSXT(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceSubStringCSWXTQ(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceSubStringWXT(pcSubStr, pcCondition, pcNewSubStr)
+		This.ReplaceSubStringWCSXT(pcSubStr, pcCondition, pcNewSubStr, TRUE)
+
+		def ReplaceSubStringWXTQ(pcSubStr, pcCondition, pcNewSubStr)
+			This.ReplaceSubStringWXT(pcSubStr, pcCondition, pcNewSubStr)
+			return This
+
+	def SubStringReplacedWXT(pcSubStr, pcCondition, pcNewSubStr)
+		cResult = This.Copy().ReplaceSubStringWXTQ(pcSubStr, pcCondition, pcNewSubStr).Content()
+		return cResult
+
 	  #---------------------------------------------------------------------------------------#
 	 #  REPLACING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS (OR POSITIONS) #
 	#=======================================================================================#
@@ -37892,49 +37936,6 @@ vvv	def ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
 		#>
 
 		#TODO: Add Positions as a misspelling of Positions
-
-	  #-------------------------------------------------------------------------#
-	 #   REPLACING CHARS/SUBSTRINGS WITH A SUBSTRING UNDER A GIVEN CONDITION   #
-	#-------------------------------------------------------------------------#
-
-	def ReplaceW(pcCondition, pcCharOrSubStr)
-	
-		# Checking params
-
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		if isList(pcCharOrSubStr) and Q(pcCharOrSubStr).IsWithOrByNamedParam()
-			pcCharOrSubStr = pcCharOrSubStr[2]
-		ok
-
-		if NOT isString(pcCharOrSubStr)
-			StzRaise("Incorrect param type! pcCharOrSubStr must be a string.")
-		ok
-
-		# Doing the job
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsNeitherCS("@char", :Nor = "@substring", :CS = FALSE) or
-		   oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
-
-			StzRaise("Incorrect syntax ! pcCondition must contains either @char or @substring keywords (but not both).")
-		ok
-
-		if oCondition.ContainsCS("@char", pCaseSensitive)
-			anPos = FindCharsW(pcCondition)
-			This.ReplaceCharsAtPositions(anPos, pcCharOrSubStr)
-
-		else # contains @substring
-			anPos = Thid.FindSubStringsW(pcCondition)
-			This.ReplaceSubStringsAtPositions(anPos, pcCharOrSubStr)
-		ok
 
 	  #--------------------------------------------------------------------#
 	 #     REPLACING ALL CHARS WITH A SUBSTRING UNDER A GIVEN CONDITION   #
@@ -42767,7 +42768,7 @@ vvv	def ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
 			off
 		#>
 
-		#< @FunctionAlternativeForms : See others in bottom of file
+		#< @FunctionAlternativeForms # See other in botton of file ALTERNATIVES section
 
 		def FindCSZ(pcSubStr, pCaseSensitive)
 			return This.FindCS(pcSubStr, pCaseSensitive)
@@ -43464,142 +43465,6 @@ vvv	def ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
 	def FindSDZZ(pcSubStr, pnStartingAt, pcDirection)
 		return This.FindSDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
-	  #-----------------------------------------------------------------------#
-	 #  FINDING OCCURRENCES OF CHARS/SUBSTRINGS VERIFYING A GIVEN CONDITION  #
-	#-----------------------------------------------------------------------#
-
-	def FindW(pcCondition)
-
-		if CheckParams()
-
-			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-				pcCondition = pcCpndition[2]
-			ok
-	
-			if NOT isString(pcCondition)
-				StzRaise("Incorrect param type! pcCondition must be a string.")
-			ok
-
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsBothCS("@char", :Or = "@substring", :CS = FALSE)
-			StzRaise("Incorrect syntax! pcCondition must contain either @char or @substring but not both.")
-		ok
-
-		if oCondition.ContainsCS("@substring", :CS = FALSE)
-			anPos = This.FindSubStringsW(pcCondition)
-			return anPos
-
-		else
-
-			anPos = This.FindCharsW(pcCondition)
-			return anPos
-		ok
-
-	def FindAsSectionsW(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCpndition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
-			StzRaise("Incorrect syntax! pcCondition must contain either @char ir @substring but not both.")
-		ok
-
-		if oCondition.ContainsCS("@substring", :CS = FALSE)
-			anPos = This.FindSubStringsAsSectionsW(pcCondition)
-			return anPos
-
-		else
-
-			anPos = This.FindCharsAsSectionsW(pcCondition)
-			return anPos
-		ok
-
-	  #============================================================#
-	 #  FINDING OCCURRENCES OF CHARS VERIFYING A GIVEN CONDITION  #
-	#============================================================#
-
-	#TODO: Add ..Where() alternative to all ..W() functions
-
-	def FindCharsW(pcCondition)
-		if CheckParams()
-
-			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-				pcCondition = pcCondition[2]
-			ok
-	
-			if NOT isString(pcCondition)
-				StzRaise("Incorrect param type! pcCondition must be a string.")
-			ok
-
-		ok
-
-		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ')'
-		nLen = This.NumberOfChars()
-		anResult = []
-
-		for @i = 1 to nLen
-			eval(cCode)
-			if bOk
-				anResult + @i
-			ok
-		next
-
-		return anResult
-
-		#< @FunctionFluentForms
-
-		def FindCharsWQ(pcCondition)
-			return This.FindCharsWQR(pcCondition, :stzList)
-
-		def FindCharsWQR(pcCondition, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindCharsW(pcCondition) )
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindCharsW(pcCondition) )
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def FindCharsWhere(pcCondition)
-			return This.FindCharsW(pcCondition)
-
-			def FindCharsWhereQ(pcCondition)
-				return This.FindCharsWhereQR(pcCondition, :stzList)
-	
-			def FindCharsWhereQR(pcCondition, pcReturnType)
-				return This.FindCharsWQR(pcCondition, pcReturnType)
-		#>
-
-	def FindCharsAsSectionsW(pcCondition)
-
-		anPos = This.FindCharsW(pcCondition)
-		nLen = len(anPos)
-		
-		aResult = []
-
-		for i = 1 to nLen
-			aResult + [ anPos[i], anPos[i] ]
-		next
-
-		return aResult
-
-		def FindCharsAsSectionsWhere(pcCondition)
-			return This.FindCharsAsSectionsW(pcCondition)
-
 	   #------------------------------------------------------------------#
 	  #  FINDING OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
 	 #  AND RETURNING THEIR POSITIONS AS SECTIONS                       #
@@ -44004,9 +43869,28 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def FindCharsZ()
 			return This.FindChars()
 
+	  #---------------------------------------------#
+	 #  FINDING CHARS VERIFYING A GIVEN CONDITION  #
+	#---------------------------------------------#
+
+	def FindCharsWCS(pcCondition, pCaseSensitive)
+		anResult = This.CharsCS(pCaseSensitive).FindW(pcCondition)
+		return anResult
+
+		def FindCharsWCSZ(pcCondition, pCaseSensitive)
+			return This.FindCharsWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindCharsW(pcCondition)
+		return This.FindCharsWCS(pcCondition, TRUE)
+
+		def FindCharsWZ(pcCondition)
+			return This.FindCharsW(pcCondition)
+
 	  #--------------------------------------------------------------#
 	 #  GETTING ALL CHARS IN THE STRING ALONG WITH THEIR POSITIONS  #
-	#--------------------------------------------------------------#
+	#=============================================================#
 
 	def CharsCSZ(pCaseSensitive)
 
@@ -44027,6 +43911,29 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		def CharsAndTheirPositions()
 			return This.CharsZ()
+
+	  #-------------------------------------------------------------------------------#
+	 #  GETTING ALL CHARS IN THE STRING VERIFIFUING A GIVEN CONDITION -- Z/EXTENDED  #
+	#-------------------------------------------------------------------------------#
+
+	def CharsWCSZ(pcCondition, pCaseSensitive)
+		acChars = U( This.CharsWCS(pcCondition, pCaseSensitive) )
+		anPos = This.FindTheseChars(acChars)
+
+		aResult = @Association([ acChars, anPos ])
+
+		return aResult
+
+		def CharsAndTheirPositionsWCS(pcCondition, pCaseSensitive)
+			return This.CharsWCSZ(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def CharsWZ(pcCondition)
+		return This.CharsWCSZ(pcCondition, TRUE)
+
+		def CharsAndTheirPositionsW(pcCondition)
+			return This.CharsWZ(pcCondition)
 
 	  #--------------------------------------------#
 	 #  FINDING THE POSITIONS OF THE GIVEN CHARS  #
