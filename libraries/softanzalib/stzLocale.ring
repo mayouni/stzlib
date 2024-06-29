@@ -512,6 +512,11 @@ class stzLocale from stzObject
 		def Language()
 			return This.LanguageName()
 	
+		#-- @Misspelled
+
+		def Langauge()
+			return This.LanguageName()
+
 	def LanguageNativeName()
 		return StzLocaleQ([ :Country = This.CountryName() ]).QLocaleObject().nativeLanguageName()
 

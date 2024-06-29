@@ -37,11 +37,12 @@ pron()
 
 proff()
 
-/*--- #ring #fix
-
+/*--- #ring #fix #stz-complements-ring
+*/
 pron()
 
-# Ring standard functions
+# these Ring standard functions are wrappers of C functions
+# and can not manage Unicode non-ascii strings
 
 ? isAlpha("محمود")
 #!--> FALSE
@@ -51,7 +52,7 @@ pron()
 #!--> FALSE
 #~> Should be TRUE
 
-# Softanza function fixing the issue
+# Softanza quivalent functions fix the issue:
 
 ? @IsAlpha("محمود") # or @IsAlphabetical()
 #--> TRUE

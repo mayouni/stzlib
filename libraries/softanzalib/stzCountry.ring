@@ -496,6 +496,8 @@ class stzCountry
 	def DefaultLanguage()
 		return @aCountryInfo[6]
 
+		#< @FunctionAlternativeForms
+
 		def DefaultLanguageName()
 			return This.DefaultLanguage()
 
@@ -505,11 +507,36 @@ class stzCountry
 		def LanguageName()
 			return This.DefaultLanguage()
 
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def DefaultLangaugeName()
+			return This.DefaultLanguage()
+
+		def Langauge()
+			return This.DefaultLanguage()
+
+		def LangaugeName()
+			return This.DefaultLanguage()
+
+
+		#>
+
 	def LanguageNativeName()
 		return StzLocaleQ(This.LocaleAbbreviation()).LanguageNativeName()
 
 		def DefaultLanguageNativeName()
 			return This.LanguageNativeName()
+
+		#-- @Misspelled
+
+		def LangaugeNativeName()
+			return This.DefaultLanguage()
+
+		def DefautLangaugeNativeName()
+			return This.DefaultLanguage()
+
 
 	def Languages()
 		aResult = []
@@ -524,6 +551,14 @@ class stzCountry
 		def LanguagesNames()
 			return This.Languages()
 
+		#-- @Misspelled
+
+		def Langauges()
+			return This.Languages()
+
+		def LangaugesNames()
+			return This.Languages()
+
 	def LanguagesAbbreviations()
 		aResult = []
 
@@ -534,6 +569,11 @@ class stzCountry
 		next
 
 		return aResult
+
+		#-- @Misspelled
+
+		def LangaugesAbbreviations()
+			return This.LanguagesAbbreviations()
 
 	def Script()
 		/* NOTE:
