@@ -37,8 +37,8 @@ pron()
 
 proff()
 
-/*--- #ring #fix #stz-complements-ring
-*/
+/*====== #ring #fix #stz-complements-ring
+
 pron()
 
 # these Ring standard functions are wrappers of C functions
@@ -63,7 +63,48 @@ pron()
 proff()
 # Executed in 0.04 second(s)
 
-/*----
+/*=========
+
+pron()
+
+? Language("محمود")
+#--> arabic
+
+# When the text contains COMMON chars and ARABIC chars:
+
+? Langauge("ˇˇˇمحمودˇˇˇ") #NOTE // Langauge() is misspelled but works ;)
+#--> arabic
+
+#~> Common chars do not influence the langauge detection in Softanza.
+
+proff()
+# Executed in 0.11 second(s)
+
+/*-----
+
+pron()
+
+? Unicode("ˇ")
+#--> 711
+
+? CharName("ˇ")
+#--> CARON
+
+? Script("ˇ")
+#--> common
+
+? language("ˇ")
+#--> undefined
+
+? Q("ˇ").IsLetter()
+#--> TRUE
+
+? @IsAlpha("ˇringˇ")
+#--> TRUE
+
+proff()
+# Executed in 0.10 second(s)
+/*======
 
 pron()
 
