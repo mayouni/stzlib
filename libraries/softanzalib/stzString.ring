@@ -33535,7 +33535,7 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForms
+		#< @FunctionAlternativeForm
 
 		def InsertSubStringAfterWXT(pcCondition, pcSubStr)
 			This.InsertAfterWXT(pcCondition, pcSubStr)
@@ -33544,28 +33544,11 @@ class stzString from stzObject
 				This.InsertSubStringAfterWXT(pcCondition, pcSubStr)
 				return This
 
-		def InsertAtWXT(pcCondition, pcSubStr)
-			This.InsertAfterWXT(pcCondition, pcSubStr)
-
-			def InsertAtWXTQ(pcCondition, pcSubStr)
-				This.InsertAtWXT(pcCondition, pcSubStr)
-				return This
-
-		def InsertSubstringAtWXT(pcCondition, pcSubStr)
-			This.InsertAfterWXT(pcCondition, pcSubStr)
-
-			def InsertSubstringAtWXTQ(pcCondition, pcSubStr)
-				This.InsertSubStringAtWXT(pcCondition, pcSubStr)
-				return This
-
 		#>
 
 	def SubStringInsertedAfterWXT(pcCondition, pcSubStr)
 		cResult = This.Copy().InsertAfterWXTQ(pcCondition, pcSubStr).Content()
 		return cResult
-
-		def SubStringInsertedAtWXT(pcCondition, pcSubStr)
-			return This.SubStringInsertedAfterWXT(pcCondition, pcSubStr)
 
 	  #------------------------------------------------#
 	 #   INSERTING A SUBSTRING AFTER MANY POSITIONS   #
@@ -36423,7 +36406,7 @@ class stzString from stzObject
 
 	#TODO : Generalize the CS check to all W() functions in the library
 
-	def ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
+vvv	def ReplaceSubStringWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzString("ring php ring ruby ring pyhton ring")
@@ -36445,7 +36428,7 @@ class stzString from stzObject
 
 		@SubString = pcSubStr
 
-		@NumberOfOccurrences = ringlen(anPos)
+		@NumberOfOccurrences = len(anPos)
 		@NumberOfOccurrence  = @NumberOfOccurrences
 		@NumberOfSubStrings  = @NumberOfOccurrences
 		@NumberOfSubStrings  = @NumberOfOccurrence
