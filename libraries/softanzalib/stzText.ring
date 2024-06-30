@@ -4706,8 +4706,12 @@ class stzText from stzString
 	 #    REMOVING PUNCTUATION   # 
 	#===========================#
 
-	def RemovePunctuation() #TODO: Use an other ilmplementation for better performance
-		This.RemoveCharsWhere('{ StzCharQ(@char).IsPunctuation() }')
+	def RemovePunctuation()
+		anPos = This.FindPunctuations()
+		cResult = This.ToStzString().RemoveCharsAtPositionsQ(anPos).Content()
+		This.Update(cResult)
+
+		#< @FunctionAlternativeForm
 
 		def RemovePunctuationQ()
 			This.RemovePunctuation()
@@ -4719,7 +4723,17 @@ class stzText from stzString
 			def RemovePunctuationsQ()
 				This.RemovePunctuations()
 				return This
-	
+
+		#>
+
+	#-- @PassiveForm
+	def PunctuationRemoved()
+		cResult = This.Copy().RemovePunctuationQ().Content()
+		return cResult
+
+		def PunctuationsRemoved()
+			return This.PunctuationRemoved()
+
 	  #-----------------------------------------------#
 	 #    REMOVING PUNCTUATION  -- EXCEPT/Extension  # 
 	#-----------------------------------------------#

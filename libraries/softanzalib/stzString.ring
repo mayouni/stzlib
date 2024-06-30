@@ -43928,6 +43928,40 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def FindCharsZ()
 			return This.FindChars()
 
+	  #---------------------------------------------------#
+	 #  REMOVING CHARS AT GIVEN POSITIONS OF THE STRING  #
+	#===================================================#
+
+	def RemoveCharsAt(panPos)
+
+		if CheckParams()
+			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+		ok
+
+		anPos = @ring_sort( U(panPos) )
+		nLen = len(anPos)
+
+		for i = nLen to 1 step -1
+			This.RemoveCharAt(anPos[i]) #TODO // check performance!
+		next
+
+		def RemoveCharsAtQ(panPos)
+			This.RemoveCharsAt(panPos)
+			return This
+
+		def RemoveCharsAtPositions(panPos)
+			This.RemoveCharsAt(panPos)
+
+			def RemoveCharsAtPositionsQ(panPos)
+				This.RemoveCharsAtPositions(panPos)
+				return This
+
+	def CharsAtPositionsRemoved(panPos)
+		cResult = This.Copy().RemoveCharsAtQ(panPos).Content()
+		return cResult
+
 	  #---------------------------------------------#
 	 #  FINDING CHARS VERIFYING A GIVEN CONDITION  #
 	#=============================================#
