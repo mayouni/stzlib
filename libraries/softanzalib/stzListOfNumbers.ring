@@ -3494,7 +3494,7 @@ class stzListOfNumbers from stzList
 
 	def PerformOn(panPos, pcCode)
 
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 			StzRaise("Invalid param type! panPos must be a list of numbers.")
 		ok
 

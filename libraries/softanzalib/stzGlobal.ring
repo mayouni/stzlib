@@ -1136,7 +1136,10 @@ func ring_type(p)
 	func @ring_type(p)
 		return type(p)
 
-func ring_reverse(paList)
+func ring_reverse(pStrOrList)
+	#WARNING // can't revese unicode string other then ASCII latin chars
+	# --> use Softanza @Reverse() instead
+
 	return reverse(paList)
 
 	func @ring_reverse(paList)
