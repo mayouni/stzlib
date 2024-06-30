@@ -43930,10 +43930,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	  #---------------------------------------------#
 	 #  FINDING CHARS VERIFYING A GIVEN CONDITION  #
-	#---------------------------------------------#
+	#=============================================#
 
 	def FindCharsWCS(pcCondition, pCaseSensitive)
-		anResult = This.CharsCS(pCaseSensitive).FindW(pcCondition)
+		anResult = This.CharsCSQ(pCaseSensitive).FindW(pcCondition)
 		return anResult
 
 		def FindCharsWCSZ(pcCondition, pCaseSensitive)
@@ -43946,6 +43946,25 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		def FindCharsWZ(pcCondition)
 			return This.FindCharsW(pcCondition)
+
+	  #-------------------------------------------------------------#
+	 #  FINDING CHARS VERIFYING A GIVEN CONDITION -- WXT/EXTENDED  #
+	#-------------------------------------------------------------#
+
+	def FindCharsWCSXT(pcCondition, pCaseSensitive)
+		anResult = This.CharsCSQ(pCaseSensitive).FindWXT(pcCondition)
+		return anResult
+
+		def FindCharsWCSXTZ(pcCondition, pCaseSensitive)
+			return This.FindCharsWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindCharsWXT(pcCondition)
+		return This.FindCharsWCSXT(pcCondition, TRUE)
+
+		def FindCharsWXTZ(pcCondition)
+			return This.FindCharsWXT(pcCondition)
 
 	  #--------------------------------------------------------------#
 	 #  GETTING ALL CHARS IN THE STRING ALONG WITH THEIR POSITIONS  #
