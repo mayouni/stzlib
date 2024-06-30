@@ -267,7 +267,7 @@ class stzSplitter from stzListOfNumbers
 
 	def SplitAtPositions(panPos)
 
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
@@ -371,7 +371,7 @@ class stzSplitter from stzListOfNumbers
 	#-------------------------------------#
 
 	def SplitBeforePositions(panPos)
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
@@ -485,7 +485,7 @@ class stzSplitter from stzListOfNumbers
 	#------------------------------------#
 
 	def SplitAfterPositions(panPos)
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 

@@ -877,6 +877,27 @@ func IsRealInString(str)
 	func @IsRealInstring(str)
 		return IsRealInString(str)
 
+func @IsPalindrome(p)
+	if isList(p)
+		return StzListQ(p).IsPalindrome()
+	but isString(p)
+		return StzStringQ(p).IsPalindrome()
+	else
+		StzRaise("Incorrect param type! p must be a string or list.")
+	ok
+
+	def IsPalindrom(p)
+		return @IsPalindrome(p)
+
+	def @IsPalindrom(p)
+		return @IsPalindrome(p)
+
+	def IsMirrored(p)
+		return @IsPalindrome(p)
+
+	def @IsMirrored(p)
+		return @IsPalindrome(p)
+
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -1019,6 +1040,36 @@ class stzString from stzObject
 
 	def ReversedCopy()
 		return This.ReverseQ()
+
+	  #========================================#
+	 #  CHECKING IF THE STRING IS PALINDROME  #
+	#========================================#
+
+	def IsPalindromeCS(pCaseSensitive)
+		cReversed = This.Reversed()
+		if This.IsEqualtToCS( cReversed, pCaseSensitive) = TRUE
+			return TRUE
+		else
+			return FALSE
+		ok
+
+
+		def IsPalindromCS(pCaseSensitive)
+			return This.IsPalindromeCS(pCaseSensitive)
+
+		def IsMirroredCS(pCaseSensitive)
+			return This.IsPalindromeCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IsPalindrome()
+		return This.IsPalindromeCS(TRUE)
+
+		def IsPalindrom()
+			return This.IsPalindrome()
+
+		def IsMirrored()
+			return This.ISPalindrome()
 
 	  #==================================#
 	 #  GETTING THE CASE OF THE STRING  #
@@ -1479,7 +1530,7 @@ class stzString from stzObject
 
 	def ExtendWithMany(pacSubStr)
 		if CheckParams()
-			if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+			if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 			ok
 		ok
@@ -8722,7 +8773,7 @@ class stzString from stzObject
 
 	def RemoveDuplicatesOfSubStringsCS(pacSubStr, pCaseSensitive)
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param! paItems must be a list of strings.")
 		ok
 
@@ -8806,6 +8857,18 @@ class stzString from stzObject
 			def NumberOfOccurrencesCSQ(pcSubStr, pCaseSensitive)
 				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
 	
+		def NumberOfOccurrencesOfCS(pcSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+
+			def NumberOfOccurrencesOfCSQ(pcSubStr, pCaseSensitive)
+				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
+
+		def NumberOfOccurrenceOfCS(pcSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+
+			def NumberOfOccurrenceOfCSQ(pcSubStr, pCaseSensitive)
+				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
+
 		def NumberOfOccurrenceOfSubstringCS(pcSubStr, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
@@ -8856,6 +8919,18 @@ class stzString from stzObject
 			def NumberOfOccurrencesQ(pcSubStr)
 				return This.NumberOfOccurrenceQ(pcSubStr)
 	
+		def NumberOfOccurrencesOf(pcSubStr)
+			return This.NumberOfOccurrence(pcSubStr)
+
+			def NumberOfOccurrencesOfQ(pcSubStr)
+				return This.NumberOfOccurrenceQ(pcSubStr)
+
+		def NumberOfOccurrenceOf(pcSubStr)
+			return This.NumberOfOccurrence(pcSubStr)
+
+			def NumberOfOccurrenceOfQ(pcSubStr)
+				return This.NumberOfOccurrenceQ(pcSubStr)
+
 		def NumberOfOccurrenceOfSubstring(pcSubStr)
 			return This.NumberOfOccurrence(pcSubStr)
 
@@ -30018,7 +30093,7 @@ class stzString from stzObject
 				pacBounds = pacBounds[2]
 			ok
 
-			return This.DeepSubStringsBoundedByCS(pacBounds, pCaseSensitive)(pacBounds, pCaseSensitive)
+			return This.DeepSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
 		#>
 
@@ -33607,9 +33682,9 @@ class stzString from stzObject
 	#================================================#
 
 	 def InsertAfterPositions(panPos, pcSubStr)
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 
-			stzRaise("Incorrect param! paPositions must be a list of numbers.")
+			stzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
 
 		if NOT isString(pcSubStr)
@@ -33688,7 +33763,7 @@ class stzString from stzObject
 
 	 def InsertBeforePositions(panPos, pcSubStr)
 
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 
 			stzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
@@ -34982,7 +35057,7 @@ class stzString from stzObject
 		if CheckParams()
 
 			if NOT ( isList(pacSubStr) and
-				 Q(pacSubStr).IsListOfStrings() )
+				 @IsListOfStrings(pacSubStr) )
 	
 				stzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 			ok
@@ -37782,7 +37857,7 @@ vvv
 
 		# Checking the correctness of panPos param
 
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 
 			stzRaise("Incorrect param! panPos must be list of numbers.")
 		ok
@@ -48142,7 +48217,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#< @FunctionMisspelledForm
 
 		def IsEqualtToCS(pcOtherStr, pCaseSensitive)
-			return This.IsEqualtToCS(pcOtherStr, pCaseSensitive)
+			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
 
 		#>
 
@@ -48189,7 +48264,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#< @FunctionMisspelledForm
 
 		def IsEqualtTo(pcOtherStr)
-			return This.IsEqualtTo()
+			return This.IsEqualTo()
 
 		#>
 
@@ -49483,7 +49558,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		? o1.Content() #--> "ring php ruby python csharp"
 		*/
 
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 			stzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
 
@@ -49653,7 +49728,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			panPos = temp
 		ok
 
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 
 			stzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
@@ -49705,12 +49780,12 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	def ContainsSubStringsAtPositionsCS(panPos, pacSubStr, pCaseSensitive)
 
-		if NOT ( isList(panPos) and Q(panPos).IsListOFNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 
 			stzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 
 			stzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
@@ -49769,7 +49844,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#----------------------------------------------#
 
 	def ContainsOneOrMoreCS(pacSubStr, pCaseSensitive)
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -52131,7 +52206,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return []
 		ok
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -52829,7 +52904,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#--------------------------------------#
 
 	def SplitAfterSubStringsCS(pacSubStr, pCaseSensitive)
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -54807,7 +54882,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return []
 		ok
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -55176,7 +55251,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#-------------------------------------------#
 
 	def FindSplitsAfterSubStringsCS(pacSubStr, pCaseSensitive)
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -56653,7 +56728,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		if CheckParams()
 
-			if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+			if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 			ok
 	
@@ -57215,7 +57290,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		if CheckParams()
 
-			if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+			if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 			ok
 		ok
@@ -58551,7 +58626,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 				StzRaise("Incorrect param type! n must be a number greater then 0.")
 			ok
 
-			if NOT (isList(pacSubStr) and Q(pacSubStr).IsListOfStrings())
+			if NOT (isList(pacSubStr) and @IsListOfStrings(pacSubStr))
 				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 			ok
 		ok
@@ -58922,7 +58997,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return []
 		ok
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -59291,7 +59366,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#----------------------------------------------#
 
 	def FindNthSplitAfterSubStringsCS(n, pacSubStr, pCaseSensitive)
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -60568,7 +60643,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return []
 		ok
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -60934,7 +61009,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#-----------------------------------------------------------#
 
 	def FindNthSplitAfterSubStringsCSZZ(n, pacSubStr, pCaseSensitive)
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -62242,7 +62317,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return []
 		ok
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -62611,7 +62686,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#-----------------------------------------------#
 
 	def FindLastSplitAfterSubStringsCS(pacSubStr, pCaseSensitive)
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -63888,7 +63963,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return []
 		ok
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -64254,7 +64329,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#------------------------------------------------------------#
 
 	def FindLastSplitAfterSubStringsCSZZ(pacSubStr, pCaseSensitive)
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -74684,12 +74759,12 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		if CheckParams()
 
-			if NOT ( isList(pacSubStr) and Q(pacSubStr).isListOfStrings() )
+			if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 				stzRaise("Incorrect param! pacSubStr must be a list of strings.")
 			ok
 	
 	
-			if NOT ( isList(pacSubStr) and Q(pacSubStr).isListOfStrings() )
+			if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 				stzRaise("Incorrect param! pacSubStr must be a list of strings.")
 			ok
 
@@ -79184,7 +79259,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#--------------------------------#
 	
 	def CharsAtPositions(panPos)
-		if NOT ( isList(panPos) and Q(panPos).IsListofNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 			stzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
 
@@ -82548,23 +82623,23 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionFluentForm
 
-		def YieldFromQ(paPositions, pcCode)
-			return This.YieldFromQR(paPositions, pcCode, :stzList)
+		def YieldFromQ(panPos, pcCode)
+			return This.YieldFromQR(panPos, pcCode, :stzList)
 	
-		def YieldFromQR(paPositions, pcCode, pcReturnType)
+		def YieldFromQR(panPos, pcCode, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.YieldFrom(paPositions, pcCode) )
+				return new stzList( This.YieldFrom(panPos, pcCode) )
 	
 			on :stzListOfStrings
-				return new stzListOfStrings( This.YieldFrom(paPositions, pcCode) )
+				return new stzListOfStrings( This.YieldFrom(panPos, pcCode) )
 				
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.YieldFrom(paPositions, pcCode) )
+				return new stzListOfNumbers( This.YieldFrom(panPos, pcCode) )
 		
 			other
 				stzRaise("Unsupported return type!")
@@ -82577,23 +82652,23 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def YieldFromPositions(panPos, pcCode)
 			return This.YieldFrom(panPos, pcCode)
 
-			def YieldFromPositionsQ(paPositions, pcCode)
-				return This.YieldFromPositionsQR(paPositions, pcCode, :stzList)
+			def YieldFromPositionsQ(panPos, pcCode)
+				return This.YieldFromPositionsQR(panPos, pcCode, :stzList)
 		
-			def YieldFromPositionsQR(paPositions, pcCode, pcReturnType)
+			def YieldFromPositionsQR(panPos, pcCode, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.YieldFromPositions(paPositions, pcCode) )
+					return new stzList( This.YieldFromPositions(panPos, pcCode) )
 		
 				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromPositions(paPositions, pcCode) )
+					return new stzListOfStrings( This.YieldFromPositions(panPos, pcCode) )
 					
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromPositions(paPositions, pcCode) )
+					return new stzListOfNumbers( This.YieldFromPositions(panPos, pcCode) )
 	
 				other
 					stzRaise("Unsupported return type!")
@@ -82602,23 +82677,23 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def YieldFromCharsAt(panPos, pcCode)
 			return This.YieldFrom(panPos, pcCode)
 
-			def YieldFromCharsAtQ(paPositions, pcCode)
-				return This.YieldFromCharsAtQR(paPositions, pcCode, :stzList)
+			def YieldFromCharsAtQ(panPos, pcCode)
+				return This.YieldFromCharsAtQR(panPos, pcCode, :stzList)
 		
-			def YieldFromCharsAtQR(paPositions, pcCode, pcReturnType)
+			def YieldFromCharsAtQR(panPos, pcCode, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.YieldFromCharsAt(paPositions, pcCode) )
+					return new stzList( This.YieldFromCharsAt(panPos, pcCode) )
 		
 				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromCharsAt(paPositions, pcCode) )
+					return new stzListOfStrings( This.YieldFromCharsAt(panPos, pcCode) )
 					
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromCharsAt(paPositions, pcCode) )
+					return new stzListOfNumbers( This.YieldFromCharsAt(panPos, pcCode) )
 	
 				other
 					stzRaise("Unsupported return type!")
@@ -82627,26 +82702,26 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def YieldFromCharsAtPositions(panPos, pcCode)
 			return This.YieldOn(panPos, pcCode)
 
-			def YieldFromCharsAtPositionsQ(paPositions, pcCode)
-				return This.YieldFromCharsAtPositionsQR(paPositions, pcCode, :stzList)
+			def YieldFromCharsAtPositionsQ(panPos, pcCode)
+				return This.YieldFromCharsAtPositionsQR(panPos, pcCode, :stzList)
 		
-			def YieldFromCharsAtPositionsQR(paPositions, pcCode, pcReturnType)
+			def YieldFromCharsAtPositionsQR(panPos, pcCode, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.YieldFromCharsAtPositions(paPositions, pcCode) )
+					return new stzList( This.YieldFromCharsAtPositions(panPos, pcCode) )
 		
 				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromCharsAtPositions(paPositions, pcCode) )
+					return new stzListOfStrings( This.YieldFromCharsAtPositions(panPos, pcCode) )
 					
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromCharsAtPositions(paPositions, pcCode) )
+					return new stzListOfNumbers( This.YieldFromCharsAtPositions(panPos, pcCode) )
 	
 				on :stzHashList
-					return new stzHashList( This.YieldFromCharsAtPositions(paPositions, pcCode) )
+					return new stzHashList( This.YieldFromCharsAtPositions(panPos, pcCode) )
 			
 			other
 					stzRaise("Unsupported return type!")
@@ -82655,23 +82730,23 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def HarvestFromPositions(panPos, pcCode)
 			return This.HarvestFrom(panPos, pcCode)
 
-			def HarvestFromPositionsQ(paPositions, pcCode)
-				return This.HarvestFromPositionsQR(paPositions, pcCode, :stzList)
+			def HarvestFromPositionsQ(panPos, pcCode)
+				return This.HarvestFromPositionsQR(panPos, pcCode, :stzList)
 		
-			def HarvestFromPositionsQR(paPositions, pcCode, pcReturnType)
+			def HarvestFromPositionsQR(panPos, pcCode, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.HarvestFromPositions(paPositions, pcCode) )
+					return new stzList( This.HarvestFromPositions(panPos, pcCode) )
 		
 				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromPositions(paPositions, pcCode) )
+					return new stzListOfStrings( This.HarvestFromPositions(panPos, pcCode) )
 					
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromPositions(paPositions, pcCode) )
+					return new stzListOfNumbers( This.HarvestFromPositions(panPos, pcCode) )
 	
 				other
 					stzRaise("Unsupported return type!")
@@ -82680,23 +82755,23 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def HarvestFromCharsAt(panPos, pcCode)
 			return This.HarvestFrom(panPos, pcCode)
 
-			def HarvestFromCharsAtQ(paPositions, pcCode)
-				return This.HarvestFromCharsAtQR(paPositions, pcCode, :stzList)
+			def HarvestFromCharsAtQ(panPos, pcCode)
+				return This.HarvestFromCharsAtQR(panPos, pcCode, :stzList)
 		
-			def HarvestFromCharsAtQR(paPositions, pcCode, pcReturnType)
+			def HarvestFromCharsAtQR(panPos, pcCode, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.HarvestFromCharsAt(paPositions, pcCode) )
+					return new stzList( This.HarvestFromCharsAt(panPos, pcCode) )
 		
 				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromCharsAt(paPositions, pcCode) )
+					return new stzListOfStrings( This.HarvestFromCharsAt(panPos, pcCode) )
 					
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromCharsAt(paPositions, pcCode) )
+					return new stzListOfNumbers( This.HarvestFromCharsAt(panPos, pcCode) )
 	
 				other
 					stzRaise("Unsupported return type!")
@@ -82705,23 +82780,23 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def HarvestFromCharsAtPositions(panPos, pcCode)
 			return This.HarvestOn(panPos, pcCode)
 
-			def HarvestFromCharsAtPositionsQ(paPositions, pcCode)
-				return This.HarvestFromCharsAtPositionsQR(paPositions, pcCode, :stzList)
+			def HarvestFromCharsAtPositionsQ(panPos, pcCode)
+				return This.HarvestFromCharsAtPositionsQR(panPos, pcCode, :stzList)
 		
-			def HarvestFromCharsAtPositionsQR(paPositions, pcCode, pcReturnType)
+			def HarvestFromCharsAtPositionsQR(panPos, pcCode, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.HarvestFromCharsAtPositions(paPositions, pcCode) )
+					return new stzList( This.HarvestFromCharsAtPositions(panPos, pcCode) )
 		
 				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromCharsAtPositions(paPositions, pcCode) )
+					return new stzListOfStrings( This.HarvestFromCharsAtPositions(panPos, pcCode) )
 					
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromCharsAtPositions(paPositions, pcCode) )
+					return new stzListOfNumbers( This.HarvestFromCharsAtPositions(panPos, pcCode) )
 	
 				other
 					stzRaise("Unsupported return type!")
@@ -82960,7 +83035,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#< @FunctionFluentForm
 
 		def YieldWQ(pcCode, pcCondition)
-				return This.YieldWQR(paPositions, pcCode, :stzList)
+				return This.YieldWQR(panPos, pcCode, :stzList)
 		
 			def YieldWQR(pcCode, pcCondition, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])

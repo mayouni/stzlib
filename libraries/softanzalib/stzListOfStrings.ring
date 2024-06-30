@@ -6411,7 +6411,7 @@ class stzListOfStrings from stzList
 
 		*/
 
-		if NOT ( isList(pacSubStr) and Q(pacSubStr).IsListOfStrings() )
+		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
 			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 		ok
 
@@ -10779,7 +10779,7 @@ class stzListOfStrings from stzList
 			pcOtherStr = pcOtherStr[2]
 		ok
 
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 
 			StzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
@@ -11031,7 +11031,7 @@ class stzListOfStrings from stzList
 
 		# Checking params correctness
 
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 
 			StzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
@@ -11109,7 +11109,7 @@ class stzListOfStrings from stzList
 
 		# Checking params correctness
 
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 
 			StzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
@@ -15735,23 +15735,23 @@ stop()
 
 		#< @FunctionFluentForm
 
-		def YieldFromQ(paPositions, pcCode)
-			return This.YieldFromQR(paPositions, pcCode, :stzList)
+		def YieldFromQ(panPos, pcCode)
+			return This.YieldFromQR(panPos, pcCode, :stzList)
 	
-		def YieldFromQR(paPositions, pcCode, pcReturnType)
+		def YieldFromQR(panPos, pcCode, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.YieldFrom(paPositions, pcCode) )
+				return new stzList( This.YieldFrom(panPos, pcCode) )
 	
 			on :stzListOfStrings
-				return new stzListOfStrings( This.YieldFrom(paPositions, pcCode) )
+				return new stzListOfStrings( This.YieldFrom(panPos, pcCode) )
 				
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.YieldFrom(paPositions, pcCode) )
+				return new stzListOfNumbers( This.YieldFrom(panPos, pcCode) )
 		
 			other
 				StzRaise("Unsupported return type!")
@@ -15764,23 +15764,23 @@ stop()
 		def YieldFromPositions(panPos, pcCode)
 			return This.YieldFrom(panPos, pcCode)
 
-			def YieldFromPositionsQ(paPositions, pcCode)
-				return This.YieldFromPositionsQR(paPositions, pcCode, :stzList)
+			def YieldFromPositionsQ(panPos, pcCode)
+				return This.YieldFromPositionsQR(panPos, pcCode, :stzList)
 		
-			def YieldFromPositionsQR(paPositions, pcCode, pcReturnType)
+			def YieldFromPositionsQR(panPos, pcCode, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.YieldFromPositions(paPositions, pcCode) )
+					return new stzList( This.YieldFromPositions(panPos, pcCode) )
 		
 				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromPositions(paPositions, pcCode) )
+					return new stzListOfStrings( This.YieldFromPositions(panPos, pcCode) )
 					
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromPositions(paPositions, pcCode) )
+					return new stzListOfNumbers( This.YieldFromPositions(panPos, pcCode) )
 	
 				other
 					StzRaise("Unsupported return type!")
@@ -15789,23 +15789,23 @@ stop()
 		def YieldFromCharsAt(panPos, pcCode)
 			return This.YieldFrom(panPos, pcCode)
 
-			def YieldFromCharsAtQ(paPositions, pcCode)
-				return This.YieldFromCharsAtQR(paPositions, pcCode, :stzList)
+			def YieldFromCharsAtQ(panPos, pcCode)
+				return This.YieldFromCharsAtQR(panPos, pcCode, :stzList)
 		
-			def YieldFromCharsAtQR(paPositions, pcCode, pcReturnType)
+			def YieldFromCharsAtQR(panPos, pcCode, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.YieldFromCharsAt(paPositions, pcCode) )
+					return new stzList( This.YieldFromCharsAt(panPos, pcCode) )
 		
 				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromCharsAt(paPositions, pcCode) )
+					return new stzListOfStrings( This.YieldFromCharsAt(panPos, pcCode) )
 					
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromCharsAt(paPositions, pcCode) )
+					return new stzListOfNumbers( This.YieldFromCharsAt(panPos, pcCode) )
 	
 				other
 					StzRaise("Unsupported return type!")
@@ -15814,26 +15814,26 @@ stop()
 		def YieldFromCharsAtPositions(panPos, pcCode)
 			return This.YieldOn(panPos, pcCode)
 
-			def YieldFromCharsAtPositionsQ(paPositions, pcCode)
-				return This.YieldFromCharsAtPositionsQR(paPositions, pcCode, :stzList)
+			def YieldFromCharsAtPositionsQ(panPos, pcCode)
+				return This.YieldFromCharsAtPositionsQR(panPos, pcCode, :stzList)
 		
-			def YieldFromCharsAtPositionsQR(paPositions, pcCode, pcReturnType)
+			def YieldFromCharsAtPositionsQR(panPos, pcCode, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.YieldFromCharsAtPositions(paPositions, pcCode) )
+					return new stzList( This.YieldFromCharsAtPositions(panPos, pcCode) )
 		
 				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromCharsAtPositions(paPositions, pcCode) )
+					return new stzListOfStrings( This.YieldFromCharsAtPositions(panPos, pcCode) )
 					
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromCharsAtPositions(paPositions, pcCode) )
+					return new stzListOfNumbers( This.YieldFromCharsAtPositions(panPos, pcCode) )
 	
 				on :stzHashList
-					return new stzHashList( This.YieldFromCharsAtPositions(paPositions, pcCode) )
+					return new stzHashList( This.YieldFromCharsAtPositions(panPos, pcCode) )
 			
 			other
 					StzRaise("Unsupported return type!")
@@ -15842,23 +15842,23 @@ stop()
 		def HarvestFromPositions(panPos, pcCode)
 			return This.HarvestFrom(panPos, pcCode)
 
-			def HarvestFromPositionsQ(paPositions, pcCode)
-				return This.HarvestFromPositionsQR(paPositions, pcCode, :stzList)
+			def HarvestFromPositionsQ(panPos, pcCode)
+				return This.HarvestFromPositionsQR(panPos, pcCode, :stzList)
 		
-			def HarvestFromPositionsQR(paPositions, pcCode, pcReturnType)
+			def HarvestFromPositionsQR(panPos, pcCode, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.HarvestFromPositions(paPositions, pcCode) )
+					return new stzList( This.HarvestFromPositions(panPos, pcCode) )
 		
 				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromPositions(paPositions, pcCode) )
+					return new stzListOfStrings( This.HarvestFromPositions(panPos, pcCode) )
 					
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromPositions(paPositions, pcCode) )
+					return new stzListOfNumbers( This.HarvestFromPositions(panPos, pcCode) )
 	
 				other
 					StzRaise("Unsupported return type!")
@@ -15867,23 +15867,23 @@ stop()
 		def HarvestFromCharsAt(panPos, pcCode)
 			return This.HarvestFrom(panPos, pcCode)
 
-			def HarvestFromCharsAtQ(paPositions, pcCode)
-				return This.HarvestFromCharsAtQR(paPositions, pcCode, :stzList)
+			def HarvestFromCharsAtQ(panPos, pcCode)
+				return This.HarvestFromCharsAtQR(panPos, pcCode, :stzList)
 		
-			def HarvestFromCharsAtQR(paPositions, pcCode, pcReturnType)
+			def HarvestFromCharsAtQR(panPos, pcCode, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.HarvestFromCharsAt(paPositions, pcCode) )
+					return new stzList( This.HarvestFromCharsAt(panPos, pcCode) )
 		
 				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromCharsAt(paPositions, pcCode) )
+					return new stzListOfStrings( This.HarvestFromCharsAt(panPos, pcCode) )
 					
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromCharsAt(paPositions, pcCode) )
+					return new stzListOfNumbers( This.HarvestFromCharsAt(panPos, pcCode) )
 	
 				other
 					StzRaise("Unsupported return type!")
@@ -15892,23 +15892,23 @@ stop()
 		def HarvestFromCharsAtPositions(panPos, pcCode)
 			return This.HarvestOn(panPos, pcCode)
 
-			def HarvestFromCharsAtPositionsQ(paPositions, pcCode)
-				return This.HarvestFromCharsAtPositionsQR(paPositions, pcCode, :stzList)
+			def HarvestFromCharsAtPositionsQ(panPos, pcCode)
+				return This.HarvestFromCharsAtPositionsQR(panPos, pcCode, :stzList)
 		
-			def HarvestFromCharsAtPositionsQR(paPositions, pcCode, pcReturnType)
+			def HarvestFromCharsAtPositionsQR(panPos, pcCode, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 	
 				switch pcReturnType
 				on :stzList
-					return new stzList( This.HarvestFromCharsAtPositions(paPositions, pcCode) )
+					return new stzList( This.HarvestFromCharsAtPositions(panPos, pcCode) )
 		
 				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromCharsAtPositions(paPositions, pcCode) )
+					return new stzListOfStrings( This.HarvestFromCharsAtPositions(panPos, pcCode) )
 					
 				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromCharsAtPositions(paPositions, pcCode) )
+					return new stzListOfNumbers( This.HarvestFromCharsAtPositions(panPos, pcCode) )
 	
 				other
 					StzRaise("Unsupported return type!")
@@ -16126,7 +16126,7 @@ stop()
 		#< @FunctionFluentForm
 
 		def YieldWQ(pcCode, pcCondition)
-				return This.YieldWQR(paPositions, pcCode, :stzList)
+				return This.YieldWQR(panPos, pcCode, :stzList)
 		
 			def YieldWQR(pcCode, pcCondition, pcReturnType)
 				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -16213,7 +16213,7 @@ stop()
 
 	def PerformOn(panPos, pcCode)
 
-		if NOT ( isList(panPos) and Q(panPos).IsListOfNumbers() )
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 
 			StzRaise("Invalid param type! panPos must be a list of numbers.")
 		ok
