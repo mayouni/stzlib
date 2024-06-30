@@ -4791,9 +4791,9 @@ class stzObject
 			StzRaise("Incorrect param type! Objects can't be numberified.")
 		ok
 
-	  #------------------------------------------------------#
-	 #  CASTING THE OBJECT VALUE INTO A NUMBER -- EXTENDED  #
-	#------------------------------------------------------#
+	  #------------------------------------------------------------------#
+	 #  CASTING THE OBJECT VALUE INTO A NUMBER UNDER A GIVEN CONDITION  #
+	#==================================================================#
 
 	def ToNumberW(pcCode)
 
@@ -4837,7 +4837,7 @@ class stzObject
 			# CASE += is used on a list of items or a string
 
 			# EXAMPLE
-			# ? Q([ "Me", "and", "You!" ]).ToNumberXTW('{ @number += len(@item) }')
+			# ? Q([ "Me", "and", "You!" ]).ToNumberWXT('{ @number += len(@item) }')
 			#--> 9
 			@number = 0
 
