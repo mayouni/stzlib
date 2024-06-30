@@ -4657,9 +4657,54 @@ class stzText from stzString
 		def SupplementalPunctuationsWithoutDuplication()
 			return This.UniqueSupplementalPunctuations()
 
+	  #===============================#
+	 #  FINDING PUNCTUATIONS CHARS   #
+	#===============================#
+
+	def FindPunctuations()
+		aoChars = This.CharsQ().ToListOfStzChars()
+		nLen = len(aoChars)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if aoChars[i].IsPunctuation()
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindPunctionChars()
+			return This.FindPunctuations()
+
+		def FindPunct()
+			return This.FindPunctuations()
+
+		def FindPunctChars()
+			return This.FindPunctuations()
+
+		#--
+
+		def FindPunctuationsZ()
+			return This.FindPunctuations()
+
+		def FindPunctionCharsZ()
+			return This.FindPunctuations()
+
+		def FindPunctZ()
+			return This.FindPunctuations()
+
+		def FindPunctCharsZ()
+			return This.FindPunctuations()
+
+		#>
+
 	  #---------------------------#
 	 #    REMOVING PUNCTUATION   # 
-	#---------------------------#
+	#===========================#
 
 	def RemovePunctuation() #TODO: Use an other ilmplementation for better performance
 		This.RemoveCharsWhere('{ StzCharQ(@char).IsPunctuation() }')
