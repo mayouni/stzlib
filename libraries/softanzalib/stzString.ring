@@ -37939,7 +37939,9 @@ vvv
 
 	  #--------------------------------------------------------------------#
 	 #     REPLACING ALL CHARS WITH A SUBSTRING UNDER A GIVEN CONDITION   #
-	#--------------------------------------------------------------------#
+	#====================================================================#
+
+	#TODO # Add case sensitivty
 
 	def ReplaceCharsW(pcCondition, pcNewSubStr)
 		#< @MotherFunctions:
@@ -37953,7 +37955,7 @@ vvv
 		StzStringQ( "Text processing with Ring" ) {
 
 			ReplaceAllCharsW(
-				:Where = '{ @char = "i" }',
+				:Where = '{ This[@i] = "i" }',
 				:With = "*"
 			)
 
@@ -38000,10 +38002,67 @@ vvv
 		cResult = This.Copy().ReplaceCharsWQ(pcCondition, pcSubStr).Content()
 		return cResult
 
+	  #-----------------------------------------------------------------------------------#
+	 #     REPLACING ALL CHARS WITH A SUBSTRING UNDER A GIVEN CONDITION -- WXT/EXTENDED  #
+	#-----------------------------------------------------------------------------------#
+
+	#TODO # Add case sensitivty
+
+	def ReplaceCharsWXT(pcCondition, pcNewSubStr)
+		#< @MotherFunctions:
+		#	This.FindCharsW()  > @RingBased
+		#	This.ReplaceSection() > @QtBased
+		#>
+
+		/*
+		Example:
+
+		StzStringQ( "Text processing with Ring" ) {
+
+			ReplaceAllCharsWXT(
+				:Where = '{ @char = "i" }',
+				:With = "*"
+			)
+
+			? Content()
+		}
+
+		--> Returns: "Text process*ng w*th R*ng"
+		*/
+
+		# Doing the job
+
+		anPos = This.FindCharsWXT(pcCondition)
+		This.ReplaceCharsAtPositions(anPos, pcNewSubStr)
+
+
+		#< @FunctionFluentForm
+
+		def ReplaceCharsWXTQ(pCondition, pcNewSubStr)
+			This.ReplaceCharsWhereXT(pCondition, pcNewSubStr)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceCharsWhereXT(pCondition, pcNewSubStr)
+			This.ReplaceCharsW(pCondition, pcNewSubStr)
+
+			def ReplaceCharsWhereXTQ(pCondition, pcNewSubStr)
+				This.ReplaceCharsWhereXT(pCondition, pcNewSubStr)
+				return This
+
+		#>
+
+	def CharsReplacedWXT(pcCondition, pcNewSubStr)
+		cResult = This.Copy().ReplaceCharsWXTQ(pcCondition, pcSubStr).Content()
+		return cResult
+
 	  #-------------------------------------------------------------------------------#
 	 #  REPLACING ALL SUSBSTRINGS OBEYING TO A GIVEN CONDITION BY A GIVEN SUBSTRING  #
-	#-------------------------------------------------------------------------------#
-
+	#===============================================================================#
+vvv
 	def ReplaceSubStringsW(pcCondition, pcNewSubStr)
 		aSections = This.FindSubStringsAsSectionsW(pcCondition)
 		This.ReplaceSections(aSections, pcNewSubStr)
@@ -68665,23 +68724,54 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	  #-------------------------------------------------#
 	 #    REMOVING CHARS VERIFYING A GIVEN CONDITION   # 
-	#-------------------------------------------------#
+	#=================================================#
+
+	def RemoveCharsWhereCS(pcCondition, pCaseSensitive)
+		anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
+		This.RemoveAtPositions(anPos)
+
+		#< @FunctionFluentForm
+
+		def RemoveCharsWhereCSQ(pcCondition, pCaseSensitive)
+			This.RemoveCharsWhereCS(pcCondition, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveCharsWCS(pcCondition, pCaseSensitive)
+			This.RemoveCharsWhereCS(pcCondition, pCaseSensitive)
+
+			def RemoveCharsWCSQ(pcCondition, pCaseSensitive)
+				This.RemoveCharsWCS(pcCondition, pCaseSensitive)
+				return This
+
+		def RemoveAllcharsWhereCS(pcCondition, pCaseSensitive)
+			This.RemoveCharsWhereCS(pcCondition, pCaseSensitive)
+
+			def RemoveAllcharsWhereCSQ(pcCondition, pCaseSensitive)
+				This.RemoveAllcharsWhereCS(pcCondition, pCaseSensitive)
+				return This
+
+		def RemoveAllcharsWCS(pcCondition, pCaseSensitive)
+			This.RemoveCharsWhereCS(pcCondition, pCaseSensitive)
+
+			def RemoveAllcharsWCSQ(pcCondition, pCaseSensitive)
+				This.RemoveAllCharsWhereCS(pcCondition, pCaseSensitive)
+				return This
+
+		#>
+
+	#-- @PassiveForm
+	def CharsRemovedWCS(pcCondition, pCaseSensitive)
+		aResult = This.Copy().RemoveCharsWCSQ(pcCondition, pCaseSensitive).Content()
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveCharsWhere(pcCondition)
-
-		if isList(pcCondition) and stzListQ(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-
-			if NOT isString(pcCondition)
-				stzRaise("Incorrect param type! pcCondition mus tbe a string.")
-			ok
-		ok
-
-		anPos = This.FindCharsWhereQ( pcCondition ).SortedInDescending()
-
-		for for n in anPos
-			This.RemoveCharAtPosition(n)
-		next
+		This.RemoveCharsWhereCS(pcCondition, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -68712,9 +68802,99 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 				This.RemoveAllCharsWhere(pcCondition)
 				return This
 
+	#-- @PassiveForm
+	def CharsRemovedW(pcCondition)
+		aResult = This.Copy().RemoveCharsWQ(pcCondition).Content()
+		return aResult
+
+	  #----------------------------------------------------------------#
+	 #    REMOVING CHARS VERIFYING A GIVEN CONDITION -- WXT/EXTENDED  # 
+	#----------------------------------------------------------------#
+
+	def RemoveCharsWhereCSXT(pcCondition, pCaseSensitive)
+		anPos = This.FindCharsWCSXT(pcCondition, pCaseSensitive)
+		This.RemoveAtPositions(anPos)
+
+		#< @FunctionFluentForm
+
+		def RemoveCharsWhereCSXTQ(pcCondition, pCaseSensitive)
+			This.RemoveCharsWhereCSXT(pcCondition, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveCharsWCSXT(pcCondition, pCaseSensitive)
+			This.RemoveCharsWhereWCSXT(pcCondition, pCaseSensitive)
+
+			def RemoveCharsWCSXTQ(pcCondition, pCaseSensitive)
+				This.RemoveCharsWCSXT(pcCondition, pCaseSensitive)
+				return This
+
+		def RemoveAllcharsWhereWCSXT(pcCondition, pCaseSensitive)
+			This.RemoveCharsWhereCSXT(pcCondition, pCaseSensitive)
+
+			def RemoveAllcharsWhereCSXTQ(pcCondition, pCaseSensitive)
+				This.RemoveAllcharsWhereCSXT(pcCondition, pCaseSensitive)
+				return This
+
+		def RemoveAllcharsWCSXT(pcCondition, pCaseSensitive)
+			This.RemoveCharsWhereCSXT(pcCondition, pCaseSensitive)
+
+			def RemoveAllcharsWCSXTQ(pcCondition, pCaseSensitive)
+				This.RemoveAllCharsWhereCSXT(pcCondition, pCaseSensitive)
+				return This
+
+		#>
+
+	#-- @PassiveForm
+	def CharsRemovedWCSXT(pcCondition, pCaseSensitive)
+		aResult = This.Copy().RemoveCharsWCSXTQ(pcCondition, pCaseSensitive).Content()
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveCharsWhereXT(pcCondition)
+		This.RemoveCharsWhereCSXT(pcCondition, TRUE)
+
+		#< @FunctionFluentForm
+
+		def RemoveCharsWhereXTQ(pcCondition)
+			This.RemoveCharsWhereXT(pcCondition)
+			return This
+
+		#>
+
+		def RemoveCharsWXT(pcCondition)
+			This.RemoveCharsWhereXT(pcCondition)
+
+			def RemoveCharsWXTQ(pcCondition)
+				This.RemoveCharsWXT(pcCondition)
+				return This
+
+		def RemoveAllcharsWhereXT(pcCondition)
+			This.RemoveCharsWhereXT(pcCondition)
+
+			def RemoveAllcharsWhereXTQ(pcCondition)
+				This.RemoveAllcharsWhereXT(pcCondition)
+				return This
+
+		def RemoveAllcharsWXT(pcCondition)
+			This.RemoveCharsWhereXT(pcCondition)
+
+			def RemoveAllcharsWXTQ(pcCondition)
+				This.RemoveAllCharsWhereXT(pcCondition)
+				return This
+
+	#-- @PassiveForm
+	def CharsRemovedWXT(pcCondition)
+		aResult = This.Copy().RemoveCharsWXTQ(pcCondition).Content()
+		return aResult
+
 	  #-----------------------------------#
 	 #    REPLACING A SECTION OF CHARS   # 
-	#-----------------------------------#
+	#===================================#
 	
 	// Replaces a portion of the string defined by its start and end positions
 
