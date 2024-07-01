@@ -1,134 +1,60 @@
 load "stzlib.ring"
 
-/*---- #ring
+/*====
 
 pron()
 
-? @@( reverse([ "M", "A", "D", "A", "M" ]) )
-#--> [ "M", "A", "D", "A", "M" ]
-
-? @@( reverse([ "ب", "ا", "ب" ]) )
-#o--> [ "ب", "ا", "ب" ]
+o1 = new stzString( "MMMiAAiNN" )
+? @@( o1.SplitAtCharsWXT( :Where = 'Q(@Char).IsLowercase()' ) )
+#--> [ "MMM", "AA", "NN" ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.23 second(s)
 
-/*---- #ring #fix
+/*-----
 
 pron()
 
-? reverse("MADAM") # Ring function
-#--> MADAM
-
-? reverse("باب")
-#o!--> �اب�
-
-# Softanza fixes it:
-? ""
-
-? @Reverse("MADAM") # Softanza function
-#--> MADAM
-
-? @Reverse("باب")
-#o--> باب
+o1 = new stzString( "MMMiAAiNN" )
+? @@( o1.SplitAfterCharsWXT( :Where = 'Q(@Char).IsLowercase()' ) )
+#--> [ "MMMi", "AAi", "NN" ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.23 second(s)
 
-/*---- #ring fix
+/*-----
+
+pron()
+
+o1 = new stzString( "MMMiAAiNN" )
+? @@( o1.SplitBeforeCharsWXT( :where = 'Q(@Char).IsLowercase()' ) )
+#--> [ "MMM", "iAA", "iNN" ]
+
+proff()
+# Executed in 0.27 second(s)
+
+/*-----
 */
 pron()
 
-? isPalindrome("MADAM") # Ring function
-#--> TRUE
+o1 = new stzString( "IIIiiiMMMmmmAAA" )
+? @@( o1.FindPartsWXTZZ('Q(@SubString).IsLowercase()'))
 
-? isPalindrome("باب")
-#!--> FALSE
-# Should be TRUE
-
-# Softanza fixes it:
-
-? @IsPalindrome("MADAM")
-#--> TRUE
-
-? @IsPalindrome("باب")
-#--> TRUE
-
-proff()
-# Executed in 0.02 second(s)
-
-/*----
-
-*/
-pron()
-
-? Q("madam").IsPalindrome()
-#--> TRUE
-
-? Q([ "M", "A", "D", "A", "M" ]).IsPalindrome()
-
-#--
-
-? Q("باب").IsPalindrome()
-#--> TRUE
-
-proff()
-# Executed in 0.02 second(s)
-
-/*----
-
-pron()
-
-o1 = new stzString("Ri**ng program*ming lan*guage")
-o1.RemoveCharsAt([ 3, 4, 15, 24 ])
-? o1.Content()
-#--> Ring programming language
-
-proff()
-# Executed in 0.02 second(s)
-
-/*----
-*/
-pron()
-
-? WordsIdentificationMode()
-#--> :Quick
-
-? StopWordsStatus()
-#--> :MustNotBeRemoved
-
-o1 = new stzText("A man a plan a canal Panama. Able was I ere I saw Elba. Do geese see God? Madam, in Eden, I'm Adam.")
-
-? o1.WordsQ().YieldWX('@item', 'Q(@item).IsPalindrom()')
+//? @@( o1.SplitAtSubStringsWXT( :where = 'Q(@SubString).IsLowercase()' ) )
+#--> [ "III", "MMM", "AAA" ]
 
 proff()
 
-/*----
-*/
-text = "A man a plan a canal Panama. Able was I ere I saw Elba. Do geese see God? Madam, in Eden, I'm Adam."
+/*------
 
-TQ(text) {
-    # First, think about the text as a collection of words
-    words = Words()
+o1 = new stzString( "ABCabcEFGijHI" )
+? o1.SplitBeforeSubStringsWXT( 'Q(@SubString).IsLowercase()' )
+#--> [ "ABC", "EFG", "HI" ]
 
-    # Now, consider which words are palindromes
-    palindromes = Q(words).FindWXT('{
-        @item = Q(@item).Reversed() and
-        len(@item) > 1
-    }')
+proff()
 
-    # Among palindromes, which appear more than once?
-    repeatedPalindromes = Q(palindromes).FindWXT('{
-        This.NumberOfOccurrencesOf(@item) > 1
-    }')
+/*-----
 
-    # How many times does each repeated palindrome appear?
-    result = Q(repeatedPalindromes).UniqueItemsQ().Yield('{
-        [ @item, This.NumberOfOccurrencesOf(@item) ]
-    }')
-
-    return result
-}
 
 /*-----
 */
