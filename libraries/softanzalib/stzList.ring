@@ -66458,7 +66458,7 @@ Item and then position
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindLastSplitZZXT(pItem)
+	def FindLastSplitXTZZ(pItem)
 		return This.FindLastSplitCSXTZZ(pItem, TRUE)
 
 		#< @FunctionAlternativeForm
