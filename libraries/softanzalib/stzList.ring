@@ -40556,7 +40556,7 @@ Item and then position
 	
 			# And you should put simply:
 
-		cCode = 'bOk = (' + pcCondition + ' )'
+		cCode = 'bOk = (' + oCode.Code() + ' )'
 
 		# Doing the job
 

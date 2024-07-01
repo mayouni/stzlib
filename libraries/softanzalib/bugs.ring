@@ -1,15 +1,21 @@
 load "stzlib.ring"
 
 /*====
-
+*/
 pron()
 
 o1 = new stzString( "MMMiAAiNN" )
+
+? @@( o1.SplitAtCharsW( 'Q(This[@i]).IsLowercase()' ) )
+#--> [ "MMM", "AA", "NN" ]
+# Executed in 0.16 second(s)
+
 ? @@( o1.SplitAtCharsWXT( :Where = 'Q(@Char).IsLowercase()' ) )
 #--> [ "MMM", "AA", "NN" ]
+# Executed in 0.24 second(s)
 
 proff()
-# Executed in 0.23 second(s)
+# Executed in 0.34 second(s)
 
 /*-----
 
@@ -90,18 +96,22 @@ pron()
 
 o1 = new stzString( "IIIiiiMMMmmmAAAee" )
 
-# More expressive (takes 0.44 second)
+# More expressive #NOTE the use of natural keyword ~> @SubString
+# (takes 0.44 second)
+# ~> requires transpiling of @SubString (and others like @NextSubString,
+# @PreviousSubString, etc) in the background to This[@i] keyword
 
 	? @@( o1.SplitAtSubStringsWXT( :where = 'Q(@SubString).IsLowercase()' ) ) + NL
 	#--> [ "III", "MMM", "AAA" ]
 
-# More expressive (takes 0.38 second)
+# More performant (takes 0.38 second) #NOTE difference will be more relevant with large data
+# You can use only This[@i] keyword to express the conditional expression
 
 	? @@( o1.SplitAtSubStringsW( :where = 'Q(This[@i]).IsLowercase()' ) )
 	#--> [ "III", "MMM", "AAA" ]
 
 proff()
-# Executed in 0.63 second(s)
+# Executed in 0.66 second(s)
 
 /*------
 
