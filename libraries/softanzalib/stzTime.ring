@@ -1,3 +1,7 @@
+
+#NOTE // Get insipration from Time&Money library design
+// Link: https://timeandmoney.sourceforge.net/
+
 _cDefaultTimeFormat = "hh:mm:ss"
 
 func StzTimeQ(pTime)

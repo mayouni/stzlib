@@ -65496,33 +65496,32 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	*/
 
 	def PartsUsingCS(pcPartitionExpr, pCaseSensitive)
-		/*
-		Examples:
+		/* EXAMPLES
 
-		o1 = new stzString("Abc285XY&من")
-		
-		? o1.PartsUsing( 'Q(@char).IsLetter()' )
-		#--> [ "Abc", "285", "XY", "&", "من" ]
-		
-		? o1.PartsUsing('Q(@char).Orientation()' )
-		#--> [ "Abc285XY&", "من" ]
-		
-		? o1.PartsUsing( 'Q(@char).IsUppercase()' )
-		#--> [ "A", "bc285", "XY", "&من" ]
-		
-		? o1.PartsUsing( 'Q(@char).CharCase()' )
-		#--> [ "A", "bc", "285", "XY", "&من" ]
+		See example inf the eXTended form PartsUsingXT()
 
 		*/
 
 		if CheckParams()
+			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+				pcPartitionExpr = pcPartitionExpr[2]
+			ok
+
 			if NOT isString(pcPartitionExpr)
 				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
 			ok
+
 		ok
 
-		# Getting the list of chars and preparing
-		# it to case sensitivity
+		# Early check
+
+		nLen = This.NumberOfChars()
+
+		if nLen < 2
+			return [ [ 1, nLen ] ]
+		ok
+
+		# Getting the boolean form pCaseSensitive
 
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
@@ -65534,19 +65533,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 				"charcase(", "isuppercase",
 				"islowercase", "lower(", "upper(" ], FALSE)
 
-				return [ [ This.Content() ] ]
-		ok
-
-		# Early check
-
-		nLen = This.NumberOfChars()
-
-		if nLen < 2
-			return [ [ This.Content() ] ]
+				return [ [ 1, nLen ] ]
 		ok
 
 		# Getting the list of chars and preparing
-		# it to case sensitivity
+		# it for case sensitivity
 
 		if bCaseSensitive = FALSE
 			acContent = This.CharsQ().Lowercased()
@@ -65554,43 +65545,44 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			acContent = This.Chars()
 		ok
 
-		# Computing the values by evaluating the
+		# Computing the values by evaluation the
 		# expression against all the items
 
 		oCode = StzCCodeQ(pcPartitionExpr)
-		cCode = 'value = (' + oCode.Content() + ')'
+		cCode = 'bValue = (' + oCode.Content() + ')'
 
-		aSection = oCode.ExecutableSection()
-		n1 = aSection[1]
-		n2 = aSection[2]
-		if isString(n2) and n2 = :Last
-			n2 = nLen
-		ok
-
-		acValues = [] # Values stringified (to be used for comparison)
+		abValues = [] # Values stringified (to be used for comparison)
 
 		for @i = 1 to nLen
 			eval(cCode)
-			acValues + @@(value)
+			abValues + bValue
 		next
 
 		# Getting the parts
 
-		cPart = acContent[1]
 		acResult = []
+		nStart = ring_find(abValues, 1)
+		cPart = ""
+		anPart = []
 
-		for i = 2 to nLen
-
-			if acValues[i] = acValues[i-1]
+		for i = nStart to nLen
+			if abValues[i] = 1
 				cPart += acContent[i]
+
 			else
-				acResult + cPart
-				cPart = acContent[i]
+				if cPart != ""
+					acResult + cPart
+				ok
+
+				cPart = ""
 			ok
 	
 		next
-	
-		acResult + cPart
+
+		if cPart != ""
+			acResult + cPart
+		ok
+
 
 		return acResult
 
@@ -65699,7 +65691,6 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	  #---------------------------------------------------------------------------#
 	 #  PARTIONONING A STRING BASED ON A GIVEN PARTITION EXPRESSION -- EXTENDED  #
 	#===========================================================================#
-	# Returns the parts and their corresponding evaluated expressions
 
 	def PartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
 		/*
@@ -65723,13 +65714,25 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		*/
 
 		if CheckParams()
+			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+				pcPartitionExpr = pcPartitionExpr[2]
+			ok
+
 			if NOT isString(pcPartitionExpr)
 				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
 			ok
+
 		ok
 
-		# Getting the list of chars and preparing
-		# it to case sensitivity
+		# Early check
+
+		nLen = This.NumberOfChars()
+
+		if nLen < 2
+			return [ [ 1, nLen ] ]
+		ok
+
+		# Getting the boolean form pCaseSensitive
 
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
@@ -65741,18 +65744,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 				"charcase(", "isuppercase",
 				"islowercase", "lower(", "upper(" ], FALSE)
 
-				return [ [ This.Content(), NULL ] ]
+				return [ [ 1, nLen ] ]
 		ok
 
-		# Early check
-
-		nLen = This.NumberOfChars()
-
-		if nLen < 2
-			return [ [ This.Content(), NULL ] ]
-		ok
-
-		# Getting the list of chars and 
+		# Getting the list of chars and preparing
+		# it for case sensitivity
 
 		if bCaseSensitive = FALSE
 			acContent = This.CharsQ().Lowercased()
@@ -65760,43 +65756,43 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			acContent = This.Chars()
 		ok
 
-		# Computing the values by evaluating the
+		# Computing the values by evaluation the
 		# expression against all the items
 
 		oCode = StzCCodeQ(pcPartitionExpr).TranspileQ()
-		cCode = 'value = (' + oCode.Content() + ')'
+		cCode = 'bValue = (' + oCode.Content() + ')'
 
-		aSection = oCode.ExecutableSection()
-		n1 = aSection[1]
-		n2 = aSection[2]
-		if isString(n2) and n2 = :Last
-			n2 = nLen
-		ok
-
-		acValues = [] # Values stringified (to be used for comparison)
+		abValues = [] # Values stringified (to be used for comparison)
 
 		for @i = 1 to nLen
 			eval(cCode)
-			acValues + @@(value)
+			abValues + bValue
 		next
 
 		# Getting the parts
 
-		cPart = acContent[1]
 		acResult = []
+		nStart = ring_find(abValues, 1)
+		cPart = ""
+		anPart = []
 
-		for i = 2 to nLen
-
-			if acValues[i] = acValues[i-1]
+		for i = nStart to nLen
+			if abValues[i] = 1
 				cPart += acContent[i]
+
 			else
-				acResult + cPart
-				cPart = acContent[i]
+				if cPart != ""
+					acResult + cPart
+				ok
+
+				cPart = ""
 			ok
 	
 		next
-	
-		acResult + cPart
+
+		if cPart != ""
+			acResult + cPart
+		ok
 
 		return acResult
 
@@ -65902,85 +65898,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#>
 
-	  #-------------------------------#
-	 #  FINDING PARTS IN THE STRING  #
-	#===============================#
+	  #------------------------------------------------------------------#
+	 #  FINDING PARTS IN THE STRING UPPON A GiVEN PARTITION EXPRESSION  #
+	#==================================================================#
 
 	def FindPartsUsingCS(pcPartitionExpr, pCaseSensitive)
-		if CheckParams()
-			if NOT isString(pcPartitionExpr)
-				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
-			ok
-		ok
-
-		# Getting the boolean form pCaseSensitive
-
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
-
-		# Special case
-
-		if bCaseSensitive = FALSE and
-			StzStringQ(pcPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], FALSE)
-
-				return [ 1 ]
-		ok
-
-		# Getting the list of chars and preparing
-		# it for case sensitivity
-
-		if bCaseSensitive = FALSE
-			acContent = This.CharsQ().Lowercased()
-		else
-			acContent = This.Chars()
-		ok
-
-		# Early check
-
-		nLen = This.NumberOfChars()
-
-		if nLen < 2
-			return [ 1 ]
-		ok
-
-		# Computing the values by evaluation the
-		# expression against all the items
-
-		oCode = StzCCodeQ(pcPartitionExpr)
-		cCode = 'value = (' + oCode.Content() + ')'
-
-		aSection = oCode.ExecutableSection()
-		n1 = aSection[1]
-		n2 = aSection[2]
-		if isString(n2) and n2 = :Last
-			n2 = nLen
-		ok
-
-		acValues = [] # Values stringified (to be used for comparison)
-
-		for @i = 1 to nLen
-			eval(cCode)
-			acValues + @@(value)
-		next
-
-		# Getting the parts
-
-		cPart = acContent[1]
-
-		anResult = [ 1 ]
-
-		for i = 2 to nLen
-
-			if acValues[i] = acValues[i-1]
-				cPart += acContent[i]
-			else
-				anResult + i
-				cPart = acContent[i]
-			ok
-	
-		next
+		cParts = this.PartsUsingCS(pcPartitionExpr, pCaseSensitive)
+		anResult = This.FindManycS(cParts, pCaseSensitive)
 
 		return anResult
 	
@@ -66018,85 +65942,14 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return This.FindPartsUsing(pcPartitionExpr)
 
 		#>
-	  #-------------------------------------------#
-	 #  FINDING PARTS IN THE STRING -- eXTended  #
-	#-------------------------------------------#
 
-	def FindPartsUsingCXTS(pcPartitionExpr, pCaseSensitive)
-		if CheckParams()
-			if NOT isString(pcPartitionExpr)
-				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
-			ok
-		ok
+	  #-----------------------------------------------------------------------#
+	 #  FINDING PARTS IN THE STRING UPPON A GiVEN PARTITION EXPRESSION -- XT #
+	#=======================================================================#
 
-		# Getting the boolean form pCaseSensitive
-
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
-
-		# Special case
-
-		if bCaseSensitive = FALSE and
-			StzStringQ(pcPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], FALSE)
-
-				return [ 1 ]
-		ok
-
-		# Getting the list of chars and preparing
-		# it for case sensitivity
-
-		if bCaseSensitive = FALSE
-			acContent = This.CharsQ().Lowercased()
-		else
-			acContent = This.Chars()
-		ok
-
-		# Early check
-
-		nLen = This.NumberOfChars()
-
-		if nLen < 2
-			return [ 1 ]
-		ok
-
-		# Computing the values by evaluation the
-		# expression against all the items
-
-		oCode = StzCCodeQ(pcPartitionExpr).TranspileQ()
-		cCode = 'value = (' + oCode.Content() + ')'
-
-		aSection = oCode.ExecutableSection()
-		n1 = aSection[1]
-		n2 = aSection[2]
-		if isString(n2) and n2 = :Last
-			n2 = nLen
-		ok
-
-		acValues = [] # Values stringified (to be used for comparison)
-
-		for @i = 1 to nLen
-			eval(cCode)
-			acValues + @@(value)
-		next
-
-		# Getting the parts
-
-		cPart = acContent[1]
-
-		anResult = [ 1 ]
-
-		for i = 2 to nLen
-
-			if acValues[i] = acValues[i-1]
-				cPart += acContent[i]
-			else
-				anResult + i
-				cPart = acContent[i]
-			ok
-	
-		next
+	def FindPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+		cParts = this.PartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+		anResult = This.FindManycS(cParts, pCaseSensitive)
 
 		return anResult
 	
@@ -66128,96 +65981,21 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#--
 
 		def FindPartsWXT(pcPartitionExpr)
-			return This.FindPartsUsingXY(pcPartitionExpr)
+			return This.FindPartsUsingXT(pcPartitionExpr)
 
 		def FindPartsWXTZ(pcPartitionExpr)
 			return This.FindPartsUsingXT(pcPartitionExpr)
 
 		#>
 
-	  #-------------------------------------------------------------------------#
-	 #  FINDING PARTS IN THE STRING AND RETURNING THEIR POSITIONS AS SECTIONS  #
-	#=========================================================================#
+	  #---------------------------------------------------------------------#
+	 #  FINDING PARTS, UPON A GIVEN PARTITON EXPERSSESION -- ZZ/EXTENSION  #
+	#=====================================================================#
 
 	def FindPartsAsSectionsUsingCS(pcPartitionExpr, pCaseSensitive)
-		if CheckParams()
-			if NOT isString(pcPartitionExpr)
-				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
-			ok
-		ok
+		cParts = this.PartsUsingCS(pcPartitionExpr, pCaseSensitive)
+		aResult = This.FindManyCSZZ(cParts, pCaseSensitive)
 
-		# Early check
-
-		nLen = This.NumberOfChars()
-
-		if nLen < 2
-			return [ [ 1, nLen ] ]
-		ok
-
-		# Getting the boolean form pCaseSensitive
-
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
-
-		# Special case
-
-		if bCaseSensitive = FALSE and
-			StzStringQ(pcPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], FALSE)
-
-				return [ [ 1, nLen ] ]
-		ok
-
-		# Getting the list of chars and preparing
-		# it for case sensitivity
-
-		if bCaseSensitive = FALSE
-			acContent = This.CharsQ().Lowercased()
-		else
-			acContent = This.Chars()
-		ok
-
-		# Computing the values by evaluation the
-		# expression against all the items
-
-		oCode = StzCCodeQ(pcPartitionExpr)
-		cCode = 'value = (' + oCode.Content() + ')'
-
-		aSection = oCode.ExecutableSection()
-		n1 = aSection[1]
-		n2 = aSection[2]
-		if isString(n2) and n2 = :Last
-			n2 = nLen
-		ok
-
-		acValues = [] # Values stringified (to be used for comparison)
-
-		for @i = 1 to nLen
-			eval(cCode)
-			acValues + @@(value)
-		next
-
-
-		# Getting the parts
-
-		cPart = acContent[1]
-
-		aResult = [ [ 1 ] ]
-
-		for i = 2 to nLen
-
-			if acValues[i] = acValues[i-1]
-				cPart += acContent[i]
-			else
-				aResult[len(aResult)] + (i-1)
-				aResult + [i]
-				cPart = acContent[i]
-			ok
-	
-		next
-
-		aResult[len(aResult)] + nLen
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -66255,94 +66033,14 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#>
 
-	  #-------------------------------------------------------------------------------------#
-	 #  FINDING PARTS IN THE STRING AND RETURNING THEIR POSITIONS AS SECTIONS -- eXTended  #
-	#-------------------------------------------------------------------------------------#
+	  #-----------------------------------------------------------------------#
+	 #  FINDING PARTS, UPON A GIVEN PARTITON EXPERSSESION -- ZZXT/EXTENSION  #
+	#=======================================================================#
 
 	def FindPartsAsSectionsUsingCSXT(pcPartitionExpr, pCaseSensitive)
-		if CheckParams()
-			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
-				pcPartitionExpr = pcPartitionExpr[2]
-			ok
+		cParts = this.PartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+		aResult = This.FindManyCSZZ(cParts, pCaseSensitive)
 
-			if NOT isString(pcPartitionExpr)
-				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
-			ok
-
-		ok
-
-		# Early check
-
-		nLen = This.NumberOfChars()
-
-		if nLen < 2
-			return [ [ 1, nLen ] ]
-		ok
-
-		# Getting the boolean form pCaseSensitive
-
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
-
-		# Special case
-
-		if bCaseSensitive = FALSE and
-			StzStringQ(pcPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], FALSE)
-
-				return [ [ 1, nLen ] ]
-		ok
-
-		# Getting the list of chars and preparing
-		# it for case sensitivity
-
-		if bCaseSensitive = FALSE
-			acContent = This.CharsQ().Lowercased()
-		else
-			acContent = This.Chars()
-		ok
-
-		# Computing the values by evaluation the
-		# expression against all the items
-
-		oCode = StzCCodeQ(pcPartitionExpr).TranspileQ()
-		cCode = 'value = (' + oCode.Content() + ')'
-
-		aSection = oCode.ExecutableSection()
-		n1 = aSection[1]
-		n2 = aSection[2]
-		if isString(n2) and n2 = :Last
-			n2 = nLen
-		ok
-
-		acValues = [] # Values stringified (to be used for comparison)
-
-		for @i = 1 to nLen
-			eval(cCode)
-			acValues + @@(value)
-		next
-
-
-		# Getting the parts
-
-		cPart = acContent[1]
-
-		aResult = [ [ 1 ] ]
-
-		for i = 2 to nLen
-
-			if acValues[i] = acValues[i-1]
-				cPart += acContent[i]
-			else
-				aResult[len(aResult)] + (i-1)
-				aResult + [i]
-				cPart = acContent[i]
-			ok
-	
-		next
-
-		aResult[len(aResult)] + nLen
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -84375,7 +84073,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #  CHECKING IF THE STRING STARTS WITH A GIVEN NUMBER  #
 	#=====================================================#
 
-	def StartsWithNumber(n)
+	def StartsWithThisNumber(n)
 		
 		if isString(n)
 			if n = ""
@@ -84399,20 +84097,40 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionAlternativeForms
 
-		def StartsWithLeadingNumber(n)
-			return This.StartsWithNumber(n)
+		def StartsWithThisLeadingNumber(n)
+			return This.StartsWithThisNumber(n)
 
-		def ContainsStartingNumber(n)
-			return This.StartsWithNumber(n)
+		def ContainsThisStartingNumber(n)
+			return This.StartsWithThisNumber(n)
 
-		def ContainsLeadingNumber(n)
-			return This.StartsWithNumber(n)
+		def ContainsThisLeadingNumber(n)
+			return This.StartsWithThisNumber(n)
 
-		def HasLeadingNumber(n)
-			return This.StartsWithNumber(n)
+		def HasThisLeadingNumber(n)
+			return This.StartsWithThisNumber(n)
 
-		def HasStartingNumber(n)
-			return This.StartsWithNumber(n)
+		def HasThisStartingNumber(n)
+			return This.StartsWithThisNumber(n)
+
+		#--
+
+		def StartsWithNumberN(n)
+			return This.StartsWithThisNumber(n)
+
+		def StartsWithLeadingNumberN(n)
+			return This.StartsWithThisNumber(n)
+
+		def ContainsStartingNumberN(n)
+			return This.StartsWithThisNumber(n)
+
+		def ContainsLeadingNumberN(n)
+			return This.StartsWithThisNumber(n)
+
+		def HasLeadingNumberN(n)
+			return This.StartsWithThisNumber(n)
+
+		def HasStartingNumberN(n)
+			return This.StartsWithThisNumber(n)
 
 		#>
 		
@@ -84455,6 +84173,17 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return This.StartsWithANumber()
 
 		def HasAStartingNumber()
+			return This.StartsWithANumber()
+
+		#--
+
+		def StartsWithNumber()
+			return This.StartsWithANumber()
+
+		def BeginsWithNumber()
+			return This.StartsWithANumber()
+
+		def BeginsWithANumber()
 			return This.StartsWithANumber()
 
 		#>
@@ -84512,13 +84241,16 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def LeadingNumber()
 			return This.StartingNumber()
 
+		def BeginningNumber()
+			return This.StartingNumber()
+
 		#>
 	
   	  #===================================================#
 	 #  CHECKING IF THE STRING ENDS WITH A GIVEN NUMBER  #
 	#===================================================#
 
-	def EndsWithNumber(n)
+	def EndsWithThisNumber(n)
 		if isString(n)
 			if n = ""
 				return FALSE
@@ -84538,20 +84270,40 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#< @FunctionAlternativeForms
 
-		def EndsWithTrailingNumber(n)
-			return This.EndsWithNumber(n)
+		def EndsWithThisTrailingNumber(n)
+			return This.EndsWithThisNumber(n)
 
-		def EndsWithFinalNumber(n)
-			return This.EndsWithNumber(n)
+		def EndsWithThisFinalNumber(n)
+			return This.EndsWithThisNumber(n)
 
-		def ContainsTrailingNumber(n)
-			return This.StartsWithNumber(n)
+		def ContainsThisTrailingNumber(n)
+			return This.EndsWiththisNumber(n)
 
-		def ContainsFinalNumber(n)
-			return This.StartsWithNumber(n)
+		def ContainsThisFinalNumber(n)
+			return This.EndsWithThisNumber(n)
 
-		def ContainsEndingNumber(n)
-			return This.StartsWithNumber(n)
+		def ContainsThisEndingNumber(n)
+			return This.EndsWithThisNumber(n)
+
+		#--
+
+		def EndsWithNumberN(n)
+			return This.EndsWithThisNumber(n)
+
+		def EndsWithTrailingNumberN(n)
+			return This.EndsWithThisNumber(n)
+
+		def EndsWithFinalNumberN(n)
+			return This.EndsWithThisNumber(n)
+
+		def ContainsTrailingNumberN(n)
+			return This.EndsWiththisNumber(n)
+
+		def ContainsFinalNumberN(n)
+			return This.EndsWithThisNumber(n)
+
+		def ContainsEndingNumberN(n)
+			return This.EndsWithThisNumber(n)
 
 		#>
 		
@@ -84584,6 +84336,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 			return This.EndsWithNumber()
 
 		def ContainsAnEndingNumber()
+			return This.EndsWithNumber()
+
+		#--
+
+		def EndsWithNumber()
 			return This.EndsWithNumber()
 
 		#>
