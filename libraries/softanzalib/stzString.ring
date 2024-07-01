@@ -36575,7 +36575,7 @@ class stzString from stzObject
 			return This
 
 	def SubStringReplacedWCS(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
-		cResult = This.Copy().ReplaceSubStringCSWQ(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive).Content()
+		cResult = This.Copy().ReplaceSubStringWCSQ(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive).Content()
 		return cResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -36614,7 +36614,7 @@ class stzString from stzObject
 			return This
 
 	def SubStringReplacedWCSXT(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive)
-		cResult = This.Copy().ReplaceSubStringCSWXTQ(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive).Content()
+		cResult = This.Copy().ReplaceSubStringWCSXTQ(pcSubStr, pcCondition, pcNewSubStr, pCaseSensitive).Content()
 		return cResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -53858,7 +53858,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	  #---------------------------------------------------------#
 	 #    SPLITTING AT SUBSTRINGS VERIFYING A GIVEN CONDTION   #
-~~~	#=========================================================#
+	#=========================================================#
 
 	def SplitAtSubStringsWCS(pcCondition, pCaseSensitive)
 		#EXAMPLE
@@ -54522,7 +54522,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	def SplittedAfterCharsWXT(pcConditon)
 		return This.SplitAfterCharsWXT(pcCondition)
-~~~
+
 	  #----------------------------------------------------------------#
 	 #  NTH SUBSTRING AFTER SPLITTING STRING USING A GIVEN SEPARATOR  #
 	#================================================================#
@@ -65871,13 +65871,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#--
 
-		def PartsCSW(pcPartitionExpr, pCaseSensitive)
+		def PartsWCS(pcPartitionExpr, pCaseSensitive)
 			return This.PartsUsingCS(pcPartitionExpr, pCaseSensitive)
 
-			def PartsCSWQ(pcPartitionExpr, pCaseSensitive)
+			def PartsWCSQ(pcPartitionExpr, pCaseSensitive)
 				return This.PartsUsingCSQ(pcPartitionExpr, pCaseSensitive)
 
-			def PartsCSWQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
+			def PartsWCSQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
 				return This.PartsUsingCSQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
 
 		#>
@@ -66081,13 +66081,13 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#--
 
-		def PartsCSWXT(pcPartitionExpr, pCaseSensitive)
+		def PartsWCSXT(pcPartitionExpr, pCaseSensitive)
 			return This.PartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
 
-			def PartsCSWXTQ(pcPartitionExpr, pCaseSensitive)
+			def PartsWCSXTQ(pcPartitionExpr, pCaseSensitive)
 				return This.PartsUsingCSXTQ(pcPartitionExpr, pCaseSensitive)
 
-			def PartsCSWXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
+			def PartsWCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
 				return This.PartsUsingCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
 
 		#>
@@ -66157,10 +66157,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#--
 
-		def FindPartsCSW(pcPartitionExpr, pCaseSensitive)
+		def FindPartsWCS(pcPartitionExpr, pCaseSensitive)
 			return This.FindPartsUsingCS(pcPartitionExpr, pCaseSensitive)
 
-		def FindPartsCSWZ(pcPartitionExpr, pCaseSensitive)
+		def FindPartsWCSZ(pcPartitionExpr, pCaseSensitive)
 			return This.FindPartsUsingCS(pcPartitionExpr, pCaseSensitive)
 
 		#>
@@ -66247,10 +66247,10 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 		#--
 
-		def FindPartsCSWZZ(pcPartitionExpr, pCaseSensitive)
+		def FindPartsWCSZZ(pcPartitionExpr, pCaseSensitive)
 			return This.FindPartsAsSectionsUsingCS(pcPartitionExpr, pCaseSensitive)
 
-		def FindPartsAsSectionsCSW(pcPartitionExpr, pCaseSensitive)
+		def FindPartsAsSectionsWCS(pcPartitionExpr, pCaseSensitive)
 			return This.FindPartsAsSectionsUsingCS(pcPartitionExpr, pCaseSensitive)
 
 		#>
