@@ -1,5 +1,7 @@
 /*
-TODO: Implement it with QDate and QDateTime() {
+#TODO: Implement it with QDate and QDateTime()
+#TODO review the class design to be consistent with all other classes
+
 */
 
 /*
@@ -68,6 +70,10 @@ https://bit.ly/2S9y7dU
 	Code that treats month-of-year one and day-of-month one as the start
 	of the year is invalid. Not all calendar systems start the year when
 	the month value is one.
+
+#NOTE // Get insipration from Time&Money library design
+// Link: https://timeandmoney.sourceforge.net/
+
 */
 
 _aDaysOfWeek = [
@@ -92,6 +98,8 @@ func DefaultDaysOfWeek()
 func SysDate()
 	return date()
 
+func ring_addDays(cDate, n)
+	return addDays(cDate, n)
 
 class stzDate from stzObject
 	cDate
@@ -132,11 +140,49 @@ class stzDate from stzObject
 		ok
 		
 	def operator(op,v)
+
+		n = v
+
+		if isString(v)
+			oStr = new stzString(v)
+			if oStr.BeginsWithANumber()
+
+				n = 0+ oStr.Numbers()[1]
+
+				cVType = lower( oStr.RemoveSpacesQ().NumbersRemoved() )
+				if NOT ( cVType = "days" or cVType = "months" or cVType = "years" )
+					Stzraise("Incorrect value! You must provide a string in the form 'n days', 'n months', or 'n years' with n beeing a number.")
+				ok
+			ok
+		ok
+
 		if op = "+"
-			return AddDays( This.cDate,(0+ v) )
+			switch cVType
+			on "days"
+				return This.AddDays(n)
+
+			on "months"
+				return This.AddMonths(n)
+
+			on "years"
+				return This.AddYears(n)
+			off
 
 		but op = "-"
-			return AddDays( This.cDate, (0- v) )
+			switch cVType
+			on "days"
+				return This.SubStructDays(n)
+
+			on "months"
+				return This.SubStructMonths(n)
+
+			on "years"
+				return This.SubStructYears(n)
+			off
+
+		else
+			StzRaise("Can't proceed! Only + and - operators are supported on dates.")
+
 		ok
 
 	def AddDays( nDays )
@@ -147,7 +193,7 @@ class stzDate from stzObject
 		// Else, let's do the job
 
 		// Using the Ring standard function for adding days
-		cResult = addDays( This.cDate,(0+ nDays) )
+		cResult = ring_addDays( This.cDate,(0+ nDays) )
 
 		// Reading the years part and controlling it so it does not exceed 9999
 		nYears = 0+ right(cResult, len(cResult)-6)	
@@ -214,7 +260,7 @@ class stzDate from stzObject
 
 		// Constructing the new date and returning it
 		This.cDate = Days() + "/" + cMonths + "/" + nYears
-		return This.sDate
+		return This.cDate
 
 	def AddYears( pYears )
 		// If the number of years is zero then return the current date
@@ -238,15 +284,16 @@ class stzDate from stzObject
 
 
 	def Years()
-		oTemp = new stzString(This.sDate)
-		return oTemp.NRightChars(4)
+
+		oTemp = new stzString(This.cDate)
+		return oTemp.NRightCharsAsString(4)
 	
 	def Months()
-		oTemp = new stzString(This.sDate)
+		oTemp = new stzString(This.cDate)
 		cTemp = oTemp.OnlyNumbers()
 		oTemp = new stzString(cTemp)
 		return oTemp.Section(3,4)
 
 	def Days()
 		oTemp = new stzString(This.cDate)
-		return oTemp.NLeftChars(2)
+		return oTemp.NLeftCharsAsString(2)

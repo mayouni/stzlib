@@ -4673,7 +4673,7 @@ StopProfiler()
 #--> Executed in 0.12 second(s)
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzString('[
@@ -4693,10 +4693,10 @@ o1 = new stzString('[
 ]')
 
 ? @@( o1.DeepFindBoundedByZZ([ "[", "]" ]) ) + NL
-#--> [ [ 18, 29 ], [ 78, 84 ], [ 104, 109 ], [ 67, 119 ], [ 52, 128 ], [ 43, 132 ], [ 3, 135 ] ]
+#--> [ [ 17, 29 ], [ 77, 84 ], [ 103, 109 ], [ 66, 119 ], [ 51, 128 ], [ 42, 132 ], [ 2, 135 ] ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*=============
 
@@ -6710,53 +6710,77 @@ o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12"
 
 /*=================
 
+pron()
+
 o1 = new stzString("-23.67 pounds")
-? o1.StartsWithANumber()
+? o1.StartsWithANumber() # Or BeginsWith...
 #--> TRUE
 
 ? o1.StartingNumber()
-#--> -23.67
+#--> "-23.67"
 
-? o1.StartsWithNumber("-23.67")
+? o1.StartsWithThisNumber("-23.67") # OR StartsWithNumberN(...)
 #--? TRUE
 
+proff()
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("Amount: -132.45")
 ? o1.EndsWithANumber()
 #--> TRUE
 
-? o1.EndsWithNumber("-132.45")
+? o1.EndsWithThisNumber("-132.45")
 #--> TRUE
 
 ? o1.TrailingNumber()
-#--> -132.45
+#--> "-132.45"
+
+proff()
+# Executed in 0.07 second(s)
 
 /*-----------------
+
+pron()
 
 o1 = new stzString("Amount: +132.45")
 ? o1.EndsWithANumber()
 #--> TRUE
 
-? o1.EndsWithNumber("+132.45")
+//? o1.EndsWithNumber("+132.45")
+#--> ERROR: Calling function with extra number of parameters
+
+? o1.EndsWithNumberN("+132.45") #NOTE
+				# the N a the end of function name
+				# Or you can say EndsWithThisNumber(...)
 #--> TRUE
 
 ? o1.TrailingNumber()
-#--> +132.45
+#--> "+132.45"
+
+proff()
+#--> Executed in 0.06 second(s)
 
 /*-----------------
+*/
+pron()
 
 o1 = new stzString("Amount: +132.45")
 ? o1.EndsWithANumber()
 #--> TRUE
 
-? o1.EndsWithNumber("132.45")
+? o1.EndsWithNumberN("132.45")
 #--> TRUE
 
 ? o1.TrailingNumber()
-#--> +132.45
+#--> "+132.45"
 
-/*-----------------
+proff()
+# Executed in 0.06 second(s)
+
+/*===========
 
 ? Q([ "A", "B", "C", "D", "E" ]).NormaliseSection([1, :Last])
 
