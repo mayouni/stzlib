@@ -24979,7 +24979,7 @@ Item and then position
 
 		# Doing the job
 
-		oCode = StzCCodeQ(pcCondition)
+		oCode = StzCCodeQ(pcCode)
 		cCode = "value = ( " + oCode.Content() + " )"
 
 		aResult = []
@@ -25148,7 +25148,7 @@ Item and then position
 
 		# Doing the job
 
-		oCode = StzCCodeQ(pcCondition)
+		oCode = StzCCodeQ(pcCode)
 		cCode = "value = ( " + oCode.TranspileQ().Content() + " )"
 
 		aResult = []
@@ -25196,23 +25196,7 @@ Item and then position
 				return This.YieldFromPositionsXTQR(panPos, pcCode, :stzList)
 		
 			def YieldFromPositionsXTQR(panPos, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldFromPositionsXT(panPos, pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromPositionsXT(panPos, pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromPositionsXT(panPos, pcCode) )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
+				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
 
 		def YieldFromItemsAtXT(panPos, pcCode)
 			return This.YieldFromXT(panPos, pcCode)
@@ -25221,23 +25205,7 @@ Item and then position
 				return This.YieldFromItemsAtXTQR(panPos, pcCode, :stzList)
 		
 			def YieldFromItemsAtXTQR(panPos, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldFromItemsAtXT(panPos, pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromItemsAtXT(panPos, pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromItemsAtXT(panPos, pcCode) )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
+				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
 
 		def YieldFromItemsAtPositionsXT(panPos, pcCode)
 			return This.YieldOnXT(panPos, pcCode)
@@ -25246,26 +25214,7 @@ Item and then position
 				return This.YieldFromItemsAtPositionsXTQR(panPos, pcCode, :stzList)
 		
 			def YieldFromItemsAtPositionsXTQR(panPos, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldFromItemsAtPositionsXT(panPos, pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromItemsAtPositionsXT(panPos, pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromItemsAtPositionsXT(panPos, pcCode) )
-	
-				on :stzHashList
-					return new stzHashList( This.YieldFromItemsAtPositionsXT(panPos, pcCode) )
-			
-			other
-					StzRaise("Unsupported return type!")
-			off
+				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
 
 		def HarvestFromXT(panPos, pcCode)
 			return This.HarvestFromXT(panPos, pcCode)
@@ -25273,24 +25222,7 @@ Item and then position
 			def HarvestFromXTQ(panPos, pcCode)
 				return This.HarvestFromXTQR(panPos, pcCode, :stzList)
 		
-			def HarvestFromXTQR(panPos, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromXT(panPos, pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromXT(panPos, pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromXT(panPos, pcCode) )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
+				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
 
 		def HarvestFromPositionsXT(panPos, pcCode)
 			return This.HarvestFromXT(panPos, pcCode)
@@ -25298,24 +25230,7 @@ Item and then position
 			def HarvestFromPositionsXTQ(panPos, pcCode)
 				return This.HarvestFromPositionsXTQR(panPos, pcCode, :stzList)
 		
-			def HarvestFromPositionsXTQR(panPos, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromPositionsXT(panPos, pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromPositionsXT(panPos, pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromPositionsXT(panPos, pcCode) )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
+				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
 
 		def HarvestFromItemsAtXT(panPos, pcCode)
 			return This.HarvestFromXT(panPos, pcCode)
@@ -25323,24 +25238,8 @@ Item and then position
 			def HarvestFromItemsAtXTQ(panPos, pcCode)
 				return This.HarvestFromItemsAtXTQR(panPos, pcCode, :stzList)
 		
-			def HarvestFromItemsAtXTQR(panPos, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromItemsAtXT(panPos, pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromItemsAtXT(panPos, pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromItemsAtXT(panPos, pcCode) )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
+				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
+
 
 		def HarvestFromItemsAtPositionsXT(panPos, pcCode)
 			return This.HarvestOnXT(panPos, pcCode)
@@ -25348,24 +25247,8 @@ Item and then position
 			def HarvestFromItemsAtPositionsXTQ(panPos, pcCode)
 				return This.HarvestFromItemsAtPositionsXTQR(panPos, pcCode, :stzList)
 		
-			def HarvestFromItemsAtPositionsXTQR(panPos, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromItemsAtPositionsXT(panPos, pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromItemsAtPositionsXT(panPos, pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromItemsAtPositionsXT(panPos, pcCode) )
-	
-				other
-					StzRaise("Unsupported return type!")
-				off
+				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
+
 		#>
 
 		#< @FunctionMisspelledForm
@@ -55182,7 +55065,7 @@ Item and then position
 		ok
 
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfItems() ).SplitAtSections(paSections)
@@ -55270,7 +55153,7 @@ Item and then position
 		ok
 
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfItems() ).SplitAtSectionsIB(paSections)
@@ -55887,7 +55770,7 @@ Item and then position
 
 	def SplitBeforeSections(paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfItems() ).SplitBeforeSections(paSections)
@@ -55958,7 +55841,7 @@ Item and then position
 		ok
 
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfItems() ).SplitBeforeSectionsIB(paSections)
@@ -56561,7 +56444,7 @@ Item and then position
 
 	def SplitAfterSections(paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfItems() ).SplitAfterSections(paSections)
@@ -56616,7 +56499,7 @@ Item and then position
 
 	def SplitAfterSectionsIB(paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfItems() ).SplitAfterSectionsIB(paSections)
@@ -58012,7 +57895,7 @@ Item and then position
 		if CheckParams()
 
 			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-				StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 
 		ok
@@ -58069,7 +57952,7 @@ Item and then position
 		if CheckParams()
 
 			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-				StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 	
 		ok
@@ -58483,7 +58366,7 @@ Item and then position
 
 	def FindSplitsBeforeSections(paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = StzSplitterQ( This.NumberOfItems() ).FindSplitsBeforeSections(paSections)
@@ -58520,7 +58403,7 @@ Item and then position
 		ok
 
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		anResult = StzSplitterQ( This.NumberOfItems() ).FindSplitsBeforeSectionsIB(paSections)
@@ -59830,7 +59713,7 @@ Item and then position
 		if CheckParams()
 
 			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-				StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 
 		ok
@@ -60294,7 +60177,7 @@ Item and then position
 		if CheckParams()
 
 			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-				StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 
 		ok
@@ -60362,7 +60245,7 @@ Item and then position
 
 		if CheckParams()
 			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-				StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
 
@@ -60839,7 +60722,7 @@ Item and then position
 		if CheckParams()
 
 			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-				StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
 
@@ -60896,7 +60779,7 @@ Item and then position
 		if CheckParams()
 
 			if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-				StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 		ok
 
@@ -61390,7 +61273,7 @@ Item and then position
 
 		#< @FunctionAlternativeForm
 
-		def FindSplitsAtAsSectiosnWCS(pcCondition, pCaseSensitive)
+		def FindSplitsAtAsSectionsWCS(pcCondition, pCaseSensitive)
 			return This.FindSplitsAtWCSZZ(pcCondition, pCaseSensitive)
 
 		#>
@@ -61402,7 +61285,7 @@ Item and then position
 
 		#< @FunctionAlternativeForm
 
-		def FindSplitsAtAsSectiosnW(pcCondition)
+		def FindSplitsAtAsSectionsW(pcCondition)
 			return This.FindSplitsAtWZZ(pcCondition)
 
 		#>
@@ -62085,7 +61968,7 @@ Item and then position
 		ok
 
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		StzRaise("Feature not yet implemented!")
@@ -62410,7 +62293,7 @@ Item and then position
 
 	def FindNthSplitBeforeSections(n, paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = StzSplitterQ( This.NumberOfItems() ).FindNthSplitBeforeSections(n, paSections)
@@ -62447,7 +62330,7 @@ Item and then position
 		ok
 
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		nResult = StzSplitterQ( This.NumberOfItems() ).FindNthSplitBeforeSectionsIB(n, paSections)
@@ -62752,7 +62635,7 @@ Item and then position
 
 	def FindNthSplitAfterSections(n, paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		nResult = StzSplitterQ( This.NumberOfItems() ).FindNthSplitAfterSections(n, paSections)
@@ -62779,7 +62662,7 @@ Item and then position
 
 	def FindNthSplitAfterSectionsIB(n, paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		nResult = StzSplitterQ( This.NumberOfItems() ).FindNthSplitAfterSectionsIB(n, paSections)
@@ -63672,7 +63555,7 @@ Item and then position
 		ok
 
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = StzSplitterQ( This.NumberOfItems() ).FindNthSplitAtSectionsZZ(n, paSections)
@@ -64005,7 +63888,7 @@ Item and then position
 
 	def FindNthSplitBeforeSectionsZZ(n, paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = StzSplitterQ( This.NumberOfItems() ).FindNthSplitBeforeSectionsZZ(n, paSections)
@@ -64042,7 +63925,7 @@ Item and then position
 		ok
 
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = StzSplitterQ( This.NumberOfItems() ).SplitBeforeSectionsIBZZ(n, paSections)
@@ -64349,7 +64232,7 @@ Item and then position
 
 	def FindNthSplitAfterSectionsZZ(n, paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = StzSplitterQ( This.NumberOfItems() ).FindNthSplitAfterSectionsZZ(n, paSections)
@@ -64376,7 +64259,7 @@ Item and then position
 
 	def FindNthSplitAfterSectionsIBZZ(n, paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = StzSplitterQ( This.NumberOfItems() ).FindNthSplitAfterSectionsIBZZ(n, paSections)
@@ -65255,7 +65138,7 @@ Item and then position
 		ok
 
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		nResult = StzSplitterQ( This.NumberOfItems() ).FindLastSplitAtSections(paSections)
@@ -65286,7 +65169,7 @@ Item and then position
 		ok
 
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		nResult = StzSplitterQ( This.NumberOfItems() ).FindLastSplitAtSectionsIB(paSections)
@@ -65619,7 +65502,7 @@ Item and then position
 
 	def FindLastSplitBeforeSections(paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = StzSplitterQ( This.NumberOfItems() ).FindLastSplitBeforeSections(paSections)
@@ -65656,7 +65539,7 @@ Item and then position
 		ok
 
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		nResult = StzSplitterQ( This.NumberOfItems() ).FindLastSplitBeforeSectionsIB(paSections)
@@ -65968,7 +65851,7 @@ Item and then position
 
 	def FindLastSplitAfterSections(paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		nResult = StzSplitterQ( This.NumberOfItems() ).FindLastSplitAfterSections(paSections)
@@ -65995,7 +65878,7 @@ Item and then position
 
 	def FindLastSplitAfterSectionsIB(paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		nResult = StzSplitterQ( This.NumberOfItems() ).FindLastSplitAfterSectionsIB(paSections)
@@ -66907,7 +66790,7 @@ Item and then position
 		ok
 
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = StzSplitterQ( This.NumberOfItems() ).FindLastSplitAtSectionsZZ(paSections)
@@ -67240,7 +67123,7 @@ Item and then position
 
 	def FindLastSplitBeforeSectionsZZ(paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = StzSplitterQ( This.NumberOfItems() ).FindLastSplitBeforeSectionsZZ(paSections)
@@ -67277,7 +67160,7 @@ Item and then position
 		ok
 
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = StzSplitterQ( This.NumberOfItems() ).SplitBeforeSectionIBZZ(paSections)
@@ -67585,7 +67468,7 @@ Item and then position
 
 	def FindLastSplitAfterSectionsZZ(paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = StzSplitterQ( This.NumberOfItems() ).FindLastSplitAfterSectionsZZ(paSections)
@@ -67612,7 +67495,7 @@ Item and then position
 
 	def FindLastSplitAfterSectionsIBZZ(paSections)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSectiosn must be a list of pairs of numbers.")
+			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
 		aResult = StzSplitterQ( This.NumberOfItems() ).FindLastSplitAfterSectionsIBZZ(paSections)
@@ -68121,6 +68004,46 @@ Item and then position
 
 		#>
 
+	  #======================================#
+	 #  CHECKING IF THE LIST IS PALINDROME  #
+	#======================================#
+
+	def IsPalindromeCS(pCaseSensitive)
+		if This.NumberOfChars() < 2
+			return FALSE
+		ok
+
+		if This.IsEqualtToCS( @ring_reverse(This.Content()), pCaseSensitive) = TRUE
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsPalindromCS(pCaseSensitive)
+			return This.IsPalindromeCS(pCaseSensitive)
+
+		def IsMirroredCS(pCaseSensitive)
+			return This.IsPalindromeCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IsPalindrome()
+		return This.IsPalindromeCS(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def IsPalindrom()
+			return This.IsPalindrome()
+
+		def IsMirrored()
+			return This.ISPalindrome()
+
+		#>
+
 	    /////////////////////////////////////////////////////
 	   /// #===========================================# ///
 	  /// #   CHECKING IF THE LIST IS A NAMED PARAM   # ///
@@ -68575,8 +68498,6 @@ Item and then position
 		else
 			return FALSE
 		ok
-
-	#--
 
 	#--
 
@@ -80108,6 +80029,16 @@ Item and then position
 
 		#>
 
+	def IsUsingOrWithOrByOrWhereNamedParam()
+		if This.IsUsingOrWithOrByNamedParam() or This.IsWhereNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsUsingOrWithOrByOrWhereNamedParams()
+			return This.IsUsingOrWithOrByOrWhereNamedParam()
+
 	def IsNextNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and
@@ -80284,42 +80215,261 @@ Item and then position
 			return FALSE
 		ok
 
-		def IsAndOrAndSubStringOrAndPositionNamedParam()
-			return This.IsAndOrAndPositionOrAndSubStringNamedParam()
+	def IsAndOrAndSubStringOrAndPositionNamedParam()
+		return This.IsAndOrAndPositionOrAndSubStringNamedParam()
 
-		#--
+	#--
 
-		def IsAndOrAndPositionOrAndSubStringNamedParams()
-			return This.IsAndOrAndPositionOrAndSubStringNamedParam()
+	def IsAndOrAndPositionOrAndSubStringNamedParams()
+		return This.IsAndOrAndPositionOrAndSubStringNamedParam()
 
-		def IsAndOrAndSubStringOrAndPositionNamedParams()
-			return This.IsAndOrAndSubStringOrAndPositionNamedParam()
+	def IsAndOrAndSubStringOrAndPositionNamedParams()
+		return This.IsAndOrAndSubStringOrAndPositionNamedParam()
 
-	  #======================================#
-	 #  CHECKING IF THE LIST IS PALINDROME  #
-	#======================================#
+		#==
 
-	def IsPalindromeCS(pCaseSensitive)
-		if This.IsEqualtToCS( @ring_reverse(This.Content()), pCaseSensitive) = TRUE
+	def IsAtCharsWhereNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AtCharsWhere )
+
 			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtCharsWNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AtCharsW )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtCharsWhereXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AtCharsWhereXT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtCharsWXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AtCharsWXT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtSubStringsWhereNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AtSubStringsWhere )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtSubStringsWNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AtSubStringsW )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtSubStringsWhereXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AtSubStringsWherexT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtSubStringsWXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AtSubStringsWXT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+	
+	def IsBeforeCharsWhereNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeCharsWhere )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeCharsWNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeCharsW )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeCharsWhereXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeCharsWhereXT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeCharsWXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeCharsWXT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeSubStringsWhereNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStringsWhere )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeSubStringsWNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStringsW )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeSubStringsWhereXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStringsWhereXT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeSubStringsWXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeSubStringsWXT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+	
+	def IsAfterCharsWhereNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterCharsWhere )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterCharsWNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterCharsW )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterCharsWhereXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterCharsWhereXT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterCharsWXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterCharsWXT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterSubStringsWhereNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AftersubStringsWhere )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterSubStringsWNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AftersubStringsW )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterSubStringsWhereXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AftersubStringsWhereXT )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterSubStringsWXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AftersubStringsWXT )
+
+			return TRUE
+
 		else
 			return FALSE
 		ok
 
 
-		def IsPalindromCS(pCaseSensitive)
-			return This.IsPalindromeCS(pCaseSensitive)
-
-		def IsMirroredCS(pCaseSensitive)
-			return This.IsPalindromeCS(pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def IsPalindrome()
-		return This.IsPalindromeCS(TRUE)
-
-		def IsPalindrom()
-			return This.IsPalindrome()
-
-		def IsMirrored()
-			return This.ISPalindrome()

@@ -1303,6 +1303,9 @@ class stzChar from stzObject
 		bResult = This.CharTypeQ().ContainsCS("punctuation", :CaseSensitive = FALSE)
 		return bResult
 
+		def IsPunct()
+			return This.IsPunctuation()
+
 	def IsGeneralPunctuation()
 		bResult = ring_find( GeneralPunctuationUnicodes(), This.Unicode() ) > 0
 		return bResult

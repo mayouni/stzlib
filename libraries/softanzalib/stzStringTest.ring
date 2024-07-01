@@ -5857,11 +5857,11 @@ o1 = new stzString("...♥♥♥..♥♥..")
 #--> [ "...", "♥♥♥..", "♥♥.." ]
 
 o1 = new stzString("...♥...♥...")
-? @@( o1.SplitBeforeW(' @char = "♥" ') )
+? @@( o1.SplitBeforeCharsWXT(' @char = "♥" ') )
 #--> [ "...", "♥...", "♥..." ]
 
 o1 = new stzString("...♥♥...♥♥...")
-? @@( o1.SplitBeforeW(' @SubString = "♥♥" ') )
+? @@( o1.SplitBeforeSubStringsWXT(' @SubString = "♥♥" ') )
 #--> [ "...", "♥♥...", "♥♥..." ]
 
 /*============ SPLITTING AT
@@ -11820,7 +11820,7 @@ anPos = o1.FindCharsW( :Where = 'Q(@char).IsUppercase()')
 /*------------------
 
 o1 = new stzString("NoWomanNoCry")
-? o1.SplitBeforeW(:Where = 'Q(@char).IsUppercase()')
+? o1.SplitBeforeCharsWXT(:Where = 'Q(@char).IsUppercase()')
 #--> [ "No", "Woman", "No", "Cry" ]
 
 /*==================

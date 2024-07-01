@@ -1,5 +1,224 @@
 load "stzlib.ring"
 
+/*--- #ring-sort #arabic
+
+pron()
+
+aList = [ "جمل", "أخ", "ذهب", "بيت", "أب" ]
+
+? sort(aList)
+
+? @sort(aList)
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---- #ring
+
+pron()
+
+? @@( reverse([ "M", "A", "D", "A", "M" ]) )
+#--> [ "M", "A", "D", "A", "M" ]
+
+? @@( reverse([ "ب", "ا", "ب" ]) )
+#o--> [ "ب", "ا", "ب" ]
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---- #ring #fix
+
+pron()
+
+? reverse("MADAM") # Ring function
+#--> MADAM
+
+? reverse("باب")
+#o!--> �اب�
+
+# Softanza fixes it:
+? ""
+
+? @Reverse("MADAM") # Softanza function
+#--> MADAM
+
+? @Reverse("باب")
+#o--> باب
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---- #ring fix
+
+pron()
+
+? isPalindrome("MADAM") # Ring function
+#--> TRUE
+
+? isPalindrome("باب")
+#!--> FALSE
+# Should be TRUE
+
+# Softanza fixes it:
+
+? @IsPalindrome("MADAM")
+#--> TRUE
+
+? @IsPalindrome("باب")
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---- #ring fix
+
+pron()
+
+? isPalindrome("MADAM") # ring function working only for strings
+#--> TRUE
+
+? isPalindrome([ "M", "A", "D", "A", "M" ])
+#!--> FALSE
+#--> Slhould return TRUE
+
+# Softanza fixes it:
+
+? @IsPalindrome("MADAM")
+#--> TRUE
+
+? @IsPalindrome([ "M", "A", "D", "A", "M" ])
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---
+
+pron()
+
+
+? Q("madam").IsPalindrome()
+#--> TRUE
+
+? Q([ "M", "A", "D", "A", "M" ]).IsPalindrome()
+
+#--
+
+? Q("باب").IsPalindrome()
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s)
+
+/*----
+
+pron()
+
+o1 = new stzString("Ri**ng program*ming lan*guage")
+o1.RemoveCharsAt([ 3, 4, 15, 24 ])
+? o1.Content()
+#--> Ring programming language
+
+proff()
+# Executed in 0.02 second(s)
+
+/*---- #ring-fix
+
+pron()
+
+
+? ispunct("?")
+#--> TRUE
+
+? isPunct("!?,;a")
+
+? isPunct("※")
+#!--> FALSE
+# Should be TRUE
+
+? Name("※") # A punctuation char in Unicode
+#--> REFERENCE MARK
+
+#NOTE
+# ※ is an East Asian Typography often used in
+# Japanese and Chinese texts to indicate notes,
+# similar to how an asterisk (*) or dagger (†)
+# might be used in English texts.
+
+# Softanza can check it:
+
+? @IsPunct("※")
+#--> TRUE
+
+? @IsPunct(";:'※!?")
+#--> TRUE
+
+proff()
+# Executed in 0.08 second(s)
+
+/*=====
+
+pron()
+
+? WordsIdentificationMode()
+#--> :Quick
+
+? StopWordsStatus()
+#--> :MustNotBeRemoved
+
+? ""
+
+o1 = new stzText("A man a plan a canal Panama. Able was I ere I saw Elba. Do geese see God? Madam, in Eden, I'm Adam.")
+
+? @@( o1.FindPunctuations() )
+#--> [ 28, 55, 73, 80, 89, 92, 99 ]
+
+o1.RemovePunctuations()
+? o1.Content()
+#--> A man a plan a canal Panama Able was I ere I saw Elba Do geese see God Madam in Eden Im Adam
+
+proff()
+# Executed in 0.71 second(s)
+
+/*-----
+
+
+o1 = new stzString("A man a plan a canal Panama. Able was I ere I saw Elba. Do geese see God? Madam, in Eden, I'm Adam.")
+
+? @@( o1.FindPunctuations() )
+#--> [ 28, 55, 73, 80, 89, 92, 99 ]
+
+o1.RemovePunctuations()
+? o1.Content()
+#--> A man a plan a canal Panama Able was I ere I saw Elba Do geese see God Madam in Eden Im Adam
+
+proff()
+# Executed in 0.19 second(s)
+
+/*=====
+
+pron()
+
+o1 = new stzText("A man a plan a canal Panama. Able was I ere I saw Elba. Do geese see God? Madam, in Eden, I'm Adam.")
+
+? o1.WordsQ().YieldWXT('@item', :Where = 'Q(@item).IsPalindrome()')
+#--> [ "ere", "madam" ])
+
+proff()
+# Executed in 1.53 second(s)
+
+/*------
+
+pron()
+
+o1 = new stzString("A man a plan a canal Panama. Able was I ere I saw Elba. Do geese see God? Madam, in Eden, I'm Adam.")
+
+? o1.WordsQ().YieldWXT('@item', :Where = 'Q(@item).IsPalindromeCS(FALSE)')
+#--> [ "ere", "madam" ])
+
+proff()
+# Executed in 0.54 second(s)
+
 /*--- #narration #semantic-precision
 
 pron()
@@ -5436,19 +5655,19 @@ proff()
 pron()
 
 o1 = new stzString("123456789012")
-? @@( o1.SplitW( 'Q(0+@char).IsMultipleOf(3)' ) ) + NL
+? @@( o1.SplitAtCharWXT( 'Q(0+@char).IsMultipleOf(3)' ) ) + NL
 #--> [ "12", "45", "78", "012" ]
 
-? @@( o1.SplitW( :Where = 'Q(0+@char).IsMultipleOf(3)' ) ) + NL
+? @@( o1.SpliAtCharWXT( :Where = 'Q(0+@char).IsMultipleOf(3)' ) ) + NL
 #--> [ "12", "45", "78", "012" ]
 
-? @@( o1.SplitW( :At = 'Q(0+@char).IsMultipleOf(3)' ) ) + NL
+? @@( o1.SplitAtCharWXT( :At = 'Q(0+@char).IsMultipleOf(3)' ) ) + NL
 #--> [ "12", "45", "78", "012" ]
 
-? @@( o1.SplitAtW( :Where = 'Q(0+@char).IsMultipleOf(3)' ) ) + NL
+? @@( o1.SplitAtCharWXT( :Where = 'Q(0+@char).IsMultipleOf(3)' ) ) + NL
 #--> [ "12", "45", "78", "012" ]
 
-? @@( o1.SplitAtW( 'Q(0+@char).IsMultipleOf(3)' ) )
+? @@( o1.SplitAtCharWXT( 'Q(0+@char).IsMultipleOf(3)' ) )
 #--> [ "12", "45", "78", "012" ]
 
 proff()
@@ -5530,10 +5749,10 @@ o1 = new stzString("__3__6__9__")
 ? @@( o1.SplitW( :Before = 'StzCharQ(@char).IsANumber() and Q(0+ @char).IsMultipleOf(3)' ) )
 #--> [ "__", "3__", "6__", "9__" ]
 
-? @@( o1.SplitBeforeW( 'StzCharQ(@char).IsANumber() and Q(0+ @char).IsMultipleOf(3)' ) )
+? @@( o1.SplitBeforeCharsWXT( 'StzCharQ(@char).IsANumber() and Q(0+ @char).IsMultipleOf(3)' ) )
 #--> [ "__", "3__", "6__", "9__" ]
 
-? @@( o1.SplitBeforeW( :Where = 'StzCharQ(@char).IsANumber() and Q(0+ @char).IsMultipleOf(3)' ) )
+? @@( o1.SplitBeforeCharsWXT( :Where = 'StzCharQ(@char).IsANumber() and Q(0+ @char).IsMultipleOf(3)' ) )
 #--> [ "__", "3__", "6__", "9__" ]
 
 proff()
@@ -6278,7 +6497,7 @@ proff()
 pron()
 
 o1 = new stzString( "ABCabcEFGijHI" )
-? o1.SplitAtW( 'Q(@SubString).IsLowercase()' )
+? o1.SplitAtSubStringWXT( 'Q(@SubString).IsLowercase()' )
 #--> [ "ABC", "EFG", "HI" ]
 
 proff()
