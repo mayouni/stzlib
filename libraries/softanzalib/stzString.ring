@@ -53868,7 +53868,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#--> [ "III", "MMM", "AAA" ]
 		*/
 
-		aSections = This.FindSubStringsW(pcCondition)
+		aSections = This.FindPartsWZZ(pcCondition)
 		acResult = This.SplitAtSections(aSections)
 
 		return acResult
