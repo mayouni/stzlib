@@ -184,7 +184,6 @@ o1 = new stzString( "ABCabcEFGijHI" )
 proff()
 # Executed in 0.49 second(s)
 
-/*=======
 /*======= #ring-sort #arabic
 
 pron()
