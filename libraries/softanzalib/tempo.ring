@@ -703,7 +703,7 @@ proff()
 
 pron()
 
-	ForEach( :Item, :In = [ "a", "b", "c" ] ) { X('
+	@ForEach( :Item, :In = [ "a", "b", "c" ] ) { X('
 		? v(:Item)
 	') }
 	#--> "a"
@@ -712,7 +712,7 @@ pron()
 
 	? ""
 
-	ForEach( :Char, :In = "ABC" ) { X('
+	@ForEach( :Char, :In = "ABC" ) { X('
 		? v(:Char)
 	') }
 	#--> "A"
@@ -721,7 +721,7 @@ pron()
 
 	? ""
 
-	ForEach( [ :Char, :Number ], :In = [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ] ) { X('
+	@ForEach( [ :Char, :Number ], :In = [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ] ) { X('
 		? v(:Char) + v(:Number)
 	') }
 	#--> "A1"
