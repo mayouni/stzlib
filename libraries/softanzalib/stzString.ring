@@ -5864,25 +5864,25 @@ class stzString from stzObject
 	 #      LINES      #
 	#=================#
 
-	def Lines()
-		return This.Split(NL)
+	def LinesCS(pCaseSensitive)
+		return This.SplitCS(NL, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
-		def LinesQ()
-			return new stzListOfStrings( This.Lines() )
+		def LinesCSQ(pCaseSensitive)
+			return This.LinesCSQR(pCaseSensitive, pCaseSensitive)
 
-		def LinesQR(pcReturnType)
+		def LinesCSQR(pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList(This.Lines())
+				return new stzList(This.LinesCS(pCaseSensitive))
 
 			on :stzListOfStrings
-				return new stzListOfStrings(This.Lines())
+				return new stzListOfStrings(This.LinesCS(pCaseSensitive))
 
 			other
 				stzRaise("Unsupported return type!")
@@ -5890,33 +5890,69 @@ class stzString from stzObject
 
 		#>
 	
+	#-- WIHTOUT CASESENSITIVITY
+
+	def Lines(pCaseSensitive)
+		return This.LinesCS(pCaseSensitive, TRUE)
+
+		#< @FunctionFluentForms
+
+		def LinesQ()
+			return This.LinesQR(:stzList)
+
+		def LinesQR(pcReturnType)
+			return This.LinesCSQR(TRUE, pcReturnTye)
+
+		#>
+
+	  #---------------------------------------------#
+	 #  GETTING THE NUMBER OF LINES IN THE STRING  #
+	#---------------------------------------------#
+
+	def NumberOfLinesCS(pCaseSensitive)
+		return len(This.LinesCS(pCaseSensitive))
+
+		def HowManyLinesCS(pCaseSensitive)
+			return This.NumberOfLinesCS(pCaseSensitive)
+
+		def CountLinesCS(pCaseSensitive)
+			return This.NumberOfLinesCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVE
+
 	def NumberOfLines()
-		return len(This.Lines())
+		return This.NumberOfLinesCS(TRUE)
+
+		def HowManyLines()
+			return This.NumberOfLines()
+
+		def CountLines()
+			return This.NumberOfLines()
 
 	  #----------------#
 	 #  UNIQUE LINES  #
-	#----------------#
+	#================#
 
-	def UniqueLines()
-		acResult = This.LinesQ().DuplicatesRemoved()
+	def UniqueLinesCS(pCaseSensitive)
+		acResult = This.LinesCSQ(pCaseSensitive).DuplicatesRemoved()
 		return acResult
 
 		#< @FunctionFluentForm
 
-		def UniqueLinesQ()
-			return new stzListOfStrings( This.UniqueLines() )
+		def UniqueLinesCSQ(pCaseSensitive)
+			return This.UniqueLinesCSQR(pCaseSensitive, :stzList)
 
-		def UniqueLinesQR(pcReturnType)
+		def UniqueLinesCSQR(pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList(This.UniqueLines())
+				return new stzList(This.UniqueLinesCS(pCaseSensitive))
 
 			on :stzListOfStrings
-				return new stzListOfStrings(This.UniqueLines())
+				return new stzListOfStrings(This.UniqueLinesCS(pCaseSensitive))
 
 			other
 				stzRaise("Unsupported return type!")
@@ -5926,13 +5962,50 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def LinesCSU(pCaseSensitive)
+			return This.UniqueLinesCS(pCaseSensitive)
+
+			def LinesCSQU(pCaseSensitive)
+				return This.LinesCSQRU(pCaseSensitive, :stzList)
+
+			def LinesCSQRU(pCaseSensitive, pcReturnType)
+				return This.UniqueLinesCSQR(pCaseSensitive, pcReturnType)
+
+		def LinesWithoutDuplicationCS(pCaseSensitive)
+			return This.UniqueLinesCS(pCaseSensitive)
+
+			def LinesWithoutDuplicationCSQ(pCaseSensitive)
+				return This.LinesWithoutDuplicationCSQR(pCaseSensitive, :stzList)
+
+			def LinesWithoutDuplicationCSQR(pCaseSensitive, pcReturnType)
+				return This.UniqueLinesCSQR(pCaseSensitive, pcReturnType)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def UniqueLines()
+		return This.UniqueLinesCS(TRUE)
+
+		#< @FunctionFluentForm
+
+		def UniqueLinesQ()
+			return This.UniqueLinesQR(:stzList)
+
+		def UniqueLinesQR(pcReturnType)
+			return This.UniqueLinesCSQR(TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def LinesU()
 			return This.UniqueLines()
 
-			def LinesUQ()
-				return This.LinesQR(:stzList)
+			def LinesQU()
+				return This.LinesQRU(:stzList)
 
-			def LinesUQR(pcReturnType)
+			def LinesQRU(pcReturnType)
 				return This.UniqueLinesQR(pcReturnType)
 
 		def LinesWithoutDuplication()
@@ -5946,11 +6019,65 @@ class stzString from stzObject
 
 		#>
 
+	  #----------------------------------------------------#
+	 #  GETTING THE UNIQUE NUMBER OF LINES IN THE STRING  #
+	#----------------------------------------------------#
+
+	def NumberOfUniqueLinesCS(pCaseSensitive)
+		return len(This.UniqueLinesCS(pCaseSensitive))
+
+		#< @FunctionAlternativeForms
+
+		def HowManyUniqueLinesCS(pCaseSensitive)
+			return This.NumberOfUniqueLinesCS(pCaseSensitive)
+
+		def CountUniqueLinesCS(pCaseSensitive)
+			return This.NumberOfUniqueLinesCS(pCaseSensitive)
+
+		#--
+
+		def NumberOfLinesCSU(pCaseSensitive)
+			return This.NumberOfUniqueLinesCS(pCaseSensitive)
+
+		def HowManyLinesCSU(pCaseSensitive)
+			return This.NumberOfUniqueLinesCS(pCaseSensitive)
+
+		def CountLinesCSU(pCaseSensitive)
+			return This.NumberOfUniqueLinesCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVE
+
+	def NumberOfUniqueLines()
+		return This.NumberOfUniqueLinesCS(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def HowManyUniqueLines()
+			return This.NumberOfUniqueLines()
+
+		def CountUniqueLines()
+			return This.NumberOfUniqueLines()
+
+		#--
+
+		def NumberOfLinesU()
+			return This.NumberOfUniqueLines()
+
+		def HowManyLinesU()
+			return This.NumberOfUniqueLines()
+
+		def CountLinesU()
+			return This.NumberOfUniqueLines()
+
+		#>
+
 	  #------------------------------------------#
 	 #  REMOVING LINES UNDER A GIVEN CONDITION  #
 	#==========================================#
 
-	def RemoveLinesW(pcCondition)
+	def RemoveLinesWCS(pcCondition, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzString("
@@ -5977,21 +6104,38 @@ class stzString from stzObject
 		"
 		*/
 
-		cResult = This.LinesQR(:stzListOfStrings).
-			       RemoveWQ(pcCondition).
+		cResult = This.LinesCSQR(pCaseSensitive, :stzListOfStrings).
+			       RemoveWQ(pCaseSensitive, pcCondition).
 			       ConcatenatedUsing(NL)
 
 		This.Update(cResult)
+
+		#< @FunctionFluentForm
+
+		def RemoveLinesWCSQ(pcCondition, pCaseSensitive)
+			This.RemoveLinesWCS(pcCondition, pCaseSensitive)
+			return This
+
+		#>
+
+	#-- WIHTOUT CASESENSITIVITY
+
+	def RemoveLinesW(pcCondition)
+		This.RemoveLinesWCS(pcCondition, TRUE)
+
+		#< @FunctionFluentForm
 
 		def RemoveLinesWQ(pcCondition)
 			This.RemoveLinesW(pcCondition)
 			return This
 
+		#>
+
 	  #------------------------------------------#
 	 #  REMOVING LINES UNDER A GIVEN CONDITION  #
 	#==========================================#
 
-	def RemoveLinesWXT(pcCondition)
+	def RemoveLinesWCSXT(pcCondition, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzString("
@@ -6018,30 +6162,32 @@ class stzString from stzObject
 		"
 		*/
 
-		cResult = This.LinesQR(:stzListOfStrings).
-			       RemoveWXtQ(pcCondition).
+		cResult = This.LinesCSQR(pCaseSensitive, :stzListOfStrings).
+			       RemoveWXTQ(pCaseSensitive, pcCondition).
 			       ConcatenatedUsing(NL)
 
 		This.Update(cResult)
+
+		#< @FunctionFluentForm
+
+		def RemoveLinesWCSXTQ(pcCondition, pCaseSensitive)
+			This.RemoveLinesWCSXT(pcCondition, pCaseSensitive)
+			return This
+
+		#>
+
+	#-- WIHTOUT CASESENSITIVITY
+
+	def RemoveLinesWXT(pcCondition)
+		This.RemoveLinesWCSXT(pcCondition, TRUE)
+
+		#< @FunctionFluentForm
 
 		def RemoveLinesWXTQ(pcCondition)
 			This.RemoveLinesWXT(pcCondition)
 			return This
 
-	  #------------------------#
-	 #  REMOVING EMPTY LINES  #
-	#========================#
-
-	def RemoveEmptyLines()
-		cResult = This.LinesQR(:stzListOfStrings).
-				RemoveEmptyStringsQ().
-				ConcatenatedUsing(NL)
-
-		This.Update(cResult)
-
-		def RemoveEmptyLinesQ()
-			This.RemoveEmptyLines()
-			return This
+		#>
 
 	  #===========================================#
 	 #  CHECKING IF THE STRING CONTAINS NUMBERS  #
