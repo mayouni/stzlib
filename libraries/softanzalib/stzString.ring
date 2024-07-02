@@ -53975,7 +53975,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#--> [ "ABC", "EFG", "HI" ]
 		*/
 
-		aSections = This.FindSubStringsWCS(pcCondition, pCaseSensitive)
+		aSections = This.FindPartsWCSZZ(pcCondition, pCaseSensitive)
 		acResult = This.SplitBeforeSections(aSections)
 
 		return acResult
@@ -54032,7 +54032,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#--> [ "ABC", "EFG", "HI" ]
 		*/
 
-		aSections = This.FindSubStringsWCSXT(pcCondition, pCaseSensitive)
+		aSections = This.FindPartsWCSXTZZ(pcCondition, pCaseSensitive)
 		acResult = This.SplitBeforeSections(aSections)
 
 		return acResult
@@ -54089,7 +54089,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#--> [ "ABC", "EFG", "HI" ]
 		*/
 
-		aSections = This.FindSubStringsWCS(pcCondition, pCaseSensitive)
+		aSections = This.FindPartsWCSZZ(pcCondition, pCaseSensitive)
 		acResult = This.SplitAfterSections(aSections)
 
 		return acResult
@@ -54146,7 +54146,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		#--> [ "ABC", "EFG", "HI" ]
 		*/
 
-		aSections = This.FindSubStringsWCSXT(pcCondition, pCaseSensitive)
+		aSections = This.FindPartsWCSXTZZ(pcCondition, pCaseSensitive)
 		acResult = This.SplitAfterSections(aSections)
 
 		return acResult
