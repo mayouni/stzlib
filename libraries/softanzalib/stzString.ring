@@ -33496,7 +33496,7 @@ class stzString from stzObject
 	   #--------------------------------------------------------#
 	  #    INSERTING A SUBSTRING BEFORE A POSITION DEFINED     #
 	 #    BY A GIVEN CONDITION APPLIED ON THE STRING CHARS    #
-	#========================================================#
+www	#========================================================#
 
 	def InsertBeforeW(pcCondition, pcSubStr)
 		anPos = This.FindW(pcCondition)

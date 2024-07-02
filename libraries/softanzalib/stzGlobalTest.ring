@@ -295,7 +295,7 @@ pron()
 # The ForEach alternative, by Softanza, solves the For/in
 # weakness and performs the same loop in a second!
 
-ForEach( :number, :in = 1 : 500_000 ) {
+@ForEach( :number, :in = 1 : 500_000 ) {
 	// Do nothing
 }
 
@@ -309,7 +309,7 @@ proff()
 
 pron()
 
-ForEach( :number, :in = 1:5 ) {
+@ForEach( :number, :in = 1:5 ) {
 
 	# The code you want to execute in the loop
 
@@ -326,7 +326,7 @@ proff()
 
 pron()
 
-ForEach( [ :name, :age ], :in = [ [ "Teebah", 12], ["Haneen", 8], ["Hussein", 2] ] ) {
+@ForEach( [ :name, :age ], :in = [ [ "Teebah", 12], ["Haneen", 8], ["Hussein", 2] ] ) {
 
 	X([ [1, 3], '
 		? v(:name) + TAB + v(:age)
@@ -357,7 +357,7 @@ proff()
 
 pron()
 
-ForEach( :number, :in = 1:5 ) { X('
+@ForEach( :number, :in = 1:5 ) { X('
 
 	? v(:number)
 
@@ -376,7 +376,7 @@ proff()
 
 pron()
 
-ForEach( [ :name, :age ], :in = [ [ "teebah", 12], ["haneen", 8], ["hussein", 2] ] ) { X('
+@ForEach( [ :name, :age ], :in = [ [ "teebah", 12], ["haneen", 8], ["hussein", 2] ] ) { X('
 
 	? v(:name) + TAB + v(:age)
 
@@ -394,7 +394,7 @@ pron()
 
 aNumbers = []
 
-ForEach( :number, :in = 1:100 ) { X('
+@ForEach( :number, :in = 1:100 ) { X('
 	aNumbers + v(number)
 ')}
 
@@ -408,7 +408,7 @@ proff()
 
 pron()
 
-ForEach( :name, :in = [ "teeba", "haneen", "hussein" ]) { X('
+@ForEach( :name, :in = [ "teeba", "haneen", "hussein" ]) { X('
 
 	? upper( v(:name) )
 
@@ -420,11 +420,10 @@ ForEach( :name, :in = [ "teeba", "haneen", "hussein" ]) { X('
 proff()
 # Executed in 0.04 second(s)
 
-/*------------
 
 pron()
 
-ForEach( [ :Name, :Age ], :In = [ :Heni = 25, :Omar = 32, :Sonia = 14 ] ) { X('
+@ForEach( [ :Name, :Age ], :In = [ :Heni = 25, :Omar = 32, :Sonia = 14 ] ) { X('
 	? name + " " + age
 ')}
 #--> heni 25

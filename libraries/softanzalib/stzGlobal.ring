@@ -480,10 +480,10 @@ func These(p)
 
 	#>
 
-func ForEach(p, pIn)
+func @ForEach(p, pIn)
 	/* EXAMPLES
 
-	ForEach( :Item, :In = [ "a", "b", "c" ] ) { X('
+	@ForEach( :Item, :In = [ "a", "b", "c" ] ) { X('
 		? v(:Item)
 	') }
 	#--> "a"
@@ -492,7 +492,7 @@ func ForEach(p, pIn)
 
 	? ""
 
-	ForEach( :Char, :In = "ABC" ) { X('
+	@ForEach( :Char, :In = "ABC" ) { X('
 		? v(:Char)
 	') }
 	#--> "A"
@@ -501,7 +501,7 @@ func ForEach(p, pIn)
 
 	? ""
 
-	ForEach( [ :Char, :Number ], :In = [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ] ) { X('
+	@ForEach( [ :Char, :Number ], :In = [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ] ) { X('
 		? v(:Char) + v(:Number)
 	') }
 	#--> "A1"
