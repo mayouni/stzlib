@@ -13508,7 +13508,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def SubStringComesBetweenCS(pcSubStr, p1, p2, p1, pCaseSensitive)
+		def SubStringComesBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
 			return This.SubStringIsBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
 
 		#>
@@ -26645,10 +26645,10 @@ class stzString from stzObject
 	
 		#--
 
-		def FindFirstBetweenCS(pcSubStr, pcBound1, pcBound1, pCaseSensitive)
+		def FindFirstBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			return This.FindFirstSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
-		def FindFirstBetweenCSZ(pcSubStr, pcBound1, pcBound1, pCaseSensitive)
+		def FindFirstBetweenCSZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			return This.FindFirstSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 		#>
@@ -26665,10 +26665,10 @@ class stzString from stzObject
 	
 		#--
 
-		def FindFirstBetween(pcSubStr, pcBound1, pcBound1)
+		def FindFirstBetween(pcSubStr, pcBound1, pcBound2)
 			return This.FindFirstSubStringBetween(pcSubStr, pcBound1, pcBound2)
 
-		def FindFirstBetweenZ(pcSubStr, pcBound1, pcBound1)
+		def FindFirstBetweenZ(pcSubStr, pcBound1, pcBound2)
 			return This.FindFirstSubStringBetween(pcSubStr, pcBound1, pcBound2)
 
 		#>
@@ -26732,10 +26732,10 @@ class stzString from stzObject
 	
 		#--
 
-		def FindLastBetweenCS(pcSubStr, pcBound1, pcBound1, pCaseSensitive)
+		def FindLastBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			return This.FindLastSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
-		def FindLastBetweenCSZ(pcSubStr, pcBound1, pcBound1, pCaseSensitive)
+		def FindLastBetweenCSZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 			return This.FindLastSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 
 		#>
@@ -26752,10 +26752,10 @@ class stzString from stzObject
 	
 		#--
 
-		def FindLastBetween(pcSubStr, pcBound1, pcBound1)
+		def FindLastBetween(pcSubStr, pcBound1, pcBound2)
 			return This.FindLastSubStringBetween(pcSubStr, pcBound1, pcBound2)
 
-		def FindLastBetweenZ(pcSubStr, pcBound1, pcBound1)
+		def FindLastBetweenZ(pcSubStr, pcBound1, pcBound2)
 			return This.FindLastSubStringBetweenCS(pcSubStr, pcBound1, pcBound2s)
 
 		#>
@@ -49351,33 +49351,33 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #    CONTAINING BOTH OF THE GIVEN SUBSTRINGS     #
 	#================================================#
 
-	def ContainsBothCS(pcStr1, pcStr2, pCaseSensitive)
-		if isList(pcStr2) and Q(pcStr2).IsAndNamedParam()
-			pcStr2 = pcStr2[2]
+	def ContainsBothCS(pcSubStr1, pcSubStr2, pCaseSensitive)
+		if isList(pcSubStr2) and Q(pcSubStr2).IsAndNamedParam()
+			pcSubStr2 = pcSubStr2[2]
 		ok
 
-		return This.ContainsEachCS( [pcStr1, pcStr2], pCaseSensitive )
+		return This.ContainsEachCS( [pcSubStr1, pcSubStr2], pCaseSensitive )
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsBoth(pcStr1, pcStr2)
-		return This.ContainsBothCS(pcStr1, pcStr2, TRUE)
+	def ContainsBoth(pcSubStr1, pcSubStr2)
+		return This.ContainsBothCS(pcSubStr1, pcSubStr2, TRUE)
 	
 	  #----------------------------------------------------------------#
 	 #    CONTAINING ONE GIVEN SUBSTRING OR AN OTHER (BUT NOT BOTH)   #
 	#----------------------------------------------------------------#
 
-	def ContainsEitherCS(pcStr1, pcStr2, pCaseSensitive)
-		if isList(pcStr2) and Q(pcStr2).IsOrNamedParam()
-			pcStr2 = pcStr2[2]
+	def ContainsEitherCS(pcStr1, pcSubStr2, pCaseSensitive)
+		if isList(pcSubStr2) and Q(pcSubStr2).IsOrNamedParam()
+			pcSubStr2 = pcSubStr2[2]
 		ok
 
 		#NOTE
 		# We can solve it quickly like this:
 		# return This.ContainsOnlyOneOfTheseCS([ pcStr1, pcStr2 ], pCaseSensitive)
 
-		b1 = This.ContainsCS(pcStr1, pCaseSensitive)
-		b2 = This.ContainsCS(pcStr2, pCaseSensitive)
+		b1 = This.ContainsCS(pcSubStr1, pCaseSensitive)
+		b2 = This.ContainsCS(pcSubStr2, pCaseSensitive)
 
 		if (b1 = 1 and b2 = 0) or (b1 = 0 and b2 = 1)
 			return TRUE
@@ -49387,8 +49387,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsEither(pcStr1, pcStr2)
-		return This.ContainsEitherCS(pcStr1, pcStr2, TRUE)
+	def ContainsEither(pcSubStr1, pcSubStr2)
+		return This.ContainsEitherCS(pcSubStr1, pcSubStr2, TRUE)
 
 	  #--------------------------------------------------#
 	 #  CONTAONING ONLY ONE OF THE PROVIDED SUBSTRINGS  #

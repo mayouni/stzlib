@@ -48746,7 +48746,7 @@ Item and then position
 
 		#< @FunctionAlternativeForms
 
-		def ItemsAreEither(p1, p2, p2)
+		def ItemsAreEither(p1, p2, p3)
 			return This.AllItemsAreEither(p1, p2, p3)
 
 		def EachItemIsEither(p1, p2, p3)

@@ -6174,7 +6174,7 @@ Class stzTable from stzObject
 		def NumberOfOccurrencesOfValueInRow(pRow, pValue)
 			return This.NumberOfOccurrenceOfCellInRow(pRow, pValue)
 
-		def CountOfValueInRowInRow(pRow, pRow, pValue)
+		def CountOfValueInRowInRow(pRow, pValue)
 			return This.NumberOfOccurrenceOfCellInRowInRow(pRow, pRow, pValue)
 
 		def CountValueInRow(pRow, pValue)
@@ -9395,7 +9395,7 @@ Class stzTable from stzObject
 		def NumberOfOccurrencesOfValueInSection(paSection1, paSection2, pValue)
 			return This.NumberOfOccurrenceOfCellInSection(paSection1, paSection2, pValue)
 
-		def CountOfValueInSectionInSection(paSection1, paSection2, paSection1, paSection2, pValue)
+		def CountOfValueInSectionInSection(paSection1, paSection2, paSection2, pValue)
 			return This.NumberOfOccurrenceOfCellInSectionInSection(paSection1, paSection2, paSection1, paSection2, pValue)
 
 		def CountValueInSection(paSection1, paSection2, pValue)
