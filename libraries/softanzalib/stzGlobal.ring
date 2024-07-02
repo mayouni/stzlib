@@ -1140,10 +1140,10 @@ func ring_reverse(pStrOrList)
 	#WARNING // can't revese unicode string other then ASCII latin chars
 	# --> use Softanza @Reverse() instead
 
-	return reverse(paList)
+	return reverse(pStrOrList)
 
-	func @ring_reverse(paList)
-		return reverse(paList)
+	func @ring_reverse(pStrOrList)
+		return reverse(pStrOrList)
 
 func ring_sort(paList)
 	return sort(paList)

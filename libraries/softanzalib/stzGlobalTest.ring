@@ -420,6 +420,7 @@ pron()
 proff()
 # Executed in 0.04 second(s)
 
+/*-----------
 
 pron()
 
@@ -556,18 +557,18 @@ o1 = new stzString("...emm...eh..emm...eh")
 #--> [ [ 4, 6 ], [ 10, 11 ], [ 14, 16 ], [ 20, 21 ] ]
 
 # Many is used here for clarity, and you can avoid it,
-# and let Softanza understant that the provided param
+# and let Softanza understand that the provided param
 # is a list of strings. Hance, Find() calls FindMany()
 # in the bkackground:
 
 ? @@( o1.Find([ "emm", "eh" ]) )
 #--> [4, 10, 14, 20 ]
 
-? @@(o1.FindAsSections([ "emm", "eh" ]))
+? @@(o1.FindAsSections([ "emm", "eh" ])) # Of FindZZ() for short
 #--> [ [ 4, 6 ], [ 10, 11 ], [ 14, 16 ], [ 20, 21 ] ]
 
-
 proff()
+# Executed in 0.09 second(s)
 
 /*------------
 
@@ -582,7 +583,7 @@ o1 = new stzString("...|---|....|--|..--")
 #--> [ [ 5, 6 ], [ 6, 7 ], [ 14, 15 ], [ 19, 20 ] ]
 
 ? @@( o1.FindAsSection("--") ) # Section without "s"! --> same as FindFirstAsSection()
-#--| [ 5, 6 ]
+#--> [ 5, 6 ]
 
 # You can use the ..Z() and ..ZZ() extensions:
 
@@ -602,10 +603,10 @@ o1 = new stzString("...|---|....|--|..--")
 #--> [ [ 5, 7 ], [ 9, 12 ], [ 14, 15 ] ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.10 second(s)
 
 /*------------ #todo write a #narration
-
+*/
 pron()
 
 o1 = new stzString("...|---|....|--|..--")
