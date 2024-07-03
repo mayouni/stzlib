@@ -606,7 +606,7 @@ proff()
 # Executed in 0.10 second(s)
 
 /*------------ #todo write a #narration
-*/
+
 pron()
 
 o1 = new stzString("...|---|....|--|..--")
@@ -1147,4 +1147,4 @@ ChangeRingKeyword load ＃
 #--> FULLWIDTH NUMBER SIGN
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.10 second(s)

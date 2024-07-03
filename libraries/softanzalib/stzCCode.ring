@@ -164,6 +164,10 @@ class stzCCode
 
 			Content()
 
+		#TODO // Automate the addition of new keywords
+		# Example : for @split", all the necessary variations
+		# are generated as found in the fellowing list:
+
 		cCode = Q(cCode).TheseSubstringsSpacifiedCS([
 
 				"@items", "@allItems", "@item",
@@ -179,7 +183,9 @@ class stzCCode
 				
 				"@lists", "@allLists", "@list",
 				"@pairs", "@allPairs", "@pair",
-				
+
+				"@splits", "@allSplits", "@split",
+
 				"@objects", "@allObjects", "@object",
 
 				"@positions", "@position", "@CurrentPosition",
@@ -188,12 +194,15 @@ class stzCCode
 				"-@Number",
 
 				"@NextItem",
-				"@NextChar","@NextString","@NextStringItem", "@NextSubString",
+				"@NextChar", "@NextString", "@NextStringItem", "@NextSubString",
 				"@NextLine",
 
 				"@NextNumber",
 				
 				"@NextList","@NextPair",
+
+				"@NextSplit",
+
 				"@NextObject",
 
 				"@PreviousPosition",
@@ -205,6 +214,7 @@ class stzCCode
 				"@PreviousNumber",
 
 				"@PreviousList","@PreviousPair",
+				"@PreviousSplit",
 				"@PreviousObject"
 				
 		], :CaseSensitive = FALSE)
@@ -221,6 +231,7 @@ class stzCCode
 				" @numbers ","@allNumbers",
 				
 				" @lists ","@allLists",
+				" @Splits ", "@allSplits",
 				" @pairs ","@allPairs",
 				
 				" @objects ","@allObjects" ],
@@ -247,6 +258,8 @@ class stzCCode
 				" @pair ", " @EachPair ", " @CurrentPair ",
 				" @section ", " @EachSection ", " @CurrentSection ",
 
+				" @Split ", " @EachSplit ", " @CurrentSplit ",
+
 				" @object ", " @EachObject ", " @CurrentObject " ],
 
 				:By = " This[@i] ", :CS = FALSE ).
@@ -265,6 +278,7 @@ class stzCCode
 				" @NextNumber ",
 				
 				" @NextList ", " @NextPair ",
+				" @NextSplit ",
 				" @NextObject " ],
 
 				:By = " This[@i + 1] ", :CS = FALSE).
@@ -282,6 +296,7 @@ class stzCCode
 				" @PreviousNumber ",
 
 				" @PreviousList ", " @PreviousPair ",
+				" @PreviousSplit ",
 				" @PreviousObject "
 				],
 
