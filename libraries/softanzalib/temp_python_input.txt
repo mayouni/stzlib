@@ -1,0 +1,4 @@
+
+print("Hello from Python!")
+result = 5 + 3
+print(f"The result is: {result}")

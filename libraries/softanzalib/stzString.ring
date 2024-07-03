@@ -33493,103 +33493,157 @@ class stzString from stzObject
 		cResult = This.Copy().InsertBeforeQ(nPos, pcSubStr).Content()
 		return cResult
 
-	   #--------------------------------------------------------#
-	  #    INSERTING A SUBSTRING BEFORE A POSITION DEFINED     #
-	 #    BY A GIVEN CONDITION APPLIED ON THE STRING CHARS    #
-www	#========================================================#
+	   #-----------------------------------------------------------#
+	  #    INSERTING A SUBSTRING BEFORE A POSITION DEFINED BY A   #
+	 #    GIVEN CONDITION APPLIED ON THE STRING SUBSTRINHGS      #
+	#===========================================================#
 
-	def InsertBeforeW(pcCondition, pcSubStr)
-		anPos = This.FindW(pcCondition)
+	def InsertBeforeSubStringsWCS(pcCondition, pcSubStr, pCaseSensitive)
+		anPos = This.FindSubStringsWCS(pcCondition, pCaseSensitive)
 		This.InsertBeforePositions( anPos, pcSubStr )
 
 		#< @FunctionFluentForm
 
-		def InsertBeforeWQ(pcCondition, pcSubStr)
-			This.InsertBeforeW(pcCondition, pcSubStr)
+		def InsertBeforeSubStringsWCSQ(pcCondition, pcSubStr, pCaseSensitive)
+			This.InsertBeforeSubStringsWCS(pcCondition, pcSubStr, pCaseSensitive)
+			return This
+
+		#>
+		
+	def InsertedBeforeSubStringsWCS(pcCondition, pcSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertBeforeSubStringsWCSQ(pcCondition, pcSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertBeforeSubStringsW(pcCondition, pcSubStr)
+		return This.InsertBeforeSubStringsWCS(pcCondition, pcSubStr, TRUE)
+
+		#< @FunctionFluentForm
+
+		def InsertBeforeSubStringsWQ(pcCondition, pcSubStr)
+			This.InsertBeforeSubStringsW(pcCondition, pcSubStr)
 			return This
 
 		#>
 
-		#< @FunctionAlternativeForms
+	def InsertedBeforeSubStringsW(pcCondition, pcSubStr)
+		cResult = This.Copy().InsertBeforeSubStringsWQ(pcCondition, pcSubStr).Content()
+		return cResult
 
-		def InsertSubStringBeforeW(pcCondition, pcSubStr)
-			This.InsertBefore(pcCondition, pcSubStr)
+	   #------------------------------------------------------------------#
+	  #    INSERTING A SUBSTRING BEFORE A POSITION DEFINED BY A GIVEN    #
+	 #    CONDITION  APPLIED ON THE STRING SUBSTRINGS -- WXT/EXTENDED   #
+	#------------------------------------------------------------------#
 
-			def InsertSubStringBeforeWQ(pcCondition, pcSubStr)
-				This.InsertSubStringBeforeW(pcCondition, pcSubStr)
-				return This
+	def InsertBeforeSubStringsWCSXT(pcCondition, pcSubStr, pCaseSensitive)
+		anPos = This.FindSubStringsWCSXT(pcCondition, pCaseSensitive)
+		This.InsertBeforePositions( anPos, pcSubStr )
 
-		def InsertAtW(pcCondition, pcSubStr)
-			This.InsertBeforeW(pcCondition, pcSubStr)
+		#< @FunctionFluentForm
 
-			def InsertAtWQ(pcCondition, pcSubStr)
-				This.InsertAtW(pcCondition, pcSubStr)
-				return This
-
-		def InsertSubstringAtW(pcCondition, pcSubStr)
-			This.InsertBeforeW(pcCondition, pcSubStr)
-
-			def InsertSubstringAtWQ(pcCondition, pcSubStr)
-				This.InsertSubStringAtW(pcCondition, pcSubStr)
-				return This
+		def InsertBeforeSubStringsWCSXTQ(pcCondition, pcSubStr, pCaseSensitive)
+			This.InsertBeforeSubStringsWCSXT(pcCondition, pcSubStr, pCaseSensitive)
+			return This
 
 		#>
 
-	def SubStringInsertedBeforeW(pcCondition, pcSubStr)
-		cResult = This.Copy().InsertBeforeWQ(pcCondition, pcSubStr).Content()
+	def InsertedBeforeSubStringsWCSXT(pcCondition, pcSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertBeforeSubStringsWCSXTQ(pcCondition, pcSubStr, pCaseSensitive).Content()
 		return cResult
 
-		def SubStringInsertedAtW(pcCondition, pcSubStr)
-			return This.SubStringInsertedBeforeW(pcCondition, pcSubStr)
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertBeforeSubStringsWXT(pcCondition, pcSubStr)
+		return This.InsertBeforeSubStringsWCSXT(pcCondition, pcSubStr, TRUE)
+
+		#< @FunctionFluentForm
+
+		def InsertBeforeSubStringsWXTQ(pcCondition, pcSubStr)
+			This.InsertBeforeSubStringsWXT(pcCondition, pcSubStr)
+			return This
+
+		#>
+
+	def InsertedBeforeSubStringsWXT(pcCondition, pcSubStr)
+		cResult = This.Copy().InsertBeforeSubStringsWXTQ(pcCondition, pcSubStr).Content()
+		return cResult
+
+	   #--------------------------------------------------------#
+	  #    INSERTING A SUBSTRING BEFORE A POSITION DEFINED     #
+	 #    BY A GIVEN CONDITION APPLIED ON THE STRING CHARS    #
+	#========================================================#
+
+	def InsertBeforeCharsWCS(pcCondition, pcSubStr, pCaseSensitive)
+		anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
+		This.InsertBeforePositions( anPos, pcSubStr )
+
+		#< @FunctionFluentForm
+
+		def InsertBeforeCharsWCSQ(pcCondition, pcSubStr, pCaseSensitive)
+			This.InsertBeforeCharsWCS(pcCondition, pcSubStr, pCaseSensitive)
+			return This
+
+		#>
+
+	def InsertedBeforeCharsWCS(pcCondition, pcSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertBeforeCharsWCSQ(pcCondition, pcSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertBeforeCharsW(pcCondition, pcSubStr)
+		return This.InsertBeforeCharsWCS(pcCondition, pcSubStr, TRUE)
+
+		#< @FunctionFluentForm
+
+		def InsertBeforeCharsWQ(pcCondition, pcSubStr)
+			This.InsertBeforeCharsW(pcCondition, pcSubStr)
+			return This
+
+		#>
+
+	def InsertedBeforeCharsW(pcCondition, pcSubStr)
+		cResult = This.Copy().InsertBeforeCharsWQ(pcCondition, pcSubStr).Content()
+		return cResult
 
 	   #------------------------------------------------------------------#
 	  #    INSERTING A SUBSTRING BEFORE A POSITION DEFINED BY A GIVEN    #
 	 #    CONDITION  APPLIED ON THE STRING CHARS -- WXT/EXTENDED        #
 	#------------------------------------------------------------------#
 
-	def InsertBeforeWXT(pcCondition, pcSubStr)
-		anPos = This.FindWXT(pcCondition)
+	def InsertBeforeCharsWCSXT(pcCondition, pcSubStr, pCaseSensitive)
+		anPos = This.FindCharsWCSXT(pcCondition, pCaseSensitive)
 		This.InsertBeforePositions( anPos, pcSubStr )
 
 		#< @FunctionFluentForm
 
-		def InsertBeforeWXTQ(pcCondition, pcSubStr)
-			This.InsertBeforeWXT(pcCondition, pcSubStr)
+		def InsertBeforeCharsWCSXTQ(pcCondition, pcSubStr, pCaseSensitive)
+			This.InsertBeforeCharsWCSXT(pcCondition, pcSubStr, pCaseSensitive)
 			return This
 
 		#>
 
-		#< @FunctionAlternativeForms
+	def InsertedBeforeCharsWCSXT(pcCondition, pcSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertBeforeCharsWCSXTQ(pcCondition, pcSubStr, pCaseSensitive).Content()
+		return cResult
 
-		def InsertSubStringBeforeWXT(pcCondition, pcSubStr)
-			This.InsertBeforeWXT(pcCondition, pcSubStr)
+	#-- WITHOUT CASESENSITIVITY
 
-			def InsertSubStringBeforeWXTQ(pcCondition, pcSubStr)
-				This.InsertSubStringBeforeWXT(pcCondition, pcSubStr)
-				return This
+	def InsertBeforeCharsWXT(pcCondition, pcSubStr)
+		return This.InsertBeforeCharsWCSXT(pcCondition, pcSubStr, TRUE)
 
-		def InsertAtWXT(pcCondition, pcSubStr)
-			This.InsertBeforeWXT(pcCondition, pcSubStr)
+		#< @FunctionFluentForm
 
-			def InsertAtWXTQ(pcCondition, pcSubStr)
-				This.InsertAtWXT(pcCondition, pcSubStr)
-				return This
-
-		def InsertSubstringAtWXT(pcCondition, pcSubStr)
-			This.InsertBeforeWXT(pcCondition, pcSubStr)
-
-			def InsertSubstringAtWXTQ(pcCondition, pcSubStr)
-				This.InsertSubStringAtWXT(pcCondition, pcSubStr)
-				return This
+		def InsertBeforeCharsWXTQ(pcCondition, pcSubStr)
+			This.InsertBeforeCharsWXT(pcCondition, pcSubStr)
+			return This
 
 		#>
 
-	def SubStringInsertedBeforeWXT(pcCondition, pcSubStr)
-		cResult = This.Copy().InsertBeforeWXTQ(pcCondition, pcSubStr).Content()
+	def InsertedBeforeCharsWXT(pcCondition, pcSubStr)
+		cResult = This.Copy().InsertBeforeCharsWXTQ(pcCondition, pcSubStr).Content()
 		return cResult
-
-		def SubStringInsertedAtWXT(pcCondition, pcSubStr)
-			return This.SubStringInsertedBeforeWXT(pcCondition, pcSubStr)
 
 	  #----------------------------------------------------#
 	 #    INSERTING A SUBSTRING AFTER A GIVEN POSITION    #
@@ -33645,6 +33699,159 @@ www	#========================================================#
 
 		def SubStringInsertedAfterPosition(nPos, pcSubStr)
 			return This.SubStringInsertedAfter(nPos, pcSubStr)
+
+
+	   #-----------------------------------------------------------#
+	  #    INSERTING A SUBSTRING AFTER  A POSITION DEFINED BY A   #
+	 #    GIVEN CONDITION APPLIED ON THE STRING SUBSTRINHGS      #
+	#===========================================================#
+
+	def InsertAfterSubStringsWCS(pcCondition, pcSubStr, pCaseSensitive)
+		anPos = This.FindSubStringsWCS(pcCondition, pCaseSensitive)
+		This.InsertAfterPositions( anPos, pcSubStr )
+
+		#< @FunctionFluentForm
+
+		def InsertAfterSubStringsWCSQ(pcCondition, pcSubStr, pCaseSensitive)
+			This.InsertAfterSubStringsWCS(pcCondition, pcSubStr, pCaseSensitive)
+			return This
+
+		#>
+
+	def InsertedAfterSubStringsWCS(pcCondition, pcSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertAfterSubStringsWCSQ(pcCondition, pcSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertAfterSubStringsW(pcCondition, pcSubStr)
+		return This.InsertAfterSubStringsWCS(pcCondition, pcSubStr, TRUE)
+
+		#< @FunctionFluentForm
+
+		def InsertAfterSubStringsWQ(pcCondition, pcSubStr)
+			This.InsertAfterSubStringsW(pcCondition, pcSubStr)
+			return This
+
+		#>
+
+	def InsertedAfterSubStringsW(pcCondition, pcSubStr)
+		cResult = This.Copy().InsertAfterSubStringsWQ(pcCondition, pcSubStr).Content()
+		return cResult
+
+	   #------------------------------------------------------------------#
+	  #    INSERTING A SUBSTRING AFTER  A POSITION DEFINED BY A GIVEN    #
+	 #    CONDITION  APPLIED ON THE STRING SUBSTRINGS -- WXT/EXTENDED   #
+	#------------------------------------------------------------------#
+
+	def InsertAfterSubStringsWCSXT(pcCondition, pcSubStr, pCaseSensitive)
+		anPos = This.FindSubStringsWCSXT(pcCondition, pCaseSensitive)
+		This.InsertAfterPositions( anPos, pcSubStr )
+
+		#< @FunctionFluentForm
+
+		def InsertAfterSubStringsWCSXTQ(pcCondition, pcSubStr, pCaseSensitive)
+			This.InsertAfterSubStringsWCSXT(pcCondition, pcSubStr, pCaseSensitive)
+			return This
+
+		#>
+
+	def InsertedAfterSubStringsWCSXT(pcCondition, pcSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertAfterSubStringsWCSXTQ(pcCondition, pcSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertAfterSubStringsWXT(pcCondition, pcSubStr)
+		return This.InsertAfterSubStringsWCSXT(pcCondition, pcSubStr, TRUE)
+
+		#< @FunctionFluentForm
+
+		def InsertAfterSubStringsWXTQ(pcCondition, pcSubStr)
+			This.InsertAfterSubStringsWXT(pcCondition, pcSubStr)
+			return This
+
+		#>
+
+	def InsertedAfterSubStringsWXT(pcCondition, pcSubStr)
+		cResult = This.Copy().InsertAfterSubStringsWXTQ(pcCondition, pcSubStr).Content()
+		return cResult
+
+	   #--------------------------------------------------------#
+	  #    INSERTING A SUBSTRING AFTER  A POSITION DEFINED     #
+	 #    BY A GIVEN CONDITION APPLIED ON THE STRING CHARS    #
+	#========================================================#
+
+	def InsertAfterCharsWCS(pcCondition, pcSubStr, pCaseSensitive)
+		anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
+		This.InsertAfterPositions( anPos, pcSubStr )
+
+		#< @FunctionFluentForm
+
+		def InsertAfterCharsWCSQ(pcCondition, pcSubStr, pCaseSensitive)
+			This.InsertAfterCharsWCS(pcCondition, pcSubStr, pCaseSensitive)
+			return This
+
+		#>
+
+	def InsertedAfterCharsWCS(pcCondition, pcSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertAfterCharsWCSQ(pcCondition, pcSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertAfterCharsW(pcCondition, pcSubStr)
+		return This.InsertAfterCharsWCS(pcCondition, pcSubStr, TRUE)
+
+		#< @FunctionFluentForm
+
+		def InsertAfterCharsWQ(pcCondition, pcSubStr)
+			This.InsertAfterCharsW(pcCondition, pcSubStr)
+			return This
+
+		#>
+
+	def InsertedAfterCharsW(pcCondition, pcSubStr)
+		cResult = This.Copy().InsertAfterCharsWQ(pcCondition, pcSubStr).Content()
+		return cResult
+
+	   #------------------------------------------------------------------#
+	  #    INSERTING A SUBSTRING AFTER  A POSITION DEFINED BY A GIVEN    #
+	 #    CONDITION  APPLIED ON THE STRING CHARS -- WXT/EXTENDED        #
+	#------------------------------------------------------------------#
+
+	def InsertAfterCharsWCSXT(pcCondition, pcSubStr, pCaseSensitive)
+		anPos = This.FindCharsWCSXT(pcCondition, pCaseSensitive)
+		This.InsertAfterPositions( anPos, pcSubStr )
+
+		#< @FunctionFluentForm
+
+		def InsertAfterCharsWCSXTQ(pcCondition, pcSubStr, pCaseSensitive)
+			This.InsertAfterCharsWCSXT(pcCondition, pcSubStr, pCaseSensitive)
+			return This
+
+		#>
+
+	def InsertedAfterCharsWCSXT(pcCondition, pcSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertAfterCharsWCSXTQ(pcCondition, pcSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def InsertAfterCharsWXT(pcCondition, pcSubStr)
+		return This.InsertAfterCharsWCSXT(pcCondition, pcSubStr, TRUE)
+
+		#< @FunctionFluentForm
+
+		def InsertAfterCharsWXTQ(pcCondition, pcSubStr)
+			This.InsertAfterCharsWXT(pcCondition, pcSubStr)
+			return This
+
+		#>
+
+	def InsertedAfterCharsWXT(pcCondition, pcSubStr)
+		cResult = This.Copy().InsertAfterCharsWXTQ(pcCondition, pcSubStr).Content()
+		return cResult
 
 	  #---------------------------------------------------#
 	 #    INSERTING A SUBSTRING (BEFORE) EVERY N CHARS   #
@@ -33764,87 +33971,6 @@ www	#========================================================#
 
 		def SubStringInsertedEveryNChars(n, pcSubStr)
 			return This.SubStringInsertedAfterEachNCHars(n, pcSubStr)
-
-	   #--------------------------------------------------------#
-	  #    INSERTING A SUBSTRING AFTER A POSITION DEFINED      #
-	 #    BY A GIVEN CONDITION APPLIED ON THE STRING CHARS    #
-	#========================================================#
-
-	def InsertAfterW( pcCondition, pcSubStr )
-		anPos = This.FindW(pcCondition)
-		This.InsertAfterPositions( anPos, pcSubStr )
-
-		#< @FunctionFluentForm
-
-		def InsertAfterWQ( pcCondition, pcSubStr )
-			This.InsertAfterW( pcCondition, pcSubStr )
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def InsertAfterWhere( pcCondition, pcSubStr )
-			This.InsertAfterW( pcCondition, pcSubStr )
-
-			def InsertAfterWhereQ( pcCondition, pcSubStr )
-				This.InsertAfterWhere( pcCondition, pcSubStr )
-				return This
-
-		def InsertSubStringAfterW( pcCondition, pcSubStr )
-			This.InsertAfterW( pcCondition, pcSubStr )
-
-			def InsertSubStringAfterWQ(pcCondition, pcSubStr)
-				This.InsertSubStringAfterW( pcCondition, pcSubStr )
-				return This
-
-		def InsertSubStringAfterWhere( pcCondition, pcSubStr )
-			This.InsertAfterW( pcCondition, pcSubStr )
-
-			def InsertSubStringAfterWhereQ(pcCondition, pcSubStr)
-				This.InsertSubStringAfterWhere( pcCondition, pcSubStr )
-				return This
-
-		#>
-
-	def SubStringInsertedAfterW(pcCondition, pcSubStr)
-		cResult = This.Copy().InsertAfterWQ(pcCondition, pcSubStr).Content()
-		return cResult
-
-		def SubStringInsertedAfterWhere(pcCondition, pcSubStr)
-			return This.SubStringInsertedAfterW(pcCondition, pcSubStr)
-
-	   #------------------------------------------------------------------#
-	  #    INSERTING A SUBSTRING AFTER A POSITION DEFINED BY A GIVEN     #
-	 #    CONDITION  APPLIED ON THE STRING CHARS -- WXT/EXTENDED        #
-	#------------------------------------------------------------------#
-
-	def InsertAfterWXT(pcCondition, pcSubStr)
-		anPos = This.FindWXT(pcCondition)
-		This.InsertAfterPositions( anPos, pcSubStr )
-
-		#< @FunctionFluentForm
-
-		def InsertAfterWXTQ(pcCondition, pcSubStr)
-			This.InsertAfterWXT(pcCondition, pcSubStr)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def InsertSubStringAfterWXT(pcCondition, pcSubStr)
-			This.InsertAfterWXT(pcCondition, pcSubStr)
-
-			def InsertSubStringAfterWXTQ(pcCondition, pcSubStr)
-				This.InsertSubStringAfterWXT(pcCondition, pcSubStr)
-				return This
-
-		#>
-
-	def SubStringInsertedAfterWXT(pcCondition, pcSubStr)
-		cResult = This.Copy().InsertAfterWXTQ(pcCondition, pcSubStr).Content()
-		return cResult
 
 	  #------------------------------------------------#
 	 #   INSERTING A SUBSTRING AFTER MANY POSITIONS   #
@@ -38186,9 +38312,9 @@ www	#========================================================#
 
 	#TODO # Add case sensitivty
 
-	def ReplaceCharsW(pcCondition, pcNewSubStr)
+	def ReplaceCharsWCS(pcCondition, pcNewSubStr, pCaseSensitive)
 		#< @MotherFunctions:
-		#	This.FindCharsW()  > @RingBased
+		#	This.FindCharsW() > @RingBased
 		#	This.ReplaceSection() > @QtBased
 		#>
 
@@ -38218,26 +38344,32 @@ www	#========================================================#
 
 		# Doing the job
 
-		anPos = This.FindCharsW(pcCondition)
+		anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
 		This.ReplaceCharsAtPositions(anPos, pcNewSubStr)
 
 
 		#< @FunctionFluentForm
 
-		def ReplaceCharsWQ(pCondition, pcNewSubStr)
-			This.ReplaceCharsWhere(pCondition, pcNewSubStr)
+		def ReplaceCharsWCSQ(pCondition, pcNewSubStr, pCaseSensitive)
+			This.ReplaceCharsWCS(pCondition, pcNewSubStr, pCaseSensitive)
 			return This
 
 		#>
 
-		#< @FunctionAlternativeForms
+	def CharsReplacedWCS(pcCondition, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceCharsWCSQ(pcCondition, pcSubStr, pCaseSensitive).Content()
+		return cResult
 
-		def ReplaceCharsWhere(pCondition, pcNewSubStr)
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceCharsW(pcCondition, pcNewSubStr)
+		This.ReplaceCharsWCS(pcCondition, pcNewSubStr, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceCharsWQ(pCondition, pcNewSubStr)
 			This.ReplaceCharsW(pCondition, pcNewSubStr)
-
-			def ReplaceCharsWhereQ(pCondition, pcNewSubStr)
-				This.ReplaceCharsWhere(pCondition, pcNewSubStr)
-				return This
+			return This
 
 		#>
 
@@ -38249,52 +38381,32 @@ www	#========================================================#
 	 #     REPLACING ALL CHARS WITH A SUBSTRING UNDER A GIVEN CONDITION -- WXT/EXTENDED  #
 	#-----------------------------------------------------------------------------------#
 
-	#TODO # Add case sensitivty
-
-	def ReplaceCharsWXT(pcCondition, pcNewSubStr)
-		#< @MotherFunctions:
-		#	This.FindCharsW()  > @RingBased
-		#	This.ReplaceSection() > @QtBased
-		#>
-
-		/*
-		Example:
-
-		StzStringQ( "Text processing with Ring" ) {
-
-			ReplaceAllCharsWXT(
-				:Where = '{ @char = "i" }',
-				:With = "*"
-			)
-
-			? Content()
-		}
-
-		--> Returns: "Text process*ng w*th R*ng"
-		*/
-
-		# Doing the job
-
-		anPos = This.FindCharsWXT(pcCondition)
+	def ReplaceCharsWCSXT(pcCondition, pcNewSubStr, pCaseSensitive)
+		anPos = This.FindCharsWCSXT(pcCondition, pCaseSensitive)
 		This.ReplaceCharsAtPositions(anPos, pcNewSubStr)
-
 
 		#< @FunctionFluentForm
 
-		def ReplaceCharsWXTQ(pCondition, pcNewSubStr)
-			This.ReplaceCharsWhereXT(pCondition, pcNewSubStr)
+		def ReplaceCharsWCSXTQ(pCondition, pcNewSubStr, pCaseSensitive)
+			This.ReplaceCharsWCSXT(pCondition, pcNewSubStr, pCaseSensitive)
 			return This
 
 		#>
 
-		#< @FunctionAlternativeForms
+	def CharsReplacedWCSXT(pcCondition, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceCharsWCSXTQ(pcCondition, pcSubStr, pCaseSensitive).Content()
+		return cResult
 
-		def ReplaceCharsWhereXT(pCondition, pcNewSubStr)
-			This.ReplaceCharsW(pCondition, pcNewSubStr)
+	#-- WITHOUT CASESENSITIVITY
 
-			def ReplaceCharsWhereXTQ(pCondition, pcNewSubStr)
-				This.ReplaceCharsWhereXT(pCondition, pcNewSubStr)
-				return This
+	def ReplaceCharsWXT(pcCondition, pcNewSubStr)
+		This.ReplaceCharsWCSXT(pcCondition, pcNewSubStr, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceCharsWXTQ(pCondition, pcNewSubStr)
+			This.ReplaceCharsWXT(pCondition, pcNewSubStr)
+			return This
 
 		#>
 
@@ -38306,21 +38418,26 @@ www	#========================================================#
 	 #  REPLACING ALL SUSBSTRINGS OBEYING TO A GIVEN CONDITION BY A GIVEN SUBSTRING  #
 	#===============================================================================#
 
+	def ReplaceSubStringsWCS(pcCondition, pcNewSubStr, pCaseSensitive)
+		aSections = This.FindSubStringsAsSectionsWCS(pcCondition, pCaseSensitive)
+		This.ReplaceSections(aSections, pcNewSubStr)
+
+		def ReplaceSubStringsWCSQ(pcCondition, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringsWCS(pcCondition, pcNewSubStr, pCaseSensitive)
+			return This
+
+	def SubStringsReplacedWCS(pcCondition, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceSubStringsWCSQ(pcCondition, pcNewSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceSubStringsW(pcCondition, pcNewSubStr)
-		aSections = This.FindSubStringsAsSectionsW(pcCondition)
-		This.ReplaceSections(aSections, pcNewSubStr)
+		This.ReplaceSubStringsCSW(pcCondition, pcNewSubStr, TRUE)
 
 		def ReplaceSubStringsWQ(pcCondition, pcNewSubStr)
 			This.ReplaceSubStringsW(pcCondition, pcNewSubStr)
 			return This
-
-		def ReplaceSubStringsWhere(pcCondition, pcNewSubStr)
-			This.ReplaceSubStringsW(pcCondition, pcNewSubStr)
-
-			def ReplaceSubStringsWhereQ(pcCondition, pcNewSubStr)
-				This.ReplaceSubStringsWhere(pcCondition, pcNewSubStr)
-				return This
 
 	def SubStringsReplacedW(pcCondition, pcNewSubStr)
 		cResult = This.Copy().ReplaceSubStringsWQ(pcCondition, pcNewSubStr).Content()
@@ -38330,20 +38447,26 @@ www	#========================================================#
 	 #  REPLACING ALL SUSBSTRINGS OBEYING TO A GIVEN CONDITION BY A GIVEN SUBSTRING -- WXT/EXTENDED  #
 	#-----------------------------------------------------------------------------------------------#
 
-	def ReplaceSubStringsWXT(pcCondition, pcNewSubStr)
-		aSections = This.FindSubStringsAsSectionsWXT(pcCondition)
+	def ReplaceSubStringsWCSXT(pcCondition, pcNewSubStr, pCaseSensitive)
+		aSections = This.FindSubStringsAsSectionsWCSXT(pcCondition, pCaseSensitive)
 		This.ReplaceSections(aSections, pcNewSubStr)
+
+		def ReplaceSubStringsWCSXTQ(pcCondition, pcNewSubStr, pCaseSensitive)
+			This.ReplaceSubStringsWCSXT(pcCondition, pcNewSubStr, pCaseSensitive)
+			return This
+
+	def SubStringsReplacedWCSXT(pcCondition, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceSubStringsWCSXTQ(pcCondition, pcNewSubStr, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceSubStringsWXT(pcCondition, pcNewSubStr)
+		This.ReplaceSubStringsCSWXT(pcCondition, pcNewSubStr, TRUE)
 
 		def ReplaceSubStringsWXTQ(pcCondition, pcNewSubStr)
 			This.ReplaceSubStringsWXT(pcCondition, pcNewSubStr)
 			return This
-
-		def ReplaceSubStringsWhereXT(pcCondition, pcNewSubStr)
-			This.ReplaceSubStringsWXT(pcCondition, pcNewSubStr)
-
-			def ReplaceSubStringsWhereXTQ(pcCondition, pcNewSubStr)
-				This.ReplaceSubStringsWhereXT(pcCondition, pcNewSubStr)
-				return This
 
 	def SubStringsReplacedWXT(pcCondition, pcNewSubStr)
 		cResult = This.Copy().ReplaceSubStringsWXTQ(pcCondition, pcNewSubStr).Content()
@@ -43795,10 +43918,11 @@ www	#========================================================#
 	  #  FINDING OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
 	 #  AND RETURNING THEIR POSITIONS AS SECTIONS                       #
 	#==================================================================#
+
 	#TODO // check performance
 	# ~> May use the implementation of SubStrings()
 
-	def FindSubStringAsSectionsW(pcSubStr, pcCondition)
+	def FindSubStringAsSectionsWCS(pcSubStr, pcCondition, pCaseSensitive)
 		if CheckParams()
 			if NOT @BothAreSrings(pcSubStr, pcCondition)
 				StzRaise("Incorrect param type! pcSubStr and pcCondition must be both strings.")
@@ -43807,7 +43931,7 @@ www	#========================================================#
 
 		# Doing the job
 
-		acSubStrZZ = This.SubStringsWZZ(pcCondition)
+		acSubStrZZ = This.SubStringsWCSZZ(pcCondition, pCaseSensitive)
 		nLen = len(acSubStrZZ)
 
 		aResult = []
@@ -43817,6 +43941,18 @@ www	#========================================================#
 				aResult + acSubStrZZ[i][2]
 			ok
 		next
+
+		#< @FunctionAlternativeForm
+
+		def FindSubStringWCSZZ(pcCondition, pCaseSensitive)
+			return This.FindSubStringAsSectionsWCS(pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStringAsSectionsW(pcSubStr, pcCondition)
+		return This.FindSubStringAsSectionsWCS(pcSubStr, pcCondition, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -43828,9 +43964,9 @@ www	#========================================================#
 	   #------------------------------------------------------------------#
 	  #  FINDING OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
 	 #  AND RETURNING THEIR POSITIONS AS SECTIONS -- WXT/EXETENDED      #
-	#==================================================================#
+	#------------------------------------------------------------------#
 
-	def FindSubStringAsSectionsWXT(pcSubStr, pcCondition)
+	def FindSubStringAsSectionsWCSXT(pcSubStr, pcCondition, pCaseSensitive)
 		if CheckParams()
 			if NOT @BothAreSrings(pcSubStr, pcCondition)
 				StzRaise("Incorrect param type! pcSubStr and pcCondition must be both strings.")
@@ -43839,7 +43975,7 @@ www	#========================================================#
 
 		# Doing the job
 
-		acSubStrZZ = This.SubStringsWXTZZ(pcCondition)
+		acSubStrZZ = This.SubStringsWCSXTZZ(pcCondition, pCaseSensitive)
 		nLen = len(acSubStrZZ)
 
 		aResult = []
@@ -43852,49 +43988,26 @@ www	#========================================================#
 
 		#< @FunctionAlternativeForm
 
-		def FindSubStringWXTZZ(pcCondition)
-			return This.FindSubStringAsSectionsXTsW(pcCondition)
+		def FindSubStringWCSXTZZ(pcCondition, pCaseSensitive)
+			return This.FindSubStringAsSectionsWXTCS(pcCondition, pCaseSensitive)
 
 		#>
 
-	   #------------------------------------------------------------------#
-	  #  FINDING OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
-	 #  AND RETURNING THEIR POSITIONS AS SECTIONS                       #
-	#==================================================================#
-	#TODO // Check performance
-	#NOTE // Depends on the performance of its @MotherFunction
+	#-- WITHOUT CASESENSITIVITY
 
-	def FindSubStringW(pcSubStr, pcCondition)
-		#< @MotherFunction = FindSubStringWZZ() #>
+	def FindSubStringAsSectionsWXT(pcSubStr, pcCondition)
+		return This.FindSubStringAsSectionsWXTCS(pcSubStr, pcCondition, TRUE)
 
-		aSections = This.FindSubStringAsSectionsW(pcSubStr, pcCondition)
-		anPos = QR(aSections, :stzListOfPairs).FirstItems()
-		return anPos
+		#< @FunctionAlternativeForm
 
-		def FindSubStringWZ(pcSubStr, pcCondition)
-			return This.FindSubStringW(pcSubStr, pcCondition)
+		def FindSubStringWXTZZ(pcCondition)
+			return This.FindSubStringAsSectionsWXT(pcCondition)
 
-	   #------------------------------------------------------------------#
-	  #  FINDING OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
-	 #  AND RETURNING THEIR POSITIONS AS SECTIONS -- WXT/EXETENDED      #
-	#------------------------------------------------------------------#
-
-	def FindSubStringWXT(pcSubStr, pcCondition)
-
-		aSections = This.FindSubStringAsSectionsWXT(pcSubStr, pcCondition)
-		anPos = QR(aSections, :stzListOfPairs).FirstItems()
-		return anPos
-
-		def FindSubStringWXTZ(pcSubStr, pcCondition)
-			return This.FindSubStringWXT(pcSubStr, pcCondition)
-
-	#TODO // Add these functions
-	# def SubStringWZ(pcSubStr) # Returns the (conditional) substring and its positions
-	# def SubStringWZZ(pcSubStr) # Returns the (conditional) substring and its sections
+		#>
 
 	  #----------------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A CHAR VERIFYING A GIVEN CONDITION  #
-	#================================================================#
+vvv	#================================================================#
 
 	def FindNthCharW(n, pcCondition)
 		#TODO
@@ -43956,7 +44069,9 @@ www	#========================================================#
 	#----------------------------------------------------------------#
 
 #TODO: Add this function
-def FindNthSubStringWZZ() # returns the nth (conditional substring and its sections)
+# def FindNthSubStringWZZ() # returns the nth (conditional substring and its sections)
+
+	#TODO Add cases ensitivity
 
 	def FindNthSubStringW(n, pcCondition)
 		#TODO: Change implementation for better performance
@@ -44014,6 +44129,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	 #  FINDING FIRST OCCURRENCE OF A CHAR/SUBSTRING VERIFYING A GIVEN CONDITION  #
 	#----------------------------------------------------------------------------#
 
+	#TODO Add cases ensitivity
+
 	def FindFirstCharW(pcCondition)
 		return This.FindNthCharW(1, pcCondition)
 
@@ -44043,6 +44160,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	  #---------------------------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A CHAR/SUBSTRING VERIFYING A GIVEN CONDITION  #
 	#---------------------------------------------------------------------------#
+
+	#TODO Add cases ensitivity
 
 	def FindLastCharW(pcCondition)
 		return This.FindNthCharW(:Last, pcCondition)
@@ -44395,9 +44514,9 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def CharsAndTheirPositionsW(pcCondition)
 			return This.CharsWZ(pcCondition)
 
-	  #-------------------------------------------------------------------------------#
+	  #----------------------------------------------------------------------------------#
 	 #  GETTING ALL CHARS IN THE STRING VERIFIFUING A GIVEN CONDITION -- WXTZ/EXTENDED  #
-	#-------------------------------------------------------------------------------#
+	#----------------------------------------------------------------------------------#
 
 	def CharsWCSXTZ(pcCondition, pCaseSensitive)
 		acChars = U( This.CharsWCSXT(pcCondition, pCaseSensitive) )
@@ -48055,6 +48174,7 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	#------------------------------------------------#
 
 	#TODO: Reimplement it for better performance
+	#TODO Add cases ensitivity
 
 	def NthSubStringW(n, pcCondition)
 		return This.SubStringsW()[n]
@@ -48743,6 +48863,8 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 	  #------------------------------------------------#
 	 #   CHECKING CONATAINMENT ON A GIVEN CONDITION   #
 	#------------------------------------------------#
+
+	#TODO Add cases ensitivity
 
 	def ContainsCharsW(pcCondition)
 		/* EXAMPLE
@@ -56379,11 +56501,11 @@ def FindNthSubStringWZZ() # returns the nth (conditional substring and its secti
 		def FindSplitsToPartsOfNCharsXTZ(n)
 			return This.FindSplitsToPartsOfNCharsXT(n)
 
-	  #-------------------------------------------#
+vvv	  #-------------------------------------------#
 	 #   FINDING SPLITS UNDER A GIVEN CONDTION   #
 	#===========================================#
-
-	def FindSplitsW(pcCondition)
+//CS
+	def FindSplitsW(pcCondition) //--> Add @Split keyword 
 
 		if isList(pcCondition)
 
