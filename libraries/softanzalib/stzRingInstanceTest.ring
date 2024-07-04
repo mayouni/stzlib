@@ -64,7 +64,7 @@ proff()
 # Executed in 0.07 second(s)
 
 /*--- #ring-states Softanza functions
-
+*/
 pron()
 
 # Some useful Softanza functions for checking Ring states
@@ -92,11 +92,11 @@ pNotAState = NULL
 #--> FALSE
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 
 /*-----	#ring #ring-state fault-tolerance
 */
-# Desing a fault-tolerant progam in Ring is easy, dut to the feature
+# Desing a fault-tolerant progam in Ring is easy, due to the feature
 # of embedding Ring in Ring as explained here:
 # https://ring-lang.github.io/doc1.20/ringemb.html
 
