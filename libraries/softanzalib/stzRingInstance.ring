@@ -27,7 +27,7 @@ func ArePointers(paPointers)
 func IsRingState(pPointer)
 	if isPointer(pPointer) and pPointer[2] = "RINGSTATE"
 		try
-			ring_state_runcode(pPointer, '_ = 0')
+			ring_state_runcode(pPointer, ' ')
 			return TRUE
 		catch
 			return FALSE
