@@ -167,6 +167,7 @@ class stzCCode
 		#TODO // Automate the addition of new keywords
 		# Example : for @split", all the necessary variations
 		# are generated as found in the fellowing list:
+		# ~> we can also add Keywords()
 
 		cCode = Q(cCode).TheseSubstringsSpacifiedCS([
 
