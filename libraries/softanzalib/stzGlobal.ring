@@ -4125,29 +4125,22 @@ func ElapsedTimeXT(pIn)
 	func ElpasedTimeXT(pIn)
 		return ElapsedTimeXT(pIn)
 
-func StartProfiler()
-	StartTimer()
+func Pron()
+	_time0 = clock()
 
 	func Profon()
-		StartProfiler()
+		_time0 = clock()
 
-	func Pron()
-		StartProfiler()
+	func StartProfiler()
+		_time0 = clock()
 
 	func ProfilerOn()
-		StartProfiler()
+		_time0 = clock()
 
-func StopProfiler()
-
-	nCurrentRound = StzCurrentRound()
-
-	StzDecimals(2)
-
-	? NL + "Executed in " + ElapsedTime()
-
-	StzDecimals(nCurrentRound)
-
-	ResetTimer()
+func Proff()
+	cElapsed = "" + (clock() - _time0) / clockspersecond()
+	? NL + "Executed in " + cElapsed + " second(s)."
+	_time0 = 0
 	STOP()
 
 	func EndProfiler()
@@ -4156,7 +4149,7 @@ func StopProfiler()
 	func Profoff()
 		StopProfiler()
 
-	func Proff()
+	func StopProfiler()
 		StopProfiler()
 
 	func ProfilerOff()
