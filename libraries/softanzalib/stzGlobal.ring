@@ -48,7 +48,6 @@ _aStzFindableTypes = [
 	:stzConstraintsData, :stzSection
 ]
 
-_oMainObject = ANullObject() # Used for chains of truth
 _MainValue = NULL
 _LastValue = NULL
 

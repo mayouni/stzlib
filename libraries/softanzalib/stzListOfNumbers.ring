@@ -100,9 +100,14 @@ func NumbersUnicodes(anNumbers)
 	return StzListOfNumbersQ(anNumbers).Unicodes()
 
 func Min(panNumbers)
+	if CheckParams()
+		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
+			panNumbers = panNumbers[2]
+		ok
 
-	if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
-		StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+		ok
 	ok
 
 	nResult = ring_sort(panNumbers)[1]
@@ -111,10 +116,21 @@ func Min(panNumbers)
 	func @Min(panNumbers)
 		return Min(panNumbers)
 
-func Max(panNumbers)
+	func MinOf(panNumbers)
+		return Min(panNumbers)
 
-	if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
-		StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+	func @MinOf(panNumbers)
+		return Min(panNumbers)
+
+func Max(panNumbers)
+	if CheckParams()
+		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
+			panNumbers = panNumbers[2]
+		ok
+
+		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+		ok
 	ok
 
 	nResult = ring_reverse( ring_sort(panNumbers) )[1]
@@ -123,11 +139,27 @@ func Max(panNumbers)
 	func @Max(panNumbers)
 		return Max(panNumbers)
 
+	func MaxOf(panNumbers)
+		return Max(panNumbers)
+
+	func @MaxOf(panNumbers)
+		return Max(panNumbers)
+
+#-- Multiple calculation
+
 func Sum(panNumbers)
 	if CheckParams()
-		if NOT ( isList(panNumbers) and IsListOfNumbers(panNumbers) )
-			StzRaise("Incorrect param type! panNumbers must be a list of numbers.")
+		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
+			panNumbers = panNumbers[2]
 		ok
+
+		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+		ok
+	ok
+
+	if len(panNumbers) = 0
+		return 0
 	ok
 
 	nResult = 0
@@ -141,12 +173,462 @@ func Sum(panNumbers)
 	func @Sum(panNumbers)
 		return Sum(panNumbers)
 
+	func SumOf(panNumbers)
+		return Sum(panNumbers)
+
+	func @SumOf(panNumbers)
+		return Sum(panNumbers)
+
+func Substruct(panNumbers)
+	if CheckParams()
+		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
+			panNumbers = panNumbers[2]
+		ok
+
+		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+		ok
+	ok
+
+	nLen = len(panNumbers)
+	nResult = panNumbers[1]
+	
+	for i = 2 to nLen
+		nResult = nResult - panNumbers[i]
+	next
+
+	return nResult
+
+	func @Substruct(panNumbers)
+		return Substruct(panNumbers)
+
+	func SubstructionOf(panNumbers)
+		return Substruct(panNumbers)
+
+	func @SubstructionOf(panNumbers)
+		return Substruct(panNumbers)
+
 func Product(panNumbers)
-	oListOfNumbers = new stzListOfNumbers(panNumbers)
-	return oListOfNumbers.Product()
+	if CheckParams()
+		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
+			panNumbers = panNumbers[2]
+		ok
+
+		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+		ok
+	ok
+
+	if len(panNumbers) = 0
+		return 0
+	ok
+
+	nResult = 1
+	nLen = len(panNumbers)
+	for i = 1 to nLen
+		nResult *= panNumbers[i]
+	next
+
+	return nResult
+
+	#< @FunctionAlternativeForms
 
 	func @Product(panNumbers)
 		return Product(panNumbers)
+
+	func Multiply(panNumbers)
+		return Product(panNumbers)
+
+	func @Multiply(panNumbers)
+		return Product(panNumbers)
+
+	func Multiplication(panNumbers)
+		return Product(panNumbers)
+
+	func @Multiplication(panNumbers)
+		return Product(panNumbers)
+
+	#--
+
+	def ProductOf(panNumbers)
+		return Product(panNumbers)
+
+	func @ProductOf(panNumbers)
+		return Product(panNumbers)
+
+	func MultiplicationOf(panNumbers)
+		return Product(panNumbers)
+
+	func @MultiplicationOf(panNumbers)
+		return Product(panNumbers)
+
+	#>
+
+func Divide(panNumbers)
+	if CheckParams()
+		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
+			panNumbers = panNumbers[2]
+		ok
+
+		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+		ok
+	ok
+
+	if len(panNumbers) = 0
+		return 0
+	ok
+
+	nLen = len(panNumbers)
+	nResult = panNumbers[1]
+	
+	for i = 2 to nLen
+		nResult = nResult / panNumbers[i]
+	next
+
+	return nResult
+
+	#< @FunctionAlternativeForms
+
+	func @Divide(panNumbers)
+		return Divide(panNumbers)
+
+	func Division(panNumbers)
+		return Divide(panNumbers)
+
+	func @Division(panNumbers)
+		return Divide(panNumbers)
+
+	func DivisionOf(panNumbers)
+		return Divide(panNumbers)
+
+	func @DivisionOf(panNumbers)
+		return Divide(panNumbers)
+
+	#>
+
+#--- Multiple claculations, cumulated
+
+func SumXT(panNumbers)
+	if CheckParams()
+		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
+			panNumbers = panNumbers[2]
+		ok
+
+		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+		ok
+	ok
+
+	if len(panNumbers) = 0
+		return 0
+	ok
+
+	anResult = []
+	nSum = 0
+	nLen = len(panNumbers)
+	for i = 1 to nLen
+		nSum += panNumbers[i]
+		anResult + nSum
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+	func SumAndCumulate(panNumbers)
+		return SumXT(panNumbers)
+
+	func SumCumulated(panNumbers)
+		return SumXT(panNumbers)
+
+	func SumCumul(panNumbers)
+		return SumXT(panNumbers)
+
+	func CumulatedSum(panNumbers)
+		return SumXT(panNumbers)
+
+	func CumulatedSumOf(panNumbers)
+		return SumXT(panNumbers)
+
+	#--
+
+	func @SumXT(panNumbers)
+		return SumXT(panNumbers)
+
+	func @SumAndCumulate(panNumbers)
+		return SumXT(panNumbers)
+
+	func @SumCumulated(panNumbers)
+		return SumXT(panNumbers)
+
+	func @SumCumul(panNumbers)
+		return SumXT(panNumbers)
+
+	func @CumulatedSum(panNumbers)
+		return SumXT(panNumbers)
+
+	func @CumulatedSumOf(panNumbers)
+		return SumXT(panNumbers)
+
+	#>
+
+func SubstructXT(panNumbers)
+	if CheckParams()
+		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
+			panNumbers = panNumbers[2]
+		ok
+
+		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+		ok
+	ok
+
+	anResult = [] + panNumbers[1]
+	nLen = len(panNumbers)
+	nResult = panNumbers[1]
+	
+	for i = 2 to nLen
+		nResult = nResult - panNumbers[i]
+		anResult + nResult
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+	func SubstructAndCumulate(panNumbers)
+		return SubstructXT(panNumbers)
+
+	func SubstructCumulated(panNumbers)
+		return SubstructXT(panNumbers)
+
+	func SubstructCumul(panNumbers)
+		return SubstructXT(panNumbers)
+
+	func CumulatedSubstruct(panNumbers)
+		return SumXT(panNumbers)
+
+	func CumulatedSubstructOf(panNumbers)
+		return SubstructXT(panNumbers)
+
+	func CumulatedSubstruction(panNumbers)
+		return SumXT(panNumbers)
+
+	func CumulatedSubstructionOf(panNumbers)
+		return SubstructXT(panNumbers)
+
+	#--
+
+	func @SubstructXT(panNumbers)
+		return SubstructXT(panNumbers)
+
+	func @SubstructAndCumulate(panNumbers)
+		return SubstructXT(panNumbers)
+
+	func @SubstructCumulated(panNumbers)
+		return SubstructXT(panNumbers)
+
+	func @SubstructCumul(panNumbers)
+		return SubstructXT(panNumbers)
+
+	func @CumulatedSubstruct(panNumbers)
+		return SumXT(panNumbers)
+
+	func @CumulatedSubstructOf(panNumbers)
+		return SubstructXT(panNumbers)
+
+	func @CumulatedSubstruction(panNumbers)
+		return SumXT(panNumbers)
+
+	func @CumulatedSubstructionOf(panNumbers)
+		return SubstructXT(panNumbers)
+
+	#>
+
+func ProductXT(panNumbers)
+	if CheckParams()
+		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
+			panNumbers = panNumbers[2]
+		ok
+
+		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+		ok
+	ok
+
+	if len(panNumbers) = 0
+		return 0
+	ok
+
+	anResult = []
+	nProduct = 1
+	nLen = len(panNumbers)
+	for i = 1 to nLen
+		nProduct *= panNumbers[i]
+		anResult + nProduct
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+	def ProductCumulated(panNumbers)
+		return ProductXT(panNumbers)
+
+	def ProductCumul(panNumbers)
+		return ProductXT(panNumbers)
+
+	def CumulProduct(panNumbers)
+		return ProductXT(panNumbers)
+
+	def CumulatedProduct(panNumbers)
+		return ProductXT(panNumbers)
+	
+	def MultiplyXT(panNumbers)
+		return ProductXT(panNumbers)
+
+	def MultiplyAndCumulate(panNumbers)
+		return ProductXT(panNumbers)
+
+	def MultiplicationXT(panNumbers)
+		return ProductXT(panNumbers)
+
+	def CumulatedMultiplicationXT(panNumbers)
+		return ProductXT(panNumbers)
+
+	#--
+
+	def ProductCumulOf(panNumbers)
+		return ProductXT(panNumbers)
+
+	def CumulProductOf(panNumbers)
+		return ProductXT(panNumbers)
+
+	def CumulatedProductOf(panNumbers)
+		return ProductXT(panNumbers)
+
+	def MultiplicationOfXT(panNumbers)
+		return ProductXT(panNumbers)
+
+	def CumulatedMultiplicationOfXT(panNumbers)
+		return ProductXT(panNumbers)
+
+	#==
+
+	def @ProductXT(panNumbers)
+		return ProductXT(panNumbers)
+
+	def @ProductCumulated(panNumbers)
+		return ProductXT(panNumbers)
+
+	def @ProductCumul(panNumbers)
+		return ProductXT(panNumbers)
+
+	def @CumulProduct(panNumbers)
+		return ProductXT(panNumbers)
+
+	def @CumulatedProduct(panNumbers)
+		return ProductXT(panNumbers)
+	
+	def @MultiplyXT(panNumbers)
+		return ProductXT(panNumbers)
+
+	def @MultiplyAndCumulate(panNumbers)
+		return ProductXT(panNumbers)
+
+	def @MultiplicationXT(panNumbers)
+		return ProductXT(panNumbers)
+
+	def @CumulatedMultiplicationXT(panNumbers)
+		return ProductXT(panNumbers)
+
+	#--
+
+	def @ProductCumulOf(panNumbers)
+		return ProductXT(panNumbers)
+
+	def @CumulProductOf(panNumbers)
+		return ProductXT(panNumbers)
+
+	def @CumulatedProductOf(panNumbers)
+		return ProductXT(panNumbers)
+
+	def @MultiplicationOfXT(panNumbers)
+		return ProductXT(panNumbers)
+
+	def @CumulatedMultiplicationOfXT(panNumbers)
+		return ProductXT(panNumbers)
+
+	#>
+
+
+func DivideXT(panNumbers)
+	if CheckParams()
+		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
+			panNumbers = panNumbers[2]
+		ok
+
+		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
+			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
+		ok
+	ok
+
+	if len(panNumbers) = 0
+		return 0
+	ok
+
+	anResult = [] + panNumbers[1]
+	nLen = len(panNumbers)
+	nResult = panNumbers[1]
+	
+	for i = 2 to nLen
+		nResult = nResult / panNumbers[i]
+		anResult + nResult
+	next
+
+	return anResult
+
+	#< @FunctionAlternativeForms
+
+	func DivisionXT(panNumbers)
+		return DivideXT(panNumbers)
+
+	func DivisionOfXT(panNumbers)
+		return DivideXT(panNumbers)
+
+	func DivideAndCumulate(panNumbers)
+		return DivideXT(panNumbers)
+
+	func CumulatedDivision(panNumbers)
+		return DivideXT(panNumbers)
+
+	func CumulateDivisionOf(panNumbers)
+		return DivideXT(panNumbers)
+
+	#==
+
+	func @DivideXT(panNumbers)
+		return DivideXT(panNumbers)
+
+	func @DivisionXT(panNumbers)
+		return DivideXT(panNumbers)
+
+	func @DivisionOfXT(panNumbers)
+		return DivideXT(panNumbers)
+
+	func @DivideAndCumulate(panNumbers)
+		return DivideXT(panNumbers)
+
+	func @CumulatedDivision(panNumbers)
+		return DivideXT(panNumbers)
+
+	func @CumulateDivisionOf(panNumbers)
+		return DivideXT(panNumbers)
+
+	#>
+
+#===
 
 func Mean(panNumbers)
 	oListOfNumbers = new stzListOfNumbers(panNumbers)
@@ -161,6 +643,20 @@ func Mean(panNumbers)
 		return Mean(panNumbers)
 
 	func @Average(panNumbers)
+		return Mean(panNumbers)
+
+	#--
+
+	func MeanOf(panNumbers)
+		return Mean(panNumbers)
+
+	func @MeanOf(panNumbers)
+		return Mean(panNumbers)
+
+	func AverageOf(panNumbers)
+		return Mean(panNumbers)
+
+	func @AverageOf(panNumbers)
 		return Mean(panNumbers)
 
 	#>

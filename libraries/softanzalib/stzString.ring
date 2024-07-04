@@ -54123,7 +54123,17 @@ vvv	#================================================================#
 			def SplitAfterThisSectionQR(n1, n2, pcReturnType)
 				return This.SplitAfterSectionQR(n1, n2, pcReturnType)
 
-Splits
+		#--
+
+		def SplitsAfterSection(n1, n2)
+			return This.SplitAfterSection(n1, n2)
+
+			def SplitsAfterSectionQ(n1, n2)
+				return This.SplitAfterSectionQ(n1, n2)
+
+			def SplitsAfteterSectionQR(n1, n2)
+				return This.SplitAfterSectionQR(n1, n2)
+
 		#>
 
 	def SplittedAfterSection(n1, n2)
