@@ -64,7 +64,7 @@ proff()
 # Executed in 0.07 second(s)
 
 /*--- #ring-states Softanza functions
-*/
+
 pron()
 
 # Some useful Softanza functions for checking Ring states
@@ -95,7 +95,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*-----	#ring #ring-state fault-tolerance
-
+*/
 # Desing a fault-tolerant progam in Ring is easy, dut to the feature
 # of embedding Ring in Ring as explained here:
 # https://ring-lang.github.io/doc1.20/ringemb.html
@@ -107,6 +107,7 @@ proff()
 # the program will resist and continue its path until ruling them all!
 
 pron()
+//t1 = clock()
 
 	? "PROGRAM STARTED >>>"
 
@@ -127,10 +128,26 @@ pron()
 	for i = 1 to 4
 		n++
 		? NL + "~~> Processing operation " + n + " ~~~~~~~~"
-		ring_state_runcode( ring_state_init(), acOperations[i] )
+
+		oState = ring_state_init()
+		ring_state_runcode( oState, acOperations[i] )
+
+		# State is deleted immediately after execution,
+		# because we don't need it anymore
+
+		ring_state_delete(oState)
+
+		#NOTE
+		# if the states created are needed in future code
+		# then we should leave them alive, and delete them
+		# only when required.
+		#WARNING
+		# In any case we should not leave an instance we
+		# don't need to avoid memory leakage.
+
 	next
     
 	? NL + "<<< PROGRAM COMPLETED"
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.09 second(s)
