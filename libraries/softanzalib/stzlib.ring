@@ -2,7 +2,6 @@
 //t1 = clock()
 
 load "stdlibcore.ring"
-
 load "lightguilib.ring"
 load "sqlitelib.ring"
 load "tracelib.ring"
@@ -10,10 +9,7 @@ load "internetlib.ring"
 load "typehints.ring"
 
 //? (clock()-t1)/clockspersecond()
-# 0.05 seconds in Ring 1.20 (64 bits)
-# 0.05 seconds in Ring 1.19 (64 bits)
-
-//t1 = clock()
+# Loading other libraries takes 0.06
 
 load "stzGlobal.ring"
 load "stzTest.ring"
@@ -21,6 +17,10 @@ load "stzTest.ring"
 load "stzObject.ring"
 load "stzObjectError.ring"
 load "stzListOfObjects.ring"
+
+load "stzNullObject.ring"
+load "stzTrueObject.ring"
+load "stzFalseObject.ring"
 
 load "stzNumber.ring"
 load "stzNumberError.ring"
@@ -42,6 +42,7 @@ load "stzOctalNumber.ring"
 load "stzOctalNumberError.ring"
 
 load "stzString.ring"
+
 load "stzStringError.ring"
 load "stzMultiString.ring"
 load "stzMultiStringError.ring"
@@ -134,17 +135,16 @@ load "stzConstraintsData.ring"
 load "stzCCode.ring"
 load "stzExtCode.ring"
 
-load "stzNullObject.ring"
-load "stzTrueObject.ring"
-load "stzFalseObject.ring"
-
 load "stzDistanceZero.ring"
 load "stzSection.ring"
 
 load "stzNaturalCode.ring"
 
+load "stzRingInstance.ring"
+
 //? (clock()-t1)/clockspersecond()
-# Softanza startup time : 0.05 second(s) in Ring 1.20 (64 bits)
-# Softanza startup time : 0.09 second(s) in Ring 1.19 (64 bits)
-# Softanza startup time : 0.05 second(s) in Ring 1.18
-# Softanza startup time : 0.08 second(s) in Ring 1.18
+
+# Softanza global startup time : 0.10 second(s) in Ring 1.20 (64 bits)
+# External libraries loading time: 0.06 second(s)
+# Softanza files loading time : 0.04 second(s)
+

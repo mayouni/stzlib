@@ -27,6 +27,8 @@ I made this stzNullObject class, so I can write just:
 	? Q(obj).Type()	#--> :Object
 */
 
+_oMainObject = ANullObject() # Used for chains of truth
+
 func StzNullObjectQ()
 	return new stzNullObject
 
@@ -35,7 +37,6 @@ func StzNullObjectQ()
 
 	func ANullObject()
 		return new stzNullObject
-
 
 class stzNullObject from stzObject
 	
