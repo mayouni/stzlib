@@ -40,8 +40,8 @@ And then implement the function in the file by changing its body.
 
 */
 
-//load "stzlib.ring"
-load "stdlib.ring"
+load "stzlib.ring"
+
 # loading plugins files from plugin folder
 
 _aPlugins = LoadPlugins()
@@ -51,7 +51,7 @@ _aPlugins = LoadPlugins()
 #	[ "reverse", 		"plugin_string_reverse.ring" ]
 # ]
 
-//pron()
+pron()
 
 	o1 = new ExtendedString("Hello Ring in Ring!")
 	
@@ -76,10 +76,50 @@ _aPlugins = LoadPlugins()
 	? o1.Xf(:removeNonLetters)
 	#--> HelloRinginRing
 
-	? o1.Xf(:replace = [ "Hello", "Embedding" ])
+	//? o1.Xf(:doStaff) # The plugin does not exit
+	#--> !!! Error (R35) : Can't create/open the file !!!
+
+		#NOTE // To let it raise the error without interrpting
+		# programm execution, use the fault-tolenrant version:
+
+		? o1.Xff(:doStaff)
+
+	? o1.Xf(:replace = [ "Hello", "Embedding" ]) + NL
 	#--> Embedding Ring in Ring!
 
-//proff()
+	? o1.Xf(:reverse)
+	#--> !gniR ni gniR olleH
+
+	# Checking the list of eXtended (plugin-based) functions
+	# that were called on the string object in the lines above
+	
+	? @@( o1.XFuncts() ) + NL
+	#--> [ "reverse", "countvowels", "removenonletters", "replace" ]
+
+	# Tracing the call stack of the eXtend (plugin-based) functions
+	# used against the object in the lines below
+
+	# ~> # Returns function names, their params, wether the function
+	# succeeded or raised an error, and the actual ouput of the call
+
+	? @@NL( o1.XCalls() ) + NL 
+	# [
+	# 	[ "reverse", [ ], 1, "!gniR ni gniR olleH" ],
+	# 	[ "countvowels", [ ], 1, 5 ],
+	# 	[ "removenonletters", [ ], 1, "HelloRinginRing" ],
+	# 	[ "dostaff", [ ], 0, "!!! Error (R35) : Can't create/open the file !!!" ],
+	# 	[ "replace", [ "Hello", "Embedding" ], 1, "Embedding Ring in Ring!" ],
+	# 	[ "reverse", [ ], 1, "!gniR ni gniR olleH" ]
+	# ]
+
+#TODO add ElapsedTime
+#TODO add XfU() form --> returns the result and updates the objects
+
+	# An eXTended form of the same function yieling alos the results
+
+	//? @@NL( o1.XCallsXT() )
+
+proff()
 # Executed in 0.10 second(s).
 
 #---------------------------------------#
@@ -112,7 +152,17 @@ func LoadPlugins()
 	return aResult
 
 class ExtendedString from BaseString
-	@acPlugins = []
+	@acFuncs = []
+	@aCalls = []
+
+	def XCalls()
+		return @aCalls
+
+	def Xfunctions()
+		return @acFuncs
+
+		def Xfuncts()
+			return @acFuncs
 
 	def Xf(FuncOrFuncAndParams)
 
@@ -161,10 +211,16 @@ class ExtendedString from BaseString
 			result = ring_state_findvar(pState, '@plugin_result')[3]
 
 			# Recording the plugin
-			@acPlugins  + cFuncName
+
+			if find(@acFuncs, cFuncName) = 0
+				@acFuncs + cFuncName
+			ok
+
+			@aCalls + [ cFuncName, aParams, TRUE, result ]
 
 		catch
 			error = cCatchError
+			@aCalls + [ cFuncName, aParams, FALSE, error ]
 		done
 
 		# Removing the state from memory
@@ -176,6 +232,69 @@ class ExtendedString from BaseString
 			return result
 		else
 			raise(error)
+		ok
+
+	# The fault-tolerant form of Xf()
+
+	def Xff(FuncOrFuncAndParams)
+
+		if isString(FuncOrFuncAndParams)
+			cFuncName = FuncOrFuncAndParams
+			aParams = []
+
+		but isList(FuncOrFuncAndParams) and len(FuncOrFuncAndParams) = 2 and
+		    isString(FuncOrFuncAndParams[1])
+			cFuncName = FuncOrFuncAndParams[1]
+			aParams = FuncOrFuncAndParams[2]
+
+		else
+			raise("Bad function name!")
+		ok
+
+		# Getting the name of the plugin file name
+
+		cPluginFile = 'plugins' + PathSep() + _aPlugins[cFuncName]
+
+		# Setting the containers of the output
+		result = ""
+		error = ""
+
+		# Initiating and running the plugin in a separate VM
+		pState = ring_state_init()
+
+		try
+
+			cCode = read(cPluginFile)
+			ring_state_runcode(pState, cCode)
+
+			# Setting the value and params of the pluging function
+
+			cValue = '@plugin_value = ' + @@(This.Content())
+			ring_state_runcode(pState, cValue)
+
+			cParam = '@plugin_param = ' + @@(aParams)
+			ring_state_runcode(pState, cParam)
+
+			# Getting the result
+			result = ring_state_findvar(pState, '@plugin_result')[3]
+
+			# Recording the plugin
+			@aCalls + [ cFuncName, aParams, TRUE, result ]
+
+		catch
+			error = '!!! ' + cCatchError + ' !!!'
+			@aCalls + [ cFuncName, aParams, FALSE, error ]
+
+			? NL+ error
+		done
+
+		# Removing the state from memory
+		ring_state_delete(pState)
+		
+		# Returning the result or raising an error
+
+		if error = ""
+			return result
 		ok
 
 class BaseString
