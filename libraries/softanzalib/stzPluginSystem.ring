@@ -2,9 +2,9 @@
 This code demonstrates how to implement a plugin system in Ring
 using the feature of embedding Ring within Ring.
 
-The code contains two classes: BaseStrings and ExtendedString.
+The code contains two classes: BaseString and ExtendedString.
 
-The BaseStrings class provides basic string methods, such as size() and upp().
+The BaseString class provides basic string methods, such as size() and upp().
 
 The purpose of the plugin system is to allow users to write custom methods
 in separate files, stored in the plugins subfolder.
@@ -20,17 +20,18 @@ Here is an example of the content of a plugin file:
 
 	#< ring_pluging_file #>
 	
-	@plugin_desc   = "Plugin for reversing a string"
-	@plugin_name   = "plugin_string_reverse"
+	@plugin_desc   = "Plugin for replacing a substring by an other in a given string"
+	@plugin_name   = "plugin_string_replace"
 	
 	@plugin_value  = "Hello Ring in Ring!"
-	@plugin_param  = []
+	@plugin_param  = [ "Hello", "Embedding" ]
 	
 	@plugin_result = pluginFunc(@plugin_value, @plugin_param)
-	#--> !gniR ni gniR olleH
+	#--> Embedding Ring in Ring!
 	
 	func pluginFunc(value, aParams)
-		return reverse(value)
+		cResult = substr(value, aParams[1], aParams[2])
+		return cResult
 
 The programmer should only give a name to the file with the format:
 	{"plugin_string_" + @MethodName }
@@ -39,8 +40,8 @@ And then implement the function in the file by changing its body.
 
 */
 
-load "stzlib.ring"
-
+//load "stzlib.ring"
+load "stdlib.ring"
 # loading plugins files from plugin folder
 
 _aPlugins = LoadPlugins()
@@ -50,7 +51,7 @@ _aPlugins = LoadPlugins()
 #	[ "reverse", 		"plugin_string_reverse.ring" ]
 # ]
 
-pron()
+//pron()
 
 	o1 = new ExtendedString("Hello Ring in Ring!")
 	
@@ -78,7 +79,7 @@ pron()
 	? o1.Xf(:replace = [ "Hello", "Embedding" ])
 	#--> Embedding Ring in Ring!
 
-proff()
+//proff()
 # Executed in 0.10 second(s).
 
 #---------------------------------------#
