@@ -100,6 +100,7 @@ func AreRingStates(paPointers)
 
 class stzRingVMInstance from stzRingInstance
 class stzRingVM from stzRingInstance
+class stzRingState from stzRingInstance
 
 class stzRingInstance
 	@cName
@@ -126,8 +127,9 @@ class stzRingInstance
 			return cCatchError
 		done
 
-	def RunFile(cCode)
-		ring_state_runfile(This.State(), cFile)
+	def RunFile(cFile)
+		cColde = load(cFile)
+		ring_state_runcode(This.State(), cCode)
 		@acFiles + cFile
 
 	def Codes()
