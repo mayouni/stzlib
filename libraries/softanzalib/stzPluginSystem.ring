@@ -87,7 +87,7 @@ pron()
 	? o1.Xf(:replace = [ "Hello", "Embedding" ]) + NL
 	#--> Embedding Ring in Ring!
 
-	? o1.Xf(:reverse)
+	? o1.Xf(:reverse) + NL
 	#--> !gniR ni gniR olleH
 
 	# Checking the list of eXtended (plugin-based) functions
@@ -101,23 +101,21 @@ pron()
 
 	# ~> # Returns function names, their params, wether the function
 	# succeeded or raised an error, and the actual ouput of the call
+	# or the error message, and finally the executiin time of the
+	# plugin file.
 
 	? @@NL( o1.XCalls() ) + NL 
 	# [
-	# 	[ "reverse", [ ], 1, "!gniR ni gniR olleH" ],
-	# 	[ "countvowels", [ ], 1, 5 ],
-	# 	[ "removenonletters", [ ], 1, "HelloRinginRing" ],
-	# 	[ "dostaff", [ ], 0, "!!! Error (R35) : Can't create/open the file !!!" ],
-	# 	[ "replace", [ "Hello", "Embedding" ], 1, "Embedding Ring in Ring!" ],
-	# 	[ "reverse", [ ], 1, "!gniR ni gniR olleH" ]
+	# 	[ "reverse", [ ], 1, "!gniR ni gniR olleH", 0 ],
+	# 	[ "countvowels", [ ], 1, 5, 0 ],
+	# 	[ "removenonletters", [ ], 1, "HelloRinginRing", 0.04 ],
+	# 	[ "dostaff", [ ], 0, "Error (R35) : Can't create/open the file", 0 ],
+	# 	[ "replace", [ "Hello", "Embedding" ], 1, "Embedding Ring in Ring!", 0 ],
+	# 	[ "reverse", [ ], 1, "!gniR ni gniR olleH", 0 ]
 	# ]
 
-#TODO add ElapsedTime
 #TODO add XfU() form --> returns the result and updates the objects
 
-	# An eXTended form of the same function yieling alos the results
-
-	//? @@NL( o1.XCallsXT() )
 
 proff()
 # Executed in 0.10 second(s).
@@ -216,11 +214,12 @@ class ExtendedString from BaseString
 				@acFuncs + cFuncName
 			ok
 
-			@aCalls + [ cFuncName, aParams, TRUE, result ]
+			time = ring_state_findvar(pState, '@plugin_time')[3]
+			@aCalls + [ cFuncName, aParams, TRUE, result, time ]
 
 		catch
 			error = cCatchError
-			@aCalls + [ cFuncName, aParams, FALSE, error ]
+			@aCalls + [ cFuncName, aParams, FALSE, error, 0 ]
 		done
 
 		# Removing the state from memory
@@ -279,13 +278,14 @@ class ExtendedString from BaseString
 			result = ring_state_findvar(pState, '@plugin_result')[3]
 
 			# Recording the plugin
-			@aCalls + [ cFuncName, aParams, TRUE, result ]
+			time = ring_state_findvar(pState, '@plugin_time')[3]
+			@aCalls + [ cFuncName, aParams, TRUE, result, time ]
 
 		catch
-			error = '!!! ' + cCatchError + ' !!!'
-			@aCalls + [ cFuncName, aParams, FALSE, error ]
+			error = cCatchError
+			@aCalls + [ cFuncName, aParams, FALSE, error, 0 ]
 
-			? NL+ error
+			? NL+ '!!!' + error + '!!!'
 		done
 
 		# Removing the state from memory
