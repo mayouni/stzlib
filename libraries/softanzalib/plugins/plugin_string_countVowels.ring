@@ -1,5 +1,7 @@
 #< ring_pluging_file #>
 
+t0 = clock()
+
 @plugin_desc   = "Plugin for counting vowels in a given string"
 @plugin_name   = "plugin_string_countVowels"
 
@@ -8,6 +10,8 @@
 
 @plugin_result = pluginFunc(@plugin_value, @plugin_param)
 #--> 5
+
+@plugin_time = ( clock() - t0 ) / clockspersecond()
 
 func pluginFunc(value, aParams)
 	nlen = len(value)
