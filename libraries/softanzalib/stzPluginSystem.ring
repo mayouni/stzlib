@@ -93,16 +93,16 @@ pron()
 	# Checking the list of eXtended (plugin-based) functions
 	# that were called on the string object in the lines above
 	
-	? @@( o1.XFuncts() ) + NL
+	? @@( o1.XFuncts() ) + NL # or XFunctions() or simply Xfs()
 	#--> [ "reverse", "countvowels", "removenonletters", "replace" ]
 
 	# Tracing the call stack of the eXtend (plugin-based) functions
 	# used against the object in the lines below
 
 	# ~> # Returns function names, their params, wether the function
-	# succeeded or raised an error, and the actual ouput of the call
-	# or the error message, and finally the executiin time of the
-	# plugin file.
+	# succeeded or raised an error, the actual ouput of the call
+	# (or the error message), and finally the executin time of the
+	# called function in the plugin file.
 
 	? @@NL( o1.XCalls() ) + NL 
 	# [
@@ -160,6 +160,9 @@ class ExtendedString from BaseString
 		return @acFuncs
 
 		def Xfuncts()
+			return @acFuncs
+
+		def Xfs() # s for plural
 			return @acFuncs
 
 	def Xf(FuncOrFuncAndParams)
