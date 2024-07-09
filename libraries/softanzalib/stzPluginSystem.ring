@@ -57,9 +57,9 @@ pron()
 
 	o1 = new XString("Hello Ring in Ring!")
 	
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-	#   CALLIN SOME METHOS FROM THE BASE OBJECT   #
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#   CALLING SOME METHODS FROM THE BASE OBJECT   #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	# ~> Just to say that they are available in the pluguable
 	# version of the object (XString) by inheritance
 
@@ -106,9 +106,9 @@ pron()
 
 	? "---" + NL
 
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-	#   UPDATING THE BASE OBJECT WITHE THE OUTPUT OF THE PLUGIN-BASED FUNCTIONS   #
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#   UPDATING THE BASE OBJECT WITH THE OUTPUT OF THE PLUGIN-BASED FUNCTIONS   #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 	# As you see, Xf() functions always return a value, even if the
 	# meaning of the function is an action. This is noraml, because
@@ -134,9 +134,9 @@ pron()
 
 	? "---" + NL
 
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-	#   OPTING A PROTECTIVE-CODING STYKE WHILE UPDATING WITH PLUGIN-BASED FUNCTIONS   #
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#  OPTING FOR A PROTECTIVE-CODING STYLE WHILE UPDATING WITH PLUGIN-BASED FUNCTIONS  #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 	# A diffence worh noting here, between updating things in Softanza using
 	# normal update functions and plugin-based functions (XfU()), is that the
@@ -234,9 +234,9 @@ pron()
 
 	? "---" + NL
 
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-	#   GETTING THE FAILED AND THE SUCCESEEDED CALLS  #
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#   CHECKING VOTH FAILED AND SUCCEEDED PLUGIN-BASED CALLS  #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 	# We can check the number of erronous calls
 
@@ -314,36 +314,140 @@ pron()
 
 	#TODO // illustrate this by an example
 
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-	#   DELAGATING THE MAIN CONTROL FLOW THE THE PLUGIN-BASED FUNCTIONS   #
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#   PLUGIN STATES (RING VM STATES) ARE LAZY-LOADED, REUSABLE, AND HOT-RELOADED   #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+	/*
+
+	1. Program Launch
+	   |
+	   |-- Identify active plugins (identified by plugin file naming convention "on_.." or "off_..")
+	   |   |-- Load names and attributes into memory
+	   |
+	   |-- No VM instances created initially (lazy-loaded on first call)
+	
+	2. At Xfunction invocation (using Xf() function)
+	   |
+	   |-- Check cached sets of params/output
+	   |   |
+	   |   |-- If match found in memory cache:
+	   |   |   |
+	   |   |   |-- Check if plugin file has changed
+	   |   |   |   |
+	   |   |   |   |-- If unchanged:
+	   |   |   |   |   |-- Serve output directly from memory cache
+	   |   |   |   |   |-- No further action required
+	   |   |   |   |
+	   |   |   |   |-- If changed:
+	   |   |   |   |   |
+	   |   |   |   |   |-- Create new instance of plugin file
+	   |   |   |   |   |-- Compare params/output with cached value; update cache if different
+	   |   |   |   |   |-- Reset instance variables to NULL (clean instance); retain in memory
+	   |   |
+	   |   |-- If match NOT found in memory cache:
+	   |   |   | 
+	   |   |   |-- Check for reusable instance matching plugin function
+	   |   |   |   | 
+	   |   |   |   |-- If reusable instance found:
+	   |   |   |   |   |
+	   |   |   |   |   |-- Check if plugin file has changed
+	   |   |   |   |   |   |
+	   |   |   |   |   |   |-- If unchanged:
+	   |   |   |   |   |   |   |-- Use reusable instance to obtain output
+	   |   |   |   |   |   |   |-- Clean instance and retain in memory
+	   |   |   |   |   |   |
+	   |   |   |   |   |   |-- If changed:
+	   |   |   |   |   |   |   |-- Create new instance of plugin
+	   |   |   |   |   |   |   |-- Set params, execute code, obtain output
+	   |   |   |   |   |   |   |-- Clean newly created instance; save for future use
+	   |   |   |   | 
+	   |   |   |   |-- If a reusable instance NOT found:
+	   |   |   |   |   |
+	   |   |   |   |   |-- Create a new instance of plugin
+	   |   |   |   |   |-- Set params, execute code, obtain output
+	   |   |   |   |   |-- Clean newly created instance; save for future use
+	
+	3. XRefresh() Function invocation
+	   |
+	   |-- Check state instances in memory against file status and defined lifetime
+	   |
+	   |-- Restart instances requiring update (file changed, lifetime not elapsed)
+	   |-- Destroy instances with elapsed lifetime
 
 
-	# Sometimes, it's better for performance to not goback to the main program
-	# each time a plugin-function has been called, to tell to the control flow
-	# what xfunction to call next. Instead, we can delegate this to the plugins
-	# who will call the next one directly, without encombrating the main program.
+	4. Explictly saving an instance, restarting it, or destroying it.
+	   |
+	   |-- Save, restart, or destroy instances using their respective pointers
+	   |   |-- To save an instance, its pointer must be retained in the program
+	   |   |-- To restart or destroy, the pointer must already be in memory
 
-	# To do this, we must tell to the plugin, when we call it, what other plusgin
-	# to call after his work is finished. So we use the same Xf() we used above,
-	# by providing iyt with not only one plugin, by by many:
+	5. Retrieving Instance Information
+	   |
+	   |-- Get their list along with useful data about their status/use statistics
+	   |-- Retrieve specific information about a particular plugin instance
 
-	//? o1.Xf([ :remomeNonLetters, :Replace = [ "Embedding", "Hello" ], :reverse)
+	*/
+
+	#NOTE ON HOT-RELOADING FEATURE
+	# Hot reload supercharges development! It lets game devs tweak mechanics
+	# and UI live, updates running apps without downtime, and sculpts UIs on
+	# the fly for fast designer feedback.
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#   DELAGATING MAIN CONTROL FLOW TO A LIST OF CALLED PLUGINS   #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+
+	# Traditionally, after calling a plugin function, the control flow returns
+	# to the main program to determine the next function to execute. This can
+	# be inefficient.
+
+	# A better approach is to delegate this responsibility to the plugins themselves.
+	# Each plugin can specify the next plugin to call after finishing its work. This
+	# eliminates the need for the main program to handele each call individually,
+	# improving performance and memory usage.
+	
+	# How it Works?
+	#~~~~~~~~~~~~~~
+	
+	# We achieve this in Softanza, simply, by providing the Xf() function with
+	# a list of plugins instead of just one. Each plugin in the list is called
+	# sequentially by the previous one, streamlining the execution flow.
+	
+	# Example
+	
+	// Calling multiple plugins in one go
+
+	# o1.Xf([:removeNonLetters, :Replace = ["Embedding", "Hello"], :reverse])
 	#--> !gniRnigniRolleR
 
-	# With this, the main program make only only collective call. Then each plugin
-	# calls the next (ie each Ring instance calls the next), leading to a more
-	# performant code and efficient mememry use.
+	# Here, the main program makes a single Xf() call with an array of three
+	# plugins. Each plugin calls the next one in the list, resulting in the
+	# final output without unnecessary back-and-forth with the main program.
+	
+	# Traditional Approach (Less Efficient)
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	
+	# For comparison, the traditional approach involves separate calls for each plugin:
 
-	# To make the same think by going back each time to the main program, we say
+	# Example
 
-	//? o1.XfU(:remomeNonLetters)
-	//? o1.XfU(:Replace = [ "Embedding", "Hello" ])
-	//? o1.Xf(:Reverse)
+	# o1.XfU(:removeNonLetters)
+	# o1.XfU(:Replace = ["Embedding", "Hello"])
+	# o1.Xf(:reverse)
+
+	# This method requires multiple interactions with the main program, leading to
+	# decreased performance.
+	
+	# Benefits of Delegated Control Flow
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	
+	# ~> Improved performance: Calling plugins sequentially eliminates unnecessary overhead.
+	# ~> Efficient memory usage: Streamlined execution reduces memory usage.
+	# ~> Cleaner code: Main program handles fewer individual calls, leading to more concise code.
 
 	#TODO implement this feature
-
-	#TODO study the addition of ReusablePlugins (pool of states)
 
 proff()
 # Executed in 0.28 second(s).
