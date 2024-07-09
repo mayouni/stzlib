@@ -68462,6 +68462,45 @@ Item and then position
 
 	#--
 
+	def IsAtWhereXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AtWhereXT)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsWhereXTOrAtWhereXTNamedParam()
+		if This.IsWhereXTNamedParam() or This.IsAtWhereXTNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAtWhereXTOrWhereXTNamedParam()
+		if This.IsWhereXTNamedParam() or This.IsAtWhereXTNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsWhereXTOrAtWhereXTNamedParams()
+		if This.IsWhereXTNamedParam() or This.IsAtWhereXTNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsAtWhereXTOrWhereXTNamedParams()
+		if This.IsWhereXTNamedParam() or This.IsAtWhereXTNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	#==
+
 	def IsBeforeWhereNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeWhere)
@@ -68472,34 +68511,51 @@ Item and then position
 		ok
 
 	def IsBeforeOrBeforeWhereNamedParam()
-		if This.IsWhereNamedParam() or This.IsBeforeWhereNamedParam()
+		if This.IsBeforeNamedParam() or This.IsBeforeWhereNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-	def IsBeforeWhereOrBeforeNamedParam()
-		if This.IsWhereNamedParam() or This.IsBeforeWhereNamedParam()
-			return TRUE
-		else
-			return FALSE
-		ok
+		def IsBeforeWhereOrBeforeNamedParam()
+			return This.IsBeforeOrBeforeWhereNamedParam()
 
-	def IsBeforeOrBeforeWhereNamedParams()
-		if This.IsWhereNamedParam() or This.IsBeforeWhereNamedParam()
-			return TRUE
-		else
-			return FALSE
-		ok
+		def IsBeforeOrBeforeWhereNamedParams()
+			return This.IsBeforeOrBeforeWhereNamedParam()
 
-	def IsBeforeWhereOrBeforeNamedParams()
-		if This.IsWhereNamedParam() or This.IsBeforeWhereNamedParam()
-			return TRUE
-		else
-			return FALSE
-		ok
+		def IsBeforeWhereOrBeforeNamedParams()
+			return This.IsBeforeOrBeforeWhereNamedParam()
 
 	#--
+
+	def IsBeforeWhereXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeWhereXT)
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBeforeOrBeforeWhereXTNamedParam()
+		if This.IsBeforeNamedParam() or This.IsBeforeWhereXTNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsBeforeWhereXTOrBeforeNamedParam()
+			return This.IsBeforeOrBeforeWhereXTNamedParam()
+
+		def IsBeforeOrBeforeWhereXTNamedParams()
+			return This.IsBeforeOrBeforeWhereXTNamedParam()
+
+		def IsBeforeWhereXTOrBeforeNamedParams()
+			return This.IsBeforeOrBeforeWhereXTNamedParam()
+
+	#==
+
+	#==
 
 	def IsAfterWhereNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -68511,32 +68567,47 @@ Item and then position
 		ok
 
 	def IsAfterOrAfterWhereNamedParam()
-		if This.IsWhereNamedParam() or This.IsAfterWhereNamedParam()
+		if This.IsAfterNamedParam() or This.IsAfterWhereNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-	def IsAfterWhereOrAfterNamedParam()
-		if This.IsWhereNamedParam() or This.IsAfterWhereNamedParam()
+		def IsAfterWhereOrAfterNamedParam()
+			return This.IsAfterOrAfterWhereNamedParam()
+
+		def IsAfterOrAfterWhereNamedParams()
+			return This.IsAfterOrAfterWhereNamedParam()
+
+		def IsAfterWhereOrAfterNamedParams()
+			return This.IsAfterOrAfterWhereNamedParam()
+
+	#--
+
+	def IsAfterWhereXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :AfterWhereXT)
+
 			return TRUE
 		else
 			return FALSE
 		ok
 
-	def IsAfterOrAfterWhereNamedParams()
-		if This.IsWhereNamedParam() or This.IsAfterWhereNamedParam()
+	def IsAfterOrAfterWhereXTNamedParam()
+		if This.IsAfterNamedParam() or This.IsAfterWhereXTNamedParam()
 			return TRUE
 		else
 			return FALSE
 		ok
 
-	def IsAfterWhereOrAfterNamedParams()
-		if This.IsWhereNamedParam() or This.IsAfterWhereNamedParam()
-			return TRUE
-		else
-			return FALSE
-		ok
+		def IsAfterWhereXTOrAfterNamedParam()
+			return This.IsAfterOrAfterWhereXTNamedParam()
+
+		def IsAfterOrAfterWhereXTNamedParams()
+			return This.IsAfterOrAfterWhereXTNamedParam()
+
+		def IsAfterWhereXTOrAfterNamedParams()
+			return This.IsAfterOrAfterWhereXTNamedParam()
 
 	#==
 
@@ -73300,6 +73371,17 @@ Item and then position
 			return FALSE
 		ok
 
+	def IsWhereXTNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :WhereXT ) and
+		   isString( This.Item(2) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsThatNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :That ) and
@@ -73312,7 +73394,7 @@ Item and then position
 		ok
 
 	def IsThatOrWhereNamedParam()
-		if This.IsThatNamedParam() or This.IsWhatNamedParam()
+		if This.IsThatNamedParam() or This.IsWhereNamedParam()
 			return TRUE
 		else
 			return FALSE
@@ -73326,6 +73408,22 @@ Item and then position
 
 		def IsWhereOrThatNamedParams()
 			return This.IsThatOrWhereNamedParam()
+
+	def IsThatXTOrWhereXTNamedParam()
+		if This.IsThatXTNamedParam() or This.IsWhereXTNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsThatXTOrWhereXTNamedParams()
+			return This.IsThatXTOrWhereXTNamedParam()
+
+		def IsWhereXTOrThatXTNamedParam()
+			return This.IsThatXTOrWhereXTNamedParam()
+
+		def IsWherextOrThatxtNamedParams()
+			return This.IsThatXTOrWhereXTNamedParam()
 
 	def IsPositionNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -73634,6 +73732,17 @@ Item and then position
 		def IsIfOrWhereNamedParams()
 			return This.IsIfOrWhereNamedParam()
 
+	def IsIfXTOrWhereXTNamedParam()
+		return This.IsIfXTNamedParam() or This.IsWhereXTNamedParam()
+
+		def IsWhereXTOrIfXTNamedParam()
+			return This.IsIfXTOrWhereXTNamedParam()
+
+		def IsWhereXTOrIfXTNamedParams()
+			return This.IsIfXTOrWhereXTNamedParam()
+
+		def IsIfXTOrWhereXTNamedParams()
+			return This.IsIfXTOrWhereXTNamedParam()
 
 	def IsWithNamedParam()
 		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
@@ -75449,6 +75558,8 @@ Item and then position
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def IsUsingOrWhereOrAtNamedParam()
 			return This.IsUsingOrAtOrWhereNamedParam()
 		
@@ -75484,6 +75595,59 @@ Item and then position
 		def IsUsingOrAtOrWhereNamedParams()
 			return This.IsUsingOrAtOrWhereNamedParam()
 
+		#>
+
+	def IsUsingOrAtOrWhereXTNamedParam()
+		# Use IsOneOfTheseNamedParams([ ..., ..., ... ]) instead
+
+		if This.IsUsingNamedParam() or
+		   This.IsAtNamedParam() or
+		   This.IsWhereXTNamedParam()
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsUsingOrWhereXTOrAtNamedParam()
+			return This.IsUsingOrAtOrWhereXTNamedParam()
+		
+		def IsAtOrUsingOrWhereXTNamedParam()
+			return This.IsUsingOrAtOrWhereXTNamedParam()
+	
+		def IsAtOrWhereXTOrUsingNamedParam()
+			return This.IsUsingOrAtOrWhereXTNamedParam()
+
+		def IsWhereXTOrAtOrUsingNamedParam()
+			return This.IsUsingOrAtOrWhereXTNamedParam()
+	
+		def IsWhereXTOrUsingOrAtNamedParam()
+			return This.IsUsingOrAtOrWhereXTNamedParam()
+
+		#--
+
+		def IsUsingOrWhereXTOrAtNamedParams()
+			return This.IsUsingOrAtOrWhereXTNamedParam()
+		
+		def IsAtOrUsingOrWhereXTNamedParams()
+			return This.IsUsingOrAtOrWhereXTNamedParam()
+	
+		def IsAtOrWhereXTOrUsingNamedParams()
+			return This.IsUsingOrAtOrWhereXTNamedParam()
+
+		def IsWhereXTOrAtOrUsingNamedParams()
+			return This.IsUsingOrAtOrWhereXTNamedParam()
+	
+		def IsWhereXTOrUsingOrAtNamedParams()
+			return This.IsUsingOrAtOrWhereXTNamedParam()
+
+		def IsUsingOrAtOrWhereXTNamedParams()
+			return This.IsUsingOrAtOrWhereXTNamedParam()
+
+		#>
+	#==
 
 	def IsStepNamedParam()
 		if This.NumberOfItems() = 2 and

@@ -44007,9 +44007,9 @@ class stzString from stzObject
 
 	  #----------------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A CHAR VERIFYING A GIVEN CONDITION  #
-vvv	#================================================================#
+	#================================================================#
 
-	def FindNthCharW(n, pcCondition)
+	def FindNthCharWCS(n, pcCondition, pCaseSensitive)
 		#TODO
 		# Change implementation for better performance
 		# There is no need to traverse all the charsW and then
@@ -44021,7 +44021,7 @@ vvv	#================================================================#
 				if n = :FirstChar or n = :First
 					n = 1
 				but n = :LastChar or n = :Last
-					n = len(This.FindCharsW(pcCondition))
+					n = len(This.FindCharsWCS(pcCondition, pCaseSensitive))
 				ok
 			ok
 	
@@ -44030,24 +44030,35 @@ vvv	#================================================================#
 			ok
 		ok
 
-		anPos = This.FindCharsW(pcCondition)
+		anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
 		nResult = anPos[n]
 
 		return nResult
 
 
+		def FindNthCharWCSZ(n, pcCondition, pCaseSensitive)
+			return This.FindNthCharWCS(n, pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVIE
+
+	def FindNthCharW(n, pcCondition)
+		return This.FindNthCharWCS(n, pcCondition, TRUE)
+
 		def FindNthCharWZ(n, pcCondition)
 			return This.FindNthCharW(n, pcCondition)
 
-	#--- WXT
+	  #-----------------------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF A CHAR VERIFYING A GIVEN CONDITION -- WXT  #
+	#-----------------------------------------------------------------------#
 
-	def FindNthCharWXT(n, pcCondition)
+	def FindNthCharWXTCS(n, pcCondition, pCaseSensitive)
+
 		if CheckParams()
 			if isString(n)
 				if n = :FirstChar or n = :First
 					n = 1
 				but n = :LastChar or n = :Last
-					n = len(This.FindCharsW(pcCondition))
+					n = len(This.FindCharsWxtcs(pcCondition, pCaseSensitive))
 				ok
 			ok
 	
@@ -44056,135 +44067,249 @@ vvv	#================================================================#
 			ok
 		ok
 
-		anPos = This.FindCharsWXT(pcCondition)
+		anPos = This.FindCharsWXTCS(pcCondition, pCaseSensitive)
 		nResult = anPos[n]
 
 		return nResult
+
+
+		def FindNthCharWCSXTZ(n, pcCondition, pCaseSensitive)
+			return This.FindNthCharWXTCS(n, pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVIE
+
+	def FindNthCharWXT(n, pcCondition)
+		return This.FindNthCharWXTCS(n, pcCondition, TRUE)
 
 		def FindNthCharWXTZ(n, pcCondition)
 			return This.FindNthCharWXT(n, pcCondition)
 
 	  #----------------------------------------------------------------#
 	 #  FINDING NTH OCCURRENCE OF A CHAR VERIFYING A GIVEN CONDITION  #
-	#----------------------------------------------------------------#
+	#================================================================#
 
 #TODO: Add this function
 # def FindNthSubStringWZZ() # returns the nth (conditional substring and its sections)
 
-	#TODO Add cases ensitivity
-
-	def FindNthSubStringW(n, pcCondition)
+	def FindNthSubStringWCS(n, pcCondition, pCaseSensitive)
 		#TODO: Change implementation for better performance
 		# There is no need to traverse all the charsW and then
 		# returning the nth one.
 		#--> Add FindNextSubStringW() and use it instead.
 
-		if isString(n)
-			if n = :FirstSubString or n = :First
-				n = 1
-			but n = :LastSubString or n = :Last
-				n = nLen
+		if CheckParams()
+			if isString(n)
+				if n = :FirstSubString or n = :First
+					n = 1
+				but n = :LastSubString or n = :Last
+					n = nLen # In fact, last char is the last substring
+				ok
+			ok
+	
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		anPos = This.FindSubStringsW(pcCondition)
+		anPos = This.FindSubStringsWCS(pcCondition, pCaseSensitive)
 		nResult = anPos[n]
 
 		return nResult
+
+
+		def FindNthSubStringWCSZ(n, pcCondition, pCaseSensitive)
+			return This.FindNthSubStringWCS(n, pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthSubStringW(n, pcCondition)
+		return This.FindNthSubStringWCS(n, pcCondition, TRUE)
 
 
 		def FindNthSubStringWZ(n, pcCondition)
 			return This.FindNthSubStringW(n, pcCondition)
 
-	#-- WXT
+	  #-----------------------------------------------------------------------#
+	 #  FINDING NTH OCCURRENCE OF A CHAR VERIFYING A GIVEN CONDITION -- WXT  #
+	#-----------------------------------------------------------------------#
 
-	def FindNthSubStringWXT(n, pcCondition)
+#TODO: Add this function
+# def FindNthSubStringWXTZZ() # returns the nth (conditional substring and its sections)
 
-		if isString(n)
-			if n = :FirstSubString or n = :First
-				n = 1
-			but n = :LastSubString or n = :Last
-				n = nLen
+	def FindNthSubStringWXTCS(n, pcCondition, pCaseSensitive)
+
+		if CheckParams()
+			if isString(n)
+				if n = :FirstSubString or n = :First
+					n = 1
+				but n = :LastSubString or n = :Last
+					n = nLen # In fact, last char is the last substring
+				ok
+			ok
+	
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
 			ok
 		ok
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		anPos = This.FindSubStringsWXT(pcCondition)
+		anPos = This.FindSubStringsWXTCS(pcCondition, pCaseSensitive)
 		nResult = anPos[n]
 
 		return nResult
 
 
+		def FindNthSubStringWCSXTZ(n, pcCondition, pCaseSensitive)
+			return This.FindNthSubStringWXTCS(n, pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNthSubStringWXT(n, pcCondition)
+		return This.FindNthSubStringWXTCS(n, pcCondition, TRUE)
+
+
 		def FindNthSubStringWXTZ(n, pcCondition)
 			return This.FindNthSubStringWXT(n, pcCondition)
 
-	  #----------------------------------------------------------------------------#
-	 #  FINDING FIRST OCCURRENCE OF A CHAR/SUBSTRING VERIFYING A GIVEN CONDITION  #
-	#----------------------------------------------------------------------------#
+	  #------------------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A CHAR VERIFYING A GIVEN CONDITION  #
+	#==================================================================#
 
-	#TODO Add cases ensitivity
+	def FindFirstCharWCS(pcCondition, pCaseSensitive)
+		return This.FindNthCharWCS(1, pcCondition, pCaseSensitive)
+
+		def FindFirstCharWCSZ(pcCondition, pCaseSensitive)
+			return This.FindFirstCharWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstCharW(pcCondition)
-		return This.FindNthCharW(1, pcCondition)
+		return This.FindFirstCharWCS(pcCondition, TRUE)
 
 		def FindFirstCharWZ(pcCondition)
 			return This.FindFirstCharW(pcCondition)
 
+	  #------------------------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A CHAR VERIFYING A GIVEN CONDITION -- WXT #
+	#------------------------------------------------------------------------#
+
+	def FindFirstCharWXTCS(pcCondition, pCaseSensitive)
+		return This.FindNthCharWXTCS(1, pcCondition, pCaseSensitive)
+
+		def FindFirstCharWXTCSZ(pcCondition, pCaseSensitive)
+			return This.FindFirstCharWXTCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindFirstCharWXT(pcCondition)
+		return This.FindFirstCharWXTCS(pcCondition, TRUE)
+
+		def FindFirstCharWXTZ(pcCondition)
+			return This.FindFirstCharWXT(pcCondition)
+
+	  #-----------------------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
+	#=======================================================================#
+
+	def FindFirstSubStringWCS(pcCondition, pCaseSensitive)
+		return This.FindNthSubStringWCS(1, pcCondition, pCaseSensitive)
+
+		def FindFirstSubStringWCSZ(pcCondition, pCaseSensitive)
+			return This.FindFirstSubStringWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def FindFirstSubStringW(pcCondition)
-		return This.FindNthSubStringW(1, pcCondition)
+		return This.FindFirstSubStringWCS(pcCondition, TRUE)
 
 		def FindFirstSubStringWZ(pcCondition)
 			return This.FindFirstSubStringW(pcCondition)
 
-	#-- WXT
+	  #-----------------------------------------------------------------------------#
+	 #  FINDING FIRST OCCURRENCE OF A SUBSTRING VERIFYING A GIVEN CONDITION -- WXT #
+	#-----------------------------------------------------------------------------#
 
-	def FindFirstCharWXT(pcCondition)
-		return This.FindNthCharWXT(1, pcCondition)
+	def FindFirstSubStringWXTCS(pcCondition, pCaseSensitive)
+		return This.FindNthSubStringWXTCS(1, pcCondition, pCaseSensitive)
 
-		def FindFirstCharWXTZ(pcCondition)
-			return This.FindFirstCharW(pcCondition)
+		def FindFirstSubStringWXTCSZ(pcCondition, pCaseSensitive)
+			return This.FindFirstSubStringWXTCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindFirstSubStringWXT(pcCondition)
-		return This.FindNthSubStringWXT(1, pcCondition)
+		return This.FindFirstSubStringWXTCS(pcCondition, TRUE)
 
 		def FindFirstSubStringWXTZ(pcCondition)
 			return This.FindFirstSubStringWXT(pcCondition)
 
-	  #---------------------------------------------------------------------------#
-	 #  FINDING LAST OCCURRENCE OF A CHAR/SUBSTRING VERIFYING A GIVEN CONDITION  #
-	#---------------------------------------------------------------------------#
+	  #-----------------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A CHAR VERIFYING A GIVEN CONDITION  #
+	#=================================================================#
 
-	#TODO Add cases ensitivity
+	def FindLastCharWCS(pcCondition, pCaseSensitive)
+		return This.FindNthCharWCS(1, pcCondition, pCaseSensitive)
+
+		def FindLastCharWCSZ(pcCondition, pCaseSensitive)
+			return This.FindLastCharWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastCharW(pcCondition)
-		return This.FindNthCharW(:Last, pcCondition)
+		return This.FindLastCharWCS(pcCondition, TRUE)
 
 		def FindLastCharWZ(pcCondition)
 			return This.FindLastCharW(pcCondition)
 
-	def FindLastSubStringW(pcCondition)
-		return This.FindNthSubStringW(:Last, pcCondition)
+	  #-----------------------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A CHAR VERIFYING A GIVEN CONDITION -- WXT #
+	#-----------------------------------------------------------------------#
 
-		def FindLastSubStringWZ(pcCondition)
-			return This.FindLastSubStringW(pcCondition)
+	def FindLastCharWXTCS(pcCondition, pCaseSensitive)
+		return This.FindNthCharWXTCS(1, pcCondition, pCaseSensitive)
 
-	#-- WXT
+		def FindLastCharWXTCSZ(pcCondition, pCaseSensitive)
+			return This.FindLastCharWXTCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindLastCharWXT(pcCondition)
-		return This.FindNthCharWXT(:Last, pcCondition)
+		return This.FindLastCharWXTCS(pcCondition, TRUE)
 
 		def FindLastCharWXTZ(pcCondition)
 			return This.FindLastCharWXT(pcCondition)
 
+	  #----------------------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
+	#======================================================================#
+
+	def FindLastSubStringWCS(pcCondition, pCaseSensitive)
+		return This.FindNthSubStringWCS(1, pcCondition, pCaseSensitive)
+
+		def FindLastSubStringWCSZ(pcCondition, pCaseSensitive)
+			return This.FindLastSubStringWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindLastSubStringW(pcCondition)
+		return This.FindLastSubStringWCS(pcCondition, TRUE)
+
+		def FindLastSubStringWZ(pcCondition)
+			return This.FindLastSubStringW(pcCondition)
+
+	  #----------------------------------------------------------------------------#
+	 #  FINDING LAST OCCURRENCE OF A SUBSTRING VERIFYING A GIVEN CONDITION -- WXT #
+	#----------------------------------------------------------------------------#
+
+	def FindLastSubStringWXTCS(pcCondition, pCaseSensitive)
+		return This.FindNthSubStringWXTCS(1, pcCondition, pCaseSensitive)
+
+		def FindLastSubStringWXTCSZ(pcCondition, pCaseSensitive)
+			return This.FindLastSubStringWXTCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def FindLastSubStringWXT(pcCondition)
-		return This.FindNthSubStringWXT(:Last, pcCondition)
+		return This.FindLastSubStringWXTCS(pcCondition, TRUE)
 
 		def FindLastSubStringWXTZ(pcCondition)
 			return This.FindLastSubStringWXT(pcCondition)
@@ -57180,7 +57305,7 @@ vvv	#================================================================#
 		def FindSplitsToPartsOfNCharsXTZ(n)
 			return This.FindSplitsToPartsOfNCharsXT(n)
 
-vvv	  #-------------------------------------------#
+	  #-------------------------------------------#
 	 #   FINDING SPLITS UNDER A GIVEN CONDTION   #
 	#===========================================#
 
@@ -57279,7 +57404,7 @@ vvv	  #-------------------------------------------#
 			ok
 		ok
 
-vvv		acSplits = This.SplitsAtCSQ(pcCondition, pCaseSensitive).ItemsWCS(pcCondition, pCaseSensitive)
+		acSplits = This.SplitsAtCSQ(pcCondition, pCaseSensitive).ItemsWCS(pcCondition, pCaseSensitive)
 		anResult  = This.FindTheseSubStringsCS(acSplits, pCaseSensitive)
 
 		return anResult
@@ -57303,77 +57428,275 @@ vvv		acSplits = This.SplitsAtCSQ(pcCondition, pCaseSensitive).ItemsWCS(pcConditi
 
 		#>
 
-	  #--------------------------------------------#
-	 #   FINDING SPLITS BEFORE A GIVEN CONDTION   #
-	#============================================#
+	  #-----------------------------------------------#
+	 #   FINSING SPLITS  AT A GIVEN CONDTION -- WXT  #
+	#-----------------------------------------------#
 
-	def FindSplitsBeforeW(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
+	def FindSplitsAtWCSXT(pcCondition, pCaseSensitive)
+		if CheckParams()
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+	
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
 		ok
 
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsBothCS("@char", "@substring", :CaseSensitive = FALSE)
-			StzRaise("Incorrect syntax! pcCondition must contain either @Char or @SubString keywords but not both.")
-		ok
-
-		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPos = This.FindSubStringsW(pcCondition)
-
-		else
-			anPos = This.FindCharsW(pcCondition)
-		ok
-
-		anResult = This.FindSplitsBeforePositions(anPos)
+		acSplits = This.SplitsAtCSQ(pcCondition, pCaseSensitive).ItemsWCSXT(pcCondition, pCaseSensitive)
+		anResult  = This.FindTheseSubStringsCS(acSplits, pCaseSensitive)
 
 		return anResult
 
 		#< @FunctionAlternativeForm
 
-		def FindSplitsBeforeWZ(pcCondition)
-			return This.FindSplitsBeforeW(pcCondition)
+		def FindSplitsAtWXTCSZ(pcCondition, pCaseSensitive)
+			return This.FindSplitsAtCSXTW(pcCondition, pCaseSensitive)
 
 		#>
 
-	  #-------------------------------------------#
-	 #   FINDING SPLITS AFTER A GIVEN CONDTION   #
-	#-------------------------------------------#
+	#-- WITHOUT CASESENSITIVITY
 
-	def FindSplitsAfterW(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
+	def FindSplitsAtWXT(pcCondition)
+		return This.FindSplitsAtWCSXT(pcCondition, TRUE)
 
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
+		#< @FunctionAlternativeForm
 
-		oCondition = new stzString(pcCondition)
+		def FindSplitsAtWXTZ(pcCondition)
+			return This.FindSplitsAtWXT(pcCondition)
 
-		if oCondition.ContainsBothCS("@char", "@substring", :CaseSensitive = FALSE)
-			StzRaise("Incorrect syntax! pcCondition must contain either @Char or @SubString keywords but not both.")
-		ok
+		#>
 
-		if oCondition.ContainsCS("@substring",  :CaseSensitive = FALSE)
-			anPos = This.FindSubStringsW(pcCondition)
+	  #---------------------------------------------------------#
+	 #   FINDING SPLITS BEFORE CHARS BEFORE A GIVEN CONDTION   #
+	#=========================================================#
 
-		else
-			anPos = This.FindCharsW(pcCondition)
-		ok
-
-		anResult = This.FindSplitsAfterPositions(anPos)
+	def FindSplitsBeforeCharsWCS(pcCondition, pCaseSensitive)
+		acSubStr = This.SplitsBeforeCharsWCS(pcCondition, pCaseSensitive)
+		anResult = This.FindManyCS(acSubStr, pCaseSensitive)
 
 		return anResult
 
 		#< @FunctionAlternativeForm
 
-		def FindSplitsAfterWZ(pcCondition)
-			return This.FindSplitsAfterW(pcCondition)
+		def FindSplitsBeforeCharsWCSZ(pcCondition, pCaseSensitive)
+			return This.FindSplitsBeforeCharsW(pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSplitsBeforeCharsW(pcCondition)
+		return This.FindSplitsBeforeCharsW(pcCondition)
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsBeforeCharsWZ(pcCondition)
+			return This.FindSplitsBeforeCharsW(pcCondition)
+
+		#>
+
+	  #------------------------------------------------------------------#
+	 #   FINDING SPLITS BEFORE CHARS VERIFYING A GIVEN CONDTION -- WXT  #
+	#------------------------------------------------------------------#
+
+	def FindSplitsBeforeCharsWCSXT(pcCondition, pCaseSensitive)
+		acSubStr = This.SplitsBeforeCharsWCSXT(pcCondition, pCaseSensitive)
+		anResult = This.FindManyCSXT(acSubStr, pCaseSensitive)
+
+		return anResult
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsBeforeCharsWCSXTZ(pcCondition, pCaseSensitive)
+			return This.FindSplitsBeforeCharsWCSXT(pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSplitsBeforeCharsWXT(pcCondition)
+		return This.FindSplitsBeforeCharsWXT(pcCondition)
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsBeforeCharsWXTZ(pcCondition)
+			return This.FindSplitsBeforeCharsWXT(pcCondition)
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #   FINDING SPLITS BEFORE SUBSTRINGS BEFORE A GIVEN CONDTION   #
+	#==============================================================#
+
+	def FindSplitsBeforeSubStringsWCS(pcCondition, pCaseSensitive)
+		acSubStr = This.SplitsBeforeSubStringsWCS(pcCondition, pCaseSensitive)
+		anResult = This.FindManyCS(acSubStr, pCaseSensitive)
+
+		return anResult
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsBeforeSubStringsWCSZ(pcCondition, pCaseSensitive)
+			return This.FindSplitsBeforeSubStringsW(pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSplitsBeforeSubStringsW(pcCondition)
+		return This.FindSplitsBeforeSubStringsW(pcCondition)
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsBeforeSubStringsWZ(pcCondition)
+			return This.FindSplitsBeforeSubStringsW(pcCondition)
+
+		#>
+
+	  #-----------------------------------------------------------------------#
+	 #   FINDING SPLITS BEFORE SUBSTRINGS VERIFYING A GIVEN CONDTION -- WXT  #
+	#-----------------------------------------------------------------------#
+
+	def FindSplitsBeforeSubStringsWCSXT(pcCondition, pCaseSensitive)
+		acSubStr = This.SplitsBeforeSubStringsWCSXT(pcCondition, pCaseSensitive)
+		anResult = This.FindManyCSXT(acSubStr, pCaseSensitive)
+
+		return anResult
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsBeforeSubStringsWCSXTZ(pcCondition, pCaseSensitive)
+			return This.FindSplitsBeforeSubStringsWCSXT(pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSplitsBeforeSubStringsWXT(pcCondition)
+		return This.FindSplitsBeforeSubStringsWXT(pcCondition)
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsBeforeSubStringsWXTZ(pcCondition)
+			return This.FindSplitsBeforeSubStringsWXT(pcCondition)
+
+		#>
+
+
+	  #-------------------------------------------------------#
+	 #   FINDING SPLITS AFTER CHARS AFTER A GIVEN CONDTION   #
+	#=======================================================#
+
+	def FindSplitsAfterCharsWCS(pcCondition, pCaseSensitive)
+		acSubStr = This.SplitsAfterCharsWCS(pcCondition, pCaseSensitive)
+		anResult = This.FindManyCS(acSubStr, pCaseSensitive)
+
+		return anResult
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsAfterCharsWCSZ(pcCondition, pCaseSensitive)
+			return This.FindSplitsAfterCharsW(pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSplitsAfterCharsW(pcCondition)
+		return This.FindSplitsAfterCharsW(pcCondition)
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsAfterCharsWZ(pcCondition)
+			return This.FindSplitsAfterCharsW(pcCondition)
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #   FINDING SPLITS AFTER CHARS VERIFYING A GIVEN CONDTION -- WXT  #
+	#-----------------------------------------------------------------#
+
+	def FindSplitsAfterCharsWCSXT(pcCondition, pCaseSensitive)
+		acSubStr = This.SplitsAfterCharsWCSXT(pcCondition, pCaseSensitive)
+		anResult = This.FindManyCSXT(acSubStr, pCaseSensitive)
+
+		return anResult
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsAfterCharsWCSXTZ(pcCondition, pCaseSensitive)
+			return This.FindSplitsAfterCharsWCSXT(pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSplitsAfterCharsWXT(pcCondition)
+		return This.FindSplitsAfterCharsWXT(pcCondition)
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsAfterCharsWXTZ(pcCondition)
+			return This.FindSplitsAfterCharsWXT(pcCondition)
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #   FINDING SPLITS AFTER SUBSTRINGS AFTER A GIVEN CONDTION   #
+	#============================================================#
+
+	def FindSplitsAfterSubStringsWCS(pcCondition, pCaseSensitive)
+		acSubStr = This.SplitsAfterSubStringsWCS(pcCondition, pCaseSensitive)
+		anResult = This.FindManyCS(acSubStr, pCaseSensitive)
+
+		return anResult
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsAfterSubStringsWCSZ(pcCondition, pCaseSensitive)
+			return This.FindSplitsAfterSubStringsW(pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSplitsAfterSubStringsW(pcCondition)
+		return This.FindSplitsAfterSubStringsW(pcCondition)
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsAfterSubStringsWZ(pcCondition)
+			return This.FindSplitsAfterSubStringsW(pcCondition)
+
+		#>
+
+	  #----------------------------------------------------------------------#
+	 #   FINDING SPLITS AFTER SUBSTRINGS VERIFYING A GIVEN CONDTION -- WXT  #
+	#----------------------------------------------------------------------#
+
+	def FindSplitsAfterSubStringsWCSXT(pcCondition, pCaseSensitive)
+		acSubStr = This.SplitsAfterSubStringsWCSXT(pcCondition, pCaseSensitive)
+		anResult = This.FindManyCSXT(acSubStr, pCaseSensitive)
+
+		return anResult
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsAfterSubStringsWCSXTZ(pcCondition, pCaseSensitive)
+			return This.FindSplitsAfterSubStringsWCSXT(pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSplitsAfterSubStringsWXT(pcCondition)
+		return This.FindSplitsAfterSubStringsWXT(pcCondition)
+
+		#< @FunctionAlternativeForm
+
+		def FindSplitsAfterSubStringsWXTZ(pcCondition)
+			return This.FindSplitsAfterSubStringsWXT(pcCondition)
 
 		#>
 
@@ -57508,13 +57831,36 @@ vvv		acSplits = This.SplitsAtCSQ(pcCondition, pCaseSensitive).ItemsWCS(pcConditi
 			# SPLITTING WHERE
 
 			but oParam.IsWhereOrAtWhereNamedParam()
-				return This.FindSplitsAtWZZ(pcSubStrOrPos[2])
+				return This.FindSplitsAtWCSZZ(pcSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsBeforeWhereNamedParam()
-				return This.FindSplitsBeforeWZZ(pcSubStrOrPos[2])
+			but oParam.IsBeforeCharsWhereNamedParam()
+				return This.FindSplitsBeforeCharsWCSZZ(pcSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsAfterWhereNamedParam()
-				return This.FindSplitsAfterWZZ(pcSubStrOrPos[2])
+			but oParam.IsBeforeSubStringsWhereNamedParam()
+				return This.FindSplitsBeforeSubStringsWCSZZ(pcSubStrOrPos[2], pCaseSensitive)
+
+			but oParam.IsAfterCharsWhereNamedParam()
+				return This.FindSplitsAfterCharsWCSZZ(pcSubStrOrPos[2], pCaseSensitive)
+
+			but oParam.IsAfterSubStringsWhereNamedParam()
+				return This.FindSplitsAfterSubStringsWCSZZ(pcSubStrOrPos[2], pCaseSensitive)
+
+			# SPLITTING WHERE -- XT
+
+			but oParam.IsWhereXTOrAtXTWhereXTNamedParam() # TOD add it in stzList
+				return This.FindSplitsAtWCSXTZZ(pcSubStrOrPos[2], pCaseSensitive)
+
+			but oParam.IsBeforeCharsWhereXTNamedParam()
+				return This.FindSplitsBeforeCharsWCSXTZZ(pcSubStrOrPos[2], pCaseSensitive)
+
+			but oParam.IsBeforeSubStringsWhereXTNamedParam()
+				return This.FindSplitsBeforeSubStringsWCSXTZZ(pcSubStrOrPos[2], pCaseSensitive)
+
+			but oParam.IsAfterCharsWhereXTNamedParam()
+				return This.FindSplitsAfterCharsWCSXTZZ(pcSubStrOrPos[2], pCaseSensitive)
+
+			but oParam.IsAfterSubStringsWhereXTNamedParam()
+				return This.FindSplitsAfterSubStringsWCSXTZZ(pcSubStrOrPos[2], pCaseSensitive)
 
 			ok
 		else
