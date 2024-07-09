@@ -293,8 +293,8 @@ pron()
 	#   PLUGIN-BASED FUNCTIONS ARE MEM-CACHED BY DEFAULT   #
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-	# Because the main maintains all the data related to the
-	# functions called inside the plugins, including the params
+	# Because the main program maintains all the data related to the
+	# functions called inside the plugins files, including the params
 	# we used to call them, and thir relative ouputs, Softanza
 	# checks automatically if the output of a new call could
 	# be served from that data in memory, before calling the plugin.
@@ -304,15 +304,29 @@ pron()
 
 	# Now, you may ask: what if the plugin file has been changed
 	# in-between, how can we check it?
+	#--> See the HOT-RELOADING feature in the next section
 
 	# For that, we provide the fellowing function
 
-	//? XPluginFileHasBeenChanged() # return TRUE or FALSE
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#   PLUGIN-FILES ARE CHECKED AT EACH CALL FOR MODIFICATION  #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-	#TODO // think of the best way to implemented, and how the
-	# main program could be notified if the plugin file is changed
+	# Each time a plugin function is called, the Softanza plugin system
+	# checks wether the plugin file has changed since the last call.
 
-	#TODO // illustrate this by an example
+	# This helps optimize the call and reinitialize the plugin state
+	# only when necessary (see the next section for more details).
+
+	# Alternatively, we can check this manually using the function:
+
+	? XHasChanged(:plugin-func-name) # returns TRUE or FALSE
+
+	# Addiionnaly, we can get when the ctime of last hange:
+
+	? XTimeOfLastChange(:plugin-func-name) # returns time in HH:MM:SS format
+
+	#TODO Implement this feature
 
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	#   PLUGIN STATES (RING VM STATES) ARE LAZY-LOADED, REUSABLE, AND HOT-RELOADED   #
@@ -394,6 +408,61 @@ pron()
 	# and UI live, updates running apps without downtime, and sculpts UIs on
 	# the fly for fast designer feedback.
 
+	#TODO Implement these 3 features
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#   PLUGIN STATES (RING VM STATES) CAN BE PAUSED AND THEN RESUMED   #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+	# Plugins states can be paused and then resumed.
+
+	# By pausing states, we can free up system resources for other processes.
+
+	# or persisit our pluging data (or workflows involving multiple plugins
+	# in a scenario of long-running processes).
+
+	# This allows us to free the system from these processes and resume
+	# them only when required.
+
+	# This can be done during an Xfunction call by adding a P() suffix to its name:
+
+	o1.XfP(:funcname)  #--> runs the plugin-function and pauses its state
+
+	o1.XfUP(:funcname) #--> runs the same function also updates the main object
+
+	o1.Xff(:funcname)  #--> runs the same function with fault tolerance.
+
+	# alternatively, we can use the dedicated function directly:
+
+	o1.XPause(:funcname)
+
+	# When a plugin state is paused, the next time its function is called,
+	# it will weak up and resume as if it was still active, retaining the
+	# data from the momement it was paused.
+
+	o1.Xf(:funcname) #--> Resumes the plugin states and runs the function.
+
+	# We can also explicitly resume any paused plugin by:
+
+	o1.XResume(:funcname)
+
+	# Many plugins can be paused/resumed in one operation, simply by providion
+	# the functions we showed above by a list of params:
+
+	o1.XfP([ :funcname1, :funcname2, :funcname3 ])
+
+	# Each plugin function can be resumed alone, or all them can be resumed
+	# togethor in one call:
+
+	o1.Xf([ :funcname1, :funcname2, :funcname3 ])
+
+	# Alternatively, the next functions can be used:
+
+	o1.XPause([ :funcname1, :funcname2, :funcname3 ]) # Pauses many plugins states
+
+	o1.XResume([ :funcname1, :funcname2, :funcname3 ]) # Resumes many plugins states
+	#TODO Implement this pause/resume feature
+
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	#   DELAGATING MAIN CONTROL FLOW TO A LIST OF CALLED PLUGINS   #
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -404,6 +473,7 @@ pron()
 	# be inefficient.
 
 	# A better approach is to delegate this responsibility to the plugins themselves.
+
 	# Each plugin can specify the next plugin to call after finishing its work. This
 	# eliminates the need for the main program to handele each call individually,
 	# improving performance and memory usage.
