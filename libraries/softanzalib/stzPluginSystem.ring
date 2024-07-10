@@ -278,21 +278,23 @@ pron()
 	? o1.XTime() + NL # in seconds
 	#--> 0.04
 
-	//? o1.XTimeByFunct()
+	#TODO Add this feature
+/*
+	? o1.XTimeByFunct()
 
-	#TODO
-	//? o1.XSortTime() # Or XSortUpTime()
+	*? o1.XSortTime() # Or XSortUpTime()
 
-	#TODO
-	//? o1.XSortDownTime()
+	? o1.XSortDownTime()
 
 	# TODO: Profiling also the part of time taken by the main
 	# program before and after calling the plugin
-
+*/
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	#   PLUGIN-BASED FUNCTIONS ARE MEM-CACHED BY DEFAULT   #
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
+	#TODO Add this feature
+/*
 	# Because the main program maintains all the data related to the
 	# functions called inside the plugins files, including the params
 	# we used to call them, and thir relative ouputs, Softanza
@@ -307,11 +309,13 @@ pron()
 	#--> See the HOT-RELOADING feature in the next section
 
 	# For that, we provide the fellowing function
-
+*/
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	#   PLUGIN-FILES ARE CHECKED AT EACH CALL FOR MODIFICATION  #
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
+	#TODO Add this feature
+/*
 	# Each time a plugin function is called, the Softanza plugin system
 	# checks wether the plugin file has changed since the last call.
 
@@ -320,19 +324,19 @@ pron()
 
 	# Alternatively, we can check this manually using the function:
 
-	//? XHasChanged(:plugin-func-name) # returns TRUE or FALSE
+	? XHasChanged(:plugin-func-name) # returns TRUE or FALSE
 
 	# Addiionnaly, we can get when the ctime of last hange:
 
-	//? XTimeOfLastChange(:plugin-func-name) # returns time in HH:MM:SS format
-
-	#TODO Implement this feature
-
+	? XTimeOfLastChange(:plugin-func-name) # returns time in HH:MM:SS format
+*/
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	#   PLUGIN STATES (RING VM STATES) ARE LAZY-LOADED, REUSABLE, AND HOT-RELOADED   #
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-	/*
+	#TODO Add this feature
+
+/*
 
 	1. Program Launch
 	   |
@@ -401,19 +405,19 @@ pron()
 	   |-- Get their list along with useful data about their status/use statistics
 	   |-- Retrieve specific information about a particular plugin instance
 
-	*/
+*/
 
 	#NOTE ON HOT-RELOADING FEATURE
 	# Hot reload supercharges development! It lets game devs tweak mechanics
 	# and UI live, updates running apps without downtime, and sculpts UIs on
 	# the fly for fast designer feedback.
 
-	#TODO Implement these 3 features
-
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	#   PLUGIN STATES (RING VM STATES) CAN BE PAUSED AND THEN RESUMED   #
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
+	#TODO Add this feature
+/*
 	# Plugins states can be paused and then resumed.
 
 	# By pausing states, we can free up system resources for other processes.
@@ -426,49 +430,48 @@ pron()
 
 	# This can be done during an Xfunction call by adding a P() suffix to its name:
 
-	//o1.XfP(:funcname)  #--> runs the plugin-function and pauses its state
+	o1.XfP(:funcname)  #--> runs the plugin-function and pauses its state
 
-	//o1.XfUP(:funcname) #--> runs the same function also updates the main object
+	o1.XfUP(:funcname) #--> runs the same function also updates the main object
 
-	//o1.XffP(:funcname)  #--> runs the same function with fault tolerance.
+	o1.XffP(:funcname)  #--> runs the same function with fault tolerance.
 
 	# Alternatively, we can use the dedicated function directly:
 
-	//o1.XPause(:funcname)
+	o1.XPause(:funcname)
 
 	# When a plugin state is paused, the next time its function is called,
 	# it will weak up and resume as if it was still active, retaining the
 	# data from the momement it was paused.
 
-	//o1.Xf(:funcname) #--> Resumes the plugin states and runs the function.
+	o1.Xf(:funcname) #--> Resumes the plugin states and runs the function.
 
 	# We can also explicitly resume any paused plugin by:
 
-	//o1.XResume(:funcname)
+	o1.XResume(:funcname)
 
 	# Many plugins can be paused/resumed in one operation, simply by providion
 	# the functions we showed above by a list of params:
 
-	//o1.XfP([ :funcname1, :funcname2, :funcname3 ])
+	o1.XfP([ :funcname1, :funcname2, :funcname3 ])
 
 	# Each plugin function can be resumed alone, or all them can be resumed
 	# togethor in one call:
 
-	//o1.Xf([ :funcname1, :funcname2, :funcname3 ])
+	o1.Xf([ :funcname1, :funcname2, :funcname3 ])
 
 	# Alternatively, the next functions can be used:
 
-	//o1.XPause([ :funcname1, :funcname2, :funcname3 ]) # Pauses many plugins states
+	o1.XPause([ :funcname1, :funcname2, :funcname3 ]) # Pauses many plugins states
 
-	//o1.XResume([ :funcname1, :funcname2, :funcname3 ]) # Resumes many plugins states
-
-	#TODO Implement this pause/resume feature
-
+	o1.XResume([ :funcname1, :funcname2, :funcname3 ]) # Resumes many plugins states
+*/
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	#   DELAGATING MAIN CONTROL FLOW TO A LIST OF CALLED PLUGINS   #
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-
+	#TODO Add this feature
+/*
 	# Traditionally, after calling a plugin function, the control flow returns
 	# to the main program to determine the next function to execute. This can
 	# be inefficient.
@@ -490,7 +493,7 @@ pron()
 	
 	// Calling multiple plugins in one go
 
-	# o1.Xf([:removeNonLetters, :Replace = ["Embedding", "Hello"], :reverse])
+	o1.Xf([:removeNonLetters, :Replace = ["Embedding", "Hello"], :reverse])
 	#--> !gniRnigniRolleR
 
 	# Here, the main program makes a single Xf() call with an array of three
@@ -504,9 +507,9 @@ pron()
 
 	# Example
 
-	# o1.XfU(:removeNonLetters)
-	# o1.XfU(:Replace = ["Embedding", "Hello"])
-	# o1.Xf(:reverse)
+	o1.XfU(:removeNonLetters)
+	o1.XfU(:Replace = ["Embedding", "Hello"])
+	o1.Xf(:reverse)
 
 	# This method requires multiple interactions with the main program, leading to
 	# decreased performance.
@@ -517,11 +520,152 @@ pron()
 	# ~> Improved performance: Calling plugins sequentially eliminates unnecessary overhead.
 	# ~> Efficient memory usage: Streamlined execution reduces memory usage.
 	# ~> Cleaner code: Main program handles fewer individual calls, leading to more concise code.
+*/
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#   PLUGIN LIFECYCLE MANAGEMENT    #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	
+	#TODO Add this feature
+/*
+	# Softanza's plugin system covers core concepts of plugin lifecycle management:
 
-	#TODO implement this feature
+	# 1. Plugin creation: Initiated on first call using Xf() function
+	# 2. Lifecycle operations: Caching, cleaning, pausing, resuming, and closing
+	# 3. Activation control: Plugins can be deactivated/activated
+	#    (using "off_"/"on_" filename prefixes)
+	
+	# Querying Plugin Status
+	#-----------------------
+	
+	# Get status of individual or multiple plugins:
+
+	? XStatus(:plugin-name1)
+	 #--> :Paused
+
+	? XStatus([ :plugin1, :plugin2 ])
+	#--> [ :Paused, :Active ]
+	
+	# Retrieve plugins by their status:
+
+	? XPluginsThatAre(:Paused) 
+	#--> [ :plugin1, :plugin3 ]
+	
+	# Lifecycle History
+	#------------------
+	
+	# Get full lifecycle history of a plugin:
+
+	? XStatusXT(:plugin-name1)
+	 #--> [ :Initiated, :Paused, :Resumed, :Cleaned, :Closed ]
+	
+	# Detailed Lifecycle Timing
+	#--------------------------
+	
+	# Retrieve detailed timing information for plugin lifecycle:
+
+	? XStatusXTT(:plugin-name1)
+	#--> [
+	#     :Initiated = [
+	#         :TimeElapsed = 0,
+	#         :CalledFirst = 2.14,
+	#         :CalledLast = 4.80,
+	#         :NumberOfCalls = 5
+	#     ],
+	#     :Paused = 5,
+	#     :Resumed = [
+	#         :TimeElapsed = 10.12,
+	#         :CalledFirst = 10.14,
+	#         :CalledLast  = 28.15,
+	#         :NumberOfCalls = 2
+	#     ],
+	#     :Cleaned = [
+	#         :TimeElapsed = 14.80,
+	#         :CalledFirst = 5.10,
+	#         :CalledLast  = 5.15,
+	#         :NumberOfCalls = 1
+	#     ],
+	#     :Closed = 18.12
+	# ]
+	
+	# The timing data provides insights into plugin behavior:
+
+	# - Plugin initiation: First call at 2.14s, last call before pause at 4.80s
+	# - Paused: At 5s after the last call
+	# - Resumed: After 10.12s of inactivity
+
+	# - Post-resume: First call at 10.14s, last call at 28.15s
+	# ~> Performance note: 2 calls in 38.28s (average 19.14s per call) may indicate performance issues
+
+	# - And so on.
+
+	# This detailed lifecycle information allows for comprehensive 
+	# analysis and optimization of plugin behavior and resource usage.
+*/	
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#   CONCURRENT EXECUTION OF PLUGIN-FUNCTIONS   #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+	#TODO Add this feature
+/*
+	# To run there plugin funcions concurrently, use the C() suffix of the Xf() functo,:
+
+	aData = o1.XfC([
+		:readFile = "myfile.txt",
+		:readXLS  = "mysheet.xls",
+		:readURL  = "www.myurl.com"
+	])
+
+	? aData[1] = "...content of the text file..."
+	? aDate[2] = [ "...the XLS table here in a tabular list..." ]
+	? aData[3] = "...content of the HTML page requested..."
+*/
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#   DEPENDENCY MANAGEMENT OF THE RING LIBS (TO BE) LOADED BY THE PLUGINS  #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	
+	#TODO Add this feature
+/*
+	# Softanza's plugin system includes a lightweight dependency management feature
+	# for Ring libraries loaded by plugins.
+
+	# This system allows for verificationof plugin dependencies without compromising
+	# the isolation of each plugin's execution environment.
+		
+	# The main program can then check these (to be loaded) libraries:
+	
+	? XLoadedLibs(:plugin-name)
+	#--> [ "stzlib.ring", "mathlib.ring", "statslib.ring" ]
+	
+	# Before executing the plugin, the programmer can verify if all required
+	# libraries are availabel (accessible by the code running in the plgin-file):
+	
+	if XLoadedLibsAvailable(:plugin-name)
+		output = Xf(:plugin-name)
+	else
+		raise("Can't run the plugin file! Some loaded libs are not available.")
+	ok
+
+	# Leading to a more robust and stable code.
+
+	# We can also see the dependecy tree of all the plugins
+
+	? XLibsTree()
+	#--> XLibsTree
+	# 	|-- "stdlib.ring"
+	# 	|	|-- plugin-name1
+	# 	|	|-- plugin-name3
+	# 	|	|-- plugin-name5
+	# 	|
+	# 	|-- "mathlib.ring"
+	# 	|	|-- plugin-name2
+	# 	|	|-- plugin-name4
+	# 	|
+	# 	|-- "statslib.ring"
+	# 	|	|-- plugin-name5
+*/
 
 proff()
-# Executed in 0.28 second(s).
+# Executed in 0.25 second(s).
 
 #---------------------------------------#
 #  IMPLEMENTATION OF THE PLUGIN SYSTEM  #
