@@ -1,3 +1,4 @@
+
 /*
 This code demonstrates how to implement a plugin system in Ring
 using the feature of embedding Ring within Ring.
@@ -279,22 +280,22 @@ pron()
 	#--> 0.04
 
 	#TODO Add this feature
-/*
+
 	? o1.XTimeByFunct()
 
-	*? o1.XSortTime() # Or XSortUpTime()
+	? o1.XSortTime() # Or XSortUpTime()
 
 	? o1.XSortDownTime()
 
 	# TODO: Profiling also the part of time taken by the main
 	# program before and after calling the plugin
-*/
+
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	#   PLUGIN-BASED FUNCTIONS ARE MEM-CACHED BY DEFAULT   #
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 	#TODO Add this feature
-/*
+
 	# Because the main program maintains all the data related to the
 	# functions called inside the plugins files, including the params
 	# we used to call them, and thir relative ouputs, Softanza
@@ -308,8 +309,100 @@ pron()
 	# in-between, how can we check it?
 	#--> See the HOT-RELOADING feature in the next section
 
-	# For that, we provide the fellowing function
-*/
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#   PLUGIN-BASED FUNCTIONS CAN BE TIMED, SIZED, AND LOOPED   #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+	#TODO Add this feature
+
+	# Timed Plugin-Fuctions
+	#~~~~~~~~~~~~~~~~~~~~~~
+
+	# To restric a plugin-function to a maximum of 3 seconds, we add TM() suffix:
+
+	? o1.XfTM(:reverse = "...FIRST PART... Other art of the string ...", 3)
+	#--> ...TRAP TSRIF... Other part of the string ...
+
+	# As you see, the reversing stops at the "... FIRST PART..." of  the string
+	# when 3 sconds have elapsed. The remaining part is returned as-is.
+	# ~> A feature commonly called Graceful Degradation.
+
+	# To cancel the operation and raise an error instead, add X to TM():
+
+	? o1.XfTMX(:reverse = "...FIRST PART... Other part of the string ...", 3)
+	#--> Execution cancelled! The maximum time required has been exceeded.
+
+	# Sized Plugin-Fuctions
+	#~~~~~~~~~~~~~~~~~~~~~~
+
+	# The functions can also be constrained by size in bytes:
+
+	? o1.XfSZ(:reverse, "... a large string ...", 120)
+	#--> only the part of size 120 bytes is reversed, the rest is returned as-is.
+
+	? o1.XfSX(:reverse, "... a large string ...", 120)
+	#--> The operaion is cancelled, and an error is raised!
+
+	# Looped Plugin-Fuctions
+	#~~~~~~~~~~~~~~~~~~~~~~~
+
+	# If the inner code خب the plugin function is based on a main loop, you can
+	# constraint it to run only a given number of iterations using the L() suffix.
+	# (we metaphorically say that the function LOOPED, analogous to the TIMED and
+	# SIZED namings used above):
+
+	? o1.XfL(:reverse, "... a large string ...", 99)
+	#--> only the first 99 chars are reversed, the rest of the string are returned as-is?
+
+	? o1.XfLX(:reverse, "... a large string ...", 99)
+	#--> If the internal plugin loop exceeds 99 iterations, an error is raised.
+
+	# Fault-tolerant Timed, Sized, and Looped Plugin-functions
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	# To raise errors in a fault-tolerant way so the main program receives
+	# the errors but continues execution of the next actions, use the Xff()
+	# form of the calling function:
+
+	? o1.XffTMX(:reverse, " ... large string 1 ...")
+	? o1.XffSZX(:reverse, " ... large string 2 ...")
+	? o1.XffLX(:reverse, " ... large string 3...")
+
+	# If we suppose that only the second call is erroneous, we get:
+
+	#--> "... large string 1 reversed in part depending on the time contsraint..."
+	#--> Error: Can't run the plugin-function! Maximum size exceeded.
+	#--> "... large string 3 reversed in part depending on the number of loops..."
+
+	# This leads to robust code, especially when running multiple calls in a list
+	# calls (using Xf([ xf1, xf2, ... ])  or when calling them concurrently (using
+	# Xf() with the C() suffix).
+
+	# Added Value of TIMED, SIZED, and LOOPED calls
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	# 1. When used consciously, these features can prevent runaway processes,
+	#    memory bloat, or CPU hogging, which is especially valuable in shared
+	#    or resource-constrained environments.
+
+	# 2. Developers can fine-tune the behavior of plugins without modifying
+	#    the plugin code itself, which is extremely powerful for system
+	#    administrators and DevOps teams.
+
+	# 3. These features can be used as built-in profiling tools, helping
+	#    developers identify and optimize slow or resource-intensive operations.
+
+	# 4. When running multiple calls concurrently, these constraints can
+	#    prevent any single operation from monopolizing system resources.
+
+	# 5. The system becomes more resilient to poorly optimized or
+	#    potentially malicious plugins.
+
+	# 6. The system can adapt to different execution environments by
+	#    adjusting these constraints.
+
+	# 7. Improved programming and debugging experience.
+
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	#   PLUGIN-FILES ARE CHECKED AT EACH CALL FOR MODIFICATION  #
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -336,9 +429,8 @@ pron()
 
 	#TODO Add this feature
 
-/*
 
-	1. Program Launch
+/*	1. Program Launch
 	   |
 	   |-- Identify active plugins (identified by plugin file naming convention "on_.." or "off_..")
 	   |   |-- Load names and attributes into memory
@@ -404,9 +496,7 @@ pron()
 	   |
 	   |-- Get their list along with useful data about their status/use statistics
 	   |-- Retrieve specific information about a particular plugin instance
-
 */
-
 	#NOTE ON HOT-RELOADING FEATURE
 	# Hot reload supercharges development! It lets game devs tweak mechanics
 	# and UI live, updates running apps without downtime, and sculpts UIs on
@@ -417,7 +507,7 @@ pron()
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 	#TODO Add this feature
-/*
+
 	# Plugins states can be paused and then resumed.
 
 	# By pausing states, we can free up system resources for other processes.
@@ -465,13 +555,13 @@ pron()
 	o1.XPause([ :funcname1, :funcname2, :funcname3 ]) # Pauses many plugins states
 
 	o1.XResume([ :funcname1, :funcname2, :funcname3 ]) # Resumes many plugins states
-*/
+
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	#   DELAGATING MAIN CONTROL FLOW TO A LIST OF CALLED PLUGINS   #
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 	#TODO Add this feature
-/*
+
 	# Traditionally, after calling a plugin function, the control flow returns
 	# to the main program to determine the next function to execute. This can
 	# be inefficient.
@@ -520,13 +610,13 @@ pron()
 	# ~> Improved performance: Calling plugins sequentially eliminates unnecessary overhead.
 	# ~> Efficient memory usage: Streamlined execution reduces memory usage.
 	# ~> Cleaner code: Main program handles fewer individual calls, leading to more concise code.
-*/
+
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	#   PLUGIN LIFECYCLE MANAGEMENT    #
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	
 	#TODO Add this feature
-/*
+
 	# Softanza's plugin system covers core concepts of plugin lifecycle management:
 
 	# 1. Plugin creation: Initiated on first call using Xf() function
@@ -600,13 +690,13 @@ pron()
 
 	# This detailed lifecycle information allows for comprehensive 
 	# analysis and optimization of plugin behavior and resource usage.
-*/	
+	
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	#   CONCURRENT EXECUTION OF PLUGIN-FUNCTIONS   #
-	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 	#TODO Add this feature
-/*
+
 	# To run there plugin funcions concurrently, use the C() suffix of the Xf() functo,:
 
 	aData = o1.XfC([
@@ -618,13 +708,43 @@ pron()
 	? aData[1] = "...content of the text file..."
 	? aDate[2] = [ "...the XLS table here in a tabular list..." ]
 	? aData[3] = "...content of the HTML page requested..."
-*/
+
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#  CANCELLABLE EXECUTION OF MULTIPLE PLUGIN-FUNCTIONS  #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+	#TODO Add this feature
+
+	# In case that a serie of functions called contains functions that update
+	# data in the main program, Softanza Pluggin System allows cancelling
+	# the serie and resetting the main data at its inial value, if any error
+	# happens during the plugins call.
+
+	# To do so, we use the B() suffix (B for fo Back) with the XfU() function:
+
+	o1.XfUB([
+		:make-first-update,
+		:make-second-update,
+		:make-third-update
+	])
+
+	# The value of o1 object will be updated by the three called plugin-functions
+	# only if all of them were sucessfully executed.
+
+	# Otherwise, when an error happens, say while executing the third fucntion,
+	# the hole update opeation is cancelled and an error is raised:
+
+	#--> Error: Can't execute the defined functions.
+	# 	    	:make-first-update: OK
+	# 	 	:make-second-update : Can't open file!
+
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	#   DEPENDENCY MANAGEMENT OF THE RING LIBS (TO BE) LOADED BY THE PLUGINS  #
 	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 	
 	#TODO Add this feature
-/*
+
 	# Softanza's plugin system includes a lightweight dependency management feature
 	# for Ring libraries loaded by plugins.
 
@@ -662,7 +782,112 @@ pron()
 	# 	|
 	# 	|-- "statslib.ring"
 	# 	|	|-- plugin-name5
-*/
+
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+	#   PLUGIN VERSIONING AND COMPATIBILITY   #
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+	# Plugin versioning is a crucial feature for managing the evolution
+	# of plugins over time. It allows us to track changes, ensure
+	# compatibility, and manage updates effectively.
+
+	# Let's see how Softanza Plugging System allows them.
+
+	# Setting and checking plugin versions
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	# Plugin versions are defined by an incremental number at the end of
+	# the plugin file name), and can be checked using XVersion():
+
+	? XVersion(:reverse_V1) # Or XCurrentVersion()
+	#--> V1
+
+	? XVersions(:reverse)
+	#--> [ V1, V2, V3 ]
+
+	? XLastVersion(:reverse)
+	#--> V3
+
+	XSetActiveVersion(:reverse, :V2)
+
+	? XVersion(:reverse)
+	#--> V2
+
+	? HasVersion(:reverse, :V5)
+	#--> FALSE
+
+	# Defining the compatible plugins versions with the main program
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	# Declared in the global variable:
+
+	_aXCompatiblePlugins = [
+		:reverse = [ :V3, :V2 ],
+		:removeNonLetters = [ :V5 ],
+		:otherPluggin = [ :V1 ]
+	]
+
+	# We get this information using:
+	? XCompatiblePlugins()
+
+	# We can check a plugin compatible versions by:
+	? XCompatibleVersions(:reverse)
+	#--> [ :V3, :V2 ]
+
+	# We can chek if a given version of a plugin is compatible with
+	# the main program by:
+
+	? XIsCompatible(:reverse, :V2)
+	#--> TRUE
+
+	# This enable writing a robust code like this:
+
+	if XIsCompatible(:reverse, :V1)
+		? XfV(:reverse, "Hello World!", :V1) # Note the use of V() suffix for Version
+	else
+		raise("Can't proceed. Plugin version is not compatible with the main program.")
+	ok
+
+	# Add makes it possible to run a plugin in any of its compatible versions
+
+	for version in XCompatibleVersions(:reverse)
+		? "Output of version " + version + ": "
+		see XfV(:reverse, "أهلا بالعالم !", version)
+	next
+	#--> Output of version V2 : ! �ل٧ع؄٧ب� �؄ه٣�
+	#--> Output of version V3 : ! ملاعلاب الهأ
+
+	# As you see, it's clear that V3 added the support of Unicode  chars (arabic here)
+	# in the reverse plugging function.
+
+	# You can check it in the metatdata of the XVersions() function along with the XT suffix:
+
+	? XVersionsXT(:reverse)
+	#--> [ :V1 = "Basic version", :V2 = "Better performance", :V3 = "Unicode support" ]
+
+	#NOTE
+	# Those meta data are read for @plugin_description variable in the header of the plugin file.
+
+	# Updating a plugin to its last version
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	XUpdate(:reverse)
+
+	# Which can also be achieved by:
+
+	XSetActiveVersion(:reverse, XLastVersion(:reverse))
+
+	#NOTE
+	# By convention, plusing ages is defined by the number figuring in its
+	# version number. Hence, V3 versions is newer then V2 version, V2 version
+	# is newer then V1 version, and vice versa.
+
+	# Dependencies management on plugins versions
+	#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	#NOTE
+	# Dependency management features we showed earlier apply to plugins versions
+	# since they are just different plugin files.	
 
 proff()
 # Executed in 0.25 second(s).
