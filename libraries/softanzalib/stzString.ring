@@ -25127,7 +25127,6 @@ class stzString from stzObject
 
 		#>
 
-
 	  #----------------------------------------------------------------------#
 	 #  FINDING OCCURRENCES OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
 	#======================================================================#
@@ -51485,6 +51484,17 @@ class stzString from stzObject
 			def SplitsCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
 				return This.SplitAtCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
 
+		#--
+
+		def SeparatedByCS(pSubStrOrPos, pCaseSensitive)
+			return This.SplitAtCS(pSubStrOrPos, pCaseSensitive)
+
+			def SeparatedByCSQ(pSubStrOrPos, pCaseSensitive)
+				return This.SplitsCSQR(pSubStrOrPos, pCaseSensitive, :stzList)
+	
+			def SeparatedByCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+				return This.SplitAtCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+
 		#>
 
 	def SplittedAtCS(pSubStrOrPos, pCaseSensitive)
@@ -51520,7 +51530,7 @@ class stzString from stzObject
 			return This.SplitAt(pSubStrOrPos)
 
 			def SplitQ(pSubStrOrPos)
-				return This.SplitAtQ(pSubStrOrPos, :stzList)
+				return This.SplitAtQR(pSubStrOrPos, :stzList)
 	
 			def SplitQR(pSubStrOrPos, pcReturnType)
 				return This.SplitAtQR(pSubStrOrPos, pcReturnType)
@@ -51529,12 +51539,22 @@ class stzString from stzObject
 			return This.SplitAt(pSubStrOrPos)
 
 			def SplitsQ(pSubStrOrPos)
-				return This.SplitAtQ(pSubStrOrPos, :stzList)
+				return This.SplitAtQR(pSubStrOrPos, :stzList)
 	
 			def SplitsQR(pSubStrOrPos, pcReturnType)
 				return This.SplitAtQR(pSubStrOrPos, pcReturnType)
 
+		#--
 
+		def SeparatedBy(pSubStrOrPos)
+			return This.SplitAt(pSubStrOrPos)
+
+			def SeparatedByQ(pSubStrOrPos)
+				return This.SplitsQR(pSubStrOrPos, :stzList)
+	
+			def SeparatedByR(pSubStrOrPos, pcReturnType)
+				return This.SplitAtQR(pSubStrOrPos, pcReturnType)
+		
 		#>
 
 	def SplittedAt(pSubStrOrPos)
@@ -51617,6 +51637,17 @@ class stzString from stzObject
 				return This.SplitAtPositionQ(n)
 
 			def SplitsAtThisPositionQR(n, pcReturnType)
+				return This.SplitAtPositionQR(n, pcReturnType)
+
+		#--
+
+		def SeparatedByPosition(n)
+			return This.SplitAtPosition(n)
+
+			def SeparatedByPositionQ(n)
+				return This.SplitAtPositionQ(n)
+
+			def SeparatedByPositionQR(n, pcReturnType)
 				return This.SplitAtPositionQR(n, pcReturnType)
 
 		#>
@@ -51718,6 +51749,17 @@ class stzString from stzObject
 				return This.SplitsAtPositionsQR(anPos, :stzList)
 
 			def SplitsAtManyPositionsQR(anPos, pcReturnType)
+				return This.SplitAtPositionsQR(anPos, pcReturnType)
+
+		#--
+
+		def SeparatedByPositions(anPos)
+			return This.SplitAtPositions(anPos)
+
+			def SeparatedByPositionsQ(anPos)
+				return This.SplitAtPositionsQ(anPos)
+
+			def SeparatedByPositionsQR(anPos, pcReturnType)
 				return This.SplitAtPositionsQR(anPos, pcReturnType)
 		#>
 
@@ -51821,6 +51863,17 @@ class stzString from stzObject
 			def SplitsAtThisSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 				return This.SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
+		#--
+
+		def SeparatedBySubStringCS(pcSubStr, pCaseSensitive)
+			return This.SplitAtThisSubStringCS(pcSubStr, pCaseSensitive)
+
+			def SeparatedBySubStringCSQ(pcSubStr, pCaseSensitive)
+				return This.SplitAtThisSubStringCSQ(pcSubStr, pCaseSensitive)
+
+			def SeparatedBySubStringCSQR(n, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
 		#>
 
 	def SplittedAtSubStringCS(pcSubStr, pCaseSensitive)
@@ -51871,6 +51924,17 @@ class stzString from stzObject
 				return This.SplitAtThisSubStringQR(pcSubStr, :stzList)
 	
 			def SplitsAtThisSubStringQR(pcSubStr, pcReturnType)
+				return This.SplitAtSubStringQR(pcSubStr, pcReturnType)
+
+		#--
+
+		def SeparatedBySubString(pcSubStr)
+			return This.SplitAtThisSubString(pcSubStr)
+
+			def SeparatedBySubStringQ(pcSubStr)
+				return This.SplitAtThisSubStringQ(pcSubStr)
+
+			def SeparatedBySubStringQR(n)
 				return This.SplitAtSubStringQR(pcSubStr, pcReturnType)
 
 		#>
@@ -55963,6 +56027,21 @@ class stzString from stzObject
 
 			return This.FindSplitsAtSubStringCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindSeparatedByCS(pcSubStr, pCaseSensitive)
+			return This.FindSplitsAtSubStringCS(pcSubStr, pCaseSensitive)
+
+		def FindSeparatedBySubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindSplitsAtSubStringCS(pcSubStr, pCaseSensitive)
+
+		def FindSeparatedByCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSplitsAtSubStringCS(pcSubStr, pCaseSensitive)
+
+		def FindSeparatedBySubStringCSZ(pcSubStr, pCaseSensitive)
+			return This.FindSplitsAtSubStringCS(pcSubStr, pCaseSensitive)
+
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -55987,6 +56066,21 @@ class stzString from stzObject
 
 		def FindSplitsAtThisSubStringZ(pcSubStr)
 			return This.FindSplitsAtThisSubStringCS(pcSubStr, TRUE)
+
+		#--
+
+		def FindSeparatedBy(pcSubStr)
+			return This.FindSplitsAtSubString(pcSubStr)
+
+		def FindSeparatedBySubString(pcSubStr)
+			return This.FindSplitsAtSubString(pcSubStr)
+
+		def FindSeparatedByZ(pcSubStr)
+			return This.FindSplitsAtSubString(pcSubStr)
+
+		def FindSeparatedBySubStringZs(pcSubStr)
+			return This.FindSplitsAtSubString(pcSubStr)
+
 
 		#>
 
@@ -56023,6 +56117,16 @@ class stzString from stzObject
 		def FindSplitsAtManySubStringsCSZ(pacSubStr, pCaseSensitive)
 			return This.FindSplitsAtSubStringsCS(pacSubStr, pCaseSensitive)
 
+		#--
+
+		def FindSeparatedBySubStringsCS(pacSubStr, pCaseSensitive)
+			return This.FindSplitsAtSubStringsCS(pacSubStr, pCaseSensitive)
+
+
+		def FindSeparatedBySubStringsCSZ(pacSubStr, pCaseSensitive)
+			return This.FindSplitsAtSubStringsCS(pacSubStr, pCaseSensitive)
+
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -56047,6 +56151,14 @@ class stzString from stzObject
 			return This.FindSplitsAtSubStrings(pacSubStr)
 
 		def FindSplitsAtManySubStringsZ(pacSubStr)
+			return This.FindSplitsAtSubStrings(pacSubStr)
+
+		#--
+
+		def FindSeparatedBySubStrings(pacSubStr)
+			return This.FindSplitsAtSubStrings(pacSubStr)
+
+		def FindSeparatedBySubStringsZ(pacSubStr)
 			return This.FindSplitsAtSubStrings(pacSubStr)
 
 		#>
@@ -58032,6 +58144,20 @@ class stzString from stzObject
 
 			return This.FindSplitsAtSubStringCSZZ(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindSeparatedByCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSplitsAtSubStringCSZZ(pcSubStr, pCaseSensitive)
+
+		def FindSeparatedByAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindSplitsAtSubStringCSZZ(pcSubStr, pCaseSensitive)
+
+		def FindSeparatedBySubStringCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindSplitsAtSubStringCSZZ(pcSubStr, pCaseSensitive)
+
+		def FindSeparatedBySubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindSplitsAtSubStringCSZZ(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -58056,6 +58182,20 @@ class stzString from stzObject
 
 		def FindSplitsAtThisSubStringAsSections(pcSubStr)
 			return This.FindSplitsAtThisSubStringAsSectionsCS(pcSubStr, TRUE)
+
+		#--
+
+		def FindSeparatedByZZ(pcSubStr)
+			return This.FindSplitsAtSubStringZZ(pcSubStr)
+
+		def FindSeparatedByAsSections(pcSubStr)
+			return This.FindSplitsAtSubStringZZ(pcSubStr)
+
+		def FindSeparatedBySubStringZZ(pcSubStr)
+			return This.FindSplitsAtSubStringZZ(pcSubStr)
+
+		def FindSeparatedBySubStringAsSections(pcSubStr)
+			return This.FindSplitsAtSubStringZZ(pcSubStr)
 
 		#>
 
@@ -58099,6 +58239,14 @@ class stzString from stzObject
 		def FindSplitsAtManySubStringsAsSectionsCS(pacSubStr, pCaseSensitive)
 			return This.FindSplitsAtSubStringsCSZZ(pacSubStr, pCaseSensitive)
 
+		#--
+
+		def FindSeparatedBySubStringsCSZZ(pacSubStr, pCaseSensitive)
+			return This.FindSplitsAtSubStringsCSZZ(pacSubStr, pCaseSensitive)
+
+		def FindSeparatedBySubStringsAsSectionsCS(pacSubStr, pCaseSensitive)
+			return This.FindSplitsAtSubStringsCSZZ(pacSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -58123,6 +58271,14 @@ class stzString from stzObject
 			return This.FindSplitsAtSubStringsZZ(pacSubStr)
 
 		def FindSplitsAtManySubStringsAsSections(pacSubStr)
+			return This.FindSplitsAtSubStringsZZ(pacSubStr)
+
+		#--
+
+		def FindSeparatedBySubStringsZZ(pacSubStr)
+			return This.FindSplitsAtSubStringsZZ(pacSubStr)
+
+		def FindSeparatedBySubStringsAsSections(pacSubStr)
 			return This.FindSplitsAtSubStringsZZ(pacSubStr)
 
 		#>

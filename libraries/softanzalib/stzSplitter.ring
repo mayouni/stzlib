@@ -371,8 +371,10 @@ class stzSplitter from stzListOfNumbers
 	#-------------------------------------#
 
 	def SplitBeforePositions(panPos)
-		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
-			StzRaise("Incorrect param type! panPos must be a list of numbers.")
+		if CheckParams()
+			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			ok
 		ok
 
 		aPairs = This.GetPairsFromPositions(panPos)
@@ -491,9 +493,18 @@ class stzSplitter from stzListOfNumbers
 
 		aResult = []
 
-		if len(panPos) > 0
-			anPos = StzListOfNumbersQ(panPos).AddedToEach(1)
-			aResult = This.SplitBeforePositions(anPos)
+		nLenPos = len(panPos)
+
+		if nLenPos > 0
+
+			for i = 1 to nLenPos
+				panPos[i]++
+			next
+			if panPos[nLenPos] = This.NumberOfItems()
+				panPos[nLenPos]++
+			ok
+
+			aResult = This.SplitBeforePositions(panPos)
 		ok
 
 		return aResult
