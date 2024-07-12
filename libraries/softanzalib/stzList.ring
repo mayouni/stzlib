@@ -857,6 +857,13 @@ func IsListOfStrings(paList)
 
 	#>
 
+	#< @FunctionMisspelledForm
+
+	func @IsListOfSttrings(paList)
+		return IsListOfStrings(paList)
+
+	#>
+
 func IsListOfListsOfStrings(paList)
 	if NOT isList(paList)
 		return FALSE
@@ -39352,11 +39359,11 @@ Item and then position
 
 		#< @FunctionFluentForm
 
-		def FindAllExceptFirstQR(pItem, pcReturnType)
-			return This.FindAllExceptFirstCSQR(pItem, pcReturnType, TRUE)
-
 		def FindAllExceptFirstQ(pItem)
 			return This.FindAllExceptFirstQR(pItem, :stzList)
+
+		def FindAllExceptFirstQR(pItem, pcReturnType)
+			return This.FindAllExceptFirstCSQR(pItem, TRUE, pcReturnType)
 
 		#
 
@@ -39368,7 +39375,7 @@ Item and then position
 			#< @FunctionFluentForm
 	
 			def FindExceptFirstQR(pItem, pcReturnType)
-				return This.FindExceptFirstCSQR(pItem, pcReturType, TRUE)
+				return This.FindExceptFirstCSQR(pItem, TRUE, pcReturType)
 	
 			def FindExceptFirstQ(pItem)
 				return This.FindAllExceptFirstQR(pItem, :stzList)
@@ -39500,12 +39507,12 @@ Item and then position
 
 			#< @FunctionFluentForm
 	
-			def FindExceptLastQR(pItem, pcReturnType)
-				return This.FindExceptLastCSQR(pItem, pcReturnType, TRUE)
-	
 			def FindExceptLastQ(pItem)
 				return This.FindAllExceptLastQR(pItem, :stzListOfNumbers)
-	
+
+			def FindExceptLastQR(pItem, pcReturnType)
+				return This.FindExceptLastCSQR(pItem, TRUE, pcReturnType)
+		
 			#>
 
 		def FindLastExcept(pItem)

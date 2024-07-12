@@ -1,5 +1,26 @@
 load "stzlib.ring"
 
+/*=======
+*/
+pron()
+
+#                   ...4...8...2..
+o1 = new stzString("---*---*---*---")
+? o1.split("*")
+#--> [ "---", "---", "---", "---" ])
+
+? @@( o1.FindMany([ "---", "---", "---", "---" ]) ) + NL
+#--> [ 1, 5, 9, 13 ]
+
+? @@( o1.FindSplits("*") ) + NL
+#--> [ 1, 5, 9, 13 ]
+
+? @@( o1.FindSplitsZZ("*") )
+#--> [ [ 1, 3 ], [ 5, 7 ], [ 9, 11 ], [ 13, 15 ] ]
+
+proff()
+# Executed in 0.07 second(s).
+
 /*==== CONDITIONAL SPLITTING ON CHARS AND SUBSTRINGS
 
 pron()
