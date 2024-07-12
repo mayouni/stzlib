@@ -37939,91 +37939,6 @@ class stzString from stzObject
 
 		#>
 
-	  #=============================================================================#
-	 #  YIELDING CHARS STARTING AT A GIVEN POSITION UNTIL A CONDITION IS VERIFIED  #
-	#=============================================================================#
-
-	def YieldXT(pcAction, pnStartingAt, pUptoOrUntil)
-		/* EXAMPLE
-	
-		See examples in the same function in stzList
-	
-		*/
-	
-		if NOT isString(pcAction)
-			StzRaise("Incorrect param type! pcAction must be a string.")
-		ok
-
-		if isString(pnStartingAt)
-			pnStartingAt =  Q(pnStartingAt).
-					SubStringsReplacedCS( [ "char", "substring", "string" ],
-						:With = "item", :CS = FALSE)
-		ok
-
-		if isList(pnStartingAt) and Q(pnStartingAt).IsAPairOfStrings()
-			pnStartingAt[2] = Q(pnStartingAt[2]).
-					  SubStringsReplacedCS(
-						[ "char", "substring", "string" ],
-						:With = "item", :CS = FALSE)
-		ok
-
-		if isString(pUptoOrUntil)
-			pUptoOrUntil =  Q(pUptoOrUntil).
-					SubStringsReplacedCS(
-						[ "char", "substring", "string" ],
-						:With = "item", :CS = FALSE)
-		ok
-
-		if isList(pUptoOrUntil) and Q(pUptoOrUntil).IsAPairOfStrings()
-			pUptoOrUntil[2] = Q(pUptoOrUntil[2]).
-					  SubStringsReplacedCS(
-						[ "char", "substring", "string" ],
-						:With = "item", :CS = FALSE)
-		ok
-
-		cAction  = StzCCodeQ(pcAction).Transpiled()
-		acResult = This.CharsQ().YieldXT(cAction, pnStartingAt, pUpToOrUntil)
-		return acResult
-
-		#< @FunctionFluentForm
-
-		def YieldXTQ(pcAction, pnStartingAt, pUptoOrUntil)
-			return This.YieldXTQR(pcAction, pnStartingAt, pUptoOrUntil, :stzList)
-
-		def YieldXTQR(pcAction, pnStartingAt, pUptoOrUntil, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT ( isSting(pcReturnType) and Q(pcReturnType).IsStzClassName() )
-				StzRaise("Incorrect param type! pcReturnType must be a string containing a softanza class name.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil) )
-
-			on :stzListOfStrings
-				return new stzListOfStrings( This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil) )
-
-			on :stzListOfChars
-				return new stzListOfChars( This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil) )
-
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.YieldXT(pcAction, pnStartingAt, pUptoOrUntil) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
-
 	  #==============================================================#
 	 #   REPLACING A CHAR AT A GIVEN POSITION BY A GIVEN SUBSTRING  #
 	#==============================================================#
@@ -72356,33 +72271,6 @@ class stzString from stzObject
 		def ManyRangesRemovedWhereXT(paRanges, pcCondition)
 			return This.ManyRangesRemovedWXT(paRanges, pcCondition)
 
-	  #------------------------------------------------------------#
-	 #    REMOVING CHARS/SUBSTRINGS VERIFYING A GIVEN CONDITION   # 
-	#============================================================#
-
-vvv	def RemoveW(pcCondition)
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam(pcCondition)
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCondition = new stzString(pcCondition)
-
-		if oCondition.ContainsBothCS("@char", :And = "@substring", :CS = FALSE)
-
-			StzRaise("Incorrect syntax! pcCondition must contains @char or @substring keywords but not both.")
-		ok
-
-		if oCondition.ContainsCS("@substring", :CS = FALSE)
-			return This.RemoveSubstringsW(pcCondition)
-
-		else
-			return This.RemoveCharsW(pcCondition)
-		ok
-
 	  #-------------------------------------------------#
 	 #    REMOVING CHARS VERIFYING A GIVEN CONDITION   # 
 	#=================================================#
@@ -72783,63 +72671,24 @@ vvv	def RemoveW(pcCondition)
 
 	  #--------------------------------------------------------------#
 	 #    REPLACING SECTIONS OF CHARS VERIFYING A GIVEN CONDITION   # 
-	#--------------------------------------------------------------#
+	#==============================================================#
 
-	def ReplaceSectionsW(paSections, pcNewSubStr, pcCondition)
+	def ReplaceSectionsWCS(paSections, pcCondition, pcNewSubStr, pCaseSensitive)
 		/* EXAMPLE
 
 		o1 = new stzString("..AA..aa..BB..bb")
 		o1.ReplaceSectionsW(
 			[3, 4], [7,8], [11,12], [15,16],
-			:With = "_",
-			:Wehre = '{ Q(This(@section)).IsLowercase() }'
+			:Where = '{ Q(This[@i]).IsLowercase() }',
+			:With = "_"
 		)
 
 		#--> "..AA.._..BB.._"
 		*/
 
-		if NOT( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-
-			stzRaise([
-				:Where = "stzString > ReplaceManySections()",
-				:What  = "Can't Replace many sections from the string.",
-				:Why   = "The value you provided is not a list of sections.",
-				:Todo  = "Provide a list of sections as pairs of numbers!"
-			])
-		ok
-
-		if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-
-		else
-			// TODO: add this check everywhere in the library!
-			stzRaise("Incorrect condition format!")
-		ok
-
-		pcCondition = StzStringQ(pcCondition).
-				SimplifyQ().
-				ReplaceBoundsQ(["{","}"]).
-				Content()
-
-		cCode = "bOk = ( " + pcCondition + " )"
-
-		aSubStr = This.Sections(paSections)
-
-		aSectionsToReplace = []
-		for i = 1 to len( paSections )
-			@n1 = paSections[i][1]
-			@n2 = paSections[i][2]
-
-			@range = aSubStr[i]
-
-			eval(cCode)
-
-			if bOk
-				aSectionsToReplace + [ @n1, @n2 ]
-			ok
-		next
-
-		This.ReplaceManySections(aSectionsToReplace, pcNewSubStr)
+		acSubStr = This.Sections(paSections)
+		aSections = This.FindAsSectionsWCS(acSubStr, pcCondition, pCaseSensitive)
+		This.ReplaceSections(aSections, pcNewSubStr)
 
 		#< @FunctionFluentForm
 
@@ -72875,40 +72724,170 @@ vvv	def RemoveW(pcCondition)
 		def ManySectionsReplacedWhere(paSections, pcCondition)
 			return This.ManySectionsReplacedW(paSections, pcCondition)
 
-	  #-----------------------------------------------------------------#
-	 #    REPLACING MANY RANGES OF CHARS VERIFYING A GIVEN CONDITION   # 
-	#-----------------------------------------------------------------#
+	  #--------------------------------------------------------------------#
+	 #    REPLACING SECTIONS OF CHARS VERIFYING A GIVEN CONDITION -- WXT  # 
+	#--------------------------------------------------------------------#
 
-	def ReplaceManyRangesW(paListOfRanges, pcNewSubStr, pcCondition)
+	def ReplaceSectionsWCSXT(paSections, pcCondition, pcNewSubStr, pCaseSensitive)
+		/* EXAMPLE
 
-		# Tranform ranges to sections and then use ReplaceManySectionsW()
+		o1 = new stzString("..AA..aa..BB..bb")
+		o1.ReplaceSectionsW(
+			[3, 4], [7,8], [11,12], [15,16],
+			:Where = '{ Q(@section).IsLowercase() }',
+			:With = "_"
+		)
 
-		aSections = []
-		for aRange in paListOfRanges
-			n1 = aRange[1]
-			n2 = aRange[1] + aRange[2] - 1
+		#--> "..AA.._..BB.._"
+		*/
 
-			aSections + [ n1, n2 ]
-		next
-		
-		This.ReplaceManySectionsW(aSections, pcNewSubStr, pcCondition)
+		acSubStr = This.Sections(paSections)
+		aSections = This.FindAsSectionsWCSXT(acSubStr, pcCondition, pCaseSensitive)
+		This.ReplaceSections(aSections, pcNewSubStr)
 
-		def ReplaceManyRangesWQ(paListOfRanges, pcNewSubStr, pcCondition)
-			This.ReplaceManyRangesW(paListOfRanges, pcNewSubStr, pcCondition)
+		#< @FunctionFluentForm
 
-		def ReplaceRangesW(paListOfRanges, pcNewSubStr, pcCondition)
-			This.ReplaceManyRangesW(paListOfRanges, pcNewSubStr, pcCondition)
+		def ReplaceSectionsWXTQ(paSections, pcNewSubStr, pcCondition)
+			This.ReplaceSectionsWXT(paSections, pcNewSubStr, pcCondition)
+			return This
 
-			def ReplaceRangesWQ(paListOfRanges, pcNewSubStr, pcCondition)
-				This.ReplaceRangesW(paListOfRanges, pcNewSubStr, pcCondition)
+		def ReplaceSectionsWhereXT(paSections, pcNewSubStr, pcCondition)
+			This.ReplaceSectionsWXT(paSections, pcNewSubStr, pcCondition)
+
+			def ReplaceSectionsWhereXTQ(paSections, pcNewSubStr, pcCondition)
+				This.ReplaceSectionsWhereXT(paSections, pcNewSubStr, pcCondition)
 				return This
 
-	def ManyRangesReplacedW(paListOfRanges, pcNewSubStr, pcCondition)
-		cResult = This.Copy().ReplaceManyRangesWQ(paListOfRanges, pcNewSubStr, pcCondition).Content()
+		def ReplaceManySectionsWXT(paSections, pcNewSubStr, pcCondition)
+			This.ReplaceSectionsWXT(paSections, pcNewSubStr, pcCondition)
+	
+			def ReplaceManySectionsWXTQ(paSections, pcNewSubStr, pcCondition)
+				This.ReplaceManySectionsWXT(paSections, pcNewSubStr, pcCondition)
+				return This
+
+		def ReplaceManySectionsWhereXT(paSections, pcNewSubStr, pcCondition)
+			This.ReplaceSectionsWXT(paSections, pcNewSubStr, pcCondition)
+
+			def ReplaceManySectionsWhereXTQ(paSections, pcNewSubStr, pcCondition)
+				This.ReplaceManySectionsWhereXT(paSections, pcNewSubStr, pcCondition)
+				return This
+
+	def ManySectionsReplacedWXT(paSections, pcNewSubStr, pcCondition)
+		cResult = This.Copy().ReplaceManySectionsWXTQ(paSections, pcNewSubStr, pcCondition).Content()
 		return cResult
 
-		def RangedReplacedW(paListOfRanges, pcNewSubStr, pcCondition)
-			return This.ManyRangesReplacedW(paListOfRanges, pcNewSubStr, pcCondition)
+		def ManySectionsReplacedWhereXT(paSections, pcCondition)
+			return This.ManySectionsReplacedWXT(paSections, pcCondition)
+
+	  #------------------------------------------------------------#
+	 #    REPLACING RANGES OF CHARS VERIFYING A GIVEN CONDITION   # 
+	#============================================================#
+
+	def ReplaceRangesWCS(paRanges, pcCondition, pcNewSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("..AA..aa..BB..bb")
+		o1.ReplaceRangesW(
+			[3, 4], [7,8], [11,12], [15,16],
+			:Where = '{ Q(This[@i]).IsLowercase() }',
+			:With = "_"
+		)
+
+		#--> "..AA.._..BB.._"
+		*/
+
+		acSubStr = This.Ranges(paRanges)
+		aRanges = This.FindAsRangesWCS(acSubStr, pcCondition, pCaseSensitive)
+		This.ReplaceRanges(aRanges, pcNewSubStr)
+
+		#< @FunctionFluentForm
+
+		def ReplaceRangesWQ(paRanges, pcNewSubStr, pcCondition)
+			This.ReplaceRangesW(paRanges, pcNewSubStr, pcCondition)
+			return This
+
+		def ReplaceRangesWhere(paRanges, pcNewSubStr, pcCondition)
+			This.ReplaceRangesW(paRanges, pcNewSubStr, pcCondition)
+
+			def ReplaceRangesWhereQ(paRanges, pcNewSubStr, pcCondition)
+				This.ReplaceRangesWhere(paRanges, pcNewSubStr, pcCondition)
+				return This
+
+		def ReplaceManyRangesW(paRanges, pcNewSubStr, pcCondition)
+			This.ReplaceRangesW(paRanges, pcNewSubStr, pcCondition)
+	
+			def ReplaceManyRangesWQ(paRanges, pcNewSubStr, pcCondition)
+				This.ReplaceManyRangesW(paRanges, pcNewSubStr, pcCondition)
+				return This
+
+		def ReplaceManyRangesWhere(paRanges, pcNewSubStr, pcCondition)
+			This.ReplaceRangesW(paRanges, pcNewSubStr, pcCondition)
+
+			def ReplaceManyRangesWhereQ(paRanges, pcNewSubStr, pcCondition)
+				This.ReplaceManyRangesWhere(paRanges, pcNewSubStr, pcCondition)
+				return This
+
+	def ManyRangesReplacedW(paRanges, pcNewSubStr, pcCondition)
+		cResult = This.Copy().ReplaceManyRangesWQ(paRanges, pcNewSubStr, pcCondition).Content()
+		return cResult
+
+		def ManyRangesReplacedWhere(paRanges, pcCondition)
+			return This.ManyRangesReplacedW(paRanges, pcCondition)
+
+	  #------------------------------------------------------------------#
+	 #    REPLACING RANGES OF CHARS VERIFYING A GIVEN CONDITION -- WXT  # 
+	#------------------------------------------------------------------#
+
+	def ReplaceRangesWCSXT(paRanges, pcCondition, pcNewSubStr, pCaseSensitive)
+		/* EXAMPLE
+
+		o1 = new stzString("..AA..aa..BB..bb")
+		o1.ReplaceRangesW(
+			[3, 4], [7,8], [11,12], [15,16],
+			:Where = '{ Q(@section).IsLowercase() }',
+			:With = "_"
+		)
+
+		#--> "..AA.._..BB.._"
+		*/
+
+		acSubStr = This.Ranges(paRanges)
+		aRanges = This.FindAsRangesWCSXT(acSubStr, pcCondition, pCaseSensitive)
+		This.ReplaceRanges(aRanges, pcNewSubStr)
+
+		#< @FunctionFluentForm
+
+		def ReplaceRangesWXTQ(paRanges, pcNewSubStr, pcCondition)
+			This.ReplaceRangesWXT(paRanges, pcNewSubStr, pcCondition)
+			return This
+
+		def ReplaceRangesWhereXT(paRanges, pcNewSubStr, pcCondition)
+			This.ReplaceRangesWXT(paRanges, pcNewSubStr, pcCondition)
+
+			def ReplaceRangesWhereXTQ(paRanges, pcNewSubStr, pcCondition)
+				This.ReplaceRangesWhereXT(paRanges, pcNewSubStr, pcCondition)
+				return This
+
+		def ReplaceManyRangesWXT(paRanges, pcNewSubStr, pcCondition)
+			This.ReplaceRangesWXT(paRanges, pcNewSubStr, pcCondition)
+	
+			def ReplaceManyRangesWXTQ(paRanges, pcNewSubStr, pcCondition)
+				This.ReplaceManyRangesWXT(paRanges, pcNewSubStr, pcCondition)
+				return This
+
+		def ReplaceManyRangesWhereXT(paRanges, pcNewSubStr, pcCondition)
+			This.ReplaceRangesWXT(paRanges, pcNewSubStr, pcCondition)
+
+			def ReplaceManyRangesWhereXTQ(paRanges, pcNewSubStr, pcCondition)
+				This.ReplaceManyRangesWhereXT(paRanges, pcNewSubStr, pcCondition)
+				return This
+
+	def ManyRangesReplacedWXT(paRanges, pcNewSubStr, pcCondition)
+		cResult = This.Copy().ReplaceManyRangesWXTQ(paRanges, pcNewSubStr, pcCondition).Content()
+		return cResult
+
+		def ManyRangesReplacedWhereXT(paRanges, pcCondition)
+			return This.ManyRangesReplacedWXT(paRanges, pcCondition)
 
 	  #==========================================#
 	 #    SWAPPING TWO SECTIONS OF THE STRING   # 
@@ -76587,224 +76566,6 @@ vvv	def RemoveW(pcCondition)
 		def EndRemoved(pcSubStr)
 			return This.RemovedFromEnd(pcSubStr)
 
-	  #------------------------------------#
-	 #  REMOVING ANY SUBSTRING FROM LEFT  #
-	#------------------------------------#
-	#TODO : See RemoveAnyCharFromLeft()
-
-	# Add : RemoveAnySubStringFromLeft(cSubStr)
-	#       RemoveAnySubStringFromRight(cSubStr)
-	#       RemoveAnySubStringFromStart(cSubStr)
-	# 	RemoveAnySubStringFromEnd(cSubStr)
-
-	#TODO : Add TrailingSubString() ~~> Like TrailingChar()
-
-	  #--------------------------------------------------------#
-	 #    REMOVING CHARS FROM LEFT UNDER A GIVEN CONDITION    # 
-	#--------------------------------------------------------#
-
-	def RemoveCharsFromLeftW(pcCondition)
-		if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			stzRaise("Incorrect param type! Condition should be in a string.")
-		ok
-
-		pcCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzString)
-
-		cCode = "bOk = ( " + pcCondition + " )"
-		oCode = new stzString(cCode)
-
-		cSubStrToRemove = ""
-
-		nLen = This.NumberOfChars()
-
-		for @i = 1 to nLen
-			@char = This.Char(@i)
-			bEval = TRUE
-
-			if @i = nLen and
-			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i+1]", :CS = FALSE )
-
-				bEval = FALSE
-			ok
-
-			if @i = 1 and
-			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i-1]", :CS = FALSE )
-
-				bEval = FALSE
-			ok
-			
-			if bEval
-				eval(cCode)
-				if bOk
-					cSubStrToRemove += @charName
-				ok
-			ok
-		next
-
-		This.RemoveSubStringFromLeft(cSubStrToRemove)
-
-		def RemoveCharsFromLeftWWQ(pcCondition)
-			This.RemoveCharsFromLeftW(pcCondition)
-			return This
-
-		def RemoveFromLeftW(pcCondition)
-			This.RemoveCharsFromLeftW(pcCondition)
-
-			def RemoveFromLeftWQ(pcCondition)
-				This.RemoveFromLeftW(pcCondition)
-				return This
-
-		def RemoveLeftW(pcCondition)
-			This.RemoveFromLeftW(pcCondition)
-
-			def RemoveLeftWQ(pcCondition)
-				This.RemoveLeftW(pcCondition)
-				return This
-
-	def CharsRemovedFromLeft(pcCondition)
-		cResult = This.Copy().RemoveCharsFromLeftWQ(pcCondition).Content()
-		return cResult
-
-	  #---------------------------------------------------------#
-	 #    REMOVING CHARS FROM RIGHT UNDER A GIVEN CONDITION    # 
-	#---------------------------------------------------------#
-
-	def RemoveCharsFromRightW(pcCondition)
-		if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			stzRaise("Incorrect param type! Condition should be in a string.")
-		ok
-
-		pcCondition = StzCCodeQ(pcCondition).UnifiedFor(:stzString)
-
-		cCode = "bOk = ( " + pcCondition + " )"
-		oCode = new stzString(cCode)
-
-		cSubStrToRemove = ""
-
-		for @i = 1 to This.NumberOfChars()
-			@char = This.Char(@i)
-			bEval = TRUE
-
-			if @i = This.NumberOfChars() and
-			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i+1]", :CS = FALSE )
-
-				bEval = FALSE
-			ok
-
-			if @i = 1 and
-			   oCode.Copy().RemoveSpacesQ().ContainsCS( "This[@i-1]", :CS = FALSE )
-
-				bEval = FALSE
-			ok
-			
-			if bEval
-				eval(cCode)
-				if bOk
-					cSubStrToRemove += @charName
-				ok
-			ok
-		next
-
-		This.RemoveSubStringFromRight(cSubStrToRemove)
-
-		def RemoveCharsFromRightWWQ(pcCondition)
-			This.RemoveCharsFromRightW(pcCondition)
-			return This
-
-		def RemoveFromRightW(pcCondition)
-			This.RemoveCharsFromRightW(pcCondition)
-
-			def RemoveFromRightWQ(pcCondition)
-				This.RemoveFromRightW(pcCondition)
-				return This
-
-		def RemoveRightW(pcCondition)
-			This.RemoveFromRightW(pcCondition)
-
-			def RemoveRightWQ(pcCondition)
-				This.RemoveRightW(pcCondition)
-				return This
-
-	def CharsRemovedFromRight(pcCondition)
-		cResult = This.Copy().RemoveCharsFromRightWQ(pcCondition).Content()
-		return cResult
-
-	  #---------------------------------------------------------#
-	 #    REMOVING CHARS FROM START UNDER A GIVEN CONDITION    # 
-	#---------------------------------------------------------#
-
-	def RemoveCharsFromStartW(pcCondition)
-		if This.IsLeftToRight()
-			This.RemoveCharsFromLeftW(pcCondition)
-
-		else
-			This.RemoveCharsFromRightW(pcCondition)
-		ok
-
-
-		def RemoveCharsFromStartWWQ(pcCondition)
-			This.RemoveCharsFromStartW(pcCondition)
-			return This
-
-		def RemoveFromStartW(pcCondition)
-			This.RemoveCharsFromStartW(pcCondition)
-
-			def RemoveFromStartWQ(pcCondition)
-				This.RemoveFromStartW(pcCondition)
-				return This
-
-		def RemoveStartW(pcCondition)
-			This.RemoveFromStartW(pcCondition)
-
-			def RemoveStartWQ(pcCondition)
-				This.RemoveStartW(pcCondition)
-				return This
-
-	def CharsRemovedFromStart(pcCondition)
-		cResult = This.Copy().RemoveCharsFromStartWQ(pcCondition).Content()
-		return cResult
-
-	  #---------------------------------------------------------#
-	 #    REMOVING CHARS FROM END UNDER A GIVEN CONDITION    # 
-	#---------------------------------------------------------#
-
-	def RemoveCharsFromEndW(pcCondition)
-		if This.IsLeftToRight()
-			This.RemoveCharsFromRighttW(pcCondition)
-
-		else
-			This.RemoveCharsFromLeftW(pcCondition)
-		ok
-
-		def RemoveCharsFromEndWWQ(pcCondition)
-			This.RemoveCharsFromEndW(pcCondition)
-			return This
-
-		def RemoveFromEndW(pcCondition)
-			This.RemoveCharsFromEndW(pcCondition)
-
-			def RemoveFromEndWQ(pcCondition)
-				This.RemoveFromEndW(pcCondition)
-				return This
-
-		def RemoveEndW(pcCondition)
-			This.RemoveFromEndW(pcCondition)
-
-			def RemoveEndWQ(pcCondition)
-				This.RemoveEndW(pcCondition)
-				return This
-
-	def CharsRemovedFromEnd(pcCondition)
-		cResult = This.Copy().RemoveCharsFromEndWQ(pcCondition).Content()
-		return cResult
 
 	  #=================================#
 	 #   TRIMMING & REMOVING SPACES    # 
@@ -77383,16 +77144,29 @@ vvv	def RemoveW(pcCondition)
 
 	  #------------------------------------------------#
 	 #  EXTRACTING CHARS VERIFYING A GIVEN CONDITION  #
-	#------------------------------------------------#
+	#================================================#
+
+	# Removes the chars from the string and returns them
+
+	def ExtractCharsWCS(pcCondition, pCaseSensitive)
+		anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
+		This.RemoveCharsAtPositions(anPos)
+		acResult = This.CharsAtPositions(anPos)
+		return acResult
+
+		def PopCharsWCS(pcCondition, pCaseSensitive)
+			return This.ExtractCharsWCS(pcCondition, pCaseSensitive)
+
+	def CharsExtractedWCS(pcCondition, pCaseSensitive)
+		return This.ExtractCharsWCS(pcCondition, pCaseSensitive)
+
+		def CharsPoppedWCS(pcCondition, pCaseSensitive)
+			return This.CharsExtractedWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractCharsW(pcCondition)
-		acResult = This.CharsW(pcCondition)
-		if len(acResult) = 0
-			StzRaise("Can't extract! The condition returns no values at all.")
-		ok
-
-		This.RemoveCharsW(pcCondition)
-		return acResult
+		This.ExtractCharsWCS(pcCondition, TRUE)
 
 		def PopCharsW(pcCondition)
 			return This.ExtractCharsW(pcCondition)
@@ -77404,66 +77178,109 @@ vvv	def RemoveW(pcCondition)
 			return This.CharsExtractedW(pcCondition)
 
 	  #-----------------------------------------------------#
-	 #  EXTRACTING SUBSTRINGS VERIFYING A GIVEN CONDITION  #
+	 #  EXTRACTING CHARS VERIFYING A GIVEN CONDITION -- XT #
 	#-----------------------------------------------------#
 
-	def ExtractSubStringsW(pcCondition)
-		acResult = This.SubStringsW(pcCondition)
-		if len(acResult) = 0
-			StzRaise("Can't extract! The condition returns no values at all.")
-		ok
-
-		This.RemoveSubStringsW(pcCondition)
-		return aResult
-
-		def PopSubStringsW(pcCondition)
-			return This.ExtractSubStringsW(pcCondition)
-
-	def SubStringsExtractedW(pcCondition)
-		return This.ExtractSubStringsW(pcCondition)
-
-		def SubStringsPoppedW(pcCondition)
-			return This.SubStringsExtractedW(pcCondition)
-
-	  #--------------------------------------------------------------#
-	 #  EXTRACTING CHARS OR SUBSTRINGS VERIFYING A GIVEN CONDITION  #
-	#--------------------------------------------------------------#
-
-	def ExtractW(pcCondition)
-		if CheckParams()
-			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-				pcCondition = pcCondition[2]
-			ok
-	
-			if NOT isString(pcCondition)
-				SteRaise("Incorrect param type! pcCondition must be a string.")
-			ok
-
-			if NOT Q(pcCondition).ContainsEitherCS( "@char", :Or = "@substring", :CS = FALSE)
-				StzRaise("Incorrect condition! pcCondition must contain either @char or @substring keywords.")
-			ok
-		ok
-
-		acResult = []
-		if Q(pcCondition).ContainsCS("@char", :CS = FALSE)
-			acResult = This.CharsW(pcCondition)
-		else
-			acResult = This.SubStringsW(pcCondition)
-		ok
-
-		if len(acResult) = 0
-			StzRaise("Can't extract! The condition returns no values at all.")
-		ok
-
-		This.RemoveW(pcCondition)
+	def ExtractCharsWCSXT(pcCondition, pCaseSensitive)
+		anPos = This.FindCharsWCSXT(pcCondition, pCaseSensitive)
+		This.RemoveCharsAtPositions(anPos)
+		acResult = This.CharsAtPositions(anPos)
 		return acResult
 
-		def PopW(pcCondition)
-			return This.ExtractW(pcCondition)
+		def PopCharsWCSXT(pcCondition, pCaseSensitive)
+			return This.ExtractCharsWCSXT(pcCondition, pCaseSensitive)
+
+	def CharsExtractedWCSXT(pcCondition, pCaseSensitive)
+		return This.ExtractCharsWCSXT(pcCondition, pCaseSensitive)
+
+		def CharsPoppedWCSXT(pcCondition, pCaseSensitive)
+			return This.CharsExtractedWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ExtractCharsWXT(pcCondition)
+		This.ExtractCharsWCSXT(pcCondition, TRUE)
+
+		def PopCharsWXT(pcCondition)
+			return This.ExtractCharsWXT(pcCondition)
+
+	def CharsExtractedWXT(pcCondition)
+		return This.ExtractCharsWXT(pcCondition)
+
+		def CharsPoppedWXT(pcCondition)
+			return This.CharsExtractedWXT(pcCondition)
+
+	  #-----------------------------------------------------#
+	 #  EXTRACTING SUBSTRINGS VERIFYING A GIVEN CONDITION  #
+	#=====================================================#
+
+	# Removes the chars from the string and returns them
+
+	def ExtractSubstringsWCS(pcCondition, pCaseSensitive)
+		aSections = This.FindSubstringsWCSZZ(pcCondition, pCaseSensitive)
+		This.RemoveSubstringsAtSections(aSections)
+		acResult = This.Sections(aSections)
+		return acResult
+
+		def PopSubstringsWCS(pcCondition, pCaseSensitive)
+			return This.ExtractSubstringsWCS(pcCondition, pCaseSensitive)
+
+	def SubstringsExtractedWCS(pcCondition, pCaseSensitive)
+		return This.ExtractSubstringsWCS(pcCondition, pCaseSensitive)
+
+		def SubstringsPoppedWCS(pcCondition, pCaseSensitive)
+			return This.SubstringsExtractedWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ExtractSubstringsW(pcCondition)
+		This.ExtractSubstringsWCS(pcCondition, TRUE)
+
+		def PopSubstringsW(pcCondition)
+			return This.ExtractSubstringsW(pcCondition)
+
+	def SubstringsExtractedW(pcCondition)
+		return This.ExtractSubstringsW(pcCondition)
+
+		def SubstringsPoppedW(pcCondition)
+			return This.SubstringsExtractedW(pcCondition)
+
+	  #----------------------------------------------------------#
+	 #  EXTRACTING SUBSTRINGS VERIFYING A GIVEN CONDITION -- XT #
+	#----------------------------------------------------------#
+
+	def ExtractSubstringsWCSXT(pcCondition, pCaseSensitive)
+		aSections = This.FindSubstringsWCSXTZZ(pcCondition, pCaseSensitive)
+		This.RemoveSubstringsAtSections(aSections)
+		acResult = This.Sections(aSections)
+		return acResult
+
+		def PopSubstringsWCSXT(pcCondition, pCaseSensitive)
+			return This.ExtractSubstringsWCSXT(pcCondition, pCaseSensitive)
+
+	def SubstringsExtractedWCSXT(pcCondition, pCaseSensitive)
+		return This.ExtractSubstringsWCSXT(pcCondition, pCaseSensitive)
+
+		def SubstringsPoppedWCSXT(pcCondition, pCaseSensitive)
+			return This.SubstringsExtractedWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ExtractSubstringsWXT(pcCondition)
+		This.ExtractSubstringsWCSXT(pcCondition, TRUE)
+
+		def PopSubstringsWXT(pcCondition)
+			return This.ExtractSubstringsWXT(pcCondition)
+
+	def SubstringsExtractedWXT(pcCondition)
+		return This.ExtractSubstringsWXT(pcCondition)
+
+		def SubstringsPoppedWXT(pcCondition)
+			return This.SubstringsExtractedWXT(pcCondition)
 
 	  #----------------------------------------#
 	 #  EXTRACTING A SECTION FROM THE STRING  #
-	#----------------------------------------#
+	#========================================#
 
 	def ExtractSection(n1, n2)
 
@@ -82299,9 +82116,43 @@ vvv	def RemoveW(pcCondition)
 	 #   CHARS VERIFYING A GIVEN CONDITION    #
 	#========================================#
 	
+	def CharsWCS(pcCondition, pCaseSensitive)
+		anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
+		acResult = This.CharsAtPositions(anPos)
+
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def CharsWhereCS(pcCondition, pCaseSensitive)
+			return This.CharsWCS(pcCondition, pCaseSensitive)
+
+		def AllCharsWhereCS(pcCondition, pCaseSensitive)
+			return This.CharsWCS(pcCondition, pCaseSensitive)
+
+		def AllCharsWCS(pcCondition, pCaseSensitive)
+			return This.CharsWCS(pcCondition, pCaseSensitive)
+
+		def OnlyWCS(pcCondition, pCaseSensitive)
+			return This.CharsWCS(pcCondition, pCaseSensitive)
+
+		# The use of Item instead of Char is required by some
+		# features of natural-coding (namely the IsA() function
+		# is stzChainOfTruth class
+		def ItemsWCS(pcCondition, pCaseSensitive)
+			return This.CharsWCS(pcCondition, pCaseSensitive)
+
+		def ItemsWhereCS(pcCondition, pCaseSensitive)
+			return This.CharsWCS(pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def CharsW(pcCondition)
-		aResult = This.YieldW('@char', pcCondition)
-		return aResult
+		return This.CharsWCS(pcCondition, TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def CharsWhere(pcCondition)
 			return This.CharsW(pcCondition)
@@ -82324,12 +82175,129 @@ vvv	def RemoveW(pcCondition)
 		def ItemsWhere(pcCondition)
 			return This.CharsW(pcCondition)
 
-	  #-------------------------------------------------------#
-	 #      NUMBER OF CHARS VERIFYING A GIVEN CONDITION      #
-	#-------------------------------------------------------#
+		#>
+
+	  #---------------------------------------------#
+	 #   CHARS VERIFYING A GIVEN CONDITION -- WXT  #
+	#---------------------------------------------#
+	
+	def CharsWCSXT(pcCondition, pCaseSensitive)
+		anPos = This.FindCharsWCSXT(pcCondition, pCaseSensitive)
+		acResult = This.CharsAtPositions(anPos)
+
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def CharsWhereCSXT(pcCondition, pCaseSensitive)
+			return This.CharsWCSXT(pcCondition, pCaseSensitive)
+
+		def AllCharsWhereCSXT(pcCondition, pCaseSensitive)
+			return This.CharsWCSXT(pcCondition, pCaseSensitive)
+
+		def AllCharsWCSXT(pcCondition, pCaseSensitive)
+			return This.CharsWCSXT(pcCondition, pCaseSensitive)
+
+		def OnlyWCSXT(pcCondition, pCaseSensitive)
+			return This.CharsWCSXT(pcCondition, pCaseSensitive)
+
+		# The use of Item instead of Char is required by some
+		# features of natural-coding (namely the IsA() function
+		# is stzChainOfTruth class
+		def ItemsWCSXT(pcCondition, pCaseSensitive)
+			return This.CharsWCSXT(pcCondition, pCaseSensitive)
+
+		def ItemsWhereCSXT(pcCondition, pCaseSensitive)
+			return This.CharsWCSXT(pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def CharsWXT(pcCondition)
+		return This.CharsWCSXT(pcCondition, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def CharsWhereXT(pcCondition)
+			return This.CharsWXT(pcCondition)
+
+		def AllCharsWhereXT(pcCondition)
+			return This.CharsWXT(pcCondition)
+
+		def AllCharsWXT(pcCondition)
+			return This.CharsWXT(pcCondition)
+
+		def OnlyWXT(pcCondition)
+			return This.CharsWXT(pcCondition)
+
+		# The use of Item instead of Char is required by some
+		# features of natural-coding (namely the IsA() function
+		# is stzChainOfTruth class
+		def ItemsWXT(pcCondition)
+			return This.CharsWXT(pcCondition)
+
+		def ItemsWhereXT(pcCondition)
+			return This.CharsWXT(pcCondition)
+
+		#>
+
+	  #-------------------------------------------------#
+	 #   NUMBER OF CHARS VERIFYING A GIVEN CONDITION   #
+	#=================================================#
+
+	def NumberOfCharsWCS(pcCondition, pCaseSensitive)
+		return len( This.CharsWCS(pcCondition, pCaseSensitive) )
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfCharsWhereCS(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		def CountCharsWCS(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		def CountCharsWhereCS(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		def HowManyCharsWCS(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		def HowManyCharWCS(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		def HowManyCharsWhereCS(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		def HowManyCharWhereCS(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		# Items-based naming as required for natural-coding
+
+		def NumberOfItemsWCS(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		def NumberOfItemsWhereCS(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		def HowManyItemsWCS(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		def HowManyItemWCS(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		def HowManyItemsWhereCS(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		def HowManyItemWhereCS(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def NumberOfCharsW(pcCondition)
-		return len( This.CharsW(pcCondition) )
+		return This.NumberOfCharsWCS(pcCondition, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -82376,9 +82344,111 @@ vvv	def RemoveW(pcCondition)
 
 		#>
 
-	  #-----------------------#
+	  #------------------------------------------------------#
+	 #   NUMBER OF CHARS VERIFYING A GIVEN CONDITION -- XT  #
+	#------------------------------------------------------#
+
+	def NumberOfCharsWCSXT(pcCondition, pCaseSensitive)
+		return len( This.CharsWCSXT(pcCondition, pCaseSensitive) )
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfCharsWhereCSXT(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCSXT(pcCondition, pCaseSensitive)
+
+		def CountCharsWCSXT(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCSXT(pcCondition, pCaseSensitive)
+
+		def CountCharsWhereCSXT(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		def HowManyCharsWCSXT(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCSXT(pcCondition, pCaseSensitive)
+
+		def HowManyCharWCSXT(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCSXT(pcCondition, pCaseSensitive)
+
+		def HowManyCharsWhereCSXT(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCSXT(pcCondition, pCaseSensitive)
+
+		def HowManyCharWhereCSXT(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCSXT(pcCondition, pCaseSensitive)
+
+		# Items-based naming as required for natural-coding
+
+		def NumberOfItemsWCSXT(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCSXT(pcCondition, pCaseSensitive)
+
+		def NumberOfItemsWhereCSXT(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCSXT(pcCondition, pCaseSensitive)
+
+		def HowManyItemsWCSXT(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCSXT(pcCondition, pCaseSensitive)
+
+		def HowManyItemWCSXT(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCS(pcCondition, pCaseSensitive)
+
+		def HowManyItemsWhereCSXT(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCSXT(pcCondition, pCaseSensitive)
+
+		def HowManyItemWhereCSXT(pcCondition, pCaseSensitive)
+			return This.NumberOfCharsWCSXT(pcCondition, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfCharsWXT(pcCondition)
+		return This.NumberOfCharsWCSXT(pcCondition, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfCharsWhereXT(pcCondition)
+			return This.NumberOfCharsWXT(pcCondition)
+
+		def CountCharsWXT(pcCondition)
+			return This.NumberOfCharsWXT(pcCondition)
+
+		def CountCharsWhereXT(pcCondition)
+			return This.NumberOfCharsWXT(pcCondition)
+
+		def HowManyCharsWXT(pcCondition)
+			return This.NumberOfCharsWXT(pcCondition)
+
+		def HowManyCharWXT(pcCondition)
+			return This.NumberOfCharsWXT(pcCondition)
+
+		def HowManyCharsWhereXT(pcCondition)
+			return This.NumberOfCharsWXT(pcCondition)
+
+		def HowManyCharWhereXT(pcCondition)
+			return This.NumberOfCharsWXT(pcCondition)
+
+		# Items-based naming as required for natural-coding
+
+		def NumberOfItemsWXT(pcCondition)
+			return This.NumberOfCharsWXT(pcCondition)
+
+		def NumberOfItemsWhereXT(pcCondition)
+			return This.NumberOfCharsWXT(pcCondition)
+
+		def HowManyItemsWXT(pcCondition)
+			return This.NumberOfCharsWXT(pcCondition)
+
+		def HowManyItemWXT(pcCondition)
+			return This.NumberOfCharsWXT(pcCondition)
+
+		def HowManyItemsWhereXT(pcCondition)
+			return This.NumberOfCharsWXT(pcCondition)
+
+		def HowManyItemWhereXT(pcCondition)
+			return This.NumberOfCharsWXT(pcCondition)
+
+		#>
+
+	  #=======================#
 	 #   STRING IS A CHAR?   #
-	#-----------------------#
+	#=======================#
 
 	def IsChar()
 		if This.NumberOfChars() = 1
@@ -85924,7 +85994,6 @@ vvv	def RemoveW(pcCondition)
 			pcCondition = pcCondition[2]
 		ok
 
-		pcCondition = StzCCodeQ(pcCondition).Transpiled()
 		return This.CharsQ().CheckW(pcCondition)
 
 		#< @FunctionAlternativeForms
@@ -85949,12 +86018,45 @@ vvv	def RemoveW(pcCondition)
 
 		#>
 
-	  #-------------------------------------------------------------------#
+  	  #----------------------------------------------------------------#
+	 #   CHECKING IF ALL THE STRINGS VERIFY A GIVEN CONDITION -- WXT  #
+	#----------------------------------------------------------------#
+
+	def CheckWXT(pcCondition)
+		if isList(pcCondition) and Q(pcCondition).IsWithNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
+		pcCondition = StzCCodeQ(pcCondition).Transpiled()
+		return This.CharsQ().CheckW(pcCondition)
+
+		#< @FunctionAlternativeForms
+
+		def CheckXT(pcCondition)
+			return This.CheckWXT(pcCondition)
+
+		def VerifyXT(pcCondition)
+			return This.CheckWXT(pcCondition)
+
+		def EachStringVerifyWXT(pcCondition)
+			return This.CheckWXT(pcCondition)
+
+		def EachStringVerifyXT(pcCondition)
+			return This.CheckWXT(pcCondition)
+
+		def EachStringItemVerifyWXT(pcCondition)
+			return This.CheckWXT(pcCondition)
+
+		def EachStringItemVerifyXT(pcCondition)
+			return This.CheckWXT(pcCondition)
+
+		#>
+
+	  #---------------------------------------------------------------------#
 	 #   CHECKING IF STRINGS AT GIVEN POSITIONS VERIFY A GIVEN CONDITION   #
-	#-------------------------------------------------------------------#
+	#=====================================================================#
 
 	def CheckOnW(panPos, pcCondition)
-
 		return This.CharsQ().CheckOnW(panPos, pcCondition)
 
 		#< @FunctionAlternativeForms
@@ -85987,9 +86089,47 @@ vvv	def RemoveW(pcCondition)
 			return This.CheckOnW(panPos, pcCondition)
 		#>
 
-	  #------------------------------------------------------------------#
+	  #---------------------------------------------------------------------------#
+	 #   CHECKING IF STRINGS AT GIVEN POSITIONS VERIFY A GIVEN CONDITION -- WXT  #
+	#===========================================================================#
+
+	def CheckOnWXT(panPos, pcCondition)
+		pcCondition = StzCCode.Transpiled()
+		return This.CharsQ().CheckOnW(panPos, pcCondition)
+
+		#< @FunctionAlternativeForms
+
+		def VerifyOnWXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
+
+		def CheckOnXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
+
+		def VerifyOnXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
+
+		def CheckOnPositionsWXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
+
+		def VerifiyOnPositionsWXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
+
+		def CheckOnThesePositionsWXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
+
+		def VerifyThesePositionsWXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
+
+		def CheckOnPositionsXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
+
+		def VerifyOnPositionsXT(panPos, pcCondition)
+			return This.CheckOnWXT(panPos, pcCondition)
+		#>
+
+	  #--------------------------------------------------------------------#
 	 #   CHECKING IF STRINGS AT GIVEN SECTIONS VERIFY A GIVEN CONDITION   #
-	#------------------------------------------------------------------#
+	#====================================================================#
 
 	def CheckOnSectionsW(paSections, pcCondition)
 		return This.CharsQ().CheckOnSectionsW(paSections, pcCondition)
@@ -86019,16 +86159,45 @@ vvv	def RemoveW(pcCondition)
 
 		#>
 
+	  #--------------------------------------------------------------------------#
+	 #   CHECKING IF STRINGS AT GIVEN SECTIONS VERIFY A GIVEN CONDITION -- WXT  #
+	#==========================================================================#
+
+	def CheckOnSectionsWXT(paSections, pcCondition)
+		pcCondition = StzCCodeQ(pcCondition).Transpiled()
+		return This.CharsQ().CheckOnSectionsW(paSections, pcCondition)
+
+		#< @FunctionAlternativeForm
+
+		def VerifyOnSectionsWXT(paSections, pcCondition)
+			return This.CheckOnSectionsWXT(paSections, pcCondition)
+
+		def CheckOnSectionsXT(paSections, pcCondition)
+			return This.CheckOnSectionsWXT(paSections, pcCondition)
+
+		def VerifyOnSectionsXT(paSections, pcCondition)
+			return This.CheckOnSectionsWXT(paSections, pcCondition)
+
+		def CheckOnTheseSectionsWXT(paSections, pcCondition)
+			return This.CheckOnSectionsWXT(paSections, pcCondition)
+
+		def VerifyOnTheseSectionsWXT(paSections, pcCondition)
+			return This.CheckOnSectionsWXT(paSections, pcCondition)
+
+		def CheckOnTheseSectionsXT(paSections, pcCondition)
+			return This.CheckOnSectionsWXT(paSections, pcCondition)
+
+		def VerifyOnTheseSectionsXT(paSections, pcCondition)
+			return This.CheckOnSectionsWXT(paSections, pcCondition)
+
+		#>
+
 	  #=========================================#
 	 #   YIELDING INFORMATION FROM EACH CHAR   #
 	#=========================================#
 
 	def Yield(pcCode)
-		if NOT isString(pcCode)
-			StzRaise("Incorrect param type! pcCode must be a string.")
-		ok
 
-		pcCode = Q(pcCode).ReplaceManyCSQ(["@char", "@substring"], "@item", FALSE).Content()
 		return This.CharsQ().YieldFrom( 1:This.NumberOfChars(), pcCode )
 
 		#< @FunctionFluentForm
@@ -86069,26 +86238,7 @@ vvv	def RemoveW(pcCondition)
 				return This.YieldFromEachCharQR(pcCode, :stzList)
 		
 			def YieldFromEachCharQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldFromEachChar(pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromEachChar(pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromEachChar(pcCode) )
-	
-				on :stzHashList
-					return new stzHashList( This.YieldFromEachChar(pcCode) )
-			
-			other
-					stzRaise("Unsupported return type!")
-			off
+				return This.YieldQR(pcCode, pcReturnType)
 
 		def Harvest(pcCode)
 			return This.Yield(pcCode)
@@ -86097,26 +86247,7 @@ vvv	def RemoveW(pcCondition)
 				return This.YieldFromEachCharQR(pcCode, :stzList)
 		
 			def HarvestQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.Harvest(pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.Harvest(pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.Harvest(pcCode) )
-	
-				on :stzHashList
-					return new stzHashList( This.Harvest(pcCode) )
-			
-			other
-					stzRaise("Unsupported return type!")
-			off
+				return This.return This.YieldQR(pcCode, pcReturnType)
 
 		def HarvestFromEachChar(pcCode)
 			return This.Yield(pcCode)
@@ -86125,31 +86256,81 @@ vvv	def RemoveW(pcCondition)
 				return This.HarvestFromEachCharQR(pcCode, :stzList)
 		
 			def HarvestFromEachCharQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+				return This.YieldQR(pcCode, pcReturnType)
+
+		#>
+
+	  #==============================================#
+	 #   YIELDING INFORMATION FROM EACH CHAR -- XT  #
+	#==============================================#
+
+	def YieldXT(pcCode)
+
+		return This.CharsQ().YieldFromXT( 1:This.NumberOfChars(), pcCode )
+
+		#< @FunctionFluentForm
+
+		def YieldXTQ(pcCode)
+			return This.YieldXTQR(pcCode, :stzList)
 	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromEachChar(pcCode) )
+		def YieldXTQR(pcCode, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.YieldXT(pcCode) )
+	
+			on :stzListOfStrings
+				return new stzListOfStrings( This.YieldXT(pcCode) )
+				
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.YieldXT(pcCode) )
+
+			on :stzHashList
+				return new stzHashList( This.YieldXT(pcCode) )
 		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromEachChar(pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromEachChar(pcCode) )
-	
-				on :stzHashList
-					return new stzHashList( This.HarvestFromEachChar(pcCode) )
-			
-			other
-					stzRaise("Unsupported return type!")
-			off
+		other
+				stzRaise("Unsupported return type!")
+		off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def YieldFromEachCharXT(pcCode)
+			return This.YieldXT(pcCode)
+
+			def YieldFromEachCharXTQ(pcCode)
+				return This.YieldFromEachCharXTQR(pcCode, :stzList)
+		
+			def YieldFromEachCharXTQR(pcCode, pcReturnType)
+				return This.YieldXTQR(pcCode, pcReturnType)
+
+		def HarvestXT(pcCode)
+			return This.YieldXT(pcCode)
+
+			def HervestXTQ(pcCode)
+				return This.YieldFromEachCharXTQR(pcCode, :stzList)
+		
+			def HarvestXTQR(pcCode, pcReturnType)
+				return This.return This.YieldXTQR(pcCode, pcReturnType)
+
+		def HarvestFromEachCharXT(pcCode)
+			return This.YieldXT(pcCode)
+
+			def HarvestFromEachCharXTQ(pcCode)
+				return This.HarvestFromEachCharXTQR(pcCode, :stzList)
+		
+			def HarvestFromEachCharXTQR(pcCode, pcReturnType)
+				return This.YieldXTQR(pcCode, pcReturnType)
+
 		#>
 
 	  #--------------------------------------------------------#
 	 #   YIELDING INFORMATION FROM CHARS AT GIVEN POSITIONS   #
-	#--------------------------------------------------------#
+	#========================================================#
 
 	def YieldFrom(panPos, pcCode)
 		return This.CharsQ().YieldFrom(panPos, pcCode)
@@ -86189,23 +86370,7 @@ vvv	def RemoveW(pcCondition)
 				return This.YieldFromPositionsQR(panPos, pcCode, :stzList)
 		
 			def YieldFromPositionsQR(panPos, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldFromPositions(panPos, pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromPositions(panPos, pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromPositions(panPos, pcCode) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.YieldFromQR(panPos, pcCode, pcReturnType)
 
 		def YieldFromCharsAt(panPos, pcCode)
 			return This.YieldFrom(panPos, pcCode)
@@ -86214,23 +86379,7 @@ vvv	def RemoveW(pcCondition)
 				return This.YieldFromCharsAtQR(panPos, pcCode, :stzList)
 		
 			def YieldFromCharsAtQR(panPos, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldFromCharsAt(panPos, pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromCharsAt(panPos, pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromCharsAt(panPos, pcCode) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.YieldFromQR(panPos, pcCode, pcReturnType)
 
 		def YieldFromCharsAtPositions(panPos, pcCode)
 			return This.YieldOn(panPos, pcCode)
@@ -86239,26 +86388,7 @@ vvv	def RemoveW(pcCondition)
 				return This.YieldFromCharsAtPositionsQR(panPos, pcCode, :stzList)
 		
 			def YieldFromCharsAtPositionsQR(panPos, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldFromCharsAtPositions(panPos, pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromCharsAtPositions(panPos, pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromCharsAtPositions(panPos, pcCode) )
-	
-				on :stzHashList
-					return new stzHashList( This.YieldFromCharsAtPositions(panPos, pcCode) )
-			
-			other
-					stzRaise("Unsupported return type!")
-			off
+				return This.YieldFromQR(panPos, pcCode, pcReturnType)
 
 		def HarvestFromPositions(panPos, pcCode)
 			return This.HarvestFrom(panPos, pcCode)
@@ -86267,23 +86397,7 @@ vvv	def RemoveW(pcCondition)
 				return This.HarvestFromPositionsQR(panPos, pcCode, :stzList)
 		
 			def HarvestFromPositionsQR(panPos, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromPositions(panPos, pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromPositions(panPos, pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromPositions(panPos, pcCode) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.YieldFromQR(panPos, pcCode, pcReturnType)
 
 		def HarvestFromCharsAt(panPos, pcCode)
 			return This.HarvestFrom(panPos, pcCode)
@@ -86292,23 +86406,7 @@ vvv	def RemoveW(pcCondition)
 				return This.HarvestFromCharsAtQR(panPos, pcCode, :stzList)
 		
 			def HarvestFromCharsAtQR(panPos, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromCharsAt(panPos, pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromCharsAt(panPos, pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromCharsAt(panPos, pcCode) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+				return This.YieldFromQR(panPos, pcCode, pcReturnType)
 
 		def HarvestFromCharsAtPositions(panPos, pcCode)
 			return This.HarvestOn(panPos, pcCode)
@@ -86317,28 +86415,104 @@ vvv	def RemoveW(pcCondition)
 				return This.HarvestFromCharsAtPositionsQR(panPos, pcCode, :stzList)
 		
 			def HarvestFromCharsAtPositionsQR(panPos, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+				return This.YieldFromQR(panPos, pcCode, pcReturnType)
+
+		#>
+
+	  #-------------------------------------------------------------#
+	 #   YIELDING INFORMATION FROM CHARS AT GIVEN POSITIONS -- XT  #
+	#=============================================================#
+
+	def YieldFromXT(panPos, pcCode)
+		return This.CharsQ().YieldFromXT(panPos, pcCode)
+
+		#< @FunctionFluentForm
+
+		def YieldFromXTQ(panPos, pcCode)
+			return This.YieldFromXTQR(panPos, pcCode, :stzList)
 	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromCharsAtPositions(panPos, pcCode) )
+		def YieldFromXTQR(panPos, pcCode, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.YieldFromXT(panPos, pcCode) )
+	
+			on :stzListOfStrings
+				return new stzListOfStrings( This.YieldFromXT(panPos, pcCode) )
+				
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.YieldFromXT(panPos, pcCode) )
 		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromCharsAtPositions(panPos, pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromCharsAtPositions(panPos, pcCode) )
-	
-				other
-					stzRaise("Unsupported return type!")
-				off
+			other
+				stzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def YieldFromPositionsXT(panPos, pcCode)
+			return This.YieldFromXT(panPos, pcCode)
+
+			def YieldFromPositionsXTQ(panPos, pcCode)
+				return This.YieldFromPositionsXTQR(panPos, pcCode, :stzList)
+		
+			def YieldFromPositionsXTQR(panPos, pcCode, pcReturnType)
+				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
+
+		def YieldFromCharsAtXT(panPos, pcCode)
+			return This.YieldFromXT(panPos, pcCode)
+
+			def YieldFromCharsAtXTQ(panPos, pcCode)
+				return This.YieldFromCharsAtXTQR(panPos, pcCode, :stzList)
+		
+			def YieldFromCharsAtXTQR(panPos, pcCode, pcReturnType)
+				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
+
+		def YieldFromCharsAtPositionsXT(panPos, pcCode)
+			return This.YieldOnXT(panPos, pcCode)
+
+			def YieldFromCharsAtPositionsXTQ(panPos, pcCode)
+				return This.YieldFromCharsAtPositionsXTQR(panPos, pcCode, :stzList)
+		
+			def YieldFromCharsAtPositionsXTQR(panPos, pcCode, pcReturnType)
+				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
+
+		def HarvestFromPositionsXT(panPos, pcCode)
+			return This.HarvestFromXT(panPos, pcCode)
+
+			def HarvestFromPositionsXTQ(panPos, pcCode)
+				return This.HarvestFromPositionsXTQR(panPos, pcCode, :stzList)
+		
+			def HarvestFromPositionsXTQR(panPos, pcCode, pcReturnType)
+				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
+
+		def HarvestFromCharsAtXT(panPos, pcCode)
+			return This.HarvestFromXT(panPos, pcCode)
+
+			def HarvestFromCharsAtXTQ(panPos, pcCode)
+				return This.HarvestFromCharsAtXTQR(panPos, pcCode, :stzList)
+		
+			def HarvestFromCharsAtXTQR(panPos, pcCode, pcReturnType)
+				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
+
+		def HarvestFromCharsAtPositionsXT(panPos, pcCode)
+			return This.HarvestOnXT(panPos, pcCode)
+
+			def HarvestFromCharsAtPositionsXTQ(panPos, pcCode)
+				return This.HarvestFromCharsAtPositionsXTQR(panPos, pcCode, :stzList)
+		
+			def HarvestFromCharsAtPositionsXTQR(panPos, pcCode, pcReturnType)
+				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
+
 		#>
 
 	  #------------------------------------------------------#
 	 #   YIELDING INFORMATION ON CHARS IN GIVEN SECTIONS    #
-	#------------------------------------------------------#
+	#======================================================#
 
 	def YieldFromSections(paSections, pcCode)
 		return This.CharsQ().YieldFromSections(paSections, pcCode)
@@ -86348,85 +86522,133 @@ vvv	def RemoveW(pcCondition)
 		def YieldFromSectionsQ(paSections, pcCode)
 			return new stzList( This.YieldFromSections(paSections, pcCode) )
 
-		def YieldSections(paSections, pcCode)
-			return This.YieldFromSections(paSections, pcCode)
+		def YieldFromSectionsQR(paSections, pcCode, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.YieldFromSections(paSections, pcCode) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.YieldFromSections(paSections, pcCode) )
+
+			other
+				stzRaise("Unsupported param type!")
+			off
 
 		#>
 
 		#< @FunctionAlternativeForms
 
+		def YieldSections(paSections, pcCode)
+			return This.YieldFromSections(paSections, pcCode)
+
+			def YieldSectionsQ(paSections, pcCode)
+				return This.YieldFromSectionsQ(paSections, pcCode)
+
+			def YieldSectionsQR(paSections, pcCode, pcReturnType)
+				return This.YieldFromSectionsQR(paSections, pcCode, pcReturnType)
+
 		def HarvestFromSections(paSections, pcCode)
 			return This.YieldFromSections(paSections, pcCode)
 
 			def HarvestFromSectionsQ(paSections, pcCode)
-				return This.HarvestFromSections(paSections, pcCode, :stzList)
+				return This.YieldFromSectionsQ(paSections, pcCode)
 
 			def HarvestFromSectionsQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromSections(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestFromSections(paSections, pcCode) )
-	
-				other
-					stzRaise("Unsupported param type!")
-				off
+				return This.YieldFromSectionsQR(paSections, pcCode, pcReturnType)
 	
 		def HarvestSections(paSections, pcCode)
 			return This.YieldFromSections(paSections, pcCode)
 
 			def HarvestSectionsQ(paSections, pcCode)
-				return This.HarvestSections(paSections, pcCode, :stzList)
+				return This.YieldFromSectionsQ(paSections, pcCode)
 
 			def HarvestSectionsQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
+				return This.YieldFromSectionsQR(paSections, pcCode, pcReturnType)
 
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestSections(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestSections(paSections, pcCode) )
-	
-				other
-					stzRaise("Unsupported param type!")
-				off
 		#>
 
+	  #----------------------------------------------------------#
+	 #   YIELDING INFORMATION ON CHARS IN GIVEN SECTIONS -- XT  #
+	#==========================================================#
+
+	def YieldFromSectionsXT(paSections, pcCode)
+		return This.CharsQ().YieldFromSectionsXT(paSections, pcCode)
+
+		#< @FunctionFluentForm
+
+		def YieldFromSectionsXTQ(paSections, pcCode)
+			return new stzList( This.YieldFromSectionsXT(paSections, pcCode) )
+
+		def YieldFromSectionsXTQR(paSections, pcCode, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				stzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.YieldFromSectionsXT(paSections, pcCode) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.YieldFromSectionsXT(paSections, pcCode) )
+
+			other
+				stzRaise("Unsupported param type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def YieldSectionsXT(paSections, pcCode)
+			return This.YieldFromSectionsXT(paSections, pcCode)
+
+			def YieldSectionsXTQ(paSections, pcCode)
+				return This.YieldFromSectionsXTQ(paSections, pcCode)
+
+			def YieldSectionsXTQR(paSections, pcCode, pcReturnType)
+				return This.YieldFromSectionsXTQR(paSections, pcCode, pcReturnType)
+
+		def HarvestFromSectionsXT(paSections, pcCode)
+			return This.YieldFromSectionsXT(paSections, pcCode)
+
+			def HarvestFromSectionsXTQ(paSections, pcCode)
+				return This.YieldFromSectionsXTQ(paSections, pcCode)
+
+			def HarvestFromSectionsXTQR(paSections, pcCode, pcReturnType)
+				return This.YieldFromSectionsXTQR(paSections, pcCode, pcReturnType)
+	
+		def HarvestSectionsXT(paSections, pcCode)
+			return This.YieldFromSectionsXT(paSections, pcCode)
+
+			def HarvestSectionsXTQ(paSections, pcCode)
+				return This.YieldFromSectionsXTQ(paSections, pcCode)
+
+			def HarvestSectionsXTQR(paSections, pcCode, pcReturnType)
+				return This.YieldFromSectionsXTQR(paSections, pcCode, pcReturnType)
+
+		#>
+
+	  #---------------------------------------------------------------#
+	 #   YIELDING INFORMATION ON CHARS IN GIVEN SECTIONS ONE BY ONE  #
+	#===============================================================#
+
+	#TODO
+	# Check this function, it's not clear in what it differs from HarvestSections()
+
 	def YieldFromSectionsOneByOne(paSections, pcCode)
-
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-
-			stzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
-		ok
-
-		aResult = []
-
-		anSectionsExpanded = []
-		for aSection in paSections
-			anSectionsExpanded + Q(aSection).ExpandedIfPairOfNumbers()
-		next
-
-		for anPos in anSectionsExpanded
-			aResult + This.YieldFromPositions(anPos, pcCode)
-		next
-
-		return aResult
+		return This.CharsQ().YieldFromSectionsOneByOne(paSections, pcCode)
 
 		#< @FunctionFluentForm
 
@@ -86464,24 +86686,7 @@ vvv	def RemoveW(pcCondition)
 				return This.HarvestFromSectionsOneByOne(paSections, pcCode, :stzList)
 
 			def HarvestFromSectionsOneByOneQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromSectionsOneByOne(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestFromSectionsOneByOne(paSections, pcCode) )
-	
-				other
-					stzRaise("Unsupported param type!")
-				off
+				return This.YieldFromSectionsOneByOneQR(paSections, pcCode, pcReturnType)
 				
 		def HarvestSectionsOneByOne(paSections, pcCode)
 			return This.YieldFromSections(paSections, pcCode)
@@ -86490,24 +86695,8 @@ vvv	def RemoveW(pcCondition)
 				return This.HarvestSectionsOneByOne(paSections, pcCode, :stzList)
 
 			def HarvestSectionsOneByOneQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestSectionsOneByOne(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestSectionsOneByOne(paSections, pcCode) )
-	
-				other
-					stzRaise("Unsupported param type!")
-				off
+				return This.YieldFromSectionsOneByOneQR(paSections, pcCode, pcReturnType)
+				
 
 		def YieldSectionsOneByOne(paSections, pcCode)
 			return This.YieldFromSections(paSections, pcCode)
@@ -86516,81 +86705,43 @@ vvv	def RemoveW(pcCondition)
 				return This.YieldSectionsOneByOne(paSections, pcCode, :stzList)
 
 			def YieldSectionsOneByOneQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					stzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldSectionsOneByOne(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.YieldSectionsOneByOne(paSections, pcCode) )
-	
-				other
-					stzRaise("Unsupported param type!")
-				off
+				return This.YieldFromSectionsOneByOneQR(paSections, pcCode, pcReturnType)
 
 		#>
 
 	  #----------------------------------------------------------------#
 	 #   YIELDING INFORMATION ON ITEMS VERIFYiNG A GIVEN CONDITION    #
-	#----------------------------------------------------------------#
+	#================================================================#
 
 	def YieldW(pcCode, pcCondition)
-
-		if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		oCode = new stzString(pcCode)
-		if oCode.ContainsCS("@substring", :CS = FALSE)
-			aTempList = This.SubStrings()
-
-		else
-			aTempList = This.Chars()
-		ok
-
-		pcCode = Q(pcCode).ReplaceCSQ("@char", "This[@i]", :CS=FALSE).Content()
-		pcCondition = Q(pcCondition).ReplaceCSQ("@char", "This[@i]", :CS=FALSE).Content()
-
-		acResult = Q(aTempList).YieldW(pcCode, pcCondition)
-		return acResult
+		return This.CharsQ().YieldW(paSections, pcCode)
 
 		#< @FunctionFluentForm
 
 		def YieldWQ(pcCode, pcCondition)
 				return This.YieldWQR(panPos, pcCode, :stzList)
 		
-			def YieldWQR(pcCode, pcCondition, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+		def YieldWQR(pcCode, pcCondition, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.YieldW(pcCode, pcCondition) )
 	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldW(pcCode, pcCondition) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.YieldW(pcCode, pcCondition) )
+				
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.YieldW(pcCode, pcCondition) )
+
+			on :stzHashList
+				return new stzHashList( This.YieldW(pcCode, pcCondition) )
 		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldW(pcCode, pcCondition) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldW(pcCode, pcCondition) )
-	
-				on :stzHashList
-					return new stzHashList( This.YieldW(pcCode, pcCondition) )
-			
-			other
-					stzRaise("Unsupported return type!")
-			off
+		other
+				stzRaise("Unsupported return type!")
+		off
 
 		#>
 
@@ -86603,24 +86754,56 @@ vvv	def RemoveW(pcCondition)
 				return This.HarvestWQR(pcCode, pcCondition, :stzList)
 
 			def HervestWQR(pcCode, pcCondition, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
+				return This.YieldWQR(pcCode, pcCondition, pcReturnType)
 
-				if NOT isString(pcReturnType)
-					stzRaise("IncorrectType! pcReturnType must be a string.")
-				ok
+		#>
 
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestW(pcCode, pcCondition) )
+	  #----------------------------------------------------------------------#
+	 #   YIELDING INFORMATION ON ITEMS VERIFYiNG A GIVEN CONDITION -- WXT   #
+	#======================================================================#
 
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestW(pcCode, pcCondition) )
+	def YieldWXT(pcCode, pcCondition)
+		return This.CharsQ().YieldWXT(paSections, pcCode)
 
-				other
-					stzRaise("Unsupported return type!")
-				off
+		#< @FunctionFluentForm
+
+		def YieldWXTQ(pcCode, pcCondition)
+				return This.YieldWXTQR(panPos, pcCode, :stzList)
+		
+		def YieldWXTQR(pcCode, pcCondition, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.YieldWXT(pcCode, pcCondition) )
+	
+			on :stzListOfStrings
+				return new stzListOfStrings( This.YieldWXT(pcCode, pcCondition) )
+				
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.YieldWXT(pcCode, pcCondition) )
+
+			on :stzHashList
+				return new stzHashList( This.YieldWXT(pcCode, pcCondition) )
+		
+		other
+				stzRaise("Unsupported return type!")
+		off
+
+		#>
+
+		#> @FunctionAlternativeForm
+
+		def HarvestWXT(pcCode, pcCondition)
+			return This.YieldWXT(pcCode, pcCondition)
+
+			def HervestWXTQ(pcCode, pcCondition)
+				return This.HarvestWXTQR(pcCode, pcCondition, :stzList)
+
+			def HervestWXTQR(pcCode, pcCondition, pcReturnType)
+				return This.YieldWXTQR(pcCode, pcCondition, pcReturnType)
 
 		#>
 
@@ -86628,8 +86811,10 @@ vvv	def RemoveW(pcCondition)
 	 #   PERFORMING AN ACTION ON EACH CHAR   #
 	#=======================================#
 
+	#TODO Check performance
+
 	def Perform(pcCode)
-		# Must begin with '@char ='
+		# Must begin with 'This[@i] ='
 
 		This.UpdateWith(
 			This.CharsQ().
@@ -86644,9 +86829,33 @@ vvv	def RemoveW(pcCondition)
 			This.Perform(pcCode)
 			return This
 
+	  #--------------------------------------------#
+	 #   PERFORMING AN ACTION ON EACH CHAR -- XT  #
+	#--------------------------------------------#
+
+	#TODO Check performance
+
+	def PerformXT(pcCode)
+		# Must begin with '@char ='
+
+		This.UpdateWith(
+			This.CharsQ().
+			PerformXTQ(pcCode).
+			ToStzListOfStrings().
+			Concatenated()
+		)
+
+		#--
+
+		def PerformXTQ(pcCode)
+			This.PerformXT(pcCode)
+			return This
+
 	  #----------------------------------------------------#
 	 #   PERFORMING ACTIONS ON CHARS IN GIVEN POSITIONS   #
-	#----------------------------------------------------#
+	#====================================================#
+
+	#TODO Check performance
 
 	def PerformOn(panPos, pcCode)
 
@@ -86677,9 +86886,44 @@ vvv	def RemoveW(pcCondition)
 				This.PerformOnThesePositions(panPos, pcCode)
 				return This
 
+	  #---------------------------------------------------------#
+	 #   PERFORMING ACTIONS ON CHARS IN GIVEN POSITIONS -- XT  #
+	#=========================================================#
+
+	#TODO Check performance
+
+	def PerformOnXT(panPos, pcCode)
+
+		This.UpdateWith(
+			This.CharsQ().
+			PerformOnXTQ(panPos, pcCode).
+			ToStzListOfStrings().
+			Concatenated()
+		)
+
+		#--
+
+		def PerformOnXTQ(panPos, pcCode)
+			This.PerformOnXT(panPos, pcCode)
+			return This
+
+		def PerformOnPositionsXT(panPos, pcCode)
+			This.PerformOnXT(panPos, pcCode)
+
+			def PerformOnPositionsXTQ(panPos, pcCode)
+				This.PerformOnPositionsXT(panPos, pcCode)
+				return This
+
+		def PerformOnThesePositionsXT(panPos, pcCode)
+			This.PerformOnXT(panPos, pcCode)
+
+			def PerformOnThesePositionsXTQ(panPos, pcCode)
+				This.PerformOnThesePositionsXT(panPos, pcCode)
+				return This
+
 	  #------------------------------------------------------#
 	 #   PERFORMING AN ACTION ON CHARS IN GIVEN SECTIONS    #
-	#------------------------------------------------------#
+	#======================================================#
 
 	def PerformOnSections(paSections, pcCode)
 
@@ -86703,9 +86947,35 @@ vvv	def RemoveW(pcCondition)
 				This.PerformOnTheseSections(paSections, pcCode)
 				return This
 
+	  #----------------------------------------------------------#
+	 #   PERFORMING AN ACTION ON CHARS IN GIVEN SECTIONS -- XT  #
+	#----------------------------------------------------------#
+
+	def PerformOnSectionsXT(paSections, pcCode)
+
+		This.UpdateWith(
+			This.CharsQ().
+			PerformOnSectionsXTQ(paSections, pcCode).
+			ToStzListOfStrings().
+			Concatenated()
+		)
+
+		#--
+
+		def PerformOnSectionsXTQ(paSections, pcCode)
+			This.PerformOnSectionsXT(paSections, pcCode)
+			return This
+
+		def PerformOnTheseSectionsXT(paSections, pcCode)
+			This.PerformOnSections(paSections, pcCode)
+
+			def PerformOnTheseSectionsXTQ(paSections, pcCode)
+				This.PerformOnTheseSectionsXT(paSections, pcCode)
+				return This
+
 	  #---------------------------------------------------------------#
 	 #   PERFORMING AN ACTION ON CHARS VERIFYING A GIVEN CONDITION   #
-	#---------------------------------------------------------------#
+	#===============================================================#
 
 	def PerformW(pcAction, pcCondition)
 
@@ -86727,6 +86997,31 @@ vvv	def RemoveW(pcCondition)
 
 			def DoWQ(paParams)
 				This.PerformWQ(paParams)
+
+	  #--------------------------------------------------------------------#
+	 #   PERFORMING AN ACTION ON CHARS VERIFYING A GIVEN CONDITION -- XT  #
+	#--------------------------------------------------------------------#
+
+	def PerformWXT(pcAction, pcCondition)
+
+		This.UpdateWith(
+			This.CharsQ().
+			PerformWXTQ(pcAction, pcCondition).
+			ToStzListOfStrings().
+			Concatenated()
+		)
+
+		#--
+
+		def DoWXT(pcAction, pcCondition) #TODO // Generalize this alternative in other classes
+			This.PerformWXT(pcAction, pcCondition)
+
+		def PerformWXTQ(paParams)
+			This.PerformWXT(paParams)
+			return This
+
+			def DoWXTQ(paParams)
+				This.PerformWXTQ(paParams)
 
 	  #==================================================#
 	 #  CHECKING IF THE STRING IS MADE OF PUNCTUATIONS  #
