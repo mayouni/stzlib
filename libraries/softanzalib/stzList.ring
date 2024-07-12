@@ -25385,6 +25385,12 @@ Item and then position
 				off
 		#>
 
+
+	#---
+
+	#TODO
+	# Check this function, for both usefulness and quality of its implementation
+
 	def YieldFromSectionsOneByOne(paSections, pcCode)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
