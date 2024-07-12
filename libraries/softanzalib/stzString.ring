@@ -44242,15 +44242,23 @@ class stzString from stzObject
 
 		*/
 
+		if CheckParams()
+			if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
+		ok
+
+		acSubStr = U( pacSubStr )
+		nLen = len(acSubStr)
+
 		aResult = []
 
-		for str in pacSubStr
-
-			aResult + This.FindAllCS(str, pCaseSensitive)
+		for i = 1 to nLen
+			aResult + This.FindAllCS(acSubStr[i], pCaseSensitive)
 		next
 
-		aResult = Q(aResult).FlattenQ().Sorted()
-		return aResult
+		anResult = Q(aResult).FlattenQ().Sorted()
+		return anResult
 
 		#< @FunctionFluentForm
 
@@ -50998,11 +51006,11 @@ class stzString from stzObject
 			return This.SplitXT(pSubStrOrPos)
 
 			def SplitsXTQ(pSubStrOrPos)
-				return This.SplitsCSQR(pSubStrOrPos, :stzList)
+				return This.SplitsXTQR(pSubStrOrPos, :stzList)
 
-		def SplitsCSQR(pSubStrOrPos, pcReturnType)
-			return This.SplitCSQR(pSubStrOrPos, pcReturnType)
-
+			def SplitsXTQR(pSubStrOrPos, pcReturnType)
+				return This.SplitXTQR(pSubStrOrPos, pcReturnType)
+	
 		#>
 
 	def SplittedXT(pSubStrOrPos)
@@ -51459,6 +51467,24 @@ class stzString from stzObject
 		def SplitsAtCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
 			return This.SplitAtCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
 
+		def SplitCS(pSubStrOrPos, pCaseSensitive)
+			return This.SplitAtCS(pSubStrOrPos, pCaseSensitive)
+
+			def SplitCSQ(pSubStrOrPos, pCaseSensitive)
+				return This.SplitCSQR(pSubStrOrPos, SplitsQR, :stzList)
+	
+			def SplitCSQR(pSubStrOrPos, pcReturnType, pCaseSensitive)
+				return This.SplitAtCSQR(pSubStrOrPos, SplitsQR, pcReturnType)
+
+		def SplitsCS(pSubStrOrPos, pCaseSensitive)
+			return This.SplitAtCS(pSubStrOrPos, pCaseSensitive)
+
+			def SplitsCSQ(pSubStrOrPos, pCaseSensitive)
+				return This.SplitsCSQR(pSubStrOrPos, pCaseSensitive, :stzList)
+	
+			def SplitsCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+				return This.SplitAtCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+
 		#>
 
 	def SplittedAtCS(pSubStrOrPos, pCaseSensitive)
@@ -51479,21 +51505,43 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def SplitsAt(pSubStrOrPos)
 			return This.SplitAt(pSubStrOrPos)
 
 			def SplitsAtQ(pSubStrOrPos)
 				return This.SplitAtQ(pSubStrOrPos, :stzList)
+	
+			def SplitsAtQR(pSubStrOrPos, pcReturnType)
+				return This.SplitAtQR(pSubStrOrPos, pcReturnType)
+	
+		def Split(pSubStrOrPos)
+			return This.SplitAt(pSubStrOrPos)
 
-		def SplitsAtQR(pSubStrOrPos, pcReturnType)
-			return This.SplitAtQR(pSubStrOrPos, pcReturnType)
+			def SplitQ(pSubStrOrPos)
+				return This.SplitAtQ(pSubStrOrPos, :stzList)
+	
+			def SplitQR(pSubStrOrPos, pcReturnType)
+				return This.SplitAtQR(pSubStrOrPos, pcReturnType)
+
+		def Splits(pSubStrOrPos)
+			return This.SplitAt(pSubStrOrPos)
+
+			def SplitsQ(pSubStrOrPos)
+				return This.SplitAtQ(pSubStrOrPos, :stzList)
+	
+			def SplitsQR(pSubStrOrPos, pcReturnType)
+				return This.SplitAtQR(pSubStrOrPos, pcReturnType)
+
 
 		#>
 
 	def SplittedAt(pSubStrOrPos)
 		return This.SplitAt(pSubStrOrPos)
+
+		def Splitted(pSubStrOrPos)
+			return This.SplitAt(pSubStrOrPos)
 
 	  #-----------------------------------#
 	 #   SPLITTING AT A GIVEN POSITION   #
@@ -55877,7 +55925,7 @@ class stzString from stzObject
 
 		ok
 
-		anResult = This.FindManyCS( This.SplitsAtSubStringCS(pcSubStr, pCaseSensitive), pCaseSensitive)
+		anResult = This.FindManyCS( U( This.SplitsAtSubStringCS(pcSubStr, pCaseSensitive) ), pCaseSensitive)
 		return anResult
 
 		#< @FunctionAlternativeForms
@@ -57944,7 +57992,7 @@ class stzString from stzObject
 	
 		ok
 
-		acSplits = This.SplitsAtSubStringCS(pcSubStr, pCaseSensitive)
+		acSplits = U( This.SplitsAtSubStringCS(pcSubStr, pCaseSensitive) )
 		aResult = This.FindManyAsSectionsCS(acSplits, pCaseSensitive)
 
 		return aResult
@@ -82619,9 +82667,9 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def UniqueCharsCSQ(pCaseSensitive)
-			return This.UniqueCharsQRCS(:stzList, pCaseSensitive)
+			return This.UniqueCharsCSQR(pCaseSensitive, :stzList)
 
-		def UniqueCharsQRCS(pcReturnType, pCaseSensitivee)
+		def UniqueCharsCSQR(pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -82650,8 +82698,8 @@ class stzString from stzObject
 			def ToSetOfCharsCSQ(pCaseSensitive)
 				return This.UniqueCharsCSQ(pCaseSensitive)
 	
-			def ToSetOfCharsCSQR(pcReturnType, pCaseSensitive)
-				return This.UniqueCharsQRCS(pcReturnType, pCaseSensitive)
+			def ToSetOfCharsCSQR(pCaseSensitive, pcReturnType)
+				return This.UniqueCharsCSQR(pCaseSensitive, pcReturnType)
 	
 		def CharsCSU(pCaseSensitive)
 			return This.UniqueCharsCS(pCaseSensitive)
@@ -82660,7 +82708,7 @@ class stzString from stzObject
 				return This.UniqueCharsCSQ(pCaseSensitive)
 
 			def CharsCSUQR(pCaseSensitive, pcReturnType)
-				return This.UniqueCharsQRCS(pcReturnType, pCaseSensitive)
+				return This.UniqueCharsCSQR(pCaseSensitive, pcReturnType)
 
 		def CharsWithoutDuplicationCS(pCaseSensitive)
 			return This.UniqueCharsCS(pCaseSensitive)
@@ -82669,7 +82717,7 @@ class stzString from stzObject
 				return This.UniqueCharsCSQ(pCaseSensitive)
 
 			def CharsWithoutDuplicationCSQR(pCaseSensitive, pcReturnType)
-				return This.UniqueCharsQRCS(pcReturnType, pCaseSensitive)
+				return This.UniqueCharsCSQR(pCaseSensitive, pcReturnType)
 
 		def CharsWithoutDuplicatesCS(pCaseSensitive)
 			return This.UniqueCharsCS(pCaseSensitive)
@@ -82678,7 +82726,7 @@ class stzString from stzObject
 				return This.UniqueCharsCSQ(pCaseSensitive)
 
 			def CharsWithoutDuplicatesCSQR(pCaseSensitive, pcReturnType)
-				return This.UniqueCharsQRCS(pcReturnType, pCaseSensitive)
+				return This.UniqueCharsCSQR(pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -82690,10 +82738,10 @@ class stzString from stzObject
 		#< @FunctionFluentForms
 
 		def UniqueCharsQ()
-			return This.UniqueCharsQRCS(:stzList, TRUE)
+			return This.UniqueCharsCSQR(TRUE, :stzList)
 
 		def UniqueCharsQR(pcReturnTyp)
-			return This.UniqueCharsQRCS(pcReturnType, TRUE)
+			return This.UniqueCharsCSQR(TRUE, pcReturnType)
 
 		#>
 

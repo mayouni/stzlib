@@ -2075,9 +2075,9 @@ class stzListOfLists from stzList
 		return aResult
 
 		def IndexCSQ()
-			return This.IndexCSQR(:stzList, pCaseSensitive)
+			return This.IndexCSQR(pCaseSensitive, :stzList)
 
-		def IndexCSQR(pcReturnType, pCaseSensitive)
+		def IndexCSQR(pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.IndexCS(pCaseSensitive) )
@@ -2104,7 +2104,7 @@ class stzListOfLists from stzList
 			return This.IndexQR(:stzList)
 
 		def IndexQR(pcReturnType)
-			return This.IndexCSQR(pcReturnType, TRUE)
+			return This.IndexCSQR(TRUE, pcReturnType)
 
 	def Indexed()
 		return This.Index()
@@ -2164,9 +2164,9 @@ class stzListOfLists from stzList
 		return aResult
 
 		def IndexCSXTQ()
-			return This.IndexCSXTQR(:stzList, pCaseSensitive)
+			return This.IndexCSXTQR(pCaseSensitive, :stzList)
 
-		def IndexCSXTQR(pcReturnType, pCaseSensitive)
+		def IndexCSXTQR(pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
 				return new stzList( This.IndexCSXT(pCaseSensitive) )
@@ -2193,7 +2193,7 @@ class stzListOfLists from stzList
 			return This.IndexXTQR(:stzList)
 
 		def IndexXTQR(pcReturnType)
-			return This.IndexCSXTQR(pcReturnType, TRUE)
+			return This.IndexCSXTQR(TRUE, pcReturnType)
 
 	def IndexedXT()
 		return This.IndexXT()

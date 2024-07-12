@@ -1,6 +1,5 @@
 load "stzlib.ring"
 
-? @reverse("أهلا بالعالم !")
 
 /*=====
 
