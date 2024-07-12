@@ -1,7 +1,7 @@
 load "stzlib.ring"
 
 /*=======
-*/
+
 pron()
 
 #                   ...4...8...2..
@@ -12,7 +12,7 @@ o1 = new stzString("---*---*---*---")
 ? @@( o1.FindMany([ "---", "---", "---", "---" ]) ) + NL
 #--> [ 1, 5, 9, 13 ]
 
-? @@( o1.FindSplits("*") ) + NL
+? @@( o1.FindSplits("*") ) + NL	# Same as FindSeparatedBy("*")
 #--> [ 1, 5, 9, 13 ]
 
 ? @@( o1.FindSplitsZZ("*") )
@@ -4899,7 +4899,6 @@ proff()
 /*========================= #AI #claude-ai #narration ...WXT() vs ...W()
 # Narraion enhanced by ClaudeAI, both from structural and linsguistic stand points.
 
-*/
 pron()
 
 # This narration demonstrates an advanced feature of SoftanzaLib 
@@ -5086,7 +5085,7 @@ pron()
 # and performance based on your specific needs.
 
 proff()
-# Executed in 2.50 second(s)
+# Executed in 2.76 second(s)
 
 /*----------------
 
@@ -5982,22 +5981,22 @@ proff()
 # Executed in 0.66 second(s)
 
 /*------------------ #TODO: check it after including SubStringsBetween()
-
+*/
 pron()
 
 o1 = new stzList([ "__", 3, "__", 6, "__", 9, "__" ])
 
-? @@( o1.SplitW( :After = 'Q(@item).IsMultipleOf(3)' ) )
+//? @@( o1.SplitWXT( :After = 'Q(@item).IsMultipleOf(3)' ) )
 #--> [ "__3", "__6", "__9", "__" ]
 
-? @@( o1.SplitAfterW( 'Q(@item).IsMultipleOf(3)' ) )
+//? @@( o1.SplitAfterWXT( 'Q(@item).IsMultipleOf(3)' ) )
 #--> [ "__3", "__6", "__9", "__" ]
 
-? @@( o1.SplitAfterW( :Where = 'Q(@item).IsMultipleOf(3)' ) )
-#--> [ "__3", "__6", "__9", "__" ]
+? @@( o1.SplitAfterWXT( :Where = 'Q(@item).IsMultipleOf(3)' ) )
+#--> [ [ "__", 3 ], [ "__", 6 ], [ "__", 9 ], [ "__" ] ]
 
 proff()
-# Executed in 0.74 second(s)
+# Executed in 0.20 second(s)
 
 /*==================
 
