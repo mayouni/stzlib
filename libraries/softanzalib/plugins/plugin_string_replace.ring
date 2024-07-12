@@ -8,11 +8,50 @@ t0 = clock()
 @plugin_value  = "Hello Ring in Ring!"
 @plugin_param  = [ "Hello", "Embedding" ]
 
+@plugin_max_time  = 0
+@plugin_max_size  = 0
+@pluging_max_loop = 0
+
+@pluging_partial_result = FALSE
+
 @plugin_result = pluginFunc(@plugin_value, @plugin_param)
 #--> Embedding Ring in Ring!
 
 @plugin_time = ( clock() - t0 ) / clockspersecond()
 
 func pluginFunc(value, aParams)
-	cResult = substr(value, aParams[1], aParams[2])
-	return cResult
+
+	while TRUE
+
+		# Function logic
+
+		cResult = substr(value, aParams[1], aParams[2])
+
+		# Checking time constraint
+
+		elapsed = ( clock() - t0 ) / clockspersecond()
+
+		if @plugin_max_time > 0 and elapsed > @plugin_max_time
+			if @pluging_partial_result
+				return cResult
+			else
+				raise("Cancelled! Maximum allowed time has been exceeded.")
+			ok
+		ok
+
+		# Checking size constraint
+
+		if @plugin_max_time > 0 and len(cResult) > @plugin_max_size
+			if @pluging_partial_result
+				return substr(cResult, 1, @plugin_max_size)
+			else
+
+			raise("Cancelled! Maximum allowed time has been exceeded.")
+			ok
+		ok
+
+		# If not, return the result
+
+		return cResult
+
+	end

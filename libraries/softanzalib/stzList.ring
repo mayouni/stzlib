@@ -80637,3 +80637,112 @@ Item and then position
 		ok
 
 
+
+	def IsAtCharsWhereXTOrAtCharsWXTNamedParam()
+		if This.IsAtCharsWhereXTNamedParam() or This.IsAtCharsWXTNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAtCharsWXTOrAtCharsWhereXTNamedParam()
+			return This.IsAtCharsWXTOrAtCharsWhereXTNamedParam()
+
+		#--
+
+		def IsAtCharsWhereXTOrAtCharsWXTNamedParams()
+			return This.IsAtCharsWhereXTOrAtCharsWXTNamedParam()
+
+		def IsAtCharsWXTOrAtCharsWhereXTNamedParams()
+			return This.IsAtCharsWXTOrAtCharsWhereXTNamedParam()
+
+
+	def IsBeforeCharsWhereXTOrBeforeCharsWXTNamedParam()
+		if This.IsBeforeCharsWhereXTNamedParam() or This.IsBeforeCharsWXTNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsBeforeCharsWXTOrBeforeCharsWhereXTNamedParam()
+			return This.IsBeforeCharsWXTOrBeforeCharsWhereXTNamedParam()
+
+		#--
+
+		def IsBeforeCharsWhereXTOrBeforeCharsWXTNamedParams()
+			return This.IsBeforeCharsWhereXTOrBeforeCharsWXTNamedParam()
+
+		def IsBeforeCharsWXTOrBeforeCharsWhereXTNamedParams()
+			return This.IsBeforeCharsWXTOrBeforeCharsWhereXTNamedParam()
+
+	def IsAfterCharsWhereXTOrAfterCharsWXTNamedParam()
+		if This.IsAfterCharsWhereXTNamedParam() or This.IsAfterCharsWXTNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAfterCharsWXTOrAfterCharsWhereXTNamedParam()
+			return This.IsAfterCharsWXTOrAfterCharsWhereXTNamedParam()
+
+		#--
+
+		def IsAfterCharsWhereXTOrAfterCharsWXTNamedParams()
+			return This.IsAfterCharsWhereXTOrAfterCharsWXTNamedParam()
+
+		def IsAfterCharsWXTOrAfterCharsWhereXTNamedParams()
+			return This.IsAfterCharsWXTOrAfterCharsWhereXTNamedParam()
+
+	def IsAtSubStringsWhereXTOrAtCharsWXTNamedParam()
+		if This.IsAtSubstringsWhereXTNamedParam() or This.IsAtSubstringsWXTNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAtSubstringsWXTOrAtSubstringsWhereXTNamedParam()
+			return This.IsAtSubstringsWXTOrAtSubstringsWhereXTNamedParam()
+
+		#--
+
+		def IsAtSubstringsWhereXTOrAtSubstringsWXTNamedParams()
+			return This.IsAtSubstringsWhereXTOrAtSubstringsWXTNamedParam()
+
+		def IsAtSubstringsWXTOrAtSubstringsWhereXTNamedParams()
+			return This.IsAtSubstringsWXTOrAtSubstringsWhereXTNamedParam()
+
+	def IsBeforeSubStringsWhereXTOrBeforSubStringsWXTNamedParam()
+		if This.IsBeforeSubstringsWhereXTNamedParam() or This.IsBeforeSubstringsWXTNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsBeforeSubstringsWXTOrBeforeSubstringsWhereXTNamedParam()
+			return This.IsBeforeSubstringsWXTOrBeforeSubstringsWhereXTNamedParam()
+
+		#--
+
+		def IsBeforeSubstringsWhereXTOrBeforeSubstringsWXTNamedParams()
+			return This.IsBeforeSubstringsWhereXTOrBeforeSubstringsWXTNamedParam()
+
+		def IsBeforeSubstringsWXTOrBeforeSubstringsWhereXTNamedParams()
+			return This.IsBeforeSubstringsWXTOrBeforeSubstringsWhereXTNamedParam()
+
+	def IsAfterSubStringsWhereXTOrAfterSubstringsWXTNamedParam()
+		if This.IsAfterSubstringsWhereXTNamedParam() or This.IsAfterSubstringsWXTNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsAfterSubstringsWXTOrAfterSubstringsWhereXTNamedParam()
+			return This.IsAfterSubstringsWXTOrAfterSubstringsWhereXTNamedParam()
+
+		#--
+
+		def IsAfterSubstringsWhereXTOrAfterSubstringsWXTNamedParams()
+			return This.IsAfterSubstringsWhereXTOrAfterSubstringsWXTNamedParam()
+
+		def IsAfterSubstringsWXTOrAfterSubstringsWhereXTNamedParams()
+			return This.IsAfterSubstringsWXTOrAfterSubstringsWhereXTNamedParam()
