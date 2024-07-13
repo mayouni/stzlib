@@ -5999,7 +5999,7 @@ proff()
 # Executed in 0.40 second(s)
 
 /*==================
-*/
+
 pron()
 
 o1 = new stzList([ "a", "abcade", "abc", "ab", "b", "aaa", "abcdaaa" ])
@@ -6025,14 +6025,14 @@ o1.SortByDown('len(@item)')
 #--> [ "abcde", "abcd", "abc", "ab", "a" ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.10 second(s)
 
 /*==================
 
 pron()
 
 o1 = new stzString("TUNISiiiGAFSAIIIBEJAiiiSFAXIIIGBELLI")
-? @@( o1.Splitcs("iii", :CS = FALSE) )
+? @@( o1.SplitCS("iii", :CS = FALSE) )
 #--> [ "TUNIS", "GAFSA", "BEJA", "SFAX", "GBELLI" ]
 
 proff()
@@ -6837,7 +6837,7 @@ proff()
 # Executed in 0.03 second(s) in Ring 1.20
 # Executed in 0.11 second(s) in Ring 1.17
 
-/*--------- #perf #todo Check it after including FindBetween()
+/*--------- #perf
 
 #NOTE
 # Performance of stzString (using QString2 in background,
@@ -6852,21 +6852,32 @@ str = "1|2|1|__*__|[ 10* 11* 12 ]|B|2|1|__*__|A*|3|__*__|B|[ 10* 11* 12 ]|B|"
 for i = 1 to 1_000_000
 	str += "SomeStringHereAndThere"
 next
-# Takes 10.75 second(s) in Ring 1.20
+
+# Takes 11.40 second(s) in Ring 1.20
 # Executed in 13.31 second(s) in Ring 1.17
 
 str += "|1|2|1|__*__|[ 10* 11* 12 ]|B|2|1|__*__|A*|3|__*__|B|[ 10* 11* 12 ]|B|"
 
+# Overall, we have a string with more then 30 million chars
+# ~> 30 to 40 books of 500 pages each
+
 o1 = new stzString(str)
 # The construction of the Softanza object takes 0.12 second(s)
 
-? @@(o1.FindThisBoundedBy("1", "|"))
+? @@NL(o1.FindSubStringBoundedByZZ("1", "|"))
+#--> [
+# 	[ 5, 5 ],
+# 	[ 32, 32 ],
+#	[ 22000071, 22000071 ],
+#	[ 22000075, 22000075 ],
+# 	[ 22000102, 22000102 ]
+# ]
 
 #TODO: Try to compose the string by pushing the first part in the middle or a the end,
 # and if stzString is still as performant!
 
 proff()
-# Executed in ... second(s)
+# Executed in 11.29 second(s).
 
 /*=======
 
@@ -7202,26 +7213,31 @@ pron()
 proff()
 # Executed in 9.28 second(s)
 
-/*====== #TODO check it after including FindBetween()
+/*======
 
 pron()
 
 # 		         6       4
 o1 = new stzString("...<<*>>...<<*>>...")
-?: @@( o1.FindXT( "*", :Between = [ "<<", ">>" ]) )
+? @@( o1.FindXT( "*", :Between = [ "<<", ">>" ]) )
+#--> [ 6, 14 ]
+
+? @@( o1.FindXT( "*", :BoundedBy = [ "<<", ">>" ]) )
 #--> [ 6, 14 ]
 
 proff()
+# Executed in 0.06 second(s).
 
-
-/*---------- #TODO check it after including FindBetween()
+/*----------
 
 pron()
 
 o1 = new stzString('..."*"..."*"...')
 ? o1.FindXT( "*", :BoundedBy = '"' )
+#--> [ 5, 11 ]
 
 proff()
+# Executed in 0.05 second(s)
 
 /*----------
 
@@ -7560,16 +7576,19 @@ proff()
 # Executed in 0.02 second(s)
 
 /*----------- #TODO Check after including findbetweencs() adn findboundedbycs()
-
+*/
 pron()
 
 o1 = new stzString("...<<*>>...<<*>>...<<*>>...")
 
-? o1.FindXT( :AnySubString, :Between = ["<<", ">>"] )
+? o1.FindXT( "*", :Between = ["<<", ">>"] )
+#--> [ 6, 4, 22 ]
 
-? o1.FindXT( :Any, :BoundedBy = '"' )
+? o1.FindXT( "*", :BoundedBy = ["<<", ">>"] )
+#--> [ 6, 4, 22 ]
 
 proff()
+# Executed in 0.05 second(s).
 
 /*======== #TODO/FUTURE: add the :3rd syntax to these functions
 

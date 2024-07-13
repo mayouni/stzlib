@@ -44653,12 +44653,12 @@ class stzString from stzObject
 
 			# FindXT( "*", :BoundedBy = '"' )
 			but oP2.IsBoundedByNamedParam()
-				return This.FindBoundedByCS(p1, p2[2], pCaseSensitive)
+				return This.FindSubStringBoundedByCS(p1, p2[2], pCaseSensitive)
 
 			# FindXT( "*", :BetweenIB = [ "<<", :And = ">>" ])
 			but  oP2.IsBetweenIBNamedParam()
 				p2 = p2[2]
-				return This.FindBetweenCSIB(p1, p2[1], p2[2], pCaseSensitive)
+				return This.FindSubstringBetweenCSIB(p1, p2[1], p2[2], pCaseSensitive)
 
 			# FindXT("word", :StartingAt = 12)
 			but oP2.IsStartingAtNamedParam()
