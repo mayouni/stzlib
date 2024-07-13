@@ -550,7 +550,7 @@ func These(p)
 	#>
 
 func TheseNumbers(p)
-	_bTheseNumbers = TRUE
+	_bThese = TRUE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -606,7 +606,7 @@ func TheseNumbers(p)
 	#>
 
 func TheseChars(p)
-	_bTheseChars = TRUE
+	_bThese = TRUE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -618,7 +618,7 @@ func TheseChars(p)
 	acResult = []
 
 	for i = 1 to nLen
-		if isStrig(p[i])
+		if isString(p[i])
 			acResult + p[i]
 		ok
 	next
@@ -662,7 +662,7 @@ func TheseChars(p)
 	#>
 
 func TheseStrings(p)
-	_bTheseStrings = TRUE
+	_bThese = TRUE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -674,7 +674,7 @@ func TheseStrings(p)
 	acResult = []
 
 	for i = 1 to nLen
-		if isStrig(p[i])
+		if isString(p[i])
 			acResult + p[i]
 		ok
 	next
@@ -718,7 +718,7 @@ func TheseStrings(p)
 	#>
 
 func TheseLists(p)
-	_bTheseLists = TRUE
+	_bThese = TRUE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -730,7 +730,7 @@ func TheseLists(p)
 	aResult = []
 
 	for i = 1 to nLen
-		if isStrig(p[i])
+		if isString(p[i])
 			aResult + p[i]
 		ok
 	next
@@ -774,7 +774,7 @@ func TheseLists(p)
 	#>
 
 func TheseObjects(p)
-	_bTheseObjects = TRUE
+	_bThese = TRUE
 
 	if CheckParams()
 		if NOT isObject(p)
@@ -832,7 +832,7 @@ func TheseObjects(p)
 #--
 
 func TheseStzNumbers(p)
-	_bTheseStzNumbers = TRUE
+	_bThese = TRUE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -888,7 +888,7 @@ func TheseStzNumbers(p)
 	#>
 
 func TheseStzChars(p)
-	_bTheseStzChars = TRUE
+	_bThese = TRUE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -944,7 +944,7 @@ func TheseStzChars(p)
 	#>
 
 func TheseStzStrings(p)
-	_bTheseStzStrings = TRUE
+	_bThese = TRUE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -1000,7 +1000,7 @@ func TheseStzStrings(p)
 	#>
 
 func TheseStzLists(p)
-	_bTheseStzLists = TRUE
+	_bThese = TRUE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -1056,7 +1056,7 @@ func TheseStzLists(p)
 	#>
 
 func TheseStzObjects(p)
-	_bTheseStzObjects = TRUE
+	_bThese = TRUE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -1112,7 +1112,7 @@ func TheseStzObjects(p)
 	#>
 
 func TheseQtObjects(p)
-	_bTheseStzObjects = TRUE
+	_bThese = TRUE
 
 	if CheckParams()
 		if NOT isList(p)
