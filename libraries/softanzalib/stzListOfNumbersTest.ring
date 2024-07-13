@@ -148,7 +148,7 @@ proff()
 /*================= #todo write a #narration
 */
 pron()
-
+/*
 ? Q([ 1, 2, 3, 4, 5]) - [1, 3 , 5]
 #--> [ 1, 2, 3, 4, 5 ]
 # Because [1, 3, 5 ] is not an item in the list [ 1, 2, 3, 4, 5 ]
@@ -172,8 +172,11 @@ pron()
 #--> [ 2, 4 ]
 
 # If you want to get a stzListOfNumbers add QQ() instead:
-
-? ( Q([ 1, 2, 3, 4, 5]) - Q( These([1, 3 , 5]) ) ).StzType()
+*/
+? ( Q([ 1, 2, 3, 4, 5]) - QQ( These([1, 3 , 5]) ) ).StzType()
+#  \____________________ _______________________/
+#                       V
+#            A stzListOfNumbers object
 
 proff()
 # Executed in 0.04 second(s)

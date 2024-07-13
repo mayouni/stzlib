@@ -30895,9 +30895,8 @@ Item and then position
 	 #     OPERATORS OVERLOADING    #
 	#==============================#
 
-	/*
-		TODO: Operators should adopt same semantics in all classes...
-	*/
+	#TODO #WARNING
+	# ~> Operators should adopt same semantics in all classes...
 
 	def operator(pcOp, pValue)
 		
@@ -31052,6 +31051,7 @@ Item and then position
 				return aResult
 			
 			but @IsStzList(pValue) or @IsStzString(pValue)
+
 				if _bThese
 					This.RemoveMany(pValue.Content())
 					_bThese = FALSE  # Resets the global flag
@@ -31064,6 +31064,67 @@ Item and then position
 			but @IsStzNumber(pValue)	
 				anPos = This.FindAll(pValue.NumericValue())
 				This.RemoveItemsAtPositions(anPos)
+
+
+			but @IsStzListOfNumbers(pValue)
+				if _bThese
+					This.RemoveMany(pValue.Content())
+					_bThese = FALSE
+				else
+					This.RemoveItem(pValue.content())
+				ok
+
+				return This.ToStzListOfNumbers()
+
+			but @IsStzListOfStrings(pValue)
+				if _bThese
+					This.RemoveMany(pValue.Content())
+					_bThese = FALSE
+				else
+					This.RemoveItem(pValue.content())
+				ok
+
+				return This.ToStzListOfStrings()
+
+			but @IsStzListOfChars(pValue)
+				if _bThese
+					This.RemoveMany(pValue.Content())
+					_bThese = FALSE
+				else
+					This.RemoveItem(pValue.content())
+				ok
+
+				return This.ToStzListOfChars()
+
+			but @IsStzListOfLists(pValue)
+				if _bThese
+					This.RemoveMany(pValue.Content())
+					_bThese = FALSE
+				else
+					This.RemoveItem(pValue.content())
+				ok
+
+				return This.ToStzListOfLists()
+
+			but @IsStzListOfPairs(pValue)
+				if _bThese
+					This.RemoveMany(pValue.Content())
+					_bThese = FALSE
+				else
+					This.RemoveItem(pValue.content())
+				ok
+
+				return This.ToStzListOfPairs()
+
+			but @IsStzListOfObjects(pValue)
+				if _bThese
+					This.RemoveMany(pValue.Content())
+					_bThese = FALSE
+				else
+					This.RemoveItem(pValue.content())
+				ok
+
+				return This.ToStzListOfObjects()
 
 			else
 				anPos = This.FindAll(pValue)
