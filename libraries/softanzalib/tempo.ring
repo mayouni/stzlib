@@ -1,5 +1,15 @@
 load "stzlib.ring"
 
+pron()
+
+? MostSquareLikeFactors(12)
+#--> [ 3, 4 ]
+
+? MostSquareLikeFactors(13)
+#--> [ 3, 5 ]
+
+proff()
+
 /*=======
 
 pron()
@@ -7576,7 +7586,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*----------- #TODO Check after including findbetweencs() adn findboundedbycs()
-*/
+
 pron()
 
 o1 = new stzString("...<<*>>...<<*>>...<<*>>...")

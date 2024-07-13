@@ -26,6 +26,12 @@ func ring_objects()
 	func @ring_objects()
 		return objects()
 
+func ring_max(n1, n2)
+	return max(n1, n2)
+
+func ring_min(n1, n2)
+	return min(n1, n2)
+
 func IsClassName(cStr)
 	if CheckParams()
 		if NOT isSting(cStr)

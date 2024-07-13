@@ -136,7 +136,12 @@ func AreBothLetters(p1, p2)
 #--
 
 func CharsBetween(c1, c2)
+
 	if CheckParams()
+		if isList(c2) and StzlistQ(c2).IsAndNamedParam()
+			c2 = c2[2]
+		ok
+
 		if NOT @BothAreChars(c1, c2)
 			StzRaise("Incorrect param type!")
 		ok

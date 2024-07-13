@@ -135,6 +135,11 @@ class stzGrid from stzObject
 				. : 4 : . : . : .
 				. : 5 : . : . : .
 				")
+
+		Way 5:
+
+			o1 = new stzGrid( CharsBetween(" ", "z") )
+
 		*/
 	
 		This.SetGrid(p)
@@ -145,26 +150,31 @@ class stzGrid from stzObject
 
 	def SetGrid(p) 
 	/*
-		Example 1 : 	SetGrid(12)
+	Example 1 : 	SetGrid(12)
 
-		Example 2 : 	SetGrid([3,4])
+	Example 2 : 	SetGrid([3,4])
 
-		Example 3 :
-				SetGrid([
-					["A","B","C"],
-					["E","F","G"],
-					["H","I","J"]
-				])
+	Example 3 :
+			SetGrid([
+				["A","B","C"],
+				["E","F","G"],
+				["H","I","J"]
+			])
 
-		Example 4 (TODO):
+	Example 4 (TODO):
 
-			SetGrid("
-				. : 1 : . : . : .
-				1 : 2 : 3 : 4 : 5
-				. : 3 : . : . : .
-				. : 4 : . : . : .
-				. : 5 : . : . : .
-			")
+		SetGrid("
+			. : 1 : . : . : .
+			1 : 2 : 3 : 4 : 5
+			. : 3 : . : . : .
+			. : 4 : . : . : .
+			. : 5 : . : . : .
+		")
+
+	Example 5 :
+
+		SetGrid( CharsBetween(" ", "z") )
+
 	*/
 
 		aTempGrid = []
@@ -210,11 +220,11 @@ class stzGrid from stzObject
 					StzRaise("Incorrect param! p must be a pair of numbers.")
 				ok
 
-				for i=1 to nV
+				for i = 1 to nV
 					aHLine + EmptyNode()
 				next i
 		
-				for i=1 to nH
+				for i = 1 to nH
 					aTempGrid + aHLine
 				next i
 
@@ -229,6 +239,26 @@ class stzGrid from stzObject
 					for i = 1 to nH
 						aTempGrid + p[i]
 					next
+
+				else
+					nLen = len(p)
+					aVH = @MostSquarLikeFactors(nLen)
+					nV = aVH[1]
+					nH = aVH[2]
+
+					n = 0
+					for i = 1 to nV
+						n++
+						if n <= nLen
+							aHLine + p[n]
+						else
+							aHLine + EmptyNode()
+						ok
+					next i
+			
+					for i = 1 to nH
+						aTempGrid + aHLine
+					next i
 
 				ok
 
@@ -886,7 +916,9 @@ class stzGrid from stzObject
 		ok
 
 		for i = 1 to This.NumberOfVLines()
-			cStr += "" + This.HLine(n)[i]
+			cNode = @@Q(This.HLine(n)[i]).FirstChar()
+			if cNode = "" then cNode = " " ok
+			cStr += "" + cNode
 
 			if i < This.NumberOfVLines()
 				cStr += SingleSpace()
@@ -1213,6 +1245,11 @@ class stzGrid from stzObject
 	# Review this restriction! Because it is imposed by
 	# show() function and not  by any logical constraint!
 
+	#UPDATE
+	# Any thing can be added without restriction
+	# The show function will manage to attribue a symbol (a char) to
+	# each node to generate a consistent display
+
 	def FillWith(paList)
 		This.FillWithXT(paList, :Direction = :Horizontally)
 
@@ -1222,20 +1259,20 @@ class stzGrid from stzObject
 
 	def FillWithXT(paList, pcDirection)
 
-		# Checking params
-
-		if NOT ( isList(paList) and Q(paList).IsListOfChars() ) #TODO: Review this limitation!
-			StzRaise("Incorrect param type! paList must be a list of chars.")
-		ok
-
-		if isList(pcDirection) and
-		   Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
-
-			pcDirection = pcDirection[2]
-		ok
-
-		if NOT ( isString(pcDirection) and Q(pcDirection).IsOneOfThese([ :Horizontally, :Vertically ]) )
-			StzRaise("Incorrect param! pcDirection must be a string equal to :Horizontally, :Vertically, or :Default.")
+		if CheckParams()
+			if NOT isList(paList) 
+				StzRaise("Incorrect param type! paList must be a list.")
+			ok
+	
+			if isList(pcDirection) and
+			   Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+	
+				pcDirection = pcDirection[2]
+			ok
+	
+			if NOT ( isString(pcDirection) and Q(pcDirection).IsOneOfThese([ :Horizontally, :Vertically ]) )
+				StzRaise("Incorrect param! pcDirection must be a string equal to :Horizontally, :Vertically, or :Default.")
+			ok
 		ok
 
 		# Doing the job
@@ -1258,7 +1295,7 @@ class stzGrid from stzObject
 					nEnd = nLen
 				ok
 
-				aTemp + Q(paList).Section( i, nEnd)
+				aTemp + Q(paList).Section(i, nEnd)
 			next
 
 			aTemp = StzListOfListsQ(aTemp).Extended()
