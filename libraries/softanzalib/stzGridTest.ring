@@ -82,8 +82,22 @@ proff()
 
 /*=======
 
+pron()
+
+? @@( CharsBetween("A", :And = "E") )
+#--> [ "A", "B", "C", "D", "E" ]
+
+proff()
+# Executed in 0.05 second(s).
+
+/*-----
+*/
+pron()
+
 o1 = new stzGrid(CharsBetween(" ", :And = "z") )
-? o1.Show()
+? o1.HowManyHLines()
+
+o1.Show()
 
 proff()
 #--> Executed in 0.02 second(s)

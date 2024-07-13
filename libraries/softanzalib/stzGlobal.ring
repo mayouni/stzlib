@@ -1770,6 +1770,36 @@ func StzRaise(paMessage)
 
 #TODO: Add the ring_...() form of all Ring functions
 
+func ring_packages()
+	return packages()
+
+	func @ring_packages()
+		return packages()
+
+func ring_globals()
+	return globals()
+
+	func @ring_globals()
+		return globals()
+
+func ring_locals()
+	return locals()
+
+	func @ring_locals()
+		return locals()
+
+func ring_objects()
+	return objects()
+
+	func @ring_objects()
+		return objects()
+
+func ring_max(panNumbers)
+	return max(panNumbers)
+
+func ring_min(panNumbers)
+	return min(panNumbers)
+
 func ring_trim(str)
 	return trim(str)
 
@@ -2099,6 +2129,47 @@ func ring_isvowel(c)
 		return isvowel(c)
 
 #-----
+
+func IsClassName(cStr)
+	if CheckParams()
+		if NOT isSting(cStr)
+			StzRaise("Incorrect param type! cStr must be a string.")
+		ok
+	ok
+
+	bResult = find( ClassesNames(), cStr)
+	return bResult
+
+	func @IsClassName(pcStr)
+		return IsClassName
+
+	func IsAClassName(pcStr)
+		return IsClassName
+
+func IsPackageName(cStr)
+	if CheckParams()
+		if NOT isSting(cStr)
+			StzRaise("Incorrect param type! cStr must be a string.")
+		ok
+	ok
+
+	bResult = find( packages(), lower(cStr))
+	return bResult
+
+	func @IsPackageName(cStr)
+		return IsPackageName(cStr)
+
+	func IsAPackageName(cStr)
+		return IsPackageName(cStr)
+
+	func @IsAPackageName(cStr)
+		return IsPackageName(cStr)
+
+
+func Vars()
+	return globals()
+
+#----
 
 func StzFindCS(pThing, paIn, pCaseSensitive)
 	if isList(paIn) and Q(paIn).IsInNamedParam()
