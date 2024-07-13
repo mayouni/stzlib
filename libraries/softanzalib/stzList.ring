@@ -39283,7 +39283,7 @@ Item and then position
 
 		#< @FunctionFluentForm
 
-		def FindAllExceptFirstCSQR(pItem, pcReturnType, pCaseSensitive)
+		def FindAllExceptFirstCSQR(pItem, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
@@ -39312,7 +39312,7 @@ Item and then position
 			#< @FunctionFluentForm
 	
 			def FindExceptFirstCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.FindAllExceptFirstCSQR(pItem, pcReturnType, pCaseSensitive)
+				return This.FindAllExceptFirstCSQR(pItem, pCaseSensitive, pcReturnType)
 	
 			def FindExceptFirstCSQ(pItem, pCaseSensitive)
 				return This.FindAllExceptFirstCSQR(pItem, pCaseSenstive, :stzList)
@@ -39336,7 +39336,7 @@ Item and then position
 			#< @FunctionFluentForm
 	
 			def FindExceptFristCSQR(pItem, pCaseSensitive, pcReturnType)
-				return This.FindAllExceptFristCSQR(pItem, pcReturnType, pCaseSensitive)
+				return This.FindAllExceptFristCSQR(pItem, pCaseSensitive, pcReturnType)
 	
 			def FindExceptFristCSQ(pItem, pCaseSensitive)
 				return This.FindAllExceptFristCSQR(pItem, pCaseSenstive, :stzList)
