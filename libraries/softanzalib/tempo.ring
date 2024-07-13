@@ -5980,39 +5980,37 @@ o1 = new stzString("__3__6__9__")
 proff()
 # Executed in 0.66 second(s)
 
-/*------------------ #TODO: check it after including SubStringsBetween()
-*/
+/*------------------
+
 pron()
 
 o1 = new stzList([ "__", 3, "__", 6, "__", 9, "__" ])
 
-//? @@( o1.SplitWXT( :After = 'Q(@item).IsMultipleOf(3)' ) )
+? @@( o1.SplitWXT( :After = 'Q(@item).IsMultipleOf(3)' ) )
 #--> [ "__3", "__6", "__9", "__" ]
 
-//? @@( o1.SplitAfterWXT( 'Q(@item).IsMultipleOf(3)' ) )
+? @@( o1.SplitAfterWXT( 'Q(@item).IsMultipleOf(3)' ) )
 #--> [ "__3", "__6", "__9", "__" ]
 
 ? @@( o1.SplitAfterWXT( :Where = 'Q(@item).IsMultipleOf(3)' ) )
 #--> [ [ "__", 3 ], [ "__", 6 ], [ "__", 9 ], [ "__" ] ]
 
 proff()
-# Executed in 0.20 second(s)
+# Executed in 0.40 second(s)
 
 /*==================
-
+*/
 pron()
 
 o1 = new stzList([ "a", "abcade", "abc", "ab", "b", "aaa", "abcdaaa" ])
 
 o1.SortByUp('len(@item)') + NL
 ? @@( o1.Content() )
-#--> [ "a", "b", "ab", "aaa", "abc", "abcade", "abcade" ]
-
-#TODO
+#--> [ "a", "b", "ab", "aaa", "abc", "abcade", "abcdaaa" ]
 
 ? o1.SortByDown('Q(@item).HowMany("a")') # or SortByInDescending()
 ? @@( o1.Content() )
-#--> [ "aaa", "abcade", "abcade", "abc", "ab", "a", "b" ]
+#--> [ "abcdaaa", "aaa", "abcade", "abc", "ab", "a", "b" ]
 
 proff()
 # Executed in 0.08 second(s)

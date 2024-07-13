@@ -51470,10 +51470,10 @@ class stzString from stzObject
 			return This.SplitAtCS(pSubStrOrPos, pCaseSensitive)
 
 			def SplitCSQ(pSubStrOrPos, pCaseSensitive)
-				return This.SplitCSQR(pSubStrOrPos, SplitsQR, :stzList)
+				return This.SplitCSQR(pSubStrOrPos, pCaseSensitive, :stzList)
 	
-			def SplitCSQR(pSubStrOrPos, pcReturnType, pCaseSensitive)
-				return This.SplitAtCSQR(pSubStrOrPos, SplitsQR, pcReturnType)
+			def SplitCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
+				return This.SplitAtCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
 
 		def SplitsCS(pSubStrOrPos, pCaseSensitive)
 			return This.SplitAtCS(pSubStrOrPos, pCaseSensitive)
