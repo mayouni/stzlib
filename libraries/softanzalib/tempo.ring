@@ -2,11 +2,49 @@ load "stzlib.ring"
 
 pron()
 
+o1 = new stzGrid( "A" : "M" )
+
+? @@NL(o1.Content())
+#--> [
+#	[ "A", "B", "C", "D", "E" ],
+#	[ "F", "G", "H", "I", "J" ],
+#	[ "K", "L", "M", ".", "." ]
+# ]
+
+? o1.CountHLines()
+
+proff()
+
+/*-----
+
+pron()
+/*
 ? MostSquareLikeFactors(12)
 #--> [ 3, 4 ]
 
 ? MostSquareLikeFactors(13)
 #--> [ 3, 5 ]
+
+#--
+
+? @@NL( StzGridQ(13).Content() ) + NL
+#--> [
+#	[ ".", ".", "." ],
+#	[ ".", ".", "." ],
+#	[ ".", ".", "." ],
+#	[ ".", ".", "." ],
+#	[ ".", ".", "." ]
+# ]
+*/
+StzGridQ( "A" : "M" ) { ? @@NL(Content()) }
+#--> [
+#	[ "A", "B", "C", "D", "E" ],
+#	[ "F", "G", "H", "I", "J" ],
+#	[ "K", "L", "M", ".", "." ]
+# ]
+
+
+//? StzGridQ( "A" : "M" ).Show()
 
 proff()
 
