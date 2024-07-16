@@ -2,14 +2,19 @@
 //t1 = clock()
 
 load "stdlibcore.ring"
-load "lightguilib.ring"
+load "lightguilib.ring" # Takes most of the time made by non-Softanza libraries
 load "sqlitelib.ring"
 load "tracelib.ring"
 load "internetlib.ring"
 load "typehints.ring"
 
 //? (clock()-t1)/clockspersecond()
-# Loading other libraries takes 0.06
+# Loading libraries takes 0.06
+
+#TODO optimise the load time of lightguilib.ring" by loading only the
+# qt classes used in RingQt by Softanza:
+# Qfile, QFileInfo, QTextStream, QStringList, QChar, QString2, QDate, QDir,
+# QLocale, QByetArray, QTextCodec, QTime
 
 load "stzGlobal.ring"
 load "stzTest.ring"
@@ -145,6 +150,6 @@ load "stzRingInstance.ring"
 //? (clock()-t1)/clockspersecond()
 
 # Softanza global startup time : 0.10 second(s) in Ring 1.20 (64 bits)
-# External libraries loading time: 0.06 second(s)
+# External libraries loading time: 0.06 second(s). Most is taken by lightguilib.ring
 # Softanza files loading time : 0.04 second(s)
 

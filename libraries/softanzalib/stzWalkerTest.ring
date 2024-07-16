@@ -11,7 +11,8 @@ proff()
 # Executed in 0 second(s).
 
 /*-------------------
-*/
+
+
 pron()
 
 o1 = new stzWalker([ :MyWalker, 1, 10 , 2 , :Forward ])
@@ -67,16 +68,16 @@ o1 {
 	? EndPosition()
 	#--> 10
 	? NStep() + NL
-	#--> 1	
+	#--> 2	
 
 	? @@( Positions() )
 	#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
 	? @@( WalkedPositions() )
-	#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+	#--> [ 10, 8, 6, 4, 2 ]
 
 	? @@( UnwalkedPositions() )
-	#--> [ ]
+	#--> [ 1, 3, 5, 7, 9 ]
 
 }
 

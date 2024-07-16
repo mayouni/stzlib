@@ -195,12 +195,13 @@ class stzWalker from stzList
 
 		ok
 
+
 	  #------------------#
 	 #   GENERAL INFO   #
 	#------------------#
 
 	def Content()
-		return @anWalkedPositions
+		return This.WalkedPositions()
 
 		def Value()
 			return Content()
@@ -215,10 +216,11 @@ class stzWalker from stzList
 	 #  POSITIONS, WALKED POSITIONS & UNWALKED POSITIONS   #
 	#-----------------------------------------------------#
 
-	def Positions()
+	def WalkedPositions()
 		n1 = This.StartPosition()
 		n2 = This.EndPosition()
 		nStep = This.NStep()
+		cDirection = This.Direction()
 
 		anResult = []
 
@@ -227,10 +229,56 @@ class stzWalker from stzList
 			anResult = [ n1 ]
 
 		but n1 < n2
-			anResult = n1 : n2
+			if cDirection = :Forward
+				for i = n1 to n2 step nStep
+					anResult + i
+				next
+			else
+				for i = n2 to n1 step -nStep
+					anResult + i
+				next
+			ok
 
 		else
-			for i = n1 to n2 step nStep
+			if cDirection = :Forward
+				for i = n1 to n2 step nStep
+					anResult + i
+				next
+
+			else
+				
+			ok
+		ok
+
+		return anResult
+
+		def WalkedPositionsQ()
+			return new stzList(This.WalkedPositions())
+
+	def NumberOfWalkedPositions()
+		return len( ThisWalkedPositions() )
+
+		#< @FunctionAlternativeForms
+
+		def HowManyWalkedPositions()
+			return This.NumberOfWalkedPositions()
+
+		def CountWalkedPositions()
+			return This.NumberOfWalkedPositions()
+
+		#>
+
+	def Positions()
+		n1 = This.StartPosition()
+		n2 = This.EndPosition()
+		nStep = This.NStep()
+
+		anResut = []
+
+		if n1 < n2
+			anResult = n1 : n2
+		else
+			for i = n2 to n1 step nStep
 				anResult + i
 			next
 		ok
@@ -250,22 +298,6 @@ class stzWalker from stzList
 
 		def CountPositions()
 			return This.NumberOfPositions()
-
-		#>
-
-	def WalkedPositions()
-		return This.Content()
-
-	def NumberOfWalkedPositions()
-		return len( This.WalkedPositions() )
-
-		#< @FunctionAlternativeForms
-
-		def HowManyWalkedPositions()
-			return This.NumberOfWalkedPositions()
-
-		def CountWalkedPositions()
-			return This.NumberOfWalkedPositions()
 
 		#>
 
@@ -312,7 +344,7 @@ class stzWalker from stzList
 	def SetWalkingDirection(pcDirection)
 		if CheckParams()
 			if isList(pcDirection) and StzStringq(pcDirection).IsForwardOrBackwardNamedParam()
-
+			ok
 		ok
 
 		if NOT ( isString(pcDirection) and
@@ -325,8 +357,14 @@ class stzWalker from stzList
 
 		@cDirection = pcDirection
 
+		def SetDirection(pcDirection)
+			This.SetWalkingDirection(pcDirection)
+
 	def WalkingDirection()
 		return @cDirection
+
+		def Direction()
+			return @cDirection
 
 	def TurnAround()
 		if This.TalkingDirection() = :Forward
