@@ -34,7 +34,7 @@ func ring_min(n1, n2)
 
 func IsClassName(cStr)
 	if CheckParams()
-		if NOT isSting(cStr)
+		if NOT isString(cStr)
 			StzRaise("Incorrect param type! cStr must be a string.")
 		ok
 	ok
@@ -50,7 +50,7 @@ func IsClassName(cStr)
 
 func IsPackageName(cStr)
 	if CheckParams()
-		if NOT isSting(cStr)
+		if NOT isString(cStr)
 			StzRaise("Incorrect param type! cStr must be a string.")
 		ok
 	ok

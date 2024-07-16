@@ -505,7 +505,7 @@ func These(p)
 	#==
 
 	func @These(p)
-		return These()
+		return These(p)
 
 	func @EachOfThese(p)
 		return These(p)
@@ -2132,7 +2132,7 @@ func ring_isvowel(c)
 
 func IsClassName(cStr)
 	if CheckParams()
-		if NOT isSting(cStr)
+		if NOT isString(cStr)
 			StzRaise("Incorrect param type! cStr must be a string.")
 		ok
 	ok
@@ -2148,7 +2148,7 @@ func IsClassName(cStr)
 
 func IsPackageName(cStr)
 	if CheckParams()
-		if NOT isSting(cStr)
+		if NOT isString(cStr)
 			StzRaise("Incorrect param type! cStr must be a string.")
 		ok
 	ok

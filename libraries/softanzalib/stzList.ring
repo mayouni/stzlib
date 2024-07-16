@@ -80820,3 +80820,41 @@ Item and then position
 
 		def IsAfterSubstringsWXTOrAfterSubstringsWhereXTNamedParams()
 			return This.IsAfterSubstringsWXTOrAfterSubstringsWhereXTNamedParam()
+
+	#--
+
+	def IsForwardNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Forward )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBackwardNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Backward )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsForwardOrBackwardNamedParam()
+		if This.IsForwardNamedParam() or This.IsBackwardNamedParam()
+			return TRUE
+		else
+			return FALE
+		ok
+
+		def IsForwardOrBackwardNamedParams()
+			return This.IsForwardOrBAckwardNamedParam()
+
+		def IsBackwardOrforwardNamedParam()
+			return This.IsForwardOrBAckwardNamedParam()
+
+		def IsBackwardOrforwardNamedParams()
+			return This.IsForwardOrBAckwardNamedParam()

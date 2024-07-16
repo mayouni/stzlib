@@ -10,14 +10,14 @@
 #-------------------------------------------------------------------------#
 
 /*
-	TODO Add:
+	#TODO Add:
 	QStringRef methods
 
 	TODO: use QStringView for read-only operations, and QByteArray
 	for UT8-only string
 	#--> Better performance.
 
-	Todo:
+	#Todo:
 	Get inspiration from the python ftfy library to add Unicode text
 	cleansing in Softanza
 	link: https://ftfy.readthedocs.io

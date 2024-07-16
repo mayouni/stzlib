@@ -184,21 +184,15 @@ class stzGrid from stzObject
 
 		switch ring_type(p)	
 		on "NUMBER"
-			aPossibleVH = MultiplicationsYieldingN_WithoutCommutation(p)
-			if len(aPossibleVH) = 1
-				nV = aPossibleVH[1][1]
-				nH = aPossibleVH[1][2]
-			else
-				n = len(aPossibleVH)
-				nV = aPossibleVH[n][1]
-				nH = aPossibleVH[n][2]
-			ok
-
-			for i = 1 to nV
-				aHLine + EmptyNode()
-			next i
+			anVH = @MostSquareLikeFactors(p)
+			nV = anVH[1]
+			nH = anVH[2]
 		
 			for i = 1 to nH
+				aHLine = []
+				for j = 1 to nV
+					aHLine + EmptyNodeChar()
+				next
 				aTempGrid + aHLine
 			next i
 		
@@ -241,22 +235,30 @@ class stzGrid from stzObject
 					next
 
 				else
+					# Case like StzGridQ( "A" : "M" )
+					# ~> Produces a 3x5 grid and fills the first 13
+					# cells with the given 13 chars, and leaves the
+					# last two cells empty (with EmpyNodeChar())
+
 					nLen = len(p)
-					aVH = @MostSquarLikeFactors(nLen)
+					aVH = @MostSquareLikeFactors(nLen)
+
 					nV = aVH[1]
 					nH = aVH[2]
 
 					n = 0
 					for i = 1 to nV
-						n++
-						if n <= nLen
-							aHLine + p[n]
-						else
-							aHLine + EmptyNode()
-						ok
-					next i
-			
-					for i = 1 to nH
+						aHLine = []
+						for j = 1 to nH
+							n++
+							if n <= nLen
+								cNode = p[n]
+							else
+								cNode = EmptyNode()
+							ok
+							aHLine + cNode
+						next j
+
 						aTempGrid + aHLine
 					next i
 
@@ -317,6 +319,9 @@ class stzGrid from stzObject
 		def HowManyHLine()
 			return This.NumberOfHLines()
 
+		def CountHLines()
+			return This.NumberOfHLines()
+
 	def NumberOfNodes()
 		return This.NumberOfVLines() * This.NumberOfHLines()
 
@@ -324,6 +329,9 @@ class stzGrid from stzObject
 			return This.NumberOfNodes()
 
 		def HowManyNode()
+			return This.NumberOfNodes()
+
+		def CountNodes()
 			return This.NumberOfNodes()
 
 	def NumberOfNodesPerHLine()
@@ -335,6 +343,9 @@ class stzGrid from stzObject
 		def HowManyNodePerHLine()
 			return This.NumberOfNodesPerHLine()
 
+		def CountNodesPerHLine()
+			return This.NumberOfNodesPerHLine()
+
 	def NumberOfNodesPerVLine()
 		return This.NumberOfHLines()
 
@@ -342,6 +353,9 @@ class stzGrid from stzObject
 			return This.NumberOfNodesPerVLine()
 
 		def HowManyNodePerVLine()
+			return This.NumberOfNodesPerVLine()
+
+		def CountNodesPerVLine()
 			return This.NumberOfNodesPerVLine()
 
 	def HasNVLines(n)
@@ -897,10 +911,13 @@ class stzGrid from stzObject
 	#----------------------------------------#	
 
 	def ShowHLine(n)
+		nH = This.NumberOfHLines()
+		nV = This.NumberOfVLines()
+
 		if n = :First
 			n = 1
 		but n = :Last
-			n = This.NumberOfHLines()
+			n = nH
 
 		ok
 
@@ -912,12 +929,15 @@ class stzGrid from stzObject
 				:WhenYouReach = 10,
 				:RestartAt = 0,
 				:Step = 1 ]).
-			CountingTo( This.NumberOfVLines() )[n] + SingleSpace()
+			CountingTo(nV)[n] + SingleSpace()
 		ok
 
-		for i = 1 to This.NumberOfVLines()
-			cNode = @@Q(This.HLine(n)[i]).FirstChar()
-			if cNode = "" then cNode = " " ok
+		for i = 1 to nV
+			cNode = This.HLine(i)[1]
+			if cNode = ""
+				cNode = EmptyNodeChar()
+			ok
+
 			cStr += "" + cNode
 
 			if i < This.NumberOfVLines()
