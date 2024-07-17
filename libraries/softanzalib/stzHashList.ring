@@ -2198,7 +2198,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		aTemp1 = This.TheseItemsZ(paItems)
 		nLen = len(aTemp1)
 
-		# Step 2 : we  take the postions (pairs) and put them in a list
+		# Step 2 : we  take the positions (pairs) and put them in a list
 
 		aTemp2 = []
 

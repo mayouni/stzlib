@@ -10595,7 +10595,7 @@ class stzListOfStrings from stzList
 		def ReplaceThisStringAtPositionCS(n, pcStr, pCaseSensitive)
 			This.ReplaceThisNthStringCS(n, pcStr, pCaseSensitive)
 
-		def ReplaceThisStringItemAtPostionCS(n, pcStr, pCaseSensitive)
+		def ReplaceThisStringItemAtPositionCS(n, pcStr, pCaseSensitive)
 			This.ReplaceThisNthStringCS(n, pcStr, pCaseSensitive)
 
 		#>
@@ -10639,7 +10639,7 @@ class stzListOfStrings from stzList
 		def ReplaceThisStringAtPosition(n, pcStr)
 			This.ReplaceThisNthString(n, pcStr)
 
-		def ReplaceThisStringItemAtPostion(n, pcStr)
+		def ReplaceThisStringItemAtPosition(n, pcStr)
 
 		#>
 

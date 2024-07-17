@@ -1,5 +1,15 @@
 load "stzlib.ring"
 
+/*-------------------
+
+pron()
+
+? Q(1:10).ManyRemoved([ 3, 7, 9 ])
+#--> [ 1, 2, 4, 5, 6, 8, 10 ]
+
+proff()
+# Executed in 0 second(s).
+
 /*====
 
 pron()
@@ -7474,7 +7484,7 @@ StartProfiler()
 
 StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 
-	// Walking the list from the postion where a condition is verified
+	// Walking the list from the position where a condition is verified
 
 		? @@( WalkWhen( ' @item = "D" ' ) )
 		#--> [ 4, 5, 6, 7 ]
@@ -7485,7 +7495,7 @@ StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 		? @@( WalkWhenXT( ' @item = "D" ', :Backward, :WalkedItems ) )
 		#--> [ "D", "C", "B", "A" ]
 
-	// Walking the list from the postion where a condition is verified
+	// Walking the list from the position where a condition is verified
 
 		? @@( WalkBetween( 3, 5 ) )
 		#--> [ 3, 4, 5 ]
