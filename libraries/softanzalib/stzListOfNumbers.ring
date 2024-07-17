@@ -5542,7 +5542,7 @@ class stzListOfNumbers from stzList
 	#---------------------------------------------------#
 
 	def AnyNumberOutsidePosition(n)
-		anPositons = Q(1 : This.NumberOfItems()) - n
+		anPositions = Q(1 : This.NumberOfItems()) - n
 		nRandom = AnyNumberIn(anPos)
 		nResult = This.Number(nRandom)
 
@@ -5617,7 +5617,7 @@ class stzListOfNumbers from stzList
 	# Z/EXTENDED FORM
 
 	def AnyNumberOutsidePositionZ(n)
-		anPositons = Q(1 : This.NumberOfItems()) - n
+		anPositions = Q(1 : This.NumberOfItems()) - n
 		nRandom = AnyNumberIn(anPos)
 		aResult = [ This.Number(nRandom), nRandom ]
 

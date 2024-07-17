@@ -9770,7 +9770,7 @@ Item and then position
 		paNewItems = @WithoutDuplicates(paNewItems)
 		nLenNewItems = len(paNewItems)
 
-		# Cleaning the positons by leaving only those related to pItem
+		# Cleaning the positions by leaving only those related to pItem
 
 		anPosItem = This.FindAllCS(pItem, pCaseSensitive)
 
@@ -25097,8 +25097,8 @@ Item and then position
 
 		#< @FunctionMisspelledForm
 
-		def YiledFrom(paPostions, pcCode)
-			return This.YieldFrom(paPositons, pcCode)
+		def YiledFrom(paPositions, pcCode)
+			return This.YieldFrom(paPositions, pcCode)
 
 		#>
 
@@ -25260,8 +25260,8 @@ Item and then position
 
 		#< @FunctionMisspelledForm
 
-		def YiledFromXT(paPostions, pcCode)
-			return This.YieldFromXT(paPositons, pcCode)
+		def YiledFromXT(paPositions, pcCode)
+			return This.YieldFromXT(paPositions, pcCode)
 
 		#>
 
@@ -31640,7 +31640,7 @@ Item and then position
 		EXAMPLE 5
 
 		o1 = new stzList([ "A", "B", "C" ])
-		o1.ExtendXT( :ToPostion = 5, :WithItemsIn = [ "D", "E" ])
+		o1.ExtendXT( :ToPosition = 5, :WithItemsIn = [ "D", "E" ])
 		o1.Show()
 		#--> [ "A", "B", "C", "D", "E" ]
 
@@ -31689,7 +31689,7 @@ Item and then position
 				This.ExtendToPositionWithItemsRepeated(n)
 				return
 
-			# Case 5: o1.ExtendXT( :ToPostion = 5, :WithItemsIn = [ "D", "E" ])
+			# Case 5: o1.ExtendXT( :ToPosition = 5, :WithItemsIn = [ "D", "E" ])
 			but Q(pWith).IsWithItemsInNamedParam()
 				This.ExtendToPositionWithItemsIn(n[2], pWith[2])
 				return
@@ -39766,7 +39766,7 @@ Item and then position
 		#--> "you" is found in the following positions
 		[
 			[ [1, 1], [1, 5] ],	# positions 1 and 5 in the level [1, 1]
-			[ [3, 1], [ 2 ]  ],	# positon 2 in the level [3, 1]
+			[ [3, 1], [ 2 ]  ],	# position 2 in the level [3, 1]
 			[ [3, 2], [ 1 ]  ],	# position 1 in the level [3, 2]
 		]
 		*/
@@ -52172,7 +52172,7 @@ Item and then position
 		def RandomizePositions()
 			This.Randomise()
 
-			def RandomizePositonsQ()
+			def RandomizePositionsQ()
 				This.RandomizePositions()
 				return This
 

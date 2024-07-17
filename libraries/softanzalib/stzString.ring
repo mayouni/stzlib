@@ -2111,7 +2111,7 @@ class stzString from stzObject
 				This.ExtendToPositionWithCharsRepeated(n)
 				return
 
-			# Case 5: o1.ExtendXT( :ToPostion = 5, :WithCharsIn = "DE")
+			# Case 5: o1.ExtendXT( :ToPosition = 5, :WithCharsIn = "DE")
 			but Q(pWith).IsWithCharsInNamedParam()
 				This.ExtendToPositionWithCharsIn(n[2], pWith[2])
 				return
@@ -33652,7 +33652,7 @@ class stzString from stzObject
 		#< QtBased | Uses QString.insert() >
 
 		if isList(nPos) and Q(nPos).IsListOfNumbers()
-			This.InsertAtPositons(anPos, pcSubStr)
+			This.InsertAtPositions(anPos, pcSubStr)
 		ok
 
 		@oQString.insert(nPos, pcSubStr)
@@ -37851,7 +37851,7 @@ class stzString from stzObject
 
 		aResult = []
 		
-		# For each postion
+		# For each position
 		for i = 1 to nLenPos
 
 			# we start parsing the string from that position
@@ -48938,9 +48938,9 @@ class stzString from stzObject
 		bResult = This.SubStringsCSQ(pCaseSensitive).ContainsWXT(pcCondition)
 		return bResult
 
-	  #--------------------------------------------------------------------------------------#
-	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING BEFORE A GIVEN POSITON/SUBSTRING  #
-	#--------------------------------------------------------------------------------------#
+	  #---------------------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING BEFORE A GIVEN POSITION/SUBSTRING  #
+	#---------------------------------------------------------------------------------------#
 
 	def ContainsBeforeCS(pcSubStr, p, pCaseSensitive)
 		if NOT isString(pcSubStr)
@@ -48970,9 +48970,9 @@ class stzString from stzObject
 	def ContainsBefore(pcSubStr, p)
 		return This.ContainsBeforeCS(pcSubStr, p, TRUE)
 
-	  #-------------------------------------------------------------------------------------#
-	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING AFTER A GIVEN POSITON/SUBSTRING  #
-	#-------------------------------------------------------------------------------------#
+	  #--------------------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING AFTER A GIVEN POSITION/SUBSTRING  #
+	#--------------------------------------------------------------------------------------#
 
 	def ContainsAfterCS(pcSubStr, p, pCaseSensitive)
 		if NOT isString(pcSubStr)
@@ -49003,9 +49003,9 @@ class stzString from stzObject
 	def ContainsAfter(pcSubStr, p)
 		return This.ContainsAfterCS(pcSubStr, p, TRUE)
 
-	  #----------------------------------------------------------------------------#
-	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING BEFORE A GIVEN POSITON  #
-	#----------------------------------------------------------------------------#
+	  #-----------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING BEFORE A GIVEN POSITION  #
+	#-----------------------------------------------------------------------------#
 
 	def ContainsBeforePositionCS(pcSubStr, pnPos, pCaseSensitive)
 		return This.ContainsBeforeCS(pcSubStr, :Position = pnPos, pCaseSensitive)
@@ -49027,9 +49027,9 @@ class stzString from stzObject
 	def ContainsBeforeSubString(pcSubStr1, pcSubStr2)
 		return This.ContainsBeforeSubStringCS(pcSubStr1, pcSubStr2, TRUE)
 
-	  #---------------------------------------------------------------------------#
-	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING AFTER A GIVEN POSITON  #
-	#---------------------------------------------------------------------------#
+	  #----------------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING AFTER A GIVEN POSITION  #
+	#----------------------------------------------------------------------------#
 
 	def ContainsAfterPositionCS(pcSubStr, pnPos, pCaseSensitive)
 		return This.ContainsAfterCS(pcSubStr, :Position = pnPos, pCaseSensitive)
@@ -83111,7 +83111,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def CharsAtThesePositons(panPos)
+		def CharsAtThesePositions(panPos)
 			return This.CharsAtPositions(panPos)
 
 			def CharsAtThesePositionsQ(panPos)
