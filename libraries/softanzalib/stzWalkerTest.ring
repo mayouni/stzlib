@@ -6,7 +6,7 @@ load "stzlib.ring"
 
 pron()
 
-o1 = new stzWalker([ 1, 10 , 2 ])
+o1 = new stzWalker([ 1, 10, 2 ])
 
 o1 {
 
@@ -20,13 +20,13 @@ o1 {
 	? NStep() + NL
 	#--> 2	
 
-	? Positions()
+	? @@( Positions() )
 	#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
-	? WalkablePositions()
+	? @@( WalkablePositions() ) # Or Walkables()
 	#--> [ 1, 3, 5, 7, 9 ]
 
-	? UnwalkablePositions()
+	? @@(Unwalkables()) + NL # Or UnwalkablePositions
 	#--> [ 2, 4, 6, 8, 10 ]
 
 	? CurrentPosition() # Or Position()
@@ -38,14 +38,13 @@ proff()
 # Executed in 0.02 second(s).
 
 /*-------------------
-
+*/
 pron()
 
 o1 = new stzWalker([
 	:Start = 1,
 	:End = 10,
-	:Step = 2,
-	:Direction = :Backward
+	:Jump = 2
 ])
 
 o1 {
@@ -75,48 +74,6 @@ o1 {
 
 proff()
 # Executed in 0.02 second(s).
-
-/*------------
-
-pron()
-
-# Softanza tends to be permissive as part of its FELXIBILITY design goal.
-# Let's show this by an example.
-
-# A Walker can be defined by its starting position, ending position, and number of
-# positions per step, like this:
-
-oWalker = new stzWalker([
-	:Direction = :Forward,
-	:StartingAt = 1,
-	:EndingAt = 8,
-	:Jump = 2
-])
-
-? oWalker.WalkablePositions()
-#--> [ 1, 3, 5, 7 ]
-
-# Now, if you do not provide a paramter, Softanza gives a default value to it:
-
-oWalker = new stzWalker([ :EndingAt = 8, :Jump = 2 ])
-? oWalker.WalkablePositions()
-#--> [ 1, 3, 5, 7 ]
-
-? oWalker.StartingPosition() + NL
-#--> 1	(Set automatically by Softanza)
-
-oWalker = new stzWalker([ :EndingAt = 8 ])
-? oWalker.WalkablePositions()
-#--> [ 1, 2, 3, 4, 5, 6, 7, 8 ]
-
-? oWalker.StartingPosition() + NL
-#--> 1	(Set automatically by Softanza)
-
-? oWalker.Jump()
-#--> 1 (Idem)
-
-proff()
-# Executed in 0.01 second(s).
 
 /*===
 

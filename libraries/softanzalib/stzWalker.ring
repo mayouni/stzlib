@@ -49,10 +49,9 @@ func WhileWalking(cWalker)
 
 class stzWalker from stzList
 
-	@nStartPosition = 1
-	@nEndPosition = @nStartPosition + 1
-	@nStep = 1
-	@cDirection = :Forward
+	@nStart = 1
+	@nEnd = @nStart + 1
+	@nJump = 1
 
 	@nCurrentPosition
 
@@ -60,185 +59,86 @@ class stzWalker from stzList
 	 #   SETTING THE WALKER    #
 	#-------------------------#
 
-	def init(paWalkerOptions)
+	def init(pnStart, pnEnd, pnJump)
 		# There are the two ways to initiate a stzWalker object:
 
 		# -> by providing a list of params values. Example:
-		# 	new stzWalker([ :mywalker, 1, 10, 3, :Backward ])
+		# 	new stzWalker([ 1, 10, 3 ])
 
 		# -> by providing a hashlist of named params. Example:
 		# 	new stzWalker([
-		# 		:Name = :myMalker,
 		# 		:StartAt = 1,
 		# 		:EndAt = 10,
-		# 		:Step = 3,
-		# 		:Direction = :Backward
+		# 		:Step = 3
 		# ])
 
-		if CheckParams()
-			if NOT isList(paWalkerOptions) 
-				StzRaise("Can't create the stzWalker object! paWalkerOptions must be a list.")
+		if CheckParams() #TODO // Should be CheckNamedParams()...
+
+			if isList(pnStart) and
+			   StzListQ(pnStart).IsOneOfTheseNamedParams([
+				:Start, :StartAt, :StartsAt, :StartingAt,
+				:StartFrom, :StartsFrom, :StartingFrom,
+
+				:From, :FromPosition
+			   ])
+
+				pnStart = pnStart[2]
 			ok
+
+			if isList(pnEnd) and
+			   StzListQ(pnEnd).IsOneOfTheseNamedParams([
+				:End, :EndAt, :EndsAt, :EndingAt,
+				:Stop, :StopAt, :StopsAt, :StoppingAt,
+
+				:To, :ToPosition
+			   ])
+
+				pnEnd = pnEnd[2]
+			ok
+
+			if isList(pnJump) and
+			   StzListQ(pnJump).IsOneOfTheseNamedParams([
+				:Jump, :Step, :NStep
+			  ])
 	
-			if len(paWalkerOptions) = 0
-				StzRaise("Can't create the stzWalker object! paWalkerOptions can't be an empty list.")
+				pnJump = pnJump[2]
 			ok
-
 		ok
 
-		nLenPositions = This.NumberOfPositions()
-
-		nLenOptions = len(paWalkerOptions)
-		if nLenOptions > 4
-			StzRaise("Can't create the stzWalker object! paWalkerOptions list can't contain more then 4 items.")
-		ok
-
-		# Defalult values
-
-		oOptList = new stzList(paWalkerOptions)
-
-		if @IsHashList(pawalkerOptions) # First way of creating a stzWlker
-
-			# Getting the starting at value
-
-			temp = paWalkerOptions[ :StartingAt ]
-			if isString(temp) and temp = ""
-				temp = paWalkerOptions[ :StartAt ]
-
-				if isString(temp) and temp = ""
-					temp = paWalkerOptions[ :StartsAt ]
-
-					if isString(temp) and temp = ""
-						temp = paWalkerOptions[ :Start ]
-					ok
-				ok
-			ok
-			if isNumber(temp)
-				@nStartPosition = temp
-			ok
-
-			# Getting the ending at value
-
-			temp = paWalkerOptions[ :EndingAt ]
-
-			if isString(temp) and temp = ""
-
-				temp = paWalkerOptions[ :EndAt ]
-
-				if isString(temp) and temp = ""
-
-					temp = paWalkerOptions[ :EndsAt ]
-
-					if isString(temp) and temp = ""
-
-						temp = paWalkerOptions[ :End ]
-					ok
-				ok
-			ok
-
-			if isNumber(temp)
-				@nEndPosition= temp
-			ok
-
-			# Getting the step value
-			#TODO // Abstruct this feature in a function that looks for
-			# a potential list of keys in a list
-
-			temp = paWalkerOptions[ :Step ]
-			if isString(temp) and temp = ""
-				temp = paWalkerOptions[ :Steps ]
-
-				if isString(temp) and temp = ""
-					temp = paWalkerOptions[ :NStep ]
-
-					if isString(temp) and temp = ""
-						temp = paWalkerOptions[ :NSteps ]
-
-						if isString(temp) and temp = ""
-							temp = paWalkerOptions[ :Jump ]
-
-							if isString(temp) and temp = ""
-								temp = paWalkerOptions[ :NJump ]
-
-								if isString(temp) and temp = ""
-									temp = paWalkerOptions[ :Jumps ]
-
-									if isString(temp) and temp = ""
-										temp = paWalkerOptions[ :NJumps ]
-									ok
-								ok
-							ok
-						ok
-					ok
-				ok
-
-			ok
-			if isNumber(temp)
-				@nStep = temp
-			ok
-
-			# Getting the direction value
-
-			temp = paWalkerOptions[ :Direction ]
-			if isString(temp) and temp != ""
-				@cDirection = temp
-			ok
-
-		else # a list that it is not a hashlist
-
-			# Second way of initaing a stzWalker
-
-			if len(paWalkerOptions) = 3 and
-			   isNumber(paWalkerOptions[1]) and # start position
-			   isNumber(paWalkerOptions[2]) and # end position
-			   isNumber(paWalkerOptions[3])     # step
-
-				@nStartPosition = paWalkerOptions[1]
-				@nEndPosition = paWalkerOptions[2]
-				@nStep = paWalkerOptions[3]		
-
-			else
-				StzRaise("Can't create the stzWalker object! paWalkerOptions must be a list of 3 items or a hashlist of 4 pairs or less.")
-			ok
-
-		ok
+		if NOT AreNumbers(pnStart, pnEnd, pnJump)
+			StzRaise("Incorrect params types! pnStart, pnEnd, and pnJump must all be numbers.")
+		ok	
 
 		# Some logical checks
 
-		if @nStartPosition <= 0 or @nEndPosition <= 0
-			StzRaise("Can't create the stzWalker object!  @nStartPosition and @nEndPosition must be positive numbers.")
+		if pnStart <= 0 or pnEnd <= 0
+			StzRaise("Can't create the stzWalker object!  pnStart and pnEnd must be positive numbers.")
 		ok
 
-		if @nStartPosition = @nEndPosition
-			StzRaise("Can't create the stzWalker object! @nStartPosition and @nEndPosition must be different.")
+		if pnStart = pnEnd
+			StzRaise("Can't create the stzWalker object! pnStart and pnEnd must be different.")
 		ok
 
-		if @nStep > @nEndPosition - @nStartPosition + 1
+		if NOT pnJump > 0
+			StzRaise("Can't create the stzWalker object! pnJump must be strictly positive number.")
+		ok
+
+		if pnJump > abs(pnEnd - pnStart) + 1
 			StzRaise("Can't walk! The step is larger then the number of walkable items.")
 		ok
 
-		# Deducing the direction by comparing starting and ending positions
+		# Setting the object attributes
 
-		@cDirection = :Forward
-		if @nEndPosition > @nStartPosition
-			@cDirection = :Backward
-		ok
+		@nStart = pnStart
+		@nEnd = pnEnd
+		@nJump = pnJump	
 
-		# Getting the (default) current position
+		# Setting the (default) current position
 
-		if @cDirection = :Forward
-			if @nStartPosition < @nEndPosition
-				@nCurrentPosition = @nStartPosition
-			else
-				@nCurrentPosition = @nEndPosition
-			ok
-
-		else // :Backward
-			if @nStartPosition < @nEndPosition
-				@nCurrentPosition = @nEndPosition
-			else
-				@nCurrentPosition = @nStartPosition
-			ok
+		if @nStart < @nEnd
+			@nCurrentPosition = @nStart
+		else
+			@nCurrentPosition = @nEnd
 		ok
 
 	  #------------------#
@@ -255,60 +155,51 @@ class stzWalker from stzList
 		return new stzWalker( This.Content() )
 
 	def StartPosition()
-		return @nStartPosition
+		return @nStart
 
 		def StartingPosition()
 			return This.StartPosition()
 
 	def EndPosition()
-		return @nEndPosition
+		return @nEnd
 
 		def EndingPosition()
 			return This.EndPosition()
 
-	def NStep() #NOTE: We can't use Step() because STEP is reserved by Ring
-		return @nStep
+	def Jump() #NOTE: We can't use Step() because STEP is reserved by Ring
+		return @nJump
 
 		#< @FunctionAlternativeForms
 
-		def NumberOfPositionsPerStep()
-			return This.NStep()
+		def NStep()
+			return This.Jump()
 
-		def NumberOfPositionsInStep()
-			return This.NStep()
+		def NumberOfPositionsPerJump()
+			return This.Jump()
+
+		def NumberOfPositionsPerStep()
+			return This.Jump()
 
 		def NumberOfPositionsInAStep()
-			return This.NStep()
+			return This.Jump()
 
-		def StepSize()
-			return This.NStep()
-
-		def SizeOfStep()
-			return This.NStep()
+		def NumberOfPositionsInAJump()
+			return This.Jump()
 
 		#--
 
-		def Jump()
-			return This.NStep()
+		def HowManyPositionsPerJump()
+			return This.Jump()
 
-		def NJump()
-			return This.Nstep()
+		def HowManyPositionsPerStep()
+			return This.Jump()
 
-		def NumberOfJumpsPerStep()
-			return This.NStep()
+		def HowManyPositionsInAStep()
+			return This.Jump()
 
-		def NumberOfJumpsInStep()
-			return This.NStep()
+		def HowManyPositionsInAJump()
+			return This.Jump()
 
-		def NumberOfJumpsInAStep()
-			return This.NStep()
-
-		def JumpSize()
-			return This.NStep()
-
-		def SizeOfJump()
-			return This.NStep()
-			
 		#>
 
 	def CurrentPosition()
@@ -322,16 +213,15 @@ class stzWalker from stzList
 	#-----------------------------------------------------#
 
 	def Positions()
-		n1 = This.StartPosition()
-		n2 = This.EndPosition()
-		nStep = This.NStep()
 
 		anResut = []
 
-		if n1 < n2
-			anResult = n1 : n2
+		if @nStart < @nEnd
+			for i = @nStart to @nEnd step @nJump
+				anResult + i
+			next
 		else
-			for i = n2 to n1 step nStep
+			for i = @nEnd to @nStart step -@nJump
 				anResult + i
 			next
 		ok
@@ -355,32 +245,19 @@ class stzWalker from stzList
 		#>
 
 	def WalkablePositions()
-		n1 = This.StartPosition()
-		n2 = This.EndPosition()
-		nStep = This.NStep()
-
 		anResult = []
-
-		if n1 = n2
-
-			anResult = [ n1 ]
-
-		but n1 < n2
-
-			nStep = Abs(nStep)
-
-			for i = n1 to n2 step nStep
-				anResult + i
+		if @nStart < @nEnd
+			for i = @nStart to @nEnd step @nJump
+				anRersult + i
 			next
 
-		else
-			nStep = -Abs(nStep)
-
-			for i = n2 to n1 step nStep
+		else // backaward
+			for i = @nEnd to @nStart step -@nJump
 				anResult + i
 			next
-
 		ok
+
+		@nCurrentPosition = anResult[ len(anResult) ]
 
 		return anResult
 
@@ -468,10 +345,14 @@ class stzWalker from stzList
 	#-----------------------#
 
 	def WalkingDirection()
-		return @cDirection
+		if @nStart < @nEnd
+			return :Froward
+		else
+			return :Backward
+		ok
 
 		def Direction()
-			return @cDirection
+			return This.WalkingDirection()
 
 	def SetWalkingDirection(pcDirection)
 		if CheckParams()
@@ -487,16 +368,39 @@ class stzWalker from stzList
 
 		ok
 
-		@cDirection = pcDirection
+		if pcDirection = :Forward
+			if @nStart < @nEnd
+				# do nothing, already :Forward
+			else
+				# Swipe between start and end positions
+
+				nTemp = @nStart
+				@nStart = @nEnd
+				@nEnd = nTemp
+				
+			ok
+
+		else // pcDirection = :Backward
+			if @nStart > @nEnd
+				# Do nothing, already :Barckward
+
+			else
+				# Swipe netween start and end positions
+
+				nTemp = @nStart
+				@nStart = @nEnd
+				@nEnd = nTemp
+			ok
+		ok
 
 		def SetDirection(pcDirection)
 			This.SetWalkingDirection(pcDirection)
 
 	def TurnAround()
-		if @cDirection = :Forward
-			@cDirection = :Backward
+		if This.Direction() = :Forward
+			This.SetDirection(:Backward)
 		else
-			@cDirection = :Forward
+			This.SetDirection(:Forward)
 		ok
 
 		def InverseWalkingDirection()
@@ -509,97 +413,192 @@ class stzWalker from stzList
 			This.TurnAround()
 
 	def TurnForward()
-		if @cDirection != :Forward
-			@cDirection = :Forward
-		ok
+		This.SetDirection(:Forward)
 
 	def TurnBackward()
-		if @cDirection != :Backward
-			@cDirection = :Backward
-		ok
+		This.SetDirection(:Backward)
 
 	  #--------------#
 	 #   WALKING    #
 	#--------------#
 
 	def Walk()
-		anWalkables = This.Walkables()
-		cDirection  = This.Direction()
+		return This.WalkablePositions()
 
-		if cDirection = :Forward
-			anResult = anWalkables
+	def WalkNSteps(n)
+		anResult = []
+		nTimes = 0
+
+		if @nStart < @nEnd
+			for i = @nStart to @nEnd step @nJump
+				nTimes++
+				if nTimes > n
+					exit
+				ok
+				anRersult + i
+			next
 
 		else // backaward
-			anResult = ring_reverse(anWalkables)
+			for i = @nEnd to @nStart step -@nJump
+				nTimes++
+				if nTimes > n
+					exit
+				ok
+				anResult + i
+			next
 		ok
 
 		@nCurrentPosition = anResult[ len(anResult) ]
 
 		return anResult
+		
+		#< @FunctionAlternativeForms
 
-	def WalkNSteps(n)
-		if This.ShouldWalkForward()
-			return This.WalkNStepsForward(n)
+		def NSteps(n)
+			return This.WalkNSteps(n)
 
-		but This.ShouldWalkBackward()
-			return This.WalksNStepsBackward(n)
+		def WalkNJumps(n)
+			return This.WalkNSteps(n)
 
-		ok
+		def NJumps(n)
+			return This.WalkNSteps(n)
+		#>
 
 	  #---------------------#
-	 #   WALKING Forward   #
+	 #   WALKING FORWARD   #
 	#---------------------#
 
 	def WalkForward()
-		return This.WalkNStepsForward( This.Jump() )
+		if This.Direction() = :Forward
+			return This.Walk()
 
-	def WalkNStepsForward(n)
-		///
+		else
+			This.SetDirection(:Backward)
+			return This.Walk()
+		ok
 
-		def WalkForwardNSteps()
+		def Forward()
+			return This.WalkForward()
+
+	def WalkNJumpsForward(n)
+		if This.Direction() = :Forward
+			return This.WalkNJumps(n)
+
+		else
+			This.SetDirection(:Backward)
+			return This.WalkNJumps(n)
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def WalkForwardNJumps()
+			return This.WalkNJumpsForward(n)
 
 		def WalkNForward(n)
+			return This.WalkNJumpsForward(n)
 
 		def WalkForwardN(n)
+			return This.WalkNJumpsForward(n)
+
+		#--
+
+		def WalkNStepsForward(n)
+			return This.WalkNJumpsForward(n)
+
+		def WalkForwardNSteps()
+			return This.WalkNJumpsForward(n)
+
+		#==
+
+		def NJumpsForward(n)
+			return This.WalkNJumpsForward(n)
+
+		def ForwardNJumps()
+			return This.WalkNJumpsForward(n)
+
+		def NForward(n)
+			return This.WalkNJumpsForward(n)
+
+		def ForwardN(n)
+			return This.WalkNJumpsForward(n)
+
+		#--
+
+		def NStepsForward(n)
+			return This.WalkNJumpsForward(n)
+
+		def ForwardNSteps()
+			return This.WalkNJumpsForward(n)
+
+		#>
 
 	  #----------------------#
 	 #   WALKING BACKWARD   #
 	#----------------------#
 
+	def WalkBackward()
+		if This.Direction() = :Backward
+			return This.Walk()
 
-	  #-----------#
-	 #   STEPS   #
-	#-----------#
-
-	def Steps()
-		/*
-		StzWalkerQ([ :StartingAt = 1, :EndingAt = 8, :Step = 2 ]) {
-			? WalkedPositions()
-			#--> [ 1, 3, 5, 8, 10 ]
-
-			? Steps()
-			#--> [ 1:3, 3:5, 5:8, 8:10 ]
-		}
-
-		*/
-
-	def NthStep(n)
-		if CheckParams()
-			if isString(n)
-				if Q(n) = :First
-					n = 1
-	
-				but Q(:Last)
-					n = This.NumberOfSteps()
-				ok
-			ok
-	
-			if NOT ( isNumber(n) and n <= This.NumberOfSteps() )
-				StzRaise("Incorrect param!")
-			ok
+		else
+			This.SetDirection(:Backward)
+			return This.Walk()
 		ok
 
-		return This.Steps()[n]
+		def Backward()
+			return This.WalkBackward()
+
+	def WalkNJumpsBackward(n)
+		if This.Direction() = :Backward
+			return This.WalkNJumps(n)
+
+		else
+			This.SetDirection(:Backward)
+			return This.WalkNJumps(n)
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def WalkBackwardNJumps()
+			return This.WalkNJumpsBackward(n)
+
+		def WalkNBackward(n)
+			return This.WalkNJumpsBackward(n)
+
+		def WalkBackwardN(n)
+			return This.WalkNJumpsBackward(n)
+
+		#--
+
+		def WalkNStepsBackward(n)
+			return This.WalkNJumpsBackward(n)
+
+		def WalkBackwardNSteps()
+			return This.WalkNJumpsBackward(n)
+
+		#==
+
+		def NJumpsBackward(n)
+			return This.WalkNJumpsBackward(n)
+
+		def BackwardNJumps()
+			return This.WalkNJumpsBackward(n)
+
+		def NBackward(n)
+			return This.WalkNJumpsBackward(n)
+
+		def BackwardN(n)
+			return This.WalkNJumpsBackward(n)
+
+		#--
+
+		def NStepsBackward(n)
+			return This.WalkNJumpsBackward(n)
+
+		def BackwardNSteps()
+			return This.WalkNJumpsBackward(n)
+
+		#>
 
 	  #-----------#
 	 #   MISC.   #
