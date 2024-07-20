@@ -6,7 +6,7 @@ load "stzlib.ring"
 
 pron()
 
-o1 = new stzWalker([ 1, 10, 2 ])
+o1 = new stzWalker( 1, 10, 2 )
 
 o1 {
 
@@ -41,7 +41,7 @@ proff()
 
 pron()
 
-o1 = new stzWalker(:Start = 1, :End = 10, :Jump = 2)
+o1 = new stzWalker(:Start = 1, :End = 10, :Step = 2)
 
 o1 {
 
@@ -52,7 +52,7 @@ o1 {
 	#--> 1
 	? EndPosition()
 	#--> 10
-	? Jump() + NL
+	? NStep() + NL
 	#--> 2	
 
 	? @@( Positions() )
@@ -65,17 +65,17 @@ o1 {
 	#--> [ 2, 4, 6, 8, 10 ]
 
 	? CurrentPosition()
-	#--> 9
+	#--> 1
 }
 
 proff()
 # Executed in 0.02 second(s).
 
 /*===
-
+*/
 pron()
 
-oWalker = new stzWalker([ :StartingAt = 1, :EndingAt = 8, :Jump = 9 ])
+oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 9 )
 #--> Error: Can't walk! The step is larger then the number of walkable items.
 
 proff()
