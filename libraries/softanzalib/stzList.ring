@@ -70524,9 +70524,29 @@ Item and then position
 			return FALSE
 		ok
 
+	def IsStartsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :StartAts )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsStartAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StartAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStartsAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :StartsAtPosition )
 
 			return TRUE
 
@@ -70544,8 +70564,97 @@ Item and then position
 			return FALSE
 		ok
 
+	def IsStartsAtOccurrenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :StartsAtOccurrence )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
 
 	#--
+
+	def IsEndAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :EndAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEndsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :EndsAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEndAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :EndAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEndsAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :EndsAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStopAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :StopAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStopsAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :StopsAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStopAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :StopAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStopsAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :StopsAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
 
 	def IsEndiingAtNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -70609,29 +70718,39 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsStopAtNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StopAt )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsStopAtPositionNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StopAtPosition )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
 	def IsStopAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StopAtOccurrence )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStopsAtOccurrenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :StopsAtOccurrence )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsendAtOccurrenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :EndAtOccurrence )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsendsAtOccurrenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :EndsAtOccurrence )
 
 			return TRUE
 
