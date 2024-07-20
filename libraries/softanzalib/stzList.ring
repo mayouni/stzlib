@@ -12873,10 +12873,10 @@ Item and then position
 				return This
 
 	def NextOccurrenceRemoved(pItem, pnStartingAt)
-		aRersult =  This.Copy().
+		aResult =  This.Copy().
 				RemoveNextOccurrenceQ(pItem, pnStartingAt).
 				Content()
-		return aRersult
+		return aResult
 
 		def NextRemoved(pItem, pnStartingAt)
 			return This.NextOccurrenceRemoved(pItem, pnStartingAt)
@@ -36283,7 +36283,7 @@ Item and then position
 					exit
 				ok
 			next
-			return bRersult
+			return bResult
 
 		def ContainsNeitherCS(pItem1, pItem2, pCaseSensitive)
 			if isList(pItem2) and Q(pItem2).IsNorNamedParam()
@@ -36334,7 +36334,7 @@ Item and then position
 					exit
 				ok
 			next
-			return bRersult
+			return bResult
 
 		def ContainsNeither(pItem1, pItem2)
 			if isList(pItem2) and Q(pItem2).IsNorNamedParam()
@@ -80858,3 +80858,13 @@ Item and then position
 
 		def IsBackwardOrforwardNamedParams()
 			return This.IsForwardOrBAckwardNamedParam()
+
+	def IsJumpNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Jump )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok

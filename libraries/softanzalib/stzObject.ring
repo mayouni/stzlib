@@ -2308,7 +2308,7 @@ class stzObject
 		#WARNING: The same function should exist inside each Softanza class
 		#--> if we call it on a stzOject we get :stzobject, but if wa call
 		#    on an other softanza type, say stzString or stzList for example,
-		#    we get, not :stzobject as a resutl, but :stzstring and stzlist!
+		#    we get, not :stzobject as a result, but :stzstring and stzlist!
 
 	def StzTypeXT()
 		return [ :stzObject, This.Content() ]

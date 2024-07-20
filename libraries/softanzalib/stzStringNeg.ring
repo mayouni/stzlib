@@ -22,7 +22,7 @@ class stzStringNeg
 				exit
 			ok
 		next
-		return bRersult
+		return bResult
 
 		def ContainsNoneOfTheseSubStringsCS(pacSubStr, pCaseSensitive)
 			return This.ContainsNoneOfTheseCS(pacSubStr, pCaseSensitive)

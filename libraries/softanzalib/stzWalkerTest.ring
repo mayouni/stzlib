@@ -38,14 +38,10 @@ proff()
 # Executed in 0.02 second(s).
 
 /*-------------------
-*/
+
 pron()
 
-o1 = new stzWalker([
-	:Start = 1,
-	:End = 10,
-	:Jump = 2
-])
+o1 = new stzWalker(:Start = 1, :End = 10, :Jump = 2)
 
 o1 {
 
@@ -56,20 +52,20 @@ o1 {
 	#--> 1
 	? EndPosition()
 	#--> 10
-	? NStep() + NL
+	? Jump() + NL
 	#--> 2	
 
 	? @@( Positions() )
 	#--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
 	? @@( WalkablePositions() )
-	#--> [ 10, 8, 6, 4, 2 ]
-
-	? @@( UnwalkablePositions() ) + NL
 	#--> [ 1, 3, 5, 7, 9 ]
 
+	? @@( UnwalkablePositions() ) + NL
+	#--> [ 2, 4, 6, 8, 10 ]
+
 	? CurrentPosition()
-	#--> 10
+	#--> 9
 }
 
 proff()
@@ -110,31 +106,12 @@ proff()
 
 /*====
 
-? oWalker.Direction()
-#-- forward
-
-? @@( oWalker.Walkables() ) # Or WalkablePositions()
-#--> [ 3, 5, 7 ]
-
-oWalker.TurnAround()
-
-? oWalker.Direction()
-#--> backward
-
-? @@( oWalker.Walkables() )
-#--> [ 3, 5, 7 ]
-
-proff()
-# Executed in 0.01 second(s).
-
-/*---
-*/
 pron()
 
-oWalker = new stzWalker([ 3, 9, 2 ])
+oWalker = new stzWalker( 3, 9, 2 )
 
-? oWalker.Direction()
-#-- forward
+	? oWalker.Direction()
+	#-- forward
 
 	? @@( oWalker.Walkables() ) # Or WalkablePositions()
 	#--> [ 3, 5, 7, 9 ]
@@ -145,7 +122,7 @@ oWalker = new stzWalker([ 3, 9, 2 ])
 	? oWalker.Position() # Or CurrentPosition()
 	#--> 9
 
-oWalker.TurnAround() # Or Turn()
+	oWalker.TurnAround() # Or Turn()
 
 	? oWalker.Direction()
 	#--> backward
@@ -162,3 +139,133 @@ oWalker.TurnAround() # Or Turn()
 proff()
 # Executed in 0.01 second(s).
 
+/*----
+
+pron()
+
+oWalker = new stzWalker(1, 10, 2)
+
+? oWalker.Position()
+#--> 1
+
+? oWalker.NumberOfSteps()
+#--> 5
+
+? oWalker.Position()
+? 1
+
+proff()
+# Executed in 0.01 second(s).
+
+/*----
+
+pron()
+
+oWalker = new stzWalker(1, 12, 2)
+
+? @@( oWalker.Walkables())
+#--> [ 1, 3, 5, 7, 9, 11 ]
+
+? oWalker.CurrentPosition()
+#--> 1
+
+? oWalker.Direction()
+#--> Forward
+
+? @@( oWalker.WalkN(2) )
+#--> [ 3, 5 ]
+
+	? oWalker.CurrentPosition()
+	#--> 5
+
+	? @@( oWalker.RemainingWalkables())
+	#--> [ 7, 9, 11 ]
+
+oWalker.WalkN(2)
+	? oWalker.CurrentPosition()
+	#--> 9
+	
+	? @@( oWalker.HowManyRemainingWalkables() )
+	#--> 1
+	
+	? @@( oWalker.RemainingWalkables() )
+	#--> [ 11 ]
+
+	? oWalker.WalkN(1)
+	#--> 11
+
+	oWalker.Walk()
+	#--> ERROR: Can't walk! n exceeds the number of remaining walkable positions.
+
+proff()
+# Executed in 0.02 second(s).
+
+/*----
+*/
+
+pron()
+
+oWalker = new stzWalker(12, 1, 2)
+
+? @@( oWalker.Walkables())
+#--> [ 1, 3, 5, 7, 9, 11 ]
+
+? oWalker.Direction()
+#--> Backward
+
+? oWalker.CurrentPosition()
+#--> 11
+
+? @@( oWalker.Remaining() )
+#--> [ 1, 3, 5, 7, 9 ]
+
+
+? @@( oWalker.WalkN(2) )
+#--> [ 9, 7 ]
+
+	? oWalker.CurrentPosition()
+	#--> 7
+
+	? @@( oWalker.RemainingWalkables())
+	#--> [ 1, 3, 5 ]
+? "--"
+? @@( oWalker.WalkN(2) )
+#--. [ 5, 3 ]
+
+	? oWalker.CurrentPosition()
+	#--> 3
+	
+	? oWalker.HowManyRemainingWalkables()
+	#--> 1
+	
+	? @@( oWalker.RemainingWalkables() )
+	#--> [ 1 ]
+
+	? oWalker.WalkN(1)
+	#--> 1
+
+	oWalker.Walk()
+	#--> ERROR: Can't walk! n exceeds the number of remaining walkable positions.
+
+proff()
+# Executed in 0.02 second(s).
+
+/*----
+
+
+pron()
+
+oWalker = new stzWalker(1, 10, 2)
+
+
+for i = 1 to 2
+	? oWalker.HasNext()
+//? oWalker.Position()
+
+	oWalker.WalkN(1)
+	? oWalker.CurrentPosition() + NL
+
+
+next
+
+proff()
