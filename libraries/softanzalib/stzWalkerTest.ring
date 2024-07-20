@@ -72,35 +72,11 @@ proff()
 # Executed in 0.02 second(s).
 
 /*===
-*/
+
 pron()
 
 oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 9 )
-#--> Error: Can't walk! The step is larger then the number of walkable items.
-
-proff()
-
-/*---
-
-pron()
-
-oWalker = new stzWalker([])
-#--> Error: Can not create the stzWalker object! paWalkerOptions can not be an empty list.
-
-proff()
-
-/*---
-
-pron()
-
-oWalker = new stzWalker([ :w1, 3, 8, 2 ])
-
-/*---
-
-pron()
-
-oWalker = new stzWalker([ :w1, 3, 8, 2 ])
-#--> Can't create the stzWalker object! paWalkerOptions must be a list of 3 items or a hashlist of 4 pairs or less.
+#--> Error: Can't walk! The step is larger then the number of walkable positions.
 
 proff()
 
@@ -109,35 +85,37 @@ proff()
 pron()
 
 oWalker = new stzWalker( 3, 9, 2 )
+oWalker {
 
-	? oWalker.Direction()
+	Direction()
 	#-- forward
 
-	? @@( oWalker.Walkables() ) # Or WalkablePositions()
+	? @@( Walkables() ) # Or WalkablePositions()
 	#--> [ 3, 5, 7, 9 ]
 	
-	? @@( oWalker.Walk() )
+	? @@( Walk() )
 	#--> [ 3, 5, 7, 9 ]
 	
-	? oWalker.Position() # Or CurrentPosition()
+	? Position() # Or CurrentPosition()
 	#--> 9
 
-	oWalker.TurnAround() # Or Turn()
+	TurnAround() # Or Turn()
 
-	? oWalker.Direction()
+	? Direction()
 	#--> backward
 
-	? @@( oWalker.Walkables() )
+	? @@( Walkables() )
 	#--> [ 3, 5, 7, 9 ]
 
-	? @@( oWalker.Walk() ) # Walks starting from CurrentPosition() ~> 9
+	? @@( Walk() ) # Walks starting from CurrentPosition() ~> 9
 	#--> [ 9, 7, 5, 3 ]
 
-	? oWalker.Position()
+	? Position()
 	#--> 3
+}
 
 proff()
-# Executed in 0.01 second(s).
+# Executed in 0.02 second(s).
 
 /*----
 
@@ -152,7 +130,7 @@ oWalker = new stzWalker(1, 10, 2)
 #--> 5
 
 ? oWalker.Position()
-? 1
+#--> 1
 
 proff()
 # Executed in 0.01 second(s).
@@ -162,40 +140,96 @@ proff()
 pron()
 
 oWalker = new stzWalker(1, 12, 2)
+oWalker {
 
-? @@( oWalker.Walkables())
-#--> [ 1, 3, 5, 7, 9, 11 ]
-
-? oWalker.CurrentPosition()
-#--> 1
-
-? oWalker.Direction()
-#--> Forward
-
-? @@( oWalker.WalkN(2) )
-#--> [ 3, 5 ]
-
-	? oWalker.CurrentPosition()
-	#--> 5
-
-	? @@( oWalker.RemainingWalkables())
-	#--> [ 7, 9, 11 ]
-
-oWalker.WalkN(2)
-	? oWalker.CurrentPosition()
-	#--> 9
+	? @@( Walkables())
+	#--> [ 1, 3, 5, 7, 9, 11 ]
 	
-	? @@( oWalker.HowManyRemainingWalkables() )
+	? CurrentPosition()
 	#--> 1
 	
-	? @@( oWalker.RemainingWalkables() )
+	? Direction()
+	#--> Forward
+	
+	? @@( WalkN(2) )
+	#--> [ 1, 3, 5 ]
+	
+	? CurrentPosition()
+	#--> 5
+
+	? @@( RemainingWalkables())
+	#--> [ 7, 9, 11 ]
+
+	WalkN(2) # You can type ? to see the walked steps ~> [ 5, 7, 9 ]
+	? CurrentPosition()
+	#--> 9
+	
+	? @@( HowManyRemainingWalkables() )
+	#--> 1
+	
+	? @@( RemainingWalkables() )
 	#--> [ 11 ]
 
-	? oWalker.WalkN(1)
+	? WalkN(1)
 	#--> 11
 
-	oWalker.Walk()
+	//Walk()
 	#--> ERROR: Can't walk! n exceeds the number of remaining walkable positions.
+
+}
+
+proff()
+# Executed in 0.02 second(s).
+
+/*----
+
+pron()
+
+oWalker = new stzWalker(12, 1, 2)
+oWalker {
+
+	? @@( Walkables())
+	#--> [ 2, 4, 6, 8, 10, 12 ]
+	
+	? Direction()
+	#--> Backward
+	
+	? CurrentPosition()
+	#--> 12
+	
+	? @@( Remaining() )
+	#--> [ 2, 4, 6, 8, 10 ]
+	
+	
+	? @@( WalkN(2) )
+	#--> [ 12, 10, 8 ]
+
+	? CurrentPosition()
+	#--> 8
+
+	? @@( RemainingWalkables())
+	#--> [ 2, 4, 6 ]
+
+	? "--" + NL
+
+	? @@( WalkN(2) )
+	#--> [ 8, 6, 4 ]
+
+	? CurrentPosition()
+	#--> 4
+	
+	? HowManyRemainingWalkables()
+	#--> 1
+	
+	? @@( RemainingWalkables() )
+	#--> [ 2 ]
+
+	? @@( WalkN(1) )
+	#--> [ 4, 2 ]
+
+	//Walk()
+	#--> ERROR: Can't walk! No more walkable positions.
+}
 
 proff()
 # Executed in 0.02 second(s).
@@ -205,67 +239,18 @@ proff()
 
 pron()
 
-oWalker = new stzWalker(12, 1, 2)
-
-? @@( oWalker.Walkables())
-#--> [ 1, 3, 5, 7, 9, 11 ]
-
-? oWalker.Direction()
-#--> Backward
-
-? oWalker.CurrentPosition()
-#--> 11
-
-? @@( oWalker.Remaining() )
-#--> [ 1, 3, 5, 7, 9 ]
-
-
-? @@( oWalker.WalkN(2) )
-#--> [ 9, 7 ]
-
-	? oWalker.CurrentPosition()
-	#--> 7
-
-	? @@( oWalker.RemainingWalkables())
-	#--> [ 1, 3, 5 ]
-? "--"
-? @@( oWalker.WalkN(2) )
-#--. [ 5, 3 ]
-
-	? oWalker.CurrentPosition()
-	#--> 3
-	
-	? oWalker.HowManyRemainingWalkables()
-	#--> 1
-	
-	? @@( oWalker.RemainingWalkables() )
-	#--> [ 1 ]
-
-	? oWalker.WalkN(1)
-	#--> 1
-
-	oWalker.Walk()
-	#--> ERROR: Can't walk! n exceeds the number of remaining walkable positions.
-
-proff()
-# Executed in 0.02 second(s).
-
-/*----
-
-
-pron()
-
 oWalker = new stzWalker(1, 10, 2)
 
+? @@( oWalker.Walkables() ) + NL
+#--> [ 1, 3, 5, 7, 9 ]
 
-for i = 1 to 2
-	? oWalker.HasNext()
-//? oWalker.Position()
+? oWalker.Position() + NL
+#--> 1
 
+while oWalker.HasNext()
 	oWalker.WalkN(1)
-	? oWalker.CurrentPosition() + NL
-
-
-next
+	? oWalker.Position()
+end
+#--> [ 3, 5, 7, 9 ]
 
 proff()

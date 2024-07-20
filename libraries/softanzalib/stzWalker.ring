@@ -124,7 +124,7 @@ class stzWalker from stzList
 		ok
 
 		if pnJump > abs(pnEnd - pnStart) + 1
-			StzRaise("Can't walk! The step is larger then the number of walkable items.")
+			StzRaise("Can't walk! The step is larger then the number of walkable positions.")
 		ok
 
 		# Setting the object attributes
@@ -135,14 +135,8 @@ class stzWalker from stzList
 
 		# Setting the (default) current position
 
-		if @nStart < @nEnd
-			@nCurrentPos = @nStart
+		@nCurrentPos = @nStart
 
-		else
-			for i = @nEnd to @nStart step @nJump
-				@nCurrentPos = i
-			next
-		ok
 
 	  #------------------#
 	 #   GENERAL INFO   #
@@ -263,10 +257,10 @@ class stzWalker from stzList
 
 		else // backaward
 
-			for i = @nEnd to @nStart step @nJump
+			for i = @nStart to @nEnd step -@nJump
 				anResult + i
 			next
-
+			anResult = ring_reverse(anResult)
 		ok
 
 		return anResult
@@ -486,28 +480,34 @@ class stzWalker from stzList
 
 
 	def Walk()
-		nRemaining = This.NumberOfRemainingWalkables()
-		if nRemaining = 0
+		nSteps = This.NumberOfRemainingWalkables()
+		if nSteps = 0
 			StzRaise("Can't walk! No more walkable positions.")
 		ok
 
-		return This.WalkNSteps( nRemaining )
+		return This.WalkNSteps( nSteps + 1 )
 
 	def WalkNSteps(n)
 		anRemaining = This.RemainingWalkables()
+		nLenRemaining = len(anRemaining)
 
-		if n > len(anRemaining)
+		if n > nLenRemaining
 			StzRaise("Can't walk! n exceeds the number of remaining walkable positions.")
 		ok
 
+		anWalks = [ This.CurrentPosition() ]
+		
 		if This.Direction() = :Backward
 			anRemaining = ring_reverse(anRemaining)
 		ok
 
-		anResult = StzListQ(anRemaining).Section(1, n)
-		@nCurrentPos = anResult[len(anResult)]
+		for i = 1 to n
+			anWalks + anRemaining[i]
+		next
 
-		return anResult
+		@nCurrentPos = anWalks[len(anWalks)]
+
+		return anWalks
 
 		#< @FunctionAlternativeForms
 
