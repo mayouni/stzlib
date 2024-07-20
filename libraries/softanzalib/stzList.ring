@@ -57089,7 +57089,7 @@ Item and then position
 	  #----------------------------------------------#
 	 #   SPLITTING TO PARTS OF N Items -- EXTENDED  #
 	#----------------------------------------------#
-	# The remaing part (if any) less then n Items is also returned
+	# The remaining part (if any) less then n Items is also returned
 
 	def SplitToPartsOfNItemsXT(n)
 		aSections = StzSplitterQ( This.NumberOfItems() ).
@@ -59029,7 +59029,7 @@ Item and then position
 	  #----------------------------------------------------#
 	 #   FINDING SPLITS TO PARTS OF N Items -- EXTENDED   #
 	#----------------------------------------------------#
-	# The remaing part (if any) less then n Items is also returned
+	# The remaining part (if any) less then n Items is also returned
 
 	def FindSplitsToPartsOfNItemsXT(n)
 		anResult = StzSplitterQ( This.NumberOfItems() ).
@@ -61212,7 +61212,7 @@ Item and then position
 	  #------------------------------------------------------------------#
 	 #   FINDING SPLITS (AS SECTIONS) TO PARTS OF N Items -- EXTENDED   #
 	#------------------------------------------------------------------#
-	# The remaing part (if any) less then n Items is also returned
+	# The remaining part (if any) less then n Items is also returned
 
 	def FindSplitsToPartsOfNItemsCSXTZZ(n, pCaseSensitive)
 		if This.IsEmppty()
@@ -62970,7 +62970,7 @@ Item and then position
 	  #-------------------------------------------------------#
 	 #   FINDING NTH SPLIT TO PARTS OF N Items -- EXTENDED   #
 	#-------------------------------------------------------#
-	# The remaing part (if any) less then n Items is also returned
+	# The remaining part (if any) less then n Items is also returned
 
 	def FindNthSplitToPartsOfNItemsXT(n, nPos)
 		nResult = StzSplitterQ( This.NumberOfItems() ).
@@ -64583,7 +64583,7 @@ Item and then position
 	  #----------------------------------------------------------------------------#
 	 #   FINDING NTH SPLIT (AS SECTION) TO PARTS OF N Items -- INCLUDING BOUNDS   #
 	#----------------------------------------------------------------------------#
-	# The remaing part (if any) less then n Items is also returned
+	# The remaining part (if any) less then n Items is also returned
 
 	def FindNthSplitToPartsOfNItemsIBZZ(n, nPos)
 		aResult = StzSplitterQ( This.NumberOfItems() ).
@@ -66202,7 +66202,7 @@ Item and then position
 	  #----------------------------------------------------------------#
 	 #   FINDING LAST SPLIT TO PARTS OF N Items -- INCLUDING BOUNDS   #
 	#----------------------------------------------------------------#
-	# The remaing part (if any) less then n Items is also returned
+	# The remaining part (if any) less then n Items is also returned
 
 	def FindLastSplitToPartsOfNItemsXT(nPos)
 		nResult = StzSplitterQ( This.NumberOfItems() ).
@@ -67819,7 +67819,7 @@ Item and then position
 	  #-----------------------------------------------------------------------------#
 	 #   FINDING LAST SPLIT (AS SECTION) TO PARTS OF N Items -- INCLUDING BOUNDS   #
 	#-----------------------------------------------------------------------------#
-	# The remaing part (if any) less then n Items is also returned
+	# The remaining part (if any) less then n Items is also returned
 
 	def FindLastSplitToPartsOfNItemsIBZZ(nPos)
 		aResult = StzSplitterQ( This.NumberOfItems() ).
@@ -70596,6 +70596,16 @@ Item and then position
 			return FALSE
 		ok
 
+	def IsEndingAtNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :EndingAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsEndAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EndAtPosition )
@@ -70606,9 +70616,31 @@ Item and then position
 			return FALSE
 		ok
 
+
+
 	def IsEndsAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :EndsAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEndingAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :EndingAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEndingAtOccurrenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :EndingAtOccurrence )
 
 			return TRUE
 
@@ -70666,19 +70698,9 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsEndingAtPositionNamedParam()
+	def IsStoppingAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :EndingAtPosition )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsEndingAtOccurrenceNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :EndingAtOccurrence )
+		   ( isString(This.Item(1)) and  This.Item(1) = :StoppingAtPosition )
 
 			return TRUE
 
@@ -70691,16 +70713,6 @@ Item and then position
 	def IsStoppingAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :StoppingAt )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsStoppingAtPositionNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StoppingAtPosition )
 
 			return TRUE
 

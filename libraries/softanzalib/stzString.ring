@@ -54917,7 +54917,7 @@ class stzString from stzObject
 	  #----------------------------------------------#
 	 #   SPLITTING TO PARTS OF N CHARS -- EXTENDED  #
 	#----------------------------------------------#
-	# The remaing part (if any) less then n chars is also returned
+	# The remaining part (if any) less then n chars is also returned
 
 	def SplitToPartsOfNCharsXT(n)
 		aSections = StzSplitterQ( This.NumberOfChars() ).
@@ -57398,7 +57398,7 @@ class stzString from stzObject
 	  #----------------------------------------------------#
 	 #   FINDING SPLITS TO PARTS OF N CHARS -- EXTENDED   #
 	#----------------------------------------------------#
-	# The remaing part (if any) less then n chars is also returned
+	# The remaining part (if any) less then n chars is also returned
 
 	def FindSplitsToPartsOfNCharsXT(n)
 		anResult = StzSplitterQ( This.NumberOfChars() ).
@@ -59895,7 +59895,7 @@ class stzString from stzObject
 	  #------------------------------------------------------------------#
 	 #   FINDING SPLITS (AS SECTIONS) TO PARTS OF N CHARS -- EXTENDED   #
 	#------------------------------------------------------------------#
-	# The remaing part (if any) less then n chars is also returned
+	# The remaining part (if any) less then n chars is also returned
 
 	def FindSplitsToPartsOfNCharsCSXTZZ(n, pCaseSensitive)
 		if This.IsEmppty()
@@ -61724,7 +61724,7 @@ class stzString from stzObject
 	  #-------------------------------------------------------#
 	 #   FINDING NTH SPLIT TO PARTS OF N CHARS -- EXTENDED   #
 	#-------------------------------------------------------#
-	# The remaing part (if any) less then n chars is also returned
+	# The remaining part (if any) less then n chars is also returned
 
 	def FindNthSplitToPartsOfNCharsXT(n, nPos)
 		nResult = StzSplitterQ( This.NumberOfChars() ).
@@ -63218,7 +63218,7 @@ class stzString from stzObject
 	  #----------------------------------------------------------------------------#
 	 #   FINDING NTH SPLIT (AS SECTION) TO PARTS OF N CHARS -- INCLUDING BOUNDS   #
 	#----------------------------------------------------------------------------#
-	# The remaing part (if any) less then n chars is also returned
+	# The remaining part (if any) less then n chars is also returned
 
 	def FindNthSplitToPartsOfNCharsIBZZ(n, nPos)
 		aResult = StzSplitterQ( This.NumberOfChars() ).
@@ -64779,7 +64779,7 @@ class stzString from stzObject
 	  #----------------------------------------------------------------#
 	 #   FINDING LAST SPLIT TO PARTS OF N CHARS -- INCLUDING BOUNDS   #
 	#----------------------------------------------------------------#
-	# The remaing part (if any) less then n chars is also returned
+	# The remaining part (if any) less then n chars is also returned
 
 	def FindLastSplitToPartsOfNCharsXT(nPos)
 		nResult = StzSplitterQ( This.NumberOfChars() ).
@@ -66414,7 +66414,7 @@ class stzString from stzObject
 	  #------------------------------------------------------------------------------#
 	 #   FINDING FIRST SPLIT (AS SECTION) TO PARTS OF N CHARS -- INCLUDING BOUNDS   #
 	#------------------------------------------------------------------------------#
-	# The remaing part (if any) less then n chars is also returned
+	# The remaining part (if any) less then n chars is also returned
 
 	def FindFirstSplitToPartsOfNCharsIBZZ(nPos)
 		aResult = StzSplitterQ( This.NumberOfChars() ).
@@ -68019,7 +68019,7 @@ class stzString from stzObject
 	  #-----------------------------------------------------------------------------#
 	 #   FINDING LAST SPLIT (AS SECTION) TO PARTS OF N CHARS -- INCLUDING BOUNDS   #
 	#-----------------------------------------------------------------------------#
-	# The remaing part (if any) less then n chars is also returned
+	# The remaining part (if any) less then n chars is also returned
 
 	def FindLastSplitToPartsOfNCharsIBZZ(nPos)
 		aResult = StzSplitterQ( This.NumberOfChars() ).
