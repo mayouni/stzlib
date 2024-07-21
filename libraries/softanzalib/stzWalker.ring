@@ -208,6 +208,17 @@ class stzWalker from stzList
 		def Current()
 			return @nCurrentPos
 
+	def SetCurrentPosition(n)
+		if ring_find(This.Walkables(), n) = 0
+			StzRaise("Can't set the current position! n must be a walkable position.")
+		ok
+
+		@nCurrentPos = n
+
+		def SetCurrent(n)
+			SetCurrentPosition(n)
+
+
 	  #-----------------------------------------------------#
 	 #  POSITIONS, WALKED POSITIONS & UNWALKED POSITIONS   #
 	#-----------------------------------------------------#
@@ -338,28 +349,6 @@ class stzWalker from stzList
 			return This.NumberOfUnwalkablePositions()
 
 		#>
-
-	def IsWalkablePosition(n)
-		if ring_find( This.WalkablePositions(), n) > 0
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-		def IsWalkable(n)
-			return This.IsWalkablePosition(n)
-
-	def IsUnwalkablePosition(n)
-		if ring_find( This.UnwalkablePositions(), n) > 0
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-		def IsUnwalkable(n)
-			return This.IsUnwalkablePosition(n)
 
 	  #-----------------------#
 	 #   WALKING DIRECTION   #
@@ -537,42 +526,58 @@ class stzWalker from stzList
 
 		ok
 
-		return This.WalkablePositions()[n]
+		anWalkables = This.Walkables()
+
+		if This.Direction() = :Backward
+			anWalkables = ring_reverse(anWalkables)
+		ok
+
+		return anwalkables[n]
+
+		#< @FunctionAlternativeForms
 
 		def NthWalkable(n)
 			return This.NthWalkablePosition(n)
 
-	def FirstWalkablePosition()
-		return This.NthWalkablePosition(1)
-
-	def LastWalkablePosition()
-		return This.NthWalkablePosition(This.NumberOfWalkables())
-
-	def NthStep(n)
-		if CheckParams()
-			if isString(n)
-				if n = :First
-					n = 1
-				but n = :Last
-					n = This.NumberOfSteps()
-				ok
-			ok
-
-			if NOT isNumber(n)
-				StzRaise("Incorrect param type! n must be a number.")
-			ok
-
-		ok
-		return This.Walkables()[n]
+		def NthStep(n)
+			return This.NthWalkablePosition(n)
 
 		def NthJump(n)
 			return This.NthStep()
 
-	def FirstStep()
-		return This.NthStep(1)
+		#>
 
-	def LastStep()
-		return This.NthStep(This.NumberOfSteps())
+	def FirstWalkablePosition()
+		return This.NthWalkablePosition(1)
+
+		#< @FunctionAlternativeForms
+
+		def FirstWalkable()
+			return This.FirstWalkablePosition()
+
+		def FirstStep()
+			return This.FirstWalkablePosition()
+
+		def FirstJump()
+			return This.FirstWalkablePosition()
+
+		#>
+
+	def LastWalkablePosition()
+		return This.LastWalkablePosition(This.NumberOfWalkables())
+
+		#< @FunctionAlternativeForms
+
+		def LastWalkable()
+			return This.LastWalkablePosition()
+
+		def LastStep()
+			return This.LastWalkablePosition()
+
+		def LastJump()
+			return This.LastWalkablePosition()
+
+		#>
 
 	def HasNext()
 		if This.Direction() = :Forward
@@ -591,7 +596,7 @@ class stzWalker from stzList
 			ok
 		ok
 
-		def CanWalk()
+		def CanWalkForward()
 			return This.HasNext()
 
 		def HasNextStep()
@@ -600,6 +605,32 @@ class stzWalker from stzList
 		def HasNextJump()
 			return This.HasNext()
 		
+	def HasPrevious()
+		if This.Direction() = :Forward
+
+			if This.CurrentPosition() > This.FirstStep()
+				return TRUE
+			else
+				return FALSE
+			ok
+
+		elese // Direction = :Backward
+			if This.CurrentPosition() < This.FirstStep()
+				return TRUE
+			else
+				return FALSE
+			ok
+		ok
+
+		def CanWalkBackward()
+			return This.HasPrevious()
+
+		def HasPreviousStep()
+			return This.HasPrevious()
+
+		def HasPreviousJump()
+			return This.HasPrevious()
+
 	  #---------------------#
 	 #   WALKING FORWARD   #
 	#---------------------#
@@ -743,6 +774,179 @@ class stzWalker from stzList
 
 		def BackwardNSteps()
 			return This.WalkNJumpsBackward(n)
+
+		#>
+
+	  #-----------------------------#
+	 #  WALKING TO GIVEN POSITION  #
+	#-----------------------------#
+
+	def WalkTo(n)
+		return This.WalkBetween( This.CurrentPosition(), n)
+
+		def WalkToPosition(n)
+			return This.WalkTo(n)
+
+	  #---------------------------------#
+	 #  WALKING FROM A GIVEN POSITION  #
+	#---------------------------------#
+
+	def WalkFrom(n)
+		return This.WalkBetween( n, This.CurrentPosition())
+
+		def WalkFromPosition(n)
+			return This.WalkFrom(n)
+
+	  #--------------------------------------#
+	 #  CHECKING IF A POSITION IS WALKABLE  #
+	#--------------------------------------#
+
+	def IsWalkable(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		if ring_find( This.Walkables(), n) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsWalkablePosition(n)
+			return This.IsWalkable(n)
+
+		def IsAWalkable(n)
+			return This.IsWalkable(n)
+
+		def ISAWalkablePosition(n)
+			return This.IsWalkable(n)
+
+		#>
+
+	def AreWalkables(anPos)
+		if CheckParams()
+			if NOT @IsListOfNumbers(anPos)
+				StzRaise("Incorrect param type! anPos must be a list of numbers.")
+			ok
+		ok
+
+		anWalkables = This.Walkables()
+
+		anPos = U(anPos)
+		nLen = len(anPos)
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if ring_reverse(anWalkables, anPos[i]) = 0
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		def AreWalkablePositions(anPos)
+			return This.AreWalkables(anPos)
+
+	  #----------------------------------------#
+	 #  CHECKING IF A POSITION IS UNWALKABLE  #
+	#----------------------------------------#
+
+	def IsUnwalkable(n)
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		if ring_find( This.Unwalkables(), n) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsUnwalkablePosition(n)
+			return This.IsUnwalkable(n)
+
+		def IsAnUnwalkable(n)
+			return This.IsUnwalkable(n)
+
+		def IsAnUnwalkablePosition(n)
+			return This.IsUnwalkable(n)
+
+		#>
+
+	def AreUnwalkables(anPos)
+		if CheckParams()
+			if NOT @IsListOfNumbers(anPos)
+				StzRaise("Incorrect param type! anPos must be a list of numbers.")
+			ok
+		ok
+
+		anUnwalkables = This.Unwalkables()
+
+		anPos = U(anPos)
+		nLen = len(anPos)
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if ring_reverse(anUnwalkables, anPos[i]) = 0
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	  #---------------------------------------------#
+	 #  WALKING FROM A GIVEN POSITION TO AN OTHER  #
+	#---------------------------------------------#
+
+	def WalkBetween(n1, n2)
+		if CheckParams()
+			if isList(n2) and StzListQ(n3).IsAndNamedParam()
+				n2 = n2[2]
+			ok
+
+			if NOT (isNumber(n1) and isNumber(n2))
+				StzRaise("Incorrect param type! n1 and n2 must be numbers.")
+			ok
+		ok
+
+		if NOT This.AreWalkables([ n1, n2 ])
+			StzRaise("Can't walk! The two positions provided must be both walkable.")
+		ok
+
+		anResult = []
+
+		if n1 < n2
+			for i = n1 to n2 step @nJump
+				anResult + i
+			next
+
+		else
+			for i = n1 to n2 step -@nJump
+				anResult + i
+			next
+		ok
+
+		@nCurrentPos = anResult[ len(anResult) ]
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def WalkBetweenPositions(n1, n2)
+			return This.WalkBetween(n1, n2)
+
+		def WalkFromTo(n1, n2)
+			return This.WalkBetween(n1, n2)
 
 		#>
 
