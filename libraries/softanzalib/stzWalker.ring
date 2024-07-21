@@ -259,32 +259,6 @@ class stzWalker from stzList
 
 		#>
 
-	def WalkablePositions()
-		anResult = []
-		if @nStart < @nEnd
-			for i = @nStart to @nEnd step @nJump
-				anResult + i
-			next
-
-		else // backaward
-
-			for i = @nStart to @nEnd step -@nJump
-				anResult + i
-			next
-			anResult = ring_reverse(anResult)
-		ok
-
-		return anResult
-
-		def WalkablePositionsQ()
-			return new stzList(This.WalkedPositions())
-
-		def Walkables()
-			return This.WalkablePositions()
-
-			def WalkablesQ()
-				return This.WalkablePositionsQ()
-
 	def NumberOfWalkablePositions()
 		return len( This.WalkablePositions() )
 
@@ -361,8 +335,18 @@ class stzWalker from stzList
 			return :Backward
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def Direction()
 			return This.WalkingDirection()
+
+		def CurrentDirection()
+			return This.WalkingDirection()
+
+		def CurrentWalkingDirection()
+			return This.WalkingDirection()
+
+		#>
 
 	def SetWalkingDirection(pcDirection)
 		if CheckParams()
@@ -510,6 +494,44 @@ class stzWalker from stzList
 			return This.WalkNSteps(n)
 		#>
 
+	def Walkables()
+		if This.Direction() = :Forward
+			return This.ForwardWalkables()
+		else
+			return This.BackwardWalkables()
+		ok
+
+		def WalkablePositions()
+			return This.Walkables()
+
+	def ForwardWalkables()
+		n1 = Min([ @nStart, @nEnd ])
+		n2 = Max([ @nStart, @nEnd ])
+	
+		anResult = []
+		for i = n1 to n2 step @nJump
+			anResult + i
+		next
+	
+		return anResult
+
+		def ForwardWalkablePositions()
+			return This.ForwardWalkables()
+
+	def BackwardWalkables()
+		n1 = Min([ @nStart, @nEnd ])
+		n2 = Max([ @nStart, @nEnd ])
+	
+		anResult = []
+		for i = n2 to n1 step -@nJump
+			anResult + i
+		next
+	
+		return anResult
+	
+		def BackwardWalkablePositions()
+			return This.BackwardWalkables()
+
 	def NthWalkablePosition(n)
 		if CheckParams()
 			if isString(n)
@@ -564,7 +586,7 @@ class stzWalker from stzList
 		#>
 
 	def LastWalkablePosition()
-		return This.LastWalkablePosition(This.NumberOfWalkables())
+		return This.NthWalkablePosition(This.NumberOfWalkables())
 
 		#< @FunctionAlternativeForms
 
