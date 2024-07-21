@@ -234,7 +234,81 @@ oWalker {
 proff()
 # Executed in 0.02 second(s).
 
-/*----
+/*===
+
+pron()
+
+oWalker = new stzWalker(1, 10, 2)
+
+oWalker {
+
+	? @@( Walkables() )
+	#--> [ 1, 3, 5, 7, 9 ]
+
+	? @@( ForwardWalkables() )
+	#--> [ 1, 3, 5, 7, 9 ]
+
+	? @@( BackwardWalkables() )
+	#--> [ 10, 8, 6, 4, 2 ]
+
+	? CurrentDirection() # Or simply Direction()
+	#--> forward
+
+	TurnAround()
+	? Direction()
+	#--> backward
+
+	? @@( Walkables() )
+	#--> [ 10, 8, 6, 4, 2 ]
+
+	? @@( ForwardWalkables() )
+	#--> [ 1, 3, 5, 7, 9 ]
+
+	? @@( BackwardWalkables() )
+	#--> [ 10, 8, 6, 4, 2 ]
+}
+
+proff()
+# Executed in 0.03 sencond(s).
+
+*/
+
+pron()
+
+oWalker = new stzWalker(10, 1, 2)
+
+oWalker {
+
+	? @@( Walkables() )
+	#--> [ 10, 8, 6, 4, 2 ]
+
+	? @@( ForwardWalkables() )
+	#--> [ 1, 3, 5, 7, 9 ]
+
+	? @@( BackwardWalkables() )
+	#--> [ 10, 8, 6, 4, 2 ]
+
+	? CurrentDirection() # Or simply Direction()
+	#--> backward
+
+	TurnAround()
+	? Direction()
+	#--> forward
+
+	? @@( Walkables() )
+	#--> [ 1, 3, 5, 7, 9 ]
+
+	? @@( ForwardWalkables() )
+	#--> [ 1, 3, 5, 7, 9 ]
+
+	? @@( BackwardWalkables() )
+	#--> [ 10, 8, 6, 4, 2 ]
+}
+
+proff()
+# Executed in 0.02 second(s).
+
+/*===
 */
 
 pron()
