@@ -253,4 +253,37 @@ while oWalker.HasNext()
 end
 #--> [ 3, 5, 7, 9 ]
 
+? "---" + NL
+
+? oWalker.Position() + NL
+#--> 9
+
+? oWalker.FirstStep()
+#--> 1
+
+? oWalker.LastStep()
+#--> 9
+
+
+oWalker.TurnAround()
+? oWalker.Direction()
+#--> backward
+
+? oWalker.FirstStep()
+? oWalker.LastStep()
+
+? @@( oWalker.HasPrevious() )
+/*
+while oWalker.HasPrevious()
+	oWalker.WalkN(1)
+	? oWalker.Position()
+end
+*/
+
 proff()
+
+#---
+/*
+WalkTo
+WalkFrom
+WalkBetween
