@@ -1,5 +1,61 @@
 load "stzlib.ring"
 
+pron()
+
+nNum1 = 0
+nNum2 = 1
+nNum3 = 3
+
+if ( ( ( (nNum2 <= 0) and (nNum3 < nNum1) ) or ( nNum2 = 0 ) ) or
+
+    ( (nNum2 > 0) and (nNum3 > nNum1) ) )
+
+	? "RING_VM_JUMP"
+ok
+
+#~~>
+
+	nNum2 = 0 # At any case (OR)
+	
+	nNum2 < 0
+		nNum3 > nNum1
+	
+	nNum2 > 0
+		nNum3 > nNum1
+
+#~~>
+
+	nNum2 = 0 OR nNum3 > nNum1
+
+proff()
+
+/*	
+pron()
+
+nNum1 = -909929
+nNum2 = 0
+nNum3 = -1000
+
+if nNum2 <= 0
+	if ( ( NOT (nNum3 >= nNum1) ) OR ( nNum2 = 0 ) )
+		? "RING_VM_JUMP"
+	ok
+
+else
+	if ( NOT (nNum3 <= nNum1) )
+		? "RING_VM_JUMP"
+	ok
+ok
+
+? "--"
+
+if nNum2 = 0 OR (nNum1 < nNum3)
+	? "RING_VM_JUMP"
+ok
+
+
+proff()
+
 /*=====
 
 pron()
