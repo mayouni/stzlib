@@ -32,8 +32,10 @@ class stzWalker from stzList
 	@nEnd
 	@nStep
 
-	@anWalkables
+	@anWalkables = []
 	@nCurrentPos
+
+	@anWalks = []
 
 	  #-------------------------#
 	 #   SETTING THE WALKER    #
@@ -90,10 +92,6 @@ class stzWalker from stzList
 		ok	
 
 		# Some logical checks
-
-//		if pnStart <= 0 or pnEnd <= 0
-//			StzRaise("Can't create the stzWalker object!  pnStart and pnEnd must be positive numbers.")
-//		ok
 
 		if pnStart = pnEnd
 			StzRaise("Can't create the stzWalker object! pnStart and pnEnd must be different.")
@@ -342,6 +340,7 @@ class stzWalker from stzList
 			anWalks + anRemaining[i]
 		next
 
+		@anWalks + anWalks
 		@nCurrentPos = anWalks[len(anWalks)]
 
 		return anWalks
@@ -631,6 +630,7 @@ class stzWalker from stzList
 
 		ok
 
+		@anWalks + anResult
 		@nCurrentPos = anResult[ len(anResult) ]
 
 		return anResult
@@ -644,6 +644,55 @@ class stzWalker from stzList
 			return This.WalkBetween(n1, n2)
 
 		#>
+
+	  #--------------------------------#
+	 #  GETTING THE HISTORY OF WALKS  #
+	#--------------------------------#
+
+	def Walks()
+		return @anWalks
+
+		def WalkingHistory()
+			return @anWalks
+
+		def WalkHistory()
+			return @anWalks
+
+		def History()
+			return @anWalks
+
+	def NumberOfWalks()
+		return len(@anWalks)
+
+		def HowManyWalks()
+			return len(@anWalks)
+
+		def CountWalks()
+			return len(@anWalks)
+
+		def SizeOfWalkingHistory()
+			return len(@anWalks)
+
+		def SizeOfWalkHistory()
+			return len(@anWalks)
+
+	def RemoveWalks()
+		@anWalks = []
+
+		def RemoveWalkingHistory()
+			@anWalks = []
+
+		def RemoveWalkHistory()
+			@anWalks = []
+
+	def NthWalk(n)
+		return @anWalks[n]
+
+	def FirstWalk()
+		return @anWalks[1]
+
+	def LastWalk()
+		return @anWalks[len(@anWalks)]
 
 	  #-----------#
 	 #   MISC.   #
