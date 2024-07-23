@@ -1,8 +1,7 @@
 load "stzlib.ring"
 
 
-
-/*-------------------
+/*--
 
 pron()
 
@@ -69,14 +68,28 @@ o1 {
 }
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.04 second(s).
 
 /*===
 
 pron()
 
-oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 9 )
+oWalker = new stzWalker( 5, -5, 2 )
+? oWalker.Content()
+#--> [ 5, 3, 1, -1, -3, -5 ]
+
+proff()
+# Executed in 0.01 second(s).
+
+/*===
+
+pron()
+
+//oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 9 )
 #--> Error: Can't walk! The step is larger then the number of walkable positions.
+
+oWalker = new stzWalker( :StartingAt = 1, :EndingAt = 8, :Step = 0 )
+#--> Error: Can't create the stzWalker object! pnStep must be strictly positive number..
 
 proff()
 
@@ -87,31 +100,21 @@ pron()
 oWalker = new stzWalker( 3, 9, 2 )
 oWalker {
 
-	Direction()
-	#-- forward
-
 	? @@( Walkables() ) # Or WalkablePositions()
 	#--> [ 3, 5, 7, 9 ]
 	
 	? @@( Walk() )
-	#--> [ 3, 5, 7, 9 ]
+	#--> [ 3, 5 ]
 	
 	? Position() # Or CurrentPosition()
-	#--> 9
+	#--> 5
 
-	TurnAround() # Or Turn()
-
-	? Direction()
-	#--> backward
-
-	? @@( Walkables() )
-	#--> [ 3, 5, 7, 9 ]
-
-	? @@( Walk() ) # Walks starting from CurrentPosition() ~> 9
-	#--> [ 9, 7, 5, 3 ]
+	? @@( WalkN(2) )
+	#--> [ 5, 7, 9 ]
 
 	? Position()
-	#--> 3
+	#--> 9
+
 }
 
 proff()
@@ -129,9 +132,6 @@ oWalker = new stzWalker(1, 10, 2)
 ? oWalker.NumberOfSteps()
 #--> 5
 
-? oWalker.Position()
-#--> 1
-
 proff()
 # Executed in 0.01 second(s).
 
@@ -147,9 +147,6 @@ oWalker {
 	
 	? CurrentPosition()
 	#--> 1
-	
-	? Direction()
-	#--> Forward
 	
 	? @@( WalkN(2) )
 	#--> [ 1, 3, 5 ]
@@ -171,10 +168,10 @@ oWalker {
 	#--> [ 11 ]
 
 	? WalkN(1)
-	#--> 11
+	#--> [ 9, 11 ]
 
 	//Walk()
-	#--> ERROR: Can't walk! n exceeds the number of remaining walkable positions.
+	#--> ERROR: Can't walk! No more walkable positions.
 
 }
 
@@ -189,26 +186,19 @@ oWalker = new stzWalker(12, 1, 2)
 oWalker {
 
 	? @@( Walkables())
-	#--> [ 2, 4, 6, 8, 10, 12 ]
-	
-	? Direction()
-	#--> Backward
-	
-	? CurrentPosition()
+	#--> [ 12, 10, 8, 6, 4, 2 ]
+		
+	? CurrentPosition() + NL
 	#--> 12
-	
-	? @@( Remaining() )
-	#--> [ 2, 4, 6, 8, 10 ]
-	
 	
 	? @@( WalkN(2) )
 	#--> [ 12, 10, 8 ]
 
-	? CurrentPosition()
+	? CurrentPosition() + NL
 	#--> 8
 
 	? @@( RemainingWalkables())
-	#--> [ 2, 4, 6 ]
+	#--> [ 6, 4, 2 ]
 
 	? "--" + NL
 
@@ -238,78 +228,55 @@ proff()
 
 pron()
 
-oWalker = new stzWalker(1, 10, 2)
+w = new stzWalker(3, 12, 2)
 
-oWalker {
+? w.Position()
+#--> 3
 
-	? @@( Walkables() )
-	#--> [ 1, 3, 5, 7, 9 ]
+? @@( w.Walkables() )
+#--> [ 3, 5, 7, 9, 11 ]
 
-	? @@( ForwardWalkables() )
-	#--> [ 1, 3, 5, 7, 9 ]
+w.WalkNSteps(2) #--> Inspect it wit ? and you get [ 3, 5, 7 ]
 
-	? @@( BackwardWalkables() )
-	#--> [ 10, 8, 6, 4, 2 ]
+? w.Position() + NL
+#--> 7
 
-	? CurrentDirection() # Or simply Direction()
-	#--> forward
+//w.WalkTo(8)
+#--> ERROR: Can't walk! The position(s) provided must be walkable.
 
-	TurnAround()
-	? Direction()
-	#--> backward
+w.WalkTo(5) #--> [ 7, 5 ]
+? w.Position() + NL
+#--> 5
 
-	? @@( Walkables() )
-	#--> [ 10, 8, 6, 4, 2 ]
 
-	? @@( ForwardWalkables() )
-	#--> [ 1, 3, 5, 7, 9 ]
+? "--" + NL
 
-	? @@( BackwardWalkables() )
-	#--> [ 10, 8, 6, 4, 2 ]
-}
 
-proff()
-# Executed in 0.03 sencond(s).
+? w.WalkToFirst()
+#--> [ 5, 3 ]
 
-*/
+? w.WalkToLast()
+#--> [ 3, 5, 7, 9, 11 ]
 
-pron()
+? w.Position() + NL
+#--> 11
 
-oWalker = new stzWalker(10, 1, 2)
+? w.WalkBetween(5, 9)
+#--> [ 5, 7, 9 ]
 
-oWalker {
+? w.Position() + NL
+#--> 9
 
-	? @@( Walkables() )
-	#--> [ 10, 8, 6, 4, 2 ]
+? w.WalkBetween(9, 5)
+#--> [ 9, 7, 5 ]
 
-	? @@( ForwardWalkables() )
-	#--> [ 1, 3, 5, 7, 9 ]
-
-	? @@( BackwardWalkables() )
-	#--> [ 10, 8, 6, 4, 2 ]
-
-	? CurrentDirection() # Or simply Direction()
-	#--> backward
-
-	TurnAround()
-	? Direction()
-	#--> forward
-
-	? @@( Walkables() )
-	#--> [ 1, 3, 5, 7, 9 ]
-
-	? @@( ForwardWalkables() )
-	#--> [ 1, 3, 5, 7, 9 ]
-
-	? @@( BackwardWalkables() )
-	#--> [ 10, 8, 6, 4, 2 ]
-}
+? w.Position()
+#--> 5
 
 proff()
 # Executed in 0.02 second(s).
 
-/*===
-*/
+/*====
 
 pron()
 
@@ -327,37 +294,28 @@ while oWalker.HasNext()
 end
 #--> [ 3, 5, 7, 9 ]
 
-? "---" + NL
-
-? oWalker.Position() + NL
-#--> 9
-
-? oWalker.FirstStep()
-#--> 1
-
-? oWalker.LastStep()
-#--> 9
-
-
-oWalker.TurnAround()
-? oWalker.Direction()
-#--> backward
-
-? oWalker.FirstStep()
-? oWalker.LastStep()
-
-? @@( oWalker.HasPrevious() )
-/*
-while oWalker.HasPrevious()
-	oWalker.WalkN(1)
-	? oWalker.Position()
-end
-*/
-
 proff()
+# Executed in 0.01 second(s).
 
 #---
-/*
-WalkTo
-WalkFrom
-WalkBetween
+*/
+pron()
+
+w = new stzWalker(2, 9, 2)
+
+? w.Walkables()
+#--> [ 2, 4, 6, 8 ]
+
+? w.WalkTo(4)
+#--> [ 2, 4 ]
+
+? w.Position() + NL
+#--> 4
+
+? w.WalkFromEnd()
+#--> [ 8, 6, 4 ]
+
+? w.WalkFromStart()
+#--> [ 2, 4 ]
+
+proff()
