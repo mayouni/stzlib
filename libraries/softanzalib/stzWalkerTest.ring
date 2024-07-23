@@ -298,7 +298,7 @@ proff()
 # Executed in 0.01 second(s).
 
 #---
-*/
+
 pron()
 
 w = new stzWalker(2, 9, 2)
@@ -319,3 +319,37 @@ w = new stzWalker(2, 9, 2)
 #--> [ 2, 4 ]
 
 proff()
+# Executed in 0.02 second(s).
+
+#====
+*/
+pron()
+
+w = new stzWalker(3, 10, 2)
+
+w.Walk()
+w.WalkBetween(7, 9)
+w.WalkFromLast()
+
+? @@NL( w.Walks() )
+#--> [
+#	[ 3, 5 ],
+#	[ 7, 9 ],
+#	[ 9 ]
+# ]
+
+? w.FirstWalk()
+#--> [ 3, 5 ]
+
+? w.NthWalk(2)
+#--> [ 7, 9 ]
+
+? w.LastWalk()
+#--> [ 9 ]
+
+w.RemoveWalks()
+? w.HowManyWalks()
+#--> 0
+
+proff()
+# Executed in 0.01 second(s).
