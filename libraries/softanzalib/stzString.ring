@@ -85218,182 +85218,52 @@ class stzString from stzObject
 	  #====================================================#
 	 #     WALKING THE STRING AND RETURNING SOMETHING     #
 	#====================================================#
-	// TODO: use stzWalker?
 
-	def WalkXT(paOptions)
+	def AddWalker(pcWalkerName, nStart, nEnd, nStep)
+		@aWalkers + new stzWalker(nStart, nEnd, nStep)
 
-		if NOT ( isList(paOptions) and Q(paOptions).IsHashList() )
-
-			stzRaise("Incorrect param! paOptions must be a hashlist.")
+	def Walker(pcWalkerName)
+		oResult = @aWalkers[pcWalkerName]
+		if oResult = NULL
+			StzRaise("Incorrect param value! pcWalkerName must be a valid walker name.")
+		else
+			return @aWalkers[pcWalkerName].Walkables()
 		ok
 
-		if NOT ( len(paOptions) = 0 or
+		def WalkerPositions(pcWalkerName)
+			return new stzList(This.Walker(pcWalkerName))
 
-			  StzHashListQ(paOptions).
-			  KeysQR(:stzListOfStrings).IsMadeOfSomeCS([
-				:From, :FromPosition, :To, :ToPosition, :Step, :Return
-			  ], :CS = FALSE) )
+		def WalkedPositionsBy(pcWalkerName)
+			return new stzList(This.Walker(pcWalkerName))
 
-			stzRaise("Incorrect value!")
+	def WalkerQ(pcwalkerName)
+		oResult = @aWalkers[pcWalkerName]
+		if oResult = NULL
+			StzRaise("Incorrect param value! pcWalkerName must be a valid walker name.")
+		else
+			return @aWalkers[pcWalkerName]
 		ok
 
-		oKeys = StzHashListQ(paOptions).KeysQR(:stzListOfStrings)
+	def Walkers()
+		return @aWalkers
 
-		if oKeys.ContainsBothCS(:From, :FromPosition, :CS = FALSE)
-			stzRaise("Incorrect value! paOptions must not contain both :From and :FromPosition keys.")
-		ok
-
-		if oKeys.ContainsBothCS(:To, :ToPosition, :CS = FALSE)
-			stzRaise("Incorrect value! paOptions must not contain both :To and :ToPosition keys.")
-		ok
-
-		if oKeys.ContainsCS(:From, :CS = FALSE)
-			n = StzHashListQ(paOptions).FindKey(:From)
-			paOptions[n][1] = :FromPosition
-		ok
-
-		if oKeys.ContainsCS(:To, :CS = FALSE)
-			n = StzHashListQ(paOptions).FindKey(:To)
-			paOptions[n][1] = :ToPosition
-		ok
-
-		pnFromPosition = 1
-		if paOptions[ :FromPosition ] != NULL
-			pnFromPosition = paOptions[ :FromPosition ]
-		ok
-
-		pnToPosition = This.NumberOfChars()
-		if paOptions[ :ToPosition ] != NULL
-			pnToPosition = paOptions[ :ToPosition ]
-		ok
-
-		if isString(pnFromPosition) and
-		   Q(pnFromPosition).IsOneOfTheseCS([ :First, :FirstChar ], :CS = FALSE)
-	
-			pnFromPosition = 1
-
-		ok
-
-		if isString(pnToPosition) and
-		   Q(pnToPosition).IsOneOfTheseCS([ :Last, :LastChar ], :CS = FALSE)
-
-				pnFromPosition = This.NumberOfChars()
-		ok
-
-		pnStep = 1
-		if paOptions[ :Step ] != NULL
-			pnstep = paOptions[ :Step ]
-		ok
-
-		pcReturn = :WalkedPositions
-		if paOptions[ :Return ] != NULL
-			pcReturn = paOptions[ :Return ]
-		ok
-
-		# Doing the job
-
-		anPos = []
-		acChars = []
-
-		for i = pnFromPosition to pnToPosition step pnStep
-			anPos + i
-			acChars + This.Char(i)
+	def RemoveWalker(pcWalkerName)
+		nLen = len(@aWalkers)
+		nPos = 0
+		for i = 1 to nLen
+			if @aWalkers[i][1] = pcWalkerName
+				nPos = i
+				exit
+			ok
 		next
 
-		aResult = []
-
-
-		if pcReturn = :WalkedPositions
-			aResult = anPos
-
-		but pcReturn = :WalkedChars
-			aResult = acChars
+		if nPos > 0
+			ring_remove(@aWalkers, nPos)
 		ok
 
-		return aResult
+	def RemoveWalkers(pcWalkerName)
+		@aWalkers = []
 
-	def Walk( pnFromPosition, pnToPosition, pnStep, pcReturn )
-		return This.WalkXT([ pnFromPosition, pnToPosition, pnStep, pcReturn ])
-
-	  #--------------------------------------------#
-	 #   WALKING STARTING FROM N UNTIL CHAR IS    #TODO: Redo with stzWalker
-	#--------------------------------------------#
-
-	def WalkBackwardW( paStartingAt, pcCondition )
-		/*
-		str = "Ring Programming Languge"
-		StzStringQ(str).WalkBackwardW( :StartingAt = 12, :Until = '{ @char = " " }' )
-
-		--> Returns 5
-		*/
-
-		cResult = ""
-		bStopWalking = FALSE
-		nCurrentPosition = paStartingAt[2] + 1
-
-		while NOT bStopWalking
-
-			nCurrentPosition--
-			if nCurrentPosition = 1
-				exit
-			ok
-
-			@char = This[ nCurrentPosition ]
-			@i = nCurrentPosition
-
-			cCondition = StzStringQ(pcCondition[2]).TrimQ().
-					RemoveTheseBoundsQ("{","}").Content()
-
-			cCode = "if " + cCondition + NL +
-				TAB + "exit" + NL +
-			"ok"
-
-			eval(cCode)
-		end
-
-		return nCurrentPosition
-
-	def WalkUntil(pcCondition)
-		return This.WalkForward(:StartingAt = 1, :Until = pcCondition)
-
-	def WalkForwardW( paStartingAt, pcCondition )
-		/*
-		str = "Ring Programming Languge"
-		StzStringQ(str).WalkForwardW( :StartingAt = 6, :UntilBefore = '{ @char = "r" }' )
-
-		--> Returns 9
-		*/
-
-		cResult = ""
-		bStopWalking = FALSE
-		nCurrentPosition = paStartingAt[2] + 1
-
-		while NOT bStopWalking
-			nCurrentPosition++
-			if nCurrentPosition = This.NumberOfChars()
-				exit
-			ok
-
-			@char = This[ nCurrentPosition ]
-			@i = nCurrentPosition
-
-			cCondition = StzStringQ(pcCondition[2]).
-				     TrimQ().RemoveTheseBoundsQ("{", "}").Content()
-
-			cCode = "if " + cCondition + NL +
-				TAB + "exit" + NL +
-			"ok"
-
-			eval(cCode)			
-		end
-
-		if nCurrentPosition = This.NumberOfChars()
-			nResult = 0
-		else
-			nResult = nCurrentPosition-1
-		ok
-
-		return nResult
 
 	  #=================================#
 	 #  REPEATING THE STRING N TIMES   #
@@ -86913,12 +86783,12 @@ class stzString from stzObject
 
 		#>
 
-	  #----------------------------------------------------------------#
-	 #   YIELDING INFORMATION ON ITEMS VERIFYiNG A GIVEN CONDITION    #
-	#================================================================#
+	  #---------------------------------------------------------------------#
+	 #   YIELDING INFORMATION ON SUBSTRINGS VERIFYiNG A GIVEN CONDITION    #
+	#=====================================================================#
 
 	def YieldW(pcCode, pcCondition)
-		return This.CharsQ().YieldW(paSections, pcCode)
+		return This.SubStringsQ().YieldW(paSections, pcCode)
 
 		#< @FunctionFluentForm
 
@@ -86949,7 +86819,7 @@ class stzString from stzObject
 
 		#>
 
-		#> @FunctionAlternativeForm
+		#> @FunctionAlternativeForms
 
 		def HarvestW(pcCode, pcCondition)
 			return This.YieldW(pcCode, pcCondition)
@@ -86960,14 +86830,34 @@ class stzString from stzObject
 			def HervestWQR(pcCode, pcCondition, pcReturnType)
 				return This.YieldWQR(pcCode, pcCondition, pcReturnType)
 
+		#--
+
+		def YieldSubStringsW(pcCode, pcCondition)
+			return This.YieldW(pcCode, pcCondition)
+
+			def YieldSubStringsWQ(pcCode, pcCondition)
+				return This.YieldWQ(pcCode, pcCondition)
+
+			def YieldSubStringsWQR(pcCode, pcCondition, pcReturnType)
+				return This.YieldWQR(pcCode, pcCondition, pcReturnType)
+
+		def HarvestSubStringsW(pcCode, pcCondition)
+			return This.YieldW(pcCode, pcCondition)
+
+			def HarvestSubStringsWQ(pcCode, pcCondition)
+				return This.YieldWQ(pcCode, pcCondition)
+
+			def HarvestSubStringsWQR(pcCode, pcCondition, pcReturnType)
+				return This.YieldWQR(pcCode, pcCondition, pcReturnType)
+
 		#>
 
-	  #----------------------------------------------------------------------#
-	 #   YIELDING INFORMATION ON ITEMS VERIFYiNG A GIVEN CONDITION -- WXT   #
-	#======================================================================#
+	  #--------------------------------------------------------------------------#
+	 #   YIELDING INFORMATION ON SUBSTRINGS VERIFYiNG A GIVEN CONDITION -- XT   #
+	#--------------------------------------------------------------------------#
 
 	def YieldWXT(pcCode, pcCondition)
-		return This.CharsQ().YieldWXT(paSections, pcCode)
+		return This.SubStringsQ().YieldWXT(paSections, pcCode)
 
 		#< @FunctionFluentForm
 
@@ -86998,16 +86888,134 @@ class stzString from stzObject
 
 		#>
 
-		#> @FunctionAlternativeForm
+		#> @FunctionAlternativeForms
 
 		def HarvestWXT(pcCode, pcCondition)
-			return This.YieldWXT(pcCode, pcCondition)
+			return This.YieldW(pcCode, pcCondition)
 
 			def HervestWXTQ(pcCode, pcCondition)
 				return This.HarvestWXTQR(pcCode, pcCondition, :stzList)
 
 			def HervestWXTQR(pcCode, pcCondition, pcReturnType)
 				return This.YieldWXTQR(pcCode, pcCondition, pcReturnType)
+
+		#--
+
+		def YieldSubStringsWXT(pcCode, pcCondition)
+			return This.YieldWXT(pcCode, pcCondition)
+
+			def YieldSubStringsWXTQ(pcCode, pcCondition)
+				return This.YieldWXTQ(pcCode, pcCondition)
+
+			def YieldSubStringsWXTQR(pcCode, pcCondition, pcReturnType)
+				return This.YieldWXTQR(pcCode, pcCondition, pcReturnType)
+
+		def HarvestSubStringsWXT(pcCode, pcCondition)
+			return This.YieldWXT(pcCode, pcCondition)
+
+			def HarvestSubStringsWXTQ(pcCode, pcCondition)
+				return This.YieldWXTQ(pcCode, pcCondition)
+
+			def HarvestSubStringsWXTQR(pcCode, pcCondition, pcReturnType)
+				return This.YieldWXTQR(pcCode, pcCondition, pcReturnType)
+
+		#>
+
+	  #----------------------------------------------------------------#
+	 #   YIELDING INFORMATION ON CHARS VERIFYiNG A GIVEN CONDITION    #
+	#================================================================#
+
+	def YieldCharsW(pcCode, pcCondition)
+		return This.CharsQ().YieldW(paSections, pcCode)
+
+		#< @FunctionFluentForm
+
+		def YieldCharsWQ(pcCode, pcCondition)
+				return This.YieldCharsWQR(panPos, pcCode, :stzList)
+		
+		def YieldCharsWQR(pcCode, pcCondition, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.YieldCharsW(pcCode, pcCondition) )
+	
+			on :stzListOfStrings
+				return new stzListOfStrings( This.YieldCharsW(pcCode, pcCondition) )
+				
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.YieldCharsW(pcCode, pcCondition) )
+
+			on :stzHashList
+				return new stzHashList( This.YieldCharsW(pcCode, pcCondition) )
+		
+		other
+				stzRaise("Unsupported return type!")
+		off
+
+		#>
+
+		#> @FunctionAlternativeForms
+
+		def HarvestCharsW(pcCode, pcCondition)
+			return This.YieldW(pcCode, pcCondition)
+
+			def HarvestCharsWQ(pcCode, pcCondition)
+				return This.YieldWQ(pcCode, pcCondition)
+
+			def HarvestCharsWQR(pcCode, pcCondition, pcReturnType)
+				return This.YieldWQR(pcCode, pcCondition, pcReturnType)
+
+		#>
+
+	  #---------------------------------------------------------------------#
+	 #   YIELDING INFORMATION ON CHARS VERIFYiNG A GIVEN CONDITION -- XT   #
+	#---------------------------------------------------------------------#
+
+	def YieldCharsWXT(pcCode, pcCondition)
+		return This.CharsQ().YieldWXT(pcCode, pcCondition)
+
+		#< @FunctionFluentForm
+
+		def YieldCharsWXTQ(pcCode, pcCondition)
+				return This.YieldCharsWXTQR(pcCode, pcCondition, :stzList)
+		
+		def YieldCharsWXTQR(pcCode, pcCondition, pcReturnType)
+			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.YieldCharsWXT(pcCode, pcCondition) )
+	
+			on :stzListOfStrings
+				return new stzListOfStrings( This.YieldCharsWXT(pcCode, pcCondition) )
+				
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.YieldCharsWXT(pcCode, pcCondition) )
+
+			on :stzHashList
+				return new stzHashList( This.YieldCharsWXT(pcCode, pcCondition) )
+		
+		other
+				stzRaise("Unsupported return type!")
+		off
+
+		#>
+
+		#> @FunctionAlternativeForms
+
+		def HarvestCharsWXT(pcCode, pcCondition)
+			return This.YieldCharsW(pcCode, pcCondition)
+
+			def HervestCharsWXTQ(pcCode, pcCondition)
+				return This.HarvestCharsWXTQR(pcCode, pcCondition, :stzList)
+
+			def HervestCharsWXTQR(pcCode, pcCondition, pcReturnType)
+				return This.YieldCharsWXTQR(pcCode, pcCondition, pcReturnType)
 
 		#>
 
