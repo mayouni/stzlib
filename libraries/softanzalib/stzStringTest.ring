@@ -6791,10 +6791,9 @@ o1 = new stzList([ ".", ".", "M", ".", "I", "X" ])
 proff()
 # Executed in 0.17 second(s).
 
-/*----------------- 
-*/
-pron()
+/*==============
 
+pron()
 
 o1 = new stzString("..ONE...TWO..")
 ? @@( o1.FindCharsWXT(:Where = 'QR(@char, :stzChar).IsALetter()') )
@@ -6814,32 +6813,48 @@ o1 = new stzString("..ONE...TWO..")
 proff()
 # Executed in 0.57 second(s).
 
-/*------------------
+/*===============
+
+pron()
 
 o1 = new stzString("AB12CD345")
-? @@( o1.SplitToPartsOfNChars(2) )
-#--> [ "AB", "12", "CD", "34", "5" ]
+? @@( o1.SplitToPartsOfNChars(2) ) # Same as SplitToPartsOfExactlyNChars(2)
+#--> [ "AB", "12", "CD", "34" ]
 
 ? @@( o1.SplitToPartsOfNCharsXT(2) )
-# Or you can be more explicit and say: SplitToPartsOfExactlyNChars(2)
-#--> [ "AB", "12", "CD", "34" ]
+#--> [ "AB", "12", "CD", "34", "5" ]
+
+proff()
+# Executed in 0.04 second(s).
 
 /*===================
 
+pron()
+
 o1 = new stzString("ABC")
 ? @@( o1.SubStrings() )
-#--> [ "A", "AB", "B", "ABC", "C", "BC" ]
+#--> [ "A", "AB", "ABC", "B", "BC", "C" ]
+
+proff()
+# Executed in 0.02 second(s).
 
 /*------------------
+
+pron()
 
 o1 = new stzString("*#!ABC$^..")
 ? o1.NumberOfSubStrings()
 #--> 55
 
-? o1.SubStringsW(' Q(@SubString).IsMadeOfLetters() ')
-#--> #--> [ "A", "AB", "B", "ABC", "C", "BC" ]
+? @@( o1.SubStringsWXT(' Q(@SubString).IsMadeOfLetters() ') )
+#--> [ "A", "AB", "ABC", "B", "BC", "C" ]
+
+proff()
+# Executed in 0.99 second(s).
 
 /*==================
+*/
+pron()
 
 o1 = new stzString("..34..789..")
 ? o1.YieldXT( '@char', :StartingAt = 9, :UpTo = :LastItem ) # or :Until = :LastChar
@@ -6850,6 +6865,8 @@ o1 = new stzString("..34..789..")
 
 ? o1.YieldXT( '@char', :StartingAt = 7, :UntilXT = ' @char = "." ' ) # The "."  is yielded
 #--> "789."
+
+proff()
 
 /*==================
 

@@ -24623,1499 +24623,91 @@ Item and then position
 
 		#>
 
-	  #=========================================#
-	 #   YIELDING INFORMATION FROM EACH ITEM   #
-	#=========================================#
+	  #=============================================#
+	 # REDUCING THE LIST BY CUMULATIONG ITS ITEMS  #
+	#=============================================#
+	# Only the last cumulated item is returned
 
-	/* #NOTE
+	def Cumulate()
 
-	This function is more performant then its extended version
-	YieldXT(), that it relies on the user to provide it with
-	a correct formed condition containing only @i and
-	This[@i]-like keywords.
-
-	All other keywords should be expressed using the @i keyword.
-
-	For example, @CurrentItem should be expressed using
-	simply This[@i], @PreviousItem should be expressed using
-	This[@i-1] and so on...
-
-	*/
-
-	def Yield(pcCode)
-		nLen = This.NumberOfItems()
-
-		aSection = StzCCodeQ(pcCode).ExecutableSection()
-		n1 = aSection[1]
-		n2 = aSection[2]
-
-		if isString(n2) and n2 = :Last
-			n2 = nLen
+		nLen = len(@aContent)
+		if nLen = 0
+			return NULL
+		but nLen = 1
+			return @aContent[1]
 		ok
 
-		if n2 < 0
-			n2 += nLen
-		ok
+		cumul = @aContent[1]
 
-		return This.YieldFrom( n1 : n2, pcCode )
+		if This.IsMadeOfNumbers() or
+		   This.IsMadeOfStrings()
 
-		#< @FunctionFluentForm
-
-		def YieldQ(pcCode)
-			return This.YieldQR(pcCode, :stzList)
-	
-		def YieldQR(pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.Yield(pcCode) )
-	
-			on :stzListOfStrings
-				return new stzListOfStrings( This.Yield(pcCode) )
-				
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.Yield(pcCode) )
-
-			on :stzHashList
-				return new stzHashList( This.Yield(pcCode) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.Yield(pcCode) )
-		
-		other
-				StzRaise("Unsupported return type!")
-		off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def YieldFromEachItem(pcCode)
-			return This.Yield(pcCode)
-
-			def YieldFromEachItemQ(pcCode)
-				return This.YieldFromEachItemQR(pcCode, :stzList)
-		
-			def YieldFromEachItemQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldFromEachItem(pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromEachItem(pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromEachItem(pcCode) )
-	
-				on :stzHashList
-					return new stzHashList( This.YieldFromEachItem(pcCode) )
-			
-			other
-					StzRaise("Unsupported return type!")
-			off
-
-		def Harvest(pcCode)
-			return This.Yield(pcCode)
-
-			def HervestQ(pcCode)
-				return This.YieldFromEachItemQR(pcCode, :stzList)
-		
-			def HarvestQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.Harvest(pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.Harvest(pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.Harvest(pcCode) )
-	
-				on :stzHashList
-					return new stzHashList( This.Harvest(pcCode) )
-			
-			other
-					StzRaise("Unsupported return type!")
-			off
-
-		def HarvestFromEachItem(pcCode)
-			return This.Yield(pcCode)
-
-			def HarvestFromEachItemQ(pcCode)
-				return This.HarvestFromEachItemQR(pcCode, :stzList)
-		
-			def HarvestFromEachItemQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromEachItem(pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromEachItem(pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromEachItem(pcCode) )
-	
-				on :stzHashList
-					return new stzHashList( This.HarvestFromEachItem(pcCode) )
-			
-			other
-					StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionMisspelledForm
-
-		def Yiled(pcCode)
-			return This.Yield(pcCode)
-
-		#>
-
-	  #----------------------------------------------------#
- 	 #   YIELDING INFORMATION FROM EACH ITEM -- EXTENDED  #
-	#----------------------------------------------------#
-
-	/* NOTE
-
-	This function is less performan then it's simplest form Yield(),
-	because it takes time to analyze the conditional code provided,
-	spacify it, and transpile it, so a keyword like @PrecedentItem
-	for example, can be used (in the keyword, the function is transpiled
-	to "This[@i-1]" automatically).
-
-	If performance is critical to you, don't use it, but use the simple
-	form Yield() instead (supporting only the This[@i...]-like keywords).
-
-	*/
-
-	def YieldXT(pcCode)
-
-		return This.YieldFromXT( 1:This.NumberOfItems(), pcCode )
-
-		#< @FunctionFluentForm
-
-		def YieldXTQ(pcCode)
-			return This.YieldXTQR(pcCode, :stzList)
-	
-		def YieldXTQR(pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.YieldXT(pcCode) )
-	
-			on :stzListOfStrings
-				return new stzListOfStrings( This.YieldXT(pcCode) )
-				
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.YieldXT(pcCode) )
-
-			on :stzHashList
-				return new stzHashList( This.YieldXT(pcCode) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.YieldXT(pcCode) )
-		
-		other
-				StzRaise("Unsupported return type!")
-		off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def YieldFromEachItemXT(pcCode)
-			return This.YieldXT(pcCode)
-
-			def YieldFromEachItemXTQ(pcCode)
-				return This.YieldFromEachItemXTQR(pcCode, :stzList)
-		
-			def YieldFromEachItemXTQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldFromEachItemXT(pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldFromEachItemXT(pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldFromEachItemXT(pcCode) )
-	
-				on :stzHashList
-					return new stzHashList( This.YieldFromEachItemXT(pcCode) )
-			
-			other
-					StzRaise("Unsupported return type!")
-			off
-
-		def HarvestXT(pcCode)
-			return This.YieldXT(pcCode)
-
-			def HervestXTQ(pcCode)
-				return This.YieldFromEachItemXTQR(pcCode, :stzList)
-		
-			def HarvestXTQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestXT(pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestXT(pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestXT(pcCode) )
-	
-				on :stzHashList
-					return new stzHashList( This.HarvestXT(pcCode) )
-			
-			other
-					StzRaise("Unsupported return type!")
-			off
-
-		def HarvestFromEachItemXT(pcCode)
-			return This.YieldXT(pcCode)
-
-			def HarvestFromEachItemXTQ(pcCode)
-				return This.HarvestFromEachItemXTQR(pcCode, :stzList)
-		
-			def HarvestFromEachItemXTQR(pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromEachItemXT(pcCode) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.HarvestFromEachItemXT(pcCode) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.HarvestFromEachItemXT(pcCode) )
-	
-				on :stzHashList
-					return new stzHashList( This.HarvestFromEachItemXT(pcCode) )
-			
-			other
-					StzRaise("Unsupported return type!")
-			off
-		#>
-
-		#< @FunctionMisspelledForm
-
-		def YiledXT(pcCode)
-			return This.YieldXT(pcCode)
-
-		#>
-
-	  #========================================================#
-	 #   YIELDING INFORMATION FROM ITEMS AT GIVEN POSITIONS   #
-	#========================================================#
-
-	def YieldFrom(panPos, pcCode)
-
-		if CheckParams()
-	
-			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
-				StzRaise("Incorrect param! panPos must be a list of numbers.")
-			ok
-
-			if NOT isString(pcCode)
-				StzRaise("Invalid param type! Condition must be a string.")
-			ok
-	
-		ok
-
-		# Early check
-
-		nLenList = This.NumberOfItems()
-		if nLenList = 0
-			return []
-		ok
-
-		if len(panPos) = 0
-			return []
-		ok
-
-		# Cleansing the positions
-
-		anPos = U( ring_sort(panPos) )
-		nLenPos = len(anPos)
-
-		for i = nLenPos to 1 step -1
-			if anPos[i] < 1 or anPos[i] > nLenList
-				@ring_remove(anPos, i)
-			ok
-		next
-
-		# Special case: the condition is blank
-
-		if StzStringQ(pcCode).WithoutSpaces() = 0
-			aTemp = []
-			
-			for i = 1 to nLenPos
-				aTemp + NULL
+			for i = 2 to nLen
+				cumul += @aContent[i]
 			next
 
-			return aTemp
+			return cumul
+
+		but This.StartsWithAList()
+
+			aResult = @aContent[1]
+
+			for i = 2 to nLen
+				aResult + @aContent[i]
+			next
+
+			return aResult
+
+		else
+			StzRaise("Can't proceed! The list must be made of only numbers, or strings, or lists.")
 		ok
 
-		# Doing the job
-
-		oCode = StzCCodeQ(pcCode)
-		cCode = "value = ( " + oCode.Content() + " )"
-
-		aResult = []
-
-		for i = 1 to nLenPos
-
-			@i = panPos[i]
-
-			eval(cCode) # Populates aResult with the yielded information
-			aResult + value
-		next
-
-		return aResult
-
-
-		#< @FunctionFluentForm
-
-		def YieldFromQ(panPos, pcCode)
-			return This.YieldFromQR(panPos, pcCode, :stzList)
-	
-		def YieldFromQR(panPos, pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.YieldFrom(panPos, pcCode) )
-	
-			on :stzListOfStrings
-				return new stzListOfStrings( This.YieldFrom(panPos, pcCode) )
-				
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.YieldFrom(panPos, pcCode) )
-		
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def YieldFromPositions(panPos, pcCode)
-			return This.YieldFrom(panPos, pcCode)
-
-			def YieldFromPositionsQ(panPos, pcCode)
-				return This.YieldFromPositionsQR(panPos, pcCode, :stzList)
-		
-			def YieldFromPositionsQR(panPos, pcCode, pcReturnType)
-				return This.YieldFromQR(panPos, pcCode, pcReturnType)
-
-		def YieldFromItemsAt(panPos, pcCode)
-			return This.YieldFrom(panPos, pcCode)
-
-			def YieldFromItemsAtQ(panPos, pcCode)
-				return This.YieldFromItemsAtQR(panPos, pcCode, :stzList)
-		
-			def YieldFromItemsAtQR(panPos, pcCode, pcReturnType)
-				return This.YieldFromQR(panPos, pcCode, pcReturnType)
-
-		def YieldFromItemsAtPositions(panPos, pcCode)
-			return This.YieldOn(panPos, pcCode)
-
-			def YieldFromItemsAtPositionsQ(panPos, pcCode)
-				return This.YieldFromItemsAtPositionsQR(panPos, pcCode, :stzList)
-		
-			def YieldFromItemsAtPositionsQR(panPos, pcCode, pcReturnType)
-				return This.YieldFromQR(panPos, pcCode, pcReturnType)
-
-		def HarvestFrom(panPos, pcCode)
-			return This.HarvestFrom(panPos, pcCode)
-
-			def HarvestFromQ(panPos, pcCode)
-				return This.HarvestFromQR(panPos, pcCode, :stzList)
-		
-			def HarvestFromQR(panPos, pcCode, pcReturnType)
-				return This.YieldFromQR(panPos, pcCode, pcReturnType)
-
-		def HarvestFromPositions(panPos, pcCode)
-			return This.HarvestFrom(panPos, pcCode)
-
-			def HarvestFromPositionsQ(panPos, pcCode)
-				return This.HarvestFromPositionsQR(panPos, pcCode, :stzList)
-		
-			def HarvestFromPositionsQR(panPos, pcCode, pcReturnType)
-				return This.YieldFromQR(panPos, pcCode, pcReturnType)
-
-		def HarvestFromItemsAt(panPos, pcCode)
-			return This.HarvestFrom(panPos, pcCode)
-
-			def HarvestFromItemsAtQ(panPos, pcCode)
-				return This.HarvestFromItemsAtQR(panPos, pcCode, :stzList)
-		
-			def HarvestFromItemsAtQR(panPos, pcCode, pcReturnType)
-				return This.YieldFromQR(panPos, pcCode, pcReturnType)
-
-		def HarvestFromItemsAtPositions(panPos, pcCode)
-			return This.HarvestOn(panPos, pcCode)
-
-			def HarvestFromItemsAtPositionsQ(panPos, pcCode)
-				return This.HarvestFromItemsAtPositionsQR(panPos, pcCode, :stzList)
-		
-			def HarvestFromItemsAtPositionsQR(panPos, pcCode, pcReturnType)
-				return This.YieldFromQR(panPos, pcCode, pcReturnType)
-
-		#>
-
-		#< @FunctionMisspelledForm
-
-		def YiledFrom(paPositions, pcCode)
-			return This.YieldFrom(paPositions, pcCode)
-
-		#>
+		def Reduce()
+			return This.Reduce()
 
 	  #---------------------------------------------------------#
-	 #  YIELDING INFORMATION FROM GIVEN POSITIONS -- EXTENDED  #
+	 # REDUCING THE LIST BY CUMULATIONG ITS ITEMS -- EXTENDED  #
 	#---------------------------------------------------------#
+	# All the cumulated items are returned
 
-	def YieldFromXT(panPos, pcCode)
-		if CheckParams()
-	
-			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
-				StzRaise("Incorrect param! panPos must be a list of numbers.")
-			ok
-
-			if NOT isString(pcCode)
-				StzRaise("Invalid param type! Condition must be a string.")
-			ok
-	
-		ok
-
-		# Early check
-
-		nLenList = This.NumberOfItems()
-		if nLenList = 0
+	def CumulateXT()
+		nLen = len(@aContent)
+		if nLen = 0
 			return []
+		but nLen = 1
+			return @aContent
 		ok
 
-		if len(panPos) = 0
-			return []
-		ok
+		
+		cumul = @aContent[1]
+		aResult = [ cumul ]
 
-		# Cleansing the positions
+		if This.IsMadeOfNumbers() or
+		   This.IsMadeOfStrings()
 
-		anPos = U( ring_sort(panPos) )
-		nLenPos = len(anPos)
-
-		for i = nLenPos to 1 step -1
-			if anPos[i] < 1 or anPos[i] > nLenList
-				@ring_remove(anPos, i)
-			ok
-		next
-
-		# Special case: the condition is blank
-
-		if StzStringQ(pcCode).WithoutSpaces() = 0
-			aTemp = []
-			
-			for i = 1 to nLenPos
-				aTemp + NULL
+			for i = 2 to nLen
+				cumul += @aContent[i]
+				aResult + cumul
 			next
 
-			return aTemp
-		ok
+			return aResult
 
-		# Doing the job
+		but This.StartsWithAList()
+			aResult = [ @aContent[1] ]
+			aCumul = @aContent[1]
 
-		oCode = StzCCodeQ(pcCode)
-		cCode = "value = ( " + oCode.TranspileQ().Content() + " )"
+			for i = 2 to nLen
+				aCumul + @aContent[i]
+				aResult + aCumul
+			next
 
-		aResult = []
-
-		for i = 1 to nLenPos
-			@i = panPos[i]
-			eval(cCode) # Populates aResult with the yielded information
-			aResult + value
-		next
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def YieldFromXTQ(panPos, pcCode)
-			return This.YieldFromXTQR(panPos, pcCode, :stzList)
-	
-		def YieldFromXTQR(panPos, pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.YieldFromXT(panPos, pcCode) )
-	
-			on :stzListOfStrings
-				return new stzListOfStrings( This.YieldFromXT(panPos, pcCode) )
-				
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.YieldFromXT(panPos, pcCode) )
-		
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def YieldFromPositionsXT(panPos, pcCode)
-			return This.YieldFromXT(panPos, pcCode)
-
-			def YieldFromPositionsXTQ(panPos, pcCode)
-				return This.YieldFromPositionsXTQR(panPos, pcCode, :stzList)
-		
-			def YieldFromPositionsXTQR(panPos, pcCode, pcReturnType)
-				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
-
-		def YieldFromItemsAtXT(panPos, pcCode)
-			return This.YieldFromXT(panPos, pcCode)
-
-			def YieldFromItemsAtXTQ(panPos, pcCode)
-				return This.YieldFromItemsAtXTQR(panPos, pcCode, :stzList)
-		
-			def YieldFromItemsAtXTQR(panPos, pcCode, pcReturnType)
-				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
-
-		def YieldFromItemsAtPositionsXT(panPos, pcCode)
-			return This.YieldOnXT(panPos, pcCode)
-
-			def YieldFromItemsAtPositionsXTQ(panPos, pcCode)
-				return This.YieldFromItemsAtPositionsXTQR(panPos, pcCode, :stzList)
-		
-			def YieldFromItemsAtPositionsXTQR(panPos, pcCode, pcReturnType)
-				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
-
-		def HarvestFromXT(panPos, pcCode)
-			return This.HarvestFromXT(panPos, pcCode)
-
-			def HarvestFromXTQ(panPos, pcCode)
-				return This.HarvestFromXTQR(panPos, pcCode, :stzList)
-		
-				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
-
-		def HarvestFromPositionsXT(panPos, pcCode)
-			return This.HarvestFromXT(panPos, pcCode)
-
-			def HarvestFromPositionsXTQ(panPos, pcCode)
-				return This.HarvestFromPositionsXTQR(panPos, pcCode, :stzList)
-		
-				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
-
-		def HarvestFromItemsAtXT(panPos, pcCode)
-			return This.HarvestFromXT(panPos, pcCode)
-
-			def HarvestFromItemsAtXTQ(panPos, pcCode)
-				return This.HarvestFromItemsAtXTQR(panPos, pcCode, :stzList)
-		
-				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
-
-
-		def HarvestFromItemsAtPositionsXT(panPos, pcCode)
-			return This.HarvestOnXT(panPos, pcCode)
-
-			def HarvestFromItemsAtPositionsXTQ(panPos, pcCode)
-				return This.HarvestFromItemsAtPositionsXTQR(panPos, pcCode, :stzList)
-		
-				return This.YieldFromXTQR(panPos, pcCode, pcReturnType)
-
-		#>
-
-		#< @FunctionMisspelledForm
-
-		def YiledFromXT(paPositions, pcCode)
-			return This.YieldFromXT(paPositions, pcCode)
-
-		#>
-
-	  #======================================================#
-	 #   YIELDING INFORMATION ON ITEMS IN GIVEN SECTIONS    #
-	#======================================================#
-
-	def YieldFromSections(paSections, pcCode)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
-		ok
-
-		# Getting all the positions from the provided sections
-		# Example: [ [2,5], [7,9 ] ] --> [ 2, 3, 4, 5, 7, 8, 9 ]
-
-		anSectionsExpanded = StzListQ(paSections).PerformQ('{
-			@item = Q(@item).ExpandedIfPairOfNumbers()
-		}').Content()
-	
-		anPos = ListsMergeQ( anSectionsExpanded ).DuplicatesRemoved()
-
-		return This.YieldFrom(anPos, pcCode)
-
-		#< @FunctionFluentForm
-
-		def YieldFromSectionsQ(paSections, pcCode)
-			return This.YieldFromSectionsQR(panPos, pcCode, :stzList)
-	
-		def YieldFromSectionsQR(panPos, pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.YieldFromSections(panPos, pcCode) )
-	
-			on :stzListOfStrings
-				return new stzListOfStrings( This.YieldFromSections(panPos, pcCode) )
-				
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.YieldFromSections(panPos, pcCode) )
-		
-			other
-				StzRaise("Unsupported return type!")
-			off			
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def HarvestFromSections(paSections, pcCode)
-			return This.YieldFromSections(paSections, pcCode)
-
-			def HarvestFromSectionsQ(paSections, pcCode)
-				return This.HarvestFromSectionsQR(paSections, pcCode, :stzList)
-
-			def HarvestFromSectionsQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromSections(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestFromSections(paSections, pcCode) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
-	
-		def YieldSections(paSections, pcCode)
-			return This.YieldFromSections(paSections, pcCode)
-
-			def YieldSectionsQ(paSections, pcCode)
-				return This.YieldSectionsQR(paSections, pcCode, :stzList)
-
-			def YieldSectionsQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldSections(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.YieldSections(paSections, pcCode) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
-
-		def HarvestSections(paSections, pcCode)
-			return This.YieldFromSections(paSections, pcCode)
-
-			def HarvestSectionsQ(paSections, pcCode)
-				return This.HarvestSectionsQR(paSections, pcCode, :stzList)
-
-			def HarvestSectionsQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestSections(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestSections(paSections, pcCode) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
-		#>
-
-
-	#---
-
-	#TODO
-	# Check this function, for both usefulness and quality of its implementation
-
-	def YieldFromSectionsOneByOne(paSections, pcCode)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
-		ok
-
-		aResult = []
-
-		anSectionsExpanded = []
-		for aSection in paSections
-			anSectionsExpanded + Q(aSection).ExpandedIfPairOfNumbers()
-		next
-
-		for anPos in anSectionsExpanded
-			aResult + This.YieldFromPositions(anPos, pcCode)
-		next
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def YieldFromSectionsOneByOneQ(paSections, pcCode)
-			return This.YieldFromSectionsOneByOneQR(paSections, pcCode, :stzList)
-
-		def YieldFromSectionsOneByOneQR(paSections, pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.YieldFromSectionsOneByOneQ(paSections, pcCode) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.YieldFromSectionsOneByOneQ(paSections, pcCode) )
-
-			other
-				StzRaise("Unsupported param type!")
-			off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def HarvestFromSectionsOneByOne(paSections, pcCode)
-			return This.YieldFromSections(paSections, pcCode)
-
-			def HarvestFromSectionsOneByOneQ(paSections, pcCode)
-				return This.HarvestFromSectionsOneByOneQR(paSections, pcCode, :stzList)
-
-			def HarvestFromSectionsOneByOneQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromSectionsOneByOne(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestFromSectionsOneByOne(paSections, pcCode) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
-				
-		def HarvestSectionsOneByOne(paSections, pcCode)
-			return This.YieldFromSections(paSections, pcCode)
-
-			def HarvestSectionsOneByOneQ(paSections, pcCode)
-				return This.HarvestSectionsOneByOneQR(paSections, pcCode, :stzList)
-
-			def HarvestSectionsOneByOneQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestSectionsOneByOne(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestSectionsOneByOne(paSections, pcCode) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
-
-		def YieldSectionsOneByOne(paSections, pcCode)
-			return This.YieldFromSections(paSections, pcCode)
-
-			def YieldSectionsOneByOneQ(paSections, pcCode)
-				return This.YieldSectionsOneByOneQR(paSections, pcCode, :stzList)
-
-			def YieldSectionsOneByOneQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldSectionsOneByOne(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.YieldSectionsOneByOne(paSections, pcCode) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
-
-		#>
-
-	  #================================================================#
-	 #   YIELDING INFORMATION ON ITEMS IN GIVEN SECTIONS -- EXTENDED  #
-	#================================================================#
-
-	def YieldFromSectionsXT(paSections, pcCode)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
-		ok
-
-		# Getting all the positions from the provided sections
-		# Example: [ [2,5], [7,9 ] ] --> [ 2, 3, 4, 5, 7, 8, 9 ]
-
-		anSectionsExpanded = StzListQ(paSections).PerformQ('{
-			@item = Q(@item).ExpandedIfPairOfNumbers()
-		}').Content()
-	
-		anPos = ListsMergeQ( anSectionsExpanded ).DuplicatesRemoved()
-
-		return This.YieldFromXT(anPos, pcCode)
-
-		#< @FunctionFluentForm
-
-		def YieldFromSectionsXTQ(paSections, pcCode)
-			return This.YieldFromSectionsXTQR(panPos, pcCode, :stzList)
-	
-		def YieldFromSectionsXTQR(panPos, pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-				pcReturnType = pcReturnType[2]
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.YieldFromSectionsXT(panPos, pcCode) )
-	
-			on :stzListOfStrings
-				return new stzListOfStrings( This.YieldFromSectionsXT(panPos, pcCode) )
-				
-			on :stzListOfNumbers
-				return new stzListOfNumbers( This.YieldFromSectionsXT(panPos, pcCode) )
-		
-			other
-				StzRaise("Unsupported return type!")
-			off			
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def HarvestFromSectionsXT(paSections, pcCode)
-			return This.YieldFromSectionsXT(paSections, pcCode)
-
-			def HarvestFromSectionsXTQ(paSections, pcCode)
-				return This.HarvestFromSectionsXTQR(paSections, pcCode, :stzList)
-
-			def HarvestFromSectionsXTQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromSectionsXT(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestFromSectionsXT(paSections, pcCode) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
-	
-		def YieldSectionsXT(paSections, pcCode)
-			return This.YieldFromSectionsXT(paSections, pcCode)
-
-			def YieldSectionsXTQ(paSections, pcCode)
-				return This.YieldSectionsXTQR(paSections, pcCode, :stzList)
-
-			def YieldSectionsXTQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldSectionsXT(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.YieldSectionsXT(paSections, pcCode) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
-
-		def HarvestSectionsXT(paSections, pcCode)
-			return This.YieldFromSectionsXT(paSections, pcCode)
-
-			def HarvestSectionsXTQ(paSections, pcCode)
-				return This.HarvestSectionsXTQR(paSections, pcCode, :stzList)
-
-			def HarvestSectionsXTQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestSectionsXT(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestSectionsXT(paSections, pcCode) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
-		#>
-
-	def YieldFromSectionsOneByOneXT(paSections, pcCode)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param! paSections must be a list of pairs of numbers.")
-		ok
-
-		aResult = []
-
-		anSectionsExpanded = []
-		for aSection in paSections
-			anSectionsExpanded + Q(aSection).ExpandedIfPairOfNumbers()
-		next
-
-		for anPos in anSectionsExpanded
-			aResult + This.YieldFromPositionsXT(anPos, pcCode)
-		next
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def YieldFromSectionsOneByOneXTQ(paSections, pcCode)
-			return This.YieldFromSectionsOneByOneXTQR(paSections, pcCode, :stzList)
-
-		def YieldFromSectionsOneByOneXTQR(paSections, pcCode, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-				pcReturnType = pcReturnType[2]
-			ok
-
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.YieldFromSectionsOneByOneXTQ(paSections, pcCode) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.YieldFromSectionsOneByOneXTQ(paSections, pcCode) )
-
-			other
-				StzRaise("Unsupported param type!")
-			off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def HarvestFromSectionsOneByOneXT(paSections, pcCode)
-			return This.YieldFromSectionsXT(paSections, pcCode)
-
-			def HarvestFromSectionsOneByOneXTQ(paSections, pcCode)
-				return This.HarvestFromSectionsOneByOneXTQR(paSections, pcCode, :stzList)
-
-			def HarvestFromSectionsOneByOneXTQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestFromSectionsOneByOneXT(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestFromSectionsOneByOneXT(paSections, pcCode) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
-				
-		def HarvestSectionsOneByOneXT(paSections, pcCode)
-			return This.YieldFromSectionsXT(paSections, pcCode)
-
-			def HarvestSectionsOneByOneXTQ(paSections, pcCode)
-				return This.HarvestSectionsOneByOneXTQR(paSections, pcCode, :stzList)
-
-			def HarvestSectionsOneByOneXTQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestSectionsOneByOneXT(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestSectionsOneByOneXT(paSections, pcCode) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
-
-		def YieldSectionsOneByOneXT(paSections, pcCode)
-			return This.YieldFromSectionsXT(paSections, pcCode)
-
-			def YieldSectionsOneByOneXTQ(paSections, pcCode)
-				return This.YieldSectionsOneByOneXTQR(paSections, pcCode, :stzList)
-
-			def YieldSectionsOneByOneXTQR(paSections, pcCode, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsReturnedTypeNamedParam()
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				if NOT isString(pcReturnType)
-					StzRaise("Incorrect param! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldSectionsOneByOneXT(paSections, pcCode) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.YieldSectionsOneByOneXT(paSections, pcCode) )
-	
-				other
-					StzRaise("Unsupported param type!")
-				off
-
-		#>
-
-	  #================================================================#
-	 #   YIELDING INFORMATION ON ITEMS VERIFYiNG A GIVEN CONDITION    #
-	#================================================================#
-
-	def YieldW(pcCode, pcCondition)
-		/*
-		o1 = new stzList([ 1, 2, 3, 4, 5, 6, 7 ])
-		? o1.YieldW('@NextItem', :if = 'StzNumberQ(@item).IsMultipleOf(2)')
-		*/
-		if NOT isString(pcCode)
-			StzRaise("Incorrect param! pcCode must be a string.")
-		ok
-
-		if isList(pcCondition) and Q(pcCondition).IsWhereOrIfNamedParam()
-			pcCondition = pccondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param! pcCondition must be astring.")
-		ok
-
-		anPos = This.FindW(pcCondition)
-		aResult = This.YieldFrom(anPos, pcCode)
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def YieldWQ(pcCode, pcCondition)
-				return This.YieldWQR(panPos, pcCode, :stzList)
-		
-			def YieldWQR(pcCode, pcCondition, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldW(pcCode, pcCondition) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldW(pcCode, pcCondition) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldW(pcCode, pcCondition) )
-	
-				on :stzHashList
-					return new stzHashList( This.YieldW(pcCode, pcCondition) )
-			
-			other
-					StzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		#> @FunctionAlternativeForm
-
-		def HarvestW(pcCode, pcCondition)
-			return This.YieldW(pcCode, pcCondition)
-
-			def HervestWQ(pcCode, pcCondition)
-				return This.HarvestWQR(pcCode, pcCondition, :stzList)
-
-			def HervestWQR(pcCode, pcCondition, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				if NOT isString(pcReturnType)
-					StzRaise("IncorrectType! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestW(pcCode, pcCondition) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestW(pcCode, pcCondition) )
-
-				other
-					StzRaise("Unsupported return type!")
-				off
-		#>
-
-		#< @FunctionMisspelledForm
-
-		def YiledW(pcCode, pcCondition)
-			return This.YieldW(pcCode, pcCondition)
-
-		#>
-
-	  #---------------------------------------------------------------------------#
-	 #   YIELDING INFORMATION ON ITEMS VERIFYiNG A GIVEN CONDITION -- EXTENDED   #
-	#---------------------------------------------------------------------------#
-
-	def YieldWXT(pcCode, pcCondition)
-
-		if NOT isString(pcCode)
-			StzRaise("Incorrect param! pcCode must be a string.")
-		ok
-
-		if isList(pcCondition) and Q(pcCondition).IsWhereOrIfNamedParam()
-			pcCondition = pccondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param! pcCondition must be astring.")
-		ok
-
-		anPos = This.FindWXT(pcCondition)
-		aResult = This.YieldFromXT(anPos, pcCode)
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def YieldWXTQ(pcCode, pcCondition)
-				return This.YieldWXTQR(panPos, pcCode, :stzList)
-		
-			def YieldWXTQR(pcCode, pcCondition, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-	
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.YieldWXT(pcCode, pcCondition) )
-		
-				on :stzListOfStrings
-					return new stzListOfStrings( This.YieldWXT(pcCode, pcCondition) )
-					
-				on :stzListOfNumbers
-					return new stzListOfNumbers( This.YieldWXT(pcCode, pcCondition) )
-	
-				on :stzHashList
-					return new stzHashList( This.YieldWXT(pcCode, pcCondition) )
-			
-			other
-					StzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		#> @FunctionAlternativeForm
-
-		def HarvestWXT(pcCode, pcCondition)
-			return This.YieldWXT(pcCode, pcCondition)
-
-			def HervestWXTQ(pcCode, pcCondition)
-				return This.HarvestWXTQR(pcCode, pcCondition, :stzList)
-
-			def HervestWXTQR(pcCode, pcCondition, pcReturnType)
-				if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
-					pcReturnType = pcReturnType[2]
-				ok
-
-				if NOT isString(pcReturnType)
-					StzRaise("IncorrectType! pcReturnType must be a string.")
-				ok
-
-				switch pcReturnType
-				on :stzList
-					return new stzList( This.HarvestWXT(pcCode, pcCondition) )
-
-				on :stzListOfLists
-					return new stzListOfLists( This.HarvestWXT(pcCode, pcCondition) )
-
-				other
-					StzRaise("Unsupported return type!")
-				off
-		#>
-
-	  #===============================================#
-	 #  YIELDING AND CUMULATING VALUES ON EACH ITEM  #
-	#===============================================#
-
-	def YieldAndCumulate(pcCode, paReturnEachOrLast)
-		/* EXAMPLE
-			o1 = new stzList([ 1, 2, 3 ])
-			? o1.YieldAndCumulate("@item", :ReturnEach)
-			#--> [ 1, 3, 6 ]
-
-			? o1.YieldAndCumulate("@item", :ReturnLast)
-			#--> 6
-		*/
-
-		bReturnLast = FALSE
-
-		if isList(paReturnEachOrLast)
-			if len(paReturnEachOrLast) = 2 and
-			   isString(paReturnEachOrLast[1]) and
-			   paReturnEachOrLast[1] = :ReturnLast and
-			   isNumber(paReturnEachOrLast[2]) and
-			   Q(paReturnEachOrLast[2]).IsEither(TRUE, :Or = FALSE)
-				bReturnLast = paReturnEachOrLast[2]
-			ok
-
-		but isString(paReturnEachOrLast)
-			if paReturnEachOrLast = :ReturnLast
-				bReturnLast = TRUE
-			ok	
-		ok
-
-		if NOT (This.IsListOfNumbers() or This.IsListOfStrings())
-			StzRaise("Can't cumulate! The list must b a list of numbers or a list of strings.")
-		ok
-
-		if NOT isString(pcCode)
-			StzRaise("Incorrect param type! pcCode must be a string.")
-		ok
-
-		aYielded = This.Yield(pcCode)
-		nLenYielded = len(aYielded)
-
-		if nLenYielded > 0
-			aCumulated = [ aYielded[1] ]
-
-			if nLenYielded > 1
-				for i = 2 to nLenYielded
-					aCumulated + ( aCumulated[i-1] + aYielded[i] )
-				next
-			ok
-		ok
-
-		nLenCumulated = len(aCumulated)
-
-		if bReturnLast
-			return aCumulated[ nLenCumulated ]
+			return aResult
 		else
-			return aCumulated
+			StzRaise("Can't proceed! The list must be made of only numbers, or strings, or lists.")
 		ok
 
-		#< @FunctionFluentForm
-
-		def YieldAndCumulateQ(pcCode, paReturnEachOrLast)
-			return Q(This.YieldAndCumulate(pcCode, paReturnEachOrLast))
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def HarvestAndCumulate(pcCode, paReturnEachOrLast)
-			return This.YieldAndCumulate(pcCode, paReturnEachOrLast)
-
-			def HarvestAndCumulateQ(pcCode, paReturnEachOrLast)
-				This.YieldAndCumulateQ(pcCode, paReturnEachOrLast)
-
-		#>
-
-	  #-----------------------------------------------------------#
-	 #  YIELDING AND CUMULATING VALUES ON EACH ITEM -- EXTENDED  #
-	#-----------------------------------------------------------#
-
-	def YieldAndCumulateXT(pcCode, paReturnEachOrLast)
-
-		bReturnLast = FALSE
-
-		if isList(paReturnEachOrLast)
-			if len(paReturnEachOrLast) = 2 and
-			   isString(paReturnEachOrLast[1]) and
-			   paReturnEachOrLast[1] = :ReturnLast and
-			   isNumber(paReturnEachOrLast[2]) and
-			   Q(paReturnEachOrLast[2]).IsEither(TRUE, :Or = FALSE)
-				bReturnLast = paReturnEachOrLast[2]
-			ok
-
-		but isString(paReturnEachOrLast)
-			if paReturnEachOrLast = :ReturnLast
-				bReturnLast = TRUE
-			ok	
-		ok
-
-		if NOT ( This.IsListOfNumbers() or This.IsListOfStrings() )
-			StzRaise("Can't cumulate! The list must b a list of numbers or a list of strings.")
-		ok
-
-		if NOT isString(pcCode)
-			StzRaise("Incorrect param type! pcCode must be a string.")
-		ok
-
-		aYielded = This.YieldXT(pcCode)
-		nLenYielded = len(aYielded)
-
-		if nLenYielded > 0
-			aCumulated = [ aYielded[1] ]
-
-			if nLenYielded > 1
-				for i = 2 to nLenYielded
-					aCumulated + ( aCumulated[i-1] + aYielded[i] )
-				next
-			ok
-		ok
-
-		nLenCumulated = len(aCumulated)
-
-		if bReturnLast
-			return aCumulated[ nLenCumulated ]
-		else
-			return aCumulated
-		ok
-
-		#< @FunctionFluentForm
-
-		def YieldAndCumulateXTQ(pcCode, paReturnEachOrLast)
-			return Q(This.YieldAndCumulateXT(pcCode, paReturnEachOrLast))
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def HarvestAndCumulateXT(pcCode, paReturnEachOrLast)
-			return This.YieldAndCumulateXT(pcCode, paReturnEachOrLast)
-
-			def HarvestAndCumulateXTQ(pcCode, paReturnEachOrLast)
-				This.YieldAndCumulateXTQ(pcCode, paReturnEachOrLast)
-
-		#>
-
-	  #--------------------------------------------------------#
-	 #  APPLYING A REDUCE OPERATION ON THE ITEMS OF THE LIST  #
-	#--------------------------------------------------------#
-
-	def Reduce(pcCode)
-		return This.YieldAndCumulate(pcCode, :ReturnLast)
-
-		def ReduceQ(pcCode, paReturnEachOrLast)
-			return This.Reduce(pcCode, paReturnEachOrLast)
-
-	  #--------------------------------------------------------------------#
-	 #  APPLYING A REDUCE OPERATION ON THE ITEMS OF THE LIST -- EXTENDED  #
-	#--------------------------------------------------------------------#
-
-	def ReduceXT(pcCode)
-		return This.YieldAndCumulateXT(pcCode, :ReturnLast)
-
-		def ReduceXTQ(pcCode, paReturnEachOrLast)
-			return This.ReduceXT(pcCode, paReturnEachOrLast)
+		def ReduceXT()
+			return This.ReduceXT()
 
 	  #=======================================#
 	 #   PERFORMING AN ACTION ON EACH ITEM   #
@@ -26233,11 +24825,11 @@ Item and then position
 		ok
 
 		if NOT oCode.BeginsWithOneOfTheseCS(
-			[ "@item =", "@item=",
-			  "@item +=", "@item+=",
-			  "@item -=", "@item-=",
-			  "@item *=", "@item*=",
-			  "@item /=", "@item/="
+			[ "This[@i] =",
+			  "This[@i] +=", "This[@i] = This[@i] +",
+			  "This[@i] -=", "This[@i] = This[@i] -",
+			  "This[@i] *=", "This[@i] = This[@i] *",
+			  "This[@i] /=", "This[@i] = This[@i] /"
 			],
 
 			:CaseSensitive = FALSE )
@@ -26494,25 +25086,26 @@ Item and then position
 	
 	  #---------------------------------------------------------------#
 	 #   PERFORMING AN ACTION ON ITEMS VERIFYING A GIVEN CONDITION   #
-	#---------------------------------------------------------------#
+	#===============================================================#
 
 	def PerformW(pcAction, pcCondition)
-		
-		if isList(pcAction) and Q(pcAction).IsDoNamedParam()
-			pcAction = pcAction[2]
-		ok
-
-		if NOT isString(pcAction)
-			StzRaise("Incorrect type! pcAction must be a string.")
-		ok
-		
-		if isList(pcCondition) and Q(pcCondition).IsIfOrWhereNamedParam()
-
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect type! pcCondition must be a string.")
+		if CheckParams()
+			if isList(pcAction) and Q(pcAction).IsDoNamedParam()
+				pcAction = pcAction[2]
+			ok
+	
+			if NOT isString(pcAction)
+				StzRaise("Incorrect type! pcAction must be a string.")
+			ok
+			
+			if isList(pcCondition) and Q(pcCondition).IsIfOrWhereNamedParam()
+	
+				pcCondition = pcCondition[2]
+			ok
+	
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect type! pcCondition must be a string.")
+			ok
 		ok
 
 		# No need to purify the pcCondition code here,
@@ -26571,6 +25164,88 @@ Item and then position
 
 			def DoWQR( pcAction, pcCondition, pcReturnType )
 				return This.PerformWQR( pcAction, pcCondition, pcReturnType )
+		#>
+
+	  #--------------------------------------------------------------------#
+	 #   PERFORMING AN ACTION ON ITEMS VERIFYING A GIVEN CONDITION -- XT  #
+	#--------------------------------------------------------------------#
+
+	def PerformWXT(pcAction, pcCondition)
+		if CheckParams()
+			if isList(pcAction) and Q(pcAction).IsDoNamedParam()
+				pcAction = pcAction[2]
+			ok
+	
+			if NOT isString(pcAction)
+				StzRaise("Incorrect type! pcAction must be a string.")
+			ok
+			
+			if isList(pcCondition) and Q(pcCondition).IsIfOrWhereNamedParam()
+	
+				pcCondition = pcCondition[2]
+			ok
+	
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect type! pcCondition must be a string.")
+			ok
+		ok
+
+		# No need to purify the pcCondition code here,
+		# FindItemsW() will do it
+
+		anPos = This.FindItemsWXT(pcCondition)
+
+		# Do not purify pcAction code here,
+		# PerformOn() will do it
+
+		This.PerformOn(anPos, pcAction)
+
+		#< @FunctionFluentForm
+
+		def PerformWXTQ(pcAction, pcCondition)
+			This.PerformWXT(pcAction, pcCondition)
+			return This
+
+		def PerformWXTQR(pcAction, pcCondition, pcReturnType)
+			if IsList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				pcReturnType = pcReturnType[2]
+			ok
+
+			if NOT isString(pcReturnType)
+				StzRaise("Incorrect param! pcReturnType must be a string.")
+			ok
+
+			switch pcReturnType
+			on :stzList
+				return This
+
+			on :stzListOfStrings
+				return new stzListOfStrings( This.PerformWXT(pcAction, pcCondition) )
+
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.PerformWXT(pcAction, pcCondition) )
+
+			on :stzListOfLists
+				return new stzListOfLists( This.PerformWXT(pcAction, pcCondition) )
+
+			on :stzListOfPairs
+				return new stzListOfPairs( This.PerformWXT(pcAction, pcCondition) )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def DoWXT( pcAction, pcCondition )
+			This.PerformWXT( pcAction, pcCondition )
+
+			def DoWXTQ( pcAction, pcCondition )
+				return This.PerformWXTQ( pcAction, pcCondition )
+
+			def DoWXTQR( pcAction, pcCondition, pcReturnType )
+				return This.PerformWXTQR( pcAction, pcCondition, pcReturnType )
 		#>
 
 	  #==================================================#
@@ -45929,253 +44604,153 @@ Item and then position
 		def FinishesWith(paItems)
 			return This.EndsWith(paItems)
 
-	  #---------------------------------------------#
-	 #  CHECKING IF THE LIST STARTS WITH A NUMBER  #
-	#=============================================#
-
-	def StartsWithANumber()
-		bResult = FALSE
-		
-		if This.NumberOfItems() > 1 and
-		   isNumber(This.Item(1))
-
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		#< @FunctionAlternativeForms
-
-		def StartsWithALeadingNumber()
-			return This.StartsWithANumber()
-
-		def ContainsAStartingNumber()
-			return This.StartsWithANumber()
-
-		def ContainsALeadingNumber()
-			return This.StartsWithANumber()
-
-		def HasALeadingNumber()
-			return This.StartsWithANumber()
-
-		def HasAStartingNumber()
-			return This.StartsWithANumber()
-
-		#>
-
-	  #-------------------------------------------#
-	 #  CHECKING IF THE LSIT ENDS WITH A NUMBER  #
-	#-------------------------------------------#
-
-	def EndsWithANumber()
-		bResult = FALSE
-		
-		if This.NumberOfItems() > 1 and
-		   isNumber(This.LastItem())
-
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		#< @FunctionAlternativeForms
-
-		def EndsWithATrailingNumber()
-			return This.EndsWithANumber()
-
-		def ContainsATrailingNumber()
-			return This.EndsWithANumber()
-
-		def HasATrailingNumber()
-			return This.EndsWithANumber()
-
-		#>
-
-	  #---------------------------------------------#
-	 #  CHECKING IF THE LIST STARTS WITH A STRING  #
-	#=============================================#
-
-	def StartsWithAString()
-		bResult = FALSE
-		
-		if This.StringOfItems() > 1 and
-		   isString(This.Item(1))
-
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		#< @FunctionAlternativeForms
-
-		def StartsWithALeadingString()
-			return This.StartsWithAString()
-
-		def ContainsAStartingString()
-			return This.StartsWithAString()
-
-		def ContainsALeadingString()
-			return This.StartsWithAString()
-
-		def HasALeadingString()
-			return This.StartsWithAString()
-
-		def HasAStartingString()
-			return This.StartsWithAString()
-
-		#>
-
-	  #-------------------------------------------#
-	 #  CHECKING IF THE LIST ENDS WITH A NUMBER  #
-	#-------------------------------------------#
-
-	def EndsWithAString()
-		bResult = FALSE
-		
-		if This.NumberOfItems() > 1 and
-		   isString(This.LastItem())
-
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		#< @FunctionAlternativeForms
-
-		def EndsWithATrailingString()
-			return This.EndsWithAString()
-
-		def ContainsATrailingString()
-			return This.EndsWithAString()
-
-		def HasATrailingString()
-			return This.EndsWithAString()
-
-		#>
-
-	  #-------------------------------------------#
+	  #===========================================#
 	 #  CHECKING IF THE LIST STARTS WITH A LIST  #
 	#===========================================#
 
-	def StartsWithAList()
-		bResult = FALSE
-		
-		if This.NumberOfItems() > 1 and
-		   isList(This.Item(1))
+	def StartsWithList()
+		if len(@aContent) = 0
+			return FALSE
+		ok
 
+		if isList(@aContent[1])
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		#< @FunctionAlternativeForms
+		def StartsWithAList()
+			return This.StartsWithList()
 
-		def StartsWithALeadingList()
-			return This.StartsWithAList()
+	  #---------------------------------------------#
+	 #  CHECKING IF THE LIST STARTS WITH A NUMBER  #
+	#---------------------------------------------#
 
-		def ContainsAStartingList()
-			return This.StartsWithAList()
+	def StartsWithNumber()
+		if len(@aContent) = 0
+			return FALSE
+		ok
 
-		def ContainsALeadingList()
-			return This.StartsWithAList()
-
-		def HasALeadingList()
-			return This.StartsWithAList()
-
-		def HasAStartingList()
-			return This.StartsWithAList()
-
-		#>
-
-	  #-----------------------------------------#
-	 #  CHECKING IF THE LIST ENDS WITH A LIST  #
-	#-----------------------------------------#
-
-	def EndsWithAList()
-		bResult = FALSE
-		
-		if This.NumberOfItems() > 1 and
-		   isList(This.LastItem())
-
+		if isNumber(@aContent[1])
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		#< @FunctionAlternativeForms
+		def StartsWithANumber()
+			return This.StartsWithNumber()
 
-		def EndsWithATrailingList()
-			return This.EndsWithAList()
+	  #---------------------------------------------#
+	 #  CHECKING IF THE LIST STARTS WITH A STRING  #
+	#---------------------------------------------#
 
-		def ContainsATrailingList()
-			return This.EndsWithAList()
+	def StartsWithString()
+		if len(@aContent) = 0
+			return FALSE
+		ok
 
-		def HasATrailingList()
-			return This.EndsWithAList()
+		if isString(@aContent[1])
+			return TRUE
+		else
+			return FALSE
+		ok
 
-		#>
+		def StartsWithAString()
+			return This.StartsWithString()
 
 	  #----------------------------------------------#
 	 #  CHECKING IF THE LIST STARTS WITH AN OBJECT  #
-	#==============================================#
+	#----------------------------------------------#
 
-	def StartsWithAObject()
-		bResult = FALSE
-		
-		if This.NumberOfItems() > 1 and
-		   isObject(This.Item(1))
+	def StartsWithObject()
+		if len(@aContent) = 0
+			return FALSE
+		ok
 
+		if isObject(@aContent[1])
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		#< @FunctionAlternativeForms
+		def StartsWithAnObject()
+			return This.StartsWithObject()
 
-		def StartsWithALeadingObject()
-			return This.StartsWithAObject()
+	  #===========================================#
+	 #  CHECKING IF THE LIST STARTS WITH A LIST  #
+	#===========================================#
 
-		def ContainsAStartingObject()
-			return This.StartsWithAObject()
+	def EndsWithList()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
 
-		def ContainsALeadingObject()
-			return This.StartsWithAObject()
-
-		def HasALeadingObject()
-			return This.StartsWithAObject()
-
-		def HasAStartingObject()
-			return This.StartsWithAObject()
-
-		#>
-
-	  #--------------------------------------------#
-	 #  CHECKING IF THE LIST ENDS WITH AN OBJECT  #
-	#--------------------------------------------#
-
-	def EndsWithAObject()
-		bResult = FALSE
-		
-		if This.NumberOfItems() > 1 and
-		   isObject(This.LastItem())
-
+		if isList(@aContent[nLen])
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		#< @FunctionAlternativeForms
+		def EndsWithAList()
+			return This.EndsWithList()
 
-		def EndsWithATrailingObject()
-			return This.EndsWithAObject()
+	  #---------------------------------------------#
+	 #  CHECKING IF THE LIST STARTS WITH A NUMBER  #
+	#---------------------------------------------#
 
-		def ContainsATrailingObject()
-			return This.EndsWithAObject()
+	def EndsWithNumber()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
 
-		def HasATrailingObject()
-			return This.EndsWithAObject()
+		if isNumber(@aContent[nLen])
+			return TRUE
+		else
+			return FALSE
+		ok
 
-		#>
+		def EndsWithANumber()
+			return This.EndsWithNumber()
+
+	  #---------------------------------------------#
+	 #  CHECKING IF THE LIST STARTS WITH A STRING  #
+	#---------------------------------------------#
+
+	def EndsWithString()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		if isString(@aContent[nLen])
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def EndsWithAString()
+			return This.EndsWithString()
+
+	  #----------------------------------------------#
+	 #  CHECKING IF THE LIST STARTS WITH AN OBJECT  #
+	#----------------------------------------------#
+
+	def EndsWithObject()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		if isObject(@aContent[nLen])
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def EndsWithAnObject()
+			return This.EndsWithObject()
 
 	  #==============================================#
 	 #  GETTING THE SIZES OF THE ITEMS OF THE LIST  #

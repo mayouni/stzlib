@@ -3,6 +3,12 @@
 
 load "stdlibcore.ring"
 load "lightguilib.ring" # Takes most of the time made by non-Softanza libraries
+#TODO // Replace with "ringqtcorelib.ring" when included in future Ring.
+      // test it with:
+      // load "../libraries/guilib/classes/ring_qtcore.ring"
+      // loadlib("ringqt_core.dll")
+      // But don't keep it because we will not be able to use load "guilib.ring" or "lightguilib.ring"
+
 load "sqlitelib.ring"
 load "tracelib.ring"
 load "internetlib.ring"
@@ -11,7 +17,7 @@ load "typehints.ring"
 //? (clock()-t1)/clockspersecond()
 # Loading libraries takes 0.06
 
-#TODO optimise the load time of lightguilib.ring" by loading only the
+#TODO optimise the load time of lightguilib.ring by loading only the
 # qt classes used in RingQt by Softanza:
 # Qfile, QFileInfo, QTextStream, QStringList, QChar, QString2, QDate, QDir,
 # QLocale, QByetArray, QTextCodec, QTime
