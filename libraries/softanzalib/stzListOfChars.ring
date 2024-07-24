@@ -870,6 +870,7 @@ class stzListOfChars from stzListOfStrings
 	  #----------------#
 	 #     SCRIPTS    #
 	#----------------#
+	#TODO // Replace for/in by normal for loop
 
 	def Scripts()
 		acResult = []
@@ -883,6 +884,7 @@ class stzListOfChars from stzListOfStrings
 	 #-----------#
 	 #   MISC.   #
 	#-----------#
+	#TODO // Replace for/in by normal for loop
 
 	def AllCharsAreNumbers()
 		bResult = TRUE

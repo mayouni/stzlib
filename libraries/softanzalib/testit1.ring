@@ -471,17 +471,11 @@ o1 = new stzList([ "A1", "A2", "A3", "A4", "A5", "A6", "A7" ])
 ? @@( o1.YieldFromSections([ [2,3], [5,6] ], '@item') )
 #--> [ "A2", "A3", "A5", "A6" ]
 
-? @@( o1.YieldFromSectionsOneByOne([ [2,3], [5,6] ], '@item') )
-#--> [ [ "A2", "A3" ], [ "A5", "A6" ] ]
-
 #--
 
 o1 = new stzListOfStrings([ "A1", "A2", "A3", "A4", "A5", "A6", "A7" ])
 ? @@( o1.YieldFromSections([ [2,3], [5,6] ], '@string') )
 #--> [ "A2", "A3", "A5", "A6" ]
-
-? @@( o1.YieldFromSectionsOneByOne([ [2,3], [5,6] ], '@string') )
-#--> [ [ "A2", "A3" ], [ "A5", "A6" ] ]
 
 #--
 
@@ -489,8 +483,6 @@ o1 = new stzString("_ab_cd_")
 ? @@( o1.YieldFromSections([ [2,3], [5,6] ], '@char') )
 #--> [ "a", "b", "c", "d" ]
 
-? @@( o1.YieldFromSectionsOneByOne([ [2,3], [5,6] ], '@char') )
-#--> [ [ "a", "b" ], [ "c", "d" ] ]
 
 /*------- OK
 

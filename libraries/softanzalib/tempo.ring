@@ -1,5 +1,39 @@
 load "stzlib.ring"
 
+/*----
+*/
+pron()
+
+o1 = new stzList(1:8)
+? o1.Cumulate() # Or Reduce()
+#--> 36
+
+? @@( o1.CumulateXT() ) + NL
+#--> [ 1, 3, 6, 10, 15, 21, 28, 36 ]
+
+#--
+
+o1 = new stzList("A":"C")
+? o1.Cumulate()
+#--> ABC
+
+? @@( o1.CumulateXT() ) + NL
+#--> [ "A", "AB", "ABC" ]
+
+#--
+
+o1 = new stzList([ 1:2, 3, 4 ])
+? @@( o1.Cumulate() )
+#--> [ 1, 2, 3, 4 ]
+
+? @@( o1.CumulateXT() )
+#--> [ [ 1, 2 ], [ 1, 2, 3 ], [ 1, 2, 3, 4 ] ]
+
+proff()
+# Executed in 0.02 second(s).
+
+/*----
+
 pron()
 
 o1 = new stzGrid( "A" : "M" )
@@ -14,11 +48,12 @@ o1 = new stzGrid( "A" : "M" )
 ? o1.CountHLines()
 
 proff()
+# Executed in 0.02 second(s).
 
 /*-----
-
+*/
 pron()
-/*
+
 ? MostSquareLikeFactors(12)
 #--> [ 3, 4 ]
 
@@ -35,8 +70,8 @@ pron()
 #	[ ".", ".", "." ],
 #	[ ".", ".", "." ]
 # ]
-*/
-StzGridQ( "A" : "M" ) { ? @@NL(Content()) }
+
+StzGridQ( "A" : "M" ) { ? @@NL(Content()) } + NL
 #--> [
 #	[ "A", "B", "C", "D", "E" ],
 #	[ "F", "G", "H", "I", "J" ],
@@ -44,7 +79,7 @@ StzGridQ( "A" : "M" ) { ? @@NL(Content()) }
 # ]
 
 
-//? StzGridQ( "A" : "M" ).Show()
+? StzGridQ( "A" : "M" ).Show() #TODO fix it!
 
 proff()
 

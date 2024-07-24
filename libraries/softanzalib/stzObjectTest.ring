@@ -191,35 +191,6 @@ pron()
 proff()
 # Executed in 0.21 second(s)
 
-/*----------------
-
-pron()
-
-o1 = new stzList([ 1, 2, 3 ])
-? o1.ToNumberXT('
-	@number = YieldAndCumulateXT("@item", :ReturnLast)
-')
-#--> 6
-
-proff()
-# Executed in 0.42 second(s)
-
-/*-----------------
-
-pron()
-
-o1 = new stzList([ "one", "two", "three" ])
-? o1.ToNumber()
-#--> 3
-
-? o1.ToNumberXT('
-	@number = YieldAndCumulateXT("len(@item)", :ReturnLast )
-')
-#--> 11
-
-proff()
-# Executed in 0.40 second(s)
-
 /*=================
 
 pron()

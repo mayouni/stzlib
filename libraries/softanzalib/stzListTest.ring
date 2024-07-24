@@ -6053,7 +6053,7 @@ o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 ? Q([ "(",";", ")" ]).AllItemsAre([ :Punctuation, :Chars ])
 #--> TRUE
 
-/*------------------
+/*------------------ #TODO check error
 
 # Transforming the list structure so it becomes
 # a list of pairs of numbers. To do so, the numbers
@@ -7159,37 +7159,6 @@ o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
 ? Q(2).IsOneOfThese([ 3, 2, 5 ]) 	#--> TRUE
 ? Q("2").IsOneOfThese([ 3, 2, 5 ]) 	#--> FALSE
 ? Q([2]).IsOneOfThese([ 3, 2, 5 ])	#--> FALSE
-
-/*====== YIELD AND CUMULATE
-
-StartProfiler()
-
-o1 = new stzList([ "one", "two", "three" ])
-? o1.Yield("len(@item)")
-#--> [ 3, 3, 5 ]
-
-? o1.YieldAndCumulate('len(@item)', :ReturnLast = FALSE)
-#--> [ 3, 6, 11 ]
-
-? o1.YieldAndCumulate('len(@item)', :ReturnLast )
-#--> 11
-
-StopProfiler()
-#--> Executed in 0.07 seconds seconds.
-
-/*-----------------
-
-StartProfiler()
-
-o1 = new stzList([ "I", "love", "Ring!" ])
-? @@( o1.YieldAndCumulate('{ @item +  " " }', :ReturnEach ) )
-#--> [ [ "I ", "I love ", "I love Ring!" ]
-
-? o1.YieldAndCumulateQ('{ @item +  " " }', :ReturnLast).Trimmed()
-#--> "I love Ring!"
-
-StopProfiler()
-#--> Executed in 0.06 seconds seconds.
 
 /*======================
 
