@@ -84,3 +84,10 @@ This rich set of features allows you to:
 
 - Get comprehensive information about the entire range of the walk
 
+Walkig history
+~~~~~~~~~~~~~~
+
+- Walks() : Get the list of walks made on the object (using Walk...() methods)
+- NumberOfWalks() : Get the size of the walking history
+- NthWalk(n): Get the nth walk in the walking history
+- RemoveWalks() : Cleans the walking history

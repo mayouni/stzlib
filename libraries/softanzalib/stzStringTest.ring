@@ -6764,7 +6764,7 @@ proff()
 #--> Executed in 0.06 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("Amount: +132.45")
@@ -6778,26 +6778,41 @@ o1 = new stzString("Amount: +132.45")
 #--> "+132.45"
 
 proff()
-# Executed in 0.06 second(s)
-
-/*===========
-
-? Q([ "A", "B", "C", "D", "E" ]).NormaliseSection([1, :Last])
+# Executed in 0.06 second(s)s
 
 /*==================
 
+pron()
+
 o1 = new stzList([ ".", ".", "M", ".", "I", "X" ])
-? o1.FindW(' @char = "." ')
+? o1.FindWXT(' @char = "." ')
 #--> [1, 2, 4]
 
+proff()
+# Executed in 0.17 second(s).
+
 /*----------------- 
+*/
+pron()
+
 
 o1 = new stzString("..ONE...TWO..")
-? @@( o1.FindW(:Where = 'QR(@char, :stzChar).IsALetter()') )
+? @@( o1.FindCharsWXT(:Where = 'QR(@char, :stzChar).IsALetter()') )
 #--> [ 3, 4, 5, 9, 10, 11 ]
 
-? @@( o1.YieldW( '@char', :Where = 'Q(@char).IsALetter()' ) )
+	#WARNING
+	# If you use FindW instead of FindCharsW, yu will get an error:
+	# ~> Can't create the char object.
+	# The error occures because FindW is presumed to be FindSubStringsW,
+	# and hence the string provided ("..ONE...TWO..") is transformed to
+	# a list of all possible substrings ([ ".", "..", "..O", ...]), where
+	# '..O' for example can not be caste into a char.
+
+? @@( o1.YieldCharsWXT( '@char', :Where = 'Q(@char).IsALetter()' ) )
 #--> [ "O", "N", "E", "T", "W", "O" ]
+
+proff()
+# Executed in 0.57 second(s).
 
 /*------------------
 

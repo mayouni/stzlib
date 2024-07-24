@@ -70,19 +70,19 @@ pron()
 proff()
 
 /*=====
-
+*/
 pron()
 
 	o1 = new stzString("ring programming language")
 	? o1.Walk(:From = 6, :To = 16, :Step = 2, :Return = :WalkedChars)
 	#--> [ "p", "o", "r", "m", "i", "g" ]
 
-	? o1.WalkXT([ :Return = :WalkedChars ])
+//	? o1.WalkXT([ :Return = :WalkedChars ])
 	#--> [ 	"r","i","n","g"," ",
 	# 	"p","r","o","g","r","a","m","m","i","n","g"," ",
 	# 	"l","a","n","g","u","a","g","e" ]
 
-	? o1.WalkXT([ :From = 6, :To = 16, :Step = 2, :Return = :WalkedPositions ])
+//	? o1.WalkXT([ :From = 6, :To = 16, :Step = 2, :Return = :WalkedPositions ])
 	#--> [ 6, 8, 10, 12, 14, 16 ]
 
 proff()
