@@ -5857,21 +5857,29 @@ class stzObject
 		return nResult
 
 	def SizeInBytes()
-		aContent = This.Content()
-		nResult = 0
+		aValues = []
+		acAttributes = ring_attributes(This)
+		nLen = len(acAttributes)
 
-		if isNumber(aContent)
-			nResult = StzNumberQ(aContent).SizeInBytes()
+		for i = 1 to nLen
+			cCode = 'value = This.' + acAttributes[i]
+			eval(cCode)
+			aValues + value
+		next
 
-		but isString(aContent)
-			nResult = StzStringQ(aContent).SizeInBytes()
-
-		but isList(aContent)
-			nResult = StzListQ(aContent).SizeInBytes()
-
-		ok
+		return @SizeInBytes(aValues)		
 
 		return nResult
 
+		#< @FunctionAlternativeForms
+
 		def HowManyBytes()
-			return SizeInBytes()
+			return This.SizeInBytes()
+
+		def CountBytes()
+			return This.SizeInBytes()
+
+		def NumberOfBytes()
+			return This.SizeInBytes()
+
+		#>

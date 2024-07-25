@@ -5273,13 +5273,29 @@ class stzList from stzObject
 	  #-----------------------------------------#
 	 #  GETTING THE SIZE OF THE LIST IN BYTES  #
 	#-----------------------------------------#
-	#TODO
 
 	def SizeInBytes()
-		StzRaise("Unavailable feature in this version!")
+		nResult = 0
+		nLen = len(@aContent)
 
-		def HownManyBytes()
+		for i = 1 to nLen
+			nResult += @SizeInBytes(@aContent[i])
+		next
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def HowManyBytes()
 			return This.SizeInBytes()
+
+		def CountBytes()
+			return This.SizeInBytes()
+
+		def NumberOfBytes()
+			return This.SizeInBytes()
+
+		#>
 
 	  #-----------------------------#
 	 #  GETTING THE LIST OF ITEMS  #
