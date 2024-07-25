@@ -563,27 +563,6 @@ o1 = new stzHashList([
 proff()
 # Executed in 0.88 second(s)
 
-/*----------------
-
-pron()
-
-o1 = new stzHashList([
-	:one 	= "red",
-	:two 	= "white",
-	:three 	= "white"
-])
-
-o1.PerformOnKeys('{ @key += @i }')
-? o1.Keys()
-#--> [ :one1, :two2, :three3 ]
-
-o1.PerformOnValues('{ @value += @i }')
-? o1.Values()
-#--> [ "red1", "red2", "Red3" ]
-
-proff()
-# Executed in 0.12 second(s)
-
 /*---------------- @narration
 
 pron()

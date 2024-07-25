@@ -332,50 +332,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			aResult + [ value, This.NthKey(i) ]
 		next
 
-		return aResult
-
-	def PerformOnKeys(pcCode) #TODO: Test and review using stzCCode interpolate()
-		/*
-		PerformOnKeys('@key += @i')
-		*/
-
-		cCode = StzStringQ(pcCode).TrimQ().TheseBoundsRemoved("{", "}")
-
-		for @i = 1 to This.NumberOfPairs()
-			@key = This.NthKey(@i)		
-			eval(cCode)
-
-			if Q(@Key).ExistsIn( This.Keys() )
-				StzRaise("Can't update a key with the value of an existant key!")
-
-			else
-				This.ReplaceNthKey(@i, @key)
-			ok
-		next
-
-		def PerformOnKeysQ(pcCode)
-			This.PerformOnKeys(pcCode)
-			return This
-
-
-	def PerformOnValues(pcCode) #  #TODO: Test and review using stzCCode interpolate()
-		/*
-		PerformOnValues('@value += @i')
-		*/
-
-		cCode = StzStringQ(pcCode).TrimQ().TheseBoundsRemoved("{", "}")
-
-		for @i = 1 to This.NumberOfPairs()
-			@value = This.NthValue(@i)
-
-			eval(cCode)
-			This.ReplaceNthValue(@i, @value)
-		next
-
-		def PerformOnValuesQ(pcCode)
-			This.PerformOnValues(pcCode)
-			return This
-
+		return aResults
 
 	def NthKey(n)
 		if isString(n)
