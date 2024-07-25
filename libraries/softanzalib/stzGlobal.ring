@@ -422,6 +422,66 @@ _acStzCCKeywords = [
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
 
+func SizeInBytes(p)
+	if CheckParams()
+		if isList(p) and StzListQ(p).IsOfNamedParam()
+			p = p[2]
+		ok
+	ok
+
+	if isNumber(p)
+		return len( double2Bytes(125008) )
+
+	but isString(p)
+		return len(p)
+
+	but isList(p)
+		nResult = 0
+		nLen = len(p)
+
+		for i = 1 to nLen
+			nResult += SizeInBytes(p[i])
+		next
+
+		return nResult
+
+	but isObject(p)
+		aValues = []
+		acAttributes = attributes(p)
+		nLen = len(acAttributes)
+
+		for i = 1 to nLen
+			cCode = 'value = p.' + acAttributes[i]
+			eval(cCode)
+			aValues + value
+		next
+
+		return SizeInBytes(aValues)
+	ok
+
+	func @SizeInBytes(p)
+		return SizeInBytes(p)
+
+	func NumberOfBytes(p)
+		if CheckParams()
+			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
+				p = p[2]
+			ok
+		ok
+
+		return SizeInBytes(p)
+
+	func @NumberOfBytes(p)
+		return NumberOfBytes(p)
+
+	func CountBytes(p)
+		return NumberOfBytes(p)
+
+	func @CountBytes(p)
+		return NumberOfBytes(p)
+
+/*---
+
 func MinValueForComputableShortFormXT()
 	return _MinValueForComputableShortFormXT
 
