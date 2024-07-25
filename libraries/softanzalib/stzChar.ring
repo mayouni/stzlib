@@ -817,7 +817,7 @@ class stzChar from stzObject
 		end
 
 	def NumberOfBytes()
-		/*
+		/* #INFO
 		Internatlly, stzChar (and thus Qchar) uses UTF-8 encoding of bytes.
 		
 		UTF 8 encodes Chars on 1, 2, 3 or 4 bytes depending on the Char unicode:
@@ -828,23 +828,10 @@ class stzChar from stzObject
 		
 		Look at this: http://tutorials.jenkov.com/unicode/utf-8.html
 		*/
-		n = This.Unicode()
 
-		if  0 <= n and n <= 127
-			return 1
+		return len(This.Content())
 
-		but 0 <= 128 and n <= 2047
-			return 2
-
-		but 0 <= 2048 and n <= 65535
-			return 3
-
-		but 0 <= 65536 and n <= 1114111
-			return 4
-
-		else
-			StzRaise(stzCharError(:CanNotGuessNumberOfBytes))
-		ok
+		#< @FunctionAlternativeForms
 
 		def HowManyBytes()
 			return This.NumberOfBytes()
@@ -854,6 +841,11 @@ class stzChar from stzObject
 
 		def SizeInBytes()
 			return This.NumberOfBytes()
+
+		def CountBytes()
+			return This.NumberOfBytes()
+
+		#>
 
 	def Bytes()
 		// TODO: Review it and test it!

@@ -6049,9 +6049,15 @@ class stzNumber from stzObject
 			return This.Size()
 
 	def SizeInBytes()
-		nResult = This.StringValueQ().SizeInBytes()
+		return @SizeInBytes(This.NumericValue())
 
 		def HowManyBytes()
+			return This.SizeInBytes()
+
+		def CountBytes()
+			return This.SizeInBytes()
+
+		def NumberOfBytes()
 			return This.SizeInBytes()
 
 	  #=====================================#

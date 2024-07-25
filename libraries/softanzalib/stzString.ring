@@ -9552,37 +9552,25 @@ class stzString from stzObject
 	 #  GETTING THE SIZE IN BYTES   #
 	#==============================#
 
-	def NumberOfBytes()
-		return This.ToStzListOfBytes().NumberOfBytes()
-
-		#< @FunctionAlternativeForm
-
-		def SizeInBytes()
-			return This.NumberOfBytes()
-
-		def CountBytes()
-			return This.NumberOfBytes()
+	def SizeInBytes()
+		return len(This.Content())
 
 		def HowManyBytes()
-			return This.NumberOfBytes()
+			return This.SizeInBytes()
 
-		def HowManyByte()
-			return This.NumberOfBytes()
+		def CountBytes()
+			return This.SizeInBytes()
 
-		def LengthInBytes()
-			return This.NumberOfBytes()
-
-		def LengthInByte()
-			return This.NumberOfBytes()
-
-		#>
+		def NumberOfBytes()
+			return This.SizeInBytes()
 	
 	def NumberOfBytesPerChar()
 		aResult = []
-		nLen = This.NumberOfChars()
+		acChars = This.Chars()
+		nLen = len(acChars)
 
 		for i = 1 to nLen
-			aResult + [ This.Char(i), This.CharQ(i).NumberOfBytes() ]
+			aResult + [ acChars[i], len(acChars[i]) ]
 		next
 
 		return aResult

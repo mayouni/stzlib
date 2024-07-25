@@ -1,5 +1,33 @@
 load "stzlib.ring"
 
+decimals(3)
+
+pron()
+
+? Q(20).SizeInBytes()
+#--> 8
+
+? Q("両").SizeInBytes()
+#--> 3
+
+? Q([ 20, "両" ]).SizeInBytes()
+#--> 11
+
+? Q([ "Ring", 20, "رينغ" ]).SizeInBytes()
+#--> 20
+
+? Q(new TempObject).SizeInBytes() # 7 more bytes taken by internal stzObject attributes
+#--> 27
+
+proff()
+
+class TempObject
+	Language = "Ring"
+	Version = 20
+	InArabic = "رينغ"
+
+/*----
+
 pron()
 
 ? SizeInBytes("Ring")
