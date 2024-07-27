@@ -726,6 +726,7 @@ func ContentSizeInBytes(item)
 	ok
 
 	func ContentSize(item)
+		return ContentSizeInBytes(item)
 
 #INFO #CREDIT
 # This function is made thanks to Mahmoud's explanation of the internal
@@ -761,17 +762,8 @@ func SizeInBytes(item)
 		return listSize + (Len(item) * itemTotalSize)
 
         on "OBJECT"
-		aValues = []
-		acAttributes = attributes(item)
-		nLen = len(acAttributes)
+		return SizeInBytes(AttributesValues(item))
 
-		for i = 1 to nLen
-			cCode = 'value = item.' + acAttributes[i]
-			eval(cCode)
-			aValues + value
-		next
-
-		return SizeInBytes(aValues)		
 	off
 
 	#< @FunctionAlternativeForms
@@ -930,17 +922,7 @@ func SizeInBytesXT(item)
 		return aResult
 
         on "OBJECT"
-		aValues = []
-		acAttributes = attributes(item)
-		nLen = len(acAttributes)
-
-		for i = 1 to nLen
-			cCode = 'value = item.' + acAttributes[i]
-			eval(cCode)
-			aValues + value
-		next
-
-		return SizeInBytesXT(aValues)		
+		 return SizeInBytesXT(AttributesValues(item))		
 	off
 
 	#< @FunctionAlternativeForms

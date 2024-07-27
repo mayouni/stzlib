@@ -1,37 +1,39 @@
 load "stzlib.ring"
 
-/*---- #narration ContentSizeinBytes() and MemorySizeInBytes()
+/*---- #narration ContentSize() and MemorySize()
 */
 pron()
 
-# What is the size in bytes of the char "A"?
-# You may think it's 1 byte, but:
+# What is the size in bytes of the character "A"?
+# You might think it's 1 byte, but:
 
-? SizeInBytes("A") # Or just Size()
+? Size("A") # Same as SizeInBytes()
 #--> 49
 
-# It's 49X time large then we expected!
+# It's 49 times larger than you might expect!
 
-# In fact, the value returned by the funtion, is actually
-# the memory size of the char, as allocated by Ring, and
-# not only the size of its content.
+# In fact, the value returned by the function is actually
+# the memory size of the character as allocated by Ring,
+# not just the size of its content.
 
 # Hence, we could write the same function as:
 
-? MemorySizeInBytes("A") # Or Just MemSize()
+? MemSize("A") # Same as MemorySizeInBytes()
 #--> 49
 
-# and use an other flavor to get the size of the content itself:
+# and use another function to get the size of the content itself:
 
-? ContentSizeInBytes("A")
+? ContentSize("A") # Same as ContentSizeInBytes()
 #--> 1
 
-# which is returned in the background by the standard Ring function:
+# which is the same as the standard Ring function:
 
 ? len("A")
 #--> 1
 
+
 proff()
+# Executed in 0 second(s).
 
 /*---- #narration
 
