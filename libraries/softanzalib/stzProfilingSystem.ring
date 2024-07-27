@@ -94,6 +94,15 @@ RING_64BIT_ITEMS_STRUCTURE_SIZE = 32
 func Arch()
 	return getArch()
 
+	func Architecture()
+		return getArch()
+
+	func SystemArch()
+		return GetArch()
+
+	func SystemArchitecture()
+		return GetArch()
+
 func Is32Bit()
 	cArch = Arch()
 	if cArch = "x86" or cArch = "arm"
@@ -118,6 +127,186 @@ func Is32Or54Bit()
 		return :64
 	else
 		return :Unknown
+	ok
+
+func IsARM()
+	cArch = GetArch()
+	if cArch = "arm" or cArch = "arm64"
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsARM32()
+	cArch = GetArch()
+	if cArch = "arm"
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsARM64()
+	cArch = GetArch()
+	if cArch = "arm64"
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsX86()
+	cArch = GetArch()
+	if cArch = "x86"
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsX64()
+	cArch = GetArch()
+	if cArch = "x64"
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func OperationSystem()
+	if isWindows() or isWindows64()
+		return "windows"
+
+	but isMSDOS()
+		return "msdos"
+
+	but isUnix()
+		return "unix"
+
+	but isLinux()
+		return "linux"
+
+	but isMacOSX()
+		return "macosx"
+
+	but isFreeBSD()
+		return "freebsd"
+
+	but isAndroid()
+		return "android"
+
+	else
+		retur "unknown"
+	ok
+
+	func OS()
+		return OperatingSystem()
+
+func OperatingSystemXT() // returns the OS and its architecture (32 or 64 bits)
+	aResult = [ OperatingSystem(), Architecture() ]
+	return aResult
+
+	func OSXT()
+		return OperatingSystemXT()
+
+	func OperatingSystemAndItsArchitecture()
+		return OperatingSystemXT()
+
+	func OSAndArch()
+		return OperatingSystemXT()
+
+func IsWindows32()
+	if IsWindows() and Is32Bit()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsWindows64()
+	if IsWindows() and Is64Bit()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsMSDOS32()
+	if IsMSDOS() and Is32Bit()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsMSDOS64()
+	if IsMSDOS() and Is64Bit()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsUnix32()
+	if IsUnix() and Is32Bit()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsUnix64()
+	if IsUnix() and Is64Bit()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsLinux2()
+	if IsLinux() and Is32Bit()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsLinux64()
+	if IsLinux() and Is64Bit()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsFreeBSD32()
+	if IsFreeBSD() and Is32Bit()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsFreeBSD64()
+	if IsFreeBSD() and Is64Bit()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsMacOS32()
+	if IsMacOS() and Is32Bit()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsMacOS64()
+	if IsMacOS() and Is64Bit()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsAndroid32()
+	if IsAndroid() and Is32Bit()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsAndroid64()
+	if IsAndroid() and Is64Bit()
+		return TRUE
+	else
+		return FALSE
 	ok
 
 #~~~~~~~~~~~~~~~~~~#
