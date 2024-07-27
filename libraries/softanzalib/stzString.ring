@@ -9565,7 +9565,13 @@ class stzString from stzObject
 	#==============================#
 
 	def SizeInBytes()
-		return len(This.Content())
+		#NOTE
+		# Ring add a bunch of bytes internally to set and manage the string.
+		# That's why the len() function does not make the job here. Instead
+		# we implemented a speciefic function, SizeInBytes(), which is aware
+		# of those supllementary bytes and adds them to the result.
+
+		return @SizeInBytes(This.Content())
 
 		def HowManyBytes()
 			return This.SizeInBytes()

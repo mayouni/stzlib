@@ -421,6 +421,29 @@ _acStzCCKeywords = [
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
 
+func AttributesValues(pObject) # Compliments Ring attributes() function
+	if NOT isObject(pObject)
+		Raise("Incorrect param type! pObject must be an object.")
+	ok
+
+	aResult = []
+
+	acAttributes = attributes(pObject)
+	nLen = len(acAttributes)
+
+	for i = 1 to nLen
+		cCode = 'value = pObject.' + acAttributes[i]
+		eval(cCode)
+		aResult + value
+	next
+
+	return aResult
+
+	func @AttributesValues(pObject)
+		return AttributesValues(pObject)
+
+/*---
+
 func MinValueForComputableShortFormXT()
 	return _MinValueForComputableShortFormXT
 
