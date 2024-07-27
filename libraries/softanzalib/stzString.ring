@@ -9546,7 +9546,19 @@ class stzString from stzObject
 	#=======================================================#
 
 	def IsRingType()
-		return This.UppercaseQ().IsOneOfThese([ "NUMBER", "STRING", "LIST", "OBJECT", "COBJECT" ])
+		cUPPER = ring_upper(This.Content())
+
+		if cUPPER = "NUMBER" or cUPPER = "STRING" or cUPPER = "LIST" or
+		   cUPPER = "OBJECT" or cUPPER = "COBJECT"
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsARingType()
+			return This.IsRingType()
 
 	  #==============================#
 	 #  GETTING THE SIZE IN BYTES   #

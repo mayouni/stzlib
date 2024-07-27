@@ -62,8 +62,6 @@ _bParamCheck = TRUE  # Activates the "# Checking params region" in softanza func
 
 _bEarlyCheck = TRUE   # Used for the same reason as _bParamCheck
 
-_time0 = 0 # Used by StartProfiler() and StopProfiler() functions
-
 _MinValueForComputableShortFormXT = 10
 
 cCacheFileName = "stzcache.txt"
@@ -312,7 +310,8 @@ _acRingFunctions = [ #TODO: Add the new functions added in Ring 1.18
 	"write"
 ]
 
-_acRingKeywords = [ #TODO: Review the list for Ring 1.18
+#TODO: Review the list for last ring version
+_acRingKeywords = [
 	"again",
 	"and",
 	"but",
@@ -421,66 +420,6 @@ _acStzCCKeywords = [
   //////////////////////////
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
-
-func SizeInBytes(p)
-	if CheckParams()
-		if isList(p) and StzListQ(p).IsOfNamedParam()
-			p = p[2]
-		ok
-	ok
-
-	if isNumber(p)
-		return len( double2Bytes(125008) )
-
-	but isString(p)
-		return len(p)
-
-	but isList(p)
-		nResult = 0
-		nLen = len(p)
-
-		for i = 1 to nLen
-			nResult += SizeInBytes(p[i])
-		next
-
-		return nResult
-
-	but isObject(p)
-		aValues = []
-		acAttributes = attributes(p)
-		nLen = len(acAttributes)
-
-		for i = 1 to nLen
-			cCode = 'value = p.' + acAttributes[i]
-			eval(cCode)
-			aValues + value
-		next
-
-		return SizeInBytes(aValues)
-	ok
-
-	func @SizeInBytes(p)
-		return SizeInBytes(p)
-
-	func NumberOfBytes(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
-				p = p[2]
-			ok
-		ok
-
-		return SizeInBytes(p)
-
-	func @NumberOfBytes(p)
-		return NumberOfBytes(p)
-
-	func CountBytes(p)
-		return NumberOfBytes(p)
-
-	func @CountBytes(p)
-		return NumberOfBytes(p)
-
-/*---
 
 func MinValueForComputableShortFormXT()
 	return _MinValueForComputableShortFormXT
@@ -4888,93 +4827,6 @@ func STOP()
 	    "    STOPPED!    " + NL +
 	    "----------------"
 	)
-	
-
-func StartTimer()
-	_time0 = clock()
-
-func ResetTimer()
-	_time0 = 0
-
-func ElapsedTime()
-	return ElapsedTimeXT(:In = :Seconds)
-
-	func ElpasedTime()
-		return ElapsedTime()
-		#NOTE
-		# This function name alternative contains a spelling error.
-		# Despite that, I'll take it. Because I always make this
-		#ERRor and don't want to be blocked for that.
-
-func ElapsedTimeXT(pIn)
-
-	if isList(pIn) and Q(pIn).IsInNamedParam()
-		pIn = pIn[2]
-	ok
-
-	if NOT isString(pIn)
-		StzRaise("Incorrect param type! pIn must be a string.")
-	ok
-
-	if NOT Q(pIn).IsOneOfThese([ :Clocks, :Seconds, :Minutes, :Hours ])
-		#TODO - Future: Add days, weeks, months, years...
-		StzRaise("Incorrect value of pIn param! Allowed values are: " +
-		":Clocks, :Seconds, :Minutes and :Hours.")
-	ok
-
-	switch pIn
-	on :Clocks
-		return clock() - _time0 + " clocks"
-
-	on :Seconds
-		nTime = ( clock() - _time0 ) / clockspersecond()
-		cTime = "" + nTime
-		return cTime + " second(s)"
-
-	on :Minutes
-		nTime = ( clock() - _time0 ) / clockspersecond() / 60
-		cTime = "" + nTime
-		return cTime + " minute(s)"
-
-	on :Hours
-		nTime = ( clock() - _time0 ) / clockspersecond() / 3600
-		cTime = "" + nTime
-		return cTime + " hour(s)"
-
-	off
-	
-	func ElpasedTimeXT(pIn)
-		return ElapsedTimeXT(pIn)
-
-func Pron()
-	_time0 = clock()
-
-	func Profon()
-		_time0 = clock()
-
-	func StartProfiler()
-		_time0 = clock()
-
-	func ProfilerOn()
-		_time0 = clock()
-
-func Proff()
-	cElapsed = "" + (clock() - _time0) / clockspersecond()
-	? NL + "Executed in " + cElapsed + " second(s)."
-	_time0 = 0
-	STOP()
-
-	func EndProfiler()
-		StopProfiler()
-
-	func Profoff()
-		StopProfiler()
-
-	func StopProfiler()
-		StopProfiler()
-
-	func ProfilerOff()
-		StopProfiler()
 
 func Todo()
 	return TodoXT(:InCurrent)
