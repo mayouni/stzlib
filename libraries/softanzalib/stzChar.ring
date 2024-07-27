@@ -827,9 +827,16 @@ class stzChar from stzObject
 			* from 65536 to 1114111 : 4 bytes
 		
 		Look at this: http://tutorials.jenkov.com/unicode/utf-8.html
+
+		#NOTE
+		But Ring add a bunch of bytes internally to set and manage the char.
+		That's why the len() function does not make the job here. Instead
+		we implemented a speciefic function, SizeInBytes(), which is aware
+		of those supllementary bytes and adds them to the result.
+
 		*/
 
-		return len(This.Content())
+		return @SizeInBytes(This.Content())
 
 		#< @FunctionAlternativeForms
 

@@ -1,24 +1,102 @@
 load "stzlib.ring"
 
+/*---- #narration ContentSizeinBytes() and MemorySizeInBytes()
+*/
+pron()
+
+# What is the size in bytes of the char "A"?
+# You may think it's 1 byte, but:
+
+? SizeInBytes("A") # Or just Size()
+#--> 49
+
+# It's 49X time large then we expected!
+
+# In fact, the value returned by the funtion, is actually
+# the memory size of the char, as allocated by Ring, and
+# not only the size of its content.
+
+# Hence, we could write the same function as:
+
+? MemorySizeInBytes("A") # Or Just MemSize()
+#--> 49
+
+# and use an other flavor to get the size of the content itself:
+
+? ContentSizeInBytes("A")
+#--> 1
+
+# which is returned in the background by the standard Ring function:
+
+? len("A")
+#--> 1
+
+proff()
+
+/*---- #narration
+
+pron()
+
+# How many bytes are there in this japanese char (synonym of "Both" in english)?
+
+? len("両")
+#--> 3
+
+# The char occupies 3 bytes in memory, which is true. But actually, Ring
+# allocates some additional bytes to manage it internally...
+
+? SizeInBytes("両")
+#--> 51
+
+# Let's ask Softanza to explain how we get these 51 bytes...
+# ~> We just need to add and XT() prefix to the same function
+
+? SizeInBytesXT("両")
+#--> [
+#	[ 'len("両")', 3 ],
+#	[ 'RING_64BIT_STRING_STRUCTURE_SIZE', 48 ]
+# ]
+
+# As you see, we've got the initail 3 bytes, plus 48 bytes more, used
+# by the internal structure for managing strings in Ring.
+
+# Note that this value would be different, if the code is running on
+# a computer with a 32bit architecture.
+
+# In sutch case you will get:
+
+? SizeInBytes("両")
+#--> 43
+
+# And:
+
+? SizeInBytesXT("両")
+#--> [
+#	[ 'len("両")', 3 ],
+#	[ 'RING_64BIT_STRING_STRUCTURE_SIZE', 40 ]
+# ]
+
+proff()
+# Executed in 0.02 second(s).
 
 /*----
 
 pron()
 
 ? Q(20).SizeInBytes()
-#--> 8
+#--> 56
 
 ? Q("両").SizeInBytes()
-#--> 3
+#--> 51
 
 ? Q([ 20, "両" ]).SizeInBytes()
-#--> 11
+#--> 107
 
 ? Q([ "Ring", 20, "رينغ" ]).SizeInBytes()
-#--> 20
+#--> 164
 
 ? Q(new TempObject).SizeInBytes() # 7 more bytes taken by internal stzObject attributes
-#--> 27
+#--> 192
 
 proff()
 
@@ -32,20 +110,20 @@ class TempObject
 pron()
 
 ? SizeInBytes("Ring")
-#--> 4
+#--> 52
 
 ? SizeInBytes(20)
-#--> 8
+#--> 56
 
 ? SizeInBytes("رينغ")
-#--> 8
+#--> 56
 
 ? SizeInBytes([ "Ring", 20, "رينغ" ])
-#--> 20
+#--> 248
 
 obj = new TempObject
 ? SizeInBytes(obj) 
-#--> 20
+#--> 248
 
 proff()
 # Executed in 0.02 second(s).
@@ -56,11 +134,10 @@ class TempObject
 	InArabic = "رينغ"
 
 /*=========
-*/
 
 pron()
 
-? 54_687.58 / 1024 + NL
+?  5340.58 / 1024 + NL
 
 ? SizeInBytes(12)
 #--> 56
@@ -80,12 +157,5 @@ pron()
 	? SizeInGigaBytes(1:1_000_000) + NL
 	#--> 53.41
 
-
-? SizeInGigaBytes(1:100_000_000)
-#--> 5340.58
-
-	? SizeInTeraBytes(1:100_000_000)
-	#--> 0.01
-
 proff()
-# Executed in 13.61 second(s).
+# Executed in 0.14 second(s).
