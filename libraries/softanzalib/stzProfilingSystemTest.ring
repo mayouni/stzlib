@@ -123,7 +123,7 @@ proff()
 # internationalization, optimizing memory usage, or dealing with
 # string manipulations in a multi-language context.
 
-/*==== #narration
+/*==== #narration SizeInBytes() and SizeInBytesXT()
 
 pron()
 

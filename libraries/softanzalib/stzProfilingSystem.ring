@@ -87,6 +87,8 @@ RING_64BIT_LIST_STRUCTURE_SIZE = 80
 RING_64BIT_ITEM_STRUCTURE_SIZE = 24
 RING_64BIT_ITEMS_STRUCTURE_SIZE = 32
 
+RING_NUMBER_CONTENT_SIZE = 3
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #  GETTING ARCHITECTURE TYPE  #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -399,6 +401,13 @@ func Proff()
 	func ProfilerOff()
 		StopProfiler()
 
+func STOP()
+	raise( NL + 
+	    "----------------" + NL +
+	    "    STOPPED!    " + NL +
+	    "----------------"
+	)
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #  CONVERTING BETWEEN BYTES, KILOBYTES, MEGABYTES, AND GIGABYTES  #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -699,24 +708,22 @@ func YottaBytesToBits(n)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 func ContentSizeInBytes(item)
-	if CheckParams()
-		if isList(item) and StzListQ(item).IsOfNamedParam()
-			item = item[2]
-		ok
+	if isList(item) and len(item) = 2 and isString(item[1]) and item[1] = :Of
+		item = item[2]
 	ok
 
 	if isNumber(item)
-		return 3
+		return RING_NUMBER_CONTENT_SIZE
 
 	but isString(item)
 		return len(item)
 
 	but isList(item)
-		nResult = []
+		nResult = 0
 		nLen = len(item)
 
 		for i = 1 to nLen
-			nResult += ContentSizeInBytes(item)
+			nResult += ContentSizeInBytes(item[i])
 		next
 
 		return nResult
@@ -728,43 +735,19 @@ func ContentSizeInBytes(item)
 	func ContentSize(item)
 		return ContentSizeInBytes(item)
 
+	func CSize(item)
+		return ContentSizeInBytes(item)
+
 #INFO #CREDIT
 # This function is made thanks to Mahmoud's explanation of the internal
 # memory management mode implemented in Ring (see the Google forum)
 
 func SizeInBytes(item)
-	is64bit = Is64Bit()
-    
-	switch type(item)
-	on "NUMBER"
-		if is64Bit
-			return RING_64BIT_ITEM_STRUCTURE_SIZE + RING_64BIT_ITEMS_STRUCTURE_SIZE
-		else
-			return RING_32BIT_ITEM_STRUCTURE_SIZE + RING_32BIT_ITEMS_STRUCTURE_SIZE
-		ok
-
-        on "STRING"
-		if is64Bit
-			return Len(item) + RING_64BIT_STRING_STRUCTURE_SIZE
-		else
-			return Len(item) + RING_32BIT_STRING_STRUCTURE_SIZE
-	    ok
-
-	on "LIST"
-		if is64Bit
-			listSize = RING_64BIT_LIST_STRUCTURE_SIZE
-			itemTotalSize = RING_64BIT_ITEM_STRUCTURE_SIZE + RING_64BIT_ITEMS_STRUCTURE_SIZE
-		else
-			listSize = RING_32BIT_LIST_STRUCTURE_SIZE
-			itemTotalSize = RING_32BIT_ITEM_STRUCTURE_SIZE + RING_32BIT_ITEMS_STRUCTURE_SIZE
-		ok
-
-		return listSize + (Len(item) * itemTotalSize)
-
-        on "OBJECT"
-		return SizeInBytes(AttributesValues(item))
-
-	off
+	if Is64Bit()
+		return SizeInBytes64(item)
+	else
+		return SizeInBytes32(item)
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -772,10 +755,10 @@ func SizeInBytes(item)
 		return SizeInBytes(p)
 
 	func NumberOfBytes(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
+
 				p = p[2]
-			ok
 		ok
 
 		return SizeInBytes(p)
@@ -797,6 +780,24 @@ func SizeInBytes(item)
 		func @Size(p)
 			return SizeInBytes(p)
 
+	func MSize(p)
+		return SizeInBytes(p)
+
+		func @MSize(p)
+			return SizeInBytes(n)
+
+	func MemorySize(p)
+		return SizeInBytes(p)
+
+		func @MemorySize(p)
+			return SizeInBytes(p)
+
+	func MemSize(p)
+		return SizeInBytes(p)
+
+		func @MemSize(p)
+			return SizeInBytes(p)
+
 	#==
 
 	func MemorySizeInBytes(p)
@@ -806,10 +807,9 @@ func SizeInBytes(item)
 		return SizeInBytes(p)
 
 	func NumberOfMemoryBytes(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
 				p = p[2]
-			ok
 		ok
 
 		return SizeInBytes(p)
@@ -823,14 +823,6 @@ func SizeInBytes(item)
 	func @CountMemoryBytes(p)
 		return NumberOfBytes(p)
 
-	#--
-
-	func MemorySize(p)
-		return SizeInBytes(p)
-
-		func @MemorySize(p)
-			return SizeInBytes(p)
-
 	#==
 
 	func MemSizeInBytes(p)
@@ -840,10 +832,10 @@ func SizeInBytes(item)
 		return SizeInBytes(p)
 
 	func NumberOfMemBytes(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
+		if isList(p) and len(p) = 2 and isString(p[1]) and
+		   (p[1] = :In or p[1] = :Of)
+
 				p = p[2]
-			ok
 		ok
 
 		return SizeInBytes(p)
@@ -857,73 +849,14 @@ func SizeInBytes(item)
 	func @CountMemBytes(p)
 		return SizeInBytes(p)
 
-	#--
-
-	func MemSize(p)
-		return SizeInBytes(p)
-
-		func @MemSize(p)
-			return SizeInBytes(p)
-
 	#>
 
 func SizeInBytesXT(item)
-	is64bit = Is64Bit()
-    	aResult = []
-
-	switch type(item)
-	on "NUMBER"
-		if is64Bit
-			aResult + [ "RING_64BIT_ITEM_STRUCTURE_SIZE", RING_64BIT_ITEM_STRUCTURE_SIZE ]
-			aResult + [ "RING_64BIT_ITEMS_STRUCTURE_SIZE", RING_64BIT_ITEMS_STRUCTURE_SIZE ]
-		else
-			aResult + [ "RING_32BIT_ITEM_STRUCTURE_SIZE", RING_32BIT_ITEM_STRUCTURE_SIZE ]
-			aResult + [ "RING_32BIT_ITEMS_STRUCTURE_SIZE", RING_32BIT_ITEMS_STRUCTURE_SIZE ]
-		ok
-
-		return aResult
-
-        on "STRING"
-		if is64Bit
-			aResult + [ "Len(" + @@(item) + ")", len(item) ]
-			aResult + [ "RING_64BIT_STRING_STRUCTURE_SIZE", RING_64BIT_STRING_STRUCTURE_SIZE ]
-		else
-			aResult + [ "Len(" + @@(item) + ")", len(item) ]
-			aResult + [ "RING_32BIT_STRING_STRUCTURE_SIZE", RING_32BIT_STRING_STRUCTURE_SIZE ]
-	    	ok
-
-		return aResult
-
-	on "LIST"
-		if is64Bit
-			ITEM_TOTAL_SIZE = RING_64BIT_ITEM_STRUCTURE_SIZE + RING_64BIT_ITEMS_STRUCTURE_SIZE
-
-			aResult + [ "RING_64BIT_LIST_STRUCTURE_SIZE", RING_64BIT_LIST_STRUCTURE_SIZE ]
-			aResult + [ "RING_64BIT_ITEM_STRUCTURE_SIZE + RING_64BIT_ITEMS_STRUCTURE_SIZE", ITEM_TOTAL_SIZE ]
-
-			aResult + [
-				"RING_64BIT_LIST_STRUCTURE_SIZE + (Len(item) * ITEM_TOTAL_SIZE)",
-				RING_64BIT_LIST_STRUCTURE_SIZE + (Len(item) * ITEM_TOTAL_SIZE)
-			]
-	
-		else
-			ITEM_TOTAL_SIZE = RING_32BIT_ITEM_STRUCTURE_SIZE + RING_32BIT_ITEMS_STRUCTURE_SIZE
-
-			aResult + [ "RING_32BIT_LIST_STRUCTURE_SIZE", RING_32BIT_LIST_STRUCTURE_SIZE ]
-			aResult + [ "RING_32BIT_ITEM_STRUCTURE_SIZE + RING_32BIT_ITEMS_STRUCTURE_SIZE", ITEM_TOTAL_SIZE ]
-
-			aResult + [
-				"RING_32BIT_LIST_STRUCTURE_SIZE + (Len(item) * ITEM_TOTAL_SIZE)",
-				RING_32BIT_LIST_STRUCTURE_SIZE + (Len(item) * ITEM_TOTAL_SIZE)
-			]
-	
-		ok
-
-		return aResult
-
-        on "OBJECT"
-		 return SizeInBytesXT(AttributesValues(item))		
-	off
+	if Is64Bit()
+		return SizeInBytes64XT(item)
+	else
+		return SizeInBytes32XT(item)
+	ok
 
 	#< @FunctionAlternativeForms
 
@@ -931,10 +864,10 @@ func SizeInBytesXT(item)
 		return SizeInBytesXT(p)
 
 	func NumberOfBytesXT(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
+		if isList(p) and len(p) = 2 and isString(p[1]) and
+		   (p[1] = :In or p[1] = :Of)
+
 				p = p[2]
-			ok
 		ok
 
 		return SizeInBytesXT(p)
@@ -956,6 +889,24 @@ func SizeInBytesXT(item)
 		func @SizeXT(p)
 			return SizeInBytesXT(p)
 
+	func MSizeXT(p)
+		return SizeInBytesXT(p)
+
+		func @MSizeXT(p)
+			return SizeInBytesXT(n)
+
+	func MemorySizeXT(p)
+		return SizeInBytesXT(p)
+
+		func @MemorySizeXT(p)
+			return SizeInBytesXT(p)
+
+	func MemSizeXT(p)
+		return SizeInBytesXT(p)
+
+		func @MemSizeXT(p)
+			return SizeInBytesXT(p)
+
 	#==
 
 	func MemorySizeInBytesXT(p)
@@ -965,10 +916,9 @@ func SizeInBytesXT(item)
 		return SizeInBytesXT(p)
 
 	func NumberOfMemoryBytesXT(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
 				p = p[2]
-			ok
 		ok
 
 		return SizeInBytesXT(p)
@@ -982,14 +932,6 @@ func SizeInBytesXT(item)
 	func @CountMemoryBytesXT(p)
 		return NumberOfBytesXT(p)
 
-	#--
-
-	func MemorySizeXT(p)
-		return SizeInBytesXT(p)
-
-		func @MemorySizeXT(p)
-			return SizeInBytesXT(p)
-
 	#==
 
 	func MemSizeInBytesXT(p)
@@ -999,10 +941,9 @@ func SizeInBytesXT(item)
 		return SizeInBytesXT(p)
 
 	func NumberOfMemBytesXT(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
 				p = p[2]
-			ok
 		ok
 
 		return SizeInBytesXT(p)
@@ -1016,16 +957,536 @@ func SizeInBytesXT(item)
 	func @CountMemBytesXT(p)
 		return SizeInBytesXT(p)
 
-	#--
-
-	func MemSizeXT(p)
-		return SizeInBytesXT(p)
-
-		func @MemSizeXT(p)
-			return SizeInBytesXT(p)
 	#>
 
-#--
+#---- Same functions for 32BIT
+
+func SizeInBytes32(item)
+	if isList(item) and len(item) = 2 and isString(item[1]) and item[1] = :Of
+		item = item[2]
+	ok
+    
+	switch type(item)
+	on "NUMBER"
+		return RING_NUMBER_CONTENT_SIZE
+
+        on "STRING"
+		return Len(item) + RING_32BIT_STRING_STRUCTURE_SIZE
+
+	on "LIST"
+		nListAdditionalSize      = RING_32BIT_LIST_STRUCTURE_SIZE
+		nItemTotalAdditionalSize = RING_32BIT_ITEM_STRUCTURE_SIZE + RING_32BIT_ITEMS_STRUCTURE_SIZE
+
+		anResult = nListAdditionalSize
+		nLen = len(item)
+
+		for i = 1 to nLen
+			nItemSize = SizeInBytes32(item[i]) + nItemTotalAdditionalSize
+			anResult += nItemSize
+		next
+
+		return anResult
+
+        on "OBJECT"
+		return SizeInBytes32(AttributesValues(item))
+
+	off
+
+	#< @FunctionAlternativeForms
+
+	func @SizeInBytes32(p)
+		return SizeInBytes32(p)
+
+	func NumberOfBytes32(p)
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
+
+				p = p[2]
+		ok
+
+		return SizeInBytes32(p)
+
+	func @NumberOfBytes32(p)
+		return NumberOfBytes32(p)
+
+	func CountBytes32(p)
+		return NumberOfBytes32(p)
+
+	func @CountBytes32(p)
+		return NumberOfBytes32(p)
+
+	#--
+
+	func Size32(p)
+		return SizeInBytes32(p)
+
+		func @Size32(p)
+			return SizeInBytes32(p)
+
+	func MSize32(p)
+		return SizeInBytes32(p)
+
+		func @MSize32(p)
+			return SizeInBytes32(n)
+
+	func MemorySize32(p)
+		return SizeInBytes32(p)
+
+		func @MemorySize32(p)
+			return SizeInBytes32(p)
+
+	func MemSize32(p)
+		return SizeInBytes32(p)
+
+		func @MemSize32(p)
+			return SizeInBytes32(p)
+
+	#==
+
+	func MemorySizeInBytes32(p)
+		return SizeInBytes32(p)
+
+	func @MemorySizeInBytes32(p)
+		return SizeInBytes32(p)
+
+	func NumberOfMemoryBytes32(p)
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
+				p = p[2]
+		ok
+
+		return SizeInBytes32(p)
+
+	func @NumberOfMemoryBytes32(p)
+		return NumberOfBytes32(p)
+
+	func CountMemoryBytes32(p)
+		return NumberOfBytes32(p)
+
+	func @CountMemoryBytes32(p)
+		return NumberOfBytes32(p)
+
+	#==
+
+	func MemSizeInBytes32(p)
+		return SizeInBytes32(p)
+
+	func @MemSizeInBytes32(p)
+		return SizeInBytes32(p)
+
+	func NumberOfMemBytes32(p)
+		if isList(p) and len(p) = 2 and isString(p[1]) and
+		   (p[1] = :In or p[1] = :Of)
+
+				p = p[2]
+		ok
+
+		return SizeInBytes32(p)
+
+	func @NumberOfMemBytes32(p)
+		return SizeInBytes32(p)
+
+	func CountMemBytes32(p)
+		return SizeInBytes32(p)
+
+	func @CountMemBytes32(p)
+		return SizeInBytes32(p)
+
+	#>
+
+func SizeInBytes32XT(item)
+    	aResult = []
+
+	switch type(item)
+	on "NUMBER"
+		return [ "RING_NUMBER_CONTENT_SIZE", RING_NUMBER_CONTENT_SIZE ]
+
+        on "STRING"
+		aResult + [ "RING_32BIT_STRING_STRUCTURE_SIZE", RING_32BIT_STRING_STRUCTURE_SIZE ]
+		aResult + [ "RING_STRING_CONTENT_SIZE" + len(item) ]
+
+		return aResult
+
+	on "LIST"
+		nLen = len(item)
+
+		aResult + [ "RING_32BIT_LIST_STRUCTURE_SIZE", RING_32BIT_LIST_STRUCTURE_SIZE ]
+		aResult + [ "RING_32BIT_ITEM_STRUCTURE_SIZE * " + nLen, RING_32BIT_ITEM_STRUCTURE_SIZE * nLen ]
+		aResult + [ "RING_32BIT_ITEMS_STRUCTURE_SIZE * " + nLen, RING_32BIT_ITEMS_STRUCTURE_SIZE * nLen ]
+		aResult + [ "RING_32BIT_ITEMS_CONTENT_SIZE", ContentSize(item) ]
+
+		return aResult
+
+        on "OBJECT"
+		 return SizeInBytes32XT(AttributesValues(item))		
+	off
+
+	#< @FunctionAlternativeForms
+
+	func @SizeInBytes32XT(p)
+		return SizeInBytes32XT(p)
+
+	func NumberOfBytes32XT(p)
+		if isList(p) and len(p) = 2 and isString(p[1]) and
+		   (p[1] = :In or p[1] = :Of)
+
+				p = p[2]
+		ok
+
+		return SizeInBytes32XT(p)
+
+	func @NumberOfBytes32XT(p)
+		return NumberOfBytes32XT(p)
+
+	func CountBytes32XT(p)
+		return NumberOfBytes32XT(p)
+
+	func @CountBytes32XT(p)
+		return NumberOfBytes32XT(p)
+
+	#--
+
+	func Size32XT(p)
+		return SizeInBytes32XT(p)
+
+		func @Size32XT(p)
+			return SizeInBytes32XT(p)
+
+	func MSize32XT(p)
+		return SizeInBytes32XT(p)
+
+		func @MSize32XT(p)
+			return SizeInBytes32XT(n)
+
+	func MemorySize32XT(p)
+		return SizeInBytes32XT(p)
+
+		func @MemorySize32XT(p)
+			return SizeInBytes32XT(p)
+
+	func MemSize32XT(p)
+		return SizeInBytes32XT(p)
+
+		func @MemSize32XT(p)
+			return SizeInBytes32XT(p)
+
+	#==
+
+	func MemorySizeInBytes32XT(p)
+		return SizeInBytes32XT(p)
+
+	func @MemorySizeInBytes32XT(p)
+		return SizeInBytes32XT(p)
+
+	func NumberOfMemoryBytes32XT(p)
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
+				p = p[2]
+		ok
+
+		return SizeInBytes32XT(p)
+
+	func @NumberOfMemoryBytes32XT(p)
+		return NumberOfBytes32XT(p)
+
+	func CountMemoryBytes32XT(p)
+		return NumberOfBytes32XT(p)
+
+	func @CountMemoryBytes32XT(p)
+		return NumberOfBytes32XT(p)
+
+	#==
+
+	func MemSizeInBytes32XT(p)
+		return SizeInBytes32XT(p)
+
+	func @MemSizeInBytes32XT(p)
+		return SizeInBytes32XT(p)
+
+	func NumberOfMemBytes32XT(p)
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
+				p = p[2]
+		ok
+
+		return SizeInBytes32XT(p)
+
+	func @NumberOfMemBytes32XT(p)
+		return SizeInBytes32XT(p)
+
+	func CountMemBytes32XT(p)
+		return SizeInBytes32XT(p)
+
+	func @CountMemBytes32XT(p)
+		return SizeInBytes32XT(p)
+
+	#>
+
+#---- Same functions for 64BIT
+
+func SizeInBytes64(item)
+	if isList(item) and len(item) = 2 and isString(item[1]) and item[1] = :Of
+		item = item[2]
+	ok
+    
+	switch type(item)
+	on "NUMBER"
+		return RING_NUMBER_CONTENT_SIZE
+
+        on "STRING"
+		return Len(item) + RING_64BIT_STRING_STRUCTURE_SIZE
+
+	on "LIST"
+		nListAdditionalSize      = RING_64BIT_LIST_STRUCTURE_SIZE
+		nItemTotalAdditionalSize = RING_64BIT_ITEM_STRUCTURE_SIZE + RING_64BIT_ITEMS_STRUCTURE_SIZE
+
+		anResult = nListAdditionalSize
+		nLen = len(item)
+
+		for i = 1 to nLen
+			nItemSize = SizeInBytes64(item[i]) + nItemTotalAdditionalSize
+			anResult += nItemSize
+		next
+
+		return anResult
+
+        on "OBJECT"
+		return SizeInBytes64(AttributesValues(item))
+
+	off
+
+	#< @FunctionAlternativeForms
+
+	func @SizeInBytes64(p)
+		return SizeInBytes64(p)
+
+	func NumberOfBytes64(p)
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
+
+				p = p[2]
+		ok
+
+		return SizeInBytes64(p)
+
+	func @NumberOfBytes64(p)
+		return NumberOfBytes64(p)
+
+	func CountBytes64(p)
+		return NumberOfBytes64(p)
+
+	func @CountBytes64(p)
+		return NumberOfBytes64(p)
+
+	#--
+
+	func Size64(p)
+		return SizeInBytes64(p)
+
+		func @Size64(p)
+			return SizeInBytes64(p)
+
+	func MSize64(p)
+		return SizeInBytes64(p)
+
+		func @MSize64(p)
+			return SizeInBytes64(n)
+
+	func MemorySize64(p)
+		return SizeInBytes64(p)
+
+		func @MemorySize64(p)
+			return SizeInBytes64(p)
+
+	func MemSize64(p)
+		return SizeInBytes64(p)
+
+		func @MemSize64(p)
+			return SizeInBytes64(p)
+
+	#==
+
+	func MemorySizeInBytes64(p)
+		return SizeInBytes64(p)
+
+	func @MemorySizeInBytes64(p)
+		return SizeInBytes64(p)
+
+	func NumberOfMemoryBytes64(p)
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
+				p = p[2]
+		ok
+
+		return SizeInBytes64(p)
+
+	func @NumberOfMemoryBytes64(p)
+		return NumberOfBytes64(p)
+
+	func CountMemoryBytes64(p)
+		return NumberOfBytes64(p)
+
+	func @CountMemoryBytes64(p)
+		return NumberOfBytes64(p)
+
+	#==
+
+	func MemSizeInBytes64(p)
+		return SizeInBytes64(p)
+
+	func @MemSizeInBytes64(p)
+		return SizeInBytes64(p)
+
+	func NumberOfMemBytes64(p)
+		if isList(p) and len(p) = 2 and isString(p[1]) and
+		   (p[1] = :In or p[1] = :Of)
+
+				p = p[2]
+		ok
+
+		return SizeInBytes64(p)
+
+	func @NumberOfMemBytes64(p)
+		return SizeInBytes64(p)
+
+	func CountMemBytes64(p)
+		return SizeInBytes64(p)
+
+	func @CountMemBytes64(p)
+		return SizeInBytes64(p)
+
+	#>
+
+func SizeInBytes64XT(item)
+    	aResult = []
+
+	switch type(item)
+	on "NUMBER"
+		return [ "RING_NUMBER_CONTENT_SIZE", RING_NUMBER_CONTENT_SIZE ]
+
+        on "STRING"
+		aResult + [ "RING_64BIT_STRING_STRUCTURE_SIZE", RING_64BIT_STRING_STRUCTURE_SIZE ]
+		aResult + [ "RING_STRING_CONTENT_SIZE" + len(item) ]
+
+		return aResult
+
+	on "LIST"
+		nLen = len(item)
+
+		aResult + [ "RING_64BIT_LIST_STRUCTURE_SIZE", RING_64BIT_LIST_STRUCTURE_SIZE ]
+		aResult + [ "RING_64BIT_ITEM_STRUCTURE_SIZE * " + nLen, RING_64BIT_ITEM_STRUCTURE_SIZE * nLen ]
+		aResult + [ "RING_64BIT_ITEMS_STRUCTURE_SIZE * " + nLen, RING_64BIT_ITEMS_STRUCTURE_SIZE * nLen ]
+		aResult + [ "RING_64BIT_ITEMS_CONTENT_SIZE", ContentSize(item) ]
+
+		return aResult
+
+        on "OBJECT"
+		 return SizeInBytes64XT(AttributesValues(item))		
+	off
+
+	#< @FunctionAlternativeForms
+
+	func @SizeInBytes64XT(p)
+		return SizeInBytes64XT(p)
+
+	func NumberOfBytes64XT(p)
+		if isList(p) and len(p) = 2 and isString(p[1]) and
+		   (p[1] = :In or p[1] = :Of)
+
+				p = p[2]
+		ok
+
+		return SizeInBytes64XT(p)
+
+	func @NumberOfBytes64XT(p)
+		return NumberOfBytes64XT(p)
+
+	func CountBytes64XT(p)
+		return NumberOfBytes64XT(p)
+
+	func @CountBytes64XT(p)
+		return NumberOfBytes64XT(p)
+
+	#--
+
+	func Size64XT(p)
+		return SizeInBytes64XT(p)
+
+		func @Size64XT(p)
+			return SizeInBytes64XT(p)
+
+	func MSize64XT(p)
+		return SizeInBytes64XT(p)
+
+		func @MSize64XT(p)
+			return SizeInBytes64XT(n)
+
+	func MemorySize64XT(p)
+		return SizeInBytes64XT(p)
+
+		func @MemorySize64XT(p)
+			return SizeInBytes64XT(p)
+
+	func MemSize64XT(p)
+		return SizeInBytes64XT(p)
+
+		func @MemSize64XT(p)
+			return SizeInBytes64XT(p)
+
+	#==
+
+	func MemorySizeInBytes64XT(p)
+		return SizeInBytes64XT(p)
+
+	func @MemorySizeInBytes64XT(p)
+		return SizeInBytes64XT(p)
+
+	func NumberOfMemoryBytes64XT(p)
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
+				p = p[2]
+		ok
+
+		return SizeInBytes64XT(p)
+
+	func @NumberOfMemoryBytes64XT(p)
+		return NumberOfBytes64XT(p)
+
+	func CountMemoryBytes64XT(p)
+		return NumberOfBytes64XT(p)
+
+	func @CountMemoryBytes64XT(p)
+		return NumberOfBytes64XT(p)
+
+	#==
+
+	func MemSizeInBytes64XT(p)
+		return SizeInBytes64XT(p)
+
+	func @MemSizeInBytes64XT(p)
+		return SizeInBytes64XT(p)
+
+	func NumberOfMemBytes64XT(p)
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
+				p = p[2]
+		ok
+
+		return SizeInBytes64XT(p)
+
+	func @NumberOfMemBytes64XT(p)
+		return SizeInBytes64XT(p)
+
+	func CountMemBytes64XT(p)
+		return SizeInBytes64XT(p)
+
+	func @CountMemBytes64XT(p)
+		return SizeInBytes64XT(p)
+
+	#>
+
+
+#========== #TODO: add XT(), 32() and 64() prefixes
 
 func SizeInKiloBytes(item)
 	return BytesToKiloBytes( SizeInBytes(item) )
@@ -1036,10 +1497,9 @@ func SizeInKiloBytes(item)
 		return SizeInKiloBytes(p)
 
 	func NumberOfKiloBytes(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
 				p = p[2]
-			ok
 		ok
 
 		return SizeInKiloBytes(p)
@@ -1064,10 +1524,9 @@ func SizeInMegaBytes(item)
 		return SizeInMegaBytes(p)
 
 	func NumberOfMegaBytes(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
 				p = p[2]
-			ok
 		ok
 
 		return SizeInMegaBytes(p)
@@ -1092,10 +1551,10 @@ func SizeInGigaBytes(item)
 		return SizeInGigaBytes(p)
 
 	func NumberOfGigaBytes(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
-				p = p[2]
-			ok
+		if isList(p) and len(p) = 2 and isString(p[1]) and 
+		   (p[1] = :In or p[1] = :Of)
+
+			p = p[2]
 		ok
 
 		return SizeInGigaBytes(p)
@@ -1120,10 +1579,10 @@ func SizeInTeraBytes(item)
 		return SizeInTeraBytes(p)
 
 	func NumberOfTeraBytes(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
+		if isList(p) and len(p) = 2 and isString(p[1]) and
+		   (p[1] = :In or p[1] = :Of)
+
 				p = p[2]
-			ok
 		ok
 
 		return SizeInTeraBytes(p)
@@ -1148,10 +1607,10 @@ func SizeInPetaBytes(item)
 		return SizeInPetaBytes(p)
 
 	func NumberOfPetaBytes(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
-				p = p[2]
-			ok
+		if isList(p) and len(p) = 2 and isString(p[1]) and
+		   (p[1] = :In or p[1] = :Of)
+
+			p = p[2]
 		ok
 
 		return SizeInPetaBytes(p)
@@ -1176,10 +1635,10 @@ func SizeInExaBytes(item)
 		return SizeInExaBytes(p)
 
 	func NumberOfExaBytes(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
-				p = p[2]
-			ok
+		if isList(p) and len(p) = 2 and isString(p[1]) and
+		   (p[1] = :In or p[1] = :Of)
+
+			p = p[2]
 		ok
 
 		return SizeInExaBytes(p)
@@ -1204,10 +1663,10 @@ func SizeInZettaBytes(item)
 		return SizeInZettaBytes(p)
 
 	func NumberOfZettaBytes(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
-				p = p[2]
-			ok
+		if isList(p) and len(p) = 2 and isString(p[1]) and
+		   (p[1] = :In or p[1] = :Of)
+
+			p = p[2]
 		ok
 
 		return SizeInZettaBytes(p)
@@ -1232,10 +1691,10 @@ func SizeInYottaBytes(item)
 		return SizeInYottaBytes(p)
 
 	func NumberOfYottaBytes(p)
-		if CheckParams()
-			if isList(p) and StzListQ(p).IsInOrOfNamedParam()
-				p = p[2]
-			ok
+		if isList(p) and len(p) = 2 and isString(p[1]) and
+		   (p[1] = :In or p[1] = :Of)
+
+			p = p[2]
 		ok
 
 		return SizeInYottaBytes(p)
