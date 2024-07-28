@@ -4844,13 +4844,6 @@ func W(cCode)
 	func Where(cCode)
 		return W(cCode)
 
-func STOP()
-	StzRaise( NL + 
-	    "----------------" + NL +
-	    "    STOPPED!    " + NL +
-	    "----------------"
-	)
-
 func Todo()
 	return TodoXT(:InCurrent)
 
