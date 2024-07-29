@@ -84,16 +84,6 @@ func S(p)
 		func QS(p)
 			return SQ(p)
 
-func SizeInChars(str)
-	if NOT isString(str)
-		StzRaise("Incorrect param type! str must be a string.")
-	ok
-
-	oQString = new QString2()
-	oQString.append(str)
-
-	return oQString.count()
-
 func IsNotString(pcStr)
 	return NOT isString(pcStr)
 
@@ -811,18 +801,6 @@ func WithoutSpaces(pcStr)
 		return WithoutSpaces(pcStr)
 
 	#>
-
-func Chars(str)
-	if checkParams()
-		if isList(str) and StzListQ(str).IsInNamedParam()
-			str = str[2]
-		ok
-	ok
-
-	oStr = new stzString(str)
-	acResult = oStr.Chars()
-
-	return acResult
 
 func IsMarquer(cStr)
 	if CheckParams()
