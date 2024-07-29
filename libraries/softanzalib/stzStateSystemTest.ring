@@ -1,6 +1,34 @@
-load "stzlib.ring"
+load "stzStateSys.ring"
+load "stzProfSys.ring"
 
-/*--- #ring Testing the use of Ring states
+#TODO Add test of stzRingState object
+
+/*--- #ring-states Softanza functions
+*/
+pron()
+
+# Some useful Softanza functions for checking Ring states
+
+pState1 = ring_state_init()
+pState2 = ring_state_init()
+pNotAState = NULL
+
+? IsRingState(pState2) # A Softanza function
+#--> TRUE
+
+? IsRingState(pNotAState)
+#--> FALSE
+
+? AreRingStates([ pState1, pState2 ]) # A Softanza function
+#--> TRUE
+
+? AreRingStates([ pState1, pState2, pNotAState ])
+#--> FALSE
+
+proff()
+# Executed in 0.01 second(s)
+
+/*=========== #ring Testing the use of Ring states
 *
 pron()
 # Creating VM states (Ring Instances in Softanza terms)
@@ -63,39 +91,8 @@ pron()
 proff()
 # Executed in 0.07 second(s)
 
-/*--- #ring-states Softanza functions
-*/
-pron()
-
-# Some useful Softanza functions for checking Ring states
-
-pState1 = ring_state_init()
-pState2 = ring_state_init()
-pNotAState = NULL
-
-? isPointer(pState1) # A standard Ring function
-#--> TRUE
-
-? IsRingState(pState2) # A Softanza function
-#--> TRUE
-
-? IsRingState(pNotAState)
-#--> FALSE
-
-? ArePointers([ pState1, pState2 ]) # A Softanza function
-#--> TRUE
-
-? AreRingStates([ pState1, pState2 ]) # A Softanza function
-#--> TRUE
-
-? AreRingStates([ pState1, pState2, pNotAState ])
-#--> FALSE
-
-proff()
-# Executed in 0.02 second(s)
-
 /*-----	#ring #ring-state fault-tolerance
-*/
+
 # Desing a fault-tolerant progam in Ring is easy, due to the feature
 # of embedding Ring in Ring as explained here:
 # https://ring-lang.github.io/doc1.20/ringemb.html

@@ -4781,6 +4781,93 @@ func Move(paList, n1, n2)
 
 	#>
 
+#NOTE: the mother function of the fellowing fluent forms
+# is hosted in the stzDisplaySystem.ring file. They are
+# put here because they are specific to Softanza classes,
+# while all softanza systems files are can be used independently.
+
+func ComputableShortFormQ(paList)
+	return new stzString(ComputableShortForm(paList))
+
+	func @@SFQ(paList)
+		return ComputableShortFormQ(paList)
+
+	func @@SQ(paList)
+		return ComputableShortFormQ(paList)
+
+	func ShortFormQ(paList)
+		return ComputableShortFormQ(paList)
+
+func ComputableFormXTQ(pValue, cSep1, cSep2)
+	return new stzString( ComputableFormXT(pValue, c) )
+
+	func @@XTQ(pValue, cSep1, cSep2)
+		return new stzString( @@XT(pValue, cSep1, cSep2) )
+
+	func CFXTQ(pValue, cSep1, cSep2)
+		return new stzString( CFXT(pValue, cSep1, cSep2) )
+
+	func @ComputableFormXTQ(pValue, cSep1, cSep2)
+		return new stzString( @ComputableFormXT(pValue, cSep1, cSep2) )
+
+func ComputableShortFormXTQ(paList, p)
+	return new stzString(ComputableShortFormXT(paList, p))
+
+	func ShortFormXTQ(paList, p)
+		return new stzString(ShortFormXT(paList, p))
+
+	func @@SFXTQ(paList, p)
+		return new stzString(@@SFXT(paList, p))
+
+	func @@SXTQ(paList, p)
+		return new stzString(@@SFXT(paList, p))
+
+func ComputableFormQ(pValue)
+	return new stzString( ComputableForm(pValue) )
+
+	func @@Q(pValue)
+		return new stzString( @@(pValue) )
+
+	func CFQ(pValue)
+		return new stzString( CF(pValue) )
+
+	func @ComputableFormQ(pValue)
+		return new stzString( @ComputableForm(pValue) )
+
+func ComputableFormNLQ(pValue)
+	return new stzString( ComputableFormNL(pValue) )
+
+	func @@NLQ(pValue)
+		return ComputableFormNLQ(pValue)
+
+	func @ComputableFormNLQ(pValue)
+		return ComputableFormNLQ(pValue)
+
+	func CFNLQ(pValue)
+		return ComputableFormNLQ(pValue)
+
+	func @@SPQ(pValue)
+		return ComputableFormNLQ(pValue)
+
+	func ComputableFormSPQ(pValue)
+		return ComputableFormNLQ(pValue)
+
+	func @ComputableFormSPQ(pValue)
+		return ComputableFormNLQ(pValue)
+
+	func ComputableFormSpacifiedQ(pValue)
+		return ComputableFormNLQ(pValue)
+
+	func @ComputableFormSpacifiedQ(pValue)
+		return ComputableFormNLQ(pValue)
+
+	func CFSPQ(pValue)
+		return ComputableFormNLQ(pValue)
+
+	func @CFSPQ(pValue)
+		return ComputableFormNLQ(pValue)
+
+
   /////////////////
  ///   CLASS   ///
 /////////////////

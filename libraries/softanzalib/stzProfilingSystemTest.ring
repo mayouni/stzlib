@@ -56,6 +56,7 @@ pron()
 # content size, we get the 49 bytes returned by MSize().
 
 # You may wonder how many bytes are allocated by Ring on 32-bit platforms.
+
 # Of course, you would know it if you run MSize() and MSizeXT() on that
 # platform, but Softanza offers you a way to do it, even if you are, like me,
 # on a 64-bit platform: you just add the 32() prefix:
@@ -68,6 +69,10 @@ pron()
 #	[ "RING_32BIT_STRING_STRUCTURE_SIZE", 40 ],
 #	[ "RING_STRING_CONTENT_SIZE", 1 ]
 # ]
+
+#NOTE You can use the MSize64() and MSize64XT(), the other way around, if you are
+# running the code on a 32-bit architecture.
+
 
 proff()
 # Executed in almost 0 second(s).
