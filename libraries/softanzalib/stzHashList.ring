@@ -56,6 +56,52 @@ func IsHashList(paList)
 
 	#>
 
+func ShowHL(pValue)
+	if NOT (isList(pValue) and Q(pValue).IsHashList())
+		stzRaise("Incorrect param type! pValue must be a hashlist.")
+	ok
+
+	? StzHashListQ(pValue).ToCode()
+
+	#< @FunctionAlternativeForms
+
+	func ShowHashList(pValue)
+		ShowHL(pValue)
+
+	func ShowAsHashList(pValue)
+		ShowHL(pValue)
+
+	func ShowHList(pValue)
+		ShowHL(pValue)
+
+	func ShowAsHList(pValue)
+		ShowHL(pValue)
+
+	func ShowAsHL(pValue)
+		ShowHL(pValue)
+
+	#>
+
+	#< @FunctionMisspelledForms
+
+	func ShwoHashList(pValue)
+		ShwoHL(pValue)
+
+	func ShwoAsHashList(pValue)
+		ShwoHL(pValue)
+
+	func ShwoHList(pValue)
+		ShwoHL(pValue)
+
+	func ShwoAsHList(pValue)
+		ShwoHL(pValue)
+
+	func ShwoAsHL(pValue)
+		ShwoHL(pValue)
+
+	#>
+
+
 func StzAssociativeListQ(paList)
 	return new stzAssociativeList(paList)
 

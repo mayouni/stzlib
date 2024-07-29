@@ -152,7 +152,13 @@ load "stzSection.ring"
 load "stzNaturalCode.ring"
 
 load "stzRingInstance.ring"
+
+# Loading Softanza Systems
+
+load "stzGlobSys.ring"
 load "stzProfSys.ring"
+load "stzArchSys.ring"
+load "stzShowSys.ring"
 
 //? (clock()-t1)/clockspersecond()
 

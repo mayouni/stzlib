@@ -1,5 +1,8 @@
-load "stzlib.ring"
-load "stzPluginSystem.ring"
+load "stzGlobSys.ring"
+load "stzPlugSys.ring"
+
+load "stzProfSys.ring"
+load "stzShowSys.ring"
 
 /*
 This code demonstrates how to implement a plugin system in Ring
@@ -42,8 +45,6 @@ The programmer should only give a name to the file with the format:
 And then implement the function in the file by changing its body.
 
 */
-
-load "stzlib.ring"
 
 # loading plugins files from plugin folder (just the data about them)
 # ~> plugins are run only when they are request
@@ -317,16 +318,12 @@ pron()
 
 	#TODO Add this feature
 
-? "#~~~~~~~~~~~~" + NL
-
 	# Timed Plugin-Fuctions
 	#~~~~~~~~~~~~~~~~~~~~~~
 
 	# To restric a plugin-function to a maximum of 3 seconds, we add TM() suffix:
 
-? o1.XTime(:reverse)
-
-	? o1.XfTM(:reverse = "...FIRST PART... Other art of the string ...", 0.01)
+	//? o1.XfTM(:reverse = "...FIRST PART... Other art of the string ...", 0.01)
 	#--> ...TRAP TSRIF... Other part of the string ...
 
 	# As you see, the reversing stops at the "... FIRST PART..." of  the string
@@ -335,7 +332,7 @@ pron()
 
 	# To cancel the operation and raise an error instead, add X to TM():
 
-	? o1.XfTMX(:reverse = "...FIRST PART... Other part of the string ...", 3)
+	//? o1.XfTMX(:reverse = "...FIRST PART... Other part of the string ...", 3)
 	#--> Execution cancelled! The maximum time required has been exceeded.
 
 	# Sized Plugin-Fuctions
