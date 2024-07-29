@@ -152,7 +152,7 @@ load "stzSection.ring"
 load "stzNaturalCode.ring"
 
 load "stzRingInstance.ring"
-load "stzProfilingSystem.ring"
+load "stzProfSys.ring"
 
 //? (clock()-t1)/clockspersecond()
 
