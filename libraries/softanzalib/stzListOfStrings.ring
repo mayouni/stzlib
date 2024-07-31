@@ -22,60 +22,6 @@ func StzListOfStringsQ(paList)
 	func StzStringsQ(paList)
 		return StzListOfStringsQ(paList)
 
-func IsQStringList(p)
-	if isObject(p) and classname(p) = "qstringlist"
-		return TRUE
-	else
-		return FALSE
-	ok
-
-	func IsQStringListObject(p)
-		return IsQStringList(p)
-
-	func IsAQStringList(p)
-		return IsQStringList(p)
-
-	func IsAQStringListObject(p)
-		return IsQStringList(p)
-
-func QStringListToList(oQStrList)
-	if NOT IsQStringList(oQStrList)
-		StzRaise(stzListOfStringsError(:CanNotTransformQStringListToRingList))
-	ok
-
-	aResult = []
-	for i = 0 to oQStrList.size()-1
-		aResult + oQStrList.at(i)	
-	next
-
-	return aResult
-
-	#< @FunctionAlternativeForms
-
-	func QStringListObjectToList(oQStrList)
-		return QStringListToList(oQStrList)
-
-	func QStringListContent(oQStrList)
-		return QStringListToList(oQStrList)
-
-	func QStringListObjectContent(oQStrList)
-		return QStringListToList(oQStrList)
-
-	func QStringListToRingList(oQStrList)
-		return QStringListToList(oQStrList)
-
-	func QStringListObjectToRingList(oQStrList)
-		return QStringListToList(oQStrList)
-
-	#>
-
-func QStringListToStzListOfStrings(oQStrList)
-	return new stzListOfStrings(QStringListToList(oQStrList))
-
-	func QStringListObjectToStzListOfStrings(oQStrList)
-		return QStringListToStzListOfStrings(oQStrList)
-
-
 func ListOfStringsToUnicodes(pacListStr)
 	return StzListOfStringsQ( pacListStr ).Unicodes()
 

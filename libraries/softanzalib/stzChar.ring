@@ -258,69 +258,6 @@ func CharScript(c)
 	oTempChar = new stzChar(c)
 	return oTempChar.Script()
 
-func IsQChar(p)
-	if isObject(p) and classname(p) = "qchar"
-		return TRUE
-	else
-		return FALSE
-	ok
-
-	#< @fUNCtionAlternativeForms
-
-	func IsQCharObject(p)
-		return IsQChar(p)
-
-	func @IsQChar(p)
-		return This.IsQChar(p)
-
-	func @IsQCharObject(p)
-		return IsQChar(p)
-
-	#--
-
-	func IsAQChar(p)
-		return IsQChar(p)
-
-	func IsAQCharObject(p)
-		return IsQChar(p)
-
-	func @IsAQChar(p)
-		return This.IsQChar(p)
-
-	func @IsAQCharObject(p)
-		return IsQChar(p)
-
-	#>
-
-func QCharToString(oQChar)
-	if IsQChar(oQChar)
-		oChar = new stzChar(oQChar.unicode())
-		return oChar.Content()
-	else
-		StzRaise(stzCharError(:CanNotTransformQCharToString))
-	ok
-
-func StringToQChar(c)
-	oChar = new stzChar(c)
-	return oChar.QCharObject()
-
-func QCharToStzChar(oQchar)
-	return new stzChar(QCharToString(oQChar))
-
-func StzCharToQChar(oChar)
-	return oQChar.QCharObject()
-
-func QCharToQString(oQChar)
-	oQStr = new QString2()
-	oQStr.append_2(oQChar)
-	return oQStr
-
-func QCharToStzString(oQChar)
-	oQStr = QCharToQString(oQChar)
-	cStr = oQStr.NLeftChars(oQStr.count())
-	oStzStr = new stzString(cStr)
-	return oStzStr
-
 func CharIsArabicShaddah(c)
 	oChar = new stzChar(c)
 	return oChar.IsArabicShaddah()

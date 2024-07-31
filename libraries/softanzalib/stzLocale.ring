@@ -17,56 +17,6 @@ https://docs.oracle.com/cd/E19253-01/817-2521/overview-39/index.html
 func StzLocaleQ(p)
 	return new stzLocale(p)
 
-func IsQLocale(p)
-	if isObject(p) and classname(p) = "qlocale"
-		return TRUE
-	else
-		return FALSE
-	ok
-
-	func IsQLocaleObject(p)
-		return IsQLocale(p)
-
-	func IsAQLocale(p)
-		return IsQLocale(p)
-
-	func IsAQLocaleObject(p)
-		return IsQLocale(p)
-
-	#--
-
-	func @IsQLocale(p)
-		return IsQLocale(p)
-
-	func @IsQLocaleObject(p)
-		return IsQLocale(p)
-
-	func @IsAQLocale(p)
-		return IsQLocale(p)
-
-	func @IsAQLocaleObject(p)
-		return IsQLocale(p)
-
-	#>
-
-func QLocaleToStzLocale(oQLocale)
-	return new stzLocale(oQLocale)
-
-	func QLocaleObjectToStzLoclae(QLocale)
-
-func StzLocaleToQLocale(oLocale)
-	return oLocale.QLocaleObject()
-
-	func StzLoclaeToQLocaleObject(oLocale)
-		return StzLocaleToQLocale(oLocale)
-
-func SystemLocale() # Returned as a string
-	oQLocale = new QLocale("C")
-	return oQLocale.system()
-
-	func SystemLocaleAbbreviation()
-		return SystemLocale()
-
 func LocaleAbbreviationsXT()
 	return _aLocaleAbbreviationsXT
 
