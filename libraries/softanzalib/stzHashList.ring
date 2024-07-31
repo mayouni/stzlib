@@ -3,7 +3,7 @@
 #		An accelerative library for Ring applications		    #
 #---------------------------------------------------------------------------#
 #									    #
-# 	Description	: The core class for managing hash lists            #
+# 	Description	: The class for managing hash lists                 #
 #	Version		: V1.0 (2020-2024)				    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #
