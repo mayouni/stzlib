@@ -162,6 +162,10 @@ load "stzArchSys.ring"
 load "stzShowSys.ring"
 load "stzPlugSys.ring"
 
+# Loading additional Softanza Utilities
+
+load "stzSmallF.ring"
+
 //? (clock()-t1)/clockspersecond()
 
 # Softanza global startup time : 0.10 second(s) in Ring 1.20 (64 bits)

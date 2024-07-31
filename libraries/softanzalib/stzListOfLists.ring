@@ -19,35 +19,6 @@ func StzListOfListsQ(paList)
 	func Stz2DList(paList)
 		return StzListOfListsQ(paList)
 
-func LL(p)
-	if isList(p)
-		return StzListQ(p).OnlyLists()
-
-	but isString(p) and Q(p).IsListInString()
-		aResult = Q(p).ToListQ().OnlyLists()
-		return aResult
-
-	but isNumber(p)
-		aResult = []
-		for i = 1 to p
-			aResult + []
-		next
-		return aResult
-
-	ok
-
-	func LLQ(p)
-		return Q(LL(p))
-
-		func QLL(p)
-			return LLQ(p)
-
-	func LoL(p)
-		return LL(p)
-
-		func LoLQ(p)
-			return LLQ(p)
-
 func ItemExists(pItem, paList)
 	oTempList = new stzList(paList)
 	if oTempList.Contains(pItem) 

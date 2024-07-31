@@ -64,26 +64,6 @@ func StzStringClassName()
 	func StzStringClass()
 		return StzStringClassName()
 
-func S(p)
-	if isString(p)
-		return p
-
-	but isNumber(p)
-		return ""+ p
-
-	but isList(p)
-		return Q(p).ToCode()
-
-	but isObject(p)
-		return LQ(p).ToCode()
-	ok
-
-	func SQ(p)
-		return Q( S(p) )
-
-		func QS(p)
-			return SQ(p)
-
 func IsNotString(pcStr)
 	return NOT isString(pcStr)
 

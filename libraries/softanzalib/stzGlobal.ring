@@ -3612,71 +3612,7 @@ func Empty(pcStzType)
 
 	off
 
-func StzW(cType, paMethodAndFilter)
-	/* EXAMPLE
-	? Stz(:Char, [ :Methods, :Where = 'Q(@Method).StartsWith("is")' ])
-	*/
 
-	if NOT ( isList(paMethodAndFilter) and len(paMethodAndFilter) = 2 and
-		 isList(paMethodAndFilter[2]) and
-		 Q(paMethodAndFilter[2]).IsWhereNamedParam() and
-		 isString(paMethodAndFilter[2][2]) )
-
-		StzRaise('Incorrect param type! paMethodAndFilter must be a pair of the form [ :Methods, :Where = "@Method..." ], for example.')
-	ok
-
-	aTempList = Stz(cType, paMethodAndFilter[1])
-	cCondition = Q(paMethodAndFilter[2][2]).
-			ReplaceCSQ("@Method", "@Item", :CS=FALSE).
-			Content()
-	
-	aResult = QR(aTempList, :stzListOfStrings).StringsW(ccondition)
-
-	return aResult
-
-func Stz(cType, pInfo)
-	/* EXAMPLE
-		? Stz(:Char, :Methods) #--> [ :Init, :Content, ... ]
-	*/
-
-	if isList(pInfo) and len(pInfo) = 2 and
-		 isList(pInfo[2]) and
-		 Q(pInfo[2]).IsWhereNamedParam() and
-		 isString(pInfo[2][2])
-
-		return stzW(cType, pInfo)
-	ok
-
-	cInfo = pInfo
-
-	if NOT @BothAreStrings(cType, :And = cInfo)
-		StzRaise("Incorrect params type! Botht cType and cInfo must be strings.")
-	ok
-
-	cClass = 'stz' + cType
-
-	if NOT Q(cClass).IsStzClassName()
-		StzRaise("Incorrect param! cType must be a valid softanza type.")
-	ok
-
-	oEmptyObject = Empty(cClass)
-
-	switch cInfo
-	on :Class
-		return cClass
-
-	on :ClassName
-		return cClass
-
-	on :Methods
-		return methods(oEmptyObject)
-
-	on :Attributes
-		return attributes(oEmptyObject)
-
-	other
-		StzRaise("Unsupported information! Allowed values are :Methods and :Attributes.")
-	off
 
 func new_stz(cType, p)
 	
@@ -3699,34 +3635,8 @@ func new_stz(cType, p)
 	func new@stz(cType, p)
 		return stz(cType, p)
 
-# Returns the softanza object related to the type of p
-func Q(p)
-
-	oResult = AFalseObject()
-
-	if isString(p)
-		oResult = new stzString(p)
-
-	but isNumber(p)
-		oResult = new stzNumber(p)
-
-	but isList(p)
-		oResult = new stzList(p)
-
-	but isObject(p)
-		oResult = new stzObject(p)
-	ok
-
-	return oResult
-
-	func Softanzify(p)
-		return Q(p)
-
-	func The(p)
-		return Q(p)
-
-	func TheQ(p)
-		return Q(p)
+func Softanzify(p)
+	return Q(p)s
 
 func TheNumberQ(n)
 	if NOT isNumber(n)
@@ -3817,110 +3727,7 @@ func TheString(str)
 		return TheString(str)
 
 
-func QM(p)
-	obj = Q(p)
-	SetMainObject(obj)
-	return obj
 
-func QR(p, pcType)
-	if NOT isString(pcType)
-		StzRaise("Invalid param type! pcType should be a string containing the name of a softanza class.")
-	ok
-
-	if Q(pcType).IsStzClassName()
-		cCode = "oResult = new " + pcType + '(' + @@(p) + ')'
-
-		eval(cCode)
-
-		return oResult
-	else
-		StzRaise("Unsupported Softanza type!")
-	ok
-
-# This function tries its best to infere a convenient type
-# by analysing a value hosted in a string
-
-func QQ(p)
-
-	/* EXAMPLE 1
-
-	? QQ("19")		# stzNumber
-	#--> Note that this is a number in string:
-	? Q("19").IsNumberInString() #--> TRUE
-
-	EXAMPLE 2
-
-	? QQ("[1, 2, 3]")	#--> stzListOfNumbers
-	#--> Note that this is a list in string:
-	? Q("[1, 2, 3]").IsListOfNumbersInString() #--> TRUE
-
-	EXAMPLE 3
-
-	? QQ(' [ "one", "two", "three" ] ')	#--> stzListOfStrings
-	#--> Note that this is a list of strings in a string:
-	? Q(' [ "one", "two", "three" ] ').IsListOfStringsInString #--> TRUE
-
-	*/
-
-	if isString(p)
-
-		oParam = Q(p)
-
-		if oParam.IsNumberInString()
-			return new stzNumber(p)
-
-		but oParam.IsListInString() #TODO: check Q(' "A" : "C" ').IsListInString()
-			return new stzList(p)
-			#TODO: check new stzList("[1, 2, 3]")
-
-		but oParam.IsChar() or oParam.IsHexUnicode()
-			return new stzChar(p)
-
-		else
-			return new stzString(p)
-
-		ok
-
-	but isList(p)
-
-		oQTemp = Q(p)
-
-		if oQTemp.IsListOfNumbers()
-			return new stzListOfNumbers(p)
-
-		but oQTemp.IsListOfChars()
-			return new stzListOfChars(p)
-
-		but oQTemp.IsListOfStrings()
-			return new stzListOfStrings(p)
-
-		but oQTemp.IsListOfHashLists()
-			return new stzListOfHashLists(p)
-
-		but oQTemp.IsListOfPairs()
-			return new stzListOfPairs(p)
-
-		but oQTemp.IsListOfLists()
-			return new stzListOfLists(p)
-
-		else
-			return new stzList(p)
-		ok
-
-	else
-		return Q(p)
-	ok
-
-func W(cCode)
-	if NOT isString(cCode)
-		StzRaise("Incorrect param type! cCode must be a string.")
-	ok
-
-	aResult = [:Where, cCode]
-	return aResult
-
-	func Where(cCode)
-		return W(cCode)
 
 func Todo()
 	return TodoXT(:InCurrent)
