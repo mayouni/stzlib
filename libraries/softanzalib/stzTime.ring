@@ -11,50 +11,6 @@ func StzTimeQ(pTime)
 func TimeStamp()
 	return date() + "-" + time()
 
-func IsQTime(p)
-	if isObject(p) and classname(p) = "qtime"
-		return TRUE
-	else
-		return FALSE
-	ok
-
-	#< @FunctionAlternativeForms
-
-	func IsQTimeObject(p)
-		return IsQTime(p)
-
-	func IsAQTime(p)
-		return IsQTime(p)
-
-	func IsAQTimeObject(p)
-		return IsQTime(p)
-
-	#--
-
-	func @IsQTime(p)
-		return IsQTime(p)
-
-	func @IsQTimeObject(p)
-		return IsQTime(p)
-
-	func @IsAQTime(p)
-		return IsQTime(p)
-
-	func @IsAQTimeObject(p)
-		return IsQTime(p)
-
-	#>
-
-func QTimeToString(oQTime, cFormat)
-	if IsQTime(oQTime)
-		return oQTime.ToString(cFormat)
-	else
-		StzRaise(stzTimeError(:CanNotTransformQTimeToString))
-	ok
-
-	func QTimeObjectToString(oQTime, cFormat)
-		return QTimeToString(oQTime, cFormat)
-
 class stzTime from stzObject
 	oQTime
 

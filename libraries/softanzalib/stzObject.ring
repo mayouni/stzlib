@@ -1497,64 +1497,6 @@ func IsStzTrueObject(pObject)
 
 #< @EndOfGenCode >
 
-func IsQObject(p)
-	return StzStringQ( classname(p) ).ExistsIn( RingQtClasses() )
-
-	#< @FunctionAlternativeForms
-
-	func IsQtObject(p)
-		return IsQObject(p)
-
-	func ObjectIsQObject(p)
-		return IsQObject(p)
-
-	func ObjectisQtObject(p)
-		return IsQObject(p)
-
-	#--
-
-	func @IsQObject(p)
-		return IsQObject(p)
-
-	func @IsQtObject(p)
-		return IsQObject(p)
-
-	func @ObjectIsQObject(p)
-		return IsQObject(p)
-
-	func @ObjectisQtObject(p)
-		return IsQObject(p)
-
-	#==
-
-	func IsAQObject(p)
-		return IsQObject(p)
-
-	func IsAQtObject(p)
-		return IsQObject(p)
-
-	func ObjectIsAQObject(p)
-		return IsQObject(p)
-
-	func ObjectIsAQtObject(p)
-		return IsQObject(p)
-
-	#--
-
-	func @IsAQObject(p)
-		return IsQObject(p)
-
-	func @IsAQtObject(p)
-		return IsQObject(p)
-
-	func @ObjectIsAQObject(p)
-		return IsQObject(p)
-
-	func @ObjectisAQtObject(p)
-		return IsQObject(p)
-
-	#>
-
 func ObjectClassName(cObjectVarName)
 	return StzObjectQ(cObjectVarName).ObjectClassName()
 

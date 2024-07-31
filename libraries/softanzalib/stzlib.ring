@@ -164,7 +164,8 @@ load "stzPlugSys.ring"
 
 # Loading additional Softanza Utilities
 
-load "stzSmallF.ring"
+load "stzSmallFunc.ring"
+load "stzQtFunc.ring"
 
 //? (clock()-t1)/clockspersecond()
 
