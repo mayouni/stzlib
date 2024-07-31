@@ -22,35 +22,6 @@ func StzListOfStringsQ(paList)
 	func StzStringsQ(paList)
 		return StzListOfStringsQ(paList)
 
-func LS(p)
-	if isList(p)
-		return StzListQ(p).OnlyStrings()
-
-	but isString(p) and Q(p).IsListInString()
-		aResult = Q(p).ToListQ().OnlyStrings()
-		return aResult
-
-	but isNumber(p)
-		aResult = []
-		for i = 1 to p
-			aResult + ""
-		next
-		return aResult
-
-	ok
-
-	func LSQ(p)
-		return Q(LS(p))
-
-		func QLS(p)
-			return LSQ(p)
-
-	func LoS(p)
-		return LS(p)
-
-		func LoSQ(p)
-			return LSQ(p)
-
 func IsQStringList(p)
 	if isObject(p) and classname(p) = "qstringlist"
 		return TRUE

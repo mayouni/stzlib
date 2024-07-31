@@ -59,43 +59,6 @@ func StzListOfNumbersQ(paListOfNumbers)
 	func StzNumbersQ(paListOfNumbers)
 		return StzListOfNumbersQ(paListOfNumbers)
 
-func LN(p)
-
-	if  IsPair(p) and
-	    IsPair(p[1]) and IsPair(p[2]) and
-	    isString(p[1][1]) and isString(p[2][1]) and
-	    p[1][1] = :From and p[2][1] = :To and
-	    isNumber(p[1][2]) and isNumber(p[2][2])
-
-		return NumbersBetween(p[1][2], p[2][2])
-
-	but isList(p)
-		return StzListQ(p).OnlyNumbers()
-
-	but isString(p) and Q(p).IsListInString()
-		aResult = Q(p).ToListQ().OnlyNumbers()
-		return aResult
-
-	but isNumber(p)
-		aResult = []
-		for i = 1 to p
-			aResult + 0
-		next
-		return aResult
-	ok
-
-	func LNQ(p)
-		return Q(LN(p))
-
-		func QLN(p)
-			return LNQ(p)
-
-	func LoN(p)
-		return LN(p)
-
-		func LoNQ(p)
-			return LNQ(p)
-
 func NumbersUnicodes(anNumbers)
 	return StzListOfNumbersQ(anNumbers).Unicodes()
 
