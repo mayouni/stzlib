@@ -80,8 +80,9 @@ load "stzListOfCharsError.ring"
 
 load "stzList.ring"
 load "stzListError.ring"
-load "stzHashList.ring"
+load "stzSortedList.ring"
 
+load "stzHashList.ring"
 load "stzListOfHashLists.ring"
 load "stzSet.ring"
 
@@ -159,6 +160,7 @@ load "stzGlobSys.ring"
 load "stzProfSys.ring"
 load "stzArchSys.ring"
 load "stzShowSys.ring"
+load "stzPlugSys.ring"
 
 //? (clock()-t1)/clockspersecond()
 

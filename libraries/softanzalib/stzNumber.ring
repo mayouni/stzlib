@@ -6034,32 +6034,6 @@ class stzNumber from stzObject
 		nResult = This.ToStzString().HowMany(n)
 		return nResult
 
-	  #------------------------------#
-	 #  GETTING THE SIZE OF NUMBER  #
-	#------------------------------#
-
-	def Size()
-		nResult = This.StringValueQ().Size()
-		return nResult
-
-		def NumberOfChars()
-			return This.Size()
-
-		def HowManyChars()
-			return This.Size()
-
-	def SizeInBytes()
-		return @SizeInBytes(This.NumericValue())
-
-		def HowManyBytes()
-			return This.SizeInBytes()
-
-		def CountBytes()
-			return This.SizeInBytes()
-
-		def NumberOfBytes()
-			return This.SizeInBytes()
-
 	  #=====================================#
 	 #    INTERNAL KITCHEN OF THE CLASS    #
 	#=====================================#

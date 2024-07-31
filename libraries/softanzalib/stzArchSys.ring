@@ -1,7 +1,4 @@
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-#  GETTING ARCHITECTURE TYPE  #
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+load "stzGlobSys.ring"
 
 func Arch()
 	return getArch()

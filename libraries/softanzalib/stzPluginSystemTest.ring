@@ -1,4 +1,4 @@
-load "stzGlobSys.ring"
+
 load "stzPlugSys.ring"
 
 load "stzProfSys.ring"
