@@ -2,7 +2,7 @@
 # 			SOFTANZA LIBRARY (V1.0)                             #
 #---------------------------------------------------------------------------#
 #									    #
-# 	Description	: The core class for managing softanza numbers      #
+# 	Description	: The class for managing softanza numbers           #
 #	Version		: V1.1.0.6 (March, 2023)			    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #

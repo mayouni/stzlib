@@ -3,7 +3,7 @@
 # 	An accelerative library for Ring applications, and more!	  #
 #-------------------------------------------------------------------------#
 #									  #
-# 	Description	: The core class for managing Unicode strings     #
+# 	Description	: The class for managing Unicode strings          #
 #	Version		: V1.0 (2020-2024)				  #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		  #
 #								          #

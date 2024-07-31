@@ -3,7 +3,7 @@
 #		 An accelerative library for Ring applications	      		#
 #-------------------------------------------------------------------------------#
 #										#
-# 	Description	: The core class for managing lists of strings		#
+# 	Description	: The class for managing lists of stringss		#
 #	Version		: V1.0 (2020-2024)					#
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		   	#
 #										#

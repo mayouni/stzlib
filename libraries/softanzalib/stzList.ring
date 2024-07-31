@@ -3,7 +3,7 @@
 #	An accelerative library for Ring applications, and more!	    #
 #---------------------------------------------------------------------------#
 #									    #
-# 	Description	: The core class for managing lists in Softanza     #
+# 	Description	: The class for managing lists in Softanza          #
 #	Version		: V1.0 (2020-2024)				    #
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		    #
 #									    #

@@ -3,7 +3,7 @@
 #		    An accelerative library for Ring applications	      	#
 #-------------------------------------------------------------------------------#
 #										#
-# 	Description	: The core class for managing texts in Softanza		#
+# 	Description	: The class for managing texts in Softanza		#
 #	Version		: V1.0 (2020-2024)					#
 #	Author		: Mansour Ayouni (kalidianow@gmail.com)		   	#
 #										#
