@@ -1,5 +1,8 @@
 load "lightguilib.ring"
 
+load "stzGlobSys.ring"
+load "stzArchSys.ring"
+
 #~~~~~~~~~~~~~~~~~~~~#
 #  GLOBAL CONSTANTS  #
 #~~~~~~~~~~~~~~~~~~~~#
@@ -22,59 +25,36 @@ MEMORY_UNITS = [
 	:YottaByte
 ]
 
-BYTE_TO_BIT_FACTOR = 8
+# CONVERSION FACTORS BETWEEN MEMORY UNITS
 
-KILOBYTE_TO_BYTE_FACTOR = 1024
-KILOBYTE_TO_BIT_FACTOR  = 1_048_576	// 1024 * 1024
+KILOBYTE_TO_BIT_FACTOR  = 8192 # 1024 * 8
 
-MEGABYTE_TO_BYTE_FACTOR     = 1024
-MEGABYTE_TO_KILOBYTE_FACTOR = 1_048_576
-MEGABYTE_TO_BIT_FACTOR      = 1_073_741_824
+MEGABYTE_TO_KILOBYTE_FACTOR = 1024 		# 1024
+MEGABYTE_TO_BIT_FACTOR      = 8388608 		# (1024 ^ 2) * 8
 
-GIGABYTE_TO_MEGABYTE_FACTOR = 1024
-GIGABYTE_TO_BYTE_FACTOR     = 1_048_576
-GIGABYTE_TO_KILOBYTE_FACTOR = 1_073_741_824
-GIGABYTE_TO_BIT_FACTOR      = 1_099_511_627_776
+GIGABYTE_TO_BYTE_FACTOR     = 1073741824 	# (1024 ^ 3)
+GIGABYTE_TO_KILOBYTE_FACTOR = 1048576 		# (1024 ^ 2)
+GIGABYTE_TO_BIT_FACTOR      = 8589934592 	# (1024 ^ 3) * 8
 
-TERABYTE_TO_GIGABYTE_FACTOR = 1024
-TERABYTE_TO_MEGABYTE_FACTOR = 1_048_576
-TERABYTE_TO_KILOBYTE_FACTOR = 1_073_741_824
-TERABYTE_TO_BYTE_FACTOR     = 1_099_511_627_776
-TERABYTE_TO_BIT_FACTOR      = 1_125_899_906_842_624
+TERABYTE_TO_BYTE_FACTOR     = 1099511627776 	# (1024 ^ 4)
+TERABYTE_TO_KILOBYTE_FACTOR = 1073741824 	# (1024 ^ 3)
+TERABYTE_TO_BIT_FACTOR      = 8796093022208 	# (1024 ^ 4) * 8
 
-PETABYTE_TO_TERABYTE_FACTOR = 1024
-PETABYTE_TO_GIGABYTE_FACTOR = 1_048_576
-PETABYTE_TO_MEGABYTE_FACTOR = 1_073_741_824
-PETABYTE_TO_KILOBYTE_FACTOR = 1_099_511_627_776
-PETABYTE_TO_BYTE_FACTOR     = 1_125_899_906_842_624
-PETABYTE_TO_BIT_FACTOR      = 11_52_921_504_606_846_976
+PETABYTE_TO_BYTE_FACTOR     	= 1125899906842624 	# (1024 ^ 5)
+PETABYTE_TO_KILOBYTE_FACTOR 	= 1099511627776 	# (1024 ^ 4)
+PETABYTE_TO_BIT_FACTOR      	= 8881784197001216 	# (1024 ^ 5) * 8
 
-EXABYTE_TO_PETABYTE_FACTOR = 1024
-EXABYTE_TO_TERABYTE_FACTOR = 1_048_576
-EXABYTE_TO_GIGABYTE_FACTOR = 1_073_741_824
-EXABYTE_TO_MEGABYTE_FACTOR = 1_099_511_627_776
-EXABYTE_TO_KILOBYTE_FACTOR = 1_125_899_906_842_624
-EXABYTE_TO_BYTE_FACTOR     = 11_52_921_504_606_846_976
-EXABYTE_TO_BIT_FACTOR      = 1_180_591_620_717_411_303_424
+EXABYTE_TO_BYTE_FACTOR     	= 1152921504606846976 	# (1024 ^ 6)
+EXABYTE_TO_KILOBYTE_FACTOR 	= 1125899906842624 	# (1024 ^ 5)
+EXABYTE_TO_BIT_FACTOR      	= 9223372036854775808 	# (1024 ^ 6) * 8
 
-ZETTABYTE_TO_EXABYTE_FACTOR  = 1024
-ZETTABYTE_TO_PETABYTE_FACTOR = 1_048_576
-ZETTABYTE_TO_TERABYTE_FACTOR = 1_073_741_824
-ZETTABYTE_TO_GIGABYTE_FACTOR = 1_099_511_627_776
-ZETTABYTE_TO_MEGABYTE_FACTOR = 1_125_899_906_842_624
-ZETTABYTE_TO_KILOBYTE_FACTOR = 11_52_921_504_606_846_976
-ZETTABYTE_TO_BYTE_FACTOR     = 1_180_591_620_717_411_303_424
-ZETTABYTE_TO_BIT_FACTOR      = 1_208_925_819_614_629_174_706_176
+ZETTABYTE_TO_BYTE_FACTOR     	= 1180591620717411303424 	# (1024 ^ 7)
+ZETTABYTE_TO_KILOBYTE_FACTOR 	= 1152921504606846976 		# (1024 ^ 6)
+ZETTABYTE_TO_BIT_FACTOR      	= 9444732965739290426368 	# (1024 ^ 7) * 8
 
-YOTTABYTE_TO_ZETTABYTE_FACTOR = 1024
-YOTTABYTE_TO_EXABYTE_FACTOR   = 1_048_576
-YOTTABYTE_TO_PETABYTE_FACTOR  = 1_073_741_824
-YOTTABYTE_TO_TERABYTE_FACTOR  = 1_099_511_627_776
-YOTTABYTE_TO_GIGABYTE_FACTOR  = 1_125_899_906_842_624
-YOTTABYTE_TO_MEGABYTE_FACTOR  = 11_52_921_504_606_846_976
-YOTTABYTE_TO_KILOBYTE_FACTOR  = 1_180_591_620_717_411_303_424
-YOTTABYTE_TO_BYTE_FACTOR      = 1_208_925_819_614_629_174_706_176
-YOTTABYTE_TO_BIT_FACTOR       = 1_237_940_039_285_380_274_899_124_224
+YOTTABYTE_TO_BYTE_FACTOR      	= 1208925819614629174706176 	# (1024 ^ 8)
+YOTTABYTE_TO_KILOBYTE_FACTOR  	= 1180591620717411303424 	# (1024 ^ 7)
+YOTTABYTE_TO_BIT_FACTOR       	= 95428956661160094070998016 	# (1024 ^ 8) * 8
 
 # Global constants for 32-bit architecture
 RING_32BIT_STRING_STRUCTURE_SIZE = 40
@@ -89,6 +69,8 @@ RING_64BIT_ITEM_STRUCTURE_SIZE = 24
 RING_64BIT_ITEMS_STRUCTURE_SIZE = 32
 
 RING_NUMBER_CONTENT_SIZE = 3
+
+RING_STRING_ARRAYSIZE = 32
 
 #~~~~~~~~~~~~~~~~~~#
 #  PROFILING TIME  #
@@ -501,6 +483,9 @@ func SizeInChars(str)
 
 	return oQString.count()
 
+	func @SizeInChars(str)
+		return SizeInChars(str)
+
 func Chars(str)
 	if isList(str) and len(str) = 2 and isString(str[1]) and str[1] = :In
 		str = str[2]
@@ -518,6 +503,10 @@ func Chars(str)
 	next
 
 	return acResult
+
+	func @Chars(str)
+		return Chars(str)
+
 
 func ContentSizeInBytes(item)
 	if isList(item) and len(item) = 2 and isString(item[1]) and item[1] = :Of
@@ -544,11 +533,26 @@ func ContentSizeInBytes(item)
 		return ContentSizeInBytes( AttributesValues(item) )
 	ok
 
+	#< @FunctionAlternativeForms
+
 	func ContentSize(item)
 		return ContentSizeInBytes(item)
 
 	func CSize(item)
 		return ContentSizeInBytes(item)
+
+	#--
+
+	func @ContentSizeInBytes(item)
+		return ContentSizeInBytes(item)
+
+	func @ContentSize(item)
+		return ContentSizeInBytes(item)
+
+	func @CSize(item)
+		return ContentSizeInBytes(item)
+
+	#>
 
 #INFO #CREDIT
 # This function is made thanks to Mahmoud's explanation of the internal
@@ -783,21 +787,32 @@ func SizeInBytes32(item)
 		return RING_NUMBER_CONTENT_SIZE
 
         on "STRING"
-		return Len(item) + RING_32BIT_STRING_STRUCTURE_SIZE
+		nContentSize = len(item)
+		if nContentSize <= RING_STRING_ARRAYSIZE
+			return nContentSize + RING_STRING_ARRAYSIZE
+		else
+			return nContentSize + RING_32BIT_STRING_STRUCTURE_SIZE
+		ok
 
 	on "LIST"
 		nListAdditionalSize      = RING_32BIT_LIST_STRUCTURE_SIZE
 		nItemTotalAdditionalSize = RING_32BIT_ITEM_STRUCTURE_SIZE + RING_32BIT_ITEMS_STRUCTURE_SIZE
 
-		anResult = nListAdditionalSize
 		nLen = len(item)
+		nResult = nListAdditionalSize + (nLen * nItemTotalAdditionalSize)
+		
+		nNum = 0
 
 		for i = 1 to nLen
-			nItemSize = SizeInBytes32(item[i]) + nItemTotalAdditionalSize
-			anResult += nItemSize
+			if isNumber(item[i])
+				nNum++ 
+			else
+				nResult += ContentSizeInBytes(item[i])
+			ok
 		next
 
-		return anResult
+		nResult += RING_NUMBER_CONTENT_SIZE * nNum
+		return nResult
 
         on "OBJECT"
 		return SizeInBytes32(AttributesValues(item))
@@ -914,8 +929,16 @@ func SizeInBytes32XT(item)
 		return [ "RING_NUMBER_CONTENT_SIZE", RING_NUMBER_CONTENT_SIZE ]
 
         on "STRING"
-		aResult + [ "RING_32BIT_STRING_STRUCTURE_SIZE", RING_32BIT_STRING_STRUCTURE_SIZE ]
-		aResult + [ "RING_STRING_CONTENT_SIZE", len(item) ]
+		nContentSize = len(item)
+
+		if nContentSize <= RING_STRING_ARRAYSIZE
+			aResult + [ "RING_STRING_ARRAYSIZE", RING_STRING_ARRAYSIZE ]
+			aResult + [ "RING_STRING_CONTENT_SIZE", nContentSize ]
+	
+		else
+			aResult + [ "RING_32BIT_STRING_STRUCTURE_SIZE", RING_32BIT_STRING_STRUCTURE_SIZE ]
+			aResult + [ "RING_STRING_CONTENT_SIZE", nContentSize ]
+		ok
 
 		return aResult
 
@@ -1046,21 +1069,33 @@ func SizeInBytes64(item)
 		return RING_NUMBER_CONTENT_SIZE
 
         on "STRING"
-		return Len(item) + RING_64BIT_STRING_STRUCTURE_SIZE
+		nContentSize = len(item)
+		if nContentSize <= RING_STRING_ARRAYSIZE
+			return nContentSize + RING_STRING_ARRAYSIZE
+		else
+			return nContentSize + RING_64BIT_STRING_STRUCTURE_SIZE
+		ok
 
 	on "LIST"
 		nListAdditionalSize      = RING_64BIT_LIST_STRUCTURE_SIZE
 		nItemTotalAdditionalSize = RING_64BIT_ITEM_STRUCTURE_SIZE + RING_64BIT_ITEMS_STRUCTURE_SIZE
 
-		anResult = nListAdditionalSize
 		nLen = len(item)
+		nResult = nListAdditionalSize + (nLen * nItemTotalAdditionalSize)
+		
+		nNum = 0
 
 		for i = 1 to nLen
-			nItemSize = SizeInBytes64(item[i]) + nItemTotalAdditionalSize
-			anResult += nItemSize
+			if isNumber(item[i])
+				nNum++ 
+			else
+				nResult += ContentSizeInBytes(item[i])
+			ok
 		next
 
-		return anResult
+		nResult += RING_NUMBER_CONTENT_SIZE * nNum
+
+		return nResult
 
         on "OBJECT"
 		return SizeInBytes64(AttributesValues(item))
@@ -1177,11 +1212,18 @@ func SizeInBytes64XT(item)
 		return [ "RING_NUMBER_CONTENT_SIZE", RING_NUMBER_CONTENT_SIZE ]
 
         on "STRING"
-		aResult + [ "RING_64BIT_STRING_STRUCTURE_SIZE", RING_64BIT_STRING_STRUCTURE_SIZE ]
-		aResult + [ "RING_STRING_CONTENT_SIZE", len(item) ]
+		nContentSize = len(item)
+
+		if nContentSize <= RING_STRING_ARRAYSIZE
+			aResult + [ "RING_STRING_ARRAYSIZE", RING_STRING_ARRAYSIZE ]
+			aResult + [ "RING_STRING_CONTENT_SIZE", nContentSize ]
+	
+		else
+			aResult + [ "RING_64BIT_STRING_STRUCTURE_SIZE", RING_64BIT_STRING_STRUCTURE_SIZE ]
+			aResult + [ "RING_STRING_CONTENT_SIZE", nContentSize ]
+		ok
 
 		return aResult
-
 	on "LIST"
 		nLen = len(item)
 

@@ -1,4 +1,5 @@
 load "stdlib.ring"
+load "stzGlobSys.ring"
 
 #---------------------------------------#
 #  IMPLEMENTATION OF THE PLUGIN SYSTEM  #

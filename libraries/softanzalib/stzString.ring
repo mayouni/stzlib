@@ -9561,23 +9561,6 @@ class stzString from stzObject
 	 #  GETTING THE SIZE IN BYTES   #
 	#==============================#
 
-	def SizeInBytes()
-		#NOTE
-		# Ring add a bunch of bytes internally to set and manage the string.
-		# That's why the len() function does not make the job here. Instead
-		# we implemented a speciefic function, SizeInBytes(), which is aware
-		# of those supllementary bytes and adds them to the result.
-
-		return @SizeInBytes(This.Content())
-
-		def HowManyBytes()
-			return This.SizeInBytes()
-
-		def CountBytes()
-			return This.SizeInBytes()
-
-		def NumberOfBytes()
-			return This.SizeInBytes()
 	
 	def NumberOfBytesPerChar()
 		aResult = []
@@ -9585,7 +9568,7 @@ class stzString from stzObject
 		nLen = len(acChars)
 
 		for i = 1 to nLen
-			aResult + [ acChars[i], len(acChars[i]) ]
+			aResult + [ acChars[i], @MSize(acChars[i]) ]
 		next
 
 		return aResult

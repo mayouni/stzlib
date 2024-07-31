@@ -5867,7 +5867,7 @@ class stzObject
 			aValues + value
 		next
 
-		return @SizeInBytes(aValues)		
+		return @MemorySizeInBytes(aValues)		
 
 		return nResult
 
@@ -5882,4 +5882,70 @@ class stzObject
 		def NumberOfBytes()
 			return This.SizeInBytes()
 
+		#--
+
+		def MemorySize()
+			return This.SizeInBytes()
+
+		def MSize()
+			return This.SizeInBytes()
+
+		def MemorySizeInBytes()
+			return This.SizeInBytes()
+
+		def MSizeInBytes()
+			return This.SizeInBytes()
+
 		#>
+
+	def SizeInBytesXT()
+		return @SizeInBytesXT(This)		
+
+		#< @FunctionAlternativeForms
+
+		def HowManyBytesXT()
+			return This.SizeInBytesXT()
+
+		def CountBytesXT()
+			return This.SizeInBytesXT()
+
+		def NumberOfBytesXT()
+			return This.SizeInBytesXT()
+
+		#--
+
+		def MemorySizeXT()
+			return This.SizeInBytesXT()
+
+		def MSizeXT()
+			return This.SizeInBytesXT()
+
+		def MemorySizeInBytesXT()
+			return This.SizeInBytesXT()
+
+		def MSizeInBytesXT()
+			return This.SizeInBytesXT()
+
+		#>
+
+	def ContentSize()
+		aValues = []
+		acAttributes = ring_attributes(This)
+		nLen = len(acAttributes)
+
+		for i = 1 to nLen
+			cCode = 'value = This.' + acAttributes[i]
+			eval(cCode)
+			aValues + value
+		next
+
+		return @ContentSizeInBytes(aValues)
+
+		def ContentSizeInBytes()
+			return This.ContentSize()
+
+		def CSize()
+			return This.ContentSize()
+
+		def CSizeInBytes()
+			return This.ContentSize()

@@ -5357,33 +5357,6 @@ class stzList from stzObject
 		def HowManyItemU()
 			return This.NumberOfItemsU()
 
-	  #-----------------------------------------#
-	 #  GETTING THE SIZE OF THE LIST IN BYTES  #
-	#-----------------------------------------#
-
-	def SizeInBytes()
-		nResult = 0
-		nLen = len(@aContent)
-
-		for i = 1 to nLen
-			nResult += @SizeInBytes(@aContent[i])
-		next
-
-		return nResult
-
-		#< @FunctionAlternativeForms
-
-		def HowManyBytes()
-			return This.SizeInBytes()
-
-		def CountBytes()
-			return This.SizeInBytes()
-
-		def NumberOfBytes()
-			return This.SizeInBytes()
-
-		#>
-
 	  #-----------------------------#
 	 #  GETTING THE LIST OF ITEMS  #
 	#-----------------------------#
