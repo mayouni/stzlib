@@ -1,11 +1,15 @@
-load "lightguilib.ring"
-load "stzCoreObject.ring"
+
 
 func StzCoreStringQ(str)
 	return new stzCoreString(str)
 
+func StkStringQ(str)
+	return new stzCoreString(str)
+
+class stkString from stzCoreString
+
 class stzCoreString from stzCoreObject
-	@content
+	@content // A QString object from Qt
 
 	def init(str)
 		if NOT isString(str)
@@ -47,6 +51,8 @@ class stzCoreString from stzCoreObject
 		def Add(substr)
 			@content.append(substr)
 
+	def AppendQChar(q)
+		@content.append_2(q)
 
 	#-- FINDING
 
@@ -154,7 +160,7 @@ class stzCoreString from stzCoreObject
 
 	#--
 
-	def splitCS(substr, bCase)
+	def SplitCS(substr, bCase)
 		oQStrList = This.QStringObject().split(substr, 0, bCase)
 
 		acResult = []
@@ -209,6 +215,45 @@ class stzCoreString from stzCoreObject
 		oTempQStr.append(cSimplified)
 
 		@content = oTempQStr
+
+	#==
+
+	def UnicodeAt(n)
+		oTempQStr = new QString2()
+		oTempQStr.append(This.CharAt(n))
+		nResult = oTempQStr.unicode().unicode()
+		return nResult
+
+		def UnicodeOfCharAt(n)
+			return This.UnicodeOfChar(n)
+
+	def Unicode()
+		if This.Size() = 1
+			return This.UnicodeAt(1)
+		else
+			return This.Unicodes()
+		ok
+
+	def Unicodes()
+		anResult = []
+		nLen = This.Size()
+
+		for i = 1 to nLen
+			anResult + This.UnicodeAt(i)
+		next
+
+		return anResult
+
+	def Chars()
+		acResult = []
+		nLen = This.Size()
+
+		for i = 1 to nLen
+			acResult + This.CharAt(i)
+		next
+
+		return acResult
+
 	#==
 
 	def QStringObject()
@@ -216,6 +261,19 @@ class stzCoreString from stzCoreObject
 
 		def Qt()
 			return @content
+
+	def ToQCharObject(n)
+		return new QChar(This.UnicodeAt(n))
+
+		def ToQChar(n)
+			return new QChar(This.UnicodeAt(n))
+
+		def QCharObject(n)
+			return new QChar(This.UnicodeAt(n))
+
+		def QChar(n)
+			return new QChar(This.UnicodeAt(n))
+
 	#--
 
 	def Operator(op, substr)
@@ -224,3 +282,4 @@ class stzCoreString from stzCoreObject
 		else
 			raise("Insupported operator!")
 		ok
+

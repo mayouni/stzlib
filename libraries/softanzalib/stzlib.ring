@@ -1,28 +1,59 @@
 
 //t1 = clock()
 
-load "stdlibcore.ring"
-load "lightguilib.ring" # Takes most of the time made by non-Softanza libraries
-#TODO // Replace with "ringqtcorelib.ring" when included in future Ring.
-      // test it with:
-      // load "../libraries/guilib/classes/ring_qtcore.ring"
-      // loadlib("ringqt_core.dll")
-      // But don't keep it because we will not be able to use load "guilib.ring" or "lightguilib.ring"
+# Loading Softanza core classes (and Ring core libraries)
 
-load "sqlitelib.ring"
-load "tracelib.ring"
-load "internetlib.ring"
-load "typehints.ring"
+	load "core/stzCoreLib.ring"
 
-//? (clock()-t1)/clockspersecond()
-# Loading libraries takes 0.06
+# Loading addition Ring libraries
 
-#TODO optimise the load time of lightguilib.ring by loading only the
-# qt classes used in RingQt by Softanza:
-# Qfile, QFileInfo, QTextStream, QStringList, QChar, QString2, QDate, QDir,
-# QLocale, QByetArray, QTextCodec, QTime
+	load "internetlib.ring"
+	load "typehints.ring"
 
-load "stzGlobal.ring"
+# Loading Softanza Systems
+
+	load "systems/stzCommonSys.ring"
+	load "systems/stzProfSys.ring"
+	load "systems/stzArchSys.ring"
+	load "systems/stzShowSys.ring"
+	load "systems/stzPlugSys.ring"
+	load "systems/stzStateSystem.ring"
+
+# Loading Softanza globals (constants, functions, and classes)
+
+	load "global/stzGlobal.ring"
+
+# Loading Softanza data files
+
+	load "data/stzCharData.ring"
+	load "data/stzStringData.ring"
+	load "data/stzLocaleData.ring"
+	load "stzUnicodeData.ring"
+	load "data/stzStopWordsData.ring"
+
+	load "data/stzConstraintsData.ring"
+
+# Loading Softanza abstract object
+
+	load "object/stzObject.ring"
+
+# Loading Softanza classes related to the type String
+
+	load "string/stzString.ring"
+	load "string/stzChar.ring"
+
+# Loading Softanza common classes
+
+	load "common/stzCounter.ring"
+	
+
+
+
+
+
+
+
+/*
 load "stzTest.ring"
 
 load "stzObject.ring"
@@ -152,15 +183,7 @@ load "stzSection.ring"
 
 load "stzNaturalCode.ring"
 
-load "stzRingInstance.ring"
 
-# Loading Softanza Systems
-
-load "stzGlobSys.ring"
-load "stzProfSys.ring"
-load "stzArchSys.ring"
-load "stzShowSys.ring"
-load "stzPlugSys.ring"
 
 # Loading additional Softanza Utilities
 
@@ -173,3 +196,4 @@ load "stzQtFunc.ring"
 # External libraries loading time: 0.06 second(s). Most is taken by lightguilib.ring
 # Softanza files loading time : 0.04 second(s)
 
+*/
