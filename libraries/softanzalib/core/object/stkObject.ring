@@ -1,4 +1,11 @@
 
+func StzCoreObjectQ(p)
+	return new stzCoreObject(p)
+
+	func StkObjectQ(p)
+		return new stzCoreObject(p)
+
+class stkObject from stzCoreObject
 
 class stzCoreObject
 	@content
@@ -23,5 +30,6 @@ class stzCoreObject
 		return TRUE
 
 	
+
 
 

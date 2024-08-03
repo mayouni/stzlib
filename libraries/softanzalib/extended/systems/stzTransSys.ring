@@ -1,0 +1,1 @@
+load "stzGlobSystem.ring"
