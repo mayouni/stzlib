@@ -11,7 +11,7 @@ func MinValueForComputableShortFormXT()
 		return _MinValueForComputableShortFormXT
 
 	func MinSFXT()
-		return return _MinValueForComputableShortFormXT
+		return _MinValueForComputableShortFormXT
 
 	func MinShortForm()
 		return _MinValueForComputableShortFormXT

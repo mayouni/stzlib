@@ -499,7 +499,7 @@ func MathChars()
 			return new stzListOfStrings(MathChars())
 
 		other
-			StzRaise("Insupported return type!")
+			StzRaise("Unsupported return type!")
 		off
 
 func NumberOfUnicodeBlocks()

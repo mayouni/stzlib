@@ -411,7 +411,7 @@ func SortListsOn(paLists, n)
 
 		aNthAndFirstColsXT = ListsStringifyXT(aNthAndFirstCols)
 
-		# Adding the stringifief nth and first columns (concatenated)
+		# Adding the stringified nth and first columns (concatenated)
 		# at the begining of the list (as the first column)
 
 		for i = 1 to nLen
@@ -40950,7 +40950,7 @@ Item and then position
 				return new stzListOfNumbers(This.ListsOfNumbers())
 
 			other
-				StzRaise("Insupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -41088,7 +41088,7 @@ Item and then position
 				return new stzListOfStrings(This.ListsOfStrings())
 
 			other
-				StzRaise("Insupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -41226,7 +41226,7 @@ Item and then position
 				return new stzListOfLists(This.ListsOfLists())
 
 			other
-				StzRaise("Insupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -41364,7 +41364,7 @@ Item and then position
 				return new stzListOfObjects(This.ListsOfObjects())
 
 			other
-				StzRaise("Insupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -46412,7 +46412,7 @@ Item and then position
 		ok
 
 		if cSyntax = ""
-			StzRaise("Insupported syntax!")
+			StzRaise("Unsupported syntax!")
 		ok
 
 		if NOT ( isString(p1) and isString(p2) and isString(p3) )

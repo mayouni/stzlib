@@ -10868,7 +10868,7 @@ Class stzTable from stzObject
 	def ReplaceAllColsByMany(paCols, paNewCols)
 		/* ... */
 
-		StzRaise("Insupported feature in this release!")
+		StzRaise("Unsupported feature in this release!")
 
 		def ReplaceAllColumsByMany(paCols, paNewCols)
 			This.ReplaceAllColsByMany(paCols, paNewCols)
@@ -10887,7 +10887,7 @@ Class stzTable from stzObject
 
 		/* ... */
 
-		StzRaise("Insupported feature in this release!")
+		StzRaise("Unsupported feature in this release!")
 
 		#< @FunctionAlternativeForms
 

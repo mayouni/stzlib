@@ -1,1 +1,0 @@
-load "stzGlobSystem.ring"

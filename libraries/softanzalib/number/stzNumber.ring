@@ -2906,7 +2906,7 @@ class stzNumber from stzObject
 				return new stzListOfNumbers( This.Integers() )
 
 			other
-				StzRaise("Insupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>
@@ -2945,7 +2945,7 @@ class stzNumber from stzObject
 				return new stzListOfNumbers( This.Decimals() )
 
 			other
-				StzRaise("Insupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 		#>

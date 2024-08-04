@@ -1,32 +1,4 @@
 
-# global functioons required by Softanza Systems
-
-func @IsPpointer(p)
-	return isPointer(p) # A Ring standard function
-
-func ArePointers(paPointers)
-	if NOT isList(paPointers)
-
-		return FALSE
-	ok
-
-	bResult = TRUE
-	nLen = len(paPointers)
-
-	for i = 1 to nLen
-		if NOT isPointer(paPointers[i])
-			bResult = FALSE
-			exit
-		ok
-	next
-
-	return bResult
-
-	func @ArePointers(paPointers)
-		return ArePointers(paPointers)
-
-#-----
-
 # Wrappers to ring functions, that we use inside a softanza class
 # where the same name is needed (example: insert() inside stzString)
 #--> This will allow us to avoid conflicts!
@@ -90,18 +62,12 @@ func ring_insert(paList, n, item)
 	# We change the behaviour of the Ring function, since
 	# it actually means in Ring insertAfter() and not insert()
 
-	if CheckParam()
-		if NOT isList(paList) 
-			StzRaise("Incorrect param type! paList must be a list.")
-		ok
+	if NOT ( isList(paList)  or isNumber(n) )
+		raise( "ERR-" + StkError(:IncorrectParamType) )
+	ok
 
-		if NOT isNumber(n)
-			StzRaise("Incorrect param type! n must be a number.")
-		ok
-
-		if NOT n > 0
-			StzRaise("Incorrect value! n must be a positive number.")
-		ok
+	if NOT n > 0
+		raise( "ERR-" + StkError(:IncorrectParamValye) )
 	ok
 
 	insert(paList, n-1, item)

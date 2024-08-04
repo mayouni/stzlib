@@ -3,8 +3,8 @@
 func StzCoreStringQ(str)
 	return new stzCoreString(str)
 
-func StkStringQ(str)
-	return new stzCoreString(str)
+	func StkStringQ(str)
+		return new stzCoreString(str)
 
 class stkString from stzCoreString
 
@@ -13,7 +13,7 @@ class stzCoreString from stzCoreObject
 
 	def init(str)
 		if NOT isString(str)
-			raise("Incorrect param type! str must be a string.")
+			return StkError(:IncorrectPramType)
 		ok
 
 		@content = new QString2()
@@ -142,7 +142,7 @@ class stzCoreString from stzCoreObject
 	def InsertAt(n, substr)
 		@content.insert(n-1, substr)
 
-	#-- REPLACING
+	#== REPLACING
 
 	def ReplaceCS(substr1, substr2, bCase)
 		@content.replace_2(substr1, substr2, bCase)
@@ -150,7 +150,12 @@ class stzCoreString from stzCoreObject
 	def Replace(substr1, substr2)
 		@content.replace_2(substr1, substr2, true)
 
-	#-- REMOVING
+	#--
+
+	def ReplaceSection(n1, n2, substr)
+		@content.replace( n1 - 1, n2 - n1 + 1, substr)
+
+	#== REMOVING
 
 	def RemoveCS(substr, bCase)
 		@content.replace_2(substr, "", bCase)
@@ -159,6 +164,11 @@ class stzCoreString from stzCoreObject
 		@content.replace_2(substr, "", true)
 
 	#--
+
+	def RemoveSection(n1, n2)
+		@content.replace(n1 - 1, n2 - n1 + 1, "")
+
+	#== SPLITTING
 
 	def SplitCS(substr, bCase)
 		oQStrList = This.QStringObject().split(substr, 0, bCase)
@@ -274,12 +284,15 @@ class stzCoreString from stzCoreObject
 		def QChar(n)
 			return new QChar(This.UnicodeAt(n))
 
-	#--
+	#==
 
-	def Operator(op, substr)
+	def Operator(op, value)
 		if op = "+"
-			@content.append(substr)
-		else
-			raise("Insupported operator!")
-		ok
+			@content.append(value)
 
+		but op = "[]"
+			return This.At(value)
+
+		else
+			raise( 'ERR-' + StkError(:UnsupportedOperator) )
+		ok

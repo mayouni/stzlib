@@ -1,6 +1,6 @@
 load "lightguilib.ring"
 
-load "stzGlobSys.ring"
+load "../common/stzGlobal.ring"
 load "stzArchSys.ring"
 
 #~~~~~~~~~~~~~~~~~~~~#
