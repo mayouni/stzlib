@@ -13,6 +13,8 @@
 	load "../object/stkObject.ring"
 	load "../string/stkString.ring"
 
+	load "../error/stkError.ring"
+
 #----------------#
 #  TEST SAMPLES  #
 #----------------#
@@ -127,6 +129,41 @@ o1.ReplaceCS("one", "three", FALSE)
 ? o1.Content()
 #--> three and three makes two threes
 
+/*---
+
+o1 = new stkString("oneany anytwo three")
+o1.Remove("any")
+? o1.Content()
+# one two three
+
+/*---
+
+o1 = new stkString("one any two ANY any three")
+o1 {
+	removeCS("any", false)
+	Simplify()
+	? o1.Content()
+}
+#--> one two three
+
+/*===
+
+o1 = new stkString("AB345C")
+
+? o1.Section(3, 5)
+#--> 345
+
+o1.RemoveSection(3, 5)
+? o1.Content()
+#--> ABC
+
+/*----
+
+o1 = new stkString("AB345F")
+o1.ReplaceSection(3, 5, "CDE")
+? o1.Content()
+#--> ABCDEF
+
 /*===
 
 o1 = new stkString("ring/ruby/php/python")
@@ -219,8 +256,8 @@ o1 = new stkString("Ring")
 
 # which is, of course, unailable in Qt String.
 
-/*---
-*/
+/*===
+
 # stzCoreString has a useful bridge to stzCoreChar, so you can
 # start from a string (based on Qt QString class), then continue
 # your exploration with a stzCoreChar (based on Qt QChar class):

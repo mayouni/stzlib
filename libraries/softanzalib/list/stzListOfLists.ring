@@ -2060,7 +2060,7 @@ class stzListOfLists from stzList
 				return new stzListOfLists( This.IndexCS(pCaseSensitive) )
 
 			other
-				StzRaise("Insupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def IndexedCS(pCaseSensitive)
@@ -2149,7 +2149,7 @@ class stzListOfLists from stzList
 				return new stzListOfLists( This.IndexCSXT(pCaseSensitive) )
 
 			other
-				StzRaise("Insupported return type!")
+				StzRaise("Unsupported return type!")
 			off
 
 	def IndexedCSXT(pCaseSensitive)

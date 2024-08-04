@@ -1,4 +1,4 @@
-load "stzGlobSys.ring"
+load "../common/stzGlobal.ring"
 
 func Arch()
 	return getArch()

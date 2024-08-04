@@ -769,12 +769,16 @@ func CommonNumbers(paListsOfNumbers)
 
 	return CommonItems(paListsOfNumbers)
 
-	#< @FunctionAlternativeForms
-
-	func CommunNumbers(paListsOfNumbers)
-		return CommonNumbers(paListsOfNumbers)
+	#< @FunctionAlternativeForm
 
 	func @CommonNumbers(paListsOfNumbers)
+		return CommonNumbers(paListsOfNumbers)
+
+	#>
+
+	#< @FuncionMisspelledForms
+
+	func CommunNumbers(paListsOfNumbers)
 		return CommonNumbers(paListsOfNumbers)
 
 	func @CommunNumbers(paListsOfNumbers)
@@ -2746,6 +2750,17 @@ class stzListOfNumbers from stzList
 
 		def LCN(pOtherNumber)
 			return This.LeastCommonNumber(pOtherNumber)
+
+
+		#-- Alternative
+
+		def SmallesCommonNumber(pOtherNumber)
+			return This.LeastCommonNumber(pOtherNumber)
+
+		#-- Misspelled
+
+		def LeastCommunNumber(panOtherList)
+			return This.LeastCommonNumber(panOtherList)
 
 		def SmallestCommunNumber(pOtherNumber)
 			return This.LeastCommonNumber(pOtherNumber)

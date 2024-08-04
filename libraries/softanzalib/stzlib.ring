@@ -10,6 +10,10 @@
 	load "internetlib.ring"
 	load "typehints.ring"
 
+# Loading Softanza globals (constants, functions, and classes)
+
+	load "common/stzGlobal.ring"
+
 # Loading Softanza Systems
 
 	load "systems/stzCommonSys.ring"
@@ -18,10 +22,6 @@
 	load "systems/stzShowSys.ring"
 	load "systems/stzPlugSys.ring"
 	load "systems/stzStateSystem.ring"
-
-# Loading Softanza globals (constants, functions, and classes)
-
-	load "global/stzGlobal.ring"
 
 # Loading Softanza data files
 
