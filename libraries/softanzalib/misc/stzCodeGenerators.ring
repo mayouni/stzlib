@@ -9,7 +9,7 @@ we need to include in the library files.
 
 */
 
-load "stzlib.ring"
+load "../stzlib.ring"
 
 //? GenerateCodeFor(:IsStzTypeFunction)
 

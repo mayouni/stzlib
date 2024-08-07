@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 o1 = new stzPair([ "Me", "You" ])
 ? o1.Content() #--> [ "Me", "You" ]

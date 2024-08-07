@@ -1,3 +1,3 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 ? cCastle2

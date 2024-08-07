@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 /*------------ ERROR: function undefined --> ToSetOfHashLists
 aList = [

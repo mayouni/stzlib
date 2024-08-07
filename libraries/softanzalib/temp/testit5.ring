@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 /*==== CREATING CONTIGUOUS LISTS USING A SHORT FORM OF A LIST PROVIDED IN A STRING
 

@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 /*-------------------
 
@@ -1870,7 +1870,7 @@ proff()
 #~> Should be able to create it...
 
 /*=============
-
+*/
 pron()
 
 ? isNumber([ "'" ])

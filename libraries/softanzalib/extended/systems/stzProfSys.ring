@@ -1,7 +1,3 @@
-load "lightguilib.ring"
-
-load "../common/stzGlobal.ring"
-load "stzArchSys.ring"
 
 #~~~~~~~~~~~~~~~~~~~~#
 #  GLOBAL CONSTANTS  #

@@ -1,4 +1,4 @@
 
-aList = 1:5
-del(aList, 3)
-? aList
+str = "123_345_678"
+? substr(str, "_", "")
+

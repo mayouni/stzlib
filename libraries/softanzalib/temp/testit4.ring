@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 /*==== REMOVING ALL OCCURRENCE OF A GIVEN ITEM IN THE LIST   #
 

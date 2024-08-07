@@ -1178,7 +1178,6 @@ func TheseQtObjects(p)
 
 #===
 
-
 func @ForEach(p, pIn)
 	/* EXAMPLES
 

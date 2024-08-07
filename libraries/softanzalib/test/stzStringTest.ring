@@ -1,7 +1,7 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 /*====
-
+*/
 pron()
 
 o1 = new stzString("me you all the others")
@@ -4005,11 +4005,11 @@ proff()
 pron()
 
 # To return the ascii code of each letter we say:
-? Q("ring is owsome!").UppercaseQ().LettersQ().YieldXT('ascii(@item) - 65')
+? Q("ring is owsome!").UppercaseQ().LettersQ().YieldWXT('ascii(@item) - 65')
 #--> [ 17, 8, 13, 6, 8, 18, 14, 22, 18, 14, 12, 4 ]
 
 # To return the letter along with the asscii code, we write:
-? Q("ring is owsome!").UppercaseQ().LettersQ().YieldXT('[ @item, ascii(@item) - 65 ]')
+? Q("ring is owsome!").UppercaseQ().LettersQ().YieldWXT('[ @item, ascii(@item) - 65 ]')
 #--> [
 #	[ "R", 17 ], [ "I", 17 ], [ "N", 13 ],
 #	[ "G", 6  ], [ "I", 8  ], [ "S", 18 ],
@@ -4024,7 +4024,7 @@ proff()
 
 pron()
 
-? Q(["A", "B", "C"]).YieldXT('[ @item, ascii(@item) - 64 ]')
+? Q(["A", "B", "C"]).YieldWXT('[ @item, ascii(@item) - 64 ]')
 
 proff()
 
@@ -4032,7 +4032,7 @@ proff()
 
 pron()
 
-? @@( Q("ring is owsome!").UppercaseQ().LettersQ().YieldXT('[ @item, ascii(@item) - 65 ]') )
+? @@( Q("ring is owsome!").UppercaseQ().LettersQ().YieldWXT('[ @item, ascii(@item) - 65 ]') )
 #--> [
 #	[ "R", 17 ], [ "I", 8  ], [ "N", 13 ],
 #	[ "G", 6  ], [ "I", 8  ], [ "S", 18 ],
@@ -6851,22 +6851,6 @@ o1 = new stzString("*#!ABC$^..")
 
 proff()
 # Executed in 0.99 second(s).
-
-/*==================
-*/
-pron()
-
-o1 = new stzString("..34..789..")
-? o1.YieldXT( '@char', :StartingAt = 9, :UpTo = :LastItem ) # or :Until = :LastChar
-#--> [ "9", ".", "." ]
-
-? o1.YieldXT( '@char', :StartingAt = 7, :Until = ' @char = "." ' ) # The "." is not yielded
-#--> "789"
-
-? o1.YieldXT( '@char', :StartingAt = 7, :UntilXT = ' @char = "." ' ) # The "."  is yielded
-#--> "789."
-
-proff()
 
 /*==================
 

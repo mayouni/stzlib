@@ -72,7 +72,7 @@ _nMaxUnicode = 1_114_112
 
 _nNumberOfLinesInUnicodeDataFile = 34_931
 
-_cUnicodeData = read("stzUnicodeData.txt")
+_cUnicodeData = read("../data/stzUnicodeData.txt")
 
 _anMathUnicodes = [
 	172, 176, 177, 188, 189, 190, 215, 247, 915, 916, 920, 923,

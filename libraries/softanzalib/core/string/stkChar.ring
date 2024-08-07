@@ -1,10 +1,8 @@
+load "LightGuiLib.ring"
 
-
-func StzCoreCharQ(c)
-	return new stzCoreChar(c)
-
-	func StkCharQ(c)
-		return new stzCoreChar(c)
+#~~~~~~~~~~~~~~~~~#
+#  STZ CORE CHAR  #
+#~~~~~~~~~~~~~~~~~#
 
 class stkChar from stzCoreChar
 
@@ -26,7 +24,7 @@ class stzCoreChar from stzCoreObject
 			@content = p
 
 		else
-			raise("Can't create the char object! You must provide a a char or a unicode number.")
+			raise( "ERR-" + StkError(:CanNotCreateObject) )
 		ok
 
 	def Content()
@@ -49,6 +47,7 @@ class stzCoreChar from stzCoreObject
 			return @content
 
 	def Mirrored()
-		return StzCoreCharQ( @content.mirroredchar() ).Content()
+		oTempChar = new stkChar(@content.mirroredchar())
+		return oTempChar.Content()
 
 

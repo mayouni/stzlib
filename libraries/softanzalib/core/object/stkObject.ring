@@ -1,9 +1,7 @@
 
-func StzCoreObjectQ(p)
-	return new stzCoreObject(p)
-
-	func StkObjectQ(p)
-		return new stzCoreObject(p)
+#~~~~~~~~~~~~~~~~~~~#
+#  STZ CORE OBJECT  #
+#~~~~~~~~~~~~~~~~~~~#
 
 class stkObject from stzCoreObject
 

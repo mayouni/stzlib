@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 // INCMPLETE: NOT READY FOR TESTING.
 

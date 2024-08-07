@@ -8,9 +8,10 @@
 
 # Or just the files you actually need
 
-	load "lightguilib.ring"
 	load "../object/stkObject.ring"
 	load "../string/stkChar.ring"
+
+	load "../error/stkError.ring"
 
 #----------------#
 #  TEST SAMPLES  #
@@ -75,7 +76,8 @@ o1 = new stkChar("ض")
 # SoftanzaCore offers a direct way to get the unicode codepoint
 # (in decimal) of a given char:
 
-? stkCharQ("🞖").Unicode()
+o1 = new stkChar("🞖")
+? o1.Unicode()
 #--> 55357
 
 # If you would make it in Qt, it will be as tricky as:
@@ -90,7 +92,8 @@ o1 = new stkChar("ض")
 # SoftanzaCoreLib invests in enhancing RingQt only when required.
 
 #NOTE For technical reasons, we permit the parameter to be a string not a char
-? stkCharQ("mansour").Content()
+o1 = new stkChar("mansour")
+? o1.Content()
 #--> m
 
 # In this case, the remaing part is ignored.
@@ -101,44 +104,57 @@ o1 = new stkChar("r")
 ? o1.Qt().isLower()
 #--> TRUE
 
-? stkCharQ(1617).Qt().isMark() # Arabic shaddah
+o1 = new stkChar(1617)
+? o1.Qt().isMark() # Arabic shaddah
 #--> TRUE
 
-? stkCharQ(65534).Qt().isNonCharacter()
+o1 = new stkChar(65534)
+? o1.Qt().isNonCharacter()
 #--> TRUE
 
-? stkCharQ("").Qt().isNull()
+o1 = new stkChar("")
+? o1.Qt().isNull()
 #--> TRUE
 
-? stkCharQ("9").Qt().isNumber()
+o1 = new stkChar("9")
+? o1.Qt().isNumber()
 #--> TRUE
 
-? stkCharQ("M").Qt().isPrint()
+o1 = new stkChar("M")
+? o1.Qt().isPrint()
 #--> TRUE
 
-? stkCharQ(65534).Qt().isPrint()
+o1 = new stkChar(65534)
+? o1.Qt().isPrint()
 #--> FALSE
 
-? stkCharQ(";").Qt().isPunct()
+o1 = new stkChar(";")
+? o1.Qt().isPunct()
 #--> TRUE
 
-? stkCharQ(" ").Qt().isSpace()
+o1 = new stkChar(" ")
+? o1.Qt().isSpace()
 #--> TRUE
 
-? stkCharQ("T").Qt().isUpper()
+o1 = new stkChar("T")
+? o1.Qt().isUpper()
 #--> TRUE
 
-? stkCharQ("༺").Mirrored()
+o1 = new stkChar("༺")
+? o1.Mirrored()
 #--> ༻
 
-? stkCharQ("ص").Qt().script()
+o1 = new stkChar("ص")
+? o1.Qt().script()
 #--> 8
 # List of scripts: https://doc.qt.io/qt-5/qchar.html#Script-enum
 
-? stkCharQ("༺").Qt().unicodeVersion()
+o1 = new stkChar("༺")
+? o1.Qt().unicodeVersion()
 #--> 2
 
-? stkCharQ("༺").Qt().direction()
+o1 = new stkChar("༺")
+? o1.Qt().direction()
 #--> 10
 # List of directions: https://doc.qt.io/qt-5/qchar.html#Direction-enumerate
 

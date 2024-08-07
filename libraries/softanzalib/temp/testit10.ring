@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 ? Q("Checking if the table contains a given cell").Uppercased()
 #--> CHECKING IF THE TABLE CONTAINS A GIVEN CELL

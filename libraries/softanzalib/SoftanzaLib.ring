@@ -1,2 +1,2 @@
-load "stzLib.ring"
+load "../stzlib.ring"
 

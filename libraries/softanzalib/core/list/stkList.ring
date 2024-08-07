@@ -1,18 +1,8 @@
-load "../common/stkRingFunc.ring"
 
-#~~~~~~~~~~~~~#
-#  FUNCTIONS  #
-#~~~~~~~~~~~~~#
 
-func StzCoreListQ(paList)
-	return new stkList(paList)
-
-	func StkListQ(paList)
-		return new stkList(paList)
-
-#~~~~~~~~~~~#
-#  CLASSES  #
-#~~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~#
+#  STZ CORE LIST  #
+#~~~~~~~~~~~~~~~~~#
 
 class stzCoreList from stkList
 
