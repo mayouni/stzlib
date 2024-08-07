@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 @C = @("C") {
 	evtOnItemAdded { ? "Anything you need!" }

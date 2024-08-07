@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 #? _(:Iran).Q(:Country).Languages()
 

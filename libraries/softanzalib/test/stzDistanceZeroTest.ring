@@ -1,6 +1,6 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
-load "stzlib.ring"
+load "../stzlib.ring"
 
 DistanceZeroQ() {
 	? Content()

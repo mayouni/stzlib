@@ -140,20 +140,6 @@ func StzNamedNumber(paNamed)
 	func StzNamedNumberXTQ(paNamed)
 		return StzNamedNumber(paNamed)
 
-func Val(p)
-	if isNumber(p)
-		return p
-
-	but isString(p) and StzStringQ(p).IsNumberInString()
-		return Q(p).ToNumber()
-
-	else
-		StzRaise("Incorrect param type! p must be a number or number in string.")
-	ok
-
-	func ToNumber(p)
-		return Val(p)
-
 func Numberify(p)
 	return Q(p).Numberified()
 
@@ -917,12 +903,6 @@ func GetActiveRound()
 		return GetActiveRound()
 
 	#--
-
-	func GetCurrentRound()
-		return GetActiveRound()
-
-	func CurrentRound()
-		return GetActiveRound()
 
 	func StzGetCurrentRound()
 		return GetActiveRound()

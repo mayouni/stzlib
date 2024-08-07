@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 // Converting from octal de decimal, binary, and hexadecimal
 o1 = new stzOctalNumber("o2007")

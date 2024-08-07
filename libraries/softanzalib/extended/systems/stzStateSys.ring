@@ -1,4 +1,3 @@
-load "../common/stzGlobal.ring"
 
 func IsRingState(pPointer)
 	if isPointer(pPointer) and type(pPointer) = "RINGSTATE"

@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 
 
@@ -5985,7 +5985,7 @@ proff()
 # Executed in 0.06 second(s)
 
 /*------------------
-
+*/
 pron()
 
 ? ToNumber(5) # or Val(5)

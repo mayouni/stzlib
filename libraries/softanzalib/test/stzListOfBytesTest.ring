@@ -1,5 +1,5 @@
 
-load "stzlib.ring"
+load "../stzlib.ring"
 
 #TODO: Add use cases from Qt documentation:
 # https://doc.qt.io/qt-6/qbytearray.html()

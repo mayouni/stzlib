@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 
 o1 = new stzSet([ "a", "c", "c", "d", "e", "f" ])

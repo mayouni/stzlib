@@ -1,5 +1,5 @@
 load "stzprofsys.ring"
-//load "stzlib.ring"
+//load "../stzlib.ring"
 
 
 /*----
@@ -278,7 +278,7 @@ proff()
 
 #NOTE
 # To test this sample, and be able to use the Q() small function,
-# you need to load "stzlib.ring" in the top the file and not just
+# you need to load "../stzlib.ring" in the top the file and not just
 # "stzprosys.ring".
 
 pron()

@@ -8,6 +8,8 @@
 
 # Or just the files you actually need
 
+	load "../common/stkRingFunc.ring"
+
 	load "../object/stkObject.ring"
 	load "../list/stkList.ring"
 	load "../error/stkError.ring"

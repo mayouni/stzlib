@@ -49398,7 +49398,7 @@ class stzString from stzObject
 	 #    CONTAINING ONE GIVEN SUBSTRING OR AN OTHER (BUT NOT BOTH)   #
 	#----------------------------------------------------------------#
 
-	def ContainsEitherCS(pcStr1, pcSubStr2, pCaseSensitive)
+	def ContainsEitherCS(pcSubStr1, pcSubStr2, pCaseSensitive)
 		if isList(pcSubStr2) and Q(pcSubStr2).IsOrNamedParam()
 			pcSubStr2 = pcSubStr2[2]
 		ok

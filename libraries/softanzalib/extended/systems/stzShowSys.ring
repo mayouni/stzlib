@@ -1,4 +1,3 @@
-load "lightguilib.ring"
 
 _MinValueForComputableShortFormXT = 10
 

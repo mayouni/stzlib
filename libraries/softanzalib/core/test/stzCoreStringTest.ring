@@ -9,17 +9,16 @@
 
 # Or just the files you actually need
 
-	load "lightguilib.ring"
 	load "../object/stkObject.ring"
 	load "../string/stkString.ring"
-
 	load "../error/stkError.ring"
 
 #----------------#
 #  TEST SAMPLES  #
 #----------------#
 
-/*
+/*---
+*/
 
 o1 = new stzCoreString("Hello in ") # stkString() with <<k>> meaning Kore ;)
 

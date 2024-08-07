@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 //? Assemble("x1","x2","z1")[:meta][:duration] + NL
 ? Assemble("Tunis","Cairo","Nimaey")[:result]

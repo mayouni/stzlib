@@ -12,8 +12,12 @@ func StkError(cErr)
 	on :IncorrectParamValue
 		return 2
 
-	on :UnsupportedOperator
+	on :CanNotCreateObject
 		return 3
+
+	on :UnsupportedOperator
+		return 4
+
 	off
 
 	func StzCoreError(cErr)

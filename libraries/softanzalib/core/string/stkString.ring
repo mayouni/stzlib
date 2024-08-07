@@ -1,10 +1,8 @@
+load "LightGuiLib.ring"
 
-
-func StzCoreStringQ(str)
-	return new stzCoreString(str)
-
-	func StkStringQ(str)
-		return new stzCoreString(str)
+#~~~~~~~~~~~~~~~~~~~#
+#  STZ CORE STRING  #
+#~~~~~~~~~~~~~~~~~~~#
 
 class stkString from stzCoreString
 

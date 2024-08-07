@@ -1,199 +1,281 @@
 
-//t1 = clock()
+#~~~~~~~~~~~~~~~~~~#
+#  IMPORTANT NOTE  #
+#~~~~~~~~~~~~~~~~~~#
 
-# Loading Softanza core classes (and Ring core libraries)
+# NOTE: Softanza software design is being refactored according to these 7 principles:
 
-	load "core/stzCoreLib.ring"
+# Layered:
+#~~~~~~~~~
 
-# Loading addition Ring libraries
+#	Structured into SoftanzaCore, SoftanzaStandard, and SoftanzaExtended.
 
-	load "internetlib.ring"
-	load "typehints.ring"
+#	The three levels have the same fold structure (there is a class for managing
+#	string in each level : stzCoreString, stzString, and stzStringXT.
 
-# Loading Softanza globals (constants, functions, and classes)
+#	Each layer utilizes the one beneath it, and enhancements made to a lower
+#	layer automatically benefit those above.
 
-	load "common/stzGlobal.ring"
+# Modular:
+#~~~~~~~~~
 
-# Loading Softanza Systems
+#	Classes are organized by functional domain, and the codebase's folder
+#	structure clearly reflects these domains. The four main domains are
+# 	the four types supported by Ring : NUMBER, STRING, LIST, and OBJECTS.
 
-	load "systems/stzCommonSys.ring"
-	load "systems/stzProfSys.ring"
-	load "systems/stzArchSys.ring"
-	load "systems/stzShowSys.ring"
-	load "systems/stzPlugSys.ring"
-	load "systems/stzStateSystem.ring"
+# Granular:
+#~~~~~~~~~~
 
-# Loading Softanza data files
+#	Programmers can operate at desired abstraction levels:
 
-	load "data/stzCharData.ring"
-	load "data/stzStringData.ring"
-	load "data/stzLocaleData.ring"
-	load "stzUnicodeData.ring"
-	load "data/stzStopWordsData.ring"
+#	~> By using only the required layer:
 
-	load "data/stzConstraintsData.ring"
+#		=> SoftanzaCore: for basic features, efficiency, small code,
+#		   or performance-critical development on supported platforms
+# 		   (web, mobile, microcontrollers, MS-DOS).
 
-# Loading Softanza abstract object
+# 		=> SoftanzaStandard: for a wide range of functionalities covering
+# 		   number, character, string, and list management.
+
+# 		=> SoftanzaExtended: for advanced features enabling innovative,
+#		   industry-grade software solutions (natural coding, knowledge-oriented,
+# 		   plugin-based, memory profiling, workflow processing, etc.).
+
+#		=> By using only necessary modules: If only STRING management is needed,
+#		   load STRING-related files from the selected layer.
+
+#		=> By loading only specific files: For example, load /core/stzCoreChar.ring
+# 		   for unicode character operations.
+
+# Configurable:
+#~~~~~~~~~~~~~~
+
+#	Library gymnastics, that may not be loved by every one, like function alternative
+#	forms, misspelled forms, multilingual forms, and case sensitivity can be dynamically
+#	configured for each object at runtime. Programmers specify tuning using syntax like:
+
+#		Use([
+#			:stzStringClass = [
+# 				:@AllAlternativeForms,
+#				:@TheseMisspelledForms = [ ..., ... ],
+#				:@NFirstMultilingualForms = 10, etc ]
+#			],
+
+#			stzListClass = [ ... ]
+#	        ]
+
+# Optimized:
+#~~~~~~~~~~~
+
+#	A future script will create, based on a codebase that uses Softanza,
+#	a lightweight, dependency-free library (SoftanzaMine) containing only
+# 	used classes and methods.
+
+#	SoftanzaMine can be generated as a standalone executable or DLL
+#	for deployment with applications, potentially callable from external
+# 	languages via a wrapper class.
+
+# APIfied:
+#~~~~~~~~~
+
+#	All Softanza classes, modules, or layers can be delivered as
+#	a unified service-oriented API under a dedicated application
+#	server working over HTTP. This allows the use of the library
+#	in a production setting, on the cloud or in promise, in
+#	developing web and mobile backend services, and professional
+#	client server applications.
+
+# Battle-tested & documented
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#	All Softanza classes and functions are made hand in hand with
+#	tests crafted at design time, and then enritched, by using
+#	the library in solving several real world algorithmic cases.
+
+#	The library is carefelly documented through comments inside
+#	the code base and a set of narrations prvided as test samples.
+#	A documentation file is made to each class, in a strcutered
+#	format to enable its export to HTML, PDF or other formats.
+
+#~~~~~~~~~~~~~~~~~~~~~~~~#
+#  END OF THE NOTE NOTE  #
+#~~~~~~~~~~~~~~~~~~~~~~~~#
+
+# t0 = clock()
+
+# Loding the files related to the CORE layer
+
+	load "core/stzCoreLib.Ring"	
+
+# Loading files related to the OBJECT module
 
 	load "object/stzObject.ring"
+	load "error/stzObjectError.ring"
+	load "object/stzListOfObjects.ring"
 
-# Loading Softanza classes related to the type String
+# Loading files related to the NUMBER module
+
+	load "number/stzNumber.ring"
+	load "error/stzNumberError.ring"
+
+	load "number/stzDecimalToBinary.ring"
+	load "error/stzDecimalToBinaryError.ring"
+	
+	load "number/stzPairOfNumbers.ring"
+	load "number/stzListOfNumbers.ring"
+	
+	load "number/stzRandom.ring"
+
+	load "number/stzBinaryNumber.ring"
+	load "error/stzBinaryNumberError.ring"
+
+	load "number/stzHexNumber.ring"
+	load "error/stzHexNumberError.ring"
+
+	load "number/stzOctalNumber.ring"
+	load "error/stzOctalNumberError.ring"
+
+	load "number/stzListOfBytes.ring"
+	load "error/stzListOfBytesError.ring"
+
+# Loading files related to the LIST module
+
+	load "list/stzList.ring"
+	load "error/stzListError.ring"
+
+	load "list/stzSortedList.ring"
+
+	load "list/stzHashList.ring"
+	load "list/stzListOfHashLists.ring"
+	load "list/stzSet.ring"
+	
+	load "list/stzListOfLists.ring"
+	load "list/stzListOfPairs.ring"
+	load "list/stzPair.ring"
+	load "list/stzPairOfLists.ring"
+	
+	load "list/stzListOfSets.ring"
+	load "error/stzListOfSetsError.ring"
+	
+	load "list/stzTable.ring"
+	load "list/stzTree.ring"
+	load "list/stzGrid.ring"
+	load "error/stzGridError.ring"
+
+	load "list/stzItem.ring"
+	load "list/stzListParser.ring"
+
+	load "list/stzListInString.ring"
+
+# Loading files related to the STRING module
 
 	load "string/stzString.ring"
-	load "string/stzChar.ring"
+	load "error/stzStringError.ring"
 
-# Loading Softanza common classes
+	load "string/stzMultiString.ring"
+	load "error/stzMultiStringError.ring"
+
+	load "string/stzSubString.ring"
+
+	load "string/stzListOfStrings.ring"
+	load "error/stzListOfStringsError.ring"
+
+	load "string/stzChar.ring"
+	load "error/stzCharError.ring"
+
+	load "string/stzListOfChars.ring"
+	load "error/stzListOfCharsError.ring"
+
+	load "string/stzListOfUnicodes.ring"
+	load "string/stzStringArt.ring"
+
+# Loading files related tp the COMMON module
+
+	load "common/stzFunctions.ring"
+	load "common/stzSplitter.ring"
+	load "common/stzWalker.ring"
 
 	load "common/stzCounter.ring"
-	
+	load "common/stzCounterError.ring"
 
+	load "common/stzSection.ring"
 
+	load "common/stzSmallFunc.ring"
+	load "common/stzQtFunc.ring"
+	load "common/stzRingLibs.ring"
 
+# Loading files related to the TEST module
 
+	load "test/stzTest.ring"
 
+# Loading files related to the DATA mlodule
 
+	load "data/stzLocaleData.ring"
+	load "data/stzStopWordsData.ring"
 
-/*
-load "stzTest.ring"
+//	load "data/stzUnicodeData.ring"		#TODO check error!
 
-load "stzObject.ring"
-load "stzObjectError.ring"
-load "stzListOfObjects.ring"
+	load "data/stzConstraintsData.ring"
+	load "data/stzRandomData.ring"
+	load "data/stzCharData.ring"
 
-load "stzNullObject.ring"
-load "stzTrueObject.ring"
-load "stzFalseObject.ring"
+# Loading files related to the I18N module (part of SoftanzaExtend layer)
 
-load "stzNumber.ring"
-load "stzNumberError.ring"
-load "stzDecimalToBinary.ring"
-load "stzDecimalToBinaryError.ring"
+	load "extended/i18n/stzLocale.ring"
+	load "error/stzLocaleError.ring"	# ? Shoudld add extended/error/ folder?
 
-load "stzListOfNumbers.ring"
+	load "extended/i18n/stzCountry.ring"
+	load "error/stzCountryError.ring"
 
-load "stzRandom.ring"
-load "stzRandomData.ring"
+	load "extended/i18n/stzLanguage.ring"
+	load "extended/i18n/stzScript.ring"
+	load "extended/i18n/stzCurrency.ring"
 
-load "stzListOfUnicodes.ring"
+	load "extended/i18n/stzDate.ring"
+	load "extended/i18n/stzTime.ring"
 
-load "stzBinaryNumber.ring"
-load "stzBinaryNumberError.ring"
-load "stzHexNumber.ring"
-load "stzHexNumberError.ring"
-load "stzOctalNumber.ring"
-load "stzOctalNumberError.ring"
+	load "extended/i18n/stzStopWords.ring"
 
-load "stzString.ring"
+# Loading files related to the IO module
 
-load "stzStringError.ring"
-load "stzMultiString.ring"
-load "stzMultiStringError.ring"
-load "stzSubString.ring"
+	load "io/stzFile.ring"
+	load "error/stzFileError.ring"
 
-load "stzItem.ring"
+	load "io/stzFolder.ring"
+	load "io/stzExtCode.ring"
 
-load "stzStopWords.ring"
-load "stzStopWordsData.ring"
+# Files related to NATURAL module (part of SoftanzaExtended layer)
 
-load "stzListOfStrings.ring"
+	load "extended/natural/stzChainOfValue.ring"
+	load "extended/natural/stzChainOfTruth.ring"
 
-load "stzListOfStringsError.ring"
-load "stzListInString.ring"
+	load "extended/natural/stzEntity.ring"
+	load "error/stzEntityError.ring"
 
-load "stzListOfBytes.ring"
-load "stzListOfBytesError.ring"
+	load "extended/natural/stzListOfEntities.ring"
+	load "error/stzListOfEntitiesError.ring"
 
-load "stzChar.ring"
-load "stzCharError.ring"
-load "stzCharData.ring"
-load "stzListOfChars.ring"
-load "stzListOfCharsError.ring"
+	load "extended/natural/stzText.ring"
+	load "extended/natural/stzConstraints.ring"
 
-load "stzList.ring"
-load "stzListError.ring"
-load "stzSortedList.ring"
+	load "extended/natural/stzCCode.ring"
 
-load "stzHashList.ring"
-load "stzListOfHashLists.ring"
-load "stzSet.ring"
+	load "extended/natural/stzNullObject.ring"
+	load "extended/natural/stzTrueObject.ring"
+	load "extended/natural/stzFalseObject.ring"
 
-load "stzListOfLists.ring"
+# Loading the files related to SYSTEMS module (par of SoftanzaExtended layer)
 
-load "stzSplitter.ring"
+	load "extended/systems/stzArchSys.ring"
+	load "extended/systems/stzProfilingSystem.ring"
+	load "extended/systems/stzShowSystem.ring"
 
-load "stzListOfPairs.ring"
+	load "extended/systems/stzTextEncodingSystem.ring"
+	load "error/stzTextEncodingSystemError.ring"
 
-load "stzPair.ring"
-load "stzPairOfNumbers.ring"
-load "stzPairOfLists.ring"
+# loading MISC files
 
-load "stzListOfSets.ring"
-load "stzListOfSetsError.ring"
+	load "misc/stzDistanceZero.ring"
 
-load "stzTree.ring"
-
-load "stzWalker.ring"
-load "stzTable.ring"
-
-load "stzLocaleData.ring"
-load "stzLocale.ring"
-load "stzLocaleError.ring"
-
-load "stzCountry.ring"
-load "stzCountryError.ring"
-load "stzLanguage.ring"
-load "stzScript.ring"
-load "stzCurrency.ring"
-
-load "stzUnicodeData.ring"
-load "stzListParser.ring"
-
-load "stzGrid.ring"
-load "stzGridError.ring"
-load "stzCounter.ring"
-load "stzCounterError.ring"
-
-load "stzDate.ring"
-load "stzTime.ring"
-load "stzFile.ring"
-load "stzFileError.ring"
-load "stzFolder.ring"
-
-load "stzTextEncoding.ring"
-
-load "stzTextEncodingError.ring"
-
-load "stzChainOfValue.ring"
-load "stzChainOfTruth.ring"
-load "stzEntity.ring"
-load "stzEntityError.ring"
-load "stzListOfEntities.ring"
-load "stzListOfEntitiesError.ring"
-
-load "stzText.ring"
-load "stzStringArt.ring"
-load "stzConstraints.ring"
-load "stzConstraintsData.ring"
-
-load "stzCCode.ring"
-load "stzExtCode.ring"
-
-load "stzDistanceZero.ring"
-load "stzSection.ring"
-
-load "stzNaturalCode.ring"
-
-
-
-# Loading additional Softanza Utilities
-
-load "stzSmallFunc.ring"
-load "stzQtFunc.ring"
-
-//? (clock()-t1)/clockspersecond()
-
-# Softanza global startup time : 0.10 second(s) in Ring 1.20 (64 bits)
-# External libraries loading time: 0.06 second(s). Most is taken by lightguilib.ring
-# Softanza files loading time : 0.04 second(s)
-
-*/
+# ? (clock()-t0)/clockspersecond()
+#--> 0.06 seconds (Ring 1.20 64-bit)

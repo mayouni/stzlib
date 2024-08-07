@@ -30,7 +30,7 @@ func SayHelloFromRing(oQMLApp)
 
 
 
-load "stzlib.ring"
+load "../stzlib.ring"
 
 #----------------#
 #   STZ STRING   #

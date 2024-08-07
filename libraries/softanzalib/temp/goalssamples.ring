@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzlib.ring"
 
 #------------------------------#
 #   Goal 1 : EXPRESSIVENESS    #
