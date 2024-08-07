@@ -26,6 +26,84 @@ func Val(cNumberInStr)
 	func @Val(cNumberInStr)
 		return Val(cNumberInStr)
 
+func NumberSpacify(nNumber, cSpaceChar, nSpaceStep, nRound)
+
+		if not isNumber(nNumber) and isString(cSpaceChar) and isNumber(nRound)
+			raise("ERR-" + StkError(:IncorrectParamType))
+		ok
+
+		cStringified = ""+ nNumber
+
+		# Spacifying the integer part
+
+		nDotPos = substr(cStringified, ".")
+
+		cIntegerPart = ""
+
+		if nDotPos = 0
+			cIntegerPart = cStringified
+
+		else
+			for i = 1 to nDotPos-1
+				cIntegerPart += cStringified[i] 
+			next
+		ok
+
+		if nNumber < 0
+			cIntegerPart = substr(cIntegerPart, "-", "")
+		ok
+
+		nLen = len(cIntegerPart)
+
+		cIntegerPartRev = reverse(cIntegerPart)
+
+		cResult = ""
+		j = 0
+
+		for i = 1 to nLen
+		
+			cResult += cIntegerPartRev[i]
+
+			j++
+			if j = nSpaceStep and i < nLen
+				cResult += cSpaceChar
+				j = 0
+			ok
+
+		next
+
+		cResult = reverse(cResult)
+
+		# Compositing the spacified number in a string
+
+		if nNumber < 0
+			cResult = "-" + cResult
+		ok
+
+		if nDotPos > 0
+			cFractionalPart = ""
+			nLen = len(cStringified)
+
+			nLenFract = nLen - nDotPos
+
+			nMin = 0
+			if nLenFract < nRound
+				nMin = nLenFract
+			else
+				nMin = nRound
+			ok
+
+			nDotPos++
+
+			for i = nDotPos to nLen
+				cFractionalPart += cStringified[i]
+			next
+
+			cResult += ( "." + cFractionalPart )
+		ok
+
+		return cResult
+
 #~~~~~~~~~~~~~~~~~~~#
 #  STZ CORE NUMBER  #
 #~~~~~~~~~~~~~~~~~~~#
@@ -35,11 +113,12 @@ class stzCoreNumber from stkNumber
 class stkNumber
 	@content
 
-	@nRound = @CurrentRound()
-	@bSpacify = FALSE
-	@bShowPositive = FALSE
+	@nRound = 2
 
-	@bMinusInDecPart = FALSE
+	@bSpacify = FALSE
+	@nSpaceStep = 3
+	@cSpaceChar = "_"
+
 
 	#----------------------------------------------------------------#
 	#  INITIALISING THE NUMBER, FROM A NUMBER OR A NUMBER IN STRING  #
@@ -52,6 +131,7 @@ class stkNumber
 
 		if isNumber(pNumber)
 			@content = pNumber
+			@nRound = @CurrentRound()
 
 		else # the number is provided in a string
 
@@ -69,6 +149,11 @@ class stkNumber
 			# always be in the current round defined in the Ring
 			# program by decimals().
 
+			if substr(pNumber, '_') > 0
+				@bSpacify = TRUE
+			else
+				@bSpacify = FALSE
+			ok
 		ok
 
 	#--------------------------------------------#
@@ -82,160 +167,65 @@ class stkNumber
 	def Content()
 		return @content
 
-		#< @FunctionAlternativeForms
-
-		def NContent()
-			@content
-
-		def Value()
-			return @content
-
 		def NValue()
-			return @content
 
-		#--
-
-		def NumericContent()
-			@content
-
-		def NumericValue()
-			return @content
-
-		#>
-
-	def String()
-
-		cResult = This.StringIntegerPart() + "." + StringDecimalPartWithoutZeroDot()
+	def SValue()
+		
+		cResult = This.SIntegerPart() + "." + SFractionalPartWithoutZeroDot()
 		return cResult
-
-		#< @FunctionAlternativeForms
-
-		def SContent()
-			return This.String()
-
-		def SValue()
-			return This.String()
-
-		#--
-
-		def StringContent()
-			return This.String()
-
-		def StringValue()
-			return This.String()
-
-		#>
 
 	#-------------------------------------------------------#
 	#  GETTING THE INTEGER PART IN NUMBER AND STRING FORMS  #
 	#-------------------------------------------------------#
 
-	def IntPart()
+	def IntegerPart()
 		if @content > 0
 			return floor(@content)
 		else
 			return ceil(@content)
 		ok
 
-		#< @FunctionAlternativeFoms
+	def SIntegerPart()
 
-		def Int()
-			return This.IntPart()
-
-		def IntegerPart()
-			return This.IntPart()
-
-		def NIntPart()
-			return This.IntPart()
-
-		def NInt()
-			return This.IntPart()
-
-		def NIntegerPart()
-			return This.IntPart()
-
-		def NumericIntegerPart()
-			return This.IntPart()
-
-		#>
-
-	def SIntPart()
-		if @content > 0
-			n = floor(@content)
-		else
-			n = ceil(@content)
+		cSpaceChar = ""
+		if @bSpacify
+			cSpaceChar = @cSpaceChar
 		ok
 
-		if NOT @bSpacify
-			if @bShowPositive and @content > 0
-				return "+" + n
-			ok
-			return ""+ n
-		else
-			oTemp = new stkNumber(n)
-			return oTemp.Spacified()
-		ok
+		cResult = NumberSpacify(This.IntegerPart(), cSpaceChar, @nSpaceStep, @nRound)
 
-		#< @FunctionAlternativeForms
+		return cResult
 
-		def SInt()
-			return This.SIntPart()
-
-		def SIntegerPart()
-			return This.SIntPart()
-
-		def StringIntegerPart()
-			return This.SIntPart()
-
-		#>
 
 	#------------------------------------------------------#
 	#  GETTING THE STRING PART IN NUMBER AND STRING FORMS  #
 	#------------------------------------------------------#
 
-	def WithMinusInDecimalPart()
-		@bMinusInDecPart = TRUE
 
-	def NoMinusInDecimalPart()
-		@bMinusInDecPart = FALSE
+	def FractionalPart()
 
-	def DecPart()
 		n = @content
 		if n < 0
 			n = -n
 		ok
 
 		nResult = n - floor(n)
-
-		if @bMinusInDecPart
-			nResult = -nResult
-		ok
-
 		return nResult
 
-		#< @FunctionAlternativeForms
 
-		def Dec()
-			return This.DecPart()
+	def SFractionalPart()
 
-		def DecimalPart()
-			return This.DecPart()
+		cSpaceChar = ""
 
-		def NDecPart()
-			return This.DecPart()
+		nTempRound = @CurrentRound()
+		decimals(@nRound)
 
-		def NDec()
-			return This.DecPart()
+		cResult = NumberSpacify(This.FractionalPart(), cSpaceChar, @nSpaceStep, @nRound)
 
-		def NDecimalPart()
-			return This.DecPart()
+		decimals(nTempRound)
 
-		def NumericDecimalPart()
-			return This.DecPart()
-
-		#>
-
-	def SDecPart()
+		return cResult
+/*
 		#NOTE
 		# This function takes the current number value and
 		# constructs a string containing its decimal part.
@@ -263,13 +253,13 @@ class stkNumber
 
 		else
 			if @content < 0
-				if @bMinusInDecPart
+				if @bForceNegativeSignInFractionalPart
 					cResult = "-0."
 				else
 					cResult = "0."
 				ok
 			else
-				if @bShowPositive
+				if @bForcePositiveSign
 					cResult = "+0."
 				else
 					cResult = "0."
@@ -288,19 +278,7 @@ class stkNumber
 		next
 
 		return cResult
-
-		#< @FunctionAlternativeForms
-
-		def SDec()
-			return This.SDecPart()
-
-		def SDecimalPart()
-			return This.SDecPart()
-
-		def StringDecimalPart()
-			return This.SDecPart()
-
-		#>
+*/
 
 	#-----------------------------------------------#
 	#  GETTING AND SETTING THE ROUND OF THE NUMBER  #
@@ -327,12 +305,6 @@ class stkNumber
 			return "+"
 		ok
 
-	def ShowPositive()
-		@bShowPositive = TRUE
-
-	def HidePositive()
-		@bShowPositive = FALSE
-
 	#----------------------------------------------------#
 	#  GETTING THE SDTRING FORM OF THE NUMBER SPACIFIED  #
 	#----------------------------------------------------#
@@ -344,77 +316,95 @@ class stkNumber
 		@bSpacify = FALSE
 
 	def UnSpacified()
-		return This.StringValue()
+		bTemp = @bSpacify
+		@bSpacify = FALSE
+		cResult This.SValue()
+		@bSpacify = bTemp
 
 	def Spacified()
+		cResult = NumberSpacify(@content, @cSpaceChar, @nSpaceStep, @nRound)
+		return cResult
 
-		cStringValue = This.StringValue()
-		bHasDecPart = FALSE
-		bHasSign = FALSE
-		nDotPos = 0
-		nLen = len(cStringValue)
-
-		# Computing the start and end of the integer part
-
-		n1 = 1
-		if @content < 0
-			bHasSign = TRUE
-			n1 = 2
+/*
+		cSpaceChar = ""
+		if @bSpacify
+			cSpaceChar = @cSpaceChar
 		ok
 
-		n2 = substr(cStringValue, ".")
 
-		if n2 = 0
-			n2 = nLen
-			nDotPos = n2
-		else
-			bHasDecPart = TRUE
-			nDotPos = n2
-			n2--
-		ok
+
+		cResult = NumberSpacify(@content, cSpaceChar, true, false)
 
 		# Spacifying the integer part
 
-		j = 0
-		cPart = ""
+		cIntegerPart = This.StringIntegerPartWithoutSign()
+		nLen = len(cIntegerPart)
 
-		for i = n2 to n1 step -1
-			cPart += cStringValue[i]
+		cIntegerPartRev = reverse(cIntegerPart)
+
+		cResult = ""
+		j = 0
+
+		for i = 1 to nLen
+		
+			cResult += cIntegerPartRev[i]
 
 			j++
-			if j = 3 and i > n1
-				cPart += "_"
+			if j = @nSpaceStep and i < nLen
+				cResult += @cSpaceChar
 				j = 0
 			ok
+
 		next
+
+		cResult = reverse(cResult)
 
 		# Compositing the spacified number in a string
 
-		cResult = ""
+		if @content < 0
+			cResult = "-" + cResult
 
-		if bHasSign
-			cResult += "-"
-
-		but @bShowPositive
-			cResult += "+"
+		else
+			if @bForcePositiveSign
+				cResult = "+" + cResult
+			ok
 		ok
 
-		cResult += reverse(cPart)
-
-		if bHasDecPart
-			cResult += "." + This.StringDecimalPartWithoutZeroDot()
+		if This.HasDecimalPart()
+			cResult + "." + This.StringDecimalPartWithoutZeroDot()
 		ok
 
 		return cResult
+*/
+	def HasFractionalPart()
+		if substr( This.SValue(), "." ) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
 
-	def StringDecimalPartWithoutZeroDot()
+	def SFractionalPartWithoutZeroDot()
 
-		cDecimalPart = This.StringDecimalPart()
-		cDecimalPart = substr(cDecimalPart, "0.", "")
-		cDecimalPart = substr(cDecimalPart, "+", "")
-		cDecimalPart = substr(cDecimalPart, "-", "")
+		cResult = This.SFractionalPart()
+		cResult = substr(cResult, "0.", "")
+		cResult = substr(cResult, "+", "")
+		cResult = substr(cResult, "-", "")
 
-		return cDecimalPart
+		return cResult
+
+
+
+	def SpaceChar()
+		return @cSpaceChar
+
+	def SetSpaceChar(c)
+		@cSpaceChar = c
+
+	def SpaceStep()
+		return @nSpaceStep
+
+	def SetSpaceStep(n)
+		@nSpaceStep = n
 
 	#-------------------------#
 	#  ARITHMETIC OPERATIONS  #
@@ -485,10 +475,10 @@ class stkNumber
 			oTempCopy.Add(value)
 
 			if isNumber(value)
-				return oTempCopy.NumericValue()
+				return oTempCopy.NValue()
 
 			but isString(value)
-				return oTempCopy.StringValue()
+				return oTempCopy.SValue()
 
 			else
 				raise("ERR-" + StkError(:IncorrectParamType))
@@ -500,10 +490,10 @@ class stkNumber
 			oTempCopy.Substruct(value)
 
 			if isNumber(value)
-				return oTempCopy.NumericValue()
+				return oTempCopy.NValue()
 
 			but isString(value)
-				return oTempCopy.StringValue()
+				return oTempCopy.SValue()
 
 			else
 				raise("ERR-" + StkError(:IncorrectParamType))
@@ -515,10 +505,10 @@ class stkNumber
 			oTempCopy.Multiply(value)
 
 			if isNumber(value)
-				return oTempCopy.NumericValue()
+				return oTempCopy.NValue()
 
 			but isString(value)
-				return oTempCopy.StringValue()
+				return oTempCopy.SValue()
 
 			else
 				raise("ERR-" + StkError(:IncorrectParamType))
@@ -530,10 +520,10 @@ class stkNumber
 			oTempCopy.Divide(value)
 
 			if isNumber(value)
-				return oTempCopy.NumericValue()
+				return oTempCopy.NValue()
 
 			but isString(value)
-				return oTempCopy.StringValue()
+				return oTempCopy.SValue()
 
 			else
 				raise("ERR-" + StkError(:IncorrectParamType))
