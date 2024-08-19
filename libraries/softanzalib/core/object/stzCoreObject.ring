@@ -1,1 +1,0 @@
-load "stkObject.ring"

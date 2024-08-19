@@ -1,1 +1,0 @@
-load "stkList.ring"

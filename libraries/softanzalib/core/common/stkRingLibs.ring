@@ -1,5 +1,10 @@
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#  LOADING NECESSARY RING LIBS (INCLUDING EXTENSIONS)  #
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
 load "StdLib.ring"
-load "LightGuiLib.ring"
+load "LightGuiLib.ring"	// #TODO: replace it with "RingQtCoreLib.ring" when ready
 load "sqlitelib.ring"
 # load "InternetLib.ring"
 # load "fastpro.ring"
@@ -7,12 +12,14 @@ load "sqlitelib.ring"
 
 #NOTE
 
-# lightguilib.ring" takes most of the time made by non-Softanza libraries
+/*
+"LightGuiLib.ring" takes most of the time made by non-Softanza libraries
 
-#TODO #Mahmoud
-# Replace with "ringqtcorelib.ring" when included in future Ring.
+      Test it with:
 
-      // test it with:
-      // load "../libraries/guilib/classes/ring_qtcore.ring"
-      // loadlib("ringqt_core.dll")
-      // But don't keep it because we will not be able to use load "guilib.ring" or "lightguilib.ring"
+      load "../libraries/guilib/classes/ring_qtcore.ring"
+      loadlib("ringqt_core.dll")
+
+But don't keep it because programmers will not be able to use load "guilib.ring"
+or "lightguilib.ring"
+*/
