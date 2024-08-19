@@ -62,7 +62,7 @@
 		limited, except numbers are only integers.
 		
 		Otherwise, max numbers without loosing precision are between
-		2^53-1=-4.503.599.627.370.496 to 4.503.599.627.370.495,
+		2^53-1 = -4.503.599.627.370.496 to 4.503.599.627.370.495,
 		numbers are exactly the integers , e.g. 2^52 (plus sign bit).
 		
 		From 2^53 to 2^54, everything is multiplied by 2, so numbers becomes even.
@@ -108,8 +108,6 @@
 	_cMoneyNumberPrefix = "0m"
 
 	_cNumberFractionalSeparator = "."
-
-	_nMaxRound = 14	# Ring constraint
 
 	_anDecimalDigits = 0:9
 

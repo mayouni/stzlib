@@ -1,1 +1,0 @@
-load "stkError.ring"
