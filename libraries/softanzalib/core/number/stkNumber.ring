@@ -325,7 +325,7 @@ class stkNumber
 
 		nInt = This.IntegerPart()
 		nRound = @Round(nInt)
-		cResult = NumberStringify(nInt, cSpaceChar, @nSpaceStep, nRound)
+		cResult = NStringify(nInt, cSpaceChar, @nSpaceStep, nRound)
 
 		return cResult
 
@@ -521,7 +521,7 @@ class stkNumber
 
 	def Spacified()
 		
-		cResult = NumberStringify(@content, @cSpaceChar, @nSpaceStep, @Round(@content))
+		cResult = NStringify(@content, @cSpaceChar, @nSpaceStep, @Round(@content))
 		return cResult
 
 	#-------------------------------------------#
@@ -657,7 +657,7 @@ class stkNumber
 					raise("ERR-" + StkError(:IncorrectParamType) + NL)
 				ok
 
-				# Using @NumberStringify to get the string value of the number
+				# Using NStringify to get the string value of the number
 
 				cSpaceChar = @cSpaceChar
 				if not @bSpacify
@@ -673,7 +673,7 @@ class stkNumber
 					nRound = nRound2
 				ok
 				
-				cResult = @NumberStringify(nValue, @bSpacify, cSpaceChar, nRound)
+				cResult = NStringify(nValue, @bSpacify, cSpaceChar, nRound)
 
 				# Returning the result
 
@@ -703,7 +703,7 @@ class stkNumber
 					raise("ERR-" + StkError(:IncorrectParamType) + NL)
 				ok
 
-				# Using @NumberStringify to get the string value of the number
+				# Using NStringify to get the string value of the number
 
 				cSpaceChar = @cSpaceChar
 				if not @bSpacify
@@ -719,7 +719,7 @@ class stkNumber
 					nRound = nRound2
 				ok
 
-				cResult = @NumberStringify(nValue, @bSpacify, cSpaceChar, nRound)
+				cResult = NStringify(nValue, @bSpacify, cSpaceChar, nRound)
 
 				# Returning the result
 
@@ -749,7 +749,7 @@ class stkNumber
 					raise("ERR-" + StkError(:IncorrectParamType) + NL)
 				ok
 
-				# Using @NumberStringify to get the string value of the number
+				# Using NStringify to get the string value of the number
 
 				cSpaceChar = @cSpaceChar
 				if not @bSpacify
@@ -765,7 +765,7 @@ class stkNumber
 					nRound = nRound2
 				ok
 
-				cResult = @NumberStringify(nValue, @bSpacify, cSpaceChar, nRound)
+				cResult = NStringify(nValue, @bSpacify, cSpaceChar, nRound)
 
 				# Returning the result
 
@@ -794,7 +794,7 @@ class stkNumber
 					raise("ERR-" + StkError(:IncorrectParamType) + NL)
 				ok
 
-				# Using @NumberStringify to get the string value of the number
+				# Using NStringify to get the string value of the number
 
 				cSpaceChar = @cSpaceChar
 				if not @bSpacify
@@ -810,7 +810,7 @@ class stkNumber
 					nRound = nRound2
 				ok
 
-				cResult = @NumberStringify(nValue, @bSpacify, cSpaceChar, nRound)
+				cResult = NStringify(nValue, @bSpacify, cSpaceChar, nRound)
 
 				# Returning the result
 
