@@ -37,7 +37,13 @@ func StkError(cErr)
 	on :OutOfRangeValue
 		return 30
 
+	# ~~~ NUMBER ~~~
+
+	on :DivisionByZero
+		return 40
+
 	off
+
 
 	func StzCoreError(cErr)
 		return StkError(cErr)
