@@ -50,8 +50,11 @@ class stkBigNumber
 		def SIntPart()
 			return @cIntPart
 
-	def SFractPart()
+	def FractPart()
 		return @cFractPart
+
+		def SFractPart()
+			return @cFractPart
 
    	def Value()
         	result = @cIntPart
@@ -118,7 +121,6 @@ class stkBigNumber
 	        cResult = This.pvtMultiplyDecimalStrings(This.SAbs(), oOtherBigNumber.SAbs())
 	
 	        if @bIsNegative != oOtherBigNumber.isNegative() and result != "0"
-	            //cResult = "-" + cResult
 			@bIsNegative = TRUE
 		else
 			@bIsNegative = FALSE
@@ -137,6 +139,63 @@ class stkBigNumber
 
 		def SMultiply(cOtherBigNumber)
 			This.Multiply(cOtherBigNumber)
+
+	#---
+
+	def Divide(cOtherBigNumber)
+	    if cOtherBigNumber = "0"
+	        raise("ERR-" + StkError(:DivisionByZero))
+	    ok
+	    
+	    oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
+	    cResult = pvtDivideDecimalStrings(This.SAbs(), oOtherBigNumber.SAbs())
+	    
+	    # Determine if the result should be negative
+	    if @bIsNegative != oOtherBigNumber.isNegative() and cResult != "0"
+	        @bIsNegative = TRUE
+	    else
+	        @bIsNegative = FALSE
+	    ok
+	    
+	    # Split the result into integer and fractional parts
+	    acParts = split(cResult, ".")
+	    nLen = len(acParts)
+	    
+	    # Ensure correct array access based on the length of the split result
+	    if nLen >= 1
+	        @cIntPart = pvtStripLeadingZeros(acParts[1])  # Assign the integer part
+	    else
+	        @cIntPart = "0"  # Fallback in case the split fails unexpectedly
+	    ok
+	    
+	    if nLen = 2
+	        @cFractPart = acParts[2]  # Assign the fractional part if it exists
+	    else
+	        @cFractPart = ""  # No fractional part
+	    ok
+
+
+		def SDivide(cOtherBigNumber, nPrecision)
+			This.Divide(cOtherBigNumber, nPrecision)
+
+    	def Power(n)
+	        if type(n) != "NUMBER" or floor(n) != n
+	            raise("ERR-" + StkError(:IncorrectParamType))
+	        ok
+	        
+	        result = powerDecimalString(getValue(), n)
+	        return result
+
+		def Pow(n)
+			This.Power(n)
+
+		def SPower(n)
+			This.Power(n)
+
+		def SPow(n)
+			This.Power(n)
+
+	#---
 
    	 def isNegative()
         	return @bIsNegative
@@ -167,6 +226,90 @@ class stkBigNumber
 	#--------------------------------#
 	PRIVATE // KITCHEN OF THE CLASS  #
 	#--------------------------------#
+
+	func pvtDivideDecimalStrings(s1, s2)
+	    n1 = new stkBigNumber(s1)
+	    n2 = new stkBigNumber(s2)
+	    
+	    # Align decimal points and prepare for division
+	    decimalShift = max(len(n1.@cFractPart), len(n2.@cFractPart))
+	    intPart1 = n1.@cIntPart + n1.@cFractPart + pvtCreateZeros(decimalShift - len(n1.@cFractPart))
+	    intPart2 = n2.@cIntPart + n2.@cFractPart + pvtCreateZeros(decimalShift - len(n2.@cFractPart))
+	    
+	    # Ensure that intPart2 is not "0" to avoid infinite loops or division by zero
+	    if intPart2 = "0"
+	        raise("ERR-DivisionByZero")
+	    ok
+	    
+	    # Perform long division
+	    quotient = ""
+	    remainder = "0"
+	    dividendIndex = 1
+	    decimalPointInserted = false
+	    nLength = len(intPart1)
+	    maxPrecision = 6  # Adjust this for desired precision
+	    
+	    while true
+	        # Add the next digit to the remainder
+	        if dividendIndex <= nLength
+	            remainder += substr(intPart1, dividendIndex, 1)
+	            dividendIndex++
+	        else
+	            remainder += "0"
+	        ok
+	        
+	        # Normalize remainder by removing leading zeros
+	        remainder = pvtStripLeadingZeros(remainder)
+	        
+	        # Calculate quotient digit
+	        digit = 0
+	        while pvtCompareStrings(remainder, intPart2) >= 0
+	            remainder = pvtSubtractStrings(remainder, intPart2)
+	            digit++
+	        end
+	        quotient += "" + digit
+	        
+	        # Insert decimal point if needed
+	        if dividendIndex > nLength and not decimalPointInserted
+	            quotient += "."
+	            decimalPointInserted = true
+	        ok
+	        
+	        # Stop if we've reached desired precision after decimal point
+	        if decimalPointInserted and len(substr(quotient, pvtFindChar(quotient, ".") + 1)) >= maxPrecision
+	            break
+	        ok
+	        
+	        # Stop if the quotient becomes too long (as a safeguard)
+	        if len(quotient) > 100
+	            break
+	        ok
+	    end
+	    
+	    # Strip trailing zeros in the fractional part
+	    return pvtStripTrailingZeros(quotient)
+	
+	
+	# Helper function to create a string of zeros
+	func pvtCreateZeros(n)
+	    result = ""
+	    for i = 1 to n
+	        result += "0"
+	    next
+	    return result
+	
+	
+	# Helper function to find a character in a string (since Ring might not have a built-in find function)
+	func pvtFindChar(str, char)
+	    for i = 1 to len(str)
+	        if substr(str, i, 1) = char
+	            return i
+	        ok
+	    next
+	    return 0
+	
+
+	######
 
 	func pvtAddDecimalStrings(s1, s2)
 
@@ -227,9 +370,14 @@ class stkBigNumber
 	        return This.pvtCompareStrings(n1.@cFractPart, n2.@cFractPart)
 	
     	func pvtStripLeadingZeros(s)
-	        while left(s, 1) = "0" and len(s) > 1
-	            s = substr(s, 2)
+	        while TRUE
+			if NOT (left(s, 1) = "0" and len(s) > 1)
+				exit
+			ok
+
+	            	s = substr(s, 2)
 	        end
+
 	        return s
 
     	func pvtStripTrailingZeros(s)
@@ -403,3 +551,9 @@ class stkBigNumber
 	        else
 	            return a
 	        ok
+
+	func pvtAppendZeros(str, n)
+		for i = 1 to n
+			str += "0"
+		next
+	    	return str
