@@ -1,220 +1,4 @@
 
-
-
-func SFraction(pNumber)
-	oTempNumber = new stkNumber(pNumber)
-	return oTempNumber.SFraction()
-
-	func SFract(pNumber)
-		return SFraction(pNumber)
-
-	func SFractionalPart(pNumber)
-		return SFraction(pNumber)
-
-func NFraction(pNumber)
-	oTempNumber = new stkNumber(pNumber)
-	return oTempNumber.NFraction()
-
-	func NFract(pNumber)
-		return NFraction(pNumber)
-
-	func NFractionalPart(pNumber)
-		return NsFraction(pNumber)
-
-func Rounded(pNumber, nRound) #TODO
-		raise("TODO")
-
-func Round(pNumber)
-
-	if isNumber(pNumber)
-
-		# In case of integer, no rounds
-
-		if IsInteger(pNumber)
-			return 0
-		ok
-
-		# Store the current round in the program
-
-		nCurrentRound = CurrentRound()
-
-		# We have a number with a fractional part, stringify it
-
-		nMax = $MAX_NUMBER_SIZE # the maximum possible (calculable) round in Ring
-		decimals(nMax)
-		cTempStr = ""+ pNumber
-
-		# Rounding the number to the most possible round depending
-		# on the positions taken by the decimal digits and the sign
-
-		nLen = len(cTempStr)
-		nDotPos = substr(cTempStr, ".")
-
-		nMaxPossibleRound = nMax - nDotPos
-
-		if pNumber < 0
-			nMaxPossibleRound--
-		ok
-
-		if nMaxPossibleRound < 0
-			raise("ERR-" + StkError(:OutOfRangeValue) + NL)
-		ok
-	
-		decimals(nMaxPossibleRound)
-		cTempStr = ""+ pNumber
-
-		# Restoring the current round in the program
-
-		decimals(nCurrentRound)
-	
-		# Doing the job
-
-		nLen = len(cTempStr)
-		nResult = nLen - nDotPos
-
-		if cTempStr[nLen] != "0" and cTempStr[nLen] != "9"
-			return nResult
-		ok
-
-		for i = nLen-1 to nDotPos+1 step - 1
-
-			if cTempStr[i] = cTempStr[i+1] and
-			   (cTempStr[i] = "0" or cTempStr[i] = "9")
-
-				nResult--
-			else
-				exit
-			ok
-		
-		next
-
-		nResult--
-
-		return nResult
-
-	but isString(pNumber)
-
-		cTempStr = substr(pNumber, "_", "")
-		nValue = 0+ cTempStr
-
-		if not isNumber(nValue)
-			raise("ERR-" + StkError(:IncorrectParamValue) + NL)
-		ok
-
-		nRound = 0
-		nDotPos = substr(cTempStr, ".")
-
-		nRoundMax = $MAX_NUMBER_SIZE - (nDotPos - 1)
-
-		if nDotPos > 0
-			nRound = len(cTempStr) - nDotPos
-		ok
-
-		if nRound > nRoundMax
-			return nRoundMax
-		else
-			return nRound
-		ok
-
-	else
-		raise("ERR-" + StkError(:IncorrectParamType) + NL)
-	ok
-
-	func @Round(pNumber)
-		return Round(pNumber)
-
-func IsSafeNumber(n)
-	
-func IsInteger(n)
-	if substr( ""+ n, '.') = 0
-		return TRUE
-	else
-		return FALSE
-	ok
-
-func Max(panNumbers) // #TODO Move to stkListOfNumbers when made
-	
-	nLen = len(panNumbers)
-	if nLen = 1
-		return panNumbers[1]
-	ok
-
-	nMax = panNumbers[1]
-
-	for i = 2 to nLen
-		if panNumbers[i] > nMax
-			nMax = panNumbers[i]
-		ok
-	next
-
-	return nMax
-
-	func @Max(panNumbers)
-		return Max(panNumbers)
-
-func Min(panNumbers) // #TODO Move to stkListOfNumbers when made
-	nLen = len(panNumbers)
-	if nLen = 1
-		return panNumbers[1]
-	ok
-
-	nMin = panNumbers[1]
-
-	for i = 2 to nLen
-		if panNumbers[i] < nMin
-			nMin = panNumbers[i]
-		ok
-	next
-
-	return nMin
-
-	func @Min(panNumbers)
-		return Min(panNumbers)
-
-func Abs(n) // #TODO Add it as a method inside stkNumber
-	if n < 0
-		n = -n
-	ok
-
-	return n
-
-	func @Abs(n)
-		return Abs(n)
-
-func MaxInt(n)
-	if n = 0 return ok
-
-	nMaxRound = MaxRound(n)
-	nResult = $MAX_NUMBER_SIZE - nMaxRound
-
-	return nResult
-
-func MaxRound(n)
-	if n = 0 return $MAX_NUMBER_SIZE ok  // Special case for zero
-	    
-	nIntPart   = floor(Abs(n))
-	nIntDigits = len(""+ intPart)
-
-	if nIntDigits >= $MAX_NUMBER_SIZE
-		return 0
-	ok
-
-	nMaxFractionalDigits = $MAX_NUMBER_SIZE - nIntDigits
-	    
-	// Ensure we have at least 1 fractional digit and no more than $MAX_NUMBER_SIZE
-
-	if nMaxFractionalDigits > $MAX_NUMBER_SIZE
-		nMaxFractionalDigits = $MAX_NUMBER_SIZE
-	ok
-
-	if nMaxFractionalDigits < 1
-		nMaxFractionalDigits = 1
-	ok
-
-	return nMaxFractionalDigits
-	
-	func @MaxRound(paNumbers)
-		return MaxRound(paNumbers)
 	
 #~~~~~~~~~~~~~~~~~~~#
 #  STZ CORE NUMBER  #
@@ -278,7 +62,7 @@ class stkNumber
 
 	def SValue()
 		
-		cResult = This.SIntegerPart() + "." + SFractionalPartWithoutZeroDot()
+		cResult = This.SIntPart() + "." + SFractPartWithoutZeroDot()
 		return cResult
 
 	#-----------------------------------------------------#
@@ -309,21 +93,21 @@ class stkNumber
 	#  GETTING THE INTEGER PART IN NUMBER AND STRING FORMS  #
 	#-------------------------------------------------------#
 
-	def IntegerPart()
+	def IntPart()
 		if @content > 0
 			return floor(@content)
 		else
 			return ceil(@content)
 		ok
 
-	def SIntegerPart()
+	def SIntPart()
 
 		cSpaceChar = ""
 		if @bSpacify
 			cSpaceChar = @cSpaceChar
 		ok
 
-		nInt = This.IntegerPart()
+		nInt = This.IntPart()
 		nRound = @Round(nInt)
 		cResult = NStringify(nInt, cSpaceChar, @nSpaceStep, nRound)
 
@@ -334,7 +118,7 @@ class stkNumber
 	#  GETTING THE STRING PART IN NUMBER AND STRING FORMS  #
 	#------------------------------------------------------#
 
-	def FractionalPart()
+	def FractPart()
 
 		n = @content
 		if n < 0
@@ -345,15 +129,15 @@ class stkNumber
 		return nResult
 
 		def FPart()
-			return This.FractionalPart()
+			return This.FractPart()
 
-		def FractionalValue()
-			return This.FractionalPart()
+		def FractValue()
+			return This.FractPart()
 
 		def FValue()
-			return This.FractionalPart()
+			return This.FractPart()
 
-	def SFractionalPart()
+	def SFractPart()
 		nTempRound = CurrentRound() # in Ring program
 		nRound = This.Round()
 
@@ -391,19 +175,19 @@ class stkNumber
 		#< @FunctionAlternativeForms
 
 		def SFPart()
-			return This.SFractionalPart()
+			return This.SFractPart()
 
-		def SFractionalValue()
-			return This.SFractionalPart()
+		def SFractValue()
+			return This.SFractPart()
 
 		def SFValue()
-			return This.SFractionalPart()
+			return This.SFractPart()
 
 		def SFraction()
-			return This.SFractionalPart()
+			return This.SFractPart()
 		#>
 
-	def HasFractionalPart()
+	def HasFractPart()
 		if substr( This.SValue(), "." ) > 0
 			return TRUE
 		else
@@ -413,25 +197,25 @@ class stkNumber
 		#< @FunctionAlternativeForms
 
 		def HasFraction()
-			return This.HasFractionalPart()
+			return This.HasFractPart()
 
 		def IsRealNumber()
-			return This.HasFractionalPart()
+			return This.HasFractPart()
 
 		def IsReal()
-			return This.HasFractionalPart()
+			return This.HasFractPart()
 
 		def HasFValue()
-			return This.HasFractionalPart()
+			return This.HasFractPart()
 
 		def HasFPart()
-			return This.HasFractionalPart()
+			return This.HasFractPart()
 
 		#>
 
-	def SFractionalPartWithoutZeroDot()
+	def SFractPartWithoutZeroDot()
 
-		cResult = This.SFractionalPart()
+		cResult = This.SFractPart()
 		cResult = substr(cResult, "0.", "")
 		cResult = substr(cResult, "+", "")
 		cResult = substr(cResult, "-", "")
@@ -440,17 +224,17 @@ class stkNumber
 
 		#< @FunctionAlternativeForms
 
-		def SFractionalValueWithoutZeroDot()
-			return This.SFractionalPartWithoutZeroDot()
+		def SFractValueWithoutZeroDot()
+			return This.SFractPartWithoutZeroDot()
 
 		def SFPartWithoutZeroDot()
-			return This.SFractionalPartWithoutZeroDot()
+			return This.SFractPartWithoutZeroDot()
 
 		def SFValueWithoutZeroDot()
-			return This.SFractionalPartWithoutZeroDot()
+			return This.SFractPartWithoutZeroDot()
 
 		def SFractionWithoutZeroDot()
-			return This.SFractionalPartWithoutZeroDot()
+			return This.SFractPartWithoutZeroDot()
 
 		#>
 
@@ -647,7 +431,7 @@ class stkNumber
 
 				# Removing potential "_"
 
-				cTempStr = substr(value, "_", "")
+				cTempStr = trim(substr(value, "_", ""))
 
 				# Getting the numeric value
 
@@ -693,7 +477,7 @@ class stkNumber
 
 				# Removing potential "_"
 
-				cTempStr = substr(value, "_", "")
+				cTempStr = trim(substr(value, "_", ""))
 
 				# Getting the numeric value
 
@@ -739,7 +523,7 @@ class stkNumber
 
 				# Removing potential "_"
 
-				cTempStr = substr(value, "_", "")
+				cTempStr = trim(substr(value, "_", ""))
 
 				# Getting the numeric value
 
@@ -784,7 +568,7 @@ class stkNumber
 
 				# Removing potential "_"
 
-				cTempStr = substr(value, "_", "")
+				cTempStr = trim(substr(value, "_", ""))
 
 				# Getting the numeric value
 

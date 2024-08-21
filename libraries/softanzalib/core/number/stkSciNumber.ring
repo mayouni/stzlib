@@ -56,8 +56,8 @@ func Number2Sci(n)
 	return cResult
 
 
-func Sci2Number(cNumberInStr) # TODO: add a stzSicNumber class
-	cNumberInStr = substr(cNumberInStr, "_", "")
+func Sci2Number(cNumberInStr)
+	cNumberInStr = trim(substr(cNumberInStr, "_", ""))
 	nPos = substr(cNumberInStr, "e")
 	if nPos = 0
 		raise("ERR-" + StkError(:IncorrectParamValue))
