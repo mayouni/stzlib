@@ -24,6 +24,8 @@
 	load "string/stkChar.ring"
 
 	load "list/stkList.ring"
+
 	load "number/stkNumber.ring"
+	load "number/stkListOfNumbers.ring"
 
 //? ( clock() - t0 ) / clockspersecond()

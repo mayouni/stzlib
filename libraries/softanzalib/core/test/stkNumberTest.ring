@@ -270,14 +270,14 @@ o1 = new stkNumber("1223.87636")
 #--> 0
 
 ? MaxRound(8.1234567890123456789012)
-#--> 14                    \_______ non-significant fractional part
+#--> 14                    \_______ non-significant Fract part
 
 # Number with large integer part
 
 ? MaxRound(1234567890123456789012345.345)
 #--> 0
 
-# Number with both large integer and fractional part
+# Number with both large integer and Fract part
 
 ? MaxRound(9999999999999.12345678901234)
 #--> 2                     \___________ Over-digits
@@ -323,7 +323,7 @@ sdsd
 
 o1 = new stzCoreNumber("-511_234_567_890.123")
 
-? o1.SIntegerPart()
+? o1.SIntPart()
 # '-511_234_567_890'
 
 ? o1.Round()
@@ -481,7 +481,7 @@ o1 = new stkNumber(-234.87663637188362538)
 
 /*-----------
 
-? IsInteger(12)
+? IsInt(12) # Or IsInteger(12)
 #--> TRUE
 
 ? Round(12)
@@ -514,7 +514,7 @@ n = 12.576 * 3.27
 #--> 41.12
 
 # Bey default, ring rounds numbers to 2 positions.
-# This may hide some numbers in the fractional part.
+# This may hide some numbers in the Fract part.
 # Let's extend the decimals() round and see:
 
 decimals(10)
@@ -539,7 +539,7 @@ o1 = new stkNumber(n)
 ? o1.SValue()
 #--> '41.12352'
 
-? o1.SFractionalValue()
+? o1.SFractValue()
 #--> 0.12352
 
 ? NL + "---" + NL
