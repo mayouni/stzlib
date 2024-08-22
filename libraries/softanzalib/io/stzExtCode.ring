@@ -46,6 +46,15 @@ _oIntermediateTable = new stzTable([])
  ///  FUNCTIONS  ///
 ///////////////////
 
+func iif(cCondition, pTrue, pFalse)
+	cCode = 'bOk = (' + cCondition + ')'
+	eval(cCode)
+	if bOk
+		return pTrue
+	else
+		return pFalse
+	ok
+
 func TempVars()
 
 	aResult = []
