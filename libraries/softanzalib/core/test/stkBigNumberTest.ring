@@ -9,6 +9,8 @@ load "../error/stkError.ring"
 decimals(3)
 t0 = clock()
 
+
+
 /*-------
 */
 oBig1 = new stkBigNumber("324987182091876345.078")
@@ -25,6 +27,11 @@ oBig3 = new stkBigNumber("1")
 oBig3.Divide("3")
 ? oBig3.SValue()
 #--> 0.333333
+
+oBig4 = new stkBigNumber("795139556375158458500672312034291657065.10336")
+oBig4.Divide("876234987333.9876673")
+? oBig4.SValue()
+#--> 907450133661555453466475424.407391
 
 /*-------
 
