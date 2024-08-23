@@ -48,13 +48,25 @@ class stkBigNumber
 	def IntPart()
 		return @cIntPart
 
+		def Int()
+			return @cIntPart
+
 		def SIntPart()
+			return @cIntPart
+
+		def SInt()
 			return @cIntPart
 
 	def FractPart()
 		return @cFractPart
 
+		def Fract()
+			return @cFractPart
+
 		def SFractPart()
+			return @cFractPart
+
+		def SFract()
 			return @cFractPart
 
 	  #--------------------------------------------------------------#
@@ -227,6 +239,23 @@ class stkBigNumber
 		def Negate()
 			return This.SNegate()
 
+	  #-----------------------------------------#
+	 #  CHECKING IF THE BIG NUMBER IS INTEGER  #
+	#-----------------------------------------#
+
+	def IsInt()
+
+		cFract = trim(@cFractPart)
+
+		if cFract = "" or cFract = '0'
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsInteger()
+			return This.IsInt()
+
 	  #---------------------------------------#
 	 #  GETTING THE ROUND OF THE BIG NUMBER  #
 	#---------------------------------------#
@@ -235,7 +264,66 @@ class stkBigNumber
 		return @nPrecision
 
 		def Precision()
-			return This.Round
+			return @nPrecision
+
+	def RoundTo(n)
+		cFract = This.SFract()
+		nLen = This.Precision()
+
+		# CASE 1
+
+		if n = nLen
+			return This.SValue()
+		ok
+
+		# CASE 2
+
+		if n = 0
+			if This.IsInt()
+				return This.SValue()
+
+			else
+				nLenInt = len(@cIntPart)
+				nLastIntDigit = 0+ @cIntPart[nLenInt]
+				nFirstFractDigit = 0+ @cFractPart[1]
+
+				if nFirstFractDigit > 5
+					nLastIntDigit++
+				ok
+
+				cNewIntPart = ""
+				for i = 1 to nLenInt-1
+					cNewIntPart += @cIntPart[i]
+				next
+
+				cNewIntPart += ""+ nLastIntDigit
+				return cNewIntPart
+			
+			ok
+		
+		ok
+
+		# CASE 3
+
+		cResult = ""
+		for i = 1 to n-1
+			cResult += cFract[i]
+		next
+
+		nLastDigit = 0+ cFract[n]
+		nNextToLastDigit = 0+ cFract[n+1]
+		if nNextToLastDigit > 5
+			nLastDigit++
+		ok
+
+		cResult = This.SIntPart() + "." + cResult + ("" + nLastDigit)
+		return cResult
+	
+		def RoundedTo(n)
+			return This.RoundTo(n)
+
+		def Rounded(n)
+			return This.RoundTo(n)
 
 	#--------------------------------#
 	PRIVATE // KITCHEN OF THE CLASS  #
@@ -252,9 +340,11 @@ class stkBigNumber
 	        s2 = This.pvtPadLeft(s2, maxLen, "0")
 	        
 	        for i = maxLen to 1 step -1
+
 	            sum = 0+ (s1[i]) + s2[i] + carry
 	            result = "" + (sum % 10) + result
 	            carry = floor(sum / 10)
+
 	        next
 	 
 	        if carry > 0
@@ -267,6 +357,7 @@ class stkBigNumber
 
 	        n1 = new stkBigNumber(s1)
 	        n2 = new stkBigNumber(s2)
+
 	        maxFracLen = This.pvtMax(len(n1.@cFractPart), len(n2.@cFractPart))
 	        n1Padded   = This.pvtPadRight(n1.@cIntPart + n1.@cFractPart, len(n1.@cIntPart) + maxFracLen, "0")
 	        n2Padded   = This.pvtPadRight(n2.@cIntPart + n2.@cFractPart, len(n2.@cIntPart) + maxFracLen, "0")
@@ -276,6 +367,7 @@ class stkBigNumber
 	        if len(sum) > maxFracLen
 	            intPart = left(sum, len(sum) - maxFracLen)
 	            fracPart = right(sum, maxFracLen)
+
 	        else
 	            intPart = "0"
 	            fracPart = This.pvtPadLeft(sum, maxFracLen, "0")
@@ -287,6 +379,7 @@ class stkBigNumber
 	# Two helper functions to perform subtraction
 
    	 func pvtSubtractStrings(s1, s2)
+
 	        result = ""
 	        borrow = 0
 	        maxLen = This.pvtMax(len(s1), len(s2))
@@ -295,20 +388,25 @@ class stkBigNumber
 	        
 	        for i = maxLen to 1 step -1
 	            diff = 0+ s1[i] - s2[i] - borrow
+
 	            if diff < 0
 	                diff += 10
 	                borrow = 1
+
 	            else
 	                borrow = 0
 	            ok
+
 	            result = ""+ diff + result
 	        next
 	        
 	        return This.pvtStripLeadingZeros(result)
 
    	 func pvtSubtractDecimalStrings(s1, s2)
+
 	        n1 = new stkBigNumber(s1)
 	        n2 = new stkBigNumber(s2)
+
 	        maxFracLen = This.pvtMax(len(n1.@cFractPart), len(n2.@cFractPart))
 	        n1Padded   = This.pvtPadRight(n1.@cIntPart + n1.@cFractPart, len(n1.@cIntPart) + maxFracLen, "0")
 	        n2Padded   = This.pvtPadRight(n2.@cIntPart + n2.@cFractPart, len(n2.@cIntPart) + maxFracLen, "0")
@@ -316,6 +414,7 @@ class stkBigNumber
 	        if pvtCompareAbsValues(s1, s2) < 0
 	            diff = This.pvtSubtractStrings(n2Padded, n1Padded)
 	            isNegative = true
+
 	        else
 	            diff = This.pvtSubtractStrings(n1Padded, n2Padded)
 	            isNegative = false
@@ -326,6 +425,7 @@ class stkBigNumber
 	        fracPart = right(diff, maxFracLen)
 	        
 	        result = This.pvtStripLeadingZeros(intPart) + "." + This.pvtStripTrailingZeros(fracPart)
+
 	        if isNegative and result != "0"
 	            result = "-" + result
 	        ok
@@ -335,8 +435,10 @@ class stkBigNumber
 	# Two helper functiions to perform multiplication
 
 	func pvtMultiplyDecimalStrings(s1, s2)
+
 		n1 = new stkBigNumber(s1)
 	        n2 = new stkBigNumber(s2)
+
 	        fracLen1 = len(n1.@cFractPart)
 	        fracLen2 = len(n2.@cFractPart)
 	        
@@ -349,6 +451,7 @@ class stkBigNumber
 	        if len(product) > totalFracLen
 	            intPart = left(product, len(product) - totalFracLen)
 	            fracPart = right(product, totalFracLen)
+
 	        else
 	            intPart = "0"
 	            fracPart = This.pvtPadLeft(product, totalFracLen, "0")
@@ -357,7 +460,9 @@ class stkBigNumber
 	        return This.pvtStripTrailingZeros(This.pvtStripLeadingZeros(intPart) + "." + fracPart)
 
    	func pvtKaratsubaMultiply(x, y) # A specital algorithm efficient for large big numbers
+
 	        # Base case for recursion
+
 	        if len(x) < 10 or len(y) < 10
 	            return ""+ ( (0+ x) * (0+ y))
 	        ok
@@ -366,12 +471,14 @@ class stkBigNumber
 	        m2 = floor(m / 2)
 	
 	        # Split the digit sequences about the middle
+
 	        high1 = left(x, len(x) - m2)
 	        low1  = right(x, m2)
 	        high2 = left(y, len(y) - m2)
 	        low2  = right(y, m2)
 	
 	        # 3 recursive calls made to numbers approximately half the size
+
 	        z0 = This.pvtKaratsubaMultiply(low1, low2)
 	        z1 = This.pvtKaratsubaMultiply(pvtAddStrings(low1, high1), pvtAddStrings(low2, high2))
 	        z2 = This.pvtKaratsubaMultiply(high1, high2)
