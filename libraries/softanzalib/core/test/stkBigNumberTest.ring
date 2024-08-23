@@ -13,56 +13,80 @@ t0 = clock()
 
 /*-------
 */
-oBig1 = new stkBigNumber("324987182091876345.078")
-oBig1.Divide("876234987333.9876673")
-? oBig1.SValue()
-#--> 370890.442392
+oBig = new stkBigNumber("324987182091876345.078")
+oBig.Divide("876234987333.9876673")
+	? oBig.SValue()
+	#--> 370890.442392
+	? oBig.Round() + NL
+	#--> 6
 
-oBig2 = new stkBigNumber("1.5")
-oBig2.Divide("0.3")
-? oBig2.SValue()
-#--> 5
+oBig = new stkBigNumber("1.5")
+	oBig.Divide("0.3")
+	? oBig.SValue()
+	#--> 5
+	? oBig.Round() + NL
+	#--> 0
 
-oBig3 = new stkBigNumber("1")
-oBig3.Divide("3")
-? oBig3.SValue()
-#--> 0.333333
+oBig = new stkBigNumber("1")
+	oBig.Divide("3")
+	? oBig.SValue()
+	#--> 0.333333
+	? oBig.Round() + NL
+	#--> 6
 
-oBig4 = new stkBigNumber("795139556375158458500672312034291657065.10336")
-oBig4.Divide("876234987333.9876673")
-? oBig4.SValue()
-#--> 907450133661555453466475424.407391
+oBig = new stkBigNumber("795139556375158458500672312034291657065.10336")
+	oBig.Divide("876234987333.9876673")
+	? oBig.SValue()
+	#--> 907450133661555453466475424.407391
+	? oBig.Round() + NL
+	#--> 6
+
+oBig = new stkBigNumber("124_280_400.68")
+	oBig.Divide("2")
+	? oBig.SValue()
+	#--> 62140200.34
+	? oBig.Round()
+	2
 
 /*-------
 
 oBig = new stkBigNumber("324_987_182_091_876_345.078")
 
 ? oBig.SValue()
-#--> 324987182091876345.078
+	#--> 324987182091876345.078
+	? oBig.Round() + NL
+	#--> 3
 
 oBig.Add("122_333_987_337_132_339.987653")
-? oBig.SValue()
-#--> 447321169429008685.065653
+	? oBig.SValue()
+	#--> 447321169429008685.065653
+	? oBig.Round() + NL
+	#--> 6
 
 oBig.Subtract("122_333_987_337_132_339.987653")
-? oBig.SValue() + NL
-#--> 324987182091876345.078
-
+	? oBig.SValue()
+	#--> 324987182091876345.078
+	? oBig.Round() + NL
+	#--> 3
 
 oBig.Multiply("122_333_987_337_132_339.987653")
-? oBig.SValue()
-#--> 39756977818757922769007316455505225.287321934
+	? oBig.SValue()
+	#--> 39756977818757922769007316455505225.287321934
+	? oBig.Round() + NL
+	#--> 9
 
 oBig.Multiply("2")
-? oBig.SValue() + NL
-#--> 795139556375158458500672312034291657065.10336
+	? oBig.SValue() + NL
+	#--> 795139556375158458500672312034291657065.10336
+	? oBig.Round() + NL
+	#--> 5
 
 oBig.Divide("2")
-? oBig.SValue()
-#--> 90070405001030306060105.10336
+	? oBig.SValue()
+	#--> 397569778187579229250336156017145828532.55168
+	? oBig.Round() + NL
+	#--> 5
 
-#--> Online tool: 29,245,068,083,430,251,952,666,249,756,015.33646722
 */
-
 ? NL + "~~~" + NL
 ? (clock() - t0) / clockspersecond()

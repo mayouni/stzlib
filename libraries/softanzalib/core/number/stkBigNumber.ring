@@ -1,6 +1,8 @@
 
-# NOTE: this class was mostly in collaborationbetween ClaudeAI and ChatGPT
+# NOTE: this class was made in collaboration between me, ClaudeAI and ChatGPT.
 
+$BIG_NUMBER_MAX_PRECISION = 28
+$BIG_NUMBER_DEFAULT_PRECISION = 6
 
 #---------#
 #  CLASS  #
@@ -10,51 +12,19 @@ class stkBigNumber
 	@cIntPart
 	@cFractPart
 	@bIsNegative
+	@nPrecision
+
+	  #-------------------------------------------------------#
+	 #  INITIALIZING THE BIG NUMBER FROM A NUMBER IN STRING  #
+	#-------------------------------------------------------#
 
     	def init(cValue)
 
-	        if not isString(cValue)
-	            	raise("ERR-" + StkError(:IncorrectParamType))
-	        ok
+	       This.Update(cValue)
 
-		cValue = trim( substr(cValue, "_", "") )
-
-		if not isNumber(0+ cValue)
-			raise("ERR-" + StkError(:IncorrectParamType))
-		ok
-
-	        @bIsNegative = (left(cValue, 1) = "-")
-
-	        if @bIsNegative
-	            	cValue = substr(cValue, "-", "")
-	        ok
-	        
-	        acParts = split(cValue, ".")
-	        @cIntPart = This.pvtStripLeadingZeros(acParts[1])
-
-	        if len(acParts) > 1
-	            	@cFractPart = This.pvtStripTrailingZeros(acParts[2])
-	        else
-	            	@cFractPart = ""
-	        ok
-	        
-	        if @cIntPart = "" and
-		   @cFractPart = ""
-
-	           	@cIntPart = "0"
-	        ok
-
-	def IntPart()
-		return @cIntPart
-
-		def SIntPart()
-			return @cIntPart
-
-	def FractPart()
-		return @cFractPart
-
-		def SFractPart()
-			return @cFractPart
+	  #-----------------------------------------------------------------#
+	 #  GETTING THE VALUE OF THE BIG NUMBER AND ITS PARTS (IN STRING)  #
+	#-----------------------------------------------------------------#
 
    	def Value()
         	result = @cIntPart
@@ -71,6 +41,64 @@ class stkBigNumber
 
 		def SValue()
 			return This.Value()
+
+		def Content()
+			return This.Value()
+
+	def IntPart()
+		return @cIntPart
+
+		def SIntPart()
+			return @cIntPart
+
+	def FractPart()
+		return @cFractPart
+
+		def SFractPart()
+			return @cFractPart
+
+	  #--------------------------------------------------------------#
+	 #  UPDATING THE BIG NUMBER WITH A NUMBER PROVIDED AS A STRING  #
+	#--------------------------------------------------------------#
+
+	func Update(cNumberInStr)
+
+ 		if not isString(cNumberInStr)
+	            	raise("ERR-" + StkError(:IncorrectParamType))
+	        ok
+
+		cNumberInStr = trim( substr(cNumberInStr, "_", "") )
+
+		if not isNumber(0+ cNumberInStr)
+			raise("ERR-" + StkError(:IncorrectParamType))
+		ok
+
+	        @bIsNegative = (left(cNumberInStr, 1) = "-")
+
+	        if @bIsNegative
+	            	cNumberInStr = substr(cNumberInStr, "-", "")
+	        ok
+	        
+	        acParts = split(cNumberInStr, ".")
+	        @cIntPart = This.pvtStripLeadingZeros(acParts[1])
+
+		@cFractPArt = ""
+		@nPrecision = 0
+
+	        if len(acParts) > 1
+	            	@cFractPart = This.pvtStripTrailingZeros(acParts[2])
+			@nPrecision = len(@cFractPart)
+	        ok
+	        
+	        if @cIntPart = "" and
+		   @cFractPart = ""
+
+	           	@cIntPart = "0"
+	        ok
+
+	  #------------------------------------------------------------#
+	 #  ADDING A NUMBER IN STRING (BIG OR NOT) TO THE BIG NUMBER  #
+	#------------------------------------------------------------#
 
     	def Add(cOtherBigNumber)
 
@@ -91,19 +119,21 @@ class stkBigNumber
 
 	        ok
 
-		# Saving the number in two parts
+		# Updating the big number with the result
 
-		acParts = split(cResult, ".")
-		nLen = len(acParts)
+		This.Update(cResult)
 
-		@cIntPart = acParts[1]
-	
-		if nLen = 2
-			@cFractPart = acParts[2]	
-		ok
+
+		#< @FunctionAlternativeForm
 
 		def SAdd(cOtherBigNumber)
 			This.Add(cOtherBigNumber)
+
+		#>
+
+	  #-------------------------------------------------------------------#
+	 #  SUBTRACTING A NUMBER IN STRING (BIG OR NOT) FROM THE BIG NUMBER  #
+	#-------------------------------------------------------------------#
 
     	def Subtract(cOtherBigNumber)
 
@@ -114,6 +144,10 @@ class stkBigNumber
 		def SSubtract(cOtherBigNumber)
 			This.Subtract(cOtherBigNumber)
 
+
+	  #-------------------------------------------------------------------#
+	 #  MULTIPLYING THE BIG NUMBER WITH A NUMBER IN STRING (BIG OR NOT)  #
+	#-------------------------------------------------------------------#
 
    	 def Multiply(cOtherBigNumber)
 
@@ -126,63 +160,58 @@ class stkBigNumber
 			@bIsNegative = FALSE
 	        ok
 
-		# Saving the number in two parts
+		# Updating the big number with the result
 
-		acParts = split(cResult, ".")
-		nLen = len(acParts)
+		This.Update(cResult)
 
-		@cIntPart = acParts[1]
-	
-		if nLen = 2
-			@cFractPart = acParts[2]	
-		ok
+
+		#< @FunctionAlternativeForm
 
 		def SMultiply(cOtherBigNumber)
 			This.Multiply(cOtherBigNumber)
 
-	#---
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #  DIVIDING THE BIG NUMBER WITH A NUMBER IN STRING (BIG OR NOT)  #
+	#----------------------------------------------------------------#
 
 	def Divide(cOtherBigNumber)
-	    if cOtherBigNumber = "0"
-	        raise("ERR-" + StkError(:DivisionByZero))
-	    ok
+		if cOtherBigNumber = "0"
+	        	raise("ERR-" + StkError(:DivisionByZero))
+	   	 ok
 	    
-	    oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
-	    cResult = pvtDivideDecimalStrings(This.SAbs(), oOtherBigNumber.SAbs())
+	    	oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
+	    	cResult = pvtDivideDecimalStrings(This.SAbs(), oOtherBigNumber.SAbs())
 	    
-	    # Determine if the result should be negative
+		# Updating the big number with the result
 
-	    if @bIsNegative != oOtherBigNumber.isNegative() and cResult != "0"
-	        @bIsNegative = TRUE
-	    else
-	        @bIsNegative = FALSE
-	    ok
-	    
-	    # Split the result into integer and fractional parts
+		This.Update(cResult)
 
-	    acParts = split(cResult, ".")
-	    nLen = len(acParts)
-	    
-	    # Ensure correct array access based on the length of the split result
 
-	    if nLen >= 1
-	        @cIntPart = pvtStripLeadingZeros(acParts[1])  # Assign the integer part
-	    else
-	        @cIntPart = "0"  # Fallback in case the split fails unexpectedly
-	    ok
-	    
-	    if nLen = 2
-	        @cFractPart = acParts[2]  # Assign the fractional part if it exists
-	    else
-	        @cFractPart = ""  # No fractional part
-	    ok
-
+		#< @FunctionAlternativeForm
 
 		def SDivide(cOtherBigNumber, nPrecision)
 			This.Divide(cOtherBigNumber, nPrecision)
 
+		#>
 
-	#---
+	  #--------------------------------------------------------------#
+	 #  GETTING THE ABSOLUTE VALUE OF THE BIG NUMBER (IN A STRING)  #
+	#--------------------------------------------------------------#
+
+	def SAbs()
+		if This.IsNegative()
+			cResult = substr(This.SValue(), "-", "")
+			return cResult
+			
+		else
+			return This.SValue()
+		ok
+
+	  #------------------------------------------#
+	 #  CHECKING IF THE BIG NUMBER IS NEGATIVE  #
+	#------------------------------------------#
 
    	 def isNegative()
         	return @bIsNegative
@@ -198,111 +227,41 @@ class stkBigNumber
 		def Negate()
 			return This.SNegate()
 
-	def SAbs()
-		if This.IsNegative()
-			cResult = substr(This.SValue(), "-", "")
-			return cResult
-			
-		else
-			return This.SValue()
-		ok
+	  #---------------------------------------#
+	 #  GETTING THE ROUND OF THE BIG NUMBER  #
+	#---------------------------------------#
 
+	def Round()
+		return @nPrecision
+
+		def Precision()
+			return This.Round
 
 	#--------------------------------#
 	PRIVATE // KITCHEN OF THE CLASS  #
 	#--------------------------------#
 
-	func pvtDivideDecimalStrings(s1, s2)
+	# Two helper functions to perform addition
 
-	    n1 = new stkBigNumber(s1)
-	    n2 = new stkBigNumber(s2)
-	    
-	    # Align decimal points and prepare for division
-
-	    decimalShift = max(len(n1.@cFractPart), len(n2.@cFractPart))
-	    intPart1 = n1.@cIntPart + n1.@cFractPart + pvtCreateZeros(decimalShift - len(n1.@cFractPart))
-	    intPart2 = n2.@cIntPart + n2.@cFractPart + pvtCreateZeros(decimalShift - len(n2.@cFractPart))
-	    
-	    # Ensure that intPart2 is not "0" to avoid infinite loops or division by zero
-
-	    if intPart2 = "0"
-	        raise("ERR-DivisionByZero")
-	    ok
-	    
-	    # Perform long division
-
-	    quotient = ""
-	    remainder = "0"
-	    dividendIndex = 1
-	    decimalPointInserted = false
-	    nLength = len(intPart1)
-	    maxPrecision = 6  # Adjust this for desired precision
-	    
-	    while true
-
-	        # Add the next digit to the remainder
-
-	        if dividendIndex <= nLength
-	            remainder += substr(intPart1, dividendIndex, 1)
-	            dividendIndex++
-	        else
-	            remainder += "0"
-	        ok
-	        
-	        # Normalize remainder by removing leading zeros
-
-	        remainder = pvtStripLeadingZeros(remainder)
-	        
-	        # Calculate quotient digit
-
-	        digit = 0
-
-	        while pvtCompareStrings(remainder, intPart2) >= 0
-	            remainder = pvtSubtractStrings(remainder, intPart2)
-	            digit++
-	        end
-
-	        quotient += "" + digit
-	        
-	        # Insert decimal point if needed
-
-	        if dividendIndex > nLength and not decimalPointInserted
-	            quotient += "."
-	            decimalPointInserted = true
-	        ok
-	        
-	        # Stop if we've reached desired precision after decimal point
-
-	        if decimalPointInserted and len(substr(quotient, substr(quotient, ".") + 1)) >= maxPrecision
-	            break
-	        ok
-	        
-	        # Stop if the quotient becomes too long (as a safeguard)
-
-	        if len(quotient) > 100
-	            break
-	        ok
-	    end
-	    
-	    # Strip trailing zeros in the fractional part
-
-	    return pvtStripTrailingZeros(quotient)
+   	func pvtAddStrings(s1, s2)
+	        result = ""
+	        carry = 0
 	
-	
-	# Helper function to create a string of zeros
-
-	func pvtCreateZeros(n)
-
-	    result = ""
-
-	    for i = 1 to n
-	        result += "0"
-	    next
-
-	    return result
-	
-
-	######
+	        maxLen = This.pvtMax(len(s1), len(s2))
+	        s1 = This.pvtPadLeft(s1, maxLen, "0")
+	        s2 = This.pvtPadLeft(s2, maxLen, "0")
+	        
+	        for i = maxLen to 1 step -1
+	            sum = 0+ (s1[i]) + s2[i] + carry
+	            result = "" + (sum % 10) + result
+	            carry = floor(sum / 10)
+	        next
+	 
+	        if carry > 0
+	            result = ""+ carry + result
+	        ok
+	        
+	        return result
 
 	func pvtAddDecimalStrings(s1, s2)
 
@@ -324,6 +283,28 @@ class stkBigNumber
 	        
 	        cResult = This.pvtStripTrailingZeros(intPart + "." + fracPart)
 		return cResult
+
+	# Two helper functions to perform subtraction
+
+   	 func pvtSubtractStrings(s1, s2)
+	        result = ""
+	        borrow = 0
+	        maxLen = This.pvtMax(len(s1), len(s2))
+	        s1 = This.pvtPadLeft(s1, maxLen, "0")
+	        s2 = This.pvtPadLeft(s2, maxLen, "0")
+	        
+	        for i = maxLen to 1 step -1
+	            diff = 0+ s1[i] - s2[i] - borrow
+	            if diff < 0
+	                diff += 10
+	                borrow = 1
+	            else
+	                borrow = 0
+	            ok
+	            result = ""+ diff + result
+	        next
+	        
+	        return This.pvtStripLeadingZeros(result)
 
    	 func pvtSubtractDecimalStrings(s1, s2)
 	        n1 = new stkBigNumber(s1)
@@ -351,124 +332,7 @@ class stkBigNumber
 	        
 	        return result
 
-    	func pvtCompareAbsValues(s1, s2)
-	        n1 = new stkBigNumber(This.pvtSAbs(s1))
-	        n2 = new stkBigNumber(This.pvtSAbs(s2))
-	        
-	        if n1.@cIntPart != n2.@cIntPart
-	            return len(n1.@cIntPart) - len(n2.@cIntPart) or 
-	                   This.pvtCompareStrings(n1.@cIntPart, n2.@cIntPart)
-	        ok
-	        
-	        return This.pvtCompareStrings(n1.@cFractPart, n2.@cFractPart)
-	
-    	func pvtStripLeadingZeros(s)
-	        while TRUE
-			if NOT (left(s, 1) = "0" and len(s) > 1)
-				exit
-			ok
-
-	            	s = substr(s, 2)
-	        end
-
-	        return s
-
-    	func pvtStripTrailingZeros(s)
-
-		while TRUE
-			nLen = len(s)
-			if nLen < 0
-				exit
-			ok
-	
-			if right(s, 1) != "0"
-				exit
-			ok
-	
-			s = left(s, nLen - 1)
-	        end
-	
-		if right(s, 1) = "."
-			s = left(s, nLen - 1)
-		ok
-		
-	        return s
-
-    	func pvtSAbs(s) # s is a number in string
-	        if left(s, 1) = "-"
-	            s = substr(s, "-", "")
-	        ok
-	        return s
-
- 	func pvtPadLeft(s, n, char)
-	        while len(s) < n
-	            s = char + s
-	        end
-	        return s
-
-	func pvtPadRight(s, n, char)
-	        while len(s) < n
-	            s = s + char
-	        end
-	        return s
-
-    	func pvtShiftLeft(s, n)
-        	return s + This.pvtCopy("0", n)
-
-    	func pvtAddStrings(s1, s2)
-	        result = ""
-	        carry = 0
-	
-	        maxLen = This.pvtMax(len(s1), len(s2))
-	        s1 = This.pvtPadLeft(s1, maxLen, "0")
-	        s2 = This.pvtPadLeft(s2, maxLen, "0")
-	        
-	        for i = maxLen to 1 step -1
-	            sum = 0+ (s1[i]) + s2[i] + carry
-	            result = "" + (sum % 10) + result
-	            carry = floor(sum / 10)
-	        next
-	 
-	        if carry > 0
-	            result = ""+ carry + result
-	        ok
-	        
-	        return result
-
-   	 func pvtSubtractStrings(s1, s2)
-	        result = ""
-	        borrow = 0
-	        maxLen = This.pvtMax(len(s1), len(s2))
-	        s1 = This.pvtPadLeft(s1, maxLen, "0")
-	        s2 = This.pvtPadLeft(s2, maxLen, "0")
-	        
-	        for i = maxLen to 1 step -1
-	            diff = 0+ s1[i] - s2[i] - borrow
-	            if diff < 0
-	                diff += 10
-	                borrow = 1
-	            else
-	                borrow = 0
-	            ok
-	            result = ""+ diff + result
-	        next
-	        
-	        return This.pvtStripLeadingZeros(result)
-
-   	 func pvtCompareStrings(s1, s2)
-	        maxLen = This.pvtMax(len(s1), len(s2))
-	        s1 = This.pvtPadLeft(s1, maxLen, "0")
-	        s2 = This.pvtPadLeft(s2, maxLen, "0")
-	        
-	        for i = 1 to maxLen
-	            if s1[i] != s2[i]
-	                return ascii(s1[i]) - ascii(s2[i])
-	            ok
-	        next
-	        
-	        return 0
-
-	#-----
+	# Two helper functiions to perform multiplication
 
 	func pvtMultiplyDecimalStrings(s1, s2)
 		n1 = new stkBigNumber(s1)
@@ -491,8 +355,8 @@ class stkBigNumber
 	        ok
 	        
 	        return This.pvtStripTrailingZeros(This.pvtStripLeadingZeros(intPart) + "." + fracPart)
-	
-   	func pvtKaratsubaMultiply(x, y)
+
+   	func pvtKaratsubaMultiply(x, y) # A specital algorithm efficient for large big numbers
 	        # Base case for recursion
 	        if len(x) < 10 or len(y) < 10
 	            return ""+ ( (0+ x) * (0+ y))
@@ -520,33 +384,220 @@ class stkBigNumber
 	            z0
 	        )
 
-	func pvtCopy(s, n)
-	
-	        result = ""
-	
-	        for i = 1 to n
-	            result += s
-	        next
-	
-	        return result
-	
-	func pvtMin(a, b)
-	
-	        if a < b
-	            return a
-	        else
-	            return b
-	        ok
+	# Helper function to perform division
 
-	func pvtMax(a, b)
-	        if a < b
-	            return b
-	        else
-	            return a
-	        ok
+	func pvtDivideDecimalStrings(s1, s2)
 
-	func pvtAppendZeros(str, n)
-		for i = 1 to n
-			str += "0"
-		next
-	    	return str
+		n1 = new stkBigNumber(s1)
+	    	n2 = new stkBigNumber(s2)
+	    
+	    	# Align decimal points and prepare for division
+
+	    	decimalShift = max(len(n1.@cFractPart), len(n2.@cFractPart))
+	    	intPart1 = n1.@cIntPart + n1.@cFractPart + pvtCreateZeros(decimalShift - len(n1.@cFractPart))
+	   	 intPart2 = n2.@cIntPart + n2.@cFractPart + pvtCreateZeros(decimalShift - len(n2.@cFractPart))
+	    
+	   	 # Ensure that intPart2 is not "0" to avoid infinite loops or division by zero
+
+	    	if intPart2 = "0"
+	        	raise("ERR-DivisionByZero")
+	    	ok
+	    
+	    	# Perform long division
+
+		    quotient = ""
+		    remainder = "0"
+		    dividendIndex = 1
+		    decimalPointInserted = false
+		    nLength = len(intPart1)
+		    maxPrecision = $BIG_NUMBER_DEFAULT_PRECISION  # Adjust this for desired precision
+		    
+	   	 while true
+
+	        	# Add the next digit to the remainder
+
+	        	if dividendIndex <= nLength
+	            		remainder += substr(intPart1, dividendIndex, 1)
+	            		dividendIndex++
+	        	else
+	            		remainder += "0"
+	       		 ok
+	        
+	        	# Normalize remainder by removing leading zeros
+
+	      		remainder = pvtStripLeadingZeros(remainder)
+	        
+			# Calculate quotient digit
+
+			digit = 0
+
+		        while pvtCompareStrings(remainder, intPart2) >= 0
+		            	remainder = pvtSubtractStrings(remainder, intPart2)
+		            	digit++
+		        end
+
+	       		quotient += "" + digit
+	        
+	       		# Insert decimal point if needed
+
+		        if dividendIndex > nLength and not decimalPointInserted
+		            quotient += "."
+		            decimalPointInserted = true
+		        ok
+	        
+	       	 # Stop if we've reached desired precision after decimal point
+
+		        if decimalPointInserted and len(substr(quotient, substr(quotient, ".") + 1)) >= maxPrecision
+		            	break
+		        ok
+	        
+	        	# Stop if the quotient becomes too long (as a safeguard)
+
+		        if len(quotient) > 100
+		            	break
+		        ok
+	   	end
+	    
+	   	# Strip trailing zeros in the fractional part
+
+	    	return pvtStripTrailingZeros(quotient)
+
+		# Helper function to compare two strings
+
+   	 	func pvtCompareStrings(s1, s2)
+		        maxLen = This.pvtMax(len(s1), len(s2))
+		        s1 = This.pvtPadLeft(s1, maxLen, "0")
+		        s2 = This.pvtPadLeft(s2, maxLen, "0")
+		        
+		        for i = 1 to maxLen
+		            if s1[i] != s2[i]
+		                return ascii(s1[i]) - ascii(s2[i])
+		            ok
+		        next
+		        
+		        return 0
+
+		# Two helper functions to perform absolute values
+
+	    	func pvtCompareAbsValues(s1, s2)
+		        n1 = new stkBigNumber(This.pvtSAbs(s1))
+		        n2 = new stkBigNumber(This.pvtSAbs(s2))
+		        
+		        if n1.@cIntPart != n2.@cIntPart
+		            return len(n1.@cIntPart) - len(n2.@cIntPart) or 
+		                   This.pvtCompareStrings(n1.@cIntPart, n2.@cIntPart)
+		        ok
+		        
+		        return This.pvtCompareStrings(n1.@cFractPart, n2.@cFractPart)
+	
+	    	func pvtSAbs(s) # s is a number in string
+		        if left(s, 1) = "-"
+		            s = substr(s, "-", "")
+		        ok
+		        return s
+
+		# Helper function to strip zeros from left
+
+	    	func pvtStripLeadingZeros(s)
+		        while TRUE
+				if NOT (left(s, 1) = "0" and len(s) > 1)
+					exit
+				ok
+	
+		            	s = substr(s, 2)
+		        end
+	
+		        return s
+
+		# Helper function to strip zeros at the end
+
+	    	func pvtStripTrailingZeros(s)
+	
+			while TRUE
+				nLen = len(s)
+				if nLen < 0
+					exit
+				ok
+		
+				if right(s, 1) != "0"
+					exit
+				ok
+		
+				s = left(s, nLen - 1)
+		        end
+		
+			if right(s, 1) = "."
+				s = left(s, nLen - 1)
+			ok
+			
+		        return s
+	
+		# Helper function to pad n chars to the left of a given string
+
+	 	func pvtPadLeft(s, n, char)
+		       	while len(s) < n
+		        	s = char + s
+		        end
+		        return s
+
+		# Helper function to pad n chars to the right of a given string
+
+		func pvtPadRight(s, n, char)
+		        while len(s) < n
+		            	s = s + char
+		        end
+		        return s
+
+		# Helper function to shif n chars left of a given string
+
+	    	func pvtShiftLeft(s, n)
+	        	return s + This.pvtCopy("0", n)
+	
+	 	# Helper function to duplicate a char n times
+	
+		func pvtCopy(s, n)
+		        result = ""
+		
+		        for i = 1 to n
+		            result += s
+		        next
+		
+		        return result
+	
+		# Helper function to get the min of two numbers
+
+		func pvtMin(a, b)
+		
+		        if a < b
+		            return a
+		        else
+		            return b
+		        ok
+
+		# Helper function to get the max of two numbers
+
+		func pvtMax(a, b)
+		        if a < b
+		            return b
+		        else
+		            return a
+		        ok
+
+		# Helper function to append a string with n zeros
+
+		func pvtAppendZeros(str, n)
+			for i = 1 to n
+				str += "0"
+			next
+		    	return str
+
+		# Helper function to create a string of zeros
+
+		func pvtCreateZeros(n)
+		    	result = ""
+	
+		    	for i = 1 to n
+		        	result += "0"
+		    	next
+	
+		    	return result
