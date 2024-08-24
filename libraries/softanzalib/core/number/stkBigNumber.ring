@@ -10,8 +10,12 @@ $BIG_NUMBER_DEFAULT_PRECISION = 6
 
 class stkBigNumber
 	@cIntPart
-	@cFractPart
 	@bIsNegative
+
+	@cFullFractPart
+	@nFullPrecision
+
+	@cFractPart
 	@nPrecision
 
 	  #-------------------------------------------------------#
@@ -19,14 +23,20 @@ class stkBigNumber
 	#-------------------------------------------------------#
 
     	def init(cValue)
-
 	       This.Update(cValue)
+
+		# Storing the full precision of the number
+		# We need it if SetPrecision(n) is used with n > @nPrecision
+
+		@cFullFractPart = @cFractPart
+		@nFullPrecision = @nPrecision
 
 	  #-----------------------------------------------------------------#
 	 #  GETTING THE VALUE OF THE BIG NUMBER AND ITS PARTS (IN STRING)  #
 	#-----------------------------------------------------------------#
 
    	def Value()
+
         	result = @cIntPart
 
 	        if @cFractPart != ""
@@ -46,16 +56,20 @@ class stkBigNumber
 			return This.Value()
 
 	def IntPart()
-		return @cIntPart
+		if This.IsNegative()
+			return "-" + @cIntPart
+		else
+			return @cIntPart
+		ok
 
 		def Int()
-			return @cIntPart
+			return This.IntPart()
 
 		def SIntPart()
-			return @cIntPart
+			return This.IntPart()
 
 		def SInt()
-			return @cIntPart
+			return This.IntPart()
 
 	def FractPart()
 		return @cFractPart
@@ -68,6 +82,62 @@ class stkBigNumber
 
 		def SFract()
 			return @cFractPart
+
+	  #------------------------------------------------------------------------------#
+	 #  GETTING THE INITIAL FULL VALUE OF THE BIG NUMBER AND ITS PARTS (IN STRING)  #
+	#------------------------------------------------------------------------------#
+	# before any rounding has occured on it using SetRound(n)
+
+   	def InitialValue()
+
+        	result = @cIntPart
+
+	        if @cFullFractPart != ""
+	            result += "." + @cFullFractPart
+	        ok
+
+	        if @bIsNegative and result != "0"
+	            result = "-" + result
+	        ok
+
+	        return result
+
+		#< @FunctionAlternativeForms
+
+		def SInitialValue()
+			return This.InitialValue()
+
+		def InitialContent()
+			return This.InitialValue()
+
+		def SInitialContent()
+			return This.InitialValue()
+
+		#>
+
+	def FullFractPart()
+		return @cFullFractPart
+
+		def FullFract()
+			return @cFullFractPart
+
+		def SFullFractPart()
+			return @cFullFractPart
+
+		def SFullFract()
+			return @cFullFractPart
+
+	def FullPrecision()
+		return @nFullPrecision
+
+		def InitialPrecsion()
+			return @nFullPrecision
+
+		def FullRound()
+			return @nFullPrecision
+
+		def InitialRound()
+			return return @nFullPrecision
 
 	  #--------------------------------------------------------------#
 	 #  UPDATING THE BIG NUMBER WITH A NUMBER PROVIDED AS A STRING  #
@@ -266,41 +336,75 @@ class stkBigNumber
 		def Precision()
 			return @nPrecision
 
-	def RoundTo(precision) #ai #claude
-	    fraction = @cFractPart
+	def RoundedTo(precision) #ai #claude #me
+	    	
+	   	if not isNumber(precision)
+	        	raise("ERR-" + StkError(:IncorrectParamType))
+	   	ok
 
-	    if not isString(fraction) or not isNumber(precision)
-	        return NULL
-	    ok
-	    
-	    if len(fraction) <= precision
-		result = @cIntPart + "." + fraction + pvtCopy("0", precision - len(fraction))
-	        return result
-	    ok
-	    
-	    result = left(fraction, precision)
-	    nextDigit = 0 + substr(fraction, precision + 1, 1)
-	    
-	    if nextDigit >= 5
-	        for i = precision to 1 step -1
-	            digit = 0 + substr(result, i, 1)
-	            if digit < 9
-	                result = left(result, i-1) + ("" + (digit + 1))
-	                exit
-	            else
-	                result = left(result, i-1) + "0"
-	                if i = 1
-	                    result = "1" + result
-	                ok
-	            ok
-	        next
-	    ok
-	    
-	    result = @cIntPart + "." + result
-	    return result
+		if precision = 0 and This.IsInt()
+			return This.SInt()
+		ok
 
-	def Rounded(n)
-		return This.RoundTo(n)
+		fraction = @cFractPart
+
+	    	if len(fraction) <= precision
+			result = This.IntPart() + "." + fraction + pvtCopy("0", precision - len(fraction))
+	        	return result
+	   	 ok
+	    
+	    	result = left(fraction, precision)
+	    	nextDigit = 0 + substr(fraction, precision + 1, 1)
+	    
+	    	if nextDigit >= 5
+	        	for i = precision to 1 step -1
+	            		digit = 0 + substr(result, i, 1)
+	            		if digit < 9
+	                		result = left(result, i-1) + ("" + (digit + 1))
+	                		exit
+	           		else
+	                		result = left(result, i-1) + "0"
+	                		if i = 1
+	                    			result = "1" + result
+	                		ok
+	            		ok
+	       		next
+	    	ok
+
+		if result = ""
+			cRoundedTo1 = This.RoundedTo(1)
+			nDotPos = substr(cRoundedTo1, ".")
+			if nDotPos > 0
+				nDigit = 0+ cRoundedTo1[nDotPos+1]
+				if nDigit > 5
+					nIntPart = 0+ @cIntPart
+					nIntPart++
+					cIntPart = ""+ nIntPart
+					if This.IsNegative
+						result = "-" + cIntPart
+					else
+						result = cIntPart
+					ok
+				ok
+			ok
+
+		else
+			result = This.IntPart() + "." + result
+		ok
+
+	    	return result
+
+		def Rounded(n)
+			return This.RoundedTo(n)
+
+	def RoundTo(n)
+		cRounded = This.RoundedTo(n)
+		if substr(cRounded, ".") = 0
+			return
+		else
+			@cFractPart = split(cRounded, ".")[2]
+			@nPrecision = len(@cFractPart)
+		ok
 
 	#--------------------------------#
 	PRIVATE // KITCHEN OF THE CLASS  #
