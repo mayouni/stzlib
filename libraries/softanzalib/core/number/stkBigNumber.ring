@@ -266,64 +266,41 @@ class stkBigNumber
 		def Precision()
 			return @nPrecision
 
-	def RoundTo(n)
-		cFract = This.SFract()
-		nLen = This.Precision()
+	def RoundTo(precision) #ai #claude
+	    fraction = @cFractPart
 
-		# CASE 1
+	    if not isString(fraction) or not isNumber(precision)
+	        return NULL
+	    ok
+	    
+	    if len(fraction) <= precision
+		result = @cIntPart + "." + fraction + pvtCopy("0", precision - len(fraction))
+	        return result
+	    ok
+	    
+	    result = left(fraction, precision)
+	    nextDigit = 0 + substr(fraction, precision + 1, 1)
+	    
+	    if nextDigit >= 5
+	        for i = precision to 1 step -1
+	            digit = 0 + substr(result, i, 1)
+	            if digit < 9
+	                result = left(result, i-1) + ("" + (digit + 1))
+	                exit
+	            else
+	                result = left(result, i-1) + "0"
+	                if i = 1
+	                    result = "1" + result
+	                ok
+	            ok
+	        next
+	    ok
+	    
+	    result = @cIntPart + "." + result
+	    return result
 
-		if n = nLen
-			return This.SValue()
-		ok
-
-		# CASE 2
-
-		if n = 0
-			if This.IsInt()
-				return This.SValue()
-
-			else
-				nLenInt = len(@cIntPart)
-				nLastIntDigit = 0+ @cIntPart[nLenInt]
-				nFirstFractDigit = 0+ @cFractPart[1]
-
-				if nFirstFractDigit > 5
-					nLastIntDigit++
-				ok
-
-				cNewIntPart = ""
-				for i = 1 to nLenInt-1
-					cNewIntPart += @cIntPart[i]
-				next
-
-				cNewIntPart += ""+ nLastIntDigit
-				return cNewIntPart
-			
-			ok
-		
-		ok
-
-		# CASE 3
-
-		cResult = ""
-		for i = 1 to n-1
-			cResult += cFract[i]
-		next
-
-		nLastDigit = 0+ cFract[n]
-		nNextToLastDigit = 0+ cFract[n+1]
-		if nNextToLastDigit > 5
-			nLastDigit++
-		ok
-
-		cResult = This.SIntPart() + "." + cResult + ("" + nLastDigit)
-		return cResult
-	
-		def RoundedTo(n)
-			return This.RoundTo(n)
-
-		def Rounded(n)
-			return This.RoundTo(n)
+	def Rounded(n)
+		return This.RoundTo(n)
 
 	#--------------------------------#
 	PRIVATE // KITCHEN OF THE CLASS  #
@@ -331,7 +308,7 @@ class stkBigNumber
 
 	# Two helper functions to perform addition
 
-   	func pvtAddStrings(s1, s2)
+   	func pvtAddStrings(s1, s2) #ai #claude
 	        result = ""
 	        carry = 0
 	
@@ -353,7 +330,7 @@ class stkBigNumber
 	        
 	        return result
 
-	func pvtAddDecimalStrings(s1, s2)
+	func pvtAddDecimalStrings(s1, s2) #ai #claude
 
 	        n1 = new stkBigNumber(s1)
 	        n2 = new stkBigNumber(s2)
@@ -378,7 +355,7 @@ class stkBigNumber
 
 	# Two helper functions to perform subtraction
 
-   	 func pvtSubtractStrings(s1, s2)
+   	 func pvtSubtractStrings(s1, s2) #ai #claude
 
 	        result = ""
 	        borrow = 0
@@ -402,7 +379,7 @@ class stkBigNumber
 	        
 	        return This.pvtStripLeadingZeros(result)
 
-   	 func pvtSubtractDecimalStrings(s1, s2)
+   	 func pvtSubtractDecimalStrings(s1, s2) #ai #claude
 
 	        n1 = new stkBigNumber(s1)
 	        n2 = new stkBigNumber(s2)
@@ -434,7 +411,7 @@ class stkBigNumber
 
 	# Two helper functiions to perform multiplication
 
-	func pvtMultiplyDecimalStrings(s1, s2)
+	func pvtMultiplyDecimalStrings(s1, s2) #ai #claude
 
 		n1 = new stkBigNumber(s1)
 	        n2 = new stkBigNumber(s2)
@@ -459,7 +436,9 @@ class stkBigNumber
 	        
 	        return This.pvtStripTrailingZeros(This.pvtStripLeadingZeros(intPart) + "." + fracPart)
 
-   	func pvtKaratsubaMultiply(x, y) # A specital algorithm efficient for large big numbers
+	# A specital algorithm efficient for multiplying large big numbers
+
+   	func pvtKaratsubaMultiply(x, y) #ai #claude
 
 	        # Base case for recursion
 
@@ -493,7 +472,7 @@ class stkBigNumber
 
 	# Helper function to perform division
 
-	func pvtDivideDecimalStrings(s1, s2)
+	func pvtDivideDecimalStrings(s1, s2) #ai #claude #chatgpt
 
 		n1 = new stkBigNumber(s1)
 	    	n2 = new stkBigNumber(s2)
@@ -569,101 +548,107 @@ class stkBigNumber
 
 	    	return pvtStripTrailingZeros(quotient)
 
-		# Helper function to compare two strings
+	# Helper function to compare two strings
 
-   	 	func pvtCompareStrings(s1, s2)
-		        maxLen = This.pvtMax(len(s1), len(s2))
-		        s1 = This.pvtPadLeft(s1, maxLen, "0")
-		        s2 = This.pvtPadLeft(s2, maxLen, "0")
+    	func pvtCompareStrings(s1, s2) #ai #claude
+
+	        maxLen = This.pvtMax(len(s1), len(s2))
+	        s1 = This.pvtPadLeft(s1, maxLen, "0")
+	        s2 = This.pvtPadLeft(s2, maxLen, "0")
 		        
-		        for i = 1 to maxLen
-		            if s1[i] != s2[i]
-		                return ascii(s1[i]) - ascii(s2[i])
-		            ok
-		        next
+	        for i = 1 to maxLen
+	            if s1[i] != s2[i]
+	                return ascii(s1[i]) - ascii(s2[i])
+	            ok
+	        next
 		        
-		        return 0
+	        return 0
 
-		# Two helper functions to perform absolute values
+	# Two helper functions to perform absolute values
 
-	    	func pvtCompareAbsValues(s1, s2)
-		        n1 = new stkBigNumber(This.pvtSAbs(s1))
-		        n2 = new stkBigNumber(This.pvtSAbs(s2))
+	func pvtCompareAbsValues(s1, s2) #ai #claude
+
+	        n1 = new stkBigNumber(This.pvtSAbs(s1))
+	        n2 = new stkBigNumber(This.pvtSAbs(s2))
 		        
-		        if n1.@cIntPart != n2.@cIntPart
-		            return len(n1.@cIntPart) - len(n2.@cIntPart) or 
-		                   This.pvtCompareStrings(n1.@cIntPart, n2.@cIntPart)
-		        ok
+	        if n1.@cIntPart != n2.@cIntPart
+	            return len(n1.@cIntPart) - len(n2.@cIntPart) or 
+	                   This.pvtCompareStrings(n1.@cIntPart, n2.@cIntPart)
+	        ok
 		        
-		        return This.pvtCompareStrings(n1.@cFractPart, n2.@cFractPart)
+	        return This.pvtCompareStrings(n1.@cFractPart, n2.@cFractPart)
 	
-	    	func pvtSAbs(s) # s is a number in string
-		        if left(s, 1) = "-"
-		            s = substr(s, "-", "")
-		        ok
-		        return s
+	func pvtSAbs(s) #ai #claude
+	        if left(s, 1) = "-"
+	            s = substr(s, "-", "")
+	        ok
+	        return s
 
-		# Helper function to strip zeros from left
+	# Helper function to strip zeros from left
 
-	    	func pvtStripLeadingZeros(s)
-		        while TRUE
-				if NOT (left(s, 1) = "0" and len(s) > 1)
-					exit
-				ok
-	
-		            	s = substr(s, 2)
-		        end
-	
-		        return s
-
-		# Helper function to strip zeros at the end
-
-	    	func pvtStripTrailingZeros(s)
-	
-			while TRUE
-				nLen = len(s)
-				if nLen < 0
-					exit
-				ok
-		
-				if right(s, 1) != "0"
-					exit
-				ok
-		
-				s = left(s, nLen - 1)
-		        end
-		
-			if right(s, 1) = "."
-				s = left(s, nLen - 1)
+    	func pvtStripLeadingZeros(s) #ai #claude
+	        while TRUE
+			if NOT (left(s, 1) = "0" and len(s) > 1)
+				exit
 			ok
+	
+	            	s = substr(s, 2)
+	        end
+	
+	        return s
+
+	# Helper function to strip zeros at the end
+
+	func pvtStripTrailingZeros(s) #ai #claude
+	
+		while TRUE
+			nLen = len(s)
+			if nLen < 0
+				exit
+			ok
+		
+			if right(s, 1) != "0"
+				exit
+			ok
+		
+			s = left(s, nLen - 1)
+	        end
+		
+		if right(s, 1) = "."
+			s = left(s, nLen - 1)
+		ok
 			
-		        return s
+	        return s
 	
-		# Helper function to pad n chars to the left of a given string
+	# Helper function to pad n chars to the left of a given string
 
-	 	func pvtPadLeft(s, n, char)
-		       	while len(s) < n
-		        	s = char + s
-		        end
-		        return s
+ 	func pvtPadLeft(s, n, char) #ai #claude
 
-		# Helper function to pad n chars to the right of a given string
+	       	while len(s) < n
+	        	s = char + s
+	        end
+	        return s
 
-		func pvtPadRight(s, n, char)
-		        while len(s) < n
-		            	s = s + char
-		        end
-		        return s
+	# Helper function to pad n chars to the right of a given string
 
-		# Helper function to shif n chars left of a given string
+	func pvtPadRight(s, n, char) #ai #claude
 
-	    	func pvtShiftLeft(s, n)
-	        	return s + This.pvtCopy("0", n)
+	        while len(s) < n
+	            	s = s + char
+	        end
+	        return s
+
+	# Helper function to shif n chars left of a given string
+
+    	func pvtShiftLeft(s, n) #ai #claude
+
+        	return s + This.pvtCopy("0", n)
 	
-	 	# Helper function to duplicate a char n times
+ 	# Helper function to duplicate a char n times
 	
-		func pvtCopy(s, n)
-		        result = ""
+	func pvtCopy(s, n) #ai #claude
+
+		result = ""
 		
 		        for i = 1 to n
 		            result += s
@@ -671,40 +656,43 @@ class stkBigNumber
 		
 		        return result
 	
-		# Helper function to get the min of two numbers
+	# Helper function to get the min of two numbers
 
-		func pvtMin(a, b)
+	func pvtMin(a, b) #ai #claude
 		
-		        if a < b
-		            return a
-		        else
-		            return b
-		        ok
+	        if a < b
+	            return a
+	        else
+	            return b
+	        ok
 
-		# Helper function to get the max of two numbers
+	# Helper function to get the max of two numbers
 
-		func pvtMax(a, b)
-		        if a < b
-		            return b
-		        else
-		            return a
-		        ok
+	func pvtMax(a, b) #ai #claude
 
-		# Helper function to append a string with n zeros
+	        if a < b
+	            return b
+	        else
+	            return a
+	        ok
 
-		func pvtAppendZeros(str, n)
-			for i = 1 to n
-				str += "0"
-			next
-		    	return str
+	# Helper function to append a string with n zeros
 
-		# Helper function to create a string of zeros
+	func pvtAppendZeros(str, n) #ai #claude
 
-		func pvtCreateZeros(n)
-		    	result = ""
+		for i = 1 to n
+			str += "0"
+		next
+	    	return str
+
+	# Helper function to create a string of zeros
+
+	func pvtCreateZeros(n) #ai #claude
+
+		result = ""
 	
-		    	for i = 1 to n
-		        	result += "0"
-		    	next
+	    	for i = 1 to n
+	        	result += "0"
+	    	next
 	
-		    	return result
+	    	return result
