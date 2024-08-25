@@ -10,10 +10,10 @@ decimals(3)
 t0 = clock()
 
 
-
 /*-------
 
 oBig = new stkBigNumber("324987182091876345.078")
+
 oBig.Divide("876234987333.9876673")
 	? oBig.SValue()
 	#--> 370890.442392
@@ -48,6 +48,8 @@ oBig = new stkBigNumber("124_280_400.68")
 	? oBig.Round()
 	2
 
+# Executed in 0.033 seconds.
+
 /*-------
 
 oBig = new stkBigNumber("324_987_182_091_876_345.078")
@@ -76,7 +78,7 @@ oBig.Multiply("122_333_987_337_132_339.987653")
 	#--> 9
 
 oBig.Multiply("2")
-	? oBig.SValue() + NL
+	? oBig.SValue()
 	#--> 795139556375158458500672312034291657065.10336
 	? oBig.Round() + NL
 	#--> 5
@@ -87,9 +89,12 @@ oBig.Divide("2")
 	? oBig.Round() + NL
 	#--> 5
 
+# Executed in 0.031 seconds.
+
 /*-------
 
 oBig = new stkBigNumber("795139556375158458500672312034291657065.10336")
+
 	oBig.Divide("876234987333.9876673")
 	? oBig.SValue()
 	#--> 907450133661555453466475424.407391
@@ -112,6 +117,7 @@ oBig = new stkBigNumber("795139556375158458500672312034291657065.10336")
 	#--> 907450133661555453466475424.4
 
 oBig = new stkBigNumber("123_456_789.87")
+
 	? oBig.Rounded(1)
 	#--> 123456789.9
 
@@ -128,74 +134,136 @@ oBig = new stkBigNumber("123_456_789")
 	? oBig.RoundedTo(3)
 	#--> 123456789.000
 
+# Executed in 0.015 seconds.
+
 /*--------- #narration
-*/
 
 # stkBigNumber has 3 important criterias regarding rounding:
 #	1. It maintains both the current value and the initial value (before any rounding).
 #	2. It has methods for both viewing a rounded value (RoundedTo), without modifying
-# 	   the number and actually rounding the number (RoundTo), and thus modifiying it.
+# 	   the number, and actually rounding the number (RoundTo) and thus modifiying it.
 # 	3. It keeps track of the current precision (current round) separately from the full
 # 	   precision of the initial value.
 
 # Let's check this by example.
 
-oBig = new stkBigNumber("-123_456_789")
-	? oBig.RoundedTo(0)
-	#--> -123456789
-
 # Create a new stkBigNumber object with a large negative number
 oBig = new stkBigNumber("-12_345_567_980_117.8765454")
 
-# Display the current precision of the number
-? oBig.Precision()
-#--> 7
+	# Display the current precision of the number
+	? oBig.Precision()
+	#--> 7
+	
+	# Display the number rounded to 3 decimal places without changing the original
+	? oBig.RoundedTo(3)
+	#--> -12345567980117.877
+	
+	# Verify that the original precision hasn't changed
+	? oBig.Precision()
+	#--> 7
+	
+	# Round the number to 3 decimal places and modify the original object
+	oBig.RoundTo(3)
+	
+	# Display the new value of the number after rounding
+	? oBig.SValue()
+	#--> -12345567980117.877
+	
+	# Verify that the precision has been updated to 3
+	? oBig.Precision()
+	#--> 3
+	
+	# Display the initial value of the number (before any rounding)
+	? oBig.SInitialValue()
+	#--> -12345567980117.8765454
+	
+	# Display the full precision of the initial value
+	? oBig.FullPrecision()
+	#--> 7
 
-# Display the number rounded to 3 decimal places without changing the original
-? oBig.RoundedTo(3)
-#--> -12345567980117.877
+# Executed in 0.001 seconds.
 
-# Verify that the original precision hasn't changed
-? oBig.Precision()
-#--> 7
+/*------
 
-# Round the number to 3 decimal places and modify the original object
-oBig.RoundTo(3)
+oBig = new stkBigNumber("-123_456_789")
+	? oBig.RoundedTo(0) + NL
+	#--> -123456789
 
-# Display the new value of the number after rounding
+/*------ #narration
+*/
+
+# This code demonstrates the flexibility of the stkBigNumber class
+# in handling different precision levels. It shows how to:
+
+# 1. Check and use maximum and default precision settings.
+# 2. Create a BigNumber with a specific value.
+# 3. View and modify the precision of the number.
+# 4. Access the full precision of the original number.
+# 5. Use symbolic precision settings (:Max and :Default).
+# 6. Restore the number to its original state.
+# 7. Observe how different precision settings affect the displayed value.
+
+# The class maintains the original value while allowing for different
+# representations based on the specified precision, providing a powerful
+# tool for numeric operations requiring varying levels of precision.
+
+# Display the maximum allowed precision for BigNumber
+? BigNumberMaxPrecision()
+#--> 28
+
+# Display the default precision for BigNumber
+? BigNumberDefaultPrecision() + NL
+#--> 6
+
+# Create a new BigNumber object
+oBig = new stkBigNumber("12_345_549.878546")
+
+# Display the current precision of the number (defaults to 6)
+? oBig.Precision() # Or Round()
+#--> 6
+
+# Set the precision to 2 decimal places
+oBig.SetPrecision(2) # Or SetRound()
+# Display the value after setting precision
 ? oBig.SValue()
-#--> -12345567980117.877
+#--> 12345549.88
 
-# Verify that the precision has been updated to 3
+# Display the full precision of the original number
+? oBig.FullPrecision() # Or FullRound()
+#--> 6
+
+# Set the precision to the maximum allowed
+oBig.SetPrecision(:Max)
+# Display the new precision
 ? oBig.Precision()
-#--> 3
+#--> 28
 
-# Display the initial value of the number (before any rounding)
-? oBig.SInitialValue()
-#--> -12345567980117.8765454
+# Display the value with maximum precision
+? oBig.SValue()
+#--> 12345549.8800000000000000000000000000
 
-# Display the full precision of the initial value
-? oBig.FullPrecision()
-#--> 7
+# Restore the number to its original state
+oBig.Restore()
 
-# The above demonstration highlights the practical benefits of stkBigNumber:
-#
-# 1. Crucial for precise financial or scientific calculations.
-# 2. Allows flexible reporting at different precisions without data loss.
-# 3. Enables stepwise calculations with specific precision requirements.
-# 4. Simplifies rounding by eliminating need for manual tracking of original values.
-# 5. Reduces risk of precision loss in complex calculations.
-# 6. Beneficial for auditing or tracing calculation evolution.
-#
-# This approach offers advantages over systems without such flexibility:
-#
-# - No need to create multiple copies for different precision requirements.
-# - Ability to always refer back to the initial value.
-# - Can observe how rounding affects the result at each step.
-# - Provides a robust foundation for applications requiring high precision
-#   and traceability in numeric operations.
+# Set the precision to the default value
+oBig.SetPrecision(:Default)
+# Display the new precision
+? oBig.Precision()
+#--> 6
 
-#~~~~~~~~~~~~
+# Display the value with default precision
+? oBig.SValue()
+#--> 12345549.878546
 
-? NL + "~~~" + NL
-? (clock() - t0) / clockspersecond()
+# Set the precision back to 2 decimal places
+oBig.SetPrecision(2)
+# Display the final value
+? oBig.SValue()
+#--> 12345549.88
+
+# Executed in 0.001 seconds.
+
+/*~~~~~~~~~~~~
+*/
+? NL + "~~~~~~~~~" + NL
+? "Executed in " + (clock() - t0) / clockspersecond() + " seconds."
