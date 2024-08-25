@@ -1,8 +1,47 @@
 
 # NOTE: this class was made in collaboration between me, ClaudeAI and ChatGPT.
+# ClaudeAI generated the overall design and proposed the majority of helper functions.
+# ChatGPT helped debugging an issue and fixing it.
+# I manually crafted several adaptations and refactorings to cope with Softanza style.
 
 $BIG_NUMBER_MAX_PRECISION = 28
 $BIG_NUMBER_DEFAULT_PRECISION = 6
+
+#--
+
+func BigNumberMaxPrecision()
+	return $BIG_NUMBER_MAX_PRECISION
+
+	func BigNumberMaxRound()
+		return $BIG_NUMBER_MAX_PRECISION
+
+func SetBigNumberMaxPrecision(n)
+    	if not isNumber(n)
+		raise("ERR-" + StkError(:IncorrectParamType))
+	ok
+
+	$BIG_NUMBER_MAX_PRECISION = n
+
+	func SetBigNumberMaxRound(n)
+		SetBigNumberMaxPrecision(n)
+
+#--
+
+func BigNumberDefaultPrecision()
+	return $BIG_NUMBER_DEFAULT_PRECISION
+
+	func BigNumberDefaultRound()
+		return $BIG_NUMBER_DEFAULT_PRECISION
+
+func SetBigNumberDefaultPrecision(n)
+    	if n > $BIG_NUMBER_DEFAULT_PRECISION
+		raise("ERR-" + StkError(:IncorrectParamType))
+	ok
+
+	$BIG_NUMBER_DEFAULT_PRECISION = n
+
+	func SetBigNumberDefaultRound(n)
+		SetBigNumberDefaultPrecision(n)
 
 #---------#
 #  CLASS  #
@@ -178,6 +217,28 @@ class stkBigNumber
 	           	@cIntPart = "0"
 	        ok
 
+		# If the big number has a higer percision than
+		# the allowed $BIG_NUMBER_MAX_PRECISION, let
+		# the max precision be the full precision
+
+		# ~> As a corollary of this, the provided number
+		# is rounded to the maximum allowed precision
+
+		if @nPrecision > $BIG_NUMBER_MAX_PRECISION
+			This.RoundTo($BIG_NUMBER_MAX_PRECISION)
+			@cFullFractPart = @cFractPart
+			@nFullPrecision = @nPrecision
+		ok
+
+	  #-------------------------------------------------#
+	 #  RESTORING THE INITIAL VALUE OF THE BIG NUMBER  #
+	#-------------------------------------------------#
+
+	def Restore()
+		@cFractPart = @cFullFractPart
+		@nPrecision = @nFullPrecision
+
+
 	  #------------------------------------------------------------#
 	 #  ADDING A NUMBER IN STRING (BIG OR NOT) TO THE BIG NUMBER  #
 	#------------------------------------------------------------#
@@ -336,11 +397,34 @@ class stkBigNumber
 		def Precision()
 			return @nPrecision
 
+		def GetRound()
+			return @nPrecision
+
+		def GetPrecision()
+			return @nPrecision
+
 	def RoundedTo(precision) #ai #claude #me
-	    	
+
+	    	if isString(precision)
+
+			if precision = :Max
+				precision = $BIG_NUMBER_MAX_PRECISION
+
+			but precision = :Default or precision = ""
+				precision = $BIG_NUMBER_DEFAULT_PRECISION
+
+			else
+				raise("ERR-" + StkError(:IncorrectParamValue))
+			ok
+		ok
+
 	   	if not isNumber(precision)
 	        	raise("ERR-" + StkError(:IncorrectParamType))
 	   	ok
+
+		if precision > $BIG_NUMBER_MAX_PRECISION
+			raise("ERR-" + StkError(:IncorrectParamValue))
+		ok
 
 		if precision = 0 and This.IsInt()
 			return This.SInt()
@@ -380,7 +464,7 @@ class stkBigNumber
 					nIntPart = 0+ @cIntPart
 					nIntPart++
 					cIntPart = ""+ nIntPart
-					if This.IsNegative
+					if This.IsNegative()
 						result = "-" + cIntPart
 					else
 						result = cIntPart
@@ -405,6 +489,18 @@ class stkBigNumber
 			@cFractPart = split(cRounded, ".")[2]
 			@nPrecision = len(@cFractPart)
 		ok
+
+		def SetRound(n)
+			This.RoundTo(n)
+
+		def SetRoundTo(n)
+			This.RoundTo(n)
+
+		def SetPrecision(n)
+			This.RoundTo(n)
+
+		def SetPrecisionTo(n)
+			This.RoundTo(n)
 
 	#--------------------------------#
 	PRIVATE // KITCHEN OF THE CLASS  #
