@@ -33,8 +33,8 @@ func BigNumberDefaultPrecision()
 	func BigNumberDefaultRound()
 		return $BIG_NUMBER_DEFAULT_PRECISION
 
-func SetBigNumberDefaultPrecision(n)
-    	if n > $BIG_NUMBER_DEFAULT_PRECISION
+func SetBigNumberDefaultPrecision(n) // #ai #chatgpt fixed an error
+    	if n > $BIG_NUMBER_MAX_PRECISION
 		raise("ERR-" + StkError(:IncorrectParamType))
 	ok
 
@@ -57,6 +57,10 @@ class stkBigNumber
 	@cFractPart
 	@nPrecision
 
+	@bSpace = FALSE
+	@nSpace = 3
+	@cSpace = "_"
+
 	  #-------------------------------------------------------#
 	 #  INITIALIZING THE BIG NUMBER FROM A NUMBER IN STRING  #
 	#-------------------------------------------------------#
@@ -70,20 +74,88 @@ class stkBigNumber
 		@cFullFractPart = @cFractPart
 		@nFullPrecision = @nPrecision
 
+	  #--------------------------------------------------------------#
+	 #  UPDATING THE BIG NUMBER WITH A NUMBER PROVIDED AS A STRING  #
+	#--------------------------------------------------------------#
+
+	func Update(cNumberInStr)
+
+		# The object is set using a string
+
+ 		if not isString(cNumberInStr)
+	            	raise("ERR-" + StkError(:IncorrectParamType))
+	        ok
+
+		# Checking if the number is spacified (using "_")
+		# and if so, keeping this feature avtive
+
+		cNumberInStr = trim(cNumberInStr)
+		nUnderscore = substr(cNumberInStr, "_")
+		if nUnderscore = 0
+			This.@bSpace = FALSE
+		else
+			This.@bSpace = TRUE
+			cNumberInStr = substr(cNumberInStr, "_", "")
+		ok
+
+		# The string provided must contain a number
+
+		if not isNumber(0+ cNumberInStr)
+			raise("ERR-" + StkError(:IncorrectParamType))
+		ok
+
+		# Checking if the number is negative, and if so
+		# keeping the info in the object
+
+	        @bIsNegative = (left(cNumberInStr, 1) = "-")
+
+	        if @bIsNegative
+	            	cNumberInStr = substr(cNumberInStr, "-", "")
+	        ok
+	        
+		# Splitting the number into parts, intpart and fractpart
+		# (without potential sign if the number is negative)
+
+	        acParts = split(cNumberInStr, ".")
+	        @cIntPart = This.pvtStripLeadingZeros(acParts[1])
+
+		@cFractPArt = ""
+		@nPrecision = 0
+
+	        if len(acParts) > 1
+	            	@cFractPart = This.pvtStripTrailingZeros(acParts[2])
+			@nPrecision = len(@cFractPart)
+	        ok
+	        
+	        if @cIntPart = "" and
+		   @cFractPart = ""
+
+	           	@cIntPart = "0"
+	        ok
+
+		# If the big number has a higer percision than
+		# the allowed $BIG_NUMBER_MAX_PRECISION, let
+		# the max precision be the full precision
+
+		# ~> As a corollary of this, the provided number
+		# is rounded to the maximum allowed precision
+
+		if @nPrecision > $BIG_NUMBER_MAX_PRECISION
+			This.RoundTo($BIG_NUMBER_MAX_PRECISION)
+			@cFullFractPart = @cFractPart
+			@nFullPrecision = @nPrecision
+		ok
+
 	  #-----------------------------------------------------------------#
 	 #  GETTING THE VALUE OF THE BIG NUMBER AND ITS PARTS (IN STRING)  #
 	#-----------------------------------------------------------------#
 
    	def Value()
 
-        	result = @cIntPart
+        	result = This.IntPart()
 
 	        if @cFractPart != ""
 	            result += "." + @cFractPart
-	        ok
-
-	        if @bIsNegative and result != "0"
-	            result = "-" + result
 	        ok
 
 	        return result
@@ -95,6 +167,10 @@ class stkBigNumber
 			return This.Value()
 
 	def IntPart()
+		if @bSpace = TRUE
+			return This.IntPartSpacified()
+		ok
+
 		if This.IsNegative()
 			return "-" + @cIntPart
 		else
@@ -178,58 +254,6 @@ class stkBigNumber
 		def InitialRound()
 			return return @nFullPrecision
 
-	  #--------------------------------------------------------------#
-	 #  UPDATING THE BIG NUMBER WITH A NUMBER PROVIDED AS A STRING  #
-	#--------------------------------------------------------------#
-
-	func Update(cNumberInStr)
-
- 		if not isString(cNumberInStr)
-	            	raise("ERR-" + StkError(:IncorrectParamType))
-	        ok
-
-		cNumberInStr = trim( substr(cNumberInStr, "_", "") )
-
-		if not isNumber(0+ cNumberInStr)
-			raise("ERR-" + StkError(:IncorrectParamType))
-		ok
-
-	        @bIsNegative = (left(cNumberInStr, 1) = "-")
-
-	        if @bIsNegative
-	            	cNumberInStr = substr(cNumberInStr, "-", "")
-	        ok
-	        
-	        acParts = split(cNumberInStr, ".")
-	        @cIntPart = This.pvtStripLeadingZeros(acParts[1])
-
-		@cFractPArt = ""
-		@nPrecision = 0
-
-	        if len(acParts) > 1
-	            	@cFractPart = This.pvtStripTrailingZeros(acParts[2])
-			@nPrecision = len(@cFractPart)
-	        ok
-	        
-	        if @cIntPart = "" and
-		   @cFractPart = ""
-
-	           	@cIntPart = "0"
-	        ok
-
-		# If the big number has a higer percision than
-		# the allowed $BIG_NUMBER_MAX_PRECISION, let
-		# the max precision be the full precision
-
-		# ~> As a corollary of this, the provided number
-		# is rounded to the maximum allowed precision
-
-		if @nPrecision > $BIG_NUMBER_MAX_PRECISION
-			This.RoundTo($BIG_NUMBER_MAX_PRECISION)
-			@cFullFractPart = @cFractPart
-			@nFullPrecision = @nPrecision
-		ok
-
 	  #-------------------------------------------------#
 	 #  RESTORING THE INITIAL VALUE OF THE BIG NUMBER  #
 	#-------------------------------------------------#
@@ -247,17 +271,21 @@ class stkBigNumber
 
 		oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
 
-	        if @bIsNegative = oOtherBigNumber.isNegative()
+		if @bSpace or substr(cOtherBigNumber, "_") > 0
+			oOtherBigNumber.@bSpace = TRUE
+		ok
+
+	        if This.IsNegative() = oOtherBigNumber.isNegative()
 	        	cResult = This.pvtAddDecimalStrings(SValue(), oOtherBigNumber.SValue())
 
 	        else
 		
 			cResult = This.pvtSubtractDecimalStrings(This.SAbs(), oOtherBigNumber.SAbs())
 
-			if @bIsNegative and This.pvtCompareAbsValues(This.SValue(), oOtherBigNumber.SValue()) > 0
-				@bIsNegative = TRUE
+			if This.IsNegative() and This.pvtCompareAbsValues(This.SValue(), oOtherBigNumber.SValue()) > 0
+				This.@bIsNegative = TRUE
 			else
-				@bIsNegative = FALSE
+				This.@bIsNegative = FALSE
 	            	ok
 
 	        ok
@@ -266,6 +294,9 @@ class stkBigNumber
 
 		This.Update(cResult)
 
+		if oOtherBigNumber.@bSpace = TRUE
+			This.Spacify()
+		ok
 
 		#< @FunctionAlternativeForm
 
@@ -280,9 +311,32 @@ class stkBigNumber
 
     	def Subtract(cOtherBigNumber)
 
-		oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
-	        oOtherBigNumber.SNegate()	
-	        This.SAdd(oOtherBigNumber.SValue())
+		if This.pvtCompareStrings(This.SValue(), cOtherBigNumber) < 0
+
+			This.@bIsNegative = TRUE
+			oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
+
+			if @bSpace or substr(cOtherBigNumber, "_") > 0
+				oOtherBigNumber.@bSpace = TRUE
+			ok
+
+			oOtherBigNumber.Subtract(This.SValue())
+			
+		else
+
+			oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
+		        oOtherBigNumber.SNegate()	
+
+			if @bSpace or substr(cOtherBigNumber, "_") > 0
+				oOtherBigNumber.@bSpace = TRUE
+			ok
+
+		        This.SAdd(oOtherBigNumber.SValue())
+		ok
+
+		if oOtherBigNumber.@bSpace = TRUE
+			This.Spacify()
+		ok
 
 		def SSubtract(cOtherBigNumber)
 			This.Subtract(cOtherBigNumber)
@@ -295,18 +349,29 @@ class stkBigNumber
    	 def Multiply(cOtherBigNumber)
 
 	   	oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
+
+		if @bSpace or substr(cOtherBigNumber, "_") > 0
+			oOtherBigNumber.@bSpace = TRUE
+		ok
+
 	        cResult = This.pvtMultiplyDecimalStrings(This.SAbs(), oOtherBigNumber.SAbs())
-	
-	        if @bIsNegative != oOtherBigNumber.isNegative() and result != "0"
-			@bIsNegative = TRUE
-		else
-			@bIsNegative = FALSE
+
+	        if ( (This.IsNegative() and NOT oOtherBigNumber.IsNegative()) or
+		   (NOT This.IsNegative() and oOtherBigNumber.IsNegative()) ) and
+
+ 		   cResult != "0"
+
+			cResult = "-" + cResult
+		
 	        ok
 
 		# Updating the big number with the result
 
 		This.Update(cResult)
 
+		if oOtherBigNumber.@bSpace = TRUE
+			This.Spacify()
+		ok
 
 		#< @FunctionAlternativeForm
 
@@ -320,17 +385,35 @@ class stkBigNumber
 	#----------------------------------------------------------------#
 
 	def Divide(cOtherBigNumber)
+
 		if cOtherBigNumber = "0"
 	        	raise("ERR-" + StkError(:DivisionByZero))
 	   	 ok
 	    
 	    	oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
+
+		if @bSpace or substr(cOtherBigNumber, "_") > 0
+			oOtherBigNumber.@bSpace = TRUE
+		ok
+
 	    	cResult = pvtDivideDecimalStrings(This.SAbs(), oOtherBigNumber.SAbs())
 	    
+	        if ( (This.IsNegative() and NOT oOtherBigNumber.IsNegative()) or
+		   (NOT This.IsNegative() and oOtherBigNumber.IsNegative()) ) and
+
+ 		   cResult != "0"
+
+			cResult = "-" + cResult
+		
+	        ok
+
 		# Updating the big number with the result
 
 		This.Update(cResult)
 
+		if oOtherBigNumber.@bSpace = TRUE
+			This.Spacify()
+		ok
 
 		#< @FunctionAlternativeForm
 
@@ -356,7 +439,7 @@ class stkBigNumber
 	 #  CHECKING IF THE BIG NUMBER IS NEGATIVE  #
 	#------------------------------------------#
 
-   	 def isNegative()
+   	 def IsNegative() // #ai #chatgpt identified that I should be in uppercase!
         	return @bIsNegative
 
     	def SNegate()
@@ -502,13 +585,64 @@ class stkBigNumber
 		def SetPrecisionTo(n)
 			This.RoundTo(n)
 
+	#------------------------------------------#
+	#  SPACIFYING THE BIG NUMBER STRING VALUE  #
+	#------------------------------------------#
+
+	def Spacify()
+		@bSpace = TRUE
+
+	def Unspacify()
+		@bSpace = FALSE
+
+	def IntPartSpacified()
+
+		cResult = ""
+
+	       # Spacify (only) the integer part
+
+	        nLen = len(@cIntPart)
+		if nLen <= @nSpace
+			return @cIntPart
+		ok
+
+	        for i = nLen to 1 step -1
+	            cResult = @cIntPart[i] + cResult
+	            if (nLen - i + 1) % @nSpace = 0 and i != 1
+	                cResult = @cSpace + cResult
+	            ok
+	        next
+	
+	        # Add the sign back
+
+		if This.IsNegative()
+	        	cResult = "-" + cResult
+		ok
+
+		return cResult
+
+		def SIntPartSpacified()
+			return This.IntPartSpacified()
+
+	def Spacified()
+
+		cResult = This.IntPartSpacified()
+
+	        # Add the fractional part if it exists
+
+		if @cFractPart != ""
+			cResult += "." + @cFractPart
+		ok
+
+		return cResult
+
 	#--------------------------------#
 	PRIVATE // KITCHEN OF THE CLASS  #
 	#--------------------------------#
 
 	# Two helper functions to perform addition
 
-   	func pvtAddStrings(s1, s2) #ai #claude
+   	def pvtAddStrings(s1, s2) #ai #claude
 	        result = ""
 	        carry = 0
 	
@@ -530,7 +664,7 @@ class stkBigNumber
 	        
 	        return result
 
-	func pvtAddDecimalStrings(s1, s2) #ai #claude
+	def pvtAddDecimalStrings(s1, s2) #ai #claude
 
 	        n1 = new stkBigNumber(s1)
 	        n2 = new stkBigNumber(s2)
@@ -555,7 +689,7 @@ class stkBigNumber
 
 	# Two helper functions to perform subtraction
 
-   	 func pvtSubtractStrings(s1, s2) #ai #claude
+   	 def pvtSubtractStrings(s1, s2) #ai #claude
 
 	        result = ""
 	        borrow = 0
@@ -579,7 +713,7 @@ class stkBigNumber
 	        
 	        return This.pvtStripLeadingZeros(result)
 
-   	 func pvtSubtractDecimalStrings(s1, s2) #ai #claude
+   	 def pvtSubtractDecimalStrings(s1, s2) #ai #claude
 
 	        n1 = new stkBigNumber(s1)
 	        n2 = new stkBigNumber(s2)
@@ -611,7 +745,7 @@ class stkBigNumber
 
 	# Two helper functiions to perform multiplication
 
-	func pvtMultiplyDecimalStrings(s1, s2) #ai #claude
+	def pvtMultiplyDecimalStrings(s1, s2) #ai #claude
 
 		n1 = new stkBigNumber(s1)
 	        n2 = new stkBigNumber(s2)
@@ -621,7 +755,7 @@ class stkBigNumber
 	        
 	        int1 = n1.@cIntPart + n1.@cFractPart
 	        int2 = n2.@cIntPart + n2.@cFractPart
-	        
+       
 	        product = This.pvtKaratsubaMultiply(int1, int2)
 	        totalFracLen = fracLen1 + fracLen2
 	        
@@ -638,14 +772,18 @@ class stkBigNumber
 
 	# A specital algorithm efficient for multiplying large big numbers
 
-   	func pvtKaratsubaMultiply(x, y) #ai #claude
+   	def pvtKaratsubaMultiply(x, y) #ai #claude
 
 	        # Base case for recursion
 
 	        if len(x) < 10 or len(y) < 10
-	            return ""+ ( (0+ x) * (0+ y))
+
+	           	cResult = ""+ ( (0+ x) * (0+ y))
+		   	cResult = pvtStripTrailingZeros(cResult)
+			cResult = substr(cResult, ".", " ")
+			return cResult
 	        ok
-	
+
 	        m = min(len(x), len(y))
 	        m2 = floor(m / 2)
 	
@@ -655,14 +793,14 @@ class stkBigNumber
 	        low1  = right(x, m2)
 	        high2 = left(y, len(y) - m2)
 	        low2  = right(y, m2)
-	
+
 	        # 3 recursive calls made to numbers approximately half the size
 
 	        z0 = This.pvtKaratsubaMultiply(low1, low2)
 	        z1 = This.pvtKaratsubaMultiply(pvtAddStrings(low1, high1), pvtAddStrings(low2, high2))
 	        z2 = This.pvtKaratsubaMultiply(high1, high2)
-	
-	        return This.pvtAddStrings(
+
+	        cResult = This.pvtAddStrings(
 	            This.pvtAddStrings(
 	                This.pvtShiftLeft(z2, 2*m2),
 	                This.pvtShiftLeft(This.pvtSubtractStrings(This.pvtSubtractStrings(z1, z2), z0), m2)
@@ -670,9 +808,11 @@ class stkBigNumber
 	            z0
 	        )
 
+		return cResult
+
 	# Helper function to perform division
 
-	func pvtDivideDecimalStrings(s1, s2) #ai #claude #chatgpt
+	def pvtDivideDecimalStrings(s1, s2) #ai #claude #chatgpt
 
 		n1 = new stkBigNumber(s1)
 	    	n2 = new stkBigNumber(s2)
@@ -748,9 +888,9 @@ class stkBigNumber
 
 	    	return pvtStripTrailingZeros(quotient)
 
-	# Helper function to compare two strings
+	# Helper function to compare two numbers in strings
 
-    	func pvtCompareStrings(s1, s2) #ai #claude
+    	def pvtCompareStrings(s1, s2) #ai #claude
 
 	        maxLen = This.pvtMax(len(s1), len(s2))
 	        s1 = This.pvtPadLeft(s1, maxLen, "0")
@@ -766,7 +906,7 @@ class stkBigNumber
 
 	# Two helper functions to perform absolute values
 
-	func pvtCompareAbsValues(s1, s2) #ai #claude
+	def pvtCompareAbsValues(s1, s2) #ai #claude
 
 	        n1 = new stkBigNumber(This.pvtSAbs(s1))
 	        n2 = new stkBigNumber(This.pvtSAbs(s2))
@@ -778,7 +918,7 @@ class stkBigNumber
 		        
 	        return This.pvtCompareStrings(n1.@cFractPart, n2.@cFractPart)
 	
-	func pvtSAbs(s) #ai #claude
+	def pvtSAbs(s) #ai #claude
 	        if left(s, 1) = "-"
 	            s = substr(s, "-", "")
 	        ok
@@ -786,7 +926,7 @@ class stkBigNumber
 
 	# Helper function to strip zeros from left
 
-    	func pvtStripLeadingZeros(s) #ai #claude
+    	def pvtStripLeadingZeros(s) #ai #claude
 	        while TRUE
 			if NOT (left(s, 1) = "0" and len(s) > 1)
 				exit
@@ -799,7 +939,7 @@ class stkBigNumber
 
 	# Helper function to strip zeros at the end
 
-	func pvtStripTrailingZeros(s) #ai #claude
+	def pvtStripTrailingZeros(s) #ai #claude
 	
 		while TRUE
 			nLen = len(s)
@@ -822,7 +962,7 @@ class stkBigNumber
 	
 	# Helper function to pad n chars to the left of a given string
 
- 	func pvtPadLeft(s, n, char) #ai #claude
+ 	def pvtPadLeft(s, n, char) #ai #claude
 
 	       	while len(s) < n
 	        	s = char + s
@@ -831,7 +971,7 @@ class stkBigNumber
 
 	# Helper function to pad n chars to the right of a given string
 
-	func pvtPadRight(s, n, char) #ai #claude
+	def pvtPadRight(s, n, char) #ai #claude
 
 	        while len(s) < n
 	            	s = s + char
@@ -840,13 +980,13 @@ class stkBigNumber
 
 	# Helper function to shif n chars left of a given string
 
-    	func pvtShiftLeft(s, n) #ai #claude
+    	def pvtShiftLeft(s, n) #ai #claude
 
         	return s + This.pvtCopy("0", n)
 	
  	# Helper function to duplicate a char n times
 	
-	func pvtCopy(s, n) #ai #claude
+	def pvtCopy(s, n) #ai #claude
 
 		result = ""
 		
@@ -858,7 +998,7 @@ class stkBigNumber
 	
 	# Helper function to get the min of two numbers
 
-	func pvtMin(a, b) #ai #claude
+	def pvtMin(a, b) #ai #claude
 		
 	        if a < b
 	            return a
@@ -868,7 +1008,7 @@ class stkBigNumber
 
 	# Helper function to get the max of two numbers
 
-	func pvtMax(a, b) #ai #claude
+	def pvtMax(a, b) #ai #claude
 
 	        if a < b
 	            return b
@@ -878,7 +1018,7 @@ class stkBigNumber
 
 	# Helper function to append a string with n zeros
 
-	func pvtAppendZeros(str, n) #ai #claude
+	def pvtAppendZeros(str, n) #ai #claude
 
 		for i = 1 to n
 			str += "0"
@@ -887,7 +1027,7 @@ class stkBigNumber
 
 	# Helper function to create a string of zeros
 
-	func pvtCreateZeros(n) #ai #claude
+	def pvtCreateZeros(n) #ai #claude
 
 		result = ""
 	
