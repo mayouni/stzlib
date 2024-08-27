@@ -774,17 +774,17 @@ class stkBigNumber
 
    	def pvtKaratsubaMultiply(x, y) #ai #claude
 
-	        # Base case for recursion
+	        # If the numbers are relatively small, opt for normal multiplication
 
 	        if len(x) < 10 or len(y) < 10
 
-	           	cResult = ""+ ( (0+ x) * (0+ y))
-		   	cResult = pvtStripTrailingZeros(cResult)
-			cResult = substr(cResult, ".", " ")
-			return cResult
+		        cResult = This.pvtMultiplyStringsDigitByDigit(x, y)
+		        return cResult
 	        ok
 
-	        m = min(len(x), len(y))
+		# Otherwise, use the Karatsuba algorithm
+
+	        m = pvtMin(len(x), len(y))
 	        m2 = floor(m / 2)
 	
 	        # Split the digit sequences about the middle
@@ -809,6 +809,74 @@ class stkBigNumber
 	        )
 
 		return cResult
+
+# Helper function to multiply integer strings directly, digit by digit
+def pvtMultiplyStringsDigitByDigit(x, y) #ai #chatgpt
+    lenX = len(x)
+    lenY = len(y)
+    # Initialize the result array with zeros
+    result = pvtArray(lenX + lenY, "0")
+
+    # Reverse the strings to simplify multiplication
+    x = reverse(x)
+    y = reverse(y)
+
+    for i = 1 to lenX
+        carry = 0
+        for j = 1 to lenY
+            # Multiply digit by digit and add to the result
+            product = (0 + pvtMid(x, i, 1)) * (0 + pvtMid(y, j, 1)) + (0 + result[i + j - 1]) + carry
+            result[i + j - 1] = "" + (product % 10)
+            carry = floor(product / 10)
+        next
+        result[i + lenY] = "" + (carry)
+    next
+
+    # Reverse result to get the final product and remove leading zeros
+    result = reverse(pvtJoin(result, ""))
+    result = This.pvtStripLeadingZeros(result)
+
+    # Handle the case where the result is zero
+    if result = ""
+        result = "0"
+    ok
+
+    return result
+
+# Helper function to create an array (list) with a given size and initial value
+def pvtArray(size, value)
+    result = []
+    for i = 1 to size
+        result + value
+    next
+    return result
+
+# Helper function to extract a substring from a string
+def pvtMid(string, start, length)
+    # Extract a substring from the string
+    # Since Ring uses 1-based indexing, we'll adjust for that
+    startIndex = start
+    endIndex = start + length - 1
+    result = ""
+    
+    for i = startIndex to endIndex
+        if i <= len(string)
+            result += string[i]
+        ok
+    next
+    
+    return result
+
+# Helper function to join a list of strings with a separator
+def pvtJoin(list, separator)
+    result = ""
+    for i = 1 to len(list)
+        if i > 1
+            result += separator
+        ok
+        result += list[i]
+    next
+    return result
 
 	# Helper function to perform division
 
