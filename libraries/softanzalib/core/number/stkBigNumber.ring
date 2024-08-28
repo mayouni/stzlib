@@ -152,7 +152,7 @@ class stkBigNumber
 
    	def Value()
 
-        	result = This.IntPart()
+        	result = This.IntPart() #NOTE may be spacified
 
 	        if @cFractPart != ""
 	            result += "." + @cFractPart
@@ -486,91 +486,128 @@ class stkBigNumber
 		def GetPrecision()
 			return @nPrecision
 
-	def RoundedTo(precision) #ai #claude #me
+	  #--------------------------------------------------------------------#
+	 #  GETTING THE VALUE OF THE BIG NUMBER ROUNDED TO A GIVEN PRECISION  #
+	#--------------------------------------------------------------------#
 
-	    	if isString(precision)
+	def RoundedTo(precision) #ai #claude #chatgpt
 
-			if precision = :Max
-				precision = $BIG_NUMBER_MAX_PRECISION
+	    if isString(precision)
+	        if precision = :Max
+	            precision = $BIG_NUMBER_MAX_PRECISION
+	        but precision = :Default or precision = ""
+	            precision = $BIG_NUMBER_DEFAULT_PRECISION
+	        else
+	            raise("ERR-" + StkError(:IncorrectParamValue))
+	        ok
+	    ok
+	
+	    if not isNumber(precision)
+	        raise("ERR-" + StkError(:IncorrectParamType))
+	    ok
+	
+	    if precision > $BIG_NUMBER_MAX_PRECISION
+	        raise("ERR-" + StkError(:IncorrectParamValue))
+	    ok
+	
+	    if precision = 0 and This.IsInt()
+	        return This.SInt()
+	    ok
+	
+	    fraction = @cFractPart
+	    intPart = @cIntPart
+	
+	    # Case 1: Desired precision is higher than or equal to actual precision
+	    if len(fraction) <= precision
+	        result = intPart + "." + fraction + pvtCopy("0", precision - len(fraction))
+	        return result
+	    ok
+	
+	    # Case 2: Desired precision is lower than actual precision
+	    result = left(fraction, precision)
+	    nextDigit = 0 + pvtMid(fraction, precision + 1, 1)
+	
+	    if nextDigit >= 5
+	        carry = 1
+	        # Start from the end of the result and handle carry-over
+	        for i = precision to 1 step -1
+	            digit = 0 + pvtMid(result, i, 1)
+	            if digit < 9
+	                result = left(result, i-1) + ("" + (digit + carry))
+	                carry = 0
+	                break
+	            else
+	                result = left(result, i-1) + "0"
+	            ok
+	        next
+	
+	        # Handle the case where carry results in extra digit
+	        if carry > 0 # carry is equal to 1
 
-			but precision = :Default or precision = ""
-				precision = $BIG_NUMBER_DEFAULT_PRECISION
+	            # Increment the integer part and reset the fractional part
 
-			else
-				raise("ERR-" + StkError(:IncorrectParamValue))
-			ok
-		ok
+		    if @bIsNegative
+			intPart = pvtSubtractOneFromIntPart()
+		    else
+		   	intPart = pvtAddOneToIntPart()
+		    ok
 
-	   	if not isNumber(precision)
-	        	raise("ERR-" + StkError(:IncorrectParamType))
-	   	ok
+	            result = pvtCopy("0", precision)
+	        ok
+	    ok
+	
+	    # Construct final result
 
-		if precision > $BIG_NUMBER_MAX_PRECISION
-			raise("ERR-" + StkError(:IncorrectParamValue))
-		ok
+	    if @bSpace
+	    	intPart = pvtSpacify(intPart, @cSpace, @nSpace)
+	    ok
 
-		if precision = 0 and This.IsInt()
-			return This.SInt()
-		ok
+	    if result = ""
+	        result = ""+ intPart + "." + pvtCopy("0", precision)
+	    else
+	        result = ""+ intPart + "." + result
+	    ok
+	
+	    if precision = 0
+		result = substr(result, ".", "")
+	    ok
 
-		fraction = @cFractPart
+	    return result
 
-	    	if len(fraction) <= precision
-			result = This.IntPart() + "." + fraction + pvtCopy("0", precision - len(fraction))
-	        	return result
-	   	 ok
-	    
-	    	result = left(fraction, precision)
-	    	nextDigit = 0 + substr(fraction, precision + 1, 1)
-	    
-	    	if nextDigit >= 5
-	        	for i = precision to 1 step -1
-	            		digit = 0 + substr(result, i, 1)
-	            		if digit < 9
-	                		result = left(result, i-1) + ("" + (digit + 1))
-	                		exit
-	           		else
-	                		result = left(result, i-1) + "0"
-	                		if i = 1
-	                    			result = "1" + result
-	                		ok
-	            		ok
-	       		next
-	    	ok
 
-		if result = ""
-			cRoundedTo1 = This.RoundedTo(1)
-			nDotPos = substr(cRoundedTo1, ".")
-			if nDotPos > 0
-				nDigit = 0+ cRoundedTo1[nDotPos+1]
-				if nDigit > 5
-					nIntPart = 0+ @cIntPart
-					nIntPart++
-					cIntPart = ""+ nIntPart
-					if This.IsNegative()
-						result = "-" + cIntPart
-					else
-						result = cIntPart
-					ok
-				ok
-			ok
+	    def Rounded(n)
+		return This.RoundedTo(n)
 
-		else
-			result = This.IntPart() + "." + result
-		ok
-
-	    	return result
-
-		def Rounded(n)
-			return This.RoundedTo(n)
+	  #------------------------------------------------#
+	 #  ROUNDING THE BIG NUMBER TO A GIVEN PRECISION  #
+	#------------------------------------------------#
 
 	def RoundTo(n)
 		cRounded = This.RoundedTo(n)
+
+		if isString(n)
+			if n = :Max
+				n = $BIG_NUMBER_MAX_PRECISION
+			but n = :Default or n = ""
+				n = $BIG_NUMBER_DEFAULT_PRECISION
+			else
+				raise("ERR-" + StkError(:IncorrectParamType))
+			ok
+		ok
+
+		if not isNumber(n)
+			raise("ERR-" + StkError(:IncorrectParamType))
+		ok
+
+		@nPrecision = n
+
 		if substr(cRounded, ".") = 0
-			return
+			@cIntPart = cRounded
+			@cFractPart = ""
+			
 		else
-			@cFractPart = split(cRounded, ".")[2]
-			@nPrecision = len(@cFractPart)
+			acSplits = split(cRounded, ".")
+			@cFractPart = acSplits[2]
 		ok
 
 		def SetRound(n)
@@ -596,30 +633,7 @@ class stkBigNumber
 		@bSpace = FALSE
 
 	def IntPartSpacified()
-
-		cResult = ""
-
-	       # Spacify (only) the integer part
-
-	        nLen = len(@cIntPart)
-		if nLen <= @nSpace
-			return @cIntPart
-		ok
-
-	        for i = nLen to 1 step -1
-	            cResult = @cIntPart[i] + cResult
-	            if (nLen - i + 1) % @nSpace = 0 and i != 1
-	                cResult = @cSpace + cResult
-	            ok
-	        next
-	
-	        # Add the sign back
-
-		if This.IsNegative()
-	        	cResult = "-" + cResult
-		ok
-
-		return cResult
+		return This.pvtSpacify(@cIntPart, @cSpace, @nSpace)
 
 		def SIntPartSpacified()
 			return This.IntPartSpacified()
@@ -639,6 +653,109 @@ class stkBigNumber
 	#--------------------------------#
 	PRIVATE // KITCHEN OF THE CLASS  #
 	#--------------------------------#
+
+	#TODO
+	# Study these helper functions and see which of them can
+	# be promoted to be a common function
+
+	# Helper function to spacify a number in string
+
+	def pvtSpacify(str, cSpace, nSpace)
+		if not (isString(str) and isString(cSpace) and isNumber(nSpace))
+			raise("ERR-" + StkError(:IncorrectParamType))
+		ok
+
+		if not len(cSpace) = 1
+			raise("ERR-" + StkError(:IncorrectParamValue))
+		ok
+
+		str = trim(str)
+
+		bNegative = FALSE
+		if left(str, 1) = "-"
+			bNegative = TRUE
+		ok
+
+		cResult = ""
+
+	        nLen = len(str)
+		if nLen <= nSpace
+			return str
+		ok
+
+	        for i = nLen to 1 step -1
+	            cResult = str[i] + cResult
+	            if (nLen - i + 1) % nSpace = 0 and i != 1
+	                cResult = cSpace + cResult
+	            ok
+	        next
+	
+	        # Add the sign back
+
+		if bNegative
+	        	cResult = "-" + cResult
+		ok
+
+		return cResult
+
+# Helper function to add one to the integer part
+
+def pvtAddOneToIntPart()
+    intPart = @cIntPart	// #Warining Don't use IntPart() ~> may be spaciefied
+    length = len(intPart)
+    carry = 1
+    newIntPart = ""
+
+    for i = length to 1 step -1
+
+        digit = 0 + pvtMid(intPart, i, 1)
+
+        if digit + carry = 10
+            newIntPart = "0" + newIntPart
+            carry = 1
+        else
+            newIntPart = ("" + (digit + carry)) + newIntPart
+            carry = 0
+        ok
+    next
+    if carry > 0
+        newIntPart = "1" + newIntPart
+    ok
+    return newIntPart
+
+# Helper function to subtract one from the integer part
+
+def pvtSubtractOneFromIntPart()
+   
+    intPart = @cIntPart
+    carry = 1
+    newIntPart = ""
+    
+    // Iterate over the digits of the integer part from right to left
+    for i = len(intPart) to 1 step -1
+        digit = 0 + pvtMid(intPart, i, 1)
+        
+        if carry = 1
+            if digit > 0
+                digit -= 1
+                carry = 0
+            else
+                digit = 9
+            ok
+        ok
+        
+        newIntPart = ("" + digit) + newIntPart
+    next
+    
+    // Handle the case where the integer part was "-1" and needs to become "-2", etc.
+    if carry = 1
+        newIntPart = "-" + pvtSubtractOne(newIntPart)
+    else
+        newIntPart = This.pvtStripLeadingZeros(newIntPart)
+    ok
+
+    return newIntPart
+
 
 	# Two helper functions to perform addition
 
@@ -811,7 +928,7 @@ class stkBigNumber
 		return cResult
 
 # Helper function to multiply integer strings directly, digit by digit
-def pvtMultiplyStringsDigitByDigit(x, y) #ai #chatgpt
+def pvtMultiplyStringsDigitByDigit(x, y) // #ai #chatgpt
     lenX = len(x)
     lenY = len(y)
     # Initialize the result array with zeros
@@ -844,7 +961,7 @@ def pvtMultiplyStringsDigitByDigit(x, y) #ai #chatgpt
     return result
 
 # Helper function to create an array (list) with a given size and initial value
-def pvtArray(size, value)
+def pvtArray(size, value) // #ai #chatgpt
     result = []
     for i = 1 to size
         result + value
@@ -852,7 +969,7 @@ def pvtArray(size, value)
     return result
 
 # Helper function to extract a substring from a string
-def pvtMid(string, start, length)
+def pvtMid(string, start, length) // #ai #chatgpt
     # Extract a substring from the string
     # Since Ring uses 1-based indexing, we'll adjust for that
     startIndex = start
@@ -868,7 +985,7 @@ def pvtMid(string, start, length)
     return result
 
 # Helper function to join a list of strings with a separator
-def pvtJoin(list, separator)
+def pvtJoin(list, separator) // #ai #chatgpt
     result = ""
     for i = 1 to len(list)
         if i > 1

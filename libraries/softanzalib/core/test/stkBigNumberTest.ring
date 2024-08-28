@@ -89,10 +89,10 @@ oBig.Divide("2")
 	? oBig.Round() + NL
 	#--> 5
 
-# Executed in 0.026 seconds.
+# Executed in 0.046 seconds.
 
 /*-------
-
+*/
 oBig = new stkBigNumber("795139556375158458500672312034291657065.10336")
 
 	oBig.Divide("876234987333.9876673")
@@ -119,14 +119,14 @@ oBig = new stkBigNumber("795139556375158458500672312034291657065.10336")
 oBig = new stkBigNumber("123_456_789.87")
 
 	? oBig.Rounded(1)
-	#--> 123456789.9
+	#--> 123_456_789.9
 
 	? oBig.Rounded(0) + NL
-	#--> 123456790
+	#--> 123_456_790
 
 oBig = new stkBigNumber("123_456_789")
 	? oBig.RoundedTo(0)
-	#--> 123456789
+	#--> 123_456_789
 
 	? oBig.RoundedTo(1)
 	#--> 123456789.0
@@ -430,19 +430,209 @@ oBig.RoundTo(4)
 
 # Executed in less than 0.001 seconds.
 
+/*-------- #ring
+
+//	? 999.999999
+	#--> 1000.000
+
 /*--------
 
-	# Precision Adjustment Test
-	
-	? 999.999999
-	#--> 1000.000
-	
-	oBig = new stkBigNumber("999.999999")
+# Precision Adjustment Test
+
+
+oBig = new stkBigNumber("999.999999")
+
+? oBig.RoundedTo(0)
+#--> 1000
+
+? oBig.RoundedTo(1)
+#--> 1000.0
+
+? oBig.RoundedTo(2)
+#--> 1000.00
+
+? oBig.RoundedTo(3)
+#--> 1000.000
+
+? oBig.RoundedTo(4)
+#--> 1000.0000
+
+? oBig.RoundedTo(5)
+#--> 1000.00000
+
+? oBig.RoundedTo(6)
+#--> 999.999999
+
+? oBig.RoundedTo(7)
+#--> 999.9999990
+
+? oBig.RoundedTo(8)
+#--> 999.99999900
+
+/*--------
+
+oBig = new stkBigNumber("999.999999")
+	oBig.SetPrecision(0)
+	? oBig.SValue()
+	#--> 1000
+
+oBig = new stkBigNumber("999.999999")
+	oBig.SetPrecision(1)
+	? oBig.SValue()
+	#--> 1000.0
+
+oBig = new stkBigNumber("999.999999")
 	oBig.SetPrecision(2)
 	? oBig.SValue()
-	#--> 999.10
+	#--> 1000.00
+
+oBig = new stkBigNumber("999.999999")
+	oBig.SetPrecision(3)
+	? oBig.SValue()
+	#--> 1000.000
+
+oBig = new stkBigNumber("999.999999")
+	oBig.SetPrecision(4)
+	? oBig.SValue()
+	#--> 1000.0000
+
+oBig = new stkBigNumber("999.999999")
+	oBig.SetPrecision(5)
+	? oBig.SValue()
+	#--> 1000.00000
+
+oBig = new stkBigNumber("999.999999")
+	oBig.SetPrecision(6)
+	? oBig.SValue()
+	#--> 999.999999
+
+oBig = new stkBigNumber("999.999999")
+	oBig.SetPrecision(7)
+	? oBig.SValue()
+	#--> 999.9999990
+
+oBig = new stkBigNumber("999.999999")
+	oBig.SetPrecision(8)
+	? oBig.SValue()
+	#--> 999.99999900
+
+# Executed in 0.002 seconds.
+
+/*======== #ai test cases and explanations by #chatgpt
+
+
+# Test Case 1: Basic Positive Number
+
+oBig = new stkBigNumber("123.456789")
+oBig.SetPrecision(3)
+? oBig.SValue()
+#--> 123.457
+
+#~> The method rounds 456789 to 457 because the next digit (6) is greater than or equal to 5.
+
+# Executed in almost 0 seconds.
 
 /*--------
+
+# Test Case 2: Precision Higher than Current
+
+oBig = new stkBigNumber("123.45")
+oBig.SetPrecision(5)
+? oBig.SValue()
+#--> 123.45000
+
+#~> The method pads the fractional part with zeros.
+
+# Executed in almost 0 seconds.
+
+/*--------
+
+# Test Case 3: Precision Lower than Current, No Rounding
+
+oBig = new stkBigNumber("123.456")
+oBig.SetPrecision(2)
+? oBig.SValue()
+#--> 123.46
+
+#~> The third digit (6) results in rounding the second digit from 5 to 6.
+
+# Executed in 0 seconds.
+
+/*--------
+
+# Test Case 4: Precision Zero, Positive Number
+
+oBig = new stkBigNumber("123.987")
+oBig.SetPrecision(0)
+? oBig.SValue()
+#--> 124
+
+#~> The fractional part is dropped, and the integer part is incremented due to rounding.
+
+# Executed in almost 0 seconds.
+
+/*--------
+
+# Test Case 5: Basic Negative Number
+
+oBig = new stkBigNumber("-123.456789")
+oBig.SetPrecision(3)
+? oBig.SValue()
+#--> -123.457
+
+#~> The method rounds 456789 to 457 because the next digit (6) is greater than or equal to 5.
+
+# Executed in almost 0 seconds.
+
+/*---------
+
+# Test Case 6: Precision Zero, Negative Number
+
+oBig = new stkBigNumber("-123.987")
+oBig.SetPrecision(0)
+? oBig.SValue()
+#--> -122
+
+#~> The fractional part is dropped, and the integer part is decremented due to rounding.
+
+# Executed in almost 0 seconds.
+
+/*---------
+
+# Test Case 7: Edge Case with Large Negative Number and Rounding Backpropagation
+
+	oBig = new stkBigNumber("-999.999999")
+	oBig.SetPrecision(5)
+	? oBig.SValue()
+	#--> -1000.0
+
+#~> The rounding causes the fractional part to overflow, requiring the integer part to decrement.
+
+/*---------
+
+# Test Case 8: Large Positive Number with Rounding Backpropagation
+
+	oBig = new stkBigNumber("999999999.999999")
+	oBig.SetPrecision(5)
+	? oBig.SValue()
+	#--> 1000000000.0
+
+#~> The rounding causes the fractional part to overflow, requiring the integer part to increment.
+
+/*---------
+
+# Test Case 9: Negative Number with Multiple Zeroes and Rounding
+
+oBig = new stkBigNumber("-1000.000001")
+oBig.SetPrecision(5)
+? oBig.SValue()
+#--> -1000.0
+
+#~> The fractional part is rounded, and since the result of rounding is 00000, it does not affect the integer part.
+
+# Executed in almost 0 seconds.
+
+/*========
 
 # Spacification with Various Formats
 
@@ -495,7 +685,7 @@ oBig.SetPrecision(:Default)
 # Executed in less than 0.001 seconds.
 
 /*--------
-*/
+
 # Testing with Special Cases
 
 oBig = new stkBigNumber("0")
@@ -504,7 +694,8 @@ oBig.Add("0")
 #--> 0
 
 oBig = new stkBigNumber("999999999999999999999999999999999999999")
-oBig.Multiply("9999999999999_99999999999999999999999999")
+oBig.Multiply("999999999999999999999999999999999999999")
+oBig.Spacify()
 ? oBig.SValue()
 #--> 999_999_999_999_999_999_999_999_999_999_999_999_998_000_000_000_000_000_000_000_000_000_000_000_000_001
 
