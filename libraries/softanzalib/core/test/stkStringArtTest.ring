@@ -3,7 +3,7 @@ load "../string/stkStringArt.ring"
 decimals(3)
 t0 = clock()
 
-#~~~~~~
+/*~~~~~~
 
 # NOTE This sample (and the stkStringArt itself) is dedicated to
 # Mahmoud for the efforts he deplyed in delivering V1.21 of Ring
@@ -32,6 +32,8 @@ t0 = clock()
 ██░░░██░░░██░░░██░░░██░░░██░░░██░░░██░░░██▄░▄██░░░██▄░▄██░░░██░░░██░░░░░░
 ██░░░██░░░██░░░██░░░██░░░██░░░██░░░██░░░░▀███▀░░░░░▀███▀░░░░███▄▄░░░░░██░
 '
+
+/*--------
 
 ? StringArt("2+2=4") + nl
 #-->
@@ -71,6 +73,14 @@ t0 = clock()
 ██░░░██░░░░░██░░░░░░███████░░░███████░░░░███░░░
 ░█████░░░░░██░░░░░░░░░░░██░░░░░░░░░░░░░░███████
 '
+
+#-------
+*/
+
+? BoxedStringArt("RING 1.21") + NL
+? BoxedStringArt("STZ-CORE")
+
+
 
 # Executed in 0.010 seconds.
 
