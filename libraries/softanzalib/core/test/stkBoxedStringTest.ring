@@ -1,4 +1,5 @@
 load "../string/stkBoxedString.ring"
+load "../string/stkStringArt.ring"
 
 decimals(3)
 t0 = clock()
@@ -54,6 +55,8 @@ string example.")
 ╭──╮
 ╰──╯
 '
+
+? BoxedtringArt("MAHMOUD")
 
 # Executed in 0.001 seconds.
 
