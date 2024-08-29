@@ -4,6 +4,8 @@ load "../string/stkStringArt.ring"
 decimals(3)
 t0 = clock()
 
+? BoxedString( StringArt("MAHMOUD") ) + NL
+
 #~~~~~~
 
 ? BoxedString("Hello, Ring!")

@@ -1,3 +1,5 @@
+load "stdlib.ring"
+
 #NOTE This class is dedicatd to Mahmoud for the effors he deployed
 # in delivering the 1.21 version of Ring
 
@@ -30,7 +32,7 @@ $ART_LETTERS = [
         [ "Z" , ["███████", "░░░▄██░", "░▄██░░░", "▄██░░░░", "███████"] ],
 
         [ " " , ["░░░", "░░░", "░░░", "░░░", "░░░"] ],
-        [ "." , ["░░░", "░░░", "░░░", "░░░", "▓▓▓"] ],
+        [ "." , ["░░░", "░░░", "░░░", "░░░", "▓▓░"] ],
         [ "," , ["░░░", "░░░", "░░░", "▄▄░", "▀░░"] ],
         [ "!" , ["██░", "██░", "██░", "░░░", "██░"] ],
         [ "?" , ["▄▄█", "░░█", "▄█░", "░░░", "▄▄░"] ],
@@ -56,6 +58,10 @@ $ART_LETTERS = [
 func StringArt(str)
 	oStr = new stkStringArt(str)
 	return oStr.Art()
+
+func BoxedStringArt(str)
+	oStr = new stkStringArt(str)
+	return oStr.Boxed()
 
 class stkStringArt
 	@content
@@ -85,6 +91,34 @@ class stkStringArt
 		next
 			
 		return left(result, len(result) - 1)  // Remove the last newline
+
+	def Boxed()
+
+	    # First, convert the input string to string art
+	    artContent = This.Art()
+	    
+	    # Split the string art into lines
+	    lines = split(artContent, nl)
+	    
+	    # Find the maximum line length
+	    maxLength = 0
+	    for line in lines
+	        if len(line) > maxLength
+	            maxLength = len(line) / 3
+	        ok
+	    next
+	    
+	    # Create the boxed result
+	    result = "╭" + copy("─", (maxLength + 2)) + "╮" + nl
+	    
+	    for line in lines
+	        result += "│ " + line + copy(" ", (maxLength - len(line))) + " │" + nl
+	    next
+	    
+	    result += "╰" + copy("─", (maxLength + 2)) + "╯"
+	    
+	    return result
+
 
 	PRIVATE
 
