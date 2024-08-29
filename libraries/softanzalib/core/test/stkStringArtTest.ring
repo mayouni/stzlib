@@ -3,7 +3,9 @@ load "../string/stkStringArt.ring"
 decimals(3)
 t0 = clock()
 
-# NOTE This sampe (and the stkStringArt itself) is dedicated to
+#~~~~~~
+
+# NOTE This sample (and the stkStringArt itself) is dedicated to
 # Mahmoud for the efforts he deplyed in delivering V1.21 of Ring
 
 ? StringArt("THANK") + nl
@@ -30,6 +32,8 @@ t0 = clock()
 ██░░░██░░░██░░░██░░░██░░░██░░░██░░░██░░░██▄░▄██░░░██▄░▄██░░░██░░░██░░░░░░░░░
 ██░░░██░░░██░░░██░░░██░░░██░░░██░░░██░░░░▀███▀░░░░░▀███▀░░░░███▄▄░░░░░██░░░░
 '
+
+#~~~~~~
 
 ? NL + "~~~~~~~"
 
