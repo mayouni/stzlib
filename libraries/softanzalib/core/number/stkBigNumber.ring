@@ -49,7 +49,7 @@ func SetBigNumberDefaultPrecision(n) // #ai #chatgpt fixed an error
 
 class stkBigNumber
 	@cIntPart
-	@bIsNegative
+	@bNegative
 
 	@cFullFractPart
 	@nFullPrecision
@@ -107,9 +107,9 @@ class stkBigNumber
 		# Checking if the number is negative, and if so
 		# keeping the info in the object
 
-	        @bIsNegative = (left(cNumberInStr, 1) = "-")
+	        @bNegative = (left(cNumberInStr, 1) = "-")
 
-	        if @bIsNegative
+	        if @bNegative
 	            	cNumberInStr = substr(cNumberInStr, "-", "")
 	        ok
 	        
@@ -167,15 +167,20 @@ class stkBigNumber
 			return This.Value()
 
 	def IntPart()
+		cResult = ""
+
 		if @bSpace = TRUE
-			return This.IntPartSpacified()
+			cResult += This.IntPartSpacified()
+		else
+			cResult += @cIntPart
 		ok
 
-		if This.IsNegative()
-			return "-" + @cIntPart
-		else
-			return @cIntPart
+		if @bNegative and left(cResult, 1) != "-"
+			cResult = "-" + cResult
 		ok
+
+		return cResult
+
 
 		def Int()
 			return This.IntPart()
@@ -205,16 +210,12 @@ class stkBigNumber
 
    	def InitialValue()
 
-        	result = @cIntPart
+        	result = This.SIntPart()
 
 	        if @cFullFractPart != ""
 	            result += "." + @cFullFractPart
 	        ok
-
-	        if @bIsNegative and result != "0"
-	            result = "-" + result
-	        ok
-
+ 
 	        return result
 
 		#< @FunctionAlternativeForms
@@ -283,9 +284,9 @@ class stkBigNumber
 			cResult = This.pvtSubtractDecimalStrings(This.SAbs(), oOtherBigNumber.SAbs())
 
 			if This.IsNegative() and This.pvtCompareAbsValues(This.SValue(), oOtherBigNumber.SValue()) > 0
-				This.@bIsNegative = TRUE
+				This.@bNegative = TRUE
 			else
-				This.@bIsNegative = FALSE
+				This.@bNegative = FALSE
 	            	ok
 
 	        ok
@@ -313,7 +314,7 @@ class stkBigNumber
 
 		if This.pvtCompareStrings(This.SValue(), cOtherBigNumber) < 0
 
-			This.@bIsNegative = TRUE
+			This.@bNegative = TRUE
 			oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
 
 			if @bSpace or substr(cOtherBigNumber, "_") > 0
@@ -440,12 +441,12 @@ class stkBigNumber
 	#------------------------------------------#
 
    	 def IsNegative() // #ai #chatgpt identified that I should be in uppercase!
-        	return @bIsNegative
+        	return @bNegative
 
     	def SNegate()
 
         	if SValue() != "0"
-            		@bIsNegative = not @bIsNegative
+            		@bNegative = not @bNegative
        		ok
 
        		return SValue()
@@ -490,93 +491,145 @@ class stkBigNumber
 	 #  GETTING THE VALUE OF THE BIG NUMBER ROUNDED TO A GIVEN PRECISION  #
 	#--------------------------------------------------------------------#
 
-	def RoundedTo(precision) #ai #claude #chatgpt
+	def RoundedTo(precision) #ai #claude #chatgpt #me
 
-	    if isString(precision)
-	        if precision = :Max
-	            precision = $BIG_NUMBER_MAX_PRECISION
-	        but precision = :Default or precision = ""
-	            precision = $BIG_NUMBER_DEFAULT_PRECISION
-	        else
-	            raise("ERR-" + StkError(:IncorrectParamValue))
-	        ok
-	    ok
-	
-	    if not isNumber(precision)
-	        raise("ERR-" + StkError(:IncorrectParamType))
-	    ok
-	
-	    if precision > $BIG_NUMBER_MAX_PRECISION
-	        raise("ERR-" + StkError(:IncorrectParamValue))
-	    ok
-	
-	    if precision = 0 and This.IsInt()
-	        return This.SInt()
-	    ok
-	
-	    fraction = @cFractPart
-	    intPart = @cIntPart
-	
-	    # Case 1: Desired precision is higher than or equal to actual precision
-	    if len(fraction) <= precision
-	        result = intPart + "." + fraction + pvtCopy("0", precision - len(fraction))
-	        return result
-	    ok
-	
-	    # Case 2: Desired precision is lower than actual precision
-	    result = left(fraction, precision)
-	    nextDigit = 0 + pvtMid(fraction, precision + 1, 1)
-	
-	    if nextDigit >= 5
-	        carry = 1
-	        # Start from the end of the result and handle carry-over
-	        for i = precision to 1 step -1
-	            digit = 0 + pvtMid(result, i, 1)
-	            if digit < 9
-	                result = left(result, i-1) + ("" + (digit + carry))
-	                carry = 0
-	                break
-	            else
-	                result = left(result, i-1) + "0"
-	            ok
-	        next
-	
-	        # Handle the case where carry results in extra digit
-	        if carry > 0 # carry is equal to 1
+		if isString(precision)
 
-	            # Increment the integer part and reset the fractional part
+			if precision = :Max
+				precision = $BIG_NUMBER_MAX_PRECISION
 
-		    if @bIsNegative
-			intPart = pvtSubtractOneFromIntPart()
-		    else
-		   	intPart = pvtAddOneToIntPart()
-		    ok
+			but precision = :Default or precision = ""
+				precision = $BIG_NUMBER_DEFAULT_PRECISION
 
-	            result = pvtCopy("0", precision)
-	        ok
-	    ok
+			else
+				raise("ERR-" + StkError(:IncorrectParamValue))
+			ok
+		ok
 	
-	    # Construct final result
-
-	    if @bSpace
-	    	intPart = pvtSpacify(intPart, @cSpace, @nSpace)
-	    ok
-
-	    if result = ""
-	        result = ""+ intPart + "." + pvtCopy("0", precision)
-	    else
-	        result = ""+ intPart + "." + result
-	    ok
+		if not isNumber(precision)
+			raise("ERR-" + StkError(:IncorrectParamType))
+		ok
 	
-	    if precision = 0
-		result = substr(result, ".", "")
-	    ok
+		if precision > $BIG_NUMBER_MAX_PRECISION
+			raise("ERR-" + StkError(:IncorrectParamValue))
+		ok
+	
+		if precision = 0 and This.IsInt()
+			return This.SInt()
+		ok
+	
+		fraction = @cFractPart
+		intPart = @cIntPart # We need it without spacers
+	
+		# Case 1: Desired precision is higher than or equal to actual precision
 
-	    return result
+		if len(fraction) <= precision
+
+			if @bSpace
+				intPart = pvtSpacify(intPart, @cSpace, @nSpace)
+			ok
+	
+			if @bNegative
+				intPart = "-" + intPart
+			ok
+	
+			result = intPart + "." + fraction + pvtCopy("0", precision - len(fraction))
+	
+			return result
+		ok
+
+		# Case 2: Desired precision is lower than actual precision
+		# and the fraction part (up to the precision) is made of "9"s
+
+		cFractPArt = left(fraction, precision)
+
+		if precision > 0 and cFractPArt = pvtCopy("9", precision)
+
+			intPart = pvtAddOneToIntPart()
+
+			if @bSpace
+				intPart = pvtSpacify(intPart, @cSpace, @nSpace)
+			ok
+
+			if @bNegative
+				intPart = "-" + intPart
+			ok
+			
+			result = intPart + "." + pvtCopy("0", precision)
+
+			return result
+		ok
+
+		# Case 3: Desired precision is lower than actual precision
+		# and the fract part (upto the precision) is not made of "9"s
+
+		result = cFractPArt
+		nextDigit = 0 + pvtMid(fraction, precision + 1, 1)
+	
+		if nextDigit >= 5
+
+			carry = 1
+
+			# Start from the end of the result and handle carry-over
+
+			for i = precision to 1 step -1
+
+				digit = 0 + pvtMid(result, i, 1)
+
+				if digit < 9
+
+					result = left(result, i-1) + ("" + (digit + carry))
+					carry = 0
+					break
+
+				else
+					result = left(result, i-1) + "0"
+
+				ok
+			next
+	
+			# Handle the case where carry results in extra digit
+
+			if carry > 0 # carry is equal to 1
+	
+				# Increment the integer part and reset the fractional part
+	
+				if @bNegative
+					intPart = pvtSubtractOneFromIntPart()
+				else
+					intPart = pvtAddOneToIntPart()
+				ok
+	
+				result = pvtCopy("0", precision)
+			ok
+		ok
+
+		if @bSpace
+			intPart = pvtSpacify(intPart, @cSpace, @nSpace)
+		ok
+		if @bNegative
+			intPart = "-" + intPart
+		ok
+	
+		if result = ""
+			result = ""+ intPart + "." + pvtCopy("0", precision)
+		else
+			result = ""+ intPart + "." + result
+		ok
+		
+		if precision = 0
+			result = substr(result, ".", "")
+		ok
+	
+		return result
 
 
-	    def Rounded(n)
-		return This.RoundedTo(n)
+		#< @FunctionAlternativeForms
+
+		def Rounded(n)
+			return This.RoundedTo(n)
+
+		#>
 
 	  #------------------------------------------------#
 	 #  ROUNDING THE BIG NUMBER TO A GIVEN PRECISION  #
@@ -606,9 +659,14 @@ class stkBigNumber
 			@cFractPart = ""
 			
 		else
+
 			acSplits = split(cRounded, ".")
+			@cIntPart = acSplits[1]
 			@cFractPart = acSplits[2]
 		ok
+
+
+		#< @FunctionAlternativeForms
 
 		def SetRound(n)
 			This.RoundTo(n)
@@ -622,6 +680,8 @@ class stkBigNumber
 		def SetPrecisionTo(n)
 			This.RoundTo(n)
 
+		#>
+
 	#------------------------------------------#
 	#  SPACIFYING THE BIG NUMBER STRING VALUE  #
 	#------------------------------------------#
@@ -633,10 +693,28 @@ class stkBigNumber
 		@bSpace = FALSE
 
 	def IntPartSpacified()
-		return This.pvtSpacify(@cIntPart, @cSpace, @nSpace)
+		
+		cResult = This.pvtSpacify(@cIntPart, @cSpace, @nSpace)
+		if @bNegative
+			cResult = "-" + cResult
+		ok
+
+		return cResult
 
 		def SIntPartSpacified()
 			return This.IntPartSpacified()
+
+	def IntPartUnSpacified()
+
+		cResult = @cIntPart
+		if @bNegative
+			cResult = "-" + cResult
+		ok
+
+		return cResult
+
+		def SIntPartunSpacified()
+			return This.IntPartUnSpacified()
 
 	def Spacified()
 
@@ -650,6 +728,21 @@ class stkBigNumber
 
 		return cResult
 
+	def UnSpacified()
+	
+		cResult = @cIntPart
+		if @bNegative
+			cResult = "-" + cResult
+		ok
+
+	        # Add the fractional part if it exists
+
+		if @cFractPart != ""
+			cResult += "." + @cFractPart
+		ok
+
+		return cResult
+	
 	#--------------------------------#
 	PRIVATE // KITCHEN OF THE CLASS  #
 	#--------------------------------#
@@ -684,10 +777,13 @@ class stkBigNumber
 		ok
 
 	        for i = nLen to 1 step -1
-	            cResult = str[i] + cResult
-	            if (nLen - i + 1) % nSpace = 0 and i != 1
-	                cResult = cSpace + cResult
-	            ok
+
+			cResult = str[i] + cResult
+
+			if (nLen - i + 1) % nSpace = 0 and i != 1
+				cResult = cSpace + cResult
+			ok
+
 	        next
 	
 	        # Add the sign back
@@ -698,68 +794,77 @@ class stkBigNumber
 
 		return cResult
 
-# Helper function to add one to the integer part
+	# Helper function to add one to the integer part
+	
+	def pvtAddOneToIntPart()
 
-def pvtAddOneToIntPart()
-    intPart = @cIntPart	// #Warining Don't use IntPart() ~> may be spaciefied
-    length = len(intPart)
-    carry = 1
-    newIntPart = ""
+		intPart = @cIntPart	// #Warining Don't use IntPart() ~> may be spaciefied
+		length = len(intPart)
+		carry = 1
+		newIntPart = ""
+	
+		for i = length to 1 step -1
+	
+			digit = 0 + pvtMid(intPart, i, 1)
+	
+		        if digit + carry = 10
+				newIntPart = "0" + newIntPart
+				carry = 1
+		        else
+				newIntPart = ("" + (digit + carry)) + newIntPart
+				carry = 0
+		        ok
+	
+		next
+	
+		if carry > 0
+			newIntPart = "1" + newIntPart
+		ok
+	
+		return newIntPart
 
-    for i = length to 1 step -1
+	# Helper function to subtract one from the integer part
 
-        digit = 0 + pvtMid(intPart, i, 1)
-
-        if digit + carry = 10
-            newIntPart = "0" + newIntPart
-            carry = 1
-        else
-            newIntPart = ("" + (digit + carry)) + newIntPart
-            carry = 0
-        ok
-    next
-    if carry > 0
-        newIntPart = "1" + newIntPart
-    ok
-    return newIntPart
-
-# Helper function to subtract one from the integer part
-
-def pvtSubtractOneFromIntPart()
+	def pvtSubtractOneFromIntPart()
    
-    intPart = @cIntPart
-    carry = 1
-    newIntPart = ""
+		intPart = @cIntPart
+		carry = 1
+		newIntPart = ""
+	    
+		// Iterate over the digits of the integer part from right to left
+	
+		for i = len(intPart) to 1 step -1
+	
+			digit = 0 + pvtMid(intPart, i, 1)
+	        
+			if carry = 1
+				if digit > 0
+					digit -= 1
+					carry = 0
+				else
+					digit = 9
+				ok
+			ok
+	        
+			newIntPart = ("" + digit) + newIntPart
+		next
     
-    // Iterate over the digits of the integer part from right to left
-    for i = len(intPart) to 1 step -1
-        digit = 0 + pvtMid(intPart, i, 1)
-        
-        if carry = 1
-            if digit > 0
-                digit -= 1
-                carry = 0
-            else
-                digit = 9
-            ok
-        ok
-        
-        newIntPart = ("" + digit) + newIntPart
-    next
-    
-    // Handle the case where the integer part was "-1" and needs to become "-2", etc.
-    if carry = 1
-        newIntPart = "-" + pvtSubtractOne(newIntPart)
-    else
-        newIntPart = This.pvtStripLeadingZeros(newIntPart)
-    ok
+		// Handle the case where the integer part was "-1" and needs to become "-2", etc.
 
-    return newIntPart
+		if carry = 1
+			newIntPart = "-" + pvtSubtractOne(newIntPart)
+
+		else
+			newIntPart = This.pvtStripLeadingZeros(newIntPart)
+		ok
+
+		return newIntPart
 
 
 	# Two helper functions to perform addition
 
    	def pvtAddStrings(s1, s2) #ai #claude
+
 	        result = ""
 	        carry = 0
 	
@@ -769,14 +874,14 @@ def pvtSubtractOneFromIntPart()
 	        
 	        for i = maxLen to 1 step -1
 
-	            sum = 0+ (s1[i]) + s2[i] + carry
-	            result = "" + (sum % 10) + result
-	            carry = floor(sum / 10)
+			sum = 0+ (s1[i]) + s2[i] + carry
+			result = "" + (sum % 10) + result
+			carry = floor(sum / 10)
 
 	        next
 	 
 	        if carry > 0
-	            result = ""+ carry + result
+			result = ""+ carry + result
 	        ok
 	        
 	        return result
@@ -793,12 +898,12 @@ def pvtSubtractOneFromIntPart()
 	        sum = This.pvtAddStrings(n1Padded, n2Padded)
 	        
 	        if len(sum) > maxFracLen
-	            intPart = left(sum, len(sum) - maxFracLen)
-	            fracPart = right(sum, maxFracLen)
+			intPart = left(sum, len(sum) - maxFracLen)
+			fracPart = right(sum, maxFracLen)
 
 	        else
-	            intPart = "0"
-	            fracPart = This.pvtPadLeft(sum, maxFracLen, "0")
+			intPart = "0"
+			fracPart = This.pvtPadLeft(sum, maxFracLen, "0")
 	        ok
 	        
 	        cResult = This.pvtStripTrailingZeros(intPart + "." + fracPart)
@@ -815,17 +920,17 @@ def pvtSubtractOneFromIntPart()
 	        s2 = This.pvtPadLeft(s2, maxLen, "0")
 	        
 	        for i = maxLen to 1 step -1
-	            diff = 0+ s1[i] - s2[i] - borrow
+			diff = 0+ s1[i] - s2[i] - borrow
 
-	            if diff < 0
-	                diff += 10
-	                borrow = 1
+			if diff < 0
+				diff += 10
+				borrow = 1
 
-	            else
-	                borrow = 0
-	            ok
+			else
+				borrow = 0
+			ok
 
-	            result = ""+ diff + result
+			result = ""+ diff + result
 	        next
 	        
 	        return This.pvtStripLeadingZeros(result)
@@ -840,12 +945,12 @@ def pvtSubtractOneFromIntPart()
 	        n2Padded   = This.pvtPadRight(n2.@cIntPart + n2.@cFractPart, len(n2.@cIntPart) + maxFracLen, "0")
 	        
 	        if pvtCompareAbsValues(s1, s2) < 0
-	            diff = This.pvtSubtractStrings(n2Padded, n1Padded)
-	            isNegative = true
+			diff = This.pvtSubtractStrings(n2Padded, n1Padded)
+			isNegative = true
 
 	        else
-	            diff = This.pvtSubtractStrings(n1Padded, n2Padded)
-	            isNegative = false
+			diff = This.pvtSubtractStrings(n1Padded, n2Padded)
+			isNegative = false
 	        ok
 	        
 	        diff     = This.pvtPadLeft(diff, len(n1Padded), "0")
@@ -855,7 +960,7 @@ def pvtSubtractOneFromIntPart()
 	        result = This.pvtStripLeadingZeros(intPart) + "." + This.pvtStripTrailingZeros(fracPart)
 
 	        if isNegative and result != "0"
-	            result = "-" + result
+			result = "-" + result
 	        ok
 	        
 	        return result
@@ -877,12 +982,12 @@ def pvtSubtractOneFromIntPart()
 	        totalFracLen = fracLen1 + fracLen2
 	        
 	        if len(product) > totalFracLen
-	            intPart = left(product, len(product) - totalFracLen)
-	            fracPart = right(product, totalFracLen)
+			intPart = left(product, len(product) - totalFracLen)
+			fracPart = right(product, totalFracLen)
 
 	        else
-	            intPart = "0"
-	            fracPart = This.pvtPadLeft(product, totalFracLen, "0")
+			intPart = "0"
+			fracPart = This.pvtPadLeft(product, totalFracLen, "0")
 	        ok
 	        
 	        return This.pvtStripTrailingZeros(This.pvtStripLeadingZeros(intPart) + "." + fracPart)
@@ -918,82 +1023,109 @@ def pvtSubtractOneFromIntPart()
 	        z2 = This.pvtKaratsubaMultiply(high1, high2)
 
 	        cResult = This.pvtAddStrings(
-	            This.pvtAddStrings(
-	                This.pvtShiftLeft(z2, 2*m2),
-	                This.pvtShiftLeft(This.pvtSubtractStrings(This.pvtSubtractStrings(z1, z2), z0), m2)
-	            ),
-	            z0
+			This.pvtAddStrings(
+				This.pvtShiftLeft(z2, 2*m2),
+				This.pvtShiftLeft(This.pvtSubtractStrings(This.pvtSubtractStrings(z1, z2), z0), m2)
+			),
+			z0
 	        )
 
 		return cResult
 
-# Helper function to multiply integer strings directly, digit by digit
-def pvtMultiplyStringsDigitByDigit(x, y) // #ai #chatgpt
-    lenX = len(x)
-    lenY = len(y)
-    # Initialize the result array with zeros
-    result = pvtArray(lenX + lenY, "0")
+	# Helper function to multiply integer strings directly, digit by digit
+	
+	def pvtMultiplyStringsDigitByDigit(x, y) // #ai #chatgpt
+	
+		lenX = len(x)
+		lenY = len(y)
+	
+	    	# Initialize the result array with zeros
+	
+		result = pvtArray(lenX + lenY, "0")
+	
+		# Reverse the strings to simplify multiplication
+	
+		x = reverse(x)
+		y = reverse(y)
+	
+		for i = 1 to lenX
+	
+			carry = 0
+	
+			for j = 1 to lenY
+	
+				# Multiply digit by digit and add to the result
+	
+				product = (0 + pvtMid(x, i, 1)) * (0 + pvtMid(y, j, 1)) + (0 + result[i + j - 1]) + carry
+				result[i + j - 1] = "" + (product % 10)
+				carry = floor(product / 10)
+	
+			next
+	
+			result[i + lenY] = "" + (carry)
+	
+		next
+	
+		# Reverse result to get the final product and remove leading zeros
+	
+		result = reverse(pvtJoin(result, ""))
+		result = This.pvtStripLeadingZeros(result)
+	
+		# Handle the case where the result is zero
+	
+		if result = ""
+			result = "0"
+		ok
+	
+		return result
 
-    # Reverse the strings to simplify multiplication
-    x = reverse(x)
-    y = reverse(y)
+	# Helper function to create an array (list) with a given size and initial value
+	
+	def pvtArray(size, value) // #ai #chatgpt
+	
+		result = []
+	
+		for i = 1 to size
+			result + value
+		next
+	
+		return result
 
-    for i = 1 to lenX
-        carry = 0
-        for j = 1 to lenY
-            # Multiply digit by digit and add to the result
-            product = (0 + pvtMid(x, i, 1)) * (0 + pvtMid(y, j, 1)) + (0 + result[i + j - 1]) + carry
-            result[i + j - 1] = "" + (product % 10)
-            carry = floor(product / 10)
-        next
-        result[i + lenY] = "" + (carry)
-    next
+	# Helper function to extract a substring from a string
+	
+	def pvtMid(string, start, length) // #ai #chatgpt
+	
+		# Extract a substring from the string
+		# Since Ring uses 1-based indexing, we'll adjust for that
+	
+		startIndex = start
+		endIndex = start + length - 1
+		result = ""
+	    
+		for i = startIndex to endIndex
+			if i <= len(string)
+				result += string[i]
+			ok
+		next
+	    
+		return result
 
-    # Reverse result to get the final product and remove leading zeros
-    result = reverse(pvtJoin(result, ""))
-    result = This.pvtStripLeadingZeros(result)
-
-    # Handle the case where the result is zero
-    if result = ""
-        result = "0"
-    ok
-
-    return result
-
-# Helper function to create an array (list) with a given size and initial value
-def pvtArray(size, value) // #ai #chatgpt
-    result = []
-    for i = 1 to size
-        result + value
-    next
-    return result
-
-# Helper function to extract a substring from a string
-def pvtMid(string, start, length) // #ai #chatgpt
-    # Extract a substring from the string
-    # Since Ring uses 1-based indexing, we'll adjust for that
-    startIndex = start
-    endIndex = start + length - 1
-    result = ""
-    
-    for i = startIndex to endIndex
-        if i <= len(string)
-            result += string[i]
-        ok
-    next
-    
-    return result
-
-# Helper function to join a list of strings with a separator
-def pvtJoin(list, separator) // #ai #chatgpt
-    result = ""
-    for i = 1 to len(list)
-        if i > 1
-            result += separator
-        ok
-        result += list[i]
-    next
-    return result
+	# Helper function to join a list of strings with a separator
+	
+	def pvtJoin(list, separator) // #ai #chatgpt
+	
+		result = ""
+	
+		for i = 1 to len(list)
+	
+			if i > 1
+				result += separator
+			ok
+	
+			result += list[i]
+		next
+	
+		return result
 
 	# Helper function to perform division
 
@@ -1006,7 +1138,7 @@ def pvtJoin(list, separator) // #ai #chatgpt
 
 	    	decimalShift = max(len(n1.@cFractPart), len(n2.@cFractPart))
 	    	intPart1 = n1.@cIntPart + n1.@cFractPart + pvtCreateZeros(decimalShift - len(n1.@cFractPart))
-	   	 intPart2 = n2.@cIntPart + n2.@cFractPart + pvtCreateZeros(decimalShift - len(n2.@cFractPart))
+	   	intPart2 = n2.@cIntPart + n2.@cFractPart + pvtCreateZeros(decimalShift - len(n2.@cFractPart))
 	    
 	   	 # Ensure that intPart2 is not "0" to avoid infinite loops or division by zero
 
@@ -1016,14 +1148,14 @@ def pvtJoin(list, separator) // #ai #chatgpt
 	    
 	    	# Perform long division
 
-		    quotient = ""
-		    remainder = "0"
-		    dividendIndex = 1
-		    decimalPointInserted = false
-		    nLength = len(intPart1)
-		    maxPrecision = $BIG_NUMBER_DEFAULT_PRECISION  # Adjust this for desired precision
+		quotient = ""
+		remainder = "0"
+		dividendIndex = 1
+		decimalPointInserted = false
+		nLength = len(intPart1)
+		maxPrecision = $BIG_NUMBER_DEFAULT_PRECISION  # Adjust this for desired precision
 		    
-	   	 while true
+	   	while true
 
 	        	# Add the next digit to the remainder
 
@@ -1052,11 +1184,11 @@ def pvtJoin(list, separator) // #ai #chatgpt
 	       		# Insert decimal point if needed
 
 		        if dividendIndex > nLength and not decimalPointInserted
-		            quotient += "."
-		            decimalPointInserted = true
+				quotient += "."
+				decimalPointInserted = true
 		        ok
 	        
-	       	 # Stop if we've reached desired precision after decimal point
+	       		# Stop if we've reached desired precision after decimal point
 
 		        if decimalPointInserted and len(substr(quotient, substr(quotient, ".") + 1)) >= maxPrecision
 		            	break
@@ -1081,11 +1213,11 @@ def pvtJoin(list, separator) // #ai #chatgpt
 	        s1 = This.pvtPadLeft(s1, maxLen, "0")
 	        s2 = This.pvtPadLeft(s2, maxLen, "0")
 		        
-	        for i = 1 to maxLen
-	            if s1[i] != s2[i]
-	                return ascii(s1[i]) - ascii(s2[i])
-	            ok
-	        next
+		for i = 1 to maxLen
+			if s1[i] != s2[i]
+				return ascii(s1[i]) - ascii(s2[i])
+			ok
+		next
 		        
 	        return 0
 
@@ -1097,22 +1229,28 @@ def pvtJoin(list, separator) // #ai #chatgpt
 	        n2 = new stkBigNumber(This.pvtSAbs(s2))
 		        
 	        if n1.@cIntPart != n2.@cIntPart
+
 	            return len(n1.@cIntPart) - len(n2.@cIntPart) or 
 	                   This.pvtCompareStrings(n1.@cIntPart, n2.@cIntPart)
+
 	        ok
 		        
 	        return This.pvtCompareStrings(n1.@cFractPart, n2.@cFractPart)
 	
 	def pvtSAbs(s) #ai #claude
+
 	        if left(s, 1) = "-"
-	            s = substr(s, "-", "")
+			s = substr(s, "-", "")
 	        ok
+
 	        return s
 
 	# Helper function to strip zeros from left
 
     	def pvtStripLeadingZeros(s) #ai #claude
+
 	        while TRUE
+
 			if NOT (left(s, 1) = "0" and len(s) > 1)
 				exit
 			ok
@@ -1127,7 +1265,9 @@ def pvtJoin(list, separator) // #ai #chatgpt
 	def pvtStripTrailingZeros(s) #ai #claude
 	
 		while TRUE
+
 			nLen = len(s)
+
 			if nLen < 0
 				exit
 			ok
@@ -1152,6 +1292,7 @@ def pvtJoin(list, separator) // #ai #chatgpt
 	       	while len(s) < n
 	        	s = char + s
 	        end
+
 	        return s
 
 	# Helper function to pad n chars to the right of a given string
@@ -1161,6 +1302,7 @@ def pvtJoin(list, separator) // #ai #chatgpt
 	        while len(s) < n
 	            	s = s + char
 	        end
+
 	        return s
 
 	# Helper function to shif n chars left of a given string
@@ -1176,7 +1318,7 @@ def pvtJoin(list, separator) // #ai #chatgpt
 		result = ""
 		
 		        for i = 1 to n
-		            result += s
+				result += s
 		        next
 		
 		        return result
@@ -1186,9 +1328,9 @@ def pvtJoin(list, separator) // #ai #chatgpt
 	def pvtMin(a, b) #ai #claude
 		
 	        if a < b
-	            return a
+			return a
 	        else
-	            return b
+			return b
 	        ok
 
 	# Helper function to get the max of two numbers
@@ -1196,9 +1338,9 @@ def pvtJoin(list, separator) // #ai #chatgpt
 	def pvtMax(a, b) #ai #claude
 
 	        if a < b
-	            return b
+			return b
 	        else
-	            return a
+			return a
 	        ok
 
 	# Helper function to append a string with n zeros
@@ -1208,6 +1350,7 @@ def pvtJoin(list, separator) // #ai #chatgpt
 		for i = 1 to n
 			str += "0"
 		next
+
 	    	return str
 
 	# Helper function to create a string of zeros
