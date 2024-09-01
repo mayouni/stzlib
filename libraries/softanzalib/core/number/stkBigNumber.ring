@@ -57,7 +57,7 @@ class stkBigNumber
 	@cFractPart
 	@nPrecision
 
-	@bSpace = FALSE
+	@bSpacify = FALSE
 	@nSpace = 3
 	@cSpace = "_"
 
@@ -66,7 +66,14 @@ class stkBigNumber
 	#-------------------------------------------------------#
 
     	def init(cValue)
-	       This.Update(cValue)
+
+		bSpacify = FALSE
+
+		if substr(cValue, "_") > 0
+			bSpacify = TRUE
+		ok
+
+		This.Update(cValue, bSpacify)
 
 		# Storing the full precision of the number
 		# We need it if SetPrecision(n) is used with n > @nPrecision
@@ -78,7 +85,9 @@ class stkBigNumber
 	 #  UPDATING THE BIG NUMBER WITH A NUMBER PROVIDED AS A STRING  #
 	#--------------------------------------------------------------#
 
-	func Update(cNumberInStr)
+	func Update(cNumberInStr, bSpacify)
+
+		@bNegative = FALSE
 
 		# The object is set using a string
 
@@ -86,44 +95,40 @@ class stkBigNumber
 	            	raise("ERR-" + StkError(:IncorrectParamType))
 	        ok
 
-		# Checking if the number is spacified (using "_")
-		# and if so, keeping this feature avtive
+		# Cleansing the string form leading and trailing spaces
 
 		cNumberInStr = trim(cNumberInStr)
-		nUnderscore = substr(cNumberInStr, "_")
-		if nUnderscore = 0
-			This.@bSpace = FALSE
-		else
-			This.@bSpace = TRUE
+
+		# If the new number is spacified then store that info and unspaicify it
+
+		if substr(cNumberInStr, "_") > 0
+			@bSpacify = TRUE
 			cNumberInStr = substr(cNumberInStr, "_", "")
 		ok
 
-		# The string provided must contain a number
+		# The string must contain a valid number
 
 		if not isNumber(0+ cNumberInStr)
 			raise("ERR-" + StkError(:IncorrectParamType))
 		ok
 
-		# Checking if the number is negative, and if so
-		# keeping the info in the object
+		# If the new number is negative, then remove the negative sign
 
-	        @bNegative = (left(cNumberInStr, 1) = "-")
-
-	        if @bNegative
-	            	cNumberInStr = substr(cNumberInStr, "-", "")
+		if left(cNumberInStr, 1) = "-"
+			@bNegative = TRUE
+	       		cNumberInStr = substr(cNumberInStr, "-", "")
 	        ok
-	        
-		# Splitting the number into parts, intpart and fractpart
-		# (without potential sign if the number is negative)
+
+		# Splitting the number into 2 parts, intpart and fractpart
 
 	        acParts = split(cNumberInStr, ".")
-	        @cIntPart = This.pvtStripLeadingZeros(acParts[1])
+	        @cIntPart = This.pvtTrimLeadingZeros(acParts[1])
 
 		@cFractPArt = ""
 		@nPrecision = 0
 
 	        if len(acParts) > 1
-	            	@cFractPart = This.pvtStripTrailingZeros(acParts[2])
+	            	@cFractPart = This.pvtTrimTrailingZeros(acParts[2])
 			@nPrecision = len(@cFractPart)
 	        ok
 	        
@@ -169,7 +174,7 @@ class stkBigNumber
 	def IntPart()
 		cResult = ""
 
-		if @bSpace = TRUE
+		if @bSpacify = TRUE
 			cResult += This.IntPartSpacified()
 		else
 			cResult += @cIntPart
@@ -272,8 +277,8 @@ class stkBigNumber
 
 		oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
 
-		if @bSpace or substr(cOtherBigNumber, "_") > 0
-			oOtherBigNumber.@bSpace = TRUE
+		if @bSpacify or substr(cOtherBigNumber, "_") > 0
+			oOtherBigNumber.@bSpacify = TRUE
 		ok
 
 	        if This.IsNegative() = oOtherBigNumber.isNegative()
@@ -293,9 +298,9 @@ class stkBigNumber
 
 		# Updating the big number with the result
 
-		This.Update(cResult)
+		This.Update(cResult, @bSpacify)
 
-		if oOtherBigNumber.@bSpace = TRUE
+		if oOtherBigNumber.@bSpacify = TRUE
 			This.Spacify()
 		ok
 
@@ -312,32 +317,15 @@ class stkBigNumber
 
     	def Subtract(cOtherBigNumber)
 
-		if This.pvtCompareStrings(This.SValue(), cOtherBigNumber) < 0
+		result = This.pvtSubtractStrings(This.Unspacified(), cOtherBigNumber)
 
-			This.@bNegative = TRUE
-			oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
+		bSpacify = FALSE
 
-			if @bSpace or substr(cOtherBigNumber, "_") > 0
-				oOtherBigNumber.@bSpace = TRUE
-			ok
-
-			oOtherBigNumber.Subtract(This.SValue())
-			
-		else
-
-			oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
-		        oOtherBigNumber.SNegate()	
-
-			if @bSpace or substr(cOtherBigNumber, "_") > 0
-				oOtherBigNumber.@bSpace = TRUE
-			ok
-
-		        This.SAdd(oOtherBigNumber.SValue())
+		if @bSpacify or substr(cOtherBigNumber, "_") > 0
+			bSpacify = TRUE
 		ok
 
-		if oOtherBigNumber.@bSpace = TRUE
-			This.Spacify()
-		ok
+		This.Update(result, bSpacify)
 
 		def SSubtract(cOtherBigNumber)
 			This.Subtract(cOtherBigNumber)
@@ -351,8 +339,8 @@ class stkBigNumber
 
 	   	oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
 
-		if @bSpace or substr(cOtherBigNumber, "_") > 0
-			oOtherBigNumber.@bSpace = TRUE
+		if @bSpacify or substr(cOtherBigNumber, "_") > 0
+			oOtherBigNumber.@bSpacify = TRUE
 		ok
 
 	        cResult = This.pvtMultiplyDecimalStrings(This.SAbs(), oOtherBigNumber.SAbs())
@@ -370,7 +358,7 @@ class stkBigNumber
 
 		This.Update(cResult)
 
-		if oOtherBigNumber.@bSpace = TRUE
+		if oOtherBigNumber.@bSpacify = TRUE
 			This.Spacify()
 		ok
 
@@ -393,8 +381,8 @@ class stkBigNumber
 	    
 	    	oOtherBigNumber = new stkBigNumber(cOtherBigNumber)
 
-		if @bSpace or substr(cOtherBigNumber, "_") > 0
-			oOtherBigNumber.@bSpace = TRUE
+		if @bSpacify or substr(cOtherBigNumber, "_") > 0
+			oOtherBigNumber.@bSpacify = TRUE
 		ok
 
 	    	cResult = pvtDivideDecimalStrings(This.SAbs(), oOtherBigNumber.SAbs())
@@ -412,7 +400,7 @@ class stkBigNumber
 
 		This.Update(cResult)
 
-		if oOtherBigNumber.@bSpace = TRUE
+		if oOtherBigNumber.@bSpacify = TRUE
 			This.Spacify()
 		ok
 
@@ -423,18 +411,99 @@ class stkBigNumber
 
 		#>
 
+	  #---------------------------------------------#
+	 #  ELEVATION THE BIG NUMBER TO A GIVEN POWER  #
+	#---------------------------------------------#
+
+	# Power function for big numbers using exponentiation by squaring
+
+	# This algorithm efficiently computes x^n by reducing the number of multiplications
+
+	# It has a time complexity of O(log n) multiplications, where each multiplication
+	# is performed using the Karatsuba algorithm for big numbers
+	
+	def Power(n) #ai #claude #me
+
+		if not isNumber(n)
+			raise("ERR-" + StkError(:IncorrectParamType))
+		ok
+
+		if n < 0
+			raise("ERR-" + StkError(:IncorrectParamValue))
+		ok
+
+		# Base cases
+		if n = 0 return "1" ok
+		if n = 1 return This.SValue() ok
+		    
+		# Initialize result
+		result = "1"
+		cBigNumber = This.SValue()
+
+		# Binary exponentiation algorithm
+		while n > 0
+			# If n is odd, multiply result with cBigNumber
+			if n % 2 = 1
+				result = pvtMultiplyDecimalStrings(result, cBigNumber)
+			ok
+		        
+			# Square cBigNumber and halve n
+			cBigNumber = pvtMultiplyDecimalStrings(cBigNumber, cBigNumber)
+			n = floor(n / 2)
+		end
+
+
+		bTempNegative = FALSE
+		if This.IsNegative()
+			if  @IsOdd(n)
+				bTempNegative = TRUE
+			ok
+		else
+			if n < 0
+				bTempNegative = TRUE
+			ok
+		ok
+
+		bTempSpace = @bSpacify
+
+		This.Update(result)
+
+		@bNegative = bTempNegative
+		@bSpacify = bTempSpace
+
 	  #--------------------------------------------------------------#
 	 #  GETTING THE ABSOLUTE VALUE OF THE BIG NUMBER (IN A STRING)  #
 	#--------------------------------------------------------------#
 
 	def SAbs()
+		if @bSpacify
+			cValue = This.Spacified()
+		else
+			cValue = This.Unspacified()
+		ok
+
 		if This.IsNegative()
-			cResult = substr(This.SValue(), "-", "")
+			cResult = substr(cValue, "-", "")
 			return cResult
 			
 		else
-			return This.SValue()
+			return cValue
 		ok
+
+		def Abs()
+			return This.SAbs()
+
+	  #-------------------------------------------------------#
+	 #  COMPARING THE BIG NUMBER WITH AN OTHER (BIG) NUMBER  #
+	#-------------------------------------------------------#
+
+	def Compare(cOtherBigNumber)
+
+		return This.pvtCompareEqualStrings(This.SValue(), cOtherBigNumber)
+
+		def CompareWith(cOtherBigNumber)
+			return This.Compare(cOtherBigNumber)
+
 
 	  #------------------------------------------#
 	 #  CHECKING IF THE BIG NUMBER IS NEGATIVE  #
@@ -525,7 +594,7 @@ class stkBigNumber
 
 		if len(fraction) <= precision
 
-			if @bSpace
+			if @bSpacify
 				intPart = pvtSpacify(intPart, @cSpace, @nSpace)
 			ok
 	
@@ -547,7 +616,7 @@ class stkBigNumber
 
 			intPart = pvtAddOneToIntPart()
 
-			if @bSpace
+			if @bSpacify
 				intPart = pvtSpacify(intPart, @cSpace, @nSpace)
 			ok
 
@@ -604,7 +673,7 @@ class stkBigNumber
 			ok
 		ok
 
-		if @bSpace
+		if @bSpacify
 			intPart = pvtSpacify(intPart, @cSpace, @nSpace)
 		ok
 		if @bNegative
@@ -687,10 +756,10 @@ class stkBigNumber
 	#------------------------------------------#
 
 	def Spacify()
-		@bSpace = TRUE
+		@bSpacify = TRUE
 
 	def Unspacify()
-		@bSpace = FALSE
+		@bSpacify = FALSE
 
 	def IntPartSpacified()
 		
@@ -855,7 +924,7 @@ class stkBigNumber
 			newIntPart = "-" + pvtSubtractOne(newIntPart)
 
 		else
-			newIntPart = This.pvtStripLeadingZeros(newIntPart)
+			newIntPart = This.pvtTrimLeadingZeros(newIntPart)
 		ok
 
 		return newIntPart
@@ -906,66 +975,10 @@ class stkBigNumber
 			fracPart = This.pvtPadLeft(sum, maxFracLen, "0")
 	        ok
 	        
-	        cResult = This.pvtStripTrailingZeros(intPart + "." + fracPart)
+	        cResult = This.pvtTrimTrailingZeros(intPart + "." + fracPart)
 		return cResult
 
-	# Two helper functions to perform subtraction
-
-   	 def pvtSubtractStrings(s1, s2) #ai #claude
-
-	        result = ""
-	        borrow = 0
-	        maxLen = This.pvtMax(len(s1), len(s2))
-	        s1 = This.pvtPadLeft(s1, maxLen, "0")
-	        s2 = This.pvtPadLeft(s2, maxLen, "0")
-	        
-	        for i = maxLen to 1 step -1
-			diff = 0+ s1[i] - s2[i] - borrow
-
-			if diff < 0
-				diff += 10
-				borrow = 1
-
-			else
-				borrow = 0
-			ok
-
-			result = ""+ diff + result
-	        next
-	        
-	        return This.pvtStripLeadingZeros(result)
-
-   	 def pvtSubtractDecimalStrings(s1, s2) #ai #claude
-
-	        n1 = new stkBigNumber(s1)
-	        n2 = new stkBigNumber(s2)
-
-	        maxFracLen = This.pvtMax(len(n1.@cFractPart), len(n2.@cFractPart))
-	        n1Padded   = This.pvtPadRight(n1.@cIntPart + n1.@cFractPart, len(n1.@cIntPart) + maxFracLen, "0")
-	        n2Padded   = This.pvtPadRight(n2.@cIntPart + n2.@cFractPart, len(n2.@cIntPart) + maxFracLen, "0")
-	        
-	        if pvtCompareAbsValues(s1, s2) < 0
-			diff = This.pvtSubtractStrings(n2Padded, n1Padded)
-			isNegative = true
-
-	        else
-			diff = This.pvtSubtractStrings(n1Padded, n2Padded)
-			isNegative = false
-	        ok
-	        
-	        diff     = This.pvtPadLeft(diff, len(n1Padded), "0")
-	        intPart  = left(diff, len(diff) - maxFracLen)
-	        fracPart = right(diff, maxFracLen)
-	        
-	        result = This.pvtStripLeadingZeros(intPart) + "." + This.pvtStripTrailingZeros(fracPart)
-
-	        if isNegative and result != "0"
-			result = "-" + result
-	        ok
-	        
-	        return result
-
-	# Two helper functiions to perform multiplication
+	# Two helper functions to perform multiplication
 
 	def pvtMultiplyDecimalStrings(s1, s2) #ai #claude
 
@@ -990,7 +1003,7 @@ class stkBigNumber
 			fracPart = This.pvtPadLeft(product, totalFracLen, "0")
 	        ok
 	        
-	        return This.pvtStripTrailingZeros(This.pvtStripLeadingZeros(intPart) + "." + fracPart)
+	        return This.pvtTrimTrailingZeros(This.pvtTrimLeadingZeros(intPart) + "." + fracPart)
 
 	# A specital algorithm efficient for multiplying large big numbers
 
@@ -1069,7 +1082,7 @@ class stkBigNumber
 		# Reverse result to get the final product and remove leading zeros
 	
 		result = reverse(pvtJoin(result, ""))
-		result = This.pvtStripLeadingZeros(result)
+		result = This.pvtTrimLeadingZeros(result)
 	
 		# Handle the case where the result is zero
 	
@@ -1168,13 +1181,13 @@ class stkBigNumber
 	        
 	        	# Normalize remainder by removing leading zeros
 
-	      		remainder = pvtStripLeadingZeros(remainder)
+	      		remainder = pvtTrimLeadingZeros(remainder)
 	        
 			# Calculate quotient digit
 
 			digit = 0
 
-		        while pvtCompareStrings(remainder, intPart2) >= 0
+		        while pvtCompareEqualStrings(remainder, intPart2) >= 0
 		            	remainder = pvtSubtractStrings(remainder, intPart2)
 		            	digit++
 		        end
@@ -1201,27 +1214,225 @@ class stkBigNumber
 		        ok
 	   	end
 	    
-	   	# Strip trailing zeros in the fractional part
+	   	# Trim trailing zeros in the fractional part
 
-	    	return pvtStripTrailingZeros(quotient)
+	    	return pvtTrimTrailingZeros(quotient)
 
 	# Helper function to compare two numbers in strings
 
-    	def pvtCompareStrings(s1, s2) #ai #claude
 
-	        maxLen = This.pvtMax(len(s1), len(s2))
-	        s1 = This.pvtPadLeft(s1, maxLen, "0")
-	        s2 = This.pvtPadLeft(s2, maxLen, "0")
-		        
-		for i = 1 to maxLen
-			if s1[i] != s2[i]
-				return ascii(s1[i]) - ascii(s2[i])
-			ok
-		next
-		        
-	        return 0
 
-	# Two helper functions to perform absolute values
+# Helper function to pad with zeros after decimal point
+func pvtPadFraction(str, length)
+    nLen = len(str)
+
+    if nLen < length
+	str += pvtCopy("0", (length - nLen))
+    ok
+    return str
+
+# Function to subtract two big numbers represented as strings
+func pvtSubtractStrings(nbr1, nbr2)
+    nbr1 = substr(nbr1, "_", "")
+    nbr2 = substr(nbr2, "_", "")
+
+    # Handle negative numbers
+    if left(nbr1, 1) = "-" and left(nbr2, 1) != "-"
+        return "-" + pvtAddStrings(right(nbr1, len(nbr1)-1), nbr2)
+
+    but left(nbr1, 1) != "-" and left(nbr2, 1) = "-"
+        return pvtAddStrings(nbr1, right(nbr2, len(nbr2)-1))
+
+    but left(nbr1, 1) = "-" and left(nbr2, 1) = "-"
+        return pvtSubtractStrings(right(nbr2, len(nbr2)-1), right(nbr1, len(nbr1)-1))
+    ok
+
+    # Split numbers into integer and fractional parts
+    parts1 = substr(nbr1, ".")
+    parts2 = substr(nbr2, ".")
+    
+    if parts1 > 0
+        int1 = left(nbr1, parts1-1)
+        frac1 = right(nbr1, len(nbr1) - parts1)
+    else
+        int1 = nbr1
+        frac1 = ""
+    ok
+    
+    if parts2 > 0
+        int2 = left(nbr2, parts2-1)
+        frac2 = right(nbr2, len(nbr2) - parts2)
+    else
+        int2 = nbr2
+        frac2 = ""
+    ok
+
+//? int1 + " : " + frac1
+//? int2 + " : " + frac2 + NL
+    # Ensure int1 is not smaller than int2
+    if pvtCompareStrings(int1, int2) = 1
+        return "-" + pvtSubtractStrings(nbr2, nbr1)
+    ok
+
+    # Pad fractional parts to equal length
+    maxFracLen = pvtMax(len(frac1), len(frac2))
+    frac1 = pvtPadFraction(frac1, maxFracLen)
+    frac2 = pvtPadFraction(frac2, maxFracLen)
+
+    # Pad int2 with leading zeros to match length of int1
+    int2 = pvtCopy("0", len(int1) - len(int2)) + int2
+
+//? int1 + " : " + frac1
+//? int2 + " : " + frac2 + nl
+
+
+    borrow = 0
+    resultInt = ""
+    resultFrac = ""
+
+    # Subtract fractional parts
+    for i = len(frac1) to 1 step -1
+
+        digit1 = 0+ frac1[i]
+
+        if i <= len(frac2)
+            digit2 = 0+ frac2[i]
+        else
+            digit2 = 0
+        ok
+
+        digit1 -= borrow
+
+        if digit1 < digit2
+            digit1 += 10
+            borrow = 1
+
+        else
+            borrow = 0
+        ok
+
+        resultFrac = ""+ (digit1 - digit2) + resultFrac
+
+    next
+
+    # Subtract integer parts
+
+    for i = len(int1) to 1 step -1
+        digit1 = 0+ int1[i]
+        if i <= len(int2)
+            digit2 = 0+ int2[i]
+        else
+            digit2 = 0
+        ok
+        digit1 -= borrow
+        if digit1 < digit2
+            digit1 += 10
+            borrow = 1
+        else
+            borrow = 0
+        ok
+        resultInt = ""+ (digit1 - digit2) + resultInt
+    next
+
+    # Combine results and clean up
+    result = pvtTrimLeadingZeros(resultInt)
+    if len(resultFrac) > 0
+        result += "." + resultFrac
+    ok
+    result = pvtTrimTrailingZeros(result)
+
+    return result
+
+
+###############################
+
+# Helper function to compare two strings of equal length
+def pvtCompareSameSizeStrings(str1, str2)
+    for i = 1 to len(str1)
+        if ascii(str1[i]) > ascii(str2[i])
+            return 1
+        but ascii(str1[i]) < ascii(str2[i])
+            return -1
+        ok
+    next
+    return 0  # If we get here, the strings are equal
+
+# Main function to compare big numbers
+func pvtCompareStrings(str1, str2)
+    # Remove leading and trailing zeros
+    str1 = pvtTrimLeadingZeros(pvtTrimTrailingZeros(str1))
+    str2 = pvtTrimLeadingZeros(pvtTrimTrailingZeros(str2))
+    
+    # Check for negative numbers
+    isNegative1 = (left(str1, 1) = "-")
+    isNegative2 = (left(str2, 1) = "-")
+    
+    # If signs are different, we can immediately determine the result
+    if isNegative1 and !isNegative2
+        return -1
+    elseif !isNegative1 and isNegative2
+        return 1
+    ok
+    
+    # Remove minus signs for further processing
+    if isNegative1
+        str1 = right(str1, len(str1) - 1)
+    ok
+    if isNegative2
+        str2 = right(str2, len(str2) - 1)
+    ok
+    
+    # Split into integer and fractional parts
+    parts1 = substr(str1, ".")
+    parts2 = substr(str2, ".")
+    
+    int1 = str1
+    int2 = str2
+    frac1 = ""
+    frac2 = ""
+    
+    if parts1 > 0
+        int1 = left(str1, parts1-1)
+        frac1 = right(str1, len(str1) - parts1)
+    ok
+    if parts2 > 0
+        int2 = left(str2, parts2-1)
+        frac2 = right(str2, len(str2) - parts2)
+    ok
+    
+    # Compare integer parts
+    if len(int1) != len(int2)
+        if len(int1) > len(int2)
+		result = 1
+	else
+		result = -1
+	ok
+    else
+        result = pvtCompareSameSizeStrings(int1, int2)
+    ok
+    
+    # If integer parts are equal, compare fractional parts
+    if result = 0 and (len(frac1) > 0 or len(frac2) > 0)
+        # Pad shorter fractional part with zeros
+        maxFracLen = max(len(frac1), len(frac2))
+        frac1 = frac1 + copy("0", maxFracLen - len(frac1))
+        frac2 = frac2 + copy("0", maxFracLen - len(frac2))
+        result = pvtCompareSameSizeStrings(frac1, frac2)
+    ok
+    
+    # If numbers were negative, reverse the result
+    if isNegative1
+        result = -result
+    ok
+    
+    return result
+
+
+##############################
+
+
+
+	# Two helper functions to compare absolute values
 
 	def pvtCompareAbsValues(s1, s2) #ai #claude
 
@@ -1231,11 +1442,11 @@ class stkBigNumber
 	        if n1.@cIntPart != n2.@cIntPart
 
 	            return len(n1.@cIntPart) - len(n2.@cIntPart) or 
-	                   This.pvtCompareStrings(n1.@cIntPart, n2.@cIntPart)
+	                   This.pvtCompareEqualStrings(n1.@cIntPart, n2.@cIntPart)
 
 	        ok
 		        
-	        return This.pvtCompareStrings(n1.@cFractPart, n2.@cFractPart)
+	        return This.pvtCompareEqualStrings(n1.@cFractPart, n2.@cFractPart)
 	
 	def pvtSAbs(s) #ai #claude
 
@@ -1245,9 +1456,9 @@ class stkBigNumber
 
 	        return s
 
-	# Helper function to strip zeros from left
+	# Helper function to Trim zeros from left
 
-    	def pvtStripLeadingZeros(s) #ai #claude
+    	def pvtTrimLeadingZeros(s) #ai #claude
 
 	        while TRUE
 
@@ -1260,9 +1471,9 @@ class stkBigNumber
 	
 	        return s
 
-	# Helper function to strip zeros at the end
+	# Helper function to Trim zeros at the end
 
-	def pvtStripTrailingZeros(s) #ai #claude
+	def pvtTrimTrailingZeros(s) #ai #claude
 	
 		while TRUE
 

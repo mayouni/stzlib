@@ -9,6 +9,16 @@
 
 #TODO: Add the ring_...() form of all Ring functions
 
+func ring_EvenOrOdd(n) # Inverses the output to be more logic (odd -> 1, even -> 2)
+	if EvenOrOdd(n) = 1
+		return 2
+	else
+		return 1
+	ok
+
+	func ring_OddOrEven(n)
+		if EvenOrOdd(n)
+
 func ring_packages()
 	return packages()
 
