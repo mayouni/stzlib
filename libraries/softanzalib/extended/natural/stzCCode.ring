@@ -419,7 +419,7 @@ class stzCCode
 		# form, you can't. The rationale behind this is always
 		# the same: expressiveness against performance.
 
-/*
+
 	def ExecutableSectionXT()
 		# A less performant version with more chekcs.
 

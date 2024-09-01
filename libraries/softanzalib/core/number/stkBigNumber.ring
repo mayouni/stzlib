@@ -316,9 +316,9 @@ class stkBigNumber
 	#-------------------------------------------------------------------#
 
     	def Subtract(cOtherBigNumber)
-
+? "-->"
 		result = This.pvtSubtractStrings(This.Unspacified(), cOtherBigNumber)
-
+? "<"
 		bSpacify = FALSE
 
 		if @bSpacify or substr(cOtherBigNumber, "_") > 0
@@ -1233,6 +1233,7 @@ func pvtPadFraction(str, length)
 
 # Function to subtract two big numbers represented as strings
 func pvtSubtractStrings(nbr1, nbr2)
+? "emm"
     nbr1 = substr(nbr1, "_", "")
     nbr2 = substr(nbr2, "_", "")
 
@@ -1359,6 +1360,7 @@ def pvtCompareSameSizeStrings(str1, str2)
 
 # Main function to compare big numbers
 func pvtCompareStrings(str1, str2)
+? "hi"
     # Remove leading and trailing zeros
     str1 = pvtTrimLeadingZeros(pvtTrimTrailingZeros(str1))
     str2 = pvtTrimLeadingZeros(pvtTrimTrailingZeros(str2))
@@ -1424,7 +1426,7 @@ func pvtCompareStrings(str1, str2)
     if isNegative1
         result = -result
     ok
-    
+? result
     return result
 
 

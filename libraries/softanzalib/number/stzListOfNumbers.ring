@@ -62,48 +62,14 @@ func StzListOfNumbersQ(paListOfNumbers)
 func NumbersUnicodes(anNumbers)
 	return StzListOfNumbersQ(anNumbers).Unicodes()
 
-func Min(panNumbers)
-	if CheckParams()
-		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
-			panNumbers = panNumbers[2]
-		ok
-
-		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
-			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
-		ok
-	ok
-
-	nResult = ring_sort(panNumbers)[1]
-	return nResult
-
-	func @Min(panNumbers)
-		return Min(panNumbers)
-
-	func MinOf(panNumbers)
-		return Min(panNumbers)
+func MinOf(panNumbers)
+	return Min(panNumbers) # Defined in SoftanzaCore
 
 	func @MinOf(panNumbers)
 		return Min(panNumbers)
 
-func Max(panNumbers)
-	if CheckParams()
-		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
-			panNumbers = panNumbers[2]
-		ok
-
-		if NOT (isList(panNumbers) and Q(panNumbers).IsListOfNumbers())
-			StzRaise("Incorrect param! panNumbers must be a list of numbers!")
-		ok
-	ok
-
-	nResult = ring_reverse( ring_sort(panNumbers) )[1]
-	return nResult
-
-	func @Max(panNumbers)
-		return Max(panNumbers)
-
-	func MaxOf(panNumbers)
-		return Max(panNumbers)
+func MaxOf(panNumbers)
+	return Max(panNumbers) # Defined in SoftanzaCore
 
 	func @MaxOf(panNumbers)
 		return Max(panNumbers)

@@ -175,7 +175,7 @@ StopProfiler()
 # Executed in 0.12 second(s)
 
 /*----------
-
+*/
 StartProfiler()
 
 	o1 = new stzCCode('Q(@EachChar).IsUppercase()')
@@ -202,7 +202,7 @@ StopProfiler()
 # Executed in 0.28 second(s) in Ring 1.17
 
 /*----------
-*/
+
 StartProfiler()
 
 	o1 = new stzCCode('{
@@ -213,5 +213,5 @@ StartProfiler()
 	#--> [ 1, -1 ]
 
 StopProfiler()
-# Executed in 0.13 second(s) in Ring 1.20
+# Executed in 0.13 second(s) in Ring 1.20 and Ring 1.21
 # Executed in 0.29 second(s) in Ring 1.17

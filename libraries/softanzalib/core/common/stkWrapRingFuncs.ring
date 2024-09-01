@@ -17,7 +17,7 @@ func ring_EvenOrOdd(n) # Inverses the output to be more logic (odd -> 1, even ->
 	ok
 
 	func ring_OddOrEven(n)
-		if EvenOrOdd(n)
+		return EvenOrOdd(n)
 
 func ring_packages()
 	return packages()
@@ -79,6 +79,9 @@ func ring_sort(paList)
 
 	func ring_sort1(paList)
 		return ring_sort(paList)
+
+	func @ring_sort(paList)
+		return sort(paList)
 
 func ring_sort2(paList, n)
 	aResult = sort(paList, n)

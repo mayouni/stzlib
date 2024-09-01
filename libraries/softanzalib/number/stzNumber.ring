@@ -239,8 +239,8 @@ func MaxCalculableNumber()
 	func MaxRingNumber()
 		return MaxCalculableNumber()
 
-	func MaxNumber()
-		return MaxCalculableNumber()
+//	func MaxNumber()
+//		return MaxCalculableNumber()
 
 	func MaxNumberInRing()
 		return MaxCalculableNumber()
@@ -289,8 +289,8 @@ func MinCalculableNumber()
 	func SmallestNumberInRing()
 		return MinCalculableNumber()
 
-	func MinNumber()
-		return MinCalculableNumber()
+//	func MinNumber()
+//		return MinCalculableNumber()
 
 	func SmallestNumber()
 		return MinCalculableNumber()
@@ -501,7 +501,7 @@ func StringRepresentsSignedNumber(cNumber)
 	oStr = new stzString(cNumber)
 	return oStr.RepresentsSignedNumber()
 
-func IsInteger(n)
+/*func IsInteger(n)
 	if isNumber(n) and Q(n).IsInteger()
 		return TRUE
 	else
@@ -512,7 +512,7 @@ func IsInteger(n)
 
 	func @IsInteger(n)
 		return IsInteger(n)
-
+*/
 	func IsAnInteger(n)
 		return IsInteger(n)
 
@@ -738,8 +738,8 @@ func Decuple(n)
 
 		ok
 	
-func Abs(n)
-	return fabs(n)
+//func Abs(n)
+//	return fabs(n)
 
 func OddOrEven(n)
 	if isList(n)
@@ -760,7 +760,7 @@ func OddOrEven(n)
 		return :Odd
 	ok
 
-func IsEven(n)
+/*func IsEven(n)
 	if isList(n)
 		return IsEvenList(n)
 	ok
@@ -769,14 +769,14 @@ func IsEven(n)
 
 	func @IsEven(n)
 		return IsEven(n)
-
+*/
 	func IsZawji(n)
 		return IsEven(n)
 
 	func @IsZawji(n)
 		return IsEven(n)
 
-func IsOdd(n)
+/*func IsOdd(n)
 	if isList(n)
 		return IsOddList(n)
 	ok
@@ -785,7 +785,7 @@ func IsOdd(n)
 
 	func @IsOdd(n)
 		return IsOdd(n)
-
+*/
 	func IsFardi(n)
 		return IsOdd(n)
 
@@ -800,8 +800,8 @@ func MaxRingRound()
 	func RingMaxRound()
 		 return MaxRingRound()
 
-	func MaxRound()
-		return MaxRingRound()
+//	func MaxRound()
+//		return MaxRingRound()
 
 	func MaxRoundInRing()
 		return MaxRingRound()
@@ -845,7 +845,7 @@ func SetActiveRound(n)
 	func SetRound(n)
 		SetActiveRound(n)
 	
-func StzRound(p)
+func StzRound(p) # TODO use Round() from SoftanzaCore
 
 	if isList(p) and IsPair(p)
 		if isList(p[2]) and Q(p[2]).IsToNamedParam()
@@ -861,9 +861,6 @@ func StzRound(p)
 
 
 	return StzNumberQ(nNumber).RoundedTo(nRound)
-
-	func Round(p)
-		return StzRound(p)
 
 func StzRoundXT(p)
 	if isList(p) and IsPair(p)

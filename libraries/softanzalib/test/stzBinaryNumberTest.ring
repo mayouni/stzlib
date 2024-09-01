@@ -23,7 +23,7 @@ proff()
 # Executed in 0.11 second(s)
 
 /*-------------------
-*/
+
 pron()
 
 // Creating a binary number from a decimal form
@@ -35,10 +35,11 @@ o1.FromDecimal(127)
 #--> 0b1111111
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.03 second(s) on Ring 1.21
+# Executed in 0.07 second(s) on Ring 1.20
 
 /*-------------------
-
+*/
 pron()
 
 // Creating a binary number from a hex form
@@ -49,7 +50,8 @@ o1.FromHex("0x127")
 #--> 0b100100111
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.04 second(s) on Ring 1.21
+# Executed in 0.11 second(s) on Ring 1.20
 
 /*-------------------
 
