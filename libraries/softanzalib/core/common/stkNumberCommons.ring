@@ -14,6 +14,24 @@ func MinNumber()
 func MaxNumber()
 	return $MAX_NUMBER
 
+#-- Even or odd
+
+func IsEven(n)
+	if EvenOrOdd(n) = 2
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func @IsEven(n)
+		return IsEven(n)
+
+func IsOdd(n)
+	return NOT IsEven(n)
+
+	func @IsOdd(n)
+		return IsOdd(n)
+
 #-- Number type
 
 func IsInt(n)
@@ -26,14 +44,29 @@ func IsInt(n)
 	func IsInteger(n)
 		return IsInt(n)
 
+	func @IsInt(n)
+		return IsInt(n)
+
+	func @IsInteger(n)
+		return IsInt(n)
+
 func IsFractNumber(n)
 	return NOT IsInt(n)
+
+	func @IsFractNumber(n)
+		return NOT IsInt(n)
 
 func IsBigNumber(n)
 	raise("todo")
 
+	func @IsBigNumber(n)
+		return IsBigNumber(n)
+
 func IsSafeNumber(n)
-	return NOT isBigNumber(n)
+	return NOT IsBigNumber(n)
+
+	func @IsSafeNumber(n)
+		return NOT IsBigNumber(n)
 
 #-- Rounds staff
 
@@ -155,6 +188,9 @@ func MaxInt(n) # Maximum number of digits n can have in its integer part
 	nResult = $MAX_NUMBER_SIZE - nMaxRound
 
 	return nResult
+
+	func @MaxInt(n)
+		return MaxInt(n)
 
 func MaxRound(n) # Maximum number of digits n can have in its fractional part
 	if n = 0 return $MAX_NUMBER_SIZE ok  // Special case for zero

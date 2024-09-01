@@ -1,9 +1,25 @@
 
+load "../Common/stkRingLibs.ring"
 load "../common/stkNumberCommons.ring"
 load "../number/stkNumber.ring"
 load "../error/stkError.ring"
 
 load "../number/stkSciNumber.ring"
+
+/*===
+
+# Ring native function EvenOrOdd(n) may be confusing
+
+? EvenOrOdd(4)
+#--> 2	# Means it's even (note that "even" comes first in the function name!)
+
+# To avoid this, use the two functions provided by Softanza, IsEven() and IsOdd():
+
+? IsEven(4)
+#--> TRUE
+
+? IsOdd(7)
+#--> TRUE
 
 /*== Flexible initialisation
 
