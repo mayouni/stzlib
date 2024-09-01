@@ -1,5 +1,5 @@
-load "stzarchsys.ring"
-load "stzprofsys.ring"
+load "../extended/systems/stzarchsys.ring"
+load "../extended/systems/stzprofsys.ring"
 
 pron()
 
@@ -79,3 +79,4 @@ pron()
 #--> FALSE
 
 proff()
+# Executed in almost 0 second(s).

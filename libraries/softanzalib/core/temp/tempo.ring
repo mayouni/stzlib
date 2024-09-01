@@ -246,11 +246,11 @@ oBig.Subtract("12_345_678_901_234_567_890")
 
 	oBig = new stkBigNumber("12345.6789")
 	oBig.Subtract("9876.54321")
-	? oBig.Value() + NL
+//	? oBig.Value() + NL
 	#--> 2469.13569
 
 //-- Subtracting Negative Numbers
-
+/*
 	oBig = new stkBigNumber("-54321")
 	oBig.Subtract("-12345")
 	? oBig.Value() + NL

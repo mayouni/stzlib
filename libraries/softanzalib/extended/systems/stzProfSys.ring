@@ -152,16 +152,16 @@ func Proff()
 	STOP()
 
 	func EndProfiler()
-		StopProfiler()
+		Proff()
 
 	func Profoff()
-		StopProfiler()
+		Proff()
 
 	func StopProfiler()
-		StopProfiler()
+		Proff()
 
 	func ProfilerOff()
-		StopProfiler()
+		Proff()
 
 func STOP()
 	raise( NL + 
