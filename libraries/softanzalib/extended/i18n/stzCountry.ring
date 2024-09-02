@@ -447,7 +447,7 @@ class stzCountry
 			return Content()
 	
 	def NativeName()
-		return StzLocale(This.LocaleAbbreviation()).CountryNativeName()
+		return StzLocaleQ(This.LocaleAbbreviation()).CountryNativeName()
 
 
 	def Abbreviation()

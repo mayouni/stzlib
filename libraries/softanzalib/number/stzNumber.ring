@@ -961,6 +961,25 @@ func StringToNumber(cNumber) # TESTING IN PROGESS
 		StzRaise(stzNumberError(:UnsupportedNumberForm))
 	ok
 
+	#< @FunctionAlternativeForms
+
+	func ToNumber(cNumber)
+		return StringToNumber(cNumber)
+
+	func @ToNumber(cNumber)
+		return StringToNumber(cNumber)
+
+	func String2Number(cNumber)
+		return StringToNumber(cNumber)
+
+	func StrToNbr(cNumber)
+		return StringToNumber(cNumber)
+
+	func Str2Nbr(cNumber)
+		return StringToNumber(cNumber)
+
+	#>
+
 func NumberToString(n)
 	if CheckParams()
 		if NOT isNumber(n)
@@ -969,6 +988,25 @@ func NumberToString(n)
 	ok
 
 	return ""+ n
+
+	#< @FunctionAlternativeForms
+
+	func ToString(n)
+		return NumberToString(n)
+
+	func @ToString(n)
+		return NumberToString(n)
+
+	func Number2String(n)
+		return NumberToString(n)
+
+	func NbrToStr(n)
+		return NumberToString(n)
+
+	func Nbr2Str(n)
+		return NumberToString(n)
+
+	#>
 
 # Decimal form
 

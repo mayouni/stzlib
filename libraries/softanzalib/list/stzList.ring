@@ -21732,12 +21732,18 @@ Item and then position
 		pcType = Q(pcType).InfereType()
 
 		if pcType = "number" or pcType = "string" or pcType = "list"
+
 			pcType = "A" + pcType
+
 		but pcType = "object"
+
 			pcType = "An" + pcType
 		ok
 
 		cCode1 = 'bOk = item.Is' + pcType + '()'
+		if left(pcType, 1) = "A"
+			pcType = right(pcType, len(pcType)-1)
+		ok
 		cCode2 = 'bOk = ( ring_type(item) = "' + upper(pcType) + '" )'
 
 		bResult = TRUE

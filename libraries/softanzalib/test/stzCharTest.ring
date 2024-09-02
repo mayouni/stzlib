@@ -17,7 +17,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*-----
-*/
+
 pron()
 
 ? NthChar(3, "ring")
@@ -46,9 +46,12 @@ pron()
 #--> 1
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.05 second(s) on Ring 1.21
+# Executed in 0.09 second(s) on ring 1.20
 
 /*---
+
+pron()
 
 ? Allah()
 #o--> ﷲ
@@ -61,6 +64,9 @@ proff()
 
 ? SalatAlaMuhammad()
 #o--> ﷺ
+
+proff()
+# Executed in almost 0 second(s).
 
 /*------
 
@@ -91,6 +97,7 @@ pron()
 #--> ✓
 
 proff()
+# Executed in almost 0 second(s).
 # Executed in 0.02 second(s)
 
 /*=========== TODO : LOGICAL ERRORS
@@ -415,7 +422,9 @@ StzCharQ('U+06BA') {
 }
 
 proff()
-# Executed in 6.96 second(s)
+# Executed in 0.73 second(s) on Ring 1.21
+# Executed in 0.83 second(s) on Ring 1.20
+# Executed in 6.96 second(s) on Ring 1.18
 
 /*----- Arabic dotless letters
 

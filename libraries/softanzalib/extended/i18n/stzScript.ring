@@ -24,7 +24,7 @@ _aLocaleScriptsXT = [
 	#     1		    2				3		      4
 	#  QtNumber 	ScriptName 		ScriptAbbreviation 	DefaultLanguage
 
-	[ "0" ,		:Common,		"Zyyy",			:undefined				],	
+	[ "0" ,		:Common,		"Zyyy",			:undefined			],	
 	[ "1" , 	:Arabic, 		"Arab", 		:arabic 			],
 	[ "2" , 	:Cyrillic, 		"Cyrl", 		:russian 			],
 	[ "3" , 	:Deseret, 		"Dsrt", 		:english 			],
@@ -326,7 +326,8 @@ class stzScript
 			next		
 
 		but oStr.IsLocaleAbbreviation()
-			StzRaise("Not implemented yet!")
+
+			StzRaise("Feature unsupported yet!")
 
 		else
 			StzRaise("Unsupported script identifier!")

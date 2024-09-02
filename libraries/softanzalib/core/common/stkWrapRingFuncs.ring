@@ -40,6 +40,9 @@ func ring_min(panNumbers)
 func ring_trim(str)
 	return trim(str)
 
+	func @trim(str)
+		return trim(str)
+
 func ring_split(str, sep)
 	return split(str, sep)
 

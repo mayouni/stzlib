@@ -44993,7 +44993,11 @@ class stzString from stzObject
 		anPos = This.SectionQ(n1, n2).FindCS(pcSubStr, pCaseSensitive)
 		nLen = len(anPos)
 
-		n1 = Min([ n1, n2 ])
+//		n1 = Min([ n1, n2 ]) #TODO use it when Ring fix
+
+aTemp = []
+aTemp + n1 + n2
+n1 = Min(aTemp)
 
 		anResult = []
 		for i = 1 to nLen
@@ -48773,9 +48777,7 @@ class stzString from stzObject
 	 #   CHECKING CONATAINMENT ON A GIVEN CONDITION   #
 	#------------------------------------------------#
 
-	#TODO Add cases ensitivity
-
-	def ContainsCharsW(pcCondition)
+	def ContainsCharsWCS(pcCondition, pCaseSensitive)
 		/* EXAMPLE
 
 		? Q("__---__").ContainsXT(:CharsWhere, 'Q(This[@i]).IsEither("_", :Or = "-")')
@@ -48785,20 +48787,44 @@ class stzString from stzObject
 		bResult = This.CharsCSQ(pCaseSensitive).ContainsW(pcCondition)
 		return bResult
 
-	def ContainsSubStringsW(pcCondition)
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsCharsW(pcCondition)
+		return This.ContainsCharsWCS(pcCondition, TRUE)
+
+	#==
+
+	def ContainsSubStringsWCS(pcCondition, pCaseSensitive)
 		bResult = This.SubStringsCSQ(pCaseSensitive).ContainsW(pcCondition)
 		return bResult
 
-	#-- WXT
+	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsCharsWXT(pcCondition)
+	def ContainsSubStringsW(pcCondition)
+			return This.ContainsSubStringsWCS(pcCondition, TRUE)
+
+	#== WXT
+
+	def ContainsCharsWCSXT(pcCondition, pCaseSensitive)
 
 		bResult = This.CharsCSQ(pCaseSensitive).ContainsWXT(pcCondition)
 		return bResult
 
-	def ContainsSubStringsWXT(pcCondition)
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsCharsWXT(pcCondition)
+		return This.ContainsCharsWCSXT(pcCondition, TRUE)
+
+	#==
+
+	def ContainsSubStringsWCSXT(pcCondition, pCaseSensitive)
 		bResult = This.SubStringsCSQ(pCaseSensitive).ContainsWXT(pcCondition)
 		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsSubStringsWXT(pcCondition)
+		return This.ContainsSubStringsWCSXT(pcCondition, TRUE)
 
 	  #---------------------------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS A GIVEN SUBSTRING BEFORE A GIVEN POSITION/SUBSTRING  #
@@ -49108,7 +49134,7 @@ class stzString from stzObject
 		# ? Q("__---__").ContainsXT(:CharsWhere, 'Q(This[@i]).IsEither("_", :Or = "-")')
 		# ? Q("__---__").ContainsXT(:CharsW, 'Q(This[@i]).IsEither("_", :Or = "-")')
 		but isString(p1) and (p1 = :CharsWhere or p1 = :CharsW) and isString(p2)
-			return This.ContainsCharsW(p2)
+			return This.ContainsCharsWXT(p2)
 		
 		# ? Q("__---__").ContainsXT(:Chars, :Where = 'Q(This[@i]).IsEither("_", :Or = "-")')
 		# ? Q("__---__").ContainsXT(:Chars, Where('Q(This[@i]).IsEither("_", :Or = "-")'))
@@ -49116,7 +49142,7 @@ class stzString from stzObject
 		but isString(p1) and p1 = :Chars and
 		    isList(p2) and Q(p2).IsPairOfStrings() and p2[1] = :Where	
 
-			return this.ContainsCharsW(p2[2])
+			return this.ContainsCharsWXT(p2[2])
 
 		#=== SUBSTRINGS
 
@@ -49152,7 +49178,7 @@ class stzString from stzObject
 		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, 'Q(@SubString).IsUppercase()')
 		but isString(p1) and (p1 = :SubStringsWhere or p1 = :SubStringsW) and isString(p2)
 
-			return This.ContainsSubStringsW(p2)
+			return This.ContainsSubStringsWXT(p2)
 			
 		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, :Where = 'Q(@SubString).IsUppercase()')
 		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, :Where('Q(@SubString).IsUppercase()') )
@@ -49160,7 +49186,7 @@ class stzString from stzObject
 		but isString(p1) and p1 = :SubStringsW and
 		    isList(p2) and Q(p2).IsPairOfStrings() and p2[1] = :Where	
 
-			return This.ContainsSubStringsW(p2[2])
+			return This.ContainsSubStringsWXT(p2[2])
 
 		# ? Q("^^♥^^").ContainsXT("♥", :AtPosition = 3)
 		but ( isString(p1) or

@@ -58,7 +58,7 @@ proff()
 #--> TRUE
 
 /*----
-
+*/
 pron()
 
 ? BothAreEqual(0, "")
@@ -89,7 +89,8 @@ pron()
 #--> TRUE
 
 proff()
-#--> Executed in 0.04 second(s)
+#--> Executed in 0.02 second(s) in Ring 1.21
+#--> Executed in 0.04 second(s) in Ring 1.20
 
 /*----
 
@@ -240,7 +241,7 @@ pron()
 }
 
 proff()
-# Executed in 1.07 second(s) in Ring 1.20
+# Executed in 1.25 second(s) in Ring 1.21
 # Executed in 2.04 second(s) in Ring 1.18
 
 # But ForEach offers more flexibility...
@@ -438,7 +439,8 @@ pron()
 #--> [ 1, 2, "...", 48, 49, 50 ]
 
 proff()
-#--> Executed in 0.10 second(s)
+#--> Executed in 0.01 second(s) in Ring 1.21
+#--> Executed in 0.10 second(s) in Rin 1.20
 
 /*----------
 
@@ -508,7 +510,7 @@ o1 = new stzString("...emm...eh..emm...eh")
 #--> [ [ 4, 6 ], [ 10, 11 ], [ 14, 16 ], [ 20, 21 ] ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.07 second(s)
 
 /*------------
 
@@ -618,10 +620,7 @@ StartProfiler()
 # of for loops and for/in loops.
 
 # If we iterate over a list of 200 thousand numbers using for/in,
-# and without doing anything inside the loop, Ring does it in
-# approximately 0.40 seconds (note that would depend of the actual
-# hardawre configuration but what we are alayzing here are
-# the proposrtional differences not the actual values):
+# and without doing anything inside the loop:
 
 	StartTimer()
 	
@@ -631,6 +630,7 @@ StartProfiler()
 	next
 	
 	? ElapsedTime()
+	#--> 0.07 second(s)
 
 # Let's compare it with a for loop:
 
@@ -643,8 +643,9 @@ StartProfiler()
 	next
 	
 	? ElapsedTime()
+	#--> 0.04 second(s)
 
-# It's done in say 0.35 seconds. Not a big difference!
+# It's done in say X2 better performance!
 
 # Now, what if we omit the call of the function len() from the loop declaration
 # and put in a variable, like this:
@@ -658,23 +659,24 @@ StartProfiler()
 	next
 	
 	? ElapsedTime()
+	#--> 0.03 second(s)
 
-# It's executed in 0.05 seconds! Say 8 times more performant then for/in!
+# The X2 factor is maintained in favor of the normal for looo!
 
 # But wait, in the for/in snippet above, we used the variable aList = 1 : 200_000
 # and then called it in the loop declaration like this : for n in aList, right?
 
 # So, what if we omit that and use the data 1:200_000 directly like this:
 
-	StartTimer()
+//	StartTimer()
 	
 //	for n in 1 : 200_000
 		// do nothing
 //	next
 	
-	? ElapsedTime()
+//	? ElapsedTime()
 
-# Wow! It's sooo slow!! I aborted the process after more then 30 minutes...
+# Wow! It's sooo slow!! I aborted the process after more then 10 minutes...
 
 # So, this is the first thing we should learn:
 # NEVER USE A FUNCTION CALL IN THE LOOP DECLARATION.
@@ -693,8 +695,9 @@ StartProfiler()
 	next
 
 	? ElapsedTime()
+	#--> 0.06 second(s)
 
-# For loop made it so quickly in 0.09 seconds! What about for/in loops?
+# For loop made it so quickly in 0.06 seconds! What about for/in loops?
 
 	StartTimer()
 
@@ -706,8 +709,9 @@ StartProfiler()
 	next
 
 	? ElapsedTime()
+	#--> 0.09 second(s)
 
-# It's about 0.39 seconds, say 3 times slower then for loops.
+# It's about 0.9 seconds, 30% slower then for loops.
 
 # Now, what if we challenge for/in loop with what it is normally made for:
 # the possibility of changing the items values while looping over them...
@@ -723,8 +727,9 @@ StartProfiler()
 	next
 
 	? ElapsedTime()
+	#--> 0.11 second(s)
 
-# Done in 0.41 seconds (less then a second), which is quiet nice!
+# Done in 0.11 seconds (less then a second), which is nice!
 # Will for loop win the battle as usual? Let's see...
 
 	StartTimer()
@@ -737,11 +742,11 @@ StartProfiler()
 	next
 
 	? ElapsedTime()
+	#--> 0.09 second(s)
 
-# Oh! For loop made it in 0.11 seconds, 3 times faster!
+# Oh! For loop made it in 0.09 seconds, 30% faster!
 
-# Let's try it for a list as large as 1 million items:
-# for/in loop performs  it in more then 5 seconds (5.46s)...
+# Let's try it for a list as large as 1 million items, first with for/in:
 
 	StartTimer()
 
@@ -752,8 +757,9 @@ StartProfiler()
 	next
 
 	? ElapsedTime()
+	#--> 0.52 second(s)
 
-# While for loop performs it in less then a second! (0.80s):
+# And then with a normal for loop:
 
 	StartTimer()
 
@@ -765,14 +771,17 @@ StartProfiler()
 	next
 
 	? ElapsedTime()
+	#--> 0.47 second(s)
 
-# this time, it's 7 times faster!
+# The difference is not huge, but still for is more performant then for/in!
 
 # Then, this is the second thing we should learn, when performance is
 # a critical requirement to your algorithm:
+
 # ALWAYS USE THE FOR LOOP INSTEAD OF THE FOR/IN LOOP
 
 StopProfiler()
+# Executed in 0.47 second(s).
 
 /*===================
 
@@ -956,6 +965,8 @@ Q([ "A", 20, [ "B", 10 ], 30 ]){
 
 /*--------------
 
+pron()
+
 ? Q([ 1, 2, 3 ]).IsListOf(:Numbers)		#--> TRUE
 
 ? Q([ "A", "B", "C" ]).IsListOf(:Strings)	#--> TRUE
@@ -970,7 +981,12 @@ o1 = new stzString("A")
 ? Q([ [1,2], [3,4], [5,6] ]).IsListOf(:ListsOfNumbers)	#--> TRUE
 ? Q([ [1,2], [3,4], [5,6] ]).IsListOf(:PairsOfNumbers)	#--> TRUE
 
+proff()
+#--> Executed in 0.09 second(s).
+
 /*-------------------
+
+pron()
 
 # The InfereType() function is useful for internal features
 # of SoftanzaLib, in order to enable the goal of expressive code.
@@ -1010,7 +1026,12 @@ o1 = new stzString("A")
 
 ? Q(:Pair).InfereType()			#--> :List
 
+proff()
+# Executed in 0.03 second(s).
+
 /*=================
+
+pron()
 
 ? ComputableForm(4) # or use the abbreviated form @@(4)
 #--> 4
@@ -1027,6 +1048,9 @@ o1 = new stzString("A")
 
 ? ComputableForm([ 1, 2, "a" ]) # or use the abbreviated form @@(...)
 #--> [ 1, 2, "a" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*================ @narration: chars looking similar but are different!
 
@@ -1068,23 +1092,6 @@ StartProfiler()
 	# ]
 
 StopProfiler()
-# Executed in 0.18 second(s)
+# Executed in 0.14 second(s) on Ring 1.21
+# Executed in 0.18 second(s) on Ring 1.20
 
-#====
-*/
-pron()
-
-ChangeRingKeyword load ＃
-＃ "stzlib.ring"
-
-? SoftanzaLogo() + NL
-
-# Unicode codepoint of the char ＃
-? "＃ ~> " + Unicode("＃")
-#--> ＃ ~> 65283
-
-? QQ("＃").Name()
-#--> FULLWIDTH NUMBER SIGN
-
-proff()
-# Executed in 0.10 second(s)
