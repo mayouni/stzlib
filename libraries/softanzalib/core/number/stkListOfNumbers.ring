@@ -24,6 +24,10 @@ func Max(panNumbers) // #TODO Move to stkListOfNumbers when made
 		return Max(panNumbers)
 
 func Min(panNumbers) // #TODO Move to stkListOfNumbers when made
+	if NOT ( isList(panNumbers) and IsListOfNumbers(panNumbers))
+		StzRaise("Incorrect param type! panNumbers must be a list of numbers.")
+	ok
+
 	nLen = len(panNumbers)
 	if nLen = 1
 		return panNumbers[1]
@@ -31,7 +35,7 @@ func Min(panNumbers) // #TODO Move to stkListOfNumbers when made
 
 	nMin = panNumbers[1]
 
-	for i = 2 to nLen
+	for i = 2 to nLen step -1
 		if panNumbers[i] < nMin
 			nMin = panNumbers[i]
 		ok

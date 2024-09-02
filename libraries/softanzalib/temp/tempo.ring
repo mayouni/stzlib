@@ -1,6 +1,5 @@
+
 load "../stzlib.ring"
-
-
 
 
 /*----
@@ -53,8 +52,8 @@ o1 = new stzGrid( "A" : "M" )
 proff()
 # Executed in 0.02 second(s).
 
-/*-----
-*/
+/*----- #TODO fix error
+
 pron()
 
 ? MostSquareLikeFactors(12)
@@ -1296,7 +1295,7 @@ o1 = new stzString("Abc285XY&من")
 proff()
 # Executed in 0.31 second(s)
 
-/*----- #perf
+/*----- #perf #todo #error
 
 pron()
 
@@ -1308,7 +1307,7 @@ next
 
 o1 = new stzString(clargeStr)
 
-o1.PartsUsing('Q(@Char).CharCase()')
+o1.PartsUsingXT('Q(@Char).CharCase()')
 #--> [ "mm", "MMM", "aa", "...", "MMM", "aa", "AA" ]
 
 #NOTE: to show a part of the output, use ShowShortXT( )
@@ -1409,7 +1408,8 @@ o1.Chars()
 #NOTE: to show the output use ShowShort()
 
 proff()
-# Executed in 7.32 second(s)
+# Executed in 4.78 second(s) on Ring 1.21
+# Executed in 8.50 second(s) on Ring 1.20
 
 /*----- #perf
 
@@ -1426,7 +1426,8 @@ o1.CharsU() # Or UniqueChars()
 #NOTE: to show the output use ShowShort()
 
 proff()
-# Executed in 11.20 second(s)
+# Executed in  8.44 second(s) on Ring 1.21
+# Executed in 12.58 second(s) on Ring 1.20
 
 /*=======================
 
@@ -2665,7 +2666,8 @@ o1 = new stzString("__♥♥♥__/♥♥♥\__♥♥♥__")
 #--> [9, 11]
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s) on Ring 1.20
+# Executed in 0.02 second(s) on Ring 1.20
 
 /*================
 
@@ -2828,7 +2830,7 @@ StartProfiler()
 	#--> TRUE
 
 StopProfiler()
-# Executed in 0.44 second(s)
+# Executed in 0.46 second(s)
 
 /*------
 
@@ -3816,7 +3818,8 @@ o1 = new stzList([ [ "ONE", "TWO" ], [ "THREE", "FOUR" ], [ "FIVE", "SIX" ] ])
 #--> TRUE
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in almost 0 second(s) on Ring 1.21
+# Executed in 0.02 second(s) on Ring 1.20
 
 /*----------------
 
@@ -4766,7 +4769,7 @@ aShoppingCart = [ "shirt", "shoes", "shirt", "bag", "hat", "shoes" ]
 proff()
 # Executed in 0.19 second(s)
 
-/*================ #narration
+/*================ #narration #todo check after including yieldw()
 
 pron()
 
@@ -4822,7 +4825,7 @@ pron()
 
 o1 = new stzString("Av♥♥c♥♥")
 
-? @@NL( o1.SubStringsWZ('{
+? @@NL( o1.SubStringsWXTZ('{
 	Q(@SubString).NumberOfChars() = 2	
 }') )
 #--> [
@@ -4834,21 +4837,22 @@ o1 = new stzString("Av♥♥c♥♥")
 # ]
 
 proff()
-# Executed in 0.50 second(s)
+# Executed in 0.27 second(s) on Ring 1.21
+# Executed in 0.50 second(s) on Ring 1.20
 
 /*-------------
 
 pron()
 
 o1 = new stzString("Av♥♥c♥♥")
-? @@( o1.SubStringsWZZ('{
+? @@( o1.SubStringsWXTZZ('{
 	Q(@SubString).NumberOfChars() = 2 and NOT Q(@SubString).Contains("♥")
 }') )
 
 #--> [ [ "Av", [ [ 1, 2 ] ] ] ]
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.27 second(s).
 
 /*=================
 
@@ -4872,7 +4876,7 @@ o1.ExtendToNCharsXT(10, :Using = ".")
 #--> "Ring.........."
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*=================
 
@@ -4912,9 +4916,10 @@ Q("℺℻ℚ") {
 }
 
 proff()
-# Executed in 0.17 second(s)
+# Executed in 0.16 second(s)
 
 /*-------------- #TODO: Use the normal way (ExecutableSection) and check for perf
+#todo check after including yield() function
 
 pron()
 
@@ -4929,13 +4934,13 @@ proff()
 # Executed in 0.14 second(s)
 
 /*==============
-
+$
 pron()
 
 # What are the unique letters in this sentence?
 # "sun is hot but fun"
 
-# To solve it, you can usث stzString and say:
+# To solve it, you can use stzString and say:
 
 ? @@( Q("sun is hot but fun").RemoveSpacesQ().UniqueChars() ) + NL
 #--> [ "s", "u", "n", "i", "h", "o", "t", "b", "f" ]
@@ -4945,28 +4950,21 @@ pron()
 ? @@( Q([ "sun", "is", "hot", "but", "fun" ]).UniqueItems() ) + NL
 #--> [ "s", "u", "n", "i", "h", "o", "t", "b", "f" ]
 
-# The solutions above uses "strings" and "chars" concepts which both
-# belong to the stzString domain. But if you want to solve it in
-# a higher semantic level, you can rely on "text" and "letter" concepts
-# from the stzText domain:
-
-? @@( TQ("sun is hot but fun").UniqueLetters() )
-#--> [ "s", "u", "n", "i", "h", "o", "t", "b", "f" ]
-
 proff()
-# Executed in 0.46 second(s)
+# Executed in 0.01 second(s)
 
 /*----------------
 
 pron()
 
-? len("طيبة") #--> 8
+? len("طيبة")
+#--> 8
 
 ? StzStringQ("طيبة").NumberOfChars()
 #--> 4
 
 ? StzStringQ("طيبة").NumberOfBytes()
-#--> 8
+#--> 378
 
 proff()
 # Executed in 0.03 second(s)
@@ -4990,7 +4988,7 @@ pron()
 # This narration demonstrates an advanced feature of SoftanzaLib 
 # called Conditional Code. We will explain what Conditional Code is,
 # and then We'll explore two main forms of conditional functions:
-# `..WXT()` and `..W()`, comparing their expressiveness, performance,
+# `..W()` and `..WXT()`, comparing their expressiveness, performance,
 # and use cases.
 
 # This comparison will help you understand when to use each
@@ -5013,7 +5011,7 @@ pron()
 	? Q([ "♥", "A", "♥", "B", "♥", "C" ]).Find("A")
 	#--> [ 3, 6, 9 ]
 
-	# We can achieve the same result using the W() extended form:
+	# We can achieve the same result using the W() eXTended form:
 
 	? Q([ "♥", "A", "♥", "B", "♥", "C" ]).FindWXT(' Q(@item).IsLetter() ') # Ignore the XT() for now.
 	#--> [ 3, 6, 9 ]
@@ -5021,10 +5019,7 @@ pron()
 	# In this case, the condition ' Q(@item).IsLetter() ' is evaluated against
 	# each character of the string, returning the positions of all letters.
 	
-	# Building on this concept, we'll explore two main forms of conditional
-	# functions : `WXT()` and `W()`, comparing their expressiveness, performance,
-	# and use cases. This comparison will help you understand when to use each
-	# function for optimal results in your code.
+	# Next we delve on the diffrence betwenn `W()` and `W()` forms.
 
 	# Todo so, let's initiate a stzList object with the fellwong items:
 
@@ -5042,10 +5037,12 @@ pron()
 	# cost of performance.
 
 	# When you use the `..WXT()` form, SoftanzaLib performs an
-	# internal process called 'transpiling'. This process translates
-	# the provided conditional code by replacing sophisticated
-	# keywords (like @CurrentItem, @NextItem, etc.) with their
-	# basic equivalents using only @i and This[@i]. For example:
+	# internal process called 'transpiling'.
+
+	# This process translates the provided conditional code by
+	# replacing sophisticated keywords (like @CurrentItem,
+	# @NextItem, etc.) with their basic equivalents using only
+	# @i and This[@i]. For example:
 
 	# 	- @CurrentItem becomes This[@i]
 	# 	- @NextItem becomes This[@i+1]
@@ -5055,7 +5052,6 @@ pron()
 	# expressive, but it also introduces a performance overhead.
 
 	# Examples using `WXT()`:
-
 
 	? @@( o1.FindWXT('{ @CurrentItem = @NextItem }') ) + NL
 	#--> [ 3, 6, 9 ]
@@ -5110,12 +5106,11 @@ pron()
 	# significant when running complex conditional codes on
 	# large datasets.
 
-# 4. When choosing the wrong form, whoud you should expect?
+# 4. When choosing the wrong form, what should you expect?
 
 	# When using just basic keywords (i.e., @i and This[@i]-like) with
 	# the `WXT()` function, your code will work, but you'll incur an
 	# unnecessary performance cost due to the transpiling process:
-
 
 	? o1.FindNthWXT(2, ' This[@i] = This[@i+1] ')
 	#--> 6
@@ -5171,7 +5166,8 @@ pron()
 # and performance based on your specific needs.
 
 proff()
-# Executed in 2.76 second(s)
+# Executed in 1.09 second(s) on Ring 1.20
+# Executed in 2.76 second(s) on Ring 1.20
 
 /*----------------
 
@@ -5332,7 +5328,8 @@ o1 = new stzString("ABCDEFGHIJ")
 #--> [ ]
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.06 second(s) on Ring 1.21
+# Executed in 0.12 second(s) on Ring 1.20
 
 /*---------
 
@@ -5985,16 +5982,16 @@ proff()
 # Executed in 0.06 second(s)
 
 /*------------------
-*/
+
 pron()
 
-? ToNumber(5) # or Val(5)
+? StringToNumber(5) # or ToNumber()
 #--> 5
 
-? ToNumber("12.5")
+? StringToNumber("12.5")
 #--> 12.50
 
-? ToNumber("12_500")
+? StringToNumber("12_500")
 #--> 12500
 
 proff()
@@ -7661,7 +7658,7 @@ o1 = new stzString("...*...*...*...")
 proff()
 # Executed in 0.02 second(s)
 
-/*----------- #TODO Check after including findbetweencs() adn findboundedbycs()
+/*-----------
 
 pron()
 

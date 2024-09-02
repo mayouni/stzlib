@@ -10,8 +10,9 @@
 
 #	Structured into SoftanzaCore, SoftanzaStandard, and SoftanzaExtended.
 
-#	The three levels have the same fold structure (there is a class for managing
-#	string in each level : stzCoreString, stzString, and stzStringXT.
+#	The three levels have the same fold structure. For example, there is
+#	a class for managing string in each level : stzCoreString, stzString,
+#	and stzStringXT. And so on.
 
 #	Each layer utilizes the one beneath it, and enhancements made to a lower
 #	layer automatically benefit those above.
@@ -69,7 +70,7 @@
 
 #	A future script will create, based on a codebase that uses Softanza,
 #	a lightweight, dependency-free library (SoftanzaMine) containing only
-# 	used classes and methods.
+# 	used classes and methods in that particular codebase.
 
 #	SoftanzaMine can be generated as a standalone executable or DLL
 #	for deployment with applications, potentially callable from external
@@ -95,13 +96,14 @@
 #	The library is carefelly documented through comments inside
 #	the code base and a set of narrations prvided as test samples.
 #	A documentation file is made to each class, in a strcutered
-#	format to enable its export to HTML, PDF or other formats.
+#	format to enable its export to HTML, PDF or other forms.
 
 #~~~~~~~~~~~~~~~~~~~~~~~~#
 #  END OF THE NOTE NOTE  #
 #~~~~~~~~~~~~~~~~~~~~~~~~#
 
-# t0 = clock()
+//decimals(3)
+//t0 = clock()
 
 # Loding the files related to the CORE layer
 
@@ -116,76 +118,42 @@
 # Loading files related to the NUMBER module
 
 	load "number/stzNumber.ring"
-	load "error/stzNumberError.ring"
-
 	load "number/stzDecimalToBinary.ring"
-	load "error/stzDecimalToBinaryError.ring"
-	
 	load "number/stzPairOfNumbers.ring"
 	load "number/stzListOfNumbers.ring"
-	
 	load "number/stzRandom.ring"
-
 	load "number/stzBinaryNumber.ring"
-	load "error/stzBinaryNumberError.ring"
-
 	load "number/stzHexNumber.ring"
-	load "error/stzHexNumberError.ring"
-
 	load "number/stzOctalNumber.ring"
-	load "error/stzOctalNumberError.ring"
-
 	load "number/stzListOfBytes.ring"
-	load "error/stzListOfBytesError.ring"
 
 # Loading files related to the LIST module
 
 	load "list/stzList.ring"
-	load "error/stzListError.ring"
-
 	load "list/stzSortedList.ring"
-
 	load "list/stzHashList.ring"
 	load "list/stzListOfHashLists.ring"
 	load "list/stzSet.ring"
-	
 	load "list/stzListOfLists.ring"
 	load "list/stzListOfPairs.ring"
 	load "list/stzPair.ring"
 	load "list/stzPairOfLists.ring"
-	
 	load "list/stzListOfSets.ring"
-	load "error/stzListOfSetsError.ring"
-	
 	load "list/stzTable.ring"
 	load "list/stzTree.ring"
 	load "list/stzGrid.ring"
-	load "error/stzGridError.ring"
-
 	load "list/stzItem.ring"
 	load "list/stzListParser.ring"
-
 	load "list/stzListInString.ring"
 
 # Loading files related to the STRING module
 
 	load "string/stzString.ring"
-	load "error/stzStringError.ring"
-
 	load "string/stzMultiString.ring"
-	load "error/stzMultiStringError.ring"
-
 	load "string/stzSubString.ring"
-
 	load "string/stzListOfStrings.ring"
-	load "error/stzListOfStringsError.ring"
-
 	load "string/stzChar.ring"
-	load "error/stzCharError.ring"
-
 	load "string/stzListOfChars.ring"
-	load "error/stzListOfCharsError.ring"
-
 	load "string/stzListOfUnicodes.ring"
 	load "string/stzStringArt.ring"
 
@@ -194,15 +162,34 @@
 	load "common/stzFunctions.ring"
 	load "common/stzSplitter.ring"
 	load "common/stzWalker.ring"
-
 	load "common/stzCounter.ring"
-	load "common/stzCounterError.ring"
-
 	load "common/stzSection.ring"
-
 	load "common/stzSmallFunc.ring"
 	load "common/stzQtFunc.ring"
 	load "common/stzRingLibs.ring"
+
+# Loading files related to ERROR module
+
+	load "error/stzNumberError.ring"
+	load "error/stzDecimalToBinaryError.ring"
+	load "error/stzBinaryNumberError.ring"
+	load "error/stzHexNumberError.ring"
+	load "error/stzOctalNumberError.ring"
+	load "error/stzListOfBytesError.ring"
+	load "error/stzListError.ring"
+	load "error/stzListOfSetsError.ring"
+	load "error/stzGridError.ring"
+	load "error/stzStringError.ring"
+	load "error/stzMultiStringError.ring"
+	load "error/stzListOfStringsError.ring"
+	load "error/stzCharError.ring"
+	load "error/stzListOfCharsError.ring"
+	load "error/stzCounterError.ring"
+	load "error/stzLocaleError.ring"
+	load "error/stzCountryError.ring"
+	load "error/stzEntityError.ring"
+	load "error/stzListOfEntitiesError.ring"
+	load "error/stzTextEncodingSystemError.ring"
 
 # Loading files related to the TEST module
 
@@ -212,70 +199,52 @@
 
 	load "data/stzLocaleData.ring"
 	load "data/stzStopWordsData.ring"
-
-//	load "data/stzUnicodeData.ring"		#TODO check error!
-
+	load "data/stzUnicodeData.ring"
 	load "data/stzConstraintsData.ring"
 	load "data/stzRandomData.ring"
 	load "data/stzCharData.ring"
 
-# Loading files related to the I18N module (part of SoftanzaExtend layer)
+# Loading files related to the EXTENDED/I18N module (part of SoftanzaExtend layer)
 
 	load "extended/i18n/stzLocale.ring"
-	load "error/stzLocaleError.ring"	# ? Shoudld add extended/error/ folder?
-
 	load "extended/i18n/stzCountry.ring"
-	load "error/stzCountryError.ring"
-
 	load "extended/i18n/stzLanguage.ring"
 	load "extended/i18n/stzScript.ring"
 	load "extended/i18n/stzCurrency.ring"
-
 	load "extended/i18n/stzDate.ring"
 	load "extended/i18n/stzTime.ring"
-
 	load "extended/i18n/stzStopWords.ring"
 
-# Loading files related to the IO module
+# Loading files related to the EXTENDED/IO module (part of SoftanzaExtended layer)
 
 	load "io/stzFile.ring"
 	load "error/stzFileError.ring"
-
 	load "io/stzFolder.ring"
-	load "io/stzExtCode.ring"
+	load "io/stzExtCode.ring" // #TODO Is this the right place?
 
-# Files related to NATURAL module (part of SoftanzaExtended layer)
+# Files related to EXTENDED/NATURAL module (part of SoftanzaExtended layer)
 
 	load "extended/natural/stzChainOfValue.ring"
 	load "extended/natural/stzChainOfTruth.ring"
-
 	load "extended/natural/stzEntity.ring"
-	load "error/stzEntityError.ring"
-
 	load "extended/natural/stzListOfEntities.ring"
-	load "error/stzListOfEntitiesError.ring"
-
 	load "extended/natural/stzText.ring"
 	load "extended/natural/stzConstraints.ring"
-
 	load "extended/natural/stzCCode.ring"
-
 	load "extended/natural/stzNullObject.ring"
 	load "extended/natural/stzTrueObject.ring"
 	load "extended/natural/stzFalseObject.ring"
 
-# Loading the files related to SYSTEMS module (par of SoftanzaExtended layer)
+# Loading the files related to EXTENDED/SYSTEMS module (par of SoftanzaExtended layer)
 
 	load "extended/systems/stzArchSys.ring"
 	load "extended/systems/stzProfilingSystem.ring"
 	load "extended/systems/stzShowSystem.ring"
-
 	load "extended/systems/stzTextEncodingSystem.ring"
-	load "error/stzTextEncodingSystemError.ring"
 
 # loading MISC files
 
 	load "misc/stzDistanceZero.ring"
 
-# ? (clock()-t0)/clockspersecond()
+//? (clock()-t0)/clockspersecond()
 #--> 0.06 seconds (Ring 1.20 64-bit)
