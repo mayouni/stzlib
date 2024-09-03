@@ -668,6 +668,7 @@ class stkBigNumber
 			bHasFrac = TRUE
 			cInt2  = left(cOtherNumber, nDot2 - 1)
 			cFrac2 = right(cOtherNumber, nLenOtherNumber - nDot2)
+			cFrac2 = substr(cFrac2, ".", "")
 		ok
 	
 		nLenInt1 = len(cInt1)
@@ -713,6 +714,21 @@ class stkBigNumber
 		# CASE 2 : if two numbers are negative ~> - (addition)
 
 		but @bNegative and bNegative2
+
+			cNumber1 = cInt1
+			if cFrac1 != ""
+				cNumber1 += "." + cFrac1
+			ok
+
+			cNumber2 = cInt2
+
+			if cFrac2 != ""
+				cNumber2 += "." + cFrac2
+			ok
+
+			oTempBig = new stkBigNumber(cNumber1)
+			oTempBig.Add(cNumber2)
+			cResult = "-" + oTempBig.SValue()
 
 		# CASE 3 : if they have different signs ~> (subtraction)
 

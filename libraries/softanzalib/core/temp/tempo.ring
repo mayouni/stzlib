@@ -21,13 +21,18 @@ oBig.Add("24_422.12000")
 
 /*---
 */
-decimals(4)
-? 12_125_314.1483 + 29_827.12
 oBig = new stkBigNumber("12_125_314.1483")
 oBig.Add("29_827.12")
 ? oBig.Value()
-#--> 12_149_736.268
+#--> -12_155_141.2683
 
+/*---
+*/
+
+oBig = new stkBigNumber("-12_125_314.1483")
+oBig.Add("-29_827.12")
+? oBig.Value()
+#--> 
 
 #===== BASIC OPERATIONS
 
