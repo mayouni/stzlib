@@ -12,8 +12,22 @@ load "../error/stkError.ring"
 decimals(3)
 t0 = clock()
 
+/*----
 
-#~~~~~
+oBig = new stkBigNumber("12_125_314.148000")
+oBig.Add("24_422.12000")
+? oBig.Value()
+#--> 12_149_736.268
+
+/*---
+*/
+decimals(4)
+? 12_125_314.1483 + 29_827.12
+oBig = new stkBigNumber("12_125_314.1483")
+oBig.Add("29_827.12")
+? oBig.Value()
+#--> 12_149_736.268
+
 
 #===== BASIC OPERATIONS
 
@@ -35,12 +49,13 @@ oBig.Subtract("122_333_987_337_132_339.987653")
 #--> 202_653_194_754_744_005.090347
 /*
 #----- Multiplication
+
 ? "Testing Multiplication"
 oBig = new stkBigNumber("324_987_182_091_876_345.078")
 oBig.Multiply("122_333_987_337_132_339.987653")
 ? oBig.SValue() + NL
 #--> 39_756_977_818_757_922_769_007_316_455_505_225.287321934
-
+/*
 #----- Division
 ? "Testing Division"
 oBig = new stkBigNumber("324987182091876345.078")
@@ -226,7 +241,6 @@ oBig.Power(4)
 #--> 94_801_716_153_963_020_293_871_604_048_857_032_982_962_454_161_010_834_394_311_299.57107820225173
 
 #===== MORE SUBSTRACTIONS
-*/
 
 //-- Subtracting Two Positive Integers
 
@@ -274,15 +288,22 @@ oBig.Subtract("6789")
 ? oBig.Value()
 #--> -19134
 
+////////////////////
+oBig = new stkBigNumber("-100.12")
+	  oBig.Subtract("56")
+? oBig.Value()
+#--> -156.12
+
 //-- Subtracting Numbers with Different Decimal Places
 
 	oBig = new stkBigNumber("100.456")
+//oBig.Subtract("98.12")
 	oBig.Subtract("99.9999")
 	? oBig.Value()
 	#--> 0.4561
 
 
 #~~~~~
-
+*/
 ? NL + "~~~~~~~~~" + NL
 ? "Executed in " + (clock() - t0) / clockspersecond() + " seconds."
