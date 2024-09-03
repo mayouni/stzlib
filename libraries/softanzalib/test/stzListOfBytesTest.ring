@@ -143,7 +143,8 @@ o1 = new stzListOfBytes("mЖ丽")
 #--> 丽
 
 proff()
-#--> Executed in 0.08 second(s)
+#--> Executed in 0.03 second(s) in Ring 1.21
+#--> Executed in 0.08 second(s) in Ring 1.19
 
 /*-------------------
 
@@ -183,7 +184,8 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.07 second(s) in Ring 1.18
 
 /*-------------------
 
@@ -204,7 +206,8 @@ o1 = new QChar(65)
 #--> 0o101
 
 proff()
-#--> Executed in 0.17 second(s)
+#--> Executed in 0.03 second(s) in Ring 1.21
+#--> Executed in 0.17 second(s) in Ring 1.18
 
 /*-------------------
 
@@ -219,6 +222,7 @@ o1.append("で")
 # use the ToHexUTF8() from stzListOfBytes() ~> See example below...
 
 proff()
+# Executed in almost 0 second(s).
 
 /*-------------------
 *
@@ -230,7 +234,7 @@ pron()
 proff()
 
 /*-------------------
-
+*/
 pron()
 
 o1 = new stzListOfBytes("で")
@@ -251,7 +255,8 @@ o1 = new stzListOfBytes("で")
 #--> \xe3 \x81 \xa7
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.05 second(s) in Ring 1.19
 
 /*-------------------
 
@@ -272,11 +277,12 @@ o1 = new stzString("ssdsd")
 #--> [ [ "s", 115 ], [ "d", 100 ] ]
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.07 second(s) in Ring 1.18
 # Executed in 0.12 second(s) in Ring 1.17
 
 /*-------------------
-*/
+
 pron()
 
 o1 = new stzListOfBytes("s㊱m")
@@ -315,4 +321,5 @@ o1 {
 }
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.05 second(s) on Ring 1.21
+# Executed in 0.12 second(s) on Ring 1.18

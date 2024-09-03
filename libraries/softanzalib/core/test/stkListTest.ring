@@ -8,7 +8,7 @@
 
 # Or just the files you actually need
 
-	load "../common/stkWrapRingFuncs.ring"	# Wrappers of Ring functions for scope protection
+	load "../common/stkRingFuncs.ring"	# Wrappers of Ring functions for scope protection
 
 	load "../object/stkObject.ring"
 	load "../list/stkList.ring"

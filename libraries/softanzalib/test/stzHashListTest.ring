@@ -628,7 +628,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*==================
-*/
+
 pron()
 
 o1 = new stzHashList([
@@ -658,6 +658,7 @@ o1 = new stzHashList([
 #--> [ "saudi_arabia", "iraq", "japan" ]
 
 proff()
+# Executed in 0.08 second(s) in Ring 1.21
 # Executed in 0.10 second(s) in Ring 1.19
 # Executed in 1.54 second(s) in Ring 1.17
 
@@ -743,7 +744,8 @@ o1 = new stzHashList([ [ "NAME", "Mansour"] , [ "AGE" , 45 ] ])
 #--> [ [ "name", "Mansour" ], [ "age", 45 ] ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in Ring 1.19
 
 /*--------------
 

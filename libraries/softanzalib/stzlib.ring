@@ -234,6 +234,7 @@
 	load "extended/natural/stzNullObject.ring"
 	load "extended/natural/stzTrueObject.ring"
 	load "extended/natural/stzFalseObject.ring"
+	load "extended/natural/stzNaturalCode.ring"
 
 # Loading the files related to EXTENDED/SYSTEMS module (par of SoftanzaExtended layer)
 
