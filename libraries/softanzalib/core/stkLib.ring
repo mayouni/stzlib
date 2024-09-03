@@ -4,7 +4,7 @@
 # Loading common staff
 
 	load "common/stkRingLibs.ring"		# Ring libraries and extensions
-	load "common/stkWrapRingFuncs.ring"	# Wrappers to Ring funcs for scope protection
+	load "common/stkRingFuncs.ring"		# Wrappers to Ring funcs for scope protection
 	load "common/stkLowLevelFuncs.ring"	# Pointer and simular low level functions staff
 
 	load "common/stkNumberCommons.ring"	# Common functions (and constants) to all number classes

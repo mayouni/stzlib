@@ -316,9 +316,9 @@ class stkBigNumber
 	#-------------------------------------------------------------------#
 
     	def Subtract(cOtherBigNumber)
-? "-->"
+
 		result = This.pvtSubtractStrings(This.Unspacified(), cOtherBigNumber)
-? "<"
+
 		bSpacify = FALSE
 
 		if @bSpacify or substr(cOtherBigNumber, "_") > 0
@@ -1218,222 +1218,306 @@ class stkBigNumber
 
 	    	return pvtTrimTrailingZeros(quotient)
 
-	# Helper function to compare two numbers in strings
+	# Helper function to pad with zeros after decimal point
+	
+	func pvtPadFraction(str, length)
+	
+		nLen = len(str)
+	
+		if nLen < length
+			str += pvtCopy("0", (length - nLen))
+	    	ok
+	
+	    	return str
+	
+	# Function to subtract two big numbers represented as strings
+	
+	func pvtSubtractStrings(nbr1, nbr2)
+	
+		nbr1 = substr(nbr1, "_", "")
+		nbr2 = substr(nbr2, "_", "")
+	
+		# Handle negative numbers
+	
+		bNegative1 = (left(nbr1, 1) = "-")
+		bNegative2 = (left(nbr2, 1) = "-")
+	
+		if bNegative1 and bNegative2
+	
+			nbr1 = right(nbr1, len(nbr1)-1)
+			nbr2 = right(nbr2, len(nbr2)-1)
+	
+			cCompare = pvtCompareStrings(nbr2, nbr1)
+	
+			if cCompare = "11"
+				return "0"
+			else
+				return pvtSubtractStrings(nbr2, nbr1)
+			ok
+	     
+		but !bNegative1 and bNegative2
+			nbr2 = right(nbr2, len(nbr2)-1)
+			return pvtAddStrings(nbr1, nbr2)
+	
+		but bNegative1 and !bNegative2
+			nbr1 = right(nbr1, len(nbr1)-1)
+			return "-" + pvtAddStrings(nbr1, nbr2)
+		ok
+	
+		# Split numbers into integer and fractional parts
+	
+		parts1 = substr(nbr1, ".")
+		parts2 = substr(nbr2, ".")
+	    
+		if parts1 > 0
+			int1 = left(nbr1, parts1-1)
+			frac1 = right(nbr1, len(nbr1) - parts1)
+		else
+			int1 = nbr1
+			frac1 = ""
+		ok
+	    
+		if parts2 > 0
+			int2 = left(nbr2, parts2-1)
+			frac2 = right(nbr2, len(nbr2) - parts2)
+		else
+			int2 = nbr2
+			frac2 = ""
+		ok
+	
+		# Ensure int1 is not smaller than int2
+	
+		if pvtCompareStrings(int1, int2) = "01"
+			return "-" + pvtSubtractStrings(nbr2, nbr1)
+		ok
+	
+		# Pad fractional parts to equal length
+	
+		maxFracLen = pvtMax(len(frac1), len(frac2))
+		frac1 = pvtPadFraction(frac1, maxFracLen)
+	   	frac2 = pvtPadFraction(frac2, maxFracLen)
+	
+		# Pad int2 with leading zeros to match length of int1
+	
+		int2 = pvtCopy("0", len(int1) - len(int2)) + int2
+	
+		borrow = 0
+		resultInt = ""
+		resultFrac = ""
+	
+		# Subtract fractional parts
+	
+		for i = len(frac1) to 1 step -1
+	
+			digit1 = 0+ frac1[i]
+	
+			if i <= len(frac2)
+				digit2 = 0+ frac2[i]
+			else
+				digit2 = 0
+			ok
+	
+			digit1 -= borrow
+	
+			if digit1 < digit2
+				digit1 += 10
+				borrow = 1
+	
+			else
+				borrow = 0
+			ok
+	
+			resultFrac = ""+ (digit1 - digit2) + resultFrac
+	
+		next
+	
+		# Subtract integer parts
+	
+		for i = len(int1) to 1 step -1
+	
+		        digit1 = 0+ int1[i]
+	
+		        if i <= len(int2)
+		            digit2 = 0+ int2[i]
+	
+		        else
+		            digit2 = 0
+		        ok
+	
+		        digit1 -= borrow
+	
+		        if digit1 < digit2
+		            digit1 += 10
+		            borrow = 1
+	
+		        else
+		            borrow = 0
+		        ok
+	
+		        resultInt = ""+ (digit1 - digit2) + resultInt
+	    	next
+	
+	    	# Combine results and clean up
+	
+	   	result = pvtTrimLeadingZeros(resultInt)
+	
+	    	if len(resultFrac) > 0
+	        	result += "." + resultFrac
+	    	ok
+	
+	    	result = pvtTrimTrailingZeros(result)
+	
+	    	return result
 
+	func pvtCompareStrings(strNum1, strNum2) #me
 
-
-# Helper function to pad with zeros after decimal point
-func pvtPadFraction(str, length)
-    nLen = len(str)
-
-    if nLen < length
-	str += pvtCopy("0", (length - nLen))
-    ok
-    return str
-
-# Function to subtract two big numbers represented as strings
-func pvtSubtractStrings(nbr1, nbr2)
-? "emm"
-    nbr1 = substr(nbr1, "_", "")
-    nbr2 = substr(nbr2, "_", "")
-
-    # Handle negative numbers
-    if left(nbr1, 1) = "-" and left(nbr2, 1) != "-"
-        return "-" + pvtAddStrings(right(nbr1, len(nbr1)-1), nbr2)
-
-    but left(nbr1, 1) != "-" and left(nbr2, 1) = "-"
-        return pvtAddStrings(nbr1, right(nbr2, len(nbr2)-1))
-
-    but left(nbr1, 1) = "-" and left(nbr2, 1) = "-"
-        return pvtSubtractStrings(right(nbr2, len(nbr2)-1), right(nbr1, len(nbr1)-1))
-    ok
-
-    # Split numbers into integer and fractional parts
-    parts1 = substr(nbr1, ".")
-    parts2 = substr(nbr2, ".")
-    
-    if parts1 > 0
-        int1 = left(nbr1, parts1-1)
-        frac1 = right(nbr1, len(nbr1) - parts1)
-    else
-        int1 = nbr1
-        frac1 = ""
-    ok
-    
-    if parts2 > 0
-        int2 = left(nbr2, parts2-1)
-        frac2 = right(nbr2, len(nbr2) - parts2)
-    else
-        int2 = nbr2
-        frac2 = ""
-    ok
-
-//? int1 + " : " + frac1
-//? int2 + " : " + frac2 + NL
-    # Ensure int1 is not smaller than int2
-    if pvtCompareStrings(int1, int2) = 1
-        return "-" + pvtSubtractStrings(nbr2, nbr1)
-    ok
-
-    # Pad fractional parts to equal length
-    maxFracLen = pvtMax(len(frac1), len(frac2))
-    frac1 = pvtPadFraction(frac1, maxFracLen)
-    frac2 = pvtPadFraction(frac2, maxFracLen)
-
-    # Pad int2 with leading zeros to match length of int1
-    int2 = pvtCopy("0", len(int1) - len(int2)) + int2
-
-//? int1 + " : " + frac1
-//? int2 + " : " + frac2 + nl
-
-
-    borrow = 0
-    resultInt = ""
-    resultFrac = ""
-
-    # Subtract fractional parts
-    for i = len(frac1) to 1 step -1
-
-        digit1 = 0+ frac1[i]
-
-        if i <= len(frac2)
-            digit2 = 0+ frac2[i]
-        else
-            digit2 = 0
-        ok
-
-        digit1 -= borrow
-
-        if digit1 < digit2
-            digit1 += 10
-            borrow = 1
-
-        else
-            borrow = 0
-        ok
-
-        resultFrac = ""+ (digit1 - digit2) + resultFrac
-
-    next
-
-    # Subtract integer parts
-
-    for i = len(int1) to 1 step -1
-        digit1 = 0+ int1[i]
-        if i <= len(int2)
-            digit2 = 0+ int2[i]
-        else
-            digit2 = 0
-        ok
-        digit1 -= borrow
-        if digit1 < digit2
-            digit1 += 10
-            borrow = 1
-        else
-            borrow = 0
-        ok
-        resultInt = ""+ (digit1 - digit2) + resultInt
-    next
-
-    # Combine results and clean up
-    result = pvtTrimLeadingZeros(resultInt)
-    if len(resultFrac) > 0
-        result += "." + resultFrac
-    ok
-    result = pvtTrimTrailingZeros(result)
-
-    return result
-
-
-###############################
-
-# Helper function to compare two strings of equal length
-def pvtCompareSameSizeStrings(str1, str2)
-    for i = 1 to len(str1)
-        if ascii(str1[i]) > ascii(str2[i])
-            return 1
-        but ascii(str1[i]) < ascii(str2[i])
-            return -1
-        ok
-    next
-    return 0  # If we get here, the strings are equal
-
-# Main function to compare big numbers
-func pvtCompareStrings(str1, str2)
-? "hi"
-    # Remove leading and trailing zeros
-    str1 = pvtTrimLeadingZeros(pvtTrimTrailingZeros(str1))
-    str2 = pvtTrimLeadingZeros(pvtTrimTrailingZeros(str2))
-    
-    # Check for negative numbers
-    isNegative1 = (left(str1, 1) = "-")
-    isNegative2 = (left(str2, 1) = "-")
-    
-    # If signs are different, we can immediately determine the result
-    if isNegative1 and !isNegative2
-        return -1
-    elseif !isNegative1 and isNegative2
-        return 1
-    ok
-    
-    # Remove minus signs for further processing
-    if isNegative1
-        str1 = right(str1, len(str1) - 1)
-    ok
-    if isNegative2
-        str2 = right(str2, len(str2) - 1)
-    ok
-    
-    # Split into integer and fractional parts
-    parts1 = substr(str1, ".")
-    parts2 = substr(str2, ".")
-    
-    int1 = str1
-    int2 = str2
-    frac1 = ""
-    frac2 = ""
-    
-    if parts1 > 0
-        int1 = left(str1, parts1-1)
-        frac1 = right(str1, len(str1) - parts1)
-    ok
-    if parts2 > 0
-        int2 = left(str2, parts2-1)
-        frac2 = right(str2, len(str2) - parts2)
-    ok
-    
-    # Compare integer parts
-    if len(int1) != len(int2)
-        if len(int1) > len(int2)
-		result = 1
-	else
-		result = -1
-	ok
-    else
-        result = pvtCompareSameSizeStrings(int1, int2)
-    ok
-    
-    # If integer parts are equal, compare fractional parts
-    if result = 0 and (len(frac1) > 0 or len(frac2) > 0)
-        # Pad shorter fractional part with zeros
-        maxFracLen = max(len(frac1), len(frac2))
-        frac1 = frac1 + copy("0", maxFracLen - len(frac1))
-        frac2 = frac2 + copy("0", maxFracLen - len(frac2))
-        result = pvtCompareSameSizeStrings(frac1, frac2)
-    ok
-    
-    # If numbers were negative, reverse the result
-    if isNegative1
-        result = -result
-    ok
-? result
-    return result
-
-
-##############################
-
-
-
+		if not ( isString(strNum1) and isString(strNum2))
+			raise("Incorrect param type!")
+		ok
+	
+		strNum1 = substr(strNum1, "_", "")
+		strNum2 = substr(strNum2, "_", "")
+	
+		strNum1 = pvtTrimLeadingZeros(pvtTrimTrailingZeros(strNum1))
+		strNum2 = pvtTrimLeadingZeros(pvtTrimTrailingZeros(strNum2))
+	
+		# Case 1 : bother are equal
+	
+		if strNum1 = strNum2
+			return "11"
+		ok
+	
+		# Case 2 : One of them is negative
+	
+		bNegative1 = (left(strNum1, 1) = "-")
+		bNegative2 = (left(strNum2, 1) = "-")
+	
+		if bNegative1 and !bNegative2
+			return "01"
+	
+		but !bNegative1 and bNegative2
+			return "10"
+		ok
+	
+		# Getting int and fract parts
+	
+		nLen1 = len(strNum1)
+		nLen2 = len(strNum2)
+	
+		intPart1 = ""
+		fracPart1 = ""
+	
+		intPart2 = ""
+		fractPart2 = ""
+	
+		nDot1 = substr(strNum1, ".")
+		if nDot1 = 0
+			intPart1 = strNum1
+			fracPart1 = ""
+		else
+			intPart1 = left(strNum1, nDot1-1)
+			fracPart1 = right(strNum1, nLen1 - nDot1)
+		ok
+	
+		nDot2 = substr(strNum2, ".")
+		if nDot2 = 0
+			intPart2 = strNum2
+			fracPart2 = ""
+		else
+			intPart2 = left(strNum2, nDot2-1)
+			fracPart2 = right(strNum2, nLen2 - nDot2)
+		ok
+	
+		nLenIntPart1 = len(intPart1)
+		nLenFracPart1 = len(fracPart1)
+	
+		nLenIntPart2 = len(intPart2)
+		nLenFracPart2 = len(fracPart2)
+	
+		# Case both are positive
+	
+		if !bNegative1 and !bNegative2
+	
+			if nLenIntPart1 < nLenIntPart2
+				return "01"
+	
+			but nLenIntPart1 > nLenIntPart2
+				return "10"
+	
+			else // same lenght
+	
+				# Start by comparing int parts
+	
+				for i = nLenIntPart1 to 1 step -1
+					if (0+ intPart1[i]) < (0+ intPart2[i])
+						return "01"
+	
+					but (0+ intPart1[i]) > (0+ intPart2[i])
+						return "10"
+					ok
+				next
+	
+				# At this level, int parts are equal, let's
+				# compare the fract part (if they exist)
+	
+				if nLenFracPart1 = 0 and nLenFracPart2 = 0
+					return "11"
+	
+				but nLenFracPart1 = 0 and nLenFracPart2 != 0
+					return "01"
+	
+				but nLenFracPart1 != 0 and nLenFracPart2 = 0
+					return "10"
+				ok
+	
+				# Both numbers contain fractions, adjust them
+	
+				if nLenFracPart1 < nLenFracPart2
+					nDiff = nLenFracPart2 - nLenFracPart1
+					for i = 1 to nDiff
+						fracPart1 += "0"
+					next
+				else
+					nDiff = nLenFracPart1 - nLenFracPart2
+					for i = 1 to nDiff
+						fracPart2 += "0"
+					next
+				ok
+	
+				nLen = len(fracPart1)
+	
+				for i = nLen to 1 step -1
+					if (0+ fracPart1[i]) < (0+ fracPart2[i])
+						return "01"
+					but (0+ fracPart1[i]) > (0+ fracPart2[i])
+						return "10"
+					ok
+				next
+				
+				# At this level, not only intpart are equal, but fractions too
+	
+				return "11"
+			ok
+	
+		ok
+	
+		# Case both are negative ~> use their absolute values
+	
+		strNum1 = right(strNum1, nLen1 - 1)
+		strNum2 = right(strNum2, nLen2 - 1)
+	
+		cResult = pvtCompareStrings(strNum1, strNum2)
+	
+		if cResult = "11"
+			return "11"
+	
+		but cResult = "01"
+			return "10"
+	
+		else
+			return "01"
+		ok
+	
 	# Two helper functions to compare absolute values
 
 	def pvtCompareAbsValues(s1, s2) #ai #claude

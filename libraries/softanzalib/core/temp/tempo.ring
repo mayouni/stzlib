@@ -1,4 +1,5 @@
 
+
 load "../Common/stkRingLibs.ring"
 load "../common/stkNumberCommons.ring"
 load "../number/stkBigNumber.ring"
@@ -225,50 +226,60 @@ oBig.Power(4)
 #--> 94_801_716_153_963_020_293_871_604_048_857_032_982_962_454_161_010_834_394_311_299.57107820225173
 
 #===== MORE SUBSTRACTIONS
-
+*/
 
 //-- Subtracting Two Positive Integers
 
 oBig = new stkBigNumber("12_345_678_901_234_567_890")
            oBig.Subtract("9_876_543_210_987_654_321")
 
-? oBig.Value() + NL
+? oBig.Value()
 #--> 2_469_135_690_246_913_569
 
 //-- Subtracting a Larger Number from a Smaller One
 
 oBig = new stkBigNumber("9_876_543_210_987_654_321")
-oBig.Subtract("12_345_678_901_234_567_890")
-? oBig.Value() + NL
+	 oBig.Subtract("12_345_678_901_234_567_890")
+? oBig.Value()
 #--> -2_469_135_690_246_913_569
-*/
+
 //-- Subtracting Two Decimal Numbers
 
-	oBig = new stkBigNumber("12345.6789")
-	oBig.Subtract("9876.54321")
-//	? oBig.Value() + NL
-	#--> 2469.13569
+oBig = new stkBigNumber("12345.6789")
+	   oBig.Subtract("9876.54321")
+? oBig.Value()
+#--> 2469.13569
 
 //-- Subtracting Negative Numbers
-/*
-	oBig = new stkBigNumber("-54321")
-	oBig.Subtract("-12345")
-	? oBig.Value() + NL
-	//--> -41976
+
+oBig = new stkBigNumber("-54321")
+	  oBig.Subtract("-2345")
+? oBig.Value()
+#--> -51976
+
+oBig = new stkBigNumber("-2345")
+	  oBig.Subtract("-2345")
+? oBig.Value()
+#--> 0
+
+oBig = new stkBigNumber("-2345")
+	  oBig.Subtract("-54321")
+? oBig.Value()
+#--> 51976
 
 //-- Subtracting a Positive Number from a Negative Number
 
 oBig = new stkBigNumber("-12345")
 oBig.Subtract("6789")
-? oBig.Value() + NL
+? oBig.Value()
 #--> -19134
 
 //-- Subtracting Numbers with Different Decimal Places
 
-oBig = new stkBigNumber("100.456")
-oBig.Subtract("99.9999")
-? oBig.Value() + NL
-#--> 0.4561
+	oBig = new stkBigNumber("100.456")
+	oBig.Subtract("99.9999")
+	? oBig.Value()
+	#--> 0.4561
 
 
 #~~~~~

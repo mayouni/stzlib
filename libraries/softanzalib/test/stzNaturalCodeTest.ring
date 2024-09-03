@@ -22,14 +22,15 @@ oStr = new stzString("ring")
 AddFuture(:Uppercase) # or AddfutureAction()
 AddFuture(:Replace = [ "I", "♥" ])
 
-? @@(Future()) # Or FutureActions()
+? @@(Future()) + NL # Or FutureActions()
 #--> [
 #	[ "uppercase", [ ] ],
 #	[ "replace", [ "I", "♥" ] ]
 # ]
 
-ExecuteActions( FutureActions(), oStr )
+ExecuteActions( Future(), :on = oStr )
 ? oStr.Content()
+#--> R♥NG
 
 proff()
 # Executed in 0.02 second(s)
@@ -75,7 +76,8 @@ pron()
 #--> 3
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s) on Ring 1.21
+# Executed in 0.07 second(s) on Ring 1.20
 
 /*----
 
@@ -96,7 +98,8 @@ SetLastValue(["A", "I", "E"])
 #--> TRUE
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.03 second(s) on Ring 1.21
+# Executed in 0.07 second(s) on Ring 1.20
 
 /*=====
 
@@ -119,26 +122,26 @@ pron()
 ? Q("ring").IsStzString()
 #--> TRUE
 
-? Q("ring").IsAXT([ :Lowercase, :Latin, :String ])
+//? Q("ring").IsAXT([ :Lowercase, :Latin, :String ])
 #--> TRUE
 
-? Q("ring").IsAXT([ :String ])
+//? Q("ring").IsAXT([ :String ])
 #--> TRUE
 
 ? Q("ring").IsA(:String)
 #--> TRUE
 
-? QM("ring").IsAXTQ([ :Lowercase, :Latin, :String ]).WhichQ().HasAQ().LengthQ().EqualTo(4)
+//? QM("ring").IsAXTQ([ :Lowercase, :Latin, :String ]).WhichQ().HasAQ().LengthQ().EqualTo(4)
 #--> TRUE
 
-? TheStringQM("ring").IsAQ([ :Lowercase, :Latin, :String ]).WithAQ().LengthQ().Of(4)
+//? TheStringQM("ring").IsAQ([ :Lowercase, :Latin, :String ]).WithAQ().LengthQ().Of(4)
 #--> TRUE
 
-? TheWordQM("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WithAQ().LengthQ().OfXT(4, :Letters)
+//? TheWordQM("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WithAQ().LengthQ().OfXT(4, :Letters)
 #--> TRUE
 
-? TheWordQM("ring").IsAQ([ :Lowercase, :Latin, :Word ]).
-  WithQ().ALengthQ().OfQ(4)._Q(:Letters).AndQ().OnlyQM(1).VowelNB()
+//? TheWordQM("ring").IsAQ([ :Lowercase, :Latin, :Word ]).
+//  WithQ().ALengthQ().OfQ(4)._Q(:Letters).AndQ().OnlyQM(1).VowelNB()
 #--> TRUE
 
 ? TheWordQ("ring").HasNQ(4).LettersNB()
@@ -150,14 +153,14 @@ pron()
 ? TheWordQ("ring").HasNQ(4).LettersNBQ().ThatAreQ().InLowercase()
 #--> TRUE
 
-? Q("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WhichQ().HasTheNumberQ(4).AsAQ().NumberOfCharsB()
+//? Q("ring").IsAQ([ :Lowercase, :Latin, :Word ]).WhichQ().HasTheNumberQ(4).AsAQ().NumberOfCharsB()
 #--> TRUE
 
 ? Q("ring").IsTheQ([ :Lowercase, :string ]).WhichIsQ().TheQ().ReverseOfB("gnir")
 #--> TRUE
 
 proff()
-# Executed in 0.39 second(s)
+# Executed in 0.06 second(s)
 
 /*-----------
 
@@ -188,7 +191,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*------
-*/
+
 pron()
 
 ? Q("ring").IsAQ(:String).InLowercase() 		#--> TRUE
@@ -197,7 +200,7 @@ pron()
 ? Q("ring").IsAQ(:String).Which().IsLowercase()		#--> TRUE
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.06 second(s)
 
 /*======
 
@@ -246,23 +249,28 @@ proff()
 # Executed in 0.07 second(s)
 
 /*------
+*/
 
-pron()
+ load "../extended/natural/stzNaturalCode.ring"
 
-? QM("ring").IsAQ(:String).
+ pron()
+
+ ? QM("ring").IsAQ(:String).
 	InLowercaseQ().
 	ContainingQ( TheLetter("i") ).
 	HavingQ().TheQ().FirstCharQ().EqualToQ("r").
 	AndQM().TheQ().Lastchar() = "g"
-#--> TRUE
 
-? QM("RING").IsAQ(:String).
+	#--> TRUE
+
+ ? QM("RING").IsAQ(:String).
 	InUppercaseQ().
 	ContainingQ( TheLetter("N") ).
 	HavingQ().ItsQ().FirstCharQ().EqualToQ("R").
 	AndQM().ItsQ().Lastchar() = "G"
-#--> TRUE
 
-proff()
-# Executed in 0.05 second(s)
+	#--> TRUE
+
+ proff()
+ # Executed in 0.05 second(s)
 
