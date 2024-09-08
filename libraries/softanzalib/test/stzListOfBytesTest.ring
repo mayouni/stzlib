@@ -234,7 +234,7 @@ pron()
 proff()
 
 /*-------------------
-*/
+
 pron()
 
 o1 = new stzListOfBytes("で")
@@ -259,7 +259,7 @@ proff()
 # Executed in 0.05 second(s) in Ring 1.19
 
 /*-------------------
-
+*/
 pron()
 
 o1 = new stzString("ssdsd")
@@ -273,7 +273,7 @@ o1 = new stzString("ssdsd")
 ? @@( o1.CharsAndUnicodes() ) # Same as o1.UnicodePerChar()
 #--> [ [ "s", 115 ], [ "s", 115 ], [ "d", 100 ], [ "s", 115 ], [ "d", 100 ] ]
 
-? @@( o1.CharsAndUnicodesU() ) #TODO
+? @@( o1.CharsAndUnicodesU() )
 #--> [ [ "s", 115 ], [ "d", 100 ] ]
 
 proff()

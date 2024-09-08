@@ -3054,6 +3054,7 @@ class stzListOfLists from stzList
 
 	def SortOnDown(n)
 		aResult = ring_reverse( This.SortOn(n) )
+
 		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
@@ -3076,6 +3077,7 @@ class stzListOfLists from stzList
 
 	def SortedOnDown(n)
 		aResult = This.Copy().SortOnDownQ(n).Content()
+
 		return aResult
 
 		def SortedOnInDescending(n)
@@ -3153,7 +3155,7 @@ class stzListOfLists from stzList
 	 #  SORTING THE LISTS BY AN EXPRESSION EVALUATED AGAINST A GIVEN COLUMN - IN ASCENDING  #
 	#======================================================================================#
 
-def SortOnByXT(nCol, pcExpr)
+def SortOnByXT(nCol, pcExpr) #TODO
 #--> returns a hashlist with the evaluated expression
 
 	def SortOnBy(nCol, pcExpr)
