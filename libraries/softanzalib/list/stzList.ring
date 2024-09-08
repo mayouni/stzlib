@@ -237,6 +237,9 @@ func ListStringifyXT(paList)
 func SortListsOn(paLists, n)
 
 	if CheckParam()
+
+		# Swich params if necessary
+
 		if isNumber(paLists) and isList(n)
 			temp = paLists
 			paLists = n
@@ -252,15 +255,17 @@ func SortListsOn(paLists, n)
 		ok
 	ok
 
+	# Early check 1 : If there is no lists or only one list
+
 	nLen = len(paLists)
 	if nLen = 0
 		return []
 
-	but nLen < 2
+	but nLen = 1
 		return paLists
 	ok
 
-	# Early check1 : If One of the lists is empty
+	# Early check 2 : If One of the lists is empty
 
 	for i = 1 to nLen
 		if len(paLists[i]) = 0
@@ -268,185 +273,43 @@ func SortListsOn(paLists, n)
 		ok
 	next
 
-	# Early check2 : Using Ring sort() in priority
+	# Early check 3 : Using Ring sort() in priority
 
 	if IsRingSortableOn(paLists, n)
 		return ring_sort2(paLists, n)
 	ok
 
-	# Special case: when the nth column contains empty lists
-	# ~> we replace them by [0] so they are sorted first
-	# ~> we keep their number so they are restored at the end
+	# if the nth column contains an object, interrupt the operation
 
-	nLenEmptyLists = 0
 	for i = 1 to nLen
 		nLenList = len(paLists[i])
-		if n <= nLenList
-			if isList(paLists[i][n]) and len(paLists[i][n]) = 0
-				paLists[i][n] + 0
-				nLenEmptyLists++
+
+		if nLenList >= n
+			if isObject(paLists[i][n])
+				StzRaise("Can't proceed! Nth column must not contain objects.")
 			ok
 		ok
 	next
 
-	# Special case: the nth column contains the same items
-	# ~> sort the column after, or if n is the last column,
-	# sort the column just before
+	# In all other cases, start by adjusting the lists of lists with NULLs
 
 	oLoL = new stzListOfLists(paLists)
+	oLoL.Adjust()
 
-	if oLol.ColQ(n).IsMadeOfSameItem()
+	# if the nth column contains items that are lists then stringify them
 
-		nCols = oLol.NumberOfCols()
-
-		# Walking the columns backward and find the first
-		# one containing distinc items ~> sort on it
-
-		for i = nCols - 1 to 1 step -1
-			if NOT oLoL.ColQ(i).IsMadeOfSameItem()
-				return @SortListsOn(paLists, i)
-			ok
-		next
-
-		# ~> All the columns for n back to the first
-		# one are made of the same items!
-
-		# Walking the columns forward and find the first
-		# one containing distinc items ~> sort on it
-
-		if n < nCols
-			for i =  n + 1 to nCols
-				if NOT oLoL.ColQ(i).IsMadeOfSameItem()
-					return @SortListsOn(paLists, i)
-				ok
-			next
-		ok
-
-		# ~> All the columns are made of same items, there
-		# is no need to make any sort!
-
-		return
-
-	ok
-
-	# Adjusting the lists up to the nth column
-	# (we do this to make it possible using Ring sort() function)
-
+	aColN = oLoL.Col(n)
 	for i = 1 to nLen
-		nLenList = len(paLists)
-		if nLenList < n
-			nDif = n - nLenList
-			for j = 1 to nDiff
-				paLists[i] + NULL
-			next
+		if isList(aColN[i])
+			aColN[i] = @@(aColN[i])
 		ok
-
 	next
 
-	if n = 1
-		# We stringify only the first column and then
-		# sort the list on it using ring_sort2(list, n)
+	oLoL.ReplaceCol(n, aColN)
+	aAdjusted = oLoL.Content()
 
-		aFirstCol = []
-		for i = 1 to nLen
-			aFirstCol + paLists[i][1]
-		next
-
-		aFirstColXT = ListStringifyXT(aFirstCol)
-
-		# Adding this stringified colum as the very first
-		# column of the list, sorting it using ring_sort2()
-		# and then removing this stringified column
-
-		for i = 1 to nLen
-			ring_insert(paLists[i], 1, aFirstColXT[i])
-		next
-
-		# Now we sort the list of lists using ring_sort2()
-
-		paLists = ring_sort2(paLists, 1)
-
-		# finally we compose the result by excluding
-		# the very first coumumn 
-
-		for i = 1 to nLen
-			ring_remove(paLists[i], 1)
-		next
-
-		# Restoring the [] lists from their [0] temporal form
-
-		for i = 1 to nLen
-			nLenList = len(paLists[i])
-			if nLenList > n # Note n = 1 but we leave it for expressiveness
-				if isList(paLists[i][n]) and len(paLists[i][n]) = 1 and paLists[i][n][1] = 0
-					if nLenEmptyLists > 0
-						ring_remove(paLists[i][n], 1)
-						nLenEmptyLists--
-					ok
-				ok
-			ok
-		next
-
-
-		# Returning the result
-
-		return paLists
-	ok
-
-	# In this case, the nth column is not the first column.
-	# We need to sort not only the nth column, but:
-
-	# 	1. sort the first column
-	# 	2. sort the items of the first column that have same value
-
-	# We fellow the same logic of the previous case, but for
-	# two columns and not only one column
-
-		# We stringify the nth and first columns
-
-		aNthAndFirstCols = []
-		for i = 1 to nLen
-			aNthAndFirstCols + [ paLists[i][n], paLists[i][1] ]
-		next
-
-		aNthAndFirstColsXT = ListsStringifyXT(aNthAndFirstCols)
-
-		# Adding the stringified nth and first columns (concatenated)
-		# at the begining of the list (as the first column)
-
-		for i = 1 to nLen
-			ring_insert(paLists[i], 1, aNthAndFirstColsXT[i][1] + aNthAndFirstColsXT[i][2])
-		next
-
-		# Now we sort the list of lists using ring_sort2(), first on
-		# the nth column (which is the first column now in the list)
-
-		paLists = ring_sort2(paLists, 1)
-
-		# finally we compose the result by excluding
-		# the very first coumumn 
-
-		for i = 1 to nLen
-			ring_remove(paLists[i], 1)
-		next
-
-		# Restoring the [] lists from their [0] temporal form
-
-		for i = 1 to nLen
-			nLenList = len(paLists[i])
-			if n <= nLenList
-				if isList(paLists[i][n]) and len(paLists[i][n]) = 1 and paLists[i][n][1] = 0
-					if nLenEmptyLists > 0
-						ring_remove(paLists[i][n], 1)
-						nLenEmptyLists--
-					ok
-				ok
-			ok
-		next
-
-		# Returning the result
-
-		return paLists
+	aSorted = ring_sort2(aAdjusted, n)
+	return aSorted
 
 
 	#< @FunctionAlternativeForms
@@ -4788,6 +4651,8 @@ func ComputableFormNLQ(pValue)
   /////////////////
  ///   CLASS   ///
 /////////////////
+
+class TempAndDumpyThing
 
 class stzList from stzObject
 	@aContent = []

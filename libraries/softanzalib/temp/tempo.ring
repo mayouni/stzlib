@@ -1,7 +1,6 @@
 
 load "../stzlib.ring"
 
-
 /*----
 
 pron()

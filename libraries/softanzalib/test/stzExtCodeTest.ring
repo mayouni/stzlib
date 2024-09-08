@@ -23,11 +23,12 @@ Q([ 1, 2, 3, 4, 5 ]) {
 
 }
 
-#--> Executed in 0.04 second(s)
-
 proff()
 
-/*------------
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.20
+
+/*------------ #ring #perf
 
 pron()
 
@@ -38,17 +39,19 @@ pron()
 ], 2)
 
 proff()
-#--> Executed in 0.03 second(s)
+
+# Executed in almost 0 second(s) in Ring 1.21
+#--> Executed in 0.03 second(s) in Ring 1.20
 
 /*------------
-
+*/
 pron()
 
 ? StzListOfListsQ([
 	[ "Bob",       89 ],
 	[ "Dan",      120 ],
 	[ "Roy",      100 ]
-]).SortedBy(2)
+]).SortedOnDown(2)
 
 proff()
 #--> Executed in 0.04 second(s)
@@ -67,10 +70,10 @@ proff()
 #--> Executed in 0.07 second(s)
 
 /*------------
-*/
+
 pron()
 
-//CheckParamsOff()
+CheckParamsOff()
 
 o1 = new stzTable([
 
@@ -79,20 +82,26 @@ o1 = new stzTable([
 
 ])
 
-//o1.Shwo() + NL #NOTE this is a mispelled form of Show()
+? o1.Shwo() 	// #NOTE this is a mispelled form of Show()
+#-->
+# NAME   SCORE
+# ----- ------
+#  Bob      89
+#  Dan     120
+#  Roy     100
 
-o1.SortInAscending(:SCORE)
+o1.SortOnDown(:SCORE) # Or SortOnInDescending()
 
 ? o1.Show()
-
 #-->
-# :NAME   :SCORE
-# ------ -------
-#   Bob      Roy
-#    89      100
+# NAME   SCORE
+# ----- ------
+#  Dan     120
+#  Roy     100
+#  Bob      89
 
 proff()
-# Executed in 0.30 second(s)
+# Executed in 0.10 second(s)
 
 /*==== SQL SUPPORT IN SOFTANZA EXTERNAL CODE
 */

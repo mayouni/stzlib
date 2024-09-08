@@ -668,7 +668,7 @@ class stkBigNumber
 			bHasFrac = TRUE
 			cInt2  = left(cOtherNumber, nDot2 - 1)
 			cFrac2 = right(cOtherNumber, nLenOtherNumber - nDot2)
-			cFrac2 = substr(cFrac2, ".", "")
+			cFrac2 = substr(cFrac2, ".", "") # to be safe
 		ok
 	
 		nLenInt1 = len(cInt1)
@@ -733,11 +733,13 @@ class stkBigNumber
 		# CASE 3 : if they have different signs ~> (subtraction)
 
 		but !@bNegative and bNegative2
-
+? "ici + -"
+return
 
 		but @bNegative and !bNegative2
 
-
+? "ici - + "
+return
 		ok
 
 		# Updating the number

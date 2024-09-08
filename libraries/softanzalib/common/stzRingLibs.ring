@@ -5,7 +5,6 @@
 
 # Loading the RingQt library
 
-	load "LightGuiLib.ring"	# Use it if you are on Ring 1.20 and above
 	//load "qtcore.ring" 	# Use it if you are on Ring 1.21 and +
 
 # Loading other Ring libraries and extensions

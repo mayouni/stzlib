@@ -9819,7 +9819,7 @@ Class stzTable from stzObject
 
 		nLenCells  = len(paCellsPos)
 		nLenValues = len(paNewValues)
-		nMin = Min([ nLenCells, nLenValues ])
+		nMin = @Min([ nLenCells, nLenValues ])
 
 		for i = 1 to nMin
 			This.ReplaceCell(paCellsPos[i][1], paCellsPos[i][2], paNewValues[i])
@@ -13051,7 +13051,7 @@ Class stzTable from stzObject
 		def SortUp()
 			This.Sort()
 
-		def SortOnAsecending()
+		def SortInAscending()
 			This.Sort()
 
 		#>
@@ -13063,7 +13063,7 @@ Class stzTable from stzObject
 	def SortDown()
 		This.SortOnDown(1)
 
-		def SortOnInDesending()
+		def SortInDesending()
 			This.SortDown()
 
 	  #----------------------------------------------------#
@@ -13151,12 +13151,13 @@ Class stzTable from stzObject
 	#========================================================#
 
 	def SortBy(pcExpr)
+
 		This.SortOnBy(1, pcExpr)
 
 		def SortByUp(pcExpr)
 			This.SortBy(pcExpr)
 
-		def SortByInAsecending(pcExpr)
+		def SortByInAscending(pcExpr)
 			This.SortBy(pcExpr)
 
 		#>
