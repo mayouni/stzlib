@@ -319,6 +319,7 @@ func SortListsOn(paLists, n)
 			ok
 		ok
 	next
+ici
 ? @@SP(aAdjusted)
  stop()
 	# Sort the adjusted lists using Ring native sort()
@@ -27586,7 +27587,6 @@ Item and then position
 				This.SortInDescending()
 				return This
 
-
 		def SortInDessending()
 			This.SortInDescending()
 
@@ -27600,14 +27600,22 @@ Item and then position
 		aResult = This.Copy().SortInDescendingQ().Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def SortedDown()
+			return This.SortedInDescending()
+
+		#>
+
+		#< @FunctionMisspelledForms
+
 		def SortedInDesending()
 			return This.SortedInDescending()
 
 		def SortedInDessending()
 			return This.SortedInDescending()
 
-		def SortedDown()
-			return This.SortedInDescending()
+		#>
 
 	  #-------------------------------------------#
 	 #  SORTING THE ITEM IN THE REVERSE ORDER  #
@@ -45281,6 +45289,12 @@ Item and then position
 		def FindThisNamedObject(p)
 			return This.FindNamedObject(p)
 
+		def FindObject(p)
+			return This.FindNamedObject(p)
+
+		def FindThisObject(p)
+			return This.FindNamedObject(p)
+
 	def NamedObjectZ(paObject)
 		if CheckParams()
 			if NOT isObject(paObject) 
@@ -45419,6 +45433,169 @@ Item and then position
 		next
 
 		return anResult
+
+	def StzObjectsZ() #TODO
+		raise("Not implemented yet!")
+
+	  #--------------------------#
+	 #  FINDING NON-STZOBJECTS  #
+	#==========================#
+
+	def FindNonStzObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isObject(aContent[i]) and NOT @IsStzObject(aContent[i])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def NonStzObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isObject(aContent[i]) and NOT @IsStzObject(aContent[i])
+				anResult + aContent[i]
+			ok
+		next
+
+		return anResult
+
+	def NonStzObjectsZ() #TODO
+		raise("Not implemented yet!")
+
+	  #--------------------#
+	 #  FINDING QOBJECTS  #
+	#====================#
+
+	def FindQObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isObject(aContent[i]) and @IsQObject(aContent[i])
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def QObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isObject(aContent[i]) and @IsQObject(aContent[i])
+				anResult + aContent[i]
+			ok
+		next
+
+		return anResult
+
+	def QObjectsZ() #TODO
+		raise("Not implemented yet!")
+
+	  #=================================================#
+	 #  GETTING THE LIST OF NAMED OBJECTS IN THE LIST  #
+	#=================================================#
+
+	def NamedObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		aoResult = []
+
+		for i = 1 to nLen
+			if isObject(aContent[i]) and @IsNamedObject(aContent[i])
+				aoResult + aContent[i]
+			ok
+		next
+
+		return aoResult
+
+	def UniqueNamedObjects()
+		aoResult = U( This.NamedObjects() )
+		return aoResult
+
+		def UNamedObjects()
+			return This.UniqueNamedObjects()
+
+	  #------------------------------------------------------#
+	 #  GETTING THE NAMES OF THE NAMED-OBJECTS IN THE LIST  #
+	#======================================================#
+
+	def ObjectsVarNames()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		acResult = []
+
+		for i = 1 to nLen
+			if isObject(aContent[i]) and @IsNamedObject(aContent[i])
+				acResult + aContent[i].VarName()
+			ok
+		next
+
+		return acResult
+
+	def ObjectsVarNamesU()
+		return U( This.ObjectsVarNames() )
+
+		def UniqueObjectsVarNames()
+			return This.ObjectsVarNamesU()
+
+	def NumberOfNamedObjects()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		n = 0
+
+		for i = 1 to nLen
+			if isObject(aContent[i]) and @IsNamedObject(aContent[i])
+				n++
+			ok
+		next
+
+		return n
+
+		def HowManyNamedObjects()
+			return This.NumberOfNamedObjects()
+
+		def HowManyNamedObject()
+			return This.NumberOfNamedObjects()
+
+	def NumberOfUniqueNamedObjects()
+		nResult = len( This.UniqueNamedObjects() )
+		return nResult
+
+		def HowManyUniqueNamedObjects()
+			return This.NumberOfUniqueNamedObjects()
+
+		def HowManyUniqueNamedObject()
+			return This.NumberOfUniqueNamedObjects()
+
+		#--
+
+		def NumberOfUNamedObjects()
+			return This.NumberOfUniqueNamedObjects()
+
+		def HowManyUNamedObjects()
+			return This.NumberOfUniqueNamedObjects()
+
+		def HowManyUNamedObject()
+			return This.NumberOfUniqueNamedObjects()
 
 	  #===========================================================#
 	 #  CHECKING IF THE LIST CONTAINS JUST STRINGS IN UPPERCASE  #
@@ -46331,8 +46508,8 @@ Item and then position
 				p3 = "An" + p3
 			ok
 
-			cCode = 'bOk = ( Q(aContent[@i]).Is' + p1 + '() or' + NL +
-				'Q(aContent[@i]).Is' + p3 + '() )'
+			cCode = 'bOk = ( Q(@aContent[@i]).Is' + p1 + '() or' + NL +
+				'Q(@aContent[@i]).Is' + p3 + '() )'
 
 		but cSyntax = "2"
 
@@ -46359,11 +46536,15 @@ Item and then position
 				p2 = "An" + p2
 			ok
 
-			cCode = 'bOk = ( Stz' + p3 + 'Q(aContent[@i]).Is' + p1 + '() ) or' + NL +
-			        '( Stz' + p3 + 'Q(aContent[@i]).Is' + p2 + '() )'
+			cCode = 'bOk = ( Stz' + p3 + 'Q(@aContent[@i]).Is' + p1 + '() ) or' + NL +
+			        '( Stz' + p3 + 'Q(@aContent[@i]).Is' + p2 + '() )'
 	
 		ok
 
+		cCode = substr(cCode, "Isnobject", "IsAnObject")
+		# Brute force solution!
+		# #TODO A cleaner solution is to check how cCode is composed
+		# and let IsAnObject be generated isntead of IsnObject
 
 		# Doing the job
 

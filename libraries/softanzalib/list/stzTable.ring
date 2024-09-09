@@ -13087,7 +13087,7 @@ Class stzTable from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def SortInDesending()
+		def SortInDescending()
 			This.SortDown()
 
 			def SortInDescendingQ()
@@ -13355,7 +13355,7 @@ Class stzTable from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def SortByInDesending(pcExpr)
+		def SortByInDescending(pcExpr)
 			This.SortByDown(pcExpr)
 
 			def SortByInDescendingQ(pcExpr)
@@ -13369,7 +13369,7 @@ Class stzTable from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def SortedByInDesending(pcExpr)
+		def SortedByInDescending(pcExpr)
 			return This.SortedByDown(pcExpr)
 
 		#>

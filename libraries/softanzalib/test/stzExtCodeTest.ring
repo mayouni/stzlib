@@ -74,7 +74,8 @@ pron()
 #--> 3
 
 proff()
-#--> Executed in 0.07 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.07 second(s) in Ring 1.20
 
 /*------------
 
@@ -110,8 +111,8 @@ o1.SortOnDown(:SCORE) # Or SortOnInDescending()
 proff()
 # Executed in 0.10 second(s)
 
-/*==== SQL SUPPORT IN SOFTANZA EXTERNAL CODE
-*/
+/*==== #narration SQL SUPPORT IN SOFTANZA EXTERNAL CODE
+
 pron()
 
 # SQL code to create a table with three columns
@@ -226,7 +227,7 @@ pron()
 	#     Dan      120
 	#     Roy      100
 
-# SQL code to sort the table by score
+# SQL code to sort the table by score (on the column score of the stzTable object)
 
 '
 	WITH sql AS (
@@ -249,7 +250,8 @@ pron()
 	? v(:sqlTable).Show()
 
 proff()
-# Executed in 2.07 second(s)
+# Executed in 0.39 second(s) in Ring 1.21
+# Executed in 2.07 second(s) in Ring 1.20
 
 /*==============
 
@@ -267,7 +269,8 @@ next
 #--> [ [ "x", 3 ], [ "y", 6 ], [ "z", 9 ] ]
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.11 second(s) in Ring 1.20
 
 /*-------------
 
@@ -278,7 +281,8 @@ Vr([ :x, :y, :z ]) '=' Vl([ -1, 0, 1 ])
 #--> [ -1, 0, 1 ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.06 second(s) in Ring 1.20
 
 /*-------------
 
@@ -289,13 +293,12 @@ Vr([ :x, :y, :z ]) '=' Vl([ 10, 20, 30 ])
 #--> [ 10, 20, 30 ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.06 second(s) in Ring 1.20
 
-/*-----------
+/*----------- #narration DYNAMIC CONSTRUCTION OF VARIABLE NAMES
 
 pron()
-
-# Dynamic construction of variable names
 
 # Softanza makes it possible to contruct variable
 # names in a dynamic way.
@@ -314,20 +317,20 @@ pron()
 # apps, generative video game worlds, machine learning and AI,
 # rules and inference engines, and genetic algorithms.
 
-# For me, this feature is made to enable some advanced
-# features in Near Natural Language programming.
+# For me, in particular, this feature is made to enable some
+# advanced features in Near Natural Language programming.
 
-# Let's show how this works with a simple example...
+# Let's show how this works with a simple example.
 
-# Our objective is to declare 5 variables (name1, name2, ...,
+# Our objective is to declare 10 variables (name1, name2, ...,
 # name10), along with their respective values 10, 20, ...100
 
-# As you can see, there an interesting common pattern between
+# As you can see, there is an interesting common pattern between
 # our variables names and their values:
-#	- the names end with a moving part: the numbers 1 to 10
+#	- the names end with a dynamic part: the numbers 1 to 10
 #	- the values are all multiple of 10 by the numbers 1 to 10
 
-# And so, we can dynamically use a loop on an index number i,
+# And so, we can dynamically use a loop with an index number i,
 # from 1 to 10, and than construct both the names of the variables
 # and their values, in one line, like this:
 
@@ -353,7 +356,7 @@ VrVl( :name3 = 30 )
 ? @@( vxt( :name3 ) )
 #--> [ "name3", 30 ]
 
-# We get all the variables along with their values
+# We can get all the variables along with their values
 
 for i = 1 to 10 { ? @@(vxt( 'name' + i )) }
 #--> [ "name1", 10 ]
@@ -436,7 +439,12 @@ pron()
 	say { b(rand < 0.5) '??' bt('Yes') '!!' bf('No') };
 	#--> No
 
+	# b ~> boolean condition
+	# bf ~> false case
+	# bt ~> true case
+
 proff()
+# Executed in 0.01 second(s).
 
 /*----------
 
@@ -446,7 +454,8 @@ pron()
 	printf( v(:sign) );
 	#--> negative
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in Ring 1.20
 
 /*----------
 
@@ -459,7 +468,8 @@ o1 = new stzList([ 2, 4, 8 ])
 #--> TRUE
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.05 second(s) in Ring 1.21
+# Executed in 0.09 second(s) in Ring 1.20
 
 /*===== ObjectName() and ClassName()
 
@@ -495,23 +505,25 @@ o1 = new stzString("Niger")
 # and assign a @noname to them --> they are considered UnnamedObject!
 
 proff()
+# Executed in 0.01 second(s).
 
 /*------------
 
 pron()
 
-o1 = new stzString(:nation = "Niger")
+o1 = new stzString(:nation = "Niger") # A named object
 ? o1.VarName()
 #--> nation
 
-o1.RenameIt(:country)
+o1.RenameIt(:country) # Or SetVarName()
 ? o1.VarName()
 #--> country
 
 proff()
+# Executed in 0.01 second(s).
 
-/*------------
-
+/*------------ #narration NAMING UNNAMED OBJECTS AND MAKING THEM FINDABLE
+*/
 pron()
 
 # By default, a softanza object is created with no name
@@ -522,7 +534,7 @@ greeting = new stzString("Hi!")
 #--> @noname
 
 # You can name the object afterward, like this:
-greeting.SetVarName(:greeting)
+greeting.SetVarName(:greeting) # Or RenameIt()
 # and than you can read the name:
 ? greeting.VarName()
 #--> greeting
@@ -536,7 +548,7 @@ hello = new stzString(:hello = "Hello Ring!")
 #--> hello
 
 # A third way, is to use Vr() and Vl() small functions, like this:
-# ...
+# ... #TODO
 
 # In all cases, we have now objects that we can refer to by their static
 # names we gave them in our code. And so, we can find them inside a list!
@@ -553,59 +565,92 @@ o1 = new stzList([ "one", greeting, 12, greeting, Q("two"), hello, 10 , Q(10) ])
 #	[ "hello",    [ 6 ]    ]
 # ]
 
-? @@( o1.FindObject(greeting) )
+? @@( o1.FindObject(:greeting) )
 #--> [ 2, 4 ]
 
-? @@( o1.FindObject(hello) )
+? @@( o1.FindObject(:hello) )
 #--> [ 6 ]
 
 ? @@( o1.FindNamedObjects() )
 #--> [ 2, 4, 6 ]
 
-	? @@( o1.NamedObjectsZ() )
+	//? @@( o1.NamedObjectsZ() ) #TODO
 
 ? @@( o1.FindUnnamedObjects() )
 #--> [ 5, 8 ]
 
-	? @@( o1.UnnamedObjects() )
+	//? @@( o1.UnnamedObjectsZ() ) #TODO
 
-? @@( o1.FindTheseObjects([ greeting, hello ]) )
+//? @@( o1.FindTheseObjects([ :greeting, :hello ]) ) #TODO
 #--> [ 2, 4, 6 ]
 
-? @@( o1.FindTheseObjects([ :@noname, hello ]) ) + NL
+//? @@( o1.FindTheseObjects([ :@noname, :hello ]) ) + NL #TODO
 #--> [ 5, 6, 8 ]
 
-? @@( o1.TheseObjectsZ([ :@noname, hello ]) )
+? @@( o1.TheseObjectsZ([ :@noname, :hello ]) ) + NL
 #--> [
 #	[ "@noname", [ 5, 8 ] ],
 #	[ "hello", [ 6 ] ]
 # ]
 
-/*
 #--
 
-o1.FindStzObjects()
-
-#--
-
-o1.FindQObjects()
+? @@( o1.FindStzObjects() ) + NL
+# [ 2, 4, 5, 6, 8 ]
 
 #--
 
+? @@( o1.FindQObjects() )
+#--> [ ]
 
 #--
 
-o1.FindNonStzObjects()
+
+? @@( o1.FindNonStzObjects() )
+#--> [ ]
 
 #--
 
-o1.ObjectsVarNames()
+? o1.ObjectsVarNames()
+#--> [ :greeting, :greeting, :hello ]
 
-o1.NamedObjects() # Or OnlyNamedObjects()
-? o1.UnnamedObjects()
+? o1.NumberOfNamedObjects()
+#--> 3
 
+? o1.ObjectsVarNamesU()
+#--> [ :greeting, :hello ]
+
+? o1.NumberOfUniqueNamedObjects()
+#--> 3
+
+#--
+
+? o1.NamedObjects()
+#--> 
+#	@oobject: NULL
+#	@cvarname: greeting
+#	...
+#
+#	@oobject: NULL
+#	@cvarname: greeting
+#	...
+#
+#	@oobject: NULL
+#	@cvarname: hello
+#	...
+
+? o1.UnamedObjects()
+#--> 
+#	@oobject: NULL
+#	@cvarname: greeting
+#	...
+#
+#	@oobject: NULL
+#	@cvarname: hello
+#	...
 
 proff()
+# Executed in 0.09 second(s).
 
 /*=========== TODO
 

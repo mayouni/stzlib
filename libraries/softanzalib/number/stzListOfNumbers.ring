@@ -7248,7 +7248,7 @@ class stzListOfNumbers from stzList
 			return This
 
 		def SortDown()
-			This.SortInDesending()
+			This.SortInDescending()
 
 			def SortDownQ()
 				return This.SortInDescendingQ()

@@ -239,6 +239,12 @@ aLists = [
 
 proff()
 
+/*-------- #TODO #narration Difference between SortOn() and SortBy()
+
+SortOn(pcColName)
+
+SortBy(pcExpr)
+
 /*--------
 */
 pron()
