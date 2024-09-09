@@ -1015,9 +1015,20 @@ func ORDER_BY(pcColName, pcSortOrder)
 	ok
 
 	if pcSortOrder = :ASC
-		v(:sqlTable).SortInAscending(pcColName)
+		v(:sqlTable).SortOnInAscending(pcColName)
+
+		#NOTE // Very important:
+
+		# Don't use SprtByInAscending(pcColName) here, becase
+		# in Softanza terms, the "By" means that we should
+		# provide an expression to sort the table with.
+
+		# As it is clear, in our case, we want to sort the
+		# table ON a given column (contained in pcColName)
+		# ~> In Softanza, "On" is used to sort on a COLUMN.
+
 	else
-		v(:sqlTable).SortedInDescending(pcColName)
+		v(:sqlTable).SortOnInDescending(pcColName)
 	ok
 
 	#< @FunctionAlternativeForms

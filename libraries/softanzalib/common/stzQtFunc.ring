@@ -436,6 +436,10 @@ func QTimeToString(oQTime, cFormat)
 #---
 
 func IsQObject(p)
+	if not isObject(p)
+		return FALSE
+	ok
+
 	return StzStringQ( classname(p) ).ExistsIn( RingQtClasses() )
 
 	#< @FunctionAlternativeForms

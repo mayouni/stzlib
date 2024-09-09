@@ -1682,6 +1682,9 @@ class stzObject
 		def SetName(pcVarName)
 			This.SetVarName(pcVarName)
 
+		def RenameIt(pcVarName)
+			This.SetVarName(pcVarName)
+
 		#>
 
 	def Copy()
