@@ -178,8 +178,8 @@ aLists = [
 SortListsOnn(aLists, 3)
 #--> ERROR: Can't proceed! Nth column must not contain objects.
 
-/*--------
-*/
+/*-------- #narration
+
 pron()
 
 # Softanza can gracefully sort a list of lists on a given column,
@@ -219,30 +219,45 @@ aLists = [
 # the Ring standard function sort(aListOfLists, nCol).
 
 proff()
+# Executed in 0.03 second(s).
+
+/*--------
+
+pron()
+
+aLists = [
+	[ "mohannad", 	100, 	"him", 	"ring" ],
+	[ "karim", 	20, 	"hi", 	"" ],
+	[ "salem", 	67, 	"", 	"" ],
+	[ "mazen", 	0, 	"X", 	1 ],
+	[ "mourad", 	18, 	"", 	"" ],
+	[ "abir", 	0, 	"", 	"" ],
+	[ "amer", 	34, 	"[ ]", 	"" ]
+]
+
+? @@SP( ring_sort2(aLists, 2) )
+
+proff()
 
 /*--------
 */
 pron()
 
 o1 = new stzListOfLists([
-	[ "mohannad", 	100, "him", "ring" ],
-	[ "karim", 	20,   "hi" ],
+	[ "mohannad", 	100, 	"him", "ring" ],
+	[ "karim", 	20,   	"hi" ],
 	[ "salem", 	67 ],
-	[ "mazen", "", "X", 1 ],
+	[ "mazen", 	90, 	"X", 1 ],
 	[ "mourad",	18 ],
 	[ "abir" ],
-	[ "amer", 34, [] ]
+	[ "amer", 	34, 	[] ]
 ])
 
+? @@sp( o1.Col(3) )
 
- @@SP( o1.SortedOn(3) ) + NL
-#--> [
-#	[ "salem", 67 ],
-#	[ "karim", 20, "hi" ],
-#	[ "mohannad", 100, "him", "ring" ]
-# ]
+stop()
 
-//? @@SP( o1.SortedOn(2) ) + NL
+? @@SP( o1.SortedOn(3) )
 #--> [
 #	[ "karim", 20, "hi" ],
 #	[ "salem", 67 ],
