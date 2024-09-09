@@ -1,15 +1,8 @@
 
-# Laoding the Ring standard library
+# Laoding the Ring libs required by SoftanzaCore
 
-	load "StdLib.ring"
+	load "../core/common/stkRingLibs.ring"
 
-# Loading the RingQt library
+# Loading additional Ring libs required by Softanza Standard
 
-	//load "qtcore.ring" 	# Use it if you are on Ring 1.21 and +
-
-# Loading other Ring libraries and extensions
-
-	# load "sqlitelib.ring"
-	# load "InternetLib.ring"
-	# load "fastpro.ring"
-	# load "tracelib.ring"
+	// ...

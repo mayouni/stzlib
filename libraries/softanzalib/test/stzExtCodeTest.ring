@@ -44,17 +44,24 @@ proff()
 #--> Executed in 0.03 second(s) in Ring 1.20
 
 /*------------
-*/
+
 pron()
 
 ? StzListOfListsQ([
 	[ "Bob",       89 ],
 	[ "Dan",      120 ],
 	[ "Roy",      100 ]
+
 ]).SortedOnDown(2)
+#--> [
+#	[ "Dan",      120 ],
+#	[ "Roy",      100 ],
+#	[ "Bob",       89 ]
+# ]
 
 proff()
-#--> Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*------------
 
@@ -123,7 +130,7 @@ pron()
 
 		@([
 
-		:id    = SMALLINT, 	#TODO: SQL datatypes are not supported yet
+		:id    = SMALLINT, 	// #TODO: SQL datatypes are not supported yet
 		:name  = VARCHAR(30),
 		:score = SMALLINT
 
@@ -165,7 +172,7 @@ pron()
 	#      2    Dan     120
 	#      3    Tim      56
 
-	# Let's add a more one row
+	# Let's add more rows
 
 	@VALUES([
 		[ 4, 'Roy', 100 ],
@@ -199,7 +206,7 @@ pron()
 
 	@SELECT([ :name, :score ]),
 	@FROM( :persons ),
-	@WHERE( 'score > 80' ) #TODO: check WHERE_( 'name = "Dan"' );
+	@WHERE( 'score > 80' ) // #TODO: check WHERE_( 'name = "Dan"' );
 
 	])
 

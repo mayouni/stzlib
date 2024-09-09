@@ -3011,6 +3011,7 @@ class stzListOfLists from stzList
 	def SortOn(n)
 
 		aResult = @SortListsOn(This.Content(), n)
+
 		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
@@ -3040,6 +3041,7 @@ class stzListOfLists from stzList
 
 	def SortedOn(n)
 		aResult = This.Copy().SortOnQ(n).Content()
+
 		return aResult
 
 		def SortedOnUp(n)
@@ -3053,8 +3055,7 @@ class stzListOfLists from stzList
 	#-------------------------------------------------------------#
 
 	def SortOnDown(n)
-		aResult = ring_reverse( This.SortOn(n) )
-
+		aResult = ring_reverse( This.SortedOn(n) )
 		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm

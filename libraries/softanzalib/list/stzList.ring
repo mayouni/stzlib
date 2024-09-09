@@ -236,6 +236,11 @@ func ListStringifyXT(paList)
 
 func SortListsOn(paLists, n)
 
+	# Sorts a list of lists on a given column by justifying
+	# all the lists and stringifying any list item inf the
+	# nth column ~> Makes it possible to internally use the
+	# standard Ring sort(aListOfLits, ncol) function.
+
 	if CheckParam()
 
 		# Swich params if necessary
@@ -291,22 +296,32 @@ func SortListsOn(paLists, n)
 		ok
 	next
 
-	# In all other cases, start by adjusting the lists of lists with NULLs
+	# In all other cases:
+
+	# Adjust the lists to the largest size using NULLs
 
 	oLoL = new stzListOfLists(paLists)
-	oLoL.Adjust()
-
-	# if the nth column contains items that are lists then stringify them
+	aAdjusted = oLoL.Adjusted()
 
 	aColN = oLoL.Col(n)
+
+	cColNType = "STRING"
+	if @IsListOfNumbers(aColN)
+		cColNType = "NUMBER"
+	ok
+
 	for i = 1 to nLen
-		if isList(aColN[i])
-			aColN[i] = @@(aColN[i])
+		nLenList = len(aAdjusted[i])
+		if nLenList >= n
+			
+			if cColNType = "NUMBER" and aAdjusted[i][n] = ""
+				aAdjusted[i][n] = 0
+			ok
 		ok
 	next
-
-	oLoL.ReplaceCol(n, aColN)
-	aAdjusted = oLoL.Content()
+? @@SP(aAdjusted)
+ stop()
+	# Sort the adjusted lists using Ring native sort()
 
 	aSorted = ring_sort2(aAdjusted, n)
 	return aSorted
