@@ -297,127 +297,128 @@ proff()
 # Executed in 0.06 second(s) in Ring 1.20
 
 /*----------- #narration DYNAMIC CONSTRUCTION OF VARIABLE NAMES
+#ERR #TODO check it
 
-pron()
-
-# Softanza makes it possible to contruct variable
-# names in a dynamic way.
-
-# This can be helful when you have a large number
-# of variables that obey to the same naming pattern
-# (example: name1, name2, name3, ..., name100) and you
-# want to avoid their declaration in 100 lines of code!
-
-# Or when the names of the variables depend on some data
-# that you are going to have only in runtime (part of the
-# variable name comes from the ID of the user, or from a
-# hashed part of the file name uploaded, etc...).
-
-# Or many other advanced cases related to realtime interactive
-# apps, generative video game worlds, machine learning and AI,
-# rules and inference engines, and genetic algorithms.
-
-# For me, in particular, this feature is made to enable some
-# advanced features in Near Natural Language programming.
-
-# Let's show how this works with a simple example.
-
-# Our objective is to declare 10 variables (name1, name2, ...,
-# name10), along with their respective values 10, 20, ...100
-
-# As you can see, there is an interesting common pattern between
-# our variables names and their values:
-#	- the names end with a dynamic part: the numbers 1 to 10
-#	- the values are all multiple of 10 by the numbers 1 to 10
-
-# And so, we can dynamically use a loop with an index number i,
-# from 1 to 10, and than construct both the names of the variables
-# and their values, in one line, like this:
-
-for i = 1 to 10 { Vr( 'name' + i ) '=' Vl( 10 * i ) } 
-
-# We get the name of the variable name3
-? v( :name3 )
-#--> 30
-
-# You can change the value of name3, like this:
-Vr( :name3 ) '=' Vl( 44 )
-
-# check it:
-? v(:name3)
-#--> 44
-
-# Or you can change it like this:
-VrVl( :name3 = 30 )
-
-# We get the name of the variable and its name by
-# adding the xt extension to the v() small function:
-
-? @@( vxt( :name3 ) )
-#--> [ "name3", 30 ]
-
-# We can get all the variables along with their values
-
-for i = 1 to 10 { ? @@(vxt( 'name' + i )) }
-#--> [ "name1", 10 ]
-#    [ "name2", 20 ]
-#    [ "name3", 30 ]
-#    [ "name4", 40 ]
-#    [ "name5", 50 ]
-#    [ "name6", 60 ]
-#    [ "name7", 70 ]
-#    [ "name8", 80 ]
-#    [ "name9", 90 ]
-#    [ "name10", 100 ]
-
+	pron()
+	
+	# Softanza makes it possible to contruct variable
+	# names in a dynamic way.
+	
+	# This can be helful when you have a large number
+	# of variables that obey to the same naming pattern
+	# (example: name1, name2, name3, ..., name100) and you
+	# want to avoid their declaration in 100 lines of code!
+	
+	# Or when the names of the variables depend on some data
+	# that you are going to have only in runtime (part of the
+	# variable name comes from the ID of the user, or from a
+	# hashed part of the file name uploaded, etc...).
+	
+	# Or many other advanced cases related to realtime interactive
+	# apps, generative video game worlds, machine learning and AI,
+	# rules and inference engines, and genetic algorithms.
+	
+	# For me, in particular, this feature is made to enable some
+	# advanced features in Near Natural Language programming.
+	
+	# Let's show how this works with a simple example.
+	
+	# Our objective is to declare 10 variables (name1, name2, ...,
+	# name10), along with their respective values 10, 20, ...100
+	
+	# As you can see, there is an interesting common pattern between
+	# our variables names and their values:
+	#	- the names end with a dynamic part: the numbers 1 to 10
+	#	- the values are all multiple of 10 by the numbers 1 to 10
+	
+	# And so, we can dynamically use a loop with an index number i,
+	# from 1 to 10, and than construct both the names of the variables
+	# and their values, in one line, like this:
+	
+	for i = 1 to 10 { Vr( 'name' + i ) '=' Vl( 10 * i ) } 
+	
+	# We get the name of the variable name3
+	? v( :name3 )
+	#--> 30
+	
+	# You can change the value of name3, like this:
+	Vr( :name3 ) '=' Vl( 44 )
+	
+	# check it:
+	? v(:name3)
+	#--> 44
+	
+	# Or you can change it like this:
+	VrVl( :name3 = 30 )
+	
+	# We get the name of the variable and its name by
+	# adding the xt extension to the v() small function:
+	
+	? @@( vxt( :name3 ) )
+	#--> [ "name3", 30 ]
+	
+	# We can get all the variables along with their values
+	
+	for i = 1 to 10 { ? @@(vxt( 'name' + i )) }
+	#--> [ "name1", 10 ]
+	#    [ "name2", 20 ]
+	#    [ "name3", 30 ]
+	#    [ "name4", 40 ]
+	#    [ "name5", 50 ]
+	#    [ "name6", 60 ]
+	#    [ "name7", 70 ]
+	#    [ "name8", 80 ]
+	#    [ "name9", 90 ]
+	#    [ "name10", 100 ]
+	
 proff()
 # Executed in 0.37 second(s)
 
-/*========
+/*======== #ERROR #TODO check it
 
 pron()
-
-# In PHP we use indirection to dynamically
-# call the name of a variable, like this:
-'
-	$job = "programmer"
-	$var = "job"
-
-	echo($var) 
-	#--> job
-	echo($$var)
-	#--> programmer
-'
-# In Ring, with SoftanzaLib, we write quite
-# the same code:
-
-	$(:job = "programmer")
-	$(:var = "job")
-
-	echo( $(:var) )
-	#--> job
-	echo( $$(:var) )
-	#--> programmer
-
-# And we can also say:
-
-	Vr(:job) '=' Vl("programmer")
-	Vr(:var) '=' Vl("job")
-
-	echo( v(:var) )
-	#--> job
-	echo( vv(:var) )
-	#--> programmer
-
-# Or even say:
-
-	Vr(:job) '=' Vl("programmer")
-	Vr(:var) '=' Vl("job")
-
-	echo( v(:var) )
-	#--> job
-	echo( v(v(:var)) )
-	#--> programmer
+	
+	# In PHP we use indirection to dynamically
+	# call the name of a variable, like this:
+	'
+		$job = "programmer"
+		$var = "job"
+	
+		echo($var) 
+		#--> job
+		echo($$var)
+		#--> programmer
+	'
+	# In Ring, with SoftanzaLib, we write quite
+	# the same code:
+	
+		$(:job = "programmer")
+		$(:var = "job")
+	
+		echo( $(:var) )
+		#--> job
+		echo( $$(:var) )
+		#--> programmer
+	
+	# And we can also say:
+	
+		Vr(:job) '=' Vl("programmer")
+		Vr(:var) '=' Vl("job")
+	
+		echo( v(:var) )
+		#--> job
+		echo( vv(:var) )
+		#--> programmer
+	
+	# Or even say:
+	
+		Vr(:job) '=' Vl("programmer")
+		Vr(:var) '=' Vl("job")
+	
+		echo( v(:var) )
+		#--> job
+		echo( v(v(:var)) )
+		#--> programmer
 
 proff()
 # Executed in 0.11 second(s)
@@ -523,7 +524,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*------------ #narration NAMING UNNAMED OBJECTS AND MAKING THEM FINDABLE
-*/
+
 pron()
 
 # By default, a softanza object is created with no name
@@ -675,74 +676,75 @@ Vr( "a" : "z" ) '<~' Vl( 1 : NumberOfLatinLetters() )
 #--> 20
 
 proff()
+# Executed in 0.11 second(s).
 
-/*======= Multiple eqality check
+/*======= Multiple eqality check #TODO #ERROR checki it
 
-pron()
+	pron()
+	
+	? Q(3+3) = Q(2+4) = Q(9-3) = 6
+	#--> TRUE
+	/*
+	? Q("r"+"ing") = Q("ri"+"ng") = Q("rin"+"g") = "ring"
+	#--> TRUE
+	
+	? Q(["♥", "♥"]+"♥") = Q(["♥"]+"♥"+"♥") = ["♥","♥", "♥"]
+	#--> TRUE
 
-? Q(3+3) = Q(2+4) = Q(9-3) = 6
-#--> TRUE
+	proff()
+	# Executed in 0.04 second(s)
 
-? Q("r"+"ing") = Q("ri"+"ng") = Q("rin"+"g") = "ring"
-#--> TRUE
+/*------- #Idem #todo #error
 
-? Q(["♥", "♥"]+"♥") = Q(["♥"]+"♥"+"♥") = ["♥","♥", "♥"]
-#--> TRUE
-
-proff()
-# Executed in 0.04 second(s)
-
-/*-------
-
-pron()
-
-# Multiple equality checks are possible in many languages
-# such as Python, Javascript, Java, C, to name a few.
-# In all cases it takes the form :
-'
-value1 == value2 == value3
-'
-
-# Now, this is possible also in Ring:
-
-? Q(3+3) = Q(2+4) = Q(9-3) = 6
-#--> TRUE
-
-# In the background, Softanza enables this by overloading
-# the "=" operator on a pipe of softanza objects. In the
-# current case, they are stzNumber objects:
-
-? Q(3+3).IsEqualToQ(2+4).IsEqualToQ(9-3).IsEqualTo(6)
-#--> TRUE
-
-# Let's experiment with the FALSE output:
-
-? Q(3+3) = Q(2+444) = Q(9-3) = 6
-#--> FALSE
-
-# Internally, the implementation of the FALSE case
-# required the use of a special stzFalseObject.
-
-# While it is not necessary to undersdant it inorder
-# to use the syntax shown in this sample, one would gain
-# more clarity when it does...
-
-#TODO: Explain the use of stzFalseObject to enable
-# managing the FALSE case in multiple eqality check.
-
-proff()
+	pron()
+	
+	# Multiple equality checks are possible in many languages
+	# such as Python, Javascript, Java, C, to name a few.
+	# In all cases it takes the form :
+	'
+	value1 == value2 == value3
+	'
+	
+	# Now, this is possible also in Ring:
+	
+	? Q(3+3) = Q(2+4) = Q(9-3) = 6
+	#--> TRUE
+	
+	# In the background, Softanza enables this by overloading
+	# the "=" operator on a pipe of softanza objects. In the
+	# current case, they are stzNumber objects:
+	
+	? Q(3+3).IsEqualToQ(2+4).IsEqualToQ(9-3).IsEqualTo(6)
+	#--> TRUE
+	
+	# Let's experiment with the FALSE output:
+	
+	? Q(3+3) = Q(2+444) = Q(9-3) = 6
+	#--> FALSE
+	
+	# Internally, the implementation of the FALSE case
+	# required the use of a special stzFalseObject.
+	
+	# While it is not necessary to undersdand it inorder
+	# to use the syntax shown in this sample, one would gain
+	# more clarity when it does...
+	
+	#TODO: Explain the use of stzFalseObject to enable
+	# managing the FALSE case in multiple eqality check.
+	
+	proff()
 
 /*======
 
 pron()
 
-? @@( Q("::2").splitat(":") )
+? @@( Q("::2").SplitAt(":") )
 #--> [ NULL, NULL, "2" ]
 
 proff()
+# Executed in 0.01 second(s).
 
 /*==== Using a Python code inside Ring ===
-
 
 pron()
 
@@ -757,26 +759,29 @@ pron()
 #--> [ 2, 4, 6, 8 ]
 
 proff()
+# Executed in 0.01 second(s).
 
 /*------------
 
 pron()
 
+# Reversing a list, in Python code:
 '
 range(1, 5)[::-1]
 #--> [ 4, 3, 2, 1 ]
 '
 
-# Reversing a list, the Python-way:
+# Doing it in Ring, Python-way:
 
 ? range1Q([ 1, 5 ])['::-1']
 #--> [ 4, 3, 2, 1 ]
 
 proff()
+# Executed in 0.01 second(s).
 
 /*============
 
-#NOTE: examples borrowed from this article:
+#NOTE: examples taken from this article:
 # https://note.nkmk.me/en/python-range-usage
 
 pron()
@@ -828,8 +833,10 @@ pron()
 # range(0, stop, 1) is equivalent to range(0, stop) and range(stop)
 
 	? range0Q([ 0, 10, 1 ]) = range0Q([ 0, 10 ]) = range0(10)
+	#--> TRUE
 
 proff()
+# Executed in 0.01 second(s).
 
 /*--------------
 
@@ -866,7 +873,7 @@ pron()
 #--> [ 4, 3, 2, 1, 0 ]
 
 proff()
-
+# Executed in 0.02 second(s).
 
 /*--------------
 
@@ -883,12 +890,14 @@ pron()
 #--> 3
 
 proff()
+# Executed in 0.01 second(s).
 
 /*---------------
 
 pron()
 
-# In Python, this code concatenates a list of items into a string using a given separator:
+# In Python, this code concatenates a list of items into a string
+# using a given separator:
 
 # ' + '.join([ "a", "b", "c" ])
 #--> a + b + c
@@ -899,7 +908,8 @@ pron()
 #--> a + b + c
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.05 second(s) in Ring 1.20
 
 /*--------------
 
@@ -918,6 +928,7 @@ pron()
 #--> [ -3, -1, 1, 3 ]
 
 proff()
+# Executed in almost 0 second(s).
 
 /*--------------
 
@@ -948,13 +959,14 @@ pron()
 	a = 1:5
 	b = 4:8
 	
-	? euc_dist(a,b)
+	? euc_dist_(a,b)
 	#--> 6.71
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 2.21
+# Executed in 0.03 second(s) in ring 1.20
 
-def euc_dist(a,b)':' # we put the : char between two ''
+def euc_dist_(a,b)':' # we put the : char between two ''
 	s = 0.0
 	n = len(a)
 
@@ -968,94 +980,98 @@ def euc_dist(a,b)':' # we put the : char between two ''
 
 	return sqrt(s)
 
-/*--------------
+# NOTE this euc_dis() function has beeen added to Softanza.
+# To avoid conflict, I added here an _ after the function name.
 
-# We asked Bard AI about a python code that performs the
-# Google Diff Algortithm (comparing two strings and
-# showing their differences)...
+/*-------------- #ai #bardai #ERROR check it
 
-# Here is the code proposed by Bard:
-'
-	def diff(old_string, new_string):
-	  """Returns a list of diffs between two strings."""
-	  diffs = []
-	  i = 0
-	  j = 0
-	  while i < len(old_string) and j < len(new_string):
-	    if old_string[i] == new_string[j]:
-	      diffs.append("=")
-	      i += 1
-	      j += 1
-	    elif old_string[i] < new_string[j]:
-	      diffs.append("<")
-	      i += 1
-	    else:
-	      diffs.append(">")
-	      j += 1
-	  return diffs
-
-	def main():
-	  old_string = "This is the old string."
-	  new_string = "This is the new string."
-	  diffs = diff(old_string, new_string)
-	  print(diffs)
-
-'
-# When executed in Python, the code output is:
-#--> [
-# 	'=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=',
-#	'>', '>',
-#	'<', '<', '<', '<', '<', '<', '<', '<', '<', '<'
-# ]
-
-# Using Softanza External Code facility, we can run quiet the same Python code in Ring:
-
-pron()
-
-def main()':' 
-	old_string = "This is the old string."
-	new_string = "This is the new string."
-
-	diffs = diff(old_string, new_string)
-	print( @@(diffs) )
-
+	# We asked Bard AI about a python code that performs the
+	# Google Diff Algortithm (comparing two strings and
+	# showing their differences)...
+	
+	# Here is the code proposed by Bard:
+	'
+		def diff(old_string, new_string):
+		  """Returns a list of diffs between two strings."""
+		  diffs = []
+		  i = 0
+		  j = 0
+		  while i < len(old_string) and j < len(new_string):
+		    if old_string[i] == new_string[j]:
+		      diffs.append("=")
+		      i += 1
+		      j += 1
+		    elif old_string[i] < new_string[j]:
+		      diffs.append("<")
+		      i += 1
+		    else:
+		      diffs.append(">")
+		      j += 1
+		  return diffs
+	
+		def main():
+		  old_string = "This is the old string."
+		  new_string = "This is the new string."
+		  diffs = diff(old_string, new_string)
+		  print(diffs)
+	
+	'
+	# When executed in Python, the code output is:
 	#--> [
-	#	"=", "=", "=", "=", "=", "=", "=", "=", "=", "=", "=", "=",
-	#	">", ">", ">", ">", ">", ">", ">", ">", ">", ">"
+	# 	'=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=', '=',
+	#	'>', '>',
+	#	'<', '<', '<', '<', '<', '<', '<', '<', '<', '<'
 	# ]
-	#--> TODO: Check the difference in output between Python and Ring+Softanza
-	#--> See the difference in meaning attributed by each language to
-	#    string cmparaison operators =, < and >
-
-proff()
-#Executed in 0.08 second(s)
-
-def diff(old_string, new_string)':' # Here we put : between quotes
-	"""Returns a list of diffs between two strings."""
-
-	diffs = []
-	i = 1 # Here we changed 0 by 1
-	j = 1 # Idem
-
-  	while i < len(old_string) and j < len(new_string)':' # Idem
-
-    		if old_string[i] = new_string[j]
-      			diffs = Q(diffs).appendedWith("=") # Here we changed the semantics
-     			i += 1
-     			j += 1
- 
-    		but Q(old_string[i]) < new_string[j] # Here we used Q()
-      			diffs = Q(diffs).appendedWith("<") # Idem
-      			i += 1
-
-   		else':' # Idem
-     			diffs = Q(diffs).appendedWith(">") # Idem
-     			 j += 1
-		ok
-	end
-
- 	return diffs
-
+	
+	# Using Softanza External Code facility, we can run quiet the same
+	# Python code in Ring:
+	
+	pron()
+	
+	def main()':' 
+		old_string = "This is the old string."
+		new_string = "This is the new string."
+	
+		diffs = diff(old_string, new_string)
+		print( @@(diffs) )
+	
+		#--> [
+		#	"=", "=", "=", "=", "=", "=", "=", "=", "=", "=", "=", "=",
+		#	">", ">", ">", ">", ">", ">", ">", ">", ">", ">"
+		# ]
+		#--> TODO: Check the difference in output between Python and Ring+Softanza
+		#--> See the difference in meaning attributed by each language to
+		#    string cmparaison operators =, < and >
+	
+	proff()
+	#Executed in 0.08 second(s)
+	
+	def diff(old_string, new_string)':' # Here we put : between quotes
+		"""Returns a list of diffs between two strings."""
+	
+		diffs = []
+		i = 1 # Here we changed 0 by 1
+		j = 1 # Idem
+	
+	  	while i < len(old_string) and j < len(new_string)':' # Idem
+	
+	    		if old_string[i] = new_string[j]
+	      			diffs = Q(diffs).appendedWith("=") # Here we changed the semantics
+	     			i += 1
+	     			j += 1
+	 
+	    		but Q(old_string[i]) < new_string[j] # Here we used Q()
+	      			diffs = Q(diffs).appendedWith("<") # Idem
+	      			i += 1
+	
+	   		else':' # Idem
+	     			diffs = Q(diffs).appendedWith(">") # Idem
+	     			 j += 1
+			ok
+		end
+	
+	 	return diffs
+	
 /*-----------
 
 # range() is used for Pyhton-code compatibility
@@ -1069,14 +1085,56 @@ pron()
 	#--> [ -3, -1, 1, 3 ]
 	
 proff()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in Ring 1.20
+
+/*============= #ring #perf #flex
+
+pron()
+
+# Ring print2str() is more performant than Softanza Interpolate (based on Qt)
+
+freind_name = "Mahmoud"
+country_name = "Tunisia"
+
+? print2str("Welcome #{freind_name} in your country #{country_name}!")
+
+# It's more flexible (it evaluates expressions like #{2000+19}),
+# supports \n escape chars, and accepts non latin texts:
+
+اسم_صديق = "محمود"
+اسم_بلد = "تونس"
+
+? print2str("مرحبا بك #{اسم_صديق} في بلدك #{اسم_بلد} !")
+
+#TODO: Use it in Interpolate() function
+
+proff()
+# Executed in 0.01 second(s).
+
+/*------------
+
+pron()
+
+freind_name = "Mahmoud"
+country_name = "Mahmoud"
+
+? Interpolate("Welcome {freind_name} in your country {country_name}!")
+
+اسم_صديق = "محمود"
+اسم_بلد = "تونس"
+
+? Interpolate("مرحبا بك {اسم_صديق} في بلدك {اسم_بلد} !")
+
+proff()
+# Executed in 0.03 second(s).
 
 /*------------
 
 pron()
 
 # f-strings are a feature in Python for interpolating string
-# content, by dynmalically evaluation variables inside it:
+# content, by dynmalically evaluating variables inside it:
 
 	'
 	bestlang = "Python"
@@ -1091,9 +1149,10 @@ pron()
 	#--> My best language is Ring!
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.08 second(s) in Ring 1.20
 
-/*================
+/*================ #todo #error
 
 pron()
 
@@ -1116,15 +1175,15 @@ Vr([ :x, :y, :z ]) '=' Vl([ 10, 20, 30 ])
 ? ""
 
 # Or you can compose them in a list and print them like this:
-
-? v([ :x, :y, :z ])
-#--> [ 10, 20, 30 ]
-
-? v([ :x, :z ])
-#--> [ 10, 30 ]
-
-? v([ :x, :x, :z, :y ])
-#--> [ 10, 10, 30, 20 ]
+#TODO ERROR check it
+	? v([ :x, :y, :z ])
+	#--> [ 10, 20, 30 ]
+	
+	? v([ :x, :z ])
+	#--> [ 10, 30 ]
+	
+	? v([ :x, :x, :z, :y ])
+	#--> [ 10, 10, 30, 20 ]
 
 proff()
 # Executed in 0.05 second(s)
@@ -1153,7 +1212,8 @@ pron()
 	print( v(:z) )	#--> 30
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.06 second(s) in Ring 1.20
 
 /*--------------
 
@@ -1164,7 +1224,8 @@ Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen", "Teeba" ])
 #--> Teeba
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.05 second(s) in Ring 1.20
 
 /*--------------
 
@@ -1172,13 +1233,14 @@ pron()
 
 Vr([ :name1, :name2, :name3 ]) '=' Vl([ "Hussein", "Haneen" ])
 ? @@( TempVarsXT() )
-#--> [ :name1 = "Hussein", :name2 = "Haneen", :name3 = "" ])
+#--> [ :say = null, :name1 = "Hussein", :name2 = "Haneen", :name3 = "" ])
 
 ? @@( v(:name3) )
 #--> NULL
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.05 second(s) in Ring 1.20
 
 /*--------------
 
@@ -1186,7 +1248,7 @@ pron()
 
 Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen" ])
 ? v(:name)
-#--> ERR: ndefined named variable!
+#--> ERROR: Undefined named variable!
 
 proff()
 
@@ -1196,7 +1258,7 @@ pron()
 
 Vr([ :name1, :name2, :name2 ]) '=' Vl([ "Hussein", "Haneen" ])
 ? v([ :name1, :name2, :name7 ])
-#--> ERR: ndefined named variable!
+#--> ERROR: ndefined named variable!
 
 proff()
 
@@ -1209,7 +1271,8 @@ Vr([ :name, :grades, :age ]) '=' Vl([ "Mansour", [10, 12, 15], 47 ])
 #--> [ 10, 12, 15 ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.05 second(s) in Ring 1.20
 
 /*--------------
 
@@ -1220,6 +1283,7 @@ Vr([ :names ]) '=' Vl([ [ "Hussein", "Haneen", "Teebah" ] ])
 #--> [ "Hussein", "Haneen", "Teebah" ]
 
 proff()
+# Executed in 0.01 second(s).
 
 /*--------------
 
@@ -1253,6 +1317,7 @@ setV(:name = "cherihen")
 #--> name
 
 proff()
+# Executed in 0.02 second(s).
 
 /*============ TERNARY OPERATOR
 
@@ -1284,14 +1349,15 @@ vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
 #--> foo
 
 # And if we turn bSomething to FALSE:
-
-bSomething = FALSE
-vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
-? v(:value)
-#--> bar
+#ERR #todo check it
+	bSomething = FALSE
+	vr([ :value ]) '=' vl([ "foo" ]) _if(bSomething) _else([ "bar" ])
+	? v(:value)
+	#--> bar
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.06 second(s) in Ring 1.20
 
 /*--------------
 
@@ -1315,6 +1381,7 @@ pron()
 	#--> negative
 
 proff()
+# Executed in 0.01 second(s).
 
 /*============
 
@@ -1325,37 +1392,39 @@ Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 ? @@( v([ :x, :y, :z ]) )
 #--> [ 1, 2, 3 ]
 
-bPositive = FALSE
-Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
-? @@( v([ :x, :y, :z ]) )
-#--> [ -1, -2, -3 ]
+#ERR #TODO check it
+	bPositive = FALSE
+	Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
+	? @@( v([ :x, :y, :z ]) )
+	#--> [ -1, -2, -3 ]
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.12 second(s) in Ring 1.20
 
-/*--------------
+/*-------------- #ERR #TODO check it
 
-pron()
+	pron()
+	
+	bPositive = FALSE
+	V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10 ])
+	
+	? v([:x, :y])
+	#--> [ -10, 20 ]
+	
+	proff()
 
-bPositive = FALSE
-V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10 ])
+/*-------------- #ERR #TODO check it
 
-? v([:x, :y])
-#--> [ -10, 20 ]
-
-proff()
-
-/*--------------
-
-pron()
-
-bPositive = FALSE
-V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10, -20 ])
-
-? v([:x, :y])
-#--> [ -10, -20 ]
-
-proff()
+	pron()
+	
+	bPositive = FALSE
+	V([ :x = 10, :y = 20 ]) _if(bPositive) _else([ -10, -20 ])
+	
+	? v([:x, :y])
+	#--> [ -10, -20 ]
+	
+	proff()
 
 /*--------------
 
@@ -1367,7 +1436,8 @@ Vr([ :x, :y, :z ]) '=' Vl([ 1, 2, 3 ]) _if(bPositive) _else([-1, -2, -3])
 #--> [ 1, 2, 3 ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.07 second(s) in Ring 1.20
 
 /*===============
 
@@ -1415,8 +1485,8 @@ proff()
 
 	# All the rest is keot unchanged.
 
-/*==== Using a PHP code inside Ring  #===
-	
+/*==== Using a PHP code inside Ring  #=== #ERROR #TODO
+
 # This code snippet is written in PHP. It calculates the min
 # and max of two lists of numbers:
 "
@@ -1429,14 +1499,15 @@ proff()
 
 StartProfiler()
 
-	echo( Min([0, 150, 30, 20, -8, -200]) );   #--> -200
+	echo( Min([0, 150, 30, 20, -8, -200]) );   #--> -200	#ERROR #TODO
 	echo( Max([0, 150, 30, 20, -8, -200]) );   #--> 150
 
 	#NOTE that the only difference is to put the numbers in a list
 	# by bounding them by [ and ], inside the min() and max() functions
 
 StopProfiler()
-# Executed in 0.04 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*==== Using a C# code inside Ring  #===
 
@@ -1459,7 +1530,8 @@ StartProfiler()
 	#NOTE that the only change made to the original C# code is to bound the string with ()
 	
 StopProfiler()
-# Executed in 0.10 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.10 second(s) in Ring 1.20
 
 /*==== USING a JS code inside Ring  #===
 
@@ -1491,4 +1563,5 @@ StartProfiler()
 	# stzString objects using Q()
 
 StopProfiler()
-# Executed in 0.05 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.05 second(s) in Ring 1.20

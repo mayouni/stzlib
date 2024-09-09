@@ -497,11 +497,14 @@ func range0(p)
 
 	return aResult
 
-	def range0Q(p)
-		return new stzList(range(p))
+	func range0Q(p)
+		return new stzList(@range(p))
 
-	def range(p)
+	func range(p)
 		return range0(p)
+
+		func @range(p)
+			return range0(p)
 
 		return rangeQ(p)
 			return range0Q(p)

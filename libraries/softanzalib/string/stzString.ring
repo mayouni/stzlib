@@ -38916,7 +38916,7 @@ class stzString from stzObject
 
 		*/
 
-		aSectionsXT = This.SubStringsBetweenZZ("{", "}")
+		aSectionsXT = This.SubStringsBoundedByZZ(["{", "}"])
 		#--> [ [ "min", [ 27, 29 ] ], [ "max", [ 36, 38 ] ] ]
 
 		nLen = len(aSectionsXT)
