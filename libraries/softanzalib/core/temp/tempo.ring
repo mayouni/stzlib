@@ -5,7 +5,6 @@ load "../common/stkNumberCommons.ring"
 load "../number/stkBigNumber.ring"
 load "../error/stkError.ring"
 
-
 #NOTE Tool used to check result:
 # https://www.calculator.net/big-number-calculator.htm
 

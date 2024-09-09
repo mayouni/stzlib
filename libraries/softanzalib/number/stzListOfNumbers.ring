@@ -7333,3 +7333,58 @@ class stzListOfNumbers from stzList
 
 		def SortedByDown(pcExpr)
 			return This.SortedByInDescending(pcExpr)
+
+	  #--------------------------------------#
+	 #  GETTING THE SPEEDUP OF THE NUMBERS  #
+	#======================================#
+
+	def SpeedUp()
+		anNumbers = This.Content()
+		nLen = len(anNumbers)
+
+		if nLen = 1
+			return [ 1 ]
+		ok
+
+		anResult = []
+
+		for i = 2 to nLen
+			n1 = anNumbers[i-1]
+			n2 = anNumbers[i]
+
+			factor = n1 / n2
+			anResult + factor
+		next
+
+		return anResult
+
+		def SpeedUpX()
+			return This.SpeedUp()
+
+	  #-----------------------------------------#
+	 #  GETTING THE PERFGAIN FROM THE NUMBERS  #
+	#-----------------------------------------#
+
+	def PerfGain() # In percentage
+
+		anNumbers = This.Content()
+		nLen = len(anNumbers)
+
+		if nLen = 1
+			return [ 1 ]
+		ok
+
+		anResult = []
+
+		for i = 2 to nLen
+			n1 = anNumbers[i-1]
+			n2 = anNumbers[i]
+
+			factor = ( (n1 - n2) / n1) * 100
+			anResult + factor
+		next
+
+		return anResult
+
+		def PerfGain100()
+			return This.PerfGain()

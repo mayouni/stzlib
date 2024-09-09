@@ -130,3 +130,37 @@ class stzPairOfNumbers from stzPair
 			return This.GreatestCommonDividor()
 
 		#>
+
+	  #--------------------------------------#
+	 #  GETTING THE SPEEDUP OF THE NUMBERS  #
+	#======================================#
+
+	def SpeedUp()
+		anNumbers = This.Content()
+
+		n1 = anNumbers[1]
+		n2 = anNumbers[2]
+
+		nResult = n1 / n2
+
+		return nResult
+
+		def SpeedUpX()
+			return This.SpeedUp()
+
+	  #-----------------------------------------#
+	 #  GETTING THE PERFGAIN FROM THE NUMBERS  #
+	#-----------------------------------------#
+
+	def PerfGain() # In percentage
+		anNumbers = This.Content()
+
+		n1 = anNumbers[1]
+		n2 = anNumbers[2]
+
+		nResult = ( (n1 - n2) / n1) * 100
+
+		return nResult
+
+		def PerfGain100()
+			return This.PerfGain()
