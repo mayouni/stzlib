@@ -2636,6 +2636,63 @@ class stzListOfLists from stzList
 
 		#>
 
+	def NthcolumnXT(n) # Adds NULL if size of innerlist < n
+		if CheckParams()
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		nLen = len(@aContent)
+	
+		if EarlyCheck()
+			if nLen = 0
+				return []
+			ok
+
+			if n < 1 or n > This.NumberOfCols()
+				return []
+			ok
+		ok
+
+		# Doing the job
+
+		aResult = []
+
+		for i = 1 to nLen
+			nLenList = len(@aContent[i])
+			if nLenList >= n
+				aResult + @aContent[i][n]
+			else
+				aResult + NULL
+			ok
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def NthColumnXTQ(n)
+			return new stzList(This.NthColumnXT(n))
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def NthColXT(n)
+			return This.NthColumnXT(n)
+
+			def NthColXTQ(n)
+				return This.NthColumnXTQ(n)
+
+		def ColXT(n)
+			return This.NthColumnXT(n)
+
+			def ColXTQ(n)
+				return This.NthColumnXTQ(n)
+
+		#>
+
 	def NthColumn(n)
 		if CheckParams()
 			if NOT isNumber(n)
@@ -2654,6 +2711,8 @@ class stzListOfLists from stzList
 				return []
 			ok
 		ok
+
+		# Doing the job
 
 		aResult = []
 
@@ -4098,3 +4157,38 @@ def SortOnByXT(nCol, pcExpr) #TODO
 		else
 			StzRaise("Can't transform the list of lists into a list of pairs! Lists are not all pairs.")
 		ok
+
+	  #--------------------------------------#
+	 #  GETTING THE SPEEDUP OF THE NUMBERS  #
+	#======================================#
+
+	def SpeedUp()
+		anNumbers = This.Content()
+
+		n1 = anNumbers[1]
+		n2 = anNumbers[2]
+
+		nResult = n1 / n2
+
+		return nResult
+
+		def SpeedUpX()
+			return This.SpeedUp()
+
+	  #-------------------------------------------------#
+	 #  GETTING THE GAIN FACTOR FROM NUMBER TO NUMBER  #
+	#-------------------------------------------------#
+
+	def GainFactor()
+		anNumbers = This.Content()
+
+		n1 = anNumbers[1]
+		n2 = anNumbers[2]
+
+		nResult = n2 / n1
+
+		return nResult
+	
+		def GainX()
+			return This.GainFactor()
+	
