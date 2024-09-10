@@ -7338,7 +7338,7 @@ class stzListOfNumbers from stzList
 	 #  GETTING THE SPEEDUP OF THE NUMBERS  #
 	#======================================#
 
-	def SpeedUp()
+	def SpeedUps()
 		anNumbers = This.Content()
 		nLen = len(anNumbers)
 
@@ -7358,14 +7358,74 @@ class stzListOfNumbers from stzList
 
 		return anResult
 
+		#< @FunctionAlternativeForms
+
+		def SpeedUpsX()
+			return This.SpeedUps()
+
+		def SpeedUp()
+			return This.SpeedUps()
+
 		def SpeedUpX()
-			return This.SpeedUp()
+			return This.SpeedUps()
+
+		def PerfGainsX()
+			return This.SpeedUps()
+
+		def PerfGainX()
+			return This.SpeedUps()
+
+		#>
+
+	  #-------------------------------------------------#
+	 #  GETTING THE GAIN FACTOR FROM NUMBER TO NUMBER  #
+	#-------------------------------------------------#
+
+	def GainsX()
+
+		anNumbers = This.Content()
+		nLen = len(anNumbers)
+
+		if nLen = 1
+			return [ 1 ]
+		ok
+
+		anResult = []
+
+		for i = 2 to nLen
+			n1 = anNumbers[i-1]
+			n2 = anNumbers[i]
+
+			factor = n2 / n1
+			anResult + factor
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def GainsFactors()
+			return This.GainsX()
+
+		def GainX()
+			return This.GainsX()
+
+		def GainFactor()
+			return This.GainsX()
+
+		def GainsFactor()
+			return This.GainsX()
+
+		def GainFactors()
+			return This.GainsX()
+
+		#>
 
 	  #-----------------------------------------#
 	 #  GETTING THE PERFGAIN FROM THE NUMBERS  #
-	#-----------------------------------------#
+	#=========================================#
 
-	def PerfGain() # In percentage
+	def PerfGains() # In percentage
 
 		anNumbers = This.Content()
 		nLen = len(anNumbers)
@@ -7386,5 +7446,65 @@ class stzListOfNumbers from stzList
 
 		return anResult
 
+		#< @AlternativeForms
+
+		def PerfGains100()
+			return This.PerfGains()
+
+		def PerfGain()
+			return This.PerfGains()
+
 		def PerfGain100()
-			return This.PerfGain()
+			return This.PerfGains()
+
+	  #---------------------------------------------------#
+	 #  GETTING THE RELATIVE GAIN FROM NUMBER TO NUMBER  #
+	#---------------------------------------------------#
+
+	def Gains() # In Percentage
+
+		anNumbers = This.Content()
+		nLen = len(anNumbers)
+
+		if nLen = 1
+			return [ 1 ]
+		ok
+
+		anResult = []
+
+		for i = 2 to nLen
+			n1 = anNumbers[i-1]
+			n2 = anNumbers[i]
+
+			factor = ( (n2 - n1) / n2) * 100
+			anResult + factor
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def Gain()
+			return This.Gains()
+
+		def RelativeGains()
+			return This.Gains()
+
+		def RelativeGain()
+			return This.Gains()
+
+		#--
+
+		def Gains100()
+			return This.Gains()
+
+		def Gain100()
+			return This.Gains()
+
+		def RelativeGains100()
+			return This.Gains()
+
+		def RelativeGain100()
+			return This.Gains()
+
+		#>

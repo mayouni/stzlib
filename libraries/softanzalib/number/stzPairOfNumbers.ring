@@ -57,6 +57,39 @@ func GreatestCommonDividor( n1, n2 )
 
 	#>
 
+#-- SpeedUp and PerfGain
+#-- Inspired by a discussion with Mahmoud on the google group
+
+func SpeedUp(n1, n2)
+	return StzPairOfNumbersQ([ n1, n2 ]).SpeedUp()
+
+	func SpeedUpX(n1, n2) # X ~> ouput is a factor
+		return SpeedUp(n1, n2)
+
+	func PerfGainX(n1, n2)
+		return SpeedUp(n1, n2)
+
+func GainFactor(n1, n2)
+	return StzPairOfNumbersQ([ n1, n2 ]).GainFactor()
+
+	func GainX(n1, n2)
+		return GainFactor(n1, n2)
+
+func PerfGain(n1, n2)
+	return StzPairOfNumbersQ([ n1, n2 ]).PerfGain()
+
+	func PerfGain100(n1, n2) # 100 ~> Output is a percentage
+		return PerfGain(n1, n2)
+
+func RelativeGain(n1, n2)
+	return StzPairOfNumbersQ([ n1, n2 ]).RelativeGain()
+
+	func Gain100(n1, n2)
+		return RelativeGain(n1, n2)
+
+	func Gain(n1, n2)
+		return RelativeGain(n1, n2)
+
 class stzPairOfNumbers from stzPair
 
 	@aContent = []
@@ -148,9 +181,29 @@ class stzPairOfNumbers from stzPair
 		def SpeedUpX()
 			return This.SpeedUp()
 
+	  #-------------------------------------------------#
+	 #  GETTING THE GAIN FACTOR FROM NUMBER TO NUMBER  #
+	#-------------------------------------------------#
+
+	def GainFactor()
+		anNumbers = This.Content()
+
+		n1 = anNumbers[1]
+		n2 = anNumbers[2]
+
+		nResult = n2 / n1
+
+		return nResult
+	
+		def GainX()
+			return This.GainFactor()
+	
+		def PerfGainX()
+			return This.GainFactor()
+
 	  #-----------------------------------------#
 	 #  GETTING THE PERFGAIN FROM THE NUMBERS  #
-	#-----------------------------------------#
+	#=========================================#
 
 	def PerfGain() # In percentage
 		anNumbers = This.Content()
@@ -164,3 +217,23 @@ class stzPairOfNumbers from stzPair
 
 		def PerfGain100()
 			return This.PerfGain()
+
+	  #---------------------------------------------------------#
+	 #   GETTING THE GAIN IN PERCENTAGE FROM NUMBER TO NUMBER  #
+	#---------------------------------------------------------#
+
+	def Gain()
+		anNumbers = This.Content()
+
+		n1 = anNumbers[1]
+		n2 = anNumbers[2]
+
+		nResult = ( (n2 - n1) / n2) * 100
+
+		return nResult
+
+		def RelativeGain()
+			return This.Gain()
+	
+		def Gain100()
+			return This.Gain()
