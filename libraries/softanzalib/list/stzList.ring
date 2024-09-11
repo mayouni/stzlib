@@ -301,30 +301,31 @@ func SortListsOn(paLists, n)
 	# Adjust the lists to the largest size using NULLs
 
 	oLoL = new stzListOfLists(paLists)
-	aAdjusted = oLoL.Adjusted()
+	oLoL.Adjust()
 
-	aColN = oLoL.Col(n)
+	aColNXT = oLoL.ColXT(n)
 
-	cColNType = "STRING"
-	if @IsListOfNumbers(aColN)
-		cColNType = "NUMBER"
+	# Ring can't sort on the nth column unless it is made
+	# completely either of numbers or strings
+
+	# Check this case and stringify the column
+
+	if NOT ( IsListOfNumbers(aColNXT) or IsListOfStrings(aColNXT) )
+		for i = 1 to nLen
+			if NOT isString(aColNXT[i])
+				aColNXT[i] = @@(aColNXT[i])
+			ok
+		next
 	ok
 
-	for i = 1 to nLen
-		nLenList = len(aAdjusted[i])
-		if nLenList >= n
-			
-			if cColNType = "NUMBER" and aAdjusted[i][n] = ""
-				aAdjusted[i][n] = 0
-			ok
-		ok
-	next
-ici
-? @@SP(aAdjusted)
- stop()
+	# Update the adjusted lists of lists object with
+	# the stringified n column
+
+	oLol.ReplaceCol(n, aColNXT)
+
 	# Sort the adjusted lists using Ring native sort()
 
-	aSorted = ring_sort2(aAdjusted, n)
+	aSorted = ring_sort2(oLol.content(), n)
 	return aSorted
 
 
@@ -69564,6 +69565,78 @@ Item and then position
 
 		def IsByStringOrByObjectParams()
 			return This.IsByOrByStringNamedParam()
+
+	#==
+
+	def IsListOfListsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ListOfLists )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsGridNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Grid )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsTableNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Table )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsHashListNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :HashList )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsPairNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Pair )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsListNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :List )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsObjectNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Object )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
 
 	#==
 
