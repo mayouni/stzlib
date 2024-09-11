@@ -285,7 +285,8 @@ proff()
 # Executed in 0.02 second(s).
 
 /*-------------- #narration MEASURING SPEEDUP AND PERFPRMANCE GAIN
-*/
+# Inspired by a discussion with Mahmoud on the Ring group
+
 pron()
 
 # Suppose you profiled a function you wrote and got 12.08 seconds.
@@ -332,30 +333,64 @@ oSales = new stzListOfNumbers([ 34500.89, 42180.98, 56100.65 ])
 proff()
 # Executed in 0.04 second(s).
 
-/*--------------
+/*-------------- #narration SORTING A LIST OF LISTS
 */
 pron()
+
+
+# Let’s dive into an example that will illustrate these internal changes step-by-step:
 
 o1 = new stzListOfLists([
 	[ "mohannad", 	100, 	"him", "ring" ],
 	[ "karim", 	20,   	"hi" ],
+	[ "abir",	234 ],
 	[ "salem", 	67 ],
-	[ "mazen", 	90, 	"X", 1 ],
+	[ "mazen", 	[90], 	"X", 1 ],
 	[ "mourad",	18 ],
 	[ "abir" ],
-	[ "amer", 	34, 	[] ]
+	[ "amer", 	34, 	[1, 2, 3 ] ],
+	[ "abir" ]
 ])
 
-
-? @@SP( o1.SortedOn(3) )
+? @@SP( o1.ListsW(' Q(@list).Contains("abir") ') ) + NL
 #--> [
-#	[ "karim", 20, "hi" ],
-#	[ "salem", 67 ],
-#	[ "mohannad", 100, "him", "ring" ]
+#	[ "abir", 234 ],
+#	[ "abir" ],
+#	[ "abir" ]
 # ]
 
+? o1.FindListsW(' Q(@list).Contains("abir") ')
+#--> [ 3, 7, 9 ]
+
+? @@SP( o1.ListsWZ(' Q(@list).Contains("abir") ') )
+#--> [
+#	[ [ "abir", 234 ], 3 ],
+#	[ [ "abir" ], 	   7 ],
+#	[ [ "abir" ], 	   9 ]
+# ]
+
+//? @@( o1.InnerFind([ "mourad",	18 ]) ) # Or FindInLists()
+
 proff()
-# Executed in 0.04 second(s)
+/*
+# Now, let’s sort this complex structure based on the 3rd column of each list (index 3).
+
+? @@SP( o1.SortedOn(3) )
+
+#--> [
+#	[ "salem", 	67, 	"", 		""	],
+#	[ "mourad", 	18, 	"", 		""	],
+#	[ "abir", 	"", 	"", 		""	],
+#	[ "mazen", 	[ 90 ], "X", 		1 	],
+#	[ "amer", 	34, 	"[ 1, 2, 3 ]", 	"" 	],
+#	[ "karim", 	20, 	"hi", 		"" 	],
+#	[ "mohannad", 	100, 	"him", 		"ring" 	]
+# ]
+
+
+proff()
+# Execution completed in 0.03 second(s) - a testament to Softanza's efficiency!
+
 
 /*--------
 

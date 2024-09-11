@@ -407,61 +407,32 @@ class stzListOfLists from stzList
 
 		#< @FunctionAlternativeForms
 
-		#TODO
+		def FindItemInListsCS(pItem, pCaseSensitive)
 
 		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindInLists(pItem)
 		return This.FindInListsCS(pItem, TRUE)
 	
-	  #------------------#
-	 #   LISTS WHERE    #
-	#------------------#
+		#< @FunctionAlternativeForms
 
-	def ListsW(pcCondition)
-
-		cCondition = StzStringQ(pcCondition).RemoveTheseBoundsQ("{", "}").Simplified()
-		aResult = []
-
-		aListOfLists = This.ListOfLists()
-		nLen = len(aListOfLists)
-
-		for @i = 1 to nLen 
-			@list = aListOfLists[@i]
-
-			@item = @list # Allows using both @list and @item in the user's script
-			cCode = "if " + cCondition + NL +
-				TAB + "aResult + @list" + NL +
-			"ok"
-
-			eval(cCode)
-		next
-
-		return aResult
-
-		#< @FunctionFluentForm
-
-		def ListsWQ(pcCondition)
-			return new stzList( This.ListsW(pcCondition) )
+		def FindItemInLists(pItem)
+			return This.FindInLists(pItem)
 
 		#>
 
-		#< @FunctionAlternativeForm
+	  #--------------------------------------#
+	 #  FINDING A SUBLIST INSIDE THE LISTS  #
+	#--------------------------------------#
 
-		def ListsWhere(pcCondition)
-			return This.ListsW(pcCondition)
+	def FindSubListInListsCS(paSubList, pCaseSensitive)
 
-			#< @FunctionFluentForm
 
-			def ListsWhereQ(pcCondition)
-				return new stzList(This.ListsWhere(pcCondition))
-
-			#>
-		#>
-
-	  #----------------------#
+	  #======================#
 	 #   POSITIONS WHERE    #
-	#----------------------#
+	#======================#
 
 	def PositionsW(pcCondition)
 
@@ -517,9 +488,86 @@ class stzListOfLists from stzList
 
 		#>
 
-	  #------------------------------------------#
+	  #------------------#
+	 #   LISTS WHERE    #
+	#------------------#
+
+	def ListsW(pcCondition)
+
+		cCondition = StzStringQ(pcCondition).RemoveTheseBoundsQ("{", "}").Simplified()
+		aResult = []
+
+		aListOfLists = This.ListOfLists()
+		nLen = len(aListOfLists)
+
+		for @i = 1 to nLen 
+			@list = aListOfLists[@i]
+
+			@item = @list # Allows using both @list and @item in the user's script
+			cCode = "if " + cCondition + NL +
+				TAB + "aResult + @list" + NL +
+			"ok"
+
+			eval(cCode)
+		next
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def ListsWQ(pcCondition)
+			return new stzList( This.ListsW(pcCondition) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ListsWhere(pcCondition)
+			return This.ListsW(pcCondition)
+
+			#< @FunctionFluentForm
+
+			def ListsWhereQ(pcCondition)
+				return new stzList(This.ListsWhere(pcCondition))
+
+			#>
+		#>
+
+	  #-----------------------------#
+	 #  LISTS WHERE -- Z/EXTENDED  #
+	#-----------------------------#
+
+	def ListsWZ(pcCondition)
+		aListsW = This.ListsW(pcCondition)
+		anPosW  = This.PositionsW(pcCondition)
+
+		aResult = @Association([ aListsW, anPosW ])
+
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def ListsWZQ(pcCondition)
+			return new stzList( This.ListsWZ(pcCondition) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ListsWhereZ(pcCondition)
+			return This.ListsWZ(pcCondition)
+
+			#< @FunctionFluentForm
+
+			def ListsWhereZQ(pcCondition)
+				return new stzList(This.ListsWhereZ(pcCondition))
+
+			#>
+		#>
+
+	  #==========================================#
 	 #   GETTING THE SIZES OF THE INNER LISTS   #
-	#------------------------------------------#
+	#==========================================#
 
 	def Sizes()
 		
