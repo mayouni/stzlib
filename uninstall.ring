@@ -1,8 +1,8 @@
 func main
-	? "Removing Folder : ring/libraries/softanzalib"
+	? "Removing Folder : ring/libraries/stzlib"
 	cDir = CurrentDir()
 	chdir(exefolder()+"../libraries")
-	OSDeleteFolder("softanzalib")
+	OSDeleteFolder("stzlib")
 	chdir(cDir)
 
 func OSDeleteFolder cFolder 

@@ -1,31 +1,26 @@
 aPackageInfo = [
-	:name = "The SoftanzaLib Package",
+	:name = "The StzLib Package",
 	:description = "Our SoftanzaLib package using the Ring programming language",
-	:folder = "SoftanzaLib",
+	:folder = "stzlib",
 	:developer = "Mansour Ayouni",
 	:email = "kalidianow@gmail.com",
 	:license = "MIT License",
-	:version = "1.0.9",
-	:ringversion = "1.16",
+	:version = "0.9",
+	:ringversion = "1.21",
 	:versions = 	[
 		[
-			:version = "1.0.9",
+			:version = "0.9",
 			:branch = "master"
 		]
 	],
 	:libs = 	[
 		[
-			:name = "ringqt",
+			:name = "qtcore",
 			:version = "1.0",
 			:providerusername = "ringpackages"
 		],
 		[
 			:name = "stdlib",
-			:version = "1.0",
-			:providerusername = "ringpackages"
-		],
-		[
-			:name = "internetlib",
 			:version = "1.0",
 			:providerusername = "ringpackages"
 		]
@@ -39,7 +34,7 @@ aPackageInfo = [
 	],
 	:ringfolderfiles = 	[
 		"bin/load/stzlib.ring",
-		"libraries/softanzalib.zip"
+		"libraries/stzlib.zip"
 	],
 	:windowsfiles = 	[
 

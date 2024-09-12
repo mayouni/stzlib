@@ -1,9 +1,9 @@
 load "ziplib.ring"
 
 func main
-	? "Extracting File : softanzalib.zip"
+	? "Extracting File : stzlib.zip"
 	cDir = CurrentDir()
 	chdir(exefolder()+"../libraries")
-	zip_extract_allfiles("softanzalib.zip","../libraries")
-	remove("softanzalib.zip")
+	zip_extract_allfiles("stzlib.zip","../libraries")
+	remove("stzlib.zip")
 	chdir(cDir)

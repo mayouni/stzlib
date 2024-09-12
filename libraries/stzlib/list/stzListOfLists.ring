@@ -202,6 +202,28 @@ func StzListsQ(paList)
 func Stz2DListQ(paList)
 	return new stz2DList(paList)
 
+#--
+
+func AreContiguous(paListOfLists)
+	return StzListOfListsQ(paListOfLists).AreContiguous()
+
+	func AreContinuous(paListOfLists)
+		return AreContiguous(paListOfLists)
+
+	func AreConsecutive(paListOfLists)
+			return AreContiguous(paListOfLists)
+
+	#--
+
+	func @AreContiguous(paListOfLists)
+		return AreContiguous(paListOfLists)
+
+	func @AreContinuous(paListOfLists)
+		return AreContiguous(paListOfLists)
+
+	func @AreConsecutive(paListOfLists)
+			return IsContiguous(paListOfLists)
+
   #=========#
  #  CLASS  #
 #=========#
@@ -4240,3 +4262,105 @@ def SortOnByXT(nCol, pcExpr) #TODO
 		def GainX()
 			return This.GainFactor()
 	
+	  #========================================#
+	 #  CHECKING IF THE LISTS ARE CONTIGUOUS  #
+	#========================================#
+
+	func AreContiguous()
+
+		bResult = TRUE
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+
+			aList = @aContent[i]
+			nLenList = len(aList)
+
+			if nLenList > 2
+
+				if @IsListOfNumbers(aList)
+					for j = 2 to nLenList
+						if NOT aList[j] = aList[j-1] + 1
+							bResult = FALSE
+							exit
+						ok
+					next
+	
+				but @IsListOfChars(aList)
+					for j = 2 to nLenList
+						if NOT ascii(aList[j]) = ascii(aList[j-1]) + 1
+							bResult = FALSE
+							exit
+						ok
+					next
+				ok
+			ok
+
+			if bResult = FALSE
+				exit
+			ok
+
+		next
+	
+		return bResult
+
+		def AreContinuous()
+			return This.AreContiguous()
+	
+		def AreConsecutive()
+			return This.AreContiguous()
+	
+		#--
+	
+		def @AreContiguous(paList)
+			return This.AreContiguous()
+	
+		def @AreContinuous()
+			return This.AreContiguous()
+	
+		def @AreConsecutive()
+			return This.AreContiguous()
+
+	  #==================================#
+	 #  FINDING A SUBLIST IN THE LISTS  #
+	#==================================#
+
+	def FindSubListCS(paItems, pCaseSensitive)
+
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
+
+			if len(paItems) < 2
+				StzRaise("Incorrect param value! paItems must contain at least two items.")
+			ok
+		ok
+
+		aAdjusted = This.Adjusted()
+		nLen = len(aAdjusted)
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			anPos = StzListQ(aAdjusted[i]).FindSubListCS(paItems, pCaseSensitive)
+			
+			if len(anPos) > 0
+				aResult + [ i, anPos ]
+			ok
+
+		next
+
+		return aResult
+
+		def FindContiguousItemsCS(paItems, pCaseSensitive)
+			return This.FindSubListCS(paItems, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubList(paItems)
+		return This.FindSubListCS(paItems, TRUE)
+
+		def FindContiguousItems(paItems)
+			return This.FindSubList(paItems)

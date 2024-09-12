@@ -4559,6 +4559,18 @@ func StzClassesXT()
 	func StzClassesAndTheirPluralForm()
 		return StzClassesXT()
 
+func StzType(oStzObj)
+	if CheckParams()
+		if NOT ( isObject(oStzObj) and IsStzObject(oStzObj) )
+			StzRaise("Incorrect param type! oStzObject must be a stzObject.")
+		ok
+	ok
+
+	return oStzObj.StzType()
+
+	func @StzType(oStzObj)
+		return StzType(oStzObj)
+
   ////////////////////////
  ///  GLOBAL CLASSES  ///
 ////////////////////////
@@ -4944,4 +4956,3 @@ class stzForEachObject
 		else
 			return This.@VarsXT()[pcVar][@i]
 		ok
-

@@ -4664,6 +4664,27 @@ func ComputableFormNLQ(pValue)
 	func @CFSPQ(pValue)
 		return ComputableFormNLQ(pValue)
 
+#---
+
+func IsContiguous(paList)
+	return StzListQ(paList).IsContiguous()
+
+	func IsContinuous()
+		return IsContiguous()
+
+	func IsConsecutive()
+			return IsContiguous()
+
+	#--
+
+	func @IsContiguous(paList)
+		return IsContiguous()
+
+	func @IsContinuous()
+		return IsContiguous()
+
+	func @IsConsecutive()
+			return IsContiguous()
 
   /////////////////
  ///   CLASS   ///
@@ -26747,7 +26768,11 @@ Item and then position
 		return bResult
 
 		def IsContinuous()
-			return IsContiguous()
+			return This.IsContiguous()
+
+		def IsConsecutive()
+			return This.IsContiguous()
+
 
 	  #==================================#
 	 #  BISECTING THE LIST INTO HALVES  #
@@ -28666,32 +28691,7 @@ Item and then position
 		// Divides the list on pValue sublists (a list of lists)
 		but pcOp = "/" 
 
-			if This.IsListOfNumbers() and isNumber(pValue)
-				aContent = This.Content()
-				nLen = len(aContent)
-
-				aResult = []
-
-				for i = 1 to nLen
-					aResult + (aContent[i] / pValue)
-				next
-
-				return aResult
-
-			but This.IsListOfNumbers() and @IsStzNumber(pValue)
-				aContent = This.Content()
-				nLen = len(aContent)
-
-				aResult = []
-
-				for i = 1 to nLen
-					aResult + (aContent[i] / pValue.Content())
-				next
-
-				This.Update(aResult)
-				return This
-
-			but @IsStzString(pValue)
+			if @IsStzString(pValue)
 				aResult = This.SplittedUsing(pValue.Content())
 				return new stzList(aResult)
 
@@ -34294,10 +34294,11 @@ Item and then position
 		ok
 
 		bResult = TRUE
-		aContent = This.Content()
+		aContent = paItems
 		nLen = len(aContent)
 
 		for i = 1 to nLen
+
 			if NOT This.ContainsCS(aContent[i], pCaseSensitive)
 				bResult = FALSE
 				exit
@@ -37260,6 +37261,88 @@ Item and then position
 			return This.FindAllExceptLast(pItem)
 
 		#>
+
+	  #------------------------------------------------#
+	 #   FINDING A SUBLIST IN AN ITEM THAT IS A LIST   #
+	#================================================#
+
+	def FindSubListCS(paItems, pCaseSensitive)
+		/* EXAMPLE
+
+				   .  .  .  .   .   .  .  .  .   .   .  .  .  .
+		o1 = new stzList([ 1, 2, 3, 4, "|", 2, 3, 4, 5, "|", 2, 3, 4, 5 ])
+				      \_____/       \_____/          \_____/
+					 2             6                11
+
+		? o1.FindSubList([ 2, 3, 4 ])
+		
+		#--> [
+
+		*/
+
+		if CheckParams()
+			if NOT isList(paItems)
+				StzRaise("Incorrect param type! paItems must be a list.")
+			ok
+
+			if len(paItems) < 2
+				StzRaise("Incorrect param value! paItems must contain at least two items.")
+			ok
+		ok
+
+		nLen = len(paItems)
+		onPos = This.FindManyCSQ(paItems, pCaseSensitive)
+
+		anSubPos = onPos / nLen
+		// #TODO Replace with a more performant solution
+
+		if len(anSubPos) = 0
+			return []
+		ok
+
+		anResult = []
+
+		if @AreContiguous(anSubPos)
+			for i = 1 to nLen
+				anResult + anSubPos[i][1]
+			next
+		ok
+
+		return anResult
+
+		def FindContiguousItemsCS(paItems, pCaseSensitive)
+			return This.FindSubListCS(paItems, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubList(paItems)
+		return This.FindSubListCS(paItems, TRUE)
+
+		def FindContiguousItems(paItems)
+			FindSubList(paItems)
+
+	  #---------------------------------------------------#
+	 #   CHECKING IF THE LIST CONTAINS A GIVEN SUBLIST   #
+	#===================================================#
+
+	def ContainsSubListCS(paSubList, pCaseSensitive)
+
+		if CheckParams()
+			if NOT isList(paSubList)
+				StzRaise("Incorrect param type! paSubList must be a list.")
+			ok
+		ok
+
+		ocListInAString     = @@Q(@aContent)
+		cSubListStringified = @@Q(paSubList).RemoveTheseBoundsQ("[", "]").TrimQ().Content()
+
+		bResult = ocListInAString.ContainsCS(cSubListStringified, pCaseSensitive)
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsSubList(paSubList)
+		return This.ContainsSubListCS(paSubList, TRUE)
 
 	  #======================================================#
 	 #  CHECKING IF THE LIST CONTAINS AN ITEM AT ANY LEVEL  #
