@@ -1,8 +1,167 @@
 
 load "../stzlib.ring"
 
-/*==== #narration semantics of Q() / n
+/*====
+
+pron()
+
+? @@( Q(1:3) + 4 )
+#--> [ 1, 2, 3, 4 ]
+
+? StzType( Q(1:3) + Q(4) )
+#--> stzlist
+
+? @@( ( Q(1:3) + Q(4) ).Content() )
+#--> [ 1, 2, 3, 4 ]
+
+? ( Q(1:3) + Q(4) ).ToStzListOfNumbers().Sum() + NULL
+#--> 10
+
+? StzType( QQ(1:3) )
+#--> stzListOfNumbers
+
+? @@( QQ(1:3) + 4 )
+#--> [ 5, 6, 7 ]
+
+? ( QQ(1:3) + Q(4) ).Sum()
+#--> 18
+
+proff()
+# Executed in 0.04 second(s).
+
+/*----
 */
+pron()
+
+? @@( Q(1:3) + 4 )
+#--> [ 1, 2, 3, 4 ]
+
+? StzType( Q(1:3) + Q(4) )
+#--> stzlist
+
+? @@( ( Q(1:3) + Q(4) ).Content() )
+#--> [ 1, 2, 3, 4 ]
+
+? ( Q(1:3) + Q(4) ).ToStzListOfNumbers().Sum() + NULL
+#--> 10
+
+? StzType( QQ(1:3) )
+#--> stzListOfNumbers
+
+? @@( QQ(1:3) + 4 )
+#--> [ 5, 6, 7 ]
+
+? ( QQ(1:3) + Q(4) ).Sum()
+#--> 18
+
+proff()
+# Executed in 0.04 second(s).
+
+/*----
+*/
+pron()
+
+# Q() elevates 1:3 to a StzList object
+# Like in Ring, the + operator adds items to a list
+
+? @@( Q(1:5) - 5 )
+#--> [ 1, 2, 3, 4 ]
+
+# We can add the item and return, not the list content
+# like in the example above, but a stzList object
+
+? StzType( Q(1:5) - Q(5) )
+#--> stzlist
+
+# Check its content, you will see that 5 has been added
+
+? @@( ( Q(1:5) - Q(5) ).Content() )
+#--> [ 1, 2, 3, 4 ]
+
+# We can chain other actions on the stzList object
+
+? ( Q(1:5) - Q(5) ).ToStzListofNumbers().Sum()
+#--> 10
+
+# If we need to deel with a stzListOfNumbers object, not
+# just a stzList object, then we usee QQ() instead of Q():
+
+? @@( QQ(1:5) - 5 )
+#--> [ -4, -3, -2, -1, 0 ]
+
+# Hence the - operator takes a specific meaning: retrieving
+# the value 5 from to each number in stzListOfNumbers object.
+
+# And because we used - 5, and not - Q(5), the ouput
+# was a normal list [ -4, -3, -2, -1, 0 ]
+
+# But ff we want the output to be a stzListOfNumbers object,
+# we elevate 5 to Q(5), like this:
+
+? StzType( QQ(1:5) - Q(5) )
+#--> stzListOfNumbers
+
+# And hence we can take further actions on it:
+
+? ( QQ(1:5) - Q(5) ).Sum()
+#--> -10
+
+proff()
+# Executed in 0.04 second(s).
+
+/*---- #narration Using Q() * n , Q() * Q(n), QQ() * n, and QQ() * Q(n)
+
+pron()
+
+# Q() elevates 1:3 to a StzList object
+# The * operator duplicates the list 3 times
+
+? @@( Q(1:3) * 3 )
+#--> [ [ 1, 2, 3 ], [ 1, 2, 3 ], [ 1, 2, 3 ] ]
+
+# We do the same and return not a list but a
+# stzList object by using Q(3) instead of 3
+
+? StzType( Q(1:3) * Q(3) )
+#--> stzlist
+
+# Let's check the content of the returned object:
+
+? @@( ( Q(1:3) * Q(3) ).Content() )
+#--> [ [ 1, 2, 3 ], [ 1, 2, 3 ], [ 1, 2, 3 ] ]
+
+# We can chain other actions on the stzList object
+
+? ( Q(1:3) * Q(3) ).FlattenQ().ToStzListofNumbers().Sum()
+#--> 18
+
+# If we need to deel with a stzListOfNumbers object directly,
+# then we use QQ() instead of Q():
+
+? StzType( QQ(1:3) * Q(5) )
+#--> stzListOfNumbers
+
+# In this case, the * operatir changes its behaviour and
+# no longer duplicates the list 3 times!
+
+# Let's see what it does then, when applied to a stzListOfNumbers
+
+? @@( ( QQ(1:3) * Q(5) ).Content() )
+#--> [ 5, 10, 15 ]
+
+# As you see, * operator multipled each number of the list of
+# numbers by 3, which is logical.
+
+# And hence we can do the Sum() on it directly:
+
+? ( QQ(1:3) * Q(5) ).Sum()
+#--> 30
+
+proff()
+# Executed in 0.04 second(s).
+
+/*---- #narration semantics of Q() / n
+
 pron()
 
 # Q() elevates 1:9 to a stzList. Divided by 3, the list
@@ -15,7 +174,7 @@ pron()
 # Dividing those numbers by 3, divides each number by 3
 
 ? @@( QQ(1:9) / 3 ) + NL
-#--> 0.33, 0.67, 1, 1.33, 1.67, 2, 2.33, 2.67, 3 ]
+#--> [ 0.33, 0.67, 1, 1.33, 1.67, 2, 2.33, 2.67, 3 ]
 
 # In case of a list of strings, dividing it by 3 always
 # splits it into 3 parts
@@ -376,7 +535,7 @@ pron()
 #--> MADAM
 
 ? reverse("باب")
-#o!--> �اب�
+#o!-->  اب 
 
 # Softanza fixes it:
 ? ""

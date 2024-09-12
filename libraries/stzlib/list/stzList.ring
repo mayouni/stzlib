@@ -13633,6 +13633,9 @@ Item and then position
 		aResult = This.Copy().RemoveItemsAtThesePositionsQ(panPos).Content()
 		return aResult
 
+		def ItemsAtPositionsRemoved(panPos)
+			return This.ItemsAtThesePositionsRemoved(panPos)
+
 	  #-------------------------------#
 	 #   REMOVING A RANGE OF ITEMS   #
 	#-------------------------------#
@@ -28712,139 +28715,6 @@ Item and then position
 				return aResult
 			ok
 
-		but pcOp = "-"
-			if isList(pValue)
-
-				if _bThese
-					aResult = This.Copy().ManyRemoved(pValue)
-					_bThese = FALSE # Resets the global flag
-				else
-					aResult = This.Copy().ItemRemoved(pValue)
-				ok
-
-				return aResult
-			
-			but @IsStzList(pValue) or @IsStzString(pValue)
-
-				if _bThese
-					This.RemoveMany(pValue.Content())
-					_bThese = FALSE  # Resets the global flag
-				else
-					This.RemoveItem(pValue.Content())
-				ok
-
-				return This
-			
-			but @IsStzNumber(pValue)	
-				anPos = This.FindAll(pValue.NumericValue())
-				This.RemoveItemsAtPositions(anPos)
-
-
-			but @IsStzListOfNumbers(pValue)
-				if _bThese
-					This.RemoveMany(pValue.Content())
-					_bThese = FALSE
-				else
-					This.RemoveItem(pValue.content())
-				ok
-
-				return This.ToStzListOfNumbers()
-
-			but @IsStzListOfStrings(pValue)
-				if _bThese
-					This.RemoveMany(pValue.Content())
-					_bThese = FALSE
-				else
-					This.RemoveItem(pValue.content())
-				ok
-
-				return This.ToStzListOfStrings()
-
-			but @IsStzListOfChars(pValue)
-				if _bThese
-					This.RemoveMany(pValue.Content())
-					_bThese = FALSE
-				else
-					This.RemoveItem(pValue.content())
-				ok
-
-				return This.ToStzListOfChars()
-
-			but @IsStzListOfLists(pValue)
-				if _bThese
-					This.RemoveMany(pValue.Content())
-					_bThese = FALSE
-				else
-					This.RemoveItem(pValue.content())
-				ok
-
-				return This.ToStzListOfLists()
-
-			but @IsStzListOfPairs(pValue)
-				if _bThese
-					This.RemoveMany(pValue.Content())
-					_bThese = FALSE
-				else
-					This.RemoveItem(pValue.content())
-				ok
-
-				return This.ToStzListOfPairs()
-
-			but @IsStzListOfObjects(pValue)
-				if _bThese
-					This.RemoveMany(pValue.Content())
-					_bThese = FALSE
-				else
-					This.RemoveItem(pValue.content())
-				ok
-
-				return This.ToStzListOfObjects()
-
-			else
-				anPos = This.FindAll(pValue)
-				aResult = This.RemoveItemsAtPositions(anPos)
-				return This.Content()
-			ok
-
-		but pcOp = "*"
-			if This.IsListOfNumbers() and isNumber(pValue)
-				aContent = This.Content()
-				nLen = len(aContent)
-
-				aResult = []
-
-				for i = 1 to nLen
-					aResult + (aContent[i] * pValue)
-				next
-
-				return aResult
-
-			but This.IsListOfNumbers() and @IsStzNumber(pValue)
-				aContent = This.Content()
-				nLen = len(aContent)
-
-				aResult = []
-
-				for i = 1 to nLen
-					aResult + (aContent[i] * pValue.Content())
-				next
-
-				This.Update(aResult)
-				return This
-
-			but @IsStzString(pValue) or @IsStzList(pValue)
-				This.MultiplyBy(pValue.Content())
-				return This
-
-			but @IsStzNumber(pValue)
-				This.MultiplyBy(pValue.NumericValue())
-				return This
-
-			else
-				aResult = This.Copy().MultiplyByQ(pValue).Content()
-				return aResult
-			ok
-
 		but pcOp = "+"
 
 			if isList(pValue)
@@ -28858,31 +28728,106 @@ Item and then position
 
 				return aResult
 			
-			but @IsStzList(pValue) or @IsStzString(pValue)
+			but @IsStzList(pValue) 
+
 				if _bThese
-					This.AddMany(pValue.Content())
-					_bThese = FALSE  # Resets the global flag
+					aResult = This.Copy().ManyAdded(pValue)
+					_bThese = FALSE # Resets the global flag
 				else
-					This.AddItem(pValue.Content())
+					aResult = This.Copy().ItemAdded(pValue)
 				ok
 
-				return This
-			
-			but @IsStzNumber(pValue)	
-				if _bThese
-					This.AddMany(pValue.NumericValue())
-					_bThese = FALSE  # Resets the global flag
+				return new stzList(aResult)
+
+			but @IsStzObject(pValue)
+				if @IsStzNumber(pValue)
+					value = pValue.NumericValue()
 				else
-					This.AddItem(pValue.NumericValue())
+					value = pValue.Content()
 				ok
 
-				return This
+				aTemp = @aContent
+				aTemp + value
+				return new stzList(aTemp)
 
 			else
-				This.Add(pValue)
-				return This.Content()
+				aTemp = @aContent
+				aTemp + pValue
+				return aTemp
+			ok
+
+		but pcOp = "-"
+
+			if isList(pValue)
+
+				if _bThese
+					aResult = This.Copy().ManyRemoved(pValue)
+					_bThese = FALSE # Resets the global flag
+				else
+					aResult = This.Copy().ItemRemoved(pValue)
+				ok
+
+				return aResult
+			
+			but @IsStzList(pValue) 
+
+				if _bThese
+					aResult = This.Copy().ManyRemoved(pValue)
+					_bThese = FALSE # Resets the global flag
+				else
+					aResult = This.Copy().ItemRemoved(pValue)
+				ok
+
+				return new stzList(aResult)
+
+			but @IsStzObject(pValue)
+				if @IsStzNumber(pValue)
+					value = pValue.NumericValue()
+				else
+					value = pValue.Content()
+				ok
+
+				anPos = This.FindAll(value)
+				aTemp = This.ItemsAtPositionsRemoved(anPos)
+				return new stzList(aTemp)
+
+			else
+				anPos = This.FindAll(pValue)
+				aTemp = This.ItemsAtPositionsRemoved(anPos)
+				return aTemp
+			ok
+
+		but pcOp = "*"
+
+			if isNumber(pValue) # Duplicates the list pValue times
+				aResult = []
+				if pValue < 0
+					return anResult
+				ok
+
+				for i = 1 to pValue
+					aResult + @aContent
+				next
+
+				return aResult
+
+			but @IsStzNumber(pValue)
+				aResult = []
+				nValue = pValue.Content()
+
+				if nValue < 0
+					return anResult
+				ok
+
+				for i = 1 to nValue
+					aResult + @aContent
+				next
+
+				return new stzList(aResult)
 
 			ok
+
+
 		ok
 
 	  #------------------------------#

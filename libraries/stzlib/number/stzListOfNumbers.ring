@@ -6808,40 +6808,74 @@ class stzListOfNumbers from stzList
 			ok
 
 		but pcOp = "-"
+
 			if isNumber(pValue)
-				anResult = This.ToStzList().RemoveNthQ( ring_find(This.ListOfStrings(), pValue) ).Content()
+				anResult = []
+				nLen = len(@anContent)
+
+				for i = 1 to nLen
+					anResult + (@anContent[i] - pValue)
+				next
+
 				return anResult
 
-			but @IsNumber(pValue)
-				anResult = This.ToStzList().RemoveNthQ( ring_find(This.ListOfStrings(), pValue) ).Content()
-				This.Update( anResult )
-			
-			but isList(pValue) and Q(pValue).IsListofNumbers()
-				if len(pValue) > 0
-					oStzList = This.ToStzList()
-					anPos = oStzList.FindMany(pValue)
-					oStzList.RemoveItemsAtPositions(anPos)
-					anResult = oStzList.Content()
-					return anResult
-				ok
+			but isObject(pValue) and @IsStzNumber(pValue)
 
-			but @IsStzList(pValue) and pValue.IsListOfNumbers()
-				if len(pValue.Content()) > 0
-					oStzList = This.ToStzList()
-					anPos = oStzList.FindMany(pValue.Content())
-					oStzList.RemoveItemsAtPositions(anPos)
-					anResult = oStzList.Content()
-					This.UpdateWith(anResult)
-				ok
+				anResult = []
+				nLen = len(@anContent)
+
+				for i = 1 to nLen
+					anResult + (@anContent[i] - pValue.Content())
+				next
+
+				return new stzListOfNumbers(anResult)
 			ok
 
 		but pcOp = "*"
-			anTemp = This.ToStzList().MultiplyByQ(pValue).Content()
-			This.Update( anTemp )
+
+			if isNumber(pValue)
+				anResult = []
+				nLen = len(@anContent)
+
+				for i = 1 to nLen
+					anResult + (@anContent[i] * pValue)
+				next
+
+				return anResult
+
+			but isObject(pValue) and @IsStzNumber(pValue)
+				anResult = []
+				nLen = len(@anContent)
+
+				for i = 1 to nLen
+					anResult + (@anContent[i] * pValue.Content())
+				next
+
+				return new stzListOfNumbers(anResult)
+			ok
 
 		but pcOp = "+"
-			anTemp = This.ToStzList().AddItemQ(pValue).Content()
-			This.Update( anTemp )
+			if isNumber(pValue)
+				anResult = []
+				nLen = len(@anContent)
+
+				for i = 1 to nLen
+					anResult + (@anContent[i] + pValue)
+				next
+
+				return anResult
+
+			but isObject(pValue) and @IsStzNumber(pValue)
+
+				anResult = []
+				nLen = len(@anContent)
+
+				for i = 1 to nLen
+					anResult + (@anContent[i] + pValue.Content())
+				next
+
+				return new stzListOfNumbers(anResult)
+			ok
 		ok
 
 	def AreNegative()
