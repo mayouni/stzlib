@@ -333,12 +333,60 @@ oSales = new stzListOfNumbers([ 34500.89, 42180.98, 56100.65 ])
 proff()
 # Executed in 0.04 second(s).
 
-/*-------------- #narration SORTING A LIST OF LISTS
-*/
+/*-------
+
 pron()
 
+o1 = new stzList([ 1, 2, 3, 4, "|", 2, 3, 4, 5, "|", 2, 3, 4, 5 ])
 
-# Let’s dive into an example that will illustrate these internal changes step-by-step:
+? @@( AreContiguous( o1.FindManyQ([ 2, 3, 4 ]) / 3 ) ) + NL
+#--> TRUE
+
+? @@( o1.FindMany([ 2, 3, 4 ]) ) + NL
+#--> [ 2, 3, 4, 6, 7, 8, 11, 12, 13 ]
+
+? @@( o1.FindManyQ([ 2, 3, 4 ]) / 3 ) + NL
+#--> [ [ 2, 3, 4 ], [ 6, 7, 8 ], [ 11, 12, 13 ] ]
+
+? AreContiguous( [ [ 2, 3, 4 ], [ 6, 7, 8 ], [ 11, 12, 13 ] ] )
+#--> TRUE
+
+proff()
+# Executed in 0.05 second(s).
+
+/*-------
+
+pron()
+
+o1 = new stzList([ 1, 2, 3, 4, "|", 2, 3, 4, 5, "|", 2, 3, 4, 5 ])
+#		      \_____/       \_____/          \_____/
+#			 2             6                11
+
+? o1.FindSubList([ 2, 3, 4 ])
+#--> [ 2, 6, 11 ]
+
+proff()
+# Executed in 0.04 second(s).
+
+/*-------
+
+pron()
+
+? Q([ "mohannad", 	100, 	"loves", "ring" ]).ContainsMany([ "amer", 34 ])
+#--> FALSE
+
+? Q([ "mohannad", 	100, 	"loves", "ring" ]).ContainsCS("amer", true)
+#--> FALSE
+
+? Q([ "mohannad", 	100, 	"loves", "ring" ]).ContainsSubList([ "loves", "ring" ])
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s).
+
+/*--------------
+
+pron()
 
 o1 = new stzListOfLists([
 	[ "mohannad", 	100, 	"him", "ring" ],
@@ -349,8 +397,10 @@ o1 = new stzListOfLists([
 	[ "mourad",	18 ],
 	[ "abir" ],
 	[ "amer", 	34, 	[1, 2, 3 ] ],
+	[ "sahloul",	108, 	"amer",	34 ],
 	[ "abir" ]
 ])
+
 
 ? @@SP( o1.ListsW(' Q(@list).Contains("abir") ') ) + NL
 #--> [
@@ -362,17 +412,59 @@ o1 = new stzListOfLists([
 ? o1.FindListsW(' Q(@list).Contains("abir") ')
 #--> [ 3, 7, 9 ]
 
-? @@SP( o1.ListsWZ(' Q(@list).Contains("abir") ') )
+? @@SP( o1.ListsWZ(' Q(@list).Contains("abir") ') ) + NL
 #--> [
 #	[ [ "abir", 234 ], 3 ],
 #	[ [ "abir" ], 	   7 ],
 #	[ [ "abir" ], 	   9 ]
 # ]
 
-//? @@( o1.InnerFind([ "mourad",	18 ]) ) # Or FindInLists()
+? @@SP( o1.ListsWZ(' Q(@list).ContainsMany([ "amer", 34 ]) ') ) + NL
+#--> [
+#	[ [ "amer", 34, [ 1, 2, 3 ] ], 8 ],
+#	[ [ "sahloul", 108, "amer", 34 ], 9 ]
+# ]
 
 proff()
-/*
+# Executed in 0.21 seconds
+
+/*------------
+*/
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "mohannad", 	100, 	"him", "ring" ],
+	[ "karim", 	20,   	"amer", 34 ],
+	[ "abir",	234 ],
+	[ "salem", 	67 ],
+	[ "mazen", 	[90], 	"X", 1 ],
+	[ "mourad",	18 ],
+	[ "abir" ],
+	[ "amer", 	34, 	[1, 2, 3 ] ],
+	[ "sahloul",	108, 	"amer",	34 ],
+	[ "abir" ]
+])
+
+
+? Q([ "sahloul", 108, "amer", 34 ]).FindSubList([ "amer", 34 ])
+#--> [ 3, 4 ]
+
+? @@NL( o1.FindSubList([ "amer", 34 ]) ) + NL
+#--> [
+#	[ 2, [ 3, 4 ] ],
+#	[ 8, [ 1, 2 ] ],
+#	[ 9, [ 3, 4 ] ]
+# ]
+
+? o1.ContainsSubList([ "amer", 34 ])
+#--> TRUE
+
+proff()
+# Executed in 0.08 second(s).
+
+/*-------------
+
 # Now, let’s sort this complex structure based on the 3rd column of each list (index 3).
 
 ? @@SP( o1.SortedOn(3) )
@@ -387,7 +479,7 @@ proff()
 #	[ "mohannad", 	100, 	"him", 		"ring" 	]
 # ]
 
-
+*/
 proff()
 # Execution completed in 0.03 second(s) - a testament to Softanza's efficiency!
 

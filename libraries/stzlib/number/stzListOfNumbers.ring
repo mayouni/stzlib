@@ -6781,12 +6781,30 @@ class stzListOfNumbers from stzList
 
 		but pcOp = "/"
 
-			if ring_type(pValue) = "NUMBER"
-				// Divides the list on pValue sublists (a list of lists)
-				return This.ToStzList().SplitToNParts(pValue)
+			if isNumber(pValue)
+				aContent = This.Content()
+				nLen = len(aContent)
 
-			but @IsStzNumber(pValue)
-				return Q(This.ToStzList().SplitToNParts(pValue))
+				aResult = []
+
+				for i = 1 to nLen
+					aResult + (aContent[i] / pValue)
+				next
+
+				return aResult
+
+			but isObject(pValue) and @IsStzNumber(pValue)
+				aContent = This.Content()
+				nLen = len(aContent)
+
+				aResult = []
+
+				for i = 1 to nLen
+					aResult + (aContent[i] / pValue)
+				next
+
+				return new stzListOfNumbers(aResult)
+
 			ok
 
 		but pcOp = "-"
