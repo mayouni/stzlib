@@ -8402,6 +8402,8 @@ proff()
 /*-----------
 */
 
+o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
+
 ? @@( o1.SplitAt(1) )
 #--> [ [ 2, 5 ] ]
 
@@ -8409,10 +8411,13 @@ proff()
 #--> [ [ 1, 4 ] ]
 
 ? @@( o1.SplitAtPositions([ 3, 5 ]) ) + NL
-#--> [ [ 1, 2 ], [ 4, 5 ] ]
+#--> [ [ 1, 2 ], [ 4, 4 ] ]
 
-? @@( o1.SplitBeforePositions([ 3, 5 ]) ) + NL
-#--> [ [ 1, 2 ], [ 4, 5 ] ]
+? @@( o1.SplitAtPositions([ 1, 5 ]) ) + NL
+#--> [ [ 2, 4 ] ]
+
+? @@( o1.SplitAtPositions([ 1, 3, 5 ]) ) + NL
+#--> [ [ 2, 2 ], [ 4, 4 ] ]
 
 proff()
 # Executed in 0.02 second(s).
