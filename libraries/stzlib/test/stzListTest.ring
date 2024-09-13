@@ -8331,7 +8331,7 @@ proff()
 # Executed in 0.52 second(s).
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzList(["c", "c++", "C#", "RING", "python", "ruby"])
@@ -8350,6 +8350,8 @@ proff()
 
 /*==============
 
+pron()
+
 o1 = new stzSplitter( 1:5 )
 
 ? @@(o1.SplitToPartsOfNItems(2))
@@ -8361,7 +8363,12 @@ o1 = new stzSplitter( 1:5 )
 ? @@(o1.SplitAfterPositions( [ 3, 5 ] ))
 #--> [ [ 1, 3 ], [ 4, 5 ], [ 5, 5 ] ]
 
+proff()
+# Executed in 0.03 second(s).
+
 /*-------------
+
+pron()
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
 
@@ -8374,20 +8381,64 @@ o1 = new stzList([ "a", "b", "c", "d", "e" ])
 ? @@( o1.SplitBeforePositions([ 3, 5 ]) )
 # Returns [ ["a","b"], ["c", "d"], ["e"] ]
 
+proff()
+# Executed in 0.03 second(s).
+
+/*============
+
+pron()
+
+o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
+
+? @@( o1.GetPairsFromPositions([ 3, 5 ]) )
+#--> [ [ 1, 3 ], [ 3, 5 ] ]
+
+? @@( o1.GetPairsFromPositions([ 1, 4 ]) ) + NL
+#--> [ [ 1, 4 ], [ 4, 5 ] ]
+
+proff()
+# Executed in 0.02 second(s).
+
+/*-----------
+*/
+
+? @@( o1.SplitAt(1) )
+#--> [ [ 2, 5 ] ]
+
+? @@( o1.SplitAt(5) ) + NL
+#--> [ [ 1, 4 ] ]
+
+? @@( o1.SplitAtPositions([ 3, 5 ]) ) + NL
+#--> [ [ 1, 2 ], [ 4, 5 ] ]
+
+? @@( o1.SplitBeforePositions([ 3, 5 ]) ) + NL
+#--> [ [ 1, 2 ], [ 4, 5 ] ]
+
+proff()
+# Executed in 0.02 second(s).
+
 /*------------- TEST IT
+*/
+pron()
 
 o1 = new stzString("abcde")
 
-? @@( o1.SplitToPartsOfNChars(2) )
-#--> [ "ab", "cd", "e" ]
-? @@( o1.SplitToPartsOfNCharsXT(2, :ExcludeRemaining = TRUE) )
+? o1.SplitToPartsOfNChars(2)
 #--> [ "ab", "cd" ]
 
-? @@( o1.SplitAfterPositions([ 3, 5 ]) )
-#--> [ "abc", "de", "e" ]
+? o1.SplitToPartsOfNCharsXT(2)
+#--> [ "ab", "cd", "e" ]
 
-? @@( o1.SplitBeforePositions([ 3, 5 ]) )
-# Returns [ "ab", "cd", "e" ]
+? o1.SplitAfterPositions([ 3, 4 ])
+#--> [ "abc", "d", "e" ]
+
+	? o1.SplitAfterPositions([ 3, 5 ])
+	#--> [ "abc", "d", "e" ]
+	
+	? o1.SplitBeforePositions([ 3, 5 ])
+	# Returns [ "ab", "cd", "e" ]
+
+proff()
 
 /*================
 

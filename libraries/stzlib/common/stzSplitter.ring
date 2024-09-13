@@ -2,8 +2,8 @@
 /*
 This class is a numrical solution to splitting things.
 
-A splitter recieves a number of N positions. If it is a list then its
-number of items is considered as N.
+A splitter recieves a number of N positions. If it recieves a list
+or a string, then its number of items or chars is considered as N.
 
 Then the splitter initializes an internal list of numbers from 1 to N.
 
@@ -252,6 +252,13 @@ class stzSplitter from stzListOfNumbers
 
 		if n > 1 and n < nLen
 			aResult = [ [ 1, n-1], [n+1, nLen ] ]
+
+		but n = 1 and nLen > 1
+			aResult = [ [ 2, nLen ] ]
+
+		but n = nLen and nLen > 1 
+			aResult = [ [ 1, nLen-1] ]
+
 		else
 			aResult = [ 1 , This.NumberOfPositions() ]
 		ok

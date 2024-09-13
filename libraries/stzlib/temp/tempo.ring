@@ -1,6 +1,18 @@
 
 load "../stzlib.ring"
 
+Q("Hello MAX!") {
+
+	LowercaseSubString("AX")
+	? Content()
+	#--> Hello Max!
+
+	InsertXT("dear", :Between = [ "Hello ", :And = "Max" ])
+	? Content()
+	#--> "Hello dear Max!"
+
+}
+
 /*====
 
 pron()
