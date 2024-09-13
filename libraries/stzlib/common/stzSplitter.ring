@@ -278,9 +278,31 @@ class stzSplitter from stzListOfNumbers
 			StzRaise("Incorrect param type! panPos must be a list of numbers.")
 		ok
 
+		nLenPos = len(panPos)
+		if nLenPos = 0
+			return This.Content()
+
+		but nLenPos = 1
+			return This.SplitAtPosition(panPos[1])
+		ok
+
+		panPos = ring_sort(panPos)
 		aPairs = This.GetPairsFromPositions(panPos)
 
-		for i = 1 to len(aPairs) - 1
+		nFirstPos = panPos[1]
+		nLastPos = panPos[nLenPos]
+
+		nLenPairs = len(aPairs)
+
+		if aPairs[nLenPairs][2] = nLastPos
+			aPairs[nLenPairs][2]--
+		ok
+
+		if aPairs[1][1] = nFirstPos
+			aPairs[1][1]++
+		ok
+
+		for i = 1 to nLenPairs - 1
 			aPairs[i][2]--
 			aPairs[i+1][1]++
 		next
