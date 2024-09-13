@@ -15,7 +15,7 @@ aPackageInfo = [
 	],
 	:libs = 	[
 		[
-			:name = "qtcore",
+			:name = "ringqt",
 			:version = "1.0",
 			:providerusername = "ringpackages"
 		],

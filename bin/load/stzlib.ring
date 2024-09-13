@@ -1,1 +1,1 @@
-load "../../libraries/softanzalib/stzlib.ring"
+load "../../libraries/stzlib/stzlib.ring"

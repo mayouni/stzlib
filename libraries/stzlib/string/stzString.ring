@@ -33100,7 +33100,33 @@ class stzString from stzObject
 
 			# Add other cases here
 
-				/* ... */
+			but oOptions.IsBetweenNamedParam()
+				This.InsertSubStringBetween(pcSubStr, paOptions[2][1], paOptions[2][2])
+
+			
+			but oOptions.IsBetweenSubStrings()
+				cSubStr1 = paOptions[2][1]
+				cSubStr2 = paOptions[2][2]
+
+				if NOT ( isString(cSubStr1) and isString(cSubStr1) )
+					StzRaise("Incorrect param type! You should provide two substrings.")
+				ok
+
+				This.InsertSubStringBetweenSubStrings(pcSubStr, paOptions[2][1], paOptions[2][2])
+
+			but oOptions.IsBetweenPositions()
+				n1 = paOptions[2][1]
+				n2 = paOptions[2][2]
+
+				if NOT ( isNumber(n1) and isNumber(n2) )
+					StzRaise("Incorrect param type! You should provide two numbers.")
+				ok
+
+				This.InsertSubStringBetweenPositions(pcSubStr, paOptions[2][1], paOptions[2][2])
+
+				
+			else
+				StzRaise("Unsupported syntax!")
 			ok
 		ok
 
@@ -33128,9 +33154,72 @@ class stzString from stzObject
 		cResult = This.Copy().InsertXTQ(pcSubStr, paOptions).Content()
 		return cResult
 
+	  #---------------------------------------------------------------#
+	 #   INSERTING A SUBSTRING BETWEEN TWO POSITIONS OR SUBSTRINGS   #
+	#===============================================================#
+
+	def InsertSubStringBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+
+
+	  #--------------------------------------------------#
+	 #   INSERTING A SUBSTRING BETWEEN TWO SUBSTRINGS   #
+	#--------------------------------------------------#
+
+	def InsertSubStringBetweenSubStringsCS(pcSubStr, p1, p2, pCaseSensitive)
+
+	  #-------------------------------------------------#
+	 #   INSERTING A SUBSTRING BETWEEN TWO POSITIONS   #
+	#-------------------------------------------------#
+
+	def InsertSubStringBetweenPositions(pcSubStr, p1, p2)
+		if CheckParams()
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
+			if isList(p1) and StzListQ(p1).IsPositionOrPositionsNamedParam()
+				p1 = p1[2]
+			ok
+
+			if isList(p2) and StzListQ(p2).IsAndNamedParam()
+				p2 = p2[2]
+			ok
+
+			if NOT (isNumber(p1) and isNumber(n2))
+				StzRaise("Incorrect params types! p1 and p2 must be both numbers.")
+			ok
+		ok
+
+		if EarlyChecks()
+			if pcSubStr = "" or p1 < 0 or p2 > This.NumberOfChars()
+				return
+			ok
+		ok
+
+		# Doing the job
+
+		This.ReplaceSection(p1, p2, pcSubStr)
+
+		#< @FunctionFluentForm
+
+		def InsertSubStringBetweenPositionsQ(pcSubStr, p1, p2)
+			This.InsertSubStringBetweenPositions(pcSubStr, p1, p2)
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def InsertBetweenPositions(pcSubStr, p1, p2)
+			This.InsertSubStringBetweenPositions(pcSubStr, p1, p2)
+
+			def InsertBetweenPositionsQ(pcSubStr, p1, p2)
+				return This.InsertSubStringBetweenPositionsQ(pcSubStr, p1, p2)
+
+		#>
+
 	  #------------------------------------------------#
 	 #    INSERTING A SUBSTRING BEFORE EACH N CHARS   #
-	#------------------------------------------------#
+	#================================================#
 
 	def InsertBeforeEachNChars(n, pcSubStr)
 		This.InsertBeforeEachNCharsXT(n, pcSubStr, :FromEndToStart)
