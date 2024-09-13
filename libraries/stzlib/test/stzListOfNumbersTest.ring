@@ -16,7 +16,7 @@ proff()
 #--> Executed in 0.02 second(s).
 
 /*-----
-*/
+
 pron()
 
 o1 = new stzPairOfNumbers([ 2.07, 0.39 ])
@@ -178,7 +178,7 @@ proff()
 /*================= #todo write a #narration
 */
 pron()
-/*
+
 ? Q([ 1, 2, 3, 4, 5]) - [1, 3 , 5]
 #--> [ 1, 2, 3, 4, 5 ]
 # Because [1, 3, 5 ] is not an item in the list [ 1, 2, 3, 4, 5 ]
@@ -194,7 +194,7 @@ pron()
 
 # If you want to get a stzList object as an output add Q() to the second member:
 
-? ( Q([ 1, 2, 3, 4, 5]) - Q( These([1, 3 , 5]) ) ).Content()
+//? ( Q([ 1, 2, 3, 4, 5]) - TheseQ([1, 3 , 5]) ).Content()
 #  \____________________ _______________________/
 #                       V
 #               A stzList object
@@ -202,9 +202,9 @@ pron()
 #--> [ 2, 4 ]
 
 # If you want to get a stzListOfNumbers add QQ() instead:
-*/
-? ( Q([ 1, 2, 3, 4, 5]) - QQ( These([1, 3 , 5]) ) ).StzType()
-#  \____________________ _______________________/
+
+? ( QQ([ 1, 2, 3, 4, 5]) - TheseQ([1, 3 , 5]) ).StzType()
+#  \____________________ ______________________/
 #                       V
 #            A stzListOfNumbers object
 

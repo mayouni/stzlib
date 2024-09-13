@@ -149,7 +149,13 @@ next
 ? len( Flatten(aLarge) )
 #--> 1_000_000
 
+# The code above is 9X times more performant in Ring 1.21 then Ring 1.17
+
+? SpeedUpX(34.33, 3.81)
+#--> 9.01
+
 proff()
+# Executed in 3.81 second(s) in Ring 1.21 (64 bits)
 # Executed in  5.75 second(s) in Ring 1.19 (64 bits)
 # Executed in  6.55 second(s) in Ring 1.19 (32 bits)
 # Executed in 16.13 second(s) in Ring 1.18
@@ -216,7 +222,7 @@ pron()
 	#--> HELLO
 
 # 3. From a pair of strings, the first beeing the name of the object
-#    (it's a NAMED OBJECT then, made specifically to make objects findable!),
+#    (it's a NAMED OBJECT then, made specifically to making objects findable!),
 #    and the second beeing the value of the string:
 
 	o3 = new stzString( :o3 = "hello" )
@@ -230,7 +236,7 @@ aMyList = [ "Hi", o1, "how", 1:3, o2, "are", o3, "you?", 1:3, o3, 99 ]
 
 # In Ring, you can find the string "how" like this:
 
-? find(aMyList, "how")
+? find(aMyList, "how") # or ring_find() if you want
 #--> 3
 
 # And find the number 99 like this:
@@ -286,7 +292,8 @@ pron()
 #--> [ 1, 2, 6, 7 ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*====
 
@@ -315,7 +322,8 @@ StzListQ([ "1":"3", "2":"7", "10":"12" ]) {
 }
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.04 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*====
 
@@ -1870,7 +1878,7 @@ proff()
 #~> Should be able to create it...
 
 /*=============
-*/
+
 pron()
 
 ? isNumber([ "'" ])
@@ -1880,14 +1888,16 @@ pron()
 #--> "🌞"
 
 ? @@([ 1, 2 ])
+#--> [ 1, 2 ]
 
 ? @@([ '"' ])
+#--> [ '"' ]
 
 ? @@([ "'" ])
-
-? Computableformxt([ "'" ], "", "")
+#-->[ "'" ]
 
 ? @@([ "1", "🌞", "ring" ])
+#--> [ "1", "🌞", "ring" ]
 
 proff()
 # Executed in 0.02 second(s)
@@ -5658,7 +5668,7 @@ StopProfiler()
 #--> Executed in 0.02 second(s)
 
 /*-----------
-*/
+
 StartProfiler()
 
 o1 = new stzString('[[[
@@ -5679,13 +5689,29 @@ o1 = new stzString('[[[
 
 o1.Simplify() # To remove NLs, TABs and overspaces from the string
 
-? @@NL( o1.NestedSubStrings(:BoundedBy = [ "[[[", "]]]" ]) ) # Or DeepSubStrings() or SubStringsBoundedBy()
+? @@NL( o1.NestedSubStrings(:BoundedBy = [ "[[[", "]]]" ]) ) 		# Or DeepSubStrings() or SubStringsBoundedBy()
+#--> [
+#	' "1", "1", ',
+#	' "2", "♥", "2" ',
+#	', "1", ',
+#	' "2", ',
+#	' "3", "♥", ',
+#	' "4", ',
+#	' "5", "♥" ',
+#	', "4", ',
+#	' "5", "♥" ',
+#	', "♥" ',
+#	', "3" ',
+#	" ",
+#	" "
+# ]
 
-
-# Executed in  0.02 second(s) in Ring 1.20
-# Executed in 12.72 second(s) in Ring 1.17
+? SpeedUpX(12.72, 0.06) # Ring 1.21 is 200X more performant!
+#--> 212.00
 
 StopProfiler()
+# Executed in  0.06 second(s) in Ring 1.21
+# Executed in 12.72 second(s) in Ring 1.17
 
 /*-----------
 
@@ -7803,7 +7829,9 @@ o1 = new stzList([ "twelve", 12, [ "L2", "L2" ], "ten", 10, [ "L1", "L1" ] ])
 
 STOP()
 
-/*-----------------------
+/*--------- #narration Same semantics for all softanza objects
+
+pron()
 
 # Softanza works consistently on lists and strings: What works
 # for a string, would generally work for a list, when it makes
@@ -7813,20 +7841,26 @@ STOP()
 # by two given substrings, or even by many of them. So, we say:
 
 oStr = new stzString("|<--Scope of Life-->|")
-? oStr.IsBoundedBy([ "|<--", "-->|" ]) #--> TRUE
+? oStr.IsBoundedBy([ "|<--", "-->|" ])
+#--> TRUE
 
 # And then we can delete these bounds:
-? oStr.TheseBoundsRemoved( "|<--", "-->|" ) #--> "Scope of Life"
+? oStr.TheseBoundsRemoved( "|<--", "-->|" )
+#--> "Scope of Life"
 
 # The same semantics apply to lists, like this:
 
 oList = new stzList([ "|<--", "Scope", "of", "Life", "-->|" ])
-? oList.IsBoundedBy([ "|<--", "-->|" ]) #--> TRUE
+? oList.IsBoundedBy([ "|<--", "-->|" ])
+#--> TRUE
 
 # And we can remove all these bounds, exactly like we did for strings:
-? oList.TheseBoundsRemoved( "|<--", "-->|" ) #--> [ "Scope", "of", "Life" ]
+? oList.TheseBoundsRemoved( "|<--", "-->|" )
+#--> [ "Scope", "of", "Life" ]
 
-STOP()
+proff()
+# Executed in 0.03 second(s).
+
 /*-----------------------
 
 o1 = new stzList([ "{", "A", "B", "C", "}" ])
@@ -8018,175 +8052,301 @@ StopProfiler()
 
 /*=================
 
+pron()
+
 o1 = new stzList([ "a", "b", 3, "c"])
 ? o1.AllItemsExcept(3) #--> [ "a", "b", "c" ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*---------------
 
-? ListsMerge([ [ 1, 2 ], [ 3 ] ])
+pron()
+
+? @@( Merge([ [ 1, 2 ], [ 3 ] ]) )
 #--> [ 1, 2, 3 ]
 
-? ListsMerge([
+? @@( Merge([
 	[ [ 1, 2 ] ],
 	[ [ 3, 4 ] ]
-])
+]) )
 #--> [ [ 1, 2], [3, 4] ]
 
-? ListsFlatten([
+? @@( Flatten([
 	[ [ 1, 2 ] ],
 	[ [ 3, 4 ] ]
-])
+]) )
 #--> [ 1, 2, 3, 4 ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*--------------
+
+pron()
 
 ? StzListQ([ "ض", "c", "س", "a", "ط", "b" ]).
-	ItemsW('StzCharQ(@item).IsArabic()') #--> [ "ض", "س", "ط" ]
+	ItemsWXT('StzCharQ(@item).IsArabic()')
+
+#o--> [ "ض", "س", "ط" ]
+
+proff()
+# Executed in 0.13 second(s).
 
 /*--------------
 
-? @@( StzListQ([ "a", 1, "b", 2, "c", 3 ]).Types() )
+pron()
+
+? @@( StzListQ([ "a", 1, "b", 2, "c", 3 ]).Types() ) + NL
 #--> [ "STRING", "NUMBER", "STRING", "NUMBER", "STRING", "NUMBER" ]
 
 ? StzListQ([ "a", 1, "b", 2, "c", 3 ]).UniqueTypes()
 #--> [ "STRING", "NUMBER" ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*--------------
 
+pron()
+
 StzListQ([ "one", "two", "three" ]) {
-	ReplaceAt(2, :With = "TWO")
+
+	ReplaceItemAtPosition(2, :With = "TWO") # or ReplaceAt
 	? Content() #--> [ "one", "TWO", "three" ]
 
 	ReplaceAllItems( :With = "***")
 	? Content() #--> [ "***", "***", "***" ]
 }
 
+proff()
+# Executed in almost 0 second(s).
+
 /*--------------
+
+pron()
 
 StzListQ([ "a", 1, "b", 2, "c", 3 ]) {
-	ReplaceW( :Where = '{ isNumber(@item) }', :By = "*" )
-	? Content() #--> [ "q", "*", "b", "*", "c" ]
+
+	ReplaceWXT( :Where = '{ isNumber(@item) }', :By = "*" )
+	? @@( Content() )
+	#--> [ "a", "*", "b", "*", "c", "*" ]
 }
 
+proff()
+# Executed in 0.13 second(s).
+
 /*--------------
+
+pron()
 
 o1 = new stzList([ "a", 1, "b", 2, "c", 3 ])
-o1.RemoveW('Not isNumber(@item)')
-? o1.Content() #--> [ 1, 2, 3 ]
+o1.RemoveWXT('Not isNumber(@item)')
+? o1.Content()
+#--> [ 1, 2, 3 ]
+
+proff()
+# Executed in 0.11 second(s).
 
 /*--------------
+
+pron()
 
 obj1 = new Person { name = "salem" age = 34 }
 obj2 = new Person { name = "kai" age = 24 }
 
 o1 = new stzList([ "a", 1, 3, "b", ["A1", "A2"], obj1, "c", 3, ["B1", "B2"], obj2 ])
 
-? o1.OnlyStrings()	#--> [ "a", "b", "c" ]
-? o1.OnlyNumbers()	#--> [ 1, 3, 3 ]
-? o1.OnlyLists()	#--> [ "A1", "A2", "B1", "B2" ]
-? o1.OnlyObjects()	#TODO: Not yet implemented!
+? o1.OnlyStrings()
+#--> [ "a", "b", "c" ]
+
+? o1.OnlyNumbers()
+#--> [ 1, 3, 3 ]
+
+? o1.OnlyLists()
+#--> [ "A1", "A2", "B1", "B2" ]
+
+? o1.OnlyObjects()
+#--> The two objects o1 and o2 printed in the console:
+#
+# name: salem
+# age: 34
+#
+# name: kai
+# age: 24
+
+proff()
+# Executed in almost 0 second(s).
 
 class Person name age
 
 /*--------------
 
+pron()
+
 StzListQ([ "a", "b", [], "c", [] ]) {
-	? OnlyWhere('{ isString(@item) }') #--> [ "a", "b", "c" ]
+	? OnlyWhereXT('{ isString(@item) }')
+	#--> [ "a", "b", "c" ]
 }
+
+proff()
+# Executed in 0.12 second(s).
 
 /*--------------
 
+pron()
+
 StzListQ([ "a", "b", [], "c", [] ]) {
-	RemoveW('{
+	RemoveWXT('{
 		isList(@item) and Q(@item).IsEmpty()
 	}')
 
-	? Content() #--> [ "a", "b", "c" ]
+	? Content()
+	#--> [ "a", "b", "c" ]
 }
+
+proff()
+# Executed in 0.13 second(s).
 
 /*--------------
 
+pron()
+
 StzListQ([ 1, "a", "b", 2, 3, "c", 4, [ "..." ], "d" ]) {
 
-	RemoveW('{
+	RemoveWXT('{
 		isNumber(@item) or
 		isString(@item)
 	}')
 
-	? Content() #--> [ "..." ]
+	? @@(Content())
+	#--> [ [ "..." ] ]
 }
 
+proff()
+# Executed in 0.14 second(s).
+
 /*-------------
+
+pron()
 
 o1 = new stzList(["_", "A", "*", "_", "B", "*", "_", "C", "*" ])
-? o1.FindW( :Where = ' @NextItem = "*" ' )	#--> [ 2, 5, 8 ]
-? o1.ItemsW( :Where = ' @NextItem = "*" ' )	#--> [ "A", "B", "C" ]
+
+? o1.FindWXT( :Where = ' @NextItem = "*" ' )
+#--> [ 2, 5, 8 ]
+
+? o1.ItemsWXT( :Where = ' @NextItem = "*" ' )
+#--> [ "A", "B", "C" ]
+
+proff()
+# Executed in 0.20 second(s).
 
 /*-------------
 
-person1 = new person { name = "obj1" }
-person2 = new person { name = "obj2" }
+pron()
 
-o1 = new stzList([
-	"_", 3, "_" , person1, 6, "*",
-	[ "L1", "L1" ], 12, person2,
-	[ "L2", "L2" ], 25, "*"
-])
+	person1 = new person { name = "obj1" }
+	person2 = new person { name = "obj2" }
+	
+	o1 = new stzList([
+		"_", 3, "_" , person1, 6, "*",
+		[ "L1", "L1" ], 12, person2,
+		[ "L2", "L2" ], 25, "*"
+	])
+	
+	? o1.FindWhereXT('{
+		( NOT isObject(@item) ) and
+		( isString(@NextItem) and @NextItem = "*" )
+	}')
+	#--> [ 5, 11]
+	
+	? o1.FindWhereXT('{
+		isNumber(@item) AND
+		@i <= This.NumberOfItems() - 3 AND
+	
+		isNumber(This[@i+3]) AND
+		This[@i+3] = DoubleOf(@item)	
+	}')
+	#--> [ 2, 5 ]
+	
+	? o1.FindWhereXT('{
+		isNumber(@item) AND
+		@i <= This.NumberOfItems() - 3 AND
+	
+		isNumber(This[@i+3]) AND
+		This[@i+3] != DoubleOf(@item)	
+	}')
+	#--> [ 8 ]
 
-? o1.FindWhere('{
-	( NOT isObject(@item) ) and
-	( isString(@NextItem) and @NextItem = "*" )
-}') #--> [ 5, 11]
-
-? o1.FindWhere('{
-	isNumber(@item) AND
-	@i <= This.NumberOfItems() - 3 AND
-
-	isNumber(This[@i+3]) AND
-	This[@i+3] = DoubleOf(@item)	
-}') #--> Gives [ 2, 5 ]
-
-? o1.FindWhere('{
-	isNumber(@item) AND
-	@i <= This.NumberOfItems() - 3 AND
-
-	isNumber(This[@i+3]) AND
-	This[@i+3] != DoubleOf(@item)	
-}') #--> Gives [ 8 ]
+proff()
+# Executed in 0.35 second(s).
 
 class Person name
 
 /*-------------
 
-o1 = new stzList(["c", "c++", "C#", "RING", "Python", "RUBY"])
-? o1.FindAllW('{ Q(@item).IsUppercase() }')
-  #--> Gives [3, 4, 6]
+pron()
 
-? o1.ItemsW('{ Q(@item).IsUppercase() }')
-  #--> Gives ["C#", "RING", "RUBY"]
+o1 = new stzList(["c", "c++", "C#", "RING", "Python", "RUBY"])
+
+? o1.FindAllWXT('{ Q(@item).IsUppercase() }')
+  #--> [3, 4, 6]
+
+? o1.ItemsWXT('{ Q(@item).IsUppercase() }')
+  #--> ["C#", "RING", "RUBY"]
+
+proff()
+# Executed in 0.25 second(s).
 
 /*-------------
 
+pron()
+
 o1 = new stzList(["c", "c++", "C#", "RING", "Python", "RUBY"])
-o1.InsertAfterW( :Where = '{ Q(@item).IsLowercase() }' , :With = "*")
-? o1.Content() #--> ["c", "*", "c++", "*", "C#", "RING", "Python", "RUBY"]
+o1.InsertAfterWXT( :Where = '{ Q(@item).IsLowercase() }' , :With = "*")
+? o1.Content()
+#--> ["c", "*", "c++", "*", "C#", "RING", "Python", "RUBY"]
+
+proff()
+# Executed in 0.16 second(s).
 
 /*-------------
+
+pron()
 
 o1 = new stzList( [ "c", "c++", "C#", "RING", "Python", "RUBY" ] )
-? o1.ItemsW('{ Q(@item).IsLowercased() }') #--> [ "c", "c++" ]
+? o1.ItemsWXT('{ Q(@item).IsLowercased() }')
+#--> [ "c", "c++" ]
 
-? o1.FirstItemW('{ Q(@item).IsLowercased() }') # --< "c"
-? o1.NthItemW(2, '{ Q(@item).IsLowercased() }') #--> "c++"
-? o1.LastItemW('{ Q(@item).IsLowercased() }') #--> "c++"
+? o1.FirstItemWXT('{ Q(@item).IsLowercased() }') + NL
+#--> "c"
+
+? o1.NthItemWXT(2, '{ Q(@item).IsLowercased() }') + NL
+#--> "c++"
+
+? o1.LastItemWXT('{ Q(@item).IsLowercased() }') #--> "c++"
+
+proff()
+# Executed in 0.52 second(s).
 
 /*-------------
+*/
+pron()
 
 o1 = new stzList(["c", "c++", "C#", "RING", "python", "ruby"])
-? o1.FindW("   ") #--> [1, 2, 3, 4, 5, 6]
 
-? o1.CountW('{ isLower(@item) }') #--> 3
-o1.NumberOfOccurrenceW('{  }') #--> 6
+//? o1.FindW("   ")
+#--> ERROR: Can't proceed.
+
+? o1.CountWXT('{ @isLowercase(@item) }')
+#--> 4
+
+? o1.NumberOfOccurrenceWXT('{ @isLowercase(@item) }') #--> 6
+#--> 4
+
+proff()
+# Executed in 0.25 second(s).
 
 /*==============
 

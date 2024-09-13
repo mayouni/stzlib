@@ -1,3 +1,4 @@
+load "qtcore.ring"
 
 _MinValueForComputableShortFormXT = 10
 

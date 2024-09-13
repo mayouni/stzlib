@@ -5609,6 +5609,8 @@ class stzListOfNumbers from stzList
 
 		anPos = This.Find(n)
 		anPos = Q( 1 : This.NumberOfNumbers() ) - These(anPos)
+		// #TODO Make a more performant solution!
+
 		anRandoms = NRandomNumbersIn(anPos)
 		anResult = This.ItemsAtPositions(anRandoms)
 
@@ -5631,6 +5633,8 @@ class stzListOfNumbers from stzList
 
 		anPos = This.Find(n)
 		anPos = Q( 1 : This.NumberOfNumbers() ) - These(anPos)
+		// #TODO Make a more performant solution!
+
 		anRandoms = NRandomNumbersIn(anPos)
 		nLen = len(anRandoms)
 
@@ -5753,10 +5757,13 @@ class stzListOfNumbers from stzList
 	 #  GETTING N RANDOM NUMBERS OTHER THEN THE GIVEN NUMBERS  #
 	#---------------------------------------------------------#
 	
-	#TODO: Add alternatives of (DifferentTo / Of / From / With) all over the library!
+	// #TODO: Add alternatives of (DifferentTo / Of / From / With) all over the library!
 
 	def NNumbersOtherThanMany(n, anNumbers)
+
 		anPos = Q( 1 : This.NumberOfItems() ) - These(This.Find(anNumbers))
+		// #TODO Make a more performant solution!
+
 		anRandoms = NRandomNumbersIn(anPos)
 		aResult = This.ItemsAtPositions(anRandoms)
 
@@ -5798,7 +5805,10 @@ class stzListOfNumbers from stzList
 	#-- Z/EXTENDED FORM
 
 	def NNumbersOtherThanManyZ(n, anNumbers)
+
 		anPos = Q( 1 : This.NumberOfItems() ) - These(This.Find(anNumbers))
+		// #TODO Make a more performant solution!
+
 		anRandoms = NRandomNumbersIn(anPos)
 		nLen = len(aRandoms)
 		
@@ -6053,6 +6063,8 @@ class stzListOfNumbers from stzList
 
 		anPos = This.Find(n)
 		anPos = Q( 1 : This.NumberOfNumbers() ) - These(anPos)
+		// #TODO Make a more performant solution!
+
 		anRandoms = SomeRandomNumbersIn(anPos)
 		anResult = This.ItemsAtPositions(anRandoms)
 
@@ -6829,6 +6841,7 @@ class stzListOfNumbers from stzList
 				next
 
 				return new stzListOfNumbers(anResult)
+
 			ok
 
 		but pcOp = "*"

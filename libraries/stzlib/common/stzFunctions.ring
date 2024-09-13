@@ -51,7 +51,8 @@ _aStzFindableTypes = [
 _MainValue = NULL
 _LastValue = NULL
 
-_bThese = FALSE	# Used in case like this: Q(1:5) - These(3:5) --> [1,2]
+_bThese = FALSE	     # Used in case like this: Q(1:5) - These(3:5) --> [1,2]
+_bTheseQ = FALSE     # Used in case like this: Q(1:5) - TheseQ(3:5) --> Q([1,2])
 
 _bParamCheck = TRUE  # Activates the "# Checking params region" in softanza functions
 		     #--> Set it to FALSE if the functions are used inside large loops
@@ -442,7 +443,7 @@ func AttributesValues(pObject) # Compliments Ring attributes() function
 
 
 
-#----
+#======
 
 func These(p)
 
@@ -456,7 +457,7 @@ func These(p)
 	# a hole item of type list, not two items. The main list does not
 	# contains an item like that, using the - operator has no effect.
 
-	# In the contrary, of [ "x", "y" ] was existant, it will be removed:
+	# In the contrary, if [ "x", "y" ] was existant, it will be removed:
 	# ? Q([ 1, 2, ["x", "y"], 3 ]) - [ "x", "y"] #--> [ 1, 2, 3 ]
 
 	if CheckParams()
@@ -1175,6 +1176,729 @@ func TheseQtObjects(p)
 		return TheseQtObjects(p)
 
 	#>
+#---
+
+func TheseQ(p)
+
+	# Used in the fellowing situation:
+	#  ? Q([ 1, 2, "x", 3, "y" ]) - TheseQ([ "x", "y"]) #--> Q([ 1, 2, 3 ])
+
+	if CheckParams()
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+	ok
+
+	_bTheseQ = TRUE
+	return p
+	# _bTheseQ Must be reset to FALSE everytime These() is used.
+	#TODO Review this!
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseQ(p)
+		return TheseQ(p)
+
+	func EachOneOfTheseQ(p)
+		return TheseQ(p)
+
+	func EachItemOfTheseQ(p)
+		return TheseQ(p)
+
+	func AllTheseQ(p)
+		return TheseQ(p)
+
+	func AllOfTheseQ(p)
+		return TheseQ(p)
+
+	#--
+
+	func TheseItemsQ(p)
+		return TheseQ(p)
+
+	func EachOfTheseItemsQ(p)
+		return TheseQ(p)
+
+	func EachOneOfTheseItemsQ(p)
+		return TheseQ(p)
+
+	func AllTheseItemsQ(p)
+		return TheseQ(p)
+
+	func AllOfTheseItemsQ(p)
+		return TheseQ(p)
+
+	#--
+
+	func EachInQ(p)
+		return TheseQ(p)
+
+	func EachItemInQ(p)
+		return TheseQ(p)
+
+	#==
+
+	func @TheseQ(p)
+		return TheseQ(p)
+
+	func @EachOfTheseQ(p)
+		return TheseQ(p)
+
+	func @EachOneOfTheseQ(p)
+		return TheseQ(p)
+
+	func @EachItemOfTheseQ(p)
+		return TheseQ(p)
+
+	func @AllTheseQ(p)
+		return TheseQ(p)
+
+	func @AllOfTheseQ(p)
+		return TheseQ(p)
+
+	#--
+
+	func @TheseItemsQ(p)
+		return TheseQ(p)
+
+	func @EachOfTheseItemsQ(p)
+		return TheseQ(p)
+
+	func @EachOneOfTheseItemsQ(p)
+		return TheseQ(p)
+
+	func @AllTheseItemsQ(p)
+		return TheseQ(p)
+
+	func @AllOfTheseItemsQ(p)
+		return TheseQ(p)
+
+	#--
+
+	func @EachInQ(p)
+		return TheseQ(p)
+
+	func @EachItemInQ(p)
+		return TheseQ(p)
+
+	#>
+
+func TheseNumbersQ(p)
+	
+	if CheckParams()
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+	ok
+
+	_bTheseQ = TRUE
+
+	nLen = len(p)
+	anResult = []
+
+	for i = 1 to nLen
+		if isNumber(p[i])
+			anResult + p[i]
+		ok
+	next
+
+	return new stzListOfNumbers(anResult)
+	# _bTheseQ must be reset to FALSE everytime TheseNumbers() is used.
+	#TODO Review this!
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseNumbersQ(p)
+		return TheseNumbersQ(p)
+
+	func EachOneOfTheseNumbersQ(p)
+		return TheseNumbersQ(p)
+
+	func AllTheseNumbersQ(p)
+		return TheseNumbersQ(p)
+
+	func AllOfTheseNumbersQ(p)
+		return TheseNumbersQ(p)
+
+	#==
+
+	func @TheseNumbersQ(p)
+		return TheseNumbersQ()
+
+	func @EachOfTheseNumbersQ(p)
+		return TheseNumbersQ(p)
+
+	func @EachOneOfTheseNumbersQ(p)
+		return TheseNumbersQ(p)
+
+	func @AllTheseNumbersQ(p)
+		return TheseNumbersQ(p)
+
+	func @AllOfTheseNumbersQ(p)
+		return TheseNumbersQ(p)
+
+	#>
+
+func TheseCharsQ(p)
+	
+	if CheckParams()
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+	ok
+
+	_bTheseQ = TRUE
+
+	nLen = len(p)
+	acResult = []
+
+	for i = 1 to nLen
+		if isString(p[i])
+			acResult + p[i]
+		ok
+	next
+
+	return new stzListOfChars(acResult)
+	# _bTheseQ must be reset to FALSE everytime TheseChars() is used.
+	#TODO Review this!
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseCharsQ(p)
+		return TheseCharsQ(p)
+
+	func EachOneOfTheseCharsQ(p)
+		return TheseCharsQ(p)
+
+	func AllTheseCharsQ(p)
+		return TheseCharsQ(p)
+
+	func AllOfTheseCharsQ(p)
+		return TheseCharsQ(p)
+
+	#==
+
+	func @TheseCharsQ(p)
+		return TheseCharsQ()
+
+	func @EachOfTheseCharsQ(p)
+		return TheseCharsQ(p)
+
+	func @EachOneOfTheseCharsQ(p)
+		return TheseCharsQ(p)
+
+	func @AllTheseCharsQ(p)
+		return TheseCharsQ(p)
+
+	func @AllOfTheseCharsQ(p)
+		return TheseCharsQ(p)
+
+	#>
+
+func TheseStringsQ(p)
+	
+	if CheckParams()
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+	ok
+
+	_bTheseQ = TRUE
+
+	nLen = len(p)
+	acResult = []
+
+	for i = 1 to nLen
+		if isString(p[i])
+			acResult + p[i]
+		ok
+	next
+
+	return new stzListOfStrings(acResult)
+	# _bTheseQ must be reset to FALSE everytime TheseStrings() is used.
+	#TODO Review this!
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStringsQ(p)
+		return TheseStringsQ(p)
+
+	func EachOneOfTheseStringsQ(p)
+		return TheseStringsQ(p)
+
+	func AllTheseStringsQ(p)
+		return TheseStringsQ(p)
+
+	func AllOfTheseStringsQ(p)
+		return TheseStringsQ(p)
+
+	#==
+
+	func @TheseStringsQ(p)
+		return TheseStringsQ()
+
+	func @EachOfTheseStringsQ(p)
+		return TheseStringsQ(p)
+
+	func @EachOneOfTheseStringsQ(p)
+		return TheseStringsQ(p)
+
+	func @AllTheseStringsQ(p)
+		return TheseStringsQ(p)
+
+	func @AllOfTheseStringsQ(p)
+		return TheseStringsQ(p)
+
+	#>
+
+func TheseListsQ(p)
+	
+	if CheckParams()
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+	ok
+
+	_bTheseQ = TRUE
+
+	nLen = len(p)
+	aResult = []
+
+	for i = 1 to nLen
+		if isString(p[i])
+			aResult + p[i]
+		ok
+	next
+
+	return new stzListOfLists(aResult)
+	# _bTheseQ must be reset to FALSE everytime TheseLists() is used.
+	#TODO Review this!
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseListsQ(p)
+		return TheseListsQ(p)
+
+	func EachOneOfTheseListsQ(p)
+		return TheseListsQ(p)
+
+	func AllTheseListsQ(p)
+		return TheseListsQ(p)
+
+	func AllOfTheseListsQ(p)
+		return TheseListsQ(p)
+
+	#==
+
+	func @TheseListsQ(p)
+		return TheseListsQ()
+
+	func @EachOfTheseListsQ(p)
+		return TheseListsQ(p)
+
+	func @EachOneOfTheseListsQ(p)
+		return TheseListsQ(p)
+
+	func @AllTheseListsQ(p)
+		return TheseListsQ(p)
+
+	func @AllOfTheseListsQ(p)
+		return TheseListsQ(p)
+
+	#>
+
+func TheseObjectsQ(p)
+	
+	if CheckParams()
+		if NOT isObject(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+	ok
+
+	_bTheseQ = TRUE
+
+	nLen = len(p)
+	aoResult = []
+
+	for i = 1 to nLen
+		if isObject(p[i])
+			aoResult + p[i]
+		ok
+	next
+
+	return new stzListOfObjects(aoResult)
+	# _bTheseQ must be reset to FALSE everytime TheseObjects() is used.
+	#TODO Review this!
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseObjectsQ(p)
+		return TheseObjectsQ(p)
+
+	func EachOneOfTheseObjectsQ(p)
+		return TheseObjectsQ(p)
+
+	func AllTheseObjectsQ(p)
+		return TheseObjectsQ(p)
+
+	func AllOfTheseObjectsQ(p)
+		return TheseObjectsQ(p)
+
+	#==
+
+	func @TheseObjectsQ(p)
+		return TheseObjectsQ()
+
+	func @EachOfTheseObjectsQ(p)
+		return TheseObjectsQ(p)
+
+	func @EachOneOfTheseObjectsQ(p)
+		return TheseObjectsQ(p)
+
+	func @AllTheseObjectsQ(p)
+		return TheseObjectsQ(p)
+
+	func @AllOfTheseObjectsQ(p)
+		return TheseObjectsQ(p)
+
+	#>
+
+func TheseStzNumbersQ(p)
+
+	if CheckParams()
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+	ok
+
+	_bTheseQ = TRUE
+
+	nLen = len(p)
+	aoResult = []
+
+	for i = 1 to nLen
+		if isObject(p[i]) and IsStzNumber(p[i])
+			aoResult + p[i]
+		ok
+	next
+
+	return new stzListOfNumbers(aoResult)
+	# _bTheseQ must be reset to FALSE everytime TheseStzNumbers() is used.
+	#TODO Review this!
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzNumbersQ(p)
+		return TheseStzNumbersQ(p)
+
+	func EachOneOfTheseStzNumbersQ(p)
+		return TheseStzNumbersQ(p)
+
+	func AllTheseStzNumbersQ(p)
+		return TheseStzNumbersQ(p)
+
+	func AllOfTheseStzNumbersQ(p)
+		return TheseStzNumbersQ(p)
+
+	#==
+
+	func @TheseStzNumbersQ(p)
+		return TheseStzNumbersQ()
+
+	func @EachOfTheseStzNumbersQ(p)
+		return TheseStzNumbers(p)
+
+	func @EachOneOfTheseStzNumbersQ(p)
+		return TheseStzNumbersQ(p)
+
+	func @AllTheseStzNumbersQ(p)
+		return TheseStzNumbersQ(p)
+
+	func @AllOfTheseStzNumbersQ(p)
+		return TheseStzNumbersQ(p)
+
+	#>
+
+func TheseStzCharsQ(p)
+
+	if CheckParams()
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+	ok
+
+	_bTheseQ = TRUE
+
+	nLen = len(p)
+	aoResult = []
+
+	for i = 1 to nLen
+		if isObject(p[i]) and IsStzChar(p[i])
+			aoResult + p[i]
+		ok
+	next
+
+	return aoResult
+	# _bTheseQ must be reset to FALSE everytime TheseStzChars() is used.
+	#TODO Review this!
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzCharsQ(p)
+		return TheseStzCharsQ(p)
+
+	func EachOneOfTheseStzCharsQ(p)
+		return TheseStzCharsQ(p)
+
+	func AllTheseStzCharsQ(p)
+		return TheseStzCharsQ(p)
+
+	func AllOfTheseStzCharsQ(p)
+		return TheseStzCharsQ(p)
+
+	#==
+
+	func @TheseStzCharsQ(p)
+		return TheseStzCharsQ()
+
+	func @EachOfTheseStzCharsQ(p)
+		return TheseStzCharsQ(p)
+
+	func @EachOneOfTheseStzCharsQ(p)
+		return TheseStzCharsQ(p)
+
+	func @AllTheseStzCharsQ(p)
+		return TheseStzCharsQ(p)
+
+	func @AllOfTheseStzCharsQ(p)
+		return TheseStzCharsQ(p)
+
+	#>
+
+func TheseStzStringsQ(p)
+	
+	if CheckParams()
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+	ok
+
+	_bTheseQ = TRUE
+
+	nLen = len(p)
+	aoResult = []
+
+	for i = 1 to nLen
+		if isObject(p[i]) and IsStzString(p[i])
+			aoResult + p[i]
+		ok
+	next
+
+	return new stzListOfStrings(aoResult)
+	# Must be reset to FALSE everytime TheseStzStrings() is used.
+	#TODO Review this!
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzStringsQ(p)
+		return TheseStzStringsQ(p)
+
+	func EachOneOfTheseStzStringsQ(p)
+		return TheseStzStringsQ(p)
+
+	func AllTheseStzStringsQ(p)
+		return TheseStzStringsQ(p)
+
+	func AllOfTheseStzStringsQ(p)
+		return TheseStzStringsQ(p)
+
+	#==
+
+	func @TheseStzStringsQ(p)
+		return TheseStzStringsQ()
+
+	func @EachOfTheseStzStringsQ(p)
+		return TheseStzStringsQ(p)
+
+	func @EachOneOfTheseStzStringsQ(p)
+		return TheseStzStringsQ(p)
+
+	func @AllTheseStzStringsQ(p)
+		return TheseStzStringsQ(p)
+
+	func @AllOfTheseStzStringsQ(p)
+		return TheseStzStringsQ(p)
+
+	#>
+
+func TheseStzListsQ(p)
+
+	if CheckParams()
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+	ok
+
+	_bTheseQ = TRUE
+
+	nLen = len(p)
+	aoResult = []
+
+	for i = 1 to nLen
+		if isObject(p[i]) and IsStzList(p[i])
+			aoResult + p[i]
+		ok
+	next
+
+	return new stzListOfLists(aoResult)
+	# _bTheseQ must be reset to FALSE everytime TheseStzLists() is used.
+	#TODO Review this!
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzListsQ(p)
+		return TheseStzListsQ(p)
+
+	func EachOneOfTheseStzListsQ(p)
+		return TheseStzListsQ(p)
+
+	func AllTheseStzListsQ(p)
+		return TheseStzListsQ(p)
+
+	func AllOfTheseStzListsQ(p)
+		return TheseStzListsQ(p)
+
+	#==
+
+	func @TheseStzListsQ(p)
+		return TheseStzListsQ()
+
+	func @EachOfTheseStzListsQ(p)
+		return TheseStzListsQ(p)
+
+	func @EachOneOfTheseStzListsQ(p)
+		return TheseStzListsQ(p)
+
+	func @AllTheseStzListsQ(p)
+		return TheseStzListsQ(p)
+
+	func @AllOfTheseStzListsQ(p)
+		return TheseStzListsQ(p)
+
+	#>
+
+func TheseStzObjectsQ(p)
+
+	if CheckParams()
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+	ok
+
+	_bTheseQ = TRUE
+
+	nLen = len(p)
+	aoResult = []
+
+	for i = 1 to nLen
+		if isObject(p[i]) and IsStzObject(p[i])
+			aoResult + p[i]
+		ok
+	next
+
+	return new stzListOfObjects(aoResult)
+	# _bTheseQ = TRUE must be reset to FALSE everytime TheseStzObjects() is used.
+	#TODO Review this!
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseStzObjectsQ(p)
+		return TheseStzObjectsQ(p)
+
+	func EachOneOfTheseStzObjectsQ(p)
+		return TheseStzObjectsQ(p)
+
+	func AllTheseStzObjectsQ(p)
+		return TheseStzObjectsQ(p)
+
+	func AllOfTheseStzObjectsQ(p)
+		return TheseStzObjectsQ(p)
+
+
+	#==
+
+	func @TheseStzObjectsQ(p)
+		return TheseStzObjectsQ()
+
+	func @EachOfTheseStzObjectsQ(p)
+		return TheseStzObjectsQ(p)
+
+	func @EachOneOfTheseStzObjectsQ(p)
+		return TheseStzObjectsQ(p)
+
+	func @AllTheseStzObjectsQ(p)
+		return TheseStzObjectsQ(p)
+
+	func @AllOfTheseStzObjectsQ(p)
+		return TheseStzObjectsQ(p)
+
+	#>
+
+func TheseQtObjectsQ(p)
+	
+	if CheckParams()
+		if NOT isList(p)
+			StzRaise("Incorrect param type! p must be a list.")
+		ok
+	ok
+
+	_bTheseQ = TRUE
+
+	nLen = len(p)
+	aoResult = []
+
+	for i = 1 to nLen
+		if isObject(p[i]) and IsQtObject(p[i])
+			aoResult + p[i]
+		ok
+	next
+
+	return new stzListOfObjects(aoResult)
+	# _bTheseQ must be reset to FALSE everytime TheseStzObjects() is used.
+	#TODO Review this!
+
+	#< @FunctionAlternativeForms
+
+	func EachOfTheseQtObjectsQ(p)
+		return TheseQtObjectsQ(p)
+
+	func EachOneOfTheseQtObjectsQ(p)
+		return TheseStzObjectsQ(p)
+
+	func AllTheseQtObjectsQ(p)
+		return TheseQtObjectsQ(p)
+
+	func AllOfTheseQtObjectsQ(p)
+		return TheseQtObjectsQ(p)
+
+	#==
+
+	func @TheseQtObjectsQ(p)
+		return TheseQtObjectsQ()
+
+	func @EachOfTheseQtObjectsQ(p)
+		return TheseQtObjectsQ(p)
+
+	func @EachOneOfTheseQtObjectsQ(p)
+		return TheseQtObjectsQ(p)
+
+	func @AllTheseQtObjectsQ(p)
+		return TheseQtObjectsQ(p)
+
+	func @AllOfTheseQtObjectsQ(p)
+		return TheseQtObjectsQ(p)
+
+	#>
 
 #===
 
@@ -1712,7 +2436,7 @@ func StzRaise(paMessage)
 
 		raise("Error in StzRaise param type!" + NL)
 	ok
-
+? @@(paMessage)
 	if isString(paMessage)
 		raise(paMessage + NL)
 	ok

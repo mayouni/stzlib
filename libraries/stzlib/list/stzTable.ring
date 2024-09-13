@@ -1051,6 +1051,8 @@ Class stzTable from stzObject
 		ok
 
 		anResult = Q(1:This.NumberOfCols()) - These( This.FindCols(paColNumbersOrColNames) )
+		// #TODO Make a more performant solution!
+
 		return anResult
 
 		#< @FunctionAlternativeForms
