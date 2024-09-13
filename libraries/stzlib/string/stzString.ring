@@ -2959,13 +2959,31 @@ class stzString from stzObject
 		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
 		This.UppercaseSections(aSections)
 
+		#< @FunctionFluentForm
+
 		def UppercaseSubStringCSQ(pcSubStr, pCaseSensitive)
 			This.UppercaseSubStringCS(pcSubStr, pCaseSensitive)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def UppercaseCSXT(pcSubStr, pCaseSensitive)
+			This.UppercaseSubStringCS(pcSubStr, pCaseSensitive)
+
+			def UppercaseCSXTQ(pcSubStr, pCaseSensitive)
+				return This.UppercaseSubStringCSQ(pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- @FunctionPassiveForm
+
 	def SubStringUppercasedCS(pcSubStr, pCaseSensitive)
 		cResult = This.Copy().UppercaseSubStringCS(pcSubStr, pCaseSensitive).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def SubStringToUppercaseCS(pcSubStr, pCaseSensitive)
 			return This.SubStringUppercasedCS(pcSubStr, pCaseSensitive)
@@ -2973,23 +2991,43 @@ class stzString from stzObject
 		def SubStringInUppercaseCS(pcSubStr, pCaseSensitive)
 			return This.SubStringUppercasedCS(pcSubStr, pCaseSensitive)
 
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def UppercaseSubString(pcSubStr)
 		This.UppercaseSubStringCS(pcSubStr, TRUE)
 
+		#< @FunctionFluetForm
+
 		def UppercaseSubStringQ(pcSubStr)
 			This.UppercaseSubStringCSQ(pcSubStr, TRUE)
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def UppercaseXT(pcSubStr)
+			This.UppercaseSubString(pcSubStr)
+
+			def UppercaseXTQ(pcSubStr)
+				return This.UppercaseSubStringQ(pcSubStr)
+
+		#>
 
 	def SubStringUppercased(pcSubStr)
 		cResult = This.Copy().UppercaseSubStringQ(pcStr).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def SubStringToUppercase(pcSubStr)
 			return This.SubStringUppercased(pcSubStr)
 
 		def SubStringInUppercase(pcSubStr)
 			return This.SubStringUppercased(pcSubStr)
+
+		#>
 
 	  #-----------------------------------------------------------#
 	 #  UPPERCASING A SUBSTRING IN THE STRING IN A GIVEN LOCALE  #
@@ -2999,9 +3037,15 @@ class stzString from stzObject
 		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
 		This.UppercaseSectionsInLocale(aSections, pLocale)
 
+		#< @FunctionFluentForm
+
 		def UppercaseSubStringInLocaleCSQ(pcSubStr, pLocale, pCaseSensitive)
 			This.UppercaseSubStringInLocale(pcStr, pLocale, pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def UppercaseSubStringInCS(pcSubStr, pLocale, pCaseSensitive)
 			This.UppercaseSubStringInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
@@ -3010,9 +3054,21 @@ class stzString from stzObject
 				This.UppercaseSubStringInCS(pcSubStr, pLocale, pCaseSensitive)
 				return This
 
+		def UppercaseInCSXT(pcSubStr, pLocale, pCaseSensitive)
+			This.UppercaseSubStringInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
+
+			def UppercaseInCSXTQ(pcSubStr, pLocale, pCaseSensitive)
+				return This.UppercaseSubStringInLocaleCSQ(pcSubStr, pLocale, pCaseSensitive)
+
+		#>
+
+	#-- @FunctionPassiveForm
+
 	def SubStringUppercasedInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
 		cResult = This.Copy().UppercaseSubStrinInLocalegCS(pcSubStr, pLocale, pCaseSensitive).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def SubStringToUppercaseInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
 			return This.SubStringUppercasedInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
@@ -3026,13 +3082,21 @@ class stzString from stzObject
 		def SubStringInUppercaseInCS(pcSubStr, pLocale, pCaseSensitive)
 			return This.SubStringUppercasedInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
 
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def UppercaseSubStringInLocale(pcSubStr, pLocale)
 		This.UppercaseSubStringInLocaleCS(pcSubStr, pLocale, TRUE)
 
+		#< @FunctionFluentForm
+
 		def UppercaseSubStringInLocaleQ(pcSubStr, pLocale)
 			This.UppercaseSubStringInLocaleCSQ(pcSubStr, pLocale, TRUE)
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def UppercaseSubStringIn(pcSubStr, pLocale)
 			This.UppercaseSubStringInLocale(pcSubStr, pLocale)
@@ -3041,9 +3105,21 @@ class stzString from stzObject
 				This.UppercaseSubStringIn(pcSubStr, pLocale)
 				return This
 
+		def UppercaseInXT(pcSubStr, pLocale)
+			This.UppercaseSubStringInLocale(pcSubStr, pLocale)
+
+			def UppercaseInXTQ(pcSubStr, pLocale)
+				return This.UppercaseSubStringInLocaleQ(pcSubStr, pLocale)
+
+		#>
+
+	#-- @FunctionPassiveForms
+
 	def SubStringUppercasedInLocale(pcSubStr, pLocale)
 		cResult = This.Copy().UppercaseSubStringInLocaleQ(pcStr, pLocale).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def SubStringToUppercaseInLocale(pcSubStr, pLocale)
 			return This.SubStringUppercasedInLocale(pcSubStr, pLocale)
@@ -3057,6 +3133,8 @@ class stzString from stzObject
 		def SubStringInUppercaseIn(pcSubStr, pLocale)
 			return This.SubStringUppercasedInLocale(pcSubStr, pLocale)
 
+		#>
+
 	  #-----------------------------------------#
 	 #  LOWERCASING A SUBSTRING IN THE STRING  #
 	#=========================================#
@@ -3065,13 +3143,31 @@ class stzString from stzObject
 		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
 		This.LowercaseSections(aSections)
 
+		#< @FunctionAlternativeForms
+
 		def LowercaseSubStringCSQ(pcSubStr, pCaseSensitive)
 			This.LowercaseSubStringCS(pcSubStr, pCaseSensitive)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def LowercaseCSXT(pcSubStr, pCaseSensitive)
+			This.LowercaseSubStringCS(pcSubStr, pCaseSensitive)
+
+			def LowercaseCSXTQ(pcSubStr, pCaseSensitive)
+				return This.LowercaseSubStringCSQ(pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- @FunctionPassiveForm
+
 	def SubStringLowercasedCS(pcSubStr, pCaseSensitive)
 		cResult = This.Copy().LowercaseSubStringCS(pcSubStr, pCaseSensitive).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def SubStringToLowercaseCS(pcSubStr, pCaseSensitive)
 			return This.SubStringLowercasedCS(pcSubStr, pCaseSensitive)
@@ -3079,23 +3175,45 @@ class stzString from stzObject
 		def SubStringInLowercaseCS(pcSubStr, pCaseSensitive)
 			return This.SubStringLowercasedCS(pcSubStr, pCaseSensitive)
 
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def LowercaseSubString(pcSubStr)
 		This.LowercaseSubStringCS(pcSubStr, TRUE)
 
+		#< @FunctionFluentForm
+
 		def LowercaseSubStringQ(pcSubStr)
 			This.LowercaseSubStringCSQ(pcSubStr, TRUE)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def LowercaseXT(pcSubStr)
+			This.LowercaseSubString(pcSubStr)
+
+			def LowercaseXTQ(pcSubStr)
+				return This.LowercaseSubStringQ(pcSubStr)
+
+		#>
+
+	#-- @FunctionPassiveForm
 
 	def SubStringLowercased(pcSubStr)
 		cResult = This.Copy().LowercaseSubStringQ(pcStr).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def SubStringToLowercase(pcSubStr)
 			return This.SubStringLowercased(pcSubStr)
 
 		def SubStringInLowercase(pcSubStr)
 			return This.SubStringLowercased(pcSubStr)
+
+		#>
 
 	  #-----------------------------------------------------------#
 	 #  LOWERCASING A SUBSTRING IN THE STRING IN A GIVEN LOCALE  #
@@ -3105,9 +3223,15 @@ class stzString from stzObject
 		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
 		This.LowercaseSectionsInLocale(aSections, pLocale)
 
+		#< @FunctionFluentForm
+
 		def LowercaseSubStringInLocaleCSQ(pcSubStr, pLocale, pCaseSensitive)
 			This.LowercaseSubStringInLocale(pcStr, pLocale, pCaseSensitive)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def LowercaseSubStringInCS(pcSubStr, pLocale, pCaseSensitive)
 			This.LowercaseSubStringInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
@@ -3116,9 +3240,21 @@ class stzString from stzObject
 				This.LowercaseSubStringInCS(pcSubStr, pLocale, pCaseSensitive)
 				return This
 
+		def LowercaseInCSXT(pcSubStr, pLocale, pCaseSensitive)
+			This.LowercaseSubStringInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
+
+			def LowercaseInCSXTQ(pcSubStr, pLocale, pCaseSensitive)
+				return This.LowercaseSubStringInLocaleCSQ(pcSubStr, pLocale, pCaseSensitive)
+
+		#>
+
+	#-- @FunctionPassiveForms
+
 	def SubStringLowercasedInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
 		cResult = This.Copy().LowercaseSubStrinInLocalegCS(pcSubStr, pLocale, pCaseSensitive).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def SubStringToLowercaseInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
 			return This.SubStringLowercasedInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
@@ -3132,13 +3268,21 @@ class stzString from stzObject
 		def SubStringInLowercaseInCS(pcSubStr, pLocale, pCaseSensitive)
 			return This.SubStringLowercasedInLocaleCS(pcSubStr, pLocale, pCaseSensitive)
 
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def LowercaseSubStringInLocale(pcSubStr, pLocale)
 		This.LowercaseSubStringInLocaleCS(pcSubStr, pLocale, TRUE)
 
+		#< @FunctonFluentForm
+
 		def LowercaseSubStringInLocaleQ(pcSubStr, pLocale)
 			This.LowercaseSubStringInLocaleCSQ(pcSubStr, pLocale, TRUE)
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def LowercaseSubStringIn(pcSubStr, pLocale)
 			This.LowercaseSubStringInLocale(pcSubStr, pLocale)
@@ -3147,9 +3291,20 @@ class stzString from stzObject
 				This.LowercaseSubStringIn(pcSubStr, pLocale)
 				return This
 
+		def LowercaseInXT(pcSubStr, pLocale)
+			This.LowercaseSubStringInLocale(pcSubStr, pLocale)
+
+			def LowercaseInXTQ(pcSubStr, pLocale)
+				return This.LowercaseSubStringInLocaleQ(pcSubStr, pLocale)
+		#>
+
+	#-- @FunctionPassiveForm
+
 	def SubStringLowercasedInLocale(pcSubStr, pLocale)
 		cResult = This.Copy().LowercaseSubStringInLocaleQ(pcStr, pLocale).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def SubStringToLowercaseInLocale(pcSubStr, pLocale)
 			return This.SubStringLowercasedInLocale(pcSubStr, pLocale)
@@ -3162,6 +3317,8 @@ class stzString from stzObject
 
 		def SubStringInLowercaseIn(pcSubStr, pLocale)
 			return This.SubStringLowercasedInLocale(pcSubStr, pLocale)
+
+		#>
 
 	  #================================#
 	 #     CAPITALIZING THE STRING    #
@@ -33103,7 +33260,6 @@ class stzString from stzObject
 			but oOptions.IsBetweenNamedParam()
 				This.InsertSubStringBetween(pcSubStr, paOptions[2][1], paOptions[2][2])
 
-			
 			but oOptions.IsBetweenSubStrings()
 				cSubStr1 = paOptions[2][1]
 				cSubStr2 = paOptions[2][2]
@@ -33160,62 +33316,234 @@ class stzString from stzObject
 
 	def InsertSubStringBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
 
+		if CheckParams()
+
+			if isList(p1)
+				oTempList = new stzList(p1)
+
+				if oTempList.IsPositionOrPositionsNamedParam() or
+				   oTempList.IsSubStringOrSubStringsNamedParam()
+
+					p1 = p1[2]
+				ok
+
+			but isList(p2)
+				oTempList = new stzList(p2)
+
+				if oTempList.IsAndOrAndPositionOrAndSubStringNamedParam()
+
+					p2 = p2[2]
+				ok
+			ok
+
+		ok
+
+		if isNumber(p1) and isNumber(p2)
+			This.InsertSubStringBetweenPositions(pcSubStr, p1, p2)
+
+		but isString(p1) and isString(p2)
+			This.InsertSubStringBetweenSubStringsCS(pcSubStr, p1, p2, pCaseSensitive)
+		ok
+
+		#< @FunctionFluentForm
+
+		def InsertSubStringBetweenCSQ(pcSubStr, p1, p2, pCaseSensitive)
+			This.InsertSubStringBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def InstertBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+			This.InsertSubStringBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+
+			def InstertBetweenCSQ(pcSubStr, p1, p2, pCaseSensitive)
+				return This.InsertSubStringBetweenCSQ(pcSubStr, p1, p2, pCaseSensitive)
+
+		#>
+
+	#-- @FunctionPassiveForm
+
+	def SubStringInsertedBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+		cResult = This.Copy().InsertSubStringBetweenCSQ(pcSubStr, p1, p2, pCaseSensitive).Content()
+		return cResult
+
+		def InsertedBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+			return This.SubStringInsertedBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
+
+	#== WITHOUT CASESENSITIVITY
+
+	def InsertSubStringBetween(pcSubStr, p1, p2)
+		This.InsertSubStringBetweenCS(pcSubStr, p1, p2, TRUE)
+
+		#< @FunctionFluentForm
+
+		def InsertSubStringBetweenQ(pcSubStr, p1, p2)
+			This.InsertSubStringBetween(pcSubStr, p1, p2)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def InsertBetween(pcSubStr, p1, p2)
+			This.InsertSubStringBetween(pcSubStr, p1, p2)
+
+			def InsertBetweenQ(pcSubStr, p1, p2)
+				return This.InsertSubStringBetweenQ(pcSubStr, p1, p2)
+
+		#>
+
+	#-- @FunctionPassiveForm
+
+	def SubStringInsertedBetween(pcSubStr, p1, p2)
+		return This.SubStringInsertedBetweenCS(pcSubStr, p1, p2, TRUE)
+
+		def InsertedBetween(pcSubStr, p1, p2)
+			return This.SubStringInsertedBetween(pcSubStr, p1, p2)
 
 	  #--------------------------------------------------#
 	 #   INSERTING A SUBSTRING BETWEEN TWO SUBSTRINGS   #
 	#--------------------------------------------------#
 
-	def InsertSubStringBetweenSubStringsCS(pcSubStr, p1, p2, pCaseSensitive)
-
-	  #-------------------------------------------------#
-	 #   INSERTING A SUBSTRING BETWEEN TWO POSITIONS   #
-	#-------------------------------------------------#
-
-	def InsertSubStringBetweenPositions(pcSubStr, p1, p2)
+	def InsertSubStringBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 		if CheckParams()
-			if NOT isString(pcSubStr)
-				StzRaise("Incorrect param type! pcSubStr must be a string.")
-			ok
-
-			if isList(p1) and StzListQ(p1).IsPositionOrPositionsNamedParam()
-				p1 = p1[2]
-			ok
-
-			if isList(p2) and StzListQ(p2).IsAndNamedParam()
-				p2 = p2[2]
-			ok
-
-			if NOT (isNumber(p1) and isNumber(n2))
-				StzRaise("Incorrect params types! p1 and p2 must be both numbers.")
+			if NOT ( isString(pcSubStr) and isString(pcSubStr1) and isString(pcSubStr2) )
+				StzRaise("Incorrect param types! pcSubStr, pcSubStr1 and pcSubStr2 must be all strings.")
 			ok
 		ok
 
 		if EarlyChecks()
-			if pcSubStr = "" or p1 < 0 or p2 > This.NumberOfChars()
+			if pcSubStr = "" or
+			   pcSubStr1 = "" or
+			   pcSubStr = ""
+
 				return
 			ok
 		ok
 
 		# Doing the job
 
-		This.ReplaceSection(p1, p2, pcSubStr)
+		aSections = This.FindAnyBoundedByAsSectionsCS([ pcSubStr1, pcSubStr2 ], pCaseSensitive)
+		This.ReplaceSections(aSections, pcSubStr)
 
 		#< @FunctionFluentForm
 
-		def InsertSubStringBetweenPositionsQ(pcSubStr, p1, p2)
-			This.InsertSubStringBetweenPositions(pcSubStr, p1, p2)
+		def InsertSubStringBetweenSubStringsCSQ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+			This.InsertSubStringBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This
+
+		#>	
+
+		#< @FunctionAlternativeForm
+
+		def InsertBetweenSubStringsCS(pcSubStr1, pcSubStr2, pcSubStr, pCaseSensitive)
+			This.InsertSubStringBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+
+			def InsertBetweenSubStringsCSQ(pcSubStr1, pcSubStr2, pcSubStr, pCaseSensitive)
+				return This.InsertSubStringBetweenSubStringsCSQ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+
+		#>
+
+	#-- @FunctionPassiveForm
+
+	def InsertedBetweenSubStringsCS(pcSubStr1, pcSubStr2, pcSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertSubStringBetweenSubStringsCSQ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive).Content()
+		return cResult
+
+		def SubStringInsertedBetweenSubStringsCS(pcSubStr1, pcSubStr2, pcSubStr, pCaseSensitive)
+			return This.InsertedBetweenSubStringsCS(pcSubStr1, pcSubStr2, pcSubStr, pCaseSensitive)
+
+	#== WITHOUT CASESENSITIVITY
+
+	def InsertSubStringBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
+
+		This.InsertSubStringBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, TRUE)
+
+		#< @FunctionFluentForm
+
+		def InsertSubStringBetweensubStringsQ(pcSubStr, pcSubStr1, pcSubStr2)
+			This.InsertSubStringBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def InsertBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
+			This.InsertSubStringBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
+
+			def InsertBetweenSubStringsQ(pcSubStr, pcSubStr1, pcSubStr2)
+				return This.InsertSubStringBetweenSubStringsQ(pcSubStr, pcSubStr1, pcSubStr2)
+
+		#>
+
+	#-- @FunctionPassiveForm
+
+	def InsertedBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
+		return This.InsertSubStringBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, TRUE)
+
+		def SubStringInsertedBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
+			return This.InsertedBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
+
+	  #-------------------------------------------------#
+	 #   INSERTING A SUBSTRING BETWEEN TWO POSITIONS   #
+	#-------------------------------------------------#
+
+	def InsertSubStringBetweenPositions(pcSubStr, n1, n2)
+		if CheckParams()
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
+			if isList(n1) and StzListQ(n1).IsPositionOrPositionsNamedParam()
+				n1 = n1[2]
+			ok
+
+			if isList(n2) and StzListQ(n2).IsAndNamedParam()
+				n2 = n2[2]
+			ok
+
+			if NOT (isNumber(n1) and isNumber(n2))
+				StzRaise("Incorrect params types! n1 and n2 must be both numbers.")
+			ok
+		ok
+
+		if EarlyChecks()
+			if pcSubStr = "" or n1 < 0 or n2 > This.NumberOfChars()
+				return
+			ok
+		ok
+
+		# Doing the job
+
+		This.ReplaceSection(n1, n2, pcSubStr)
+
+		#< @FunctionFluentForm
+
+		def InsertSubStringBetweenPositionsQ(pcSubStr, n1, n2)
+			This.InsertSubStringBetweenPositions(pcSubStr, n1, n2)
 			return This
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def InsertBetweenPositions(pcSubStr, p1, p2)
-			This.InsertSubStringBetweenPositions(pcSubStr, p1, p2)
+		def InsertBetweenPositions(pcSubStr, n1, n2)
+			This.InsertSubStringBetweenPositions(pcSubStr, n1, n2)
 
-			def InsertBetweenPositionsQ(pcSubStr, p1, p2)
-				return This.InsertSubStringBetweenPositionsQ(pcSubStr, p1, p2)
+			def InsertBetweenPositionsQ(pcSubStr, n1, n2)
+				return This.InsertSubStringBetweenPositionsQ(pcSubStr, n1, n2)
 
 		#>
+
+	#-- @FunctionPassiveForms
+
+	def InstertedBetweenPositions(pcSubStr, n1, n2)
+		cResult = This.Copy().InsertSubStringBetweenPositionsQ(pcSubStr, n1, n2).Content()
+
+		def SubStringInstertedBetweenPositions(pcSubStr, n1, n2)
+			return This.InstertedBetweenPositions(pcSubStr, n1, n2)
 
 	  #------------------------------------------------#
 	 #    INSERTING A SUBSTRING BEFORE EACH N CHARS   #

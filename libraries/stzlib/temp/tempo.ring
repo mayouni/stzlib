@@ -1,17 +1,35 @@
-
 load "../stzlib.ring"
+
+/*=====
+pron()
+
+o1 = new stzString("--<<one>>---<<two>>---")
+? @@( o1.FindAnyBoundedByAsSections([ "<<", ">>" ]) )
+#--> [ [ 5, 7 ], [ 15, 17 ] ]
+
+proff()
+# Executed in 0.01 second(s).
+
+
+/*-----
+*/
+
+pron()
 
 Q("Hello MAX!") {
 
-	LowercaseSubString("AX")
+	LowercaseXT("AX")
 	? Content()
 	#--> Hello Max!
 
-	InsertXT("dear", :Between = [ "Hello ", :And = "Max" ])
+	InsertXT(" dear ", :Between = [ "Hello", :And = "Max" ])
 	? Content()
 	#--> "Hello dear Max!"
 
 }
+
+proff()
+# Executed in 0.07 second(s).
 
 /*====
 
