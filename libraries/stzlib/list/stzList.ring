@@ -11846,7 +11846,7 @@ Item and then position
 
 	  #----------------------------------------------#
 	 #   REPLACING ITEMS UNDER A GIVEN CONDITION    #
-	#----------------------------------------------#
+	#==============================================#
 
 	def ReplaceItemsW(pCondition, pOtherItem)
 
@@ -11876,9 +11876,41 @@ Item and then position
 		aResult = This.Copy().ReplaceItemsW(pCondition, pOtherItem)
 		return aResult
 
+	  #--------------------------------------------------------#
+	 #   REPLACING ITEMS UNDER A GIVEN CONDITION -- WXTended  #
+	#========================================================#
+
+	def ReplaceItemsWXT(pCondition, pOtherItem)
+
+		anPos = This.FindItemsWXT(pCondition)
+		This.ReplaceItemsAtPositions(anPos, pOtherItem)
+
+		#< @FunctionFluentForm
+
+		def ReplaceItemsWXTQ(pCondition, pOtherItem)
+			This.ReplaceItemsWXT(pCondition, pOtherItem)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceWXT(pCondition, pOtherItem)
+			This.ReplaceItemsWXT(pCondition, pOtherItem)
+
+			def ReplaceWXTQ(pCondition, pOtherItem)
+				This.ReplaceWXT(pCondition, pOtherItem)
+				return This
+
+		#>
+
+	def ItemsReplacedWXT(pCondition, pOtherItem)
+		aResult = This.Copy().ReplaceItemsW(pCondition, pOtherItem)
+		return aResult
+
 	  #----------------------------------#
 	 #  REPLACING AN ITEM AT ANY LEVEL  #
-	#----------------------------------#
+	#==================================#
 
 	// Replaces an item at any nested level of the list by a new value
 	def DeepReplaceCS(pItem, pByValue, pCaseSensitive)
@@ -14963,7 +14995,7 @@ Item and then position
 			return FALSE
 		ok
 
-	def IsBoundedBy(pacBounds)
+	def IsBoundedBy(paBounds)
 		return This.IsBoundedByCS(paBounds, TRUE)
 
 	  #--------------------------------------------#
@@ -36281,6 +36313,7 @@ Item and then position
 
 		anPos = This.FindAllCS(pItem, pCaseSensitive)
 		anResult = Q(1:This.NumberOfItems()) - These(anPos)
+		// #TODO Make a more performant solution!
 
 		return anResult
 
@@ -36854,6 +36887,7 @@ Item and then position
 
 		nLen = This.NumberOfItems()
 		anResult = Q( 1 : nLen) - These(anPos)
+		// #TODO Make a more performant solution!
 
 		return anResult
 
@@ -38799,6 +38833,8 @@ Item and then position
 		ok
 
 		panPos = Q( 1 : This.NumberOfItems ) - These(panPos)
+		// #TODO Make a more performant solution!
+
 		aResult = This.ItemsAtPositions(panPos)
 
 		return aResult
@@ -39216,7 +39252,7 @@ Item and then position
 				return This.FirstItemWXTQ(pCondition)
 
 	def LastItemWXT(pCondition)
-		return This.ItemsW(pCondition)[ len(This.ItemsWXT(pCondition)) ]
+		return This.ItemsWXT(pCondition)[ len(This.ItemsWXT(pCondition)) ]
 
 		#< @FunctionFluentForm
 
@@ -48616,8 +48652,11 @@ Item and then position
 	#---------------------------------------------------------#
 
 	def AnItemOtherThanCS(pItem, pCaseSensitive)
+
 		anPos = This.FindAllCS(pItem, pCaseSensitive)
 		anPos = Q(anPos) - These(anPos)
+		// #TODO Make a more performant solution!
+
 		n = ARandomNumberIn(anPos)
 		result = This.ItemAt(n)
 	
@@ -48762,8 +48801,11 @@ Item and then position
 	#---------------------------------------------------------------------------------#
 
 	def AnItemOtherThanCSZ(pItem, pCaseSensitive)
+
 		anPos = This.FindAllCS(pItem, pCaseSensitive)
 		anPos = Q(anPos) - These(anPos)
+		// #TODO Make a more performant solution!
+
 		nPos = ARandomNumberIn(anPos)
 		item = This.ItemAt(nPos)
 	
@@ -49174,6 +49216,8 @@ Item and then position
 
 	def NRandomItemsOtherThanCS(pItem, pCaseSensitive)
 		anPos = Q(1 : This.NumberOfItems()) - These( This.FindCS(pItem, pCaseSensitive) )
+		// #TODO Make a more performant solution!
+
 		anRandomPos = NRandomNumbersIn(anPos)
 		aResult = This.ItemsAtPositions(anRandomPos)
 
@@ -49264,6 +49308,8 @@ Item and then position
 
 	def NRandomItemsOtherThanCSZ(pItem)
 		anPos = Q(1 : This.NumberOfItems()) - These( This.FindCS(pItem, pCaseSensitive) )
+		// #TODO Make a more performant solution!
+
 		anRandomPos = NRandomNumbersIn(anPos)
 		aItems = This.ItemsAtPositions(anRandomPos)
 
@@ -49367,7 +49413,10 @@ Item and then position
 	#-----------------------------------------------------#
 
 	def SomeRandomItemsOtherThanCS(pItem, pCaseSensitive)
+
 		anPos = Q(1 : This.NumberOfItems()) - These( This.FindCS(pItem, pCaseSensitive) )
+		// #TODO Make a more performant solution!
+
 		anRandomPos = SomeRandomNumbersIn(anPos)
 		aResult = This.ItemsAtPositions(anRandomPos)
 
@@ -49425,7 +49474,10 @@ Item and then position
 	#-------------------------------------------------------------------#
 
 	def SomeRandomItemsOtherThanCSZ(pItem, pCaseSensitive)
+
 		anPos = Q(1 : This.NumberOfItems()) - These( This.FindCS(pItem, pCaseSensitive) )
+		// #TODO Make a more performant solution!
+
 		anRandomPos = SomeRandomNumbersIn(anPos)
 		aResult = This.ItemsAtPositionsQ(anRandomPos).AssociatedWith(anRandomPos)
 

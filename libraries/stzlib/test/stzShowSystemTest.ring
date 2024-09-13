@@ -1,5 +1,5 @@
-load "stzShowSys.ring"
-load "stzProfSys.ring"
+load "../extended/systems/stzShowSys.ring"
+load "../extended/systems/stzProfSys.ring"
 
 /*----
 
@@ -21,7 +21,7 @@ proff()
 # Executed in almost 0 second(s).
 
 /*---
-*/
+
 pron()
 
 ? @@SF("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -150,7 +150,7 @@ proff()
 # Executed in almost 0 second(s).
 
 /*------
-
+*/
 pron()
 
 ? ComputableForm([ 1:3, 4:6, 7:9 ]) + NL # OR CF() or @@()

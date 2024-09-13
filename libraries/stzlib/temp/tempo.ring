@@ -33,47 +33,21 @@ proff()
 */
 pron()
 
-? @@( Q(1:3) + 4 )
-#--> [ 1, 2, 3, 4 ]
+# Q() elevates 1:3 to a StzList object.me()
 
-? StzType( Q(1:3) + Q(4) )
-#--> stzlist
-
-? @@( ( Q(1:3) + Q(4) ).Content() )
-#--> [ 1, 2, 3, 4 ]
-
-? ( Q(1:3) + Q(4) ).ToStzListOfNumbers().Sum() + NULL
-#--> 10
-
-? StzType( QQ(1:3) )
-#--> stzListOfNumbers
-
-? @@( QQ(1:3) + 4 )
-#--> [ 5, 6, 7 ]
-
-? ( QQ(1:3) + Q(4) ).Sum()
-#--> 18
-
-proff()
-# Executed in 0.04 second(s).
-
-/*----
-*/
-pron()
-
-# Q() elevates 1:3 to a StzList object
-# Like in Ring, the + operator adds items to a list
+# The "-" operator seeks for a value inside the
+# list, and if found, # it will remove it
 
 ? @@( Q(1:5) - 5 )
 #--> [ 1, 2, 3, 4 ]
 
-# We can add the item and return, not the list content
+# We can retrieve the item and return, not the list content
 # like in the example above, but a stzList object
 
 ? StzType( Q(1:5) - Q(5) )
 #--> stzlist
 
-# Check its content, you will see that 5 has been added
+# Check its content, you will see that 5 has been removed
 
 ? @@( ( Q(1:5) - Q(5) ).Content() )
 #--> [ 1, 2, 3, 4 ]
@@ -83,19 +57,20 @@ pron()
 ? ( Q(1:5) - Q(5) ).ToStzListofNumbers().Sum()
 #--> 10
 
-# If we need to deel with a stzListOfNumbers object, not
-# just a stzList object, then we usee QQ() instead of Q():
+# We can deel directly with a stzListOfNumbers object,
+# by using the QQ() elevator instead of Q():
 
 ? @@( QQ(1:5) - 5 )
 #--> [ -4, -3, -2, -1, 0 ]
 
-# Hence the - operator takes a specific meaning: retrieving
-# the value 5 from to each number in stzListOfNumbers object.
+# In this case, the "-" operator takes a different meaning:
+# retrieving the value 5 from to each number in the
+# stzListOfNumbers object.
 
-# And because we used - 5, and not - Q(5), the ouput
-# was a normal list [ -4, -3, -2, -1, 0 ]
+# And because we used - 5, the output was a normal
+# list [ -4, -3, -2, -1, 0 ]
 
-# But ff we want the output to be a stzListOfNumbers object,
+# So if we want the output to be a stzListOfNumbers object,
 # we elevate 5 to Q(5), like this:
 
 ? StzType( QQ(1:5) - Q(5) )

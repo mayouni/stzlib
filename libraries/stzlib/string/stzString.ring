@@ -30594,6 +30594,10 @@ class stzString from stzObject
 
 	def FindNestedSubStringsCS(pacBounds, pCaseSensitive)
 
+		if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByNamedParam()
+			pacBounds = pacBounds[2]
+		ok
+
 		anResult = This.AntiFindCS(pacBounds, pCaseSensitive)
 		return anResult
 
@@ -30664,6 +30668,10 @@ class stzString from stzObject
 
 	def FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
 
+		if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByNamedParam()
+			pacBounds = pacBounds[2]
+		ok
+
 		aResult = This.AntiFindCSZZ(pacBounds, pCaseSensitive)
 		return aResult
 
@@ -30732,6 +30740,11 @@ class stzString from stzObject
 	#----------------------------------------------------------#
 
 	def NestedSubStringsCS(pacBounds, pCaseSensitive)
+
+		if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByNamedParam()
+			pacBounds = pacBounds[2]
+		ok
+
 		aSections = This.FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
 		acResult = This.Sections(aSections)
 
@@ -30761,6 +30774,11 @@ class stzString from stzObject
 	#------------------------------------------------------------------------#
 
 	def NestedSubStringsCSZ(pacBounds, pCaseSensitive)
+
+		if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByNamedParam()
+			pacBounds = pacBounds[2]
+		ok
+
 		acSubStr = This.NestedSubStringsCS(pacBounds, pCaseSensitive)
 		anPos = This.FindNestedSubStringsCS(pacBounds, pCaseSensitive)
 
@@ -30808,6 +30826,11 @@ class stzString from stzObject
 	#-------------------------------------------------------------------------#
 
 	def NestedSubStringsCSZZ(pacBounds, pCaseSensitive)
+
+		if isList(pacBounds) and StzListQ(pacBounds).IsBoundedByNamedParam()
+			pacBounds = pacBounds[2]
+		ok
+
 		acSubStr = This.NestedSubStringsCS(pacBounds, pCaseSensitive)
 		aSections = This.FindNestedSubStringsCSZZ(pacBounds, pCaseSensitive)
 

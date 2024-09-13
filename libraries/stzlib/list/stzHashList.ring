@@ -1539,7 +1539,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		return anResult
 
-	def FindNonLists()
+	def FindNonLists() // #TODO Make a more performant solution
 		anResult = Q( 1 : This.Size() ) - These( This.FindLists() )
 		return anResult
 
