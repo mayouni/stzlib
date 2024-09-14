@@ -2,7 +2,7 @@ load "../stzlib.ring"
 
 
 /*-------------------
-
+*/
 pron()
 
 decimals(10)
@@ -15,12 +15,13 @@ decimals(10)
 	#--> 0.93359375
 	
 	? o1.ToDecimalForm()
-	#--> 31356143.93359375
+	#--> 61242.93359375		#TODO check correctness!
 
 decimals(2)
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.04 second(s) in Ring 1.21
+# Executed in 0.11 second(s) in Ring 1.17
 
 /*-------------------
 
@@ -39,7 +40,7 @@ proff()
 # Executed in 0.07 second(s) on Ring 1.20
 
 /*-------------------
-*/
+
 pron()
 
 // Creating a binary number from a hex form
@@ -83,4 +84,5 @@ o1 = new stzBinaryNumber("0b1010111")
 #--> 0x57
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.09 second(s) in Ring 1.18

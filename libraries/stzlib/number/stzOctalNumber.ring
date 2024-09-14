@@ -36,7 +36,7 @@ class stzOctalNumber from stzString
 	@cOctalNumber
 
 	def init(pNumber)
-		if isString(pNumber) and StzListQ(pNumber).RepresentsNumberInOctalForm()
+		if isString(pNumber) and StzStringQ(pNumber).RepresentsNumberInOctalForm()
 				@cOctalNumber = pNumber
 
 		else
@@ -62,6 +62,9 @@ class stzOctalNumber from stzString
 		oStzStr = new stzString(This.OctalNumber())
 		cOctal = oStzStr.Section(2, len(This.OctalNumber()) )
 
+		cOctal = substr(cOctal, "0o", "")
+		cOctal = substr(cOctal, "o", "")
+
 		nResult = 0
 		nLen = len(cOctal)
 
@@ -72,7 +75,7 @@ class stzOctalNumber from stzString
 
 		aDigits = []
 		for i = nLen to 1 step -1
-			aDigits + cOctal[i]
+			aDigits + (0+ cOctal[i])
 		next
 
 		for i = 1 to nLen
@@ -80,6 +83,9 @@ class stzOctalNumber from stzString
 		next
 		
 		return nResult
+
+		def ToDecimal()
+			return This.ToDecimalForm()
 
 	def OctalNumber()
 		return Content()
