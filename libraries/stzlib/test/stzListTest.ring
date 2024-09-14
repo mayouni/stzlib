@@ -8400,7 +8400,8 @@ proff()
 # Executed in 0.02 second(s).
 
 /*-----------
-*/
+
+pron()
 
 o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
 
@@ -8416,8 +8417,37 @@ o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
 ? @@( o1.SplitAtPositions([ 1, 5 ]) ) + NL
 #--> [ [ 2, 4 ] ]
 
-? @@( o1.SplitAtPositions([ 1, 3, 5 ]) ) + NL
+? @@( o1.SplitAtPositions([ 1, 3, 5 ]) )
 #--> [ [ 2, 2 ], [ 4, 4 ] ]
+
+proff()
+# Executed in 0.02 second(s).
+
+/*-----------
+
+? o1.SplitBeforePositions([ 1, 6 ]) )
+#--> ERROR: Incorrect param value! panPos must contain numbers in the range of the splitter bounds.
+
+/*-----------
+*/
+pron()
+
+o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
+/*
+? @@( o1.SplitBefore(1) )
+#--> [ [ 1, 5 ] ]
+
+? @@( o1.SplitBefore(5) ) + NL
+#--> [ [ 1, 4 ], [ 5, 5 ] ]
+
+? @@( o1.SplitBeforePositions([ 3, 5 ]) ) + NL
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 5 ] ]
+*/
+? @@( o1.SplitBeforePositions([ 1, 5 ]) ) + NL
+#--> [ [ 1, 4 ], [ 4, 5 ] ]
+
+? @@( o1.SplitBeforePositions([ 1, 3, 5 ]) )
+#--> 
 
 proff()
 # Executed in 0.02 second(s).

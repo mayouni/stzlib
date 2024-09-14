@@ -1,3 +1,4 @@
+
 load "../stzlib.ring"
 
 /*=====
@@ -12,7 +13,6 @@ proff()
 
 
 /*-----
-*/
 
 pron()
 
@@ -32,7 +32,7 @@ proff()
 # Executed in 0.07 second(s).
 
 /*====
-
+*/
 pron()
 
 ? @@( Q(1:3) + 4 )

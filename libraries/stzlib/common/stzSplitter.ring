@@ -400,16 +400,39 @@ class stzSplitter from stzListOfNumbers
 	#-------------------------------------#
 
 	def SplitBeforePositions(panPos)
+
 		if CheckParams()
 			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 				StzRaise("Incorrect param type! panPos must be a list of numbers.")
 			ok
 		ok
 
+		# Checking the positions correctness
+
+		nLen = This.NumberOfItems()
+
+		bOk = TRUE
+		nLenPos = len(panPos)
+		if nLenPos = 0
+			bOk = FALSE
+		ok
+
+		for i = 1 to nLenPos
+			if panPos[i] < 1 or panPos[i] > nLen
+				bOk = FALSE
+			ok
+		next
+
+		if NOT bOk
+			StzRaise("Incorrect param value! panPos must contain numbers in the range of the splitter bounds.")
+		ok
+
+		# Doing the job
+
 		aPairs = This.GetPairsFromPositions(panPos)
 		/*
 		Main list 	 --> 1:10
-		panPos	 --> [ 3, 6, 8 ]
+		panPos	 	 --> [ 3, 6, 8 ]
 		List of pairs	 --> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
 		Eexpected result --> [ [ 1, 2 ], [ 3, 5 ], [ 6, 7 ], [ 8, 10 ] ]
 
@@ -417,17 +440,33 @@ class stzSplitter from stzListOfNumbers
 		- For all the others, just retrived 1 from aPair[2]
 		*/
 
-		nLen = len(aPairs)
+		nLenPairs = len(aPairs)
 		aResult = []
 
-		for i = 1 to nLen - 1
+		# Special case: Only one pair is returned by GetPairsFromPositions()
+not only 1
+each time the last pair finishes with nlen
+		if nLenPairs = 1
+
+			if aPairs[1][1] = 1 and aPairs[1][2] = nLen
+				n1 = aPairs[1][1]
+				n2 = nLen
+				aResult + [ n1, n2--] + [ n2, nLen ]
+				return aResult
+			 ok
+
+		ok
+
+		# Other cases: Many pairs are returned by GetPairsFromPositions()
+
+		for i = 1 to nLenPairs - 1
 			n1 = aPairs[i][1]
 			n2 = aPairs[i][2] - 1
 
 			aResult + [ n1, n2 ]
 		next
 
-		aLastPair = aPairs[nLen]
+		aLastPair = aPairs[nLenPairs]
 		aResult + [ aLastPair[1], aLastPair[2] ]
 
 		return aResult
