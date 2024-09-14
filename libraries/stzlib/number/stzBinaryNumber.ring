@@ -202,9 +202,27 @@ class stzBinaryNumber from stzObject
 		return new stzString( This.BinaryNumber() )
 
 	def IntegerPartToDecimalForm()
+		cBinary = This.BinaryNumber()
+
+		# Remove the fractional part
+
+		nDotPos = substr(cBinary, ".")
+		if nDotPos > 0
+			cBinary = left(cBinary, nDotPos-1)
+		ok
+
+		# Remove the 0b or b prefix
+
+		cBinary = substr(cBinary, "0b", "")
+		cBinary = substr(cBinary, "b", "")
+		nLen = len(cBinary)
+
+		# Doing the job
+
 		nCurrentTotal = 0
-		for bit in This.BinaryNumber()
-			nCurrentTotal = nCurrentTotal * 2 + (0+ bit)
+
+		for i = 1 to nLen
+			nCurrentTotal = nCurrentTotal * 2 + (0+ cBinary[i])
 		next
 
 		return ""+ nCurrentTotal
@@ -219,7 +237,7 @@ class stzBinaryNumber from stzObject
 			nCurrentTotal = ( nCurrentTotal + (0+ bit) ) / 2
 		next
 
-		return StzStringQ( ""+ nCurrentTotal ).RemoveTrailingRepeatedCharQ('0').Content()
+		return StzStringQ( ""+ nCurrentTotal ).RemoveThisTrailingRepeatedCharQ('0').Content()
 
 		def FractionalPartToDecimal()
 			return This.FractionalPartToDecimalForm()
