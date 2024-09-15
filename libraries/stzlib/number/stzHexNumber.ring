@@ -106,11 +106,18 @@ class stzHexNumber from stzObject
 	# Stored Without prefix! Prefixes are used only when exporting the
 	# request using WithPrefix()
 
-	def init(pNumber)
+	def init(cNumber)
 
-		if isString(pNumber) and StzStringQ(pNumber).RepresentsNumberInHexForm()
+		if not isString(cNumber)
+			stzRaise("Incorrect param type! cNumber must be a string.")
+		ok
 
-			oHexNumber = StzStringQ(pNumber)
+		if cNumber = ""
+			@cHexNumber = ""
+
+		but StzStringQ(cNumber).RepresentsNumberInHexForm()
+
+			oHexNumber = StzStringQ(cNumber)
 			acHexPrefix = HexPrefixes()
 			nLen = len(acHexPrefix)
 
@@ -120,8 +127,8 @@ class stzHexNumber from stzObject
 				
 			@cHexNumber = oHexNumber.Content()
 
-		but StringRepresentsNumberInUnicodeHexForm(pNumber)
-			@cHexNumber = StzStringQ(pNumber).RemoveCSQ( "U+", :CS = FALSE ).Content()
+		but StringRepresentsNumberInUnicodeHexForm(cNumber)
+			@cHexNumber = StzStringQ(cNumber).RemoveCSQ( "U+", :CS = FALSE ).Content()
 
 		else
 			StzRaise(stzHexNumberError(:CanNotCreateHexNumber))
@@ -153,6 +160,28 @@ class stzHexNumber from stzObject
 			return oStzStr.Content()
 		ok
 
+		def IntPart()
+			return This.IntegerPart()
+
+	def IntegerPartWithoutPrefix()
+		// #TOTO Refactor the namings so we have:
+		#    IntPart() ~> always returning the int part without prefix
+		#    IntPartXT() ~> to get it with the hex prefix
+
+		#--> This will avoid the use of WithoutPrefix
+		#--> It aligns with Softanza style of using XT() notation
+
+		// #TODO: Generalize this to all number classes
+
+		oStrTemp = new stzString(THis.IntegerPart())
+		oStrTemp.RemoveMany(HexPrefixes())
+
+		cResult = oStrTemp.Content()
+		return cResult
+
+		def IntPartWithoutPrefix()
+			return This.IntegerPartWithoutPrefix()
+
 	def FractionalPart()
 		oStzStr = new stzString(This.HexNumberWithoutPrefix())
 
@@ -160,6 +189,8 @@ class stzHexNumber from stzObject
 			return oStzStr.SplittedUsing(".")[2]
 		ok
 
+		def FractPart()
+			return This. FractionalPart()
 	  #------------------#
 	 #    CONVERSION    #
 	#------------------#
@@ -173,9 +204,7 @@ class stzHexNumber from stzObject
 	def ToDecimalForm()
 		# Converting the integer part of the hex number to decimal
 
-
-
-		cIntegerPart = dec( This.IntegerPart() ) // TODO: fix error here!
+		cIntegerPart = dec( This.IntegerPartWithoutPrefix() )
 
 		# Converting the fractional part of the hex number to decimal
 
