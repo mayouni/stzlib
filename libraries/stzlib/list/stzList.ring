@@ -28857,6 +28857,27 @@ Item and then position
 
 				return new stzList(aResult)
 
+			but isString(pValue)
+
+				aResult = []
+				nLen = len(@aContent)
+
+				for i = 1 to nLen
+					aResult + ( Q(@aContent[i]).Stringified() + pValue )
+				next
+
+				return aResult
+
+			but @IsStzString(pValue)
+
+				aResult = []
+				nLen = len(@aContent)
+
+				for i = 1 to nLen
+					aResult + ( Q(@aContent[i]).Stringified() + pValue )
+				next
+
+				return new stzList(aResult)
 			ok
 
 
@@ -29120,8 +29141,13 @@ Item and then position
 			This.ExtendToPositionWith(n, pValue)
 
 			def ExtendToWithQ(n, pValue)
-				This.ExtendToWith(n, pValue)
-				return This
+				return This.ExtendToPositionWithQ(n, pValue)
+
+		def ExtendToXT(n, pValue)
+			This.ExtendToPositionWith(n, pValue)
+
+			def ExtendToXTQ(n, pValue)
+				return This.ExtendToPositionWithQ(n, pValue)
 
 		#>
 
@@ -29131,6 +29157,10 @@ Item and then position
 
 		def ExtendedToWith(n, pValue)
 			return This.ExtendedToPositionWith(n, pValue)
+
+		def ExtendedToXT(n, pValue)
+			return This.ExtendedToPositionWith(n, pValue)
+
 
 		#-- Misspelled
 
@@ -29637,11 +29667,33 @@ Item and then position
 		def ItemOccursNTimesCS(n, pItem, pCaseSensitive)
 			return NumberOfOccurrenceCS(pItem, pCaseSensitive)
 
+		#--
+
+		def NumberOfDuplicatesOfCS(pItem, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+
+		def NumberOfDuplicationsOfCS(pItem, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+
+		def NumberOfDuplicationOfCS(pItem, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+
 		#>
 
 		#< @FunctionMisspelledForm
 
 		def NumberOfOccurenceCS(pItem, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+
+		#--
+
+		def NumberOfDupplicatesOfCS(pItem, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+
+		def NumberOfDupplicationsOfCS(pItem, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+
+		def NumberOfDupplicationOfCS(pItem, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
 
 		#
@@ -29663,19 +29715,41 @@ Item and then position
 			return This.NumberOfOccurrence(pItem)
 
 		def Count(pItem)
-			return NumberOfOccurrence(pItem)
+			return This.NumberOfOccurrence(pItem)
 
 		def HowMany(pItem)
-			return NumberOfOccurrence(pItem)
+			return This.NumberOfOccurrence(pItem)
 
 		def ItemOccursNTimes(n, pItem)
-			return NumberOfOccurrence(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		#--
+
+		def NumberOfDuplicatesOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def NumberOfDuplicationsOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def NumberOfDuplicationOf(pItem)
+			return This.NumberOfOccurrence(pItem)
 
 		#>
 	
 		#< @FunctionMisspelledForm
 
 		def NumberOfOccurence(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		#--
+
+		def NumberOfDupplicatesOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def NumberOfDupplicationsOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def NumberOfDupplicationOf(pItem)
 			return This.NumberOfOccurrence(pItem)
 
 		#
@@ -34270,8 +34344,11 @@ Item and then position
 			StzRaise("Incorrect param type! paItems must be a list.")
 		ok
 
-		bResult = TRUE
+		paItems = U(paItems)
 		aContent = paItems
+
+		bResult = TRUE
+
 		nLen = len(aContent)
 
 		for i = 1 to nLen
@@ -34286,26 +34363,26 @@ Item and then position
 
 		#< @FunctionAlternativeForms
 
-		def IsMadeOfCS(paSetOfItems, pCaseSensitive)
-			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+		def IsMadeOfCS(paItems, pCaseSensitive)
+			return This.ContainsManyCS(paItems, pCaseSensitive)
 
-		def IsMadeOfTheseCS(paSetOfItems, pCaseSensitive)
-			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+		def IsMadeOfTheseCS(paItems, pCaseSensitive)
+			return This.ContainsManyCS(paItems, pCaseSensitive)
 
-		def ContainsTheseCS(paSetOfItems, pCaseSensitive)
-			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+		def ContainsTheseCS(paItems, pCaseSensitive)
+			return This.ContainsManyCS(paItems, pCaseSensitive)
 
-		def ContainsEachCS(paSetOfItems, pCaseSensitive)
-			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+		def ContainsEachCS(paItems, pCaseSensitive)
+			return This.ContainsManyCS(paItems, pCaseSensitive)
 
 		def ContainsEachOneOfTheseCS(paItems, pCaseSensitive)
-			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+			return This.ContainsManyCS(paItems, pCaseSensitive)
 
 		def ContainsAllCS(paItems, pCaseSensitive)
-			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+			return This.ContainsManyCS(paItems, pCaseSensitive)
 
-		def ContainsAllTheseCS(paSetOfItems, pCaseSensitive)
-			return This.ContainsManyCS(paSetOfItems, pCaseSensitive)
+		def ContainsAllTheseCS(paItems, pCaseSensitive)
+			return This.ContainsManyCS(paItems, pCaseSensitive)
 
 
 		#>
@@ -34319,37 +34396,37 @@ Item and then position
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsMany(paSetOfItems)
-		return This.ContainsManyCS(paSetOfItems, TRUE)
+	def ContainsMany(paItems)
+		return This.ContainsManyCS(paItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def IsMadeOf(paSetOfItems)
-			return This.ContainsMany(paSetOfItems)
+		def IsMadeOf(paItems)
+			return This.ContainsMany(paItems)
 
-		def IsMadeOfThese(paSetOfItems)
-			return This.ContainsMany(paSetOfItems)
+		def IsMadeOfThese(paItems)
+			return This.ContainsMany(paItems)
 
-		def ContainsThese(paSetOfItems)
-			return This.ContainsMany(paSetOfItems)
+		def ContainsThese(paItems)
+			return This.ContainsMany(paItems)
 
-		def ContainsEach()
-			return This.ContainsMany(paSetOfItems)
+		def ContainsEach(paItems)
+			return This.ContainsMany(paItems)
 
 		def ContainsEachOneOfThese(paItems)
-			return This.ContainsMany(paSetOfItems)
+			return This.ContainsMany(paItems)
 
 		def ContainsAll(paItems)
-			return This.ContainsMany(paSetOfItems)
+			return This.ContainsMany(paItems)
 
-		def ContainsAllThese(paSetOfItems)
-			return This.ContainsMany(paSetOfItems)
+		def ContainsAllThese(paItems)
+			return This.ContainsMany(paItems)
 
 		#>
 
 		#< @FunctionNagationForm
 
-		def ContainsNoOne()
+		def ContainsNoOne(paItems)
 			return NOT This.ContainsEach(paItems)
 
 		#>
@@ -34359,6 +34436,7 @@ Item and then position
 	#------------------------------------------------------------#
 
 	def ContainsSomeCS(paItems, pCaseSensitive)
+		paItems = U(paItems)
 		bResult = FALSE
 
 		for item in paItems
@@ -34372,38 +34450,38 @@ Item and then position
 
 		#< @FunctionAlternativeForms
 
-		def IsMadeOfSomeCS(paSetOfItems, pCaseSensitive)
-			return This.ContainsSomeCS(paSetOfItems, pCaseSensitive)
+		def IsMadeOfSomeCS(paItems, pCaseSensitive)
+			return This.ContainsSomeCS(paItems, pCaseSensitive)
 
-		def IsMadeOfSomeOfTheseCS(paSetOfItems, pCaseSensitive)
-			return This.ContainsSomeCS(paSetOfItems, pCaseSensitive)
+		def IsMadeOfSomeOfTheseCS(paItems, pCaseSensitive)
+			return This.ContainsSomeCS(paItems, pCaseSensitive)
 
-		def IsMadeOfOneOrMoreOfTheseCS(paSetOfItems, pCaseSensitive)
-			return This.ContainsSomeCS(paSetOfItems, pCaseSensitive)
+		def IsMadeOfOneOrMoreOfTheseCS(paItems, pCaseSensitive)
+			return This.ContainsSomeCS(paItems, pCaseSensitive)
 
-		def IsMadeOfOneOrMoreOfCS(paSetOfItems, pCaseSensitive)
-			return This.ContainsSomeCS(paSetOfItems, pCaseSensitive)
+		def IsMadeOfOneOrMoreOfCS(paItems, pCaseSensitive)
+			return This.ContainsSomeCS(paItems, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsSome(paSetOfItems)
-		return This.ContainsSomeCS(paSetOfItems, TRUE)
+	def ContainsSome(paItems)
+		return This.ContainsSomeCS(paItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def IsMadeOfSome(paSetOfItems)
-			return This.ContainsSome(paSetOfItems)
+		def IsMadeOfSome(paItems)
+			return This.ContainsSome(paItems)
 
-		def IsMadeOfSomeOfThese(paSetOfItems)
-			return This.ContainsSome(paSetOfItems)
+		def IsMadeOfSomeOfThese(paItems)
+			return This.ContainsSome(paItems)
 
-		def IsMadeOfOneOrMoreOfThese(paSetOfItems)
-			return This.ContainsSome(paSetOfItems)
+		def IsMadeOfOneOrMoreOfThese(paItems)
+			return This.ContainsSome(paItems)
 
-		def IsMadeOfOneOrMoreOf(paSetOfItems)
-			return This.ContainsSome(paSetOfItems)
+		def IsMadeOfOneOrMoreOf(paItems)
+			return This.ContainsSome(paItems)
 
 		#>
 
@@ -34429,62 +34507,62 @@ Item and then position
 
 		#< @FunctionAlternativeForms
 
-		def ContainsAnyCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
+		def ContainsAnyCS(paItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paItems, pCaseSensitive)
 
-		def ContainsAnyOneOfTheseCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
+		def ContainsAnyOneOfTheseCS(paItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paItems, pCaseSensitive)
 
-		def ContainsAnyOfTheseCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
+		def ContainsAnyOfTheseCS(paItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paItems, pCaseSensitive)
 
-		def IsMadeOfOneOfTheseCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
+		def IsMadeOfOneOfTheseCS(paItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paItems, pCaseSensitive)
 
-		def IsMadeOfAnyOfTheseCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
+		def IsMadeOfAnyOfTheseCS(paItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paItems, pCaseSensitive)
 
-		def ContainsOneCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
+		def ContainsOneCS(paItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paItems, pCaseSensitive)
 
 		def ContainsOneOfTheCS(pSetOfItems, pCaseSensitive)
 			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
 
-		def ContainsAnyOfTheCS(pSetOfItems, pCaseSensitive)
-			return This.ContainsOneOfTheseCS(pSetOfItems, pCaseSensitive)
+		def ContainsAnyOfTheCS(paItems, pCaseSensitive)
+			return This.ContainsOneOfTheseCS(paItems, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsOneOfThese(pSetOfItems)
-		return This.ContainsOneOfTheseCS(pSetOfItems, TRUE)
+	def ContainsOneOfThese(paItems)
+		return This.ContainsOneOfTheseCS(paItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def ContainsAny(pSetOfItems)
+		def ContainsAny(paItems)
+			return This.ContainsOneOfThese(paItems)
+
+		def ContainsAnyOneOfThese(paItems)
+			return This.ContainsOneOfThese(paItems)
+
+		def ContainsAnyOfThese(paItems)
 			return This.ContainsOneOfThese(pSetOfItems)
 
-		def ContainsAnyOneOfThese(pSetOfItems)
+		def IsMadeOfOneOfThese(paItems)
+			return This.ContainsOneOfThese(paItems)
+
+		def IsMadeOfAnyOfThese(paItems)
+			return This.ContainsOneOfThese(paItems)
+
+		def ContainsOne(paItems)
+			return This.ContainsOneOfThese(paItems)
+
+		def ContainsOneOfThe(paItems)
 			return This.ContainsOneOfThese(pSetOfItems)
 
-		def ContainsAnyOfThese(pSetOfItems)
-			return This.ContainsOneOfThese(pSetOfItems)
-
-		def IsMadeOfOneOfThese(pSetOfItems)
-			return This.ContainsOneOfThese(pSetOfItems)
-
-		def IsMadeOfAnyOfThese(pSetOfItems)
-			return This.ContainsOneOfThese(pSetOfItems)
-
-		def ContainsOne(pSetOfItems)
-			return This.ContainsOneOfThese(pSetOfItems)
-
-		def ContainsOneOfThe(pSetOfItems)
-			return This.ContainsOneOfThese(pSetOfItems)
-
-		def ContainsAnyOfThe(pSetOfItems)
-			return This.ContainsOneOfThese(pSetOfItems)
+		def ContainsAnyOfThe(paItems)
+			return This.ContainsOneOfThese(paItems)
 
 		#>
 
@@ -34533,6 +34611,7 @@ Item and then position
 	#---------------------------------------------------------#
 
 	def ContainsNCS(n, paItems, pCaseSensitive)
+		paItems = U(paItems)
 		bResult = FALSE
 		m = 0
 		for pItem in paItems
@@ -35535,6 +35614,12 @@ Item and then position
 
 		def ListsAtAnyLevelQ()
 			return new stzListOfLists( This.ListsAtAnyLevel() )
+
+		def DeepLists()
+			return This.ListsAtAnyLevel()
+
+			def DeepListsQ()
+				return This.ListsAtAnyLevelQ()
 	
 	def Structure()
 		// TODO
