@@ -1384,7 +1384,7 @@ class stzDecimalNumber from stzNumber
 
 class stzNumber from stzObject
 
-	@cNumber = ""
+	@cContent = ""
 	#--> Holds the number WITHOUT eventual
 	# underscores introduced by the user!
 
@@ -1421,7 +1421,7 @@ class stzNumber from stzObject
 		# CASE 1
 		if isNumber(pNumber)
 
-			@cNumber = "" + pNumber 
+			@cContent = "" + pNumber 
 			@nRound = StzCurrentRound()
 			@cReturnType = :Number
 
@@ -1436,7 +1436,7 @@ class stzNumber from stzObject
 			if StzStringQ(pNumber).IsAChar() and
 			   StzCharQ(pNumber).IsCircledNumber()
 
-				@cNumber = ""+ StzCharQ(pNumber).NumericValue()
+				@cContent = ""+ StzCharQ(pNumber).NumericValue()
 				@nRound = StzCurrentRound()
 
 				return
@@ -1444,7 +1444,7 @@ class stzNumber from stzObject
 
 			# Case where the string provided is empty
 			if pNumber = NULL
-				@cNumber = "0"
+				@cContent = "0"
 				@nRound = StzCurrentRound()
 
 			# Case where the user provides a number in string
@@ -1461,9 +1461,9 @@ class stzNumber from stzObject
 					if StringRepresentsCalculableNumber(pNumber)
 						oString = new stzString(pNumber)
 						if oString.Contains("_")
-							@cNumber = oString.RemoveQ("_").Content()
+							@cContent = oString.RemoveQ("_").Content()
 						else
-							@cNumber = pNumber
+							@cContent = pNumber
 						ok
 
 						if oString.Contains(".")
@@ -1513,11 +1513,11 @@ class stzNumber from stzObject
 
 				nCurrentRound = StzCurrentRound()
 				StzDecimals(@nRound)
-				@cNumber = "" + pNumber[1]
+				@cContent = "" + pNumber[1]
 				StzDecimals(nCurrentRound)
 
 			but isString(pNumber[1])
-				@cNumber = pNumber[1]
+				@cContent = pNumber[1]
 				@cReturnType = :String
 
 			ok
@@ -1529,7 +1529,7 @@ class stzNumber from stzObject
 	#-------------------------#
 
 	def Content()
-		return @cNumber
+		return @cContent
 
 		def ContentQ()
 			return new stzNumber(This.Content())
@@ -1595,7 +1595,7 @@ class stzNumber from stzObject
 		ok
 
 	def NumericValue()
-		return 0+ @cNumber
+		return 0+ @cContent
 
 		def Value()
 			return This.NumericValue()
@@ -1617,7 +1617,7 @@ class stzNumber from stzObject
 
 		# Casting the number in a string using the round above
 
-		@cNumber = "" + This.NumbericValue()
+		@cContent = "" + This.NumbericValue()
 
 		# Resetting the round active in the program
 
@@ -1625,7 +1625,7 @@ class stzNumber from stzObject
 
 		# Returning the string form of the number
 
-		return @cNumber
+		return @cContent
 
 		def StringValueQ()
 			return new stzString( This.StringValue() )
@@ -1669,7 +1669,7 @@ class stzNumber from stzObject
 			@cReturnType = :String
 
 			oStr = new stzString(pNumber)
-			@cNumber = oStr.RemoveQ("_").Content()
+			@cContent = oStr.RemoveQ("_").Content()
 
 			@nRound = StzCurrentRound()
 
@@ -1681,7 +1681,7 @@ class stzNumber from stzObject
 
 			@cReturnType = :Number
 
-			@cNumber = ""+ pNumber
+			@cContent = ""+ pNumber
 			@nRound = StzCurrentRound()
 		ok
 
@@ -2595,13 +2595,16 @@ class stzNumber from stzObject
 			ok
 		ok
 
-		nCurrentRound = StzCurrentRound()
-		StzDecimals(This.Round())
+		n1 = 0+ pNumber1
+		n2 = 0+ pNumber2
 
-		bResult = ( This.NumericValue() >= 0+ pNumber1 and
-			    This.NumericValue() <= 0+ pNumber2 )
+		n = This.NumericValue()
 
-		StzDecimals(nCurrentRound)
+		bResult = TRUE
+
+		if NOT ( n1 < n and n < n2 )
+			bResult  = FALSE
+		ok
 
 		return bResult
 
@@ -3043,12 +3046,12 @@ class stzNumber from stzObject
 
 		nCurrentRound = StzCurrentRound()
 		StzDecimals(nRound)
-		@cNumber = ""+ This.NumericValue()
+		@cContent = ""+ This.NumericValue()
 
 		if This.IsInteger() and nRound > 0
-			@cNumber += "."
+			@cContent += "."
 			for i = 1 to nRound
-				@cNumber += "0"
+				@cContent += "0"
 			next
 		ok
 		StzDecimals(nCurrentRound)

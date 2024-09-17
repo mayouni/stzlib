@@ -22317,17 +22317,61 @@ Item and then position
 	 #   MANAGING WALKERS   #TODO
 	#======================#
 
-	def AddWalker(pcName, pnStart, pnEnd, panStepping)
+	def AddWalker(pcName, pnStart, pnEnd, panSteps)
 
-		if NOT ( StzNumberQ(pnStart).IsBetween(1, This.NumberOfItems()) and
-		         StzNumberQ(pnEnd).IsBetween(1, This.NumberOfItems()) )
+		if CheckParams()
 
-			StzRaise("Start or end of walker outside list range!")
+			if isList(pcName) and StzListQ(pcName).IsNameOrNamedNamedParam()
+				pcName = pcName[2]
+			ok
+
+			if NOT isString(pcName)
+				StzRaise("Incorrect param type! pcName must be a string.")
+			ok
+
+/*			if isList(pnStart) and StzListQ(pnStart).IsStartOrStartAtOrStaringAtNamedParam()
+				pnStart = pnStart[2]
+			ok
+
+			if isList(pnEnd) and StzListQ(pnEnd).IsEndOrEndAtOrEndingAtNamedParam()
+				pnEnd = pnEnd[2]
+			ok
+
+			if isList(panSteps) and StzListQ(panSteps).isStepOrStepsNamedParam()
+				panSteps = panSteps[2]
+			ok
+
+			if NOT isNumber(pnStart)
+				StzRaise("Incorrect param type! pnStart must be a number.")
+			ok
+
+			if NOT isNumnber(pnEnd)
+				StzRaise("Incorrect param type! pnEnd must be a number.")
+			ok
+
+			if NOT isNumber(nStep)
+				StzRaise("Incorrect param type! nStep must be a number.")
+			ok
+*/
 		ok
 
+/*		nLen = This.NumberOfItems()
+
+		if NOT ( 1 < pnStart and pnStart < nLen )
+			StzRaise("Incorrect value! pnStart is out of range.")
+		ok
+
+		if NOT ( 1 < pnEnd and pnEnd < nLen )
+			StzRaise("Incorrect value! pnEnd is out of range.")
+		ok
+*/
+		aWalkers = This.Walkers()
+		nLenWalkers = len(aWalkers)
+
 		bNewName = TRUE
-		for aWalk in This.Walkers()
-			if aWalk[1] = pcName
+
+		for i = 1 to nLenWalkers
+			if aWalkers[i][1] = pcName
 				bNewName = FALSE
 				exit
 			ok
@@ -22336,7 +22380,7 @@ Item and then position
 		if NOT bNewName
 			StzRaise(stzListError(:CanNotAddWalkerAlreadyExistant))
 		else
-			oWalk = new stzWalker(pnStart, pnEnd, panStepping)
+			oWalk = new stzWalker(pnStart, pnEnd, panSteps)
 			@aWalkers + [ pcName, oWalk.Content() ]
 		ok
 
@@ -79022,3 +79066,136 @@ Item and then position
 
 		func IsOfOrInNamedParams()
 			return IsInOrOfNamedParam()
+
+	def IsNameOrNamedNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :Name or This.Item(1) = :Named ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsNameOrNamedNamedParams()
+			return This.IsNameOrNamedNamedParam()
+
+	def IsStartOrStartAtOrStaringAtNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Start or This.Item(1) = :StartAt or This.Item(1) = :StartingAt )
+		    )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsStartOrStartAtOrStaringAtNamedParams()
+			return This.IsStartOrStartAtOrStaringAtNamedParam()
+
+	def IsEndOrEndAtOrEndingAtNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :End or This.Item(1) = :EndAt or This.Item(1) = :EndingAt )
+		    )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsEndOrEndAtOrEndingAtNamedParams()
+			return This.IsEndOrEndAtOrEndingAtNamedParam()
+
+	def isNStepNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :NStep )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def isNStepsNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :NStep )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+
+	def IsStepsNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Steps )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsStepOrNSetpNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :End or This.Item(1) = :Step or This.Item(1) = :NStep )
+		    )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsStepOrNSetpNamedParams()
+			return This.IsStepOrNSetpNamedParam()
+
+	def IsStepsOrNSetpsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :End or This.Item(1) = :Steps or This.Item(1) = :NSteps )
+		    )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsStepsOrNSetpsNamedParams()
+			return This.IsStepsOrNSetpsNamedParam()
+
+	def IsStepOrStepsOrNStepOrNStepsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Step or This.Item(1) = :Steps or This.Item(1) = :NStep or this.Item(1) = :NSteps )
+		    )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsStepOtNStepOrStepsOrNStepsNamedParam()
+			return This.IsStepOrStepsOrNStepOrNStepsNamedParam()
+
+		#--
+
+		def IsStepOrStepsOrNStepOrNStepsNamedParams()
+			return This.IsStepOrStepsOrNStepOrNStepsNamedParam()
+
+		def IsStepOtNStepOrStepsOrNStepsNamedParams()
+			return This.IsStepOrStepsOrNStepOrNStepsNamedParam()
