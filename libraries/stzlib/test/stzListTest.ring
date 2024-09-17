@@ -8429,11 +8429,11 @@ proff()
 #--> ERROR: Incorrect param value! panPos must contain numbers in the range of the splitter bounds.
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
-/*
+
 ? @@( o1.SplitBefore(1) )
 #--> [ [ 1, 5 ] ]
 
@@ -8442,18 +8442,44 @@ o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
 
 ? @@( o1.SplitBeforePositions([ 3, 5 ]) ) + NL
 #--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 5 ] ]
-*/
+
 ? @@( o1.SplitBeforePositions([ 1, 5 ]) ) + NL
-#--> [ [ 1, 4 ], [ 4, 5 ] ]
+#--> [ [ 1, 4 ], [ 5, 5 ] ]
 
 ? @@( o1.SplitBeforePositions([ 1, 3, 5 ]) )
-#--> 
+#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 5 ] ]
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.03 second(s).
 
-/*------------- TEST IT
-*/
+/*-----------
+
+pron()
+
+o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
+
+? @@( o1.SplitAfter(3) )
+#--> [ [ 1, 3 ], [ 4, 5 ] ]
+
+? @@( o1.SplitAfter(1) )
+#--> [ [ 1, 1 ], [ 2, 5 ] ]
+
+? @@( o1.SplitAfter(5) ) + NL
+#--> [ [ 1, 5 ] ]
+
+? @@( o1.SplitAfterPositions([ 3, 5 ]) ) + NL
+#--> [ [ 1, 3 ], [ 4, 5 ] ]
+
+? @@( o1.SplitAfterPositions([ 1, 5 ]) ) + NL
+#--> [ [ 1, 1 ], [ 2, 5 ] ]
+
+? @@( o1.SplitAfterPositions([ 1, 3, 5 ]) )
+#--> [ [ 1, 1 ], [ 2, 3 ], [ 4, 5 ] ]
+
+proff()
+
+/*-------------
+
 pron()
 
 o1 = new stzString("abcde")
@@ -8467,101 +8493,187 @@ o1 = new stzString("abcde")
 ? o1.SplitAfterPositions([ 3, 4 ])
 #--> [ "abc", "d", "e" ]
 
-	? o1.SplitAfterPositions([ 3, 5 ])
-	#--> [ "abc", "d", "e" ]
-	
-	? o1.SplitBeforePositions([ 3, 5 ])
-	# Returns [ "ab", "cd", "e" ]
+? o1.SplitAfterPositions([ 3, 5 ])
+#--> [ "abc", "de" ]
+
+? o1.SplitBeforePositions([ 3, 5 ])
+#---> [ "ab", "cd", "e" ]
 
 proff()
+# Executed in 0.05 second(s).
 
 /*================
+
+pron()
 
 o1 = new stzList([ "*", "a", "*", "b", "C", "D", "*", "e" ])
-? o1.Find("*") 		#--> [1, 3, 7]
-? o1.FindItem("*")	#--> [1, 3, 7]
-? o1.Find(:Item = "*")	#--> [1, 3, 7]
 
-/*================
+? o1.Find("*")
+#--> [1, 3, 7]
+
+? o1.FindItem("*")
+#--> [1, 3, 7]
+
+? o1.Find(:Item = "*")
+#--> [1, 3, 7]
+
+proff()
+# Executed in almost 0 second(s).
+
+/*--------------
+
+pron()
 
 o1 = new stzList([ "a", "b", "a", "a", "c", "d", "a" ])
 o1.RemoveOccurrences([ 4, 1, 3 ], "a")
 ? o1.Content()
 # Returns [ "b", "a", "c", "d" ]
 
-/*---------------
-
-o1 = new stzList([ "a", "b", "C", "D", "e" ])
-? o1.FindAllW('{ Q(@item).IsLowercase() }')
-# Returns [ 1, 2, 5 ]
+proff()
+# Executed in almost 0 second(s).
 
 /*---------------
-
-o1 = new stzList([ "a", "b", "C", "D", "e" ])
-
-o1.InsertAfterW( '{ StzStringQ(@item).IsLowercase() }', "*" )
-? o1.Content()
-
-# Returns [ "a", "*", "b", "*", "C", "D", "e" ]
-
-/*---------------- #TODO check it after icluding SubStringsBetween()
 
 pron()
 
 o1 = new stzList([ "a", "b", "C", "D", "e" ])
-o1.InsertBeforeW( '{ Q(@item).IsLowercase() }', "*" )
-? o1.Content()
 
-# Returns [ "*", "a", "*", "b", "C", "D", "*", "e" ]
+? o1.FindAllW('{ Q(This[@i]).IsLowercase() }')
+#--> [ 1, 2, 5 ]
+# Executed in 0.08 second(s).
+
+? o1.FindAllWXT('{ Q(@item).IsLowercase() }')
+#--> [ 1, 2, 5 ]
+# Executed in 0.14 second(s).
 
 proff()
+# Executed in 0.18 second(s).
+
+/*=========
+
+pron()
+
+o1 = new stzList([ "a", "b", "C", "D", "e" ])
+
+o1.InsertAfterW( '{ Q(This[@i]).IsLowercase() }', "*" )
+? @@( o1.Content() )
+#--> [ "a", "*", "b", "*", "C", "D", "e", "*" ]
+
+proff()
+# Executed in 0.07 second(s).
+
+/*---------------
+
+pron()
+
+o1 = new stzList([ "a", "b", "C", "D", "e" ])
+
+o1.InsertAfterWXT( '{ Q(@item).IsLowercase() }', "*" )
+? @@( o1.Content() )
+
+#--> [ "a", "*", "b", "*", "C", "D", "e", "*" ]
+
+proff()
+# Executed in 0.14 second(s).
 
 /*----------------
+
+pron()
+
+o1 = new stzList([ "a", "b", "C", "D", "e" ])
+o1.InsertBeforeW( '{ Q(This[@i]).IsLowercase() }', "*" )
+? o1.Content()
+#--> [ "*", "a", "*", "b", "C", "D", "*", "e" ]
+
+proff()
+# Executed in 0.07 second(s).
+
+/*----------------
+
+pron()
+
+o1 = new stzList([ "a", "b", "C", "D", "e" ])
+o1.InsertBeforeWXT( '{ Q(@item).IsLowercase() }', "*" )
+? o1.Content()
+#--> [ "*", "a", "*", "b", "C", "D", "*", "e" ]
+
+proff()
+# Executed in 0.13 second(s).
+
+/*----------------
+
+pron()
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
 
 o1.InsertAfterManyPositions([ 2, 4, 5 ], "*")
-? o1.Content()
-# Returns [ "a", "b", "*", "c", "d", "*", "e" ]
+? @@( o1.Content() )
+#--> [ "a", "b", "*", "c", "d", "*", "e", "*" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*---------------
+
+pron()
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
 
 o1.InsertBeforeManyPositions([ 2, 4, 5 ], "*")
-? o1.Content()
-# Returns [ "a", "*", "b",  "c", "*", "d", "*", "e" ]
+? @@( o1.Content() )
+#--> [ "a", "*", "b",  "c", "*", "d", "*", "e" ]
 
-/*---------------
+proff()
+# Executed in almost 0 second(s).
+
+/*===========
+
+pron()
 
 o1 = new stzList([ 5, 4, 3, 7 ])
-o1.SortInAscending()
+o1.SortUp() # Or SortInAscending()
 ? o1.Content()
-# Returns [ 3, 4, 5, 7 ]
+#--| [ 3, 4, 5, 7 ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*---------------
+
+pron()
 
 o1 = new stzList([ 5, 4, "tunis", 3, 7, "cairo" ])
 o1.SortInAscending()
 ? o1.Content()
-# Returns [ 3, 4, 5, 7, "cairo", "tunis" ]
+#--> [ 3, 4, 5, 7, "cairo", "tunis" ]
+
+proff()
 
 /*---------------
+
+pron()
 
 o1 = new stzList([ 5, [ :me, :you ], 4, "tunis", 3, 7, [ :them, :others ], "cairo"  ])
 o1.SortInAscending()
 ? ListToCode( o1.Content() )
 # Returns [ 3, 4, 5, 7, "cairo", "tunis", [ "me", "you" ], [ "them", "others" ] ]
 
-/*--------------
+proff()
+#--> Executed in 0.02 second(s).
 
-obj1 =  new person { name = "obj1" }
-obj2 = new person { name = "obj2" }
+/*--------------
+*/
+pron()
+
+obj1 =  new person { :name = "obj1" }
+obj2 = new person { :name = "obj2" }
 
 o1 = new stzList([ 5, [ :me, :you ], 4, "tunis", new stzObject(:obj2), 3, 7, [ :them, :others ], "cairo", obj1  ])
 o1.SortInAscending()
 ? o1.Content()
 # Returns [ 3, 4, 5, 7, "cairo", "tunis", [ :me, :you ], [ :them, :others ], obj2, obj1 ]
+
+proff()
 
 class Person name
 /*--------------

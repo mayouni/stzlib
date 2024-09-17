@@ -44,8 +44,9 @@ class stzCCode
 
 		ok
 
-		@cContent = cCode
-
+		oCode = new stzString(cCode)
+		@cContent = oCode.TrimQ().RemoveTheseBoundsQ("{", "}").Content()
+		
 	  #-------------------------------------------#
 	 #  GETTING THE CONTENT OF THE CCODE OBJECT  #
 	#-------------------------------------------#

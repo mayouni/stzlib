@@ -41986,10 +41986,21 @@ Item and then position
 	#=================================================================#
 
 	def InsertAfterManyPositions(panPos, pItem)
+		if CheckParams()
+			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+		ok
 
-		for i = 1 to len(panPos)
-			n = panPos[i] + i - 1
-			This.InsertAfter(n, pItem)
+		nLen = len(panPos)
+		if nLen = 0
+			return
+		ok
+
+		anPos = ring_reverse(ring_sort(panPos))
+		
+		for i = nLen to 1 step - 1
+			ring_insert(@aContent, panPos[i]+1, pItem)
 		next
 
 		#< @FunctionFluentForm
@@ -42019,9 +42030,21 @@ Item and then position
 		#>
 
 	def InsertBeforeManyPositions(panPos, pItem)
-		for i = 1 to len(panPos)
-			n = panPos[i] + i - 1
-			This.InsertBefore(n, pItem)
+		if CheckParams()
+			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+				StzRaise("Incorrect param type! panPos must be a list of numbers.")
+			ok
+		ok
+
+		nLen = len(panPos)
+		if nLen = 0
+			return
+		ok
+
+		anPos = ring_reverse(ring_sort(panPos))
+		
+		for i = nLen to 1 step - 1
+			ring_insert(@aContent, panPos[i], pItem)
 		next
 
 		#< @FunctionFluentForm
