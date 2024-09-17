@@ -9022,7 +9022,7 @@ proff()
 # Executed in 0.02 second(s) in Ring 1.17
 
 /*---------------------- #todo review the semantics of UntilXT()
-*/
+
 pron()
 
 o1 = new stzList([ :Water, :Milk, :Cofee, :Tea, :Sugar, " ",:Honey ])
@@ -9036,8 +9036,10 @@ proff()
 # Executed in 0.16 second(s).
 
 /*---------------------- TODO: refactored: reveiw it after completing stzWalker
-
+*/
 pron()
+
+? Q(5).IsBetween(2, 7)
 
 StzListQ( "A":"J" ) {
 	AddWalker( :Named = :Walker1, :StartingAt = 1, :EndingAt = 10, :NStep = 1 )
