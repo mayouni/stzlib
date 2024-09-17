@@ -2,6 +2,7 @@
 load "../stzlib.ring"
 
 /*=====
+
 pron()
 
 o1 = new stzString("--<<one>>---<<two>>---")
