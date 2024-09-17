@@ -8662,46 +8662,65 @@ proff()
 #--> Executed in 0.02 second(s).
 
 /*--------------
-*/
+
 pron()
 
-obj1 =  new person { :name = "obj1" }
-obj2 = new person { :name = "obj2" }
+obj1 =  new person
+obj2 = new person
 
-o1 = new stzList([ 5, [ :me, :you ], 4, "tunis", new stzObject(:obj2), 3, 7, [ :them, :others ], "cairo", obj1  ])
+o1 = new stzList([ 5, [ :me, :you ], 4, "tunis", obj2, 3, 7, [ :them, :others ], "cairo", obj1  ])
 o1.SortInAscending()
-? o1.Content()
-# Returns [ 3, 4, 5, 7, "cairo", "tunis", [ :me, :you ], [ :them, :others ], obj2, obj1 ]
+? @@( o1.Content() )
+#--> [ 3, 4, 5, 7, "cairo", "tunis", [ "me", "you" ], [ "them", "others" ], @noname, @noname ]
 
 proff()
+# Executed in 0.03 second(s).
 
-class Person name
+class Person
+
 /*--------------
 
-obj1 = new person { name = "obj1" }
-obj2 = new person { name = "obj2" }
+pron()
 
-o1 = new stzList([ 3, 6, 9, 12, "a", "b", [ "List1" ], [ "List0" ] ])
+o1 = new stzList([ 3, 6, 9, 12, "a", "b", [ "List0" ], [ "List1" ] ])
 ? o1.IsSortedInAscending()
+#--> TRUE
 
-class Person name
+proff()
+# Executed in 0.02 second(s).
 
 /*------------
+
+pron()
 
 person1 = new person { name = "obj1" }
 person2 = new person { name = "obj2" }
 
 o1 = new stzList([ "_", 3, "_" , person1, "*", 6, [ "L1", "L1" ], 12, person2, [ "L2", "L2" ], 24, "*" ])
 o1.SortInAscending()
-? o1.Content()
+? @@( o1.Content() )
+#--> [ 3, 6, 12, 24, "*", "*", "_", "_", [ "L1", "L1" ], [ "L2", "L2" ], @noname, @noname ]
+
+proff()
+# Executed in 0.03 second(s).
 
 class Person name
 
 /*---------------
 
+pron()
+
 o1 = new stzList(1:5)
-o1.ExcludeNumbersGreaterThan(3)
+
+o1.RemoveW('{
+	isNumber(This[@i]) and This[@i] > 3
+}')
+
 ? o1.Content()
+#--> [ 1, 2, 3 ]
+
+proff()
+# Executed in 0.05 second(s).
 
 /*=================
 
@@ -8716,73 +8735,10 @@ o1 = new stzList([ "A", "B", "C" ])
 #--> [ ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.05 second(s) in Ring 1.17
 
 /*===========
-
-pron()
-
-o1 = new stzList([ "a", "b", "c", "d", "e" ])
-
-? @@( o1 - [ "d", "e" ] ) # Returns a new list and leaves o1 unmodified
-#--> [ "a", "b", "c" ]
-? @@( o1.Content() )
-#--> [ "a", "b", "c", "d", "e" ]
-
-o1 - Q([ "c", "d", "e" ]) # Removes the list from o1 and returns o1 
-? @@( o1.Content() ) + NL + NL + "---" + NL
-#--> [ "a", "b" ]
-
-#--
-
-? @@( o1 * 2 ) # Returns a new list with the existing items duplicated and leaves o1 unmodified
-#--> [ "a", "b", "a", "b" ]
-? @@( o1.Content() )
-#--> [ "a", "b" ]
-
-o1 * Q(2) # Duplicates the list inside o1 and returns o1
-? @@( o1.Content() ) + NL + NL + "---" + NL
-#--> [ "a", "b", "a", "b" ]
-
-#--
-
-? @@( o1 / 2 ) # Returns the list splitted on two parts and leaves o1 unmodidied
-#--> [ [ "a", "b" ], [ "a", "b" ] ]
-? @@( o1.Content() )
-#--> [ "a", "b", "a", "b" ]
-
-o1 / Q(2) # Splits o1 on two parts and returns o1
-? @@( o1.Content() ) + NL + NL + "---" + NL
-#--> [ [ "a", "b" ], [ "a", "b" ] ]
-
-#--
-
-? @@( o1 + [ "a", "b" ] ) # Returns a new list by adding an other item ["a","b"] and leaves o1 unmodified
-#--> [ [ "a", "b" ], [ "a", "b" ], [ "a", "b" ] ]
-? @@( o1.Content() )
-#--> [ [ "a", "b" ], [ "a", "b" ] ]
-
-o1 + Q([ "a", "b" ]) # Adds an other item ["a","b"] to o1 and returns o1
-? @@( o1.Content() )  + NL + NL + "---" + NL
-#--> [ [ "a", "b" ], [ "a", "b" ], [ "a", "b" ] ]
-
-#--
-
-? @@( o1 - [] )	 # Returns a new list but leaves the o1 list as is
-# [ [ "a", "b" ], [ "a", "b" ], [ "a", "b" ] ]
-
-o1 - Q([])
-? @@( o1.Content() ) + NL + NL + "---" + NL
-#--> [ [ "a", "b" ], [ "a", "b" ], [ "a", "b" ] ]
-
-#--
-
-o1 - Q([ [ "a", "b"], [ "a", "b"] ])
-? @@( o1.Content() )
-
-
-proff()
-/*---------------
 
 pron()
 
@@ -8805,7 +8761,8 @@ o1 = new stzlist([ "a" , "b", "c", [ "a", "b", "c" ], "c" ])
 #--> [ [ "a", "b", "c" ] ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.06 second(s) in Ring 1.18
 
 /*---------------
 
@@ -8838,9 +8795,9 @@ o1 - These([ "b", "c" ])
 # Just use the Q() elevator to tell softanza that you want
 # the object to be changed and returned, like this:
 
-o1 - Q( These(["b", "c"]) )
+( o1 - TheseQ(["b", "c"]) ).Content() // #todo check error
 #    ^
-#    |_ This Q() means that the (-) operation will be refelected
+#    |_ This TheseQ() means that the (-) operation will be refelected
 #       on the object o1 itself. It means also that, after beeing
 #       changed, the object o1 is returned.
 
@@ -8866,36 +8823,32 @@ o1 = new stzList(["file1", "file2", "file3" ])
 ? o1 * ".ring"
 #--> [ "file1.ring", "file2.ring", "file3.ring" ]
 
+? o1.Content()
+#--> ["file1", "file2", "file3" ]
+
 ? o1 + "file4"
-#--> [ "file1.ring", "file2.ring", "file3.ring", "file4" ]
+#--> [ "file1", "file2", "file3", "file4" ]
+
+proff()
+# Executed in 0.01 second(s).
+
+/*--------
+
+
+pron()
+
+o1 = new stzList(["file1", "file2", "file3" ])
 
 ? @@( o1 / 3 ) + NL
 #--> [ [ "file1" ], [ "file2" ], [ "file3" ] ]
 
 # o1 content remains the same:
 
-? @@( o1.Content() ) + NL + NL + "---" + NL
+? @@( o1.Content() )
 #--> [ "file1", "file2", "file3" ]
 
-# Now, we are going to use the same operators and let them
-# change the object itself. To do so, we enclose the value
-# in a Q() small function (means that we want the result
-# to be the object itself after it is changed):
-
-o1 * Q(".ring")
-? @@( o1.Content() ) + NL
-#--> [ "file1.ring", "file2.ring", "file3.ring" ]
-
-o1 + Q("file4.ring")
-? @@( o1.Content() ) + NL
-#--> [ "file1.ring", "file2.ring", "file3.ring", "file4.ring" ]
-
-o1 / Q(2)
-? @@( o1.Content() )
-#--> [ [ "file1.ring", "file2.ring" ], [ "file3.ring", "file4.ring" ] ]
-
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.02 second(s).
 
 /*-----------
 
@@ -8912,24 +8865,11 @@ o1 = new stzString("File")
 ? @@( o1 / 4 )		# ~> Returns a list and leaves o1 as is
 #--> [ "F", "i", "l", "e" ]
 
-? o1.Content() + NL + NL + "---" + NL
+? o1.Content() 	
 #--> File
 
-#--
-
-o1 * Q(3)		# ~> Returns he same stzString object (o1) modified
-? o1.Content()
-#--> FileFileFile
-
-o1 + Q("File") 		# ~> Idem
-? o1.Content() + NL
-#--> FileFileFileFile
-
-? ( o1 / Q(4) ).Uppercased() # ~> Returns a stzList object containing the 4 parts of the string
-#--> [ "FILE", "FILE", "FILE", "FILE" ])
-
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.04 second(s).
 
 /*-----------
 
@@ -8937,68 +8877,138 @@ pron()
 
 o1 = new stzNumber(12500)
 
-? o1 - "500"
-#--> 12000
+? o1 - 500	# You can even say o1 - "500" because stzNumber accepts
+#--> 12000	# values of numbers that are hosted in strings!
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.18
 
 /*===========
 
+pron()
 
-o1 = new stzList([ "medianet", "st2i", "webgenetix", "equinoxes", "groupe-lsi",
-		   "prestige-concept", "sonibank", "keyrus", "whitecape",
-		   "lyria-systems", "noon-consulting", "ifes", "mourakiboun",
-		   "isie", "hnec", "haica", "kalidia", "triciti", "avionav",
-		   "maxeam", "nextav", "ring" ])
+o1 = new stzList([
+	"medianet", "st2i", "webgenetix", "equinoxes", "groupe-lsi",
+	"prestige-concept", "sonibank", "keyrus", "whitecape",
+	"lyria-systems", "noon-consulting", "ifes", "mourakiboun",
+	"isie", "hnec", "haica", "kalidia", "triciti", "avionav",
+	"maxeam", "nextav", "ring"
+])
 
-? o1.ContainsMany([ "medianet", "st2i" ]) #--> TRUE
-? o1.ContainsEach([ "ifes", "haica"]) 	  #--> TRUE
-? o1.ContainsBoth("ifes", "haica")	  #--> TRUE
+? o1.ContainsMany([ "medianet", "st2i" ])
+#--> TRUE
+
+? o1.ContainsEach([ "ifes", "haica"])
+ #--> TRUE
+
+? o1.ContainsBoth("ifes", "haica")
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
 
 /*-----------------
 
-//? ListReverse([ 1, 2, 3 ])
+pron()
+
+? ListReverse([ 1, 2, 3 ])
+#--> Executed in almost 0 second(s).
+
+proff()
+
+/*---------
+
+pron()
 
 o1 = new stzList([ "tunis", 1:3, 1:3, "gafsa", "tunis", "tunis", 1:3, "gabes", "tunis", "regueb", "regueb" ])
-//o1.Reverse()
-//? o1.Content()
-//? o1.NumberOfDuplicates("tunis")
-? o1.DuplicatedItems()
 
-? o1.DuplicatedItems() #TODO: CaseSensitive! in stzListOfStrings + Objects are not covered!
-? o1.DuplicatesOfItem(1:3)
+o1.Reverse()
+? @@( o1.Content() ) + NL
+#--> [ "regueb", "regueb", "tunis", "gabes", [ 1, 2, 3 ], "tunis", "tunis", "gafsa", [ 1, 2, 3 ], [ 1, 2, 3 ], "tunis" ]
 
-//? o1.DuplicatedItemsXT()
-//? o1.RemoveDuplicatesQ().Content()
-//? o1.DuplicatesRemoved()
+? o1.NumberOfDuplicates()
+#--> 6
+
+? o1.NumberOfDuplicatesOf("tunis") + NL	# Or NumberOfOccurrence("tunis")
+#--> 4
+
+? @@( o1.DuplicatedItems() ) + NL
+#--> [ "regueb", "tunis", [ 1, 2, 3 ] ]
+
+
+? @@( o1.DuplicatesRemoved() )
+#--> [ "regueb", "tunis", "gabes", [ 1, 2, 3 ], "gafsa" ]
+
+proff()
+# Executed in 0.02 second(s).
 
 /*---------------------
+
+pron()
 
 o1 = new stzList([ "poetry", "music", "theater", "stranger" ])
-o1 - [ "poetry", "music" ]
-? o1.Content() #--> [ "theater", "stranger" ]
-                                              
+? o1 - These([ "poetry", "music" ])
+#--> [ "theater", "stranger" ]
+         
+proff()
+# Executed in almost 0 second(s).
+                              
 /*---------------------
 
+pron()
+
 o1 = new stzList([ "A", "B", "C" ])
-? o1.ExtendToPositionNWithQ(5, "0").Content() #--> [ "A", "B", "C", "0", "0" ]
+o1.ExtendXT(:ToPosition = 5, :With = "0") # Or ExtendToWith()
+? o1.Content()
+#--> [ "A", "B", "C", "0", "0" ]
 
-/*--------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-//obj = new stzstring("x")
-
-//o1 = new stzList( [ "A", "B", [ 1, "v", 2 ], "X" ] )
-o1 = new stzList([ "A", "B", "C" ])
-? o1.ContainsNo("v")		#ERROR: method undefined but it exists!!!
-? o1.ContainsNoObjects()	# idem
-//? o1.Flattened() # can also be written: o1.FlattenQ().Content()
+proff()
+# Executed in almost 0 second(s).
 
 /*---------------------
 
-o1 = new stzList([ "A", 1:3, obj, "B", [ "C", 4:5, [ "V", 6:8, ["T", 9:12 ,"K"] ] ], "D" ])
-? o1.ListsAtAnyLevelQ().Content()
+pron()
 
+o1 = new stzList([ "A", "B", "C" ])
+
+? o1.ContainsNo("v")
+#--> TRUE
+
+? o1.ContainsNoObjects()
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
+
+/*---------
+
+pron()
+
+o1 = new stzList( [ "A", "B", [ 1, "v", 2 ], "X" ] )
+
+? o1.ContainsNo("v")
+#--> TRUE
+
+? o1.ContainsNoObjects()
+#--> TRUE
+
+? @@( o1.Flattened() ) # can also be written: o1.FlattenQ().Content()
+#--> [ "A", "B", 1, "v", 2, "X" ]
+
+proff()
+# Executed in almost 0 second(s).
+
+/*---------------------
+
+pron()
+
+o1 = new stzList([ "A", 1:3, NullObject(), "B", [ "C", 4:5, [ "V", 6:8, ["T", 9:12 ,"K"] ] ], "D" ])
+? @@( o1.DeepLists() ) # Or ListsAtAnyLevel()
+#--> [ [ 1, 2, 3 ], [ 4, 5 ], [ 6, 7, 8 ], [ 9, 10, 11, 12 ] ]
+
+proff()
+# Executed in 0.08 second(s).
 
 /*---------------------
 
@@ -9008,17 +9018,22 @@ pron()
 #--> [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.02 second(s) in Ring 1.17
 
-/*----------------------  #TODO check again
-*
+/*---------------------- #todo review the semantics of UntilXT()
+*/
 pron()
 
 o1 = new stzList([ :Water, :Milk, :Cofee, :Tea, :Sugar, " ",:Honey ])
-? o1.WalkUntil('@Item = :Milk') #--> [ 1, 2 ]
-? o1.WalkUntil('@Item = " "')	#--> [ 1, 2, 3, 4, 5, 6 ]
+? o1.WalkUntil('@Item = :Milk')
+#--> [ 1, 2 ]
+
+? o1.WalkUntil('@Item = " "')
+#--> [ 1, 2, 3, 4, 5, 6 ]
 
 proff()
+# Executed in 0.16 second(s).
 
 /*---------------------- TODO: refactored: reveiw it after completing stzWalker
 
