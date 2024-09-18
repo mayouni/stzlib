@@ -7616,7 +7616,7 @@ proff()
 # Executed in almost 0 second(s).
 
 /*-----------------------
-*/
+
 pron()
 
 o1 = new stzList([ "A", "B", "C", "1", "2", "3", "D", "E" ])
@@ -7629,30 +7629,53 @@ proff()
 
 /*-----------------------
 
-? StzListQ([ 1, 2, 3 ]).RepeatNTimes(3)
+pron()
+
+? @@NL( StzListQ([ 1, 2, 3 ]).RepeatNTimes(3) )
+#--> [
+#	[ 1, 2, 3 ],
+#	[ 1, 2, 3 ],
+#	[ 1, 2, 3 ]
+# ]
+
+proff()
+# Executed in 0.02 second(s).
 
 /*-----------------------
+*/
+pron()
 
 StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 
-	? HasLeadingItems() #--> TRUE
-	? NumberOfLeadingItems() # 3
-	? LeadingItems() #--> [ "*", "*", "*" ]
-	
-	? HasTrailingItems() #--> TRUE
-	? NumberOfTrailingItems() # 2
-	? TrailingItems() #--> [ "+", "+" ]
+	? HasLeadingItems()
+	#--> TRUE
+	? NumberOfLeadingItems() + NL
+	#--> 3
 
-	ReplaceRepeatedLeadingItemWith("+")
-	? Content() #--> [ "+", "+", "+", "R", "i", "n", "g", "+", "+" ]
+	? LeadingItems()
+	#--> [ "*", "*", "*" ]
 	
-	ReplaceLeadingItemAndTrailingItemWith("*","*")
+	? HasTrailingItems()
+	#--> TRUE
+
+	? NumberOfTrailingItems() + NL
+	#--> 2
+
+	? TrailingItems()
+	#--> [ "+", "+" ]
+
+	ReplaceRepeatedLeadingItem(:with = "+")
+	? Content()
+	#--> [ "+", "+", "+", "R", "i", "n", "g", "+", "+" ]
+	
+	ReplaceLeadingAndTrailingItems("*","*")
 	? Content() #--> [ "*", "*", "*", "R", "i", "n", "g", "*", "*" ]
 }
 
-STOP()
+proff()
+# Executed in 0.01 second(s).
 
-/*-----------------------
+/*===================
 
 # All these return TRUE
 
