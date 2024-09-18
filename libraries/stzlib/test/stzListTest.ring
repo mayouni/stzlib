@@ -8155,7 +8155,7 @@ proff()
 # Executed in almost 0 second(s).
 
 /*-----------------------
-*/
+
 pron()
 
 ? @IsListOfHashLists([
@@ -8189,90 +8189,139 @@ o1.Show()
 proff()
 # Executed in 0.02 second(s).
 
-/*-----------------------
+/*===============
 
-? StzListQ([ 1, 2, 3, 4, 5, 6 ]).ItemsWQ('{
+pron()
+
+? StzListQ([ 1, 2, 3, 4, 5, 6 ]).ItemsWXTQ('{
+
 	isNumber(@item) and
 	Q(@item).IsDividableBy(2)
-}').NumberOfItems() #--> 3
 
-/*----------------------
-
-? @@( StzListQ("A":"E").Reversed() )		#--> [ "E", "D", "C", "B", "A" ]
-? @@( StzListQ("A":"E").ItemsReversed() )	#--> [ "E", "D", "C", "B", "A" ]
-
-/*----------------------
-
-? StzListQ([ "A", 1, "B", 2, "C", 3]).NumberOfItemsW('isNumber(@item)')
+}').NumberOfItems()
 #--> 3
 
-? StzListQ([ "A", 1, "B", 2, "C", 8 ]).NumberOfItemsW('
-	isString(@item) and Q(@item).isLetter()
-') #--> 3
-
-? StzListQ([ 1, 2, 3, 4, 5, 6 ]).NumberOfItemsW('Q(@item).IsDividableBy(2)') #--> 3
+proff()
+# Executed in 0.14 second(s).
 
 /*----------------------
 
-? StzListQ([ "A", 1, "B", 2, "C", 3]).ItemsW(' isNumber(@item) ')
+pron()
+
+? @@( StzListQ("A":"E").Reversed() )
+#--> [ "E", "D", "C", "B", "A" ]
+
+? @@( StzListQ("A":"E").ItemsReversed() )
+#--> [ "E", "D", "C", "B", "A" ]
+
+proff()
+# Executed in almost 0 second(s).
+
+/*----------------------
+
+pron()
+
+? StzListQ([ "A", 1, "B", 2, "C", 3]).NumberOfItemsWXT('isNumber(@item)')
+#--> 3
+
+? StzListQ([ "A", 1, "B", 2, "C", 8 ]).NumberOfItemsWXT('
+	isString(@item) and Q(@item).isLetter()
+')
+#--> 3
+
+? StzListQ([ 1, 2, 3, 4, 5, 6 ]).NumberOfItemsWXT('Q(@item).IsDividableBy(2)')
+#--> 3
+
+proff()
+# Executed in 0.31 second(s).
+
+/*----------------------
+
+pron()
+
+? StzListQ([ "A", 1, "B", 2, "C", 3]).ItemsWXT(' isNumber(@item) ')
 #--> [1, 2, 3]
 
-? StzListQ([ "A", 1, "B", 2, "C", 3]).ItemsW('
-	isString(@item) and _(@item).Q.IsLetter()
-') #--> ["A", "B", "C"]
+? StzListQ([ "A", 1, "B", 2, "C", 3]).ItemsWXT('
+	isString(@item) and Q(@item).IsLetter()
+') #--> [ "A", "B", "C" ]
 
-? StzListQ([ 1, 2, 3, 4, 5, 6 ]).ItemsW('Q(@item).IsDividableBy(2)')
+? StzListQ([ 1, 2, 3, 4, 5, 6 ]).ItemsWXT('Q(@item).IsDividableBy(2)')
 #--> [2, 4, 6]
 
+proff()
+# Executed in 0.29 second(s).
+
 /*----------------------
+
+pron()
 
 o1 = new stzList( [ "1", "2", [ 1, [ "x" ], 2 ],  "3" ] )
 
 ? o1.ToCode()
 #--> '[ "1", "2", [ 1, [ "x" ], 2 ],  "3" ]'
 
+proff()
+# Executed in almost 0 second(s).
+
 /*----------------------
+
+pron()
 
 # You can replace the nth item of a list
 # by a given value by writing:
 
 o1 = new stzList([ "A", "b", "C" ])
 o1.ReplaceAt(2, "B")
-? o1.Content()	#--> [ "A", "B", "C" ]
+? o1.Content()
+#--> [ "A", "B", "C" ]
 
 # Or you can be a bit more expressive by using :With
 
 o1 = new stzList([ "A", "b", "C" ])
 o1.ReplaceAt(2, :With = "B")
-? o1.Content() #--> [ "A", "B", "C" ]
+? o1.Content()
+#--> [ "A", "B", "C" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*----------------------
+
+pron()
 
 o1 = new stzList([ "A", "a", "A" ])
 o1.ReplaceAt(2, :By = "A")
-? o1.Content() #--> [ "A", "A", "A" ]
+? o1.Content()
+#--> [ "A", "A", "A" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*----------------------
 
-o1 = new stzList([ "A", "a", "A" ])
-o1.ReplaceAt(2, :By@ = "Q(@item).Uppercased()")
-? @@( o1.Content() )  #--> [ "A", "A", "A" ]
+pron()
 
 o1 = new stzList([ "1", "2", "_", "_", "_", "4", "5" ])
 o1.ReplaceSection(3, 5, :With = "3")
 ? @@( o1.Content() )
 #--> [ "1", "2", "3", "4", "5" ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*=======================
+*/
 
 StartProfiler()
 
 o1 = new stzList([ 1, "a", 2, "b", 3, "c" ])
-? o1.FindW('{ isString(@item) and Q(@item).isLowercase() }')
+? o1.FindWXT('{ isString(@item) and Q(@item).isLowercase() }')
 #--> [2, 4, 6]
 
 StopProfiler()
-# Executed in 0.26 second(s)
+# Executed in 0.14 second(s) in Ring 1.21
+# Executed in 0.26 second(s) in Ring 1.17
 
 /*========================
 
