@@ -7474,7 +7474,7 @@ StopProfiler()
 #--> Executed in 0.23 second(s)
 
 /*--------- OTHER WALKING TECHNIQUES
-
+*/
 StartProfiler()
 
 StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
@@ -7601,6 +7601,7 @@ StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 }
 
 StopProfiler()
+# Executed in 0.37 second(s).
 
 /*========================
 
@@ -9035,7 +9036,15 @@ o1 = new stzList([ :Water, :Milk, :Cofee, :Tea, :Sugar, " ",:Honey ])
 proff()
 # Executed in 0.16 second(s).
 
-/*---------------------- TODO: refactored: reveiw it after completing stzWalker
+/*--------
+
+pron()
+
+? Q(5).IsBetween(2, 7)
+
+proff()
+
+/*========= TODO: refactor it to use stzWalker
 */
 pron()
 
