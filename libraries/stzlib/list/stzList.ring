@@ -11482,6 +11482,10 @@ Item and then position
 
 		*/
 
+		if isList(pNewItem) and StzListQ(pNewItem).IsWithNamedParam()
+			pNewItem = pNewItem[2]
+		ok
+
 		This.RemoveSection(n1, n2)
 		ring_insert( @aContent, n1, pNewItem )
 
