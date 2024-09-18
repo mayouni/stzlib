@@ -7833,7 +7833,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*-------------- #narration List approximate comparison in Softanza
-*/
+
 pron()
 
 # Softanza can compare lists (and string also), in an approximative way.
@@ -7859,8 +7859,11 @@ SetQuietEqualityRatio(0.41)
 #--> TRUE
 
 proff()
+# Executed in almost 0 second(s).
 
-/*-----------------------
+/*----------------------- #narration
+
+pron()
 
 # Softanza can sort a list, whatever data types it contains (not only
 # numbers and strings), in ascending and descending orders (see
@@ -7872,34 +7875,59 @@ proff()
 # And it can compare the sorting orders of two lists using
 # HasSameSortingOrderAs() method.
 
-? Q(3:1).SortInAscendingQ().Content()	#--> [ 1, 2, 3 ]
-? Q(1:3).SortInDescendingQ().Content()	#--> [ 3, 2, 1 ]
+? Q(3:1).SortInAscendingQ().Content() 	# Or SortUp()
+#--> [ 1, 2, 3 ]
 
-? Q(1:3).SortingOrder()	#--> :Ascending
+? Q(1:3).SortInDescendingQ().Content()	# Or SortDown()
+#--> [ 3, 2, 1 ]
 
-? Q(1:3).HasSameSortingOrderAs(3:1)	#--> FALSE
-? Q(1:3).HasSameSortingOrderAs(1:3)	#--> TRUE
-? Q(1:3).HasSameSortingOrderAs(1:5)	#--> TRUE
+? Q(1:3).SortingOrder()
+#--> :Ascending
 
-/*-----------------------
+? Q(1:3).HasSameSortingOrderAs(3:1)
+#--> FALSE
+
+? Q(1:3).HasSameSortingOrderAs(1:3)
+#--> TRUE
+
+? Q(1:3).HasSameSortingOrderAs(1:5) + NL
+#--> TRUE
+
+# For conciseness, you can call these functions directly,
+# without objects instanciation:
+
+? HaveSameSortingOrder(1:3, 1:7)
+#--> TRUE
+
+? SortingOrders([ 1:3, 1:7 ])
+#--> [ "ascending", "ascending" ]
+
+proff()
+# Executed in 0.01 second(s).
+
+/*======================
+*/
+pron()
 
 # Operators on stzString
 
 o1 = new stzList([ "S","O","F","T","A","N","Z","A" ])
 
 # Getting a char by position
-? o1[5]		#--> "A"
-
+? o1[5] + NL
+#--> "A"
 
 # Finding the occurrences of a substring in the string
-? o1["A"]	#--> [ 5, 8 ]
+? o1["A"]
+#--> [ 5, 8 ]
 
 # Getting occurrences of chars verifying a given condition
-? o1[ '{ Q(@item).IsOneOfThese(["A", "T", "Z"]) }' ]	#--> [ 4, 5, 7, 8 ]
+? o1[ '{ Q(@item).IsOneOfThese(["A", "T", "Z"]) }' ]
+#--> [ 4, 5, 7, 8 ]
 
-STOP()
+proff()
 
-/*-----------------------
+/*===============
 
 o1 = new stzList([ 10, 1, 2, 3, 10 ])
 o1.Remove(10)

@@ -37,6 +37,29 @@ func Types(paList)
 	func @Types(paList)
 		return Types(paList)
 
+func SortingOrder(p)
+	return Q(p).SortingOrder()
+
+func SortingOrders(paListOfThings)
+	if NOT isList(paListOfThings)
+		StzRaise("Incorrect param type! paListOfThings must be a list.")
+	ok
+
+	acResult = []
+
+	nLen = len(paListOfThings)
+	for i = 1 to nLen
+		acResult + Q(paListOfThings[i]).SortingOrder()
+	next
+
+	return acResult
+
+func HaveSameSortingOrder(p1, p2)
+	return Q(p1).HasSameSortingOrderAs(p2)
+
+	func HaveSameSortingOrders(p1, p2)
+		return HaveSameSortingOrder(p1, p2)
+
 func SortListsBySize(paLists)
 	if CheckParam()
 		if NOT ( isList(paLists) and @IsListOfLists(paLists) )
@@ -28741,6 +28764,9 @@ Item and then position
 					next
 	
 					return anResult
+
+				else
+					return This.FindAll(pValue)
 				ok
 
 			else
