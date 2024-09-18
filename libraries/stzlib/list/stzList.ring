@@ -11459,8 +11459,8 @@ Item and then position
 
 		*/
 
-		This.RemoveSectionQ(n1, n2)
-		This.InsertBefore(n1, pNewItem)
+		This.RemoveSection(n1, n2)
+		ring_insert( @aContent, n1, pNewItem )
 
 		def ReplaceSectionQ(n1, n2, pNewItem)
 			This.ReplaceSection(n1, n2, pNewItem)
@@ -11542,10 +11542,10 @@ Item and then position
 	#----------------------------------------------------------#
 
 	def ReplaceEachItemInManySections(paSections, pNewItem)
-		for anSection in paSections
-			n1 = anSection[1]
-			n2 = anSection[2]
-			This.ReplaceEachItemInSection(n1, n2, pNewItem)
+		nLen = len(paSections)
+
+		for i = 1 to nLen
+			This.ReplaceEachItemInSection(paSections[i][1], paSections[i][2], pNewItem)
 		next
 
 		def ReplaceEachItemInManySectionsQ(paSections, pNewItem)
@@ -11582,28 +11582,42 @@ Item and then position
 		? o1.Content() #--> [ "A", "B", "C", "D", "E", "F" ]
 
 		*/
-		i = 0
 
-		for n = n1 to n2
-			i++
-			if i <= len(paOtherListOfItems)
-				item = paOtherListOfItems[i]
-			else
-				item = NULL
+		if CheckParams()
+	
+			if NOT isList(paOtherListOfItems)
+				StzRaise("Incorrect param type! paOtherListOfItems must be a list.")
 			ok
 
-			This.ReplaceAt(n, item)
+		ok
+
+		This.RemoveSection(n1, n2)
+
+		nLen = len(paOtherListOfItems)
+
+		for i = nLen to 1 step -1
+			ring_insert( @aContent, n1, paOtherListOfItems[i] )
 		next
+
+		#< @FunctionFluentForm
 
 		def ReplaceSectionByManyQ(n1, n2, paOtherListOfItems)
 			This.ReplaceSectionByMany(n1, n2, paOtherListOfItems)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def ReplaceSectionByThese(n1, n2, pOtherListOfItems)
 			This.ReplaceSectionByMany(n1, n2, paOtherListOfItems)
 
 			def ReplaceSectionByTheseQ(n1, n2, pOtherListOfItems)
 				return This.ReplaceSectionByManyQ(n1, n2, paOtherListOfItems)
+
+		#>
+
+	#-- @FunctionPassiveForm
 
 	def SectionReplacedByMany(n1, n2, paOtherListOfItems)
 		aResult = This.ReplaceSectionByManyQ(n1, n2, paOtherListOfItems).Content()
