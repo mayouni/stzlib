@@ -22313,9 +22313,15 @@ Item and then position
 		def IsMadeOfStzClassNames()
 			return This.ContainsOnlyStzClassNames()
 
-	  #======================#
-	 #   MANAGING WALKERS   #TODO
-	#======================#
+	  #==========================#
+	 #  WALKING THE LIST ITEMS  #
+	#==========================#
+
+	#TODO
+	# These functions were implemented before we abstracted all
+	# the walking feature in a stzWalker class
+
+	# ~> Redesign these functions based on stzWalker class
 
 	def AddWalker(pcName, pnStart, pnEnd, panSteps)
 
@@ -22328,43 +22334,8 @@ Item and then position
 			if NOT isString(pcName)
 				StzRaise("Incorrect param type! pcName must be a string.")
 			ok
-
-/*			if isList(pnStart) and StzListQ(pnStart).IsStartOrStartAtOrStaringAtNamedParam()
-				pnStart = pnStart[2]
-			ok
-
-			if isList(pnEnd) and StzListQ(pnEnd).IsEndOrEndAtOrEndingAtNamedParam()
-				pnEnd = pnEnd[2]
-			ok
-
-			if isList(panSteps) and StzListQ(panSteps).isStepOrStepsNamedParam()
-				panSteps = panSteps[2]
-			ok
-
-			if NOT isNumber(pnStart)
-				StzRaise("Incorrect param type! pnStart must be a number.")
-			ok
-
-			if NOT isNumnber(pnEnd)
-				StzRaise("Incorrect param type! pnEnd must be a number.")
-			ok
-
-			if NOT isNumber(nStep)
-				StzRaise("Incorrect param type! nStep must be a number.")
-			ok
-*/
 		ok
 
-/*		nLen = This.NumberOfItems()
-
-		if NOT ( 1 < pnStart and pnStart < nLen )
-			StzRaise("Incorrect value! pnStart is out of range.")
-		ok
-
-		if NOT ( 1 < pnEnd and pnEnd < nLen )
-			StzRaise("Incorrect value! pnEnd is out of range.")
-		ok
-*/
 		aWalkers = This.Walkers()
 		nLenWalkers = len(aWalkers)
 
@@ -22434,634 +22405,7 @@ Item and then position
 		def ComposedWalkers()
 			return This.CombinedWalkers()
 
-	  #=================#
-	 #  WALKING WHERE  #
-	#=================#
-
-	def WalkWhere(pcCondition)
-		return This.WalkWhereXT(pcCondition, :Forward, :Return = :WalkedPositions)
-
-		def WalkW(pcCondition)
-			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-				pcCondition = pcCondition[2]
-			ok
-
-			return This.WalkWhere(pcCondition)
-
-	def WalkWhereXT(pcCondition, pcDirection, pReturn)
-		/*
-		o1 = new stzList([ 1, "A", 3, "B", "_", 6 ])
-
-		? WalkWhere("isNumber(@item)")
-		#--> [1, 3, 6]
-		*/
-
-		# Checking params
-
-		if CheckParams()
-	
-			if NOT isString(pcCondition)
-				StzRaise("Incorrect param type! pcCondition must be a string.")
-			ok
-	
-			if isList(pReturn) and
-			   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
-	
-				pReturn = pReturn[2]
-			ok
-	
-			if NOT ( isString(pReturn) and
-	
-				 Q(pReturn).IsOneOfThese([
-					:WalkedPositions, :WalkedItems,
-					:LastPosition, :LastWalkedPosition,
-					:LastItem, :LastWalkedItem,
-					:Default
-				]) )
-	
-				StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
-					 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
-			ok
-	
-			if pReturn = :Default
-				pReturn = :WalkedPositions
-			ok
-	
-			if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
-				pcDirection = pcDirection[2]
-			ok
-	
-			if NOT ( isString(pcDirection) and
-				 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
-	
-				StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
-			ok
-	
-			if pcDirection = :Default
-				pcDirection = :Forward
-			ok
-		ok
-
-		# Doing the job
-
-		anPos = []
-
-		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
-
-		anPos = []
-		nLen = This.NumberOfItems()
-
-		nStart = 1
-		nEnd   = nLen
-		nStep  = 1
-
-		if pcDirection = :Backward
-			nStart = nLen
-			nEnd   = 1
-			nStep  = -1
-		ok
-
-		for @i = nStart to nEnd step nStep
-			@item = @aContent[@i]
-			eval(cCode)
-
-			if bOk
-				anPos + @i
-			ok
-	
-		next
-
-		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
-
-		but pReturn = :WalkedPositions
-			return anPos
-
-		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
-
-		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
-
-		else
-			return anPos
-		end
-
-		def WalkWXT(pcCondition, pReturn)
-			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-				pcCondition = pcCondition[2]
-			ok
-
-			return This.WalkWhereXT(pcCondition, pReturn)
-
-	  #============================================#
-	 #  WALKING UNTIL (AND WALKING UNTIL BEFORE)  #
-	#============================================#
-
-	def WalkUntil(pcCondition)
-		return This.WalkUntilXT(pcCondition, :Forward, :WalkedPositions)
-
-	def WalkUntilBefore(pcCondition)
-		return This.WalkUntil( :Before = pcCondition )
-
-	def WalkUntilXT(pcCondition, pcDirection, pReturn)
-		/*
-		[ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]
-
-		WalkUntil("@item = 'D'", :Return = :WalkedPositions  )  #--> 1:5
-		WalkUntil("@item = 'D'", :Return = :LastPosition )  #--> 5
-
-		WalkUntil("@item = 'D'", :Return = :WalkedItems )
-		#--> [ "A", "B", 12, "C", "D" ]
-
-		WalkUntil("@item = 'D'", :Return = :LastItem ) #--> "D"
-
-
-		WalkUntil("isNumber(@item)") #--> 1:3
-		WalkUntil("isNumber(@item) and @item > 20") #--> 1:9
-		*/
-
-		bWalkBefore = FALSE
-
-		# Checking the params
-
-		if isList(pcCondition) and Q(pcCondition).IsBeforeNamedParam()
-			bWalkBefore = TRUE
-			pcCondition = pcCondition[2]
-		ok
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
-
-			pReturn = pReturn[2]
-		ok
-
-		if NOT ( isString(pReturn) and
-
-			 Q(pReturn).IsOneOfThese([
-				:WalkedPositions, :WalkedItems,
-				:LastPosition, :LastWalkedPosition,
-				:LastItem, :LastWalkedItem,
-				:Default
-			]) )
-
-			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
-				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
-		ok
-
-		if pReturn = :Default
-			pReturn = :WalkedPositions
-		ok
-
-		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
-			pcDirection = pcDirection[2]
-		ok
-
-		if NOT ( isString(pcDirection) and
-			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
-
-			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
-		ok
-
-		if pcDirection = :Default
-			pcDirection = :Forward
-		ok
-		# Doing the job
-
-		cCode = 'bOk = ( ' +  StzCCodeQ(pcCondition).Transpiled() + ' )'
-
-		bFound = FALSE
-		aList = This.Content()
-		nLen = This.NumberOfItems()
-
-		anPos = []
-
-		nStart = 1
-		nEnd   = nLen
-		nStep  = 1
-
-		if pcDirection = :Backward
-			nStart = nLen
-			nEnd   = 1
-			nStep  = -1
-		ok
-
-		for @i = nStart to nEnd step nStep
-			@item = @aContent[@i]
-			eval(cCode)
-
-			if bOk
-				if bWalkBefore = FALSE
-					anPos + @i
-				ok
-
-				exit
-			ok
-
-			anPos + @i
-			
-		next
-
-		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
-
-		but pReturn = :WalkedPositions
-			return anPos
-
-		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
-
-		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
-
-		else
-			return anPos
-		end
-
-	def WalkUntilBeforeXT(pcCondition, pReturn)
-		return This.WalkUntilXT( :Before = pcCondition, pReturn)
-
-	  #=================#
-	 #  WALKING WHILE  #
-	#=================#
-
-	def WalkWhile(pcCondition)
-		return This.WalkWhileXT(pcCondition, :Forward, :WalkedPositions)
-
-	def WalkWhileXT(pcCondition, pcDirection, pReturn)
-		/*
-		o1 = new stzList([ "A", "B", "_", "*", 12, "C", "D", 4 ])
-
-		? WalkWhile("Q(@item).IsNotNumber()")
-		#--> 1:4
-		*/
-
-		# Checking params
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
-
-			pReturn = pReturn[2]
-		ok
-
-		if NOT ( isString(pReturn) and
-
-			 Q(pReturn).IsOneOfThese([
-				:WalkedPositions, :WalkedItems,
-				:LastPosition, :LastWalkedPosition,
-				:LastItem, :LastWalkedItem,
-				:Default
-			]) )
-
-			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
-				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
-		ok
-
-		if pReturn = :Default
-			pReturn = :WalkedPositions
-		ok
-
-		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
-			pcDirection = pcDirection[2]
-		ok
-
-		if NOT ( isString(pcDirection) and
-			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
-
-			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
-		ok
-
-		if pcDirection = :Default
-			pcDirection = :Forward
-		ok
-
-		# Doing the job
-
-		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
-
-		anPos = []
-		nLen = This.NumberOfItems()
-
-		nStart = 1
-		nEnd   = nLen
-		nStep  = 1
-
-		if pcDirection = :Backward
-			nStart = nLen
-			nEnd   = 1
-			nStep  = -1
-		ok
-
-		for @i = nStart to nEnd step nStep
-			@item = @aContent[@i]
-			eval(cCode)
-
-			if NOT bOk
-				exit
-			ok
-
-			anPos + @i
-		next
-
-		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
-
-		but pReturn = :WalkedPositions
-			return anPos
-
-		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
-
-		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
-
-		else
-			return anPos
-		end
-
-	  #================#
-	 #  WALKING WHEN  #
-	#================#
-
-	def WalkWhen(pcCondition)
-		return This.WalkWhenXT(pcCondition, :Forward, :WalkedPositions)
-
-	def WalkWhenXT(pcCondition, pcDirection, pReturn)
-
-		# Checking params
-
-		if NOT isString(pcCondition)
-			StzRaise("Incorrect param type! pcCondition must be a string.")
-		ok
-
-		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
-
-			pReturn = pReturn[2]
-		ok
-
-		if NOT ( isString(pReturn) and
-
-			 Q(pReturn).IsOneOfThese([
-				:WalkedPositions, :WalkedItems,
-				:LastPosition, :LastWalkedPosition,
-				:LastItem, :LastWalkedItem,
-				:Default
-			]) )
-
-			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
-				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
-		ok
-
-		if pReturn = :Default
-			pReturn = :WalkedPositions
-		ok
-
-		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
-			pcDirection = pcDirection[2]
-		ok
-
-		if NOT ( isString(pcDirection) and
-			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
-
-			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
-		ok
-
-		if pcDirection = :Default
-			pcDirection = :Forward
-		ok
-
-		# Doing the job
-
-		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
-
-		anPos = []
-		nLen = This.NumberOfItems()
-
-		nStart = 1
-		nEnd   = nLen
-		nStep  = 1
-
-		if pcDirection = :Backward
-			nStart = nLen
-			nEnd   = 1
-			nStep  = -1
-		ok
-
-		for @i = nStart to nEnd step nStep
-			@item = @aContent[@i]
-			eval(cCode)
-
-			if bOk
-				anPos = @i : nEnd
-				exit
-			ok
-
-			
-		next
-
-		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
-
-		but pReturn = :WalkedPositions
-			return anPos
-
-		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
-
-		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
-
-		else
-			return anPos
-		end
-
-	  #===================#
-	 #  WALKING BETWEEN  #
-	#===================#
-
-	def WalkBetween(n1, n2)
-		return This.WalkBetweenIB(n1, n2, :WalkedPositions)
-
-	def WalkBetweenIB(n1, n2, pReturn)
-
-		# Checking params
-
-		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :Position, :Positions ])
-			n1 = n1[2]
-		ok
-
-		if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :Position, :AndPosition, :And ])
-			n2 = n2[2]
-		ok
-
-		if NOT Q([ n1, n2 ]).BothAreNumbers()
-			StzRaise("Incorrect param type! n1 and n2 must be numbers.")
-		ok
-
-		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
-
-			pReturn = pReturn[2]
-		ok
-
-		if NOT ( isString(pReturn) and
-
-			 Q(pReturn).IsOneOfThese([
-				:WalkedPositions, :WalkedItems,
-				:LastPosition, :LastWalkedPosition,
-				:LastItem, :LastWalkedItem,
-				:Default
-			]) )
-
-			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
-				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
-		ok
-
-		if pReturn = :Default
-			pReturn = :WalkedPositions
-		ok
-
-		# Doing the job
-
-		anPos = []
-		nLen = This.NumberOfItems()
-
-		anPos = n1 : n2
-
-		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
-
-		but pReturn = :WalkedPositions
-			return anPos
-
-		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
-
-		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
-
-		else
-			return anPos
-		end
-
-	  #===================================#
-	 #  WALKING THE LIST FORTH AND BACK  #
-	#===================================#
-
-	def WalkForthAndBack()
-		return This.WalkForthAndBackXT(:Return = :WalkedPositions)
-
-	def WalkForthAndBackXT(pReturn)
-
-		# Checking pReturn param
-
-		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
-
-			pReturn = pReturn[2]
-		ok
-
-		if NOT ( isString(pReturn) and
-
-			 Q(pReturn).IsOneOfThese([
-				:WalkedPositions, :WalkedItems,
-				:LastPosition, :LastWalkedPosition,
-				:LastItem, :LastWalkedItem,
-				:Default
-			]) )
-
-			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
-				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
-		ok
-
-		# Doing the job
-
-		anPos = 1 : This.NumberOfItems()
-
-		for i = This.NumberOfItems()-1 to 1 step -1
-			anPos + i
-		next
-		
-		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
-
-		but pReturn = :WalkedPositions
-			return anPos
-
-		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
-
-		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
-
-		else
-			return anPos
-		end
-
-	  #-----------------------------------#
-	 #  WALKING THE LIST BACK AND FORTH  #
-	#-----------------------------------#
-
-	def WalkBackAndForth()
-		return This.WalkBackAndForthXT(:Return = :WalkedPositions)
-
-	def WalkBackAndForthXT(pReturn)
-
-		# Checking pReturn param
-
-		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
-
-			pReturn = pReturn[2]
-		ok
-
-		if NOT ( isString(pReturn) and
-
-			 Q(pReturn).IsOneOfThese([
-				:WalkedPositions, :WalkedItems,
-				:LastPosition, :LastWalkedPosition,
-				:LastItem, :LastWalkedItem,
-				:Default
-			]) )
-
-			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
-				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
-		ok
-
-		# Doing the job
-
-		anPos = This.NumberOfItems() : 1
-
-		for i = 2 to This.NumberOfItems()
-			anPos + i
-		next
-
-		if pReturn = :WalkedItems
-			return This.ItemsAt(anPos)
-
-		but pReturn = :WalkedPositions
-			return anPos
-
-		but pReturn = :LastItem or pReturn = :LastWalkedItem
-			return This.ItemAt(len(anPos))
-
-		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
-			return anPos[len(anPos)]
-
-		else
-			return anPos
-		end
-
-	  #===============================================#
+	  #-----------------------------------------------#
 	 #  WALKING THE LIST EACH TIME N ITEMS FORWARD   #
 	#===============================================#
 
@@ -23261,9 +22605,636 @@ Item and then position
 
 		#>
 
-	  #===========================================================#
+	  #-------------------#
+	 #  WALKING BETWEEN  #
+	#===================#
+
+	def WalkBetween(n1, n2)
+		return This.WalkBetweenIB(n1, n2, :WalkedPositions)
+
+	def WalkBetweenIB(n1, n2, pReturn)
+
+		# Checking params
+
+		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :Position, :Positions ])
+			n1 = n1[2]
+		ok
+
+		if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :Position, :AndPosition, :And ])
+			n2 = n2[2]
+		ok
+
+		if NOT Q([ n1, n2 ]).BothAreNumbers()
+			StzRaise("Incorrect param type! n1 and n2 must be numbers.")
+		ok
+
+		if isList(pReturn) and
+		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+
+			pReturn = pReturn[2]
+		ok
+
+		if NOT ( isString(pReturn) and
+
+			 Q(pReturn).IsOneOfThese([
+				:WalkedPositions, :WalkedItems,
+				:LastPosition, :LastWalkedPosition,
+				:LastItem, :LastWalkedItem,
+				:Default
+			]) )
+
+			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
+				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
+		ok
+
+		if pReturn = :Default
+			pReturn = :WalkedPositions
+		ok
+
+		# Doing the job
+
+		anPos = []
+		nLen = This.NumberOfItems()
+
+		anPos = n1 : n2
+
+		if pReturn = :WalkedItems
+			return This.ItemsAt(anPos)
+
+		but pReturn = :WalkedPositions
+			return anPos
+
+		but pReturn = :LastItem or pReturn = :LastWalkedItem
+			return This.ItemAt(len(anPos))
+
+		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
+			return anPos[len(anPos)]
+
+		else
+			return anPos
+		end
+
+	  #-----------------------------------#
+	 #  WALKING THE LIST FORTH AND BACK  #
+	#===================================#
+
+	def WalkForthAndBack()
+		return This.WalkForthAndBackXT(:Return = :WalkedPositions)
+
+	def WalkForthAndBackXT(pReturn)
+
+		# Checking pReturn param
+
+		if isList(pReturn) and
+		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+
+			pReturn = pReturn[2]
+		ok
+
+		if NOT ( isString(pReturn) and
+
+			 Q(pReturn).IsOneOfThese([
+				:WalkedPositions, :WalkedItems,
+				:LastPosition, :LastWalkedPosition,
+				:LastItem, :LastWalkedItem,
+				:Default
+			]) )
+
+			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
+				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
+		ok
+
+		# Doing the job
+
+		anPos = 1 : This.NumberOfItems()
+
+		for i = This.NumberOfItems()-1 to 1 step -1
+			anPos + i
+		next
+		
+		if pReturn = :WalkedItems
+			return This.ItemsAt(anPos)
+
+		but pReturn = :WalkedPositions
+			return anPos
+
+		but pReturn = :LastItem or pReturn = :LastWalkedItem
+			return This.ItemAt(len(anPos))
+
+		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
+			return anPos[len(anPos)]
+
+		else
+			return anPos
+		end
+
+	  #-----------------------------------#
+	 #  WALKING THE LIST BACK AND FORTH  #
+	#===================================#
+
+	def WalkBackAndForth()
+		return This.WalkBackAndForthXT(:Return = :WalkedPositions)
+
+	def WalkBackAndForthXT(pReturn)
+
+		# Checking pReturn param
+
+		if isList(pReturn) and
+		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+
+			pReturn = pReturn[2]
+		ok
+
+		if NOT ( isString(pReturn) and
+
+			 Q(pReturn).IsOneOfThese([
+				:WalkedPositions, :WalkedItems,
+				:LastPosition, :LastWalkedPosition,
+				:LastItem, :LastWalkedItem,
+				:Default
+			]) )
+
+			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
+				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
+		ok
+
+		# Doing the job
+
+		anPos = This.NumberOfItems() : 1
+
+		for i = 2 to This.NumberOfItems()
+			anPos + i
+		next
+
+		if pReturn = :WalkedItems
+			return This.ItemsAt(anPos)
+
+		but pReturn = :WalkedPositions
+			return anPos
+
+		but pReturn = :LastItem or pReturn = :LastWalkedItem
+			return This.ItemAt(len(anPos))
+
+		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
+			return anPos[len(anPos)]
+
+		else
+			return anPos
+		end
+
+	  #-----------------#
+	 #  WALKING WHERE  #
+	#=================#
+
+	def WalkWhere(pcCondition)
+		return This.WalkWhereXT(pcCondition, :Forward, :Return = :WalkedPositions)
+
+		def WalkW(pcCondition)
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+
+			return This.WalkWhere(pcCondition)
+
+	def WalkWhereXT(pcCondition, pcDirection, pReturn)
+		/*
+		o1 = new stzList([ 1, "A", 3, "B", "_", 6 ])
+
+		? WalkWhere("isNumber(@item)")
+		#--> [1, 3, 6]
+		*/
+
+		# Checking params
+
+		if CheckParams()
+	
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+	
+			if isList(pReturn) and
+			   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+	
+				pReturn = pReturn[2]
+			ok
+	
+			if NOT ( isString(pReturn) and
+	
+				 Q(pReturn).IsOneOfThese([
+					:WalkedPositions, :WalkedItems,
+					:LastPosition, :LastWalkedPosition,
+					:LastItem, :LastWalkedItem,
+					:Default
+				]) )
+	
+				StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
+					 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
+			ok
+	
+			if pReturn = :Default
+				pReturn = :WalkedPositions
+			ok
+	
+			if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+				pcDirection = pcDirection[2]
+			ok
+	
+			if NOT ( isString(pcDirection) and
+				 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
+	
+				StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
+			ok
+	
+			if pcDirection = :Default
+				pcDirection = :Forward
+			ok
+		ok
+
+		# Doing the job
+
+		anPos = []
+
+		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
+
+		anPos = []
+		nLen = This.NumberOfItems()
+
+		nStart = 1
+		nEnd   = nLen
+		nStep  = 1
+
+		if pcDirection = :Backward
+			nStart = nLen
+			nEnd   = 1
+			nStep  = -1
+		ok
+
+		for @i = nStart to nEnd step nStep
+			@item = @aContent[@i]
+			eval(cCode)
+
+			if bOk
+				anPos + @i
+			ok
+	
+		next
+
+		if pReturn = :WalkedItems
+			return This.ItemsAt(anPos)
+
+		but pReturn = :WalkedPositions
+			return anPos
+
+		but pReturn = :LastItem or pReturn = :LastWalkedItem
+			return This.ItemAt(len(anPos))
+
+		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
+			return anPos[len(anPos)]
+
+		else
+			return anPos
+		end
+
+		def WalkWXT(pcCondition, pReturn)
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+
+			return This.WalkWhereXT(pcCondition, pReturn)
+
+	  #--------------------------------------------#
+	 #  WALKING UNTIL (AND WALKING UNTIL BEFORE)  #
+	#============================================#
+
+	def WalkUntil(pcCondition)
+		return This.WalkUntilXT(pcCondition, :Forward, :WalkedPositions)
+
+	def WalkUntilBefore(pcCondition)
+		return This.WalkUntil( :Before = pcCondition )
+
+	def WalkUntilXT(pcCondition, pcDirection, pReturn)
+		/*
+		[ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]
+
+		WalkUntil("@item = 'D'", :Return = :WalkedPositions  )  #--> 1:5
+		WalkUntil("@item = 'D'", :Return = :LastPosition )  #--> 5
+
+		WalkUntil("@item = 'D'", :Return = :WalkedItems )
+		#--> [ "A", "B", 12, "C", "D" ]
+
+		WalkUntil("@item = 'D'", :Return = :LastItem ) #--> "D"
+
+
+		WalkUntil("isNumber(@item)") #--> 1:3
+		WalkUntil("isNumber(@item) and @item > 20") #--> 1:9
+		*/
+
+		bWalkBefore = FALSE
+
+		# Checking the params
+
+		if isList(pcCondition) and Q(pcCondition).IsBeforeNamedParam()
+			bWalkBefore = TRUE
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		if isList(pReturn) and
+		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+
+			pReturn = pReturn[2]
+		ok
+
+		if NOT ( isString(pReturn) and
+
+			 Q(pReturn).IsOneOfThese([
+				:WalkedPositions, :WalkedItems,
+				:LastPosition, :LastWalkedPosition,
+				:LastItem, :LastWalkedItem,
+				:Default
+			]) )
+
+			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
+				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
+		ok
+
+		if pReturn = :Default
+			pReturn = :WalkedPositions
+		ok
+
+		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+			pcDirection = pcDirection[2]
+		ok
+
+		if NOT ( isString(pcDirection) and
+			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
+
+			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
+		ok
+
+		if pcDirection = :Default
+			pcDirection = :Forward
+		ok
+		# Doing the job
+
+		cCode = 'bOk = ( ' +  StzCCodeQ(pcCondition).Transpiled() + ' )'
+
+		bFound = FALSE
+		aList = This.Content()
+		nLen = This.NumberOfItems()
+
+		anPos = []
+
+		nStart = 1
+		nEnd   = nLen
+		nStep  = 1
+
+		if pcDirection = :Backward
+			nStart = nLen
+			nEnd   = 1
+			nStep  = -1
+		ok
+
+		for @i = nStart to nEnd step nStep
+			@item = @aContent[@i]
+			eval(cCode)
+
+			if bOk
+				if bWalkBefore = FALSE
+					anPos + @i
+				ok
+
+				exit
+			ok
+
+			anPos + @i
+			
+		next
+
+		if pReturn = :WalkedItems
+			return This.ItemsAt(anPos)
+
+		but pReturn = :WalkedPositions
+			return anPos
+
+		but pReturn = :LastItem or pReturn = :LastWalkedItem
+			return This.ItemAt(len(anPos))
+
+		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
+			return anPos[len(anPos)]
+
+		else
+			return anPos
+		end
+
+	def WalkUntilBeforeXT(pcCondition, pReturn)
+		return This.WalkUntilXT( :Before = pcCondition, pReturn)
+
+	  #-----------------#
+	 #  WALKING WHILE  #
+	#=================#
+
+	def WalkWhile(pcCondition)
+		return This.WalkWhileXT(pcCondition, :Forward, :WalkedPositions)
+
+	def WalkWhileXT(pcCondition, pcDirection, pReturn)
+		/*
+		o1 = new stzList([ "A", "B", "_", "*", 12, "C", "D", 4 ])
+
+		? WalkWhile("Q(@item).IsNotNumber()")
+		#--> 1:4
+		*/
+
+		# Checking params
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		if isList(pReturn) and
+		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+
+			pReturn = pReturn[2]
+		ok
+
+		if NOT ( isString(pReturn) and
+
+			 Q(pReturn).IsOneOfThese([
+				:WalkedPositions, :WalkedItems,
+				:LastPosition, :LastWalkedPosition,
+				:LastItem, :LastWalkedItem,
+				:Default
+			]) )
+
+			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
+				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
+		ok
+
+		if pReturn = :Default
+			pReturn = :WalkedPositions
+		ok
+
+		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+			pcDirection = pcDirection[2]
+		ok
+
+		if NOT ( isString(pcDirection) and
+			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
+
+			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
+		ok
+
+		if pcDirection = :Default
+			pcDirection = :Forward
+		ok
+
+		# Doing the job
+
+		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
+
+		anPos = []
+		nLen = This.NumberOfItems()
+
+		nStart = 1
+		nEnd   = nLen
+		nStep  = 1
+
+		if pcDirection = :Backward
+			nStart = nLen
+			nEnd   = 1
+			nStep  = -1
+		ok
+
+		for @i = nStart to nEnd step nStep
+			@item = @aContent[@i]
+			eval(cCode)
+
+			if NOT bOk
+				exit
+			ok
+
+			anPos + @i
+		next
+
+		if pReturn = :WalkedItems
+			return This.ItemsAt(anPos)
+
+		but pReturn = :WalkedPositions
+			return anPos
+
+		but pReturn = :LastItem or pReturn = :LastWalkedItem
+			return This.ItemAt(len(anPos))
+
+		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
+			return anPos[len(anPos)]
+
+		else
+			return anPos
+		end
+
+	  #----------------#
+	 #  WALKING WHEN  #
+	#================#
+
+	def WalkWhen(pcCondition)
+		return This.WalkWhenXT(pcCondition, :Forward, :WalkedPositions)
+
+	def WalkWhenXT(pcCondition, pcDirection, pReturn)
+
+		# Checking params
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+		if isList(pReturn) and
+		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+
+			pReturn = pReturn[2]
+		ok
+
+		if NOT ( isString(pReturn) and
+
+			 Q(pReturn).IsOneOfThese([
+				:WalkedPositions, :WalkedItems,
+				:LastPosition, :LastWalkedPosition,
+				:LastItem, :LastWalkedItem,
+				:Default
+			]) )
+
+			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
+				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
+		ok
+
+		if pReturn = :Default
+			pReturn = :WalkedPositions
+		ok
+
+		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+			pcDirection = pcDirection[2]
+		ok
+
+		if NOT ( isString(pcDirection) and
+			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
+
+			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
+		ok
+
+		if pcDirection = :Default
+			pcDirection = :Forward
+		ok
+
+		# Doing the job
+
+		cCode = 'bOk = (' + StzCCodeQ(pcCondition).Transpiled() + ' )'
+
+		anPos = []
+		nLen = This.NumberOfItems()
+
+		nStart = 1
+		nEnd   = nLen
+		nStep  = 1
+
+		if pcDirection = :Backward
+			nStart = nLen
+			nEnd   = 1
+			nStep  = -1
+		ok
+
+		for @i = nStart to nEnd step nStep
+			@item = @aContent[@i]
+			eval(cCode)
+
+			if bOk
+				anPos = @i : nEnd
+				exit
+			ok
+
+			
+		next
+
+		if pReturn = :WalkedItems
+			return This.ItemsAt(anPos)
+
+		but pReturn = :WalkedPositions
+			return anPos
+
+		but pReturn = :LastItem or pReturn = :LastWalkedItem
+			return This.ItemAt(len(anPos))
+
+		but pReturn = :LastPosition or pReturn = :LastWalkedPosition
+			return anPos[len(anPos)]
+
+		else
+			return anPos
+		end
+
+	  #----------------------------------------------------#
 	 #  WALKING THE LIST EACH TIME N MORE ITEMS FORWARD   #
-	#===========================================================#
+	#====================================================#
 
 	def WalkNProgressiveItemsForward(n)
 		return This.WalkNProgressiveItemsForwardXT(n, :Return = :WalkedPositions)
@@ -24136,7 +24107,7 @@ Item and then position
 
 		# Checking params
 
-		if NOT Q(pnFromEnd, pnFromStart).BothAreNumbers()
+		if NOT Q([ pnFromEnd, pnFromStart ]).BothAreNumbers()
 			StzRaise("Incorrect param type! Both pnFromStart and pnFromEnd must be numbers.")
 		ok
 

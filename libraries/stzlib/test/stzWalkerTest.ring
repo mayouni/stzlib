@@ -200,7 +200,7 @@ oWalker {
 	? @@( RemainingWalkables())
 	#--> [ 6, 4, 2 ]
 
-	? "--" + NL
+	? NL + "--" + NL
 
 	? @@( WalkN(2) )
 	#--> [ 8, 6, 4 ]
@@ -352,4 +352,4 @@ w.RemoveWalks()
 #--> 0
 
 proff()
-# Executed in 0.01 second(s).
+# Executed in 0.02 second(s).
