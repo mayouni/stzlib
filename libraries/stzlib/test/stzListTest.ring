@@ -7474,7 +7474,7 @@ StopProfiler()
 #--> Executed in 0.23 second(s)
 
 /*--------- OTHER WALKING TECHNIQUES
-*/
+
 StartProfiler()
 
 StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
@@ -7605,10 +7605,27 @@ StopProfiler()
 
 /*========================
 
+pron()
+
 o1 = new stzList([ "A", "B", "C", "1", "2", "3", "D", "E" ])
 o1.ReplaceSection(4, 6, [ "*", "*", "*", "*" ])
-? o1.Content()
+? @@( o1.Content() )
+#--> [ "A", "B", "C", [ "*", "*", "*", "*" ], "D", "E" ]
+
+proff()
+# Executed in almost 0 second(s).
+
+/*-----------------------
+*/
+pron()
+
+o1 = new stzList([ "A", "B", "C", "1", "2", "3", "D", "E" ])
+o1.ReplaceSectionByMany(4, 6, [ "*", "*", "*", "*" ])
+? @@( o1.Content() )
 #--> [ "A", "B", "C", "*", "*", "*", "*", "D", "E" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*-----------------------
 
