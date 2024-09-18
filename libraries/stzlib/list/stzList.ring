@@ -28612,47 +28612,47 @@ Item and then position
 		def TrailingItemAndLeadingItemReplaced(pItem1, pItem2)
 			This.RepeatedLeadingcharAndTrailingItemReplaced(pItem1, pItem2)
 	
-	def ReplaceRepeatedLeadingAndTrailingItems(pItem)
-		This.ReplaceRepeatedLeadingItem(pItem)
-		This.ReplaceRepeatedTrailingItem(pItem)
+	def ReplaceRepeatedLeadingAndTrailingItems(pItem1, pItem2)
+		This.ReplaceRepeatedLeadingItem(pItem1)
+		This.ReplaceRepeatedTrailingItem(pItem2)
 
-		def ReplaceRepeatedLeadingAndTrailingItemsQ(pItem)
-			This.ReplaceRepeatedLeadingAndTrailingItems(pItem)
+		def ReplaceRepeatedLeadingAndTrailingItemsQ(pItem1, pItem2)
+			This.ReplaceRepeatedLeadingAndTrailingItems(pItem1, pItem2)
 			return This
 	
-		def ReplaceLeadingAndTrailingItems(pItem)
-			This.ReplaceRepeatedLeadingAndTrailingItems(pItem)
+		def ReplaceLeadingAndTrailingItems(pItem1, pItem2)
+			This.ReplaceRepeatedLeadingAndTrailingItems(pItem1, pItem2)
 
-			def ReplaceLeadingAndTrailingItemsQ(pItem)
-				This.ReplaceLeadingAndTrailingItems(pItem)
+			def ReplaceLeadingAndTrailingItemsQ(pItem1, pItem2)
+				This.ReplaceLeadingAndTrailingItems(pItem1, pItem2)
 				return This
 	
-		def ReplaceRepeatedTrailingAndLeadingItems(pItem)
-			This.ReplaceRepeatedLeadingAndTrailingItems(pItem)
+		def ReplaceRepeatedTrailingAndLeadingItems(pItem1, pItem2)
+			This.ReplaceRepeatedLeadingAndTrailingItems(pItem1, pItem2)
 
-			def ReplaceRepeatedTrailingAndLeadingItemQ(pItem)
-				This.ReplaceRepeatedTrailingAndLeadingItems(pItem)
+			def ReplaceRepeatedTrailingAndLeadingItemQ(pItem1, pItem2)
+				This.ReplaceRepeatedTrailingAndLeadingItems(pItem1, pItem2)
 				return This
 	
-		def ReplaceTrailingAndLeadingItems(pItem)
-			This.ReplaceRepeatedLeadingAndTrailingItems(pItem)
+		def ReplaceTrailingAndLeadingItems(pItem1, pItem2)
+			This.ReplaceRepeatedLeadingAndTrailingItems(pItem1, pItem2)
 
-			def ReplaceTrailingAndLeadingItemsQ(pItem)
-				This.ReplaceTrailingAndLeadingItems(pItem)
+			def ReplaceTrailingAndLeadingItemsQ(pItem1, pItem2)
+				This.ReplaceTrailingAndLeadingItems(pItem1, pItem2)
 				return This
 	
-	def RepeatedLeadingAndTrailingItemsReplaced(pItem)
-		aResult = This.Copy().ReplaceRepeatedLeadingAndTrailingItemsQ(pItem).Content()
+	def RepeatedLeadingAndTrailingItemsReplaced(pItem1, pItem2)
+		aResult = This.Copy().ReplaceRepeatedLeadingAndTrailingItemsQ(pItem1, pItem2).Content()
 		return aResult
 
-		def RepeatedTrailingAndLeadingItemsReplaced(pItem)
-			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem)
+		def RepeatedTrailingAndLeadingItemsReplaced(pItem1, pItem2)
+			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem1, pItem2)
 
-		def LeadingAndTrailingItemsReplaced(pItem)
-			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem)
+		def LeadingAndTrailingItemsReplaced(pItem1, pItem2)
+			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem1, pItem2)
 	
-		def TrailingAndLeadingItemsReplaced(pItem)
-			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem)
+		def TrailingAndLeadingItemsReplaced(pItem1, pItem2)
+			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem1, pItem2)
 
 	  #==============================#
 	 #     OPERATORS OVERLOADING    #
