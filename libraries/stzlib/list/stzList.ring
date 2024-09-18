@@ -15040,7 +15040,20 @@ Item and then position
 	#--------------------------------------------#
 
 	def BoundsUpToNItems(n)
-		aResult = [ This.NFirstItems(n), This.NLastItems(n) ]
+
+		aFirst = This.NFirstItems(n)
+		aLast  = This.NLastItems(n)
+
+		if len(aFirst) = 1
+			aFirst = aFirst[1]
+		ok
+
+		if len(aLast) = 1
+			aLast = aLast[1]
+		ok
+
+		aResult = [ aFirst, aLast ]
+
 		return aResult
 
 		#< @FunctionFluentForm

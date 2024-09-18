@@ -7906,7 +7906,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*======================
-*/
+
 pron()
 
 # Operators on stzString
@@ -7914,45 +7914,114 @@ pron()
 o1 = new stzList([ "S","O","F","T","A","N","Z","A" ])
 
 # Getting a char by position
+
 ? o1[5] + NL
 #--> "A"
 
 # Finding the occurrences of a substring in the string
+
 ? o1["A"]
 #--> [ 5, 8 ]
 
 # Getting occurrences of chars verifying a given condition
+
 ? o1[ '{ Q(@item).IsOneOfThese(["A", "T", "Z"]) }' ]
 #--> [ 4, 5, 7, 8 ]
 
 proff()
+# Executed in 0.07 second(s).
 
 /*===============
 
+pron()
+
 o1 = new stzList([ 10, 1, 2, 3, 10 ])
+
 o1.Remove(10)
-? o1.Content() #--> [ 1, 2, 3 ]
+? o1.Content()
+#--> [ 1, 2, 3 ]
 
-/*---------------- TODO: enhance finding objects inside lists
+proff()
+# Executed in almost 0 second(s).
 
-obj = new Person { name = "sun" }
+/*==============
+
+pron()
+
+obj = NullObject()
 
 o1 = new stzList([ 10, "A":"E", 12, obj, 10, "A":"E", obj, "Ring" ])
-? o1.FindAll(10)	#--> [ 1, 5 ]
-? o1.FindAll("Ring")	#--> [ 8 ]
-? o1.FindAll("A":"E")	#--> [ 2, 6 ]
 
-? o1.FindAll(obj)	#--> [ 4, 7 ]
+? @@( o1.FindAll(10) )
+#--> [ 1, 5 ]
+
+? o1.FindAll("Ring")
+#--> [ 8 ]
+
+? o1.FindAll("A":"E")
+#--> [ 2, 6 ]
+
+? o1.FindAll(obj)
+#--> [ 4, 7 ]
+
 #TODO: this won't work corretcly if we add other objects different from
 # obj in the list. We should think of an other algorithm other then relying
 # on the empty spaces generated, for objects, by list2code() function of Ring!
 
-o1.Remove("A":"E")
-#--> [ 10, 12, obj, 10, "A":"E", obj, "Ring" ]
+#UPDATE It's done, and object findability is now managed using named object.
+#~> If an object is named (created using new stzString(:mystr = "Ring") for
+# example, then it becomes findable!
 
-class Planet Person
+o1.RemoveMany([ "A":"E", obj ])
+? @@( o1.Content() )
+#--> [ 10, 12, 10, "Ring" ]
 
-/*-----------------------
+proff()
+# Executed in 0.03 second(s).
+
+/*-------
+
+pron()
+
+oTrue  = TrueObject()
+oFalse = FalseObject()
+oNull  = NullObject()
+
+o1 = new stzList([ "Ring", "PHP", oTrue, oTrue, "Python", oNull, oFalse, "Julia", oNull ])
+
+? @@( o1.FindAll(oTrue) )
+#--> [ 3, 4 ]
+
+? @@( o1.FindAll(oFalse) )
+#--> [ 7 ]
+
+? @@( o1.FindAll(oNull) ) + NL
+#--> [ 6, 9 ]
+
+? @@( o1.FindObjects() )
+#--> [ 3, 4, 6, 7, 9 ]
+
+? @@( o1.FindMany([ oTrue, oFalse, oNull ]) ) + NL
+#--> [ 3, 4, 6, 7, 9 ]
+
+o1.Remove(oNull)
+? @@( o1.Content() ) + NL
+#--> [ "Ring", "PHP", @trueobject, @trueobject, "Python", @falseobject, "Julia" ]
+
+o1.Replace(oFalse, 0)
+? @@( o1.Content() ) + NL
+#--> [ "Ring", "PHP", @trueobject, @trueobject, "Python", 0, "Julia" ]
+
+o1.RemoveMany([ oTrue, 0 ])
+? @@( o1.Content() )
+#--> [ "Ring", "PHP", "Python", "Julia" ]
+
+proff()
+# Executed in 0.08 second(s).
+
+/*----------------------- #narration
+
+pron()
 
 # Ring can find (and sort) items inside a list (respectively
 # using find() and sort() functions), but only if these items
@@ -7962,20 +8031,27 @@ class Planet Person
 # types: numbers, strings, lists (--> TODO: not yet for objects).
 
 o1 = new stzList([ "twelve", 12, [ "L2", "L2" ], "ten", 10, [ "L1", "L1" ] ])
-? o1.FindAll([ "L1", "L1" ]) #--> [ 6 ]
+
+? @@( o1.FindAll([ "L1", "L1" ]) ) + NL
+#--> [ 6 ]
 
 # Not only list are findable, they are also sortable and comparable.
 
-? o1.SortedInAscending() #--> [ 10, 12, "ten", "twelve", [ "L2", "L2" ], [ "L1", "L1" ] ]
+? @@( o1.SortedInAscending() )
+#--> [ 10, 12, "ten", "twelve", [ "L1", "L1" ], [ "L2", "L2" ] ]
 
 # As you can see, the logic of sorting applied by Softanza is:
 #	--> Putting numbers first and sorting them
 #	--> Adding strings after that and sorting them
-#	--> Adding lists as they occure in the main list
+#	--> Adding lists after that and sorting them
 
-# Same thing should be possible for objects but not yet implemented (TODO)
+# Same thing should be possible for objects but not yet implemented (#TODO)
+# ~> For the mean time, objects are added at the end in the order of
+# their appearance. But we could sort them also, based on their attributes
+# values. Which makes Softanza sort totally pervasive for all Ring types!
 
-STOP()
+proff()
+#--> Executed in 0.02 second(s).
 
 /*--------- #narration Same semantics for all softanza objects
 
@@ -8011,17 +8087,33 @@ proff()
 
 /*-----------------------
 
+pron()
+
 o1 = new stzList([ "{", "A", "B", "C", "}" ])
-? o1.IsBoundedBy([ "{", "}" ]) #--> TRUE
+
+? o1.IsBoundedBy([ "{", "}" ]) + NL
+#--> TRUE
 
 o1.RemoveTheseBounds("{", "}")
-? o1.Content() #--> [ "A", "B", "C" ]
+? o1.Content()
+#--> [ "A", "B", "C" ]
+
+proff()
 
 /*-----------------------
+*/
+pron()
 
 o1 = new stzList([ "{", "<", "A", "B", "C", ">", "}" ])
-? o1.BoundsUpToNItems(1) #--> [ "{","}" ]
-? o1.BoundsUpToNItems(2) #--> [ [ "{", "<" ], [ ">", "}" ] ]
+
+? @@( o1.BoundsUpToNItems(1) ) + NL
+#--> [ "{","}" ]
+
+? @@( o1.BoundsUpToNItems(2) )
+#--> [ [ "{", "<" ], [ ">", "}" ] ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*-----------------------
 
