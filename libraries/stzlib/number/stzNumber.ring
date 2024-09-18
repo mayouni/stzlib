@@ -2644,6 +2644,15 @@ class stzNumber from stzObject
 
 		return bResult
 
+		def IsQuietEqual(pOtherNumber)
+			return This.IsQuietEqualTo(pOtherNumber)
+
+		def IsApproximativelyEqual(pOtherNumber)
+			return This.IsQuietEqualTo(pOtherNumber)
+
+		def IsApproximativelyEqualTo(pOtherNumber)
+			return This.IsQuietEqualTo(pOtherNumber)
+
 	  #-------------------------------------------------------------#
 	 #    INTEGER & FRACTIONAL PARTS (CALLED ALSO DECIMAL PARTS)   #
 	#-------------------------------------------------------------#

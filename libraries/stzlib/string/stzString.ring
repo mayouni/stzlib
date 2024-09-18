@@ -70381,6 +70381,15 @@ n1 = Min(aTemp)
 
 		return FALSE
 
+		def IsQuietEqual(pcOtherStr)
+			return This.IsQuietEqualTo(pcOtherStr)
+
+		def IsApproximativelyEqual(pcOtherStr)
+			return This.IsQuietEqualTo(pcOtherStr)
+
+		def IsApproximativelyEqualTo(pcOtherStr)
+			return This.IsQuietEqualTo(pcOtherStr)
+
 	  #-------------------------------------------------#
 	 #     STRING IS A MULTIPLE OF AN OTHER STRING     #
 	#-------------------------------------------------#

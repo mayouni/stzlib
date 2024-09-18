@@ -2402,11 +2402,23 @@ func NSpaces(n)
 func QuietEqualityRatio()
 	return _nQuietEqualityRatio
 
+	func ApproximateEqualityRatio()
+		return _nQuietEqualityRatio
+
+	func ApproximativeEqualityRatio()
+		return _nQuietEqualityRatio
+
 func SetQuietEqualityRatio(n)
-	if _(n).Q.IsBetween(0,1)
+	if Q(n).IsBetween(0,1)
 		_nQuietEqualityRatio = n
 	ok
 
+	def SetApproximateEqualityRatio(n)
+		SetQuietEqualityRatio(n)
+
+	def SetApproximativeEqualityRation(n)
+		SetQuietEqualityRatio(n)
+s
 func RingTypes()
 	return _aRingTypes
 

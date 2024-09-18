@@ -24520,6 +24520,9 @@ Item and then position
 	#--------------------------------------------------------#
 
 	def IsQuietEqualTo(paOtherList)
+		if StzListQ(paOtherList).IsToNamedParam()
+			paOtherList = paOtherList[2]
+		ok
 
 		if This.IsEqualTo(paOtherList)
 			return TRUE
@@ -24535,6 +24538,12 @@ Item and then position
 		return FALSE
 
 		def IsQuietEqual(paOtherList)
+			return This.IsQuietEqualTo(paOtherList)
+
+		def IsApproximativelyEqual(paOtherList)
+			return This.IsQuietEqualTo(paOtherList)
+
+		def IsApproximativelyEqualTo(paOtherList)
 			return This.IsQuietEqualTo(paOtherList)
 
 	  #-------------------------------------------------------------------------#

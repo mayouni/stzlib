@@ -7642,7 +7642,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*-----------------------
-*/
+
 pron()
 
 StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
@@ -7677,37 +7677,64 @@ proff()
 
 /*===================
 
+pron()
+
 # All these return TRUE
 
 ? StzListQ([ :DefaultLocale ]).IsLocaleList()
+#--> TRUE
 
 ? StzListQ([ :SystemLocale ]).IsLocaleList()
+#--> TRUE
+
 ? StzListQ([ :CLocale ]).IsLocaleList()
+#--> TRUE
 
 ? StzListQ([ :Language = :Arabic, :Script = :Arabic, :Country = :Tunisia ]).IsLocaleList()
+#--> TRUE
 
 ? StzListQ([ :Language = :Arabic, :Country = :Tunisia ]).IsLocaleList()
-? StzListQ([ :Country = :Tunisia ]).IsLocaleList()
+#--> TRUE
 
-STOP()
+? StzListQ([ :Country = :Tunisia ]).IsLocaleList()
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s).
 
 /*-----------------------
+
+pron()
 
 # All these return TRUE
 
 ? Q( 1:5 ).IsListOf(:Numbers)
+#--> TRUE
+
 ? Q( "A":"E" ).IsListOf(:Strings)
-? Q([ 1:5, "A":"E" ]).IsListOf(:Lists) 
+#--> TRUE
+
+? Q([ 1:5, "A":"E" ]).IsListOf(:Lists)
+#--> TRUE
 
 ? Q( [ 1:5, 6:10, 11:15 ] ).IsListOf(:ListOfNumbers)
-? Q( [ 1:5, 6:10, 11:15 ] ).IsListOf(:ListsOfNumbers) #NOTE the support of plural form
+#--> TRUE
+
+? Q( [ 1:5, 6:10, 11:15 ] ).IsListOf(:ListsOfNumbers) // #NOTE the support of plural form
+#--> TRUE
 
 ? Q( [ "A":"E", "a":"e" ] ).IsListOf(:ListOfStrings)
-? Q( [ "A":"E", "a":"e" ] ).IsListOf(:ListsOfStrings) #NOTE the support of plural form
+#--> TRUE
 
-STOP()
+? Q( [ "A":"E", "a":"e" ] ).IsListOf(:ListsOfStrings) //#NOTE the support of plural form
+#--> TRUE
+
+proff()
+# Executed in 0.09 second(s).
 
 /*-----------------------
+
+pron()
 
 # All these return TRUE
 
@@ -7716,70 +7743,122 @@ oNumber2 = StzNumberQ(12)
 oNumber3 = StzNumberQ(24)
 
 ? Q([ oNumber1, oNumber2, oNumber3 ]).IsListOf(:StzNumbers)
+#--> TRUE
+
 ? Q([ [oNumber1, oNumber2], [oNumber2, oNumber3] ]).IsListOf(:ListsOfStzNumbers)
+#--> TRUE
 
 oString1 = StzStringQ("Win")
 oString2 = StzStringQ("Loose")
 oString3 = StzStringQ("Don't care!")
 
 ? Q([ oString1, oString2, oString3 ]).IsListOf(:StzStrings)
+#--> TRUE
+
 ? Q([ [oString1, oString2], [oString2, oString3] ]).IsListOf(:ListsOfStzStrings)
+#--> TRUE
 
-STOP()
+proff()
+# Executed in 0.06 second(s).
 
-/*-----------------------
+/*==================
+
+pron()
 
 o1 = new stzList([ "ami", "coupain", "CAMARADE", "compagon" ])
-? o1.NthItemW(3, :Where = '{ isString(@item) and Q(@item).IsLowercase() }')
+? o1.NthItemW(3, :Where = '{ isString(This[@i]) and Q(This[@i]).IsLowercase() }')
 #--> "compagon"
 
-STOP()
+proff()
+# Executed in 0.09 second(s).
 
-/*-----------------------
+/*------------------
+
+pron()
+
+o1 = new stzList([ "ami", "coupain", "CAMARADE", "compagon" ])
+? o1.NthItemWXT(3, :Where = '{ isString(@item) and Q(@item).IsLowercase() }')
+#--> "compagon"
+
+proff()
+# Executed in 0.16 second(s).
+
+/*================== #narration List Equality and Strict Equality in Softanza
+
+pron()
 
 # In Softanza, two lists are equal when they have same
 # number of items and have same content
  
 o1 = new stzList(1:3)
-? o1.HasSameContentAs(3:1)		#--> TRUE
-? o1.HasSameNumberOfItemsAs(3:1)	#--> TRUE
-? o1.IsEqualTo(3:1)			#--> TRUE
 
-/*-----------------------
+? o1.HasSameContentAs(3:1)
+#--> TRUE
 
-# In Softanza, two lists are STRICTLY equal when they have
+? o1.HasSameNumberOfItemsAs(3:1)
+#--> TRUE
+
+? o1.IsEqualTo(3:1) + NL
+#--> TRUE
+
+# While two lists are STRICTLY equal when they have
 # same number of items, have same content, and same sorting order
 
-# ==> In other terms: when they are Equal (in the sense of
+# In other terms: when they are Equal (in the sense of
 # IsEqualTo()) and have same sorting order
  
-# This beeing said, 1:3 is equal to its reversed list 3:1
+# Hence, 1:3 is equal to its reversed list 3:1
 # but it is not STRICTLY equal to it
 
-? Q(1:3).IsEqualTo(3:1)		#--> TRUE
-? Q(1:3).IsStrictlyEqualTo(3:1)	#--> FALSE
+? Q(1:3).IsEqualTo(3:1)
+#--> TRUE
+
+? Q(1:3).IsStrictlyEqualTo(3:1)
+#--> FALSE
 
 # In fact, the two lists don't have the same sorting order!
 
-? Q(1:3).SortingOrder()	#--> :Ascending
+? Q(1:3).SortingOrder()
+#--> :Ascending
 
-? Q(3:1).SortingOrder()	#--> :Descending
+? Q(3:1).SortingOrder()
+#--> :Descending
 
 # Hence, 1:3 is STRICTLY equal only to itself
 
-? Q(1:3).IsStrictlyEqualTo(1:3)	#--> TRUE
+? Q(1:3).IsStrictlyEqualTo(1:3)
+#--> TRUE
 
-/*-----------------------
+proff()
+# Executed in 0.02 second(s).
 
-# Softanza can compare lists (and string sofar), in an approximative way.
-# Of course, the degree of approximation can be tuned to fit with your need.
+/*-------------- #narration List approximate comparison in Softanza
+*/
+pron()
+
+# Softanza can compare lists (and string also), in an approximative way.
+# The degree of approximation can be tuned to fit with your need.
 
 o1 = new stzList([ "f","a","y","e","d" ])
-? o1.IsQuietEqualTo([ "a","l", "f", "a","y","e","d" ])	#--> FALSE
-? QuietEqualityRatio()	#--> 0.09
+
+? o1.IsQuietEqualTo([ "a","l", "f", "a","y","e","d" ])
+#--> FALSE
+
+# By default, the approximation facor is 0.09
+
+? QuietEqualityRatio()
+#--> 0.09
+
+# And you can change it:
 
 SetQuietEqualityRatio(0.41)
-? o1.IsQuietEqualTo([ "a","l", "f", "a","y","e","d" ])	#--> TRUE
+
+# Now the equality becomes TRUE
+
+? o1.IsQuietEqualTo([ "a","l", "f", "a","y","e","d" ])
+#--> TRUE
+
+proff()
 
 /*-----------------------
 
