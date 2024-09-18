@@ -8101,7 +8101,7 @@ o1.RemoveTheseBounds("{", "}")
 proff()
 
 /*-----------------------
-*/
+
 pron()
 
 o1 = new stzList([ "{", "<", "A", "B", "C", ">", "}" ])
@@ -8117,34 +8117,62 @@ proff()
 
 /*-----------------------
 
+pron()
+
 o1 = new stzList([ "{", "A", "B", "C", "}" ])
-? o1.TheseBoundsRemoved("{", "}") #--> [ "A", "B", "C" ]
+
+? o1.TheseBoundsRemoved("{", "}")
+#--> [ "A", "B", "C" ]
+
+proff()
+# Executed in 0.01 second(s).
 
 /*-----------------------
+
+pron()
 
 o1 = new stzList([ "1", "2", "A", "B", "C", "3", "4" ])
-? o1.ContainsEach([ "A", "B", "C" ]) #--> TRUE
-? o1.ContainsEachOneOfThese([ "A", "B", "C" ]) #--> TRUE
+
+? o1.ContainsEach([ "A", "B", "C" ])
+#--> TRUE
+
+? o1.ContainsEachOneOfThese([ "A", "B", "C" ])
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
 
 /*-----------------------
+
+pron()
 
 o1 = new stzList([ "A", "B", "C" ])
-? o1.EachItemExistsIn([ "1", "2", "A", "B", "C", "3", "4" ]) #--> TRUE
+
+? o1.EachItemExistsIn([ "1", "2", "A", "B", "C", "3", "4" ])
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
 
 /*-----------------------
+*/
+pron()
 
 ? @IsListOfHashLists([
 	[ :name = "mansour", :job = "programmer", :age = 45 ],
 	[ :name = "selmen", :job = "manager", :age = 45 ],
 	[ :name = "mahran", :job = "manager", :age = 45 ]
-]) #--> TRUE
+]) + NL
+#--> TRUE
 
-o1 = new stzList([
+o1 = new stzListOfHashLists([
 	[ :name = "mansour", :job = "programmer", :age = 45 ],
 	[ :name = "selmen", :job = "manager", :age = 45 ],
 	[ :name = "mahran", :job = "manager", :age = 45 ]
 ])
-? o1.Show()
+
+o1.Show()
+
 #-->
 #   name: "mansour"
 #   job: "programmer"
@@ -8157,6 +8185,9 @@ o1 = new stzList([
 #   name: "mahran"
 #   job: "manager"
 #   age: 45
+
+proff()
+# Executed in 0.02 second(s).
 
 /*-----------------------
 
