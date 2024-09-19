@@ -2448,7 +2448,7 @@ func StzRaise(paMessage)
 
 		raise("Error in StzRaise param type!" + NL)
 	ok
-? @@(paMessage)
+
 	if isString(paMessage)
 		raise(paMessage + NL)
 	ok
