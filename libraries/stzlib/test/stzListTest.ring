@@ -5969,11 +5969,44 @@ o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 #	"@clanguage"
 # ]
 
-/*------------------ #TODO Check error
-*/
+/*================
+
 pron()
 
-? "hi"
+
+? InfereType("string")
+#--> string
+
+? InfereType("strings")
+#--> strings
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-------------------
+
+pron()
+
+? Q([ "ring", "php", "python" ]).Are([ :Lowercase, :Strings ])
+#--> TRUE
+
+? Q([ "ABC", "DEF", "GHI" ]).Are([ :Uppercase, :Strings ])
+#--> TRUE
+
+
+proff()
+
+/*------------------ #TODO
+
+pron()
+
+? TQ("واحد").IsArabic()
+
+proff()
+
+/*------------------ #TODO
+
+pron()
 
 ? Q([ "واحد", "اثنان", "ثلاثة" ]).Are(:Strings)
 #--> TRUE
@@ -5987,58 +6020,79 @@ pron()
 ? Q([ "واحد", "اثنان", "ثلاثة" ]).Are([ :ArabicScript, :RightToLeft, :Texts ])
 #--> TRUE
 
-? Q([ "واحـد", "اثنان", "ثلاثة" ]).Are([ :ArabicScript, W('Q(@item).Size()=5'), :Texts ])
+
+proff()
+
+/*------------------ #TODO
+
+pron()
+
+? Q([ "你好", "亲", "朋友们" ]).Are([ :HanScript, :Texts ])
 #--> TRUE
 
 proff()
 
 /*------------------
 
-? Q([ "你好", "亲", "朋友们" ]).AreXT([ :HanScript, :Texts ])
-#--> TRUE
+pron()
+
+? W('len(@item)=3')
+#--> ( "whre", "len(@item)=3" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*------------------
 
-? W('len(@item)=3') #--> {'len(@item)=3'}
-
-/*------------------
+pron()
 
 ? Q([ "ONE", "TWO", "THREE" ]).Are(:Strings)
 #--> TRUE
 
-? Q([ "ONE", "TWO", "THREE" ]).AreXT([ :Strings ])
+? Q([ "ONE", "TWO", "THREE" ]).Are([ :Strings ])
 #--> TRUE
 
-? Q([ "ONE", "TWO", "THREE" ]).AreXT([ :Uppercase, :Strings ])
+? Q([ "ONE", "TWO", "THREE" ]).Are([ :Uppercase, :Strings ])
 #--> TRUE
 
-? Q([ "ONE", "TWO", "THREE" ]).AreXT([ :Uppercase, :Latin, :Strings ])
+? Q([ "ONE", "TWO", "THREE" ]).Are([ :Uppercase, :Latin, :Strings ])
 #--> TRUE
 
-? Q([ "ONE", "TWO", "THREE" ]).AreXT([ :Uppercase, :Strings ])
+? Q([ "ONE", "TWO", "THREE" ]).Are([ :Uppercase, :Strings ])
 
-? Q([ "ONE", "TWO", "THREE" ]).AreXT([ :Uppercase, W('len(@item)=3'), :Strings ])
-#--> TRUE
-
-? Q([ "ONE", "TWO", "THREE" ]).AreXT( W('len(@item)=3') )
-#--> TRUE
+proff()
+# Executed in 0.20 second(s).
 
 /*------------------
+
+pron()
+
+? InfereType(:Numbers)
+#--> number
+
+proff()
+
+/*------------------
+*/
+pron()
 
 ? Q([ 1, 2, 3 ]).Are(:Numbers)
 #--> TRUE
 
-? Q([ -2, -4, -8 ]).AreXT([ :Even, :Negative, :Numbers ])
+? Q([ -2, -4, -8 ]).Are([ :Even, :Negative, :Numbers ])
 #--> TRUE
 
-? Q([ 2, 4, 8 ]).AreXT([ :Even, :Numbers ])
+? Q([ 2, 4, 8 ]).Are([ :Even, :Numbers ])
 #--> TRUE
 
-? Q([ 2, 4, 8 ]).AreXT([ :Even, :Positive, :Numbers ])
+? Q([ 2, 4, 8 ]).Are([ :Even, :Positive, :Numbers ])
 #--> TRUE
 
-? Q([ "(",";", ")" ]).AreXT([ :Punctuation, :Chars ])
+? Q([ "(",";", ")" ]).Are([ :Punctuation, :Chars ])
 #--> TRUE
+
+proff()
+# Executed in 0.28 second(s).
 
 /*============= #TODO check error
 
@@ -9611,6 +9665,7 @@ pron()
 
 proff()
 # Executed in almost 0 second(s).
+
 
 /*---------------------
 */
