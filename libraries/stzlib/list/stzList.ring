@@ -47389,10 +47389,13 @@ class stzList from stzObject
 		ok
 
 		if len(p) = 1 and isString(p[1])
-			return This.AllItemsAre(p[1])
+			cType = @InfereType(p[1])
+			cCode = 'bResult = is' + cType + '(' + p[1] + ')'
+			eval(cCode)
+			return bResult
 
 		but Q(p).IsWhereNamedParam()
-			return This.AllItemsAre(p[1])
+			return This.AreXT(p[1])
 
 		else
 			nLenMethods = len(p)
