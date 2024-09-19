@@ -8311,7 +8311,6 @@ proff()
 # Executed in almost 0 second(s).
 
 /*=======================
-*/
 
 StartProfiler()
 
@@ -8325,19 +8324,28 @@ StopProfiler()
 
 /*========================
 
+pron()
+
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 
 o1.ReplaceAt(2, "♥")
 ? @@( o1.Content() )
 #--> [ "♥", "♥", "♥", "♥", 5 ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*----------------------
+*/
+pron()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 
 o1.ReplaceAt([2, 5], "♥")
 ? @@( o1.Content() )
 #--> [ "♥", "♥", "♥", "♥", "♥" ]
+
+proff()
 
 /*----------------------
 
