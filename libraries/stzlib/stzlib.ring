@@ -159,7 +159,7 @@
 
 # Loading files related tp the COMMON module
 
-	load "common/stzFuncts.ring"
+	load "common/stzFuncs.ring"
 	load "common/stzSplitter.ring"
 	load "common/stzWalker.ring"
 	load "common/stzCounter.ring"

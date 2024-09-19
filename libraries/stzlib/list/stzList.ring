@@ -3623,10 +3623,14 @@ func AreEqualCS(paValues, pCaseSensitive)
 
 		return bResult
 
+	but isObject(paValues[1])
+		return @AreEqualObjects(paValues)
+
 	else
 
 		for i = 2 to nLen
-			if NOT Q(paValues[i]).IsEqualCS(paValues[1], pCaseSensitive)
+
+			if NOT Q(paValues[i]).IsEqualToCS(paValues[1], pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -29197,11 +29201,11 @@ class stzList from stzObject
 				return new stzList(aResult)
 
 			but isList(pValue)
-				aResult = This.DistributedOver(pValue.Content())
+				aResult = This.DistributeOver(pValue)
 				return aResult
 
 			but @IsStzList(pValue)
-				aResult = This.DistributedOver(pValue.Content())
+				aResult = This.DistributeOver(pValue.Content())
 				return new stzList(aResult)
 
 			but @IsStzNumber(pValue)
@@ -29258,9 +29262,15 @@ class stzList from stzObject
 
 			if isList(pValue)
 
-				if _bThese
+				if _bTheseQ
+					aResult = This.Copy().ManyRemoved(pValue)
+					bTheseQ = FALSE
+					return new stzList(aResult)
+
+				but _bThese
 					aResult = This.Copy().ManyRemoved(pValue)
 					_bThese = FALSE # Resets the global flag
+
 				else
 					aResult = This.Copy().ItemRemoved(pValue)
 				ok
@@ -43945,14 +43955,28 @@ class stzList from stzObject
 		# Now, we can perform the distribution
 
 		aResult = []
-		i = 0
-		n = 1
-		for cBenef in acBeneficiaryItems
-			i++
-			aResult + [ cBenef, This.Range(n, anShareOfEachItem[i]) ]
-			n += anShareOfEachItem[i]
-		next
 
+		nLen = len(acBeneficiaryItems)
+		n1 = 1
+
+		for i = 1 to nLen
+
+			cBenef = acBeneficiaryItems[i]
+			nRange = anshareOfEachItem[i]
+			n2 = n1 + nRange - 1
+
+			aShare = []
+
+			for j = n1 to n2
+				aShare + @aContent[j]
+			next
+
+			aResult + [ cBenef, aShare ]
+			n1 = n2 + 1
+
+
+		next
+		
 		return aResult
 	
 	def DistributeOver( acBeneficiaryItems )

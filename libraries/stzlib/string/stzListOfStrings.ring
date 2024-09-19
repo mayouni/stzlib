@@ -1433,7 +1433,7 @@ class stzListOfStrings from stzList
 
 	def Concatenate()
 		#< @QtBased >
-? ElapsedTime()
+
 		acResult = This.QStringListObject().join("")
 		return acResult
 

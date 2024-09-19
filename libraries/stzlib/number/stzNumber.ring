@@ -2336,9 +2336,6 @@ class stzNumber from stzObject
 	 #    COMPARAISON    #
         #-------------------#
 	
-	def IsEqualToCS(pOtherNumber, pCaseSensitive)
-		return This.IsEqualTo(pOtherNumber)
-
 	def IsEqualTo(pOtherNumber)
 		if CheckParams()
 			if NOT @IsNumberOrNumberInString(pOtherNumber)
@@ -2367,6 +2364,14 @@ class stzNumber from stzObject
 		def EqualTo(pOtherNumber)
 			return This.IsEqual(pOtherNumber)
 
+		#-- CS
+
+		def IsEqualToCS(pOtherNumber, pCaseSensitive)
+			return This.IsEqualTo(pOtherNumber)
+
+		def IsEqualCS(pOtherNumber, pCaseSensitive)
+			return This.IsEqualTo(pOtherNumber)
+
 		#>
 
 		#< @FunctionPassiveForm
@@ -2387,6 +2392,24 @@ class stzNumber from stzObject
 
 			#>
 
+		#--
+
+		def IsNotEqualToCS(pOtherNumber, pCaseSensitive)
+			return This.IsNotEqualTo(pOtherNumber)
+	
+			#< @FunctionAlternativeForm
+
+			def IsDifferentFromCS(pOtherNumber, pCaseSensitive)
+				return This.IsNotEqualTo(pOtherNumber)
+
+			def IsDifferentToCS(pOtherNumber, pCaseSensitive)
+				return This.IsNotEqualTo(pOtherNumber)
+
+			def IsDifferentOfCS(pOtherNumber, pCaseSensitive)
+				return This.IsNotEqualTo(pOtherNumber)
+
+			#>
+
 		#>
 
 		#< @FunctionMisspelledForm
@@ -2394,7 +2417,12 @@ class stzNumber from stzObject
 		def IsEqualtTo(pcOtherNumber)
 			return This.IsEqualTo(pcOtherNumber)
 
+			def IsEqualtToCS(pcOtherNumber, pCaseSensitive)
+				return This.IsEqualTo(pcOtherNumber)
+
 		#>
+
+	#=====
 
 	def IsNeither(n1, n2)
 		if CheckParams()

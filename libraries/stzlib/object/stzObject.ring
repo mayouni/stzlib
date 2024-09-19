@@ -591,6 +591,100 @@ func IsUnnamedObject(pObject)
 
 	#>
 
+func AreEqualObjects(paObjects)
+	if NOT AreNamedObjects(paObjects)
+		StzRaise("Incorrect param type! paObjects must be a list of named objects.")
+	ok
+
+	acNames = ObjectsNames(paObjects)
+	if len(U(acNames)) = 1	# A bit of magic sometimes ;)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func AreEqualNamedObjects(paObjects)
+		return AreEqualObjects(paObjects)
+
+	func @AreEqualObjects(paObjects)
+		return AreEqualObjects(paObjects)
+
+	func @AreEqualNamedObjects(paObjects)
+		return AreEqualObjects(paObjects)
+
+	#>
+
+func AreNamedObjects(paObjects) 
+	if isList(paObjects) and IsListOfObjects(paObjects)
+		bResult = TRUE
+
+		nLen = len(paObjects)
+		for i = 1 to nLen
+			if NOT IsNamedObject(paObjects[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func @AreNamedObjects(paObjects)
+		return AreNamedObjects(paObjects)
+
+	#>
+
+func AreUnnamedObjects(paObjects)
+	return NOT AreNamedObjects(paObjects)
+
+	func @AreUnnamedObjects(paObjects)
+		return AreUnnamedObjects(paObjects)
+
+func ObjectsNames(paObjects)
+	if CheckParams()
+		if NOT isList(paObjects)
+			StzRaise("Incorrect param type! paObjects must be a list.")
+		ok
+	ok
+
+	acResult = []
+	nLen = len(paObjects)
+
+	for i = 1 to nLen
+		if isObject(paObjects[i])
+			acResult + @@(paObjects[i])
+		ok
+	next
+
+	return acResult
+
+	#< @FunctionAlternativeForms
+
+	func ObjectsVarNames(paObjects)
+		return ObjectsNames(paObjects)
+
+	func ObjectsVarsNames(paObjects)
+		return ObjectsNames(paObjects)
+
+	#--
+
+	func @ObjectsNames(paObjects)
+		return ObjectsNames(paObjects)
+
+	func @ObjectsVarNames(paObjects)
+		return ObjectsNames(paObjects)
+
+	func @ObjectsVarsNames(paObjects)
+		return ObjectsNames(paObjects)
+
+	#>
+
 /* NOTE: The following section of code is generated with
 	 stzCodeGenerators and then pasted here
 */
@@ -5393,3 +5487,42 @@ class stzObject
 
 		def CSizeInBytes()
 			return This.ContentSize()
+
+	  #-------------------------------------------------#
+	 #  CHECKING OBJECT EQUALITY WITH AN OTHER OBJECT  #
+	#-------------------------------------------------#
+
+	#NOTE
+	# In Softanza, two objects are considered equal when
+	# they are both NamedObjects and have same name
+
+	def IsEqualTo(pOtherObject)
+
+		if CheckParams()
+			if NOT isObject(pOtherObject)
+				StzRaise("Incorrect param type! pOtherObject must be an object.")
+			ok
+		ok
+? "hi"
+		if @IsNamedObject(pOtherObject) and @IsNamedObject(pOtherObject) and
+		   This.VarName() = pOtherObject.VarName()
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def IsEqual(pOtherObject)
+			return This.IsEqualTo(pOtherObject)
+
+		def IsEqualToCS(pOtherObject, pCaseSensitive)
+			return This.IsEqualTo(pOtherObject)
+
+		def IsEqualCS(pOtherObject, pCaseSensitive)
+			return This.IsEqualTo(pOtherObject)
+
+		#>
+
