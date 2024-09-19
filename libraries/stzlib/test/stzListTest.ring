@@ -8353,7 +8353,7 @@ proff()
 # Executed in almost 0 second(s).
 
 /*----------------------
-*/
+
 pron()
 
 ? Intersection([ [ 1, 3, 4 ], [ 1, 3, 4 ] ])
@@ -8363,14 +8363,17 @@ proff()
 # Executed in 0.02 second(s).
 
 /*----------------------
+*/
+pron()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 
-o1.ReplaceThisAtByMany([1, 3, 4 ], "♥", [ 1, 3, 4 ])
+o1.ReplaceItemAtPositionsByMany([1, 3, 4 ], "♥", [ 1, 3, 4 ])
 ? @@( o1.Content() )
+#--> [ 1, 2, 3, 4, 5 ]
 
 proff()
-# Executed in almost 0 second(s).
+# Executed in 0.02 second(s).
 
 /*----------------------
 
