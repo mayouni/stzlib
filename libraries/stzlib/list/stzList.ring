@@ -6379,7 +6379,7 @@ class stzList from stzObject
 				n = n[2]
 			ok
 
-			This.InsertBeforePosition(n, pItem)
+			ring_insert(@aContent, n, pItem)
 
 			def InsertAtQ(n, pItem)
 				This.InsertAt(n, pItem)
@@ -6601,28 +6601,32 @@ class stzList from stzObject
 	#=========================================#
 
 	def Swap(n1, n2)
-		if isList(n1) and
-		   Q(n1).IsOneOfTheseNamedPArams([
-			:Between, :BetweenPosition, :BetweenPositions,
-			:BetweenItem, :BetweenItems,
-			:BetweenItemAt, :BetweenItemAtPosition, :BetweenItemAtPositions,
-			:Position, :Positions, :ItemAt, :ItemAtPosition, :ItemAtPositions,
-			:Items, :ItemsAt, :ItemsAtPosition, :ItemsAtPositions
-		   ])
+		if CheckParams()
 
-			n1 = n1[2]
-		ok
+			if isList(n1) and
+			   Q(n1).IsOneOfTheseNamedPArams([
+				:Between, :BetweenPosition, :BetweenPositions,
+				:BetweenItem, :BetweenItems,
+				:BetweenItemAt, :BetweenItemAtPosition, :BetweenItemAtPositions,
+				:Position, :Positions, :ItemAt, :ItemAtPosition, :ItemAtPositions,
+				:Items, :ItemsAt, :ItemsAtPosition, :ItemsAtPositions
+			   ])
+	
+				n1 = n1[2]
+			ok
+	
+			if isList(n2) and
+			   Q(n2).IsOneOfTheseNamedPArams([
+				:And, :AndPosition, :AndItemAt, :AndItemAtPosition, :AndItem ])
+	
+				n2 = n2[2]
+			ok
 
-		if isList(n2) and
-		   Q(n2).IsOneOfTheseNamedPArams([
-			:And, :AndPosition, :AndItemAt, :AndItemAtPosition, :AndItem ])
-
-			n2 = n2[2]
 		ok
 
 		copy = This[n2]
-		This.ReplaceNth(n2, :By = This[n1])
-		This.ReplaceNth(n1, :By = copy)
+		This.ReplaceItemAtPosition(n2, :By = This[n1])
+		This.ReplaceItemAtPosition(n1, :By = copy)
 
 		#< @FunctionAlternativeForms
 
@@ -8170,6 +8174,17 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def ReplaceItemAt(n, pNewItem)
+			This.ReplaceAnyItemAtPositionN(n, pNewItem)
+
+			def ReplaceItemAtQ(n, pNewItem)
+				return This.ReplaceAnyItemAtPositionNQ(n, pNewItem)
+
+		def ReplaceAtPosition(n, pNewItem)
+			This.ReplaceAnyItemAtPositionN(n, pNewItem)
+
+			def ReplaceAtPositionQ(n, pNewItem)
+				return This.ReplaceAnyItemAtPositionNQ(n, pNewItem)
 
 		def ReplaceItemAtPosition(n, pNewItem)
 			This.ReplaceAnyItemAtPositionN(n, pNewItem)
@@ -36074,9 +36089,7 @@ class stzList from stzObject
 
 	def NumberOfLevels()
 				
-		oCopy = @@( Q( This.Content() ).RemoveSectionsBetweenIBQ("]","[") )
-		nResult = oCopy.NumberOfOccurrence("[")
-
+		nResult = @@Q( This.Content() ).NumberOfOccurrence("[")
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -38092,7 +38105,8 @@ class stzList from stzObject
 	*/
 
 	// Finding pItem at any level of the list
-	def DeepFindCS(pItem, pCaseSensitive)
+
+	def DeepFindCS(pItem, pCaseSensitive) # TODO: Check the correctness of output
 		/* EXAMPLE
 
 		o1 = new stzList([
@@ -79542,3 +79556,14 @@ class stzList from stzObject
 
 		def IsStepOtNStepOrStepsOrNStepsNamedParams()
 			return This.IsStepOrStepsOrNStepOrNStepsNamedParam()
+
+	def IsThanNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Than )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok

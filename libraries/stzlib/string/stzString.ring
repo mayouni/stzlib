@@ -70308,11 +70308,24 @@ n1 = Min(aTemp)
 	#--------------------------------------------------------------#
 
 	def IsSmaller(pcOtherStr)
-		if isList(pcOtherStr) and Q(pcOtherStr).IsThanNamedParam()
-			pcOtherStr = pcOtherStr[2]
+
+		if CheckParams()
+
+			if isList(pcOtherStr) and Q(pcOtherStr).IsThanNamedParam()
+				pcOtherStr = pcOtherStr[2]
+			ok
+
+			if NOT isString(pcOtherStr)
+				StzRaise("Incorrect param type! pcOtherStr must be a string.")
+			ok
+
 		ok
 
-		return This.IsIncludedIn(pcOtherStr)
+		if This.NumberOfChars() < StzStringQ(pcOtherStr).NumberOfChars()
+			return TRUE
+		else
+			return FALSE
+		ok
 
 		#< @FunctionAlternativeForms
 
@@ -70343,7 +70356,23 @@ n1 = Min(aTemp)
 		#>
 
 	def IsLarger(pcOtherStr)
-		return This.Contains(pcOtherStr)
+		if CheckParams()
+
+			if isList(pcOtherStr) and Q(pcOtherStr).IsThanNamedParam()
+				pcOtherStr = pcOtherStr[2]
+			ok
+
+			if NOT isString(pcOtherStr)
+				StzRaise("Incorrect param type! pcOtherStr must be a string.")
+			ok
+
+		ok
+
+		if This.NumberOfChars() > StzStringQ(pcOtherStr).NumberOfChars()
+			return TRUE
+		else
+			return FALSE
+		ok
 
 		#< @FunctionAlternativeForms
 

@@ -6073,7 +6073,7 @@ pron()
 proff()
 
 /*------------------
-*/
+
 pron()
 
 ? Q([ 1, 2, 3 ]).Are(:Numbers)
@@ -6095,7 +6095,7 @@ proff()
 # Executed in 0.28 second(s).
 
 /*============= #TODO check error
-
+*
 # Transforming the list structure so it becomes
 # a list of pairs of numbers. To do so, the numbers
 # are duplicated inside a list of two items.
@@ -6111,51 +6111,84 @@ o1.PerformW(
 
 /*------------------
 
+pron()
+
 o1 = new stzList([ "A", 0, 0, "B", "C", 0, "D", 0, 0 ])
-? o1.ZerosRemoved() #--> [ "A", "B", "C", "D" ]
+? o1.ZerosRemoved()
+#--> [ "A", "B", "C", "D" ]
 
-/*=============
+proff()
+# Executed in almost 0 second(s).
 
-# In Ring, it's impossible to make a comparison between two lists
-# using the = operator like this:
+/*============= #narration COMPARING LISTS FOR EQUALITY
 
-? [1,2] = [1,2]
-#--> Error (R21) : Using operator with values of incorrect type 
+pron()
 
-# In Softanza you can, just elevate the list to a stzList object
-# using the Q() function like this:
+# In Ring, you can't check two equal listq for equality,
+# and if you do, you get FALSE as result:
 
-? Q([1,2]) = [1,2] #--> TRUE
+? [ 1, 2 ] = [ 1, 2 ]
+#--> FALSE
 
-# This seems to be a minor feature, but it isn't. In fact, the Ring
-# version breaks the programmer's train of thought when writing
-# a code like this:
+# That's because Ring compares lists by reference not
+# by value. When you create two separate lists [ 1, 2 ],
+# even though they contain the same values, they are
+# distinct objects in memory.
 
-aMyList = [1,2]
+# We can do it differently in Ring by casting the
+# lists to strings using lis2str like this:
 
-if aMyList = [1,2]
+? list2str([ 1, 2 ]) = list2str([ 1, 2 ])
+#--> TRUE
+
+# Softanza provides a more direct and elegant solution by
+# simply using the Q() small function with the first list:
+
+? Q([ 1, 2 ]) = [ 1, 2 ]
+#--> TRUE
+
+# Hence, the first [ 1, 2 ] is elevated to a stzList, and
+# the = operator is used to call internally the IsEqual()
+# method to compare the object content with the second list.
+
+# It seems to be a minor feature, but in practice it can
+# save us some tricky situations like this:
+
+aMyList = [ 1, 2 ]
+
+if aMyList = [ 1, 2 ]
 	? "I'm done :)"
 else
 	? "Ooops!"
 ok
-#--> Error (R21) : Using operator with values of incorrect type
+#--> Oppps!
 
 # Here is the same code enabled with Softanza Q() magic:
-aMyList = [1,2]
 
-if Q(aMyList) = [1,2]
+aMyList = [ 1, 2 ]
+
+if Q(aMyList) = [ 1, 2 ]
 	? "I'm really done! Thanks Softanza :)"
 else
 	? "Ooops!"
 ok
 #--> "I'm really done! Thanks Softanza :)"
 
+proff()
+# Executed in 0.01 second(s).
+
 /*---------
 
-o1 *= new stzList([ 0, 2, 0, 3, [1,2] ])
-? o1.IsListOfNumbersAndPairsOfNumbers() #--> TRUE
+pron()
 
-/*========= Deep finding items at any level : TODO
+o1 = new stzList([ 0, 2, 0, 3, [1,2] ])
+? o1.IsListOfNumbersAndPairsOfNumbers()
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
+
+/*========= Deep finding items at any level : TODO incorrect output
 
 pron()
 
@@ -6167,7 +6200,8 @@ o1 = new stzList([
 	"you"
 ])
 
-? o1.NumberOfLevels() #--> 3
+? o1.NumberOfLevels()
+#--> 3
 
 ? @@( o1.DeepFind("you") )
 #--> "you" is found in the following positions:
@@ -6182,6 +6216,8 @@ proff()
 
 /*========= Replace and DeepReplace
 
+pron()
+
 o1 = new stzList([
 	"me",
 	"other",
@@ -6191,7 +6227,7 @@ o1 = new stzList([
 ])
 
 o1.Replace("me", :By = "you")
-? @@( o1.Content() ) + NL
+? @@NL( o1.Content() ) + NL
 #--> [
 #	"you",
 #	"other",
@@ -6200,7 +6236,7 @@ o1.Replace("me", :By = "you")
 #	"you"
 #    ]
 
-/*------------
+#---
 
 o1 = new stzList([
 	"me",
@@ -6211,7 +6247,7 @@ o1 = new stzList([
 ])
 
 o1.DeepReplace("me", :By = "you")
-? @@( o1.Content() )
+? @@NL( o1.Content() )
 #--> [
 #	"you",
 #	"other",
@@ -6219,39 +6255,61 @@ o1.DeepReplace("me", :By = "you")
 #	"other"
 #    ]
 
+proff()
+# Executed in 0.02 second(s).
+
 /*================
+
+pron()
 
 # to get the background of this sample, read this:
 # https://groups.google.com/g/ring-lang/c/_33L7miE3QM
 
 # First way: Substring first
+
 o1 = new stzString("ACD")
 o1.Insert("B", :AtPosition = 2)
-? o1.Content() #--> "ABCD"
+? o1.Content()
+#--> "ABCD"
 
 # Second way: Position first
+
 o1 = new stzString("ACD")
 o1.InsertAt( :Position = 2, :SubString = "B")
-? o1.Content() #--> "ABCD"
+? o1.Content()
+#--> "ABCD"
 
 # Short forms:
+
 o1.Insert("B", 2)
 o1.InsertAt(2, "B")
+? o1.Content()
+#--> ABBBCD
 
 #TODO: add ( :Position = ... and :SubString = ... ) everywhere!
+#UPDATE: done!
+
+proff()
+# Executed in 0.02 second(s).
 
 /*--------------
+
+pron()
 
 # Same example above in stzList
 
 o1 = new stzList([ "A", "C", "D" ])
-o1.InsertAt(:Position = 2, :Item = "B")
-//o1.Insert(:Item = "B", :BeforePosition = 2) # or for short: o1.Insert("B", 2)
+o1.InsertAt(2, "B")
 
 ? o1.Content()
 #--> [ "A", "B", "C", "D" ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*--------------
+
+pron()
 
 # Same example above in stzListOfStrings
 
@@ -6260,13 +6318,24 @@ o1.Insert("B", :AtPosition = 2)			# or you can say: o1.InsertAt(2, "B")
 ? o1.Content()
 #--> [ "A", "B", "C", "D" ]
 
+proff()
+# Executed in 0.04 second(s).
+
 /*--------------
+
+pron()
 
 o1 = new stzList([ "A1", "A2", "A3" ])
 o1.InsertAfter( :ItemAtPosition = 3, "A4" )
-? o1.Content() #--> [ "A1", "A2", "A3" ]
+? o1.Content()
+#--> [ "A1", "A2", "A3" ]
+
+proff()
+# Executed in 0.01 second(s).
 
 /*================ MOVING AND SWAPPING
+
+pron()
 
 o1 = new stzList([ "C", "B", "A" ])
 o1.Move( :From = 3, :To = 1 )
@@ -6275,20 +6344,28 @@ o1.Move( :From = 3, :To = 1 )
 o1.Swap( :Items = 2, :AndItem = 3 )
 ? o1.Content() #--> [ "A", "B", "C" ]
 
-/*--------------- Writablilty VS Readablility VS Both of them!
+proff()
+# Executed in 0.06 second(s).
+
+/*--------------- #narration Writablilty VS Readablility VS Both of them!
+
+pron()
 
 # Softanza coding style is designed with a double promise in mind:
-#  - Your code is WRITABLE, hence easy to you while your are crafting it
-#  - As well as READBALE, hence easy to your reader to understand it without a hassele!
+#  - Your code is WRITABLE: Easy to you while your are crafting it
+#  - As well as READBALE: Easy easy to your reader to understand it.
 
-# I'll explain this in action.
+# I'll explain this by code.
 
 # Let's have a list, and then take two items inorder to swap them:
+
 o1 = new stzList([ "C", "B", "A" ])
 
 # You can quickly write:
+
 o1.Swap(1, 3)
-? o1.Content() #--> ["A", "B", "C"]
+? o1.Content()
+#--> ["A", "B", "C"]
 
 # And you are done! Which means litterally: "swap items at positions 1 and 3".
 
@@ -6296,13 +6373,17 @@ o1.Swap(1, 3)
 # and the sentence above can be written as-is in plain Ring code:
 
 o1.SwapItems( :AtPositions = 1, :And = 3)
-# It's What You Think Is What You Get.
-? o1.Content() #--> [ "C", "B", "A" ]
+
+# It's: What You Think Is What You Get.
+
+? o1.Content()
+#--> [ "C", "B", "A" ]
+
 # Let's recapitulate:
 
 # WRITABILITY: you quickly write a function, always in a short form,
-# without complications, because you need to be focused on how to solve
-# the case in hand and not in beautifying your code with any syntactic sugar!
+# without complications, because you need to focus on the thinking
+# behind the solution not the underling syntax.
 
 # READBILITY : Others, or yourself in the future, can read the function
 # and understand the intent of its writer without referring
@@ -6310,27 +6391,53 @@ o1.SwapItems( :AtPositions = 1, :And = 3)
 
 # And in Softanza, you have them both...
 
+proff()
+# Executed in 0.02 second(s).
+
 /*---------------
+
+pron()
 
 o1 = new stzList([ "ONE", "TWO", "THREE" ])
-o1 - "TWO"
-? o1.Content()
-#--> [ "ONE", "THREE" ])
+? o1 - "TWO"
+#--> [ "ONE", "THREE" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*---------------
+
+pron()
 
 ? Q([ "I", "B", "M" ]).HasSameContent( :As = [ "B", "M", "I" ] )
 ? Q([ "I", "B", "M" ]).HasSameContentCS( :As = [ "b", "m", "i" ], :CS = FALSE )
 
+proff()
+# Executed in 0.01 second(s).
+
 /*---------------
+*/
+pron()
 
-? Q("SFTANZA").IsLarger(:Then = "RING")		#--> TRUE
-# or if you want to precise:
-? Q("SFTANZA").HasMoreChars(:Then = "RING")	#--> TRUE
+? Q("SFTANZA").IsLargerThan("RING")
+#--> TRUE
 
-? Q("RING").IsSmaller(:Then = "SFTANZA")	#--> TRUE
 # or if you want to precise:
-? Q("RING").HasLessChars(:Then = "SFTANZA")	#--> TRUE
+? Q("SFTANZA").HasMoreChars(:Than = "RING")
+#--> TRUE
+
+#--
+
+? Q("RING").IsSmaller(:Than = "SFTANZA")
+#--> TRUE
+
+# or if you want to precise:
+
+? Q("RING").HasLessChars(:Than = "SFTANZA")
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*---------------
 
