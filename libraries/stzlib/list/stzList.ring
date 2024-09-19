@@ -3568,10 +3568,28 @@ func AreBothEqual(p1, p2)
 
 func AreEqualCS(paValues, pCaseSensitive)
 	if NOT isList(paValues)
+		StzRaise("Incorrect param type! paValues must be a list.")
+	ok
+
+	#NOTE
+	# A beautiful way to solve it the Softanza way:
+
+	if StzListQ(paValues).
+	   RemoveDuplicatesCSQ(pCaseSensitive).
+	   NumberOfItems() = 1
+
+		return TRUE
+	else
 		return FALSE
 	ok
 
-	if NOT AllHaveSameType(paValues)
+	# ~> I left the old code commented so you can see
+	# how mutch Softanza can optimise the codebase
+	# at each refactoring
+
+	/*--- START OF OLD UNUSED CODE
+
+	if NOT isList(paValues)
 		return FALSE
 	ok
 
@@ -3639,6 +3657,9 @@ func AreEqualCS(paValues, pCaseSensitive)
 		return bResult
 
 	ok
+
+	--- END OF OLD UNUSED CODE
+	*/
 
 	#< @FunctionAlternativeForms
 
@@ -22623,30 +22644,53 @@ class stzList from stzObject
 	 #  CHECKING IF ALL ITEMS ARE EQUAL TO A GIVEN VALUE  #
 	#----------------------------------------------------#
 
-	def ItemsAreAllEqualTo(pValue)
-		bResult = TRUE
-		nLen = This.NumberOfItems()
+	def ItemsAreEqualToCS(pItem, pCaseSensitive)
 
-		aContent = This.Content()
-
-		for i = 1 to nLen
-			
-			if NOT Q(aContent[i]).IsEqualTo(pValue)
-				bResult = FALSE
-				exit
-			ok
-
-		next
+		bResult = @AreEqualCS(@aContent + pItem, pCaseSensitive)
 		return bResult
 
-		def AllItemsAreEqualTo(pValue)
-			return This.AllItemsAreEqualTo(pValue)
+		#< @FunctionAlternativeForms
 
-		def IsMadeOfItemsEqualTo(pValue)
-			return This.AllItemsAreEqualTo(pValue)
+		def IsMadeOfItemCS(pItem, pCaseSensitive)
+			return This.ItemsAreEqualToCS(pItem, pCaseSensitive)
 
-		def AreAllEqualTo(pValue)
-			return This.AllItemsAreEqualTo(pValue)
+		def IsMadeOfThisItemCS(pItem, pCaseSensitive)
+			return This.ItemsAreEqualToCS(pItem, pCaseSensitive)
+	
+		def ContainsOnlyCS(pItem, pCaseSensitive)
+			return This.ItemsAreEqualToCS(pItem, pCaseSensitive)
+	
+		def ContainsOnlyItemCS(pItem, pCaseSensitive)
+			return This.ItemsAreEqualToCS(pItem, pCaseSensitive)
+	
+		def ContainsOnlyThisItemCS(pItem, pCaseSensitive)
+			return This.ItemsAreEqualToCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ItemsAreEqualTo(pItem)
+		return This.ItemsAreEqualToCS(pItem, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def IsMadeOfItem(pItem)
+			return This.ItemsAreEqualTo(pItem)
+
+		def IsMadeOfThisItem(pItem)
+			return This.ItemsAreEqualTo(pItem)
+	
+		def ContainsOnly(pItem)
+			return This.ItemsAreEqualTo(pItem)
+	
+		def ContainsOnlyItem(pItem)
+			return This.ItemsAreEqualTo(pItem)
+	
+		def ContainsOnlyThisItem(pItem)
+			return This.ItemsAreEqualTo(pItem)
+
+		#>
 
 	  #---------------------------------------------------------------#
 	 #  CHECKING IF ALL ITEMS ARE LISTS HAVING SAME NUMBER OF ITEMS  #
@@ -47284,154 +47328,19 @@ class stzList from stzObject
 
 		#>
 
-	  #----------------------------------------#
-	 #      CHECKING IF ALL ITEMS ARE ...     #
-	#----------------------------------------#
+	  #------------------------------------------------------------------#
+	 #  CHECKING IF A CHAIN OF TYPES IS TRUE AGAINST THE LIST OF ITEMS  #
+	#==================================================================#
 
-	def AllItemsAre(p)
-		/* EXAMPLE
+	def Are(p)
+		return This.AreXT(p, :EvalDirection = :Default)
 
-		? Q([ "ONE", "ONE", "ONE" ]).AllItemsAre("ONE")
-		#--> TRUE
-
-		
-		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
-		#--> TRUE
-		
-		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Strings ])
-		#--> TRUE
-		
-		? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, W('len(@item)=3'), :Strings ])
-		
-		*/
-
-		# Q([ "ONE", "ONE", "ONE" ]).AllItemsHave('len(@item) = 3')
-
-		nLen = This.NumberOfItems()
-
-		if isList(p) and Q(p).IsWhereNamedParam()
-
-			p = p[2]
-		ok
-
-		if isString(p) and Q(p).TrimQ().IsBoundedBy([ "{", "}" ])
-
-			cCode = 'bOk = (' + Q(p).TheseBoundsRemoved( "{", "}" ) + ')'
-
-			bResult = TRUE
-			for @i = 1 to nLen
-				@item = @aContent[@i]
-				eval(cCode)
-				if NOT bOk
-					bResult = FALSE
-					exit
-				ok
-			next
-
-			return bResult
-			
-		# ? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre(:Strings)
-		but isString(p) and
-		    ( Q("stz" + p).IsStzClassName() or
-		    Q("stz" + p).IsPluralOfStzClassName() )
-
-			cMethod = ""
-
-			if p = :Number or p = :Numbers
-				cMethod = :IsANumber
-
-			but p = :String or p = :Strings
-				cMethod = :IsAString
-
-			but p = :List or p = :Lists
-				cMethod = :IsAList
-
-			but p = :Object or p = :Objects
-				cMethod = :IsAnObject
-			
-			else
-				if Q('stz' + p).IsPluralOfAStzClass()
-					p = PluralToStzClass('stz' + p)
-				ok
-
-				cMethod = 'Is' + Q(p).RemovedFromLeft("stz")
-
-			ok
-
-			# We could use this one line:
-			# bResult = This.Check(:That = 'Q(@item).' + cMethod + '()')
-
-			# But it should better for performance to make it manually
-
-			cCode = 'bOk = ( Q(@item).' + cMethod + '() )'
-
-			bResult = TRUE
-			for @i = 1 to nLen
-				@item = @aContent[@i]
-				eval(cCode)
-				if NOT bOk
-					bResult = FALSE
-					exit
-				ok
-			next
-
-			return bResult
-
-		# Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Strings ])
-		but isList(p) and Q(p).IsListOfStrings() and
-		    Q("stz" + p[len(p)]).IsStzClassNameXT() # ..XT() --> in singular or plural form
-
-			return This.AllItemsAreXT(p, :Default)
-
-		but isList(p) and Q(p).ContainsCCode()
-
-			return This.AllItemsAreXT(p, :Default)
-
-		# ? Q([ "♥", "♥", "♥" ]).AllItemsAre("♥")
-		else
-
-			bResult = TRUE
-			aItems = This.Content()
-			nLen = len(aItems)
-
-			for i = 1 to nLen
-
-				if NOT Q(aItems[i]).IsEqualTo(p)
-					bResult = FALSE
-					exit
-				ok
-			next
-
-			return bResult
-
-		ok
-
-		#< @FunctionAlternativeForms
-
-		def ItemsAre(p)
-			return This.AllItemsAre(p)
-
-		def EachItemIs(p)
-			return This.AllItemsAre(p)
-
-		def EachItemIsA(p)
-			return This.AllItemsAre(p)
-
-		def EachItemIsAn(p)
-			return This.AllItemsAre(p)
-
-		def ItemsHave(p)
-			return This.AllItemsAre(p)
-
-		def AllItemsHave(p)
-			return This.AllItemsAre(p)
-
-		#>
-
-	def AllItemsAreXT(p, paEvalDirection)
+	def AreXT(p, paEvalDirection)
 
 		if NOT isList(p)
-			StzRaise("Incorrect param type! p must be a list.")
+			aTempList = []
+			aTempList + p
+			p = aTempList
 		ok
 
 		if len(p) = 0
@@ -47529,28 +47438,6 @@ class stzList from stzObject
 
 			return bResult
 		ok
-
-		#< @FunctionAlternativeForms
-
-		def ItemsAreXT(p, paEvalDirection)
-			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)
-
-		def EachItemIsXT(p, paEvalDirection)
-			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)
-
-		def EachItemIsAXT(p, paEvalDirection)
-			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)
-
-		def EachItemIsAnXT(p, paEvalDirection)
-			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)
-
-		def ItemsHaveXT(p, paEvalDirection)
-			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)
-
-		def AllItemsHaveXT(p, paEvalDirection)
-			return This.AllItemsAreXT(pacDescriptors, paEvalDirection)
-
-		#>
 
 	  #================================#
 	 #    USUED FOR NATURAL-CODING    #
@@ -51407,10 +51294,6 @@ class stzList from stzObject
 		o1 = new stzList([ :StartingAt, 5 ])
 		? o1.IsAPairQ().Where('{ isString(@pair[1]) and isNumber(@pair[2]) }')
 		#--> TRUE
-
-		o1 = new stzList([ "ONE", "TWO", "THREE" ])
-		? o1.IsAPairQ().Where('{ Q(@Pair).AllItemsAre([ :Uppercase, :Strings ]) }')
-		#--> FALSE
 
 		*/
 

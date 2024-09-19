@@ -3466,31 +3466,6 @@ o1 = new stzList([ :StartingAt, 5 ])
 proff()
 # Executed in 0.04 second(s)
 
-/*------------
-
-pron()
-
-o1 = new stzList([ "ONE", "TWO", "THREE" ])
-? o1.AllItemsAre([ :Uppercase, :Strings ])
-#--> TRUE
-
-proff()
-# Executed in 0.34 second(s)
-
-/*------------
-
-pron()
-
-o1 = new stzList([ "ONE", "TWO", "THREE" ])
-
-? o1.IsAPairQ().Where('{
-	Q(@Pair).AllItemsAre([ :Uppercase, :Strings ])
-}')
-#--> FALSE
-
-proff()
-# Executed in 0.03 second(s)
-
 /*============
 
 pron()
@@ -3878,36 +3853,16 @@ StartProfiler()
 
 	? Q([ "♥", "♥", "♥" ]).AllItemsAre("♥")
 	#--> TRUE
-	# Executed in 0.08 second(s)
 
 	? Q([ 12, 12, 12 ]).AllItemsAre(12)
 	#--> TRUE
-	# Executed in 0.02 second(s)
 
 	? Q([ 1:3, 1:3, 1:3 ]).AllItemsAre(1:3)
 	#--> TRUE
-	# Executed in 0.02 second(s)
-	
-	? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Latin, :Strings ])
-	#--> TRUE
-	# Executed in 0.17 second(s)
-
-	? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
-	#--> TRUE
-	# Executed in 0.16 second(s)
 
 StopProfiler()
-#--> Executed in 0.41 second(s)
-
-/*----------
-
-StartProfiler()
-
-? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Where = '{ len(@item) <= 5 }', :Strings ])
-#--> TRUE
-
-StopProfiler()
-#--> Executed in 0.05 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.41 second(s) in Ring 1.17
 
 /*==========
 
@@ -6014,26 +5969,32 @@ o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 #	"@clanguage"
 # ]
 
+/*------------------ #TODO Check error
+
+pron()
+
+? "hi"
+
+? Q([ "واحد", "اثنان", "ثلاثة" ]).Are([ :Strings ])
+#--> TRUE
+
+? Q([ "واحد", "اثنان", "ثلاثة" ]).Are([ :Arabic, :Strings ])
+#--> TRUE
+
+? Q([ "واحد", "اثنان", "ثلاثة" ]).Are(:Texts)
+#--> TRUE
+
+? Q([ "واحد", "اثنان", "ثلاثة" ]).Are([ :ArabicScript, :RightToLeft, :Texts ])
+#--> TRUE
+
+? Q([ "واحـد", "اثنان", "ثلاثة" ]).Are([ :ArabicScript, W('Q(@item).Size()=5'), :Texts ])
+#--> TRUE
+
+proff()
+
 /*------------------
 
-? Q([ "واحد", "اثنان", "ثلاثة" ]).AllItemsAre(:Strings)
-#--> TRUE
-
-? Q([ "واحد", "اثنان", "ثلاثة" ]).AllItemsAre([ :Arabic, :Strings ])
-#--> TRUE
-
-? Q([ "واحد", "اثنان", "ثلاثة" ]).AllItemsAre(:Texts)
-#--> TRUE
-
-? Q([ "واحد", "اثنان", "ثلاثة" ]).AllItemsAre([ :ArabicScript, :RightToLeft, :Texts ])
-#--> TRUE
-
-? Q([ "واحـد", "اثنان", "ثلاثة" ]).AllItemsAre([ :ArabicScript, W('Q(@item).Size()=5'), :Texts ])
-#--> TRUE
-
-/*------------------
-
-? Q([ "你好", "亲", "朋友们" ]).AllItemsAre([ :HanScript, :Texts ])
+? Q([ "你好", "亲", "朋友们" ]).AreXT([ :HanScript, :Texts ])
 #--> TRUE
 
 /*------------------
@@ -6042,44 +6003,44 @@ o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 
 /*------------------
 
-? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre(:Strings)
+? Q([ "ONE", "TWO", "THREE" ]).Are(:Strings)
 #--> TRUE
 
-? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Strings ])
+? Q([ "ONE", "TWO", "THREE" ]).AreXT([ :Strings ])
 #--> TRUE
 
-? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Strings ])
+? Q([ "ONE", "TWO", "THREE" ]).AreXT([ :Uppercase, :Strings ])
 #--> TRUE
 
-? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Latin, :Strings ])
+? Q([ "ONE", "TWO", "THREE" ]).AreXT([ :Uppercase, :Latin, :Strings ])
 #--> TRUE
 
-? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, :Strings ])
+? Q([ "ONE", "TWO", "THREE" ]).AreXT([ :Uppercase, :Strings ])
 
-? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre([ :Uppercase, W('len(@item)=3'), :Strings ])
+? Q([ "ONE", "TWO", "THREE" ]).AreXT([ :Uppercase, W('len(@item)=3'), :Strings ])
 #--> TRUE
 
-? Q([ "ONE", "TWO", "THREE" ]).AllItemsAre( W('len(@item)=3') )
+? Q([ "ONE", "TWO", "THREE" ]).AreXT( W('len(@item)=3') )
 #--> TRUE
 
 /*------------------
 
-? Q([ 1, 2, 3 ]).AllItemsAre(:Numbers)
+? Q([ 1, 2, 3 ]).Are(:Numbers)
 #--> TRUE
 
-? Q([ -2, -4, -8 ]).AllItemsAre([ :Even, :Negative, :Numbers ])
+? Q([ -2, -4, -8 ]).AreXT([ :Even, :Negative, :Numbers ])
 #--> TRUE
 
-? Q([ 2, 4, 8 ]).AllItemsAre([ :Even, :Numbers ])
+? Q([ 2, 4, 8 ]).AreXT([ :Even, :Numbers ])
 #--> TRUE
 
-? Q([ 2, 4, 8 ]).AllItemsAre([ :Even, :Positive, :Numbers ])
+? Q([ 2, 4, 8 ]).AreXT([ :Even, :Positive, :Numbers ])
 #--> TRUE
 
-? Q([ "(",";", ")" ]).AllItemsAre([ :Punctuation, :Chars ])
+? Q([ "(",";", ")" ]).AreXT([ :Punctuation, :Chars ])
 #--> TRUE
 
-/*------------------ #TODO check error
+/*============= #TODO check error
 
 # Transforming the list structure so it becomes
 # a list of pairs of numbers. To do so, the numbers
@@ -9586,8 +9547,12 @@ pron()
 proff()
 # Executed in almost 0 second(s).
 
-/*------------
-*/
+/*------------ #narration NAMED OBJECTS EQuALiTY
+
+# Softanza can check objects equality only if objects are
+# created as named objects (a special form of a Softanza
+# object that you cread along with its name)
+
 pron()
 
 obj1 = new stzString(:first  = "Ring")
@@ -9610,66 +9575,85 @@ proff()
 # Executed in 0.03 second(s).
 
 /*---------------------
-*/
+
 pron()
 
 ? AreEqual([ 1:3, 1:3, 1:3, 1:3 ])
 #--> TRUE
 
-# ? AreEqual([ ["A", 1:5], 1:3, 1:3, 1:3 ]) #TODO: can't process deep lists
+? AreEqual([ ["A", 1:5], 1:3, 1:3, 1:3 ])
+#--> FALSE
+
 ? AreEqual([ NullObject(), NullObject(), NullObject() ])
-
-
+#--> TRUE
 
 proff()
+# Executed in 0.02 second(s).
 
 /*---------------------
+
+pron()
 
 o1 = new stzList([ "a", "b", "c", "a", "a", "b", "c" ])
 o1.RemoveAll("a")
 ? o1.Content()
+#--> [ "b", "c", "b", "c" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*---------------------
+
+pron()
+
+? AreEqualCS([ "a", "a", "A", "A", "a", "A" ], FALSE)
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
+
+/*---------------------
+*/
+pron()
 
 # All these return TRUE
 
-o1 = new stzList([ "a", "b", "c", "A", "B", "C" ])
-? o1.AllItemsAre("isString(@item)")
-? o1.AllItemsAre("Q(@item).IsAString()")
+o1 = new stzList([ "a", "a", "A", "A", "a", "A" ])
+
+? o1.ItemsAreEqualTo("a")
+#--> FALSE
+
+? o1.ItemsAreEqualToCS("a", FALSE)
+#--> TRUE
 
 # You can also say:
 
-? o1.ContainsOnly("isString(@item)")
-? o1.ContainsOnly("Q(@item).IsAString()")
+? o1.ContainsOnly("a")
+#--> FALSE
 
-# Or also:
+? o1.ContainsOnlyCS("A", FALSE)
+#--> TRUE
 
-? o1.AllItemsVerify("isString(@item)")
-? o1.AllItemsVerify("Q(@item).IsAString()")
+proff()
 
-# Or also:
-
-? o1.AllItemsVerifyThisCondition("isString(@item)")
-? o1.AllItemsVerifyThisCondition("Q(@item).IsAString()")
-
-/*---------------------
+/*--------------------- #TODO
 
 o1 = new stzList([ "A", "B", "C" ])
-? o1.AllItemsAre("isString(@item) and @IsUppercase(@item)")
+? o1.AreWXT("isString(@item) and @IsUppercase(@item)")
 
-*---------------------
+*--------------------- #TODO
 
 # All items are lists with 3 items
 
 o1 = new stzList([ 1:3, 1:3, 1:3 ])
-? o1.AllItemsAre('isList(@item) and len(@item) = 3')
+? o1.AreWXT('isList(@item) and len(@item) = 3')
 
-/*---------------------
+/*--------------------- #TODO
 
 # All items are lLists having same number of items
 
 o1 = new stzList([ 1:3, 1:3, 1:3 ])
-? o1.AllItemsAre('isList(@item) and len(@item) = len(o1[1])')
+? o1.AreWXT('isList(@item) and len(@item) = len(o1[1])')
 
 /*-------------------- ///////<<<<<<<//////////////////////////////////////////////
 
