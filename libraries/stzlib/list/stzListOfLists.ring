@@ -2610,7 +2610,7 @@ class stzListOfLists from stzList
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( isList(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			StzRaise("Incorrect param type! pCaseSensitive must be TRUE or FALSE.")
 		ok
 
