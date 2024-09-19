@@ -48965,6 +48965,12 @@ n1 = Min(aTemp)
 
 		#< @FunctionAlternativeForms
 
+		def IsEqualCS(pcOtherStr, pCaseSensitive)
+			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+
+			def IsEqualCSQ(pcOtherStr, pCaseSensitive)
+				return This.IsEqualToCSQ(pcOtherStr, pCaseSensitive)
+
 		def EqualToCS(pcOtherStr, pCaseSensitive)
 			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
 
@@ -48994,6 +49000,9 @@ n1 = Min(aTemp)
 		#< @FunctionMisspelledForm
 
 		def IsEqualtToCS(pcOtherStr, pCaseSensitive)
+			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+
+		def IsEqualtCS(pcOtherStr, pCaseSensitive)
 			return This.IsEqualToCS(pcOtherStr, pCaseSensitive)
 
 		#>

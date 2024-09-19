@@ -8363,7 +8363,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*----------------------
-*/
+
 pron()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
@@ -8395,23 +8395,26 @@ StartProfiler()
 # given condition, and by replacing themn with the same given value like this:
 
 StzListQ( [ 1, "a", 2, "b", 3, "c" ] ) {
-	ReplaceItemsW(
+	ReplaceItemsWXT(
 		:Where = '{ isString(@item) and Q(@item).isLowercase() }',
 		:By = "*"
 	)
 
-	? Content() #--> [ 1, "*", 2, "*", 3, "*" ]
+	? Content()
+	#--> [ 1, "*", 2, "*", 3, "*" ]
 }
 
 StopProfiler()
-#--> Executed in 0.28 second(s)
+# Executed in 0.14 second(s) in Ring 1.21
+# Executed in 0.28 second(s) in Ring 1.19
 
 /*=================
 
 pron()
 
 o1 = new stzList([ "a", "b", 3, "c"])
-? o1.AllItemsExcept(3) #--> [ "a", "b", "c" ]
+? o1.AllItemsExcept(3)
+#--> [ "a", "b", "c" ]
 
 proff()
 # Executed in almost 0 second(s).
@@ -8470,10 +8473,12 @@ pron()
 StzListQ([ "one", "two", "three" ]) {
 
 	ReplaceItemAtPosition(2, :With = "TWO") # or ReplaceAt
-	? Content() #--> [ "one", "TWO", "three" ]
+	? Content()
+	#--> [ "one", "TWO", "three" ]
 
 	ReplaceAllItems( :With = "***")
-	? Content() #--> [ "***", "***", "***" ]
+	? Content()
+	#--> [ "***", "***", "***" ]
 }
 
 proff()
@@ -8503,16 +8508,17 @@ o1.RemoveWXT('Not isNumber(@item)')
 #--> [ 1, 2, 3 ]
 
 proff()
-# Executed in 0.11 second(s).
+# Executed in 0.12 second(s).
 
 /*--------------
 
 pron()
 
-obj1 = new Person { name = "salem" age = 34 }
-obj2 = new Person { name = "kai" age = 24 }
 
-o1 = new stzList([ "a", 1, 3, "b", ["A1", "A2"], obj1, "c", 3, ["B1", "B2"], obj2 ])
+obj1 = TrueObject()
+obj2 = FalseObject()
+
+o1 = new stzList([ "a", 1, 3, "b", ["A1", "A2"], obj1, "c", 3, [ "B1", "B2" ], obj2 ])
 
 ? o1.OnlyStrings()
 #--> [ "a", "b", "c" ]
@@ -8526,16 +8532,14 @@ o1 = new stzList([ "a", 1, 3, "b", ["A1", "A2"], obj1, "c", 3, ["B1", "B2"], obj
 ? o1.OnlyObjects()
 #--> The two objects o1 and o2 printed in the console:
 #
-# name: salem
-# age: 34
+# @oobject: NULL
+# @cvarname: @trueobject
 #
-# name: kai
-# age: 24
+# @oobject: NULL
+# @cvarname: @falseobject
 
 proff()
 # Executed in almost 0 second(s).
-
-class Person name age
 
 /*--------------
 
@@ -8602,12 +8606,12 @@ proff()
 
 pron()
 
-	person1 = new person { name = "obj1" }
-	person2 = new person { name = "obj2" }
+	oTrueObj = TrueObject()
+	oFalseObj = FalseObject()
 	
 	o1 = new stzList([
-		"_", 3, "_" , person1, 6, "*",
-		[ "L1", "L1" ], 12, person2,
+		"_", 3, "_" , oTrueObj, 6, "*",
+		[ "L1", "L1" ], 12, oFalseObj,
 		[ "L2", "L2" ], 25, "*"
 	])
 	
@@ -8638,8 +8642,6 @@ pron()
 proff()
 # Executed in 0.35 second(s).
 
-class Person name
-
 /*-------------
 
 pron()
@@ -8647,7 +8649,7 @@ pron()
 o1 = new stzList(["c", "c++", "C#", "RING", "Python", "RUBY"])
 
 ? o1.FindAllWXT('{ Q(@item).IsUppercase() }')
-  #--> [3, 4, 6]
+ #--> [3, 4, 6]
 
 ? o1.ItemsWXT('{ Q(@item).IsUppercase() }')
   #--> ["C#", "RING", "RUBY"]
@@ -8660,7 +8662,7 @@ proff()
 pron()
 
 o1 = new stzList(["c", "c++", "C#", "RING", "Python", "RUBY"])
-o1.InsertAfterWXT( :Where = '{ Q(@item).IsLowercase() }' , :With = "*")
+o1.InsertAfterWXT( :Where = '{ Q(@item).IsLowercase() }' , "*")
 ? o1.Content()
 #--> ["c", "*", "c++", "*", "C#", "RING", "Python", "RUBY"]
 
@@ -8681,10 +8683,11 @@ o1 = new stzList( [ "c", "c++", "C#", "RING", "Python", "RUBY" ] )
 ? o1.NthItemWXT(2, '{ Q(@item).IsLowercased() }') + NL
 #--> "c++"
 
-? o1.LastItemWXT('{ Q(@item).IsLowercased() }') #--> "c++"
+? o1.LastItemWXT('{ Q(@item).IsLowercased() }')
+#--> "c++"
 
 proff()
-# Executed in 0.52 second(s).
+# Executed in 0.55 second(s).
 
 /*-------------
 
@@ -8883,7 +8886,7 @@ pron()
 o1 = new stzList([ "a", "b", "a", "a", "c", "d", "a" ])
 o1.RemoveOccurrences([ 4, 1, 3 ], "a")
 ? o1.Content()
-# Returns [ "b", "a", "c", "d" ]
+#--> [ "b", "a", "c", "d" ]
 
 proff()
 # Executed in almost 0 second(s).
@@ -9021,18 +9024,16 @@ proff()
 
 pron()
 
-obj1 =  new person
-obj2 = new person
+obj1 = TrueObject()
+obj2 = FalseObject()
 
 o1 = new stzList([ 5, [ :me, :you ], 4, "tunis", obj2, 3, 7, [ :them, :others ], "cairo", obj1  ])
 o1.SortInAscending()
 ? @@( o1.Content() )
-#--> [ 3, 4, 5, 7, "cairo", "tunis", [ "me", "you" ], [ "them", "others" ], @noname, @noname ]
+#--> [ 3, 4, 5, 7, "cairo", "tunis", [ "me", "you" ], [ "them", "others" ], @falseobject,  @trueobject ]
 
 proff()
 # Executed in 0.03 second(s).
-
-class Person
 
 /*--------------
 
@@ -9049,18 +9050,16 @@ proff()
 
 pron()
 
-person1 = new person { name = "obj1" }
-person2 = new person { name = "obj2" }
+obj1 = TrueObject()
+obj2 = FalseObject()
 
-o1 = new stzList([ "_", 3, "_" , person1, "*", 6, [ "L1", "L1" ], 12, person2, [ "L2", "L2" ], 24, "*" ])
+o1 = new stzList([ "_", 3, "_" , obj1, "*", 6, [ "L1", "L1" ], 12, obj2, [ "L2", "L2" ], 24, "*" ])
 o1.SortInAscending()
 ? @@( o1.Content() )
-#--> [ 3, 6, 12, 24, "*", "*", "_", "_", [ "L1", "L1" ], [ "L2", "L2" ], @noname, @noname ]
+#--> [ 3, 6, 12, 24, "*", "*", "_", "_", [ "L1", "L1" ], [ "L2", "L2" ], @trueobject, @falseobject ]
 
 proff()
 # Executed in 0.03 second(s).
-
-class Person name
 
 /*---------------
 
@@ -9117,10 +9116,10 @@ o1 = new stzlist([ "a" , "b", "c", [ "a", "b", "c" ], "c" ])
 #--> [ [ "a", "b", "c" ] ]
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.21
+# Executed in almost 0 second(s) in Ring 1.21
 # Executed in 0.06 second(s) in Ring 1.18
 
-/*---------------
+/*--------------- #narration : - operator never changes the object
 
 pron()
 
@@ -9135,31 +9134,35 @@ o1 - These([ "b", "c" ])
 
 # Because using (-) operator on o1 object does not modify the
 # object itself. It just calculates the opeartion and returns
-# tue result in a normal new list.
+# the result in a normal new list.
 
 # Check it by yourself by using ? command before the operation:
+
 ? @@( o1 - These([ "b", "c" ]) )
 #--> [ "a", "d", "e" ]
 
 # Again, the object itself has not been changed:
+
 ? @@( o1.Content() ) + NL
 #--> [ "a", "b", "c", "d", "e" ]
 
-# Now, what if you need to make the opeation and update the
-# object in the same time? Easy!
+# Now, what if you need to make the opeation and get a stzList
+# object instead of a normal Ring list? Easy!
 
 # Just use the Q() elevator to tell softanza that you want
-# the object to be changed and returned, like this:
+# the output to be elevated to a stzList object, like this:
 
-( o1 - TheseQ(["b", "c"]) ).Content() // #todo check error
-#    ^
-#    |_ This TheseQ() means that the (-) operation will be refelected
-#       on the object o1 itself. It means also that, after beeing
-#       changed, the object o1 is returned.
+? ( o1 - TheseQ(["b", "c"]) ).Stztype()
+#--> stzlist
 
-# Now, check the object content:
+# Of course, you can chain any other method supported by stzList:
+
+? ( o1 - TheseQ([ "b", "c" ]) ).UppercaseQ().ToStzListOfStrings().Joined()
+#--> "ADE"
+
+# But the main object content again is not affected:
 ? @@( o1.Content() )
-#--> [ "a", "d", "e" ]
+#--> [ "a", "b", "c", "d", "e" ]
 
 proff()
 # Executed in 0.04 second(s)
@@ -9189,7 +9192,6 @@ proff()
 # Executed in 0.01 second(s).
 
 /*--------
-
 
 pron()
 
@@ -9272,6 +9274,7 @@ pron()
 #--> Executed in almost 0 second(s).
 
 proff()
+# Executed in almost 0 second(s).
 
 /*---------
 
@@ -9400,7 +9403,7 @@ pron()
 proff()
 
 /*========= TODO: refactor it to use stzWalker
-*/
+
 pron()
 
 ? Q(5).IsBetween(2, 7)
@@ -9418,7 +9421,9 @@ StzListQ( "A":"J" ) {
 
 proff()
 
-/*----------------------
+/*---------------------- TODO: refactor it to use stzWalker
+
+pron()
 
 o1 = new Person
 //myList = "A":"J"
@@ -9447,17 +9452,9 @@ o1 {
 	//? Content()
 }
 
+proff()
+
 class Person
-
-/*----------------------
-
-// Declaring a list of things
-o1 = new stzList([ :Water, :Milk, :Cofee, :Tea, :Sugar, :Honey ])
-
-// Removing one thing
-o1 - :Honey
-
-? o1.IsStrictlyEqualTo([ :water, :coca, :milk, :spice, :cofee, :tea, :honey ])
 
 #====================== DISTRIBUTING ITEMS OVER THE ITEMS OF AN OTHER LIST
 
@@ -9475,9 +9472,8 @@ pron()
 # Let's see:	
 
 o1 = new stzList([ "water", "coca", "milk", "spice", "cofee", "tea", "honey" ] )
-? @@( o1.DistributeOver([ "arem", "mohsen", "hamma" ]) ) + NL
-#--> :
-# [
+? @@SP( o1.DistributeOver([ "arem", "mohsen", "hamma" ]) ) + NL
+#--> [
 #	[ "arem",   [ "water", "coca", "milk" ] ],
 #	[ "mohsen", [ "spice", "cofee" ],
 #	[ "hamma",  [ "tea", "honey" ]
@@ -9486,20 +9482,23 @@ o1 = new stzList([ "water", "coca", "milk", "spice", "cofee", "tea", "honey" ] )
 # Same can be made using the extended form of the function, that allows
 # us to specify how the items are explicitly shared:
 
-? @@( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 3, 2, 2 ] ) ) + NL
-
+? @@SP( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 3, 2, 2 ] ) ) + NL
+#--> [
+#	[ "arem",   [ "water", "coca", "milk" ] ],
+#	[ "mohsen", [ "spice", "cofee" ],
+#	[ "hamma",  [ "tea", "honey" ]
+# ]
 
 # And so you can change the share at your will:
-? @@( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 1, 2, 4 ] ) ) + NL
-#--> 
-# [
-#	[ "arem",   [ "water" ] ],
+? @@SP( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 1, 2, 4 ] ) ) + NL
+#--> [
+#	[ "arem",   [ "water" ] ] ],
 #	[ "mohsen", [ "coca", "milk" ] ],
 #	[ "hamma",  [ "spice", "cofee", "tea", "honey" ] ]
 # ]
 
 # But if you try to share more items then it exists in the list (1 + 2 + 6 > 7!):
-//? @@( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 1, 2, 6 ] ) )
+? @@( o1.DistributeOverXT([ :arem, :mohsen, :hamma ], :Using = [ 1, 2, 6 ] ) )
 # Softanza won't let you do so and tells you why:
 
 #   	What : Can't distribute the items of the main list over the items of
@@ -9510,7 +9509,7 @@ o1 = new stzList([ "water", "coca", "milk", "spice", "cofee", "tea", "honey" ] )
 #	       the number of items of the list.
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*-----------------
 
@@ -9523,9 +9522,10 @@ o1 = new stzList( L(' "♥1" : "♥6" ' ) ) # or simply o1 = LQ(' "♥1" : "♥6
 ? @@( o1 / 6 )
 #-->[ [ "♥1" ], [ "♥2" ], [ "♥3" ], [ "♥4" ], [ "♥5" ], [ "♥6" ] ]
 
-//? o1 / 8
+? o1 / 8
 #--> Error message:
 #--> Incorrect value! n must be between 0 and 6 (the size of the list)
+
 #NOTE
 #--> The beneficiary items can be of any type. In practice, they are
 # strings and hence the returned result is a hashlist.
@@ -9538,7 +9538,7 @@ proff()
 pron()
 
 o1 = new stzList(1:12)
-? @@( o1.DistributeOver([ "Mansour", "Teeba", "Haneen", "Hussein", "Sherihen" ]) )
+? @@NL( o1.DistributeOver([ "Mansour", "Teeba", "Haneen", "Hussein", "Sherihen" ]) )
 #-->
 # [
 #	[ "Mansour",  [ 1, 2, 3 ] ],
@@ -9549,14 +9549,15 @@ o1 = new stzList(1:12)
 # ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.02 second(s) in Ring 1.17
 
 /*-----------------
 
 pron()
 
 o1 = new stzList( L(' "♥1" : "♥9" ') )
-? @@( o1 / [ "Mansoor", "Teeba", "Haneen" ] )
+? @@SP( o1 / [ "Mansoor", "Teeba", "Haneen" ] )
 #-->
 # [
 #	[ "Mansoor", 	[ "♥1", "♥2", "♥3" ] ],
@@ -9565,14 +9566,62 @@ o1 = new stzList( L(' "♥1" : "♥9" ') )
 # ]
 
 proff()
+# Executed in 0.05 second(s).
+
+/*------------
+
+pron()
+
+# A Softanza NullObject is a named object
+
+? NullObject().IsNamedObject()
+? NullObject().VarName()
+#--> @nullobject
+
+# It can't equal anything, even itself!
+
+? NullObject().IsEqualTo(NullObject())
+#--> FALSE
+
+proff()
+# Executed in almost 0 second(s).
+
+/*------------
+*/
+pron()
+
+obj1 = new stzString(:first  = "Ring")
+obj2 = new stzString(:second = "Python")
+obj3 = new stzString(:first  = "basic")
+
+? AreNamedObjects([ obj1, obj2, obj3 ])
+#--> TRUE
+
+? ObjectsNames([ obj1, obj2, obj3 ])
+#--> [ :first, :second, :first ]
+
+? AreEqual([ obj1, obj2 ]) # Or AreEqualObjects()
+#--> FALSE
+
+? AreEqual([ obj1, obj3 ])
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s).
 
 /*---------------------
+*/
+pron()
 
 ? AreEqual([ 1:3, 1:3, 1:3, 1:3 ])
+#--> TRUE
 
 # ? AreEqual([ ["A", 1:5], 1:3, 1:3, 1:3 ]) #TODO: can't process deep lists
-? AreEqual([ new person, new person, new person ])
-class person
+? AreEqual([ NullObject(), NullObject(), NullObject() ])
+
+
+
+proff()
 
 /*---------------------
 
