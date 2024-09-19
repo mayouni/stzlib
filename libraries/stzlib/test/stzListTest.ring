@@ -8233,7 +8233,7 @@ pron()
 #--> 3
 
 proff()
-# Executed in 0.31 second(s).
+# Executed in 0.27 second(s).
 
 /*----------------------
 
@@ -8336,16 +8336,41 @@ proff()
 # Executed in almost 0 second(s).
 
 /*----------------------
-*/
+
 pron()
 
 o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
 
-o1.ReplaceAt([2, 5], "♥")
+o1.ReplaceAt([2, 5], "♥")	# Or ReplaceAnyAt()
 ? @@( o1.Content() )
 #--> [ "♥", "♥", "♥", "♥", "♥" ]
 
+o1.ReplaceThisAt(3, "♥", 3)
+? @@( o1.Content() )
+#--> [ "♥", "♥", 3, "♥", "♥" ]
+
 proff()
+# Executed in almost 0 second(s).
+
+/*----------------------
+*/
+pron()
+
+? Intersection([ [ 1, 3, 4 ], [ 1, 3, 4 ] ])
+#--> [ 1, 3, 4 ]
+
+proff()
+# Executed in 0.02 second(s).
+
+/*----------------------
+
+o1 = new stzList([ "♥", 2, "♥", "♥", 5 ])
+
+o1.ReplaceThisAtByMany([1, 3, 4 ], "♥", [ 1, 3, 4 ])
+? @@( o1.Content() )
+
+proff()
+# Executed in almost 0 second(s).
 
 /*----------------------
 
@@ -8357,7 +8382,7 @@ o1.ReplaceItemsAtPositions([2, 5], :With = "♥")
 #--> [ "♥", "♥", "♥", "♥", "♥" ]
 
 StopProfiler()
-#--> Executed in 0.01 second(s)
+#--> Executed in almost 0 second(s).
 
 /*----------------------
 

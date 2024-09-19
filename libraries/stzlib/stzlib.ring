@@ -159,13 +159,13 @@
 
 # Loading files related tp the COMMON module
 
-	load "common/stzFunctions.ring"
+	load "common/stzFuncts.ring"
 	load "common/stzSplitter.ring"
 	load "common/stzWalker.ring"
 	load "common/stzCounter.ring"
 	load "common/stzSection.ring"
-	load "common/stzSmallFunc.ring"
-	load "common/stzQtFunc.ring"
+	load "common/stzSmallFuncs.ring"
+	load "common/stzQtFuncs.ring"
 	load "common/stzRingLibs.ring"
 
 # Loading files related to ERROR module
