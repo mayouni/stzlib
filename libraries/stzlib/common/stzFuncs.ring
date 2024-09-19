@@ -5307,6 +5307,12 @@ func StzType(oStzObj)
 	func @StzType(oStzObj)
 		return StzType(oStzObj)
 
+func InfereType(cType)
+	return StzStringQ(cType).InfereType()
+
+	func @InfereType(cType)
+		return InfereType(cType)
+
   ////////////////////////
  ///  GLOBAL CLASSES  ///
 ////////////////////////
