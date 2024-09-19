@@ -47337,6 +47337,8 @@ class stzList from stzObject
 
 	def AreXT(p, paEvalDirection)
 
+		# Managing the params
+
 		if NOT isList(p)
 			aTempList = []
 			aTempList + p
@@ -47388,14 +47390,23 @@ class stzList from stzObject
 			p = Q(p).Reversed()
 		ok
 
-		if len(p) = 1 and isString(p[1])
-			cType = @InfereType(p[1])
-			cCode = 'bResult = is' + cType + '(' + p[1] + ')'
-			eval(cCode)
-			return bResult
+		if len(p) = 1
 
-		but Q(p).IsWhereNamedParam()
-			return This.AreXT(p[1])
+			cType = @InfereType(p[1])
+
+			bResult = TRUE
+			nLen = len(@aContent)
+
+			for i = 1 to nLen
+				cCode = 'bOk = is' + cType + '(' + @@(@aContent[i]) + ')'
+				eval(cCode)
+				if NOT bOk
+					bResult = FALSE
+					return bResult
+				ok
+			next
+
+			return bResult
 
 		else
 			nLenMethods = len(p)

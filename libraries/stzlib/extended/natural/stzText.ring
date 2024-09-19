@@ -536,8 +536,6 @@ class stzText from stzString
 			@oQString = new QString2()
 			@oQString.append(pcStr)
 
-			@cLanguage = StzScriptQ( This.Script() ).DefaultLanguage()
-
 		but @IsStzString(pcStr)
 			@oQString = pcStr.QStringObject()
 

@@ -299,6 +299,14 @@ class stzScript
 	# could provide about the script.
 
 	def init(pcScriptIdentifier)
+		if NOT isString(pcScriptIdentifier)
+			StzRaise("Incorrect param type! You must provide a string.")
+		ok
+
+		if trim(pcScriptIdentifier) = ""
+			StzRaise("Incorrect param value! pcScriptIdentifier must not be an empty string.")
+		ok
+
 		oStr = new stzString(pcScriptIdentifier)
 
 		if oStr.IsScriptName()
