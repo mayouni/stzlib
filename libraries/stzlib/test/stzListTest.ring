@@ -7087,8 +7087,8 @@ pron()
 proff()
 # Executed in 0.02 second(s).
 
-/*-----------------
-*/
+/*=================
+
 pron()
 
 o1 = new stzList([ 1, "A":"B", 2, 3, "X", "Y", "Z" ])
@@ -7128,6 +7128,62 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-----------------
+*/
+pron()
+
+o1 = new stzList([ 1, 2, 3 ])
+
+? @@( o1 * 3 )
+#--> [ 1, 2, 3, 1, 2, 3, 1, 2, 3 ]
+
+? @@( o1 * Q(3) / 3 )
+#--> [ [ 1, 2, 3 ], [ 1, 2, 3 ], [ 1, 2, 3 ] ]
+
+proff()
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzList([ 1, 2, 3 ])
+
+? o1 + "X":"Z"
+# \____ ____/
+#      V
+#  A normal Ring list
+
+#--> [ 1, 2, 3, "X", "Y", "Z" ]
+
+? o1 + Q("X":"Z") - These([ 1, 2, 3 ])
+# \______ _____/
+#        V
+#  A stzList object due to the use of Q("X":"Z")
+
+#--> [ "X", "Y", "Z" ]
+
+
+? o1 - Q("X":"Z") + These([ 4, 5 ]) + 6
+# \_______________ _______________/
+#                 V
+#      A normal Ring list due
+#        the use of These()
+#     Note that -Q("X":"Z") has no
+#    effect because o1 contains 1:3
+
+#--> [ 1, 2, 3, 4, 5, 6 ]
+
+? o1 - Q(1) - Q(2) - TheseQ([ 3, 6 ]) + These([ "X", "Y", "Z" ])
+# \________________ ________________/
+#                  V
+#           A stzList object
+#      due to the use of TheseQ()
+
+#--> [ "X", "Y", "Z" ]
+
+proff()
+# Executed in 0.04 second(s).
+
+/*=================
 
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
 o1 - [ "A", "B", "C", "D" ]
