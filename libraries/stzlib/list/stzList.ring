@@ -25452,7 +25452,7 @@ class stzList from stzObject
 	#----------------------------------------------------------#
 
 	def HasMoreNumberOfItems(paOtherList)
-		if isList(paOtherList) and Q(paOtherList).IsThenNamedParam()
+		if isList(paOtherList) and Q(paOtherList).IsThanNamedParam()
 			paOtherList = paOtherList[2]
 		ok
 
@@ -25502,7 +25502,7 @@ class stzList from stzObject
 	#----------------------------------------------------------#
 
 	def HasLessNumberOfItems(paOtherList)
-		if isList(paOtherList) and Q(paOtherList).IsThenNamedParam()
+		if isList(paOtherList) and Q(paOtherList).IsThanNamedParam()
 			paOtherList = paOtherList[2]
 		ok
 
@@ -36654,7 +36654,7 @@ class stzList from stzObject
 			ok
 		ok
 
-		anResult = @FindAllCS( This.Content(), pItem, pCaseSensitive)
+		anResult = @FindAllCS( aContent, pItem, pCaseSensitive)
 
 		if isList(anResult) > 0
 			return anResult
@@ -36946,14 +36946,15 @@ class stzList from stzObject
 
 	# Finding works only for numbers and strings
 
-	#TODO : Lists and objects will become findable after
+	#TODO // Lists and objects will become findable after
 	# designing an overall solution of the Equality problem
 	# in SoftanzaLib
 
-	# UPDATE: Lists are now findable (only objects are left for future)
-	# UPDATE : Named objects are now findable!
+	#UPDATE // Lists are now findable (only objects are left for future)
+	#UPDATE // Named objects are now findable!
 
 	def FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+
 		/* EXAMPLE
 
 		o1 = new stzList([ 1, 2, "*", 4, 5, "*", 7, 8, "*", 10 ])
@@ -36991,12 +36992,18 @@ class stzList from stzObject
 
 		ok
 
+		# Early chek
+
+		if This.NumberOfOccurrenceCS(pItem, pCaseSensitive) < n
+			return 0
+		ok
+
 		# Trying to use the Ring native find() function
 
-		nResult = @FindNthSCS(This.Content(), n, pItem, 1, pCaseSensitive)
+		nPos = @FindNthSCS(This.Content(), n, pItem, 1, pCaseSensitive)
 
-		if nResult != -1
-			return nResult
+		if nPos != -1
+			return nPos
 
 		else
 		# Otherwise, stringifying the list and doing the job

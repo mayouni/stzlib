@@ -6416,7 +6416,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*---------------
-*/
+
 pron()
 
 ? Q("SFTANZA").IsLargerThan("RING")
@@ -6441,23 +6441,48 @@ proff()
 
 /*---------------
 
-? Q([1, 2, 3, 4, 5]).IsLarger(:Then = [8, 9])		#--> TRUE
-# or if you want to precise:
-? Q([1, 2, 3, 4, 5]).HasMoreItems(:Then = [8, 9])	#--> TRUE
+pron()
 
-? Q([8, 9]).IsSmaller(:Then = [1, 2, 3, 4, 5])		#--> TRUE
+? Q([1, 2, 3, 4, 5]).IsLarger(:Than = [8, 9])
+#--> TRUE
+
 # or if you want to precise:
-? Q([8, 9]).HasLessItems(:Then = [1, 2, 3, 4, 5])	#--> TRUE
+
+? Q([1, 2, 3, 4, 5]).HasMoreItems(:Than = [8, 9])
+#--> TRUE
+
+#--
+
+? Q([8, 9]).IsSmaller(:Than = [1, 2, 3, 4, 5])
+#--> TRUE
+
+# or if you want to precise:
+? Q([8, 9]).HasLessItems(:Than = [1, 2, 3, 4, 5])
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
 
 /*---------------
+*/
+pron()
 
 o1 = new stzList([ "arem", "mohsen", "AREM" ])
-? o1.FindAll("arem") #--> 1
 
-? o1.FindAllCS("arem", :CS = FALSE) #--> [1, 3]
+? o1.FindAll("arem")
+#--> [ 1 ]
 
-? o1.FindNth(2, "arem") #--> 0
-? o1.FindNthCS(2, "arem", :CS = FALSE) #--> 3
+? o1.FindAllCS("arem", :CS = FALSE)
+#--> [1, 3]
+
+? o1.FindNth(2, "arem")
+#--> 0
+
+? o1.FindNthCS(2, "arem", :CS = FALSE)
+#--> 3
+
+proff()
+# Executed in 0.02 second(s).
 
 /*---------------
 
