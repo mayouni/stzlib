@@ -785,12 +785,13 @@ class stzSplitter from stzListOfNumbers
 			aSplits = StzSplitterQ(aSectionToBeSplitted).SplitAtSection(aSections[i][1], aSections[i][2])
 			nLenSplits = len(aSplits)
 
-			aSectionToBeSplitted = aSplits[1][1] : aSplits[1][2]
-
-			for j = 1 to nLenSplits
-				aResult + aSplits[j]
-			next
-
+			if nLenSplits > 0
+				aSectionToBeSplitted = aSplits[1][1] : aSplits[1][2]
+	
+				for j = 1 to nLenSplits
+					aResult + aSplits[j]
+				next
+			ok
 		next
 
 		ring_del(aResult, 1)

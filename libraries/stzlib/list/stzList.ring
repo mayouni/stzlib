@@ -25672,7 +25672,7 @@ class stzList from stzObject
 		}
 		*/
 
-		acContent = This.StringifyNamedObjectsQ().Lowercased()
+		acContent = This.StringifyQ().Lowercased()
 
 		nLen = len(acContent)
 		anPosUndefined = []
@@ -42729,7 +42729,7 @@ class stzList from stzObject
 					:Between, :BetweenPosition, :BetweenCharAt,
 					:BetweenItemAtPosition,
 
-					:BetweenPositions, :BetweeItemsAtPosition
+					:BetweenPositions, :BetweenItemsAtPosition
 					])
 	
 				n1 = n1[2]
@@ -75920,10 +75920,32 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsBetweenItemsAtPositionNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenItemsAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsFromItemAtPositionNamedParam()
 
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromItemAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFromItemsAtPositionNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromItemsAtPosition )
 
 			return TRUE
 
@@ -75941,6 +75963,18 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	def IsToItemsAtPositionNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToItemsAtPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 
 	def IsBetweenItemNamedParam()
 

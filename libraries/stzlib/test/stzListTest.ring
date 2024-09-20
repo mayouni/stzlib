@@ -6464,7 +6464,7 @@ proff()
 # Executed in almost 0 second(s).
 
 /*---------------
-*/
+
 pron()
 
 o1 = new stzList([ "arem", "mohsen", "AREM" ])
@@ -6486,11 +6486,18 @@ proff()
 
 /*---------------
 
+pron()
+
 o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 ? o1.NthToLast(2)
 #--> "N"
 
+proff()
+# Executed in almost 0 second(s).
+
 /*---------------
+
+pron()
 
 o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 
@@ -6498,7 +6505,7 @@ o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 #--> [ "S", "O", "F", "T" ]
 
 ? o1.Section(4, 1)
-#--> [ "T", "F", "O", "S" ]
+#--> [ "S", "O", "F", "T" ]
 
 ? o1.Section(:From = 1, :To = 4)
 #--> [ "S", "O", "F", "T" ]
@@ -6507,13 +6514,10 @@ o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 #--> [ "A", "N", "Z", "A" ]
 
 ? o1.Section(:From = "F", :To = "A")
-#--> [ "F", "T", "A" ]
+#--> [ "F", "T", "A", "N", "Z", "A" ]
 
 ? o1.Section( :From = "A", :To = :EndOfList )
 #--> [ "A", "N", "Z", "A" ]
-
-? o1.Section(-99, 99)
-#--> [ ]
 
 ? o1.Section(4, :@)
 #--> "T"
@@ -6524,14 +6528,28 @@ o1 = new stzList([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 ? o1.Section(:@, :@)
 #--> [ "S", "O", "F", "T", "A", "N", "Z", "A" ]
 
+//? @@( o1.Section(-99, 99) ) + NL
+#--> ERROR: Line 2453 Indexes out of range! n1 and n2 must be inside the list.
+
+proff()
+# Executed in 0.13 second(s).
+
 /*=======================
 
+pron()
+
 # In Softanza, you can find lists inside lists:
+
 o1 = new stzList([ "A", "B", [1, 2], "C", "D", [1, 2], "E" ])
-? o1.FindAll([1, 2])	#--> [3, 6]
-? o1.FindFirst([1, 2])	#--> 3
+
+? o1.FindAll([1, 2])
+#--> [3, 6]
+
+? o1.FindFirst([1, 2]) + NL
+#--> 3
 
 # And you can go deep and find even more complicated lists:
+
 o1 = new stzList([
 		"A", "B",
 		[ 1, ["v", ["u"] ], 2 ],
@@ -6540,42 +6558,93 @@ o1 = new stzList([
 		"E"
 ])
 
-? o1.FindAll( [ 1, ["v", ["u"] ], 2 ] ) #--> [ 3, 6]
-? o1.FindFirst([ 1, ["v", ["u"] ], 2 ])	#--> 3
+? o1.FindAll( [ 1, ["v", ["u"] ], 2 ] )
+#--> [ 3, 6]
+
+? o1.FindFirst([ 1, ["v", ["u"] ], 2 ])
+#--> 3
+
+proff()
+# Executed in 0.02 second(s).
 
 /*-----------------------
+
+pron()
 
 o1 = new stzList([ 1, 2 ])
-? o1.IsEqualTo([ 1, 2 ])	 #--> TRUE
-? o1.IsEqualTo([ 2, 1 ])	 #--> TRUE
-? o1.IsStrictlyEqualTo([ 2, 1 ]) #--> FALSE
-? o1.IsStrictlyEqualTo([ 1, 2 ]) #--> TRUE
+
+? o1.IsEqualTo([ 1, 2 ])
+#--> TRUE
+
+? o1.IsEqualTo([ 2, 1 ])
+#--> TRUE
+
+? o1.IsStrictlyEqualTo([ 2, 1 ])
+#--> FALSE
+
+? o1.IsStrictlyEqualTo([ 1, 2 ])
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s).
 
 /*-----------------------
 
-o1 = new stzList([ [1,2], [3, [1], 4], [5,6], [ 2, 10 ], [3,4], [3, [1], 4] ])
-? o1.FindAll( [3, [1], 4] ) #--> [2, 6]
+pron()
 
-? o1.FindFirst( [3, [1], 4] ) #--> 2
+o1 = new stzList([ [1,2], [3, [1], 4], [5,6], [ 2, 10 ], [3,4], [3, [1], 4] ])
+
+? o1.FindAll( [3, [1], 4] )
+#--> [2, 6]
+
+? o1.FindFirst( [3, [1], 4] )
+#--> 2
+
+proff()
+# Executed in 0.02 second(s).
 
 /*===============
 
-? StzListQ( 4:8 ).ToListInStringQ().Simplified() 	#--> "[ 4, 5, 6, 7, 8 ]"
-? StzListQ( 4:8 ).ToListInStringInShortForm() 		#--> "4:8"
+pron()
+
+? StzListQ( 4:8 ).ToListInString()
+#--> "[ 4, 5, 6, 7, 8 ]"
+
+? StzListQ( 4:8 ).ToListInStringInShortForm()
+#--> "4:8"
+
+proff()
+# Executed in 0.06 second(s).
 
 /*---------------
+
+pron()
 
 o1 = new stzList([ 4, 1, 2, 1, 1, 2, 3, 3, 3 ])
-? o1.DuplicatesRemoved() #--> [ 4, 1, 2, 3 ]
+? o1.DuplicatesRemoved()
+#--> [ 4, 1, 2, 3 ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*---------------
+
+pron()
 
 o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
-? o1.FindAll(1:3) 	#--> [1, 3, 4]
 
-? o1.Contains(7:10)	#--> TRUE	
+? o1.FindAll(1:3)
+#--> [1, 3, 4]
+
+? o1.Contains(7:10)
+#--> TRUE	
+
+proff()
+# Executed in 0.02 second(s).
 
 /*---------------
+
+pron()
 
 o1 = new stzList([ 1:3, 4:6, 1:3, 1:3, 4:6, 7:10 ])
 
@@ -6583,42 +6652,68 @@ o1.Removeduplicates()
 ? @@( o1.Content() )
 #--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ] ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*================
 
-? Q(' [ "A", "B", 3 ] ').IsListInString() 	#--> TRUE
+pron()
 
-? Q(' 1 : 3 ').IsListInString()			#--> TRUE
+? Q(' [ "A", "B", 3 ] ').IsListInString()
+#--> TRUE
 
-? Q(' "A" : "C" ').IsListInString() 		#--> TRUE
+? Q(' 1 : 3 ').IsListInString()
+#--> TRUE
 
-? Q(' "ا" : "ج" ').IsListInString() 		#--> TRUE
+? Q(' "A" : "C" ').IsListInString()
+#--> TRUE
+
+? Q(' "ا" : "ج" ').IsListInString()
+#--> TRUE
+
+proff()
+# Executed in 0.07 second(s).
 
 /*-----------------
 
-? Q(' "A" : "C" ').ToList() #--> [ "A", "B", "C" ]
-? Q(' "ا" : "ج" ').ToList() #--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+pron()
 
-/*===============
+? Q(' "A" : "C" ').ToList()
+#--> [ "A", "B", "C" ]
+
+? Q(' "ا" : "ج" ').ToList()
+#o--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+
+proff()
+# Executed in 0.09 second(s).
+
+/*=============== #narration Generalisation of the Ring "A":"B" syntax 
+
+pron()
 
 # In Ring, you can declare a "contiguous" list of chars
 # from "A" to "F" like this:
 
 StzListQ("A":"F") {
 	? Content()
-	#--> Gives [ "A", "B", "C", "D", "E", "F" ]
+	#--> [ "A", "B", "C", "D", "E", "F" ]
 
-	? ItemAtPosition(4) #--> "D"
+	? ItemAtPosition(4) + NL #--> "D"
 }
 
 # This beeing working only for ASCII chars, Softanza comes
 # with a general solution for any "contiguous" UNIOCDE char:
 
-StzListQ(' "ا" : "ج" ') {
+StzListQ( L(' "ا" : "ج" ') ) {
 	? Content()
-	#--> Gives [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+#	#o--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
 
-	? ItemAtPosition(4) #--> "ت"
+	? ItemAtPosition(4)
+#	#o--> "ت"
 }
+
+proff()
+# Executed in 0.07 second(s).
 
 /*----------------- @Narration : Use of the L() small function
 
@@ -6627,23 +6722,26 @@ pron()
 # As we all know, Ring provides us with this elegant syntax:
 
 aList = "A" : "D"
-? @@( aList )	#--> [ "A", "B", "C", "D" ]
+? @@( aList )
+#--> [ "A", "B", "C", "D" ]
 
 # Unfortunaltely, this is limited to ASCII chars.
 # And if we use it with other UNICODE chars we get
 # just the first char:
 
 aList = "ا" : "ج"
-? @@( aList )	#--> "ا"
+? @@( aList )
+#o--> "ا"
 
 # Fortunately, Softanza solves this by the L() small function:
 
 ? @@( L( ' "ا" : "ج" ') )
-#--> Gives [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+#o--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
 
 # You won't need it but it manages ASCIIs as well:
 
-? @@( L(' "A" : "D" ') ) #--> [ "A", "B", "C", "D" ]
+? @@( L(' "A" : "D" ') )
+#--> [ "A", "B", "C", "D" ]
 
 # Interestingly, you can get an other form of a numbered list of strings:
 
@@ -6679,8 +6777,11 @@ aList = "ا" : "ج"
 #--> [ 1, 2, 3 ]
 
 proff()
+# Executed in 0.23 second(s).
 
 /*================
+
+pron()
 
 aList = [
 	:Arabic,
@@ -6694,43 +6795,56 @@ aList = [
 ]
 
 StzListQ(aList) {
- 	? Classify()
-		#--> [
-		# 	:Arabic  = [ 1, 2, 8 ],
-		# 	:French  = [ 3 ],
-		# 	:Enslish = [ 4, 7 ],
-		#    	:Spanish = [ 5, 6 ]
-		#    ]
 
-	? Classes() 		#--> [ :Arabic, :French, :English, :Spanish ]
-	? NumberOfClasses() 	#--> 4
+ 	? @@SP( Classify() ) + NL
+	#--> [
+	# 	:Arabic  = [ 1, 2, 8 ],
+	# 	:French  = [ 3 ],
+	# 	:Enslish = [ 4, 7 ],
+	#    	:Spanish = [ 5, 6 ]
+	#    ]
+
+	? Classes()
+	#--> [ :Arabic, :French, :English, :Spanish ]
+
+	? NumberOfClasses()
+	#--> 4
 }
 
+proff()
+# Executed in 0.02 second(s).
 
 /*-----------------
+
+pron()
 
 o1 = new stzList([
 	1982, 1964, 1992, 1982, 1964, 2001, 1982, 1992, 2000
 ])
 
-? o1.Classify()
-	#--> [
-	# 	:1982 = [ 1, 4, 7 ],
-	# 	:1964 = [ 2, 5 ],
-	# 	:1992 = [ 3, 8 ],
-	# 	:2001 = [ 6 ],
-	# 	:2000 = [ 9 ]
-	#    ]
+? @@SP( o1.Classify() )
+#--> [
+# 	:1982 = [ 1, 4, 7 ],
+# 	:1964 = [ 2, 5 ],
+# 	:1992 = [ 3, 8 ],
+# 	:2001 = [ 6 ],
+# 	:2000 = [ 9 ]
+#    ]
 
-#NOTE that classes are transformed to strings!
+#NOTE that list items are stringified.
 
-/*-----------------
+proff()
+# Executed in 0.01 second(s).
+
+/*----------------- #narration LIST CLASSIFICATION
+
+pron()
 
 o1 = new stzList([
 	1:5, 3:9, 1:5, 10:15, 3:9, 12:20, 10:15, 1:5, 12:20
 ])
 
-? @@( o1.Classify() )	# Same as Categorize()
+? @@SP( o1.Classify() )	+ NL # Same as Categorize()
 #--> [
 #	[ "[ 1, 2, 3, 4, 5 ]",   [1, 3, 8 ] ],	
 #	[ "[ 3, 4, 5, 6, 7, 8, 9 ]",   [2, 5 ] ],
@@ -6743,7 +6857,8 @@ o1 = new stzList([
 
 # Hence we can say:
 
-? o1.Klass("[ 1, 2, 3, 4, 5 ]") #--> [1, 3, 8 ]
+? @@( o1.Klass("[ 1, 2, 3, 4, 5 ]") ) + NL
+#--> [1, 3, 8 ]
 
 # Here, I used "K" because "Class" is a reserved name by Ring.
 # If you don't like that, use Category() instead.
@@ -6751,7 +6866,7 @@ o1 = new stzList([
 # If you prefer getting the classes in "short form" (i.e. "1:5"
 # instead of normal form "[1, 2, 3, 4, 5 ]", then use this:
 
-? o1.ClassifySF() #--> "@C" for "Contiguous"
+? @@SP( o1.ClassifySF() ) + NL #--> "@C" for "Contiguous" or "Continuous"
 #--> [
 #	[ "1:5",   [1, 3, 8 ] ],	
 #	[ "3:9",   [2, 5 ] ],
@@ -6759,76 +6874,138 @@ o1 = new stzList([
 #	[ "12:20", [6, 9 ]
 #    ]
 
-? o1.ClassesSF() #--> [ "1:5", "3:9", "10:15", "12:20" ]
+? @@( o1.ClassesSF() ) + NL
+#--> [ "1:5", "3:9", "10:15", "12:20" ]
 	
-? o1.KlassSF("1:5") #--> [1, 3, 8]
+? @@( o1.KlassSF("1:5") )
+#--> [1, 3, 8]
+
+proff()
+# Executed in 0.42 second(s).
 
 /*=================
 
-? StzStringQ(:stzList).IsStzClassName() #--> TRUE
-? StzListQ( :ReturnedAs = :stzList ).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ]) #--> TRUE
+pron()
+
+? StzStringQ(:stzList).IsStzClassName()
+#--> TRUE
+
+? StzListQ( :ReturnedAs = :stzList ).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*-----------------
 
-? StzListQ([]).IsListOfStrings() #--> FALSE
-? StzListQ([]).IsListOfNumbers() #--> FALSE
+pron()
+
+? StzListQ([]).IsListOfStrings()
+#--> FALSE
+
+? StzListQ([]).IsListOfNumbers()
+#--> FALSE
+
+proff()
+
+/*----------------- #narration HASHLIST SYNTAX :key = value
+
+pron()
+
+# In Ring, this is how we can declare a hashlist using the :key = value syntax
+
+? StzListQ([ :name = "Mansour", :age = 45 ]).IsHashList()
+#--> TRUE
+
+# Which is equivalent to the fellowing normal list declaration:
+
+? StzListQ([ [ "name", "Mansour"], [ "age", 45] ]).IsHashList()
+#--> TRUE
+
+# But, becareful when using a normal string with =, it won't lead to a hashlist
+
+? StzListQ([ "name" = "Mansour", "age" = 45 ]).IsHashList() + NL
+#--> FALSE
+
+# In fact, what we wrote are two FALSE expressions, since "name" is different
+# from "Mansour" and "age" is different from 45:
+
+? @@( [ "name" = "Mansour", "age" = 45 ] )
+#--> [ 0, 0 ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*-----------------
 
-? StzListQ([ [ "name", "Mansour"], [ "age", 45] ]).IsHashList()	#--> TRUE
-? StzListQ([ :name ="Mansour", :age = 45 ]).IsHashList()	#--> TRUE
-
-# But
-
-? StzListQ([ "name" = "Mansour", "age" = 45 ]).IsHashList()	#--> FALSE
-
-/*-----------------
+pron()
 
 StzListQ([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]) {
+
 	? Numbers() #--> [ 1, 2, 3, 4, 5 ]
 	# You can also say ? OnlyNumbers()
 
 	? NonNumbers() # [ "A", "B", "C", "D" ]
 	# You can also say OnlyNonNumbers()
 
-	? Content() #--> [ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]
-	#NOTE that the list is not altered by Numbers() and NonNumbers() functions
-}
+	? Content()
+	#--> [ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]
 
-/*-----------------
+	# NOTE that the list is not altered by Numbers() and
+	# NonNumbers() functions.
 
-StzListQ([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]) {
+	# Now we alter it by removing numbers
 
 	RemoveNumbers() #--> You can also say RemoveOnlyNumbers()
-	? Content() #--> [ "A", "B", "C", "D" ]
-
+	? Content()
+	#--> [ "A", "B", "C", "D" ] 
 }
 
+proff()
+# Executed in almost 0 second(s).
 
 /*-----------------
+
+pron()
 
 StzListQ([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ]) {
 
-	? NonNumbers() #--> [ "A", "B", "C", "D" ]
-	# You can also say ? OnlyNonNumbers()
+	? NonNumbers()	# You can also say ? OnlyNonNumbers()
+	#--> [ "A", "B", "C", "D" ]
+	
+	RemoveNonNumbers() # Or RemoveOnlyNonNumbers() or RemoveAllExceptNumbers()
+	? Content()
+	#--> [ 1, 2, 3, 4, 5 ]
 
-	RemoveNonNumbers()
-	# You can also say RemoveOnlyNonNumbers() or RemoveAllExceptNumbers()
-
-	? Content() #--> [ 1, 2, 3, 4, 5 ]
 }
 
+proff()
+# Executed in almost 0 second(s).
+
 /*-----------------
+
+pron()
 
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
-o1 - o1.NonNumbers()
-? o1.Content() #-->  [ 1, 2, 3, 4, 5 ]
+? o1 - These( o1.NonNumbers() )
+#-->  [ 1, 2, 3, 4, 5 ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*-----------------
+*/
+pron()
 
 o1 = new stzListOfStrings([ "A", "B", "1", "C", "2", "3", "D", "4", "5" ])
-? o1.FindFirstCS("b", TRUE)	#--> 0
-? o1.FindFirstCS("b", :CS = FALSE)	#--> 2
+
+? o1.FindFirstCS("b", TRUE)
+#--> 0
+
+? o1.FindFirstCS("b", FALSE)
+#--> 2
+
+proff()
 
 /*-----------------
 
