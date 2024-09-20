@@ -467,6 +467,8 @@ func These(p)
 	ok
 
 	_bThese = TRUE
+	_bTheseQ = FALSE
+
 	return p
 	# Must be reset to FALSE everytime These() is used.
 	#TODO Review this!
@@ -562,6 +564,7 @@ func These(p)
 
 func TheseNumbers(p)
 	_bThese = TRUE
+	_bTheseQ = FALSE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -618,6 +621,7 @@ func TheseNumbers(p)
 
 func TheseChars(p)
 	_bThese = TRUE
+	_bTheseQ = FALSE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -674,6 +678,7 @@ func TheseChars(p)
 
 func TheseStrings(p)
 	_bThese = TRUE
+	_bTheseQ = FALSE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -730,6 +735,7 @@ func TheseStrings(p)
 
 func TheseLists(p)
 	_bThese = TRUE
+	_bTheseQ = FALSE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -786,6 +792,7 @@ func TheseLists(p)
 
 func TheseObjects(p)
 	_bThese = TRUE
+	_bTheseQ = FALSE
 
 	if CheckParams()
 		if NOT isObject(p)
@@ -844,6 +851,7 @@ func TheseObjects(p)
 
 func TheseStzNumbers(p)
 	_bThese = TRUE
+	_bTheseQ = FALSE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -900,6 +908,7 @@ func TheseStzNumbers(p)
 
 func TheseStzChars(p)
 	_bThese = TRUE
+	_bTheseQ = FALSE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -956,6 +965,7 @@ func TheseStzChars(p)
 
 func TheseStzStrings(p)
 	_bThese = TRUE
+	_bTheseQ = FALSE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -1012,6 +1022,7 @@ func TheseStzStrings(p)
 
 func TheseStzLists(p)
 	_bThese = TRUE
+	_bTheseQ = FALSE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -1068,6 +1079,7 @@ func TheseStzLists(p)
 
 func TheseStzObjects(p)
 	_bThese = TRUE
+	_bTheseQ = FALSE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -1124,6 +1136,7 @@ func TheseStzObjects(p)
 
 func TheseQtObjects(p)
 	_bThese = TRUE
+	_bTheseQ = FALSE
 
 	if CheckParams()
 		if NOT isList(p)
@@ -1190,6 +1203,8 @@ func TheseQ(p)
 	ok
 
 	_bTheseQ = TRUE
+	_bThese = FALSE
+
 	return p
 	# _bTheseQ Must be reset to FALSE everytime These() is used.
 	#TODO Review this!
@@ -1292,6 +1307,7 @@ func TheseNumbersQ(p)
 	ok
 
 	_bTheseQ = TRUE
+	_bThese = FALSE
 
 	nLen = len(p)
 	anResult = []
@@ -1348,6 +1364,7 @@ func TheseCharsQ(p)
 	ok
 
 	_bTheseQ = TRUE
+	_bThese = FALSE
 
 	nLen = len(p)
 	acResult = []
@@ -1404,6 +1421,7 @@ func TheseStringsQ(p)
 	ok
 
 	_bTheseQ = TRUE
+	_bThese = FALSE
 
 	nLen = len(p)
 	acResult = []
@@ -1460,6 +1478,7 @@ func TheseListsQ(p)
 	ok
 
 	_bTheseQ = TRUE
+	_bThese = FALSE
 
 	nLen = len(p)
 	aResult = []
@@ -1516,6 +1535,7 @@ func TheseObjectsQ(p)
 	ok
 
 	_bTheseQ = TRUE
+	_bThese = FALSE
 
 	nLen = len(p)
 	aoResult = []
@@ -1572,6 +1592,7 @@ func TheseStzNumbersQ(p)
 	ok
 
 	_bTheseQ = TRUE
+	_bThese = FALSE
 
 	nLen = len(p)
 	aoResult = []
@@ -1628,6 +1649,7 @@ func TheseStzCharsQ(p)
 	ok
 
 	_bTheseQ = TRUE
+	_bThese = FALSE
 
 	nLen = len(p)
 	aoResult = []
@@ -1684,6 +1706,7 @@ func TheseStzStringsQ(p)
 	ok
 
 	_bTheseQ = TRUE
+	_bThese = FALSE
 
 	nLen = len(p)
 	aoResult = []
@@ -1740,6 +1763,7 @@ func TheseStzListsQ(p)
 	ok
 
 	_bTheseQ = TRUE
+	_bThese = FALSE
 
 	nLen = len(p)
 	aoResult = []
@@ -1796,6 +1820,7 @@ func TheseStzObjectsQ(p)
 	ok
 
 	_bTheseQ = TRUE
+	_bThese = FALSE
 
 	nLen = len(p)
 	aoResult = []
@@ -1853,6 +1878,7 @@ func TheseQtObjectsQ(p)
 	ok
 
 	_bTheseQ = TRUE
+	_bThese = FALSE
 
 	nLen = len(p)
 	aoResult = []
