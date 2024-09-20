@@ -154,6 +154,9 @@ func ring_exp(n)
 func ring_pow(n, nPower)
 	return pow(n, nPower)
 
+	func power(n, nPower)
+		return pow(n, nPower)
+
 func ring_left(str, n)
 	return left(str, n)
 

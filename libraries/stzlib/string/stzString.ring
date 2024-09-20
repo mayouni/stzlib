@@ -86353,8 +86353,8 @@ n1 = Min(aTemp)
 				decimals(nDec)
 
 				n1 = 0+ cPart1
-				n2 = 0+ cPart2 + (1 / power(10, nDec+1))
-				nStep = 1 / power(10, nDec)
+				n2 = 0+ cPart2 + (1 / pow(10, nDec+1))
+				nStep = 1 / pow(10, nDec)
 
 				anResult = []
 
