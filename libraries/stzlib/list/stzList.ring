@@ -29295,27 +29295,39 @@ class stzList from stzObject
 				aResult = This.SplittedToNParts(pValue)
 				return aResult
 			ok
-
+###
 		but pcOp = "+"
 
 			if isList(pValue)
 
-				if _bThese
-					aResult = This.Copy().ManyAdded(pValue)
-					_bThese = FALSE # Resets the global flag
-				else
-					aResult = This.Copy().ItemAdded(pValue)
-				ok
+				if _bTheseQ
+					aResult = This.ManyAdded(pValue)
+					bTheseQ = FALSE
+					return new stzList(aResult)
 
-				return aResult
+				but _bThese
+					aResult = This.ManyAdded(pValue)
+					_bThese = FALSE # Resets the global flag
+					return aResult
+
+				else
+					aResult = This.ItemAdded(pValue)
+					return aResult
+				ok
 			
 			but @IsStzList(pValue) 
 
-				if _bThese
-					aResult = This.Copy().ManyAdded(pValue)
+				if _bTheseQ
+					aResult = This.ManyAdded(pValue.Content())
+					_bTheseQ = FALSE # Resets the global flag
+
+				but _bThese
+					aResult = This.ManyAdded(pValue.Content())
 					_bThese = FALSE # Resets the global flag
+
 				else
-					aResult = This.Copy().ItemAdded(pValue)
+					aResult = This.ItemAdded(pValue.Content())
+
 				ok
 
 				return new stzList(aResult)
@@ -29327,14 +29339,14 @@ class stzList from stzObject
 					value = pValue.Content()
 				ok
 
-				aTemp = @aContent
-				aTemp + value
+				anPos = This.FindAll(value)
+				aTemp = This.ItemsAtPositionsAdded(anPos)
 				return new stzList(aTemp)
 
 			else
-				aTemp = @aContent
-				aTemp + pValue
-				return aTemp
+				anPos = This.FindAll(pValue)
+				aResult = This.ItemsAtPositionsAdded(anPos)
+				return aResult
 			ok
 
 		but pcOp = "-"
@@ -29342,24 +29354,24 @@ class stzList from stzObject
 			if isList(pValue)
 
 				if _bTheseQ
-					aResult = This.Copy().ManyRemoved(pValue)
+					aResult = This.ManyRemoved(pValue)
 					bTheseQ = FALSE
 					return new stzList(aResult)
 
 				but _bThese
-					aResult = This.Copy().ManyRemoved(pValue)
+					aResult = This.ManyRemoved(pValue)
 					_bThese = FALSE # Resets the global flag
+					return aResult
 
 				else
-					aResult = This.Copy().ItemRemoved(pValue)
+					aResult = This.ItemRemoved(pValue)
+					return aResult
 				ok
-
-				return aResult
 			
 			but @IsStzList(pValue) 
 
 				if _bTheseQ
-					aResult = This.Copy().ManyRemoved(pValue.Content())
+					aResult = This.ManyRemoved(pValue.Content())
 					_bTheseQ = FALSE # Resets the global flag
 
 				but _bThese
@@ -29386,67 +29398,66 @@ class stzList from stzObject
 
 			else
 				anPos = This.FindAll(pValue)
-				aTemp = This.ItemsAtPositionsRemoved(anPos)
-				return aTemp
+				aResult = This.ItemsAtPositionsRemoved(anPos)
+				return aResult
 			ok
 
 		but pcOp = "*"
 
-			if isNumber(pValue) # Duplicates the list pValue times
-				aResult = []
-				if pValue < 0
-					return anResult
+			if isList(pValue)
+
+				if _bTheseQ
+					aResult = This.Copy().MultipliedByMany(pValue)
+					bTheseQ = FALSE
+					return new stzList(aResult)
+
+				but _bThese
+					aResult = This.Copy().MultipliedByMany(pValue)
+					_bThese = FALSE # Resets the global flag
+					return aResult
+
+				else
+					aResult = This.Copy().MultipliedBy(pValue)
+					return aResult
 				ok
+			
+			but @IsStzList(pValue) 
 
-				for i = 1 to pValue
-					aResult + @aContent
-				next
+				if _bTheseQ
+					aResult = This.Copy().MultipliedByMany(pValue.Content())
+					_bTheseQ = FALSE # Resets the global flag
 
-				return aResult
+				but _bThese
+					aResult = This.Copy().MultipliedByMany(pValue.Content())
+					_bThese = FALSE # Resets the global flag
 
-			but @IsStzNumber(pValue)
-				aResult = []
-				nValue = pValue.Content()
+				else
+					aResult = This.Copy().MultipliedBy(pValue.Content())
 
-				if nValue < 0
-					return anResult
 				ok
-
-				for i = 1 to nValue
-					aResult + @aContent
-				next
 
 				return new stzList(aResult)
 
-			but isString(pValue)
+			but @IsStzObject(pValue)
+				if @IsStzNumber(pValue)
+					value = pValue.NumericValue()
+				else
+					value = pValue.Content()
+				ok
 
-				aResult = []
-				nLen = len(@aContent)
-
-				for i = 1 to nLen
-					aResult + ( Q(@aContent[i]).Stringified() + pValue )
-				next
-
-				return aResult
-
-			but @IsStzString(pValue)
-
-				aResult = []
-				nLen = len(@aContent)
-
-				for i = 1 to nLen
-					aResult + ( Q(@aContent[i]).Stringified() + pValue )
-				next
-
+				aResult = This.MultipliedBy(value)
 				return new stzList(aResult)
+
+			else
+				aResult = This.MultipliedBy(pValue)
+				return aResult
 			ok
-
 
 		ok
 
-	  #------------------------------#
-	 #     CALCULATION OPERATORS    #
-	#------------------------------#
+	  #------------------------------------------#
+	 #  MULTIPLYING THE lIST BY A GIVEN VALUE   #
+	#==========================================#
 
 	def MultiplyBy(p)
 		switch ring_type(p)
@@ -29503,33 +29514,14 @@ class stzList from stzObject
 
 		#>
 
-	def ItemsInPositions(panPos)
-		aResult = []
-		for n in panPos
-			aResult + This.Item(n)
-		next
+	#-- @FunctionPassiveForm
 
+	def MultipliedBy(p)
+		aResult = This.Copy().MultiplyByQ(p).Content()
 		return aResult
 
-		def ItemsInPositionsQ(panPos)
-			return new stzList( This.ItemsInPositions(panPos) ) 
-
-	def Minus(paOtherList)
-		/*
-		Example:
-		o1 = new stzList([ "a", "b", "b", "b", "c" ])
-		? o1 - [ "b", "b" ] -->  [ "a", "b", "c" ]
-		*/
-		aTempList = This.List()
-		for item in paOtherList
-			del(aTempList, ring_find(aTempList, item))
-		next
-
-		This.Update( aTempList )
-
-		def MinusQ(paOtherList)
-			This.Minus(paOtherList)
-			return This
+		def Multiplied(p)
+			return This.MultipliedBy(p)
 
 	  #===========================================#
 	 #  EXTENDING THE LIST WITH THE GIVEN ITEMS  #
