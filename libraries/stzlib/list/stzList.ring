@@ -14566,14 +14566,24 @@ class stzList from stzObject
 			This.RemoveW(pCondition)
 
 			def RemoveItemsWQ(pCondition)
-				This.RemoveItemsW(pCondition)
-				return This
+				return This.RemoveWQ(pCondition)
+
+		def RemoveItemW(pCondition)
+			This.RemoveW(pCondition)
+
+			def RemoveItemWQ(pCondition)
+				return This.RemoveWQ(pCondition)
 
 		#>
+
+	#-- @FunctionPassiveForm
 
 	def ItemsRemovedW(pCondition)
 		aResult = This.Copy().RemoveItemsWQ(pCondition).Content()
 		return aResult
+
+		def ItemRemovedW(pCondition)
+			return This.ItemsRemovedW(pCondition)
 
 	  #------------------------------------------------------------#
 	 #   REMOVING ITEMS UNDER A GIVEN CONDITION -- WXT/EXTENDED   #
@@ -14609,14 +14619,24 @@ class stzList from stzObject
 			This.RemoveWXT(pCondition)
 
 			def RemoveItemsWXTQ(pCondition)
-				This.RemoveItemsWXT(pCondition)
-				return This
+				return This.RemoveWXTQ(pCondition)
+
+		def RemoveItemWXT(pCondition)
+			This.RemoveWXT(pCondition)
+
+			def RemoveItemWXTQ(pCondition)
+				return This.RemoveWXTQ(pCondition)
 
 		#>
+
+	#-- @FunctionPassiveForm
 
 	def ItemsRemovedWXT(pCondition)
 		aResult = This.Copy().RemoveItemsWXTQ(pCondition).Content()
 		return aResult
+
+		def ItemRemovedWXT(pCondition)
+			return This.ItemsRemovedWXT(pCondition)
 
 	  #====================================#
 	 #  EXTRACTING AN ITEM FROM THE LIST  #
@@ -29338,11 +29358,17 @@ class stzList from stzObject
 			
 			but @IsStzList(pValue) 
 
-				if _bThese
-					aResult = This.Copy().ManyRemoved(pValue)
+				if _bTheseQ
+					aResult = This.Copy().ManyRemoved(pValue.Content())
+					_bTheseQ = FALSE # Resets the global flag
+
+				but _bThese
+					aResult = This.Copy().ManyRemoved(pValue.Content())
 					_bThese = FALSE # Resets the global flag
+
 				else
-					aResult = This.Copy().ItemRemoved(pValue)
+					aResult = This.Copy().ItemRemoved(pValue.Content())
+
 				ok
 
 				return new stzList(aResult)

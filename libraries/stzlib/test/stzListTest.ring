@@ -6994,7 +6994,7 @@ proff()
 # Executed in almost 0 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzListOfStrings([ "A", "B", "1", "C", "2", "3", "D", "4", "5" ])
@@ -7002,37 +7002,130 @@ o1 = new stzListOfStrings([ "A", "B", "1", "C", "2", "3", "D", "4", "5" ])
 ? o1.FindFirstCS("b", TRUE)
 #--> 0
 
-? o1.FindFirstCS("b", FALSE)
+? o1.FindFirstCS("b", :CS = FALSE)
 #--> 2
 
 proff()
+# Executed in 0.13 second(s).
 
 /*-----------------
 
-o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
-? o1.Contains("a") #--> FALSE
-? o1.Contains("A") #--> TRUE
+pron()
 
-? o1.ContainsNo("C") #--> FALSE
-? o1.ContainsNo("X") #--> TRUE
+o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
+
+? o1.Contains("a")
+#--> FALSE
+
+? o1.Contains("A")
+#--> TRUE
+
+? o1.ContainsNo("C")
+#--> FALSE
+
+? o1.ContainsNo("X")
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s).
 
 /*-----------------
 
+pron()
+
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
-? o1.ItemsW('Q(@item).IsNotANumber()')
+? o1.ItemsWXT('Q(@item).IsNotANumber()')
 #--> [ "A", "B", "C", "D" ]
 
+proff()
+# Executed in 0.13 second(s).
+
 /*-----------------
+
+pron()
 
 o1 = new stzList([ 1, "A":"B", 2, 3, "X", "Y", "Z" ])
 
-o1 - "A":"B"
-? o1.Content()
+? o1 - "A":"B"
 #--> [ 1, 2, 3, "X", "Y", "Z" ]
 
-o1 - [ "X", "Y", "Z" ]
-? o1.Content()
+? o1 - These([ "X", "Y", "Z" ])
+#--> [ 1, [ "A", "B" ], 2, 3 ]
+
+proff()
+# Executed in almost 0 second(s).
+
+/*-----------------
+
+pron()
+
+? Q([ "A", 1:3, "B", 1:3, "C" ]).ItemRemoved(1:3)
+#--> [ "A", "B", "C" ]
+
+? Q([ "A", 1:3, "B", 1:3, "C" ]).ItemRemovedW('isList(This[@i])')
+#--> [ "A", "B", "C" ]
+
+proff()
+# Executed in 0.04 second(s).
+
+/*-----------------
+
+pron()
+
+? Q(1:5) - 3
+#--> [ 1, 2, 4, 5 ]
+
+? ( Q(1:5) - Q(3) ).Content()
+#--> [ 1, 2, 4, 5 ]
+
+? Q([ "A", "B", 1:3, "C" ]) - 1:3
+#--> [ "A", "B", "C" ]
+
+? ( Q([ "A", "B", 1:3, "C" ]) - Q(1:3) ).Content()
+#--> [ "A", "B", "C" ]
+
+proff()
+# Executed in 0.02 second(s).
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzList([ 1, "A":"B", 2, 3, "X", "Y", "Z" ])
+
+? o1 - "A":"B"
+# \____ ____/
+#      V
+#  A normal Ring list
+
+#--> [ 1, 2, 3, "X", "Y", "Z" ]
+
+? o1 - Q("A":"B") - These([ "X", "Y", "Z" ])
+# \______ _____/
+#        V
+#  A stzList object due to the use of Q("A":"B")
+
 #--> [ 1, 2, 3 ]
+
+
+? o1 - Q("A":"B") - These([ "X", "Y", "Z" ]) + 4
+# \___________________ ___________________/
+#                     V
+#             A normal Ring list
+#         due to the use of These()
+
+#--> [ 1, 2, 3, 4 ]
+
+? o1 - Q("A":"B") - TheseQ([ "X", "Y", "Z" ]) + These([ 4, 5 ])
+# \___________________ ____________________/
+#                     V
+#             A stzList object
+#        due to the use of TheseQ()
+
+#--> [ 1, 2, 3, 4, 5 ]
+
+proff()
+# Executed in 0.01 second(s).
 
 /*-----------------
 
