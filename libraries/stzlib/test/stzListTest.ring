@@ -7128,21 +7128,87 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzList([ 1, 2, 3 ])
 
-? @@( o1 * 3 )
+? @@( o1 * 3 )	#--> Leads to a normal Ring list
 #--> [ 1, 2, 3, 1, 2, 3, 1, 2, 3 ]
 
-? @@( o1 * Q(3) / 3 )
+? @@( o1 * Q(3) / 3 ) + NL
+#     \___ ___/   \__ Leads to an output as a normal Ring list
+#         V
+#   A stzList object due to the use of the Q() small function
+
 #--> [ [ 1, 2, 3 ], [ 1, 2, 3 ], [ 1, 2, 3 ] ]
 
+#---
+
+? Q([ "file1", "file2", "file3" ]) * ".ring" + NL
+#--> [ "file1.ring", "file2.ring", "file3.ring" ]
+
+? ( Q([ "file1", "file2", "file3" ]) * Q(".ring") ) .Uppercased() + NL
+#   \______________________ ______________________/ \_____ _____/
+#                          V                              V
+#               StzList object (via Q())           Applied to the stzList object
+
+#--> [ "FILE1.RING", "FILE2.RING", "FILE3.RING" ]
+
+
+? Q([ "file1", "file2", "file3" ]) * Q(".ring").Uppercased()
+#   \_____________ _____________/    \__________ _________/
+#                 V                             V
+#      StzList object (via Q())    An uppercasded ".RING" string
+#
+#   \__________________________ _________________________/
+#                              V
+# ~> Equivalent to: ? Q[ "file1", "file2", "file3" ]) * ".RING"
+
+#--> [ "file1.RING", "file2.RING", "file3.RING" ]
+
 proff()
+# Executed in 0.06 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzList([ "VALUE1", "VALUE2", "VALUE3" ])
+o1.MultiplyBy([ 1001, 1002, 1003 ])
+? @@SP( o1.Content() )
+#--> [
+#	[  "VALUE1", [ 1001, 1002, 1003 ] ],
+#	[  "VALUE2", [ 1001, 1002, 1003 ] ],
+#	[  "VALUE3", [ 1001, 1002, 1003 ] ]
+# ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*-----------------
 */
+pron()
+
+? @@SP( Q([ "VALUE1", "VALUE2", "VALUE3" ]) * [ 1001, 1002, 1003 ] )
+#--> [
+#	[  "VALUE1", [ 1001, 1002, 1003 ] ],
+#	[  "VALUE2", [ 1001, 1002, 1003 ] ],
+#	[  "VALUE3", [ 1001, 1002, 1003 ] ]
+# ]
+
+? @@NL( Q([ 15, 25, 70]) * [ 2, 4, 6 ] )
+#--> [
+#	[ 15, [ 2, 4, 6 ] ],
+#	[ 25, [ 2, 4, 6 ] ],
+#	[ 70, [ 2, 4, 6 ] ]
+# ]
+
+proff()
+# Executed in almost 0 second(s).
+
+/*-----------------
+
 pron()
 
 o1 = new stzList([ 1, 2, 3 ])

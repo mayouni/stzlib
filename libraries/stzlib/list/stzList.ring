@@ -29407,16 +29407,17 @@ class stzList from stzObject
 			if isList(pValue)
 
 				if _bTheseQ
-					aResult = This.Copy().MultipliedByMany(pValue)
+					aResult = This.Copy().MultipliedBy(pValue)
 					bTheseQ = FALSE
 					return new stzList(aResult)
 
 				but _bThese
-					aResult = This.Copy().MultipliedByMany(pValue)
+					aResult = This.Copy().MultipliedByM(pValue)
 					_bThese = FALSE # Resets the global flag
 					return aResult
 
 				else
+
 					aResult = This.Copy().MultipliedBy(pValue)
 					return aResult
 				ok
@@ -29462,41 +29463,51 @@ class stzList from stzObject
 	def MultiplyBy(p)
 		switch ring_type(p)
 		on "NUMBER"
-			aContent = This.Content()
-			nLen = len(aContent)
 
+			nLen = len(@aContent)
 			aResult = []
 
 			for i = 1 to p
 				for j = 1 to nLen
-					aResult + aContent[j]
+					aResult + @aContent[i]
 				next
 			next
 
 			This.Update( aResult )
 
 		on "STRING"
-			for item in This.List()
-				if isString(item)
-					item += p
 
-				but isNumber(item)
-					for i = 1 to p-1
-						item += item
-					next
+			nLen = len(@aContent)
+			aResult = []
 
-				but isList(item)
-					item = StzListQ(item) * p
+			for i = 1 to nLen
+				if isString(@aContent[i])
+					@aContent[i] += p
 				ok
 			next
 
 		on "LIST"
-			// TODO: Produces a list of lists (matrix)
-			StzRaise("Unavailable feature!")
+			/* EXAMPLE
 
+			? Q([ "VALUE1", "VALUE2", "VALUE3" ]) * [ 1001, 1002, 1003 ]
+			#--> [
+			#	[  "VALUE1", [ 1001, 1002, 1003 ] ],
+			#	[  "VALUE2", [ 1001, 1002, 1003 ] ],
+			#	[  "VALUE3", [ 1001, 1002, 1003 ] ]
+			# ]
+
+			*/
+
+			nLen = len(@aContent)
+			aResult = []
+
+			for i = 1 to nLen
+				item = @aContent[i]
+				@aContent[i] = [ item , p ]
+			next
 
 		other
-			StzRaise("Unsupported type!")
+			StzRaise("Can't multiply the list by an object!")
 		off
 
 		#< @FunctionFluentForm
