@@ -14,12 +14,23 @@ func StzFalseObjectQ()
 	func AFalseObject()
 		return new stzFalseObject
 
+	func False()
+		return new stzFalseObject
+
+	func FalseQ()
+		return new stzFalseObject
+
+	func StzFalseQ()
+		return new stzFalseObject
+
 #< @ClassMisspelledForms
 
 class stzFalsObject from stzFalseObject
 class stzFlaseObject from stzFalseObject
 
 #>
+
+class stzFalse from stzFalseObject
 
 class stzFalseObject from stzObject
 	@cVarName = :@falseobject

@@ -7145,10 +7145,10 @@ o1 = new stzList([ 1, 2, 3 ])
 
 #---
 
-? Q([ "file1", "file2", "file3" ]) * ".ring" + NL
+? Q([ "file1", "file2", "file3" ]) * ".ring"
 #--> [ "file1.ring", "file2.ring", "file3.ring" ]
 
-? ( Q([ "file1", "file2", "file3" ]) * Q(".ring") ) .Uppercased() + NL
+? ( Q([ "file1", "file2", "file3" ]) * Q(".ring") ) .Uppercased()
 #   \______________________ ______________________/ \_____ _____/
 #                          V                              V
 #               StzList object (via Q())           Applied to the stzList object
@@ -7168,7 +7168,7 @@ o1 = new stzList([ 1, 2, 3 ])
 #--> [ "file1.RING", "file2.RING", "file3.RING" ]
 
 proff()
-# Executed in 0.06 second(s).
+# Executed in 0.05 second(s).
 
 /*-----------------
 
@@ -7187,7 +7187,7 @@ proff()
 # Executed in almost 0 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 ? @@SP( Q([ "VALUE1", "VALUE2", "VALUE3" ]) * [ 1001, 1002, 1003 ] )
@@ -7207,23 +7207,97 @@ pron()
 proff()
 # Executed in almost 0 second(s).
 
+/*----------------- #TODO check error
+
+pron()
+
+? Q(2+5) = Q(3+4) = Q(9-2) = 7
+
+proff()
+
+/*-----------------
+
+pron()
+
+? ( Q([ "ONE", "TWO", "THREE" ]) * TrueObject() ).Content()
+#                                  \_____ ____/
+#					 V
+#                   A stzTrueObject holding the value TRUE ~> 1
+#  \__________________________ __________________________/
+#                             V
+#       It's like if we wrote the fellowing expression:
+#      ( Q([ "ONE", "TWO", "THREE" ]) * Q(1) ).Content()
+
+? @@( ( Q([ "ONE", "TWO", "THREE" ]) * Q(2) ).Content() )
+#--> [ "ONE", "TWO", "THREE" ]
+
+proff()
+
+/*-----------------
+
+pron()
+
+? @stztype( Q( "X":"Z" ) )
+#-- stzlist
+
+proff()
+# Executed in 0.02 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzList([ 1, 2, 3 ])
+? @@( o1 + Q(4) + 5 )
+#--> [ 1, 2, 3, 4, 5 ]
+
+? @@( (o1 + Q("X" : "Z")).content() )
+#--> [ 1, 2, 3, [ "X", "Y", "Z" ] ]
+
+proff()
+# Executed in 0.02 second(s).
+
 /*-----------------
 
 pron()
 
 o1 = new stzList([ 1, 2, 3 ])
 
-? o1 + "X":"Z"
-# \____ ____/
-#      V
-#  A normal Ring list
+? @IsStzObject(o1)
+#--> TRUE
 
-#--> [ 1, 2, 3, "X", "Y", "Z" ]
+? @IsStzList(o1)
+#--> TRUE
 
-? o1 + Q("X":"Z") - These([ 1, 2, 3 ])
-# \______ _____/
-#        V
-#  A stzList object due to the use of Q("X":"Z")
+proff()
+# Executed in 0.02 second(s).
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzList([ 1, 2, 3 ])
+
+
+? @@( o1 + [ "X", "Y", "Z" ] )
+#          \_______ _______/
+#                  V
+#      Like in Ring, this is added
+#     as an item to end of the list
+
+#--> [ 1, 2, 3, [ "X", "Y", "Z" ] ]
+
+# Object content did not change!
+
+? o1.Content()
+#--> [ 1, 2, 3 ]
+
+? o1 + Q( "X" : "Z" ) - These([ 1, 2, 3 ]) 
+# \________ ________/   \________ _______/
+#          V                     V
+#  A stzList object      Items are removed
+# due to the use of       one by one from
+#   Q() eleveator      the list due to These()
 
 #--> [ "X", "Y", "Z" ]
 

@@ -1,7 +1,13 @@
+#------------------------#
+#  STZNULLOBJECT CLASS   #
+#------------------------#
 
-# Made just to be used in instanciating objects that do
-# nothing, when I am writing test samples, so I am not
-# obliged to write a class under the sample code.
+# Made firstly, just to be used in instanciating objects
+# that do nothing, when I am writing test samples, so
+# I am not obliged to write a class under the sample code,
+# but evolauted to be used in sophisticaded ways while
+# crafting chains of thoughts and natural-coding!
+
 
 /* EXAMPLE
 
@@ -27,8 +33,6 @@ I made this stzNullObject class, so I can write just:
 	? Q(obj).Type()	#--> :Object
 */
 
-_oMainObject = ANullObject() # Used for chains of truth
-
 func StzNullObjectQ()
 	return new stzNullObject
 
@@ -36,6 +40,15 @@ func StzNullObjectQ()
 		return new stzNullObject
 
 	func ANullObject()
+		return new stzNullObject
+
+	func Null()
+		return new stzNullObject
+
+	func NullQ()
+		return new stzNullObject
+
+	func StzNullQ()
 		return new stzNullObject
 
 class stzNullObject from stzObject
