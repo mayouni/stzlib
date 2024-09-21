@@ -29295,7 +29295,7 @@ class stzList from stzObject
 				aResult = This.SplittedToNParts(pValue)
 				return aResult
 			ok
-###
+
 		but pcOp = "+"
 
 			if isList(pValue)
@@ -29306,6 +29306,7 @@ class stzList from stzObject
 					return new stzList(aResult)
 
 				but _bThese
+
 					aResult = This.ManyAdded(pValue)
 					_bThese = FALSE # Resets the global flag
 					return aResult
@@ -29315,37 +29316,27 @@ class stzList from stzObject
 					return aResult
 				ok
 			
-			but @IsStzList(pValue) 
+			but @IsStzObject(pValue) 
 
 				if _bTheseQ
 					aResult = This.ManyAdded(pValue.Content())
 					_bTheseQ = FALSE # Resets the global flag
 
 				but _bThese
-					aResult = This.ManyAdded(pValue.Content())
+					aResult = This.Copy().ManyAdded(pValue.Content())
 					_bThese = FALSE # Resets the global flag
 
 				else
+
 					aResult = This.ItemAdded(pValue.Content())
 
 				ok
 
 				return new stzList(aResult)
 
-			but @IsStzObject(pValue)
-				if @IsStzNumber(pValue)
-					value = pValue.NumericValue()
-				else
-					value = pValue.Content()
-				ok
-
-				anPos = This.FindAll(value)
-				aTemp = This.ItemsAtPositionsAdded(anPos)
-				return new stzList(aTemp)
-
 			else
-				anPos = This.FindAll(pValue)
-				aResult = This.ItemsAtPositionsAdded(anPos)
+
+				aResult = This.ItemAdded(pValue)
 				return aResult
 			ok
 
@@ -29359,6 +29350,7 @@ class stzList from stzObject
 					return new stzList(aResult)
 
 				but _bThese
+
 					aResult = This.ManyRemoved(pValue)
 					_bThese = FALSE # Resets the global flag
 					return aResult
@@ -29375,7 +29367,7 @@ class stzList from stzObject
 					_bTheseQ = FALSE # Resets the global flag
 
 				but _bThese
-					aResult = This.Copy().ManyRemoved(pValue.Content())
+					aResult = This.ManyRemoved(pValue.Content())
 					_bThese = FALSE # Resets the global flag
 
 				else
@@ -29393,8 +29385,8 @@ class stzList from stzObject
 				ok
 
 				anPos = This.FindAll(value)
-				aTemp = This.ItemsAtPositionsRemoved(anPos)
-				return new stzList(aTemp)
+				aResult = This.ItemsAtPositionsRemoved(anPos)
+				return new stzList(aResult)
 
 			else
 				anPos = This.FindAll(pValue)
@@ -29464,14 +29456,22 @@ class stzList from stzObject
 		switch ring_type(p)
 		on "NUMBER"
 
-			nLen = len(@aContent)
-			aResult = []
+			if p = 0
+				aResult = []
 
-			for i = 1 to p
-				for j = 1 to nLen
-					aResult + @aContent[i]
+			but p = 1
+				aResult = @aContent
+
+			else
+				nLen = len(@aContent)
+				aResult = []
+	
+				for i = 1 to p
+					for j = 1 to nLen
+						aResult + @aContent[j]
+					next
 				next
-			next
+			ok
 
 			This.Update( aResult )
 

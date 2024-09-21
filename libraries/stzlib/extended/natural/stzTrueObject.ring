@@ -9,7 +9,17 @@ func StzTrueObjectQ()
 	func ATrueObject()
 		return new stzTrueObject
 
-	
+	func StzTrueQ()
+		return new stzTrueObject
+
+	func True()
+		return new stzTrueObject
+
+	func TrueQ()
+		return new stzTrueObject
+
+class stzTrue from stzTrueObject
+
 class stzTrueObject from stzObject
 
 	@cVarName = :@trueobject
