@@ -3461,6 +3461,8 @@ func IsLocaleList(paList)
 
 #===
 
+# Calling a given method on many objects and get their output in a list
+
 func CallMethod( pcMethod, paOnObjects )
 
 	if NOT ( paOnObjects[1] = "on" and StzListQ(paOnObjects[2]).IsListOfStrings() )
@@ -29301,6 +29303,7 @@ class stzList from stzObject
 			if isList(pValue)
 
 				if _bTheseQ
+
 					aResult = This.ManyAdded(pValue)
 					bTheseQ = FALSE
 					return new stzList(aResult)
@@ -29318,7 +29321,13 @@ class stzList from stzObject
 			
 			but @IsStzObject(pValue) 
 
-				if _bTheseQ
+				if _bAsObject
+					aResult = This.ItemAdded(pValue)
+	
+				but _bAsObjectQ
+					aResult = This.ItemAdded(pValue)
+
+				but _bTheseQ
 					aResult = This.ManyAdded(pValue.Content())
 					_bTheseQ = FALSE # Resets the global flag
 
@@ -29332,7 +29341,12 @@ class stzList from stzObject
 
 				ok
 
-				return new stzList(aResult)
+				if _bAsObject
+					_bAsObject = FALSE
+					return aResult
+				else
+					return new stzList(aResult)
+				ok
 
 			else
 
