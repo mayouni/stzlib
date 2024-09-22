@@ -7276,6 +7276,55 @@ proff()
 */
 pron()
 
+//? @@( ( Q([1, 2, 3]) + Q([ 4, 5 ]) ).Content() )
+#--> [ 1, 2, 3, [ 4, 5 ] ]
+
+? @@( Q([1, 2, 3]) + Obj(Q([ 4, 5 ]))  )
+#--> [ 1, 2, 3, @noname ]
+
+? Q([1, 2, 3]) + ObjQ(Q([ 4, 5 ])) + 6
+#--> [ 1, 2, 3, @noname ]
+
+proff()
+
+/*----------------- #narraration Use of AsObject()
+
+# Used in the fellowing situation:
+# Used in case like:
+
+# ? Q([1, 2]) + AsObject( Q([3, 4]) )
+#--> [ [1,2], Q([3,4]) ]
+
+# ~> Q([3, 4]) which is is a stzList object is then added
+# to the Q([1, 3]) list as an object.
+
+# You will appreciate the role of this small function
+# when you write the same expression without it and
+# see the difference:
+
+# Q([1, 2]) + Q([3, 4])
+#--> A stzList object containing [ 1, 2, [ 3, 4 ] ]
+
+# To add an object and return a stzList, use AsObjectQ():
+
+# Q([1, 2]) + AsObjectQ( Q([3, 4]) )
+# A stzList object containing 
+
+# REMINDER
+
+# ? Q([1,2]) + [3, 4]
+#--> [ 1, 2, [ 3, 4 ] ]
+
+# ? Q([1, 2]) + These([3, 4])
+#--> [ 1, 2, 3, 4 ]
+
+# Q([1, 2]) + TheseQ([3, 4])
+	#--> A stzList object containing [1, 2, 3, 4 ]
+
+/*-----------------
+*/
+pron()
+
 o1 = new stzList([ 1, 2, 3 ])
 
 
@@ -7287,7 +7336,7 @@ o1 = new stzList([ 1, 2, 3 ])
 
 #--> [ 1, 2, 3, [ "X", "Y", "Z" ] ]
 
-# Object content did not change!
+# BE CAREFUL: Object content did not change!
 
 ? o1.Content()
 #--> [ 1, 2, 3 ]

@@ -51,24 +51,26 @@ _aStzFindableTypes = [
 _MainValue = NULL
 _LastValue = NULL
 
-_bThese = FALSE	     # Used in case like this: Q(1:5) - These(3:5) --> [1,2]
-_bTheseQ = FALSE     # Used in case like this: Q(1:5) - TheseQ(3:5) --> Q([1,2])
+_bThese = FALSE	     	# Used in case like: Q(1:5) - These(3:5) 	--> [1,2]
+_bTheseQ = FALSE     	# Used in case like: Q(1:5) - TheseQ(3:5) 	--> Q([1,2])
 
-_bParamCheck = TRUE  # Activates the "# Checking params region" in softanza functions
-		     #--> Set it to FALSE if the functions are used inside large loops
-		     # so you can gain performance (the checks can then be made once,
-		     # by yourself, outside the loop).
+_bAsObject = FALSE	# Used in case like: Q(1:2) + Obj(Q(3:4))	--> [ [1,2], Q([3,4]) ]
+_bAsObjectQ = FALSE
 
-		     # Use the SetParamCheckingTo(FALSE)
+_bParamCheck = TRUE  	# Activates the "# Checking params region" in softanza functions
+		     	#--> Set it to FALSE if the functions are used inside large loops
+		    	# so you can gain performance (the checks can then be made once,
+		     	# by yourself, outside the loop).
+			# Use the SetParamCheckingTo(FALSE)
 
-_bEarlyCheck = TRUE   # Used for the same reason as _bParamCheck
+_bEarlyCheck = TRUE	# Used for the same reason as _bParamCheck
 
 cCacheFileName = "stzcache.txt"
 _CacheFileHandler = NULL
 
 _cCacheMemoryString = ""
 
-_acRingFunctions = [ #TODO: Add the new functions added in Ring 1.18
+_acRingFunctions = [ // #TODO: Add the new functions added in Ring 1.21
 	"acos",
 	"add",
 	"addattribute",
@@ -441,9 +443,87 @@ func AttributesValues(pObject) # Compliments Ring attributes() function
 	func @AttributesValues(pObject)
 		return AttributesValues(pObject)
 
+#====== FUNCTIONS USEDS WITH OPERATORS OVERLOADED ON STZLIST
 
+func Obj(pObject)
+	# Used in the fellowing situation:
+	# Used in case like:
 
-#======
+	# ? Q([1, 2]) + AsObject( Q([3, 4]) )
+	#--> [ [1,2], Q([3,4]) ]
+
+	# ~> Q([3, 4]) which is is a stzList object is then added
+	# to the Q([1, 3]) list as an object.
+
+	# You will appreciate the role of this small function
+	# when you write the same expression without it and
+	# see the difference:
+
+	# Q([1, 2]) + Q([3, 4])
+	#--> A stzList object containing [ 1, 2, [ 3, 4 ] ]
+
+	# To add an object and return a stzList, use AsObjectQ():
+
+	# Q([1, 2]) + AsObjectQ( Q([3, 4]) )
+	# A stzList object containing 
+	
+	# REMINDER
+
+	# ? Q([1,2]) + [3, 4]
+	#--> [ 1, 2, [ 3, 4 ] ]
+
+	# ? Q([1, 2]) + These([3, 4])
+	#--> [ 1, 2, 3, 4 ]
+
+	# Q([1, 2]) + TheseQ([3, 4])
+	#--> A stzList object containing [1, 2, 3, 4 ]
+
+	if CheckParams()
+		if NOT isObject(pObject)
+			StzRaise("Incorrect param type! pObject must be an object.")
+		ok
+	ok
+
+	_bAsObject = TRUE
+	_bAsObjectQ = FALSE
+
+	return pObject
+
+	# Must be reset to FALSE everytime These() is used.
+
+	#< @FunctionAlternativeForms
+
+	func AsObj(pObject)
+		return Obj()
+
+	func AsObject(pObject)
+		return Obj()
+
+	#>
+
+func ObjQ(pObject)
+	if CheckParams()
+		if NOT isObject(pObject)
+			StzRaise("Incorrect param type! pObject must be an object.")
+		ok
+	ok
+
+	_bAsObjectQ = TRUE
+	_bAsObject = FALSE
+
+	return pObject
+
+	# Must be reset to FALSE everytime These() is used.
+
+	#< @FunctionAlternativeForms
+
+	func AsObjQ(pObject)
+		return ObjQ()
+
+	func AsObjectQ(pObject)
+		return ObjQ()
+
+	#>
 
 func These(p)
 
@@ -471,7 +551,6 @@ func These(p)
 
 	return p
 	# Must be reset to FALSE everytime These() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -583,7 +662,6 @@ func TheseNumbers(p)
 
 	return anResult
 	# Must be reset to FALSE everytime TheseNumbers() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -640,7 +718,6 @@ func TheseChars(p)
 
 	return acResult
 	# Must be reset to FALSE everytime TheseChars() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -697,7 +774,6 @@ func TheseStrings(p)
 
 	return acResult
 	# Must be reset to FALSE everytime TheseStrings() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -754,7 +830,6 @@ func TheseLists(p)
 
 	return aResult
 	# Must be reset to FALSE everytime TheseLists() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -811,7 +886,6 @@ func TheseObjects(p)
 
 	return aoResult
 	# Must be reset to FALSE everytime TheseObjects() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -870,7 +944,6 @@ func TheseStzNumbers(p)
 
 	return aoResult
 	# Must be reset to FALSE everytime TheseStzNumbers() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -927,7 +1000,6 @@ func TheseStzChars(p)
 
 	return aoResult
 	# Must be reset to FALSE everytime TheseStzChars() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -984,7 +1056,6 @@ func TheseStzStrings(p)
 
 	return aoResult
 	# Must be reset to FALSE everytime TheseStzStrings() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1041,7 +1112,6 @@ func TheseStzLists(p)
 
 	return aoResult
 	# Must be reset to FALSE everytime TheseStzLists() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1098,7 +1168,6 @@ func TheseStzObjects(p)
 
 	return aoResult
 	# Must be reset to FALSE everytime TheseStzObjects() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1155,7 +1224,6 @@ func TheseQtObjects(p)
 
 	return aoResult
 	# Must be reset to FALSE everytime TheseStzObjects() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1207,7 +1275,6 @@ func TheseQ(p)
 
 	return p
 	# _bTheseQ Must be reset to FALSE everytime These() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1320,7 +1387,6 @@ func TheseNumbersQ(p)
 
 	return new stzListOfNumbers(anResult)
 	# _bTheseQ must be reset to FALSE everytime TheseNumbers() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1377,7 +1443,6 @@ func TheseCharsQ(p)
 
 	return new stzListOfChars(acResult)
 	# _bTheseQ must be reset to FALSE everytime TheseChars() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1434,7 +1499,6 @@ func TheseStringsQ(p)
 
 	return new stzListOfStrings(acResult)
 	# _bTheseQ must be reset to FALSE everytime TheseStrings() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1491,7 +1555,6 @@ func TheseListsQ(p)
 
 	return new stzListOfLists(aResult)
 	# _bTheseQ must be reset to FALSE everytime TheseLists() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1548,7 +1611,6 @@ func TheseObjectsQ(p)
 
 	return new stzListOfObjects(aoResult)
 	# _bTheseQ must be reset to FALSE everytime TheseObjects() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1605,7 +1667,6 @@ func TheseStzNumbersQ(p)
 
 	return new stzListOfNumbers(aoResult)
 	# _bTheseQ must be reset to FALSE everytime TheseStzNumbers() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1662,7 +1723,6 @@ func TheseStzCharsQ(p)
 
 	return aoResult
 	# _bTheseQ must be reset to FALSE everytime TheseStzChars() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1719,7 +1779,6 @@ func TheseStzStringsQ(p)
 
 	return new stzListOfStrings(aoResult)
 	# Must be reset to FALSE everytime TheseStzStrings() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1776,7 +1835,6 @@ func TheseStzListsQ(p)
 
 	return new stzListOfLists(aoResult)
 	# _bTheseQ must be reset to FALSE everytime TheseStzLists() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1833,7 +1891,6 @@ func TheseStzObjectsQ(p)
 
 	return new stzListOfObjects(aoResult)
 	# _bTheseQ = TRUE must be reset to FALSE everytime TheseStzObjects() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
@@ -1891,7 +1948,6 @@ func TheseQtObjectsQ(p)
 
 	return new stzListOfObjects(aoResult)
 	# _bTheseQ must be reset to FALSE everytime TheseStzObjects() is used.
-	#TODO Review this!
 
 	#< @FunctionAlternativeForms
 
