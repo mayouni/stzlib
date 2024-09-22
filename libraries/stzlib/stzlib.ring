@@ -114,6 +114,9 @@
 	load "object/stzObject.ring"
 	load "error/stzObjectError.ring"
 	load "object/stzListOfObjects.ring"
+	load "object/stzNullObject.ring"
+	load "object/stzTrueObject.ring"
+	load "object/stzFalseObject.ring"
 
 # Loading files related to the NUMBER module
 
@@ -204,44 +207,41 @@
 	load "data/stzRandomData.ring"
 	load "data/stzCharData.ring"
 
-# Loading files related to the EXTENDED/I18N module (part of SoftanzaExtend layer)
+# Loading files related to the MAX/I18N module (part of SoftanzaMax layer)
 
-	load "extended/i18n/stzLocale.ring"
-	load "extended/i18n/stzCountry.ring"
-	load "extended/i18n/stzLanguage.ring"
-	load "extended/i18n/stzScript.ring"
-	load "extended/i18n/stzCurrency.ring"
-	load "extended/i18n/stzDate.ring"
-	load "extended/i18n/stzTime.ring"
-	load "extended/i18n/stzStopWords.ring"
+	load "max/i18n/stzLocale.ring"
+	load "max/i18n/stzCountry.ring"
+	load "max/i18n/stzLanguage.ring"
+	load "max/i18n/stzScript.ring"
+	load "max/i18n/stzCurrency.ring"
+	load "max/i18n/stzDate.ring"
+	load "max/i18n/stzTime.ring"
+	load "max/i18n/stzStopWords.ring"
 
-# Loading files related to the EXTENDED/IO module (part of SoftanzaExtended layer)
+# Loading files related to the IO module
 
 	load "io/stzFile.ring"
 	load "error/stzFileError.ring"
 	load "io/stzFolder.ring"
 	load "io/stzExtCode.ring" // #TODO Is this the right place?
 
-# Files related to EXTENDED/NATURAL module (part of SoftanzaExtended layer)
+# Files related to MAX/NATURAL module (part of SoftanzaMax layer)
 
-	load "extended/natural/stzChainOfValue.ring"
-	load "extended/natural/stzChainOfTruth.ring"
-	load "extended/natural/stzEntity.ring"
-	load "extended/natural/stzListOfEntities.ring"
-	load "extended/natural/stzText.ring"
-	load "extended/natural/stzConstraints.ring"
-	load "extended/natural/stzCCode.ring"
-	load "extended/natural/stzNullObject.ring"
-	load "extended/natural/stzTrueObject.ring"
-	load "extended/natural/stzFalseObject.ring"
-	load "extended/natural/stzNaturalCode.ring"
+	load "max/natural/stzChainOfValue.ring"
+	load "max/natural/stzChainOfTruth.ring"
+	load "max/natural/stzEntity.ring"
+	load "max/natural/stzListOfEntities.ring"
+	load "max/natural/stzText.ring"
+	load "max/natural/stzConstraints.ring"
+	load "max/natural/stzCCode.ring"
+	load "max/natural/stzNaturalCode.ring"
 
-# Loading the files related to EXTENDED/SYSTEMS module (par of SoftanzaExtended layer)
+# Loading the files related to MAX/SYSTEMS module (par of SoftanzaMax layer)
 
-	load "extended/systems/stzArchSys.ring"
-	load "extended/systems/stzProfilingSystem.ring"
-	load "extended/systems/stzShowSystem.ring"
-	load "extended/systems/stzTextEncodingSystem.ring"
+	load "max/systems/stzArchSys.ring"
+	load "max/systems/stzProfilingSystem.ring"
+	load "max/systems/stzShowSystem.ring"
+	load "max/systems/stzTextEncodingSystem.ring"
 
 # loading MISC files
 

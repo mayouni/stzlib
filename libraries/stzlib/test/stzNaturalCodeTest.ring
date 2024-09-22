@@ -251,8 +251,6 @@ proff()
 /*------
 */
 
- load "../extended/natural/stzNaturalCode.ring"
-
  pron()
 
  ? QM("ring").IsAQ(:String).

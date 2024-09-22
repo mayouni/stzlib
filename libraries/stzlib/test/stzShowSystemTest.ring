@@ -1,5 +1,5 @@
-load "../extended/systems/stzShowSys.ring"
-load "../extended/systems/stzProfSys.ring"
+load "../max/systems/stzShowSys.ring"
+load "../max/systems/stzProfSys.ring"
 
 /*----
 

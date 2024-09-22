@@ -1,5 +1,5 @@
-load "../extended/systems/stzarchsys.ring"
-load "../extended/systems/stzprofsys.ring"
+load "../max/systems/stzarchsys.ring"
+load "../max/systems/stzprofsys.ring"
 
 pron()
 
