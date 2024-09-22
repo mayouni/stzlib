@@ -1,1 +1,1 @@
-load "stkRingFuncs.ring"
+load "../core/common/stkRingFuncs.ring"
