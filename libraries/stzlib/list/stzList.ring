@@ -29323,28 +29323,26 @@ class stzList from stzObject
 
 				if _bAsObject
 					aResult = This.ItemAdded(pValue)
-	
+					_bAsObject = FALSE
+					return aResult
+
 				but _bAsObjectQ
 					aResult = This.ItemAdded(pValue)
+					_bAsObjectQ = FALSE
+					return new stzList(aResult)
 
 				but _bTheseQ
 					aResult = This.ManyAdded(pValue.Content())
 					_bTheseQ = FALSE # Resets the global flag
+					return new stzList(aResult)
 
 				but _bThese
 					aResult = This.Copy().ManyAdded(pValue.Content())
 					_bThese = FALSE # Resets the global flag
-
+					return aResult
 				else
 
 					aResult = This.ItemAdded(pValue.Content())
-
-				ok
-
-				if _bAsObject
-					_bAsObject = FALSE
-					return aResult
-				else
 					return new stzList(aResult)
 				ok
 

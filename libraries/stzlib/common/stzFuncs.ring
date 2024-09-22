@@ -494,10 +494,10 @@ func Obj(pObject)
 	#< @FunctionAlternativeForms
 
 	func AsObj(pObject)
-		return Obj()
+		return Obj(pObject)
 
 	func AsObject(pObject)
-		return Obj()
+		return Obj(pObject)
 
 	#>
 
@@ -518,10 +518,10 @@ func ObjQ(pObject)
 	#< @FunctionAlternativeForms
 
 	func AsObjQ(pObject)
-		return ObjQ()
+		return ObjQ(pObject)
 
 	func AsObjectQ(pObject)
-		return ObjQ()
+		return ObjQ(pObject)
 
 	#>
 

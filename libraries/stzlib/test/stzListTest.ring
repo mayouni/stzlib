@@ -7273,26 +7273,29 @@ proff()
 # Executed in 0.02 second(s).
 
 /*-----------------
-*/
+
 pron()
 
-//? @@( ( Q([1, 2, 3]) + Q([ 4, 5 ]) ).Content() )
+? @@( ( Q([1, 2, 3]) + Q([ 4, 5 ]) ).Content() )
 #--> [ 1, 2, 3, [ 4, 5 ] ]
 
-? @@( Q([1, 2, 3]) + Obj(Q([ 4, 5 ]))  )
-#--> [ 1, 2, 3, @noname ]
+? Q([1, 2, 3]) + Obj(Q([ 4, 5 ]))
+#--> [ 1, 2, 3, Q([ 4, 5 ] ]
 
 ? Q([1, 2, 3]) + ObjQ(Q([ 4, 5 ])) + 6
-#--> [ 1, 2, 3, @noname ]
+#--> [ 1, 2, 3, Q([ 4, 5 ], 6 ]
 
 proff()
+# Executed in 0.02 second(s).
 
 /*----------------- #narraration Use of AsObject()
+*/
+pron()
 
 # Used in the fellowing situation:
 # Used in case like:
 
-# ? Q([1, 2]) + AsObject( Q([3, 4]) )
+? Q([1, 2]) + AsObject( Q([3, 4]) )
 #--> [ [1,2], Q([3,4]) ]
 
 # ~> Q([3, 4]) which is is a stzList object is then added
@@ -7302,24 +7305,27 @@ proff()
 # when you write the same expression without it and
 # see the difference:
 
-# Q([1, 2]) + Q([3, 4])
+? Q([1, 2]) + Q([3, 4])
 #--> A stzList object containing [ 1, 2, [ 3, 4 ] ]
 
 # To add an object and return a stzList, use AsObjectQ():
 
-# Q([1, 2]) + AsObjectQ( Q([3, 4]) )
+? Q([1, 2]) + AsObjectQ( Q([3, 4]) )
 # A stzList object containing 
 
 # REMINDER
 
-# ? Q([1,2]) + [3, 4]
+? @@( Q([1,2]) + [3, 4] ) + NL
 #--> [ 1, 2, [ 3, 4 ] ]
 
-# ? Q([1, 2]) + These([3, 4])
+? @@( Q([1, 2]) + These([3, 4]) ) + NL
 #--> [ 1, 2, 3, 4 ]
 
-# Q([1, 2]) + TheseQ([3, 4])
-	#--> A stzList object containing [1, 2, 3, 4 ]
+? Q([1, 2]) + TheseQ([3, 4])
+#--> A stzList object containing [1, 2, 3, 4 ]
+
+proff()
+# Executed in 0.03 second(s).
 
 /*-----------------
 */
