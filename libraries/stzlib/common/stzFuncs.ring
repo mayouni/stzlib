@@ -499,6 +499,9 @@ func Obj(pObject)
 	func AsObject(pObject)
 		return Obj(pObject)
 
+	func O(pObject)
+		return Obj(pObject)
+
 	#>
 
 func ObjQ(pObject)
@@ -521,6 +524,9 @@ func ObjQ(pObject)
 		return ObjQ(pObject)
 
 	func AsObjectQ(pObject)
+		return ObjQ(pObject)
+
+	func OQ(pObject)
 		return ObjQ(pObject)
 
 	#>

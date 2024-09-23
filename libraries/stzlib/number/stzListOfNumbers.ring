@@ -6777,21 +6777,7 @@ class stzListOfNumbers from stzList
 
 	def operator(pcOp, pValue)
 		
-		if pcOp = "[]"
-
-			if isNumber(pValue)
-				return This.NumberAt(pValue)
-
-			ok
-
-		but pcOp = "="
-			return This.ToStzList().IsEqualTo(value)
-
-		but pcOp = "=="
-			return This.ToStzList().IsStrictlyEqualTo(value)
-		
-
-		but pcOp = "/"
+		if pcOp = "/"
 
 			if isNumber(pValue)
 				aContent = This.Content()
@@ -6808,11 +6794,12 @@ class stzListOfNumbers from stzList
 			but isObject(pValue) and @IsStzNumber(pValue)
 				aContent = This.Content()
 				nLen = len(aContent)
+				nValue = pValue.NumericValue()
 
 				aResult = []
 
 				for i = 1 to nLen
-					aResult + (aContent[i] / pValue)
+					aResult + (aContent[i] / nValue)
 				next
 
 				return new stzListOfNumbers(aResult)
