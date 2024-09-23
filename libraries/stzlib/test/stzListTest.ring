@@ -7049,7 +7049,7 @@ o1 = new stzList([ 1, "A":"B", 2, 3, "X", "Y", "Z" ])
 ? o1 - "A":"B"
 #--> [ 1, 2, 3, "X", "Y", "Z" ]
 
-? o1 - These([ "X", "Y", "Z" ])
+? @@( o1 - These([ "X", "Y", "Z" ]) )
 #--> [ 1, [ "A", "B" ], 2, 3 ]
 
 proff()
@@ -7068,7 +7068,7 @@ pron()
 proff()
 # Executed in 0.04 second(s).
 
-/*-----------------
+/*==================
 
 pron()
 
@@ -7087,7 +7087,7 @@ pron()
 proff()
 # Executed in 0.02 second(s).
 
-/*=================
+/*---------------
 
 pron()
 
@@ -7222,16 +7222,19 @@ pron()
 ? ( Q([ "ONE", "TWO", "THREE" ]) * TrueObject() ).Content()
 #                                  \_____ ____/
 #					 V
-#                   A stzTrueObject holding the value TRUE ~> 1
+#        A stzTrueObject holding the value TRUE ~> 1
 #  \__________________________ __________________________/
 #                             V
 #       It's like if we wrote the fellowing expression:
 #      ( Q([ "ONE", "TWO", "THREE" ]) * Q(1) ).Content()
 
-? @@( ( Q([ "ONE", "TWO", "THREE" ]) * Q(2) ).Content() )
 #--> [ "ONE", "TWO", "THREE" ]
 
+? @@( ( Q([ "ONE", "TWO", "THREE" ]) * Q(2) ).Content() )
+#--> [ "ONE", "TWO", "THREE", "ONE", "TWO", "THREE" ]
+
 proff()
+# Executed in 0.03 second(s).
 
 /*-----------------
 
@@ -7288,51 +7291,113 @@ pron()
 proff()
 # Executed in 0.02 second(s).
 
-/*----------------- #narraration Use of AsObject()
-*/
+/*----------------- #narration Use of AsObject() with + operator
+
 pron()
 
-# Used in the fellowing situation:
-# Used in case like:
-
-? Q([1, 2]) + AsObject( Q([3, 4]) )
-#--> [ [1,2], Q([3,4]) ]
-
-# ~> Q([3, 4]) which is is a stzList object is then added
-# to the Q([1, 3]) list as an object.
-
-# You will appreciate the role of this small function
-# when you write the same expression without it and
-# see the difference:
-
-? Q([1, 2]) + Q([3, 4])
-#--> A stzList object containing [ 1, 2, [ 3, 4 ] ]
-
-# To add an object and return a stzList, use AsObjectQ():
-
-? Q([1, 2]) + AsObjectQ( Q([3, 4]) )
-# A stzList object containing 
-
-# REMINDER
+# When you add a normal list to a stzList object,
+# you get a normal list:
 
 ? @@( Q([1,2]) + [3, 4] ) + NL
 #--> [ 1, 2, [ 3, 4 ] ]
 
+# To return the result in a stzList object (to make
+# other actions on it), you elevate the added list
+# with a Q() elevator like this:
+
+? @@( ( Q([1, 2]) + Q([3, 4]) ).Content() ) + NL
+#      \__________ __________/
+#                 V
+#          A stzList object
+
+#--> [ 1, 2, [ 3, 4 ] ]
+
+# Now: what if you need to add a stzList and not
+# a normal list? You use AsObject() like this:
+
+? @@( Q([1, 2]) + AsObject( Q([3, 4]) ) ) + NL # Or Obj() or simply O()
+#--> [ 1, 2, Q([3,4]) ]
+
+# ~> Q([3, 4]) which is is a stzList object is then added
+# to the Q([1, 3]) list as an object.
+
+# To add an object and return a stzList, use AsObjectQ():
+
+? @@( ( Q([1, 2]) + AsObjectQ( Q([3, 4]) ) ).Content() ) # Or ObjQ() or simply OQ()
+#      \________________ ________________/
+#                       V
+# 		 A stzList object
+
+#--> [ 1, 2, Q([3,4]) ]
+
+# REMINDER: You can add many items at once using These:
+
 ? @@( Q([1, 2]) + These([3, 4]) ) + NL
 #--> [ 1, 2, 3, 4 ]
 
-? Q([1, 2]) + TheseQ([3, 4])
-#--> A stzList object containing [1, 2, 3, 4 ]
+? @@( ( Q([1, 2]) + TheseQ([3, 4]) ).Content() )
+#      \_____________ _____________/
+#                    V
+#            A stzList object
+#     due to the use of Q in TheseQ()
+
+#--> [1, 2, 3, 4 ]
 
 proff()
 # Executed in 0.03 second(s).
 
+/*----------------- #TODO ERROR
+
+pron()
+
+oNamed = StzNamedStringQ(:mystr = "Hello!")
+
+
+proff()
+
 /*-----------------
-*/
+
+pron()
+
+? Basmalah() + NL
+#o--> ﷽
+
+oNamedList = StzNamedListQ(:MyList = [ "A", "B", "C" ])
+
+o1 = new stzList([ 1, 2, 3, [ "X", "Y", "Z" ], 4, oNamedList, 5 ])
+
+? @@( o1 - [ "X", "Y", "Z" ] ) + NL
+#--> [ 1, 2, 3, 4, mylist, 5 ]
+#		      |
+#	The name list called mylist
+# You can check it using the small function		#TODO ERROR!
+#	 ? v(:MyList).Content()
+
+# NOTE: o1 initial content stays as is.
+
+# Let's try to remove the oNamedList
+
+? @@( ( o1 - oNamedList ).Content() ) + NL
+#      \_______ _______/
+#              V
+#       A stzList object
+
+#--> [ 1, 2, 3, [ "X", "Y", "Z" ], 4, mylist, 5 ]
+
+# If you need to return the output in a normal list,
+# use the Obj() small function like this:
+
+? @@( o1 - O(oNamedList) ) # Or Obj() of AsObject()
+#--> [ 1, 2, 3, [ "X", "Y", "Z" ], 4, 5 ]
+
+proff()
+# Executed in 0.05 second(s).
+
+/*-----------------
+
 pron()
 
 o1 = new stzList([ 1, 2, 3 ])
-
 
 ? @@( o1 + [ "X", "Y", "Z" ] )
 #          \_______ _______/
@@ -7362,8 +7427,6 @@ o1 = new stzList([ 1, 2, 3 ])
 #                 V
 #      A normal Ring list due
 #        the use of These()
-#     Note that -Q("X":"Z") has no
-#    effect because o1 contains 1:3
 
 #--> [ 1, 2, 3, 4, 5, 6 ]
 
@@ -7380,58 +7443,91 @@ proff()
 
 /*=================
 
+pron()
+
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
-o1 - [ "A", "B", "C", "D" ]
-? o1.Content()
+? o1 - These([ "A", "B", "C", "D" ])
 #--> [ 1, 2, 3, 4, 5 ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*-----------------
+
+pron()
 
 o1 = new stzList([ "A", "B", 1, "C", 2, 3, "D", 4, 5 ])
-o1 - o1.ItemsW( :Where = 'Q(@item).IsNotANumber()' )
-? o1.Content() #-->  [ 1, 2, 3, 4, 5 ]
+
+? o1 - These( o1.ItemsW('NOT isNumber(This[@i])') )
+#             \_______________ ________________/
+#                             V
+#                   [ "A", "B", "C", "D" ]
+
+#--> [ 1, 2, 3, 4, 5 ]
+
+proff()
+# Executed in 0.05 second(s).
 
 /*================
+
+pron()
 
 StzListQ([ "by", "except"]) { 
-	? IsMadeOfOneOrMoreOfThese([ :by, :except, :stopwords ]) #--> TRUE
 
-	# Same as
-	? IsMadeOfSome([ :by, :except, :stopwords ]) #--> TRUE
+	? IsMadeOfOneOrMoreOfThese([ :by, :except, :stopwords ])
+	#--> TRUE
+
+	# Same as:
+
+	? IsMadeOfSome([ :by, :except, :stopwords ])
+	#--> TRUE
 }
 
-/*-----------------
-
-? IsBoolean(FALSE)	#--> TRUE
-? Q(TRUE).IsBoolean()	#--> TRUE
+proff()
+# Executed in 0.02 second(s).
 
 /*-----------------
+
+pron()
+
+? IsBoolean(FALSE)
+#--> TRUE
+
+? Q(TRUE).IsBoolean()
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
+
+/*-----------------
+
+pron()
 
 o1 = new stzList([ "by", "except", "stopwords" ])
-? o1.IsMadeOfThese([ :by, :except, :stopwords ]) #--> TRUE
+? o1.IsMadeOfThese([ :by, :except, :stopwords ])
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*================
 
-? StzListQ([ "q", "r", [ 2, 1 ] ]).ToCode() # Default output by Ring list2code()
-#--> [
-#	"q",
-#	"r",
-#	[
-#		2,
-#		1
-#	]
-#    ]
+pron()
 
-# Or you can use this alternative short form:
-? @@( [ "q", "r", [ 2, 1 ] ] )
-#--> same as ComputableForm()
-
-# If you want to simplify the output by eliminating spaces:
-
-? @@( [ "q", "r", [ 2, 1 ] ] ) # S for Simplified. Same as ComputerFormSimplified()
+? StzListQ([ "q", "r", [ 2, 1 ] ]).ToCode()
 #--> [ "q", "r", [ 2, 1 ] ]
 
+# Or you can use this alternative short form:
+
+? @@( [ "q", "r", [ 2, 1 ] ] ) + NL # same as ComputableForm()
+#--> [ "q", "r", [ 2, 1 ] ]
+
+proff()
+# Executed in almost 0 second(s).
+
 /*===============
+
+pron()
 
 ? StzListQ([ "q", "r", [ 2, 1 ] ]).Contains([ 2, 1 ])
 #--> TRUE
@@ -7445,41 +7541,72 @@ o1 = new stzList([ "by", "except", "stopwords" ])
 ? StzListQ([ "q", "r", [ 2, 1] ]).IsEqualTo([ "q", "r", [2, 1] ])
 #--> TRUE
 
+proff()
+# Executed in 0.03 second(s).
+
 /*-----------------
 
-? StzListQ([]).Contains(NULL)		#--> FALSE
-? StzListQ([NULL]).Contains(NULL)	#--> TRUE
+pron()
 
-? StzListQ([]).IsListOfStrings()	#--> FALSE
+? StzListQ([]).Contains(NULL)
+#--> FALSE
 
-? StzListQ([ NULL, NULL, NULL]).IsListOfStrings() #--> TRUE
+? StzListQ([NULL]).Contains(NULL)
+#--> TRUE
+
+? StzListQ([]).IsListOfStrings()
+#--> FALSE
+
+? StzListQ([ NULL, NULL, NULL]).IsListOfStrings()
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*==================
+
+pron()
 
 o1 = new stzList([ "fa", "bo" , "wy" , "wo" ])
-o1 - [ "bo", "wo" ]
-? o1.Content()
+? @@( o1 - These([ "bo", "wo" ]) )
 #--> [ "fa", "wy" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*==================
 
-? IsListOfStrings([ "baba", "ommi", "jeddy" ])		#--> TRUE
-? Q([ "baba", "ommi", "jeddy" ]).IsListOfStrings()	#--> TRUE
+pron()
+
+? IsListOfStrings([ "baba", "ommi", "jeddy" ])
+#--> TRUE
+
+? Q([ "baba", "ommi", "jeddy" ]).IsListOfStrings()
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
 
 /*------------------
+
+pron()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	? VizFind("A")
 }
-
 #-->
 #	 [ "A", "B", "D", "A", "C", "A", "E", "B", "D", "A", "F", "C" ]
 #	  --^--------------^---------^-------------------^------------
 
-# WARINING: works only for list of chars
+# WARNING: works only for list of chars
 #TODO : Generalize it for list of strings and other types
 
+proff()
+# Executed in 0.10 second(s).
+
 /*------------------ TODO: Add this function
+
+pron()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	? VizFindXT("A")
@@ -7491,7 +7618,11 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 #	  [ "A", "B", "D", "A", "C", "A", "E", "B", "D", "A", "F", "C" ]
 #   "A" :  --^--------------^---------^-------------------^------------ (4)
 
+proff()
+
 /*------------------ (TODO)
+
+pron()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	? VizFindMany([ "A", "B", "C", "D" ])
@@ -7504,6 +7635,8 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 #   "B" :  -------^----.---------.--------------^----.--------------.--
 #   "C" :  ------------.---------^-------------------.--------------^--
 #   "D" :  ------------^-----------------------------.-----------------
+
+proff()
 
 /*------------------ (TODO)
 
@@ -7520,12 +7653,16 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 #   "C" :  ------------.---------^-------------------.--------------^-- (2)
 #   "D" :  ------------^-----------------------------^----------------- (2)
 
-/*===================
+/*=================== #TODO Error
+
+pron()
 
 StzListOfStringsQ([ "A" , "B", "C", "A", "D", "A" ]) {
 	ReplaceNextNthOccurrence(2, :Of = "A", :With = "*", :StartingAt = 2 )
 	? Content() #--> [ "A" , "B", "C", "A", "D", "*" ]
 }
+
+proff()
 
 /*------------------
 
@@ -9907,8 +10044,37 @@ o1 = new stzNumber(12500)
 #--> 12000	# values of numbers that are hosted in strings!
 
 proff()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.04 second(s) in Ring 1.18
+# Executed in 0.07 second(s).
+
+/*-----------
+*/
+pron()
+
+? @@( Q([ 3, 6, 9 ]) / 3 )
+#     \_____ _____/
+#           V
+#    A stzList object
+
+#--> [ [ 3 ], [ 6 ], [ 9 ] ]
+
+? @@( QQ([ 3, 6, 9 ]) / 3 ) + NL
+#     \______ _____/
+#            V
+#     A stzListOfNumber object
+
+#--> [ 1, 2, 3 ]
+
+# In both examples above, You can return
+# stzList object instead of a normal list:
+
+? ( Q([ 3, 6, 9 ]) / Q(3) ).StzType()
+#--> stzlist
+
+? ( QQ([ 3, 6, 9 ]) / Q(3) ).StzType()
+#--> stzlistofnumbers
+
+proff()
+# Executed in 0.04 second(s).
 
 /*===========
 

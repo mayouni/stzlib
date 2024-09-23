@@ -2315,37 +2315,73 @@ Dotless LETTERS
 		return _cAllahAsString
 
 	func Basmalah()
-		return BasmalahAsChar()
-
-	func BasmalahAsChar()
 		return _cBasmalahAsChar
+
+		func Bismillah()
+			return _cBasmalahAsChar
+
+		func BasmalahAsChar()
+			return _cBasmalahAsChar
+
+		func BismillahAsChar()
+			return _cBasmalahAsChar
 
 	func BasmalahAsString()
 		return _cBasmalahAsString
 
+		func BismillahAsString()
+			return _cBasmalahAsString
+
 	func Muhammed()
-		return MuhammedAsChar()
+		return _cMuhammedAsChar
 
 		func Muhammad()
-			return Muhammed()
+			return _cMuhammedAsChar
 
-	func MuhammedAsChar()
-		return _cMuhammedAsChar
+		func MuhammedAsChar()
+			return _cMuhammedAsChar
+
+		func Mohammed()
+			return _cMuhammedAsChar
+
+		func Mohammad()
+			return _cMuhammedAsChar
 
 	func MuhammedAsString()
 		return _cMuhammedAsString
 
+		func MuhammadAsString()
+			return _cMuhammedAsString
+
+		func MohammedAsString()
+			return _cMuhammedAsString
+
+		func MohammadAsString()
+			return _cMuhammedAsString
+
 	func SalatAlaMuhammed()
-		return SalatAlaMuhammedAsChar()
+		return _cSalatAlaMuhammedAsChar
 
 		func SalatAlaMuhammad()
-			return SalatAlaMuhammed()
+			return _cSalatAlaMuhammedAsChar
 
-	func SalatAlaMuhammedAsChar()
-		return _cSalatAlaMuhammedAsChar
+		func SalatAlaMohammed()
+			return _cSalatAlaMuhammedAsChar
+
+		func SalatAlMohammad()
+			return _cSalatAlaMuhammedAsChar
+
+		func SalatAlaMuhammedAsChar()
+			return _cSalatAlaMuhammedAsChar
 
 	func SalatAlaMuhammedAsString()
 		return _cSalatAlMuhammedAsString
+
+		func SalatAlaMuhammadAsString()
+			_cSalatAlMuhammedAsString
+
+		func SalatAlaMohammadAsString()
+			_cSalatAlMuhammedAsString
 
 	func ArabicDhammah()
 		return _cArabicDhammah

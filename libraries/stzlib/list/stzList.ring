@@ -29284,11 +29284,11 @@ class stzList from stzObject
 			but isList(pValue)
 				aResult = This.DistributeOver(pValue)
 				return aResult
-
+	
 			but @IsStzList(pValue)
 				aResult = This.DistributeOver(pValue.Content())
 				return new stzList(aResult)
-
+	
 			but @IsStzNumber(pValue)
 				aResult = This.SplittedToNParts(pValue.NumericValue())
 				return new stzList(aResult)
@@ -29374,22 +29374,33 @@ class stzList from stzObject
 			
 			but @IsStzList(pValue) 
 
-				if _bTheseQ
+				if _bAsObject
+					aResult = This.ItemRemoved(pValue)
+					_bAsObject = FALSE
+					return aResult
+
+				but _bAsObjectQ
+					aResult = This.ItemRemoved(pValue)
+					_bAsObjectQ = FALSE
+					return new stzList(aResult)
+
+				but _bTheseQ
 					aResult = This.ManyRemoved(pValue.Content())
 					_bTheseQ = FALSE # Resets the global flag
+					return new stzList(aResult)
 
 				but _bThese
-					aResult = This.ManyRemoved(pValue.Content())
+					aResult = This.Copy().ManyRemoved(pValue.Content())
 					_bThese = FALSE # Resets the global flag
-
+					return aResult
 				else
-					aResult = This.Copy().ItemRemoved(pValue.Content())
 
+					aResult = This.ItemRemoved(pValue.Content())
+					return new stzList(aResult)
 				ok
 
-				return new stzList(aResult)
-
 			but @IsStzObject(pValue)
+
 				if @IsStzNumber(pValue)
 					value = pValue.NumericValue()
 				else
@@ -29401,6 +29412,7 @@ class stzList from stzObject
 				return new stzList(aResult)
 
 			else
+
 				anPos = This.FindAll(pValue)
 				aResult = This.ItemsAtPositionsRemoved(anPos)
 				return aResult
@@ -29411,39 +29423,50 @@ class stzList from stzObject
 			if isList(pValue)
 
 				if _bTheseQ
-					aResult = This.Copy().MultipliedBy(pValue)
+					aResult = This.ManyMultipliedBy(pValue)
 					bTheseQ = FALSE
 					return new stzList(aResult)
 
 				but _bThese
-					aResult = This.Copy().MultipliedByM(pValue)
+
+					aResult = This.ManyMultipliedBy(pValue)
 					_bThese = FALSE # Resets the global flag
 					return aResult
 
 				else
-
-					aResult = This.Copy().MultipliedBy(pValue)
+					aResult = This.ItemMultipliedBy(pValue)
 					return aResult
 				ok
 			
 			but @IsStzList(pValue) 
 
-				if _bTheseQ
-					aResult = This.Copy().MultipliedByMany(pValue.Content())
+				if _bAsObject
+					aResult = This.ItemMultipliedBy(pValue)
+					_bAsObject = FALSE
+					return aResult
+
+				but _bAsObjectQ
+					aResult = This.ItemMultipliedBy(pValue)
+					_bAsObjectQ = FALSE
+					return new stzList(aResult)
+
+				but _bTheseQ
+					aResult = This.ManyMultipliedBy(pValue.Content())
 					_bTheseQ = FALSE # Resets the global flag
+					return new stzList(aResult)
 
 				but _bThese
-					aResult = This.Copy().MultipliedByMany(pValue.Content())
+					aResult = This.Copy().ManyMultipliedBy(pValue.Content())
 					_bThese = FALSE # Resets the global flag
-
+					return aResult
 				else
-					aResult = This.Copy().MultipliedBy(pValue.Content())
 
+					aResult = This.ItemMultipliedBy(pValue.Content())
+					return new stzList(aResult)
 				ok
 
-				return new stzList(aResult)
-
 			but @IsStzObject(pValue)
+
 				if @IsStzNumber(pValue)
 					value = pValue.NumericValue()
 				else
@@ -29544,6 +29567,12 @@ class stzList from stzObject
 		return aResult
 
 		def Multiplied(p)
+			return This.MultipliedBy(p)
+
+		def ItemMultiplied(p)
+			return This.MultipliedBy(p)
+
+		def ItemMultipliedBy(p)
 			return This.MultipliedBy(p)
 
 	  #===========================================#
