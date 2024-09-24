@@ -7546,7 +7546,7 @@ proff()
 # Executed in 0.04 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 ? Basmalah() + NL
@@ -7845,11 +7845,11 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 #   "D" :  ------------^-----------------------------^----------------- (2)
 
 /*=================== #TODO Error
-
+*/
 pron()
 
-StzListOfStringsQ([ "A" , "B", "C", "A", "D", "A" ]) {
-	ReplaceNextNthOccurrence(2, :Of = "A", :With = "*", :StartingAt = 2 )
+StzListQ([ "A" , "B", "C", "A", "D", "A" ]) {
+	ReplaceNextNthOccurrenceS(2, :Of = "A", :With = "*", :StartingAt = 2 )
 	? Content() #--> [ "A" , "B", "C", "A", "D", "*" ]
 }
 

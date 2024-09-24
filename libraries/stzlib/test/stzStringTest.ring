@@ -1,7 +1,7 @@
 load "../stzlib.ring"
 
 /*====
-*/
+
 pron()
 
 o1 = new stzString("me you all the others")
@@ -13,7 +13,7 @@ o1 = new stzString("me and all the others")
 #--> TRUE
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*----
 
@@ -6446,7 +6446,7 @@ o1.Replace("JS", :By@ = '
 StopProfiler()
 
 /*------------------
-
+*/
 StartProfiler()
 
 o1 = new stzListOfStrings([ "Ring", "Python", "PHP", "JS" ])
@@ -6456,20 +6456,14 @@ o1 = new stzListOfStrings([ "Ring", "Python", "PHP", "JS" ])
 ? o1.ConcatenateXT(:Using = ", ")
 #--> Ring, Python, PHP, JS
 
-? o1.ConcatenateXT([ :Using = ", ", :LastSep = ", and " ])
-#--> Ring, Python, PHP, and JS
-
 ? o1.Concatenate()
 #--> RingPythonPHPJS
 
 ? o1.ConcatenateUsing(", ")
 #--> Ring, Python, PHP, JS
 
-? o1.ConcatenateUsingXT(", ", :LastSep = ", and ")
-#--> Ring, Python, PHP, and JS
-
 StopProfiler()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
 
 /*==================
 

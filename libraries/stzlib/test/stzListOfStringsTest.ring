@@ -984,67 +984,18 @@ o1 = new stzListOfStrings([ "aaa", "bbb", "ccc" ])
 ? o1.SortedInDescending() #--> [ "ccc", "bbb", "aaa" ]
 ? o1.Content()		  #--> [ "aaa", "bbb", "ccc" ]
 
-/*---------------
-
-pron()
-
-o1 = new stzListOfStrings([ "abcde", "bdace", "ebadc", "debac", "edcba" ])
-? o1.StringsSortedInAscending()
-#--> [ 	"abcde",
-#       "bdace",
-#       "debac",
-#       "ebadc",
-#       "edcba"
-#     ]
-
-? o1.CharsOfEachStringSortedInAscending()
-#--> [ 	"abcde",
-# 	"abcde",
-# 	"abcde",
-# 	"abcde",
-# 	"abcde"
-#    ]
-
-? o1.CharsOfEachStringSortedInDescending()
-#--> [ 	"edcba", 
-#	"edcba",
-#	"edcba",
-#	"edcba",
-#	"edcba"
-#     ]
-
-? o1.CharsSortingOrders()
-#--> [ 	:Ascending,
-# 	:Unsorted,
-# 	:Unsorted,
-# 	:Unsorted,
-#	:Descending
-#     ]
-
-? o1.NumberOfStringsWhereCharsAreSortedInAscending()
-#--> 1
-
-? o1.NumberOfStringsWhereCharsAreSortedInDescending()
-#--> 1
-
-? o1.NumberOfStringsWhereCharsAreUnsorted()
-#--> 3
-
-proff()
-# Executed in 1.13 second(s)
-
 /*---------------- TODO: check result correctness!
 
 pron()
 
-o1 = new stzListOfStrings([ "tunis", "tripoli", "cairo", "casablanca" ])
+o1 = new stzList([ "tunis", "tripoli", "cairo", "casablanca" ])
 
-o1.SortByInDescending('Q(@string).NumberOfChars()')
+o1.SortByInDescending('len(This[@item])')
 ? o1.Content()
 
 proff()
 
-*----------------
+/*----------------
 
 pron()
 
@@ -1153,9 +1104,6 @@ o1 = new stzListOfStrings([ "tom", "sam", "dan" ])
 ? @@(o1.Unicodes())
 #--> [ [ 116,111,109 ],[ 115,97,109 ],[ 100,97,110 ] ]
 
-# Same as
-
-//? @@( ListOfStringsToUnicodes([ "tom", "sam", "dan" ]) )
 
 proff()
 # Executed in 0.07 second(s)

@@ -10167,12 +10167,12 @@ class stzString from stzObject
 
 		if isString(pnStartingAt)
 			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstPosition, :FirstString, :FirstStringItem ], :CS = FALSE)
+				:First, :FirstPosition, :FirstString, :FirstItem ], :CS = FALSE)
 
 				pnStartingAt = 1
 			
 			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastPosition, :LastString, :LastStringItem ], :CS = FALSE)
+				:Last, :LastPosition, :LastString, :LastItem ], :CS = FALSE)
 
 				pnStartingAt = This.NumberOfStrings()
 			ok
@@ -10292,12 +10292,12 @@ class stzString from stzObject
 
 		if isString(pnStartingAt)
 			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstPosition, :FirstString, :FirstStringItem ], :CS = FALSE)
+				:First, :FirstPosition, :FirstString, :FirstItem ], :CS = FALSE)
 
 				pnStartingAt = 1
 			
 			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastPosition, :LastString, :LastStringItem ], :CS = FALSE)
+				:Last, :LastPosition, :LastString :LastItem ], :CS = FALSE)
 
 				pnStartingAt = This.NumberOfStrings()
 			ok
