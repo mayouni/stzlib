@@ -71,6 +71,15 @@ func TempVars()
 	func TempVarNames()
 		return TempVars()
 
+	func @TempVars()
+		return TempVars()
+
+	func @TempVarsNames()
+		return TempVars()
+
+	func @TempVarNames()
+		return TempVars()
+
 func TempVals()
 	aResult = []
 	nLen = len(_aVars)
@@ -80,12 +89,17 @@ func TempVals()
 
 	return aResult
 
+	func @TempVals()
+		return TempVals()
+
 func TempVarsVals()
 	return _aVars
 
 	func TempVarsXT()
 		return TempVarsVals()
 
+	func @TempVarsVals()
+		return TempVarsVals()
 
 func TempVar()
 	if len(_var) = 0
@@ -97,6 +111,12 @@ func TempVar()
 	def TempVarName()
 		return TempVar()
 
+	func @TempVar()
+		return TempVar()
+
+	def @TempVarName()
+		return TempVar()
+
 func TempVal()
 	if len(_var) = 0
 		return NULL
@@ -104,10 +124,19 @@ func TempVal()
 		return _var[2]
 	ok
 
+	func @TempVal()
+		return TempVal()
+
 func TempVarVal()
 	return _var
 
 	func TempVarXT()
+		return TempVarVal()
+
+	func @TempVarVal()
+		return TempVarVal()
+
+	func @TempVarXT()
 		return TempVarVal()
 
 func V(p)
@@ -127,11 +156,20 @@ func V(p)
 		return ReadV(p)
 	ok
 
+	func @V(p)
+		return V(p)
+
 func VrVl(p)
 	aResult = Association([ p, v(p) ])
 	return aResult
 
 	func VarVal(p)
+		return VrVl(p)
+
+	func @VrVl(p)
+		return VrVl(p)
+
+	func @VarVal(p)
 		return VrVl(p)
 
 func vxt(cVarName)
@@ -148,6 +186,9 @@ func vxt(cVarName)
 	aResult = [ cVarName, v(cVarName) ]
 	return aResult
 	
+	func @vxt(cVarName)
+		return vxt(cVarName)
+
 func SetV(paVarNamesAndTheirValues)
 	if isList(paVarNamesAndTheirValues) and
 	   len(paVarNamesAndTheirValues) = 2 and
@@ -188,6 +229,8 @@ func SetV(paVarNamesAndTheirValues)
 
 	_var = _aVars[len(_aVars)]
 
+	func @SetV(paVarNamesAndTheirValues)
+		SetV(paVarNamesAndTheirValues)
 
 func ReadV(p)
 	oHash = new stzHashList(_aVars)
@@ -197,6 +240,9 @@ func ReadV(p)
 	else
 		return _aVars[n][2]
 	ok
+
+	func @ReadV(p)
+		return ReadV(p)
 
 func ReadManyV(paVars)
 	nLen = len(paVars)
@@ -208,6 +254,9 @@ func ReadManyV(paVars)
 
 	return aResult
 
+	func @ReadManyV(paVars)
+		return ReadManyV(paVars)
+
 func DataVars()
 	nLen = len(_aVars)
 	aResult = []
@@ -216,9 +265,14 @@ func DataVars()
 	next
 	return aResult
 
+	func @DataVars()
+		return DataVars()
+
 func DataVarsXT()
 	return _aVars
 
+	func @DataVarsXT()
+		return DataVarsXT()
 
 func Vr(pacVars)
 
@@ -249,23 +303,35 @@ func Vr(pacVars)
 		ok
 	next
 
-func oldVar()
+	func @Vr(pacVars)
+		return Vr(pacVars)
+
+func OldVar()
 	return _oldVar
 
-func oldVarname()
+	func @OldVar()
+		return OldVar()
+
+func OldVarname()
 	if len(oldVar()) = 0
 		return []
 	else
 		oldvar()[1]
 	ok
 
-func oldVal()
+	func @OldVarname()
+		return OldVarname()
+
+func OldVal()
 
 	if len(oldvar()) = 0
 		return ""
 	else
 		return oldvar()[2]
 	ok
+
+	func @OldVal()
+		return OldVal()
 
 func Vl(paVals)
 
@@ -319,8 +385,14 @@ func Vl(paVals)
 		_oldVar = _var
 	ok
 
+	func @Vl(paVals)
+		Vl(paVals)
+
 func Length(p)
 	return len(p)
+
+	func @Length(p)
+		return len(p)
 
 # Used for ternary operator in Python
 

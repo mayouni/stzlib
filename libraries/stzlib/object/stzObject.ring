@@ -1758,6 +1758,7 @@ class stzObject
 		ok
 
 		@cVarName = pcVarName
+		SetV([ [pcVarName, This ] ])	# Save the name to read it with v(pcVarName)
 
 		#< @FunctionAlternativeForms
 

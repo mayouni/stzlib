@@ -7346,17 +7346,207 @@ pron()
 proff()
 # Executed in 0.03 second(s).
 
-/*----------------- #TODO ERROR
+/*----------------- #narration HOW TO RETRIVE A NAMED OBJECT USING v()
 
 pron()
 
-oNamed = StzNamedStringQ(:mystr = "Hello!")
+o1 = StzNamedStringQ(:mystr = "Hello!")
 
+? v(:mystr).Content()
+#--> "Hello!"
+
+o2 = StzNamedListQ(:mylst = 1:3 )
+? v(:mylst).Content()
+#--> [ 1, 2, 3 ]
 
 proff()
+# Executed in 0.02 second(s).
 
 /*-----------------
 
+pron()
+
+o1 = new stzNumber(12500)
+
+? o1 / 500
+#--> 25
+
+# Note that the / operator does not change the o1 content:
+
+? o1.Content()
+#--> 12500
+
+proff()
+# Executed in 0.08 second(s).
+
+/*-----------------
+
+pron()
+
+? Q(12500) / 500
+#--> 25
+
+? ( Q(12500) / Q(500) ) * 2
+#  \_________ _______/
+#            V
+#    A stzNumber object due to the use of Q() in Q(500)
+
+#--> 50
+
+proff()
+# Executed in 0.14 second(s).
+
+/*-----------------
+
+pron()
+
+? Q(12500) + 500
+#--> 13000
+
+? ( Q(12500) + Q(500) ) * 2
+#  \_________ _______/
+#            V
+#    A stzNumber object due to the use of Q() in Q(500)
+
+#--> 26000
+
+proff()
+# Executed in 0.14 second(s).
+
+/*-----------------
+
+pron()
+
+? Q(15) * 7
+#--> 105
+
+? ( Q(15) * Q(7) ) * 2
+#  \_________ _______/
+#            V
+#    A stzNumber object due to the use of Q() in Q(500)
+
+#--> 210
+
+proff()
+# Executed in 0.11 second(s).
+
+/*-----------------
+
+pron()
+
+? Q(15) - 7
+#--> 8
+
+? ( Q(15) - Q(7) ) * 2
+#  \_________ _______/
+#            V
+#    A stzNumber object due to the use of Q() in Q(500)
+
+#--> 16
+
+proff()
+# Executed in 0.09 second(s).
+
+/*-----------------
+
+pron()
+
+? Q("ABCDEFGHI") / 3
+#--> [ "ABC", "DEF", "GHI" ]
+
+? ( Q("ABCDEFGHI") / Q(3) ).StzType() + NL
+#--> stzlist
+
+? ( Q("ABCDEFGHI") / Q(3) ).Lowercased()
+#--> [ "abc", "def", "ghi" ]
+
+? Q("ABC") + "D"
+#--> "ABCD"
+
+? ( Q("ABC") + Q("D") ).Lowercased()
+#--> "abcd"
+
+proff()
+# Executed in 0.05 second(s).
+
+/*-----------------
+
+pron()
+
+? Q("ABC") * 3
+#--> "ABCABCABC"
+
+? ( Q("ABC") * Q(3) ).StzType() + NL
+#--> stzstring
+
+? ( Q("ABC") * Q(3) ).Lowercased()
+#--> "abcabcabc"
+
+? Q("ABC") * " -> "
+#--> "A -> B -> C -> "
+
+? ( Q("ABC") * Q(" -> ") ).Lowercased()
+#--> "a -> b -> c -> "
+
+proff()
+# Executed in 0.02 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzString("A**BC***DE***")
+? o1 - "*"
+#--> ABCDE
+
+# Note that o1 content did not change:
+
+? o1.Content()
+#--> A**BC***DE***
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-----------------
+
+pron()
+
+? Q("A**BC***DE***") - 3	# Remove the last 3 chars
+#--> "A**BC***DE"
+
+? Q("A**BC***DE***") - "*"
+#--> ABCDE
+
+? ( Q("A**BC***DE***") - Q("*") ).StzType() + NL
+#--> stzstring
+
+? ( Q("A**BC***DE***") - Q("*")  ).Lowercased()
+#--> abcde
+
+proff()
+# Executed in 0.02 second(s).
+
+/*-----------------
+
+pron()
+
+? Q("ABCABCABC") / 3	# Remove the last 3 chars
+#--> [ "ABC", "ABC", "ABC" ]
+
+? Q("ABC-ABC-ABC") / "-"
+#--> [ "ABC", "ABC", "ABC" ]
+
+? ( Q("ABC-ABC-ABC") / Q("-") ).StzType() + NL
+#--> stzlist
+
+? ( Q("ABC-ABC-ABC") / Q("-")  ).Lowercased()
+#--> [ "abc", "abc", "abc" ]
+
+proff()
+# Executed in 0.04 second(s).
+
+/*-----------------
+*/
 pron()
 
 ? Basmalah() + NL
@@ -7370,8 +7560,9 @@ o1 = new stzList([ 1, 2, 3, [ "X", "Y", "Z" ], 4, oNamedList, 5 ])
 #--> [ 1, 2, 3, 4, mylist, 5 ]
 #		      |
 #	The name list called mylist
-# You can check it using the small function		#TODO ERROR!
-#	 ? v(:MyList).Content()
+# You can check it using the small function		
+	 ? v(:MyList).Content()
+#	 #--> [ "A", "B", "C" ]
 
 # NOTE: o1 initial content stays as is.
 
@@ -10047,7 +10238,7 @@ proff()
 # Executed in 0.07 second(s).
 
 /*-----------
-*/
+
 pron()
 
 ? @@( Q([ 3, 6, 9 ]) / 3 )

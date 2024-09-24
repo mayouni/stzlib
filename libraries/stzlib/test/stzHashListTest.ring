@@ -282,11 +282,10 @@ o1 = new stzHashList([
 #--> [ @hashlist ]
 
 proff()
-# Executed in 0.07 second(s) in Ring 1.19
-# Executed in 0.26 second(s) in Ring 1.17
+# Executed in 0.21 second(s) in Ring 1.21
 
 /*-----------
-
+*/
 pron()
 
 o1 = new stzHashList([

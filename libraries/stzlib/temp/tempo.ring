@@ -33,7 +33,7 @@ proff()
 # Executed in 0.07 second(s).
 
 /*====
-*/
+
 pron()
 
 ? @@( Q(1:3) + 4 )
@@ -58,10 +58,10 @@ pron()
 #--> 18
 
 proff()
-# Executed in 0.04 second(s).
+# Executed in 0.08 second(s).
 
 /*----
-*/
+
 pron()
 
 # Q() elevates 1:3 to a StzList object.me()
@@ -113,7 +113,7 @@ pron()
 #--> -10
 
 proff()
-# Executed in 0.04 second(s).
+# Executed in 0.07 second(s).
 
 /*---- #narration Using Q() * n , Q() * Q(n), QQ() * n, and QQ() * Q(n)
 
@@ -123,7 +123,7 @@ pron()
 # The * operator duplicates the list 3 times
 
 ? @@( Q(1:3) * 3 )
-#--> [ [ 1, 2, 3 ], [ 1, 2, 3 ], [ 1, 2, 3 ] ]
+#--> [ 1, 2, 3, 1, 2, 3, 1, 2, 3 ]
 
 # We do the same and return not a list but a
 # stzList object by using Q(3) instead of 3
@@ -134,7 +134,7 @@ pron()
 # Let's check the content of the returned object:
 
 ? @@( ( Q(1:3) * Q(3) ).Content() )
-#--> [ [ 1, 2, 3 ], [ 1, 2, 3 ], [ 1, 2, 3 ] ]
+#--> [ 1, 2, 3, 1, 2, 3, 1, 2, 3 ]
 
 # We can chain other actions on the stzList object
 
@@ -164,14 +164,14 @@ pron()
 #--> 30
 
 proff()
-# Executed in 0.04 second(s).
+# Executed in 0.07 second(s).
 
 /*---- #narration semantics of Q() / n
 
 pron()
 
 # Q() elevates 1:9 to a stzList. Divided by 3, the list
-# is actuallu splitted onto 3 parts
+# is actually splitted into 3 parts
 
 ? @@( Q(1:9) / 3 ) + NL
 #--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
@@ -182,27 +182,12 @@ pron()
 ? @@( QQ(1:9) / 3 ) + NL
 #--> [ 0.33, 0.67, 1, 1.33, 1.67, 2, 2.33, 2.67, 3 ]
 
-# In case of a list of strings, dividing it by 3 always
-# splits it into 3 parts
-
-? @@( Q("A":"I") / 3 ) + NL
-#--> [ [ "A", "B", "C" ], [ "D", "E", "F" ], [ "G", "H", "I" ] ]
-
-# Using QQ() with "A":"I" elevates it to a stzListOfChars,
-# but nothing changes in the beavior of "/" operator
-
-? @@( QQ("A":"I") / 3 ) + NL
-#--> [ [ "A", "B", "C" ], [ "D", "E", "F" ], [ "G", "H", "I" ] ]
-
 # Using Q(3) as the divisor (and not only 3) ensures the output
-# is a Softanza object, allowing for further method chaining
+# is a Softanza object, allowing for further method chaining...
 
 # Let's check this by getting the return type
 
 ? StzType( Q(1:9) / Q(3) )
-#--> stzList
-
-? ( Q("A":"I") / Q(3) ).StzType() + NL
 #--> stzList
 
 # Hence, chaining actions becomes possible:
@@ -217,7 +202,7 @@ pron()
 #--> abcdefghi
 
 proff()
-# Executed in 0.17 second(s).
+# Executed in 0.15 second(s).
 
 /*====
 
@@ -1094,7 +1079,7 @@ SetRound(3)
 #--> 6
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.13 second(s)
 
 /*==========
 
