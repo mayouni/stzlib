@@ -57,6 +57,8 @@ _bTheseQ = FALSE     	# Used in case like: Q(1:5) - TheseQ(3:5) 	--> Q([1,2])
 _bAsObject = FALSE	# Used in case like: Q(1:2) + Obj(Q(3:4))	--> [ [1,2], Q([3,4]) ]
 _bAsObjectQ = FALSE
 
+_bModifiable = FALSE	# Used with operators that modify stz objects
+
 _bParamCheck = TRUE  	# Activates the "# Checking params region" in softanza functions
 		     	#--> Set it to FALSE if the functions are used inside large loops
 		    	# so you can gain performance (the checks can then be made once,
@@ -530,6 +532,17 @@ func ObjQ(pObject)
 		return ObjQ(pObject)
 
 	#>
+
+func M(poStzObject)
+
+	if CheckParams()
+		if NOT (isObject(poStzObject) and IsStzObject(poStzObject))
+			StzRaise("Incorrect param type! poStzObject must be a Softanza object.")
+		ok
+	ok
+
+	_bModifiable = TRUE
+	return poStzObject
 
 func These(p)
 

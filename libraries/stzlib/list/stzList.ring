@@ -29342,7 +29342,12 @@ class stzList from stzObject
 					return aResult
 				else
 
-					aResult = This.ItemAdded(pValue.Content())
+					value = pValue.Content()
+					if @IsStzNumber(pValue)
+						value = pValue.NumericValue()
+					ok
+
+					aResult = This.ItemAdded(value)
 					return new stzList(aResult)
 				ok
 
@@ -29359,12 +29364,14 @@ class stzList from stzObject
 				if _bTheseQ
 					aResult = This.ManyRemoved(pValue)
 					bTheseQ = FALSE
+
 					return new stzList(aResult)
 
 				but _bThese
 
 					aResult = This.ManyRemoved(pValue)
 					_bThese = FALSE # Resets the global flag
+
 					return aResult
 
 				else
@@ -29375,23 +29382,28 @@ class stzList from stzObject
 			but @IsStzList(pValue) 
 
 				if _bAsObject
+
 					aResult = This.ItemRemoved(pValue)
 					_bAsObject = FALSE
+
 					return aResult
 
 				but _bAsObjectQ
 					aResult = This.ItemRemoved(pValue)
 					_bAsObjectQ = FALSE
+
 					return new stzList(aResult)
 
 				but _bTheseQ
 					aResult = This.ManyRemoved(pValue.Content())
 					_bTheseQ = FALSE # Resets the global flag
+
 					return new stzList(aResult)
 
 				but _bThese
 					aResult = This.Copy().ManyRemoved(pValue.Content())
 					_bThese = FALSE # Resets the global flag
+
 					return aResult
 				else
 
@@ -29409,12 +29421,14 @@ class stzList from stzObject
 
 				anPos = This.FindAll(value)
 				aResult = This.ItemsAtPositionsRemoved(anPos)
+
 				return new stzList(aResult)
 
 			else
 
 				anPos = This.FindAll(pValue)
 				aResult = This.ItemsAtPositionsRemoved(anPos)
+
 				return aResult
 			ok
 
