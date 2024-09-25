@@ -4830,7 +4830,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzSplitter(1:12)
@@ -4852,13 +4852,46 @@ proff()
 
 /*--------------
 
-*/
 pron()
 
 o1 = new stzString("r  in  g language is like a r  ing at your fingertips!")
-? @@SP( o1.SplitAtSections([ [ 1, 8 ], [ 29, 34 ] ]) )
+? @@( o1.SplitAtSections([ [ 1, 8 ], [ 29, 34 ] ]) )
+#--> [ "r  in  g", "r  ing" ]
 
 proff()
+# Executed in 0.08 second(s).
+
+/*--------------
+
+pron()
+
+o1 = new stzString("Softanza is an acc  elera tive library f   or Ring.")
+
+? @@( o1.FindZZ([ "acc  elera tive", "f   or" ]) )
+#--> [ [ 16, 30 ], [ 40, 45 ] ]
+
+o1.RemoveSpacesInSections([ [ 16, 30 ], [ 40, 45 ] ])
+? o1.Content()
+#--> Softanza ia an accelerative library for Ring.
+
+proff()
+# Executed in 0.06 second(s).
+
+/*--------------
+*/
+pron()
+
+o1 = new stzString("Sof tan za is an acc  elera tive library for Rin g .")
+
+? @@( o1.FindZZ([ "Sof tan za", "acc  elera tive", "Rin g ." ]) )
+#--> [ [ 1, 10 ], [ 18, 32 ], [ 46, 52 ] ]
+
+o1.RemoveSpacesInSections([ [ 1, 10 ], [ 18, 32 ], [ 46, 52 ] ])
+? o1.Content()
+#--> Softanza is an accelerative library for Ring.
+
+proff()
+# Executed in 0.06 second(s).
 
 /*--------------
 */

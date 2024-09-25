@@ -52852,10 +52852,9 @@ n1 = Min(aTemp)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
-? this.numberofchars()
-stop()
+
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSections(paSections)
-		acResult = This.AntiSections( paSections )
+		acResult = This.Sections( paSections )
 
 		return acResult
 
@@ -52931,7 +52930,7 @@ stop()
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSectionsIB(paSections)
-		acResult = This.AntiSections( paSections )
+		acResult = This.Sections( paSections )
 
 		return acResult
 
@@ -72391,19 +72390,47 @@ stop()
 	#-------------------------------------#
 
 	def RemoveSpacesInSections(paSections)
-		nLen = len(paSections)
-		aoSections = This.SectionsQ(paSections).ToListOfStzStrings()
-		acNewSections = []
 
-		for i = 1 to nLen
-			acNewSections + aoSections[i].SpacesRemoved()
+		# Getting the parts non concerned with the removal of spaces
+
+		acAntiSections = This.AntiSections(paSections)
+		nLenAntiSections = len(acAntiSections)
+
+		# Getting the sections without spaces
+
+		nLenSections = len(paSections)
+		oaStzStr = This.SectionsQ(paSections).ToListOfStzStrings()
+
+		acSections = []
+		for i = 1 to nLenSections
+			acSections + oaStzStr[i].WithoutSpaces()
 		next
 
-		This.ReplaceSectionsByMany(paSections, acNewSections)
+		# Constructing the string again
+
+		cResult = ""
+
+		if paSections[1][1] = 1
+			for i = 1 to nLenAntiSections
+				cResult += (acSections[i] + acAntiSections[i])
+			next
+
+			cResult += acSections[nLenSections]
+		else
+			for i = 1 to nLenSections
+				cResult += (acAntiSections[i] + acSections[i])
+			next
+
+			cResult += acAntiSections[nLenAntiSections]
+		ok
+
+		This.UpdateWith(cResult)
+
 
 		def RemoveSpacesInSectionsQ(paSections)
 			This.RemoveSpacesInSections()
 			return This
+
 
 	def SpacesInSectionsRemoved(paSections)
 		cResult = This.Copy().RemoveSpacesInSectionsQ(paSections).Content()
