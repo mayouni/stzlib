@@ -72410,18 +72410,37 @@ n1 = Min(aTemp)
 
 		cResult = ""
 
-		if paSections[1][1] = 1
-			for i = 1 to nLenAntiSections
-				cResult += (acSections[i] + acAntiSections[i])
-			next
+		if nLenAntiSections > nLenSections
 
-			cResult += acSections[nLenSections]
-		else
 			for i = 1 to nLenSections
 				cResult += (acAntiSections[i] + acSections[i])
 			next
 
 			cResult += acAntiSections[nLenAntiSections]
+
+		but nLenSections > nLenAntiSections
+
+			for i = 1 to nLenAntiSections
+				cResult += (acSections[i] + acAntiSections[i])
+			next
+
+			cResult += acSections[nLenSections]
+
+		else // nLenSections = nLenAntiSections
+
+			if paSections[1][1] = 1
+	
+				for i = 1 to nLenAntiSections
+					cResult += (acSections[i] + acAntiSections[i])
+				next
+
+			else
+
+				for i = 1 to nLenSections
+					cResult += (acAntiSections[i] + acSections[i])
+				next
+
+			ok
 		ok
 
 		This.UpdateWith(cResult)

@@ -4878,7 +4878,7 @@ proff()
 # Executed in 0.06 second(s).
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzString("Sof tan za is an acc  elera tive library for Rin g .")
@@ -4892,6 +4892,38 @@ o1.RemoveSpacesInSections([ [ 1, 10 ], [ 18, 32 ], [ 46, 52 ] ])
 
 proff()
 # Executed in 0.06 second(s).
+
+/*--------------
+
+pron()
+
+o1 = new stzString("R  in  g language is like a r  ing at your fingertips!")
+
+? o1.Sections([ [ 1, 8 ], [ 29, 34 ] ])
+#--> [ "R  in  g", "r  ing" ]
+
+o1.RemoveSpacesInSections([ [ 1, 8 ], [ 29, 34 ] ])
+? o1.Content()
+#--> "Ring language is like a ring at your fingertips!"
+
+proff()
+# Executed in 0.02 second(s).
+
+/*--------------
+*/
+
+pron()
+
+o1 = new stzString("Ring langua  ge is like a r  ing at your fing er  tips!")
+
+? @@( o1.FindZZ([ "langua  ge", "r  ing", "fing er  tips!" ]) )
+#--> [ [ 6, 15 ], [ 27, 32 ], [ 42, 55 ] ]
+
+o1.RemoveSpacesInSections([ [ 6, 15 ], [ 27, 32 ], [ 42, 55 ] ])
+? o1.Content()
+#--> Ring language is like a ring at your fingertips!
+
+proff()
 
 /*--------------
 */
