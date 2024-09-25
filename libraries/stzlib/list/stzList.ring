@@ -14314,7 +14314,7 @@ class stzList from stzObject
 		#>
 
 	def SectionRemoved(n1, n2)
-		aResult = This.Copy().RemoveSectionQ(n1, n2)
+		aResult = This.Copy().RemoveSectionQ(n1, n2).Content()
 		return aResult
 
 	  #-------------------------------------#
@@ -66514,7 +66514,7 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		if This.IsEqualtToCS( @ring_reverse(This.Content()), pCaseSensitive) = TRUE
+		if This.IsEqualtToCS( ring_reverse(This.Content()), pCaseSensitive) = TRUE
 			return TRUE
 		else
 			return FALSE

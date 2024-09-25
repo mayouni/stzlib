@@ -5,26 +5,14 @@ func StzRuntimeQ(pacVarNames)
 func ring_packages()
 	return packages()
 
-	func @ring_packages()
-		return packages()
-
 func ring_globals()
 	return globals()
-
-	func @ring_globals()
-		return globals()
 
 func ring_locals()
 	return locals()
 
-	func @ring_locals()
-		return locals()
-
 func ring_objects()
 	return objects()
-
-	func @ring_objects()
-		return objects()
 
 func ring_max(n1, n2)
 	return max(n1, n2)

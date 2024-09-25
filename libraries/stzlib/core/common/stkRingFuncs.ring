@@ -83,9 +83,6 @@ func ring_sort(paList)
 	func ring_sort1(paList)
 		return ring_sort(paList)
 
-	func @ring_sort(paList)
-		return sort(paList)
-
 func ring_sort2(paList, n)
 	aResult = sort(paList, n)
 	return aResult

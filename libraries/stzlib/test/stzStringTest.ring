@@ -4796,7 +4796,7 @@ o1.RemoveSpaces()
 #--> [ "ring", "ring", "ring" ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.03 second(s)
 
 /*--------------
 
@@ -4827,15 +4827,47 @@ pron()
 #--> "r  in  g"
 
 proff()
+# Executed in 0.01 second(s).
+
+/*--------------
+*/
+pron()
+
+o1 = new stzSplitter(1:12)
+
+? @@( o1.SplitAtSections([ [3, 5], [8, 9] ]) ) + NL
+#--> [ [ 1, 2 ], [ 6, 7 ], [ 10, 12 ] ]
+
+? @@( o1.SplitAtSections([ [1, 12 ] ]) ) + NL
+#--> [ ]
+
+? @@( o1.SplitAtSections([ [1, 5], [ 8, 9 ] ]) ) + NL
+#--> [ [ 6, 7 ], [ 10, 12 ] ]
+
+? @@( o1.SplitAtSections([ [3, 5], [8, 9], [12, 12] ]) )
+#--> [ [ 1, 2 ], [ 6, 7 ], [ 10, 11 ] ]
+
+proff()
+# Executed in 0.09 second(s).
 
 /*--------------
 
+*/
+pron()
+
+o1 = new stzString("r  in  g language is like a r  ing at your fingertips!")
+? @@SP( o1.SplitAtSections([ [ 1, 8 ], [ 29, 34 ] ]) )
+
+proff()
+
+/*--------------
+*/
 pron()
 
 o1 = new stzString("r  in  g language is like a r  ing at your fingertips!")
 
-acSubStrXT =  o1.SubStringsBetweenAndTheirSectionsXT("r","g")
-//? @@(acSubStrXT)
+acSubStrXT =  o1.SubStringsBoundedByIBZZ([ "r","g" ])
+? @@SP(acSubStrXT) + NL
 #--> [
 #	[ "r in g", [  1, 8  ] ],
 #	[ "r ing",  [ 29, 34 ] ],
@@ -4845,23 +4877,25 @@ acSubStrXT =  o1.SubStringsBetweenAndTheirSectionsXT("r","g")
 
 oHashList = QR(acSubStrXT, :stzHashList)
 acWithoutSpaces = oHashList.KeysQR(:stzListOfStrings).WithoutSapces()
+? @@(acWithoutSpaces) + NL
 #-->  [ "ring", "ring", "rfing" ]
 
 aSectionsPos = Q(acWithoutSpaces).FindW('This[@i] = "ring"')
+? @@(aSectionsPos)
 #--> [1, 2]
 
-aSectionsToBeUnSpacified = oHashList.ValuesQ().ItemsAtPositions(aSectionsPos)
-//? @@(aSectionsToBeUnSpacified)
+aSections = oHashList.ValuesQ().ItemsAtPositions(aSectionsPos)
+? @@(aSections) + NL
 #--> [ [ 1, 8 ], [ 29, 34 ] ]
 
-o1.UnspacifySections(aSectionsToBeUnSpacified)
+o1.RemoveSpacesInSections(aSections)
 ? o1.Content()
 
 proff()
 # Executed in 0.12 second(s)
 
 /*-------------
-
+*/
 pron()
 #                      4      11      19   24
 #                      v      v       v    v
@@ -4869,16 +4903,18 @@ o1 = new stzString("   r  in  g  is a rin  g  ")
 ? @@( o1.FindAnyBoundedByIBZZ([ "r", "g" ]) )
 #--> [ [ 4, 11 ], [ 19, 24 ] ]
 
-? o1.SubStringsBoundedByIBQR([ "r","g" ], :stzListOfStrings).WithoutSapces()
+? QR( o1.SubStringsBoundedByIB([ "r","g" ]), :stzListOfStrings).WithoutSapces()
 #NOTE: WithoutSapces() is misspelled and the correct form is WithoutSpaces!
 # Despite that, softanza accepts it ;)
+
 #--> [ "ring", "ring" ]
 
 proff()
-#--> Executed in 0.07 second(s)
+# Executed in 0.04 second(s) in Ring 1.21.
+# Executed in 0.07 second(s) in Ring 1.18
 
 /*-------------- SUBSTRONGS & SUBSTRINKS #narration #funny
-
+*/
 pron()
 
 o1 = new stzListOfStrings([
@@ -6446,7 +6482,7 @@ o1.Replace("JS", :By@ = '
 StopProfiler()
 
 /*------------------
-*/
+
 StartProfiler()
 
 o1 = new stzListOfStrings([ "Ring", "Python", "PHP", "JS" ])
@@ -6463,7 +6499,7 @@ o1 = new stzListOfStrings([ "Ring", "Python", "PHP", "JS" ])
 #--> Ring, Python, PHP, JS
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*==================
 
@@ -7220,9 +7256,13 @@ o1.RemoveThisLastChar("}")
 ? Q("Riiiiinngg").UniqueChars() #--> [ "R", "i", "n", "g" ]
 
 /*---
+*/
+pron()
 
 ? StzListOfStringsQ([ "A", "A", "A", "B", "B", "C" ]).
 	ContainsCS("a", :CS = FALSE) #--> TRUE
+
+proff()
 
 /*---
 
