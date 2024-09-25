@@ -4910,7 +4910,6 @@ proff()
 # Executed in 0.02 second(s).
 
 /*--------------
-*/
 
 pron()
 
@@ -4926,7 +4925,7 @@ o1.RemoveSpacesInSections([ [ 6, 15 ], [ 27, 32 ], [ 42, 55 ] ])
 proff()
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzString("r  in  g language is like a r  ing at your fingertips!")
@@ -4960,11 +4959,12 @@ proff()
 # Executed in 0.12 second(s)
 
 /*-------------
-*/
+
 pron()
 #                      4      11      19   24
 #                      v      v       v    v
 o1 = new stzString("   r  in  g  is a rin  g  ")
+
 ? @@( o1.FindAnyBoundedByIBZZ([ "r", "g" ]) )
 #--> [ [ 4, 11 ], [ 19, 24 ] ]
 
@@ -4978,6 +4978,16 @@ proff()
 # Executed in 0.04 second(s) in Ring 1.21.
 # Executed in 0.07 second(s) in Ring 1.18
 
+/*--------------
+*/
+pron()
+
+? Q("believe").IsStringOrList()
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
+
 /*-------------- SUBSTRONGS & SUBSTRINKS #narration #funny
 */
 pron()
@@ -4986,12 +4996,14 @@ o1 = new stzListOfStrings([
 	"I", "believe", "in", "Ring", "future", "and", "engage", "for", "it!"
 ])
 
-? o1.SubStrongs() # the strings containing other strings from the list
+? @@( o1.SubStrongs() ) # the strings containing other strings from the list
 #--> [ "Ring" ]
+
 # In fact, "Ring" contains "in" and "in" is an item from the list
 
 ? o1.SubStrinks() # the strings that are contained IN other strings from the list
 #--> [ "in" ]
+
 # In fact, "in" is contained in the item "Ring"
 
 proff()

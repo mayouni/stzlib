@@ -2059,7 +2059,8 @@ class stzObject
 
 	def IsStringOrList()
 		content = This.Content()
-		if isNumber(content) or isList(content)
+
+		if isString(content) or isList(content)
 			return TRUE
 		else
 			return FALSE
