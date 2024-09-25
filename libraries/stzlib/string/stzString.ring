@@ -29882,7 +29882,7 @@ class stzString from stzObject
 
 		if bCaseSensitive = FALSE
 			for i = 1 to nLen
-				acSubStr[i] = @ring_lower(acSubStr[i])
+				acSubStr[i] = ring_lower(acSubStr[i])
 			next
 		ok
 
@@ -29892,13 +29892,13 @@ class stzString from stzObject
 		acSeen = []
 
 		for i = 1 to nLen
-			nFound = @ring_find(acSeen, acSubStr[i])
+			nFound = ring_find(acSeen, acSubStr[i])
 			if nFound = 0
 				aResult + [ acSubStr[i], anPos[i] ]
 				acSeen + acSubStr[i]
 			
 			else
-				n = @ring_find(acSeen, acSubStr[i])
+				n = ring_find(acSeen, acSubStr[i])
 				aResult[n] + anPos[i]
 
 			ok
@@ -29962,7 +29962,7 @@ class stzString from stzObject
 
 		if bCaseSensitive = FALSE
 			for i = 1 to nLen
-				acSubStr[i] = @ring_lower(acSubStr[i])
+				acSubStr[i] = ring_lower(acSubStr[i])
 			next
 		ok
 
@@ -29972,13 +29972,13 @@ class stzString from stzObject
 		acSeen = []
 
 		for i = 1 to nLen
-			nFound = @ring_find(acSeen, acSubStr[i])
+			nFound = ring_find(acSeen, acSubStr[i])
 			if nFound = 0
 				aResult + [ acSubStr[i], aSections[i] ]
 				acSeen + acSubStr[i]
 			
 			else
-				n = @ring_find(acSeen, acSubStr[i])
+				n = ring_find(acSeen, acSubStr[i])
 				aResult[n] + aSections[i]
 
 			ok
@@ -30516,7 +30516,7 @@ class stzString from stzObject
 			aList + aList2[i]
 		next
 
-		aList = @ring_sort(aList)
+		aList = ring_sort(aList)
 
 		nLenList = len(aList)
 		aSections = []
@@ -44756,7 +44756,7 @@ class stzString from stzObject
 			ok
 		ok
 
-		anPos = @ring_sort( U(panPos) )
+		anPos = ring_sort( U(panPos) )
 		nLen = len(anPos)
 
 		for i = nLen to 1 step -1
@@ -52852,7 +52852,8 @@ n1 = Min(aTemp)
 		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
-
+? this.numberofchars()
+stop()
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSections(paSections)
 		acResult = This.AntiSections( paSections )
 
@@ -72385,9 +72386,32 @@ n1 = Min(aTemp)
 		def SectionsRemoved(paListOfSections)
 			return This.ManySectionsRemoved(paListOfSections)
 
+	  #-------------------------------------#
+	 #  REMOVING SPACES IN GIVEN SECTIONS  #
+	#-------------------------------------#
+
+	def RemoveSpacesInSections(paSections)
+		nLen = len(paSections)
+		aoSections = This.SectionsQ(paSections).ToListOfStzStrings()
+		acNewSections = []
+
+		for i = 1 to nLen
+			acNewSections + aoSections[i].SpacesRemoved()
+		next
+
+		This.ReplaceSectionsByMany(paSections, acNewSections)
+
+		def RemoveSpacesInSectionsQ(paSections)
+			This.RemoveSpacesInSections()
+			return This
+
+	def SpacesInSectionsRemoved(paSections)
+		cResult = This.Copy().RemoveSpacesInSectionsQ(paSections).Content()
+		return cResult
+
 	  #--------------------------------#
 	 #    REMOVING A RANGE OF CHARS   # 
-	#--------------------------------#
+	#===============================#
 
 	// Removes a portion of the string defined by a start position and
 	// a range of n chars
@@ -73158,6 +73182,60 @@ n1 = Min(aTemp)
 
 		def SectionsReplaced(paListOfSections, pcNewSubStr)
 			return This.ManySectionsReplaced(paListOfSections, pcNewSubStr)
+
+	  #----------------------------------------------#
+	 #  REPLACING MANY SECTIONS BY MANY SUBSTRINGS  #
+	#----------------------------------------------#
+
+	def ReplaceSectionsByMany(paSections, pacSubStr)
+
+		# Justifying the contents of the two params
+
+		nLenSections = len(paSections)
+		nLenSubStr = len(pacSubStr)
+
+		if nLenSections < nLenSubStr
+			pacSubStr = StzListQ(pacSubStr).SectionRemoved(nLenSections+1, nLenSubStr)
+
+		else
+			nDiff = nLenSections - nLenSubStr
+			for i = 1 to nDiff
+				pacSubStr + ""
+			next
+		ok
+
+		# Doing the job
+
+		#NOTE
+		# We use the Split&Join strategy instead of noraml Replace()
+		# to avoid side effects and ensure the parts of string
+		# not concerned with the replacement stay unaltered
+
+		#TODO
+		# Check the strategy used in similar functions
+
+		acParts = This.SplitAtSections(paSections)
+		nLen = len(acParts)
+		cResult = ""
+
+		for i = 1 to nLen
+			cResult = acParts[i]
+			cResult += pacSubStr[i]
+		next
+
+		This.UpdateWith(cResult)
+
+		def ReplaceSectionsByManyQ(paSections, pacSubStr)
+			This. ReplaceSectionsByMany(paSections, pacSubStr)
+			return This
+
+	def SectionsRempalcedByMany(paSections, pacSubStr)
+		cResult = This.RepalceSectionsByManyQ(paSections, pacSubStr).Content()
+		return cResult
+
+	  #----------------------------------------------------------#
+	 #  REPLACING MANY SECTIONS BY MANY SUBSTRINGS -- eXTended  #
+	#----------------------------------------------------------#
 
 	  #---------------------------------#
 	 #    REPLACING A RANGE OF CHARS   # 
@@ -78940,7 +79018,7 @@ n1 = Min(aTemp)
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
-		paSections = StzListOfPairsQ(paSections).SortedInAscending()
+		paSections = @SortLists(paSections)
 		nLen = len(paSections)
 
 		for i = nLen to 1 step -1
@@ -78948,7 +79026,7 @@ n1 = Min(aTemp)
 			n2 = paSections[i][2]
 
 			cSectionWithoutSpaces = This.SectionQ(n1, n2).Unspacified()
-			This.ReplaceSection( n1, n2, :By = cSectionWithoutSpaces )
+			This.ReplaceSection( n1, n2, cSectionWithoutSpaces )
 
 		next
 

@@ -765,40 +765,54 @@ class stzSplitter from stzListOfNumbers
 
 		*/
 
+		# Checking params
+
 		if NOT ( isList(paSections) and len(paSections) > 0 and Q(paSections).IsListOfPairsOfNumbers() )
 			StzRaise("Incorrect param type! paSections must be a non empty list of pairs of numbers.")
 		ok
 
-		if isList(paSections) and len(paSections) = 1 and
-		   isList(paSections[1]) and Q(paSections[1]).IsPairOfNumbers()
+		# Preparing the data
 
-			return This.SplitAtSection(paSections[1][1], paSections[1][2])
+		nLenSections = len(paSections)
+		aSections = QR(paSections, :stzListOfPairs).Sorted()
+		
+		nLenMain = This.NumberOfItems()
+		oMain = StzListQ(1:nLenMain)
+
+		# Managing the first and last splits
+
+		aFirstSplit = []
+		n1 = paSections[1][1]
+		if n1 > 1
+			aFirstSplit = [ 1, n1 - 1 ]
 		ok
 
+		aLastSplit = []
+		n2 = paSections[nLenSections][2]
+		if n2 < nLenMain
+			aLastSplit = [ n2 + 1, nLenMain ]
+		ok
 
-		aSections = QR(paSections, :stzListOfPairs).Sorted()
+		# Getting other splits
 
 		aResult = []
-		aSectionToBeSplitted = 1 : This.NumberOfPositions()
 
-		for i = len(aSections) to 1 step -1
-			aSplits = StzSplitterQ(aSectionToBeSplitted).SplitAtSection(aSections[i][1], aSections[i][2])
-			nLenSplits = len(aSplits)
+		if len(aFirstSplit) > 0
+			aResult + aFirstSplit
+		ok
 
-			if nLenSplits > 0
-				aSectionToBeSplitted = aSplits[1][1] : aSplits[1][2]
-	
-				for j = 1 to nLenSplits
-					aResult + aSplits[j]
-				next
-			ok
+		for i = 1 to nLenSections - 1
+			n1 = paSections[i][2] + 1
+			n2 = paSections[i+1][1] - 1
+			aResult + [ n1, n2 ]
 		next
 
-		ring_del(aResult, 1)
-
-		aResult = QR(aResult, :stzListOfPairs).SortedInAscending()
+		if len(aLastSplit) > 0
+			aResult + aLastSplit
+		ok
 
 		return aResult
+
 
 		#< @FunnctionAlternativeForms
 
