@@ -72926,7 +72926,7 @@ n1 = Min(aTemp)
 
 	def RemoveCharsWhereCS(pcCondition, pCaseSensitive)
 		anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
-		This.RemoveAtPositions(anPos)
+		This.RemoveCharsAtPositions(anPos)
 
 		#< @FunctionFluentForm
 
@@ -73011,7 +73011,7 @@ n1 = Min(aTemp)
 
 	def RemoveCharsWhereCSXT(pcCondition, pCaseSensitive)
 		anPos = This.FindCharsWCSXT(pcCondition, pCaseSensitive)
-		This.RemoveAtPositions(anPos)
+		This.RemoveCharsAtPositions(anPos)
 
 		#< @FunctionFluentForm
 
@@ -82758,6 +82758,7 @@ n1 = Min(aTemp)
 		ok
 
 		if len(acDescriptors) = 1
+
 			if acDescriptors[1] = :Number or acDescriptors[1] = :Numbers
 				cMethod = :IsANumber
 
@@ -82782,7 +82783,24 @@ n1 = Min(aTemp)
 
 			ok
 
-			bResult = This.Check( :That = 'StzCharQ(@char).' + cMethod + "()" )
+			#TODO // Replace the fellowing with Check() when reincluded
+
+			oaStzChars = This.ToListOfStzChars()
+			nLen = len(oaStzChars)
+
+			cCode = 'bOk = oaStzChars[i].' + cMethod + '()'
+
+			bResult = TRUE
+
+			for i = 1 to nLen
+				eval(cCode)
+				if NOT bOk
+					bResult = FALSE
+					exit
+				ok
+			next
+
+			return bResult
 
 		else
 
@@ -83466,7 +83484,7 @@ n1 = Min(aTemp)
 			return This
 	
 	def DuplicatedCharsRemoved()
-		cResult = This.Copy().RemoveDuplicatedCharsQ(pCaseSensitive).Content()
+		cResult = This.Copy().RemoveDuplicatedCharsQ().Content()
 		return cResult
 
 	  #---------------------------------------#
@@ -85297,13 +85315,6 @@ n1 = Min(aTemp)
 				This.Reverse()
 				return This
 
-		def ReverseChars()
-			This.ReversecharsOrder()
-
-			def ReverseCharsQ()
-				This.ReverseChars()
-				return This
-
 		def ReverseOrder()
 			This.ReversecharsOrder()
 
@@ -85321,13 +85332,6 @@ n1 = Min(aTemp)
 
 			def InverseQ()
 				This.Inverse()
-				return This
-
-		def InverseChars()
-			This.InversecharsOrder()
-
-			def InverseCharsQ()
-				This.InverseChars()
 				return This
 
 		def InverseOrder()
@@ -85349,13 +85353,6 @@ n1 = Min(aTemp)
 				This.Invert()
 				return This
 
-		def InvertChars()
-			This.InversecharsOrder()
-
-			def InvertCharsQ()
-				This.InvertChars()
-				return This
-
 		def InvertOrder()
 			This.InversecharsOrder()
 
@@ -85374,9 +85371,6 @@ n1 = Min(aTemp)
 		def Reversed()
 			return This.CharsOrderReversed()
 
-		def CharsReversed()
-			return This.CharsOrderReversed()
-
 		def OrderReversed()
 			return This.CharsOrderReversed()
 
@@ -85388,9 +85382,6 @@ n1 = Min(aTemp)
 		def Inversed()
 			return This.CharsOrderReversed()
 
-		def CharsInversed()
-			return This.CharsOrderReversed()
-
 		def OrderInversed()
 			return This.CharsOrderReversed()
 
@@ -85400,9 +85391,6 @@ n1 = Min(aTemp)
 			return This.CharsOrderReversed()
 
 		def Inverted()
-			return This.CharsOrderReversed()
-
-		def CharsInverted()
 			return This.CharsOrderReversed()
 
 		def OrderInverted()
@@ -85423,10 +85411,6 @@ n1 = Min(aTemp)
 
 		#NOTE: Applies to latin script only
 
-		if NOT This.ToStzText().ScriptIs(:Latin)
-			return This.String()
-		ok
-
 		cResult = ""
 		nLen = This.NumberOfChars()
 
@@ -85443,8 +85427,43 @@ n1 = Min(aTemp)
 			return This
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def ReverseChars()
+			This.Turnchars()
+
+			def ReverseCharsQ()
+				return This.TurnCharsQ()
+
+		def InverseChars()
+			This.Turnchars()
+
+			def InverseCharsQ()
+				return This.TurnCharsQ()
+
+		def InvertChars()
+			This.Turnchars()
+
+			def InvertCharsQ()
+				return This.TurnCharsQ()
+
+		#>
+
 	def CharsTurned()
 		return This.Copy().TurnCharsQ().Content()
+
+		#< @FunctionAlternativeForms
+
+		def CharsReversed()
+			return This.CharsTurned()
+
+		def CharsInversed()
+			return This.CharsTurned()
+
+		def CharsInverted()
+			return This.CharsTurned()
+
+		#>
 
 	  #----------------------#
 	 #  TURNING THE STRING  #

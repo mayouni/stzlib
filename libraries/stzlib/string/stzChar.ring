@@ -616,6 +616,11 @@ class stzChar from stzObject
 
 	#---
 
+	def IsAString()
+		return TRUE
+
+	#---
+
 	def Update(pChar)
 		if isList(pChar) and Q(pChar).IsWithOrByOrUsingNamedParam()
 			pChar = pChar[2]

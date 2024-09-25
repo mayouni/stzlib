@@ -4989,7 +4989,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-------------- SUBSTRONGS & SUBSTRINKS #narration #funny
-*/
+
 pron()
 
 o1 = new stzListOfStrings([
@@ -5022,7 +5022,8 @@ o1.SpacifyTheseSubStrings([
 #--> I believe in Ring future and engage for it!
 
 proff()
-# Executed in 0.13 second(s)
+# Executed in 0.07 second(s) in Ring 1.21
+# Executed in 0.13 second(s) in Ring 1.19
 
 /*--------------
 
@@ -5039,7 +5040,7 @@ o1.SpacifyTheseSubStrings([
 #--> Mahmoud Bert Ahmed Mansour Ilir Gal Majdi
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.06 second(s)
 
 /*==============
 
@@ -7333,96 +7334,223 @@ o1.RemoveThisLastChar("}")
 ? Q("Riiiiinngg").UniqueChars() #--> [ "R", "i", "n", "g" ]
 
 /*---
-*/
+
 pron()
 
-? StzListOfStringsQ([ "A", "A", "A", "B", "B", "C" ]).
-	ContainsCS("a", :CS = FALSE) #--> TRUE
+? StzListOfStringsQ([ "A", "A", "A", "B", "B", "C" ]).ContainsCS("a", :CS = FALSE)
+#--> TRUE
 
 proff()
+# Executed in 0.03 second(s).
 
 /*---
 
-? StzListOfStringsQ([ "A", "A", "A", "B", "B", "C" ]).DuplicatesRemoved()
+pron()
+
+? StzListQ([ "A", "A", "A", "B", "B", "C" ]).DuplicatesRemoved()
 #--> [ "A", "B", "C" ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*---
+
+pron()
 
 ? Q("Riiiiinngg").
-	CharsQR(:stzListOfStrings).
+	CharsQ().
 	RemoveDuplicatesQ().
+	ToStzListOfStrings().
 	Concatenated()
+
 #--> "Ring"
+
+proff()
+# Executed in 0.02 second(s).
 
 /*---
 
-? Q("Riiiiinngg").DuplicatedCharsRemoved() #--> "Ring"
+pron()
+
+? Q("Riiiiinngg").DuplicatedCharsRemoved()
 #--> "Ring"
 
-/*---
+proff()
+# Executed in 0.03 second(s).
+
+/*===========
+
+pron()
+
+? Q("123.98").IsNumberInString()
+#--> TRUE
+
+? IsNumberInString("123.98")
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s).
+
+/*----------
+
+pron()
+
+o1 = new stzString("(9, 7, 8)")
+
+o1.RemoveCharsWXT('Q(@Char).IsNumberInString()')
+? o1.Content()
+#--> (, , )
+
+proff()
+# Executed in 0.18 second(s).
+
+/*------
+
+pron()
 
 ? Q("(9, 7, 8)").
-	RemoveWQ('Q(@Char).IsNumberInString()'). # becomes (, , )
-	RemoveSpacesQ().			 # becomes (,,)
-	RemoveDuplicatedCharsQ().		 # becomes (,)
+	RemoveCharsWXTQ('Q(@Char).IsNumberInString()'). # becomes (, , )
+	RemoveSpacesQ().			 	# becomes (,,)
+	RemoveDuplicatedCharsQ().		 	# becomes (,)
 	AllCharsAre(:Punctuations)
 #--> TRUE
 
-/*--- TODO - FUTURE: Add a QZ() function that traces the intermediate results:
+proff()
+# Executed in 0.71 second(s).
 
-? QZ("(9, 7, 8)").
+/*--- TODO - FUTURE: Add a Qh() function (h for history) that traces the intermediate results:
+
+pron()
+
+? Qh("(9, 7, 8)").
 	RemoveWQ('Q(@Char).IsNumberInString()').
 	RemoveSpacesQ().
 	RemoveDuplicatedCharsQ().
 	AllCharsAre(:Punctuations)
 #--> [ "(, , )", "(,,)", "(,)", TRUE ]
 
-/*---
-
-? Q("(9, 7, 8)").
-	RemoveWQ('Q(@Char).IsNumberInString()').
-	RemoveSpacesQ().
-	RemoveDuplicatedCharsQ().
-	AllCharsAre(:Punctuations)	#--> TRUE
+proff()
 
 /*-----------------
+
+pron()
 
 str = "sun"
 ? Q(str).IsEither("moon", :Or = "sun")
-#--> return
-? Q(str).IsEither(:This = "moon", :OrThat = "sun")
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*-----------------
 
-? Q("stzLen").IsAFunction() 	#--> TRUE
-# or isFunc()
+pron()
 
-? Q("stzChar").IsAClass()	#--> TRUE
+? Q("stzLen").IsAFunction() # or isFunc()
+#--> TRUE
 
-/*-----------------
+? Q("stzChar").IsAClass()
+#--> TRUE
 
-? QQ("ر").StzType() #--> stzChar
-? QQ("ر").UnicodeDirectionNumber() #--> "13"
-? QQ("ر").IsRightToLeft() #--> TRUE
-
-/*-----------------
-
-? Q("LOVE").Inverted() 	#--> ƎɅO⅂
-? QQ("L").IsInvertible()	#--> TRUE
-#NOTE that QQ() elevates "L" to a stzChar
+proff()
+# Executed in 0.01 second(s).
 
 /*-----------------
 
-? Q("str").AllCharsAre(:Chars)		#--> TRUE
-? Q("str").AllCharsAre(:Strings)	#--> TRUE
-? Q("123").AllCharsAre(:Numbers) 	#--> TRUE
-? Q("(,)").AllCharsAre(:Punctuations)	#--> TRUE
+pron()
 
-? Q("نور").AllCharsAre(:Arabic)		#--> TRUE
-? Q("نور").AllCharsAre(:RighttoLeft)	#--> TRUE
+? QQ("ر").StzType()
+#--> stzChar
+
+? @@( QQ("ر").UnicodeDirectionNumber() )
+#--> "13"
+
+? QQ("ر").IsRightToLeft()
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s).
+
+/*-----------------
+
+pron()
+
+? StzCharQ("L").Turned()
+#--> ⅂
+
+proff()
+# Executed in 0.04 second(s).
+
+/*-----------------
+
+pron()
+
+? Q("LOVE").Inverted()
+#--> EVOL
+
+? Q("LOVE").CharsInverted()	# Or Turned()
+#--> ƎɅO⅂
+
+? QQ("L").IsInvertible()	// #NOTE that QQ() elevates "L" to a stzChar
+#--> TRUE
+
+proff()
+# Executed in 0.07 second(s).
+
+/*-----------------
+
+pron()
+
+? Q("LOVE").Turned()
+#--> ƎɅO⅂
+
+proff()
+# Executed in 0.05 second(s).
+
+/*-----------------
+
+pron()
+
+? StzStringQ("s").IsAString()
+#--> TRUE
+
+? StzCharQ("s").IsAString()
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-----------------
+*/
+pron()
+
+? Q("str").AllCharsAre(:Chars)
+#--> TRUE
+
+? Q("str").AllCharsAre(:Strings)
+#--> TRUE
+
+? Q("123").AllCharsAre(:Numbers)
+#--> TRUE
+
+? Q("(,)").AllCharsAre(:Punctuations)
+#--> TRUE
+
+? Q("نور").AllCharsAre(:Arabic)
+#--> TRUE
+
+? Q("نور").AllCharsAre(:RightToLeft)
+#--> TRUE
 
 ? Q("LOVE").AllCharsAre(:Invertible)
-? Q("LOVE").Inverted()			#--> ƎɅO⅂
+#--> TRUE
+
+? Q("LOVE").CharsInverted()
+#--> ƎɅO⅂
+
+proff()
+# Executed in 2.71 second(s).
+
 /*-----------------
 
 ? Q(2).IsANumber()	#--> TRUE
