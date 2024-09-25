@@ -4979,7 +4979,7 @@ proff()
 # Executed in 0.07 second(s) in Ring 1.18
 
 /*--------------
-*/
+
 pron()
 
 ? Q("believe").IsStringOrList()
@@ -5001,13 +5001,13 @@ o1 = new stzListOfStrings([
 
 # In fact, "Ring" contains "in" and "in" is an item from the list
 
-? o1.SubStrinks() # the strings that are contained IN other strings from the list
+? @@( o1.SubStrinks() ) # the strings that are contained IN other strings from the list
 #--> [ "in" ]
 
 # In fact, "in" is contained in the item "Ring"
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.06 second(s)
 
 /*============
 
