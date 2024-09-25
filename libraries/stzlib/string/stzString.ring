@@ -49189,7 +49189,7 @@ n1 = Min(aTemp)
 	#------------------------------------------------------------------#
 
 	def IsContainedInCS(pcOtherStr, pCaseSensitive)
-
+? ">> " + @@(pcOtherStr)s
 		if NOT Q(pcOtherStr).IsStringOrList()
 			StzRaise("Incorrect param type! pcOtherStr must be a string or list.")
 		ok
