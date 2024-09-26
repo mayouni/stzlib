@@ -7821,7 +7821,7 @@ o1 = new stzString("ab_cd_ef_gh")
 proff()
 
 /*=================
-*/
+
 pron()
 
 o1 = new stzString("
@@ -7850,28 +7850,63 @@ proff()
 
 /*-----------------
 
+pron()
+
+o1 = new stzString("
+
+.;1;.;.;.
+1;2;3;4;5
+.;3;.;.;.
+.;4;.;.;.
+.;5;.;.;.  " )
+
+? o1.RemoveEmptyLinesQ().Content()
+#-->
+# .;1;.;.;.
+# 1;2;3;4;5
+# .;3;.;.;.
+# .;4;.;.;.
+# .;5;.;.;.  
+
 proff()
+# Executed in 0.01 second(s).
 
-? Q("
-	lfldfkdlfk
-	mlsdlk
+/*-----------------
 
-	llkslkflk
+pron()
 
-	medmf").Content()
+aStzStrList = StzListOfStringsQ([ "one", "two", "three" ]).ToListOfStzStrings()
 
-? @@SP( Q("
+foreach oStr in aStzStrList
+	? oStr.Uppercased()
+next
+#-- [ "ONE", "TWO", "THREE" ]
+
+proff()
+# Executed in 0.02 second(s).
+
+/*----------------- #narration #data-cleansing #data-transformation
+*/
+pron()
+
+# Let's start with a string containing semi-structured data.
+# The data is separated by semicolons and spread across multiple
+# lines, including empty lines.
+
+o1 = new stzString("
 
 	.;1;.;.;.
 	1;2;3;4;5
+
+
 	.;3;.;.;.
 	.;4;.;.;.
-	.;5;.;.;.  " ).
-	RemoveEmptyLinesQ().Content()
-	LinesQR(:stzListOfStrings).
-	TrimQ().Content()
-	StringsSplitted(:Using = ";")
-)
+
+	.;5;.;.;.  ")
+
+# The goal is to transform the string into a clean,
+# structured list of lists, where each inner list
+# represents a row of data, like this:
 
 #--> [
 #	[ ".", "1", ".", ".", "." ],
@@ -7881,7 +7916,32 @@ proff()
 #	[ ".", "5", ".", ".", "." ]
 # ]
 
+# If you think about it, these are the necessary steps:
+#	1. Remove empty lines
+#	2. Convert the remaining lines into a list of strings
+#	3. Trim each string to remove any extra whitespace
+#	4. Split each string using the semicolon as a delimiter
+
+# Here is the translation of this thought process in Softanza:
+
+? @@SP(
+	o1.RemoveEmptyLinesQ().
+	LinesQR(:stzListOfStrings).
+	TrimQ().
+	StringsSplitted(:Using = ";")
+)
+#--> [
+#	[ ".", "1", ".", ".", "." ],
+#	[ "1", "2", "3", "4", "5" ],
+#	[ ".", "3", ".", ".", "." ],
+#	[ ".", "4", ".", ".", "." ],
+#	[ ".", "5", ".", ".", "." ]
+# ]
+
+# It's totally WYTIWYG: "What You Think Is What You Get"!
+
 proff()
+# Executed in 0.04 second(s).
 
 /*=================
 

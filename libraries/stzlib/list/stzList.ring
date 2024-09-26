@@ -58036,10 +58036,9 @@ class stzList from stzObject
 
 		#>
 
-
-	  #------------------------------------------------------#
-	 #   FINDING SPLITS (AS SECTIONS) AT GIVEN Items   #
-	#------------------------------------------------------#
+	  #-------------------------------------------------#
+	 #   FINDING SPLITS (AS SECTIONS) AT GIVEN ITEMS   #
+	#-------------------------------------------------#
 
 	def FindSplitsAtItemsCSZZ(paItems, pCaseSensitive)
 		if This.IsEmpty()
@@ -66425,6 +66424,25 @@ class stzList from stzObject
 			return This.FindLastSplitAfterWXTZZ(pcCondition)
 
 		#>
+
+	  #=====================#
+	 #     COMBINATIONS    #
+	#=====================#
+
+	def NumberOfCombinations()
+		return len(This.Combinations()) // #TODO: solve it mathematically.
+	
+	def Combinations()
+		nLen = len(@aContent)
+		aResult = []
+
+		for i = 1 to nLen - 1
+			for j = i + 1 to nLen
+				aResult + [ @aContent[i], @aContent[j] ]
+			next
+		next
+
+		return aResult
 
 	  #===========================================#
 	 #  GETTING THE UNICODES CODES OF EACH ITEM  #

@@ -5925,7 +5925,7 @@ class stzString from stzObject
 			return This.LinesQR(:stzList)
 
 		def LinesQR(pcReturnType)
-			return This.LinesCSQR(TRUE, pcReturnTye)
+			return This.LinesCSQR(TRUE, pcReturnType)
 
 		#>
 
@@ -6181,7 +6181,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def RemoveEmptyLinesQ()
-			return This.RemoveEmptyLinesCSQ(pCaseSensitive)
+			return This.RemoveEmptyLinesCSQ(TRUE)
 
 		#>
 
@@ -51895,6 +51895,11 @@ n1 = Min(aTemp)
 			return This.SplitAtCSQR(pSubStrOrPos, pCaseSensitive, pcReturnType)
 
 		def SplitCS(pSubStrOrPos, pCaseSensitive)
+
+			if isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsWithOrByOrUsingNamedParam()
+				pSubStrOrPos = pSubStrOrPos[2]
+			ok
+
 			return This.SplitAtCS(pSubStrOrPos, pCaseSensitive)
 
 			def SplitCSQ(pSubStrOrPos, pCaseSensitive)

@@ -119,6 +119,67 @@ class stzListOfStrings from stzList
 	def String(n)
 		return @oQStrList.at(n-1)
 
+
+	  #---------------------------------------------#
+	 #  GETTING THE NUMBER OF STRINGS IN THE LIST  #
+	#---------------------------------------------#
+
+	def NumberOfStrings()
+		nResult = @oQStrList.count()
+		return nResult
+
+		def NumberOfItems()
+			return This.NumberOfStrings()
+
+		def Size()
+			return This.NumberOfStrings()
+
+		def HowManyStrings()
+			return This.NumberOfStrings()
+
+		def HowManyItems()
+			return This.NumberOfStrings()
+
+	  #--------------------------------------#
+	 #  GETTING THE NTH STRING IN THE LIST  #
+	#--------------------------------------#
+
+	def NthString(n)
+		return @oQStrList.at(n-1)
+
+		def NthStringQ(n)
+			return new stzString(This.NthString(n))
+
+		def NthItem(n)
+			return This.NthString(n)
+
+			def NthItemQ(n)
+				return This.NthStringQ(n)
+
+	def FirstString()
+		return This.NthString(1)
+
+		def FirstStringQ()
+			return This.NthStringQ(1)
+
+		def FirstItem()
+			return This.FirstString()
+
+			def FirstItemQ()
+				return This.FirstStringQ()
+
+	def LastString()
+		return This.NthString(This.NumberOfStrings())
+
+		def LastStringQ()
+			return This.NthStringQ(This.NumberOfStrings())
+
+		def LastItem()
+			return This.LastString()
+
+			def LastItemQ()
+				return This.LastStringQ()
+
 	  #-------------------------------------------#
 	 #    CONVERTING THE LIST OF STRINGS TO...   #
 	#-------------------------------------------#
@@ -1195,7 +1256,12 @@ class stzListOfStrings from stzList
 				   #     ]
 		*/
 
+		if isList(cSep) and StzListQ(cSep).IsUsingOrWithOrByNamedParam()
+			cSep = cSep[2]
+		ok
+
 		aStzStr = This.ToListOfStzStrings()
+
 		nLen = len(aStzStr)
 
 		aResult = []
@@ -1435,155 +1501,16 @@ class stzListOfStrings from stzList
 		def ClassName()
 			return This.stzType()
 
-	  #--------------------------------#
-	 #  TRIMMING THE LIST OF STRINGS  #
-	#--------------------------------#
-
-	def Trim()
-		This.TrimStart()
-		This.TrimEnd()
-
-		def TrimQ()
-			This.Trim()
-			return This
-
-		def Strip()
-			This.Trim()
-
-			def StripQ()
-				return This.TrimQ()
-
-	def Trimmed()
-		acResult = This.Copy().TrimQ().Content()
-		return acResult
-
-		def Stripped()
-			return This.Trimmed()
-
-	  #-----------------------------------------------#
-	 #  TRIMMING THE LIST OF STRINGS FROM THE START  #
-	#-----------------------------------------------#
-
-	def TrimStart()
-		
-		if NOT This.FirstStringQ().IsMadeOf(" ")
-			return
-		ok
-
-		nLen = This.NumberOfStrings()
-		i = 0
-
-		while TRUE
-			i++
-			if i > nLen
-				return
-			ok
-
-			if NOT This.StringQ(i).IsMadeOf(" ")
-				exit
-			ok
-		end
-
-		This.RemoveSection(1, i-1)
-
-		#< @FunctionFluentForm
-
-		def TrimStartQ()
-			This.TrimStart()
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def TrimFromStart()
-			This.TrimStart()
-
-			def TrimFromStartQ()
-				This.TrimFromStart()
-				return This
-
-		def StripStart()
-			This.TrimStart()
-
-			def StripStartQ()
-				return This.TrimFromStartQ()
-
-		def StripFromStart()
-			This.TrimStart()
-
-			def StripFromStartQ()
-				return This.TrimFromStartQ()
-
-		#>
-
-	  #-----------------------------------------------#
-	 #  TRIMMING THE LIST OF STRINGS FROM THE END  #
-	#-----------------------------------------------#
-
-	def TrimEnd()
-		
-		if NOT This.LastStringQ().IsMadeOf(" ")
-			return
-		ok
-
-		nLen = This.NumberOfStrings()
-		i = nLen + 1
-
-		while TRUE
-			i--
-			if i = 0
-				return
-			ok
-
-			if NOT This.StringQ(i).IsMadeOf(" ")
-				exit
-			ok
-		end
-
-		This.RemoveSection(i + 1, nLen)
-
-		#< @FunctionFluentForm
-
-		def TrimEndQ()
-			This.TrimEnd()
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def TrimFromEnd()
-			This.TrimEnd()
-
-			def TrimFromEndQ()
-				This.TrimFromEnd()
-				return This
-
-		def StripEnd()
-			This.TrimEnd()
-
-			def StripEndQ()
-				return This.TrimFromEndQ()
-
-		def StripFromEnd()
-			This.TrimEnd()
-
-			def StripFromEndQ()
-				return This.TrimFromEndQ()
-
-		#>
-
 	  #------------------------------------#
 	 #  TRIMMING THE STRINGS IN THE LIST  #
 	#------------------------------------#
 
 	def TrimStrings()
-		acContent = This.Content()
-		nLen = This.NumberOfStrings()
+		oastzStr = This.ToListOfStzStrings()
+		nLen = len(oastzStr)
 		
 		for i = 1 to nLen
-			this.ReplaceNthString(i, Q(acContent[i]).Trimmed())
+			This.@oQStrList.replace(i-1, oastzStr[i].Trimmed())
 		next
 
 		#< @FunctionFluentForm
@@ -1596,6 +1523,11 @@ class stzListOfStrings from stzList
 
 		#< @FunctionAlternativeForms
 
+		def Trim()
+			This.TrimStrings()
+
+			def TrimQ()
+				return This.TrimStringsQ()
 
 		def TrimEach()
 			This.TrimStrings()
