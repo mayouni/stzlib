@@ -66433,12 +66433,15 @@ class stzList from stzObject
 		return len(This.Combinations()) // #TODO: solve it mathematically.
 	
 	def Combinations()
+
 		nLen = len(@aContent)
 		aResult = []
 
 		for i = 1 to nLen - 1
-			for j = i + 1 to nLen
-				aResult + [ @aContent[i], @aContent[j] ]
+			for j = i+1 to nLen
+				aPair = []
+				aPair + @aContent[i] + @aContent[j]
+				aResult + aPair
 			next
 		next
 
