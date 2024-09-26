@@ -1183,22 +1183,19 @@ proff()
 */
 pron()
 
-o1 = new stzListOfStrings([ "a", "b", "c", "d" ])
+o1 = new stzList([ "a", "b", "c", "d" ])
 
 ? o1.NumberOfCombinations() + NL
-#--> 12
+#--> 6
 
 ? @@( o1.Combinations() )
-
-# [
-# 	[ "a", "b" ], [ "a", "c" ], [ "a", "d" ],
-# 	[ "b", "a" ], [ "b", "c" ], [ "b", "d" ],
-# 	[ "c", "a" ], [ "c", "b" ], [ "c", "d" ],
-# 	[ "d", "a" ], [ "d", "b" ], [ "d", "c" ]
+#--> [
+#	[ "a", "b" ], [ "a", "c" ], [ "a", "d" ],
+#	[ "b", "c" ], [ "b", "d" ], [ "c", "d" ]
 # ]
 
 proff()
-#--> Executed in 0.42 second(s)
+# Executed in almost 0 second(s).
 
 /*==============
 
