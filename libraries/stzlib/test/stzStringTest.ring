@@ -7521,7 +7521,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 ? Q("str").AllCharsAre(:Chars)
@@ -7553,29 +7553,57 @@ proff()
 
 /*-----------------
 
-? Q(2).IsANumber()	#--> TRUE
-? Q(2).IsEven()		#--> TRUE
-? Q(2).IsPositive()	#--> TRUE
+pron()
+
+? Q(2).IsANumber()
+#--> TRUE
+
+? Q(2).IsEven()
+#--> TRUE
+
+? Q(2).IsPositive()
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*-----------------
 
-? QQ("①").IsCircledNumber() #--> TRUE
+pron()
+
+? QQ("①").IsCircledNumber()
+#--> TRUE
+
 # or QQ("①").IsCircledDigit() if you wana embrace the semantics of Unicode
 
-/*-----------------
-
-? Q("①②③").AllCharsAre(:CircledNumbers)			#--> TRUE
-? Q("①②③").AllCharsAre([:CircledNumber, :Chars])	#--> TRUE
+proff()
+# Executed in 0.03 second(s).
 
 /*-----------------
+
+pron()
+
+? Q("①②③").AllCharsAre(:CircledNumbers)
+#--> TRUE
+
+? Q("①②③").AllCharsAre([:CircledNumber, :Chars]) #TODO check after reincluding check()
+#--> TRUE
+
+proff()
+
+/*----------------- #TODO check after reincluding check()
+
+pron()
 
 ? Q("248").AllCharsAreXT([ :Even, :Positive, :Numbers ], :EvaluateFrom = :RTL)
 
-/*-----------------
-
 ? Q("123").Check( 'isnumber( 0+(@char) )' ) #--> TRUE
 
+proff()
+
 /*=================
+
+pron()
 
 # Inverting (or turning) chars and strings
 #NOTE: In the mean time, Softanza uses Invert()
@@ -7583,39 +7611,48 @@ proff()
 # change in the future to cope with their exact
 # meaning in Unicode!
 
-? StzCharQ("L").Inverted()
-? StzCharQ("L").IsInvertible()
+? StzCharQ("L").IsInvertible() # Or IsTurnable()
+#--> TRUE
+
+? StzCharQ("L").Inverted() # Or Turned()
+#--> ⅂
 
 ? Q("LIFE").Inverted()
+#--> EFIL
 
-? StzCharQ("L").Turned()
-? StzCharQ("L").IsTurnable()
+? Q("LIFE").Turned() # Or CharsInverted()
+#--> ƎℲI⅂
 
-? Q("LIFE").Turned()
+proff()
+# Executed in 0.07 second(s).
 
 /*============
 
-? Q(".;1;.;.;." ) / ";"
-# Same as: ? Q(".;1;.;.;." ).Splitted(:Using = ";")
+pron()
+
+? Q(".;1;.;.;." ) / ";" # Same as: ? Q(".;1;.;.;." ).Splitted(:Using = ";")
 
 #--> [ ".", "1", ".", ".", "." ]
 
-/*----------
-
-? Q(".;1;.;.;." ) / ";"
-# Same as: ? Q(".;1;.;.;." ).Splitted(:Using = ";")
-
-#--> [ ".", "1", ".", ".", "." ]
+proff()
+# Executed in 0.01 second(s).
 
 /*===============
+
+pron()
 
 ? Q("Ring").Repeated(3)
 #--> "RingRingRing"
 
-? Q([1,2]).Repeated(3)
+? @@( Q([1,2]).Repeated(3) )
 #--> [ [1,2], [1,2], [1,2] ]
 
+proff()
+# Executed in 0.03 second(s).
+
 /*----------------
+
+pron()
 
 ? Q("A").RepeatXTQ(:String, 3).StzType()
 #--> "stzstring"
@@ -7623,105 +7660,216 @@ proff()
 ? Q("A").RepeatXTQ(:List, 3).StzType()
 #--> "stzlist"
 
-/*----------------
+proff()
+# Executed in 0.02 second(s).
+
+/*---- #narration EXTENDED FORMS OF REPEATING OBJECTS IN SOFTANZA
+
+pron()
+
+# Repeating "5" twice in a list
 
 ? @@( Q("5").RepeatedXT(:InA = :List, :OfSize = 2) )
 #--> [ "5", "5" ]
 
+# Creating a pair with "A" repeated
+
 ? Q("A").RepeatedInAPair()
 #--> [ "A", "A" ]
+
+# Repeating "5" three times in a list of numbers
 
 ? @@( Q("5").RepeatedXT(:InA = :ListOfNumbers, :OfSize = 3) )
 #--> [ 5, 5, 5 ]
 
+# Repeating "5" three times in a string
+
 ? Q("5").RepeatedXT(:InA = :String, :OfSize = 3)
 #--> "555"
+
+# Repeating number 5 three times in a string
 
 ? Q(5).RepeatedXT(:InA = :String, :OfSize = 3)
 #--> "555"
 
+# Repeating "5" three times in a list of numbers
+
 ? Q("5").RepeatedXT(:InA = :ListOfNumbers, :OfSize = 3)
 #--> [ 5, 5, 5 ]
+
+# Repeating number 5 three times in a list of strings
 
 ? @@( Q(5).RepeatedXT(:InA = :ListOfStrings, :OfSize = 3) )
 #--> [ "5", "5", "5" ]
 
+# Repeating "A" three times in a list of pairs
+
 ? @@( Q("A").RepeatedXT(:InA = :ListOfPairs, :OfSize = 3) ) + NL
 #--> [ [ "A", "A" ], [ "A", "A" ], [ "A", "A" ] ]
+
+# Repeating "A" three times in a list of lists
 
 ? @@( Q("A").RepeatedXT(:InA = :ListOfLists, :OfSize = 3) ) + NL
 #--> [ [ "A" ], [ "A" ], [ "A" ] ]
 
+# Repeating "A" three times in a list, then repeating that list three times
+
 ? @@( Q("A").
-	RepeatXTQ(:InA = :List, :OfSize = 3).
-	RepeatedXT(:InA = :List, :OfSize = 3)
+RepeatXTQ(:InA = :List, :OfSize = 3).
+RepeatedXT(:InA = :List, :OfSize = 3)
 ) + NL
 #--> [ [ "A", "A", "A" ], [ "A", "A", "A" ], [ "A", "A", "A" ] ]
+
+# Creating a 3x3 grid filled with "A"
 
 ? @@( Q("A").RepeatedXT(:InA = :Grid, :OfSize = [3, 3]) ) + NL
 #-->
 # [
-# 	[ "A", "A", "A" ],
-# 	[ "A", "A", "A" ],
-# 	[ "A", "A", "A" ]
+# [ "A", "A", "A" ],
+# [ "A", "A", "A" ],
+# [ "A", "A", "A" ]
 # ]
 
-? @@( Q("A").RepeatedXT(:InA = :Table, :OfSize = [3, 3]) ) + NL
+# Creating a 3x3 table filled with "A"
+
+? @@( Q("A").RepeatedXT(:InA = :Table, :OfSize = [3, 3]) )
 #--> [
-#	[ "COL1", [ "A", "A", "A" ] ],
-#	[ "COL2", [ "A", "A", "A" ] ],
-#	[ "COL3", [ "A", "A", "A" ] ]
+# [ "COL1", [ "A", "A", "A" ] ],
+# [ "COL2", [ "A", "A", "A" ] ],
+# [ "COL3", [ "A", "A", "A" ] ]
 # ]
+
+proff()
+# Executed in 0.16 second(s).
 
 /*-------------------
+
+pron()
 
 ? Q(5).RepeatedInAPair()
 #--> [5, 5]
 
-/*-==================
+proff()
+# Executed in 0.01 second(s).
+
+/*==================
+
+pron()
 
 o1 = new stzString("ab_cd_ef_gh")
-? o1.ContainsMoreThenOne("_") 	#--> TRUE
-? o1.ContainsMoreThenOne("a") 	#--> FALSE
-? o1.ContainsOne("a")		#--> TRUE
+
+? o1.ContainsMoreThenN(1, "_")
+#--> TRUE
+
+? o1.ContainsMoreThenN(1, "a")
+#--> FALSE
+
+? o1.ContainsNTimes(1, "a")
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*------------------
 
+pron()
+
 o1 = new stzString("ab_cd_ef_gh")
-? o1.FindFirst("_")			#--> 3
-? o1.FindFirstXT("*", :StartingAt = 4)	#--> 0
-? o1.FindFirstXT("_", :StartingAt = 3)	#--> 3
+? o1.FindFirst("_")
+#--> 3
 
-? o1.FindLast("_")	#--> 9
-? o1.FindLast("*")	#--> 0
+? o1.FindFirstS("*", :StartingAt = 4)
+#--> 0
 
-? o1.FindNth(2,"_")	#--> 6
+? o1.FindFirstS("_", :StartingAt = 3)
+#--> 3
+
+? o1.FindLast("_")
+#--> 9
+
+? o1.FindLast("*")
+#--> 0
+
+? o1.FindNth(2,"_")
+#--> 6
+
+proff()
+# Executed in 0.01 second(s).
 
 /*------------------
 
+pron()
+
 o1 = new stzString("ab_cd_ef_gh")
-? o1.FindFirstNOccurrences(2, "_")	#--> [3, 6]
-? o1.FindLastNOccurrences(2, "_")	#--> [6, 9]
+
+? o1.FindFirstNOccurrences(2, "_")
+#--> [3, 6]
+? o1.FindLastNOccurrences(2, "_")
+#--> [6, 9]
+
+proff()
+# Executed in 0.03 second(s).
 
 /*------------------
+
+pron()
 
 o1 = new stzString("ab_cd_ef_gh")
 ? o1.FindAll("_")
 #--> [3, 6, 9]
 
-/*=================
+proff()
 
-? @@( ( Q("
+/*=================
+*/
+pron()
+
+o1 = new stzString("
+lfldfkdlfk
+mlsdlk
+
+llkslkflk
+   
+medmf")
+
+? @@NL( o1.Lines() ) + NL
+
+? o1.NumberOfEmptyLines() + NL
+#--> 3
+
+o1.RemoveEmptyLines()
+? o1.Content()
+#-->
+# lfldfkdlfk
+# mlsdlk
+# llkslkflk
+# medmf
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-----------------
+
+proff()
+
+? Q("
+	lfldfkdlfk
+	mlsdlk
+
+	llkslkflk
+
+	medmf").Content()
+
+? @@SP( Q("
 
 	.;1;.;.;.
 	1;2;3;4;5
 	.;3;.;.;.
 	.;4;.;.;.
 	.;5;.;.;.  " ).
-
-	RemoveEmptyLinesQ().
+	RemoveEmptyLinesQ().Content()
 	LinesQR(:stzListOfStrings).
-	TrimQ().
+	TrimQ().Content()
 	StringsSplitted(:Using = ";")
 )
 
@@ -7733,7 +7881,11 @@ o1 = new stzString("ab_cd_ef_gh")
 #	[ ".", "5", ".", ".", "." ]
 # ]
 
+proff()
+
 /*=================
+
+pron()
 
 o1 = new stzString("How many <<many>> are there in (many <<<many>>>): so <many>>!")
 
@@ -7743,6 +7895,8 @@ o1 = new stzString("How many <<many>> are there in (many <<<many>>>): so <many>>
 //Same as:
 ? @@(o1.BoundsXT(:Of = "many", :UpToNChars = [ [0,0], [2, 2], [0,0], [3,3], [1,2] ]))
 #--> [ [ NULL, NULL ], [ "<<", ">>" ], [ NULL, NULL ], [ "<<<", ">>>" ], [ "<", ">>" ] ]
+
+proff()
 
 /*=================
 

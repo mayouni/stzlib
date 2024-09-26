@@ -5916,8 +5916,8 @@ class stzString from stzObject
 	
 	#-- WIHTOUT CASESENSITIVITY
 
-	def Lines(pCaseSensitive)
-		return This.LinesCS(pCaseSensitive, TRUE)
+	def Lines()
+		return This.LinesCS(TRUE)
 
 		#< @FunctionFluentForms
 
@@ -6096,6 +6096,97 @@ class stzString from stzObject
 			return This.NumberOfUniqueLines()
 
 		#>
+
+	  #-------------------------------------#
+	 #  GETTING THE NUMBER OF EMPTY LINES  #
+	#=====================================#
+
+	def NumberOfEmptyLinesCS(pCaseSensitive)
+		acLines = This.LinesCS(pCaseSensitive)
+		nLen = len(acLines)
+
+		nResult = 0
+
+		for i = 1 to nLen
+			if ring_trim(acLines[i]) = ""
+				nResult++
+			ok
+		next
+
+		return nResult
+
+
+		#< @FunctionAlternativeForms
+
+		def HowManyEmptyLinesCS(pCaseSensitive)
+			return This.NumberOfEmptyLinesCS(pCaseSensitive)
+
+		def HowManyEmptyLineCS(pCaseSensitive)
+			return This.NumberOfEmptyLinesCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfEmptyLines()
+		return This.NumberOfEmptyLinesCS(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def HowManyEmptyLines()
+			return This.NumberOfEmptyLines()
+
+		def HowManyEmptyLine()
+			return This.NumberOfEmptyLines()
+
+		#>
+
+	  #--------------------------------------------#
+	 #  REMOVING THE EMPTY LINES FROM THE STRING  #
+	#============================================#
+
+	def RemoveEmptyLinesCS(pCaseSensitive)
+		acLines = This.LinesCS(pCaseSensitive)
+		nLen = len(acLines)
+
+		cResult = ""
+
+		for i = 1 to nLen
+			if NOT ring_trim(acLines[i]) = ""
+				cResult += acLines[i] + NL
+			ok
+		next
+
+		cResult = StzStringQ(cResult).LastCharRemoved()
+		This.UpdateWith(cResult)
+
+
+		#< @FunctionFluentForm
+
+		def RemoveEmptyLinesCSQ(pCaseSensitive)
+			This.RemoveEmptyLinesCS(pCaseSensitive)
+			return This
+
+		#>
+
+	def EmptyLinesRemovedCS(pCaseSensitive)
+		cResult = This.Copy().RemoveEmptyLinesCSQ(pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveEmptyLines()
+		This.RemoveEmptyLinesCS(TRUE)
+
+		#< @FunctionFluentForm
+
+		def RemoveEmptyLinesQ()
+			return This.RemoveEmptyLinesCSQ(pCaseSensitive)
+
+		#>
+
+	def EmptyLinesRemoved()
+		return This.EmptyLinesRemovedCS(TRUE)
 
 	  #------------------------------------------#
 	 #  REMOVING LINES UNDER A GIVEN CONDITION  #
@@ -50734,7 +50825,7 @@ n1 = Min(aTemp)
 
 		while bContinue
 	
-			nPos = This.FindFirstCSXT(pcSubStr, :StartingAt = nPos + 1, pCaseSensitive)
+			nPos = This.FindFirstSCS(pcSubStr, nPos + 1, pCaseSensitive)
 			if nPos = 0
 				bContinue = FALSE
 			else
