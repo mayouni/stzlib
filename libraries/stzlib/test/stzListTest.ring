@@ -7849,7 +7849,7 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 pron()
 
 StzListQ([ "A" , "B", "C", "A", "D", "A" ]) {
-	ReplaceNextNthOccurrenceS(2, :Of = "A", :With = "*", :StartingAt = 2 )
+	ReplaceNextNthOccurrenceStartingAt(2, :Of = "A", :With = "*", :StartingAt = 2 )
 	? Content() #--> [ "A" , "B", "C", "A", "D", "*" ]
 }
 

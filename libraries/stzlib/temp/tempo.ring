@@ -1,6 +1,45 @@
 
 load "../stzlib.ring"
 
+/*----------- #narration Conditional Code()
+*/
+
+# Any function in Ring can be turned Conditional by adding the W()
+# suffix to it. Which enables us to solve various algorithmic problems
+# in an interesting and flexible way.
+
+# Let's take an example of the SubStrings() function:
+
+pron()
+
+Q("Ali 12500 Tony 24800 Claude 12340") {
+
+	? @@S(  SubStrings() ) + NL	# @@S() ~> ShowShort()
+	#--> [ "A", "Al", "Ali", "...", "3", "34", "4" ]
+
+	? HowManySubStrings() + NL
+	#--> 528
+
+	? SubStringsWXT('
+		IsNumberInString(@SubString) and
+		substr(@SubString, " ") = 0 and
+		len(@SubString) = 5 '
+	)
+	#--> [ "12500", "24800", "12340" ]
+}
+
+# The code shows the SubStrings() function in stzString class (returned
+# by the small Q() function at the first line).
+
+# The function returns a large number of possible substrings (528 exactly!).
+# To filter them and get only the numbers that we have after each person's
+# name, we can do it quickly by adding ...W() to the function and feeding
+# it with the necessary conditions.
+
+proff()
+# Executed in 5.88 second(s).
+
+
 /*=====
 
 pron()

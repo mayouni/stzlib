@@ -1180,7 +1180,7 @@ proff()
 # Executed in 0.12 second(s)
 
 /*-------------------
-*/
+
 pron()
 
 o1 = new stzList([ "a", "b", "c", "d" ])
@@ -1199,21 +1199,29 @@ proff()
 
 /*==============
 
-o1 = new stzListOfStrings([
+pron()
+
+o1 = new stzList([
 	"TUNIS", "GAFSA", "SFAX", "BEJA", "GABES", "REGUEB"
 ])
 
 ? o1.IsUppercase() #--> TRUE
-? o1.AllStringsAreUppercase() #--> TRUE
+
+proff()
+# Executed in 0.06 second(s).
 
 /*------------------
 
-o1 = new stzListOfStrings([
+pron()
+
+o1 = new stzList([
 	"tunis", "gafsa", "sfax", "beja", "gabes", "regueb"
 ])
 
 ? o1.IsLowercase()
-? o1.AllStringsAreLowercase()
+
+proff()
+# Executed in 0.06 second(s).
 
 /*================
 
@@ -1241,9 +1249,9 @@ o1 = new stzListOfStrings([
 #--> TRUE
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.08 second(s)
 
-/* ---------------
+/*---------------
 
 pron()
 
@@ -1258,9 +1266,11 @@ o1 = new stzListOfStrings([
 proff()
 # Executed in 0.04 second(s)
 
-/* -------------
+/*-------------
 
-o1 = new stzListOfStrings([
+pron()
+
+o1 = new stzList([
 	"TuNIS", "Tunis", "TUNIS", "TUNIS",
 	"gatufsa", "tunis", "tunis",
 	"gabes", "Tunis", "Tunis",
@@ -1272,57 +1282,69 @@ o1 = new stzListOfStrings([
 ? @@(o1.FindAllCS("tunis", TRUE))
 #--> [ 6, 7, 14 ]
 
-? o1.FindAllCS("tunis", :cs = false)
+? @@( o1.FindAllCS("tunis", :cs = false) )
 #--> [ 1, 2, 3, 4, 6, 7, 9, 10, 14 ]
 
-? @@( o1.FindAllExceptNthCS("tunis", :FirstOccurrence, :CS = FALSE) )
-#--> [ 2, 3, 4, 6, 7, 9, 10, 14 ]
-
-? o1.FindAllExceptNthCS("tunis", :LastOccurrence, :CS = FALSE)
-#--> [ 1, 2, 4, 6, 7, 9, 10 ]
-
-? o1.FindAllExceptNthCS("tunis", 3, :cs = false )
-#--> [ 1, 2, 4, 6, 7, 9, 10, 14 ]
+proff()
+# Executed in 0.02 second(s).
 
 /* =================== MANAGING DUPLICATED STRINGS
-
+*/
 pron()
 
-o1 = new stzListOfStrings([
+o1 = new stzList([
 	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
 	"tunis", "tunis", "regueb", "sfax", "regueb", "Tunis"
 ])
 
-/*
-? o1.ContainsDuplicatedStrings()
+
+? o1.ContainsDuplicatedItems() + NL
 #--> TRUE
 # Executed in 0.10 second(s)
-/*
-? @@( o1.DuplicatedStrings() )
+
+	//? o1.NumberOfDuplicatedItems()
+
+? @@( o1.DuplicatedItems() ) + NL
 #--> [ "tunis", "regueb" ]
 # Executed in 0.24 second(s)
 
-? @@( o1.DuplicatedStringsZ() )
+? @@SP( o1.DuplicatedItemsZ() ) + NL
 # [
-#	[ "tunis",  [ 1, 2, 3, 5, 6, 8, 9 ] ],
-#	[ "regueb", [ 10, 12 ] ]
+#	[ "tunis",  [ 2, 3, 5, 6, 8, 9 ] ],
+#	[ "regueb", [ 12 ] ]
 # ]
 # Executed in 0.37 second(s)
 
-? @@( o1.FindDuplicatedStrings() )
-#--> [ 1, 2, 3, 5, 6, 8, 9, 10, 12 ]
+? @@( o1.FindDuplicatedItems() ) + NL
+#--> [ 2, 3, 5, 6, 8, 9, 12 ]
 # Executed in 0.41 second(s)
 
-? o1.ContainsDuplicatedString("tunis")
+//? o1.ContainsDuplicatedItem("tunis")
+//? o1.ContainsDuplicationsOf("tunis")
 #--> TRUE
 # Executed in 0.10 second(s)
 
-? @@( o1.FindDuplicatedString("tunis") )
-#--> [ 1, 2, 3, 5, 6, 8, 9 ]
-# Executed in 0.12 second(s)
+? @@( o1.FindDuplicationsOf("tunis") ) + NL
+#--> [ 2, 3, 5, 6, 8, 9, 12 ]
 
-? @@( o1.FindDuplicatedStringCS("tunis", :CS = FALSE) )
-#--> [ 1, 2, 3, 5, 6, 8, 9, 13 ]
+	//? @@( o1.FindDuplicatedItem("tunis") )
+	#--> [ 1, 2, 3, 5, 6, 8, 9 ]
+	# Executed in 0.12 second(s)
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzList([
+	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
+	"tunis", "tunis", "regueb", "sfax", "regueb", "Tunis"
+])
+
+? @@( o1.FindDuplicationsOfItemCS("tunis", :CS = FALSE) )
+#--> [ 2, 3, 5, 6, 8, 9, 13 ]
 # Executed in 0.12 second(s)
 
 ? o1.ContainsDuplicatedString("regueb") #--> TRUE
@@ -1343,10 +1365,17 @@ o1 = new stzListOfStrings([
 #--> [ "tunis", "regueb" ]
 # Executed in 0.24 second(s)
 
+proff()
 
+#----------------
 
-#--
-/*
+pron()
+
+o1 = new stzList([
+	"tunis", "tunis", "tunis", "gatfsa", "tunis", "tunis", "gabes",
+	"tunis", "tunis", "regueb", "sfax", "regueb", "Tunis"
+])
+
 ? o1.NumberOfDuplicatesOfString("tunis")
 #--> 6
 #--> Executed in 0.17 second(s)
@@ -1354,7 +1383,6 @@ o1 = new stzListOfStrings([
 ? o1.NumberOfDuplicatesOfString("regueb")
 #--> 1
 # Executed in 0.10 second(s)
-
 
 ? o1.StringIsDuplicatedNTimes("tunis", 6)	#--> TRUE
 ? o1.StringIsDuplicatedNTimes("regueb", 1)	#--> TRUE
