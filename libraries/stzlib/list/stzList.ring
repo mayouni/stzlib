@@ -13307,40 +13307,8 @@ class stzList from stzObject
 	#----------------------------------------------#
 
 	def RemoveNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
-
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstPosition, :FirstItem, :FirstItem ], :CS = FALSE)
-
-				pnStartingAt = 1
-			
-			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastPosition, :LastItem, :LastItem ], :CS = FALSE)
-
-				pnStartingAt = This.NumberOfItems()
-			ok
-		ok
-
-		if NOT isNumber(pnStartingAt)
-			StzRaise("Incorrect param! pnStartingAt must be a number.")
-		ok
-
-		oSection   = This.SectionQ(pnStartingAt, :LastItem)
-		anPos = oSection.FindAllCS(pItem, pCaseSensitive)
-
-		if len(anPos) > 0
-			anPos = StzListOfNumbersQ(anPos).AddToEachQ(pnStartingAt - 1).Content()
-			nPos = anPos[n]
-	
-			This.RemoveItemAtPosition(nPos)
-		ok
+		nPos = This.FindNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+		This.RemoveItemAtPosition(n, pItem)
 
 		#< @FuntionFluentForm
 
@@ -13356,10 +13324,25 @@ class stzList from stzObject
 			This.RemoveNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 
 			def RemoveNthNextOccurrenceCSQ(n, pItem, pnStartingAt, pCaseSensitive)
-				This.RemoveNthNextOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
-				return This
+				return This.RemoveNextNthOccurrenceCSQ(n, pItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def RemoveNextNthOccurrenceSTCS(n, pItem, pnStartingAt, pCaseSensitive)
+			This.RemoveNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+
+			def RemoveNextNthOccurrenceSTCSQ(n, pItem, pnStartingAt, pCaseSensitive)
+				return This.RemoveNextNthOccurrenceCSQ(n, pItem, pnStartingAt, pCaseSensitive)
+
+		def RemoveNthNextOccurrenceSTCS(n, pItem, pnStartingAt, pCaseSensitive)
+			This.RemoveNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
+
+			def RemoveNthNextOccurrenceSTCSQ(n, pItem, pnStartingAt, pCaseSensitive)
+				return This.RemoveNextNthOccurrenceCSQ(n, pItem, pnStartingAt, pCaseSensitive)
 
 		#>
+
+	#-- @FunctionPassiveForm
 
 	def NthNextOccurrenceRemovedCS(n, pItem, pnStartingAt, pCaseSensitive)
 
@@ -13369,8 +13352,20 @@ class stzList from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def NextNthOccurrenceRemovedCS(n, pItem, pnStartingAt, pCaseSensitive)
 			return This.NthNextOccurrenceRemovedCS(n, pItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def NthNextOccurrenceRemovedSTCS(n, pItem, pnStartingAt, pCaseSensitive)
+			return This.NthNextOccurrenceRemovedCS(n, pItem, pnStartingAt, pCaseSensitive)
+
+		def NextNthOccurrenceRemovedSTCS(n, pItem, pnStartingAt, pCaseSensitive)
+			return This.NthNextOccurrenceRemovedCS(n, pItem, pnStartingAt, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -13394,6 +13389,20 @@ class stzList from stzObject
 				This.RemoveNthNextOccurrence(n, pItem, pnStartingAt)
 				return This
 
+		#--
+
+		def RemoveNextNthOccurrenceST(n, pItem, pnStartingAt)
+			This.RemoveNextNthOccurrence(n, pItem, pnStartingAt)
+
+			def RemoveNextNthOccurrenceSTQ(n, pItem, pnStartingAt)
+				return This.RemoveNextNthOccurrenceQ(n, pItem, pnStartingAt)
+
+		def RemoveNthNextOccurrenceST(n, pItem, pnStartingAt)
+			This.RemoveNextNthOccurrence(n, pItem, pnStartingAt)
+
+			def RemoveNthNextOccurrenceSTQ(n, pItem, pnStartingAt)
+				return This.RemoveNextNthOccurrenceQ(n, pItem, pnStartingAt)
+
 		#>
 
 	def NthNextOccurrenceRemoved(n, pItem, pnStartingAt)
@@ -13404,8 +13413,20 @@ class stzList from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def NextNthOccurrenceRemoved(n, pItem, pnStartingAt)
 			return This.NthNextOccurrenceRemoved(n, pItem, pnStartingAt)
+
+		#--
+
+		def NthNextOccurrenceRemovedST(n, pItem, pnStartingAt)
+			return This.NthNextOccurrenceRemoved(n, pItem, pnStartingAt)
+
+		def NextNthOccurrenceRemovedST(n, pItem, pnStartingAt)
+			return This.NthNextOccurrenceRemoved(n, pItem, pnStartingAt)
+
+		#>
 
 	   #-----------------------------------------------#
 	  #   REMOVING NEXT OCCURRENCE OF AN ITEM         #
@@ -13415,16 +13436,37 @@ class stzList from stzObject
 	def RemoveNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 		This.RemoveNextNthOccurrenceCS(1, pItem, pnStartingAt, pCaseSensitive)
 
+		#< @FunctionFluentForm
+
 		def RemoveNextOccurrenceCSQ(pItem, pnStartingAt, pCaseSensitive)
 			This.RemoveNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitiy)
 			return This
 
-		def RemoveSCS(pItem, pnStartingAt, pCaseSensitive)
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveNextCS(pItem, pnStartingAt, pCaseSensitive)
 			This.RemoveNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
 			def RemoveNextCSQ(pItem, pnStartingAt, pCaseSensitive)
-				This.RemoveSCS(pItem, pnStartingAt, pCaseSensitive)
-				return This
+				return This.RemoveNextOccurrenceCSQ(pItem, pnStartingAt, pCaseSensitive)
+
+		def RemoveNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+			This.RemoveNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+
+			def RemoveNextSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.RemoveNextOccurrenceCSQ(pItem, pnStartingAt, pCaseSensitive)
+
+		def RemoveNextOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+			This.RemoveNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+
+			def RemoveNextOccurrenceSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.RemoveNextOccurrenceCSQ(pItem, pnStartingAt, pCaseSensitive)
+
+		#>
+
+	#-- @FunctionPassiveForm
 
 	def NextOccurrenceRemovedCS(pItem, pnStartingAt, pCaseSensitive)
 		aResult =  This.Copy().
@@ -13432,24 +13474,49 @@ class stzList from stzObject
 				Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def NextRemovedCS(pItem, pnStartingAt, pCaseSensitive)
 			return This.NextOccurrenceRemovedCS(pItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def NextRemovedSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.NextOccurrenceRemovedCS(pItem, pnStartingAt, pCaseSensitive)
+
+		def NextOccurrenceRemovedSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.NextOccurrenceRemovedCS(pItem, pnStartingAt, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNextOccurrence(pItem, pnStartingAt)
 		This.RemoveNextNthOccurrence(1, pItem, pnStartingAt)
 
-		def RemoveNextOccurrenceQ(pItem, pnStartingAt)
-			This.RemoveNextOccurrence(pItem, pnStartingAt)
-			return This
+		#< @FunctionAlternativeForms
 
 		def RemoveNext(pItem, pnStartingAt)
 			This.RemoveNextOccurrence(pItem, pnStartingAt)
 
 			def RemoveNextQ(pItem, pnStartingAt)
-				This.RemoveNext(pItem, pnStartingAt)
-				return This
+				return This.RemoveNextOccurrenceQ(pItem, pnStartingAt)
+
+		def RemoveNextST(pItem, pnStartingAt)
+			This.RemoveNextOccurrence(pItem, pnStartingAt)
+
+			def RemoveNextSTQ(pItem, pnStartingAt)
+				return This.RemoveNextOccurrenceQ(pItem, pnStartingAt)
+
+		def RemoveNextOccurrenceST(pItem, pnStartingAt)
+			This.RemoveNextOccurrence(pItem, pnStartingAt)
+
+			def RemoveNextOccurrenceSTQ(pItem, pnStartingAt)
+				return This.RemoveNextOccurrenceQ(pItem, pnStartingAt)
+
+		#>
+
+	#-- @FunctionPassiveForm
 
 	def NextOccurrenceRemoved(pItem, pnStartingAt)
 		aResult =  This.Copy().
@@ -13457,73 +13524,38 @@ class stzList from stzObject
 				Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def NextRemoved(pItem, pnStartingAt)
 			return This.NextOccurrenceRemoved(pItem, pnStartingAt)
+
+		#--
+
+		def NextRemovedST(pItem, pnStartingAt)
+			return This.NextOccurrenceRemoved(pItem, pnStartingAt)
+
+		def NextOccurrenceRemovedST(pItem, pnStartingAt)
+			return This.NextOccurrenceRemoved(pItem, pnStartingAt)
+
+		#>
 
 	   #----------------------------------------------------#
 	  #   REMOVING MANY NEXT NTH OCCURRENCES OF AN ITEM    #
 	 #   STARTING AT A GIVEN POSITION IN THE LIST         #
 	#----------------------------------------------------#
 
-	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		/* Example
 
 		StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-			RemoveNexNthOccurrences([2, 3], :of = "A", :StartingAt = 3)
+			RemoveNextNthOccurrences([2, 3], :of = "A", :StartingAt = 3)
 			? Content() # !--> [ "A" , "B", "A", "C", "D" ]
 		}		
 
 		*/
 
-		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
-		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
-
-			StzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
-		ok
-
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
-
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstPosition, :FirstItem, :FirstItem ], :CS = FALSE)
-
-				pnStartingAt = 1
-			
-			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastPosition, :LastItem, :LastItem ], :CS = FALSE)
-
-				pnStartingAt = This.NumberOfItems()
-			ok
-		ok
-
-		if NOT isNumber(pnStartingAt)
-			StzRaise("Incorrect param! pnStartingAt must be a number.")
-		ok
-			
-		oSection = This.SectionQ(pnStartingAt, :LastItem)
-
-		anPos  = 	oSection.
-				FindAllCSQR(pItem, pCaseSensitive, :stzListOfNumbers).
-				AddToEachQ(pnStartingAt-1).
-				Content()
-
-		anPosToBeRemoved = []
-		nLen = len(panList)
-		nLenPos = len(anPos)
-
-		for i = 1 to nLen
-			if i <= nLenPos
-				anPosToBeRemoved +  anPos[panList[i]]
-			ok
-		next
-
-		This.RemoveItemsAtThesePositionsCS(anPosToBeRemoved, pCaseSensitive)
+		anPos = This.FindNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+		This.RemoveItemsAtPositions(anPos)
 
 		#< @FunctionFluentForm
 
@@ -13812,53 +13844,9 @@ class stzList from stzObject
 		}		
 
 		*/
-		#TODO # Review this implementation for performance!
-		if NOT (isList(panList) and StzListQ(panList).IsListOfNumbers() and
-		        StzListQ(panList).NumberOfItemsW("StzNumberQ(@item).IsBetween(1, " + This.NumberOfItems() + ")") = len(panList) )
 
-			StzRaise("Incorrect param! panList must be a list of numbers between 1 and This.NumberOfItems().")
-		ok
-
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
-			pItem = pItem[2]
-		ok
-
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstPosition, :FirstItem, :FirstItem ], :CS = FALSE)
-
-				pnStartingAt = 1
-			
-			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastPosition, :LastItem, :LastItem ], :CS = FALSE)
-
-				pnStartingAt = This.NumberOfItems()
-			ok
-		ok
-
-		if NOT isNumber(pnStartingAt)
-			StzRaise("Incorrect param! pnStartingAt must be a number.")
-		ok
-			
-		oSection = This.SectionQ(1, pnStartingAt)
-
-		anPos = oSection.FindAllCSQ(pItem, pCaseSensitive).ItemsReversed()
-
-		anPosToBeRemoved = []
-		nLen = len(panList)
-		nLenPositions = len(anPos)
-
-		for i = 1 to nLen
-			if i <= nLenPso
-				anPosToBeRemoved + anPos[panList[i]]
-			ok
-		next
-
-		This.RemoveItemsAtThesePositionsCS(anPosToBeRemoved, pCaseSensitive)
+		anPos = This.FindPreviousNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+		This.RemoveItemsAtPositions(anPos)
 
 		#< @FunctionFluentForm
 
@@ -13874,15 +13862,35 @@ class stzList from stzObject
 			This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 			def RemovePreviousOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
-				This.RemovePreviousOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
-				return This
+				return This.RemovePreviousNthOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		def RemoveNthPreviousOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 			def RemoveNthPreviousOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
-				This.RemoveNthPreviousOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
-				return This
+				return This.RemovePreviousNthOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def RemovePreviousNthOccurrencesSTCS(panList, pItem, pnStartingAt, pCaseSensitive)
+			This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+			def RemovePreviousNthOccurrencesSTCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+				return This.RemovePreviousNthOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+
+
+		def RemovePreviousOccurrencesSTCS(panList, pItem, pnStartingAt, pCaseSensitive)
+			This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+			def RemovePreviousOccurrencesSTCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+				return This.RemovePreviousNthOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+
+		def RemoveNthPreviousOccurrencesSTCS(panList, pItem, pnStartingAt, pCaseSensitive)
+			This.RemovePreviousNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+			def RemoveNthPreviousOccurrencesSTCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+				return This.RemovePreviousNthOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+
 		#>
 
 	def PreviousNthOccurrencesRemovedCS(panList, pItem, pnStartingAt, pCaseSensitive)
@@ -13893,8 +13901,20 @@ class stzList from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def NthPreviousOccurrencesRemovedCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			return This.PreviousNthOccurrencesRemovedCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def PreviousNthOccurrencesRemovedSTCS(panList, pItem, pnStartingAt, pCaseSensitive)
+			return This.PreviousNthOccurrencesRemovedCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+		def NthPreviousOccurrencesRemovedSTCS(panList, pItem, pnStartingAt, pCaseSensitive)
+			return This.PreviousNthOccurrencesRemovedCS(panList, pItem, pnStartingAt, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -13915,17 +13935,35 @@ class stzList from stzObject
 			This.RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
 
 			def RemovePreviousOccurrencesQ(panList, pItem, pnStartingAt)
-				This.RemovePreviousOccurrences(panList, pItem, pnStartingAt)
-				return This
-
-		#--
+				return This.RemovePreviousNthOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		def RemoveNthPreviousOccurrences(panList, pItem, pnStartingAt)
 			This.RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
 
 			def RemoveNthPreviousOccurrencesQ(panList, pItem, pnStartingAt)
-				This.RemoveNthPreviousOccurrences(panList, pItem, pnStartingAt)
-				return This
+				return This.RemovePreviousNthOccurrencesCSQ(panList, pItem, pnStartingAt, pCaseSensitive)
+
+
+		#--
+
+		def RemovePreviousNthOccurrencesST(panList, pItem, pnStartingAt)
+			This.RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
+
+			def RemovePreviousNthOccurrencesSTQ(panList, pItem, pnStartingAt)
+				return This.RemovePreviousNthOccurrencesQ(panList, pItem, pnStartingAt)
+
+		def RemovePreviousOccurrencesST(panList, pItem, pnStartingAt)
+			This.RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
+
+			def RemovePreviousOccurrencesSTQ(panList, pItem, pnStartingAt)
+				return This.RemovePreviousNthOccurrencesQ(panList, pItem, pnStartingAt, pCaseSensitive)
+
+		def RemoveNthPreviousOccurrencesST(panList, pItem, pnStartingAt)
+			This.RemovePreviousNthOccurrences(panList, pItem, pnStartingAt)
+
+			def RemoveNthPreviousOccurrencesSTQ(panList, pItem, pnStartingAt)
+				return This.RemovePreviousNthOccurrencesQ(panList, pItem, pnStartingAt)
+
 		#>
 
 	def PreviousNthOccurrencesRemoved(panList, pItem, pnStartingAt)
@@ -13936,12 +13974,24 @@ class stzList from stzObject
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def NthPreviousOccurrencesRemoved(panList, pItem, pnStartingAt)
 			return This.PreviousNthOccurrencesRemoved(panList, pItem, pnStartingAt)
 
-	  #---------------------------------------------------#
+		#--
+
+		def PreviousNthOccurrencesRemovedST(panList, pItem, pnStartingAt)
+			return This.PreviousNthOccurrencesRemoved(panList, pItem, pnStartingAt)
+
+		def NthPreviousOccurrencesRemovedST(panList, pItem, pnStartingAt)
+			return This.PreviousNthOccurrencesRemoved(panList, pItem, pnStartingAt)
+
+		#>
+
+	  #--------------------------------------------------#
 	 #   REMOVING AN ITEM BY SPECIFYING ITS POSITION    #
-	#---------------------------------------------------#
+	#--------------------------------------------------#
 
 	def RemoveItemAtPosition(n)
 
@@ -15438,200 +15488,362 @@ class stzList from stzObject
 	 #  EXTRACTING NEXT ITEM STARTING AT A GIVEN POSITION  #
 	#-----------------------------------------------------#
 
-	def ExtractNextSCS(pItem, pnStartingAt, pCaseSensitive)
+	def ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
 		if This.FindNext(pItem, pnStartingAt, pCaseSensitive) = 0
 			StzRaise("Can't extract! pItem does not exist at the specified position.")
 		ok
 
-		This.RemoveSCS(pItem, pnStartingAt, pCaseSensitive)
+		This.RemoveSTCS(pItem, pnStartingAt, pCaseSensitive)
 		return pItem
+
+		#< @FunctionFluentForm
+
+		def ExtractNextSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+			This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
-		def ExtractNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pItem, pnStartingAt, pCaseSensitive)
+		def ExtractNextCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
 
-		def PopNextSCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pItem, pnStartingAt, pCaseSensitive)
+			def ExtractNextCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.ExtractNextSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+
+		def ExtractNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+			def ExtractNextOccurrenceCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.ExtractNextSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+
+		def PopNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+			def PopNextSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.ExtractNextSTCSQ(pItem, pnStartingAt, pCaseSensitive)
 
 		def PopNextOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+			def PopNextOccurrenceCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.ExtractNextSTCSQ(pItem, pnStartingAt, pCaseSensitive)
 
 		#--
 
-		def ExtractNextOccurrenceSCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pItem, pnStartingAt, pCaseSensitive)
+		def ExtractNextOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
 
-		def PopNextOccurrenceSCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pItem, pnStartingAt, pCaseSensitive)
+			def ExtractNextOccurrenceSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.ExtractNextSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+
+		def PopNextOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+			def PopNextOccurrenceSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.ExtractNextSTCSQ(pItem, pnStartingAt, pCaseSensitive)
 
 		#>
+
+	#-- @FunctionPassiveForms
 
 	def NextOccurrenceExtractedCS(pItem, pnStartingAt, pCaseSensitive)
 		return This.ExtractNextSCS(pItem, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
+		def NextExtractedCS(pItem, pnStartedAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+	
 		def NextOccurrenceExtractedSCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
 	
 		def NextOccurrencePoppedCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
 	
 		def NextOccurrencePoppedSCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
 
+		#--
+
+		def NextOccurrenceExtractedSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.NextOccurrenceExtractedCS(pItem, pnStartingAt, pCaseSensitive)
+
+		def NextExtractedSTCS(pItem, pnStartedAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+		
+		def NextOccurrencePoppedSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+	
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ExtractNext(item, pnStartingAt)
-		return This.ExtractNext(item, pnStartingAt, TRUE)
+	def ExtractNextST(item, pnStartingAt)
+		return This.ExtractNextST(item, pnStartingAt, TRUE)
 
-		#< @FunctionAlternativeForms
+		#< @FunctionFluentForm
 
-		def ExtractNextOccurrence(pItem, pnStartingAt)
-			return This.ExtractNext(pItem, pnStartingAt)
-
-		def PopNext(pItem, pnStartingAt)
-			return This.ExtractNext(pItem, pnStartingAt)
-
-		def PopNextOccurrence(pItem, pnStartingAt)
-			return This.ExtractNext(pItem, pnStartingAt)
-
-		#--
-
-		def ExtractNextS(pItem, pnStartingAt)
-			return This.ExtractNext(pItem, pnStartingAt)
-
-		def ExtractNextOccurrenceS(pItem, pnStartingAt)
-			return This.ExtractNext(pItem, pnStartingAt)
-
-		def PopNextS(pItem, pnStartingAt)
-			return This.ExtractNext(pItem, pnStartingAt)
-
-		def PopNextOccurrenceS(pItem, pnStartingAt)
-			return This.ExtractNext(pItem, pnStartingAt)
+		def ExtractNextSTQ(pItem, pnStartingAt)
+			This.ExtractNextST(pItem, pnStartingAt)
+			return This
 
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def ExtractNext(pItem, pnStartingAt)
+			return This.ExtractNextST(pItem, pnStartingAt)
+
+			def ExtractNextQ(pItem, pnStartingAt)
+				return This.ExtractNextSTQ(pItem, pnStartingAt)
+
+		def ExtractNextOccurrence(pItem, pnStartingAt)
+			return This.ExtractNextST(pItem, pnStartingAt)
+
+			def ExtractNextOccurrenceQ(pItem, pnStartingAt)
+				return This.ExtractNextSTQ(pItem, pnStartingAt)
+
+		def PopNextST(pItem, pnStartingAt)
+			return This.ExtractNextST(pItem, pnStartingAt)
+
+			def PopNextSTQ(pItem, pnStartingAt)
+				return This.ExtractNextSTQ(pItem, pnStartingAt)
+
+		def PopNextOccurrence(pItem, pnStartingAt)
+			return This.ExtractNextST(pItem, pnStartingAt)
+
+			def PopNextOccurrenceQ(pItem, pnStartingAt)
+				return This.ExtractNextSTQ(pItem, pnStartingAt)
+
+		#--
+
+		def ExtractNextOccurrenceST(pItem, pnStartingAt)
+			return This.ExtractNextST(pItem, pnStartingAt)
+
+			def ExtractNextOccurrenceSTQ(pItem, pnStartingAt)
+				return This.ExtractNextSTQ(pItem, pnStartingAt)
+
+		def PopNextOccurrenceST(pItem, pnStartingAt)
+			return This.ExtractNextST(pItem, pnStartingAt)
+
+			def PopNextOccurrenceSTQ(pItem, pnStartingAt)
+				return This.ExtractNextSTQ(pItem, pnStartingAt)
+
+		#>
+
+	#-- @FunctionPassiveForms
+
 	def NextOccurrenceExtracted(pItem, pnStartingAt)
-		return This.ExtractNext(pItem, pnStartingAt)
+		return This.ExtractNextS(pItem, pnStartingAt)
 
 		#< @FunctionAlternativeForms
 
+		def NextExtracted(pItem, pnStartedAt)
+			return This.ExtractNextST(pItem, pnStartingAt)
+	
 		def NextOccurrenceExtractedS(pItem, pnStartingAt)
-			return This.ExtractNext(pItem, pnStartingAt)
+			return This.ExtractNextST(pItem, pnStartingAt)
 	
 		def NextOccurrencePopped(pItem, pnStartingAt)
-			return This.ExtractNext(pItem, pnStartingAt)
+			return This.ExtractNextST(pItem, pnStartingAt)
 	
 		def NextOccurrencePoppedS(pItem, pnStartingAt)
-			return This.ExtractNext(pItem, pnStartingAt)
+			return This.ExtractNextST(pItem, pnStartingAt)
 
+		#--
+
+		def NextOccurrenceExtractedST(pItem, pnStartingAt)
+			return This.NextOccurrenceExtracted(pItem, pnStartingAt)
+
+		def NextExtractedST(pItem, pnStartedAt)
+			return This.ExtractNextST(pItem, pnStartingAt)
+		
+		def NextOccurrencePoppedST(pItem, pnStartingAt)
+			return This.ExtractNextST(pItem, pnStartingAt)
+	
 		#>
 
 	  #---------------------------------------------------------#
 	 #  EXTRACTING PREVIOUS ITEM STARTING AT A GIVEN POSITION  #
 	#---------------------------------------------------------#
 
-	def ExtractPreviousCS(item, pnStartingAt, pCaseSensitive)
-		if This.FindPreviousCS(item, pnStartingAt, pCaseSensitive) = 0
+	def ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+		if This.FindPrevious(pItem, pnStartingAt, pCaseSensitive) = 0
 			StzRaise("Can't extract! pItem does not exist at the specified position.")
 		ok
 
-		This.RemovePreviousCS(item, pnStartingAt, pCaseSensitive)
-		return item
+		This.RemoveSTCS(pItem, pnStartingAt, pCaseSensitive)
+		return pItem
 
-		#< @FunctionAlternativeForms
+		#< @FunctionFluentForm
 
-		def ExtractPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
-
-		def PopPreviousCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
-
-		def PopPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
-
-		#--
-
-		def ExtractPreviousSCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
-
-		def ExtractPreviousOccurrenceSCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
-
-		def PopPreviousSCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
-
-		def PopPreviousOccurrenceSCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
+		def ExtractPreviousSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+			This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This
 
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+			def ExtractPreviousCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.ExtractPreviousSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+
+		def ExtractPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+			def ExtractPreviousOccurrenceCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.ExtractPreviousSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+
+		def PopPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+			def PopPreviousSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.ExtractPreviousSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+
+		def PopPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+			def PopPreviousOccurrenceCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.ExtractPreviousSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def ExtractPreviousOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+			def ExtractPreviousOccurrenceSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.ExtractPreviousSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+
+		def PopPreviousOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+			def PopPreviousOccurrenceSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+				return This.ExtractPreviousSTCSQ(pItem, pnStartingAt, pCaseSensitive)
+
+		#>
+
+	#-- @FunctionPassiveForms
+
 	def PreviousOccurrenceExtractedCS(pItem, pnStartingAt, pCaseSensitive)
-		return This.ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
+		return This.ExtractPreviousSCS(pItem, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
+		def PreviousExtractedCS(pItem, pnStartedAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+	
 		def PreviousOccurrenceExtractedSCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
 	
 		def PreviousOccurrencePoppedCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
 	
 		def PreviousOccurrencePoppedSCS(pItem, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
 
+		#--
+
+		def PreviousOccurrenceExtractedSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.PreviousOccurrenceExtractedCS(pItem, pnStartingAt, pCaseSensitive)
+
+		def PreviousExtractedSTCS(pItem, pnStartedAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+		
+		def PreviousOccurrencePoppedSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+	
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ExtractPrevious(item, pnStartingAt)
-		return This.ExtractPreviousCS(item, pnStartingAt, TRUE)
+	def ExtractPreviousST(item, pnStartingAt)
+		return This.ExtractPreviousST(item, pnStartingAt, TRUE)
 
-		#< @FunctionAlternativeForms
+		#< @FunctionFluentForm
 
-		def ExtractPreviousOccurrence(pItem, pnStartingAt)
-			return This.ExtractPrevious(pItem, pnStartingAt)
-
-		def PopPrevious(pItem, pnStartingAt)
-			return This.ExtractPrevious(pItem, pnStartingAt)
-
-		def PopPreviousOccurrence(pItem, pnStartingAt)
-			return This.ExtractPrevious(pItem, pnStartingAt)
-
-		#--
-
-		def ExtractPreviousS(pItem, pnStartingAt)
-			return This.ExtractPrevious(pItem, pnStartingAt)
-
-		def ExtractPreviousOccurrenceS(pItem, pnStartingAt)
-			return This.ExtractPrevious(pItem, pnStartingAt)
-
-		def PopPreviousS(pItem, pnStartingAt)
-			return This.ExtractPrevious(pItem, pnStartingAt)
-
-		def PopPreviousOccurrenceS(pItem, pnStartingAt)
-			return This.ExtractPrevious(pItem, pnStartingAt)
+		def ExtractPreviousSTQ(pItem, pnStartingAt)
+			This.ExtractPreviousST(pItem, pnStartingAt)
+			return This
 
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def ExtractPrevious(pItem, pnStartingAt)
+			return This.ExtractPreviousST(pItem, pnStartingAt)
+
+			def ExtractPreviousQ(pItem, pnStartingAt)
+				return This.ExtractPreviousSTQ(pItem, pnStartingAt)
+
+		def ExtractPreviousOccurrence(pItem, pnStartingAt)
+			return This.ExtractPreviousST(pItem, pnStartingAt)
+
+			def ExtractPreviousOccurrenceQ(pItem, pnStartingAt)
+				return This.ExtractPreviousSTQ(pItem, pnStartingAt)
+
+		def PopPreviousST(pItem, pnStartingAt)
+			return This.ExtractPreviousST(pItem, pnStartingAt)
+
+			def PopPreviousSTQ(pItem, pnStartingAt)
+				return This.ExtractPreviousSTQ(pItem, pnStartingAt)
+
+		def PopPreviousOccurrence(pItem, pnStartingAt)
+			return This.ExtractPreviousST(pItem, pnStartingAt)
+
+			def PopPreviousOccurrenceQ(pItem, pnStartingAt)
+				return This.ExtractPreviousSTQ(pItem, pnStartingAt)
+
+		#--
+
+		def ExtractPreviousOccurrenceST(pItem, pnStartingAt)
+			return This.ExtractPreviousST(pItem, pnStartingAt)
+
+			def ExtractPreviousOccurrenceSTQ(pItem, pnStartingAt)
+				return This.ExtractPreviousSTQ(pItem, pnStartingAt)
+
+		def PopPreviousOccurrenceST(pItem, pnStartingAt)
+			return This.ExtractPreviousST(pItem, pnStartingAt)
+
+			def PopPreviousOccurrenceSTQ(pItem, pnStartingAt)
+				return This.ExtractPreviousSTQ(pItem, pnStartingAt)
+
+		#>
+
+	#-- @FunctionPassiveForms
+
 	def PreviousOccurrenceExtracted(pItem, pnStartingAt)
-		return This.ExtractPrevious(pItem, pnStartingAt)
+		return This.ExtractPreviousS(pItem, pnStartingAt)
 
 		#< @FunctionAlternativeForms
 
+		def PreviousExtracted(pItem, pnStartedAt)
+			return This.ExtractPreviousST(pItem, pnStartingAt)
+	
 		def PreviousOccurrenceExtractedS(pItem, pnStartingAt)
-			return This.ExtractPrevious(pItem, pnStartingAt)
+			return This.ExtractPreviousST(pItem, pnStartingAt)
 	
 		def PreviousOccurrencePopped(pItem, pnStartingAt)
-			return This.ExtractPrevious(pItem, pnStartingAt)
+			return This.ExtractPreviousST(pItem, pnStartingAt)
 	
 		def PreviousOccurrencePoppedS(pItem, pnStartingAt)
-			return This.ExtractPrevious(pItem, pnStartingAt)
+			return This.ExtractPreviousST(pItem, pnStartingAt)
 
+		#--
+
+		def PreviousOccurrenceExtractedST(pItem, pnStartingAt)
+			return This.PreviousOccurrenceExtracted(pItem, pnStartingAt)
+
+		def PreviousExtractedST(pItem, pnStartedAt)
+			return This.ExtractPreviousST(pItem, pnStartingAt)
+		
+		def PreviousOccurrencePoppedST(pItem, pnStartingAt)
+			return This.ExtractPreviousST(pItem, pnStartingAt)
+	
 		#>
 
 	  #===================================================================================#
@@ -38965,13 +39177,13 @@ class stzList from stzObject
 		# Trying with a Ring-based solution first (efficient if the list is
 		# made of strings or numbers and if the item is a string or number)
 
-		nResult = @FindNextCS(This.Content(), "*", 1_000_000, pCaseSensitive)
+		nResult = @FindNextCS(This.Content(), pItem, pnStartingAt, pCaseSensitive)
 
 		if nResult != -1
 			return nResult
 
 		else
-		# Otherwise we rely on an advance Softanza solution, based on the
+		# Otherwise we rely on an advanced Softanza solution, based on the
 		# fact of stringifying the items of the list, and permitting the
 		# finding of not only numbers and strings, but also lists and
 		# named objects...
@@ -38996,7 +39208,6 @@ class stzList from stzObject
 
 		#--
 
-		# Here I use _ to distinguish the function with FindNextOccurrencesCS(panPos,CS)
 		def FindNextOccurrenceSTCS(pItem, nStart, pCaseSensitive)
 			return This.FindNextOccurrenceCS(pItem, nStart, pCaseSensitive)
 
@@ -39021,7 +39232,6 @@ class stzList from stzObject
 
 		#--
 
-		# Here I use _ to distinguish the function with FindNextOccurrences(panPos)
 		def FindNextOccurrenceST(pItem, nStart)
 			return This.FindNextOccurrence(pItem, nStart)
 
@@ -39067,64 +39277,64 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def FindPreviousCS( pItem, nStart, pCaseSensitive )
-			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+		def FindPreviousCS( pItem, pnStartingAt, pCaseSensitive )
+			return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
-		def PreviousOccurrenceCS( pItem, nStart, pCaseSensitive )
-			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+		def PreviousOccurrenceCS( pItem, pnStartingAt, pCaseSensitive )
+			return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
 		#--
 
-		def FindPreviousOccurrenceSTCS(pItem, nStart, pCaseSensitive)
-			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+		def FindPreviousOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
-		def FindPreviousSTCS( pItem, nStart, pCaseSensitive )
-			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+		def FindPreviousSTCS( pItem, pnStartingAt, pCaseSensitive )
+			return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
-		def PreviousOccurrenceSTCS( pItem, nStart, pCaseSensitive )
-			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+		def PreviousOccurrenceSTCS( pItem, pnStartingAt, pCaseSensitive )
+			return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
 		#==
 
-		def FindPreviousItemCS(pITem, nStart, pCaseSensitive)
-			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+		def FindPreviousItemCS(pITem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
-		def FindPreviousItemSTCS(pITem, nStart, pCaseSensitive)
-			return This.FindPreviousOccurrenceCS(pItem, nStart, pCaseSensitive)
+		def FindPreviousItemSTCS(pITem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindPreviousOccurrence(pItem, nStart)
-		return This.FindPreviousOccurrenceCS(pItem, nStart, TRUE)
+	def FindPreviousOccurrence(pItem, pnStartingAt)
+		return This.FindPreviousOccurrenceCS(pItem, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def FindPrevious( pItem, nStart )
-			return This.FindPreviousOccurrence(pItem, nStart)
+		def FindPrevious( pItem, pnStartingAt )
+			return This.FindPreviousOccurrence(pItem, pnStartingAt)
 
-		def PreviousOccurrence( pItem, nStart )
-			return This.FindPreviousOccurrence(pItem, nStart)
+		def PreviousOccurrence( pItem, pnStartingAt )
+			return This.FindPreviousOccurrence(pItem, pnStartingAt)
 
 		#--
 
-		def FindPreviousOccurrenceST(pItem, nStart)
-			return This.FindPreviousOccurrence(pItem, nStart)
+		def FindPreviousOccurrenceST(pItem, pnStartingAt)
+			return This.FindPreviousOccurrence(pItem, pnStartingAt)
 
-		def FindPreviousST( pItem, nStart )
-			return This.FindPreviousOccurrence(pItem, nStart)
+		def FindPreviousST( pItem, pnStartingAt )
+			return This.FindPreviousOccurrence(pItem, pnStartingAt)
 
-		def PreviousOccurrenceST( pItem, nStart )
-			return This.FindPreviousOccurrence(pItem, nStart)
+		def PreviousOccurrenceST( pItem, pnStartingAt )
+			return This.FindPreviousOccurrence(pItem, pnStartingAt)
 
 		#==
 
-		def FindPreviousItem(pITem, nStart)
-			return This.FindPreviousOccurrence(pItem, nStart)
+		def FindPreviousItem(pITem, pnStartingAt)
+			return This.FindPreviousOccurrence(pItem, pnStartingAt)
 
-		def FindPreviousItemST(pITem, nStart)
-			return This.FindPreviousOccurrence(pItem, nStart)
+		def FindPreviousItemST(pITem, pnStartingAt)
+			return This.FindPreviousOccurrence(pItem, pnStartingAt)
 
 		#>
 
@@ -39134,29 +39344,33 @@ class stzList from stzObject
 	#-----------------------------------------#
 
 	def FindNextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
 
-		if isString(pnStartingAt)
-			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstItem ], :CS = FALSE)
+		if CheckParams()
 
-				pnStartingAt = 1
-			
-			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastItem ], :CS = FALSE)
-
-				pnStartingAt = This.NumberOfItems()
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
 			ok
-		ok
+	
+			if isString(pnStartingAt)
+				if Q(pnStartingAt).IsOneOfTheseCS([
+					:First, :FirstItem ], :CS = FALSE)
+	
+					pnStartingAt = 1
+				
+				but Q(pnStartingAt).IsOneOfTheseCS([
+					:Last, :LastItem ], :CS = FALSE)
+	
+					pnStartingAt = This.NumberOfItems()
+				ok
+			ok
+	
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param! pnStartingAt must be a number.")
+			ok
 
-		if NOT isNumber(pnStartingAt)
-			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
 		oSection = This.SectionQ(pnStartingAt, :LastItem)
-
 		anPos = oSection.FindAllCS(pItem, pCaseSensitive)
 		
 		anResult = StzListOfNumbersQ(anPos).
@@ -39206,29 +39420,33 @@ class stzList from stzObject
 	#---------------------------------------------#
 
 	def FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
 
-		if isString(pnStartingAt)
-			if Q(pnStartingAt).IsOneOfTheseCS([
-				:First, :FirstItem ], :CS = FALSE)
+		if CheckParams()
 
-				pnStartingAt = 1
-			
-			but Q(pnStartingAt).IsOneOfTheseCS([
-				:Last, :LastItem ], :CS = FALSE)
-
-				pnStartingAt = This.NumberOfItems()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
 			ok
-		ok
+	
+			if isString(pnStartingAt)
+				if Q(pnStartingAt).IsOneOfTheseCS([
+					:First, :FirstItem ], :CS = FALSE)
+	
+					pnStartingAt = 1
+				
+				but Q(pnStartingAt).IsOneOfTheseCS([
+					:Last, :LastItem ], :CS = FALSE)
+	
+					pnStartingAt = This.NumberOfItems()
+				ok
+			ok
+	
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param! pnStartingAt must be a number.")
+			ok
 
-		if NOT isNumber(pnStartingAt)
-			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
 		oSection = This.SectionQ(1, pnStartingAt)
-
 		anPos = oSection.FindAllCS(pcSubStr, pCaseSensitive)
 		
 		return anPos
@@ -39248,6 +39466,110 @@ class stzList from stzObject
 		def FindPreviousOccurrencesST(pcSubStr, pnStartingAt)
 			return This.FindPreviousOccurrences(pcSubStr, pnStartingAt)
 
+		#>
+
+	  #------------------------------------------------------------------------#
+	 #  FINDING NEXT NTH OCCURRENCES OF AN ITEM STARTING AT A GIVEN POSITION  #
+	#========================================================================#
+
+	def FindNextNthOccurrencesCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+
+		anAllPos = This.FindNextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
+		nLenPos = len(anAllPos)
+
+		anResult = []
+
+		for i = 1 to nLenPos
+			anResult + anAllPos[i]
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNthNextOccurrencesCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrencesCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def FindNextNthOccurrencesSTCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrencesCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+
+		def FindNthNextOccurrencesSTCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+			return This.FindNextNthOccurrencesCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+	
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNextNthOccurrences(panPos, pItem, pnStartingAt)
+		return This.FindNextNthOccurrencesCS(panPos, pItem, pnStartingAt, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNthNextOccurrences(panPos, pItem, pnStartingAt)
+			return This.FindNextNthOccurrences(panPos, pItem, pnStartingAt)
+
+		#--
+
+		def FindNextNthOccurrencesST(panPos, pItem, pnStartingAt)
+			return This.FindNextNthOccurrences(panPos, pItem, pnStartingAt)
+
+		def FindNthNextOccurrencesST(panPos, pItem, pnStartingAt)
+			return This.FindNextNthOccurrences(panPos, pItem, pnStartingAt)
+	
+		#>
+
+	  #----------------------------------------------------------------------------#
+	 #  FINDING PREVIOUS NTH OCCURRENCES OF AN ITEM STARTING AT A GIVEN POSITION  #
+	#============================================================================#
+
+	def FindPreviousNthOccurrencesCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+
+		anAllPos = This.FindPreviousOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
+		nLenPos = len(anAllPos)
+
+		anResult = []
+
+		for i = 1 to nLenPos
+			anResult + anAllPos[i]
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindNthPreviousOccurrencesCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrencesCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def FindPreviousNthOccurrencesSTCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrencesCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+
+		def FindNthPreviousOccurrencesSTCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousNthOccurrencesCS(panPos, pItem, pnStartingAt, pCaseSensitive)
+	
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindPreviousNthOccurrences(panPos, pItem, pnStartingAt)
+		return This.FindPreviousNthOccurrencesCS(panPos, pItem, pnStartingAt, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindNthPreviousOccurrences(panPos, pItem, pnStartingAt)
+			return This.FindPreviousNthOccurrences(panPos, pItem, pnStartingAt)
+
+		#--
+
+		def FindPreviousNthOccurrencesST(panPos, pItem, pnStartingAt)
+			return This.FindPreviousNthOccurrences(panPos, pItem, pnStartingAt)
+
+		def FindNthPreviousOccurrencesST(panPos, pItem, pnStartingAt)
+			return This.FindPreviousNthOccurrences(panPos, pItem, pnStartingAt)
+	
 		#>
 
 	  #===================================================#
@@ -39655,7 +39977,7 @@ class stzList from stzObject
 	returned from the StzCCodeQ().ExecutableSection method, to fill
 	it with the actual values of the current list.
 
-	So, for example, if the lists has 10 items:
+	So, for example, if the list has 10 items:
 
 		--> [ 1, :Last ] is transformed to [ 1, 10 ]
 		--> [ 2, -3 ] is transformed to [ 2, 7)
@@ -44172,15 +44494,20 @@ class stzList from stzObject
 	 #     MULTINGUAL    #
 	#===================#
 
-	def AllItemsAreLanguageAbbreviations()
+	def AreLanguageAbbreviations()
 		bResult = TRUE
-		for item in This.List()
-			if NOT StringIsLanguageAbbreviation(item)
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			if NOT StringIsLanguageAbbreviation(@aContent[i])
 				bResult = FALSE
 				exit
 			ok
 		next
 		return bResult
+
+		def AreLanguagesAbbreviations()
+			return This.AreLanguageAbbreviations
 
 	def IsMultilingualString()
 	     
