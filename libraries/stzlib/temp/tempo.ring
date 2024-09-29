@@ -2,7 +2,6 @@
 load "../stzlib.ring"
 
 /*----------- #narration Conditional Code()
-*/
 
 # Any function in Ring can be turned Conditional by adding the W()
 # suffix to it. Which enables us to solve various algorithmic problems
@@ -31,7 +30,7 @@ Q("Ali 12500 Tony 24800 Claude 12340") {
 # The code shows the SubStrings() function in stzString class (returned
 # by the small Q() function at the first line).
 
-# The function returns a large number of possible substrings (528 exactly!).
+# The function returns a large number of possible substrings (561 exactly!).
 # To filter them and get only the numbers that we have after each person's
 # name, we can do it quickly by adding ...W() to the function and feeding
 # it with the necessary conditions.
@@ -39,6 +38,18 @@ Q("Ali 12500 Tony 24800 Claude 12340") {
 proff()
 # Executed in 5.88 second(s).
 
+/*-----
+*/
+pron()
+
+StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
+
+	RemoveNextNthOccurrences([2, 3], :of = "A", :StartingAt = 3)
+	? Content() # !--> [ "A" , "B", "A", "C", "D" ]
+}		
+
+proff()
+# Executed in 0.03 second(s).
 
 /*=====
 
