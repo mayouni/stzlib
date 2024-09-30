@@ -43458,65 +43458,71 @@ class stzString from stzObject
 
 	def FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
 
-		# Resolving params
+		if CheckParams()
 
-		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
-			pcSubStr = pcSubStr[2]
-		ok
-
-		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
-			nStart = nStart[2]
-		ok
-
-		if isString(nStart) and Q(nStart).IsEither(:Last, :Or = :LastChar)
-			nStart = This.NumberOfChars()
-		ok
-
-		if isString(n)
-			oNString = Q(n)
-
-			if oNString.IsEither(:First, :Or = :FirstOccurrence)
-				n = 1
-
-			but oNString.IsEither(:Last, :Or = :LastOccurrence)
-				n = This.SectionQ(1, nStart).NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+			if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+				pcSubStr = pcSubStr[2]
 			ok
-		ok
-
-		if NOT @BothAreNumbers(n, nStart)
-			StzRaise("Incorrect param type! n and nStart must be numbers.")
-		ok
-
-		if NOT isString(pcSubStr)
-			StzRaise("Incorrect param type! pcSubStr must be a string.")
+	
+			if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
+				nStart = nStart[2]
+			ok
+	
+			if isString(nStart) and Q(nStart).IsEither(:Last, :Or = :LastChar)
+				nStart = This.NumberOfChars()
+			ok
+	
+			if isString(n)
+				oNString = Q(n)
+	
+				if oNString.IsEither(:First, :Or = :FirstOccurrence)
+					n = 1
+	
+				but oNString.IsEither(:Last, :Or = :LastOccurrence)
+					n = This.SectionQ(1, nStart).NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+				ok
+			ok
+	
+			if NOT @BothAreNumbers(n, nStart)
+				StzRaise("Incorrect param type! n and nStart must be numbers.")
+			ok
+	
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+	
+			ok
 
 		ok
 
 		# Early checks (gains performance for large strings)
 
-		if pcSubStr = ""
-			return 0
-		ok
+		if EarlyChecks()
 
-		if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
-			return 0
-		ok
+			if pcSubStr = ""
+				return 0
+			ok
+	
+			if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+				return 0
+			ok
+	
+			nLen = This.NumberOfChars()
+	
+			if nStart = 1
+				return 0
+			ok
+	
+			if (NOT Q(n).IsBetween(1, nLen - 1)) or
+			   (NOT Q(nStart).IsBetween(n + 1, nLen))
+	
+				return 0
+			ok
+	
+			if n = nLen and
+			   This.FirstCharQ().IsEqualToCS(pcSubStr, pCaseSensitive)
+				return nLen
+			ok
 
-		nLen = This.NumberOfChars()
-
-		if nStart = 1
-			return 0
-		ok
-
-		if (NOT Q(n).IsBetween(1, nLen - 1)) or
-		   (NOT Q(nStart).IsBetween(n + 1, nLen))
-
-			return 0
-		ok
-
-		if n = nLen and
-		   This.FirstCharQ().IsEqualToCS(pcSubStr, pCaseSensitive)
-			return nLen
 		ok
 
 		# Full check (only occurrences of pcSubStr are parsed, not every char)
@@ -43545,37 +43551,134 @@ class stzString from stzObject
 
 		return 0
 
+		#< @FunctionAlternativeForms
 
+		def FindPreviousNthCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		def FindPreviousNthCSZ(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
+ 
 		def FindNthPreviousCSZ(n, pcSubStr, nStart, pCaseSensitive)
 			return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		#--
+
+		def FindPreviousNthSTCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		def FindPreviousNthSTCSZ(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		def FindNthPreviousSTCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		def FindNthPreviousSTCSZ(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def FindNthPrevious(n, pcSubStr, nStart)
 		return This.FindNthPreviousCS(n, pcSubStr, nStart, TRUE)
 
+		#< @FunctionAlternativeForms
+
+		def FindPreviousNth(n, pcSubStr, nStart)
+			return This.FindNthPrevious(n, pcSubStr, nStart)
+
+		def FindPreviousNthZ(n, pcSubStr, nStart)
+			return This.FindNthPrevious(n, pcSubStr, nStart)
+
 		def FindNthPreviousZ(n, pcSubStr, nStart)
 			return This.FindNthPrevious(n, pcSubStr, nStart)
+
+		#--
+
+		def FindPreviousNthST(n, pcSubStr, nStart)
+			return This.FindNthPrevious(n, pcSubStr, nStart)
+
+		def FindPreviousNthSTZ(n, pcSubStr, nStart)
+			return This.FindNthPrevious(n, pcSubStr, nStart)
+
+		def FindNthPreviousST(n, pcSubStr, nStart)
+			return This.FindNthPrevious(n, pcSubStr, nStart)
+
+		def FindNthPreviousSTZ(n, pcSubStr, nStart)
+			return This.FindNthPrevious(n, pcSubStr, nStart)
+
+		#>
 
 	  #------------------------------------------------------------------------------------------#
 	 #  FINFING NTH PREVIOUS OCCURRENCE OF A SUBSTRING AND RETURNING ITS POSITION AS A SECTION  #
 	#------------------------------------------------------------------------------------------#
 
-	def FindNthPreviousAsSectionCS(n, pcSubStr, nStart, pCaseSensitive )
+	def FindNthPreviousAsSectionCS(n, pcSubStr, nStart, pCaseSensitive)
 		nPos = This.FindNthPreviousCS( n, pcSubStr, nStart, pCaseSensitive )
 		nLen = Q(pcSubStr).NumberOfChars()
 		aResult = [nPos, nPos + nLen - 1]
 	
 		return aResult
-	
+
+		#< @FunctionAlternativeForms
+
+		def FindPreviousNthAsSectionCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, pCaseSensitive )
+
 		def FindNthPreviousCSZZ(n, pcSubStr, nStart, pCaseSensitive )
 			return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, pCaseSensitive )
+
+		def FindPreviousNthCSZZ(n, pcSubStr, nStart, pCaseSensitive )
+			return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, pCaseSensitive )
+
+		#--
+
+		def FindNthPreviousAsSectionSTCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		def FindPreviousNthAsSectionSTCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, pCaseSensitive )
+
+		def FindNthPreviousSTCSZZ(n, pcSubStr, nStart, pCaseSensitive )
+			return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, pCaseSensitive )
+
+		def FindPreviousNthSTCSZZ(n, pcSubStr, nStart, pCaseSensitive )
+			return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, pCaseSensitive )
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 	
 	def FindNthPreviousAsSection(n, pcSubStr, nStart )
 		return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, TRUE)
 
-		def FindNthPreviousZZ(n, pcSubStr, nStart )
-			return This.FindNthPreviousAsSection(n, pcSubStr, nStart )
+		#< @FunctionAlternativeForms
+
+		def FindPreviousNthAsSection(n, pcSubStr, nStart)
+			return This.FindNthPreviousAsSection(n, pcSubStr, nStart)
+
+		def FindNthPreviousZZ(n, pcSubStr, nStart)
+			return This.FindNthPreviousAsSection(n, pcSubStr, nStart)
+
+		def FindPreviousNthZZ(n, pcSubStr, nStart)
+			return This.FindNthPreviousAsSection(n, pcSubStr, nStart)
+
+		#--
+
+		def FindNthPreviousAsSectionST(n, pcSubStr, nStart)
+			return This.FindNthPreviousAsSection(n, pcSubStr, nStart)
+
+		def FindPreviousNthAsSectionST(n, pcSubStr, nStart)
+			return This.FindNthPreviousAsSection(n, pcSubStr, nStart)
+
+		def FindNthPreviousSTZZ(n, pcSubStr, nStart)
+			return This.FindNthPreviousAsSection(n, pcSubStr, nStart)
+
+		def FindPreviousNthSTZZ(n, pcSubStr, nStart)
+			return This.FindNthPreviousAsSection(n, pcSubStr, nStart)
+
+		#>
 
 	   #-------------------------------------------------#
 	  #      FINDING NEXT OCCURRENCE OF A SUBSTRING     #
@@ -43584,7 +43687,7 @@ class stzString from stzObject
 
 	#TODO //Add FindNextW() FindPreviousW()
 
-	def FindNextSCS(pcSubStr, nStart, pCaseSensitive)
+	def FindNextCS(pcSubStr, nStart, pCaseSensitive)
 		#< QTBased | Uses: QString.IndexOf() >
 
 		if CheckParams()
@@ -43645,27 +43748,53 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def FindNextCSZ(pcSubStr, nStart, pCaseSensitive)
-			return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
 
-		def FindNextSCSZ(pcSubStr, nStart, pCaseSensitive)
-			return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
+		def FindNextSTCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+
+		def FindNextSTCSZ(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+
+		#--
+
+		def FindNextSubStringCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+
+		def FindNextSubStringSTCS(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+
+		def FindNextSubStringSTCSZ(pcSubStr, nStart, pCaseSensitive)
+			return This.FindNextCS(pcSubStr, nStart, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindNext(pcSubStr, nStart)
-		return This.FindNextSCS(pcSubStr, nStart, TRUE)
+		return This.FindNextCS(pcSubStr, nStart, TRUE)
 
 		#< @FunctionAlternativeForm
 
 		def FindNextZ(pcSubStr, nStart)
 			return This.FindNext(pcSubStr, nStart)
 
-		def FindNextS(pcSubStr, nStart)
+		def FindNextST(pcSubStr, nStart)
 			return This.FindNext(pcSubStr, nStart)
 
-		def FindNextSZ(pcSubStr, nStart)
+		def FindNextSTZ(pcSubStr, nStart)
 			return This.FindNext(pcSubStr, nStart)
+
+		#--
+
+		def FindNextSubString(pcSubStr, nStart)
+			return This.FindNext(pcSubStr, nStart)
+
+		def FindNextSubStringST(pcSubStr, nStart)
+			return This.FindNext(pcSubStr, nStart)
+
+		def FindNextSubStringSTZ(pcSubStr, nStart)
+			return This.FindNextCS(pcSubStr, nStart)
 
 		#>
 
@@ -43675,18 +43804,27 @@ class stzString from stzObject
 	#-----------------------------------------------------#
 
 	def FindPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
+
+		if CheckParams()
+
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param type! pnStartingAt must be a number.")
+			ok
+
 		ok
 
-		if NOT isNumber(pnStartingAt)
-			StzRaise("Incorrect param type! pnStartingAt must be a number.")
-		ok
+		if EarlyCheck()
 
-		if pcSubStr = "" or
-		   NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+			if pcSubStr = "" or
+			   NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+	
+				return 0
+			ok
 
-			return 0
 		ok
 
 		nResult = This.SectionQ(1, pnStartingAt - 1).FindLastCS(pcSubStr, pCaseSensitive)
@@ -43697,10 +43835,10 @@ class stzString from stzObject
 		def FindPreviousCSZ(pcSubStr, nStart, pCaseSensitive)
 			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
 
-		def FindPreviousSCS(pcSubStr, nStart, pCaseSensitive)
+		def FindPreviousSTCS(pcSubStr, nStart, pCaseSensitive)
 			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
 
-		def FindPreviousSCSZ(pcSubStr, nStart, pCaseSensitive)
+		def FindPreviousSTCSZ(pcSubStr, nStart, pCaseSensitive)
 			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
 
 		#--
@@ -43708,10 +43846,10 @@ class stzString from stzObject
 		def FindPreviousSubStringCS(pcSubStr, nStart, pCaseSensitive)
 			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
 
-		def FindPreviousSubStringSCS(pcSubStr, nStart, pCaseSensitive)
+		def FindPreviousSubStringSTCS(pcSubStr, nStart, pCaseSensitive)
 			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
 
-		def FindPreviousSubStringSCSZ(pcSubStr, nStart, pCaseSensitive)
+		def FindPreviousSubStringSTCSZ(pcSubStr, nStart, pCaseSensitive)
 			return This.FindPreviousCS(pcSubStr, nStart, pCaseSensitive)
 
 		#>
@@ -43726,10 +43864,10 @@ class stzString from stzObject
 		def FindPreviousZ(pcSubStr, nStart)
 			return This.FindPrevious(pcSubStr, nStart)
 
-		def FindPreviousS(pcSubStr, nStart)
+		def FindPreviousST(pcSubStr, nStart)
 			return This.FindPrevious(pcSubStr, nStart)
 
-		def FindPreviousSZ(pcSubStr, nStart)
+		def FindPreviousSTZ(pcSubStr, nStart)
 			return This.FindPrevious(pcSubStr, nStart)
 
 		#--
@@ -43737,10 +43875,10 @@ class stzString from stzObject
 		def FindPreviousSubString(pcSubStr, nStart)
 			return This.FindPrevious(pcSubStr, nStart)
 
-		def FindPreviousSubStringS(pcSubStr, nStart)
+		def FindPreviousSubStringST(pcSubStr, nStart)
 			return This.FindPrevious(pcSubStr, nStart)
 
-		def FindPreviousSubStringSZ(pcSubStr, nStart)
+		def FindPreviousSubStringSTZ(pcSubStr, nStart)
 			return This.FindPrevious(pcSubStr, nStart)
 
 		#>
@@ -44234,7 +44372,7 @@ class stzString from stzObject
 	#=========================================================================#
 
 	/* TODO - FUTURE
-	the ..S() extension here must also mean :StoppingAt
+	the ..ST() extension here must also mean :StoppingAt
 	*/
 
 	def FindSCS(pcSubStr, pnStartingAt, pCaseSensitive)
@@ -44305,7 +44443,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def FindSCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
+		def FindSTCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.FindSCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#>
@@ -44327,7 +44465,7 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def FindSZ(pcSubStr, pnStartingAt)
+		def FindSTZ(pcSubStr, pnStartingAt)
 			return This.FindS(pcSubStr, pnStartingAt)
 
 		#>
@@ -44337,14 +44475,18 @@ class stzString from stzObject
 	 #  AND RETURNING THE SUBSTRING AND ITS POSITIONS                          #
 	#-------------------------------------------------------------------------#
 
-	def SubString_SCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
+	def SubStringSTCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
 
-		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
-			pcSubStr = pcSubStr[2]
-		ok
+		if CheckParams()
 
-		if NOT isString(pcSubStr)
-			StzRaise("Incorrect param type! pcSubStr must be a string.")
+			if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+				pcSubStr = pcSubStr[2]
+			ok
+	
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
 		ok
 
 		aResult = [ pcSubStr, This.FindSCS(pcSubStr, pnStartingAt, pCaseSensitive) ]
@@ -44353,26 +44495,26 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def SubString_SCSZQ(pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.SubString_SCSZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
+		def SubStringSTCSZQ(pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.SubStringSTCSZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
 			
-		def SubString_SCSZQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
+		def SubStringSTCSZQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.SubString_SCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzList( This.SubStringSTCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SubString_SCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzListOfNumbers( This.SubStringSTCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPair
-				return new stzPair( This.SubString_SCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzPair( This.SubStringSTCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPairOfNumbers
-				return new stzPairOfNumbers( This.SubString_SCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzPairOfNumbers( This.SubStringSTCSZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			other
 				stzRaise("Unsupported return type!")
@@ -44381,16 +44523,16 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubString_SZ(pcSubStr, pnStartingAt)
-		return This.SubString_SCSZ(pcSubStr, pnStartingAt, TRUE)
+	def SubStringSTZ(pcSubStr, pnStartingAt)
+		return This.SubStringSTCSZ(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
-		def SubString_SZQ(pcSubStr, pnStartingAt)
-			return This.SubString_SZQR(pcSubStr, pnStartingAt, :stzList)
+		def SubStringSTZQ(pcSubStr, pnStartingAt)
+			return This.SubStringSTZQR(pcSubStr, pnStartingAt, :stzList)
 		
-		def SubString_SZQR(pcSubStr, pnStartingAt, pcReturnType)
-				return This.SubString_SCSZQR(pcSubStr, pnStartingAt, TRUE, pcReturnType)
+		def SubStringSTZQR(pcSubStr, pnStartingAt, pcReturnType)
+				return This.SubStringSTCSZQR(pcSubStr, pnStartingAt, TRUE, pcReturnType)
 
 		#>
 
@@ -44399,7 +44541,7 @@ class stzString from stzObject
 	 #  AND RETURNING THE SUBSTRING AND ITS POSITIONS AS SECTIONS              #
 	#-------------------------------------------------------------------------#
 
-	def SubString_SCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
+	def SubStringSTCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
 		if CheckParams()
 			if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
 				pcSubStr = pcSubStr[2]
@@ -44416,26 +44558,26 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def SubString_SCSZZQ(pcSubStr, pnStartingAt, pCaseSensitive)
-				return This.SubString_SCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
+		def SubStringSTCSZZQ(pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.SubStringSTCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
 			
-		def SubString_SCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
+		def SubStringSTCSZZQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.SubString_SCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzList( This.SubStringSTCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.SubString_SCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzListOfNumbers( This.SubStringSTCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPair
-				return new stzPair( This.SubString_SCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzPair( This.SubStringSTCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPairOfNumbers
-				return new stzPairOfNumbers( This.SubString_SCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
+				return new stzPairOfNumbers( This.SubStringSTCSZZ(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			other
 				stzRaise("Unsupported return type!")
@@ -44444,16 +44586,16 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubString_SZZ(pcSubStr, pnStartingAt)
-		return This.SubString_SCSZZ(pcSubStr, pnStartingAt, TRUE)
+	def SubStringSTZZ(pcSubStr, pnStartingAt)
+		return This.SubStringSTCSZZ(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
-		def SubString_SZZQ(pcSubStr, pnStartingAt)
-			return This.SubString_SZZQR(pcSubStr, pnStartingAt, :stzList)
+		def SubStringSTZZQ(pcSubStr, pnStartingAt)
+			return This.SubStringSTZZQR(pcSubStr, pnStartingAt, :stzList)
 		
-		def SubString_SZZQR(pcSubStr, pnStartingAt, pcReturnType)
-				return This.SubString_SCSZZQR(pcSubStr, pnStartingAt, TRUE, pcReturnType)
+		def SubStringSTZZQR(pcSubStr, pnStartingAt, pcReturnType)
+				return This.SubStringSTCSZZQR(pcSubStr, pnStartingAt, TRUE, pcReturnType)
 
 		#>
 
@@ -44462,19 +44604,21 @@ class stzString from stzObject
 	 #  AND GOING IN A GIVEN DIRECTION                                           #
 	#===========================================================================#
 
-	def FindSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+	def FindSTDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
-		# Checking the pcDirection param
+		if CheckParams()
 
-		if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
-			pcDirection = pcDirection[2]
-		ok
-
-		if NOT ( isString(pcDirection) and 
-			 Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward ]) )
-
-			StzRaise("Incorrect param! pcDirection must be a string. " +
-				 "Allowed values are :Default, :Forward, and :Backward.")
+			if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+				pcDirection = pcDirection[2]
+			ok
+	
+			if NOT ( isString(pcDirection) and 
+				 Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward ]) )
+	
+				StzRaise("Incorrect param! pcDirection must be a string. " +
+					 "Allowed values are :Default, :Forward, and :Backward.")
+	
+			ok
 
 		ok
 
@@ -44504,20 +44648,22 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVIY
 
-	def FindSD(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindSDCS(pcSubStr, pnStartingAt, pcDirection, TRUE)
+	def FindSTD(pcSubStr, pnStartingAt, pcDirection)
+		return This.FindSTDCS(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 	   #-------------------------------------------------------------------------------#
 	  #  FINDING ALL OCCURRENCES OF A SUBSTRING, STARTING FROM A GIVEN POSITION,      #
 	 #  AND GOING IN A GIVEN DIRECTION -- RETURNING THE SUBSTRING AND ITS POSITIONS  #
 	#-------------------------------------------------------------------------------#
 
-	def FindSDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+	def FindSTDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
-		# Checking the pcSubStr param
+		if CheckParams()
 
-		if NOT isString(pcSubStr)
-			StzRaise("Incorrect param type! pcSubStr must be a string.")
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
 		ok
 
 		# Doing the job
@@ -44527,8 +44673,8 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVIY
 
-	def FindSDZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindSDCSZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
+	def FindSTDZ(pcSubStr, pnStartingAt, pcDirection)
+		return This.FindSTDCSZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 	   #-------------------------------------------------------------------------------#
 	  #  FINDING ALL OCCURRENCES OF A SUBSTRING, STARTING FROM A GIVEN POSITION,      #
@@ -44537,10 +44683,12 @@ class stzString from stzObject
 
 	def FindSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
-		# Checking the pcSubStr param
+		if CheckParams()
 
-		if NOT isString(pcSubStr)
-			StzRaise("Incorrect param type! pcSubStr must be a string.")
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
+			ok
+
 		ok
 
 		# Doing the job
@@ -44550,8 +44698,8 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVIY
 
-	def FindSDZZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindSDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
+	def FindSTDZZ(pcSubStr, pnStartingAt, pcDirection)
+		return This.FindSTDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 	   #------------------------------------------------------------------#
 	  #  FINDING OCCURRENCES OF A SUBSTRING VERIFYING A GIVEN CONDITION  #
@@ -45559,12 +45707,12 @@ class stzString from stzObject
 	# These fuctions are defined in stzObject:
 
 	# 	FindFirstNOccurrences(n, pStrOrItem)
-	# 	FindFirstNOccurrencesS(n, pcStr, pnStartingAt)
+	# 	FindFirstNOccurrencesST(n, pcStr, pnStartingAt)
 	
 	# 	FindLastNOccurrences(n, pStrOrItem)
 	# 	FindLastNOccurrencesS(n, pcStr, pnStartingAt)
 
-	# I'm experimenting wiith this technique of abstraction
+	# I'm experimenting with this technique of abstraction
 	# to make them usable also form stzString and stzList
 
 	#TODO
@@ -48547,16 +48695,8 @@ n1 = Min(aTemp)
 
 		#< @FunctionAlternativeForms
 
-		def FindSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
-			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
-
 		def FindCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
-
-		def FindSubStringCSZZ(pcSubStr, pCaseSensitive)
-			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
-
-		#--
 
 		def FindAllAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
@@ -48592,16 +48732,11 @@ n1 = Min(aTemp)
 
 		#< @FunctionAlternativeForms
 
-		def FindSubStringAsSections(pcSubStr)
-			return This.FindAsSections(pcSubStr)
-
 		def FindZZ(pcSubStr)
 			return This.FindAsSections(pcSubStr)
 
 		def FindSubStringZZ(pcSubStr)
 			return This.FindAsSections(pcSubStr)
-
-		#--
 
 		def FindAllAsSections(pcSubStr)
 			return This.FindAsSections(pcSubStr)
@@ -48650,39 +48785,55 @@ n1 = Min(aTemp)
 
 		return aResult
 
+		#< @FunctionAlternativeForm
+
+		def FindDCSZZ(pcSubStr, pcDirection, pCaseSensitive)
+			return This.FindAsSectionsDCS(pcSubStr, pcDirection, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsSectionsD(pcSubStr, pcDirection)
 		return This.FindAsSectionsDCS(pcSubStr, pcDirection, TRUE)
 
+		#< @FunctionAlternativeForm
+
+		def FindDZZ(pcSubStr, pcDirection)
+			return This.FindAsSectionsD(pcSubStr, pcDirection)
+
+		#>
+
 	  #---------------------------------------------------------------------------#
 	 #  FINDING SUBSTRING AND RETURNING ITS POSITIONS AS SECTIONS -- S/Extented  #
 	#---------------------------------------------------------------------------#
 
-	def FindAsSectionsSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	def FindAsSectionsSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
-		# Checking pnStartingAt param
+		if CheckParams()
 
-		if NOT isString(pcSubStr)
-			StzRaise("Incorrect param type! pcSubStr must be a string.")
-		ok
-
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
-			pnStartingAt = pnStartingAt[2]
-		ok
-
-		if isString(pnStartingAt)
-			if pnStartingAt = :First or pnStartingAt = :FirstChar
-				pnStartingAt = 1
-
-			but pnStartingAt = :Last or pnStartingAt = :LastChar
-				pnStartingAt = This.NumberOfChars()
-
+			if NOT isString(pcSubStr)
+				StzRaise("Incorrect param type! pcSubStr must be a string.")
 			ok
-		ok
+	
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if isString(pnStartingAt)
+				if pnStartingAt = :First or pnStartingAt = :FirstChar
+					pnStartingAt = 1
+	
+				but pnStartingAt = :Last or pnStartingAt = :LastChar
+					pnStartingAt = This.NumberOfChars()
+	
+				ok
+			ok
+	
+			if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0)
+				StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
+			ok
 
-		if NOT ( isNumber(pnStartingAt) and pnStartingAt != 0)
-			StzRaise("Incorrect param type! pnstartingAt must be a non null number.")
 		ok
 
 		# Doing the job
@@ -48698,17 +48849,31 @@ n1 = Min(aTemp)
 
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def FindSTCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindAsSectionsSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAsSectionsS(pcSubStr, pnStartingAt)
-		return This.FindAsSectionsSCS(pcSubStr, pnStartingAt, TRUE)
+	def FindAsSectionsST(pcSubStr, pnStartingAt)
+		return This.FindAsSectionsSTCS(pcSubStr, pnStartingAt, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindSTZZ(pcSubStr, pnStartingAt)
+			return This.FindAsSectionsST(pcSubStr, pnStartingAt)
+
+		#>
 
 	   #--------------------------------------------------------------------#
 	  #  FINDING A SUBSTRING AS SECTIONS, STARTING FROM A GIVEN POSITION,  #
 	 #  AND GOING IN A GIVEN DIRECTION                                    #
 	#--------------------------------------------------------------------#
 
-	def FindAsSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+	def FindAsSectionsSTDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
 		# Checking the pcSubStr param (because we will use it below)
 
@@ -48722,7 +48887,7 @@ n1 = Min(aTemp)
 
 		# Doing the job
 
-		anPos = This.FindSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+		anPos = This.FindSTDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 		nLen = len(anPos)
 
 		nLenSubStr = Q(pcSubStr).NumberOfChars()
@@ -48735,23 +48900,25 @@ n1 = Min(aTemp)
 
 		return aResult
 
+
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAsSectionsSD(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindAsSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, TRUE)
+	def FindAsSectionsSTD(pcSubStr, pnStartingAt, pcDirection)
+		return This.FindAsSectionsSTDCS(pcSubStr, pnStartingAt, pcDirection, TRUE)
+
 
 	   #--------------------------------------------------------------------#
 	  #  FINDING A SUBSTRING AS SECTIONS, STARTING FROM A GIVEN POSITION,  #
 	 #  AND GOING IN A GIVEN DIRECTION -- Z/EXTENDED                      #
 	#--------------------------------------------------------------------#
 
-	def FindAsSectionsSDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+	def FindAsSectionsSTDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 		aResult = [ pcSubStr, This.FindAllSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
 		return aResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAsSectionsSDZ(pcSubStr, pnStartingAt, pcDirection)
+	def FindAsSectionsSTDZ(pcSubStr, pnStartingAt, pcDirection)
 		return This.FindAsSectionsSDCSZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 	   #--------------------------------------------------------------------#
@@ -48759,13 +48926,13 @@ n1 = Min(aTemp)
 	 #  AND GOING IN A GIVEN DIRECTION -- ZZ/EXTENDED                     #
 	#--------------------------------------------------------------------#
 
-	def FindAsSectionsSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+	def FindAsSectionsSTDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 		aResult = [ pcSubStr, This.FindAsSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
 		return aResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAsSectionsSDZZ(pcSubStr, pnStartingAt, pcDirection)
+	def FindAsSectionsSTDZZ(pcSubStr, pnStartingAt, pcDirection)
 		return This.FindAsSectionsSDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 	  #=====================================================================#
@@ -48859,9 +49026,9 @@ n1 = Min(aTemp)
 	 #  FINDING SUBSTRING AND RETURNING ITS POSITIONS AS ANTISECTIONS -- S/Extented  #
 	#-------------------------------------------------------------------------------#
 
-	def FindAsAntiSectionsSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	def FindAsAntiSectionsSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
-		aSections = This.FindAsSectionsSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		aSections = This.FindAsSectionsSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		aResult   = StzListQ( 1 : This.NumberOfChars() ).
 				FindAntiSectionsQ(aSections).
@@ -48871,17 +49038,17 @@ n1 = Min(aTemp)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAsAntiSectionsS(pcSubStr, pnStartingAt)
-		return This.FindAsAntiSectionsSCS(pcSubStr, pnStartingAt, TRUE)
+	def FindAsAntiSectionsST(pcSubStr, pnStartingAt)
+		return This.FindAsAntiSectionsSTCS(pcSubStr, pnStartingAt, TRUE)
 
 	   #--------------------------------------------------------------#
 	  #  FINDING A SUBSTRING AS ANTISECTIONS, STARTING FROM A GIVEN  #
 	 #  POSITION, AND GOING IN A GIVEN DIRECTION                    #
 	#--------------------------------------------------------------#
 
-	def FindAsAntiSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+	def FindAsAntiSectionsSTDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
-		aSections = This.FindAsSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+		aSections = This.FindAsSectionsSTDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
 		aResult   = StzListQ( 1 : This.NumberOfChars() ).
 				FindAntiSectionsQ(aSections).
@@ -48891,8 +49058,8 @@ n1 = Min(aTemp)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAsAntiSectionsSD(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindAsAntiSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, TRUE)
+	def FindAsAntiSectionsSTD(pcSubStr, pnStartingAt, pcDirection)
+		return This.FindAsAntiSectionsSTDCS(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 
 	  #==============================#
@@ -49255,19 +49422,25 @@ n1 = Min(aTemp)
 	# To include them, use ...XT() form of the function
 
 	def DistanceToCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		nResult = This.DistanceToSCS(pcSubStr, pnStartingAt, pCaseSensitive) - 2
+		nResult = This.DistanceToSCSXT(pcSubStr, pnStartingAt, pCaseSensitive) - 2
 		return nResult
+
+		def DistanceToSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.DistanceToCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def DistanceTo(pcSubStr, pnStartingAt)
 		return This.DistanceToCS(pcSubStr, pnStartingAt, TRUE)
 
+		def DistanceToST(pcSubStr, pnStartingAt)
+			return This.DistanceTo(pcSubStr, pnStartingAt)
+
 	  #--------------------------------------------------------------------------#
 	 #  DISTANCE TO A GIVEN SUBSTRING STARTING AT A GIVEN POSITION -- EXTENDED  #
 	#--------------------------------------------------------------------------#
 
-	def DistanceToSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	def DistanceToSTCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
@@ -49345,10 +49518,16 @@ n1 = Min(aTemp)
 
 		return nResult
 
+		def DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
-	def DistanceToXT(pcSubStr, pnStartingAt)
-		return This.DistanceToSCS(pcSubStr, pnStartingAt, TRUE)
+	def DistanceToSTXT(pcSubStr, pnStartingAt)
+		return This.DistanceToSTCS(pcSubStr, pnStartingAt, TRUE)
+
+		def DistanceToXT(pcSubStr, pnStartingAt)
+			return This.DistanceToXT(pcSubStr, pnStartingAt)
 
 	  #======================================================#
 	 #  CHECHING IF THE STRING IS EQUAL TO AN OTHER STRING  #
@@ -71341,21 +71520,21 @@ n1 = Min(aTemp)
 	 #  REMOVING A SUBSTRING BOUNDED BY TWO BOUNDS STARTING AT A GIVEN POSITION  #
 	#---------------------------------------------------------------------------#
 
-	def RemoveSubStringBoundedBySCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
-		aSections = This.FindubStringBoundedByAsSectionsSCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+	def RemoveSubStringBoundedBySTCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+		aSections = This.FindubStringBoundedByAsSectionsSTCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 		This.RemoveSections(aSections)
 
-	def SubStringBoundedByRemovedSCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
-		cResult = This.Copy().RemoveSubStringBoundedBySCSQ(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive).Content()
+	def SubStringBoundedByRemovedSTCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+		cResult = This.Copy().RemoveSubStringBoundedBySTCSQ(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive).Content()
 		return cResult
 
 	#-- WITHOUT CASESENSITIVE
 
-	def RemoveSubStringBoundedByS(pcSubStr, pacBounds, pnStartingAt)
-		This.RemoveSubStringBoundedBySCS(pcSubStr, pacBounds, pnStartingAt, TRUE)
+	def RemoveSubStringBoundedByST(pcSubStr, pacBounds, pnStartingAt)
+		This.RemoveSubStringBoundedBySTCS(pcSubStr, pacBounds, pnStartingAt, TRUE)
 
-	def SubStringBoundedByRemovedS(pcSubStr, pacBounds, pnStartingAt)
-		cResult = This.Copy().RemoveSubStringBoundedBySQ(pcSubStr, pacBounds, pnStartingAt).Content()
+	def SubStringBoundedByRemovedST(pcSubStr, pacBounds, pnStartingAt)
+		cResult = This.Copy().RemoveSubStringBoundedBySTQ(pcSubStr, pacBounds, pnStartingAt).Content()
 		return cResult
 
 	  #--------------------------------------------------------------------------------------#
@@ -71363,9 +71542,9 @@ n1 = Min(aTemp)
 	#--------------------------------------------------------------------------------------#
 	#NOTE: encolsing substrings (bounds) are also removed
 
-	def RemoveSubStringBoundedByCSIB(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+	def RemoveSubStringBoundedByCSIB(pcSubStr, pacBounds, pCaseSensitive)
 
-		aSections = This.FindSubStringBoundedByAsSectionsCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
+		aSections = This.FindSubStringBoundedByAsSectionsCS(pcSubStr, pacBounds, pCaseSensitive)
 		nLenSections = len(aSections)
 
 		nLen1 = Q(pcBound1).NumberOfChars()
@@ -71390,8 +71569,6 @@ n1 = Min(aTemp)
 
 	def SubStringBoundedByRemovedIB(pcSubStr, pcBound1, pcBound2)
 		return This.RemoveSubStringBoundedByIB(pcSubStr, pacBounds, TRUE)
-
-~~~~~~~~
 
 	  #-------------------------------------------------------#
 	 #  REMOVING ANY BOUNDED SUSBSTRING BY THE GIVEN BOUNDS  #
@@ -71437,49 +71614,47 @@ n1 = Min(aTemp)
 	 #  REMOVING ANY SUBSTRING BOUNDED BY TWO BOUNDS STARTING AT A GIVEN POSITION  #
 	#-----------------------------------------------------------------------------#
 
-	def RemoveAnySubStringBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
-		aSections = This.FindAnySubStringBoundedByAsSectionsSCS(pacBounds, pnStartingAt, pCaseSensitive)
+	def RemoveAnySubStringBoundedBySTCS(pacBounds, pnStartingAt, pCaseSensitive)
+		aSections = This.FindAnySubStringBoundedByAsSectionsSTCS(pacBounds, pnStartingAt, pCaseSensitive)
 		This.RemoveSections(aSections)
 
-		def RemoveAnySubStringsBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
-			This.RemoveAnySubStringBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
+		def RemoveAnySubStringsBoundedBySTCS(pacBounds, pnStartingAt, pCaseSensitive)
+			This.RemoveAnySubStringBoundedBySTCS(pacBounds, pnStartingAt, pCaseSensitive)
 
-		def RemoveSubStringsBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
-			This.RemoveAnySubStringBoundedBySCS(pacBounds, pnStartingAt, pCaseSensitive)
+		def RemoveSubStringsBoundedBySTCS(pacBounds, pnStartingAt, pCaseSensitive)
+			This.RemoveAnySubStringBoundedBySTCS(pacBounds, pnStartingAt, pCaseSensitive)
 
-	def AnySubtringBoundedByRemovedSCS(pacBounds, pnStartingAt, pCaseSensitive)
-		cResult = This.Copy().RemoveAnySubStringBoundedBySCSQ(pacBounds, pnStartingAt, pCaseSensitive).Content()
+	def AnySubtringBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
+		cResult = This.Copy().RemoveAnySubStringBoundedBySTCSQ(pacBounds, pnStartingAt, pCaseSensitive).Content()
 		return cResult
 
-		def AnySubtringsBoundedByRemovedSCS(pacBounds, pnStartingAt, pCaseSensitive)
-			return This.AnySubtringBoundedByRemovedSCS(pacBounds, pnStartingAt, pCaseSensitive)
+		def AnySubtringsBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
+			return This.AnySubtringBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
 
-		def SubtringsBoundedByRemovedSCS(pacBounds, pnStartingAt, pCaseSensitive)
-			return This.AnySubtringBoundedByRemovedSCS(pacBounds, pnStartingAt, pCaseSensitive)
+		def SubtringsBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
+			return This.AnySubtringBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVE
 
-	def RemoveAnySubStringBoundedByS(pacBounds, pnStartingAt)
-		This.RemoveAnySubStringBoundedBySCS(pacBounds, pnStartingAt, TRUE)
+	def RemoveAnySubStringBoundedByST(pacBounds, pnStartingAt)
+		This.RemoveAnySubStringBoundedBySTCS(pacBounds, pnStartingAt, TRUE)
 
-		def RemoveAnySubStringsBoundedByS(pacBounds, pnStartingAt)
-			This.RemoveAnySubStringBoundedByS(pacBounds, pnStartingAt)
+		def RemoveAnySubStringsBoundedByST(pacBounds, pnStartingAt)
+			This.RemoveAnySubStringBoundedByST(pacBounds, pnStartingAt)
 
-		def RemoveSubStringsBoundedByS(pacBounds, pnStartingAt)
-			This.RemoveAnySubStringBoundedByS(pacBounds, pnStartingAt)
+		def RemoveSubStringsBoundedByST(pacBounds, pnStartingAt)
+			This.RemoveAnySubStringBoundedByST(pacBounds, pnStartingAt)
 
-	def AnySubStringBoundedByRemovedS(pacBounds, pnStartingAt)
-		cResult = This.Copy().RemoveAnySubStringBoundedBySQ(pacBounds, pnStartingAt).Content()
+	def AnySubStringBoundedByRemovedST(pacBounds, pnStartingAt)
+		cResult = This.Copy().RemoveAnySubStringBoundedBySTQ(pacBounds, pnStartingAt).Content()
 		return cResult
 
-		def AnySubtringsBoundedByRemovedS(pacBounds, pnStartingAt)
-			return This.AnySubtringBoundedByRemovedS(pacBounds, pnStartingAt)
+		def AnySubtringsBoundedByRemovedST(pacBounds, pnStartingAt)
+			return This.AnySubtringBoundedByRemovedST(pacBounds, pnStartingAt)
 
-		def SubtringsBoundedByRemovedS(pacBounds, pnStartingAt)
-			return This.AnySubtringBoundedByRemovedS(pacBounds, pnStartingAt)
+		def SubtringsBoundedByRemovedST(pacBounds, pnStartingAt)
+			return This.AnySubtringBoundedByRemovedST(pacBounds, pnStartingAt)
 
-
-~~~~~~~
 	  #====================================#
 	 #  REMOVING A SUBSTRING -- EXTENDED  #
 	#====================================#
@@ -74362,27 +74537,58 @@ n1 = Min(aTemp)
 		cResult = cPart1 + cPart2
 		This.Update( cResult )
 
-		#< @FunctionAlternativeForms
+		#< @FunctionFluentForm
 
 		def RemoveNextNthOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive)
 			This.RemoveNextNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def RemoveNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 			This.RemoveNextNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
 			def RemoveNthNextOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive)
-				This.RemoveNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
-				return This
+				return This.RemoveNextNthOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive)
+
+		#--
+
+		def RemoveNextNthOccurrenceSTCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.RemoveNextNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+
+			def RemoveNextNthOccurrenceSTCSQ(n, pcSubStr, nStart, pCaseSensitive)
+				return This.RemoveNextNthOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive)
+
+		def RemoveNthNextOccurrenceSTCS(n, pcSubStr, nStart, pCaseSensitive)
+			This.RemoveNextNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+
+			def RemoveNthNextOccurrenceSTCSQ(n, pcSubStr, nStart, pCaseSensitive)
+				return This.RemoveNextNthOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive)
 
 		#>
+
+	#-- @FunctionPassiveForm
 
 	def NextNthOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
 		cResult = This.Copy().RemoveNextNthOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def NthNextOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
 			return This.NextNthOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		#--
+
+		def NextNthOccurrenceRemovedSTCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.NextNthOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		def NthNextOccurrenceRemovedSTCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.NextNthOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		#>
 
 	#-- WIHTOUT CASESENSITIVITY
 
@@ -74401,14 +74607,42 @@ n1 = Min(aTemp)
 			def RemoveNthNextOccurrenceQ(n, pcSubStr, nStart, pcNewSubStr)
 				return This.RemoveNthNextOccurrence(n, pcSubStr, nStart, pcNewSubStr)
 
+		#--
+
+		def RemoveNextNthOccurrenceST(n, pcSubStr, nStart)
+			return This.RemoveNextNthOccurrence(n, pcSubStr, nStart)
+
+			def RemoveNextNthOccurrenceSTQ(n, pcSubStr, nStart)
+				return This.RemoveNextNthOccurrenceQ(n, pcSubStr, nStart)
+
+		def RemoveNthNextOccurrenceST(n, pcSubStr, nStart)
+			This.RemoveNextNthOccurrence(n, pcSubStr, nStart)
+
+			def RemoveNthNextOccurrenceSTQ(n, pcSubStr, nStart)
+				return This.RemoveNextNthOccurrenceCSQ(n, pcSubStr, nStart)
+
 		#>
+
+	#-- @FunctionPassiveForm
 
 	def NextNthOccurrenceRemoved(n, pcSubStr, nStart)
 		cResult = This.Copy().RemoveNextNthOccurrenceQ(n, pcSubStr, nStart, pCaseSensitive).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def NthNextOccurrenceRemoved(n, pcSubStr, nStart)
 			return This.NextNthOccurrenceRemoved(n, pcSubStr, nStart, pCaseSensitive)
+
+		#--
+
+		def NextNthOccurrenceRemovedST(n, pcSubStr, nStart)
+			return This.NextNthOccurrenceRemoved(n, pcSubStr, nStart)
+
+		def NthNextOccurrenceRemovedST(n, pcSubStr, nStart)
+			return This.NextNthOccurrenceRemoved(n, pcSubStr, nStart)
+
+		#>
 
 	   #------------------------------------------------#
 	  #    REMOVING NEXT OCCURRENCE OF A SUBSTRING    # 
@@ -74418,26 +74652,64 @@ n1 = Min(aTemp)
 	def RemoveNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 		This.RemoveNextNthOccurrenceCS(1, pcSubStr, nStart, pCaseSensitive)
 
+		#< @FunctionFluentForm
+
 		def RemoveNextOccurrenceCSQ(pcSubStr, nStart, pCaseSensitive)
 			This.RemoveNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveNextOccurrenceSTCS(pcSubStr, nStart, pCaseSensitive)
+			This.RemoveNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+			def RemoveNextOccurrenceSTCSQ(pcSubStr, nStart, pCaseSensitive)
+				return This.RemoveNextOccurrenceCSQ(pcSubStr, nStart, pCaseSensitive)
+
+		#>
+
+	#-- @FunctionPassiveForms
+
 	def NextOccurrenceRemovedCS(pcSubStr, nStart, pCaseSensitive)
 		cResult = This.Copy().RemoveNextOccurrenceCSQ(pcSubStr, nStart, pCaseSensitive).Content()
 		return cResult
+
+		def NextOccurrenceRemovedSTCS(pcSubStr, nStart, pCaseSensitive)
+			return This.NextOccurrenceRemovedCS(pcSubStr, nStart, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveNextOccurrence(pcSubStr, nStart, pcNewSubStr)
 		This.RemoveNextNthOccurrenceCS(1, pcSubStr, nStart, TRUE)
 
-		def RemoveNextOccurrenceQ(pcSubStr, nStart, pcNewSubStr)
-			This.RemoveNextOccurrence(pcSubStr, nStart, pcNewSubStr)
+		#< @FunctionFluentForm
+
+		def RemoveNextOccurrenceQ(pcSubStr, nStart)
+			This.RemoveNextOccurrence(pcSubStr, nStart)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveNextOccurrenceST(pcSubStr, nStart)
+			This.RemoveNextOccurrence(pcSubStr, nStart)
+
+			def RemoveNextOccurrenceSTQ(pcSubStr, nStart)
+				return This.RemoveNextOccurrenceQ(pcSubStr, nStart)
+
+		#>
+
+	#-- @FunctionAlternativeForm
 
 	def NextOccurrenceRemoved(pcSubStr, nStart)
 		cResult = This.Copy().RemoveNextOccurrenceQ(pcSubStr, nStart).Content()
 		return cResult
+
+		def NextOccurrenceRemovedST(pcSubStr, nStart)
+			return This.NextOccurrenceRemoved(pcSubStr, nStart)
 
 	   #-------------------------------------------------------#
 	  #    REMOVING PREVIOUS NTH OCCURRENCE OF A SUBSTRING    # 
@@ -74445,17 +74717,21 @@ n1 = Min(aTemp)
 	#-------------------------------------------------------#
 
 	def RemovePreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
-		
-		if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
-			nStart = nStart[2]
-		ok
 
-		if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
-			pcSubStr = pcSubStr[2]
-		ok
+		if CheckParams()
 
-		if isList(pcNewSubStr) and Q(pcNewSubStr).IsWithNamedParam()
-			pcNewSubStr = pcNewSubStr[2]
+			if isList(nStart) and Q(nStart).IsStartingAtNamedParam()
+				nStart = nStart[2]
+			ok
+	
+			if isList(pcSubStr) and Q(pcSubStr).IsOfNamedParam()
+				pcSubStr = pcSubStr[2]
+			ok
+	
+			if isList(pcNewSubStr) and Q(pcNewSubStr).IsWithNamedParam()
+				pcNewSubStr = pcNewSubStr[2]
+			ok
+
 		ok
 
 		oPart1 = This.SectionQ(1, nStart - 1)
@@ -74481,17 +74757,44 @@ n1 = Min(aTemp)
 			This.RemovePreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 
 			def RemoveNthPreviousOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive)
-				This.RemoveNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
-				return This
+				return This.RemovePreviousNthOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive)
+
+		#--
+
+		def RemovePreviousNthOccurrenceSTCS(n, pcSubStr, nStart, pCaseSensitive)
+			This.RemovePreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+
+			def RemovePreviousNthOccurrenceSTCSQ(n, pcSubStr, nStart, pCaseSensitive)
+				return This.RemovePreviousNthOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive)
+
+		def RemoveNthPreviousOccurrenceSTCS(n, pcSubStr, nStart, pCaseSensitive)
+			This.RemovePreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
+
+			def RemoveNthPreviousOccurrenceSTCSQ(n, pcSubStr, nStart, pCaseSensitive)
+				return This.RemovePreviousNthOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive)
 
 		#>
+
+	#-- @FunctionPassiveForm
 
 	def PreviousNthOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
 		cResult = This.Copy().RemovePreviousNthOccurrenceCSQ(n, pcSubStr, nStart, pCaseSensitive).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def NthPreviousOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
 			return This.PreviousNthOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		#--
+
+		def PreviousNthOccurrenceRemovedSTCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.PreviousNthOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		def NthPreviousOccurrenceRemovedSTCS(n, pcSubStr, nStart, pCaseSensitive)
+			return This.PreviousNthOccurrenceRemovedCS(n, pcSubStr, nStart, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -74515,14 +74818,42 @@ n1 = Min(aTemp)
 				This.RemoveNthPreviousOccurrence(n, pcSubStr, nStart, pcNewSubStr)
 				return This
 
+		#--
+
+		def RemovePreviousNthOccurrenceST(n, pcSubStr, nStart)
+			This.RemovePreviousNthOccurrence(n, pcSubStr, nStart)
+
+			def RemovePreviousNthOccurrenceSTQ(n, pcSubStr, nStart)
+				return This.RemovePreviousNthOccurrenceQ(n, pcSubStr, nStart)
+
+		def RemoveNthPreviousOccurrenceST(n, pcSubStr, nStart)
+			This.RemovePreviousNthOccurrence(n, pcSubStr, nStart)
+
+			def RemoveNthPreviousOccurrenceSTQ(n, pcSubStr, nStart)
+				return This.RemovePreviousNthOccurrenceQ(n, pcSubStr, nStart)
+
 		#>
+
+	#-- @FunctionPassiveForm
 
 	def PreviousNthOccurrenceRemoved(n, pcSubStr, nStart)
 		cResult = This.Copy().RemovePreviousNthOccurrenceQ(n, pcSubStr, nStart).Content()
 		return cResult
 
+		#< @FunctionAlternativeForms
+
 		def NthPreviousOccurrenceRemoved(n, pcSubStr, nStart)
 			return This.PreviousNthOccurrenceRemoved(n, pcSubStr, nStart)
+
+		#--
+
+		def PreviousNthOccurrenceRemovedST(n, pcSubStr, nStart)
+			return This.PreviousNthOccurrenceRemoved(n, pcSubStr, nStart)
+
+		def NthPreviousOccurrenceRemovedST(n, pcSubStr, nStart)
+			return This.PreviousNthOccurrenceRemoved(n, pcSubStr, nStart)
+
+		#>
 
 	   #----------------------------------------------------#
 	  #    REMOVING PREVIOUS OCCURRENCE OF A SUBSTRING     # 
@@ -74532,26 +74863,64 @@ n1 = Min(aTemp)
 	def RemovePreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 		This.RemovePreviousNthOccurrenceCS(1, pcSubStr, nStart, pCaseSensitive)
 
+		#< @FunctionFluentForm
+
 		def RemovePreviousOccurrenceCSQ(pcSubStr, nStart, pCaseSensitive)
 			This.RemovePreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemovePreviousOccurrenceSTCS(pcSubStr, nStart, pCaseSensitive)
+			This.RemovePreviousOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
+
+			def RemovePreviousOccurrenceSTCSQ(pcSubStr, nStart, pCaseSensitive)
+				return This.RemovePreviousOccurrenceCSQ(pcSubStr, nStart, pCaseSensitive)
+
+		#>
+
+	#-- @FunctionPassiveForm
+
 	def PreviousOccurrenceRemovedCS(pcSubStr, nStart, pCaseSensitive)
 		cResult = This.Copy().RemovePreviousOccurrenceCSQ(pcSubStr, nStart, pCaseSensitive).Content()
 		return cResult
+
+		def PreviousOccurrenceRemovedSTCS(pcSubStr, nStart, pCaseSensitive)
+			return This.PreviousOccurrenceRemovedCS(pcSubStr, nStart, pCaseSensitive)
 
 	#-- WIHTOUT CASESENSITIVITY
 
 	def RemovePreviousOccurrence(pcSubStr, nStart, pcNewSubStr)
 		This.RemovePreviousNthOccurrenceCS(1, pcSubStr, nStart, TRUE)
 
+		#< @FunctionFluentForm
+
 		def RemovePreviousOccurrenceQ(pcSubStr, nStart, pcNewSubStr)
 			This.RemovePreviousOccurrence(pcSubStr, nStart, pcNewSubStr)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemovePreviousOccurrenceST(pcSubStr, nStart)
+			This.RemovePreviousOccurrence(pcSubStr, nStart)
+
+			def RemovePreviousOccurrenceSTQ(pcSubStr, nStart)
+				return This.RemovePreviousOccurrenceQ(pcSubStr, nStart)
+
+		#>
+
+	#-- @FunctionPassiveForm
+
 	def PreviousOccurrenceRemoved(pcSubStr, nStart)
 		cResult = This.Copy().RemovePreviousOccurrenceQ(pcSubStr, nStart).Content()
 		return cResult
+
+		def PreviousOccurrenceRemovedST(pcSubStr, nStart)
+			return This.PreviousOccurrenceRemoved(pcSubStr, nStart)
 
 	  #-----------------------------------------------#
 	 #    REMOVING LEFT OCCURRENCE OF A SUBSTRING    # 
@@ -78465,97 +78834,103 @@ n1 = Min(aTemp)
 	 #  EXTRACTING NEXT SUBSTRING STARTING AT A GIVEN POSITION  #
 	#----------------------------------------------------------#
 
-	def ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	def ExtractNextSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 		if This.FindNext(pcSubStr, pnStartingAt, pCaseSensitive) = 0
 			StzRaise("Can't extract! pcSubStr does not exist at the specified position.")
 		ok
 
-		This.RemoveSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		This.RemoveSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		return pcSubStr
 
 		#< @FunctionAlternativeForms
 
-		def ExtractNextOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def ExtractNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			This.ExtractNextSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
-		def PopNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def ExtractNextOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PopNextSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		def PopNextOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#--
 
-		def ExtractNextOccurrenceSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def ExtractNextOccurrenceSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
-		def PopNextOccurrenceSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def PopNextOccurrenceSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#>
 
 	def NextOccurrenceExtractedCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.ExtractNextSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
-		def NextOccurrenceExtractedSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def NextExtractedCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	
+		def NextOccurrenceExtractedSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 		def NextOccurrencePoppedCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
-		def NextOccurrencePoppedSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractNextSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def NextOccurrencePoppedSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractNextSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ExtractNext(substring, pnStartingAt)
-		return This.ExtractNext(substring, pnStartingAt, TRUE)
+	def ExtractNextST(pcSubStr, pnStartingAt)
+		return This.ExtractNextSTCS(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def ExtractNextOccurrence(pcSubStr, pnStartingAt)
-			return This.ExtractNext(pcSubStr, pnStartingAt)
+		def ExtractNext(pcSubStr, pnStartingAt)
+			This.ExtractNextST(pcSubStr, pnStartingAt)
 
-		def PopNext(pcSubStr, pnStartingAt)
-			return This.ExtractNext(pcSubStr, pnStartingAt)
+		def ExtractNextOccurrence(pcSubStr, pnStartingAt)
+			return This.ExtractNextST(pcSubStr, pnStartingAt)
+
+		def PopNextST(pcSubStr, pnStartingAt)
+			return This.ExtractNextST(pcSubStr, pnStartingAt)
 
 		def PopNextOccurrence(pcSubStr, pnStartingAt)
-			return This.ExtractNext(pcSubStr, pnStartingAt)
+			return This.ExtractNextST(pcSubStr, pnStartingAt)
 
 		#--
 
-		def ExtractNextS(pcSubStr, pnStartingAt)
-			return This.ExtractNext(pcSubStr, pnStartingAt)
+		def ExtractNextOccurrenceST(pcSubStr, pnStartingAt)
+			return This.ExtractNextST(pcSubStr, pnStartingAt)
 
-		def ExtractNextOccurrenceS(pcSubStr, pnStartingAt)
-			return This.ExtractNext(pcSubStr, pnStartingAt)
-
-		def PopNextS(pcSubStr, pnStartingAt)
-			return This.ExtractNext(pcSubStr, pnStartingAt)
-
-		def PopNextOccurrenceS(pcSubStr, pnStartingAt)
-			return This.ExtractNext(pcSubStr, pnStartingAt)
+		def PopNextOccurrenceST(pcSubStr, pnStartingAt)
+			return This.ExtractNextST(pcSubStr, pnStartingAt)
 
 		#>
 
 	def NextOccurrenceExtracted(pcSubStr, pnStartingAt)
-		return This.ExtractNext(pcSubStr, pnStartingAt)
+		return This.ExtractNextSTCS(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def NextOccurrenceExtractedS(pcSubStr, pnStartingAt)
-			return This.ExtractNext(pcSubStr, pnStartingAt)
+		def NextExtracted(pcSubStr, pnStartingAt)
+			return This.ExtractNextST(pcSubStr, pnStartingAt)
+	
+		def NextOccurrenceExtractedST(pcSubStr, pnStartingAt)
+			return This.ExtractNextST(pcSubStr, pnStartingAt)
 	
 		def NextOccurrencePopped(pcSubStr, pnStartingAt)
-			return This.ExtractNext(pcSubStr, pnStartingAt)
+			return This.ExtractNextST(pcSubStr, pnStartingAt)
 	
-		def NextOccurrencePoppedS(pcSubStr, pnStartingAt)
-			return This.ExtractNext(pcSubStr, pnStartingAt)
+		def NextOccurrencePoppedST(pcSubStr, pnStartingAt)
+			return This.ExtractNextST(pcSubStr, pnStartingAt)
 
 		#>
 
@@ -78563,7 +78938,7 @@ n1 = Min(aTemp)
 	 #  EXTRACTING PREVIOUS SUBSTRING STARTING AT A GIVEN POSITION  #
 	#--------------------------------------------------------------#
 
-	def ExtractPreviousCS(substring, pnStartingAt, pCaseSensitive)
+	def ExtractPreviousSTCS(substring, pnStartingAt, pCaseSensitive)
 		if This.FindPreviousCS(substring, pnStartingAt, pCaseSensitive) = 0
 			StzRaise("Can't extract! pcSubStr does not exist at the specified position.")
 		ok
@@ -78573,95 +78948,95 @@ n1 = Min(aTemp)
 
 		#< @FunctionAlternativeForms
 
-		def ExtractPreviousOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			This.ExtractPreviousSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
-		def PopPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def ExtractPreviousOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+
+		def PopPreviousSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		def PopPreviousOccurrenceCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#--
 
-		def ExtractPreviousSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def ExtractPreviousOccurrenceSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
-		def ExtractPreviousOccurrenceSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
-
-		def PopPreviousSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
-
-		def PopPreviousOccurrenceSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def PopPreviousOccurrenceSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#>
 
 	def PreviousOccurrenceExtractedCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.ExtractPreviousSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
-		def PreviousOccurrenceExtractedSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def PreviousExtractedCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	
+		def PreviousOccurrenceExtractedSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 		def PreviousOccurrencePoppedCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
-		def PreviousOccurrencePoppedSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.ExtractPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		def PreviousOccurrencePoppedSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.ExtractPreviousSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ExtractPrevious(substring, pnStartingAt)
-		return This.ExtractPreviousCS(substring, pnStartingAt, TRUE)
+	def ExtractPreviousST(pcSubStr, pnStartingAt)
+		return This.ExtractPreviousSTCS(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def ExtractPreviousOccurrence(pcSubStr, pnStartingAt)
-			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+		def ExtractPrevious(pcSubStr, pnStartingAt)
+			This.ExtractPreviousST(pcSubStr, pnStartingAt)
 
-		def PopPrevious(pcSubStr, pnStartingAt)
-			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+		def ExtractPreviousOccurrence(pcSubStr, pnStartingAt)
+			return This.ExtractPreviousST(pcSubStr, pnStartingAt)
+
+		def PopPreviousST(pcSubStr, pnStartingAt)
+			return This.ExtractPreviousST(pcSubStr, pnStartingAt)
 
 		def PopPreviousOccurrence(pcSubStr, pnStartingAt)
-			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+			return This.ExtractPreviousST(pcSubStr, pnStartingAt)
 
 		#--
 
-		def ExtractPreviousS(pcSubStr, pnStartingAt)
-			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+		def ExtractPreviousOccurrenceST(pcSubStr, pnStartingAt)
+			return This.ExtractPreviousST(pcSubStr, pnStartingAt)
 
-		def ExtractPreviousOccurrenceS(pcSubStr, pnStartingAt)
-			return This.ExtractPrevious(pcSubStr, pnStartingAt)
-
-		def PopPreviousS(pcSubStr, pnStartingAt)
-			return This.ExtractPrevious(pcSubStr, pnStartingAt)
-
-		def PopPreviousOccurrenceS(pcSubStr, pnStartingAt)
-			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+		def PopPreviousOccurrenceST(pcSubStr, pnStartingAt)
+			return This.ExtractPreviousST(pcSubStr, pnStartingAt)
 
 		#>
 
 	def PreviousOccurrenceExtracted(pcSubStr, pnStartingAt)
-		return This.ExtractPrevious(pcSubStr, pnStartingAt)
+		return This.ExtractPreviousSTCS(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def PreviousOccurrenceExtractedS(pcSubStr, pnStartingAt)
-			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+		def PreviousExtracted(pcSubStr, pnStartingAt)
+			return This.ExtractPreviousST(pcSubStr, pnStartingAt)
+	
+		def PreviousOccurrenceExtractedST(pcSubStr, pnStartingAt)
+			return This.ExtractPreviousST(pcSubStr, pnStartingAt)
 	
 		def PreviousOccurrencePopped(pcSubStr, pnStartingAt)
-			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+			return This.ExtractPreviousST(pcSubStr, pnStartingAt)
 	
-		def PreviousOccurrencePoppedS(pcSubStr, pnStartingAt)
-			return This.ExtractPrevious(pcSubStr, pnStartingAt)
+		def PreviousOccurrencePoppedST(pcSubStr, pnStartingAt)
+			return This.ExtractPreviousST(pcSubStr, pnStartingAt)
 
 		#>
-	
+
 	  #==========================================================#
 	 #   SIMPLIFYING THE STRING BY REMOVING DUPLICATED SPACES   #
 	#==========================================================#
@@ -86168,6 +86543,9 @@ n1 = Min(aTemp)
 	def AddWalker(pcWalkerName, nStart, nEnd, nStep)
 		@aWalkers + new stzWalker(nStart, nEnd, nStep)
 
+		def AddWalkerST(pcWalkerName, nStart, nEnd, nStep)
+			This.AddWalker(pcWalkerName, nStart, nEnd, nStep)
+
 	def Walker(pcWalkerName)
 		oResult = @aWalkers[pcWalkerName]
 		if oResult = NULL
@@ -90268,7 +90646,7 @@ n1 = Min(aTemp)
 	  #------------------------------#
 	 #  ALTERNATIVES OF FindNext()  #
 	#------------------------------#
-
+#nasrallah
 	def FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
 	
@@ -90578,9 +90956,6 @@ n1 = Min(aTemp)
 	def FindPreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 		return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
 	
-	def FindPreviousNthCS(n, pcSubStr, nStart, pCaseSensitive)
-		return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
-
 	def FindPreviousNthSCS(n, pcSubStr, nStart, pCaseSensitive)
 		return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
 	
@@ -90616,9 +90991,6 @@ n1 = Min(aTemp)
 	def FindPreviousNthOccurrence(n, pcSubStr, nStart)
 		return This.FindNthPrevious(n, pcSubStr, nStart)
 	
-	def FindPreviousNth(n, pcSubStr, nStart)
-		return This.FindNthPrevious(n, pcSubStr, nStart)
-
 	def FindPreviousNthS(n, pcSubStr, nStart)
 		return This.FindNthPrevious(n, pcSubStr, nStart)
 	
@@ -90656,9 +91028,6 @@ n1 = Min(aTemp)
 	def FindPreviousNthOccurrenceAsSectionCS(n, pcSubStr, nStart, pCaseSensitive)
 		return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, pCaseSensitive)
 	
-	def FindPreviousNthAsSectionCS(n, pcSubStr, nStart, pCaseSensitive)
-		return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, pCaseSensitive)
-
 	def FindPreviousNthAsSectionSCS(n, pcSubStr, nStart, pCaseSensitive)
 		return This.FindNthPreviousAsSectionCS(n, pcSubStr, nStart, pCaseSensitive)
 	
@@ -90694,9 +91063,6 @@ n1 = Min(aTemp)
 	def FindPreviousNthOccurrenceAsSection(n, pcSubStr, nStart)
 		return This.FindNthPreviousAsSection(n, pcSubStr, nStart)
 	
-	def FindPreviousNthAsSection(n, pcSubStr, nStart)
-		return This.FindNthPreviousAsSection(n, pcSubStr, nStart)
-
 	def FindPreviousNthAsSectionS(n, pcSubStr, nStart)
 		return This.FindNthPreviousAsSection(n, pcSubStr, nStart)
 	
