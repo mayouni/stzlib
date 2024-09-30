@@ -39971,7 +39971,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	 #  INFERING SECTION'S ITEMS FROM THE PROVIDED FORM  #
 	#===================================================#
 
-	/* NOTE
+	/* #NOTE
 
 	For the mean time, this function is used to translate the section
 	returned from the StzCCodeQ().ExecutableSection method, to fill
