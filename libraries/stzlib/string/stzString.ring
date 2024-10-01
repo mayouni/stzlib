@@ -23,6 +23,8 @@
 	link: https://ftfy.readthedocs.io
 */
 
+_cMarquerChar = "#"
+
   /////////////////////
  ///   FUNCTIONS   ///
 /////////////////////
@@ -75,7 +77,6 @@ func IsNotString(pcStr)
 
 	func @IsNotAString(pcStr)
 		return IsNotString(pcStr)
-
 
 func @IsAlpha(cStr)
 	return StzStringQ(cStr).IsAlpha()
@@ -784,6 +785,45 @@ func @IsPunct(p)
 	else
 		StzRaise("Incorrect param type! p must be a string or list of chars.")
 	ok
+
+#--
+
+func MarquerChar()
+	return _cMarquerChar
+
+	func DefaultMarquerChar()
+		return _cMarquerChar
+
+	func @MarquerChar()
+		return _cMarquerChar
+
+	func Marquer()
+		return _cMarquerChar
+
+	func @Marquer()
+		return _cMarquerChar
+
+func SetMarquerChar(c)
+	if NOT (isString(c) and IsChar(c))
+		StzRaise("Incorrect param type! c must be a char.")
+	ok
+
+	_cMarquerChar = c
+
+	#NOTE // A marquer char can be set at the global level or string object level
+
+	func SetDefaultMarquerChar()
+		_cMarquerChar = c
+
+	func @SetMarquerChar()
+		_cMarquerChar = c
+
+	func SetMarquer()
+		_cMarquerChar = c
+
+	func @SetMarquer()
+		_cMarquerChar = c
+
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -791,6 +831,8 @@ func @IsPunct(p)
 class stzString from stzObject
 
 	@oQString
+	@cMarquer = DefaultMarquerChar()
+
 	@aConstraints = []
 
 	@cLanguage = :English	# Set explicitly using SetLanguage()
@@ -6328,37 +6370,27 @@ class stzString from stzObject
 	#TODO
 	# Add ContainsNumbersXT() that finds other types of numbers other then decimal
 
-	  #========================#
-	 #  NORMALIZING MARQUERS  #
-	#========================#
-	// Removing zeros at the begining of marquer numbers
+	  #===============================#
+	 #  GETTING AND SETTING MARQUER  #
+	#===============================#
 
-	def NormalizeMarquers()
-		/* Example
-
-		StzStringQ("The first candidate is #003, the second is #01, while the third is #2!") {	
-			NormalizeMarquers()
-			? Content()
-		}
-
-		#--> "The first candidate is #3, the second is #1, while the third is #2!"
-		*/
-		if This.Contains("#0")
-
-			bContinue = TRUE
+	func MarquerChar()
+		return @cMarquer
+		
+		func Marquer()
+			return @cMarquer
 	
-			While bContinue
-	
-				n = This.ReplaceLast("#0", "#")
-	
-				if This.ContainsNo("#0")
-					bContinue = FALSE
-				ok
-			end
+	func SetMarquerChar(c)
+		if NOT (isString(c) and IsChar(c))
+			StzRaise("Incorrect param type! c must be a char.")
 		ok
-
-		def NormaliseMarquers()
-			This.NormaliseMarquers()
+	
+		@cMarquer = c
+	
+		#NOTE // A marquer char can be set at the global level or string object level
+	
+		func SetMarquer()
+			@cMarquer = c
 
 	  #--------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS MARQUERS  #
@@ -6376,18 +6408,21 @@ class stzString from stzObject
 	#=======================================#
 
 	def IsMarquer()
+		nLenStr = This.NumberOfChars()
+		acMarquers = This.Marquers()
+		nLen = len(acMarquers)
 
-		nLen = This.NumberOfChars()
+		bResult = FALSE
 
-		if nLen > 2 and
-		   This.FirstChar() = "#" and
-		   This.SectionQ(2, nLen).IsIntegerInString() and
-		   (0+ This.Section(2, nLen)) != 0
+		if nLen = 1
+			nLenMarquer = len(acMarquers[1])+1
 
-			return TRUE
-		else
-			return FALSE
+			if nLenMarquer = nLenStr
+				bResult = TRUE
+			ok
 		ok
+
+		return bResult
 
 		def IsAMarquer()
 			return This.IsMarquer()
@@ -6396,41 +6431,52 @@ class stzString from stzObject
 	 #  GETTING THE LIST OF MARQUERS IN THE STRING  #
 	#==============================================#
 
-	#WRANING #TODO
-	# This function uses evaluated functions like WalkforwardW(), inside the main loop,
-	# along with a fluent chain of calls (This.SectionQ().OnlyNumbersQ().Remove... etc).
-	# ~> Check their impact on performance when using large dataset.
-
 	def Marquers()
-		anPos = This.FindAll("#")
-		nLen = len(anPos)
+		cMarquerChar = This.Marquer()
 
-		if nLen = 0
+		oCopy = This.AddQ(" ")
+		nLenStr = oCopy.NumberOfChars()
+		
+		anPos = oCopy.Find(cMarquerChar)
+		nLenPos = len(anPos)
+		
+		if nLenPos = 0
 			return []
 		ok
-
-		aResult = []
-
-		for i = 1 to nLen
-			n = anPos[i]
-			n1 = n + 1
-			n2 = This.WalkForwardW( :StartingAt = n+1, :Until = ' NOT StzStringQ(This[@i]).RepresentsNumberInDecimalForm() ' )
-			# ~> TODO: Replace this with a normal static code (better performance)
-
-			if n1 != n2
-
-				cMarquer = This.SectionQ(n1, n2).OnlyNumbersQ().RemoveThisRepeatedLeadingCharQ("0").Content()
-
-				if cMarquer != ""
-					if cMarquer[1] != "0"		
-						aResult + ("#" + cMarquer)
-					ok
+		
+		if anPos[nLenPos] != cMarquerChar
+			anPos + nLenStr
+		ok
+		
+		
+		acResult = []
+		
+		for i = 1 to nLenPos
+			n1 = anPos[i]+1
+			n2 = anPos[i+1]-1
+			cMarquer = ""
+		
+			for j = n1 to n2
+				char = oCopy.@oQString.mid(j-1, 1)
+		
+				if char = "0" or char = "1" or char = "2" or
+				   char = "3" or char = "4" or char = "5" or
+				   char = "6" or char = "7" or char = "8" or
+				   char = "9"
+		
+					cMarquer += char
+				else
+					exit
 				ok
+				
+			next
+		
+			if cMarquer != ""
+				acResult + (cMarquerChar + cMarquer)
 			ok
-			
 		next
-
-		return aResult
+		
+		return acResult
 
 		def MarquersQR(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -7559,11 +7605,13 @@ class stzString from stzObject
 	def ReplaceSubstringsWithMarquersCS(pacSubStr, pCaseSensitive)
 
 		acSubStr = StzListQ(pacSubStr).DuplicatesRemovedCS(pCaseSensitive)
+		nLen = len(acSubStr)
 
 		acMarquers = []
 
-		for i = 1 to len(acSubStr)
-			acMarquers + ( "#" + i )
+		cMarquer = This.Marquer()
+		for i = 1 to nLen
+			acMarquers + ( cMarquer + i )
 		next
 
 		This.ReplaceManyByManyCS(acSubStr, acMarquers, pCaseSensitive)
@@ -7682,7 +7730,7 @@ class stzString from stzObject
 			ok
 		ok
 
-		return This.FindNthOccurrence( n, "#" )
+		return This.FindNthOccurrence( n, This.Marquer() )
 
 		def NthMarquerOccurrence(n)
 			return This.FindNthMarquer(n)
@@ -87335,7 +87383,7 @@ n1 = Min(aTemp)
 				# Case of marquers: "#1" : "#9"
 
 				but nLenPart1 >= 4 and nLenPart2 >= 4 and
-				    oPart1.Char(2) = "#" and oPart2.Char(2) = "#" and
+				    oPart1.Char(2) = @cMarquer and oPart2.Char(2) = @cMarquer and
 				    oPart1.SectionQ(3, nLenPart1 - 1).IsIntegerInString() and
 				    oPart2.SectionQ(3, nLenPart2 - 1).IsIntegerInString()
 
@@ -87344,7 +87392,7 @@ n1 = Min(aTemp)
 
 					acResult = []
 					for i = n1 to n2
-						acResult + ('#' + i)
+						acResult + (@cMarquer + i)
 					next
 
 					return acResult
