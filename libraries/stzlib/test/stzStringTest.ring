@@ -7886,7 +7886,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*----------------- #narration #data-cleansing #data-transformation
-*/
+
 pron()
 
 # Let's start with a string containing semi-structured data.
@@ -9342,6 +9342,22 @@ o1.ReplaceSubStringAtPosition(19, "♥♥♥", :With = "Ring")
 ? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", TRUE)	  #--> FALSE
 ? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", :CS = FALSE)	  #--> TRUE
 
+/*------------------------
+
+pron()
+
+? Q("...").Marquer()
+#--> "#"
+
+? Q("#12500").IsMarquer()
+#--> TRUE
+
+? @@( Q("#12500").Marquers() )
+#--> [ "12500" ]
+
+proff()
+# Executed in 0.02 second(s).
+
 /*====================== WORKING WITH MARQUERS
 
 pron()
@@ -9350,19 +9366,20 @@ pron()
 #--> FALSE
 
 ? StzStringQ("My name is #0.").ContainsMarquers()
-#!--> FALSE
+#--> TRUE
 
 ? StzStringQ("My name is #1.").ContainsMarquers()
 #--> TRUE
 
 ? StzStringQ("My name is #01.").ContainsMarquers()
-#--> FALSE
+#--> TRUE
 
-? Q("bla #0 bla bla #1 bla #2 blabla").Marquers()
-#--> [ "#1", "#2" ]
+? @@( Q("bla #0 bla bla #1 bla #2 blabla").Marquers() )
+#--> [ "#0", "#1", "#2" ]
 
 proff()
-# Executed in 0.53 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.53 second(s) in Ring 1.14
 
 /*---------------------- 
 
@@ -9370,20 +9387,20 @@ pron()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3.") {
 	? Marquers()
-	#--> #1, #2, #3
+	#--> [ "#1", "#2", "#3" ]
 }
 
 StzStringQ("My name is #2, my age is #3, and my job is #1.") {
 	? Marquers()
-	#--> #2, #3, #1
+	#--> [ "#2", "#3", "#1" ]
 }
 
 proff()
-# Executed in 0.28 second(s) in Ring 1.19 (32 bits)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.28 second(s) in Ring 1.19
 # Executed in 0.30 second(s) in Ring 1.18
 
-/*----------------------
-@perf
+/*---------------------- #perf
 
 pron()
 
@@ -9404,6 +9421,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
+# Executed in 0.05 second(s) in Ring 1.21
 # Executed in 2.49 second(s) in Ring 1.19
 
 /*---------------------- 
@@ -9436,7 +9454,8 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
-# Executed in 1.64 second(s)
+# Executed in 1.64 second(s) in Ring 1.21
+# Executed in 1.64 second(s) in Ring 1.19
 
 /*---------------------- 
 
@@ -9455,21 +9474,21 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
-# Executed in 0.63 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.63 second(s) in Ring 1.19
 
-/*---------------------- 
-@perf
-
+/*---------------------- #perf
+*/
 pron()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
-	? NextNthMarquer(2, :StartingAt = 14)
+	? NextNthMarquerST(2, :StartingAt = 14) # You can omit the ..ST()
 	#--> #3
 		# Or you can say:
 		# ? NthNextMarquer(2, :StartingAt = 14)
 	
-	? FindNextNthMarquer(2, :StartingAt = 14)
+	? FindNextNthMarquerST(2, :StartingAt = 14)
 	#--> 44
 		# Or you can say:
 		# ? NextNthMarquerOccurrence(2, :StartingAt = 14)
@@ -9480,7 +9499,8 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
-# Executed in 0.70 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.70 second(s) in Ring 1.17
 
 /*===================
 @perf
