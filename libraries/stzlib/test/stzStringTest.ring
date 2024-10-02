@@ -10631,7 +10631,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*===================
-
+*/
 pron()
 
 o1 = new stzText("in search of lost time")
@@ -10639,11 +10639,12 @@ o1 = new stzText("in search of lost time")
 #--> [ "in", "search", "of", "lost", "time" ]
 
 proff()
+# Executed in 0.05 second(s) in Ring 1.21
 # Executed in 0.40 second(s) in Ring 1.18
 # Executed in 0.49 second(s) in Ring 1.17
 
 /*--------------------
-*/
+
 pron()
 
 o1 = new stzString("...ONE...NONE...SONY...")
@@ -10651,7 +10652,7 @@ o1 = new stzString("...ONE...NONE...SONY...")
 #--> 4
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.04 second(s)
 
 /*--------------------
 */
