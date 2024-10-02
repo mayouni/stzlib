@@ -10631,7 +10631,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*===================
-*/
+
 pron()
 
 o1 = new stzText("in search of lost time")
@@ -10655,7 +10655,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*--------------------
-*/
+
 pron()
 
 o1 = new stzString("one;two;three;four;five")
@@ -10667,8 +10667,13 @@ o1 = new stzString("one;two;three;four;five")
 #--> [ [ "one", 1 ], [ "two", 5 ], [ "three", 9 ], [ "four", 15 ], [ "five", 20 ] ]
 
 ? @@( o1.SplitsZZ(";") )
+#--> [
+#	[ "one", [ 1, 3 ] ], [ "two", [ 5, 7 ] ], [ "three", [ 9, 13 ] ],
+#	[ "four", [ 15, 18 ] ], [ "five", [ 20, 23 ] ]
+# ]
 
 proff()
+# Executed in 0.08 second(s).
 
 /*--------------------
 
@@ -10680,7 +10685,8 @@ o1 = new stzString("in search of lost time, all the time")
 #--> [ 1, 4, 11, 14, 19, 24, 28, 32 ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.05 second(s) in Ring 1.21
+# Executed in 0.08 second(s) in Ring 1.17
 
 /*--------------------
 */
