@@ -6999,21 +6999,23 @@ class stzString from stzObject
 
 		aResult = []
 
+		acSeen = []
+
 		for i = 1 to nLen
+
 			cMarquer = aMarquers[i][1]
-			nLenMarquer = Q(cMarquer).NumberOfChars()
+			aSection = aMarquers[i][2]
 
-			anMarquerPositions = aMarquers[i][2]
-			nNumberOfPos = len(anMarquerPositions)
+			if ring_find(acSeen, cMarquer) = 0
 
-			aMarquerSections = []
+				aResult + [ cMarquer, [ aSection ] ]
+				acSeen + cMarquer
 
-			for j = 1 to nNumberOfPos
-				nPos = anMarquerPositions[j]
-				aMarquerSections + [ nPos, nPos + nLenMarquer - 1 ]
-			next
+			else
 
-			aResult + [ cMarquer, aMarquerSections ]
+				aResult[cMarquer] + aSection
+			ok
+
 		next
 		
 		return aResult

@@ -14329,12 +14329,14 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 	def RemoveItemsAtPositions(panPos)
 
+		nLen = len(panPos)
+
 		if CheckParams()
 
 			if NOT isList(panPos)
 				StzRaise("Incorrect pram! panPos must be a list.")
 			ok
-			nLen = len(panPos)
+			
 			if nLen = 0
 				return
 			ok
