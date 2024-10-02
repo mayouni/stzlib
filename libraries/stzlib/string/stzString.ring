@@ -21359,10 +21359,18 @@ class stzString from stzObject
 
 	def RepeatedTrailingCharCS(pCaseSensitive)
 
-		if This.HasRepeatedTrailingCharsCS(pCaseSensitive)
-			return This.LastChar()
+		nLen = This.NumberOfChars()
+		if nLen < 2
+			return ""
+		ok
+
+		cLastChar = @oQString.mid(nLen-1, 1)
+		cBeforeLastChar = @oQString.mid(nLen-2, 1)
+
+		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
+			return cLastChar
 		else
-			return NULL
+			return ""
 		ok
 
 		#< @FunctionFleuntForms
@@ -21481,13 +21489,31 @@ class stzString from stzObject
 
 	def NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
 
-		nResult = 0
+		nLen = This.NumberOfChars()
 
-		if This.ContainsTrailingCharsCS(pCaseSensitive)
-			nResult = This.TrailingCharsCSQ(pCaseSensitive).NumberOfChars()
+		if nLen < 2
+			return 0
 		ok
 
-		return nResult
+		cLastChar = @oQString.mid(nLen-1, 1)
+		cBeforeLastChar = @oQString.mid(nLen-2, 1)
+
+		if NOT StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
+			return 0
+		ok
+
+		n = 0
+
+		for i = nLen to 1 step - 1
+			cChar = @oQString.mid(i-1, 1)
+			if NOT StzStringQ(cChar).IsEqualToCS(cLastChar, pCaseSensitive)
+				exit
+			else
+				n++
+			ok
+		next
+
+		return n
 
 		#< @FunctionAlternativeForms
 
@@ -21555,8 +21581,17 @@ class stzString from stzObject
 	#----------------------------------------------------------------------#
 
 	def RepeatedTrailingCharIsCS(c, pCaseSensitive)
-		if This.HasRepeatedTrailingCharsCS(pCaseSensitive) and
-		   This.FirstCharQ().IsEqualToCS(c, pCaseSensitive)
+		nLen = This.NumberOfChars()
+
+		if nLen < 2
+			return FALSE
+		ok
+
+		cLastChar = @oQString.mid(nLen-1, 1)
+		cBeforeLastChar = @oQString.mid(nLen-2, 1)
+
+		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive) and
+		   StzStringQ(c).IsEqualToCS(cLastChar, pCaseSensitive)
 
 			return TRUE
 		else
@@ -21596,7 +21631,14 @@ class stzString from stzObject
 
 		nLen = This.NumberOfChars()
 
-		if nLen > 2 and @oQString.mid(nLen-1, 1) = @oQString.mid(nLen-2, 1)
+		if nLen < 2
+			return FALSE
+		ok
+
+		cLastChar = @oQString.mid(nLen-1, 1)
+		cBeforeLastChar = @oQString.mid(nLen-2, 1)
+
+		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
 			return TRUE
 		else
 			return FALSE
@@ -21700,14 +21742,18 @@ class stzString from stzObject
 
 	def FindRepeatedLeadingCharsCS(pCaseSensitive)
 
-		nResult = 0
-		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+		nLen = @oQString.count()
 
-		if n > 0
-			nResult = 1
+		if nLen < 2
+			return []
 		ok
-		
-		return nResult
+
+		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+		if n = 0
+			return []
+		ok
+
+		return 1:n
 
 		#< @FunctionALternativeForm
 
@@ -22102,15 +22148,23 @@ class stzString from stzObject
 
 	def FindRepeatedTrailingCharsCS(pCaseSensitive)
 
-		n = This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
-		if n = 0
-			return 0
+		nLen = @oQString.count()
+
+		if nLen < 2
+			return []
 		ok
 
-		nLen = This.NumberOfChars()
-		nResult = nLen - n + 1
+		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+		if n = 0
+			return []
+		ok
 
-		return nResult
+		anResult = []
+		for i = (nLen - n + 2) to nLen
+			anResult + i
+		next
+		
+		return anResult
 
 		#< @FunctionAlternativeForms
 
@@ -22149,16 +22203,19 @@ class stzString from stzObject
 
 	def FindRepeatedTrailingCharsAsSectionCS(pCaseSensitive)
 
-		n = This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+		nLen = @oQString.count()
 
+		if nLen < 2
+			return []
+		ok
+
+		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
 		if n = 0
 			return []
 		ok
 
-		nLen = This.NumberOfChars()
-		anResult = [ nLen - n + 1, nLen ]
+		return [ (nLen - n + 2), nLen ]
 
-		return anResult
 
 		#< @FunctionAlternativeForms
 
