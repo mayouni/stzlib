@@ -9478,7 +9478,7 @@ proff()
 # Executed in 0.63 second(s) in Ring 1.19
 
 /*---------------------- #perf
-*/
+
 pron()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
@@ -9502,8 +9502,7 @@ proff()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.70 second(s) in Ring 1.17
 
-/*===================
-@perf
+/*=================== #perf
 
 pron()
 
@@ -9523,6 +9522,7 @@ pron()
 #--> TRUE
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.05 second(s) in Ring 1.19 (32 bits)
 # Executed in 0.03 second(s) in Ring 1.18
 
@@ -9555,7 +9555,8 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
-# Executed in 2.70 second(s)
+# Executed in 0.10 second(s) in Ring 1.21
+# Executed in 2.70 second(s) in Ring 1.18
 
 /*---------------------- 
 
@@ -9572,7 +9573,8 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
-# Executed in 0.66 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.66 second(s) in Ring 1.18
 
 /*---------------------- 
 
@@ -9598,13 +9600,14 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
-# Executed in 2.02 second(s)
+# Executed in 0.05 second(s) in Ring 1.21
+# Executed in 2.02 second(s) in Ring 1.18
 
 /*---------------------- 
 
 pron()
 
-CheckparamsOff() # Gain of performance
+CheckparamsOff() # Potential Gain of performance
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
@@ -9617,13 +9620,14 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
-# Executed in 0.79 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.79 second(s) in Ring 1.18
 
 /*---------------------- 
-
+*/
 pron()
 
-CheckParamsOff()
+//CheckParamsOff()
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
@@ -9644,11 +9648,17 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 	# 	[ "#2", [ [ 26, 27 ] ] ],
 	# 	[ "#3", [ [ 44, 45 ] ] ]
 	# ]
+
 }
 
 proff()
+
+# Executed in 0.05 second(s) in Ring 1.21 WithCheckParamsOff()
+# Executed in 0.05 second(s) in Ring 1.21 WithCheckParams()
+
 # Executed in 1.67 second(s) in Ring 1.19 with CheckParamsOff()
 # Executed in 2.58 second(s) in Ring 1.19 without CheckParamsOff()
+
 # Executed in 4.65 second(s) in Ring 1.18
 # Executed in 7.74 second(s) in Ring 1.17
 
