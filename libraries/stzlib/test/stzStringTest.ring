@@ -10677,7 +10677,6 @@ proff()
 
 /*--------------------
 
-*/
 pron()
 
 o1 = new stzString("in search of lost time, all the time")
@@ -10688,8 +10687,8 @@ proff()
 # Executed in 0.05 second(s) in Ring 1.21
 # Executed in 0.08 second(s) in Ring 1.17
 
-/*--------------------
-*/
+/*-------------------- #todo check it
+
 pron()
 
 StzStringQ("in search of lost time") {
@@ -10714,27 +10713,73 @@ proff()
 
 /*--------------------
 
-? StzStringQ(:Arabic).IsScript()		#--> TRUE
-? StzStringQ(:Arabic).IsScriptName()		#--> TRUE
-? StzStringQ(:Arab).IsScriptAbbreviation()	#--> TRUE
-? StzStringQ("1").IsScriptCode()		#--> TRUE
+pron()
+
+? StzStringQ(:Arabic).IsScript()
+#--> TRUE
+
+? StzStringQ(:Arabic).IsScriptName()
+#--> TRUE
+
+? StzStringQ(:Arab).IsScriptAbbreviation()
+#--> TRUE
+
+? StzStringQ("1").IsScriptCode()
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*====================
 
+pron()
+
 o1 = new stzString("125.450")
 o1.RemoveNthChar(7)
-? o1.Content() #--> "125.45"
+? o1.Content()
+#--> "125.45"
+
+proff()
+# Executed in 0.01 second(s).
 
 /*--------------------
 
+pron()
+
 o1 = new stzString("125.450")
 
-o1.RemoveW('{ @char = "2" }')
-? o1.Content()	#--> "15.450"
+o1.RemoveCharsWXT('{ @char = "2" }')
+? o1.Content()
+#--> "15.450"
+
+proff()
+# Executed in 0.14 second(s).
 
 /*=====================
+*/
 
-? Q("12.45600").ThisTrailingCharRemoved("0")	#--> "12.456"
+pron()
+
+o1 = new stzString("12.45600")
+
+? o1.HasRepeatedTrailingChars()
+#--> TRUE
+
+? @@( o1.RepeatedTrailingChars() )
+
+o1.RemoveThisTrailingChar("0")
+? o1.Content()
+
+proff()
+
+#------
+
+pron()
+
+? Q("12.45600").ThisTrailingCharRemoved("0")
+#--> "12.456"
+
+proff()
 
 /*--------------------
 
