@@ -9623,11 +9623,11 @@ proff()
 # Executed in 0.03 second(s) in Ring 1.21
 # Executed in 0.79 second(s) in Ring 1.18
 
-/*---------------------- 
-*/
+/*----------------------
+
 pron()
 
-//CheckParamsOff()
+CheckParamsOff() # Potential gain of performance
 
 StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!") {
 
@@ -9642,7 +9642,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 	# 	[ "#1", [ 66, 67 ] ]
 	# ]
 
-	? @@( MarquersUZZ() )
+	? @@( MarquersUZZ() ) # Or UniqueMarquersAndTheirSections()
 	#--> [
 	# 	[ "#1", [ [ 12, 13 ], [ 66, 67 ] ] ],
 	# 	[ "#2", [ [ 26, 27 ] ] ],
@@ -9667,14 +9667,17 @@ proff()
 pron()
 
 Q("My name is #1, my age is #2, and my job is #3.") {	
-	? MarquersAreSortedInAscending() #--> TRUE
+	? MarquersAreSortedInAscending()
+	#--> TRUE
 }
 
 StzStringQ("My name is #2, my age is #1, and my job is #3.") {	
-	? MarquersAreSortedInAscending() #--> FALSE
+	? MarquersAreSortedInAscending()
+	#--> FALSE
 }
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.54 second(s) in Ring 1.19
 # Executed in 0.29 second(s) in Ring 1.18
 # Executed in 0.45 second(s) in Ring 1.17
@@ -9694,8 +9697,10 @@ StzStringQ("My name is #2, my age is #1, and my job is #3.") {
 }
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.29 second(s) in Ring 1.18
 
+/*----------------------
 
 pron()
 
@@ -9708,7 +9713,8 @@ StzStringQ("My name is #1, my age is #2, and my job is #3.") {
 }
 
 proff()
-# Executed in 0.31 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.31 second(s) in Ring 1.18
 
 /*---------------------- 
 
@@ -9723,7 +9729,8 @@ StzStringQ("My name is #3, my age is #2, and my job is #1.") {
 }
 
 proff()
-# Executed in 0.31 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.31 second(s) in Ring 1.18
 
 /*---------------------- 
 
@@ -9740,22 +9747,24 @@ StzStringQ("My name is #1, my age is #3, and my job is #2.") {
 }
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.31 second(s) in Ring 1.18
 # Executed in 0.53 second(s) in Ring 1.17
 
 /*----------------------
-*/
+
 pron()
 
 CheckParamsOff()
 
-StzStringQ("The first candidate is #3, the second is #1, while the third is #2!") {	
-	? NumberOfMarquers()
+StzStringQ("The first candidate is #3, the second is #1, while the third is #2!") {
+	
+	? NumberOfMarquers() + NL
 	#--> 3
 	? MarquersPositions() # Or FindMarquers()
 	#--> [ 24, 42, 65 ]
 	
-	? FindNextNthMarquer(2, 14)
+	? FindNextNthMarquer(2, 14) + NL
 	#--> 42
 	
 	? MarquersPositionsSortedInAscending()
@@ -9763,7 +9772,8 @@ StzStringQ("The first candidate is #3, the second is #1, while the third is #2!"
 }
 
 proff()
-# Executed in 0.69 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.69 second(s) in Ring 1.18
 
 /*----------------------
 
@@ -9774,14 +9784,15 @@ StzStringQ("The first candidate is #3, the second is #1, while the third is #2!"
 	? Marquers()
 	#--> [ "#3", "#1", "#2" ]
 
-	? MarquersZ()
-	#--> [ [ "#1", 24 ], [ "#2", 42 ], [ "#3", 65 ] ]
+	? @@( MarquersZ() ) + NL
+	#--> [ [ "#3", 24 ], [ "#1", 42 ], [ "#2", 65 ] ]
 
-	? MarquersZZ()
-	#--> [ "#1" = [24, 25], "#2" = [42, 43], "#3" = [65, 66] ]
+	? @@( MarquersZZ() )
+	#--> [ [ "#3", [ 24, 25 ] ], [ "#1", [ 42, 43 ] ], [ "#2", [ 65, 66 ] ] ]
 }
 
 proff()
+# Executed in 0.04 second(s) in Ring 0.04
 # Executed in 1.36 second(s) in Ring 1.18
 # Executed in 2.22 second(s) in Ring 1.17
 
@@ -9791,9 +9802,10 @@ pron()
 
 o1 = new stzString("My name is #2, may age is #1, and my job is #3.")
 ? @@( o1.MarquersSortedInDescendingZZ() )
-#--> [ [ "#3", [ 12, 13 ] ], [ "#2", [ 27, 28 ] ], [ "#1", [ 45, 46 ] ] ]
+#--> [ [ "#3", [ 12, 14 ] ], [ "#2", [ 27, 29 ] ], [ "#1", [ 45, 47 ] ] ]
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.27 second(s) in Ring 1.18
 # Executed in 0.41 second(s) in Ring 1.17
 
@@ -9811,6 +9823,7 @@ StzStringQ("My name is #1, my age is #3, and my job is #2. Again: my name is #1!
 }
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.21
 # Executed in 0.66 second(s) in Ring 1.18
 
 /*---------------------- 
@@ -9831,6 +9844,7 @@ StzStringQ("My name is #1, my age is #3, and my job is #2. Again: my name is #1!
 }
 
 proff()
+# Executed in 0.04 second(s) in Ring 1.21
 # Executed in 0.39 second(s) in Ring 1.18
 # Executed in 0.57 second(s) in Ring 1.17
 
@@ -9850,6 +9864,7 @@ StzStringQ("The first candidate is #3, the second is #1, while the third is #2!"
 }
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.21
 # Executed in 0.53 second(s) in Ring 1.18
 # Executed in 0.81 second(s) in Ring 1.17
 
@@ -9862,7 +9877,7 @@ o1 = new stzString("Ring can be compared to Python, Ruby and PHP.")
 o1.MarkTheseSubStringsCS( [ "Ring", "Python", "Ruby", "PHP" ], TRUE )
 # Or ReplaceSubstringsWithMarquersCS
 
-? o1.Content()
+? o1.Content() + NL
 #--> "#1 can be compared to #2, #3 and #4."
 
 o1 = new stzString("Ring can be compared to Python, Ruby and PHP.")
@@ -9873,7 +9888,7 @@ o1.MarkSubStringsCS( [ "ring", "python", "ruby", "PHP" ], :CS = FALSE )
 #--> "#1 can be compared to #2, #3 and #4."
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
 /*----------------------
 
@@ -9903,6 +9918,7 @@ StartProfiler()
 	#--> My three kids are Hussein, Haneen and Teeba!
 
 StopProfiler()
+# Executed in 0.06 second(s) in Ring 1.21
 # Executed in 1.73 second(s) in Ring 1.18
 # Executed in 2.90 second(s) in Ring 1.17
 
@@ -9936,7 +9952,8 @@ StzStringQ("BCAADDEFAGTILNXV") {
 }
 
 proff()
-# Executed in 0.21 second(s)
+# Executed in 0.17 second(s) in Ring 1.21
+# Executed in 0.21 second(s) in Ring 1.18
 
 /*-----------------------
 
@@ -9959,6 +9976,7 @@ Q("XVTNLIGFEDDCBAAA") {
 }
 
 proff()
+# Executed in 0.16 second(s) in Ring 1.21
 # Executed in 0.32 second(s) in Ring 1.18
 # Executed in 0.74 second(s) in Ring 1.17
 
@@ -9982,10 +10000,11 @@ o1 = new stzString("My name is Mansour. What's your name please?")
 #--> [ [ "name", [ [ 4, 7 ], [ 33, 36 ] ] ], [ "nothing", [ ] ], [ "please", [ [ 38, 43 ] ] ] ]
 
 proff()
+# Executed in 0.07 second(s) in Ring 1.21
 # Executed in 0.07 second(s) in Ring 1.18
 # Executed in 0.11 second(s) in Ring 1.17
 
-/*====================
+/*==================== #narration GENERALISATION OF _:_ RING SYNTAX
 
 pron()
 
@@ -9994,7 +10013,7 @@ pron()
 ? "A" : "E"
 #--> [ "A", "B", "C", "D", "E" ]
 
-# And it works backward also like this:
+# And it works backward like this:
 
 ? "E" : "A"
 #--> [ "E", "D", "C", "B", "A" ]
@@ -10014,6 +10033,7 @@ pron()
 ? Q("ج").DownTo("ب")	#--> [ "ج", "ث", "ت", "ة", "ب" ]
 
 proff()
+# Executed in 0.06 second(s) in Ring 106
 # Executed in 0.14 second(s) in Ring 1.18
 # Executed in 0.24 second(s) in Ring 1.17
 
@@ -10034,7 +10054,8 @@ o1 = new stzString("I Work For Afterward")
 ? Q("I Work For Afterward").SpacesRemoved()
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in Ring 1.18
 
 /*======================
 

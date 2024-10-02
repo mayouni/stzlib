@@ -6998,7 +6998,6 @@ class stzString from stzObject
 		nLen = len(aMarquers)
 
 		aResult = []
-
 		acSeen = []
 
 		for i = 1 to nLen
@@ -7021,6 +7020,9 @@ class stzString from stzObject
 		return aResult
 
 		#< @FunctionFluentForm
+
+		def UniqueMarquersAndSectionsQ()
+			return new stzList(This.UniqueMarquersAndSections())
 
 		def UniqueMarquersAndSectionsQR(pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -16970,13 +16972,13 @@ class stzString from stzObject
 
 		while nPos < nLen
 
-	        	n1 = This.FindFirstSCS(pcBound1, nPos, pCaseSensitive)
+	        	n1 = This.FindFirstSTCS(pcBound1, nPos, pCaseSensitive)
 
 	        	if n1 = 0
 	            		exit
 	       		 ok
 
-	        	n2 = This.FindFirstSCS(pcBound2, n1 + nLenBound1, pCaseSensitive)
+	        	n2 = This.FindFirstSTCS(pcBound2, n1 + nLenBound1, pCaseSensitive)
 	       		if n2 = 0
 	            		exit
 			ok
@@ -17025,13 +17027,13 @@ class stzString from stzObject
 
 		while nPos < nLen
 
-	        	n1 = This.FindFirstSCS(pcBound1, nPos, pCaseSensitive)
+	        	n1 = This.FindFirstSTCS(pcBound1, nPos, pCaseSensitive)
 
 	        	if n1 = 0
 	            		exit
 	       		 ok
 
-	        	n2 = This.FindFirstSCS(pcBound2, n1 + nLenBound1, pCaseSensitive)
+	        	n2 = This.FindFirstSTCS(pcBound2, n1 + nLenBound1, pCaseSensitive)
 	       		if n2 = 0
 	            		exit
 			ok
@@ -51386,7 +51388,7 @@ n1 = Min(aTemp)
 
 		while bContinue
 	
-			nPos = This.FindFirstSCS(pcSubStr, nPos + 1, pCaseSensitive)
+			nPos = This.FindFirstSTCS(pcSubStr, nPos + 1, pCaseSensitive)
 			if nPos = 0
 				bContinue = FALSE
 			else
