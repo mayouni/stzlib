@@ -10756,14 +10756,66 @@ proff()
 # Executed in 0.14 second(s).
 
 /*=====================
+
+pron()
+
+o1 = new stzString(".....mmMm")
+
+? o1.HasTrailingChars()
+#--> FALSE
+
+? @@( o1.TrailingChar() ) + NL
+#--> ""
+
+? o1.HasTrailingCharsCS(:CaseSensitive = FALSE)
+#--> TRUE
+
+? o1.TrailingCharCS(FalSE)
+#--> "m"
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-------------
 */
 
 pron()
 
-o1 = new stzString("12.45600")
+o1 = new stzString(".....mmmm")
 
-? o1.HasRepeatedTrailingChars()
+? @@( o1.FindTrailingChars() )
+#--> [ 6, 7, 8, 9 ]
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-------------
+*/
+pron()
+
+o1 = new stzString("12.4560000")
+
+? @@( o1.TrailingChar() )
+#--> "0"
+
+? o1.HasTrailingChars()
 #--> TRUE
+
+? o1.TrailingCharIs("0")
+#--> TRUE
+
+? o1.HowManyTrailingChar()
+#--> 4
+
+? o1.TrailingChar()
+#--> ""
+
+? o1.TrailingCharCS(false)
+#--> "0"
+
+proff()
+
+/*-----------
 
 ? @@( o1.RepeatedTrailingChars() )
 
