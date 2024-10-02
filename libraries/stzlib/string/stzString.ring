@@ -21187,7 +21187,7 @@ class stzString from stzObject
 		#--
 
 		def RepeatedTrailingCharsAsStringCS(pCaseSensitive)
-			ThisRepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+			This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
 
 			def RepeatedTrailingCharsAsStringCSQ(pCaseSensitive)
 				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
@@ -21207,7 +21207,7 @@ class stzString from stzObject
 		#--
 
 		def RepeatedTrailingCharsCSXT(pCaseSensitive)
-			ThisRepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+			This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
 
 			def RepeatedTrailingCharsAsStringCSXTQ(pCaseSensitive)
 				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
@@ -21593,11 +21593,14 @@ class stzString from stzObject
 	#=====================================================#
 
 	def HasRepeatedTrailingCharsCS(pCaseSensitive)
-		if This.RepeatedTrailingCharsCS(pCaseSensitive) != NULL
+
+		nLen = This.NumberOfChars()
+
+		if nLen > 2 and @oQString.mid(nLen-1, 1) = @oQString.mid(nLen-2, 1)
 			return TRUE
 		else
-
 			return FALSE
+
 		ok
 
 		#< @FunctionAlternativeForms
@@ -45389,7 +45392,7 @@ class stzString from stzObject
 
 		ok
 
-		nLen = len(anPos)
+		nLen = len(panPos)
 		anPos = ring_sort( U(panPos) )
 		
 
