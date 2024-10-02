@@ -52571,6 +52571,202 @@ n1 = Min(aTemp)
 		def Splitted(pSubStrOrPos)
 			return This.SplitAt(pSubStrOrPos)
 
+	  #------------------------------------------#
+	 #  GETTING THE SPLITS AND THEIR POSITIONS  #
+	#==========================================#
+
+	def SplitsCSZ(pSubStrOrPos, pCaseSensitive)
+		acSplits = This.SplitsCS(pSubStrOrPos, pCaseSensitive)
+		anPos = This.FindSplitsCS(pSubStrOrPos, pCaseSensitive)
+
+		aResult = @Association([ acSplits, anPos ])
+
+		return aResult
+
+		#< @FunctionAlternativeFroms
+
+		def SplitsAndTheirPositionsCS(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSZ(pSubStrOrPos, pCaseSensitive)
+
+		#--
+
+		def SplitCSZ(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSZ(pSubStrOrPos, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitsZ(pSubStrOrPos)
+		return This.SplitsCSZ(pSubStrOrPos, TRUE)
+
+		#< @FunctionAlternativeFroms
+
+		def SplitsAndTheirPositions(pSubStrOrPos)
+			return This.SplitsZ(pSubStrOrPos)
+
+		#--
+
+		def SplitZ(pSubStrOrPos)
+			return This.SplitsZ(pSubStrOrPos)
+
+		#>
+
+	  #-----------------------------------------#
+	 #  GETTING THE SPLITS AND THEIR SECTIONS  #
+	#-----------------------------------------#
+
+	def SplitsCSZZ(pSubStrOrPos, pCaseSensitive)
+		acSplits = This.SplitsCS(pSubStrOrPos, pCaseSensitive)
+		anPos = This.FindSplitsCSZZ(pSubStrOrPos, pCaseSensitive)
+
+		aResult = @Association([ acSplits, anPos ])
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SplitsAndTheirSectionsCS(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSZZ(pSubStrOrPos, pCaseSensitive)
+
+		#--
+
+		def SplitCSZZ(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSZZ(pSubStrOrPos, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitsZZ(pSubStrOrPos)
+		return This.SplitsCSZZ(pSubStrOrPos, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def SplitsAndTheirSections(pSubStrOrPos)
+			return This.SplitsZZ(pSubStrOrPos)
+
+		#--
+
+		def SplitZZ(pSubStrOrPos)
+			return This.SplitsCSZZ(pSubStrOrPos)
+
+		#>
+
+	  #---------------------------------------------------------#
+	 #  GETTING THE SPLITS AND THEIR POSITIONS -- U/EXTENSION  #
+	#---------------------------------------------------------#
+
+	def SplitsCSUZ(pSubStrOrPos, pCaseSensitive)
+		acSplits = This.SplitsCSU(pSubStrOrPos, pCaseSensitive)
+		anPos = This.FindSplitsCSU(pSubStrOrPos, pCaseSensitive)
+
+		aResult = @Association([ acSplits, anPos ])
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SplitsAndTheirPositionsCSU(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSZU(pSubStrOrPos, pCaseSensitive)
+
+		#--
+
+		def UniqueSplitsCSZ(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSZU(pSubStrOrPos, pCaseSensitive)
+
+		def UniqueSplitsAndTheirPositionsCS(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSZU(pSubStrOrPos, pCaseSensitive)
+
+		#==
+
+		def SplitCSUZ(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSUZ(pSubStrOrPos, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitsZU(pSubStrOrPos)
+		return This.SplitsCSZU(pSubStrOrPos, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def SplitsAndTheirPositionsU(pSubStrOrPos)
+			return This.SplitsZU(pSubStrOrPos)
+
+		#--
+
+		def UniqueSplitsZ(pSubStrOrPos)
+			return This.SplitsZU(pSubStrOrPos)
+
+		def UniqueSplitsAndTheirPositions(pSubStrOrPos)
+			return This.SplitsZU(pSubStrOrPos)
+
+		#==
+
+		def SplitUZ(pSubStrOrPos)
+			return This.SplitsUZ(pSubStrOrPos)
+
+		#>
+
+	  #-------------------------------------------------------#
+	 #  GETTING THE SPLITS AND THEIR SECTIONS -- U/EXTENDED  #
+	#-------------------------------------------------------#
+
+	def SplitsCSZZU(pSubStrOrPos, pCaseSensitive)
+		acSplits = This.SplitsCSU(pSubStrOrPos, pCaseSensitive)
+		anPos = This.FindSplitsCSZZU(pSubStrOrPos, pCaseSensitive)
+
+		aResult = @Association([ acSplits, anPos ])
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SplitsAndTheirPositionsCSZZU(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSZZU(pSubStrOrPos, pCaseSensitive)
+
+		#--
+
+		def UniqueSplitsCSZZ(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSZZU(pSubStrOrPos, pCaseSensitive)
+
+		def UniqueSplitsAndTheirSectionsCS(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSZZU(pSubStrOrPos, pCaseSensitive)
+
+		#==
+
+		def SplitCSUZZ(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSUZZ(pSubStrOrPos, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitsZZU(pSubStrOrPos)
+		return This.SplitsCSZZU(pSubStrOrPos, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def SplitsAndTheirPositionsZZU(pSubStrOrPos)
+			return This.SplitsZZU(pSubStrOrPos)
+
+		#--
+
+		def UniqueSplitsZZ(pSubStrOrPos)
+			return This.SplitsZZU(pSubStrOrPos)
+
+		def UniqueSplitsAndTheirSections(pSubStrOrPos)
+			return This.SplitsZZU(pSubStrOrPos)
+
+		#==
+
+		def SplitUZZ(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsUZZ(pSubStrOrPos, pCaseSensitive)
+
+		#>
+
 	  #-----------------------------------#
 	 #   SPLITTING AT A GIVEN POSITION   #
 	#===================================#
@@ -89631,7 +89827,7 @@ n1 = Min(aTemp)
 	def FindWordsCS(pCaseSensitive)
 
 		acSplittedZ = This.SplitCSZ(" ", pCaseSensitive)
-		anResult = QR(acSplittedZ, :stzListOfPairs).SecondItems()
+		anResult = U( QR(acSplittedZ, :stzListOfPairs).SecondItems() )
 
 		return anResult
 
