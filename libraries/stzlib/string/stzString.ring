@@ -45374,13 +45374,24 @@ class stzString from stzObject
 	def RemoveCharsAt(panPos)
 
 		if CheckParams()
-			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+
+			if NOT isList(panPos)
+				StzRaise("Incorrect param type! panPos must be a list.")
+			ok
+
+			if len(panPos) = 0
+				return
+			ok
+
+			if NOT @IsListOfNumbers(panPos)
 				StzRaise("Incorrect param type! panPos must be a list of numbers.")
 			ok
+
 		ok
 
-		anPos = ring_sort( U(panPos) )
 		nLen = len(anPos)
+		anPos = ring_sort( U(panPos) )
+		
 
 		for i = nLen to 1 step -1
 			This.RemoveCharAt(anPos[i]) #TODO // check performance!
@@ -51389,6 +51400,7 @@ n1 = Min(aTemp)
 		while bContinue
 	
 			nPos = This.FindFirstSTCS(pcSubStr, nPos + 1, pCaseSensitive)
+
 			if nPos = 0
 				bContinue = FALSE
 			else
