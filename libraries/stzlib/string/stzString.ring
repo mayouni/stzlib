@@ -71530,17 +71530,15 @@ n1 = Min(aTemp)
 		#>
 
 	def IsQuietEqualTo(pcOtherStr)
-		#WARNING: Performance issue is caused by DiacriticsRemoved()
 
-		cThisString = This.LowercaseQ().ToStzText().DiacriticsRemoved()
+		cThisStr = This.Lowercased()
+		cOtherStr = lower(pcOtherStr)
 
-		cOtherStr = StzStringQ(pcOtherStr).LowercaseQ().ToStzText().DiacriticsRemoved()
-
-		if cThisString = cOtherStr
+		if cThisStr = cOtherStr
 			return TRUE
 		ok
 
-		nDif = abs(This.NumberOfChars() - StzStringQ(pcOtherStr).NumberOfChars())
+		nDif = abs(This.NumberOfChars() - StzStringQ(cOtherStr).NumberOfChars())
 		n = nDif / This.NumberOfChars()
 		
 		if n <= QuietEqualityRatio() # 0.09 by default, can be changed with SetQuietEqualityRatio(n)

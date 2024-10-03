@@ -10894,7 +10894,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*=========
-*/
+
 pron()
 
 o1 = new stzString("000012.456")
@@ -10945,13 +10945,25 @@ proff()
 
 /*---------
 
+pron()
+
 o1 = new stzString("000122.12")
 
-? o1.HasLeadingChars()		#--> TRUE
-? o1.LeadingChars()		#--> "000"
-? o1.LeadingCharsRemoved()	#--> "122.12"
+? o1.HasLeadingChars()
+#--> TRUE
+
+? o1.LeadingCharsXT()
+#--> "000"
+
+? o1.LeadingCharsRemoved()
+#--> "122.12"
+
+proff()
+# Executed in 0.01 second(s).
 
 /*--------------------
+
+pron()
 
 o1 = new stzString("000122.12")
 ? o1.LeadingChar() #--> "0"
@@ -10959,26 +10971,19 @@ o1 = new stzString("000122.12")
 o1.RemoveThisLeadingChar("0")
 ? o1.Content()	#--> "122.12"
 
-/*--------------------
-
-o1 = new stzString("22.3450000")
-
-? o1.HasTrailingChars()		#--> TRUE
-? o1.TrailingChars()		#--> "0000"
-? o1.TrailingCharsRemoved()	#--> "22.345"
-
-/*--------------------
-
-o1 = new stzString("22.3450000")
-
-? o1.TrailingChar()		#--> "0"
-? o1.TrailingCharsRemoved()	#--> "22.345"
+proff()
+# Executed in 0.01 second(s).
 
 /*=====================
+
+pron()
 
 o1 = new stzString("ABC")
 ? o1.FirstChar() #--> A
 ? o1.LastChar()  #--> C
+
+proff()
+# Executed in 0.01 second(s).
 
 /*------
 
@@ -10993,14 +10998,23 @@ o1 = new stzString("---Ring")
 #--> "g"
 
 proff()
+# Executed in 0.01 second(s).
 
 /*--------------------
 
-o1 = new stzString("BATISTA123")
-o1.RemoveNLastChars(3)
-? o1.Content()	#--> BATISTA
+pron()
 
-? StzStringQ("BATISTA123").LastNCharsRemoved(3) #--> BATISTA
+o1 = new stzString("BATISTA123")
+
+o1.RemoveNLastChars(3)
+? o1.Content()
+#--> BATISTA
+
+? StzStringQ("BATISTA123").LastNCharsRemoved(3)
+#--> BATISTA
+
+proff()
+# Executed in 0.01 second(s).
 
 /*--------------------
 
@@ -11050,46 +11064,112 @@ o1 = new stzString("énoncé")
 ? o1.IsQuietEqualTo("ÉNONCÉ")	#--> TRUE
 
 /*--------------------
+*/
+pron()
+
+
+? StzCharQ("é").Script()
+#--> latin
+
+? StzCharQ("ن").Script()
+#--> arabic
+
+proff()
+# Executed in 0.01 second(s).
+
+/*--------------------
+*/
+pron()
+
+o1 = new stzText("père frère mère tête")
+
+? o1.CountScripts()
+#--> 1
+
+? o1.Script()
+
+//o1.RemoveDiacritics()
+//? o1.Content()
+
+//? o1.DiacriticsRemoved()
+
+proff()
+
+/*--------------------
+*/
+pron()
 
 # We can adjust the ratio of QuitEquality by our selves (value between 0 and 1):
 
 o1 = new stzString("mahmoud fayed")
-? o1.IsQuietEqualTo("Mahmood al-feiyed")	#--> FALSE
-? QuietEqualityRatio()	#--> 0.09 (default value)
+
+? o1.IsQuietEqualTo("Mahmood al-feiyed")
+#--> FALSE
+
+? QuietEqualityRatio()
+#--> 0.09 (default value)
 
 # If we need a more permissive quiet-eqality check, then we set it at a weaker value:
+
 SetQuietEqualityRatio(0.35)
-? o1.IsQuietEqualTo("Mahmood al-feiyed")	#--> TRUE
+
+? o1.IsQuietEqualTo("Mahmood al-feiyed")
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*====================
+*/
+pron()
 
 # Operators on stzString
 
 o1 = new stzString("SOFTANZA")
 
 # Getting a char by position
-? o1[5]		#--> "A"
+
+? o1[5]
+#--> "A"
 
 # Finding the occurrences of a substring in the string
-? o1["A"]	#--> [ 5, 8 ]
-? o1["NZA"]	#--> [ 6 ]
 
-# Getting occurrences of chars verifying a given condition
-? o1[ W('{ Q(@char).IsOneOfThese(["A", "T", "Z"]) }') ]	#--> [ 4, 5, 7, 8 ]
+? o1["A"]
+#--> [ 5, 8 ]
+
+? o1["NZA"]
+#--> [ 6 ]
 
 # Comparing the string with other strings
-? o1 = StringUppercase("softanza")	#--> TRUE
+
+? o1 = StringUppercase("softanza")
+#--> TRUE
 
 #TODO: Complete the other operators when COMPARAISON methods are made in stzString
 
+proff()
+# Executed in 0.02 second(s).
+
 /*=================
+*/
+pron()
 
 o1 = new stzString("{{{ Scope of Life }}}")
-? o1.BeginsWith("{")
-? o1.EndsWith("}")
 
-? o1.IsBoundedBy([ "{", "}" ])		#--> TRUE
-? o1.TheseBoundsRemoved("{", "}") 	#--> {{ Scope of Life }}
+? o1.BeginsWith("{")
+#--> TRUE
+
+? o1.EndsWith("}")
+#--> TRUE
+
+? o1.IsBoundedBy([ "{", "}" ])
+#--> TRUE
+
+? o1.TheseBoundsRemoved("{", "}")
+#--> {{ Scope of Life }}
+
+proff()
+# Executed in 0.03 second(s).
 
 /*--------------------
 
@@ -11127,12 +11207,17 @@ o1 = new stzString("---Mio---Mio---Mio---Mio---")
 ? o1.FindNextNthOccurrence(1, "Mio", :StartingAt = 20) #--> 22
 
 /*--------------------
+*/
+pron()
 
 #		    1...5...9...3...7...1...5..
 o1 = new stzString("---Mio---Mio---Mio---Mio---")
 ? o1.NextOccurrence("Mio", :StartingAt = 1) 		#--> 4
 ? o1.NthPreviousOccurrence(2, "Mio", :StartingAt = 15)  #--> 4
 ? o1.NthPreviousOccurrence(4, "Mio", :StartingAt = 25)  #--> 4
+
+proff()
+# Executed in 0.02 second(s).
 
 /*=====================
 

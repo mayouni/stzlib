@@ -1616,7 +1616,20 @@ class stzChar from stzObject
 	*/
 
 	def Script()
-		return UnicodeScriptsXT()[ ""+@oQChar.Script() ]
+		nLen = len(_aUnicodeScriptsXT)
+
+		cResult = :Undefined
+
+		for i = 1 to nLen
+
+			if _aUnicodeScriptsXT[i][1] = ""+@oQChar.Script()
+				cResult = _aUnicodeScriptsXT[i][2]
+				exit
+			ok
+		next
+
+		return cResult
+
 
 		def UnicodeScript()
 			return Script()
