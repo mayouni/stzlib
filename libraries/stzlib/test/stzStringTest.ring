@@ -10777,52 +10777,54 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-------------
-*/
 
 pron()
 
-o1 = new stzString(".....mmmm")
+o1 = new stzString("....00000")
 
 ? @@( o1.FindTrailingChars() )
-#--> [ 6, 7, 8, 9 ]
+#--> [ 5, 6, 7, 8, 9 ]
+
+? @@( o1.FindTrailingCharsZZ() )
+#--> [ 5, 9 ]
 
 proff()
 # Executed in 0.01 second(s).
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzString("12.4560000")
 
-? @@( o1.TrailingChar() )
-#--> "0"
-
 ? o1.HasTrailingChars()
-#--> TRUE
-
-? o1.TrailingCharIs("0")
 #--> TRUE
 
 ? o1.HowManyTrailingChar()
 #--> 4
 
-? o1.TrailingChar()
-#--> ""
-
-? o1.TrailingCharCS(false)
+? @@( o1.TrailingChar() )
 #--> "0"
 
+? o1.TrailingCharIs("0")
+#--> TRUE
+
 proff()
+# Executed in 0.01 second(s).
+
 
 /*-----------
 
-? @@( o1.RepeatedTrailingChars() )
+pron()
+
+o1 = new stzString("12.4560000")
 
 o1.RemoveThisTrailingChar("0")
 ? o1.Content()
+#--> 12.456
 
 proff()
+# Executed in 0.06 second(s).
 
 #------
 
@@ -10832,8 +10834,66 @@ pron()
 #--> "12.456"
 
 proff()
+# Executed in 0.01 second(s).
 
-/*--------------------
+/*------ #narration TRAILING CHAR, TRAILING CHARS, AND TRAILiNG SUBSTRING
+
+pron()
+
+# You have a number in string an you want to get some info about its trailing part?
+
+# A trailing aprt is a substring at the end of the string composed of repeated chars.
+
+o1 = new stzString("12.4560000")
+
+# You can check if the string contains a trailing part:
+
+? o1.HasTrailingSubString() # Or HasTrailingChars()
+
+# And even get their number:
+
+? o1.HowManyTrailingChar()
+#--> 4
+
+# You can get theim as a string:
+
+? o1.TrailingSubString()
+#--> "0000"
+
+# or get them as a list of chars:
+
+? @@( o1.TrailingChars() )
+#--> [ "0", "0", "0", "0" ]
+
+# Usually, in practice, you need to remove them:
+
+o1.RemoveTrailingChars() # Or RemoveTrailingSubString
+? o1.Content()
+#--> 12.456
+
+proff()
+# Executed in 0.01 second(s).
+
+/*---------
+*/
+pron()
+
+o1 = new stzString("12.4560000")
+
+? o1.TrailingSubString()
+#--> "0000"
+
+? @@( o1.TrailingSubStringZZ() )
+#--> [ "0000", [ 7, 10 ] ]
+
+o1.RemoveTrailingSubString()
+? o1.Content()
+# 12.456
+
+proff()
+# Executed in 0.01 second(s).
+
+/*---------
 
 o1 = new stzString("000122.12")
 

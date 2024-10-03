@@ -21160,8 +21160,21 @@ class stzString from stzObject
 	#=============================#
 
 	def RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
-		acResult = This.Copy().ReverseCharsQ().RepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
-		return acResult
+		n = This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+		if n = 0
+			return []
+		ok
+
+		nLenStr = @oQString.count()
+		cLastChar = @oQString.mid(nLenStr-1, 1)
+
+		cResult = ""
+
+		for i = 1 to n
+			cResult += cLastChar
+		next
+
+		return cResult
 
 		#< @FunctionFluentForm
 
@@ -21171,6 +21184,26 @@ class stzString from stzObject
 		#>
 
 		#< @FunctionAlternativeForms
+
+		def RepeatedTrailingSubStringCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def RepeatedTrailingSubStringCSQ(pCaseSensitive)
+				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
+	
+		def TrailingRepeatedSubStringCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def TrailingRepeatedSubStringCSQ(pCaseSensitive)
+				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
+
+		def TrailingSubStringCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
+
+			def TrailingSubStringCSQ(pCaseSensitive)
+				return This.RepeatedTrailingCharsAsSubStringCSQ(pCaseSensitive)
+
+		#==
 
 		def TrailingRepeatedCharsAsSubStringCS(pCaseSensitive)
 			return This.RepeatedTrailingCharsAsSubStringCS(pCaseSensitive)
@@ -21240,6 +21273,26 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def RepeatedTrailingSubString()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def RepeatedTrailingSubStringQ()
+				return This.RepeatedTrailingCharsAsSubStringQ()
+	
+		def TrailingRepeatedSubString()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def TrailingRepeatedSubStringQ()
+				return This.RepeatedTrailingCharsAsSubStringQ()
+
+		def TrailingSubString()
+			return This.RepeatedTrailingCharsAsSubString()
+
+			def TrailingSubStringQ()
+				return This.RepeatedTrailingCharsAsSubStringQ()
+
+		#==
+
 		def TrailingRepeatedCharsAsSubString()
 			return This.RepeatedTrailingCharsAsSubString()
 
@@ -21299,8 +21352,22 @@ class stzString from stzObject
 	#-----------------------------#
 
 	def RepeatedTrailingCharsCS(pCaseSensitive)
-		acResult = This.Copy().ReverseCharsQ().RepeatedLeadingCharsCS(pCaseSensitive)
+
+		n = This.NumberOfRepeatedTrailingCharsCS(pCaseSensitive)
+		if n = 0
+			return []
+		ok
+
+		nLenStr = @oQString.count()
+		cLastChar = @oQString.mid(nLenStr-1, 1)
+		acResult = []
+
+		for i = 1 to n
+			acResult + cLastChar
+		next
+
 		return acResult
+
 
 		#< @FunctionFluentForm
 
@@ -21647,6 +21714,9 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def HasTrailingSubStringCS(pCaseSensitive)
+			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
+		
 		def HasTrailingRepeatedCharsCS(pCaseSensitive)
 			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
 
@@ -21665,6 +21735,9 @@ class stzString from stzObject
 			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
 
 		#== adding A
+
+		def HasATrailingSubStringCS(pCaseSensitive)
+			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
 
 		def HasATrailingRepeatedCharCS(pCaseSensitive)
 			return This.HasRepeatedTrailingCharsCS(pCaseSensitive)
@@ -21695,6 +21768,9 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def HasTrailingSubString()
+			return This.HasRepeatedTrailingChars()
+
 		def HasTrailingRepeatedChars()
 			return This.HasRepeatedTrailingChars()
 
@@ -21713,6 +21789,9 @@ class stzString from stzObject
 			return This.HasRepeatedTrailingChars()
 
 		#== adding A
+
+		def HasATrailingSubString()
+			return This.HasRepeatedTrailingChars()
 
 		def HasATrailingRepeatedChar()
 			return This.HasRepeatedTrailingChars()
@@ -22148,23 +22227,31 @@ class stzString from stzObject
 
 	def FindRepeatedTrailingCharsCS(pCaseSensitive)
 
-		nLen = @oQString.count()
+		nLenStr = @oQString.count()
 
-		if nLen < 2
+		if nLenStr < 2
 			return []
 		ok
 
-		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
-		if n = 0
+		cLastChar = @oQString.mid(nLenStr-1, 1)
+		cBeforeLastChar = @oQString.mid(nLenStr-2, 1)
+
+		if NOT StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
 			return []
 		ok
 
-		anResult = []
-		for i = (nLen - n + 2) to nLen
-			anResult + i
+		n = 0
+		for i = nLenStr to 1 step -1
+			if StzStringQ(@oQString.mid(i-1, 1)).IsEqualToCS(cLastChar, pCaseSensitive)
+				n++
+			else
+				exit
+			ok
 		next
-		
+
+		anResult = (nLenStr-n+1) : nLenStr
 		return anResult
+
 
 		#< @FunctionAlternativeForms
 
@@ -22203,18 +22290,30 @@ class stzString from stzObject
 
 	def FindRepeatedTrailingCharsAsSectionCS(pCaseSensitive)
 
-		nLen = @oQString.count()
+		nLenStr = @oQString.count()
 
-		if nLen < 2
+		if nLenStr < 2
 			return []
 		ok
 
-		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
-		if n = 0
+		cLastChar = @oQString.mid(nLenStr-1, 1)
+		cBeforeLastChar = @oQString.mid(nLenStr-2, 1)
+
+		if NOT StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
 			return []
 		ok
 
-		return [ (nLen - n + 2), nLen ]
+		n = 0
+		for i = nLenStr to 1 step -1
+			if StzStringQ(@oQString.mid(i-1, 1)).IsEqualToCS(cLastChar, pCaseSensitive)
+				n++
+			else
+				exit
+			ok
+		next
+
+		aResult = [ (nLenStr-n+1), nLenStr ]
+		return aResult
 
 
 		#< @FunctionAlternativeForms
@@ -22248,9 +22347,111 @@ class stzString from stzObject
 
 		#>
 
+	  #----------------------------------#
+	 #  FINDING THE TRAILING SUBSTRING  #
+	#==================================#
+
+	def FindTrailingSubStringCS(pCaseSensitive)
+		aSection = This.FindTrailingCharsCSZZ(pCaseSensitive)
+		if len(aSection) = 0
+			return 0
+		else
+			return aSection[1]
+		ok
+
+		def FindTrailingSubStringCSZ(pCaseSensitive)
+			return This.FindTrailingSubStringCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindTrailingSubString()
+		return This.FindTrailingSubStringCS(TRUE)
+
+		def FindTrailingSubStringZ()
+			return This.FindTrailingSubString()
+
+	  #-------------------------------------------------#
+	 #  FINDING THE TRAILING SUBSTRING -- ZZ/EXTENDED  #
+	#-------------------------------------------------#
+
+	def FindTrailingSubStringCSZZ(pCaseSensitive)
+		aSection = This.FindTrailingCharsCSZZ(pCaseSensitive)
+		if len(aSection) = 0
+			return []
+		else
+			return aSection
+		ok
+
+		def FindTrailingSubStringAsSectionCS(pCaseSensitive)
+			return This.FindTrailingSubStringCSZZ(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindTrailingSubStringZZ()
+		return This.FindTrailingSubStringCSZZ(TRUE)
+
+		def FindTrailingSubStringAsSection()
+			return This.FindTrailingSubStringZZ()
+
+	  #----------------------------------------------------------#
+	 #  GETTING THE TRAILING SUBSTRING ALONG WITH ITS POSITION  #
+	#----------------------------------------------------------#
+
+	def TrailingSubStringCSZ(pCaseSensitive)
+
+		cSubStr = This.TrailingSubStringCS(pCaseSensitive)
+		if cSubStr = ""
+			return []
+		ok
+
+		nPos = This.FindTrailingSubStringCS(pCaseSensitive)
+
+		aResult = [ cSubStr, nPos ]
+		return aResult
+
+
+		def TrailingSubStringAndItsPositionCS(pCaseSensitive)
+			return This.TrailingSubStringCSZ(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def TrailingSubStringZ()
+		return This.TrailingSubStringCSZ(TRUE)
+
+		def TrailingSubStringAndItsPosition()
+			return This.TrailingSubStringZ()
+
+	  #---------------------------------------------------------#
+	 #  GETTING THE TRAILING SUBSTRING ALONG WITH ITS SECTION  #
+	#---------------------------------------------------------#
+
+	def TrailingSubStringCSZZ(pCaseSensitive)
+
+		cSubStr = This.TrailingSubStringCS(pCaseSensitive)
+		if cSubStr = ""
+			return []
+		ok
+
+		anSection = This.FindTrailingSubStringCSZZ(pCaseSensitive)
+
+		aResult = [ cSubStr, anSection ]
+		return aResult
+
+
+		def TrailingSubStringAndItsSectionCS(pCaseSensitive)
+			return This.TrailingSubStringCSZZ(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def TrailingSubStringZZ()
+		return This.TrailingSubStringCSZZ(TRUE)
+
+		def TrailingSubStringAndItsSection()
+			return This.TrailingSubStringZZ()
+
 	  #-------------------------------------------------------------#
 	 #  GETTING REPEATED TRAILING CHARS ALONG WITH THEIR POSITION  #
-	#-------------------------------------------------------------#
+	#=============================================================#
 
 	def RepeatedTrailingCharsCSZ(pCaseSensitive)
 		aResult = [
@@ -22354,19 +22555,25 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def RemoveTrailingSubStringCS(pCaseSensitive)
+			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
+
+			def RemoveTrailingSubStringCSQ(pCaseSensitive)
+				return This.RemoveRepeatedTrailingCharsCSQ()
+
+		#--
+
 		def RemoveTrailingRepeatedCharsCS(pCaseSensitive)
 			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
 
 			def RemoveTrailingRepeatedCharsCSQ(pCaseSensitive)
-				This.RemoveTrailingRepeatedCharsCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedTrailingCharsCSQ()
 	
 		def RemoveTrailingCharsCS(pCaseSensitive)
 			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
 
 			def RemoveTrailingCharsCSQ(pCaseSensitive)
-				This.RemoveTrailingCharsCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedTrailingCharsCSQ()
 
 		#== Char (without an "s")
 
@@ -22374,22 +22581,19 @@ class stzString from stzObject
 			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
 
 			def RemoveRepeatedTrailingCharCSQ(pCaseSensitive)
-				This.RemoveRepeatedTrailingCharCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedTrailingCharsCSQ()
 
 		def RemoveTrailingRepeatedCharCS(pCaseSensitive)
 			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
 
 			def RemoveTrailingRepeatedCharCSQ(pCaseSensitive)
-				This.RemoveTrailingRepeatedCharsCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedTrailingCharsCSQ()
 	
 		def RemoveTrailingCharCS(pCaseSensitive)
 			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
 
 			def RemoveTrailingCharCSQ(pCaseSensitive)
-				This.RemoveTrailingCharsCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedTrailingCharsCSQ()
 
 		#-- adding ANY
 
@@ -22397,22 +22601,19 @@ class stzString from stzObject
 			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
 
 			def RemoveAnyRepeatedTrailingCharCSQ(pCaseSensitive)
-				This.RemoveRepeatedTrailingCharCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedTrailingCharsCSQ()
 
 		def RemoveAnyTrailingRepeatedCharCS(pCaseSensitive)
 			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
 
 			def RemoveAnyTrailingRepeatedCharCSQ(pCaseSensitive)
-				This.RemoveTrailingRepeatedCharsCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedTrailingCharsCSQ()
 	
 		def RemoveanyTrailingCharCS(pCaseSensitive)
 			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
 
 			def RemoveAnyTrailingCharCSQ(pCaseSensitive)
-				This.RemoveTrailingCharsCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedTrailingCharsCSQ()
 
 		#>
 
@@ -22423,6 +22624,11 @@ class stzString from stzObject
 		return cResult
 
 		#< @FunctionAlternativeForms
+
+		def TrailingSubStringRemovedCS(pCaseSensitive)
+			return This.RepeatedTrailingCharsRemovedCS(pCaseSensitive)
+
+		#--
 
 		def TrailingRepeatedCharsRemovedCS(pCaseSensitive)
 			return This.RepeatedTrailingCharsRemovedCS(pCaseSensitive)
@@ -22469,19 +22675,25 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def RemoveTrailingSubString()
+			This.RemoveRepeatedTrailingChars()
+
+			def RemoveTrailingSubStringQ()
+				return This.RemoveRepeatedTrailingCharsQ()
+
+		#--
+
 		def RemoveTrailingRepeatedChars()
 			This.RemoveRepeatedTrailingChars()
 
 			def RemoveTrailingRepeatedCharsQ()
-				This.RemoveTrailingRepeatedChars()
-				return This
+				return This.RemoveRepeatedTrailingCharsQ()
 	
 		def RemoveTrailingChars()
 			This.RemoveRepeatedTrailingChars()
 
 			def RemoveTrailingCharsQ()
-				This.RemoveTrailingChars()
-				return This
+				return This.RemoveRepeatedTrailingCharsQ()
 	
 		#== Char (without an "s")
 
@@ -22489,22 +22701,19 @@ class stzString from stzObject
 			This.RemoveRepeatedTrailingChars()
 
 			def RemoveRepeatedTrailingCharQ()
-				This.RemoveRepeatedTrailingChar()
-				return This
+				return This.RemoveRepeatedTrailingCharsQ()
 
 		def RemoveTrailingRepeatedChar()
 			This.RemoveRepeatedTrailingChars()
 
 			def RemoveTrailingRepeatedCharQ()
-				This.RemoveTrailingRepeatedChars()
-				return This
+				return This.RemoveRepeatedTrailingCharsQ()
 	
 		def RemoveTrailingChar()
 			This.RemoveRepeatedTrailingChars()
 
 			def RemoveTrailingCharQ()
-				This.RemoveTrailingChars()
-				return This
+				return This.RemoveRepeatedTrailingCharsQ()
 
 		#-- adding ANY
 
@@ -22512,22 +22721,19 @@ class stzString from stzObject
 			This.RemoveRepeatedTrailingChars()
 
 			def RemoveAnyRepeatedTrailingCharQ()
-				This.RemoveRepeatedTrailingChar()
-				return This
+				return This.RemoveRepeatedTrailingCharsQ()
 
 		def RemoveAnyTrailingRepeatedChar()
 			This.RemoveRepeatedTrailingChars()
 
 			def RemoveAnyTrailingRepeatedCharQ()
-				This.RemoveTrailingRepeatedChars()
-				return This
+				return This.RemoveRepeatedTrailingCharsQ()
 	
 		def RemoveanyTrailingChar()
 			This.RemoveRepeatedTrailingChars()
 
 			def RemoveAnyTrailingCharQ()
-				This.RemoveTrailingChars()
-				return This
+				return This.RemoveRepeatedTrailingCharsQ()
 
 		#>
 
@@ -22538,6 +22744,11 @@ class stzString from stzObject
 		return cResult
 
 		#< @FunctionAlternativeForm
+
+		def TrailingSubStringRemoved()
+			return This.RepeatedTrailingCharsRemoved()
+
+		#--
 
 		def TrailingRepeatedCharsRemoved()
 			return This.RepeatedTrailingCharsRemoved()
@@ -23279,10 +23490,22 @@ class stzString from stzObject
 	#---------------------------------------------#
 
 	def RemoveThisRepeatedTrailingCharCS(c, pCaseSensitive)
+		#< QtBased >
 
-		if This.RepeatedTrailingCharQ().IsEqualToCS(c, pCaseSensitive)
-			This.RemoveRepeatedTrailingCharsCS(pCaseSensitive)
+		nLenStr = @oQString.count()
+		if nLenStr < 2
+			return
 		ok
+
+		cLastChar = @oQString.mid(nLenStr-1, 1)
+		cBeforeLastChar = @oQString.mid(nLenStr-2, 1)
+
+		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
+			aSection = This.FindRepeatedTrailingCharsCSZZ(pCaseSensitive)
+			This.RemoveSection(aSection[1], aSection[2])
+		ok
+
+		#< @FunctionAlternativeForms
 
 		def RemoveThisRepeatedTrailingCharCSQ(c, pCaseSensitive)
 			This.RemoveThisRepeatedTrailingCharCS(c, pCaseSensitive)
@@ -23302,11 +23525,15 @@ class stzString from stzObject
 				This.RemoveThisTrailingCharCS(c, pCaseSensitive)
 				return This
 
+		#>
+
 	#-- @FunctionPassiveForm
 
 	def ThisRepeatedTrailingCharRemovedCS(c, pCaseSensitive)
 		cResult = This.Copy().RemoveThisRepeatedTrailingCharCSQ(c, pCaseSensitive).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def ThisTrailingRepeatedCharRemovedCS(c, pCaseSensitive)
 			return This.ThisRepeatedTrailingCharRemovedCS(c, pCaseSensitive)
@@ -23314,11 +23541,14 @@ class stzString from stzObject
 		def ThisTrailingCharRemovedCS(c, pCaseSensitive)
 			return This.ThisRepeatedTrailingCharRemovedCS(c, pCaseSensitive)
 
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveThisRepeatedTrailingChar(c)
 		This.RemoveThisRepeatedTrailingCharCS(c, TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def RemoveThisRepeatedTrailingCharQ(c)
 			This.RemoveThisRepeatedTrailingChar(c)
@@ -23338,15 +23568,23 @@ class stzString from stzObject
 				This.RemoveThisTrailingChar(c)
 				return This
 
+		#>
+
+	#-- @FunctionPassiveForm
+
 	def ThisRepeatedTrailingCharRemoved(c)
 		cResult = This.Copy().RemoveThisRepeatedTrailingCharQ(c).Content()
 		return cResult
+
+		#< @FunctionAlternativeForms
 
 		def ThisTrailingRepeatedCharRemoved(c)
 			return This.ThisRepeatedTrailingCharRemoved(c)
 
 		def ThisTrailingCharRemoved(c)
 			return This.ThisRepeatedTrailingCharRemoved(c)
+
+		#>
 
 	  #--------------------------------------------------------#
 	 #   REMOVING GIVEN REPEATED LEADING AND TRAILING CHARS   #
