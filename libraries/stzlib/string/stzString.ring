@@ -21155,6 +21155,414 @@ class stzString from stzObject
 
 		#>
 
+	  #-----------------------------------------------#
+	 #  FINDING POSITIONS OF REPEATED LEADING CHARS  # 
+	#===============================================#
+
+	def FindRepeatedLeadingCharsCS(pCaseSensitive)
+
+		nLen = @oQString.count()
+
+		if nLen < 2
+			return []
+		ok
+
+		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+		if n = 0
+			return []
+		ok
+
+		return 1:n
+
+		#< @FunctionALternativeForm
+
+		def FindLeadingCharsCS(pCaseSensitive)
+			return This.FindRepeatedLeadingCharsCS(pCaseSensitive)
+
+		def FindLeadingCharsCSZ(pCaseSensitive)
+			return This.FindRepeatedLeadingCharsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRepeatedLeadingChars()
+		return This.FindRepeatedLeadingCharsCS(TRUE)
+
+		#< @FunctionALternativeForm
+
+		def FindLeadingChars()
+			return This.FindRepeatedLeadingChars()
+
+		def FindLeadingCharsZ()
+			return This.FindRepeatedLeadingChars()
+
+		#>
+
+	  #-----------------------------------------------------------------------------#
+	 #  FINDING POSITIONS OF REPEATED LEADING CHARS AND RETURNING THEM AS SECTION  # 
+	#-----------------------------------------------------------------------------#
+
+	def FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
+
+		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
+		if n = 0
+			return []
+		ok
+
+		anResult = [ 1, n ]
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindLeadingCharsCSZZ(pCaseSensitive)
+			return This.FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
+
+		def FindLeadingCharsAsSectionCS(pCaseSensitive)
+			return This.FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindRepeatedLeadingCharsAsSection()
+		return This.FindRepeatedLeadingCharsAsSectionCS(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindLeadingCharsZZ()
+			return This.FindRepeatedLeadingCharsAsSection()
+
+		def FindLeadingCharsAsSection()
+			return This.FindRepeatedLeadingCharsAsSection()
+
+		#>
+
+	  #-------------------------------------------------------------#
+	 #  GETTING REPEATED LEADING CHARS ALONG WITH THEIR POSITIONS  #
+	#-------------------------------------------------------------#
+
+	def RepeatedLeadingCharsCSZ(pCaseSensitive)
+		aResult = [
+			This.RepeatedLeadingCharsCS(pCaseSensitive),
+			This.FindRepeatedLeadingCharsCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def RepeatedLeadingCharsAndTheirPositionCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsCSZ(pCaseSensitive)
+
+		def LeadingCharsAndTheirPositionCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsCSZ(pCaseSensitive)
+
+		def LeadingCharsCSZ(pCaseSensitive)
+			return This.RepeatedLeadingCharsCSZ(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepatedLeadingCharsZ()
+		return This.RepeatedLeadingCharsCSZ(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def RepeatedLeadingCharsAndTheirPosition()
+			return This.RepeatedLeadingCharsZ()
+
+		def LeadingCharsAndTheirPosition()
+			return This.RepeatedLeadingCharsZ()
+
+		def LeadingCharsZ()
+			return This.RepeatedLeadingCharsZ()
+
+		#>
+
+	  #-----------------------------------------------------------#
+	 #  GETTING REPEATED LEADING CHARS ALONG WITH THEIR SECTION  #
+	#-----------------------------------------------------------#
+
+	def RepeatedLeadingCharsCSZZ(pCaseSensitive)
+		aResult = [
+			This.RepeatedLeadingCharsCS(pCaseSensitive),
+			This.FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
+		]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def RepeatedLeadingCharsAndTheirSectionCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsCSZZ(pCaseSensitive)
+
+		def LeadingCharsAndTheirSectionCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsCSZZ(pCaseSensitive)
+
+		def LeadingCharsCSZZ(pCaseSensitive)
+			return This.RepeatedLeadingCharsCSZZ(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepatedLeadingCharsZZ()
+		return This.RepeatedLeadingCharsCSZZ(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def RepeatedLeadingCharsAndTheirSection()
+			return This.RepeatedLeadingCharsZZ()
+
+		def LeadingCharsAndTheirSection()
+			return This.RepeatedLeadingCharsZZ()
+
+		def LeadingCharsZZ()
+			return This.RepeatedLeadingCharsZZ()
+
+		#>
+
+	  #-------------------------------------#
+	 #   REMOVING REPEATED LEADING CHARS   #
+	#=====================================#
+
+	def RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+		if This.HasRepeatedLeadingCharsCS(pCaseSensitive)
+			This.RemoveFirstNChars( This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive) )
+		ok
+
+		#< @FunctionFluentForm
+
+		def RemoveRepeatedLeadingCharsCSQ()
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveLeadingRepeatedCharsCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveLeadingRepeatedCharsCSQ(pCaseSensitive)
+				This.RemoveLeadingRepeatedCharsCS(pCaseSensitive)
+				return This
+	
+		def RemoveLeadingCharsCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveLeadingCharsCSQ(pCaseSensitive)
+				This.RemoveLeadingCharsCS(pCaseSensitive)
+				return This
+		#==
+
+		#== Char (without an "s")
+
+		def RemoveRepeatedLeadingCharCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveRepeatedLeadingCharCSQ(pCaseSensitive)
+				This.RemoveRepeatedLeadingCharCS(pCaseSensitive)
+				return This
+
+		def RemoveLeadingRepeatedCharCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveLeadingRepeatedCharCSQ(pCaseSensitive)
+				This.RemoveLeadingRepeatedCharsCS(pCaseSensitive)
+				return This
+	
+		def RemoveLeadingCharCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveLeadingCharCSQ(pCaseSensitive)
+				This.RemoveLeadingCharsCS(pCaseSensitive)
+				return This
+
+		#-- adding ANY
+
+		def RemoveAnyRepeatedLeadingCharCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveAnyRepeatedLeadingCharCSQ(pCaseSensitive)
+				This.RemoveRepeatedLeadingCharCS(pCaseSensitive)
+				return This
+
+		def RemoveAnyLeadingRepeatedCharCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveAnyLeadingRepeatedCharCSQ(pCaseSensitive)
+				This.RemoveLeadingRepeatedCharsCS(pCaseSensitive)
+				return This
+	
+		def RemoveanyLeadingCharCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveAnyLeadingCharCSQ(pCaseSensitive)
+				This.RemoveLeadingCharsCS(pCaseSensitive)
+				return This
+
+		#>
+
+	#-- @FunctionPassiveForm
+
+	def RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+		cResult = This.Copy().RemoveRepeatedLeadingCharsCSQ(pCaseSensitive).Content()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def LeadingRepeatedCharsRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		def LeadingCharsRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		#==
+
+		def RepeatedLeadingCharRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		def LeadingRepeatedCharRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		def LeadingCharRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		#--
+
+		def AnyRepeatedLeadingCharRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		def AnyLeadingRepeatedCharRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		def AnyLeadingCharRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveRepeatedLeadingChars()
+		This.RemoveRepeatedLeadingCharsCS(TRUE)
+
+		#< @FunctionFluentForm
+
+		def RemoveRepeatedLeadingCharsQ()
+			This.RemoveRepeatedLeadingChars()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveLeadingRepeatedChars()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveLeadingRepeatedCharsQ()
+				This.RemoveLeadingRepeatedChars()
+				return This
+	
+		def RemoveLeadingChars()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveLeadingCharsQ()
+				This.RemoveLeadingChars()
+				return This
+
+		#== Char (without an "s")
+
+		def RemoveRepeatedLeadingChar()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveRepeatedLeadingCharQ()
+				This.RemoveRepeatedLeadingChar()
+				return This
+
+		def RemoveLeadingRepeatedChar()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveLeadingRepeatedCharQ()
+				This.RemoveLeadingRepeatedChars()
+				return This
+	
+		def RemoveLeadingChar()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveLeadingCharQ()
+				This.RemoveLeadingChars()
+				return This
+
+		#-- adding ANY
+
+		def RemoveAnyRepeatedLeadingChar()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveAnyRepeatedLeadingCharQ()
+				This.RemoveRepeatedLeadingChar()
+				return This
+
+		def RemoveAnyLeadingRepeatedChar()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveAnyLeadingRepeatedCharQ()
+				This.RemoveLeadingRepeatedChars()
+				return This
+	
+		def RemoveanyLeadingChar()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveAnyLeadingCharQ()
+				This.RemoveLeadingChars()
+				return This
+
+		#>
+
+	#-- @FunctionPassiveForm
+
+	def RepeatedLeadingCharsRemoved()
+		cResult = This.Copy().RemoveRepeatedLeadingCharsQ().Content()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def LeadingRepeatedCharsRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		def LeadingCharsRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		#==
+
+		def RepeatedLeadingCharRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		def LeadingRepeatedCharRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		def LeadingCharRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		#--
+
+		def AnyRepeatedLeadingCharRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		def AnyLeadingRepeatedCharRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		def AnyLeadingCharRemoved()
+			return This.RepeatedLeadingCharsRemoved()
+
+		#>
+
+www
+
 	  #=============================#
 	 #   REPEATED TRAILING CHARS   #
 	#=============================#
@@ -21814,412 +22222,6 @@ class stzString from stzObject
 			return This.HasRepeatedTrailingChars()
 
 		#>
-###########	
-	  #-----------------------------------------------#
-	 #  FINDING POSITIONS OF REPEATED LEADING CHARS  # 
-	#===============================================#
-
-	def FindRepeatedLeadingCharsCS(pCaseSensitive)
-
-		nLen = @oQString.count()
-
-		if nLen < 2
-			return []
-		ok
-
-		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
-		if n = 0
-			return []
-		ok
-
-		return 1:n
-
-		#< @FunctionALternativeForm
-
-		def FindLeadingCharsCS(pCaseSensitive)
-			return This.FindRepeatedLeadingCharsCS(pCaseSensitive)
-
-		def FindLeadingCharsCSZ(pCaseSensitive)
-			return This.FindRepeatedLeadingCharsCS(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindRepeatedLeadingChars()
-		return This.FindRepeatedLeadingCharsCS(TRUE)
-
-		#< @FunctionALternativeForm
-
-		def FindLeadingChars()
-			return This.FindRepeatedLeadingChars()
-
-		def FindLeadingCharsZ()
-			return This.FindRepeatedLeadingChars()
-
-		#>
-
-	  #-----------------------------------------------------------------------------#
-	 #  FINDING POSITIONS OF REPEATED LEADING CHARS AND RETURNING THEM AS SECTION  # 
-	#-----------------------------------------------------------------------------#
-
-	def FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
-
-		n = This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive)
-		if n = 0
-			return []
-		ok
-
-		anResult = [ 1, n ]
-
-		return anResult
-
-		#< @FunctionAlternativeForms
-
-		def FindLeadingCharsCSZZ(pCaseSensitive)
-			return This.FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
-
-		def FindLeadingCharsAsSectionCS(pCaseSensitive)
-			return This.FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindRepeatedLeadingCharsAsSection()
-		return This.FindRepeatedLeadingCharsAsSectionCS(TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def FindLeadingCharsZZ()
-			return This.FindRepeatedLeadingCharsAsSection()
-
-		def FindLeadingCharsAsSection()
-			return This.FindRepeatedLeadingCharsAsSection()
-
-		#>
-
-	  #-------------------------------------------------------------#
-	 #  GETTING REPEATED LEADING CHARS ALONG WITH THEIR POSITIONS  #
-	#-------------------------------------------------------------#
-
-	def RepeatedLeadingCharsCSZ(pCaseSensitive)
-		aResult = [
-			This.RepeatedLeadingCharsCS(pCaseSensitive),
-			This.FindRepeatedLeadingCharsCS(pCaseSensitive)
-		]
-
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def RepeatedLeadingCharsAndTheirPositionCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsCSZ(pCaseSensitive)
-
-		def LeadingCharsAndTheirPositionCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsCSZ(pCaseSensitive)
-
-		def LeadingCharsCSZ(pCaseSensitive)
-			return This.RepeatedLeadingCharsCSZ(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RepatedLeadingCharsZ()
-		return This.RepeatedLeadingCharsCSZ(TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def RepeatedLeadingCharsAndTheirPosition()
-			return This.RepeatedLeadingCharsZ()
-
-		def LeadingCharsAndTheirPosition()
-			return This.RepeatedLeadingCharsZ()
-
-		def LeadingCharsZ()
-			return This.RepeatedLeadingCharsZ()
-
-		#>
-
-	  #-----------------------------------------------------------#
-	 #  GETTING REPEATED LEADING CHARS ALONG WITH THEIR SECTION  #
-	#-----------------------------------------------------------#
-
-	def RepeatedLeadingCharsCSZZ(pCaseSensitive)
-		aResult = [
-			This.RepeatedLeadingCharsCS(pCaseSensitive),
-			This.FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
-		]
-
-		return aResult
-
-		#< @FunctionAlternativeForms
-
-		def RepeatedLeadingCharsAndTheirSectionCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsCSZZ(pCaseSensitive)
-
-		def LeadingCharsAndTheirSectionCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsCSZZ(pCaseSensitive)
-
-		def LeadingCharsCSZZ(pCaseSensitive)
-			return This.RepeatedLeadingCharsCSZZ(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RepatedLeadingCharsZZ()
-		return This.RepeatedLeadingCharsCSZZ(TRUE)
-
-		#< @FunctionAlternativeForms
-
-		def RepeatedLeadingCharsAndTheirSection()
-			return This.RepeatedLeadingCharsZZ()
-
-		def LeadingCharsAndTheirSection()
-			return This.RepeatedLeadingCharsZZ()
-
-		def LeadingCharsZZ()
-			return This.RepeatedLeadingCharsZZ()
-
-		#>
-
-	  #-------------------------------------#
-	 #   REMOVING REPEATED LEADING CHARS   #
-	#=====================================#
-
-	def RemoveRepeatedLeadingCharsCS(pCaseSensitive)
-
-		if This.HasRepeatedLeadingCharsCS(pCaseSensitive)
-			This.RemoveFirstNChars( This.NumberOfRepeatedLeadingCharsCS(pCaseSensitive) )
-		ok
-
-		#< @FunctionFluentForm
-
-		def RemoveRepeatedLeadingCharsCSQ()
-			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def RemoveLeadingRepeatedCharsCS(pCaseSensitive)
-			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
-
-			def RemoveLeadingRepeatedCharsCSQ(pCaseSensitive)
-				This.RemoveLeadingRepeatedCharsCS(pCaseSensitive)
-				return This
-	
-		def RemoveLeadingCharsCS(pCaseSensitive)
-			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
-
-			def RemoveLeadingCharsCSQ(pCaseSensitive)
-				This.RemoveLeadingCharsCS(pCaseSensitive)
-				return This
-		#==
-
-		#== Char (without an "s")
-
-		def RemoveRepeatedLeadingCharCS(pCaseSensitive)
-			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
-
-			def RemoveRepeatedLeadingCharCSQ(pCaseSensitive)
-				This.RemoveRepeatedLeadingCharCS(pCaseSensitive)
-				return This
-
-		def RemoveLeadingRepeatedCharCS(pCaseSensitive)
-			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
-
-			def RemoveLeadingRepeatedCharCSQ(pCaseSensitive)
-				This.RemoveLeadingRepeatedCharsCS(pCaseSensitive)
-				return This
-	
-		def RemoveLeadingCharCS(pCaseSensitive)
-			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
-
-			def RemoveLeadingCharCSQ(pCaseSensitive)
-				This.RemoveLeadingCharsCS(pCaseSensitive)
-				return This
-
-		#-- adding ANY
-
-		def RemoveAnyRepeatedLeadingCharCS(pCaseSensitive)
-			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
-
-			def RemoveAnyRepeatedLeadingCharCSQ(pCaseSensitive)
-				This.RemoveRepeatedLeadingCharCS(pCaseSensitive)
-				return This
-
-		def RemoveAnyLeadingRepeatedCharCS(pCaseSensitive)
-			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
-
-			def RemoveAnyLeadingRepeatedCharCSQ(pCaseSensitive)
-				This.RemoveLeadingRepeatedCharsCS(pCaseSensitive)
-				return This
-	
-		def RemoveanyLeadingCharCS(pCaseSensitive)
-			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
-
-			def RemoveAnyLeadingCharCSQ(pCaseSensitive)
-				This.RemoveLeadingCharsCS(pCaseSensitive)
-				return This
-
-		#>
-
-	#-- @FunctionPassiveForm
-
-	def RepeatedLeadingCharsRemovedCS(pCaseSensitive)
-		cResult = This.Copy().RemoveRepeatedLeadingCharsCSQ(pCaseSensitive).Content()
-		return cResult
-
-		#< @FunctionAlternativeForms
-
-		def LeadingRepeatedCharsRemovedCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
-
-		def LeadingCharsRemovedCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
-
-		#==
-
-		def RepeatedLeadingCharRemovedCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
-
-		def LeadingRepeatedCharRemovedCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
-
-		def LeadingCharRemovedCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
-
-		#--
-
-		def AnyRepeatedLeadingCharRemovedCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
-
-		def AnyLeadingRepeatedCharRemovedCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
-
-		def AnyLeadingCharRemovedCS(pCaseSensitive)
-			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RemoveRepeatedLeadingChars()
-		This.RemoveRepeatedLeadingCharsCS(TRUE)
-
-		#< @FunctionFluentForm
-
-		def RemoveRepeatedLeadingCharsQ()
-			This.RemoveRepeatedLeadingChars()
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def RemoveLeadingRepeatedChars()
-			This.RemoveRepeatedLeadingChars()
-
-			def RemoveLeadingRepeatedCharsQ()
-				This.RemoveLeadingRepeatedChars()
-				return This
-	
-		def RemoveLeadingChars()
-			This.RemoveRepeatedLeadingChars()
-
-			def RemoveLeadingCharsQ()
-				This.RemoveLeadingChars()
-				return This
-
-		#== Char (without an "s")
-
-		def RemoveRepeatedLeadingChar()
-			This.RemoveRepeatedLeadingChars()
-
-			def RemoveRepeatedLeadingCharQ()
-				This.RemoveRepeatedLeadingChar()
-				return This
-
-		def RemoveLeadingRepeatedChar()
-			This.RemoveRepeatedLeadingChars()
-
-			def RemoveLeadingRepeatedCharQ()
-				This.RemoveLeadingRepeatedChars()
-				return This
-	
-		def RemoveLeadingChar()
-			This.RemoveRepeatedLeadingChars()
-
-			def RemoveLeadingCharQ()
-				This.RemoveLeadingChars()
-				return This
-
-		#-- adding ANY
-
-		def RemoveAnyRepeatedLeadingChar()
-			This.RemoveRepeatedLeadingChars()
-
-			def RemoveAnyRepeatedLeadingCharQ()
-				This.RemoveRepeatedLeadingChar()
-				return This
-
-		def RemoveAnyLeadingRepeatedChar()
-			This.RemoveRepeatedLeadingChars()
-
-			def RemoveAnyLeadingRepeatedCharQ()
-				This.RemoveLeadingRepeatedChars()
-				return This
-	
-		def RemoveanyLeadingChar()
-			This.RemoveRepeatedLeadingChars()
-
-			def RemoveAnyLeadingCharQ()
-				This.RemoveLeadingChars()
-				return This
-
-		#>
-
-	#-- @FunctionPassiveForm
-
-	def RepeatedLeadingCharsRemoved()
-		cResult = This.Copy().RemoveRepeatedLeadingCharsQ().Content()
-		return cResult
-
-		#< @FunctionAlternativeForms
-
-		def LeadingRepeatedCharsRemoved()
-			return This.RepeatedLeadingCharsRemoved()
-
-		def LeadingCharsRemoved()
-			return This.RepeatedLeadingCharsRemoved()
-
-		#==
-
-		def RepeatedLeadingCharRemoved()
-			return This.RepeatedLeadingCharsRemoved()
-
-		def LeadingRepeatedCharRemoved()
-			return This.RepeatedLeadingCharsRemoved()
-
-		def LeadingCharRemoved()
-			return This.RepeatedLeadingCharsRemoved()
-
-		#--
-
-		def AnyRepeatedLeadingCharRemoved()
-			return This.RepeatedLeadingCharsRemoved()
-
-		def AnyLeadingRepeatedCharRemoved()
-			return This.RepeatedLeadingCharsRemoved()
-
-		def AnyLeadingCharRemoved()
-			return This.RepeatedLeadingCharsRemoved()
-
-		#>
 
 	  #------------------------------------------------#
 	 #  FINDING POSITIONS OF REPEATED TRAILING CHARS  # 
@@ -22779,7 +22781,7 @@ class stzString from stzObject
 			return This.RepeatedTrailingCharsRemoved()
 
 		#>
-
+qqq
 	  #------------------------------------------------------------#
 	 #  FINDING POSITIONS OF REPEATED LEADING AND TRAILING CHARS  # 
 	#============================================================#
@@ -23221,122 +23223,6 @@ class stzString from stzObject
 
 		def LeadingAndTrailingCharsRemoved()
 			return This.RepeatedLeadingAndTrailingCharsRemoved()
-
-	  #--------------------------------------------------#
-	 #  CHECKING IF THE STRING CONTAINS REPEATED CHARS  #
-	#==================================================#
-
-	def HasRepeatedCharsCS(pCaseSensitive) #TODO: Test it!
-		nLen = @oQString.count()
-		if nLen < 2
-			return FALSE
-		ok
-
-		nResult = FALSE
-
-		for i = 2 to nLen
-			if @oQString.at(i-1) = @oQString.at(i-2)
-				bResult = TRUE
-				exit
-			ok
-		next
-
-		return bResult
-
-		def ContainsRepeatedCharsCS(pCaseSensitive)
-			return This.HasRepeatedCharsCS(pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def HasRepeatedChars()
-		return This.HasRepeatedCharsCS(TRUE)
-
-		def ContainsRepeatedChars()
-			return This.HasRepeatedChars()
-
-	  #---------------------------------------#
-	 #  FINDING POSITIONS OF REPEATED CHARS  #TODO
-	#---------------------------------------#
-
-	def FindRepeatedCharsCS(pCaseSensitive)
-		StzRaise("Unavailable in this version of the library!")
-
-		def FindRepeatedCharsCSZ(pCaseSensitive)
-			return This.FindRepeatedCharsCS(pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def FindRepeatedChars()
-		return This.FindRepeatedCharsCS(TRUE)
-
-		def FindRepeatedCharsZ()
-			return This.FindRepeatedChars()
-
-	  #-----------------------------------------------------#
-	 #  GETTING REPEATED CHARS ALONG WITH THEIR POSITIONS  #TODO
-	#-----------------------------------------------------#
-
-	def RepeatedCharsCSZ(pCaseSensitive)
-		StzRaise("Unavailable in this version of the library!")
-
-		def RepeatedCharsAndTheirPositionsCS(pCaseSensitive)
-			return This.RepeatedCharsCSZ(pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RepatedCharsZ()
-		return This.RepeatedCharsCSZ(TRUE)
-
-		def RepeatedCharsAndTheirPositions()
-			return This.RepatedCharsZ()
-
-	  #----------------------------------------------------#
-	 #  GETTING REPEATED CHARS ALONG WITH THEIR SECTIONS  #TODO
-	#----------------------------------------------------#
-
-	def RepeatedCharsCSZZ(pCaseSensitive)
-		StzRaise("Unavailable in this version of the library!")
-
-		def RepeatedCharsAndTheirSectionsCS(pCaseSensitive)
-			return This.RepeatedCharsCSZZ(pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RepatedCharsZZ()
-		return This.RepeatedCharsCSZZ(TRUE)
-
-		def RepeatedCharsAndTheirSecions()
-			return This.RepatedCharsZZ()
-
-	  #-------------------------#
-	 #  REMOVE REPEATED CHARS  #
-	#-------------------------#
-
-	def RemoveRepeatedCharsCS(pCaseSensitive)
-		cResult = This.CharsQ().
-			  RemoveDuplicatesQR(:stzListOfStrings).Concatenated()
-
-		This.UpdateWith(cResult)
-
-		def RemoveRepeatedCharsCSQ(pCaseSensitive)
-			This.RemoveRepeatedCharsCS(pCaseSensitive)
-			return This
-
-	def RepeatedCharsRemovedCS(pCaseSensitive)
-		cResult = This.Copy().RemoveRepeatedCharsCSQ(pCaseSensitive).Content()
-		return cResult
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RemoveRepeatedChars()
-		return This.RemoveRepeatedCharsCS(TRUE)
-
-		def RemoveRepeatedCharsQ()
-			This.RemoveRepeatedChars()
-			return This
-
-	def RepeatedCharsRemoved()
-		return This.RepeatedCharsRemovedCS(TRUE)
 		
 	  #----------------------------------------------------------#
 	 #  CHECHKING IF THE STRING HAS LEADING AND TRAILING CHARS  #
@@ -23412,7 +23298,7 @@ class stzString from stzObject
 
 	  #--------------------------------------------#
 	 #   REMOVING A GIVEN REPEATED LEADING CHAR   #
-	#--------------------------------------------#
+	#============================================#
 
 	def RemoveThisRepeatedLeadingCharCS(c, pCaseSensitive)
 		if This.LeadingCharCSQ(pCaseSensitive).IsEqualToCS(c, pCaseSensitive)
