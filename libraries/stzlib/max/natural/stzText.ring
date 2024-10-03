@@ -616,7 +616,7 @@ class stzText from stzString
 			StzRaise("Information about script is unavilable!")
 
 		but This.NumberOfScripts() = 1
-			return This.Scripts()[1]
+			return This.Scriptfs()[1]
 
 		but This.NumberOfScripts() = 2 and StzStringQ(:Common).ExistsIn( This.Scripts() )
 			cResult = StzListQ( This.Scripts() ).AllItemsExcept(:Common)[1]
@@ -657,18 +657,28 @@ class stzText from stzString
 		ok
 		
 	def Scripts()
-		aResult = []
 
-		for i = 1 to This.NumberOfChars()
-			aResult + This.CharAtQR(i, :stzChar).Script()
+		acResult = []
+
+		aoStzChars = This.ToListOfStzChars()
+		nLen = len(aoStzChars)
+
+		for i = 1 to nLen
+			acResult + aoStzChars[i].Script()
 		next
 
-		aResult = StzListQ(aResult).ToSet()
+		caResult = U( acResult )
 
 		return aResult
 
 	def NumberOfScripts()
 		return len(This.Scripts())
+
+		def CountScripts()
+			return len(This.Scripts())
+
+		def HowManyScripts()
+			return len(This.Scripts())
 
 	def ScriptOfNthChar(n)
 		return This.CharAtQR(n, :stzChar).Script()
@@ -4757,16 +4767,16 @@ class stzText from stzString
 		switch This.Script()
 	
 		on :Latin
-			This.ToStzString().ReplaceCharsW(
+			This.ToStzString().ReplaceCharsWXT(
 				:Where = '{ StzCharQ(@char).IsLatinDiacritic() }',
 				:With  = '{ StzCharQ(@char).LatinDiacriticRemoved() }'
 			)
 	
 		on :Arabic
-			This.ToStzString().RemoveCharsW('{ StzCharQ(@char).IsArabicDiacritic() }')
+			This.ToStzString().RemoveCharsWXT('{ StzCharQ(@char).IsArabicDiacritic() }')
 	
 		on :Greek
-			This.ToStzString().ReplaceCharsW(
+			This.ToStzString().ReplaceCharsWXT(
 				:Where = '{ StzCharQ(@char).IsGreekDiacritic() }',
 				:With  = 'StzCharQ(@char).RemoveGreekDiacritic()'
 			)
@@ -4774,7 +4784,7 @@ class stzText from stzString
 			# but check this!
 	
 		on :Hebrew
-			This.ToStzString().RemoveCharsWhere('{ StzCharQ(@char).IsHebrewDiacritic() }')
+			This.ToStzString().RemoveCharsWXT('{ StzCharQ(@char).IsHebrewDiacritic() }')
 			#TODO: I assumed that hebrew works like arabic for diacritics,
 			# but check this!
 	
