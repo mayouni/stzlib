@@ -20539,7 +20539,7 @@ class stzString from stzObject
 	def ContainsTheseBounds(pacBounds)
 		return This.ContainsTheseBoundsCS(pacBounds, TRUE)
 
-	  #============================#
+www	  #============================#
 	 #   REPEATED LEADING CHARS   #
 	#============================#
 
@@ -20595,6 +20595,12 @@ class stzString from stzObject
 		#>
 
 		#< @FunctionAlternativeForms
+
+		def LeadingSubStringCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
+
+			def LeadingSubStringCSQ(pCaseSensitive)
+				return This.RepeatedLeadingCharsAsSubStringCSQ(pCaseSensitive)
 
 		def LeadingRepeatedCharsAsSubStringCS(pCaseSensitive)
 			return This.RepeatedLeadingCharsAsSubStringCS(pCaseSensitive)
@@ -20664,6 +20670,12 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def LeadingSubString()
+			return This.RepeatedLeadingCharsAsSubString()
+
+			def LeadingSubStringQ()
+				return This.RepeatedLeadingCharsAsSubStringQ()
+
 		def LeadingRepeatedCharsAsSubString()
 			return This.RepeatedLeadingCharsAsSubString()
 
@@ -20717,6 +20729,54 @@ class stzString from stzObject
 				return This.RepeatedLeadingCharsAsSubStringQ()
 
 		#>
+
+	  #--------------------------------------#
+	 #  LEADING SUBSTRING AND ITS POSITION  #
+	#--------------------------------------#
+
+	def LeadingSubStringCSZ(pCaseSensitive)
+		cSubStr = This.LeadingSubStringCS(pCaseSensitive)
+		if cSubStr = ""
+			return []
+		ok
+
+		return [ cSubStr, 1 ]
+
+		def LeadingSubStringAndItsPositionCS(pCaseSensitive)
+			return This.LeadingSubStringCSZ(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LeadingSubStringZ()
+		return This.LeadingSubStringCSZ(TRUE)
+
+		def LeadingSubStringAndItsPosition()
+			return This.LeadingSubStringZ()
+
+	  #-------------------------------------#
+	 #  LEADING SUBSTRING AND ITS SECTION  #
+	#-------------------------------------#
+
+	def LeadingSubStringCSZZ(pCaseSensitive)
+		cSubStr = This.LeadingSubStringCS(pCaseSensitive)
+		aSection = This.FindLeadingSubStringCSZZ(pCaseSensitive)
+
+		if cSubStr = ""
+			return []
+		ok
+
+		return [ cSubStr, aSection ]
+
+		def LeadingSubStringAndItsSectionCS(pCaseSensitive)
+			return This.LeadingSubStringCSZ(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def LeadingSubStringZZ()
+		return This.LeadingSubStringCSZZ(TRUE)
+
+		def LeadingSubStringAndItsSection()
+			return This.LeadingSubStringZZ()
 
 	  #----------------------------#
 	 #   REPEATED LEADING CHARS   #
@@ -21066,6 +21126,9 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def HasLeadingSubStringCS(pCaseSensitive)
+			return This.HasRepeatedLeadingCharsCS(pCaseSensitive)
+
 		def HasLeadingRepeatedCharsCS(pCaseSensitive)
 			return This.HasRepeatedLeadingCharsCS(pCaseSensitive)
 
@@ -21113,6 +21176,9 @@ class stzString from stzObject
 		return This.HasRepeatedLeadingCharsCS(TRUE)
 
 		#< @FunctionAlternativeForms
+
+		def HasLeadingSubString()
+			return This.HasRepeatedLeadingChars()
 
 		def HasLeadingRepeatedChars()
 			return This.HasRepeatedLeadingChars()
@@ -21216,6 +21282,12 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def FindLeadingSubStringCSZZ(pCaseSensitive)
+			return This.FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
+
+		def FindLeadingSubStringAsSectionCS(pCaseSensitive)
+			return This.FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
+
 		def FindLeadingCharsCSZZ(pCaseSensitive)
 			return This.FindRepeatedLeadingCharsAsSectionCS(pCaseSensitive)
 
@@ -21230,6 +21302,12 @@ class stzString from stzObject
 		return This.FindRepeatedLeadingCharsAsSectionCS(TRUE)
 
 		#< @FunctionAlternativeForms
+
+		def FindLeadingSubStringZZ()
+			return This.FindRepeatedLeadingCharsAsSection()
+
+		def FindLeadingSubStringAsSection()
+			return This.FindRepeatedLeadingCharsAsSection()
 
 		def FindLeadingCharsZZ()
 			return This.FindRepeatedLeadingCharsAsSection()
@@ -21345,19 +21423,24 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def RemoveLeadingSubStringCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
+
+			def RemoveLeadingSubStringCSQ(pCaseSensitive)
+				return This.RemoveRepeatedLeadingCharsCSQ()
+
 		def RemoveLeadingRepeatedCharsCS(pCaseSensitive)
 			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
 
 			def RemoveLeadingRepeatedCharsCSQ(pCaseSensitive)
-				This.RemoveLeadingRepeatedCharsCS(pCaseSensitive)
-				return This
-	
+				return This.RemoveRepeatedLeadingCharsCSQ()
+
 		def RemoveLeadingCharsCS(pCaseSensitive)
 			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
 
 			def RemoveLeadingCharsCSQ(pCaseSensitive)
-				This.RemoveLeadingCharsCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedLeadingCharsCSQ()
+
 		#==
 
 		#== Char (without an "s")
@@ -21366,22 +21449,19 @@ class stzString from stzObject
 			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
 
 			def RemoveRepeatedLeadingCharCSQ(pCaseSensitive)
-				This.RemoveRepeatedLeadingCharCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedLeadingCharsCSQ()
 
 		def RemoveLeadingRepeatedCharCS(pCaseSensitive)
 			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
 
 			def RemoveLeadingRepeatedCharCSQ(pCaseSensitive)
-				This.RemoveLeadingRepeatedCharsCS(pCaseSensitive)
-				return This
-	
+				return This.RemoveRepeatedLeadingCharsCSQ()
+
 		def RemoveLeadingCharCS(pCaseSensitive)
 			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
 
 			def RemoveLeadingCharCSQ(pCaseSensitive)
-				This.RemoveLeadingCharsCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedLeadingCharsCSQ()
 
 		#-- adding ANY
 
@@ -21389,22 +21469,19 @@ class stzString from stzObject
 			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
 
 			def RemoveAnyRepeatedLeadingCharCSQ(pCaseSensitive)
-				This.RemoveRepeatedLeadingCharCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedLeadingCharsCSQ()
 
 		def RemoveAnyLeadingRepeatedCharCS(pCaseSensitive)
 			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
 
 			def RemoveAnyLeadingRepeatedCharCSQ(pCaseSensitive)
-				This.RemoveLeadingRepeatedCharsCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedLeadingCharsCSQ()
 	
 		def RemoveanyLeadingCharCS(pCaseSensitive)
 			This.RemoveRepeatedLeadingCharsCS(pCaseSensitive)
 
 			def RemoveAnyLeadingCharCSQ(pCaseSensitive)
-				This.RemoveLeadingCharsCS(pCaseSensitive)
-				return This
+				return This.RemoveRepeatedLeadingCharsCSQ()
 
 		#>
 
@@ -21415,6 +21492,9 @@ class stzString from stzObject
 		return cResult
 
 		#< @FunctionAlternativeForms
+
+		def LeadingSubStringRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
 
 		def LeadingRepeatedCharsRemovedCS(pCaseSensitive)
 			return This.RepeatedLeadingCharsRemovedCS(pCaseSensitive)
@@ -21461,19 +21541,23 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def RemoveLeadingSubString()
+			This.RemoveRepeatedLeadingChars()
+
+			def RemoveLeadingSubStringQ()
+				return This.RemoveRepeatedLeadingCharsQ()
+
 		def RemoveLeadingRepeatedChars()
 			This.RemoveRepeatedLeadingChars()
 
 			def RemoveLeadingRepeatedCharsQ()
-				This.RemoveLeadingRepeatedChars()
-				return This
+				return This.RemoveRepeatedLeadingCharsQ()
 	
 		def RemoveLeadingChars()
 			This.RemoveRepeatedLeadingChars()
 
 			def RemoveLeadingCharsQ()
-				This.RemoveLeadingChars()
-				return This
+				return This.RemoveRepeatedLeadingCharsQ()
 
 		#== Char (without an "s")
 
@@ -21481,22 +21565,19 @@ class stzString from stzObject
 			This.RemoveRepeatedLeadingChars()
 
 			def RemoveRepeatedLeadingCharQ()
-				This.RemoveRepeatedLeadingChar()
-				return This
+				return This.RemoveRepeatedLeadingCharsQ()
 
 		def RemoveLeadingRepeatedChar()
 			This.RemoveRepeatedLeadingChars()
 
 			def RemoveLeadingRepeatedCharQ()
-				This.RemoveLeadingRepeatedChars()
-				return This
+				return This.RemoveRepeatedLeadingCharsQ()
 	
 		def RemoveLeadingChar()
 			This.RemoveRepeatedLeadingChars()
 
 			def RemoveLeadingCharQ()
-				This.RemoveLeadingChars()
-				return This
+				return This.RemoveRepeatedLeadingCharsQ()
 
 		#-- adding ANY
 
@@ -21504,22 +21585,19 @@ class stzString from stzObject
 			This.RemoveRepeatedLeadingChars()
 
 			def RemoveAnyRepeatedLeadingCharQ()
-				This.RemoveRepeatedLeadingChar()
-				return This
+				return This.RemoveRepeatedLeadingCharsQ()
 
 		def RemoveAnyLeadingRepeatedChar()
 			This.RemoveRepeatedLeadingChars()
 
 			def RemoveAnyLeadingRepeatedCharQ()
-				This.RemoveLeadingRepeatedChars()
-				return This
+				return This.RemoveRepeatedLeadingCharsQ()
 	
 		def RemoveanyLeadingChar()
 			This.RemoveRepeatedLeadingChars()
 
 			def RemoveAnyLeadingCharQ()
-				This.RemoveLeadingChars()
-				return This
+				return This.RemoveRepeatedLeadingCharsQ()
 
 		#>
 
@@ -21530,6 +21608,9 @@ class stzString from stzObject
 		return cResult
 
 		#< @FunctionAlternativeForms
+
+		def LeadingSubStringRemoved()
+			return This.RepeatedLeadingCharsRemoved()
 
 		def LeadingRepeatedCharsRemoved()
 			return This.RepeatedLeadingCharsRemoved()
@@ -21560,8 +21641,6 @@ class stzString from stzObject
 			return This.RepeatedLeadingCharsRemoved()
 
 		#>
-
-www
 
 	  #=============================#
 	 #   REPEATED TRAILING CHARS   #
@@ -22781,7 +22860,7 @@ www
 			return This.RepeatedTrailingCharsRemoved()
 
 		#>
-qqq
+
 	  #------------------------------------------------------------#
 	 #  FINDING POSITIONS OF REPEATED LEADING AND TRAILING CHARS  # 
 	#============================================================#
