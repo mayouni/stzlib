@@ -72,7 +72,7 @@ func AreBothAsciiChars(p1, p2)
 
 #--
 
-func AreLetters(paLetters)
+func AreLetters(pacLetters)
 	if CheckParams()
 		if NOT islist(pacLetters)
 			StzRaise("Incorrect param type! pacLetters must be a list.")
@@ -83,15 +83,15 @@ func AreLetters(paLetters)
 	bResult = TRUE
 
 	for i = 1 to nLen
-		if NOT ( isString(paLetters[i]) and @IsLetter(paLetters[i]) )
+		if NOT ( isString(pacLetters[i]) and @IsLetter(pacLetters[i]) )
 			bResult = FALSE
 			exit
 		ok
 	next
 	return bResult
 
-	func @AreLetters(paLetters)
-		return AreLetters(paLetters)
+	func @AreLetters(pacLetters)
+		return AreLetters(pacLetters)
 
 func AreBothLetters(p1, p2)
 	return AreLetters([ p1, p2 ])

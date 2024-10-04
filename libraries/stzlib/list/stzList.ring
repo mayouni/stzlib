@@ -26840,7 +26840,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
-		def FindPartAsSectionsCSZ(pCaseSensitive)
+		def FindPartsCSZZ(pCaseSensitive)
 			return This.FindPartsAsSectionsCS(pCaseSensitive)
 
 		#>
@@ -26852,7 +26852,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
-		def FindPartAsSectionsZ()
+		def FindPartZZ()
 			return This.FindPartsAsSections()
 
 		#>
