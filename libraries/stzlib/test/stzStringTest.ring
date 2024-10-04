@@ -11064,9 +11064,8 @@ o1 = new stzString("énoncé")
 ? o1.IsQuietEqualTo("ÉNONCÉ")	#--> TRUE
 
 /*--------------------
-*/
-pron()
 
+pron()
 
 ? StzCharQ("é").Script()
 #--> latin
@@ -11078,7 +11077,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*--------------------
-*/
+
 pron()
 
 o1 = new stzText("père frère mère tête")
@@ -11099,7 +11098,7 @@ proff()
 # Executed in 0.25 second(s).
 
 /*--------------------
-*/
+
 pron()
 
 # We can adjust the ratio of QuitEquality by our selves (value between 0 and 1):
@@ -11123,7 +11122,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*====================
-*/
+
 pron()
 
 # Operators on stzString
@@ -11154,7 +11153,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*=================
-*/
+
 pron()
 
 o1 = new stzString("{{{ Scope of Life }}}")
@@ -11176,38 +11175,69 @@ proff()
 
 /*--------------------
 
+pron()
+
 o1 = new stzString('"name"')
 ? o1.IsBoundedBy([ '"','"' ])	#--> TRUE
 
 o1 = new stzString(':name')
 ? o1.IsBoundedBy([ ':', NULL ])	#--> TRUE
 
+proff()
+# Executed in 0.01 second(s).
+
 /*--------------------
+
+pron()
 
 o1 = new stzString("one two three four")
 o1.ReplaceAll( "two", "---")
 ? o1.Content()
 #--> "one --- three four"
 
+proff()
+# Executed in 0.01 second(s).
+
 /*--------------------
+
+pron()
 
 o1 = new stzString("one two three four")
 o1.ReplaceMany([ "two", "four" ], :By = "---")
 ? o1.Content()
 #--> "one --- three ---"
 
+proff()
+# Executed in 0.01 second(s).
+
 /*=====================
 
+pron()
+
 o1 = new stzString("---Mio---Mio---Mio---Mio---")
-? o1.FindNthOccurrenceCS(3, "Mio", TRUE)	#--> 16
+? o1.FindNthOccurrenceCS(3, "Mio", TRUE)
+#--> 16
+
+proff()
+# Executed in 0.01 second(s).
 
 /*--------------------
+*/
+pron()
 
 #		    1...5...9...3...7...1...5..
 o1 = new stzString("---Mio---Mio---Mio---Mio---")
-? o1.FindNextNthOccurrence(1, "Mio", :StartingAt = 1)  #--> 4
-? o1.FindNextNthOccurrence(2, "Mio", :StartingAt = 7)  #--> 16
-? o1.FindNextNthOccurrence(1, "Mio", :StartingAt = 20) #--> 22
+
+? o1.FindNextNthOccurrence(1, "Mio", :StartingAt = 1)
+#--> 4
+/*
+? o1.FindNextNthOccurrence(2, "Mio", :StartingAt = 7)
+#--> 16
+
+? o1.FindNextNthOccurrence(1, "Mio", :StartingAt = 20)
+#--> 22
+*/
+proff()
 
 /*--------------------
 */
