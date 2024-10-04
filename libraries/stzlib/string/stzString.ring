@@ -43652,13 +43652,15 @@ www	  #============================#
 			if nStart = nLen
 				return 0
 			ok
-	
-			if (NOT Q(n).IsBetween(1, nLen - nStart)) or
-			   (NOT Q(nStart).IsBetween(1, nLen - n))
-	
+
+			if n < 1 or n > nLen
 				return 0
 			ok
-	
+
+			if nStart < 1 or nStart > nLen
+				return 0
+			ok
+
 			if n = nLen and
 			   This.LastCharQ().IsEqualToCS(pcSubStr, pCaseSensitive)
 				return nLen
@@ -43699,7 +43701,7 @@ www	  #============================#
 	#-- WYHOUT CASESENSITIVITY
 
 	def FindNthNextST(n, pcSubStr, nStart)
-		return This.FindNthNextSCS(n, pcSubStr, nStart, TRUE)
+		return This.FindNthNextSTCS(n, pcSubStr, nStart, TRUE)
 
 		#< @FunctionAlternativeForms
 
