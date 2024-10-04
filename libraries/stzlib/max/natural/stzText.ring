@@ -559,6 +559,14 @@ class stzText from stzString
 	def ToStzString()
 		return new stzString( This.Content() )
 
+	def UpdateWith(pcStr)
+		@cContent = pcStr
+		@oQString = new QString2()
+		@oQString.append(pcStr)
+
+		def Update(pcStr)
+			This.UpdateWith(pcStr)
+
 	  #--------------------#
 	 #      LANGUAGE      #
 	#--------------------#
@@ -667,9 +675,9 @@ class stzText from stzString
 			acResult + aoStzChars[i].Script()
 		next
 
-		caResult = U( acResult )
+		acResult = U( acResult )
 
-		return aResult
+		return acResult
 
 	def NumberOfScripts()
 		return len(This.Scripts())
@@ -4713,10 +4721,14 @@ class stzText from stzString
 	#--------------------------#
 
 	def IsDiacritics()
+
+		aoStzChars = This.ToListOfStzChars()
+		nLen = len(aoStzChars)
+
 		bResult = TRUE
 
-		for oStzChar in This.ToListOfStzChars()
-			if NOT oStzChar.IsDiacritic()
+		for i = 1 to nLen
+			if NOT aoStzChars[i].IsDiacritic()
 				bResult = FALSE
 				exit
 			ok
@@ -4725,11 +4737,14 @@ class stzText from stzString
 		return bResult
 
 	def ContainsDiacritics()
+
+		aoStzChars = This.ToListOfStzChars()
+		nLen = len(aoStzChars)
+
 		bResult = FALSE
 
-
-		for oStzChar in This.ToListOfStzChars()
-			if oStzChar.IsDiacritic() or oStzChar.IsDiacricised()
+		for i = 1 to nLen
+			if aoStzChars[i].IsDiacritic() or aoStzChars[i].IsDiacricised()
 				bResult = TRUE
 				exit
 			ok
@@ -4737,6 +4752,20 @@ class stzText from stzString
 
 		return bResult
 
+	def FindDiacritics()
+
+		aoStzChars = This.ToListOfStzChars()
+		nLen = len(aoStzChars)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if aoStzChars[i].IsDiacritic() or aoStzChars[i].IsDiacricised()
+				anResult + i
+			ok
+		next
+
+		return anResult
 
 	def RemoveDiacritics() #TODO: test this!
 
@@ -4764,9 +4793,25 @@ class stzText from stzString
 
 		*/
 
+		anPos = This.FindDiacritics()
+		nLen = len(anPos)
+
+		aoStzChars = This.ToListOfStzChars()
+
+		for i = 1 to nLen
+			nPos = anPos[i]
+			@oQString.replace(nPos-1, 1, aoStzChars[nPos].DiacriticRemoved())			
+		next
+
+
+		def RemoveDiacriticsQ()
+			This.RemoveDiacritics()
+			return This
+/*
 		switch This.Script()
 	
 		on :Latin
+
 			This.ToStzString().ReplaceCharsWXT(
 				:Where = '{ StzCharQ(@char).IsLatinDiacritic() }',
 				:With  = '{ StzCharQ(@char).LatinDiacriticRemoved() }'
@@ -4795,10 +4840,10 @@ class stzText from stzString
 		def RemoveDiacriticsQ()
 			This.RemoveDiacritics()
 			return This
-
+*/
 	def DiacriticsRemoved()
 		cResult = This.Copy().RemoveDiacriticsQ().Content()
-		return This
+		return cResult
 
 	# Latin diacritics
 

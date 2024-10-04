@@ -11084,16 +11084,19 @@ pron()
 o1 = new stzText("père frère mère tête")
 
 ? o1.CountScripts()
-#--> 1
+#--> 2
+
+? o1.Scripts()
+#--> [ "latin", "common" ]
 
 ? o1.Script()
+#--> "latin"
 
-//o1.RemoveDiacritics()
-//? o1.Content()
-
-//? o1.DiacriticsRemoved()
+? o1.DiacriticsRemoved()
+#--> "pere frere mere tete"
 
 proff()
+# Executed in 0.25 second(s).
 
 /*--------------------
 */
