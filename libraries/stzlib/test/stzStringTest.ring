@@ -11373,8 +11373,8 @@ o1 = new stzString("__b和平س__a__و")
 proff()
 # Executed in 0.04 second(s).
 
-/*--------------------
-*/
+/*===================
+
 pron()
 
 o1 = new stzString("__b和平س__a_ووو")
@@ -11382,6 +11382,16 @@ o1 = new stzString("__b和平س__a_ووو")
 
 proff()
 # Executed in 0.15 second(s).
+
+/*--------------------
+*/
+pron()
+
+o1 = new stzString("__b和平س__a_ووو")
+? o1.PartsUsing(' StzCharQ(This[@i]).Script() ' )
+
+proff()
+# Executed in 0.07 second(s).
 
 /*====================
 

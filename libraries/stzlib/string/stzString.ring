@@ -70063,46 +70063,27 @@ n1 = Min(aTemp)
 			acContent = This.Chars()
 		ok
 
-		# Computing the values by evaluation the
+		# Computing the values by evaluating the
 		# expression against all the items
 
 		oCode = StzCCodeQ(pcPartitionExpr)
-		cCode = 'bValue = (' + oCode.Content() + ')'
+		cCode = 'value = (' + oCode.Content() + ')'
 
-		abValues = [] # Values stringified (to be used for comparison)
-
+		aValues = []
 		for @i = 1 to nLen
 			eval(cCode)
-			abValues + bValue
+			aValues + value
 		next
+
+		nLenValues = len(aValues)
+
+		# Getting the sections hosting the parts
+
+		aSections = StzListQ(aValues).FindPartsCSZZ(pCaseSensitive)
 
 		# Getting the parts
 
-		acResult = []
-		nStart = ring_find(abValues, 1)
-		cPart = ""
-		anPart = []
-
-		for i = nStart to nLen
-			if abValues[i] = 1
-				cPart += acContent[i]
-
-			else
-				if cPart != ""
-					acResult + cPart
-				ok
-
-				cPart = ""
-			ok
-	
-		next
-
-		if cPart != ""
-			acResult + cPart
-		ok
-
-
-		return acResult
+		return This.Sections(aSections)
 
 		#< @FunctionFluentForms
 
@@ -70288,13 +70269,14 @@ n1 = Min(aTemp)
 
 		nLenValues = len(aValues)
 
-		# Composing the sections hosting the parts
+		# Getting the sections hosting the parts
 
 		aSections = StzListQ(aValues).FindPartsCSZZ(pCaseSensitive)
 
 		# Getting the parts
 
 		return This.Sections(aSections)
+
 
 		#< @FunctionFluentForms
 
