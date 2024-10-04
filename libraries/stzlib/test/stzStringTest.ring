@@ -11384,7 +11384,7 @@ proff()
 # Executed in 0.15 second(s).
 
 /*--------------------
-*/
+
 pron()
 
 o1 = new stzString("__b和平س__a_ووو")
@@ -11392,6 +11392,27 @@ o1 = new stzString("__b和平س__a_ووو")
 
 proff()
 # Executed in 0.07 second(s).
+
+/*--------------------
+*/
+pron()
+
+o1 = new stzString("__b和平س__a_ووو")
+? @@NL( o1.PartsUsingZZ(' StzCharQ(This[@i]).Script() ' ) )
+#-->
+# [
+#	[ "__", [ 1, 2 ] ],
+#	[ "b", [ 3, 3 ] ],
+#	[ "和平", [ 4, 5 ] ],
+#o	[ "س", [ 6, 6 ] ],
+#	[ "__", [ 7, 8 ] ],
+#	[ "a", [ 9, 9 ] ],
+#	[ "_", [ 10, 10 ] ],
+#o	[ "ووو", [ 11, 13 ] ]
+# ]
+
+proff()
+# Executed in 0.12 second(s).
 
 /*====================
 
