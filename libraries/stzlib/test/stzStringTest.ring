@@ -11394,7 +11394,7 @@ proff()
 # Executed in 0.07 second(s).
 
 /*--------------------
-*/
+
 pron()
 
 o1 = new stzString("__b和平س__a_ووو")
@@ -11416,99 +11416,214 @@ proff()
 
 /*====================
 
+pron()
+
 # Case sensisitivity is considered only for latin letters
 
-? StzCharQ("9").IsLowercase() 		# FALSE
-? StzCharQ("9").IsUppercase() 		# FALSE
+? StzCharQ("9").IsLowercase()
+#--> FALSE
 
-? StzCharQ("ك").IsLowercase() 		# FALSE
-? StzCharQ("ك").IsUppercase() 		# FALSE
+? StzCharQ("9").IsUppercase()
+#--> FALSE
 
-? StzStringQ("120").IsLowercase() 	# FALSE
-? StzStringQ("120m").IsLowercase() 	# TRUE
-? StzStringQ("120M").IsUppercase() 	# TRUE
+? StzCharQ("ك").IsLowercase()
+#--> FALSE
 
-? StzStringQ("كلام").IsLowercase() 	# FALSE
+? StzCharQ("ك").IsUppercase()
+#--> FALSE
+
+? StzStringQ("120").IsLowercase()
+#--> FALSE
+
+? StzStringQ("120m").IsLowercase()
+#--> TRUE
+
+? StzStringQ("120M").IsUppercase()
+#--> TRUE
+
+? StzStringQ("كلام").IsLowercase()
+#--> FALSE
+
+proff()
+# Executed in 0.09 second(s).
 
 /*====================
 
-? StzStringQ("abcdef").ContainsNoOneOfThese([ "xy", "xyz", "mwb" ]) #--> TRUE
+pron()
+
+o1 = new stzString("abcdef")
+
+? o1.ContainsNoOneOfThese([ "xy", "xyz", "mwb" ])
+#--> TRUE
+
+? o1.ContainsNoOneOfThese([ "xy", "xyz", "de", "mwb" ])
+#--> FALSE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*====================
 
-? Q("tunis").Lowercased()	# tunis
-? Q("tunis").Uppercased()	# TUNIS
-? Q("tunis").Titlecased()	# Tunis
+pron()
 
-//? Q("tunis").Foldcased()	#TODO
+? Q("tunis").Lowercased()
+#--> tunis
+
+? Q("tunis").Uppercased()
+#--> TUNIS
+
+? Q("tunis").Titlecased()
+#--> Tunis
+
+ //? Q("tunis").Foldcased()	#TODO
+
+proff()
+# Executed in 0.06 second(s).
 
 /*--------------------
 
-? StzStringQ("tunis").IsLowercased()	# TRUE
-? StzStringQ("TUNIS").IsUppercased()	# TRUE
-? StzStringQ("Tunis").IsTitlecased()	# TRUE
+pron()
+
+? StzStringQ("tunis").IsLowercased()
+#--> TRUE
+
+? StzStringQ("TUNIS").IsUppercased()
+#--> TRUE
+
+? StzStringQ("Tunis").IsTitlecased()
+#--> TRUE
 
 //? StzStringQ("tunis").IsFoldcased()	#TODO
 
-/*====================
-
-? StringsAreEqualCS([ "abc","abc" ], TRUE )	#--> TRUE
-? StringsAreEqual([ "cbad", "cbad", "cbad" ])			#--> TRUE
-
-? BothStringsAreEqualCS("abc", "abc", TRUE)	#--> TRUE
-? BothStringsAreEqual("abc", "abc")				#--> TRUE
+proff()
 
 /*====================
 
-? Q("HUSSEIN").ItemsW('{ Q(@item).isLetter() }')
+pron()
+
+? StringsAreEqualCS([ "abc","abc" ], TRUE )
+#--> TRUE
+
+? StringsAreEqual([ "cbad", "cbad", "cbad" ])
+#--> TRUE
+
+? BothStringsAreEqualCS("abc", "abc", TRUE)
+#--> TRUE
+
+? BothStringsAreEqual("abc", "abc")
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
+
+/*====================
+
+pron()
+
+? Q("~~H/U/S/S/E/I/N~~").CharsWXT('{ Q(@char).isLetter() }')
 #--> [ "H","U","S","S","E","I","N" ]
 
-? Q("HUSSEIN").NumberOfItemsW('{ Q(@item).isLetter() }') #--> 7
+? Q("~~H/U/S/S/E/I/N~~").NumberOfCharsWXT('{ Q(@char).isLetter() }')
+#--> 7
+
+proff()
+# Executed in 0.36 second(s).
 
 /*--------------------
 
-? Q("--A--B--").ContainsLetters()	#--> TRUE
-? Q("--A--B--").ContainsLetter("A")	#--> TRUE
-? Q("--A--B--").ContainsLetter("a")	#--> TRUE
-? Q("--A--B--").ContainsLetter("M")	#--> FALSE
+pron()
 
-? Q("H").IsALetterOf("HUSSEIN") 	#--> TRUE
-? Q("h").IsALetterOf("HUSSEIN")		#--> TRUE
+? Q("--A--B--").ContainsLetters()
+#--> TRUE
+
+? Q("--A--B--").ContainsLetter("A")
+#--> TRUE
+
+? Q("--A--B--").ContainsLetter("a")
+#--> TRUE
+
+? Q("--A--B--").ContainsLetter("M")
+#--> FALSE
+
+? Q("H").IsALetterOf("HUSSEIN")
+#--> TRUE
+
+? Q("h").IsALetterOf("HUSSEIN")
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s).
 
 /*=====================
 
-? StzStringQ("SOFTANZA").CharsReversed() #--> AZNATFOS
+pron()
+
+? StzStringQ("SOFTANZA").CharsReversed()
+#--> SOℲꞱⱯNZⱯ
 
 ? StzStringQ(" Softanza    Near-natural Programming   ").Simplified()
 #--> Softanza Near-natural Programming
 
+proff()
+# Executed in 0.07 second(s).
+
 /*--------------------
+
+pron()
 
 # TQ is an abbreviation of StzTextQ()
 
-? TQ("عربي").Script() #--> arabic
-? TQ("ring").Script() #--> latin
+? TQ("عربي").Script()
+#--> arabic
+
+? TQ("ring").Script()
+#--> latin
+
+proff()
+# Executed in 0.06 second(s).
 
 /*-------------------
 
-# Used internally bu the library in evaluating conditional code:
+pron()
 
-? StzStringQ('myfunc()').IsAlmostAFunctionCall()	#--> TRUE
-? StzStringQ('my_func("name")').IsAlmostAFunctionCall()	#--> TRUE
+# Used internally by the library in evaluating conditional code:
+
+? StzStringQ('myfunc()').IsAlmostAFunctionCall()
+#--> TRUE
+
+? StzStringQ('my_func("name")').IsAlmostAFunctionCall()
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*-------------------
 
-? StzStringQ("G").IsLetter() 	#--> TRUE
-? UppercaseOf("b")		#--> B
-? LowercaseOf("B")		#--> b
-//? FoldcaseOf("sinus")		# !!! Undefined function
+pron()
 
-/*===================
+? StzStringQ("G").IsLetter()
+#--> TRUE
+
+? UppercaseOf("b")
+#--> B
+
+? LowercaseOf("B")
+#--> b
+
+//? FoldcaseOf("sinus")		# !!! Undefined function #TODO
+
+proff()
+# Executed in 0.01 second(s).
+
+/*=================== #narration CHARS, BYTES, UNICODE CODEPOINTS, AND BYTCODES
+*/
+pron()
 
 # Are you confused between chars, bytes, unicodes (or unicode code points), and bytecodes?!
 # Here how Softanza can help you see them all in clarity:
 
 StzStringQ("s㊱m") {
+
 	? Chars()
 	#--> [ "s", "㊱", "m" ]
 
@@ -11518,20 +11633,33 @@ StzStringQ("s㊱m") {
 	? UnicodesPerChar()
 	#--> [ [ "s", 115 ], [ "㊱", 12977 ], [ "m", 109 ] ]
 
-	? SizeInBytes() #--> 5
+	? SizeInBytes() #--> 435
+
+	? @@( SizeInBytesPerChar() ) + NL
+	#--> [ [ "s", 33 ], [ "㊱", 35 ], [ "m", 33 ] ]
+
+	#--
 
 	? Bytes()
 	#--> [ "s", "�", "�", "�", "m" ]
-	? BytesPerChar()
+
+	? @@( BytesPerChar() ) + NL
 	#--> [ [ "s", [ "s" ] ], [ "㊱", [ "�", "�", "�" ] ], [ "m", [ "m" ] ] ]
-	? NumberOfBytesPerChar()
+
+	? @@( NumberOfBytesPerChar() ) + NL
 	#-->  [ [ "s", 1 ], [ "㊱", 3 ], [ "m", 1 ] ]
+
+	#--
 
 	? Bytecodes()
 	#--> [ 115, -29, -118, -79, 109 ]
-	? BytecodesPerChar()
+
+	? @@( BytecodesPerChar() )
 	#--> [ [ "s", [ 115 ] ], [ "㊱", [ -29, -118, -79 ] ], [ "m", [ 109 ] ] ]
 }
+
+proff()
+# Executed in 0.07 second(s).
 
 /*===================
 

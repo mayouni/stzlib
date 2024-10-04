@@ -596,7 +596,7 @@ func SizeInBytes(item)
 		return SizeInBytes(p)
 
 		func @MSize(p)
-			return SizeInBytes(n)
+			return SizeInBytes(p)
 
 	func MemorySize(p)
 		return SizeInBytes(p)
@@ -1335,6 +1335,115 @@ func SizeInBytes64XT(item)
 
 	#>
 
+#----
+
+func SizeInBytesPerChar(pacChars)
+	if ChekcParams()
+		if NOT (isList and IsListOfChars(pacChars))
+			StzRaise("Incorrect param type! pacChars must be a list of chars.")
+		ok
+	ok
+
+	acChars = U(pacChars)
+	nLen = len(acChars)
+
+	aResult = []
+
+	for i = 1 to nLen
+		aResult + [ acChars[i], SizeInBytes(acChars[i]) ]
+	next
+
+	return aResult
+
+func SizeInBytesPerChar32(pacChars)
+	if ChekcParams()
+		if NOT (isList and IsListOfChars(pacChars))
+			StzRaise("Incorrect param type! pacChars must be a list of chars.")
+		ok
+	ok
+
+	acChars = U(pacChars)
+	nLen = len(acChars)
+
+	aResult = []
+
+	for i = 1 to nLen
+		aResult + [ acChars[i], SizeInBytes32(acChars[i]) ]
+	next
+
+	return aResult
+
+func SizeInBytesPerChar64(pacChars)
+	if ChekcParams()
+		if NOT (isList and IsListOfChars(pacChars))
+			StzRaise("Incorrect param type! pacChars must be a list of chars.")
+		ok
+	ok
+
+	acChars = U(pacChars)
+	nLen = len(acChars)
+
+	aResult = []
+
+	for i = 1 to nLen
+		aResult + [ acChars[i], SizeInBytes64(acChars[i]) ]
+	next
+
+	return aResult
+
+func SizeInBytesPerCharXT(pacChars)
+	if ChekcParams()
+		if NOT (isList and IsListOfChars(pacChars))
+			StzRaise("Incorrect param type! pacChars must be a list of chars.")
+		ok
+	ok
+
+	acChars = U(pacChars)
+	nLen = len(acChars)
+
+	aResult = []
+
+	for i = 1 to nLen
+		aResult + [ acChars[i], SizeInBytesXT(acChars[i]) ]
+	next
+
+	return aResult
+
+func SizeInBytesPerChar32XT(pacChars)
+	if ChekcParams()
+		if NOT (isList and IsListOfChars(pacChars))
+			StzRaise("Incorrect param type! pacChars must be a list of chars.")
+		ok
+	ok
+
+	acChars = U(pacChars)
+	nLen = len(acChars)
+
+	aResult = []
+
+	for i = 1 to nLen
+		aResult + [ acChars[i], SizeInBytes32XT(acChars[i]) ]
+	next
+
+	return aResult
+
+func SizeInBytesPerChar64XT(pacChars)
+	if ChekcParams()
+		if NOT (isList and IsListOfChars(pacChars))
+			StzRaise("Incorrect param type! pacChars must be a list of chars.")
+		ok
+	ok
+
+	acChars = U(pacChars)
+	nLen = len(acChars)
+
+	aResult = []
+
+	for i = 1 to nLen
+		aResult + [ acChars[i], SizeInBytes64XT(acChars[i]) ]
+	next
+
+	return aResult
 
 #========== #TODO: add XT(), 32() and 64() prefixes
 

@@ -544,11 +544,11 @@ func BothStringsAreEqual(pcStr1, pcStr2)
 	return BothStringsAreEqualCS(pcStr1, pcStr2, TRUE)
 
 func StringsAreEqualCS(pacStr, pCaseSensitive)
-	if NOT @IsListOfStrings(paStr)
+	if NOT @IsListOfStrings(pacStr)
 		stzRaise("Incorrect param type! pacStr must b a list of strings!")
 	ok
 
-	if NOT len(paStr) > 1
+	if NOT len(pacStr) > 1
 		stzRaise("You must provide at least two strings pacStr!")
 	ok
 
@@ -587,7 +587,7 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 		cFirstStr = StzStringQ(pacStr[1]).Lowercased()
 		
 		for i = 2 to nLen
-			if StzStringQ(paStrings[i]).Lowercased() != cFirstStr
+			if StzStringQ(pacStr[i]).Lowercased() != cFirstStr
 				bResult = FALSE
 				exit
 			ok 
@@ -596,10 +596,10 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 		return bResult
 	else
 
-		cFirstStr = paStrings[1]
+		cFirstStr = pacStr[1]
 		
 		for i = 1 to nLen
-			if paStrings[i] != cFirstStr
+			if pacStr[i] != cFirstStr
 				bResult = FALSE
 				exit
 			ok
@@ -609,8 +609,8 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 
 	return bResult
 
-func StringsAreEqual(paStrings)
-	return StringsAreEqualCS(paStrings, TRUE)
+func StringsAreEqual(paStr)
+	return StringsAreEqualCS(paStr, TRUE)
 
 func RemoveDiacritics(pcStr)
 	return StzStringQ(pcStr).DiacriticsRemoved()
@@ -9769,7 +9769,6 @@ class stzString from stzObject
 	 #  GETTING THE SIZE IN BYTES   #
 	#==============================#
 
-	
 	def NumberOfBytesPerChar()
 		aResult = []
 		acChars = This.Chars()
@@ -9791,6 +9790,20 @@ class stzString from stzObject
 
 		def HowManyBytePerChar()
 			return This.NumberOfBytesPerChar()
+
+		def SizeInBytesPerChar()
+			return This.NumberOfBytesPerChar()
+
+		def SizeInBytesOfEachChar()
+			return This.NumberOfBytesPerChar()
+
+		def CountBytesOfEachChar()
+			return This.NumberOfBytesPerChar()
+
+		def NumberOfBytesOfEachChar()
+			return This.NumberOfBytesPerChar()
+
+		#>
 
 	  #------------------------------#
 	 #   BYTES AND BYTES PER CHAR   #
@@ -50113,6 +50126,35 @@ n1 = Min(aTemp)
 			return This.Contains(pcSubStr)
 
 		#>
+
+	  #----------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS NO ONE OF THE GIVEN SUBSTRINGS  #
+	#----------------------------------------------------------------#
+
+	def ContainsNoOneOfTheseCS(pacSubStr, pCaseSensitive)
+
+		if CheckParams()
+			if NOT ( isList(pacSubStr) and IsListOfStrings(pacSubStr) )
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
+		ok
+
+		nLen = len(pacSubStr)
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if This.ContainsSubStringCS(pacSubStr[i], pCaseSensitive)
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsNoOneOfThese(pacSubStr)
+		return This.ContainsNoOneOfTheseCS(pacSubStr, TRUE)
 
 	  #------------------------------------------------------------------#
 	 #   CHECKING IF THE STRING IS CONTAINED IN AN OTHER GIVEN STRING   #
