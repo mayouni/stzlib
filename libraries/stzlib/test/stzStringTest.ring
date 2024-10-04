@@ -11222,7 +11222,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*--------------------
-*/
+
 pron()
 
 #		    1...5...9...3...7...1...5..
@@ -11230,73 +11230,126 @@ o1 = new stzString("---Mio---Mio---Mio---Mio---")
 
 ? o1.FindNextNthOccurrence(1, "Mio", :StartingAt = 1)
 #--> 4
-/*
+
 ? o1.FindNextNthOccurrence(2, "Mio", :StartingAt = 7)
 #--> 16
 
 ? o1.FindNextNthOccurrence(1, "Mio", :StartingAt = 20)
 #--> 22
-*/
+
 proff()
+# Executed in 0.01 second(s).
 
 /*--------------------
-*/
+
 pron()
 
 #		    1...5...9...3...7...1...5..
 o1 = new stzString("---Mio---Mio---Mio---Mio---")
-? o1.NextOccurrence("Mio", :StartingAt = 1) 		#--> 4
-? o1.NthPreviousOccurrence(2, "Mio", :StartingAt = 15)  #--> 4
-? o1.NthPreviousOccurrence(4, "Mio", :StartingAt = 25)  #--> 4
+
+? o1.NextOccurrence("Mio", :StartingAt = 1)
+#--> 4
+
+? o1.NthPreviousOccurrence(2, "Mio", :StartingAt = 15)
+#--> 4
+
+? o1.NthPreviousOccurrence(4, "Mio", :StartingAt = 25)
+#--> 4
 
 proff()
 # Executed in 0.02 second(s).
 
 /*=====================
 
+pron()
+
 o1 = new stzString("216;TUNISIA;227;NIGER")
-? o1.Section(5, o1.NextOccurrence( :Of = ";", :StartingAt = 5 ) - 1 ) #--> TUNISIA
+
+? o1.Section(5, o1.NextOccurrence( :Of = ";", :StartingAt = 5 ) - 1 )
+#--> TUNISIA
+
+proff()
+# Executed in 0.01 second(s).
 
 /*====================
+
+pron()
 
 o1 = new stzString("amd[bmi]kmc[ddi]kc")
-? o1.SubStringsBetween("[","]")
+? o1.SubStringsBoundedBy([ "[", "]" ])
 #--> [ "bmi", "ddi" ]
 
-/*-------------------- ERROR: TODO in the future
-
-# SubStringsBetween can't manage DEEP combinations like this
-
-o1 = new StzString( '[ "A", "T", [ :hi, [ "deep1", [] ], :bye ], 5, obj1, "C", "A", obj2, "A", 2 ]' )
-? o1.SubStringsBetween("[","]")
-
- #!--> "A", "T", [ :hi, [ "deep1", [
-
-/*====================
-
-# In Softanza both n and N chars correspond to the letter "N"
-o1 = new stzString("Adoption of the plan B")
-? o1.ContainsTheLetters([ "N", "b" ]) #--> TRUE
+proff()
+# Executed in 0.01 second(s).
 
 /*--------------------
 
-o1 = new stzString("opsus amcKLMbmi findus")
-? o1.FindBetween("KLM", "amc", "bmi") #--> 10
+pron()
+
+# SubStringsBoundedBy can't manage DEEP combinations like this
+
+o1 = new StzString( '[ "A", "T", [ :hi, [ "deep1", [] ], :bye ], 5, obj1, "C", "A", obj2, "A", 2 ]' )
+? o1.SubStringsBoundedBy([ "[", "]" ])
+
+#!--> "A", "T", [ :hi, [ "deep1", [
+
+proff()
+# Executed in 0.01 second(s).
 
 /*====================
 
+pron()
+
+# In Softanza both n and N chars correspond to the letter "N"
+
+o1 = new stzString("Adoption of the plan B")
+? o1.ContainsTheLetters([ "N", "b" ])
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s).
+
+/*--------------------
+
+pron()
+
+o1 = new stzString("opsus amcKLMbmi findus")
+
+? o1.FindSubStringBetween("KLM", "amc", "bmi") # Or simply FindBetween()
+#--> 10
+
+proff()
+# Executed in 0.01 second(s).
+
+/*======= #narration ANALYZING THE SCRIPTS FORMING A STRING
+
+pron()
+
 StzStringQ("__b和平س__a__و") {
-	? ContainsLettersInScript(:Latin) 		# TRUE
-	? CharsW( ' Q(@char).IsLatin() ')		# [ "b", "a" ]
 
-	? ContainsLettersInScript(:Arabic)		# TRUE
-	? CharsW( ' Q(@char).IsArabic() ')		# [ "س", "و" ]
+	? ContainsLettersInScript(:Latin)
+	#--> TRUE
 
-	? ContainsLettersInScript(:Han)			# TRUE
-	? CharsW( ' StzCharQ(@char).IsHanScript() ')	# [ "和", "平" ]
+	? CharsWXT( ' Q(@char).IsLatin() ')
+	#--> [ "b", "a" ]
 
-	? ContainsCharsInScript(:Common)		# TRUE
-	? CharsW( ' StzCharQ(@char).IsCommonScript() ')	# [ "_", "_", "_", "_", "_", "_" ]
+	? ContainsLettersInScript(:Arabic)
+	#--> TRUE
+
+	? CharsWXT( ' Q(@char).IsArabic() ')
+	#o--> [ "س", "و" ]
+
+	? ContainsLettersInScript(:Han)
+	#--> TRUE
+
+	? CharsWXT( ' StzCharQ(@char).IsHanScript() ')
+	#--> [ "和", "平" ]
+
+	? ContainsCharsInScript(:Common)
+	#--> TRUE
+
+	? CharsWXT( ' StzCharQ(@char).IsCommonScript() ')
+	#--> [ "_", "_", "_", "_", "_", "_" ]
 
 	#NOTE that if you say
 	? ContainsLettersInScript(:Common)	# or
@@ -11305,6 +11358,30 @@ StzStringQ("__b和平س__a__و") {
 	# 'common'. In other terms, any letter in the world has to belong
 	# to a knowan script.
 }
+
+proff()
+# Executed in 0.61 second(s).
+
+/*--------------------
+
+pron()
+
+o1 = new stzString("__b和平س__a__و")
+? o1.ToStzText().Scripts()
+#--> [ "latin", "han", "arabic" ]
+
+proff()
+# Executed in 0.04 second(s).
+
+/*--------------------
+*/
+pron()
+
+o1 = new stzString("__b和平س__a_ووو")
+? o1.PartsUsingXT(' StzCharQ(@char).Script() ')
+
+proff()
+# Executed in 0.15 second(s).
 
 /*====================
 

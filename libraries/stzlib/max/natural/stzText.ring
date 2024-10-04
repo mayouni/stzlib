@@ -624,7 +624,7 @@ class stzText from stzString
 			StzRaise("Information about script is unavilable!")
 
 		but This.NumberOfScripts() = 1
-			return This.Scriptfs()[1]
+			return This.Scripts()[1]
 
 		but This.NumberOfScripts() = 2 and StzStringQ(:Common).ExistsIn( This.Scripts() )
 			cResult = StzListQ( This.Scripts() ).AllItemsExcept(:Common)[1]
