@@ -11740,7 +11740,7 @@ proff()
 # Executed in 0.09 second(s).
 
 /*--------------------
-*/
+
 pron()
 
 ? Q("LIFE").Turned()
@@ -11761,54 +11761,99 @@ pron()
 proff()
 # Executed in 0.17 second(s).
 
-/*-------------------
+/*--------------------
 
-? "TIBA -->"
-? StzStringQ("TIBA").Inverted()
-? ""
-? "HANEEN -->"
-? StzStringQ("HANEEN").Inverted()
-? "LIFE -->"
-? StzStringQ("LIFE").Inverted()
-? ""
-? "GAYA -->"
-? StzStringQ("GAYA").Inverted()
-? ""
-? "TELLAVIX (Y908$) -->"
-? StzStringQ("TELLAVIX (Y908$)").Inverted()
+pron()
 
-/*==================
+? Q("LIFE").Inversed()
+#--> EFIL
+
+? Q("GAYA").Inversed()
+#--> AYAG
+
+? Q("TIBA").Inversed()
+#--> ABIT
+
+? Q("HANEEN").Inversed()
+#--> NEENAH
+
+? Q("MILLAVOY (Y908$)").Inversed()
+#--> )$809Y( YOVALLIM
+
+proff()
+# Executed in 0.01 second(s).
+
+/*================== #TODO
+
+pron()
 
 o1 = new stzString("Ring Programming Language")
 ? o1.WalkBackwardW( :StartingAt = 12, :UntilBefore = '{ @char = " " }' ) #--> 5
 ? o1.WalkForwardW( :StartingAt =  6, :UntilBefore = '{ @char = "r" }' ) #--> 9
 
+proff()
+
 /*==================
 
-? StzTextQ("abc سلام abc").ContainsScript(:Arabic)	#--> TRUE
-? StzTextQ("abc سلام abc").ContainsArabicScript()	#--> TRUE
+pron()
+
+? StzTextQ("abc سلام abc").ContainsScript(:Arabic)
+#--> TRUE
+
+? StzTextQ("abc سلام abc").ContainsArabicScript()
+#--> TRUE
+
 #NOTE: Scripts are now moved from stzString to stzText
 
 # You can use this short form instead of StzTextQ()
 ? TQ("سلام").Script() #--> :Arabic
 
-/*==================
-
-? StzStringQ("évènement").ReplaceNthCharQ(3, "*").Content()		#--> év*nement
-? StzStringQ("évènement").ReplaceNthCharQ(3, :With = "*").Content()	#--> év*nement
+proff()
+# Executed in 0.07 second(s).
 
 /*==================
+
+pron()
+
+? StzStringQ("évènement").ReplaceNthCharQ(3, "*").Content()
+#--> év*nement
+
+? StzStringQ("évènement").ReplaceNthCharQ(3, :With = "*").Content()
+#--> év*nement
+
+proff()
+# Executed in 0.01 second(s).
+
+/*==================
+
+pron()
 
 StzStringQ("original text before hashing") {
+
 	Hash(:MD5)
-	? Content() #--> 8ffad81de2e13a7b68c7858e4d60e263
+	? Content()
+	#--> 8ffad81de2e13a7b68c7858e4d60e263
+
 }
+
+proff()
+# Executed in 0.02 second(s).
 
 /*==================
 
-? StzStringQ("ring").StringCase() #--> :Lowercase
-? StzStringQ("RING").StringCase() #--> :Uppercase
-? StzStringQ("RING and python").StringCase() #--> :hybridcase
+pron()
+
+? StzStringQ("ring").StringCase()
+#--> :Lowercase
+
+? StzStringQ("RING").StringCase()
+#--> :Uppercase
+
+? StzStringQ("RING and python").StringCase()
+#--> :hybridcase
+
+proff()
+# Executed in 0.25 second(s).
 
 /*========== STRING PARTS ===========
 */
@@ -11817,26 +11862,65 @@ pron()
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
 
-? @@(o1.PartsAsSubstringsUsing('StzCharQ(@char).CharCase()' )) # or simply o1.PartsUsing('StzCharQ(@char)')
+? @@(o1.PartsUsingXT('StzCharQ(@char).CharCase()')) + NL # or simply o1.PartsUsing('StzCharQ(@char)')
 # [
-# 	[ "H", "uppercase" ],
-# 	[ "anine", "lowercase" ],
-# 	[ "o حنين o", NULL ],
-# 	[ "is", "lowercase" ],
-# 	[ " ", NULL ],
-# 	[ "a", "lowercase" ],
-# 	[ " ", NULL ],
-# 	[ "nice", "lowercase" ],
-# 	[ "o جميلة وعمرها 7 o", NULL ],
-# 	[ "years", "lowercase" ],
-# 	[ "-", NULL ],
-# 	[ "old", "lowercase" ],
-# 	[ "o سنوات o", NULL ],
-# 	[ "girl", "lowercase" ],
-# 	[ "!", NULL ]
+#	"H",
+#	"anine",
+#o	" حنين ",
+#	"is",
+#	" ",
+#	"a",
+#	" ",
+#	"nice",
+#o	" جميلة وعمرها 7 ",
+#	"years",
+#	"-",
+#	"old",
+#o	" سنوات ",
+#	"girl",
+#	"!"
+# ]
+
+? @@NL( o1.PartsAndPartitionersUsingXT('StzCharQ(@char).CharCase()') ) + NL # or Parts2UsingXT()
+#--> [
+#	[ "H", 			"uppercase" 	],
+#	[ "anine", 		"lowercase" 	],
+#o	[ " حنين ", 		"" 		],
+#	[ "is", 		"lowercase" 	],
+#	[ " ", 			"" 		],
+#	[ "a", 			"lowercase" 	],
+#	[ " ", 			"" 		],
+#	[ "nice", 		"lowercase" 	],
+#o	[ " جميلة وعمرها 7 ", 	"" 	],
+#	[ "years", 		"lowercase" 	],
+#	[ "-", 			"" 		],
+#	[ "old", 		"lowercase" 	],
+#o	[ " سنوات ", 		"" 		],
+#	[ "girl", 		"lowercase" 	],
+#	[ "!", 			"" 		]
+# ]
+
+? @@NL( o1.PartitionersAndPartsUsingXT('StzCharQ(@char).CharCase()') ) 
+#--> [
+#	[ "uppercase", 		"H" 			],
+#	[ "lowercase", 		"anine" 		],
+#o	[ "", 			" حنين " 		],
+#	[ "lowercase", 		"is" 			],
+#	[ "", 			" " 			],
+#	[ "lowercase", 		"a" 			],
+#	[ "", 			" " 			],
+#	[ "lowercase", 		"nice" 			],
+#o	[ "", 			" جميلة وعمرها 7 " 	],
+#	[ "lowercase", 		"years" 		],
+#	[ "", 			"-" 			],
+#	[ "lowercase", 		"old" 			],
+#o	[ "", 			" سنوات " 		],
+#	[ "lowercase", 		"girl" 			],
+#	[ "", 			"!" 			]
 # ]
 
 proff()
+# Executed in 0.92 second(s).
 
 /*-----------------
 
@@ -12935,12 +13019,10 @@ o1.RemoveRange(1, 5)
 ? StringAlign("SOFTANZA", 30, ".", :Justified) + NL
 
 #-->
-/*
-SOFTANZA......................
-......................SOFTANZA
-...........SOFTANZA...........
-S....O...F...T...A...N...Z...A
-*/
+# SOFTANZA......................
+# ......................SOFTANZA
+# ...........SOFTANZA...........
+# S....O...F...T...A...N...Z...A
 
 /*----------------
 
