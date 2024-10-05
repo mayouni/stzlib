@@ -459,30 +459,6 @@ func StringToUnicodes(pcStr)
 	func @ToUnicodes(pcStr)
 		return StringToUnicodes(pcStr)
 
-func StringInvert(cStr)
-	return StzStringQ(cStr).Inverted()
-	
-	func StringRevert(cStr)
-		return StringInvert(cStr)
-
-	func StringInverse(cStr)
-		return StringInvert(cStr)
-
-	func StringReverse(cStr)
-		return StringInvert(cStr)
-
-	func @Invert(cStr)
-		return StringInvert(cStr)
-
-	func @StringRevert(cStr)
-		return StringInvert(cStr)
-
-	func @StringInverse(cStr)
-		return StringInvert(cStr)
-
-	func @StringReverse(cStr)
-		return StringInvert(cStr)
-
 # Some functions used mainly in natural-code
 
 func UppercaseOf(cStr)
@@ -86733,6 +86709,7 @@ n1 = Min(aTemp)
 	#==================================#
 
 	def ReverseCharsOrder()
+
 		cInversed = ""
 		nLen = This.NumberOfChars()
 		acReversed = []
@@ -86857,10 +86834,12 @@ n1 = Min(aTemp)
 		#NOTE: Applies to latin script only
 
 		cResult = ""
-		nLen = This.NumberOfChars()
+
+		aoStzChars = This.ToListOfStzChars()
+		nLen = len(aoStzChars)
 
 		for i = 1 to nLen
-			cResult += StzCharQ( This.NthChar(i) ).Turned()
+			cResult += aoStzChars[i].Turned()
 		next
 
 		This.UpdateWith(cResult)

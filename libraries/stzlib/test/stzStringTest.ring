@@ -11616,7 +11616,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*=================== #narration CHARS, BYTES, UNICODE CODEPOINTS, AND BYTCODES
-*/
+
 pron()
 
 # Are you confused between chars, bytes, unicodes (or unicode code points), and bytecodes?!
@@ -11663,42 +11663,103 @@ proff()
 
 /*===================
 
-? StzStringQ("sAlut").IsLowercase() #--> FALSE
+pron()
+
+? StzStringQ("sAlut").IsLowercase()
+#--> FALSE
+
+proff()
+# Executed in 0.02 second(s).
 
 /*===================
+
+pron()
 
 ? StzStringQ("@char___@char___@char").ReplaceAllQ("@char","@item").Content()
 #--> @item___@item___@item
 
+proff()
+# Executed in 0.01 second(s).
+
 /*------------------
 
+pron()
+
 StzStringQ( "Text processing with Ring" ) {
-	ReplaceAllCharsW(
+
+	ReplaceCharsWXT(
 		:Where = '{ @char = "i" }',
 		:With = "*"	
 	)
 
 	? Content()
-} #--> "Text process*ng w*th R*ng"
+}
+
+#--> "Text process*ng w*th R*ng"
+
+proff()
+# Executed in 0.20 second(s).
 
 /*-------------------
 
+pron()
+
 StzStringQ("1a2b3c") {
-	ReplaceAllCharsW(
+
+	ReplaceCharsWXT(
 		:Where = '{ Q(@char).isLowercase() }',
 		:With  = "*"
 	)
 
-	? Content() #--> 1*2*3*
+	? Content()
+	#--> 1*2*3*
 }
+
+proff()
+# Executed in 0.16 second(s).
 
 /*====================
 
-? StringInvert("LIFE") 	#--> ƎℲI⅂
-? StringInvert("GAYA")	#--> Ɐ⅄Ɐ⅁
-? StringInvert("TIBA")	#--> ⱯBIꞱ
-? StringInvert("HANEEN") #--> NƎƎNⱯH
-? StringInvert("MILLAVOY (Y908$)") #--> ($806⅄) ⅄OɅⱯ⅂⅂IƜ
+pron()
+
+o1 = new stzString("LIFE")
+
+? o1.Inverted()
+#--> EFIL
+
+? o1.CharsInverted() + NL
+#--> ⅂IℲƎ
+
+? o1.Turned()
+#--> ƎℲI⅂
+
+? o1.CharsTurned()
+#--> ⅂IℲƎ
+
+proff()
+# Executed in 0.09 second(s).
+
+/*--------------------
+*/
+pron()
+
+? Q("LIFE").Turned()
+#--> ƎℲI⅂
+
+? Q("GAYA").Turned()
+#--> Ɐ⅄Ɐ⅁
+
+? Q("TIBA").Turned()
+#--> ⱯBIꞱ
+
+? Q("HANEEN").Turned()
+#--> NƎƎNⱯH
+
+? Q("MILLAVOY (Y908$)").Turned()
+#--> ($806⅄) ⅄OɅⱯ⅂⅂IƜ
+
+proff()
+# Executed in 0.17 second(s).
 
 /*-------------------
 
