@@ -70277,6 +70277,393 @@ n1 = Min(aTemp)
 
 		#>
 
+	  #------------------------------------------------------------------------------#
+	 #  GETTING THE PARTS USING A PARTITION EXPRESSION ALONG WITH THEIR PARTIONERS  #
+	#------------------------------------------------------------------------------#
+	#NOTE // A partioner is the value return by the partition expression
+
+	def PartsAndPartitionersUsingCS(pcPartitionExpr, pCaseSensitive)
+
+		if CheckParams()
+			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+				pcPartitionExpr = pcPartitionExpr[2]
+			ok
+
+			if NOT isString(pcPartitionExpr)
+				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
+			ok
+
+		ok
+
+		# Early check
+
+		nLen = This.NumberOfChars()
+
+		if nLen < 2
+			return [ [ 1, nLen ] ]
+		ok
+
+		# Getting the boolean form pCaseSensitive
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(pcPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ 1, nLen ] ]
+		ok
+
+		# Getting the list of chars and preparing
+		# it for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Computing the values by evaluating the
+		# expression against all the items
+
+		oCode = StzCCodeQ(pcPartitionExpr)
+		cCode = 'value = (' + oCode.Content() + ')'
+
+		aValues = []
+		for @i = 1 to nLen
+			eval(cCode)
+			aValues + value
+		next
+
+		nLenValues = len(aValues)
+
+		# Getting the sections hosting the parts
+
+		aSections = StzListQ(aValues).FindPartsCSZZ(pCaseSensitive)
+		nLen = len(aSections)
+
+		acPartitioners = []
+
+		for i = 1 to nLen
+			acPartitioners + aValues[aSections[i][1]]
+		next
+
+		aResult = @Association([ This.Sections(aSections), acPartitioners ])
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def Parts2UsingCS(pcPartitionExpr, pCaseSensitive)
+			return This.PartsAndPartitionsUsingCS(pcPartitionExpr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def PartsAndPartitionersUsing(pcPartitionExpr)
+		return This.PartsAndPartitionsUsingCS(pcPartitionExpr, TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def Parts2Using(pcPartitionExpr)
+			return This.PartsAndPartitionersUsing(pcPartitionExpr)
+
+		#>
+
+	  #-----------------------------------------------------------------------------------#
+	 #  GETTING THE PARTS USING A PARTITION EXPRESSION ALONG WITH THEIR PARTIONERS -- XT #
+	#-----------------------------------------------------------------------------------#
+
+	def PartsAndPartitionersUsingCSXT(pcPartitionExpr, pCaseSensitive)
+
+		if CheckParams()
+			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+				pcPartitionExpr = pcPartitionExpr[2]
+			ok
+
+			if NOT isString(pcPartitionExpr)
+				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
+			ok
+
+		ok
+
+		# Early check
+
+		nLen = This.NumberOfChars()
+
+		if nLen < 2
+			return [ [ 1, nLen ] ]
+		ok
+
+		# Getting the boolean form pCaseSensitive
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(pcPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ 1, nLen ] ]
+		ok
+
+		# Getting the list of chars and preparing
+		# it for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Computing the values by evaluating the
+		# expression against all the items
+
+		oCode = StzCCodeQ(pcPartitionExpr).TranspileQ()
+		cCode = 'value = (' + oCode.Content() + ')'
+
+		aValues = []
+		for @i = 1 to nLen
+			eval(cCode)
+			aValues + value
+		next
+
+		nLenValues = len(aValues)
+
+		# Getting the sections hosting the parts
+
+		aSections = StzListQ(aValues).FindPartsCSZZ(pCaseSensitive)
+		nLen = len(aSections)
+
+		acPartitioners = []
+
+		for i = 1 to nLen
+			acPartitioners + aValues[aSections[i][1]]
+		next
+
+		aResult = @Association([ This.Sections(aSections), acPartitioners ])
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def Parts2UsingCSXT(pcPartitionExpr, pCaseSensitive)
+			return This.PartsAndPartitionersUsingCSXT(pcPartitionExpr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def PartsAndPartitionersUsingXT(pcPartitionExpr)
+		return This.PartsAndPartitionersUsingCSXT(pcPartitionExpr, TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def Parts2UsingXT(pcPartitionExpr)
+			return This.PartsAndPartitionersUsingXT(pcPartitionExpr)
+
+		#>
+
+	  #--------------------------------------------------------------------------------#
+	 #  GETTING THE PARTIONERS (A GIVEN PARTITION EXPRESSION) ALONG WITH THEIR PARTS  #
+	#--------------------------------------------------------------------------------#
+	#NOTE // A partioner is the value return by the partition expression
+
+	def PartitionersAndPartsUsingCS(pcPartitionExpr, pCaseSensitive)
+
+		if CheckParams()
+			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+				pcPartitionExpr = pcPartitionExpr[2]
+			ok
+
+			if NOT isString(pcPartitionExpr)
+				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
+			ok
+
+		ok
+
+		# Early check
+
+		nLen = This.NumberOfChars()
+
+		if nLen < 2
+			return [ [ 1, nLen ] ]
+		ok
+
+		# Getting the boolean form pCaseSensitive
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(pcPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ 1, nLen ] ]
+		ok
+
+		# Getting the list of chars and preparing
+		# it for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Computing the values by evaluating the
+		# expression against all the items
+
+		oCode = StzCCodeQ(pcPartitionExpr)
+		cCode = 'value = (' + oCode.Content() + ')'
+
+		aValues = []
+		for @i = 1 to nLen
+			eval(cCode)
+			aValues + value
+		next
+
+		nLenValues = len(aValues)
+
+		# Getting the sections hosting the parts
+
+		aSections = StzListQ(aValues).FindPartsCSZZ(pCaseSensitive)
+		nLen = len(aSections)
+
+		acPartitioners = []
+
+		for i = 1 to nLen
+			acPartitioners + aValues[aSections[i][1]]
+		next
+
+		aResult = @Association([ acPartitioners, This.Sections(aSections) ])
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def Partioners2UsingCS(pcPartitionExpr, pCaseSensitive)
+			return This.PartitionersAndPartsUsingCS(pcPartitionExpr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def PartitionersAndPartsUsing(pcPartitionExpr)
+		return This.PartitionersAndPartsUsingCS(pcPartitionExpr, TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def Partioners2Using(pcPartitionExpr)
+			return This.PartitionersAndPartsUsing(pcPartitionExpr)
+
+		#>
+
+	  #-------------------------------------------------------------------------------------#
+	 #  GETTING THE PARTIONERS (A GIVEN PARTITION EXPRESSION) ALONG WITH THEIR PARTS -- XT #
+	#-------------------------------------------------------------------------------------#
+	#NOTE // A partioner is the value return by the partition expression
+
+	def PartitionersAndPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+
+		if CheckParams()
+			if isList(pcPartitionExpr) and Q(pcPartitionExpr).IsUsingOrWithOrByOrWhereNamedParam()
+				pcPartitionExpr = pcPartitionExpr[2]
+			ok
+
+			if NOT isString(pcPartitionExpr)
+				StzRaise("Incorrect param type! pcPartitionExpr must be a string.")
+			ok
+
+		ok
+
+		# Early check
+
+		nLen = This.NumberOfChars()
+
+		if nLen < 2
+			return [ [ 1, nLen ] ]
+		ok
+
+		# Getting the boolean form pCaseSensitive
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		# Special case
+
+		if bCaseSensitive = FALSE and
+			StzStringQ(pcPartitionExpr).
+			ContainsOneOfTheseCS([
+				"charcase(", "isuppercase",
+				"islowercase", "lower(", "upper(" ], FALSE)
+
+				return [ [ 1, nLen ] ]
+		ok
+
+		# Getting the list of chars and preparing
+		# it for case sensitivity
+
+		if bCaseSensitive = FALSE
+			acContent = This.CharsQ().Lowercased()
+		else
+			acContent = This.Chars()
+		ok
+
+		# Computing the values by evaluating the
+		# expression against all the items
+
+		oCode = StzCCodeQ(pcPartitionExpr).TranspileQ()
+		cCode = 'value = (' + oCode.Content() + ')'
+
+		aValues = []
+		for @i = 1 to nLen
+			eval(cCode)
+			aValues + value
+		next
+
+		nLenValues = len(aValues)
+
+		# Getting the sections hosting the parts
+
+		aSections = StzListQ(aValues).FindPartsCSZZ(pCaseSensitive)
+		nLen = len(aSections)
+
+		acPartitioners = []
+
+		for i = 1 to nLen
+			acPartitioners + aValues[aSections[i][1]]
+		next
+
+		aResult = @Association([ acPartitioners, This.Sections(aSections) ])
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def Partioners2UsingCSXT(pcPartitionExpr, pCaseSensitive)
+			return This.PartitionersAndPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def PartitionersAndPartsUsingXT(pcPartitionExpr)
+		return This.PartitionersAndPartsUsingCSXT(pcPartitionExpr, TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def Partioners2UsingXT(pcPartitionExpr)
+			return This.PartitionersAndPartsUsingXT(pcPartitionExpr)
+
+		#>
+
 	  #------------------------------------------------------------------#
 	 #  FINDING PARTS IN THE STRING UPPON A GiVEN PARTITION EXPRESSION  #
 	#==================================================================#
