@@ -70066,26 +70066,6 @@ n1 = Min(aTemp)
 
 		#< @FunctionAlternativeForms
 
-		def PartitionUsingCS(pcPartitionExpr, pCaseSensitive) # A verb: to partition
-			return This.PartsUsingCS(pcPartitionExpr, pCaseSensitive)
-
-			def PartitionUsingCSQ(pcPartitionExpr, pCaseSensitive)
-				return This.PartitionUsingCSQR(pcPartitionExpr, pCaseSensitive, :stzList)
-
-			def PartitionCSUsingQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
-				return This.PartsUsingCSQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
-
-		def PartionedUsingCS(pcPartitionExpr, pCaseSensitive)
-			return This.PartsUsingCS(pcPartitionExpr, pCaseSensitive)
-
-			def PartionedUsingCSQ(pcPartitionExpr, pCaseSensitive)
-				return This.PartionedUsingCSQR(pcPartitionExpr, pCaseSensitive, :stzList)
-
-			def PartionedUsingCSQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
-				return This.PartsUsingCSQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
-
-		#--
-
 		def PartsWCS(pcPartitionExpr, pCaseSensitive)
 			return This.PartsUsingCS(pcPartitionExpr, pCaseSensitive)
 
@@ -70113,26 +70093,6 @@ n1 = Min(aTemp)
 		#>
 
 		#< @FunctionAlternativeForms
-
-		def PartitionUsing(pcPartitionExpr) # A verb: to partition
-			return This.PartsUsing(pcPartitionExpr)
-
-			def PartitionUsingQ(pcPartitionExpr)
-				return This.PartitionUsingQR(pcPartitionExpr, :stzList)
-
-			def PartitionUsingQR(pcPartitionExpr, pcReturnType)
-				return This.PartsUsingQR(pcPartitionExpr, pcReturnType)
-
-		def PartionedUsing(pcPartitionExpr)
-			return This.PartsUsing(pcPartitionExpr)
-
-			def PartionedUsingQ(pcPartitionExpr)
-				return This.PartionedUsingQR(pcPartitionExpr, :stzList)
-
-			def PartionedUsingQR(pcPartitionExpr, pcReturnType)
-				return This.PartsUsingQR(pcPartitionExpr, pcReturnType)
-
-		#--
 
 		def PartsW(pcPartitionExpr)
 			return This.PartsUsing(pcPartitionExpr)
@@ -70198,26 +70158,6 @@ n1 = Min(aTemp)
 
 		#< @FunctionAlternativeForms
 
-		def PartitionUsingCSXT(pcPartitionExpr, pCaseSensitive) # A verb: to partition
-			return This.PartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
-
-			def PartitionUsingCSXTQ(pcPartitionExpr, pCaseSensitive)
-				return This.PartitionUsingCSXTQR(pcPartitionExpr, pCaseSensitive, :stzList)
-
-			def PartitionUsingCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
-				return This.PartsUsingCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
-
-		def PartionedUsingCSXT(pcPartitionExpr, pCaseSensitive)
-			return This.PartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
-
-			def PartionedUsingCSXTQ(pcPartitionExpr, pCaseSensitive)
-				return This.PartionedUsingCSXTQR(pcPartitionExpr, pCaseSensitive, :stzList)
-
-			def PartionedUsingCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
-				return This.PartsUsingCSXTQR(pcPartitionExpr, pCaseSensitive, pcReturnType)
-
-		#--
-
 		def PartsWCSXT(pcPartitionExpr, pCaseSensitive)
 			return This.PartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
 
@@ -70245,26 +70185,6 @@ n1 = Min(aTemp)
 		#>
 
 		#< @FunctionAlternativeForms
-
-		def PartitionUsingXT(pcPartitionExpr) # A verb: to partition
-			return This.PartsUsingXT(pcPartitionExpr)
-
-			def PartitionUsingXTQ(pcPartitionExpr)
-				return This.PartitionUsingXTQR(pcPartitionExpr, :stzList)
-
-			def PartitionUsingXTQR(pcPartitionExpr, pcReturnType)
-				return This.PartsUsingXTQR(pcPartitionExpr, pcReturnType)
-
-		def PartionedUsingXT(pcPartitionExpr)
-			return This.PartsUsingXT(pcPartitionExpr)
-
-			def PartionedUsingXTQ(pcPartitionExpr)
-				return This.PartionedUsingXTQR(pcPartitionExpr, :stzList)
-
-			def PartionedUsingXTQR(pcPartitionExpr, pcReturnType)
-				return This.PartsUsingXTQR(pcPartitionExpr, pcReturnType)
-
-		#--
 
 		def PartsWXT(pcPartitionExpr)
 			return This.PartsUsingXT(pcPartitionExpr)
@@ -70365,7 +70285,7 @@ n1 = Min(aTemp)
 	#-- WITHOUT CASESENSITIVITY
 
 	def PartsAndPartitionersUsing(pcPartitionExpr)
-		return This.PartsAndPartitionsUsingCS(pcPartitionExpr, TRUE)
+		return This.PartsAndPartitionersUsingCS(pcPartitionExpr, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -71359,9 +71279,9 @@ n1 = Min(aTemp)
 
 		#>
 
-	  #------------------------------------------------------------#
-	 #  CLASSIFYING THE PARTS USING A GIVEN PARTITION EXPRESSION  #
-	#------------------------------------------------------------#
+	  #-----------------------------------------------------------------#
+	 #  CLASSIFYING THE PARTS USING A GIVEN PARTITION EXPRESSION -- XT #
+	#-----------------------------------------------------------------#
 
 	def ClassifyPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
 
@@ -71381,23 +71301,23 @@ n1 = Min(aTemp)
 
 		# Adding the parts to each class
 
-		acSeen = []
 		aResult = []
 
 		for i = 1 to nLen
 
 			cClass = aData[i][1]
-			n = ring_find(acSeen, cClass)
+			n = ring_find(acClasses, cClass)
 
 			if n = 0
-				aTempData = []
-				aTempData + aData[i][2]
-				aResult + [ cClass, aTempData ]
 
-				acSeen + cClass
+				aResult + [ cClass, aData[i][2] ]
 
 			else
-				aResult[n][2] + aData[i][2]
+				nLen2 = len(aData[i][2])
+
+				for j = 1 to nLen2
+					aResult[n] + aData[i][2][j]
+				next
 			ok
 		next
 
@@ -71406,9 +71326,6 @@ n1 = Min(aTemp)
 		#< @FunctionAlternativeForms
 
 		def ClassifyUsingCSXT(pcPartitionExpr, pCaseSensitive)
-			return This.ClassifyPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
-
-		def ClassifiedUsingCSXT(pcPartitionExpr, pCaseSensitive)
 			return This.ClassifyPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
 
 		def ClassifyCSXT(pcPartitionExpr, pCaseSensitive)
@@ -71421,9 +71338,6 @@ n1 = Min(aTemp)
 			ok
 
 			return This.ClassifyPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
-
-		def ClassifiedCSXT(pcPartitionExpr, pCaseSensitive)
-			return This.ClassifyCSXT(pcPartitionExpr, pCaseSensitive)
 
 		def ClassifyPartsCSXT(pcPartitionExpr, pCaseSensitive)
 			return This.ClassifyCSXT(pcPartitionExpr, pCaseSensitive)
@@ -71446,14 +71360,8 @@ n1 = Min(aTemp)
 		def ClassifyUsingXT(pcPartitionExpr)
 			return This.ClassifyPartsUsingXT(pcPartitionExpr)
 
-		def ClassifiedUsingXT(pcPartitionExpr)
-			return This.ClassifyPartsUsingXT(pcPartitionExpr)
-
 		def ClassifyXT(pcPartitionExpr)
-			return This.ClassifyCSXT(pcPartitionExpr, TRUE)
-
-		def ClassifiedXT(pcPartitionExpr)
-			return This.ClassifyXT(pcPartitionExpr)
+			return This.ClassifyCSXT(pcPartitionExpr)
 
 		def ClassifyPartsXT(pcPartitionExpr)
 			return This.ClassifyXT(pcPartitionExpr)
@@ -71462,7 +71370,7 @@ n1 = Min(aTemp)
 			return This.ClassifyPartsUsingXT(pcPartitionExpr)
 
 		def PartsClassifiedXT(pcPartitionExpr)
-			return This.ClassifyPartsXT(pcPartitionExpr)
+			return This.ClassifyXT(pcPartitionExpr)
 
 		#>
 
@@ -82253,7 +82161,7 @@ n1 = Min(aTemp)
 
 			cCurrentChar = This.Char(i)
 
-			if NOT ( CharIsArabicShaddah(cChar) or CharIsArabic7arakah(cCurrentChar) )
+			if NOT ( CharIsArabicShaddah(cCurrentChar) or CharIsArabic7arakah(cCurrentChar) )
 
 				aTemp + cCurrentChar
 			else
@@ -86718,10 +86626,10 @@ n1 = Min(aTemp)
 		#>
 
 		def Boxed()
-			return This.BoxQ().Content()
+			return This.Box()
 
 	def BoxDashed()
-		return This.BoxXT([ :Line = :Dashed ])
+		return This.BoxXT([ :Line = :Dashed, :AllCorners = :Rectangular ])
 
 		#< @FunctionFluentForm
 
@@ -86730,10 +86638,10 @@ n1 = Min(aTemp)
 		#>
 
 		def BoxedDashed()
-			return This.BoxDashedQ().Content()
+			return This.BoxDashed()
 
 	def BoxRound()
-		return This.BoxXT([ :AllCorners = :Round ])
+		return This.BoxXT([ :Line = :Thin, :AllCorners = :Round ])
 
 		#< @FunctionFluentForm
 
@@ -86742,7 +86650,7 @@ n1 = Min(aTemp)
 		#>
 
 		def BoxedRound()
-			return This.BoxRoundQ().Content()
+			return This.BoxRound()
 
 	def BoxRoundDashed()
 		return This.BoxXT([ :Line = :Dashed, :AllCorners = :Round ])
@@ -86754,7 +86662,7 @@ n1 = Min(aTemp)
 		#>
 
 		def BoxedRoundDashed()
-			return This.BoxRoundDashedQ().Content()
+			return This.BoxRoundDashed()
 
 	def BoxDashedRound()
 		return This.BoxRoundDashed()
@@ -86766,10 +86674,10 @@ n1 = Min(aTemp)
 		#>
 
 		def BoxedDashedRound()
-			return This.BoxDashedRoundQ().Content()
+			return This.BoxDashedRound()
 
 	def BoxEachChar()
-		return This.BoxXT([ :EachChar = TRUE ])
+		return This.BoxXT([ :Line = :Thin, :EachChar = TRUE ])
 
 		#< @FunctionFluentForm
 
@@ -86778,7 +86686,7 @@ n1 = Min(aTemp)
 		#>
 
 		def EachCharBoxed()
-			return This.BoxEachCharQ().Content()
+			return This.BoxEachChar()
 
 	def BoxEachCharRound()
 		return This.BoxXT( [ :AllCorners = :Round, :EachChar = TRUE ])
@@ -86790,7 +86698,7 @@ n1 = Min(aTemp)
 		#>
 
 		def EachCharboxedRound()
-			return This.BoxEachCharRoundQ().Content()
+			return This.BoxEachCharRound()
 
 	def BoxEachCharXT(paBoxOptions)
 		if StzHashListQ(paBoxOptions).ContainsKey( :EachChar )
@@ -86809,7 +86717,7 @@ n1 = Min(aTemp)
 		#>
 
 		def EachCharBoxedXT(paBoxOptions)
-			return This.BoxEachCharXTQ(paBoxOptions).Content()
+			return This.BoxEachCharXT(paBoxOptions)
 
 	def BoxXT(paBoxOptions)
 

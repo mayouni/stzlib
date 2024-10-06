@@ -11951,7 +11951,7 @@ proff()
 # Executed in 0.35 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
@@ -11970,53 +11970,10 @@ proff()
 # Executed in 0.36 second(s).
 
 /*-----------------
-
-o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-
-? @@( o1.PartsUsing('{ StzCharQ(@char).Script() }') )
-
-#--> [
-#	[ "Hanine", "latin" 	],
-#	[ " ", "common" 	],
-#o 	[ "حنين", "arabic" 	],
-#	[ " ", "common" 	],
-#	[ "is", "latin" 	],
-#	[ " ", "common" 	],
-#	[ "a", "latin"	 	],
-#	[ " ", "common" 	],
-#	[ "nice", "latin" 	],
-#	[ " ", "common" 	],
-#o	[ "جميلة", "arabic" 	],
-#	[ " ", "common" 	],
-#o	[ "وعمرها", "arabic" 	],
-#	[ " 7 ", "common" 	],
-#	[ "years", "latin" 	],
-#	[ "-", "common" 	],
-#	[ "old", "latin" 	],
-#	[ " ", "common" 	],
-#o	[ "جميلة", "arabic" 	],
-#	[ " ", "common" 	],
-#	[ "girl", "latin" 	],
-#	[ "!", "common" 	]
-#    ]
-
-/*-----------------
-
-o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? o1.UniquePartsQ('StzCharQ(@char).Script()').ToStzHashList().Classify()
-#--> [
-#	:latin	 	= [ "Hanine", "is", "a", "nice", "years", "old", "girl" ],
-#	:common		= [ " ", " 7 ", "-", "!" ],
-#	:arabic		= [ "حنين", "جميلة", "وعمرها", "سنوات" ],
-#     ]
-
-? o1.UniquePartsUsingQ('StzCharQ(@char).Script()').ToStzHashList().Klass(:arabic)
-#--> Gives [ "حنين", "جميلة", "وعمرها", "سنوات" ]
-
-/*-----------------
+pron()
 
 o1 = new stzString("AM23-X ")
-? o1.PartsUsing('StzCharQ(@char).CharType()')
+? o1.PartsAndPartitionersUsingXT('StzCharQ(@char).CharType()') # or Parts2UsingXT()
 #--> [
 #	"AM" = :Letter_Uppercase,
 #	"23" = :Number_Decimaldigit,
@@ -12025,10 +11982,15 @@ o1 = new stzString("AM23-X ")
 #	" "  = :Separator_Space
 #    ]
 
+proff()
+# Executed in 0.12 second(s).
+
 /*-----------------
 
+pron()
+
 o1 = new stzString("Abc285XY&من")
-? o1.PartsUsing('{
+? o1.Parts2UsingXT('{	# Or PartsAndPartitionersUsingXT()
 	StzCharQ(@char).CharType()
 }')
 
@@ -12041,10 +12003,16 @@ o1 = new stzString("Abc285XY&من")
 #o	"من"	= :Letter_Other
 #    ]
 
+proff()
+# Executed in 0.15 second(s).
+
 /*-----------------
 
+pron()
+
 o1 = new stzString("maliNIGERtogoSENEGAL")
-? o1.PartsUsing('{ StzCharQ(@char).CharCase() }')
+
+? @@NL( o1.Parts2Using('{ StzCharQ(This[@i]).CharCase() }') ) + NL
 #--> [ 	
 #	"mali" 		= :Lowercase,
 # 	"NIGER" 	= :Uppercase,
@@ -12052,67 +12020,88 @@ o1 = new stzString("maliNIGERtogoSENEGAL")
 #	"SENEGAL" 	= :Uppercase
 #    ]
 
-? o1.PartsAsSectionsUsing(:'{ StzCharQ(@char).CharCase() }')
-#--> [ 	
-#	[1, 4  ] = :Lowercase,
-# 	[5, 9  ] = :Uppercase,
-#	[10, 13] = :Lowercase,
-#	[14, 20] = :Uppercase
-#    ]
+? @@NL( o1.Parts2UsingZZ('{ StzCharQ(This[@i]).CharCase() }') )
+#--> [
+#	[ "mali", [ 1, 4 ] ],
+#	[ "NIGER", [ 5, 9 ] ],
+#	[ "togo", [ 10, 13 ] ],
+#	[ "SENEGAL", [ 14, 20 ] ]
+# ]
+
+proff()
+# Executed in 0.32 second(s).
 
 /*-----------------
 
+pron()
+
 o1 = new stzString("Abc285XY&من")
-? o1.PartsUsing( 'StzCharQ(@char).IsLetter()' )
+
+? @@( o1.Parts2Using( 'CharQ(@i).IsLetter()' ) ) + NL
 #--> Gives:
 # [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
 
-? o1.PartsUsing("StzCharQ(@char).Orientation()")
+? @@( o1.Parts2Using("CharQ(@i).Orientation()") ) + NL
 #--> Gives:
 # [ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
 
-? o1.PartsUsing("StzCharQ(@char).IsUppercase()")
+? @@( o1.Parts2Using("CharQ(@i).IsUppercase()") ) + NL
 #--> Gives:
 # [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
 
-? o1.PartsUsing("StzCharQ(@char).CharCase()")
+? @@( o1.Parts2Using("CharQ(@i).CharCase()") )
 #--> Gives:
 # [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
 
+proff()
+# Executed in 0.35 second(s).
+
 /*========================
+
+pron()
 
 o1 = new stzString("Use these two letters: س and ص.")
 o1.ReplaceAllChars( :With = "*" )
 ? o1.Content()
-#--> *******************************
+#--> "*******************************"
 
-/*================
+proff()
+# Executed in 0.01 second(s).
+
+/*-------------------
+
+pron()
 
 o1 = new stzString("Use these two letters: س and ص.")
 ? o1.FindCharsW(
 	:Where = '{
-		StzCharQ(@char).IsLetter() AND
-		NOT StzCharQ(@Char).IsLatinLetter()
+		StzCharQ(This[@i]).IsLetter() AND
+		NOT StzCharQ(This[@i]).IsLatinLetter()
 	}'
 )
 #--> [ 24, 30 ]
 
 ? o1.CharsW(
 	:Where = '{
-		StzCharQ(@char).IsLetter() AND
-		NOT StzCharQ(@Char).IsLatinLetter()
+		StzCharQ(This[@i]).IsLetter() AND
+		NOT StzCharQ(This[@i]).IsLatinLetter()
 	}'
 )
-#--> Gives [ "س", "ص" ]
+#o--> [ "س", "ص" ]
+
+proff()
+# Executed in 0.64 second(s).
 
 /*================
+
+pron()
 
 o1 = new stzString("Use these two letters: س and ص.")
 o1.ReplaceCharsW(
 
 	:Where = '{
-		StzCharQ(@char).IsLetter() AND
-		(NOT StzCharQ(@Char).IsLatinLetter())
+		StzCharQ(This[@i]).IsLetter() AND
+		(NOT StzCharQ(This[@i]).IsLatinLetter())
 	}',
 
 	:With = '***'
@@ -12121,63 +12110,115 @@ o1.ReplaceCharsW(
 ? o1.Content()
 #--> "Use these two letters: *** and ***."
 
-/*================
-
-? StzCharQ(":").IsPunctuation()	#--> TRUE
-? StzCharQ(":").CharType() 	#--> punctuation_other
+proff()
+# Executed in 0.35 second(s).
 
 /*================
+
+pron()
+
+? StzCharQ(":").IsPunctuation()
+#--> TRUE
+
+? StzCharQ(":").CharType()
+#--> punctuation_other
+
+proff()
+# Executed in 0.35 second(s).
+
+/*================
+
+pron()
 
 o1 = new stzString("Use these two letters: س , ص.")
 
 o1.RemoveCharsWhereQ('{
 
-	StzCharQ(@Char).IsArabicLetter() or
-	StzCharQ(@char).IsPunctuation()
+	StzCharQ(This[@i]).IsArabicLetter() or
+	StzCharQ(This[@i]).IsPunctuation()
 
 }')
 
-? o1.Content() #--> "Use these two letters"
+? o1.Simplified()
+#--> "Use these two letters"
+
+proff()
+# Executed in 0.33 second(s).
 
 /*---------------
 
+pron()
+
 o1 = new stzString("Use these two letters: س and ص.")
 
-o1.ReplaceCharsWhere(
+o1.ReplaceCharsWXT(
 	:Where = '{ @char != " " and StzCharQ(@Char).IsArabicLetter() }',
 	:With = "*"
 )
 
-? o1.Content() #--> "Use these two letters: * and *."
+? o1.Content()
+#--> "Use these two letters: * and *."
+
+proff()
+# Executed in 0.36 second(s).
 
 /*===============
 
-? StzCharQ("س").Name() #--> ARABIC LETTER SEEN
-? StzCharQ("ص").Name() #--> ARABIC LETTER SAD
+pron()
+
+? StzCharQ("س").Name()
+#--> ARABIC LETTER SEEN
+
+? StzCharQ("ص").Name()
+#--> ARABIC LETTER SAD
+
+proff()
+# Executed in 0.15 second(s).
 
 /*==============
 
+pron()
+
 o1 = new stzString("SoftAnza Libraray")
-? o1.CountCharsWhere('{ @Char = "a" }') #--> 3
-? o1.CountCharsWhere('{	Q(@Char).IsEqualToCS("a", :CS = FALSE) }') #--> 4
+
+? o1.CountCharsWXT('{ @Char = "a" }')
+#--> 3
+
+? o1.CountCharsWXT('{	Q(@Char).IsEqualToCS("a", :CS = FALSE) }')
+#--> 4
+
+proff()
+# Executed in 0.30 second(s).
 
 /*--------------
 
-o1 = new stzString("SoftAnza Libraray")
-? o1.FindCharsWhere('{ StzCharQ(@Char).Lowercased() = "a" }')
-#--> Gives [ 5, 8, 14, 16 ]
+pron()
 
-/*---------------
+o1 = new stzString("SoftAnza Libraray")
+? o1.FindCharsWXT('{ StzCharQ(@Char).Lowercased() = "a" }')
+#--> [ 5, 8, 14, 16 ]
+
+proff()
+# Executed in 0.19 second(s).
+
+/*=================
+
+pron()
 
 o1 = new stzString("abc;123;gafsa;ykj")
 ? o1.SplitQ(";").NthItem(3)
 #--> gafsa
 
 # Same as:
-? o1.NthSubstringAfterSplittingStringUsing(3, ";") #--> gafsa
-#--> To be used in natural coding.
+? o1.NthSubstringAfterSplittingStringUsing(3, ";") # Long, but useful in natural-coding
+#--> gafsa
+
+proff()
+# Executed in 0.01 second(s).
 
 /*===================
+
+pron()
 
 ? StzStringQ("SOFTANZA IS AWSOME!").BoxedXT([
 	:Line = :Thin,	# or :Dashed
@@ -12192,16 +12233,32 @@ o1 = new stzString("abc;123;gafsa;ykj")
 #    │ SOFTANZA IS AWSOME! │
 #    └─────────────────────╯
 
+proff()
+# Executed in 0.02 second(s).
+
 /*------------------
+
+pron()
+
+? StzStringQ("RING").BoxXT([ ])
+
+proff()
+
+/*------------------
+
+pron()
 
 StzStringQ("RING") {
 	? Content()
 	? Boxed()
+
 	? BoxedRound()
 	? BoxedRoundDashed()
 
 	? EachCharBoxed()
-	# ? VizFindBoxed("I")	#--> TODO: Add VizFindBoxed()
+	? EachCharboxedRound()
+
+	//? VizFindBoxed("I")	#--> TODO: Add VizFindBoxed()
 }
 
 #--> RING
@@ -12217,19 +12274,29 @@ StzStringQ("RING") {
 #   ┌───┬───┬───┬───┐
 #   │ R │ I │ N │ G │
 #   └───┴───┴───┴───┘
+#   ╭───┬───┬───┬───╮
+#   │ R │ I │ N │ G │
+#   ╰───┴───┴───┴───╯
 #   ┌───┬───┬───┬───┐
 #   │ R │ I │ N │ G │
 #   └───┴─•─┴───┴───┘
 
+proff()
+# Executed in 0.05 second(s).
+
 /*------------------
 
-StzStringQ("MY BEAUTIFUL RING") {
+pron()
+
+StzStringQ("RING IS NICE") {
+
 	? Content()
+
 	? Boxed()
 	? BoxedRound()
 
-	//? BoxedEachChar()		#TODO: Add it
-	// ? BoxedEachCharRound()	#TODO: Add it
+	? EachCharBoxed()
+	? EachCharBoxedRound()
 
 	// ? VizFindBoxed("I")	#TODO: Add it
 
@@ -12243,29 +12310,38 @@ StzStringQ("MY BEAUTIFUL RING") {
 			:Round, :Rectangular
 		]
 	])
+
 }
 
-#--> MY BEAUTIFUL RING
-#   ┌───────────────────┐
-#   │ MY BEAUTIFUL RING │
-#   └───────────────────┘
-#   ╭───────────────────╮
-#   │ MY BEAUTIFUL RING │
-#   ╰───────────────────╯
-#   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-#   │ M │ Y │   │ B │ E │ A │ U │ T │ I │ F │ U │ L │   │ R │ I │ N │ G │
-#   └───┴───┴───┴───┴───┴───┴───┴───┴─•─┴───┴───┴───┴───┴───┴─•─┴───┴───┘
-#   ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
-#   ┊ MY BEAUTIFUL RING ┊
-#   └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
-#   ╭╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╮
-#   ┊ MY BEAUTIFUL RING ┊
-#   ╰╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╯
-#   ╭───────────────────┐
-#   │ MY BEAUTIFUL RING │
-#   └───────────────────╯
+#--> RING IS NICE
+#   ┌──────────────┐
+#   │ RING IS NICE │
+#   └──────────────┘
+#   ╭──────────────╮
+#   │ RING IS NICE │
+#   ╰──────────────╯
+#   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+#   │ R │ I │ N │ G │   │ I │ S │   │ N │ I │ C │ E │
+#   └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
+#   ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
+#   │ R │ I │ N │ G │   │ I │ S │   │ N │ I │ C │ E │
+#   ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+#   ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+#   ┊ RING IS NICE ┊
+#   └╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+#   ╭╌╌╌╌╌╌╌╌╌╌╌╌╌╌╮
+#   ┊ RING IS NICE ┊
+#   ╰╌╌╌╌╌╌╌╌╌╌╌╌╌╌╯
+#   ╭──────────────┐
+#   │ RING IS NICE │
+#   └──────────────╯
+
+proff()
+# Executed in 0.09 second(s).
 
 /*-----------------
+
+pron()
 
 ? StzStringQ("PARIS").BoxedXT([
 	:AllCorners = :Round,
@@ -12307,7 +12383,12 @@ StzStringQ("MY BEAUTIFUL RING") {
 # │              PARIS │
 # ╰────────────────────╯
 
+proff()
+# Executed in 0.07 second(s).
+
 /*---------------------
+*/
+pron()
 
 # You can box the entire string like this:
 ? StzStringQ("SOFTANZA").BoxedXT([])
@@ -12324,6 +12405,8 @@ StzStringQ("MY BEAUTIFUL RING") {
 # ┌───┬───┬───┬───┬───┬───┬───┬───┐
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
 # └───┴───┴───┴───┴───┴───┴───┴───┘
+
+proff()
 
 /*--------------------- TODO
 
