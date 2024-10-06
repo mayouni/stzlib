@@ -12387,7 +12387,7 @@ proff()
 # Executed in 0.07 second(s).
 
 /*---------------------
-*/
+
 pron()
 
 # You can box the entire string like this:
@@ -12407,8 +12407,11 @@ pron()
 # └───┴───┴───┴───┴───┴───┴───┴───┘
 
 proff()
+# Executed in 0.05 second(s).
 
 /*--------------------- TODO
+
+pron()
 
 # Boxing work great for latin chars, but for non latin chars,
 # it would break:
@@ -12437,7 +12440,7 @@ proff()
 	:Line = :Dashed,
 	:AllCorners = :Rectangular,
 
-	:Width = 15,
+	:Width = 30,
 	:TextAdjustedTo = :Center
 ])
 #--> TODO: Fix the output to return this
@@ -12445,55 +12448,106 @@ proff()
 # ┊ 乇乂丅尺卂 丅卄工匚匚 ┊
 # └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
 
+proff()
+# Executed in 0.03 second(s).
 
 /*==================
 
-? StzStringQ("ar_TN-tun").ContainsEachCS(["_", "-"],TRUE)	#--> TRUE
-? StzStringQ("ar_TN-tun").ContainsBoth("_", "-") #--> TRUE
+pron()
+
+? StzStringQ("ar_TN-tun").ContainsEachCS(["_", "-"],TRUE)
+#--> TRUE
+
+? StzStringQ("ar_TN-tun").ContainsBoth("_", "-")
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s).
 
 /*==================
+
+pron()
 
 o1 = new stzString("a")
 o1.MultiplyBy([ "b", "c", "d" ])
 ? o1.Content() #--> "abacad"
 
+proff()
+# Executed in 0.01 second(s).
+
 /*--------------
 
+pron()
+
 o1 = new stzString("a")
-o1 * [ "b", "c", "d" ]
-? o1.Content() #--> abacad
+? o1 * [ "b", "c", "d" ]
+#--> abacad
+
+proff()
+# Executed in 0.01 second(s).
 
 /*---------------
 
+pron()
+
 o1 = new stzString("abcdefj")
-? o1 / 2	#--> [ "abcd", "efj" ]
-? o1 % 2	#--> "efj"
+
+? o1 / 2
+#--> [ "abcd", "efj" ]
+
+? o1 % 2
+#--> "efj"
+
+proff()
+# Executed in 0.03 second(s).
 
 /*--------------
 
+pron()
+
 o1 = new stzString("ab-ac-ad")
-? o1 / "-" # Same as ? o1.Split("-")
+? o1 / "-" 			# Same as ? o1.Split("-")
 #--> [ "ab", "ac", "ad" ]
 
+proff()
+# Executed in 0.01 second(s).
+
 /*==================
+
+pron()
 
 o1 = new stzString("happy-holidays")
-? o1.IsLowercase() #--> TRUE
+
+? o1.IsLowercase()
+#--> TRUE
 
 o1 = new stzString("HOLIDAYS!")
-? o1.IsUppercase() #--> TRUE
+? o1.IsUppercase()
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s).
 
 /*==================
+
+pron()
 
 StzStringQ("What a tutorial! Very instructive tutorial.") {
 
-	? FindAll("tutorial") #--> [ 8, 35 ]
-	? NumberOfOccurrence("tutorial") + NL	#--> 2
+	? FindAll("tutorial")
+	#--> [ 8, 35 ]
 
-	? FindNextOccurrence("tutorial", :StartingAt = 20) + NL     #--> 35
-	? FindPreviousOccurrence("tutorial", :StartingAt = 20) + NL #--> 8
+	? NumberOfOccurrence("tutorial") + NL
+	#--> 2
 
-	? NumberOfChars() + NL #--> 43
+	? FindNextOccurrence("tutorial", :StartingAt = 20) + NL
+	#--> 35
+
+	? FindPreviousOccurrence("tutorial", :StartingAt = 20) + NL
+	#--> 8
+
+	? NumberOfChars() + NL
+	#--> 43
 	 
 	? @@( SplitToPartsOfNChars(12) ) + NL
 	#--> [
@@ -12510,7 +12564,7 @@ StzStringQ("What a tutorial! Very instructive tutorial.") {
 	# 	" tutorial."
 	#    ]
 
-	? @@( SplitBeforeW(' @char = "a" ') ) + NL
+	? @@( SplitBeforeCharsWXT(' @char = "a" ') ) + NL
 	#--> [
 	# 	"Wh", "at ", "a tutori",
 	# 	"al! Very instructive tutori", "al."
@@ -12518,7 +12572,12 @@ StzStringQ("What a tutorial! Very instructive tutorial.") {
 
 }
 
+proff()
+# Executed in 0.25 second(s).
+
 /*===================
+
+pron()
 
 str = "قَالُوا ادْعُ لَنَا رَبَّكَ يُبَيِّن لَّنَا مَا هِيَ إِنَّ الْبَقَرَ 
 تَشَابَهَ عَلَيْنَا وَإِنَّا إِن شَاءَ اللَّهُ لَمُهْتَدُونَ (70)
@@ -12541,58 +12600,128 @@ str = "قَالُوا ادْعُ لَنَا رَبَّكَ يُبَيِّن لّ
 "
 
 o1 = new stzString(str)
-? o1.UniqueChars()
-? o1.Split(:Using = "۞")
+
+? ShowShort( o1.UniqueChars() ) //+ NL
+#o--> [ "ق", "َ", "ا", "...", "ؤ", "5", "6" ]
+
+? len( o1.SplitAt("۞") )
+#--> 2
+
+proff()
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.09 second(s) in Ring 1.17
 
 /*-------------------
+
+pron()
 
 o1 = new stzString(" same   ")
 o1 {
 	TrimLeft()
-	? @@( Content() ) #--> "same   "
+	? @@( Content() )
+	#--> "same   "
+
+	TrimRight()
+	? @@( Content() )
+	#--> "same"
 }
 
-# Try also: TrimRight(), TrimStart(), TrimEnd()
+# Try also: TrimStart(), TrimEnd()
 # RemoveLeadingSpaces(), and RemoveTrailingSpaces
 
+proff()
+# Executed in 0.02 second(s).
+
 /*==================
+
+pron()
 
 str = "   سلام"
 o1 = new stzString(str)
 
-? o1.HasRepeatedLeadingChars()		#--> TRUE
-? @@( o1.RepeatedLeadingChar() )	#--> " "
-o1.TrimRight() ? o1.Content()		#--> سلام
+? o1.HasRepeatedLeadingChars()
+#--> TRUE
+
+? @@( o1.RepeatedLeadingChar() )
+#--> " "
+
+o1.TrimRight() ? o1.Content()
+#o--> سلام
+
+proff()
+# Executed in 0.02 second(s).
 
 /*------------------
 
-o1 = new stzString("eeeTUNIS")	
-? o1.RepeatedLeadingChar() #--> 'e'
-? o1.RepeatedLeadingChars() #--> 'eee'
+pron()
+
+o1 = new stzString("eeeTUNIS")
+
+? o1.RepeatedLeadingChar()
+#--> "e"
+
+? o1.RepeatedLeadingChars()
+#--> [ "e", "e", "e" ]
+
+? o1.LeadingSubString()
+#--> "eee"
+
+proff()
+# Executed in 0.01 second(s).
 
 /*------------------
 
-o1 = new stzString("exeeeeeTUNIS") # 	
-? @@( o1.RepeatedLeadingChar() )	#--> ""
-? @@( o1.RepeatedLeadingChars() )	#--> ""
+pron()
+
+o1 = new stzString("exeeeeeTUNIS")
+ 	
+? @@( o1.RepeatedLeadingChar() )
+#--> ""
+
+? @@( o1.RepeatedLeadingChars() )
+#--> ""
+
+proff()
+# Executed in 0.01 second(s).
 
 /*----------------
+
+pron()
 
 o1 = new stzString("eeeeTUNISIAiiiii")
 
 o1 {
-	? HasRepeatedLeadingChars()			#--> TRUE
-	? NumberOfRepeatedLeadingChars()		#--> 4
-	? RepeatedLeadingchars()			#--> eeee
-	? RepeatedLeadingCharsQ().Content() + NL	#--> eeee
+	? HasRepeatedLeadingChars()
+	#--> TRUE
+
+	? NumberOfRepeatedLeadingChars()
+	#--> 4
+
+	? RepeatedLeadingchars()
+	#--> [ "e", "e", "e", "e" ]
+
+	? LeadingSubString()+ NL
+	#--> "eeee"
 	
-	? HasRepeatedTrailingChars()			#--> TRUE
-	? NumberOfRepeatedTrailingChars()		#--> 5
-	? RepeatedTrailingChars()			#--> iiiii
-	? RepeatedTrailingCharsQ().Content()		#--> iiiii	
+	? HasRepeatedTrailingChars()
+	#--> TRUE
+
+	? NumberOfRepeatedTrailingChars()
+	#--> 5
+
+	? RepeatedTrailingChars()
+	#--> [ "i", "i", "i", "i", "i" ]
+
+	? TrailingSubString()
+	#--> "iiiii"	
 }
 
+proff()
+# Executed in 0.02 second(s).
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("eeebxeTuniseee")
 o1 {
@@ -12604,63 +12733,99 @@ o1 {
 	# RemoveFirstNChars(3)
 	# RemoveLastNChars(3)
 
-	? Content()	#--> bxeTunis
+	? Content()
+	#--> bxeTunis
 	
 }
 
+proff()
+# Executed in 0.01 second(s).
+
 /*----------------
+
+pron()
 
 o1 = new stzString("eeeTuniseee")
 o1 {
 	RemoveRepeatedLeadingChars()
 	RemoveRepeatedTrailingChars()
 	
-	? Content() #--> Tunis
+	? Content()
+	#--> Tunis
 }
-
 
 o1 = new stzString("eeeTuniseee")
 o1 {
 	RemoveLeadingAndTrailingChars()
-	? Content() #--> Tunis
+	? Content()
+	#--> Tunis
 }
 
+proff()
+# Executed in 0.03 second(s).
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("eeebxeTuniseee")
 
-? o1.Section(:FirstChar, :LastChar) #--> eeebxeTuniseee
-? o1.Section( 7, 4 ) #--> Texb
+? o1.Section(:FirstChar, :LastChar)
+#--> eeebxeTuniseee
+
+? o1.Section( 7, 4 )
+#--> Texb
+
+proff()
+# Executed in 0.01 second(s).
 
 /*-----------------
+
+pron()
 
 o1 = new stzString("___VAR---")
 o1.ReplaceLeadingChars(:With = "*")
-? o1.Content() #--> *VAR---
+? o1.Content()
+#--> *VAR---
 
 o1 = new stzString("___VAR---")
 o1.ReplaceTrailingChars(:With = "*")
-? o1.Content() #--> ___VAR*
+? o1.Content()
+#--> ___VAR*
 
 o1 = new stzString("___VAR---")
 o1.ReplaceLeadingAndTrailingChars(:With = "*")
-? o1.Content() #--> *VAR*
+? o1.Content()
+#--> *VAR*
+
+proff()
+# Executed in 0.02 second(s).
 
 /*-----------------
+
+pron()
 
 o1 = new stzString("___VAR---")
 o1.ReplaceEachLeadingChar(:With = "*")
-? o1.Content() #--> ***VAR---
+? o1.Content()
+#--> ***VAR---
 
 o1 = new stzString("___VAR---")
 o1.ReplaceEachTrailingChar(:With = "*")
-? o1.Content() #--> ___VAR***
+? o1.Content()
+#--> ___VAR***
 
 o1 = new stzString("___VAR---")
 o1.ReplaceEachLeadingAndTrailingChar(:With = "*")
-? o1.Content() #--> ***VAR***
+? o1.Content()
+#--> ***VAR***
+
+proff()
+# Executed in 0.02 second(s).
 
 /*-----------------
+
+pron()
 
 o1 = new stzString("___VAR---")
 o1.ReplaceLeadingChar("_", :With = "*")
@@ -12672,7 +12837,12 @@ o1.ReplaceTrailingChar("-", :With = "*")
 ? o1.Content()
 #--> ___VAR*
 
+proff()
+# Executed in 0.02 second(s).
+
 /*----------------- TODO (future)
+
+pron()
 
 StzStringQ("eeebxeTuniseee") {
 	RemoveRepeatedLeadingCharsW('{
@@ -12689,13 +12859,29 @@ StzStringQ("eeebxeTuniseee") {
 	? Content()
 }
 
+proff()
+
 /*----------------
 
+pron()
+
 o1 = new stzString("bbxeTuniseee")
-? o1.RepeatedLeadingChars() #--> bb
-? o1.HasRepeatedLeadingChars() #--> TRUE
+
+? o1.RepeatedLeadingChars()
+#--> [ "b", "b" ]
+
+? o1.LeadingSubString()
+#--> "bb"
+
+? o1.HasRepeatedLeadingChars()
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*-----------------
+
+pron()
 
 o1 = new stzString("aaaaah Tunisia!---")
 o1 {
@@ -12708,7 +12894,12 @@ o1 {
 	#--> OOOOOh Tunisia!
 }
 
+proff()
+# Executed in 0.02 second(s).
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("---Ring!")
 o1.ReplaceFirstNChars(3, :With = "Hi ")
@@ -12720,7 +12911,12 @@ o1.ReplaceLastNChars(3, :With= "!")
 ? o1.Content()
 #--> Hi Ring!
 
+proff()
+# Executed in 0.01 second(s).
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("oooo Tunisia---")
 o1 {
@@ -12733,7 +12929,12 @@ o1 {
 	#--> Hi Tunisia!
 }
 
+proff()
+# Executed in 0.02 second(s).
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("aaaaah Tunisia---")
 
@@ -12745,7 +12946,12 @@ o1.ReplaceTrailingChars(:With = "!")
 ? o1.Content()
 #--> Oh Tunisia!
 
+proff()
+# Executed in 0.02 second(s).
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("Oooooh TunisiammMmmM")
 
@@ -12766,14 +12972,23 @@ o1.ReplaceTrailingCharsCS(:With = "!", :CaseSensitive = FALSE)
 ? o1.Content()
 #--> Oh Tunisia!
 
+proff()
+# Executed in 0.02 second(s).
+
 /*-----------------
+*/
+pron()
 
 o1 = new stzString("Oooo Tunisia---")
-? o1.LeadingChar() 		#--> ""
+? o1.LeadingChar()
+#--> ""
+
 ? o1.LeadingCharCS(:CS = FALSE)	#--> "O"
 
 ? o1.LeadingChars()		#--> ""
 ? o1.LeadingCharsCS(:CS=FALSE) #--> "Oooo"
+
+proff()
 
 /*-----------------
 
