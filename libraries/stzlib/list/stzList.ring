@@ -68164,6 +68164,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			:Numbered = TRUE
 		])
 		*/
+
 		if This.IsEmpty()
 			return TRUE
 		ok
@@ -68181,15 +68182,19 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			:Numbered
 		]
 
-		if StzNumberQ(This.NumberOfItems()).IsBetween(1, len(aListOfBoxOptions)) and
-		   This.IsHashList() and
-		   StzHashListQ(This.Content()).KeysQ().IsMadeOfSome(aListOfBoxOptions)
-		
-			return TRUE
+		nLen = This.NumberOfItems()
 
-		else
-			return FALSE
+		if nLen >= 1 and nLen < len(aListOfBoxOptions)
+
+			if This.IsHashList() and
+			   StzHashListQ(This.Content()).KeysQ().IsMadeOfSome(aListOfBoxOptions)
+
+				return TRUE
+			ok
+
 		ok
+
+		return FALSE
 
 	def IsBoxOptionsNamedParam()
 
