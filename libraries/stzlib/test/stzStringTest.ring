@@ -11856,7 +11856,6 @@ proff()
 # Executed in 0.25 second(s).
 
 /*========== STRING PARTS ===========
-*/
 
 pron()
 
@@ -11923,27 +11922,33 @@ proff()
 # Executed in 0.92 second(s).
 
 /*-----------------
+*/
+pron()
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? @@(o1.PartsAsSectionsUsing( 'StzCharQ(@char).CharCase()' ))
+
+? @@NL(o1.PartsUsingZZ( 'StzCharQ(This[@i]).CharCase()' ))
 
 #--> [
-# 	[ [ 1, 1 ], 	"uppercase" 	],
-# 	[ [ 2, 6 ], 	"lowercase" 	],
-# 	[ [ 7, 12 ], 	NULL 		],
-# 	[ [ 13, 14 ], 	"lowercase"	],
-# 	[ [ 15, 15 ], 	NULL 		],
-# 	[ [ 16, 16 ], 	"lowercase" 	],
-# 	[ [ 17, 17 ], 	NULL		],
-# 	[ [ 18, 21 ], 	"lowercase" 	],
-# 	[ [ 22, 37 ], 	NULL		],
-# 	[ [ 38, 42 ], 	"lowercase" 	],
-# 	[ [ 43, 43 ], 	NULL		],
-# 	[ [ 44, 46 ], 	"lowercase" 	],
-# 	[ [ 47, 53 ], 	NULL 		],
-# 	[ [ 54, 57 ], 	"lowercase"  	],
-# 	[ [ 58, 58 ], 	NULL 		]
-#    ]
+#	[ "H", [ 1, 1 ] ],
+#	[ "anine", [ 2, 6 ] ],
+#o	[ " حنين ", [ 7, 12 ] ],
+#	[ "is", [ 13, 14 ] ],
+#	[ " ", [ 15, 15 ] ],
+#	[ "a", [ 16, 16 ] ],
+#	[ " ", [ 17, 17 ] ],
+#	[ "nice", [ 18, 21 ] ],
+#o	[ " جميلة وعمرها 7 ", [ 22, 37 ] ],
+#	[ "years", [ 38, 42 ] ],
+#	[ "-", [ 43, 43 ] ],
+#	[ "old", [ 44, 46 ] ],
+#o	[ " سنوات ", [ 47, 53 ] ],
+#	[ "girl", [ 54, 57 ] ],
+#	[ "!", [ 58, 58 ] ]
+# ]
+
+proff()
+# Executed in 0.35 second(s).
 
 /*-----------------
 

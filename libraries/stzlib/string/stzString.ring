@@ -71177,11 +71177,10 @@ n1 = Min(aTemp)
 	#============================================================================#
 
 	def PartsUsingCSZZ(pcPartitionExpr, pCaseSensitive)
-		acParts = This.PartsUsingCS(pcPartitionExpr, pCaseSensitive)
-		aSections = This.FindPartsUsingCSZZ(pcPartitionExpr, pCaseSensitive)
+		aSections = o1.FindPartsAsSectionsUsingCS(pcPartitionExpr, pCaseSensitive)
+		acParts = o1.Sections(aSections)
 
 		aResult = @Association([ acParts, aSections ])
-
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -71224,11 +71223,10 @@ n1 = Min(aTemp)
 	#----------------------------------------------------------------------------------------#
 
 	def PartsUsingCSXTZZ(pcPartitionExpr, pCaseSensitive)
-		acParts = This.PartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
-		aSections = This.FindPartsUsingCSXTZZ(pcPartitionExpr, pCaseSensitive)
+		aSections = o1.FindPartsAsSectionsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+		acParts = o1.Sections(aSections)
 
 		aResult = @Association([ acParts, aSections ])
-
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -71248,8 +71246,8 @@ n1 = Min(aTemp)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def PartsUsingXTZZ(pcPartitionEXTxpr)
-		return This.PartsUsingCSZZ(pcPartitionExpr, TRUE)
+	def PartsUsingXTZZ(pcPartitionExpr)
+		return This.PartsUsingCSXTZZ(pcPartitionExpr, TRUE)
 
 		#< @FunctionAlternativeForms
 
