@@ -11922,7 +11922,7 @@ proff()
 # Executed in 0.92 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
@@ -11951,65 +11951,23 @@ proff()
 # Executed in 0.35 second(s).
 
 /*-----------------
+*/
+pron()
 
 o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? @@( o1.PartsAsSubstringsAndSectionsUsing( 'StzCharQ(@char).CharCase()' ) )
 
-#-->
-# [ 	
-# 	[ "H", 				[ 1, 1 ], 	"uppercase" 	],
-# 	[ "anine", 			[ 2, 6 ], 	"lowercase" 	],
-# 	[ "o حنين o", 			[ 7, 12 ], 	NULL		],
-# 	[ "is", 			[ 13, 14 ], 	"lowercase" 	],
-# 	[ " ", 				[ 15, 15 ], 	NULL		],
-# 	[ "a", 				[ 16, 16 ], 	"lowercase" 	],
-# 	[ " ", 				[ 17, 17 ], 	NULL		],
-# 	[ "nice", 			[ 18, 21 ], 	"lowercase" 	],
-# 	[ "o جميلة وعمرها 7 o", 	[ 22, 37 ], 	NULL		],
-# 	[ "years", 			[ 38, 42 ], 	"lowercase" 	],
-# 	[ "-", 				[ 43, 43 ], 	NULL		],
-# 	[ "old", 			[ 44, 46 ], 	"lowercase" 	],
-# 	[ "o سنوات o", 			[ 47, 53 ], 	NULL		],
-# 	[ "girl", 			[ 54, 57 ], 	"lowercase" 	],
-# 	[ "!", 				[ 58, 58 ], 	NULL		]
-# ]
-
-/*-----------------
-
-o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? @@( o1.PartsAsSectionsAndSubstringsUsing( 'StzCharQ(@char).CharCase()' ) )
-
-#-->
-# [ 	
-# 	[ [ 1, 1 ],	"H", 			"uppercase" 	],
-# 	[ [ 2, 6 ],	"anine", 		"lowercase" 	],
-# 	[ [ 7, 12 ],	"o حنين o", 		NULL		],
-# 	[ [ 13, 14 ],	"is", 			"lowercase" 	],
-# 	[ [ 15, 15 ],	" ", 			NULL		],
-# 	[ [ 16, 16 ],	"a", 			"lowercase" 	],
-# 	[ [ 17, 17 ],	" ", 			NULL		],
-# 	[ [ 18, 21 ],	"nice", 		"lowercase" 	],
-# 	[ [ 22, 37 ],	"o جميلة وعمرها 7 o", 	 NULL		],
-# 	[ [ 38, 42 ],	"years", 		"lowercase" 	],
-# 	[ [ 43, 43 ],	"-", 			NULL		],
-# 	[ [ 44, 46 ],	"old", 			"lowercase" 	],
-# 	[ [ 47, 53 ],	"o سنوات o", 		NULL		],
-# 	[ [ 54, 57 ],	"girl", 		"lowercase" 	],
-# 	[ [ 58, 58 ],	"!", 			NULL		]
-# ]
-
-/*-----------------
-
-o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
-? @@( o1.PartsClassifiedUsing( 'StzCharQ(@char).Script()' ) )
+? @@NL( o1.PartsClassifiedUsingXT( 'StzCharQ(@char).Script()' ) )
 
 #--> [
 #	:latin	 	= [ "Hanine", "is", "a", "nice", "years", "old", "girl" ],
-#	:common		= [ " ", " 7 ", "-", "!" ],
+#	:common		= [ " ", " ", " ", " ", " ", " ", " 7 ", "-", " ", " ", "!" ],
 #	:arabic		= [ "حنين", "جميلة", "وعمرها", "سنوات" ],
 #     ]
 
-# Alternatives ti PartsClassified(): Classify() and Classified()
+# Alternatives to PartsClassified(): Classify() and Classified()
+
+proff()
+# Executed in 0.36 second(s).
 
 /*-----------------
 
