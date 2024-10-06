@@ -86594,7 +86594,7 @@ n1 = Min(aTemp)
 
 			next
 
-			cResult = StzString(cResult).RemovedFromEnd(" ")
+			cResult = StzStringQ(cResult).RemovedFromEnd(" ")
 		ok
 
 		This.Update( cResult )
