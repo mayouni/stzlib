@@ -71264,6 +71264,208 @@ n1 = Min(aTemp)
 
 		#>
 
+	  #------------------------------------------------------------#
+	 #  CLASSIFYING THE PARTS USING A GIVEN PARTITION EXPRESSION  #
+	#------------------------------------------------------------#
+
+	def ClassifyPartsUsingCS(pcPartitionExpr, pCaseSensitive)
+
+		# Get the list of partioners (classes) and parts
+
+		aData = This.PartitionersAndPartsUsingCS(pcPartitionExpr, pCaseSensitive)
+		nLen = len(aData)
+
+		# Getting the list of classes (partioners)
+
+		acClasses = []
+		for i = 1 to nLen
+			acClasses + aData[i][1]
+		next
+
+		acClasses = U(acClasses)
+
+		# Adding the parts to each class
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			cClass = aData[i][1]
+			n = ring_find(acClasses, cClass)
+
+			if n = 0
+
+				aResult + [ cClass, aData[i][2] ]
+
+			else
+				nLen2 = len(aData[i][2])
+
+				for j = 1 to nLen2
+					aResult[n] + aData[i][2][j]
+				next
+			ok
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ClassifyUsingCS(pcPartitionExpr, pCaseSensitive)
+			return This.ClassifyPartsUsingCS(pcPartitionExpr, pCaseSensitive)
+
+		def ClassifyCS(pcPartitionExpr, pCaseSensitive)
+			if CheckParams()
+				if isList(pcPartitionExpr) and
+				   StzListQ(pcPartitionExpr).IsUsingNamedParam()
+
+					pcPartitionExpr = pcPartitionExpr[2]
+				ok
+			ok
+
+			return This.ClassifyPartsUsingCS(pcPartitionExpr, pCaseSensitive)
+
+		def ClassifyPartsCS(pcPartitionExpr, pCaseSensitive)
+			return This.ClassifyCS(pcPartitionExpr, pCaseSensitive)
+
+		def PartsClassifiedUsingCS(pcPartitionExpr, pCaseSensitive)
+			return This.ClassifyPartsUsingCS(pcPartitionExpr, pCaseSensitive)
+
+		def PartsClassifiedCS(pcPartitionExpr, pCaseSensitive)
+			return This.ClassifyPartsCS(pcPartitionExpr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ClassifyPartsUsing(pcPartitionExpr)
+		return This.ClassifyPartsUsingCS(pcPartitionExpr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ClassifyUsing(pcPartitionExpr)
+			return This.ClassifyPartsUsing(pcPartitionExpr)
+
+		def Classify(pcPartitionExpr)
+			return This.ClassifyCS(pcPartitionExpr)
+
+		def ClassifyParts(pcPartitionExpr)
+			return This.Classify(pcPartitionExpr)
+
+		def PartsClassifiedUsing(pcPartitionExpr)
+			return This.ClassifyPartsUsing(pcPartitionExpr)
+
+		def PartsClassified(pcPartitionExpr)
+			return This.Classify(pcPartitionExpr)
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  CLASSIFYING THE PARTS USING A GIVEN PARTITION EXPRESSION  #
+	#------------------------------------------------------------#
+
+	def ClassifyPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+
+		# Get the list of partioners (classes) and parts
+
+		aData = This.PartitionersAndPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+		nLen = len(aData)
+
+		# Getting the list of classes (partioners)
+
+		acClasses = []
+		for i = 1 to nLen
+			acClasses + aData[i][1]
+		next
+
+		acClasses = U(acClasses)
+
+		# Adding the parts to each class
+
+		acSeen = []
+		aResult = []
+
+		for i = 1 to nLen
+
+			cClass = aData[i][1]
+			n = ring_find(acSeen, cClass)
+
+			if n = 0
+				aTempData = []
+				aTempData + aData[i][2]
+				aResult + [ cClass, aTempData ]
+
+				acSeen + cClass
+
+			else
+				aResult[n][2] + aData[i][2]
+			ok
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ClassifyUsingCSXT(pcPartitionExpr, pCaseSensitive)
+			return This.ClassifyPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+
+		def ClassifiedUsingCSXT(pcPartitionExpr, pCaseSensitive)
+			return This.ClassifyPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+
+		def ClassifyCSXT(pcPartitionExpr, pCaseSensitive)
+			if CheckParams()
+				if isList(pcPartitionExpr) and
+				   StzListQ(pcPartitionExpr).IsUsingNamedParam()
+
+					pcPartitionExpr = pcPartitionExpr[2]
+				ok
+			ok
+
+			return This.ClassifyPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+
+		def ClassifiedCSXT(pcPartitionExpr, pCaseSensitive)
+			return This.ClassifyCSXT(pcPartitionExpr, pCaseSensitive)
+
+		def ClassifyPartsCSXT(pcPartitionExpr, pCaseSensitive)
+			return This.ClassifyCSXT(pcPartitionExpr, pCaseSensitive)
+
+		def PartsClassifiedUsingCSXT(pcPartitionExpr, pCaseSensitive)
+			return This.ClassifyPartsUsingCSXT(pcPartitionExpr, pCaseSensitive)
+
+		def PartsClassifiedCSXT(pcPartitionExpr, pCaseSensitive)
+			return This.ClassifyPartsCSXT(pcPartitionExpr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ClassifyPartsUsingXT(pcPartitionExpr)
+		return This.ClassifyPartsUsingCSXT(pcPartitionExpr, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ClassifyUsingXT(pcPartitionExpr)
+			return This.ClassifyPartsUsingXT(pcPartitionExpr)
+
+		def ClassifiedUsingXT(pcPartitionExpr)
+			return This.ClassifyPartsUsingXT(pcPartitionExpr)
+
+		def ClassifyXT(pcPartitionExpr)
+			return This.ClassifyCSXT(pcPartitionExpr, TRUE)
+
+		def ClassifiedXT(pcPartitionExpr)
+			return This.ClassifyXT(pcPartitionExpr)
+
+		def ClassifyPartsXT(pcPartitionExpr)
+			return This.ClassifyXT(pcPartitionExpr)
+
+		def PartsClassifiedUsingXT(pcPartitionExpr)
+			return This.ClassifyPartsUsingXT(pcPartitionExpr)
+
+		def PartsClassifiedXT(pcPartitionExpr)
+			return This.ClassifyPartsXT(pcPartitionExpr)
+
+		#>
+
 	  #=============================#
 	 #     DIVIDING THE STRING     #
 	#=============================#
