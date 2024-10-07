@@ -83826,12 +83826,14 @@ n1 = Min(aTemp)
 
 		# Now, let's check the chars correspond to digits, signs or separators
 
-		oPossibleChars = new stzList( "0":"9" + "-" + "+" + "." + "_" )
+		acPossibleChars = "0":"9" + "-" + "+" + "." + "_"
+		acChars = This.Chars()
+		nLen = len(acChars)
+		
+		for i = 1 to nLen
+			c = acChars[i]
 
-		for i = 1 to This.NumberOfChars()
-			c = This.NthChar(i)
-
-			if NOT oPossibleChars.Contains(c)
+			if NOT ring_find(acPossibleChars, c)
 				return FALSE
 			ok
 
@@ -83946,7 +83948,6 @@ n1 = Min(aTemp)
 
 		# Now, let's check the chars correspond to digits, signs or separators
 
-//		oPossibleChars = new stzList( "0":"1" + "b" + "-" + "+" + "." + "_" )
 		acPossibleChars = "0":"1" + "b" + "-" + "+" + "." + "_"
 		acChars = This.Chars()
 		nLen = len(acChars)
@@ -83954,7 +83955,6 @@ n1 = Min(aTemp)
 		for i = 1 to nLen
 			c = acChars[i]
 
-//			if NOT oPossibleChars.Contains(c)
 			if NOT ring_find(acPossibleChars, c)
 				return FALSE
 			ok
@@ -84011,8 +84011,11 @@ n1 = Min(aTemp)
 
 		bTemp = FALSE
 
-		#TODO: Replace for/in with for --> better performance
-		for cHexPrefix in HexPrefixes()
+		acHexPrefixes = HexPrefixes()
+		nLen = len(acHexPrefixes)
+
+		for i = 1 to nLen
+			cHexPrefix = acHexPrefixes[i]
 			oCopy = This.Copy()
 			oCopy.RemoveFromLeft("-")
 			oCopy.RemoveFromLeft("+")
@@ -84022,7 +84025,9 @@ n1 = Min(aTemp)
 				exit
 			ok
 		next
-		if bTemp = FALSE { return FALSE }
+		if bTemp = FALSE
+			return FALSE
+		ok
 
 		# Rule 4: String shouldn't be formed of these chars alone
 
@@ -84062,12 +84067,14 @@ n1 = Min(aTemp)
 
 		# Now, let's check that chars correspond to digits, signs or separators
 
-		oPossibleChars = new stzList( HexChars() + "x" + "-" + "+" + "." + "_" )
+		acPossibleChars = HexChars() + "x" + "-" + "+" + "." + "_"
+		acChars = This.Chars()
+		nLen = len(acChars)
 
-		for i = 1 to This.NumberOfChars()
-			c = This.NthChar(i)	
+		for i = 1 to nLen
+			c = acChars[i]
 
-			if NOT oPossibleChars.Contains(c)
+			if NOT ring_find(acPossibkeChars, c)
 				return FALSE
 			ok
 
@@ -84169,8 +84176,11 @@ n1 = Min(aTemp)
 
 		bTemp = FALSE
 
-		#TODO: Replace for/in with for --> better performance
-		for cOctalPrefix in OctalPrefixes()
+		acOctalPrefixes = OctalPrefixes()
+		nLen = len(acOctalPrefixes)
+
+		for i = 1 to nLen
+			cOctalPrefix = acOctalPrefixes[i]
 			oCopy = This.Copy()
 			oCopy.RemoveFromLeftQ("-").RemoveFromLeftQ("+")
 
@@ -84179,7 +84189,9 @@ n1 = Min(aTemp)
 				exit
 			ok
 		next
-		if bTemp = FALSE { return FALSE }
+		if bTemp = FALSE
+			return FALSE
+		ok
 
 		# Rule 5: String shouldn't be formed of these chars alone
 
@@ -84219,12 +84231,14 @@ n1 = Min(aTemp)
 
 		# Now, let's check that the chars correspond to digits, signs or separators
 
-		oPossibleChars = new stzList( OctalChars() + "o" + "-" + "+" + "." + "_" )
+		acPossibleChars = OctalChars() + "o" + "-" + "+" + "." + "_"
+		acChars = This.Chars()
+		nLen = len(acChars)
 
-		for i = 1 to This.NumberOfChars()
-			c = This.NthChar(i)
+		for i = 1 to nLen
+			c = acChars[i]
 
-			if NOT oPossibleChars.Contains(c)
+			if NOT ring_find(acPossibleChars, c)
 				return FALSE
 			ok
 
@@ -85199,12 +85213,23 @@ n1 = Min(aTemp)
 			return FALSE
 		ok
 
-	def IsMadeOfSome(acSubStr)
+	  #------------------------------------------------------------------#
+	 #  CHECKING IF THE STRING IS MADE OF SOME OF THE GIVEN SUBSTRINGS  #
+	#------------------------------------------------------------------#
+
+	def IsMadeOfSomeCS(acSubStr, pCaseSensitive)
+		if CheckParams()
+			if NOT (isList(acSubStr) and @IsListOfStrings(acSubStr))
+				StzRaise("Incorrect param type! acSubStr must be a list of strings.")
+			ok
+		ok
+
 		oCopy = This.Copy()
-		
-		#TODO: Replace for/in with for --> better performance
-		for cSubstr in acSubStr
-			if This.Contains(cSubStr)
+		nLen = len(acSubSt)
+
+
+		for i = 1 to nLen
+			if This.ContainsCS(acSubStr[i], pCaseSensitive)
 				oCopy.RemoveAll(cSubStr)
 			ok
 		next
@@ -85217,11 +85242,34 @@ n1 = Min(aTemp)
 
 		return FALSE
 
+		#< @FunctionAlternativeForms
+
+		def IsMadeOfSomeOfTheseCS(acSubStr, pCaseSensitive)
+			return This.IsMadeOfSomeCS(acSubStr, pCaseSensitive)
+
+		def IsMadeOfSomeOfTheseSubstringsCS(acSubStr, pCaseSensitive)
+			return This.IsMadeOfSomeCS(acSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IsMadeOfSome(acSubStr)
+		return This.IsMadeOfSomeCS(acSubStr, TRUE)
+
+		#< @FunctionAlternativeForms
+
 		def IsMadeOfSomeOfThese(acSubStr)
 			return This.IsMadeOfSome(acSubStr)
 
 		def IsMadeOfSomeOfTheseSubstrings(acSubStr)
 			return This.IsMadeOfSome(acSubStr)
+
+		#>
+
+	#-----------------
+	#  
+	#-----------------
 
 	def IsMadeOfSomeOfTheseChars(acChars)
 		if @IsListOfChars(acChars)
