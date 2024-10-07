@@ -13134,7 +13134,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-------------------
-*/
+
 pron()
 
 StzStringQ("Tunisia is back! People united.") {
@@ -13173,89 +13173,155 @@ proff()
 
 /*----------------
 
+pron()
+
 o1 = new stzString("this text is my text not your text, right?!")
-? o1.FindAllCS("text", :casesensitive = false)
+? o1.FindAllCS("text", :CaseSensitive = false)
 #--> [6, 17, 31]
 
-? o1.FindNthOccurrence(2, "Text") #--> 0
-? o1.FindNthOccurrenceCS(2, "Text", :casesensitive = false) #--> 17
+? o1.FindNthOccurrence(2, "Text")
+#--> 0
+
+? o1.FindNthOccurrenceCS(2, "Text", :CaseSensitive = false)
+#--> 17
+
+proff()
+# Executed in 0.01 second(s).
 
 /*----------------
 
+pron()
+
 o1 = new stzString("This text is my text not your text, right?!")
-? o1.ReplaceNthOccurrenceCSQ(2, "TEXT", :With = "destiny", :Casesensitive = FALSE).Content()
-#--> This text is my destiny not your text, right?!
+
+? o1.ReplaceNthOccurrenceCSQ(2, "TEXT", :With = "narration", :Casesensitive = FALSE).Content()
+#--> This text is my narration not your text, right?!
 
 o1 = new stzString("هذا نصّ لا يشبه أيّ نصّ ويا له من نصّ يا صديقي")
 ? o1.FindAll("نصّ")
 #--> [5, 21, 35]
 
-? o1.FindFirst("نصّ") 	#--> 5
-? o1.FindLast("نصّ")	#--> 35
+? o1.FindFirst("نصّ")
+#--> 5
+? o1.FindLast("نصّ")
+#--> 35
+
+proff()
+# Executed in 0.01 second(s).
 
 /*---------------
+
+pron()
 
 o1 = new stzString("LandRingoriaLand")
 o1.RemoveFirstOccurrence( :Of = "Land")
 ? o1.Content()
 #--> RingoriaLand
 
+proff()
+# Executed in 0.01 second(s).
+
 /*---------------
 
-o1 = new stzString("LandRingoriaLand")
-o1 - "Land"
-? o1.Content()
+pron()
+
+o1 = new stzString("RingoriaLandLand")
+? o1 - "Land"
 #--> Ringoria
+
+proff()
+# Executed in 0.01 second(s).
 
 /*--------------- TODO: Maybe this should move to stzText
 
+pron()
+
 o1 = new stzString("ring language isسلام  a nice language")
-? o1.Orientation() #--> :LeftToRight
-? o1.ContainsHybridOrientation() #--> TRUE
+
+? o1.Orientation()
+#--> :LeftToRight
+
+? o1.ContainsHybridOrientation()
+#--> TRUE
+
+#---
 
 o1 = new stzString("سلام عليكم ياأهل مصر hello الكرام")
-? o1.Orientation() #--> :RightToLeft
-? o1.ContainsHybridOrientation() #--> TRUE
+
+? o1.Orientation()
+#--> :RightToLeft
+
+? o1.ContainsHybridOrientation()
+#--> TRUE
+
+proff()
+# Executed in 0.09 second(s).
 
 /*----------------
 
+pron()
+
 o1 = new stzString("ring language isسلام  a nice language")
-? @@( o1.PartsUsing( 'StzCharQ(@char).Orientation()') ) + NL
+
+? @@( o1.PartsUsingXT( 'StzCharQ(@char).Orientation()') ) + NL
+#--> [ "ring language is", "سلام", "  a nice language" ]
+
+? @@( o1.Parts2UsingXT( 'StzCharQ(@char).Orientation()') ) + NL
 #--> [
-# 	[ "ring language is", "lefttoright" ],
-o# 	[ "سلام", "righttoleft" ],
-o# 	[ " a nice language", "lefttoright" ]
+#	[ "ring language is", "lefttoright" ],
+#o	[ "سلام", "righttoleft" ],
+#	[ "  a nice language", "lefttoright" ]
 # ]
+
+#---
 
 o1 = new stzString("سلام عليكم ياأهل مصر hello الكرام")
-? @@( o1.PartsUsing( 'StzCharQ(@char).Orientation()') ) #TODO add PartitionBy() and PartionedBy()
-#--> [
-o# 	[ "سلام", "righttoleft",
-o# 	[ " ", "lefttoright" ],
-o# 	[ "عليكم", "righttoleft" ],
-o# 	[  " ", "lefttoright" ],
-o# 	[ "ياأهل", "righttoleft" ],
-o# 	[ " ", "lefttoright" ],
-o# 	[  "مصر", "righttoleft" ],
-o# 	[ " hello ", "lefttoright" ],
-o# 	[ "الكرام", "righttoleft" ]
+
+? @@( o1.PartsUsingXT( 'StzCharQ(@char).Orientation()') ) + NL #TODO // add PartitionBy() and PartionedBy()
+#o--> [ "سلام", " ", "عليكم", " ", "ياأهل", " ", "مصر", " hello ", "الكرام" ]
+
+? @@( o1.Parts2UsingXT( 'StzCharQ(@char).Orientation()') )
+#o--> [
+#o	[ "سلام", "righttoleft" ],
+#o	[ " ", "lefttoright" ],
+#o	[ "عليكم", "righttoleft" ],
+#o	[ " ", "lefttoright" ],
+#o	[ "ياأهل", "righttoleft" ],
+#o	[ " ", "lefttoright" ],
+#o	[ "مصر", "righttoleft" ],
+#	[ " hello ", "lefttoright" ],
+#o	[ "الكرام", "righttoleft" ]
 # ]
 
+proff()
+# Executed in 0.88 second(s).
+
 /*----------------
+
+pron()
 
 o1 = new stzString("سلام لأهل مصر الكرام")
 o1.RemoveNLeftChars(7)
 ? o1.Content()
 o#--> سلام لأهل مصر
 
+proff()
+# Executed in 0.01 second(s).
+
 /*----------------
 
+pron()
+
 o1 = new stzString("ring language is nice language")
+
 ? o1.NLastCharsRemoved(9)
 #--> ring language is nice
 
 ? o1.SectionQ(1,4).CharsReversed()
-#--> gnir
+#--> ɹᴉnᵷ
+
+proff()
+# Executed in 0.06 second(s).
 
 /*----------------
 
@@ -13272,12 +13338,14 @@ o1 = new stzString("<<script>>func return :done<<script>>")
 o1 = new stzString("<<script>>func return :done<<script>>")
 ? o1.RemoveRightOccurrenceQ("<<script>>").Content()
 #--> "<<script>>func return :done"
+
 o1.RemoveNFirstChars(10)
 ? o1.Content()
 #--> "func return :done"
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.17
 
 /*----------------
 
@@ -13288,9 +13356,10 @@ o1 = new stzString("Softanza loves simplicity")
 #--> "Softanza arrives!"
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.17
 
-/*---------------- TODO
+/*----------------
 
 pron()
 
@@ -13298,12 +13367,13 @@ o1 = new stzString("<script>func return :done<script/>")
 ? o1.IsBoundedBy(["<script>", :And = "<script/>"])
 #--> TRUE
 
-o1.RemoveTheseBounds("<script>", "<script/>") #TODO: Check this!
+o1.RemoveTheseBounds("<script>", "<script/>")
 ? o1.Content()
 #--> "func return :done"
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.03 second(s) in Ring 1.14
+# Executed in 0.14 second(s) in Ring 1.17
 
 /*----------------
 
@@ -13317,51 +13387,91 @@ o1 = new stzString("بسم الله الرّحمن الرّحيم")
 #--> TRUE
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
-/*---------------- TODO
+/*----------------
 
 pron()
 
 o1 = new stzString("بسم الله الرّحمن الرّحيم")
-? o1.FindTheseBounds("بسم", "الرّحيم")
-? o1.FindBoundedBy("بسم", "الرّحيم")
+
+? @@( o1.FindTheseBounds("بسم", "الرّحيم") )
+#--> [ 1, 18 ]
+
+? @@( o1.FindBoundedBy([ "بسم", "الرّحيم" ]) ) + NL
+#--> [ 4 ]
+
+#--
+
+? @@( o1.FindTheseBoundsZZ("بسم", "الرّحيم") )
+#--> [ [ 1, 3 ], [ 18, 24 ] ]
+
+? @@( o1.FindBoundedByZZ([ "بسم", "الرّحيم" ]) )
+#--> [ [ 4, 17 ] ]
 
 proff()
+# Executed in 0.01 second(s).
 
 /*=================
+
+pron()
 
 o1 = new stzString("Rixo Rixo Rixo")
 ? o1.ReplaceQ("xo", "ng").Content()
 #--> Ring Ring Ring
 
+proff()
+# Executed in 0.01 second(s).
+
 /*----------------
+
+pron()
 
 o1 = new stzString("Ringos Ringos Ringos")
 o1.RemoveAll("os")
 ? o1.Content()
 #--> Ring Ring Ring
 
+proff()
+# Executed in 0.01 second(s).
+
 /*----------------
+
+pron()
 
 o1 = new stzString("extrasection")
 o1.RemoveSectionQ(6, :LastChar)
 ? o1.Content()
 #--> extra
 
+proff()
+# Executed in 0.01 second(s).
+
 /*----------------
+
+pron()
 
 o1 = new stzString("extrasection")
 o1.RemoveRange(1, 5)
 ? o1.Content()
 #--> section
 
+proff()
+# Executed in 0.01 second(s).
+
 /*=======================
 
-? Q("SFOTANZA").AlignedXT( :Width=30, :Char=".", :Direction=:Center )
+pron()
+
+? Q("SFOTANZA").AlignedXT( :Width = 30, :Char= ".", :Direction = :Center )
 #--> ...........SFOTANZA...........
 
+proff()
+# Executed in 0.02 second(s).
+
 /*-----------------------
+
+pron()
 
 ? StringAlign("SOFTANZA", 30, ".", :Left)
 ? StringAlign("SOFTANZA", 30, ".", :Right)
@@ -13374,7 +13484,12 @@ o1.RemoveRange(1, 5)
 # ...........SOFTANZA...........
 # S....O...F...T...A...N...Z...A
 
+proff()
+# Executed in 0.05 second(s).
+
 /*----------------
+
+pron()
 
 str = "منصوريّات"
 ? StringAlign(str, 30, ".", :Left)
@@ -13383,44 +13498,98 @@ str = "منصوريّات"
 ? StringAlign(str, 30, ".", :Justified)
 
 #-->
-/*
-......................منصوريّات
-منصوريّات......................
-...........منصوريّات...........
-م....ن...ص...و...ر...يّ...ا...ت
-*/
+# ......................منصوريّات
+# منصوريّات......................
+# ...........منصوريّات...........
+# م....ن...ص...و...ر...يّ...ا...ت
+
+proff()
+# Executed in 0.05 second(s).
 
 /*==================
+
+pron()
 
 o1 = new stzString("مَنْصُورِيَّاتُُ")
-? o1.NLastCharsQ(2).IsMadeOfSome([ "ُ", "س", "ص" ]) #--> TRUE
+
+? o1.NLastCharsQ(2).IsMadeOfSome([ "ُ", "س", "ص" ])
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*==================
+
+pron()
 
 o1 = new stzString("ABCDEFGH")
 o1.CompressUsingBinary("10011011")
 ? o1.Content()
  #--> ADEGH
 
+proff()
+# Executed in 0.01 second(s).
+
 /*==================
 
+pron()
+
 o1 = new stzString("aabbcaacccbb")
-? o1.IsMadeOf([ "aa", "bb", "c" ])		#--> TRUE
-? o1.IsMadeOfSome([ "a", "b", "c", "x" ])	#--> TRUE
+
+? o1.IsMadeOf([ "aa", "bb", "c" ])
+#--> TRUE
+
+? o1.IsMadeOfSome([ "a", "b", "c", "x" ])
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*------------------
 
+pron()
+
 o1 = new stzString("سلسبيل")
-? o1.IsMadeOf([ "ب", "ل", "س", "ي" ])		#--> TRUE
-? o1.IsMadeOf([ "ب", "ل", "س", "ي", "ج" ])	#--> FALSE
-? o1.IsMadeOfSome([ "ب", "ل", "س", "ي", "m" ])	#--> TRUE
+
+? o1.IsMadeOf([ "ب", "ل", "س", "ي" ])
+#--> TRUE
+
+? o1.IsMadeOf([ "ب", "ل", "س", "ي", "ج" ])
+#--> FALSE
+
+? o1.IsMadeOfSome([ "ب", "ل", "س", "ي", "m" ])
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*==================
 
+pron()
+
+o1 = new stzSplitter(1:10)
+
+? @@( o1.GetPairsFromPositions([ 1, 3, 8 ]) )
+#--> [ [ 1, 3 ], [ 3, 8 ], [ 8, 10 ] ]
+
+? @@( o1.SplitBeforePositions([ 1, 3, 8, 10 ]) )
+#--> [ [ 1, 2 ], [ 3, 7 ], [ 8, 9 ], [ 10, 10 ] ]
+
+proff()
+
+/*-----------------
+*/
+pron()
+
+
 o1 = new stzString("NoWomanNoCry")
-anPos = o1.FindCharsW( :Where = 'Q(@char).IsUppercase()')
+
+anPos = o1.FindCharsWXT( :Where = 'Q(@char).IsUppercase()')
+? @@(anPos)
 ? o1.SplitBeforePositions(anPos)
 #--> [ "No", "Woman", "No", "Cry" ]
+
+proff()
 
 /*------------------
 

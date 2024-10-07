@@ -419,9 +419,9 @@ class stzSplitter from stzListOfNumbers
 
 		aPairs = This.GetPairsFromPositions(panPos)
 
-		# Main list 	 --> 1:10
-		# panPos	 	 --> [ 3, 6, 8 ]
-		# List of pairs	 --> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
+		# Main list 	   --> 1:10
+		# panPos	   --> [ 3, 6, 8 ]
+		# List of pairs	   --> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
 		# Eexpected result --> [ [ 1, 2 ], [ 3, 5 ], [ 6, 7 ], [ 8, 10 ] ]
 
 		nLenPairs = len(aPairs)
@@ -1554,10 +1554,12 @@ class stzSplitter from stzListOfNumbers
 	 #   Utility functions used by the other methods above   #
 	#=======================================================#
 
-	def GetPairsFromPositions(panPos) #TODO: A general function, can move to stzListOfNumbers
+	#TODO // A general function, can move to stzListOfNumbers
+
+	def GetPairsFromPositions(panPos)
 		/*
 		Main list 	--> 1:10
-		panPos	--> [ 3, 6, 8 ]
+		panPos		--> [ 3, 6, 8 ]
 		List of pairs	--> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
 		*/
 
@@ -1581,12 +1583,15 @@ class stzSplitter from stzListOfNumbers
 		aPos = ring_sort(aPos)
 		
 		# Getting the pairs of that list
+
 		aPairs = []
 		for i = 1 to len(aPos) - 1
 			aPairs + [ aPos[i], aPos[i+1] ]
 		next
 
-		del(aPairs, len(aPairs))
+		if NOT @IsEven(nLen)
+			del(aPairs, len(aPairs))
+		ok
 
 		return aPairs
 

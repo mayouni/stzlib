@@ -11405,7 +11405,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def NLastCharsQ(n)
-			return This.NLastCharsQR(n, pcReturnType)
+			return This.NLastCharsQR(n, :stzList)
 
 		def NLastCharsQR(n, pcReturnType)
 			switch pcReturnType
@@ -29999,10 +29999,10 @@ www	  #============================#
 		#--
 
 		def FindBoundedBy(pacBounds)
-			return This.FindSubStringsBoundedByCS(pacBounds)
+			return This.FindSubStringsBoundedBy(pacBounds)
 
 		def FindBoundedByZ(pacBounds)
-			return This.FindSubStringsBoundedByCS(pacBounds)
+			return This.FindSubStringsBoundedBy(pacBounds)
 
 		#>
 
