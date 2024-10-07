@@ -75817,7 +75817,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	#--
 
 	def IsCharNamedParam()
-		if This.CharOfItems() = 2 and
+		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Char )
 
 			return TRUE
@@ -75827,7 +75827,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		ok
 
 	def IsThisCharNamedParam()
-		if This.CharOfItems() = 2 and
+		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThisChar )
 
 			return TRUE
@@ -75837,7 +75837,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		ok
 
 	def IsCharsNamedParam()
-		if This.CharOfItems() = 2 and
+		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :Chars )
 
 			return TRUE
@@ -75847,7 +75847,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		ok
 
 	def IsTheseCharsNamedParam()
-		if This.CharOfItems() = 2 and
+		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :TheseChars )
 
 			return TRUE
