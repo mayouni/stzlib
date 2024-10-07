@@ -434,9 +434,7 @@ class stzSplitter from stzListOfNumbers
 			aResult + [ n1, n2 ]
 		next
 
-		if aPairs[nLenPairs][2] = nLen
-			aResult + [ nLen, nLen ]
-		ok
+		aResult[nLenPairs][2] = nLen
 
 		return aResult
 
@@ -1589,8 +1587,15 @@ class stzSplitter from stzListOfNumbers
 			aPairs + [ aPos[i], aPos[i+1] ]
 		next
 
-		if NOT @IsEven(nLen)
-			del(aPairs, len(aPairs))
+		nLenPairs = len(aPairs)
+		aLastPair = aPairs[nLenPairs]
+		aBeforeLastPair = aPairs[nLenPairs-1]
+
+		if aLastPair[1] = nLen and
+		   aLastPair[2] = nLen and
+		   aBeforeLastPair[2] = nLen
+
+			del(aPairs, nLenPairs)
 		ok
 
 		return aPairs
