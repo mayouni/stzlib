@@ -13578,18 +13578,37 @@ o1 = new stzSplitter(1:10)
 proff()
 
 /*-----------------
+
+pron()
+
+o1 = new stzSplitter(1:12)
+
+? @@( o1.GetPairsFromPositions([ 1, 3, 8, 10 ]) )
+#--> [ [ 1, 3 ], [ 3, 8 ], [ 8, 10 ], [ 10, 12 ] ]
+
+? @@( o1.SplitBeforePositions([ 1, 3, 8, 10 ]) )
+#--> [ [ 1, 2 ], [ 3, 7 ], [ 8, 9 ], [ 10, 12 ] ]
+
+proff()
+# Executed in 0.03 second(s).
+
+/*-----------------
 */
 pron()
 
-
+#                   1.3....8.0..
 o1 = new stzString("NoWomanNoCry")
 
 anPos = o1.FindCharsWXT( :Where = 'Q(@char).IsUppercase()')
+
 ? @@(anPos)
+#--> [ 1, 3, 8, 10 ]
+
 ? o1.SplitBeforePositions(anPos)
 #--> [ "No", "Woman", "No", "Cry" ]
 
 proff()
+# Executed in 0.23 second(s).
 
 /*------------------
 
