@@ -84074,7 +84074,7 @@ n1 = Min(aTemp)
 		for i = 1 to nLen
 			c = acChars[i]
 
-			if NOT ring_find(acPossibkeChars, c)
+			if NOT ring_find(acPossibleChars, c)
 				return FALSE
 			ok
 
@@ -85206,12 +85206,17 @@ n1 = Min(aTemp)
 	 #   STRING MADE OF CHARS?   #
 	#---------------------------#
 
-	def IsMadeOfChar(c)
+	def IsMadeOfCharCS(c, pCaseSensitive)
 		if ( NOT This.IsEmpty() ) and  StringIsChar(c)
-			return This.IsMadeOf([ c ])
+			return This.IsMadeOfCS([ c ], pCaseSensitive)
 		else
 			return FALSE
 		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def IsMadeOfChar(c)
+		return This.IsMadeOfCharCS(c, TRUE)
 
 	  #------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING IS MADE OF SOME OF THE GIVEN SUBSTRINGS  #
@@ -85267,18 +85272,25 @@ n1 = Min(aTemp)
 
 		#>
 
-	#-----------------
-	#  
-	#-----------------
+	  #-------------------------------------------------------------#
+	 #  CHECKING IF THE STRING IS MADE OF SOME OF THE GIVEN CHARS  #
+	#-------------------------------------------------------------#
 
-	def IsMadeOfSomeOfTheseChars(acChars)
-		if @IsListOfChars(acChars)
-			return This.IsMadeOfSome(acChars)
-		else
-			stzRaise("You must provide a list of chars!")
+	def IsMadeOfSomeOfTheseCharsCS(acChars, pCaseSensitive)
+		if CheckParams()
+			if NOT (isList(acChars) and @IsListOfChars(acChars))
+				StzRaise("Incorrect param type! acChars must be a list of chars.")
+			ok
 		ok
 
-	  #------------------------------------------------#
+		return This.IsMadeOfSomeCS(acChars, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIIVTY
+
+	def IsMadeOfSomeOfTheseChars(acChars)
+		return This.IsMadeOfSomeOfTheseCharsCS(acChars, TRUE)
+
+	  #-------------------------------------------------#
 	 #   STRING IS A CHAR IN A COMPUTABLE FORM ("c")   #
 	#-------------------------------------------------#
 
