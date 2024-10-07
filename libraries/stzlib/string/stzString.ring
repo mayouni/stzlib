@@ -32598,6 +32598,9 @@ www	  #============================#
 
 	def SectionCS(n1, n2, pCaseSensitive)
 
+		#TODO // Rethink the necessity of all these named params,
+		# what practical value they provide, and in what performance cost!
+
 		nLen = This.NumberOfChars()
 
 		if CheckParams()
@@ -32624,6 +32627,9 @@ www	  #============================#
 			if isList(n2) and
 			   StzListQ(n2).IsOneOfTheseNamedParams([
 					:To, :ToPosition, :ToCharAt, :ToCharAtPosition,
+					:ToEndOfWord, :ToEndOfLine, :ToEndOfSentence,
+
+					:EndOfWord, :EndOfLine, :EndOfSentence,
 
 					:End, :ToEnd,
 					:Until, :UntilPosition, :UntilCharAt, :UntilCharAtPosition,
@@ -32632,8 +32638,9 @@ www	  #============================#
 					:And,
 
 					:StartingAt, :StartingAtPosition, :StartingAtCharAt, :StartingAtCharAtPosition					])
-	
+
 				n2 = n2[2]
+
 			ok
 	
 			# Managing the use of :NthToFirst named param
@@ -32697,20 +32704,23 @@ www	  #============================#
 				if Q(n2).IsOneOfThese([
 					:End, :Last, :LastChar, :EndOfString,
 					:ToEnd, :ToLast, :ToLastChar, :ToEndOfString
-				])
+					])
 
 					n2 = nLen
 	
 				but Q(n2).IsOneOfThese([
 					:First, :FirstChar,
 					:FromFirst, :FromFirstChar
-				])
+					])
 
 					n2 = 1
+	
 	
 				but n2 = :@
 					n2 = n1
 
+				but n2 = :EndOfWord or n2 = :EndOfSentence or n2 = :EndOfLine
+					# Do nothing here, will be managed later
 				else
 					nLen2 = StzStringQ(n2).NumberOfChars()
 					n2 = This.FindLastCS(n2, pCaseSensitive) + nLen2 - 1
@@ -32721,19 +32731,45 @@ www	  #============================#
 				n1 = 1
 				n2 = nLen
 			ok
-	
+
 			# Managing the case of :EndOfSentence, :EndOfLine, and :EndOfWord keywords
 	
 			if n1 > 0 and n2 = :EndOfSentence
-				return This.ToStzText().ForwardToEndOfSentence( :StartingAt = n1 )
+
+				n2 = nLen
+				for i = 1 to nLen
+					if @oQString.mid(i-1, 1) = "."
+						n2 = i
+						exit
+					ok
+				next
+
+				return This.Section(n1, n2)
 			ok
 	
 			if n1 > 0 and n2 = :EndOfLine
-				return This.ForwardToEndOfLine( :StartingAt = n1 )
+
+				n2 = nLen-1
+				for i = 1 to nLen
+					if @oQString.mid(i-1, 1) = NL
+						n2 = i-2
+						exit
+					ok
+				next
+				return This.Section(n1, n1 + n2 - 2)		
 			ok
-	
-			if n1 > 0 and n2 = :EndOfWord #TODO: should move to stzText?
-				return This.ToStzText().ForwardToEndOfWord( :StartingAt = n1 )
+
+			if n1 > 0 and n2 = :EndOfWord #TODO // should move to stzText?
+
+				n2 = nLen-1
+				for i = 1 to nLen
+					if @oQString.mid(i-1, 1) = " "
+						n2 = i-2
+						exit
+					ok
+				next
+
+				return This.Section(n1, n1 + n2 - 2)
 			ok
 
 			# Params must be numbers
@@ -32742,13 +32778,12 @@ www	  #============================#
 				StzRaise("Incorrect params! n1 and n2 must be numbers.")
 			ok
 
-
-			#TODO: do same behavior in stzList.Section()
-			#TODO : Add SectionXT() that allows using out of index params and return accurate results
+			#TODO // do same behavior in stzList.Section()
+			#TODO // Add SectionXT() that allows using out of index params and return accurate results
 
 		ok
 
-		#NOTE: when positions are given in inversed order, the same
+		#NOTE // When positions are given in inversed order, the same
 		# section as if they were not inverted is returned, so:
 		#--> Q("ring").Section(1,3) and .Section(3,1) both return "rin"
 
@@ -32761,7 +32796,7 @@ www	  #============================#
 		#--> Q("ring").SectionXT(3,1) and it will return "nir"
 
 		# params must be in range
-	
+
 		if NOT 	( ( n1 >= 1 and n1 <= nLen ) and
 			   ( n2 >= 1 and n2 <= nLen ) )
 				
@@ -88714,8 +88749,7 @@ n1 = Min(aTemp)
 
 			but @IsStzListOfStrings(pValue)
 				cResult = This.Content() + pValue.Concatenated()
-				This.UpdateWith(cResult)
-				return This
+				retur new stzString(cResult)
 			ok
 
 		// Multiply: string * n | string * string | string * list
@@ -88729,7 +88763,26 @@ n1 = Min(aTemp)
 				This.MultiplyBy(pValue.NumericValue())
 				return This
 
-			
+			but isList(pValue) and Q(pValue).IsListOfStrings()
+				nLen = len(pValue)
+				cResult = ""
+
+				for i = 1 to nLen
+					cResult += (This.Content() + pValue[i])
+				next
+
+				return cResult
+
+			but @IsStzListOfStrings(pValue)
+				nLen = len(pValue)
+				cResult = ""
+
+				for i = 1 to nLen
+					cResult += (This.Content() + pValue[i])
+				next
+
+				return new stzString(cResult)
+
 			else
 				return This.MultipliedBy(pValue)
 			ok
@@ -88865,7 +88918,33 @@ n1 = Min(aTemp)
 				acResult = This / pValue.Content()
 				return Q(acResult)
 			ok
-					
+		
+		// string - string | string - .25 | string - 3
+		but pOp = "-"
+			cResult = NULL
+						
+			if isString(pValue)
+
+				cResult = This.Copy().Removed(pValue)
+				return cResult
+
+			but @IsStzString(pValue)
+
+				oResult = This.Copy().RemoveQ(pValue.Content())
+				return oResult
+
+			but isList(pValue)
+
+				cResult = This.RemoveManyQ(pValue).Content()
+				return cResult
+
+			but @IsStzList(pValue)
+
+				cResult = This.RemoveManyQ(pValue.Content()).Content()
+				return new stzString(cResult)
+
+			ok
+
 		// String % n : returns the rest of letters after dividing String / n
 
 		but pOp = "%"
@@ -88895,153 +88974,10 @@ n1 = Min(aTemp)
 
 			but @IsStzNumber(pValue)
 				cResult = This % pValue.NumericValue()
-				This.UpdateWith(cResult)
-				return This
-			ok
-		
-		// string - string | string - .25 | string - 3
-		but pOp = "-"
-			cResult = NULL
-						
-			if isString(pValue)
-				cResult = This.Copy().Removed(pValue)
-				return cResult
-
-			but @IsStzString(pValue)
-				This.Remove(pValue.Content())
-				return This
-
-			but isNumber(pValue)
-				if pValue < This.NumberOfChars()
-					if pValue > 0 and pValue < 1 // str - 0.5
-						// Eats a portion of the string (half: 0.5, quarter0.25,...)
-						n = floor( This.NumberOfChars() * pValue)
-						cResult = This.Section( 1, This.NumberOfChars() - n ) // @oQString.mid(0,nLenStr-n)
-					else
-						cResult = This.Section(1, This.NumberOfChars() - pValue )
-					ok		
-				ok
-
-				return cResult
-
-			but isList(pValue) and Q(pValue).IsListOfStrings()
-				cResult = This.RemoveManyQ(pValue).Content()
-				return cResult
-
-			but @IsStzListOfStrings(pValue)
-				This.RemoveMany(pValue.Content())
-				return This
-
-			but isList(pValue) and Q(pValue).IsListOfLists() and len(pValue) = 1 #TODO
-				/*
-				Example:
-
-				o1 = new stzString("XRingorialand")
-				o1 - [[ :FirstCharIf, :EqualTo, :X ]]
-
-				Gives -> "Ringorialand"
-
-				NB: We use the two brackets here to differenciate
-				the syntax with:
-
-					 o1 - [ "X", "oria", "land" ] --> "Ring"
-
-				which means : remove this ist of substrings from
-				the main string
-				*/
-
-				aListOfConditions = [
-					:EqualTo, :LesserThan, :GreaterThan,
-					:LesserThanOrEqual, :GreaterThanOrEqual,
-					:DifferentThan ]
-
-				cFirstOrLast = pValue[1][1]
-		 		cCondition = pValue[1][2]
-				value = pValue[1][3]
-
-				oCondition = new stzString(cCondition)
-
-				if NOT ( len(pValue[1]) = 3 AND
-				   (cFirstOrLast = :FirstCharIf or cFirstOrLast = :LastCharIf) AND
-				   oCondition.ExistsInList(aListOfConditions) AND
-				   isString(value) )
-
-					stzRaise(stzStringError(:UnsupportedExpressionInOverloadedMinusOperator))
-				ok
-					
-				if cFirstOrLast = :FirstCharIf
-
-					if cCondition = :EqualTo
-						if Q(pValue).IsNumberOrString()
-							if This.FirstChar() = pValue
-								This.RemoveFirstChar()
-								return This
-							ok
-						ok
-
-						if StzListQ(pValue).IsListOfStrings()
-							oList = pValue
-							if oList.IsEqualTo(cFirstOrLast)
-								This.RemoveMany(pValue)
-								return This
-							ok
-						ok
-
-					but cCondition = :LesserThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-
-					but cCondition = :GreaterThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-
-					but cCondition = :LesserOrEqualThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-
-					but cCondition = :GreaterOrEqualThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-					
-					but cCondition = :DifferentThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-					ok
-
-				but cFirstOrLast = :LastCharIf
-
-					if cCondition = :EqualTo
-						if @IsChar(pValue) and This.LastChar() = pValue
-							This.RemoveNthChar(This.NumberOfChars())
-							return This
-						ok
-
-						if @IsListOfChars(pValue)
-							oList = pValue
-							if value.IsEqualTo(cFirstOrLast)
-								This.RemoveMany(pValue)
-								return This
-							ok
-							
-						ok
-
-					but cCondition = :LesserThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-
-					but cCondition = :GreaterThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-
-					but cCondition = :LesserOrEqualThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-
-					but cCondition = :GreaterOrEqualThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-					
-					but cCondition = :DifferentThan
-						stzRaise(:UnsupportedFeatureInThisVersion)
-					ok
-
-				ok
-
-			but @IsListOfLists(pValue) and len(pValue) = 1
-				return Q( This - pValue.Content() )
+				return new stzString(cResult)
 
 			ok
+
 		ok // --- End of operator overloading section
 
 	  #=====================================================#
