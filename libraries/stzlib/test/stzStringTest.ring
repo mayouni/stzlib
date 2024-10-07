@@ -13593,7 +13593,7 @@ proff()
 # Executed in 0.03 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 #                   1.3....8.0..
@@ -13612,11 +13612,18 @@ proff()
 
 /*------------------
 
+pron()
+
 o1 = new stzString("NoWomanNoCry")
 ? o1.SplitBeforeCharsWXT(:Where = 'Q(@char).IsUppercase()')
 #--> [ "No", "Woman", "No", "Cry" ]
 
+proff()
+# Executed in 0.23 second(s).
+
 /*==================
+
+pron()
 
 StzStringQ("أهلا بأيّ كانَ، ومرحبا بأيّ كان، ومرحى لأيّ كان، أيّا كان من سمَّاهُ حُسَيْنْ") {
 
@@ -13627,41 +13634,58 @@ StzStringQ("أهلا بأيّ كانَ، ومرحبا بأيّ كان، ومرح
 	? Content()
 }
 #-->
-/*
-أهلا بأيّ كان اسْمُهُ حُسَيْنْ، ومرحبا بأيّ كان اسْمُهُ حُسَيْنْ، ومرحى لأيّ كان اسْمُهُ حُسَيْنْ، أيّا كان من سمَّاهُ حُسَيْنْ
-*/
+# أهلا بأيّ كان اسْمُهُ حُسَيْنْ، ومرحبا بأيّ كان اسْمُهُ حُسَيْنْ، ومرحى لأيّ كان اسْمُهُ حُسَيْنْ، أيّا كان من سمَّاهُ حُسَيْنْ
+
+proff()
+# Executed in 0.09 second(s).
 
 /*-------------------
+
+pron()
 
 o1 = new stzString("Hi Dan! Your are Dan, but your work is always not done ;)")
 o1.ReplaceNthOccurrence(2, "Dan", "hardworker")
 ? o1.Content()
 #--> Hi Dan! Your are harworker, but your work is always not done ;)
 
+proff()
+# Executed in 0.01 second(s).
+
 /*-------------------
+
+pron()
 
 o1 = new stzString("text this text is written with the text of my scrampy text")
 ? o1.FindAll("text")
 #--> [ 1, 11, 36, 55 ]
 
-? o1.FindNthOccurrence(4, :Of = "text")	#--> 55
+? o1.FindNthOccurrence(4, :Of = "text")
+#--> 55
 
-? o1.ContainsNtimes(4, "text") #--> TRUE
+? o1.ContainsNtimes(4, "text")
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*==================
 */
 pron()
 
 o1 = new stzString("reserve")
-? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = False ) #--> :Equal
+? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = False )
+#--> :Equal
 
 o1 = new stzString("réservé")
-? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = False ) #--> :Greater
+? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = False )
+#--> :Greater
 
 o1 = new stzString("reserv")
-? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = False ) #--> :Less
+? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = False )
+#--> :Less
 
 proff()
+# Executed in 0.01 second(s).
 
 /*--------------------
 

@@ -71810,9 +71810,11 @@ n1 = Min(aTemp)
 	#===========================================================#
 	#TODO: add Casesensitivity support
 
-	# Compares the main string with an other string (base on the unicode code table)
+	# Compares the main string with an other string (based on the unicode code table)
 	# --> Use this for internal string comparisons and sorting
 	# --> For lists presented to the user, use SystemLocaleCompare()
+
+	# 
 
 	def UnicodeCompareWithCS(pcOtherStr, pCaseSensitive)
 		#< QtBased | Uses QString.compare() >
@@ -71844,8 +71846,15 @@ n1 = Min(aTemp)
 
 		# Doing the job
 
-		nResult = @oQString.compare(pcOtherStr, pCaseSensitive)
-		return nResult
+		nQtValue = @oQString.compare(pcOtherStr, pCaseSensitive)
+
+		if nQtValue = 0
+			return :equal
+		but nQtValue < 0
+			return :less
+		else
+			return :greater
+		ok
 
 	def UnicodeCompareWith(pcOtherStr)
 		return This.CompareWithCS(pcOtherStr, TRUE)
