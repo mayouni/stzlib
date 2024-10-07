@@ -20539,11 +20539,12 @@ www	  #============================#
 		*/
 
 		nLen = This.NumberOfCharsCS(pCaseSensitive)
+
 		if nLen = 0 or nLen = 1
 			return ""
 		ok
 
-		if This.Char(1) != This.Char(2)
+		if NOT This.CharQ(1).IsEqualToCS( This.Char(2), pCaseSensitive)
 			return ""
 		ok
 
@@ -20773,8 +20774,8 @@ www	  #============================#
 
 	def RepeatedLeadingCharsCS(pCaseSensitive)
 		/* Example:
-			'eeeTUNIS' 	--> 'eee'
-			'exeeeeeTUNIS' 	--> ''
+			'eeeTUNIS' 	--> [ 'e', 'e', 'e' ]
+			'exeeeeeTUNIS' 	--> []
 		*/
 
 		nLen = This.NumberOfCharsCS(pCaseSensitive)
@@ -20782,8 +20783,8 @@ www	  #============================#
 			return ""
 		ok
 
-		if This.Char(1) != This.Char(2)
-			return ""
+		if NOT This.CharQ(1).IsEqualToCS( This.Char(2), pCaseSensitive )
+			return []
 		ok
 
 		acResult = []
@@ -21106,7 +21107,7 @@ www	  #============================#
 	#====================================================#
 
 	def HasRepeatedLeadingCharsCS(pCaseSensitive)
-		if This.RepeatedLeadingCharsCS(pCaseSensitive) != NULL
+		if This.LeadingSubStringCS(pCaseSensitive) != NULL
 			return TRUE
 		else
 
