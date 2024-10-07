@@ -13668,8 +13668,8 @@ o1 = new stzString("text this text is written with the text of my scrampy text")
 proff()
 # Executed in 0.01 second(s).
 
-/*==================
-*/
+/*================== STRING COMPARAISON
+
 pron()
 
 o1 = new stzString("reserve")
@@ -13689,51 +13689,80 @@ proff()
 
 /*--------------------
 
-# Strings comparisons are made in a locale-sensitive manner
+pron()
+
 o1 = new stzString("RÉSERVÉ")
-? o1.UnicodeCompareWithInSystemLocale("réservé")	#--> :Greater
-# o1.UnicodeCompareWithInLocale("réservé"", "fr-FR")	#TODO
+
+? o1.UnicodeCompareWithInSystemLocale("réservé")
+#--> :Greater
+
+//? o1.UnicodeCompareWithInLocale("réservé", "fr-FR")	#TODO
+
+proff()
+# Executed in 0.01 second(s).
 
 /*==================
 
+pron()
+
 o1 = new stzString("  lots   of    whitespace  ")
+
 ? o1.Trimmed()
+#--> "lots   of    whitespace"
+
 ? o1.SimplifyQ().UPPERcased()
 #--> "LOTS OF WHITESPACE"
 
+proff()
+# Executed in 0.01 second(s).
+
 /*--------------------
+
+pron()
 
 o1 = new stzString("اسمي هو فلانة، قلت لك فلانة! أوَ لم يعجبك أن يكون اسمي فلانة؟")
 o1.ReplaceAll("فلانة", "فلسطين")
 ? o1.Content()
 o#--> اسمي هو فلسطين، قلت لك فلسطين! أوَ لم يعجبك أن يكون اسمي فلسطين؟
 
+proff()
+# Executed in 0.01 second(s).
+
 /*--------------------
+
+pron()
 
 o1 = new stzString("Mon prénom c'est Foulèna. J'ai bien dit Foulèna! " +
 "Où bien tu n'aimes pas que ce soit Foulèna?")
+
 o1.ReplaceAll("Foulèna", "Tiba")
 ? o1.Content()
-#--> Mon prénom c'est Tiba. J'ai bien dit Tiba! Où bien tu n'aimes pas que ce soit Tiba?
+
+#--> "Mon prénom c'est Tiba. J'ai bien dit Tiba! Où bien tu n'aimes pas que ce soit Tiba?"
+
+proff()
+# Executed in 0.01 second(s).
 
 /*======================
+
+pron()
 
 o1 = new stzString("0o20723.034")
 o1 {
 	? RepresentsNumber()			#--> TRUE
 	? RepresentsSignedNumber()		#--> FALSE
 	? RepresentsUnsignedNumber()		#--> TRUE
-	? RepresentsCalculableNumber() 		#--> TRUE
+	? RepresentsCalculableNumber() + NL	#--> TRUE
 	
 	? RepresentsInteger()			#--> FALSE
 	? RepresentsSignedInteger()		#--> FALSE
 	? RepresentsUnsignedInteger()		#--> FALSE
-	? RepresentsCalculableInteger()		#--> FALSE
+	? RepresentsCalculableInteger()	 + NL	#--> FALSE
 	
 	? RepresentsRealNumber()		#--> TRUE
 	? RepresentsSignedRealNumber()		#--> FALSE
 	? RepresentsUnsignedRealNumber()	#--> TRUE
-	? RepresentsCalculableRealNumber()	#--> TRUE
+	? RepresentsCalculableRealNumber() + NL	#--> TRUE
 	
 	? RepresentsNumberInDecimalForm()	#--> FALSE
 	? RepresentsNumberInBinaryForm()	#--> FALSE
@@ -13741,13 +13770,23 @@ o1 {
 	? RepresentsNumberInOctalForm()		#--> TRUE
 }
 
+proff()
+# Executed in 0.59 second(s).
+
 /*------------------
+
+pron()
 
 o1 = new stzString("12500543.12")
 ? o1.RepresentsRealNumber()
 #--> TRUE
 
+proff()
+# Executed in 0.03 second(s).
+
 /*------------------
+*/
+pron()
 
 o1 = new stzString("0b110001.1001")
 ? o1.RepresentsNumberInBinaryForm()
@@ -13760,6 +13799,9 @@ o1 = new stzString("-0b110001.1001")
 o1 = new stzString("0b-110001.1001")
 ? o1.RepresentsNumberInBinaryForm()
 #--> FALSE
+
+proff()
+# Executed in 0.02 second(s).
 
 /*------------------
 

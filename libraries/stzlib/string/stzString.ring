@@ -83889,8 +83889,13 @@ n1 = Min(aTemp)
 
 		bTemp = FALSE
 
-		#TODO: Replace for/in with for --> better performance
-		for cBinPrefix in BinaryPrefixes()
+		#TODO // Replace for/in with for --> better performance
+
+		acBinPref = BinaryPrefixes()
+		nLen = len(acBinPref)
+
+		for i = 1 to nLen
+			cBinPrefix = acBinPref[i]
 			oCopy = This.Copy()
 			oCopy.RemoveFromLeftQ("-").RemoveFromLeftQ("+")
 
@@ -83899,7 +83904,9 @@ n1 = Min(aTemp)
 				exit
 			ok
 		next
-		if bTemp = FALSE { return FALSE }
+		if bTemp = FALSE
+			return FALSE
+		ok
 
 		# Rule 4: String shouldn't be just one of these chars
 
@@ -83939,12 +83946,16 @@ n1 = Min(aTemp)
 
 		# Now, let's check the chars correspond to digits, signs or separators
 
-		oPossibleChars = new stzList( "0":"1" + "b" + "-" + "+" + "." + "_" )
+//		oPossibleChars = new stzList( "0":"1" + "b" + "-" + "+" + "." + "_" )
+		acPossibleChars = "0":"1" + "b" + "-" + "+" + "." + "_"
+		acChars = This.Chars()
+		nLen = len(acChars)
 
-		for i = 1 to This.NumberOfChars()
-			c = This.NthChar(i)
+		for i = 1 to nLen
+			c = acChars[i]
 
-			if NOT oPossibleChars.Contains(c)
+//			if NOT oPossibleChars.Contains(c)
+			if NOT ring_find(acPossibleChars, c)
 				return FALSE
 			ok
 
