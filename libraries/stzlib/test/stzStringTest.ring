@@ -12976,7 +12976,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("Oooo Tunisia---")
@@ -13007,16 +13007,23 @@ proff()
 
 /*-----------------
 
+pron()
+
 o1 = new stzString("oooTunisia")
-o1.RemoveLeadingChar("O")
+o1.RemoveThisLeadingChar("O")
 ? o1.Content()
 #--> oooTunisia
 
-o1.RemoveLeadingCharCS("O", :CS=FALSE)
+o1.RemoveThisLeadingCharCS("O", :CS=FALSE)
 ? o1.Content()
 #--> Tunisia
 
+proff()
+# Executed in 0.02 second(s).
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("oooTunisia")
 o1.ReplaceLeadingChar("O", :With = "")
@@ -13027,30 +13034,69 @@ o1.ReplaceLeadingCharCS("O", :With = "", :CS=FALSE)
 ? o1.Content()
 #--> Tunisia
 
+proff()
+# Executed in 0.02 second(s).
+
 /*==================
 
-? (StzStringQ("ORingoriaLand") - [ "O", "oria", "Land" ]).Content()
+pron()
+
+? Q("A") * [ "1", "2", "3" ]
+#--> A1A2A3
+
+proff()
+
+/*-----------
+
+pron()
+
+? Q("ORingoriaLand") - [ "O", "oria", "Land" ]
 #--> Ring
 
+? ( Q("ORingoriaLand") - Q([ "O", "oria", "Land" ]) ).content()
+#--> Ring
+
+proff()
+# Executed in 0.01 second(s).
+
 /*==================
+
+pron()
 
 ? StzStringQ("[ 2, 3, 5:7 ]").IsListInString()
+#--> TRUE
+
 ? StzStringQ("'A':'F'").IsListInString()
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s).
 
 /*==================
+
+pron()
 
 o1 = new stzstring("123456789")
 ? o1.Section(4,6)
 #--> "456"
 
+proff()
+
 /*-------------
+
+pron()
 
 o1 = new stzstring("123456789")
 o1.ReplaceSection(4, 6, :with = "***")
 ? o1.Content()
 #--> "123***789"
 
+proff()
+# Executed in 0.01 second(s).
+
 /*-------------------
+
+pron()
 
 StzStringQ("Tunis is the town of my memories.") {
 	ReplaceAll("Tunis", "Niamey" )
@@ -13058,7 +13104,12 @@ StzStringQ("Tunis is the town of my memories.") {
 }
 #--> Niamey is the town of my memories.
 
+proff()
+# Executed in 0.01 second(s).
+
 /*-------------------
+
+pron()
 
 StzStringQ("Tunis is the town of my memories.") {
 	ReplaceAllCS("TUNIS", "Niamey", :CS = FALSE )
@@ -13066,36 +13117,59 @@ StzStringQ("Tunis is the town of my memories.") {
 }
 #--> Niamey is the town of my memories
 
+proff()
+# Executed in 0.01 second(s).
+
 /*-------------------
+
+pron()
 
 StzStringQ( "a + b - c / d = 0" ) {
 	ReplaceMany( [ "+", "-", "/" ], "*" )
 	? Content()
 }
+#--> a * b * c * d = 0
+
+proff()
+# Executed in 0.01 second(s).
 
 /*-------------------
+*/
+pron()
 
 StzStringQ("Tunisia is back! People united.") {
 
 	ReplaceAll("People", "Tunisians")
-	? Content() + NL	#--> Tunisia is back! Tunisians united.
+	? Content() + NL
+	#--> Tunisia is back! Tunisians united.
 
-	? Section(3, 7)		#--> nisia
+	? Section(3, 7)
+	#--> nisia
 
-	? Section(7, 3) + NL	#--> nisia
+	? Section(7, 3) + NL
+	#--> nisia
 
-	? Section(:From = 3, :To = :EndOfWord)	#--> nisia
-	? Section(:From = 12, :To = :EndOfWord) + NL	#--> back
+	? Section(:From = 3, :To = :EndOfWord)
+	#--> nisia
 
-	? Section(:From = 9, :To = :EndOfSentence) + NL	#--> is back!
+	? Section(:From = 12, :To = :EndOfWord) + NL
+	#--> back!
 
-	? Section(:From = :FirstChar, :To = :EndOfString) + NL	#--> Tunisia is back! Tunisians united.
+	? Section(:From = 9, :To = :EndOfSentence) + NL
+	#--> is back! Tunisians united.
+
+	? Section(:From = :FirstChar, :To = :EndOfString) + NL
+	#--> Tunisia is back! Tunisians united.
 
 	ReplaceFirst("Tunisia", :With = "Egypt") 
 	Replace( "Tunisians", :With = "Egyptians")
-	? Content()	#--> Egypt is back! Egyptians united.
+	? Content()
+	#--> Egypt is back! Egyptians united.
 
 }
+
+proff()
+# Executed in 0.06 second(s).
 
 /*----------------
 
