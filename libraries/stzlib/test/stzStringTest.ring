@@ -12980,15 +12980,30 @@ proff()
 pron()
 
 o1 = new stzString("Oooo Tunisia---")
-? o1.LeadingChar()
+
+? o1.HasLeadingChars()
+#--> FALSE
+
+? @@( o1.LeadingChar() )
 #--> ""
 
-? o1.LeadingCharCS(:CS = FALSE)	#--> "O"
+? o1.HasLeadingCharsCS(FALSE)
+#--> TRUE
 
-? o1.LeadingChars()		#--> ""
-? o1.LeadingCharsCS(:CS=FALSE) #--> "Oooo"
+? o1.LeadingCharCS(:CS = FALSE)
+#--> "O"
+
+? @@( o1.LeadingChars()	)
+#--> []
+
+? o1.LeadingCharsCS(:CS=FALSE)
+#--> [ "O", "o", "o", "o" ]
+
+? o1.LeadingSubStringCS(FALSE)
+#--> "Oooo"
 
 proff()
+# Executed in 0.02 second(s).
 
 /*-----------------
 
