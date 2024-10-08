@@ -85230,12 +85230,12 @@ n1 = Min(aTemp)
 		ok
 
 		oCopy = This.Copy()
-		nLen = len(acSubSt)
+		nLen = len(acSubStr)
 
 
 		for i = 1 to nLen
 			if This.ContainsCS(acSubStr[i], pCaseSensitive)
-				oCopy.RemoveAll(cSubStr)
+				oCopy.RemoveAll(acSubStr[i])
 			ok
 		next
 
