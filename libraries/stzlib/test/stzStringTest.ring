@@ -14723,7 +14723,6 @@ StopProfiler()
 # Executed in 0.14 second(s).
 
 /*---------
-*/
 
 StartProfiler()
 
@@ -14737,7 +14736,19 @@ StopProfiler()
 # Executed in 0.12 second(s).
 
 /*---------
+*/
+pron()
 
+o1 = new stzString("__^^^__^^♥^^__")
+o1.RemoveSubStringBoundedBy("♥", "^^")
+? o1.Content()
+#--> __^^^__^^^^__
+
+proff()
+# Executed in 0.04 second(s).
+
+/*---------
+*/
 StartProfiler()
 
 	Q("__^^^__^^♥^^__") {
