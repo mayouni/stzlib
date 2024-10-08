@@ -36,7 +36,7 @@ func LocaleAbbreviations()
 func LocaleAbbreviationsAsString()
 	return _cLocaleAbbreviations
 
-	def LocaleAbbreviationsHostedInString()
+	func LocaleAbbreviationsHostedInString()
 		return LocaleAbbreviationsAsString()
 
 func LanguagesAndTheirDefaultCountries()

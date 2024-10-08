@@ -83197,8 +83197,8 @@ n1 = Min(aTemp)
 			return This.IsScriptNumber()
 
 	def IsLocaleAbbreviation()
-		cThisString = This.Copy().ReplaceQ("_", "-").Content()
-		oLocalesInString = StzStringQ( LocaleAbbreviationsHostedInString() )
+		cThisString = ", " + This.Copy().ReplaceQ("_", "-").Content() + ","
+		oLocalesInString = StzStringQ( ", " + LocaleAbbreviationsHostedInString() + "," )
 		bResult = oLocalesInString.ContainsCS( cThisString, :CaseSensitive = FALSE )
 
 		return bResult
