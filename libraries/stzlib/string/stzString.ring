@@ -25694,10 +25694,63 @@ www	  #============================#
 
 		#>
 
+	  #--------------------------------------------------------------------------------------------------------------#
+	 #  FINDING OCCURRENCES OF A SUBSTRING BETWEEN THE FIRST AND LAST OCCURRENCE OF AN OTHER giVEN SUBSTRING -- IB  #
+	#--------------------------------------------------------------------------------------------------------------#
+
+	def FindSubStringBetweenCSIB(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+		anPos = This.FindSubStringBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+		nLen = len(anPos)
+
+		nLenSubStr1 = StzSubStringQ(pcSubStr1).NumberOfChars()
+
+		anResult = []
+
+		for i = 1 to nLen
+			anResult + (anPos[i] - nLenSubStr1)
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBetweenCSIBZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This.FindSubStringBetweenCSIB(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+		#--
+
+		def FindBetweenCSIB(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This.FindSubStringBetweenCSIB(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+		def FindBetweenCSIBZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This.FindSubStringBetweenCSIB(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStringBetweenIB(pcSubStr, pcSubStr1, pcSubStr2)
+		return This.FindSubStringBetweenCSIB(pcSubStr, pcSubStr1, pcSubStr2, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindSubStringBetweenIBZ(pcSubStr, pcBound1, pcBound2)
+			return This.FindSubStringBetweenIB(pcSubStr, pcBound1, pcBound2)
+
+		#--
+
+		def FindBetweenIB(pcSubStr, pcBound1, pcBound2)
+			return This.FindSubStringBetweenIB(pcSubStr, pcBound1, pcBound2)
+
+		def FindBetweenIBZ(pcSubStr, pcBound1, pcBound2)
+			return This.FindSubStringBetweenIB(pcSubStr, pcBound1, pcBound2)
+
+		#>
+
 	   #------------------------------------------------------------------------------#
 	  #  GETTING THE SUBSTRING BETWEEN THE END OF THE FIRST OCCURRENCE OF A GIVEN    #
 	 #  SUBSTRING AND THE START OF THE LAST OCCURRENCE OF AN OTHER GIVEN SUBSTRING  #
-	#------------------------------------------------------------------------------#
+	#==============================================================================#
 
 	def BetweenCS(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
 
@@ -72668,12 +72721,12 @@ n1 = Min(aTemp)
 
 		#>
 
-	  #===========================================================================#
-	 #  REMOVING ALL OCCURRENCES OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
-	#===========================================================================#
+	  #========================================================================#
+	 #  REMOVING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
+	#========================================================================#
 
 	def RemoveSubStringBetweenCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
-		aSections = This.FindSubStringBetweenAsSectionsCS(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		aSections = This.FindSubStringBetweenCSZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
 		This.RemoveSections(aSections)
 
 
@@ -72686,9 +72739,33 @@ n1 = Min(aTemp)
 	def RemoveSubStringBetween(pcSubStr, pcBound1, pcBound2)
 		This.RemoveSubStringBetweenCS(pcSubStr,pcBound1, pcBound2, TRUE)
 
-	  #---------------------------------------------------------------------------#
+		def SubStringBetweenRemoved(pcSubStr,pcBound1, pcBound2)
+			return This.SubStringBetweenRemovedCS(pcSubStr,pcBound1, pcBound2, TRUE)
+
+	  #---------------------------------------------------------------------------------------#
+	 #  REMOVING ALL OCCURRENCES OF A SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- IB/EXTENDED  #
+	#---------------------------------------------------------------------------------------#
+
+	def RemoveSubStringBetweenCSIB(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		aSections = This.FindSubStringBetweenCSIBZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveSections(aSections)
+
+
+	def SubStringBetweenRemovedCSIB(pcSubStr,pcBound1, pcBound2, pCaseSensitive)
+		cResult = This.Copy().RemoveSubStringBetweenCSIBQ(pcSubStr, pcBound1, pcBound2, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIViTY
+
+	def RemoveSubStringBetweenIB(pcSubStr, pcBound1, pcBound2)
+		This.RemoveSubStringBetweenCSIB(pcSubStr,pcBound1, pcBound2, TRUE)
+
+		def SubStringBetweenRemovedIB(pcSubStr,pcBound1, pcBound2)
+			return This.SubStringBetweenRemovedCSIB(pcSubStr,pcBound1, pcBound2, TRUE)
+
+	  #===========================================================================#
 	 #  REMOVING A SUBSTRING BOUNDED BY TWO BOUNDS STARTING AT A GIVEN POSITION  #
-	#---------------------------------------------------------------------------#
+	#===========================================================================#
 
 	def RemoveSubStringBoundedBySTCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
 		aSections = This.FindubStringBoundedByAsSectionsSTCS(pcSubStr, pacBounds, pnStartingAt, pCaseSensitive)
