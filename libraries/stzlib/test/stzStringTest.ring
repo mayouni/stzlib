@@ -14728,13 +14728,13 @@ StopProfiler()
 StartProfiler()
 
 	Q("__/\/\__/♥\__") {
-		RemoveXT("♥", :BoundedByIB = ["/", "\"]) # BetweenIB -> Bounds are also removed
+		RemoveXT("♥", :BoundedByIB = ["/", "\"]) # IB -> Bounds are also removed
 		? Content()
 		#--> __/\/\____
 	}
 
 StopProfiler()
-# Executed in 0.09 second(s)
+# Executed in 0.12 second(s).
 
 /*---------
 
