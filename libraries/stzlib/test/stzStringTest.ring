@@ -14197,7 +14197,7 @@ oStr.append_2(oChar)
 proff()
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzString("abcbbaccbtttx")
@@ -14210,6 +14210,8 @@ o1 = new stzString("abcbbaccbtttx")
 proff()
 
 /*---------------
+
+pron()
 
 o1 = new stzString("saस्तेb")
 ? o1.NumberOfChars()
@@ -14224,30 +14226,52 @@ o1 = new stzString("saस्तेb")
 ? @@( o1.CharsAndTheirUnicodes() )
 #--> [ [ "s", 115 ], [ "a", 97 ], [ "स", 2360 ], [ "्", 2381 ], [ "त", 2340 ], [ "े", 2375 ], [ "b", 98 ] ]
 
+proff()
+# Executed in 0.03 second(s).
+
 /*---------------
+
+pron()
 
 o1 = new stzString("number 12500 number 18200")
 ? o1.OnlyNumbers()
 #--> "1250018200"
 
+proff()
+# Executed in 0.06 second(s).
+
 /*================
 
+pron()
+
 o1 = new stzString("12500")
-? o1.RepresentsNumberInDecimalForm() #--> TRUE
+? o1.RepresentsNumberInDecimalForm()
+#--> TRUE
 
 o1 = new stzString("b100011")
-? o1.RepresentsNumberInBinaryForm() #--> TRUE
+? o1.RepresentsNumberInBinaryForm()
+#--> TRUE
 
 o1 = new stzString("100011") # Withount the b, it's rather a decimal not binary number!
-? o1.RepresentsNumberInBinaryForm() #--> FALSE
+? o1.RepresentsNumberInBinaryForm()
+#--> FALSE
 
 o1 = new stzString("100011")
-? o1.RepresentsNumberInDecimalForm() #--> TRUE
+? o1.RepresentsNumberInDecimalForm()
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s).
 
 /*---------------
 
+pron()
+
 o1 = new stzString("Приве́т नमस्ते שָׁלוֹם")
-? @@( o1.PartsUsing( "StzCharQ(@char).Script()" ) )
+
+? @@( o1.PartsUsingXT( "StzCharQ(@char).Script()" ) ) + NL
+
+? @@NL( o1.Parts2UsingXT( "StzCharQ(@char).Script()" ) ) + NL
 #--> [
 # 	[ "Приве", "cyrillic" 	],
 # 	[ "́", 	   "inherited" 	],
@@ -14255,28 +14279,72 @@ o1 = new stzString("Приве́т नमस्ते שָׁלוֹם")
 # 	[ " ",     "common" 	], 
 #	[ "नमस्ते",         "devanagari" ],
 # 	[ " ",     "common" 	],
-o# 	[ "שָׁלוֹם", "hebrew" 	]
+#o 	[ "שָׁלוֹם", "hebrew" 	]
 # ]
 
-#TODO
-? o1.PartsW('{
-	Q(@part).Script() = :Cyrillic
-}')
-#--> [ "Приве", "т" ]
+? @@( o1.PartsWXT('{
+	StzCharQ(@char).Script() = :Cyrillic
+}') )
+#--> [ "Приве", "́", "т", " नमस्ते שָׁלוֹם" ]
+
+proff()
+# Executed in 0.58 second(s).
+
+/*--------------- #TODO
+
+pron()
+
+o1 = new QString2()
+o1.append("M")
+? o1.count()
+#--> 1
+
+o1 = new QString2()
+o1.append("🐨")
+? o1.count()
+#--> 2
+
+//o1 = new QString2()
+//o1.append("🐨")
+//? o1.size()	#TODO See with Mahmoud to add it to RingQt
+#--> 2
+
+proff()
+# Executed in almost 0 second(s).
 
 /*---------------
+
+pron()
 
 o1 = new stzString("🐨")
-? o1.NumberOfChars() # returns 2! --> Number of CodePoints()
-? o1.SizeInBytes() # returns 4
 
-#TODO: Reflect on this: NumberOfChars() is actually NumberOfCodePoints()
+? o1.SizeInBytes()
+#--> 435
+
+? @@SP( o1.SizeInBytesXT() )
+#--> [
+#	[ "RING_64BIT_LIST_STRUCTURE_SIZE", 80 ],
+#	[ "RING_64BIT_ITEM_STRUCTURE_SIZE * 6", 144 ],
+#	[ "RING_64BIT_ITEMS_STRUCTURE_SIZE * 6", 192 ],
+#	[ "RING_64BIT_ITEMS_CONTENT_SIZE", 19 ]
+# ]
+
+proff()
+# Executed in 0.06 second(s).
 
 /*---------------
 
-? Q('[1, 2, 3]').ToList() #--> [1, 2, 3]
+pron()
+
+? Q('[1, 2, 3]').ToList()
+#--> [1, 2, 3]
+
+proff()
+# Executed in 0.01 second(s).
 
 /*=============
+
+pron()
 
 ? Heart()
 #--> "♥"
@@ -14302,9 +14370,15 @@ o1 = new stzString("🐨")
 ? Flower()
 #--> "✤"
 
+proff()
+# Executed in almost 0 second(s).
+
 /*================
 
+pron()
+
 StzStringQ("MustHave@32@Chars") {
+
 	? NumberOfOccurrenceCS(:Of = "@", TRUE) #--> 2
 	? FindAll("@") #--> [9, 12]
 
@@ -14315,13 +14389,21 @@ StzStringQ("MustHave@32@Chars") {
 	? FindPreviousNth(2, "@", :StartingAt = 12) #--> 9
 }
 
+proff()
+# Executed in 0.02 second(s).
+
 /*---------------- Used to enable constraint-oriented programming
 
+pron()
+
 o1 = new stzString("MustHave@32@CharsAnd@8@Spaces")
-? o1.SubstringsBetween("@","@") #--> ["32", "8" ]
+? o1.SubstringsBoundedBy("@") #--> ["32", "CharsAnd", "8" ]
 
 o1 = new stzString("MustHave32CharsAnd8Spaces")
-? @@( o1.SubstringsBetween("@","@") ) #--> [ ]
+? @@( o1.SubstringsBoundedBy("@") ) #--> [ ]
+
+proff()
+# Executed in 0.01 second(s).
 
 /*======== REMOVE XT ==================================================
 
@@ -14334,10 +14416,10 @@ StartProfiler()
 	#--> Ring programming language
 	
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 	
 /*----------------
-	
+
 StartProfiler()
 	
 	o1 = new stzString("Ring *progr*amming* language")
@@ -14347,7 +14429,7 @@ StartProfiler()
 	#--> Ring programming language
 	
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 	
 /*----------------
 
@@ -14360,7 +14442,7 @@ StartProfiler()
 	#--> Ring *programming* language
 	
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 	
 /*----------------
 
@@ -14373,7 +14455,7 @@ StartProfiler()
 	#--> Ring progr*amming* language
 	
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 	
 /*----------------
 
@@ -14386,7 +14468,7 @@ StartProfiler()
 	#--> Ring *progr*amming language
 	
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 	
 /*----------------
 
@@ -14426,7 +14508,7 @@ Q("Ring programming* language.") {
 }
 	
 StopProfiler()
-#--> Executed in 0.04 second(s)
+#--> Executed in 0.02 second(s)
 	
 /*-----------
 
@@ -14440,7 +14522,7 @@ Q("__♥)__♥)__♥)__") {
 }
 	
 StopProfiler()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 	
 /*-----------
 
@@ -14455,7 +14537,7 @@ Q("__♥__♥)__♥__") {
 }
 	
 StopProfiler()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s)
 	
 /*-----------------
 
@@ -14469,7 +14551,7 @@ Q("__♥)__♥__♥__") {
 }
 	
 StopProfiler()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 	
 /*-----------------
 
@@ -14483,7 +14565,7 @@ Q("__♥__♥__♥)__") {
 }
 	
 StopProfiler()
-# Executed in 0.05 second(s)
+# Executed in 0.04 second(s)
 
 /*========== REMOVING BEFORE
 
@@ -14498,7 +14580,7 @@ Q("Ring ***programming language.") {
 }
 	
 StopProfiler()
-#--> Executed in 0.05 second(s)
+#--> Executed in 0.04 second(s)
 	
 /*-----------
 
@@ -14527,7 +14609,7 @@ Q("__♥__(♥__♥__") {
 }
 	
 StopProfiler()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s)
 	
 /*-----------------
 
@@ -14541,7 +14623,7 @@ Q("__(♥__♥__♥__") {
 }
 	
 StopProfiler()
-# Executed in 0.07 second(s)
+# Executed in 0.05 second(s)
 	
 /*-----------------
 
@@ -14555,7 +14637,7 @@ Q("__♥__♥__(♥__") {
 }
 	
 StopProfiler()
-# Executed in 0.07 second(s)
+# Executed in 0.05 second(s)
 	
 /*------- REMOVING AROUND
 
@@ -14569,7 +14651,7 @@ Q("_-♥-_-♥-_-♥-_") {
 }
 	
 StopProfiler()
-# Executed in 0.07 second(s)
+# Executed in 0.06 second(s)
 
 /*-----------------
 
@@ -14597,7 +14679,7 @@ Q("__♥__/♥\__♥__") {
 }
 	
 StopProfiler()
-# Executed in 0.06 second(s)
+# Executed in 0.07 second(s)
 
 /*-----------------
 
@@ -14628,17 +14710,17 @@ StopProfiler()
 # Executed in 0.10 second(s)
 
 /*---------
-
+*/
 StartProfiler()
 
 	Q("/♥♥♥\__/\/\__/♥♥♥\__") {
-		RemoveXT("♥♥♥", :Between = ["/", :And = "\"])
+		RemoveXT("♥♥♥", :BoundedBy = [ "/", :And = "\" ])
 		? Content()
 		#--> /\__/\/\__/\__
 	}
 
 StopProfiler()
-# Executed in 0.08 second(s)
+# Executed in 0.14 second(s).
 
 /*---------
 
