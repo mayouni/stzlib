@@ -9189,6 +9189,14 @@ class stzString from stzObject
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
+		if CheckParams()
+
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+				pcSubStr = pcSubStr[2]
+			ok
+
+		ok
+
 		nResult = -1 + This.SplitCSQ(pcSubStr, pCaseSensitive).NumberOfItems()
 		return nResult
 
@@ -25847,15 +25855,15 @@ www	  #============================#
 		#< @FunctionAlternativeForm
 	
 		def FindSubStringBetweenAsSectionsCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.FindSubStringBetweenCSZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This.FindSubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		#--
 
 		def FindBetweenAsSectionsCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.FindSubStringBetweenCSZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This.FindSubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		def FindBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.FindSubStringBetweenCSZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This.FindSubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		#>
 
@@ -72887,7 +72895,7 @@ n1 = Min(aTemp)
 				ok
 	
 			#-- Removing at many positions
-			#TODO: Add example here for better readability
+			#TODO // Add example here for better readability
 			but oP2.IsAtPositionsNamedParam()
 				p2 = p2[2]
 	
@@ -72898,14 +72906,14 @@ n1 = Min(aTemp)
 				This.RemoveSubStringAtPositionsCS(p2, p1, pCaseSensitive)
 
 			# Removing from, Nth from, First from, Last from
-			#TODO: Add examples here for better readability
+			#TODO // Add examples here for better readability
 			but oP2.IsFromNamedParam()
 				p2 = p2[2]
 
 				# Removing from
 
 				if isString(p1)
-					cNewSubStr =  ( Q(p2) - p1 ).Content()
+					cNewSubStr =  Q(p2) - p1
 	
 				# Removing Nth from
 
@@ -73117,10 +73125,10 @@ n1 = Min(aTemp)
 
 				if isString(p1) and p1 != ""
 					if cBetween = :Between
-						This.RemoveBetweenCS(p1, p2[1], p2[2], pCaseSensitive)
+						This.RemoveSubStringBetweenCS(p1, p2[1], p2[2], pCaseSensitive)
 	
 					but cBetween = :BetweenIB
-						This.RemoveBetweenCSIB(p1, p2[1], p2[2], pCaseSensitive)
+						This.RemoveSubStringBetweenCSIB(p1, p2[1], p2[2], pCaseSensitive)
 		
 					ok
 
@@ -85881,7 +85889,14 @@ n1 = Min(aTemp)
 		# Doing the job
 
 		if pCaseSensitive = TRUE
+
 			return @oQString.count()
+
+			#TODO // we should use @oQString.size() instead
+			# ~> because count() returns the number of unicode
+			# codepoints and not the number of chars
+
+			# ~> Ask Mahmoud to add it to RingQt
 
 		else
 			return len( This.UniqueChars() )
