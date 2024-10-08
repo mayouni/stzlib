@@ -72867,6 +72867,27 @@ n1 = Min(aTemp)
 		def SubStringBetweenRemovedIB(pcSubStr,pcBound1, pcBound2)
 			return This.SubStringBetweenRemovedCSIB(pcSubStr,pcBound1, pcBound2, TRUE)
 
+	  #========================================================================#
+	 #  REMOVING ALL OCCURRENCES OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
+	#========================================================================#
+
+	def RemoveSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
+		aSections = This.FindSubStringBoundedByCSZZ(pcSubStr, pacBounds, pCaseSensitive)
+		This.RemoveSections(aSections)
+
+
+	def SubStringBoundedByRemovedCS(pcSubStr, pacBounds, pCaseSensitive)
+		cResult = This.Copy().RemoveSubStringBoundedByCSQ(pcSubStr, pacBounds, pCaseSensitive).Content()
+		return cResult
+
+	#-- WITHOUT CASESENSITIViTY
+
+	def RemoveSubStringBoundedBy(pcSubStr, pacBounds)
+		This.RemoveSubStringBoundedByCS(pcSubStr, pacBounds, TRUE)
+
+		def SubStringBoundedByRemoved(pcSubStr, pacBounds)
+			return This.SubStringBoundedByRemovedCS(pcSubStr, pacBounds, TRUE)
+
 	  #===========================================================================#
 	 #  REMOVING A SUBSTRING BOUNDED BY TWO BOUNDS STARTING AT A GIVEN POSITION  #
 	#===========================================================================#
