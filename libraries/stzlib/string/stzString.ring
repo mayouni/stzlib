@@ -20536,7 +20536,7 @@ class stzString from stzObject
 	def ContainsTheseBounds(pacBounds)
 		return This.ContainsTheseBoundsCS(pacBounds, TRUE)
 
-www	  #============================#
+	  #============================#
 	 #   REPEATED LEADING CHARS   #
 	#============================#
 
@@ -25562,9 +25562,10 @@ www	  #============================#
 
 		#>
 
-	  #========================================================================================================#
-	 #  FINDING OCCURRENCES OF A SUBSTRING BETWEEN THE FIRST AND LAST OCCURRENCE OF AN OTHER giVEN SUBSTRING  #
-	#========================================================================================================#
+	   #========================================================#
+	  #  FINDING OCCURRENCES OF A SUBSTRING BETWEEN THE FIRST  #
+	 #  AND LAST OCCURRENCE OF AN OTHER giVEN SUBSTRING       #
+	#========================================================#
 
 	def FindSubStringBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 
@@ -25694,9 +25695,10 @@ www	  #============================#
 
 		#>
 
-	  #--------------------------------------------------------------------------------------------------------------#
-	 #  FINDING OCCURRENCES OF A SUBSTRING BETWEEN THE FIRST AND LAST OCCURRENCE OF AN OTHER giVEN SUBSTRING -- IB  #
-	#--------------------------------------------------------------------------------------------------------------#
+	   #----------------------------------------------------------#
+	  #  FINDING OCCURRENCES OF A SUBSTRING BETWEEN THE FIRST    #
+	 #  AND LAST OCCURRENCE OF AN OTHER giVEN SUBSTRING -- IB   #
+	#----------------------------------------------------------#
 
 	def FindSubStringBetweenCSIB(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 		anPos = This.FindSubStringBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
@@ -25813,6 +25815,108 @@ www	  #============================#
 			return This.Between(pSubStrOrPos1, pSubStrOrPos2)
 
 		#>
+
+	   #--------------------------------------------------------------------------------------#
+	  #  GETTING THE SUBSTRING BETWEEN THE END OF THE FIRST OCCURRENCE OF A GIVEN SUBSTRING  #
+	 #  AND THE START OF THE LAST OCCURRENCE OF AN OTHER GIVEN SUBSTRING -- IB/EXTENDED     #
+	#======================================================================================#
+
+	def BetweenCSIB(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+		aSection = This.FindBetweenCSIBZZ(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+		cResult = This.Section(aSection)
+
+		return cResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenIB(pSubStrOrPos1, pSubStrOrPos2)
+		return This.BetweenCSIB(pSubStrOrPos1, pSubStrOrPos2, TRUE)
+
+	   #-----------------------------------------------------------#
+	  #  FINDING OCCURRENCES OF A SUBSTRING BETWEEN THE FIRST     #
+	 #  AND LAST OCCURRENCE OF AN OTHER giVEN SUBSTRING -- IBZZ  #
+	#-----------------------------------------------------------#
+
+	def FindSubStringBetweenCSIBZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+		aSection = This.FindSubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+		nLen = len(aSection)
+		nLen1 = StzStringQ(pcSubStr1).NumberOfChars()
+		nLen2 = StzStringQ(pcSubStr2).NumberOfChars()
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + [ aSection[i][1] - nLen1, aSection[i][2] + nLen2 ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindBetweenCSIBZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+			return This.FindSubStringBetweenCSIBZZ(pcSubStr, pcBound1, pcBound2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindSubStringBetweenIBZZ(pcSubStr, pcSubStr1, pcSubStr2)
+		return This.FindSubStringBetweenCSIBZZ(pcSubStr, pcSubStr1, pcSubStr2, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindBetweenIBZZ(pcSubStr, pcBound1, pcBound2)
+			return This.FindSubStringBetweenIBZZ(pcSubStr, pcBound1, pcBound2)
+
+		#>
+
+	   #-----------------------------------------------------------------------------------#
+	  #  GETTING THE SUBSTRING BETWEEN THE END OF THE FIRST OCCURRENCE OF A GIVEN         #
+	 #  SUBSTRING AND THE START OF THE LAST OCCURRENCE OF AN OTHER GIVEN SUBSTRING -- ZZ #
+	#===================================================================================#
+
+	def BetweenCSZZ(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+
+		cSubStr = This.BetweenCS(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+		aSection = This.FindSubStringBetweenCSZZ(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+
+		aResult = [ cSubStr, aSection ]
+		return aResult
+
+		#< @FunctionAlternativeForm
+
+		def SubStringBetweenCSZZ(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+			return This.BetweenCSZZ(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVE
+
+	def BetweenZZ(pSubStrOrPos1, pSubStrOrPos2)
+		return This.BetweenCSZZ(pSubStrOrPos1, pSubStrOrPos2, TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def SubStringBetweenZZ(pSubStrOrPos1, pSubStrOrPos2)
+			return This.BetweenZZ(pSubStrOrPos1, pSubStrOrPos2)
+
+		#>
+
+	   #--------------------------------------------------------------------------------------#
+	  #  GETTING THE SUBSTRING BETWEEN THE END OF THE FIRST OCCURRENCE OF A GIVEN SUBSTRING  #
+	 #  AND THE START OF THE LAST OCCURRENCE OF AN OTHER GIVEN SUBSTRING -- IBZZ/EXTENDED   #
+	#======================================================================================#
+
+	def BetweenCSIBZZ(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+		cSubStr = This.BetweenCSIB(SubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+		aSection = This.FindSubStringBetweenCSIBZZ(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+
+		aResult = [ cSubStr, aSection ]
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def BetweenIBZZ(pSubStrOrPos1, pSubStrOrPos2)
+		return This.BetweenCSIBZZ(pSubStrOrPos1, pSubStrOrPos2, TRUE)
 
 	  #----------------------------------------------------------------------#
 	 #  FINDING OCCURRENCES OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
