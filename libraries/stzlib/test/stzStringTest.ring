@@ -13949,7 +13949,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*------------------
-*/
+
 pron()
 
 o1 = new stzString("ar-tn")
@@ -13969,31 +13969,100 @@ proff()
 
 /*------------------
 
+pron()
+
+@oQLocale = new QLocale("ar-tn")
+? @oQLocale.name()
+#--> ar_tn
+
+proff()
+# Executed in almost 0 second(s).
+
+
+/*------------------
+
+pron()
+
+o1 = new stzLocale("ar-Arab") # Default arabi country is egypr
+? o1.CountryName()
+#--> egypt
+
+o1 = new stzLocale("AR-Arab-tn")
+? o1.CountryName()
+#--> tunisia
+
+o1 = new stzLocale("AR-tn")
+? o1.CountryName()
+#--> tunisia
+
+o1 = new stzLocale("TN-Arab") # TN here means the TswaNa language in South Africa!
+? o1.CountryName()
+#--> south_africa
+
+? o1.Langauge()
+#--> tswana
+
+proff()
+# Executed in 0.03 second(s).
+
+/*------------------
+
+pron()
+
 o1 = new stzString("fr")
+? o1.IsLocaleAbbreviation()
+#--> FALSE
+
+o1 = new stzString("fr-fr")
 ? o1.IsLocaleAbbreviation()
 #--> TRUE
 
+? StzLocaleQ("fr-fr").Country()
+# france
+
+proff()
+# Executed in 0.02 second(s).
+
 /*------------------
+
+pron()
 
 o1 = new stzString("105")
 ? o1.IsLanguageNumber()
 #--> TRUE
 
 ? StzLanguageQ("105").Name()
-#--> :Sindhi
+#--> sindhi
 
 ? StzLanguageQ("105").DefaultCountry()
-#--> :Pakistan
+#--> pakistan
+
+proff()
+# Executed in 0.01 second(s).
 
 /*------------------
+
+pron()
 
 o1 = new stzString("ara")
-? o1.IsLanguageAbbreviation()		#--> TRUE
-? o1.IsShortLanguageAbbreviation()	#--> FALSE
-? o1.IsLongLanguageAbbreviation()	#--> TRUE
-? o1.LanguageAbbreviationForm()		#--> :Long
+? o1.IsLanguageAbbreviation()
+#--> TRUE
+
+? o1.IsShortLanguageAbbreviation()
+#--> FALSE
+
+? o1.IsLongLanguageAbbreviation()
+#--> TRUE
+
+? o1.LanguageAbbreviationForm()
+#--> long
+
+proff()
+# Executed in 0.02 second(s).
 
 /*------------------
+
+pron()
 
 o1 = new stzString("Ⅱ")
 ? o1.IsLatin()
@@ -14001,16 +14070,24 @@ o1 = new stzString("Ⅱ")
 
 o1 = new stzChar("Ⅱ")
 ? o1.IsRomanNumber()
-#-->
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s).
 
 /*----------------
+*/
+pron()
 
 # How to add a string to a QString objet (Qt-side)
 # Used internally by Softanza
 
-oQStr = new QString() #NOTE: It's better to use QString2()
+oQStr = new QString2() #NOTE // QString2() is more performant then QString()
 oQStr.append("salem")
 ? QStringToString(oQStr)
+
+proff()
+# Executed in almost 0 second(s).
 
 /*--------------------
 

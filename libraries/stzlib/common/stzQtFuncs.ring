@@ -314,11 +314,12 @@ func IsQString(p)
 
 func QStringContent(oQStr)
 
-	try
+	if IsQString(oQStr)
 		return oQStr.left(oQStr.count())
-	catch
+
+	else
 		stzRaise(stzStringError(:CanNotTransformQStringToString))
-	done
+	ok
 
 	#--
 

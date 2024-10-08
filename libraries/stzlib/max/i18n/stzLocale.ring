@@ -125,10 +125,12 @@ func NamesOfMonths()
 func NamesOfMonthsIn(pcLangOrCountry)
 	
 	aResult = []
-	if _(pcLangOrCountry).Q.IsLanguageName()
+	oTempStr = new stzString(pcLangOrCountry)
+
+	if oTempStr.IsLanguageName()
 		oQLocale = StzLocaleQ([ :Language = pcLangOrCountry ]).QLocaleObject()
 
-	but _(pcLangOrCountry).Q.IsCountryName()
+	but oTempStr.IsCountryName()
 
 		cAbbr = StzCountryQ(pcLangOrCountry).LanguageAbbreviation() + "_" +
 			StzCountryQ(pcLangOrCountry).Abbreviation()
@@ -159,7 +161,7 @@ class stzLocale from stzObject
 	/*
 	Initializes the stzLocale object using one of these methods:
 
-		* a QLocale object instanciated from Qt using new QLocale()
+		* by providing a QLocale object instanciated from Qt using new QLocale()
 
 		* by providing a locale string like "ar_TN" and "ar_Arab_TN"
 		  (dash"-" separator also accepted)
