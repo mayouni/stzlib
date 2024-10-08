@@ -14159,7 +14159,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-------------- #narration INTERNAL IMPLEMENTATION OF UNICODE() FUNCTION
-*/
+
 pron()
 
 # In Softanza you get the unicode number of a char by saying:
@@ -14197,6 +14197,8 @@ oStr.append_2(oChar)
 proff()
 
 /*--------------
+*/
+pron()
 
 o1 = new stzString("abcbbaccbtttx")
 ? @@( o1.UniqueChars() )
@@ -14204,6 +14206,8 @@ o1 = new stzString("abcbbaccbtttx")
 
 ? o1.ContainsNOccurrences(2, :Of = "a")
 #--> TRUE
+
+proff()
 
 /*---------------
 

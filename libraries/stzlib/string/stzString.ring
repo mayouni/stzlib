@@ -51164,6 +51164,10 @@ n1 = Min(aTemp)
 	#----------------------------------------------------------------------#
 
 	def ContainsNOccurrencesCS(n, pcSubStr, pCaseSensitive)
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			pcSubStr = pcSubStr[2]
+		ok
+
 		if This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) = n
 			return TRUE
 		else
