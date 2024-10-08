@@ -14075,8 +14075,8 @@ o1 = new stzChar("Ⅱ")
 proff()
 # Executed in 0.04 second(s).
 
-/*----------------
-*/
+/*============== #qt
+
 pron()
 
 # How to add a string to a QString objet (Qt-side)
@@ -14089,13 +14089,19 @@ oQStr.append("salem")
 proff()
 # Executed in almost 0 second(s).
 
-/*--------------------
+/*===============
+
+pron()
 
 o1 = new stzString("100110001")
 ? o1.IsMadeOf([ "1","0" ])
 #--> TRUE
 
+proff()
+
 /*--------------------
+*/
+pron()
 
 o1 = new stzString("01234567")
 ? o1.IsMadeOfSome( OctalChars() )
@@ -14104,6 +14110,9 @@ o1 = new stzString("01234567")
 o1 = new stzString("001100101")
 ? o1.IsMadeOf( BinaryChars() )
 #--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*-------------------
 
