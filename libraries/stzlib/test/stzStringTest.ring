@@ -13908,6 +13908,9 @@ proff()
 
 pron()
 
+# You can use the simple form of InsertSubStrings() without ..XT and
+# get default configurations that works:
+
 o1 = new stzString("All our software versions must be updated!")
 o1.InsertSubStrings( o1.PositionAfter("versions"), [ "V1", "V2", "V3" ])
 ? o1.Content()
@@ -13917,8 +13920,10 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-------------------
-*/
+
 pron()
+
+# You can use InsertSubStringsXT() with just the configurations you want:
 
 o1 = new stzString("All our software versions must be updated!")
 o1.InsertSubStringsXT(
@@ -13934,15 +13939,33 @@ proff()
 
 /*===================
 
+pron()
+
 o1 = new stzString("latin")
 ? o1.IsScriptName()
 #--> TRUE
 
-/*------------------
+proff()
+# Executed in 0.01 second(s).
 
-o1 = new stzString("TN-fr") # Fix this; tn-fr gives true --> Incorrect!
+/*------------------
+*/
+pron()
+
+o1 = new stzString("ar-tn")
 ? o1.IsLocaleAbbreviation()
 #--> TRUE
+
+o1 = new stzString("ar-fr")
+? o1.IsLocaleAbbreviation()
+#--> TRUE
+
+o1 = new stzString("tn-fr")
+? o1.IsLocaleAbbreviation()
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s).
 
 /*------------------
 

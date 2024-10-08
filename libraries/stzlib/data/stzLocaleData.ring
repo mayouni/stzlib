@@ -1293,7 +1293,7 @@ _aLocaleAbbreviationsXT = [
 # for performance reasons (in fact string parsing by Qt is
 # quicker then parsing the deep Ring list LocaleAbbreviationsXT()
 
-_cLocaleAbbreviations = "
+_cLocaleAbbreviations = trim("
 	fa-AF, fa-Arab-AF, ps-AF, ps-Arab-AF, uz-AF, uz-Arab-AF,
 	en-AG, en-Latn-AG, en-AI, en-Latn-AI, sq-AL, sq-Latn-AL,
 	hy-AM, hy-Armn-AM, pt-AO, pt-Latn-AO, ln-AO, ln-Latn-AO,
@@ -1464,7 +1464,7 @@ _cLocaleAbbreviations = "
 	en-Latn-ZA, zu-ZA, zu-Latn-ZA, bem-ZM, bem-Latn-ZM, en-ZM,
 	en-Latn-ZM, en-ZW, en-Latn-ZW, nd-ZW, nd-Latn-ZW, sn-ZW,
 	sn-Latn-ZW
-"
+")
 
 func LocaleQuotationStyles()
 	return _aLocaleQuotationStyles
