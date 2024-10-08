@@ -14100,7 +14100,7 @@ o1 = new stzString("100110001")
 proff()
 
 /*--------------------
-*/
+
 pron()
 
 o1 = new stzString("01234567")
@@ -14116,53 +14116,85 @@ proff()
 
 /*-------------------
 
+pron()
+
 o1 = new stzString("o01234567")
 ? o1.RepresentsNumberInOctalForm()
 #--> TRUE
 
+proff()
+# Executed in 0.01 second(s).
+
 /*-------------------
+
+pron()
 
 o1 = new stzString("4E992")
 ? o1.IsMadeOfSome( HexChars() )
 #--> TRUE
 
+proff()
+# Executed in 0.01 second(s).
+
 /*-------------------
+
+pron()
 
 o1 = new stzString("x4E992")
 ? o1.RepresentsNumberInHexForm()
 #--> TRUE
 
+proff()
+# Executed in 0.01 second(s).
+
 /*-------------------
+
+pron()
 
 o1 = new stzString("maan")
 ? o1.IsMadeOf([ "m", "a", "a", "n" ])
 #--> TRUE
 
-/*--------------
+proff()
+# Executed in 0.01 second(s).
 
-# In Softanza you get get the unicode number of a char by saying:
+/*-------------- #narration INTERNAL IMPLEMENTATION OF UNICODE() FUNCTION
+*/
+pron()
+
+# In Softanza you get the unicode number of a char by saying:
+
 ? Unicode("鶊")
-# And you have the code, you can pass it as an imput to a stzChar
+#--> 40330
+
+# Once you have the code, you can pass it as an imput to a stzChar
 # char object to get the char:
-? StzCharQ(40330).Content() #--> 鶊
 
-# If you are curious to know how I made it internally inside the
-# Unicode() function, then fellow the following discussion...
+? StzCharQ(40330).Content()
+#--> 鶊
 
-# First we create the QChar from whatever a decimal unicode could be
+# Qt is used internally to get the Unicode code, but many steps
+# are necessary. Curious to know how I made it?
+
+# First I created the QChar from whatever a decimal unicode could be:
 
 oChar = new QChar(40220) # the char "鴜" coded on 3 bytes
 
-# Second, we create a QString from that QChar
+# Second, I created a QString from that QChar
 
 oStr = new QString2()
 oStr.append_2(oChar)
 
-# Third, we use toUtf8() on QString to get a QByteArray as a result,
+# Third, I used toUtf8() on QString to get a QByteArray as a result,
 # and then we call data() method on it to get the string with our "鴜"
 
 ? oStr.ToUtf8().data()
 #--> 鶊
+
+# As you see, Softanza leverages the power of Qt, but makes hudge efforts
+# to simplify its use and unify it in a freindly mental model.
+
+proff()
 
 /*--------------
 
