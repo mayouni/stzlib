@@ -1,27 +1,86 @@
-load "../core/string/stkStringArt.ring"
-
-? BoxedStringArt("RING 1.21")
-? BoxedStringArt("STZ-CORE")
-
-
-
-
-
-
-
-
-
-
-
-
+load "../string/stkStringArt.ring"
 
 decimals(3)
 t0 = clock()
 
+/*----
+pron()
+
+? DefaultStringArtStyle()
+#--> "neon"
+
+	? CharArtLayers("C")
+	#--> [
+	# 	"╭━━━╮",
+	# 	"┃╭━━╯",
+	# 	"┃┃",
+	# 	"┃╰━━╮",
+	# 	"╰━━━╯"
+	# ]
+	
+	? CharArtLayers("C")[4]
+	#--> "┃╰━━╮"
+
+SetStringArtStyle("retro")
+
+	? CharArtLayers("C")
+	#--> [
+	# 	"░▄███▄░",
+	# 	"██▀░░░░",
+	# 	"██░░░░░",
+	# 	"██▄░░░░",
+	# 	"░▀███▀░"
+	# ]
+	
+	? CharArtLayers("C")[4]
+	#--> "██▄░░░░"
+
+proff()
+
+/*-----
+*/
+
+o1 = new stkStringArt("RING")
+o1 {
+
+	? "~> " + Style() + NL
+	#--> "retro" + NL
+
+	 ? o1.Artify() + NL
+
+	#--
+
+	SetStyle(:geo)
+	? "~> " + Style() + NL
+	#--> "retro" + NL
+
+	? o1.Artify() + NL
+
+	#--
+
+	SetStyle(:neon)
+	? "~> " + Style() + NL
+	#--> "retro" + NL
+
+	? o1.Artify()
+
+}
+
+#~~~~~~~
+# Executed in 0.004 seconds.
+
+/*-----
+
+
+//SetStringArtStyle(:geo)
+? BoxedStringArt("RING 1.21")
+//? BoxedStringArt("STZ-CORE")
+
+
 /*~~~~~~
 
 # NOTE This sample (and the stkStringArt itself) is dedicated to
-# Mahmoud for the efforts he deplyed in delivering V1.21 of Ring
+# Mahmoud for the efforts he deployed in delivering V1.21 of Ring
 
 ? StringArt("THANK") + nl
 ? StringArt("YOU") + nl
@@ -92,7 +151,7 @@ t0 = clock()
 # Executed in 0.010 seconds.
 
 #-------
-*/
+
 
 ? BoxedStringArt("RING 1.21")
 ? BoxedStringArt("STZ-CORE")
@@ -120,7 +179,7 @@ t0 = clock()
 
 
 #~~~~~~
-
+*/
 ? NL + "~~~~~~~"
 
 t = (clock() - t0) / clockspersecond()
