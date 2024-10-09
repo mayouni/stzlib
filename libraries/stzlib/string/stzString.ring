@@ -19924,19 +19924,71 @@ class stzString from stzObject
 
 		#>
 
+	  #========================================================================================#
+	 #  FINDING ANY SUBSTRING BETWEEN THE FIRST AND LAST OCCURRENCES OF TWO GIVEN SUBSTRINGS  #
+	#========================================================================================#
+
+	def FindBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
+
+		nLen1 = StzStringQ(pcBound1).NumberOfChars()
+		n1 = This.FindFirstOccurrenceCS(pcBound1, pCaseSensitive) + nLen1
+		n2 = This.FindLastOccurrenceCS(pcBound2, pCaseSensitive) - 1
+
+		if n2 < n1
+			nTemp = n2
+			n2 = n1
+			n1 = nTemp
+		ok
+
+		aResult = [ n1, n2 ]
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
+
+		def FindAnyBetweenCSZZ(pcBound1, pcBound2, pCaseSensitive)
+			return This.FindBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindBetweenAsSection(pcBound1, pcBound2)
+		return This.FindBetweenAsSectionCS(pcBound1, pcBound2, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindAnyBetweenAsSection(pcBound1, pcBound2)
+			return This.FindBetweenAsSection(pcBound1, pcBound2)
+
+		def FindAnyBetweenZZ(pcBound1, pcBound2)
+			return This.FindBetweenAsSection(pcBound1, pcBound2)
+
+		#>
+
 	  #=======================================================#
 	 #  REMOVING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS  #
 	#=======================================================#
 
 	def RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
-		aSections = This.FindAnyBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
-		This.RemoveSections(aSections)
+		aSection = This.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
+		This.RemoveSection(aSection[1], aSection[2])
 
 		#< @FunctionFluentForm
 
 		def RemoveAnyBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
 			This.RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 			return This
+
+		#>
+
+		def RemoveBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
+
+			def RemoveBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
+				return This.RemoveAnyBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
 
 		#>
 
@@ -19961,7 +20013,7 @@ class stzString from stzObject
 
 	def RemoveAnyBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
 
-		aSections = This.FindAnyBetweenAsSectionsCS(pcBound1, pcBound2, pCaseSensitive)
+		aSections = This.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 
 		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
 			pcBound2 = pcBound2[2]
@@ -25913,17 +25965,37 @@ class stzString from stzObject
 		aResult = [ cSubStr, aSection ]
 		return aResult
 
+		#< @FunctionAlternativeForms
+
+		def AnyBetweenCSIBZZ(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+			return This.BetweenCSIBZZ(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+
+		def SubStringBetweenCSIBZZ(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+			return This.BetweenCSIBZZ(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def BetweenIBZZ(pSubStrOrPos1, pSubStrOrPos2)
 		return This.BetweenCSIBZZ(pSubStrOrPos1, pSubStrOrPos2, TRUE)
 
-	  #----------------------------------------------------------------------#
+		#< @FunctionAlternativeForms
+
+		def AnyBetweenIBZZ(pSubStrOrPos1, pSubStrOrPos2)
+			return This.BetweenIBZZ(pSubStrOrPos1, pSubStrOrPos2)
+
+		def SubStringBetweenIBZZ(pSubStrOrPos1, pSubStrOrPos2)
+			return This.BetweenIBZZ(pSubStrOrPos1, pSubStrOrPos2)
+
+		#>
+
+	  #======================================================================#
 	 #  FINDING OCCURRENCES OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
 	#======================================================================#
 
 	def FindSubStringBoundedByCS(pcSubStr, pacBounds, pCaseSensitive)
-
+? @@(pcSubStr)
 		# Checking params
 
 		if CheckParams()
@@ -72919,8 +72991,8 @@ n1 = Min(aTemp)
 		aSections = This.FindSubStringBoundedByAsSectionsCS(pcSubStr, pacBounds, pCaseSensitive)
 		nLenSections = len(aSections)
 
-		nLen1 = Q(pcBound1).NumberOfChars()
-		nLen2 = Q(pcBound2).NumberOfChars()
+		nLen1 = Q(pacBounds[1]).NumberOfChars()
+		nLen2 = Q(pacBounds[2]).NumberOfChars()
 
 		for i = 1 to nLenSections
 			n1 = aSections[i][1] - nLen1
@@ -73377,10 +73449,10 @@ n1 = Min(aTemp)
 				ok
 
 				if cBounded = :BoundedBy
-					This.RemoveCSXT( p1, :Between = [ cBound1, cBound2 ], pCaseSensitive)
+					This.RemoveSubStringBoundedByCS( p1, [ cBound1, cBound2 ], pCaseSensitive)
 
 				but cBounded = :BoundedByIB
-					This.RemoveCSXT( p1, :BetweenIB = [ cBound1, cBound2 ], pCaseSensitive)
+					This.RemoveSubStringBoundedByCSIB( p1, [ cBound1, cBound2 ], pCaseSensitive)
 
 				ok
 

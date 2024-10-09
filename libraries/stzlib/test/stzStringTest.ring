@@ -47,7 +47,7 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*===
 
@@ -75,7 +75,7 @@ o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji", "zai" ], :By = [ "♥", 
 #--> ♥ qt ♥♥ pyhton ♥ csharp ♥♥
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*------
 
@@ -119,7 +119,7 @@ o1 = new stzString("*2*45*78*0*")
 
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*=======
 
@@ -155,29 +155,6 @@ proff()
 
 pron()
 
-o1 = new stzString("ring---")
-
-? o1.RightCharRemoved()
-#--> ring--
-
-? o1.CharRemovedFromRight("-")
-#--> ring--
-
-? o1.TrailingCharsRemoved()
-#--> ring
-
-? o1.CharRemovedFromRightXT("-")
-#--> ring
-
-? o1.CharTrimmedFromRight("-")
-#--> ring--
-
-proff()
-
-/*=====
-
-pron()
-
 o1 = new stzString("---ring---")
 
 o1.RemoveThisCharFromStartXT("*")
@@ -197,6 +174,7 @@ o1.RemoveThisCharFromEndXT("-")
 #--> "ring"
 
 proff()
+# Executed in 0.01 second(s).
 
 /*--------
 
@@ -213,6 +191,7 @@ o1.RemoveThisCharFromEndXT("-")
 #--> "ring"
 
 proff()
+# Executed in 0.01 second(s).
 
 /*--------
 
@@ -229,6 +208,7 @@ o1.RemoveThisCharFromLeftXT("-")
 #--> ring
 
 proff()
+# Executed in 0.01 second(s).
 
 /*--------
 
@@ -245,9 +225,10 @@ o1.RemoveThisCharFromRightXT("-")
 #--> "ring"
 
 proff()
+# Executed in 0.01 second(s).
 
 /*======
-
+*/
 pron()
 
 o1 = new stzString("---ring")
@@ -487,6 +468,7 @@ o1 = new stzString("Ring---")
 o1.RemoveTrailingChar() # Or RemoveAnyTrailingChar() or RemoveTrailingChars()
 
 proff()
+# Executed in 0.01 second(s).
 
 /*------
 
@@ -503,7 +485,7 @@ o1.RemoveThisLeadingChar("-")
 #--> "Ring"
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s)
 
 /*------
 
@@ -14720,7 +14702,7 @@ StartProfiler()
 	}
 
 StopProfiler()
-# Executed in 0.14 second(s).
+# Executed in 0.12 second(s).
 
 /*---------
 
@@ -14733,10 +14715,10 @@ StartProfiler()
 	}
 
 StopProfiler()
-# Executed in 0.12 second(s).
+# Executed in 0.10 second(s).
 
 /*---------
-*/
+
 pron()
 
 o1 = new stzString("__^^^__^^♥^^__")
@@ -14745,10 +14727,10 @@ o1.RemoveSubStringBoundedBy("♥", "^^")
 #--> __^^^__^^^^__
 
 proff()
-# Executed in 0.04 second(s).
+# Executed in 0.03 second(s).
 
 /*---------
-*/
+
 StartProfiler()
 
 	Q("__^^^__^^♥^^__") {
@@ -14771,33 +14753,7 @@ StartProfiler()
 	}
 
 StopProfiler()
-# Executed in 0.12 second(s)
-
-/*---------
-
-StartProfiler()
-
-	Q("/♥^♥\__/♥\/vv\__/^^^\__") {
-		RemoveXT([], :Between = ["/", :And = "\"])
-		? Content()
-		#--> /\__/\/\__/\__
-	}
-
-StopProfiler()
-# Executed in 0.08 second(s)
-
-/*---------
-
-StartProfiler()
-
-	Q("/♥^♥\__/♥\/vv\__/^^^\__") {
-		RemoveXT([], :BetweenIB = ["/", :And = "\"])
-		? Content()
-		#--> ______
-	}
-
-StopProfiler()
-# Executed in 0.08 second(s)
+# Executed in 0.10 second(s)
 
 /*---------
 
@@ -14810,7 +14766,7 @@ StartProfiler()
 	}
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*---------
 
@@ -14823,7 +14779,7 @@ StartProfiler()
 	}
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*---------
 
@@ -14836,7 +14792,7 @@ StartProfiler()
 	}
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*---------
 
@@ -14849,7 +14805,8 @@ StartProfiler()
 	}
 
 StopProfiler()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.19
 
 /*---------
 
@@ -14862,7 +14819,28 @@ StartProfiler()
 	}
 
 StopProfiler()
-# Executed in 0.08 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.08 second(s) in Ring 1.19
+
+
+/*=========== string comparaision logic in stzString
+
+pron()
+
+? Q("sam") < "samira"
+#--> TRUE
+
+? Q("samira") > "ira"
+#--> TRUE
+
+? Q("qam") = "sam"
+#--> FALSE
+
+? Q("QAM") = "qam"
+#--> FALSE
+
+proff()
+# Executed in 0.02 second(s)
 
                  ///////////////////////////////////////////////
                 //                              ///////////////
@@ -14870,7 +14848,7 @@ StopProfiler()
  ///////////////                              //
 ///////////////////////////////////////////////
 
-/*---------------- TODO : AFTER CONSTRAINT IMPLEMENTED
+/*---------------- TODO/FUTURE : AFTER CONSTRAINT IMPLEMENTED
 
 aList = [
 	:Where = "file.ring",
@@ -14997,21 +14975,3 @@ o1 = new stzString("ABTCADNBBABEFACCC")
 #  "V" :  -------^------^-- (2)
 #  "X" :  ----------------- (0)
 
-/*=========== TODO: Review string comparaision logic in stzString
-
-pron()
-
-? Q("sam") < "samira"
-#--> TRUE
-
-? Q("samira") > "ira"
-#--> TRUE
-
-? Q("qam") = "sam"
-#--> FALSE
-
-? Q("QAM") = "qam"
-#--> FALSE
-
-proff()
-# Executed in 0.06 second(s)
