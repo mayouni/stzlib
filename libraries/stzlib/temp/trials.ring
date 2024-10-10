@@ -1,4 +1,4 @@
-load "stdlib.ring"
+//load "stdlib.ring"
 load "qtcore.ring"
 
 cStr = " line1 line1 line1 
@@ -7,20 +7,24 @@ line3 line3 line3"
 
 # split with ring
 
-? split(cStr, nl)
+? StzSplit(cStr, nl)
 
 # split with qt
 
 ? "---" + nl
 
-oQStr = new QString2()
-oQStr.append(cStr)
+func StzSplitCS(cStr, cSubStr, bCaseSensitive)
+	oQStr = new QString2()
+	oQStr.append(cStr)
+	
+	oQStrList = oQStr.split(cSubStr, 0, bCaseSensitive)
+	
+	acResult = []
+	for i = 0 to oQStrList.size()-1
+		acResult + oQStrList.at(i)	
+	next
 
-oQStrList = oQStr.split(NL, 0, 0)
+	return acResult
 
-acResult = []
-for i = 0 to oQStrList.size()-1
-	acResult + oQStrList.at(i)	
-next
-
-? acResult
+func StzSplit(cStr, cSubStr)
+	return StzSplitCS(cStr, cSubStr, 0)

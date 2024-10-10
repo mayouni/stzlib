@@ -35,6 +35,9 @@ func StringArtStyles()
 func DefaultStringArtStyle()
 	return $DEFAULT_STRING_ART_STYLE
 
+	func StringArtStyle()
+		return return $DEFAULT_STRING_ART_STYLE
+
 func SetDefaultStringArtStyle(cStyle)
 	bFound = find(StringArtStyles(), lower(cStyle))
 	if bFound = 0
@@ -48,13 +51,16 @@ func SetDefaultStringArtStyle(cStyle)
 
 func StringArt(str)
 	oStrArt = new stkStringArt(str)
-	oStrArt.SetStringArtStyle(DefaultStringArtStyle())
+	oStrArt.SetStyle(DefaultStringArtStyle())
 	return oStrArt.Artify()
 
-func BoxedStringArt(str)
+func StringArtBoxified(str)
 	oStrArt = new stkStringArt(str)
-	oStrArt.SetStringArtStyle(DefaultStringArtStyle())
-	return oStrArt.Boxed()
+	oStrArt.SetStyle(DefaultStringArtStyle())
+	return oStrArt.Boxify()
+
+	func StringArtBoxed(str)
+		return StringArtBoxified(str)
 
 func DefaultCharArt()
 	return @cDefaultCharArt = ""
@@ -82,7 +88,7 @@ func CharArtLayers(c)
 		ok
 	next
 
-	return aDataXTs[nPos][2]
+	return aDataXT[nPos][2]
 
 #--------------------#
 #  STRING ART CLASS  #

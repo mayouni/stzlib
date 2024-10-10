@@ -459,6 +459,15 @@ func StringToUnicodes(pcStr)
 	func @ToUnicodes(pcStr)
 		return StringToUnicodes(pcStr)
 
+# split function (to use instead of the one provided by the standard library
+
+func StzSplitCS(cStr, cSubStr, bCaseSensitive)
+	oStkStr = new stkString
+	return oStkStr.SplitCS(cStr, cSubStr, pCaseSensitive)
+
+func StzSplit(cStr, cSubStr)
+	return StzSplitCS(cStr, cSubStr, 0)
+
 # Some functions used mainly in natural-code
 
 func UppercaseOf(cStr)

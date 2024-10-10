@@ -4,6 +4,13 @@ load "LightGuiLib.ring"
 #  STZ CORE STRING  #
 #~~~~~~~~~~~~~~~~~~~#
 
+func StkSplitCS(cStr, cSubStr, bCaseSensitive)
+	oStkStr = new stkString
+	return oStkStr.SplitCS(cStr, cSubStr, pCaseSensitive)
+
+func StkSplit(cStr, cSubStr)
+	return StkSplitCS(cStr, cSubStr, 0)
+
 class stkString from stzCoreString
 
 class stzCoreString from stzCoreObject
