@@ -40,7 +40,7 @@ proff()
 /*-----
 */
 
-o1 = new stkStringArt("RING")
+o1 = new stkStringArt("ANTONIO")
 o1 {
 
 	? "~> " + Style() + NL
