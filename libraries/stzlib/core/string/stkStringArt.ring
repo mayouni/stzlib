@@ -1,4 +1,5 @@
 load "stdlib.ring"
+load "qtcore.ring"
 load "../data/stkStringArtData.ring"
 load "../error/stkError.ring"
 
@@ -162,38 +163,56 @@ class stkStringArt
 				cResult += pvtCharArtLayers(c)[i] + " "	
 			next
 
-			cResult += NL
+			# Adding the line (without space at the end)
+
+			cResult = left(cResult, len(cResult) - 1) + NL
 		next
 
 		cResult = left(cResult, len(cResult) - 1)  // Remove the last newline
 		return cResult
 
-	def Boxed()
+	def Boxify()
 
-	    # First, convert the input string to string art
-	    artContent = This.Artify()
+		# First, convert the input string to string art
+
+	    	oQStrArt = new QString2()
+		oQStrArt.append(This.Artify())
+
+		# Split the string art into lines
+
+		oQStrList = oQStrArt.split(NL, 0, 0)
+				
+		acLines = []
+		for i = 0 to oQStrList.size()-1
+			acLines + oQStrList.at(i)	
+		next
+
+		nLen = len(acLines)
+
+		# Find the maximum line length
+
+		anLenLines = []
+
+		for i = 1 to nLen
+			oQStr = new QString2()
+			oQStr.append(acLines[i])
+			anLenLines + oQStr.count()
+		next
+
+		anLenLines = sort(anLenLines)
+		nLenMax = anLenLines[nLen]
+
+		# Create the boxed result
+
+		cResult = "╭" + copy("─", (nLenMax + 2)) + "╮" + NL
 	    
-	    # Split the string art into lines
-	    lines = split(artContent, nl)
+		for i = 1 to nLen
+	        	cResult += "│ " + acLines[i] + " │" + NL
+		next
 	    
-	    # Find the maximum line length
-	    maxLength = 0
-	    for line in lines
-	        if len(line) > maxLength
-	            maxLength = len(line) / 3
-	        ok
-	    next
+		cResult += "╰" + copy("─", (nLenMax + 2)) + "╯"
 	    
-	    # Create the boxed result
-	    result = "╭" + copy("─", (maxLength + 2)) + "╮" + nl
-	    
-	    for line in lines
-	        result += "│ " + line + copy(" ", (maxLength - len(line))) + " │" + nl
-	    next
-	    
-	    result += "╰" + copy("─", (maxLength + 2)) + "╯"
-	    
-	    return result
+		return cResult
 
 
 	PRIVATE
@@ -233,21 +252,4 @@ class stkStringArt
 		next
 	
 		return aDataXT[nPos][2]
-
-/*		c = upper(c)
-		cStyle = This.Style()
-
-		# Finding the char c in the list 
-
-		nLen = len(aCharSet)
-		nPos = 0
-	
-		for i = 1 to nLen
-			if aCharSet[i][1] = c
-				nPos = i
-				exit
-			ok
-		next
-	
-		return aCharSet[nPos][2]
 	
