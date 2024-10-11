@@ -9,6 +9,9 @@
 #NOTE These asthetics arts data are generate using #Claude #AI,
 # and sometimes, manully crtafted by me to cope with my visual taste ;)
 
+#TODO Add some of these fonts:
+# http://www.jave.de/figlet/fonts/details/flowerpower.html
+
 #---
 
 # "Pixelated Retro Blueprint"
@@ -1050,6 +1053,16 @@ GAME ELEMENTS
 	Goomba
 	Spike
 
+ENEMIES
+	goomba
+	Spike
+	Goblin
+	Skeleton
+	Spider
+	Ghost
+	Dragon
+	Dragon2
+
 TRANSPORTATION
 	Rocket
 	Flagpole
@@ -1279,6 +1292,72 @@ $SPIKE =
  /      \
 /        \
 ----------"
+
+$GOBLIN =
+'   ,      ,
+  /(.-""-.)\\
+\\/        \\/
+ (  ^  ^  )
+  |  (--) |
+  (   _)  )
+   \\____/'
+
+$SKELETON =
+"   ___
+  (___)
+  (o o)
+ --) (--
+ _(___)_
+(       )
+ \\___//"
+
+$SPIDER =
+"   /\\oo/\\
+  ( (  ) )
+   \\/__\\/
+   //  \\\\
+  ((    ))
+   \\\\  //
+    \\\\//"
+
+$GHOST =
+'   .--""--.
+  /        \\
+ /  O    O  \\
+|   \\__\\/    |
+ \\ /    \\ _/
+  `\"`"`\"`"`'
+
+$DRAGON =
+"   /\\__/\\
+  (  @@  )
+ /\\  )\(  /\\
+(__\\/  \\/__)
+   | /\\ |
+   \\(__)/
+    `''`"
+$DRAGON2 =
+"/\    /\
+                  //\  //\
+                 //  \/  \
+                //  /  \  \
+               //  /    \  \
+              //  /     _\  \
+             //  /  /\/  \\  \
+            //  /  /  \   \\  \
+           //  /  /    \   \\  \
+          //  /  /     _\   \\  \
+         //  /__/   __/  \   \\  \
+        //  ______/  \\   \   \\  \
+       //  /     \\   \\   \   \\  \
+  ____//  /       \\   \\   \   \\  \____
+ /   / \  \        \\   \\   \  / \   \
+/___/   \__\        \\   \\   \/   \___\
+         \__\        \\   \\ 
+                      \\   \\
+                       \\   \\
+                        \\   \\
+                         \\___\\"
 
 #--- Transportation
 

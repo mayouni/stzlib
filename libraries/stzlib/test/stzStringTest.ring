@@ -14952,7 +14952,6 @@ StzListQ([ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]) {
 /*================== TODO: Fix error
 
 ? StzStringQ("ABTCADNBBABEFACCC").VizFind("A")
-
 #--> 
 #	"ABTCADNBBABEFACCC"
 #	 ^---^----^---^---
