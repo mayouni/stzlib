@@ -2519,7 +2519,7 @@ func SetQuietEqualityRatio(n)
 
 	def SetApproximativeEqualityRation(n)
 		SetQuietEqualityRatio(n)
-s
+
 func RingTypes()
 	return _aRingTypes
 
@@ -2528,12 +2528,6 @@ func RingFunctions()
 
 func RingKeywords()
 	return _acRingKeywords()
-
-func SoftanzaLogo()
-	return _cSoftanzaLogo
-
-	func Softanza()
-		return _cSoftanzaLogo
 
 func StzRaise(paMessage)
 	/*
