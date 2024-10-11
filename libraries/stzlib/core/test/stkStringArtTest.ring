@@ -936,7 +936,6 @@ SetStringArtStyle("retro")
 # Executed in 0.003 seconds.
 
 /*------
-*/
 
 # Text paintings in HUMAN BODY PARTS category
 
@@ -1048,10 +1047,100 @@ SetStringArtStyle("retro")
 #                 |_______|_|_______|/
 
 	
-	
+/*========
+
+? "Welcome to our coding adventure!"
+? StringArt("#{Rocket}")
+? "Let's blast off into the world of Ring programming!"
+
+/*------
+
+CheckWeather(35)
+#-->
+# It's hot outside!
+#    \   🌞  /
+#   \  \│/  /
+# ─ ─ ─ ☀ ─ ─ ─
+#   /  /│\  \
+#     /    \  \
+
+CheckWeather(25)
+#-->
+# It's cool today.
+#          .-~~~-.
+#  .- ~ ~-(       )_ _
+# /                     ~ -.
+# |                           \
+#  \                         .'
+#    ~- . _____________ . -~
+
+func CheckWeather(temperature)
+    if temperature > 30
+        ? "It's hot outside!"
+        ? StringArt("#{Sun rise}")
+    else
+        ? "It's cool today."
+        ? StringArt("#{Cloud}")
+    ok
+
+# Executed in 0.001 seconds.
+
+/*-----
+
+EncounterMonster()
+#-->
+# You encounter a fearsome dragon!
+#    /\\__/\\
+#   (  @@  )
+#  /\\  )\(  /\\
+# (__\\/  \\/__)
+#    | /\\ |
+#    \\(__)/
+#     `''`
+# 
+# What will you do?
+# 1. Fight
+# 2. Run
+# Enter your choice: 2
+# 
+# You turn and run as fast as you can!
+# oooO
+# ( )
+# \ (
+# \_)
+
+func EncounterMonster()
+    ? "You encounter a fearsome dragon!"
+    ? StringArt("#{Dragon}") + NL
+    ? "What will you do?"
+    ? "1. Fight"
+    ? "2. Run"
+
+    ? "Enter your choice: " give choice
+
+    if choice = "1"
+        ? "You draw your sword and prepare for battle!"
+        ? StringArt("#{Sword}")
+    else
+        ? "You turn and run as fast as you can!"
+        ? StringArt("#{RightFeet}")
+    ok
+
+/*-----
+
+$CustomLogo = "
+   ____  _
+  / __ \(_)____  ____ _
+ / /_/ / / ___/ / __ `/
+/ _, _/ / /    / /_/ /
+/_/ |_/_/_/     \__,_/
+"
+
+? StringArt("#{customLogo}")
+
 
 #~~~~~~
-*/
+
 ? NL + "~~~~~~~"
 
 t = (clock() - t0) / clockspersecond()
