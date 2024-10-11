@@ -4,6 +4,24 @@ load "../stzlib.ring"
 
 pron()
 
+cStr = " line1 line1 line1 
+line2 line2 line2
+line3 line3 line3"
+
+? stzsplit(cStr, NL)
+#--> [
+#	" line1 line1 line1",
+#	"line2 line2 line2",
+#	"line3 line3 line3"
+# ]
+
+proff()
+# Executed in almost 0 second(s).
+
+/*====
+
+pron()
+
 o1 = new stzString("me you all the others")
 ? o1.ContainsEither("me", :or = "you")
 #--> FALSE
