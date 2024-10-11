@@ -17,8 +17,10 @@
 #  TEST SAMPLES  #
 #----------------#
 
-/*---
-*/
+decimals(3)
+t0 = clock()
+
+/*-----
 
 o1 = new stzCoreString("Hello in ") # stkString() with <<k>> meaning Kore ;)
 
@@ -46,6 +48,20 @@ for i = 14 to 17
 next
 ? str + NL
 #o--> رينغ
+
+/*===
+*/
+
+cStr = " line1 line1 line1 
+line2 line2 line2
+line3 line3 line3"
+
+? stksplit(cStr, NL)
+#--> [
+#	" line1 line1 line1",
+#	"line2 line2 line2",
+#	"line3 line3 line3"
+# ]
 
 /*===
 
@@ -280,3 +296,10 @@ o2 = new stkChar( o1.Content() )
 #--> 輪
 
 # Discover other features of stzCoreChar in "../core/test/stkChar.ring"
+
+#~~~~~~
+*/
+? NL + "~~~~~~~"
+
+t = (clock() - t0) / clockspersecond()
+? "Executed in " + t + " seconds."

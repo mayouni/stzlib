@@ -4,12 +4,24 @@ load "LightGuiLib.ring"
 #  STZ CORE STRING  #
 #~~~~~~~~~~~~~~~~~~~#
 
+# split function (to use instead of the one provided by the standard library
+
 func StkSplitCS(cStr, cSubStr, bCaseSensitive)
-	oStkStr = new stkString
-	return oStkStr.SplitCS(cStr, cSubStr, pCaseSensitive)
+	oQStr = new QString2()
+	oQStr.append(cStr)
+	
+	oQStrList = oQStr.split(cSubStr, 0, bCaseSensitive)
+	
+	acResult = []
+	for i = 0 to oQStrList.size()-1
+		acResult + oQStrList.at(i)	
+	next
+
+	return acResult
 
 func StkSplit(cStr, cSubStr)
 	return StkSplitCS(cStr, cSubStr, 0)
+
 
 class stkString from stzCoreString
 

@@ -1,3 +1,18 @@
+
+load "../stzlib.ring"
+
+pron()
+
+cStr = " line1 line1 line1 
+line2 line2 line2
+line3 line3 line3"
+
+? stzsplit(cStr, NL)
+
+proff()
+# Executed in almost 0 second(s).
+
+/*
 //load "stdlib.ring"
 load "qtcore.ring"
 
