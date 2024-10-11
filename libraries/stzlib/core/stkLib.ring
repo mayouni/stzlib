@@ -21,11 +21,16 @@
 	load "object/stkObject.ring"
 
 	load "string/stkString.ring"
+	load "string/stkStringArt.ring"
 	load "string/stkChar.ring"
 
 	load "list/stkList.ring"
 
 	load "number/stkNumber.ring"
 	load "number/stkListOfNumbers.ring"
+
+# Loading Softanka (core) data
+
+	load "data/stkStringArtData.ring"
 
 //? ( clock() - t0 ) / clockspersecond()
