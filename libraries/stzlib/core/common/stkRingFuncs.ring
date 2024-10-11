@@ -9,6 +9,12 @@
 
 #TODO: Add the ring_...() form of all Ring functions
 
+func SoftanzaLogo()
+	return $SOFTANZALOGO
+
+	func Softanza()
+		return $SOFTANZALOGO
+
 func ring_EvenOrOdd(n) # Inverses the output to be more logic (odd -> 1, even -> 2)
 	if EvenOrOdd(n) = 1
 		return 2

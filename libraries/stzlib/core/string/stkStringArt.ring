@@ -11,9 +11,9 @@ load "qtcore.ring"
 
 $DEFAULT_STRING_ART_STYLE = :retro
 
-#--------------------#
-#  GLOBAL FUNCTIONS  #
-#--------------------#
+#-------------------------------#
+#  STRING ART STYLES FUNCTIONS  #
+#-------------------------------#
 
 func StringArtStylesXT()
 	return $STRING_ART_STYLESXT
@@ -48,6 +48,28 @@ func SetDefaultStringArtStyle(cStyle)
 		SetDefaultStringArtStyle(cStyle)
 
 func StringArt(str)
+
+	# Checking if the art painting syntax is used
+	# Example: StringArt("#{Tree}")
+
+	oQStr = new QString2()
+	oQStr.append(str)
+
+	bOk = FALSE
+
+	if oQStr.mid(0, 2) = "#{"
+		nLen = oQStr.count()
+		if oQStr.mid(nLen-1, 1) = "}"
+			bOk = TRUE
+		ok
+	ok
+
+	if bOk
+		return StringArtPainting(str)
+	ok
+
+	# Artifying the text provided
+
 	oStrArt = new stkStringArt(str)
 	oStrArt.SetStyle(DefaultStringArtStyle())
 	return oStrArt.Artify()
@@ -88,9 +110,42 @@ func CharArtLayers(c)
 
 	return aDataXT[nPos][2]
 
-#--------------------#
-#  STRING ART CLASS  #
-#--------------------#
+#---------------------------------#
+#  STRING ART PAINTINGS FUNCTION  #
+#---------------------------------#
+
+#NOTE Use in the background by the StringArt('#{tree}) function
+
+func StringArtPainting(cPaintingName)
+
+	oQStr = new QString2()
+	oQStr.append(cPaintingName)
+	oQStr.replace_2(" ", "", 0)
+	
+
+	bOk = FALSE
+
+	if oQStr.mid(0, 2) = "#{"
+		nLen = oQStr.count()
+		if oQStr.mid(nLen-1, 1) = "}"
+			bOk = TRUE
+		ok
+	ok
+
+	if bOk
+		str = oQStr.mid(2, nLen-3)
+	ok
+
+	#--
+
+	cResult = ""
+	cCode = "cResult = $" + str
+	eval(cCode)
+	return cResult
+
+#==========================#
+#  STRING ART STYLE CLASS  #
+#==========================#
 
 class stkStringArt
 	@cContent
