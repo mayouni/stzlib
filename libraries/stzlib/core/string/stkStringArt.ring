@@ -1,7 +1,5 @@
 load "stdlib.ring"
 load "qtcore.ring"
-load "../data/stkStringArtData.ring"
-load "../error/stkError.ring"
 
 #NOTE This class is dedicatd to Mahmoud for the effors he deployed
 # in delivering the 1.21 version of Ring

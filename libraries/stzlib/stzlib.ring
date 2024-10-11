@@ -206,6 +206,7 @@
 	load "data/stzConstraintsData.ring"
 	load "data/stzRandomData.ring"
 	load "data/stzCharData.ring"
+	load "data/stzStringArtData.ring"
 
 # Loading files related to the MAX/I18N module (part of SoftanzaMax layer)
 
