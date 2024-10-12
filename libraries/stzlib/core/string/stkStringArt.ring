@@ -16,7 +16,7 @@ $DEFAULT_STRING_ART_STYLE = :retro
 #-------------------------------#
 
 func StringArtStylesXT()
-	return $STRING_ART_STYLESXT
+	return $STZ_STRING_ART_STYLES_XT
 
 func StringArtStyles()
 	aStylesXT = StringArtStylesXT()
@@ -29,6 +29,13 @@ func StringArtStyles()
 	next
 
 	return acResult
+
+func IsStringArtStyle(str)
+	if find(StringArtStyles(), str) > 0
+		return TRUE
+	else
+		return FALSE
+	ok
 
 func DefaultStringArtStyle()
 	return $DEFAULT_STRING_ART_STYLE
@@ -46,6 +53,7 @@ func SetDefaultStringArtStyle(cStyle)
 
 	def SetStringArtStyle(cStyle)
 		SetDefaultStringArtStyle(cStyle)
+
 
 func StringArt(str)
 
@@ -214,9 +222,11 @@ class stkStringArt
 		# 	...
 		# ]
 
+		nHight = len(aCharSetXT[1][2])
+
 		cResult = ""
 		
-		for i = 1 to 5
+		for i = 1 to nHight
 			for j = 1 to nLenStr
 				c = @cContent[j]
 				cResult += pvtCharArtLayers(c)[i] + " "	
