@@ -388,37 +388,138 @@ func StringTitlecased(cStr)
 	func @Titlecase(cStr)
 		return StringTitlecased(cStr)
 
-func StringAlign(cString, nWidth, cChar, cDirection)
-	oString = new stzString(cString)
+#===
+
+func StringAlignXT(cStr, nWidth, cChar, cDirection)
+	oString = new stzString(cStr)
 	return oString.AlignXTQ(nWidth, cChar, cDirection).Content()
 	
-	func @Align(cString, nWidth, cChar, cDirection)
-		return StringAlign(cString, nWidth, cChar, cDirection)
+	func @AlignXT(cStr, nWidth, cChar, cDirection)
+		return StringAlignXT(cStr, nWidth, cChar, cDirection)
 
-func StringLeftAlign(cString, nWidth, cChar)
-	return StringAlign(cString, nWidth, cChar, :Left)
+	func AlignXT(cStr, nWidth, cChar, cDirection)
+		return StringAlignXT(cStr, nWidth, cChar, cDirection)
 
-	func @LeftAlign(cString, nWidth, cChar)
-		return StringLeftAlign(cString, nWidth, cChar)
+#--
 
-func StringRightAlign(cString, nWidth, cChar)
-	return StringAlign(cString, nWidth, cChar, :Right)
+func StringLeftAlign(cStr, nWidth)
+	return StringAlignXT(cStr, nWidth, " ", :Left)
 
-	func @RightAlign(cString, nWidth, cChar)
-		return StringRightAlign(cString, nWidth, cChar)
+	func StringAlignLeft(cStr, nWidth)
+		return StringLeftAlign(cStr, nWidth)
 
-func StringCenterAlign(cString, nWidth, cChar)
-	return StringAlign(cString, nWidth, cChar, :Center)
+	func LeftAlign(cStr, nWidth)
+		return StringLeftAlign(cStr, nWidth)
 
-	func @CenterAlign(cString, nWidth, cChar)
-		return StringCenterAlign(cString, nWidth, cChar)
+	func AlignLeft(cStr, nWidth)
+		return StringLeftAlign(cStr, nWidth)
 
-func StringRepeat(cString, n)
-	oString = new stzString(cString)
+	func @LeftAlign(cStr, nWidth)
+		return StringLeftAlign(cStr, nWidth)
+
+	func @AlignLeft(cStr, nWidth)
+		return StringLeftAlign(cStr, nWidth)
+
+func StringLeftAlignXT(cStr, nWidth, cChar)
+	return StringAlignXT(cStr, nWidth, cChar, :Left)
+
+	func StringAlignLeftXT(cStr, nWidth, cChar)
+		return StringLeftAlignXT(cStr, nWidth, cChar)
+
+	func LeftAlignXT(cStr, nWidth, cChar)
+		return StringLeftAlignXT(cStr, nWidth, cChar)
+
+	func AlignLeftXT(cStr, nWidth, cChar)
+		return StringLeftAlignXT(cStr, nWidth, cChar)
+
+	func @LeftAlignXT(cStr, nWidth, cChar)
+		return StringLeftAlignXT(cStr, nWidth, cChar)
+
+	func @AlignLeftXT(cStr, nWidth, cChar)
+		return StringLeftAlignXT(cStr, nWidth, cChar)
+
+#--
+
+func StringRightAlign(cStr, nWidth)
+	return StringAlignXT(cStr, nWidth, " ", :Right)
+
+	func StringAlignRight(cStr, nWidth)
+		return StringRightAlign(cStr, nWidth)
+
+	func RightAlign(cStr, nWidth)
+		return StringRightAlign(cStr, nWidth)
+
+	func AlignRight(cStr, nWidth)
+		return StringRightAlign(cStr, nWidth)
+
+	func @RightAlign(cStr, nWidth)
+		return StringRightAlign(cStr, nWidth)
+
+	func @AlignRight(cStr, nWidth)
+		return StringRightAlign(cStr, nWidth)
+
+func StringRightAlignXT(cStr, nWidth, cChar)
+	return StringAlignXT(cStr, nWidth, cChar, :Right)
+
+	func StringAlignRightXT(cStr, nWidth, cChar)
+		return StringRightAlignXT(cStr, nWidth, cChar)
+
+	func RightAlignXT(cStr, nWidth, cChar)
+		return StringRightAlignXT(cStr, nWidth, cChar)
+
+	func AlignRightXT(cStr, nWidth, cChar)
+		return StringRightAlignXT(cStr, nWidth, cChar)
+
+	func @RightAlignXT(cStr, nWidth, cChar)
+		return StringRightAlignXT(cStr, nWidth, cChar)
+
+	func @AlignRightXT(cStr, nWidth, cChar)
+		return StringRightAlignXT(cStr, nWidth, cChar)
+#--
+
+func StringCenterAlign(cStr, nWidth)
+	return StringAlignXT(cStr, nWidth, " ", :Center)
+
+	func StringAlignCenter(cStr, nWidth)
+		return StringCenterAlign(cStr, nWidth)
+
+	func CenterAlign(cStr, nWidth)
+		return StringCenterAlign(cStr, nWidth)
+
+	func AlignCenter(cStr, nWidth)
+		return StringCenterAlign(cStr, nWidth)
+
+	func @CenterAlign(cStr, nWidth)
+		return StringCenterAlign(cStr, nWidth)
+
+	func @AlignCenter(cStr, nWidth)
+		return StringCenterAlign(cStr, nWidth)
+
+func StringCenterAlignXT(cStr, nWidth, cChar)
+	return StringAlignXT(cStr, nWidth, cChar, :Center)
+
+	func StringAlignCenterXT(cStr, nWidth, cChar)
+		return StringCenterAlignXT(cStr, nWidth, cChar)
+
+	func CenterAlignXT(cStr, nWidth, cChar)
+		return StringCenterAlignXT(cStr, nWidth, cChar)
+
+	func AlignCenterXT(cStr, nWidth, cChar)
+		return StringCenterAlignXT(cStr, nWidth, cChar)
+
+	func @CenterAlignXT(cStr, nWidth, cChar)
+		return StringCenterAlignXT(cStr, nWidth, cChar)
+
+	func @AlignCenterXT(cStr, nWidth, cChar)
+		return StringCenterAlignXT(cStr, nWidth, cChar)
+#===
+
+func StringRepeat(cStr, n)
+	oString = new stzString(cStr)
 	return oString.RepeatedNTimes(n)
 	
-	func @Repeat(cString, n)
-		return StringRepeat(cString, n)
+	func @Repeat(cStr, n)
+		return StringRepeat(cStr, n)
 
 func StringNumberOfChars(cStr)
 	oString = new stzString(cStr)
