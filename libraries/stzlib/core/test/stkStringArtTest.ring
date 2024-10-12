@@ -1,5 +1,6 @@
 load "../string/stkStringArt.ring"
 load "../data/stkStringArtData.ring"
+load "../../string/stzstring.ring"
 
 decimals(3)
 t0 = clock()
@@ -9,8 +10,20 @@ t0 = clock()
 #---------------------------#
 
 SetStringArtStyle(:flower)
-? StringArt("Ring") + NL
-? "IS MORE BEAUTIFUL, YET POWERFUL WITH SOFTANZA!"
+? StringArt("Ring")
+
+#-->
+# .-------.     .-./`)  ,---.   .--.   .-_'''-.   
+# |  _ _   \    \ .-.') |    \  |  |  '_( )_   \  
+# | ( ' )  |    / `-' \ |  ,  \ |  | |(_ o _)|  ' 
+# |(_ o _) /     `-'`'` |  |\_ \|  | . (_,_)/___| 
+# | (_,_).' __   .---.  |  _( )_\  | |  |  .-----.
+# |  |\ \  |  |  |   |  | (_ o _)  | '  \  '-   .'
+# |  | \ `'   /  |   |  |  (_,_)\  |  \  `-'`   | 
+# |  |  \    /   |   |  |  |    |  |   \        / 
+# ''-'   `'-'    '---'  '--'    '--'    `'-...-'  
+# 
+# IS MORE BEAUTIFUL, YET POWERFUL WITH SOFTANZA!
 
 /*-----
 *

@@ -1,5 +1,41 @@
 load "../stzlib.ring"
 
+/*------
+
+StartProfiler()
+
+? @@( AlignCenter("RING", 15) )
+#--> "     RING      "
+
+? @@( AlignLeft("RING", 15) )
+#--> "RING           "
+
+? @@( AlignRight("RING", 15) ) + NL
+#-->"           RING"
+
+
+? @@( AlignCenterXT("RING", 15, ".") )
+#--> ".....RING......"
+
+? @@( AlignLeftXT("RING", 15, ".") )
+#--> "RING..........."
+
+? @@( AlignRightXT("RING", 15, ".") ) + NL
+#--> "...........RING"
+
+
+? @@( AlignXT("RING", 15, "~", :Center) )
+#--> "~~~~~RING~~~~~~"
+
+? @@( AlignXT("RING", 15, "~", :Right) )
+#--> "~~~~~RING~~~~~~"
+
+? @@( AlignXT("RING", 15, "~", :Left) )
+#--> "~~~~~RING~~~~~~"
+
+StopProfiler()
+# Executed in 0.03 second(s).
+
 /*====
 
 pron()
@@ -13473,10 +13509,10 @@ proff()
 
 pron()
 
-? StringAlign("SOFTANZA", 30, ".", :Left)
-? StringAlign("SOFTANZA", 30, ".", :Right)
-? StringAlign("SOFTANZA", 30, ".", :Center)
-? StringAlign("SOFTANZA", 30, ".", :Justified) + NL
+? StringAlignXT("SOFTANZA", 30, ".", :Left)
+? StringAlignXT("SOFTANZA", 30, ".", :Right)
+? StringAlignXT("SOFTANZA", 30, ".", :Center)
+? StringAlignXT("SOFTANZA", 30, ".", :Justified) + NL
 
 #-->
 # SOFTANZA......................
@@ -13492,10 +13528,10 @@ proff()
 pron()
 
 str = "منصوريّات"
-? StringAlign(str, 30, ".", :Left)
-? StringAlign(str, 30, ".", :Right)
-? StringAlign(str, 30, ".", :Center)
-? StringAlign(str, 30, ".", :Justified)
+? StringAlignXT(str, 30, ".", :Left)
+? StringAlignXT(str, 30, ".", :Right)
+? StringAlignXT(str, 30, ".", :Center)
+? StringAlignXT(str, 30, ".", :Justified)
 
 #-->
 # ......................منصوريّات
