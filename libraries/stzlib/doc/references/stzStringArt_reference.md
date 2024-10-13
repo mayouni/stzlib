@@ -4,10 +4,6 @@
 
 This document provides a comprehensive reference for the `StringArt` function and the `stzStringArt` class, which are used to create and manipulate string art representations of text in the Softanza library.
 
-For a broader understanding of string art support in Softanza, please refer to the article: [An overview of String Art support in Softanza](#) (link to be added).
-
-For practical examples, see the [stzStringArtTest.ring](#) file (link to be added).
-
 ## Quick Reference
 
 | Name | Type | Description | Since Version |
@@ -43,6 +39,7 @@ For practical examples, see the [stzStringArtTest.ring](#) file (link to be adde
 ? StringArt("Hello")
 ```
 Output:
+```ring
 ██░░░██ ███████ ██░░░░░ ██░░░░░ ░▄███▄░
 ██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▀░▀██
 ███████ █████░░ ██░░░░░ ██░░░░░ ██░░░██
@@ -134,14 +131,14 @@ Returns the original content string.
 Returns the current string art style.
 
 Example:
-``ring
+```ring
 oArt = new stzStringArt("Hi!")
 ? oArt.Style()
-``
+```
 Output:
-``ring
+```ring
 retro
-``
+```
 
 #### SetStyle(cStyle)
 
@@ -150,15 +147,15 @@ Sets the string art style.
 - `cStyle`: The name of the style to set (must be a valid style from `StringArtStyles()`)
 
 Example:
-``ring
+```ring
 oArt = new stzStringArt("Hi!")
 oArt.SetStyle(:flower)
 ? oArt.Style()
-``
+```
 Output:
-``ring
+```ring
 flower
-``
+```
 
 
 #### Artify()
@@ -166,13 +163,13 @@ flower
 Converts the content to string art representation.
 
 Example:
-``ring
+```ring
 oArt = new stzStringArt("Ring")
 ? oArt.SetStyle(:flower)
 ? oArt.Artify()
-``
+```
 Output:
-``ring
+```ring
 .-------.     .-./`)  ,---.   .--.   .-_'''-.   
 |  _ _   \    \ .-.') |    \  |  |  '_( )_   \  
 | ( ' )  |    / `-' \ |  ,  \ |  | |(_ o _)|  ' 
@@ -182,7 +179,7 @@ Output:
 |  | \ `'   /  |   |  |  (_,_)\  |  \  `-'`   | 
 |  |  \    /   |   |  |  |    |  |   \        / 
 ''-'   `'-'    '---'  '--'    '--'    `'-...-'
-``
+```
 
 
 #### Boxify()
@@ -190,13 +187,13 @@ Output:
 Creates a boxed version of the string art representation.
 
 Example:
-``ring
+```ring
 oArt = new stzStringArt("Ring")
 ? oArt.SetStyle(:flower)
 ? oArt.Artify()
-``
+```
 Output:
-``ring
+```ring
 ╭──────────────────────────────────────────────────╮
 │ .-------.     .-./`)  ,---.   .--.   .-_'''-.    │
 │ |  _ _   \    \ .-.') |    \  |  |  '_( )_   \   │
@@ -217,53 +214,53 @@ Output:
 Returns a list of available string art styles.
 
 Example:
-``ring
+```ring
 ? StringArtStyles()
-``
+```
 Output:
-``ring
+```ring
 [ "retro", "neon", "geo", "flower" ]
-``
+```
 
 ### IsStringArtStyle(str)
 
 Checks if the given string is a valid string art style.
 
 Example:
-``ring
+```ring
 ? IsStringArtStyle(:flower)
-``
+```
 Output:
-``ring
+```ring
 TRUE
-``
+```
 
 ### DefaultStringArtStyle()
 
 Returns the current default string art style.
 
 Example:
-``ring
+```ring
 ? DefaultStringArtStyle()
-``
+```
 Output:
-``ring
+```ring
 retro
-``
+```
 
 ### SetDefaultStringArtStyle(cStyle)
 
 Sets the default string art style.
 
 Example:
-``ring
+```ring
 SetDefaultStringArtStyle(:geo)
 ? DefaultStringArtStyle()
-``
+```
 Output:
-``ring
+```ring
 geo
-``
+```
 
 ## Data File: stzStringArtData.ring
 
@@ -351,9 +348,12 @@ You can then use `StringArt("#{my custom art}")` with spaces, and Softanza will 
 
 The "stk" prefix in file names (e.g., **stk**StringArt.ring and **stk**StringArtData.rig), with the "k" representing **SoftanzaCore**, signifies that these components belong to the foundational layer of the Softanza architecture, ensuring their accessibility to all upper levels. Consequently, loading "**stz**lib.ring" at the SoftanzaPrime level will automatically include these core files. However, if desired, you can opt to load only the SoftanzaCore layer by using "load **stk**lib.ring." This approach reduces additional features, streamlines the codebase, and is ideal for constrained environments such as the console, microcontrollers, or web applications.
 
-For more details, see the article: *Overview of the 3 Layers of Softanza Software Architecture* (article pending).
+For more details, see the article: *Overview of the 3 Layers of Softanza Software Architecture* (#TODO: article pending).
 
 ## See Also
 
-- [A more detailed overview of String Art support in Softanza](#) (link to be added)
-- [Many practical code examples i stzStringArtTest.ring](#) (link to be added)
+For a broader understanding of string art support in Softanza, please refer to the article: [An overview of String Art support in Softanza](../doc/overviews/stzStringArt_Overview.md).
+
+For a wide range of practical examples, see the [stzStringArtTest.ring](../core/test/stkStringArtTest.ring) file.
+
+For quick insights into using the StringArt features at a glance, check out our [Softanza StringArt Quickers](link to be added) for an instant feel of how they work.
