@@ -1,17 +1,17 @@
-# Enhancing Programming with String Art in Ring
+# An overview of String Art support in Softanza
 
 The Softanza library for Ring language introduces string art texts and paintings, enhancing the programming experience in code narrations, educational examples, and console text-based games. This feature makes programming more engaging, enjoyable, and visually appealing.
 
 ## StringArt() Function Features
 
-The StringArt() function in Softanza offers two main capabilities:
+The **StringArt()** function in Softanza offers two main capabilities:
 
 1. Generating ASCII Art Text (Figlets)
 2. Generating ASCII Art Paintings
 
 ### ASCII Art Text (Figlets)
 
-StringArt() can generate stylized text using ASCII characters, also known as figlets. This feature creates eye-catching headers, titles, or text-based visual elements.
+**StringArt()** can generate stylized text using ASCII characters, also known as figlets. This feature creates eye-catching headers, titles, or text-based visual elements.
 
 Example:
 ```ring
@@ -33,11 +33,11 @@ SetStringArtStyle(:flower)
 # 
 # IS MORE BEAUTIFUL, YET POWERFUL WITH SOFTANZA!
 ```
-You can use the StringArt() function like in the code above, or you can use the stzStringArt object, along with its methods SetStyle(), Style(), Artify(), and Boxify() like we are going to do in the next samples.
+You can use the **StringArt()** function like in the code above, or you can use the **stzStringArt** object, along with its methods **SetStyle()**, **Style()**, **Artify()**, and **Boxify()** like we are going to do in the next samples.
 
-Currently, Softanza ships with 4 beatuful string art styles. 
+Currently, Softanza ships with 4 beautiful font art styles. 
 
-### FLOWER, a piece of beauty
+### FLOWER, it's beautiful!
 
  This style, used in the previous sample to generate the word "Ring", creates beautiful floral and plant-like shapes.
 
@@ -87,13 +87,13 @@ o1 {
 
 ### GEO, explore the relief
 
-This  style offers a modern, slightly futuristic look while maintaining readability. It could be particularly effective for headlines, logos, or any application where you want to combine a tech-savvy feel with a touch of elegance.
+This style offers a modern, slightly futuristic look while maintaining readability. It could be particularly effective for headlines, logos, or any application where you want to combine a tech-savvy feel with a touch of elegance.
 
 Example:
 ```ring
 load "stzlib.ring"
 
-o1 = new stkStringArt("SOFTANZA")
+o1 = new stzStringArt("SOFTANZA")
 o1 {
     SetStyle(:neon)
 	? Boxify()
@@ -110,7 +110,7 @@ o1 {
 
 ## The Power of Visual Appeal
 
-The Softanza library offers a wide array of string art designs, ranging from simple shapes to complex scenes. These include:
+Softanza library offers a wide array of string art designs, ranging from simple shapes to complex scenes. These include:
 
 1. Collectibles (coins, stars, hearts)
 2. Environmental elements (trees, clouds)
@@ -124,7 +124,7 @@ The Softanza library offers a wide array of string art designs, ranging from sim
 10. Human body parts
 11. Miscellaneous designs
 
-You can see them all in the stzStringArtData.ring file (link).
+You can see them all in the **stzStringArtData.ring** file ([Link](../../core/data/stkStringArtData.ring).
 
 By incorporating these visual elements into your code, you can create more engaging console outputs, making your programs not just functional, but visually appealing as well.
 
@@ -157,11 +157,9 @@ load "stzlib.ring"
 # Let's blast off into the world of Ring programming!
 ```
 
-This simple addition of a rocket ASCII art can make your introduction more memorable and exciting for new programmers, setting the stage for an engaging learning experience.
-
 ## Making Educational Examples More Engaging
 
-When teaching programming concepts, visual aids can significantly improve understanding and retention. The string art library can be used to create more engaging educational examples. For instance, when explaining conditional statements:
+When teaching programming concepts, visual aids can significantly improve understanding and retention. The string art can be used to create more engaging educational examples. For instance, when explaining conditional statements:
 
 ```ring
 load "stzlib.ring"
@@ -194,8 +192,6 @@ CheckWeather(25)
 #  \                         .'
 #    ~- . _____________ . -~
 ```
-
-This example not only explains the concept but also provides a visual representation of the outcome, making it more intuitive for learners. The use of relevant string art (sun for hot weather, cloud for cool weather) reinforces the conditional logic in a visually appealing way.
 
 ## Elevating Console Text-Based Games
 
@@ -243,11 +239,9 @@ SetStringArtStyle(:neon)
 # Powered by: Softanza and the Ring GameEngine (c)
 ```
 
-This start screen combines multiple string art elements (tree, neon-style game title) with boxed text to create an attractive and professional-looking game introduction.
-
 ### Implementing Game Encounters
 
-You can use string art to make text-based RPG encounters more vivid and engaging:
+You can use string art to make text-based RPG encounters as engaging as this:
 
 ```ring
 load "stzlib.ring"
@@ -292,8 +286,6 @@ EncounterMonster()
 # \_)
 ```
 
-This simple encounter becomes much more vivid with the addition of visual representations of the dragon, sword, and running feet. It transforms a plain text interaction into a more immersive and enjoyable gaming experience.
-
 ## Using Other Visual Features
 
 Along with string arts, Softanza provides you with other interesting visual features that you can use to boost your text-based UIs:
@@ -311,8 +303,6 @@ load "stzlib.ring"
 # │  PLAY NOW!  │
 # ╰─────────────╯
 ```
-
-This feature allows you to create visually distinct UI elements within your console application.
 
 ### Displaying Grids
 
@@ -339,11 +329,9 @@ StzGridQ([ :Of = 10, :By = 10 ]) {
 #   g h i j k l m n o p
 ```
 
-This feature can be particularly useful for creating game boards, puzzles, or displaying data in a grid format.
-
 ### Displaying Tabular Data
 
-Softanza's stzTable object allows you to beautifully display tabular data on the screen:
+Softanza's stzTable object allows you to beautifully display tabular data on the screen, which can be particularly useful for game statistics or any other tabular data presentation need:
 
 ```ring
 # Create a table with this structure:
@@ -366,9 +354,8 @@ o1 = new stzTable([
 #        *       *       *
 #       30     300    3000
 ```
-You can configure the table's stroke, adjustment, and other thinks, but let's keep it simple for now.
-
-This feature is excellent for displaying data in a readable, organized manner, which can be particularly useful for game statistics, inventory management, or any scenario requiring tabular data presentation.
+> [NOTE]
+> You can configure the table's stroke, adjustment, and other thinks, but let's keep it simple for now.
 
 ### Visual Search and Highlight
 
@@ -388,11 +375,9 @@ load "stzlib.ring"
 #    ╰───┴───┴─♥─┴───┴───╯
 ```
 
-This feature not only makes search results more visible but also allows for customization of the output, enhancing user experience in console applications.
-
 ## Creating Custom Designs
 
-The Softanza library also allows for easily adding custom string art designs. You just need to add a string global variable, containing the design, prefebraly into the stzStringData.ring file, and use its global name (which must be preceded by the char $STZ_STR_ART) when you call the StringArt() function. For example:
+The Softanza library also allows for easily adding custom string art designs. You just need to add a string global variable, containing the design, prefebraly into the **stzStringData.ring** file, and use its global name (which must be preceded by the char **$STZ_STR_ART_...**) when you call the **StringArt()** function. For example:
 
 ```ring
 load "stzStringArt.ring"
@@ -418,8 +403,8 @@ $STZ_STR_ART_MyCustomLogo = "
 
 For more sophisticated game development, Softanza can be combined with other Ring libraries:
 
-- RingRogueUtil extension for making console text-based user interfaces
-- RingEngine library for more advanced game development features
+- **RingRogueUtil** extension for making console text-based user interfaces
+- **RingEngine** library for more advanced game development features
 
 These tools, when used in conjunction with Softanza's string art capabilities, can help you create rich, interactive console-based games with visually appealing interfaces.
 
