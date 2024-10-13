@@ -410,6 +410,6 @@ These tools, when used in conjunction with Softanza's string art capabilities, c
 
 # See also
 
-1. Explore the complete reference document, [StringArt Function and stzStringArt Class Reference](../references/stzStringArt_Reference.md), for a detailed guide on every feature and method.
-2. Quckily build your comprehension of the StringArt features by crafting action-oriented small code snippets, in [Softanza StringArt Quickers](../quickers/stzStringArt_Quickers.md) page
+1. Explore the complete reference document, [StringArt Function and stzStringArt Class Reference](../../doc/references/stzStringArt_Reference.md), for a detailed guide on every feature and method.
+2. Quckily build your comprehension of the StringArt features by crafting action-oriented small code snippets, in [Softanza StringArt Quickers](../../doc/quickers/stzStringArt_Quickers.md) page
 3. Experiment with code samples in the [stkStringArtTest](../../core/test/stkStringArtTest.ring) file to see practical examples of StringArt in action.
