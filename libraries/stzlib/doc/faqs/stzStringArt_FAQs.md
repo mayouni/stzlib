@@ -95,7 +95,7 @@ A10: While StringArt is primarily designed for console output, you could potenti
 A11: For more detailed information, you can refer to:
 - [The StringArt overview document](../overviews/stzStringArt_Overview.md)
 - [The StringArt reference document](../references/stzStringArt_Reference.md)
-- [The StringArt quickers guide for quick code snippets](../stzStringArt_Quickers.md)
-- The `stkStringArtTest.ring` file for practical examples(../../core/test/stkStringArtTest.ring)s
+- [The StringArt quickers guide for quick code snippets](../quickers/stzStringArt_Quickers.md)
+- [The `stkStringArtTest.ring` file for practical examples](../../core/test/stkStringArtTest.ring)s
 
 These resources are available in the Softanza documentation.
