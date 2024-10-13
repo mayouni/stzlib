@@ -39,6 +39,8 @@ This document provides a comprehensive reference for the `StringArt` function an
 ### Examples
 
 ```ring
+load "stzlib.ring"
+
 ? StringArt("Hello")
 #-->
 ██░░░██ ███████ ██░░░░░ ██░░░░░ ░▄███▄░
@@ -49,6 +51,8 @@ This document provides a comprehensive reference for the `StringArt` function an
 ```
 
 ```ring
+load "stzlib.ring"
+
 ? StringArt("#{Tree}")
 #-->
     🍃
@@ -66,6 +70,8 @@ This document provides a comprehensive reference for the `StringArt` function an
 
 Example:
 ```ring
+load "stzlib.ring"
+
 SetDefaultStringArtStyle(:neon)
 ```
 
@@ -76,6 +82,8 @@ SetDefaultStringArtStyle(:neon)
 
 Example 1:
 ```ring
+load "stzlib.ring"
+
 ? StringArtBoxified("HELLO")
 #-->
 ╭─────────────────────────────────────────╮
@@ -89,6 +97,8 @@ Example 1:
 
 Example 2:
 ```ring
+load "stzlib.ring"
+
 ? CharArtLayers("R")
 #-->
 [
@@ -110,6 +120,8 @@ Example 2:
 ### Constructor
 
 ```ring
+load "stzlib.ring"
+
 new stzStringArt(str)
 ```
 
@@ -127,6 +139,8 @@ Returns the current string art style.
 
 Example:
 ```ring
+load "stzlib.ring"
+
 oArt = new stzStringArt("Hi!")
 ? oArt.Style()
 #-->
@@ -141,6 +155,8 @@ Sets the string art style.
 
 Example:
 ```ring
+load "stzlib.ring"
+
 oArt = new stzStringArt("Hi!")
 oArt.SetStyle(:flower)
 ? oArt.Style()
@@ -155,6 +171,8 @@ Converts the content to string art representation.
 
 Example:
 ```ring
+load "stzlib.ring"
+
 oArt = new stzStringArt("Ring")
 
 oArt.SetStyle(:flower)
@@ -179,6 +197,8 @@ Creates a boxed version of the string art representation.
 
 Example:
 ```ring
+load "stzlib.ring"
+
 oArt = new stzStringArt("Ring")
 
 oArt.SetStyle(:flower)
@@ -206,6 +226,8 @@ Returns a list of available string art styles.
 
 Example:
 ```ring
+load "stzlib.ring"
+
 ? StringArtStyles()
 #-->
 [ "retro", "neon", "geo", "flower" ]
@@ -217,6 +239,8 @@ Checks if the given string is a valid string art style.
 
 Example:
 ```ring
+load "stzlib.ring"
+
 ? IsStringArtStyle(:flower)
 #-->
 TRUE
@@ -228,6 +252,8 @@ Returns the current default string art style.
 
 Example:
 ```ring
+load "stzlib.ring"
+
 ? DefaultStringArtStyle()
 #-->
 retro
@@ -239,6 +265,8 @@ Sets the default string art style.
 
 Example:
 ```ring
+load "stzlib.ring"
+
 SetDefaultStringArtStyle(:geo)
 ? DefaultStringArtStyle()
 #-->
@@ -337,4 +365,4 @@ For more details, see the article: *Overview of the 3 Layers of Softanza Softwar
 
 For a broader understanding of string art support in Softanza, please refer to the article: [An overview of String Art support in Softanza](../overviews/stzStringArt_Overview.md).
 
-For a wide range of practical examples, see the [stzStringArtTest.ring](../core/test/stkStringArtTest.ring) file.
+For a wide range of practical examples, see the [stzStringArtTest.ring](../../core/test/stkStringArtTest.ring) file.
