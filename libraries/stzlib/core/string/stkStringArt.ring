@@ -9,14 +9,14 @@ load "qtcore.ring"
 
 
 
-$DEFAULT_STRING_ART_STYLE = :retro
+$DEFAULT_STR_ART_STYLE = :retro
 
 #-------------------------------#
 #  STRING ART STYLES FUNCTIONS  #
 #-------------------------------#
 
 func StringArtStylesXT()
-	return $STZ_STRING_ART_STYLES_XT
+	return $STZ_STR_ART_STYLES_XT
 
 func StringArtStyles()
 	aStylesXT = StringArtStylesXT()
@@ -38,10 +38,10 @@ func IsStringArtStyle(str)
 	ok
 
 func DefaultStringArtStyle()
-	return $DEFAULT_STRING_ART_STYLE
+	return $DEFAULT_STR_ART_STYLE
 
 	func StringArtStyle()
-		return return $DEFAULT_STRING_ART_STYLE
+		return return $DEFAULT_STR_ART_STYLE
 
 func SetDefaultStringArtStyle(cStyle)
 	bFound = find(StringArtStyles(), lower(cStyle))
@@ -49,7 +49,7 @@ func SetDefaultStringArtStyle(cStyle)
 		raise("ERR-" + StkError(:IncorrectParamValue))
 	ok
 
-	$DEFAULT_STRING_ART_STYLE = cStyle
+	$DEFAULT_STR_ART_STYLE = cStyle
 
 	def SetStringArtStyle(cStyle)
 		SetDefaultStringArtStyle(cStyle)
@@ -147,7 +147,7 @@ func StringArtPainting(cPaintingName)
 	#--
 
 	cResult = ""
-	cCode = "cResult = $" + str
+	cCode = "cResult = $STZ_STR_ART_" + str
 	eval(cCode)
 	return cResult
 
