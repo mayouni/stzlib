@@ -9,8 +9,11 @@ t0 = clock()
 # STRING ART STYLES DATASET #
 #---------------------------#
 
+/*-----
+
 SetStringArtStyle(:flower)
-? StringArt("Ring")
+? StringArt("Ring") + NL
+? "IS MORE BEAUTIFUL, YET POWERFUL WITH SOFTANZA!"
 
 #-->
 # .-------.     .-./`)  ,---.   .--.   .-_'''-.   
@@ -26,8 +29,8 @@ SetStringArtStyle(:flower)
 # IS MORE BEAUTIFUL, YET POWERFUL WITH SOFTANZA!
 
 /*-----
-*
-o1 = new stkStringArt("ANTONIO")
+*/
+o1 = new stkStringArt("SOFTANZA")
 o1 {
 
 	? "~> " + Style() + NL # Default style
@@ -39,7 +42,7 @@ o1 {
 
 	SetStyle(:neon)
 	? "~> " + Style() + NL
-	? Artify() + NL
+	? Boxify() + NL
 
 }
 

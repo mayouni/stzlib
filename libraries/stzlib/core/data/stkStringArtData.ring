@@ -1018,6 +1018,7 @@ $STZ_STRING_ART_STYLE_003 = [
 # Softanza name : "geo"
 
 # Description : This style creates floral and plant-like shapes.
+# Source : http://www.jave.de/figlet/fonts/details/flowerpower.html
 
 $STZ_STRING_ART_STYLE_004 = [
     [ "A", [
