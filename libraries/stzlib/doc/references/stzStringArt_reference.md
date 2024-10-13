@@ -195,7 +195,7 @@ oArt.SetStyle(:flower)
 │ |  | \ `'   /  |   |  |  (_,_)\  |  \  `-'`   |  │
 │ |  |  \    /   |   |  |  |    |  |   \        /  │
 │ ''-'   `'-'    '---'  '--'    '--'    `'-...-'   │
-╰──────────────────────────────────────────────────╯``
+╰──────────────────────────────────────────────────╯
 ```
 
 ## Utility Functions
@@ -245,9 +245,9 @@ SetDefaultStringArtStyle(:geo)
 geo
 ```
 
-## Data File: stzStringArtData.ring
+## Data File: stkStringArtData.ring
 
-The `stzStringArtData.ring` file contains the necessary data for StringArt functionality. It defines styles and paintings used by the `StringArt` function and `stzStringArt` class.
+The `stkStringArtData.ring` file (hosted in ../core/data/stkStringArtData.ring) contains the necessary data for StringArt functionality. It defines styles and paintings used by the `StringArt` function and `stzStringArt` class.
 
 ### Style Definitions
 
@@ -335,6 +335,6 @@ For more details, see the article: *Overview of the 3 Layers of Softanza Softwar
 
 ## See Also
 
-For a broader understanding of string art support in Softanza, please refer to the article: [An overview of String Art support in Softanza](../doc/overviews/stzStringArt_Overview.md).
+For a broader understanding of string art support in Softanza, please refer to the article: [An overview of String Art support in Softanza](../overviews/stzStringArt_Overview.md).
 
 For a wide range of practical examples, see the [stzStringArtTest.ring](../core/test/stkStringArtTest.ring) file.
