@@ -10,6 +10,8 @@ t0 = clock()
 #---------------------------#
 
 /*-----
+*/
+? StringArtStyles()
 
 SetStringArtStyle(:flower)
 ? StringArt("Ring") + NL
@@ -335,6 +337,7 @@ SetStringArtStyle("retro")
 /*------------
 */
 # Text paintings in COLLECTIBLES category
+
 
 ? StringArt("#{Coins}") +NL
 #-->

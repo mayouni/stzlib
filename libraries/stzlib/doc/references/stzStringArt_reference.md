@@ -1,4 +1,28 @@
-# StringArt and stzStringArt Reference
+# StringArt function and stzStringArt class reference
+
+## Introduction
+
+This document provides a comprehensive reference for the `StringArt` function and the `stzStringArt` class, which are used to create and manipulate string art representations of text in the Softanza library.
+
+For a broader understanding of string art support in Softanza, please refer to the article: [An overview of String Art support in Softanza](#) (link to be added).
+
+For practical examples, see the [stzStringArtTest.ring](#) file (link to be added).
+
+## Quick Reference
+
+| Name | Type | Description | Since Version |
+|------|------|-------------|---------------|
+| [StringArt(str)](#stringart) | Function | Creates string art representation of text | 1.0 |
+| [stzStringArt](#stzstringart-class) | Class | Class for creating and manipulating string art | 1.0 |
+| [Content()](#content) | Method | Returns the original content string | 1.0 |
+| [Style()](#style) | Method | Returns the current string art style | 1.0 |
+| [SetStyle(cStyle)](#setstylecstyle) | Method | Sets the string art style | 1.0 |
+| [Artify()](#artify) | Method | Converts the content to string art representation | 1.0 |
+| [Boxify()](#boxify) | Method | Creates a boxed version of the string art representation | 1.0 |
+| [StringArtStyles()](#stringartstyles) | Function | Returns available string art styles | 1.0 |
+| [IsStringArtStyle(str)](#isstringartstylestr) | Function | Checks if a string is a valid art style | 1.0 |
+| [DefaultStringArtStyle()](#defaultstringartstyle) | Function | Returns the default string art style | 1.0 |
+| [SetDefaultStringArtStyle(cStyle)](#setdefaultstringartstylecstyle) | Function | Sets the default string art style | 1.0 |
 
 ## StringArt
 
@@ -16,18 +40,74 @@
 ### Examples
 
 ```ring
-Print(StringArt("Hello"))
-Print(StringArt("#{Tree}"))
+? StringArt("Hello")
+```
+Output:
+██░░░██ ███████ ██░░░░░ ██░░░░░ ░▄███▄░
+██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▀░▀██
+███████ █████░░ ██░░░░░ ██░░░░░ ██░░░██
+██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▄░▄██
+██░░░██ ███████ ███████ ███████ ░▀███▀░ 
+```
+
+```ring
+? StringArt("#{Tree}")
+```
+Output:
+```
+    🍃
+   🍃🍃
+  🍃🍃🍃
+ 🍃🍃🍃🍃
+🍃🍃🍃🍃🍃
+    ┃━┃
+    ┃━┃
 ```
 
 ### Options
 
 - The default style can be changed using `SetDefaultStringArtStyle(cStyle)`
 
+Example:
+``ring
+SetDefaultStringArtStyle(:neon)
+``
+
 ### Related Functions
 
 - `StringArtBoxified(str)`: Creates a boxed string art representation
-- `CharArtLayers(c)`: Returns the layers for a single character in string art
+- `CharArtLayers(c)`: Returns a list f strings representing the layers for a single character in string art (used internally by `StringArt()` function)
+
+Example 1:
+```ring
+? StringArtBoxified("HELLO")
+```
+Output:
+```
+╭─────────────────────────────────────────╮
+│ ██░░░██ ███████ ██░░░░░ ██░░░░░ ░▄███▄░ │
+│ ██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▀░▀██ │
+│ ███████ █████░░ ██░░░░░ ██░░░░░ ██░░░██ │
+│ ██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▄░▄██ │
+│ ██░░░██ ███████ ███████ ███████ ░▀███▀░ │
+╰─────────────────────────────────────────╯
+```
+
+Example 2:
+```ring
+? CharArtLayers("R")
+```
+Output:
+```
+[
+	"███▄▄░░",
+	"██░░░██",
+	"███▄▄░░",
+	"██░▀██░",
+	"██░░░██"
+]
+```
+
 
 ## stzStringArt Class
 
@@ -53,27 +133,81 @@ Returns the original content string.
 
 Returns the current string art style.
 
+Example:
+``ring
+oArt = new stzStringArt("Hi!")
+? oArt.Style()
+``
+Output:
+``ring
+retro
+``
+
 #### SetStyle(cStyle)
 
 Sets the string art style.
 
 - `cStyle`: The name of the style to set (must be a valid style from `StringArtStyles()`)
 
+Example:
+``ring
+oArt = new stzStringArt("Hi!")
+oArt.SetStyle(:flower)
+? oArt.Style()
+``
+Output:
+``ring
+flower
+``
+
+
 #### Artify()
 
 Converts the content to string art representation.
+
+Example:
+``ring
+oArt = new stzStringArt("Ring")
+? oArt.SetStyle(:flower)
+? oArt.Artify()
+``
+Output:
+``ring
+.-------.     .-./`)  ,---.   .--.   .-_'''-.   
+|  _ _   \    \ .-.') |    \  |  |  '_( )_   \  
+| ( ' )  |    / `-' \ |  ,  \ |  | |(_ o _)|  ' 
+|(_ o _) /     `-'`'` |  |\_ \|  | . (_,_)/___| 
+| (_,_).' __   .---.  |  _( )_\  | |  |  .-----.
+|  |\ \  |  |  |   |  | (_ o _)  | '  \  '-   .'
+|  | \ `'   /  |   |  |  (_,_)\  |  \  `-'`   | 
+|  |  \    /   |   |  |  |    |  |   \        / 
+''-'   `'-'    '---'  '--'    '--'    `'-...-'
+``
+
 
 #### Boxify()
 
 Creates a boxed version of the string art representation.
 
-### Examples
-
-```ring
-oStrArt = new stzStringArt("Hello")
-oStrArt.SetStyle("retro")
-Print(oStrArt.Artify())
-Print(oStrArt.Boxify())
+Example:
+``ring
+oArt = new stzStringArt("Ring")
+? oArt.SetStyle(:flower)
+? oArt.Artify()
+``
+Output:
+``ring
+╭──────────────────────────────────────────────────╮
+│ .-------.     .-./`)  ,---.   .--.   .-_'''-.    │
+│ |  _ _   \    \ .-.') |    \  |  |  '_( )_   \   │
+│ | ( ' )  |    / `-' \ |  ,  \ |  | |(_ o _)|  '  │
+│ |(_ o _) /     `-'`'` |  |\_ \|  | . (_,_)/___|  │
+│ | (_,_).' __   .---.  |  _( )_\  | |  |  .-----. │
+│ |  |\ \  |  |  |   |  | (_ o _)  | '  \  '-   .' │
+│ |  | \ `'   /  |   |  |  (_,_)\  |  \  `-'`   |  │
+│ |  |  \    /   |   |  |  |    |  |   \        /  │
+│ ''-'   `'-'    '---'  '--'    '--'    `'-...-'   │
+╰──────────────────────────────────────────────────╯``
 ```
 
 ## Utility Functions
@@ -82,21 +216,58 @@ Print(oStrArt.Boxify())
 
 Returns a list of available string art styles.
 
+Example:
+``ring
+? StringArtStyles()
+``
+Output:
+``ring
+[ "retro", "neon", "geo", "flower" ]
+``
+
 ### IsStringArtStyle(str)
 
 Checks if the given string is a valid string art style.
+
+Example:
+``ring
+? IsStringArtStyle(:flower)
+``
+Output:
+``ring
+TRUE
+``
 
 ### DefaultStringArtStyle()
 
 Returns the current default string art style.
 
+Example:
+``ring
+? DefaultStringArtStyle()
+``
+Output:
+``ring
+retro
+``
+
 ### SetDefaultStringArtStyle(cStyle)
 
 Sets the default string art style.
 
+Example:
+``ring
+SetDefaultStringArtStyle(:geo)
+? DefaultStringArtStyle()
+``
+Output:
+``ring
+geo
+``
+
 ## Data File: stzStringArtData.ring
 
-The `stzStringArtData.ring` file contains the necessary data for StringArt functionality. It defines styles and paintings used by the StringArt function and stzStringArt class.
+The `stzStringArtData.ring` file contains the necessary data for StringArt functionality. It defines styles and paintings used by the `StringArt` function and `stzStringArt` class.
 
 ### Style Definitions
 
@@ -121,6 +292,19 @@ $STZ_STRING_ART_STYLE_001 = [
 ```
 
 Each character is associated with an array of strings that represent its string art layers.
+
+The variables containing the styles are gathered in a global list in stzStringArtData:
+
+```ring
+$STZ_STR_ART_STYLES_XT = [
+    :retro = $STZ_STR_ART_STYLE_001,
+    :neon = $STZ_STR_ART_STYLE_002,
+    :geo = $STZ_STR_ART_STYLE_003,
+    :flower = $STZ_STR_ART_STYLE_004
+]
+```
+
+Note: If you add a new style, you should also update this list to include your new style.
 
 ### Painting Definitions
 
@@ -152,14 +336,24 @@ $STZ_STR_ART_ROCKETLAUNCHER =
 
 These paintings can be accessed using the special syntax `StringArt("#{PaintingName}")`.
 
-## Notes
+To add a new painting, simply add a new variable with a name starting with `$STZ_STR_ART_` and define your string art. The `StringArt("#{...}")` function will automatically recognize it.
 
-- The class uses uppercase letters for string art conversion.
-- String art styles and paintings are defined in the `stzStringArtData.ring` file.
-- The class includes error handling for incorrect parameter types and values.
+Note: This feature is quite flexible. For example, if you add:
+
+```ring
+$STZ_STR_ART_MYCUSTOMART = "Your string art content here"
+```
+
+You can then use `StringArt("#{my custom art}")` with spaces, and Softanza will automatically concatenate it to match your variable name.
+
+
+## Note
+
+The "stk" prefix in file names (e.g., **stk**StringArt.ring and **stk**StringArtData.rig), with the "k" representing **SoftanzaCore**, signifies that these components belong to the foundational layer of the Softanza architecture, ensuring their accessibility to all upper levels. Consequently, loading "**stz**lib.ring" at the SoftanzaPrime level will automatically include these core files. However, if desired, you can opt to load only the SoftanzaCore layer by using "load **stk**lib.ring." This approach reduces additional features, streamlines the codebase, and is ideal for constrained environments such as the console, microcontrollers, or web applications.
+
+For more details, see the article: *Overview of the 3 Layers of Softanza Software Architecture* (article pending).
 
 ## See Also
 
-- `StringArtBoxified`
-- `CharArtLayers`
-- `StringArtPainting`
+- [A more detailed overview of String Art support in Softanza](#) (link to be added)
+- [Many practical code examples i stzStringArtTest.ring](#) (link to be added)
