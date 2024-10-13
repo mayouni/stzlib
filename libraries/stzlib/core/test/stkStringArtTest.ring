@@ -29,7 +29,7 @@ SetStringArtStyle(:flower)
 # IS MORE BEAUTIFUL, YET POWERFUL WITH SOFTANZA!
 
 /*-----
-*/
+
 o1 = new stkStringArt("SOFTANZA")
 o1 {
 
@@ -333,7 +333,7 @@ SetStringArtStyle("retro")
 # ━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
 
 /*------------
-
+*/
 # Text paintings in COLLECTIBLES category
 
 ? StringArt("#{Coins}") +NL
