@@ -124,7 +124,7 @@ Softanza library offers a wide array of string art designs, ranging from simple 
 10. Human body parts
 11. Miscellaneous designs
 
-You can see them all in the **stzStringArtData.ring** file ([Link](../../core/data/stkStringArtData.ring).
+You can see them all in the [**stzStringArtData.ring**](../../core/data/stkStringArtData.ring) source file.
 
 By incorporating these visual elements into your code, you can create more engaging console outputs, making your programs not just functional, but visually appealing as well.
 
@@ -354,7 +354,7 @@ o1 = new stzTable([
 #        *       *       *
 #       30     300    3000
 ```
-> [NOTE]
+> NOTE
 > You can configure the table's stroke, adjustment, and other thinks, but let's keep it simple for now.
 
 ### Visual Search and Highlight
