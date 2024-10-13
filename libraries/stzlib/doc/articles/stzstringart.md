@@ -1,6 +1,112 @@
 # Enhancing Programming with String Art in Ring
 
-In today's fast-paced world of software development, the focus often lies heavily on functionality and efficiency, sometimes at the expense of creativity and enjoyment. However, the Softanza library for Ring language brings a refreshing twist to coding by introducing string art texts and paintings. These visual elements can significantly enhance the programming experience, particularly in areas such as code narrations, educational examples, and console text-based games. Let's explore how this unique feature can make programming more engaging, enjoyable, and visually appealing.
+The Softanza library for Ring language introduces string art texts and paintings, enhancing the programming experience in code narrations, educational examples, and console text-based games. This feature makes programming more engaging, enjoyable, and visually appealing.
+
+## StringArt() Function Features
+
+The StringArt() function in Softanza offers two main capabilities:
+
+1. Generating ASCII Art Text (Figlets)
+2. Generating ASCII Art Paintings
+
+### ASCII Art Text (Figlets)
+
+StringArt() can generate stylized text using ASCII characters, also known as figlets. This feature creates eye-catching headers, titles, or text-based visual elements.
+
+Example:
+```ring
+load "stzlib.ring"
+
+SetStringArtStyle(:flower)
+? StringArt("Ring") + NL
+? "IS MORE BEAUTIFUL, YET POWERFUL WITH SOFTANZA!"
+#-->
+# .-------.     .-./`)  ,---.   .--.   .-_'''-.   
+# |  _ _   \    \ .-.') |    \  |  |  '_( )_   \  
+# | ( ' )  |    / `-' \ |  ,  \ |  | |(_ o _)|  ' 
+# |(_ o _) /     `-'`'` |  |\_ \|  | . (_,_)/___| 
+# | (_,_).' __   .---.  |  _( )_\  | |  |  .-----.
+# |  |\ \  |  |  |   |  | (_ o _)  | '  \  '-   .'
+# |  | \ `'   /  |   |  |  (_,_)\  |  \  `-'`   | 
+# |  |  \    /   |   |  |  |    |  |   \        / 
+# ''-'   `'-'    '---'  '--'    '--'    `'-...-'  
+# 
+# IS MORE BEAUTIFUL, YET POWERFUL WITH SOFTANZA!
+```
+You can use the StringArt() function as showan above, or you can use the stzStringArt object, along with its methods SetStyle(), Style(), Artify(), and Boxify() like we are going to do in the next samples.
+
+Currently, Softanza ships with 4 beatuful string art styles. 
+
+### FLOWER, a piece of beauty
+
+ This style, as showan in the outpout the word "Ring" above, creates beautiful floral and plant-like shapes.
+
+### RETRO, the nice old days
+
+This style has a distinctly digital, retro-computer feel. The letters are formed by small square units, giving it a pixelated look. The white outline on a dark background with faint grid lines in the background evokes the aesthetics of old-school computer graphics or architectural blueprints.
+
+Example:
+```ring
+load "stzlib.ring"
+
+o1 = new stzStringArt("SOFTANZA")
+o1 {
+    ? "Current style : " + Style() + NL
+	? Artify()
+}
+#-->
+# Current style : retro
+#
+# ░▄███▄░ ░▄███▄░ ███████ ███████ ░▄███▄░ ██░░░██ ███████ ░▄███▄░
+# ██▀░░░░ ██▀░▀██ ██░░░░░ ░░██░░░ ██▀░▀██ ███░░██ ░░░▄██░ ██▀░▀██
+# ░▀███▄░ ██░░░██ █████░░ ░░██░░░ ███████ ██▀█░██ ░▄██░░░ ███████
+# ░░░░▀██ ██▄░▄██ ██░░░░░ ░░██░░░ ██░░░██ ██░▀███ ▄██░░░░ ██░░░██
+# ███▄▄█▀ ░▀███▀░ ██░░░░░ ░░██░░░ ██░░░██ ██░░░██ ███████ ██░░░██
+```
+
+### NEON, for clean outlines
+
+This style features clean, continuous lines that form the letters, with an outline effect reminiscent of neon signs. The font has a modern, sleek appearance with rounded corners and a consistent thickness throughout.
+
+Example:
+```ring
+load "stzlib.ring"
+
+o1 = new stzStringArt("SOFTANZA")
+o1 {
+    SetStyle(:neon)
+	? Artify()
+}
+#-->
+#  ╭───╮  ╭───╮  ╭────╮ ╭─────╮   ╭─╮   ╭╮   ╭╮ ╭────╮   ╭─╮  
+# ╱╭───╯ ╱ ╭─╮ ╲ │╭──── ╰──┬──╯  ╱   ╲  │╰╮  ││ ╰───╮╱  ╱   ╲ 
+# ╲╰───╮ │ │ │ │ │╰───╮    │    ╱─────╲ │ ╰╮ ││    ╱╱  ╱─────╲
+#  ╰─╮ ╱ ╲ ╰─╯ ╱ │ │       │    │ ╭─╮ │ │  ╰╮││  ╱╱╯   │ ╭─╮ │
+# ╰──╯ ╯  ╰───╯  ╰─╯      ╯╰─   ╰─╯ ╰─╯ ╰╮  ╰╯╯ ╰────╯ ╰─╯ ╰─╯
+```
+
+### GEO, explore the relief
+
+This  style offers a modern, slightly futuristic look while maintaining readability. It could be particularly effective for headlines, logos, or any application where you want to combine a tech-savvy feel with a touch of elegance.
+
+Example:
+```ring
+load "stzlib.ring"
+
+o1 = new stkStringArt("SOFTANZA")
+o1 {
+    SetStyle(:neon)
+	? Boxify()
+}
+#-->
+# ╭───────────────────────────────────────────────────╮
+# │ ╭━━━╮ ╭━━━╮ ╭━━━╮ ╭━━━━╮ ╭━━━╮ ╭━╮ ╭╮ ╭━━━╮ ╭━━━╮ │
+# │ ┃╭━━╯ ┃╭━╮┃ ┃╭━━╯ ┃ ┃┃ ┃ ┃╭━╮┃ ┃┃╰╮┃┃ ╰━━╮┃ ┃╭━╮┃ │
+# │ ╰━━╮  ┃┃ ┃┃ ┃╰━━╮   ┃┃   ┃┃━┃┃ ┃╭╮╰╯┃  ╭━╯┃ ┃┃━┃┃ │
+# │ ╭━━╯  ┃╰━╯┃ ┃╭━╰╯   ┃┃   ┃┃ ┃┃ ┃┃╰╮┃┃ ╭╯╭━╯ ┃┃ ┃┃ │
+# │ ╰━━━╯ ╰━━━╯ ╰╯      ╰╯   ╰━ ━╯ ╰╯ ╰━╯ ╰━━━╯ ╰━ ━╯ │
+# ╰───────────────────────────────────────────────────╯
+```
 
 ## The Power of Visual Appeal
 
@@ -18,6 +124,8 @@ The Softanza library offers a wide array of string art designs, ranging from sim
 10. Human body parts
 11. Miscellaneous designs
 
+You can see them all in the stzStringArtData.ring file (link).
+
 By incorporating these visual elements into your code, you can create more engaging console outputs, making your programs not just functional, but visually appealing as well.
 
 ## Enhancing Code Narrations
@@ -25,7 +133,7 @@ By incorporating these visual elements into your code, you can create more engag
 One of the primary uses of string art in programming is to enhance code narrations. Instead of plain text explanations, you can use relevant icons or images to illustrate your points. For example:
 
 ```ring
-load "stzStringArt.ring"
+load "stzlib.ring"
 
 ? "Welcome to our coding adventure!"
 ? StringArt("#{Rocket}")
@@ -56,7 +164,7 @@ This simple addition of a rocket ASCII art can make your introduction more memor
 When teaching programming concepts, visual aids can significantly improve understanding and retention. The string art library can be used to create more engaging educational examples. For instance, when explaining conditional statements:
 
 ```ring
-load "stzStringArt.ring"
+load "stzlib.ring"
 
 func CheckWeather(temperature)
     if temperature > 30
@@ -258,17 +366,38 @@ o1 = new stzTable([
 #        *       *       *
 #       30     300    3000
 ```
+You can configure the table's stroke, adjustment, and other thinks, but let's keep it simple for now.
 
 This feature is excellent for displaying data in a readable, organized manner, which can be particularly useful for game statistics, inventory management, or any scenario requiring tabular data presentation.
 
+### Visual Search and Highlight
+
+One of Softanza's unique features is its ability to visually find and highlight elements within a string or list. This can be incredibly useful for debugging, data analysis, or creating interactive tutorials.
+
+```ring
+load "stzlib.ring"
+
+? Q("RINGORIALAND").vizFindAll("I")
+#--> RINGORIALAND
+#    -^----^-----
+
+? Q("CAIRO").vizFindXT("I", [:Boxed = TRUE, :Rounded = TRUE, :VisualSign = "♥"])
+#-->
+#    ╭───┬───┬───┬───┬───╮
+#--> │ C │ A │ I │ R │ O │
+#    ╰───┴───┴─♥─┴───┴───╯
+```
+
+This feature not only makes search results more visible but also allows for customization of the output, enhancing user experience in console applications.
+
 ## Creating Custom Designs
 
-The Softanza library also allows for creating custom string art designs. This feature enables programmers to tailor the visual elements to their specific needs. You just need to add a string global variable containing the design to the stzStringData.ring file, and use its global name (which must be preceded by the char $) when you call the StringArt() function. For example:
+The Softanza library also allows for easily adding custom string art designs. You just need to add a string global variable, containing the design, prefebraly into the stzStringData.ring file, and use its global name (which must be preceded by the char $STZ_STR_ART) when you call the StringArt() function. For example:
 
 ```ring
 load "stzStringArt.ring"
 
-$CustomLogo = "
+$STZ_STR_ART_MyCustomLogo = "
    ____  _
   / __ \(_)____  ____ _
  / /_/ / / ___/ / __ `/
@@ -276,7 +405,7 @@ $CustomLogo = "
 /_/ |_/_/_/     \__,_/
 "
 
-? StringArt("#{" + customLogo + "}")
+? StringArt("#{" + my custom logo + "}") # Note how you can write the words separated by spaces
 #-->
    ____  _
   / __ \(_)____  ____ _
@@ -284,8 +413,6 @@ $CustomLogo = "
 / _, _/ / /    / /_/ /
 /_/ |_/_/_/     \__,_/
 ```
-
-This ability to create custom designs opens up endless possibilities for branding your console applications or creating unique game assets.
 
 ## Advanced Game Development
 
@@ -298,16 +425,4 @@ These tools, when used in conjunction with Softanza's string art capabilities, c
 
 ## Conclusion
 
-The string art feature in the Softanza library for Ring language demonstrates that programming doesn't have to be all about dry code and plain text outputs. By incorporating visual elements, we can make the coding experience more enjoyable, educational content more engaging, and console applications more appealing. 
-
-Whether you're:
-- Teaching new programmers and want to make your lessons more memorable
-- Creating text-based games with immersive visuals
-- Developing console applications with attractive user interfaces
-- Simply wanting to add a touch of creativity to your code
-
-The string art library offers a fun and unique way to enhance your Ring programming projects. It bridges the gap between functionality and visual appeal, allowing developers to create more engaging and user-friendly console applications.
-
-By leveraging these visual features, you can transform ordinary console outputs into visually rich experiences, making your programs stand out and providing a more enjoyable interaction for users. The combination of string art, custom designs, and additional visual features like boxed text and grid displays opens up a world of possibilities for creative console-based applications.
-
-So why not give it a try? Dive into the world of Softanza's string art and start creating visually stunning console applications today. Your users (and your inner artist) will thank you!
+The string art feature in the Softanza library for Ring language demonstrates that programming doesn't have to be all about dry code and plain text outputs. By incorporating visual elements, we can make the coding experience more enjoyable, educational content more engaging, and console applications more appealing.
