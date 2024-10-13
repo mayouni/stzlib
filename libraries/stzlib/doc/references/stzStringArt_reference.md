@@ -4,6 +4,9 @@
 
 This document provides a comprehensive reference for the `StringArt` function and the `stzStringArt` class, which are used to create and manipulate string art representations of text in the Softanza library.
 
+> NOTE
+> If you're not comfortable reading through a complete reference file and prefer building your comprehension of the StringArt features by crafting quick and small code snippets, you can jump now to out our [Softanza StringArt Quickers](#TODO: link to be added) page.
+
 ## Quick Reference
 
 | Name | Type | Description | Since Version |
@@ -20,7 +23,7 @@ This document provides a comprehensive reference for the `StringArt` function an
 | [DefaultStringArtStyle()](#defaultstringartstyle) | Function | Returns the default string art style | 1.0 |
 | [SetDefaultStringArtStyle(cStyle)](#setdefaultstringartstylecstyle) | Function | Sets the default string art style | 1.0 |
 
-## StringArt
+## StringArt function
 
 ### Basic Information
 
@@ -37,9 +40,7 @@ This document provides a comprehensive reference for the `StringArt` function an
 
 ```ring
 ? StringArt("Hello")
-```
-Output:
-```ring
+#-->
 ██░░░██ ███████ ██░░░░░ ██░░░░░ ░▄███▄░
 ██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▀░▀██
 ███████ █████░░ ██░░░░░ ██░░░░░ ██░░░██
@@ -49,9 +50,7 @@ Output:
 
 ```ring
 ? StringArt("#{Tree}")
-```
-Output:
-```
+#-->
     🍃
    🍃🍃
   🍃🍃🍃
@@ -66,9 +65,9 @@ Output:
 - The default style can be changed using `SetDefaultStringArtStyle(cStyle)`
 
 Example:
-``ring
+```ring
 SetDefaultStringArtStyle(:neon)
-``
+```
 
 ### Related Functions
 
@@ -78,9 +77,7 @@ SetDefaultStringArtStyle(:neon)
 Example 1:
 ```ring
 ? StringArtBoxified("HELLO")
-```
-Output:
-```
+#-->
 ╭─────────────────────────────────────────╮
 │ ██░░░██ ███████ ██░░░░░ ██░░░░░ ░▄███▄░ │
 │ ██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▀░▀██ │
@@ -93,9 +90,7 @@ Output:
 Example 2:
 ```ring
 ? CharArtLayers("R")
-```
-Output:
-```
+#-->
 [
 	"███▄▄░░",
 	"██░░░██",
@@ -134,9 +129,7 @@ Example:
 ```ring
 oArt = new stzStringArt("Hi!")
 ? oArt.Style()
-```
-Output:
-```ring
+#-->
 retro
 ```
 
@@ -151,9 +144,7 @@ Example:
 oArt = new stzStringArt("Hi!")
 oArt.SetStyle(:flower)
 ? oArt.Style()
-```
-Output:
-```ring
+#-->
 flower
 ```
 
@@ -165,11 +156,11 @@ Converts the content to string art representation.
 Example:
 ```ring
 oArt = new stzStringArt("Ring")
-? oArt.SetStyle(:flower)
+
+oArt.SetStyle(:flower)
 ? oArt.Artify()
-```
-Output:
-```ring
+
+#-->
 .-------.     .-./`)  ,---.   .--.   .-_'''-.   
 |  _ _   \    \ .-.') |    \  |  |  '_( )_   \  
 | ( ' )  |    / `-' \ |  ,  \ |  | |(_ o _)|  ' 
@@ -189,11 +180,11 @@ Creates a boxed version of the string art representation.
 Example:
 ```ring
 oArt = new stzStringArt("Ring")
-? oArt.SetStyle(:flower)
+
+oArt.SetStyle(:flower)
 ? oArt.Artify()
-```
-Output:
-```ring
+
+#-->
 ╭──────────────────────────────────────────────────╮
 │ .-------.     .-./`)  ,---.   .--.   .-_'''-.    │
 │ |  _ _   \    \ .-.') |    \  |  |  '_( )_   \   │
@@ -216,9 +207,7 @@ Returns a list of available string art styles.
 Example:
 ```ring
 ? StringArtStyles()
-```
-Output:
-```ring
+#-->
 [ "retro", "neon", "geo", "flower" ]
 ```
 
@@ -229,9 +218,7 @@ Checks if the given string is a valid string art style.
 Example:
 ```ring
 ? IsStringArtStyle(:flower)
-```
-Output:
-```ring
+#-->
 TRUE
 ```
 
@@ -242,9 +229,7 @@ Returns the current default string art style.
 Example:
 ```ring
 ? DefaultStringArtStyle()
-```
-Output:
-```ring
+#-->
 retro
 ```
 
@@ -256,9 +241,7 @@ Example:
 ```ring
 SetDefaultStringArtStyle(:geo)
 ? DefaultStringArtStyle()
-```
-Output:
-```ring
+#-->
 geo
 ```
 
@@ -355,5 +338,3 @@ For more details, see the article: *Overview of the 3 Layers of Softanza Softwar
 For a broader understanding of string art support in Softanza, please refer to the article: [An overview of String Art support in Softanza](../doc/overviews/stzStringArt_Overview.md).
 
 For a wide range of practical examples, see the [stzStringArtTest.ring](../core/test/stkStringArtTest.ring) file.
-
-For quick insights into using the StringArt features at a glance, check out our [Softanza StringArt Quickers](link to be added) for an instant feel of how they work.
