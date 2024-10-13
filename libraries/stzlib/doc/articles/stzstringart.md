@@ -33,13 +33,13 @@ SetStringArtStyle(:flower)
 # 
 # IS MORE BEAUTIFUL, YET POWERFUL WITH SOFTANZA!
 ```
-You can use the StringArt() function as showan above, or you can use the stzStringArt object, along with its methods SetStyle(), Style(), Artify(), and Boxify() like we are going to do in the next samples.
+You can use the StringArt() function like in the code above, or you can use the stzStringArt object, along with its methods SetStyle(), Style(), Artify(), and Boxify() like we are going to do in the next samples.
 
 Currently, Softanza ships with 4 beatuful string art styles. 
 
 ### FLOWER, a piece of beauty
 
- This style, as showan in the outpout the word "Ring" above, creates beautiful floral and plant-like shapes.
+ This style, used in the previous sample to generate the word "Ring", creates beautiful floral and plant-like shapes.
 
 ### RETRO, the nice old days
 
