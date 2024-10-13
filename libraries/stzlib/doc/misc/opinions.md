@@ -1,0 +1,73 @@
+# Opinions and programmer's Feedback for Softanza Library
+
+Softanza, the foundation library for the Ring programming language, has garnered enthusiastic feedback from developers and community members alike. Below is a compilation of quotes and reactions that reflect the excitement and appreciation for the library's design, capabilities, and contributions.
+
+---
+
+## Mahmoud Fayed (Ring Designer)
+
+> "I felt that the library is working like magic! 😄"  
+> *(In reaction to [this example](https://bit.ly/3wiI61G))*
+
+> "Examples look very natural and easy to follow."  
+> *(In reaction to [this example](https://bit.ly/3LbJVC0))*
+
+> "SoftanzaLib is based on interesting design and huge efforts.  
+> I am sure it will be useful to the community in developing many applications."
+
+> "I am happy that this library is developed with love and passion.  
+> Softanza is a piece of art! 😄"
+
+> "Many of us are interested in Softanza Library and would like to add it to our toolbox ASAP."
+
+---
+
+## Outnull
+
+> "I just discovered your library, SoftanzaLib, and it looks very impressive! What a feat."
+
+> "Great job! Very well thought out developer ergonomics, consistent with the Ring programming experience. All of these examples were clear and easy to understand."  
+> *(In reaction to [this example](https://bit.ly/3MRTs2e))*
+
+> "Exciting. Ring is a powerful and fun language, and your Softanza library is a great contribution."
+
+---
+
+## Bert Meriani
+
+> "A very interesting observation about Unicode Character Tables.  
+> Lots of different languages have the same letter glyph but different Unicode hex values.  
+> Good detective work."
+
+---
+
+## Ilir
+
+> "That's impressive! And thank you for making such a rich, high-level library."
+
+---
+
+## Azzeddine Remmal
+
+> "Softanza looks powerful and attractive in design!"
+
+---
+
+## Dave Venus
+
+> "Your library sounds amazing!"
+
+---
+
+## Irwin Rodriguez
+
+> "Keep it up, Mansour! We're all waiting for the Softanza release!"
+
+---
+
+## Gary Chike
+
+> "That is awesome, Mansour! 🚀"
+
+> "Softanza appears to be very useful for this type of problem. Thank you!"  
+> *(In reference to dynamic string interpolation using `Interpolate()`)*
