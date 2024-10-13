@@ -4,8 +4,8 @@
 
 This document provides a comprehensive reference for the `StringArt` function and the `stzStringArt` class, which are used to create and manipulate string art representations of text in the Softanza library.
 
-> NOTE
-> If you're not comfortable reading through a complete reference file and prefer building your comprehension of the StringArt features by crafting quick and small code snippets, you can jump now to out our [Softanza StringArt Quickers](#TODO: link to be added) page.
+> NOTE: 
+> If you're not comfortable reading through a complete reference file and prefer building your comprehension of the StringArt features by crafting quick and small code snippets, you can jump now to out our [Softanza StringArt Quickers](../quickers/stzStringArt_Quickers.md) page.
 
 ## Quick Reference
 

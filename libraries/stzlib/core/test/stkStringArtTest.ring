@@ -9,6 +9,9 @@ t0 = clock()
 # STRING ART STYLES DATASET #
 #---------------------------#
 
+
+? StringArt("#{tree}")
+
 /*-----
 */
 ? StringArtStyles()
