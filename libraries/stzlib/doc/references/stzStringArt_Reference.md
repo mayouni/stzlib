@@ -6,7 +6,11 @@ This document provides a comprehensive reference for the `StringArt` function(s)
 
 > NOTE: If you're not comfortable reading through a complete reference file and prefer building your comprehension of the StringArt features by crafting quick and small code snippets, you can jump right now to our [Softanza StringArt Quickers](../quickers/stzStringArt_Quickers.md) page.
 
-## Reminder of the 3 Softanza Layers
+## Files related to the feature
+
+This section references the Ring files and documentation Markdown files related to stringArt and where they sit according to Softanza software architecture.
+s
+### Reminder of the 3 Softanza Layers
 
 Softanza's software architecture is elegantly structured into three distinct layers: **Core**, **Prime**, and **Max**, each serving a specific role in scaling your applications.
 
