@@ -548,7 +548,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*------
-*/
+
 pron()
 
 o1 = new stzString("Ring---")
@@ -569,34 +569,36 @@ proff()
 pron()
 
 # Suppose you have a string like this:
+
 o1 = new stzString("rRing")
 
-# And you want to remove the first char:
+# And you want to remove the first character:
+
 o1.RemoveFirstChar()
 ? o1.Content()
 #--> Ring
 
-# What if you think of applying CaseSensitivity here?
-# Means that you want to the removal operation to
-# be case sensitive...
+# Now, what if you consider applying case sensitivity here?
+# Meaning, you want the removal operation to be case sensitive...
 
-# In fact, this is not logical, since the first char is
-# the first char whatever case it has!
+# Actually, this doesn't make much sense, since the first character
+# is the first character, regardless of its case!
 
-# But, Softanza don't care, and let you do it, and ignores
-# the CS param completely:
+# However, Softanza doesn't mind and allows you to apply it,
+# but completely ignores the case sensitivity parameter:
 
 o1 = new stzString("rRing")
 o1.RemoveFirstCharCS(TRUE)
 ? o1.Content()
 #--> Ring
 
-#NOTE: This feature is made available only for this function,
-# so we can show the principle of PERMISSIVENESS.
-#~> It will be generalised in future.
+# NOTE: This feature is available only for this function
+# to demonstrate the principle of PERMISSIVENESS.
+#~> It will be generalized in the future.
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in Ring 1.19
 
 /*===
 
@@ -614,7 +616,8 @@ pron()
 #--> 34
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.02 second(s) in Ring 1.19
 
 /*===
 
@@ -631,7 +634,7 @@ o1 = new stzString( "one two one three two one four five" )
 # can also be written direcltly:
 //? @@( OnePercentOf( o1.SubStrings() ) ) # or just 1Percent()
 
-? @@( o1.SubStringsOccuringNTimes(3) ) + NL #NOTE "occuring" is mispelled (one r instead of two)
+? @@( o1.SubStringsOccuringNTimes(3) ) + NL #NOTE // "occuring" is mispelled (one r instead of two)
 #--> [ "o", "on", "one", "one ", "n", "ne", "ne ", "e", "e ", "e t", " ", " t", "t" ]
 
 ? @@( o1.SubStringsOccurringExactlyNtimes(3) ) + NL
@@ -641,7 +644,8 @@ o1 = new stzString( "one two one three two one four five" )
 #--> [ ]
 
 proff()
-# Executed in 4.46 second(s)
+# Executed in 0.90 second(s) in Ring 1.21
+# Executed in 4.46 second(s) in Ring 1.19
 
 /*---
 
@@ -657,7 +661,7 @@ o1 = new stzString( "ALLAH" )
 ? @@( o1.SubStringsOccurringNTimes(2) )
 #--> [ "A", "L" ]
 
-? HwoMany( o1.SubStringsOccurringNTimes(7) ) #NOTE that "HwoMany" is misspelled
+? HwoMany( o1.SubStringsOccurringNTimes(7) ) #NOTE //that "HwoMany" is misspelled
 #--> 0
 
 ? HowMany( o1.SubStringsOccurringLessThanNTimes(3) )
@@ -667,11 +671,12 @@ o1 = new stzString( "ALLAH" )
 #--> [ "ALLA", "L", "LLA", "LA" ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.05 second(s) in Ring 1.19
 
 #=====
 
-# #narration: function active form and passive form (discussion with Mahmoud)
+# #narration: function active and passive forms (discussion with Mahmoud)
 
 pron()
 
@@ -710,7 +715,8 @@ o1 = new stzString("<<Go!>>")
 # The value of the object won't be changed after BoundsRemoved() is used.
 
 proff()
-# Executed in 0.29 second(s)
+# Executed in 0.05 second(s) in Ring 1.21
+# Executed in 0.29 second(s) in Ring 1.19
 
 /*===
 
@@ -720,47 +726,48 @@ pron()
 #--> [ "S", "O", "F", "T", "A", "Z", "A" ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in almost 0 second(s).
 
-/*===  #narration: long functions names are necessary to Softanza but not to you!
+/*===  #narration: long function names are necessary for Softanza, but not for you!
 
 pron()
 
-# When you dig inside Softanza code, you will sometimes encouter functions
-# with very long names like for example:
+# When you dig into the Softanza code, you may occasionally encounter functions
+# with very long names, such as:
 
 #                         7.9....4.6                3.5....4.2
 o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
 ? @@( o1.FindSubStringBoundsUpToNCharsAsSections("Ring", 2) )
 #--> [ [ 8, 9 ], [ 14, 15 ], [ 34, 35 ], [ 40, 41 ] ]
 
-# This shouldn't dissiponts you Let me explain why.
+# This shouldn’t disappoint you. Let me explain why.
 
-# Although the function is clear enough about what its does (in this case:
-# finding the substrings bounding the substring "Ring" up to 2 chars), it
-# is not made to be used directly by you.
+# Even though the function name clearly describes what it does (in this case,
+# finding the substrings bounding "Ring" with up to 2 characters), it’s not
+# meant to be used directly by you.
 
-# In fact, those long functions are used internally by other usual functions
-# that you will need in practice, while letting the codebase be more readable.
+# These long functions are, in fact, used internally by other simpler functions
+# that you will actually need in practice, while keeping the codebase more readable.
 
-# In our case, you would need this one:
+# In our case, the function you’d need is this one:
 
-? o1.BoundsOfXT("Ring", :UpToNChars = 2) # You will understand the use of XT() in a moment ;)
+? o1.BoundsOfXT("Ring", :UpToNChars = 2) # You will understand the XT() usage in a moment ;)
 #--> [ [ "<<", ">>" ], [ "((", "))" ] ]
 
-# That you should use when you don't want all the bounding sunstrings to be returned
-# (in this case all the 3 chars), but only 2 chars of each bound.
+# This is what you should use when you don’t want all the bounding substrings returned
+# (in this case all 3 chars), but only 2 chars from each bound.
 
-# To return all the chars bounding the substring "Ring" you say:
+# To return all the characters bounding the substring "Ring", you can use:
 
 ? o1.BoundsOf("Ring")
 #--> [ [ "<<<", ">>" ], [ "(((", ")))" ] ]
 
-#NOTE: Now you understand why we used the XT() extension to the name of BoundsOf()
-# function, to say its an extended form of the main function, where we can specify
-# the number of chars in the bound.
+# NOTE: Now you can see why we added the XT() extension to the BoundsOf() function name:
+# it indicates an extended form of the main function, where you can specify the number
+# of characters in the bound.
 
 proff()
+# Executed in 0.03 second(s).
 
 /*===
 
@@ -774,9 +781,10 @@ o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
 #--> [ ["<<", ">>"], [ "((", "))" ] ]
 
 proff()
+# Executed in 0.03 second(s).
 
 /*--- 5 cases of the many cheks Softanza has for bounds
-
+*/
 pron()
 
 # Case 1 : Checking if the string is bounded by ONE or TWO substrings
@@ -790,19 +798,19 @@ pron()
 # Case 3 : Checking if the string is bounded by one (or two)
 # substrings INSIDE an other string
 
-? Q("world").IsBoundedBy([ "_", :In = "_world_" ])
+? Q("world").IsBoundedByXT( "_", :In = "_world_" )
 #--> TRUE
 
-? Q("world").IsBoundedBy([ ["/","\"], :In = "/world\" ])
+? Q("world").IsBoundedByXT( ["/","\"], :In = "/world\" )
 #--> TRUE
 
 # Case 3 : Checking if a string (or two) is the bound of an other
 # string inside a third string
 
-? Q("_").IsBoundOf("world", :In = "Hello _world_ of Ring!")
+? Q("_").IsBoundOfXT("world", :In = "Hello _world_ of Ring!")
 #--> TRUE
 
-? Q(["/","\"]).AreBoundsOf("world", :In = "Hello /world\ of Ring!")
+? Q(["/","\"]).AreBoundsOfXT("world", :In = "Hello /world\ of Ring!")
 #--> TRUE
 
 proff()

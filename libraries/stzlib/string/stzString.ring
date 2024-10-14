@@ -49443,6 +49443,14 @@ n1 = Min(aTemp)
 		def PositionsCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
 
+		#--
+
+		def FindSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindSubStringCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -49481,6 +49489,11 @@ n1 = Min(aTemp)
 			return This.FindAsSections(pcSubStr)
 
 		def PositionsZZ(pcSubStr)
+			return This.FindAsSections(pcSubStr)
+
+		#--
+
+		def FindSubStringAsSections(pcSubStr)
 			return This.FindAsSections(pcSubStr)
 
 		#>
