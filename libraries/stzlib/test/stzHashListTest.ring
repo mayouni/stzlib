@@ -562,7 +562,7 @@ o1 = new stzHashList([
 proff()
 # Executed in 0.88 second(s)
 
-/*---------------- @narration
+/*---------------- #narration
 
 pron()
 

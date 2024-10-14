@@ -23648,6 +23648,11 @@ class stzString from stzObject
 		ok
 
 		cLastChar = @oQString.mid(nLenStr-1, 1)
+
+		if NOT StzStringQ(cLastChar).IsEqualToCS(c, pCaseSensitive)
+			return
+		ok
+
 		cBeforeLastChar = @oQString.mid(nLenStr-2, 1)
 
 		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)

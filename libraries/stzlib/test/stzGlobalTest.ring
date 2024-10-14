@@ -1052,7 +1052,7 @@ pron()
 proff()
 # Executed in almost 0 second(s).
 
-/*================ @narration: chars looking similar but are different!
+/*================ #narration: chars looking similar but are different!
 
 # Look at theses statements and guess their results:
 

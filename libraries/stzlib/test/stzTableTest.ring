@@ -292,7 +292,7 @@ o1 = new stzTable([
 proff()
 # Executed in 0.10 second(s)
 
-/*-------------------- @narration
+/*-------------------- #narration
 
 pron()
 
@@ -4695,7 +4695,7 @@ o1 = new stzTable([
 proff()
 # Executed in 0.10 second(s)
 
-/*------------- @narration
+/*------------- #narration
 
 pron()
 
@@ -4785,7 +4785,7 @@ proff()
 # Executed in 0.05 second(s) in Ring 1.20
 # Executed in 0.13 second(s) in Ring 1.17
 
-/*------------- @narration
+/*------------- #narration
 
 pron()
 

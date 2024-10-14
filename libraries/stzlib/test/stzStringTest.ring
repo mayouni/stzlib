@@ -144,7 +144,7 @@ o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥
 proff()
 # Executed in 0.01 second(s)
 
-#==== @narration
+#==== #narration
 
 StartProfiler()
 
@@ -282,7 +282,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*======
-*/
+
 pron()
 
 o1 = new stzString("---ring")
@@ -333,7 +333,7 @@ o1 = new stzString("ring---")
 #--> ring--
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*====
 
@@ -345,6 +345,7 @@ o1.RemoveThisCharFromRightXT("0") # Or RemoveAnyOccurrenceOfCharFromRight("0")
 #--> 12.58
 
 proff()
+# Executed in 0.01 second(s).
 
 /*===
 
@@ -360,7 +361,7 @@ o1.RemoveCharFromLeftXT("0") # Or o1.RemoveAnyOccurrenceOfCharFromLeft("0")
 #--> 12.58
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*========
 
@@ -393,9 +394,9 @@ pron()
 # #--> 3
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
-/*==== @narration: eXTended form of RemoveFirstChar()
+/*==== #narration: eXTended form of RemoveFirstChar()
 
 pron()
 
@@ -447,6 +448,7 @@ o1.RemoveFirstCharXT()
 #--> Ring
 
 proff()
+# Executed in 0.01 second(s).
 
 /*-----------
 
@@ -464,11 +466,11 @@ o1.RemoveThisFirstCharXT("*")
 
 o1.RemoveThisLastCharXT("*")
 ? o1.Content()
-#--> Ring---
+#--> "Ring---"
 
 o1.RemoveThisLastCharXT("-")
 ? o1.Content()
-#--> Ring
+#--> "Ring"
 
 proff()
 # Executed in 0.02 second(s)
@@ -486,7 +488,7 @@ pron()
 #--> [ "r", "i", "n", "g" ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*===== LeadingChars() and LeadingCharsAsString()
 
@@ -507,7 +509,8 @@ o1 = new stzString("Ring---")
 #--> "---"
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.19
 
 /*------
 
@@ -517,9 +520,12 @@ o1 = new stzString("---Ring")
 
 o1.RemoveLeadingChar() # Or RemoveAnyLeadingChar() or RemoveLeadingChars()
 ? o1.Content()
+#--> Ring
 
 o1 = new stzString("Ring---")
 o1.RemoveTrailingChar() # Or RemoveAnyTrailingChar() or RemoveTrailingChars()
+? o1.Content()
+#--> Ring
 
 proff()
 # Executed in 0.01 second(s).
@@ -542,7 +548,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*------
-
+*/
 pron()
 
 o1 = new stzString("Ring---")
@@ -558,7 +564,7 @@ o1.RemoveThisTrailingChar("-")
 proff()
 # Executed in 0.05 second(s)
 
-/*====== @narration: Softanza permissiveness
+/*====== #narration: Softanza permissiveness
 
 pron()
 
@@ -665,7 +671,7 @@ proff()
 
 #=====
 
-# @narration: function active form and passive form (discussion with Mahmoud)
+# #narration: function active form and passive form (discussion with Mahmoud)
 
 pron()
 
@@ -716,7 +722,7 @@ pron()
 proff()
 # Executed in 0.02 second(s)
 
-/*===  @narration: long functions names are necessary to Softanza but not to you!
+/*===  #narration: long functions names are necessary to Softanza but not to you!
 
 pron()
 
@@ -881,7 +887,7 @@ o1 = new stzList("1":"9")
 proff()
 # Executed in 0.03 second(s)
 
-/*=========== @narration: case sensitivity in Softanza
+/*=========== #narration: case sensitivity in Softanza
 
 pron()
 
