@@ -73669,19 +73669,10 @@ n1 = Min(aTemp)
 			This.RemoveFirstCharCS(pCaseSensitive)
 			return This
 
-		def RemoveAnyCharFromStartCS(pCaseSensitive)
-			This.RemoveFirstCharCS(pCaseSensitive)
-
-			def RemoveAnyCharFromStartCSQ(pCaseSensitive)
-				return This.RemoveFirstCharCSQ(pCaseSensitive)
-
 	#-- @FunctionPassiveForm
 
 	def FirstCharRemovedCS(pCaseSensitive)
 		return This.Copy().RemoveFirstCharCSQ(pCaseSensitive).Content()
-
-		def AnyCharRemovedFromStartCS(pCaseSensitive)
-			return This.FirstCharRemovedCS(pCaseSensitive)
 
 	#== WITHOUT CASESENSITIVITY
 
@@ -73692,19 +73683,10 @@ n1 = Min(aTemp)
 			This.RemoveFirstChar()
 			return This
 
-		def RemoveAnyCharFromStart()
-			This.RemoveFirstChar()
-
-			def RemoveAnyCharFromStartQ()
-				return This.RemoveFirstCharQ()
-
 	#-- @FunctionPassiveForm
 
 	def FirstCharRemoved()
 		return This.Copy().RemoveFirstCharQ().Content()
-
-		def AnyCharRemovedFromStart()
-			return This.FirstCharRemoved()
 
 	  #-----------------------------------------------------------#
 	 #  REMOVING ALL LEADING OCCURRENCES OF THE FIRST CHAR - XT  #
@@ -73717,17 +73699,8 @@ n1 = Min(aTemp)
 			This.RemoveFirstCharXT()
 			return This
 
-		def RemoveAnyCharFromStartXT()
-			This.RemoveFirstCharXT()
-
-			def RemoveAnyCharFromStartXTQ()
-				return This.RemoveFirstCharXTQ()
-
 	def FirstCharRemovedXT()
 		return This.Copy().RemoveFirstCharXTQ().Content()
-
-		def AnyCharRemovedFromStartXT()
-			return This.FirstCharRemovedXT()
 
 	  #-----------------------#
 	 #   REMOVING LAST CHAR  #
@@ -73740,17 +73713,8 @@ n1 = Min(aTemp)
 			This.RemoveLastChar()
 			return This
 
-		def RemoveAnyCharFromEnd()
-			This.RemoveLastChar()
-
-			def RemoveAnyCharFromEndQ()
-				return This.RemoveLastCharQ()
-
 	def LastCharRemoved()
 		return This.Copy().RemoveLastCharQ().Content()
-
-		def AnyCharRemoveedFromEnd()
-			return This.LastCharRemoved()
 
 	  #----------------------------------------------------------#
 	 #  REMOVING ALL LEADING OCCURRENCES OF THE LAST CHAR - XT  #
@@ -73763,17 +73727,8 @@ n1 = Min(aTemp)
 			This.RemoveLastCharXT()
 			return This
 
-		def RemoveAnyCharFromEndXT()
-			This.RemoveLastCharXT()
-
-			def RemoveAnyCharFromEndXTQ()
-				return This.RemoveLastCharXTQ()
-
 	def LastCharRemovedXT()
 		return This.Copy().RemoveLastCharXTQ().Content()
-
-		def AnyCharRemovedFromEndXT()
-			return This.LastCharRemovedXT()
 
 	  #----------------------------------#
 	 #   REMOVING FIRST AND LAST CHARS  #
@@ -73888,6 +73843,133 @@ n1 = Min(aTemp)
 
 		def LastCharAndFirstCharRemovedXT()
 			return This.FirstAndLastCharsRemovedXT()
+
+	  #-----------------------#
+	 #   REMOVING LEFT CHAR  #
+	#=======================#
+
+	def RemoveLeftChar()
+
+		if This.IsLeftToRight()
+
+			This.RemoveFirstChar()
+		else
+			This.RemoveLastChar()
+		ok
+
+		def RemoveLeftCharQ()
+			This.RemoveLeftChar()
+			return This
+
+	def LeftCharRemoved()
+		return This.Copy().RemoveLeftCharQ().Content()
+
+	  #----------------------------#
+	 #   REMOVING LEFT CHAR -- XT #
+	#----------------------------#
+
+	def RemoveLeftCharXT()
+
+		if This.IsLeftToRight()
+			This.RemoveFirstCharXT()
+		else
+			This.RemoveLastCharXT()
+		ok
+
+		def RemoveLeftCharXTQ()
+			This.RemoveLeftCharXT()
+			return This
+
+	def LeftCharRemovedXT()
+		return This.Copy().RemoveLeftCharXTQ().Content()
+
+	  #------------------------#
+	 #   REMOVING RIGHT CHAR  #
+	#========================#
+
+	def RemoveRightChar()
+
+		if This.IsRightToLeft()
+			This.RemoveFirstChar()
+		else
+			This.RemoveLastChar()
+		ok
+
+		def RemoveRightCharQ()
+			This.RemoveRightChar()
+			return This
+
+	def RightCharRemoved()
+		return This.Copy().RemoveRightCharQ().Content()
+
+	  #-----------------------------#
+	 #   REMOVING RIGHT CHAR -- XT #
+	#-----------------------------#
+
+	def RemoveRightCharXT()
+
+		if This.IsRightToLeft()
+			This.RemoveFirstCharXT()
+		else
+			This.RemoveLastCharXT()
+		ok
+
+		def RemoveRightCharXTQ()
+			This.RemoveRightCharXT()
+			return This
+
+	def RightCharRemovedXT()
+		return This.Copy().RemoveRightCharXTQ().Content()
+
+	  #----------------------------------#
+	 #   REMOVING LEFT AND RIGHT CHARS  #
+	#==================================#
+
+	def RemoveLeftAndRightChars()
+
+		This.RemoveleftChar()
+		This.RemoverightChar()
+
+		def RemoveLeftAndRightCharsQ()
+			This.RemoveLeftAndRightChars()
+			return This
+
+		def RemoveRightAndLeftChars()
+			This.RemoveLeftAndRightChars()
+
+			def RemoveRightAndLeftCharsQ()
+				return This.RemoveLeftAndRightCharsQ()
+
+	def LeftAndRightChardRemoved()
+		return This.Copy().RemoveLeftAndRightChardQ().Content()
+
+		def RightAndLeftCharsRemoved()
+			return This.LeftAndRightChardRemoved()
+
+	  #----------------------------------------#
+	 #   REMOVING LEFT AND RIGHT CHARS -- XT  #
+	#----------------------------------------#
+
+	def RemoveLeftAndRightCharsXT()
+
+		This.RemoveleftCharXT()
+		This.RemoverightCharXT()
+
+		def RemoveLeftAndRightCharsXTQ()
+			This.RemoveLeftAndRightCharsXT()
+			return This
+
+		def RemoveRightAndLeftCharsXT()
+			This.RemoveLeftAndRightCharsXT()
+
+			def RemoveRightAndLeftCharsXTQ()
+				return This.RemoveLeftAndRightCharsXTQ()
+
+	def LeftAndRightChardRemovedXT()
+		return This.Copy().RemoveLeftAndRightChardXTQ().Content()
+
+		def RightAndLeftCharsRemovedXT()
+			return This.LeftAndRightChardRemovedXT()
 
 	  #-----------------------------------------------------------------------------#
 	 #  REMOVING A GIVEN CHAR AT A GIVEN POSITION (IF ANY) WITH A GIVEN SUBSTRING  #

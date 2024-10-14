@@ -82,6 +82,26 @@ func StringArt(str)
 	return oStrArt.Artify()
 
 func StringArtBoxified(str)
+
+	# Checking if the art painting syntax is used
+	# Example: StringArt("#{Tree}")
+
+	oQStrArt = new QString2()
+	oQStrArt.append(str)
+
+	bOk = FALSE
+
+	if oQStrArt.mid(0, 2) = "#{"
+		nLen = oQStrArt.count()
+		if oQStrArt.mid(nLen-1, 1) = "}"
+			bOk = TRUE
+		ok
+	ok
+
+	if bOk
+		raise("Painting Arts can't be boxified!")
+	ok
+
 	oStrArt = new stkStringArt(str)
 	oStrArt.SetStyle(DefaultStringArtStyle())
 	return oStrArt.Boxify()

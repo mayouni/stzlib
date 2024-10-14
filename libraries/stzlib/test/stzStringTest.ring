@@ -306,7 +306,7 @@ o1 = new stzString("---ring")
 #--> --ring
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*--------
 
