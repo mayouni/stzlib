@@ -15917,10 +15917,16 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		return bResult
 
+		def AreBoundsOfCSXT(pItem, pIn, pCaseSensitive)
+			return This.AreBoundsOfCS(pItem, pIn, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def AreBoundsOf(pItem, pIn)
 		return This.AreBoundsOfCS(pItem, pIn, TRUE)
+
+		def AreBoundsOfXT(pItem, pIn)
+			return This.AreBoundsOf(pItem, pIn)
 
 	  #----------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS BOUNDED BY THE GIVEN TWO ITEMS  #
