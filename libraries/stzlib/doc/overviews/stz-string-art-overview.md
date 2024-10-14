@@ -124,7 +124,7 @@ Softanza library offers a wide array of string art designs, ranging from simple 
 10. Human body parts
 11. Miscellaneous designs
 
-You can see them all in the [**stzStringArtData.ring**](../../core/data/stkStringArtData.ring) source file.
+You can see them all in the [**stkStringArtData.ring**](../../core/data/stkStringArtData.ring) source file.
 
 By incorporating these visual elements into your code, you can create more engaging console outputs, making your programs not just functional, but visually appealing as well.
 
@@ -410,6 +410,6 @@ These tools, when used in conjunction with Softanza's string art capabilities, c
 
 # See also
 
-1. Explore the complete reference document, [StringArt Function and stzStringArt Class Reference](../references/stzStringArt_Reference.md), for a detailed guide on every feature and method.
-2. Quckily build your comprehension of the StringArt features by crafting action-oriented small code snippets, in [Softanza StringArt Quickers](../quickers/stzStringArt_Quickers.md) page
+1. Explore the complete reference document, [StringArt Function and stzStringArt Class Reference](../references/stz-string-art-reference.md), for a detailed guide on every feature and method.
+2. Quckily build your comprehension of the StringArt features by crafting action-oriented small code snippets, in [Softanza StringArt Quickers](../quickers/stz-string-art-quickers.md) page
 3. Experiment with code samples in the [stkStringArtTest](../../core/test/stkStringArtTest.ring) file to see practical examples of StringArt in action.
