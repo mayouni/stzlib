@@ -145,6 +145,6 @@ By experimenting with these quick snippets, you'll quickly gain practical experi
 
 # Other documentation levels
 
-1. Explore the complete reference document, [StringArt Function and stzStringArt Class Reference](../references/stzStringArt_Reference.md), for a detailed guide on every feature and method.
-2. Review the overview narration, [An Overview of StringArt Support in Softanza](../overviews/stzStringArt_Overview.md), for a high-level understanding of StringArt’s key capabilities.
+1. Explore the complete reference document, [StringArt Function and stzStringArt Class Reference](../references/stz-string-art-reference.md), for a detailed guide on every feature and method.
+2. Review the overview narration, [An Overview of StringArt Support in Softanza](../overviews/stz-string-art-overview.md), for a high-level understanding of StringArt’s key capabilities.
 3. Experiment with code samples in the [stkStringArtTest](../../core/test/stkStringArtTest.ring) file to see practical examples of StringArt in action.

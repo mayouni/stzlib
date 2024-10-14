@@ -18,7 +18,7 @@ load "stzlib.ring"
 */
 ```
 
-> NOTE: If you're not comfortable reading through a complete reference file and prefer building your comprehension of the StringArt features by crafting quick and small code snippets, you can jump right now to our [Softanza StringArt Quickers](../quickers/stzStringArt_Quickers.md) page.
+> NOTE: If you're not comfortable reading through a complete reference file and prefer building your comprehension of the StringArt features by crafting quick and small code snippets, you can jump right now to our [Softanza StringArt Quickers](../quickers/stz-string-art-quickers.md) page.
 
 ## Softanza Files related to the feature
 
@@ -55,9 +55,9 @@ There are 4 types of files for each Softanza feature: *MainCodeFile*, *TestCodeF
 | stzStringArt.ring | Code | Warpper class that ineherits from stkStringArt in SoftanzaCore | ../string/stzStringArt.ring | Usable |
 | stzStringArtTest.ring | Test | Has few samples since all tests are made in stkStringArt.ring in SoftanzaCore| ../string/stzStringArt.ring | Usable |
 | stzStringArt_Reference.md | Doc | Complete reference of the StringArt API (class and functions ) | ../doc/references/stzStringArt_Reference.md | Usable |
-| stzStringArt_Overview.md | Doc | Comprehensive overview of the StringArt feature and its applications |  ../doc/references/stzStringArt_Reference.md | Usable |
-| stzStringArt_quickers.md | Doc | Quick hand-on code snippets to build an instant understanding of the feature | ../doc/quickers/stzStringArt_Quickers.md | Usable |
-| stzStringArt_FAQs.md | Doc | Frequent asked questions about the feature along with their answers | ../doc/faqs/stzStringArt_FAQs.md | Usable |
+| stzStringArt_Overview.md | Doc | Comprehensive overview of the StringArt feature and its applications |  ../doc/references/stz-string-art-reference.md | Usable |
+| stzStringArt_quickers.md | Doc | Quick hand-on code snippets to build an instant understanding of the feature | ../doc/quickers/stz-string-art-quickers.md | Usable |
+| stzStringArt_FAQs.md | Doc | Frequent asked questions about the feature along with their answers | ../doc/faqs/stz-string-art-faqs.md | Usable |
 
 > NOTE: There is no a DATA file at this layer because the data file hosted in SoftanzaCore layer is used in the backgound (see next table).
 
@@ -444,6 +444,6 @@ For more details, see the article: *Overview of the 3 Layers of Softanza Softwar
 
 ## See Also
 
-- For a broader understanding of string art support in Softanza, please refer to the article: [An overview of String Art support in Softanza](../overviews/stzStringArt_Overview.md).
+- For a broader understanding of string art support in Softanza, please refer to the article: [An overview of String Art support in Softanza](../overviews/stz-string-art-overview.md).
 - For a wide range of practical examples, see the [stzStringArtTest.ring](../../core/test/stkStringArtTest.ring) file.
-- For frequent asked questions and their answers, see [stzStringArt_FAQs](../../doc/faqs/stzStringArt_FAQs.md) page.
+- For frequent asked questions and their answers, see [stzStringArt_FAQs](../../doc/faqs/stz-string-art-faqs.md) page.
