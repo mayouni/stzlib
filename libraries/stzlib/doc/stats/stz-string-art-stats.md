@@ -17,7 +17,7 @@ This analysis provides a static code overview of the StringArt() function, relat
 ### Key Observations
 - All functions are small-sized (<20 LOC), indicating focused functionality.
 - Low complexity across all functions (0-1 loops, 0 nested loops).
-- Only StringArt() is Qt-based and heavily used in the test samples (93 occurrences).
+- Only StringArt() is Qt-based and heavily used in the test samples s(93 occurrences).
 - Varying test levels: StringArt() and StringArtStyles() at TestLevel 2, others untested.
 
 ## stzStringArt Class Statistics
@@ -95,5 +95,61 @@ This analysis provides a static code overview of the StringArt() function, relat
    - Potential bottlenecks under realistic usage scenarios
 
 3. **Advanced Profiling**: Consider using SoftanzaMax layer tools (stzProfSystem, stzLogSystem, stzTelemetrySystem, stzCacheSystem) for more detailed performance analysis of critical components.
+
+## Statistics about the stzStringArt.ring file
+
+## File Structure and Overall Analysis
+
+This section provides statiscts about the file containg all the code of StringArt functions and stzStringArt class.
+
+### File Statistics
+- File name: stkStringArt.ring
+- Total lines of code: Approximately 300
+- Number of functions: 12
+- Number of classes: 1 (stkStringArt)
+- Number of methods in stkStringArt class: 8 (including 2 private methods)
+
+### Code Structure
+- The file is organized into three main sections:
+  1. Global functions for string art styles and utilities
+  2. String art painting function
+  3. stkStringArt class definition
+
+### Function and Method Calls
+- Intercalls (calls between functions/methods): 15
+- Innercalls (calls within the same function/method): 8
+- Total function/method calls: 23
+
+### Use of Ring Functions
+- Frequently used Ring functions:
+  - len(): 10 occurrences
+  - find(): 3 occurrences
+  - isString(): 4 occurrences
+  - raise(): 5 occurrences
+  - eval(): 1 occurrence
+  - upper(): 3 occurrences
+
+### Use of Qt Functions
+- Qt classes used:
+  - QString2: 6 instances
+- Qt methods used:
+  - append(): 5 occurrences
+  - mid(): 4 occurrences
+  - count(): 3 occurrences
+  - replace_2(): 1 occurrence
+  - split(): 1 occurrence
+  - at(): 1 occurrence
+  - size(): 1 occurrence
+
+### Data Structures
+- Lists: Extensively used for storing string art styles and character representations
+- Strings: Primary data type for input and output
+- Global variables: Used for storing default styles and art representations
+
+### Notable Patterns and Techniques
+1. Use of eval() for dynamic function calling in StringArtPainting()
+2. Extensive use of list comprehensions and nested lists for storing character art
+3. Implementation of both procedural (functions) and object-oriented (class) approaches
+4. Use of private methods in the stkStringArt class for encapsulation
 
 This analysis provides a foundation for understanding the StringArt library's structure and usage patterns, guiding both development and optimization efforts.
