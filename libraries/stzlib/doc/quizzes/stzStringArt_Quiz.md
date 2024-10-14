@@ -2,7 +2,30 @@
 
 ## Introduction
 
-Welcome to the Softanza StringArt Mastery quiz! This set of multiple-choice questions is designed to help programmers deepen their understanding of the StringArt feature in the Softanza library. By mastering these concepts, you'll be better equipped to create and manipulate string art representations in your Ring programming projects.
+    .  ✦
+  * ✧  .
+✦   ✨  ✧
+  . ✦  *
+    ✧  .
+
+░▄███▄░ ██░░░██ ███████ ███████ ██░
+██▀░▀██ ██░░░██ ░░██░░░ ░░░▄██░ ██░
+██░▄▄██ ██░░░██ ░░██░░░ ░▄██░░░ ██░
+██▄░▀██ ██▄░▄██ ░░██░░░ ▄██░░░░ ░░░
+░▀███▀█ ░▀███▀░ ███████ ███████ ██░
+
+Welcome to the Softanza StringArt Mastery quiz!
+
+This set of multiple-choice questions is designed to help programmers deepen their understanding of the StringArt feature in the Softanza library. By mastering these concepts, you'll be better equipped to create and manipulate string art representations in your Ring programming projects.
+
+> NOTE: The string art above was generated using the following code:
+```ring
+load "stzlib.ring"
+? StringArt("#{Sparkle}")
+? StringArt("QUIZ!")
+```
+
+Why not try it yourself? Simply copy and paste it into your Ring editor.
 
 ## Learning Goals
 

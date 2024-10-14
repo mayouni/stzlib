@@ -1,17 +1,4 @@
 load "../stzlib.ring"
 
-
-
-
-
-? CharArtLayers("R")
-#-->
-/*
-[
-	"███▄▄░░",
-	"██░░░██",
-	"███▄▄░░",
-	"██░▀██░",
-	"██░░░██"
-]
-*/
+? StringArt("#{sparkle}") + NL
+? StringArt("Quiz!") + NL
