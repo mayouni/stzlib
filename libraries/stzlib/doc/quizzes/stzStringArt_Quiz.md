@@ -1,7 +1,7 @@
 # Softanza StringArt Mastery: Multiple Choice Questions
 
 ## Introduction
-
+```
     .  ✦
   * ✧  .
 ✦   ✨  ✧
@@ -13,6 +13,7 @@
 ██░▄▄██ ██░░░██ ░░██░░░ ░▄██░░░ ██░
 ██▄░▀██ ██▄░▄██ ░░██░░░ ▄██░░░░ ░░░
 ░▀███▀█ ░▀███▀░ ███████ ███████ ██░
+```
 
 Welcome to the Softanza StringArt Mastery quiz!
 
