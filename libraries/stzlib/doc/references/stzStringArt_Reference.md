@@ -4,19 +4,28 @@
 
 This document provides a comprehensive reference for the `StringArt` function(s) and the `stzStringArt` class, which are used to create and manipulate string art representations of text in the Softanza library.
 
-> NOTE: If you're not comfortable reading through a complete reference file and prefer building your comprehension of the StringArt features by crafting quick and small code snippets, you can jump now to out our [Softanza StringArt Quickers](../quickers/stzStringArt_Quickers.md) page.
+> NOTE: If you're not comfortable reading through a complete reference file and prefer building your comprehension of the StringArt features by crafting quick and small code snippets, you can jump right now to our [Softanza StringArt Quickers](../quickers/stzStringArt_Quickers.md) page.
 
+## Reminder of the 3 Softanza Layers
+
+Softanza's software architecture is elegantly structured into three distinct layers: **Core**, **Prime**, and **Max**, each serving a specific role in scaling your applications.
+
+- `SoftanzaCore` is the lightweight foundation on which all the upper layers are build (suitable for small apps, web, console, and microcontroller programs.
+- `SoftanzaPrime` contains all the major features of the library that you need to develop midum to large Ring applications.
+- `SoftanzaMax` augments SoftanzaPrime with Advanced features thay you mayn need in developing complex, undustrial grade applications and platforms.
+
+> NOTE: You can read more about in this article : [Understanding Softanza Lyered Softaware Architecture](#TODO Article to be Added)
 
 ### Related files in the SoftanzaPrime layer
 
 | File | Type | Description | Path | Status |
 |------|-------------|-------|------|--------|
-| stzStringArt.ring | Code | Contains a warpper class that ineherits from stkStringArt in SoftanzaCore | ../string/stzStringArt.ring | Usable |
-| stzStringArtTest.ring | Test | Contains few samples since all tests are made in stkStringArt.ring in SoftanzaCore| ../string/stzStringArt.ring | Usable |
+| stzStringArt.ring | Code | Warpper class that ineherits from stkStringArt in SoftanzaCore | ../string/stzStringArt.ring | Usable |
+| stzStringArtTest.ring | Test | Has few samples since all tests are made in stkStringArt.ring in SoftanzaCore| ../string/stzStringArt.ring | Usable |
 | stzStringArt_Reference.md | Doc | Complete reference of the StringArt API (class and functions ) | ../doc/references/stzStringArt_Reference.md | Usable |
 | stzStringArt_Overview.md | Doc | Comprehensive overview of the StringArt feature and its applications |  ../doc/references/stzStringArt_Reference.md | Usable |
 | stzStringArt_quickers.md | Doc | Quick hand-on code snippets to build an instant understanding of the feature | ../doc/quickers/stzStringArt_Quickers.md | Usable |
-| stzStringArt_FAQs.md | Doc | Frequent asked questions about the feature alon with their answers | ../doc/faqs/stzStringArt_FAQs.md | Usable |
+| stzStringArt_FAQs.md | Doc | Frequent asked questions about the feature along with their answers | ../doc/faqs/stzStringArt_FAQs.md | Usable |
 
 > NOTE: There is no a DATA file at this layer because the data file hosted in SoftanzaCore layer is used in the backgound (see next table).
 
@@ -29,8 +38,7 @@ This document provides a comprehensive reference for the `StringArt` function(s)
 | stkStringArtTest.ring | Test | Contains the test samples related to the stkStringArt.ring file | ../core/stkStringArt.ring | Usable |
 
 > NOTE: There is no a DOC files at this layer because the doc files hosted in SoftanzaPrime layer are used everywhere (see previous table).
-
----
+s
 
 ## StringArt functions
 
