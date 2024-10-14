@@ -1,57 +1,103 @@
-# StringArt Feature Analysis: Softanza Library
+# StringArt() and stzStringAt Code Analysis
 
-## Component Statistics
+## Statistics Table
 
-| Name | Type | Size | ~> Occurr. | Loops | LoopsInLoops | ExternalCalls | QtBased | Test Level | ~> Occurr. |
-|------|------|------|------------|-------|--------------|---------------|---------|------------|------------|
-| StringArt(str) | Function | Small (-20 LOC) | 6 | 1 | 0 | 4 | YES : QString | 2 : UnitTested + UsedInDoc | 93 |
-| stzStringArt | Class | Small (-20 LOC) | 5 | 5 | 1 | 42 | YES : QString | 2 : UnitTested + UsedInDoc | 7 |
-| Content() | Method | Small (-20 LOC)| 2 | 0 | 0 | 0 | NO | 1 : UnitTested | 0 |
-| Style() | Method | Small (-20 LOC) | 4 | 0 | 0 | 0 | NO | 2 : UnitTested + UsedInDoc | 6 |
-| SetStyle(cStyle) | Method | Small (-20 LOC) | 3 | 0 | 0 | 10 | NO | 2 : UnitTested + UsedInDoc | 4 |
-| Artify() | Method | Small (-20 LOC) | 3 | 1 | 0 | 8 | NO | 2 : UnitTested + UsedInDoc | 2 |
-| Boxify() | Method | Small (-20 LOC) | 3 | 6 | 1 | 22 | NO | 2 : UnitTested + UsedInDoc | 4 |
-| StringArtStyles() | Function | Small (-20 LOC) | 4 | 1 | 0 | 2 | NO | 2 : UnitTested + UsedInDoc | 1 |
-| IsStringArtStyle(str) | Function | Small (-20 LOC) | 1 | 0 | 0 | 2 | NO | 0 : Nontested! | 0 |
-| DefaultStringArtStyle() | Function | Small (-20 LOC) | 8 | 0 | 0 | 0 | NO | 0 : Nontested! | 0 |
-| SetDefaultStringArtStyle(cStyle) | Function | Small (-20 LOC) | 2 | 0 | 0 | 5 | NO | 0 : Untested! | 0 |
+| Name | Type | Size | Occurr. | Loops | InLoops | InCalls | QtBased | TestLevel | Occurr. |
+|------|------|------|---------|-------|---------|---------|---------|-----------|---------|
+| StringArt(str) | Function | Small | 6 | 1 | 0 | 4 | YES | 2 | 93 |
+| stzStringArt | Class | Small | 5 | 5 | 1 | 42 | YES | 2 | 7 |
+| Content() | Method | Small| 2 | 0 | 0 | 0 | NO | 1 | 0 |
+| Style() | Method | Small | 4 | 0 | 0 | 0 | NO | 2 | 6 |
+| SetStyle(cStyle) | Method | Small | 3 | 0 | 0 | 10 | NO | 2 | 4 |
+| Artify() | Method | Small | 3 | 1 | 0 | 8 | NO | 2 | 2 |
+| Boxify() | Method | Small | 3 | 6 | 1 | 22 | NO | 2 | 4 |
+| StringArtStyles() | Function | Small | 4 | 1 | 0 | 2 | NO | 2 | 1 |
+| IsStringArtStyle(str) | Function | Small | 1 | 0 | 0 | 2 | NO | 0 | 0 |
+| DefaultStringArtStyle() | Function | Small | 8 | 0 | 0 | 0 | NO | 0 | 0 |
+| SetDefaultStringArtStyle(cStyle) | Function | Small | 2 | 0 | 0 | 5 | NO | 0 | 0 |
+
+
+## Understanding the Statistics
+
+Before diving into the analysis, it's crucial to understand how to interpret these statistics, especially when comparing functions and classes:
+
+1. **Class vs. Function Statistics**: The statistics for a class (e.g., stzStringArt) represent the sum of all its methods. For example, if stzStringArt shows 5 loops and 42 internal calls, this is the total across all its methods, not per method.
+
+2. **Interpreting Complexity**: When assessing the complexity of a class, consider the average complexity of its methods rather than the total. A class with many simple methods may show high total numbers but isn't necessarily complex.
+
+3. **Size Classifications**: 
+   - Small: Less than 20 lines of code
+   - Medium: 20 to 70 lines of code
+   - Large: More than 70 lines of code
+
+4. **TestLevels**: In Softanza, TestLevels are cumulative:
+   - 0: Untested
+   - 1: Unit Tested
+   - 2: Used in Documentation
+   - 3: Performance Tested
 
 ## Key Observations
 
-1. **Size and Complexity**: All components are small (less than 20 lines of code) and generally have low complexity, with the exception of the Boxify() method, which has a higher number of nested loops.
+1. **Size Consistency**: All components are categorized as "Small" (less than 20 lines of code), suggesting a highly modular and potentially maintainable codebase.
 
-2. **Qt Dependency**: The main StringArt function and stzStringArt class depend on Qt (specifically QString), while individual methods and utility functions do not.
+2. **Complexity Analysis**:
+   - **Functions**: Most standalone functions have low complexity (0-1 loops).
+   - **Class Methods**: 
+     - The Boxify() method stands out with 6 loops and 1 nested loop, indicating higher complexity relative to other methods.
+     - Other methods in the stzStringArt class show low to moderate complexity.
+   - **stzStringArt Class**: While it shows 5 loops and 1 nested loop in total, this is spread across multiple methods, suggesting moderate overall complexity.
 
-3. **Testing**: Most components are well-tested (level 2: Unit Tested + Used in Documentation). However, three utility functions (IsStringArtStyle, DefaultStringArtStyle, and SetDefaultStringArtStyle) are untested, which may pose risks.
+3. **Qt Dependency**: Only the main StringArt(str) function and stzStringArt class are Qt-based. All other components are Qt-independent.
 
-4. **Usage**: The StringArt(str) function is the most frequently used component (93 occurrences), while other components have relatively low usage.
+4. **Testing Coverage**:
+   - Most components have a TestLevel of 2, indicating they are unit tested and used in documentation.
+   - The Content() method has a TestLevel of 1 (unit tested only).
+   - Three utility functions are untested (TestLevel 0).
+   - No components have reached TestLevel 3 (Performance Tested) yet.
 
-5. **External Calls**: The stzStringArt class and its Boxify() method have the highest number of external calls, which may indicate higher coupling with other parts of the library.
+5. **Usage Patterns**:
+   - The StringArt(str) function is the most used component (93 occurrences).
+   - The stzStringArt class and its methods show varied usage (0-7 occurrences).
+
+6. **Internal Calls**:
+   - The stzStringArt class shows 42 internal calls in total, which is an aggregate of its methods.
+   - The Boxify() method has 22 internal calls, the highest among individual methods.
 
 ## Recommendations for Softanza Users
 
-1. **Core Functionality Reliability**: 
-   - The StringArt(str) function is well-tested and frequently used, indicating it's a reliable core feature. Users can confidently use this function in their projects.
-   - The stzStringArt class and its methods (except Boxify()) are also well-tested and can be trusted for most use cases.
+1. **Leverage Modular Design**: The consistent small size of all components indicates a highly modular design. This should make the library easy to understand, use, and potentially extend.
 
-2. **Caution Areas**:
-   - Be cautious when using the Boxify() method, as its higher complexity (6 nested loops) might lead to unexpected behavior in edge cases.
-   - The untested utility functions (IsStringArtStyle, DefaultStringArtStyle, SetDefaultStringArtStyle) should be used with care. Consider implementing additional error checking when using these functions in critical parts of your code.
+2. **Core Functionality Reliability**: 
+   - The StringArt(str) function is well-tested, frequently used, and likely stable.
+   - The stzStringArt class and most of its methods are well-tested and can be trusted.
 
-3. **Performance Considerations**:
-   - The StringArt feature generally has low complexity, but be mindful of potential performance impacts when using it in tight loops or with very large strings.
-   - The Boxify() method, due to its nested loops, may have performance implications for large inputs. Consider testing its performance with your specific use cases.
+3. **Complexity Considerations**:
+   - While the stzStringArt class shows higher total numbers for loops and calls, remember this is spread across multiple small methods. Each method is likely of manageable complexity.
+   - The Boxify() method has the highest individual complexity. Use with care and test thoroughly with various inputs.
 
-4. **Qt Dependency**:
-   - If you're developing a Qt-based application, you can fully leverage the StringArt feature without concerns.
-   - For non-Qt projects, be aware that using the main StringArt function and stzStringArt class will introduce a Qt dependency. Consider if this aligns with your project requirements.
+4. **Performance Awareness**:
+   - Most components should perform well for typical use cases due to their low individual complexity and small size.
+   - For performance-critical applications, consider conducting your own performance tests, especially for frequently used methods or complex operations like Boxify().
 
-5. **Extensibility and Customization**:
-   - The modular structure of the StringArt feature (with separate style-related methods) allows for easy customization. Feel free to extend or modify styles to suit your needs.
-   - However, when creating custom styles, ensure they're compatible with the existing methods to maintain consistency and reliability.
+5. **Qt Integration**:
+   - Ideal for Qt-based projects.
+   - Non-Qt projects should be aware of the dependency introduced by StringArt(str) and stzStringArt.
 
-6. **Documentation and Support**:
-   - Most components are used in documentation, suggesting good documentation coverage. Refer to the Softanza documentation for proper usage guidelines.
-   - Given the feature's good test coverage and documentation usage, you can expect reliable support and maintenance from the Softanza team.
+6. **Testing and Documentation**:
+   - Most components have been unit tested and used in documentation, indicating good reliability and usage examples.
+   - Consider additional testing for the three untested utility functions if they are critical to your project.
+   - If performance is crucial for your application, you might want to perform and potentially contribute performance tests, as no components have reached TestLevel 3 yet.
 
-By considering these recommendations, you can effectively and responsibly integrate the StringArt feature into your projects, leveraging its strengths while being aware of potential areas that require extra attention.
+7. **Usage Guidance**:
+   - The StringArt(str) function is suitable for most straightforward use cases.
+   - Leverage the stzStringArt class methods for more complex operations, understanding that while the class as a whole may seem complex, individual methods are small and manageable.
+
+8. **Extensibility**:
+   - The modular structure allows for easy customization, especially regarding styles.
+   - When extending functionality, aim to maintain the current pattern of small, focused methods.
+
+9. **Continuous Improvement**:
+   - Keep an eye on updates, especially for the untested components.
+   - Consider contributing tests, documentation, or performance benchmarks, particularly for frequently used components in your projects.
+
+
