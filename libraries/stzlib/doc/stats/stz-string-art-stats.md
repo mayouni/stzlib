@@ -96,11 +96,9 @@ This analysis provides a static code overview of the StringArt() function, relat
 
 3. **Advanced Profiling**: Consider using SoftanzaMax layer tools (stzProfSystem, stzLogSystem, stzTelemetrySystem, stzCacheSystem) for more detailed performance analysis of critical components.
 
-## Statistics about the stzStringArt.ring file
-
 ## File Structure and Overall Analysis
 
-This section provides statiscts about the file containg all the code of StringArt functions and stzStringArt class.
+This section presents a comprehensive analysis of the statistics related to the file that contains the complete codebase for the StringArt functions and the stzStringArt class.
 
 ### File Statistics
 - File name: stkStringArt.ring
