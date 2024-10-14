@@ -2,29 +2,47 @@
 
 ## Introduction
 
-This document provides a comprehensive reference for the `StringArt` function and the `stzStringArt` class, which are used to create and manipulate string art representations of text in the Softanza library.
+This document provides a comprehensive reference for the `StringArt` function(s) and the `stzStringArt` class, which are used to create and manipulate string art representations of text in the Softanza library.
 
-> NOTE
+> NOTE: If you're not comfortable reading through a complete reference file and prefer building your comprehension of the StringArt features by crafting quick and small code snippets, you can jump now to out our [Softanza StringArt Quickers](../quickers/stzStringArt_Quickers.md) page.
 
-> If you're not comfortable reading through a complete reference file and prefer building your comprehension of the StringArt features by crafting quick and small code snippets, you can jump now to out our [Softanza StringArt Quickers](../quickers/stzStringArt_Quickers.md) page.
 
-## Quick Reference
+### Related files in the SoftanzaPrime layer
+
+| File | Type | Description | Path | Status |
+|------|-------------|-------|------|--------|
+| stzStringArt.ring | Code | Contains a warpper class that ineherits from stkStringArt in SoftanzaCore | ../string/stzStringArt.ring | Usable |
+| stzStringArtTest.ring | Test | Contains few samples since all tests are made in stkStringArt.ring in SoftanzaCore| ../string/stzStringArt.ring | Usable |
+| stzStringArt_Reference.md | Doc | Complete reference of the StringArt API (class and functions ) | ../doc/references/stzStringArt_Reference.md | Usable |
+| stzStringArt_Overview.md | Doc | Comprehensive overview of the StringArt feature and its applications |  ../doc/references/stzStringArt_Reference.md | Usable |
+| stzStringArt_quickers.md | Doc | Quick hand-on code snippets to build an instant understanding of the feature | ../doc/quickers/stzStringArt_Quickers.md | Usable |
+| stzStringArt_FAQs.md | Doc | Frequent asked questions about the feature alon with their answers | ../doc/faqs/stzStringArt_FAQs.md | Usable |
+
+> NOTE: There is no a DATA file at this layer because the data file hosted in SoftanzaCore layer is used in the backgound (see next table).
+
+### Related files in the SoftanzaCore layer
+
+| File | Type | Description | Path | Status |
+|------|-------------|-------|------|--------|
+| stkStringArt.ring | Code | Contains core code of StringArt functions and stkStringArt class | ../core/string/stkStringArt.ring | Usable |
+| stkStringArtData.ring | Data | Contains the necerray data manipulated by StringArt function(s) and stkStringArt class | ../core/data/stkStringData.ring | Usable |
+| stkStringArtTest.ring | Test | Contains the test samples related to the stkStringArt.ring file | ../core/stkStringArt.ring | Usable |
+
+> NOTE: There is no a DOC files at this layer because the doc files hosted in SoftanzaPrime layer are used everywhere (see previous table).
+
+---
+
+## StringArt functions
+
+### Quick reference
 
 | Name | Type | Description | Since | Code |
 |------|------|-------------|-------|------|
 | [StringArt(str)](#stringart) | Function | Creates string art representation of text | V1.0 | Link |
-| [stzStringArt](#stzstringart-class) | Class | Class for creating and manipulating string art | V1.0 | Link |
-| [Content()](#content) | Method | Returns the original content string | V1.0 | Link |
-| [Style()](#style) | Method | Returns the current string art style | V1.0 | Link |
-| [SetStyle(cStyle)](#setstylecstyle) | Method | Sets the string art style | V1.0 | Link |
-| [Artify()](#artify) | Method | Converts the content to string art representation | V1.0 | Link |
-| [Boxify()](#boxify) | Method | Creates a boxed version of the string art representation | V1.0 | Link |
 | [StringArtStyles()](#stringartstyles) | Function | Returns available string art styles | V1.0 | Link |
 | [IsStringArtStyle(str)](#isstringartstylestr) | Function | Checks if a string is a valid art style | V1.0 | Link |
 | [DefaultStringArtStyle()](#defaultstringartstyle) | Function | Returns the default string art style | V1.0 | Link |
 | [SetDefaultStringArtStyle(cStyle)](#setdefaultstringartstylecstyle) | Function | Sets the default string art style | V1.0 | Link |
-
-## StringArt function
 
 ### Basic Information
 
@@ -111,8 +129,21 @@ load "stzlib.ring"
 ]
 ```
 
+---
 
 ## stzStringArt Class
+
+## Quick Reference
+
+| Name | Type | Description | Since | Code |
+|------|------|-------------|-------|------|
+| [stzStringArt](#stzstringart-class) | Class | Class for creating and manipulating string art | V1.0 | Link |
+| [Content()](#content) | Method | Returns the original content string | V1.0 | Link |
+| [Style()](#style) | Method | Returns the current string art style | V1.0 | Link |
+| [SetStyle(cStyle)](#setstylecstyle) | Method | Sets the string art style | V1.0 | Link |
+| [Artify()](#artify) | Method | Converts the content to string art representation | V1.0 | Link |
+| [Boxify()](#boxify) | Method | Creates a boxed version of the string art representation | V1.0 | Link |
+
 
 ### Basic Information
 
@@ -364,6 +395,6 @@ For more details, see the article: *Overview of the 3 Layers of Softanza Softwar
 
 ## See Also
 
-For a broader understanding of string art support in Softanza, please refer to the article: [An overview of String Art support in Softanza](../overviews/stzStringArt_Overview.md).
-
-For a wide range of practical examples, see the [stzStringArtTest.ring](../../core/test/stkStringArtTest.ring) file.
+- For a broader understanding of string art support in Softanza, please refer to the article: [An overview of String Art support in Softanza](../overviews/stzStringArt_Overview.md).
+- For a wide range of practical examples, see the [stzStringArtTest.ring](../../core/test/stkStringArtTest.ring) file.
+- For frequent asked questions and their answers, see [stzStringArt_FAQs](../../doc/faqs/stzStringArt_FAQs.md) page.
