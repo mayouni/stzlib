@@ -784,7 +784,7 @@ proff()
 # Executed in 0.03 second(s).
 
 /*--- 5 cases of the many cheks Softanza has for bounds
-*/
+
 pron()
 
 # Case 1 : Checking if the string is bounded by ONE or TWO substrings
@@ -814,9 +814,10 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.22 second(s)
+# Executed in 0.12 second(s) in Ring 1.21
+# Executed in 0.22 second(s) in Ring 1.19
 
-/*--- @narrative
+/*--- #narration
 
 pron()
 
@@ -838,9 +839,10 @@ o1 = new stzString("<<Go!>>")
 #--> "Go!"
 
 proff()
-# Executed in 0.24 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.24 second(s) in Ring 1.18
 
-/*======= @stzarration
+/*======= #narration
 
 pron()
 
@@ -877,12 +879,12 @@ o1 = new stzString("123456789")
 ? o1.SectionXT(-2, -4)
 #--> 876
 
-# Rember : if you try these fency things with the more conservative Section()
+# Remember : if you try these fency things with the more conservative Section()
 # methond (without ...XT() extension), and for Softanza to stay simple and
 # consitent for the most common use cases, you will get an error:
 
-? o1.Section(-2, -4)
-#--> Error message: n1 and n2 must be inside the list.
+//? o1.Section(-2, -4)
+#--> Error message: Indexes out of range! n1 and n2 must be inside the string.
 
 # Before you leave : All what works for stzString, will work for stzList.
 # For our case, just change the first line of the code to use stzList instead
@@ -893,7 +895,7 @@ o1 = new stzList("1":"9")
 # Now you can run the code sucessfully withou any modification.
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
 /*=========== #narration: case sensitivity in Softanza
 
@@ -931,7 +933,8 @@ o1 = new stzList([ "emm", "EMM", "eMm", "EMM" ])
 #--> [ "emm" ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.05 second(s) in Ring 1.19
 
 /*========
 
@@ -943,7 +946,8 @@ o1.ReplaceByMany("ring", [ "♥", "♥♥", "♥♥♥" ])
 ? o1.Content() #--> "♥ php ruby ♥♥ python ♥♥♥"
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.07 second(s) in Ring 1.18
 
 /*========
 
@@ -969,10 +973,11 @@ o1 = new stzString("Ring Programming Language")
 #--> Programming
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.08 second(s) in Ring 1.19
 
 /*===
-
+*/
 pron()
 
 ? IsMarquer("#01")
@@ -985,7 +990,7 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s)
 
 /*-----
 
