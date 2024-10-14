@@ -96,6 +96,6 @@ A11: For more detailed information, you can refer to:
 - [The StringArt overview document](../overviews/stz-string-art-overview.md)
 - [The StringArt reference document](../references/stz-string-art-reference.md)
 - [The StringArt quickers guide for quick code snippets](../quickers/stz-string-art-quickers.md)
-- [The `stkStringArtTest.ring` file for practical examples](../../core/test/stz-string-art-test.ring)
+- [The `stkStringArtTest.ring` file for practical examples](../../core/test/stzStringArtTest.ring)
 
 These resources are available in the Softanza documentation.
