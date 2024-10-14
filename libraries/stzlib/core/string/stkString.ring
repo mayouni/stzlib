@@ -4,7 +4,7 @@ load "LightGuiLib.ring"
 #  STZ CORE STRING  #
 #~~~~~~~~~~~~~~~~~~~#
 
-# split function (to use instead of the one provided by the standard library
+# Split function (to use instead of the one provided by the standard library)
 
 func StkSplitCS(cStr, cSubStr, bCaseSensitive)
 	oQStr = new QString2()
@@ -21,6 +21,15 @@ func StkSplitCS(cStr, cSubStr, bCaseSensitive)
 
 func StkSplit(cStr, cSubStr)
 	return StkSplitCS(cStr, cSubStr, 0)
+
+# Trim function (to use instead of the one provided by the standard library)
+
+func StkTrim(cStr)
+	oQStr = new QString2()
+	oQStr.append(cStr)
+
+	cResult = oQStr.trimmed()
+	return cResult
 
 
 class stkString from stzCoreString

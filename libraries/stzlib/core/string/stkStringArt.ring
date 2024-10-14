@@ -1,4 +1,3 @@
-load "stdlib.ring"
 load "qtcore.ring"
 
 #NOTE This class is dedicatd to Mahmoud for the effors he deployed
@@ -295,7 +294,7 @@ class stkStringArt
 			cResult += str[i] + " "
 		next
 	    
-		return stztrim(cResult)
+		return stktrim(cResult)
 
 	func pvtCharArtLayers(c)
 		if NOT (isString(c) and len(c) = 1)
