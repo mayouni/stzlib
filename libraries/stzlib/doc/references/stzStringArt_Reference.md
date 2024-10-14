@@ -10,19 +10,19 @@ This document provides a comprehensive reference for the `StringArt` function an
 
 ## Quick Reference
 
-| Name | Type | Description | Since Version |
-|------|------|-------------|---------------|
-| [StringArt(str)](#stringart) | Function | Creates string art representation of text | 1.0 |
-| [stzStringArt](#stzstringart-class) | Class | Class for creating and manipulating string art | 1.0 |
-| [Content()](#content) | Method | Returns the original content string | 1.0 |
-| [Style()](#style) | Method | Returns the current string art style | 1.0 |
-| [SetStyle(cStyle)](#setstylecstyle) | Method | Sets the string art style | 1.0 |
-| [Artify()](#artify) | Method | Converts the content to string art representation | 1.0 |
-| [Boxify()](#boxify) | Method | Creates a boxed version of the string art representation | 1.0 |
-| [StringArtStyles()](#stringartstyles) | Function | Returns available string art styles | 1.0 |
-| [IsStringArtStyle(str)](#isstringartstylestr) | Function | Checks if a string is a valid art style | 1.0 |
-| [DefaultStringArtStyle()](#defaultstringartstyle) | Function | Returns the default string art style | 1.0 |
-| [SetDefaultStringArtStyle(cStyle)](#setdefaultstringartstylecstyle) | Function | Sets the default string art style | 1.0 |
+| Name | Type | Description | Since | Code | Size | ~> Occurr. | Loops | LoopsInLoops | ExternalCalls | QtBased | Test Level | ~> Occurr. |
+|------|------|-------------|--------------|------|-------------|------------|
+| [StringArt(str)](#stringart) | Function | Creates string art representation of text | V1.0 | Link | Small (-20 LOC) | 6 | 1 | 0 | 4 | YES : QString | 2 : UnitTested + UsedInDoc | 93 |
+| [stzStringArt](#stzstringart-class) | Class | Class for creating and manipulating string art | V1.0 | Link | Small (-20 LOC) | 5 | 5 | 1 | 42 | YES : QString | 5 | 2 : UnitTested + UsedInDoc | 7 |
+| [Content()](#content) | Method | Returns the original content string | V1.0 | Link | Small (-20 LOC)| 2 | 0 | 0 | 0 | NO | 1 : UnitTested | 0 |
+| [Style()](#style) | Method | Returns the current string art style | V1.0 | Link | Small (-20 LOC) | 4 | 0 | 0 | 0 | NO | 2 : UnitTested + UsedInDoc | 6 |
+| [SetStyle(cStyle)](#setstylecstyle) | Method | Sets the string art style | V1.0 | Link | Small (-20 LOC) | 3 | 0 | 0 | 10 | NO | 2 : UnitTested + UsedInDoc | 4 |
+| [Artify()](#artify) | Method | Converts the content to string art representation | V1.0 | Link | Small (-20 LOC) | 3 | 1 | 0 | 8 | NO | 2 : UnitTested + UsedInDoc | 2 |
+| [Boxify()](#boxify) | Method | Creates a boxed version of the string art representation | V1.0 | Link | Small (-20 LOC) | 3 | 6 | 1 | 22 | NO | 2 : UnitTested + UsedInDoc | 4 |
+| [StringArtStyles()](#stringartstyles) | Function | Returns available string art styles | V1.0 | Link | Small (-20 LOC) | 4 | 1 | 0 | 2 | NO | 2 : UnitTested + UsedInDoc | 1 |
+| [IsStringArtStyle(str)](#isstringartstylestr) | Function | Checks if a string is a valid art style | V1.0 | Link | Small (-20 LOC) | 1 | 0 | 0 | 2 | NO | 0 : Nontested! | 0 |
+| [DefaultStringArtStyle()](#defaultstringartstyle) | Function | Returns the default string art style | V1.0 | Link | Small (-20 LOC) | 8 | 0 | 0 | 0 | NO | 0 : Nontested! | 0 |
+| [SetDefaultStringArtStyle(cStyle)](#setdefaultstringartstylecstyle) | Function | Sets the default string art style | V1.0 | Link | Small (-20 LOC) | 2 | 0 | 0 | 5 | NO | 0 : Untested! | 0 |
 
 ## StringArt function
 
