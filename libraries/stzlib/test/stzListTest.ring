@@ -203,7 +203,7 @@ pron()
 proff()
 # Executed in 0.03 second(s)
 
-/*===== @narration: everything is findable
+/*===== #narration: everything is findable
 
 pron()
 
@@ -559,7 +559,7 @@ o1 = new stzList([
 proff()
 # Executed in 0.02 second(s)
 
-/*===== @narration: activating and deactivating CheckParams()
+/*===== #narration: activating and deactivating CheckParams()
 
 pron()
 
@@ -597,7 +597,7 @@ pron()
 proff()
 # Executed in 0.09 second(s)
 
-/*======= @narration
+/*======= #narration
 
 pron()
 
@@ -1014,7 +1014,7 @@ pron()
 proff()
 # Executed in 0.17 second(s)
 
-/*----------------- @Narration : Use of the L() small function
+/*----------------- #narration : Use of the L() small function
 
 pron()
 
@@ -6715,7 +6715,7 @@ StzListQ( L(' "ا" : "ج" ') ) {
 proff()
 # Executed in 0.07 second(s).
 
-/*----------------- @Narration : Use of the L() small function
+/*----------------- #narration : Use of the L() small function
 
 pron()
 

@@ -5985,7 +5985,7 @@ pron()
 proff()
 # Executed in 0.02 second(s)
 
-/*================ @narration
+/*================ #narration
 
 pron()
 
@@ -7066,7 +7066,7 @@ oStr = new stzString("Welcome to the Ring programming language")
 proff()
 # Executed in 0.06 second(s)
 
-/*----------- @narration
+/*----------- #narration
 
 pron()
 

@@ -387,7 +387,7 @@ proff()
 
 /*=====
 
-/*---- @Narration: In this narration; I will show how Sofanza compliments
+/*---- #narration: In this narration; I will show how Sofanza compliments
 # Ring in some corner areas, by taking as an example the generation of
 # random numbers. I Hope you will find it interesting...
 
