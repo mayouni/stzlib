@@ -2,7 +2,6 @@ load "../stzlib.ring"
 
 pron()
 
-SetStringArtStyle(:flower)
 ? StringArt("Ring")
 #-->
 "

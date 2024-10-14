@@ -7,18 +7,15 @@ This document provides a comprehensive reference for the `StringArt` function(s)
 ```ring
 load "stzlib.ring"
 
-SetStringArtStyle(:flower)
 ? StringArt("Ring")
-#--> '
-.-------.     .-./`)  ,---.   .--.   .-_'''-.   
-|  _ _   \    \ .-.') |    \  |  |  '_( )_   \  
-| ( ' )  |    / `-' \ |  ,  \ |  | |(_ o _)|  ' 
-|(_ o _) /     `-'`'` |  |\_ \|  | . (_,_)/___| 
-| (_,_).' __   .---.  |  _( )_\  | |  |  .-----.
-|  |\ \  |  |  |   |  | (_ o _)  | '  \  '-   .'
-|  | \ `'   /  |   |  |  (_,_)\  |  \  `-'`   | 
-|  |  \    /   |   |  |  |    |  |   \        / 
-''-'   `'-'    '---'  '--'    '--'    `'-...-' '
+#-->
+"
+███▄▄░░ ███████ ██░░░██ ░▄███▄░
+██░░░██ ░░██░░░ ███░░██ ██▀░░░░
+███▄▄░░ ░░██░░░ ██▀█░██ ██░░███
+██░▀██░ ░░██░░░ ██░▀███ ██▄░░██
+██░░░██ ███████ ██░░░██ ░▀███▀░
+"
 ```
 
 > NOTE: If you're not comfortable reading through a complete reference file and prefer building your comprehension of the StringArt features by crafting quick and small code snippets, you can jump right now to our [Softanza StringArt Quickers](../quickers/stzStringArt_Quickers.md) page.
@@ -78,104 +75,6 @@ There are 4 types of files for each Softanza feature: *MainCodeFile*, *TestCodeF
 
 There are no files at this layer at the moment.
 
-## StringArt functions
-
-### Quick reference
-
-| Name | Type | Description | Since | Code |
-|------|------|-------------|-------|------|
-| [StringArt(str)](#stringart) | Function | Creates string art representation of text | V1.0 | Link |
-| [StringArtStyles()](#stringartstyles) | Function | Returns available string art styles | V1.0 | Link |
-| [IsStringArtStyle(str)](#isstringartstylestr) | Function | Checks if a string is a valid art style | V1.0 | Link |
-| [DefaultStringArtStyle()](#defaultstringartstyle) | Function | Returns the default string art style | V1.0 | Link |
-| [SetDefaultStringArtStyle(cStyle)](#setdefaultstringartstylecstyle) | Function | Sets the default string art style | V1.0 | Link |
-
-### Basic Information
-
-`StringArt(str)` is a function that creates string art representations of text.
-
-### Details
-
-- Accepts a string as input
-- Returns a string art representation of the input
-- Uses the default string art style (can be changed using `SetDefaultStringArtStyle`)
-- Supports a special syntax for string art paintings: `StringArt("#{PaintingName}")`
-
-### Examples
-
-```ring
-load "stzlib.ring"
-
-? StringArt("Hello")
-#-->
-██░░░██ ███████ ██░░░░░ ██░░░░░ ░▄███▄░
-██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▀░▀██
-███████ █████░░ ██░░░░░ ██░░░░░ ██░░░██
-██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▄░▄██
-██░░░██ ███████ ███████ ███████ ░▀███▀░ 
-```
-
-```ring
-load "stzlib.ring"
-
-? StringArt("#{Tree}")
-#-->
-    🍃
-   🍃🍃
-  🍃🍃🍃
- 🍃🍃🍃🍃
-🍃🍃🍃🍃🍃
-    ┃━┃
-    ┃━┃
-```
-
-### Options
-
-- The default style can be changed using `SetDefaultStringArtStyle(cStyle)`
-
-Example:
-```ring
-load "stzlib.ring"
-
-SetDefaultStringArtStyle(:neon)
-```
-
-### Related Functions
-
-- `StringArtBoxified(str)`: Creates a boxed string art representation
-- `CharArtLayers(c)`: Returns a list f strings representing the layers for a single character in string art (used internally by `StringArt()` function)
-
-Example 1:
-```ring
-load "stzlib.ring"
-
-? StringArtBoxified("HELLO")
-#-->
-╭─────────────────────────────────────────╮
-│ ██░░░██ ███████ ██░░░░░ ██░░░░░ ░▄███▄░ │
-│ ██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▀░▀██ │
-│ ███████ █████░░ ██░░░░░ ██░░░░░ ██░░░██ │
-│ ██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▄░▄██ │
-│ ██░░░██ ███████ ███████ ███████ ░▀███▀░ │
-╰─────────────────────────────────────────╯
-```
-
-Example 2:
-```ring
-load "stzlib.ring"
-
-? CharArtLayers("R")
-#-->
-[
-	"███▄▄░░",
-	"██░░░██",
-	"███▄▄░░",
-	"██░▀██░",
-	"██░░░██"
-]
-```
-
----
 
 ## stzStringArt Class
 
@@ -257,6 +156,7 @@ oArt.SetStyle(:flower)
 ? oArt.Artify()
 
 #-->
+"
 .-------.     .-./`)  ,---.   .--.   .-_'''-.   
 |  _ _   \    \ .-.') |    \  |  |  '_( )_   \  
 | ( ' )  |    / `-' \ |  ,  \ |  | |(_ o _)|  ' 
@@ -266,6 +166,7 @@ oArt.SetStyle(:flower)
 |  | \ `'   /  |   |  |  (_,_)\  |  \  `-'`   | 
 |  |  \    /   |   |  |  |    |  |   \        / 
 ''-'   `'-'    '---'  '--'    '--'    `'-...-'
+"
 ```
 
 
@@ -283,6 +184,7 @@ oArt.SetStyle(:flower)
 ? oArt.Artify()
 
 #-->
+"
 ╭──────────────────────────────────────────────────╮
 │ .-------.     .-./`)  ,---.   .--.   .-_'''-.    │
 │ |  _ _   \    \ .-.') |    \  |  |  '_( )_   \   │
@@ -294,6 +196,110 @@ oArt.SetStyle(:flower)
 │ |  |  \    /   |   |  |  |    |  |   \        /  │
 │ ''-'   `'-'    '---'  '--'    '--'    `'-...-'   │
 ╰──────────────────────────────────────────────────╯
+"
+```
+
+## StringArt functions
+
+### Quick reference
+
+| Name | Type | Description | Since | Code |
+|------|------|-------------|-------|------|
+| [StringArt(str)](#stringart) | Function | Creates string art representation of text | V1.0 | Link |
+| [StringArtStyles()](#stringartstyles) | Function | Returns available string art styles | V1.0 | Link |
+| [IsStringArtStyle(str)](#isstringartstylestr) | Function | Checks if a string is a valid art style | V1.0 | Link |
+| [DefaultStringArtStyle()](#defaultstringartstyle) | Function | Returns the default string art style | V1.0 | Link |
+| [SetDefaultStringArtStyle(cStyle)](#setdefaultstringartstylecstyle) | Function | Sets the default string art style | V1.0 | Link |
+
+### Basic Information
+
+`StringArt(str)` is a function that creates string art representations of text.
+
+### Details
+
+- Accepts a string as input
+- Returns a string art representation of the input
+- Uses the default string art style (can be changed using `SetDefaultStringArtStyle`)
+- Supports a special syntax for string art paintings: `StringArt("#{PaintingName}")`
+
+### Examples
+
+```ring
+load "stzlib.ring"
+
+? StringArt("Hello")
+#-->
+"
+██░░░██ ███████ ██░░░░░ ██░░░░░ ░▄███▄░
+██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▀░▀██
+███████ █████░░ ██░░░░░ ██░░░░░ ██░░░██
+██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▄░▄██
+██░░░██ ███████ ███████ ███████ ░▀███▀░ 
+"
+```
+
+```ring
+load "stzlib.ring"
+
+? StringArt("#{Tree}")
+#-->
+"
+    🍃
+   🍃🍃
+  🍃🍃🍃
+ 🍃🍃🍃🍃
+🍃🍃🍃🍃🍃
+    ┃━┃
+    ┃━┃
+"
+```
+
+### Options
+
+- The default style can be changed using `SetDefaultStringArtStyle(cStyle)`
+
+Example:
+```ring
+load "stzlib.ring"
+
+SetDefaultStringArtStyle(:neon)
+```
+
+### Related Functions
+
+- `StringArtBoxified(str)`: Creates a boxed string art representation
+- `CharArtLayers(c)`: Returns a list f strings representing the layers for a single character in string art (used internally by `StringArt()` function)
+
+Example 1:
+```ring
+load "stzlib.ring"
+
+? StringArtBoxified("HELLO")
+#-->
+"
+╭─────────────────────────────────────────╮
+│ ██░░░██ ███████ ██░░░░░ ██░░░░░ ░▄███▄░ │
+│ ██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▀░▀██ │
+│ ███████ █████░░ ██░░░░░ ██░░░░░ ██░░░██ │
+│ ██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▄░▄██ │
+│ ██░░░██ ███████ ███████ ███████ ░▀███▀░ │
+╰─────────────────────────────────────────╯
+"
+```
+
+Example 2:
+```ring
+load "stzlib.ring"
+
+? CharArtLayers("R")
+#-->
+[
+	"███▄▄░░",
+	"██░░░██",
+	"███▄▄░░",
+	"██░▀██░",
+	"██░░░██"
+]
 ```
 
 ## Utility Functions
