@@ -6519,21 +6519,22 @@ class stzString from stzObject
 	#=======================================#
 
 	def IsMarquer()
-		nLenStr = This.NumberOfChars()
-		acMarquers = This.Marquers()
-		nLen = len(acMarquers)
 
-		bResult = FALSE
+		nLen = This.NumberOfChars()
 
-		if nLen = 1
-			nLenMarquer = len(acMarquers[1])+1
-
-			if nLenMarquer = nLenStr
-				bResult = TRUE
-			ok
+		if nLen < 2
+			return FALSE
 		ok
 
-		return bResult
+		if NOT This.FirstChar() = "#"
+			return FALSE
+		ok
+
+		if NOT This.SectionQ(2, nLen).IsNumberInString()
+			return FALSE
+		ok
+ 
+		return TRUE
 
 		def IsAMarquer()
 			return This.IsMarquer()
