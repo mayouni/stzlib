@@ -223,7 +223,28 @@ func IsBlank(pcStr)
 		return IsBlank(pcStr)
 
 	#>
+
+func StzSplitCS(cStr, cSubStr, bCaseSensitive)
+	#NOTE // We could call the stzSplt() function in the CORE layer
+	# that does the same thing and contains the same code!
+	# But since the code small let's rewerite again here and gain
+	# the independence between layers.
+
+	oQStr = new QString2()
+	oQStr.append(cStr)
 	
+	oQStrList = oQStr.split(cSubStr, 0, bCaseSensitive)
+	
+	acResult = []
+	for i = 0 to oQStrList.size()-1
+		acResult + oQStrList.at(i)	
+	next
+
+	return acResult
+
+func StzSplit(cStr, cSubStr)
+	return StzSplitCS(cStr, cSubStr, 0)
+
 func StringIsEmpty(pcStr)
 	return pcStr = ""
 
