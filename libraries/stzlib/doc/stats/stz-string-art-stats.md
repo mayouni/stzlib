@@ -17,7 +17,7 @@ This analysis provides a static code overview of the StringArt() function, relat
 ### Key Observations
 - All functions are small-sized (<20 LOC), indicating focused functionality.
 - Low complexity across all functions (0-1 loops, 0 nested loops).
-- Only StringArt() is Qt-based and heavily used (93 occurrences).
+- Only StringArt() is Qt-based and heavily used in the test samples (93 occurrences).
 - Varying test levels: StringArt() and StringArtStyles() at TestLevel 2, others untested.
 
 ## stzStringArt Class Statistics
