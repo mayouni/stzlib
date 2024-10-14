@@ -1,4 +1,4 @@
-# StringArt() and stzStringAt Code Analysis
+# StringArt() and stzStringArt Code Analysis
 
 ## Statistics Table
 
