@@ -15,6 +15,7 @@
 | IsStringArtStyle(str) | Function | Small | 1 | 0 | 0 | 2 | NO | 0 | 0 |
 | DefaultStringArtStyle() | Function | Small | 8 | 0 | 0 | 0 | NO | 0 | 0 |
 | SetDefaultStringArtStyle(cStyle) | Function | Small | 2 | 0 | 0 | 5 | NO | 0 | 0 |
+| **TOTAL** | | | **41** | **14** | **2** | **95** | | | **117** |
 
 
 ## Understanding the Statistics
@@ -63,41 +64,58 @@ Before diving into the analysis, it's crucial to understand how to interpret the
    - The stzStringArt class shows 42 internal calls in total, which is an aggregate of its methods.
    - The Boxify() method has 22 internal calls, the highest among individual methods.
 
+
+## Analysis Based on Totals and Proportions
+
+1. **Overall Complexity**:
+   - Total Loops: 14
+   - Total Nested Loops (InLoops): 2
+   - Loops-to-Component Ratio: 1.27 (14 loops / 11 components)
+   This suggests a relatively low overall complexity, with an average of just over one loop per component.
+
+2. **Internal Calls Distribution**:
+   - Total Internal Calls: 95
+   - 44% (42/95) of all internal calls are within the stzStringArt class.
+   - 23% (22/95) are in the Boxify() method alone.
+   This indicates that the stzStringArt class and particularly the Boxify() method are central to the feature's functionality.
+
+3. **Usage Patterns**:
+   - Total Occurrences: 117
+   - StringArt(str) function accounts for 79% (93/117) of all usage.
+   - stzStringArt class and its methods collectively account for 20% (23/117) of usage.
+   This shows that while the StringArt(str) function is the primary interface, the stzStringArt class provides significant additional functionality.
+
+4. **Qt Dependency**:
+   - Only 2 out of 11 components (18%) are Qt-based, but these account for 85% (100/117) of all usage.
+   - The use of QString and its methods (mid, count, split) in these components likely contributes to good performance for string operations.
+
+5. **Testing Coverage**:
+   - 73% (8/11) of components have a TestLevel of 2 (UsedInDoc).
+   - 18% (2/11) are untested.
+   - 9% (1/11) is unit tested only.
+   This indicates good overall testing and documentation, with room for improvement on a few components.
+
+
 ## Recommendations for Softanza Users
 
-1. **Leverage Modular Design**: The consistent small size of all components indicates a highly modular design. This should make the library easy to understand, use, and potentially extend.
+1. **Leverage Core Functionality**:
+   - The StringArt(str) function, accounting for 79% of usage, is clearly the main entry point. It's well-tested and likely optimized.
+   - For more complex operations, explore the stzStringArt class methods, which provide 20% of the feature's functionality.
 
-2. **Core Functionality Reliability**: 
-   - The StringArt(str) function is well-tested, frequently used, and likely stable.
-   - The stzStringArt class and most of its methods are well-tested and can be trusted.
+2. **Performance Considerations**:
+   - The use of QString and its efficient methods (mid, count, split) in Qt-based components likely contributes to good performance for string operations.
+   - Be aware that 23% of internal calls occur in the Boxify() method. If using this method frequently, consider its impact on performance in your specific use case.
 
-3. **Complexity Considerations**:
-   - While the stzStringArt class shows higher total numbers for loops and calls, remember this is spread across multiple small methods. Each method is likely of manageable complexity.
-   - The Boxify() method has the highest individual complexity. Use with care and test thoroughly with various inputs.
+3. **Testing Focus**:
+   - While overall testing coverage is good, pay extra attention when using the untested utility functions (IsStringArtStyle, DefaultStringArtStyle, SetDefaultStringArtStyle).
+   - Consider contributing tests for these functions if they become critical to your project.
 
-4. **Performance Awareness**:
-   - Most components should perform well for typical use cases due to their low individual complexity and small size.
-   - For performance-critical applications, consider conducting your own performance tests, especially for frequently used methods or complex operations like Boxify().
+4. **Complexity Management**:
+   - With an average of 1.27 loops per component, the overall complexity is manageable. However, be aware that complexity is not evenly distributed.
+   - The Boxify() method and stzStringArt class have higher than average complexity. When using these, ensure thorough testing with various inputs.
 
 5. **Qt Integration**:
-   - Ideal for Qt-based projects.
-   - Non-Qt projects should be aware of the dependency introduced by StringArt(str) and stzStringArt.
+   - If you're already using Qt, the StringArt feature will integrate seamlessly and likely perform well due to QString optimizations.
+   - For non-Qt projects, carefully consider if the benefits of the StringArt feature outweigh the added Qt dependency, as the most-used components require it.
 
-6. **Testing and Documentation**:
-   - Most components have been unit tested and used in documentation, indicating good reliability and usage examples.
-   - Consider additional testing for the three untested utility functions if they are critical to your project.
-   - If performance is crucial for your application, you might want to perform and potentially contribute performance tests, as no components have reached TestLevel 3 yet.
-
-7. **Usage Guidance**:
-   - The StringArt(str) function is suitable for most straightforward use cases.
-   - Leverage the stzStringArt class methods for more complex operations, understanding that while the class as a whole may seem complex, individual methods are small and manageable.
-
-8. **Extensibility**:
-   - The modular structure allows for easy customization, especially regarding styles.
-   - When extending functionality, aim to maintain the current pattern of small, focused methods.
-
-9. **Continuous Improvement**:
-   - Keep an eye on updates, especially for the untested components.
-   - Consider contributing tests, documentation, or performance benchmarks, particularly for frequently used components in your projects.
-
-
+By understanding these statistical insights and following these recommendations, developers can make informed decisions about how to best utilize the StringArt() function and stzStringArt class in their Softanza-based projects, balancing functionality, performance, and code quality.
