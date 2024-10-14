@@ -9,7 +9,7 @@ load "stzlib.ring"
 
 SetStringArtStyle(:flower)
 ? StringArt("Ring")
-#-->
+#--> '
 .-------.     .-./`)  ,---.   .--.   .-_'''-.   
 |  _ _   \    \ .-.') |    \  |  |  '_( )_   \  
 | ( ' )  |    / `-' \ |  ,  \ |  | |(_ o _)|  ' 
@@ -18,7 +18,7 @@ SetStringArtStyle(:flower)
 |  |\ \  |  |  |   |  | (_ o _)  | '  \  '-   .'
 |  | \ `'   /  |   |  |  (_,_)\  |  \  `-'`   | 
 |  |  \    /   |   |  |  |    |  |   \        / 
-''-'   `'-'    '---'  '--'    '--'    `'-...-' 
+''-'   `'-'    '---'  '--'    '--'    `'-...-' '
 ```
 
 > NOTE: If you're not comfortable reading through a complete reference file and prefer building your comprehension of the StringArt features by crafting quick and small code snippets, you can jump right now to our [Softanza StringArt Quickers](../quickers/stzStringArt_Quickers.md) page.
