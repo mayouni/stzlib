@@ -295,7 +295,7 @@ class stkStringArt
 			cResult += str[i] + " "
 		next
 	    
-		return trim(cResult)
+		return stztrim(cResult)
 
 	func pvtCharArtLayers(c)
 		if NOT (isString(c) and len(c) = 1)
