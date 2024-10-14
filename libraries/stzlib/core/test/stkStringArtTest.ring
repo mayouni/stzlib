@@ -1,6 +1,6 @@
 load "../string/stkStringArt.ring"
 load "../data/stkStringArtData.ring"
-load "../../string/stzstring.ring"
+load "../string/stkstring.ring"
 
 decimals(3)
 t0 = clock()
@@ -9,12 +9,10 @@ t0 = clock()
 # STRING ART STYLES DATASET #
 #---------------------------#
 
-
-? StringArt("#{tree}")
-
 /*-----
-*/
+
 ? StringArtStyles()
+#--> [ "retro", "neon", "geo", "flower" ]
 
 SetStringArtStyle(:flower)
 ? StringArt("Ring") + NL
@@ -338,7 +336,7 @@ SetStringArtStyle("retro")
 # ━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
 
 /*------------
-*/
+
 # Text paintings in COLLECTIBLES category
 
 
