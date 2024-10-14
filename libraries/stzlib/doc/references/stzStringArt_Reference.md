@@ -6,10 +6,10 @@ This document provides a comprehensive reference for the `StringArt` function(s)
 
 > NOTE: If you're not comfortable reading through a complete reference file and prefer building your comprehension of the StringArt features by crafting quick and small code snippets, you can jump right now to our [Softanza StringArt Quickers](../quickers/stzStringArt_Quickers.md) page.
 
-## Files related to the feature
+## Softanza Files related to the feature
 
 This section references the Ring files and documentation Markdown files related to stringArt and where they sit according to Softanza software architecture.
-s
+
 ### Reminder of the 3 Softanza Layers
 
 Softanza's software architecture is elegantly structured into three distinct layers: **Core**, **Prime**, and **Max**, each serving a specific role in scaling your applications.
@@ -19,6 +19,20 @@ Softanza's software architecture is elegantly structured into three distinct lay
 - `SoftanzaMax` augments SoftanzaPrime with Advanced features thay you mayn need in developing complex, undustrial grade applications and platforms.
 
 > NOTE: You can read more about in this article : [Understanding Softanza Lyered Softaware Architecture](#TODO Article to be Added)
+
+### Reminder of the 4 types of files in Softanza
+
+There are 4 types of files for each Softanza feature: *MainCodeFile*, *TestCodeFile*, *DataFile*, and *DocFiles*.
+
+1- *MainCodeFile*: A Ring file that contains the code for the feature (including all functions and classes), named after the main class itself, like `*stzStringArt*.ring` in our current case. This file resides in the `../stz/*string*/` folder (in our case, because `StringArt` belongs to the *String* domain).
+
+2- *TestCodeFile*: A Ring file that contains test examples, also named after the class with the `Test` extension, like `stzStringArt*Test*.ring`. This file is located in the '../stz/*tests*/' folder.
+
+3- *DataFile*: A Ring or text file containing the data used by the functions and classes of the feature, such as 'stzStringArt*Data*.ring' in our case, which resides in the '../stz/*data*/' folder.
+
+4- *DocFiles*: Multiple files in `Markdown` format, related to various documentation levels provided for each feature, such as `stzStringArt_*Reference*.md`, `stzStringArt_*Overview*.md`, `stzStringArt_*Quickers*.md`, and `stzStringArt_*FAQs*.md`. These files are available in the respective folders `../stz/doc/*references*/`, `../stz/doc/*overviews*/`, `../stz/doc/*quickers*/`, and `../stz/doc/*faqs*/`.
+
+>*For more insights about that, read: [Understanding Files Typology in Softanza Design]*(#TODO add article and link)
 
 ### Related files in the SoftanzaPrime layer
 
