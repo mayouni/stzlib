@@ -55,8 +55,11 @@ There are 4 types of files for each Softanza feature: *MainCodeFile*, *TestCodeF
 | stkStringArtData.ring | Data | Contains the necerray data manipulated by StringArt function(s) and stkStringArt class | ../core/data/stkStringData.ring | Usable |
 | stkStringArtTest.ring | Test | Contains the test samples related to the stkStringArt.ring file | ../core/stkStringArt.ring | Usable |
 
-> NOTE: There is no a DOC files at this layer because the doc files hosted in SoftanzaPrime layer are used everywhere (see previous table).
-s
+> NOTE: There is no DOC files at this layer because the doc files hosted in SoftanzaPrime layer are used everywhere (see previous table).
+
+### Related files in the SoftanzaMAX layer
+
+There are no files at this layer at the moment.
 
 ## StringArt functions
 
@@ -159,7 +162,7 @@ load "stzlib.ring"
 
 ## stzStringArt Class
 
-## Quick Reference
+### Quick Reference
 
 | Name | Type | Description | Since | Code |
 |------|------|-------------|-------|------|
