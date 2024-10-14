@@ -11,9 +11,9 @@ This document provides a comprehensive reference for the `StringArt` function an
 ## Quick Reference
 
 | Name | Type | Description | Since | Code | Size | ~> Occurr. | Loops | LoopsInLoops | ExternalCalls | QtBased | Test Level | ~> Occurr. |
-|------|------|-------------|--------------|------|-------------|------------|
+|------|------|-------------|-------|------|------|------------|-------|--------------|---------------|---------|------------|------------|
 | [StringArt(str)](#stringart) | Function | Creates string art representation of text | V1.0 | Link | Small (-20 LOC) | 6 | 1 | 0 | 4 | YES : QString | 2 : UnitTested + UsedInDoc | 93 |
-| [stzStringArt](#stzstringart-class) | Class | Class for creating and manipulating string art | V1.0 | Link | Small (-20 LOC) | 5 | 5 | 1 | 42 | YES : QString | 5 | 2 : UnitTested + UsedInDoc | 7 |
+| [stzStringArt](#stzstringart-class) | Class | Class for creating and manipulating string art | V1.0 | Link | Small (-20 LOC) | 5 | 5 | 1 | 42 | YES : QString | 2 : UnitTested + UsedInDoc | 7 |
 | [Content()](#content) | Method | Returns the original content string | V1.0 | Link | Small (-20 LOC)| 2 | 0 | 0 | 0 | NO | 1 : UnitTested | 0 |
 | [Style()](#style) | Method | Returns the current string art style | V1.0 | Link | Small (-20 LOC) | 4 | 0 | 0 | 0 | NO | 2 : UnitTested + UsedInDoc | 6 |
 | [SetStyle(cStyle)](#setstylecstyle) | Method | Sets the string art style | V1.0 | Link | Small (-20 LOC) | 3 | 0 | 0 | 10 | NO | 2 : UnitTested + UsedInDoc | 4 |
