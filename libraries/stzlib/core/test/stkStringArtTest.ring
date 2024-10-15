@@ -16,7 +16,7 @@ t0 = clock()
 #--> retro
 
 ? "SOFTANZA LOVES"
-s? StringArtXT("ring", :flower) # Does not change the default gloabl style
+? StringArtXT("ring", :flower) # Does not change the default gloabl style
 #-->
 # SOFTANZA LOVES
 # .-------.     .-./`)  ,---.   .--.   .-_'''-.   
