@@ -49923,16 +49923,29 @@ n1 = Min(aTemp)
 			stzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		if NOT ( isList(paOptions) and
-			 Q(paOptions).IsHashList() and
-
-			 StzHashListQ(paOptions).KeysQ().IsMadeOfSome([
-				:CaseSensitive, :CS, :PositionSign,
-				:BlankSign, :Numbered, :Spacified,
-				:Boxed, :BoxOptions ]) )
-			 
-			stzRaise("Incorrect param type! paOptions must be a wellformed hashlist.")
+		if NOT ( isList(paOptions) and IsHashList(paOptions) )
+			StzRaise("Incorrect param type! paOptions must be a wellformed hashlist.")
 		ok
+
+		nLen = len(paOptions)
+		acKeys = []
+
+		for i = 1 to nLen
+			acKeys + paOptions[i][1]
+		next
+
+		acPossibleKeys = [
+			:CaseSensitive, :CS, :PositionSign, :PositionChar,
+			:BlankSign, :Numbered, :Spacified,
+			:Boxed, :BoxOptions
+
+		]
+
+		for i = 1 to nLen
+			if ring_find(acPossibleKeys, acKeys[i]) = 0
+				stzRaise("syntax error! paOptions contains unsupported keys.")
+			ok
+		next
 
 		# At this level, we are sure pcSubStr is a string and
 		# paOptions is a hashlist made of some of the allowed keys for boxing
@@ -49940,19 +49953,19 @@ n1 = Min(aTemp)
 		# Before going further, Delegate the work to VizFindBoxedXT()
 		# when boxing is required
 
-		if StzHashListQ(paOptions).ContainsKey(:Boxed) and
+		if ring_find(acKeys, :Boxed) > 0 and
 		   isNumber(paOptions[ :Boxed ]) and paOptions[ :Boxed ] = 1
 
 			return This.VizFindBoxedXT(pcSubStr, paOptions)
 		ok
 
-		if StzHashListQ(paOptions).KeysQ().ContainsBoth(:CaseSensitive, :CS)
+		n = ring_find(acKeys, :CS)
+		if n > 0 and ring_find(acKeys, :CaseSensitive) > 0
 			stzRaise("Incorrect options! :CaseSensitive and its short form :CS must not be used both.")
 		ok
 
 		# Unfyiing the :CaseSensitive / :CS keyword
 
-		n = StzHashListQ(paOptions).FindKey(:CS)
 		if n > 0
 			paOptions[n][1] = :CaseSensitive
 		ok
@@ -50113,7 +50126,7 @@ n1 = Min(aTemp)
 		#>
 
 	def VizFind(pcSubStr)
-		return This.VizFindXT(pcSubStr, [ :PositionChar = "^" ] )
+		return This.VizFindXT(pcSubStr, [ :PositionSign = "^" ])
 
 	def VizFindCS(pcSubStr, pCaseSensitive)
 		return This.VizFindXT(pcSubStr, [ pCaseSensitive ])
