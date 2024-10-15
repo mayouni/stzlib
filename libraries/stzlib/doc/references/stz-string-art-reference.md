@@ -339,13 +339,13 @@ load "stzlib.ring"
 Example:
 load "stzlib.ring"
 
-? CurrentStringArtStyle()
+? DefaultStringArtStyle()
 #--> :retro
 
 ? StringArtXT("R", :flower)
 #--> You get the floral R as showan in the example above
 
-? CurrentStringStyle()
+? DefaultStringStyle()
 #--> :retro
 ```
 

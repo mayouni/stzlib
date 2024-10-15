@@ -85,6 +85,7 @@ A4: You can change the style in three ways:
    ```ring
    ? StzStringArt("Hello", :retro)
    ```
+   > NOTE: The StringArtXT() function does not change the current global style.s
 
 ## Q5: Can I create ASCII art images other than text?
 
