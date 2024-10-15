@@ -10,8 +10,8 @@ t0 = clock()
 #---------------------------#
 
 /*-----
-*/
 
+# StringArtXT() does not alter default c
 ? DefaultStringArtStyle()
 #--> retro
 
@@ -32,7 +32,6 @@ t0 = clock()
 ? DefaultStringArtStyle()
 #--> retro
 
-sdd
 /*-----
 
 ? StringArtStyles()

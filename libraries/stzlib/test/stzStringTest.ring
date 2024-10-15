@@ -1041,16 +1041,26 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.04 second(s) in Ring 1.1è
 
-/*---- TODO: Retesting after re-establishing SubStringBetweenZZ() inside the file
-*/
+/*----
+
 pron()
 
 put "What's your First name?"
-fname = getstring()
+
+fname = GetString()
+# Enter Mahmoud in the keyboard...
+
 print( Interpolate("It's nice to meet you {fname}!") )
-#--> It's nice to meet you {fnmae}!
+#--> It's nice to meet you Mahmoud!
 
 proff()
+# Executed in 1.54 second(s).
+#NOTE Most time is taken by the Ring GetString() function
+# because it depends of your typing speed and the time you took
+# before you start typing!
+
+#~> Clarified by Mahmoud in this Google Group post:
+# https://groups.google.com/g/ring-lang/c/spaMUfhUtgU/m/G7xHeO0kAAAJ
 
 /*=======
 
@@ -15007,12 +15017,28 @@ StzListQ([ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]) {
 	? WalkUntil('@item = "x"') #--> 0
 }
 
-/*================== TODO: Fix error
+/*==================
+
+pron()
+
+? IsHashList([ [ "positionchar", "^" ] ])
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
+
+/*----------------
+
+*/
+pron()
 
 ? StzStringQ("ABTCADNBBABEFACCC").VizFind("A")
 #--> 
 #	"ABTCADNBBABEFACCC"
 #	 ^---^----^---^---
+
+proff()
+# Executed in 0.06 second(s).
 
 /*-----------------
 
