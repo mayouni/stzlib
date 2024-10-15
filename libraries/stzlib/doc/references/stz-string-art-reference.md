@@ -337,6 +337,7 @@ load "stzlib.ring"
 
 > NOTE: This function is more concise than `StringArt()` and does not affect the global string art style.
 Example:
+```ring
 load "stzlib.ring"
 
 ? DefaultStringArtStyle()
