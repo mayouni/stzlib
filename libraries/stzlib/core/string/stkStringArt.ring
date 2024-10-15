@@ -54,8 +54,9 @@ func SetDefaultStringArtStyle(cStyle)
 		SetDefaultStringArtStyle(cStyle)
 
 func StringArtXT(str, pcStyle)
-	SetStringArtStyle(pcStyle)
-	return StringArt(str)
+	oArt = new stkStringArt(str)
+	oArt.SetStyle(pcStyle)
+	return oArt.Artify()
 
 func StringArt(str)
 

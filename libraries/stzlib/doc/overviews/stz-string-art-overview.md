@@ -35,6 +35,20 @@ SetStringArtStyle(:flower)
 ```
 You can use the **StringArt()** function like in the code above, or you can use the **stzStringArt** object, along with its methods **SetStyle()**, **Style()**, **Artify()**, and **Boxify()** like we are going to do in the next samples.
 
+
+You can define the style directly when calling the StringArtXT() function without altering the global style, like this:
+```ring
+load "stzlib.ring"
+
+? SetStringArtStyle(:geo)
+
+? StringArtXT("R", :flower)
+#--> You get a floral "R" like the one showan in the example above
+
+? CurrentStringArtStyle()
+#--> geo
+```
+
 Currently, Softanza ships with 4 beautiful font art styles. 
 
 ### FLOWER, it's beautiful!

@@ -204,6 +204,7 @@ oArt.SetStyle(:flower)
 | Name | Type | Description | Since | Code |
 |------|------|-------------|-------|------|
 | [StringArt(str)](#stringart) | Function | Creates string art representation of text | V1.0 | Link |
+| [StringArtXT(str, cStyle)](#stringartxt) | Function | Creates string art representation of text in the given style | V1.0 | Link |
 | [StringArtStyles()](#stringartstyles) | Function | Returns available string art styles | V1.0 | Link |
 | [IsStringArtStyle(str)](#isstringartstylestr) | Function | Checks if a string is a valid art style | V1.0 | Link |
 | [DefaultStringArtStyle()](#defaultstringartstyle) | Function | Returns the default string art style | V1.0 | Link |
@@ -263,6 +264,13 @@ load "stzlib.ring"
 SetDefaultStringArtStyle(:neon)
 ```
 
+- Or the StringArtXT() function can be used directly to generate a string art in the given style:
+```ring
+load "stzlib.ring"
+
+? StringArtXT("Ring", :retro)
+```
+
 ### Related Functions
 
 - `StringArtBoxified(str)`: Creates a boxed string art representation
@@ -303,6 +311,44 @@ load "stzlib.ring"
 ```
 
 ## Utility Functions
+
+### StringArtXT(str, cStyle)
+
+Creates string art representations of text in the given style.
+
+Example
+```ring
+load "stzlib.ring"
+
+? StringArtXT("R", :flower)
+#-->
+*/
+.-------.    
+|  _ _   \   
+| ( ' )  |   
+|(_ o _) /   
+| (_,_).' __ 
+|  |\ \  |  |
+|  | \ `'   /
+|  |  \    / 
+''-'   `'-'  
+*/
+```
+
+> NOTE: This function is more concise than `StringArt()` and does not affect the global string art style.
+Example:
+load "stzlib.ring"
+
+? CurrentStringArtStyle()
+#--> :retro
+
+? StringArtXT("R", :flower)
+#--> You get the floral R as showan in the example above
+
+? CurrentStringStyle()
+#--> :retro
+```
+
 
 ### StringArtStyles()
 

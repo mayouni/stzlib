@@ -10,9 +10,13 @@ t0 = clock()
 #---------------------------#
 
 /*-----
+*/
+
+? DefaultStringArtStyle()
+#--> retro
 
 ? "SOFTANZA LOVES"
-? StringArtXT("ring", :flower)
+s? StringArtXT("ring", :flower) # Does not change the default gloabl style
 #-->
 # SOFTANZA LOVES
 # .-------.     .-./`)  ,---.   .--.   .-_'''-.   
@@ -25,6 +29,10 @@ t0 = clock()
 # |  |  \    /   |   |  |  |    |  |   \        / 
 # ''-'   `'-'    '---'  '--'    '--'    `'-...-'
 
+? DefaultStringArtStyle()
+#--> retro
+
+sdd
 /*-----
 
 ? StringArtStyles()

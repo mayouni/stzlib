@@ -11,6 +11,14 @@ A2: You can use StringArt in two main ways:
    ```ring
    load "stzlib.ring"
    ? StringArt("Hello")
+   #-->
+   /*
+   ██░░░██ ███████ ██░░░░░ ██░░░░░ ░▄███▄░
+   ██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▀░▀██
+   ███████ █████░░ ██░░░░░ ██░░░░░ ██░░░██
+   ██░░░██ ██░░░░░ ██░░░░░ ██░░░░░ ██▄░▄██
+   ██░░░██ ███████ ███████ ███████ ░▀███▀░ 
+   */
    ```
 2. Use the `stzStringArt` object:
    ```ring
@@ -22,19 +30,48 @@ A2: You can use StringArt in two main ways:
 ## Q3: What styles are available for text art?
 
 A3: Softanza currently ships with four styles:
-- retro
-- neon
-- geo
-- flower
 
+- retro : like in the example above
+- neon : like in
+	```
+	 ╭───╮  ╭───╮  ╭────╮ ╭─────╮   ╭─╮   ╭╮   ╭╮ ╭────╮   ╭─╮  
+	╱╭───╯ ╱ ╭─╮ ╲ │╭──── ╰──┬──╯  ╱   ╲  │╰╮  ││ ╰───╮╱  ╱   ╲ 
+	╲╰───╮ │ │ │ │ │╰───╮    │    ╱─────╲ │ ╰╮ ││    ╱╱  ╱─────╲
+	 ╰─╮ ╱ ╲ ╰─╯ ╱ │ │       │    │ ╭─╮ │ │  ╰╮││  ╱╱╯   │ ╭─╮ │
+	 ──╯ ╯  ╰───╯  ╰─╯      ╯╰─   ╰─╯ ╰─╯ ╰╮  ╰╯╯ ╰────╯ ╰─╯ ╰─╯
+	```
+
+- geo : like in
+	```
+	╭╮       ╭───╮  ╭╮   ╭╮ ╭────╮  ╭───╮
+	││      ╱ ╭─╮ ╲ ││   ││ │╭──── ╱╭───╯
+	││      │ │ │ │ ╰╲   ╱╯ │╰───╮ ╲╰───╮
+	│╰────╮ ╲ ╰─╯ ╱  ╰╲ ╱╯  │╭───╯  ╰─╮ ╱
+	╰─────╯  ╰───╯    ╰─╯   ╰────╯ ╰──╯ ╯
+
+	```
+- flower : likke in
+	```
+	.-------.     .-./`)  ,---.   .--.   .-_'''-.   
+	|  _ _   \    \ .-.') |    \  |  |  '_( )_   \  
+	| ( ' )  |    / `-' \ |  ,  \ |  | |(_ o _)|  ' 
+	|(_ o _) /     `-'`'` |  |\_ \|  | . (_,_)/___| 
+	| (_,_).' __   .---.  |  _( )_\  | |  |  .-----.
+	|  |\ \  |  |  |   |  | (_ o _)  | '  \  '-   .'
+	|  | \ `'   /  |   |  |  (_,_)\  |  \  `-'`   | 
+	|  |  \    /   |   |  |  |    |  |   \        / 
+	''-'   `'-'    '---'  '--'    '--'    `'-...-'
+	```
+ 
 You can check available styles using:
 ```ring
 ? StringArtStyles()
+#--> [ "retro", "neon", "geo", "flower" ]
 ```
 
 ## Q4: How do I change the style of the string art?
 
-A4: You can change the style in two ways:
+A4: You can change the style in three ways:
 1. Set the default style globally:
    ```ring
    SetDefaultStringArtStyle(:neon)
@@ -43,6 +80,10 @@ A4: You can change the style in two ways:
    ```ring
    oArt = new stzStringArt("Hello")
    oArt.SetStyle(:flower)
+   ```
+3. Set the style directly with the StringArtXT() function:
+   ```ring
+   ? StzStringArt("Hello", :retro)
    ```
 
 ## Q5: Can I create ASCII art images other than text?
