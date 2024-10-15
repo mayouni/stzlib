@@ -51,7 +51,7 @@ Or you can change the style while Calling the StringArtXT() function:
 ```ring
 load "stzlib.ring"
 
-? CurrentStringArtStyle()
+? DefaultStringArtStyle()
 #--> retro
 
 StringArtXT("R", :flower)
@@ -68,7 +68,7 @@ StringArtXT("R", :flower)
 ''-'   `'-'  
 */
 
-? CurrentStringArtStyle()
+? DefaultStringArtStyle()
 #--> retro
 ```
 
