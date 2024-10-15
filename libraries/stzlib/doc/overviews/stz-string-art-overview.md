@@ -40,7 +40,7 @@ You can define the style directly when calling the StringArtXT() function withou
 ```ring
 load "stzlib.ring"
 
-? SetStringArtStyle(:geo)
+SetStringArtStyle(:geo)
 
 ? StringArtXT("R", :flower)
 #--> You get a floral "R" like the one showan in the example above
