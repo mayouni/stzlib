@@ -53,6 +53,9 @@ func SetDefaultStringArtStyle(cStyle)
 	def SetStringArtStyle(cStyle)
 		SetDefaultStringArtStyle(cStyle)
 
+func StringArtXT(str, pcStyle)
+	SetStringArtStyle(pcStyle)
+	return StringArt(str)
 
 func StringArt(str)
 

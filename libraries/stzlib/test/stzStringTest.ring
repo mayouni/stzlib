@@ -977,7 +977,7 @@ proff()
 # Executed in 0.08 second(s) in Ring 1.19
 
 /*===
-*/
+
 pron()
 
 ? IsMarquer("#01")
@@ -1009,7 +1009,8 @@ pron()
 #--> [ "#1", "#2", "#3", "#4", "#5" ]
 
 proff()
-# Executed in 0.42 second(s)
+# Executed in 0.12 second(s) in Ring 1.21
+# Executed in 0.42 second(s) in Ring 1.18
 
 /*====
 
@@ -1024,7 +1025,8 @@ o1 = new stzString("ilir")
 #--> "ilir"
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.04 second(s) in Ring 1.21
+# Executed in 0.10 second(s) in Ring 1.17
 
 /*----
 
@@ -1036,15 +1038,16 @@ o1.ReplaceAt(4, "ruby", "ring")
 #--> 123ring89
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.1è
 
 /*---- TODO: Retesting after re-establishing SubStringBetweenZZ() inside the file
-
+*/
 pron()
 
-put "What's your Firsts name?"
-gname = getstring()
-print( Interpolate("It's nice to meet you {fnmae}!") )
+put "What's your First name?"
+fname = getstring()
+print( Interpolate("It's nice to meet you {fname}!") )
 #--> It's nice to meet you {fnmae}!
 
 proff()
