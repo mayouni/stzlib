@@ -204,7 +204,7 @@ oArt.SetStyle(:flower)
 | Name | Type | Description | Since | Code |
 |------|------|-------------|-------|------|
 | [StringArt(str)](#stringart) | Function | Creates string art representation of text | V1.0 | Link |
-| [StringArtXT(str, cStyle)](#stringartxt) | Function | Creates string art representation of text in the given style | V1.0 | Link |
+| [StringArtXT(str, cStyle)](#stringartxtstr-cstyle) | Function | Creates string art representation of text in the given style | V1.0 | Link |
 | [StringArtStyles()](#stringartstyles) | Function | Returns available string art styles | V1.0 | Link |
 | [IsStringArtStyle(str)](#isstringartstylestr) | Function | Checks if a string is a valid art style | V1.0 | Link |
 | [DefaultStringArtStyle()](#defaultstringartstyle) | Function | Returns the default string art style | V1.0 | Link |
