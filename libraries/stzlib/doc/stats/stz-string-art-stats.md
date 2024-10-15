@@ -9,6 +9,7 @@ This analysis provides a static code overview of the StringArt() function, relat
 | Name | Type | Size | Occurr. | Loops | InLoops | InCalls | QtBased | TestLevel | Occurr. |
 |------|------|------|---------|-------|---------|---------|---------|-----------|---------|
 | StringArt(str) | Function | Small | 6 | 1 | 0 | 4 | YES | 2 | 93 |
+| StringArtXT(str, cStyle) | Function | Small | 1 | 0 | 0 | 3 | NO | 2 | 1 |
 | StringArtStyles() | Function | Small | 4 | 1 | 0 | 2 | NO | 2 | 1 |
 | IsStringArtStyle(str) | Function | Small | 1 | 0 | 0 | 2 | NO | 0 | 0 |
 | DefaultStringArtStyle() | Function | Small | 8 | 0 | 0 | 0 | NO | 0 | 0 |
@@ -43,12 +44,12 @@ This analysis provides a static code overview of the StringArt() function, relat
 
 | Metric | Total | Average |
 |--------|-------|---------|
-| Occurrences | 21 | 4.2 |
+| Occurrences | 23 | 4.2 |
 | Loops | 2 | 0.4 |
 | InLoops | 0 | 0 |
-| InCalls | 13 | 2.6 |
+| InCalls | 15 | 2.6 |
 | TestLevel (sum) | 4 | 0.8 |
-| Occurrences (usage) | 94 | 18.8 |
+| Occurrences (usage in Test file) | 95 | 18.8 |
 
 ### Class Method Statistics Totals and Averages
 

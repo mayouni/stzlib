@@ -130,18 +130,24 @@ For educators: This quiz can be used in educational programming settings to asse
     c) load "stklib.ring"
     d) load "softanzacore.ring"
 
+16. What is the function in Softanza that creates a string art representation of a text in a given style?
+    a) CreateStringArtInStyle(str, cStyle)
+    b) StringArtInStyle(str, cStyle)
+    c) StringArtXT(str, cStyle)
+    d) StringArt(str)
+
 ## Answers
 
-1. b, 2. c, 3. a, 4. c, 5. d, 6. c, 7. b, 8. c, 9. b, 10. c, 11. c, 12. d, 13. b, 14. b, 15. c
+1. b, 2. c, 3. a, 4. c, 5. d, 6. c, 7. b, 8. c, 9. b, 10. c, 11. c, 12. d, 13. b, 14. b, 15. c, 16. c
 
 ## Scoring Barometer
 
 Calculate your score by giving yourself 1 point for each correct answer. Then, use the following barometer to assess your knowledge and determine your next steps:
 
-- 13-15 points: Excellent! You have a strong grasp of Softanza's StringArt feature. Keep exploring advanced topics and consider contributing to the Softanza community.
-- 10-12 points: Good job! You have a solid understanding but could benefit from reviewing some specific areas. Focus on the questions you got wrong and practice using those features.
-- 7-9 points: You're on the right track, but there's room for improvement. Spend more time working with StringArt in practice and re-read the documentation.
-- 4-6 points: You have a basic understanding, but need to deepen your knowledge. Start by thoroughly reading the StringArt documentation and working through basic examples.
-- 0-3 points: It seems you're just getting started with Softanza StringArt. Don't worry! Begin by reading the introductory documentation and try creating simple string art representations to build your foundation.
+- 14-16 points: Excellent! You have a strong grasp of Softanza's StringArt feature. Keep exploring advanced topics and consider contributing to the Softanza community.
+- 11-13 points: Good job! You have a solid understanding but could benefit from reviewing some specific areas. Focus on the questions you got wrong and practice using those features.
+- 8-10 points: You're on the right track, but there's room for improvement. Spend more time working with StringArt in practice and re-read the documentation.
+- 5-7 points: You have a basic understanding, but need to deepen your knowledge. Start by thoroughly reading the StringArt documentation and working through basic examples.
+- 0-4 points: It seems you're just getting started with Softanza StringArt. Don't worry! Begin by reading the introductory documentation and try creating simple string art representations to build your foundation.
 
 Remember, mastering Softanza StringArt is an iterative process. Don't be discouraged if you didn't score as high as you hoped. Use this quiz as a guide to identify areas for improvement and continue practicing. Happy coding!

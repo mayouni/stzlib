@@ -46,6 +46,32 @@ SetDefaultStringArtStyle("neon")
 ╰╯ ╰╯ ╰━━━╯ ╰━━━╯ ╰━━━╯ ╰━━━╯
 ```
 
+Or you can change the style while Calling the StringArtXT() function:
+
+```ring
+load "stzlib.ring"
+
+? CurrentStringArtStyle()
+#--> retro
+
+StringArtXT("R", :flower)
+#-->
+/*
+.-------.      
+|  _ _   \    
+| ( ' )  |    
+|(_ o _) /   
+| (_,_).' __ 
+|  |\ \  |  |
+|  | \ `'   /
+|  |  \    / 
+''-'   `'-'  
+*/
+
+? CurrentStringArtStyle()
+#--> retro
+```
+
 ## 3. Creating string art with the stkStringArt class
 
 ```ring
