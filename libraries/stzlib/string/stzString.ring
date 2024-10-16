@@ -259,17 +259,11 @@ func StzTrim(cStr)
 func StzTrimLeft(cStr)
 	return StzStringQ(cStr).TrimmedLeft()
 
-	func TrimLeft(cStr)
-		return StzStringQ(cStr).TrimmedLeft()
-
 	func @TrimLeft(cStr)
 		return StzStringQ(cStr).TrimmedLeft()
 
 func StzTrimRight(cStr)
 	return StzStringQ(cStr).TrimmedRight()
-
-	func TrimRight(cStr)
-		return StzStringQ(cStr).TrimmedRight()
 
 	func @TrimRight(cStr)
 		return StzStringQ(cStr).TrimmedRight()
@@ -50145,19 +50139,19 @@ n1 = Min(aTemp)
 
 			cResult += NL
 			for i = 1 to nLen
-				
+
 				if ring_find(anPos, i) > 0
-//					if i <= 9
-						cNumber = ""+ i
 
-/*					but i % 10 = 0
-						cNumber = ring_right(""+ i, 2)[1]
+					cNumber = ""+ i
 
-					else
-						cNumber = ring_right(""+ i, 1)
+					if i > 1
+						cResult = StzStringQ(cResult).
+							  RemoveNCharsRightQ(anPos[i-1]).
+							  Content()
 					ok
-*/
-					cResult += StzTrimRight(cNumber)
+
+					cResult += cNumber
+
 				else
 					cResult += " "
 				ok
@@ -74192,6 +74186,110 @@ n1 = Min(aTemp)
 	def ThisLastCharRemovedXT(c)
 		return This.Copy().RemoveThisLastCharXTQ(c).Content()
 
+
+	  #-------------------------------#
+	 #   REMOVING N CHARS FROM LEFT  #
+	#===============================#
+
+	def RemoveNCharsFromLeft(n)
+		This.RemoveSection(1, n)
+
+		def RemoveNCharsFromLeftQ(n)
+			This.RemoveNCharsFromLeft(n)
+			return This
+
+		def RemoveNCharsLeft(n)
+			This.RemoveNCharsFromLeft(n)
+
+			def RemoveNCharsLeftQ(n)
+				return This.RemoveNCharsFromLeftQ(n)
+
+	def NCharsRemovedFromLeft(n)
+		return This.Copy(n).RemoveNCharsFromLeftQ(n).Content()
+
+		def NCharsRemovedLeft(n)
+			return This.NCharsRemovedFromLeft(n)
+
+	  #--------------------------------#
+	 #   REMOVING N CHARS FROM RIGHT  #
+	#--------------------------------#
+
+	def RemoveNCharsFromRight(n)
+		nLen = This.NumberOfChars()
+		This.RemoveSection(nLen - n + 1, nLen)
+
+		def RemoveNCharsFromRightQ(n)
+			This.RemoveNCharsFromRight(n)
+			return This
+
+		def RemoveNCharsRight(n)
+			This.RemoveNCharsFromRight(n)
+
+			def RemoveNCharsRightQ(n)
+				return This.RemoveNCharsFromRightQ(n)
+
+	def NCharsRemovedFromRight(n)
+		return This.Copy(n).RemoveNCharsFromRightQ(n).Content()
+
+		def NCharsRemovedRight(n)
+			return This.NCharsRemovedFromRight(n)
+
+	  #--------------------------------#
+	 #   REMOVING N CHARS FROM START  #
+	#================================#
+
+	def RemoveNCharsFromStart(n)
+		if This.IsLeftToRight()
+			This.RemoveSection(1, n)
+		else
+			nLen = This.NumberOfChars()
+			This.RemoveSection(nLen- n + 1, nLen)
+		ok
+
+		def RemoveNCharsFromStartQ(n)
+			This.RemoveNCharsFromStart(n)
+			return This
+
+		def RemoveNCharsStart(n)
+			This.RemoveNCharsFromStart(n)
+
+			def RemoveNCharsStartQ(n)
+				return This.RemoveNCharsFromStartQ(n)
+
+	def NCharsRemovedFromStart(n)
+		return This.Copy(n).RemoveNCharsFromStartQ(n).Content()
+
+		def NCharsRemovedStart(n)
+			return This.NCharsRemovedFromStart(n)
+
+	  #------------------------------#
+	 #   REMOVING N CHARS FROM END  #
+	#------------------------------#
+
+	def RemoveNCharsFromEnd(n)
+		if This.IsRightToLeft()
+			This.RemoveSection(1, n)
+		else
+			nLen = This.NumberOfChars()
+			This.RemoveSection(nLen- n + 1, nLen)
+		ok
+
+		def RemoveNCharsFromEndQ(n)
+			This.RemoveNCharsFromEnd(n)
+			return This
+
+		def RemoveNCharsEnd(n)
+			This.RemoveNCharsFromEnd(n)
+
+			def RemoveNCharsEndQ(n)
+				return This.RemoveNCharsFromEndQ(n)
+
+	def NCharsRemovedFromEnd(n)
+		return This.Copy(n).RemoveNCharsFromEndQ(n).Content()
+
+		def NCharsRemovedEnd(n)
+			return This.NCharsRemovedFromEnd(n)
+
 	  #-------------------------------------------------#
 	 #   REMOVING FIRST CHAR UNDER A GIVEN CONDITION   #
 	#=================================================#
@@ -79858,6 +79956,9 @@ n1 = Min(aTemp)
 		def WithoutLeadingSpaces()
 			return This.TrimmedFromStart()
 
+		def TrimmedStart()
+			return This.TrimmedFromStart()
+
 	def TrimEnd()
 
 		This.RemoveThisRepeatedTrailingChar(" ")
@@ -79885,6 +79986,9 @@ n1 = Min(aTemp)
 			return This.TrimmedFromEnd()
 
 		def WithoutTrailingSpaces()
+			return This.TrimmedFromEnd()
+
+		def TrimmedEnd()
 			return This.TrimmedFromEnd()
 
 	def TrimLeft()
@@ -79916,6 +80020,9 @@ n1 = Min(aTemp)
 		def WithoutLeftSpaces()
 			return This.TrimmedFromLeft()
 
+		def TrimmedLeft()
+			return This.TrimmedFromLeft()
+
 	def TrimRight()
 		if This.IsRightToLeft()
 			This.TrimStart()
@@ -79943,6 +80050,9 @@ n1 = Min(aTemp)
 			return This.TrimmedFromRight()
 
 		def WithoutRightSpaces()
+			return This.TrimmedFromRight()
+
+		def TrimmedRight()
 			return This.TrimmedFromRight()
 
 	#--
