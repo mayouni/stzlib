@@ -10,7 +10,7 @@ Softanza's documentation system includes various types of documents, each servin
 - *Overviews*: High-level explanations of a feature and its combination with others
 - *Stats*: Performance metrics of the library code and its usage statistics
 
-Narrations complement these by bridging theory and practice through storytelling in code. They demonstrate how Softanza's components work together to solve real-world problems, making them particularly valuable for intermediate users, visual learners, and those seeking practical applications.
+**Narrations** complement these by bridging theory and practice through storytelling in code. They demonstrate how Softanza's components work together to solve real-world problems, making them particularly valuable for intermediate users, visual learners, and those seeking practical applications.
 
 ## The Structure of a Narration
 
