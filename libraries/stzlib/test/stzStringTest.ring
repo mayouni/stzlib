@@ -14928,6 +14928,23 @@ pron()
 proff()
 # Executed in 0.02 second(s)
 
+/*==================
+*/
+pron()
+
+o1 = new stzString("123SOFTANZA12345")
+
+o1.RemoveNCharsLeft(3)
+? o1.Content()
+#--> SOFTANZA12345
+
+o1.RemoveNCharsRight(5)
+? o1.Content()
+#--> SOFTANZA
+
+proff()
+# Executed in 0.01 second(s).
+
 /*================== vizFind
 
 pron()
