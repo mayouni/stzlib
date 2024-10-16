@@ -48,7 +48,8 @@ Here's an example of a Softanza narration, formatted as a Markdown file:
 
 ## Problem Definition
 
-We have a string containing semi-structured data. The data is separated by semicolons and spread across multiple lines, including empty lines:
+We have a string containing semi-structured data. The data is separated by semicolons and spread across multiple
+lines, including empty lines:
 
 	o1 = new stzString("
 	.;1;.;.;.
@@ -97,9 +98,12 @@ Here is the translation of the thought process of the above section in Softanza:
 
 ## Results and Reflection
 
-The output of our code demonstrates a successful transformation of the semi-structured data into a clean, structured list of lists. Each inner list represents a row of data, with empty cells represented by dots.
+The output of our code demonstrates a successful transformation of the semi-structured data into a clean,
+structured list of lists. Each inner list represents a row of data, with empty cells represented by dots.
 
-This solution exemplifies the WYTIWYR (What You Think Is What You Write) principle. Our thought process translated directly into Softanza code, resulting in a concise and readable solution that effectively cleanses and transforms the data.
+This solution exemplifies the WYTIWYR (What You Think Is What You Write) principle. Our thought process
+translated directly into Softanza code, resulting in a concise and readable solution that effectively
+cleanses and transforms the data.
 
 ## Softanza Features Used
 
