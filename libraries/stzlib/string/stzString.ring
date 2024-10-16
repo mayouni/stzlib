@@ -50136,29 +50136,31 @@ n1 = Min(aTemp)
 		cResult = oString.Content() + NL + cVizLine
 
 		if bNumbered
+			nLenPos = len(anPos)
+			aSections = []
 
-			cResult += NL
-			for i = 1 to nLen
+			acPos = []
 
-				if ring_find(anPos, i) > 0
+			for i = 1 to nLenPos
+				cPos = ""+ anPos[i]
+				acPos + cPos
 
-					cNumber = ""+ i
+				nLenNumber = len(cPos)
 
-					if i > 1
-						cResult = StzStringQ(cResult).
-							  RemoveNCharsRightQ(anPos[i-1]).
-							  Content()
-					ok
+				n1 = anPos[i]
+				n2 = n1 + nLenNumber - 1
 
-					cResult += cNumber
-
-				else
-					cResult += " "
-				ok
+				aSections + [ n1, n2 ]
 			next
 
+			cPosLine = StzStringQ(cVizLine).
+				   ReplaceSectionsByManyQ(aSections, acPos).
+				   Content()
+
+			cResult += (NL + cPosLine)
 		ok
 
+		
 		return cResult
 
 		#< @FunctionFluentForm
@@ -54490,8 +54492,8 @@ n1 = Min(aTemp)
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
-		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSections(paSections)
-		acResult = This.Sections( paSections )
+		aTempSections = StzSplitterQ( This.NumberOfChars() ).SplitAtSections(paSections)
+		acResult = This.Sections( aTempSections )
 
 		return acResult
 
@@ -75693,6 +75695,7 @@ n1 = Min(aTemp)
 			next
 		ok
 
+
 		# Doing the job
 
 		#NOTE
@@ -75704,13 +75707,14 @@ n1 = Min(aTemp)
 		# Check the strategy used in similar functions
 
 		acParts = This.SplitAtSections(paSections)
+
 		nLen = len(acParts)
 		cResult = ""
 
-		for i = 1 to nLen
-			cResult = acParts[i]
-			cResult += pacSubStr[i]
+		for i = 1 to nLen - 1
+			cResult += (acParts[i] + pacSubStr[i])
 		next
+		cResult += acParts[nLen]
 
 		This.UpdateWith(cResult)
 
