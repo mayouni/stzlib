@@ -50063,16 +50063,19 @@ n1 = Min(aTemp)
 		oString = new stzString(cString)
 
 		anPos = oString.FindAllCS( pcSubStr, :CS = bCaseSensitive )
+		nLen = len(anPos)
 
-		anVizPositions = StzListOfNumbersQ(anPos).
-				 SubStructFromEachQ(1).Content()
+		anVizPositions = []
+		for i = 1 to nLen
+			anVizPositions + (anPos[i]-1)
+		next
 
 		nLen = oString.NumberOfChars()
 
 		cVizLine = " "
 		for i = 1 to nLen - 2
-			
-			if StzNumberQ(i).IsOneOfThese(anVizPositions)
+
+			if ring_find(anVizPositions, i) > 0
 				cVizLine += cPositionSign
 			else
 				cVizLine += cBlankSign
@@ -50084,35 +50087,25 @@ n1 = Min(aTemp)
 
 		if bNumbered
 
-			oVizLine = new stzString(cVizLine)
-
-			oVizLine {
-	
-				Replace(cBlankSign, " ")
-
-				cCondition = '@char = ' + @@(cPositionSign)
-
-				if NOT bSpacified
-
-					cReplacement@ = '{ Q( ""+ ( This.FindAll(' +
-						 @@(cPositionSign) +
-						 ')[@i] - 1 ) ).LastChar() }'
-
-				else
-
-					cReplacement@ = '{ Q( ""+ ( This.FindAll(' +
-						 @@(cPositionSign) +
-						 ')[@i] / 2 ) ).LastChar() }'
-					
-				ok
-
+			cResult += NL + " "
+			for i = 1 to nLen
 				
+				if ring_find(anVizPositions, i) > 0
+					if i <= 9
+						cNumber = ""+ i
 
-				ReplaceW( :Where = cCondition, :With = eval(cReplacement@) )
+					but i % 10 = 0
+						cNumber = ring_right(""+ i, 2)[1]
 
-			}
+					else
+						cNumber = ring_right(""+ i, 1)
+					ok
 
-			cResult += NL + oVizLine.TrailingSpacesRemoved()
+					cResult += cNumber
+				else
+					cResult += " "
+				ok
+			next
 
 		ok
 

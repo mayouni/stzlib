@@ -14928,6 +14928,69 @@ pron()
 proff()
 # Executed in 0.02 second(s)
 
+/*================== vizFind
+
+pron()
+
+? IsHashList([ [ "positionchar", "^" ] ])
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
+
+/*----------------
+
+pron()
+
+? StzStringQ("ABTCADNBBABEFACCC").VizFind("A")
+#--> 
+#	"ABTCADNBBABEFACCC"
+#	 ^---^----^---^---
+
+proff()
+# Executed in 0.06 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzString("ABTCADNBBABEFACCC")
+? o1.VizFindXT("A", [ :Numbered = TRUE, :Spacified = TRUE, :PositionSign = Heart() ])
+
+#--> Returns a string like this:
+
+# "A B T C A D N B B A B E F A C C C"
+#  ♥-------♥---------♥-------♥------
+#  1       9         9       7      
+
+proff()
+# Executed in 0.04 second(s).
+
+/*----------------- (TODO)
+
+? StzStringQ("ABTCADNBBABEFAVCC").VizFindMany([ "A", "T", "V" ])
+
+#--> Returns a string like this:
+
+#	 "ABTCADNVBABEFLVCT"
+#  "A" :  ^-.-^--.-^----.-.
+#  "T" :  --^----.------.-^
+#  "V" :  -------^------^--
+#  "X" :  -----------------
+
+/*----------------- (TODO)
+
+? StzStringQ("ABTCADNBBABEFAVCC").VizFindManyXT("A")
+
+#--> Returns a string like this:
+
+#	  1..4..7..0..3..6.
+#	 "ABTCADNVBABEFLVCT"
+#  "A" :  ^-.-^--.-^----.-. (3)
+#  "T" :  --^----.------.-^ (2)
+#  "V" :  -------^------^-- (2)
+#  "X" :  ----------------- (0)
+
                  ///////////////////////////////////////////////
                 //                              ///////////////
       ///////////      TO BE FIXED LATER       /////////////
@@ -15016,63 +15079,4 @@ StzListQ([ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]) {
 	? WalkUntil("@item = 'D'") #--> 1:5
 	? WalkUntil('@item = "x"') #--> 0
 }
-
-/*==================
-
-pron()
-
-? IsHashList([ [ "positionchar", "^" ] ])
-#--> TRUE
-
-proff()
-# Executed in almost 0 second(s).
-
-/*----------------
-
-*/
-pron()
-
-? StzStringQ("ABTCADNBBABEFACCC").VizFind("A")
-#--> 
-#	"ABTCADNBBABEFACCC"
-#	 ^---^----^---^---
-
-proff()
-# Executed in 0.06 second(s).
-
-/*-----------------
-
-o1 = new stzString("ABTCADNBBABEFACCC")
-? o1.VizFindXT("A", [ :Numbered = TRUE, :Spacified = TRUE, :PositionSign = Heart() ])
-
-#--> Returns a string like this:
-
-#    "A B T C A D N B B A B E F A C C C "
-#     ♥-------♥---------♥-------♥-------
-#     1       5         0       4
-
-/*----------------- (TODO)
-
-? StzStringQ("ABTCADNBBABEFAVCC").VizFindMany([ "A", "T", "V" ])
-
-#--> Returns a string like this:
-
-#	 "ABTCADNVBABEFLVCT"
-#  "A" :  ^-.-^--.-^----.-.
-#  "T" :  --^----.------.-^
-#  "V" :  -------^------^--
-#  "X" :  -----------------
-
-/*----------------- (TODO)
-
-? StzStringQ("ABTCADNBBABEFAVCC").VizFindManyXT("A")
-
-#--> Returns a string like this:
-
-#	  1..4..7..0..3..6.
-#	 "ABTCADNVBABEFLVCT"
-#  "A" :  ^-.-^--.-^----.-. (3)
-#  "T" :  --^----.------.-^ (2)
-#  "V" :  -------^------^-- (2)
-#  "X" :  ----------------- (0)
 
