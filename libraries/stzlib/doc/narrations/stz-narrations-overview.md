@@ -39,12 +39,12 @@ By combining these elements, narrations help developers not just learn Softanza'
 
 ## An Illustrative Example
 
-Here's an example of a Softanza narration, formatted as a Markdown file:
+Here's an example of a Softanza narration:
 
 <div style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
 
 ```markdown
-# Title : Data Cleansing and Transformation with Softanza (Tags : //narration //data-cleansing //data-transformation)
+# Title : Data Cleansing and Transformation with Softanza (Tags : #narration #data-cleansing #sdata-transformation)
 
 ## Problem Definition
 
@@ -93,7 +93,7 @@ Here is the translation of the thought process of the above section in Softanza:
 	# Step 4
 	o2.StringsSplitted(:Using = ";")
 
-	? o2.Content()
+	? @@(o2.Content())
 	#--> You get the well formed table.
 
 ## Results and Reflection
@@ -112,5 +112,5 @@ cleanses and transforms the data.
 - LinesQR()
 - TrimQ()
 - StringsSplitted()
-- @@SP()
+- @@()
 ```
