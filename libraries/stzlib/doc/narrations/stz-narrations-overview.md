@@ -10,7 +10,7 @@ Softanza's documentation system includes various types of documents, each servin
 - *Overviews*: High-level explanations of a feature and its combination with others
 - *Stats*: Performance metrics of the library code and its usage statistics
 
-> **Narrations** complement these by bridging theory and practice through storytelling in code. They demonstrate how Softanza's components work together to solve real-world problems, making them particularly valuable for intermediate users, visual learners, and those seeking practical applications.
+> **Narrations** complement these by bridging theory and practice through storytelling in code. They demonstrate how Softanza's features work together to solve real-world problems, making them particularly valuable for intermediate users, visual learners, and those seeking practical applications.
 
 ## The Structure of a Narration
 
@@ -21,13 +21,13 @@ Narrations in Softanza follow a defined structure:
 3. **Solution Steps**: An outline of the steps needed to solve the problem.
 4. **Solution Implementation**: The actual Softanza code that implements the solution.
 5. **Results and Reflection**: The output of the code and reflections on the process.
-6. **List of Softanza Features Used**: A summary of the Softanza components employed in the solution.
+6. **List of Softanza Features Used**: A summary of the Softanza features employed in the solution.
 
 ## The Unique Value of Narrations
 
 Narrations differ from other documentation types in several key ways:
 
-1. **Integration of Components**: Unlike Quickers or FAQs that focus on specific tasks, narrations show how multiple Softanza features work together.
+1. **Integration of Featuress**: Unlike Quickers or FAQs that focus on specific tasks, narrations show how multiple Softanza features work together.
 
 2. **Context-Rich Learning**: In contrast to References or Essentials, narrations provide a full context for using Softanza in realistic scenarios.
 
