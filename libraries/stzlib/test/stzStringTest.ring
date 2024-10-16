@@ -14929,7 +14929,7 @@ proff()
 # Executed in 0.02 second(s)
 
 /*==================
-*/
+
 pron()
 
 o1 = new stzString("123SOFTANZA12345")
@@ -14983,6 +14983,77 @@ o1 = new stzString("ABTCADNBBABEFACCC")
 proff()
 # Executed in 0.04 second(s).
 
+/*------------------
+
+pron()
+
+o1 = new stzString("----^----------^----------^-----")
+? o1.content()
+
+o1.ReplaceByMany("^", [ "A", "B", "C" ])
+? o1.Content()
+
+#--> ----^----------^----------^-----
+#--> ----A----------B----------C-----
+
+proff()
+# Executed in 0.01 second(s).
+
+/*------------------
+
+pron()
+
+o1 = new stzString("----^----------^----------^-----")
+? o1.content()
+
+o1.ReplaceByMany("^", [ "5", "16", "27" ])
+? o1.Content()
+
+#--> ----^----------^----------^-----
+#--> ----A----------B----------C-----
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzString("---456----123--67---")
+? @@( o1.Sections([ [ 1, 3], [ 7, 10], [ 14, 15], [18, 20] ]) )
+#--> [ "---", "----", "--", "---" ]
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzString("---456----123--67---")
+? @@( o1.SplitAtSections([ [4, 6], [11, 13], [16, 17] ]) )
+#--> [ "---", "----", "--", "---" ]
+
+proff()
+# Executed in 0.07 second(s).
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzString("---456----123--67---")
+
+o1.ReplaceSectionsByMany(
+	[ [4, 6], [11, 13], [16, 17] ],
+	[ "^^^", "^^^", "^^" ]
+)
+
+? o1.Content()
+#--> ---^^^----^^^--^^---
+
+proff()
+# Executed in 0.07 second(s).
+
 /*----------------- #narration FINDING THINGS IN THE CHAOS
 */
 pron()
@@ -14999,7 +15070,7 @@ o1 = new stzString("dkfjringljdfkljringdfkjdfjringgg")
 # But not only this, since you can situate the positions visually
 # by adding the "viz" prefix to thse Find() function:
 
-? o1.vizFind("ring") + NL
+//? o1.vizFind("ring") + NL
 #-->
 # dkfjringljdfkljringdfkjdfjringgg
 # ----^----------^----------^-----
