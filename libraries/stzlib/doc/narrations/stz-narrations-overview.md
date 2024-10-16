@@ -2,13 +2,13 @@
 
 Softanza's documentation system includes various types of documents, each serving a specific purpose:
 
-- Essentials: Core concepts and fundamentals
-- Quickers: Rapid solutions for common tasks
-- FAQs: Answers to frequent questions
-- Quizzes: Knowledge reinforcement
-- References: Comprehensive feature guides
-- Overviews: High-level component explanations
-- Stats: Performance and usage metrics
+- Essentials: Fundamental concepts of the language
+- Quickers: Quick solutions for common programming tasks
+- FAQs: Answers to frequently asked questions
+- Quizzes: Tests to reinforce learning
+- References: Comprehensive guides for all features
+- Overviews: High-level explanations of components or concepts
+- Stats: Performance metrics and usage statistics
 
 Narrations complement these by bridging theory and practice through storytelling in code. They demonstrate how Softanza's components work together to solve real-world problems, making them particularly valuable for intermediate users, visual learners, and those seeking practical applications.
 
@@ -60,41 +60,57 @@ We have a string containing semi-structured data. The data is separated by semic
 ## Solution Implementation
 
 ```ring
+/*----------------- #narration #data-cleansing #data-transformation
+*/
 pron()
-# Start with the semi-structured data
+# Let's start with a string containing semi-structured data.
+# The data is separated by semicolons and spread across multiple
+# lines, including empty lines.
 o1 = new stzString("
 .;1;.;.;.
 1;2;3;4;5
 .;3;.;.;.
 .;4;.;.;.
 .;5;.;.;. ")
-
-# Implement the solution steps
+# The goal is to transform the string into a clean,
+# structured list of lists, where each inner list
+# represents a row of data, like this:
+#--> [
+# [ ".", "1", ".", ".", "." ],
+# [ "1", "2", "3", "4", "5" ],
+# [ ".", "3", ".", ".", "." ],
+# [ ".", "4", ".", ".", "." ],
+# [ ".", "5", ".", ".", "." ]
+# ]
+# If you think about it, these are the necessary steps:
+# 1. Remove empty lines
+# 2. Convert the remaining lines into a list of strings
+# 3. Trim each string to remove any extra whitespace
+# 4. Split each string using the semicolon as a delimiter
+# Here is the translation of this thought process in Softanza:
 ? @@SP(
 o1.RemoveEmptyLinesQ().
 LinesQR(:stzListOfStrings).
 TrimQ().
 StringsSplitted(:Using = ";")
 )
+#--> [
+# [ ".", "1", ".", ".", "." ],
+# [ "1", "2", "3", "4", "5" ],
+# [ ".", "3", ".", ".", "." ],
+# [ ".", "4", ".", ".", "." ],
+# [ ".", "5", ".", ".", "." ]
+# ]
+# It's totally WYTIWYR: "What You Think Is What You Write"!
 proff()
+# Executed in 0.04 second(s).
 ```
 
 ## Results and Reflection
 
-The output of our code:
+The output of our code demonstrates a successful transformation of the semi-structured data into a clean, structured list of lists. Each inner list represents a row of data, with empty cells represented by dots.
 
-```ring
-[
- [ ".", "1", ".", ".", "." ],
- [ "1", "2", "3", "4", "5" ],
- [ ".", "3", ".", ".", "." ],
- [ ".", "4", ".", ".", "." ],
- [ ".", "5", ".", ".", "." ]
-]
-# Executed in 0.04 second(s).
-```
-
-This solution demonstrates the WYTIWYR (What You Think Is What You Write) principle. Our thought process translated directly into Softanza code, resulting in a concise and readable solution.
+This solution exemplifies the WYTIWYR (What You Think Is What You Write) principle. Our thought process translated directly into Softanza code, resulting in a concise and readable solution that effectively cleanses and transforms the data.
 
 ## Softanza Features Used
 
@@ -111,4 +127,3 @@ This solution demonstrates the WYTIWYR (What You Think Is What You Write) princi
 This narration exemplifies how Softanza can be used to solve a real-world data cleansing and transformation problem. It guides the reader through the entire process, from problem definition to reflection on the solution, showcasing Softanza's intuitive syntax and powerful features.
 
 By providing such narrations, Softanza's documentation system offers developers not just isolated code snippets or dry explanations, but complete, context-rich problem-solving experiences. This approach helps bridge the gap between theoretical knowledge and practical application, making it easier for developers to apply Softanza effectively in their own projects.
-
