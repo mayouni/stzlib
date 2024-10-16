@@ -50,18 +50,16 @@ Here's an example of a Softanza narration, formatted as a Markdown file:
 
 We have a string containing semi-structured data. The data is separated by semicolons and spread across multiple lines, including empty lines:
 
-```ring
-o1 = new stzString("
-.;1;.;.;.
-1;2;3;4;5
-.;3;.;.;.
-.;4;.;.;.
-.;5;.;.;. ")
-```
+	o1 = new stzString("
+	.;1;.;.;.
+	1;2;3;4;5
+	.;3;.;.;.
+	.;4;.;.;.
+	.;5;.;.;. ")
+
 
 We need to transform this into a clean, structured list of lists:
 
-```ring
 [
 	[ ".", "1", ".", ".", "." ],
 	[ "1", "2", "3", "4", "5" ],
@@ -70,7 +68,6 @@ We need to transform this into a clean, structured list of lists:
 	[ ".", "5", ".", ".", "." ]
 	]
 ]
-```
 
 ## Solution Steps
 
@@ -83,22 +80,20 @@ We need to transform this into a clean, structured list of lists:
 
 Here is the translation of the thought process of the above section in Softanza:
 
-```ring
-# Step 1
-o1.RemoveEmptyLinesQ()
+	# Step 1
+	o1.RemoveEmptyLinesQ()
 
-# Step 2
-o2 = o1.LinesQ().ToStzListOfStrings()
+	# Step 2
+	o2 = o1.LinesQ().ToStzListOfStrings()
 
-# Step 3
-o2.Trim()
+	# Step 3
+	o2.Trim()
 
-# Step 4
-o2.StringsSplitted(:Using = ";")
+	# Step 4
+	o2.StringsSplitted(:Using = ";")
 
-? o2.Content()
-#--> You get the well formed table.
-```
+	? o2.Content()
+	#--> You get the well formed table.
 
 ## Results and Reflection
 
@@ -114,3 +109,4 @@ This solution exemplifies the WYTIWYR (What You Think Is What You Write) princip
 - TrimQ()
 - StringsSplitted()
 - @@SP()
+```
