@@ -14966,8 +14966,40 @@ o1 = new stzString("ABTCADNBBABEFACCC")
 proff()
 # Executed in 0.04 second(s).
 
-/*----------------- (TODO)
+/*----------------- #narration FINDING THINGS IN THE CHAOS
+*/
+pron()
 
+# Find "ring" in this chaos!
+
+o1 = new stzString("dkfjringljdfkljringdfkjdfjringgg")
+
+# Of course, you can use Find() and get the positions in a list:
+
+? o1.Find("ring")
+#--> [ 5, 16, 27 ]
+
+# But not only this, since you can situate the positions visually
+# by adding the "viz" prefix to thse Find() function:
+
+? o1.vizFind("ring") + NL
+#-->
+# dkfjringljdfkljringdfkjdfjringgg
+# ----^----------^----------^-----
+
+# We can show a visual hint of the positions under that, using
+# the XT() suffix after the function name:
+
+? o1.vizFindXT("ring", :numbered)
+#-->
+# dkfjringljdfkljringdfkjdfjringgg
+# ----^----------^----------^-----
+#     5          6          7   
+
+proff()
+
+/*----------------- (TODO)
+*/
 ? StzStringQ("ABTCADNBBABEFAVCC").VizFindMany([ "A", "T", "V" ])
 
 #--> Returns a string like this:
