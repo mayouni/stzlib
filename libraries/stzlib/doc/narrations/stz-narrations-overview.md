@@ -44,66 +44,60 @@ Here's an example of a Softanza narration, formatted as a Markdown file:
 <div style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
 
 ```markdown
-# Data Cleansing and Transformation with Softanza
+# Title : Data Cleansing and Transformation with Softanza (Tags : //narration //data-cleansing //data-transformation)
 
 ## Problem Definition
 
-We have a string containing semi-structured data. The data is separated by semicolons and spread across multiple lines, including empty lines. We need to transform this into a clean, structured list of lists.
-
-## Solution Steps
-
-1. Remove empty lines from the input string
-2. Convert the remaining lines into a list of strings
-3. Trim each string to remove any extra whitespace
-4. Split each string using the semicolon as a delimiter
-
-## Solution Implementation
+We have a string containing semi-structured data. The data is separated by semicolons and spread across multiple lines, including empty lines:
 
 ```ring
-/*----------------- #narration #data-cleansing #data-transformation
-*/
-pron()
-# Let's start with a string containing semi-structured data.
-# The data is separated by semicolons and spread across multiple
-# lines, including empty lines.
 o1 = new stzString("
 .;1;.;.;.
 1;2;3;4;5
 .;3;.;.;.
 .;4;.;.;.
 .;5;.;.;. ")
-# The goal is to transform the string into a clean,
-# structured list of lists, where each inner list
-# represents a row of data, like this:
-#--> [
-# [ ".", "1", ".", ".", "." ],
-# [ "1", "2", "3", "4", "5" ],
-# [ ".", "3", ".", ".", "." ],
-# [ ".", "4", ".", ".", "." ],
-# [ ".", "5", ".", ".", "." ]
-# ]
-# If you think about it, these are the necessary steps:
-# 1. Remove empty lines
-# 2. Convert the remaining lines into a list of strings
-# 3. Trim each string to remove any extra whitespace
-# 4. Split each string using the semicolon as a delimiter
-# Here is the translation of this thought process in Softanza:
-? @@SP(
-o1.RemoveEmptyLinesQ().
-LinesQR(:stzListOfStrings).
-TrimQ().
-StringsSplitted(:Using = ";")
-)
-#--> [
-# [ ".", "1", ".", ".", "." ],
-# [ "1", "2", "3", "4", "5" ],
-# [ ".", "3", ".", ".", "." ],
-# [ ".", "4", ".", ".", "." ],
-# [ ".", "5", ".", ".", "." ]
-# ]
-# It's totally WYTIWYR: "What You Think Is What You Write"!
-proff()
-# Executed in 0.04 second(s).
+```
+
+We need to transform this into a clean, structured list of lists:
+
+```ring
+[
+	[ ".", "1", ".", ".", "." ],
+	[ "1", "2", "3", "4", "5" ],
+	[ ".", "3", ".", ".", "." ],
+	[ ".", "4", ".", ".", "." ],
+	[ ".", "5", ".", ".", "." ]
+	]
+]
+```
+
+## Solution Steps
+
+1. Remove empty lines from the string
+2. Convert the remaining lines into a list of strings
+3. Trim each string to remove any extra whitespace
+4. Split each string using the semicolon as a delimiter
+
+## Solution Implementation
+
+Here is the translation of the thought process of the above section in Softanza:
+
+```ring
+# Step 1
+o1.RemoveEmptyLinesQ()
+
+# Step 2
+o2 = o1.LinesQ().ToStzListOfStrings()
+
+# Step 3
+o2.Trim()
+
+# Step 4
+o2.StringsSplitted(:Using = ";")
+
+? o2.Content()
+#--> You get the well formed table.
 ```
 
 ## Results and Reflection
@@ -119,11 +113,4 @@ This solution exemplifies the WYTIWYR (What You Think Is What You Write) princip
 - LinesQR()
 - TrimQ()
 - StringsSplitted()
-- @@SP() (Show Parentheses)
-```
-
-</div>
-
-This narration exemplifies how Softanza can be used to solve a real-world data cleansing and transformation problem. It guides the reader through the entire process, from problem definition to reflection on the solution, showcasing Softanza's intuitive syntax and powerful features.
-
-By providing such narrations, Softanza's documentation system offers developers not just isolated code snippets or dry explanations, but complete, context-rich problem-solving experiences. This approach helps bridge the gap between theoretical knowledge and practical application, making it easier for developers to apply Softanza effectively in their own projects.
+- @@SP()
