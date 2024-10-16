@@ -41,7 +41,8 @@ By combining these elements, narrations help developers not just learn Softanza'
 
 Here's an example of a Softanza narration:
 
-<div style="background-color: #f0f0f0; padding: 10px; border-radius: 5px; border: 3px solid #1a5f7a;">
+<div style="background-color: #f0f0f0; padding: 10px; border-radius: 5px;">
+
 ```markdown
 # Title : Data Cleansing and Transformation with Softanza (Tags : #narration #data-cleansing #sdata-transformation)
 
