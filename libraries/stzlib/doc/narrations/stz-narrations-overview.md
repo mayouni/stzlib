@@ -2,13 +2,13 @@
 
 Softanza's documentation system includes various types of documents, each serving a specific purpose:
 
-- Essentials: Fundamental concepts of the language
-- Quickers: Quick solutions for common programming tasks
+- Essentials: Key takeaways for programmers in a harry!
+- Quickers: for whom prefer Learning by doing in an action-oriented way
 - FAQs: Answers to frequently asked questions
 - Quizzes: Tests to reinforce learning
-- References: Comprehensive guides for all features
-- Overviews: High-level explanations of components or concepts
-- Stats: Performance metrics and usage statistics
+- References: Detailed documentation of classes, functions, parameters, and returned values
+- Overviews: High-level explanations of a feature and its combination with others
+- Stats: Performance metrics of the library code and its usage statistics
 
 Narrations complement these by bridging theory and practice through storytelling in code. They demonstrate how Softanza's components work together to solve real-world problems, making them particularly valuable for intermediate users, visual learners, and those seeking practical applications.
 
