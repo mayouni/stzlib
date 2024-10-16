@@ -50136,6 +50136,9 @@ n1 = Min(aTemp)
 		cResult = oString.Content() + NL + cVizLine
 
 		if bNumbered
+
+			cPosLine = ring_substr2(cVizLine, cBlankSign, " ")
+
 			nLenPos = len(anPos)
 			aSections = []
 
@@ -50153,7 +50156,7 @@ n1 = Min(aTemp)
 				aSections + [ n1, n2 ]
 			next
 
-			cPosLine = StzStringQ(cVizLine).
+			cPosLine = StzStringQ(cPosLine).
 				   ReplaceSectionsByManyQ(aSections, acPos).
 				   Content()
 
@@ -73280,15 +73283,15 @@ n1 = Min(aTemp)
 		def RemoveSubStringsBoundedBySTCS(pacBounds, pnStartingAt, pCaseSensitive)
 			This.RemoveAnySubStringBoundedBySTCS(pacBounds, pnStartingAt, pCaseSensitive)
 
-	def AnySubtringBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
+	def AnySubStringBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
 		cResult = This.Copy().RemoveAnySubStringBoundedBySTCSQ(pacBounds, pnStartingAt, pCaseSensitive).Content()
 		return cResult
 
-		def AnySubtringsBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
-			return This.AnySubtringBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
+		def AnySubStringsBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
+			return This.AnySubStringBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
 
-		def SubtringsBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
-			return This.AnySubtringBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
+		def SubStringsBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
+			return This.AnySubStringBoundedByRemovedSTCS(pacBounds, pnStartingAt, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVE
 
@@ -73305,11 +73308,11 @@ n1 = Min(aTemp)
 		cResult = This.Copy().RemoveAnySubStringBoundedBySTQ(pacBounds, pnStartingAt).Content()
 		return cResult
 
-		def AnySubtringsBoundedByRemovedST(pacBounds, pnStartingAt)
-			return This.AnySubtringBoundedByRemovedST(pacBounds, pnStartingAt)
+		def AnySubStringsBoundedByRemovedST(pacBounds, pnStartingAt)
+			return This.AnySubStringBoundedByRemovedST(pacBounds, pnStartingAt)
 
-		def SubtringsBoundedByRemovedST(pacBounds, pnStartingAt)
-			return This.AnySubtringBoundedByRemovedST(pacBounds, pnStartingAt)
+		def SubStringsBoundedByRemovedST(pacBounds, pnStartingAt)
+			return This.AnySubStringBoundedByRemovedST(pacBounds, pnStartingAt)
 
 	  #====================================#
 	 #  REMOVING A SUBSTRING -- EXTENDED  #

@@ -215,7 +215,7 @@ func ring_substr1(str, substr) # Finds substr in str
 	return substr(str, substr)
 
 func ring_substr2(str, substr1, substr2) # Replaces substr1 by substr2 in str
-	return substr(str, substr1, subtr2)
+	return substr(str, substr1, substr2)
 
 func ring_copy(p1, p2)
 	return copy(p1, p2)

@@ -15038,7 +15038,7 @@ proff()
 # Executed in 0.07 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("---456----123--67---")
@@ -15053,6 +15053,16 @@ o1.ReplaceSectionsByMany(
 
 proff()
 # Executed in 0.07 second(s).
+
+/*------------------
+
+pron()
+
+? ring_substr2("--^---^^--^", "-", " ")
+#--> "  ^   ^^  ^"
+
+proff()
+# Executed in almost 0 second(s).
 
 /*----------------- #narration FINDING THINGS IN THE CHAOS
 */
@@ -15070,7 +15080,7 @@ o1 = new stzString("dkfjringljdfkljringdfkjdfjringgg")
 # But not only this, since you can situate the positions visually
 # by adding the "viz" prefix to thse Find() function:
 
-//? o1.vizFind("ring") + NL
+? o1.vizFind("ring") + NL
 #-->
 # dkfjringljdfkljringdfkjdfjringgg
 # ----^----------^----------^-----
@@ -15082,9 +15092,10 @@ o1 = new stzString("dkfjringljdfkljringdfkjdfjringgg")
 #-->
 # dkfjringljdfkljringdfkjdfjringgg
 # ----^----------^----------^-----
-#     5          6          7   
+#     5          16         27    
 
 proff()
+# Executed in 0.08 second(s).
 
 /*----------------- (TODO)
 */
