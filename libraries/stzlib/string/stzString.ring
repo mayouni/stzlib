@@ -256,6 +256,60 @@ func StzTrim(cStr)
 	cResult = oQStr.trimmed()
 	return cResult
 
+func StzTrimLeft(cStr)
+	return StzStringQ(cStr).TrimmedLeft()
+
+	func TrimLeft(cStr)
+		return StzStringQ(cStr).TrimmedLeft()
+
+	func @TrimLeft(cStr)
+		return StzStringQ(cStr).TrimmedLeft()
+
+func StzTrimRight(cStr)
+	return StzStringQ(cStr).TrimmedRight()
+
+	func TrimRight(cStr)
+		return StzStringQ(cStr).TrimmedRight()
+
+	func @TrimRight(cStr)
+		return StzStringQ(cStr).TrimmedRight()
+
+func StzTrimStart(cStr)
+	return StzStringQ(cStr).TrimmedFromStart()
+
+	func TrimStart(cStr)
+		return StzStringQ(cStr).TrimmedFromStart()
+
+	func @TrimStart(cStr)
+		return StzStringQ(cStr).TrimmedFromStart()
+
+	func StzTrimFromStart(cStr)
+		return StzStringQ(cStr).TrimmedFromStart()
+
+	func TrimFromStart(cStr)
+		return StzStringQ(cStr).TrimmedFromStart()
+
+	func @TrimFromStart(cStr)
+		return StzStringQ(cStr).TrimmedFromStart()
+
+func StzTrimEnd(cStr)
+	return StzStringQ(cStr).TrimmedFromEnd()
+
+	func TrimEnd(cStr)
+		return StzStringQ(cStr).TrimmedFromEnd()
+
+	func @TrimEnd(cStr)
+		return StzStringQ(cStr).TrimmedFromEnd()
+
+	func StzTrimFromEnd(cStr)
+		return StzStringQ(cStr).TrimmedFromEnd()
+
+	func TrimFromEnd(cStr)
+		return StzStringQ(cStr).TrimmedFromEnd()
+
+	func @TrimFromEnd(cStr)
+		return StzStringQ(cStr).TrimmedFromEnd()
+
 #--
 
 func StringIsEmpty(pcStr)
@@ -49918,7 +49972,21 @@ n1 = Min(aTemp)
 	def VizFindXT(pcSubStr, paOptions)
 
 		# STEP 1: Checking params TYPES
-		
+
+		acPossibleKeys = [
+			:CaseSensitive, :CS, :PositionSign, :PositionChar,
+			:BlankSign, :Numbered, :Spacified,
+			:Boxed, :BoxOptions
+
+		]
+
+		if isString(paOptions)
+			if ring_find(acPossibleKeys, paOptions) > 0
+				aTemp = [] + [ paOptions, TRUE ]
+				paOptions = aTemp
+			ok
+		ok
+
 		if NOT isString(pcSubStr)
 			stzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
@@ -49933,13 +50001,6 @@ n1 = Min(aTemp)
 		for i = 1 to nLen
 			acKeys + paOptions[i][1]
 		next
-
-		acPossibleKeys = [
-			:CaseSensitive, :CS, :PositionSign, :PositionChar,
-			:BlankSign, :Numbered, :Spacified,
-			:Boxed, :BoxOptions
-
-		]
 
 		for i = 1 to nLen
 			if ring_find(acPossibleKeys, acKeys[i]) = 0
@@ -50055,9 +50116,9 @@ n1 = Min(aTemp)
 		#--> Let's do the job!
 
 		if bSpacified
-			cString = @@( This.Spacified() )
+			cString =This.Spacified()
 		else
-			cString = @@( This.Content() )
+			cString = This.Content()
 		ok
 
 		oString = new stzString(cString)
@@ -50065,17 +50126,12 @@ n1 = Min(aTemp)
 		anPos = oString.FindAllCS( pcSubStr, :CS = bCaseSensitive )
 		nLen = len(anPos)
 
-		anVizPositions = []
-		for i = 1 to nLen
-			anVizPositions + (anPos[i]-1)
-		next
-
 		nLen = oString.NumberOfChars()
 
-		cVizLine = " "
-		for i = 1 to nLen - 2
+		cVizLine = ""
+		for i = 1 to nLen
 
-			if ring_find(anVizPositions, i) > 0
+			if ring_find(anPos, i) > 0
 				cVizLine += cPositionSign
 			else
 				cVizLine += cBlankSign
@@ -50087,21 +50143,21 @@ n1 = Min(aTemp)
 
 		if bNumbered
 
-			cResult += NL + " "
+			cResult += NL
 			for i = 1 to nLen
 				
-				if ring_find(anVizPositions, i) > 0
-					if i <= 9
+				if ring_find(anPos, i) > 0
+//					if i <= 9
 						cNumber = ""+ i
 
-					but i % 10 = 0
+/*					but i % 10 = 0
 						cNumber = ring_right(""+ i, 2)[1]
 
 					else
 						cNumber = ring_right(""+ i, 1)
 					ok
-
-					cResult += cNumber
+*/
+					cResult += StzTrimRight(cNumber)
 				else
 					cResult += " "
 				ok
