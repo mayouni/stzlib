@@ -594,7 +594,6 @@ class stzListOfChars from stzListOfStrings
 		│ T │ E │ X │ T │
 		╰───┴───┴─•─┴───╯	
 		*/
-
 	
 		if StzListQ(paBoxOptions).IsTextBoxedOptionsNamedParam()
 
@@ -710,23 +709,36 @@ class stzListOfChars from stzListOfStrings
 				cCorner4 = "╰"
 			ok
 
+			#--
+
 			nWidth = This.NumberOfChars()
 
-			cUpLine = cCorner1 +
-				  StzStringQ(cHTrait + cUpSep).RepeatedNTimes(nWidth-1) +
-				  cHTrait + cCorner2 
-
+			cTemp = ""
+			for i = 1 to nWidth-1
+				cTemp += (cHTrait + cUpSep)
+			next
 			
+			cUpline = cCorner1 + cTemp + cHTrait + cCorner2
+
 			cMidLine = cVTrait
 
-			for c in This.ListOfChars()
-				cMidLine += " " + c + " " + cVTrait
+			acChars = This.Content()
+			nLen = len(acChars)
+
+			for i = 1 to nLen
+				cMidLine += " " + acChars[i] + " " + cVTrait
 			next
 
+			#--
+
 			if NOT isList(aHilighted)
-				cDownLine = cCorner4 +
-					  StzStringQ(cHTrait + cDownSep).RepeatedNTimes(nWidth-1) +
-					  cHTrait + cCorner3
+
+				cTemp = ""
+				for i = 1 to nWidth-1
+					cTemp += (cHTrait + cDownSep)
+				next
+
+				cDownLine = cCorner4 + cTemp + cHTrait + cCorner3
 
 			else
 				# Hilight some chars
@@ -736,7 +748,7 @@ class stzListOfChars from stzListOfStrings
 
 				for i = 1 to nWidth - 1
 
-					if StzListQ(aHilighted).Contains(i) 
+					if ring_find(aHilighted, i) > 0
 						cTrait = cHilight
 
 					else
@@ -749,7 +761,7 @@ class stzListOfChars from stzListOfStrings
 
 				# Speciefic case of the last char
 
-				if StzListQ(aHilighted).Contains(nWidth)
+				if ring_find(aHilighted, nWidth)
 					cDownLine += cHilight + cCorner3
 				else
 					cDownLine += cHTrait + cCorner3

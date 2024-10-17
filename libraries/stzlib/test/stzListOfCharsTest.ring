@@ -165,7 +165,7 @@ proff()
 # Executed in 0.05 second(s).
 
 /*-------------
-
+s
 pron()
 
 ? StzListOfCharsQ("A":"E").BoxedXT([
@@ -197,7 +197,7 @@ proff()
 # Executed in 0.04 second(s).
 
 /*-------------
-
+*/
 pron()
 
 ? StzListOfCharsQ("SOFTANZA").Boxed()
@@ -207,7 +207,6 @@ pron()
 # └───┴───┴───┴───┴───┴───┴───┴───┘
 
 proff()
-
 # Executed in 0.03 second(s).
 
 /*=========
@@ -234,7 +233,7 @@ pron()
 #NOTE to get a correct boxing, you should use a fixed font
 
 proff()
-# Executed in 0.11 second(s).
+# Executed in 0.10 second(s).
 
 /*-------------
 
