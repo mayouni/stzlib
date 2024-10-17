@@ -125,7 +125,7 @@ class stzListOfStrings from stzList
 	#---------------------------------------------#
 
 	def NumberOfStrings()
-		nResult = @oQStrList.count()
+		nResult = len(This.Content())
 		return nResult
 
 		def NumberOfItems()

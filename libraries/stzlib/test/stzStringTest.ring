@@ -14968,11 +14968,11 @@ proff()
 # Executed in 0.06 second(s).
 
 /*-----------------
-
+*/
 pron()
 
 o1 = new stzString("ABTCADNBBABEFACCC")
-? o1.VizFindXT("A", [ :Numbered = TRUE, :Spacified = TRUE, :PositionSign = Heart() ])
+? o1.VizFindXT("A", [ :Boxed = TRUE, :Numbered = TRUE, :Spacified = TRUE, :PositionSign = Heart() ])
 
 #--> Returns a string like this:
 
@@ -15063,6 +15063,120 @@ pron()
 
 proff()
 # Executed in almost 0 second(s).
+
+/*=============
+
+pron()
+
+o1 = new stzString('123--67--')
+o1.ReplaceSection(1, 3, "~")
+? o1.Content()
+#--> ~--67--
+
+proff()
+# Executed in 0.01 second(s).
+
+/*--------------
+
+pron()
+
+o1 = new stzString("--345--89--")
+o1.ReplaceSection(8, 9, "~")
+? o1.Content()
+# --345--~--
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-------------
+
+pron()
+
+o1 = new stzString("--345--89---")
+o1.ReplaceSectionsByMany([ [3, 5], [8, 9] ], [ "^^^", "^^" ])
+? o1.Content()
+#--> --^^^--^^---
+
+proff()
+# Executed in 0.08 second(s).
+
+/*-------------
+
+pron()
+
+o1 = new stzString("123---789---")
+o1.ReplaceSectionsByMany([ [1, 3], [7, 9] ], "^")
+? o1.Content()
+#--> ERROR MESSAGE: Incorrect param type! pacSubStr must be a list.
+
+proff()
+
+/*-------------
+
+pron()
+
+o1 = new stzString("123---789---")
+o1.ReplaceSectionsByMany([ [1, 3], [7, 9] ], [ "^^^", "vvv" ])
+? o1.Content()
+#--> ^^^---vvv---
+
+proff()
+# Executed in 0.04 second(s).
+
+/*-------------
+
+pron()
+
+o1 = new stzString("--345--89--")
+o1.ReplaceSectionsByMany([ [3, 5], [8,9] ], [ "*", "~" ] )
+? o1.Content()
+#--> --*--~--
+
+proff()
+# Executed in 0.04 second(s).
+
+/*-------------
+
+pron()
+
+o1 = new stzString("123---78--")
+o1.ReplaceSectionsByMany([ [1, 3], [7,8] ], [ "*", "~" ] )
+? o1.Content()
+# *---~--
+
+proff()
+# Executed in 0.04 second(s).
+/*-------------
+
+pron()
+
+o1 = new stzString("^---^---^---^---")
+
+o1.ReplaceSectionsByMany(
+	[ [ 1, 1 ], [ 5, 5 ], [ 9, 9 ], [ 13, 14 ] ],
+	[ "1", "5", "9", "13" ]
+)
+
+? o1.Content()
+#--> 1---5---9---13--
+
+proff()
+
+/*-------------
+
+pron()
+
+o1 = new stzString("ringringringring")
+
+? o1.vizFind("ring") + NL
+#-->
+# ringringringring
+# ^---^---^---^---
+
+? o1.vizFindXT("ring", :numbered)
+
+proff()
+# Executed in 0.05 second(s).
 
 /*----------------- #narration FINDING THINGS IN THE CHAOS
 */
