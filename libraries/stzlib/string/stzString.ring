@@ -33027,6 +33027,8 @@ class stzString from stzObject
 		#TODO // Rethink the necessity of all these named params,
 		# what practical value they provide, and in what performance cost!
 
+		#UPDATE // Programmer can skip the param checks by setting SetCheckPrams(FALSE)
+
 		nLen = This.NumberOfChars()
 
 		if CheckParams()
@@ -33220,6 +33222,10 @@ class stzString from stzObject
 		# If you need to use this feature in Softanza, use the eXTended form of Section(),
 		# like this :
 		#--> Q("ring").SectionXT(3,1) and it will return "nir"
+
+		anTemp = ring_sort([ n1, n2 ])
+		n1 = anTemp[1]
+		n2 = anTemp[2]
 
 		# params must be in range
 
@@ -89316,16 +89322,16 @@ n1 = Min(aTemp)
 			return new stzString( This.ToListInStringSF() )
 
 
-	def ToList() #TODO # Check it!
+	def ToList()
+		/* EXAMPLES
 
-		/*
-		NOTE: Currently, it works only for a case like this:
-		Q("#1 : #3").ToList() and gives [ "#1", "#2", "#3" ]
+		? Q("[1, 2, 3 ]")	#--> [ 1, 2, 3 ]
+		? Q("1:3")		#--> [ 1, 2, 3 ]
+		? Q("A:C")		#--> [ "A", "B", "C"]
 
-		but not for this:
-		Q("#12 : #23") --> more then 1 digit
+		? Q("#1 : #3")		#--> [ "#1", "#2", "#3" ]
+		? Q("day1 : day3")	#--> [ "day1", "day2", "day3" ]
 
-		TODO: Generalise it!
 		*/
 
 		aResult = []
@@ -89333,40 +89339,8 @@ n1 = Min(aTemp)
 		oCopy = This.Copy()
 		nLenCopy = oCopy.NumberOfChars()
 
-		# Removing over spaces in the string
-		#NOTE // spaces enclosed between " and " are not removed
+		oCopy.Trim()
 
-		if oCopy.Contains('"') and
-		   oCopy.NumberOfOccurrenceQ('"').IsMultipleOf(2) and
-		   nLenCopy > 4
-
-			# Remove spaces except those enclosed betweeb " and "
-
-			anPos = oCopy.FindAll('"')
-			nLen = len(anPos)
-
-			aSections = []
-
-			n1 = 1
-			for i = 1 to nLen
-				aSections + [ n1, anPos[i]-1 ]
-				if i < nLen
-					n1 = anPos[i+1]	+ 1
-					i++
-				ok
-			next
-			aSections + [ anPos[nLen]+1, nLenCopy ]
-			nLenSections = len(aSections)
-
-			for i = nLenSections to 1 step -1
-				n1 = aSections[i][1]
-				n2 = aSections[i][2]
-				cWithoutSpaces = oCopy.SectionQ(n1, n2).SpacesRemoved()
-				oCopy.ReplaceSection(n1, n2, cWithoutSpaces)
-			next
-		ok
-
-		ocopy.RemoveTheseBounds("{", "}")
 
 		# Case where we have a normal list syntax
 
@@ -89376,8 +89350,7 @@ n1 = Min(aTemp)
 			return aResult
 		ok
 
-		# Case where we have a continuous list syntax:
-		#  ? StzStringQ(' "Thing 1" : "Thing 3" ').ToList()
+		# Case where we have a continuous list syntax
 
 		nPos = oCopy.FindFirst(":")
 		nLen = oCopy.NumberOfChars()
@@ -89400,6 +89373,8 @@ n1 = Min(aTemp)
 
 				anResult = n1 : n2
 				return anResult
+
+			# Case Q(' 1 : 3 ') ~> [ 1, 2, 3 ]
 
 			but BothAreRealsInStrings(cPart1, cPart2)
 
@@ -89443,8 +89418,10 @@ n1 = Min(aTemp)
 
 				return anResult
 
-			but oPart1.IsBoundedBy('"') and
-			    oPart2.IsBoundedBy('"')
+			# Case Q(' "A" : "C" ') ~> [ "A", "B", "C" ]
+
+			but ( (oPart1.IsBoundedBy('"') or oPart1.IsBoundedBy("'") ) and
+			      (oPart2.IsBoundedBy('"') or oPart2.IsBoundedBy("'") ) )
 
 				# Case of "A" : "E"
 
@@ -89459,52 +89436,107 @@ n1 = Min(aTemp)
 					aResult = @UnicodesToChars(anUnicodes)
 
 					return aResult
+				ok
 
-				# Case of marquers: "#1" : "#9"
+			# Case "day1 : day3" ~> [ "day1", "day2", "day3" ]
 
-				but nLenPart1 >= 4 and nLenPart2 >= 4 and
-				    oPart1.Char(2) = @cMarquer and oPart2.Char(2) = @cMarquer and
-				    oPart1.SectionQ(3, nLenPart1 - 1).IsIntegerInString() and
-				    oPart2.SectionQ(3, nLenPart2 - 1).IsIntegerInString()
+			but BothEndWithANumber(cPart1, cPart2)
 
-					n1 = 0+ oPart1.Section(3, nLenPart1 - 1)
-					n2 = 0+ oPart2.Section(3, nLenPart2 - 1)
+				# Extracting the first substring and number
+
+				acChars1 = @Chars(cPart1)
+
+				nLen1 = len(acChars1)
+
+				cSubStr1 = ""
+				cNumber1 = ""
+
+				for j = nLen1 to 1 step -1
+					if @IsNumberInString(acChars1[j])
+						cNumber1 += acChars1[j]
+					else
+						cSubStr1 += acChars1[j]
+					ok
+
+				next
+
+				n1 = 0+ (ring_reverse(cNumber1))
+				cSubStr1 = ring_reverse(cSubStr1)
+
+				# Extracting the second substring and number
+
+				acChars2 = @Chars(cPart2)
+				nLen2 = len(acChars2)
+
+				cSubStr2 = ""
+				cNumber2 = ""
+
+				for j = nLen2 to 1 step -1
+
+					if @IsNumberInString(acChars2[j])
+						cNumber2 += acChars2[j]
+					else
+						cSubStr2 += acChars2[j]
+					ok
+				next
+
+				n2 = 0+ (ring_reverse(cNumber2))
+				cSubStr2 = ring_reverse(cSubStr2)
+
+				# Composing the list
+
+				if cSubStr1 = cSubStr2
+					acResult = []
+
+					for j = n1 to n2
+						acResult + (cSubStr1 + j)
+					next
+
+					return acResult
+				ok
+
+			ok
+
+		ok
+
+		# Case where this syntax is provided :
+		# Q("#1 : #3").ToList() and gives [ "#1", "#2", "#3" ]
+
+		if oCopy.NumberOfOccurrence(":") = 1 and
+		   oCopy.FirstChar() = "#"
+
+			oCopy2 = oCopy
+			oCopy2.RemoveSpaces()
+			n = oCopy2.FindFirst(":")
+
+			if n < oCopy2.NumberOfChars() and
+			   oCopy2.NthChar(n+1) = "#"
+
+				aoSplits = oCopy2.SplitQ(":").ToListOfStzStrings()
+				oStzStrOne = aoSplits[1].RemoveFirstCharQ()
+				oStzStrTwo = aoSplits[2].RemoveFirstCharQ()
+
+				if oStzStrOne.IsNumberInString() and
+				   oStzStrTwo.IsNumberInString()
+
+					n1 = 0+ oStzStrOne.Content()
+					n2 = 0+ oStzStrTwo.Content()
 
 					acResult = []
+
 					for i = n1 to n2
-						acResult + (@cMarquer + i)
+						acResult + ("#" + i)
 					next
 
 					return acResult
 
-				# Case "v1 : v3"
-
-				but BothEndWithANumber( oPart1.Section(2, nLenPart1-1),
-					oPart2.Section(2, nLenPart2-1) )
-
-
-					cNumber1 = oPart1.SectionQ(2, nLenPart1-1).TrailingNumber()
-					cNumber2 = oPart2.SectionQ(2, nLenPart2-1).TrailingNumber()
-
-					n1 = 0+ cNumber1
-					n2 = 0+ cNumber2
-
-					cPart1 = oPart1.SectionQ(2, nLenPart1-1).RemoveFromEndQ(cNumber1).Content()
-					cPart2 = oPart2.SectionQ(2, nLenPart2-1).RemoveFromEndQ(cNumber2).Content()
-
-					if cPart1 = cPart2
-						acResult = []
-						for i = n1 to n2
-							acResult + (cPart1 + i)
-						next
-					ok
-
-					return acResult
 				ok
-			     
+
 			ok
 
 		ok
+
+		# Last case : returning the string in a list
 
 		return [ This.Content() ]
 
