@@ -5,24 +5,25 @@ load "../stzlib.ring"
 pron()
 
 o1 = new stzListOfChars([ 945, 946, 947 ])
-? @@( o1.Content() )
+
+? @@( o1.Content() ) + NL
 #--> [ "α", "β", "γ" ]
 
-? @@( Unicodes([ "α", "β", "γ" ]) )
+? @@( Unicodes([ "α", "β", "γ" ]) ) + NL
 #--> [ 945, 946, 947 ]
 
 ? @@( MathChars() )
 #--> [
-	"¬", "°", "±", "¼", "½", "¾", "×", "÷",
-	"Γ", "Δ", "Θ", "Λ", "Ξ", "Π", "Σ", "Υ",
-	"Φ", "Ψ", "Ω", "α", "β", "γ", "δ", "ε",
-	"ζ", "η", "θ", "ι", "κ", "λ", "μ", "ν",
-	"ξ", "ο", "π", "ρ", "σ", "τ", "υ", "φ",
-	"χ", "ψ", "ω", "⅓", "⅔", "∀", "∂", "∃",
-	"∅", "∇", "∈", "∉", "∏", "∑", "√",
-	"∝", "∞", "∠", "∧", "∨", "∫", "∲", "∴",
-	"≈", "≠", "≡", "≤", "≥"
-]
+#	"¬", "°", "±", "¼", "½", "¾", "×", "÷",
+#	"Γ", "Δ", "Θ", "Λ", "Ξ", "Π", "Σ", "Υ",
+#	"Φ", "Ψ", "Ω", "α", "β", "γ", "δ", "ε",
+#	"ζ", "η", "θ", "ι", "κ", "λ", "μ", "ν",
+#	"ξ", "ο", "π", "ρ", "σ", "τ", "υ", "φ",
+#	"χ", "ψ", "ω", "⅓", "⅔", "∀", "∂", "∃",
+#	"∅", "∇", "∈", "∉", "∏", "∑", "√",
+#	"∝", "∞", "∠", "∧", "∨", "∫", "∲", "∴",
+#	"≈", "≠", "≡", "≤", "≥"
+# ]
 
 proff()
 #--> Executed in 0.08 second(s)
@@ -69,7 +70,7 @@ pron()
 # ]
 
 proff()
-# Executed in 2.10 second(s) in Ring 1.21
+# Executed in 1.65 second(s) in Ring 1.21
 # Executed in 5.90 second(s) in Ring 1.17
 
 /*-----------------
@@ -107,16 +108,34 @@ proff()
 
 /*----------------
 
-? StzListOfCharsQ("A":"E").IsContiguous() #--> TRUE
-? StzListOfCharsQ("1":"5").IsContiguous() #--> TRUE
-? StzListOfCharsQ('"ا":"ج"').IsContiguous() #--> TRUE	TODO: ERROR!
+pron()
+
+? StzListOfCharsQ("A":"E").IsContiguous()
+#--> TRUE
+
+? StzListOfCharsQ("1":"5").IsContiguous()
+#--> TRUE
+
+? StzListOfCharsQ('"ا":"ج"').IsContiguous()
+#--> TRUE	TODO: ERROR!
+
+proff()
+# Executed in 0.07 second(s).
 
 /*-------------
 
+pron()
+
 o1 = new stzListOfChars([ "a", "b", "c" ])
+
 ? o1.Unicodes()
+#--> [ 97, 98, 99 ]
 
 ? CharsUnicodes([ "a", "b", "c" ])
+#--> [ 97, 98, 99 ]
+
+proff()
+# Executed in 0.05 second(s).
 
 /*============
 
@@ -130,6 +149,7 @@ SetHilightChar("♥")
 	:AllCorners = :Round, # can also be :Rectangualr
 
 	# Or you can specify evey corner like this:
+
 	:Corners = [ :Round, :Rectangular, :Round, :Rectangular ],
 
 	:Hilighted = [ 3 ] # The 3rd char is hilighted
@@ -157,7 +177,7 @@ pron()
 #-->
 # ╭───┬───┬───┬───┬───╮
 # │ A │ B │ C │ D │ E │
-# ╰───┴─♥─┴─♥─┴───┴─♥─╯
+# ╰───┴─•─┴─•─┴───┴─•─╯
 #   1   2   3   4   5 
 
 proff()
@@ -214,7 +234,7 @@ pron()
 #NOTE to get a correct boxing, you should use a fixed font
 
 proff()
-# Executed in 0.08 second(s).
+# Executed in 0.11 second(s).
 
 /*-------------
 
@@ -227,7 +247,7 @@ pron()
 #  └───┴───┴───┴───┴───┴───┴───┴───┘
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.04 second(s).
 
 /*-------
 
@@ -240,31 +260,31 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-------
-*/
+
 pron()
 
-? Q("[1, 2, 3 ]").ToList()
+? Q("[1, 2, 3 ]").ToList() # Or L("[1, 2, 3 ]")
 #--> [ 1, 2, 3 ]
 
-? Q("1:3").ToList()
+? Q("1:3").ToList() # Or ? L("1:3")
 #--> [ 1, 2, 3 ]
 
-? Q('"A":"C"').ToList()
+? Q('"A":"C"').ToList() # Or L('"A":"C"')
 #--> [ "A", "B", "C"]
 
-? Q("'A':'C'").ToList()
+? Q(" 'A' : 'C' ").ToList() # Or ? L(" 'A' : 'C' ")
 
-? Q("#1 : #3").ToList()
+? Q("#1 : #3").ToList() # Or L("#1 : #3")
 #--> [ "#1", "#2", "#3" ]
 
-? Q("#21 : #23").ToList()
+? Q("#21 : #23").ToList() # Or L("#21 : #23")
 #--> [ #21, #22, #23 ]
 
-? Q("day1 : day3").ToList()
+? Q("day1 : day3").ToList() # Or L("day1 : day3")
 #--> [ "day1", "day2", "day3" ]
 
-? @@( Q('softanza').ToList() ) + NL
+? @@( Q('softanza').ToList() ) # Or @@( L('softanza') )
 #--> [ "softanza" ]
 
 proff()
-# Executed in 0.24 second(s).
+# Executed in 0.22 second(s).
