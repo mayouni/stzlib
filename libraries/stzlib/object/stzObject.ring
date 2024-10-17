@@ -4461,7 +4461,7 @@ class stzObject
 
 	def FindFirstNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
 
-		anResult = This.FindFirstNOccurrencesSCS(n, pStrOrItem, 1, pCaseSensitive)
+		anResult = This.FindFirstNOccurrencesSTCS(n, pStrOrItem, 1, pCaseSensitive)
 		return anResult
 
 		#< @FunctionAlternativeForms
@@ -4663,7 +4663,7 @@ class stzObject
 
 	def FindLastNOccurrencesCS(n, pStrOrItem, pCaseSensitive)
 
-		anResult = This.FindLastNOccurrencesSCS(n, pStrOrItem, :StartingAT = 1, pCaseSensitive)
+		anResult = This.FindLastNOccurrencesSTCS(n, pStrOrItem, :StartingAT = 1, pCaseSensitive)
 		return anResult
 
 		#< @FunctionAlternativeForms

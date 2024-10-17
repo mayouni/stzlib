@@ -50120,6 +50120,10 @@ n1 = Min(aTemp)
 		anPos = oString.FindAllCS( pcSubStr, :CS = bCaseSensitive )
 		nLen = len(anPos)
 
+		if nLen = 0
+			return
+		ok
+
 		nLen = oString.NumberOfChars()
 
 		cVizLine = ""
@@ -50134,6 +50138,8 @@ n1 = Min(aTemp)
 		next
 
 		cResult = oString.Content() + NL + cVizLine
+
+		 # In case a numbered line is requested
 
 		if bNumbered
 
@@ -50156,10 +50162,11 @@ n1 = Min(aTemp)
 				aSections + [ n1, n2 ]
 			next
 
-			cPosLine = StzStringQ(cPosLine).
+			oStrPosLine = new stzString(cPosLine)
+			cPosLine = oStrPosLine.
 				   ReplaceSectionsByManyQ(aSections, acPos).
 				   Content()
-
+	
 			cResult += (NL + cPosLine)
 		ok
 
@@ -50184,15 +50191,10 @@ n1 = Min(aTemp)
 	#----------------------------------------------------#
 
 	def VizFindBoxedXT(pcSubstr, paOptions) #TODO
-		/* EXAMLPE
 
-		*/
-
-		if NOT ( isString(pcSubStr) or
-		  	sList(paOptions) and StzListQ(paOptions).IsBoxOptionsNamedParam() )
-
-			stzRaise("Incorrect params!")
-		ok
+		cBoxed = StzStringQ(pcSubStr).CharsBoxed()
+? cboxed
+		//This.VizFindXT(pcSubStr, paOptions)
 
 
 /*
@@ -75683,6 +75685,18 @@ n1 = Min(aTemp)
 
 	def ReplaceSectionsByMany(paSections, pacSubStr)
 
+		if CheckParams()
+
+			if NOT isList(paSections)
+				StzRaise("Incorrect param type! paSections must be a list.")
+			ok
+	
+			if NOT isList(pacSubStr)
+					StzRaise("Incorrect param type! pacSubStr must be a list.")
+			ok
+
+		ok
+
 		# Justifying the contents of the two params
 
 		nLenSections = len(paSections)
@@ -75698,28 +75712,16 @@ n1 = Min(aTemp)
 			next
 		ok
 
+		paSections = StzListOfPairsQ(paSections).Sorted()
+		nLen = len(paSections)
+#TODO: test case lists are not equal in size
 
 		# Doing the job
 
-		#NOTE
-		# We use the Split&Join strategy instead of noraml Replace()
-		# to avoid side effects and ensure the parts of string
-		# not concerned with the replacement stay unaltered
-
-		#TODO
-		# Check the strategy used in similar functions
-
-		acParts = This.SplitAtSections(paSections)
-
-		nLen = len(acParts)
-		cResult = ""
-
-		for i = 1 to nLen - 1
-			cResult += (acParts[i] + pacSubStr[i])
+		for i = nLen to 1 step -1
+			This.ReplaceSection(paSections[i][1], paSections[i][2], pacSubStr[i])
 		next
-		cResult += acParts[nLen]
-
-		This.UpdateWith(cResult)
+		
 
 		def ReplaceSectionsByManyQ(paSections, pacSubStr)
 			This. ReplaceSectionsByMany(paSections, pacSubStr)
@@ -80896,6 +80898,138 @@ n1 = Min(aTemp)
 
 		#>
 
+	  #====================================#
+	 #  FINDING OVERSPACES IN THE STRING  #
+	#====================================#
+	
+	def FindOverSpaces()
+		acChars = This.Chars()
+		nLen = len(acChars)
+	
+		anResult = []
+	
+		if nLen < 2
+			return anResult
+		ok
+	
+		for i = 2 to nLen-1
+			if acChars[i] = " " and acChars[i-1] = " "
+				anResult + i
+			ok
+		next
+	
+		if acChars[nLen] = " " and acChars[nLen-1] = " "
+			anResult + nLen
+		ok
+	
+		return anResult
+	
+		def FindOverSpacesZ()
+			return This.FindOverSpaces()
+	
+	def FindOverSpacesAsSections()
+		anPos = This.FindOverSpaces() + 0
+		nLen = len(anPos)
+	
+		if nLen < 2
+			return []
+		ok
+	
+		aResult = []
+		n1 = anPos[1]
+		
+		for i = 2 to nLen - 1
+			nCurrentPos = anPos[i]
+			nPrevPos = anPos[i-1]
+			nNextPos = anPos[i+1]
+	
+			if nCurrentPos = nPrevPos + 1
+				if nNextPos = nCurrentPos + 1
+				// Continue
+		
+				else
+					aResult + [ n1, anPos[i] ]
+					n1 = anPos[i+1]
+				ok
+			ok		
+		next
+	
+	
+		return aResult
+	
+		def FindOverSpacesZZ()
+			return This.FindOverSpacesAsSections()
+	
+	def Overspaces()
+		acResult = This.Sections( This.FindOverSpacesZZ() )
+		return acResult
+	
+	def OverSpacesAndTheirsPositions()
+		acSpaces = This.OverSpaces()
+		anPos = This.FindOverSpaces()
+		aResult = Association([ acSpaces, anPos ])
+	
+		return aResult
+	
+		def OverSpacesZ()
+			return This.OverSpacesAndTheirPositions()
+	
+	def OverSpacesAndTheirSections()
+		acSpaces = This.OverSpaces()
+		aSections = This.FindOverSpacesAsSections()
+		aResult = Association([ acSpaces, aSections ])
+	
+		return aResult
+	
+		def OverSpacesZZ()
+			return This.OverSpacesAndTheirSections()
+	
+	def RemoveOverSpaces()
+		This.RemoveSections( This.FindOverSpacesAsSections() )
+	
+		def RemoveOverSpacesQ()
+			This.RemoveOverSpaces()
+			return This
+	
+	def OverSpacesRemoved()
+		cResult = This.Copy().RemoveOverSpacesQ().Content()
+		return cResult
+	
+	def ReplaceOverSpaces(c)
+		if isList(c) and StzListQ(c).IsWithOrByNamedParams()
+			c = c[2]
+		ok
+	
+		# Composing the substrings to rpelace the overspaces with
+	
+		aSections = This.FindOverSpacesAsSections()
+		nLen = len(aSections)
+	
+		acSpaceSubStr = []
+	
+		for i = 1 to nLen
+			cSubStr = ""
+			nLenSubStr = len(aSections[i])
+	
+			for j = 1 to nLenSubStr
+				cSubStr += c
+			next
+	
+			acSpaceSubStr + cSubStr
+		next
+	
+		# Doing the job
+	
+		This.ReplaceSectionsByMany(aSections, acSpaceSubStr)
+	
+		def ReplaceOverSpacesQ(c)
+			This.ReplaceOverSpaces()
+			return This
+	
+	def OverSpacesReplaced(c)
+		cResult = This.Copy().ReplaceOverSpacesQ(c).Content()
+		return cResult
+
 	  #==========================================================#
 	 #   SIMPLIFYING THE STRING BY REMOVING DUPLICATED SPACES   #
 	#==========================================================#
@@ -85227,13 +85361,8 @@ n1 = Min(aTemp)
 	 #  TRANSFORMING THE CHARS OF THE STRING TO A stzListOfChars OBJECT  #
 	#-------------------------------------------------------------------#
 
-	def ToStzListOfCharsCS(pCaseSensitive)
-		return This.ToListOfCharsCSQR(pCaseSensitive, :stzListOfChars)
-
-	#-- WITHOUT CASESENSITIVITY
-
 	def ToStzListOfChars()
-		return This.ToStzListOfCharsCS(TRUE)
+		return new stzListOfChars(This.Chars())
 
 	  #=====================================================#
 	 #  CHECKING IF THE STRING IS THE NAME OF A FUNCTION   #
@@ -87441,7 +87570,7 @@ n1 = Min(aTemp)
 	
 	def Box() # Undersatnd it as a verb action on the string (boxing the string)
 
-		return This.BoxXT([])
+		This.BoxXT([])
 
 		#< @FunctionFluentForm
 
@@ -87449,11 +87578,13 @@ n1 = Min(aTemp)
 			return new stzString( This.Box() )
 		#>
 
-		def Boxed()
-			return This.Box()
+	def Boxed()
+		return This.Copy().BoxQ().Content()
+
+	#--
 
 	def BoxDashed()
-		return This.BoxXT([ :Line = :Dashed, :AllCorners = :Rectangular ])
+		This.BoxXT([ :Line = :Dashed, :AllCorners = :Rectangular ])
 
 		#< @FunctionFluentForm
 
@@ -87461,11 +87592,13 @@ n1 = Min(aTemp)
 			return new stzString( This.BoxDashed() )
 		#>
 
-		def BoxedDashed()
-			return This.BoxDashed()
+	def BoxedDashed()
+		return This.Copy().BoxDashedQ().Content()
+
+	#--
 
 	def BoxRound()
-		return This.BoxXT([ :Line = :Thin, :AllCorners = :Round ])
+		This.BoxXT([ :Line = :Thin, :AllCorners = :Round ])
 
 		#< @FunctionFluentForm
 
@@ -87473,11 +87606,13 @@ n1 = Min(aTemp)
 			return new stzString( This.BoxRound() )
 		#>
 
-		def BoxedRound()
-			return This.BoxRound()
+	def BoxedRound()
+		return This.Copy().BoxRoundQ().Content()
+
+	#--
 
 	def BoxRoundDashed()
-		return This.BoxXT([ :Line = :Dashed, :AllCorners = :Round ])
+		This.BoxXT([ :Line = :Dashed, :AllCorners = :Round ])
 
 		#< @FunctionFluentForm
 
@@ -87485,23 +87620,26 @@ n1 = Min(aTemp)
 			return new stzString( This.BoxRoundDashed() )
 		#>
 
-		def BoxedRoundDashed()
+		#< @FunctionAlternativeForms
+
+		def BoxDashedRound()
 			return This.BoxRoundDashed()
 
-	def BoxDashedRound()
-		return This.BoxRoundDashed()
+			def BoxDashedRoundQ()
+				return new stzString( This.BoxDashedRound() )
 
-		#< @FunctionFluentForm
-
-		def BoxDashedRoundQ()
-			return new stzString( This.BoxDashedRound() )
 		#>
+
+	def BoxedRoundDashed()
+		return This.Copy().BoxRoundDashedQ().Content()
 
 		def BoxedDashedRound()
 			return This.BoxDashedRound()
 
+	#--
+
 	def BoxEachChar()
-		return This.BoxXT([ :Line = :Thin, :EachChar = TRUE ])
+		This.BoxXT([ :Line = :Thin, :EachChar = TRUE ])
 
 		#< @FunctionFluentForm
 
@@ -87509,11 +87647,27 @@ n1 = Min(aTemp)
 			return new stzString( This.BoxEachChar() )
 		#>
 
-		def EachCharBoxed()
-			return This.BoxEachChar()
+		#< @FunctionAlternativeForm
+
+		def BoxChars()
+			This.BoxEachChar()
+
+			def BoxCharQ()
+				This.BoxChars()
+				return This
+
+		#>
+
+	def EachCharBoxed()
+		return This.Copy().BoxEachCharQ().Content()
+
+		def CharsBoxed()
+			return This.EachCharBoxed()
+
+	#--
 
 	def BoxEachCharRound()
-		return This.BoxXT( [ :AllCorners = :Round, :EachChar = TRUE ])
+		This.BoxXT( [ :AllCorners = :Round, :EachChar = TRUE ])
 
 		#< @FunctionFluentForm
 
@@ -87521,17 +87675,49 @@ n1 = Min(aTemp)
 			return new stzString( This.BoxEachCharRound() )
 		#>
 
-		def EachCharboxedRound()
-			return This.BoxEachCharRound()
+	def EachCharboxedRound()
+		return This.Copy().BoxEachCharRoundQ().Content()
+
+	#--
 
 	def BoxEachCharXT(paBoxOptions)
-		if StzHashListQ(paBoxOptions).ContainsKey( :EachChar )
-			paBoxOptions = StzHashListQ(paBoxOptions).UpdateValueByKeyQ( :EachChar, TRUE ).Content()
-		else
-			paBoxOptions = StzHashListQ(paBoxOptions).AddPairQ( :EachChar = TRUE ).Content()
+
+		# Checkin the paBoxOptions param
+
+		if isString(paBoxOptions)
+			paTemp = []
+			paTemp + [ paBoxOptions, TRUE ]
+			paBoxOptions = paTemp
 		ok
 
-		return This.BoxedXT(paBoxOptions)
+		if NOT isList(paBoxOptions)
+			StzRaise("Incorrect param type! paBoxOptions must be a list.")
+		ok
+
+		bEachCharFound = FALSE
+		nLen = len(paBoxOptions)
+		for i = 1 to nLen
+
+			item = paBoxOptions[i]
+
+			if (isString(item) and item = :EachChar) or
+
+			   (isList(item) and len(item) = 2 and
+			    isString(item[1]) and
+			    item[1] = :EachChar)
+
+				bEachCharFound = TRUE
+				exit
+			ok
+		next
+
+		if NOT bEachCharFound
+			paBoxOptions + [ :EachChar, TRUE ]
+		ok
+
+		# Doing the job
+
+		This.BoxedXT(paBoxOptions)
 
 		#< @FunctionFluentForm
 
@@ -87540,8 +87726,10 @@ n1 = Min(aTemp)
 
 		#>
 
-		def EachCharBoxedXT(paBoxOptions)
-			return This.BoxEachCharXT(paBoxOptions)
+	def EachCharBoxedXT(paBoxOptions)
+		return This.Copy().BoxEachCharXTQ(paBoxOptions).Content()
+
+	#--
 
 	def BoxXT(paBoxOptions)
 
@@ -87625,7 +87813,9 @@ n1 = Min(aTemp)
 
 			if paBoxOptions[ :EachChar ] = TRUE
 
-				return StzListOfCharsQ( This.String() ).BoxedXT(paBoxOptions)
+				cResult = This.ToStzListOfChars().BoxedXT(paBoxOptions)
+				This.UpdateWith(cResult)
+				return
 			ok
 
 			# If the boxing happens at the word level, delegate it
@@ -87702,7 +87892,7 @@ n1 = Min(aTemp)
 				  StzStringQ(cHTrait).RepeatedNTimes(nWidth) +
 				  cCorner3 
 
-			return cUpLine + NL + cMidLine + NL + cDownLine
+			This.UpdateWith( cUpLine + NL + cMidLine + NL + cDownLine )
 
 		but isList(paBoxOptions) and len(paBoxOptions) = 0
 			# Do nothing, takes default options for boxing
@@ -87713,13 +87903,13 @@ n1 = Min(aTemp)
 
 		#< @FunctionFluentForm
 
-		def BoxedXTQ(paBoxOptions)
+		def BoxXTQ(paBoxOptions)
 			return new stzString( This.BoxXT(paBoxOptions) )
 
 		#>
 
-		def BoxedXT(paBoxOptions)
-			return This.BoxXT(paBoxOptions)
+	def BoxedXT(paBoxOptions)
+		return This.Copy().BoxXTQ(paBoxOptions).Content()
 
 	  #=================================================#
 	 #   STRING EXISTENCE AS AN ITEM IN A GIVEN LIST   #
@@ -89125,6 +89315,7 @@ n1 = Min(aTemp)
 		def ToListInStringSFQ()
 			return new stzString( This.ToListInStringSF() )
 
+
 	def ToList() #TODO # Check it!
 
 		/*
@@ -89143,10 +89334,7 @@ n1 = Min(aTemp)
 		nLenCopy = oCopy.NumberOfChars()
 
 		# Removing over spaces in the string
-		#NOTE: spaces encoldes between " and " are not removed
-
-		# ~> TODO: make it as a function? Something like FindOverSpaces() and
-		# RemoveOverSpaces() ?
+		#NOTE // spaces enclosed between " and " are not removed
 
 		if oCopy.Contains('"') and
 		   oCopy.NumberOfOccurrenceQ('"').IsMultipleOf(2) and

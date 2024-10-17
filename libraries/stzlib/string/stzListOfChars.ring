@@ -146,6 +146,9 @@ func NumberOfCharsBetween(c1, c2)
 	nResult = Abs(nUnicode2 - nUnicode1) + 1
 	return nResult
 
+	func HowManyCharsBetween(c1, c2)
+		return NumberOfCharsBetween(c1, c2)
+
 func HilightChar()
 	return _cHilightChar
 	
@@ -319,6 +322,12 @@ class stzListOfChars from stzListOfStrings
 	def NumberOfChars()
 		return len(This.Content())
 
+		def HowManyChars()
+			return This.NumberOfChars()
+
+		def SizeInChars()
+			return This.NumberOfChars()
+
 	def NthChar(n)
 		return This.Content()[n]
 
@@ -394,62 +403,93 @@ class stzListOfChars from stzListOfStrings
 
 		return aResult
 
-	def IsNeutral()
-
 	def IsArabic()
-		bArabic = TRUE
-		// We should check only the letters
-		// (exclude symbols, marks, punctuations...)
-		for oStzChar in This.OnlyLettersAsStzChars()
-			if NOT oStzChar.isArabicLetter()
-				bArabic = FALSE
-				exit
-			ok
-		next
-		return bArabic
 
-	def IsLatin()
-		bLatin = TRUE
-
-		for oStzChar in This.OnlyLettersAsStzChars()
-			if NOT oStzChar.IsLatinLetter()
-				bLatin = FALSE
-				exit
-			ok
-		next
-		return bLatin
-
-	def ScriptIs(cScript)
 		bResult = TRUE
 
-		for oStzChar in This.OnlyLettersAsStzChars()
-			cCode = "id NOT oStzChar.Is" + cScript + "letter()" + NL +
-				TAB + "bResult = FALSE" + NL +
-				"exist" + NL +
-				"ok"
+		// We should check only the letters
+		// (exclude symbols, marks, punctuations...)
+
+		aoStzChars = This.OnlyLettersAsStzChars()
+		nLen = len(aoStzChars)
+
+		for i = 1 to nLen
+			if NOT aoStzChars[i].isArabicLetter()
+				bResult = FALSE
+				exit
+			ok
 		next
 
 		return bResult
 
-	def OnlyLetters()
-		aResult = []
+	def IsLatin()
 
-		for oStzChar in This.ContentAsStzChars()
-			if oStzChar.IsLetter()
-				aResult + oStzChar.Content()
+		bResult = TRUE
+
+		// We should check only the letters
+		// (exclude symbols, marks, punctuations...)
+
+		aoStzChars = This.OnlyLettersAsStzChars()
+		nLen = len(aoStzChars)
+
+		for i = 1 to nLen
+			if NOT aoStzChars[i].isLatinLetter()
+				bResult = FALSE
+				exit
 			ok
 		next
-		return aResult
+
+		return bResult
+
+	def ScriptIs(cScript)
+
+		bResult = TRUE
+
+		// We should check only the letters
+		// (exclude symbols, marks, punctuations...)
+
+		aoStzChars = This.OnlyLettersAsStzChars()
+		nLen = len(aoStzChars)
+
+		for i = 1 to nLen
+			cCode = 'bResult = aoStzChars[i].Is' + cScript + 'letter()'
+			eval(cCode)
+			if bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+
+	def OnlyLetters()
+
+		acResult = []
+
+		aoStzChars = This.OnlyLettersAsStzChars()
+		nLen = len(aoStzChars)
+
+		for i = 1 to nLen
+			if aoStzChars[i].IsLetter()
+				aResult + aoStzChars[i].Content()
+			ok
+		next
+
+		return acResult
 
 	def OnlyLettersAsStzChars()
-		aResult = []
+		acResult = []
 
-		for oStzChar in This.ContentAsStzChars()
-			if oStzChar.IsLetter()
-				aResult + oStzChar
+		aoStzChars = This.OnlyLettersAsStzChars()
+		nLen = len(aoStzChars)
+
+		for i = 1 to nLen
+			if aoStzChars[i].IsLetter()
+				aResult + aoStzChars[i]
 			ok
 		next
-		return aResult
+
+		return acResult
 
 	  #---------------------------------------------#
 	 #   GETTING THE (UNICODE) NAMES OF THE CHARS  #
@@ -463,18 +503,12 @@ class stzListOfChars from stzListOfStrings
 
 		for i = 1 to nLen
 			cName = StzCharQ(acContent[i]).Name()
-			if cName = ""
-				cName = "@CantRetriveTheName"
-			ok
 			acResult + cName
 		next
 
 		return acResult
 
-		#< @FunctionAlternativeForms
-
-		def NamesInUnicode()
-			return This.Names()
+		#< @FunctionAlternativeForm
 
 		def UnicodeNames()
 			return This.Names()
@@ -519,44 +553,6 @@ class stzListOfChars from stzListOfStrings
 
 		return aResult
 
-	  #---------------------------------------#
-	 #    CONCATENATING CHARS IN A STRING    #
-	#---------------------------------------#
-
-	def Concatenate()
-		return StzListOfStringsQ( This.Content() ).Concatenate()
-
-		def ConcatenateQ()
-			return new stzString( This.Concatenate() )
-
-	  #-----------------------------#
-	 #    UPPERCASING THE CHARS    #
-	#-----------------------------#
-
-	def Uppercased()
-		acResult = []
-
-		for oChar in This.ToListOfStzChars()
-			acResult + oChar.Uppercased()
-		next
-
-		return acResult
-
-	def ApplyUppercase()
-		This.Update( This.Uppercased() )
-
-	def Lowercased()
-		acResult = []
-
-		for oChar in This.ToListOfStzChars()
-			acResult + oChar.Lowerrcased()
-		next
-
-		return acResult
-
-	def ApplyLowercase()
-		This.Update( This.Lowercased() )
-
 	  #-------------------------#
 	 #     BOXING THE CHARS    #
 	#-------------------------#
@@ -598,10 +594,11 @@ class stzListOfChars from stzListOfStrings
 		│ T │ E │ X │ T │
 		╰───┴───┴─•─┴───╯	
 		*/
-		
+
+	
 		if StzListQ(paBoxOptions).IsTextBoxedOptionsNamedParam()
 
-			# Reading the type of line (thin or dashed)
+		# Reading the type of line (thin or dashed)
 
 			cLine = :Thin # By default
 
@@ -765,17 +762,20 @@ class stzListOfChars from stzListOfStrings
 			cNumberLine = ""
 
 			if bNumbered
-				oCounter = new stzCounter([
-					:StartAt = 1,
-					:AfterYouSkip = 9,
-					:RestartAt = 0,
-					:Step = 1
-				])
 
-				aNumbers = oCounter.CountingTo( nWidth )
+				anNumbers = []
+				n = 0
 
 				for i = 1 to nWidth
-					cNumberLine += "  " + aNumbers[i] + " "
+					n = i
+					if n > 9
+						n = 0
+					ok
+					anNumbers + n
+				next
+
+				for i = 1 to nWidth
+					cNumberLine += "  " + anNumbers[i] + " "
 				next
 				cResult += NL + cNumberLine
 			ok

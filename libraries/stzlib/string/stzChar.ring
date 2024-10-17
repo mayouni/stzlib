@@ -717,7 +717,9 @@ class stzChar from stzObject
 		ok
 
 	def Name()
-		# Softanza will do its best ti get the unciode name of the char
+
+		#NOTE
+		# Softanza will do its best to get the unciode name of the char
 		# by trying to find it in a local copy of the official UnicodeData.txt
 		# file. Unfortunaletly, this file does not contrain directly all the names.
 		# (a further processing of other files is necessary). But this is not
@@ -736,9 +738,6 @@ class stzChar from stzObject
 		#< @FunctionAlternativeForm
 
 		def UnicodeName()
-			return This.Name()
-
-		def NameInUnicode()
 			return This.Name()
 
 		#>	

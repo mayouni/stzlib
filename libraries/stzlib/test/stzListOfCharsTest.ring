@@ -28,7 +28,7 @@ proff()
 #--> Executed in 0.08 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 ? NumberOfMathChars()
@@ -69,10 +69,11 @@ pron()
 # ]
 
 proff()
-# Executed in 5.90 second(s)
+# Executed in 2.10 second(s) in Ring 1.21
+# Executed in 5.90 second(s) in Ring 1.17
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzListOfChars([ "1", "2", "♥", "4", "5", "♥", "7", "8", "♥" ])
@@ -86,22 +87,23 @@ o1 = new stzListOfChars([ "1", "2", "♥", "4", "5", "♥", "7", "8", "♥" ])
 ? o1.NFirstOccurrences(2, :Of = "♥") 
 #--> [3, 6]
 
-? o1.NFirstOccurrencesXT(2, :Of = "♥", :StartingAt = 1)
+? o1.NFirstOccurrencesST(2, :Of = "♥", :StartingAt = 1)
 #--> [3, 6]
 
 ? o1.NLastOccurrences(2, :Of = "♥")
 #--> [6, 9]
 
-? o1.NLastOccurrencesXT(2, "♥", :StartingAt = 1)
+? o1.NLastOccurrencesST(2, "♥", :StartingAt = 1)
 #--> [6, 9]
 
-? o1.NFirstOccurrencesXT(2, :Of = "♥", :StartingAt = 6)
+? o1.NFirstOccurrencesST(2, :Of = "♥", :StartingAt = 6)
 #--> [6, 9]
 
-? o1.LastNOccurrencesXT(2, :Of = "♥", :StartingAt = 10)
-#--> [6, 9]
+? o1.LastNOccurrencesST(1, :Of = "♥", :StartingAt = 9)
+#--> [ 9 ]
 
 proff()
+# Executed in 0.08 second(s).
 
 /*----------------
 
@@ -116,7 +118,9 @@ o1 = new stzListOfChars([ "a", "b", "c" ])
 
 ? CharsUnicodes([ "a", "b", "c" ])
 
-/*-------------
+/*============
+
+pron()
 
 SetHilightChar("♥")
 
@@ -137,7 +141,12 @@ SetHilightChar("♥")
 # │ T │ E │ X │ T │
 # └───┴───┴─♥─┴───╯
 
+proff()
+# Executed in 0.05 second(s).
+
 /*-------------
+
+pron()
 
 ? StzListOfCharsQ("A":"E").BoxedXT([
 	:AllCorners = :Round,
@@ -145,23 +154,31 @@ SetHilightChar("♥")
 	:Numbered = TRUE
 
 ])
-
 #-->
 # ╭───┬───┬───┬───┬───╮
 # │ A │ B │ C │ D │ E │
 # ╰───┴─♥─┴─♥─┴───┴─♥─╯
 #   1   2   3   4   5 
 
+proff()
+# Executed in 0.05 second(s).
+
 /*-------------
 
-? StzListOfCharsQ("A":"E").BoxedXT([ :Line = :Dashed, :AllCorners = :Round ])
+pron()
 
+? StzListOfCharsQ("A":"E").BoxedXT([ :Line = :Dashed, :AllCorners = :Round ])
 #-->
 # ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
 # ┊ A ┊ B ┊ C ┊ D ┊ E ┊
 # ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
 
+proff()
+# Executed in 0.04 second(s).
+
 /*-------------
+
+pron()
 
 ? StzListOfCharsQ("SOFTANZA").Boxed()
 #-->
@@ -169,9 +186,18 @@ SetHilightChar("♥")
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
 # └───┴───┴───┴───┴───┴───┴───┴───┘
 
-/*-------------
+proff()
 
-? StzListOfCharsQ(@('"ا":"ج"')).BoxedXT([ :Line = :Dashed, :AllCorners = :Round ])
+# Executed in 0.03 second(s).
+/*-------------
+*/
+pron()
+
+? L('"ا":"ج"')
+
+? StzListOfCharsQ(L('"ا":"ج"')).BoxedXT([ :Line = :Dashed, :AllCorners = :Round ])
+
+proff()
 
 /*-------------
 
