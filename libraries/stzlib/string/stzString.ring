@@ -50199,39 +50199,16 @@ n1 = Min(aTemp)
 	 #      VISUALLY FINDING AND BOXING A SUBSTRING       #TODO: Review this
 	#----------------------------------------------------#
 
-	def VizFindBoxedXT(pcSubstr, paOptions) #TODO
-? "emmmmm"
+	def VizFindBoxedCSXT(pcSubstr, paOptions, pCaseSensitive) #TODO
 
-? This.Content()
 ? @@SP(paOptions)
-		cBoxed = This.CharsBoxedXT(paOptions)
-? cboxed
-		//This.VizFindXT(pcSubStr, paOptions)
+		cBoxed = This.CharsBoxedXT(paOptions + :Hilighted = This.FindCS(pcSubStr, pCaseSensitive))
+		return cBoxed
 
+	#-- WITHOUT CASESENSITIVITY
 
-/*
-	
-			if paOptions[ :Casesensitive ] = TRUE or
-			   paOptions[ :CS ] = TRUE
-	
-				paOptions + [ :Hilighted, 
-					      This.FindAllCS(pcSubStr, TRUE)
-					    ]
-			else
-				paOptions + [ :Hilighted, 
-					      This.FindAllCS(pcSubStr, :CS = FALSE)
-					    ]
-			ok
-	
-			StzHashListQ(paOptions) {
-				RemovePairByKeyQ(TRUE)
-				RemovePairByKeyQ(TRUE)
-				paOptions = Content()
-			}
-	
-			oStzListOfChars = new stzListOfChars(This.String())
-			return oStzListOfChars.BoxedXT(paOptions)
-	*/
+	def VizFindBoxedXT(pcSubstr, paOptions)
+		return This.VizFindBoxedCSXT(pcSubstr, paOptions, TRUE)
 
 	  #==============================================================#
 	 #  DISTANCE TO A GIVEN SUBSTRING STARTING AT A GIVEN POSITION  #

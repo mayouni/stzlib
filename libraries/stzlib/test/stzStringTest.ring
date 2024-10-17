@@ -15052,8 +15052,22 @@ proff()
 # Executed in 0.04 second(s).
 
 /*-----------------
-*/
-o1 = new stzString("SOFTANZAdfdfdf")
+
+pron()
+
+o1 = new stzListOfChars(@Chars("SOFTANZA~RING"))
+? o1.BoxifiedRounded()
+#-->s
+# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
+# │ S │ O │ F │ T │ A │ N │ Z │ A │ ~ │ R │ I │ N │ G │
+# ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+
+proff()
+# Executed in 0.04 second(s).
+
+/*-----------------
+
+o1 = new stzString("SOFTANZA~RING")
 
 o1.BoxifyCharsXT([
 	:Rounded = TRUE,
@@ -15061,8 +15075,14 @@ o1.BoxifyCharsXT([
 ])
 
 ? o1.Content()
+#-->
+# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+# │ S │ O │ F │ T │ A │ N │ Z │ A │ ~ │ R │ I │ N │ G │
+# └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
+#   1   2   3   4   5   6   7   8   9  10  11  12  13 
 
 proff()
+# Executed in 2.50 second(s).
 
 /*-----------------
 
@@ -15071,10 +15091,11 @@ pron()
 
 o1 = new stzString("SOFTANZA")
 
+? o1.VizFindBoxed("A") + NL
+
 ? o1.VizFindXT( "A", [
 	:Boxed = TRUE,
-	:Numbered = TRUE,
-	:Spacified = TRUE,
+	:Numbered = FALSE,
 	:PositionSign = Heart()
 ])
 

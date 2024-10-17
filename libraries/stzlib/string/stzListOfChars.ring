@@ -560,18 +560,51 @@ class stzListOfChars from stzListOfStrings
 	def Boxed()
 		return This.BoxedXT([])
 
+		def Boxified()
+			return Boxed()
+
 	def BoxedDashed()
 		return This.BoxedXT([ :Line = :Dashed ])
+
+		def BoxifiedDashed()
+			return This.BoxedDashed()
 
 	def BoxedRound()
 		return This.BoxedXT([ :AllCorners = :Round ])
 
+		def BoxifiedRound()
+			return This.BoxedRound()
+
+		def BoxdedRounded()
+			return This.BoxedRound()
+
+		def BoxifiedRounded()
+			return This.BoxedRound()
+
 	def BoxedRoundDashed()
 		return This.BoxedXT([ :Line = :Dashed, :AllCorners = :Round ])
 
-	def BoxedDashedRound()
-		return This.BoxedRoundDashed()
+		def BoxedRoundedDashed()
+			return This.BoxedRoundDashed()
 
+		def BoxifiedRoundDashed()
+			return This.BoxedRoundDashed()
+
+		def BoxifiedRoundedDashed()
+			return This.BoxedRoundDashed()
+
+		def BoxedDashedRound()
+			return This.BoxedRoundDashed()
+
+		def BoxedDashedRounded()
+			return This.BoxedRoundDashed()
+
+		def BoxifiedDashedRound()
+			return This.BoxedRoundDashed()
+
+		def BoxifiedDashedRounded()
+			return This.BoxedRoundDashed()
+		
 	def BoxedXT(paBoxOptions)
 
 		/*
@@ -779,15 +812,17 @@ class stzListOfChars from stzListOfStrings
 				n = 0
 
 				for i = 1 to nWidth
-					n = i
-					if n > 9
-						n = 0
-					ok
-					anNumbers + n
+					anNumbers + i
 				next
 
 				for i = 1 to nWidth
-					cNumberLine += "  " + anNumbers[i] + " "
+					if i < 10
+						cNumberLine += "  " + anNumbers[i] + " "
+					but i > 9 and i < 99
+						cNumberLine += " " + anNumbers[i] + " "
+					else
+						cNumberLine += "" + anNumbers[i] + " "
+					ok
 				next
 				cResult += NL + cNumberLine
 			ok
@@ -798,6 +833,9 @@ class stzListOfChars from stzListOfStrings
 		else
 			StzRaise(stzListOfCharsError(:CanNotBoxTheListOfChars))
 		ok
+
+		def BoxifiedXT(paBoxOptions)
+			return This.BoxedXT(paBoxOptions)
 
 	  #--------------------------------------------------#
 	 #  GETTING THE UNICODE (CODE NUMBER) OF EACH CHAR  #
