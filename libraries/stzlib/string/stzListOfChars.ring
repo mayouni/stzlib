@@ -821,11 +821,14 @@ class stzListOfChars from stzListOfStrings
 			off
 
 	def CharsAndUnicodes()
+
 		aResult = []
 
+		aoStzChars = This.ToListOfStzChars()
+		nLen = len(aoStzChars)
 
-		for char in This.ListOfChars()
-			aResult + [ This.Content(), StzCharQ(char).Unicode() ]
+		for i = 1 to nLen
+			aResult + [ aoStzChars[i].Content(), aoStzChars[i].Unicode() ]
 		next
 
 		return aResult
@@ -841,13 +844,15 @@ class stzListOfChars from stzListOfStrings
 	  #----------------#
 	 #     SCRIPTS    #
 	#----------------#
-	#TODO // Replace for/in by normal for loop
 
 	def Scripts()
 		acResult = []
 
-		for char in This.ListOfChars()
-			acResult + StzCharQ(char).Script()
+		aoStzChars = This.ToListOfStzChars()
+		nLen = len(aoStzChars)
+
+		for i = 1 to nLen
+			acResult + aoStzChars[i].Script()
 		next
 
 		return acResult
@@ -855,13 +860,15 @@ class stzListOfChars from stzListOfStrings
 	 #-----------#
 	 #   MISC.   #
 	#-----------#
-	#TODO // Replace for/in by normal for loop
 
 	def AllCharsAreNumbers()
 		bResult = TRUE
 
-		for c in This.ListOfChars()
-			if NOT StzCharQ(c).IsNumber()
+		aoStzChars = This.ToListOfStzChars()
+		nLen = len(aoStzChars)
+
+		for i = 1 to nLen
+			if NOT aoStzChars[i].IsNumber()
 				bResult = FALSE
 				exit
 			ok
@@ -872,8 +879,11 @@ class stzListOfChars from stzListOfStrings
 	def AllCharsAreLetters()
 		bResult = TRUE
 
-		for c in This.ListOfChars()
-			if NOT StzCharQ(c).IsLetter()
+		aoStzChars = This.ToListOfStzChars()
+		nLen = len(aoStzChars)
+
+		for i = 1 to nLen
+			if NOT aoStzChars[i].IsLetter()
 				bResult = FALSE
 				exit
 			ok
