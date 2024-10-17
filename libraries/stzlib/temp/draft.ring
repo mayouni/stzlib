@@ -40,7 +40,7 @@ proff()
 # Executed in 0.03 second(s).
 
 /*-------
-*/
+
 pron()
 
 o1 = new stzString("   irum epsum     elo  n   ")

@@ -189,20 +189,82 @@ pron()
 proff()
 
 # Executed in 0.03 second(s).
-/*-------------
-*/
+
+/*=========
+
 pron()
 
-? L('"ا":"ج"')
-
-? StzListOfCharsQ(L('"ا":"ج"')).BoxedXT([ :Line = :Dashed, :AllCorners = :Round ])
+? @@( L('"ا":"ج"') )
+#o--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
 
 proff()
+# Executed in 0.07 second(s).
 
 /*-------------
+
+pron()
+
+? StzListOfCharsQ(L('"ا":"ج"')).BoxedXT([ :Line = :Dashed, :AllCorners = :Round ])
+#-->
+#  ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
+#o ┊ ا ┊ ب ┊ ة ┊ ت ┊ ث ┊ ج ┊
+#  ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
+#o 
+
+#NOTE to get a correct boxing, you should use a fixed font
+
+proff()
+# Executed in 0.08 second(s).
+
+/*-------------
+
+pron()
 
 ? StzListOfCharsQ("منصوريات").Boxed()
 #-->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┐
- # │ م │ ن │ ص │ و │ ر │ ي │ ا │ ت │  
-# └───┴───┴───┴───┴───┴───┴───┴───┘
+#  ┌───┬───┬───┬───┬───┬───┬───┬───┐
+#o │ م │ ن │ ص │ و │ ر │ ي │ ا │ ت │
+#  └───┴───┴───┴───┴───┴───┴───┴───┘
+
+proff()
+# Executed in 0.03 second(s).
+
+/*-------
+
+pron()
+
+? BothEndWithANumber( "day1", "day3" )
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-------
+*/
+pron()
+
+? Q("[1, 2, 3 ]").ToList()
+#--> [ 1, 2, 3 ]
+
+? Q("1:3").ToList()
+#--> [ 1, 2, 3 ]
+
+? Q('"A":"C"').ToList()
+#--> [ "A", "B", "C"]
+
+? Q("'A':'C'").ToList()
+
+? Q("#1 : #3").ToList()
+#--> [ "#1", "#2", "#3" ]
+
+? Q("#21 : #23").ToList()
+#--> [ #21, #22, #23 ]
+
+? Q("day1 : day3").ToList()
+#--> [ "day1", "day2", "day3" ]
+
+? @@( Q('softanza').ToList() ) + NL
+#--> [ "softanza" ]
+
+proff()
+# Executed in 0.24 second(s).
