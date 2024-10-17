@@ -14967,12 +14967,116 @@ pron()
 proff()
 # Executed in 0.06 second(s).
 
+/*==================
+
+pron()
+
+o1 = new stzListOfChars([ "R", "I", "N", "G" ])
+
+? o1.BoxedXT([
+	[ "line", "thin" ],
+	[ "eachchar", 1 ],
+	[ "allcorners", "" ],
+	[ "corners", "" ]
+])
+#-->
+# ┌───┬───┬───┬───┐
+# │ R │ I │ N │ G │
+# └───┴───┴───┴───┘
+
+proff()
+# Executed in 0.04 second(s).
+
 /*-----------------
+
+pron()
+
+o1 = new stzString("RING")
+
+? o1.BoxEachCharQ().Content()
+#-->
+# ┌───┬───┬───┬───┐
+# │ R │ I │ N │ G │
+# └───┴───┴───┴───┘
+
+? o1.Content()
+#-->
+# ┌───┬───┬───┬───┐
+# │ R │ I │ N │ G │
+# └───┴───┴───┴───┘
+
+proff()
+# Executed in 0.04 second(s).
+
+/*-----------------
+
+pron()
+
+? Q("RING").CharsBoxed()
+#-->
+# ┌───┬───┬───┬───┐
+# │ R │ I │ N │ G │
+# └───┴───┴───┴───┘
+
+proff()
+# Executed in 0.04 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzString("SOFTANZA")
+o1.BoxifyChars()
+? o1.Content()
+#-->
+# ┌───┬───┬───┬───┬───┬───┬───┬───┐
+# │ S │ O │ F │ T │ A │ N │ Z │ A │
+# └───┴───┴───┴───┴───┴───┴───┴───┘
+
+proff()
+# Executed in 0.04 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzString("SOFTANZA")
+o1.BoxifyCharsXT([])
+? o1.Content()
+#-->
+# ┌───┬───┬───┬───┬───┬───┬───┬───┐
+# │ S │ O │ F │ T │ A │ N │ Z │ A │
+# └───┴───┴───┴───┴───┴───┴───┴───┘
+
+proff()
+# Executed in 0.04 second(s).
+
+/*-----------------
+*/
+o1 = new stzString("SOFTANZAdfdfdf")
+
+o1.BoxifyCharsXT([
+	:Rounded = TRUE,
+	:Numbered = TRUE
+])
+
+? o1.Content()
+
+proff()
+
+/*-----------------
+
 */
 pron()
 
-o1 = new stzString("ABTCADNBBABEFACCC")
-? o1.VizFindXT("A", [ :Boxed = TRUE, :Numbered = TRUE, :Spacified = TRUE, :PositionSign = Heart() ])
+o1 = new stzString("SOFTANZA")
+
+? o1.VizFindXT( "A", [
+	:Boxed = TRUE,
+	:Numbered = TRUE,
+	:Spacified = TRUE,
+	:PositionSign = Heart()
+])
 
 #--> Returns a string like this:
 

@@ -50017,6 +50017,9 @@ n1 = Min(aTemp)
 		if ring_find(acKeys, :Boxed) > 0 and
 		   isNumber(paOptions[ :Boxed ]) and paOptions[ :Boxed ] = 1
 
+			n = ring_find(acKeys, :boxed)
+			del(paOptions, n)
+
 			return This.VizFindBoxedXT(pcSubStr, paOptions)
 		ok
 
@@ -50197,8 +50200,11 @@ n1 = Min(aTemp)
 	#----------------------------------------------------#
 
 	def VizFindBoxedXT(pcSubstr, paOptions) #TODO
+? "emmmmm"
 
-		cBoxed = StzStringQ(pcSubStr).CharsBoxed()
+? This.Content()
+? @@SP(paOptions)
+		cBoxed = This.CharsBoxedXT(paOptions)
 ? cboxed
 		//This.VizFindXT(pcSubStr, paOptions)
 
@@ -87581,11 +87587,25 @@ n1 = Min(aTemp)
 		#< @FunctionFluentForm
 
 		def BoxQ()
-			return new stzString( This.Box() )
+			This.Box()
+			return This
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def Boxify()
+			This.Box()
+
+			def BoxifyQ()
+				return This.BoxQ()
+
 		#>
 
 	def Boxed()
 		return This.Copy().BoxQ().Content()
+
+		def Boxified()
+			return This.Boxed()
 
 	#--
 
@@ -87595,11 +87615,25 @@ n1 = Min(aTemp)
 		#< @FunctionFluentForm
 
 		def BoxDashedQ()
-			return new stzString( This.BoxDashed() )
+			This.BoxDashed()
+			return This
+		#>
+
+		#< @FunctionFluentForm
+
+		def BoxifyDashed()
+			This.BoxDashed()
+
+			def BoxifyDashedQ()
+				return This.BoxDashedQ()
+
 		#>
 
 	def BoxedDashed()
 		return This.Copy().BoxDashedQ().Content()
+
+		def BoxifiedDashed()
+			return This.BoxedDashed()
 
 	#--
 
@@ -87609,11 +87643,21 @@ n1 = Min(aTemp)
 		#< @FunctionFluentForm
 
 		def BoxRoundQ()
-			return new stzString( This.BoxRound() )
+			This.BoxRound()
+			return This
 		#>
+
+		def BoxifyRound()
+			This.BoxRound()
+
+			def BoxifyRoundQ()
+				return This.BoxRoundQ()
 
 	def BoxedRound()
 		return This.Copy().BoxRoundQ().Content()
+
+		def BoxifiedRound()
+			return This.BoxedRound()
 
 	#--
 
@@ -87623,16 +87667,26 @@ n1 = Min(aTemp)
 		#< @FunctionFluentForm
 
 		def BoxRoundDashedQ()
-			return new stzString( This.BoxRoundDashed() )
+			This.BoxRoundDashed()
+			return This
+
 		#>
 
 		#< @FunctionAlternativeForms
 
 		def BoxDashedRound()
-			return This.BoxRoundDashed()
+			This.BoxRoundDashed()
 
 			def BoxDashedRoundQ()
-				return new stzString( This.BoxDashedRound() )
+				return This.BoxRoundDashedQ()
+
+		#--
+
+		def BoxifyRoundDashed()
+			This.BoxRoundDashed()
+
+			def BoxifyRoundDashedQ()
+				return This.return This.BoxRoundDashedQ()
 
 		#>
 
@@ -87642,15 +87696,21 @@ n1 = Min(aTemp)
 		def BoxedDashedRound()
 			return This.BoxDashedRound()
 
+		def BoxifiedDashedRound()
+			return This.BoxDashedRound()
+
 	#--
 
 	def BoxEachChar()
+
 		This.BoxXT([ :Line = :Thin, :EachChar = TRUE ])
 
 		#< @FunctionFluentForm
 
 		def BoxEachCharQ()
-			return new stzString( This.BoxEachChar() )
+			This.BoxEachChar()
+			return This
+
 		#>
 
 		#< @FunctionAlternativeForm
@@ -87659,8 +87719,21 @@ n1 = Min(aTemp)
 			This.BoxEachChar()
 
 			def BoxCharQ()
-				This.BoxChars()
-				return This
+				return This.BoxEachCharQ()
+
+		#--
+
+		def BoxifyEachChar()
+			This.BoxEachChar()
+
+			def BoxifyEachCharQ()
+				return This.BoxEachCharQ()
+
+		def BoxifyChars()
+			This.BoxEachChar()
+
+			def BoxifyCharQ()
+				return This.BoxEachCharQ()
 
 		#>
 
@@ -87668,6 +87741,12 @@ n1 = Min(aTemp)
 		return This.Copy().BoxEachCharQ().Content()
 
 		def CharsBoxed()
+			return This.EachCharBoxed()
+
+		def EachCharBoxified()
+			return This.EachCharBoxed()
+
+		def CharsBoxified()
 			return This.EachCharBoxed()
 
 	#--
@@ -87678,17 +87757,31 @@ n1 = Min(aTemp)
 		#< @FunctionFluentForm
 
 		def BoxEachCharRoundQ()
-			return new stzString( This.BoxEachCharRound() )
+			This.BoxEachCharRound()
+			return This
+
 		#>
 
-	def EachCharboxedRound()
+		def BoxifyEachCharRound()
+			This.BoxEachCharRound()
+
+			def BoxifyEachCharRoundQ()
+				return This.BoxEachCharRoundQ()
+
+	def EachCharBoxedRound()
 		return This.Copy().BoxEachCharRoundQ().Content()
+
+		def EachCharBoxifiedRound()
+			return This.EachCharBoxedRound()
 
 	#--
 
 	def BoxEachCharXT(paBoxOptions)
+		cResult = This.ToStzListOfChars().BoxedXT(paBoxOptions)
+		This.Update(cResult)
 
-		# Checkin the paBoxOptions param
+/*
+		# Checking the paBoxOptions param
 
 		if isString(paBoxOptions)
 			paTemp = []
@@ -87700,6 +87793,12 @@ n1 = Min(aTemp)
 			StzRaise("Incorrect param type! paBoxOptions must be a list.")
 		ok
 
+		if len(paBoxOptions) = 0
+			This.BoxEachChar()
+			return
+		ok
+
+? "emm"
 		bEachCharFound = FALSE
 		nLen = len(paBoxOptions)
 		for i = 1 to nLen
@@ -87724,16 +87823,50 @@ n1 = Min(aTemp)
 		# Doing the job
 
 		This.BoxedXT(paBoxOptions)
-
+*/
 		#< @FunctionFluentForm
 
 		def BoxEachCharXTQ(paBoxOptions)
-			return new stzString( This.BoxedEachCharXT(paBoxOptions) )
+			This.BoxEachCharXT(paBoxOptions)
+			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def BoxCharsXT(paBoxOptions)
+			This.BoxEachCharXT(paBoxOptions)
+
+			def BoxCharsXTQ(paBoxOptions)
+				return This.BoxEachCharXTQ(paBoxOptions)
+
+		#--
+
+		def BoxifyEachCharXT(paBoxOptions)
+			This.BoxEachCharXT(paBoxOptions)
+
+			def BoxifyEachCharXTQ(paBoxOptions)
+				return This.BoxEachCharXTQ(paBoxOptions)
+
+		def BoxifyCharsXT(paBoxOptions)
+			This.BoxEachCharXT(paBoxOptions)
+
+			def BoxifyCharsXTQ(paBoxOptions)
+				return This.BoxEachCharXTQ(paBoxOptions)
+	
 		#>
 
 	def EachCharBoxedXT(paBoxOptions)
 		return This.Copy().BoxEachCharXTQ(paBoxOptions).Content()
+
+		def CharsBoxedXT(paBoxOptions)
+			return This.EachCharBoxedXT(paBoxOptions)
+
+		def EachCharBoxifiedXT(paBoxOptions)
+			return This.EachCharBoxedXT(paBoxOptions)
+
+		def CharsBoxifiedXT(paBoxOptions)
+			return This.EachCharBoxedXT(paBoxOptions)
 
 	#--
 
@@ -87910,12 +88043,23 @@ n1 = Min(aTemp)
 		#< @FunctionFluentForm
 
 		def BoxXTQ(paBoxOptions)
-			return new stzString( This.BoxXT(paBoxOptions) )
+			This.BoxXT(paBoxOptions)
+			return This
 
 		#>
 
+		def BoxifyXT(paBoxOptions)
+			This.BoxXT(paBoxOptions)
+
+			def BoxifyXTQ(paBoxOptions)
+				return This.BoxXTQ(paBoxOptions)
+
 	def BoxedXT(paBoxOptions)
-		return This.Copy().BoxXTQ(paBoxOptions).Content()
+		cResult = This.Copy().BoxXTQ(paBoxOptions).Content()
+		return cResult
+
+		def BoxifiedXT(paBoxOptions)
+			return This.BoxedXT(paBoxOptions)
 
 	  #=================================================#
 	 #   STRING EXISTENCE AS AN ITEM IN A GIVEN LIST   #
