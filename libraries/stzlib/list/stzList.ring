@@ -68184,7 +68184,6 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			:EachChar,
 			:EachWord,
 			:Hilighted,
-			:HilightedIf,
 			:Numbered
 		]
 

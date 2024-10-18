@@ -689,14 +689,6 @@ class stzListOfChars from stzListOfStrings
 				ok
 			ok
 
-			# Reading the hilightening condition
-
-			cHilightIf = NULL
-		
-			if paBoxOptions[ :HilightedIf ] != NULL
-				cHilightIf = paBoxOptions[ :HilightedIf ]
-			ok
-
 			# Reading the numbering option
 
 			bNumbered = FALSE
