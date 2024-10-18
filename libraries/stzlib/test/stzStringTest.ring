@@ -15120,8 +15120,6 @@ proff()
 
 /*----------------- #todo #narration
 
-
-
 pron()
 
 o1 = new stzString("SOFTANZA")
@@ -15155,10 +15153,9 @@ o1 = new stzString("SOFTANZA")
 
 ? o1.VizFindBoxedXT("A", [
 	:PositionSign = Heart(),
-
-	:Rounded = TRUE,
 	:AllCorners = :Rounded
 ]) + NL
+
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───╮
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
@@ -15182,6 +15179,35 @@ o1 = new stzString("SOFTANZA")
 
 proff()
 # Executed in 0.19 second(s).
+
+/*-----
+*/
+pron()
+
+o1 = new stzString("SOFTANZA")
+
+? o1.VizFindBoxedXT("A", [
+	:PositionSign = "↑",
+	:Numbered = TRUE,
+	:Corners = [ :round, :round, :rect, :rect ]
+
+]) + NL
+#-->
+# ╭───┬───┬───┬───┬───┬───┬───┬───╮
+# │ S │ O │ F │ T │ A │ N │ Z │ A │
+# └───┴───┴───┴───┴─↑─┴───┴───┴─↑─┘
+#                   5           8 
+
+? o1.VizFindBoxedXT("A", [
+
+	:PositionSign = "↑",
+	:NumberedXT = TRUE,
+
+	:Rounded = TRUE
+])
+
+proff()
+# Executed in 0.05 second(s).
 
 /*-----
 */

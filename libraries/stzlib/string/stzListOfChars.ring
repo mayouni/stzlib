@@ -630,7 +630,7 @@ class stzListOfChars from stzListOfStrings
 
 		if StzListQ(paBoxOptions).IsTextBoxedOptionsNamedParam()
 
-		# Reading the type of line (thin or dashed)
+			# Reading the type of line (thin or dashed)
 
 			cLine = :Thin # By default
 
@@ -640,15 +640,17 @@ class stzListOfChars from stzListOfStrings
 
 			# Reading if the box is rounded
 
-			bRounded = FALSE # By default
+			bRounded = NULL # By default
 
-			if (paBoxOptions[ :Rounded ] != NULL and
-			   paBoxOptions[ :Rounded ] = TRUE) or
+			if isNumber(paBoxOptions[ :Rounded ])
 
-			   (paBoxOptions[ :Round ] != NULL and
-			   paBoxOptions[ :Round ] = TRUE)
+				if paBoxOptions[ :Rounded ] = TRUE
+					bRounded = TRUE
 
-				bRounded = TRUE
+				but paBoxOptions[ :Rounded ] = FALSE
+					bRounded = FALSE
+
+				ok
 			ok
 
 			# Reading the type of corners (rectangualar or round)
@@ -658,16 +660,30 @@ class stzListOfChars from stzListOfStrings
 			if paBoxOptions[ :AllCorners ] = :Round or
 			   paBoxOptions[ :AllCorners ] = :Rounded
 
+				if isString(bRounded) and bRounded = NULL
+					bRounded = TRUE
+				ok
+
 				cAllCorners = :Round
 			ok
 
 			aCorners = []
 
 			if cAllCorners = :Rectangular or cAllCorners = :Rect
+
+				if isString(bRounded) and bRounded = NULL
+					bRounded = TRUE
+				ok
+
 				 # By default
 				aCorners = [ :Rectangular, :Rectangular, :Rectangular, :Rectangular ]
 
 			but cAllCorners = :Round or cAllCorners = :Rounded
+
+				if isString(bRounded) and bRounded = NULL
+					bRounded = TRUE
+				ok
+
 				aCorners = [ :Round, :Round, :Round, :Round ]
 
 			ok
@@ -675,13 +691,23 @@ class stzListOfChars from stzListOfStrings
 			if len(paBoxOptions[:Corners]) = 4 and
 			   StzListQ( paBoxOptions[:Corners] ).IsMadeOfSome([ :Rectangular, :Round ])
 	
+				if isString(bRounded) and bRounded = NULL
+					bRounded = TRUE
+				ok
+
 				aCorners = paBoxOptions[:Corners]
 
 			ok
 
+			if bRounded = TRUE and
+			   ring_find(aCorners, :round) = 0
+
+				aCorners = [ :round, :round, :round, :round ]
+			ok
+
 			# Reading the hilightening option
 			
-			aHilighted = NULL
+			anHilighted = NULL
 
 			if isList(paBoxOptions[ :Hilighted ]) and
 			   # len( paBoxOptions[ :Hilighted ] ) <= This.NumberOfChars() and
@@ -689,14 +715,18 @@ class stzListOfChars from stzListOfStrings
 			   @IsSet( paBoxOptions[ :Hilighted ] )
 
 				if StzListQ( paBoxOptions[ :Hilighted ] ).IsMadeOfSome( 1:This.NumberOfChars() )
-					aHilighted = paBoxOptions[ :Hilighted ]
+					anHilighted = paBoxOptions[ :Hilighted ]
 
 				else
 
-					aHilighted = []
-					for n in paBoxOptions[ :Hilighted ]
-						if n <= This.NumberOfChars()
-							aHilighted + n
+					anTemp = paBoxOptions[ :Hilighted ]
+					nLenTemp = len(anTemp)
+
+					anHilighted = []
+
+					for i = 1 to nLenTemp
+						if anTemp[i] <= This.NumberOfChars()
+							anHilighted + anTemp[i]
 						ok
 					next
 
@@ -717,10 +747,38 @@ class stzListOfChars from stzListOfStrings
 
 			bNumbered = FALSE
 
-			if paBoxOptions[ :Numbered ] != NULL and
-			   paBoxOptions[ :Numbered ] = TRUE
+			if (paBoxOptions[ :Numbered ] != NULL and
+			   paBoxOptions[ :Numbered ] = TRUE) or
+
+			   (paBoxOptions[ :Numbers ] != NULL and
+			   paBoxOptions[ :Numbers ] = TRUE) or
+
+			   (paBoxOptions[ :ShowPositions ] != NULL and
+			   paBoxOptions[ :ShowPositions ] = TRUE)
 
 				bNumbered = TRUE
+			ok
+
+			# Reading the numbering option
+
+			bNumberedXT = FALSE
+
+			if (paBoxOptions[ :NumberedXT ] != NULL and
+			   paBoxOptions[ :NumberedXT ] = TRUE) or
+
+			   (paBoxOptions[ :NumbersXT ] != NULL and
+			   paBoxOptions[ :NumbersXT ] = TRUE) or
+
+			   (paBoxOptions[ :ShowPositionsXT ] != NULL and
+			   paBoxOptions[ :ShowPositionsXT ] = TRUE) or
+
+			   (paBoxOptions[ :ShowAllPositions ] != NULL and
+			   paBoxOptions[ :ShowAllPositions ] = TRUE) or
+
+			   (paBoxOptions[ :AllPositions ] != NULL and
+			   paBoxOptions[ :AllPositions ] = TRUE)
+
+				bNumberedXT = TRUE
 			ok
 
 			# Composing the boxed list of strings
@@ -782,7 +840,7 @@ class stzListOfChars from stzListOfStrings
 
 			#--
 
-			if NOT isList(aHilighted)
+			if NOT isList(anHilighted)
 
 				cTemp = ""
 				for i = 1 to nWidth-1
@@ -799,7 +857,7 @@ class stzListOfChars from stzListOfStrings
 
 				for i = 1 to nWidth - 1
 
-					if ring_find(aHilighted, i) > 0
+					if ring_find(anHilighted, i) > 0
 						cTrait = cHilight
 
 					else
@@ -812,7 +870,7 @@ class stzListOfChars from stzListOfStrings
 
 				# Speciefic case of the last char
 
-				if ring_find(aHilighted, nWidth)
+				if ring_find(anHilighted, nWidth)
 					cDownLine += cHilight + cCorner3
 				else
 					cDownLine += cHTrait + cCorner3
@@ -822,9 +880,11 @@ class stzListOfChars from stzListOfStrings
 
 			cResult = cUpLine + NL + cMidLine + NL + cDownLine
 
+			# Cobstructing the positions line
+
 			cNumberLine = ""
 
-			if bNumbered
+			if bNumberedXT
 
 				anNumbers = []
 				n = 0
@@ -843,6 +903,34 @@ class stzListOfChars from stzListOfStrings
 					ok
 				next
 				cResult += NL + cNumberLine
+
+			but bNumbered
+
+				anNumbers = []
+				n = 0
+
+				for i = 1 to nWidth
+					anNumbers + i
+				next
+
+				cTemp = " "
+				for i = 1 to nWidth
+					if ring_find(anHilighted, anNumbers[i])
+						cTemp = anNumbers[i]
+					else
+						cTemp = " "
+					ok
+
+					if i < 10
+						cNumberLine += "  " + cTemp + " "
+					but i > 9 and i < 99
+						cNumberLine += " " + cTemp + " "
+					else
+						cNumberLine += "" + anNumbers[i] + " "
+					ok
+				next
+				cResult += NL + cNumberLine
+
 			ok
 
 			return cResult
