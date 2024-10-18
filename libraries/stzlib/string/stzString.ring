@@ -49971,6 +49971,10 @@ n1 = Min(aTemp)
 
 	def VizFindXT(pcSubStr, paOptions)
 
+		#TODO // Options check must be abstracted in a dedicated
+		# function or classe to avoid dupplication adn code complexity!
+		# ~> Can be named stzListOfOptions
+
 		# STEP 1: Checking params TYPES
 
 		acPossibleKeys = [
@@ -87916,15 +87920,17 @@ n1 = Min(aTemp)
 
 			# Reading if the box is rounded
 
-			bRounded = FALSE # By default
+			bRounded = NULL # By default
 
-			if (paBoxOptions[ :Rounded ] != NULL and
-			   paBoxOptions[ :Rounded ] = TRUE) or
+			if isNumber(paBoxOptions[ :Rounded ])
 
-			   (paBoxOptions[ :Round ] != NULL and
-			   paBoxOptions[ :Round ] = TRUE)
+				if paBoxOptions[ :Rounded ] = TRUE
+					bRounded = TRUE
 
-				bRounded = TRUE
+				but paBoxOptions[ :Rounded ] = FALSE
+					bRounded = FALSE
+
+				ok
 			ok
 
 			# Reading the type of corners (rectangualr or round)
@@ -87934,6 +87940,10 @@ n1 = Min(aTemp)
 			if paBoxOptions[ :AllCorners ] = :Round or
 			   paBoxOptions[ :AllCorners ] = :Rounded
 
+				if isString(bRounded) and bRround = NULL
+					bRounded = TRUE
+				ok
+
 				cAllCorners = :Round
 			ok
 
@@ -87941,11 +87951,19 @@ n1 = Min(aTemp)
 			if cAllCorners = :Rectangular or
 			   cAllCorners = :Rect
 
+				if isString(bRounded) and bRround = NULL
+					bRounded = TRUE
+				ok
+
 				 # By default
 				aCorners = [ :Rectangular, :Rectangular, :Rectangular, :Rectangular ]
 
 			but cAllCorners = :Round or
 			    cAllCorners = :Rounded
+
+				if isString(bRounded) and bRround = NULL
+					bRounded = TRUE
+				ok
 
 				aCorners = [ :Round, :Round, :Round, :Round ]
 
@@ -87954,8 +87972,18 @@ n1 = Min(aTemp)
 			if len(paBoxOptions[:Corners]) = 4 and
 			   StzListQ( paBoxOptions[:Corners] ).IsMadeOfSome([ :Rectangular, :Round ])
 	
+				if isString(bRounded) and bRround = NULL
+					bRounded = TRUE
+				ok
+
 				aCorners = paBoxOptions[:Corners]
 
+			ok
+
+			if bRounded = TRUE and
+			   ring_find(aCorners, :round) = 0
+
+				aCorners = [ :round, :round, :round, :round ]
 			ok
 
 			# If the boxing happens at the char level, delegate it
