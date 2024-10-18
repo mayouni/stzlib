@@ -584,6 +584,8 @@ class stzListOfChars from stzListOfStrings
 	def BoxedRoundDashed()
 		return This.BoxedXT([ :Rounded = TRUE, :Line = :Dashed, :AllCorners = :Round ])
 
+		#< @FunctionAlternativeForms
+
 		def BoxedRoundedDashed()
 			return This.BoxedRoundDashed()
 
@@ -604,7 +606,9 @@ class stzListOfChars from stzListOfStrings
 
 		def BoxifiedDashedRounded()
 			return This.BoxedRoundDashed()
-		
+
+		#>
+
 	def BoxedXT(paBoxOptions)
 
 		/*
@@ -707,7 +711,7 @@ class stzListOfChars from stzListOfStrings
 
 			# Reading the hilightening option
 			
-			anHilighted = NULL
+			anHilighted = []
 
 			if isList(paBoxOptions[ :Hilighted ]) and
 			   # len( paBoxOptions[ :Hilighted ] ) <= This.NumberOfChars() and
@@ -779,6 +783,16 @@ class stzListOfChars from stzListOfStrings
 			   paBoxOptions[ :AllPositions ] = TRUE)
 
 				bNumberedXT = TRUE
+			ok
+
+			# Reading the sectioned option
+
+			bSectioned = FALSE
+
+			if paBoxOptions[:Sectioned] != NULL and
+			   paBoxOptions[:Sectioned] = TRUE
+
+				bSecioned = TRUE
 			ok
 
 			# Composing the boxed list of strings
@@ -880,6 +894,58 @@ class stzListOfChars from stzListOfStrings
 
 			cResult = cUpLine + NL + cMidLine + NL + cDownLine
 
+			# Constructing the sectioned parts
+
+			oDownLine = new stzString(cDownLine)
+			nLenDownLine = oDownLine.NumberOfChars()
+			anPosSign = oDownLine.Find(cSign)
+			nLenPosSign = len(anPosSign)
+
+			aSections = []
+			aSection = []
+
+			for i = 1 to nLenPosSign
+				aSection + anPosSign[i]
+				if len(aSection) = 2
+					aSections + aSection
+					aSection = []
+				ok
+			next
+
+			nLenSections = len(aSections)
+
+			cSectionsLine = ""
+			for i = 1 to nLenDownLine
+				cSectionsLine += " "
+			next
+
+			acSegments = []
+
+			for i = 1 to nLenSections
+
+				cSegment = ""
+
+				n1 = aSections[i][1]
+				n2 = aSections[i][2]
+
+				for j = n1 to n2
+					if j = n1 or j = n2
+						cSegment += "'"
+					else
+						cSegment += "-"
+					ok
+				next
+
+				acSegments + cSegment
+				
+			next
+
+			oSectionLine = new stzString(cSectionsLine)
+			oSectionLine.ReplaceSectionsByMany(aSections, acSegments)
+			cSectionsLine = oSectionLine.TrimRightQ().Content()
+
+			cResult += NL + cSectionsLine
+
 			# Cobstructing the positions line
 
 			cNumberLine = ""
@@ -940,8 +1006,18 @@ class stzListOfChars from stzListOfStrings
 			StzRaise(stzListOfCharsError(:CanNotBoxTheListOfChars))
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def BoxifiedXT(paBoxOptions)
 			return This.BoxedXT(paBoxOptions)
+
+		def BoxXT(paBoxOptions)
+			return This.BoxedXT(paBoxOptions)
+
+		def BoxifyXT(paBoxOptions)
+			return This.BoxedXT(paBoxOptions)
+
+		#>
 
 	  #--------------------------------------------------#
 	 #  GETTING THE UNICODE (CODE NUMBER) OF EACH CHAR  #

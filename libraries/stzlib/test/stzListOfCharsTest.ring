@@ -165,14 +165,13 @@ proff()
 # Executed in 0.05 second(s).
 
 /*-------------
-s
+*/
 pron()
 
 ? StzListOfCharsQ("A":"E").BoxedXT([
 	:AllCorners = :Round,
-	:Hilighted = [0, 2, 5, 3, 7],
+	:Hilighted = [ 0, 2, 5, 3, 7 ],
 	:Numbered = TRUE
-
 ])
 #-->
 # ╭───┬───┬───┬───┬───╮
