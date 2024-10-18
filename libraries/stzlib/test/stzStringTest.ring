@@ -15181,7 +15181,7 @@ proff()
 # Executed in 0.19 second(s).
 
 /*-----
-*/
+
 pron()
 
 o1 = new stzString("SOFTANZA")
@@ -15209,15 +15209,27 @@ o1 = new stzString("SOFTANZA")
 proff()
 # Executed in 0.05 second(s).
 
-/*-----
+/*=====
 */
 pron()
 
+o1 = new stzString("..STZ..STZ..STZ.")
+
+? o1.ToStzListOfChars().BoxXT([
+	:Hilighted = Q( o1.FindZZ("STZ") ).Flattened(),
+	:Numbered = TRUE
+ ])
+
+proff()
+
+/*-----
+
+pron()
+
 ? Q("ABTCADNBBABEFACCC").SpacifyQ().vizFind("A")
-#--> 
+#-->
 # A B T C A D N B B A B E F A C C C
-# ♥-------♥---------♥-------♥------
-# 1       9         9       7      
+# ^-------^---------^-------^------   
 
 proff()
 # Executed in 0.04 second(s).
