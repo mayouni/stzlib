@@ -68177,14 +68177,15 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		aListOfBoxOptions = [
 			:Line,
-			:AllCorners,
-			:Corners,
+			:Rounded, :Round,
+			:AllCorners, :Corners,
 			:Width,
 			:TextAdjustedTo,
 			:EachChar,
 			:EachWord,
-			:Hilighted,
-			:Numbered
+			:Hilighted, :Hilight,
+			:Numbered, :Numbers,
+			:PositionSign, :PositionChars
 		]
 
 		nLen = This.NumberOfItems()

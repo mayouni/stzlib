@@ -15067,14 +15067,48 @@ proff()
 
 /*-----------------
 
+pron()
+
+o1 = new stzListOfChars([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
+? o1.BoxifiedXT([ :Round = TRUE ])
+#-->
+# ╭───┬───┬───┬───┬───┬───┬───┬───╮
+# │ S │ O │ F │ T │ A │ N │ Z │ A │
+# ╰───┴───┴───┴───┴───┴───┴───┴───╯
+
+? o1.BoxifiedXT([ :Corners = [ :Round, :Rect, :Round, :Rect ] ])
+#-->
+# ╭───┬───┬───┬───┬───┬───┬───┬───┐
+# │ S │ O │ F │ T │ A │ N │ Z │ A │
+# └───┴───┴───┴───┴───┴───┴───┴───╯
+
+proff()
+# Executed in 0.04 second(s).
+
+/*-----------------
+
 o1 = new stzString("SOFTANZA~RING")
 
 o1.BoxifyCharsXT([
 	:Rounded = TRUE,
+	:Corners = [ :Round, :Rect, :Round, :Rect ],
 	:Numbered = TRUE
 ])
 
-? o1.Content()
+? o1.Content() + NL
+#-->
+# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+# │ S │ O │ F │ T │ A │ N │ Z │ A │ ~ │ R │ I │ N │ G │
+# └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+#   1   2   3   4   5   6   7   8   9  10  11  12  13 
+
+# When you omitt :Rounded = TRUE, the ouput is not rounded,
+# because :Rounded = FALSE by default
+
+o1.BoxifyCharsXT([
+	:Corners = [ :Round, :Rect, :Round, :Rect ],
+	:Numbered = TRUE
+])
 #-->
 # ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
 # │ S │ O │ F │ T │ A │ N │ Z │ A │ ~ │ R │ I │ N │ G │
@@ -15082,29 +15116,82 @@ o1.BoxifyCharsXT([
 #   1   2   3   4   5   6   7   8   9  10  11  12  13 
 
 proff()
-# Executed in 2.50 second(s).
+# Executed in 2.57 second(s).
 
-/*-----------------
+/*----------------- #todo #narration
 
-*/
+
+
 pron()
 
 o1 = new stzString("SOFTANZA")
 
+? o1.VizFind("A") + NL
+#-->
+# SOFTANZA
+# ----^--^
+
+? o1.VizFindXT("A", [ :Spacified = TRUE ]) + NL
+#-->
+# S O F T A N Z A
+# --------^-----^
+
+? o1.VizFindXT("A", [ :Spacified = TRUE, :PositionSign = Heart() ]) + NL
+#-->
+# S O F T A N Z A
+# --------♥-----♥
+
+? o1.VizFindXT("A", [ :Spacified = TRUE, :PositionSign = Heart(), :Numbered = TRUE ]) + NL
+#-->
+# S O F T A N Z A
+# --------♥-----♥
+#         9     15
+
 ? o1.VizFindBoxed("A") + NL
+#-->
+# ┌───┬───┬───┬───┬───┬───┬───┬───┐
+# │ S │ O │ F │ T │ A │ N │ Z │ A │
+# └───┴───┴───┴───┴─•─┴───┴───┴─•─┘
+
+? o1.VizFindBoxedXT("A", [
+	:PositionSign = Heart(),
+
+	:Rounded = TRUE,
+	:AllCorners = :Rounded
+]) + NL
+#-->
+# ╭───┬───┬───┬───┬───┬───┬───┬───╮
+# │ S │ O │ F │ T │ A │ N │ Z │ A │
+# ╰───┴───┴───┴───┴─♥─┴───┴───┴─♥─╯
 
 ? o1.VizFindXT( "A", [
 	:Boxed = TRUE,
+
+	:Rounded = TRUE, 
 	:AllCorners = :Rounded,
-	:Numbered = FALSE,
+
+	:Numbered = TRUE,
+
 	:PositionSign = Heart()
 ])
+#-->
+# ╭───┬───┬───┬───┬───┬───┬───┬───╮
+# │ S │ O │ F │ T │ A │ N │ Z │ A │
+# ╰───┴───┴───┴───┴─♥─┴───┴───┴─♥─╯
+#   1   2   3   4   5   6   7   8 
 
-#--> Returns a string like this:
+proff()
+# Executed in 0.19 second(s).
 
-# "A B T C A D N B B A B E F A C C C"
-#  ♥-------♥---------♥-------♥------
-#  1       9         9       7      
+/*-----
+*/
+pron()
+
+? Q("ABTCADNBBABEFACCC").SpacifyQ().vizFind("A")
+#--> 
+# A B T C A D N B B A B E F A C C C
+# ♥-------♥---------♥-------♥------
+# 1       9         9       7      
 
 proff()
 # Executed in 0.04 second(s).
