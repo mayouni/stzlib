@@ -49974,10 +49974,16 @@ n1 = Min(aTemp)
 		# STEP 1: Checking params TYPES
 
 		acPossibleKeys = [
-			:CaseSensitive, :CS, :PositionSign, :PositionChar,
-			:BlankSign, :Numbered, :Spacified,
-			:Boxed, :BoxOptions
+			:CaseSensitive, :CS,
 
+			:Hilighted, :Hilight,
+			:PositionSign, :PositionChar,
+
+			:BlankSign,
+
+			:Numbered, :Spacified,
+
+			:Boxed, :BoxOptions, :Rounded, :AllCorners
 		]
 
 		if isString(paOptions)
@@ -50046,6 +50052,9 @@ n1 = Min(aTemp)
 		cPositionSign = "^"
 		if isString(paOptions[:PositionSign]) and paOptions[:PositionSign] != NULL
 			cPositionSign = paOptions[:PositionSign]
+
+		but isString(paOptions[:PositionChar]) and paOptions[:PositionChar] != NULL
+			cPositionSign = paOptions[:PositionChar]
 		ok
 
 		cBlankSign = "-"
@@ -50058,6 +50067,11 @@ n1 = Min(aTemp)
 		   ( isNumber(paOptions[:Numbered]) and ( paOptions[:Numbered] = 0 or paOptions[:Numbered] = 1 )  )
 
 			bNumbered = paOptions[:Numbered]
+
+		but ( isString(paOptions[:Number]) and paOptions[:Number] != NULL ) or
+		   ( isNumber(paOptions[:Number]) and ( paOptions[:Number] = 0 or paOptions[:Number] = 1 )  )
+
+			bNumbered = paOptions[:Number]
 		ok
 
 		bSpacified = FALSE
@@ -50225,7 +50239,28 @@ n1 = Min(aTemp)
 
 	def VizFindBoxedCSXT(pcSubstr, paOptions, pCaseSensitive) #TODO
 
-		cBoxed = This.CharsBoxedXT(paOptions + :Hilighted = This.FindCS(pcSubStr, pCaseSensitive))
+		# Cleansing paOptions from any :Hilight option
+
+		anTemp = []
+		nLen = len(paOptions)
+		for i = 1 to nLen
+			if paOptions[i][1] = :Hilight or paOptions[i][1] = :Hilighted
+				anTemp + i
+			ok
+		next
+
+		nLen = len(anTemp)
+		for i = nLen to 1 step -1
+			ring_del(paOptions, anTemp[i])
+		next
+
+		# Hilight the positions of pcSubStr
+
+		paOptions + ( :Hilighted = This.FindCS(pcSubStr, pCaseSensitive) )
+
+		# Boxifying using stzListOfChars
+
+		cBoxed = This.CharsBoxedXT(paOptions)
 		return cBoxed
 
 	#-- WITHOUT CASESENSITIVITY
@@ -87781,50 +87816,7 @@ n1 = Min(aTemp)
 		cResult = This.ToStzListOfChars().BoxedXT(paBoxOptions)
 		This.Update(cResult)
 
-/*
-		# Checking the paBoxOptions param
 
-		if isString(paBoxOptions)
-			paTemp = []
-			paTemp + [ paBoxOptions, TRUE ]
-			paBoxOptions = paTemp
-		ok
-
-		if NOT isList(paBoxOptions)
-			StzRaise("Incorrect param type! paBoxOptions must be a list.")
-		ok
-
-		if len(paBoxOptions) = 0
-			This.BoxEachChar()
-			return
-		ok
-
-? "emm"
-		bEachCharFound = FALSE
-		nLen = len(paBoxOptions)
-		for i = 1 to nLen
-
-			item = paBoxOptions[i]
-
-			if (isString(item) and item = :EachChar) or
-
-			   (isList(item) and len(item) = 2 and
-			    isString(item[1]) and
-			    item[1] = :EachChar)
-
-				bEachCharFound = TRUE
-				exit
-			ok
-		next
-
-		if NOT bEachCharFound
-			paBoxOptions + [ :EachChar, TRUE ]
-		ok
-
-		# Doing the job
-
-		This.BoxedXT(paBoxOptions)
-*/
 		#< @FunctionFluentForm
 
 		def BoxEachCharXTQ(paBoxOptions)
@@ -87922,20 +87914,39 @@ n1 = Min(aTemp)
 				cLine = :Dashed
 			ok
 
+			# Reading if the box is rounded
+
+			bRounded = FALSE # By default
+
+			if (paBoxOptions[ :Rounded ] != NULL and
+			   paBoxOptions[ :Rounded ] = TRUE) or
+
+			   (paBoxOptions[ :Round ] != NULL and
+			   paBoxOptions[ :Round ] = TRUE)
+
+				bRounded = TRUE
+			ok
+
 			# Reading the type of corners (rectangualr or round)
 
 			cAllCorners = :Rectangular # By default
 
-			if paBoxOptions[ :AllCorners ] = :Round
+			if paBoxOptions[ :AllCorners ] = :Round or
+			   paBoxOptions[ :AllCorners ] = :Rounded
+
 				cAllCorners = :Round
 			ok
 
 			aCorners = []
-			if cAllCorners = :Rectangular
+			if cAllCorners = :Rectangular or
+			   cAllCorners = :Rect
+
 				 # By default
 				aCorners = [ :Rectangular, :Rectangular, :Rectangular, :Rectangular ]
 
-			but cAllCorners = :Round
+			but cAllCorners = :Round or
+			    cAllCorners = :Rounded
+
 				aCorners = [ :Round, :Round, :Round, :Round ]
 
 			ok
@@ -87979,7 +87990,7 @@ n1 = Min(aTemp)
 			cTextAdjustedTo = :Center # By default
 
 			oString = new stzString( paBoxOptions[ :TextAdjustedTo ] )
-			if oString.IsOneOfThese([ :Left, :Center, :Right, :Justified ])
+			if oString.IsOneOfThese([ :Left, :Center, :Centered, :Right, :Justified ])
 
 				cTextAdjustedTo = paBoxOptions[ :TextAdjustedTo ]
 			ok
@@ -88001,20 +88012,24 @@ n1 = Min(aTemp)
 			cCorner3 = "┘"
 			cCorner4 = "└"
 
-			if  aCorners[1] = :Round
-				cCorner1 = "╭"
-			ok
+			if bRounded = TRUE
 
-			if aCorners[2] = :Round
-				cCorner2 = "╮"
-			ok
+				if  aCorners[1] = :Round
+					cCorner1 = "╭"
+				ok
+	
+				if aCorners[2] = :Round
+					cCorner2 = "╮"
+				ok
+	
+				if aCorners[3] = :Round
+					cCorner3 = "╯"
+				ok
+	
+				if aCorners[4] = :Round
+					cCorner4 = "╰"
+				ok
 
-			if aCorners[3] = :Round
-				cCorner3 = "╯"
-			ok
-
-			if aCorners[4] = :Round
-				cCorner4 = "╰"
 			ok
 
 			cUpLine = cCorner1 +

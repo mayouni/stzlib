@@ -570,7 +570,7 @@ class stzListOfChars from stzListOfStrings
 			return This.BoxedDashed()
 
 	def BoxedRound()
-		return This.BoxedXT([ :AllCorners = :Round ])
+		return This.BoxedXT([ :Rounded = TRUE, :AllCorners = :Round ])
 
 		def BoxifiedRound()
 			return This.BoxedRound()
@@ -582,7 +582,7 @@ class stzListOfChars from stzListOfStrings
 			return This.BoxedRound()
 
 	def BoxedRoundDashed()
-		return This.BoxedXT([ :Line = :Dashed, :AllCorners = :Round ])
+		return This.BoxedXT([ :Rounded = TRUE, :Line = :Dashed, :AllCorners = :Round ])
 
 		def BoxedRoundedDashed()
 			return This.BoxedRoundDashed()
@@ -627,7 +627,7 @@ class stzListOfChars from stzListOfStrings
 		│ T │ E │ X │ T │
 		╰───┴───┴─•─┴───╯	
 		*/
-	
+
 		if StzListQ(paBoxOptions).IsTextBoxedOptionsNamedParam()
 
 		# Reading the type of line (thin or dashed)
@@ -638,22 +638,36 @@ class stzListOfChars from stzListOfStrings
 				cLine = :Dashed
 			ok
 
-			# Reading the type of corners (rectangualr or round)
+			# Reading if the box is rounded
+
+			bRounded = FALSE # By default
+
+			if (paBoxOptions[ :Rounded ] != NULL and
+			   paBoxOptions[ :Rounded ] = TRUE) or
+
+			   (paBoxOptions[ :Round ] != NULL and
+			   paBoxOptions[ :Round ] = TRUE)
+
+				bRounded = TRUE
+			ok
+
+			# Reading the type of corners (rectangualar or round)
 
 			cAllCorners = :Rectangular # By default
 
-			if paBoxOptions[ :AllCorners ] = :Round
+			if paBoxOptions[ :AllCorners ] = :Round or
+			   paBoxOptions[ :AllCorners ] = :Rounded
 
 				cAllCorners = :Round
 			ok
 
 			aCorners = []
 
-			if cAllCorners = :Rectangular
+			if cAllCorners = :Rectangular or cAllCorners = :Rect
 				 # By default
 				aCorners = [ :Rectangular, :Rectangular, :Rectangular, :Rectangular ]
 
-			but cAllCorners = :Round
+			but cAllCorners = :Round or cAllCorners = :Rounded
 				aCorners = [ :Round, :Round, :Round, :Round ]
 
 			ok
@@ -689,6 +703,16 @@ class stzListOfChars from stzListOfStrings
 				ok
 			ok
 
+			# Reading the Hiligthening char
+
+			cSign = HilightChar()
+
+			if ( paBoxOptions[ :PositionSign ] != NULL and @IsChar(paBoxOptions[ :PositionSign ]) ) or
+			   ( paBoxoptions[ :PositionChar ] != NULL and @IsChar(paBoxOptions[ :PositionChar ]) )
+
+				cSign = paBoxOptions[ :PositionSign ]
+			ok
+
 			# Reading the numbering option
 
 			bNumbered = FALSE
@@ -705,33 +729,35 @@ class stzListOfChars from stzListOfStrings
 
 			cHTrait  = "───"	cDownSep = "┴"
 
-			cHilight = "─" + HilightChar() + "─"
+			cHilight = "─" + cSign + "─"
 
 			if cLine = :Dashed
 				cHTrait = "╌╌╌"
 				cVTrait = "┊"
 			ok
 			
-			
 			cCorner1 = "┌"
 			cCorner2 = "┐"
 			cCorner3 = "┘"
 			cCorner4 = "└"
 
-			if  aCorners[1] = :Round
-				cCorner1 = "╭"
-			ok
-
-			if aCorners[2] = :Round
-				cCorner2 = "╮"
-			ok
-
-			if aCorners[3] = :Round
-				cCorner3 = "╯"
-			ok
-
-			if aCorners[4] = :Round
-				cCorner4 = "╰"
+			if bRounded = TRUE
+				
+				if  aCorners[1] = :Round
+					cCorner1 = "╭"
+				ok
+	
+				if aCorners[2] = :Round
+					cCorner2 = "╮"
+				ok
+	
+				if aCorners[3] = :Round
+					cCorner3 = "╯"
+				ok
+	
+				if aCorners[4] = :Round
+					cCorner4 = "╰"
+				ok
 			ok
 
 			#--
