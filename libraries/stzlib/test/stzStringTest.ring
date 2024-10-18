@@ -15095,6 +15095,7 @@ o1 = new stzString("SOFTANZA")
 
 ? o1.VizFindXT( "A", [
 	:Boxed = TRUE,
+	:AllCorners = :Rounded,
 	:Numbered = FALSE,
 	:PositionSign = Heart()
 ])

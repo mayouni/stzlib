@@ -50195,13 +50195,36 @@ n1 = Min(aTemp)
 	def VizFindCS(pcSubStr, pCaseSensitive)
 		return This.VizFindXT(pcSubStr, [ pCaseSensitive ])
 		
-	  #----------------------------------------------------#
-	 #      VISUALLY FINDING AND BOXING A SUBSTRING       #TODO: Review this
-	#----------------------------------------------------#
+	  #-------------------------------------------#
+	 #  VISUALLY FINDING AND BOXING A SUBSTRING  #
+	#===========================================#
+
+	def VizFindBoxedCS(pcSubStr, pCaseSensitive)
+		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed = TRUE ], pCaseSEnsitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def VizFindBoxed(pcSubStr)
+		return This.VizFindBoxedCS(pcSubStr, TRUE)
+
+	  #-------------------------------------------#
+	 #  VISUALLY FINDING AND BOXING A SUBSTRING  #
+	#-------------------------------------------#
+
+	def VizFindBoxedRoundedCS(pcSubStr, pCaseSensitive)
+		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed = TRUE, :Rounded = TRUE ], pCaseSEnsitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def VizFindBoxedRounded(pcSubStr)
+		return This.VizFindBoxedRoundedCS(pcSubStr, TRUE)
+
+	  #-------------------------------------------------#
+	 #  VISUALLY FINDING AND BOXING A SUBSTRING -- XT  #TODO: Review this
+	#-------------------------------------------------#
 
 	def VizFindBoxedCSXT(pcSubstr, paOptions, pCaseSensitive) #TODO
 
-? @@SP(paOptions)
 		cBoxed = This.CharsBoxedXT(paOptions + :Hilighted = This.FindCS(pcSubStr, pCaseSensitive))
 		return cBoxed
 
@@ -50210,6 +50233,7 @@ n1 = Min(aTemp)
 	def VizFindBoxedXT(pcSubstr, paOptions)
 		return This.VizFindBoxedCSXT(pcSubstr, paOptions, TRUE)
 
+	
 	  #==============================================================#
 	 #  DISTANCE TO A GIVEN SUBSTRING STARTING AT A GIVEN POSITION  #
 	#==============================================================#
@@ -87883,7 +87907,6 @@ n1 = Min(aTemp)
 				:EachChar,
 				:EachWord,
 				:Hilighted,
-				:HilightedIf,
 				:Numbered
 			]
 
