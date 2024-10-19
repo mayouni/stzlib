@@ -50265,12 +50265,14 @@ n1 = Min(aTemp)
 		return This.VizFindBoxedRoundedCS(pcSubStr, TRUE)
 
 	  #-------------------------------------------------#
-	 #  VISUALLY FINDING AND BOXING A SUBSTRING -- XT  #TODO: Review this
+	 #  VISUALLY FINDING AND BOXING A SUBSTRING -- XT  #
 	#-------------------------------------------------#
 
 	def VizFindBoxedCSXT(pcSubstr, paOptions, pCaseSensitive) #TODO
 
 		# Cleansing paOptions from any :Hilight option
+		# because we will add add ourselves to the opttions sets
+		# befrore delegating the work to stzListOfChars boxing service
 
 		anTemp = []
 		nLen = len(paOptions)
@@ -50294,7 +50296,7 @@ n1 = Min(aTemp)
 		cBoxed = This.CharsBoxedXT(paOptions)
 		return cBoxed
 
-	#-- WITHOUT CASESENSITIVITY
+	#-- WITHOUT CASESENSITIVITYs
 
 	def VizFindBoxedXT(pcSubstr, paOptions)
 		return This.VizFindBoxedCSXT(pcSubstr, paOptions, TRUE)
@@ -50302,9 +50304,10 @@ n1 = Min(aTemp)
 	  #==============================================================#
 	 #  DISTANCE TO A GIVEN SUBSTRING STARTING AT A GIVEN POSITION  #
 	#==============================================================#
-	# Distance is given by the number of chars inbetween
-	# the starting and target positions are not included
-	# To include them, use ...XT() form of the function
+
+	# ~> Distance is given by the number of chars inbetween.
+	# ~> The starting and target positions are not included.
+	# ~> To include them, use ...XT() form of the function
 
 	def DistanceToCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		nResult = This.DistanceToSCSXT(pcSubStr, pnStartingAt, pCaseSensitive) - 2
@@ -87974,6 +87977,13 @@ n1 = Min(aTemp)
 			ok
 
 			aCorners = []
+
+			if len(aCorners) = 0 and bRounded = NULL
+				if isString(bRounded) and bRounded = NULL
+					bRounded = FALSE
+				ok
+			ok
+
 			if cAllCorners = :Rectangular or
 			   cAllCorners = :Rect
 
