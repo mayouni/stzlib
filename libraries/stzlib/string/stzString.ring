@@ -50246,10 +50246,16 @@ n1 = Min(aTemp)
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed = TRUE, :CaseSensitive = bCaseSensitive ])
 
+		def VizFindBoxifiedCS(pcSubStr, pCaseSensitive)
+			return This.VizFindBoxedCS(pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def VizFindBoxed(pcSubStr)
 		return This.VizFindBoxedCS(pcSubStr, TRUE)
+
+		def VizFindBoxified(pcSubStr)
+			return This.VizFindBoxed(pcSubStr)
 
 	  #-------------------------------------------#
 	 #  VISUALLY FINDING AND BOXING A SUBSTRING  #
@@ -50259,16 +50265,22 @@ n1 = Min(aTemp)
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed = TRUE, :Rounded = TRUE, :CaseSensitive = bCaseSensitive ])
 
+		def VizFindBoxifiedRoundedCS(pcSubStr, pCaseSensitive)
+			return This.VizFindBoxedRoundedCS(pcSubStr, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def VizFindBoxedRounded(pcSubStr)
 		return This.VizFindBoxedRoundedCS(pcSubStr, TRUE)
 
+		def VisFindBoxifiedRounded(pcSubStr)
+			return This.VizFindBoxedRounded(pcSubStr)
+
 	  #-------------------------------------------------#
 	 #  VISUALLY FINDING AND BOXING A SUBSTRING -- XT  #
 	#-------------------------------------------------#
 
-	def VizFindBoxedCSXT(pcSubstr, paOptions, pCaseSensitive) #TODO
+	def VizFindBoxedCSXT(pcSubstr, paOptions, pCaseSensitive)
 
 		# Cleansing paOptions from any :Hilight option
 		# because we will add add ourselves to the opttions sets
@@ -50296,10 +50308,110 @@ n1 = Min(aTemp)
 		cBoxed = This.CharsBoxedXT(paOptions)
 		return cBoxed
 
+		#< @FunctionAlternativeForm
+
+		def VizFindBoxifiedCSXT(pcSubstr, paOptions, pCaseSensitive)
+			return This.VizFindBoxedCSXT(pcSubstr, paOptions, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITYs
 
 	def VizFindBoxedXT(pcSubstr, paOptions)
 		return This.VizFindBoxedCSXT(pcSubstr, paOptions, TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def VizFindBoxifiedXT(pcSubstr, paOptions)
+			return This.VizFindBoxedXT(pcSubstr, paOptions)
+
+		#>
+
+	  #===========================================#
+	 #      VISUALLY FINDING A SUBSTRING -- ZZ   #
+	#===========================================#
+
+	def VizFindCSXTZZ(pcSubStr, pCaseSensitive, paOptions)
+		/* ... */
+
+	#-- WITHOUT CASESENSitiviTY
+
+	def VizFindXTZZ(pcSubStr, paOptions)
+		return This.VizFindCSXTZZ(pcSubStr, TRUE, paOptions)
+
+	  #----------------------------------------------------#
+	 #  VISUALLY FINDING A SUBSTRING IN THE STRING -- ZZ  #
+	#----------------------------------------------------#
+
+	def VizFindCSZZ(pcSubStr, pCaseSensitive)
+		return This.VizFindCSXTZZ(pcSubStr, pCaseSensitive, [])
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def VizFindZZ(pcSubStr)
+		return This.VizFindXTZZ(pcSubStr, [ :PositionSign = "^" ])
+
+	  #-------------------------------------------------#
+	 #  VISUALLY FINDING AND BOXING A SUBSTRING -- ZZ  #
+	#=================================================#
+
+	def VizFindBoxedCSZZ(pcSubStr, pCaseSensitive)
+		/* ... */
+
+		def VizFindBoxifiedCSZZ(pcSubStr, pCaseSensitive)
+			return This.VizFindBoxedCSZZ(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def VizFindBoxedZZ(pcSubStr)
+		return This.VizFindBoxedCSZZ(pcSubStr, TRUE)
+
+		def VizFindBoxifiedZZ(pcSubStr)
+			return This.VizFindBoxedZZ(pcSubStr)
+
+	  #-------------------------------------------------#
+	 #  VISUALLY FINDING AND BOXING A SUBSTRING -- ZZ  #
+	#-------------------------------------------------#
+
+	def VizFindBoxedRoundedCSZZ(pcSubStr, pCaseSensitive)
+		/* ... */
+
+		def VizFindBoxifiedRoundedCSZZ(pcSubStr, pCaseSensitive)
+			return This.VizFindBoxedRoundedCS(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def VizFindBoxedRoundedZZ(pcSubStr)
+		return This.VizFindBoxedRoundedCSZZ(pcSubStr, TRUE)
+
+		def VisFindBoxifiedRoundedZZ(pcSubStr)
+			return This.VizFindBoxedRounded(pcSubStr)
+
+	  #----------------------------------------------------#
+	 #  VISUALLY FINDING AND BOXING A SUBSTRING -- XT/ZZ  #
+	#----------------------------------------------------#
+
+	def VizFindBoxedCSXTZZ(pcSubstr, paOptions, pCaseSensitive)
+		/* ... */
+
+		#< @FunctionAlternativeForm
+
+		def VizFindBoxifiedCSXTZZ(pcSubstr, paOptions, pCaseSensitive)
+			return This.VizFindBoxedCSXTZZ(pcSubstr, paOptions, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITYs
+
+	def VizFindBoxedXTZZ(pcSubstr, paOptions)
+		return This.VizFindBoxedCSXTZZ(pcSubstr, paOptions, TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def VizFindBoxifiedXTZZ(pcSubstr, paOptions)
+			return This.VizFindBoxedXTZZ(pcSubstr, paOptions)
+
+		#>
 
 	  #==============================================================#
 	 #  DISTANCE TO A GIVEN SUBSTRING STARTING AT A GIVEN POSITION  #
