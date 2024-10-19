@@ -553,68 +553,93 @@ class stzListOfChars from stzListOfStrings
 
 		return aResult
 
-	  #-------------------------#
+	  #=========================#
 	 #     BOXING THE CHARS    #
-	#-------------------------#
+	#=========================#
 	
-	def Boxed()
+	def Box()
 		return This.BoxedXT([])
 
-		def Boxified()
-			return Boxed()
+		def Boxed()
+			return This.Box()
 
-	def BoxedDashed()
+		def Boxified()
+			return This.Box()
+
+		def Boxify()
+			return This.Box()
+
+	def BoxDash()
 		return This.BoxedXT([ :Line = :Dashed ])
 
-		def BoxifiedDashed()
-			return This.BoxedDashed()
+		#< @FunctionAlternativeForms
 
-	def BoxedRound()
+		def BoxedDashed()
+			return This.BoxDash()
+
+		def BoxifyDash()
+			return This.BoxDash()
+
+		def BoxifiedDashed()
+			return This.BoxDash()
+
+		#>
+
+	def BoxRound()
 		return This.BoxedXT([ :Rounded = TRUE, :AllCorners = :Round ])
 
-		def BoxifiedRound()
-			return This.BoxedRound()
+		#< @FunctionAlternativeForms
 
-		def BoxdedRounded()
-			return This.BoxedRound()
+		def BoxedRounded()
+			return This.BoxRound()
+
+		def BoxifyRound()
+			return This.BoxRound()
 
 		def BoxifiedRounded()
-			return This.BoxedRound()
+			return This.BoxRound()
 
-	def BoxedRoundDashed()
+		#>
+
+
+	def BoxRoundDash()
 		return This.BoxedXT([ :Rounded = TRUE, :Line = :Dashed, :AllCorners = :Round ])
 
 		#< @FunctionAlternativeForms
 
+		def BoxDashRound()
+			return This.BoxRoundDash()
+
+		#--
+
 		def BoxedRoundedDashed()
-			return This.BoxedRoundDashed()
-
-		def BoxifiedRoundDashed()
-			return This.BoxedRoundDashed()
-
-		def BoxifiedRoundedDashed()
-			return This.BoxedRoundDashed()
-
-		def BoxedDashedRound()
-			return This.BoxedRoundDashed()
+			return This.BoxRoundDash()
 
 		def BoxedDashedRounded()
-			return This.BoxedRoundDashed()
+			return This.BoxRoundDash()
 
-		def BoxifiedDashedRound()
-			return This.BoxedRoundDashed()
+		#==
+
+		def BoxifyRoundDash()
+			return This.BoxRoundDash()
+
+		def BoxifyDashRound()
+			return This.BoxRoundDash()
+
+		def BoxifiedRoundedDashed()
+			return This.BoxRoundDash()
 
 		def BoxifiedDashedRounded()
-			return This.BoxedRoundDashed()
+			return This.BoxRoundDash()
 
 		#>
 
-	def BoxedXT(paBoxOptions)
+	def BoxXT(paBoxOptions)
 
 		/*
 		Example:
 
-		? StzListOfCharsQ("TEXT").BoxedXT([
+		? StzListOfCharsQ("TEXT").BoxXT([
 			:Line = :Thin,	# or :Dashed
 		
 			:AllCorners = :Round # can also be :Rectangualr
@@ -672,6 +697,12 @@ class stzListOfChars from stzListOfStrings
 			ok
 
 			aCorners = []
+
+			if len(aCorners) = 0 and bRounded = NULL
+				if isString(bRounded) and bRounded = NULL
+					bRounded = FALSE
+				ok
+			ok
 
 			if cAllCorners = :Rectangular or cAllCorners = :Rect
 
@@ -1010,9 +1041,12 @@ class stzListOfChars from stzListOfStrings
 				oSectionLine.ReplaceSectionsByMany(aSections, acSegments)
 				cNumbersLine = oSectionLine.TrimRightQ().Content()
 	
+				cResult += NL + cNumbersLine
 			ok
 
-			cResult += NL + cNumbersLine
+			# Returning the result
+
+			cResult = StzStringQ(cResult).ThisLastCharRemoved(NL)
 			return cResult
 			
 
@@ -1022,14 +1056,14 @@ class stzListOfChars from stzListOfStrings
 
 		#< @FunctionAlternativeForms
 
-		def BoxifiedXT(paBoxOptions)
-			return This.BoxedXT(paBoxOptions)
-
-		def BoxXT(paBoxOptions)
-			return This.BoxedXT(paBoxOptions)
+		def BoxedXT(paBoxOptions)
+			return This.BoxXT(paBoxOptions)
 
 		def BoxifyXT(paBoxOptions)
-			return This.BoxedXT(paBoxOptions)
+			return This.BoxXT(paBoxOptions)
+
+		def BoxifiedXT(paBoxOptions)
+			return This.BoxXT(paBoxOptions)
 
 		#>
 
