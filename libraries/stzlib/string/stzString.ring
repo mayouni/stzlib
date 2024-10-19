@@ -87678,28 +87678,28 @@ n1 = Min(aTemp)
 
 	#--
 
-	def BoxDashed()
+	def BoxDash()
 		This.BoxXT([ :Line = :Dashed, :AllCorners = :Rectangular ])
 
 		#< @FunctionFluentForm
 
-		def BoxDashedQ()
+		def BoxDashQ()
 			This.BoxDashed()
 			return This
 		#>
 
 		#< @FunctionFluentForm
 
-		def BoxifyDashed()
-			This.BoxDashed()
+		def BoxifyDash()
+			This.BoxDash()
 
-			def BoxifyDashedQ()
-				return This.BoxDashedQ()
+			def BoxifyDashQ()
+				return This.BoxDashQ()
 
 		#>
 
 	def BoxedDashed()
-		return This.Copy().BoxDashedQ().Content()
+		return This.Copy().BoxDashQ().Content()
 
 		def BoxifiedDashed()
 			return This.BoxedDashed()
@@ -87725,48 +87725,57 @@ n1 = Min(aTemp)
 	def BoxedRound()
 		return This.Copy().BoxRoundQ().Content()
 
-		def BoxifiedRound()
+		def BoxifiedRounded()
 			return This.BoxedRound()
 
 	#--
 
-	def BoxRoundDashed()
+	def BoxRoundDash()
 		This.BoxXT([ :Line = :Dashed, :AllCorners = :Round ])
 
 		#< @FunctionFluentForm
 
-		def BoxRoundDashedQ()
-			This.BoxRoundDashed()
+		def BoxRoundDashQ()
+			This.BoxRoundDash()
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def BoxDashedRound()
-			This.BoxRoundDashed()
+		def BoxDashRound()
+			This.BoxRoundDash()
 
-			def BoxDashedRoundQ()
-				return This.BoxRoundDashedQ()
+			def BoxDashRoundQ()
+				return This.BoxRoundDashQ()
 
 		#--
 
-		def BoxifyRoundDashed()
-			This.BoxRoundDashed()
+		def BoxifyRoundDash()
+			This.BoxRoundDash()
 
-			def BoxifyRoundDashedQ()
-				return This.return This.BoxRoundDashedQ()
+			def BoxifyRoundDashQ()
+				return This.BoxRoundDashQ()
+
+		def BoxifyDashRound()
+			This.BoxRoundDash()
+
+			def BoxifyDashRoundQ()
+				return This.BoxRoundDashQ()
 
 		#>
 
-	def BoxedRoundDashed()
-		return This.Copy().BoxRoundDashedQ().Content()
+	def BoxedRoundedDashed()
+		return This.Copy().BoxRoundDashQ().Content()
 
-		def BoxedDashedRound()
-			return This.BoxDashedRound()
+		def BoxededDashedRound()
+			return This.BoxedRoundedDashed()
 
-		def BoxifiedDashedRound()
-			return This.BoxDashedRound()
+		def BoxifiedDashedRounded()
+			return This.BoxedRoundedDashed()
+
+		def BoxifiedRoundedDashed()
+			return This.BoxedRoundedDashed()
 
 	#--
 
@@ -87820,27 +87829,51 @@ n1 = Min(aTemp)
 
 	#--
 
-	def BoxEachCharRound()
+	def BoxRoundEachChar()
 		This.BoxXT( [ :AllCorners = :Round, :EachChar = TRUE ])
 
 		#< @FunctionFluentForm
 
-		def BoxEachCharRoundQ()
-			This.BoxEachCharRound()
+		def BoxRoundEachCharQ()
+			This.BoxRoundEachChar()
 			return This
 
 		#>
 
-		def BoxifyEachCharRound()
-			This.BoxEachCharRound()
+		#< @FunctionAlternativeForms
 
-			def BoxifyEachCharRoundQ()
-				return This.BoxEachCharRoundQ()
+		def BoxRoundChars()
+			This.BoxRoundEachChar()
 
-	def EachCharBoxedRound()
-		return This.Copy().BoxEachCharRoundQ().Content()
+			def BoxRoundCharsQ()
+				return This.BoxRoundEachCharQ()
 
-		def EachCharBoxifiedRound()
+		#--
+
+		def BoxifyRoundEachChar()
+			This.BoxRoundEachChar()
+
+			def BoxifyRoundEachCharQ()
+				return This.BoxRoundEachCharQ()
+
+		def BoxifyRoundChars()
+			This.BoxRoundEachChar()
+
+			def BoxifyRoundCharsQ()
+				return This.BoxRoundEachCharQ()
+
+		#>
+
+	def EachCharBoxedRounded()
+		return This.Copy().BoxRoundEachCharRQ().Content()
+
+		def EachCharBoxifiedRounded()
+			return This.EachCharBoxedRound()
+
+		def CharsBoxedRounded()
+			return This.EachCharBoxedRound()
+
+		def CharsBoxifiedRounded()
 			return This.EachCharBoxedRound()
 
 	#--
