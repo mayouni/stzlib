@@ -15213,10 +15213,11 @@ proff()
 */
 pron()
 
-o1 = new stzString("..STZ..STZ..STZ.")
+o1 = new stzString("..STZ..STZ..STZ")
 
 ? o1.ToStzListOfChars().BoxXT([
 	:Hilighted = Q( o1.FindZZ("STZ") ).Flattened(),
+	:Sectioned = TRUE,
 	:Numbered = TRUE
  ])
 

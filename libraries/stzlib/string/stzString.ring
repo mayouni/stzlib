@@ -49914,8 +49914,8 @@ n1 = Min(aTemp)
 	 #   NTH SUBSTRING WHERE A CONDITION IS VERIFIED  # 
 	#------------------------------------------------#
 
-	#TODO: Reimplement it for better performance
-	#TODO Add cases ensitivity
+	#TODO // Reimplement it for better performance
+	#TODO // Add cases ensitivity
 
 	def NthSubStringW(n, pcCondition)
 		return This.SubStringsW()[n]
@@ -49929,7 +49929,7 @@ n1 = Min(aTemp)
 	 #  VISUALLY FINDING CHARS IN THE STRING  #
 	#========================================#
 
-	def VizFindChar(c)
+	def VizFindCharCS(c, pCaseSensitive)
 		if ObjectIsStzChar(c)
 			c = c.Content()
 		ok
@@ -49939,14 +49939,14 @@ n1 = Min(aTemp)
 		ok
 
 		cResult = @@( This.Content() )
-		anPos = This.FindAll( c )
+		anPos = This.FindAllCS( c, pCaseSensitive )
 
 		nLen = StzStringQ(cResult).NumberOfChars()
 
 		cViz = " "
 		for i = 1 to nLen - 2
-			
-			if StzNumberQ(i).IsOneOfThese(anPos)
+
+			if ring_find(anPos, i) > 0
 				cViz += "^"
 			else
 				cViz += "-"
@@ -49960,14 +49960,32 @@ n1 = Min(aTemp)
 
 		#< @FunctionFluentForm
 
-		def VizFindCharQ(pItem)
-			return new stzString( This.VizFindChar(pItem) )
+		def VizFindCharCSQ(c, pCaseSensitive)
+			return new stzString( This.VizFindCharCS(c, pCaseSenstive) )
 
 		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def VizFindChar(c)
+		return This.VizFindCharCS(c, TRUE)
 
 	  #-----------------------------------------#
 	 #      VISUALLY FINDING A SUBSTRING       #
 	#-----------------------------------------#
+
+	def VizFindCSXT(pcSubStr, pCaseSensitive, paOptions)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+		return This.VizFindXT(pcSubStr, paOptions + :CaseSensitive = bCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def VizFindXTCSQ(pcSubStr, paOptions)
+			return new stzString( This.VizFindCSXT(pcSubStr, pCaseSensitive, paOptions) )
+
+		#>
+
+	#-- WITHOUT CASESENSitiviTY
 
 	def VizFindXT(pcSubStr, paOptions)
 
@@ -50207,18 +50225,26 @@ n1 = Min(aTemp)
 
 		#>
 
+	  #----------------------------------------------#
+	 #  VISUALLY FINDING A SUBSTRING IN THE STRING  #
+	#----------------------------------------------#
+
+	def VizFindCS(pcSubStr, pCaseSensitive)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+		return This.VizFindXT(pcSubStr, [ :CaseSensitive = bCaseSensitive ])
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def VizFind(pcSubStr)
 		return This.VizFindXT(pcSubStr, [ :PositionSign = "^" ])
 
-	def VizFindCS(pcSubStr, pCaseSensitive)
-		return This.VizFindXT(pcSubStr, [ pCaseSensitive ])
-		
 	  #-------------------------------------------#
 	 #  VISUALLY FINDING AND BOXING A SUBSTRING  #
 	#===========================================#
 
 	def VizFindBoxedCS(pcSubStr, pCaseSensitive)
-		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed = TRUE ], pCaseSEnsitive)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed = TRUE, :CaseSensitive = bCaseSensitive ])
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -50230,7 +50256,8 @@ n1 = Min(aTemp)
 	#-------------------------------------------#
 
 	def VizFindBoxedRoundedCS(pcSubStr, pCaseSensitive)
-		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed = TRUE, :Rounded = TRUE ], pCaseSEnsitive)
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed = TRUE, :Rounded = TRUE, :CaseSensitive = bCaseSensitive ])
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -50272,7 +50299,6 @@ n1 = Min(aTemp)
 	def VizFindBoxedXT(pcSubstr, paOptions)
 		return This.VizFindBoxedCSXT(pcSubstr, paOptions, TRUE)
 
-	
 	  #==============================================================#
 	 #  DISTANCE TO A GIVEN SUBSTRING STARTING AT A GIVEN POSITION  #
 	#==============================================================#

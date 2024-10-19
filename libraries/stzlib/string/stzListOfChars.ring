@@ -792,7 +792,7 @@ class stzListOfChars from stzListOfStrings
 			if paBoxOptions[:Sectioned] != NULL and
 			   paBoxOptions[:Sectioned] = TRUE
 
-				bSecioned = TRUE
+				bSectioned = TRUE
 			ok
 
 			# Composing the boxed list of strings
@@ -898,107 +898,121 @@ class stzListOfChars from stzListOfStrings
 
 			oDownLine = new stzString(cDownLine)
 			nLenDownLine = oDownLine.NumberOfChars()
-			anPosSign = oDownLine.Find(cSign)
-			nLenPosSign = len(anPosSign)
 
-			aSections = []
-			aSection = []
-
-			for i = 1 to nLenPosSign
-				aSection + anPosSign[i]
-				if len(aSection) = 2
-					aSections + aSection
-					aSection = []
-				ok
-			next
-
-			nLenSections = len(aSections)
-
-			cSectionsLine = ""
+			cSpaceLine = ""
 			for i = 1 to nLenDownLine
-				cSectionsLine += " "
+				cSpaceLine += " "
 			next
 
-			acSegments = []
+			if bSectioned = TRUE
 
-			for i = 1 to nLenSections
-
-				cSegment = ""
-
-				n1 = aSections[i][1]
-				n2 = aSections[i][2]
-
-				for j = n1 to n2
-					if j = n1 or j = n2
-						cSegment += "'"
-					else
-						cSegment += "-"
+				anPosSign = oDownLine.Find(cSign)
+				nLenPosSign = len(anPosSign)
+	
+				aSections = []
+				aSection = []
+	
+				for i = 1 to nLenPosSign
+					aSection + anPosSign[i]
+					if len(aSection) = 2
+						aSections + aSection
+						aSection = []
 					ok
 				next
-
-				acSegments + cSegment
-				
-			next
-
-			oSectionLine = new stzString(cSectionsLine)
-			oSectionLine.ReplaceSectionsByMany(aSections, acSegments)
-			cSectionsLine = oSectionLine.TrimRightQ().Content()
-
-			cResult += NL + cSectionsLine
-
-			# Cobstructing the positions line
-
-			cNumberLine = ""
-
-			if bNumberedXT
-
-				anNumbers = []
-				n = 0
-
-				for i = 1 to nWidth
-					anNumbers + i
+	
+				nLenSections = len(aSections)
+	
+				acSegments = []
+	
+				for i = 1 to nLenSections
+	
+					cSegment = ""
+	
+					n1 = aSections[i][1]
+					n2 = aSections[i][2]
+	
+					for j = n1 to n2
+						if j = n1 or j = n2
+							cSegment += "'"
+						else
+							cSegment += "-"
+						ok
+					next
+	
+					acSegments + cSegment
+					
 				next
-
-				for i = 1 to nWidth
-					if i < 10
-						cNumberLine += "  " + anNumbers[i] + " "
-					but i > 9 and i < 99
-						cNumberLine += " " + anNumbers[i] + " "
-					else
-						cNumberLine += "" + anNumbers[i] + " "
-					ok
-				next
-				cResult += NL + cNumberLine
-
-			but bNumbered
-
-				anNumbers = []
-				n = 0
-
-				for i = 1 to nWidth
-					anNumbers + i
-				next
-
-				cTemp = " "
-				for i = 1 to nWidth
-					if ring_find(anHilighted, anNumbers[i])
-						cTemp = anNumbers[i]
-					else
-						cTemp = " "
-					ok
-
-					if i < 10
-						cNumberLine += "  " + cTemp + " "
-					but i > 9 and i < 99
-						cNumberLine += " " + cTemp + " "
-					else
-						cNumberLine += "" + anNumbers[i] + " "
-					ok
-				next
-				cResult += NL + cNumberLine
-
+	
+				oSectionLine = new stzString(cSpaceLine)
+				oSectionLine.ReplaceSectionsByMany(aSections, acSegments)
+				cSectionsLine = oSectionLine.TrimRightQ().Content()
+	
+				cResult += NL + cSectionsLine
 			ok
 
+			# Constructing the positions line
+
+			cNumbersLine = ""
+
+			if bNumbered or bNumberedXT
+
+				anPosSign = oDownLine.Find(cSign)
+				nLenPosSign = len(anPosSign)
+	
+				aSections = []
+				aSection = []
+	
+				for i = 1 to nLenPosSign
+					aSection + anPosSign[i]
+					if len(aSection) = 2
+						aSections + aSection
+						aSection = []
+					ok
+				next
+	
+				nLenSections = len(aSections)
+	
+				acSegments = []
+	
+
+				for i = 1 to nLenSections
+	
+					cSegment = ""
+	
+					n1 = aSections[i][1]
+					n2 = aSections[i][2]
+
+					nLen1 = len(""+n1)
+					nLen2 = len(""+n2)
+					nDiff = n2 - n1 - (nLen1-1) - (nLen2-1)
+
+					n = 0
+					for j = n1 to n2
+						n++
+
+						if j = n1
+							cSegment += ""+ n1
+
+						but j = n2
+							cSegment += ""+ n2
+						else
+							if n <= nDiff
+								cSegment += " "
+							ok
+						ok
+					next
+	
+					acSegments + cSegment
+					
+				next
+	
+				oSectionLine = new stzString(cSpaceLine)
+				oSectionLine.ReplaceSectionsByMany(aSections, acSegments)
+				cNumbersLine = oSectionLine.TrimRightQ().Content()
+	
+			ok
+
+			cResult += NL + cNumbersLine
 			return cResult
 			
 
