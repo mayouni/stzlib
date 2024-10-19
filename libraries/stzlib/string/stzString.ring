@@ -49980,8 +49980,15 @@ n1 = Min(aTemp)
 
 		#< @FunctionFluentForm
 
-		def VizFindXTCSQ(pcSubStr, paOptions)
+		def VizFindCSXTQ(pcSubStr, pCaseSensitive, paOptions)
 			return new stzString( This.VizFindCSXT(pcSubStr, pCaseSensitive, paOptions) )
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def VizFindXTCS(pcSubStr, paOptions, pCaseSensitive)
+			return This.VizFindCSXT(pcSubStr, pCaseSensitive, paOptions)
 
 		#>
 
@@ -50280,7 +50287,7 @@ n1 = Min(aTemp)
 	 #  VISUALLY FINDING AND BOXING A SUBSTRING -- XT  #
 	#-------------------------------------------------#
 
-	def VizFindBoxedCSXT(pcSubstr, paOptions, pCaseSensitive)
+	def VizFindBoxedXTCS(pcSubstr, paOptions, pCaseSensitive)
 
 		# Supporting one option provided in a string:
 		# ~> VizFindBoxedCSXT( :Dashed )
@@ -50348,10 +50355,18 @@ n1 = Min(aTemp)
 		cBoxed = This.CharsBoxedXT(paOptions)
 		return cBoxed
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
-		def VizFindBoxifiedCSXT(pcSubstr, paOptions, pCaseSensitive)
-			return This.VizFindBoxedCSXT(pcSubstr, paOptions, pCaseSensitive)
+		def VizFindBoxifiedXTCS(pcSubstr, paOptions, pCaseSensitive)
+			return This.VizFindBoxedXTCS(pcSubstr, paOptions, pCaseSensitive)
+
+		#--
+
+		def VizFindBoxedCSXT(pcSubStr, pCaseSensitive, paOptions)
+			return This.VizFindBoxedXTCS(pcSubstr, paOptions, pCaseSensitive)
+
+		def VizFindBoxifiedCSXT(pcSubStr, pCaseSensitive, paOptions)
+			return This.VizFindBoxedXTCS(pcSubstr, paOptions, pCaseSensitive)
 
 		#>
 
@@ -50373,7 +50388,12 @@ n1 = Min(aTemp)
 
 	def VizFindCSXTZZ(pcSubStr, pCaseSensitive, paOptions)
 		cResult = This.VizFindCSXT(pcSubStr, paOptions)
-? cResults
+
+		/* ... */
+
+
+		def VizFindXTCSZZ(pcSubStr, paOptions, pCaseSensitive)
+			return This.VizFindCSXTZZ(pcSubStr, pCaseSensitive, paOptions)
 
 	#-- WITHOUT CASESENSitiviTY
 
@@ -50438,6 +50458,14 @@ n1 = Min(aTemp)
 		#< @FunctionAlternativeForm
 
 		def VizFindBoxifiedCSXTZZ(pcSubstr, paOptions, pCaseSensitive)
+			return This.VizFindBoxedCSXTZZ(pcSubstr, paOptions, pCaseSensitive)
+
+		#--
+
+		def VizFindBoxedXTCSZZ(pcSubStr, pCaseSensitive, paOptions)
+			return This.VizFindBoxedCSXTZZ(pcSubstr, paOptions, pCaseSensitive)
+
+		def VizFindBoxifiedXTCSZZ(pcSubStr, pCaseSensitive, paOptions)
 			return This.VizFindBoxedCSXTZZ(pcSubstr, paOptions, pCaseSensitive)
 
 		#>

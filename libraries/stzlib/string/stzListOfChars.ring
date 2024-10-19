@@ -1032,7 +1032,11 @@ class stzListOfChars from stzListOfStrings
 				cResult += NL + cSectionsLine
 			ok
 
-			# Constructing the positions line
+			# Constructing the positions line, depending on wether the
+			# :Sectioned option is requested or not
+
+			#NOTE // :Sectioned option is used internally by
+			# the vizFindBoxedZZ() function in stzString
 
 			cNumbersLine = ""
 
@@ -1040,58 +1044,83 @@ class stzListOfChars from stzListOfStrings
 
 				anPosSign = oDownLine.Find(cSign)
 				nLenPosSign = len(anPosSign)
-	
-				aSections = []
-				aSection = []
-	
-				for i = 1 to nLenPosSign
-					aSection + anPosSign[i]
-					if len(aSection) = 2
-						aSections + aSection
-						aSection = []
-					ok
-				next
-	
-				nLenSections = len(aSections)
-	
-				acSegments = []
-	
 
-				for i = 1 to nLenSections
+				if NOT bSectioned
+
+					acHilightedPos = []
+					nLenPos = len(anHilighted)
+
+					for i = 1 to nLenPos
+						acHilightedPos + (""+ anHilighted[i])
+					next
+					
+					aSections = []
+
+					for i = 1 to nLenPosSign
+						n1 = anPosSign[i]
+						n2 = n1 + ( len(acHilightedPos[i]) - 1 )
+						aSections + [ n1, n2]
+					next
+
+					oNumbersLine = new stzString(cSpaceLine)
+					oNumbersLine.ReplaceSectionsByMany(aSections, acHilightedPos)
+					cNumbersLine = oNumbersLine.TrimRightQ().Content()
+
+				else // bSectioned
 	
-					cSegment = ""
-	
-					n1 = aSections[i][1]
-					n2 = aSections[i][2]
-
-					nLen1 = len(""+n1)
-					nLen2 = len(""+n2)
-					nDiff = n2 - n1 - (nLen1-1) - (nLen2-1)
-
-					n = 0
-					for j = n1 to n2
-						n++
-
-						if j = n1
-							cSegment += ""+ n1
-
-						but j = n2
-							cSegment += ""+ n2
-						else
-							if n <= nDiff
-								cSegment += " "
-							ok
+					aSections = []
+					aSection = []
+		
+					for i = 1 to nLenPosSign
+						aSection + anPosSign[i]
+						if len(aSection) = 2
+							aSections + aSection
+							aSection = []
 						ok
 					next
+		
+					nLenSections = len(aSections)
+		
+					acSegments = []
+		
 	
-					acSegments + cSegment
+					for i = 1 to nLenSections
+		
+						cSegment = ""
+		
+						n1 = aSections[i][1]
+						n2 = aSections[i][2]
+	
+						nLen1 = len(""+n1)
+						nLen2 = len(""+n2)
+						nDiff = n2 - n1 - (nLen1-1) - (nLen2-1)
+	
+						n = 0
+						for j = n1 to n2
+							n++
+	
+							if j = n1
+								cSegment += ""+ n1
+	
+							but j = n2
+								cSegment += ""+ n2
+							else
+								if n <= nDiff
+									cSegment += " "
+								ok
+							ok
+						next
+		
+						acSegments + cSegment
+						
+					next
+		
+					oSectionLine = new stzString(cSpaceLine)
+					oSectionLine.ReplaceSectionsByMany(aSections, acSegments)
+					cNumbersLine = oSectionLine.TrimRightQ().Content()
 					
-				next
-	
-				oSectionLine = new stzString(cSpaceLine)
-				oSectionLine.ReplaceSectionsByMany(aSections, acSegments)
-				cNumbersLine = oSectionLine.TrimRightQ().Content()
-	
+				ok
+
 				cResult += NL + cNumbersLine
 			ok
 
