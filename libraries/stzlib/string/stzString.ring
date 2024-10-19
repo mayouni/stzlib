@@ -50282,6 +50282,46 @@ n1 = Min(aTemp)
 
 	def VizFindBoxedCSXT(pcSubstr, paOptions, pCaseSensitive)
 
+		# Supporting one option provided in a string:
+		# ~> VizFindBoxedCSXT( :Dashed )
+
+		if isString(paOptions)
+			paTemp = [] + [ paOptions, TRUE ]
+			paOptions = paTemp
+		ok
+
+		if NOT isList(paOptions)
+			StzRaise("Incorrect param type! paOptions must be a list.")
+		ok
+
+		# Allowing giving options in string form like:
+		# 
+		# 	VizFindBoxedCSXT([ :Solid, :Dashed, :Rounded,
+		# 		:Numbered, :NumberedXT,
+		# 		:ShowPositions, :ShowPositions,
+		# 		:Spacified ])
+		# 
+		# without being constrained by providing them in
+		# the hashlist form:
+		# 
+		# 	VizFindBoxedCSXT([ :Solid = TRUE, :Dashed = TRUE, ... ])
+		# 
+		# ~> More concise syntax!
+
+		aTemp = []
+		nLenTemp = len(paOptions)
+		for i = 1 to nLenTemp
+			if isString(paOptions[i])
+				aTemp + [ paOptions[i], TRUE ]
+			else
+				aTemp + paOptions[i]
+			ok
+		next
+
+		paOptions = aTemp
+
+		# Checking the hashlist of params
+
 		# Cleansing paOptions from any :Hilight option
 		# because we will add add ourselves to the opttions sets
 		# befrore delegating the work to stzListOfChars boxing service
@@ -50332,7 +50372,8 @@ n1 = Min(aTemp)
 	#===========================================#
 
 	def VizFindCSXTZZ(pcSubStr, pCaseSensitive, paOptions)
-		/* ... */
+		cResult = This.VizFindCSXT(pcSubStr, paOptions)
+? cResults
 
 	#-- WITHOUT CASESENSitiviTY
 
@@ -50356,7 +50397,7 @@ n1 = Min(aTemp)
 	#=================================================#
 
 	def VizFindBoxedCSZZ(pcSubStr, pCaseSensitive)
-		/* ... */
+		return This.VizFindCSXTZZ(pcSubStr, [], pCaseSensitive)
 
 		def VizFindBoxifiedCSZZ(pcSubStr, pCaseSensitive)
 			return This.VizFindBoxedCSZZ(pcSubStr, pCaseSensitive)
@@ -50374,7 +50415,7 @@ n1 = Min(aTemp)
 	#-------------------------------------------------#
 
 	def VizFindBoxedRoundedCSZZ(pcSubStr, pCaseSensitive)
-		/* ... */
+		return This.VizFindCSXTZZ(pcSubStr, [ :Boxed = TRUE, :Rounded = TRUE ], pCaseSensitive)
 
 		def VizFindBoxifiedRoundedCSZZ(pcSubStr, pCaseSensitive)
 			return This.VizFindBoxedRoundedCS(pcSubStr, pCaseSensitive)
@@ -50392,7 +50433,7 @@ n1 = Min(aTemp)
 	#----------------------------------------------------#
 
 	def VizFindBoxedCSXTZZ(pcSubstr, paOptions, pCaseSensitive)
-		/* ... */
+		return This.VizFindCSXTZZ(pcSubStr, [ :Boxed = TRUE ], pCaseSensitive)
 
 		#< @FunctionAlternativeForm
 
@@ -87819,7 +87860,7 @@ n1 = Min(aTemp)
 	#--
 
 	def BoxRound()
-		This.BoxXT([ :Line = :Thin, :AllCorners = :Round ])
+		This.BoxXT([ :Line = :Solid, :AllCorners = :Round ])
 
 		#< @FunctionFluentForm
 
@@ -87893,7 +87934,7 @@ n1 = Min(aTemp)
 
 	def BoxEachChar()
 
-		This.BoxXT([ :Line = :Thin, :EachChar = TRUE ])
+		This.BoxXT([ :Line = :Solid, :EachChar = TRUE ])
 
 		#< @FunctionFluentForm
 
@@ -88048,7 +88089,7 @@ n1 = Min(aTemp)
 
 		? StzStringQ("TEXT1").BoxXT([
 
-			:Line = :Thin,	# or :Dashed
+			:Line = :Solid,	# or :Dashed
 		
 			:AllCorners = :Round, # can also be :Rectangualr
 			# :Corners = [ :Round, :Rectangular, :Round, :Rectangular ],
@@ -88082,11 +88123,51 @@ n1 = Min(aTemp)
 
 		*/
 
+		# Supporting one option provided in a string:
+		# ~> BoxXT( :Dashed )
+
+		if isString(paBoxOptions)
+			paTemp = [] + [ paBoxOptions, TRUE ]
+			paBoxOptions = paTemp
+		ok
+
+		if NOT isList(paBoxOptions)
+			StzRaise("Incorrect param type! paBoxOptions must be a list.")
+		ok
+
+		# Allowing giving options in string form like:
+		# 
+		# 	BoxXT([ :Solid, :Dashed, :Rounded,
+		# 		:Numbered, :NumberedXT,
+		# 		:ShowPositions, :ShowPositions,
+		# 		:Spacified, :Sectioned ])
+		# 
+		# without being constrained by providing them in
+		# the hashlist form:
+		# 
+		# 	BoxXT([ :Solid = TRUE, :Dashed = TRUE, ... ])
+		# 
+		# ~> More concise syntax!
+
+		aTemp = []
+		nLenTemp = len(paBoxOptions)
+		for i = 1 to nLenTemp
+			if isString(paBoxOptions[i])
+				aTemp + [ paBoxOptions[i], TRUE ]
+			else
+				aTemp + paBoxOptions[i]
+			ok
+		next
+
+		paBoxOptions = aTemp
+
+		# Checking the hashlist of params
+
 		if StzListQ(paBoxOptions).IsTextBoxedOptionsNamedParam()
 
 			# Reading the type of line (thin or dashed)
 
-			cLine = :Thin # By default
+			cLine = :Solid # By default
 
 			if paBoxOptions[ :Line ] = :Dashed
 				cLine = :Dashed
@@ -88123,12 +88204,6 @@ n1 = Min(aTemp)
 
 			aCorners = []
 
-			if len(aCorners) = 0 and bRounded = NULL
-				if isString(bRounded) and bRounded = NULL
-					bRounded = FALSE
-				ok
-			ok
-
 			if cAllCorners = :Rectangular or
 			   cAllCorners = :Rect
 
@@ -88159,6 +88234,12 @@ n1 = Min(aTemp)
 
 				aCorners = paBoxOptions[:Corners]
 
+			ok
+
+			if len(aCorners) = 0 and bRounded = NULL
+				if isString(bRounded) and bRounded = NULL
+					bRounded = FALSE
+				ok
 			ok
 
 			if bRounded = TRUE and

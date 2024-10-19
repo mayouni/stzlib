@@ -12289,7 +12289,7 @@ proff()
 pron()
 
 ? StzStringQ("SOFTANZA IS AWSOME!").BoxedXT([
-	:Line = :Thin,	# or :Dashed
+	:Line = :Solid,	# or :Dashed
 		
 	:AllCorners = :Round, # can also be :Rectangualr
 	:Corners = [ :Round, :Rectangular, :Round, :Rectangular ],
@@ -12372,7 +12372,7 @@ StzStringQ("RING IS NICE") {
 	? BoxedDashedRound()
 
 	? BoxedXT([
-		:Line = :Thin,
+		:Line = :Solid,
 		:Corners = [
 			:Round, :Rectangular,
 			:Round, :Rectangular
@@ -15180,8 +15180,43 @@ o1 = new stzString("SOFTANZA")
 proff()
 # Executed in 0.19 second(s).
 
+/*----- #narration FLEXIBLE OPTIONS SYNTAX
+*/
+pron()
+
+o1 = new stzString("SOFTANZA")
+
+? o1.VizFindBoxedXT("A", [
+	:Dashed = TRUE,
+	:Rounded = TRUE,
+	:Numbered = TRUE
+])
+
+# Can be writtent in the fellowing simplified form:
+
+? o1.VizFindBoxedXT("A", [ :Dashed, :Rounded, :Numbered ])
+
+# And they both lead to this output:
+
+#-->
+# ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
+# ┊ S ┊ O ┊ F ┊ T ┊ A ┊ N ┊ Z ┊ A ┊
+# ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴─↑─┴╌╌╌┴╌╌╌┴─↑─╯
+#                   19         31
+
+# You can even provide only option in a string:
+
+? o1.VizFindBoxedXT( "A", :Rounded )
+#-->
+# ╭───┬───┬───┬───┬───┬───┬───┬───╮
+# │ S │ O │ F │ T │ A │ N │ Z │ A │
+# ╰───┴───┴───┴───┴─•─┴───┴───┴─•─╯
+proff()
+
+
 /*-----
 
+*/
 pron()
 
 o1 = new stzString("SOFTANZA")
@@ -15189,7 +15224,10 @@ o1 = new stzString("SOFTANZA")
 ? o1.VizFindBoxedXT("A", [
 	:PositionSign = "↑",
 	:Numbered = TRUE,
-	:Corners = [ :round, :round, :rect, :rect ]
+
+	:Corners = [ :round, :round, :rect, :rect ],
+
+	:Dashed = TRUE
 
 ]) + NL
 #-->
@@ -15199,15 +15237,15 @@ o1 = new stzString("SOFTANZA")
 #                   5           8 
 
 ? o1.VizFindBoxedXT("A", [
+	:Dashed = TRUE,
+	:Rounded = TRUE,
 
 	:PositionSign = "↑",
-	:NumberedXT = TRUE,
-
-	:Rounded = TRUE
+	:Numbered = TRUE
 ])
 
 proff()
-# Executed in 0.05 second(s).
+# Executed in 0.10 second(s).
 
 /*=====
 
@@ -15230,7 +15268,7 @@ o1 = new stzString("..STZ..STZ..STZ")
 proff()
 
 /*-----
-*/
+
 pron()
 
 o1 = new stzListOfChars([ "R", "I", "N", "G" ])
@@ -15268,6 +15306,7 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 ? o1.BoxDashRound()
 
 proff()
+# Executed in 0.06 second(s).
 
 /*-----
 */

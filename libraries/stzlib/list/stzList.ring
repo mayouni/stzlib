@@ -68156,7 +68156,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		Example:
 
 		? StzStringQ("TEXT1").BoxedXT([
-			:Line = :Thin,	# or :Dashed
+			:Line = :Solid,	# or :Dashed
 		
 			:AllCorners = :Round # can also be :Rectangualr
 			# :Corners = [ :Round, :Rectangular, :Round, :Rectangular ],
@@ -68177,7 +68177,8 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		aListOfBoxOptions = [
 
-			:Line,
+			:Line, :Solid, :Dashed,
+
 			:Rounded, :Round,
 			:AllCorners, :Corners,
 			:Width,

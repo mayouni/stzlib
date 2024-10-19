@@ -640,7 +640,7 @@ class stzListOfChars from stzListOfStrings
 		Example:
 
 		? StzListOfCharsQ("TEXT").BoxXT([
-			:Line = :Thin,	# or :Dashed
+			:Line = :Solid,	# or :Dashed
 		
 			:AllCorners = :Round # can also be :Rectangualr
 
@@ -657,14 +657,65 @@ class stzListOfChars from stzListOfStrings
 		╰───┴───┴─•─┴───╯	
 		*/
 
+		# Supporting one option provided in a string:
+		# ~> BoxXT( :Dashed )
+
+		if isString(paBoxOptions)
+			paTemp = [] + [ paBoxOptions, TRUE ]
+			paBoxOptions = paTemp
+		ok
+
+		if NOT isList(paBoxOptions)
+			StzRaise("Incorrect param type! paBoxOptions must be a list.")
+		ok
+
+		# Allowing giving options in string form like:
+		# 
+		# 	BoxXT([ :Solid, :Dashed, :Rounded,
+		# 		:Numbered, :NumberedXT,
+		# 		:ShowPositions, :ShowPositions,
+		# 		:Spacified, :Sectioned ])
+		# 
+		# without being constrained by providing them in
+		# the hashlist form:
+		# 
+		# 	BoxXT([ :Solid = TRUE, :Dashed = TRUE, ... ])
+		# 
+		# ~> More concise syntax!
+
+		aTemp = []
+		nLenTemp = len(paBoxOptions)
+		for i = 1 to nLenTemp
+			if isString(paBoxOptions[i])
+				aTemp + [ paBoxOptions[i], TRUE ]
+			else
+				aTemp + paBoxOptions[i]
+			ok
+		next
+
+		paBoxOptions = aTemp
+
+		# Checking the hashlist of params
+
 		if StzListQ(paBoxOptions).IsTextBoxedOptionsNamedParam()
 
 			# Reading the type of line (thin or dashed)
 
-			cLine = :Thin # By default
+			cLine = :Solid # By default
 
 			if paBoxOptions[ :Line ] = :Dashed
 				cLine = :Dashed
+			ok
+
+			if isNumber(paBoxOptions[ :Solid ]) and
+			   paBoxOptions[ :Solid ] = TRUE
+
+					cLine = :Solid
+
+			but isNumber(paBoxOptions[ :Dashed ]) and
+			    paBoxOptions[ :Dashed ] = TRUE
+
+					cLine = :Dashed
 			ok
 
 			# Reading if the box is rounded
@@ -697,12 +748,6 @@ class stzListOfChars from stzListOfStrings
 			ok
 
 			aCorners = []
-
-			if len(aCorners) = 0 and bRounded = NULL
-				if isString(bRounded) and bRounded = NULL
-					bRounded = FALSE
-				ok
-			ok
 
 			if cAllCorners = :Rectangular or cAllCorners = :Rect
 
@@ -738,6 +783,12 @@ class stzListOfChars from stzListOfStrings
 			   ring_find(aCorners, :round) = 0
 
 				aCorners = [ :round, :round, :round, :round ]
+			ok
+
+			if len(aCorners) = 0 and bRounded = NULL
+				if isString(bRounded) and bRounded = NULL
+					bRounded = FALSE
+				ok
 			ok
 
 			# Reading the hilightening option
