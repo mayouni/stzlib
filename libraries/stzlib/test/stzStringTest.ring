@@ -15181,7 +15181,7 @@ proff()
 # Executed in 0.19 second(s).
 
 /*----- #narration FLEXIBLE OPTIONS SYNTAX
-*/
+
 pron()
 
 o1 = new stzString("SOFTANZA")
@@ -15216,18 +15216,15 @@ proff()
 
 /*-----
 
-*/
 pron()
 
 o1 = new stzString("SOFTANZA")
 
 ? o1.VizFindBoxedXT("A", [
 	:PositionSign = "↑",
-	:Numbered = TRUE,
-
-	:Corners = [ :round, :round, :rect, :rect ],
-
-	:Dashed = TRUE
+	:Numbered,
+	:Solid,
+	:Corners = [ :round, :round, :rect, :rect ]
 
 ]) + NL
 #-->
@@ -15243,6 +15240,11 @@ o1 = new stzString("SOFTANZA")
 	:PositionSign = "↑",
 	:Numbered = TRUE
 ])
+#-->
+# ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
+# ┊ S ┊ O ┊ F ┊ T ┊ A ┊ N ┊ Z ┊ A ┊
+# ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴─↑─┴╌╌╌┴╌╌╌┴─↑─╯
+#                   19         31
 
 proff()
 # Executed in 0.10 second(s).
@@ -15255,8 +15257,8 @@ o1 = new stzString("..STZ..STZ..STZ")
 
 ? o1.ToStzListOfChars().BoxXT([
 	:Hilighted = Q( o1.FindZZ("STZ") ).Flattened(),
-	:Sectioned = TRUE,
-	:Numbered = TRUE
+	:Sectioned,
+	:Numbered
  ])
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -15266,6 +15268,7 @@ o1 = new stzString("..STZ..STZ..STZ")
 #           11     19           31     39           51     59
 
 proff()
+# Executed in 0.12 second(s).
 
 /*-----
 
@@ -15309,7 +15312,7 @@ proff()
 # Executed in 0.06 second(s).
 
 /*-----
-*/
+
 pron()
 
 o1 = new stzListOfChars( @Chars("..STZ..StZ..stz") )
@@ -15327,15 +15330,38 @@ o1 = new stzListOfChars( @Chars("..STZ..StZ..stz") )
 # ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
 
 proff()
+# Executed in 0.04 second(s).
 
 /*-----
+
+pron()
+
+o1 = new stzString("..STZ..StZ..stz")
+
+? o1.vizFindCS("stz", FALSE)
+# ..STZ..StZ..stz
+# --^----^----^--
+
+proff()
+# Executed in 0.01 second(s).
+
+/*------
 */
 pron()
 
 o1 = new stzString("..STZ..StZ..stz")
 
-? o1.VizFindBoxedCSXT("STZ", [ :Numbered = TRUE ], :CS = FALSE) + NL
+# The order of params is defined by the order of name suffixes:
 
+? o1.VizFindBoxedCSXT("STZ", :CS = FALSE, :Numbered)
+
+//? o1.VizFindBoxedXTCS("stz", :Numbered, :CS = FALSE )
+
+#-->
+# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
+# │ . │ . │ S │ T │ Z │ . │ . │ S │ t │ Z │ . │ . │ s │ t │ z │
+# ╰───┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴───╯
+#           11                 31
 proff()
 
 /*-----
