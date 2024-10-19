@@ -107,7 +107,7 @@ pron()
 	SetHilightChar(Heart())
 
 	? StzListOfCharsQ("TEXT").BoxedXT([
-		:Line = :Thin,	# or :Dashed
+		:Line = :Solid,	# or :Dashed
 		
 		:AllCorners = :Round, # can also be :Rectangualr
 

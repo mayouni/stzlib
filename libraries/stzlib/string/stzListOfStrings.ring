@@ -612,7 +612,7 @@ class stzListOfStrings from stzList
 
 		? StzListOfStringsQ([ "CAIRO", "TUNIS", "PARIS" ]).BoxXT([
 
-			:Line = :Thin,	# or :Dashed
+			:Line = :Solid,	# or :Dashed
 		
 			:AllCorners = :Round # can also be :Rectangualr
 
