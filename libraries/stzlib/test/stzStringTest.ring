@@ -15086,12 +15086,128 @@ proff()
 # Executed in 0.04 second(s).
 
 /*-----------------
+
+pron()
+
+o1 = new stzlist([ "R", "I", "N", "G" ])
+? o1.FindMany([ "R", "I", "N", "G" ])
+#--> [ 1, 2, 3, 4 ]
+
+proff()
+# Executed in almost 0 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzString("--R--I--N--G--")
+? o1.FindMany([ "R", "I", "N", "G" ])
+#--> [ 3, 6, 9, 12 ]
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzListOfChars([ "R", "I", "N", "G" ])
+
+? o1.BoxXT([ :Rounded, :Hilight = [ 1, 4 ], :NumberedXT ])
+
+proff()
+
+/*-----------------
 */
 pron()
 
-? Q("RING").BoxifiedXT(:Numbered)
+o1 = new stzListOfChars([ "R", "I", "N", "G" ])
+
+? o1.BoxifyXT([ :Rounded, :Hilight = [ 1, 4 ], :Numbered ])
 
 proff()
+
+/*-----------------
+
+pron()
+
+o1 = new stzListOfChars([ "R", "I", "N", "G" ])
+
+? o1.BoxifyXT([ :Rounded, :Hilight = [ 1, 4 ], :Sectioned , :Numbered ])
+#-->
+# ╭───┬───┬───┬───╮
+# │ R │ I │ N │ G │
+# ╰─•─┴───┴───┴─•─╯
+#   '-----------'
+#   3          15
+
+# Force the display of all the positions ~> add an ..XT to :Numbered option
+
+? o1.BoxifyXT([ :Rounded, :Hilight = [ 1, 4 ], :Sectioned , :NumberedXT ])
+#-->
+# ╭───┬───┬───┬───╮
+# │ R │ I │ N │ G │
+# ╰─•─┴───┴───┴─•─╯
+#   '-----------'
+#   1   2   3   4
+
+proff()
+# Executed in 0.08 second(s).
+
+
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzListOfChars([ "R", "I", "N", "G" ])
+
+? o1.BoxXT([ :Rounded, :Hilight = [ 1, 4 ], :NumberedXT ]) # OrBoxifyXT()
+#-->
+# ╭───┬───┬───┬───╮
+# │ R │ I │ N │ G │
+# ╰─•─┴───┴───┴─•─╯
+#   1   2   3   4
+
+? o1.BoxifyXT([ :ShowPositions = [ 1, 4 ], :NumberedXT ])
+
+proff()
+
+/*-----------------
+
+pron()
+
+? Q("RING").CharsBoxifiedXT([ :Numbered, TRUE ])
+#-->
+# ┌───┬───┬───┬───┐
+# │ R │ I │ N │ G │
+# └───┴───┴───┴───┘
+#   1   2   3   4
+
+? Q("RING").CharsBoxifiedXT(:Numbered)
+#-->
+# ┌───┬───┬───┬───┐
+# │ R │ I │ N │ G │
+# └───┴───┴───┴───┘
+#   1   2   3   4
+
+? Q("RING").CharsBoxifiedXT([ :Rounded, :Numbered ])
+#-->
+# ╭───┬───┬───┬───╮
+# │ R │ I │ N │ G │
+# ╰───┴───┴───┴───╯
+#   1   2   3   4
+
+
+? Q(Chars("RING")).ToStzListOfChars().BoxifiedXT(:Numbered)
+#-->
+# ┌───┬───┬───┬───┐
+# │ R │ I │ N │ G │
+# └───┴───┴───┴───┘
+#   1   2   3   4
+
+proff()
+# Executed in 0.18 second(s).
 
 /*-----------------
 
@@ -15101,7 +15217,8 @@ o1 = new stzString("SOFTANZA~RING")
 
 o1.BoxifyCharsXT([
 	:Rounded = TRUE,
-	:Corners = [ :Round, :Rect, :Round, :Rect ]
+	:Corners = [ :Round, :Rect, :Round, :Rect ],
+	:Numbered
 ])
 
 ? o1.Content() + NL
@@ -15109,6 +15226,7 @@ o1.BoxifyCharsXT([
 # ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
 # │ S │ O │ F │ T │ A │ N │ Z │ A │ ~ │ R │ I │ N │ G │
 # └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+#   1   2   3   4   5   6   7   8   9   10  11  12  13
 
 # When you define :Rounded = FALSE, the ouput is not rounded,
 # even if the :Corners are defined:
@@ -15117,7 +15235,8 @@ o1 = new stzString("SOFTANZA~RING")
 
 o1.BoxifyCharsXT([
 	:Rounded = FALSE,
-	:Corners = [ :Round, :Rect, :Round, :Rect ]
+	:Corners = [ :Round, :Rect, :Round, :Rect ],
+	:Numbered
 ])
 
 ? o1.Content()
@@ -15125,6 +15244,7 @@ o1.BoxifyCharsXT([
 # ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
 # │ S │ O │ F │ T │ A │ N │ Z │ A │ ~ │ R │ I │ N │ G │
 # └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
+#   1   2   3   4   5   6   7   8   9   10  11  12  13
 
 proff()
 # Executed in 0.07 second(s).

@@ -68193,12 +68193,12 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			:TextAdjustedTo,
 			:EachChar,
 			:EachWord,
+
 			:Hilighted, :Hilight,
+			:HilightPositions, :ShowPositions,
 
 			:Numbered, :Numbers,
 			:NumberedXT, :NumberXT,
-			:ShowPositions, :ShowPositionsXT,
-			:ShowAllPositions, :AllPositions,
 
 			:PositionSign, :PositionChars,
 			:Sectioned
