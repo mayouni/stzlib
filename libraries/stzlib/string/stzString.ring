@@ -37410,6 +37410,10 @@ class stzString from stzObject
 		nLenSubStr = len(acSubStr)
 		nLenNewSubStr = len(pacNewSubStr)
 
+		if nLenSubStr = 0 or nLenNewSubStr = 0
+			return
+		ok
+
 		if NOT ( nLenSubStr = nLenNewSubStr )
 			StzRaise("Incorrect values! nLenSubStr and pacNewSubStr must have the same size.")
 		ok
@@ -37518,6 +37522,10 @@ class stzString from stzObject
 		acSubStr = StzListQ(pacSubStr).WithoutDupplication()
 		nLenSubStr = len(pacSubStr)
 		nLenNewSubStr = len(pacNewSubStr)
+
+		if nLenSubStr = 0 or nLenNewSubStr = 0
+			return
+		ok
 
 		# Extending or shrinking acNewSubStr, if necessary, so it has
 		# the same size as acSubStr
@@ -50000,27 +50008,44 @@ n1 = Min(aTemp)
 		# function or classe to avoid dupplication adn code complexity!
 		# ~> Can be named stzListOfOptions
 
-		# STEP 1: Checking params TYPES
 
-		acPossibleKeys = [
-			:CaseSensitive, :CS,
-
-			:Hilighted, :Hilight,
-			:PositionSign, :PositionChar,
-
-			:BlankSign,
-
-			:Numbered, :Spacified,
-
-			:Boxed, :BoxOptions, :Rounded, :AllCorners
-		]
+		# Supporting one option provided in a string:
+		# ~> BoxXT( :Dashed )
 
 		if isString(paOptions)
-			if ring_find(acPossibleKeys, paOptions) > 0
-				aTemp = [] + [ paOptions, TRUE ]
-				paOptions = aTemp
-			ok
+			paTemp = [] + [ paOptions, TRUE ]
+			paOptions = paTemp
 		ok
+
+		if NOT isList(paOptions)
+			StzRaise("Incorrect param type! paOptions must be a list.")
+		ok
+
+		# Allowing giving options in string form like:
+		# 
+		# 	BoxXT([ :Solid, :Dashed, :Rounded,
+		# 		:Numbered, :NumberedXT,
+		# 		:ShowPositions, :ShowPositions,
+		# 		:Spacified, :Sectioned ])
+		# 
+		# without being constrained by providing them in
+		# the hashlist form:
+		# 
+		# 	BoxXT([ :Solid = TRUE, :Dashed = TRUE, ... ])
+		# 
+		# ~> More concise syntax!
+
+		aTemp = []
+		nLenTemp = len(paOptions)
+		for i = 1 to nLenTemp
+			if isString(paOptions[i])
+				aTemp + [ paOptions[i], TRUE ]
+			else
+				aTemp + paOptions[i]
+			ok
+		next
+
+		paOptions = aTemp
 
 		if NOT isString(pcSubStr)
 			stzRaise("Incorrect param type! pcSubStr must be a string.")
@@ -50035,12 +50060,6 @@ n1 = Min(aTemp)
 
 		for i = 1 to nLen
 			acKeys + paOptions[i][1]
-		next
-
-		for i = 1 to nLen
-			if ring_find(acPossibleKeys, acKeys[i]) = 0
-				stzRaise("syntax error! paOptions contains unsupported keys.")
-			ok
 		next
 
 		# At this level, we are sure pcSubStr is a string and
@@ -50250,8 +50269,7 @@ n1 = Min(aTemp)
 	#===========================================#
 
 	def VizFindBoxedCS(pcSubStr, pCaseSensitive)
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
-		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed = TRUE, :CaseSensitive = bCaseSensitive ])
+		return This.VizFindBoxedXTCS(pcSubStr, :Boxed, CaseSensitive(pCaseSensitive))
 
 		def VizFindBoxifiedCS(pcSubStr, pCaseSensitive)
 			return This.VizFindBoxedCS(pcSubStr, pCaseSensitive)
@@ -50269,8 +50287,7 @@ n1 = Min(aTemp)
 	#-------------------------------------------#
 
 	def VizFindBoxedRoundedCS(pcSubStr, pCaseSensitive)
-		bCaseSensitive = CaseSensitive(pCaseSensitive)
-		return This.VizFindBoxedCSXT(pcSubStr, [ :Boxed = TRUE, :Rounded = TRUE, :CaseSensitive = bCaseSensitive ])
+		return This.VizFindBoxedXTCS(pcSubStr, [ :Boxed, :Rounded], CaseSensitive(pCaseSensitive))
 
 		def VizFindBoxifiedRoundedCS(pcSubStr, pCaseSensitive)
 			return This.VizFindBoxedRoundedCS(pcSubStr, pCaseSensitive)
@@ -50373,7 +50390,7 @@ n1 = Min(aTemp)
 	#-- WITHOUT CASESENSITIVITYs
 
 	def VizFindBoxedXT(pcSubstr, paOptions)
-		return This.VizFindBoxedCSXT(pcSubstr, paOptions, TRUE)
+		return This.VizFindBoxedXTCS(pcSubstr, paOptions, TRUE)
 
 		#< @FunctionAlternativeForm
 
@@ -50410,7 +50427,7 @@ n1 = Min(aTemp)
 	#-- WITHOUT CASESENSITIVITY
 
 	def VizFindZZ(pcSubStr)
-		return This.VizFindXTZZ(pcSubStr, [ :PositionSign = "^" ])
+		return This.VizFindCSZZ(pcSubStr, TRUE)
 
 	  #-------------------------------------------------#
 	 #  VISUALLY FINDING AND BOXING A SUBSTRING -- ZZ  #
@@ -50452,28 +50469,28 @@ n1 = Min(aTemp)
 	 #  VISUALLY FINDING AND BOXING A SUBSTRING -- XT/ZZ  #
 	#----------------------------------------------------#
 
-	def VizFindBoxedCSXTZZ(pcSubstr, paOptions, pCaseSensitive)
-		return This.VizFindCSXTZZ(pcSubStr, [ :Boxed = TRUE ], pCaseSensitive)
+	def VizFindBoxedCSXTZZ(pcSubstr, pCaseSensitive, paOptions)
+		return This.VizFindCSXTZZ(pcSubStr, pCaseSensitive, [ :Boxed = TRUE ])
 
 		#< @FunctionAlternativeForm
 
-		def VizFindBoxifiedCSXTZZ(pcSubstr, paOptions, pCaseSensitive)
-			return This.VizFindBoxedCSXTZZ(pcSubstr, paOptions, pCaseSensitive)
+		def VizFindBoxifiedCSXTZZ(pcSubstr, pCaseSensitive, paOptions)
+			return This.VizFindBoxedCSXTZZ(pcSubstr, pCaseSensitive, paOptions)
 
 		#--
 
-		def VizFindBoxedXTCSZZ(pcSubStr, pCaseSensitive, paOptions)
-			return This.VizFindBoxedCSXTZZ(pcSubstr, paOptions, pCaseSensitive)
+		def VizFindBoxedXTCSZZ(pcSubStr, paOptions, pCaseSensitive)
+			return This.VizFindBoxedCSXTZZ(pcSubstr, pCaseSensitive, paOptions)
 
-		def VizFindBoxifiedXTCSZZ(pcSubStr, pCaseSensitive, paOptions)
-			return This.VizFindBoxedCSXTZZ(pcSubstr, paOptions, pCaseSensitive)
+		def VizFindBoxifiedXTCSZZ(pcSubStr, paOptions, pCaseSensitive)
+			return This.VizFindBoxedCSXTZZ(pcSubstr, pCaseSensitive, paOptions)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITYs
 
 	def VizFindBoxedXTZZ(pcSubstr, paOptions)
-		return This.VizFindBoxedCSXTZZ(pcSubstr, paOptions, TRUE)
+		return This.VizFindBoxedCSXTZZ(pcSubstr, TRUE, paOptions)
 
 		#< @FunctionAlternativeForm
 
@@ -75964,6 +75981,10 @@ n1 = Min(aTemp)
 		nLenSections = len(paSections)
 		nLenSubStr = len(pacSubStr)
 
+		if nLenSections = 0 or nLenSubStr = 0
+			return
+		ok
+
 		if nLenSections < nLenSubStr
 			pacSubStr = StzListQ(pacSubStr).SectionRemoved(nLenSections+1, nLenSubStr)
 
@@ -88235,7 +88256,7 @@ n1 = Min(aTemp)
 			if cAllCorners = :Rectangular or
 			   cAllCorners = :Rect
 
-				if isString(bRounded) and bRround = NULL
+				if isString(bRounded) and bRounded = NULL
 					bRounded = TRUE
 				ok
 

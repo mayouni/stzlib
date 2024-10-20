@@ -659,7 +659,7 @@ class stzListOfChars from stzListOfStrings
 
 		# Supporting one option provided in a string:
 		# ~> BoxXT( :Dashed )
-
+? "hi"
 		if isString(paBoxOptions)
 			paTemp = [] + [ paBoxOptions, TRUE ]
 			paBoxOptions = paTemp

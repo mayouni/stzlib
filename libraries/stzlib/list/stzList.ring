@@ -7001,7 +7001,7 @@ class stzList from stzObject
 
 		paItems = Q(paItems).DuplicatesRemovedCS(pCaseSensitive)
 		nLen = len(paItems)
-		
+
 		for i = 1 to nLen
 			This.ReplaceCS( paItems[i], pNewItem, pCaseSensitive )
 		next
@@ -7678,6 +7678,10 @@ class stzList from stzObject
 		nLenItems = len(paItems)
 		nLenNewItems = len(paNewItems)
 
+		if nLenItems = 0 or nLenNewItems = 0
+			return
+		ok
+
 		if NOT ( nLenItems = nLenNewItems )
 			StzRaise("Incorrect values! nLenItems and nLenNewItems must have the same size.")
 		ok
@@ -7859,6 +7863,10 @@ class stzList from stzObject
 		aItems = StzListQ(paItems).WithoutDupplication()
 		nLenItems = len(paItems)
 		nLenNewItems = len(paNewItems)
+
+		if nLenItems = 0 or nLenNewItems = 0
+			return
+		ok
 
 		# Extending or shrinking aNewItems, if necessary, so it has
 		# the same size as aItems

@@ -15086,13 +15086,22 @@ proff()
 # Executed in 0.04 second(s).
 
 /*-----------------
+*/
+pron()
+
+? Q("RING").BoxifiedXT(:Numbered)
+
+proff()
+
+/*-----------------
+
+pron()
 
 o1 = new stzString("SOFTANZA~RING")
 
 o1.BoxifyCharsXT([
 	:Rounded = TRUE,
-	:Corners = [ :Round, :Rect, :Round, :Rect ],
-	:Numbered = TRUE
+	:Corners = [ :Round, :Rect, :Round, :Rect ]
 ])
 
 ? o1.Content() + NL
@@ -15100,23 +15109,25 @@ o1.BoxifyCharsXT([
 # ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
 # │ S │ O │ F │ T │ A │ N │ Z │ A │ ~ │ R │ I │ N │ G │
 # └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
-#   1   2   3   4   5   6   7   8   9  10  11  12  13 
 
-# When you omitt :Rounded = TRUE, the ouput is not rounded,
-# because :Rounded = FALSE by default
+# When you define :Rounded = FALSE, the ouput is not rounded,
+# even if the :Corners are defined:
+
+o1 = new stzString("SOFTANZA~RING")
 
 o1.BoxifyCharsXT([
-	:Corners = [ :Round, :Rect, :Round, :Rect ],
-	:Numbered = TRUE
+	:Rounded = FALSE,
+	:Corners = [ :Round, :Rect, :Round, :Rect ]
 ])
+
+? o1.Content()
 #-->
 # ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
 # │ S │ O │ F │ T │ A │ N │ Z │ A │ ~ │ R │ I │ N │ G │
 # └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
-#   1   2   3   4   5   6   7   8   9  10  11  12  13 
 
 proff()
-# Executed in 2.57 second(s).
+# Executed in 0.07 second(s).
 
 /*----------------- #todo #narration
 
@@ -15129,17 +15140,17 @@ o1 = new stzString("SOFTANZA")
 # SOFTANZA
 # ----^--^
 
-? o1.VizFindXT("A", [ :Spacified = TRUE ]) + NL
+? o1.VizFindXT("A", :Spacified) + NL
 #-->
 # S O F T A N Z A
 # --------^-----^
 
-? o1.VizFindXT("A", [ :Spacified = TRUE, :PositionSign = Heart() ]) + NL
+? o1.VizFindXT("A", [ :Spacified, :PositionSign = Heart() ]) + NL
 #-->
 # S O F T A N Z A
 # --------♥-----♥
 
-? o1.VizFindXT("A", [ :Spacified = TRUE, :PositionSign = Heart(), :Numbered = TRUE ]) + NL
+? o1.VizFindXT("A", [ :Spacified, :PositionSign = Heart(), :Numbered ]) + NL
 #-->
 # S O F T A N Z A
 # --------♥-----♥
@@ -15147,9 +15158,9 @@ o1 = new stzString("SOFTANZA")
 
 ? o1.VizFindBoxed("A") + NL
 #-->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┐
+# ╭───┬───┬───┬───┬───┬───┬───┬───╮
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
-# └───┴───┴───┴───┴─•─┴───┴───┴─•─┘
+# ╰───┴───┴───┴───┴─•─┴───┴───┴─•─╯
 
 ? o1.VizFindBoxedXT("A", [
 	:PositionSign = Heart(),
@@ -15163,7 +15174,6 @@ o1 = new stzString("SOFTANZA")
 
 ? o1.VizFindXT( "A", [
 	:Boxed = TRUE,
-
 	:Rounded = TRUE, 
 	:AllCorners = :Rounded,
 
@@ -15175,13 +15185,13 @@ o1 = new stzString("SOFTANZA")
 # ╭───┬───┬───┬───┬───┬───┬───┬───╮
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
 # ╰───┴───┴───┴───┴─♥─┴───┴───┴─♥─╯
-#   1   2   3   4   5   6   7   8 
+#                   5           8
 
 proff()
-# Executed in 0.19 second(s).
+# Executed in 0.23 second(s).
 
 /*----- #narration FLEXIBLE OPTIONS SYNTAX
-
+*
 pron()
 
 o1 = new stzString("SOFTANZA")
@@ -15202,7 +15212,7 @@ o1 = new stzString("SOFTANZA")
 # ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
 # ┊ S ┊ O ┊ F ┊ T ┊ A ┊ N ┊ Z ┊ A ┊
 # ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴─↑─┴╌╌╌┴╌╌╌┴─↑─╯
-#                   19         31
+#                   5           8
 
 # You can even provide only option in a string:
 
@@ -15211,11 +15221,12 @@ o1 = new stzString("SOFTANZA")
 # ╭───┬───┬───┬───┬───┬───┬───┬───╮
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
 # ╰───┴───┴───┴───┴─•─┴───┴───┴─•─╯
-proff()
 
+proff()
+# Executed in 0.12 second(s).
 
 /*-----
-
+*/
 pron()
 
 o1 = new stzString("SOFTANZA")
@@ -15244,7 +15255,7 @@ o1 = new stzString("SOFTANZA")
 # ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
 # ┊ S ┊ O ┊ F ┊ T ┊ A ┊ N ┊ Z ┊ A ┊
 # ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴─↑─┴╌╌╌┴╌╌╌┴─↑─╯
-#                   19         31
+#                   5           8
 
 proff()
 # Executed in 0.10 second(s).
