@@ -50369,6 +50369,11 @@ n1 = Min(aTemp)
 
 		# Boxifying using stzListOfChars
 
+			#WARNING // bCaseSensitive is sent inside paOptions to 
+			# the stzListOfChars class which does not care of it.
+	
+			# ~> We do nothing here because stzListOfChars will manage it.
+	
 		cBoxed = This.CharsBoxedXT(paOptions)
 		return cBoxed
 
@@ -88257,7 +88262,7 @@ n1 = Min(aTemp)
 			   cAllCorners = :Rect
 
 				if isString(bRounded) and bRounded = NULL
-					bRounded = TRUE
+					bRounded = FALSE
 				ok
 
 				 # By default

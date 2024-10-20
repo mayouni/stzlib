@@ -659,7 +659,7 @@ class stzListOfChars from stzListOfStrings
 
 		# Supporting one option provided in a string:
 		# ~> BoxXT( :Dashed )
-? "hi"
+
 		if isString(paBoxOptions)
 			paTemp = [] + [ paBoxOptions, TRUE ]
 			paBoxOptions = paTemp
@@ -686,9 +686,14 @@ class stzListOfChars from stzListOfStrings
 		aTemp = []
 		nLenTemp = len(paBoxOptions)
 		for i = 1 to nLenTemp
+
 			if isString(paBoxOptions[i])
 				aTemp + [ paBoxOptions[i], TRUE ]
-			else
+
+			but isList(paBoxOptions[i]) and
+			    len(paBoxOptions[i]) = 2 and
+			    isString(paBoxOptions[i][1])
+
 				aTemp + paBoxOptions[i]
 			ok
 		next
@@ -752,7 +757,7 @@ class stzListOfChars from stzListOfStrings
 			if cAllCorners = :Rectangular or cAllCorners = :Rect
 
 				if isString(bRounded) and bRounded = NULL
-					bRounded = TRUE
+					bRounded = FALSE
 				ok
 
 				 # By default
@@ -794,6 +799,20 @@ class stzListOfChars from stzListOfStrings
 			# Reading the hilightening option
 			
 			anHilighted = []
+
+			if paBoxOptions[ :Hilight ] != NULL or
+			   paBoxOptions[ :HilightPositions ] != NULL or
+			   paBoxOptions[ :ShowPositions ] != NULL
+
+				for i = 1 to len(paBoxOptions)
+					if paBoxOptions[i][1] = :Hilight or
+					   paBoxOptions[i][1] = :HilightPositions or
+					   paBoxOptions[i][1] = :ShowPositions
+
+						paBoxOptions[i][1] = :Hilighted
+					ok
+				next
+			ok
 
 			if isList(paBoxOptions[ :Hilighted ]) and
 			   # len( paBoxOptions[ :Hilighted ] ) <= This.NumberOfChars() and
@@ -1040,34 +1059,38 @@ class stzListOfChars from stzListOfStrings
 
 			cNumbersLine = ""
 
-			if bNumbered or bNumberedXT
+			if bNumberedXT or (bNumbered and len(anHilighted) = 0)
 
-				anPosSign = oDownLine.Find(cSign)
-				nLenPosSign = len(anPosSign)
+				oMidLine = new stzString(cMidLine)
+				anPos = oMidLine.FindMany(This.Content())
 
-				if NOT bSectioned
+				acNumbers = []
 
-					acHilightedPos = []
-					nLenPos = len(anHilighted)
+				for i = 1 to nLen
+					acNumbers + (""+ i )
+				next
+				
+				aSections = []
 
-					for i = 1 to nLenPos
-						acHilightedPos + (""+ anHilighted[i])
-					next
-					
-					aSections = []
+				for i = 1 to nLen
+					n1 = anPos[i]
+					n2 = n1 + ( len(acNumbers[i]) - 1 )
+					aSections + [ n1, n2]
+				next
 
-					for i = 1 to nLenPosSign
-						n1 = anPosSign[i]
-						n2 = n1 + ( len(acHilightedPos[i]) - 1 )
-						aSections + [ n1, n2]
-					next
+				oNumbersLine = new stzString(cSpaceLine)
+				oNumbersLine.ReplaceSectionsByMany(aSections, acNumbers)
+				cNumbersLine = oNumbersLine.TrimRightQ().Content()
 
-					oNumbersLine = new stzString(cSpaceLine)
-					oNumbersLine.ReplaceSectionsByMany(aSections, acHilightedPos)
-					cNumbersLine = oNumbersLine.TrimRightQ().Content()
+				cResult += NL + cNumbersLine
 
-				else // bSectioned
-	
+			but bNumbered
+
+				if bSectioned
+
+					anPosSign = StzStringQ(cDownLine).Find(cSign)
+					nLenPosSign = len(anPosSign)
+
 					aSections = []
 					aSection = []
 		
@@ -1118,10 +1141,17 @@ class stzListOfChars from stzListOfStrings
 					oSectionLine = new stzString(cSpaceLine)
 					oSectionLine.ReplaceSectionsByMany(aSections, acSegments)
 					cNumbersLine = oSectionLine.TrimRightQ().Content()
+
+				else
+
+					if len(anHilighted) > 0
+? "case"
+					ok
 					
 				ok
 
 				cResult += NL + cNumbersLine
+
 			ok
 
 			# Returning the result
