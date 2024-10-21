@@ -15118,7 +15118,7 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 proff()
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzListOfChars([ "R", "I", "N", "G" ])
@@ -15126,9 +15126,109 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 ? o1.BoxifyXT([ :Rounded, :Hilight = [ 1, 4 ], :Numbered ])
 
 proff()
+# Executed in 0.07 second(s).
 
 /*-----------------
 
+pron()
+
+o1 = new stzString("Hello dear!")
+o1.InsertBefore("my ", "dear")
+? o1.Content()
+# Hello my dear!
+
+o1.InsertAfter(" friend", "dear")
+? o1.Content()
+# Hello my dear friend!
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-----------------
+*/
+pron()
+
+Q("Softanza is awosme!") {
+
+	Replace("awosme", :with = "wonderful")
+	? content()
+	#--> Softanza is wonderful!
+
+	Undo()
+	? Content()
+	#--> Softanza is awosme!
+
+	Redo()
+	? Content()
+	#--> Softanza is wonderful!
+
+	InsertXT("really ", :Before = "wonderful")
+	? Content()
+	#--> Softanza is really wonderful!
+
+	Undo()
+	? Content()
+	#--> Softanza is wonderful!
+}
+
+proff()
+# Executed in 0.03 second(s).
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzString("--[...]---[...]---[~~~]--[~~~]--")
+o1 {
+
+	ReplaceManyByMany(
+		[ "[...]", "[...]", "[~~~]", "[~~~]" ],
+		[ "ONE",    "TWO",   "THREE", "FOUR" ]
+	)
+
+	? o1.Content()
+	#--> "--ONE---ONE---TWO--TWO--"
+
+	Undo()
+
+	o1.ReplaceManyByMany(
+		[ :1st = "[...]", :2nd = "[...]", :1st = "[~~~]", :2nd = "[~~~]" ],
+		[ "ONE",	      "TWO", 	    "THREE", 	    "FOUR"       ]
+	)
+
+	? o1.Content()
+	#--> "--ONE---TWO---THREE---FOUR--"
+}
+
+proff()
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzListOfChars(@Chars("RINGORIALAND"))
+
+? o1.BoxifyXT([
+	:Rounded,
+	:Hilight = [ 1, 2, 3, 5, 10, 12 ],
+	:Sectioned,
+	:Numbered
+])
+
+proff()
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzListOfChars([ "R", "I", "G", "N", "G" ])
+
+? o1.BoxifyXT([ :hilight = [ 1, 2, 4, 5 ], :Sectioned=1, :Numbered ])
+
+proff()
+
+/*-----------------
+*/
 pron()
 
 o1 = new stzListOfChars([ "R", "I", "N", "G" ])
@@ -15153,8 +15253,6 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 
 proff()
 # Executed in 0.08 second(s).
-
-
 
 /*-----------------
 */

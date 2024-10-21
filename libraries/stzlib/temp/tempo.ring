@@ -17,7 +17,7 @@ Q("Ali 12500 Tony 24800 Claude 12340") {
 	#--> [ "A", "Al", "Ali", "...", "3", "34", "4" ]
 
 	? HowManySubStrings() + NL
-	#--> 528
+	#--> 561
 
 	? SubStringsWXT('
 		IsNumberInString(@SubString) and
@@ -32,20 +32,22 @@ Q("Ali 12500 Tony 24800 Claude 12340") {
 
 # The function returns a large number of possible substrings (561 exactly!).
 # To filter them and get only the numbers that we have after each person's
-# name, we can do it quickly by adding ...W() to the function and feeding
+# name, we can do it by adding ...W() to the function and feeding
 # it with the necessary conditions.
 
 proff()
-# Executed in 5.88 second(s).
+# Executed in 5.46 second(s).
 
 /*-----
-*/
+
 pron()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
 	RemoveNextNthOccurrences([2, 3], :of = "A", :StartingAt = 3)
-	? Content() # !--> [ "A" , "B", "A", "C", "D" ]
+	? Content()
+
+	#--> [ "A" , "B", "A", "C", "D" ]
 }		
 
 proff()
@@ -2694,7 +2696,7 @@ o1.BoundSection(5, 8, [ "<<", ">>" ])
 #--> the <<last>> mile
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 #---
 

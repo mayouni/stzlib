@@ -56018,8 +56018,14 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		#>
 
+		def SplitToNSections(n)
+			return This.SplitToNParts()
+
 	def SplittedToNParts(n)
 		return This.SplitToNParts(n)
+
+		def SplittedToNSections(n)
+			return This.SplittedToNParts(n)
 
 	  #---------------------------------------------#
 	 #   SPLITTING TO PARTS OF (EXACTLY) N Items   #
@@ -56055,50 +56061,63 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
+
+		def SplitToPartsOfN(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitToSectionsOfNItems(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitToSectionsOfN(n)
+			return This.SplitToPartsOfNItems(n)
+
+		#--
 
 		def SplitToPartsOfExactlyNItems(n)
 			return This.SplitToPartsOfNItems(n)
 
-			def SplitToPartsOfExactlyNItemsQ(n)
-				return This.SplitToPartsOfExactlyNItemsQR(n, :stzList)
-
-			def SplitToPartsOfExactlyNItemsQR(n, pcReturnType)
-				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
-
-		#--
-
-		def SplitToListsOfNItems(n)
+		def SplitToPartsOfExactlyN(n)
 			return This.SplitToPartsOfNItems(n)
 
-			def SplitToListsOfNItemsQ(n)
-				return This.SplitToPartsOfNItemsQ(n)
-
-			def SplitToListsOfNItemsQR(n, pcReturnType)
-				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
-
-		def SplitToListsOfExactlyNItems(n)
+		def SplitToSectionsOfExactlyNItems(n)
 			return This.SplitToPartsOfNItems(n)
 
-			def SplitToListsOfExactlyNItemsQ(n)
-				return This.SplitToPartsOfExactlyNItemsQR(n, :stzList)
-
-			def SplitToListsOfExactlyNItemsQR(n, pcReturnType)
-				return This.SplitToPartsOfNItemsQR(n, pcReturnType)
-
+		def SplitToSectionsOfExactlyN(n)
+			return This.SplitToPartsOfNItems(n)
+		
 		#>
+
 
 	def SplittedToPartsOfNItems(n)
 		return This.SplitToPartsOfNItems(n)
 
+		# @FunctionAlternativeForms
+
+		def SplittedToPartsOfN(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplittedToSectionsOfNItems(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplittedToSectionsOfN(n)
+			return This.SplitToPartsOfNItems(n)
+
+		#--
+
 		def SplittedToPartsOfExactlyNItems(n)
 			return This.SplitToPartsOfNItems(n)
 
-		def SplittedToListsOfNItems(n)
-			return This.SplittedToPartsOfNItems(n)
-
-		def SplittedToListsOfExactlyNItems(n)
+		def SplittedToPartsOfExactlyN(n)
 			return This.SplitToPartsOfNItems(n)
+
+		def SplittedToSectionsOfExactlyNItems(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplittedToSectionsOfExactlyN(n)
+			return This.SplitToPartsOfNItems(n)
+
+		#>
 
 	  #----------------------------------------------#
 	 #   SPLITTING TO PARTS OF N Items -- EXTENDED  #
@@ -56135,11 +56154,63 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		#>
 
+		#< @FunctionAlternativeForms
+
+		def SplitToPartsOfNXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		def SplitToSectionsOfNItemsXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		def SplitToSectionsOfNXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		#--
+
+		def SplitToPartsOfExactlyNItemsXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		def SplitToPartsOfExactlyNXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		def SplitToSectionsOfExactlyNItemsXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		def SplitToSectionsOfExactlyNXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+		
+		#>
+
+
 	def SplittedToPartsOfNItemsXT(n)
 		return This.SplitToPartsOfNItemsXT(n)
 
+		# @FunctionAlternativeForms
+
+		def SplittedToPartsOfNXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		def SplittedToSectionsOfNItemsXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		def SplittedToSectionsOfNXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		#--
+
 		def SplittedToPartsOfExactlyNItemsXT(n)
 			return This.SplitToPartsOfNItemsXT(n)
+
+		def SplittedToPartsOfExactlyNXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		def SplittedToSectionsOfExactlyNItemsXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		def SplittedToSectionsOfExactlyNXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		#>
 
 	  #---------------------------------------#
 	 #    SPLITTING UNDER A GIVEN CONDTION   #
