@@ -15144,8 +15144,8 @@ o1.InsertAfter(" friend", "dear")
 proff()
 # Executed in 0.01 second(s).
 
-/*-----------------
-*/
+/*==============
+
 pron()
 
 Q("Softanza is awosme!") {
@@ -15169,6 +15169,36 @@ Q("Softanza is awosme!") {
 	Undo()
 	? Content()
 	#--> Softanza is wonderful!
+}
+
+proff()
+# Executed in 0.03 second(s).
+
+/*-------------
+*/
+pron()
+
+Q([ "O", "N", "_" ]) {
+
+	Replace("_", :with = "E")
+	? @@( content() )
+	#--> [ "O", "N", "E" ]
+
+	Undo()
+	? @@( Content() )
+	#--> [ "O", "N", "_" ]
+
+	Redo()
+	? @@( Content() ) + NL
+	#--> [ "O", "N", "E" ]
+
+	UpdateWith([ "T", "W", "O" ])
+	? @@(Content())
+	#--> [ "T", "W", "O" ]
+
+	Undo()
+	? @@(Content())
+	#--> [ "O", "N", "E" ]
 }
 
 proff()

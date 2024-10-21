@@ -4759,6 +4759,7 @@ class stzList from stzObject
 			ok
 		ok
 
+		@SetUndoValue(paList)
 		@aContent = paList
 
 	  #---------------------#
@@ -6040,8 +6041,9 @@ class stzList from stzObject
 			paNewList = paNewList[2]
 		ok
 
+		@SetUndoValue(This.Content())
 		@aContent = paNewList
-
+		
 		#< @FunctionFluentForm
 
 		def UpdateQ(paNewList)
@@ -6134,6 +6136,7 @@ class stzList from stzObject
 
 	def AddItem(pItem)
 		@aContent + pItem
+		@SetUndoValue(This.Content())
 
 		#< @FunctionFluentForm
 
@@ -6253,6 +6256,8 @@ class stzList from stzObject
 			@aContent + paItems[i]
 		next
 	
+		@SetUndoValue(This.Content())
+
 		#< @FunctionFluentForm
 
 		def AddManyQ(paItems)
@@ -6374,11 +6379,15 @@ class stzList from stzObject
 
 		if n >= 1 and n <= This.NumberOfItems()
 			ring_insert(This.List(), n-1, pItem)
+			@SetUndoValue(This.Content())
 
 		but n > This.NumberofItems()
 			This.ExtendToN(n)
 			ring_insert(This.List(), n-1, pItem)
 			# Using Ring native insert function here
+
+			@SetUndoValue(This.Content())
+
 		ok
 
 		#< @FunctionFluentForm
@@ -6408,6 +6417,7 @@ class stzList from stzObject
 			ok
 
 			ring_insert(@aContent, n, pItem)
+			@SetUndoValue(This.Content())
 
 			def InsertAtQ(n, pItem)
 				This.InsertAt(n, pItem)
@@ -6564,11 +6574,15 @@ class stzList from stzObject
 
 		item = @aContent[n1]
 		ring_remove(@aContent, n1)
+
 		n = n2
 		if n1 > n2
 			n++
 		ok
+
 		ring_insert(@aContent, n2, item)
+
+		@SetUndoValue(This.Content())
 
 		#< @FunctionFluentForm
 
@@ -6606,6 +6620,7 @@ class stzList from stzObject
 
 		This.Move(n1, n)
 
+		@SetUndoValue(This.Content())
 
 		def MoveItemCSQ(pItem, n, pCaseSensitive)
 			This.MoveItemCS(pItem, n, pCaseSensitive)
@@ -8136,6 +8151,7 @@ class stzList from stzObject
 			ok
 		ok
 
+		@SetUndoValue(This.Content())
 		@aContent[n] = pNewItem
 
 		#< @FunctionFluentForm
@@ -8293,6 +8309,8 @@ class stzList from stzObject
 		for i = 1 to nLen
 			@aContent[ panPos[i] ] = pNewItem
 		next
+
+		@SetUndoValue(This.Content())
 
 		#< @FunctionFluentForm
 
@@ -8549,6 +8567,8 @@ class stzList from stzObject
 			@aContent[n] = pNewItem
 		ok
 
+		@SetUndoValue(This.Content())
+
 		#< @FunctionFluentForm
 
 		def ReplaceThisItemAtPositionCSQ(n, pItem, pNewItem, pCaseSensitive)
@@ -8785,6 +8805,8 @@ class stzList from stzObject
 			ok
 		next
 
+		@SetUndoValue(This.Content())
+
 		#< @FunctionFluentForm
 
 		def ReplaceThisItemAtPositionsCSQ(panPos, pItem, pNewItem, pCaseSensitive)
@@ -8881,6 +8903,8 @@ class stzList from stzObject
 				@aContent[ panPos[i] ] = pNewItem
 			ok
 		next
+
+		@SetUndoValue(This.Content())
 
 		#< @FunctionFluentForm
 
@@ -9702,6 +9726,8 @@ class stzList from stzObject
 		for i = 1 to nLen
 			@aContent[ anPos[i] ] = paNewItems[i]
 		next
+
+		@SetUndoValue(This.Content())
 
 		#< @FunctionFluentForm
 
@@ -12042,6 +12068,8 @@ class stzList from stzObject
 	def ReplaceFirstItem(pOtherItem)
 		@aContent[1] = pOtherItem
 
+		@SetUndoValue(This.Content())
+
 		def ReplaceFirstItemQ(pOtherItem)
 			This.ReplaceFirstItem(pOtherItem)
 			return This
@@ -12067,6 +12095,8 @@ class stzList from stzObject
 
 	def ReplaceLastItem(pOtherItem)
 		@aContent[ len(@aContent) ] = pOtherItem
+
+		@SetUndoValue(This.Content())
 
 		def ReplaceLastItemQ(pOtherItem)
 			This.ReplaceLastItem(pOtherItem)
@@ -12106,6 +12136,8 @@ class stzList from stzObject
 
 		This.RemoveSection(n1, n2)
 		ring_insert( @aContent, n1, pNewItem )
+
+		@SetUndoValue(This.Content())
 
 		def ReplaceSectionQ(n1, n2, pNewItem)
 			This.ReplaceSection(n1, n2, pNewItem)
@@ -12243,6 +12275,8 @@ class stzList from stzObject
 		for i = nLen to 1 step -1
 			ring_insert( @aContent, n1, paOtherListOfItems[i] )
 		next
+
+		@SetUndoValue(This.Content())
 
 		#< @FunctionFluentForm
 
@@ -14028,8 +14062,9 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		if n <= This.NumberOfItems()
 			ring_del( @aContent, n )
-
+			@SetUndoValue(This.Content())
 		ok
+
 
 		#< @FunctionFluentForm
 
@@ -14368,6 +14403,8 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			ring_remove(@aContent, anPosSorted[i])
 		next
 
+		@SetUndoValue(This.Content())
+
 		#< @FunctionFluentForm
 
 		def RemoveItemsAtPositionsQ(panPos)
@@ -14611,6 +14648,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		next
 
 		@aContent = aResult
+		@SetUndoValue(This.Content())
 
 		#< @FunctionFluentForm
 
@@ -14818,6 +14856,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	
 	def RemoveAllItems()
 		@aContent = []
+		@SetUndoValue(This.Content())
 
 		#< @FunctionFluentForm
 
@@ -30034,6 +30073,8 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			StzRaise("Can't multiply the list by an object!")
 		off
 
+		@SetUndoValue(This.Content())
+
 		#< @FunctionFluentForm
 
 		def MultiplyByQ(p)
@@ -30082,6 +30123,8 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			# but I do it to gain performance on large lists
 
 		next
+
+		@SetUndoValue(This.Content())
 
 		#< @FunctionFluentForm
 
@@ -30134,6 +30177,8 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			next
 		ok
 		
+		@SetUndoValue(This.Content())
+
 		#< @FunctionFluentForm
 
 		def ExtendToPositionQ(n)
@@ -30220,6 +30265,8 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 				@aContent + pValue
 			next
 		ok
+
+		@SetUndoValue(This.Content())
 
 		#< @FunctionFluentForm
 
@@ -30596,7 +30643,6 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		next
 
 		This.Update(aResult)
-
 
 		def MergeQ()
 			This.Merge()
@@ -51259,6 +51305,8 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			@aContent[i] = aItems[j]
 		next
 
+		@SetUndoValue(This.Content())
+
 		#< @FunctionFluentForm
 
 		def RandomizeSectionQ(n1, n2)
@@ -67223,6 +67271,24 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			return This.ISPalindrome()
 
 		#>
+
+	  #===================================================#
+	 #  UNDOing / REDOING THE LAST ACTION ON THE STRING  #
+	#===================================================#
+
+	def Undo()
+		value = @UndoValue()
+		if NOT (isString(value) and value = "")
+			@SetUndoValue(This.Content())
+			This.UpdateWith(value)
+			
+		ok
+
+	# Because we support only 1 value for undo/redo,
+	# both functions are the same
+
+	def Redo()
+		return Undo()
 
 	    /////////////////////////////////////////////////////
 	   /// #===========================================# ///
