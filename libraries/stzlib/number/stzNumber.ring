@@ -30,8 +30,8 @@
 
 	o1 = new stzNumber(12.234)
 	? o1.Content() #--> "12.23" # if the current round was left at its
-				     # default Ring value or has been set
-				     # explicitly to decimals(2)
+				    # default Ring value or has been set
+				    # explicitly to decimals(2)
 
 	Therefore, if you want to force a precise round, (and that's why the
 	class is made), you should provide a number in string like this:
@@ -87,17 +87,10 @@
 				# That's why, I will take 14 as a realistic maximum
 				# round in Softanza.
 
-				#TODO : Check this with Mahmoud and Ilir.
+				#TODO // Check this with Mahmoud and Ilir.
 
 	StzDecimals(2)		# Softanza sets the number of round to 2 by default,
 				# in confrmity with Ring defaults.
-
-				# In order to help Softanza manage rounds correcly,
-				# please don't use the Ring decimals() function
-				# directly, and use its equivalent StzDecimals()
-				# instead. Hence, Softanza will memorise the
-				# current round in the program, and can restore it
-				# when it finishes its work.
 
 	_cMaxCalculableInteger = "999_999_999_999_999"
 	_nMaxNumberOfDigitsInUnsignedInteger = 15
@@ -1521,7 +1514,7 @@ class stzNumber from stzObject
 				@cReturnType = :String
 
 			ok
-	
+
 		ok
 
 	  #-------------------------#
@@ -2636,7 +2629,6 @@ class stzNumber from stzObject
 
 		return bResult
 
-
 	def IsStrictlyBetween(pNumber1, pNumber2)
 		if CheckParams()
 			if isList(pNumber2) and Q(pNumber2).IsAndNamedParam()
@@ -2979,7 +2971,7 @@ class stzNumber from stzObject
 
 	def Decimals()
 		anResult = This.DecimalPartWihtoutDotQ().CharsQ().Numberified()
-		#NOTE : This is a misspelled form in Wihtout (sould be Without)
+		#NOTE // This is a misspelled form in Wihtout (sould be Without)
 		# But Softanza recognises it understands what you meant!
 
 		return anResult
@@ -3091,6 +3083,7 @@ class stzNumber from stzObject
 				@cContent += "0"
 			next
 		ok
+
 		StzDecimals(nCurrentRound)
 
 		#< @FunctionFluentForm
@@ -3420,7 +3413,7 @@ class stzNumber from stzObject
 		#>
 
 	def SubStructMany(paOtherNumbers)
-		#TODO: Add "These" as alternative of "Many"
+		#TODO // Add "These" as alternative of "Many"
 
 		This.SubStructManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
 
@@ -3466,7 +3459,7 @@ class stzNumber from stzObject
 	#--
 
 	def SubStructManyXT(paOtherNumbers, paReturnIntermediateResults)
-		#TODO: Add "These" as alternative of "Many"
+		#TODO // Add "These" as alternative of "Many"
 
 		if CheckParams()
 			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
@@ -3508,7 +3501,7 @@ class stzNumber from stzObject
 
 						
 	def RetrieveMany(paOtherNumbers)
-		#TODO: Add "These" as alternative of "Many"
+		#TODO // Add "These" as alternative of "Many"
 
 		This.SubStructMany(paOtherNumbers)
 
@@ -3590,7 +3583,7 @@ class stzNumber from stzObject
 			return nResult
 
 	def MultiplyByManyXT(paOtherNumbers, paReturnIntermediateResults)
-		#TODO: Add "These" as alternative of "Many"
+		#TODO // Add "These" as alternative of "Many"
 
 		if CheckParams()
 			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
@@ -3688,7 +3681,7 @@ class stzNumber from stzObject
 			return nResult
 
 	def DivideByManyXT(paOtherNumbers, paReturnIntermediateResults)
-		#TODO: Add "These" as alternative of "Many"
+		#TODO // Add "These" as alternative of "Many"
 
 		if CheckParams()
 			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
@@ -3730,7 +3723,7 @@ class stzNumber from stzObject
 		def ModuloQ(pOtherNumber)
 			return new stzNumber(This.Modulo(pOtherNumber))
 	
-	# PWOER
+	# POWER
 
 	def Power(pOtherNumber)
 		return This.pvtCalculate("^", pOtherNumber)
@@ -5290,7 +5283,7 @@ class stzNumber from stzObject
 	 #    FORMATTING    #
 	#------------------#
 
-	def ApplyFormatXT(paFormat)	# TOSO: Add formatting strings like +99 999.99%
+	def ApplyFormatXT(paFormat)	# TODO: Add formatting strings like +99 999.99%
 
 		# Setting default configs
 
@@ -5561,7 +5554,7 @@ class stzNumber from stzObject
 
 		cFractionalPart = cNewFractionalPart
 
-		if NOT bRounded #TODO: review the round() mechanism!
+		if NOT bRounded #TODO // review the round() mechanism! #DONE
 			if cFractionalPart != ""
 				cFormattedNumber += (cFractionalSep + cFractionalPart)
 			ok
@@ -5651,6 +5644,8 @@ class stzNumber from stzObject
 		if bPercent = TRUE
 			cNumber += "%"
 		ok
+
+		return cNumber
 			
 	def SetDefaultFormat() // TODO
 		StzRaise("Unsupported feature in this version!")
@@ -5662,8 +5657,8 @@ class stzNumber from stzObject
 	 #     OPERATORS OVERLOADING   #
 	#-----------------------------#
 
-	#TODO: Operators should carry same semantics in all classes...
-	#TODO: Make a request to Mahmoud to enable multichar operators in Ring
+	#TODO // Operators should carry same semantics in all classes...
+	#TODO // Make a request to Mahmoud to enable multichar operators in Ring
 
 	def operator (pOp, pValue)
 

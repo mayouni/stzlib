@@ -15174,36 +15174,6 @@ Q("Softanza is awosme!") {
 proff()
 # Executed in 0.03 second(s).
 
-/*-------------
-*/
-pron()
-
-Q([ "O", "N", "_" ]) {
-
-	Replace("_", :with = "E")
-	? @@( content() )
-	#--> [ "O", "N", "E" ]
-
-	Undo()
-	? @@( Content() )
-	#--> [ "O", "N", "_" ]
-
-	Redo()
-	? @@( Content() ) + NL
-	#--> [ "O", "N", "E" ]
-
-	UpdateWith([ "T", "W", "O" ])
-	? @@(Content())
-	#--> [ "T", "W", "O" ]
-
-	Undo()
-	? @@(Content())
-	#--> [ "O", "N", "E" ]
-}
-
-proff()
-# Executed in 0.03 second(s).
-
 /*-----------------
 */
 pron()
@@ -15219,7 +15189,10 @@ o1 {
 	? o1.Content()
 	#--> "--ONE---ONE---TWO--TWO--"
 
-	Undo()
+}
+
+o1 = new stzString("--[...]---[...]---[~~~]--[~~~]--")
+o1 {
 
 	o1.ReplaceManyByMany(
 		[ :1st = "[...]", :2nd = "[...]", :1st = "[~~~]", :2nd = "[~~~]" ],
