@@ -1084,73 +1084,19 @@ class stzListOfChars from stzListOfStrings
 
 				cResult += NL + cNumbersLine
 
-			but bNumbered
+			but bNumbered and bSectioned
 
-				if bSectioned
+				aSectionsOfNumbers = Q(anHilighted).SplitToSectionsOfN(2)
+				aSectionsOfPositions = aSections
 
-					anPosSign = StzStringQ(cDownLine).Find(cSign)
-					nLenPosSign = len(anPosSign)
-
-					aSections = []
-					aSection = []
-		
-					for i = 1 to nLenPosSign
-						aSection + anPosSign[i]
-						if len(aSection) = 2
-							aSections + aSection
-							aSection = []
-						ok
-					next
-		
-					nLenSections = len(aSections)
-		
-					acSegments = []
-		
-	
-					for i = 1 to nLenSections
-		
-						cSegment = ""
-		
-						n1 = aSections[i][1]
-						n2 = aSections[i][2]
-	
-						nLen1 = len(""+n1)
-						nLen2 = len(""+n2)
-						nDiff = n2 - n1 - (nLen1-1) - (nLen2-1)
-	
-						n = 0
-						for j = n1 to n2
-							n++
-	
-							if j = n1
-								cSegment += ""+ n1
-	
-							but j = n2
-								cSegment += ""+ n2
-							else
-								if n <= nDiff
-									cSegment += " "
-								ok
-							ok
-						next
-		
-						acSegments + cSegment
-						
-					next
-		
-					oSectionLine = new stzString(cSpaceLine)
-					oSectionLine.ReplaceSectionsByMany(aSections, acSegments)
-					cNumbersLine = oSectionLine.TrimRightQ().Content()
-
-				else
-
-					if len(anHilighted) > 0
-? "case"
-					ok
-					
-				ok
-
+				cNumbersLine = oSpaceLine.BoundSectionsWithManyQ(aSectionsOfPositions, aSectionsOfNumbers).Content()
 				cResult += NL + cNumbersLine
+
+
+			but NOT bSectioned and len(anHilighted) > 0
+
+				
+	
 
 			ok
 
