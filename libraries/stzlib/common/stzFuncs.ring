@@ -24,8 +24,6 @@ Programming, by Heart! By: M.Ayouni╭
  ///  GLOBALS VARIABLES  ///
 ///////////////////////////
 
-_UndoValue = NULL
-
 _aRingTypes = [ :number, :string, :char, :list, :object, :cobject ]
 
 _aRingTypesXT = [
@@ -425,18 +423,6 @@ _acStzCCKeywords = [
   //////////////////////////
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
-
-func UndoValue()
-	return _UndoValue
-
-	func @UndoValue()
-		return _UndoValue
-
-func SetUndoValue(v)
-	_UndoValue = v
-
-	func @SetUndoValue(v)
-		_UndoValue = v
 
 func AttributesValues(pObject) # Compliments Ring attributes() function
 	if NOT isObject(pObject)

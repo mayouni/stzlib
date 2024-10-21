@@ -1023,8 +1023,6 @@ class stzString from stzObject
 		@oQString = new QString2()
 		@oQString.append(pcStr)
 
-		@SetUndoValue( @oQString.left(@oQString.count()) )
-
 	  #==========================#
 	 #   CHECKING CONSTRAINTS   #
 	#==========================#
@@ -34934,7 +34932,6 @@ class stzString from stzObject
 			StzRaise("Incorrect param types! You must provide a string and number.")
 		ok
 
-		@SetUndoValue(This.Content())
 		@oQString.insert(n-1, cSubStr)
 
 		def InsertBeforePositionQ(nPos, pcSubStr)
@@ -35120,63 +35117,6 @@ class stzString from stzObject
 		cResult = This.Copy().InsertBeforeCharsWXTQ(pcCondition, pcSubStr).Content()
 		return cResult
 
-/*	  #----------------------------------------------------#
-	 #    INSERTING A SUBSTRING AFTER A GIVEN POSITION    #
-	#====================================================#
-
-	def InsertAfter(nPos, pcSubStr)
-		#< QtBased | Uses QString.insert() >
-
-		if isList(nPos) and Q(nPos).IsListOfNumbers()
-			This.InsertAtPositions(anPos, pcSubStr)
-		ok
-
-		@SetUndoValue(This.Content())
-		@oQString.insert(nPos, pcSubStr)
-
-		//VerifyConstraints()
-
-		#< @FunctionFluentForm
-		
-		def InsertAfterQ(nPos, pcSubStr)
-			This.InsertAfter(nPos, pcSubStr)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def InsertAfterPosition(nPos, pcSubStr)
-			This.InsertAfter(nPos, pcSubStr)
-
-			def InsertAfterePositionQ(nPos, pcSubStr)
-				This.InsertAfterPosition(nPos, pcSubStr)
-				return This
-
-		def InsertSubStringAfter(nPos, pcSubStr)
-			This.InsertAfter(nPos, pcSubStr)
-
-			def InsertSubStringAfterQ(nPos, pcSubStr)
-				This.InsertSubStringAfter(nPos, pcSubStr)
-				return This
-
-		def InsertSubStringAfterPosition(nPos, pcSubStr)
-			This.InsertAfter(nPos, pcSubStr)
-
-			def InsertSubStringAfterPositionQ(nPos, pcSubStr)
-				This.InsertSubStringAfterPosition(nPos, pcSubStr)
-				return This
-
-		#>
-
-	def SubStringInsertedAfter(nPos, pcSubStr)
-		cResult = This.Copy().InsertAfterQ(nPos, pcSubStr).Content()
-		return cResult
-
-		def SubStringInsertedAfterPosition(nPos, pcSubStr)
-			return This.SubStringInsertedAfter(nPos, pcSubStr)
-*/
-
 	  #---------------------------------------------------#
 	 #    INSERTING A SUBSTRING AFTER A GIVEN POSITION   #
 	#---------------------------------------------------#
@@ -35281,7 +35221,6 @@ class stzString from stzObject
 			StzRaise("Incorrect param types! You must provide a string and number.")
 		ok
 
-		@SetUndoValue(This.Content())
 		@oQString.insert(n, cSubStr)
 
 		def InsertAfterPositionQ(nPos, pcSubStr)
@@ -36730,7 +36669,6 @@ class stzString from stzObject
 
 		# Doing the job
 
-		@SetUndoValue(This.Content())
 		@oQString.replace_2(pcSubStr, pcNewSubStr, pCaseSensitive)
 
 	
@@ -40855,8 +40793,6 @@ class stzString from stzObject
 		if isList(pcNewStr) and Q(pcNewStr).IsWithOrByOrUsingNamedParam()
 			pcNewStr = pcNewStr[2]
 		ok
-
-		@SetUndoValue(This.Content())
 
 		@oQString.clear()
 		@oQString.append(pcNewStr)
@@ -92675,24 +92611,6 @@ n1 = Min(aTemp)
 
 			def SwapContentWithQ(pOtherStzString)
 				return This.SwapWithQ(pOtherStzString)
-
-	  #---------------------------------------------------#
-	 #  UNDOing / REDOING THE LAST ACTION ON THE STRING  #
-	#---------------------------------------------------#
-
-	def Undo()
-		value = @UndoValue()
-		if NOT (isString(value) and value = "")
-			@SetUndoValue(This.Content())
-			This.UpdateWith(value)
-			
-		ok
-
-	# Because we support only 1 value for undo/redo,
-	# both functions are the same
-
-	def Redo()
-		return Undo()
 
                  ///////////////////////////////////////////////
                 //                              ///////////////
