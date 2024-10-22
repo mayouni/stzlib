@@ -76259,11 +76259,12 @@ n1 = Min(aTemp)
 
 	def ReplaceSectionsByMany(paSections, pacSubStr)
 		#WARNING // assumes that paSections is sorted in ascending!
+		# ~> The check is made automatically if CheckParams() is enabled
 
 		if CheckParams()
 
-			if NOT ( isList(paSections) and IsListOfPairsofnumbers(paSections) )
-				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			if NOT ( isList(paSections) and IsListOfPairsofNumbersSortedUp(paSections) )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers sorted in ascending.")
 			ok
 	
 			if NOT isList(pacSubStr)
