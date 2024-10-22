@@ -15269,7 +15269,31 @@ o1.ReplaceCharsAtPositionsByMany([3, 12, 9], [ "c", "f", "i" ])
 #--> ERROR MSG: Incorrect param type! panPos must be a list of numbers sorted in ascending.
 
 /*-----------------
+
+pron()
+
+o1 = new stzString("AB3CD6EF9GH")
+o1.ReplaceCharsAtPositions([ 3, 9, 6], Heart())
+? o1.Content()
+#--> AB♥CD♥EF♥GH
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-----------------
 */
+pron()
+
+o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
+o1.ReplaceItemsAtPositionsByMany([ 3, 5, 7], [ "♥", "♥♥", "♥♥♥" ])
+
+? @@( o1.Content() )
+#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
+
+proff()
+# Executed in almost 0 second(s).
+
+/*-----------------
 pron()
 
 ? IsSortedString(1:5)
@@ -15294,6 +15318,7 @@ pron()
 #--> TRUE
 
 proff()
+# Executed in 0.02 second(s).
 
 /*-----------------
 */

@@ -13917,7 +13917,7 @@ class stzString from stzObject
 	#------------------------------------------------------------------------#
 	
 	def SubStringIsBoundedByManyCS(pcSubStr, pacPairsOfBounds, pCaseSensitive)
-		#TODO: Add "These" as alternative of "Many"
+		#TODO // Add "These" as alternative of "Many"
 
 		/* EXAMPLE
 
@@ -37739,6 +37739,8 @@ class stzString from stzObject
 			next
 
 		else
+			# In case where pacSubStr contains duplicated items
+			# ~> an ordered replacement is made
 
 			acSections = StzListQ(pacSubStr).SectionsOfSameItems()
 
@@ -38210,7 +38212,14 @@ class stzString from stzObject
 
 		*/
 
+		#WARNING // Assumes panPos is provided as a list of numbers sorted in ascending.
+		# ~> The check is made automatically by default when CheckParams() is enabled
+
 		if CheckParams()
+
+			if NOT (isList(panPos) and IsListOfNumbersSortedInAscending(panPos))
+				StzRaise("Incorrect param type! panPos must be a list of numbers sorted in ascending.")
+			ok
 
 			if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParam()
 				pacNewSubStr = pacNewSubStr[2]
@@ -38257,9 +38266,9 @@ class stzString from stzObject
 				aPosZZ + aPosAsSections[i]
 			ok
 		next
-? @@(aPosZZ)
-? @@(acNewSubStr)
-? "****"
+
+		# Doing the replacement
+
 		This.ReplaceSectionsByMany(aPosZZ, acNewSubStr)
 
 		#< @FunctionFluentForm
@@ -39917,33 +39926,28 @@ class stzString from stzObject
 
 		#>
 
-		#TODO: Add Position as a misspelling of Position
 		#TODO: Add Repalce as misspelling of Replace
 
 	  #-------------------------------------------------------------#
 	 #   REPLACING CHARS AT GIVEN POSITIONS BY A GIVEN SUBSTRING   #
 	#-------------------------------------------------------------#
 
-	#TODO : Add case sensitivity
-
 	def ReplaceCharsAtPositions(panPos, pcNewSubStr)
 		#< @MotherFunction = This.ReplaceSection() > @QtBased = TRUE #>
 
-		if isList(panPos) and len(panPos) = 0
+		if NOT isList(panPos) and IsListOfNumbers(panPos)
+			StzRaise("Incorrect param type! panPos must be a list of numbers.")
+		ok
+
+		nLen = len(panPos)
+		if nLen = 0
 			return
 		ok
 
-		# Checking the correctness of panPos param
+		anPos = ring_sort(panPos)
 
-		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
-
-			stzRaise("Incorrect param! panPos must be list of numbers.")
-		ok
-
-		anPos = Q(panPos).SortedInDescending()
-
-		for n in anPos
-			This.ReplaceCharAtPositionN(n, pcNewSubStr)
+		for i = nLen to 1 step -1
+			This.ReplaceCharAtPositionN(anPos[i], pcNewSubStr)
 		next
 
 		#< @FunctionFluentForm
@@ -40017,6 +40021,9 @@ class stzString from stzObject
 
 		? o1.Content() #--> "abcdefghi"
 		*/
+
+		#WARNING // Assumes panPos is provided in a list of numbers sorted in ascending.
+		# ~> The check is made automatically when CheckParams() is enabled.
 
 		if CheckParams()
 			if NOT (isList(panPos) and IsListOfNumbersSortedUp(panPos))
@@ -76434,7 +76441,7 @@ n1 = Min(aTemp)
 	#----------------------------------------------#
 
 	def ReplaceSectionsByMany(paSections, pacSubStr)
-		#WARNING // assumes that paSections is sorted in ascending!
+		#WARNING // Assumes that paSections is sorted in ascending!
 		# ~> The check is made automatically if CheckParams() is enabled
 
 		if CheckParams()
