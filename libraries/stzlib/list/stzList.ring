@@ -533,6 +533,35 @@ func SortBy(paList, pcExpr)
 
 #==========
 
+func IsSortedListOfPairsOfNumbers(paList)
+	if NOT IsListOfPairsOfNumbers(paList) and IsSorted(paList)
+		return FALSE
+	ok
+
+	nLen = len(paList)
+
+	anFirst = []
+	for i = 1 to nLen
+		paList[i][1]
+	next
+
+	anSecond = []
+	for i = 1 to nLen
+		paList[i][2]
+	next
+
+	oList1 = new stzList(anFirst)
+	oList2 = new stzList(anSecond)
+
+	if ( oList1.IsSortedInAscending() and oList2.IsSortedInAscending() ) or
+	   ( oList2.IsSortedInDescending() and oList2.IsSortedInDescending() )
+
+		return TRUE
+	else
+		return FALSE
+	ok
+
+
 func IsListOfNumbers(paList)
 	if NOT isList(paList)
 		return FALSE
