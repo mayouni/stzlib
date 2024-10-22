@@ -10156,15 +10156,33 @@ class stzList from stzObject
 		#--> Avoids incorrect results when the number of provided positions is
 		#     different from the number of provided new items
 
-		nMin = Min([ len(panPos), len(paNewItems) ])
+		nLenPos = len(panPos)
+		nLenNewItems = len(paNewItems)
 
-		anPos = Q(panPos).SectionQ(1, nMin).SortedInDescending()
-		aNewItems   = Q(paNewItems).SectionQ(1, nMin).SortedInDescending()
+		nMin = Min([ nLenPos, nLenNewItems ])
+
+		anPos = []
+		if nLenPos > nMin
+			for i = 1 to nMin
+				anPos + panPos[i]
+			next
+		else
+			anPos = panPos
+		ok
+
+		aNewItems = []
+		if nLenPos > nMin
+			for i = 1 to nMin
+				aNewItems + paNewItems[i]
+			next
+		else
+			aNewItems = paNewItems
+		ok
 
 		# Doing the job
 
 		for i = 1 to nMin
-			This.ReplaceAnyItemAtPositionNCS(anPos[i], aNewItems[i], pCaseSensitive)
+			@aContent[anPos[i]] = aNewItems[i]
 		next
 
 		#< @FunctionFluentForm
