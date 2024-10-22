@@ -472,6 +472,60 @@ func StringTitlecased(cStr)
 
 #===
 
+func IsSorted(pcStrOrList)
+	if IsSortedString(pcStrOrList) or IsSortedList(pcStrOrList)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func @IsSorted(pcStrOrList)
+		return IsSorted(pcStrOrList)
+
+func IsSortedInAscending(pcStrOrList)
+	if IsSortedStringInAscending(pcStrOrList) or IsSortedListInAscending(pcStrOrList)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func IsSortedUp(pcStrOrList)
+		return IsSortedInAscending(pcStrOrList)
+
+	#--
+
+	func @IsSortedInAscending(pcStrOrList)
+		return IsSortedInAscending(pcStrOrList)
+
+	func @IsSortedUp(pcStrOrList)
+		return IsSortedInAscending(pcStrOrList)
+
+	#>
+
+func IsSortedInDescending(pcStrOrList)
+	if IsSortedStringInDescending(pcStrOrList) or IsSortedListInDescending(pcStrOrList)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func IsSortedDown(pcStrOrList)
+		return IsSortedInDescending(pcStrOrList)
+
+	func @IsSortedInDescending(pcStrOrList)
+		return IsSortedInDescending(pcStrOrList)
+
+	func @IsSortedDown(pcStrOrList)
+		return IsSortedInDescending(pcStrOrList)
+
+	#>
+
+#--
+
 func IsSortedString(pcStr)
 	if IsSortedStringInAscending(pcStr) or IsSortedStringInDescending(pcStr)
 		return TRUE
@@ -479,10 +533,26 @@ func IsSortedString(pcStr)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	func IsStringSorted(pcStr)
 		return IsSortedString(pcStr)
 
+	#--
+
+	func @IsSortedString(pcStr)
+		return IsSortedString(pcStr)
+
+	func @IsStringSorted(pcStr)
+		return IsSortedString(pcStr)
+
+	#>
+
 func IsSortedStringInAscending(pcStr)
+	if NOT isString(pcStr)
+		return FALSE
+	ok
+
 	return StzStringQ(pcStr).IsSortedInAscending()
 
 	#< @FunctionAlternativeForms
@@ -501,9 +571,33 @@ func IsSortedStringInAscending(pcStr)
 	func IsStringSortedUp(pcStr)
 		return IsSortedStringInAscending(pcStr)
 
+	#==
+
+	func @IsSortedStringInAscending(pcStr)
+		return IsSortedStringInAscending(pcStr)
+
+	func @IsStringSortedInAscending(pcStr)
+		return IsSortedStringInAscending(pcStr)
+
+	#--
+
+	func @IsSortedStringUp(pcStr)
+		return IsSortedStringInAscending(pcStr)
+
+	func @IsSortedUpString(pcStr)
+		return IsSortedStringInAscending(pcStr)
+
+	func @IsStringSortedUp(pcStr)
+		return IsSortedStringInAscending(pcStr)
+
 	#>
 
 func IsSortedStringInDescending(pcStr)
+
+	if NOT isString(pcStr)
+		return FALSE
+	ok
+
 	return StzStringQ(pcStr).IsSortedInDescending()
 
 	#< @FunctionAlternativeForms
@@ -520,6 +614,25 @@ func IsSortedStringInDescending(pcStr)
 		return IsSortedStringInDescending(pcStr)
 
 	func IsStringSortedDown(pcStr)
+		return IsSortedStringInDescending(pcStr)
+
+	#==
+
+	func @IsSortedStringInDescending(pcStr)
+		return IsSortedStringInDescending(pcStr)
+
+	func @IsStringSortedInDescending(pcStr)
+		return IsSortedStringInDescending(pcStr)
+
+	#--
+
+	func @IsSortedStringDown(pcStr)
+		return IsSortedStringInDescending(pcStr)
+
+	func @IsSortedDownString(pcStr)
+		return IsSortedStringInDescending(pcStr)
+
+	func @IsStringSortedDown(pcStr)
 		return IsSortedStringInDescending(pcStr)
 
 	#>
@@ -39916,7 +40029,7 @@ class stzString from stzObject
 		ok
 
 		nMin = Min([ len(panPos), len(pacNewSubStr) ])
-		anPos = StzListQ(anPos).SectionQ(1, nMin).SortedInDescending()
+		anPos = StzListQ(panPos).SectionQ(1, nMin).SortedInDescending()
 		acNewSubStrings = StzListQ(pacNewSubStr).SectionQ(1, nMin).SortedInDescending()
 
 		i = 0
@@ -72598,45 +72711,48 @@ n1 = Min(aTemp)
 	#---------------------------------------------------------------#
 
 	def CharsAreSortedInAscending()
-		/*
-		The idea is to sort a copy of the string in ascending order
-		and then compare the copy to the original string...
-		If they are identical, then the string is sorted in ascending order!
-		*/
+		if @IsListSortedInAscending(This.Chars())
+			return TRUE
+		else
+			return FALSE
+		ok
 
-		oSortedInAscending = This.Copy().SortCharsInAscendingQ()
-		nLen = This.NumberOfChars()
-
-		for i = 1 to nLen
-			if NOT AreEqual([ oSortedInAscending[i] , This.Char(i) ])
-				return FALSE
-			ok
-		next
-
-		return TRUE
+		#< @FunctionAlternativeForms
 
 		def IsSortedInAscending()
 			return This.CharsAreSortedInAscending()
+
+		def IsSortedUp()
+			return This.CharsAreSortedInAscending()
+
+		def CharsAreSortedUp()
+			return This.CharsAreSortedInAscending()
+
+		#>
 
 	  #----------------------------------------------------------------#
 	 #  CHECKING IF THE CHARS OF THE STRING ARE SORTED IN DESCENDING  #
 	#----------------------------------------------------------------#
 
 	def CharsAreSortedInDescending()
-		/*
-		The idea is to reverse the string, and check if its reversed
-		copy is sorted in ASCENDING order. If so, then the string itself
-		is actually sorted in DESCENDING order!
-		*/
-		oTemp = new stzString( This.CharsReversed() )
-		if oTemp.CharsAreSortedInAscending()
+		if @IsListSortedInDescending(This.Chars())
 			return TRUE
 		else
 			return FALSE
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def IsSortedInDescending()
 			return This.CharsAreSortedInDescending()
+
+		def IsSortedDown()
+			return This.CharsAreSortedInDescending()
+
+		def CharsAreSortedDown()
+			return This.CharsAreSortedInDescending()
+
+		#>
 
 	  #------------------------------------------------#
 	 #  SORTING THE CHARS OF THE STRING IN ASCENDING  #

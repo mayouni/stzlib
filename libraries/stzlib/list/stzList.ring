@@ -533,13 +533,6 @@ func SortBy(paList, pcExpr)
 
 #==========
 
-func IsSorted(pStrOrList)
-	if IsSortedList(pStrOrList) or IsSortedString(pStrOrList)
-		return TRUE
-	else
-		return FALSE
-	ok
-
 func IsSortedList(paList)
 	if IsSortedListInAscending(paList) or IsSortedListInDescending(paList)
 		return TRUE
@@ -547,11 +540,27 @@ func IsSortedList(paList)
 		return FALSE
 	ok
 
+	#< @FunctionAlternativeForms
+
 	func IsListSorted(paList)
 		return IsSortedList(paList)
 
+	#--
+
+	func @IsSortedList(paList)
+		return IsSortedList(paList)
+
+	func @IsListSorted(paList)
+		return IsSortedList(paList)
+
+	#>
+
 func IsSortedListInAscending(paList)
-	return StzListQ(palist).IsSortedInAscending(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	return StzListQ(palist).IsSortedInAscending()
 
 	#< @FunctionAlternativeForms
 
@@ -569,10 +578,33 @@ func IsSortedListInAscending(paList)
 	func IsListSortedUp(paList)
 		return IsSortedListInAscending(paList)
 
+	#==
+
+	func @IsSortedListInAscending(paList)
+		return IsSortedListInAscending(paList)
+
+	func @IsListSortedInAscending(paList)
+		return IsSortedListInAscending(paList)
+
+	#--
+
+	func @IsSortedListUp(paList)
+		return IsSortedListInAscending(paList)
+
+	func @IsSortedUpList(paList)
+		return IsSortedListInAscending(paList)
+
+	func @IsListSortedUp(paList)
+		return IsSortedListInAscending(paList)
+
 	#>
 
 func IsSortedListInDescending(paList)
-	return StzListQ(palist).IsSortedInDescending(paList)
+	if NOT isList(paList)
+		return FALSE
+	ok
+
+	return StzListQ(palist).IsSortedInDescending()
 
 	#< @FunctionAlternativeForms
 
@@ -588,6 +620,25 @@ func IsSortedListInDescending(paList)
 		return IsSortedListInDescending(paList)
 
 	func IsListSortedDown(paList)
+		return IsSortedListInDescending(paList)
+
+	#==
+
+	func @IsSortedListInDescending(paList)
+		return IsSortedListInDescending(paList)
+
+	func @IsListSortedInDescending(paList)
+		return IsSortedListInDescending(paList)
+
+	#--
+
+	func @IsSortedListDown(paList)
+		return IsSortedListInDescending(paList)
+
+	func @IsSortedDownList(paList)
+		return IsSortedListInDescending(paList)
+
+	func @IsListSortedDown(paList)
 		return IsSortedListInDescending(paList)
 
 	#>
@@ -619,6 +670,9 @@ func IsSortedListOfPairsOfNumbers(paList)
 	else
 		return FALSE
 	ok
+
+	func @IsSortedListOfPairsOfNumbers(paList)
+		return IsSortedListOfPairsOfNumbers(paList)
 
 func IsSortedUpListOfPairsOfNumbers(paList)
 	if NOT IsListOfPairsOfNumbers(paList) and IsSortedInAscending(paList)
@@ -655,6 +709,20 @@ func IsSortedUpListOfPairsOfNumbers(paList)
 		return IsSortedUpListOfPairsOfNumbers(paList)
 
 	func IsListOfPairsOfNumbersSortedUp(paList)
+		return IsSortedUpListOfPairsOfNumbers(paList)
+
+	#==
+
+	func @IsSortedUpListOfPairsOfNumbers(paList)
+		return IsSortedUpListOfPairsOfNumbers(paList)
+
+	func @IsSortedInAscendingListOfPairsOfNumbers(paList)
+		return IsSortedUpListOfPairsOfNumbers(paList)
+
+	func @IsListOfPairsOfNumbersSortedInAscending(paList)
+		return IsSortedUpListOfPairsOfNumbers(paList)
+
+	func @IsListOfPairsOfNumbersSortedUp(paList)
 		return IsSortedUpListOfPairsOfNumbers(paList)
 
 	#>
@@ -695,6 +763,20 @@ func IsSortedDownListOfPairsOfNumbers(paList)
 		return IsSortedDownListOfPairsOfNumbers(paList)
 
 	func IsListOfPairsOfNumbersSortedDown(paList)
+		return IsSortedDownListOfPairsOfNumbers(paList)
+
+	#==
+
+	func @IsSortedDownListOfPairsOfNumbers(paList)
+		return IsSortedDownListOfPairsOfNumbers(paList)
+
+	func @IsSortedInDescendingListOfPairsOfNumbers(paList)
+		return IsSortedDownListOfPairsOfNumbers(paList)
+
+	func @IsListOfPairsOfNumbersSortedInDescending(paList)
+		return IsSortedDownListOfPairsOfNumbers(paList)
+
+	func @IsListOfPairsOfNumbersSortedDown(paList)
 		return IsSortedDownListOfPairsOfNumbers(paList)
 
 	#>
