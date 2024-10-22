@@ -15265,6 +15265,17 @@ o1.ReplaceSectionsByMany([ [ 4, 6], [10, 20], [16, 18] ], ["A", "BB", "CCC"])
 */
 pron()
 
+o1 = new stzString("ab3de6gh9")
+o1.ReplaceCharsAtPositionsByMany([3, 6, 9], [ "c", "f", "i" ])
+
+? o1.Content() #--> "abcdefghi"
+
+proff()
+
+/*-----------------
+*/
+pron()
+
 o1 = new stzString("...456...012...678..")
 o1.ReplaceSectionsByMany([ [ 4, 6], [10, 12], [16, 18] ], ["A", "BB", "CCC"])
 ? o1.Content()
