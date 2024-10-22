@@ -37573,20 +37573,25 @@ class stzString from stzObject
 
 		else
 
-			acUniqueSubStr = U(pacSubStr)
-			nLenU = len(acUniqueSubStr)
+			acSections = StzListQ(pacSubStr).SectionsOfSameItems()
 
-			acSubStr = @SortList(pacSubStr)
-			oacSubStr = new stzList(acSubStr)
-			nLen = len(acSubStr)
+			nLen = len(acSections)
 
-			acSectionsOfNewSubStr = StzListQ(acSubStr).sSectionsOfSameItems()
+			nStart = 1
 
-			for i = 1 to nLenU
-				nNbrOccurr = oacSubStr.NumberOfOccurrencesCS(acUniqueSubStr[i], pCaseSensitive)
-				This.ReplaceOccurrencesByMany(1:nNbrOccurr, acUniqueSubStr[i], acSectionsOfNewSubStr[i])
+			for i = 1 to nLen
+				
+				n = len(acSections[i])
+
+				acNewSubStr = []
+			
+				for j = nStart to nStart + n - 1
+					acNewSubStr + pacNewSubStr[j]
+				next
+				nStart += n
+
+				This.ReplaceOccurrencesByMany( 1:n, acSections[i][1], acNewSubStr)
 			next
-
 		ok
 
 		#< @FunctionFluentForm
@@ -38036,12 +38041,6 @@ class stzString from stzObject
 
 		? o1.Content() #--> "ring php ♥ ruby ♥♥ python ♥♥♥ csharp ring"
 
-		EXAMPLE 2
-
-		o1 = new stzString("ring php ring ruby ring python ring csharp ring")
-		o1.ReplaceOccurrencesByMany([ 1, 3, 5], "ring", :By = [ "#1", "#3", "#5" ])
-	
-		? o1.Content() #--> "#1 php ring ruby #3 python ring csharp #5"
 		*/
 
 		if CheckParams()
@@ -38076,17 +38075,25 @@ class stzString from stzObject
 
 		nMin = Min([ len(panPos), len(pacNewSubStr) ])
 
-		anPos 	= Q(panPos).SectionQ(1, nMin).SortedInDescending()
-		acNewSubStrings	= Q(pacNewSubStr).SectionQ(1, nMin).SortedInDescending()
+		acNewSubStr = []
+		for i = 1 to nMin
+			acNewSubStr + pacNewSubStr[i]
+		next
 
-		# Doing the job
+		aPosAsSections = This.FindCSZZ(pcSubStr, pCaseSensitive)
+		nLen = len(aPosAsSections)
+
+		aPosZZ = []
 
 		for i = 1 to nMin
-			nPos = anPos[i]
-			cNewSubStr = acNewSubStrings[i]
-
-			This.ReplaceSubStringAtPositionNCS(nPos, pcSubStr, cNewSubStr, pCaseSensitive)
+			if ring_find(panPos, aPosAsSections[i][1])
+				aPosZZ + aPosAsSections[i]
+			ok
 		next
+? @@(aPosZZ)
+? @@(acNewSubStr)
+? "****"
+		This.ReplaceSectionsByMany(aPosZZ, acNewSubStr)
 
 		#< @FunctionFluentForm
 
@@ -38226,6 +38233,15 @@ class stzString from stzObject
 	#-----------------------------------------------------------------------#
 
 	def ReplaceOccurrencesByManyCS(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		/*
+		EXAMPLE
+
+		o1 = new stzString("ring php ring ruby ring python ring csharp ring")
+		o1.ReplaceOccurrencesByMany([ 1, 3, 5], "ring", :By = [ "#1", "#3", "#5" ])
+	
+		? o1.Content() #--> "#1 php ring ruby #3 python ring csharp #5"
+		*/
 
 		anPos = This.FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
 		This.ReplaceSubStringAtPositionsByManyCS(anPos, pcSubStr, pacNewSubStr, pCaseSensitive)
@@ -76258,6 +76274,48 @@ n1 = Min(aTemp)
 		# Justifying the contents of the two params
 
 		nLenSections = len(paSections)
+		nLensubStr = len(pacSubStr)
+		nMin = Min([ nLenSections, nLenSubStr ])
+
+		aSections = []
+		if nLenSections > nMin
+			for i = 1 to nMin
+				aSections + paSections[i]
+			next
+		else
+			aSections = paSections
+		ok
+
+		acSubStr = []
+		if nLenSubStr > nMin
+			for i = 1 to nMin
+				acSubStr + pacSubStr[i]
+			next
+		else
+			acSubStr = pacSubStr
+		ok	
+
+		# Doing the job
+
+		for i = nMin to 1 step - 1
+			This.ReplaceSection(aSections[i][1], aSections[i][2], acSubStr[i])
+		next
+/*
+		acSplits = This.SplitAtSections(aSections)
+		nLenSplits = len(acSplits)
+
+		cResult = ""
+
+		for i = 1 to nLenSplits - 1
+			cResult += (acSplits[i] + acSubStr[i])
+		next
+
+		cResult += acSplits[nLenSplits]
+		This.UpdateWith(cResult)
+*/
+
+/*
+		nLenSections = len(paSections)
 		nLenSubStr = len(pacSubStr)
 
 		if nLenSections = 0 or nLenSubStr = 0
@@ -76284,7 +76342,7 @@ n1 = Min(aTemp)
 		for i = nLen to 1 step -1
 			This.ReplaceSection(paSections[i][1], paSections[i][2], pacSubStr[i])
 		next
-		
+*/	
 
 		def ReplaceSectionsByManyQ(paSections, pacSubStr)
 			This. ReplaceSectionsByMany(paSections, pacSubStr)
