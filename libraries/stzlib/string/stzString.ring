@@ -37742,8 +37742,30 @@ class stzString from stzObject
 			# In case where pacSubStr contains duplicated items
 			# ~> an ordered replacement is made
 
-			acSections = StzListQ(pacSubStr).SectionsOfSameItems()
+			nLen1 = len(pacSubStr)
+			nLen2 = len(pacNewSubStr)
+			nMin = Min([ nLen1, nLen2 ])
 
+			acSubStr = []
+			if nLen1 > nMin
+				for i = 1 to nMin
+					acSubStr + pacSubStr[i]
+				next
+			else
+				acSubStr = pacSubStr
+			ok
+
+			acNewSubStr = []
+			if nLen2 > nMin
+				for i = 1 to nMin
+					acNewSubStr + pacNewSubStr[i]
+				next
+			else
+				acNewSubStr = pacNewSubStr
+			ok
+
+
+			acSections = StzListQ(acSubStr).SectionsOfSameItems()
 			nLen = len(acSections)
 
 			nStart = 1

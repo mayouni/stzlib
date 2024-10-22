@@ -15281,7 +15281,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
@@ -15321,7 +15321,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("ab3de6gh9")
@@ -15334,7 +15334,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("...456...012...678..")
@@ -15348,7 +15348,7 @@ proff()
 /*-----------------
 */
 pron()
-/*
+
 o1 = new stzString("--[...]---[...]---[...]---[~~~]--[~~~]--")
 
 o1.ReplaceManyByMany(
@@ -15357,7 +15357,7 @@ o1.ReplaceManyByMany(
 )
 
 ? o1.Content()
-#--> "--ONE---ONE---THREE--THREE--"
+#--> --ONE---TWO---[...]---THREE--FOUR--
 
 #--
 
@@ -15369,10 +15369,10 @@ o1.ReplaceManyByMany(
 )
 
 ? o1.Content()
-#--> "--ONE---TWO---[...]---THREE--[~~~]--"
+#--> --ONE---TWO---[...]---THREE--[~~~]--
 
 #--
-*/
+
 o1 = new stzString("--[...]---[...]---[...]---[~~~]--[~~~]--")
 
 o1.ReplaceManyByMany(
@@ -15381,10 +15381,10 @@ o1.ReplaceManyByMany(
 )
 
 ? o1.Content()
-#--> "--ONE---TWO---[...]---THREE--[~~~]--"
+#--> --ONE---TWO---[...]---THREE--[~~~]--
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.05 second(s).
 
 /*-----------------
 */
