@@ -15262,15 +15262,51 @@ o1.ReplaceSectionsByMany([ [ 4, 6], [10, 20], [16, 18] ], ["A", "BB", "CCC"])
 # ~> paSections must be a list of pairs of numbers sorted in ascending.
 
 /*-----------------
+
+o1 = new stzString("ab3de6gh9")
+o1.ReplaceCharsAtPositionsByMany([3, 12, 9], [ "c", "f", "i" ])
+? o1.Content()
+#--> ERROR MSG: Incorrect param type! panPos must be a list of numbers sorted in ascending.
+
+/*-----------------
+*/
+pron()
+
+? IsSortedString(1:5)
+#--> FALSE
+
+? IsSortedList("abc")
+#--> FALSE
+
+? IsSortedListInAscending(1:5)
+#--> TRUE
+
+? IsSortedListInDescending(5:1)
+#--> TRUE
+
+? IsSortedStringInAscending("abc")
+#--> TRUE
+
+? IsSortedStringInDescending("cba")
+#--> TRUE
+
+? StzStringQ("cba").IsSortedInDescending()
+#--> TRUE
+
+proff()
+
+/*-----------------
 */
 pron()
 
 o1 = new stzString("ab3de6gh9")
 o1.ReplaceCharsAtPositionsByMany([3, 6, 9], [ "c", "f", "i" ])
 
-? o1.Content() #--> "abcdefghi"
+? o1.Content()
+#--> "abcdefghi"
 
 proff()
+# Executed in 0.01 second(s).
 
 /*-----------------
 */
