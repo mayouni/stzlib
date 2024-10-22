@@ -37049,7 +37049,6 @@ class stzString from stzObject
 	#--------------------------------------------#
 
 	def ReplaceByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
-		#TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE
 
@@ -37060,13 +37059,33 @@ class stzString from stzObject
 
 		*/
 
-		if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParam()
-			pacNewSubStr = pacNewSubStr[2]
+		if CheckParams()
+
+			if isList(pacNewSubStr) and Q(pacNewSubStr).IsWithOrByNamedParam()
+				pacNewSubStr = pacNewSubStr[2]
+			ok
+	
+			if NOT isList(pacNewSubStr)
+				stzRaise("Incorrect param! pacNewSubStr must be a lists.")
+			ok
+	
+			nLenNewSubStr = len(pacNewSubStr)
+			if nLenNewSubStr > 0 and
+	
+			   isList(pacNewSubStr[nLenNewSubStr]) and
+			   len(pacNewSubStr[nLenNewSubStr]) = 2 and
+			   isString(pacNewSubStr[nLenNewSubStr][1]) and
+			   pacNewSubStr[nLenNewSubStr][1] = "and"
+	
+				pacNewSubStr[nLenNewSubStr] = pacNewSubStr[nLenNewSubStr][2]
+			ok
+	
+			if NOT IsListOfStrings(pacNewSubStr)
+				stzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
+			ok
 		ok
 
-		if NOT Q(pacNewSubStr).IsListOfStrings()
-			stzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
-		ok
+		# Doing the job
 
 		anPos = This.FindCS(pcSubStr, pCaseSensitive)
 		nMin = Min([ len(anPos), len(pacNewSubStr) ])
@@ -37273,7 +37292,6 @@ class stzString from stzObject
 	#--------------------------------------------------------------------------#
 
 	def ReplaceByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
-		#TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE
 
@@ -37513,7 +37531,6 @@ class stzString from stzObject
 	#------------------------------------------------------#
 
 	def ReplaceManyByManyCS(pacSubStr, pacNewSubStr, pCaseSensitive)
-		#TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE
 
@@ -37537,20 +37554,40 @@ class stzString from stzObject
 
 		# Doing the job
 
-		nLenSubStr = len(pacSubStr)
-		nLenNewSubStr = len(pacNewSubStr)
+		if IsSet(pacSubStr)
 
-		if nLenSubStr = 0 or nLenNewSubStr = 0
-			return
+			nLenSubStr = len(pacSubStr)
+			nLenNewSubStr = len(pacNewSubStr)
+	
+			if nLenSubStr = 0 or nLenNewSubStr = 0
+				return
+			ok
+	
+			if NOT ( nLenSubStr = nLenNewSubStr )
+				StzRaise("Incorrect values! nLenSubStr and pacNewSubStr must have the same size.")
+			ok
+	
+			for i = 1 to nLenSubStr
+				This.ReplaceCS(pacSubStr[i], pacNewSubStr[i], pCaseSensitive)
+			next
+
+		else
+
+			acUniqueSubStr = U(pacSubStr)
+			nLenU = len(acUniqueSubStr)
+
+			acSubStr = @SortList(pacSubStr)
+			oacSubStr = new stzList(acSubStr)
+			nLen = len(acSubStr)
+
+			acSectionsOfNewSubStr = StzListQ(acSubStr).sSectionsOfSameItems()
+
+			for i = 1 to nLenU
+				nNbrOccurr = oacSubStr.NumberOfOccurrencesCS(acUniqueSubStr[i], pCaseSensitive)
+				This.ReplaceOccurrencesByMany(1:nNbrOccurr, acUniqueSubStr[i], acSectionsOfNewSubStr[i])
+			next
+
 		ok
-
-		if NOT ( nLenSubStr = nLenNewSubStr )
-			StzRaise("Incorrect values! nLenSubStr and pacNewSubStr must have the same size.")
-		ok
-
-		for i = 1 to nLenSubStr
-			This.ReplaceCS(pacSubStr[i], pacNewSubStr[i], pCaseSensitive)
-		next
 
 		#< @FunctionFluentForm
 
@@ -37623,7 +37660,6 @@ class stzString from stzObject
 	# XT ~> Return to beginning if all the other substrings are replaced
 
 	def ReplaceManyByManyCSXT(pacSubStr, pacNewSubStr, pCaseSensitive)
-		#TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE
 
@@ -37993,7 +38029,6 @@ class stzString from stzObject
 	#-------------------------------------------------------------------------------#
 
 	def ReplaceSubStringAtPositionsByManyCS(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
-		#TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE 1
 		o1 = new stzString("ring php ring ruby ring python ring csharp ring")
@@ -38015,10 +38050,24 @@ class stzString from stzObject
 				pacNewSubStr = pacNewSubStr[2]
 			ok
 	
-			if NOT ( isList(pacNewSubStr) and @IsListOfStrings(pacNewSubStr) )
+			if NOT isList(pacNewSubStr)
+				stzRaise("Incorrect param! pacNewSubStr must be a lists.")
+			ok
+	
+			nLenNewSubStr = len(pacNewSubStr)
+			if nLenNewSubStr > 0 and
+	
+			   isList(pacNewSubStr[nLenNewSubStr]) and
+			   len(pacNewSubStr[nLenNewSubStr]) = 2 and
+			   isString(pacNewSubStr[nLenNewSubStr][1]) and
+			   pacNewSubStr[nLenNewSubStr][1] = "and"
+	
+				pacNewSubStr[nLenNewSubStr] = pacNewSubStr[nLenNewSubStr][2]
+			ok
+	
+			if NOT IsListOfStrings(pacNewSubStr)
 				stzRaise("Incorrect param! pacNewSubStr must be a list of strings.")
 			ok
-
 		ok
 
 		# Keeping only the adequate number of positsions and new substrings
@@ -38081,8 +38130,13 @@ class stzString from stzObject
 	#=======================================================================#
 
 	def ReplaceOccurrencesCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+		if isList(pcNewSubStr)
+			This.ReplaceOccurrencesByManyCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return
+		ok
+
 		anPos = This.FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
-		This.ReplaceSubStringAtPositionsCS(panPos, pcSubStr, pcNewSubStr, pCaseSensitive)
+		This.ReplaceSubStringAtPositionsCS(anPos, pcSubStr, pcNewSubStr, pCaseSensitive)
 
 		#< @FunctionFluentForm
 
@@ -38091,14 +38145,25 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def ReplaceTheseOccurrencesCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.ReplaceOccurrencesCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
 
 			def ReplaceTheseOccurrencesCSQ(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
-				This.ReplaceTheseOccurrencesCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
-				return This
+				return This.ReplaceOccurrencesCSQ(panPos, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceNthOccurrencesCS(anOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceOccurrencesCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceNthOccurrencesCSQ(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This.ReplaceOccurrencesCSQ(panPos, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+		def ReplaceNthsCS(anOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+			This.ReplaceOccurrencesCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+			def ReplaceNthsCSQ(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+				return This.ReplaceOccurrencesCSQ(panPos, pcSubStr, pcNewSubStr, pCaseSensitive)
 
 		#>
 
@@ -38107,6 +38172,9 @@ class stzString from stzObject
 		return aResult
 
 		def TheseOccurrencesReplacedCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+			return This.OccurrencesReplacedCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
+
+		def NthsOccurrencesReplacedCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
 			return This.OccurrencesReplacedCS(panOccurr, pcSubStr, pcNewSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
@@ -38127,8 +38195,19 @@ class stzString from stzObject
 			This.ReplaceOccurrences(panOccurr, pcSubStr, pcNewSubStr)
 
 			def ReplaceTheseOccurrencesQ(panOccurr, pcSubStr, pcNewSubStr)
-				This.ReplaceTheseOccurrences(panOccurr, pcSubStr, pcNewSubStr)
-				return This
+				return This.ReplaceOccurrencesQ(panPos, pcSubStr, pcNewSubStr)
+
+		def ReplaceNthOccurrences(anOccurr, pcSubStr, pcNewSubStr)
+			This.ReplaceOccurrences(panOccurr, pcSubStr, pcNewSubStr)
+
+			def ReplaceNthOccurrencesQ(panOccurr, pcSubStr, pcNewSubStr)
+				return This.ReplaceOccurrencesQ(panPos, pcSubStr, pcNewSubStr)
+
+		def ReplaceNths(anOccurr, pcSubStr, pcNewSubStr)
+			This.ReplaceOccurrences(panOccurr, pcSubStr, pcNewSubStr)
+
+			def ReplaceNthsQ(panOccurr, pcSubStr, pcNewSubStr)
+				return This.ReplaceOccurrencesQ(panPos, pcSubStr, pcNewSubStr)
 
 		#>
 
@@ -38139,12 +38218,14 @@ class stzString from stzObject
 		def TheseOccurrencesReplaced(panOccurr, pcSubStr, pcNewSubStr)
 			return This.OccurrencesReplaced(panOccurr, pcSubStr, pcNewSubStr)
 
+		def NthsOccurrencesReplaced(panOccurr, pcSubStr, pcNewSubStr)
+			return This.OccurrencesReplaced(panOccurr, pcSubStr, pcNewSubStr)
+
 	  #-----------------------------------------------------------------------#
 	 #  REPLACING GIVEN OCCURRENCES OF A SUBSTRING BY MANY OTHER SUBSTRINGS  #
 	#-----------------------------------------------------------------------#
 
 	def ReplaceOccurrencesByManyCS(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
-		#TODO: Add "These" as alternatibe of "Many"
 
 		anPos = This.FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
 		This.ReplaceSubStringAtPositionsByManyCS(anPos, pcSubStr, pacNewSubStr, pCaseSensitive)
@@ -38163,8 +38244,19 @@ class stzString from stzObject
 			This.ReplaceOccurrencesByManyCS(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
 
 			def ReplaceTheseOccurrencesByManyCSQ(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
-				This.ReplaceTheseOccurrencesByManyCS(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
-				return This
+				return This.ReplaceOccurrencesByManyCSQ(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplaceNthOccurrencesByManyCS(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+			This.ReplaceOccurrencesByManyCS(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+
+			def ReplaceNthOccurrencesByManyCSQ(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+				return This.ReplaceOccurrencesByManyCSQ(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplaceNthsByManyCS(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+			This.ReplaceOccurrencesByManyCS(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+
+			def ReplaceNthsByManyCSQ(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+				return This.ReplaceOccurrencesByManyCSQ(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
 
 		#>
 
@@ -38173,6 +38265,12 @@ class stzString from stzObject
 		return cResult
 
 		def TheseOccurrencesReplacedByManyCS(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.OccurrencesReplacedByManyCS(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def NthOccurrencesReplacedByManyCS(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.OccurrencesReplacedByManyCS(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def NthsReplacedByManyCS(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
 			return This.OccurrencesReplacedByManyCS(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
@@ -38197,6 +38295,18 @@ class stzString from stzObject
 				This.ReplaceTheseOccurrencesByMany(panOccurr, pcSubStr, pacNewSubStr)
 				return This
 
+		def ReplaceNthOccurrencesByMany(panOccurr, pcSubStr, pacNewSubStr)
+			This.ReplaceOccurrencesByMany(panOccurr, pcSubStr, pacNewSubStr)
+
+			def ReplaceNthOccurrencesByManyQ(panOccurr, pcSubStr, pacNewSubStr)
+				return This.ReplaceOccurrencesByManyQ(panPos, pcSubStr, pacNewSubStr)
+
+		def ReplaceNthsByMany(panOccurr, pcSubStr, pacNewSubStr)
+			This.ReplaceOccurrencesByMany(panOccurr, pcSubStr, pacNewSubStr)
+
+			def ReplaceNthsByManyQ(panOccurr, pcSubStr, pacNewSubStr)
+				return This.ReplaceOccurrencesByManyQ(panPos, pcSubStr, pacNewSubStr)
+
 		#>
 
 	def OccurrencesReplacedByMany(panPos, pcSubStr, pacNewSubStr)
@@ -38206,12 +38316,17 @@ class stzString from stzObject
 		def TheseOccurrencesReplacedByMany(panPos, pcSubStr, pacNewSubStr)
 			return This.OccurrencesReplacedByMany(panPos, pcSubStr, pacNewSubStr)
 
+		def NthOccurrencesReplacedByMany(panPos, pcSubStr, pacNewSubStr)
+			return This.OccurrencesReplacedByMany(panPos, pcSubStr, pacNewSubStr)
+
+		def NthsReplacedByMany(panPos, pcSubStr, pacNewSubStr)
+			return This.OccurrencesReplacedByMany(panPos, pcSubStr, pacNewSubStr)
+
 	  #-----------------------------------------------------------------------------#
 	 #  REPLACING GIVEN OCCURRENCES OF A SUBSTRING BY MANY OTHER SUBSTRINGS -- XT  #
 	#-----------------------------------------------------------------------------#
 
 	def ReplaceOccurrencesByManyCSXT(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
-		#TODO: Add "These" as alternatibe of "Many"
 
 		anPos = This.FindTheseOccurrencesCS(panOccurr, pcSubStr, pCaseSensitive)
 		This.ReplaceSubStringAtPositionsByManyCSXT(anPos, pcSubStr, pacNewSubStr, pCaseSensitive)
@@ -38224,14 +38339,25 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def ReplaceTheseOccurrencesByManyCSXT(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
 			This.ReplaceOccurrencesByManyCSXT(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
 
 			def ReplaceTheseOccurrencesByManyCSXTQ(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
-				This.ReplaceTheseOccurrencesByManyCSXT(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
-				return This
+				return This.ReplaceOccurrencesByManyCSXTQ(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplaceNthOccurrencesByManyCSXT(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+			This.ReplaceOccurrencesByManyCSXT(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+
+			def ReplaceNthOccurrencesByManyCSXTQ(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+				return This.ReplaceOccurrencesByManyCSXTQ(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def ReplaceNthsByManyCSXT(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+			This.ReplaceOccurrencesByManyCSXT(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+
+			def ReplaceNthsByManyCSXTQ(panOccurr, pcSubStr, pacNewSubStr, pCaseSensitive)
+				return This.ReplaceOccurrencesByManyCSXTQ(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
 
 		#>
 
@@ -38240,6 +38366,9 @@ class stzString from stzObject
 		return cResult
 
 		def TheseOccurrencesReplacedByManyCSXT(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
+			return This.OccurrencesReplacedByManyCSXT(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
+
+		def NthOccurrencesReplacedByManyCSXT(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
 			return This.OccurrencesReplacedByManyCSXT(panPos, pcSubStr, pacNewSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
@@ -38255,7 +38384,7 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def ReplaceTheseOccurrencesByManyXT(panOccurr, pcSubStr, pacNewSubStr)
 			This.ReplaceOccurrencesByManyXT(panOccurr, pcSubStr, pacNewSubStr)
@@ -38264,6 +38393,18 @@ class stzString from stzObject
 				This.ReplaceTheseOccurrencesByManyXT(panOccurr, pcSubStr, pacNewSubStr)
 				return This
 
+		def ReplaceNthOccurrencesByManyXT(panOccurr, pcSubStr, pacNewSubStr)
+			This.ReplaceOccurrencesByManyXT(panOccurr, pcSubStr, pacNewSubStr)
+
+			def ReplaceNthOccurrencesByManyXTQ(panOccurr, pcSubStr, pacNewSubStr)
+				return This.ReplaceOccurrencesByManyXTQ(panPos, pcSubStr, pacNewSubStr)
+
+		def ReplaceNthsByManyXT(panOccurr, pcSubStr, pacNewSubStr)
+			This.ReplaceOccurrencesByManyXT(panOccurr, pcSubStr, pacNewSubStr)
+
+			def ReplaceNthsByManyXTQ(panOccurr, pcSubStr, pacNewSubStr)
+				return This.ReplaceOccurrencesByManyXTQ(panPos, pcSubStr, pacNewSubStr)
+
 		#>
 
 	def OccurrencesReplacedByManyXT(panPos, pcSubStr, pacNewSubStr)
@@ -38271,6 +38412,9 @@ class stzString from stzObject
 		return cResult 
 
 		def TheseOccurrencesReplacedByManyXT(panPos, pcSubStr, pacNewSubStr)
+			return This.OccurrencesReplacedByManyXT(panPos, pcSubStr, pacNewSubStr)
+
+		def NthOccurrencesReplacedByManyXT(panPos, pcSubStr, pacNewSubStr)
 			return This.OccurrencesReplacedByManyXT(panPos, pcSubStr, pacNewSubStr)
 
 	  #----------------------------------------------------------------------#
@@ -39685,7 +39829,6 @@ class stzString from stzObject
 	#TODO: Add case sensitivity
 
 	def ReplaceCharsAtPositionsByMany(panPos, pacNewSubStr)
-		#TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE
 		o1 = new stzString("ab3de6gh9")

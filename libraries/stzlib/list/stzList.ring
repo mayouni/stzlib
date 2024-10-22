@@ -7847,7 +7847,6 @@ class stzList from stzObject
 	# XT ~> Return to beginning if all the other items are replaced
 
 	def ReplaceManyByManyCSXT(paItems, paNewItems, pCaseSensitive)
-		#TODO: Add "These" as alternatibe of "Many"
 
 		/* EXAMPLE
 
@@ -43934,6 +43933,51 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			return This.SectionsBetween(pItem1, pItem2)
 
 		#>
+
+	  #--------------------------------------#
+	 #  GETTING THE SECTIONS OF SAME ITEMS  #
+	#--------------------------------------#
+
+	def SectionsOfSameItemsCS(pCaseSensitive)
+		/* EXAMpLE
+
+		o1 = new stzList([ "ONE", "TWO", "TWO", "ONE", "THREE", "ONE" ])
+		? o1.SectionsOfSameItems()
+		#--> [
+			[ "ONE", "ONE", "ONE" ],
+			[ "TWO", "TWO" ],
+			[ "THREE" ]
+		]
+
+		*/
+
+		# Getting the items and their positions
+
+		acItemsZ = This.ItemsCSZ(pCaseSensitive)
+		nLen = len(acItemsZ)
+
+		# Doing the job
+
+		aResult = []
+
+		for i = 1 to nLen
+
+			aSection = []
+
+			nLenSection = len(acItemsZ[i][2])
+			for j = 1 to nLenSection
+				aSection + acItemsZ[i][1]
+			next
+
+			aResult + aSection
+		next
+
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SectionsOfSameItems()
+		return This.SectionsOfSameItemsCS(TRUE)
 
 	   #--------------------------------------------------------------#
 	  #   FINDING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS AND   #
