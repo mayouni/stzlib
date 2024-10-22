@@ -533,8 +533,67 @@ func SortBy(paList, pcExpr)
 
 #==========
 
+func IsSorted(pStrOrList)
+	if IsSortedList(pStrOrList) or IsSortedString(pStrOrList)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+func IsSortedList(paList)
+	if IsSortedListInAscending(paList) or IsSortedListInDescending(paList)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func IsListSorted(paList)
+		return IsSortedList(paList)
+
+func IsSortedListInAscending(paList)
+	return StzListQ(palist).IsSortedInAscending(paList)
+
+	#< @FunctionAlternativeForms
+
+	func IsListSortedInAscending(paList)
+		return IsSortedListInAscending(paList)
+
+	#--
+
+	func IsSortedListUp(paList)
+		return IsSortedListInAscending(paList)
+
+	func IsSortedUpList(paList)
+		return IsSortedListInAscending(paList)
+
+	func IsListSortedUp(paList)
+		return IsSortedListInAscending(paList)
+
+	#>
+
+func IsSortedListInDescending(paList)
+	return StzListQ(palist).IsSortedInDescending(paList)
+
+	#< @FunctionAlternativeForms
+
+	func IsListSortedInDescending(paList)
+		return IsSortedListInDescending(paList)
+
+	#--
+
+	func IsSortedListDown(paList)
+		return IsSortedListInDescending(paList)
+
+	func IsSortedDownList(paList)
+		return IsSortedListInDescending(paList)
+
+	func IsListSortedDown(paList)
+		return IsSortedListInDescending(paList)
+
+	#>
+
 func IsSortedListOfPairsOfNumbers(paList)
-	if NOT IsListOfPairsOfNumbers(paList) and IsSorted(paList)
+	if NOT IsListOfPairsOfNumbers(paList) and IsSortedList(paList)
 		return FALSE
 	ok
 
@@ -562,7 +621,7 @@ func IsSortedListOfPairsOfNumbers(paList)
 	ok
 
 func IsSortedUpListOfPairsOfNumbers(paList)
-	if NOT IsListOfPairsOfNumbers(paList) and IsSorted(paList)
+	if NOT IsListOfPairsOfNumbers(paList) and IsSortedInAscending(paList)
 		return FALSE
 	ok
 
@@ -602,7 +661,7 @@ func IsSortedUpListOfPairsOfNumbers(paList)
 
 func IsSortedDownListOfPairsOfNumbers(paList)
 
-	if NOT IsListOfPairsOfNumbers(paList) and IsSorted(paList)
+	if NOT IsListOfPairsOfNumbers(paList) and IsSortedInDescending(paList)
 		return FALSE
 	ok
 
@@ -657,6 +716,54 @@ func IsListOfNumbers(paList)
 
 	func @IsAListOfNumbers(paList)
 		return IsListOfNumbers(paList)
+
+	#>
+
+func IsSortedListOfNumbers(paList)
+	if IsListOfNumbers(paList) and IsSorted(paList)
+		return TRUE
+	else
+		return FALSE
+
+	ok
+
+func IsListOfNumbersSortedInAscending(paList)
+	if IsListOfNumbers(paList) and IsSortedInAscending(paList)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func IsListOfNumbersSortedUp(paList)
+		return IsListOfNumbersSortedInAscending(paList)
+
+	func IsSortedUpListOfNumbers(paList)
+		return IsListOfNumbersSortedInAscending(paList)
+
+	func IsSortedInAscendingListOfNumbers(paList)
+		return IsListOfNumbersSortedInAscending(paList)
+
+	#>
+
+func IsListOfNumbersSortedInDesending(paList)
+	if IsListOfNumbers(paList) and IsSortedInDescending(paList)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func IsListOfNumbersSortedDown(paList)
+		return IsListOfNumbersSortedInDescending(paList)
+
+	func IsSortedDownListOfNumbers(paList)
+		return IsListOfNumbersSortedInDescending(paList)
+
+	func IsSortedInDescendingListOfNumbers(paList)
+		return IsListOfNumbersSortedInDescending(paList)
 
 	#>
 

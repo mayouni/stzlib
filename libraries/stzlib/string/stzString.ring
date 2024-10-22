@@ -472,6 +472,60 @@ func StringTitlecased(cStr)
 
 #===
 
+func IsSortedString(pcStr)
+	if IsSortedStringInAscending(pcStr) or IsSortedStringInDescending(pcStr)
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func IsStringSorted(pcStr)
+		return IsSortedString(pcStr)
+
+func IsSortedStringInAscending(pcStr)
+	return StzStringQ(pcStr).IsSortedInAscending()
+
+	#< @FunctionAlternativeForms
+
+	func IsStringSortedInAscending(pcStr)
+		return IsSortedStringInAscending(pcStr)
+
+	#--
+
+	func IsSortedStringUp(pcStr)
+		return IsSortedStringInAscending(pcStr)
+
+	func IsSortedUpString(pcStr)
+		return IsSortedStringInAscending(pcStr)
+
+	func IsStringSortedUp(pcStr)
+		return IsSortedStringInAscending(pcStr)
+
+	#>
+
+func IsSortedStringInDescending(pcStr)
+	return StzStringQ(pcStr).IsSortedInDescending()
+
+	#< @FunctionAlternativeForms
+
+	func IsStringSortedInDescending(pcStr)
+		return IsSortedStringInDescending(pcStr)
+
+	#--
+
+	func IsSortedStringDown(pcStr)
+		return IsSortedStringInDescending(pcStr)
+
+	func IsSortedDownString(pcStr)
+		return IsSortedStringInDescending(pcStr)
+
+	func IsStringSortedDown(pcStr)
+		return IsSortedStringInDescending(pcStr)
+
+	#>
+
+#===
+
 func StringAlignXT(cStr, nWidth, cChar, cDirection)
 	oString = new stzString(cStr)
 	return oString.AlignXTQ(nWidth, cChar, cDirection).Content()
@@ -39842,8 +39896,6 @@ class stzString from stzObject
 	 #   REPLACING CHARS AT GIVEN POSITIONS BY MANY SUBSTRINGS   #
 	#-----------------------------------------------------------#
 
-	#TODO: Add case sensitivity
-
 	def ReplaceCharsAtPositionsByMany(panPos, pacNewSubStr)
 
 		/* EXAMPLE
@@ -39853,9 +39905,17 @@ class stzString from stzObject
 		? o1.Content() #--> "abcdefghi"
 		*/
 
-		anPos = StzListOfNumbersQ(panPos).SortedInDescending()
+		if CheckParams()
+			if NOT (isList(panPos) and IsListOfNumbersSortedUp(panPos))
+				StzRaise("Incorrect param type! panPos must be a list of numbers sorted in ascending.")
+			ok
 
-		nMin = Min([ len(anPos), len(pacNewSubStr) ])
+			if NOT (isList(pacNewSubStr) and IsListOfStrings(pacNewSubStr))
+				StzRaise("Incorrect param type! pacNewSubStr must be a list of strings.")
+			ok
+		ok
+
+		nMin = Min([ len(panPos), len(pacNewSubStr) ])
 		anPos = StzListQ(anPos).SectionQ(1, nMin).SortedInDescending()
 		acNewSubStrings = StzListQ(pacNewSubStr).SectionQ(1, nMin).SortedInDescending()
 
