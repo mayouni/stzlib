@@ -542,12 +542,12 @@ func IsSortedListOfPairsOfNumbers(paList)
 
 	anFirst = []
 	for i = 1 to nLen
-		paList[i][1]
+		anFirst + paList[i][1]
 	next
 
 	anSecond = []
 	for i = 1 to nLen
-		paList[i][2]
+		anSecond + paList[i][2]
 	next
 
 	oList1 = new stzList(anFirst)
@@ -561,6 +561,84 @@ func IsSortedListOfPairsOfNumbers(paList)
 		return FALSE
 	ok
 
+func IsSortedUpListOfPairsOfNumbers(paList)
+	if NOT IsListOfPairsOfNumbers(paList) and IsSorted(paList)
+		return FALSE
+	ok
+
+	nLen = len(paList)
+
+	anFirst = []
+	for i = 1 to nLen
+		anFirst + paList[i][1]
+	next
+
+	anSecond = []
+	for i = 1 to nLen
+		anSecond + paList[i][2]
+	next
+
+	oList1 = new stzList(anFirst)
+	oList2 = new stzList(anSecond)
+
+	if oList1.IsSortedInAscending() and oList2.IsSortedInAscending()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func IsSortedInAscendingListOfPairsOfNumbers(paList)
+		return IsSortedUpListOfPairsOfNumbers(paList)
+
+	func IsListOfPairsOfNumbersSortedInAscending(paList)
+		return IsSortedUpListOfPairsOfNumbers(paList)
+
+	func IsListOfPairsOfNumbersSortedUp(paList)
+		return IsSortedUpListOfPairsOfNumbers(paList)
+
+	#>
+
+func IsSortedDownListOfPairsOfNumbers(paList)
+
+	if NOT IsListOfPairsOfNumbers(paList) and IsSorted(paList)
+		return FALSE
+	ok
+
+	nLen = len(paList)
+
+	anFirst = []
+	for i = 1 to nLen
+		anFirst + paList[i][1]
+	next
+
+	anSecond = []
+	for i = 1 to nLen
+		anSecond + paList[i][2]
+	next
+
+	oList1 = new stzList(anFirst)
+	oList2 = new stzList(anSecond)
+
+	if oList1.IsSortedInDescending() and oList2.IsSortedInDescending()
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	#< @FunctionAlternativeForms
+
+	func IsSortedInDescendingListOfPairsOfNumbers(paList)
+		return IsSortedDownListOfPairsOfNumbers(paList)
+
+	func IsListOfPairsOfNumbersSortedInDescending(paList)
+		return IsSortedDownListOfPairsOfNumbers(paList)
+
+	func IsListOfPairsOfNumbersSortedDown(paList)
+		return IsSortedDownListOfPairsOfNumbers(paList)
+
+	#>
 
 func IsListOfNumbers(paList)
 	if NOT isList(paList)

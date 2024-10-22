@@ -15239,14 +15239,36 @@ proff()
 # Executed in 0.07 second(s).
 
 /*-----------------
-*/
+
 pron()
 
-? IsSortedListOfPairsOfNumbers([ [ 4, 6], [10, 12], [16, 18] ])
+? IsSortedListOfPairsOfNumbers([ [4, 6], [10, 12], [16, 18] ])
+#--> TRUE
+
+? IsListOfPairsOfNumbersSortedUp([ [4, 6], [10, 12], [16, 18] ])
+#--> TRUE
+
+? IsListOfPairsOfNumbersSortedDown([ [16, 18], [10, 12], [4, 6] ])
+#--> TRUE
+
+proff()
+
+/*-----------------
+
+o1 = new stzString("...456...012...678..")
+o1.ReplaceSectionsByMany([ [ 4, 6], [10, 20], [16, 18] ], ["A", "BB", "CCC"])
+? o1.Content()
+#--> ERROR MSG: Incorrect param type!
+# ~> paSections must be a list of pairs of numbers sorted in ascending.
+
+/*-----------------
+*/
+pron()
 
 o1 = new stzString("...456...012...678..")
 o1.ReplaceSectionsByMany([ [ 4, 6], [10, 12], [16, 18] ], ["A", "BB", "CCC"])
 ? o1.Content()
+#--> ...A...BB...CCC..
 
 proff()
 # Executed in 0.01 second(s).
