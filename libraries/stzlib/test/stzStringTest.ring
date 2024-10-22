@@ -15198,7 +15198,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzList([ "ONE", "TWO", "TWO", "ONE", "THREE", "ONE", "THREE" ])
@@ -15214,21 +15214,77 @@ proff()
 
 /*-----------------
 
-*/
+pron()
+
+? @@SP( Q([ "[...]", "[...]", "[~~~]", "[~~~]" ]).SectionsOfSameItems() )
+#--> [
+#	[ "[...]", "[...]" ],
+#	[ "[~~~]", "[~~~]" ]
+# ]
+
+proff()
+# Executed in almost 0 second(s).
+
+/*-----------------
+
 pron()
 
 o1 = new stzString("--[...]---[...]---[...]---[~~~]--[~~~]--")
-o1 {
-	
-	ReplaceManyByMany(
-		[ "[...]", "[...]", "[~~~]", "[~~~]" ],
-		[ "ONE",    "TWO",   "THREE", "FOUR" ]
-	)
+o1.ReplaceSubStringAtPositionsByMany([ 27, 34], "[~~~]", [ "bbb", "aaa" ])
 
-	? o1.Content()
-	#--> "--ONE---ONE---THREE--THREE--"
+? o1.Content()
+#--> --[...]---[...]---[...]---bbb--aaa--
 
-}
+proff()
+# Executed in 0.07 second(s).
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzString("...456...012...678..")
+o1.ReplaceSectionsByMany([ [ 4, 6], [10, 12], [16, 18] ], ["A", "BB", "CCC"])
+? o1.Content()
+
+proff()
+
+/*-----------------
+*/
+pron()
+/*
+o1 = new stzString("--[...]---[...]---[...]---[~~~]--[~~~]--")
+
+o1.ReplaceManyByMany(
+	[ "[...]", "[...]", "[~~~]", "[~~~]" ],
+	[ "ONE",    "TWO",   "THREE", "FOUR" ]
+)
+
+? o1.Content()
+#--> "--ONE---ONE---THREE--THREE--"
+
+#--
+
+o1 = new stzString("--[...]---[...]---[...]---[~~~]--[~~~]--")
+
+o1.ReplaceManyByMany(
+	[ "[...]", "[...]", "[~~~]" ],
+	[ "ONE",    "TWO",   "THREE", "FOUR" ]
+)
+
+? o1.Content()
+#--> "--ONE---TWO---[...]---THREE--[~~~]--"
+
+#--
+*/
+o1 = new stzString("--[...]---[...]---[...]---[~~~]--[~~~]--")
+
+o1.ReplaceManyByMany(
+	[ "[...]", "[...]", "[~~~]", "[~~~]" ],
+	[ "ONE",    "TWO",   "THREE" ]
+)
+
+? o1.Content()
+#--> "--ONE---TWO---[...]---THREE--[~~~]--"
 
 proff()
 # Executed in 0.02 second(s).
