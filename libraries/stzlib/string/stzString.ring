@@ -76258,11 +76258,12 @@ n1 = Min(aTemp)
 	#----------------------------------------------#
 
 	def ReplaceSectionsByMany(paSections, pacSubStr)
+		#WARNING // assumes that paSections is sorted in ascending!
 
 		if CheckParams()
 
-			if NOT isList(paSections)
-				StzRaise("Incorrect param type! paSections must be a list.")
+			if NOT ( isList(paSections) and IsListOfPairsofnumbers(paSections) )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 			ok
 	
 			if NOT isList(pacSubStr)
@@ -76300,49 +76301,6 @@ n1 = Min(aTemp)
 		for i = nMin to 1 step - 1
 			This.ReplaceSection(aSections[i][1], aSections[i][2], acSubStr[i])
 		next
-/*
-		acSplits = This.SplitAtSections(aSections)
-		nLenSplits = len(acSplits)
-
-		cResult = ""
-
-		for i = 1 to nLenSplits - 1
-			cResult += (acSplits[i] + acSubStr[i])
-		next
-
-		cResult += acSplits[nLenSplits]
-		This.UpdateWith(cResult)
-*/
-
-/*
-		nLenSections = len(paSections)
-		nLenSubStr = len(pacSubStr)
-
-		if nLenSections = 0 or nLenSubStr = 0
-			return
-		ok
-
-		if nLenSections < nLenSubStr
-			pacSubStr = StzListQ(pacSubStr).SectionRemoved(nLenSections+1, nLenSubStr)
-
-		else
-			nDiff = nLenSections - nLenSubStr
-			for i = 1 to nDiff
-				pacSubStr + ""
-			next
-		ok
-
-		paSections = StzListOfPairsQ(paSections).Sorted()
-		nLen = len(paSections)
-
-		#TODO // test case where lists are not equal in size!
-
-		# Doing the job
-
-		for i = nLen to 1 step -1
-			This.ReplaceSection(paSections[i][1], paSections[i][2], pacSubStr[i])
-		next
-*/	
 
 		def ReplaceSectionsByManyQ(paSections, pacSubStr)
 			This. ReplaceSectionsByMany(paSections, pacSubStr)
