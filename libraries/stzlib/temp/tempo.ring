@@ -2685,7 +2685,7 @@ o1.InsertBeforePosition(5, "<<")
 proff()
 # Executed in 0.02 second(s)
 
-#---
+#=====
 
 pron()
 
@@ -2702,13 +2702,54 @@ proff()
 
 pron()
 
-o1 = new stzString("its the last mile now")
-o1.BoundSections([ [5, 7], [9, 12], [14, 17] ], "_")
+o1 = new stzString("the last mile now")
+o1.BoundSections([ [5, 8], [15, 17] ], "_")
 ? o1.Content()
-#--> its _the_ _last_ _mile_ now
+#--> the _last_ mile _now_
 
 proff()
 # Executed in 0.04 second(s)
+
+/*--
+*/
+pron()
+
+? Q([ "str1", [ "str2", "str3" ], "str4" ]).IsListOfStringsOrPairsOfStrings()
+#--> TRUE
+
+? Q([ "str1", "str2", "str3", "str4" ]).IsListOfStringsOrPairsOfStrings()
+#--> TRUE
+
+? Q([ [ "str1", "str2" ], [ "str3", "str4" ] ]).IsListOfStringsOrPairsOfStrings()
+#--> TRUE
+
+? NL
+
+? IsListOfStringsOrPairsOfStrings([ "str1", [ "str2", "str3" ], "str4" ])
+#--> TRUE
+
+? IsListOfStringsOrPairsOfStrings([ "str1", "str2", "str3", "str4" ])
+#--> TRUE
+
+? IsListOfStringsOrPairsOfStrings([ [ "str1", "str2" ], [ "str3", "str4" ] ])
+
+proff()
+# Executed in almost 0 second(s).
+/*--
+*/
+
+pron()
+
+o1 = new stzString("the last softanza mile now")
+
+o1.BoundSectionsByMany(
+	[ [5, 8], 	[19, 22]   ],
+	[ ["<<", ">>"], ["(", ")"] ]
+)
+
+? o1.Content()
+
+proff()
 
 #---
 
