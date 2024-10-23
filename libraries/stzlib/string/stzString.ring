@@ -13565,9 +13565,8 @@ class stzString from stzObject
 		ok
 
 		# If some sections are included in others then remove them
-		#TODO
-		# Turn this to a method RemoveIncluded() in stzListOfPairs
-
+			#TODO // Turn this to a method RemoveIncluded() in stzListOfPairs
+	
 		aSectionsXT = [] + aSections[1]
 		for i = 2 to nLen
 			if ( aSections[i][1] > aSections[i-1][1] and aSections[i][1] < aSections[i-1][2] ) and
@@ -13638,6 +13637,77 @@ class stzString from stzObject
 			return This.SectionsBounded(pcSubStr, aSections)
 
 		#>
+
+	  #--------------------------------------------------------#
+	 #  BOUNDING MANY SECTIONS WITH MANY BOUNDING SUBSTRINGS  #
+	#--------------------------------------------------------#
+
+	def BoundSectionsByMany(paSections, paManyBounds)
+		if CheckParams()
+			if NOT (isList(paSections) and IsListOfPairsOfNumbersSortedUp(paSections))
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers sorted in ascending.")
+			ok
+
+			if NOT ( isList(paManyBounds) and IsListOfStringsOrPairsOfStrings(paManyBounds))
+				StzRaise("Incorrect param type! paManyBounds must be a list of strings and/or pairs of strings.")
+			ok
+		ok
+
+		# Justifying the two params sizes to their minimum
+
+		nLenSections = len(paSections)
+		nLenBounds = len(paManyBounds)
+		nMin = Min([ nLenSections, nLenBounds ])
+
+		aSections = []
+		if nLenSections > nMin
+			for j = 1 to nMin
+				aSections + paSections[j]
+			next
+		else
+			aSections = paSections
+
+		ok
+
+		aBounds = []
+		if nLenBounds > nMin
+			for j = 1 to nMin
+				aBounds + paManyBounds[j]
+			next
+		else
+			aBounds = paManyBounds
+		ok
+
+		# Doing the job
+
+		for i = nMin to 1 stzp -1
+			This.BoundSection(aSections[i][1], aSections[i][2], aBounds[i])
+		next
+
+		#< @FunctionFluentForm
+
+		def BoundSectionsByManyQ(paSections, paManyBounds)
+			This.BoundSectionsByMany(paSections, paManyBounds)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def BoundSectionsWithMany(paSections, paManyBounds)
+			This.BoundSectionsByMany(paSections, paManyBounds)
+
+			def BoundSectionsWithManyQ(paSections, paManyBounds)
+				return This.BoundSectionsByManyQ(paSections, paManyBounds)
+
+		#>
+
+	def SectionsBoundedByMany(paSections, paManyBounds)
+		cResult = This.Copy().BoundSectionsByManyQ(paSections, paManyBounds).Content()
+		return cResult
+
+		def SectionsBoundedWithMany(paSections, paManybounds)
+			return This.SectionsBoundedByMany(paSections, paManyBounds)
 
 	  #------------------------------------------------#
 	 #  BOUNDING A SUBSTRING BY TWO OTHER SUBSTRINGS  #

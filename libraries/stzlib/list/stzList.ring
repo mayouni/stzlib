@@ -3512,6 +3512,31 @@ func IsHashListOrListOfStrings(paList)
 
 	#>
 
+func IsListOfStringsOrPairsOfStrings(paList)
+
+	if NOT isList(paList)
+		StzRaise("Incorrect param type! paList must be a list.")
+	ok
+
+	nLen = len(paList)
+	if nLen = 0
+		return FALSE
+	ok
+
+	bResult = TRUE
+
+	for i = 1 to nLen
+		if NOT ( isString(paList[i]) or @IsPairOfStrings(paList[i]) )
+			bResult = FALSE
+			exit
+		ok
+	next
+
+	return bResult
+
+	func @IsListOfStringsOrPairsOfStrings(paList)
+		return IsListOfStringsOrPairsOfStrings(paList)
+
 func IsListOfListsOfSameSize(paList)
 	if NOT isList(paList)
 		return FALSE
@@ -16612,6 +16637,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		def IsAGrid()
 			return This.IsGrid
 
+
 	def IsHashList()
 		/*
 		A hash list is a grid of 2 vlines.
@@ -17787,6 +17813,75 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		def AllAreStrings()
 			return This.IsListOfStrings()
+
+		#>
+
+	  #-------------------------------------------------------------------#
+	 #  CHECKING THAT THE LIST IS A LIST OF STRINGS OR PAIRS OF STRINGS  #
+	#-------------------------------------------------------------------#
+
+	def IsListOfStringsOrPairsOfStrings()
+		nLen = len(@aContent)
+		if nLen = 0
+			return FALSE
+		ok
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT ( isString(@aContent[i]) or @IsPairOfStrings(@aContent[i]) )
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def IsAListOfStringsOrPairsOfStrings()
+			return This.IsListOfStringsOrPairsOfStrings()
+
+		def ItemsAreStringsOrPairsOfStrings()
+			return This.IsListOfStringsOrPairsOfStrings()
+
+		def ItemsAreAllStringsOrPairsOfStrings()
+			return This.IsListOfStringsOrPairsOfStrings()
+
+		def AllItemsAreStringsOrPairsOfStrings()
+			return This.IsListOfStringsOrPairsOfStrings()
+
+		def ContainsOnlyStringsOrPairsOfStrings()
+			return This.IsListOfStringsOrPairsOfStrings()
+
+		def ContainsStringsAndPairsOfStringsOnly()
+			return This.IsListOfStringsOrPairsOfStrings()
+
+		def IsMadeOfStringsOrPairsOfStrings()
+			return This.IsListOfStringsOrPairsOfStrings()
+
+		def IsMadeOfOnlyStringsOrPairsOfStrings()
+			return This.IsListOfStringsOrPairsOfStrings()
+
+		def IsMadeOfStringsOrPairsOfStringsOnly()
+			return This.IsListOfStringsOrPairsOfStrings()
+
+		def IsMadeOnlyOfStringsOrPairsOfStrings()
+			return This.IsListOfStringsOrPairsOfStrings()
+
+		def IsOnlyMadeOfStringsOrPairsOfStrings()
+			return This.IsListOfStringsOrPairsOfStrings()
+
+		#--
+
+		def AreStringsOrPairsOfStrings()
+			return This.IsListOfStringsOrPairsOfStrings()
+
+		def AreAllStringsOrPairsOfStrings()
+			return This.IsListOfStringsOrPairsOfStrings()
+
+		def AllAreStringsOrPairsOfStrings()
+			return This.IsListOfStringsOrPairsOfStrings()
 
 		#>
 

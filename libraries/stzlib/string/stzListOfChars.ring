@@ -1089,6 +1089,7 @@ class stzListOfChars from stzListOfStrings
 				aSectionsOfNumbers = Q(anHilighted).SplitToSectionsOfN(2)
 				aSectionsOfPositions = aSections
 
+				oSpaceLine = new stzString(cSpaceLine)
 				cNumbersLine = oSpaceLine.BoundSectionsWithManyQ(aSectionsOfPositions, aSectionsOfNumbers).Content()
 				cResult += NL + cNumbersLine
 
