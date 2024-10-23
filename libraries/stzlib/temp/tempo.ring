@@ -2711,7 +2711,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*--
-*/
+
 pron()
 
 ? Q([ "str1", [ "str2", "str3" ], "str4" ]).IsListOfStringsOrPairsOfStrings()
