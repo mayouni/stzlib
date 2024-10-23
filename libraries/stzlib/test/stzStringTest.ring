@@ -15637,6 +15637,17 @@ o1.BoxifyCharsXT([
 proff()
 # Executed in 0.10 second(s).
 
+/*-----------------
+*/
+pron()
+
+o1 = new stzString("SOFTANZA")
+? o1.Spacified()
+#--> S O F T A N Z A
+
+proff()
+# Executed in 0.01 second(s).
+
 /*----------------- #todo #narration
 */
 pron()
