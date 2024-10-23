@@ -50580,6 +50580,13 @@ n1 = Min(aTemp)
 			paOptions = paTemp
 		ok
 
+		if isList(paOptions) and len(paOptions) = 2 and
+		   isString(paOptions[1])
+
+			paTemp = [] + paOptions
+			paOptions = paTemp
+		ok
+
 		if NOT isList(paOptions)
 			StzRaise("Incorrect param type! paOptions must be a list.")
 		ok
@@ -50744,7 +50751,7 @@ n1 = Min(aTemp)
 		#--> Let's do the job!
 
 		if bSpacified
-			cString =This.Spacified()
+			cString = This.Spacified()
 		else
 			cString = This.Content()
 		ok
@@ -82184,7 +82191,11 @@ n1 = Min(aTemp)
 		#--> R I N G O R I A L A N D
 
 		*/
-		This.SpacifyXT(:Using = " ", :EachNChars = 1, :Forward)
+
+		nLen = @oQString.count() // #TODO Use size() instead
+		for i = nLen-1 to 1 step -1
+			@oQString.insert(i, " ")
+		next
 
 		def SpacifyCharsQ()
 			This.SpacifyChars()
@@ -88761,6 +88772,13 @@ n1 = Min(aTemp)
 
 		if isString(paBoxOptions)
 			paTemp = [] + [ paBoxOptions, TRUE ]
+			paBoxOptions = paTemp
+		ok
+
+		if isList(paBoxOptions) and len(paBoxOptions) = 2 and
+		   isString(paBoxOptions[1])
+
+			paTemp = [] + paBoxOptions
 			paBoxOptions = paTemp
 		ok
 

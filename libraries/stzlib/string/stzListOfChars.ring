@@ -665,6 +665,13 @@ class stzListOfChars from stzListOfStrings
 			paBoxOptions = paTemp
 		ok
 
+		if isList(paBoxOptions) and len(paBoxOptions) = 2 and
+		   isString(paBoxOptions[1])
+
+			paTemp = [] + paBoxOptions
+			paBoxOptions = paTemp
+		ok
+
 		if NOT isList(paBoxOptions)
 			StzRaise("Incorrect param type! paBoxOptions must be a list.")
 		ok

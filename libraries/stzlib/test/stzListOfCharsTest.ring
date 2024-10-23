@@ -104,7 +104,7 @@ o1 = new stzListOfChars([ "1", "2", "♥", "4", "5", "♥", "7", "8", "♥" ])
 #--> [ 9 ]
 
 proff()
-# Executed in 0.08 second(s).
+# Executed in 0.10 second(s).
 
 /*----------------
 
@@ -162,25 +162,25 @@ SetHilightChar("♥")
 # └───┴───┴─♥─┴───╯
 
 proff()
-# Executed in 0.05 second(s).
+# Executed in 0.09 second(s).
 
 /*-------------
-*/
+
 pron()
 
 ? StzListOfCharsQ("A":"E").BoxedXT([
 	:AllCorners = :Round,
-	:Hilighted = [ 0, 2, 5, 3, 7 ],
+	:Hilighted = [ 1, 2, 5, 3, 7 ],
 	:Numbered = TRUE
 ])
 #-->
 # ╭───┬───┬───┬───┬───╮
 # │ A │ B │ C │ D │ E │
 # ╰───┴─•─┴─•─┴───┴─•─╯
-#   1   2   3   4   5 
+#   1   2   3       5 
 
 proff()
-# Executed in 0.05 second(s).
+# Executed in 0.09 second(s).
 
 /*-------------
 
@@ -196,7 +196,7 @@ proff()
 # Executed in 0.04 second(s).
 
 /*-------------
-*/
+
 pron()
 
 ? StzListOfCharsQ("SOFTANZA").Boxed()
