@@ -1147,27 +1147,25 @@ class stzSplitter from stzListOfNumbers
 	#===================================#
 
 	def SplitToPartsOfNItems(n)
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
 
 		nLen = This.NumberOfPositions()
 
-		if NOT ( ( isNumber(n) ) and Q(n).IsBetween(1, nLen ) )
-			return [ [] ]
+		aResult = []
 
-		else
-			aResult = []
+		for i = 1 to nLen step n
+			nTemp = i + n-1
 
-			for i = 1 to nLen step n
-				nTemp = i + n-1
+			if nTemp > nLen
+				nTemp = nLen
+			ok
 
-				if nTemp > nLen
-					nTemp = nLen
-				ok
+			aResult + [ i, nTemp ]
+		next
 
-				aResult + [ i, nTemp ]
-			next
-	
 			return aResult
-		ok
 
 		#< @FunctionAlternativeForm
 
@@ -1201,6 +1199,7 @@ class stzSplitter from stzListOfNumbers
 	#---------------------------------------------#
 
 	def SplitToPartsOfExactlyNItems(n)
+
 		aSections = This.SplitToPartsOfNItems(n)
 		
 		nLen = len(aSections)
