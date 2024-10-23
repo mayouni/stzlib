@@ -15496,7 +15496,7 @@ proff()
 # Executed in 0.03 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
@@ -15513,18 +15513,18 @@ proff()
 # Executed in 0.03 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 
-? o1.BoxifyXT([ :Rounded, :Hilight = [ 1, 4 ], :Sectioned , :Numbered ])
+? o1.BoxifyXT([ :Rounded, :Hilight = [ 1, 4 ], :Sectioned , :Numbered ]) + NL
 #-->
 # ╭───┬───┬───┬───╮
 # │ R │ I │ N │ G │
 # ╰─•─┴───┴───┴─•─╯
 #   '-----------'
-#   3          15
+#   1           4
 
 # Force the display of all the positions ~> add an ..XT to :Numbered option
 
@@ -15537,7 +15537,7 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 #   1   2   3   4
 
 proff()
-# Executed in 0.08 second(s).
+# Executed in 0.11 second(s).
 
 /*-----------------
 
@@ -15545,7 +15545,7 @@ pron()
 
 o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 
-? o1.BoxXT([ :Rounded, :Hilight = [ 1, 4 ], :NumberedXT ]) # OrBoxifyXT()
+? o1.BoxXT([ :Rounded, :Hilight = [ 1, 4 ], :NumberedXT ]) + NL # OrBoxifyXT()
 #-->
 # ╭───┬───┬───┬───╮
 # │ R │ I │ N │ G │
@@ -15566,27 +15566,26 @@ proff()
 
 pron()
 
-? Q("RING").CharsBoxifiedXT([ :Numbered, TRUE ])
+? Q("RING").CharsBoxifiedXT([ :Numbered, TRUE ]) + NL
 #-->
 # ┌───┬───┬───┬───┐
 # │ R │ I │ N │ G │
 # └───┴───┴───┴───┘
 #   1   2   3   4
 
-? Q("RING").CharsBoxifiedXT(:Numbered)
+? Q("RING").CharsBoxifiedXT(:Numbered) + NL
 #-->
 # ┌───┬───┬───┬───┐
 # │ R │ I │ N │ G │
 # └───┴───┴───┴───┘
 #   1   2   3   4
 
-? Q("RING").CharsBoxifiedXT([ :Rounded, :Numbered ])
+? Q("RING").CharsBoxifiedXT([ :Rounded, :Numbered ]) + NL
 #-->
 # ╭───┬───┬───┬───╮
 # │ R │ I │ N │ G │
 # ╰───┴───┴───┴───╯
 #   1   2   3   4
-
 
 ? Q(Chars("RING")).ToStzListOfChars().BoxifiedXT(:Numbered)
 #-->
@@ -15639,7 +15638,7 @@ proff()
 # Executed in 0.10 second(s).
 
 /*----------------- #todo #narration
-
+*/
 pron()
 
 o1 = new stzString("SOFTANZA")
@@ -15649,11 +15648,11 @@ o1 = new stzString("SOFTANZA")
 # SOFTANZA
 # ----^--^
 
-? o1.VizFindXT("A", :Spacified) + NL
+? o1.VizFindXT("A", :Spacified = TRUE ) + NL
 #-->
 # S O F T A N Z A
 # --------^-----^
-
+/*
 ? o1.VizFindXT("A", [ :Spacified, :PositionSign = Heart() ]) + NL
 #-->
 # S O F T A N Z A
@@ -15695,7 +15694,7 @@ o1 = new stzString("SOFTANZA")
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
 # ╰───┴───┴───┴───┴─♥─┴───┴───┴─♥─╯
 #                   5           8
-
+*/
 proff()
 # Executed in 0.23 second(s).
 
