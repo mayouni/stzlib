@@ -13643,6 +13643,7 @@ class stzString from stzObject
 	#--------------------------------------------------------#
 
 	def BoundSectionsByMany(paSections, paManyBounds)
+
 		if CheckParams()
 			if NOT (isList(paSections) and IsListOfPairsOfNumbersSortedUp(paSections))
 				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers sorted in ascending.")
@@ -13680,7 +13681,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		for i = nMin to 1 stzp -1
+		for i = nMin to 1 step -1
 			This.BoundSection(aSections[i][1], aSections[i][2], aBounds[i])
 		next
 

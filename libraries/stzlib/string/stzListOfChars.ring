@@ -1087,16 +1087,46 @@ class stzListOfChars from stzListOfStrings
 			but bNumbered and bSectioned
 
 				aSectionsOfNumbers = Q(anHilighted).SplitToSectionsOfN(2)
-				aSectionsOfPositions = aSections
+
+				nLenSectionsOfNumbers = len(aSectionsOfNumbers)
+
+				acSectionsOfNumbers = []
+				nLenStrNumbers = 0
+				acSegments = []
+
+				for i = 1 to nLenSectionsOfNumbers
+
+					acSectionsOfNumbers + [
+						(""+ aSectionsOfNumbers[i][1]),
+						(""+ aSectionsOfNumbers[i][2])
+					]
+
+					nLen1 = len(acSectionsOfNumbers[i][2])
+					nLen2 = len(acSectionsOfNumbers[i][2])
+
+					aSections[i][2] -= (nLen2-1)
+
+					cSegment = acSectionsOfNumbers[i][1]
+					nDiff = aSections[i][2] - aSections[i][1] - nLen2
+					
+					for j = 1 to nDiff
+						cSegment += " "
+					next
+					cSegment += acSectionsOfNumbers[i][2]
+					acSegments + cSegment
+
+				next
+	
 
 				oSpaceLine = new stzString(cSpaceLine)
-				cNumbersLine = oSpaceLine.BoundSectionsWithManyQ(aSectionsOfPositions, aSectionsOfNumbers).Content()
+
+				cNumbersLine = oSpaceLine.ReplaceSectionsByManyQ(aSections, acSegments).Content()
 				cResult += NL + cNumbersLine
 
 
 			but NOT bSectioned and len(anHilighted) > 0
 
-				
+? "ici"	
 	
 
 			ok
