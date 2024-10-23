@@ -15386,8 +15386,47 @@ o1.ReplaceManyByMany(
 proff()
 # Executed in 0.05 second(s).
 
+/*=============
+
+pron()
+
+o1 = new stzListOfChars(@Chars("RINGORIALAND"))
+
+? o1.BoxifyXT([
+	:Rounded,
+	:Hilight = [ ],
+	:Numbered
+])
+#-->
+# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
+# │ R │ I │ N │ G │ O │ R │ I │ A │ L │ A │ N │ D │
+# ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+#   1   2   3   4   5   6   7   8   9   10  11  12
+
+proff()
+
 /*-----------------
-*/
+
+pron()
+
+o1 = new stzListOfChars(@Chars("RINGORIALAND"))
+
+? o1.BoxifyXT([
+	:Rounded,
+	:Hilight = [ 1, 2, 3, 5, 10, 12 ],
+	:Numbered
+])
+#-->
+# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
+# │ R │ I │ N │ G │ O │ R │ I │ A │ L │ A │ N │ D │
+# ╰─•─┴─•─┴─•─┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴─•─╯
+#   1   2   3       5                   10     12
+
+proff()
+# Executed in 0.08 second(s).
+
+/*-----------------
+
 pron()
 
 o1 = new stzListOfChars(@Chars("RINGORIALAND"))
@@ -15410,14 +15449,68 @@ proff()
 # Executed in 0.09 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzListOfChars([ "R", "I", "G", "N", "G" ])
 
-? o1.BoxifyXT([ :hilight = [ 1, 2, 4, 5 ], :Sectioned=1, :Numbered ])
+? o1.BoxifyXT([ :Rounded, :Hilight = [ 1, 2, 4, 5 ], :Sectioned, :Numbered ])
+#-->
+# ╭───┬───┬───┬───┬───╮
+# │ R │ I │ G │ N │ G │
+# ╰─•─┴─•─┴───┴─•─┴─•─╯
+#   '---'       '---'
+#   1   2       4   5
 
 proff()
+# Executed in 0.10 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzListOfChars([ "R", "I", "G", "N", "G" ])
+
+? o1.BoxifyXT([ :Hilight = [ 1, 2, 4, 5 ], :Sectioned=FALSE, :Numbered ])
+#-->
+# ┌───┬───┬───┬───┬───┐
+# │ R │ I │ G │ N │ G │
+# └─•─┴─•─┴───┴─•─┴─•─┘
+#   1   2       4   5
+
+proff()
+# Executed in 0.10 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzSplitter([ 1, 2 ])
+? @@( o1.SplitToNParts(2) )
+#--> [ [ 1, 1 ], [ 2, 2 ] ]
+
+? @@( o1.SplitToPartsOfNItems(2) )
+#--> [ [ 1, 2 ] ]
+
+proff()
+# Executed in 0.03 second(s).
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
+? @@( o1.SplitToNParts(2) )
+#--> [ [ 1, 3 ], [ 4, 5 ] ]
+
+? @@( o1.SplitToPartsOfNItems(5) )
+#--> [ [ 1, 5 ] ]
+
+? @@( o1.SplitToPartsOfNItems(4) )
+#--> [ [ 1, 4 ], [ 5, 5 ] ]
+
+proff()
+# Executed in 0.03 second(s).
 
 /*-----------------
 */
@@ -15447,7 +15540,7 @@ proff()
 # Executed in 0.08 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzListOfChars([ "R", "I", "N", "G" ])
@@ -15460,8 +15553,14 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 #   1   2   3   4
 
 ? o1.BoxifyXT([ :ShowPositions = [ 1, 4 ], :NumberedXT ])
+#-->
+# ┌───┬───┬───┬───┐
+# │ R │ I │ N │ G │
+# └─•─┴───┴───┴─•─┘
+#   1   2   3   4
 
 proff()
+# Executed in 0.10 second(s).
 
 /*-----------------
 
@@ -15537,7 +15636,7 @@ o1.BoxifyCharsXT([
 #   1   2   3   4   5   6   7   8   9   10  11  12  13
 
 proff()
-# Executed in 0.07 second(s).
+# Executed in 0.10 second(s).
 
 /*----------------- #todo #narration
 

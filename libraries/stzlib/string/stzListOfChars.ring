@@ -1005,23 +1005,23 @@ class stzListOfChars from stzListOfStrings
 				cSpaceLine += " "
 			next
 
-			if bSectioned = TRUE
+			anPosSign = oDownLine.Find(cSign)
+			nLenPosSign = len(anPosSign)
 
-				anPosSign = oDownLine.Find(cSign)
-				nLenPosSign = len(anPosSign)
-	
-				aSections = []
-				aSection = []
-	
-				for i = 1 to nLenPosSign
-					aSection + anPosSign[i]
-					if len(aSection) = 2
-						aSections + aSection
-						aSection = []
-					ok
-				next
-	
-				nLenSections = len(aSections)
+			aSections = []
+			aSection = []
+
+			for i = 1 to nLenPosSign
+				aSection + anPosSign[i]
+				if len(aSection) = 2
+					aSections + aSection
+					aSection = []
+				ok
+			next
+
+			nLenSections = len(aSections)
+
+			if bSectioned = TRUE
 	
 				acSegments = []
 	
@@ -1091,6 +1091,45 @@ class stzListOfChars from stzListOfStrings
 				nLenSectionsOfNumbers = len(aSectionsOfNumbers)
 
 				acSectionsOfNumbers = []
+				acSegments = []
+
+				for i = 1 to nLenSectionsOfNumbers
+
+					acSectionsOfNumbers + [
+						(""+ aSectionsOfNumbers[i][1]),
+						(""+ aSectionsOfNumbers[i][2])
+					]
+
+					nLen1 = len(acSectionsOfNumbers[i][2])
+					nLen2 = len(acSectionsOfNumbers[i][2])
+
+					aSections[i][2] -= (nLen2-1)
+
+					cSegment = acSectionsOfNumbers[i][1]
+					nDiff = aSections[i][2] - aSections[i][1] - nLen2
+					
+					for j = 1 to nDiff
+						cSegment += " "
+					next
+					cSegment += acSectionsOfNumbers[i][2]
+					acSegments + cSegment
+
+				next
+	
+				oSpaceLine = new stzString(cSpaceLine)
+
+				cNumbersLine = oSpaceLine.ReplaceSectionsByManyQ(aSections, acSegments).
+						TrimRightQ().Content()
+
+				cResult += NL + cNumbersLine
+
+			but NOT bSectioned and len(anHilighted) > 0
+
+				aSectionsOfNumbers = Q(anHilighted).SplitToSectionsOfN(2)
+
+				nLenSectionsOfNumbers = len(aSectionsOfNumbers)
+
+				acSectionsOfNumbers = []
 				nLenStrNumbers = 0
 				acSegments = []
 
@@ -1117,16 +1156,12 @@ class stzListOfChars from stzListOfStrings
 
 				next
 	
-
 				oSpaceLine = new stzString(cSpaceLine)
 
-				cNumbersLine = oSpaceLine.ReplaceSectionsByManyQ(aSections, acSegments).Content()
+				cNumbersLine = oSpaceLine.ReplaceSectionsByManyQ(aSections, acSegments).
+						TrimRightQ().Content()
+
 				cResult += NL + cNumbersLine
-
-
-			but NOT bSectioned and len(anHilighted) > 0
-
-? "ici"	
 	
 
 			ok
