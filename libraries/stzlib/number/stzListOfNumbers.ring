@@ -3917,6 +3917,45 @@ class stzListOfNumbers from stzList
 	 #   MISC.   #
 	#===========#
 
+	def ToSections()
+		/* EXAMPLE
+
+		o1 = new stzListOfNumbers([ 3, 7, 12, 15 ])
+		
+		? @@( o1.ToSections() ) # Or Sectioned()
+		#--> [ [ 1, 3 ], [ 4, 7 ], [ 8, 12 ], [ 13, 15 ] ]
+		*/
+
+		anContent = This.Content()
+		nLen = len(anContent)
+		if nLen < 2
+			return []
+		ok
+
+		anSorted = ring_sort(anContent)
+		aSections = []
+		n = 0
+
+		n1 = 1
+
+		if anSorted[1] = 1
+			del(anSorted, 1)
+			nLen--
+		ok
+
+		for i = 1 to nLen
+			
+			n2 = anSorted[i]
+			aSections + [ n1, n2 ]
+			n1 = anSorted[i] + 1
+
+		next
+
+		return aSections
+
+		def Sectioned()
+			return This.ToSections()
+
 	def IsStzListOfNumbers()
 		return TRUE
 

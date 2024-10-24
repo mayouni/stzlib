@@ -4777,7 +4777,7 @@ o1.SpacifyChars()
 #--> 9 9 9 9 9 9 9 9 9 9 9
 
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
 /*----------
 
@@ -4787,22 +4787,11 @@ o1 = new stzString("99999999999")
 ? o1.Spacified()
 #--> 9 9 9 9 9 9 9 9 9 9 9 
 
-//? o1.SpacifiedUsing("_")
-#--> 9_9_9_9_9_9_9_9_9_9_9
-
-proff()
-# Executed in 0.03 second(s)
-
-/*----------
-
-pron()
-
-o1 = new stzString("99999999999")
 ? o1.SpacifiedUsing("_")
 #--> 9_9_9_9_9_9_9_9_9_9_9
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
 /*----------
 
@@ -4810,17 +4799,80 @@ pron()
 
 o1 = new stzString("99999999999")
 o1.SpacifyXT( "_", 3, :Backward )
-# Or you can be explicit and name the params like this:
-# //o1.SpacifyXT( :Using = "_", :Step = 3, :Direction = :Backward )
 
 ? o1.Content()
 #--> 99_999_999_999
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
 /*----------
 
+pron()
+
+o1 = new stzString("99999999999")
+o1.SpacifyXT( :Using = "_", :Step = 3, :Direction = :Backward )
+
+? o1.Content()
+#--> 99_999_999_999
+
+proff()
+# Executed in 0.02 second(s)
+
+/*----------
+
+pron()
+
+o1 = new stzListOfNumbers([ 3, 7, 12, 15 ])
+
+? @@( o1.ToSections() ) # Or Sectioned()
+#--> [ [ 1, 3 ], [ 4, 7 ], [ 8, 12 ], [ 13, 15 ] ]
+
+proff()
+#--> Executed in 0.02 second(s).
+
+/*----------
+*/
+pron()
+
+o1 = new stzListOfNumbers([ 1, 3, 7, 12, 15 ])
+
+? @@( o1.ToSections() )
+#--> [ [ 1, 3 ], [ 4, 7 ], [ 8, 12 ], [ 13, 15 ] ]
+
+proff()
+#--> Executed in 0.02 second(s).
+
+/*----------
+
+*/
+pron()
+
+o1 = new stzString("123456789")
+? o1 / [ 3, 4, 2 ]
+
+? o1.SplitToPartsOfSizes([ 3, 4, 2 ])
+
+proff()
+
+/*-----------
+
+StartProfiler()
+
+o1 = new stzString(999999999999")
+o1.SpacifyXT(
+	:Using     = [ " ", 	  :AndThen = "." 	],
+	:Step      = [ 3, 	  :AndThen = 2 		],
+	:Direction = [ :Backward, :AndThen = :Forward 	]
+)
+
+? o1.Content()
+#--> 99 999 999.99
+
+proff()
+
+/*----------
+*/
 StartProfiler()
 
 o1 = new stzString("9999999999")

@@ -57835,6 +57835,71 @@ n1 = Min(aTemp)
 		def SplittedToPartsOfExactlyNCharsXT(n)
 			return This.SplitToPartsOfNCharsXT(n)
 
+	#--------------------------------------------------------#
+	#  SPLITTING THE STRING TO PARTS HAVING THE GIVEN SIZES  #
+	#--------------------------------------------------------#
+
+	def SplitToPartsOfSizes(panSizes)
+
+		# Checnking params
+
+		if CheckParams()
+			if NOT ( isList(panSizes) and IsListOfNumbers(panSizes) )
+				StzRaise("Incorrect param type! panSizes must be a list of numbers.")
+			ok
+		ok
+
+		nLenSizes = len(panSizes)
+		if nLenSizes = 0
+			return []
+		ok
+
+		nLenStr = This.NumberOfChars()
+
+		if Sum(panSizes) > nLenStr
+			StzRaise("Incorrect param value! The sum of sizes exceeds the string size.")
+		ok
+
+		# Doing the job
+
+		anSizes = ring_sort(panSizes)
+		aSections = []
+
+		nSize = 0
+		n1 = 1
+
+		for i = 1 to nLenSizes
+			
+			nSize + panSizes[i]
+			nSize += panSizes[i]
+
+			aSections + [ n1, nSize ]
+			n1 += panSizes[i]
+	
+		next
+
+		acResult = This.Sections(aSections)
+		return acResult
+
+		#< @FunctionAlternativeForms
+
+		def SplitToPartsOfTheseSizes(panSizes)
+			return This.SplitToPartsOfSizes(panSizes)
+
+		def SplitToPartsHavingSizes(panSizes)
+			return This.SplitToPartsOfSizes(panSizes)
+
+		def SplitToPartsHavingTheseSizes(panPos)
+			return This.SplitToPartsOfSizes(panSizes)
+
+		def SplitToPartsWithSizes(panSizes)
+			return This.SplitToPartsOfSizes(panSizes)
+
+		def SplitToPartsWithTheseSizes(panPos)
+			return This.SplitToPartsOfSizes(panSizes)
+
+		#>
+
 	  #---------------------------------------------------------#
 	 #    SPLITTING AT SUBSTRINGS VERIFYING A GIVEN CONDTION   #
 	#=========================================================#
@@ -82134,7 +82199,8 @@ n1 = Min(aTemp)
 		# Checking the direction
 		if pcDirection = "" or pcDirection = :Default
 			pcDirection = :Forward
-		but pcDirection = :Backward
+
+		but pcDirection = :Forward or pcDirection = :Backward
 			// do nothing
 		else
 			StzRaise("Incorrect param value! pcDirection can be :Forward, :Backward, :Default, or NULL.")
@@ -82163,8 +82229,41 @@ n1 = Min(aTemp)
 			ok
 
 		but cMode = :Extended
-			
+? @@([ pcSeparator, cSeparator2, pnStep, pcDirection ])
+
+			anPos = []
+			if pcDirection = :Forward
+				
+				for i = 1 to nLen step pnStep
+					anPos + i
+				next
+
+				nLenPos = len(anPos)
+				nLast = anPos[nLenPos]
+				del(anPos, nLenPos)
+
+//				This.InsertBeforePosition(nLast, cSeparator2)
+				@oQString.insert(nLast-2, cSeparator2)
+				nLenSep2 = StzStringQ(cSeparator2).NumberOfChars() - 1
+
+				for i = 1 to nLenPos-1 // -1 ~> because we remive the last item
+					anPos[i] += nLenSep2
+				next
+
+				This.InsertBeforeThesePositions(anPos, pcSeparator)
+				
+			but pcDirection = :Backward
+		
+				for i = nLen to 1 step -pnStep
+					anPos + i
+				next
+
+				This.InsertAfterThesePositions(anPos, pcSeparator)
+			ok
+
+/*
 			nStart = 0
+
 			if pcDirection = :Forward
 				This.InsertBefore( pnStep + 1, pcSeparator )
 				nStart = pnStep + nStep2 + 1
@@ -82190,7 +82289,7 @@ n1 = Min(aTemp)
 			ok
 
 			This.InsertAfterThesePositions(anPos, pcSeparator)
-
+*/
 		ok
 
 		def SpacifyXTQ(pcSeparator, pnStep, pcDirection)
@@ -90996,7 +91095,7 @@ n1 = Min(aTemp)
 				return Q(This.SplitToNParts(pValue.NumericValue()))
 
 			but isList(pValue) and Q(pValue).IsListOfNumbers()
-				acSplitted = This.SplitAtPositions(pValue)
+				acSplitted = This.SplitToPartsOfSizes(pValue)
 				return acSplitted
 
 			but @IsStzList(pValue) and pValue.IsListOfNumbers()
