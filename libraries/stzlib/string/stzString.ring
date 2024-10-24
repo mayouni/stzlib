@@ -35753,20 +35753,46 @@ class stzString from stzObject
 	#================================================#
 
 	 def InsertAfterPositions(panPos, pcSubStr)
+		# Param checks
+
 		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 
 			stzRaise("Incorrect param! panPos must be a list of numbers.")
 		ok
 
-		if NOT isString(pcSubStr)
-			stzRaise("Incorrect param! pcSubStr must be a string.")
+		if isList(pcSubStr) and Q(pcSubStr).IsStringOrSubStringNamedParam()
+			pcSubStr = pcSubStr[2]
 		ok
 
-		anPos = ring_sort(panPos)
-		nLen = len(anPos)
+		# Early checks
 
-		for i = nLen to 1 step -1
-			This.InsertAfter(anPos[i], pcSubStr)
+		nLenStr = This.NumberOfChars()
+		if nLenstr = 0
+			return
+		ok
+
+		nLenPos = len(panPos)
+		if nLenPos = 0
+			return
+		ok
+
+		# Leaving only the accurate positions
+
+		panPos = ring_sort(panPos)
+
+		anPos = []
+		
+		for i = 1 to nLenPos
+			if panPos[i] > 0 and panPos[i] < nLenStr
+				anPos + panPos[i]
+			ok
+		next
+
+		# Doing the job
+
+		nLenPos = len(anPos)
+		for i = nLenPos to 1 step -1
+			@oQString.insert(anPos[i], pcSubStr)
 		next
 
 		#< @FunctionFluentForm
@@ -36266,14 +36292,8 @@ class stzString from stzObject
 	#============================================================================#
 
 	def InsertAfterSubstringCS(pcNewSubStr, pcSubStr, pCaseSensitive)
-		acParts = This.SplitCS(pcSubStr, pCaseSensitive)
-		cResult = ""
-
-		for i = 1 to len(acParts)-1
-			cResult += (acParts[i] + pcSubStr + pcNewSubStr)
-		next
-
-		This.Update( cResult + acParts[ len(acParts) ] )
+		anPos = This.FindCS(pcSubStr, pCaseSensitive)
+		This.InsertAfterPositions(anPos, pcNewSubStr)
 
 		#< @FunctionFluentForm
 

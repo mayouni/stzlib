@@ -15659,7 +15659,7 @@ o1.SpacifyCharsUsing("~")
 proff()
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzList( @Chars("SOFTANZA") )
@@ -15671,7 +15671,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzList( @Chars("SOFTANZA") )
@@ -15694,9 +15694,20 @@ o1.InsertBeforePositions([ 2, 4, 6, 8 ], " ")
 proff()
 # Executed in 0.01 second(s).
 
+/*-----------------
+*/
+pron()
+
+o1 = new stzString("SOFTANZA")
+o1.InsertAfterPositions([ 2, 4, 6, 8 ], " ")
+? o1.Content()
+#--> "SO FT AN ZA"
+
+proff()
+# Executed in 0.01 second(s).
+
 /*------------------
 
-*/
 pron()
 
 o1 = new stzString("SOFTANZA")
