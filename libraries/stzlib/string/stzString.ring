@@ -82155,7 +82155,7 @@ n1 = Min(aTemp)
 
 			but pcDirection = :Backward
 		
-				for i = 1 to nLen step pnStep
+				for i = nLen to 1 step -pnStep
 					anPos + i
 				next
 
