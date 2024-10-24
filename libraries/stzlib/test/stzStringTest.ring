@@ -15638,7 +15638,7 @@ proff()
 # Executed in 0.10 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("SOFTANZA")
@@ -15647,6 +15647,50 @@ o1 = new stzString("SOFTANZA")
 
 proff()
 # Executed in 0.01 second(s).
+
+/*-----------------
+
+pron()
+
+o1 = new stzString("SOFTANZA")
+o1.SpacifyCharsUsing("~")
+? o1.Content()
+
+proff()
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzString("SOFTANZA")
+o1.InsertBeforePositions([ 2, 4, 6, 8 ], " ")
+? o1.Content()
+#--> S OF TA NZ A
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzString("SOFTANZA")
+o1.SpacifyCharsXT("~", 2, :Default)
+? o1.Content()
+#--> SO~FT~AN~ZA
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzString("SOFTANZA")
+o1.SpacifyCharsXT("~", 2, :backward)
+? o1.Content()
+
+proff()
 
 /*----------------- #todo #narration
 */
