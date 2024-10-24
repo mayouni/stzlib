@@ -35843,8 +35843,23 @@ class stzString from stzObject
 			pcSubStr = pcSubStr[2]
 		ok
 
-		anPos = StzListOfNumbersQ(panPos).SubStructFromEachQ(1).Content()
-		This.InsertAfterThesePositions(anPos, pcSubStr)
+? @@(panPos)
+
+		nLenStr = This.NumberOfChars()
+
+		nLenPos = len(panPos)
+		anPos = []
+		
+		for i = 1 to nLenPos
+			if panPos[i] > 1 and panPos[i] <= nLenStr
+				anPos + panPos[i]
+			ok
+		next
+? @@(anPos)
+		nLenPos = len(anPos)
+		for i = nLenPos to 1 step -1
+			@oQString.insert(anPos[i]-1, pcSubStr)
+		next
 
 		#< @FunctionFluentForm
 
@@ -82011,6 +82026,13 @@ n1 = Min(aTemp)
 
 		*/
 
+		# Early check
+
+		nLen = This.NumberOfChars()
+		if nLen < 2
+			return
+		ok
+
 		cMode = :Basic
 		cSeparator2 = ""
 		nStep2 = 0
@@ -82030,7 +82052,7 @@ n1 = Min(aTemp)
 		ok
 
 		if NOT ( isString(pcDirection) and 
-			 Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward ]) )
+			 Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward, NULL ]) )
 
 			StzRaise("Incorrect param! pcDirection must be a string. " +
 				 "Allowed values are :Default, :Forward, and :Backward.")
@@ -82079,16 +82101,23 @@ n1 = Min(aTemp)
 			StzRaise("Incorrect param type! pnStep must be a non null number.")
 		ok
 
-		# Doing the job
+		# Checking the direction
+		if pcDirection = "" or pcDirection = :Default
+			pcDirection = :Forward
+		but pcDirection = :Backward
+			// do nothing
+		else
+			StzRaise("Incorrect param value! pcDirection can be :Forward, :Backward, :Default, or NULL.")
+		ok
 
-		nLen = This.NumberOfChars()
+		# Doing the job
 
 		if cMode = :Basic
 
 			anPos = []
 			if pcDirection = :Forward
-					
-				for i = (pnStep + 1) to nLen step pnStep
+				
+				for i = 1 to nLen step pnStep
 					anPos + i
 				next
 
@@ -82096,15 +82125,12 @@ n1 = Min(aTemp)
 
 			but pcDirection = :Backward
 		
-				for i = (nLen - pnStep) to 1 step -pnStep
-
+				for i = 1 to nLen step pnStep
 					anPos + i
 				next
 
 				This.InsertAfterThesePositions(anPos, pcSeparator)
 			ok
-
-			
 
 		but cMode = :Extended
 			
@@ -82141,8 +82167,18 @@ n1 = Min(aTemp)
 			This.SpacifyXT(pcSeparator, pnStep, pcDirection)
 			return This
 
+		def SpacifyCharsXT(pcSeparator, pnStep, pcDirection)
+			This.SpacifyXT(pcSeparator, pnStep, pcDirection)
+
+			def SpacifyCharsXTQ(pcSeparator, pnStep, pcDirection)
+				return This.SpacifyXTQ(pcSeparator, pnStep, pcDirection)
+
 	def SpacifiedXT(pcSeparator, pnStep, pcDirection)
-		return This.Copy().SpacifyXTQ(pcSeparator, pnStep, pcDirection).Content()
+		cResult = This.Copy().SpacifyXTQ(pcSeparator, pnStep, pcDirection).Content()
+		return cResult
+
+		def CharsSpacifiedXT(pcSeparator, pnStep, pcDirection)
+			return This.SpacifiedXT(pcSeparator, pnStep, pcDirection)
 
 	  #----------------------------------------#
 	 #   SPACIFYING THE CHARS OF THE STRING   #
@@ -82276,7 +82312,10 @@ n1 = Min(aTemp)
 
 		*/
 
-		This.SpacifyXT(:Using = pcSep, :EachNChars = 1, :Forward)
+		nLen = @oQString.count() // #TODO Use size() instead
+		for i = nLen-1 to 1 step -1
+			@oQString.insert(i, pcSep)
+		next
 
 		def SpacifyCharsUsingQ(pcSep)
 			This.SpacifyCharsUsing(pcSep)
