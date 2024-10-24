@@ -35935,13 +35935,8 @@ class stzString from stzObject
 
 	def InsertBeforeSubstringCS(pcNewSubStr, pcSubStr, pCaseSensitive)
 
-		nLenSubStr = Q(pcSubStr).NumberOfChars()
 		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
-		nLen = len(anPos)
-
-		for i = 1 to nLen step -1
-			This.InsertSubStringAtPosition(pcNewSubStr, anPos[i])
-		next
+		This.InsertBeforePositions(anPos, pcSubStr)
 
 		#< @FunctionFluentForm
 
