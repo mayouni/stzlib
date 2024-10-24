@@ -6720,17 +6720,6 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def InsertBefore(n, pItem)
-			if isList(n) and Q(n).IsOneOfTheseNamedParams([ :Position, :ItemAt, :ItemAtPosition ])
-				n = n[2]
-			ok
-
-			This.InsertBeforePosition(n, pItem)
-
-			def InsertBeforeQ(n, pItem)
-				This.InsertBefore(n, pItem)
-				return This
-
 		def InsertAt(n, pItem)
 			if isList(n) and Q(n).IsOneOfTheseNamedParams([ :Position, :ItemAt, :ItemAtPosition ])
 				n = n[2]
@@ -6768,23 +6757,130 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+	  #-------------------------------------------------------------#
+	 #  INSERTING A NEW ITEM BEFORE THE POSITIONS OF A GIVEN ITEM  #
+	#-------------------------------------------------------------#
 
-		def InsertAfter(n, pItem)
-			if isList(n) and Q(n).IsOneOfTheseNamedParams([ :Position, :ItemAt, :ItemAtPosition ])
-				n = n[2]
-			ok
+	def InsertBeforeItemCS(pItem, pNewItem, pCaseSensitive)
+		anPos = This.FindCS(pItem, pCaseSensitive)
+		This.InsertBeforePositions(anPos, pNewItem, pCaseSensitive)
 
-			This.InsertAfterPosition(n, pItem)
+		def InsertBeforeItemCSQ(pItem, pNewItem, pCaseSensitive)
+			This.InsertBeforeItemCS(pItem, pNewItem, pCaseSensitive)
+			return This
 
-			def InsertAfterQ(n, pItem)
-				This.InsertAfter(n, pItem)
-				return This
+		def InsertBeforeCS(pItem, pNewItem, pCaseSensitive)
+			This.InsertBeforeItemCS(pItem, pNewItem, pCaseSensitive)
 
-		#>
+			def InsertBeforeCSQ(pItem, pNewItem, pCaseSensitive)
+				return This.InsertBeforeCS(pItem, pNewItem, pCaseSensitive)
 
-	#---------------------------------------#
-	#TODO: Add same functions as stzString #
+	def ItemInsertedBeforeCS(pItem, pNewItem, pCaseSensitive)
+		aResult = This.Copy().InsertBeforeItemCSQ(pItem, pNewItem, pCaseSensitive)
+		return aResult
+
+		def InsertedBeforeCS(pItem, pNewItem, pCaseSensitive)
+			return This.ItemInsertedBeforeCS(pItem, pNewItem, pCaseSensitive)
+
+	  #---------------------------------------------------#
+	 #  INSERTING MANY ITEMS BEFORE THE GIVEN POSITIONS  #
+	#---------------------------------------------------#
+
+	#TODO		
+	def InsertManyBeforePositions(panPos, paItems)
+		StzRaise("Not yet immplemented!")
+
+		def InsertManyBeforePositionsQ(panPos, paItems)
+			This.InsertManyBeforePositions(panPos, paItems)
+			return This
+
+		def InsertManyItemsBeforePositions(panPos, paItems)
+			This.InsertManyBeforePositions(panPos, paItems)
+
+			def InsertManyItemsBeforePositionsQ(panPos, paItems)
+				return This.InsertManyBeforePositions(panPos, paItems)
+
+	  #----------------------------------------------#
+	 #  INSERTING MANY ITEMS BEFORE THE GIVEN ITEM  #
+	#----------------------------------------------#
+
+	#TODO		
+	def InsertManyBeforeItem(pItem, paItems)
+		StzRaise("Not yet immplemented!")
+
+		def InsertManyBeforeItemQ(pItem, paItems)
+			This.InsertManyBeforeItem(pItem, paItems)
+			return This
+
+		def InsertManyItemsBeforeItem(pItem, paItems)
+			This.InsertManyBeforeItem(pItem, paItems)
+
+			def InsertManyItemsBeforeItemQ(pItem, paItems)
+				return This.InsertManyBeforeItem(pItem, paItems)
+
+	  #------------------------------------------------------------#
+	 #  INSERTING A NEW ITEM AFTER THE POSITIONS OF A GIVEN ITEM  #
+	#------------------------------------------------------------#
+
+	def InsertAfterItemCS(pItem, pNewItem, pCaseSensitive)
+		anPos = This.FindCS(pItem, pCaseSensitive)
+		This.InsertAfterPositions(anPos, pNewItem, pCaseSensitive)
+
+		def InsertAfterItemCSQ(pItem, pNewItem, pCaseSensitive)
+			This.InsertAfterItemCS(pItem, pNewItem, pCaseSensitive)
+			return This
+
+		def InsertAfterCS(pItem, pNewItem, pCaseSensitive)
+			This.InsertAfterItemCS(pItem, pNewItem, pCaseSensitive)
+
+			def InsertAfterCSQ(pItem, pNewItem, pCaseSensitive)
+				return This.InsertAfterCS(pItem, pNewItem, pCaseSensitive)
+
+	def ItemInsertedAfterCS(pItem, pNewItem, pCaseSensitive)
+		aResult = This.Copy().InsertAfterItemCSQ(pItem, pNewItem, pCaseSensitive)
+		return aResult
+
+		def InsertedAfterCS(pItem, pNewItem, pCaseSensitive)
+			return This.ItemInsertedAfterCS(pItem, pNewItem, pCaseSensitive)
+
+	  #--------------------------------------------------#
+	 #  INSERTING MANY ITEMS AFTER THE GIVEN POSITIONS  #
+	#--------------------------------------------------#
+
+	#TODO		
+	def InsertManyAfterPositions(panPos, paItems)
+		StzRaise("Not yet immplemented!")
+
+		def InsertManyAfterPositionsQ(panPos, paItems)
+			This.InsertManyAfterPositions(panPos, paItems)
+			return This
+
+		def InsertManyItemsAfterPositions(panPos, paItems)
+			This.InsertManyAfterPositions(panPos, paItems)
+
+			def InsertManyItemsAfterPositionsQ(panPos, paItems)
+				return This.InsertManyAfterPositions(panPos, paItems)
+
+	  #---------------------------------------------#
+	 #  INSERTING MANY ITEMS AFTER THE GIVEN ITEM  #
+	#---------------------------------------------#
+
+	#TODO		
+	def InsertManyAfterItem(pItem, paItems)
+		StzRaise("Not yet immplemented!")
+
+		def InsertManyAfterItemQ(pItem, paItems)
+			This.InsertManyAfterItem(pItem, paItems)
+			return This
+
+		def InsertManyItemsAfterItem(pItem, paItems)
+			This.InsertManyAfterItem(pItem, paItems)
+
+			def InsertManyItemsAfterItemQ(pItem, paItems)
+				return This.InsertManyAfterItem(pItem, paItems)
+
+	  #---------------------------------------#
+	 # TODO: Add same functions as stzString #
 	#---------------------------------------#
 	
 	/*
@@ -43689,53 +43785,9 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 				This.InsertAtXT(pcCondition, pNewItem)
 				return This
 
-	  #-----------------------------------------------------------------#
-	 #  INSERTING MANY ITEMS AFTER OR BEFORE A GIVEN SET OF POSITIONS  #
-	#=================================================================#
-
-	def InsertAfterManyPositions(panPos, pItem)
-		if CheckParams()
-			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
-				StzRaise("Incorrect param type! panPos must be a list of numbers.")
-			ok
-		ok
-
-		nLen = len(panPos)
-		if nLen = 0
-			return
-		ok
-
-		anPos = ring_reverse(ring_sort(panPos))
-		
-		for i = nLen to 1 step - 1
-			ring_insert(@aContent, panPos[i]+1, pItem)
-		next
-
-		#< @FunctionFluentForm
-
-		def InsertAfterManyPositionsQ(panPos, pItem)
-			This.InsertAfterManyPositions(panPos, pItem)
-			return This
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def InsertAfterThesePositions(panPos, pItem)
-			This.InsertAfterManyPositions(panPos, pItem)
-
-			def InsertAfterThesePositionsQ(panPos, pItem)
-				This.InsertAfterThesePositions(panPos, pItem)
-				return This
-
-		def InsertAfterPositions(panPos, pItem)
-			This.InsertAfterPositions(panPos, pItem)
-
-			def InsertAfterPositionsQ(panPos, pItem)
-				This.InsertAfterThesePositions(panPos, pItem)
-				return This
-
-		#>
+	  #--------------------------------------------#
+	 #  INSERTING AN ITEM BEFORE MANY PositIONNS  #
+	#============================================#
 
 	def InsertBeforeManyPositions(panPos, pItem)
 
@@ -43806,6 +43858,76 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 			def InsertAtPositionsQ(panPos, pItem)
 				This.InsertBeforeThesePositions(panPos, pItem)
+				return This
+
+		#>
+
+	  #------------------------------------------#
+	 #  INSERTING AN ITEM AFTER MANY POSITIONS  #
+	#------------------------------------------#
+
+	def InsertAfterManyPositions(panPos, pItem)
+
+		# Param checks
+
+		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+
+			stzRaise("Incorrect param! panPos must be a list of numbers.")
+		ok
+
+		# Early checks
+
+		nLenList = This.NumberOfChars()
+		if nLenList = 0
+			return
+		ok
+
+		nLenPos = len(panPos)
+		if nLenPos = 0
+			return
+		ok
+
+		# Leaving only the accurate positions
+
+		panPos = ring_sort(panPos)
+
+		anPos = []
+		
+		for i = 1 to nLenPos
+			if panPos[i] > 0 and panPos[i] < nLenList
+				anPos + panPos[i]
+			ok
+		next
+
+		# Doing the job
+
+		nLenPos = len(anPos)
+		for i = nLenPos to 1 step -1
+			ring_insert(@aContent, panPos[i]+1, pItem)
+		next
+
+		#< @FunctionFluentForm
+		
+		def InsertAfterManyPositionsQ(panPos, pItem)
+			This.InsertAfterManyPositions(panPos, pItem)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def InsertAfterThesePositions(panPos, pItem)
+			This.InsertAfterManyPositions(panPos, pItem)
+
+			def InsertAfterThesePositionsQ(panPos, pItem)
+				This.InsertAfterThesePositions(panPos, pItem)
+				return This
+
+		def InsertAfterPositions(panPos, pItem)
+			This.InsertAfterManyPositions(panPos, pItem)
+
+			def InsertAfterPositionsQ(panPos, pItem)
+				This.InsertAfterThesePositions(panPos, pItem)
 				return This
 
 		#>
