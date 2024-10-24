@@ -15662,6 +15662,16 @@ proff()
 */
 pron()
 
+o1 = new stzList( @Chars("SOFTANZA") )
+o1.InsertBeforePositions([ 2, 4, 6, 8 ], "~")
+? @@( o1.Content() )
+#--> [ "S", "~", "O", "F", "~", "T", "A", "~", "N", "Z", "~", "A" ]
+
+proff()
+/*-----------------
+
+pron()
+
 o1 = new stzString("SOFTANZA")
 o1.InsertBeforePositions([ 2, 4, 6, 8 ], " ")
 ? o1.Content()
@@ -15670,7 +15680,8 @@ o1.InsertBeforePositions([ 2, 4, 6, 8 ], " ")
 proff()
 # Executed in 0.01 second(s).
 
-/*-----------------
+/*------------------
+
 */
 pron()
 
