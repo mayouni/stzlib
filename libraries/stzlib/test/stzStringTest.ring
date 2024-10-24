@@ -4832,7 +4832,7 @@ proff()
 #--> Executed in 0.02 second(s).
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzListOfNumbers([ 1, 3, 7, 12, 15 ])
@@ -4849,11 +4849,17 @@ proff()
 pron()
 
 o1 = new stzString("123456789")
-? o1 / [ 3, 4, 2 ]
 
 ? o1.SplitToPartsOfSizes([ 3, 4, 2 ])
+#--> [ "123", "4567", "89" ]
+
+# Or simply
+
+? o1 / [ 3, 4, 2 ]
+#--> #--> [ "123", "4567", "89" ]
 
 proff()
+# Executed in 0.01 second(s).
 
 /*-----------
 
