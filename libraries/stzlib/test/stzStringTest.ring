@@ -15695,7 +15695,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("SOFTANZA")
@@ -15723,10 +15723,12 @@ proff()
 pron()
 
 o1 = new stzString("SOFTANZA")
-o1.SpacifyCharsXT("~", 2, :backward)
+o1.SpacifyCharsXT("~", 3, :backward)
 ? o1.Content()
+#--> SO~FTA~NZA
 
 proff()
+# Executed in 0.01 second(s).
 
 /*----------------- #todo #narration
 */
