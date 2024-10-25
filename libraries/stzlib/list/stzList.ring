@@ -75652,9 +75652,11 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	#==
 
 	def IsStepNamedParam()
+
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  Q(This.Item(1)).IsOneOfThese([ :Step, :Steps ]) ) and
-		   isNumber( This.Item(2) )
+
+		   isString(This.Item(1)) and
+		   This.Item(1) = :Step
 		  
 			return TRUE
 
@@ -81001,3 +81003,33 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		else
 			return FALSE
 		ok
+
+	def IsLastNCharsNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+		     This.Item(1) = :LastNChars or This.Item(1) = :NLastChars )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsNLastCharsNamedParam()
+			return This.IsLastNCharsNamedParam()
+
+	def IsLastNItemsNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+		     This.Item(1) = :LastNChars or This.Item(1) = :NLastItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsNLastItemsNamedParam()
+			return This.IsLastNItemsNamedParam()
