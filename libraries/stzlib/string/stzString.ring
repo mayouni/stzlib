@@ -82129,8 +82129,6 @@ n1 = Min(aTemp)
 		ok
 
 		cMode = :Basic
-		cSeparator2 = ""
-		nStep2 = 0
 
 		# Checking params correctness
 
@@ -82146,6 +82144,33 @@ n1 = Min(aTemp)
 			pcDirection = pcDirection[2]
 		ok
 
+		# Checking when a form like [ :Forward, :AndThen = :Backward ] is provided
+
+		cDirection2 = ""
+
+		if isList(pcDirection) and len(pcDirection) = 2
+
+			if isList(pcDirection[2]) and len(pcDirection[2]) = 2 and
+			   isString(pcDirection[2][1]) and pcDirection[2][1] = :AndThen
+
+				cTemp = pcDirection[2][2]
+				pcDirection[2] = cTemp
+			ok
+
+			if isString(pcDirection[1]) and isString(pcDirection[2])
+
+				cMode = :Extended
+				cDirection2 = pcDirection[2]
+				pcDirection = pcDirection[1]
+				
+				if NOT Q(cDirection2).IsOneOfThese([ :Default, :Forward, :Backward, NULL ])
+	
+					StzRaise("Incorrect param! pcDirection must be a string. " +
+					         "Allowed values are :Default, :Forward, and :Backward.")
+				ok
+			ok
+		ok
+
 		if NOT ( isString(pcDirection) and 
 			 Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward, NULL ]) )
 
@@ -82155,11 +82180,15 @@ n1 = Min(aTemp)
 		ok
 
 		# checking :Using = [ ".", :AndThen = " " ]
+
+		cSeparator2 = " "
+
 		if isList(pcSeparator) and (isString(pcSeparator[2]))
 
 			cMode = :Extended
-			pcSeparator = pcSeparator[1]
 			cSeparator2 = pcSeparator[2]
+			pcSeparator = pcSeparator[1]
+			
 
 		but isList(pcSeparator) and isList(pcSeparator[2]) and
 		    Q(pcSeparator[2]).IsOneOfTheseNamedParams([:And, :AndThen]) and
@@ -82172,11 +82201,15 @@ n1 = Min(aTemp)
 		ok
 
 		# checking :Stepping = [ 2, :AndThen = 3]
+
+		nStep2 = 0
+
 		if isList(pnStep) and (isNumber(pnStep[2]))
 
-			cMode = :Basic
-			pnStep = pnStep[1]
+			cMode = :Extended
 			nStep2 = pnStep[2]
+			pnStep = pnStep[1]
+			
 
 		but isList(pnStep) and isList(pnStep[2]) and
 		    Q(pnStep[2][2]).IsOneOfTheseNamedParams([:And, :AndThen]) and
@@ -82197,6 +82230,7 @@ n1 = Min(aTemp)
 		ok
 
 		# Checking the direction
+
 		if pcDirection = "" or pcDirection = :Default
 			pcDirection = :Forward
 
@@ -82206,9 +82240,22 @@ n1 = Min(aTemp)
 			StzRaise("Incorrect param value! pcDirection can be :Forward, :Backward, :Default, or NULL.")
 		ok
 
+		if cMode = :Extended
+
+			if cDirection2 = "" or cDirection2 = :Default
+				cDirection2 = :Forward
+			but pcDirection = :Forward or pcDirection = :Backward
+				// do nothing
+			else
+				StzRaise("Incorrect param value! cDirection2 can be :Forward, :Backward, :Default, or NULL.")
+			ok
+
+		ok
+
 		# Doing the job
 
 		if cMode = :Basic
+? @@([ pcSeparator, pnStep, pcDirection ])
 
 			anPos = []
 			if pcDirection = :Forward
@@ -82229,7 +82276,8 @@ n1 = Min(aTemp)
 			ok
 
 		but cMode = :Extended
-? @@([ pcSeparator, cSeparator2, pnStep, pcDirection ])
+
+? @@([ pcSeparator, cSeparator2, pnStep, nStep2, pcDirection, cDirection2 ])
 
 			anPos = []
 			if pcDirection = :Forward
