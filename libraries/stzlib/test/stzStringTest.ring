@@ -4895,6 +4895,19 @@ o1.SpacifyXT( " ", 3, [ :Forward, :Backward ] )
 StopProfiler()
 
 /*-----------
+
+pron()
+
+? Q( :Step = [ 3, :Andthen = 2 ] ).IsStepNamedParam()
+#--> 1
+
+? Q( :Step = [ 3, :Andthen = 2 ] ).IsOneOfTheseNamedParams([ :Step, :Stepping, :EachNChars ])
+#--> 1
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-----------
 */
 StartProfiler()
 
@@ -4902,7 +4915,7 @@ o1 = new stzString("999999999999")
 
 o1.SpacifyXT(
 	:Separator = [ " ", :AndThen = "." , :LastNChars = 3 ],
-	:Step      = [ 3, :Andthen = 2 ],
+	:Step      = [ 3, :AndThen = 2 ],
 	:Direction = [ :Backward, :AndThen = :Forward ]
 )
 

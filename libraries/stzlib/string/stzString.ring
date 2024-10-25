@@ -82128,9 +82128,7 @@ n1 = Min(aTemp)
 			return
 		ok
 
-		cMode = :Basic
-
-		# Checking params correctness
+		# Checking params
 
 		if isList(pcSeparator) and Q(pcSeparator).IsOneOfTheseNamedParams([ :Using, :Separator ])
 			pcSeparator = pcSeparator[2]
@@ -82144,118 +82142,18 @@ n1 = Min(aTemp)
 			pcDirection = pcDirection[2]
 		ok
 
-		# Checking when a form like [ :Forward, :AndThen = :Backward ] is provided
+		# Getting the mode
 
-		cDirection2 = ""
+		if isString(pcSeparator) and isNumber(pnStep) and isString(pcDirection)
+			cMode = :Basic
 
-		if isList(pcDirection) and len(pcDirection) = 2
-
-			if isList(pcDirection[2]) and len(pcDirection[2]) = 2 and
-			   isString(pcDirection[2][1]) and pcDirection[2][1] = :AndThen
-
-				cTemp = pcDirection[2][2]
-				pcDirection[2] = cTemp
-			ok
-
-			if isString(pcDirection[1]) and isString(pcDirection[2])
-
-				cMode = :Extended
-				cDirection2 = pcDirection[2]
-				pcDirection = pcDirection[1]
-				
-				if NOT Q(cDirection2).IsOneOfThese([ :Default, :Forward, :Backward, NULL ])
-	
-					StzRaise("Incorrect param! pcDirection must be a string. " +
-					         "Allowed values are :Default, :Forward, and :Backward.")
-				ok
-			ok
-		ok
-
-		if NOT ( isString(pcDirection) and 
-			 Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward, NULL ]) )
-
-			StzRaise("Incorrect param! pcDirection must be a string. " +
-				 "Allowed values are :Default, :Forward, and :Backward.")
-
-		ok
-
-		# checking :Using = [ ".", :AndThen = " " ]
-
-		cSeparator2 = " "
-
-		if isList(pcSeparator) and (isString(pcSeparator[2]))
-
-			cMode = :Extended
-			cSeparator2 = pcSeparator[2]
-			pcSeparator = pcSeparator[1]
-			
-
-		but isList(pcSeparator) and isList(pcSeparator[2]) and
-		    Q(pcSeparator[2]).IsOneOfTheseNamedParams([:And, :AndThen]) and
-		    isString(pcSeparator[2][2])
-
-			cMode = :Extended
-			cSeparator2 = pcSeparator[2][2]
-			pcSeparator = pcSeparator[1]
-			
-		ok
-
-		# checking :Stepping = [ 2, :AndThen = 3]
-
-		nStep2 = 0
-
-		if isList(pnStep) and (isNumber(pnStep[2]))
-
-			cMode = :Extended
-			nStep2 = pnStep[2]
-			pnStep = pnStep[1]
-			
-
-		but isList(pnStep) and isList(pnStep[2]) and
-		    Q(pnStep[2][2]).IsOneOfTheseNamedParams([:And, :AndThen]) and
-		    isNumber(pnStep[2][2][2])
-
-			cMode = :Extended
-			nStep2 = pnStep[2][2][2]
-			pnstep = pnStep[2][1]
-			
-		ok
-
-		if NOT (isString(pcSeparator) and pcSeparator != "")
-			StzRaise("Incorrect param type! pcSeparator must be a non null string.")
-		ok
-
-		if NOT (isNumber(pnStep) and pnStep != 0)
-			StzRaise("Incorrect param type! pnStep must be a non null number.")
-		ok
-
-		# Checking the direction
-
-		if pcDirection = "" or pcDirection = :Default
-			pcDirection = :Forward
-
-		but pcDirection = :Forward or pcDirection = :Backward
-			// do nothing
 		else
-			StzRaise("Incorrect param value! pcDirection can be :Forward, :Backward, :Default, or NULL.")
+			cMode = :Extended
 		ok
-
-		if cMode = :Extended
-
-			if cDirection2 = "" or cDirection2 = :Default
-				cDirection2 = :Forward
-			but pcDirection = :Forward or pcDirection = :Backward
-				// do nothing
-			else
-				StzRaise("Incorrect param value! cDirection2 can be :Forward, :Backward, :Default, or NULL.")
-			ok
-
-		ok
-
-		# Doing the job
+		
+		# doing the job
 
 		if cMode = :Basic
-? @@([ pcSeparator, pnStep, pcDirection ])
 
 			anPos = []
 			if pcDirection = :Forward
@@ -82275,9 +82173,150 @@ n1 = Min(aTemp)
 				This.InsertAfterThesePositions(anPos, pcSeparator)
 			ok
 
+			# Finishing the job
+
+			return
+
+		ok
+
+		# Case of Extended mode
+
+		if cMode = :Extended
+
+			# Setting the default params
+
+			cSeparator1 = " "
+			cSeparator2 = " "
+			nLastChars = 0
+
+			nStep1 = 1
+			nStep2 = 1
+
+			cDirection1 = :Forward
+			cDirection2 = :Forward
+
+			# Getting the separator params
+
+			if isString(pcSeparator)
+				cSeparator1 = pcSeparator
+
+			but isList(pcSeparator) and len(pcSeparator) <= 3
+
+				if isString(pcSeparator[1])
+					cSeparator1 = pcSeparator[1]
+				ok
+
+				if isString(pcSeparator[2])
+					cSeparator2 = pcSeparator[2]
+
+				but isList(pcSeparator[2]) and
+				    StzListQ(pcSeparator[2]).IsAndThenNamedParam() and
+				    isString(pcSeparator[2][2])
+
+					cSeparator2 = pcSeparator[2][2]
+				ok
+
+				if len(pcSeparator) = 3
+
+					if isNumber(pcSeparator[3])
+						nLastChars = pcSeparator[3]
+
+					but isList(pcSeparator[3]) and
+					    StzListQ(pcSeparator[3]).isNLastCharsNamedParam()
+
+						if isNumber(pcSeparator[3][2])
+							nLastChars = pcSeparator[3][2]
+						ok
+
+					ok
+
+				ok
+			else
+				StzRaise("Incorrect param type! Allowed format for extended pcSeparator is [ cSep1, cSep2, nLastChars ].")
+			ok
+
+			# Getting the stepping params
+
+			if isNumber(pnStep)
+				nStep1 = pnStep
+
+			but isList(pnStep) and len(pnStep) <= 2
+
+				if isNumber(pnStep[1])
+					nStep1 = pnStep[1]
+				ok
+
+				if len(pnStep) = 2
+
+					if isNumber(pnStep[2])
+						nStep2 = pnStep[2]
+					
+					else isList(pnStep[2]) and
+				  	     StzListQ(pnStep[2]).IsAndThenNamedParam() and
+				  	     isNumber(pnStep[2][2])
+
+						nStep2 = pnStep[2][2]
+					ok
+				ok
+			else
+				StzRaise("Incorrect param type! Allowed format for extended pnStep param is [ nStep1, nStep2 ].")
+			ok
+
+			# Getting the direction params
+
+			if isString(pcDirection)
+				cDirection1 = pcDirection
+
+			but isList(pcDirection) and len(pcDirection) <= 2
+
+				if isString(pcDirection[1])
+					cDirection1 = pcDirection[1]
+				ok
+
+				if len(pcDirection) = 2
+
+					if isString(pcDirection[2])
+						cDirection2 = pcDirection[2]
+					
+					else isList(pcDirection[2]) and
+				  	     StzListQ(pcDirection[2]).IsAndThenNamedParam() and
+				  	     isNumber(pcDirection[2][2])
+
+						cDirection2 = pcDirection[2][2]
+					ok
+				ok
+			else
+				StzRaise("Incorrect param type! Allowed format for extended pcDirection param is [ :Forward, :Backward ].")
+			ok
+/*
+? @@SP([
+	[ cSeparator1, cSeparator2, nLastChars ],
+	[ nStep1, nStep2 ],
+	[ cDirection1, cDirection2 ]
+])
+*/
+
+			# Doing the job
+
+			return
+
+		ok
+
+
+/*		# Doing the job
+
+		if cMode = :Basic
+? @@([ pcSeparator, pnStep, pcDirection ])
+
+
+
 		but cMode = :Extended
 
-? @@([ pcSeparator, cSeparator2, pnStep, nStep2, pcDirection, cDirection2 ])
+? @@SP([
+	[ cSeparator, cSeparator2, nLastChars ],
+	[ pnStep, nStep2 ],
+	[ pcDirection, cDirection2 ]
+])
 
 			anPos = []
 			if pcDirection = :Forward
@@ -82337,9 +82376,9 @@ n1 = Min(aTemp)
 			ok
 
 			This.InsertAfterThesePositions(anPos, pcSeparator)
-*/
-		ok
 
+		ok
+*/
 		def SpacifyXTQ(pcSeparator, pnStep, pcDirection)
 			This.SpacifyXT(pcSeparator, pnStep, pcDirection)
 			return This
