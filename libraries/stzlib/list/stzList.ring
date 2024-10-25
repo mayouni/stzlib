@@ -80990,3 +80990,14 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		else
 			return FALSE
 		ok
+
+	def IsSeparatorNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Separator )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
