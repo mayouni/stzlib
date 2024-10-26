@@ -38985,16 +38985,31 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		return anResult
 
-		def FindContiguousItemsCS(paItems, pCaseSensitive)
+		#< @FunctionAlternativeForms
+
+		def FindTheseContiguousItemsCS(paItems, pCaseSensitive)
 			return This.FindSubListCS(paItems, pCaseSensitive)
+
+		def FindTheseAdjascentItemsCS(paItems, pCaseSensitive)
+			return This.FindSubListCS(paItems, pCaseSensitive)
+
+		#>
+
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindSubList(paItems)
 		return This.FindSubListCS(paItems, TRUE)
 
-		def FindContiguousItems(paItems)
-			FindSubList(paItems)
+		#< @FunctionAlternativeForms
+
+		def FindTheseContiguousItems(paItems)
+			return This.FindSubList(paItems)
+
+		def FindTheseAdjascentItems(paItems)
+			return This.FindSubList(paItems)
+
+		#>
 
 	  #---------------------------------------------------#
 	 #   CHECKING IF THE LIST CONTAINS A GIVEN SUBLIST   #
@@ -39014,10 +39029,30 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		bResult = ocListInAString.ContainsCS(cSubListStringified, pCaseSensitive)
 		return bResult
 
+		#< @FunctionAlternativeForms
+
+		def ContainsTheseContiguousItemsCS(paSubList, pCaseSensitive)
+			return This.ContainsSubListCS(paSubList, pCaseSensitive)
+
+		def ContainsTheseAdjascentItemsCS(paSubList, pCaseSensitive)
+			return This.ContainsSubListCS(paSubList, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsSubList(paSubList)
 		return This.ContainsSubListCS(paSubList, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ContainsTheseContiguousItems(paSubList)
+			return This.ContainsSubList(paSubList)
+
+		def ContainsTheseAdjascentItems(paSubList)
+			return This.ContainsSubList(paSubList)
+
+		#>
 
 	  #======================================================#
 	 #  CHECKING IF THE LIST CONTAINS AN ITEM AT ANY LEVEL  #
