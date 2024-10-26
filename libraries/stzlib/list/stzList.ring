@@ -33762,6 +33762,8 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	 #  FINDING FIRST OCCURRENCE OF EACH DUPLICATED ITEM  #
 	#----------------------------------------------------#
 
+	#NOTE // There is a better name I advise you to use: FindDuplicatesOrigins()
+
 	def FindFirstDuplicatesCS(pCaseSensitive)
 
 		# Checking params
@@ -33873,6 +33875,9 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
+		def FindDuplicatesOriginsCS(pCaseSensitive)
+			return This.FindFirstDuplicatesCS(pCaseSensitive)
+
 		def FindFirstDuplicatedItemsCS(pCaseSensitive)
 			return This.FindFirstDuplicatesCS(pCaseSensitive)
 
@@ -33918,6 +33923,9 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		return This.FindFirstDuplicatesCS(TRUE)
 
 		#< @FunctionAlternativeForms
+
+		def FindDuplicatesOrigins()
+			return This.FindFirstDuplicates()
 
 		def FindFirstDuplicatedItems()
 			return This.FindFirstDuplicates()
@@ -34137,7 +34145,8 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		anResult = []
 
 		if nLen > 1
-			anResult = Q(anPos).FirstItemRemoved()
+			del(anPos, 1)
+			anResult = anPos
 		ok
 
 		return anResult
@@ -34403,6 +34412,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 				# Memorising the stringified items so we can used them later
 	
 				acStr + Q(cItem).Lowercased()
+//				acStr + lower(cItem)
 			next
 
 		ok

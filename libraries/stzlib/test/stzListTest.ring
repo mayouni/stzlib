@@ -2320,7 +2320,8 @@ o1 = new stzList(aBigList)
 #--> TRUE
 
 proff()
-# Executed in 4.27 second(s)
+# Executed in 3.15 second(s) in Ring 1.21
+# Executed in 4.27 second(s) in Ring 1.19
 
 /*-------
 
@@ -2338,7 +2339,8 @@ pron()
 	#--> TRUE
 
 proff()
-# Executed in 4.75 second(s)
+# Executed in 1.82 second(s) in Ring 1.21
+# Executed in 4.75 second(s) in Ring 1.19
 
 /*-------
 
@@ -2353,7 +2355,8 @@ pron()
 	#--> TRUE
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in Ring 1.8
 
 /*-------
 
@@ -2364,12 +2367,13 @@ o1 = new stzList([ "2", 2 ])
 #--> FALSE
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.02 second(s) in Ring 1.19
 
-/*-------
+/*------- #narration
 
 pron()
-	#NOTE : Let's precise the concepts of Duplicates/Duplications,
+	#NOTE // Let's precise the concepts of Duplicates/Duplications,
 	# and DuplicateItems, as implemented semantically in Softanza
 
 	o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
@@ -2382,14 +2386,17 @@ pron()
 
 	? @@( o1.DuplicatesZ() ) # Or DuplicateItemsZ() or DuplicationsZ()
 	#--> [ [ "A", [ 4, 5 ] ], [ "B", [ 6 ] ], [ 2, [ 8 ] ] ]
-	# "A" is duplicated in positions 4 and 5, "B" is duplicated in position 5,
+
+	# ~> "A" is duplicated in positions 4 and 5, "B" is duplicated in position 5,
 	# and 2 is duplicated in position 8
 
 	# To get the list of duplicates (or duplicated items):
+
 	? @@( o1.Duplicates() ) # Or o1.DuplicatedItems()
 	#--> [ "A", "B", 2 ]
 
 	# To find the positions where these items are duplicated, we say:
+
 	? @@( o1.FindDuplicates() ) # of FindDuplications()
 	#--> [ 4, 5, 6, 8 ]
 
@@ -2399,6 +2406,12 @@ pron()
 	#--> [ 1, 2, 4, 5, 6, 7, 8 ]
 
 	# To get only the first occurrences of each duplicated item, use:
+
+	? @@( o1.FindDuplicatesOrigins() )
+
+	#NOTE // There is an other alternative long name intended for near-natural
+	# lanaguage support in Softanza, not for using in normal programming:
+
 	? @@( o1.FindFirstOccurrenceOfEachDuplicatedItem() )
 	#--> [ 1, 2, 7 ]
 
@@ -2430,7 +2443,8 @@ pron()
 
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.03 second(s) in Ring 1.21.
+# Executed in 0.08 second(s) in Ring 1.19
 
 /*------------
 
@@ -2442,6 +2456,7 @@ o1.RemoveDuplicates()
 #--> [ "A", "B", "2", 2, "." ]
 
 proff()
+# Executed in almost 0 second(s).
 
 /*------------
 
@@ -2449,7 +2464,8 @@ pron()
 
 aBigList = 1:30_000
 aMore = [ "A", "B", "2", "A", "A", "B", 2, 2, "." ]
-for i = 1 to len(aMore)
+nLen = len(aMore)
+for i = 1 to nLen
 	aBigList + ("" + aMore[i] + i)
 next
 
@@ -2459,7 +2475,8 @@ o1 = new stzList(aBigList)
 #--> [ "A", "B", "2", 2, "." ]
 
 proff()
-# Executed in 4.29 second(s)
+# Executed in 3.28 second(s) in Ring 1.21
+# Executed in 4.29 second(s) in Ring 1.19
 
 /*------------
 
@@ -2470,7 +2487,8 @@ o1 = new stzList([ "A", "B", "2", "A", "A", "B", 2, 2, "." ])
 #--> [ "A", "B", "2", 2, "." ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.19
 
 /*------------
 
@@ -2482,18 +2500,21 @@ o1.RemoveNonDuplicates()
 #--> [ "A", "B", "A", "A", "B", 2, 2 ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.19
 
-/*============
+# Enhancing Your Mental Model with Softanza: A Case Study of List Sorting
+# Let's explore how Softanza improves the programming experience by examining
+# the sort() function implementation
 
-# How Softanza enhances your mental experience as a programmer
-# for some Ring functions, like in this example, the sort() function
+/*======== #narration
 
 pron()
 
-# Each time I need the Ring sort() function, I could not remember
-# wether the function sorts the list in place, or sorts it and
-# returns it. So I have to write a use case to check it...
+# A Common Programming Dilemma:
+# When working with Ring sort() function, there's often a moment of uncertainty:
+# Does it modify the list in place, or does it return a new sorted list?
+# This uncertainty typically leads to writing test cases for verification...
 
 alist = [ 4, 3, 1 , 2, 5 ]
 alist = ring_sort(alist)
@@ -2501,25 +2522,76 @@ alist = ring_sort(alist)
 ? @@(alist)
 #--> [ 1, 2, 3, 4, 5 ]
 
-# Hopefully, in Softanza, the mental model is crystal-clear
-# If you want to change the list in place you say:
+# Softanza's Solution: Crystal-Clear Mental Models
+# When you want to modify the list in place, the syntax is explicit:
 
 o1 = new stzList([ 4, 3, 1 , 2, 5 ])
 o1.Sort()
-# Now, the list is sorted in place and you can use it, to show it
-# for example like this:
+# The list is now sorted in place, and you can verify it:
 o1.Show()
 #--> [ 1, 2, 3, 4, 5 ]
 
-# An if you want to sort it and return it in the same time,
-# you would directly say it like this:
+# Need a sorted copy instead? The passive voice syntax makes it intuitive:
 
 aSorted = Q([ 4, 3, 1 , 2, 5 ]).Sorted()
 ? @@(aSorted)
 #--> [ 1, 2, 3, 4, 5 ]
 
+# Bridging Ring and Softanza:
+# Softanza provides an elegant solution by wrapping Ring's native functions
+# with enhanced versions that offer consistent behavior. Take ring_sort()
+# for example:
+
+# Using the wrapped function:
+aList = [ 4, 3, 5, 2, 1 ]
+ring_sort(aList)
+
+# The list is modified in place:
+? @@( aList )
+#--> [ 1, 2, 3, 4, 5 ]
+
+# And simultaneously returns the sorted list:
+? @@( ring_sort([ 4, 3, 5, 2, 1 ]) )
+#--> [ 1, 2, 3, 4, 5 ]
+
+# This unified behavior eliminates cognitive overhead, allowing you to use
+# Ring functions seamlessly within your workflow.
+
 proff()
-# Executed in 0.02 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.02 second(s) in Ring 1.19
+
+/*------------
+*/
+pron()
+
+# DupSecutive = Duplicate + Consecutive
+
+o1 = new stzList([ "A", "B", "B", "B", "b", "C", "B", "C", "C", "c" ])
+
+? o1.ContainsDupSecutiveItems()
+#--> TRUE
+
+? o1.FindDupSecutiveItems()
+#--> [ 3, 4, 9 ]
+
+? o1.FindDupSecutiveItemsCS(FALSE)
+#--> [ 3, 4, 5, 9, 10 ]
+
+? o1.DupSecutiveItems()
+#--> [ "B", "C" ]
+
+? o1.DupSecutiveItemsZ()
+#--> [ [ "B", [ 3, 4 ] ], [ "C", [ 9 ] ] ]
+
+? o1.DupSecutiveItemsCSZ(FALSE)
+#--> [ [ "B", [ 3, 4, 5 ] ], [ "C", [ 9, 10 ] ] ]
+
+o1.RemoveDupSecutiveItems()
+? @@( o1.Content() )
+#--> [ "A", "B", "b", "C", "B", "C" ]
+
+proff()
 
 /*============
 
