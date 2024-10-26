@@ -4862,7 +4862,7 @@ proff()
 
 /*========
 
-StartProfiler()
+pron()
 
 o1 = new stzString("99999999999")
 
@@ -4870,14 +4870,19 @@ o1.SpacifyXT( " ", 3, :Backward )
 ? o1.Content() + NL
 #--> 99 999 999 999
 
-#---
+proff()
+# Executed in 0.01 second(s).
+
+/*---
+
+pron()
 
 o1 = new stzString("99999999999")
 o1.SpacifyXT( :Using = " ", :Step = 3, :Going = :Backward )
 ? o1.Content()
 #--> 99 999 999 999
 
-StopProfiler()
+proff()
 # Executed in 0.03 second(s).
 
 /*-----------
@@ -4885,14 +4890,22 @@ StopProfiler()
 StartProfiler()
 
 o1 = new stzString("999999999999")
-
 o1.SpacifyXT( [ " ", "." ], [ 3, 2 ], :Backward )
+? o1.Content()
+#--> 999 999 999 999
 
+o1 = new stzString("999999999999")
 o1.SpacifyXT( " ", [ 3, 2 ], :Backward )
+? o1.Content()
+#--> 999 999 999 999
 
+o1 = new stzString("999999999999")
 o1.SpacifyXT( " ", 3, [ :Forward, :Backward ] )
+? o1.Content()
+#--> 999 999 999 999
 
 StopProfiler()
+# Executed in 0.05 second(s).
 
 /*-----------
 
@@ -4908,85 +4921,127 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-----------
-*/
-StartProfiler()
+
+pron()
 
 o1 = new stzString("999999999999")
+o1.UpdateWith("999 999 999.999")
+? o1.Content()
+
+proff()
+# Executed in 0.01 second(s).
+
+/*-----------
+
+StartProfiler()
+
+o1 = new stzString("9999999999999999")
 
 o1.SpacifyXT(
-	:Separator = [ " ", :AndThen = "." , :LastNChars = 3 ],
+	:Separator = [ " ", :AndThen = "." , :LastNChars = 7 ],
 	:Step      = [ 3, :AndThen = 2 ],
 	:Direction = [ :Backward, :AndThen = :Forward ]
 )
 
 ? o1.Content()
-#--> 99 999 999.99
+#--> 999 999 999.99 99 99 9
 
 proff()
+# Executed in 0.03 second(s).
 
 /*-----------
-*/
+
+pron()
+
+? Q("123456789050").SpacifiedXT(
+
+    :Separator	= [ ",", "." , :LastNChars = 3 ],
+    :Step 	= [ 3, 0 ], 
+    :Direction 	= :Backward
+
+)
+#--> 123,456,789.050
+
+proff()
+# Executed in 0.03 second(s).
+
+/*-----------
+
 StartProfiler()
 
-o1 = new stzString("999999999999")
-
-//o1.SpacifyXT( [ " ", "." ], [ 3, 2 ], :Backward )
+o1 = new stzString("12345269775114")
 
 o1.SpacifyXT(
-	:Using     = [ " ", 	  :AndThen = "." 	],
-	:Step      = 3,
-	:Direction = [ :Backward, :AndThen = 'forward' ]
+	[ " ", ".", :LastChars = 6 ], [ 3, 2 ], :Backward
 )
 
 ? o1.Content()
-#--> 99 999 999.99
+#--> 12 345 269.77 51 14
 
 proff()
+# Executed in 0.03 second(s).
 
 /*-----------
-*/
-StartProfiler()
 
-o1 = new stzString("999999999999")
-
-//o1.SpacifyXT( [ " ", "." ], [ 3, 2 ], :Backward )
-
-o1.SpacifyXT(
-	:Using     = " ",
-	:Step      = [ 3, 	  :AndThen = 2 		],
-	:Direction = [ :Backward, :AndThen = 'forward' ]
-)
-
-? o1.Content()
-#--> 99 999 999.99
-
-proff()
-
-/*----------
-*/
 StartProfiler()
 
 o1 = new stzString("9999999999")
+
 o1.SpacifyXT(
-	:Using     = [ ".", :AndThen = " " ],
+	:Using     = [ " ", :AndThen = ".", :LastNChars = 2 ],
+	:Step      = [ 3, 2 ],
+	:Direction = [ :Backward, :AndThen = 'forward' ]
+)
+
+? o1.Content()
+#--> 99 999 999.99
+
+proff()
+# Executed in 0.03 second(s).
+
+/*-----------
+
+StartProfiler()
+
+o1 = new stzString("999999999999")
+
+o1.SpacifyXT(
+	:Using     = [ " ", "." ],
+	:Step      = [ 3, 	  :AndThen = 2, :LastNChars = 5	],
+	:Direction = [ :Backward, :AndThen = 'forward' ]
+)
+
+? o1.Content()
+#--> 9 999 999.99 99 9
+
+proff()
+# Executed in 0.03 second(s).
+
+/*----------
+
+StartProfiler()
+
+o1 = new stzString("99999999999999")
+o1.SpacifyXT(
+	:Using     = [ " ", :AndThen = ".", :LastNChars = 6 ],
 	:Step      = [ 2, :AndThen = 3],
 	:Direction = :Backward
 )
 
 ? o1.Content()
-#--> 99 999 999.99
+#--> 99 99 99 99.999 999
 
 StopProfiler()
-# Executed in 0.05 second(s)
+# Executed in 0.03 second(s)
 
 /*==============
-
+*/
 pron()
 
 o1 = new stzString(" so ftan  za ")
 o1.Unspacify()
 ? o1.Content()
-#--> so ftan  za
+#--> "so ftan  za"
 
 proff()
 # Executed in 0.01 second(s)

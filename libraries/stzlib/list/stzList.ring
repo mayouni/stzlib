@@ -80895,7 +80895,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		def IsEndOrEndAtOrEndingAtNamedParams()
 			return This.IsEndOrEndAtOrEndingAtNamedParam()
 
-	def isNStepNamedParam()
+	def IsNStepNamedParam()
 
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :NStep )
@@ -80906,7 +80906,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			return FALSE
 		ok
 
-	def isNStepsNamedParam()
+	def IsNStepsNamedParam()
 
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :NStep )
@@ -80931,9 +80931,9 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 	def IsStepOrNSetpNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and
-			(This.Item(1) = :End or This.Item(1) = :Step or This.Item(1) = :NStep )
-		    )
+		   isString(This.Item(1)) and
+
+		   ( This.Item(1) = :End or This.Item(1) = :Step or This.Item(1) = :NStep )
 
 			return TRUE
 
@@ -80946,9 +80946,8 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 	def IsStepsOrNSetpsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and
-			(This.Item(1) = :End or This.Item(1) = :Steps or This.Item(1) = :NSteps )
-		    )
+		   isString(This.Item(1) and
+		   ( This.Item(1) = :End or This.Item(1) = :Steps or This.Item(1) = :NSteps ) )
 
 			return TRUE
 
@@ -80961,9 +80960,12 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 	def IsStepOrStepsOrNStepOrNStepsNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and
-			(This.Item(1) = :Step or This.Item(1) = :Steps or This.Item(1) = :NStep or this.Item(1) = :NSteps )
-		    )
+		   isString(This.Item(1)) and
+
+		   ( This.Item(1) = :Step or
+		     This.Item(1) = :Steps or
+		     This.Item(1) = :NStep or
+		     This.Item(1) = :NSteps )
 
 			return TRUE
 
@@ -80985,7 +80987,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	def IsThanNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and This.Item(1) = :Than )
+		   isString(This.Item(1)) and This.Item(1) = :Than
 
 			return TRUE
 
@@ -80996,7 +80998,65 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	def IsSeparatorNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and This.Item(1) = :Separator )
+		   isString(This.Item(1)) and This.Item(1) = :Separator
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsFirstCharsNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :FirstChars
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsFirstNCharsNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   ( This.Item(1) = :FirstNChars or This.Item(1) = :NFirstChars )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsNFirstCharsNamedParam()
+			return This.IsFirstNCharsNamedParam()
+
+	def IsFirstNItemsNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   ( This.Item(1) = :FirstNChars or This.Item(1) = :NFirstItems )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsNFirstItemsNamedParam()
+			return This.IsFirstNItemsNamedParam()
+
+	#--
+
+	def IsLastCharsNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :LastChars
 
 			return TRUE
 
@@ -81007,8 +81067,8 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	def IsLastNCharsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and
-		     This.Item(1) = :LastNChars or This.Item(1) = :NLastChars )
+		   isString(This.Item(1)) and
+		   ( This.Item(1) = :LastNChars or This.Item(1) = :NLastChars )
 
 			return TRUE
 
@@ -81022,8 +81082,8 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	def IsLastNItemsNamedParam()
 
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and
-		     This.Item(1) = :LastNChars or This.Item(1) = :NLastItems )
+		   isString(This.Item(1)) and
+		   ( This.Item(1) = :LastNChars or This.Item(1) = :NLastItems )
 
 			return TRUE
 

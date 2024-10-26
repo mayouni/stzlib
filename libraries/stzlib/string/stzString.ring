@@ -9303,25 +9303,88 @@ class stzString from stzObject
 	def FindDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive)
 
 		anResult = []
-		anPos = This.FindOccurrenceCS(pcSubStr, pCaseSensitive)
+		anPos = This.FindCS(pcSubStr, pCaseSensitive)
 		
 		if len(anPos) > 1
-			anResult = Q(anPos).FirstItemRemoved()
+			del(anPos, 1)
+			anResult = anPos
 		ok
 
 		return anResult
 		
+		#< @FunctionAlternativeForms
 
 		def PositionsOfDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive)
 			return This.FindDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def FindThisDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		def FindDuplicatedSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatesOfSubStringCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesOfSubString(pcSubStr)
 		return This.FindDuplicatesOfSubStringCS(pcSubStr, TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def PositionsOfDuplicatesOfSubString(pcSubStr)
 			return This.FindDuplicatesOfSubString(pcSubStr)
+
+		def FindThisDuplicatedSubString(pcSubStr)
+			return This.FindDuplicatesOfSubString(pcSubStr)
+
+		def FindDuplicatedSubString(pcSubStr)
+			return This.FindDuplicatesOfSubString(pcSubStr)
+
+		#>
+
+	  #----------------------------------------#
+	 #   FINDING DUPLICATES OF A GIVEN CHAR   #
+	#----------------------------------------#
+
+	def FindDuplicatesOfCharCS(pcChar, pCaseSensitive)
+		if NOT (isString(pcChar) and @IsChar(pcChar))
+			StzRaise("Incorrect param type! pcChar must be a char.")
+		ok
+
+		anResult = This.FindDuplicatesOfSubStringCS(pcChar, pCaseSensitive)
+		return anResult
+		
+		#< @FunctionAlternativeForms
+
+		def PositionsOfDuplicatesOfCharCS(pcChar, pCaseSensitive)
+			return This.FindDuplicatesOfCharCS(pcChar, pCaseSensitive)
+
+		def FindThisDuplicatedCharCS(pcChar, pCaseSensitive)
+			return This.FindDuplicatesOfCharCS(pcChar, pCaseSensitive)
+
+		def FindDuplicatedCharCS(pcChar, pCaseSensitive)
+			return This.FindDuplicatesOfCharCS(pcChar, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicatesOfChar(pcChar)
+		return This.FindDuplicatesOfCharCS(pcChar, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def PositionsOfDuplicatesOfChar(pcChar)
+			return This.FindDuplicatesOfChar(pcChar)
+
+		def FindThisDuplicatedChar(pcChar)
+			return This.FindDuplicatesOfChar(pcChar)
+
+		def FindDuplicatedChar(pcChar)
+			return This.FindDuplicatesOfChar(pcChar)
+
+		#>
 
 	  #---------------------------------------------------------#
 	 #   FINDING DUPLICATES OF A GIVEN SUBSTRING AS SECTIONS   #
@@ -9336,17 +9399,49 @@ class stzString from stzObject
 		ok
 
 		return aResult
-		
+
+		#< @FunctionAlternativeForms
+
 		def FindDuplicatesOfSubStringCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindThisDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindDuplicatedSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindThisDuplicatedSubStringCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		def FindDuplicatedSubStringCSZZ(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatesOfSubStringAsSections(pcSubStr)
 		return This.FindDuplicatesOfSubStringAsSectionsCS(pcSubStr, TRUE)
 
+		#< @FunctionAlternativeForms
+
 		def FindDuplicatesOfSubStringZZ(pcSubStr)
 			return This.FindDuplicatesOfSubStringAsSections(pcSubStr)
+
+		def FindThisDuplicatedSubStringAsSections(pcSubStr)
+			return This.FindDuplicatesOfSubStringAsSections(pcSubStr)
+
+		def FindDuplicatedSubStringAsSections(pcSubStr)
+			return This.FindDuplicatesOfSubStringAsSections(pcSubStr)
+
+		def FindThisDuplicatedSubStringZZ(pcSubStr)
+			return This.FindDuplicatesOfSubStringAsSections(pcSubStr)
+
+		def FindDuplicatedSubStringZZ(pcSubStr)
+			return This.FindDuplicatesOfSubStringAsSections(pcSubStr)
+
+		#>
 
 	  #-------------------------------------------#
 	 #   REMOVING ALL DUPLICATES IN THE STRING   #
@@ -82123,8 +82218,9 @@ n1 = Min(aTemp)
 
 		# Early check
 
-		nLen = This.NumberOfChars()
-		if nLen < 2
+		nLenStr = This.NumberOfChars()
+
+		if nLenStr < 2
 			return
 		ok
 
@@ -82156,9 +82252,10 @@ n1 = Min(aTemp)
 		if cMode = :Basic
 
 			anPos = []
+
 			if pcDirection = :Forward
 				
-				for i = 1 to nLen step pnStep
+				for i = 1 to nLenStr step pnStep
 					anPos + i
 				next
 
@@ -82166,7 +82263,7 @@ n1 = Min(aTemp)
 
 			but pcDirection = :Backward
 		
-				for i = nLen to 1 step -pnStep
+				for i = nLenStr to 1 step -pnStep
 					anPos + i
 				next
 
@@ -82222,7 +82319,8 @@ n1 = Min(aTemp)
 						nLastChars = pcSeparator[3]
 
 					but isList(pcSeparator[3]) and
-					    StzListQ(pcSeparator[3]).isNLastCharsNamedParam()
+					    ( StzListQ(pcSeparator[3]).isNLastCharsNamedParam() or
+					      StzListQ(pcSeparator[3]).IsLastCharsNamedParam() )					     						
 
 						if isNumber(pcSeparator[3][2])
 							nLastChars = pcSeparator[3][2]
@@ -82240,13 +82338,15 @@ n1 = Min(aTemp)
 			if isNumber(pnStep)
 				nStep1 = pnStep
 
-			but isList(pnStep) and len(pnStep) <= 2
+			but isList(pnStep) and len(pnStep) <= 3
 
 				if isNumber(pnStep[1])
 					nStep1 = pnStep[1]
 				ok
 
-				if len(pnStep) = 2
+				nLenStep = len(pnStep)
+
+				if nLenStep = 2
 
 					if isNumber(pnStep[2])
 						nStep2 = pnStep[2]
@@ -82257,9 +82357,35 @@ n1 = Min(aTemp)
 
 						nStep2 = pnStep[2][2]
 					ok
+
+				but nLenStep = 3
+
+					if isNumber(pnStep[2])
+						nStep2 = pnStep[2]
+					
+					else isList(pnStep[2]) and
+				  	     StzListQ(pnStep[2]).IsAndThenNamedParam() and
+				  	     isNumber(pnStep[2][2])
+
+						nStep2 = pnStep[2][2]
+					ok
+
+					if isNumber(pnStep[3])
+						nLastChars = pnStep[3]
+
+					but isList(pnStep[3]) and
+
+					    ( StzListQ(pnStep[3]).IsLastNCharsNamedParam() or
+					      StzListQ(pnStep[3]).IsLastCharsNamedParam() )
+
+						nLastChars = pnStep[3][2]
+
+					ok
+
 				ok
+			
 			else
-				StzRaise("Incorrect param type! Allowed format for extended pnStep param is [ nStep1, nStep2 ].")
+				StzRaise("Incorrect param type! Allowed format for extended pnStep param is [ nStep1, nStep2, nLastNChars ].")
 			ok
 
 			# Getting the direction params
@@ -82288,97 +82414,95 @@ n1 = Min(aTemp)
 			else
 				StzRaise("Incorrect param type! Allowed format for extended pcDirection param is [ :Forward, :Backward ].")
 			ok
-/*
-? @@SP([
-	[ cSeparator1, cSeparator2, nLastChars ],
-	[ nStep1, nStep2 ],
-	[ cDirection1, cDirection2 ]
-])
-*/
 
 			# Doing the job
 
-			return
+			if nLastChars = 0 and nStep1 > 0
 
-		ok
+				anPos = []
 
+				if cDirection1 = :Forward
 
-/*		# Doing the job
+					for i = 1 to nLenStr step nStep1
+						anPos + i
+					next
+	
+					This.InsertBeforeThesePositions(anPos, cSeparator1)
+	
+				but cDirection1 = :Backward
+			
+					for i = nLenStr to 1 step -nStep1
+						anPos + i
+					next
+	
+					This.InsertAfterThesePositions(anPos, cSeparator1)
+				ok
 
-		if cMode = :Basic
-? @@([ pcSeparator, pnStep, pcDirection ])
-
-
-
-		but cMode = :Extended
-
-? @@SP([
-	[ cSeparator, cSeparator2, nLastChars ],
-	[ pnStep, nStep2 ],
-	[ pcDirection, cDirection2 ]
-])
-
-			anPos = []
-			if pcDirection = :Forward
-				
-				for i = 1 to nLen step pnStep
-					anPos + i
-				next
-
-				nLenPos = len(anPos)
-				nLast = anPos[nLenPos]
-				del(anPos, nLenPos)
-
-//				This.InsertBeforePosition(nLast, cSeparator2)
-				@oQString.insert(nLast-2, cSeparator2)
-				nLenSep2 = StzStringQ(cSeparator2).NumberOfChars() - 1
-
-				for i = 1 to nLenPos-1 // -1 ~> because we remive the last item
-					anPos[i] += nLenSep2
-				next
-
-				This.InsertBeforeThesePositions(anPos, pcSeparator)
-				
-			but pcDirection = :Backward
-		
-				for i = nLen to 1 step -pnStep
-					anPos + i
-				next
-
-				This.InsertAfterThesePositions(anPos, pcSeparator)
-			ok
-
-/*
-			nStart = 0
-
-			if pcDirection = :Forward
-				This.InsertBefore( pnStep + 1, pcSeparator )
-				nStart = pnStep + nStep2 + 1
 			else
-				This.InsertBefore( nLen - pnStep + 1, pcSeparator )
-				nStart = nLen - pnStep - nStep2
-			ok
 
-			pnStep = nStep2
-			pcSeparator = cSeparator2
-			anPos = []
+				# Spacifiying the first part of the string
 
-			if pcDirection = :Forward
-				for i = nStart to nLen step pnStep
-					anPos + i
-				next
+				oPart1 = This.SectionQ(1, nLenStr - nLastChars)
+
+				if nStep1 > 0
+					nLenPart1 = oPart1.NumberOfChars()
+	
+					anPos = []
+	
+					if cDirection1 = :Forward
+						
+						for i = 1 to nLenPart1 step nStep1
+							anPos + i
+						next
 		
-			but pcDirection = :Backward
+						oPart1.InsertBeforeThesePositions(anPos, cSeparator1)
 		
-				for i = nStart to 1 step -pnStep
-					anPos + i
-				next
-			ok
+					but cDirection1 = :Backward
+				
+						for i = nLenPart1 to 1 step -nStep1
+							anPos + i
+						next
+		
+						oPart1.InsertAfterThesePositions(anPos, cSeparator1)
+					ok
+				ok
 
-			This.InsertAfterThesePositions(anPos, pcSeparator)
+				# Spacifying the second part of the string
+
+				oPart2 = This.SectionQ(nLenStr - nLastChars + 1, nLenStr)
+
+				if nStep2 > 0
+					nLenPart2 = oPart2.NumberOfChars()
+	
+					anPos = []
+	
+					if cDirection2 = :Forward
+	
+						for i = 1 to nLenPart2 step nStep2
+							anPos + i
+						next
+		
+						oPart2.InsertBeforeThesePositions(anPos, cSeparator1)
+		
+					but cDirection2 = :Backward
+				
+						for i = nLenPart2 to 1 step -nStep2
+							anPos + i
+						next
+		
+						oPart2.InsertAfterThesePositions(anPos, cSeparator1)
+					ok
+				ok
+
+				# Composing the result and updating the string
+
+				cResult = oPart1.Content() + cSeparator2 + oPart2.Content()
+				This.UpdateWith(cResult)
+
+			ok
 
 		ok
-*/
+
 		def SpacifyXTQ(pcSeparator, pnStep, pcDirection)
 			This.SpacifyXT(pcSeparator, pnStep, pcDirection)
 			return This
@@ -82922,24 +83046,10 @@ n1 = Min(aTemp)
 	#================================================#
 
 	def UnSpacify()
-		if This.Content() = ""
-			return
 
-		but This.NumberOfChars() = 1 and This.Content() = " "
-			This.Clear()
-
-		but This.NumberOfChars() = 2
-			if This.Content() = " " + " "
-				This.Update(" ")
-
-			but This.Contains(" ")
-				This.Remove(" ")
-			ok
-
-		else
-
-			This.Trim()
-		ok
+		This.Trim()
+		anPos = This.FindThisDuplicatedChar(" ")
+		This.RemoveCharsAtPositions(anPos)
 
 
 		def UnSpacifyQ()
