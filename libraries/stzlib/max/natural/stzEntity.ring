@@ -89,9 +89,18 @@ class stzEntity
 		return This.Content()[:type]
 
 	def ContainsProperty(pcProp)
+
+		if NOT isString(pcProp)
+			StzRaise("Incorrect param type! pcProp must be a string.")
+		ok
+
 		bResult = FALSE
-		for aPair in This.Entity()
-			if aPair[1] = StzStringQ(pcProp).Lowercased()
+
+		aPairs = This.Entity()
+		nLen = len(aPairs)
+
+		for i = 1 to nLen
+			if aPairs[i][1] = ring_lower(pcProp)
 				bResult = TRUE
 				exit
 			ok
@@ -111,8 +120,13 @@ class stzEntity
 		return bResult
 
 	def Property(pcProp)
+
+		if NOT isString(pcProp)
+			StzRaise("Incorrect param type! pcProp must be a string.")
+		ok
+
 		if This.ContainsProperty(pcProp)
-			pcProp = StzStringQ(pcProp).Lowercased()
+			pcProp = ring_lower(pcProp)
 			return This.Content()[pcProp]
 		else
 			StzRaise("Inexistant property!")

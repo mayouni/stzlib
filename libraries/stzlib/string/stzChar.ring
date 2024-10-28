@@ -1640,10 +1640,18 @@ class stzChar from stzObject
 		return ScriptCode()
 
 	def ScriptIs(pcScript)
-		return This.Script() = StzStringQ(pcScript).Lowercased()
+		if NOT isString(pcScript)
+			StzRaise("Incorrect param type! pcScript must be a string.")
+		ok
+
+		return This.Script() = ring_lower(pcScript)
 
 	def IsLetterInScript(pcScript)
-		return ( This.IsLetter() and This.Script() = StzStringQ(pcScript).Lowercased() )
+		if NOT isString(pcScript)
+			StzRaise("Incorrect param type! pcScript must be a string.")
+		ok
+
+		return ( This.IsLetter() and This.Script() = ring_lower(pcScript) )
 			
 	def IsUnknownScript()
 		if This.ScriptCode() = 0

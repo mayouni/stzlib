@@ -32643,7 +32643,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + Q(cItem).Lowercased()
+				acStr + ring_lower(cItem)
 			next
 
 		ok
@@ -32795,7 +32795,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + Q(cItem).Lowercased()
+				acStr + ring_lower(cItem)
 			next
 
 		ok
@@ -32920,7 +32920,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + Q(cItem).Lowercased()
+				acStr + ring_lower(cItem)
 			next
 
 		ok
@@ -33222,7 +33222,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + Q(cItem).Lowercased()
+				acStr + ring_lower(cItem)
 			next
 
 
@@ -33308,11 +33308,12 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	  #----------------------------------#
 	 #   FINDING DUPLICATES POSITIONS   #
 	#----------------------------------#
-	#NOTE 1 : The first occurrence of an item is not considered as a duplicate
+
+	#NOTE 1 // The first occurrence of an item is not considered as a duplicate
 	# 	   --> If you want to get also the first occurrence then you can
 	# 		use FindDuplicatesXT() #TODO
 
-	#NOTE 2 : We use a part of the code of DuplicatesZ(). There is a duplication
+	#NOTE 2 // We use a part of the code of DuplicatesZ(). There is a duplication
 	# but this is better for performance then calling DuplicatesZ(), because it
 	# performs extra work not needed here!
 
@@ -33394,7 +33395,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + Q(cItem).Lowercased()
+				acStr + ring_lower(cItem)
 			next
 
 
@@ -33533,7 +33534,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + Q(cItem).Lowercased()
+				acStr + ring_lower(cItem)
 			next
 
 
@@ -33615,6 +33616,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	  #----------------------------------------#
 	 #   FINDING DUPLICATES POSITIONS -- XT   #
 	#----------------------------------------#
+
 	# FinDuplicates() returns the positions of the duplicated items.
 	# Hence, the first occurrences of those items are not returned.
 	# To return them, use this eXTended version of the function
@@ -33695,7 +33697,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + Q(cItem).Lowercased()
+				acStr + ring_lower(cItem)
 			next
 
 
@@ -33762,7 +33764,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	 #  FINDING FIRST OCCURRENCE OF EACH DUPLICATED ITEM  #
 	#----------------------------------------------------#
 
-	#NOTE // There is a better name I advise you to use: FindDuplicatesOrigins()
+	#NOTE // There is a better alternative name : FindDuplicatesOrigins()
 
 	def FindFirstDuplicatesCS(pCaseSensitive)
 
@@ -33840,7 +33842,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + Q(cItem).Lowercased()
+				acStr + ring_lower(cItem)
 			next
 
 
@@ -33871,12 +33873,9 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		next
 
-		return anResult
+		return ring_sort(anResult)
 
 		#< @FunctionAlternativeForms
-
-		def FindDuplicatesOriginsCS(pCaseSensitive)
-			return This.FindFirstDuplicatesCS(pCaseSensitive)
 
 		def FindFirstDuplicatedItemsCS(pCaseSensitive)
 			return This.FindFirstDuplicatesCS(pCaseSensitive)
@@ -33915,6 +33914,20 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		def FindFristOccurrenceOfEachDuplicationCS(pCaseSensitive)
 			return This.FindFirstDuplicatesCS(pCaseSensitive)
 
+		#--
+
+		def FindDupOriginsCS(pCaseSensitive)
+			return This.FindFirstDuplicatesCS(pCaseSensitive)
+
+		def FindDuplicatesOriginsCS(pCaseSensitive)
+			return This.FindFirstDuplicatesCS(pCaseSensitive)
+
+		def FindDupliationOriginsCS(pCaseSensitive)
+			return This.FindFirstDuplicatesCS(pCaseSensitive)
+
+		def FindDuplicationsOriginsCS(pCaseSensitive)
+			return This.FindFirstDuplicatesCS(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -33923,9 +33936,6 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		return This.FindFirstDuplicatesCS(TRUE)
 
 		#< @FunctionAlternativeForms
-
-		def FindDuplicatesOrigins()
-			return This.FindFirstDuplicates()
 
 		def FindFirstDuplicatedItems()
 			return This.FindFirstDuplicates()
@@ -33940,6 +33950,20 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			return This.FindFirstDuplicates()
 
 		def FindFirstOccurrenceOfEachDuplication()
+			return This.FindFirstDuplicates()
+
+		#--
+
+		def FindDupOrigins()
+			return This.FindFirstDuplicates()
+
+		def FindDuplicatesOrigins()
+			return This.FindFirstDuplicates()
+
+		def FindDupliationOrigins()
+			return This.FindFirstDuplicates()
+
+		def FindDuplicationsOrigins()
 			return This.FindFirstDuplicates()
 
 		#>
@@ -33963,6 +33987,113 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 		def FindFristOccurrenceOfEachDuplication()
 			return This.FindFirstDuplicates()
+
+		#>
+
+	  #-------------------------------#
+	 #  REMOVING DUPLICATES ORIGINS  #
+	#-------------------------------#
+
+	def RemoveDupOriginsCS(pCaseSensitive)
+		anPos = This.FindDupOriginsCS(pCaseSensitive)
+		This.RemoveItemsAtPositions(anPos)
+
+		#< @FunctionFluentForm
+
+		def RemoveDupOriginsCSQ(pCaseSensitive)
+			This.RemoveDupOriginsCS(pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveDuplicatesOriginsCS(pCaseSensitive)
+			This.RemoveDupOriginsCS(pCaseSensitive)
+
+			def RemoveDuplicatesOriginsCSQ(pCaseSensitive)
+				return This.RemoveDupOriginsCSQ(pCaseSensitive)
+
+		def RemoveDuplicationsOriginsCS(pCaseSensitive)
+			This.RemoveDupOriginsCS(pCaseSensitive)
+
+			def RemoveDuplicationsOriginsCSQ(pCaseSensitive)
+				return This.RemoveDupOriginsCSQ(pCaseSensitive)
+
+		def RemoveDuplicationOriginsCS(pCaseSensitive)
+			This.RemoveDupOriginsCS(pCaseSensitive)
+
+			def RemoveDuplicationOriginsCSQ(pCaseSensitive)
+				return This.RemoveDupOriginsCSQ(pCaseSensitive)
+
+		#>
+
+	def DupOriginsRemovedCS(pCaseSensitive)
+		cResult = This.Copy().RemoveDupOriginsCSQ(pCaseSensitive).Content()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def DuplicatesOriginsRemovedCS(pCaseSensitive)
+			return This. DupOriginsRemovedCS(pCaseSensitive)
+
+		def DuplicationsOriginsRemovedCS(pCaseSensitive)
+			return This. DupOriginsRemovedCS(pCaseSensitive)
+
+		def DuplicationOriginsRemovedCS(pCaseSensitive)
+			return This. DupOriginsRemovedCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveDupOrigins()
+		This.RemoveDupOriginsCS(TRUE)
+
+		#< @FunctionFluentForm
+
+		def RemoveDupOriginsQ()
+			This.RemoveDupOrigins()
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveDuplicatesOrigins()
+			This.RemoveDupOrigins()
+
+			def RemoveDuplicatesOriginsQ()
+				return This.RemoveDupOriginsQ()
+
+		def RemoveDuplicationsOrigins()
+			This.RemoveDupOrigins()
+
+			def RemoveDuplicationsOriginsQ()
+				return This.RemoveDupOriginsQ()
+
+		def RemoveDuplicationOrigins()
+			This.RemoveDupOrigins()
+
+			def RemoveDuplicationOriginsQ()
+				return This.RemoveDupOriginsQ()
+
+		#>
+
+	def DupOriginsRemoved()
+		cResult = This.Copy().RemoveDupOriginsQ().Content()
+		return cResult
+
+		#< @FunctionAlternativeForms
+
+		def DuplicatesOriginsRemoved()
+			return This. DupOriginsRemoved()
+
+		def DuplicationsOriginsRemoved()
+			return This. DupOriginsRemoved()
+
+		def DuplicationOriginsRemoved()
+			return This. DupOriginsRemoved()
 
 		#>
 
@@ -34045,7 +34176,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + Q(cItem).Lowercased()
+				acStr + ring_lower(cItem)
 			next
 
 
@@ -34104,6 +34235,32 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			def DuplicationsCSQ(pCaseSensitive)
 				return This.DuplicatesCSQ(pCaseSensitive)
 
+		#--
+
+		def DuplicatesOriginsCS(pCaseSensitive)
+			return This.DuplicatesCS(pCaseSensitive)
+
+			def DuplicatesOriginsCSQ(pCaseSensitive)
+				return This.DuplicatesCSQ(pCaseSensitive)
+
+		def DuplicationsOriginsCS(pCaseSensitive)
+			return This.DuplicatesCS(pCaseSensitive)
+
+			def DuplicationsOriginsCSQ(pCaseSensitive)
+				return This.DuplicatesCSQ(pCaseSensitive)
+
+		def DuplicationOriginsCS(pCaseSensitive)
+			return This.DuplicatesCS(pCaseSensitive)
+
+			def DuplicationOriginsCSQ(pCaseSensitive)
+				return This.DuplicatesCSQ(pCaseSensitive)
+
+		def DupOriginsCS(pCaseSensitive)
+			return This.DuplicatesCS(pCaseSensitive)
+
+			def DupOriginsCSQ(pCaseSensitive)
+				return This.DuplicatesCSQ(pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -34132,6 +34289,31 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			def DuplicationsQ(pCaseSensitive)
 				return This.DuplicatesQ(pCaseSensitive)
 
+		#--
+
+		def DuplicatesOrigins()
+			return This.Duplicates()
+
+			def DuplicatesOriginsQ()
+				return This.DuplicatesQ()
+
+		def DuplicationsOrigins()
+			return This.Duplicates()
+
+			def DuplicationsOriginsQ()
+				return This.DuplicatesQ()
+
+		def DuplicationOrigins()
+			return This.Duplicates()
+
+			def DuplicationOriginsQ()
+				return This.DuplicatesQ()
+
+		def DupOrigins()
+			return This.Duplicates()
+
+			def DupOriginsQ()
+				return This.DuplicatesQ()
 		#>
 
 	  #----------------------------------------#
@@ -34411,8 +34593,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + Q(cItem).Lowercased()
-//				acStr + lower(cItem)
+				acStr + ring_lower(cItem)
 			next
 
 		ok
@@ -34643,7 +34824,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + Q(cItem).Lowercased()
+				acStr + ring_lower(cItem)
 			next
 
 		ok
@@ -35577,6 +35758,460 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		def NonDuplicationRemoved()
 			return This.NonDuplicatesRemoved()
 
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  CHECKING IF THE LIST CONTAINS DUPLICATED CONSECUTIVE ITEMS  #
+	#==============================================================#
+
+	def ContainsDupSecutiveItemsCS(pCaseSensitive)
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen <= 1
+			return FALSE
+		ok
+
+		bCaseSensitive = @CaseSensitive(pCaseSensitive)
+		bResult = FALSE
+
+		if bCaseSensitive = TRUE
+
+			cLast = Q(aContent[1]).Stringified()
+	
+			for i = 2 to nLen
+				cItem = Q(aContent[i]).Stringified()
+				if cLast = cItem
+					bResult = TRUE
+					exit
+				ok
+				cLast = cItem
+			next
+	
+			return bResult
+
+		else // bCaseSensitive = FALSE
+
+			cLast = Q(aContent[1]).StringifyQ().Lowercased()
+
+			for i = 2 to nLen
+				cItem = Q(aContent[i]).StringifyQ().Lowercased()
+				if cLast = cItem
+					bResult = TRUE
+					exit
+				ok
+				cLast = cItem
+			next
+
+			return bResult
+		ok
+
+		def ContainsDuplicatedConSecutiveItemsCS(pCaseSensitive)
+			return This.ContainsDupSecutiveItemsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ContainsDupSecutiveItems()
+		return This.ContainsDupSecutiveItemsCS(TRUE)
+
+		def ContainsDuplicatedConSecutiveItems()
+			return This.ContainsDupSecutiveItems()
+
+	  #---------------------------------------------------------------------#
+	 #  FINDING THE POSITIONS OF DUPLICATED CONSECUTIVE ITEMS IN THE LIST  #
+	#---------------------------------------------------------------------#
+
+	def FindDupSecutiveItemsCS(pCaseSensitive)
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen <= 1
+			return []
+		ok
+
+		bCaseSensitive = @CaseSensitive(pCaseSensitive)
+		acItems = []
+
+		if pCaseSensitive = TRUE
+
+			for i = 1 to nLen
+
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+
+				ok
+
+				# Memorising the stringified items so we can used them later
+	
+				acItems + cItem
+			next
+
+		else // pCaseSensitive = FALSE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+					
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acItems + ring_lower(cItem)
+			next
+
+		ok
+
+		# Doing the job
+
+		anResult = []
+
+		for i = 2 to nLen
+
+			if acItems[i-1] = acItems[i]
+				anResult + i
+			ok
+
+		next
+
+		return anResult
+
+		def FindDuplicatedConsecutiveItemsCS(pCaseSensitive)
+			return This.FindDupSecutiveItemsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDupSecutiveItems()
+		return This.FindDupSecutiveItemsCS(TRUE)
+
+	  #----------------------------------------------------#
+	 #  GETTING DUPLICATED CONSECUTIVE ITEMS IN THE LIST  #
+	#----------------------------------------------------#
+
+	def DupSecutiveItemsCS(pCaseSensitive)
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen <= 1
+			return []
+		ok
+
+		bCaseSensitive = @CaseSensitive(pCaseSensitive)
+		acItems = []
+
+		if pCaseSensitive = TRUE
+
+			for i = 1 to nLen
+
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+
+				ok
+
+				# Memorising the stringified items so we can used them later
+	
+				acItems + cItem
+			next
+
+		else // pCaseSensitive = FALSE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+					
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acItems + ring_lower(cItem)
+			next
+
+		ok
+
+		# Doing the job
+
+		aResult = []
+		acSeen = []
+
+		for i = 2 to nLen
+
+			if acItems[i-1] = acItems[i]
+				if ring_find(acSeen, acItems[i-1]) = 0
+					aResult + aContent[i-1]
+					acSeen + acItems[i-1]
+				ok
+			ok
+
+		next
+
+		return aResult
+
+
+		def DuplicatedConsecutiveItemsCS(pCaseSensitive)
+			return This.DupSecutiveItemsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DupSecutiveItems()
+		return This.DupSecutiveItemsCS(TRUE)
+
+	  #----------------------------------------------------------------------#
+	 #  GETTING THE DUPLICATED CONSECUTIVE ITEMS ALONG WITH THEIR POSIIONS  #
+	#----------------------------------------------------------------------#
+
+	def DupSecutiveItemsCSZ(pCaseSensitive)
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen <= 1
+			return []
+		ok
+
+		bCaseSensitive = @CaseSensitive(pCaseSensitive)
+		acItems = []
+
+		if pCaseSensitive = TRUE
+
+			for i = 1 to nLen
+
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+
+				ok
+
+				# Memorising the stringified items so we can used them later
+	
+				acItems + cItem
+			next
+
+		else // pCaseSensitive = FALSE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+					
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acItems + ring_lower(cItem)
+			next
+
+		ok
+
+		# Doing the job
+
+		aResult = []
+		acSeen = []
+
+		for i = 2 to nLen
+
+			if acItems[i-1] = acItems[i]
+				n = ring_find(acSeen, acItems[i-1])
+				if n = 0
+					aResult + [ aContent[i-1], [i] ]
+					acSeen + acItems[i-1]
+				else
+					aResult[n][2] + i
+				ok
+			ok
+
+		next
+
+		return aResult
+
+		def DuplicatedConsecutiveItemsCSZ(pCaseSensitive)
+			return This.DupSecutiveItemsCSZ(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DupSecutiveItemsZ()
+		return This.DupSecutiveItemsCSZ(TRUE)
+
+		def DuplicatedConsecutiveItemsZ()
+			return This.DupSecutiveItemsZ()
+
+	  #-----------------------------------------------------------#
+	 #  REMOVING THE DUPLICATED CONSECUTIVE ITEMS FROM THE LIST  #
+	#-----------------------------------------------------------#
+
+	def RemoveDupSecutiveItemsCS(pCaseSensitive)
+		anPos = This.FindDupSecutiveItemsCS(pCaseSensitive)
+		This.RemoveItemsAtPositions(anPos)
+
+		def RemoveDupSecutiveItemsCSQ(pCaseSensitive)
+			This.RemoveDupSecutiveItemsCS(pCaseSensitive)
+			return This
+
+		def RemoveDuplicatedConsecutiveItemsCS(pCaseSensitive)
+			This.RemoveDupSecutiveItemsCS(pCaseSensitive)
+
+			def RemoveDuplicatedConsecutiveItemsCSQ(pCaseSensitive)
+				return This.RemoveDupSecutiveItemsCSQ(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveDupSecutiveItems()
+		This.RemoveDupSecutiveItemsCS(TRUE)
+
+		def RemoveDupSecutiveItemsQ()
+			This.RemoveDupSecutiveItems()
+			return This
+
+		def RemoveDuplicatedConsecutiveItems()
+			This.RemoveDupSecutiveItems()
+
+			def RemoveDuplicatedConsecutiveItemsQ()
+				return This.RemoveDupSecutiveItemsQ(pCaseSensitive)
+
+	#-----------------------------
+	#  
+	#-----------------------------
+
+	def FindDupSecutiveOriginsCS(pCaseSensitive)
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen <= 1
+			return FALSE
+		ok
+
+		bCaseSensitive = @CaseSensitive(pCaseSensitive)
+		bResult = FALSE
+
+		if bCaseSensitive = TRUE
+
+			cLast = Q(aContent[1]).Stringified()
+	
+			for i = 2 to nLen
+				cItem = Q(aContent[i]).Stringified()
+				if cLast = cItem
+					bResult = TRUE
+					exit
+				ok
+				cLast = cItem
+			next
+	
+			return bResult
+
+		else // bCaseSensitive = FALSE
+
+			cLast = Q(aContent[1]).StringifyQ().Lowercased()
+
+			for i = 2 to nLen
+				cItem = Q(aContent[i]).StringifyQ().Lowercased()
+				if cLast = cItem
+					bResult = TRUE
+					exit
+				ok
+				cLast = cItem
+			next
+
+			return bResult
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def FindDuplicatesSecutiveOriginsCS(pCaseSensitive)
+			return This.FindDupSecutiveOriginsCS(pCaseSensitive)
+
+		def FindDuplicationsSecutiveOriginsCS(pCaseSensitive)
+			return This.FindDupSecutiveOriginsCS(pCaseSensitive)
+
+		def FindDuplicationSecutiveOriginsCS(pCaseSensitive)
+			return This.FindDupSecutiveOriginsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDupSecutiveOrigins()
+		return This.FindDupSecutiveOriginsCS(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindDuplicatesSecutiveOrigins()
+			return This.FindDupSecutiveOrigins()
+
+		def FindDuplicationsSecutiveOrigins()
+			return This.FindDupSecutiveOrigins()
+
+		def FindDuplicationSecutiveOrigins()
+			return This.FindDupSecutiveOrigins()
 
 		#>
 
@@ -42108,7 +42743,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		for i = 1 to This.NumberOfItems()
 
 			if isString(aContent[i])
-				cStrLow = Q(aContent[i]).Lowercased()
+				cStrLow = ring_lower(aContent[i])
 				This.ReplaceAt(i, cStrLow)
 			ok
 		next
@@ -42146,7 +42781,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		for i = 1 to nLen
 
 			if isString(aContent[i])
-				cStrLow = Q(aContent[i]).Lowercased()
+				cStrLow = ring_lower(aContent[i])
 				aResult + cStrLow
 			ok
 		next
@@ -42346,10 +42981,34 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 	#----
 
+	def LowercaseLists()
+
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			if isList(item)
+				acLowercased = StzListOfStringsQ(@aContent[i]).Lowercased()
+				@aContent[i] = acLowercased
+			ok
+		next
+
+		def LowercaseListsQ()
+			This.LowercaseLists()
+			return This
+
+	def ListsLowercased()
+		return This.Copy().LowercaseListsQ().Content()
+
+	#----
+
 	def LowercaseListsOfStrings()
-		for item in This.List()
-			if isList(item) and Q(item).IsListOfStrings()
-				item = StzListOfStringsQ(item).Lowercased()
+
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			if isList(item) and @IsListOfStrings(@aContent[i])
+				acLowercased = StzListOfStringsQ(@aContent[i]).Lowercased()
+				@aContent[i] = acLowercased
 			ok
 		next
 
@@ -42362,10 +43021,34 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 	#----
 
+	def UppercaseLists()
+
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			if isList(item)
+				acLowercased = StzListOfStringsQ(@aContent[i]).Uppercased()
+				@aContent[i] = acLowercased
+			ok
+		next
+
+		def UppercaseListsQ()
+			This.UppercaseLists()
+			return This
+
+	def ListsUppercased()
+		return This.Copy().UppercaseListsQ().Content()
+
+	#----
+
 	def UppercaseListsOfStrings()
-		for item in This.List()
-			if isList(item) and Q(item).IsListOfStrings()
-				item = StzListOfStringsQ(item).Uppercased()
+
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			if isList(item) and @IsListOfStrings(@aContent[i])
+				acLowercased = StzListOfStringsQ(@aContent[i]).Uppercased()
+				@aContent[i] = acLowercased
 			ok
 		next
 
