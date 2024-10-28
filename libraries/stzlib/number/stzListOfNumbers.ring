@@ -3956,6 +3956,52 @@ class stzListOfNumbers from stzList
 		def Sectioned()
 			return This.ToSections()
 
+	def ContiguousToSections()
+		anNumbers = @anContent
+		nLen = len(anNumbers)
+
+		aResult = []
+		aSection = [] + anNumbers[1]
+
+		anNumbers + 0 # A tactical addition to let the algorithm
+			      # deel with the last section
+
+		for i = 2 to nLen + 1
+
+			if anNumbers[i] = anNumbers[i-1] + 1
+				// Do nothing
+
+			else
+				aSection + anNumbers[i-1]
+				aResult + aSection
+				aSection = [] + anNumbers[i]
+
+			ok	
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ContiguousItemsToSections()
+			return This.ContiguousToSections()
+
+		def AdjascentToSections()
+			return This.ContiguousToSections()
+
+		def AdjuscentItemsToSections()
+			return This.ContiguousToSections()
+
+		#--
+
+		def ContigItemsToSections()
+			return This.ContiguousToSections()
+
+		def ContigToSections()
+			return This.ContiguousToSections()
+
+		#>
+
 	def IsStzListOfNumbers()
 		return TRUE
 

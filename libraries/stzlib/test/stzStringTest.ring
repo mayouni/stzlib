@@ -5037,6 +5037,17 @@ StopProfiler()
 /*==============
 */
 pron()
+
+o1 = new stzListOfNumbers([ 3, 4, 5, 7, 8, 9, 11, 14, 15, 20 ])
+? @@( o1.ContigToSections() )
+#--> [ [ 3, 5 ], [ 7, 9 ], [ 11, 11 ], [ 14, 15 ], [ 20, 20 ] ]
+
+proff()
+# Executed in 0.02 second(s).
+
+/*--------------
+*/
+pron()
 #                   1234567890123457890
 o1 = new stzString("ABBBBbbbbCCcFFFaABCC")
 
@@ -5047,6 +5058,7 @@ o1 = new stzString("ABBBBbbbbCCcFFFaABCC")
 #--> [ [ 3, 5 ], [ 7, 9 ], [ 11, 11 ], [ 14, 15 ], [ 20, 20 ] ]
 
 proff()
+# Executed in 0.03 second(s).
 
 /*-------------
 */
