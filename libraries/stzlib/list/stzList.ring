@@ -3573,6 +3573,19 @@ func IsListInString(cStr)
 
 #===
 
+func Stringify(str)
+	cResult = StzStringQ(str).Stringifief()
+	return cResult
+
+func Spacify(str)
+	cResult = StzStringQ(str).Spacified()
+	return cResult
+
+func SpacifyXT(str, pSep, pStep, pDirection)
+	cResult = StzStringQ(str).SpacifyXTQ(pSep, pStep, pDirection).Content()
+	return cResult
+#===
+
 func StzNamedList(paNamed)
 	if CheckParams()
 		if NOT (isList(paNamed) and Q(paNamed).IsPairOfStringAndList())
@@ -35909,6 +35922,9 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	def FindDupSecutiveItems()
 		return This.FindDupSecutiveItemsCS(TRUE)
 
+		def FindDuplicatedConsecutiveItems()
+			return This.FindDupSecutiveItems()
+
 	  #----------------------------------------------------#
 	 #  GETTING DUPLICATED CONSECUTIVE ITEMS IN THE LIST  #
 	#----------------------------------------------------#
@@ -36003,6 +36019,9 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 
 	def DupSecutiveItems()
 		return This.DupSecutiveItemsCS(TRUE)
+
+		def DuplicatedConsecutiveItems()
+			return This.DupSecutiveItems()
 
 	  #----------------------------------------------------------------------#
 	 #  GETTING THE DUPLICATED CONSECUTIVE ITEMS ALONG WITH THEIR POSIIONS  #
@@ -36122,6 +36141,13 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			def RemoveDuplicatedConsecutiveItemsCSQ(pCaseSensitive)
 				return This.RemoveDupSecutiveItemsCSQ(pCaseSensitive)
 
+	def DupSecutiveItemsRemovedCS(pCaseSensitive)
+		cResult = This.Copy().RemoveDupSecutiveItemsCSQ(pCaseSensitive).Content()
+		return cResult
+
+		def DuplicatedConsecutiveItemsRemovedCS(pCaseSensitive)
+			return This.DupSecutiveItemsRemovedCS(pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveDupSecutiveItems()
@@ -36137,9 +36163,16 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			def RemoveDuplicatedConsecutiveItemsQ()
 				return This.RemoveDupSecutiveItemsQ(pCaseSensitive)
 
-	#-----------------------------
-	#  
-	#-----------------------------
+	def DupSecutiveItemsRemoved()
+		cResult = This.Copy().RemoveDupSecutiveItemsQ().Content()
+		return cResult
+
+		def DuplicatedConsecutiveItemsRemoved()
+			return This.DupSecutiveItemsRemoved()
+
+	  #------------------------------------------------------------------------#
+	 #  FINDING THE POSITIONS OF THE ORIGINS OF DUPLICATED CONSECUTIVE ITEMS  #
+	#------------------------------------------------------------------------#
 
 	def FindDupSecutiveOriginsCS(pCaseSensitive)
 
@@ -36214,6 +36247,272 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			return This.FindDupSecutiveOrigins()
 
 		#>
+
+	  #----------------------------------------------------------------#
+	 #  FINDING THE POSITIONS OF A GIVEN DUPLICATED CONSECUTIVE ITEM  #
+	#----------------------------------------------------------------#
+
+	def FindDupSecutiveItemCS(pItem, pCaseSensitive)
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen <= 1
+			return []
+		ok
+
+		bCaseSensitive = @CaseSensitive(pCaseSensitive)
+		acItems = []
+
+		if pCaseSensitive = TRUE
+
+			for i = 1 to nLen
+
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+
+				ok
+
+				# Memorising the stringified items so we can used them later
+	
+				acItems + cItem
+			next
+
+		else // pCaseSensitive = FALSE
+
+			for i = 1 to nLen
+	
+				# Stringifying the item
+	
+				if isNumber(aContent[i])
+					cItem = ""+ aContent[i]
+	
+				but isString(aContent[i])
+					cItem = @@(aContent[i])
+	
+				but isList(aContent[i])
+					cItem = @@(aContent[i])
+					
+				but isObject(aContent[i])
+					cItem = @ObjectVarName(aContent[i])
+					
+				ok
+	
+				# Memorising the stringified items so we can used them later
+	
+				acItems + ring_lower(cItem)
+			next
+
+		ok
+
+		# Doing the job
+
+		cItem = @@(pItem)
+		if bCaseSensitive = FALSE
+			cItem = ring_lower(cItem)
+		ok
+
+		anResult = []
+
+		for i = 2 to nLen
+			if acItems[i] != cItem
+				loop
+			ok
+
+			if acItems[i-1] = acItems[i]
+				anResult + i
+			ok
+
+		next
+
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindDuplicatedConsecutiveItemCS(pItem, pCaseSensitive)
+			return This.FindDupSecutiveItemCS(pItem, pCaseSensitive)
+
+		def FindThisDupSecutiveItemCS(pItem, pCaseSensitive)
+			return This.FindDupSecutiveItemCS(pItem, pCaseSensitive)
+
+		def FindThisDuplicatedConsecutiveItemCS(pItem, pCaseSensitive)
+			return This.FindDupSecutiveItemCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDupSecutiveItem(pItem)
+		return This.FindDupSecutiveItemCS(pItem, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindDuplicatedConsecutiveItem(pItem)
+			return This.FindDupSecutiveItem(pItem)
+
+		def FindThisDupSecutiveItem(pItem)
+			return This.FindDupSecutiveItem(pItem)
+
+		def FindThisDuplicatedConsecutiveItem(pItem)
+			return This.FindDupSecutiveItem(pItem)
+
+		#>
+
+	  #--------------------------------------------------------------------------#
+	 #  GETTING A GIVEN DUPLICATED CONSECUTIVE ITEM ALONG WITH ITS OCCURRENCES  #
+	#--------------------------------------------------------------------------#
+
+	def DupSecutiveItemCSZ(pItem, pCaseSensitive)
+		anPos = This.FindDupSecutiveItemCS(pItem, pCaseSensitive)
+		aResult = [ pItem, anPos ]
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def DuplicatedConsecutiveItemCSZ(pItem, pCaseSensitive)
+			return This.DupSecutiveItemCSZ(pItem, pCaseSensitive)
+
+		def DupSecutiveItemAndItsPositionsCS(pItem, pCaseSensitive)
+			return This.DupSecutiveItemCSZ(pItem, pCaseSensitive)
+
+		def DuplicatedConsecutiveItemAndItsPositionsCS(pItem, pCaseSensitive)
+			return This.DupSecutiveItemCSZ(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DupSecutiveItemZ(pItem)
+		return This.DupSecutiveItemCSZ(pItem, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def DuplicatedConsecutiveItemZ(pItem)
+			return This.DupSecutiveItemZ(pItem)
+
+		def DupSecutiveItemAndItsPositions(pItem)
+			return This.DupSecutiveItemZ(pItem)
+
+		def DuplicatedConsecutiveItemAndItsPositions(pItem)
+			return This.DupSecutiveItemZ(pItem)
+
+		#>
+
+	  #------------------------------------------------#
+	 #  REMOVING A GIVEN DUPLICATED CONSECUTIVE ITEM  #
+	#------------------------------------------------#
+
+	def RemoveDupSecutiveItemCS(pItem, pCaseSensitive)
+
+		anPos = This.FindDupSecutiveItemCS(pItem, pCaseSensitive)
+		This.RemoveItemsAtPositions(anPos)
+
+		#< @FunctionFlunetForm
+
+		def RemoveDupSecutiveItemCSQ(pItem, pCaseSensitive)
+			This.RemoveDupSecutiveItemCS(pItem, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveDuplicatedConsecutiveItemCS(pItem, pCaseSensitive)
+			This.RemoveDupSecutiveItemCS(pItem, pCaseSensitive)
+
+			def RemoveDuplicatedConsecutiveItemCSQ(pItem, pCaseSensitive)
+				return This.RemoveDupSecutiveItemCSQ(pItem, pCaseSensitive)
+
+		#--
+
+		def RemoveThisDupSecutiveItemCS(pItem, pCaseSensitive)
+			This.RemoveDupSecutiveItemCS(pItem, pCaseSensitive)
+
+			def RemoveThisDupSecutiveItemCSQ(pItem, pCaseSensitive)
+				return This.RemoveThisDupSecutiveItemCSQ(pItem, pCaseSensitive)
+
+		def RemoveThisDuplicatedConsecutiveItemCS(pItem, pCaseSensitive)
+			This.RemoveDupSecutiveItemCS(pItem, pCaseSensitive)
+
+			def RemoveThisDuplicatedConsecutiveItemCSQ(pItem, pCaseSensitive)
+				return This.RemoveDupSecutiveItemCSQ(pItem, pCaseSensitive)
+
+		#>
+
+	def DupSecutiveItemRemovedCS(pItem, pCaseSensitive)
+		cResult = This.Copy().RemoveDupSecutiveItemCSQ(pItem, pCaseSensitive).Content()
+		return cResult
+
+		def DuplicatedConsecutiveItemRemovedCS(pItem, pCaseSenssitive)
+			return This.DupSecutiveItemRemovedCS(pItem, pCaseSensitive)
+
+		def ThisDupSecutiveItemRemovedCS(pItem, pCaseSensitive)
+			return This.DupSecutiveItemRemovedCS(pItem, pCaseSensitive)
+
+		def ThisDuplicatedConsecutiveItemRemovedCS(pItem, pCaseSenssitive)
+			return This.DupSecutiveItemRemovedCS(pItem, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveDupSecutiveItem(pItem)
+		This.RemoveDupSecutiveItemCS(pItem, TRUE)
+
+		#< @FunctionFlunetForm
+
+		def RemoveDupSecutiveItemQ(pItem)
+			This.RemoveDupSecutiveItem(pItem)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveDuplicatedConsecutiveItem(pItem)
+			This.RemoveDupSecutiveItem(pItem)
+
+			def RemoveDuplicatedConsecutiveItemQ(pItem)
+				return This.RemoveDupSecutiveItemQ(pItem)
+
+		#--
+
+		def RemoveThisDupSecutiveItem(pItem)
+			This.RemoveDupSecutiveItem(pItem)
+
+			def RemoveThisDupSecutiveItemQ(pItem)
+				return This.RemoveThisDupSecutiveItemQ(pItem)
+
+		def RemoveThisDuplicatedConsecutiveItem(pItem)
+			This.RemoveDupSecutiveItem(pItem)
+
+			def RemoveThisDuplicatedConsecutiveItemQ(pItem)
+				return This.RemoveDupSecutiveItemQ(pItem)
+
+		#>
+
+	def DupSecutiveItemRemoved(pItem)
+		cResult = This.Copy().RemoveDupSecutiveItemQ(pItem).Content()
+		return cResult
+
+		def DuplicatedConsecutiveItemRemoved(pItem)
+			return This.DupSecutiveItemRemoved(pItem)
+
+		def ThisDupSecutiveItemRemoved(pItem)
+			return This.DupSecutiveItemRemoved(pItem)
+
+		def ThisDuplicatedConsecutiveItemRemoved(pItem)
+			return This.DupSecutiveItemRemoved(pItem)
 
 	  #====================#
 	 #     CONTAINMENT    #
