@@ -9161,7 +9161,7 @@ class stzString from stzObject
 	#----------------------------------#
 
 	# This extended form keeps the positions even if they are duplicated
-	#TODO: Illistrate it with an example.
+	#TODO // Illistrate it with an example.
 
 	def FindDuplicatesCSXT(pCaseSensitive)
 		aSections = This.FindDuplicatesAsSectionsCS(pCaseSensitive)
@@ -9451,21 +9451,52 @@ class stzString from stzObject
 
 	  #------------------------------------------------------#
 	 #  FINDING DUPLICAtED CONSECUTUVE CHARS IN THE STRING  #
-vvv	#======================================================#
+	#======================================================#
 
 	def FindDuplicatedConsecutiveCharsCS(pCaseSensitive)
-		anResult = This.CharsCSQ().FindDupSecutiveItemsCS(pCaseSensitive)
+		anResult = This.CharsCSQ(pCaseSensitive).FindDupSecutiveItemsCS(pCaseSensitive)
 		return anResult
 
 		def FindDupSecutiveCharsCS(pCaseSensitive) # ~> DUPSECITIVE = DUPLICATED + CONSECUTIVE
 			return This.FindDuplicatedConsecutiveCharsCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicatedConsecutiveChars()
+		return This.FindDuplicatedConsecutiveCharsCS(TRUE)
+
+		def FindDupSecutiveChars()
+			return This.FindDuplicatedConsecutiveChars()
 
 	  #---------------------------------------------------------------------#
 	 #  FINDING DUPLICAtED CONSECUTUVE CHARS IN THE STRING -- ZZ/EXTENDED  #
 	#---------------------------------------------------------------------#
 
 	def FindDuplicatedConsecutiveCharsCSZZ(pCaseSensitive)
-		/* ... */
+		anPos = This.CharsQ().FindDupSecutiveItemsCS(pCaseSensitive)
+		nLen = len(anPos)
+? @@(anPos) + NL
+		aResult = []
+		aSection = [] + anPos[1]
+
+		anPos + 0
+
+		for i = 2 to nLen + 1
+
+			if anPos[i] = anPos[i-1] + 1
+				// Do nothing
+
+			else
+				aSection + anPos[i-1]
+				aResult + aSection
+				aSection = [] + anPos[i]
+
+			ok	
+		next
+
+		
+
+		return aResult
 
 		def FindDupSecutiveCharsCSZZ(pCaseSensitive)
 			return This.FindDuplicatedConsecutiveCharsCSZZ(pCaseSensitive)
@@ -9473,12 +9504,24 @@ vvv	#======================================================#
 		def FindDuplicatedConsecutiveCharsAsSectionsCS(pCaseSensitive)
 			return This.FindDuplicatedConsecutiveCharsCSZZ(pCaseSensitive)
 
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicatedConsecutiveCharsZZ()
+		return This.FindDuplicatedConsecutiveCharsCSZZ(TRUE)
+
+		def FindDupSecutiveCharsZZ()
+			return This.FindDuplicatedConsecutiveCharsZZ()
+
+		def FindDuplicatedConsecutiveCharsAsSections()
+			return This.FindDuplicatedConsecutiveCharsZZ()
+
 	  #--------------------------------------------------------------#
 	 #  FINDING DUPLICAtED CONSECUTIVE OCCURRENCES OF A GIVEN CHAR  #
 	#--------------------------------------------------------------#
 
 	def FindDuplicatedConsecutiveCharCS(c, pCaseSensitive)
-		/* ... */
+		anResult = This.CharsCSQ().FindDupSecutiveItemCS(c, pCaseSensitive)
+		return anResult
 
 		#< @FunctionAlternativeForms
 
@@ -9492,6 +9535,26 @@ vvv	#======================================================#
 
 		def FindThisDupSecutiveCharCS(c, pCaseSensitive)
 			return This.FindDuplicatedConsecutiveCharCS(c, pCaseSensitive)
+
+		#>
+
+	#-- WTIHOUT CASESENSITIVITY
+
+	def FindDuplicatedConsecutiveChar(c)
+		return This.FindDuplicatedConsecutiveCharCS(c, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindThisDuplicatedConsecutiveChar(c)
+			return This.FindDuplicatedConsecutiveChar(c)
+
+		#--
+
+		def FindDupSecutiveChar(c)
+			return This.FindDuplicatedConsecutiveChar(c)
+
+		def FindThisDupSecutiveChar(c)
+			return This.FindDuplicatedConsecutiveChar(c)
 
 		#>
 
@@ -51335,9 +51398,7 @@ n1 = Min(aTemp)
 	#===========================================#
 
 	def VizFindCSXTZZ(pcSubStr, pCaseSensitive, paOptions)
-		cResult = This.VizFindCSXT(pcSubStr, paOptions)
-
-		/* ... */
+		StzRaise("Not implemeneted yet!")
 
 
 		def VizFindXTCSZZ(pcSubStr, paOptions, pCaseSensitive)
