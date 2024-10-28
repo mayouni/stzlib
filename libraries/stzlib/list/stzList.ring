@@ -34373,6 +34373,7 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		def FindDuplicationOfCS(pItem, pCaseSensitive)
 			return This.FindDuplicatesOfItemCS(pItem, pCaseSensitive)
 
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY

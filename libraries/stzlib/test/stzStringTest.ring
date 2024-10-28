@@ -5037,9 +5037,23 @@ StopProfiler()
 /*==============
 */
 pron()
+#                   1234567890123457890
+o1 = new stzString("ABBBBbbbbCCcFFFaABCC")
+
+? @@( o1.FindDupSecutiveChars() ) + NL
+#--> [ 3, 4, 5, 7, 8, 9, 11, 14, 15, 20 ]
+
+? @@( o1.FindDupSecutiveCharsZZ() ) + NL
+#--> [ [ 3, 5 ], [ 7, 9 ], [ 11, 11 ], [ 14, 15 ], [ 20, 20 ] ]
+
+proff()
+
+/*-------------
+*/
+pron()
 
 o1 = new stzString(" so ftan  za ")
-	o1.Unspacify()
+o1.Unspacify()
 ? o1.Content()
 #--> "so ftan  za"
 
