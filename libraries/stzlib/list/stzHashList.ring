@@ -127,7 +127,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		on "LIST"
 			
-			if StzListQ(p).IsHashList()
+			if @IsHashList(p)
 				/*
 				There is a bug in Ring 1.14 (4th, may. 2021)
 				Read about it here: https://groups.google.com/g/ring-lang/c/fY6Lh-LDwJg
@@ -151,9 +151,11 @@ class stzHashList from stzList # Also called stzAssociativeList
 				*/
 
 				# Lowercasing all the keys of the hashlist
+				#TODO // Is this really necessary?
+
 				nLen = len(p)
 				for i = 1 to nLen
-					p[i][1] = StzStringQ(p[i][1]).Lowercased()
+					p[i][1] = ring_lower(p[i][1])
 				next
 
 				@aContent = p

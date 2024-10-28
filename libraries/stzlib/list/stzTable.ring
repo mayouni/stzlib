@@ -400,7 +400,12 @@ Class stzTable from stzObject
 	#================================================#
 
 	def HasColumName(pcName)
-		cName = StzStringQ(pcName).Lowercased()
+
+		if NOT isString(pcName)
+			StzRaise("Incorrect param type! pcName must be a string.")
+		ok
+
+		cName = ring_lower(pcName)
 		bResult = This.ColNamesQ().Contains(cName)
 
 		return bResult
@@ -592,7 +597,7 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! pcName must be a string.")
 		ok
 
-		cName = Q(pcName).Lowercased()
+		cName = ring_lower(pcName)
 
 		bResult = FALSE
 		if This.ColNamesQ().Contains(pcName)
@@ -801,7 +806,7 @@ Class stzTable from stzObject
 
 		ok
 
-		pcColName = Q(pcColName).Lowercased()
+		pcColName = ring_lower(pcColName)
 		n = ring_find( This.Header(), pcColName)
 		return n
 

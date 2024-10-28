@@ -2102,7 +2102,7 @@ class stzText from stzString
 		# t0 = clock()
 
 		oCopy = This.LowercaseQ().SimplifyQ()
-		cWord = StzStringQ(pcWord).Lowercased()
+		cWord = ring_lower(pcWord)
 
 		acSeps = WordSeparators()
 		# Reminder:
@@ -2995,8 +2995,11 @@ class stzText from stzString
 	#-----------------------------------------------------#
 	
 	def ContainsWord(pcWord)
+		if NOT isString(pcWord)
+			StzRaise("Incorrect param type! pcWord must be a string.")
+		ok
 
-		if This.SetOfWordsQ().Contains( StzStringQ(pcWord).Lowercased() )
+		if This.SetOfWordsQ().Contains( ring_lower(pcWord) )
 			return TRUE
 		else
 			return FALSE

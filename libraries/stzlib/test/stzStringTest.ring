@@ -5039,7 +5039,7 @@ StopProfiler()
 pron()
 
 o1 = new stzString(" so ftan  za ")
-o1.Unspacify()
+	o1.Unspacify()
 ? o1.Content()
 #--> "so ftan  za"
 

@@ -2562,13 +2562,24 @@ proff()
 # Executed in 0.02 second(s) in Ring 1.19
 
 /*------------
-*/
+
+pron()
+
+o1 = new stzList([ "A", "B", "C" ])
+? o1.ContainsDupSecutiveItems()
+#--> FALSE
+
+proff()
+# Executed in 0.01 second(s).
+
+/*------------
+
 pron()
 
 # DupSecutive = Duplicate + Consecutive
 
-o1 = new stzList([ "A", "B", "B", "B", "b", "C", "B", "C", "C", "c" ])
-
+o1 = new stzList([ "A", "B", "B", "B", "b", "C", "B", "C", "C", "c", "A" ])
+#                             ^    ^    ^                   ^    ^
 ? o1.ContainsDupSecutiveItems()
 #--> TRUE
 
@@ -2578,20 +2589,172 @@ o1 = new stzList([ "A", "B", "B", "B", "b", "C", "B", "C", "C", "c" ])
 ? o1.FindDupSecutiveItemsCS(FALSE)
 #--> [ 3, 4, 5, 9, 10 ]
 
+? o1.Duplicates()
+#--> [ "A", "B", "C" ]
+
 ? o1.DupSecutiveItems()
 #--> [ "B", "C" ]
 
-? o1.DupSecutiveItemsZ()
+? @@( o1.DupSecutiveItemsZ() ) + NL
 #--> [ [ "B", [ 3, 4 ] ], [ "C", [ 9 ] ] ]
 
-? o1.DupSecutiveItemsCSZ(FALSE)
+? @@( o1.DupSecutiveItemsCSZ(FALSE) ) + NL
 #--> [ [ "B", [ 3, 4, 5 ] ], [ "C", [ 9, 10 ] ] ]
 
-o1.RemoveDupSecutiveItems()
+o1.RemoveDupSecutiveItemsCS(FALSE)
+? @@( o1.Content() ) + nl
+#--> [ "A", "B", "C", "B", "C", "A" ]
+
+o1.RemoveDuplicates()
 ? @@( o1.Content() )
-#--> [ "A", "B", "b", "C", "B", "C" ]
+# [ "A", "B", "C" ]
 
 proff()
+# Executed in 0.02 second(s).
+
+/*------------
+*/
+pron()
+
+# DupOrigins = DuplicatesOrigins
+
+o1 = new stzList([ "A", "B", "B", "B", "b", "C", "B", "C", "C", "c", "A" ])
+
+? o1.DupOrigins() # Same As Duplicates()
+#--> [ "A", "B", "C" ]
+
+? o1.FindDupOrigins()
+#--> [ 1, 2, 6 ]
+
+o1.RemoveDupOrigins()
+? @@( o1.Content() )
+
+proff()
+# Executed in almost 0 second(s).
+
+/*------------ #narration #todo #data-cleansing
+
+pron()
+
+# Example log entries with timestamps and messages
+
+aLogEntries = [
+	"2024-01-01 10:00:00 ERROR Database connection failed",
+    	"2024-01-01 10:00:00 ERROR Database connection failed",  	# Duplicate
+    	"2024-01-01 10:00:02 INFO Connection restored",
+    	"2024-01-01 10:00:02 INFO Connection restored",         	# Duplicate
+	"2024-01-01 10:00:02 INFO Connection restored",			# Duplicated
+    	"2024-01-01 10:00:03 WARN High memory usage",
+	"2024-01-01 10:00:03 WARN High memory usage",			# Duplicated
+	"2024-01-01 10:00:03 WARN High memory usage"			# Duplicated
+]
+
+oLogs = new stzList(aLogEntries)
+
+# Remove consecutive duplicate log entries
+
+oLogs.RemoveDuplicates()
+? @@NL(oLogs.Content())
+#--> [
+#	"2024-01-01 10:00:00 ERROR Database connection failed",
+#	"2024-01-01 10:00:02 INFO Connection restored",
+#	"2024-01-01 10:00:03 WARN High memory usage"
+# ]
+
+proff()
+# Executed in almost 0 second(s).
+
+/*-----
+
+pron()
+
+# Simulated CSV data with duplicate rows
+
+aImportedData = [
+    	["id", "name", "email"],
+    	["1", "John", "john@email.com"],
+    	["1", "John", "john@email.com"],	# Duplicate
+    	["2", "Jane", "jane@email.com"],
+    	["2", "Jane", "jane@email.com"],    	# Duplicate
+	["2", "Jane", "jane@email.com"],	# Duplicate
+   	["3", "Bob", "bob@email.com"]
+]
+
+oDataRecords = new stzList(aImportedData)
+
+? @@NL(oDataRecords.DuplicatesZ()) + NL
+#--> [
+#	[ [ "1", "John", "john@email.com" ], [ 3 ] ],
+#	[ [ "2", "Jane", "jane@email.com" ], [ 5, 6 ] ]
+# ]
+
+oDataRecords.RemoveDuplicates()
+? @@NL(oDataRecords.Content())
+#--> [
+#	[ "id", "name", "email" ],
+#	[ "1", "John", "john@email.com" ],
+#	[ "2", "Jane", "jane@email.com" ],
+#	[ "3", "Bob", "bob@email.com" ]
+# ]
+
+proff()
+# Executed in 0.01 second(s).
+
+/*----
+
+# Sensor readings with consecutive duplicate values
+
+aSensorReadings = [
+    ["timestamp", "temperature"],
+    ["10:00:00", 22.5],
+    ["10:00:00", 22.5],    # Duplicate reading
+    ["10:00:00", 22.5],    # Duplicate reading
+    ["10:00:01", 22.6],
+    ["10:00:01", 22.6],    # Duplicate reading
+    ["10:00:02", 22.7]
+]
+
+oSensorData = new stzList(aSensorReadings)
+
+? @@( oSensorData.FindDuplicates() ) + NL
+
+# Get unique readings while preserving order
+
+oSensorData.RemoveDuplicates()
+? @@NL( oSensorData.Content() )
+#--> [
+#	[ "timestamp", "temperature" ],
+#	[ "10:00:00", 22.50 ],
+#	[ "10:00:01", 22.60 ],
+#	[ "10:00:02", 22.70 ]
+# ]
+
+proff()
+
+/*---- #NLP
+
+pron()
+
+# Word frequency analysis
+aWords = [
+    "the", "cat", "sat", "on", "the", "mat",
+    "the", "cat", "sat", "there"
+]
+
+oWords = new stzList(aWords)
+
+# Find all duplicate words
+
+? @@(oWords.Duplicates()) + NL
+#--> ["the", "cat", "sat"]
+
+# Get word positions with context
+
+? @@(oWords.DuplicatesZ())
+#--> [ [ "the", [ 5, 7 ] ], [ "cat", [ 8 ] ], [ "sat", [ 9 ] ] ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*============
 

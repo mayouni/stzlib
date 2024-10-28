@@ -168,6 +168,14 @@ func IsNullString(cStr)
 	func @IsEmpty(cStr)
 		return IsNullString(cStr)
 
+	#==
+
+	func StringIsEmpty(pcStr)
+		return isString(pcStr) and pcStr = ""
+
+		func StringIsNull(pcStr)
+			return isString(pcStr) and pcStr = ""
+
 	#>
 
 func IsNonNullString(cStr)
@@ -305,12 +313,6 @@ func StzTrimEnd(cStr)
 		return StzStringQ(cStr).TrimmedFromEnd()
 
 #--
-
-func StringIsEmpty(pcStr)
-	return pcStr = ""
-
-func StringIsNull(pcStr)
-	return pcStr = ""
 
 func StzStringToQString(oStr)
 	return oStr.QStringObject()
@@ -2738,7 +2740,11 @@ class stzString from stzObject
 	#-------------------------------------------------------------#
 
 	def IsLowercaseOf(pcStr)
-		return StzStringQ(pcStr).Lowercased() = This.String()
+		if NOT isString(pcStr)
+			StzRaise("Incorrect param type! pcStr must be a string.")
+		ok
+
+		return ring_lower(pcStr) = This.String()
 
 	def IsLowercaseOfXT(pcStr, paLocale)
 		/* Example
