@@ -9474,29 +9474,11 @@ class stzString from stzObject
 
 	def FindDuplicatedConsecutiveCharsCSZZ(pCaseSensitive)
 		anPos = This.CharsQ().FindDupSecutiveItemsCS(pCaseSensitive)
-		nLen = len(anPos)
-? @@(anPos) + NL
-		aResult = []
-		aSection = [] + anPos[1]
-
-		anPos + 0
-
-		for i = 2 to nLen + 1
-
-			if anPos[i] = anPos[i-1] + 1
-				// Do nothing
-
-			else
-				aSection + anPos[i-1]
-				aResult + aSection
-				aSection = [] + anPos[i]
-
-			ok	
-		next
-
-		
-
+		oLoN = new stzListOfNumbers(anPos)
+		aResult = oLoN.ContigToSections()
 		return aResult
+
+		#< @FunctionAlternativeForms
 
 		def FindDupSecutiveCharsCSZZ(pCaseSensitive)
 			return This.FindDuplicatedConsecutiveCharsCSZZ(pCaseSensitive)
@@ -9504,16 +9486,22 @@ class stzString from stzObject
 		def FindDuplicatedConsecutiveCharsAsSectionsCS(pCaseSensitive)
 			return This.FindDuplicatedConsecutiveCharsCSZZ(pCaseSensitive)
 
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindDuplicatedConsecutiveCharsZZ()
 		return This.FindDuplicatedConsecutiveCharsCSZZ(TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def FindDupSecutiveCharsZZ()
 			return This.FindDuplicatedConsecutiveCharsZZ()
 
 		def FindDuplicatedConsecutiveCharsAsSections()
 			return This.FindDuplicatedConsecutiveCharsZZ()
+
+		#>
 
 	  #--------------------------------------------------------------#
 	 #  FINDING DUPLICAtED CONSECUTIVE OCCURRENCES OF A GIVEN CHAR  #
@@ -9721,7 +9709,6 @@ class stzString from stzObject
 
 		#>
 
-vvv
 	  #-------------------------------------------#
 	 #   REMOVING ALL DUPLICATES IN THE STRING   #
 	#===========================================#
