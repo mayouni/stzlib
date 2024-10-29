@@ -9740,6 +9740,440 @@ class stzString from stzObject
 
 		#>
 
+	  #-----------------------------------------------------------#
+	 #  GETTING THE LIST OF CONSESECUTIVE SUBSTRINGS OF N CHARS  #
+	#===========================================================#
+
+	def ConsecutiveSubStringsOfNChars(n)
+
+		# Checking the n param
+
+		if CheckParams()
+			if not isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		# Early checks
+
+		nLen = This.NumberOfChars()
+
+		if EarlyCheck()
+			if n <= 0 or n > nLen
+				return []
+			ok
+		ok
+
+		# Doing the job
+		    
+		acResult = []
+		
+		for i = 1 to n
+		
+			for j = i to nLen step n
+				if j + n - 1 <= nLen
+					acResult + @oQString.mid(j-1, n)
+				ok
+			next
+		
+		next
+		
+		return acResult
+
+		#< @FunctionFluentForm
+
+		def ConsecutiveSubStringsOfNCharsQ(n)
+			return new stzList(This.ConsecutiveSubStringsOfNChars(n))
+
+		def ConsecutiveSubStringsOfNCharsQR(n, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList(This.ConsecutiveSubStringsOfNChars(n))
+
+			on :stzListOfStrings
+				return new stzListOfStrings(This.ConsecutiveSubStringsOfNChars(n))
+
+			on :stzListOfChars
+				return new stzListOfChars(This.ConsecutiveSubStringsOfNChars(n))
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AdjuscentSubStringsOfNChars(n)
+			return This.ConsecutiveSubStringsOfNChars(n)
+
+			def AdjuscentSubStringsOfNCharsQ(n)
+				return This. ConsecutiveSubStringsOfNCharsQ(n)
+
+			def AdjuscentSubStringsOfNCharsQR(n, pcReturnType)
+				return Thus.ConsecutiveSubStringsOfNCharsQR(n, pcReturnType)
+
+		#>
+
+	  #-------------------------------------------------------------------------#
+	 #  GETTING THE NUMBER OF CONSECUTIVE SUBSTRINGS OF N CHARS IN THE STRING  #
+	#-------------------------------------------------------------------------#
+
+	def NumberOfConsecutiveSubStringsOfNChars(n)
+		# Checking the n param
+
+		if CheckParams()
+			if not isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		# Early checks
+
+		nLen = This.NumberOfChars()
+
+		if EarlyCheck()
+			if n <= 0 or n > nLen
+				return []
+			ok
+		ok
+
+		# Doing the job
+		    
+		nResult = 0
+		
+		for i = 1 to n
+		
+			for j = i to nLen step n
+				if j + n - 1 <= nLen
+					nResult++
+				ok
+			next
+		
+		next
+		
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfAdjascentSubStringsOfNChars(n)
+			return This.NumberOfConsecutiveSubStringsOfNChars(n)
+
+		def HowManyConsecutiveSubStringsOfNChars(n)
+			return This.NumberOfConsecutiveSubStringsOfNChars(n)
+
+		def HowManyAdjascentSubStringsOfNChars(n)
+			return This.NumberOfConsecutiveSubStringsOfNChars(n)
+
+		#>
+
+	  #--------------------------------------------------------------------#
+	 #  FINDING THE PositioNS OF CONSECUTIVE SUBSTRINGS OF N CHARS -- XT  #
+	#--------------------------------------------------------------------#
+
+	def FindConsecutiveSubStringsOfNChars(n)
+		anResult = U( This.FindConsecutiveSubStringsOfNCharsXT(n) )
+		return anResult
+
+		def FindAdjascentConsecutiveSubStringsOfNChars(n)
+			return This.FindConsecutiveSubStringsOfNChars(n)
+
+	#--
+
+	def FindConsecutiveSubStringsOfNCharsXT(n)
+		# Checking the n param
+
+		if CheckParams()
+			if not isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		# Early checks
+
+		nLen = This.NumberOfChars()
+
+		if EarlyCheck()
+			if n <= 0 or n > nLen
+				return []
+			ok
+		ok
+
+		# Doing the job
+		    
+		anResult = []
+		
+		for i = 1 to n
+		
+			for j = i to nLen step n
+				if j + n - 1 <= nLen
+					anResult + i
+				ok
+			next
+		
+		next
+		
+		return anResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAdjascentSubStringsOfNCharsXT(n)
+			return This.FindConsecutiveSubStringsOfNChars(n)
+
+		#>
+
+	  #--------------------------------------------------------------------#
+	 #  FINDING THE PositioNS OF CONSECUTIVE SUBSTRINGS OF N CHARS -- ZZ  #
+	#--------------------------------------------------------------------#
+
+	def FindConsecutiveSubStringsOfNCharsZZ(n)
+
+		# Checking the n param
+
+		if CheckParams()
+			if not isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		# Early checks
+
+		nLen = This.NumberOfChars()
+
+		if EarlyCheck()
+			if n <= 0 or n > nLen
+				return []
+			ok
+		ok
+
+		# Doing the job
+		    
+		aResult = []
+		
+		for i = 1 to n
+		
+			for j = i to nLen step n
+				if j + n - 1 <= nLen
+					aResult + [ j, j+n-1 ]
+				ok
+			next
+		
+		next
+		
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def FindAdjascentSubStringsOfNCharsZZ(n)
+			return This.FindConsecutiveSubStringsOfNCharsZZ(n)
+
+		#>
+
+	  #----------------------------------------------------------------------------#
+	 #  GETTING THE CONSECUTIVE SUBSTRINGS of N CHARS ALONG WITH THEIR POSITIONS  #
+	#----------------------------------------------------------------------------#
+
+	def ConsecutiveSubStringsOfNCharsZ(n)
+		# Checking the n param
+
+		if CheckParams()
+			if not isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		# Early checks
+
+		nLen = This.NumberOfChars()
+
+		if EarlyCheck()
+			if n <= 0 or n > nLen
+				return []
+			ok
+		ok
+
+		# Doing the job
+		    
+		aResult = []
+		
+		for i = 1 to n
+		
+			for j = i to nLen step n
+				if j + n - 1 <= nLen
+					aResult + [ @oQString.mid(j-1, n), j ]
+				ok
+			next
+		
+		next
+		
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def AdjascentSubStringsOfNCharsZ(n)
+			return This.ConsecutiveSubStringsOfNCharsZ(n)
+
+		#>
+
+	  #---------------------------------------------------------------------------#
+	 #  GETTING THE CONSECUTIVE SUBSTRINGS of N CHARS ALONG WITH THEIR SECTIONS  #
+	#---------------------------------------------------------------------------#
+
+	def ConsecutiveSubStringsOfNCharsZZ(n)
+		# Checking the n param
+
+		if CheckParams()
+			if not isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
+			ok
+		ok
+
+		# Early checks
+
+		nLen = This.NumberOfChars()
+
+		if EarlyCheck()
+			if n <= 0 or n > nLen
+				return []
+			ok
+		ok
+
+		# Doing the job
+		    
+		aResult = []
+		
+		for i = 1 to n
+		
+			for j = i to nLen step n
+				if j + n - 1 <= nLen
+					aResult + [ @oQString.mid(j-1, n), [ j, j+n-1 ] ]
+				ok
+			next
+		
+		next
+		
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def AdjascentSubStringsOfNCharsZZ(n)
+			return This.ConsecutiveSubStringsOfNCharsZZ(n)
+
+		#>
+
+	  #------------------------------------------------------------#
+	 #  GETTING THE LIST OF CONSECUTIVE SUBSTRINGS IN THE STRING  #
+	#============================================================#
+
+	def ConsecutiveSubStrings()
+		nLen = This.NumberOfChars()
+		if nLen <= 1
+			return []
+		ok
+
+		nMax = ( nLen - nLen % 2 ) / 2
+
+		acResult = []
+
+		for i = 1 to nMax
+			acTemp = This.ConsecutiveSubStringsOfNChars(i)
+			nLenTemp = len(acTemp)
+
+			for j = 1 to nLenTemp
+				acResult + acTemp[j]
+			next
+		next
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def ConsecutiveSubStringsQ()
+			return new stzList(This.ConsecutiveSubStrings())
+
+		def ConsecutiveSubStringsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				new stzList( This.ConsecutiveSubStrings() )
+
+			on :stzListOfStrings
+				new stzListOfStrings( This.ConsecutiveSubStrings() )
+
+			on :stzListOfChars
+				new stzListOfChars( This.ConsecutiveSubStrings() )
+
+			other
+				StzRaise("Unsupported return type!")
+			off
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def AdjuscentSubStrings()
+			return This.ConsecutiveSubStrings()
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  GETTING THE NUMBER OF CONSECUTIVE SUBSTRINGS IN THE STRING  #
+	#--------------------------------------------------------------#
+
+	def NumberOfConsecutiveSubStrings()
+		nLen = This.NumberOfChars()
+		if nLen <= 1
+			return 0
+		ok
+
+		nMax = ( nLen - nLen % 2 ) / 2
+
+		nResult = 0
+
+		for i = 1 to nMax
+			acTemp = This.ConsecutiveSubStringsOfNChars(i)
+			nLenTemp = len(acTemp)
+
+			for j = 1 to nLenTemp
+				nResult++
+			next
+		next
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfAdjascentSubStrings()
+			return This.NumberOfConsecutiveSubStrings()
+
+		def HowManyConsecutiveSubStrings()
+			return This.NumberOfConsecutiveSubStrings()
+
+		def HowManyAdjascentSubStrings()
+			return This.NumberOfConsecutiveSubStrings()
+
+		#>
+
+	  #-----------------------------------------------------------------#
+	 #  FINDING THE PositioNS OF CONSECUTIVE SUBSTRINGS IN THE STRING  #
+	#-----------------------------------------------------------------#
+
+	def FindConsecutiveSubStrings()
+
+	  #-----------------------------------------------------------------------#
+	 #  FINDING THE PositioNS OF CONSECUTIVE SUBSTRINGS IN THE STRING -- ZZ  #
+	#-----------------------------------------------------------------------#
+
+	def FindConsecutiveSubStringsZZ()
+
+	  #-------------------------------------------------------------------------------#
+	 #  GETTING THE CONSECUTIVE SUBSTRINGS IN THE STRING ALONG WITH THEIR POSITIONS  #
+	#-------------------------------------------------------------------------------#
+
+	def ConsecutiveSubStringsZ()
+
+	  #------------------------------------------------------------------------------#
+	 #  GETTING THE CONSECUTIVE SUBSTRINGS IN THE STRING ALONG WITH THEIR SECTIONS  #
+	#------------------------------------------------------------------------------#
+
+	def ConsecutiveSubStringsZZ()
+
 	  #-------------------------------------------#
 	 #   REMOVING ALL DUPLICATES IN THE STRING   #
 	#===========================================#
