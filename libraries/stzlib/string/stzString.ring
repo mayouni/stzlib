@@ -9628,8 +9628,23 @@ class stzString from stzObject
 	 #  FINDING DUPLICAtED CONSECUTIVE OCCURRENCES OF A GIVEN SUBSTRING  #
 	#===================================================================#
 
-	def FindDuplicatedConsecutiveSubStringCS(pcSubStr, pCaseSensitive) #TODO
-		StzRaise("Not yet implemented!")
+	def FindDuplicatedConsecutiveSubStringCS(pcSubStr, pCaseSensitive)
+		aSections = This.FindSubStringCSZZ(pcSubStr, pCaseSensitive)
+? @@(aSections)
+		nLen = len(aSections)
+		if nLen <= 1
+			return []
+		ok
+
+		anResult = []
+
+		for i = 2 to nLen
+			if aSections[i-1][2] = aSections[i][1] - 1
+				anResult + aSections[i][1]
+			ok
+		next
+
+		return anResult
 
 		#< @FunctionAlternativeForms
 

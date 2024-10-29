@@ -38,7 +38,7 @@ class stzListOfListsOfNumbers
 	def Complete()
 		This.CompeteWith(0)
 
-	def CompleteWith(n)
+	def CompleteWith(n) #TODO
 		/* Example
 		o1 = new stzListOfListsOfNumbersQ([
 			[ 3, 6, 2 ],
@@ -55,6 +55,8 @@ class stzListOfListsOfNumbers
 			[ 2, 1, 3, 5 ]
 		      ]
 		*/
+
+		/* ... */
 
 	def SmallestLenOfList()
 		return StzListOfNumbersQ(This.NumbersOfItemsInEachList()).Min()
@@ -103,7 +105,7 @@ class stzListOfListsOfNumbers
 		def NumbersOfItemsInEach()
 			return This.NumberOfItems()
 
-	def AddOneToOne()
+	def AddOneToOne() #TODO
 		/* Example:
 
 		o1 = stzListOfListsOfNumbersQ([
@@ -119,8 +121,10 @@ class stzListOfListsOfNumbers
 
 		*/
 
+		/* ... */
+
 	def Associate() #TODO
-	/* Example:
+		/* Example:
 
 		o1 = new stzListOfListsOfNumbers([
 			[ 3, 6, 3 ],
@@ -138,6 +142,8 @@ class stzListOfListsOfNumbers
 		      ]
 
 		*/
+
+		/* ... */
 
 	def Alternate() #TODO
 	/* Example:
