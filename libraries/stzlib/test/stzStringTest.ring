@@ -5066,10 +5066,10 @@ pron()
 o1 = new stzString("phpringringringpythonrubyruby")
 
 ? @@( o1.FindDupSecutiveSubString("ring") ) + NL
-#--> [ 3, 4, 5, 7, 8, 9, 11, 14, 15, 20 ]
+
 
 ? @@( o1.FindDupSecutiveSubStringsZZ("ring") ) + NL
-#--> [ [ 3, 5 ], [ 7, 9 ], [ 11, 11 ], [ 14, 15 ], [ 20, 20 ] ]
+
 
 proff()
 # Executed in 0.02 second(s).
