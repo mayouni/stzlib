@@ -9473,7 +9473,7 @@ class stzString from stzObject
 	#---------------------------------------------------------------------#
 
 	def FindDuplicatedConsecutiveCharsCSZZ(pCaseSensitive)
-		anPos = This.CharsQ().FindDupSecutiveItemsCS(pCaseSensitive)
+		anPos = This.CharsCSQ(pCaseSensitive).FindDupSecutiveItemsCS(pCaseSensitive)
 		oLoN = new stzListOfNumbers(anPos)
 		aResult = oLoN.ContigToSections()
 		return aResult
@@ -9508,7 +9508,7 @@ class stzString from stzObject
 	#--------------------------------------------------------------#
 
 	def FindDuplicatedConsecutiveCharCS(c, pCaseSensitive)
-		anResult = This.CharsCSQ().FindDupSecutiveItemCS(c, pCaseSensitive)
+		anResult = This.CharsCSQ(pCaseSensitive).FindDupSecutiveItemCS(c, pCaseSensitive)
 		return anResult
 
 		#< @FunctionAlternativeForms
@@ -9551,7 +9551,11 @@ class stzString from stzObject
 	#-----------------------------------------------------------------------------#
 
 	def FindDuplicatedConsecutiveCharCSZZ(c, pCaseSensitive)
-		/* ... */
+		anPos = This.CharsCSQ(pCaseSensitive).FindDupSecutiveItemCS(c, pCaseSensitive)
+		oLoN = new stzListOfNumbers(anPos)
+		aResult = oLoN.ContigToSections()
+
+		return aResult
 
 		#< @FunctionAlternativeForms
 
@@ -9584,17 +9588,52 @@ class stzString from stzObject
 
 		#>
 
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindDuplicatedConsecutiveCharZZ(c)
+		return This.FindDuplicatedConsecutiveCharCSZZ(c, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def FindThisDuplicatedConsecutiveCharZZ(c)
+			return This.FindDuplicatedConsecutiveCharZZ(c)
+
+		#--
+
+		def FindDupSecutiveCharZZ(c)
+			return This.FindDuplicatedConsecutiveCharZZ(c)
+
+		def FindThisDupSecutiveCharZZ(c)
+			return This.FindDuplicatedConsecutiveCharZZ(c)
+
+		#==
+
+		def FindDuplicatedConsecutiveCharAsSections(c)
+			return This.FindDuplicatedConsecutiveCharZZ(c)
+
+		def FindThisDuplicatedConsecutiveCharAsSections(c)
+			return This.FindDuplicatedConsecutiveCharZZ(c)
+
+		#--
+
+		def FindDupSecutiveCharAsSections(c)
+			return This.FindDuplicatedConsecutiveCharZZ(c)
+
+		def FindThisDupSecutiveCharAsSections(c)
+			return This.FindDuplicatedConsecutiveCharZZ(c)
+
+		#>
+
 	  #-------------------------------------------------------------------#
 	 #  FINDING DUPLICAtED CONSECUTIVE OCCURRENCES OF A GIVEN SUBSTRING  #
 	#===================================================================#
 
-	def FindDuplicatedConsecutiveSubStringCS(pcSubStr, pCaseSensitive)
-
-		/* ... */
+	def FindDuplicatedConsecutiveSubStringCS(pcSubStr, pCaseSensitive) #TODO
+		StzRaise("Not yet implemented!")
 
 		#< @FunctionAlternativeForms
 
-		def FindThisDuplicatedConsecutiveSubStringCS(pcSubStr, pCaseSensitive)
+		def FindThisDuplicatedConsecutiveSubStringCS(pcSubStr, pCaseSecutive)
 			return This.FindDuplicatedConsecutiveSubStringCS(pcSubStr, pCaseSensitive)
 
 		#--
@@ -9602,25 +9641,41 @@ class stzString from stzObject
 		def FindDupSecutiveSubStringCS(pcSubStr, pCaseSensitive)
 			return This.FindDuplicatedConsecutiveSubStringCS(pcSubStr, pCaseSensitive)
 
+		def FindThisDupSecutiveSubStringCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatedConsecutiveSubStringCS(pcSubStr, pCaseSensitive)
+
 		#>
 
-	  #-------------------------------------------------------------------------#
-	 #  FINDING DUPLICAtED CONSECUTIVE OCCURRENCES OF A GIVEN SUBSTRING -- ZZ  #
-	#-------------------------------------------------------------------------#
+	#-- WTIHOUT CASESENSITIVITY
 
-	def FindDuplicatedConsecutiveSubStringCSZZ(pcSubStr, pCaseSensitive)
-
-		/* ... */
+	def FindDuplicatedConsecutiveSubString(pcSubStr)
+		return This.FindDuplicatedConsecutiveSubStringCS(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def FindThisDuplicatedConsecutiveSubStringCSZZ(pcSubStr, pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringCSZZ(pcSubStr, pCaseSensitive)
+		def FindThisDuplicatedConsecutiveSubString(pcSubStr)
+			return This.FindDuplicatedConsecutiveSubString(pcSubStr)
 
-		def FindDuplicatedConsecutiveSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringCSZZ(pcSubStr, pCaseSensitive)
+		#--
 
-		def FindThisDuplicatedConsecutiveSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+		def FindDupSecutiveSubString(pcSubStr)
+			return This.FindDuplicatedConsecutiveSubString(pcSubStr)
+
+		def FindThisDupSecutiveSubString(pcSubStr)
+			return This.FindDuplicatedConsecutiveSubString(pcSubStr)
+
+		#>
+
+	  #----------------------------------------------------------------------------------#
+	 #  FINDING DUPLICAtED CONSECUTIVE OCCURRENCES OF A GIVEN SUBSTRING -- ZZ/EXTENDED  #
+	#----------------------------------------------------------------------------------#
+
+	def FindDuplicatedConsecutiveSubStringCSZZ(pcSubStr, pCaseSensitive)
+		Stzraise("Not implemented yet!")
+
+		#< @FunctionAlternativeForms
+
+		def FindThisDuplicatedConsecutiveSubStringCSZZ(pcSubStr, pCaseSecutive)
 			return This.FindDuplicatedConsecutiveSubStringCSZZ(pcSubStr, pCaseSensitive)
 
 		#--
@@ -9631,6 +9686,16 @@ class stzString from stzObject
 		def FindThisDupSecutiveSubStringCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindDuplicatedConsecutiveSubStringCSZZ(pcSubStr, pCaseSensitive)
 
+		#==
+
+		def FindDuplicatedConsecutiveSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
+			return This.FindDuplicatedConsecutiveSubStringCSZZ(pcSubStr, pCaseSensitive)
+
+		def FindThisDuplicatedConsecutiveSubStringAsSectionsCS(pcSubStr, pCaseSecutive)
+			return This.FindDuplicatedConsecutiveSubStringCSZZ(pcSubStr, pCaseSensitive)
+
+		#--
+
 		def FindDupSecutiveSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindDuplicatedConsecutiveSubStringCSZZ(pcSubStr, pCaseSensitive)
 
@@ -9639,73 +9704,39 @@ class stzString from stzObject
 
 		#>
 
-	  #-----------------------------------------------------------#
-	 #  FINDING DUPLICAtED CONSECUTIVE SUBSTRINGS IN THE STRING  #
-	#===========================================================#
+	#-- WITHOUT CASESENSITIVITY
 
-	def FindDuplicatedConsecutiveSubStringsCS(pCaseSensitive)
-		/* ... */
+	def FindDuplicatedConsecutiveSubStringZZ(pcSubStr)
+		return This.FindDuplicatedConsecutiveSubStringCSZZ(pcSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def FindConsecutiveDuplicatedSubStringsCS(pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringsCS(pCaseSensitive)
+		def FindThisDuplicatedConsecutiveSubStringZZ(pcSubStr)
+			return This.FindDuplicatedConsecutiveSubStringZZ(pcSubStr)
 
 		#--
 
-		def FindDupSecutiveSubStringsCS(pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringsCS(pCaseSensitive)
+		def FindDupSecutiveSubStringZZ(pcSubStr)
+			return This.FindDuplicatedConsecutiveSubStringZZ(pcSubStr)
 
-		#>
+		def FindThisDupSecutiveSubStringZZ(pcSubStr)
+			return This.FindDuplicatedConsecutiveSubStringZZ(pcSubStr)
 
-	  #----------------------------------------------------------------------#
-	 #  FINDING DUPLICAtED CONSECUTIVE OCCURRENCES OF THE GIVEN SUBSTRINGS  #
-	#======================================================================#
+		#==
 
-	def FindDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
+		def FindDuplicatedConsecutiveSubStringAsSections(pcSubStr)
+			return This.FindDuplicatedConsecutiveSubStringZZ(pcSubStr)
 
-		/* ... */
-
-		#< @FunctionAlternativeForms
-
-		def FindTheseDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
-
-		def FindDuplicatedConsecutiveSubStringsAsSectionsCS(pacSubStr, pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
-
-		def FindTheseDuplicatedConsecutiveSubStringsAsSectionsCS(pacSubStr, pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
+		def FindThisDuplicatedConsecutiveSubStringAsSections(pcSubStr)
+			return This.FindDuplicatedConsecutiveSubStringZZ(pcSubStr)
 
 		#--
 
-		def FindDupSecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
+		def FindDupSecutiveSubStringAsSections(pcSubStr)
+			return This.FindDuplicatedConsecutiveSubStringZZ(pcSubStr)
 
-		def FindTheseDupSecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
-
-		def FindDupSecutiveSubStringsAsSectionsCS(pacSubStr, pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
-
-		def FindTheseDupSecutiveSubStringsAsSectionsCS(pacSubStr, pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
-
-		#== +MANY
-
-		def FindManyDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
-
-		def FindManyDuplicatedConsecutiveSubStringsAsSectionsCS(pacSubStr, pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
-
-		#--
-
-		def FindManyDupSecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
-
-		def FindManyDupSecutiveSubStringsAsSectionsCS(pacSubStr, pCaseSensitive)
-			return This.FindDuplicatedConsecutiveSubStringsCSZZ(pacSubStr, pCaseSensitive)
+		def FindThisDupSecutiveSubStringAsSections(pcSubStr)
+			return This.FindDuplicatedConsecutiveSubStringZZ(pcSubStr)
 
 		#>
 
