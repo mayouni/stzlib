@@ -10150,29 +10150,127 @@ class stzString from stzObject
 
 		#>
 
-	  #-----------------------------------------------------------------#
-	 #  FINDING THE PositioNS OF CONSECUTIVE SUBSTRINGS IN THE STRING  #
-	#-----------------------------------------------------------------#
+	  #-----------------------------------------------------------------------#
+	 #  FINDING THE PositioNS OF CONSECUTIVE SUBSTRINGS IN THE STRING -- XT  #
+	#-----------------------------------------------------------------------#
 
 	def FindConsecutiveSubStrings()
+		anResult = U( This.FindConsecutiveSubStringsXT() )
+		return anResult
+
+		def FindAdjascentSubStrings()
+			return This.FindConsecutiveSubStrings()
+
+	#--
+
+	def FindConsecutiveSubStringsXT()
+
+		nLen = This.NumberOfChars()
+		if nLen <= 1
+			return 0
+		ok
+
+		nMax = ( nLen - nLen % 2 ) / 2
+
+		anResult = []
+
+		for i = 1 to nMax
+			acTemp = This.ConsecutiveSubStringsOfNChars(i)
+			nLenTemp = len(acTemp)
+
+			for j = 1 to nLenTemp
+				anResult + j
+			next
+		next
+
+		return anResult
+
+		def FindAdjascentSubStringsXT()
+			return This.FindConsecutiveSubStringsXT()
 
 	  #-----------------------------------------------------------------------#
 	 #  FINDING THE PositioNS OF CONSECUTIVE SUBSTRINGS IN THE STRING -- ZZ  #
 	#-----------------------------------------------------------------------#
 
 	def FindConsecutiveSubStringsZZ()
+		nLen = This.NumberOfChars()
+		if nLen <= 1
+			return 0
+		ok
+
+		nMax = ( nLen - nLen % 2 ) / 2
+
+		aResult = []
+
+		for i = 1 to nMax
+			acTemp = This.ConsecutiveSubStringsOfNChars(i)
+			nLenTemp = len(acTemp)
+
+			for j = 1 to nLenTemp
+				aResult + [ j, j + i - 1 ]
+			next
+		next
+
+		return aResult
+
+		def FindAdjascentSubStringsZZ()
+			return This.FindConsecutiveSubStringsZZ()
 
 	  #-------------------------------------------------------------------------------#
 	 #  GETTING THE CONSECUTIVE SUBSTRINGS IN THE STRING ALONG WITH THEIR POSITIONS  #
 	#-------------------------------------------------------------------------------#
 
 	def ConsecutiveSubStringsZ()
+		nLen = This.NumberOfChars()
+		if nLen <= 1
+			return 0
+		ok
+
+		nMax = ( nLen - nLen % 2 ) / 2
+
+		aResult = []
+
+		for i = 1 to nMax
+			acTemp = This.ConsecutiveSubStringsOfNChars(i)
+			nLenTemp = len(acTemp)
+
+			for j = 1 to nLenTemp
+				aResult + [ @oQString.mid(j-1, j + i - 1), j ]
+			next
+		next
+
+		return aResult
+
+		def AdjascentSubStringsZ()
+			return This.ConsecutiveSubStringsZ()
 
 	  #------------------------------------------------------------------------------#
 	 #  GETTING THE CONSECUTIVE SUBSTRINGS IN THE STRING ALONG WITH THEIR SECTIONS  #
 	#------------------------------------------------------------------------------#
 
 	def ConsecutiveSubStringsZZ()
+		nLen = This.NumberOfChars()
+		if nLen <= 1
+			return 0
+		ok
+
+		nMax = ( nLen - nLen % 2 ) / 2
+
+		aResult = []
+
+		for i = 1 to nMax
+			acTemp = This.ConsecutiveSubStringsOfNChars(i)
+			nLenTemp = len(acTemp)
+
+			for j = 1 to nLenTemp
+				aResult + [ @oQString.mid(j-1, j + i - 1), [ j, j + i - 1 ] ]
+			next
+		next
+
+		return aResult
+
+		def AdjascentSubStringsZZ()
+			return This.ConsecutiveSubStringsZZ()
 
 	  #-------------------------------------------#
 	 #   REMOVING ALL DUPLICATES IN THE STRING   #
