@@ -5061,26 +5061,66 @@ proff()
 # Executed in 0.02 second(s).
 
 /*--------------
-*/
+
 pron()
 
 o1 = new stzString("phpringringringpythonrubyruby")
-#		       ↑   ↑   ↑
-#                      4   8   12
+#		       ↑   ↑   ↑  ↑
+#                      4   8   12 15
 
 ? @@( o1.FindDupSecutiveSubString("ring") ) + NL
 #--> [ 8, 12 ]
 
-//? @@( o1.FindDupSecutiveSubStringZZ("ring") ) + NL
+? @@( o1.FindDupSecutiveSubStringZZ("ring") ) + NL
+#--> [ [ 8, 11 ], [ 12, 15 ] ]
 
-#---
+? @@( o1.DupSecutiveSubStringZ("ring") ) + NL
+#--> [ "ring", [ 8, 12 ] ]
 
-//? @@( o1.FindDupSecutiveSubStrings() ) + NL
-
-//? @@( o1.FindDupSecutiveSubStringsZZ() ) + NL
+? @@( o1.DupSecutiveSubStringZZ("ring") )
+#--> [ "ring", [ [ 8, 11 ], [ 12, 15 ] ] ]
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.04 second(s).
+
+#---------
+*/
+pron()
+
+o1 = new stzString("phpringringringpythonrubyruby")
+
+? @@( o1.FindDupSecutiveSubStrings() ) + NL
+#--> [ 9, 10, 26, 11, 8, 12 ]
+
+? @@( o1.FindDupSecutiveSubStringsZZ() ) + NL
+#--> [ [ 9, 12 ], [ 10, 13 ], [ 26, 29 ], [ 11, 14 ], [ 8, 11 ], [ 12, 15 ] ]
+
+? @@( o1.DupSecutiveSubStrings() ) + NL
+#--> [ "ingr", "ngri", "ruby", "grin", "ring" ]
+
+? @@NL( o1.DupSecutiveSubStringsZ() ) + NL
+#--> [
+#	[ "ingr", [ 9 ] ],
+#	[ "ngri", [ 10 ] ],
+#	[ "ruby", [ 26 ] ],
+#	[ "grin", [ 11 ] ],
+#	[ "ring", [ 8, 12 ] ]
+# ]
+
+? @@NL( o1.DupSecutiveSubStringsZZ() )
+#--> [
+#	[ "ingr", [ [ 9, 12 ] ] ],
+#	[ "ngri", [ [ 10, 13 ] ] ],
+#	[ "ruby", [ [ 26, 29 ] ] ],
+#	[ "grin", [ [ 11, 14 ] ] ],
+#	[ "ring", [ [ 8, 11 ], [ 12, 15 ] ] ]
+# ]
+
+o1.RemoveDupSecutiveSubStrings()
+? o1.Content()
+
+proff()
+# Executed in 0.17 second(s).
 
 /*=============
 
