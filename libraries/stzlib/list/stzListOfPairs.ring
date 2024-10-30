@@ -1159,7 +1159,15 @@ class stzListOfPairs from stzListOfLists
 		# Iterate through pairs
 		for i = 2 to nLen
 			aPair = aPairs[i]
-			
+if i > 9
+
+? ">> i : " + i
+? "-------------"
+? "aCurrentSection: " + @@(aCurrentSection)
+? "aPair:" + @@(aPair)
+? "DoOverlap(): " + pvtDoOverlap(aCurrentSection, aPair) + NL
+
+ok		
 			# Check if current pair overlaps or is adjacent to current section
 			if pvtDoOverlap(aCurrentSection, aPair)
 				aCurrentSection = pvtMergeOverlappingSections(aCurrentSection, aPair)
@@ -1184,6 +1192,22 @@ class stzListOfPairs from stzListOfLists
 	def OverLappedPairsMerged()
 		cResult = This.Copy().MergeoverLappingQ().Content()
 		return cResult
+
+	  #--------------------------------------------------#
+	 #  MERGING SECTIONS BOTH ICLUSIVE AND OVERLAPPING  #
+	#--------------------------------------------------#
+
+	def MergeSections()
+		This.MergeInclusiveSections()
+		This.MergeOverlappingSections()
+
+		def MergeSectionsQ()
+			This.MergeSections()
+			return This
+
+	def SectionsMerged()
+		aResult = This.Copy().MergeSectionsQ().Content()
+		return This
 
 	  #===================================================#
 	 #  CHECKING IF THE TWO VALUES ARE ANOGRAMS STRINGS  #
@@ -1848,20 +1872,15 @@ class stzListOfPairs from stzListOfLists
 	#------------------------------#
 
 	func pvtIsInclusive(aSection1, aSection2)
-		# Returns TRUE if one section includes the other
-		
-		n1Start = aSection1[1]
-		n1End = aSection1[2]
-		n2Start = aSection2[1]
-		n2End = aSection2[2]
-		
+		# Returns TRUE if one section includes the other	
+	
 		# Check if section1 includes section2
-		if n1Start <= n2Start and n1End >= n2End
+		if aSection1[1] <= aSection2[1] and aSection1[2] >= aSection2[2]
 			return TRUE
 		ok
 		
 		# Check if section2 includes section1
-		if n2Start <= n1Start and n2End >= n1End
+		if aSection2[1] <= aSection1[1] and aSection2[2] >= aSection1[2]
 			return TRUE
 		ok
 		
@@ -1888,17 +1907,24 @@ class stzListOfPairs from stzListOfLists
 		return n2
 
 	def pvtDoOverlap(aSection1, aSection2)
-		# Returns TRUE if sections overlap or are adjacent
-		
-		n1Start = aSection1[1]
-		n1End = aSection1[2]
-		n2Start = aSection2[1]
-		n2End = aSection2[2]
-		
-		# Check if sections overlap or are adjacent
-		# Two sections overlap if one begins before the other ends
-		# They are adjacent if one ends exactly where the other begins
-		return n1End >= n2Start - 1 and n2End >= n1Start - 1
+		# Returns TRUE if one section overlaps the other	
+	
+		# Check if section1 overlaps section2
+		if ( aSection2[1] >= aSection1[1] and aSection2[1] <= aSection1[2] ) or
+		   ( aSection2[2] >= aSection1[1] and aSection2[2] <= aSection1[2] )
+
+			return TRUE
+		ok	
+	
+		# Check if section2 overlaps section1
+
+		if ( aSection1[1] >= aSection2[1] and aSection1[1] <= aSection2[2] ) or
+		   ( aSection1[2] >= aSection2[1] and aSection1[2] <= aSection2[2] )
+
+			return TRUE
+		ok
+
+		return FALSE
 	
 	def pvtMergeOverlappingSections(aSection1, aSection2)
 		# Returns a new section that spans both input sections

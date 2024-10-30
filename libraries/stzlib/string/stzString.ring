@@ -77026,9 +77026,9 @@ n1 = Min(aTemp)
 		ok
 
 		aSorted = @SortLists(paSections)
-
-? ">> " + @@(aSorted)
 		nLen = len(aSorted)
+
+		# MergeInclusive() + MergeOverlapping()
 
 		for i = nLen to 1 step -1
 			This.RemoveSection(aSorted[i][1], aSorted[i][2])
