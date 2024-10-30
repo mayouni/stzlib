@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Softanza library provides three sophisticated methods for merging sections (pairs of numbers representing ranges): `MergeInclusive()`, `MergeOverlapping()`, and `MergeSections()`. These features are designed to handle different types of range-merging scenarios, offering both specialized and comprehensive solutions for real-world algorithmic problems.
+Softanza library provides three sophisticated methods for merging sections (in the `stzListOfPairs` class): `MergeInclusive()`, `MergeOverlapping()`, and `MergeSections()`. These features are designed to handle different types of section-merging scenarios, offering both specialized and comprehensive solutions for real-world algorithmic problems.
 
 ## The Nature of Sections
 
@@ -19,6 +19,11 @@ A section in Softanza differs from a Range:
 Q("SOFTANZA").Section(3, 5) #--> "TAN" : substring from position 3 to 5
 Q("SOFTANZA").Range(3, 5) #--? "TANZA" : substring starting at position 3 and spanning 5 positions forward
 ```
+
+And `Section()` is used the same way with strings and lists:
+? Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]).Section(3, 5) #--> [ "T", "A", "N" ]
+
+>`Range()` is also used the same way with strings and lists.
 
 ## MergeInclusive(): Handling Contained Sections
 
@@ -219,7 +224,7 @@ And merged them into two clean, non-overlapping sections:
 [ [ 8, 15 ], [ 26, 29 ] ]
 ```
 
-This merging process ensures that our string manipulation operations work correctly. The first merged section [8, 15] cleanly captures all the overlapping "Ring" duplicates, while the second section [26, 29] handles the duplicated "Ruby". When these merged sections are used with RemoveSections(), we get exactly the result we want.
+This merging process ensures that our string manipulation operations work correctly. The first merged section `[8, 15]` cleanly captures all the overlapping "Ring" duplicates, while the second section `[26, 29]` handles the duplicated "Ruby". When these merged sections are used with RemoveSections(), we get exactly the result we want.
 
 This example demonstrated the critical importance of proper section merging in string manipulation. Without this feature, operations involving overlapping or inclusive sections could produce unexpected and incorrect results. By first consolidating such sections into a clean, non-overlapping set of sections, Softanza ensures reliable and predictable string manipulation outcomes.
 
