@@ -2,6 +2,10 @@
 
 ## Introduction
 
+Softanza library provides three sophisticated methods for merging sections (pairs of numbers representing ranges): `MergeInclusive()`, `MergeOverlapping()`, and `MergeSections()`. These features are designed to handle different types of range-merging scenarios, offering both specialized and comprehensive solutions for real-world algorithmic problems.
+
+## The Nature of Sections
+
 Before exploring the merging features, let’s clarify what we mean by "sections." In Softanza, a section is represented as a pair of numbers `[n1, n2]`, where:
 
 - `n1` is the starting point
