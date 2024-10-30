@@ -533,7 +533,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*-------
-*/
+
 pron()
 
 o1 = new stzListOfPairs([
@@ -542,15 +542,97 @@ o1 = new stzListOfPairs([
 	[15, 20], [12, 22]
 ])
 
-? @@NL( o1.SortedInAscending() ) + NL
+o1.MergeOverlapping()
+? @@( o1.Content() )
+#--> [ [ 4, 6 ], [ 10, 11 ], [ 12, 22 ] ]
+
+proff()
+# Executed in 0.06 second(s).
+
+/*===-----
+
+pron()
+
+o1 = new stzListOfPairs([
+	[ 8, 11  ], # Each section overlaps with the next
+	[ 9, 12  ],
+	[ 10, 13 ],
+	[ 11, 14 ],
+	[ 12, 15 ],
+	[ 26, 29 ]  # This one stands alone
+])
 
 o1.MergeOverlapping()
 ? @@( o1.Content() )
-#--> [ [ 4, 6 ], [ 10, 22 ] ]
+#--> [ [ 8, 15 ], [ 26, 29 ] ]
 
 proff()
+# Executed in 0.04 second(s).
 
-/*-------
+/*-----
+
+pron()
+
+o1 = new stzListOfPairs([
+	# Inclusive sections
+	[ 4, 6  ], [ 4, 4 ], [ 5, 6 ],
+	
+	# Overlapping sections
+	[ 8, 10 ], [ 10, 12 ], [ 12, 14 ],
+	
+	# Both inclusive and overlapping
+	[ 20, 25 ], [ 22, 23 ], [ 24, 27 ], [ 26, 28 ]
+])
+
+o1.MergeSections()
+? @@( o1.Content() )
+#--> [ [ 4, 6 ], [ 8, 14 ], [ 20, 28 ] ]
+
+proff()
+# Executed in 0.05 second(s).
+
+/*-----
+*/
+pron()
+
+o1 = new stzString("PhpRingRingRingPythonRubyRuby")
+
+aSections = [ [ 8, 11 ], [ 9, 12 ], [ 10, 13 ], [ 11, 14 ], [ 12, 15 ], [ 26, 29 ] ]
+o1.RemoveSections(aSections)
+? o1.Content()
+#--> PhpRing
+
+#---
+
+o1 = new stzString("PhpRingRingRingPythonRubyRuby")
+
+aMerged = StzListOfPairsQ(aSections).SectionsMerged()
+? @@(aMerged) + NL
+
+o1.RemoveSections(aMerged)
+? o1.Content()
+#--> PhpRingPythonRuby
+
+proff()
+# Executed in 0.06 second(s).
+
+/*-----
+
+# Meeting time slots (in 24-hour format)
+aSlots = [
+	[9, 10],   # 9:00-10:00 meeting
+	[9, 11],   # 9:00-11:00 meeting (includes previous)
+	[10, 12],  # 10:00-12:00 meeting (overlaps)
+	[15, 16],  # 3:00-4:00 meeting (separate)
+]
+
+oSlots = new stzListOfPairs(aSlots)
+oSlots.MergeSections()
+? @@( oSlots.Content() )
+#--> [ [ 9, 12 ], [ 15, 16 ] ]
+# Shows actual blocked time periods
+
+/*=====
  */
 pron()
 

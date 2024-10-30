@@ -1125,16 +1125,30 @@ class stzListOfPairs from stzListOfLists
 			def MergeInclusiveQ()
 				return This.MergeIncludedQ()
 
+		#--
+
+		def MergeIncludedSections()
+			This.MergeIncluded()
+
+			def MergeIncludedSectionsQ()
+				return This.MergeInclusiveQ()
+
+		def MergeInclusiveSections()
+			This.MergeIncluded()
+
+			def MergeInclusiveSectionsQ()
+				return This.MergeInclusiveQ()
 		#>
 
-	def IncludedPairsMerged()
+	def IncludedSectionsMerged()
 
 		aResult = This.Copy().MergeIncludedQ().Content()
 		return aResult
 
-		def InclusivePairsMerged()
-			return This.IncludedPairsMerged()
+		def InclusiveSectionsMerged()
+			return This.IncludedSectionsMerged()
 
+		
 	  #--------------------------------#
 	 #  MERGING OVERLAPPING SECTIONS  #
 	#================================#
@@ -1159,15 +1173,7 @@ class stzListOfPairs from stzListOfLists
 		# Iterate through pairs
 		for i = 2 to nLen
 			aPair = aPairs[i]
-if i > 9
-
-? ">> i : " + i
-? "-------------"
-? "aCurrentSection: " + @@(aCurrentSection)
-? "aPair:" + @@(aPair)
-? "DoOverlap(): " + pvtDoOverlap(aCurrentSection, aPair) + NL
-
-ok		
+	
 			# Check if current pair overlaps or is adjacent to current section
 			if pvtDoOverlap(aCurrentSection, aPair)
 				aCurrentSection = pvtMergeOverlappingSections(aCurrentSection, aPair)
@@ -1185,11 +1191,39 @@ ok
 		# Update content with merged result
 		This.UpdateWith(aResult)
 
+		#< @FunctionFluentForm
+
 		def MergeOverlappingQ()
 			This.MergeOverLapping()
 			return This
 
-	def OverLappedPairsMerged()
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def MergeOverlappingSections()
+			This.MergeOverlapping()
+
+			def MergeOverlappingSectionsQ()
+				return This.MergeOverlappingQ()
+
+		#--
+
+		def MergeOverlap()
+			This.MergeOverlapping()
+
+			def MergeOverlapQ()
+				return This.MergeOverlappingQ()
+
+		def MergeOverlapSections()
+			This.MergeOverlapping()
+
+			def MergeOverlapSectionsQ()
+				return This.MergeOverlappingQ()
+
+		#>
+
+	def OverLappedSectionsMerged()
 		cResult = This.Copy().MergeoverLappingQ().Content()
 		return cResult
 
@@ -1207,7 +1241,7 @@ ok
 
 	def SectionsMerged()
 		aResult = This.Copy().MergeSectionsQ().Content()
-		return This
+		return aResult
 
 	  #===================================================#
 	 #  CHECKING IF THE TWO VALUES ARE ANOGRAMS STRINGS  #

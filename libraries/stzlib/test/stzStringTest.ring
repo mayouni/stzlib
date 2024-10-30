@@ -5123,7 +5123,7 @@ proff()
 # Executed in 0.17 second(s).
 
 /*-------------
-*/
+
 pron()
 
 aSections = [ [ 8, 11 ], [ 9, 12 ], [ 10, 13 ], [ 11, 14 ], [ 12, 15 ], [ 26, 29 ] ]
@@ -5140,7 +5140,7 @@ proff()
 */
 pron()
 
-o1 = new stzString("phpringringringpythonrubyruby")
+o1 = new stzString("PhpRingRingRingPythonRubyRuby")
 
 aSections = [ [ 8, 11 ], [ 9, 12 ], [ 10, 13 ], [ 11, 14 ], [ 12, 15 ], [ 26, 29 ] ]
 
