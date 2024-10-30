@@ -1070,66 +1070,44 @@ class stzListOfPairs from stzListOfLists
 	 #  MERGING THE INCLUDED PAIRS IN THE LIST OF PAIRS  #
 	#---------------------------------------------------#
 
-	#NOTE
-	# The code of the function has been generated (mostly) by Gemini AI
-	# using the fellowing prompts : https://g.co/gemini/share/2ecc1b47c465
 
-	# I left the naming style as proposed by Gemini as recognition of its
-	# nice performance regarding this algorithm ;)
-
-	# I just adapted the code to fit with a method inside a class, and
-	# replace the for/in loop with a standard for loop (X2 performance gain)
-
-	# The fact that Softanza contains the "Min() and Max()" functions, and the
-	# fact that Ring "if [] returns FALSE", helped a lot in leaving the code
-	# proposed by Gemini as is.
-
-	def MergeIncluded()
-		#EXAMPLE
-		/*
-		o1 = new stzListOfPairs([
-			[ 4, 4 ], [ 4, 5 ], [ 4, 6 ], [ 5, 5 ], [ 5, 6 ], [ 6, 6 ],
-			[ 10, 10 ], [ 10, 11 ], [ 11, 11 ],
-			[15, 20], [12, 22]
-		])
-		
-		o1.MergeInclusive()
-		? @@( o1.Content() )
-		#--> [ [ 4, 6 ], [ 10, 11 ], [ 12, 22 ] ]
-
-		*/
-
-		merged_pairs = []
-		current_pair = :None
+	def MergeIncluded() #ClaudeAI
 
 		aPairs = This.Content()
 		nLen = len(aPairs)
 
-		for i = 1 to nLen
-			if current_pair = :None
-				# Initialize current_pair if it's None
-		     		 current_pair = aPairs[i]
-		   	 else
-		     		# Check if the new pair fits within the current one
-		      		if aPairs[i][1] <= current_pair[2]
-		       			# Update current_pair to include the new pair
-		        		current_pair[1] = min([aPairs[i][1], current_pair[1]])
-		        		current_pair[2] = max([aPairs[i][2], current_pair[2]])
+		# If the list is empty or has only one pair, nothing to merge
+		if nLen <= 1
+			return
+		ok
+	
+		# Sort pairs based on first number, then by second number
+		aPairsSorted = This.Copy().SortedInAscending()
+		
+		# Initialize result list with first pair
+		aResult = []
+		aCurrentSection = aPairsSorted[1]
+		
+		# Iterate through pairs
+		for i = 2 to nLen
+			aPair = aPairsSorted[i]
 			
-		      		else
-				        # Add the current merged pair to the result and start a new one
-				        merged_pairs + current_pair
-				        current_pair = aPairs[i]
-				ok
+			# Check if current pair is included in current section
+			if pvtIsInclusive(aCurrentSection, aPair)
+				aCurrentSection = pvtMergeInclusiveSections(aCurrentSection, aPair)
+			
+			# If not included, add current section to result and start new one
+			else
+				aResult + aCurrentSection
+				aCurrentSection = aPair
 			ok
 		next
-
-		# Add the last merged pair (if any)
-		if current_pair
-		    merged_pairs + current_pair
-		ok
-
-		This.UpdateWith( merged_pairs )
+		
+		# Add the last section
+		aResult + aCurrentSection
+		
+		# Update content with merged result
+		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
@@ -1150,11 +1128,62 @@ class stzListOfPairs from stzListOfLists
 		#>
 
 	def IncludedPairsMerged()
+
 		aResult = This.Copy().MergeIncludedQ().Content()
 		return aResult
 
 		def InclusivePairsMerged()
 			return This.IncludedPairsMerged()
+
+	  #--------------------------------#
+	 #  MERGING OVERLAPPING SECTIONS  #
+	#================================#
+
+	def MergeOverlapping() #ClaudeAI
+
+		aPairs = This.Content()
+		nLen = len(aPairs)
+
+		# If the list is empty or has only one pair, nothing to merge
+		if nLen <= 1
+			return
+		ok
+	
+		# Sort pairs based on first number
+		aPairs = This.Copy().SortedInAscending()
+		
+		# Initialize result list with first pair
+		aResult = []
+		aCurrentSection = aPairs[1]
+		
+		# Iterate through pairs
+		for i = 2 to nLen
+			aPair = aPairs[i]
+			
+			# Check if current pair overlaps or is adjacent to current section
+			if pvtDoOverlap(aCurrentSection, aPair)
+				aCurrentSection = pvtMergeOverlappingSections(aCurrentSection, aPair)
+			
+			# If no overlap, add current section to result and start new one
+			else
+				aResult + aCurrentSection
+				aCurrentSection = aPair
+			ok
+		next
+		
+		# Add the last section
+		aResult + aCurrentSection
+		
+		# Update content with merged result
+		This.UpdateWith(aResult)
+
+		def MergeOverlappingQ()
+			This.MergeOverLapping()
+			return This
+
+	def OverLappedPairsMerged()
+		cResult = This.Copy().MergeoverLappingQ().Content()
+		return cResult
 
 	  #===================================================#
 	 #  CHECKING IF THE TWO VALUES ARE ANOGRAMS STRINGS  #
@@ -1812,3 +1841,69 @@ class stzListOfPairs from stzListOfLists
 
 		oResult = new stzHashList(aHash)
 		return oResult
+
+
+	#------------------------------#
+	PRIVATE	# KTICHEN OF THE CLASS #
+	#------------------------------#
+
+	func pvtIsInclusive(aSection1, aSection2)
+		# Returns TRUE if one section includes the other
+		
+		n1Start = aSection1[1]
+		n1End = aSection1[2]
+		n2Start = aSection2[1]
+		n2End = aSection2[2]
+		
+		# Check if section1 includes section2
+		if n1Start <= n2Start and n1End >= n2End
+			return TRUE
+		ok
+		
+		# Check if section2 includes section1
+		if n2Start <= n1Start and n2End >= n1End
+			return TRUE
+		ok
+		
+		return FALSE
+	
+	func pvtMergeInclusiveSections(aSection1, aSection2)
+		# Returns a new section that spans both input sections
+		
+		nStart = pvtMin(aSection1[1], aSection2[1])
+		nEnd = pvtMax(aSection1[2], aSection2[2])
+		
+		return [nStart, nEnd]
+	
+	func pvtMin(n1, n2)
+		if n1 < n2
+			return n1
+		ok
+		return n2
+	
+	func pvtMax(n1, n2)
+		if n1 > n2
+			return n1
+		ok
+		return n2
+
+	def pvtDoOverlap(aSection1, aSection2)
+		# Returns TRUE if sections overlap or are adjacent
+		
+		n1Start = aSection1[1]
+		n1End = aSection1[2]
+		n2Start = aSection2[1]
+		n2End = aSection2[2]
+		
+		# Check if sections overlap or are adjacent
+		# Two sections overlap if one begins before the other ends
+		# They are adjacent if one ends exactly where the other begins
+		return n1End >= n2Start - 1 and n2End >= n1Start - 1
+	
+	def pvtMergeOverlappingSections(aSection1, aSection2)
+		# Returns a new section that spans both input sections
+		
+		nStart = pvtMin(aSection1[1], aSection2[1])
+		nEnd = pvtMax(aSection1[2], aSection2[2])
+		
+		return [nStart, nEnd]

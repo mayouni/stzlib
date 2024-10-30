@@ -77026,6 +77026,8 @@ n1 = Min(aTemp)
 		ok
 
 		aSorted = @SortLists(paSections)
+
+? ">> " + @@(aSorted)
 		nLen = len(aSorted)
 
 		for i = nLen to 1 step -1
