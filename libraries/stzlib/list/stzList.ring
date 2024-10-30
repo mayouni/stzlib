@@ -15109,12 +15109,10 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			return
 		ok
 
-		aSorted = @SortLists(paSections)
-		nLen = len(aSorted)
-
 		# Merging any inclusive or overlapping sections
 
-		aMerged = StzListOfPairsQ(aSorted).SectionsMerged()
+		aMerged = StzListOfPairsQ(paSections).SortQ().SectionsMerged()
+		nLen = len(aMerged)
 
 		# Doing the job
 
