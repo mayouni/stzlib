@@ -101,24 +101,23 @@ One of the primary motivations for implementing these features in Softanza was t
 
 Example:
 ```ring
-cStr = "Hello, Ring programming!"
-o1 = new stzString(cStr)
+o1 = new stzString("PhpRingRingRingPythonRubyRuby")
 
-# Without merging sections first:
-o1.RemoveSections([
-	[1, 5],   # "Hello"
-	[1, 7],   # "Hello, "
-	[8, 21]   # "Ring programming"
-])
-# Could lead to unexpected results due to overlapping sections
+aSections = [ [ 8, 11 ], [ 9, 12 ], [ 10, 13 ], [ 11, 14 ], [ 12, 15 ], [ 26, 29 ] ]
+o1.RemoveSections(aSections)
+? o1.Content()
+#--> PhpRing
 
-# With merged sections:
-aToRemove = new stzListOfPairs([
-	[1, 5], [1, 7], [8, 21]
-]).MergeSections().Content()
+#---
 
-o1.RemoveSections(aToRemove)
-# Ensures consistent results
+o1 = new stzString("PhpRingRingRingPythonRubyRuby")
+
+aMerged = StzListOfPairsQ(aSections).SectionsMerged()
+? @@(aMerged) + NL
+
+o1.RemoveSections(aMerged)
+? o1.Content()
+#--> PhpRingPythonRuby
 ```
 
 ### 2. Time Slot Management

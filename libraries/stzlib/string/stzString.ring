@@ -77028,17 +77028,25 @@ n1 = Min(aTemp)
 		aSorted = @SortLists(paSections)
 		nLen = len(aSorted)
 
-		# MergeInclusive() + MergeOverlapping()
+		# Merging any inclusive or overlapping sections
+
+		aMerged = StzListOfPairsQ(aSorted).SectionsMerged()
+
+		# Doing the job
 
 		for i = nLen to 1 step -1
-			This.RemoveSection(aSorted[i][1], aSorted[i][2])
+			This.RemoveSection(aMerged[i][1], aMerged[i][2])
 		next
 
-		#< @FunctionAlternativeForms
+		#< @FunctionFluentForm
 
 		def RemoveManySectionsQ(paListOfSections)
 			This.RemoveManySections(paListOfSections)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def RemoveSections(paListOfSections)
 			This.RemoveManySections(paListOfSections)

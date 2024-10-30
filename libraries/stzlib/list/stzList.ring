@@ -15109,24 +15109,43 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			return
 		ok
 
-		aSorted = QR(paSections, :stzListOfPairs).Sorted()
+		aSorted = @SortLists(paSections)
+		nLen = len(aSorted)
+
+		# Merging any inclusive or overlapping sections
+
+		aMerged = StzListOfPairsQ(aSorted).SectionsMerged()
+
+		# Doing the job
 
 		for i = nLen to 1 step -1
-			This.RemoveSection(aSorted[i][1], aSorted[i][2])
+			This.RemoveSection(aMerged[i][1], aMerged[i][2])
 		next
+
+		#< @FunctionFluentForm
 
 		def RemoveManySectionsQ(paSections)
 			This.RemoveManySections(paSections)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def RemoveSections(paSections)
 			This.RemoveManySections(paSections)
+
+			def RemoveSectionsQ(paSections)
+				return This.RemoveManySectionsQ(paSections)
+
+		#>
 
 	def ManySectionsRemoved(paSections)
 		aResult = This.Copy().RemoveManySectionsQ(paSections).Content()
 		return aResult
 
 		def SectionsRemoved(paSections)
+			return This. ManySectionsRemoved(paSections)
 
 	  #----------------------------------#
 	 #   REMOVING ANY ITEM FROM START   #
