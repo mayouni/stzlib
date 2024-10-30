@@ -591,30 +591,79 @@ o1.MergeSections()
 proff()
 # Executed in 0.05 second(s).
 
-/*-----
+/*----- #narration
 */
 pron()
 
+# In the following example, we want to remove consecutive
+# duplicate programming language names and obtain the final result:
+# "PhpRingPythonRuby".
+
 o1 = new stzString("PhpRingRingRingPythonRubyRuby")
 
-aSections = [ [ 8, 11 ], [ 9, 12 ], [ 10, 13 ], [ 11, 14 ], [ 12, 15 ], [ 26, 29 ] ]
-o1.RemoveSections(aSections)
-? o1.Content()
+# Let's retrieve their list along with their sections:
+
+? @@( o1.DupSecutiveSubStringsZZ() ) + NL
+#--> [
+#	[ "ingR", [ [ 9, 12 ] ] ],
+#	[ "ngRi", [ [ 10, 13 ] ] ],
+#	[ "Ruby", [ [ 26, 29 ] ] ],
+#	[ "gRin", [ [ 11, 14 ] ] ],
+#	[ "Ring", [ [ 8, 11 ], [ 12, 15 ] ] ]
+# ]
+
+# Observe the string in light of this data, and you’ll notice
+# that the sections correspond to the duplicated substrings.
+
+# Now, let's get only the list of sections:
+
+? @@( o1.FindDupSecutiveSubStringsZZ() ) + NL
+#--> [ [ 9, 12 ], [ 10, 13 ], [ 26, 29 ], [ 11, 14 ], [ 8, 11 ], [ 12, 15 ] ]
+
+# Let's store and sort them in descending order:
+
+aSections = reverse( @Sort(o1.FindDupSecutiveSubStringsZZ()) )
+? @@(aSections)
+#--> [ [ 26, 29 ], [ 12, 15 ], [ 11, 14 ], [ 10, 13 ], [ 9, 12 ], [ 8, 11 ] ]
+
+# Now, if we remove these sections one by one to clean up the duplicate
+# substrings, we end up with an unexpected result! Here’s why:
+
+for section in aSections
+	o1.RemoveSection(section[1], section[2])
+next
+? o1.Content() + NL
 #--> PhpRing
 
-#---
+# The issue lies in the nature of these sections: they overlap or are nested
+# within each other, which leads to an incorrect result by removing more than
+# intended!
+
+# To fix this, Softanza identifies inclusive/overlapping sections and merges
+# them before processing removal. Let's test it:
 
 o1 = new stzString("PhpRingRingRingPythonRubyRuby")
 
-aMerged = StzListOfPairsQ(aSections).SectionsMerged()
-? @@(aMerged) + NL
-
-o1.RemoveSections(aMerged)
+o1.RemoveSections(aSections)
 ? o1.Content()
 #--> PhpRingPythonRuby
 
+# Which is the expected outcome!
+
+# Internally, Softanza merged the sections as follows:
+
+? @@( StzListOfPairsQ(aSections).MergeSectionsQ().Content() )
+#--> [ [ 8, 15 ], [ 26, 29 ] ]
+
+# And so, the long list of inclusive/overlapping sections:
+#--> [ [ 9, 12 ], [ 10, 13 ], [ 26, 29 ], [ 11, 14 ], [ 8, 11 ], [ 12, 15 ] ]
+
+# was simplified into clean and distinct sections:
+#--> [ [ 8, 15 ], [ 26, 29 ] ]
+
+# resulting in the correct removal through RemoveSections().
+
 proff()
-# Executed in 0.06 second(s).
 
 /*-----
 

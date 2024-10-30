@@ -97,28 +97,87 @@ o1.MergeSections()
 ## Practical Applications
 
 ### 1. String Section Management
-One of the primary motivations for implementing these features in Softanza was to enhance the `RemoveSections()` method in the `stzString` class. When removing multiple sections from a string, unexpected results can occur if the sections are inclusive or overlapping. These merging features ensure consistent and predictable results.
+[Previous sections of the article remain the same until the Practical Applications section]
 
-Example:
+## Practical Applications
+
+### 1. String Section Management: A Deep Dive
+
+One of the primary motivations for implementing these features in Softanza was to enhance string manipulation operations, particularly when dealing with duplicated substrings. 
+
+Let's explore a practical example where we want to remove consecutive duplicated names of programming languages from a string like "PhpRingRingRingPythonRubyRuby" to get "PhpRingPythonRuby" as our final result.
+
+First, let's examine our input string and analyze its duplicated substrings:
+
 ```ring
 o1 = new stzString("PhpRingRingRingPythonRubyRuby")
 
-aSections = [ [ 8, 11 ], [ 9, 12 ], [ 10, 13 ], [ 11, 14 ], [ 12, 15 ], [ 26, 29 ] ]
+# Get the duplicated substrings along with their sections:
+? @@( o1.DupSecutiveSubStringsZZ() )
+#--> [
+#	[ "ingR", [ [ 9, 12 ] ] ],
+#	[ "ngRi", [ [ 10, 13 ] ] ],
+#	[ "Ruby", [ [ 26, 29 ] ] ],
+#	[ "gRin", [ [ 11, 14 ] ] ],
+#	[ "Ring", [ [ 8, 11 ], [ 12, 15 ] ] ]
+# ]
+```
+
+This output shows us all the duplicated substrings and their positions in the string. As we can see, there are several overlapping sections. For our purpose, we need just the sections themselves:
+
+```ring
+# Extract just the sections:
+? @@( o1.FindDupSecutiveSubStringsZZ() )
+#--> [ [ 9, 12 ], [ 10, 13 ], [ 26, 29 ], [ 11, 14 ], [ 8, 11 ], [ 12, 15 ] ]
+
+# Sort them in descending order for processing
+aSections = reverse( @Sort(o1.FindDupSecutiveSubStringsZZ()) )
+? @@(aSections)
+#--> [ [ 26, 29 ], [ 12, 15 ], [ 11, 14 ], [ 10, 13 ], [ 9, 12 ], [ 8, 11 ] ]
+```
+
+Now, let's demonstrate why proper section merging is crucial. If we try to remove these sections one by one without merging them first:
+
+```ring
+for section in aSections
+	o1.RemoveSection(section[1], section[2])
+next
+? o1.Content()
+#--> PhpRing   # This is not what we wanted!
+```
+
+We get an unexpected result! The problem lies in the nature of our sections - they are either overlapping or inclusive of each other. When we remove them sequentially, we end up removing more text than intended because the sections interact with each other.
+
+Here's how we solve this problem using Softanza's section merging capability:
+
+```ring
+o1 = new stzString("PhpRingRingRingPythonRubyRuby")
 o1.RemoveSections(aSections)
 ? o1.Content()
-#--> PhpRing
-
-#---
-
-o1 = new stzString("PhpRingRingRingPythonRubyRuby")
-
-aMerged = StzListOfPairsQ(aSections).SectionsMerged()
-? @@(aMerged) + NL
-
-o1.RemoveSections(aMerged)
-? o1.Content()
-#--> PhpRingPythonRuby
+#--> PhpRingPythonRuby   # Perfect! This is what we wanted.
 ```
+
+The magic happens behind the scenes. Let's see how Softanza processes these sections:
+
+```ring
+? @@( StzListOfPairsQ(aSections).MergeSectionsQ().Content() )
+#--> [ [ 8, 15 ], [ 26, 29 ] ]
+```
+
+What happened here is remarkable. Softanza took our complex list of overlapping sections:
+```
+[ [ 9, 12 ], [ 10, 13 ], [ 26, 29 ], [ 11, 14 ], [ 8, 11 ], [ 12, 15 ] ]
+```
+
+And merged them into two clean, non-overlapping sections:
+```
+[ [ 8, 15 ], [ 26, 29 ] ]
+```
+
+This merging process ensures that our string manipulation operations work correctly. The first merged section [8, 15] cleanly captures all the overlapping "Ring" duplicates, while the second section [26, 29] handles the duplicated "Ruby". When these merged sections are used with RemoveSections(), we get exactly the result we want.
+
+This example demonstrated the critical importance of proper section merging in string manipulation. Without this feature, operations involving overlapping or inclusive sections could produce unexpected and incorrect results. By first consolidating such sections into a clean, non-overlapping set of ranges, Softanza ensures reliable and predictable string manipulation outcomes.
+
 
 ### 2. Time Slot Management
 These features are valuable for managing calendar events or scheduling systems:
