@@ -16,13 +16,6 @@ Q("SOFTANZA").Section(3, 5) #--> "TAN" : substring from position 3 to 5
 Q("SOFTANZA").Range(3, 5) #--? "TANZA" : substring starting at position 3 and spanning 5 positions forward
 ```
 
-## The Nature of Sections
-
-Before diving into the merging features, let's understand what we mean by sections. In Softanza, a section is represented as a pair of numbers [n1, n2], where:
-- n1 is the starting point
-- n2 is the ending point
-- n1 ≤ n2 (start is always less than or equal to end)
-
 ## MergeInclusive(): Handling Contained Sections
 
 ### Purpose
