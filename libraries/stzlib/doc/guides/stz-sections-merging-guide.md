@@ -2,7 +2,19 @@
 
 ## Introduction
 
-Softanza library provides three sophisticated methods for merging sections (pairs of numbers representing ranges): `MergeInclusive()`, `MergeOverlapping()`, and `MergeSections()`. These features are designed to handle different types of range-merging scenarios, offering both specialized and comprehensive solutions for real-world algorithmic problems.
+Before exploring the merging features, let’s clarify what we mean by "sections." In Softanza, a section is represented as a pair of numbers `[n1, n2]`, where:
+
+- `n1` is the starting point
+- `n2` is the ending point
+
+`n1` can be ≤ `n2` or vice versa; whichever the case, the section `[n1, n2]` is returned.
+
+A section in Softanza differs from a Range:
+
+```ring
+Q("SOFTANZA").Section(3, 5) #--> "TAN" : substring from position 3 to 5
+Q("SOFTANZA").Range(3, 5) #--? "TANZA" : substring starting at position 3 and spanning 5 positions forward
+```
 
 ## The Nature of Sections
 
@@ -14,7 +26,7 @@ Before diving into the merging features, let's understand what we mean by sectio
 ## MergeInclusive(): Handling Contained Sections
 
 ### Purpose
-`MergeInclusive()` is designed to merge sections where one section completely contains another. This is particularly useful when dealing with nested ranges that need to be simplified.
+`MergeInclusive()` is designed to merge sections where one section completely contains another. This is particularly useful when dealing with nested sections that need to be simplified.
 
 ### Syntax
 ```ring
@@ -41,7 +53,7 @@ o1.MergeInclusive()
 ## MergeOverlapping(): Handling Adjacent or Overlapping Sections
 
 ### Purpose
-`MergeOverlapping()` merges sections that either overlap or are adjacent to each other. This is useful when you need to combine ranges that share common points or are consecutive.
+`MergeOverlapping()` merges sections that either overlap or are adjacent to each other. This is useful when you need to combine sections that share common points or are consecutive.
 
 ### Syntax
 ```ring
@@ -68,7 +80,7 @@ o1.MergeOverlapping()
 ## MergeSections(): Comprehensive Section Merging
 
 ### Purpose
-`MergeSections()` combines both inclusive and overlapping merging strategies, providing the most compact representation possible of the given ranges.
+`MergeSections()` combines both inclusive and overlapping merging strategies, providing the most compact representation possible of the given sections.
 
 ### Syntax
 ```ring
@@ -96,12 +108,48 @@ o1.MergeSections()
 
 ## Practical Applications
 
-### 1. String Section Management
-[Previous sections of the article remain the same until the Practical Applications section]
+We’ll demonstrate the section-merging feature in Softanza with three practical examples. The issue presented in the third example was the key motivation for adding this feature to the library, so it will be covered in greater detail.
 
-## Practical Applications
+### 1. Time Slot Management
+These features are valuable for managing calendar events or scheduling systems:
+```ring
+# Meeting time slots (in 24-hour format)
+aSlots = [
+	[9, 10],   # 9:00-10:00 meeting
+	[9, 11],   # 9:00-11:00 meeting (includes previous)
+	[10, 12],  # 10:00-12:00 meeting (overlaps)
+	[15, 16],  # 3:00-4:00 meeting (separate)
+]
 
-### 1. String Section Management: A Deep Dive
+oSlots = new stzListOfPairs(aSlots)
+oSlots.MergeSections()
+? @@( oSlots.Content() )
+#--> [ [ 9, 12 ], [ 15, 16 ] ]
+# Shows actual blocked time periods
+```
+
+### 2. Memory Section Optimization
+
+> REMINDER: We use "Memory Section" instead of "Memory Range" because they are distinct in Softanza, and what we mean here is specifically a Section, not a Range.
+
+Useful for systems programming and memory management:
+```ring
+# Memory sections to allocate
+aSections = [
+	[1000, 2000],
+	[1500, 2500],  # Overlaps with previous
+	[2400, 3000],  # Overlaps with previous
+	[5000, 6000]   # Separate section
+]
+
+oSections = new stzListOfPairs(aSections)
+oSections.MergeSections()
+? @@( oSections.Content() )
+#--> [ [ 1000, 3000 ], [ 5000, 6000 ] ]
+# Shows actual memory sections needed
+```
+
+### 3. String Section Management: A Deep Dive
 
 One of the primary motivations for implementing these features in Softanza was to enhance string manipulation operations, particularly when dealing with duplicated substrings. 
 
@@ -176,49 +224,14 @@ And merged them into two clean, non-overlapping sections:
 
 This merging process ensures that our string manipulation operations work correctly. The first merged section [8, 15] cleanly captures all the overlapping "Ring" duplicates, while the second section [26, 29] handles the duplicated "Ruby". When these merged sections are used with RemoveSections(), we get exactly the result we want.
 
-This example demonstrated the critical importance of proper section merging in string manipulation. Without this feature, operations involving overlapping or inclusive sections could produce unexpected and incorrect results. By first consolidating such sections into a clean, non-overlapping set of ranges, Softanza ensures reliable and predictable string manipulation outcomes.
+This example demonstrated the critical importance of proper section merging in string manipulation. Without this feature, operations involving overlapping or inclusive sections could produce unexpected and incorrect results. By first consolidating such sections into a clean, non-overlapping set of sections, Softanza ensures reliable and predictable string manipulation outcomes.
 
 
-### 2. Time Slot Management
-These features are valuable for managing calendar events or scheduling systems:
-```ring
-# Meeting time slots (in 24-hour format)
-aSlots = [
-	[9, 10],   # 9:00-10:00 meeting
-	[9, 11],   # 9:00-11:00 meeting (includes previous)
-	[10, 12],  # 10:00-12:00 meeting (overlaps)
-	[15, 16],  # 3:00-4:00 meeting (separate)
-]
-
-oSlots = new stzListOfPairs(aSlots)
-oSlots.MergeSections()
-? @@( oSlots.Content() )
-#--> [ [ 9, 12 ], [ 15, 16 ] ]
-# Shows actual blocked time periods
-```
-
-### 3. Memory Range Optimization
-Useful for systems programming and memory management:
-```ring
-# Memory ranges to allocate
-aRanges = [
-	[1000, 2000],
-	[1500, 2500],  # Overlaps with previous
-	[2400, 3000],  # Overlaps with previous
-	[5000, 6000]   # Separate range
-]
-
-oRanges = new stzListOfPairs(aRanges)
-oRanges.MergeSections()
-? @@( oRanges.Content() )
-#--> [ [ 1000, 3000 ], [ 5000, 6000 ] ]
-# Shows actual memory ranges needed
-```
 
 ## Conclusion
 
-The section merging features in Softanza provide a robust solution for handling different types of range-merging scenarios. Whether you need to merge contained sections (`MergeInclusive()`), overlapping sections (`MergeOverlapping()`), or both (`MergeSections()`), these methods offer both specialized and comprehensive solutions.
+The section merging features in Softanza provide a robust solution for handling different types of section-merging scenarios. Whether you need to merge contained sections (`MergeInclusive()`), overlapping sections (`MergeOverlapping()`), or both (`MergeSections()`), these methods offer both specialized and comprehensive solutions.
 
-The implementation of these features was driven by real-world needs, particularly in string manipulation scenarios where consistent handling of sections is crucial. However, their utility extends far beyond string operations, making them valuable tools for any situation involving range management, from scheduling systems to memory allocation.
+The implementation of these features was driven by real-world needs, particularly in string manipulation scenarios where consistent handling of sections is crucial. However, their utility extends far beyond string operations, making them valuable tools for any situation involving section management, from scheduling systems to memory allocation.
 
 By understanding the differences and complementary nature of these features, developers can choose the most appropriate method for their specific needs, ensuring efficient and accurate handling of section-based operations in their applications.
