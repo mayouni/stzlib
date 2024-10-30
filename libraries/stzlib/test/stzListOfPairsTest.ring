@@ -516,7 +516,7 @@ pron()
 proff()
 
 /*-------
-*/
+
 pron()
 
 o1 = new stzListOfPairs([
@@ -532,9 +532,23 @@ o1.MergeInclusive()
 proff()
 # Executed in 0.04 second(s)
 
-#NOTE
-# The code of the function has been generated (mostly) by Gemini AI
-# using the fellowing prompts : https://g.co/gemini/share/2ecc1b47c465*
+/*-------
+*/
+pron()
+
+o1 = new stzListOfPairs([
+	[ 4, 4 ], [ 4, 5 ], [ 4, 6 ], [ 5, 5 ], [ 5, 6 ], [ 6, 6 ],
+	[ 10, 10 ], [ 10, 11 ], [ 11, 11 ],
+	[15, 20], [12, 22]
+])
+
+? @@NL( o1.SortedInAscending() ) + NL
+
+o1.MergeOverlapping()
+? @@( o1.Content() )
+#--> [ [ 4, 6 ], [ 10, 22 ] ]
+
+proff()
 
 /*-------
  */
