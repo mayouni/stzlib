@@ -17,7 +17,7 @@ A section in Softanza differs from a Range:
 
 ```ring
 Q("SOFTANZA").Section(3, 5) #--> "TAN" : substring from position 3 to 5
-Q("SOFTANZA").Range(3, 5) #--? "TANZA" : substring starting at position 3 and spanning 5 positions forward
+Q("SOFTANZA").Range(3, 5) #--> "TANZA" : substring starting at position 3 and spanning 5 positions forward
 ```
 
 The `Section()` function works the same way with both strings and lists:
@@ -238,5 +238,3 @@ This example demonstrated the critical importance of proper section merging in s
 The section merging features in Softanza provide a robust solution for handling different types of section-merging scenarios. Whether you need to merge contained sections (`MergeInclusive()`), overlapping sections (`MergeOverlapping()`), or both (`MergeSections()`), these methods offer both specialized and comprehensive solutions.
 
 The implementation of these features was driven by real-world needs, particularly in string manipulation scenarios where consistent handling of sections is crucial. However, their utility extends far beyond string operations, making them valuable tools for any situation involving section management, from scheduling systems to memory allocation.
-
-By understanding the differences and complementary nature of these features, developers can choose the most appropriate method for their specific needs, ensuring efficient and accurate handling of section-based operations in their applications.
