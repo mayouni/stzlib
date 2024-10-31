@@ -8170,7 +8170,7 @@ proff()
 # Executed in 0.03 second(s).
 
 /*------------------
-*/
+
 pron()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
@@ -8185,37 +8185,62 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 }
 
 proff()
+# Executed in 0.04 second(s).
 
 /*------------------
+
+pron()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
-	ReplacePreviousNthOccurrences([1, 2, 3], :of = "A", :with = "*",  :StartingAt = 5)
-	? @@( Content() ) #--> [ "*" , "B", "*", "C", "*", "D", "A" ]
+	ReplacePreviousNthOccurrencesST([1, 2, 3], :of = "A", :with = "*",  :StartingAt = 5)
+	? @@( Content() )
+	#--> [ "*" , "B", "*", "C", "*", "D", "A" ]
 }
 
+proff()
+# Executed in 0.01 second(s).
+
 /*------------------
+
+pron()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-	ReplacePreviousNthOccurrences([3, 1], "A", :With = [ "#3", "#1" ], :StartingAt = 5)
-	? @@( Content() ) #--> [ [ "#3", "#1" ], "B", "A", "C", [ "#3", "#1" ], "D", "A" ]
+	ReplacePreviousNthOccurrencesST([3, 1], "A", :With = [ "#3", "#1" ], :StartingAt = 6)
+	? @@( Content() )
+	#--> [ [ "#3", "#1" ], "B", "A", "C", [ "#3", "#1" ], "D", "A" ]
 }
 
+proff()
+# Executed in 0.01 second(s).
+
 /*------------------
+
+pron()
 
 StzListQ([ "A", "-", "-", "A", "-", "A", "-", "A" ]) {
 	RemoveNextNthOccurrence(2, :Of = "A", :StartingAt = 3)
 	? Content() #--> [ "A", "-", "-", "A", "-", "-", "A" ]
 }
 
+proff()
+# Executed in almost 0 second(s).
+
 /*------------------
+
+pron()
 
 StzListQ([ "A", "-", "-", "A", "-", "A", "-", "A" ]) {
 	RemovePreviousNthOccurrence(2, :Of = "A", :StartingAt = 6)
 	? Content() #--> [ "A", "-", "-", "-", "A", "-", "A" ]
 }
 
+proff()
+# Executed in 0.01 second(s).
+
 /*------------------
+
+pron()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	RemoveNextNthOccurrences([2, 3], :of = "A", :StartingAt = 3)
@@ -8227,7 +8252,12 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	#--> [ "A" , "B", "A", "C", "D" ]
 }
 
+proff()
+# Executed in 0.04 second(s).
+
 /*-----------------
+
+pron()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
@@ -8237,19 +8267,34 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
 }
 
+proff()
+# Executed in 0.03 second(s).
+
 /*------------------
 
+pron()
+
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-	RemovePreviousNthOccurrences([2, 3], :of = "A", :StartingAt = 5)
-	? Content() #!--> [ "B" , "C", "A", "D", "A" ]
+
+	? FindPreviousNthOccurrences([2, 3], "A", 6)
+	#--> [ 3, 5 ]
+
+	RemovePreviousNthOccurrences([2, 3], :of = "A", :StartingAt = 6)
+	? Content()
+	#--> [ "A" , "B", "C", "D", "A" ]
 }
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-	? PreviousNthOccurrencesRemoved([2, 3], :of = "A", :StartingAt = 5)
-	#!--> [ "B" , "C", "A", "D", "A" ]
+	? PreviousNthOccurrencesRemoved([2, 3], :of = "A", :StartingAt = 6)
+	#--> [ "A" , "B", "C", "D", "A" ]
 }
+
+proff()
+# Executed in 0.01 second(s).
 
 /*=================
+*/
+pron()
 
 # In Softanza, you can replace all occurrences of an item
 # in the list by a provided value, by saying:
@@ -8288,11 +8333,14 @@ StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
 
 StzListQ([ "A", "A", "A" , "A", "A" ]) {
 	
-	ReplaceItemByAlternance("A", :With = [ "#1", "#2" ])
+	ReplaceItemByManyXT("A", :With = [ "#1", "#2" ])
 
 	? Content() #--> [ "#1", "#2", "#1", "#2", "#1" ]
 
 }
+
+proff()
+# Executed in 0.01 second(s).
 
 /*---------------------
 
