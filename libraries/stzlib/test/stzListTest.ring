@@ -8174,13 +8174,13 @@ proff()
 pron()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-	ReplaceNextNthOccurrences([2, 3], :of = "A", :with = "*",  :StartingAt = 4)
+	ReplaceNextNthOccurrences([2, 3], :of = "A", :with = "*",  :StartingAt = 3)
 	? @@( Content() )
 	#--> [ "A" , "B", "A", "C", "*", "D", "*" ]
 }
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-	? @@( NextNthOccurrencesReplaced([2, 3], :Of = "A", :With = "*",  :StartingAt = 4) )
+	? @@( NextNthOccurrencesReplaced([2, 3], :Of = "A", :With = "*",  :StartingAt = 3 ) )
 	#--> [ "A", "B", "A", "C", "*", "D", "*" ]
 }
 
