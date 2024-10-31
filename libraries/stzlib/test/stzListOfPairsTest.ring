@@ -592,7 +592,7 @@ proff()
 # Executed in 0.05 second(s).
 
 /*----- #narration
-*/
+
 pron()
 
 # In the following example, we want to remove consecutive
@@ -699,7 +699,7 @@ o1.ToStzHashList().Show()
 #	foued      kamel   manufacturer   120
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.08 second(s)
 
 /*-------
 

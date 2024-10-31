@@ -8843,9 +8843,15 @@ class stzList from stzObject
 			def ReplaceItemsAtPositionsQ(panPos, pNewItem)
 				return This.ReplaceAnyItemsAtPositionsQ(panPos, pNewItem)
 
+		def ReplaceItemsAtThesePositions(panpos, paNewItems)
+			This.ReplaceAnyItemsAtPositions(panPos, paNewItems)
+
+			def ReplaceItemsAtThesePositionsQ(panpos, paNewItems)
+				return This.ReplaceAnyItemsAtPositionsQ(panPos, pNewItem)
+
 		#>
 
-	#< @FunctionPassiveForm
+	#-- @FunctionPassiveForm
 
 	def AnyItemAtPositionsReplaced(panPos, pNewItem)
 		cResult = This.Copy().ReplaceAnyItemAtPositionsQ(panPos, pNewItem)
@@ -8862,9 +8868,10 @@ class stzList from stzObject
 		def ItemsReplacedAtPositions(panPos, pNewItem)
 			return This.AnyItemAtPositionsReplaced(panPos, pNewItem)
 
-		#>
-	#>
+		def ItemsReplacedAtThesePositions(panPos, pNewItem)
+			return This.AnyItemAtPositionsReplaced(panPos, pNewItem)
 
+		#>
 	  #----------------------------------------------------------------------------#
 	 #  REPLACING A GIVEN ITEM (IF IT EXISTS) AT THE GIVEN POSITION OR POSITIONS  #
 	#============================================================================#
@@ -10280,6 +10287,10 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! panPos must be a list of numbers.")
 			ok
 
+			if isList(paNewItems) and StzListQ(paNewItems).IsWithOrByOrUsingNamedParam()
+				paNewItems = paNewItems[2]
+			ok
+
 			if NOT isList(paNewItems)
 				StzRaise("Incorrect param type! paNewItems must be a list.")
 			ok
@@ -10541,6 +10552,9 @@ class stzList from stzObject
 		return This.AnyItemAtPositionsReplacedByManyCS(panPos, paNewItems, TRUE)
 
 		#< @FunctionAlternativeForms
+
+		def ItemsReplaceAtThesePositions(panPos, paNewItems)
+			return This.AnyItemAtThesePositionsReplacedByMany(panPos, paNewItems)
 
 		def AnyItemsAtPositionsReplacedByMany(panPos, paNewItems)
 			return This.AnyItemAtThesePositionsReplacedByMany(panPos, paNewItems)
@@ -11868,7 +11882,7 @@ class stzList from stzObject
 
 		# Doing the job
 
-		oSection   = This.SectionQR(pnStartingAt, This.NumberOfItems(), :stzList)
+		oSection   = This.SectionQ(pnStartingAt, This.NumberOfItems())
 		anPos = oSection.FindAllCS(pItem, pCaseSensitive)
 
 		if len(anPos) > 0
@@ -12192,7 +12206,7 @@ class stzList from stzObject
 			StzRaise("Incorrect param! pnStartingAt must be a number.")
 		ok
 
-		oSection   = This.SectionQR(1, pnStartingAt, :stzList)
+		oSection   = This.SectionQ(1, pnStartingAt)
 		aPositions = oSection.FindAllCS(pItem, pCaseSensitive)
 
 		nPosition = aPositions[ len(aPositions) - n + 1 ]
@@ -12250,7 +12264,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
-		return This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+		return This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, TRUE)
 
 		#< @FunctionFuentForm
 

@@ -2613,7 +2613,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*------------
-*/
+
 pron()
 
 # DupOrigins = DuplicatesOrigins
@@ -2622,7 +2622,7 @@ o1 = new stzList([ "A", "B", "B", "B", "b", "C", "B", "C", "C", "c", "A" ])
 ? o1.FindDupSecutiveItems()
 #--> [ 3, 4, 9 ]
 
-? o1.DupSecutiveItemsZ()
+? @@( o1.DupSecutiveItemsZ() )
 #--> [ [ "B", [ 3, 4 ] ], [ "C", [ 9 ] ] ]
 
 ? @@( o1.FindThisDupSecutiveItem("B") )
@@ -2642,7 +2642,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*------------
-*/
+
 pron()
 
 # DupOrigins = DuplicatesOrigins
@@ -2657,6 +2657,7 @@ o1 = new stzList([ "A", "B", "B", "B", "b", "C", "B", "C", "C", "c", "A" ])
 
 o1.RemoveDupOrigins()
 ? @@( o1.Content() )
+#--> [ "B", "B", "b", "B", "C", "C", "c", "A" ]
 
 proff()
 # Executed in almost 0 second(s).
@@ -2791,6 +2792,8 @@ pron()
 
 ? Q([0]) * 3
 #--> [0, 0, 0]
+
+proff()
 
 /*------------
 
@@ -6612,7 +6615,7 @@ proff()
 # Executed in 0.06 second(s).
 
 /*--------------- #narration Writablilty VS Readablility VS Both of them!
-*/
+
 pron()
 
 # Softanza coding style is designed with a double promise in mind:
@@ -8108,29 +8111,46 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 #   "C" :  ------------.---------^-------------------.--------------^-- (2)
 #   "D" :  ------------^-----------------------------^----------------- (2)
 
-/*=================== #TODO Error
-*/
+/*===================
+
 pron()
 
 StzListQ([ "A" , "B", "C", "A", "D", "A" ]) {
-	ReplaceNextNthOccurrenceStartingAt(2, :Of = "A", :With = "*", :StartingAt = 2 )
-	? Content() #--> [ "A" , "B", "C", "A", "D", "*" ]
+	ReplaceNextNthOccurrenceS(2, :Of = "A", :With = "*", :StartingAt = 2 )
+	? Content()
+	#--> [ "A" , "B", "C", "A", "D", "*" ]
 }
 
 proff()
+# Executed in 0.03 second(s).
 
 /*------------------
+
+pron()
 
 StzListQ([ "A" , "B", "C", "A", "D", "A" ]) {
 	ReplacePreviousNthOccurrence(2, :of = "A", :By = "*", :StartingAt = 5)
 	? Content() #--> [ "*" , "B", "C", "A", "D", "A" ]
 }
 
+proff()
+# Executed in 0.01 second(s).
+
 /*------------------
+*/
+pron()
 
 StzListQ([ -1 , 2, 3, 4 ]) {
-	? NumberOfItemsW("Q(@item).IsBetween(1, 4)") #--> 3
+
+	? NumberOfItemsWXT("Q(@item).IsBetween(1, 4)")
+	#--> 2
+
+	? NumberOfItemsWXT("Q(@item).IsBetweenIB(1, 4)")
+	#--> 3
 }
+
+proff()
+# Executed in 0.16 second(s).
 
 /*------------------
 

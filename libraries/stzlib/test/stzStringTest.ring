@@ -5137,7 +5137,7 @@ proff()
 # Executed in 0.04 second(s).
 
 /*-------------
-*/
+
 pron()
 
 o1 = new stzString("PhpRingRingRingPythonRubyRuby")
@@ -5651,10 +5651,10 @@ proff()
 # Executed in 0.15 second(s).
 
 /*=============
-*/
+
 pron()
 
-o1 = new stzString(" so ftan  za ")
+o1 = new stzString(" so ftan   za ")
 o1.Unspacify()
 ? o1.Content()
 #--> "so ftan za"
@@ -5709,7 +5709,7 @@ pron()
 #--> "r  in  g"
 
 proff()
-# Executed in 0.01 second(s).
+# Executed in 0.02 second(s).
 
 /*--------------
 
@@ -16533,7 +16533,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("SOFTANZA")
@@ -16559,7 +16559,7 @@ o1 = new stzString("SOFTANZA")
 #-->
 # S O F T A N Z A
 # --------^-----^
-/*
+
 ? o1.VizFindXT("A", [ :Spacified, :PositionSign = Heart() ]) + NL
 #-->
 # S O F T A N Z A
@@ -16601,7 +16601,7 @@ o1 = new stzString("SOFTANZA")
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
 # ╰───┴───┴───┴───┴─♥─┴───┴───┴─♥─╯
 #                   5           8
-*/
+
 proff()
 # Executed in 0.23 second(s).
 
