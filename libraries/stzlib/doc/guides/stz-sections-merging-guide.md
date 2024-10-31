@@ -20,10 +20,13 @@ Q("SOFTANZA").Section(3, 5) #--> "TAN" : substring from position 3 to 5
 Q("SOFTANZA").Range(3, 5) #--? "TANZA" : substring starting at position 3 and spanning 5 positions forward
 ```
 
-And `Section()` is used the same way with strings and lists:
-? Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]).Section(3, 5) #--> [ "T", "A", "N" ]
+The `Section()` function works the same way with both strings and lists:
 
->`Range()` is also used the same way with strings and lists.
+```ring
+? Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]).Section(3, 5) #--> [ "T", "A", "N" ]
+```
+
+>The `Range()` function is also used in the same way with both strings and lists.
 
 ## MergeInclusive(): Handling Contained Sections
 
