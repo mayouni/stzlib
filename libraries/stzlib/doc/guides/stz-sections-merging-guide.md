@@ -13,11 +13,16 @@ Before exploring the merging features, let’s clarify what we mean by "sections
 
 `n1` can be ≤ `n2` or vice versa; whichever the case, the section `[n1, n2]` is returned.
 
-A section in Softanza differs from a Range:
+A section in Softanza differs from a Range. The fellowing returns the substring from position 3 to 5:
 
 ```ring
-Q("SOFTANZA").Section(3, 5) #--> "TAN" : substring from position 3 to 5
-Q("SOFTANZA").Range(3, 5) #--> "TANZA" : substring starting at position 3 and spanning 5 positions forward
+Q("SOFTANZA").Section(3, 5) #--> "TAN"
+```
+
+While the fellowing returns the substring starting at position 3 and spanning 5 positions forward:
+
+```ring
+Q("SOFTANZA").Range(3, 5) #--> "TANZA" : 
 ```
 
 The `Section()` function works the same way with both strings and lists:
