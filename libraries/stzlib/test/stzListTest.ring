@@ -8293,7 +8293,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*=================
-*/
+
 pron()
 
 # In Softanza, you can replace all occurrences of an item
@@ -8304,7 +8304,8 @@ StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
 	Replace("A", :With = "#")
 	# Or ReplaceAll("A", :With = "#") or ReplaceAllOccurrences(:Of = "A", :With = "#')
 
-	? Content() #--> [ "#", "B", "C", "#", "D", "B", "#" ]
+	? Content()
+	#--> [ "#", "B", "C", "#", "D", "B", "#" ]
 
 }
 
@@ -8314,7 +8315,8 @@ StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
 StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
 	
 	ReplaceMany([ "A", "B" ], :With = "#")
-	? Content() #--> [ "#", "#", "C", "#", "D", "#", "#" ]
+	? Content()
+	#--> [ "#", "#", "C", "#", "D", "#", "#" ]
 
 }
 
@@ -8324,7 +8326,8 @@ StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
 StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
 	
 	ReplaceManyByMany([ "A", "B" ], :With = [ "#1", "#2" ])
-	? Content() #--> [ "#1", "#2", "C", "#1", "D", "#2", "#1" ]
+	? Content()
+	#--> [ "#1", "#2", "C", "#1", "D", "#2", "#1" ]
 
 }
 
@@ -8335,54 +8338,92 @@ StzListQ([ "A", "A", "A" , "A", "A" ]) {
 	
 	ReplaceItemByManyXT("A", :With = [ "#1", "#2" ])
 
-	? Content() #--> [ "#1", "#2", "#1", "#2", "#1" ]
+	? Content()
+	#--> [ "#1", "#2", "#1", "#2", "#1" ]
 
 }
 
 proff()
-# Executed in 0.01 second(s).
+# Executed in 0.02 second(s).
 
 /*---------------------
+
+pron()
 
 StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
 
 	ReplaceNthOccurrence(3, :Of = "A", :With = "#")
-	? Content() #--> [ "A", "B", "C", "A", "D", "B", "#" ]
+	? Content()
+	#--> [ "A", "B", "C", "A", "D", "B", "#" ]
 
 }
 
+proff()
+# Executed in 0.02 second(s).
+
 /*====================
 
+pron()
+
 o1 = new stzList([ 5, 7, 9, 2 ])
-? o1.SortedInAscending() #--> [ 2, 5, 7, 9 ]
+? o1.SortedInAscending()
+#--> [ 2, 5, 7, 9 ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*=====================
+
+pron()
 
 o1 = new stzList([ "teeba", "hussein", "haneen" , "hussein" ])
-? o1.DuplicatesRemoved() #--> [ "teeba", "hussein", "haneen" ])
-? o1.NumberOfItems()     #--> 4
+
+? o1.DuplicatesRemoved()
+#--> [ "teeba", "hussein", "haneen" ])
+
+? o1.NumberOfItems()
+#--> 4
+
+proff()
+# Executed in almost 0 second(s).
 
 /*=====================
+
+pron()
 
 o1 = new stzList([ "a", "b", "c" ])
 
 ? o1.IsStrictlyEqualTo([ "a", "b", "c" ])	#--> TRUE
+
 # Because
 ? o1.HasSameTypeAs([ "a", "b", "c" ])		#--> TRUE
 ? o1.HasSameContentAs([ "a", "b", "c" ])	#--> TRUE
 ? o1.HasSameSortingOrderAs([ "a", "b", "c" ])	#--> TRUE
 
+proff()
+# Executed in 0.04 second(s).
+
 /*=====================
 
+pron()
+
 o1 = new stzList([ "a", "b", "c" ])
-o1 - [ "b", "a" ] 
-? @@( o1.Content() ) #--> [ "c" ]
+? @@( o1 - These([ "b", "a" ]))
+#--> [ "c" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*-----------------------
 
+pron()
+
 o1 = new stzList([ "a", "b", "c" ])
-o1 - [ "b", "a", "c" , "q" ]
-? @@( o1.Content() ) #--> [ ]
+? @@( o1 - These([ "b", "a", "c" , "q" ]) )
+#--> []
+
+proff()
+# Executed in almost 0 second(s).
 
 /*=====================
 
@@ -8393,21 +8434,28 @@ o1 = new stzList([ "a", "b", "e", "a", "c", "v", "e" ])
 ? o1.FindMany([ "a", "e" ])
 #--> [ 1, 3, 4, 7 ]
 
-? o1.TheseItemsZ([ "a", "e" ])
+? @@( o1.TheseItemsZ([ "a", "e" ]) )
 #--> [ "a" = [ 1, 4 ], "e" = [ 3, 7 ] ]
 
 proff()
+# Executed in almost 0 second(s).
 
 /*-----------------------
+
+pron()
 
 o1 = new stzList([ "a", "E", "a", "c", "V", "E" ])
 ? o1.FindMany([ "a", "c" ]) #--> [1, 3, 5]
 
-o1 - [ "a", "c" ] # Same as: o1.RemoveItemsAtPositions([ 1, 3, 5 ])
+? o1 - These([ "a", "c" ]) # Same as: o1.RemoveItemsAtPositions([ 1, 3, 5 ])
+#--> [ "E", "V", "E" ]
 
-? o1.Content() #--> [ "E", "V", "E" ]
+proff()
+# Executed in almost 0 second(s).
 
 /*=====================
+
+pron()
 
 o1 = new stzList([ "a", "b", "c" ])
 
@@ -8419,21 +8467,37 @@ o1 = new stzList([ "a", "b", "c" ])
 ? o1.HasSameContentAs([ "c", "b", "a" ])	#--> TRUE
 ? o1.HasSameSortingOrderAs([ "c", "b", "a" ])	#--> FALSE
 
+proff()
+# Executed in 0.05 second(s).
+
 /*---------------------
+
+pron()
 
 o1 = new stzList([ "a", "b", "c" ])
 ? o1.IsStrictlyEqualTo([ "a", "b" ])	#--> FALSE
+
 # Because
 ? o1.HasSameTypeAs([ "a", "b" ])	#--> TRUE
 ? o1.IsEqualTo([ "a", "b" ])		#--> FALSE
 ? o1.HasSameSortingOrderAs([ "a", "b" ])#--> TRUE
 
+proff()
+# Executed in almost 0 second(s).
+
 /*=====================
+
+pron()
 
 ? @@( StzListQ([ "a", [ "b", [ "c",  "d" ], "e" ], "f" ]).Flattened() )
 #--> [ "a","b","c","d","e","f" ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*---------------------
+
+pron()
 
 ? StzStringQ("ab []    cd").Simplified()
 #--> ab [] cd
@@ -8441,30 +8505,52 @@ o1 = new stzList([ "a", "b", "c" ])
 ? Q(list2code([ "a", [ [] ], "b" ])).Simplified()
 #--> [ "a",[ [ ] ],"b" ]
 
+proff()
+# Executed in 0.01 second(s).
+
 /*---------------------
 
-StzListQ([ "a",[ [ [], "c", [ 1, [] ], 2 ] ],"b" ]) {
-	Flatten()
-	? @@( Content() )
-	#--> [ "a",[ ],"c",1,[ ],2,"b" ]
+pron()
 
-	? NumberOfItems() 		#--> 7
-	? ItemAtPosition(3)		#--> "c"
-	? @@(ItemAtPosition(5))	#--> [ ]
+StzListQ([ "a",[ [ [], "c", [ 1, [] ], 2 ] ],"b" ]) {
+
+	Flatten()
+
+	? @@( Content() )
+	#--> [ "a", "c", 1, 2, "b" ]
+
+	? NumberOfItems()
+	#--> 5
+
+	? ItemAtPosition(3)
+	#--> 1
+
+	? ItemAtPosition(5)
+	#--> b
 	
 }
 
+proff()
+# Executed in 0.01 second(s).
+
 /*=====================
+
+pron()
 
 o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 
 ? o1.FindMany([ :one, :five ])
-#--> [ 1, 2, 3, 5, 6 ]
+#--> [ 1, 2, 3, 5 ]
 
 ? @@(o1.TheseItemsZ([ :one, :five ]))
 #--> [ :one = [ 1, 3, 5 ], :five = [] ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*---------------------
+
+pron()
 
 o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 ? o1.FindMany([ :one, :two, :four ])
@@ -8473,78 +8559,138 @@ o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 ? o1.TheseItemsZ([ :one, :two, :four ])
 #--> [ :one = [ 1, 3, 5 ], :two = [ 2 ], :four = [ 6 ] ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*---------------------
+
+pron()
 
 o1 = new stzList([ 1, 2, 3])
 
 o1.ExtendToPosition(5)
-? o1.Content() #--> [ 1, 2, 3, 0, 0 ]
+? @@( o1.Content() )
+#--> [ 1, 2, 3, 0, 0 ]
 
 o1.ExtendToPositionXT( 8, :With = 5 )
 ? @@(o1.Content())
 #--> [ 1, 2, 3, 0, 0, 5, 5, 5 ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*=====================
+
+pron()
 
 oList = new stzList([ [1],[1],[1],[1] ])
-? oList.ItemsHaveSameType() 	#--> 1
-? oList.ItemsAreAllEmptyLists() #--> 0
+? oList.ItemsHaveSameType()
+#--> TRUE
+
+? oList.ItemsAreEmptyLists()
+#--> FALSE
+
+proff()
+# Executed in almost 0 second(s).
 
 /*=====================
 
+pron()
+
 o1 = new stzList(1:5)
-o1.AddItemAt(7, 9)
-? o1.Content() #--> [ 1, 2, 3, 4, 5, 0, 0, 9 ]
+o1.AddItemAt(8, 9)
+? @@( o1.Content() )
+#--> [ 1, 2, 3, 4, 5, NULL, NULL, 9 ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*---------------------
 
+pron()
+
 o1 = new stzList("A":"E")
-o1.AddItemAt(7,"X")
-? o1.Content() #--> [ "A", "B", "C", "D", "E", NULL, NULL, "X" ]
+o1.AddItemAt(8, "X")
+? @@( o1.Content() )
+#--> [ "A", "B", "C", "D", "E", NULL, NULL, "X" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*=====================
+
+pron()
 
 # finding positions where current item is equal or bigger than 8
 
 o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
-? o1.ItemsW( '{ @item >= 8 }' ) #--> [ 8, 11, 11, 10, 8, 8 ]
+? o1.ItemsWXT( '{ @item >= 8 }' )
+#--> [ 8, 11, 11, 10, 8, 8 ]
+
+proff()
+# Executed in 0.15 second(s).
 
 /*---------------------
 
-? StzListQ([ 3, 2, 5 ]).FindFirstOccurrence("2") 	#--> 0
-? StzListQ([ 3, 2, 5 ]).FindFirstOccurrence([ 2 ])	#--> 0
-? StzListQ([ 3, 2, 5 ]).FindFirstOccurrence( 2 )	#--> 2
+pron()
 
-? Q(2).IsOneOfThese([ 3, 2, 5 ]) 	#--> TRUE
-? Q("2").IsOneOfThese([ 3, 2, 5 ]) 	#--> FALSE
-? Q([2]).IsOneOfThese([ 3, 2, 5 ])	#--> FALSE
+? StzListQ([ 3, 2, 5 ]).FindFirstOccurrence("2")
+#--> 0
+
+? StzListQ([ 3, 2, 5 ]).FindFirstOccurrence([ 2 ])
+#--> 0
+
+? StzListQ([ 3, 2, 5 ]).FindFirstOccurrence( 2 )
+#--> 2
+
+? Q(2).IsOneOfThese([ 3, 2, 5 ])
+#--> TRUE
+
+? Q("2").IsOneOfThese([ 3, 2, 5 ])
+#--> FALSE
+
+? Q([2]).IsOneOfThese([ 3, 2, 5 ])
+#--> FALSE
+
+proff()
+# Executed in 0.03 second(s).
 
 /*======================
+
+pron()
 
 # Finding positions where current item is one of these [ 2, 4, 6 ]
 
 o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 8 ])
 
-? o1.FindW( :Where = '{ Q(@item).IsOneOfThese([ 2, 4, 6]) }' )
+? o1.FindWXT( :Where = '{ Q(@item).IsOneOfThese([ 2, 4, 6]) }' )
 #--> [ 1, 3, 5, 8, 9, 12 ]
 
-? o1.ItemsW( :Where = '{ Q(@item).IsOneOfThese([ 2, 4, 6]) }' )
+? o1.ItemsWXT( :Where = '{ Q(@item).IsOneOfThese([ 2, 4, 6]) }' )
 #--> [ 2, 2, 2, 4, 2, 2 ]
 
-? o1.UniqueItemsW( :Where = '{ Q(@item).IsOneOfThese([ 2, 4, 6]) }' )
+? o1.UniqueItemsWXT( :Where = '{ Q(@item).IsOneOfThese([ 2, 4, 6]) }' )
 #--> [ 2, 4 ]
 
-? o1.ItemsAndTheirPositionsW(:Where = '{ Q(@item).IsOneOfThese([ 2, 4, 6]) }')
+? @@NL( o1.ItemsAndTheirPositionsWXT(:Where = '{ Q(@item).IsOneOfThese([ 2, 4, 6]) }') )
 #--> [
-#	:2 = [ 1, 3, 5, 9, 12 ], 
-#	:4 = [ 8 ]
+#	[ 2, [ 1, 3, 5, 9, 12 ] ], 
+#	[ 4, [ 8 ] ]
 #    ]
+
+proff()
+# Executed in 0.69 second(s).
 
 /*---------------------
 
+pron()
+
 o1 = new stzList([ "_", "_", 1:3, "_", 5:9, "_" ])
-? o1.FindW( :Where = '{ Q(@item).IsOneOfThese([ 1:3, 5:9 ]) }' )
+? o1.FindWXT( :Where = '{ Q(@item).IsOneOfThese([ 1:3, 5:9 ]) }' )
 #--> [ 3, 5 ]
+
+proff()
+# Executed in 0.13 second(s).
 
 /*---------------------
 
@@ -8552,15 +8698,19 @@ StartProfiler()
 
 o1 = new stzList([ "A", "m", "n", "B", "A", "x", "C", "z", "B" ])
 
-? o1.ItemsW( :Where = 'Q(@item).IsAnUppercase()')
+? o1.ItemsWXT( :Where = 'Q(@item).IsAnUppercase()')
 #--> [ "A", "B", "A", "C", "B" ]
 
-# Executesin less then 0.08 second:
 ? ElapsedTime() + NL
+#--> 0.18 second(s)
 
 # The other extended form (provides more features, like code transpilation
 # and executable section identification) takes more time ( about 0.92 second).
 ? o1.ItemsWXT( :Where = 'Q(@item).IsAnUppercase()')
+#--> #--> [ "A", "B", "A", "C", "B" ]
+
+proff()
+# Executed in 0.29 second(s).
 
 /*---------------------
 
@@ -8568,29 +8718,33 @@ StartProfiler()
 
 o1 = new stzList([ "A", "m", "n", "B", "A", "x", "C", "z", "B" ])
 
-? o1.ItemsPositionsW('Q(@item).IsUppercase()') # Say also o1.FindItemsW(...) or .FindW(...)
+? o1.ItemsPositionsWXT('Q(@item).IsUppercase()') # Say also o1.FindItemsW(...) or .FindW(...)
 #--> [ 1, 4, 5, 7, 9 ]
 
-? o1.ItemsAndTheirPositionsW('Q(@item).IsUppercase()')
-#--> [ "A" = [1, 5], "B" = [4, 9], "C" = [7] ]
+? @@( o1.ItemsAndTheirPositionsWXT('Q(@item).IsUppercase()') )
+#--> [ [ "A", [ 1, 5 ] ], [ "B", [ 4, 9 ] ], [ "C", [ 7 ] ] ]
 
 StopProfiler()
+# Executed in 0.40 second(s).
 
 /*=========================
 
 StartProfiler()
 
 o1 = new stzList([ "A", "B", "_", "C", "D", "E", "F" ])
-? o1.AllItemsExcept("_")
+? @@( o1.AllItemsExcept("_") )
+#--> [ "A", "B", "C", "D", "E", "F" ]
 
-StopProfiler() # 0.03 second
+StopProfiler()
+# Executed in almost 0 second(s).
 
-/*=========================
+/*========================= #TODO
 
 StartProfiler()
 
 o1 = new stzList([ "Word1", "كلمة 2", "Word3", "كلمة 4", "Word5", "كلمة 6" ])
-? o1.CheckOnW([1, 3, 5], :That = 'Q(@item).IsLeftToRight()' ) #--> TRUE
+? o1.CheckOnWXT([1, 3, 5], :That = 'Q(@item).IsLeftToRight()' )
+#--> TRUE
 
 StopProfiler()
 #--> Executed in 0.03 second.
@@ -8607,13 +8761,18 @@ o1 = new stzString ('{ This[ @i - 3 ] = This[ @i + 3 ] .... @i -12233.87  @i + 7
 #--> "-3"
 
 StopProfiler()
+# Executed in 0.25 second(s).
 
-/*=========================
+/*========================= #TODO Chek result correctness
+
+pron()
 
 ? StzCCodeQ('{ This[ @i - 3 ] = This[ @i + 3 ] }').ExecutableSection()
-#--> [4, -4]
+#--> [4, -3]
 
-/*========================= ...W() and ..WXT() forms in Conditional Code
+proff()
+
+/*============== #narration: ...W() and ..WXT() forms in Conditional Code
 
 # In conditional code, there are always to forms:
 #	- the ...W(pcCondition) form, which is more performant, but less expressive
@@ -8632,14 +8791,20 @@ StartProfiler()
 o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
 
 ? @@( o1.FindWXT( '{ Q( @NextNumber ).IsDoubleOf( @PreviousNumber ) }' ) ) #--> [ 8, 11 ]
-? ElapsedTime() + NL #--> Takes 0.40s
+#--> [ 8, 11 ]
+
+? ElapsedTime() + NL
+#--> 0.19 second(s)
 
 ? @@( o1.FindW( '{ Q( This[@i+1] ).IsDoubleOf( This[@i-1] ) }' ) )  #--> [ 8, 11 ]
-# Takes 0.05s only!
+#--> [ 8, 11 ]
 
 StopProfiler()
+# Executed in 0.28 second(s).
 
 /*-----------
+
+pron()
 
 o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
 
@@ -8651,6 +8816,9 @@ o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 6, 8 ])
 ? o1.FindWhere( '{ Q( This[@i+1] ).IsDoubleOf( This[@i-1] ) }' )
 #--> [ 8, 11 ]
 
+proff()
+# Executed in 0.28 second(s).
+
 /*-----------
 
 StartProfiler()
@@ -8658,13 +8826,19 @@ StartProfiler()
 # Finding positions where current item is equal to next item
 o1 = new stzList([ 2, 8, 2, 2, 11, 2, 11, 7, 7, 4, 2, 1, 3, 2, 10, 8, 3, 3, 3, 6, 8 ])
 
-? o1.FindWXT( '{ @Number = @NextNumber }' ) #--> [ 3, 8, 17, 18 ]
-? ElapsedTime() #--> Takes 0.41s
+? o1.FindWXT( '{ @Number = @NextNumber }' )
+#--> [ 3, 8, 17, 18 ]
 
-? o1.FindW( '{ This[@i] = This[@i+1] }' ) #--> [ 3, 8, 17, 18 ]
+? ElapsedTime()
+#--> Takes 0.20s
+
+? o1.FindW( '{ This[@i] = This[@i+1] }' )
+#--> [ 3, 8, 17, 18 ]
+
 #--> Takes as little as 0.05s!
 
 StopProfiler()
+# Executed in 0.29 second(s).
 
 /*-----------
 
@@ -8677,16 +8851,7 @@ o1 = new stzList([ "A", "B", "B", "C", "D", "D", "D", "E" ])
 #--> [ 2, 5, 6 ]
 
 StopProfiler()
-#--> Executed in 0.04 second(s)
-
-/*-----------
-
-StartProfiler()
-
-? StzCCodeQ('{ This[ @i - 3 ] = This[ @i + 3 ] }').ExecutableSection()
-
-StopProfiler()
-#--> Executed in 0.22 second(s)
+#--> Executed in 0.10 second(s)
 
 /*-----------
 
@@ -8696,53 +8861,105 @@ StartProfiler()
 
 o1 = new stzList( [ 0, 8, 0, 0, 1, 8, 0, 0 ] )
 
-? @@( o1.FindWXT('{ This[ @i - 3 ] = This[ @i + 3 ] }') ) #--> [ 4 ]
-? ElapsedTime()
-#--> 0.57 second(s)
+? @@( o1.FindWXT('{ This[ @i - 3 ] = This[ @i + 3 ] }') )
+#--> [ 4 ]
 
-? @@( o1.FindW('{ This[ @i - 3 ] = This[ @i + 3 ] }') ) #--> [ 4 ]
-#--> 0.22 second(s)
+? ElapsedTime()
+#--> 0.15 second(s)
+
+? @@( o1.FindW('{ This[ @i - 3 ] = This[ @i + 3 ] }') )
+#--> [ 4 ]
 
 StopProfiler()
-#--> Executed in 0.74 second(s)
+#--> Executed in 0.23 second(s) in Ring 1.21
+#--> Executed in 0.74 second(s) in Ring 1.18
 
 /*========================
 
+pron()
+
 o1 = new stzList( [ 0, 8, 0, 0, 1, 8, 0, 0 ] )
-? o1.PreviousNthOccurrence(3, :Of = 0, :StartingAt = 5) #--> 1
-? o1.PreviousNthOccurrence(2, :Of = 8, :StartingAt = :LastItem) #--> 2
+
+? o1.PreviousNthOccurrence(2, :Of = 0, :StartingAt = 5)
+#--> 3
+
+? o1.PreviousNthOccurrence(2, :Of = 8, :StartingAt = :LastItem)
+#--> 2
+
+proff()
+# Executed in 0.11 second(s).
+
+/*----------------------
+
+pron()
+
+o1 = new stzList([ 122, 67, 120, 58, 101, 120 ])
+
+? o1.FindAll(120)
+#--> [ 3, 6 ]
+
+? o1.NumberOfOccurrence(120)
+#--> 2
+
+proff()
+# Executed in 0.01 second(s).
 
 /*-----------------------
 
-o1 = new stzList([ 122, 67, 120, 58, 101, 120 ])
-? o1.FindAll(120) #--> [ 3, 6 ]
-? o1.NumberOfOccurrence(120) #--> 2
-
-/*-----------------------
+pron()
 
 o1 = new stzList([ 122, 67, 120, 58, 101, 120 ])
+
 ? o1.FindNthNextOccurrence( 2, :Of = 120, :StartingAt = 1 ) #--> 6
+#--> 6
+
+proff()
+# Executed in almost 0 second(s).
 
 /*-----------------------
+
+pron()
 
 o1 = new stzList([ "mio", "mia", "mio", "mix", "miz", "mix" ])
-? o1.FindNthNextOccurrence( 2, :Of = "mix", :StartingAt = 3 ) #--> 6
+
+? o1.FindNthNextOccurrence( 2, :Of = "mix", :StartingAt = 3 )
+#--> 6
 
 # Other alternatives are:
-? o1.FindNextNthOccurrence( 2, :Of = "mix", :StartingAt = 3 ) #--> 6
-? o1.NthNextOccurrence( 2, :Of = "mix", :StartingAt = 3 ) #--> 6
-? o1.NextNthOccurrence( 2, :Of = "mix", :StartingAt = 3 ) #--> 6
+? o1.FindNextNthOccurrence( 2, :Of = "mix", :StartingAt = 3 )
+#--> 6
+
+? o1.NthNextOccurrence( 2, :Of = "mix", :StartingAt = 3 )
+#--> 6
+
+? o1.NextNthOccurrence( 2, :Of = "mix", :StartingAt = 3 )
+#--> 6
+
+proff()
+# Executed in almost 0 second(s).
 
 /*-----------------------
+
+pron()
 
 o1 = new stzList([ "mio", "mix", "mia", "mio", "mix", "miz", "mix" ])
-? o1.FindPreviousNthOccurrence( 2, :Of = "mix", :StartingAt = 6) #--> 2
+
+? o1.FindPreviousNthOccurrence( 2, :Of = "mix", :StartingAt = 6)
+#--> 2
+
+proff()
+# Executed in 0.05 second(s).
 
 /*-----------------------
+
+pron()
 
 o1 = new stzList([ :Char, :String, :Number, :List, :Object, :CObject, :QObject, :Byte ])
 ? o1.RemoveItemsAtThesePositionsQ( 6:8 ).Content()
 #--> [ :Char, :String, :Number, :List, :Object ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*==========================
 
@@ -8763,7 +8980,7 @@ StzListQ([ 1, 2, "A", "B", 5, "C", 7 ]) {
 }
 
 StopProfiler()
-#--> Executed in 0.24 second(s)
+#--> Executed in 0.20 second(s)
 
 /*--------- WALKING UNTIL (AND UNTIL BEFORE)
 
@@ -8804,7 +9021,7 @@ StzListQ([ 1, 2, 3, "A", "B", 6, "C", "D", "E" ]) {
 }
 
 StopProfiler()
-#--> Executed in 0.23 second(s)
+#--> Executed in 0.17 second(s)
 
 /*--------- OTHER WALKING TECHNIQUES
 
@@ -8883,10 +9100,10 @@ StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 		#--> [ ]
 
 		? @@( WalkForwardBackward(1, 2) )
-		#--> [ 2, 3, 1 ]
+		#--> [ 2 ]
 
 		? @@( WalkForwardBackwardXT(1, 2, :Return = :WalkedItems) )
-		#--> [ "B", "C", "A" ]
+		#--> [ "B" ]
 
 		#--
 
@@ -8899,18 +9116,18 @@ StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 	// Walking n steps backward n steps forward
 
 		? @@( WalkBackwardForward(1, 2) )
-		#--> [ 6, 5, 7 ]
+		#--> [ 6 ]
 
 		? @@( WalkBackwardForwardXT(1, 2, :WalkedItems) )
-		#--> [ "F", "E", "G" ]
+		#--> [ "F" ]
 
 		#--
 
 		? @@( WalkBackwardForward(3, 2) )
-		#--> [ 7, 4, 6, 3, 5, 2, 4, 1, 3 ]
+		#--> [ 7, 4, 6, 3, 5, 2, 4 ]
 
 		? @@( WalkBackwardForwardXT(3, 2, :WalkedItems) )
-		#--> [ "G", "D", "F", "C", "E", "B", "D", "A", "C" ]
+		#--> [ "G", "D", "F", "C", "E", "B", "D" ]
 
 	// Walking n steps from the start and n steps from the end
 
@@ -8934,10 +9151,10 @@ StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 }
 
 StopProfiler()
-# Executed in 0.37 second(s).
+# Executed in 0.34 second(s).
 
 /*========================
-
+*/
 pron()
 
 o1 = new stzList([ "A", "B", "C", "1", "2", "3", "D", "E" ])

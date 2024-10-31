@@ -6540,7 +6540,7 @@ class stzList from stzObject
 			This.InsertAt(n, pItem)
 
 		else
-			This.ExtendToPosition(n - 1, :With = NULL)
+			This.ExtendToPositionXT(n - 1, :With = NULL)
 			This.Add(pItem)
 		ok
 
@@ -22526,6 +22526,48 @@ class stzList from stzObject
 
 		#>
 
+	def IsListOfEmptyLists()
+		aContent = This.Content()
+		nlen = len(aContent)
+
+		bResult = TRUE
+
+		for i = 1 to nLen
+			if NOT isList(aContent[i])
+				bResult = FALSE
+				exit
+			ok
+
+			if NOT len(aContent[i]) = 0
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def ContainsOnlyEmptyLists()
+			return This.IsListOfEmptyLists()
+
+		def IsMadeOfEmptyLists()
+			return This.IsListOfEmptyLists()
+
+		def IsMadeOfOnlyEmptyLists()
+			return This.IsListOfEmptyLists()
+
+		def ItemsAreEmptyLists()
+			return This.IsListOfEmptyLists()
+
+		def ItemsAreAllEmptyLists()
+			return This.IsListOfEmptyLists()
+
+		def AllItemsAreEmptyLists()
+			return This.IsListOfEmptyLists()
+
+		#>
+
 	#--
 
 	def IsNamedObject()
@@ -26188,7 +26230,7 @@ class stzList from stzObject
 		bResult = TRUE
 
 		for i = 1 to nMin
-			if Q(aContent[i]).IsNotEqualTo(paOtherList[i])
+			if NOT Q(aContent[i]).IsEqualTo(paOtherList[i])
 				bResult = FALSE
 				exit
 			ok
@@ -30798,7 +30840,10 @@ class stzList from stzObject
 	#-------------------------------------------------------------#
 
 	def ExtendToPositionWith(n, pValue)
-
+		if isList(pValue) and StzListQ(pValue).IsWithOrByOrUsingNamedParam()
+			pvalue = pValue[2]
+		ok
+			
 		if isString(pValue) and pValue = :ItemsRepeated
 			This.ExtendToPositionWithItemsRepeated(n)
 			return
@@ -30840,6 +30885,12 @@ class stzList from stzObject
 			def ExtendToXTQ(n, pValue)
 				return This.ExtendToPositionWithQ(n, pValue)
 
+		def ExtendToPositionXT(n, pValue)
+			This.ExtendToPositionWith(n, pValue)
+
+			def ExtendToPositionXTQ(n, pValue)
+				return This.ExtendToPositionWithQ(n, pValue)
+
 		#>
 
 	def ExtendedToPositionWith(n, pValue)
@@ -30852,6 +30903,8 @@ class stzList from stzObject
 		def ExtendedToXT(n, pValue)
 			return This.ExtendedToPositionWith(n, pValue)
 
+		def ExtendedToPositionXT(n, pValue)
+			return This.ExtendedToPositionWith(n, pValue)
 
 		#-- Misspelled
 
@@ -31229,6 +31282,10 @@ class stzList from stzObject
 	 #     FLATTENING THE LIST    #
 	#----------------------------#
 	
+	# This preserves all the actual data while removing
+	# both nesting and empty structures, making it cleaner
+	# and more useful for most purposes.
+
 	def Flatten() 
 		/* EXAMPLE
 
@@ -40637,11 +40694,18 @@ class stzList from stzObject
 	#-----------------------------------------------------#
 
 	def FindNthPreviousOccurrenceCS(n, pItem, nStart, pCaseSensitive)
+		nLen = This.NumberOfItems()
 
-		nResult  = This.SectionQ(1, nStart).
-				ReverseQ().
-				FindNthNextOccurrenceCS(n, pItem, nStart, pCaseSensitive)
+		if isString(nStart)
+			if nStart = :First or nStart = :FirstItem
+				nStart = 1
+			but nStart = :Last of nStart = :LastItem
+				nStart = nLen
+			ok
+		ok
 
+		anPos = This.SectionQ(1, nStart).FindCS(pItem, pCaseSensitive)
+		nResult = anPos[len(anPos) - n + 1]
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -46639,7 +46703,7 @@ class stzList from stzObject
 		aContent = This.Content()
 
 		for i = 1 to nLenItems
-			if Q(aContent[i]).IsNotEqualToCS(paItems[i], pCaseSensitive)
+			if NOT Q(aContent[i]).IsEqualToCS(paItems[i], pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -46686,7 +46750,7 @@ class stzList from stzObject
 
 		for i = 1 to nLenLastItems
 
-			if Q(aContent[i]).IsNotEqualToCS(aLastItems[i], pCaseSensitive)
+			if NOT Q(aContent[i]).IsEqualToCS(aLastItems[i], pCaseSensitive)
 				bResult = FALSE
 				exit
 			ok
@@ -48737,7 +48801,7 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def IsAnUppecase()
+		def IsAnUppercase()
 			return This.IsUppercase()
 
 			def IsAnUppercaseQ()

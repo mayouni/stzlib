@@ -1468,8 +1468,11 @@ class stzChar from stzObject
 	def IsLower()
 		return @oQChar.isLower()
 
-	def IsLowercase()
-		return This.IsLower()
+		def IsLowercase()
+			return This.IsLower()
+
+		def IsALowercase()
+			return This.IsLower()
 
 	def lowercase()
 		oTempChar = new stzChar(@oQChar.toLower().unicode())
@@ -1480,6 +1483,9 @@ class stzChar from stzObject
 
 	def IsUPPERcase()
 		return @oQChar.isUpper()
+
+		def IsAnUppercase()
+			return @oQChar.isUpper()
 
 	def UPPERcase()
 		oTempChar = new stzChar(@oQChar.toUPPER().unicode())
