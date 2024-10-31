@@ -2653,6 +2653,12 @@ class stzString from stzObject
 			def IsInALowercasQ()
 				return This.IsLowerercaseQ()
 
+		def IsALowercase()
+			return This.IsLowercase()
+
+			def IsALowercaseQ()
+				return This.IsLowerercaseQ()
+
 		#>
 
 		#< @FunctionNegativeForms
@@ -2990,6 +2996,12 @@ class stzString from stzObject
 
 			def InUppercaseQ()
 				return This.IsUpperercaseQ()
+
+		def IsAnUppercase()
+			return This.IsUppercase()
+
+			def IsAnUppercaseQ()
+				return This.IsUppercaseQ()
 
 		#>
 
