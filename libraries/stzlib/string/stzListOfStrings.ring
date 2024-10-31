@@ -1941,3 +1941,44 @@ class stzListOfStrings from stzList
 		def LastCharsQM()
 			return @MainObject()
 
+	  #==================================#
+	 #  REPLACING A STRING IN THE LIST  #
+	#==================================#
+
+	def ReplaceAt(n, pcNewStr)
+		@oQStrList.replace(n-1, pcNewStr)
+
+		def ReplaceAtQ(n, pcNewStr)
+			This.ReplaceAt(n, pcNewStr)
+			return This
+
+		def ReplaceAtPosition(n, pcNewStr)
+			This.ReplaceAt(n, pcNewStr)
+	
+			def ReplaceAtPositionQ(n, pcNewStr)
+				return This.ReplaceAtQ(n, pcNewStr)
+
+		def ReplaceStringAt(n, pcNewStr)
+			This.ReplaceAt(n, pcNewStr)
+
+			def ReplaceStringAtQ(n, pcNewStr)
+				return This.ReplaceAtQ(n, pcNewStr)
+
+		def ReplaceStringAtPosition(n, pcNewStr)
+			This.ReplaceAt(n, pcNewStr)
+
+			def ReplaceStringAtPositionQ(n, pcNewStr)
+				return This.ReplaceAtQ(n, pcNewStr)
+
+	def ReplacedAt(n, pcNewStr)
+		acResult = This.Copy().ReplaceAtQ(n, pcNewStr).Content()
+		return acResult
+
+		def StringReplaceAt(n, pcNewStr)
+			return This.ReplacedAt(n, pcNewStr)
+
+		def ReplacedAtPosition(n, pcNewStr)
+			return This.ReplacedAt(n, pcNewStr)
+
+		def StringReplacedAtPosition(n, pcNewStr)
+			return This.ReplacedAt(n, pcNewStr)

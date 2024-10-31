@@ -2629,6 +2629,34 @@ class stzNumber from stzObject
 
 		return bResult
 
+	def IsBetweenIB(pNumber1, pNumber2)
+
+		if CheckParams()
+			if isList(pNumber2) and Q(pNumber2).IsAndNamedParam()
+				pNumber2 = pNumber2[2]
+			ok
+	
+			if NOT ( Q(pNumber1).IsNumberOrString() and Q(pNumber2).IsNumberOrString() )
+				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
+			ok
+		ok
+
+		n1 = 0+ pNumber1
+		n2 = 0+ pNumber2
+
+		n = This.NumericValue()
+
+		bResult = TRUE
+
+		if NOT ( n1 <= n and n <= n2 )
+			bResult  = FALSE
+		ok
+
+		return bResult
+
+		def IsBetweenXT(pNumber1, pNumber2)
+			return This.IsBetweenIB(pNumber1, pNumber2)
+
 	def IsStrictlyBetween(pNumber1, pNumber2)
 		if CheckParams()
 			if isList(pNumber2) and Q(pNumber2).IsAndNamedParam()
