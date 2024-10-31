@@ -41020,12 +41020,12 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	def FindNextNthOccurrencesCS(panPos, pItem, pnStartingAt, pCaseSensitive)
 
 		anAllPos = This.FindNextOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
-		nLenPos = len(anAllPos)
+		nLenPos = len(panPos)
 
 		anResult = []
 
 		for i = 1 to nLenPos
-			anResult + anAllPos[i]
+			anResult + anAllPos[panPos[i]]
 		next
 
 		return anResult
