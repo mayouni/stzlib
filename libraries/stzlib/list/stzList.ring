@@ -11796,7 +11796,6 @@ class stzList from stzObject
 
 	def ReplaceLastOccurrence(pItem, pOtherItem)
 		n = This.FindLastOccurrence(pItem)
-
 		This.ReplaceAt(n, pOtherItem)
 
 		def ReplaceLastOccurrenceQ(pItem, pOtherItem)
@@ -11894,19 +11893,19 @@ class stzList from stzObject
 	
 		#< @FunctionFluentForm
 
-		def ReplaceNextNthOccurrenceCSQ(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
-			This.ReplaceNextNthOccurrenceCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+		def ReplaceNextNthOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceNthNextOccurrenceCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
-			This.ReplaceNextNthOccurrenceCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+		def ReplaceNthNextOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
-			def ReplaceNthNextOccurrenceCSQ(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
-				This.ReplaceNthNextOccurrenceCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+			def ReplaceNthNextOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+				This.ReplaceNthNextOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 				return This
 
 		#--
@@ -11915,58 +11914,58 @@ class stzList from stzObject
 			This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
 			def ReplaceNextNthOccurrenceSTCSQ(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
-				return This.ReplaceNextNthOccurrenceCSQ(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+				return This.ReplaceNextNthOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
-		def ReplaceNthNextOccurrenceSTCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
-			This.ReplaceNextNthOccurrenceCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+		def ReplaceNthNextOccurrenceSTCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
-			def ReplaceNthNextOccurrenceSTCSQ(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
-				return This.ReplaceNextNthOccurrenceCSQ(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+			def ReplaceNthNextOccurrenceSTCSQ(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+				return This.ReplaceNextNthOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
 		#>
 
 	# @FunctionPassiveForm
 
-	def NextNthOccurrenceReplacedCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+	def NextNthOccurrenceReplacedCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
 		aResult  = This.Copy().
-				ReplaceNthNextOccurrenceCSQ(n, pItem, pnStartingAt, pNewItem, pCaseSensitive).
+				ReplaceNthNextOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, pCaseSensitive).
 				Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def NthNextOccurrenceReplacedCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
-			return This.NextNthOccurrenceReplacedCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+		def NthNextOccurrenceReplacedCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			return This.NextNthOccurrenceReplacedCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
-		def NextNthOccurrenceReplacedSTCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
-			return This.NextNthOccurrenceReplacedCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+		def NextNthOccurrenceReplacedSTCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			return This.NextNthOccurrenceReplacedCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
-		def NthNextOccurrenceReplacedSTCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
-			return This.NextNthOccurrenceReplacedCS(n, pItem, pnStartingAt, pNewItem, pCaseSensitive)
+		def NthNextOccurrenceReplacedSTCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			return This.NextNthOccurrenceReplacedCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
-		return This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, TRUE)
+	def ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
+		This.ReplaceNextNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
-		def ReplaceNextNthOccurrenceQ(n, pItem, pnStartingAt, pNewItem)
-			This.ReplaceNextNthOccurrence(n, pItem, pnStartingAt, pNewItem)
+		def ReplaceNextNthOccurrenceQ(n, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def ReplaceNthNextOccurrence(n, pItem, pnStartingAt, pNewItem)
-			This.ReplaceNextNthOccurrence(n, pItem, pnStartingAt, pNewItem)
+		def ReplaceNthNextOccurrence(n, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 
-			def ReplaceNthNextOccurrenceQ(n, pItem, pnStartingAt, pNewItem)
-				This.ReplaceNthNextOccurrence(n, pItem, pnStartingAt, pNewItem)
+			def ReplaceNthNextOccurrenceQ(n, pItem, pNewItem, pnStartingAt)
+				This.ReplaceNthNextOccurrence(n, pItem, pNewItem, pnStartingAt)
 				return This
 
 		#--
@@ -11975,34 +11974,34 @@ class stzList from stzObject
 			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 
 			def ReplaceNextNthOccurrenceSTQ(n, pItem, pNewItem, pnStartingAt)
-				return This.ReplaceNextNthOccurrenceQ(n, pItem, pnStartingAt, pNewItem)
+				return This.ReplaceNextNthOccurrenceQ(n, pItem, pNewItem, pnStartingAt)
 
-		def ReplaceNthNextOccurrenceST(n, pItem, pnStartingAt, pNewItem)
-			This.ReplaceNextNthOccurrence(n, pItem, pnStartingAt, pNewItem)
+		def ReplaceNthNextOccurrenceST(n, pItem, pNewItem, pnStartingAt)
+			This.ReplaceNextNthOccurrence(n, pItem, pNewItem, pnStartingAt)
 
-			def ReplaceNthNextOccurrenceSTQ(n, pItem, pnStartingAt, pNewItem)
-				return This.ReplaceNextNthOccurrenceQ(n, pItem, pnStartingAt, pNewItem)
+			def ReplaceNthNextOccurrenceSTQ(n, pItem, pNewItem, pnStartingAt)
+				return This.ReplaceNextNthOccurrenceQ(n, pItem, pNewItem, pnStartingAt)
 
 		#>
 
-	def NextNthOccurrenceReplaced(n, pItem, pnStartingAt, pNewItem)
+	def NextNthOccurrenceReplaced(n, pItem, pNewItem, pnStartingAt)
 
 		aResult  = This.Copy().
-				ReplaceNthNextOccurrenceQ(n, pItem, pnStartingAt, pNewItem).
+				ReplaceNthNextOccurrenceQ(n, pItem, pNewItem, pnStartingAt).
 				Content()
 
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def NthNextOccurrenceReplaced(n, pItem, pnStartingAt, pNewItem)
-			return This.NextNthOccurrenceReplaced(n, pItem, pnStartingAt, pNewItem)
+		def NthNextOccurrenceReplaced(n, pItem, pNewItem, pnStartingAt)
+			return This.NextNthOccurrenceReplaced(n, pItem, pNewItem, pnStartingAt)
 
-		def NextNthOccurrenceReplacedST(n, pItem, pnStartingAt, pNewItem)
-			return This.NextNthOccurrenceReplaced(n, pItem, pnStartingAt, pNewItem)
+		def NextNthOccurrenceReplacedST(n, pItem, pNewItem, pnStartingAt)
+			return This.NextNthOccurrenceReplaced(n, pItem, pNewItem, pnStartingAt)
 
-		def NthNextOccurrenceReplacedST(n, pItem, pnStartingAt, pNewItem)
-			return This.NextNthOccurrenceReplaced(n, pItem, pnStartingAt, pNewItem)
+		def NthNextOccurrenceReplacedST(n, pItem, pNewItem, pnStartingAt)
+			return This.NextNthOccurrenceReplaced(n, pItem, pNewItem, pnStartingAt)
 
 		#>
 
@@ -12038,7 +12037,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextOccurrence(pItem, pNewItem, pnStartingAt)
-		This.ReplaceNextNthOccurrenceCS(1, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+		This.ReplaceNextNthOccurrenceCS(1, pItem, pNewItem, pnStartingAt, TRUE)
 
 		def ReplaceNextOccurrenceQ(pItem, pNewItem, pnStartingAt)
 			This.ReplaceNextOccurrence(pItem, pNewItem, pnStartingAt)
@@ -12117,12 +12116,18 @@ class stzList from stzObject
 		def NthNextOccurrencesReplacedCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 			return This.NextNthOccurrencesReplacedSTCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
+		def NextNthOccurrencesReplacedCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			return This.NextNthOccurrencesReplacedSTCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+
+		def NthNextOccurrencesReplacedSTCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			return This.NextNthOccurrencesReplacedSTCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplaceNextNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
-		return This.ReplaceNextNthOccurrencesSTCS(panList, pItem, pNewItem, pnStartingAt, TRUE)
+		This.ReplaceNextNthOccurrencesSTCS(panList, pItem, pNewItem, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -12149,17 +12154,18 @@ class stzList from stzObject
 		#>
 
 	def NextNthOccurrencesReplacedST(panList, pItem, pNewItem, pnStartingAt)
-
-		aResult = This.
-			  ReplaceNextNthOccurrencesSTQ(panList, pItem, pNewItem, pnStartingAt).
-			  Content()
-
-		return aResult
+		return This.NextNthOccurrencesReplacedSTCS(panList, pItem, pNewItem, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
+		def NthNextOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
+			return This.NextNthOccurrencesReplacedST(panList, pItem, pNewItem, pnStartingAt)
+
+		def NextNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
+			return This.NextNthOccurrencesReplacedST(panList, pItem, pNewItem, pnStartingAt)
+
 		def NthNextOccurrencesReplacedST(panList, pItem, pNewItem, pnStartingAt)
-			return This.NextNthOccurrencesReplaced(panList, pItem, pNewItem, pnStartingAt)
+			return This.NextNthOccurrencesReplacedST(panList, pItem, pNewItem, pnStartingAt)
 
 		#>
 
@@ -12243,7 +12249,7 @@ class stzList from stzObject
 	def NthPreviousOccurrenceReplacedCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
 		aResult =  This.Copy().
-				ReplaceNthPreviousOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, pCaseSensitive).
+				ReplaceNthPreviousOccurrenceCSQ(n, pItem, pNewItem, pnStartingAt, TRUE).
 				Content()
 
 		return aResult
@@ -12264,7 +12270,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousNthOccurrence(n, pItem, pNewItem, pnStartingAt)
-		return This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, TRUE)
+		This.ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, TRUE)
 
 		#< @FunctionFuentForm
 
@@ -12335,7 +12341,7 @@ class stzList from stzObject
 	def PreviousOccurrenceReplacedCS(pItem, pNewItem, pnStartingAt, pCaseSensitive)
 
 		aResult =  This.Copy().
-				ReplacePreviousOccurrenceCSQ(pItem, pNewItem, pnStartingAt, pCaseSensitive).
+				ReplacePreviousOccurrenceCSQ(pItem, pNewItem, pnStartingAt, TRUE).
 				Content()
 		return aResult
 
@@ -12422,7 +12428,7 @@ class stzList from stzObject
 
 	def PreviousNthOccurrencesReplacedCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
 		aResult =  This.
-			   ReplacePreviousNthOccurrencesCSQ(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive).
+			   ReplacePreviousNthOccurrencesCSQ(panList, pItem, pNewItem, pnStartingAt, TRUE).
 			   Content()
 
 		return aResult
@@ -12445,7 +12451,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
-		This.ReplacePreviousNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+		This.ReplacePreviousNthOccurrencesCS(panList, pItem, pNewItem, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 

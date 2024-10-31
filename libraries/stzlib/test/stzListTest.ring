@@ -8137,7 +8137,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*------------------
-*/
+
 pron()
 
 StzListQ([ -1 , 2, 3, 4 ]) {
@@ -8154,32 +8154,37 @@ proff()
 
 /*------------------
 
+pron()
+
 o1 = new stzList([ "1", "2", "*", "4", "5" ])
 o1.ReplaceAt(3, :By = "3")
 ? @@( o1.Content() )
 #--> [ "1", "2", "3", "4", "5" ]
 
-o1 = new stzList([ "1", "2", "*", "4", "5" ])
-o1.ReplaceAt(3, :By@ = '{ 8 - 5 }' )
-? @@( o1.Content() )
-#--> [ "1", "2", "3", "4", "5" ]
-
 o1 = new stzList([ "1", "_", "3", "_", "_" ])
-o1.ReplaceNextNthOccurrence( 2, :Of = "_", :With = "5", :StartingAt = 3)
+o1.ReplaceNextNthOccurrenceST( 2, :Of = "_", :With = "5", :StartingAt = 3)
 ? @@( o1.Content() )
 #--> [ "1", "_", "3", "_", "5" ]
 
+proff()
+# Executed in 0.03 second(s).
+
 /*------------------
+*/
+pron()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-	ReplaceNextNthOccurrences([2, 3], :of = "A", :with = "*",  :StartingAt = 3)
-	? @@( Content() ) #--> [ "A" , "B", "A", "C", "*", "D", "*" ]
+	ReplaceNextNthOccurrences([2, 3], :of = "A", :with = "*",  :StartingAt = 4)
+	? @@( Content() )
+	#--> [ "A" , "B", "A", "C", "*", "D", "*" ]
 }
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-	? @@( NextNthOccurrencesReplaced([2, 3], :Of = "A", :With = "*",  :StartingAt = 3) )
+	? @@( NextNthOccurrencesReplaced([2, 3], :Of = "A", :With = "*",  :StartingAt = 4) )
 	#--> [ "A", "B", "A", "C", "*", "D", "*" ]
 }
+
+proff()
 
 /*------------------
 
