@@ -7896,6 +7896,10 @@ class stzList from stzObject
 
 		*/
 
+		if isList(paNewItems) and StzListQ(paNewItems).IsWithOrByNamedParam()
+			paNewItems = paNewItems[2]
+		ok
+
 		anPos = This.FindAllCS(pItem, pCaseSensitive)
 		This.ReplaceItemAtPositionsByManyCSXT(anPos, pItem, paNewItems, pCaseSensitive)
 
@@ -8586,6 +8590,12 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeForms
 
+		def ReplaceItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+			This.ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
+
+			def ReplaceItemAtPositionNCSQ(n, pNewItem, pCaseSensitive)
+				return This.ReplaceAnyItemAtPositionNCSQ(n, pNewItem, pCaseSensitive)
+
 		def ReplaceItemAtPositionCS(n, pNewItem, pCaseSensitive)
 			This.ReplaceAnyItemAtPositionNCS(n, pNewItem, pCaseSensitive)
 
@@ -8621,6 +8631,9 @@ class stzList from stzObject
 
 		#< @FunctionAlternativeforms
 
+		def ItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
+			return This.AnyItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
+
 		def AnyItemAtPositionReplacedCS(n, pNewItem, pCaseSensitive)
 			return This.AnyItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
 
@@ -8647,6 +8660,12 @@ class stzList from stzObject
 		#>
 
 		#< @FunctionAlternativeForms
+
+		def ReplaceItemAtPositionN(n, pNewItem)
+			This.ReplaceAnyItemAtPositionN(n, pNewItem)
+
+			def ReplaceItemAtPositionNQ(n, pNewItem)
+				return This.ReplaceAnyItemAtPositionNQ(n, pNewItem)
 
 		def ReplaceItemAt(n, pNewItem)
 			This.ReplaceAnyItemAtPositionN(n, pNewItem)
@@ -8696,6 +8715,9 @@ class stzList from stzObject
 		return cResult
 
 		#< @FunctionAlternativeforms
+
+		def ItemAtPositionNReplaced(n, pNewItem)
+			return This.AnyItemAtPositionNReplaced(n, pNewItem)
 
 		def AnyItemAtPositionReplaced(n, pNewItem)
 			return This.AnyItemAtPositionNReplaced(n, pNewItem)
@@ -10657,7 +10679,7 @@ class stzList from stzObject
 		next
 
 		for i = 1 to nLenPos
-			This.ReplaceItemAtPositionNCS(anPos[i], pItem, aItems[i], pCaseSensitive)
+			This.ReplaceThisItemAtPositionCS(anPos[i], pItem, aItems[i], pCaseSensitive)
 		next
 
 		#< @FunctionFluentForm
@@ -12388,7 +12410,7 @@ class stzList from stzObject
 
 		*/
 
-		anPosToBeReplaced = This.FindPrevioustNthOccurrencesSTCS(panList, pItem, pnStartingAt, pCaseSensitive)
+		anPosToBeReplaced = This.FindPreviousNthOccurrencesSTCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		This.ReplaceItemsAtThesePositions(anPosToBeReplaced, pNewItem)
 
 
@@ -12472,17 +12494,17 @@ class stzList from stzObject
 
 		#--
 
-		def ReplacePreviousNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
-			This.ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+		def ReplacePreviousNthOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
+			This.ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 
-			def ReplacePreviousNthOccurrencesSTQ(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
-				return This.ReplacePreviousNthOccurrencesQ(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			def ReplacePreviousNthOccurrencesSTQ(panList, pItem, pNewItem, pnStartingAt)
+				return This.ReplacePreviousNthOccurrencesQ(panList, pItem, pNewItem, pnStartingAt)
 
-		def ReplaceNthPreviousOccurrencesST(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
-			This.ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+		def ReplaceNthPreviousOccurrencesST(panList, pItem, pNewItem, pnStartingAt)
+			This.ReplacePreviousNthOccurrences(panList, pItem, pNewItem, pnStartingAt)
 
-			def ReplaceNthPreviousOccurrencesSTQ(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
-				return This.ReplacePreviousNthOccurrencesQ(panList, pItem, pNewItem, pnStartingAt, pCaseSensitive)
+			def ReplaceNthPreviousOccurrencesSTQ(panList, pItem, pNewItem, pnStartingAt)
+				return This.ReplacePreviousNthOccurrencesQ(panList, pItem, pNewItem, pnStartingAt)
 
 		#>
 
@@ -13792,7 +13814,7 @@ class stzList from stzObject
 
 	def RemoveNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 		nPos = This.FindNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
-		This.RemoveItemAtPosition(n, pItem)
+		This.RemoveItemAtPosition(nPos)
 
 		#< @FuntionFluentForm
 
@@ -14028,7 +14050,7 @@ class stzList from stzObject
 	 #   STARTING AT A GIVEN POSITION IN THE LIST         #
 	#----------------------------------------------------#
 
-www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
+	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		/* Example
 
 		StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
@@ -14740,6 +14762,12 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 			This.RemoveThisNthItemCS(n, pItem, pCaseSensitive)
 			return This
 
+		def RemoveThisItemAtPositionCS(n, pItem, pCaseSensitive)
+			This.RemoveThisNthItemCS(n, pItem, pCaseSensitive)
+
+			def RemoveThisItemAtPositionCSQ(n, pItem, pCaseSensitive)
+				return This.RemoveThisNthItemCSQ(n, pItem, pCaseSensitive)
+
 	def ThisNthItemRemovedCS(n, pItem, pCaseSensitive)
 		return This.RemoveThisNthItemCSQ(n, pItem, pCaseSensitive).Content()
 
@@ -14751,6 +14779,12 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 		def RemoveThisNthItemQ(n, pItem)
 			This.RemoveThisNthItemCS(n, pItem)
 			return This
+
+		def RemoveThisItemAtPosition(n, pItem)
+			This.RemoveThisNthItem(n, pItem)
+
+			def RemoveThisItemAtPositionQ(n, pItem)
+				return This.RemoveThisNthItemQ(n, pItem)
 
 	def ThisNthItemRemoved(n, pItem)
 		return This.RemoveThisNthItemQ(n, pItem).Content()
@@ -41072,12 +41106,12 @@ www	def RemoveNextNthOccurrencesCS(panList, pItem, pnStartingAt, pCaseSensitive)
 	def FindPreviousNthOccurrencesCS(panPos, pItem, pnStartingAt, pCaseSensitive)
 
 		anAllPos = This.FindPreviousOccurrencesCS(pItem, pnStartingAt, pCaseSensitive)
-		nLenPos = len(anAllPos)
+		nLenPos = len(panPos)
 
 		anResult = []
 
 		for i = 1 to nLenPos
-			anResult + anAllPos[i]
+			anResult + anAllPos[panPos[i]]
 		next
 
 		return anResult
