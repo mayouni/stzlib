@@ -26218,28 +26218,35 @@ class stzList from stzObject
 	#--------------------------------------------------------#
 
 	def ItemsHaveSameOrderAs(paOtherList)
-		if NOT isList(paOtherList)
-			StzRaise("Incorrect param type! paOtherList must be a list.")
+
+		if CheckParams()
+			if isList(paOtherList) and StzListQ(paOtherList).IsAsNamedParam()
+				paOtherList = paOtherList[2]
+			ok
+
+			if NOT isList(paOtherList)
+				StzRaise("Incorrect param type! paOtherList must be a list.")
+			ok
 		ok
 
-		aContent = This.Content()
-		nLenList = This.NumberOfItems()
-		nLenOtherList = len(paOtherList)
-		nMin = StzListOfNumbersQ([nLenList, nLenOtherList]).Min()
+		if This.SortingOrder() = StzListQ(paOtherList).SortingOrder()
+			return TRUE
+		else
+			return FALSE
+		ok
 
-		bResult = TRUE
-
-		for i = 1 to nMin
-			if NOT Q(aContent[i]).IsEqualTo(paOtherList[i])
-				bResult = FALSE
-				exit
-			ok
-		next
-
-		return bResult
+		#< @FunctionAlternativeForms
 	
 		def ItemsHaveSameOrder(paOtherList)
 			return This.ItemsHaveSameOrderAs(paOtherList)
+
+		def ItemsHaveSameSortingOrderAs(paOtherList)
+			return This.ItemsHaveSameOrderAs(paOtherList)
+
+		def ItemsHaveSameSortingOrder(paOtherList)
+			return This.ItemsHaveSameOrderAs(paOtherList)
+
+		#>
 
 	  #==========================================================#
 	 #  CHECKING IF ALL THE ITEMS ARE EIGTHER NUMBERS OR ITEMS  #
@@ -26723,31 +26730,52 @@ class stzList from stzObject
 	#--------------------------------------------------------------------#
 
 	def HasSameContentCS(paOtherList, pCaseSensitive)
-		if isList(paOtherList) and Q(paOtherList).IsAsNamedParam()
-			paOtherList = paOtherList[2]
+		if CheckParams()
+			if isList(paOtherList) and Q(paOtherList).IsAsNamedParam()
+				paOtherList = paOtherList[2]
+			ok
+	
+			if NOT isList(paOtherList)
+				StzRaise("Incorrect param type! paOtherList must be a list.")
+			ok
 		ok
 
-		if NOT isList(paOtherList)
-			StzRaise("Invalid param type! paOtherList should be a list.")
+		nLen1 = len(@aContent)
+		nLen2 = len(paOtherList)
+
+		if EarlyCheck()
+
+			# The two lists must have same number of items
+
+			if NOT nLen1 = nLen2
+				return FALSE
+			ok
 		ok
 
-		# The two lists must have same number of items
+		# Doing the job
 
-		If  This.NumberOfItems() != len(paOtherList)
-			return FALSE
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		if bCaseSensitive = FALSE
+			acList1 = This.StringifyQ().SortQ().Lowercased()
+			acList2 = StzList(paOtherList).StringifyQ().SortQ().Lowercased()
+
+		else
+			acList1 = This.StringifyQ().Sorted()
+			acList2 = StzListQ(paOtherList).StringifyQ().Sorted()
 		ok
 
-		bResult = TRUE
+		bresult = TRUE
 
-		for item in paOtherList
-			if NOT This.ContainsCS(item, pCaseSensitive)
+		for i = 1 to nLen1
+			if NOT acList1[i] = acList2[i]
 				bResult = FALSE
 				exit
 			ok
 		next
-			
+
 		return bResult
-	
+
 		def HasSameContentAsCS(paOtherList, pCaseSensitive)
 			return This.HasSameContentCS(paOtherList, pCaseSensitive)
 
@@ -26764,10 +26792,18 @@ class stzList from stzObject
 	#==================================================#
 
 	def AllItemsAreContiguousLists()
+
+		nLen = len(@aContent)
+
 		bResult = TRUE
 
-		for item in This.List()
-			if NOT ( isList(item) and StzListQ(item).IsContiguous() )
+		for i = 1 to nLen
+			if NOT isList(item)
+				bResult = FALSE
+				exit
+			ok
+
+			if StzListQ(item).IsContiguous()
 				bResult = FALSE
 				exit
 			ok

@@ -9154,7 +9154,7 @@ StopProfiler()
 # Executed in 0.34 second(s).
 
 /*========================
-*/
+
 pron()
 
 o1 = new stzList([ "A", "B", "C", "1", "2", "3", "D", "E" ])
@@ -9320,7 +9320,7 @@ o1 = new stzList([ "ami", "coupain", "CAMARADE", "compagon" ])
 #--> "compagon"
 
 proff()
-# Executed in 0.09 second(s).
+# Executed in 0.13 second(s).
 
 /*------------------
 
@@ -9331,10 +9331,10 @@ o1 = new stzList([ "ami", "coupain", "CAMARADE", "compagon" ])
 #--> "compagon"
 
 proff()
-# Executed in 0.16 second(s).
+# Executed in 0.15 second(s).
 
 /*================== #narration List Equality and Strict Equality in Softanza
-
+*/
 pron()
 
 # In Softanza, two lists are equal when they have same
