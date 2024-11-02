@@ -11510,7 +11510,7 @@ proff()
 #--> Executed in 0.02 second(s).
 
 /*--------------------------
-*/
+
 pron()
 
 o1 = new stzList([ 1, 2, 3 ])
@@ -11526,74 +11526,161 @@ proff()
 
 /*--------------------------
 
-
-=> [ :language] or [:country] or [:script] or
-//			 [:language, :country] or [ :alanguage....
-// To Solve o1.IsLanuageIdentification()
-// ---> ListTemplate/Form
-
-/*--------------------------
+pron()
 
 o1 = new stzList([ "a", "b", "b", "b", "c" ])
 ? o1 - "b"
-? o1 - [ "b", "c", "b" ]
+#--> [ "a", "c" ]
+
+? o1 - These([ "b", "c", "b" ])
+#--> [ "a" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*--------------------------
 
-o1.Minus([ "b", "b" ])
-? o1.Content()
-
-/*--------------------------
+pron()
 
 o1 = new stzList([ "a", "b", "b", "b", "c" ])
- o1.RemoveMany([2,3,4])
+o1.RemoveItemsAtPositions([2,3,4])
 ? o1.Content()
+#--> [ "a", "c" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*--------------------------
 
-? o1 - [ "b", "b" ]
-//? o1.DifferenceWith([ "a", "c" ])
+pron()
+
+o1 = new stzList([ "a", "b", "b", "b", "c" ])
+? o1 - these([ "b", "b" ])
+#--> [ "a", "c" ]
+
+? o1.DifferenceWith([ "a", "c" ])
+#--> [ "b", "b", "b" ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*--------------------------
+
+pron()
 
 aList = [ :name = "mansour", :job = "programmer", :name = "xe" ]
 o1 = new stzList(aList)
 
 ? o1.IsHashList()
+#--> FALSE
+
+proff()
+# Executed in almost 0 second(s).
 
 /*--------------------------
+
+pron()
 
 o1 = new stzList([ "a", "c", 12 ])
 ? o1.HasSameContentAs([ "a", 12, "c" ])
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
 
 /*--------------------------
+
+pron()
 
 o1 = new stzList([ :ring, 5, :php, :ruby, :python, :ring, 5 ])
 ? o1.NumberOfOccurrence(5)
+#--> 2
+
 ? o1.NumberOfOccurrence(:ring)
+#--> 2
+
+proff()
+# Executed in 0.02 second(s).
 
 /*--------------------------
+
+pron()
 
 o1 = new stzList([ "a", "c" ])
 ? o1.ItemsHaveSameOrderAs([ "a", "c", "f" ])
 
+proff()
+# Executed in almost 0 second(s).
+
 /*--------------------------
+
+pron()
 
 o1 = new stzList([ 1, 2, 3, 6 ])
 ? o1.IsReverseOf([ 6, 3, 2, 1 ])
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
 
 /*--------------------------
+
+pron()
+o1 = new stzList([ 1, 2, 3 ])
 
 ? o1.IsEqualTo([ 3, 1, 2 ])
+#--> TRUE
+
 ? o1.IsStrictlyEqualTo([ 3, 1, 2 ])
+#--> FALSE
+
 ? o1.IsStrictlyEqualTo([ 1, 2, 3 ])
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*--------------------------
+
+pron()
 
 o1 = new stzList([ 2, 1, 3 ])
 ? o1.ItemsHaveSameOrderAs([ 2, 1, 3, 6 ])
+#-- TRUE
+
+proff()
+# Executed in almost 0 second(s).
 
 /*--------------------------
+
+pron()
+
+aList = [ 12,
+	[ "A", [ 1, 2, 3] ], 		# 1st sublist
+	[ "B", [ 3, 5, 3 ] ], 		# 2nd sublist
+	[ "C", [ 1, 4, [1,2,3], 4] ] 	# 3rd sublist
+]
+
+? StzListQ(aList).ContainsOneOrMoreLists()
+
+proff()
+
+/*--------------------------
+*/
+pron()
+
+o1 = new stzList([ "A", "B", 1:3, "C", "D", 4:5 ])
+? o1.FirstList()
+#--> [ 1, 2, 3 ]
+
+? o1.FindFirstList()
+#--> 3
+
+proff()
+
+/*-------------------------- #TODO
+
+pron()
 
 aList = [ 12,
 	[ "A", [ 1, 2, 3] ], # 1st sublist
@@ -11601,13 +11688,11 @@ aList = [ 12,
 	[ "C", [ 1, 4, [1,2,3], 4] ] # 3d sublist
 ]
 
-# aList = [ 2, 7, 10 ]
-
 o1 = new stzList(aList)
 ? o1.WalkUntilItem(7)
 ? aList
 
-? StzListQ(aList).ContainsOneOrMoreLists()
+proff()
 
 /*--------------------------
 
