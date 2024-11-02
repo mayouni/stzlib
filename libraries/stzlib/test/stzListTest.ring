@@ -11380,14 +11380,35 @@ proff()
 # Executed in 0.01 second(s).
 
 /*---------------------
-*/
+
 pron()
 
- ? Q([
-	:en = "house",
-	:fr = "maison",
-	:ar = "منزل"
-]).IsMultilingualString()
+o1 = new stzList([ :Language = "arabic", :Country = "tn", :Script = "arabic" ])
+
+? o1.IsLocaleList() + NL
+#--> TRUE
+
+o1 = new stzList([ :Language = "ar", :Country = "TN", :script = "arabic" ])
+? o1.IsLocaleList() + NL
+#--> TRUE
+
+? StringIsScriptName("latin")
+#--> TRUE
+
+proff()
+# Executed in 0.03 second(s).
+
+/*---------------------
+
+pron()
+
+o1 = new stzList([ :english = "house", :french = "maison", :arabic = "منزل" ])
+? o1.IsMultilingualString()
+#--> TRUE
+
+o1 = new stzList([ :en = "house", :fr = "maison", :ar = "منزل" ])
+? o1.IsMultilingualString()
+#--> TRUE
 
 proff()
 # Executed in 0.02 second(s).
@@ -11396,48 +11417,52 @@ proff()
 */
 pron()
 
-o1 = new stzList([ :Language = "arabic", :Country = "tn", :Script = "arabic" ])
-
-? o1.IsLocaleList()
-#--> TRUE
-
-/*
-o1 = new stzList([ :Language = "ar", :Country = "TN", :script = "arabic" ])
-? o1.IsLocaleList()
-
-? StringIsScriptName("latin")
-*/
-proff()
-
-/*---------------------
-
-o1 = new stzList([ :english = "house", :french = "maison", :arabic = "منزل" ])
-? o1.IsMultilingualString()
-
-o1 = new stzList([ :en = "house", :fr = "maison", :ar = "منزل" ])
-? o1.IsMultilingualString()
-
-/*---------------------
-
 o1 = new stzList([ "green", "red", "blue" ])
 
-? o1.ContainsOneOfThese(["red", "t", "cv"])
+? o1.ContainsOneOfThese(["red", "t", "cv"]) + NL
+#--> TRUE
 
-// Checking containment (all these return TRUE)
-? o1.IsContainedIn([ "green", "red", "blue", "magenta", "gray" ])
+#---
+
+? o1.IsContainedIn([ "green", "red", "blue", "magenta", "gray" ]) # Same as ExistsIn()
+#--> FALSE
+
+? o1.AreContainedIn([ "green", "red", "blue", "magenta", "gray" ]) + NL # Same as ExistIn() (without "s")
+#--> TRUE
+
+#---
 
 ? o1.Contains([ "red", "blue" ])
+#--> FALSE
+
+? o1.ContainsThese([ "red", "blue" ]) + NL
+#--> TRUE
+
+#---
 
 ? o1.ContainsOneOfThese([ "yelloW", "GREEN", "magenta" ])
-? o1.ContainsNoOneOfThese([ "yellow", "magenta", "gray" ]) + NL
+#--> FALSE
 
+? o1.ContainsOneOfTheseCS([ "yelloW", "GREEN", "magenta" ], FALSE)
+#--> TRUE
+
+? o1.ContainsNoOneOfThese([ "yellow", "magenta", "gray" ]) + NL
+#--> TRUE
+
+proff()
+# Executed in 0.05 second(s).
+
+#---
+/*
 // Checking common and different items
 ? o1.CommonItemsWith([ "yellow", "red", "blue", "gray" ]) 
 see NL
 ? o1.DifferentItemsWith([ "yellow", "red", "blue", "gray" ])
 see NL
 ? o1.DifferenceWith([ "yellow", "red", "blue", "gray" ])
-                                                        
+      */   
+proff()
+                                               
 /*--------------------------
 
 o1 = new stzList([ "green", "red" ])

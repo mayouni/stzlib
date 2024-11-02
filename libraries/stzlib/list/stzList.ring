@@ -36714,17 +36714,6 @@ class stzList from stzObject
 		def ContainsNoCS(pItem, pCaseSensitive)
 			return NOT This.ContainsCS(pItem, pCaseSensitive)
 
-		def ContainsNoneOfTheseCS(paItems, pCaseSensitive)
-			bResult = TRUE
-			nLen = len(paItems)
-			for i = 1 to nLen
-				if This.ContainsCS(paItems[i], pCaseSensitive)
-					bResult = FALSE
-					exit
-				ok
-			next
-			return bResult
-
 		def ContainsNeitherCS(pItem1, pItem2, pCaseSensitive)
 			if isList(pItem2) and Q(pItem2).IsNorNamedParam()
 				pItem2 = pItem2[2]
@@ -36764,17 +36753,6 @@ class stzList from stzObject
 	
 		def ContainsNo(pItem)
 			return NOT This.Contains(pItem)
-
-		def ContainsNoneOfThese(paItems)
-			bResult = TRUE
-			nLen = len(paItems)
-			for i = 1 to nLen
-				if This.Contains(paItems[i])
-					bResult = FALSE
-					exit
-				ok
-			next
-			return bResult
 
 		def ContainsNeither(pItem1, pItem2)
 			if isList(pItem2) and Q(pItem2).IsNorNamedParam()
@@ -37041,6 +37019,9 @@ class stzList from stzObject
 		def ExistIn(paOtherList)
 			return This.EachItemExistsIn(paOtherList)
 
+		def AreContainedIn(paOtherList)
+			return This.EachItemExistsIn(paOtherList)
+
 		#>
 
 	  #------------------------------------------------------------#
@@ -37261,6 +37242,25 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionNegativeForm
+
+		def ContainsNoOneOfTheseCS(paItems, pCaseSensitive)
+			return NOT This.ContainsOneOfTheseCS(paItems, pCaseSensitive)
+
+			def ContainsNoneOfTheseCS(paItems, pCaseSensitive)
+				return NOT This.ContainsOneOfTheseCS(paItems, pCaseSensitive)
+
+			def ContainsNoItemOfTheseCS(paItems, pCaseSensitive)
+				return NOT This.ContainsOneOfTheseCS(paItems, pCaseSensitive)
+
+			def ContainsNoneOfTheseItemsCS(paItems, pCaseSensitive)
+				return NOT This.ContainsOneOfTheseCS(paItems, pCaseSensitive)
+
+			def ContainsNoOneOfTheseItemsCS(paItems, pCaseSensitive)
+				return NOT This.ContainsOneOfTheseCS(paItems, pCaseSensitive)
+
+		#>
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def ContainsOneOfThese(paItems)
@@ -37291,6 +37291,25 @@ class stzList from stzObject
 
 		def ContainsAnyOfThe(paItems)
 			return This.ContainsOneOfThese(paItems)
+
+		#>
+
+		#< @FunctionNegativeForm
+
+		def ContainsNoOneOfThese(paItems)
+			return NOT This.ContainsOneOfThese(paItems)
+
+			def ContainsNoneOfThese(paItems)
+				return NOT This.ContainsOneOfThese(paItems)
+
+			def ContainsNoItemOfThese(paItems)
+				return NOT This.ContainsOneOfThese(paItems)
+
+			def ContainsNoneOfTheseItems(paItems)
+				return NOT This.ContainsOneOfThese(paItems)
+
+			def ContainsNoOneOfTheseItems(paItems)
+				return NOT This.ContainsOneOfThese(paItems)
 
 		#>
 
@@ -46363,6 +46382,7 @@ class stzList from stzObject
 		*/
 
 		# The MultilingualString must be a hashlist!
+
 		if NOT This.IsHashlist()
 			return FALSE
 		ok
