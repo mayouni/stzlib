@@ -28714,12 +28714,81 @@ class stzList from stzObject
 	def ContainsSameItemsAs(paOtherList)
 		return This.ContainsSameItemsAsCS(paOtherList, TRUE)
 
-	   #------------------------------------------------------------#
-	  #  GETTING THE LIST OF ITEMS FORMING THE DIFFERENCE BETWEEN  #
-	 #  THE MAIN LIST AND AND OTHER GIVEN LIST                    #
-	#------------------------------------------------------------#
+	   #---------------------------------------------------------#
+	  #  GETTING THE LIST OF ITEMS WHICH ARE DIFFERENT BETWEEN  #
+	 #  THE MAIN LIST AND AND OTHER GIVEN LIST                 #
+	#---------------------------------------------------------#
 
-	def DifferenceWithCS(paOtherList, pCaseSensitive)
+	def DifferentItemsWithCS(paOtherList, pCaseSensitive)
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+
+		# Stringifying the list so we can use Ring find() function
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+
+		acList = []
+		acOtherList = []
+
+		if bCaseSensitive = TRUE
+			acList = This.Stringified()
+			acOtherList = StzListQ(paOtherList).Stringified()
+
+		else
+			acList = This.StringifyQ().Lowercased()
+			acOtherList = StzListQ(paOtherList).SringifyQ().Lowercased()
+		ok
+
+		#-- Doing the job
+
+		aResult = []
+
+		nLen = len(@aContent)
+		for i = 1 to nLen
+			if ring_find(acOtherList, acList[i]) = 0
+				aResult + @aContent[i]
+			ok
+		next
+
+		nLen = len(paOtherList)
+		for i = 1 to nLen
+			if ring_find(acList, acOtherList[i]) = 0
+				aResult + paOtherList[i]
+			ok
+		next
+
+		return aResult
+
+		def DifferentItemsWithCSQ(paOtherList, pCaseSensitive)
+			return new stzList( This.DifferentItemsWithCS(paOtherList, pCaseSensitive) )
+
+		def DifferenceWithCS(paOtherList, pCaseSensitive)
+			return This.DifferentItemsWith(paotherList)
+
+			def DifferenceWithCSQ(paOtherList, pCaseSensitive)
+				return This.DifferentItemsWithCSQ(paOtherList, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DifferentItemsWith(paOtherList)
+		return This.DifferentItemsWithCS(paOtherList, TRUE)
+
+		def DifferentItemsWithQ(paOtherList)
+			return This.DifferentItemsWithCSQ(paOtherList, TRUE)
+
+		def DifferenceWith(paOtherList)
+			return This.DifferentItemsWith(paOtherList)
+
+			def DifferenceWithQ(paOtherList)
+				return This.DifferentItemsWithQ(paOtherList)
+
+	   #---------------------------------------------------------#
+	  #  GETTING THE LIST OF ITEMS WHICH ARE DIFFERENT BETWEEN  #
+	 #  THE MAIN LIST AND AND OTHER GIVEN LIST   -- XTended    #
+	#---------------------------------------------------------#
+
+	def DifferentItemsWithCSXT(paOtherList, pCaseSensitive)
 		/*
 		Returns a list composed of two hashlists:
 			[
@@ -28734,63 +28803,35 @@ class stzList from stzObject
 
 		return aResult
 
-	#-- WITHOUT CASESENSITIVITY
+		def DifferentItemsWithCSXTQ(paOtherList, pCaseSensitive)
+			return new stzList( This.DifferentItemsWithCSXT(paOtherList, pCaseSensitive) )
 
-	def DifferenceWith(paOtherList)
-		return This.DifferenceWithCS(paOtherList, TRUE)
+		def DifferenceWithCSXT(paOtherList, pCaseSensitive)
+			return This.DifferentItemsWithXT(paotherList)
 
-	   #---------------------------------------------------------#
-	  #  GETTING THE LIST OF ITEMS WHICH ARE DIFFERENT BETWEEN  #
-	 #  THE MAIN LIST AND AND OTHER GIVEN LIST                 #
-	#---------------------------------------------------------#
-
-	def DifferentItemsWithCS(paOtherList, pCaseSensitive)
-		if NOT isList(pOtherList)
-			StzRaise("Incorrect param type! paOtherList must be a list.")
-		ok
-
-		aResult = This.OverItemsComparedToCS(paOtherList, pCaseSensitive)
-
-		acLackingItems = This.LackingItemsComparedToCS(paOtherList, pCaseSensitive)
-		nLen = len(acLackingItems)
-
-		aContent = This.Content()
-
-		for i = 1 to nLen
-			aResult + aContent[i]
-		next
-	
-		return aResult
-
-		def DifferentItemsWithCSQ(paOtherList, pCaseSensitive)
-			return new stzList( This.DifferentItemsWithCS(paOtherList, pCaseSensitive) )
+			def DifferenceWithCSXTQ(paOtherList, pCaseSensitive)
+				return This.DifferentItemsWithCSXTQ(paOtherList, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def DifferentItemsWith(paOtherList)
-		if NOT isList(pOtherList)
-			StzRaise("Incorrect param type! paOtherList must be a list.")
-		ok
+	def DifferentItemsWithXT(paOtherList)
+		return This.DifferentItemsWithCSXT(paOtherList, TRUE)
 
-		aResult = This.OverItemsComparedTo(paOtherList)
-		aLacking = This.LackingItemsComparedTo(paOtherList)
-		nLen = len(aLacking)
+		def DifferentItemsWithXTQ(paOtherList)
+			return This.DifferentItemsWithCSXTQ(paOtherList, TRUE)
 
-		for i = 1 to nLen
-			aResult + aLacking[i]
-		next
-	
-		return aResult
+		def DifferenceWithXT(paOtherList)
+			return This.DifferentItemsWithXT(paOtherList)
 
-		def DifferentItemsWithQ(paOtherList)
-			return new stzList( This.DifferentItemsWith(paOtherList) )
+			def DifferenceWithXTQ(paOtherList)
+				return This.DifferentItemsWithXTQ(paOtherList)
 
 	  #--------------------------------------------------------------------#
 	 #  GETTING THE OVER-ITEMS IN A GIVEN LIST COMPARED TO THE MAIN LIST  #
 	#--------------------------------------------------------------------#
 
 	def OverItemsComparedToCS(paOtherList, pCaseSensitive)
-		if NOT isList(pOtherList)
+		if NOT isList(paOtherList)
 			StzRaise("Incorrect param type! paOtherList must be a list.")
 		ok
 

@@ -11414,7 +11414,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*---------------------
-*/
+
 pron()
 
 o1 = new stzList([ "green", "red", "blue" ])
@@ -11452,17 +11452,27 @@ o1 = new stzList([ "green", "red", "blue" ])
 proff()
 # Executed in 0.05 second(s).
 
-#---
-/*
-// Checking common and different items
+#---------
+*/
+pron()
+
+o1 = new stzList([ "green", "red", "blue" ])
+
 ? o1.CommonItemsWith([ "yellow", "red", "blue", "gray" ]) 
-see NL
-? o1.DifferentItemsWith([ "yellow", "red", "blue", "gray" ])
-see NL
-? o1.DifferenceWith([ "yellow", "red", "blue", "gray" ])
-      */   
+#--> [ "red", "blue" ]
+
+? o1.DifferentItemsWith([ "yellow", "red", "blue", "gray" ]) # Or DifferenceWith()
+#--> [ "green", "yellow", "gray" ]
+
+? @@NL( o1.DifferenceWithXT([ "yellow", "red", "blue", "gray" ]) ) # Or DifferentItemsWithXT()
+#--> [
+#	[ "surplus", [ "green" ] ],
+#	[ "lacking", [ "yellow", "gray" ] ]
+# ]
+
 proff()
-                                               
+# Executed in 0.04 second(s).
+                                       
 /*--------------------------
 
 o1 = new stzList([ "green", "red" ])
