@@ -36902,6 +36902,13 @@ class stzList from stzObject
 
 	def IsContainedInCS(p, pCaseSensitive)
 
+		if NOT ( isString(p) or isList(p) )
+			return FALSE
+		ok
+
+		bResult = Q(p).ContainsCS(This.Content(), pCaseSensitive)
+		return bResult
+
 		bResult = FALSE
 
 		switch ring_type(p)
@@ -37010,6 +37017,9 @@ class stzList from stzObject
 		def EachExistsInCS(paOtherList, pCaseSensitive)
 			return This.EachItemExistsInCS(paOtherList, pCaseSensitive)
 
+		def ExistInCS(paOtherList, pCaseSensitive)
+			return This.EachItemExistsInCS(paOtherList, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVI
@@ -37026,6 +37036,9 @@ class stzList from stzObject
 			return This.EachItemExistsIn(paOtherList)
 
 		def EachExistsIn(paOtherList)
+			return This.EachItemExistsIn(paOtherList)
+
+		def ExistIn(paOtherList)
 			return This.EachItemExistsIn(paOtherList)
 
 		#>
@@ -46373,10 +46386,12 @@ class stzList from stzObject
 
 	def IsLocaleList()
 
-		if This.NumberOfItems() = 1 and isString(This.Item(1)) and
+		nLen = len(@aContent)
 
-		   Q(This.Item(1)).IsOneOfThese([ :Default, :DefaultLocale,
-				 :System, :SystemLocale, :c, "C", :CLocale
+		if nLen = 1 and isString(@aContent[1]) and
+
+		   StzStringQ(@aContent[1]).IsOneOfThese([ :Default, :DefaultLocale,
+				 :System, :SystemLocale, "c", "C", :CLocale
 		   ])
 
 			return TRUE
@@ -46384,7 +46399,7 @@ class stzList from stzObject
 
 		# The list should not exceed 3 items
 
-		if This.NumberOfItems() > 3
+		if nLen > 3
 			return FALSE
 		ok
 
@@ -46395,38 +46410,47 @@ class stzList from stzObject
 		ok
 
 		# The Hashlist must take the form:
-		# 	[ :Language = "...", :Country = "...", ":Script = "..." ]
+		# 	[ :Language = "...", :Country = "...", :Script = "..." ]
 		# At least one item must be provided. And one, two, or three can
 		# can be provided.
 
-		oHash = new stzHashList(This.List())
-		oKeys = new stzList(oHash.Keys())
+		acKeys = []
+		for i = 1 to nLen
+			acKeys + @aContent[i][1]
+		next
 
-		if NOT (oKeys.IsMadeOfSome([ :Language, :Script, :Country ]) ) 
-				return FALSE
-		ok
+		bLanguage = ring_find(acKeys, "language")
+		bScript = ring_find(acKeys, "script")
+		bCountry = ring_find(acKeys, "country")
 
-		cLanguage = This.List()[ :Language ]
-		cScript   = This.List()[ :Script   ]
-		cCountry  = This.List()[ :Country  ]
-
-		if AllTheseAreNull([ cLanguage, cScript, cCountry ])
+		if bLanguage = 0 and bScript = 0 and bCountry = 0
 			return FALSE
 		ok
 
-		if NOT AllTheseAreStrings([ cLanguage, cScript, cCountry ])
-			return FALSE
-		ok
-		
-		if oKeys.Contains(:Language) and Q(cLanguage).IsNotLanguageName()
+		cLanguage = @aContent[ :Language ]
+		cScript   = @aContent[ :Script   ]
+		cCountry  = @aContent[ :Country  ]
+
+		if NOT ( isString(cLanguage) and isString(cScript) and isString(cCountry) )
 			return FALSE
 		ok
 
-		if oKeys.Contains(:Script) and Q(cScript).IsNotScriptName()
+		if cLanguage = NULL and cScript = NULL and cCoundtry = NULL
 			return FALSE
 		ok
 
-		if oKeys.Contains(:Country) and Q(cCountry).IsNotCountryName()
+		if cLanguage != NULL and
+		   NOT StzStringQ(cLanguage).IsLanguageIdentifier()
+			return FALSE
+		ok
+
+		if cScript != NULL and
+		   NOT StzStringQ(cScript).IsScriptIdentifier()
+			return FALSE
+		ok
+
+		if cCountry != NULL and
+		   NOT StzStringQ(cCountry).IsCountryIdentifier()
 			return FALSE
 		ok
 

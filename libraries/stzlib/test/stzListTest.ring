@@ -9334,7 +9334,7 @@ proff()
 # Executed in 0.15 second(s).
 
 /*================== #narration List Equality and Strict Equality in Softanza
-*/
+
 pron()
 
 # In Softanza, two lists are equal when they have same
@@ -9380,13 +9380,13 @@ o1 = new stzList(1:3)
 #--> TRUE
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.01 second(s).
 
 /*-------------- #narration List approximate comparison in Softanza
 
 pron()
 
-# Softanza can compare lists (and string also), in an approximative way.
+# Softanza can compare lists (and strings also), in an approximative way.
 # The degree of approximation can be tuned to fit with your need.
 
 o1 = new stzList([ "f","a","y","e","d" ])
@@ -9527,7 +9527,7 @@ o1.RemoveMany([ "A":"E", obj ])
 #--> [ 10, 12, 10, "Ring" ]
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.08 second(s).
 
 /*-------
 
@@ -9567,7 +9567,7 @@ o1.RemoveMany([ oTrue, 0 ])
 #--> [ "Ring", "PHP", "Python", "Julia" ]
 
 proff()
-# Executed in 0.08 second(s).
+# Executed in 0.34 second(s).
 
 /*----------------------- #narration
 
@@ -9633,7 +9633,7 @@ oList = new stzList([ "|<--", "Scope", "of", "Life", "-->|" ])
 #--> [ "Scope", "of", "Life" ]
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.05 second(s).
 
 /*-----------------------
 
@@ -9649,6 +9649,7 @@ o1.RemoveTheseBounds("{", "}")
 #--> [ "A", "B", "C" ]
 
 proff()
+# Executed in 0.01 second(s).
 
 /*-----------------------
 
@@ -9690,7 +9691,7 @@ o1 = new stzList([ "1", "2", "A", "B", "C", "3", "4" ])
 #--> TRUE
 
 proff()
-# Executed in almost 0 second(s).
+# Executed in 0.02 second(s).
 
 /*-----------------------
 
@@ -9702,7 +9703,7 @@ o1 = new stzList([ "A", "B", "C" ])
 #--> TRUE
 
 proff()
-# Executed in almost 0 second(s).
+# Executed in 0.02 second(s).
 
 /*-----------------------
 
@@ -9783,7 +9784,7 @@ pron()
 #--> 3
 
 proff()
-# Executed in 0.27 second(s).
+# Executed in 0.21s second(s).
 
 /*----------------------
 
@@ -9800,7 +9801,7 @@ pron()
 #--> [2, 4, 6]
 
 proff()
-# Executed in 0.29 second(s).
+# Executed in 0.22 second(s).
 
 /*----------------------
 
@@ -10715,7 +10716,7 @@ o1 - These([ "b", "c" ])
 #--> [ "a", "b", "c", "d", "e" ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s)
 
 /*--------------
 
@@ -10739,7 +10740,7 @@ o1 = new stzList(["file1", "file2", "file3" ])
 #--> [ "file1", "file2", "file3", "file4" ]
 
 proff()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s).
 
 /*--------
 
@@ -11232,7 +11233,7 @@ proff()
 
 
 /*---------------------
-*/
+
 pron()
 
 # All these return TRUE
@@ -11254,13 +11255,18 @@ o1 = new stzList([ "a", "a", "A", "A", "a", "A" ])
 #--> TRUE
 
 proff()
+# Executed in almost 0 second(s).
 
 /*--------------------- #TODO
+
+pron()
 
 o1 = new stzList([ "A", "B", "C" ])
 ? o1.AreWXT("isString(@item) and @IsUppercase(@item)")
 
-*--------------------- #TODO
+proff()
+
+/*--------------------- #TODO
 
 # All items are lists with 3 items
 
@@ -11274,53 +11280,111 @@ o1 = new stzList([ 1:3, 1:3, 1:3 ])
 o1 = new stzList([ 1:3, 1:3, 1:3 ])
 ? o1.AreWXT('isList(@item) and len(@item) = len(o1[1])')
 
-/*-------------------- ///////<<<<<<<//////////////////////////////////////////////
+/*-------------------- #TODO
+
+pron()
 
 # Sublists_Have_SameNumberOfItems()
 
 o1 = new stzList([ "a", 1:3, "b", 1:3, "c", 1:3 ])
 ? o1.TheseItems('{ isList(@item) }', :Are = '{ len(@item) = len(@items[1]) }')
 
-+ RemoveManyBounds + --> In lists
+// + RemoveManyBounds + --> In lists
+
+proff()
+
+/*--------------------- #narration
+
+pron()
+
+# In the following example, we check if the entire list ["a", "b", "c"] exists
+# as a single item within the list ["a", "b", "c", "x", "z"].
+
+# Although you might expect this to return TRUE, it actually returns FALSE.
+? Q(["a", "b", "c"]).ExistsIn(["a", "b", "c", "x", "z"])
+#--> FALSE
+
+# The result is FALSE because there are no occurrences of ["a", "b", "c"] as a 
+# single list element within the larger list.
+? @@(Q(["a", "b", "c", "x", "z"]).FindAll(["a", "b", "c"]))
+#--> []
+
+# However, if we modify the list to include ["a", "b", "c"] as an item:
+? Q(["a", "b", "c"]).ExistsIn(["a", "b", "c", "x", "z", ["a", "b", "c"]])
+#--> TRUE
+
+# This returns TRUE because the last element of the second list is now an item of
+# type list that matches ["a", "b", "c"], satisfying the ExistsIn() condition.
+
+# Now, let's restart from the beginning with a different method: ExistIn(),
+# which omits the "s" at the end. This method uses a different semantic approach.
+
+? Q(["a", "b", "c"]).ExistIn(["a", "b", "c", "x", "z"])
+#--> TRUE
+
+# Here, the result is TRUE because ExistIn() implies checking if the sequence
+# ["a", "b", "c"] exists within the list as a sub-sequence, rather than as a 
+# single item. This method accounts for multiple consecutive items rather than 
+# a single item, as with ExistsIn().
+
+proff()
+# Executed in 0.02 second(s).
 
 /*---------------------
 
-# In the following, we check if the hole list [ "a", "b", "c" ] exists in
-# the list [ "a", "b", "c", "x", "z" ].
-
-# You may answer TRUE but wait, it's FALSE
-? StzListQ([ "a", "b", "c" ]).ExistsIn([ "a", "b", "c", "x", "z" ]) #--> FALSE
-
-# In fact, there are no occurrences of [ "a", "b", "c" ] in the list
-? StzListQ([ "a", "b", "c", "x", "z" ]).FindAll([ "a", "b", "c" ]) #--> []
-
-# Now if you say:
-
-? StzListQ([ "a", "b", "c" ]).ExistsIn([ "a", "b", "c", "x", "z", [ "a", "b", "c" ] ]) #--> TRUE
-
-# then you get TRUE, because we have an an item of type list at the end of the second
-# list which is equal to [ "a", "b", "c" ]
-
-/*---------------------
+pron()
 
 o1 = new stzList([ "a", "b", "c", "a", "a", "b", "c" ])
+
 ? o1.IsMadeOf([ "a", "b", "c" ])
+#--> TRUE
+
 ? o1.IsMadeOfSome([ "a", "b", "c", "x", "z" ])
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s).
 
 /*---------------------
+
+pron()
 
 o1 = new stzList([ :monday, :monday, :monday ])
 ? o1.IsMadeOfOneOfThese([ :sunday, :monday, :saturday, :wednesday, :thirsday, :friday, :saturday ])
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
 
 /*---------------------
 
-o1 = stzList([ :Language = "arabic", :Country = "tn", :Script = "arabic" ])
-? o1.IsLocalenList()
+pron()
 
+? IsHashList([ :Language = "arabic", :Country = "tn", :Script = "arabic" ])
+#--> TRUE
+
+? StzListQ([ :Language = "arabic", :Country = "tn", :Script = "arabic" ]).IsHashList()
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
+
+/*---------------------
+*/
+pron()
+
+o1 = new stzList([ :Language = "arabic", :Country = "tn", :Script = "arabic" ])
+
+? o1.IsLocaleList()
+#--> TRUE
+
+/*
 o1 = new stzList([ :Language = "ar", :Country = "TN", :script = "arabic" ])
 ? o1.IsLocaleList()
 
 ? StringIsScriptName("latin")
+*/
+proff()
 
 /*---------------------
 
