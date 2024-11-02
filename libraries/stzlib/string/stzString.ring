@@ -38325,7 +38325,8 @@ class stzString from stzObject
 	#--------------------------------#
 
 	def ReplaceLastNChars(n, pcNewSubStr)
-		This.ReplaceSection(This.NumberOfChars() - n + 1, :LastChar, pcNewSubStr)
+		nLen = This.NumberOfChars()
+		This.ReplaceSection(This.NumberOfChars() - n + 1, nLen, pcNewSubStr)
 
 		def ReplaceLastNCharsQ(n, pcNewSubStr)
 			This.ReplaceLastNChars(n, pcNewSubStr)
@@ -41898,8 +41899,8 @@ class stzString from stzObject
 		ok
 
 		cPart1 = This.Section(1, nStart - 1)
-
-		oPart2 = This.SectionQ(nStart, :LastChar)
+		nLen = This.NumberOfChars()
+		oPart2 = This.SectionQ(nStart, nLen)
 		cPart2 = oPart2.ReplaceNthOccurrenceCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive).Content()
 
 		cResult = cPart1 + cPart2
@@ -44154,8 +44155,8 @@ class stzString from stzObject
 						n = 1
 		
 					but n = :Last or n = :LastOccurrence
-		
-						n = This.SectionQ(pnStartingAt, :LastChar).
+						nLen = This.NumberOfChars()
+						n = This.SectionQ(pnStartingAt, nLen).
 							NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 	
 					ok
@@ -44163,8 +44164,8 @@ class stzString from stzObject
 				else // Backward
 	
 					if n = :First or n = :FirstOccurrence
-	
-						n = This.SectionQ(pnStartingAt, :LastChar).
+						nLen = This.NumberOfChars()
+						n = This.SectionQ(pnStartingAt, nLen).
 							NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 		
 					but n = :Last or n = :LastOccurrence
@@ -44185,8 +44186,8 @@ class stzString from stzObject
 		nResult = 0
 
 		if pcDirection = :Forward
-
-			nPos  = This.SectionQ(pnStartingAt, :LastChar).
+			nLen = This.NumberOfChars()
+			nPos  = This.SectionQ(pnStartingAt, nLen).
 				FindNthCS(n, pcSubStr, pCaseSensitive)
 
 			if nPos > 0
@@ -45627,7 +45628,8 @@ class stzString from stzObject
 		anResult = []
 
 		if pcDirection = :Forward
-			anPos = This.SectionQ(pnStartingAt, :LastChar).FindCS(pcSubStr, pCaseSensitive)
+			nLen = This.NumberOfChars()
+			anPos = This.SectionQ(pnStartingAt, nLen).FindCS(pcSubStr, pCaseSensitive)
 
 			nLen = len(anPos)
 			nLenSubStr = Q(pcSubStr).NumberOfChars()
@@ -45869,7 +45871,8 @@ class stzString from stzObject
 			pnStartingAt = pnStartingAt[2]
 		ok
 
-		oSection = This.SectionQ(pnStartingAt, :LastChar)
+		nLen = This.NumberOfChars()
+		oSection = This.SectionQ(pnStartingAt, nLen)
 		anPos = oSection.FindAllCS(pcSubStr, pCaseSensitive)
 		
 		anResult = []
@@ -46009,7 +46012,8 @@ class stzString from stzObject
 
 		# Doint the job
 
-		nResult  = This.SectionQ(nStart, :LastChar).
+		nLen = This.NumberOfChars()
+		nResult  = This.SectionQ(nStart, nLen).
 				FindNthCS(n, pcSubStr, pCaseSensitive)
 
 		if nResult != 0
@@ -48453,20 +48457,23 @@ class stzString from stzObject
 				if isString(p2[2])
 					nPos = This.FindFirstAsSectionsCS(p2, pCaseSensitive)
 					if nPos > 0
-						return This.FindAsSectionsCSXT( p1, :InSection = [nPos, :LastChar], pCaseSensitive )
+						nLen = This.NumberOfChars()
+						return This.FindAsSectionsCSXT( p1, :InSection = [nPos, nLen], pCaseSensitive )
 
 					else
 						return []
 					ok
 
 				but isNumber(p2[2])
-					return This.FindAsSectionsCSXT( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
+					nLen = This.NumberOfChars()
+					return This.FindAsSectionsCSXT( p1, :InSection = [ p2[2], nLen], pCaseSensitive )
 
 				ok
 
 			# FindAsSectionsXT( "*", :AfterPosition = 3)
 			but oP2.IsAfterPositionNamedParam()
-				return This.FindAsSectionsCSXT( p1, :InSection = [ p2[2], :LastChar], pCaseSensitive )
+				nLen = This.NumberOfChars()
+				return This.FindAsSectionsCSXT( p1, :InSection = [ p2[2], nLen], pCaseSensitive )
 
 			# FindAsSectionsXT( :3rd = "*", :Between = [ "<<", ">>" ])
 			but isList(p1) and isString(p1[2]) and
@@ -48546,10 +48553,12 @@ class stzString from stzObject
 
 				if isString(p2[2])
 					n = This.FindLastCS(p2[2], pCaseSensitive)
-					return This.FindAsSectionsCSXT( p1[2], :InSection = [n, :LastChar], pCaseSensitive)
+					nLen = This.NumberOfChars()
+					return This.FindAsSectionsCSXT( p1[2], :InSection = [n, nLen], pCaseSensitive)
 
 			 	but isNumber(p2[2])
-					return This.FindAsSectionsCSXT( p1[2], :InSection = [p2[2], :LastChar], pCaseSensitive )
+					nLen = This.NumberOfChars()
+					return This.FindAsSectionsCSXT( p1[2], :InSection = [p2[2], nLen], pCaseSensitive )
 
 				else
 					StzRaise("Incorrect param type! :Before = ... must be fellowed by a string or number.")
@@ -48562,8 +48571,8 @@ class stzString from stzObject
 			    Q(p1[1]).EndsWithOneOfThese([ :st, :rd, :th ]) and
 
 			    isList(p2) and Q(p2).IsAfterPositionNamedParam()
-
-				return This.FindAsSectionsCSXT( p1[2], :InSection = [ p2[2], :LastChar ], pCaseSensitive )
+				nLen = This.NumberOfChars()
+				return This.FindAsSectionsCSXT( p1[2], :InSection = [ p2[2], nLen ], pCaseSensitive )
 
 			# FindAsSectionsXT( :AnySubString, :Between = ["<<", ">>" )
 			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
@@ -76834,7 +76843,8 @@ n1 = Min(aTemp)
 			This.RemoveSection( 1, n )
 
 		else
-			This.RemoveSection( This.NumberOfChars() - n + 1, :LastChar )
+			nLen = This.NumberOfChars()
+			This.RemoveSection( This.NumberOfChars() - n + 1, nLen )
 		ok
 
 		#< @FunctionFluentForm
@@ -76873,7 +76883,8 @@ n1 = Min(aTemp)
 		if This.IsRightToLeft()
 			This.RemoveSection( 1, n)
 		else
-			This.RemoveSection( This.NumberOfChars() - n + 1, :LastChar )
+			nLen = This.NumberOfChars()
+			This.RemoveSection( This.NumberOfChars() - n + 1, nLen )
 		ok
 
 		#< @FunctionFluentForm
@@ -76979,8 +76990,8 @@ n1 = Min(aTemp)
 			if n1 = :LastChar  or n1 = :EndOfString or n1 = :Last
 				n1 = This.NumberOfChars()
 			ok
-	
-			if n2 = :LastChar  or n2 = :EndOfString or n2 = :Last
+
+			if n2 = :LastChar or n2 = :EndOfString or n2 = :Last
 				n2 = This.NumberOfChars()
 			ok
 	
@@ -78636,7 +78647,8 @@ n1 = Min(aTemp)
 
 		cPart1 = This.Section(1, nStart - 1)
 
-		oPart2 = This.SectionQ(nStart, :LastChar)
+		nLen = This.NumberOfChars()
+		oPart2 = This.SectionQ(nStart, nLen)
 		cPart2 = oPart2.RemoveNthOccurrenceCSQ(n, pcSubStr, pCaseSensitive).Content()
 
 		cResult = cPart1 + cPart2
@@ -78843,7 +78855,8 @@ n1 = Min(aTemp)
 		n = oPart1.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive) - n + 1
 		cPart1 = oPart1.RemoveNthOccurrenceCSQ(n, pcSubStr, pCaseSensitive).Content()
 
-		cPart2 = This.Section(nStart, :LastChar)
+		nLen = This.NumberOfChars()
+		cPart2 = This.Section(nStart, nLen)
 
 		cResult = cPart1 + cPart2
 		This.Update( cResult )

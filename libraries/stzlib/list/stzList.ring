@@ -28736,7 +28736,7 @@ class stzList from stzObject
 			acOtherList = StzListQ(paOtherList).Stringified()
 
 		else
-			acList = This.StringifyQ().Lowercased()
+			acList = This.Copy().StringifyQ().Lowercased()
 			acOtherList = StzListQ(paOtherList).SringifyQ().Lowercased()
 		ok
 
@@ -28932,23 +28932,49 @@ class stzList from stzObject
 	def CommonItemsWithCS(paOtherList, pCaseSensitive)
 
 		if CheckParams()
+			if isList(paOtherList) and StzListQ(paOtherList).IsWithNamedParam()
+				paOtherList = paOtherList[2]
+			ok
+
 			if NOT isList(paOtherList)
 				StzRaise("Incorrect param type! paOtherList must be a list.")
 			ok
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
+		nLen = len(@aContent)
+		nLenOther = len(paOtherList)
+
+		# Stringifying the two lists
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+		acList = []
+		acOther = []
+
+		if bCaseSensitive
+			acList = This.Stringified()
+			acOther = StzListQ(paOtherList).Stringified()
+
+		else
+			acList = This.Copy().StringifyQ().Lowercased()
+			acOther = StzListQ(paOtherList).StringifyQ().Lowercased()
+		ok
+
+		# Doing the job
+
 		aResult = []
-		
+
 		for i = 1 to nLen
-
-			if (NOT Q(aResult).ContainsCS(aContent[i], pCaseSensitive)) and
-			   Q(paOtherList).ContainsCS(aContent[i], pCaseSensitive)
-
-				aResult + aContent[i]
+			if ring_find(acOther, acList[i]) > 0 and
+				aResult + @aContent[i]
 			ok
+		next
 
+		for i = 1 to nLenOther
+			if ring_find(acList, acOther[i]) > 0 and
+			   ring_find(aResult, acOther[i]) = 0
+
+				aResult + paOtherList[i]
+			ok
 		next
 
 		return aResult
@@ -28979,7 +29005,11 @@ class stzList from stzObject
 				paOtherList = paOtherList[2]
 			ok
 
-			return  This.CommonItemsWithCS(paOtherList, pCaseSensitive)
+			aResult =  This.CommonItemsWithCS(paOtherList, pCaseSensitive)
+			return aResult
+
+			def IntersectionCSQ(paOtherList, pCaseSensitive)
+				return This.CommonItemsWithCSQ(paOtherList, pCaseSensitive)
 
 		#>
 
@@ -29010,7 +29040,10 @@ class stzList from stzObject
 				return This.CommonItemsWithQ(paOtherList)
 
 		def Intersection(paOtherList)
-			return This.IntersectionCS(paOtherList, pCaseSensitive)
+			return This.CommonItemsWith(paOtherList)
+
+			def IntersectionQ(paOtherList)
+				return This.CommonItemsWithQ(paOtherList)
 
 		#>
 
@@ -38208,7 +38241,7 @@ class stzList from stzObject
 	#======================#
 
 	/*
-	TODO:
+	TODO: Add a dedicated class calles stzDeepList
 
 	- Reveiew this section (its functions and its semantics)
 	- Avoid using _ in names of functions
@@ -38280,17 +38313,29 @@ class stzList from stzObject
 		def ListsPathsQ()
 			return new stzList( This.ListsPaths() )
 
-	def ItemsThatAreLists_AtAnyLevel_TheirPaths()
+	def ItemsThatAreListsAtAnyLevel_TheirPaths()
 		aResult = []
-		aInfo = This.ItemsThatAreLists_AtAnyLevel_XT()
+		aInfo = This.ItemsThatAreListsAtAnyLevelXT()
 		for info in aInfo
 			aResult + info[1][2]	// GetItemByPath(x,y) : Generalize!!!
 		next
 		
 		return aResult
 
-		def ItemsThatAreLists_AtAnyLevel_TheirPathsQ()
-			return new stzList( This.ItemsThatAreLists_AtAnyLevel_TheirPaths() )
+		def ItemsThatAreListsAtAnyLevel_TheirPathsQ()
+			return new stzList( This.ItemsThatAreListsAtAnyLevel_TheirPaths() )
+
+		def FindDeepLists()
+			return This.ItemsThatAreListsAtAnyLevel_TheirPaths()
+
+			def FindDeepListsQ()
+				return new stzList( This.FindDeepLists() )
+
+		def DeepFindLists()
+			return This.ItemsThatAreListsAtAnyLevel_TheirPaths()
+
+			def DeepFindListsQ()
+					return new stzList(This.DeepFindLists())
 
 	def ItemByPath(panPath)
 		if This.ContainsItemOnPath(panPath)
@@ -38348,38 +38393,34 @@ class stzList from stzObject
 		done
 
 		
-	def NumberOfLists_AtAnyLevel()
-		return len( This.ItemsThatAreLists_AtAnyLevel_XT() )
+	def NumberOfListsAtAnyLevel()
+		return len( This.ItemsThatAreListsAtAnyLevelXT() )
+	
+		def NumberOfDeepLists()
+			return This.NumberOfListsAtAnyLevel()
 
-	def ItemsThatAreLists_AtAnyLevel()
-		aResult = []
-		
-		for anPath in This.ItemsThatAreLists_AtAnyLevel_TheirPaths()
-			
-			cPath = "aTempList = "
-			cPath += GenerateListAccessCode_FromNameAndPath("This.Content()", anPath)
+		def HowManyDeepLists()
+			return This.NumberOfListsAtAnyLevel()
 
-			eval(cPath)
-			aResult + aTempList
-		next
-		return aResult
+		def HowManyListAtAnyLevel()
+			return This.NumberOfListsAtAnyLevel()
 
 
-	def ItemsThatAreLists_InLevel(n)
+	def ItemsThatAreListsInLevel(n)
 		// TODO
 
-	def ItemsThatAreLists_InPositionN_AtAnyLevel(n)
+	def ItemsThatAreListsInPositionNAtAnyLevel(n)
 		// TODO
 
 	def ItemsInLevel(n)
 		// TODO
 
-	def ItemsInPositionN_AtAnyLevel(n)
+	def ItemsInPositionNAtAnyLevel(n)
 		// TODO
 
 	// Returns a stzListOfHashlists:
 	// for each list: its path, level and position.
-	def ItemsThatAreLists_AtAnyLevel_XT()
+	def ItemsThatAreListsAtAnyLevelXT()
 		
 		aResult = []
 		aPath = []
@@ -38414,12 +38455,17 @@ class stzList from stzObject
 		oResult = new stzList(aResult)
 		return oResult.Section(2, oResult.NumberOfItems())
 
-		def ItemsThatAreLists_AtAnyLevel_XTQ()
-			return new stzList( This.ItemsThatAreLists_AtAnyLevel_XT() )
+		def ItemsThatAreListsAtAnyLevelXTQ()
+			return new stzList( This.ItemsThatAreListsAtAnyLevelXT() )
+
+		def DeepListsXT()
+			return This.ItemsThatAreListsAtAnyLevelXT()
+
+			def DeepListsXTQ()
+				return This.ItemsThatAreListsAtAnyLevelXTQ()
 
 	def NumberOfLevels()
-				
-		nResult = @@Q( This.Content() ).NumberOfOccurrence("[")
+		nResult = This.FindDeepListsQ().FlattenQ().SortQ().LastItem()
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -38438,7 +38484,7 @@ class stzList from stzObject
 	def Depth()
 		return This.NumberOfLevels()
 
-	def ItemsThatAre_Lists_AtAnyLevel()
+	def ItemsThatAreListsAtAnyLevel()
 		aResult = []
 		n = 0
 		n1 = 0
@@ -38469,24 +38515,31 @@ class stzList from stzObject
 
 		return aResult
 
-		def ItemsThatAre_Lists_AtAnyLevelQ()
-			return new stzListOfLists( This.ItemsThatAre_Lists_AtAnyLevel() )
-			
-	def ListsAtAnyLevel()
-		return This.ItemsThatAre_Lists_AtAnyLevel()
-
-		def ListsAtAnyLevelQ()
-			return new stzListOfLists( This.ListsAtAnyLevel() )
+		def ItemsThatAreListsAtAnyLevelQ()
+			return new stzList(This.ItemsThatAreListsAtAnyLevel())
 
 		def DeepLists()
-			return This.ListsAtAnyLevel()
+			return This.ItemsThatAreListsAtAnyLevel()
 
 			def DeepListsQ()
-				return This.ListsAtAnyLevelQ()
+				return This.ItemsThatAreListsAtAnyLevelQ()
+
+		def InnerLists()
+			return This.ItemsThatAreListsAtAnyLevel()
+
+			def InnerListsQ()
+				return This.ItemsThatAreListsAtAnyLevelQ()
+
+		def ListsAtAnyLevel()
+			return This.ItemsThatAreListsAtAnyLevel()
+
+			def ListsAtAnyLevelQ()
+				return This.ItemsThatAreListsAtAnyLevelQ()
 	
 	def Structure()
-		// TODO
-		
+		// TODOuble()
+		StzRaise("Not yet implemented!")
+
 	def ShowStructure()
 		/* Generates a treeview like this:
 			LIST[]
@@ -38502,7 +38555,7 @@ class stzList from stzObject
 			+-- nItem3
 		*/
 
-		StzRaise("Unsupported feature yet!")
+		StzRaise("Not yet implemented!")
 
 		#< @FuntionMisspelledForm
 

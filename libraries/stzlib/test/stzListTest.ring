@@ -570,7 +570,7 @@ pron()
 # So, in the case:
 	
 	o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
-	o1.ReplaceItemsAtPositions([ 1, 3, 4, 5 ], [ "ring", "softanza" ] , :By = "♥♥♥")
+	o1.ReplaceTheseItemsAtPositions([ 1, 3, 4, 5 ], [ "ring", "softanza" ] , :By = "♥♥♥")
 	
 	? o1.Content()
 	#--> [ "♥♥♥", "ruby", "♥♥♥", "♥♥♥", "php", "softanza" ]
@@ -587,7 +587,7 @@ pron()
 	# And repeat the same job
 
 	o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
-	o1.ReplaceItemsAtPositions([ 1, 3, 4, 5 ], [ "ring", "softanza" ] , "♥♥♥")
+	o1.ReplaceTheseItemsAtPositions([ 1, 3, 4, 5 ], [ "ring", "softanza" ] , "♥♥♥")
 	
 	? o1.Content()
 	#--> [ "♥♥♥", "ruby", "♥♥♥", "♥♥♥", "php", "softanza" ]
@@ -734,7 +734,7 @@ o1.ReplaceItemAtPositionsByMany([ 3, 5, 7], "ring", [ "♥", "♥♥", "♥♥�
 #--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
 
 proff()
-#--> Executed in 0.04 second(s)
+#--> Executed in 0.02 second(s)
 
 /*------
 
@@ -760,7 +760,7 @@ proff()
 pron()
 
 o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
-o1.ReplaceItemsAtPositionsByMany([ 1, 3, 4, 6 ], [ "ring", "softanza" ] , [ "♥", "♥♥" ])
+o1.ReplaceTheseItemsAtPositionsByMany([ 1, 3, 4, 6 ], [ "ring", "softanza" ] , [ "♥", "♥♥" ])
 		
 ? @@( o1.Content() )
 #--> [ "♥", "ruby", "♥", "♥♥", "php", "♥♥" ]
@@ -798,7 +798,7 @@ o1 = new stzList([
 	"softanza", "ring", "softanza"
 ])
 
-o1.ReplaceItemsAtPositionsByManyXT( [ 1, 3, 4, 5, 7, 8, 9 ],
+o1.ReplaceTheseItemsAtPositionsByManyXT( [ 1, 3, 4, 5, 7, 8, 9 ],
 	[ "ring", "softanza" ], [ "♥", "♥♥" ] )
 				
 ? @@( o1.Content() )
@@ -846,7 +846,7 @@ pron()
 //CheckParamOff()
 
 o1 = new stzList([ "ring", "ruby", "ring", "php", "ring" ])
-o1.ReplaceItemAtPositions([ 1, 5 ], "ring", :By = "♥♥♥")
+o1.ReplaceThisItemAtPositions([ 1, 5 ], "ring", :By = "♥♥♥")
 
 ? o1.Content()
 #--> [ "♥♥♥", "ruby", "ring", "php", "♥♥♥" ]
@@ -874,7 +874,7 @@ pron()
 
 o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
 
-o1.ReplaceItemAt(3, "♥", :With = "★")
+o1.ReplaceThisItemAt(3, "♥", :With = "★")
 ? @@( o1.Content() )
 #--> [ 1, 2, "★", 4, "♥" ]
 
@@ -882,7 +882,7 @@ o1.ReplaceItemAt(3, "♥", :With = "★")
 # ("♥" in our case) must be in position 3 to be replaced. Otherwise, nothing
 # will happen. In fact:
 
-o1.ReplaceItemAt(2, "BLA", :With = "★" )
+o1.ReplaceThisItemAt(2, "BLA", :With = "★" )
 ? @@( o1.Content() )
 #--> [ 1, 2, "★", 4, "♥" ]
 
@@ -895,7 +895,7 @@ pron()
 
 o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
 
-o1.ReplaceItemAt(3, "♥", "★")
+o1.ReplaceThisItemAt(3, "♥", "★")
 ? @@( o1.Content() )
 #--> [ 1, 2, "★", 4, "♥" ]
 
@@ -904,7 +904,7 @@ o1.ReplaceItemAt(3, "♥", "★")
 # will happen. In fact:
 
 o1 = new stzList([ 1, 2, "♥", 4, "♥" ])
-o1.ReplaceItemAt(2, "BLA", :With = "★" )
+o1.ReplaceThisItemAt(2, "BLA", :With = "★" )
 ? @@( o1.Content() )
 #--> [ 1, 2, "♥", 4, "♥" ]
 
@@ -1708,6 +1708,8 @@ o1.StringifyAndReplaceXT("_", "*")
 #--> [1, 3]
 
 proff()
+# Executed in 19.96 second(s) in Ring 1.21
+
 
 #   SIZE    | Ring 1.17 | Ring 1.18 | Ring 1.19 | Ring 1.19 X64
 #-----------+-----------+-----------+-----------+---------------
@@ -2276,7 +2278,7 @@ o1.Shorten()
 #--> [ 1, 2, 3, "...", 179998, 179999, 180000 ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.13 second(s)
 
 /*--------------
 
@@ -3358,7 +3360,8 @@ o1.RemoveSection(73_900, 120_010)
 #--> 252889
 
 proff()
-# Executed in 0.99 second(s)
+# Executed in 0.21 second(s).
+# Executed in 0.99 second(s) in Ring 1.19
 
 /*-----------------
 
@@ -4783,6 +4786,7 @@ proff()
 /*----------
 
 pron()
+
 o1 = new stzList([ "a", "ab", 1:3, "abA", "abAb", 1:3 ])
 
 ? o1.ContainsCS("ab", TRUE)
@@ -4801,7 +4805,7 @@ o1 = new stzList([ "a", "ab", 1:3, "abA", "abAb", 1:3 ])
 #--> 6
 
 proff()
-# Executed in 0.02 second(s) in Ring 1.18
+# Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.07 second(s) in Ring 1.17
 
 /*==========
@@ -4812,21 +4816,18 @@ o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3,"c" ])
 
 ? o1.FindDuplicates()
 #--> [ 5, 6, 8, 10 ]
-# Executed in 0.11 second(s)
 
 ? @@( o1.ItemsAtPositions( o1.FindDuplicates() ) )
 #--> [ "a", "ab", "b", [ 1, 2, 3 ] ]
-# Executed in 0.02 second(s)
 
-? @@( o1.Duplicates() )
+? @@( o1.Duplicates() ) + NL
 #--> [ "a", "ab", "b", [ 1, 2, 3 ] ]
-# Executed in 0.14 second(s)
 
 ? @@( o1.DuplicatesZ() )
 #--> [ [ "a", 5 ], [ "ab", 6 ], [ "b", 8 ], [ [ 1, 2, 3 ], 10 ] ]
-# Executed in 0.23 second(s)
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.04 second(s) in Ring 1.19 (64 bits)
 # Executed in 0.03 second(s) in Ring 1.17
 
@@ -4835,10 +4836,11 @@ proff()
 pron()
 
 o1 = new stzList([ "a", "ab", "b" ])
-? o1.Intersection(:with = [ "a", "ab", "abc", "b", "bc", "c" ]) # Or CommonItems()
+? @@( o1.Intersection(:with = [ "a", "ab", "abc", "b", "bc", "c" ]) ) # Or CommonItems()
 #--> [ "a", "ab", "b" ]
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.21
 # Executed in 0.05 second(s) in Ring 1.19 (64 bits)
 # Executed in 0.03 second(s) in Ring 1.17
 
@@ -4878,6 +4880,7 @@ o1 = new stzList(aLarge)
 #--> 1_000_007
 
 proff()
+# Executed in 3.42 second(s) in Ring 1.21
 # Executed in  5.74 second(s) in Ring 1.19 (64 bits)
 # Executed in  6.11 second(s) in Ring 1.19 (32 bits)
 # Executed in 13.13 second(s) in Ring 1.18
@@ -4899,6 +4902,7 @@ o1 = new stzList(aList)
 #--> 7
 
 proff()
+# Executed in 0.15 second(s) in Ring 1.21 (64 bits)
 # Executed in 0.17 second(s) in Ring 1.19 (64 bits)
 # Executed in 0.20 second(s) in Ring 1.19 (32 bits)
 # Executed in 0.26 second(s) in Ring 1.18
@@ -4931,10 +4935,7 @@ pron()
 	#--> 1_000_015
 
 proff()
-# Executed in 8.62 second(s) in Ring 1.19 (64 bits)
-# Executed in 9.17 second(s) in Ring 1.19 (32 bits)
-# Executed in 20.67 second(s) in Ring 1.18
-# Executed in 22.53 second(s) in Ring 1.17
+# Executed in 42.98 second(s).
 
 /*-----------------
 
@@ -11600,7 +11601,7 @@ o1 = new stzList([ :ring, 5, :php, :ruby, :python, :ring, 5 ])
 #--> 2
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.01 second(s).
 
 /*--------------------------
 
@@ -11666,7 +11667,7 @@ aList = [ 12,
 proff()
 
 /*--------------------------
-*/
+
 pron()
 
 o1 = new stzList([ "A", "B", 1:3, "C", "D", 4:5 ])
@@ -11677,6 +11678,7 @@ o1 = new stzList([ "A", "B", 1:3, "C", "D", 4:5 ])
 #--> 3
 
 proff()
+# Executed in almost 0 second(s).
 
 /*-------------------------- #TODO
 
@@ -11696,44 +11698,64 @@ proff()
 
 /*--------------------------
 
-aList = [ 2, 7, 10 ]
-? StzListQ(aList).Contains(7)
-? StzListQ(aList).Content()
-? StzListQ(aList).WalkUntilItem(7)
+pron()
+
+o1 = new stzList([
+	"A",
+	[ 1, 2, 3 ],
+	"B",
+	[ 4, [ 5, 6 ], 7 ],
+	"C",
+	[ 8 ]
+])
+
+? @@( o1.DeepLists() )
+#--> [ [ 1, 2, 3 ], [ 5, 6 ], [ 8 ] ]
+
+proff()
+# Executed in 0.04 second(s).
 
 /*--------------------------
 
-o1 = new stzList(aList)
-? o1.Sublists()
-? o1.ItemsThatAre_Lists_AtAnyLevel()
-# Getting the 3 sublists
-#? len(o1.Sublists())
-# Checking if they have the same number of items
-#? o1.Sublists_Have_SameNumberOfItems()
-
-# Getting the 
-#? len(o1.ListsAtAnyLevel())
-#? o1.ListsAtAnyLevel_Have_SameNumberOfItems()
-
-/*--------------------------
+pron()
 
 o1 = new stzList(  [	:name, :age, 	:job		])
 ? o1.AssociateWith([ 	"Ali", 	24, 	"Programmer" 	])
-? o1.Content()
-#--> [ :name = "Ali", :age = 24, :job = "Programmer"	]
+? @@NL( o1.Content() )
+#--> [
+#	[ "name", "Ali" ],
+#	[ "age", 24 ],
+#	[ "job", "Programmer" ]
+# ]
+
+proff()
+# Executed in almost 0 second(s).
 
 /*--------------------------
+
+pron()
 
 o1 = new stzList([ 1, 1, 1 ])
 ? o1.AllItemsAreEqualTo(1)
 
+proff()
+# Executed in almost 0 second(s).
+
 /*--------------------------
+
+pron()
 
 o1 = new stzList("a":"t")
 ? o1.Contains("x")
+#--> FALSE
+
+proff()
+# Executed in 0.03 second(s).
 
 /*============ TODO: Levels functions need a reflection, see code.
 # To be replaced with DeepFind
+
+pron()
 
 o1 = new stzList([
 	1, [ "A", "B"], 2,
@@ -11741,17 +11763,33 @@ o1 = new stzList([
 	[ 5, [ 6, [ "D", "E" ], 7 ], 8 ]
 ])
 
-? o1.NumberOfLevels() #--> 4
+? @@NL( o1.DeepFindLists() ) + NL
+#--> [
+#	[ 2 ],
+#	[ 4 ],
+#	[ 4, 3 ],
+#	[ 3 ],
+#	[ 3, 2 ],
+#	[ 3, 2, 2 ]
+# ]
 
-? @@( o1.ItemsThatAreLists_AtAnyLevel_XT() )
-#-->
-#	[
-#		[ :Path = [ 2 ], :Level = 1, :Position = 2 ],
-#		[ :Path = [ 4 ], :Level = 1, :Position = 4 ],
-#		[ :Path = [ 4, 3 ], :Level = 2, :Position = 3 ],
-#		[ :Path = [ 3 ], :Level = 1, :Position = 3 ],
-#		[ :Path = [ 3, 2 ], :Level = 2, :Position = 2 ],
-#		[ :Path = [ 3, 2, 2 ], :Level = 3, :Position = 2 ]
-#	]
+? o1.NumberOfLevels() + NL
+#--> 4
 
-? o1.ItemsThatAreLists_AtAnyLevel() # !!!--> ERROR TODO
+? @@( o1.DeepLists() ) + NL
+#--> [ [ "A", "B" ], [ "B", "C" ], [ "D", "E" ] ]
+
+
+? @@NL( o1.DeepListsXT() )
+#--> [
+#	[ [ "path", [ 2 ] ], [ "level", 1 ], [ "position", 2 ] ],
+#	[ [ "path", [ 4 ] ], [ "level", 1 ], [ "position", 4 ] ],
+#	[ [ "path", [ 4, 3 ] ], [ "level", 2 ], [ "position", 3 ] ],
+#	[ [ "path", [ 3 ] ], [ "level", 1 ], [ "position", 3 ] ],
+#	[ [ "path", [ 3, 2 ] ], [ "level", 2 ], [ "position", 2 ] ],
+#	[ [ "path", [ 3, 2, 2 ] ], [ "level", 3 ], [ "position", 2 ] ]
+# ]
+
+proff()
+# Executed in 0.15 second(s).
+
