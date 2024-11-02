@@ -11453,7 +11453,7 @@ proff()
 # Executed in 0.05 second(s).
 
 #---------
-*/
+
 pron()
 
 o1 = new stzList([ "green", "red", "blue" ])
@@ -11475,18 +11475,57 @@ proff()
                                        
 /*--------------------------
 
+pron()
+
 o1 = new stzList([ "green", "red" ])
-? o1.IsIncludedIn([ "green", "red", "blue" ]) #--> TRUE
+
+? o1.IsIncludedIn([ "green", "red", "blue" ])
+#--> FALSE
+
+? o1.AreIncludedIn([ "green", "red", "blue" ])
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s).
 
 /*--------------------------
 
-? o1.DifferenceWith([ "b","x", "a", "f"])
+pron()
 
-? o1.DifferentItemsWith([ "b","x", "a", "f"])
-? o1.CommonItemsWith([ "b","x", "a", "f"])
+o1 = new stzList([ "green", "red" ])
+
+? o1.DifferenceWith([ "b","x", "a", "f"]) # Or DifferentItemsWith()
+#--> [ "green", "red", "b","x", "a", "f"])
+
+? @@( o1.CommonItemsWith([ "b","x", "a", "f"]) ) # or Intersection()
+# []
+
+? o1.ContainsSameItemsAs([ "red", "green" ])
+#--> TRUE
+
 ? o1.ContainsSameItemsAs([ "a", "b", "c", "f" ])
+#--> FALSE
+
+proff()
+#--> Executed in 0.02 second(s).
 
 /*--------------------------
+*/
+pron()
+
+o1 = new stzList([ 1, 2, 3 ])
+
+? @@( o1.UnionWith([ 3, 4, 5 ]) )
+#--> [ 1, 2, 3, 3, 4, 5 ]
+
+? @@( o1.IntersectionWith([3, 4, 5 ]) )
+#--> [ 3 ]
+
+proff()
+# Executed in 0.02 second(s).
+
+/*--------------------------
+
 
 => [ :language] or [:country] or [:script] or
 //			 [:language, :country] or [ :alanguage....
