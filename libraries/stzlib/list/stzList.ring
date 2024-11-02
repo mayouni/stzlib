@@ -38222,16 +38222,46 @@ class stzList from stzObject
 	*/
 
 	def ContainsOneOrMoreLists()
-		if This.WalkUntilItemIsList() != NULL
-			return TRUE
-		else
-			return FALSE
-		ok
+		nlen = len(@aContent)
+
+		bResult = FALSE
+
+		for i = 1 to nLen
+			if isList(@aContent[i])
+				bResult = TRUE
+				exit
+			ok
+		next
+
+		return bResult
+
+	def FindFirstList()
+		nlen = len(@aContent)
+
+		nResult = 0
+
+		for i = 1 to nLen
+			if isList(@aContent[i])
+				nResult = i
+				exit
+			ok
+		next
+
+		return nResult
 
 	def FirstList()
-		If This.WalkUntilItemIsList() != NULL
-			return This.LastItemIn( This.WalkUntilItemIsList() )
-		ok
+		nlen = len(@aContent)
+
+		aResult = []
+
+		for i = 1 to nLen
+			if isList(@aContent[i])
+				aResult = @aContent[i]
+				exit
+			ok
+		next
+
+		return aResult
 
 		def FirstListQ()
 			return new stzList( This.FirstList() )
