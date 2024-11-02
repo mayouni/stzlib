@@ -86244,6 +86244,16 @@ n1 = Min(aTemp)
 		def IsNotLanguageName()
 			return NOT This.IsLanguageName()
 
+	def IsLanguageNameOrAbbreviation()
+		if This.IsLanguageName() or This.IsLanguageAbbreviation()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsLanguageAbbreviationOrNames()
+			return This.IsLanguageNameOrAbbreviation()
+
 	def IsNativeLanguageName() # Locale-specific
 		if This.IsEmpty() { return FALSE }
 

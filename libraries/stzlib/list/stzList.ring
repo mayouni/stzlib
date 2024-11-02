@@ -46328,11 +46328,18 @@ class stzList from stzObject
 	#===================#
 
 	def AreLanguageAbbreviations()
-		bResult = TRUE
+		
+		if NOT @IsListOfStrings(@aContent)
+			return FALSE
+		ok
+
 		nLen = len(@aContent)
+		aoStzStr = This.ToListOfStzStrings()
+
+		bResult = TRUE
 
 		for i = 1 to nLen
-			if NOT StringIsLanguageAbbreviation(@aContent[i])
+			if NOT aoStzStr[i].IsLanguageAbbreviation()
 				bResult = FALSE
 				exit
 			ok
@@ -46340,7 +46347,7 @@ class stzList from stzObject
 		return bResult
 
 		def AreLanguagesAbbreviations()
-			return This.AreLanguageAbbreviations
+			return This.AreLanguageAbbreviations()
 
 	def IsMultilingualString()
 	     
@@ -46360,28 +46367,33 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		# And the translations provided mus be all strings
-		oHash = new stzHashList(This.List())
-		aValues = oHash.Values()
-		oList = new stzList(aValues)
-		if NOT oList.AllItemsAreStrings()
-			return FALSE
-		ok
+		nLen = len(@aContent)
 
-		# The keys of the hashlist are the language names or abbreviations
-		# Let's check that they are well-formed
-		aKeys = oHash.Keys()
+		aoKeys = []
+		acValues = []
 
-		for str in aKeys
-			oStr = new stzString(str)
-			if NOT (oStr.IsLanguageName() or
-				oStr.IsLanguageAbbreviation())
-				
+		# All values (traslations provided) must be strings
+
+		for i = 1 to nLen
+			if NOT isString(@aContent[i][2])
 				return FALSE
 			ok
 		next
-			
-		# Otherwise, the list is a well-formed multilingual string
+
+		# Keys must be language names or abbreviations
+
+		for i = 1 to nLen
+			aoKeys + StzStringQ(@aContent[i][1])
+		next
+
+		for i = 1 to nLen
+			if NOT aoKeys[i].IsLanguageNameOrAbbreviation()
+				return FALSE
+			ok
+		next
+
+		# Otherwise, we are confident the list a multilingual string
+
 		return TRUE
 
 	def IsLocaleList()

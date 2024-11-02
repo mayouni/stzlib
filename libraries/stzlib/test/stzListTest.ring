@@ -11370,6 +11370,29 @@ proff()
 # Executed in almost 0 second(s).
 
 /*---------------------
+
+pron()
+
+? Q([ :ar, :en, :fr ]).AreLanguageAbbreviations()
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s).
+
+/*---------------------
+*/
+pron()
+
+ ? Q([
+	:en = "house",
+	:fr = "maison",
+	:ar = "منزل"
+]).IsMultilingualString()
+
+proff()
+# Executed in 0.02 second(s).
+
+/*---------------------
 */
 pron()
 
