@@ -27010,7 +27010,7 @@ class stzList from stzObject
 		acClasses 	= This.Classes()
 		anFrequencies 	= This.ClassesFrequencies()
 
-		aResult = StzLisQ( acClasses ).AssociatedWith( anFrequencies )
+		aResult = StzListQ( acClasses ).AssociatedWith( anFrequencies )
 
 		return aResult
 
@@ -27171,7 +27171,7 @@ class stzList from stzObject
 		acClasses 	= This.ClassesSF()
 		anFrequencies 	= This.ClassesFrequencies()
 
-		aResult = StzLisQ( acClasses ).AssociatedWith( anFrequencies )
+		aResult = StzListQ( acClasses ).AssociatedWith( anFrequencies )
 
 		return aResult
 
@@ -28974,6 +28974,13 @@ class stzList from stzObject
 			def IntersectWithCSQ(paOtherList, pCaseSensitive)
 				return This.CommonItemsWithCSQ(paOtherList, pCaseSensitive)
 
+		def IntersectionCS(paOtherList, pCaseSensitive)
+			if isList(paOtherList) and StzListQ(paOtherList).IsWithNamedParam()
+				paOtherList = paOtherList[2]
+			ok
+
+			return  This.CommonItemsWithCS(paOtherList, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -29002,7 +29009,41 @@ class stzList from stzObject
 			def IntersectWithQ(paOtherList)
 				return This.CommonItemsWithQ(paOtherList)
 
+		def Intersection(paOtherList)
+			return This.IntersectionCS(paOtherList, pCaseSensitive)
+
 		#>
+
+	  #---------------------------------------------------#
+	 #  GETTING THE UNION OF THE LIST AND AN OTHER LIST  #
+	#---------------------------------------------------#
+
+	def Union(paOtherList)
+		if isList(paOtherList) and StzListQ(paOtherList).IsWithNamedParam()
+			paOtherList = paOtherList[2]
+		ok
+
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+
+		aResult = @aContent
+
+		nLen = len(paOtherList)
+		for i = 1 to nLen
+			aResult + paOtherList[i]
+		next
+
+		return aResult
+
+		def UnionQ(paOtherList)
+			return new stzList( This.Union(paOtherList) )
+
+		def UnionWith(paOtherList)
+			return This.Union(paOtherList)
+
+			def UnionWithQ(paOtherList)
+				return This.Union(paOtherList)
 
 	  #------------------------------------------------------------------------#
 	 #  NUMBER OF COMMON ITEMS BETWEEN THE MAIN LIST AND AN OTHER GIVEN LIST  #
@@ -37039,6 +37080,9 @@ class stzList from stzObject
 		def ExistInCS(paOtherList, pCaseSensitive)
 			return This.EachItemExistsInCS(paOtherList, pCaseSensitive)
 
+		def AreIncludedInCS(paOtherList, pCaseSensitive)
+			return This.EachItemExistsInCS(paOtherList, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVI
@@ -37061,6 +37105,9 @@ class stzList from stzObject
 			return This.EachItemExistsIn(paOtherList)
 
 		def AreContainedIn(paOtherList)
+			return This.EachItemExistsIn(paOtherList)
+
+		def AreIncludedIn(paOtherList)
 			return This.EachItemExistsIn(paOtherList)
 
 		#>
