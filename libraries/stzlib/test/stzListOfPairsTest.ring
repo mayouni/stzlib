@@ -592,7 +592,7 @@ proff()
 # Executed in 0.05 second(s).
 
 /*----- #narration
-
+*/
 pron()
 
 # In the following example, we want to remove consecutive
@@ -652,7 +652,7 @@ o1.RemoveSections(aSections)
 
 # Internally, Softanza merged the sections as follows:
 
-? @@( StzListOfPairsQ(aSections).MergeSectionsQ().Content() )
+? @@( StzListOfSectionsQ(aSections).MergeQ().Content() )
 #--> [ [ 8, 15 ], [ 26, 29 ] ]
 
 # And so, the long list of inclusive/overlapping sections:
@@ -664,22 +664,28 @@ o1.RemoveSections(aSections)
 # resulting in the correct removal through RemoveSections().
 
 proff()
+# Executed in 0.14 second(s).
 
 /*-----
+
+pron()
 
 # Meeting time slots (in 24-hour format)
 aSlots = [
 	[9, 10],   # 9:00-10:00 meeting
 	[9, 11],   # 9:00-11:00 meeting (includes previous)
 	[10, 12],  # 10:00-12:00 meeting (overlaps)
-	[15, 16],  # 3:00-4:00 meeting (separate)
+	[15, 16]   # 3:00-4:00 meeting (separate)
 ]
 
-oSlots = new stzListOfPairs(aSlots)
-oSlots.MergeSections()
+oSlots = new stzListOfSections(aSlots)
+oSlots.Merge()
 ? @@( oSlots.Content() )
 #--> [ [ 9, 12 ], [ 15, 16 ] ]
 # Shows actual blocked time periods
+
+proff()
+# Executed in 0.05 second(s).
 
 /*=====
  */
