@@ -77050,7 +77050,7 @@ n1 = Min(aTemp)
 
 		# Merging any inclusive or overlapping sections
 
-		aMerged = StzListOfPairsQ(paSections).SortQ().SectionsMerged()
+		aMerged = StzListOfSectionsQ(paSections).SortQ().Merged()
 		nLen = len(aMerged)
 
 		# Doing the job

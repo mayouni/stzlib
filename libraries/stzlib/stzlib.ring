@@ -139,6 +139,8 @@
 	load "list/stzSet.ring"
 	load "list/stzListOfLists.ring"
 	load "list/stzListOfPairs.ring"
+	load "list/stzListOfSections.ring"
+	load "list/stzSetOfSections.ring"
 	load "list/stzPair.ring"
 	load "list/stzPairOfLists.ring"
 	load "list/stzListOfSets.ring"
