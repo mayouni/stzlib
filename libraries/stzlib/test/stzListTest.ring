@@ -5697,7 +5697,7 @@ next
 StopProfiler()
 
 /*-----------
-
+*/
 StartProfiler()
 
 o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
@@ -5709,18 +5709,16 @@ StopProfiler()
 
 /*-----------
 
-StartProfiler()
+pron()
 
 o1 = new stzList([1,2,3,4,5])
-o1 - [3,5]
-
-? o1.Content()
+? o1 - These([3,5])
 #--> [ 1, 2, 4 ]
 
-# Executed in 0.04 second(s)
+proff()
+# Executed in almost 0 second(s).
 
-/*-----------
-
+/*----------- #ring A draft for a code using inside Softanza
 
 StartProfiler()
 
@@ -5729,10 +5727,8 @@ aList2  = [          9,    14, 15,    21, 22, 23     ]
 
 aList = Q(aList1).MergeWithQ(aList2).Sorted()
 
-
 aSections = []
 bContinue = TRUE
-
 
 while TRUE
 
@@ -5754,12 +5750,12 @@ while TRUE
 end
 
 ? @@(aSections)
-
-
+# [ [ 6, 9 ], [ 11, 14 ], [ 18, 21 ], [ 4, 15 ], [ 1, 22 ] ]
 
 StopProfiler()
+# Executed in 0.01 second(s).
 
-/*============ TODO: check it:
+/*============
 
 StartProfiler()
 
@@ -5770,39 +5766,56 @@ o1 = new stzString("---[ [===]---[=] ]--[=]--")
 ? @@( o1.FindBoundedByZZ([ "[", "]" ]) )
 #--> [ [ 5, 9 ], [ 15, 15 ], [ 22, 22 ] ]
 
-? @@( o1.BoundedBy([ "[", "]" ]) )
+? @@( o1.BoundedBy([ "[", "]" ]) ) + NL
 #--> [ " [===", "=", "=" ]
 
-#-- #TODO
+#--
 
-//? @@( o1.DeepFindBoundedByZZ([ "[", "]" ]) )
+? @@( o1.DeepFindBoundedByZZ([ "[", "]" ]) )
+#--> [ [ 7, 9 ], [ 15, 15 ], [ 22, 22 ], [ 5, 17 ] ]
 
-//? @@( o1.DeepBoundedBy([ "[", "]" ]) )
+? @@( o1.DeepBoundedBy([ "[", "]" ]) )
+#--> [ "===", "=", "=", " [===]---[=] " ]
 
 StopProfiler()
+# Executed in 0.02 second(s).
 
 /*-----------
 
 StartProfiler()
-#NOTE: In this example, it is better to use DeepBetween
 
 #                   1..4.6..v.1..vv..8..vv
 o1 = new stzString("[••[•[••]•[••]]••[••]]")
 #                   ^..^.^..9.^..45..^..21
 
-? @@( o1.FindAnyBetweenAsSections("[","]") )
-#--> [ [ 2, 8 ], [ 5, 13 ], [ 7, 14 ], [ 12, 20 ], [ 19, 21 ] ]
+? @@( o1.DeepFindSubStringsBoundedByZZ([ "[", "]" ]) ) + NL
+#--> [ [ 7, 8 ], [ 12, 13 ], [ 19, 20 ], [ 5, 14 ], [ 2, 21 ] ]
 
-? @@( o1.AnyBetweenZZ("[","]") )
+? @@NL( o1.DeepSubStringsBoundedByZZ([ "[", "]" ]) ) + NL
 #--> [
-#	[ "••[•[••", 	[ [ 2, 8 ] ] ],
-#	[ "•[••]•[••", 	[ [ 5, 13 ] ] ],
-#	[ "••]•[••]", 	[ [ 7, 14 ] ] ],
-#	[ "••]]••[••", 	[ [ 12, 20 ] ] ],
-#	[ "••]", 	[ [ 7, 9 ], [ 12, 14 ], [ 19, 21 ] ] ]
+#	[ "••", [ 7, 8 ] ],
+#	[ "••", [ 12, 13 ] ],
+#	[ "••", [ 19, 20 ] ],
+#	[ "•[••]•[••]", [ 5, 14 ] ],
+#	[ "••[•[••]•[••]]••[••]", [ 2, 21 ] ]
+# ]
+
+#--
+
+? @@( o1.DeepFindSubStringsBoundedByIBZZ([ "[", "]" ]) ) + NL
+#--> [ [ 6, 9 ], [ 11, 14 ], [ 18, 21 ], [ 4, 15 ], [ 1, 22 ] ]
+
+? @@NL( o1.DeepSubStringsBoundedByIBZZ([ "[", "]" ]) ) + NL
+#--> [
+#	[ "[••]", [ 6, 9 ] ],
+#	[ "[••]", [ 11, 14 ] ],
+#	[ "[••]", [ 18, 21 ] ],
+#	[ "[•[••]•[••]]", [ 4, 15 ] ],
+#	[ "[••[•[••]•[••]]••[••]]", [ 1, 22 ] ]
 # ]
 
 StopProfiler()
+# Executed in 0.03 second(s).
 
 /*-----------
 
@@ -5818,7 +5831,7 @@ o1 = new stzString("---[ [===]---[=] ]--[=]--")
 #                       5           17
 
 ? @@( o1.FindAnyBoundedByZZ([ "[", "]" ]) ) + NL
-#--> [ [ 5, 9 ], [ 7, 15 ], [ 15, 17 ], [ 22, 22 ] ]
+#--> [ [ 5, 9 ], [ 15, 15 ], [ 22, 22 ] ]
 
 ? @@NL( o1.SubStringsBoundedByZZ([ "[", "]" ]) ) + NL
 #--> [
@@ -5841,7 +5854,7 @@ o1 = new stzString("---[ [===]---[=] ]--[=]--")
 # ]
 
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s)
 
 /*-----------
 
@@ -5853,6 +5866,21 @@ o1 = new stzString("blabla bla <<word1>> bla bla <<word2>>")
 
 StopProfiler()
 # Executed in 0.02 second(s)
+
+/*-----------
+
+pron()
+
+o1 = new stzList("A":"J")
+
+? @@( o1.FindAntiSections( :Of = [ [3,5], [7,8] ]) )
+#--> [ [ 1, 2 ], [ 6, 6 ], [ 9, 10 ] ]
+
+? @@( o1.FindAntiSectionsIB( :Of = [ [3,5], [7,8] ]) )
+#--> [ [ 1, 3 ], [ 5, 7 ], [ 8, 10 ] ]
+
+proff()
+# Executed in 0.03 second(s).
 
 /*-----------
 
@@ -5877,18 +5905,23 @@ o1 = new stzString('[
 
 ? @@NL( o1.SimplifyQ().NestedSubStringsIB(:BoundedBy = [ "[", "]" ]) )
 #--> [
+#	'[ "1", "1", [',
 #	'["2", "♥", "2"]',
+#	'], "1", [',
+#	'["2", [',
+#	'["3", "♥", [',
+#	'["4", [',
 #	'["5", "♥"]',
+#	'], "4", [',
 #	'["5","♥"]',
-#	'["4", ["5", "♥"], "4", ["5","♥"], "♥"]',
-#	'["3", "♥", ["4", ["5", "♥"], "4", ["5","♥"], "♥"], "3"]',
-#	'["2", ["3", "♥", ["4", ["5", "♥"], "4", ["5","♥"], "♥"], "3"] ]',
-#	'[ "1", "1", ["2", "♥", "2"], "1", ["2", ["3", "♥", ["4", ["5", "♥"], "4", ["5","♥"], "♥"], "3"] ] ]'
+#	'], "♥"]',
+#	'], "3"]',
+#	"] ]",
+#	"] ]"
 # ]
 
-
 StopProfiler()
-#--> Executed in 0.02 second(s)
+#--> Executed in 0.06 second(s)
 
 /*-----------
 
@@ -5956,24 +5989,80 @@ o1 = new stzString('[[[
 
 ]]]')
 
-//? o1.FindDeepSectionsBetween("[", "]")
-aList = o1.SectionsBetween("[[[", "]]]")
-nLen = len(aList)
-for i = 1 to nLen
-	? aList[i] + NL + "--" + NL
-next
+? @@( o1.FindSubStringsBoundedByIBZZ([ "[[[", "]]]" ]) ) + NL
+#--> [ [ 1, 36 ], [ 47, 101 ], [ 118, 130 ] ]
+
+? @@NL( o1.SubStringsBoundedByIB([ "[[[", "]]]" ]) )
+
+#--> [
+#	'[[[
+#		"1", "1",
+#			[[["2", "♥", "2"]]]',
+#
+#	#--
+#
+#	'[[["2",
+#				[[["3", "♥",
+#					[[["4",
+#						[[["5", "♥"]]]',
+#
+#	#--
+#
+#	'[[["5","♥"]]]'
+#
+# ]
 # Executed in 0.64 second(s)
 
-	//o1.ReplaceAnyBetween("[", "]", "***")
-	//o1.RemoveSubStringsBetweenIB("]","[")
-	//? o1.SubStringsBetween("]","[") # ..BoundedBy
-	//? o1.SubStringsBoundedBy(["]","["])  # Add it
-	//o1.RemoveSubStringsBetweenIB("]","[")
-	//o1.RemoveAnySectionsBoundedByIB("]","[")
-	//? o1.Content()
+/*-----------
+
+StartProfiler()
+
+o1 = new stzString('[[[
+	"1", "1",
+		[[["2", "♥", "2"]]],
+	"1",
+		[[["2",
+			[[["3", "♥",
+				[[["4",
+					[[["5", "♥"]]],
+				"4",
+					[[["5","♥"]]],
+				"♥"]]],
+			"3"]]]
+		]]]
+
+]]]')
+
+o1.ReplaceAnyBoundedBy([ "[", "]" ], "***")
+? o1.Content()
+#-->
+# [***]]],
+#	"1",
+#		[***]]],
+#				"4",
+#					[***]]],
+#				"♥"]]],
+#			"3"]]]
+#		]]]
+#
+# ]]]
 
 StopProfiler()
-# Executed in 0.63 second(s)
+# Executed in 0.04 second(s)
+
+/*-----------
+
+StartProfiler()
+
+o1 = new stzString('Hello ]---[Ring!]---[')
+
+o1.RemoveSubStringsBoundedByIB([ "]","[" ])
+? o1.Content()
+#--> Hello Ring!
+
+StopProfiler()
+# Executed in 0.04 second(s)
+
 /*-----------
 
 StartProfiler()
@@ -5990,7 +6079,7 @@ o1 = new stzList(
 # Executed in 0.07s
 
 StopProfiler()
-#--> Executed in 0.12 second(s)
+#--> Executed in 0.07 second(s)
 
 /*==============
 
@@ -6011,18 +6100,22 @@ o1 = new stzList([ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "🌞"] ] ])
 #--> TRUE
 
 ? o1.DeepContainsNOfThese(2, ["_", "🌞", "0", "♥" ])
-#--> #--> TRUE
+#--> TRUE
 
 StopProfiler()
+# Executed in 0.02 second(s).
 
 /*==============
+
+pron()
 
 o1 = new stzList([ "a", "abcde", "abc", "ab", "abcd" ])
 o1.SortBy('len(@item)')
 ? o1.Content()
-
 #--> [ "a", "ab", "abc", "abcd", "abcde" ]
 
+proff()
+# Executed in 0.04 second(s).
 
 /*==============
 
@@ -6065,21 +6158,21 @@ StartProfiler()
 
 	o1 = new stzList([ "A", "B", "A", "C", "C", "D", "A", "E" ])
 	
-	? @@( o1.IndexBy(:NumberOfOccurrence) ) + NL
-	#--> [ [ "A", 3 ], [ "B", 1 ], [ "C", 2 ], [ "D", 1 ], [ "E", 1 ] ]
-	
-	? @@( o1.IndexBy(:Position) )
+	? @@NL( o1.Index() ) # Or FindItems() or ItemsZ() or ItemsAndTheirPositions()
 	#--> [
-	#	[ "A", [ 1, 3, 7 ] ],
-	#	[ "B", [ 2 ] ],
-	#	[ "C", [ 4, 5 ] ],
-	#	[ "D", [ 6 ] ],
-	#	[ "E", [ 8 ] ]
+	# 	[ "A", [ 1, 3, 7 ] ],
+	# 	[ "B", [ 2 ] ],
+	# 	[ "C", [ 4, 5 ] ],
+	# 	[ "D", [ 6 ] ],
+	# 	[ "E", [ 8 ] ]
 	# ]
 
-StopProfiler() #--> Executed in 0.49 seconds seconds.
+StopProfiler()
+#--> Executed in almost 0 second(s).
 
 /*-----------------
+
+pron()
 
 # Extending a list of numbers to a given position
 
@@ -6103,8 +6196,11 @@ o1.ExtendToXT(5, :With = "♥")
 ? @@( o1.Content() )
 #--> [ "A", "B", "C", "♥", "♥" ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzList([ ".",".",".","4","5","6",".",".","." ])
@@ -6115,6 +6211,7 @@ o1 = new stzList([ ".",".",".","4","5","6",".",".","." ])
 #--> [ "4", "5", "6" ]
 
 proff()
+# Executed in almost 0 second(s).
 
 /*=================
 

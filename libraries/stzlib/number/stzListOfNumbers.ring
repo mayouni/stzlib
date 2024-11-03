@@ -2444,39 +2444,14 @@ class stzListOfNumbers from stzList
 		anSorted = This.ToSetQ().Sorted()
 		nLen = len(anSorted)
 
-		if nLen = 0 or nLen = 1
-			return [ NULL, NULL ]
-		ok
+		aResult = []
 
-		nFirst = anSorted[1]
-		nLast  = anSorted[nLen]
-
-		if n > nLast
-			aResult = [ nLast, NULL ]
-			return aResult
-	
-		but n < nFirst
-			aResult = [ NULL, nFirst ]
-			return aResult
-	
-		ok
-
-		nPos = ring_find( anSorted, n )
-
-		if nPos = 0
-			return [ NULL, NULL ]
-		ok
-
-		if nPos = 1
-			aResult = [ NULL, anSorted[2] ]
-
-		but nPos = nLen
-			aResult = [ anSorted[nLen-1], NULL ]
-
-		else
-			aResult = [ anSorted[nPos-1], anSorted[nPos+1] ]
-
-		ok
+		for i = 1 to nLen-1
+			if anSorted[i] <= n and n <= anSorted[i+1]
+				aResult = [ anSorted[i], anSorted[i+1] ]
+				exit
+			ok
+		next
 
 		return aResult
 
