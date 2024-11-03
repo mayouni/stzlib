@@ -6104,6 +6104,8 @@ o1.ExtendToXT(5, :With = "♥")
 #--> [ "A", "B", "C", "♥", "♥" ]
 
 /*-----------------
+*/
+pron()
 
 o1 = new stzList([ ".",".",".","4","5","6",".",".","." ])
 ? o1.NextNItems(3, :StartingAtPosition = 4)
@@ -6112,28 +6114,50 @@ o1 = new stzList([ ".",".",".","4","5","6",".",".","." ])
 ? o1.PreviousNItems(3, :StartingAtPosition = 6)
 #--> [ "4", "5", "6" ]
 
+proff()
+
 /*=================
+
+pron()
 
 o1 = new stzList([ 7, 3, 3, 10, 8, 8 ])
 
-? o1.Smallest() #--> 3
-? o1.Largest() #--> 10
+? o1.Smallest()
+#--> 3
 
-? @@( o1.FindSmallest() ) #--> [2, 3]
-? o1.NumberOfOccurrencesOfSmallestItem() #--> 2
+? o1.Largest()
+#--> 10
+
+? @@( o1.FindSmallest() )
+#--> [2, 3]
+
+? o1.NumberOfOccurrencesOfSmallestItem()
+#--> 2
+
 # or more simply
-? o1.NumberOfSmallest() #--> 2
 
-? @@( o1.FindLargest() ) #--> [ 4 ]
+? o1.NumberOfSmallest()
+#--> 2
 
-? o1.NthSmallest(3) #--> 8
-? @@( o1.FindNthSmallest(3) ) #--> [ 5, 6 ]
+? @@( o1.FindLargest() )
+#--> [ 4 ]
 
-/*=================
+? o1.NthSmallest(3)
+#--> 8
+
+? @@( o1.FindNthSmallest(3) )
+#--> [ 5, 6 ]
+
+proff()
+# Executed in 0.01 second(s).
+
+/*================= #TODO
+
+pron()
 
 o1 = new stzList([ ".", ".", "3", "4", ".", ".", "7", "8", "9", ".", "." ])
 
-//? o1.YieldXT( '@item', :FromPosition = 4, :To = -3)
+? o1.YieldXT( '@item', :FromPosition = 4, :To = -3)
 #--> [ ".", ".", "7", "8", "9" ]
 
 ? o1.YieldXT( '@char', :StartingAt = 3, :Until = ' @item = "." ' )
@@ -6142,20 +6166,28 @@ o1 = new stzList([ ".", ".", "3", "4", ".", ".", "7", "8", "9", ".", "." ])
 ? o1.YieldXT( '@char', :StartingAt = 3, :UntilXT = ' @item = "." ' )
 #--> [ "3", "4", "." ]
 
+proff()
 
 /*=================
+
+pron()
 
 ? @@( Q([ "AB", 12, ["A", "B"] ]).TypesXT() )
 #--> [ [ "AB", "STRING" ], [ 12, "NUMBER" ], [ [ "A", "B" ], "LIST" ] ]
 
+proff()
+# Executed in almost 0 second(s).
+
 /*-----------------
+
+pron()
 
 o1 = new stzList(["1","2","3","4","5"])
 
 ? o1.Section(2, 4)
 #--> [ "2","3","4" ]
 
-? o1.Section(2, -2)
+? o1.SectionXT(2, -2)
 #--> [ "2","3","4" ]
 
 ? o1.Section(:First, :Last)
@@ -6167,12 +6199,18 @@ o1 = new stzList(["1","2","3","4","5"])
 ? o1.Section(:@, 3)
 #--> [ "3" ]
 
+proff()
+# Executed in 0.01 second(s).
 
 /*-----------------
+*/
+pron()
 
 o1 = new stzList([ "T", "A", "Y", "O", "U", "B", "T", "A" ])
 ? o1.SectionsXT( :From = "T", :To = "A" )
 #--> [ ["T", "A"], [ "T", "A", "Y", "O", "U", "B", "T", "A" ], ["T", "A"] ]
+
+proff()
 
 /*-----------------
 */
