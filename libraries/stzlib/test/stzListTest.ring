@@ -6175,6 +6175,8 @@ o1 = new stzList([ "T", "A", "Y", "O", "U", "B", "T", "A" ])
 #--> [ ["T", "A"], [ "T", "A", "Y", "O", "U", "B", "T", "A" ], ["T", "A"] ]
 
 /*-----------------
+*/
+pron()
 
 o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 
@@ -6187,33 +6189,39 @@ o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 ? o1.NFirstOccurrences(2, :Of = "abc") 
 #--> [3, 6]
 
-? o1.NFirstOccurrencesXT(2, :Of = "abc", :StartingAt = 1)
+? o1.NFirstOccurrencesST(2, :Of = "abc", :StartingAt = 1)
 #--> [3, 6]
 
 ? o1.NLastOccurrences(2, :Of = "abc")
 #--> [6, 9]
 
-? o1.NLastOccurrencesXT(2, "abc", :StartingAt = 1)
+? o1.NLastOccurrencesST(2, "abc", :StartingAt = 1)
 #--> [6, 9]
 
-? o1.NFirstOccurrencesXT(2, :Of = "abc", :StartingAt = 6)
+? o1.NFirstOccurrencesST(2, :Of = "abc", :StartingAt = 6)
 #--> [6, 9]
 
-? o1.LastNOccurrencesXT(2, :Of = "abc", :StartingAt = 10)
+? o1.LastNOccurrencesST(2, :Of = "abc", :StartingAt = 9)
 #--> [6, 9]
+
+proff()
 
 /*------------------
 
-# The W() function takes a string and tries its best to return a well
-# formed conditaional Ring expression used in several Softanza functions:
-? W(' len(@item)=3')		#--> "{'len(@item)=3'}"
-? W('"len(@item)=3"')		#--> "{'len(@item)=3'}"
-? W("{'len(@item)=3'}")		#--> "{'len(@item)=3'}"
-? W("{'len(@item)=3' ")		#--> "{'len(@item)=3'}"
-? W("'len(@item)=3'")		#--> "{'len(@item)=3'}"
-? W("{ 'len(@item)=3'")		#--> "{'len(@item)=3'}"
+pron()
 
-/*------------------
+# The W() small function take a string (containing a condition)
+# and returns a list of the form :Where = ...
+
+? W(' isString(@item) and isLower(@item) ')
+#--> [ "where", " isString(@item) and isLower(@item) " ]
+
+proff()
+# Executed in almost 0 second(s).
+
+/*------------------ #TODO
+
+pron()
 
 ? Q([ "واحـد", "اثنان", "ثلاثة" ]).Yield('len(@item)')
 #--> [10, 10, 10]
@@ -6221,12 +6229,16 @@ o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 ? Q([ "واحـد", "اثنان", "ثلاثة" ]).Yield('StzLen(@item)')
 #--> [5, 5, 5]
 
+proff()
+
 /*------------------
 
 ? StzTextQ("你好").Script()
 #--> :Han
 
 /*------------------
+
+pron()
 
 ? Stz(:Text, :Attributes)
 #--> [
@@ -6236,6 +6248,9 @@ o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 #	"@@aconstraints",
 #	"@clanguage"
 # ]
+
+proff()
+# Executed in 0.03 second(s).
 
 /*================
 
@@ -6261,19 +6276,21 @@ pron()
 ? Q([ "ABC", "DEF", "GHI" ]).Are([ :Uppercase, :Strings ])
 #--> TRUE
 
-
 proff()
+# Executed in 0.11 second(s).
 
-/*------------------ #TODO
+/*------------------
 
 pron()
 
 ? TQ("واحد").IsArabic()
+#--> TRUE
 
 proff()
+# Executed in 0.04 second(s).
 
-/*------------------ #TODO
-
+/*------------------
+*/
 pron()
 
 ? Q([ "واحد", "اثنان", "ثلاثة" ]).Are(:Strings)
@@ -6282,14 +6299,11 @@ pron()
 ? Q([ "واحد", "اثنان", "ثلاثة" ]).Are([ :Arabic, :Strings ])
 #--> TRUE
 
-? Q([ "واحد", "اثنان", "ثلاثة" ]).Are(:Texts)
-#--> TRUE
-
 ? Q([ "واحد", "اثنان", "ثلاثة" ]).Are([ :ArabicScript, :RightToLeft, :Texts ])
 #--> TRUE
 
-
 proff()
+# Executed in 0.26 second(s).
 
 /*------------------ #TODO
 
