@@ -6205,7 +6205,7 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtOrStartingAtPositionNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -6228,7 +6228,7 @@ class stzList from stzObject
 
 		# Doing the job
 
-		acResult = This.SectionQ(pnStartingAt, pnStarting + n - 1).Items()
+		acResult = This.SectionQ(pnStartingAt, pnStartingAt + n - 1).Items()
 
 		return acResult
 
@@ -6291,7 +6291,7 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtOrStartingAtPositionNamedParam()
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -71654,6 +71654,21 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	def IsStartingAtOrStartingAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :StartingAtPosition or
+			 This.Item(1) = :StartingAt) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsStartingAtPositionOrStartingAtNamedParam()
+			return This.IsStartingAtOrStartingAtPositionNamedParam()
 
 	def IsStartingAtOccurrenceNamedParam()
 		if This.NumberOfItems() = 2 and
