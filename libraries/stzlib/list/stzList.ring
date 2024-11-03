@@ -46141,9 +46141,8 @@ class stzList from stzObject
 		/* EXAMPLE
 		o1 = new stzList("A":"J")
 
-		? o1.FindAntiSections( :Of = [ [3,5], [7,8] ])
+		? o1.FindAntiSectionsIB( :Of = [ [3,5], [7,8] ])
 		#--> [ [1, 3], [5, 7], [8, 10] ]
-
 
 		*/
 
@@ -80326,36 +80325,17 @@ class stzList from stzObject
 		ok
 
 	def IsBoundedByOrBoundsNamedParam()
-		if This.IsBoundedByNamedParam() or This.IsBoundsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Bounds or This.Item(1) = :BoundedBy) )
+
 			return TRUE
 		else
 			return FALSE
 		ok
 
-		def BoudedByOrBoundsNamedParams()
-			return This.BoundedByOrBoundsNamedParam()
-
-		def BoundsOrBoundedByNamedParam()
-			return This.BoundedByOrBoundsNamedParam()
-
-		def BoundsOrBoundedByNamedParams()
-			return This.BoundedByOrBoundsNamedParam()
-
-	def IsIsBoundedByOrBoundsNamedParam()
-		if This.IsIsBoundedByNamedParam() or This.IsBoundsNamedParam()
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		def IsIsBoudedByOrBoundsNamedParams()
-			return This.IsIsBoundedByOrBoundsNamedParam()
-
-		def BoundsOrIsIsBoundedByNamedParam()
-			return This.IsIsBoundedByOrBoundsNamedParam()
-
-		def BoundsOrIsIsBoundedByNamedParams()
-			return This.IsIsBoundedByOrBoundsNamedParam()
+		def IsBoundsOrBoundedByNamedParam()
+			return This.IsBoundedByOrBoundsNamedParam()
 
 	def IsBoundedByIBOrBoundsIBNamedParam()
 		if This.IsBoundedByIBNamedParam() or This.IsBoundsIBNamedParam()
@@ -80364,30 +80344,8 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-		def BoudedIBByOrBoundsIBNamedParams()
+		def IsBoundsIBOrBoundedByIBNamedParam()
 			return This.IsBoundedByIBOrBoundsIBNamedParam()
-
-		def BoundsIBOrBoundedByIBNamedParam()
-			return This.IsBoundedByIBOrBoundsIBNamedParam()
-
-		def BoundsIBOrBoundedIBByNamedParams()
-			return This.IsBoundedByIBOrBoundsIBNamedParam()
-
-	def IsIsBoundedByIBOrBoundsIBNamedParam()
-		if This.IsIsBoundedByIBNamedParam() or This.IsBoundsIBNamedParam()
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		def IsIsBoudedByIBOrBoundsIBNamedParams()
-			return This.IsIsBoundedByIBOrBoundsIBNamedParam()
-
-		def BoundsIBOrIsIsBoundedByIBNamedParam()
-			return This.IsIsBoundedByIBOrBoundsIBNamedParam()
-
-		def BoundsIBOrIsIsBoundedByIBNamedParams()
-			return This.IsIsBoundedByIBOrBoundsIBNamedParam()
 
 	#==
 
