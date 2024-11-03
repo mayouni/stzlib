@@ -2441,19 +2441,48 @@ class stzListOfNumbers from stzList
 
 		# Doing the job
 	
+		nLen = len(@anContent)
+
+		if nLen = 0
+			return []
+
+		but nLen = 1
+			return [ @anContent[1] ]
+		ok
+
 		anSorted = This.ToSetQ().Sorted()
-		nLen = len(anSorted)
+		nPos = ring_find(anSorted, n)
 
-		aResult = []
+		if nPos = 0
+			if n < anSorted[1]
+				return [ anSorted[1] ]
 
-		for i = 1 to nLen-1
-			if anSorted[i] <= n and n <= anSorted[i+1]
-				aResult = [ anSorted[i], anSorted[i+1] ]
-				exit
+			but n > nLen
+				return [ anSorted[nLen] ]
+
+			but n = anSorted[1]
+				return [ anSorted[2] ]
+
+			but n = anSorted[nLen]
+				return [ anSorted[nLen-1] ]
+
+			else
+				for i = 1 to nLen-1
+					if n > anSorted[i] and n < anSorted[i+1]
+						return [ anSorted[i], anSorted[i+1] ]
+					ok
+				next
 			ok
-		next
 
-		return aResult
+		but nPos = 1
+			return [ anSorted[2] ]
+
+		but nPos = nLen
+			return [ anSorted[nLen-1] ]
+
+		else
+			return [ anSorted[nPos-1], anSorted[nPos+1] ]
+		ok
 
 		#< @functionAlternativeForm
 
