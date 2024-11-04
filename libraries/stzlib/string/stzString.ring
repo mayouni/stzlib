@@ -52905,10 +52905,10 @@ n1 = Min(aTemp)
 
 	# ~> Distance is given by the number of chars inbetween.
 	# ~> The starting and target positions are not included.
-	# ~> To include them, use ...XT() form of the function
+	# ~> To include them, use ...ST() form of the function
 
 	def DistanceToCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		nResult = This.DistanceToSCSXT(pcSubStr, pnStartingAt, pCaseSensitive) - 2
+		nResult = This.DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive) - 2
 		return nResult
 
 		def DistanceToSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
@@ -52926,7 +52926,9 @@ n1 = Min(aTemp)
 	 #  DISTANCE TO A GIVEN SUBSTRING STARTING AT A GIVEN POSITION -- EXTENDED  #
 	#--------------------------------------------------------------------------#
 
-	def DistanceToSTCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+	# ~> XT form : bounds are counted in the distance
+
+	def DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
 			pnStartingAt = pnStartingAt[2]
@@ -52940,7 +52942,7 @@ n1 = Min(aTemp)
 		n2 = 0
 
 		if isString(pcSubStr)
-			n2 = This.FindNext(pcSubStr, pnStartingAt, pCaseSensitive)
+			n2 = This.FindNextCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		
 		but isNumber(pcSubStr)
 			n1 = pcSubStr
@@ -52953,7 +52955,7 @@ n1 = Min(aTemp)
 					StzRaise("Incorrect syntax! You must provide a string after :Next = ...")
 				ok
 
-				n2 = This.FindNext(pcSubStr, pnStartingAt + 1, pCaseSensitive)
+				n2 = This.FindNextCS(pcSubStr, pnStartingAt + 1, pCaseSensitive)
 
 			but Q(pcSubStr).IsNthNextNamedParam()
 
@@ -53004,15 +53006,15 @@ n1 = Min(aTemp)
 
 		return nResult
 
-		def DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
+		def DistanceToSTCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 			return This.DistanceToCSXT(pcSubStr, pnStartingAt, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def DistanceToSTXT(pcSubStr, pnStartingAt)
-		return This.DistanceToSTCS(pcSubStr, pnStartingAt, TRUE)
+	def DistanceToXT(pcSubStr, pnStartingAt)
+		return This.DistanceToCSXT(pcSubStr, pnStartingAt, TRUE)
 
-		def DistanceToXT(pcSubStr, pnStartingAt)
+		def DistanceToSTXT(pcSubStr, pnStartingAt)
 			return This.DistanceToXT(pcSubStr, pnStartingAt)
 
 	  #======================================================#
