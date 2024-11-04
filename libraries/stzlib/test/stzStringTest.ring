@@ -1,6 +1,138 @@
 load "../stzlib.ring"
 
-/*------
+/*--- #narration Code formatting - Unproper Indentation
+*/
+pron()
+
+# Let's take this code snippet and try to identify
+# where indentation is broken:
+
+cCode = '
+if n = 5 {
+	while x < 10 {
+		DoSomething()
+	DoSomethingElse() # Bad indentation here
+}'
+
+# Putting the string in an stzString object and trimming it
+
+oCode = new stzString(cCode)
+oCode.Trim()
+
+# Getting the position of the second opening brace
+
+nOpenBrace = oCode.FindNth(2, "{")
+#--> 38
+
+	# Just to be sure the result is correct
+
+	? oCode[nOpenBrace] + NL
+	#--> "{"
+
+# Getting the position of the next closing brace after it
+
+nCloseBrace = oCode.FindNext("}", :StartingAt = nOpenBrace)
+#--> 110
+
+	# Just to be sure the result is good
+
+	? oCode[nCloseBrace] + NL
+	#--> "}"
+
+# Taking the section of code between the two braces
+
+oSection = oCode.SectionQ(nOpenBrace+1, nCloseBrace-1)
+
+# To have proper indentation, we should have a number of TABs
+# that is double the number of lines, right?
+
+# Let's get the number of lines in the section of code
+
+? oSection.NumberOf(NL) - 1
+#--> 2
+
+# We get 2, so we should have 4 TABs,
+# but we only have 3!
+
+? oSection.NumberOf(TAB) + NL
+#--> 3
+
+# There is clearly an indentation problem of 1 TAB.
+# Now, we will do the necessary work to find it.
+
+# First, we split the section of code into separate lines
+
+oLines = oSection.SplitQ(NL)
+
+# For that, we use the extended (XT) conditional-form (W) of
+# the Find() function in a natural way, like this:
+
+? @@( oLines.FindWXT('
+	Q(@item).StartsWith(TAB) and Q(@item)[2] != TAB
+') )
+#--> [ 3 ]
+
+# Finally, we have the answer: the indentation is lacking on
+# line 3 of our section of code.
+
+proff()
+# Executed in 0.12 second(s).
+
+
+/*--- #narration XML/HTML tag analysis
+
+pron()
+
+# If you parse this XML snippet with a valid tool, an error will
+# be raised. Let's see how Softanza could help in identifying it.
+
+# First, we put the code in an stzString object:
+
+xml = "<product><name>Phone<name></name><price>599</price></product>"
+oXML = new stzString(xml)
+
+# Then, we use SubStringsBoundedBy() to get the list of all XML entities
+# used within the code (which are bounded by "<" and ">" chars).
+
+# At the same time, we elevate the list to an stzList object using
+# the Q() helper function.
+
+# Finally, we use ItemsAndTheirNumberOfOccurrence() on it:
+
+? Q( oXML.SubStringsBoundedBy([ "<", ">" ]) ).
+  ItemsAndTheirNumberOfOccurrence()
+
+# And so we get:
+
+#--> [
+#	[ "product", 1 ],
+#	[ "name", 2 ],		#~> Focus on this line!
+#	[ "/name", 1 ],
+#	[ "price", 1 ],
+#	[ "/price", 1 ],
+#	[ "/product", 1 ]
+# ]
+
+# All entities should have an equal number of opening and
+# closing tags, which is true for all except "name" (look at
+# lines 2 and 3 of the list—you'll see 2 versus 1).
+
+# The issue, then, is that we have an additional "<name>" entity
+# that we should remove. To fix it, we say:
+
+oXML.RemoveNth(2, "<name>")
+
+# Look at the result:
+
+? oXML.Content()
+#--> <product><name>Phone</name><price>599</price></product>
+
+# Now you can feed it back to your XML parser with total peace of mind!
+
+proff()
+# Executed in 0.01 second(s).
+
+/*===========
 
 StartProfiler()
 
