@@ -32127,6 +32127,103 @@ class stzList from stzObject
 
 		#>
 
+##########################"
+
+	def ItemsAndTheirNumberOfOccurrenceCS(pCaseSensitive)
+		# Checking params
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( pCaseSensitive = TRUE or pCaseSensitive = FALSE )
+			StzRais("Incorrect param! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+
+		# Doing the job
+
+		aList = @aContent
+
+		if pCaseSensitive = FALSE
+			aList = This.Lowercased()
+		ok
+
+		nLenList = len(aList)
+
+		# Early cheks
+
+		if nLenList = 0
+			return []
+		ok
+
+		acListStringified = []
+		for i = 1 to nLenList
+			acListStringified + @@(aList[i])
+		next
+
+		aResult = []
+		acSeen = []
+		for i = 1 to nLenList
+			if ring_find(acSeen, acListStringified[i])
+				loop
+			ok
+
+			//anPos = []
+			nPos = 0
+
+			for j = 1 to nLenList
+				if acListStringified[i] = acListStringified[j]
+					//anPos + j
+					nPos++
+				ok
+			next
+
+			//aResult + [ aList[i], anPos ]
+			aResult + [ aList[i], nPos ]
+			acSeen + acListStringified[i]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ItemsAndTheirNumberOfOccurrencesCS(pCaseSensitive)
+			return This.ItemsAndTheirNumberOfOccurrenceCS(pCaseSensitive)
+
+		def IndexByNumberOfOccurrenceCS(pCaseSensitive)
+			return This.ItemsAndTheirNumberOfOccurrenceCS(pCaseSensitive)
+
+		def IndexByNumberOfOccurrencesCS(pCaseSensitive)
+			return This.ItemsAndTheirNumberOfOccurrenceCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ItemsAndTheirNumberOfOccurrence()
+		return This.ItemsAndTheirNumberOfOccurrenceCS(TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def ItemsAndTheirNumberOfOccurrences()
+			return This.ItemsAndTheirNumberOfOccurrence()
+
+		def IndexByNumberOfOccurrence()
+			return This.ItemsAndTheirNumberOfOccurrence()
+
+		def IndexByNumberOfOccurrences()
+			return This.ItemsAndTheirNumberOfOccurrence()
+
+		#>
+
+/*
+def IndexByPosition()
+
+def IndexByNumberOfOccurrence()
+	def IndexByOccurrence()
+
+def IndexBy(pcPosOrOccurr)
+*/
 	  #--------------------------------------------------------------#
 	 #  FINDING THE OCCURRENCES OF EACH ITEM CONTAINED IN THE LIST  #
 	#==============================================================#
