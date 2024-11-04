@@ -44,8 +44,10 @@ class stzCCode
 
 		ok
 
-		oCode = new stzString(cCode)
-		@cContent = oCode.SimplifyQ().RemoveTheseBoundsQ("{", "}").Content()
+		@cContent = StzStringQ(cCode).
+			SimplifyQ().
+			RemoveTheseBoundsQ("{", "}").
+			Content()
 		
 	  #-------------------------------------------#
 	 #  GETTING THE CONTENT OF THE CCODE OBJECT  #
@@ -335,7 +337,7 @@ class stzCCode
 		# stzCCode, to check that speciefic case, and replace :last the
 		# the NumberOfItems() value applied to the calling object scope.
 
-		oCode = new stzString( This.Code() )
+		_oCode_ = new stzString( This.Code() )
 
 		# The first check we must do, is that the consitional code must
 		# contains the @i or This[@i] keywords
@@ -345,11 +347,11 @@ class stzCCode
 		# to understand them and apply them, you must use the ..XT()
 		# alternative of this function instead (ExecutableSectionXT())
 
-		if NOT oCode.Copy().RemoveSpacesQ().ContainsOneOfTheseCS([ "@i", "This[@i]" ], FALSE)
+		if NOT _oCode_.Copy().RemoveSpacesQ().ContainsOneOfTheseCS([ "@i", "This[@i]" ], FALSE)
 			StzRaise("Can't proceed! The conditional code provided does not contain @i or This[@i] keywords.")
 		ok
 
-		acSubStr = oCode.SubStringsBoundedBy([ "[","]" ])
+		acSubStr = _oCode_.SubStringsBoundedBy([ "[","]" ])
 		nLenSubStr = len(acSubStr)
 
 		acNumbersAfter = []
@@ -450,11 +452,11 @@ class stzCCode
 		# sophisticaed keyword (like @CurrentItem, @NextItem, etc)
 		# to their basic alternatives (This[@i], This[@+i], etc)
 
-		oCode = new stzString( This.Transpiled() )
+		_oCode_ = new stzString( This.Transpiled() )
 	
 		# Doing the job to get the borners of the executable section
 
-		acSubStr = oCode.SubStringsBoundedBy([ "[","]" ])
+		acSubStr = _oCode_.SubStringsBoundedBy([ "[","]" ])
 		nLenSubStr = len(acSubStr)
 
 		acNumbersAfter = []

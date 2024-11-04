@@ -7,31 +7,40 @@ pron()
 # Example 1: Code formatting - Finding proper indentation position
 
 cCode = '
-    if n = 5 {
-        while x < 10 {
+if n = 5 {
+	while x < 10 {
 		DoSomething()
-    	DoSomethingElse() # Bad indentation here
-        }'
+	DoSomethingElse() # Bad indentation here
+}'
 
 oCode = new stzString(cCode)
+oCode.Trim()
 
 nOpenBrace = oCode.FindNth(2, "{")
 #--> 38
 
-? oCode[nOpenBrace]
+//? oCode[nOpenBrace]
 #--> "{"
 
 nCloseBrace = oCode.FindNext("}", :StartingAt = nOpenBrace)
 #--> 110
 
-? oCode[nCloseBrace]
+//? oCode[nCloseBrace]
 #--> "}"
 
-? oCode.SectionQ(nOpenBrace+1, nCloseBrace-1).NumberOf(NL)
+oSection = oCode.SectionQ(nOpenBrace+1, nCloseBrace-1)
+//? oSection.NumberOf(NL) - 1
+#--> 2
 
-# Find distance to next opening brace to know proper indentation level
-//? o1.DistanceTo("{", :StartingAt = o1.FindNth(2, "{"))  # Distance to where indentation should change
-#--> 12
+# We should then have 4 TABs but we have only 3
+
+//? oSection.NumberOf(TAB)
+#--> 3
+
+oLines = oSection.SplitQ(NL)
+? oLines.FindWXT(' Q(@item).IsAString() ')
+
+//? oSection.SplitQ(NL).FindWXT(' Q(@item).StartsWith(TAB) and Q(@NextItem) != TAB ')
 
 proff()
 # Executed in 0.01 second(s).
