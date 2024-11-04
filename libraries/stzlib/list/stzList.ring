@@ -36918,8 +36918,8 @@ class stzList from stzObject
 
 		# Getting the executable section
 
-		oCode = new stzCCode(pcCondition)
-		anSection = oCode.ExecutableSection()
+		_oCode_ = new stzCCode(pcCondition)
+		anSection = _oCode_.ExecutableSection()
 
 		n1 = anSection[1]
 		n2 = anSection[2]
@@ -36967,12 +36967,12 @@ class stzList from stzObject
 
 		# Transpiling the conditional code
 
-		oCode = new stzCCode(pcCondition)
-		oCode.Transpile()
+		_oCode_ = new stzCCode(pcCondition)
+		_oCode_.Transpile()
 
 		# Getting the executable section
 
-		anSection = oCode.ExecutableSection()
+		anSection = _oCode_.ExecutableSection()
 		n1 = anSection[1]
 		n2 = anSection[2]
 		if n2 = :Last
@@ -36981,7 +36981,7 @@ class stzList from stzObject
 
 		# Composing the conditional code
 
-		cCode = 'bOk = ( ' + oCode.Content() + ' )'
+		cCode = 'bOk = ( ' + _oCode_.Content() + ' )'
 
 		# Evaluating the code against the list items
 
@@ -37832,13 +37832,13 @@ class stzList from stzObject
 		here must change accordingly...
 		*/
 
-		oCode = StzStringQ( list2code( This.List() ) )
+		_oCode_ = StzStringQ( list2code( This.List() ) )
 
-		if oCode[4] = "," or
-		   oCode[ oCode.NumberOfChars()-3 ] = "," or
-		   oCode.Contains(",,") or
-		   oCode.Contains("[,") or
-		   oCode.Contains(",]")
+		if _oCode_[4] = "," or
+		   _oCode_[ _oCode_.NumberOfChars()-3 ] = "," or
+		   _oCode_.Contains(",,") or
+		   _oCode_.Contains("[,") or
+		   _oCode_.Contains(",]")
 
 			return TRUE
 		else
@@ -41504,9 +41504,9 @@ class stzList from stzObject
 
 		nLen = len(@aContent)
 
-		oCode = new stzCCode(pcCondition)
+		_oCode_ = new stzCCode(pcCondition)
 
-		aExecutableSection = oCode.ExecutableSection()
+		aExecutableSection = _oCode_.ExecutableSection()
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]
 
@@ -41536,7 +41536,7 @@ class stzList from stzObject
 	
 			# And you should put simply:
 
-		cCode = 'bOk = (' + oCode.Code() + ' )'
+		cCode = 'bOk = (' + _oCode_.Code() + ' )'
 
 		# Doing the job
 
@@ -41623,12 +41623,23 @@ class stzList from stzObject
 
 		nLen = len(@aContent)
 
-		oCode = new stzCCode(pcCondition)
-		oCode.Transpile() # The sole difference with ..W() form of the function
+		_oCode_ = new stzCCode(pcCondition)
+		_oCode_.Transpile() # The sole difference with ..W() form of the function
+
+			#WARNING
+			# If you use _oCode_ variable name to assign a stzCCode object
+			# to it in your code then you will get an error of an object
+			# trying to destroy itself! That's why I used _ and _ bounds
+			# here to minimise that risk!
+	
+			#TODO // ~> Clearly specify this in the documentatio,!
+
+			#TODO // Review all the places in the codebase that could
+			# contains a similar error!
 
 		# Getting the bounds of the executable section
 
-		aExecutableSection = oCode.ExecutableSection()
+		aExecutableSection = _oCode_.ExecutableSection()
 
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]
@@ -41645,7 +41656,7 @@ class stzList from stzObject
 
 		# Composing the code to be evaluated by the loop
 
-		cCode = 'bOk = (' + oCode.Content() + ' )'
+		cCode = 'bOk = (' + _oCode_.Content() + ' )'
 
 		anResult = []
 

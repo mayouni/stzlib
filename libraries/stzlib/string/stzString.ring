@@ -73502,8 +73502,8 @@ n1 = Min(aTemp)
 		# Computing the values by evaluating the
 		# expression against all the items
 
-		oCode = StzCCodeQ(pcPartitionExpr)
-		cCode = 'value = (' + oCode.Content() + ')'
+		_oCode_ = StzCCodeQ(pcPartitionExpr)
+		cCode = 'value = (' + _oCode_.Content() + ')'
 
 		aValues = []
 		for @i = 1 to nLen
@@ -73598,8 +73598,8 @@ n1 = Min(aTemp)
 		# Computing the values by evaluating the
 		# expression against all the items
 
-		oCode = StzCCodeQ(pcPartitionExpr).TranspileQ()
-		cCode = 'value = (' + oCode.Content() + ')'
+		_oCode_ = StzCCodeQ(pcPartitionExpr).TranspileQ()
+		cCode = 'value = (' + _oCode_.Content() + ')'
 
 		aValues = []
 		for @i = 1 to nLen
@@ -73695,8 +73695,8 @@ n1 = Min(aTemp)
 		# Computing the values by evaluating the
 		# expression against all the items
 
-		oCode = StzCCodeQ(pcPartitionExpr)
-		cCode = 'value = (' + oCode.Content() + ')'
+		_oCode_ = StzCCodeQ(pcPartitionExpr)
+		cCode = 'value = (' + _oCode_.Content() + ')'
 
 		aValues = []
 		for @i = 1 to nLen
@@ -73792,8 +73792,8 @@ n1 = Min(aTemp)
 		# Computing the values by evaluating the
 		# expression against all the items
 
-		oCode = StzCCodeQ(pcPartitionExpr).TranspileQ()
-		cCode = 'value = (' + oCode.Content() + ')'
+		_oCode_ = StzCCodeQ(pcPartitionExpr).TranspileQ()
+		cCode = 'value = (' + _oCode_.Content() + ')'
 
 		aValues = []
 		for @i = 1 to nLen
@@ -73888,8 +73888,8 @@ n1 = Min(aTemp)
 		# Computing the values by evaluating the
 		# expression against all the items
 
-		oCode = StzCCodeQ(pcPartitionExpr)
-		cCode = 'value = (' + oCode.Content() + ')'
+		_oCode_ = StzCCodeQ(pcPartitionExpr)
+		cCode = 'value = (' + _oCode_.Content() + ')'
 
 		aValues = []
 		for @i = 1 to nLen
@@ -73992,8 +73992,8 @@ n1 = Min(aTemp)
 		# Computing the values by evaluating the
 		# expression against all the items
 
-		oCode = StzCCodeQ(pcPartitionExpr).TranspileQ()
-		cCode = 'value = (' + oCode.Content() + ')'
+		_oCode_ = StzCCodeQ(pcPartitionExpr).TranspileQ()
+		cCode = 'value = (' + _oCode_.Content() + ')'
 
 		aValues = []
 		for @i = 1 to nLen
@@ -74096,8 +74096,8 @@ n1 = Min(aTemp)
 		# Computing the values by evaluating the
 		# expression against all the items
 
-		oCode = StzCCodeQ(pcPartitionExpr)
-		cCode = 'value = (' + oCode.Content() + ')'
+		_oCode_ = StzCCodeQ(pcPartitionExpr)
+		cCode = 'value = (' + _oCode_.Content() + ')'
 
 		aValues = []
 		for @i = 1 to nLen
@@ -74199,8 +74199,8 @@ n1 = Min(aTemp)
 		# Computing the values by evaluating the
 		# expression against all the items
 
-		oCode = StzCCodeQ(pcPartitionExpr).TranspileQ()
-		cCode = 'value = (' + oCode.Content() + ')'
+		_oCode_ = StzCCodeQ(pcPartitionExpr).TranspileQ()
+		cCode = 'value = (' + _oCode_.Content() + ')'
 
 		aValues = []
 		for @i = 1 to nLen
