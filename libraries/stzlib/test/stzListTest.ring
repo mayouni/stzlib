@@ -5589,7 +5589,7 @@ StopProfiler()
 # Executed in 0.04 second(s)
 
 /*-----------
-
+*/
 StartProfiler()
 #                   1..4.6..9.1.34..7..0
 o1 = new stzString("[••[•[••]•[•]]••[••]]")
@@ -5605,24 +5605,25 @@ o1 = new stzString("[••[•[••]•[•]]••[••]]")
 ? o1.DistanceTo( :NextNth = [ 2, "[" ], :StartingAt = 1 )
 #--> 2
 
-#--
-? NL + "--" + NL
-
-? o1.DistanceToXT("[", :StartingAt = 1)
-#--> 4
-
-? o1.DistanceToXT( :Next = "[", :StartingAt = 1 )
-#--> 4
-
-? o1.DistanceToXT( :NextNth = [2, "["], :StartingAt = 1 )
-#--> 4
+#~> XT form : bounds are counted in the distance
 
 ? NL + "--" + NL
 
-? o1.DistanceToXT( :Previous = "[", :StartingAt = 9 )
+? o1.DistanceToSTXT("[", :StartingAt = 1)
 #--> 4
 
-? o1.DistanceToXT( :PreviousNth = [2, "["], :StartingAt = 9 )
+? o1.DistanceToSTXT( :Next = "[", :StartingAt = 1 )
+#--> 4
+
+? o1.DistanceToSTXT( :NextNth = [2, "["], :StartingAt = 1 )
+#--> 4
+
+? NL + "--" + NL
+
+? o1.DistanceToSTXT( :Previous = "[", :StartingAt = 9 )
+#--> 4
+
+? o1.DistanceToSTXT( :PreviousNth = [2, "["], :StartingAt = 9 )
 #--> 6
 
 ? o1.DistanceTo( :Previous = "[", :StartingAt = 9 )
@@ -5640,24 +5641,16 @@ StartProfiler()
 #                   1..4.6..9.1.34..7..0
 o1 = new stzString("[••[•[••]•[•]]••[••]]")
 
-? @@( o1.FindAnyBetweenAsSections("[","]") )
-#--> [ [ 2, 8 ], [ 5, 12 ], [ 7, 13 ], [ 12, 19 ], [ 18, 20 ] ]
-
-StopProfiler()
-#--> Executed in 0.02 second(s)
-
-/*-----------
-
-StartProfiler()
-#                   1..4.6..9.1.34..7..0
-o1 = new stzString("[••[•[••]•[•]]••[••]]")
-
-? @@( o1.FindAnyBetweenAsSections("[","]") )
-
-StopProfiler()
+? @@( o1.FindBoundedByZZ([ "[","]" ]) ) + NL
 #--> [ [ 7, 8 ], [ 12, 12 ], [ 18, 19 ] ]
 
-/*============
+? @@( o1.DeepFindBoundedByZZ([ "[","]" ]) )
+#--> [ [ 7, 8 ], [ 12, 12 ], [ 18, 19 ], [ 5, 13 ], [ 2, 20 ] ]
+
+StopProfiler()
+# Executed in 0.01 second(s).
+
+/*============ #ring A draft for a code using inside Softanza
 
 StartProfiler()
 
@@ -5693,11 +5686,13 @@ for q = 1 to nLen2
 next
 
 ? @@(aSections)
+# [ [ 1, 21 ], [ 6, 9 ], [ 11, 13 ], [ 17, 20 ] ]
 
 StopProfiler()
+# Executed in almost 0 second(s).
 
 /*-----------
-*/
+
 StartProfiler()
 
 o1 = new stzListOfNumbers([ 1, 4, 6, 11, 18 ])
