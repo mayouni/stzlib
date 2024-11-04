@@ -31576,6 +31576,11 @@ class stzList from stzObject
 		def NumberOfDuplicationOfCS(pItem, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
 
+		#--
+
+		def NumberOfCS(pItem, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+
 		#>
 
 		#< @FunctionMisspelledForm
@@ -31630,6 +31635,11 @@ class stzList from stzObject
 			return This.NumberOfOccurrence(pItem)
 
 		def NumberOfDuplicationOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		#--
+
+		def NumberOf(pItem)
 			return This.NumberOfOccurrence(pItem)
 
 		#>

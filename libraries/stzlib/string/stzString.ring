@@ -10872,6 +10872,12 @@ class stzString from stzObject
 			def HowManyCSQ(pcSubStr, pCaseSensitive)
 				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
 	
+		def NumberOfCS(pcSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+
+			def NumberOfCSQ(pcSubStr, pCaseSensitive)
+				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -10933,7 +10939,13 @@ class stzString from stzObject
 
 			def HowManyQ(pcSubStr)
 				return This.NumberOfOccurrenceQ(pcSubStr)
-	
+
+		def NumberOf(pcSubStr)
+			return This.NumberOfOccurrence(pcSubStr)
+
+			def NumberOfQ(pcSubStr)
+				return This.NumberOfOccurrenceQ(pcSubStr)
+
 		#>
 
 	  #--------------------------------------------------------------#

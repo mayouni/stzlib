@@ -1,49 +1,115 @@
 load "../stzlib.ring"
 
-
-
-/*-----------
-
+/*---
+*/
 pron()
 
-# Example usage:
-/*
-str = "abcdefghi"
-chunks = ConsecutiveSubStringsOfNChars(str, 2)
-? chunks  # Output: ["ab", "cd", "ef", "gh", "bc", "de", "fg", "hi"]
+# Example 1: Code formatting - Finding proper indentation position
 
-str = "Hello"
-chunks = ConsecutiveSubStringsOfNChars(str, 2)
-? chunks  # Output: ["He", "ll", "el", "lo"]
+cCode = '
+    if n = 5 {
+        while x < 10 {
+		DoSomething()
+    	DoSomethingElse() # Bad indentation here
+        }'
 
-str = "123456789012"
-? ConsecutiveSubStringsOfNChars(str,3)
+oCode = new stzString(cCode)
 
-pron()
+nOpenBrace = oCode.FindNth(2, "{")
+#--> 38
 
-str = "phpringringringpythonrubyruby"
-? ConsecutiveSubStringsOfNChars(str, 4)
+? oCode[nOpenBrace]
+#--> "{"
+
+nCloseBrace = oCode.FindNext("}", :StartingAt = nOpenBrace)
+#--> 110
+
+? oCode[nCloseBrace]
+#--> "}"
+
+? oCode.SectionQ(nOpenBrace+1, nCloseBrace-1).NumberOf(NL)
+
+# Find distance to next opening brace to know proper indentation level
+//? o1.DistanceTo("{", :StartingAt = o1.FindNth(2, "{"))  # Distance to where indentation should change
+#--> 12
 
 proff()
+# Executed in 0.01 second(s).
 
-func ConsecutiveSubStringsOfNChars(str, n)
+/*---
 
-    if not isString(str) return [] ok
-    if not isNumber(n) return [] ok
-    if n <= 0 return [] ok
-    if n > len(str) return [] ok
-    
-    aResult = []
+# Example 2: XML/HTML tag analysis
+xml = "<product><name>Phone</name><price>599</price></product>"
+o2 = new stzString(xml)
+# Find distance to closing tag for proper tag matching
+? o2.DistanceTo("</name>", :StartingAt = 1)  # Distance to first closing tag
 
-   for i = 1 to n
-	    # First pass - starting from position 1
-	    for j = i to len(str) step n
-	        if j + n - 1 <= len(str)
-	            add(aResult, substr(str, j, n))
-	        ok
-	    next
+/*---
 
-   next
+# Example 3: Source code analysis - Finding function boundaries
+code = "func1() {
+    doSomething()
+    if (x) {
+        return y
+    }
+}
 
-    return aResult
+func2() {"
+o3 = new stzString(code)
+# Find where current function block ends
+? o3.DistanceTo("}", :StartingAt = 1)  # Distance to function end
 
+/*---
+
+# Example 4: Template processing - Finding placeholder positions
+template = "Dear {{name}}, your order #{{orderID}} will arrive on {{date}}."
+o4 = new stzString(template)
+# Find distances between placeholders for template processing
+? o4.DistanceTo("{{", :StartingAt = 1)       # Distance to first placeholder
+? o4.DistanceToXT("{{", :StartingAt = 1)     # Include placeholder in measurement
+
+/*---
+
+# Example 5: Query parsing - Finding clause boundaries
+query = "SELECT * FROM users WHERE age > 18 AND city = 'NY'"
+o5 = new stzString(query)
+# Find distance to WHERE clause for query analysis
+? o5.DistanceTo("WHERE", :StartingAt = 1)    # Distance to WHERE clause
+? o5.DistanceToXT("AND", :StartingAt = 1)    # Include AND in measurement
+
+/*---
+
+# Example 6: Markdown processing - Finding section markers
+markdown = "# Header\nSome text\n## Subheader\nMore text"
+o6 = new stzString(markdown)
+# Find distances between headers for section analysis
+? o6.DistanceTo("##", :StartingAt = 1)       # Distance to subheader
+? o6.DistanceToXT("##", :StartingAt = 1)     # Include header marker in calculation
+
+/*---
+
+# Example 7: String interpolation detection
+code = 'print("Value is ${var1} and ${var2}")'
+o7 = new stzString(code)
+# Find interpolation points
+? o7.DistanceTo("${", :StartingAt = 1)       # Distance to first variable
+? o7.DistanceToXT("${", :StartingAt = 1)     # Include interpolation marker
+
+/*---
+*/
+pron()
+
+# Example 8: Comment block analysis
+
+code = "/* Multi-line
+   comment */
+   code here
+   /* Another
+   comment */"
+
+o8 = new stzString(code)
+# Find distances between comment blocks
+? o8.DistanceTo("/*", :StartingAt = 1)       # Distance to next comment block
+? o8.DistanceToXT("*/", :StartingAt = 1)     # Include comment marker end
+
+proff()
