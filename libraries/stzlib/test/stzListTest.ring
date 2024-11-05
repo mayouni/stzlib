@@ -5353,10 +5353,11 @@ StopProfiler()
 # Executed in 8.50 second(s)
 
 /*============
-
+*/
 StartProfiler()
 
 o1 = new stzString( '[ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥"] ] ]' )
+
 ? o1.FindPreviousNthOccurrence(1, :Of = "[", :StartingAt = 21)
 #--> 13
 ? o1.FindNextNthOccurrence(1, :Of = "]", :StartingAt = 21)
@@ -5368,7 +5369,7 @@ o1 = new stzString( '[ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥"] ] 
 #--> 28
 
 StopProfiler()
-#--> Executed in 0.04 second(s)
+#--> Executed in 0.02 second(s)
 
 /*----
 
@@ -5417,7 +5418,7 @@ StartProfiler()
 	#--> 150010
 	
 StopProfiler()
-#--> Executed in 3.65 second(s)
+# Executed in 3.36 second(s)
 
 /*------------
 
@@ -5453,7 +5454,8 @@ StartProfiler()
 	#-->  [1, 100003, 150016]
 	
 StopProfiler()
-#--> Executed in 9.01 second(s)
+# Executed in 0.67 second(s) in Ring 1.21
+# Executed in 9.01 second(s) in Ring 1.18
 
 /*----
 
@@ -5462,20 +5464,22 @@ StartProfiler()
 o1 = new stzList(["__", "♥", "_", "__", "♥", "♥", "__", "♥" ])
 ? o1.FindAll("♥")
 #--> [2, 5, 6, 8 ]
-# Executed in 0.04 second(s)
 
 o1 = new stzList(["__", 1:3, "_", "__", 1:3, 1:3, "__", 1:3 ])
 ? o1.FindAll(1:3)
 #--> [2, 5, 6, 8 ]
-# Executed in 0.58 second(s)
 
 StopProfiler()
-# Executed in 0.60 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.60 second(s) in Ring 1.17
 
 /*==========
 
+#NOTE: This is a draft note I made while refactoring the naming startegy
+# of some functions involving bounds and things inbetween.
+# I left it here as a memory of the hard work made on this front...
 
-TODO - NAMING REFORM
+# NAMING REFORM
 
 ..RemoveBetweenIB() : removes also bounds
 #--> DONE
@@ -5508,7 +5512,7 @@ o1 = new stzList([0, 0, 1, 0, 1])
 #--> 4
 
 StopProfiler()
-# Executed in 0.01 second(s)
+# Executed in almost 0 second(s).
 
 /*-----------
 
@@ -5529,7 +5533,8 @@ o1 = new stzString("12•4•67")
 #--> 3
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.08 second(s) in Ring 1.20
 
 /*----------- #internal
 
@@ -5564,7 +5569,7 @@ proff()
 # Executed in almost 0 second(s).
 
 /*-----------
-*/
+
 StartProfiler()
 #                   1    2    3    4    5    6    7
 o1 = new stzList([ "_", "_", "•", "_", "•", "_", "_" ])
