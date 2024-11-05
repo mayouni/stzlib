@@ -28179,7 +28179,7 @@ class stzString from stzObject
 
 		while bContinue
 
-			nPos = oSection.FindNextSCS(cBounded, nStart, pCaseSensitive)
+			nPos = oSection.FindNextSTCS(cBounded, nStart, pCaseSensitive)
 
 			if nPos != 0
 
@@ -44296,7 +44296,7 @@ class stzString from stzObject
 
 	def FindNthAsSectionSTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
 
-		nPos = This.FindNthSCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
+		nPos = This.FindNthSTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
 		aResult = [ nPos, nPos + Q(pcSubStr).NumberOfChars() - 1 ]
 
 		return aResult
@@ -44492,7 +44492,7 @@ class stzString from stzObject
 		/* EXAMPLE
 		#                     3  6  9
 		o1 = new stzString("12♥45♥78♥")
-		? o1.FindNthS(2, "♥", :StartingAt = 3)
+		? o1.FindNthST(2, "♥", :StartingAt = 3)
 		#--> 6
 
 		*/
@@ -47554,7 +47554,7 @@ class stzString from stzObject
 	the ..ST() extension here must also mean :StoppingAt
 	*/
 
-	def FindSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	def FindSTِS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		# Checking pnStartingAt param
 
@@ -47594,26 +47594,26 @@ class stzString from stzObject
 
 		#< @FunctionFluentForm
 
-		def FindSCSQ(pcSubStr, pcDirection, pCaseSensitive)
-				return This.FindSCSQR(pcSubStr, pcDirection, pCaseSensitive, :stzList)
+		def FindSCSQ(pcSubStr, pnStartingAt, pCaseSensitive)
+				return This.FindSCSQR(pcSubStr, pnStartingAt, pCaseSensitive, :stzList)
 			
-		def FindSCSQR(pcSubStr, pcDirection, pCaseSensitive, pcReturnType)
+		def FindSCSQR(pcSubStr, pnStartingAt, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and Q(pcReturnType).IsReturnedAsNamedParam()
 				pcReturnType = pcReturnType[2]
 			ok
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.FindSCS(pcSubStr, pcDirection, pCaseSensitive) )
+				return new stzList( This.FindSTِS(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.FindSCS(pcSubStr, pcDirection, pCaseSensitive) )
+				return new stzListOfNumbers( This.FindSTِS(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPair
-				return new stzPair( This.FindSCS(pcSubStr, pcDirection, pCaseSensitive) )
+				return new stzPair( This.FindSTِS(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			on :stzPairOfNumbers
-				return new stzPairOfNumbers( This.FindSCS(pcSubStr, pcDirection, pCaseSensitive) )
+				return new stzPairOfNumbers( This.FindSTِS(pcSubStr, pnStartingAt, pCaseSensitive) )
 	
 			other
 				stzRaise("Unsupported return type!")
@@ -47623,14 +47623,14 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def FindSTCSZ(pcSubStr, pnStartingAt, pCaseSensitive)
-			return This.FindSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindSTِS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindS(pcSubStr, pnStartingAt)
-		return This.FindSCS(pcSubStr, pnStartingAt, TRUE)
+	def FindST(pcSubStr, pnStartingAt)
+		return This.FindSTِS(pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -47645,7 +47645,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def FindSTZ(pcSubStr, pnStartingAt)
-			return This.FindS(pcSubStr, pnStartingAt)
+			return This.FindST(pcSubStr, pnStartingAt)
 
 		#>
 
@@ -47668,7 +47668,7 @@ class stzString from stzObject
 
 		ok
 
-		aResult = [ pcSubStr, This.FindSCS(pcSubStr, pnStartingAt, pCaseSensitive) ]
+		aResult = [ pcSubStr, This.FindSTِS(pcSubStr, pnStartingAt, pCaseSensitive) ]
 		return aResult
 		
 
@@ -47806,7 +47806,7 @@ class stzString from stzObject
 		anResult = []
 
 		if pcDirection = :Forward or pcDirection = :Default
-			anResult = This.FindSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			anResult = This.FindSTِS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		else // pcDirection = :Backward
 
@@ -48726,7 +48726,7 @@ class stzString from stzObject
 			# FindXT("word", :StartingAt = 12)
 			but oP2.IsStartingAtNamedParam()
 				p2 = p2[2]
-				return This.FindSCS(p1, p2,pCaseSensitive)
+				return This.FindSTِS(p1, p2,pCaseSensitive)
 
 			# FindXT( "*", :InSection = [10 , 14 ] )
 			but oP2.IsInSectionNamedParam()
@@ -52048,7 +52048,7 @@ n1 = Min(aTemp)
 
 		aResult = []
 
-		anPos1 = This.FindSCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		anPos1 = This.FindSTِS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 		if len(anPos1) > 0
 			anPos2 = StzListOfNumbersQ(anPos1).AddedToEach(Q(pcSubStr).NumberOfChars() - 1)
@@ -95920,28 +95920,28 @@ n1 = Min(aTemp)
 	#------------------------------#
 #nasrallah
 	def FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSTCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def FindNextFirstCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSTCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def FindFirstNextSCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSTCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def PositionOfNextFirstCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSTCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def PositionOfFirstNextSCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSTCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def NextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSTCS(pcSubStr, nStart, pCaseSensitive)
 	
 	def NextFirstOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSTCS(pcSubStr, nStart, pCaseSensitive)
 
 	def FirstNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
-		return This.FindNextSCS(pcSubStr, nStart, pCaseSensitive)
+		return This.FindNextSTCS(pcSubStr, nStart, pCaseSensitive)
 	
 	#-- WITHOUT CASESENSITIVITY
 
@@ -96083,9 +96083,6 @@ n1 = Min(aTemp)
 
 	def FindNextNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 		return This.FindNthNext(n, pcSubStr, nStart, pCaseSensitive)
-
-	def FindNextNthSCS(n, pcSubStr, nStart, pCaseSensitive)
-		return This.FindNthNext(n, pcSubStr, nStart, pCaseSensitive)
 		
 	def PositionOfNthNextOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 		return This.FindNthNext(n, pcSubStr, nStart, pCaseSensitive)
@@ -96110,16 +96107,10 @@ n1 = Min(aTemp)
 	def FindNthNextOccurrence( n, pcSubStr, nStart )
 		return This.FindNthNext( n, pcSubStr, nStart )
 
-	def FindNthNextOccurrenceS(n, pcSubStr, nStart)
+	def FindNthNextOccurrenceST(n, pcSubStr, nStart)
 		return This.FindNthNext(n, pcSubStr, nStart)
 
 	def FindNextNthOccurrence(n, pcSubStr, nStart)
-		return This.FindNthNext(n, pcSubStr, nStart)
-
-	def FindNextNthS(n, pcSubStr, nStart)
-		return This.FindNthNext(n, pcSubStr, nStart)
-	
-	def FindNthNextS(n, pcSubStr, nStart)
 		return This.FindNthNext(n, pcSubStr, nStart)
 	
 	def PositionOfNthNextOccurrence(n, pcSubStr, nStart)
@@ -96222,18 +96213,12 @@ n1 = Min(aTemp)
 	def FindNthPreviousOccurrenceCS( n, pcSubStr, nStart, pCaseSensitive )
 		return This.FindNthPreviousCS( n, pcSubStr, nStart, pCaseSensitive )
 
-	def FindNthPreviousOccurrenceSCS( n, pcSubStr, nStart, pCaseSensitive )
+	def FindNthPreviousOccurrenceSTCS( n, pcSubStr, nStart, pCaseSensitive )
 		return This.FindNthPreviousCS( n, pcSubStr, nStart, pCaseSensitive )
 
 	def FindPreviousNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 		return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
-	
-	def FindPreviousNthSCS(n, pcSubStr, nStart, pCaseSensitive)
-		return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
-	
-	def FindNthPreviousSCS(n, pcSubStr, nStart, pCaseSensitive)
-		return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
-	
+			
 	def PositionOfNthPreviousOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 		return This.FindNthPreviousCS(n, pcSubStr, nStart, pCaseSensitive)
 	
@@ -96257,16 +96242,10 @@ n1 = Min(aTemp)
 	def FindNthPreviousOccurrence( n, pcSubStr, nStart )
 		return This.FindNthPrevious( n, pcSubStr, nStart )
 
-	def FindNthPreviousOccurrenceS(n, pcSubStr, nStart)
+	def FindNthPreviousOccurrenceST(n, pcSubStr, nStart)
 		return This.FindNthPrevious(n, pcSubStr, nStart)
 
 	def FindPreviousNthOccurrence(n, pcSubStr, nStart)
-		return This.FindNthPrevious(n, pcSubStr, nStart)
-	
-	def FindPreviousNthS(n, pcSubStr, nStart)
-		return This.FindNthPrevious(n, pcSubStr, nStart)
-	
-	def FindNthPreviousS(n, pcSubStr, nStart)
 		return This.FindNthPrevious(n, pcSubStr, nStart)
 	
 	def PositionOfNthPreviousOccurrence(n, pcSubStr, nStart)
@@ -96363,7 +96342,7 @@ n1 = Min(aTemp)
 	 #  ALTERNATIVES OF FindAllNext()  #
 	#---------------------------------#
 
-	def FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	def FindNextOccurrenceSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
 		return This.FindAllNext(pcSubStr, pnStartingAt, pCaseSensitive)
 
 	def NextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)

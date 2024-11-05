@@ -5533,13 +5533,34 @@ proff()
 
 /*-----------
 
+pron()
+
+? @FindAll(
+	[ "_", "_", ["•"], "_", ["•"], "_", "_" ],
+	["•"]
+)
+#--> -1
+
+proff()
+
+/*-----------
+*/
+pron()
+
+? @FindNext([ "_", "_", "•", "_", "•", "_", "_" ], "•", 3)
+
+proff()
+
+/*-----------
+*/
 StartProfiler()
 #                   1    2    3    4    5    6    7
 o1 = new stzList([ "_", "_", "•", "_", "•", "_", "_" ])
 
+
 ? o1.FindNext("•", :StartingAt = 3)
 #--> 5
-
+/*
 ? o1.FindNextNth(2, "•", :StartingAt = 3)
 #--> 5
 
@@ -5548,7 +5569,7 @@ o1 = new stzList([ "_", "_", "•", "_", "•", "_", "_" ])
 
 ? o1.FindPreviousNth(2, "•", :StartingAt = 5)
 #--> 3
-
+*/
 StopProfiler()
 # Executed in 0.03 second(s)
 
@@ -5571,7 +5592,7 @@ o1 = new stzString("[••[•[••]•[•]]••[••]]")
 #--> 9
 
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
 /*==============
 
@@ -5586,10 +5607,10 @@ o1 = new stzString("---456---")
 #--> 3
 
 StopProfiler()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s)
 
 /*-----------
-*/
+
 StartProfiler()
 #                   1..4.6..9.1.34..7..0
 o1 = new stzString("[••[•[••]•[•]]••[••]]")
@@ -5633,7 +5654,7 @@ o1 = new stzString("[••[•[••]•[•]]••[••]]")
 #--> 4
 
 StopProfiler()
-# Executed in 0.16 second(s)
+# Executed in 0.03 second(s)
 
 /*-----------
 

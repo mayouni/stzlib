@@ -1,7 +1,7 @@
 load "../stzlib.ring"
 
 /*--- #narration Code formatting - Unproper Indentation
-*/
+
 pron()
 
 # Let's take this code snippet and try to identify
@@ -5255,7 +5255,7 @@ proff()
 # Executed in 0.17 second(s).
 
 /*-------------
-*/
+
 pron()
 
 aSections = [ [ 8, 11 ], [ 9, 12 ], [ 10, 13 ], [ 11, 14 ], [ 12, 15 ], [ 26, 29 ] ]
@@ -6197,7 +6197,7 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-? o1.FindNthS(1, "♥♥♥", :StartingAt = 3)
+? o1.FindNthST(1, "♥♥♥", :StartingAt = 3)
 #--> 3
 
 ? o1.FindNext("♥♥♥", :StartingAt = 3)
@@ -6217,13 +6217,13 @@ pron()
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
 # Spacifying the starting prosition with the S extension
-? o1.FindNthS(2, "♥♥♥", :StartingAt = 3)
+? o1.FindNthST(2, "♥♥♥", :StartingAt = 3)
 #--> 8
 
-? o1.FindFirstS("♥♥♥", :StartingAt = 5)
+? o1.FindFirstST("♥♥♥", :StartingAt = 5)
 #--> 8
 
-? o1.FindLastS("♥♥♥", :StartingAt = 6)
+? o1.FindLastST("♥♥♥", :StartingAt = 6)
 #--> 13
 
 #--- Spacifying the direction with SD extension
@@ -6323,13 +6323,13 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-? o1.FindFirstS("♥♥♥", :StartingAt = 6)
+? o1.FindFirstST("♥♥♥", :StartingAt = 6)
 #--> 8
 
-? o1.FindLastS("♥♥♥", :StartingAt = 6)
+? o1.FindLastST("♥♥♥", :StartingAt = 6)
 #--> 13
 
-? o1.FindNthS(2, "♥♥♥", :StartingAt = 6)
+? o1.FindNthST(2, "♥♥♥", :StartingAt = 6)
 #--> 13
 
 /*--------------
@@ -6548,7 +6548,7 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-? o1.FindS( "♥♥♥", :StartingAt = 6 )
+? o1.FindST( "♥♥♥", :StartingAt = 6 )
 #--> [8, 13 ]
 
 ? @@( o1.FindSZ( "♥♥♥", :StartingAt = 6 ) )
@@ -6871,13 +6871,13 @@ pron()
 o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
 
 
-? o1.FindFirstS("♥♥♥", :StartingAt = 8)
+? o1.FindFirstST("♥♥♥", :StartingAt = 8)
 #--> 22
 
-? o1.FindLastS("♥♥♥", :Startingat = 8)
+? o1.FindLastST("♥♥♥", :Startingat = 8)
 #--> 22
 
-? o1.FindNthS(2, "♥♥♥", :StartingAt = 3)
+? o1.FindNthST(2, "♥♥♥", :StartingAt = 3)
 #--> 22
 
 proff()
@@ -8792,10 +8792,10 @@ o1 = new stzString("ab_cd_ef_gh")
 ? o1.FindFirst("_")
 #--> 3
 
-? o1.FindFirstS("*", :StartingAt = 4)
+? o1.FindFirstST("*", :StartingAt = 4)
 #--> 0
 
-? o1.FindFirstS("_", :StartingAt = 3)
+? o1.FindFirstST("_", :StartingAt = 3)
 #--> 3
 
 ? o1.FindLast("_")
@@ -9615,10 +9615,10 @@ proff()
 pron()
 
 o1 = new stzString("12*45*78*90")
-? o1.FindNthS(2, "*", :StartingAt = 4)
+? o1.FindNthST(2, "*", :StartingAt = 4)
 #--> 9
 
-? o1.FindFirstS("*", :StartingAt = 4)
+? o1.FindFirstST("*", :StartingAt = 4)
 #--> 6
 
 proff()
