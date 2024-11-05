@@ -46507,24 +46507,9 @@ class stzString from stzObject
 			if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
 				return 0
 			ok
-	
-			nLen = This.NumberOfChars()
-	
-			if nStart = nLen
-				return 0
-			ok
-
-			if n < 1 or n > nLen
-				return 0
-			ok
 
 			if nStart < 1 or nStart > nLen
 				return 0
-			ok
-
-			if n = nLen and
-			   This.LastCharQ().IsEqualToCS(pcSubStr, pCaseSensitive)
-				return nLen
 			ok
 
 		ok
@@ -83072,11 +83057,7 @@ n1 = Min(aTemp)
 			n = This.NumberOfSubStrings()
 		ok
 
-		if NOT ( isNumber(n) and Q(n).IsBetween(1, This.NumberOfSubStrings()) )
-			StzRaise("Can't extract! n outside of range.")
-		ok
-
-		TempcSubStr = This.SubStringAt(n)
+		TempcSubStr = This.NthChar(n)
 
 		This.RemoveAt(n)
 
