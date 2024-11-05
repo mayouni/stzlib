@@ -46685,26 +46685,15 @@ class stzString from stzObject
 				return 0
 			ok
 	
-			nLen = This.NumberOfChars()
-	
 			if nStart = 1
 				return 0
 			ok
 	
-			if (NOT Q(n).IsBetween(1, nLen - 1)) or
-			   (NOT Q(nStart).IsBetween(n + 1, nLen))
-	
-				return 0
-			ok
-	
-			if n = nLen and
-			   This.FirstCharQ().IsEqualToCS(pcSubStr, pCaseSensitive)
-				return nLen
-			ok
-
 		ok
 
 		# Full check (only occurrences of pcSubStr are parsed, not every char)
+
+		nLen = This.NumberOfChars()
 
 		nPos = nStart + 1
 		nFound = 0
