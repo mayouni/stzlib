@@ -4561,7 +4561,7 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 	for i = nStart+1 to nLen
 		aContent + aList[i]
 	next
-? @@(aContent)
+
 	nPos = -1
 	n = 0
 
@@ -4585,7 +4585,12 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 		
 	end
 
-	nResult = nPos + nStart
+	nResult = 0
+
+	if nPos > 0
+		nResult = nPos + nStart
+	ok
+
 	return nResult
 
 	func FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
@@ -4738,7 +4743,7 @@ func @FindAllCS(aList, pItem, pCaseSensitive)
 
 		aList = StzListQ(aList).Lowercased()
 	ok
-? ">> " + @@(aList)
+
 	aContent = aList
 
 	anResult = []
@@ -41046,24 +41051,46 @@ def IndexBy(pcPosOrOccurr)
 
 		#>
 
-	   #-----------------------------------------------------#
-	  #      FINDING NTH PREVIOUS OCCURRENCE OF AN ITEM     #
-	 #      STARTING AT A GIVEN POSITION                   #
-	#-----------------------------------------------------#
+	   #----------------------------------------------#
+	  #  FINDING NTH PREVIOUS OCCURRENCE OF AN ITEM  #
+	 #  STARTING AT A GIVEN POSITION                #
+	#----------------------------------------------#
 
 	def FindNthPreviousOccurrenceCS(n, pItem, nStart, pCaseSensitive)
 		nLen = This.NumberOfItems()
 
-		if isString(nStart)
-			if nStart = :First or nStart = :FirstItem
-				nStart = 1
-			but nStart = :Last of nStart = :LastItem
-				nStart = nLen
+		if CheckParams()
+
+			if NOT isNumber(n)
+				StzRaise("Incorrect param type! n must be a number.")
 			ok
+	
+			if isString(nStart)
+				if nStart = :First or nStart = :FirstItem
+					nStart = 1
+				but nStart = :Last of nStart = :LastItem
+					nStart = nLen
+				ok
+			ok
+
+			if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
+				nStart = nStart[2]
+			ok
+
 		ok
 
-		anPos = This.SectionQ(1, nStart).FindCS(pItem, pCaseSensitive)
-		nResult = anPos[len(anPos) - n + 1]
+		# Doing the job
+
+		anPos = This.SectionQ(1, nStart-1).FindCS(pItem, pCaseSensitive)
+		nLenPos = len(anPos)
+
+		nResult = 0
+		nTemp = nLenPos - n + 1
+
+		if nTemp > 0 and nTemp <= nLenPos
+			nResult = anPos[nTemp]
+		ok
+
 		return nResult
 
 		#< @FunctionAlternativeForms
