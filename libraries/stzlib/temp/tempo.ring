@@ -7414,9 +7414,9 @@ aList + "A" + "*" + "B" + "C" + "*" + "D" + "*" + "E"
 ? ElapsedTime()
 #--> 0.92 second(s)
 
-# Using the optimised @FindNthS() function (based on native Ring find())
+# Using the optimised @FindNthST() function (based on native Ring find())
 
-? @FindNthS(aList, 3, "*", 1_000_000)
+? @FindNthST(aList, 3, "*", 1_000_000)
 #--> 1900007
 
 ? @FindNext(aList, "*", 1_000_000)
@@ -7438,7 +7438,7 @@ o1 = new stzList(aList)
 	? o1.Findnext("*", :startingat = 1_000_000)
 	#--> 1900002
 	
-	? o1.FindNextNthS(3, "*", 1_000_000)
+	? o1.FindNextNthST(3, "*", 1_000_000)
 	#--> 1900007
 
 	? o1.FindAll("*")
