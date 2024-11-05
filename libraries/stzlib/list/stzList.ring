@@ -39447,9 +39447,41 @@ def IndexBy(pcPosOrOccurr)
 	def AntiFind(pItem)
 		return This.AntiFindCS(pItem, TRUE)
 
-	  #-------------------------------------------------------#
+	  #-----------------------------------------------------------------#
+	 #  GETTING THE ANTI-POSITIONS OF THE GIVEN POSITIONS IN THE LIST  #
+	#-----------------------------------------------------------------#
+
+	def AntiPositions(anPos)
+
+		if CheckParams()
+			if isList(anPos) and stzListQ(anPos).IsOfNamedParam()
+				anPos = anPos[2]
+			ok
+
+			if NOT isList(anPos)
+				Stzraise("Incorrect param type! anPos must be a list of numbers.")
+			ok
+		ok
+
+		nLen = len(@aContent)
+		anContent = 1 : len(@aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if ring_find(anPos, anContent[i]) = 0
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+		def AntiPositionsOf(anPos)
+			return This.AntiPositions(anPos)
+
+	  #=======================================================#
 	 #    FINDING N OCCURRENCES OF AN ITEM INSIDE THE LIST   #
-	#-------------------------------------------------------#
+	#=======================================================#
 
 	# Finding works only for numbers and strings
 

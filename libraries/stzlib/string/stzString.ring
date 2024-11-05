@@ -46498,6 +46498,8 @@ class stzString from stzObject
 
 		# Early checks (gains performance for large strings)
 
+		nLen = This.NumberOfChars()
+
 		if EarlyChecks()
 	
 			if pcSubStr = ""
@@ -46505,6 +46507,10 @@ class stzString from stzObject
 			ok
 	
 			if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
+				return 0
+			ok
+
+			if nStart = nLen
 				return 0
 			ok
 
@@ -46516,7 +46522,6 @@ class stzString from stzObject
 
 		# Doint the job
 
-		nLen = This.NumberOfChars()
 		nResult  = This.SectionQ(nStart, nLen).
 				FindNthCS(n, pcSubStr, pCaseSensitive)
 
@@ -46660,6 +46665,8 @@ class stzString from stzObject
 
 		# Early checks (gains performance for large strings)
 
+		nLen = This.NumberOfChars()
+
 		if EarlyChecks()
 
 			if pcSubStr = ""
@@ -46673,12 +46680,14 @@ class stzString from stzObject
 			if nStart = 1
 				return 0
 			ok
+
+			if nStart < 0 or nStart > nLen
+				return 0
+			ok
 	
 		ok
 
 		# Full check (only occurrences of pcSubStr are parsed, not every char)
-
-		nLen = This.NumberOfChars()
 
 		nPos = nStart + 1
 		nFound = 0

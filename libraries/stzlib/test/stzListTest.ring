@@ -5186,20 +5186,31 @@ StopProfiler()
 # Executed in 5.54 second(s) in Ring 1.17
 # Executed in 31.56 second(s) in Ring 1.17
 
-/*------------ TODO, Check performance
+/*------------
 
+pron()
+
+o1 = new stzList(1:10)
+? o1.AntiPositions([ 3, 4, 7, 9 ])
+#--> [1, 2, 5, 6, 8, 10 ]
+
+proff()
+# Executed in almost 0 second(s).
+
+/*------------ TODO, Check performance
+*/
 StartProfiler()
 
-# Fabricating a large list of strings (more then 150K items)
+# Fabricating a list of strings (more then 10K items)
 
 	aLargeListOfStr = []
-	for i = 1 to 100_000
+	for i = 1 to 5_000
 		aLargeListOfStr + "_"
 	next
 	
 	aLargeListOfStr + "HI" + "ME"
 	
-	for i = 1 to 50_000
+	for i = 1 to 5_000
 		aLargeListOfStr + "_"
 	next i
 	
@@ -5212,15 +5223,16 @@ StartProfiler()
 # Removing dupicates
 
 	o1 = new stzList(aLargeListOfStr)
+
 	? ShowShort( o1.FindDuplicates() )
 	#--> [ 2, 3, 4, "...", 150012, 150013, 150014 ]
-	# Executed in 9 seconds
+	# Executed in 0.26 seconds
 
-	o1.RemoveDuplicates() # Takes a lot of time!!
+	o1.RemoveDuplicates()
 	? ShowShort( o1.Content() )
 
 StopProfiler()
-# Executed in 3.58 second(s)
+# Executed in 15.85 second(s) in Ring 1.21
 
 /*============
 
@@ -5231,7 +5243,7 @@ o1 = new stzList([ "_", "_", "♥", "_", "♥", "_", "_", "♥", "_", "_" ])
 #--> 8
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*------------
 
@@ -5242,7 +5254,8 @@ o1 = new stzList([ "_", "_", "A":"C", "_", "A":"C", "_", "_", "A":"C", "_", "_" 
 #--> 8
 
 StopProfiler()
-# Executed in 0.15 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.15 second(s) in Ring 1.20
 
 /*------------
 
@@ -5252,7 +5265,8 @@ o1 = new stzList([ 1, 2, 3, "A":"C", 5, 7, 8, 9, "A":"C" ])
 #--> 0
 
 StopProfiler()
-# Executed in 0.22 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.22 second(s) in Ring 1.20
 
 /*------------
 
@@ -5263,13 +5277,15 @@ o1 = new stzList([ 1, 2, 3, "A":"C", "A":"C", 6, 7, "A":"C" ])
 #--> 4
 
 StopProfiler()
-# Executed in 0.25 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.25 second(s) in Rin 1.20
 
 /*------------
 
 StartProfiler()
 
 # Fabricating a large list
+
 	aLargeList = 1:100_000
 	aLargeList + "A":"C" + "A":"C"
 	
@@ -5281,18 +5297,16 @@ StartProfiler()
 	o1 = new stzList(aLargeList)
 	? o1.FindNth(2, "A":"C")
 	#--> 100002
-	# Executed in 3.30 second(s)
 
 	? o1.FindNext("A":"C", :StartingAt = 89_000)
 	#--> 100001
-	# Executed in 0.45 second(s)
 
 	? o1.FindNthPrevious(3, "A":"C", :StartingAt = 100_010)
 	#--> 100002
-	# Executed in 4.69 second(s)
 
 StopProfiler()
-# Executed in 8.38 second(s)
+# Executed in 1.04 second(s) in Ring 1.21
+# Executed in 8.38 second(s) in Ring 1.19
 
 /*------------
 
@@ -5307,7 +5321,8 @@ o1 = new stzList([ 1, 2, "A":"C", 4, 5, "A":"C", 7, "A":"C"])
 #--> 8
 
 StopProfiler()
-# Executed in 0.38 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.38 second(s) in Ring 1.19
 
 /*----------
 
@@ -5318,42 +5333,39 @@ StartProfiler()
 	aLargeList = 1 : 100_000
 
 	aMyList = [ 1, 2,
-		    ["A", "B", "C", "عربي", "كلام", "D"],
+		    [ "A", "B", "C", "عربي", "كلام", "D" ],
 		    3, 4, 5,
-		    ["A", "B", "C", "عربي", "كلام", "D"],
+		    [ "A", "B", "C", "عربي", "كلام", "D" ],
 		    6, 7,
-		    ["A", "B", "C", "عربي", "كلام", "D"]
+		    [ "A", "B", "C", "عربي", "كلام", "D" ]
 	]
 
 	for i = 1 to len(aMyList)
 		aLargeList + aMyList[i]
 	next
-	# Executed in 0.02 second(s)
 
 # Finding the first occurrence
 	o1 = new stzList(aLargeList)
 
-	? o1.FindFirst(["A", "B", "C", "عربي", "كلام", "D"])
+	? o1.FindFirst([ "A", "B", "C", "عربي", "كلام", "D" ])
 	#--> 100003
-	# Executed in 2.26 second(s)
 
 # Finding the last occurrence
 
-	? o1.FindLast(["A", "B", "C", "عربي", "كلام", "D"])
+	? o1.FindLast([ "A", "B", "C", "عربي", "كلام", "D" ])
 	#--> 100010
-	# Executed in 2.24 second(s)
 
 # Finding the 2nd occurrence
 
-	? o1.FindNth(2, ["A", "B", "C", "عربي", "كلام", "D"])
+	? o1.FindNth(2, [ "A", "B", "C", "عربي", "كلام", "D" ])
 	#--> 100007
-	# Executed in 3.35 second(s)
 
 StopProfiler()
-# Executed in 8.50 second(s)
+# Executed in 1.32 second(s) in Ring 1.21
+# Executed in 8.50 second(s) in Ring 1.18
 
 /*============
-*/
+
 StartProfiler()
 
 o1 = new stzString( '[ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥"] ] ]' )
@@ -5369,7 +5381,7 @@ o1 = new stzString( '[ "1", "1", [ "2", "♥", "2"], "1", [ "2", ["3", "♥"] ] 
 #--> 28
 
 StopProfiler()
-#--> Executed in 0.02 second(s)
+#--> Executed in 0.01 second(s)
 
 /*----
 
