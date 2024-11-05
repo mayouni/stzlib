@@ -4558,10 +4558,10 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 	nLen = len(aList)
 	aContent = []
 
-	for i = nStart to nLen
+	for i = nStart+1 to nLen
 		aContent + aList[i]
 	next
-
+? @@(aContent)
 	nPos = -1
 	n = 0
 
@@ -4585,7 +4585,7 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 		
 	end
 
-	nResult = nPos + nStart - 1
+	nResult = nPos + nStart
 	return nResult
 
 	func FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
