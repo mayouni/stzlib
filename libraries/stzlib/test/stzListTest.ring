@@ -5531,9 +5531,11 @@ o1 = new stzString("12•4•67")
 proff()
 # Executed in 0.08 second(s)
 
-/*-----------
+/*----------- #internal
 
 pron()
+
+# This function is used internally by Softanza
 
 ? @FindAll(
 	[ "_", "_", ["•"], "_", ["•"], "_", "_" ],
@@ -5543,14 +5545,23 @@ pron()
 
 proff()
 
-/*-----------
-*/
+/*--------- #internal
+
 pron()
+
+# This function is used internally by Softanza
 
 ? @FindNext([ "_", "_", "•", "_", "•", "_", "_" ], "•", 3)
 #--> 5
 
+? @FindNext([ "_", "_", ["•"], "_", ["•"], "_", "_" ], "•", 3)
+#--> 0
+
+? @FindNext([ "_", "_", ["•"], "_", ["•"], "_", "_" ], ["•"], 3)
+#--> -1
+
 proff()
+# Executed in almost 0 second(s).
 
 /*-----------
 */
@@ -5561,18 +5572,24 @@ o1 = new stzList([ "_", "_", "•", "_", "•", "_", "_" ])
 
 ? o1.FindNext("•", :StartingAt = 3)
 #--> 5
-/*
-? o1.FindNextNth(2, "•", :StartingAt = 3)
+
+? o1.FindNextNth(2, "•", :StartingAt = 2)
 #--> 5
+
+? o1.FindNextNth(2, "•", :StartingAt = 3)
+#--> 0
 
 ? o1.FindPrevious("•", :StartingAt = 5)
 #--> 3
 
-? o1.FindPreviousNth(2, "•", :StartingAt = 5)
+? o1.FindPreviousNth(2, "•", :StartingAt = 7)
 #--> 3
-*/
+
+? o1.FindPreviousNth(2, "•", :StartingAt = 5)
+#--> 0
+
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
 /*-----------
 
