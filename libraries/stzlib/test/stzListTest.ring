@@ -3995,18 +3995,18 @@ StopProfiler()
 # Executed in 0.02 second(s)
 
 /*-----------
-
+*/
 StartProfiler()
 
 o1 = new stzList([ "_", "A", "B", "C" ])
 
-? o1.ExtractFirst("_")
+? o1.ExtractFirst("_") + NL
 
 ? o1.Content()
 #--> [ "A", "B", "C" ]
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*-----------
 
@@ -4014,17 +4014,17 @@ StartProfiler()
 
 o1 = new stzList([ "A", "B", "C", "_" ])
 
-? o1.ExtractLast("_")
+? o1.ExtractLast("_") + NL
 #--> "_"
 
 ? o1.Content()
 #--> ["A", "B", "C"]
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*-----------
-*/
+
 StartProfiler()
 
 o1 = new stzList([ 1, 2, "♥", 3, "*", 4, "_" ])
