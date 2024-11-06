@@ -4024,19 +4024,20 @@ StopProfiler()
 # Executed in 0.02 second(s)
 
 /*-----------
-
+*/
 StartProfiler()
 
 o1 = new stzList([ 1, 2, "♥", 3, "*", 4, "_" ])
 
-? o1.ExtractW('{ NOT isNumber(@item) }')
+? o1.ExtractWXT('{ NOT isNumber(@item) }')
 #--> [ "♥", "*", "_" ]
 
 ? o1.Content()
 #--> [ 1, 2, 3, 4 ]
 
 StopProfiler()
-# Executed in 0.44 second(s)
+# Executed in 0.13 second(s) in Ring 1.21
+# Executed in 0.44 second(s) in Ring 1.20
 
 /*-----------
 
@@ -4066,10 +4067,10 @@ o1 = new stzList([ 1, 2, "♥", "♥", "♥", 3, 4 ])
 #--> [1, 2, 3, 4]
 
 StopProfiler()
-# Executed in almost 0 second(s).
+# Executed in almost 0 second(s) in Ring 1.21
 
 /*-----------
-*/
+
 StartProfiler()
 
 o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])

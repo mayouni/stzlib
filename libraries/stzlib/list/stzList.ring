@@ -16193,12 +16193,9 @@ class stzList from stzObject
 	#------------------------------------------------#
 
 	def ExtractW(pcCondition)
-		aResult = This.ItemsW(pcCondition)
-		if len(aResult) = 0
-			StzRaise("Can't extract! The condition returns no values at all.")
-		ok
-
-		This.RemoveW(pcCondition)
+		anPos = This.FindW(pccondition)
+		aResult = This.ItemsAtPositions(anPos)
+		This.RemoveItemsAtPositions(anPos)
 		return aResult
 
 		def PopW(pcCondition)
@@ -16209,6 +16206,24 @@ class stzList from stzObject
 
 		def ItemsPoppedW(pcCondition)
 			return This.ItemsExtractedW(pcCondition)
+
+	#-- eXTendForm
+
+	def ExtractWXT(pcCondition)
+
+		anPos = This.FindWXT(pccondition)
+		aResult = This.ItemsAtPositions(anPos)
+		This.RemoveItemsAtPositions(anPos)
+		return aResult
+
+		def PopWXT(pcCondition)
+			return This.ExtractWXT(pcCondition)
+
+	def ItemsExtractedWXT(pcCondition)
+		return This.ExtractWXT(pcCondition)
+
+		def ItemsPoppedWXT(pcCondition)
+			return This.ItemsExtractedWXT(pcCondition)
 
 	  #--------------------------------------#
 	 #  EXTRACTING A SECTION FROM THE LIST  #
