@@ -16264,11 +16264,13 @@ class stzList from stzObject
 	#-----------------------------------------------------#
 
 	def ExtractNextSTCS(pItem, pnStartingAt, pCaseSensitive)
-		if This.FindNext(pItem, pnStartingAt, pCaseSensitive) = 0
-			StzRaise("Can't extract! pItem does not exist at the specified position.")
+
+		nPos = This.FindNextSTCS(pItem, pnStartingAt, pCaseSensitive)
+		if nPos = 0
+			return
 		ok
 
-		This.RemoveSTCS(pItem, pnStartingAt, pCaseSensitive)
+		This.RemoveItemAtPosition(nPos)
 		return pItem
 
 		#< @FunctionFluentForm
