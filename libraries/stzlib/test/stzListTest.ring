@@ -4809,7 +4809,7 @@ proff()
 # Executed in 0.07 second(s) in Ring 1.17
 
 /*==========
-*/
+
 pron()
 
 o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3,"c" ])
@@ -6488,46 +6488,52 @@ proff()
 # Executed in 0.01 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzList([ "T", "A", "Y", "O", "U", "B", "T", "A" ])
-? o1.SectionsXT( :From = "T", :To = "A" )
-#--> [ ["T", "A"], [ "T", "A", "Y", "O", "U", "B", "T", "A" ], ["T", "A"] ]
+? @@NL( o1.SectionsBetween( "T", "A" ) )
+#--> [
+#	["T", "A"],
+#	[ "T", "A", "Y", "O", "U", "B", "T", "A" ],
+#	["T", "A"]
+# ]
 
 proff()
+# Executed in almost 0 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzList([ "1", "2", "abc", "4", "5", "abc", "7", "8", "abc" ])
 
 ? o1.FindAll("abc")
-#--> [3, 6, 9]
+#--> [ 3, 6, 9 ]
 
 #NOTE: the following functions work the same for stzString and
 # stzListOfStrings, because they are abstracted in stzObject
 
 ? o1.NFirstOccurrences(2, :Of = "abc") 
-#--> [3, 6]
+#--> [ 3, 6 ]
 
 ? o1.NFirstOccurrencesST(2, :Of = "abc", :StartingAt = 1)
-#--> [3, 6]
+#--> [ 3, 6 ]
 
 ? o1.NLastOccurrences(2, :Of = "abc")
-#--> [6, 9]
+#--> [ 6, 9 ]
 
 ? o1.NLastOccurrencesST(2, "abc", :StartingAt = 1)
-#--> [6, 9]
+#--> [ 6, 9 ]
 
 ? o1.NFirstOccurrencesST(2, :Of = "abc", :StartingAt = 6)
-#--> [6, 9]
+#--> [ 6, 9 ]
 
-? o1.LastNOccurrencesST(2, :Of = "abc", :StartingAt = 9)
-#--> [6, 9]
+? o1.LastNOccurrencesST(1, :Of = "abc", :StartingAt = 9)
+#--> [ 9 ]
 
 proff()
+# Executed in 0.06 second(s).
 
 /*------------------
 
@@ -6556,8 +6562,13 @@ proff()
 
 /*------------------
 
+pron()
+
 ? StzTextQ("你好").Script()
 #--> :Han
+
+proff()
+# Executed in 0.04 second(s).
 
 /*------------------
 
@@ -6613,7 +6624,7 @@ proff()
 # Executed in 0.04 second(s).
 
 /*------------------
-*/
+
 pron()
 
 ? Q([ "واحد", "اثنان", "ثلاثة" ]).Are(:Strings)
@@ -6642,7 +6653,7 @@ proff()
 pron()
 
 ? W('len(@item)=3')
-#--> ( "whre", "len(@item)=3" ]
+#--> ( "where", "len(@item)=3" ]
 
 proff()
 # Executed in almost 0 second(s).
@@ -7018,16 +7029,16 @@ pron()
 ? Q([ "I", "B", "M" ]).HasSameContentCS( :As = [ "b", "m", "i" ], :CS = FALSE )
 
 proff()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s).
 
-/*---------------
+/*--------------- #narration SEMANTIC PRECISION
 
 pron()
 
 ? Q("SFTANZA").IsLargerThan("RING")
 #--> TRUE
 
-# or if you want to precise:
+# or if you want to be precise:
 ? Q("SFTANZA").HasMoreChars(:Than = "RING")
 #--> TRUE
 
@@ -9489,7 +9500,7 @@ StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 }
 
 StopProfiler()
-# Executed in 0.34 second(s).
+# Executed in 0.31 second(s).
 
 /*========================
 

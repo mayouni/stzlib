@@ -26987,7 +26987,7 @@ class stzList from stzObject
 
 		if bCaseSensitive = FALSE
 			acList1 = This.StringifyQ().SortQ().Lowercased()
-			acList2 = StzList(paOtherList).StringifyQ().SortQ().Lowercased()
+			acList2 = StzListQ(paOtherList).StringifyQ().SortQ().Lowercased()
 
 		else
 			acList1 = This.StringifyQ().Sorted()
