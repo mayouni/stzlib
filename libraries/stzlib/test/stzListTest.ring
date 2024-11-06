@@ -4495,15 +4495,20 @@ o1 = new stzString("123456789")
 
 proff()
 
-/*----------
-
+/*---------- #ring
+*/
 pron()
 
-? version()
-#--> 1.17
+? ring_version()
+#--> "1.17"
+
+? StzVersion()
+#--> "1.0"
 
 proff()
-/*----------
+# Executed in almost 0 second(s).
+
+/*---------- #ringqt code draft
 
 pron()
 
@@ -4536,6 +4541,7 @@ o1 = new stzList([ 1, "*", 10:12, "B", 2, 1, "*", "A", 3, "*", "B", 10:12, "B" ]
 #	[ "B", 	 [ 11, 13 ] ]	# "B" is duplicated twice at positions 10 and 11
 # ]
 proff()
+# Executed in almost 0 second(s).
 
 /*----------
 
@@ -4565,7 +4571,8 @@ o1 = new stzList(aList)
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in Ring 1.20
 
 /*---------- Profiling the Duplicates() function --> Reasonable perf up to 30K items!
 
@@ -6804,7 +6811,7 @@ o1 = new stzList([ 0, 2, 0, 3, [1,2] ])
 proff()
 # Executed in almost 0 second(s).
 
-/*========= Deep finding items at any level : TODO incorrect output
+/*========= Deep finding items at any level
 
 pron()
 
@@ -6820,15 +6827,15 @@ o1 = new stzList([
 #--> 3
 
 ? @@( o1.DeepFind("you") )
-#--> "you" is found in the following positions:
-# [
-#	[ "1",      [1, 5] ],
-#	[ "1.3",    [ 2  ] ],
-#	[ "1.3.3",  [ 1  ] ],
-#	[ "1.5",    [ 1  ] ]
-# ]
+#--> [ [ 1, 1 ], [ 2, 2 ], [ 3, 1 ], [ 1, 4 ] ]
+
+#~> the item "you" is found at:
+#	- posisitons 1 and 4 in level 1
+#	- position 2 in level 2
+#	- position 1 in level 4
 
 proff()
+# Executed in 0.03 second(s).
 
 /*========= Replace and DeepReplace
 
@@ -6844,6 +6851,7 @@ o1 = new stzList([
 
 o1.Replace("me", :By = "you")
 ? @@NL( o1.Content() ) + NL
+
 #--> [
 #	"you",
 #	"other",
@@ -6852,7 +6860,12 @@ o1.Replace("me", :By = "you")
 #	"you"
 #    ]
 
-#---
+proff()
+# Executed in almost 0 second(s).
+
+/*---
+
+pron()
 
 o1 = new stzList([
 	"me",
@@ -6864,6 +6877,7 @@ o1 = new stzList([
 
 o1.DeepReplace("me", :By = "you")
 ? @@NL( o1.Content() )
+
 #--> [
 #	"you",
 #	"other",
@@ -6872,7 +6886,7 @@ o1.DeepReplace("me", :By = "you")
 #    ]
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.01 second(s).
 
 /*================
 
@@ -8349,7 +8363,7 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.02 second(s).
 
 /*-----------------
 
@@ -10506,37 +10520,37 @@ proff()
 
 pron()
 
-	oTrueObj = TrueObject()
-	oFalseObj = FalseObject()
-	
-	o1 = new stzList([
-		"_", 3, "_" , oTrueObj, 6, "*",
-		[ "L1", "L1" ], 12, oFalseObj,
-		[ "L2", "L2" ], 25, "*"
-	])
-	
-	? o1.FindWhereXT('{
-		( NOT isObject(@item) ) and
-		( isString(@NextItem) and @NextItem = "*" )
-	}')
-	#--> [ 5, 11]
-	
-	? o1.FindWhereXT('{
-		isNumber(@item) AND
-		@i <= This.NumberOfItems() - 3 AND
-	
-		isNumber(This[@i+3]) AND
-		This[@i+3] = DoubleOf(@item)	
-	}')
-	#--> [ 2, 5 ]
-	
-	? o1.FindWhereXT('{
-		isNumber(@item) AND
-		@i <= This.NumberOfItems() - 3 AND
-	
-		isNumber(This[@i+3]) AND
-		This[@i+3] != DoubleOf(@item)	
-	}')
+oTrueObj = TrueObject()
+oFalseObj = FalseObject()
+
+o1 = new stzList([
+	"_", 3, "_" , oTrueObj, 6, "*",
+	[ "L1", "L1" ], 12, oFalseObj,
+	[ "L2", "L2" ], 25, "*"
+])
+
+? o1.FindWhereXT('{
+	( NOT isObject(@item) ) and
+	( isString(@NextItem) and @NextItem = "*" )
+}')
+#--> [ 5, 11]
+
+? o1.FindWhereXT('{
+	isNumber(@item) AND
+	@i <= This.NumberOfItems() - 3 AND
+
+	isNumber(This[@i+3]) AND
+	This[@i+3] = DoubleOf(@item)	
+}')
+#--> [ 2, 5 ]
+
+? o1.FindWhereXT('{
+	isNumber(@item) AND
+	@i <= This.NumberOfItems() - 3 AND
+
+	isNumber(This[@i+3]) AND
+	This[@i+3] != DoubleOf(@item)	
+}')
 	#--> [ 8 ]
 
 proff()
