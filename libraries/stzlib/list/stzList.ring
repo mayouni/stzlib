@@ -16705,7 +16705,7 @@ class stzList from stzObject
 	 #  CHECKING IF THE 2 ITEMS OF THE LIST ARE BOUNDS OF A SUBSTRING IN A GIVEN STRING  #
 	#===================================================================================#
 
-	#TODO: Unify the bounds fucntions in stzString and stzList
+	#TODO: Unify the bounds functions in stzString and stzList
 
 	def AreBoundsOfCS(pcSubStr, pIn, pCaseSensitive)
 		# Supports only strings in pIn
@@ -16831,6 +16831,96 @@ class stzList from stzObject
 	
 		def BoundsUpToNItemsQ(n)
 			return new stzList( This.BoundsUpToNItems(n) )
+
+		#>
+
+	  #-----------------------------------------------#
+	 #  GETTING THE N BOUNING ITEMS OF A GIVEN ITEM  #
+	#-----------------------------------------------#
+
+	def BoundsCS(pItem, pUpTo, pCaseSensitive)
+
+		if CheckParams()
+			if isList(pItem) and StzListQ(pItem).isOfNamedParam()
+				pItem = pItem[2]
+			ok
+	
+			if isList(pUpTo) and StzListQ(pUpTo).IsUpToOrUptoNItemsNamedParam()
+				pUpTo = pUpTo[2]
+			ok
+	
+			if NOT ( isNumber(pUpTo) or @IsPairOfNumbers(pUpTo))
+				StzRaise("Incorrect param type! pnUpTo must be a number or pair of numbers.")
+			ok
+		ok
+
+		# Preparing the lenghts and bounds values
+
+		nLenList = len(@aContent)
+
+		anPos = This.FindCS(pItem, pCaseSensitive)
+		nLenPos = len(anPos)
+
+		if isNumber(pUpTo)
+			nLenBound1 = pUpTo
+			nLenBound2 = pUpTo
+		else
+			nLenBound1 = pUpTo[1]
+			nLenBound2 = pUpTo[2]
+		ok
+
+		# Doing the job
+
+		aResult = []
+
+		for i = 1 to nLenPos
+			aBounds = []
+
+			if anPos[i] - nLenBound1 > 0
+				aBounds + This.Section(anPos[i] - nLenBound1, anPos[i] - 1)
+			else
+				aBounds + []
+			ok
+
+			if nLenList - anPos[i] >= nLenBound2
+				aBounds + This.Section(anPos[i] + 1, anPos[i] + nLenBound2)
+			else
+				aBounds + []
+			ok
+
+			aResult + aBounds
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def NBoundsCS(pItem, pUpTo)
+			return This.BoundsCS(pItem, pUpTo, pCaseSensitive)
+
+		def BoundsOfCS(pItem, pUpTo)
+			return This.BoundsCS(pItem, pUpTo, pCaseSensitive)
+
+		def NBoundsOfCS(pItem, pUpTo)
+			return This.BoundsCS(pItem, pUpTo, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def Bounds(pItem, pUpTo)
+		return This.BoundsCS(pItem, pUpTo, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NBounds(pItem, pUpTo)
+			return This.Bounds(pItem, pUpTo)
+
+		def BoundsOf(pItem, pUpTo)
+			return This.Bounds(pItem, pUpTo)
+
+		def NBoundsOf(pItem, pUpTo)
+			return This.Bounds(pItem, pUpTo)
 
 		#>
 
@@ -77906,6 +77996,46 @@ def IndexBy(pcPosOrOccurr)
 		else
 			return FALSE
 		ok
+
+	def IsUpToOrUpToNItemsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+ 		   ( isString(This.Item(1)) and
+			(This.Item(1) = :UpToNItems or This.Item(1) = :UpTo) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsUpToOrUpToNItemsNamedParams()
+			return This.IsUpToOrUoToNItemsNamedParam()
+
+		def IsUpToNItemsOrUpToNamedParam()
+			return This.IsUpToOrUoToNItemsNamedParam()
+
+		def IsUpToNItemsOrUpToNamedParams()
+			return This.IsUpToOrUoToNItemsNamedParam()
+
+	def IsUpToOrUpToNPositionsNamedParam()
+		if ( This.NumberOfPositions() = 2 ) and
+ 		   ( isString(This.Position(1)) and
+			(This.Position(1) = :UpToNPositions or This.Position(1) = :UpTo) )
+		  
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsUpToOrUpToNPositionsNamedParams()
+			return This.IsUpToOrUoToNPositionsNamedParam()
+
+		def IsUpToNPositionsOrUpToNamedParam()
+			return This.IsUpToOrUoToNPositionsNamedParam()
+
+		def IsUpToNPositionsOrUpToNamedParams()
+			return This.IsUpToOrUoToNPositionsNamedParam()
 
 	def IsBeforeNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
