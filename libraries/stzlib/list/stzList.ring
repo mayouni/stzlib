@@ -16445,11 +16445,13 @@ class stzList from stzObject
 	#---------------------------------------------------------#
 
 	def ExtractPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
-		if This.FindPrevious(pItem, pnStartingAt, pCaseSensitive) = 0
-			StzRaise("Can't extract! pItem does not exist at the specified position.")
+
+		nPos = This.FindPreviousSTCS(pItem, pnStartingAt, pCaseSensitive)
+		if nPos = 0
+			return
 		ok
 
-		This.RemoveSTCS(pItem, pnStartingAt, pCaseSensitive)
+		This.RemoveItemAtPosition(nPos)
 		return pItem
 
 		#< @FunctionFluentForm
@@ -16537,7 +16539,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractPreviousST(item, pnStartingAt)
-		return This.ExtractPreviousST(item, pnStartingAt, TRUE)
+		return This.ExtractPreviousSTCS(item, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 

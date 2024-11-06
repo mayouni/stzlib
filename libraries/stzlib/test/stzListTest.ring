@@ -4082,7 +4082,7 @@ o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
 StopProfiler()
 
 /*-----------
-
+*/
 StartProfiler()
 
 o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
@@ -4096,7 +4096,7 @@ o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
 StopProfiler()
 
 /*===========
-*/
+
 StartProfiler()
 
 ? Q([ "ONE", "ONE", "ONE" ]).ItemsHaveXT('{ len(@item) = 3 }')
