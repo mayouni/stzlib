@@ -4655,11 +4655,78 @@ func @FindLast(aList, pStrOrNbr)
 
 #--
 
-func @FindNthCS(aList, nth, pItem, pCaseSensitive)
-	return @FindNthSTCS(aList, nth, pItem, 1, pCaseSensitive)
+func @FindNthOccurrenceCS(aList, nth, pItem, pCaseSensitive)
 
-func @FindNth(aList, nth, pItem)
-	return @FindNthCS(aList, nth, pItem, TRUE)
+	if CheckParams()
+		if NOT isList(aList)
+			StzRaise("Incorrect param type! aList must be a list.")
+		ok
+
+		if NOT isNumber(nth)
+			StzRaise("Incorrect param type! nth must be a number.")
+		ok
+
+		if NOT (isString(pItem) or isNumber(pItem))
+			return -1
+		ok
+
+		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
+			stzRaise("Incorrect param type! pCaseSensitive must be a boolean (TRUE or FALSE).")
+		ok
+	ok
+
+	if pCaseSensitive = FALSE 
+		if isString(pItem)
+			pItem = lower(pItem)
+		ok
+
+		aList = StzListQ(aList).Lowercased()
+	ok
+
+	nLen = len(aList)
+	nPos = -1
+	n = 0
+
+	while TRUE
+		try
+			nPos = find(aList, pItem)
+		catch
+			return -1
+		done
+
+		if nPos = 0
+			exit
+		ok
+
+		n++
+		if n = nth
+			exit
+		ok
+
+		aList[nPos] += (""+ aList[nPos]+1)
+		
+	end
+
+	nResult = 0
+
+	if nPos > 0
+		nResult = nPos
+	ok
+
+	return nResult
+
+	func @FindNthCS(aList, nth, pItem, pCaseSensitive)
+		return @FindNthOccurrenceCS(aList, nth, pItem, pCaseSensitive)
+
+func @FindNthOccurrence(aList, nth, pItem)
+	return @FindNthOccurrenceCS(aList, nth, pItem, TRUE)
+
+	func @FindNth(aList, nth, pItem)
+		return @FindNthOccurrence(aList, nth, pItem)
 
 #--
 
@@ -15752,11 +15819,8 @@ class stzList from stzObject
 	#---------------------------------------#
 
 	def ExtractManyCS(paItems, pCaseSensitive)
-		if NOT This.ContainsManyCS(paItems, pCaseSensitive)
-			StzRaise("Can't extract the items! Items in paItems do not exist in the list.")
-		ok
-
-		This.RemoveManyCS(paItems, pCaseSensitive)
+		anPos = This.FindManyCS(paItems, pCaseSensitive)
+		This.RemoveItemsAtPositions(anPos)
 		return paItems
 
 		#< @FunctionAlternativeForms
@@ -15884,16 +15948,7 @@ class stzList from stzObject
 	#---------------------------#
 
 	def ExtractAt(n)
-		if isString(n) and ( n = :Last or n = :LastItem )
-			n = This.NumberOfItems()
-		ok
-
-		if NOT ( isNumber(n) and Q(n).IsBetween(1, This.NumberOfItems()) )
-			StzRaise("Can't extract! n outside of range.")
-		ok
-
 		TempItem = This.ItemAt(n)
-
 		This.RemoveAt(n)
 
 		return TempItem
@@ -15967,12 +16022,20 @@ class stzList from stzObject
 
 	def ExtractLastItem()
 		return This.ExtractAt(This.NumberOfItems())
-		#TODO: the line above was:
+
+		#TODO // The line above was:
+
 		# return This.ExtractAt(:Last)
+
 		# but since CheckParams() is used in ExtractAt(),
 		# the special value :Last will not be recognosed.
 		# That's why I changed it to its actual value NumberOfItems()
 		#--> Do the same all over the library!
+
+		#UPDATE // I remove the use of :First and :Last as
+		# params values all over the library.
+		# ~> They are intended to final users (programmers) and
+		# not for the library codebase!
 
 		def PopLastItem()
 			return This.ExtractLastItem()
@@ -15988,10 +16051,10 @@ class stzList from stzObject
 	#--------------------------------------------#
 
 	def ExtractNthOccurrenceCS(n, pItem, pCaseSensitive)
+
 		nPos = This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
-		result = This.ItemAtPosition(n)
-		This.RemoveItemAtPosition(n)
-		return result
+		This.RemoveItemAtPosition(nPos)
+		return pItem
 
 		#< @FunctionAlternativeFroms
 
@@ -39851,7 +39914,7 @@ def IndexBy(pcPosOrOccurr)
 		# Trying to use the Ring native find() function
 
 		nPos = @FindNthSTCS(This.Content(), n, pItem, 1, pCaseSensitive)
-
+? ">> " + nPos
 		if nPos != -1
 			return nPos
 
