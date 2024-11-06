@@ -4135,22 +4135,19 @@ StopProfiler()
 # Executed in 0.41 second(s) in Ring 1.17
 
 /*==========
-
+*/
 pron()
 
 o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
 
 ? o1.ContainsDuplicates()
 #--> TRUE
-# Executed in 0.03 second(s)
-/*
+
 ? @@( o1.FindDuplicates() )
 #--> [ 3, 4, 6, 9 ]
-# Executed in 0.18 second(s)
 
 ? @@( o1.Duplicates() )
-#--> [ "_", "_", "_", "*" ]
-# Executed in 0.22 second(s)
+#--> [ "_", "*" ]
 
 ? @@( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
 #--> [ [ "_", [ 3, 4, 6 ] ], [ "*", [ 9 ] ] ]
@@ -4159,10 +4156,10 @@ o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
 o1.RemoveDuplicates()
 ? @@( o1.Content() )
 #--> [ "_", "ONE", "TWO", "THREE", "*" ]
-# Executed in 0.04 second(s)
 
 proff()
-# Executed in 0.55 second(s)
+# Executed in 0.01 second(s) in ring 1.21
+# Executed in 0.55 second(s) in Ring 1.17
 
 /*--------------- 
 
@@ -4173,7 +4170,8 @@ o1 = new stzList([ "A", "b", "C", "B", '"B",', "D", "E" ])
 #-->  [ "A", "b", "C", "B", '"B",', "D", "E" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in ring 1.17
 
 /*---------------
 
@@ -4184,9 +4182,10 @@ o1 = new stzList([ 10, '"[ :Tunis, :Paris ]"', "ONE," ])
 #-- [ 10, '"[ :Tunis, :Paris ]"', "ONE," ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in ring 1.17
 
-/*--------------- 
+/*--------------- #internal
 
 pron()
 
@@ -4195,37 +4194,48 @@ o1 = new stzList([ 10, [ :Tunis, :Paris ], "ONE," ])
 #--> [ "10", '[ "tunis"* "paris" ]', "ONE*" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
-/*--------------- 
+/*--------------- #internal
 
 pron()
 
-aLarge = [ 10, 20, "One", "ONE", [ :Tunis, :Paris ], 30, "two" ]
-for i = 1 to 10
-	aLarge + ("*"+i)
-next
-aLarge + "in" + "out" + "IN" + "OUT"
+aList = [ 10, 20, "One", "ONE", [ :Tunis, :Paris ], 30, "two" ]
+	for i = 1 to 10
+		aList + ("*"+i)
+	next
+	aLarge + "in" + "out" + "IN" + "OUT"
 
-o1 = new stzList(aLarge)
+o1 = new stzList(aList)
 
 ? @@( o1.StringifyAndReplaceQ(",", "*").Content() )
 #--> [
 #	"10", "20", "One", "ONE",
 #	'[ "tunis"* "paris" ]',
-#	"30", "two", "*1", "*2",
-#	"*3", "*4", "*5", "*6",
-#	"*7", "*8", "*9", "*10",
-#	"in", "out", "IN", "OUT"
+#	"30", "two",
+#
+#	"__*1__",
+#	"__*2__",
+#	"__*3__",
+#	"__*4__",
+#	"__*5__",
+#	"__*6__",
+#	"__*7__",
+#	"__*8__",
+#	"__*9__",
+#	"__*10__",
+#
+#	"in", "out", "IN", "OUT" ]
 # ]
 
 ? o1.ContainsDuplicates()
 #--> FALSE
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.17
 
-/*--------------- 
+/*--------------- #perf
 
 pron()
 
@@ -4244,17 +4254,18 @@ o1 = new stzList(aLarge)
 #--> TRUE
 
 proff()
-# Executed in 8.32 second(s)
+# Executed in 5.11 second(s) in Ring 1.21
+# Executed in 8.32 second(s) in Ring 1.17
 
-/*--------------- 
+/*--------------- #perf
 
 pron()
 
 aLarge = [ 10, 20, "One", "ONE", [ :Tunis, :Paris ], 30, "two" ]
 
-for i = 1 to 100_000
-	aLarge + ("*"+i)
-next
+	for i = 1 to 30_000
+		aLarge + ("*"+i)
+	next
 
 aLarge + "in" + "out" + "IN" + "OUT"
 
@@ -4263,32 +4274,34 @@ o1 = new stzList(aLarge)
 #--> FALSE
 
 proff()
-# Executed in 8.22 second(s)
+# Executed in 4.89 second(s).
 
-/*--------------- 
+/*--------------- #perf
 
 pron()
 
+# Constructing a large list of 30K items
+
 aLarge = [ 10, 20, "One", "ONE", [ :Tunis, :Paris ], 30, "two" ]
 
-for i = 1 to 100_000
-	aLarge + ("*"+i)
-next
-
-aLarge + "in" + "out" + "IN" + "OUT"
+	for i = 1 to 30_000
+		aLarge + ("*"+i)
+	next
+	
+	aLarge + "in" + "out" + "IN" + "OUT"
 
 o1 = new stzList(aLarge)
 ? o1.ContainsDuplicatesCS(FALSE)
 #--> TRUE
 
-//? o1.NumberOfDuplicationsCS(FALSE)
+? o1.NumberOfDuplicationsCS(FALSE)
 #--> 3
-# Executed in 12.41 second(s)
 
 proff()
-# Executed in 12.05 second(s)
+# Executed in 6.68 second(s) in Ring 1.21
+# Executed in 12.05 second(s) in Ring 1.17
 
-/*---------------
+/*--------------- #ringqt draft
 
 pron()
 
@@ -4298,12 +4311,14 @@ o1 = new QStringList()
 for i = 1 to len(aList)
 	o1.append(aList[i])
 next
+
 o1.sort()
 ? QStringListContent(o1)
 #--> [ "4", "5", "5", "5", "7", "7" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in Ring 1.17
 
 /*---------------
 
@@ -4311,37 +4326,37 @@ pron()
 
 o1 = new stzList([ 5, 7, 5, 5, 4, 7 ])
 
-#NOTE: the same code shown here can work as-is for stzListOfStrings!
-# to test it just replace the line above with the following:
-// o1 = new stzListOfStrings([ "5", "7", "5", "5", "4", "7" ])
-
-//? o1.ContainsDuplicates()
+? o1.ContainsDuplicates()
 #--> TRUE
 # Executed in 0.03 second(s)
 
-//? o1.HowManyDuplicates()
+? o1.HowManyDuplicates()
 #--> 3
 # Executed in 0.03 second(s)
 
 ? @@( o1.FindDuplicates() )
 #--> [ 3, 4, 6 ]
 # Executed in 0.03 second(s)
-/*
+
 ? @@( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
 #--> [ [ 5, [ 3, 4 ] ], [ 7, [ 6 ] ] ]
-#--> the number 5 is duplicated at positions 3 and 4, and
-#    the number 7 is duplicated at position 6.
+
+#~> the number 5 is duplicated at positions 3 and 4
+#~> the number 7 is duplicated at position 6.
+
 # Executed in 0.25 second(s)
 
 o1.RemoveDuplicates()
 ? @@( o1.Content() )
 #--> [ 5, 7, 4 ]
-# Executed in 0.07 second(s)
+
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.07 second(s) in Ring 1.18
 
 proff()
 # Executed in 0.54 second(s)
 
-/*----------
+/*---------- #ringqt draft
 
 pron()
 
@@ -4355,6 +4370,7 @@ next
 #--> 2
 
 proff()
+# Executed in almost 0 second(s).
 
 /*----------
 
@@ -4370,28 +4386,31 @@ o1 = new stzList([ "Ab", "Im", "Ab", "Cf", "Fd", "Ab", "Cf" ])
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in ring 1.8
 
-/*---------- #TODO fix performance problem
+/*---------- #perf
 
 pron()
 
-o1 = new stzList(1:20_000 + 3 + 5 + 7 + 10 + 100 + 1000)
-ShowShort( o1.ItemsZ() )
+# ItemsAndTheirPositions(), also called ItemsZ(), can do
+# the job in a reasonable performance when the number of
+# items in the list is around 1000 items
 
-//? @@( Q( o1.ItemsZ() ).First7Items() ) # Or FindItems()
+o1 = new stzList(1:1_000 + 3 + 5 + 7 + 10 + 100 + 1000)
+ShowShort( o1.ItemsZ() )
 #--> [
-#	[ "1", [ 1 ] ],
-#	[ "2", [ 2 ] ],
-#	[ "3", [ 3, 10001 ] ],
-#	[ "4", [ 4 ] ],
-#	[ "5", [ 5, 10002 ] ],
-#	[ "6", [ 6 ] ],
-#	[ "7", [ 7, 10003 ] ]
+#	[ 1, [ 1 ] ],
+#	[ 2, [ 2 ] ],
+#	[ 3, [ 3, 10001 ] ],
+#	"...",
+#	[ 998, [ 998 ] ],
+#	[ 999, [ 999 ] ],
+#	[ 1000, [ 1000, 1006 ]
 # ]
 
 proff()
-# Executed in 9.78 second(s)
+# Executed in 1.09 second(s) in Ring 1.21
 
 /*----------
 
@@ -4440,23 +4459,6 @@ proff()
 
 /*----------
 
-o1 = new stzList(
-//	1:10_000 +
-	[] +
-	"emm, ahh," +	#--> "emm* ahh*"
-	"emm, ahh*" +	#--> "emm* ahh*"
-
-	1:3 + 10 +
-	100 + 1:3 +
-	1000 +
-
-	"oh, bah,," +	#--> "oh* bah**"
-	"[ 1* 2* 3 ]"	#--> "[ 1* 2* 3 ]"
-)
-
-
-/*----------
-
 pron()
 
 ? @@( "" )
@@ -4484,7 +4486,8 @@ pron()
 #--> "'[1, 2, 3]'"
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in Ring 1.20
 
 /*----------
 
@@ -4496,7 +4499,7 @@ o1 = new stzString("123456789")
 proff()
 
 /*---------- #ring
-*/
+
 pron()
 
 ? ring_version()
