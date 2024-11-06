@@ -301,6 +301,9 @@ class stzChainOfValue from stzObject
 		def IsEqualTo(pValue)
 			return This.Is(pValue)
 
+		def Equals(pValue)
+			return This.Is(pValue)
+
 		#>
 
 	def Becomes(pValue)

@@ -5505,7 +5505,7 @@ class stzObject
 				StzRaise("Incorrect param type! pOtherObject must be an object.")
 			ok
 		ok
-? "hi"
+
 		if @IsNamedObject(pOtherObject) and @IsNamedObject(pOtherObject) and
 		   This.VarName() = pOtherObject.VarName()
 
@@ -5524,6 +5524,9 @@ class stzObject
 			return This.IsEqualTo(pOtherObject)
 
 		def IsEqualCS(pOtherObject, pCaseSensitive)
+			return This.IsEqualTo(pOtherObject)
+
+		def EqualsCS(pOtherObject, pCaseSensitive)
 			return This.IsEqualTo(pOtherObject)
 
 		#>

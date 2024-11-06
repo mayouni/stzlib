@@ -2357,12 +2357,18 @@ class stzNumber from stzObject
 		def EqualTo(pOtherNumber)
 			return This.IsEqual(pOtherNumber)
 
+		def Equals(pOtherNumber)
+			return This.IsEqual(pOtherNumber)
+
 		#-- CS
 
 		def IsEqualToCS(pOtherNumber, pCaseSensitive)
 			return This.IsEqualTo(pOtherNumber)
 
 		def IsEqualCS(pOtherNumber, pCaseSensitive)
+			return This.IsEqualTo(pOtherNumber)
+
+		def EqualsCS(pOtherNumber, pCaseSensitive)
 			return This.IsEqualTo(pOtherNumber)
 
 		#>

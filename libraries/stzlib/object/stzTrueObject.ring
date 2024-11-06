@@ -42,10 +42,16 @@ class stzTrueObject from stzObject
 		def IsEqualToQ(p)
 			return This
 
+		def EqualsQ(p)
+			return This
+
 	def IsEqualToCS(p, pCaseSensitive)
 		return TRUE
 
-		def ISEqualTo(p)
+		def IsEqualTo(p)
+			return TRUE
+
+		def Equals(p)
 			return TRUE
 
 	def StzType()
