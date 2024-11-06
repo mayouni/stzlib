@@ -4655,6 +4655,14 @@ func @FindLast(aList, pStrOrNbr)
 
 #--
 
+func @FindNthCS(aList, nth, pItem, pCaseSensitive)
+	return @FindNthSTCS(aList, nth, pItem, 1, pCaseSensitive)
+
+func @FindNth(aList, nth, pItem)
+	return @FindNthCS(aList, nth, pItem, TRUE)
+
+#--
+
 func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 
 	if CheckParams()
@@ -4786,7 +4794,6 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 
 	def @FindNextNthCS(aList, nth, pItem, nStart, pCaseSensitive)
 		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-
 
 	#>
 

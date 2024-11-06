@@ -4809,7 +4809,7 @@ proff()
 # Executed in 0.07 second(s) in Ring 1.17
 
 /*==========
-
+*/
 pron()
 
 o1 = new stzList([ "a", "ab", "b", 1:3, "a", "ab", "abc", "b", "bc", 1:3,"c" ])
@@ -4860,6 +4860,7 @@ o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" , "♥", "_", "_" ])
 #--> 3
 
 StopProfiler()
+# Executed in almost 0 second(s) in Ring 1.21
 # Executed in 0.07 second(s) in Ring 1.19 (64 bits)
 # Executed in 0.04 second(s) in Ring 1.17
 
@@ -4880,7 +4881,7 @@ o1 = new stzList(aLarge)
 #--> 1_000_007
 
 proff()
-# Executed in 3.42 second(s) in Ring 1.21
+# Executed in  3.42 second(s) in Ring 1.21
 # Executed in  5.74 second(s) in Ring 1.19 (64 bits)
 # Executed in  6.11 second(s) in Ring 1.19 (32 bits)
 # Executed in 13.13 second(s) in Ring 1.18
@@ -4908,7 +4909,7 @@ proff()
 # Executed in 0.26 second(s) in Ring 1.18
 # Executed in 0.24 second(s) in Ring 1.17
 
-/*-----------------
+/*----------------- #narration #perf #ring
 
 pron()
 
@@ -4924,18 +4925,29 @@ pron()
 	for i = 1 to 8
 		aLarge + aList[i]
 	next
-	# ElapsedTime : 0.48 seconds
+
 
 # Doing the job
 
 	CheckParamsOff()
 
-	o1 = new stzList(aLarge)
-	? o1.FindNth(4, "♥")
-	#--> 1_000_015
+	? @FindNth(aLarge, 4, "♥")
+	#--> 1000015
+
+# Here we use an enhance Ring-find()-based global function.
+# It's far more perforant then using a stzLits object like in:
+
+#	o1 = new stzList(aLarge)
+#	? o1.FindNth(4, "♥")
+
+# In this case, execution time exceeds 42 seconds!
+
+#NOTE
+# You should always prefer this option when the items you are
+# goinf to find are findable by Ring (numbers or strings).
 
 proff()
-# Executed in 42.98 second(s).
+# Executed in 0.79 second(s).
 
 /*-----------------
 
@@ -4966,10 +4978,7 @@ pron()
 	#--> 1_000_012
 
 proff()
-# Executed in 8.51 second(s) in Ring 1.19 (64 bits)
-# Executed in 9.14 second(s) in Ring 1.19 (32 bits)
-# Executed in 21.51 second(s) in Ring 1.18
-# Executed in 22.74 second(s) in Ring 1.17
+# Executed in 45.05 second(s)
 
 /*----------------
 
@@ -4985,10 +4994,11 @@ next
 
 o1 = new stzList(aLarge)
 ? o1.FindLast("♥")
-#--> 1_000_004
+#--> 1000007
 
 proff()
-# Executed in  6.51 second(s) in Ring 1.19 (64 bits)
+# Executed in  5.00 second(s) in Ring 1.21
+# Executed in  6.51 second(s) in Ring 1.19
 # Executed in 14.32 second(s) in Ring 1.17
 
 /*--------------
@@ -5019,19 +5029,20 @@ StartProfiler()
 	o1 = new stzList(aLargeListOfStr)
 
 	? o1.FindNext("♥", :StartingAt = 100_000)
-	#--> 100_004
+	#--> 100004
 
 	? o1.FindNth(3, "♥")
-	#--> 1_00_007
+	#--> 100007
 
 	? o1.FindNthNext(2, "♥", :StartingAt = 2)
-	#--> 1_00_004
+	#--> 100004
 	
 	? o1.FindNthNext(3, "♥", :StartingAt = 12_000)
-	#--> 150_008
+	#--> 150008
 
 StopProfiler()
-# Executed in 3.51 second(s) in Ring 1.19 (64 bits)
+# Executed in 2.70 second(s) in Ring 1.21
+# Executed in 3.51 second(s) in Ring 1.19
 # Executed in 7.55 second(s) in Ring 1.17
 
 /*------------
@@ -5047,7 +5058,7 @@ o1 = new stzString("12♥4♥67")
 #--> 3
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*------------
 
@@ -5062,7 +5073,8 @@ o1 = new stzList([ "1", "2", "♥", "4", "♥", "6", "7" ])
 #--> 5
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*------------ #perf
 
@@ -5086,12 +5098,6 @@ StartProfiler()
 	for i = 1 to 10
 		aLargeListOfStr + "_"
 	next i
-
-	#NOTE
-	# Internally, FindNthPrevious() useses native
-	# ring_reverse() function which has a good performance:
-	# 
-	# ring_reverse(aLargeListOfStr)
 # 
 
 # Finding previous "♥"
@@ -5102,14 +5108,17 @@ StartProfiler()
 	#--> 3
 
 	? o1.FindNthPrevious(2, "♥", :StartingAt = 120_000)
-	#--> 119999
+	#--> 100004
 
 	? o1.FindNthPrevious(3, "♥", :StartingAt = 150_000)
-	#--> 149999
+	#--> 3
+
+	? o1.FindPrevious("♥", :StartingAt = 150_000)
+	#--> 100007
 
 StopProfiler()
-# Executed in 1.62 second(s) in Ring 1.19 (64 bits)
-# Executed in 7.51 second(s)
+# Executed in 2.15 second(s) in Ring 1.21
+# Executed in 7.51 second(s) in Ring 1.20
 
 /*------------ #ring
 
@@ -5178,7 +5187,7 @@ StopProfiler()
 # Executed in 0.01 second(s)
 
 /*===== #ring #perf #narration
-*/
+
 StartProfiler()
 
 # When searching for elements in a list, always start by
