@@ -15076,19 +15076,26 @@ class stzList from stzObject
 
 	def RemoveItemsAtPositions(panPos)
 
-		nLen = len(panPos)
+		# Early chekcs
+
+		nLenPos = len(panPos)
+		if nLenPos = 0
+			return
+		ok
+
+		if len(@aContent) = 0
+			return
+		ok
+
+		# Checking params
 
 		if CheckParams()
 
 			if NOT isList(panPos)
 				StzRaise("Incorrect pram! panPos must be a list.")
 			ok
-			
-			if nLen = 0
-				return
-			ok
 	
-			for i = 1 to nLen
+			for i = 1 to nLenPos
 				if isString(panpos[i])
 					if panPos[i] = :First or panPos[i] = :FirstPosition
 						paPos[i] = 1
@@ -15101,9 +15108,11 @@ class stzList from stzObject
 
 		ok
 
+		# Doing the job
+
 		anPosSorted = ring_sort(panPos)
-		
-		for i = nLen to 1 step -1
+
+		for i = nLenPos to 1 step -1
 			ring_remove(@aContent, anPosSorted[i])
 		next
 
