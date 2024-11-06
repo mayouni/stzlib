@@ -147,7 +147,7 @@ func Proff()
 		cElapsed = "almost 0"
 	ok
 
-	? NL + "Executed in " + cElapsed + " second(s)."
+	? NL + "Executed in " + cElapsed + " second(s) in Ring " + ring_version()
 	_time0 = 0
 	STOP()
 

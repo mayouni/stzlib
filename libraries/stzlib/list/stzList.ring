@@ -16358,7 +16358,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractNextST(item, pnStartingAt)
-		return This.ExtractNextST(item, pnStartingAt, TRUE)
+		return This.ExtractNextSTCS(item, pnStartingAt, TRUE)
 
 		#< @FunctionFluentForm
 

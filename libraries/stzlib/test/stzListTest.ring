@@ -4081,7 +4081,7 @@ o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
 #--> [ 1, 2, "♥", 4, 6, "♥" ]
 
 StopProfiler()
-# Executed in almost 0 second(s).
+# Executed in almost 0 second(s) in Ring 1.21
 
 /*-----------
 
