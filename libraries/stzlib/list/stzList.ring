@@ -15988,12 +15988,10 @@ class stzList from stzObject
 	#--------------------------------------------#
 
 	def ExtractNthOccurrenceCS(n, pItem, pCaseSensitive)
-		if This.FindNthOccurrenceCS(n, pItem, pCaseSensitive) > 0
-			This.RemoveNthOccurrenceCS(n, pItem, pCaseSensitive)
-			return pItem
-		else
-			StzRaise("Can't extract! The list does not contain n occurrences of pItem.")
-		ok
+		nPos = This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+		result = This.ItemAtPosition(n)
+		This.RemoveItemAtPosition(n)
+		return result
 
 		#< @FunctionAlternativeFroms
 
@@ -16142,7 +16140,7 @@ class stzList from stzObject
 	#---------------------------------------------#
 
 	def ExtractLastCS(pItem, pCaseSensitive)
-		nLast = This.NumberOfOcurrencesCS(pItem, pCaseSensitive)
+		nLast = This.NumberOfOccurrencesCS(pItem, pCaseSensitive)
 		return This.ExtractNthOccurrenceCS(nLast, pItem, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
@@ -31852,9 +31850,24 @@ class stzList from stzObject
 	#-----------------------------------------------------#
 	
 	def NumberOfOccurrenceCS(pItem, pCaseSensitive)
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
-			pItem = pItem[2]
+
+		#WARNING // Risky implementation!
+
+		# I use the list stringifuing technique for performance, but!
+
+		# ~> If ToCoode() changes its ouput format in the future,
+		# and the items are nolonger separated by " ,", neigher the last
+		# two chars are " ]", then the function will be wrong!
+
+		#TODO // Think of a more robust solution!
+
+		if CheckParams()
+			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+				pItem = pItem[2]
+			ok
 		ok
+
+		# Doing the job
 
 		oListInStr = new stzString( This.ToCodeQ().LastNCharsRemoved(2) + ", ]" )
 
