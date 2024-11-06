@@ -4200,7 +4200,7 @@ func Unicode(p)
 		return nResult
 
 	but isList(p)
-		anResult = StzList(p).Unicode()
+		anResult = StzListQ(p).Unicode()
 		return anResult
 
 	else
@@ -4226,7 +4226,7 @@ func HexUnicode(p)
 		return nResult
 
 	but isList(p)
-		anResult = StzList(p).HexUnicode()
+		anResult = StzListQ(p).HexUnicode()
 		return anResult
 
 	else
