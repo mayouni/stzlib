@@ -15857,7 +15857,7 @@ class stzList from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractMany(paItems)
-		return This.ExtractManyCS(paItems, :pCaseSensitive = TRUE)
+		return This.ExtractManyCS(paItems, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -39500,6 +39500,7 @@ def IndexBy(pcPosOrOccurr)
 	# StzListQ(this.Content()).Stringified()
 
 	def FindAllOccurrencesCS(pItem, pCaseSensitive)
+
 		/* EXAMPLE
 
 		o1 = new stzList([ "ring", "php", "ring", "ring", "_" ])
@@ -39913,8 +39914,8 @@ def IndexBy(pcPosOrOccurr)
 
 		# Trying to use the Ring native find() function
 
-		nPos = @FindNthSTCS(This.Content(), n, pItem, 1, pCaseSensitive)
-? ">> " + nPos
+		nPos = @FindNthCS(This.Content(), n, pItem, pCaseSensitive)
+
 		if nPos != -1
 			return nPos
 
@@ -40260,6 +40261,7 @@ def IndexBy(pcPosOrOccurr)
 	#-------------------------------------------------------#
 	
 	def FindManyCS(paItems, pCaseSensitive)
+
 		/*
 		o1 = new stzList([ :one, :two, :one, :three, :one, :four ])
 		? o1.FindMany([ :one, :two, :four ])
@@ -57879,7 +57881,7 @@ def IndexBy(pcPosOrOccurr)
 			return This.SplitAfterItemQR(pItem)
 
 		def SplitAfterItemQR(pItem)
-			return This.SplitAfterThisItemCSQR(pItem, :pCaseSensitive = TRUE, pcReturnType)
+			return This.SplitAfterThisItemCSQR(pItem, TRUE, pcReturnType)
 
 		#>
 

@@ -58669,7 +58669,7 @@ n1 = Min(aTemp)
 			return This.SplitAfterSubStringQR(pcSubStr)
 
 		def SplitAfterSubStringQR(pcSubStr)
-			return This.SplitAfterThisSubStringCSQR(pcSubStr, :pCaseSensitive = TRUE, pcReturnType)
+			return This.SplitAfterThisSubStringCSQR(pcSubStr, TRUE, pcReturnType)
 
 		#>
 
@@ -83006,7 +83006,7 @@ n1 = Min(aTemp)
 	#-- WITHOUT CASESENSITIVITY
 
 	def ExtractMany(paSubStr)
-		return This.ExtractManyCS(paSubStr, :pCaseSensitive = TRUE)
+		return This.ExtractManyCS(paSubStr, TRUE)
 
 		#< @FunctionAlternativeForms
 

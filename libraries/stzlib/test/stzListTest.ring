@@ -3935,7 +3935,7 @@ StopProfiler()
 # Executed in 0.07 second(s)
 
 /*===========
-
+*/
 StartProfiler()
 
  # Extract(item) removes the item from the list and returns it
@@ -3949,9 +3949,10 @@ o1 = new stzList([ "A", "B", "_", "C" ])
 #--> [ "A", "B", "C" ]
 
 StopProfiler()
-#--> Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in Ring 1.20
 
-/*-----------///////////
+/*-----------
 
 StartProfiler()
 
@@ -3963,7 +3964,8 @@ StartProfiler()
 	#--> #--> [ "A", "B", "C" ]
 
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.03 second(s) in Ring 1.20
 
 /*-----------
 
@@ -3982,7 +3984,7 @@ StopProfiler()
 # Executed in 0.01 second(s) in Ring 1.20
 
 /*-----------
-
+*/
 StartProfiler()
 
 o1 = new stzList([ "A", "_", "B", "C" ])
@@ -3997,7 +3999,7 @@ StopProfiler()
 # Executed in 0.02 second(s) in Ring 1.20
 
 /*-----------
-*/
+
 pron()
 
 ? @FindNth([ "_", "A", "_", "B", "C" ], 2, "_")
@@ -4007,16 +4009,18 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*-----------
-*/
+
 StartProfiler()
 
 o1 = new stzList([ "_", "A", "_", "B", "C" ])
 ? o1.FindNthOccurrence(2, "_")
+#--> 3
 
 StopProfiler()
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*-----------
-*/
+
 StartProfiler()
 
 o1 = new stzList([ "_", "A", "B", "C" ])
