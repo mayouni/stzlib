@@ -4066,9 +4066,10 @@ o1 = new stzList([ 1, 2, "♥", "♥", "♥", 3, 4 ])
 #--> [1, 2, 3, 4]
 
 StopProfiler()
+# Executed in almost 0 second(s).
 
 /*-----------
-
+*/
 StartProfiler()
 
 o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
@@ -4080,9 +4081,10 @@ o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
 #--> [ 1, 2, "♥", 4, 6, "♥" ]
 
 StopProfiler()
+# Executed in almost 0 second(s).
 
 /*-----------
-*/
+
 StartProfiler()
 
 o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
@@ -4094,6 +4096,7 @@ o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
 #--> [ 1, 2, 4, "♥", 6, "♥" ]
 
 StopProfiler()
+# Executed in almost 0 second(s).
 
 /*===========
 
