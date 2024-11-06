@@ -5111,6 +5111,45 @@ StopProfiler()
 # Executed in 1.62 second(s) in Ring 1.19 (64 bits)
 # Executed in 7.51 second(s)
 
+/*------------ #ring
+
+pron()
+
+? find([ "A", "B", [ 1, 2, 3 ], "C" ], "C")
+#--> 4
+
+? find([ "A", "B", [ 1, 2, 3 ], "C" ], [ 1, 2, 3 ])
+#--> ERROR: Bad parameter type!
+
+proff()
+
+/*------------
+
+StartProfiler()
+
+aList = [ "_", "_", "♥", "_", "_", "♥", "_" ]
+
+? @FindFirst(aList, "♥")
+#--> 3
+
+? @FindLast(aList, "♥")
+#--> 6
+
+? @FindNext(aList, "♥", :StartingAt = 3)
+#--> 6
+
+? @FindPrevious(aList, "♥", :StartingAt = 6)
+#--> 3
+
+? @FindNthNext(aList, 1, "♥", :StartingAt = 3)
+#--> 6
+
+? @FindNthPrevious(aList, 2, "♥", :StartingAt = 7)
+#--> 3
+
+StopProfiler()
+# Executed in almost 0 second(s).
+
 /*------------
 
 StartProfiler()
@@ -5136,7 +5175,79 @@ o1 = new stzList([ "_", "_", "♥", "_", "_", "♥", "_" ])
 #--> 3
 
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
+
+/*===== #ring #perf #narration
+*/
+StartProfiler()
+
+# When searching for elements in a list, always start by
+# checking if you can use the global @Find...() functions
+# provided by Softanza, before using an stzList object.
+
+# These functions can be used when the items you’re looking for
+# are either numbers or lists. Otherwise, the use of stzList is necessary.
+
+# As you’ll see in this example and the one that follows,
+# choosing the right approach can lead to significant performance gains.
+
+# In this example, we use the @Find... global functions
+# (execution time: 0.78 second(s))
+
+# In the following example, we perform the same task
+# using an stzList object (execution time: 12.14 seconds)
+
+
+# Fabricating a large list of strings (more then 150K items)
+
+	aLargeListOfStr = [ "_", "_" ]
+	for i = 1 to 100_000
+		aLargeListOfStr + "_"
+	next
+	
+	aLargeListOfStr + "♥" + "_" + "_" + "♥"
+	
+	for i = 1 to 50_000
+		aLargeListOfStr + "_"
+	next i
+
+# Finding the first occurrence of "♥" in the list
+
+	? @FindFirst(aLargeListOfStr, "♥")
+	#--> 100003
+
+# Finding the last occurrence of "♥" in the list
+
+	? @FindLast(aLargeListOfStr, "♥")
+	#--> 100006
+
+# Finding the 2nd occurrence of "♥" in the list
+
+	? @FindNthST(aLargeListOfStr, 2, "♥", :StartingAt = 1)
+	#--> 100006
+
+# Finding the next occurrence of "♥" in the list starting at position 3
+
+	? @FindNext(aLargeListOfStr, "♥", :StartingAt = 3)
+	# 100003
+
+# Finding the next 2nd occurrence of "♥" in the list starting at position 3
+
+	? @FindNthNext(aLargeListOfStr, 2, "♥", :StartingAt = 3)
+	#--> 100006
+
+# Finding previous occurrence of "♥" in the list starting at position 120_000
+
+	? @FindPrevious(aLargeListOfStr, "♥", :StartingAt = 120_000)
+	#--> 100006
+
+# Finding 2nd oprevious occurrence of "♥" in the list starting at position 120_000
+
+	? @FindNthPrevious(aLargeListOfStr, 2, "♥", :StartingAt = 120_000)
+	#--> 1003
+
+proff()
+# Executed in 0.78 second(s).
 
 /*------------
 
@@ -5154,6 +5265,7 @@ StartProfiler()
 	for i = 1 to 50_000
 		aLargeListOfStr + "_"
 	next i
+
 
 # Find "♥" in several ways
 	o1 = new stzList(aLargeListOfStr)
@@ -5179,11 +5291,11 @@ StartProfiler()
 	? o1.FindPrevious("♥", :StartingAt = 120_000)
 	#--> 100006
 
-	? o1.FindNthPrevious(2, "♥", :StartingAt = 33)
-	#--> 32
+	? o1.FindNthPrevious(2, "♥", :StartingAt = 120_000)
+	#--> 1003
 
 StopProfiler()
-# Executed in 5.54 second(s) in Ring 1.17
+# Executed in 11.90 second(s) in Ring 1.21
 # Executed in 31.56 second(s) in Ring 1.17
 
 /*------------
@@ -5197,8 +5309,8 @@ o1 = new stzList(1:10)
 proff()
 # Executed in almost 0 second(s).
 
-/*------------ TODO, Check performance
-*/
+/*------------
+
 StartProfiler()
 
 # Fabricating a list of strings (more then 10K items)
