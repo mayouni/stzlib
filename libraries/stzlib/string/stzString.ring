@@ -78514,7 +78514,7 @@ n1 = Min(aTemp)
 			return This
 
 	def SectionsRempalcedByMany(paSections, pacSubStr)
-		cResult = This.RepalceSectionsByManyQ(paSections, pacSubStr).Content()
+		cResult = This.ReplaceSectionsByManyQ(paSections, pacSubStr).Content()
 		return cResult
 
 	  #----------------------------------------------------------#
@@ -78529,7 +78529,7 @@ n1 = Min(aTemp)
 			return This
 
 	def SectionsRempalcedByManyXT(paSections, pacSubStr)
-		cResult = This.RepalceSectionsByManyXTQ(paSections, pacSubStr).Content()
+		cResult = This.ReplaceSectionsByManyXTQ(paSections, pacSubStr).Content()
 		return cResult
 
 	  #---------------------------------#

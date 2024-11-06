@@ -38654,8 +38654,10 @@ def IndexBy(pcPosOrOccurr)
 	def ItemsThatAreListsAtAnyLevel_TheirPaths()
 		aResult = []
 		aInfo = This.ItemsThatAreListsAtAnyLevelXT()
-		for info in aInfo
-			aResult + info[1][2]	// GetItemByPath(x,y) : Generalize!!!
+		nLen = len(aInfo)
+
+		for i = 1 to nLen
+			aResult + aInfo[i][1][2]	// GetItemByPath(x,y) : Generalize!!!
 		next
 		
 		return aResult
@@ -40740,7 +40742,7 @@ def IndexBy(pcPosOrOccurr)
 			return This.ContainsSubList(paSubList)
 
 		#>
-
+		
 	  #======================================================#
 	 #  CHECKING IF THE LIST CONTAINS AN ITEM AT ANY LEVEL  #
 	#======================================================#
@@ -40906,7 +40908,7 @@ def IndexBy(pcPosOrOccurr)
 
 	// Finding pItem at any level of the list
 
-	def DeepFindCS(pItem, pCaseSensitive) # TODO: Check the correctness of output
+	def DeepFindCS(pItem, pCaseSensitive) 
 		/* EXAMPLE
 
 		o1 = new stzList([
