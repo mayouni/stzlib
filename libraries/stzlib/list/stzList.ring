@@ -24055,6 +24055,11 @@ class stzList from stzObject
 		def ContainsOnlyThisItemCS(pItem, pCaseSensitive)
 			return This.ItemsAreEqualToCS(pItem, pCaseSensitive)
 
+		#--
+
+		def AllItemsAreCS(pItem, pCaseSensitive)
+			return This.ItemsAreEqualToCS(pItem, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -24077,6 +24082,11 @@ class stzList from stzObject
 			return This.ItemsAreEqualTo(pItem)
 	
 		def ContainsOnlyThisItem(pItem)
+			return This.ItemsAreEqualTo(pItem)
+
+		#--
+
+		def AllItemsAre(pItem)
 			return This.ItemsAreEqualTo(pItem)
 
 		#>
@@ -24114,6 +24124,8 @@ class stzList from stzObject
 		next
 		return bResult
 
+		#< @FunctionAlternativeForms
+
 		def ItemsAreAllListsWithSameNumberOfItems()
 			return This.ContainsOnlyListsWithSameNumberOfItems()
 
@@ -24123,6 +24135,35 @@ class stzList from stzObject
 		def IsMadeOfListsWithSameNumberOfItems()
 			return This.ContainsOnlyListsWithSameNumberOfItems()
 
+		#--
+
+		def ContainsOnlyUniformLists()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
+		def ItemsAreAllUniformLists()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
+		def AllItemsAreUniformLists()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
+		def IsMadeOfUniformLists()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
+		#--
+
+		def ContainsOnlyUniSizeLists()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
+		def ItemsAreAllUniSizeLists()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
+		def AllItemsAreUniSizeLists()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
+		def IsMadeOfUniSizeLists()
+			return This.ContainsOnlyListsWithSameNumberOfItems()
+
+		#>
 	  #-----------------------------------------------------------------#
 	 #  CHECKING IF ALL ITEMS ARE STRINGS CONTAINING VALID RING CODES  #
 	#-----------------------------------------------------------------#
@@ -26263,6 +26304,13 @@ class stzList from stzObject
 
 			return This.IsEqualToCS(paOtherList, pCaseSensitive)
 
+		def EqualsCS(paOtherList, pCaseSensitive)
+			return This.IsEqualToCS(paOtherList, pCaseSensitive)
+
+		#>
+
+		#< @FunctionNegativeForm
+
 		def IsNotEqualToCS(paOtherList, pCaseSensitive)
 			return NOT This.IsEqualToCS(paOtherList, pCaseSensitive)
 
@@ -26295,9 +26343,15 @@ class stzList from stzObject
 			def IsEqualQ(paOtherList)
 				return This.IsEqualToQ(paOtherList)
 
+		def Equals(paOtherList)
+			return This.IsEqualTo(paOtherList)
+
+			def EqualsQ(paOtherList)
+				return This.IsEqualToQ(paOtherList)
+
 		#>
 
-		#< @FunctionPassiveForm
+		#< @FunctionNegativeForm
 
 		def IsNotEqualTo(paOtherList)
 			return NOT This.IsEqualTo(paOtherList)
@@ -42478,6 +42532,28 @@ def IndexBy(pcPosOrOccurr)
 
 		#>
 
+	  #====================================================#
+	 #  CHECKING IF ALL THE ITEMS VERY A GIVEN CONDITION  #
+	#====================================================#
+
+	#TODO // Reconsider this function when CheckW() is reincluded
+
+	def ItemsHaveCS(pcCondition, pCaseSensitive)
+		bResult = This.EqualsCS(This.ItemsW(pcCondition), pCaseSensitive)
+		return bResult
+
+	def ItemsHave(pcCondition)
+		return This.ItemsHaveCS(pcCondition, TRUE)
+
+	#-- XTendedForm
+
+	def ItemsHaveCSXT(pcCondition, pCaseSensitive)
+		bResult = This.EqualsCS(This.ItemsWXT(pcCondition), pCaseSensitive)
+		return bResult
+
+	def ItemsHaveXT(pcCondition)
+		return This.ItemsHaveCSXT(pcCondition, TRUE)
+
 	  #===============================================#
 	 #   GETTING ITEMS VERIFYING A GIVEN CONDITION   #
 	#===============================================#
@@ -50456,6 +50532,9 @@ def IndexBy(pcPosOrOccurr)
 	def Are(p)
 		return This.AreXT(p, :EvalDirection = :Default)
 
+		def ItemsAre(p)
+			return This.Are(p)
+
 	def AreXT(p, paEvalDirection)
 
 		# Managing the params
@@ -50573,6 +50652,9 @@ def IndexBy(pcPosOrOccurr)
 
 			return bResult
 		ok
+
+		def ItemsAreXT(p, paEvalDirection)
+			return This.AreXT(p, paEvalDirection)
 
 	  #================================#
 	 #    USUED FOR NATURAL-CODING    #

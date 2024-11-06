@@ -4096,13 +4096,13 @@ o1 = new stzList([ 1, 2, "♥", 4, "♥", 6, "♥" ])
 StopProfiler()
 
 /*===========
-
+*/
 StartProfiler()
 
-? Q([ "ONE", "ONE", "ONE" ]).ItemsHave('{ len(@item) = 3 }')
+? Q([ "ONE", "ONE", "ONE" ]).ItemsHaveXT('{ len(@item) = 3 }')
 #--> TRUE
 
-? Q([ "One", "Two", "Three" ]).ItemsAre(:Strings)
+? Q([ "One", "Two", "Three" ]).Are(:Strings)
 #--> TRUE
 
 ? Q(1:5).ItemsAre(:Numbers)
@@ -4115,19 +4115,36 @@ StartProfiler()
 #--> TRUE
 
 StopProfiler()
-# Executed in 0.47 second(s)
+# Executed in 0.24 second(s) in Ring 1.19
+# Executed in 0.47 second(s) in Ring 1.19
+
+/*----------
+
+pron()
+
+o1 = new stzList([
+	[ "A", "B", "C" ],
+	[ 1, 2, 3 ],
+	[ NULL, NULL, [] ]
+])
+
+? o1.IsMadeOfUniformLists() # Or more precisely: IsMadeOfUnisizeLists()
+#--> TRUE
+
+proff()
+# Executed in almost 0 second(s).
 
 /*----------
 
 StartProfiler()
 
-	? Q([ "♥", "♥", "♥" ]).AllItemsAre("♥")
+	? Q([ "♥", "♥", "♥" ]).IsMadeOfItem("♥")
 	#--> TRUE
 
 	? Q([ 12, 12, 12 ]).AllItemsAre(12)
 	#--> TRUE
 
-	? Q([ 1:3, 1:3, 1:3 ]).AllItemsAre(1:3)
+	? Q([ 1:3, 1:3, 1:3 ]).ContainsOnly(1:3)
 	#--> TRUE
 
 StopProfiler()
@@ -4135,7 +4152,7 @@ StopProfiler()
 # Executed in 0.41 second(s) in Ring 1.17
 
 /*==========
-*/
+
 pron()
 
 o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
@@ -4151,7 +4168,6 @@ o1 = new stzList([ "_", "ONE", "_", "_", "TWO", "_", "THREE", "*", "*" ])
 
 ? @@( o1.DuplicatesZ() ) # Or DuplicatesAndTheirPositions()
 #--> [ [ "_", [ 3, 4, 6 ] ], [ "*", [ 9 ] ] ]
-# Executed in 0.19 second(s)
 
 o1.RemoveDuplicates()
 ? @@( o1.Content() )

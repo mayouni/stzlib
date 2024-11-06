@@ -73,10 +73,16 @@ class stzNullObject from stzObject
 		def IsEqualToQ(p)
 			return This
 
+		def EqualsQ(p)
+			return This
+
 	def IsEqualToCS(p, pCaseSensitive)
 		return FALSE
 
-		def ISEqualTo(p)
+		def IsEqualTo(p)
+			return FALSE
+
+		def Equals(p)
 			return FALSE
 
 	def StzType()
