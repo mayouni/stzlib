@@ -2120,7 +2120,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*=====
-*/
+
 pron()
 
 ? IsChar(12.5)
@@ -2157,15 +2157,14 @@ pron()
 ? Q([ "a", "b", "c" ]).IsListOfChars()
 #--> TRUE
 
-? Q(3).IsChar()
-
 ? Q([ 1, 2, 3 ]).IsListOfChars()
 #--> TRUE
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*=====
-*/
+
 pron()
 
 ? Q(1:3).Unicodes()
@@ -2705,38 +2704,6 @@ o1.RemoveDupOrigins()
 proff()
 # Executed in almost 0 second(s).
 
-/*------------ #narration #todo #data-cleansing
-
-pron()
-
-# Example log entries with timestamps and messages
-
-aLogEntries = [
-	"2024-01-01 10:00:00 ERROR Database connection failed",
-    	"2024-01-01 10:00:00 ERROR Database connection failed",  	# Duplicate
-    	"2024-01-01 10:00:02 INFO Connection restored",
-    	"2024-01-01 10:00:02 INFO Connection restored",         	# Duplicate
-	"2024-01-01 10:00:02 INFO Connection restored",			# Duplicated
-    	"2024-01-01 10:00:03 WARN High memory usage",
-	"2024-01-01 10:00:03 WARN High memory usage",			# Duplicated
-	"2024-01-01 10:00:03 WARN High memory usage"			# Duplicated
-]
-
-oLogs = new stzList(aLogEntries)
-
-# Remove duplicate log entries
-
-oLogs.RemoveDuplicates()
-? @@NL(oLogs.Content())
-#--> [
-#	"2024-01-01 10:00:00 ERROR Database connection failed",
-#	"2024-01-01 10:00:02 INFO Connection restored",
-#	"2024-01-01 10:00:03 WARN High memory usage"
-# ]
-
-proff()
-# Executed in almost 0 second(s).
-
 /*-----
 
 pron()
@@ -3220,7 +3187,7 @@ o1 = new stzList([ "a", "bcd", "♥", 5, "b", "♥♥♥", [1, 2] ])
 proff()
 # Executed in 0.12 second(s)
 
-/*========= #TODO #narration Ring List2Code() VS Softanza ListToCode()
+/*========= #narration Ring List2Code() VS Softanza ListToCode()
 
 pron()
 
@@ -3239,7 +3206,6 @@ pron()
 ? ListToCode([ [ 6, 8 ], [ 16, 18 ] ]) + NL # Softanza function
 #--> "[ [ 6, 8 ], [ 16, 18 ] ]"
 
-#--
 ? "---" + NL
 
 ? List2Code([ "A", '"B"', "'C'" ]) + NL # Ring standard function
@@ -3253,7 +3219,8 @@ pron()
 #--> [ "A", '"B"', "'C'" ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.02 second(s) in Ring 1.20
 
 #NOTE: Also, Softanza version is more performant (testit for a large list)
 
@@ -8020,10 +7987,26 @@ proff()
 # Executed in almost 0 second(s).
 
 /*----------------- #TODO check error
-
+*/
 pron()
 
+? Q("str") = "str"
+#--> TRUE
+
+? Q("str") = Q("str") = "str"
+#--> TRUE
+
+? Q(2+5) = 7
+#--> TRUE
+
+? Q(2+5) = Q(3+4) = 7
+#--> TRUE
+
 ? Q(2+5) = Q(3+4) = Q(9-2) = 7
+#--> TRUE
+
+? Q(1:3) = Q(3:1) = [3, 1, 2]
+# Executed in 0.04 second(s) in Ring 1.21
 
 proff()
 

@@ -4468,9 +4468,9 @@ class stzObject
 			StzRaise("Can't cast the object into a number.")
 		ok
 
-	  #------------------------------#
+	  #==============================#
 	 #     OPERATORS OVERLOADING    #
-	#------------------------------#
+	#==============================#
 
 	/*
 		TODO: Operators should adopt same semantics in all classes...
@@ -4479,7 +4479,11 @@ class stzObject
 	def operator(pcOp, pValue)
 		
 		if pcOp = "="
-			return This.IsEqualTo(pValue)
+			if @IsStzObject(pValue)
+				return pValue
+			else
+				return This.IsEqualTo(pValue)
+			ok
 		ok
 
 	  #============================================================#
