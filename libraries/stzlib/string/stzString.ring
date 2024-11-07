@@ -52427,18 +52427,6 @@ n1 = Min(aTemp)
 		# 
 		# ~> More concise syntax!
 
-		aTemp = []
-		nLenTemp = len(paOptions[1])
-		for i = 1 to nLenTemp
-			if isString(paOptions[1][i])
-				aTemp + [ paOptions[1][i], TRUE ]
-			but isList(paOptions[1][i]) and len(paOptions[1][i]) = 2 and isString(paOptions[1][i][1])
-				aTemp + paOptions[1][i]
-			ok
-			
-		next
-
-		paOptions = aTemp
 
 		# Checking params
 
@@ -52665,7 +52653,7 @@ n1 = Min(aTemp)
 	#===========================================#
 
 	def VizFindBoxedCS(pcSubStr, pCaseSensitive)
-		return This.VizFindBoxedXTCS(pcSubStr, :Boxed, CaseSensitive(pCaseSensitive))
+		return This.VizFindBoxedXTCS(pcSubStr, [ :Boxed = TRUE ], CaseSensitive(pCaseSensitive))
 
 		def VizFindBoxifiedCS(pcSubStr, pCaseSensitive)
 			return This.VizFindBoxedCS(pcSubStr, pCaseSensitive)
@@ -52683,7 +52671,7 @@ n1 = Min(aTemp)
 	#-------------------------------------------#
 
 	def VizFindBoxedRoundedCS(pcSubStr, pCaseSensitive)
-		return This.VizFindBoxedXTCS(pcSubStr, [ :Boxed, :Rounded], CaseSensitive(pCaseSensitive))
+		return This.VizFindBoxedXTCS(pcSubStr, [ :Boxed = TRUE, :Rounded = TRUE ], CaseSensitive(pCaseSensitive))
 
 		def VizFindBoxifiedRoundedCS(pcSubStr, pCaseSensitive)
 			return This.VizFindBoxedRoundedCS(pcSubStr, pCaseSensitive)
@@ -52701,50 +52689,23 @@ n1 = Min(aTemp)
 	#-------------------------------------------------#
 
 	def VizFindBoxedXTCS(pcSubstr, paOptions, pCaseSensitive)
+		paOptions + :Hilighted = Q( This.FindCSZZ(pcSubStr, pCaseSensitive) ).Flattened() 
+		cResult = This.ToStzListOfChars().BoxXT(paOptions)
+		return cResult
 
-		# Supporting one option provided in a string:
-		# ~> VizFindBoxedCSXT( :Dashed )
 
-		if isString(paOptions)
-			paTemp = [] + [ paOptions, TRUE ]
-			paOptions = paTemp
-		ok
 
+
+/*
 		if NOT isList(paOptions)
 			StzRaise("Incorrect param type! paOptions must be a list.")
 		ok
-
-		# Allowing giving options in string form like:
-		# 
-		# 	VizFindBoxedCSXT([ :Solid, :Dashed, :Rounded,
-		# 		:Numbered, :NumberedXT,
-		# 		:ShowPositions, :ShowPositions,
-		# 		:Spacified ])
-		# 
-		# without being constrained by providing them in
-		# the hashlist form:
-		# 
-		# 	VizFindBoxedCSXT([ :Solid = TRUE, :Dashed = TRUE, ... ])
-		# 
-		# ~> More concise syntax!
-
-		aTemp = []
-		nLenTemp = len(paOptions)
-		for i = 1 to nLenTemp
-			if isString(paOptions[i])
-				aTemp + [ paOptions[i], TRUE ]
-			else
-				aTemp + paOptions[i]
-			ok
-		next
-
-		paOptions = aTemp
 
 		# Checking the hashlist of params
 
 		# Cleansing paOptions from any :Hilight option
 		# because we will add add ourselves to the opttions sets
-		# befrore delegating the work to stzListOfChars boxing service
+		# before delegating the work to stzListOfChars boxing service
 
 		anTemp = []
 		nLen = len(paOptions)
@@ -52769,10 +52730,10 @@ n1 = Min(aTemp)
 			# the stzListOfChars class which does not care of it.
 	
 			# ~> We do nothing here because stzListOfChars will manage it.
-	
+
 		cBoxed = This.CharsBoxedXT(paOptions)
 		return cBoxed
-
+*/
 		#< @FunctionAlternativeForms
 
 		def VizFindBoxifiedXTCS(pcSubstr, paOptions, pCaseSensitive)

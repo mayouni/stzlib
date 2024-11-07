@@ -657,55 +657,9 @@ class stzListOfChars from stzListOfStrings
 		╰───┴───┴─•─┴───╯	
 		*/
 
-		# Supporting one option provided in a string:
-		# ~> BoxXT( :Dashed )
-
-		if isString(paBoxOptions)
-			paTemp = [] + [ paBoxOptions, TRUE ]
-			paBoxOptions = paTemp
-		ok
-
-		if isList(paBoxOptions) and len(paBoxOptions) = 2 and
-		   isString(paBoxOptions[1])
-
-			paTemp = [] + paBoxOptions
-			paBoxOptions = paTemp
-		ok
-
 		if NOT isList(paBoxOptions)
 			StzRaise("Incorrect param type! paBoxOptions must be a list.")
 		ok
-
-		# Allowing giving options in string form like:
-		# 
-		# 	BoxXT([ :Solid, :Dashed, :Rounded,
-		# 		:Numbered, :NumberedXT,
-		# 		:ShowPositions, :ShowPositions,
-		# 		:Spacified, :Sectioned ])
-		# 
-		# without being constrained by providing them in
-		# the hashlist form:
-		# 
-		# 	BoxXT([ :Solid = TRUE, :Dashed = TRUE, ... ])
-		# 
-		# ~> More concise syntax!
-
-		aTemp = []
-		nLenTemp = len(paBoxOptions)
-		for i = 1 to nLenTemp
-
-			if isString(paBoxOptions[i])
-				aTemp + [ paBoxOptions[i], TRUE ]
-
-			but isList(paBoxOptions[i]) and
-			    len(paBoxOptions[i]) = 2 and
-			    isString(paBoxOptions[i][1])
-
-				aTemp + paBoxOptions[i]
-			ok
-		next
-
-		paBoxOptions = aTemp
 
 		# Checking the hashlist of params
 
@@ -1133,7 +1087,6 @@ class stzListOfChars from stzListOfStrings
 			but NOT bSectioned and len(anHilighted) > 0
 
 				aSectionsOfNumbers = Q(anHilighted).SplitToSectionsOfN(2)
-
 				nLenSectionsOfNumbers = len(aSectionsOfNumbers)
 
 				acSectionsOfNumbers = []
@@ -1162,7 +1115,7 @@ class stzListOfChars from stzListOfStrings
 					acSegments + cSegment
 
 				next
-	
+
 				oSpaceLine = new stzString(cSpaceLine)
 
 				cNumbersLine = oSpaceLine.ReplaceSectionsByManyQ(aSections, acSegments).
