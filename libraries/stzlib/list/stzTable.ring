@@ -3455,14 +3455,11 @@ Class stzTable from stzObject
 
 	// TODO
 
-	def SectionToRange(paSection) // TODO
-		aResult = []
-		/* ... */
-
-		return aResult
+	def SectionToRange(n1, n2) // TODO
+		StzRaise("Feature not implemented yet!")
 
 	def Range(paPair, paRange) // TODO
-		/* ... */
+		StzRaise("Feature not implemented yet!")
 
 	/// WORKING ON TABLE /////////////////////////////////////////////////////////////////
 
