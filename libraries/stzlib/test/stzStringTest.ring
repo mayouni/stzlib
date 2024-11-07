@@ -16677,27 +16677,27 @@ proff()
 # Executed in 0.01 second(s).
 
 /*----------------- #todo #narration
-*/
+
 pron()
 
 o1 = new stzString("SOFTANZA")
-/*
+
 ? o1.VizFind("A") + NL
 #-->
 # SOFTANZA
 # ----^--^
 
-? o1.VizFindXT("A", :Spacified = TRUE ) + NL
+? o1.VizFindXT("A", :Spacified ) + NL
 #-->
 # S O F T A N Z A
 # --------^-----^
-*/
-? o1.VizFindXT("A", [ :Spacified, :PositionSign = Heart() ]) + NL
+
+? o1.VizFindXT("A", [ :Spacified = TRUE, :PositionSign = Heart() ]) + NL
 #-->
 # S O F T A N Z A
 # --------♥-----♥
-/*
-? o1.VizFindXT("A", [ :Spacified, :PositionSign = Heart(), :Numbered ]) + NL
+
+? o1.VizFindXT("A", [ :Spacified = 1, :PositionSign = Heart(), :Numbered = 1 ]) + NL
 #-->
 # S O F T A N Z A
 # --------♥-----♥
@@ -16705,9 +16705,9 @@ o1 = new stzString("SOFTANZA")
 
 ? o1.VizFindBoxed("A") + NL
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───╮
+# ┌───┬───┬───┬───┬───┬───┬───┬───┐
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
-# ╰───┴───┴───┴───┴─•─┴───┴───┴─•─╯
+# └───┴───┴───┴───┴─•─┴───┴───┴─•─┘
 
 ? o1.VizFindBoxedXT("A", [
 	:PositionSign = Heart(),
@@ -16733,12 +16733,13 @@ o1 = new stzString("SOFTANZA")
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
 # ╰───┴───┴───┴───┴─♥─┴───┴───┴─♥─╯
 #                   5           8
-*/
+
 proff()
-# Executed in 0.23 second(s).
+# Executed in 0.14 second(s) in Ring 1.21
+# Executed in 0.23 second(s) in Ring 1.20
 
 /*----- #narration FLEXIBLE OPTIONS SYNTAX
-*
+
 pron()
 
 o1 = new stzString("SOFTANZA")
@@ -16751,7 +16752,7 @@ o1 = new stzString("SOFTANZA")
 
 # Can be writtent in the fellowing simplified form:
 
-? o1.VizFindBoxedXT("A", [ :Dashed, :Rounded, :Numbered ])
+? o1.VizFindBoxedXT("A", [ :Dashed = 1, :Rounded = 1, :Numbered = 1 ])
 
 # And they both lead to this output:
 
@@ -16761,9 +16762,9 @@ o1 = new stzString("SOFTANZA")
 # ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴─↑─┴╌╌╌┴╌╌╌┴─↑─╯
 #                   5           8
 
-# You can even provide only option in a string:
+# When yu provide one option, enclouse it between [ and ]:
 
-? o1.VizFindBoxedXT( "A", :Rounded )
+? o1.VizFindBoxedXT( "A", [ :Rounded = TRUE ] )
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───╮
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
@@ -16773,15 +16774,17 @@ proff()
 # Executed in 0.12 second(s).
 
 /*-----
-*/
+
 pron()
 
 o1 = new stzString("SOFTANZA")
 
 ? o1.VizFindBoxedXT("A", [
 	:PositionSign = "↑",
-	:Numbered,
-	:Solid,
+	:Numbered = TRUE,
+	:Solid = TRUE,
+
+	:Rounded = TRUE,
 	:Corners = [ :round, :round, :rect, :rect ]
 
 ]) + NL
@@ -16815,8 +16818,8 @@ o1 = new stzString("..STZ..STZ..STZ")
 
 ? o1.ToStzListOfChars().BoxXT([
 	:Hilighted = Q( o1.FindZZ("STZ") ).Flattened(),
-	:Sectioned,
-	:Numbered
+	:Sectioned = TRUE,
+	:Numbered = TRUE
  ])
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -16826,7 +16829,7 @@ o1 = new stzString("..STZ..STZ..STZ")
 #           11     19           31     39           51     59
 
 proff()
-# Executed in 0.12 second(s).
+# Executed in 0.09 second(s) in Ring 1.21
 
 /*-----
 
@@ -16904,25 +16907,44 @@ proff()
 # Executed in 0.01 second(s).
 
 /*------
-*/
+
 pron()
 
 o1 = new stzString("..STZ..StZ..stz")
 
 # The order of params is defined by the order of name suffixes:
 
-? o1.VizFindBoxedCSXT("STZ", :CS = FALSE, :Numbered)
+? o1.VizFindCSXT("STZ", :CS = FALSE, [ :Numbered = TRUE ])
 
-//? o1.VizFindBoxedXTCS("stz", :Numbered, :CS = FALSE )
+? o1.VizFindXTCS("stz", [ :Numbered = TRUE ], :CS = FALSE )
 
+# They both lead to this output:
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
-# │ . │ . │ S │ T │ Z │ . │ . │ S │ t │ Z │ . │ . │ s │ t │ z │
-# ╰───┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴───╯
-#           11                 31
+# ..STZ..StZ..stz
+# --^----^----^--
+#   3    8    13 
+
 proff()
+# Executed in 0.02 second(s) in Ring 1.21
+
+/*------
+
+pron()
+
+o1 = new stzString("..STZ..StZ..stz...STZ")
+
+# The order of params is defined by the order of name suffixes:
+
+? o1.VizFindBoxedCSXT("STZ", :CS = FALSE, [ :Numbered = TRUE ])
+
+#TODO Knowan issue: when the number of position is Fardi,
+# the last one is not hilighted!
+
+proff()
+# Executed in 0.09 second(s) in Ring 1.21
 
 /*-----
+
 pron()
 
 ? Q("ABTCADNBBABEFACCC").SpacifyQ().vizFind("A")
@@ -16931,7 +16953,7 @@ pron()
 # ^-------^---------^-------^------   
 
 proff()
-# Executed in 0.04 second(s).
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*------------------
 
@@ -16956,7 +16978,7 @@ pron()
 o1 = new stzString("----^----------^----------^-----")
 ? o1.content()
 
-o1.ReplaceByMany("^", [ "5", "16", "27" ])
+o1.ReplaceByMany("^", [ "A", "B", "C" ])
 ? o1.Content()
 
 #--> ----^----------^----------^-----
@@ -16965,7 +16987,7 @@ o1.ReplaceByMany("^", [ "5", "16", "27" ])
 proff()
 # Executed in 0.01 second(s).
 
-/*-----------------
+/*===============
 
 pron()
 
@@ -17002,7 +17024,8 @@ o1.ReplaceSectionsByMany(
 #--> ---^^^----^^^--^^---
 
 proff()
-# Executed in 0.07 second(s).
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.07 second(s) in Ring 1.19
 
 /*------------------
 
@@ -17071,7 +17094,7 @@ o1.ReplaceSectionsByMany([ [1, 3], [7, 9] ], [ "^^^", "vvv" ])
 #--> ^^^---vvv---
 
 proff()
-# Executed in 0.04 second(s).
+# Executed in 0.01 second(s).
 
 /*-------------
 
@@ -17083,7 +17106,7 @@ o1.ReplaceSectionsByMany([ [3, 5], [8,9] ], [ "*", "~" ] )
 #--> --*--~--
 
 proff()
-# Executed in 0.04 second(s).
+# Executed in 0.01 second(s).
 
 /*-------------
 
@@ -17095,7 +17118,8 @@ o1.ReplaceSectionsByMany([ [1, 3], [7,8] ], [ "*", "~" ] )
 # *---~--
 
 proff()
-# Executed in 0.04 second(s).
+# Executed in 0.01 second(s).
+
 /*-------------
 
 pron()
@@ -17111,6 +17135,7 @@ o1.ReplaceSectionsByMany(
 #--> 1---5---9---13--
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*-------------
 
@@ -17123,43 +17148,65 @@ o1 = new stzString("ringringringring")
 # ringringringring
 # ^---^---^---^---
 
-? o1.vizFindXT("ring", :numbered)
+? o1.vizFindXT("ring", :Numbered)
+#-->
+# ringringringring
+# ^---^---^---^---
+# 1   5   9   13 
 
 proff()
-# Executed in 0.05 second(s).
+# Executed in 0.02 second(s).
 
-/*----------------- #narration FINDING THINGS IN THE CHAOS
+/*-------#narration FINDING PATTERNS IN A SEA OF TEXT
+
+# This narration explores methods to locate and highlight recurring 
+# sequences within strings, with both precision and visual assistance.
+
 */
+
 pron()
 
-# Find "ring" in this chaos!
+# Searching for "ring" within a jumble of letters:
 
-o1 = new stzString("dkfjringljdfkljringdfkjdfjringgg")
+o1 = new stzString("fjringljringdjringg")
 
-# Of course, you can use Find() and get the positions in a list:
+# Let's start with a straightforward approach using Find(),
+# which returns the list of positions where "ring" appears:
 
 ? o1.Find("ring")
-#--> [ 5, 16, 27 ]
+#--> [ 3, 9, 15 ]
 
-# But not only this, since you can situate the positions visually
-# by adding the "viz" prefix to thse Find() function:
+# We can go further and add a visual dimension by using
+# the "viz" prefix with Find(), making the positions easy to spot:
 
 ? o1.vizFind("ring") + NL
 #-->
-# dkfjringljdfkljringdfkjdfjringgg
-# ----^----------^----------^-----
+# fjringljringdjringg
+# --^-----^-----^----
 
-# We can show a visual hint of the positions under that, using
-# the XT() suffix after the function name:
+# To gain even more insight, we can add the XT() suffix,
+# providing a numeric guide for each matched position:
 
-? o1.vizFindXT("ring", :numbered)
+? o1.vizFindXT("ring", :numbered) + NL
 #-->
-# dkfjringljdfkljringdfkjdfjringgg
-# ----^----------^----------^-----
-#     5          16         27    
+# fjringljringdjringg
+# --^-----^-----^----
+#   3     9     15       
+
+# For a more sophisticated display, we can box and section the output,
+# the results become both visually structured and detailed:
+
+? o1.vizFindXT("ring", [
+	:Boxed = TRUE, :Rounded = TRUE, :Sectioned = TRUE, :Numbered = TRUE ])
+#-->
+# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
+# │ f │ j │ r │ i │ n │ g │ l │ j │ r │ i │ n │ g │ d │ j │ r │ i │ n │ g │ g │
+# ╰───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───╯
+#           '-----------'           '-----------'           '-----------'
+#           3           6           9         12            15         18
 
 proff()
-# Executed in 0.08 second(s).
+# Code executed in 0.10 second(s) in Ring 1.21
 
 /*----------------- (TODO)
 */
