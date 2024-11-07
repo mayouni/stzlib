@@ -8,7 +8,7 @@ pron()
 #--> [ 1, 2, 4, 5, 6, 8, 10 ]
 
 proff()
-# Executed in 0 second(s).
+# Executed in almost 0 second(s) in Ring 1.21
 
 /*====
 
@@ -23,7 +23,8 @@ o1 = new stzlist([ "me", "and", "all", "the", "others" ])
 #--> TRUE
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.02 second(s) in Ring 1.20
 
 /*----
 
@@ -44,7 +45,8 @@ o1 = new stzlist([ "me", "and", "all", "the", "others" ])
 	#--> TRUE
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*======
 
@@ -58,7 +60,7 @@ o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji", "zai" ], :By = [ "♥", 
 #--> [ "♥", "qt", "♥♥", "pyhton", "♥", "csharp", "♥♥" ]
 
 proff()
-# Executed in 0.01 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
 
 /*-----
 
@@ -74,11 +76,11 @@ o1.ReplaceManyByMany([
 #--> [ "♥", "qt", "♥♥", "pyhton", "♥♥♥", "csharp", "♥", "♥♥♥" ]
 
 proff()
-#--> Executed in 0.02 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.02 second(s) in Ring 1.20
 
 #====
 
-/*
 pron()
 
 ? SectionToRange(3, 7)
@@ -88,7 +90,7 @@ pron()
 #--> [ 3, 7 ]
 
 proff()
-# Executed in 0.01 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
 
 /*========= Stringifying the items of a list
 
@@ -1871,6 +1873,8 @@ proff()
 
 /*============== #TODO check it
 
+pron()
+
 ? IsChar("🌞")
 #!--> FALSE
 #~> Should return TRUE!
@@ -1878,6 +1882,8 @@ proff()
 ? StzCharQ("🌞").Content()
 #!--> Can not create char object!
 #~> Should be able to create it...
+
+proff()
 
 /*=============
 
@@ -2103,12 +2109,55 @@ o1 = new stzList([ 0, "a♥a" ])
 proff()
 # Executed in 0.04 second(s)
 
+/*-----
+
+pron()
+
+? Unicode("Hi")
+#--> [ 72, 105 ]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
 /*=====
+*/
+pron()
+
+? IsChar(12.5)
+#--> FALSE
+
+? IsChar(-7)
+#--> FALSE
+
+? IsChar(14)
+#--> FALSE
+
+? IsChar(6)
+#--> TRUE
+
+? IsChar("A")
+#--> TRUE
+
+? IsChar("م")
+#--> TRUE
+
+? IsChar("♥")
+#--> TRUE
+
+? IsChar("Hi")
+#--> FALSE
+
+proff()
+# Executed in 0.02 second(s) in Ring 1.21
+
+/*-----
 
 pron()
 
 ? Q([ "a", "b", "c" ]).IsListOfChars()
 #--> TRUE
+
+? Q(3).IsChar()
 
 ? Q([ 1, 2, 3 ]).IsListOfChars()
 #--> TRUE
@@ -2116,7 +2165,7 @@ pron()
 proff()
 
 /*=====
-
+*/
 pron()
 
 ? Q(1:3).Unicodes()
@@ -2140,16 +2189,8 @@ pron()
 ? @@( Unicodes([ "a", [ 1, ["b", [ "ring" ] ], 2 ], "d" ]) )
 #--> [ 97, [ 1, [ 98, [ [ 114, 105, 110, 103 ] ] ], 2 ], 100 ]
 
-
 proff()
-
-/*========= Finding objects
-
-pron()
-
-#TODO
-
-proff()
+# Executed in 0.05 second(s) in Ring 1.21
 
 /*========= Replace and DeepReplace
 
@@ -3702,7 +3743,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*============
-*/
+
 pron()
 
 o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7" ])
@@ -3722,14 +3763,15 @@ o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7" ])
 ? o1.Range(3, 3)
 #--> [ "3", "4", "5" ]
 
-? o1.RangeXT(3, -3)
+? o1.RangeXT(3, 3)
 #--> [ "1", "2", "3" ]
 
-? o1.RangeXT(-5, -3)
+? o1.RangeXT(-5, 3)
 #--> [ "1", "2", "3" ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*===========
 
@@ -4074,7 +4116,7 @@ StopProfiler()
 # Executed in 0.01 second(s) in Ring 1.20
 
 /*-----------
-*/
+
 StartProfiler()
 
 o1 = new stzList([ "A", "_", "B", "C" ])

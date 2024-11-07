@@ -14,7 +14,7 @@ func RangeToSection(pnStart, pnRange)
 	return aResult
 
 
-	func @RangToSection(pnStart, pnRange)
+	func @RangeToSection(pnStart, pnRange)
 		return RangeToSection(pnStart, pnRange)
 
 func RangesToSections(panRanges)

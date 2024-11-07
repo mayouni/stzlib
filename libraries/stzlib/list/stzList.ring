@@ -47077,6 +47077,18 @@ def IndexBy(pcPosOrOccurr)
 	#--------------------------------------#
 
 	def RangeXT(pnStart, pnRange)
+		if NOT (isNumber(pnStart) and isNumber(pnRange))
+			StzRaise("Incorrect param types! pnStart and pnRange must be both numbers.")
+		ok
+
+		if NOT pnRange >= 0
+			StzRaise("Incorrect param value! pnRange must be positive.")
+		ok
+
+		if pnStart < 0
+			pnStart = len(@aContent) + pnStart + 1
+		ok
+
 		aSection = @RangeToSection(pnStart, pnRange)
 		aResult = This.SectionXT(aSection[1], aSection[2])
 

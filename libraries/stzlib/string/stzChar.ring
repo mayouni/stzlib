@@ -121,23 +121,31 @@ func IsAsciiChar(c)
 
 	#>
 
-func StringIsChar(pcStr)
-	if NOT isString(pcStr)
+func IsChar(pStrOrNbr)
+	if isString(pStrOrNbr)
+		if isNumber(Unicode(pStrOrNbr))
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	but isNumber(pStrOrNbr)
+
+		cStringified = ""+ pStrOrNbr
+		if substr(cStringified, ".") > 0
+			return FALSE
+		ok
+
+		n = 0+ cStringified
+		if n < 0 or n > 9
+			return FALSE
+		ok
+
+		return TRUE
+
+	else
 		return FALSE
 	ok
-
-	try
-		new stzChar(pcStr)
-		return TRUE
-	catch
-		return FALSE
-	end
-
-	#< @FunctionAlternativeForms
-
-	func IsChar(pcStr)
-		oStzString = new stzString(pcStr)
-		return oStzString.IsChar()
 
 	func @IsChar(pcStr)
 		return IsChar(pcStr)

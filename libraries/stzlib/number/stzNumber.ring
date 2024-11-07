@@ -1629,16 +1629,17 @@ class stzNumber from stzObject
 
 	def IsChar()
 
-		if This.IsDigit()
-			return TRUE
-
-		else
-			return FALSE
-
+		if This.IsInteger()
+			nTemp = This.NumericValue()
+			if nTemp >= 0 and nTemp <= 9
+				return TRUE
+			ok
 		ok
 
+		return TRUE
+
 		def IsAChar()
-			return IsChar()
+			return This.IsChar()
 
 	  #-------------------------#
 	 #   UPDATING THE NUMBER   #
