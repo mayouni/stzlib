@@ -13103,7 +13103,7 @@ class stzList from stzObject
 
 	def ReplaceRange(n, nRange, pNewItem)
 
-		anSection = RangeToSection([ n, nRange ])
+		anSection = @RangeToSection(n, nRange)
 		n1 = anSection[1]
 		n2 = anSection[2]
 
@@ -13163,7 +13163,7 @@ class stzList from stzObject
 
 	def ReplaceEachItemInRange(n, nRange, pNewItem)
 
-		anSection = RangeToSection([ n, nRange ])
+		anSection = @RangeToSection(n, nRange)
 		anPos = ring_sort( StzListOfPairsQ(anSection).ExpandedIfPairsOfNumbers() )
 
 		This.ReplaceItemsAtThesePositions(anPos, pNewItem)
@@ -13185,11 +13185,11 @@ class stzList from stzObject
 	#---------------------------------------------------------------#
 
 	def ReplaceEachItemInManyRanges(panRanges, pNewItem)
-		#TODO: Add params check
-		#TODO: Change for/in loop by for loop
+		#TODO // Add params check
+		#TODO // Change for/in loop by for loop
 
 		for anRange in panRanges
-			anSection = RangeToSection(anRange)
+			anSection = @RangeToSection(anRange[1], anRanges[2])
 			n1 = anSection[1]
 			n2 = anSection[2]
 			This.ReplaceEachItemInSection(n1, n2, pNewItem)
@@ -13228,9 +13228,9 @@ class stzList from stzObject
 	#--------------------------------------------#
 
 	def ReplaceRangeByMany(n, nRange, paOtherListOfItems)
-		#TODO: Add params check
+		#TODO // Add params check
 
-		anSection = RangeToSection([ n, nRange ])
+		anSection = @RangeToSection(n, nRange)
 		n1 = anSection[1]
 		n2 = anSection[2]
 
@@ -13270,7 +13270,7 @@ class stzList from stzObject
 
 	def ReplaceManyRangesByMany(panRanges, paOtherListOfItems)
 		for anRange in panRanges
-			anSection = RangeToSection(anRange)
+			anSection = @RangeToSection(anRange[1], anRange[2])
 			n1 = anSections[1]
 			n2 = anSections[2]
 			This.ReplaceRangeByMany(n, nRange, paOtherListOfItems)
@@ -15326,7 +15326,7 @@ class stzList from stzObject
 
 		anSections = []
 		for anRange in panRanges
-			anSections + RangeToSection(anRange)
+			anSections + @RangeToSection(anRange[1], anRange[2])
 		next
 
 		This.RemoveManySections(anSections)
@@ -47071,6 +47071,16 @@ def IndexBy(pcPosOrOccurr)
 			off
 
 		#>
+
+	  #--------------------------------------#
+	 #  GETTING THE RANGE -- eXTended form  #
+	#--------------------------------------#
+
+	def RangeXT(pnStart, pnRange)
+		aSection = @RangeToSection(pnStart, pnRange)
+		aResult = This.SectionXT(aSection[1], aSection[2])
+
+		return aResult
 
 	  #------------------------------------#
 	 #   GETTING MANY RANGES OF THE LIST  #

@@ -81,10 +81,10 @@ proff()
 /*
 pron()
 
-? SectionToRange([3, 7])
+? SectionToRange(3, 7)
 #--> [ 3, 5 ]
 
-? RangeToSection([3, 5])
+? RangeToSection(3, 5)
 #--> [ 3, 7 ]
 
 proff()
@@ -3690,6 +3690,21 @@ proff()
 
 pron()
 
+o1 = new stzString("123456789")
+
+? o1.SectionXT(5, 3) # Same as Section(3, 5)
+#--> 534
+
+? o1.SectionXT(5, -3)
+#--> 567
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
+/*============
+*/
+pron()
+
 o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7" ])
 
 ? o1.Section(3, 5)
@@ -3698,19 +3713,19 @@ o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7" ])
 ? o1.Section(5, 3)
 #--> [ "3", "4", "5" ]
 
-? o1.Section(3, -3)
+? o1.SectionXT(3, -3)
 #--> [ "3", "4", "5" ]
 
-? o1.Section(-3, 3)
+? o1.SectionXT(-3, 3)
 #--> [ "3", "4", "5" ]
 
 ? o1.Range(3, 3)
 #--> [ "3", "4", "5" ]
 
-? o1.Range(3, -3)
+? o1.RangeXT(3, -3)
 #--> [ "1", "2", "3" ]
 
-? o1.Range(-5, -3)
+? o1.RangeXT(-5, -3)
 #--> [ "1", "2", "3" ]
 
 proff()
@@ -3724,7 +3739,8 @@ pron()
 #--> [ [ 1, "One" ], [ 2, "Two" ], [ 3, "Three" ] ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in almost 0 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*===========
 
@@ -3734,7 +3750,7 @@ o1 = new stzList([ :StartingAt, 5 ])
 ? o1.IsAPairQ().Where('{ isString(@pair[1]) and isNumber(@pair[2]) }')
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.06 second(s) in Ring 1.21
 
 /*============
 
@@ -3756,7 +3772,7 @@ o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
 	
 	? @@( o1.FirstHalfAndItsPositionXT() )
 	#--> [ [ "1", "2", "3", "4", "5" ], 1 ]
-	? @@( o1.FirstHalfAndItsSectionXT() ) + NL + "---" + NL
+	? @@( o1.FirstHalfAndItsSectionXT() ) + NL + NL + "---" + NL
 	#--> [ [ "1", "2", "3", "4", "5" ], [ 1, 5 ] ]
 
 # SECOND HALF
@@ -3773,7 +3789,7 @@ o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
 	
 	? @@( o1.SecondHalfAndItsPositionXT() )
 	#--> [ [ "6", "7", "8", "9" ], 6 ]
-	? @@( o1.SecondHalfAndItsSectionXT() ) + NL + "---" + NL
+	? @@( o1.SecondHalfAndItsSectionXT() ) + NL + NL + "---" + NL
 	#--> [ [ "6", "7", "8", "9" ], [ 6, 9 ] ]
 
 #-- THE TWO HALVES
@@ -3809,6 +3825,7 @@ o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
 	# ]
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.02 second(s) in Ring 1.20
 # Executed in 0.32 second(s) in Ring 1.17
 
@@ -3816,22 +3833,23 @@ proff()
 
 pron()
 
-o1 = new stzListOfStrings([ "programming", "is" ])
-? o1.SortedByInAscending('Q(@string).NumberOfChars()')
+o1 = new stzList([ "programming", "is" ])
+? o1.SortedBy('Q(@item).NumberOfChars()')
 #--> [ "is", "programming" ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*------------
 
 pron()
 
-? StzCCodeQ(' Q(@NextItem).IsNotANumber()').Transpiled()
+? StzCCodeQ('Q(@NextItem).IsNotANumber()').Transpiled()
 #--> Q( This[@i + 1] ).IsNotANumber(  )
 
 proff()
-#--> Executed in 0.30 second(s)
+# Executed in 0.07 second(s) in Ring 1.21
+# Executed in 0.30 second(s) in Ring 1.17
 
 /*------------
 
@@ -3841,7 +3859,8 @@ pron()
 #--> [1, -1]
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.12 second(s) in Ring 1.18
 
 /*-----------
 
@@ -3849,7 +3868,7 @@ pron()
 
 o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 7 ])
 
-? @@( o1.ToString() )
+? @@( o1.ToString() ) + NL
 #-->
 # "1
 #  2
@@ -3859,18 +3878,16 @@ o1 = new stzList([ 1, 2, 3, "*", 5, 6, "*", 7 ])
 #  6
 #  *
 #  7"
-# Executed in 0.03 second(s)
 
-? @@( o1.Stringified() )
+? @@( o1.Stringified() ) + NL
 #--> [ "1", "2", "3", "*", "5", "6", "*", "7" ]
-# Executed in 0.02 second(s)
 
 ? o1.ToCode()
 #--> [ 1, 2, 3, "*", 5, 6, "*", 7 ]
-# Executed in 0.02 second(s)
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.06 second(s) in Ring 1.7
 
 /*-----------
 
@@ -3903,10 +3920,11 @@ o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ])
 
 ? o1.FindWXT(' Q(@NextItem).IsNotANumber() ')
 #--> [2, 6]
-#--> Executed in 0.59 second(s)
 
 proff()
-# Executed in 0.70 second(s)
+# Executed in 0.16 second(s) in Ring 1.21
+# Executed in 0.59 second(s) in Ring 1.20
+# Executed in 0.70 second(s) in Ring 1.17
 
 /*===========
 
@@ -3960,7 +3978,6 @@ StopProfiler()
 # Executed in 0.11 second(s) in Ring 1.21
 
 /*---
-*/
 
 StartProfiler()
 

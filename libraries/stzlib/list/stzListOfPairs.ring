@@ -5,16 +5,17 @@
 func StzListOfPairsQ(paLists)
 	return new stzListOfPairs(paLists)
 
-func RangeToSection(paRange)
-	if isList(paRange) and Q(paRange).IsPairOfNumbers()
-		n1 = paRange[1]
-		n2 = paRange[2]
-
-		aResult = [ n1, n1 + n2 - 1 ]
-		return aResult
-	else
-		StzRaise("Incorrect param! paRange must be a pair of numbers.")
+func RangeToSection(pnStart, pnRange)
+	if NOT ( isNumber(pnStart) and isNumber(pnRange) )
+		StzRaise("Incorrect param type! pnStart and pnRange must be noth numbers.")
 	ok
+
+	aResult = [ pnStart, pnStart + pnRange - 1 ]
+	return aResult
+
+
+	func @RangToSection(pnStart, pnRange)
+		return RangeToSection(pnStart, pnRange)
 
 func RangesToSections(panRanges)
 	#TODO:
@@ -33,21 +34,21 @@ func RangesToSections(panRanges)
 	anSections = []
 
 	for i = 1 to nLen
-		anSections + RangeToSection(panRanges[i])
+		anSections + @RangeToSection(panRanges[i][1], panRanges[i][2])
 	next
 
 	return anSections
 
-func SectionToRange(panSection)
-	if isList(panSection) and Q(panSection).IsPairOfNumbers()
-		n1 = panSection[1]
-		n2 = panSection[2]
-
-		anResult = [ n1, n2 - n1 + 1 ]
-		return anResult
-	else
-		StzRaise("Incorrect param! paRange must be a pair of numbers.")
+func SectionToRange(n1, n2)
+	if NOT (isNumber(n1) and isNumber(n2))
+		StzRaise("Incorrect param types! n1 and n2 must be both numbers.")
 	ok
+
+	anResult = [ n1, n2 - n1 + 1 ]
+	return anResult
+
+	func @SectionToRange(n1, n2)
+		return SectionToRange(n1, n2)
 
 func SectionsToRanges(paSections)
 	#TODO:
@@ -66,7 +67,7 @@ func SectionsToRanges(paSections)
 	anRanges = []
 	
 	for i = 1 to nLen
-		anRanges + SectionToRange(paSections[i])
+		anRanges + @SectionToRange(paSections[i][1], paSections[i][2])
 	next
 
 	return anRanges

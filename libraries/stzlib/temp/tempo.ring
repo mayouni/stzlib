@@ -4085,10 +4085,10 @@ proff()
 
 pron()
 
-? @@( SectionToRange([3, 4]) )
+? @@( SectionToRange(3, 4) )
 #--> [3, 2]
 
-? @@( RangeToSection([3, 2]) )
+? @@( RangeToSection(3, 2) )
 #--> [3, 4]
 
 ? @@( SectionsToRanges([ [3, 4], [8, 10] ]) )

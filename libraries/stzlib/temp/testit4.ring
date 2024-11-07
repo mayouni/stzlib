@@ -262,8 +262,8 @@ load "../stzlib.ring"
 
 /*==== REMOVING MANY RANGES OF ITEMS
 
-	? RangeToSection([ 5, 2 ]) #--> [ 5, 6 ]
-	? SectionToRange([ 5, 6 ]) #--> [ 5, 2 ]
+	? RangeToSection(5, 2) #--> [ 5, 6 ]
+	? SectionToRange(5, 6) #--> [ 5, 2 ]
 
 /*---
 
