@@ -4530,6 +4530,8 @@ func ObjectsIn(paList)
 # The option for the right approach can lead to significant performance gains.
 # ~? See example in stzListTest.ring file
 
+#WARNING Very important! Read the warning in @FindNthOccurrenceCS() function
+
 func @FindAllCS(aList, pItem, pCaseSensitive)
 
 	if CheckParams()
@@ -4655,11 +4657,26 @@ func @FindLast(aList, pStrOrNbr)
 
 #--
 
-func @FindNthOccurrenceCS(aList, nth, pItem, pCaseSensitive)
+func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
+
+	#WARNING // Be careful! When using this function inside a stzList object,
+	# dont' send directly the content of the object like this:
+
+	#    @FindNthOccurrence(This.Content(), ...; ...)
+
+	# because the content of the object can be modified by this function.
+
+	# Instead of that you should prootect the content by taking a copy first
+	# and then sendng it to this function, like this:
+
+	#    aTempContent = This.Content()
+	#    @FindNthOccurrence(TaTempContent, ...; ...)
+
+	# Same thing applies to simular functions in this section!
 
 	if CheckParams()
-		if NOT isList(aList)
-			StzRaise("Incorrect param type! aList must be a list.")
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
 		ok
 
 		if NOT isNumber(nth)
@@ -4684,16 +4701,16 @@ func @FindNthOccurrenceCS(aList, nth, pItem, pCaseSensitive)
 			pItem = lower(pItem)
 		ok
 
-		aList = StzListQ(aList).Lowercased()
+		aTempList = StzListQ(paList).Lowercased()
 	ok
 
-	nLen = len(aList)
+	nLen = len(paList)
 	nPos = -1
 	n = 0
 
 	while TRUE
 		try
-			nPos = find(aList, pItem)
+			nPos = find(paList, pItem)
 		catch
 			return -1
 		done
@@ -4707,7 +4724,7 @@ func @FindNthOccurrenceCS(aList, nth, pItem, pCaseSensitive)
 			exit
 		ok
 
-		aList[nPos] += (""+ aList[nPos]+1)
+		paList[nPos] += (""+ paList[nPos]+1)
 		
 	end
 
@@ -32029,6 +32046,7 @@ class stzList from stzObject
 		oListInStr = new stzString( This.ToCodeQ().LastNCharsRemoved(2) + ", ]" )
 
 		nResult = len( oListInStr.SplitCS( " " + @@(pItem) + ",", pCaseSensitive) ) - 1
+
 		return nResult
 
 
@@ -40002,13 +40020,13 @@ def IndexBy(pcPosOrOccurr)
 
 		# Early chek
 
-		if This.NumberOfOccurrenceCS(pItem, pCaseSensitive) < n
+		if NOT This.NumberOfOccurrenceCS(pItem, pCaseSensitive) >= n
 			return 0
 		ok
 
 		# Trying to use the Ring native find() function
-
-		nPos = @FindNthCS(This.Content(), n, pItem, pCaseSensitive)
+		aTempContent = This.Content()
+		nPos = @FindNthCS(aTempContent, n, pItem, pCaseSensitive)
 
 		if nPos != -1
 			return nPos
@@ -41441,7 +41459,8 @@ def IndexBy(pcPosOrOccurr)
 
 		# Trying to use the Ring native find() function first
 
-		nResult = @FindNthSTCS( This.Content(), n, pItem, pnStartingAt, pCaseSensitive )
+		aTempContent = This.Content()
+		nResult = @FindNthSTCS( aTempContent, n, pItem, pnStartingAt, pCaseSensitive )
 
 		if nResult != -1
 			return nResult
@@ -41689,7 +41708,8 @@ def IndexBy(pcPosOrOccurr)
 		# Trying with a Ring-based solution first (efficient if the list is
 		# made of strings or numbers and if the item is a string or number)
 
-		nResult = @FindNextCS(This.Content(), pItem, pnStartingAt, pCaseSensitive)
+		aTempContent = This.Content()
+		nResult = @FindNextCS(aTempContent, pItem, pnStartingAt, pCaseSensitive)
 
 		if nResult != -1
 			return nResult
