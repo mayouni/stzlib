@@ -150,21 +150,16 @@ func IsChar(pStrOrNbr)
 	func @IsChar(pcStr)
 		return IsChar(pcStr)
 
-	func StringIsAChar(pcStr)
-		return StringIsChar(pcStr)
 
 	func IsAChar(pcStr)
-		return StringIsChar(pcStr)
+		return IsChar(pcStr)
 
 	func @IsAChar(pcStr)
-		return StringIsChar(pcStr)
-
-	func @StringIsAChar(pcStr)
-		return StringIsChar(pcStr)
+		return IsChar(pcStr)
 
 	#>
 
-func CharIsLetter(pcStr)
+func IsLetter(pcStr)
 	if NOT isString(pcStr)
 		return FALSE
 	ok
@@ -174,23 +169,14 @@ func CharIsLetter(pcStr)
 
 	#< @FunctionAlternativeForms
 
-	func IsLetter(pcStr)
-		return CharIsLetter(pcStr)
-
 	func @IsLetter(pcStr)
-		return CharIsLetter(pcStr)
-
-	func CharIsALetter(pcStr)
-		return CharIsLetter(pcStr)
-
-	func @CharIsALetter(pcStr)
-		return CharIsLetter(pcStr)
+		return IsLetter(pcStr)
 
 	func IsALetter(pcStr)
-		return CharIsLetter(pcStr)
+		return IsLetter(pcStr)
 
 	func @IsALetter(pcStr)
-		return CharIsLetter(pcStr)
+		return IsLetter(pcStr)
 
 	#>
 

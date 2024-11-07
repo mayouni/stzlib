@@ -16681,7 +16681,7 @@ proff()
 pron()
 
 o1 = new stzString("SOFTANZA")
-
+/*
 ? o1.VizFind("A") + NL
 #-->
 # SOFTANZA
@@ -16691,12 +16691,12 @@ o1 = new stzString("SOFTANZA")
 #-->
 # S O F T A N Z A
 # --------^-----^
-
+*/
 ? o1.VizFindXT("A", [ :Spacified, :PositionSign = Heart() ]) + NL
 #-->
 # S O F T A N Z A
 # --------♥-----♥
-
+/*
 ? o1.VizFindXT("A", [ :Spacified, :PositionSign = Heart(), :Numbered ]) + NL
 #-->
 # S O F T A N Z A
@@ -16733,7 +16733,7 @@ o1 = new stzString("SOFTANZA")
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
 # ╰───┴───┴───┴───┴─♥─┴───┴───┴─♥─╯
 #                   5           8
-
+*/
 proff()
 # Executed in 0.23 second(s).
 
