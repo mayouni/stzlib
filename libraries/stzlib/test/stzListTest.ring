@@ -1,5 +1,7 @@
 load "../stzlib.ring"
 
+#TODO Add Check() Yield() Perform()
+
 /*-------------------
 
 pron()
@@ -8910,12 +8912,14 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*---------------------
-*/
+
 pron()
 
 StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
 
-	? FindNthOccurrence(3, :Of = "A")
+	? FindNthOccurrence(3, :Of = "A") + NL
+	#--> 7
+
 	ReplaceNthOccurrence(3, :Of = "A", :With = "#")
 	? Content()
 	#--> [ "A", "B", "C", "A", "D", "B", "#" ]
@@ -8923,7 +8927,7 @@ StzListQ([ "A", "B", "C", "A", "D", "B", "A" ]) {
 }
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*====================
 
@@ -10082,9 +10086,9 @@ o1 = new stzList([ 10, "A":"E", 12, obj, 10, "A":"E", obj, "Ring" ])
 # obj in the list. We should think of an other algorithm other then relying
 # on the empty spaces generated, for objects, by list2code() function of Ring!
 
-#UPDATE It's done, and object findability is now managed using named object.
-#~> If an object is named (created using new stzString(:mystr = "Ring") for
-# example, then it becomes findable!
+	#UPDATE It's done, and object findability is now managed using named object.
+	#~> If an object is named (created using new stzString(:mystr = "Ring") for
+	# example, then it becomes findable!
 
 o1.RemoveMany([ "A":"E", obj ])
 ? @@( o1.Content() )
@@ -11543,8 +11547,10 @@ proff()
 pron()
 
 ? Q(5).IsBetween(2, 7)
+#--> TRUE
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.21
 
 /*========= TODO: refactor it to use stzWalker
 
@@ -11569,9 +11575,9 @@ proff()
 
 pron()
 
-o1 = new Person
+oPerson = new Person
 //myList = "A":"J"
-myList = [ "A", 1, "BB", 2, [ "W", 12, "V" ], "C", 10, o1, "D", o1]
+myList = [ "A", 1, "BB", 2, [ "W", 12, "V" ], "C", 10, oPerson, "D", oPerson ]
 
 #myList = [ "Tunis", "Cairo", "Niamey", "Paris", "Rome", "Mosko" ]
 o1 = new stzList(myList)
@@ -11826,34 +11832,29 @@ proff()
 pron()
 
 o1 = new stzList([ "A", "B", "C" ])
-? o1.AreWXT("isString(@item) and @IsUppercase(@item)")
+? o1.CheckWXT("isString(@item) and @IsUppercase(@item)")
 
 proff()
 
 /*--------------------- #TODO
 
+pron()
+
 # All items are lists with 3 items
 
 o1 = new stzList([ 1:3, 1:3, 1:3 ])
-? o1.AreWXT('isList(@item) and len(@item) = 3')
+? o1.CheckWXT('isList(@item) and len(@item) = 3')
+
+proff()
 
 /*--------------------- #TODO
+
+pron()
 
 # All items are lLists having same number of items
 
 o1 = new stzList([ 1:3, 1:3, 1:3 ])
-? o1.AreWXT('isList(@item) and len(@item) = len(o1[1])')
-
-/*-------------------- #TODO
-
-pron()
-
-# Sublists_Have_SameNumberOfItems()
-
-o1 = new stzList([ "a", 1:3, "b", 1:3, "c", 1:3 ])
-? o1.TheseItems('{ isList(@item) }', :Are = '{ len(@item) = len(@items[1]) }')
-
-// + RemoveManyBounds + --> In lists
+? o1.CheckWXT('isList(@item) and len(@item) = len(o1[1])')
 
 proff()
 

@@ -52428,16 +52428,19 @@ n1 = Min(aTemp)
 		# ~> More concise syntax!
 
 		aTemp = []
-		nLenTemp = len(paOptions)
+		nLenTemp = len(paOptions[1])
 		for i = 1 to nLenTemp
-			if isString(paOptions[i])
-				aTemp + [ paOptions[i], TRUE ]
-			else
-				aTemp + paOptions[i]
+			if isString(paOptions[1][i])
+				aTemp + [ paOptions[1][i], TRUE ]
+			but isList(paOptions[1][i]) and len(paOptions[1][i]) = 2 and isString(paOptions[1][i][1])
+				aTemp + paOptions[1][i]
 			ok
+			
 		next
 
 		paOptions = aTemp
+
+		# Checking params
 
 		if NOT isString(pcSubStr)
 			stzRaise("Incorrect param type! pcSubStr must be a string.")
@@ -52490,6 +52493,7 @@ n1 = Min(aTemp)
 		ok
 
 		cPositionSign = "^"
+
 		if isString(paOptions[:PositionSign]) and paOptions[:PositionSign] != NULL
 			cPositionSign = paOptions[:PositionSign]
 
@@ -77453,8 +77457,8 @@ n1 = Min(aTemp)
 
 		if CheckParams()
 
-			if NOT StringIsChar(pcChar)
-				stzRaise("Incorrect param type! You must provide a string containing char")
+			if NOT (isString(pcChar) and @IsChar(pcChar))
+				stzRaise("Incorrect param type! You must provide a string containing a char.")
 			ok
 		ok
 
@@ -89006,7 +89010,7 @@ n1 = Min(aTemp)
 	#---------------------------#
 
 	def IsMadeOfCharCS(c, pCaseSensitive)
-		if ( NOT This.IsEmpty() ) and  StringIsChar(c)
+		if isString(c) and  @IsChar(c)
 			return This.IsMadeOfCS([ c ], pCaseSensitive)
 		else
 			return FALSE
