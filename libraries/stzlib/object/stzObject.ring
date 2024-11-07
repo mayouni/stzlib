@@ -3971,12 +3971,18 @@ class stzObject
 	#======================================#
 
 	def Repeat(n)
+
+		if isList(n) and len(n) = 2 and
+		   isNumber(n[1]) and isString(n[2]) and n[2] = :Times
+			n = n[1]
+		ok
+
 		return This.RepeatXT(:InList, n)
 
 		#< @FunctionFluentForm
 
 		def RepeatQ(n)
-			return This.RepeatXTQ(:InList, n)
+			return Q(This.Repeat(n))
 
 		#>
 
@@ -4014,8 +4020,7 @@ class stzObject
 	#--
 
 	def Repeated(n)
-		aResult = This.Copy().RepeatQ(n).Content()
-		return aResult
+		return This.Repeat(n)
 
 		#< @FunctionAlternativeForms
 
@@ -4041,36 +4046,33 @@ class stzObject
 	#--------------------------------------#
 
 	def Repeat3Times()
-		This.RepeatNTimes(3)
+		return This.RepeatNTimes(3)
 
 		#< @FunctionFluentForm
 
 		def Repeat3TimesQ()
-			This.Repeat3Times()
-			return This
+			return Q(This.Repeat3Times())
 
 		#>
 
 		#< @FunctionAlternativeForms
 
 		def Reproduce3Times()
-			This.Repeat3Times()
+			return This.Repeat3Times()
 
 			def Reproduce3TimesQ()
-				This.Reproduce3Times()
-				return This
+				return This.Repeat3TimesQ()
 
 		def Copy3Times()
-			This.Repeat3Times()
+			return This.Repeat3Times()
 
 			def Copy3TimesQ()
-				This.Copy3Times()
-				return This
+				return This.Repeat3TimesQ()
 
 		#>
 
 	def Repeated3Times()
-		return This.Copy().Repeat3TimesQ().Content()
+		return This.Repeat3Times()
 
 		#< @FunctionAlternativeForms
 
@@ -4090,17 +4092,47 @@ class stzObject
 		return This.RepeatXT(pIn, pnSize)
 
 		def RepeatedNTimesXT(pnSize, pIn)
-			return RepeatNTimesXT(pnSize, pIn)
+			return This.RepeatNTimesXT(pnSize, pIn)
 	
 	def RepeatXT(pIn, pnSize)
 		/* EXAMPLE
 		o1 = new stzNumber(5)
 		o1.RepeatXT( :InA = :List, :OfSize = 2 )
 		#--> [ 5, 5 ]
+
+		o1.RepeatXT( [ 3, :Times ], :InAList )
+
 		*/
 
 		# Resolving params
 
+		# ~> Case: RepeatXT([ 3, :Times ], :InAList )
+		if isList(pIn) and len(pIn) = 2 and
+		   isNumber(pIn[1]) and isString(pIn[2]) and pIn[2] = :Times
+
+			pnSize = pIn[1]
+
+			if This.IsAString()
+
+				pIn = :String
+				
+			else
+				pIn = :List
+			ok
+		ok
+
+		# ~> Case : RepeatXT( :NTimes = 3, :InAList )
+
+		if isList(pIn) and len(pIn) = 2 and
+		   isString(pIn[1]) and pIn[1] = :NTimes and isNumber(pIn[2])
+
+			pnSizeTemp = pnSize
+			pnSize = pIn[2]
+			pIn = pnSizeTemp
+
+		ok
+
+		# ~> Case : RepeatXT(:In = :AList, :OfSize = 3)
 		if isList(pIn) and
 			( Q(pIn).IsInNamedParam() or
 			  Q(pIn).IsInANamedParam() )
@@ -4131,7 +4163,7 @@ class stzObject
 
 		if isList(pnSize) and
 			( Q(pnSize).IsOfSizeNamedParam() or
-			  Q(pnZise).IsSizeNamedParam() )
+			  Q(pnSize).IsSizeNamedParam() )
 
 			pnSize = pnSize[2]
 		ok
@@ -4251,7 +4283,7 @@ class stzObject
 	#-- RETURNING THE OUTPUT DATA
 
 	def RepeatedXT(pIn, pnSize)
-		return This.Copy().RepeatXT(pIn, pnSize)
+		return This.RepeatXT(pIn, pnSize)
 
 	  #----------------------------------------#
 	 #  REPEATING THE OBJECT VALUE IN A PAIR  #

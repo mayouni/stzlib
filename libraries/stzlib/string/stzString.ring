@@ -91953,6 +91953,25 @@ n1 = Min(aTemp)
 
 		*/
 
+		# Checking params
+
+		if CheckParams()
+			if isList(n) and len(n) = 2
+	
+				# ~> Case: Repeat(:NTimes = 3)
+	
+				if isString(n[1]) n[1] = :NTimes and isNumber(n[2])
+					n = n[2]
+				
+				# ~> Case: Repeat([ 3, :Times ])
+				but isNumber(n[1]) and isString(n[2]) and n[2] = :Times
+					n = n[1]
+				ok
+			ok
+		ok
+
+		# Doing the job
+
 		cResult = ""
 		for i = 1 to n
 			cResult += This.Content()
