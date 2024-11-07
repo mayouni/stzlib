@@ -92935,11 +92935,12 @@ n1 = Min(aTemp)
 		but pOp = ">>"
 			This.Append(value)
 
-		// compare equality : oString = str
-
 		but pOp = "="
-			return This.IsEqualTo(pValue)
-
+			if @IsStzObject(pValue)
+				return pValue
+			else
+				return This.IsEqualTo(pValue)
+			ok
 		// oString < str
 
 		but pOp = "<"

@@ -30996,7 +30996,11 @@ class stzList from stzObject
 			This.Add(pValue)
 
 		but pcOp = "="
-			return This.IsEqualTo(pValue)
+			if @IsStzObject(pValue)
+				return pValue
+			else
+				return This.IsEqualTo(pValue)
+			ok
 
 		but pcOp = "=="
 			return This.IsStrictlyEqualTo(pValue)

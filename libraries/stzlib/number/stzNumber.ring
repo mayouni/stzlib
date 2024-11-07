@@ -5808,9 +5808,13 @@ class stzNumber from stzObject
 
 		but pOp = "%"
 			return This.Modulo(pValue)
-			
+
 		but pOp = "="
-			return This.IsEqualTo(pValue)
+			if @IsStzObject(pValue)
+				return pValue
+			else
+				return This.IsEqualTo(pValue)
+			ok
 
 		but pOp = ">"
 			return This.IsStrictlyGreaterThan(pValue)
