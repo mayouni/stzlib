@@ -41341,11 +41341,14 @@ def IndexBy(pcPosOrOccurr)
 	 #    VISUALLY FINDING ALL OCCURRENCES OF A GIVEN ITEM   #
 	#=======================================================#
 
-	#NOTE: Works only if items are chars (string of 1 char each)
-	#TODO: Implement a more general solution for longer items
+	#NOTE // Works only if items are chars (string of 1 char each)
+	#TODO // Implement a more general solution for longer items
 
 	def VizFindAllOccurrencesCS(pItem, pCaseSensitive)
-		
+		if NOT @IsChar(pItem)
+			StzRaise("Can't proceed! Only chars can currently be visualised in the output.")
+		ok
+
 		cResult = This.ToCodeQ().Simplified()
 		anPos = Q(cResult).FindAllCS( @@(pItem), pCaseSensitive )
 
@@ -41865,15 +41868,15 @@ def IndexBy(pcPosOrOccurr)
 
 		ok
 
-		oSection = This.SectionQ(pnStartingAt, :LastItem)
+		oSection = This.SectionQ(pnStartingAt+1, This.NumberOfItems())
 		anPos = oSection.FindAllCS(pItem, pCaseSensitive)
+
 		nLen = len(anPos)
 
 		anResult = []
-		pnStartingAt--
 
 		for i = 1 to nLen
-			anResult = anPos + pnStartingAt
+			anResult + ( anPos[i] + pnStartingAt )
 		next
 
 		return anResult
@@ -41945,7 +41948,7 @@ def IndexBy(pcPosOrOccurr)
 
 		ok
 
-		oSection = This.SectionQ(1, pnStartingAt)
+		oSection = This.SectionQ(1, pnStartingAt-1)
 		anPos = oSection.FindAllCS(pcSubStr, pCaseSensitive)
 		
 		return anPos
@@ -41989,7 +41992,7 @@ def IndexBy(pcPosOrOccurr)
 
 	def FindNextNthOccurrencesCS(panPos, pItem, pnStartingAt, pCaseSensitive)
 
-		anAllPos = This.FindNextOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+		anAllPos = This.FindNextOccurrencesSTCS(pItem, pnStartingAt, pCaseSensitive)
 		nLenPos = len(panPos)
 
 		anResult = []

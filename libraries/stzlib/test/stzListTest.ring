@@ -7986,8 +7986,8 @@ pron()
 proff()
 # Executed in almost 0 second(s).
 
-/*----------------- #TODO check error
-*/
+/*-----------------
+
 pron()
 
 ? Q("str") = "str"
@@ -8588,9 +8588,10 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 #TODO : Generalize it for list of strings and other types
 
 proff()
-# Executed in 0.10 second(s).
+# Executed in 0.04 second(s) in Ring 1.21
+# Executed in 0.10 second(s) in Ring 1.20
 
-/*------------------ TODO: Add this function
+/*------------------ TODO: Add this function (future)
 
 pron()
 
@@ -8606,7 +8607,7 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
 proff()
 
-/*------------------ (TODO)
+/*------------------ #TODO (future)
 
 pron()
 
@@ -8624,7 +8625,7 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
 proff()
 
-/*------------------ (TODO)
+/*------------------ #TODO (future)
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 	? VizFindManyXT([ "A", "B", "C", "D" ])
@@ -8644,13 +8645,13 @@ StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 pron()
 
 StzListQ([ "A" , "B", "C", "A", "D", "A" ]) {
-	ReplaceNextNthOccurrenceS(2, :Of = "A", :With = "*", :StartingAt = 2 )
+	ReplaceNextNthOccurrenceST(2, :Of = "A", :With = "*", :StartingAt = 2 )
 	? Content()
 	#--> [ "A" , "B", "C", "A", "D", "*" ]
 }
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*------------------
 
@@ -8678,13 +8679,14 @@ StzListQ([ -1 , 2, 3, 4 ]) {
 }
 
 proff()
-# Executed in 0.16 second(s).
+# Executed in 0.13 second(s) in Ring 1.21
 
 /*------------------
 
 pron()
 
 o1 = new stzList([ "1", "2", "*", "4", "5" ])
+
 o1.ReplaceAt(3, :By = "3")
 ? @@( o1.Content() )
 #--> [ "1", "2", "3", "4", "5" ]
@@ -8695,33 +8697,50 @@ o1.ReplaceNextNthOccurrenceST( 2, :Of = "_", :With = "5", :StartingAt = 3)
 #--> [ "1", "_", "3", "_", "5" ]
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.03 second(s)  in Ring 1.21
+
+/*------------------
+
+pron()
+
+o1 = new stzList([ "A" , "B", "A", "C", "A", "D", "A" ])
+
+? o1.FindNextOccurrencesST("A", 3)
+#--> [ 5, 7 ]
+
+? o1.FindNextNthOccurrencesST([1, 2], "A", 3)
+#--> [ 5, 7 ]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*------------------
 
 pron()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-	ReplaceNextNthOccurrences([2, 3], :of = "A", :with = "*",  :StartingAt = 3)
+
+	ReplaceNextNthOccurrences([1, 2], :of = "A", :with = "*",  :StartingAt = 3)
 	? @@( Content() )
 	#--> [ "A" , "B", "A", "C", "*", "D", "*" ]
 }
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
-	? @@( NextNthOccurrencesReplaced([2, 3], :Of = "A", :With = "*",  :StartingAt = 3 ) )
+	? @@( NextNthOccurrencesReplaced([1, 2], :Of = "A", :With = "*",  :StartingAt = 3 ) )
 	#--> [ "A", "B", "A", "C", "*", "D", "*" ]
 }
 
 proff()
-# Executed in 0.04 second(s).
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*------------------
-
+*/
 pron()
 
 StzListQ([ "A" , "B", "A", "C", "A", "D", "A" ]) {
 
-	ReplacePreviousNthOccurrencesST([1, 2, 3], :of = "A", :with = "*",  :StartingAt = 5)
+	ReplacePreviousNthOccurrencesST([1, 2 ], :of = "A", :with = "*",  :StartingAt = 5)
 	? @@( Content() )
 	#--> [ "*" , "B", "*", "C", "*", "D", "A" ]
 }
