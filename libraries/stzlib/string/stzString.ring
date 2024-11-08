@@ -27604,8 +27604,13 @@ class stzString from stzObject
 	#======================================================================================#
 
 	def BetweenCSIB(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
-		aSection = This.FindBetweenCSIBZZ(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
-		cResult = This.Section(aSection)
+		if isNumber(pSubStrOrPos1) and isNumber(pSubStrOrPos2)
+			return This.Section(pSubStrOrPos1, pSubStrOrPos2)
+		ok
+
+		n1 = This.FindFirstCS(pSubStrOrPos1, pCaseSensitive)
+		n2 = This.FindLastCS(pSubStrOrPos2, pCaseSensitive) + StzStringQ(pSubStrOrPos2) - 1
+		cResult = This.Section(n1, n2)
 
 		return cResult
 
@@ -32073,7 +32078,7 @@ class stzString from stzObject
 
 	  #-----------------------------------------------------------------#
 	 #  GETTING THE SUBSTRINGS BOUNDED BY ONE OR TWO OTHER SUBSTRINGS  #
-	#-----------------------------------------------------------------#
+	#=================================================================#
 
 	def SubStringsBoundedByCS(pacBounds, pCaseSensitive)
 		aSections = This.FindSubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
@@ -32237,6 +32242,157 @@ class stzString from stzObject
 
 		def AnySubStringsBoundedByAndTheirSections(acBounds)
 			return This.SubStringsBoundedByCSZZ(pacBounds)
+
+		#>
+
+	  #------------------------------------------------------------------------------#
+	 #  GETTING THE SUBSTRINGS BOUNDED BY ONE OR TWO OTHER SUBSTRINGS - U/EXTENDED  #
+	#==============================================================================#
+
+	def SubStringsBoundedByCSU(pacBounds, pCaseSensitive)
+		return U( This.SubStringsBoundedByCS(pacBounds, pCaseSensitive) )
+
+
+		#< @FunctionAlternativeForms
+
+		def BoundedByCSU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSU(pacBounds, pCaseSensitive)
+
+		def AnySubStringsBoundedByCSU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSU(pacBounds, pCaseSensitive)
+
+		def AnyBoundedByCSU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSU(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def SubStringsBoundedByU(pacBounds)
+		return This.SubStringsBoundedByCSU(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def BoundedByU(pacBounds)
+			return This.SubStringsBoundedByU(pacBounds)
+
+		def AnySubStringsBoundedByU(acBounds)
+			return This.SubStringsBoundedByU(pacBounds)
+
+		def AnyBoundedByU(pacBounds)
+			return This.SubStringsBoundedByU(pacBounds)
+
+		#>
+
+	   #----------------------------------------------------------------#
+	  #  GETTING THE SUBSTRING BOUNDED BY ONE OR TWO OTHER SUBSTRINGS  #
+	 #  ALONG WITH THEIR POSITIONS -- U/EXTENDED                      #
+	#----------------------------------------------------------------#
+
+	def SubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
+		return U( This.SubStringsBoundedByCSZU(pacBounds, pCaseSensitive) )
+
+
+
+		#< @FunctionAlternativeForms
+
+		def BoundedByCSZU(acBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
+
+		def AnySubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
+
+		def AnyBoundedByCSZU(acBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
+
+		#--
+
+		def SubStringsBoundedByAndTheirPositionsCSU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
+
+		def AnySubStringsBoundedByAndTheirPositionsCSU(acBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def SubStringsBoundedByZU(pacBounds)
+		return This.SubStringsBoundedByCSZU(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def BoundedByZU(pacBounds)
+			return This.SubStringsBoundedByZU(pacBounds)
+
+		def AnySubStringsBoundedByZU(pacBounds)
+			return This.SubStringsBoundedByZU(pacBounds)
+
+		def AnyBoundedByZU(pacBounds)
+			return This.SubStringsBoundedByZU(pacBounds)
+
+		#--
+
+		def SubStringsBoundedByAndTheirPositionsU(pacBounds)
+			return This.SubStringsBoundedByZU(pacBounds)
+
+		def AnySubStringsBoundedByAndTheirPositionsU(acBounds)
+			return This.SubStringsBoundedByCSZU(pacBounds)
+
+		#>
+	
+	   #----------------------------------------------------------------#
+	  #  GETTING THE SUBSTRING BOUNDED BY ONE OR TWO OTHER SUBSTRINGS  #
+	 #  ALONG WITH THEIR SECTIONS -- U/EXTENDED                       #
+	#----------------------------------------------------------------#
+
+	def SubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
+		return U( This.SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive) )
+
+		#< @FunctionAlternativeForms
+
+		def BoundedByCSZZU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
+
+		def AnySubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
+
+		def AnyBoundedByCSZZU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
+
+		#--
+
+		def SubStringsBoundedByAndTheirSectionsCSU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
+
+		def AnySubStringsBoundedByAndTheirSectionsCSU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVTY
+
+	def SubStringsBoundedByZZU(pacBounds)
+		return This.SubStringsBoundedByCSZZU(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def BoundedByZZU(pacBounds)
+			return This.SubStringsBoundedByZZU(pacBounds)
+
+		def AnySubStringsBoundedByZZU(pacBounds)
+			return This.SubStringsBoundedByZZU(pacBounds)
+
+		def AnyBoundedByZZU(pacBounds)
+			return This.SubStringsBoundedByZZU(pacBounds)
+
+		#--
+
+		def SubStringsBoundedByAndTheirSectionsU(pacBounds)
+			return This.SubStringsBoundedByZZU(pacBounds)
+
+		def AnySubStringsBoundedByAndTheirSectionsU(acBounds)
+			return This.SubStringsBoundedByCSZZU(pacBounds)
 
 		#>
 
@@ -32415,7 +32571,7 @@ class stzString from stzObject
 
 	  #----------------------------------------------------------------------#
 	 #  GETTING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IB/EXTENSION  #
-	#----------------------------------------------------------------------#
+	#======================================================================#
 
 	def SubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
 
@@ -32659,6 +32815,192 @@ class stzString from stzObject
 
 		def AnyBoundedByAsSectionsIB(pacBounds)
 			return This.SubStringsBoundedByIBZZ(pacBounds)
+
+		#>
+
+	  #-----------------------------------------------------------------------#
+	 #  GETTING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IBU/EXTENSION  #
+	#=======================================================================#
+
+	def SubStringsBoundedByCSIBU(pacBounds, pCaseSensitive)
+
+		return U(This.SubStringsBoundedByCSIB(pacBounds, pCaseSensitive))
+
+		#< @FunctionAlternativeForms
+
+		def AnySubStringBoundedByCSIBU(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBU(pacBounds, pCaseSensitive)
+
+		#--
+
+		def AnySubStringBoundedByAsSectionsCSIBU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSIBU(pacBounds, pCaseSensitive)
+
+		def AnySubStringsBoundedByAsSectionsCSIBU(pacBounds, pCaseSensitive)
+			return This.FindSubStringsBoundedByCSIBU(pacBounds, pCaseSensitive)
+
+		#--
+
+		def BoundedByCSIBU(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBU(pacBounds, pCaseSensitive)
+
+		def AnyBoundedByCSIBU(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBU(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBoundedByIBU(pacBounds)
+		return This.SubStringsBoundedByCSIBU(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def AnySubStringBoundedByIBU(pacBounds)
+			return This.SubStringsBoundedByIBU(pacBounds)
+
+		#--
+
+		def AnySubStringBoundedByAsSectionsIBU(pacBounds)
+			return This.SubStringsBoundedByIBU(pacBounds)
+
+		def AnySubStringsBoundedByAsSectionsIBU(pacBounds)
+			return This.FindSubStringsBoundedByIBU(pacBounds)
+
+		#--
+
+		def BoundedByIBU(pacBounds)
+			return This.SubStringsBoundedByIBU(pacBounds)
+
+		def AnyBoundedByIBU(pacBounds)
+			return This.SubStringsBoundedByIBU(pacBounds)
+
+		#>
+
+	  #-----------------------------------------------------------------------#
+	 #  GETTING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IBZU/EXTENSION  #
+	#-----------------------------------------------------------------------#
+
+	def SubStringsBoundedByCSIBZU(pacBounds, pCaseSensitive)
+
+		return U( This.SubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive) )
+
+		#< @FunctionAlternativeForms
+
+		def AnySubStringBoundedByCSIBZU(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZU(pacBounds, pCaseSensitive)
+
+		def AnySubStringsBoundedByCSIBZU(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZU(pacBounds, pCaseSensitive)
+
+		#--
+
+		def BoundedByCSIBZU(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZU(pacBounds, pCaseSensitive)
+
+		def AnyBoundedByCSIBZU(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZU(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBoundedByIBZU(pacBounds)
+		return This.SubStringsBoundedByCSIBZU(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def AnySubStringBoundedByIBZU(pacBounds)
+			return This.SubStringsBoundedByIBZU(pacBounds)
+
+		def AnySubStringsBoundedByIBZU(pacBounds)
+			return This.SubStringsBoundedByIBZU(pacBounds)
+
+		#--
+
+		def BoundedByIBZU(pacBounds)
+			return This.SubStringsBoundedByIBZU(pacBounds)
+
+		def AnyBoundedByIBZU(pacBounds)
+			return This.SubStringsBoundedByIBZU(pacBounds)
+
+		#>
+
+	  #------------------------------------------------------------------------#
+	 #  GETTING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IBZZU/EXTENSION  #
+	#------------------------------------------------------------------------#
+
+	def SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+
+		return U( This.SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive) )
+
+
+
+		#< @FunctionAlternativeForms
+
+		def AnySubStringBoundedByCSIBZZU(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+
+		def AnySubStringsBoundedByCSIBZZU(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+
+		#--
+
+		def BoundedByCSIBZZU(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+
+		def AnyBoundedByCSIBZZU(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+
+		#==
+
+		def SubStringsBoundedByAsSectionsCSIBU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+
+		#--
+
+		def BoundedByAsSectionsCSIBU(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+
+		def AnyBoundedByAsSectionsCSIBU(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SubStringsBoundedByIBZZU(pacBounds)
+		return This.SubStringsBoundedByCSIBZZU(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+
+		def AnySubStringBoundedByIBZZU(pacBounds)
+			return This.SubStringsBoundedByIBZZU(pacBounds)
+
+		def AnySubStringsBoundedByIBZZU(pacBounds)
+			return This.SubStringsBoundedByIBZZU(pacBounds)
+
+		#--
+
+		def BoundedByIBZZU(pacBounds)
+			return This.SubStringsBoundedByIBZZU(pacBounds)
+
+		def AnyBoundedByIBZZU(pacBounds)
+			return This.SubStringsBoundedByIBZZU(pacBounds)
+
+		#==
+
+		def SubStringsBoundedByAsSectionsIBU(pacBounds)
+			return This.SubStringsBoundedByIBZZU(pacBounds)
+
+		#--
+
+		def BoundedByAsSectionsIBU(pacBounds)
+			return This.SubStringsBoundedByIBZZU(pacBounds)
+
+		def AnyBoundedByAsSectionsIBU(pacBounds)
+			return This.SubStringsBoundedByIBZZU(pacBounds)
 
 		#>
 

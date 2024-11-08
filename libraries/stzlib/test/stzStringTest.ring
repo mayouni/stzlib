@@ -3266,24 +3266,33 @@ o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
 
 # You may want to get the section between two positions:
 
-? o1.Between(3, 5)
+? o1.BetweenIB(3, 5)
 #--> ♥♥♥
 
 # You can also say:
 ? o1.Section(3, 5)
 #--> ♥♥♥
-# But let's stick with the Between() function
-# to see how mutch it is flexible...
 
-# Ok. What if you want to get all the substrings bounded by << and >>:
-? o1.Between("<<", ">>")
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
+/*---------------
+*/
+pron()
+
+# Let's take this string of text:
+
+o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
+
+# What if you want to get all the substrings bounded by << and >>:
+? o1.BoundedBy([ "<<", ">>" ])
 #--> ["♥♥♥", "stars", "♥♥♥"]
 
 # They are 3, 2 of them are the same! No worry, you can get
 # a unique instance of each of them by extending the function
 # name by the "U" letter (for Unique):
 
-? o1.BetweenU("<<", ">>")
+? o1.BoundedByU([ "<<", ">>" ])
 #--> ["♥♥♥", "stars"]
 
 # Sometimes, people have different interpretations for the
@@ -3293,13 +3302,13 @@ o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
 # You can do it simply by adding the IB extensions to the name
 # of the fuction ("IB" for "Include Bounds")
 
-? o1.BetweenIB("<<", ">>")
+? o1.BoundedByIB([ "<<", ">>" ])
 #--> [ "<<♥♥♥>>", "<<stars>>", "<<♥♥♥>>" ]
 
 # Oh, great! But "<<♥♥♥>>" is repeated twice...
 # Well, you know how to manage it: just add the "U" extension:
 
- ? o1.BetweenIBU("<<", ">>")
+ ? o1.BoundedByIBU([ "<<", ">>" ])
 #--> [ "<<♥♥♥>>", "<<stars>>", "<<♥♥♥>>" ]
 
 proff()
@@ -17137,7 +17146,7 @@ o1.ReplaceSectionsByMany(
 proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
-/*-------------
+/*========
 
 pron()
 
@@ -17148,7 +17157,7 @@ o1 = new stzString("ringringringring")
 # ringringringring
 # ^---^---^---^---
 
-? o1.vizFindXT("ring", :Numbered)
+? o1.vizFindXT("ring", [ :Numbered = TRUE ])
 #-->
 # ringringringring
 # ^---^---^---^---
@@ -17163,8 +17172,6 @@ proff()
 
 # This narration explores methods to locate and highlight recurring 
 # sequences within strings, with both precision and visual assistance.
-
-*/
 
 pron()
 
@@ -17227,10 +17234,10 @@ o1 = new stzString("fjringljringdjringg")
 #           3           6           9         12            15         18
 
 proff()
-# Code executed in 0.10 second(s) in Ring 1.21
+# Code executed in 0.17 second(s) in Ring 1.21
 
 /*----------------- (TODO)
-*/
+
 ? StzStringQ("ABTCADNBBABEFAVCC").VizFindMany([ "A", "T", "V" ])
 
 #--> Returns a string like this:
