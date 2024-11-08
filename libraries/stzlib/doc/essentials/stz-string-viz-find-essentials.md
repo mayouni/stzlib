@@ -51,7 +51,7 @@ The sections can be visualized using the :Sectioned option, which clearly shows 
 #-->
 # fjringljringdjringg
 #   '--'  '--'  '--'
-#   3  6  9  12 15 18
+#   3  6  9 12  15 18
 ```
 
 ### 6. Full Structured Visualization
