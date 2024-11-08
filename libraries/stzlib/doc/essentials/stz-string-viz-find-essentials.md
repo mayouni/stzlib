@@ -31,7 +31,7 @@ To gain even more insight, we can add the XT() suffix, providing a numeric guide
 #-->
 # fjringljringdjringg
 # --^-----^-----^----
-# 3 9 15
+#   3     9     15
 ```
 
 ### 4. Section Finding
@@ -50,7 +50,7 @@ The sections can be visualized using the :Sectioned option, which clearly shows 
 #-->
 # fjringljringdjringg
 # \__/ \__/ \__/
-# 3 6 9 12 15 18
+# 3 6  9 12 15 18
 ```
 
 ### 6. Full Structured Visualization
