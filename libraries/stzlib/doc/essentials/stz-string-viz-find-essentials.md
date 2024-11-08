@@ -9,7 +9,7 @@ Let's start with searching for "ring" within a jumble of letters using the strai
 
 ```ring
 o1 = new stzString("fjringljringdjringg")
-? o1.Find("ring")
+? @@( o1.Find("ring") )
 #--> [ 3, 9, 15 ]
 ```
 
@@ -32,7 +32,7 @@ To gain even more insight, we can add the XT() suffix, providing a numeric guide
 #-->
 # fjringljringdjringg
 # --^-----^-----^----
-# 3 9 15
+#   3     9     15
 ```
 
 ### 4. Section Finding
@@ -50,8 +50,8 @@ The sections can be visualized using the :Sectioned option, which clearly shows 
 ? o1.vizFindXT("ring", [ :Sectioned = TRUE, :Numbered = TRUE ])
 #-->
 # fjringljringdjringg
-# \__/ \__/ \__/
-# 3 6 9 12 15 18
+#   '--'  '--'  '--'
+#   3  6  9  12 15 18
 ```
 
 ### 6. Full Structured Visualization
