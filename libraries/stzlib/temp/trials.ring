@@ -1,4 +1,2 @@
 load "../stzlib.ring"
 
-
-
