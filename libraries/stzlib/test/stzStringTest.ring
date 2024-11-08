@@ -3277,7 +3277,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*---------------
-*/
+
 pron()
 
 # Let's take this string of text:
@@ -3318,251 +3318,19 @@ proff()
 
 pron()
 
-o1 = new stzString("...<<♥♥♥>>...<<★★>>...<<♥♥♥>>...")
-? @@( o1.FindAnyBoundedByAsSectionsD([ "<<", ">>" ], :Backward) )
-#--> [ [ 25, 27 ], [ 16, 17 ], [ 6, 8 ] ]
-
-? @@( o1.FindAnyBoundedByAsSectionsS([ "<<", ">>" ], :StartingAt = 10) )
-#--> [ [ 16, 17 ], [ 25, 27 ] ]
-
-? @@( o1.FindAnyBoundedByAsSectionsSD([ "<<", ">>" ], :StoppingAt = 10, :Backward) )
-#--> [ [ 25, 27 ], [ 16, 17 ] ]
-? @@( o1.FindAnyBoundedByAsSectionsSDIB([ "<<", ">>" ], :StoppingAt = 10, :Backward) )
-#--> [ [ 23, 29 ], [ 14, 19 ] ]
-
-? @@( o1.FindAnyBoundedByAsSectionsSD([ "<<", ">>" ], :StoppingAt = 10, :Forward) )
-#--> [ [ 6, 8 ] ]
-? @@( o1.FindAnyBoundedByAsSectionsSDIB([ "<<", ">>" ], :StoppingAt = 10, :Forward) )
-#--> [ [ 4, 10 ] ]
-
-proff()
-# Executed in 0.42 second(s)
-
-/*--------------
-
-pron()
-
-o1 = new stzString("...<<♥♥♥>>...<<★★>>...<<--->>...")
-
-? @@( o1.FindAnyBoundedByAsSectionsSDIB([ "<<",">>" ], :StoppingAt = 10, :Going = :Backward) )
-#--> [ [ 23, 29 ], [ 14, 19 ] ]
-
-? @@( o1.BoundedBySDIB([ "<<", ">>" ], :StoppingAt = 10, :Going = :Backward) )
-#--> [ "<<--->>", "<<★★>>" ]
-
-? @@( o1.FindAnyBoundedByAsSectionsSDIB([ "<<", ">>" ], :InSection = [4, 20], :Going = :Forward) )
-#--> [ [ 4, 10 ], [ 14, 19 ] ]
-
-? @@( o1.BloundedBySDIB( [ "<<", ">>" ], :InSection = [4, 20], :Going = :Forward) )
-#--> [ "<<♥♥♥>>", "<<★★>>" ]
-
-proff()
-# Executed in 0.26 second(s)
-
-/*----------------
-
-pron()
-
-o1 = new stzString("...<<♥♥♥>>...<<★★>>...<<--->>...")
-
-? @@( o1.FindAnyBoundedbySDIB([ "<<",">>" ], :StoppingAt = 10, :Going = :Backward) )
-#--> [ 23, 14 ]
-
-? @@( o1.FindAnyBoundedBySDIB([ "<<", ">>" ], :InSection = [4, 20], :Going = :Forward) )
-#--> [ 4, 14 ]
-
-proff()
-# Executed in 0.16 second(s)
-
-/*-------------
-
-pron()
-
 o1 = new stzString("...<<♥♥♥>>...<<★★>>...")
 
 ? o1.BoundedByIB([ "<<", ">>" ])
 #--> [ "<<♥♥♥>>", "<<★★>>" ]
 
-? o1.BoundedBySIB([ "<<", ">>" ], :StartingAt = 10)
-#--> [ <<★★>> ]
-
-? o1.BoundedBySIB([ "<<", ">>" ], :StoppingAt = 10)
-#--> [ <<♥♥♥>>]
-
-? o1.BoundedBySIB([ "<<", ">>" ], :InSection = [4, 20])
-#--> [ "<<♥♥♥>>", "<<★★>>" ]
+? o1.BoundedByIBZZ([ "<<", ">>" ])
+#--> [
+#	[ "<<♥♥♥>>", [ 4, 10 ] ],
+#	[ "<<★★>>", [ 14, 19 ] ]
+# ]
 
 proff()
-# Executed in 0.20 second(s)
-
-/*----------------
-
-pron()
-
-o1 = new stzString("...<<***>>...<<***>>...")
-
-? @@( o1.FindAnyBoundedByAsSectionsIB("<<", ">>") )
-#--> [ [ 4, 10 ], [ 14, 20 ] ]
-
-? @@( o1.FindAnyBoundedByAsSectionsSIB([ "<<", ">>" ], :StartingAt = 10) )
-#--> [ [ 14, 20 ] ]
-
-? @@( o1.FindAnyBoundedByAsSectionsSIB([ "<<", ">>" ], :StoppingAt = 10) )
-#--> [ [ 4, 10 ] ]
-
-? @@( o1.FindAnyBoundedByAsSectionsSIB([ "<<", ">>" ], :InSection = [4, 20]) )
-#--> [ [ 4, 10 ], [ 14, 20 ] ]
-
-proff()
-# Executed in 0.19 second(s)
-
-/*----------------
-
-pron()
-
-o1 = new stzString("...<<***>>...<<***>>...")
-
-? o1.FindAnyBoundedByIB([ "<<", ">>" ])
-#--> [ 4, 14 ]
-
-? o1.FindAnyBoundedBSIB([ "<<", ">>" ], :StartingAt = 10)
-#--> [ 14 ]
-
-? o1.FindAnyBoundedBSIB([ "<<", ">>" ], :StoppingAt = 10)
-#--> [ 4 ]
-
-? o1.FindAnyBoundedBSIB([ "<<", ">>" ], :InSection = [4, 20])
-#--> [ 4, 14 ]
-
-proff()
-# Executed in 0.16 second(s)
-
-/*=============
-
-pron()
-
-o1 = new stzString("...<<♥♥♥>>...<<★★>>...<<--->>...")
-
-? @@( o1.FindAnyBoundedByAsSectionsS([ "<<", ">>" ], :StartingAt = 10) )
-#--> [ [ 16, 17 ], [ 25, 27 ] ]
-
-? @@( o1.FindAnyBoundedByS([ "<<", ">>" ], :StartingAt = 10) )
-#--> [ 16, 25 ]
-
-? @@( o1.BoundedByS([ "<<", ">>" ], :StartingAt = 10) )
-#--> [ "★★", "---" ]
-
-? NL + "--" + NL
-
-? @@( o1.FindAnyBoundedByAsSectionsSD([ "<<", ">>" ], :StartingAt = :LastChar, :Backward ) )
-#--> [ [ 25, 27 ], [ 16, 17 ], [ 6, 8 ] ]
-
-? @@( o1.FindAnyBoundedByAsSectionsSD([ "<<", ">>" ], :StartingAt = 10, :Going = :Backward ) )
-#--> [ [ 6, 8 ] ]
-
-? @@( o1.BoundedBySD([ "<<", ">>" ], :StartingAt = 10, :Going = :Backward ) )
-#--> [ "♥♥♥" ]
-
-? NL + "--" + NL
-
-? @@( o1.BoundedBySDZ([ "<<", ">>" ], :StartingAt = 10, :Going = :Backward ) )
-#--> [ [ "♥♥♥", 6 ] ]
-
-? @@( o1.BoundedBySDZZ([ "<<", ">>" ], :StartingAt = 10, :Going = :Backward ) )
-#--> [ [ "♥♥♥", [ 6, 8 ] ] ]
-
-? NL + "--" + NL
-
-? @@( o1.BoundedBySD([ "<<", ">>" ], :StartingAt = 10, :Forward) )
-#--> [ "★★", "---" ]
-
-? @@( o1.BoundedBySZ([ "<<", ">>" ], :StartingAt = 10) )
-#--> [ [ "★★", 16 ], [ "---", 25 ] ]
-
-? NL + "--" + NL
-
-? @@( o1.BoundedBySZZ([ "<<", ">>" ], :StartingAt = 10) )
-#--> [ [ "★★", [ 16, 17 ] ], [ "---", [ 25, 27 ] ] ]
-
-? @@( o1.BoundedBySDZ([ "<<", ">>" ], :StartingAt = 10, :Forward) )
-#--> [ [ "★★", 16 ], [ "---", 25 ] ]
-
-? @@( o1.BoundedBySDZZ([ "<<", ">>" ], :StartingAt = 10, :Forward) )
-#--> [ [ "★★", [ 16, 17 ] ], [ "---", [ 25, 27 ] ] ]
-
-? NL + "--" + NL
-
-? @@( o1.BoundedBySDIBZ([ "<<", ">>" ], :StartingAt = 10, :Forward) )
-#--> [ [ "<<★★>>", 14 ], [ "<<--->>", 23 ] ]
-
-? @@( o1.BoundedBySDIBZZ([ "<<", ">>" ], :StartingAt = 10, :Forward) )
-#--> [ [ "<<★★>>", [ 14, 19 ] ], [ "<<--->>", [ 23, 29 ] ] ]
-
-proff()
-# Executed in 0.78 second(s)
-
-/*=============
-
-pron()
-
-o1 = new stzString("...<<♥♥♥>>...<<★★>>...")
-
-? o1.BoundedBy([ "<<", ">>" ])
-#--> [ "♥♥♥", "★★" ]
-
-? o1.BoundedByS([ "<<", ">>" ], :StartingAt = 10)
-#--> [ "★★" ]
-
-? o1.BoundedByS([ "<<", ">>" ], :StoppingAt = 10)
-#--> [ "♥♥♥" ]
-
-? o1.BoundedByS([ "<<", ">>" ], :InSection = [4, 20])
-#--> [ "♥♥♥", "★★" ]
-
-proff()
-# Executed in 0.16 second(s)
-
-/*----------------
-
-pron()
-
-o1 = new stzString("...<<***>>...<<***>>...")
-
-? @@( o1.FindAnyBoundedByAsSections([ "<<", ">>" ]) )
-#--> [ [ 6, 8 ], [ 16, 18 ] ]
-
-? @@( o1.FindAnyBoundedByAsSectionsS([ "<<", ">>" ], :StartingAt = 10) )
-#--> [ [ 16, 18 ] ]
-
-? @@( o1.FindAnyBoundedByAsSectionsS([ "<<", ">>" ], :StoppingAt = 10) )
-#--> [ [ 6, 8 ] ]
-
-? @@( o1.FindAnyBoundedByAsSectionsS([ "<<", ">>" ], :InSection = [4, 20]) )
-#--> [ [ 6, 8 ], [ 16, 18 ] ]
-
-proff()
-# Executed in 0.19 second(s)
-
-/*----------------
-
-pron()
-
-o1 = new stzString("...<<***>>...<<***>>...")
-
-? o1.FindAnyBoundedBy([ "<<", ">>" ])
-#--> [ 6, 16 ]
-
-? o1.FindAnyBBoundedByS([ "<<", ">>" ], :StartingAt = 10)
-#--> [ 16 ]
-
-? o1.FindAnyBoundedByS([ "<<", ">>" ], :StoppingAt = 10)
-#--> [ 6 ]
-
-? o1.FindAnyBoundedByS([ "<<", ">>" ], :InSection = [4, 20])
-#--> [ 6, 16 ]
-
-proff()
-# Executed in 0.16 second(s)
+# Executed in 0.01 second(s)
 
 /*=============
 
@@ -3580,7 +3348,8 @@ Q("♥♥♥ Ring programing language ♥♥♥") {
 }
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s) in Ring 1.21s
+# Executed in 0.05 second(s) in Ring 1.20
 
 /*--------------
 
@@ -3592,7 +3361,7 @@ o1.ReplaceXT(:Nth = 4, "♥", :With = "\")
 #--> _/♥\__/♥\__/♥\__/♥\_
 
 proff()
-#--> Executed in 0.03 second(s)
+#--> Executed in 0.01 second(s)
 
 /*--------------
 
@@ -3604,7 +3373,7 @@ o1.ReplaceXT(:First, "♥", :With = "/")
 #--> _/♥\__/♥\__/♥\__/♥\_
 
 proff()
-#--> Executed in 0.03 second(s)
+#--> Executed in 0.01 second(s)
 
 /*--------------
 
@@ -3616,7 +3385,7 @@ o1.ReplaceXT(:Last, "♥", :With = "\")
 #--> _/♥\__/♥\__/♥\__/♥\_
 
 proff()
-#--> Executed in 0.03 second(s)
+#--> Executed in 0.01 second(s)
 
 /*--------------
 
@@ -3628,7 +3397,7 @@ o1.ReplaceXT("♥", :At = 2, :With = "~") # Or :AtPosition
 #--> ~~/♥\~~
 
 proff()
-#-- Executed in 0.04 second(s)
+#-- Executed in 0.01 second(s)
 
 /*--------------
 
@@ -3640,22 +3409,22 @@ o1.ReplaceXT("♥", :AtPositions = [2, 7], :With = "~") # Or :AtPositions
 #--> ~~/♥\~~
 
 proff()
-#-- Executed in 0.06 second(s)
+#-- Executed in 0.01 second(s)
 
 /*----------------
 
 pron()
 
 o1 = new stzString("bla bla <<♥♥♥>> and bla!")
-o1.ReplaceXT( [], :Between = ["<<",">>"], :With = "bla" )
+o1.ReplaceXT( [], :BoundedBy = ["<<",">>"], :With = "bla" )
 #--> bla bla <<bla>> and bla!
 
 ? o1.Content()
 
 proff()
-#--> Executed in 0.07 second(s)
+#--> Executed in 0.04 second(s)
 
-/*============ ReplaceXT( ..., In = ..., :With = ... )
+/*============ #narration ReplaceXT( ..., In = ..., :With = ... )
 
 pron()
 
@@ -3684,10 +3453,10 @@ o1 = new stzString("*** Ring programmin* language ***")
 #--> *** Ring programming language ***
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.05 second(s) in Ring 1.21
 
 /*========== REMOVE BETWEEN
-
+*/
 StartProfiler()
 
 	o1 = new stzString("__/♥\__")
