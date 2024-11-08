@@ -17157,6 +17157,8 @@ o1 = new stzString("ringringringring")
 proff()
 # Executed in 0.02 second(s).
 
+proff()
+
 /*-------#narration #visiality VIZ-FINDING A RECURRING SUBSTRING
 
 # This narration explores methods to locate and highlight recurring 
@@ -17173,7 +17175,7 @@ o1 = new stzString("fjringljringdjringg")
 # Let's start with a straightforward approach using Find(),
 # which returns the list of positions where "ring" appears:
 
-? o1.Find("ring")
+? @@( o1.Find("ring") ) + NL
 #--> [ 3, 9, 15 ]
 
 # We can go further and add a visual dimension by using
@@ -17187,15 +17189,30 @@ o1 = new stzString("fjringljringdjringg")
 # To gain even more insight, we can add the XT() suffix,
 # providing a numeric guide for each matched position:
 
-? o1.vizFindXT("ring", :numbered) + NL
+? o1.vizFindXT("ring", [ :Numbered = TRUE ]) + NL
 #-->
 # fjringljringdjringg
 # --^-----^-----^----
 #   3     9     15       
 
-? o1.FindAsSections("ring")
+# Now, let's find the positions of "ring" as sections:
 
-? o1.vizFindXT("ring", [ :sectioned = 1, :numbered = 1 ]) + NL
+? @@( o1.FindAsSections("ring") ) + NL # Or simply FindZZ()
+#--> [ [3, 6], [9, 12], [15, 18] ]
+
+# The sections can also be visualized by using
+# the :Sectioned option:
+
+? o1.vizFindZZ("ring") + NL
+#-->
+# fjringljringdjringg
+#   '--'  '--'  '--'
+
+? o1.vizFindXT("ring", [ :Sectioned = TRUE, :Numbered = TRUE ]) + NL
+#-->
+# fjringljringdjringg
+#   '--'  '--'  '--'
+#   3  6  9 12  15 18
 
 # For a more sophisticated display, we can box and section the output,
 # the results become both visually structured and detailed:

@@ -51876,28 +51876,70 @@ n1 = Min(aTemp)
 		def FindCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
 
+			def FindCSZZQ(pcSubStr, pCaseSensitive)
+				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
+
+			def FindCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
 		def FindAllAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+
+			def FindAllAsSectionsCSQ(pcSubStr, pCaseSensitive)
+				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
+
+			def FindAllAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 
 		def FindAllCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+
+			def FindAllCSZZQ(pcSubStr, pCaseSensitive)
+				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
+
+			def FindAllCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#--
 
 		def PositionsAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
 
+			def PositionsAsSectionsCSQ(pcSubStr, pCaseSensitive)
+				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
+
+			def PositionsAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
 		def PositionsCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+
+			def PositionsCSZZQ(pcSubStr, pCaseSensitive)
+				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
+
+			def PositionsCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#--
 
 		def FindSubStringAsSectionsCS(pcSubStr, pCaseSensitive)
 			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
 
+			def FindSubStringAsSectionsCSQ(pcSubStr, pCaseSensitive)
+				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
+
+			def FindSubStringAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
+
 		def FindSubStringCSZZ(pcSubStr, pCaseSensitive)
 			return This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+
+			def FindSubStringCSZZQ(pcSubStr, pCaseSensitive)
+				return This.FindAsSectionsCSQ(pcSubStr, pCaseSensitive)
+
+			def FindSubStringCSZZQR(pcSubStr, pCaseSensitive, pcReturnType)
+				return This.FindAsSectionsCSQR(pcSubStr, pCaseSensitive, pcReturnType)
 
 		#>
 
@@ -51921,28 +51963,70 @@ n1 = Min(aTemp)
 		def FindZZ(pcSubStr)
 			return This.FindAsSections(pcSubStr)
 
-		def FindSubStringZZ(pcSubStr)
-			return This.FindAsSections(pcSubStr)
+			def FindZZQ(pcSubStr)
+				return This.FindAsSectionsQ(pcSubStr)
+
+			def FindZZQR(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
 
 		def FindAllAsSections(pcSubStr)
 			return This.FindAsSections(pcSubStr)
 
+			def FindAllAsSectionsQ(pcSubStr)
+				return This.FindAsSectionsQ(pcSubStr)
+
+			def FindAllAsSectionsQR(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
+
 
 		def FindAllZZ(pcSubStr)
-			return This.FindAsSectionsCS(pcSubStr)
+			return This.FindAsSections(pcSubStr)
+
+			def FindAllZZQ(pcSubStr)
+				return This.FindAsSectionsQ(pcSubStr)
+
+			def FindAllZZQR(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
 
 		#--
 
 		def PositionsAsSections(pcSubStr)
 			return This.FindAsSections(pcSubStr)
 
+			def PositionsAsSectionsQ(pcSubStr)
+				return This.FindAsSectionsQ(pcSubStr)
+
+			def PositionsAsSectionsQR(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
+
 		def PositionsZZ(pcSubStr)
 			return This.FindAsSections(pcSubStr)
+
+			def PositionsZZQ(pcSubStr)
+				return This.FindAsSectionsQ(pcSubStr)
+
+			def PositionsZZQR(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
 
 		#--
 
 		def FindSubStringAsSections(pcSubStr)
 			return This.FindAsSections(pcSubStr)
+
+			def FindSubStringAsSectionsQ(pcSubStr)
+				return This.FindAsSectionsQ(pcSubStr)
+
+			def FindSubStringAsSectionsQR(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
+
+		def FindSubStringZZ(pcSubStr)
+			return This.FindAsSections(pcSubStr)
+
+			def FindSubStringZZQ(pcSubStr)
+				return This.FindAsSectionsQ(pcSubStr)
+
+			def FindSubStringZZQR(pcSubStr, pcReturnType)
+				return This.FindAsSectionsQR(pcSubStr, pcReturnType)
 
 		#>
 
@@ -52368,6 +52452,7 @@ n1 = Min(aTemp)
 	#-----------------------------------------#
 
 	def VizFindCSXT(pcSubStr, pCaseSensitive, paOptions)
+
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 		return This.VizFindXT(pcSubStr, paOptions + :CaseSensitive = bCaseSensitive)
 
@@ -52392,41 +52477,6 @@ n1 = Min(aTemp)
 		#TODO // Options check must be abstracted in a dedicated
 		# function or classe to avoid dupplication adn code complexity!
 		# ~> Can be named stzListOfOptions
-
-
-		# Supporting one option provided in a string:
-		# ~> BoxXT( :Dashed )
-
-		if isString(paOptions)
-			paTemp = [] + [ paOptions, TRUE ]
-			paOptions = paTemp
-		ok
-
-		if isList(paOptions) and len(paOptions) = 2 and
-		   isString(paOptions[1])
-
-			paTemp = [] + paOptions
-			paOptions = paTemp
-		ok
-
-		if NOT isList(paOptions)
-			StzRaise("Incorrect param type! paOptions must be a list.")
-		ok
-
-		# Allowing giving options in string form like:
-		# 
-		# 	BoxXT([ :Solid, :Dashed, :Rounded,
-		# 		:Numbered, :NumberedXT,
-		# 		:ShowPositions, :ShowPositions,
-		# 		:Spacified, :Sectioned ])
-		# 
-		# without being constrained by providing them in
-		# the hashlist form:
-		# 
-		# 	BoxXT([ :Solid = TRUE, :Dashed = TRUE, ... ])
-		# 
-		# ~> More concise syntax!
-
 
 		# Checking params
 
@@ -52513,6 +52563,13 @@ n1 = Min(aTemp)
 			bSpacified = paOptions[:Spacified]
 		ok
 
+		bSectioned = FALSE
+		if ( isString(paOptions[:Sectioned]) and paOptions[:Sectioned] != NULL ) or
+		   ( isNumber(paOptions[:Sectioned]) and ( paOptions[:Sectioned] = 0 or paOptions[:Sectioned] = 1 )  )
+
+			bSectioned = paOptions[:Sectioned]
+		ok
+
 		# STEP 3: Checking the correctness of the provided values
 
 		bCorrect = TRUE
@@ -52554,6 +52611,12 @@ n1 = Min(aTemp)
 			acWhy + ":Spacified option must be a boalean"
 		ok
 
+		If NOT ( isNumber(bSectioned) and (bSectioned = 0 or bSectioned = 1) )
+
+			bCorrect = FALSE
+			acWhy + ":Sectioned option must be a boalean"
+		ok
+
 		if NOT bCorrect
 			stzRaise([
 				:Where	= "stzString.ring > vizFindXT()",
@@ -52572,6 +52635,8 @@ n1 = Min(aTemp)
 
 		oString = new stzString(cString)
 
+		# Getting the positions
+
 		anPos = oString.FindAllCS( pcSubStr, :CS = bCaseSensitive )
 		nLen = len(anPos)
 
@@ -52579,22 +52644,52 @@ n1 = Min(aTemp)
 			return
 		ok
 
+		# In case sections ar requested
+
+		if bSectioned
+			aSections = This.FindCSZZ(pcSubStr, bCaseSensitive)
+			anPos = StzListQ(aSections).Flattened()
+			cPositionSign = "'"
+		ok
+
+		# Composing the line of marquers
+
 		nLen = oString.NumberOfChars()
 
 		cVizLine = ""
-		for i = 1 to nLen
 
+		for i = 1 to nLen
 			if ring_find(anPos, i) > 0
 				cVizLine += cPositionSign
 			else
 				cVizLine += cBlankSign
 			ok
-
 		next
+
+		if bSectioned
+			nLenSections = len(aSections)
+			for i = 1 to nLenSections
+				aSections[i][1]++
+				aSections[i][2]--
+			next
+
+			nLenSegment = StzStringQ(pcSubStr).NumberOfChars()-2
+			cTempSegment = ""
+
+			for i = 1 to nLenSegment
+				cTempSegment += cBlankSign
+			next
+
+			oVizLine = new stzString(cVizLine)
+			oVizLine.Replace(cBlankSign, " ")
+			oVizLine.ReplaceSections(aSections, cTempSegment)
+			cVizLine = oVizLine.Content()
+
+		ok
 
 		cResult = oString.Content() + NL + cVizLine
 
-		 # In case a numbered line is requested
+		# In case a numbered line is requested
 
 		if bNumbered
 
@@ -52624,7 +52719,6 @@ n1 = Min(aTemp)
 	
 			cResult += (NL + cPosLine)
 		ok
-
 		
 		return cResult
 
@@ -52693,47 +52787,6 @@ n1 = Min(aTemp)
 		cResult = This.ToStzListOfChars().BoxXT(paOptions)
 		return cResult
 
-
-
-
-/*
-		if NOT isList(paOptions)
-			StzRaise("Incorrect param type! paOptions must be a list.")
-		ok
-
-		# Checking the hashlist of params
-
-		# Cleansing paOptions from any :Hilight option
-		# because we will add add ourselves to the opttions sets
-		# before delegating the work to stzListOfChars boxing service
-
-		anTemp = []
-		nLen = len(paOptions)
-		for i = 1 to nLen
-			if paOptions[i][1] = :Hilight or paOptions[i][1] = :Hilighted
-				anTemp + i
-			ok
-		next
-
-		nLen = len(anTemp)
-		for i = nLen to 1 step -1
-			ring_del(paOptions, anTemp[i])
-		next
-
-		# Hilight the positions of pcSubStr
-
-		paOptions + ( :Hilighted = This.FindCS(pcSubStr, pCaseSensitive) )
-
-		# Boxifying using stzListOfChars
-
-			#WARNING // bCaseSensitive is sent inside paOptions to 
-			# the stzListOfChars class which does not care of it.
-	
-			# ~> We do nothing here because stzListOfChars will manage it.
-
-		cBoxed = This.CharsBoxedXT(paOptions)
-		return cBoxed
-*/
 		#< @FunctionAlternativeForms
 
 		def VizFindBoxifiedXTCS(pcSubstr, paOptions, pCaseSensitive)
@@ -52766,7 +52819,9 @@ n1 = Min(aTemp)
 	#===========================================#
 
 	def VizFindCSXTZZ(pcSubStr, pCaseSensitive, paOptions)
-		StzRaise("Not implemeneted yet!")
+
+		bCaseSensitive = CaseSensitive(pCaseSensitive)
+		return This.vizFindXT(pcSubStr, [ :Sectioned = TRUE, :Numbered = TRUE, :CaseSensitive = bCaseSensitive ])
 
 
 		def VizFindXTCSZZ(pcSubStr, paOptions, pCaseSensitive)
@@ -52787,7 +52842,7 @@ n1 = Min(aTemp)
 	#-- WITHOUT CASESENSITIVITY
 
 	def VizFindZZ(pcSubStr)
-		return This.VizFindCSZZ(pcSubStr, TRUE)
+		return This.VizFindCSXTZZ(pcSubStr, TRUE, [])
 
 	  #-------------------------------------------------#
 	 #  VISUALLY FINDING AND BOXING A SUBSTRING -- ZZ  #
