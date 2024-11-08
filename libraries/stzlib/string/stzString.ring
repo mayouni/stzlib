@@ -52644,7 +52644,7 @@ n1 = Min(aTemp)
 			return
 		ok
 
-		# In case sections ar requested
+		# In case sections ar requested, we add the other positions
 
 		if bSectioned
 			aSections = This.FindCSZZ(pcSubStr, bCaseSensitive)
@@ -52666,12 +52666,19 @@ n1 = Min(aTemp)
 			ok
 		next
 
+		# if sections mus be included, we craft the cVizLine accordingly
+
 		if bSectioned
+
+			# First we get the sections of the segments
+
 			nLenSections = len(aSections)
 			for i = 1 to nLenSections
 				aSections[i][1]++
 				aSections[i][2]--
 			next
+
+			# Second we fabricate the segment
 
 			nLenSegment = StzStringQ(pcSubStr).NumberOfChars()-2
 			cTempSegment = ""
@@ -52680,6 +52687,8 @@ n1 = Min(aTemp)
 				cTempSegment += cBlankSign
 			next
 
+			# Finally we change cVizLine to cope with sections
+
 			oVizLine = new stzString(cVizLine)
 			oVizLine.Replace(cBlankSign, " ")
 			oVizLine.ReplaceSections(aSections, cTempSegment)
@@ -52687,16 +52696,27 @@ n1 = Min(aTemp)
 
 		ok
 
+		# the vizline is finalised, we add it to the output
+
 		cResult = oString.Content() + NL + cVizLine
 
-		# In case a numbered line is requested
+		# In case a numbered line is requested, we add it
 
 		if bNumbered
+
+			# The idea is to use the cVizLine we already have,
+			# and get a cPosLine containing numbers and spaces
 
 			cPosLine = ring_substr2(cVizLine, cBlankSign, " ")
 
 			nLenPos = len(anPos)
 			aSections = []
+
+			# There is a difficulty we must manage related to
+			# keeping the same lenght of the line as cVizLine
+			# whatever lenght the numbers have.
+
+			# Here we deal with it:
 
 			acPos = []
 
@@ -52712,11 +52732,16 @@ n1 = Min(aTemp)
 				aSections + [ n1, n2 ]
 			next
 
+			# Now we have the sections and the numbers-in-strings
+			# Let's do the job to get the cPosLine
+
 			oStrPosLine = new stzString(cPosLine)
 			cPosLine = oStrPosLine.
 				   ReplaceSectionsByManyQ(aSections, acPos).
 				   Content()
 	
+			# Finally, we add cPosLine to the result
+
 			cResult += (NL + cPosLine)
 		ok
 		
