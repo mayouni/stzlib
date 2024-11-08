@@ -4,14 +4,11 @@ load "../stzlib.ring"
 
 pron()
 
-? StzCCodeQ(' @CurrentItem = @NextItem ').ExecutableSection()
-#--> [ 1, :Last ]
-
-? StzCCodeQ(' @CurrentItem = @NextItem ').ExecutableSectionXT()
+? StzCCodeQ(' This[@i] = This[@i+1] ').ExecutableSection()
 #--> [ 1, -1 ]
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*-------- #narration BETWEEN vs BOUNDEDBY
 
@@ -37,7 +34,7 @@ o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
 #--> [ "ring", "softanza" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*----------
 
@@ -57,7 +54,7 @@ o1 = new stzString('{ This[@i] = This[@i + 1] + 5 }')
 #--> [ "+1", "+5" ]
 
 proff()
-# Executed in 0.07 second(s) in ring 1.20
+# Executed in 0.07 second(s) in ring 1.21
 # Executed in 0.29 second(s) in ring 1.17
 
 /*----------
@@ -69,7 +66,7 @@ o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
 #--> [ "-3", "+3", "10" ]
 
 proff()
-# Executed in 0.09 second(s) in ring 1.20
+# Executed in 0.11 second(s) in ring 1.21
 # Executed in 0.18 second(s) in Ring 1.17
 
 /*----------
@@ -81,7 +78,7 @@ o1 = new stzCCode('{ This[ @i - 3 ] = This[ @i + 3 ] and @i = 10 }')
 #--> [4, -3]
 
 StopProfiler()
-# Executed in 0.05 second(s) in Ring 1.20
+# Executed in 0.09 second(s) in Ring 1.21
 # Executed in 0.22 second(s) in ring 1.17
 
 /*----------
@@ -93,14 +90,14 @@ o1 = new stzString('This[@i] = This[@i + 1] + @i - 2')
 #--> [ "+1", "-2" ]
 
 StopProfiler()
-# Executed in 0.09 second(s) in Ring 1.20
+# Executed in 0.08 second(s) in Ring 1.21
 # Executed in 0.16 second(s) in ring 1.17
 
-/*----------
+/*---------- #narration
 
 StartProfiler()
 
-# When you use keywords other then This[@i] an alike in your
+# When you use keywords other then This[@i] and alike in your
 # conditional code, then you must use ExecutableSectionXT()
 # and not ExecutableSection(). Otherwise results are not
 # guaranteed to be correct. Here is an example:
@@ -127,7 +124,7 @@ StartProfiler()
 	#--> [ 1, -1 ]
 
 StopProfiler()
-# Executed in 0.17 second(s) in ring 1.20
+# Executed in 0.17 second(s) in ring 1.21
 # Executed in 0.43 second(s) in Ring 1.17
 
 /*----------
@@ -139,7 +136,7 @@ StartProfiler()
 	#--> [ 2, :Last ]
 
 StopProfiler()
-# Executed in 0.12 second(s) in Ring 1.20
+# Executed in 0.12 second(s) in Ring 1.21
 # Executed in 0.26 second(s) in Ring 1.17
 
 /*----------
@@ -151,7 +148,7 @@ StartProfiler()
 	#--> [ 5, :Last ]
 
 StopProfiler()
-# Executed in 0.06 second(s) in Ring 1.20
+# Executed in 0.09 second(s) in Ring 1.21
 # Executed in 0.14 second(s) in Ring 1.17
 
 /*---------- #narration #perf
@@ -175,17 +172,18 @@ StopProfiler()
 # Executed in 0.12 second(s)
 
 /*----------
-*/
+
 StartProfiler()
 
 	o1 = new stzCCode('Q(@EachChar).IsUppercase()')
 	? o1.Transpiled()
-	#-->Q( This[@i] ).IsUppercase()
+	#--> Q( This[@i] ).IsUppercase()
 
 	? o1.ExecutableSectionXT()
 	#--> [ 1, :Last ]
 
 StopProfiler()
+# Executed in 0.05 second(s) in Ring 1.21
 # Executed in 0.11 second(s) in Ring 1.20
 # Executed in 0.36 second(s) in Ring 1.17
 
@@ -198,7 +196,7 @@ StartProfiler()
 	#--> [ 1, -1 ]
 
 StopProfiler()
-# Executed in 0.12 second(s) in Ring 1.20
+# Executed in 0.12 second(s) in Ring 1.21
 # Executed in 0.28 second(s) in Ring 1.17
 
 /*----------
@@ -213,5 +211,5 @@ StartProfiler()
 	#--> [ 1, -1 ]
 
 StopProfiler()
-# Executed in 0.13 second(s) in Ring 1.20 and Ring 1.21
+# Executed in 0.13 second(s) in Ring 1.21
 # Executed in 0.29 second(s) in Ring 1.17
