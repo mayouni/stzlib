@@ -17157,7 +17157,7 @@ o1 = new stzString("ringringringring")
 proff()
 # Executed in 0.02 second(s).
 
-/*-------#narration FINDING PATTERNS IN A SEA OF TEXT
+/*-------#narration #visiality VIZ-FINDING A RECURRING SUBSTRING
 
 # This narration explores methods to locate and highlight recurring 
 # sequences within strings, with both precision and visual assistance.
@@ -17192,6 +17192,10 @@ o1 = new stzString("fjringljringdjringg")
 # fjringljringdjringg
 # --^-----^-----^----
 #   3     9     15       
+
+? o1.FindAsSections("ring")
+
+? o1.vizFindXT("ring", [ :sectioned = 1, :numbered = 1 ]) + NL
 
 # For a more sophisticated display, we can box and section the output,
 # the results become both visually structured and detailed:
