@@ -1,4 +1,4 @@
-load "../stzlib.ring"
+load "../max/stzmax.ring"
 
 ? StopWords() #--> All stopwords concatenated in one list
 

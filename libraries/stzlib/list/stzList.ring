@@ -55246,23 +55246,41 @@ def IndexBy(pcPosOrOccurr)
 		next
 
 		This.UpdateWith(aResult)
-			 
+
+		#< @FunctionFluentForm
+
 		def NumberifyQ()
 			This.Numberify()
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def Numbrify()
 			This.Numberify()
 
 			def NumbrifyQ()
-				This.Numbrify()
-				return This
+				return This.NumberifyQ()
+
+		def Numberfy()
+			This.Numberify()
+
+			def NumberfyQ()
+				return This.NumberifyQ()
+
+		#>
+
+	#-- @FunctionPassiveForms
 
 	def Numberified()
 		aResult = This.Copy().NumberifyQ().Content()
 		return aResult
 
 		def Numbrified()
+			return This.Numberified()
+
+		def Numberfied()
 			return This.Numberified()
 
 	  #----------------------------------------------------------------#
@@ -83249,3 +83267,45 @@ def IndexBy(pcPosOrOccurr)
 
 		def IsNLastItemsNamedParam()
 			return This.IsLastNItemsNamedParam()
+
+	def IsStartingAtOrAfterNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   ( This.Item(1) = :StartingAt or This.Item(1) = :After )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsStartingAtOrAfterNamedParams()
+			return IsStartingAtOrAfterNamedParam()
+
+		def IsAfterOrStartingAtNamedParam()
+			return IsStartingAtOrAfterNamedParam()
+
+		def IsAfterOrStartingAtNamedParams()
+			return IsStartingAtOrAfterNamedParam()
+
+	def IsStartingAtOrBeforeNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   ( This.Item(1) = :StartingAt or This.Item(1) = :Before )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsStartingAtOrBeforeNamedParams()
+			return IsStartingAtOrBeforeNamedParam()
+
+		def IsBeforeOrStartingAtNamedParam()
+			return IsStartingAtOrBeforeNamedParam()
+
+		def IsBeforeOrStartingAtNamedParams()
+			return IsStartingAtOrBeforeNamedParam()

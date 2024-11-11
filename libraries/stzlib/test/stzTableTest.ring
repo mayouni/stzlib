@@ -1,4 +1,4 @@
-load "../stzlib.ring"
+load "../max/stzmax.ring"
 
 /*------- #ring
 
@@ -47,7 +47,7 @@ proff()
 # Executed in 0.08 second(s)
 
 /*---------------
-
+*/
 pron()
 
 # WAY 3: Creating a table by provding a list of lists, formatted as you

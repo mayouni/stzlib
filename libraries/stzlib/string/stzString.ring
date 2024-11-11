@@ -21633,6 +21633,9 @@ class stzString from stzObject
 	#========================================================================================#
 
 	def FindBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
+		if NOT isString(pcBound1) and isString(pcBound2)
+			StzRaise("Incorrect param types! pcBound1 and pcBound2 must be both strings.")
+		ok
 
 		nLen1 = StzStringQ(pcBound1).NumberOfChars()
 		n1 = This.FindFirstOccurrenceCS(pcBound1, pCaseSensitive) + nLen1
@@ -21688,6 +21691,8 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
 		def RemoveBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 			This.RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 
@@ -21705,10 +21710,22 @@ class stzString from stzObject
 	def RemoveAnyBetween(pcBound1, pcBound2)
 		return This.RemoveAnyBetweenCS(pcBound1, pcBound2, TRUE)
 
+		#< @FunctionAlternativeForm
+
+		def RemoveBetween(pcBound1, pcBound2)
+			This.RemoveAnyBetween(pcBound1, pcBound2)
+
+			def RemoveBetweenQ(pcBound1, pcBound2)
+				return This.RemoveAnyBetweenQ(pcBound1, pcBound2)
+
+		#>
 
 	def AnyBetweenRemoved(pcBound1, pcBound2)
 		acResult = This.Copy().RemoveAnyBetweenCSQ(pcBound1, pcBound2).Content()
 		return acResult
+
+		def BetweenRemoved(pcBound1, pcBound2)
+			return This.AnyBetweenRemoved(pcBound1, pcBound2)
 
 	  #-------------------------------------------------------------------#
 	 #  REMOVING ANY SUBSTRING BETWEEN TWO OTHER SUBSTRINGS -- EXTENDED  #
@@ -21717,7 +21734,7 @@ class stzString from stzObject
 
 	def RemoveAnyBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
 
-		aSections = This.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
+		aSection = This.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 
 		if isList(pcBound2) and Q(pcBound2).IsAndNamedParam()
 			pcBound2 = pcBound2[2]
@@ -21726,12 +21743,10 @@ class stzString from stzObject
 		nLen1 = StzStringQ(pcBound1).NumberOfChars()
 		nLen2 = StzStringQ(pcBound2).NumberOfChars()
 
-		for i = 1 to len(aSections)
-			aSections[i][1] = aSections[i][1] - nLen1
-			aSections[i][2] = aSections[i][2] + nLen2
-		next
+		aSection[1] = aSection[1] - nLen1
+		aSection[2] = aSection[2] + nLen2
 
-		This.RemoveSections(aSections)
+		This.RemoveSection(aSection[1], aSection[2])
 
 		#< @FunctionFluentForm
 
@@ -21739,20 +21754,50 @@ class stzString from stzObject
 			This.RemoveAnyBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
 			return This
 
+		#--
+
+		def RemoveBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
+			This.RemoveAnyBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
+
+			def RemoveBetweenCSIBQ(pcBound1, pcBound2, pCaseSensitive)
+				return This.RemoveAnyBetweenCSIBQ(pcBound1, pcBound2, pCaseSensitive)
+
 		#>
 
 	def AnyBetweenRemovedCSIB(pcBound1, pcBound2, pCaseSensitive)
 		acResult = This.Copy().RemoveBetweenCSIBQ(pcBound1, pcBound2, pCaseSensitive).Content()
 		return acResult
 
+		def RemovedBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
+			return This.AnyBetweenRemovedCSIB(pcBound1, pcBound2, pCaseSensitive)
+
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveAnyBetweenIB(pcBound1, pcBound2)
 		return This.RemoveAnyBetweenCSIB(pcBound1, pcBound2, TRUE)
 
+		#< @FunctionFluentForm
+
+		def RemoveAnyBetweenIBQ(pcBound1, pcBound2)
+			This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+			return This
+
+		#--
+
+		def RemoveBetweenIB(pcBound1, pcBound2)
+			This.RemoveAnyBetweenIB(pcBound1, pcBound2)
+
+			def RemoveBetweenIBQ(pcBound1, pcBound2)
+				return This.RemoveAnyBetweenIBQ(pcBound1, pcBound2)
+
+		#>
+
 	def AnyBetweenRemovedIB(pcBound1, pcBound2)
 		acResult = This.Copy().RemoveBetweenIBQ(pcBound1, pcBound2).Content()
 		return acResult
+
+		def RemovedBetweenIB(pcBound1, pcBound2)
+			return This.AnyBetweenRemovedIB(pcBound1, pcBound2)
 
 	  #============================================================#
 	 #     REMOVING LEFT BOUND OF A SUBSTRING FROM THE STRING     #
@@ -42794,6 +42839,44 @@ class stzString from stzObject
 
 		def NFirstOccurrencesReplaced(n, pcSubStr, pcNewSubStr)
 			return This.FirstNOccurrencesReplaced(n, pcSubStr, pcNewSubStr)
+
+	  #--------------------------------------------------#
+	 #   REPLACING MANY NTH OCCURRENCES OF A SUBSTRING  #
+	#==================================================#
+	# Based on a problem posted by Gal in RosettaCode
+
+	def ReplaceManyNthSubStringsCS(paNthSubStrNewSubStr, pCaseSensitive)
+		/* EXAMPLE
+		Q("abracadabra") {
+			ReplaceManyNthSubStrings([
+				[ 1, 'a', :with = 'A' ],
+				[ 2, 'a', :with = 'B' ],
+				[ 4, 'a', :with = 'C' ],
+				[ 5, 'a', :with = 'D' ],
+			
+				[ 1, 'b', :with = 'E' ],
+				[ 2, 'r', :with = 'F' ]
+			])
+			? Content()
+			# AErBcadCbFD
+		}
+		*/
+
+		nLen = len(paNthSubStrNewSubStr)
+
+		if CheckParams()
+			if NOT isList(paNthSubStrNewSubStr)
+				StzRaise("Incorrect param type! paNthSubStrNewSubStr must be a list.")
+			ok
+
+			for i = 1 to nLen
+				
+			next
+
+		ok
+
+		
+
 
 	  #========================#
 	 #   REPLACING NTH CHAR   # 
@@ -94465,6 +94548,26 @@ n1 = Min(aTemp)
 			return This.LastNumberComingAfter(pcSubStr)
 
 		#>
+
+	  #============================================#
+	 #  GETTING THE LIST OF DIGITS IN THE STRING  #
+	#============================================#
+
+	def Digits()
+		acResult = []
+		aoChars = This.CharsQ().ToListOfStzChars()
+		nLen = len(aoChars)
+
+		for i = 1 to nLen
+			if aochars[i].IsDigit()
+				acResult + aoChars[i].Content()
+			ok
+		next
+
+		return acResult
+
+		def DigitsQ()
+			return new stzList(This.Digits())
 
 	  #====================================#
 	 #  BISECTING THE STRING INTO HALVES  #

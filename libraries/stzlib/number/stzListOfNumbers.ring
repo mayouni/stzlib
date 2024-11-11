@@ -974,6 +974,376 @@ func PrimeNumbersIn(paList)
 
 	#>
 
+#---- Getting the first n prime numbers #ClaudeAI
+
+func FirstNPrimes(n)
+	/*
+	The Sieve of Eratosthenes Algorithm is used
+
+	This is an ancient and efficient algorithm for finding prime numbers,
+	discovered by Greek mathematician Eratosthenes (276-194 BC).
+
+	Here's how it works:
+
+	1. Start with a list of numbers from 2 to n
+	2. Take the first unmarked number (it's prime)
+	3. Mark all its multiples as non-prime (composite)
+	4. Repeat steps 2-3 until you've processed all numbers up to sqrt(n)
+
+	Example for n = 20:
+
+	[2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20]   #~> Initial list
+	[2 3 X 5 X 7 X 9 X  11 X  13 X  15 X  17 X  19 X ] #~> After marking 2's multiples
+	[2 3 X 5 X 7 X X X  11 X  13 X  X  X  17 X  19 X ] #~> After marking 3's multiples
+	[2 3 X 5 X 7 X X X  11 X  13 X  X  X  17 X  19 X ] #~> After marking 5's multiples
+
+	Why it's efficient:
+	- Each composite number is marked exactly once by its smallest prime factor
+	- We only need to check up to sqrt(n) because if n is composite, it must 
+	  have a factor less than or equal to its square root
+	*/
+
+
+	if n <= 0 return [] ok
+	    
+	limit = ceil(n * log(n) + n * log(log(n)))
+	if limit < 2 limit = 2 ok
+	    
+	# Create boolean array, initially all marked as potential primes
+	sieve = list(limit)
+	for i = 1 to limit
+		sieve[i] = 1
+	next
+    
+	# Start sieving - mark all composite numbers
+	sieve[1] = 0  # 1 is not prime
+	for i = 2 to sqrt(limit)
+		if sieve[i] = 1
+			# Mark all multiples starting from i*i
+			# (smaller multiples would have been marked by smaller primes)
+			for j = i * i to limit step i
+				sieve[j] = 0
+			next
+		ok
+	next
+    
+	# Collect the first n primes from our sieve
+	primes = []
+	for i = 2 to limit
+		if sieve[i] = 1
+			add(primes, i)
+			if len(primes) = n
+				exit
+			ok
+		ok
+	next
+    
+	return primes
+
+	#< @FunctionFluentForms
+
+	func FirstNPRimesQ(n)
+		return new stzList(FirstNPrimes(n))
+
+	func FirstNPrimesQR(n, pcReturnType)
+		if NOT isString(pcReturnType)
+			StzRaise("Incorrect param type! pcReturnType must be a string.")
+		ok
+
+		switch pcReturnType
+		on :stzList
+			return new stzList(FirstNPrimes(n))
+		on :stzListOfNumbers
+			return new stzListOfNumbers(FirstNPrimes(n))
+		other
+			StzRaise("Can't transform the list into the provided type.")
+		off
+
+	#>
+
+	#< @FunctionAlternativeForm
+
+	func @FirstNPrimes(n)
+		return FirstNPrimes(n)
+
+		func @firstNPrimesQ(n)
+			return FirstNPrimesQ(n)
+
+		func @FirstNPrimesQR(n, pcReturnType)
+			return FirstNPrimesQR(n, pcReturnType)
+
+	#>
+
+func NextPrimeST(nbr)
+	return NextNthPrimeST(1, nbr)
+
+	#< @FunctionAlternativeForms
+
+	func NextPrime(Start)
+		return NextPrimeST(nStart)
+
+	func NextPrimeAfter(nStart)
+		return NextPrimeST(nStart)
+
+	#--
+
+	func @NextPrimeST(nStart)
+		return NextPrimeST(nStart)
+
+	func @NextPrime(nStart)
+		return NextPrimeST(nStart)
+
+	func @NextPrimeAfter(nStart)
+		return NextPrimeST(nStart)
+
+	#>
+
+func NextNthPrimeST(nth, nbr)
+	if CheckParams()
+		if NOT isNumber(nth)
+			StzRaise("Incorrect param type! nth must be a number.")
+		ok
+	
+		if isList(nbr) and StzListQ(nbr).IsStartingAtOrAfterNamedParam()
+			nbr = nbr[2]
+		ok
+
+		if NOT isNumber(nbr)
+			StzRaise("Incorrect param type! nbr must be a number.")
+		ok
+	ok
+
+	if nth < 1 return 0 ok
+    
+	found = 0
+	num = nbr + 1
+    
+	while found < nth
+		if isPrime(num)
+			found++
+			if found = nth
+				return num
+			ok
+        	ok
+       		 num++
+    	end
+    
+    	return num - 1
+
+	#< @FunctionAlternativeForms
+
+	func NextNthPrime(nth, nbr)
+		return NextNthPrimeST(nth, nbr)
+
+	func NextNthPrimeAfter(nth, nbr)
+		return NextNthPrimeST(nth, nbr)
+
+	#--
+
+	func @NextNthPrimeST(nth, nbr)
+		return NextNthPrimeST(nth, nbr)
+
+	func @NextNthPrime(nth, nbr)
+		return NextNthPrimeST(nth, nbr)
+
+	func @NextNthPrimeAfter(nth, nbr)
+		return NextNthPrimeST(nth, nbr)
+
+	#==
+
+	func NthNextprimeST(nth, nbr)
+		return NextNthPrimeST(nth, nbr)
+
+	func NthNextPrime(nth, nbr)
+		return NextNthPrimeST(nth, nbr)
+
+	func NthNextPrimeAfter(nth, nbr)
+		return NextNthPrimeST(nth, nbr)
+
+	#--
+
+	func @NthNextPrimeST(nth, nbr)
+		return NextNthPrimeST(nth, nbr)
+
+	func @NthNextPrime(nth, nbr)
+		return NextNthPrimeST(nth, nbr)
+
+	func @NthNextPrimeAfter(nth, nbr)
+		return NextNthPrimeST(nth, nbr)
+
+	#>
+
+func PreviousPrimeST(nbr)
+	return PreviousNthPrimeST(1, nbr)
+
+	#< @FunctionAlternativeForms
+
+	func PreviousPrime(nbr)
+		return PreviousPrimeST(nbr)
+
+	func PreviousPrimeBefore(nbr)
+		return PreviousPrimeST(nbr)
+
+	#--
+
+	func @PreviousPrimeST(nbr)
+		return PreviousPrimeST(nbr)
+
+	func @PreviousPrime(nbr)
+		return PreviousPrimeST(nbr)
+
+	func @PreviousPrimeBefore(nbr)
+		return PreviousPrimeST(nbr)
+
+	#>
+
+func PreviousNthPrimeST(nth, nbr)
+	if CheckParams()
+		if NOT isNumber(nth)
+			StzRaise("Incorrect param type! nth must be a number.")
+		ok
+	
+		if isList(nbr) and StzListQ(nbr).IsStartingAtOrBeforeNamedParam()
+			nbr = nbr[2]
+		ok
+
+		if NOT isNumber(nbr)
+			StzRaise("Incorrect param type! nbr must be a number.")
+		ok
+	ok
+
+    	if nth < 1 return 0 ok
+    	if nbr <= 2 return 0 ok  # No primes before 2
+    
+    	found = 0
+   	num = nbr - 1
+    
+   	while found < nth and num >= 2
+        	if isPrime(num)
+          		found++
+            		if found = nth
+                		return num
+            		ok
+        	ok
+       		 num--
+    	end
+    
+    	# If we couldn't find enough primes before the number
+
+   	 if found < nth
+        	return 0
+    	ok
+    
+   	return num + 1
+
+	#< @FunctionAlternativeForms
+
+	func PreviousNthPrime(nth, nbr)
+		return PreviousNthPrimeST(nth, nbr)
+
+	func PreviousNthPrimeBefore(nth, nbr)
+		return PreviousNthPrimeST(nth, nbr)
+
+	#--
+
+	func @PreviousNthPrimeST(nth, nbr)
+		return PreviousNthPrimeST(nth, nbr)
+
+	func @PreviousNthPrime(nth, nbr)
+		return PreviousNthPrimeST(nth, nbr)
+
+	func @PreviousNthPrimeBefore(nth, nbr)
+		return PreviousNthPrimeST(nth, nbr)
+
+	#==
+
+	func NthPreviousprimeST(nth, nbr)
+		return PreviousNthPrimeST(nth, nbr)
+
+	func NthPreviousPrime(nth, nbr)
+		return PreviousNthPrimeST(nth, nbr)
+
+	func NthPreviousPrimeAfter(nth, nbr)
+		return PreviousNthPrimeST(nth, nbr)
+
+	#--
+
+	func @NthPreviousPrimeST(nth, nbr)
+		return PreviousNthPrimeST(nth, nbr)
+
+	func @NthPreviousPrime(nth, nbr)
+		return PreviousNthPrimeST(nth, nbr)
+
+	func @NthPreviousPrimeAfter(nth, nbr)
+		return PreviousNthPrimeST(nth, nbr)
+
+	#>
+
+func FirstNPrimesWXT(n, pcCondition)
+	/* EXAMPLE
+
+	o1.FirstNPrimesW(25, ' Q(@number).DigitsQR(:stzListOfNumbers).ArePrime() ')
+	#--> [ ... ]
+
+	*/
+	if CheckParams()
+
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
+		ok
+
+		if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParam()
+			pcCondition = pcCondition[2]
+		ok
+
+		if NOT isString(pcCondition)
+			StzRaise("Incorrect param type! pcCondition must be a string.")
+		ok
+
+	ok
+
+	if StzStringQ(pcCondition).ContainsCS("@prime", FALSE) = FALSE
+		StzRaise("Incorrect syntax! pcCondition must be a string containg Ring conditional code.")
+	ok
+
+	nMax = MaxRingNumber()
+
+	cCode = 'bOk = (' + StzStringQ(pcCondition).SimplifyQ().TheseBoundsRemoved("{", "}") + ' )'
+
+	anResult = []
+
+	@prime = 0
+	j = 0
+
+	while TRUE
+		j++
+		if j > nMax
+			StzRaise("Can't proceed! Maximum Ring number exceeded.")
+		ok
+
+		@prime = NextPrimeAfter(@prime)
+
+		eval(cCode)
+		if bOk
+			anResult + @prime
+			if len(anResult) = n
+				exit
+			ok
+		ok
+
+	end
+
+	return anResult
+
+	func NFirstPrimesWX(n, pcCondition)
+		return FirstNPrimesWX(n, pcCondition)
+
+	func FirstNPrimesW(n, pcCondition)
+		return FirstNPrimesWXT(n, pcCondition)
+
+	func NFirstPrimesW(n, pcCondition)
+		return FirstNPrimesWXT(n, pcCondition)
+
   ////////////////
  ///  CLASS   ///
 ////////////////
@@ -981,35 +1351,35 @@ func PrimeNumbersIn(paList)
 class stzNumbers from stzListOfNumbers
 
 class stzListOfNumbers from stzList
-	@anContent
+@aContent
 
-	// TODO: Add the possibility to add a list of numbers in strings
-	// --> So we can manage numbers as stzNumbers (wich can be provided
-	// in strings to conserve their round.
-	def init(paList)
-		if isList(paList) and
-		   ( Q(paList).IsEmpty() or Q(paList).IsListOfNumbers() )
+// TODO: Add the possibility to add a list of numbers in strings
+// --> So we can manage numbers as stzNumbers (wich can be provided
+// in strings to conserve their round.
+def init(paList)
+	if isList(paList) and
+	   ( Q(paList).IsEmpty() or Q(paList).IsListOfNumbers() )
 
-			@anContent = paList
+		@aContent = paList
 
-		but isString(paList)
-			try
-				aList = Q(paList).ToList()
-				if StzListQ(aList).IsListOfNumbers()
-					@anContent = aList
-				else
-					StzRaise("The list in the string you provided is not a list of numbers!")
-				ok
+	but isString(paList)
+		try
+			aList = Q(paList).ToList()
+			if StzListQ(aList).IsListOfNumbers()
+				@aContent = aList
+			else
+				StzRaise("The list in the string you provided is not a list of numbers!")
+			ok
 
-			catch
-				StzRaise("Can't transform the string into a llist of numbers!")
-			done
-		else
-			StzRaise("Can't create a stzListOfNumbers object!")
-		ok
+		catch
+			StzRaise("Can't transform the string into a llist of numbers!")
+		done
+	else
+		StzRaise("Can't create a stzListOfNumbers object!")
+	ok
 
 	def Content()
-		aResult = @anContent
+		aResult = @aContent
 
 		return aResult
 
@@ -2441,13 +2811,13 @@ class stzListOfNumbers from stzList
 
 		# Doing the job
 	
-		nLen = len(@anContent)
+		nLen = len(@aContent)
 
 		if nLen = 0
 			return []
 
 		but nLen = 1
-			return [ @anContent[1] ]
+			return [ @aContent[1] ]
 		ok
 
 		anSorted = This.ToSetQ().Sorted()
@@ -2941,14 +3311,14 @@ class stzListOfNumbers from stzList
 		// --> Should return: [ 3, 3, 3, 4, 5, 5, 5, 5, 5 ])
 		*/
 
-		nLen = len(@anContent)
+		nLen = len(@aContent)
 
 		for i = 1 to nLen
-			if @anContent[i] < nMin
-				@anContent[i] = nMin
+			if @aContent[i] < nMin
+				@aContent[i] = nMin
 
-			but @anContent[i] > nMax
-				@anContent[i] = nMax
+			but @aContent[i] > nMax
+				@aContent[i] = nMax
 			ok
 		next
 
@@ -2976,10 +3346,10 @@ class stzListOfNumbers from stzList
 	#-----------------------------------------#
 
 	def ReplaceSectionWith(n1, n2, n)
-		nLen = len(@anContent)
+		nLen = len(@aContent)
 		for i = 1 to nLen
 			if i >= n1 and i <= n2
-				@anContent[i] = n
+				@aContent[i] = n
 			ok
 		next
 
@@ -3017,7 +3387,7 @@ class stzListOfNumbers from stzList
 		aResult = []
 		nLen = This.Content()
 		for i = 3 to nLen
-			@anContent[i] += @anContent[i-1]
+			@aContent[i] += @aContent[i-1]
 		next
 			
 		def CumulateQ()
@@ -3822,7 +4192,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type!")
 		ok
 
-		@anContent = panNewListOfNumbers
+		@aContent = panNewListOfNumbers
 
 		#< @FunctionFluentForm
 
@@ -3888,7 +4258,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param! pnNewNumber must be a number.")
 		ok
 
-		@anContent[n] = pnNewNumber
+		@aContent[n] = pnNewNumber
 
 	  #---------------------------------------#
 	 #     REVERSING THE LIST OF NUMBERS     #
@@ -3961,7 +4331,7 @@ class stzListOfNumbers from stzList
 			return This.ToSections()
 
 	def ContiguousToSections()
-		anNumbers = @anContent
+		anNumbers = @aContent
 		nLen = len(anNumbers)
 
 		aResult = []
@@ -6899,10 +7269,10 @@ class stzListOfNumbers from stzList
 
 			if isNumber(pValue)
 				anResult = []
-				nLen = len(@anContent)
+				nLen = len(@aContent)
 
 				for i = 1 to nLen
-					anResult + (@anContent[i] - pValue)
+					anResult + (@aContent[i] - pValue)
 				next
 
 				return anResult
@@ -6910,10 +7280,10 @@ class stzListOfNumbers from stzList
 			but isObject(pValue) and @IsStzNumber(pValue)
 
 				anResult = []
-				nLen = len(@anContent)
+				nLen = len(@aContent)
 
 				for i = 1 to nLen
-					anResult + (@anContent[i] - pValue.Content())
+					anResult + (@aContent[i] - pValue.Content())
 				next
 
 				return new stzListOfNumbers(anResult)
@@ -6924,20 +7294,20 @@ class stzListOfNumbers from stzList
 
 			if isNumber(pValue)
 				anResult = []
-				nLen = len(@anContent)
+				nLen = len(@aContent)
 
 				for i = 1 to nLen
-					anResult + (@anContent[i] * pValue)
+					anResult + (@aContent[i] * pValue)
 				next
 
 				return anResult
 
 			but isObject(pValue) and @IsStzNumber(pValue)
 				anResult = []
-				nLen = len(@anContent)
+				nLen = len(@aContent)
 
 				for i = 1 to nLen
-					anResult + (@anContent[i] * pValue.Content())
+					anResult + (@aContent[i] * pValue.Content())
 				next
 
 				return new stzListOfNumbers(anResult)
@@ -6946,10 +7316,10 @@ class stzListOfNumbers from stzList
 		but pcOp = "+"
 			if isNumber(pValue)
 				anResult = []
-				nLen = len(@anContent)
+				nLen = len(@aContent)
 
 				for i = 1 to nLen
-					anResult + (@anContent[i] + pValue)
+					anResult + (@aContent[i] + pValue)
 				next
 
 				return anResult
@@ -6957,10 +7327,10 @@ class stzListOfNumbers from stzList
 			but isObject(pValue) and @IsStzNumber(pValue)
 
 				anResult = []
-				nLen = len(@anContent)
+				nLen = len(@aContent)
 
 				for i = 1 to nLen
-					anResult + (@anContent[i] + pValue.Content())
+					anResult + (@aContent[i] + pValue.Content())
 				next
 
 				return new stzListOfNumbers(anResult)
@@ -7649,3 +8019,20 @@ class stzListOfNumbers from stzList
 			return This.Gains()
 
 		#>
+
+	  #------------------------------------------#
+	 #  CHECKING IF THE NUMBERS ARE ALL PRIMES  #
+	#------------------------------------------#
+
+	def ArePrimes()
+		bResult = TRUE
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			if NOT ring_isprime(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult

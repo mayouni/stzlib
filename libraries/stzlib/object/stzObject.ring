@@ -5567,3 +5567,5 @@ class stzObject
 
 		#>
 
+	def Print()
+		? This.Content()

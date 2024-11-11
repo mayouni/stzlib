@@ -1,4 +1,4 @@
-load "../stzlib.ring"
+load "../max/stzmax.ring"
 
 /*--- #narration Code formatting - Unproper Indentation
 
@@ -3429,6 +3429,7 @@ proff()
 pron()
 
 # Suppose you have this string:
+
 o1 = new stzString("*** Ring programmin* language ***")
 
 # As you see, the substring "programmin*" contains a
@@ -3437,6 +3438,7 @@ o1 = new stzString("*** Ring programmin* language ***")
 # Let's try to fix it.
 
 # You make think that replacing the "*" by "g" solves it:
+
 o1.Replace("*", :With = "g")
 ? o1.Content()
 #--> ggg Ring programing language ggg
@@ -3456,17 +3458,17 @@ proff()
 # Executed in 0.05 second(s) in Ring 1.21
 
 /*========== REMOVE BETWEEN
-*/
+
 StartProfiler()
 
 	o1 = new stzString("__/♥\__")
 
-	o1.RemoveBetween("♥", "/", "\")
+	o1.RemoveBetween("/", "\")
 	? o1.Content()
 	#--> __/\__
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*---------
 
@@ -3474,12 +3476,12 @@ StartProfiler()
 
 	o1 = new stzString("__/♥\__")
 
-	o1.RemoveBetweenIB("♥", "/", "\") # ..XT() -> Bounds are also removed
+	o1.RemoveBetweenIB("/", "\") # ..XT() -> Bounds are also removed
 	? o1.Content()
 	#--> ____
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*==================
 
@@ -3496,7 +3498,8 @@ o1.ReplaceAnyBoundedByIB(["/", "/"], "bla")
 #--> bla bla bla and bla!
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.04 second(s) in Ring 1.21
+# Executed in 0.08 second(s) in Ring 1.19
  
 /*----------------
 
@@ -3513,10 +3516,11 @@ o1.ReplaceXT( [], :BoundedByIB = '/', :With = "bla" )
 #--> bla bla bla and bla!
 
 proff()
-#--> Executed in 0.12 second(s)
+# Executed in 0.04 second(s) in Ring 1.21
+# Executed in 0.12 second(s) in Ring 1.19
 
 /*================ Find and AntiFind
-
+*/
 pron()
 
 o1 = new stzString("ring...")
@@ -3527,7 +3531,8 @@ o1 = new stzString("ring...")
 #--> [5, 7]
 
 proff()
-#--> Executed in 0.07 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.07 second(s) in Ring 1.20
 
 /*----------------
 

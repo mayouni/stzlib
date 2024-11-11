@@ -1,1 +1,4 @@
-load "stzarchsys.ring"
+
+
+class stzArchSys from stzArchitectureSystem
+class stzArchitectureSystem

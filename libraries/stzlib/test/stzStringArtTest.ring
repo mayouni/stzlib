@@ -1,4 +1,4 @@
-load "../stzlib.ring"
+load "../max/stzmax.ring"
 # Uses stkStringArt, part of SoftanzaCore, in the background
 #NOTE // All tests in ../core/string/stkRingArtTest.ring are usable here in the SoftanzaPrime level by chaing "stz" by "stk"
 
