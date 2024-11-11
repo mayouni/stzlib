@@ -1,4 +1,4 @@
-load "../stzlib.ring"
+load "../max/stzmax.ring"
 
 /*======== Some small functions #perf (Ring 1.19 quicker than 1.20)
 */

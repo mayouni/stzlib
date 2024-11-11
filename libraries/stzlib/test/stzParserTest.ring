@@ -1,4 +1,4 @@
-load "../stzlib.ring"
+load "../max/stzmax.ring"
 
 
 StzParserQ([ "_", "A", "_" , "_", "B", "_", "_", "C", "_", "D" ]) {

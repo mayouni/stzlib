@@ -1,4 +1,4 @@
-load "../stzlib.ring"
+load "../max/stzmax.ring"
 
 /*------ Converting from octal de decimal, binary, and hexadecimal
 

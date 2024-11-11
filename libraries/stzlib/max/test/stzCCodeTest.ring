@@ -1,4 +1,4 @@
-load "../stzlib.ring"
+load "../max/stzmax.ring"
 
 /*--------
 
@@ -200,7 +200,7 @@ StopProfiler()
 # Executed in 0.28 second(s) in Ring 1.17
 
 /*----------
-
+*/
 StartProfiler()
 
 	o1 = new stzCCode('{

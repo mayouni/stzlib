@@ -1,4 +1,4 @@
-load "../stzlib.ring"
+load "../max/stzmax.ring"
 
 o1 = new stzListOfSets([ [ "a", "b", "c" ],
 			[ "a", "b", "x", "c", "z" ],

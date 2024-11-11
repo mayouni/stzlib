@@ -6093,6 +6093,32 @@ class stzNumber from stzObject
 		nResult = This.ToStzString().HowMany(n)
 		return nResult
 
+	def Digits()
+		acChars = This.StringValueQ().RemoveManyQ([ "+", "-", "." ]).Chars()
+		nLen = len(acChars)
+
+		anResult = []
+
+		for i = 1 to nLen
+			anResult + (0+ acChars[i])
+
+		next
+
+		return anResult
+
+		def DigitsQ()
+			return new stzList( This.Digits() )
+
+		def DigitsQR(pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.Digits() )
+			on :stzListOfNumbers
+				return new stzListOfNumbers( This.Digits() )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
 	  #=====================================#
 	 #    INTERNAL KITCHEN OF THE CLASS    #
 	#=====================================#

@@ -1,1 +1,0 @@
-load "stzStateSys.ring"

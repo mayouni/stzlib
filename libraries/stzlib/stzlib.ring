@@ -8,13 +8,13 @@
 # Layered:
 #~~~~~~~~~
 
-#	Structured into SoftanzaCore, SoftanzaStandard, and SoftanzaExtended.
+#	Structured into SoftanzaCore, SoftanzaBase, and SoftanzaMax.
 
-#	The three levels have the same fold structure. For example, there is
-#	a class for managing string in each level : stzCoreString, stzString,
-#	and stzStringXT. And so on.
+#	The three layers have the same fold structure. For example, there is
+#	a class for managing string in each level : stkString, stzString,
+#	and stxString. And so on.
 
-#	Each layer utilizes the one beneath it, and enhancements made to a lower
+#	Each layer uses the one beneath it, and enhancements made to a lower
 #	layer automatically benefit those above.
 
 # Modular:
@@ -31,14 +31,14 @@
 
 #	~> By using only the required layer:
 
-#		=> SoftanzaCore: for basic features, efficiency, small code,
+#		=> SoftanzaCore: for quick features, efficiency, small code,
 #		   or performance-critical development on supported platforms
 # 		   (web, mobile, microcontrollers, MS-DOS).
 
-# 		=> SoftanzaStandard: for a wide range of functionalities covering
+# 		=> SoftanzaBase: for a wide range of functionalities covering
 # 		   number, character, string, and list management.
 
-# 		=> SoftanzaExtended: for advanced features enabling innovative,
+# 		=> SoftanzaMax: for advanced features enabling innovative,
 #		   industry-grade software solutions (natural coding, knowledge-oriented,
 # 		   plugin-based, memory profiling, workflow processing, etc.).
 
@@ -51,7 +51,7 @@
 # Configurable:
 #~~~~~~~~~~~~~~
 
-#	Library gymnastics, that may not be loved by every one, like function alternative
+#	Library gymnastics, that may not be useful to every one, like function alternative
 #	forms, misspelled forms, multilingual forms, and case sensitivity can be dynamically
 #	configured for each object at runtime. Programmers specify tuning using syntax like:
 
@@ -69,12 +69,9 @@
 #~~~~~~~~~~~
 
 #	A future script will create, based on a codebase that uses Softanza,
-#	a lightweight, dependency-free library (SoftanzaMine) containing only
+#	a lightweight, dependency-free filz (SoftanzaMine.ring) containing only
 # 	used classes and methods in that particular codebase.
 
-#	SoftanzaMine can be generated as a standalone executable or DLL
-#	for deployment with applications, potentially callable from external
-# 	languages via a wrapper class.
 
 # APIfied:
 #~~~~~~~~~
@@ -154,7 +151,6 @@
 # Loading files related to the STRING module
 
 	load "string/stzString.ring"
-	load "string/stzMultiString.ring"
 	load "string/stzSubString.ring"
 	load "string/stzListOfStrings.ring"
 	load "string/stzChar.ring"
@@ -185,16 +181,11 @@
 	load "error/stzListOfSetsError.ring"
 	load "error/stzGridError.ring"
 	load "error/stzStringError.ring"
-	load "error/stzMultiStringError.ring"
 	load "error/stzListOfStringsError.ring"
 	load "error/stzCharError.ring"
 	load "error/stzListOfCharsError.ring"
 	load "error/stzCounterError.ring"
-	load "error/stzLocaleError.ring"
-	load "error/stzCountryError.ring"
-	load "error/stzEntityError.ring"
-	load "error/stzListOfEntitiesError.ring"
-	load "error/stzTextEncodingSystemError.ring"
+	load "error/stzFileError.ring"
 
 # Loading files related to the TEST module
 
@@ -210,41 +201,11 @@
 	load "data/stzCharData.ring"
 	load "data/stzStringArtData.ring"
 
-# Loading files related to the MAX/I18N module (part of SoftanzaMax layer)
-
-	load "max/i18n/stzLocale.ring"
-	load "max/i18n/stzCountry.ring"
-	load "max/i18n/stzLanguage.ring"
-	load "max/i18n/stzScript.ring"
-	load "max/i18n/stzCurrency.ring"
-	load "max/i18n/stzDate.ring"
-	load "max/i18n/stzTime.ring"
-	load "max/i18n/stzStopWords.ring"
-
 # Loading files related to the IO module
 
 	load "io/stzFile.ring"
-	load "error/stzFileError.ring"
 	load "io/stzFolder.ring"
 	load "io/stzExtCode.ring" // #TODO Is this the right place?
-
-# Files related to MAX/NATURAL module (part of SoftanzaMax layer)
-
-	load "max/natural/stzChainOfValue.ring"
-	load "max/natural/stzChainOfTruth.ring"
-	load "max/natural/stzEntity.ring"
-	load "max/natural/stzListOfEntities.ring"
-	load "max/natural/stzText.ring"
-	load "max/natural/stzConstraints.ring"
-	load "max/natural/stzCCode.ring"
-	load "max/natural/stzNaturalCode.ring"
-
-# Loading the files related to MAX/SYSTEMS module (par of SoftanzaMax layer)
-
-	load "max/systems/stzArchSys.ring"
-	load "max/systems/stzProfilingSystem.ring"
-	load "max/systems/stzShowSystem.ring"
-	load "max/systems/stzTextEncodingSystem.ring"
 
 # loading MISC files
 

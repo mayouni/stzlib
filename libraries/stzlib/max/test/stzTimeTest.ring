@@ -1,0 +1,4 @@
+load "../max/stzmax.ring"
+
+
+

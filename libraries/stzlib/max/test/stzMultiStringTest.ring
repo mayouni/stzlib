@@ -1,4 +1,4 @@
-load "../stzlib.ring"
+load "../max/stzmax.ring"
 
 #TODO: Review this class on the light of the changes made in stzLocale,
 # stzLanguage, stzScript, and stzCountry classes

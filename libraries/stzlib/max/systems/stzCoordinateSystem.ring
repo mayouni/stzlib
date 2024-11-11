@@ -5,4 +5,6 @@ func StzCoordinateSystem()
 func StzCoordinateSystemQ()
 	return new stzCoordinateSystem()
 
-class stzCoordinateSystem from stzObject
+class stzCoordSys from stzCoordinateSystem
+
+class stzCoordinateSystem from stzSystem
