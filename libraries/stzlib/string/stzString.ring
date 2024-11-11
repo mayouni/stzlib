@@ -47673,11 +47673,10 @@ class stzString from stzObject
 		anResult = []
 		
 		for i = 1 to nLen
-			nLenSection = len(anSections[i])
-			for j = 1 to nLenSection
-				if ring_find(anResult, anSections[i][j]) = 0
-					anResult + anSections[i][j]
-				ok
+			anPos = anSections[i][1] : anSections[i][2]
+			nLenPos = len(anPos)
+			for j = 1 to nLenPos
+				anResult + anPos[j]
 			next
 		next
 

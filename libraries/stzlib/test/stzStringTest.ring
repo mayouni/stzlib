@@ -3520,7 +3520,7 @@ proff()
 # Executed in 0.12 second(s) in Ring 1.19
 
 /*================ Find and AntiFind
-*/
+
 pron()
 
 o1 = new stzString("ring...")
@@ -3535,7 +3535,7 @@ proff()
 # Executed in 0.07 second(s) in Ring 1.20
 
 /*----------------
-
+*/
 pron()
 #                   1  4  78
 o1 = new stzString("...ring...")
@@ -3547,7 +3547,7 @@ o1 = new stzString("...ring...")
 #--> [ 4, 7 ]
 
 ? @@( o1.AntiFind("ring") )
-#--> [1, 8]
+#--> [ 1, 2, 3, 8, 9, 10 ]
 
 ? @@( o1.AntiFindAsSections("ring") )
 #--> [ [ 1, 3 ], [ 8, 10 ] ]
