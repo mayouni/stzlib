@@ -9771,10 +9771,10 @@ class stzList from stzObject
 			def ReplaceTheseAtByManyCSQ(panPos, paItems, paNewItems, pCaseSensitive)
 				return This.ReplaceTheseItemsAtPositionsByManyCSQ(panPos, paItems, pNewItem, pCaseSensitive)
 
-		def ReplaceTheseAtPositonsByManyCS(panPos, paItems, paNewItems, pCaseSensitive)
+		def ReplaceTheseAtPositionsByManyCS(panPos, paItems, paNewItems, pCaseSensitive)
 			This.ReplaceTheseItemsAtPositionsByManyCS(panPos, paItems, paNewItems, pCaseSensitive)
 
-			def ReplaceTheseAtPositonsByManyCSQ(panPos, paItems, paNewItems, pCaseSensitive)
+			def ReplaceTheseAtPositionsByManyCSQ(panPos, paItems, paNewItems, pCaseSensitive)
 				return This.ReplaceTheseItemsAtPositionsByManyCSQ(panPos, paItems, pNewItem, pCaseSensitive)
 
 		def ReplaceTheseItemsAtByManyCS(panPos, paItems, paNewItems, pCaseSensitive)
@@ -9835,10 +9835,10 @@ class stzList from stzObject
 			def ReplaceTheseAtByManyQ(panPos, paItems, paNewItems)
 				return This.ReplaceTheseItemsAtPositionsByManyQ(panPos, paItems, pNewItem)
 
-		def ReplaceTheseAtPositonsByMany(panPos, paItems, paNewItems)
+		def ReplaceTheseAtPositionsByMany(panPos, paItems, paNewItems)
 			This.ReplaceTheseItemsAtPositionsByMany(panPos, paItems, paNewItems)
 
-			def ReplaceTheseAtPositonsByManyQ(panPos, paItems, paNewItems)
+			def ReplaceTheseAtPositionsByManyQ(panPos, paItems, paNewItems)
 				return This.ReplaceTheseItemsAtPositionsByManyQ(panPos, paItems, pNewItem)
 
 		def ReplaceTheseItemsAtByMany(panPos, paItems, paNewItems)
@@ -9936,10 +9936,10 @@ class stzList from stzObject
 			def ReplaceThisAtByManyCSQ(panPos, paItems, paNewItems, pCaseSensitive)
 				return This.ReplaceThisItemAtPositionsByManyCSQ(panPos, paItems, pNewItem, pCaseSensitive)
 
-		def ReplaceThisAtPositonsByManyCS(panPos, paItems, paNewItems, pCaseSensitive)
+		def ReplaceThisAtPositionsByManyCS(panPos, paItems, paNewItems, pCaseSensitive)
 			This.ReplaceThisItemAtPositionsByManyCS(panPos, paItems, paNewItems, pCaseSensitive)
 
-			def ReplaceThisAtPositonsByManyCSQ(panPos, paItems, paNewItems, pCaseSensitive)
+			def ReplaceThisAtPositionsByManyCSQ(panPos, paItems, paNewItems, pCaseSensitive)
 				return This.ReplaceThisItemAtPositionsByManyCSQ(panPos, paItems, pNewItem, pCaseSensitive)
 
 		def ReplaceThisItemAtByManyCS(panPos, paItems, paNewItems, pCaseSensitive)
@@ -10007,10 +10007,10 @@ class stzList from stzObject
 			def ReplaceThisAtByManyQ(panPos, paItems, paNewItems)
 				return This.ReplaceThisItemAtPositionsByManyQ(panPos, paItems, pNewItem)
 
-		def ReplaceThisAtPositonsByMany(panPos, paItems, paNewItems)
+		def ReplaceThisAtPositionsByMany(panPos, paItems, paNewItems)
 			This.ReplaceThisItemAtPositionsByMany(panPos, paItems, paNewItems)
 
-			def ReplaceThisAtPositonsByManyQ(panPos, paItems, paNewItems)
+			def ReplaceThisAtPositionsByManyQ(panPos, paItems, paNewItems)
 				return This.ReplaceThisItemAtPositionsByManyQ(panPos, paItems, pNewItem)
 
 		def ReplaceThisItemAtByMany(panPos, paItems, paNewItems)
@@ -39940,7 +39940,7 @@ def IndexBy(pcPosOrOccurr)
 
 	def AntiFindAsSectionsCS(pItem, pCaseSensitive)
 		anPos = This.FindCS(pItem, pCaseSensitive)
-		aResult = StzListQ(1:This.NumberOfItems()).SplitAtPositons(anPos)
+		aResult = StzListQ(1:This.NumberOfItems()).AntiPositionsZZ(anPos)
 		return aResult
 
 		def AntiFindCSZZ(pItem, pCaseSensitive)
@@ -59311,7 +59311,7 @@ www
 		#>
 	  #------------------------#
 	 #    SPLITTING BEFORE    #
-	#========================#
+ici	#========================#
 
 	def SplitBefore(p)
 		anPos = StzSplitterQ(This.NumberOfItems()).SplitBefore(p)

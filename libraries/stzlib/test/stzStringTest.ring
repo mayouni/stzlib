@@ -3553,18 +3553,22 @@ o1 = new stzList([ 1, 2, 3 , "*", 5, 6, "*", 8 ])
 # [ [ 1, 3 ], [ 5, 6 ], [ 8, 8 ] ]
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*----------------
 */
 pron()
 
-o1 = new stzList([ 1, 2, 3, "ring", 4, 5, 6 ])
+o1 = new stzList([ 1, 2, 3, "ring", 5, 6, 7 ])
 
 ? @@( o1.AntiFind("ring") )
+#--> [ 1, 2, 3, 5, 6, 7 ]
 
 ? @@( o1.AntiFindZZ("ring") )
+#--> [ [ 1, 3 ], [ 5, 7 ] ]
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*----------------
 */
