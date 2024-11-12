@@ -3546,7 +3546,11 @@ o1 = new stzList([ 1, 2, 3 , "*", 5, 6, "*", 8 ])
 ? @@( o1.SplitAtZZ("*") ) + NL
 #--> [ [ 1, 3 ], [ 5, 6 ], [ 8, 8 ] ]
 
-//? @@( o1.AntiPositionsZZ([ 4, 7 ]) )
+? @@( o1.AntiPositions([ 4, 7 ]) )
+#--> [ 1, 2, 3, 5, 6, 8 ]
+
+? @@( o1.AntiPositionsZZ([ 4, 7 ]) )
+# [ [ 1, 3 ], [ 5, 6 ], [ 8, 8 ] ]
 
 proff()
 

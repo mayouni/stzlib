@@ -191,9 +191,18 @@ class stzSplitter from stzListOfNumbers
 			StzRaise("Unsupported syntax!")
 		ok
 
+		#< @FunctionAlternativeForms
 
 		def SplitsXT(p)
 			return This.SplitXT(p)
+
+		def SplitXTZZ(p)
+			return This.SplitXT(p)
+
+		def SplitsXTZZ(p)
+			return This.SplitXT(p)
+
+		#>
 
 	  #====================#
 	 #    SPLITTING AT    #
@@ -235,11 +244,32 @@ class stzSplitter from stzListOfNumbers
 			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
 		ok
 
+		#< @FunctionAlternativeForms
+
 		def SplitsAt(p)
 			return This.SplitAt(p)
 
 		def Split(p)
 			return This.SplitAt(p)
+
+		def Splits(p)
+			return This.SplitAt(p)
+
+		#--
+
+		def SplitAtZZ(p)
+			return This.SplitAt(p)
+
+		def SplitsAtZZ(p)
+			return This.SplitAt(p)
+
+		def SplitZZ(p)
+			return This.SplitAt(p)
+
+		def SplitsZZ(p)
+			return This.SplitAt(p)
+
+		#>
 
 	  #-----------------------------------#
 	 #   SPLITTING AT A GIVEN POSITION   #
@@ -268,8 +298,20 @@ class stzSplitter from stzListOfNumbers
 
 		return aResult
 
+		#< @FunctionAlternativeForm
+
 		def SplitsAtPosition(n)
 			return This.SplitAtPosition(n)
+
+		#--
+
+		def SplitAtPositionZZ(n)
+			return This.SplitAtPosition(n)
+
+		def SplitsAtPositionZZ(n)
+			return This.SplitAtPosition(n)
+
+		#>
 
 	  #---------------------------------#
 	 #   SPLITTING AT MANY POSITIONS   #
@@ -331,12 +373,34 @@ class stzSplitter from stzListOfNumbers
 		def SplitsAtManyPositions(panPos)
 			return This.SplitAtPositions(panPos)
 
+		#==
+
+		def SplitAtPositionsZZ(panPos)
+			return This.SplitAtPositions(panPos)
+
+		def SplitAtThesePositionsZZ(panPos)
+			return This.SplitAtPositions(panPos)
+
+		def SplitAtManyPositionsZZ(panPos)
+			return This.SplitAtPositions(panPos)
+
+		#--
+
+		def SplitsAtPositionsZZ(panPos)
+			return This.SplitAtPositions(panPos)
+
+		def SplitsAtThesePositionsZZ(panPos)
+			return This.SplitAtPositions(panPos)
+
+		def SplitsAtManyPositionsZZ(panPos)
+			return This.SplitAtPositions(panPos)
+
 		#>
 
 	  #========================#
 	 #    SPLITTING BEFORE    #
 	#========================#
-
+َ//ADD ZZ()s
 	def SplitBefore(p)
 	
 		if isNumber(p)
