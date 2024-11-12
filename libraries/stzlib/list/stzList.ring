@@ -40018,7 +40018,16 @@ def IndexBy(pcPosOrOccurr)
 	#----------------------------------------------------------------#
 
 	def AntiPositionsAsSections(panPos)
-		aResult = This.AntiPositionsQR(panPos, :stzListOfNumbers).Sectioned()
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAtPositions(panPos)
+		nLen = len(aSections)
+
+		aResult = []
+
+		for i = 1 to nLen
+			nLenTemp = len(aSections[i])
+			aResult + [ aSections[i][1], aSections[i][nLenTemp] ]
+		next
+
 		return aResult
 
 		def AntiPositionsZZ(panPos)
@@ -59198,8 +59207,8 @@ www
 	#-----------------------------------#
 
 	def SplitAtPosition(n)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAtPosition(p)
-		aResult = This.PositionsAt(anPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAtPosition(n)
+		aResult = This.Sections(aSection)
 		return aResult
 
 		def SplitsAtPosition(n)
@@ -59228,8 +59237,8 @@ www
 	#---------------------------------#
 
 	def SplitAtPositions(panPos)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAtPositions(p)
-		aResult = This.PositionsAt(anPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAtPositions(panPos)
+		aResult = This.Sections(aSections)
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -59253,6 +59262,53 @@ www
 
 		#>
 
+	#-- ZZ/EXTENDED
+
+	def SplitAtPositionsAsSections(panPos)
+		aSections = This.SplitAtPositions(panPos)
+		nLen = len(aSections)
+
+		aResult = []
+
+		for i = 1 to nLen
+			nLenTemp = len(aSections[i])
+			aResult + [ aSections[i][1], aSections[i][nLenTemp] ]
+		next
+
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SplitAtManyPositionsAsSections(panPos)
+			return This.SplitAtPositionAsSections(panPos)
+
+		def SplitsAtPositionsAsSections(panPos)
+			return This.SplitAtPositionAsSections(panPos)
+
+		def SplitsAtThesePositionsAsSections(panPos)
+			return This.SplitAtPositionAsSections(panPos)
+
+		def SplitsAtManyPositionsAsSections(panPos)
+			return This.SplitAtPositionAsSections(panPos)
+
+		#--
+
+		def SplitAtPositionsZZ(panPos)
+			return This.SplitAtPositionAsSections(panPos)
+
+		def SplitAtManyPositionsZZ(panPos)
+			return This.SplitAtPositionAsSections(panPos)
+
+		def SplitsAtPositionsZZ(panPos)
+			return This.SplitAtPositionAsSections(panPos)
+
+		def SplitsAtThesePositionsZZ(panPos)
+			return This.SplitAtPositionAsSections(panPos)
+
+		def SplitsAtManyPositionsZZ(panPos)
+			return This.SplitAtPositionAsSections(panPos)
+
+		#>
 	  #------------------------#
 	 #    SPLITTING BEFORE    #
 	#========================#
