@@ -3535,7 +3535,7 @@ proff()
 # Executed in 0.07 second(s) in Ring 1.20
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzList([ 1, 2, 3 , "*", 5, 6, "*", 8 ])
@@ -3556,7 +3556,7 @@ proff()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*----------------
-*/
+
 pron()
 
 o1 = new stzList([ 1, 2, 3, "ring", 5, 6, 7 ])
@@ -3589,7 +3589,7 @@ o1 = new stzString("...ring...")
 #--> [ [ 1, 3 ], [ 8, 10 ] ]
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.04 second(s)
 
 /*---------------- Sections and AntiSections
 
