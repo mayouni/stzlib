@@ -3537,6 +3537,34 @@ proff()
 /*----------------
 */
 pron()
+
+o1 = new stzList([ 1, 2, 3 , "*", 5, 6, "*", 8 ])
+
+? @@( o1.SplitAt("*") )
+#--> [ [ 1, 2, 3 ], [ 5, 6 ], [ 8 ] ]
+
+? @@( o1.SplitAtZZ("*") ) + NL
+#--> [ [ 1, 3 ], [ 5, 6 ], [ 8, 8 ] ]
+
+//? @@( o1.AntiPositionsZZ([ 4, 7 ]) )
+
+proff()
+
+/*----------------
+*/
+pron()
+
+o1 = new stzList([ 1, 2, 3, "ring", 4, 5, 6 ])
+
+? @@( o1.AntiFind("ring") )
+
+? @@( o1.AntiFindZZ("ring") )
+
+proff()
+
+/*----------------
+*/
+pron()
 #                   1  4  78
 o1 = new stzString("...ring...")
 

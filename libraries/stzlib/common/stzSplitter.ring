@@ -238,6 +238,9 @@ class stzSplitter from stzListOfNumbers
 		def SplitsAt(p)
 			return This.SplitAt(p)
 
+		def Split(p)
+			return This.SplitAt(p)
+
 	  #-----------------------------------#
 	 #   SPLITTING AT A GIVEN POSITION   #
 	#-----------------------------------#
@@ -1477,8 +1480,8 @@ class stzSplitter from stzListOfNumbers
 	#------------------------------#
 
 	def SplitAroundPositions(panPos)
-		#TODO
-		StzRaise("Not yet implemented!")
+		aResult = This.AntiPositionsZZ(panPos)
+		return aResult
 
 		def SplitsAroundPositions(panPos)
 			return This.SplitAroundPositions(panPos)
@@ -1502,8 +1505,7 @@ class stzSplitter from stzListOfNumbers
 	#------------------------------#
 
 	def SplitAroundSection(n1, n2)
-		#TODO
-		StzRaise("Not yet implemented!")
+		aResult = This.AntiFindSectionZZ(n1, n2)
 
 		def SplitsAroundSection(n1, n2)
 			return This.SplitAroundSection(n1, n2)
@@ -1527,8 +1529,7 @@ class stzSplitter from stzListOfNumbers
 	#-----------------------------#
 
 	def SplitAroundSections(panSections)
-		#TODO
-		StzRaise("Not yet implemented!")
+		aResult = This.AntiFindSectionsZZ(panSections)
 
 		def SplitsAroundSections(panSections)
 			return This.SplitAroundSections(panSections)
