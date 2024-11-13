@@ -1369,6 +1369,33 @@ func MostSquareLikeFactors(n)
 
 	#>
 
+#NOTE The isWeiferich() function has been contributed
+# to Softanza by Gal Calmosoft in his RosettaCode
+# solution to tje Weiferich primes case made here:
+# https://rosettacode.org/wiki/Wieferich_primes#Ring
+
+func isWeiferich(p)
+	if not isPrime(p)
+		return False
+	ok
+
+	q = 1
+	p2 = pow(p,2)
+
+	while p > 1
+		q = (2 * q) % p2
+		p -= 1
+	end
+
+	if q = 1
+		return True
+	else
+		return False
+	ok
+
+	func @isWeiferich(p)
+		return isWeiferich(p)
+
   ///////////////////////////
  ///   STZNUMBER CLASS   ///
 ///////////////////////////
@@ -2198,6 +2225,9 @@ class stzNumber from stzObject
 
 		def IsPrimeNumber()
 			return This.IsPrime()
+
+	def isWeiferich(s)
+		bResult = @isWeiferich(This.NumericValue())
 
 	def IsBoolean()
 		if This.Number() = 1 or This.Number() = 0
