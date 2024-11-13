@@ -1344,6 +1344,42 @@ func FirstNPrimesWXT(n, pcCondition)
 	func NFirstPrimesW(n, pcCondition)
 		return FirstNPrimesWXT(n, pcCondition)
 
+func PrimesUnder(n)
+	return PrimesUnderIB(n-1)
+
+func PrimesUnderIB(n)
+    if n < 2 return [] ok
+    
+    # Create a list of boolean values, initially all set to true
+    # Index i represents whether number i is prime
+    sieve = list(n+1)
+    for i = 1 to n+1
+        sieve[i] = true
+    next
+    
+    # 0 and 1 are not prime
+    sieve[1] = false
+    
+    # Implement Sieve of Eratosthenes
+    for i = 2 to floor(sqrt(n))
+        if sieve[i]
+            # Mark all multiples of i as non-prime
+            for j = i * i to n step i
+                sieve[j] = false
+            next
+        ok
+    next
+    
+    # Collect all prime numbers
+    primes = []
+    for i = 2 to n
+        if sieve[i]
+            Add(primes, i)
+        ok
+    next
+    
+    return primes
+
   ////////////////
  ///  CLASS   ///
 ////////////////

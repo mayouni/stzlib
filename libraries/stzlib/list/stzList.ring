@@ -55474,19 +55474,19 @@ def IndexBy(pcPosOrOccurr)
 		#< @FunctionAlternativeForms
 
 		def SplitXTZZ(p)
-			return This.SplitAsSectionsXT(p)
+			This.SplitAsSectionsXT(p)
 
 			def SplitXTZZQ(p)
 				return This.SplitAtSectionsXTQ(p)
 
 		def SplittedAtSectionsXT(p)
-			return This.SplitAsSectionsXT(p)
+			This.SplitAsSectionsXT(p)
 
 			def SplittedAtSectionsXTQ(p)
 				return This.SplitAtSectionsXTQ(p)
 
 		def SplittedXTZZ(p)
-			return This.SplitAsSectionsXT(p)
+			This.SplitAsSectionsXT(p)
 
 			def SplittedXTZZQ(p)
 				return This.SplitAtSectionsXTQ(p)
@@ -55539,13 +55539,13 @@ def IndexBy(pcPosOrOccurr)
 		#< @FunctionAlternativeForms
 
 		def SplitsAtCS(pItem, pCaseSensitive)
-			return This.SplitAtCS(pItem, pCaseSensitive)
+			This.SplitAtCS(pItem, pCaseSensitive)
 
 			def SplitsAtCSQ(pItem, pCaseSensitive)
 				return This.SplitAtCSQ(pItem, pCaseSensitive)
 
 		def SplitCS(pItem, pCaseSensitive)
-			return This.SplitAtCS(pItem, pCaseSensitive)
+			This.SplitAtCS(pItem, pCaseSensitive)
 
 			def SplitCSQ(pItem, pCaseSensitive)
 				return This.SplitAtCSQ(pItem, pCaseSensitive)
@@ -55553,7 +55553,7 @@ def IndexBy(pcPosOrOccurr)
 		#--
 
 		def SplitAtPositionsOfCS(pItem, pCaseSensitive)
-			return This.SplitAtCS(pItem, pCaseSensitive)
+			This.SplitAtCS(pItem, pCaseSensitive)
 
 			def SplitAtPositionsOfCSQ(pItem, pCaseSensitive)
 				return This.SplitAtCSQ(pItem, pCaseSensitive)
@@ -55561,7 +55561,7 @@ def IndexBy(pcPosOrOccurr)
 		#==
 
 		def SplitAtItemCS(pItem, pCaseSensitive)
-			return This.SplitAtCS(pItem, pCaseSensitive)
+			This.SplitAtCS(pItem, pCaseSensitive)
 
 			def SplitAtItemCSQ(pItem, pCaseSensitive)
 				return This.SplitAtCSQ(pItem, pCaseSensitive)
@@ -55594,7 +55594,7 @@ def IndexBy(pcPosOrOccurr)
 		#< @FunctionAlternativeForms
 
 		def SplitsAt(pItem)
-			return This.SplitAt(pItem)
+			This.SplitAt(pItem)
 
 			def SplitsAtQ(pItem)
 				return This.SplitAtQ(pItem)
@@ -55608,7 +55608,7 @@ def IndexBy(pcPosOrOccurr)
 		#--
 
 		def SplitAtPositionsOf(pItem)
-			return This.SplitAt(pItem)
+			This.SplitAt(pItem)
 
 			def SplitAtPositionsOfQ(pItem)
 				return This.SplitAtQ(pItem)
@@ -55616,7 +55616,7 @@ def IndexBy(pcPosOrOccurr)
 		#==
 
 		def SplitAtItem(pItem)
-			return This.SplitAt(pItem)
+			This.SplitAt(pItem)
 
 			def SplitAtItemQ(pItem)
 				return This.SplitAtQ(pItem)
@@ -55648,54 +55648,124 @@ def IndexBy(pcPosOrOccurr)
 			aResult + [ aSections[i][1], aSections[i][nLenTemp] ]
 		next
 
-		return aResult
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm
+
+		def SplitAtAsSectionsCSQ(pItem, pCaseSensitive)
+			This.SplitAtAsSectionsCS(pItem, pCaseSensitive)
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
 		def SplitAsSectionsCS(pItem, pCaseSensitive)
-			return This.SplitAtAsSectionsCS(pItem, pCaseSensitive)
+			This.SplitAtAsSectionsCS(pItem, pCaseSensitive)
+
+			def SplitAsSectionsCSQ(pItem, pCaseSensitive)
+				return This.SplitAtAsSectionsCSQ(pItem, pCaseSensitive)
 
 		def SplitAtCSZZ(pItem, pCaseSensitive)
-			return This.SplitAtAsSectionsCS(pItem, pCaseSensitive)
+			This.SplitAtAsSectionsCS(pItem, pCaseSensitive)
+
+			def SplitAtCSZZQ(pItem, pCaseSensitive)
+				return This.SplitAtAsSectionsCSQ(pItem, pCaseSensitive)
 
 		def SplitCSZZ(pItem, pCaseSensitive)
-			return This.SplitAtAsSectionsCS(pItem, pCaseSensitive)
+			This.SplitAtAsSectionsCS(pItem, pCaseSensitive)
+
+			def SplitCSZZQ(pItem, pCaseSensitive)
+				return This.SplitAtAsSectionsCSQ(pItem, pCaseSensitive)
 
 		#--
 
 		def SplitAtPositionsOfAsSectionsCS(pItem, pCaseSensitive)
-			return This.SplitAtAsSectionsCS(pItem, pCaseSensitive)
+			This.SplitAtAsSectionsCS(pItem, pCaseSensitive)
+
+			def SplitAtPositionsOfAsSectionsCSQ(pItem, pCaseSensitive)
+				return This.SplitAtAsSectionsCSQ(pItem, pCaseSensitive)
 
 		def SplitAtPositionsOfCSZZ(pItem, pCaseSensitive)
-			return This.SplitAtAsSectionsCS(pItem, pCaseSensitive)
+			This.SplitAtAsSectionsCS(pItem, pCaseSensitive)
+
+			def SplitAtPositionsOfCSZZQ(pItem, pCaseSensitive)
+				return This.SplitAtAsSectionsCSQ(pItem, pCaseSensitive)
 
 		#>
+
+	def SplittedAsSectionsCS(pItem, pCaseSensitive)
+		aResult = This.Copy().SplitAsSectionsCSQ(pItem, pCaseSensitive).Content()
+		return aResult
+
+		def SplittedAtCSZZ(pItem, pCaseSensitive)
+			return This.SplittedAsSectionsCS(pItem, pCaseSensitive)
+
+		def SplitttedCSZZ(pItem, pCaseSensitive)
+			return This.SplittedAsSectionsCS(pItem, pCaseSensitive)
+
+		def SplittedAtPositionsOfAsSectionsCS(pItem, pCaseSensitive)
+			return This.SplittedAsSectionsCS(pItem, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def SplitAtAsSections(pItem)
 		return This.SplitAtAsSectionsCS(pItem, TRUE)
 
+		def SplitAtAsSectionsQ(pItem)
+			This.SplitAtAsSections(pItem)
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def SplitAsSections(pItem)
-			return This.SplitAtAsSections(pItem)
+			This.SplitAtAsSections(pItem)
+
+			def SplitAsSectionsQ(pItem)
+				return This.SplitAtAsSectionsQ(pItem)
 
 		def SplitAtZZ(pItem)
-			return This.SplitAtAsSections(pItem)
+			This.SplitAtAsSections(pItem)
+
+			def SplitAtZZQ(pItem)
+				return This.SplitAtAsSectionsQ(pItem)
 
 		def SplitZZ(pItem)
-			return This.SplitAtAsSections(pItem)
+			This.SplitAtAsSections(pItem)
+
+			def SplitZZQ(pItem)
+				return This.SplitAtAsSectionsQ(pItem)
 
 		#--
 
 		def SplitAtPositionsOfAsSections(pItem)
-			return This.SplitAtAsSectionsCS(pItem)
+			This.SplitAtAsSections(pItem)
+
+			def SplitAtPositionsOfAsSectionsQ(pItem)
+				return This.SplitAtAsSectionsQ(pItem)
 
 		def SplitAtPositionsOfZZ(pItem)
-			return This.SplitAtAsSections(pItem)
+			This.SplitAtAsSections(pItem)
+
+			def SplitAtPositionsOfZZQ(pItem)
+				return This.SplitAtAsSectionsQ(pItem)
 
 		#>
+
+	def SplittedAsSections(pItem)
+		aResult = This.Copy().SplitAsSectionsQ(pItem).Content()
+		return aResult
+
+		def SplittedAtZZ(pItem)
+			return This.SplittedAsSections(pItem)
+
+		def SplitttedZZ(pItem)
+			return This.SplittedAsSections(pItem)
+
+		def SplittedAtPositionsOfAsSections(pItem)
+			return This.SplittedAsSections(pItem)
 
 	  #-----------------------------------#
 	 #   SPLITTING AT A GIVEN POSITION   #
@@ -55704,10 +55774,17 @@ def IndexBy(pcPosOrOccurr)
 	def SplitAtPosition(n)
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitAtPosition(n)
 		aResult = This.Sections(aSection)
-		return aResult
+		This.UpdateWith(aResult)
+
+		def SplitAtPositionQ(n)
+			This.SplitAtPosition(n)
+			return This
 
 		def SplitsAtPosition(n)
 			return This.SplitAtPosition(n)
+
+			def SplitsAtPositionQ(n)
+				return This.SplitAtPositionQ(n)
 
 	#-- ZZ/EXTENDED
 
@@ -55724,10 +55801,17 @@ def IndexBy(pcPosOrOccurr)
 
 		return aResult
 
+		def SplitAtPositionAsSectionsQ(p)
+			This.SplitAtPositionAsSections(p)
+			return This
+
 		def SplitatPositionZZ(p)
 			return This.SplitAtPositionAsSections(p)
 
-	  #---------------------------------#
+			def SplitatPositionZZQs(p)
+				return This.SplitAtPositionAsSectionsQ(p)
+
+vvvs	  #---------------------------------#
 	 #   SPLITTING AT MANY POSITIONS   #
 	#---------------------------------#
 
