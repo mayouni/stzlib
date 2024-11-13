@@ -1,4 +1,4 @@
-load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 pron()
 
@@ -78,4 +78,4 @@ pron()
 #--> FALSE
 
 proff()
-# Executed in almost 0 second(s).
+# Executed in almost 0 second(s) in Ring 1.21

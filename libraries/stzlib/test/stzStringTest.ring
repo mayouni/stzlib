@@ -1,6 +1,51 @@
 load "../max/stzmax.ring"
 
-/*--- #narration Code formatting - Unproper Indentation
+/*=====
+
+pron()
+
+o1 = new stzString("Softanza")
+? o1.SizeInBytes()
+#--> 435
+
+proff()
+
+/*--- #perf managing a big text
+
+pron()
+
+cBigText = read("../test/bigtext.txt")
+# Takes 0.12 seconds
+
+oBig = new stzString(cBigText)
+
+? oBig.NumberOfChars()
+#--> 6617121
+
+? oBig.NumberOfLines() + NL
+#--> 128457
+
+? oBig.SizeInBytes() + NL
+#--> 435
+
+? oBig.FindCS("madrid", FALSE)
+#--> [
+#	1538708
+#	1543968
+#	1544385
+#	1546342
+#	1550119
+#	5270717
+#	5621458
+#	6590675
+# ]
+
+oBig.ReplaceCS("madrid", "Gaza", FALSE)
+
+proff()
+# Executed in 0.94s second(s) in Ring 1.21
+
+/*==== #narration Code formatting - Unproper Indentation
 
 pron()
 

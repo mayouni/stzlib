@@ -55446,21 +55446,14 @@ def IndexBy(pcPosOrOccurr)
 
 		#>
 
-		#< @FunctionAlternativeForm
-
-		def SplitsXT(p)
-			This.SplitXT(p)
-
-			def SplitsQ(p)
-				return This.SplitXTQ(p)
-
-		#>
-
 	#-- @FunctionPassiveForm
 
 	def SplittedXT(p)
 		aResult = This.Copy().This.SplitXTQ(p).Content()
 		return aResult
+
+		def SplitsXT()
+			return This.SplittedXT(p)
 
 	#-- ZZ/EXTENDED
 
@@ -55493,25 +55486,19 @@ def IndexBy(pcPosOrOccurr)
 			def SplitXTZZQ(p)
 				return This.SplitAtSectionsXTQ(p)
 
-		def SplittedAtSectionsXT(p)
-			This.SplitAsSectionsXT(p)
-
-			def SplittedAtSectionsXTQ(p)
-				return This.SplitAtSectionsXTQ(p)
-
-		def SplittedXTZZ(p)
-			This.SplitAsSectionsXT(p)
-
-			def SplittedXTZZQ(p)
-				return This.SplitAtSectionsXTQ(p)
-
 		#>
 
 	def SplittedAsSectionsXT(p)
 		aResult = This.Copy().SplitAsSectionsQ(p).Content()
 		return aResult
 
-		def SplittedZZ(p)
+		def SplittedXTZZ(p)
+			return This.SplittedAsSectionsXT(p)
+
+		def SplitsAsSectionsXT(p)
+			return This.SplittedAsSectionsXT(p)
+
+		def SplitsXTZZ(p)
 			return This.SplittedAsSectionsXT(p)
 
 	  #-------------------------------------------------#
@@ -55552,12 +55539,6 @@ def IndexBy(pcPosOrOccurr)
 
 		#< @FunctionAlternativeForms
 
-		def SplitsAtCS(pItem, pCaseSensitive)
-			This.SplitAtCS(pItem, pCaseSensitive)
-
-			def SplitsAtCSQ(pItem, pCaseSensitive)
-				return This.SplitAtCSQ(pItem, pCaseSensitive)
-
 		def SplitCS(pItem, pCaseSensitive)
 			This.SplitAtCS(pItem, pCaseSensitive)
 
@@ -55586,11 +55567,24 @@ def IndexBy(pcPosOrOccurr)
 		aResult = This.Copy().SplitAtCSQ(pItem, pCaseSensitive).Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def SplittedAtPositionsOfCS(pItem, pCaseSensitive)
 			return This.SplittedAtCS(pItem, pCaseSensitive)
 
 		def SplittedAtItemCS(pItem, pCaseSensitive)
 			return This.SplittedAtCS(pItem, pCaseSensitive)
+
+		def SplitsAtCS(pItem, pCaseSensitive)
+			return This.SplittedAtCS(pItem, pCaseSensitive)
+
+		def SplitsAtPositionsOfCS(pItem, pCaseSensitive)
+			return This.SplittedAtCS(pItem, pCaseSensitive)
+
+		def SplitsAtItemCS(pItem, pCaseSensitive)
+			return This.SplittedAtCS(pItem, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -55606,12 +55600,6 @@ def IndexBy(pcPosOrOccurr)
 		#>
 
 		#< @FunctionAlternativeForms
-
-		def SplitsAt(pItem)
-			This.SplitAt(pItem)
-
-			def SplitsAtQ(pItem)
-				return This.SplitAtQ(pItem)
 
 		def Split(pItem)
 			return This.SplitAt(pItem)
@@ -55641,11 +55629,24 @@ def IndexBy(pcPosOrOccurr)
 		aResult = This.Copy().SplitAtQ(pItem).Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def SplittedAtPositionsOf(pItem)
 			return This.SplittedAt(pItem)
 
 		def SplittedAtItem(pItem)
 			return This.SplittedAt(pItem)
+
+		def SplitsAt(pItem)
+			return This.SplittedAt(pItem)
+
+		def SplitsAtPositionsOf(pItem)
+			return This.SplittedAt(pItem)
+
+		def SplitsAtItem(pItem)
+			return This.SplittedAt(pItem)
+
+		#>
 
 	  #----------------------------------------------------#
 	 #  SPLITTING AT THE POSITIONS OF A GIVEN ITEM -- ZZ  #
@@ -55712,14 +55713,27 @@ def IndexBy(pcPosOrOccurr)
 		aResult = This.Copy().SplitAsSectionsCSQ(pItem, pCaseSensitive).Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def SplittedAtCSZZ(pItem, pCaseSensitive)
 			return This.SplittedAsSectionsCS(pItem, pCaseSensitive)
 
-		def SplitttedCSZZ(pItem, pCaseSensitive)
+		def SplittedAtPositionsOfAsSectionsCS(pItem)
 			return This.SplittedAsSectionsCS(pItem, pCaseSensitive)
 
-		def SplittedAtPositionsOfAsSectionsCS(pItem, pCaseSensitive)
+		def SplitsAsSectionsCS(pItem, pCaseSensitive)
 			return This.SplittedAsSectionsCS(pItem, pCaseSensitive)
+
+		def SplitsAtPositionsOfAsSectionsCS(pItem, pCaseSensitive)
+			return This.SplittedAsSectionsCS(pItem, pCaseSensitive)
+
+		def SplitsAtCSZZ(pItem, pCaseSensitive)
+			return This.SplittedAsSectionsCS(pItem, pCaseSensitive)
+
+		def SplitsAtPositionsOfCSZZ(pItem, pCaseSensitive)
+			return This.SplittedAsSectionsCS(pItem, pCaseSensitive)
+
+		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -55772,14 +55786,27 @@ def IndexBy(pcPosOrOccurr)
 		aResult = This.Copy().SplitAsSectionsQ(pItem).Content()
 		return aResult
 
-		def SplittedAtZZ(pItem)
-			return This.SplittedAsSections(pItem)
+		#< @FunctionAlternativeForms
 
-		def SplitttedZZ(pItem)
+		def SplittedAtZZ(pItem)
 			return This.SplittedAsSections(pItem)
 
 		def SplittedAtPositionsOfAsSections(pItem)
 			return This.SplittedAsSections(pItem)
+
+		def SplitsAsSections(pItem)
+			return This.SplittedAsSections(pItem)
+
+		def SplitsAtPositionsOfAsSections(pItem)
+			return This.SplittedAsSections(pItem)
+
+		def SplitsAtZZ(pItem)
+			return This.SplittedAsSections(pItem)
+
+		def SplitsAtPositionsOfZZ(pItem)
+			return This.SplittedAsSections(pItem)
+
+		#>
 
 	  #-----------------------------------#
 	 #   SPLITTING AT A GIVEN POSITION   #
@@ -55794,16 +55821,17 @@ def IndexBy(pcPosOrOccurr)
 			This.SplitAtPosition(n)
 			return This
 
-		def SplitsAtPosition(n)
-			return This.SplitAtPosition(n)
+	def SplittedAtPosition(n)
+		aResult = This.Copy().SplitAtPositionQ(n)
+		return aResult
 
-			def SplitsAtPositionQ(n)
-				return This.SplitAtPositionQ(n)
+		def SplitsAtPosition(n)
+			return SplittedAtPosition(n)
 
 	#-- ZZ/EXTENDED
 
-	def SplitAtPositionAsSections(p)
-		aSections = This.SplitAtPosition(p)
+	def SplitAtPositionAsSections(n)
+		aSections = This.SplitAtPosition(n)
 		nLen = len(aSections)
 
 		aResult = []
@@ -55815,43 +55843,84 @@ def IndexBy(pcPosOrOccurr)
 
 		return aResult
 
-		def SplitAtPositionAsSectionsQ(p)
-			This.SplitAtPositionAsSections(p)
+		def SplitAtPositionAsSectionsQ(n)
+			This.SplitAtPositionAsSections(n)
 			return This
 
-		def SplitatPositionZZ(p)
-			return This.SplitAtPositionAsSections(p)
+		def SplitAtPositionZZ(n)
+			This.SplitAtPositionAsSections(n)
 
-			def SplitatPositionZZQs(p)
+			def SplitAtPositionZZQ(n)
 				return This.SplitAtPositionAsSectionsQ(p)
 
-vvv	  #---------------------------------#
+	def SplittedAtPositionAsSections(n)
+		aResult = This.Copy().SplitAtPositionAsSectionsQ(n)
+		return aResult
+
+		def SplitsAtPositionAsSections(n)
+			return This.SplittedAtPositionAsSections(n)
+
+		def SplittedAtPositionZZ(n)
+			return This.SplittedAtPositionAsSections(n)
+
+		def SplitsAtPositionZZ(n)
+			return This.SplittedAtPositionAsSections(n)
+
+	  #---------------------------------#
 	 #   SPLITTING AT MANY POSITIONS   #
 	#---------------------------------#
 
 	def SplitAtPositions(panPos)
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitAtPositions(panPos)
 		aResult = This.Sections(aSections)
-		return aResult
+		This.UpdateWith(aResult)
+
+		#< @FunctionFleuntForm
+
+		def SplitAtPositionsQ(panPos)
+			This.SplitAtPositions(panPos)
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
 		def SplitAtThesePositions(panPos)
-			return This.SplitAtPositions(panPos)
+			This.SplitAtPositions(panPos)
+
+			def SplitAtThesePositionsQ(panPos)
+				return This.SplitAtPositionsQ(panPos)
 
 		def SplitAtManyPositions(panPos)
-			return This.SplitAtPositions(panPos)
+			This.SplitAtPositions(panPos)
+
+			def SplitAtManyPositionsQ(panPos)
+				return This.SplitAtPositionsQ(panPos)
+
+		#>
+
+	def SplittedAtPositions(panPos)
+		aResult = This.Copy().SplitAtPositionsQ(panPos).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SplittedAtManyPositions(panPos)
+			return This.SplittedAtPositions(panPos)
+
+		def SplittedAtThesePositions(panPos)
+			return This.SplittedAtPositions(panPos)
 
 		#--
 
 		def SplitsAtPositions(panPos)
-			return This.SplitAtPositions(panPos)
+			return This.SplittedAtPositions(panPos)
 
 		def SplitsAtThesePositions(panPos)
-			return This.SplitAtPositions(panPos)
+			return This.SplittedAtPositions(panPos)
 
 		def SplitsAtManyPositions(panPos)
-			return This.SplitAtPositions(panPos)
+			return This.SplittedAtPositions(panPos)
 
 		#>
 
@@ -55868,93 +55937,175 @@ vvv	  #---------------------------------#
 			aResult + [ aSections[i][1], aSections[i][nLenTemp] ]
 		next
 
-		return aResult
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm
+
+		def SplitAtPositionsAsSectionsQ(panPos)
+			This.SplitAtPositionsAsSections(panPos)
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
 		def SplitAtManyPositionsAsSections(panPos)
-			return This.SplitAtPositionAsSections(panPos)
+			This.SplitAtPositionAsSections(panPos)
 
-		def SplitsAtPositionsAsSections(panPos)
-			return This.SplitAtPositionAsSections(panPos)
-
-		def SplitsAtThesePositionsAsSections(panPos)
-			return This.SplitAtPositionAsSections(panPos)
-
-		def SplitsAtManyPositionsAsSections(panPos)
-			return This.SplitAtPositionAsSections(panPos)
+			def SplitAtManyPositionsAsSectionsQ(panPos)
+				return This.SplitAtPositionsAsSectionsQ(panPos)
 
 		#--
 
 		def SplitAtPositionsZZ(panPos)
-			return This.SplitAtPositionAsSections(panPos)
+			This.SplitAtPositionAsSections(panPos)
+
+			def SplitAtPositionsZZQ(panPos)
+				return This.SplitAtPositionsAsSectionsQ(panPos)
 
 		def SplitAtManyPositionsZZ(panPos)
-			return This.SplitAtPositionAsSections(panPos)
+			This.SplitAtPositionAsSections(panPos)
 
-		def SplitsAtPositionsZZ(panPos)
-			return This.SplitAtPositionAsSections(panPos)
-
-		def SplitsAtThesePositionsZZ(panPos)
-			return This.SplitAtPositionAsSections(panPos)
-
-		def SplitsAtManyPositionsZZ(panPos)
-			return This.SplitAtPositionAsSections(panPos)
+			def SplitAtManyPositionsZZQ(panPos)
+				return This.SplitAtPositionsAsSectionsQ(panPos)
 
 		#>
+
+	def SplittedAtPositionsAsSections(panPos)
+		aResult = This.Copy().SplitAtPositionsAsSectionsQ(panPos).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SplittedAtManyPositionsAsSections(panPos)
+			return This.SplittedAtPositionsAsSections(panPos)
+
+		def SplittedAtThesePositionsAsSections(panPos)
+			return This.SplittedAtPositionsAsSections(panPos)
+
+		#--
+
+		def SplittedAtPositionsZZ(panPonPos)
+			return This.SplittedAtPositionsAsSections(panPos)
+
+		def SplittedAtManyPositionsZZ(panPos)
+			return This.SplittedAtPositionsAsSections(panPos)
+
+		def SplittedAtThesePositionsZZ(panPos)
+			return This.SplittedAtPositionsAsSections(panPos)
+
+		#--
+
+		def SplitsAtPositionsAsSections(panPos)
+			return This.SplittedAtPositionsAsSections(panPos)
+
+		def SplitsAtThesePositionsAsSections(panPos)
+			return This.SplittedAtPositionsAsSections(panPos)
+
+		def SplitsAtManyPositionsAsSections(panPos)
+			return This.SplittedAtPositionsAsSections(panPos)
+
+		def SplitsAtPositionsZZ(panPos)
+			return This.SplittedAtPositionsAsSections(panPos)
+
+		def SplitsAtThesePositionsZZ(panPos)
+			return This.SplittedAtPositionsAsSections(panPos)
+
+		def SplitsAtManyPositionsZZ(panPos)
+			return This.SplittedAtPositionsAsSections(panPos)
+
+		#>
+
 	  #------------------------#
 	 #    SPLITTING BEFORE    #
-ici	#========================#
+	#========================#
 
 	def SplitBefore(p)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitBefore(p)
-		aResult = This.PositionsAt(anPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitBefore(panPos)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
+
+		def SplitBeforeQ(p)
+			This.SplitBefore(p)
+			return This
+
+	def SplittedBefore(p)
+		aResult = This.Copy().SplitBeforeQ().Content()
 		return aResult
 
 		def SplitsBefore(p)
-			return This.SplitBefore(p)
+			return This.SplittedBefore(p)
 
 	  #---------------------------------#
 	 #   SPLITTING BEFORE A POSITION   #
 	#---------------------------------#
 
 	def SplitBeforePosition(n)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitBeforePosition(n)
-		aResult = This.PositionsAt(anPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitBeforePosisition(n)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
+
+		def SplitBeforePositionQ(n)
+			This.SplitBeforePosition(n)
+			return This
+
+	def SplittedBeforePosition(n)
+		aResult = This.Copy().SplitBeforePositionQ(n).Content()
 		return aResult
 
 		def SplitsBeforePosition(n)
-			return This.SplitBeforePosition(n)
+			return This.SplittedBeforePosition(n)
 
 	  #-------------------------------------#
 	 #   SPLITTING BEFORE MANY POSITIONS   #
 	#-------------------------------------#
 
 	def SplitBeforePositions(panPos)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitBeforePositions(panPos)
-		aResult = This.PositionsAt(anPos)
-		return aResult
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitBeforePosisitions(panPos)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm
+
+		def SplitBeforePositionsQ(panPos)
+			This.SplitBeoforePositions(panPos)
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
 		def SplitBeforeThesePositions(panPos)
-			return This.SplitBeforePositions(panPos)
+			This.SplitBeforePositions(panPos)
+
+			def SplitBeforeThesePositionsQ(panPos)
+				return This.SplitBeforePositionsQ(panPos)
 
 		def SplitBeforeManyPositions(panPos)
-			return This.SplitBeforePositions(panPos)
+			This.SplitBeforePositions(panPos)
 
-		#--
-
-		def SplitsBeforePositions(panPos)
-			return This.SplitsBeforePositions(panPos)
-
-		def SplitsBeforeThesePositions(panPos)
-			return This.SplitBeforePositions(panPos)
-
-		def SplitsBeforeManyPositions(panPos)
-			return This.SplitBeforePositions(panPos)
+			def SplitBeforeManyPositionsQ(panPos)
+				return This.SplitBeforePositionsQ(panPos)
 
 		#>
+
+	def SplittedBeforePositions(panPos)
+		aResult = This.Copy().SplitBeforePositionsQ(panPos).Content()
+
+		def SplittedBeforeManyPositons(panPos)
+			return This.SplittedBeforePositions(panPos)
+
+		def SplittedBeforeThesePositons(panPos)
+			return This.SplittedBeforePositions(panPos)
+
+		def SplitsBeforePositions(panPos)
+			return This.SplittedBeforePositions(panPos)
+
+		def SplitsBeforeManyPositions(panPos)
+			return This.SplittedBeforePositions(panPos)
+
+		def SplitsBeforeThesePositions(panPos)
+			return This.SplittedBeforePositions(panPos)
 
 	  #-----------------------#
 	 #    SPLITTING AFTER    #
@@ -55965,20 +56116,36 @@ ici	#========================#
 		aResult = This.PositionsAt(anPos)
 		return aResult
 
+		def SplitAfterQ(p)
+			This.SplitAfter(p)
+			return This
+
+	def SplittedAfter(p)
+		aResult = This.SplitAfterQ(p).Content()
+		return aResult
+
 		def SplitsAfter(p)
-			return This.SplitAfter(p)
+			return This.SplittedAfter(p)
 
 	  #--------------------------------------#
 	 #   SPLITTING AFTER A GIVEN POSITION   #
 	#--------------------------------------#
 
 	def SplitAfterPosition(n)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAfterPosition(n)
+		anPos = StzSplitterQ(This.NumberOfItems()).SplitAfterPosition(p)
 		aResult = This.PositionsAt(anPos)
 		return aResult
 
+		def SplitAfterPositionQ(n)
+			This.SplitAfterPosition(n)
+			return This
+
+	def SplittedAfterPosition(n)
+		aResult = This.Copy().SplitAfterPositionQ(n).Content()
+		return aResult
+
 		def SplitsAfterPosition(n)
-			return This.SplitAfterPosition(n)
+			return This.SplittedAfterPosition(n)
 
 	  #------------------------------------#
 	 #   SPLITTING AFTER MANY POSITIONS   #
@@ -55989,15 +56156,33 @@ ici	#========================#
 		aResult = This.PositionsAt(anPos)
 		return aResult
 
+		#< @FunctionFluentForm
+
+		def SplitAfterPositionsQ(panPos)
+			This.SplitAfterPositions(panPos)
+			return This
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def SplitAfterThesePositions(panPos)
 			return This.SplitAfterPositions(panPos)
 
+			def SplitAfterThesePositionsQ(panPos)
+				return This.SplitAfterPositionsQ(panPos)
+
 		def SplitAfterManyPositions(panPos)
 			return This.SplitAfterPositions(panPos)
 
-		#--
+			def SplitAfterManyPositionsQ(panPos)
+				return This.SplitAfterPositionsQ(panPos)
+
+		#>
+
+	def SpllitedAfterPositions(panPos)
+		aResult = This.Copy().SplitAfterPositionsQ(panPos).Content()
+		return aResult
 
 		def SplitsAfterPositions(panPos)
 			return This.SplitAfterPositions(panPos)
@@ -56019,21 +56204,67 @@ ici	#========================#
 		aResult = This.PositionsAt(anPos)
 		return aResult
 
-		#< @FunnctionAlternativeForms
+		#< @FunctionFluentForm
+
+		def SplitAtSectionQ(n1, n2)
+			This.SplitAtSection(n1, n2)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def SplitAtThisSection(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			This.SplitAtSection(n1, n2)
+
+			def SplitAtThisSectionQ(n1, n2)
+				return This.SplitAtSectionQ(n1, n2)
 
 		def SplitBetween(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			This.SplitAtSection(n1, n2)
+
+			def SplitBetweenQ(n1, n2)
+				return This.SplitAtSectionQ(n1, n2)
 
 		def SplitBetweenPositions(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			This.SplitAtSection(n1, n2)
+
+			def SplitBetweenPositionsQ(n1, n2)
+				return This.SplitAtSectionQ(n1, n2)
 
 		def SplitBetweenThesePositions(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			This.SplitAtSection(n1, n2)
+
+			def SplitBetweenThesePositionsQ(n1, n2)
+				return This.SplitAtSectionQ(n1, n2)
 
 		def SplitBetweenManyPositions(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+			def SplitBetweenManyPositionsQ(n1, n2)
+				return This.SplitAtSectionQ(n1, n2)
+
+		#>
+
+	def SplittedAtSection(n1, n2)
+		aResult = This.Copy().SplitAtSectionQ(n1, n2).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SplittedAtThisSection(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		def SplittedBetween(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		def SplittedBetweenPositions(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		def SplittedBetweenThesePositions(n1, n2)
+			return This.SplitAtSection(n1, n2)
+
+		def SplittedBetweenManyPositions(n1, n2)
 			return This.SplitAtSection(n1, n2)
 
 		#--
@@ -56058,26 +56289,74 @@ ici	#========================#
 
 		#>
 
+	#-- IB/EXTENDED
+
 	def SplitAtSectionIB(n1, n2)
 		anPos = StzSplitterQ(This.NumberOfItems()).SplitAtSectionIB(n1, n2)
 		aResult = This.PositionsAt(anPos)
 		return aResult
 
-		#< @FunnctionAlternativeForms
+		#< @FunctionFluentForm
+
+		def SplitAtSectionIBQ(n1, n2)
+			This.SplitAtSectionIB(n1, n2)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def SplitAtThisSectionIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			This.SplitAtSection(n1, n2)
+
+			def SplitAtThisSectionIBQ(n1, n2)
+				return This.SplitAtSectionIBQ(n1, n2)
 
 		def SplitBetweenIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			This.SplitAtSectionIB(n1, n2)
+
+			def SplitBetweenIBQ(n1, n2)
+				return This.SplitAtSectionIBQ(n1, n2)
 
 		def SplitBetweenPositionsIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			This.SplitAtSectionIB(n1, n2)
+
+			def SplitBetweenPositionsIBQ(n1, n2)
+				return This.SplitAtSectionIBQ(n1, n2)
 
 		def SplitBetweenThesePositionsIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			This.SplitAtSectionIB(n1, n2)
+
+			def SplitBetweenThesePositionsIBQ(n1, n2)
+				return This.SplitAtSectionIBQ(n1, n2)
 
 		def SplitBetweenManyPositionsIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+			def SplitBetweenManyPositionsIBQ(n1, n2)
+				return This.SplitAtSectionIBQ(n1, n2)
+
+		#>
+
+	def SplittedAtSectionIB(n1, n2)
+		aResult = This.Copy().SplitAtSectionIBQ(n1, n2).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def SplittedAtThisSectionIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		def SplittedBetweenIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		def SplittedBetweenPositionsIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		def SplittedBetweenThesePositionsIB(n1, n2)
+			return This.SplitAtSectionIB(n1, n2)
+
+		def SplittedBetweenManyPositionsIB(n1, n2)
 			return This.SplitAtSectionIB(n1, n2)
 
 		#--
@@ -56111,87 +56390,142 @@ ici	#========================#
 		aResult = This.PositionsAt(anPos)
 		return aResult
 
+		#< @FunctionFluentForm
+
+		def SplitAtSectionsQ(paSections)
+			This.SplitAtSections(paSections)
+			return This
+
+		#>
 
 		#< @FunnctionAlternativeForms
 
 		def SplitAtTheseSections(paSections)
-			return This.SplitAtSections(paSections)
+			This.SplitAtSections(paSections)
+
+			def SplitAtTheseSectionsQ(paSections)
+				return This.SplitAtSectionsQ(paSections)
 
 		def SplitBetweenSections(paSections)
-			return This.SplitAtSections(paSections)
+			This.SplitAtSections(paSections)
+
+			def SplitBetweenSectionsQ(paSections)
+				return This.SplitAtSectionsQ(paSections)
 
 		def SplitBetweenTheseSections(paSections)
-			return This.SplitAtSections(paSections)
+			This.SplitAtSections(paSections)
+
+			def SplitBetweenTheseSectionsQ(paSections)
+				return This.SplitAtSectionsQ(paSections)
 
 		def SplitAtManySections(paSections)
-			return This.SplitAtSections(paSections)
+			This.SplitAtSections(paSections)
+
+			def SplitAtManySectionsQ(paSections)
+				return This.SplitAtSectionsQ(paSections)
 
 		def SplitBetweenManySections(paSections)
-			return This.SplitAtSections(paSections)
+			This.SplitAtSections(paSections)
 
-		#--
-
-		def SplitsAtSections(paSections)
-			return This.SplitAtSections(paSections)
-
-		def SplitsAtTheseSections(paSections)
-			return This.SplitAtSections(paSections)
-
-		def SplitsBetweenSections(paSections)
-			return This.SplitAtSections(paSections)
-
-		def SplitsBetweenTheseSections(paSections)
-			return This.SplitAtSections(paSections)
-
-		def SplitsAtManySections(paSections)
-			return This.SplitAtSections(paSections)
-
-		def SplitsBetweenManySections(paSections)
-			return This.SplitAtSections(paSections)
+			def SplitBetweenManySectionsQ(paSections)
+				return This.SplitAtSectionsQ(paSections)
 
 		#>
+
+	def SplittedAtSections(paSections)
+		aResult = This.Copy().SplitAtSectionsQ(paSections).Content()
+		return aResult
+
+		def SplitsAtSections(paSections)
+			return This.SplittedAtSections(paSections)
+
+		def SplitsAtTheseSections(paSections)
+			return This.SplittedAtSections(paSections)
+
+		def SplitsBetweenSections(paSections)
+			return This.SplittedAtSections(paSections)
+
+		def SplitsBetweenTheseSections(paSections)
+			return This.SplittedAtSections(paSections)
+
+		def SplitsAtManySections(paSections)
+			return This.SplittedAtSections(paSections)
+
+		def SplitsBetweenManySections(paSections)
+			return This.SplittedAtSections(paSections)
+
+		#>
+
+	#-- IB/EXtENDED
 
 	def SplitAtSectionsIB(paSections)
 		anPos = StzSplitterQ(This.NumberOfItems()).SplitAtSectionsIB(paSections)
 		aResult = This.PositionsAt(anPos)
 		return aResult
-			
+
+		#< @FunctionFluentForm
+
+		def SplitAtSectionsIBQ(paSections)
+			This.SplitAtSectionsIB(paSections)
+			return This
+
+		#>
+
 		#< @FunnctionAlternativeForms
 
 		def SplitAtTheseSectionsIB(paSections)
-			return This.SplitAtSectionsIB(paSections)
+			This.SplitAtSectionsIB(paSections)
+
+			def SplitAtTheseSectionsIBQ(paSections)
+				return This.SplitAtSectionsIBQ(paSections)
 
 		def SplitBetweenSectionsIB(paSections)
-			return This.SplitAtSectionsIB(paSections)
+			This.SplitAtSectionsIB(paSections)
+
+			def SplitBetweenSectionsIBQ(paSections)
+				return This.SplitAtSectionsIBQ(paSections)
 
 		def SplitBetweenTheseSectionsIB(paSections)
-			return This.SplitAtSectionsIB(paSections)
+			This.SplitAtSectionsIB(paSections)
+
+			def SplitBetweenTheseSectionsIBQ(paSections)
+				return This.SplitAtSectionsIBQ(paSections)
 
 		def SplitAtManySectionsIB(paSections)
-			return This.SplitAtSectionsIB(paSections)
+			This.SplitAtSectionsIB(paSections)
+
+			def SplitAtManySectionsIBQ(paSections)
+				return This.SplitAtSectionsIBQ(paSections)
 
 		def SplitBetweenManySectionsIB(paSections)
-			return This.SplitAtSectionsIB(paSections)
+			This.SplitAtSectionsIB(paSections)
 
-		#--
+			def SplitBetweenManySectionsIBQ(paSections)
+				return This.SplitAtSectionsIBQ(paSections)
+
+		#>
+
+	def SplittedAtSectionsIB(paSections)
+		aResult = This.Copy().SplitAtSectionsIBQ(paSections).Content()
+		return aResult
 
 		def SplitsAtSectionsIB(paSections)
-			return This.SplitAtSectionsIB(paSections)
+			return This.SplittedAtSectionsIB(paSections)
 
 		def SplitsAtTheseSectionsIB(paSections)
-			return This.SplitAtSectionsIB(paSections)
+			return This.SplittedAtSectionsIB(paSections)
 
 		def SplitsBetweenSectionsIB(paSections)
-			return This.SplitAtSectionsIB(paSections)
+			return This.SplittedAtSectionsIB(paSections)
 
 		def SplitsBetweenTheseSectionsIB(paSections)
-			return This.SplitAtSectionsIB(paSections)
+			return This.SplittedAtSectionsIB(paSections)
 
 		def SplitsAtManySectionsIB(paSections)
-			return This.SplitAtSectionsIB(paSections)
+			return This.SplittedAtSectionsIB(paSections)
 
 		def SplitsBetweenManySectionsIB(paSections)
-			return This.SplitAtSectionsIB(paSections)
+			return This.SplittedAtSectionsIB(paSections)
 
 		#>
 
@@ -56204,40 +56538,66 @@ ici	#========================#
 		aResult = This.PositionsAt(anPos)
 		return aResult
 
-		#< @FunnctionAlternativeForm
+		#< @FunctionFluentForm
 
-		def SplitBeforeThisSection(n1, n2)
-			return This.SplitBeforeSection(n1, n2)
-
-		#--
-
-		def SplitsBeforeSection(n1, n2)
-			return This.SplitBeforeSection(n1, n2)
-
-		def SplitsBeforeThisSection(n1, n2)
-			return This.SplitBeforeSection(n1, n2)
+		def SplitBeforeSectionQ(n1, n2)
+			This.SplitBeforeSection(n1, n2)
+			return This
 
 		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitBeforeThisSection(n1, n2)
+			This.SplitBeforeSection(n1, n2)
+
+			def SplitBeforeThisSectionQ(n1, n2)
+				return This.SplitBeforeSectionQ(n1, n2)
+
+		#>
+
+	def SplittedBeforeSection(n1, n2)
+		aResult = This.Copy().SplitBeforeThisSectionQ(n1, n2).Content()
+
+		def SplitsBeforeSection(n1, n2)
+			return This.SplittedBeforeSection(n1, n2)
+
+		def SplitsBeforeThisSection(n1, n2)
+			return This.SplittedBeforeSection(n1, n2)
+
+	#-- IB/EXTENDED
 
 	def SplitBeforeSectionIB(n1, n2)
 		anPos = StzSplitterQ(This.NumberOfItems()).SplitBeforeSectionIB(n1, n2)
 		aResult = This.PositionsAt(anPos)
 		return aResult
 
-		#< @FunnctionAlternativeForm
+		#< @FunctionFluentForm
 
-		def SplitBeforeThisSectionIB(n1, n2)
-			return This.SplitBeforeSectionIB(n1, n2)
-
-		#--
-
-		def SplitsBeforeSectionIB(n1, n2)
-			return This.SplitBeforeSectionIB(n1, n2)
-
-		def SplitsBeforeThisSectionIB(n1, n2)
-			return This.SplitBeforeSectionIB(n1, n2)
+		def SplitBeforeSectionIBQ(n1, n2)
+			This.SplitBeforeSectionIB(n1, n2)
+			return This
 
 		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitBeforeThisSectionIB(n1, n2)
+			This.SplitBeforeSectionIB(n1, n2)
+
+			def SplitBeforeThisSectionIBQ(n1, n2)
+				return This.SplitBeforeSectionIBQ(n1, n2)
+
+		#>
+
+	def SplittedBeforeSectionIB(n1, n2)
+		aResult = This.Copy().SplitBeforeThisSectionIBQ(n1, n2).Content()
+
+		def SplitsBeforeSectionIB(n1, n2)
+			return This.SplittedBeforeSectionIB(n1, n2)
+
+		def SplitsBeforeThisSectionIB(n1, n2)
+			return This.SplittedBeforeSectionIB(n1, n2)
 
 	  #----------------------------------#
 	 #  SPLITTING BEFORE MANY SECTIONS  #
