@@ -2,6 +2,68 @@
 load "../max/stzmax.ring"
 
 
+//puts Prime.each(5000).select{|p| 2.pow(p-1 ,p*p) == 1 }
+
+/*--------
+
+pron()
+
+? PrimesUnder(19)
+#--> [ 2, 3, 5, 7, 11, 13, 17 ]
+
+? PrimesUnderIB(19)
+#--> [ 2, 3, 5, 7, 11, 13, 17, 19 ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.21
+
+/*------- #ring
+*/
+pron()
+
+
+FirstNPrimes(5000)
+
+/*
+aPrimes = []
+
+for i = 1 to 5000
+	if isPrime(i)
+		aPrimes + i
+	ok
+next
+# Executed in 0.01 second(s) in Ring 1.21
+*/
+proff()
+
+/*-------
+
+pron()
+
+for i = 1 to 5000
+	if isWeiferich(i)
+		? i
+	ok
+next
+
+proff()
+
+function isWeiferich(p)
+    if not isPrime(p)
+       return False
+    ok
+    q = 1
+    p2 = pow(p,2)
+    while p > 1
+        q = (2 * q) % p2
+        p -= 1
+    end 
+    if q = 1
+       return True
+    else
+       return False
+    ok
+
 /*--- @ring
 
 pron()
