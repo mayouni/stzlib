@@ -42636,6 +42636,10 @@ def IndexBy(pcPosOrOccurr)
 			ok
 
 			nLen = len(panPos)
+			if nLen = 0
+				return []
+			ok
+
 			for i = 1 to nLen
 				if isString(panPos[i])
 					if panPos[i] = :First or panPos[i] = :FirstPosition
@@ -42906,6 +42910,9 @@ def IndexBy(pcPosOrOccurr)
 
 		#< @FunctionAlternativeForms
 
+		def W(pcCondition)
+			return This.ItemsW(pcCondition)
+
 		def OnlyW(pcCondition)
 			return This.ItemsW(pcCondition)
 
@@ -43041,7 +43048,7 @@ def IndexBy(pcPosOrOccurr)
 	#==========================================================#
 
 	def ItemsWXT(pcCondition)
-
+		
 		anPos = This.FindAllItemsWXT(pcCondition)
 		aResult = This.ItemsAtThesePositions(anPos)
 
@@ -43085,11 +43092,18 @@ def IndexBy(pcPosOrOccurr)
 				StzRaise("Unsupported return type!")
 			off
 
+			#< @FunctionAlternativeForms
+
+			def WXT(pcCondition)
+				return This.ItemsWXT(pcCondition)
+
 			def OnlyWXT(pcCondition)
 				return This.ItemsWXT(pcCondition)
 
 			def OnlyWhereXT(pcCondition)
 				return This.ItemsWXT(pcCondition)
+
+			#>
 
 	def NthItemWXT(n, pcCondition)
 
@@ -55811,7 +55825,7 @@ def IndexBy(pcPosOrOccurr)
 			def SplitatPositionZZQs(p)
 				return This.SplitAtPositionAsSectionsQ(p)
 
-vvvs	  #---------------------------------#
+vvv	  #---------------------------------#
 	 #   SPLITTING AT MANY POSITIONS   #
 	#---------------------------------#
 

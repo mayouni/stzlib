@@ -1347,38 +1347,50 @@ func FirstNPrimesWXT(n, pcCondition)
 func PrimesUnder(n)
 	return PrimesUnderIB(n-1)
 
+	func PrimesUnderQ(n)
+		return new stzList(PrimesUnder(n))
+
+	func PrimesUnderQQ(n)
+		return new stzListOfNumbers(PrimesUnder(n))
+
 func PrimesUnderIB(n)
-    if n < 2 return [] ok
+	if n < 2 return [] ok
     
-    # Create a list of boolean values, initially all set to true
-    # Index i represents whether number i is prime
-    sieve = list(n+1)
-    for i = 1 to n+1
-        sieve[i] = true
-    next
+	# Create a list of boolean values, initially all set to true
+	# Index i represents whether number i is prime
+	sieve = list(n+1)
+	for i = 1 to n+1
+		sieve[i] = true
+	next
     
-    # 0 and 1 are not prime
-    sieve[1] = false
+	# 0 and 1 are not prime
+	sieve[1] = false
     
-    # Implement Sieve of Eratosthenes
-    for i = 2 to floor(sqrt(n))
-        if sieve[i]
-            # Mark all multiples of i as non-prime
-            for j = i * i to n step i
-                sieve[j] = false
-            next
-        ok
-    next
+	# Implement Sieve of Eratosthenes
+	for i = 2 to floor(sqrt(n))
+		if sieve[i]
+			# Mark all multiples of i as non-prime
+			for j = i * i to n step i
+				sieve[j] = false
+			next
+		ok
+	next
     
-    # Collect all prime numbers
-    primes = []
-    for i = 2 to n
-        if sieve[i]
-            Add(primes, i)
-        ok
-    next
+	# Collect all prime numbers
+	primes = []
+	for i = 2 to n
+		if sieve[i]
+			Add(primes, i)
+		ok
+	next
     
-    return primes
+	return primes
+
+	func PrimesUnderIBQ(n)
+		return new stzList(PrimesUnderIB(n))
+
+	func PrimesUnderIBQQ(n)
+		return new stzListOfNumbers(PrimesUnderIB(n))
 
   ////////////////
  ///  CLASS   ///
@@ -8066,6 +8078,23 @@ def init(paList)
 
 		for i = 1 to nLen
 			if NOT ring_isprime(@aContent[i])
+				bResult = FALSE
+				exit
+			ok
+		next
+
+		return bResult
+
+	  #---------------------------------------------#
+	 #  CHECKING IF THE NUMBERS ARE ALL WEIFERICH  #
+	#---------------------------------------------#
+
+	def AreWeiferich()
+		bResult = TRUE
+		nLen = len(@aContent)
+
+		for i = 1 to nLen
+			if NOT @IsWeiferich(@aContent[i])
 				bResult = FALSE
 				exit
 			ok

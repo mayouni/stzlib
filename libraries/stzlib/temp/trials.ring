@@ -2,7 +2,28 @@
 load "../max/stzmax.ring"
 
 
-//puts Prime.each(5000).select{|p| 2.pow(p-1 ,p*p) == 1 }
+/*------
+*/
+pron()
+
+# In number theory, a Wieferich prime is a prime number p
+# such that p2 evenly divides 2(p − 1) − 1.
+
+# Task: Find the Wieferich primes less than 5000
+
+# In Ruby, one can find them with sutch a concise and
+# expressive line of code:
+'
+puts Prime.each(5000).select{|p| 2.pow(p-1 ,p*p) == 1 }
+'
+
+# In Ring, with Softanza, it's even more expressive:
+
+? PrimesUnderQ(5000).WXT(' isWeiferich(@number) ')
+#--> [ 1093, 3511 ]
+
+proff()
+# Executed in 2.41 second(s) in Ring 1.21
 
 /*--------
 
@@ -18,25 +39,6 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*------- #ring
-*/
-pron()
-
-
-FirstNPrimes(5000)
-
-/*
-aPrimes = []
-
-for i = 1 to 5000
-	if isPrime(i)
-		aPrimes + i
-	ok
-next
-# Executed in 0.01 second(s) in Ring 1.21
-*/
-proff()
-
-/*-------
 
 pron()
 
@@ -45,24 +47,32 @@ for i = 1 to 5000
 		? i
 	ok
 next
+#--> [ 1, 4 ]
+
+proff()
+# Executed in 0.36 second(s) in Ring 1.21
+
+/*-----
+
+pron()
+
+anPrimes = PrimesUnder(5000)
+nLen = len(anPrimes)
+
+anResult = []
+for i = 1 to nLen
+	if isWeiferich(anPrimes[i])
+		anResult + i
+	ok
+next
+
+? anResult
+# Executed in 0.36 second(s) in Ring 1.21
 
 proff()
 
-function isWeiferich(p)
-    if not isPrime(p)
-       return False
-    ok
-    q = 1
-    p2 = pow(p,2)
-    while p > 1
-        q = (2 * q) % p2
-        p -= 1
-    end 
-    if q = 1
-       return True
-    else
-       return False
-    ok
+/*----
+*/
 
 /*--- @ring
 
