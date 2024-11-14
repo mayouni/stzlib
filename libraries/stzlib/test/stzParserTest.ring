@@ -1,5 +1,6 @@
 load "../max/stzmax.ring"
 
+pron()
 
 StzParserQ([ "_", "A", "_" , "_", "B", "_", "_", "C", "_", "D" ]) {
 
@@ -18,7 +19,10 @@ StzParserQ([ "_", "A", "_" , "_", "B", "_", "_", "C", "_", "D" ]) {
 	? CurrentPosition()	#--> 10
 }
 
-/*
+proff()
+
+/*----
+
 
 StzParserQ(["a", "_", "b", "_", "c"]) {
 	SetCurrentPosition(2)

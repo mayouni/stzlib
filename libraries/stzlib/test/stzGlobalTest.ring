@@ -89,7 +89,7 @@ pron()
 #--> TRUE
 
 proff()
-#--> Executed in 0.02 second(s) in Ring 1.21
+#--> Executed in 0.01 second(s) in Ring 1.21
 #--> Executed in 0.04 second(s) in Ring 1.20
 
 /*----

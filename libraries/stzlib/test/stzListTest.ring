@@ -3,6 +3,20 @@ load "../max/stzmax.ring"
 #TODO Add Check() Yield() Perform()
 
 /*-------------------
+*/
+pron()
+
+o1 = new stzList([ "A1", "A2", "A3", "A4", "A5", "A6", "A7" ])
+? o1.NextNthItem(3, :StartingAt = 4)
+#--> "A6"
+
+? o1.PreviousNthItem(4, :StartingAt = 7)
+#--> "A4"
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.21
+
+/*-------------------
 
 pron()
 
@@ -10934,7 +10948,7 @@ o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
 #--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 5 ] ]
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*-----------
 
@@ -10961,6 +10975,7 @@ o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
 #--> [ [ 1, 1 ], [ 2, 3 ], [ 4, 5 ] ]
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*-------------
 
@@ -10984,7 +10999,7 @@ o1 = new stzString("abcde")
 #---> [ "ab", "cd", "e" ]
 
 proff()
-# Executed in 0.05 second(s).
+# Executed in 0.04 second(s) in Ring 1.21
 
 /*================
 
@@ -11002,7 +11017,7 @@ o1 = new stzList([ "*", "a", "*", "b", "C", "D", "*", "e" ])
 #--> [1, 3, 7]
 
 proff()
-# Executed in almost 0 second(s).
+# Executed in almost 0 second(s) in Ring 1.21
 
 /*--------------
 
@@ -11212,7 +11227,9 @@ o1 = new stzSplitter(1:3)
 
 o1 = new stzList([ "A", "B", "C" ])
 ? @@( o1.SplittedToNParts(0) )
-#--> [ ]
+#--> [ "A", "B", "C" ]
+
+#~> The list is not splitted and returned as is.
 
 proff()
 # Executed in 0.02 second(s) in Ring 1.21

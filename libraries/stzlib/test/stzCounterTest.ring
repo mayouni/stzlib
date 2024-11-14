@@ -1,4 +1,4 @@
-load "../stzlib.ring"
+load "../max/stzmax.ring"
 
 /*-----------
 */
@@ -21,6 +21,7 @@ o1 = new stzCounter([
 #--> 2
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*------------
 

@@ -1,12 +1,16 @@
 load "../max/stzmax.ring"
 
+/*----
 
 pron()
 
 ? Q(120602061.1).HowMany(0)
-#--> 4	bacause decimals() = 2 by default and then 120602061.1 is actually 120602061.10
+#--> 4
+#~> Bacause decimals() = 2 by default and then
+#   120602061.1 is actually 120602061.10
 
-? Q("120602061.1").HowMany(0)
+? Q("120602061.1").HowMany("0")
+#--> 3
 
 ? Q(120602061.10).HowMany(1)
 #--> 3
@@ -21,7 +25,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*======
-
+*/
 pron()
 
 ? @@( Q(462).PrimeDividors() ) + NL
@@ -31,7 +35,7 @@ pron()
 #--> [ 1, 2, 3, 6, 7, 11, 14, 21, 22, 33, 42, 66, 77, 154, 231, 462 ]
 
 proff()
-#--> Executed in 0.05 second(s)
+#--> Executed in 0.03 second(s)
 
 /*----------
 
