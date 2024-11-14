@@ -1,4 +1,16 @@
 load "../max/stzmax.ring"
 
+pron()
+
 o1 = new stzListOfUnicodes( Arabic7araketUnicodes() )
-? o1.UnicodesAndChars()
+
+? @@NL( o1.UnicodesAndChars() )
+#--> [
+#	[ 1615, "ُ" ],
+#	[ 1614, "َ" ],
+#	[ 1616, "ِ" ],
+#	[ 1618, "ْ" ]
+# ]
+
+proff()
+# Executed in 0.04 second(s) in Ring 1.21

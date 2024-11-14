@@ -90,12 +90,13 @@ pron()
 proff()
 # Executed in 0.05 second(s).
 
-/*-----
+/*----- #TODO fix it!
 */
 pron()
 
 o1 = new stzGrid(CharsBetween(" ", :And = "z") )
 ? o1.HowManyHLines()
+#--> 11
 
 o1.Show()
 

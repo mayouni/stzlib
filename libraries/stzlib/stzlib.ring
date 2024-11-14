@@ -164,6 +164,7 @@
 	load "common/stzSplitter.ring"
 	load "common/stzWalker.ring"
 	load "common/stzCounter.ring"
+	load "common/stzParser.ring"
 	load "common/stzSection.ring"
 	load "common/stzSmallFuncs.ring"
 	load "common/stzQtFuncs.ring"

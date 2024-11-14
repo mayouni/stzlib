@@ -15,7 +15,7 @@ cList = '[ "A", "T", [ :hi, :bye ], 5, "C", "A", "A", 2 ]'
 ? StringIsListInString(cList) #--> TRUE
 
 /*---------------------
-
+*/
 obj1 = new Person { name = "foued" }
 obj2 = new Person { name = "kamel" }
 

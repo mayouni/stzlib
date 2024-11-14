@@ -12,7 +12,7 @@ class stzListOfSets from stzListOfLists
 		if isList(paList) and
 		   ( Q(paList).IsEmpty() or Q(paList).IsListOfSets() )
 
-			@aContent = paListOfSets
+			@aContent = paList
 
 		else
 			StzRaise(stzListOfSetsError(:CanNotCreateListOfSets))

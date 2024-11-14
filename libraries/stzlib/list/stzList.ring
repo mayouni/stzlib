@@ -41503,10 +41503,136 @@ class stzList from stzObject
 				return new stzString(This.VizFind(pItem))
 		#>
 
-	   #-------------------------------------------------#
+	  #==================================================================#
+	 #  GETTING NEXT NTH ITEM IN THE LIST STARTING AT A GIVEN POSITION  #
+	#==================================================================#
+
+	def NextNthItemST(nth, nStart)
+
+		if CheckParams()
+
+			if NOT isNumber(nth)
+				StzRaise("Incorrect param type! nth must be a number.")
+			ok
+	
+			if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
+				nStart = nStart[2]
+			ok
+	
+			if isString(nStart)
+				if nStart = :Start or nStart = :First or nStart = :FirstItem
+					nStart = 1
+	
+				but nStart = :End or nStart = :Last or nStart = :LastItem
+					nStart = len(@aContent)
+				ok
+			ok
+	
+			if NOT isNumber(nStart)
+				StzRaise("Incorrect param type! nth must be a number.")
+			ok
+
+		ok
+
+		result = @aContent[ nth + nStart - 1 ]
+		return result
+
+		#< @FunctionFluentForm
+
+		def NextNthItemSTQ(nth, nStart)
+			return Q( This.NextNthItemST(nth, nStart) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def NextNthItem(nth, nStart)
+			return This.NextNthItemST(nth, nStart)
+
+			def NextNthItemQ(nth, nStart)
+				return This.NextNthItemSTQ(nth, nStart)
+
+		def NthNextItemST(nth, nStart)
+			return This.NextNthItemST(nth, nStart)
+
+			def NthNextItemSTQ(nth, nStart)
+				return This.NextNthItemSTQ(nth, nStart)
+
+		def NthNextItem(nth, nStart)
+			return This.NextNthItemST(nth, nStart)
+
+			def NthNextItemQ(nth, nStart)
+				return This.NextNthItemSTQ(nth, nStart)
+
+		#>
+
+	  #----------------------------------------------------------------------#
+	 #  GETTING PREVIOUS NTH ITEM IN THE LIST STARTING AT A GIVEN POSITION  #
+	#----------------------------------------------------------------------#
+
+	def PreviousNthItemST(nth, nStart)
+
+		if CheckParams()
+
+			if NOT isNumber(nth)
+				StzRaise("Incorrect param type! nth must be a number.")
+			ok
+	
+			if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
+				nStart = nStart[2]
+			ok
+	
+			if isString(nStart)
+				if nStart = :Start or nStart = :First or nStart = :FirstItem
+					nStart = 1
+	
+				but nStart = :End or nStart = :Last or nStart = :LastItem
+					nStart = len(@aContent)
+				ok
+			ok
+	
+			if NOT isNumber(nStart)
+				StzRaise("Incorrect param type! nth must be a number.")
+			ok
+
+		ok
+
+		result = @aContent[ nStart - nth + 1 ]
+		return result
+
+		#< @FunctionFluentForm
+
+		def PreviousNthItemSTQ(nth, nStart)
+			return Q( This.PreviousNthItemST(nth, nStart) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def PreviousNthItem(nth, nStart)
+			return This.PreviousNthItemST(nth, nStart)
+
+			def PreviousNthItemQ(nth, nStart)
+				return This.PreviousNthItemSTQ(nth, nStart)
+
+		def NthPreviousItemST(nth, nStart)
+			return This.PreviousNthItemST(nth, nStart)
+
+			def NthPreviousItemSTQ(nth, nStart)
+				return This.PreviousNthItemSTQ(nth, nStart)
+
+		def NthPreviousItem(nth, nStart)
+			return This.PreviousNthItemST(nth, nStart)
+
+			def NthPreviousItemQ(nth, nStart)
+				return This.PreviousNthItemSTQ(nth, nStart)
+
+		#>
+
+	   #=================================================#
 	  #      FINDING NTH NEXT OCCURRENCE OF AN ITEM     #
 	 #      STARTING AT A GIVEN POSITION               #
-	#-------------------------------------------------#
+	#=================================================#
 
 	def FindNthNextOccurrenceCS( n, pItem, pnStartingAt, pCaseSensitive )
 
@@ -57002,7 +57128,7 @@ class stzList from stzObject
 			return This
 
 	def SplittedToNParts(n)
-		aResult = This.Copy().SplitToNPartsQ().Content()
+		aResult = This.Copy().SplitToNPartsQ(n).Content()
 		return aResult
 
 		def SplitsToNParts(n)
@@ -79288,6 +79414,24 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsSectionIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :SectionIB )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsThisSectionIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ThisSectionIB )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsAndSectionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :AndSection )
@@ -79327,6 +79471,24 @@ class stzList from stzObject
 	def IsTheseSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :TheseSections )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsSectionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :SectionsIB )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsTheseSectionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :TheseSectionsIB )
 
 			return TRUE
 		else
@@ -81455,3 +81617,39 @@ class stzList from stzObject
 
 		def IsBeforeOrStartingAtNamedParams()
 			return IsStartingAtOrBeforeNamedParam()
+
+	def IsAtOrAtThisPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   ( This.Item(1) = :At or This.Item(1) = :AthThisPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+		def IsAtThisPositionOrAtNamedParam()
+			return This.IsAtThisPositionOrAtNamedParam()
+
+	def IsBeforeManyPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :BeforeManyPositions
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterManyPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :AfterManyPositions
+
+			return TRUE
+
+		else
+			return FALSE
+		ok

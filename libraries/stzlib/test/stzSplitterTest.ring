@@ -23,24 +23,22 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.24 second(s)
+# Executed in 0.13 second(s) in Ring 1.21
+# Executed in 0.24 second(s) in Ring 1.19
 
 /*-----------
 
 pron()
 
 o1 = new stzSplitter(1:10)
-? @@( o1.SplitAtSection([3, 5]) )
+? @@( o1.SplitAtSection(3, 5) )
 # [ [ 1, 2 ], [ 6, 10 ] ]
 
-? @@( o1.Split( :AtSections = [ [3,5], [8,9] ] ) )
-# 1..2..3..4..5..6..7..8..9..10
-#       ^-----^        ^--^
-
+? @@( o1.SplitXT( :AtSections = [ [3,5], [8,9] ] ) )
 #--> [ [1,2], [6,7], [10,10] ]
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.14 second(s) in Ring 1.21
 
 /*====================
 
@@ -54,10 +52,10 @@ o1 = new stzSplitter(1:10)
 ? @@( o1.SplitAt([3, 7]) )
 #--> [ [ 1, 2 ], [ 4, 6 ], [ 8, 10 ] ]
 
-? @@( o1.SplitAtSection([ 4, 7 ]) )
+? @@( o1.SplitAtSection(4, 7) )
 #--> [ [ 1, 3 ], [ 8, 10 ] ]
 
-? @@( o1.SplitAtSection([ 1, 9 ]) )
+? @@( o1.SplitAtSection(1, 9) )
 #--> [ [ 10, 10 ] ]
 
 ? @@( o1.SplitAtSections([ [3,5], [7, 8] ]) )
@@ -73,10 +71,11 @@ o1 = new stzSplitter(1:10)
 #--> [ [ 1, 3 ], [ 7, 10 ] ]
 
 proff()
-# Executed in 0.23 second(s)
+# Executed in 0.16 second(s) in Ring 1.21
+# Executed in 0.23 second(s) in Ring 1.20
 
 /*====================
-
+*/
 pron()
 
 o1 = new stzSplitter(1:10)
@@ -90,10 +89,10 @@ o1 = new stzSplitter(1:10)
 ? @@( o1.SplitBefore([3, 7]) )
 #--> [ [ 1, 2 ], [ 3, 6 ], [ 7, 10 ] ]
 
-? @@( o1.SplitBeforeSection([ 4, 7 ]) )
+? @@( o1.SplitBeforeSection(4, 7) )
 #--> [ [ 1, 3 ], [ 4, 10 ] ]
 
-? @@( o1.SplitBeforeSection([ 1, 9 ]) )
+? @@( o1.SplitBeforeSection(1, 9) )
 #--> [ [ 1, 10 ] ]
 
 ? @@( o1.SplitBeforeSections([ [3,5], [7, 8] ]) )

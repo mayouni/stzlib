@@ -46,7 +46,7 @@ StzNamedObjectQ(:myobj = TrueObject()) {
 # Executed in 0.03 second(s)
 
 /*==============
-
+*/
 pron()
 
 ? @@( StzNullObjectQ() )
@@ -59,7 +59,8 @@ pron()
 #!--> [ [ 1, 2, 3 ], @noname, [ "a", "b" ], @noname ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.09 second(s) in Ring 1.20
 
 /*==================
 

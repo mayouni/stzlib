@@ -1,14 +1,17 @@
 func IsCounterNamedParamList(paParams)
-	if isList(paParams) and
-	   StzNumberQ( Q(paParams).NumberOfItems() ).IsBetween(1, 4) and
+	if NOT isList(paParams)
+		return FALSE
+	ok
 
-	   Q(paParams).IsHashList() and
+	nLen = len(paParams)
+	if nLen >= 1 and nLen <= 4 and 
+	   IsHashList(paParams) and
 	   StzHashListQ(paParams).KeysQ().IsMadeOfSome([ :StartAt, :AfterYouSkip, :RestartAt, :Step ])
 	
 			return TRUE
-		else
-			return FALSE
-		ok
+	else
+		return FALSE
+	ok
 
 	func @IsCounterNamedParamList(paParams)
 		return IsCounterNamedParamList(paParams)

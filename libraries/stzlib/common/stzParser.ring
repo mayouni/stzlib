@@ -1,4 +1,6 @@
 
+#NOTE: Reflect on the difference between stzWalker and stzParser
+#~> May be taht stzParser maintains the state of the current position
 
 func StzParserQ(paList)
 	return new StzParser(paList)
@@ -30,8 +32,8 @@ class stzParser from stzList
 		def Value()
 			return Content()
 
-	def ParsedPositions()
-		return This.Content()
+		def ParsedPositions()
+			return This.Content()
 
 	def NumberOfParsedPositions()
 		return len(This.Content())
@@ -120,6 +122,14 @@ class stzParser from stzList
 			This.MoveToPosition( This.CurrentPosition() + n)
 		ok
 
+	def PreviousPosition()
+		return @nCurrentPosition
+
+	def SetPreviousPosition(n)
+		if isNumber(n) and StzNumberQ(n).ExistsIn( This.ParsedPositions() )
+			@nPreviousPosition = n
+		ok
+
 	def MoveToPreviousPosition()
 		This.MoveToPreviousNthPosition(1)
 
@@ -155,6 +165,9 @@ class stzParser from stzList
 	def PreviousNthItem(n)
 		return This.List()[ This.PreviousNthPosition(n) ]
 
+		def NthPreviousItem(n)
+			return This.PreviousNthItem(n)
+
 	def PreviousItem()
 		return This.List()[ This.PreviousPosition() ]
 
@@ -164,8 +177,23 @@ class stzParser from stzList
 
 		ok
 
+		def NthNextItem(n)
+			return This.NextNtthItem()
+
 	def NextItem()
 		return This.NextNthItem(1)
 
 	def CurrentItem()
 		return This.List()[ This.CurrentPosition() ]
+
+	def NextNthPosition(n)
+		return StzListQ(This.ParsedPositions()).NextNthItemST(n, This.CurrentPosition())
+
+		def NthNextPosition(n)
+			return This.NextNthPosition(n)
+
+	def PreviousNthPosition(n)
+		return StzListQ(This.ParsedPositions()).PreviousNthItemST(n, This.CurrentPosition())
+
+		def NthPreviousPosition(n)
+			return This.PreviousNthPosition(n)

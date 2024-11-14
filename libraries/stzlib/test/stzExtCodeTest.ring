@@ -112,7 +112,7 @@ proff()
 # Executed in 0.10 second(s)
 
 /*==== #narration SQL SUPPORT IN SOFTANZA EXTERNAL CODE
-
+*/
 pron()
 
 # SQL code to create a table with three columns

@@ -337,7 +337,7 @@ o1 = new stzHashList([
 #--> [ [ [ "can", "will" ], [ 5 ] ], [ [ "will" ], [ 6, 16 ] ] ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.04 second(s) in Ring 1.21
 
 /*-----------
 
