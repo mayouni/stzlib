@@ -10836,13 +10836,13 @@ o1 = new stzSplitter( 1:5 )
 #--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 5 ] ]
 
 ? @@(o1.SplitBeforePositions( [ 3, 5 ] ))
-#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 5 ] ]
+#--> [ [ 1, 2 ], [ 3, 5 ] ]
 
 ? @@(o1.SplitAfterPositions( [ 3, 5 ] ))
-#--> [ [ 1, 3 ], [ 4, 5 ], [ 5, 5 ] ]
+#--> [ [ 1, 3 ], [ 4, 5 ] ]
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*-------------
 
@@ -10850,17 +10850,17 @@ pron()
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
 
-? @@( o1.SplitToPartsOfNItemsXT(2) )
+? @@( o1.SplittedToPartsOfNItemsXT(2) ) + NL
 #--> [ [ "a", "b" ], [ "c", "d" ], [ "e" ] ]
 
-? @@( o1.SplitAfterPositions([ 3, 5 ]) )
-#--> [ [ "a", "b", "c" ], [ "d", "e" ], [ "e" ] ]
+? @@( o1.SplittedAfterPositions([ 3, 5 ]) ) + NL
+#--> [ [ "a", "b", "c" ], [ "d", "e" ] ]
 
-? @@( o1.SplitBeforePositions([ 3, 5 ]) )
-# Returns [ ["a","b"], ["c", "d"], ["e"] ]
+? @@( o1.SplittedBeforePositions([ 3, 5 ]) )
+#--> [ [ "a", "b" ], [ "c", "d", "e" ] ]
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*============
 
@@ -10899,12 +10899,18 @@ o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
 #--> [ [ 2, 2 ], [ 4, 4 ] ]
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*-----------
 
-? o1.SplitBeforePositions([ 1, 6 ]) )
+pron()
+
+o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
+
+? @@( o1.SplitBeforePositions([ 1, 6 ]) )
 #--> ERROR: Incorrect param value! panPos must contain numbers in the range of the splitter bounds.
+
+proff()
 
 /*-----------
 
