@@ -386,9 +386,6 @@ class stzSplitter from stzListOfNumbers
 
 		#--
 
-		def SplitsAtPositionsZZ(panPos)
-			return This.SplitAtPositions(panPos)
-
 		def SplitsAtThesePositionsZZ(panPos)
 			return This.SplitAtPositions(panPos)
 
@@ -462,48 +459,38 @@ class stzSplitter from stzListOfNumbers
 			ok
 		ok
 
-		# Checking the positions correctness
+		# Resolving the positions correctness
 
 		nLen = This.NumberOfItems()
 
-		bOk = TRUE
-		nLenPos = len(panPos)
-		if nLenPos = 0
-			bOk = FALSE
-		ok
+		anPos = U( ring_sort(panPos) )
+		nLenPos = len(anPos)
 
 		for i = 1 to nLenPos
-			if panPos[i] < 1 or panPos[i] > nLen
-				bOk = FALSE
+			if NOT (anPos[i] >= 1 and anPos[i] <= nLen)
+				StzRaise("Incorrect param type! panPos must contain unique numbers between 1 and " + nLen + ".")
 			ok
 		next
 
-		if NOT bOk
-			StzRaise("Incorrect param value! panPos must contain numbers in the range of the splitter bounds.")
-		ok
-
 		# Doing the job
 
-		aPairs = This.GetPairsFromPositions(panPos)
+   		aResult = []
+   		nStart = 1
 
-		# Main list 	   --> 1:10
-		# panPos	   --> [ 3, 6, 8 ]
-		# List of pairs	   --> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
-		# Eexpected result --> [ [ 1, 2 ], [ 3, 5 ], [ 6, 7 ], [ 8, 10 ] ]
-
-		nLenPairs = len(aPairs)
-		aResult = []
-
-		for i = 1 to nLenPairs
-			n1 = aPairs[i][1]
-			n2 = aPairs[i][2] - 1
-
-			aResult + [ n1, n2 ]
+		for i = 1 to nLenPos
+			nPos = anPos[i]
+	       		aResult + [ nStart, nPos-1 ]
+	        	nStart = nPos
 		next
 
-		aResult[nLenPairs][2] = nLen
+		if aResult[1][1] = 1 and aResult[1][2] = 0
+			del(aResult, 1)
+		ok
 
-		return aResult
+		aResult + [nStart, nLen]
+
+    		return aResult
+
 
 		#< @FunctionAlternativeForms
 
@@ -514,9 +501,6 @@ class stzSplitter from stzListOfNumbers
 			return This.SplitBeforePositions(panPos)
 
 		#--
-
-		def SplitsBeforePositions(panPos)
-			return This.SplitsBeforePositions(panPos)
 
 		def SplitsBeforeThesePositions(panPos)
 			return This.SplitBeforePositions(panPos)
@@ -575,27 +559,11 @@ class stzSplitter from stzListOfNumbers
 	#--------------------------------------#
 
 	def SplitAfterPosition(n)
-		if CheckParams()
-			if NOT isNumber(n)
-				StzRaise("Incorrect param type! n must b a number.")
-			ok
+		if NOT isNumber(n)
+			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nFirstPos = 1
-		nLastPos = @nNumberOfPositions
-
-		aResult = []
-
-		if n < nFirstPos or n >= nLastPos
-			aResult = [ [ nFirstPos, nLastPos ] ]
-
-		but n = nFirstPos
-			aResult = [ [ 1, 1 ], [ 2, nLastPos ] ]
-		else
-			aResult = [ [ 1, n ], [ n+1, nLastPos ] ]
-		ok
-
-		return aResult
+		return This.SplitBeforePosition(n+1)
 
 		def SplitsAfterPosition(n)
 			return This.SplitAfterPosition(n)
@@ -605,55 +573,16 @@ class stzSplitter from stzListOfNumbers
 	#------------------------------------#
 
 	def SplitAfterPositions(panPos)
-
-		if CheckParams()
-			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
-				StzRaise("Incorrect param type! panPos must be a list of numbers.")
-			ok
+		if NOT (isList(panPos) and @IsListOfNumbers(panPos))
+			StzRaise("Incorrect param type!")
 		ok
 
-		# Checking the positions correctness
-
-		nLen = This.NumberOfItems()
-
-		bOk = TRUE
-		nLenPos = len(panPos)
-		if nLenPos = 0
-			bOk = FALSE
-		ok
-
-		for i = 1 to nLenPos
-			if panPos[i] < 1 or panPos[i] > nLen
-				bOk = FALSE
-			ok
+		nLen = len(panPos)
+		for i = 1 to nLen
+			panPos[i]++
 		next
 
-		if NOT bOk
-			StzRaise("Incorrect param value! panPos must contain numbers in the range of the splitter bounds.")
-		ok
-
-		# Doing the job
-
-		aPairs = This.GetPairsFromPositions(panPos)
-
-		nLenPairs = len(aPairs)
-		aResult = []
-
-		for i = 1 to nLenPairs
-			n1 = aPairs[i][1] + 1
-			n2 = aPairs[i][2]
-
-			aResult + [ n1, n2 ]
-		next
-
-		if panPos[1] = 1
-			aResult[1][1] = 2
-			ring_insert(aResult, 1, [1, 1])
-		else
-			aResult[1][1] = 1
-		ok
-
-		return aResult
+		return This.SplitBeforePositions(panPos)
 
 		#< @FunctionAlternativeForms
 

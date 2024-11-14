@@ -32626,7 +32626,7 @@ class stzList from stzObject
 
 		#>
 
-##########################"
+	#============
 
 	def ItemsAndTheirNumberOfOccurrenceCS(pCaseSensitive)
 		# Checking params
@@ -32715,14 +32715,12 @@ class stzList from stzObject
 
 		#>
 
-/*
-def IndexByPosition()
+	#--- #TODO add
 
-def IndexByNumberOfOccurrence()
-	def IndexByOccurrence()
+	// def IndexByPosition()
 
-def IndexBy(pcPosOrOccurr)
-*/
+	// def IndexBy(pcPosOrOccurr)
+
 	  #--------------------------------------------------------------#
 	 #  FINDING THE OCCURRENCES OF EACH ITEM CONTAINED IN THE LIST  #
 	#==============================================================#
@@ -56041,7 +56039,7 @@ def IndexBy(pcPosOrOccurr)
 	#---------------------------------#
 
 	def SplitBeforePosition(n)
-		aSections = StzSplitterQ(This.NumberOfItems()).SplitBeforePosisition(n)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitBeforePosition(n)
 		aResult = This.Sections(aSections)
 		This.UpdateWith(aResult)
 
@@ -56061,14 +56059,14 @@ def IndexBy(pcPosOrOccurr)
 	#-------------------------------------#
 
 	def SplitBeforePositions(panPos)
-		aSections = StzSplitterQ(This.NumberOfItems()).SplitBeforePosisitions(panPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitBeforePositions(panPos)
 		aResult = This.Sections(aSections)
 		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
 		def SplitBeforePositionsQ(panPos)
-			This.SplitBeoforePositions(panPos)
+			This.SplitBeforePositions(panPos)
 			return This
 
 		#>
@@ -56091,6 +56089,7 @@ def IndexBy(pcPosOrOccurr)
 
 	def SplittedBeforePositions(panPos)
 		aResult = This.Copy().SplitBeforePositionsQ(panPos).Content()
+		return aResult
 
 		def SplittedBeforeManyPositons(panPos)
 			return This.SplittedBeforePositions(panPos)
@@ -56181,18 +56180,18 @@ def IndexBy(pcPosOrOccurr)
 
 		#>
 
-	def SpllitedAfterPositions(panPos)
+	def SplittedAfterPositions(panPos)
 		aResult = This.Copy().SplitAfterPositionsQ(panPos).Content()
 		return aResult
 
 		def SplitsAfterPositions(panPos)
-			return This.SplitAfterPositions(panPos)
+			return This.SplittedAfterPositions(panPos)
 
 		def SplitsAfterThesePositions(panPos)
-			return This.SplitAfterPositions(panPos)
+			return This.SplittedAfterPositions(panPos)
 
 		def SplitsAfterManyPositions(panPos)
-			return This.SplitAfterPositions(panPos)
+			return This.SplittedAfterPositions(panPos)
 
 		#>
 
@@ -56254,39 +56253,39 @@ def IndexBy(pcPosOrOccurr)
 		#< @FunctionAlternativeForms
 
 		def SplittedAtThisSection(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			return This.SplittedAtSection(n1, n2)
 
 		def SplittedBetween(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			return This.SplittedAtSection(n1, n2)
 
 		def SplittedBetweenPositions(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			return This.SplittedAtSection(n1, n2)
 
 		def SplittedBetweenThesePositions(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			return This.SplittedAtSection(n1, n2)
 
 		def SplittedBetweenManyPositions(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			return This.SplittedAtSection(n1, n2)
 
 		#--
 
 		def SplitsAtSection(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			return This.SplittedAtSection(n1, n2)
 
 		def SplitsAtThisSection(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			return This.SplittedAtSection(n1, n2)
 
 		def SplitsBetween(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			return This.SplittedAtSection(n1, n2)
 
 		def SplitsBetweenPositions(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			return This.SplittedAtSection(n1, n2)
 
 		def SplitsBetweenThesePositions(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			return This.SplittedAtSection(n1, n2)
 
 		def SplitsBetweenManyPositions(n1, n2)
-			return This.SplitAtSection(n1, n2)
+			return This.SplittedAtSection(n1, n2)
 
 		#>
 
@@ -56346,39 +56345,39 @@ def IndexBy(pcPosOrOccurr)
 		#< @FunctionAlternativeForms
 
 		def SplittedAtThisSectionIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			return This.SplittedAtSectionIB(n1, n2)
 
 		def SplittedBetweenIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			return This.SplittedAtSectionIB(n1, n2)
 
 		def SplittedBetweenPositionsIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			return This.SplittedAtSectionIB(n1, n2)
 
 		def SplittedBetweenThesePositionsIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			return This.SplittedAtSectionIB(n1, n2)
 
 		def SplittedBetweenManyPositionsIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			return This.SplittedAtSectionIB(n1, n2)
 
 		#--
 
 		def SplitsAtSectionIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			return This.SplittedAtSectionIB(n1, n2)
 
 		def SplitsAtThisSectionIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			return This.SplittedAtSectionIB(n1, n2)
 
 		def SplitsBetweenIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			return This.SplittedAtSectionIB(n1, n2)
 
 		def SplitsBetweenPositionsIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			return This.SplittedAtSectionIB(n1, n2)
 
 		def SplitsBetweenThesePositionsIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			return This.SplittedAtSectionIB(n1, n2)
 
 		def SplitsBetweenManyPositionsIB(n1, n2)
-			return This.SplitAtSectionIB(n1, n2)
+			return This.SplittedAtSectionIB(n1, n2)
 
 		#>
 
@@ -56880,6 +56879,7 @@ def IndexBy(pcPosOrOccurr)
 	# When a part remains with lower items then N it is also returned
 
 	def SplitToPartsOfNItemsXT(n)
+
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitToPartsOfNItemsXT(n)
 		aResult = This.Sections(aSections)
 		This.UpdateWith(aResult)
@@ -56906,22 +56906,22 @@ def IndexBy(pcPosOrOccurr)
 		#>
 
 	def SplittedToPartsOfNItemsXT(n)
-		aResult = This.Cop().SplitToPartsOfNItemsXTQ(n).Content()
+		aResult = This.Copy().SplitToPartsOfNItemsXTQ(n).Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
 
 		def SplitsToPartsOfNItemsXT(n)
-			return This.SplitToPartsOfNItemsXT(n)
+			return This.SplittedToPartsOfNItemsXT(n)
 
 		def SplitsToPartsOfNXT(n)
-			return This.SplitToPartsOfNItemsXT(n)
+			return This.SplittedToPartsOfNItemsXT(n)
 
 		def SplitsToPartsOfXT(n)
-			return This.SplitToPartsOfNItemsXT(n)
+			return This.SplittedToPartsOfNItemsXT(n)
 
 		def SplitsToPartsOfNPositionsXT(n)
-			return This.SplitToPartsOfNItemsXT(n)
+			return This.SplittedToPartsOfNItemsXT(n)
 
 		#>
 
@@ -57197,7 +57197,6 @@ def IndexBy(pcPosOrOccurr)
 
 		def SplitsAroundSectionsIB(paSections)
 			return This.SplittedAroundSectionsIB(paSections)
-www
 
 	  #---------------------------------------#
 	 #    SPLITTING UNDER A GIVEN CONDTION   #
