@@ -56112,9 +56112,9 @@ def IndexBy(pcPosOrOccurr)
 	#=======================#
 
 	def SplitAfter(p)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAfter(p)
-		aResult = This.PositionsAt(anPos)
-		return aResult
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAfter(p)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
 
 		def SplitAfterQ(p)
 			This.SplitAfter(p)
@@ -56132,9 +56132,9 @@ def IndexBy(pcPosOrOccurr)
 	#--------------------------------------#
 
 	def SplitAfterPosition(n)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAfterPosition(p)
-		aResult = This.PositionsAt(anPos)
-		return aResult
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAfterPosition(n)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
 
 		def SplitAfterPositionQ(n)
 			This.SplitAfterPosition(n)
@@ -56152,9 +56152,10 @@ def IndexBy(pcPosOrOccurr)
 	#------------------------------------#
 
 	def SplitAfterPositions(panPos)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAfterPositions(panPos)
-		aResult = This.PositionsAt(anPos)
-		return aResult
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAfterPositions(panPos)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
+
 
 		#< @FunctionFluentForm
 
@@ -56200,9 +56201,9 @@ def IndexBy(pcPosOrOccurr)
 	#=================================#
 
 	def SplitAtSection(n1, n2)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAtSection(n1, n2)
-		aResult = This.PositionsAt(anPos)
-		return aResult
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAtSection(n1, n2)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
@@ -56292,9 +56293,9 @@ def IndexBy(pcPosOrOccurr)
 	#-- IB/EXTENDED
 
 	def SplitAtSectionIB(n1, n2)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAtSectionIB(n1, n2)
-		aResult = This.PositionsAt(anPos)
-		return aResult
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAtSectionIB(n1, n2)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
@@ -56386,9 +56387,9 @@ def IndexBy(pcPosOrOccurr)
 	#------------------------------#
 
 	def SplitAtSections(paSections)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAtSections(paSections)
-		aResult = This.PositionsAt(anPos)
-		return aResult
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAtSections(paSections)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
@@ -56436,6 +56437,8 @@ def IndexBy(pcPosOrOccurr)
 		aResult = This.Copy().SplitAtSectionsQ(paSections).Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def SplitsAtSections(paSections)
 			return This.SplittedAtSections(paSections)
 
@@ -56459,9 +56462,9 @@ def IndexBy(pcPosOrOccurr)
 	#-- IB/EXtENDED
 
 	def SplitAtSectionsIB(paSections)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAtSectionsIB(paSections)
-		aResult = This.PositionsAt(anPos)
-		return aResult
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAtSectionsIB(panPos)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
@@ -56509,6 +56512,8 @@ def IndexBy(pcPosOrOccurr)
 		aResult = This.Copy().SplitAtSectionsIBQ(paSections).Content()
 		return aResult
 
+		#< @FunctionAlternativeForms
+
 		def SplitsAtSectionsIB(paSections)
 			return This.SplittedAtSectionsIB(paSections)
 
@@ -56534,9 +56539,9 @@ def IndexBy(pcPosOrOccurr)
 	#=====================================#
 
 	def SplitBeforeSection(n1, n2)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitBeforeSection(n1, n2)
-		aResult = This.PositionsAt(anPos)
-		return aResult
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitBeforeSection(n1, n2)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
@@ -56558,6 +56563,7 @@ def IndexBy(pcPosOrOccurr)
 
 	def SplittedBeforeSection(n1, n2)
 		aResult = This.Copy().SplitBeforeThisSectionQ(n1, n2).Content()
+		return aResult
 
 		def SplitsBeforeSection(n1, n2)
 			return This.SplittedBeforeSection(n1, n2)
@@ -56568,9 +56574,9 @@ def IndexBy(pcPosOrOccurr)
 	#-- IB/EXTENDED
 
 	def SplitBeforeSectionIB(n1, n2)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitBeforeSectionIB(n1, n2)
-		aResult = This.PositionsAt(anPos)
-		return aResult
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitBeforeSectionIB(n1, n2)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
@@ -56592,6 +56598,7 @@ def IndexBy(pcPosOrOccurr)
 
 	def SplittedBeforeSectionIB(n1, n2)
 		aResult = This.Copy().SplitBeforeThisSectionIBQ(n1, n2).Content()
+		return aResult
 
 		def SplitsBeforeSectionIB(n1, n2)
 			return This.SplittedBeforeSectionIB(n1, n2)
@@ -56604,200 +56611,317 @@ def IndexBy(pcPosOrOccurr)
 	#----------------------------------#
 
 	def SplitBeforeSections(paSections)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitBeforeSections(paSections)
-		aResult = This.PositionsAt(anPos)
-		return aResult
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitBeforeSections(paSections)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm
+
+		def SplitBeforeSectionsQ(paSections)
+			This.SplitBeforeSections(paSections)
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
 		def SplitBeforeTheseSections(paSections)
-			return This.SplitBeforeSections(paSections)
+			This.SplitBeforeSections(paSections)
+
+			def SplitBeforeTheseSectionsQ(paSections)
+				return This.SplitBeforeSectionsQ(paSections)
 
 		def SplitBeforeManySections(paSections)
-			return This.SplitBeforeSections(paSections)
+			This.SplitBeforeSections(paSections)
 
-		#--
-
-		def SplitsBeforeSections(paSections)
-			return This.SplitBeforeSections(paSections)
-
-		def SplitsBeforeTheseSections(paSections)
-			return This.SplitBeforeSections(paSections)
-
-		def SplitsBeforeManySections(paSections)
-			return This.SplitBeforeSections(paSections)
+			def SplitBeforeManySectionsQ(paSections)
+				return This.SplitBeforeSectionsQ(paSections)
 
 		#>
 
+	def SplittedBeforeSections(paSections)
+		aResult = This.Copy().SplitBeforeSectionsQ(paSections).Content()
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def SplitsBeforeSections(paSections)
+			return This.SplittedBeforeSections(paSections)
+
+		def SplitsBeforeTheseSections(paSections)
+			return This.SplittedBeforeSections(paSections)
+
+		def SplitsBeforeManySections(paSections)
+			return This.SplittedBeforeSections(paSections)
+
+		#>
+
+	#-- IB/EXTENDED
+
 	def SplitBeforeSectionsIB(paSections)
-		if NOT ( isList(paSections) and Q(paSections).IsListOfPairsOfNumbers() )
-			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
-		ok
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAfterPositionsIB(paSections)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
 
-		anPos = StzListOfPairsQ(paSections).FirstItems()
-		nLen = len(anPos)
+		#< @FunctionFluentForm
 
-		anTempPos = []
-		for i = 1 to nLen
-			anTempPos + (anPos[i] + 1)
-		next
+		def SplitBeforeSectionsIBQ(paSections)
+			This.SplitBeforeSectionsIB(paSections)
+			return This
 
-		return This.SplitBeforePositions(anTempPos)
+		#>
 
 		#< @FunctionAlternativeForms
 
 		def SplitBeforeTheseSectionsIB(paSections)
-			return This.SplitBeforeSectionsIB(paSections)
+			This.SplitBeforeSectionsIB(paSections)
+
+			def SplitBeforeTheseSectionsIBQ(paSections)
+				return This.SplitBeforeSectionsIBQ(paSections)
 
 		def SplitBeforeManySectionsIB(paSections)
-			return This.SplitBeforeSectionsIB(paSections)
+			This.SplitBeforeSectionsIB(paSections)
 
-		#--
+			def SplitBeforeManySectionsIBQ(paSections)
+				return This.SplitBeforeSectionsIBQ(paSections)
 
-		def SplitsBeforeSectionsIB(paSections)
-			return This.SplitBeforeSectionsIB(paSections)
-
-		def SplitsBeforeTheseSectionsIB(paSections)
-			return This.SplitBeforeSectionsIB(paSections)
-
-		def SplitsBeforeManySectionsIB(paSections)
-			return This.SplitBeforeSectionsIB(paSections)
-	
 		#>
 
-	  #------------------------------------#
+	def SplittedBeforeSectionsIB(paSections)
+		aResult = This.Copy().SplitBeforeSectionsIBQ(paSections).Content()
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def SplitsBeforeSectionsIB(paSections)
+			return This.SplittedBeforeSectionsIB(paSections)
+
+		def SplitsBeforeTheseSectionsIB(paSections)
+			return This.SplittedBeforeSectionsIB(paSections)
+
+		def SplitsBeforeManySectionsIB(paSections)
+			return This.SplittedBeforeSectionsIB(paSections)
+
+		#>
+
+	  #====================================#
 	 #  SPLITTING AFTER A GIVEN SECTION   #
 	#====================================#
 
 	def SplitAfterSection(n1, n2)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAfterSection(n1, n2)
-		aResult = This.PositionsAt(anPos)
-		return aResult
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAfterSection(n1, n2)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
 
-		#< @FunctionAlternativeForms
+		#< @FunctionFluentForm
+
+		def SplitAfterSectionQ(n1, n2)
+			This.SplitAfterSection(n1, n2)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def SplitAfterThisSection(n1, n2)
-			return This.SplitAfterSection(n1, n2)
+			This.SplitAfterSection(n1, n2)
 
-		#--
-
-		def SplitsAfterSection(n1, n2)
-			return This.SplitAfterSection(n1, n2)
-
-		def SplitsAfterThisSection(n1, n2)
-			return This.SplitAfterSection(n1, n2)
+			def SplitAfterThisSectionQ(n1, n2)
+				return This.SplitAfterSectionQ(n1, n2)
 
 		#>
 
-	def SplitAfterSectionIB(n1, n2)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAfterSectionIB(n1, n2)
-		aResult = This.PositionsAt(anPos)
+	def SplittedAfterSection(n1, n2)
+		aResult = This.Copy().SplitAfterThisSectionQ(n1, n2).Content()
 		return aResult
 
-		#< @FunctionAlternativeForms
+		def SplitsAfterSection(n1, n2)
+			return This.SplittedAfterSection(n1, n2)
 
-		def SplitAfterThisSectionIB(n1, n2)
-			return This.SplitAfterSectionIB(n1, n2)
+		def SplitsAfterThisSection(n1, n2)
+			return This.SplittedAfterSection(n1, n2)
 
-		#--
+	#-- IB/EXTENDED
 
-		def SplitsAfterSectionIB(n1, n2)
-			return This.SplitAfterSectionIB(n1, n2)
+	def SplitAfterSectionIB(n1, n2)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAfterSectionIB(n1, n2)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
 
-		def SplitsAfterThisSectionIB(n1, n2)
-			return This.SplitAfterSectionIB(n1, n2)
+		#< @FunctionFluentForm
+
+		def SplitAfterSectionIBQ(n1, n2)
+			This.SplitAfterSectionIB(n1, n2)
+			return This
 
 		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAfterThisSectionIB(n1, n2)
+			This.SplitAfterSectionIB(n1, n2)
+
+			def SplitAfterThisSectionIBQ(n1, n2)
+				return This.SplitAfterSectionIBQ(n1, n2)
+
+		#>
+
+	def SplittedAfterSectionIB(n1, n2)
+		aResult = This.Copy().SplitAfterThisSectionIBQ(n1, n2).Content()
+		return aResult
+
+		def SplitsAfterSectionIB(n1, n2)
+			return This.SplittedAfterSectionIB(n1, n2)
+
+		def SplitsAfterThisSectionIB(n1, n2)
+			return This.SplittedAfterSectionIB(n1, n2)
 
 	  #---------------------------------#
 	 #  SPLITTING AFTER MANY SECTIONS  #
 	#---------------------------------#
 
 	def SplitAfterSections(paSections)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAfterSections(paSections)
-		aResult = This.PositionsAt(anPos)
-		return aResult
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAfterSections(paSections)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm
+
+		def SplitAfterSectionsQ(paSections)
+			This.SplitAfterSections(paSections)
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
 		def SplitAfterTheseSections(paSections)
-			return This.SplitAfterSections(paSections)
+			This.SplitAfterSections(paSections)
+
+			def SplitAfterTheseSectionsQ(paSections)
+				return This.SplitAfterSectionsQ(paSections)
 
 		def SplitAfterManySections(paSections)
-			return This.SplitAfterSections(paSections)
+			This.SplitAfterSections(paSections)
 
-		#--
-
-		def SplitsAfterSections(paSections)
-			return This.SplitAfterSections(paSections)
-
-		def SplitsAfterTheseSections(paSections)
-			return This.SplitAfterSections(paSections)
-
-		def SplitsAfterManySections(paSections)
-			return This.SplitAfterSections(paSections)
+			def SplitAfterManySectionsQ(paSections)
+				return This.SplitAfterSectionsQ(paSections)
 
 		#>
 
-	def SplitAfterSectionsIB(paSections)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAfterSectionsIB(paSections)
-		aResult = This.PositionsAt(anPos)
+	def SplittedAfterSections(paSections)
+		aResult = This.Copy().SplitAfterSectionsQ(paSections).Content()
 		return aResult
+
+		#< @FunctionFluentForm
+
+		def SplitsAfterSections(paSections)
+			return This.SplittedAfterSections(paSections)
+
+		def SplitsAfterTheseSections(paSections)
+			return This.SplittedAfterSections(paSections)
+
+		def SplitsAfterManySections(paSections)
+			return This.SplittedAfterSections(paSections)
+
+		#>
+
+	#-- IB/EXTENDED
+
+	def SplitAfterSectionsIB(paSections)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAfterSectionsIB(paSections)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm
+
+		def SplitAfterSectionsIBQ(paSections)
+			This.SplitAfterSectionsIB(paSections)
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForms
 
 		def SplitAfterTheseSectionsIB(paSections)
-			return This.SplitAfterSectionsIB(paSections)
+			This.SplitAfterSectionsIB(paSections)
+
+			def SplitAfterTheseSectionsIBQ(paSections)
+				return This.SplitAfterSectionsIBQ(paSections)
 
 		def SplitAfterManySectionsIB(paSections)
-			return This.SplitAfterSectionsIB(paSections)
+			This.SplitAfterSectionsIB(paSections)
 
-		#--
-
-		def SplitsAfterSectionsIB(paSections)
-			return This.SplitAfterSectionsIB(paSections)
-
-		def SplitsAfterTheseSectionsIB(paSections)
-			return This.SplitAfterSectionsIB(paSections)
-
-		def SplitsAfterManySectionsIB(paSections)
-			return This.SplitAfterSectionsIB(paSections)
+			def SplitAfterManySectionsIBQ(paSections)
+				return This.SplitAfterSectionsIBQ(paSections)
 
 		#>
 
-	  #-----------------------------------#
-	 #   SPLITTING TO PARTS OF N ITEMS   #
-	#===================================#
-
-	def SplitToPartsOfNItems(n)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitToPartsOfNItems(n)
-		aResult = This.PositionsAt(anPos)
+	def SplittedAfterSectionsIB(paSections)
+		aResult = This.Copy().SplitAfterSectionsIBQ(paSections).Content()
 		return aResult
+
+		#< @FunctionFluentForm
+
+		def SplitsAfterSectionsIB(paSections)
+			return This.SplittedAfterSectionsIB(paSections)
+
+		def SplitsAfterTheseSectionsIB(paSections)
+			return This.SplittedAfterSectionsIB(paSections)
+
+		def SplitsAfterManySectionsIB(paSections)
+			return This.SplittedAfterSectionsIB(paSections)
+
+		#>
+
+	  #----------------------------------------#
+	 #   SPLITTING TO PARTS OF N ITEMS -- XT  #
+	#========================================#
+	# When a part remains with lower items then N it is also returned
+
+	def SplitToPartsOfNItemsXT(n)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitToPartsOfNItemsXT(n)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm
+
+		def SplitToPartsOfNItemsXTQ(n)
+			This.SplitToPartsOfNItemsXT(n)
+			return This
+
+		#>
 
 		#< @FunctionAlternativeForm
 
-		def SplitToPartsOfN(n)
-			return This.SplitToPartsOfNItems(n)
+		def SplitToPartsOfNXT(n)
+			This.SplitToPartsOfNItemsXT(n)
 
-		def SplitToPartsOf(n)
-			return This.SplitToPartsOfNItems(n)
+		def SplitToPartsOfXT(n)
+			This.SplitToPartsOfNItemsXT(n)
 
-		def SplitToPartsOfNPositions(n)
-			return This.SplitToPartsOfNItems(n)
+		def SplitToPartsOfNPositionsXT(n)
+			This.SplitToPartsOfNItemsXT(n)
 
-		#--
+		#>
 
-		def SplitsToPartsOfNItems(n)
-			return This.SplitToPartsOfNItems(n)
+	def SplittedToPartsOfNItemsXT(n)
+		aResult = This.Cop().SplitToPartsOfNItemsXTQ(n).Content()
+		return aResult
 
-		def SplitsToPartsOfN(n)
-			return This.SplitToPartsOfNItems(n)
+		#< @FunctionAlternativeForms
 
-		def SplitsToPartsOf(n)
-			return This.SplitToPartsOfNItems(n)
+		def SplitsToPartsOfNItemsXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
 
-		def SplitsToPartsOfNPositions(n)
-			return This.SplitToPartsOfNItems(n)
+		def SplitsToPartsOfNXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		def SplitsToPartsOfXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		def SplitsToPartsOfNPositionsXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
 
 		#>
 
@@ -56805,23 +56929,62 @@ def IndexBy(pcPosOrOccurr)
 	 #    SPLITTING TO PARTS OF EXACTLY N ITEMS    #
 	#---------------------------------------------#
 
-	def SplitToPartsOfExactlyNItems(n)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitToPartsOfExactlyNItems(n)
-		aResult = This.PositionsAt(anPos)
+	def SplitToPartsOfNItems(n)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitToPartsOfNItems(n)
+		aResult = This.Sections(aSections)
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm
+
+		def SplitToPartsOfNItemsQ(n)
+			This.SplitToPartsOfNItems(n)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitToPartsOfN(n)
+			This.SplitToPartsOfNItems(n)
+
+		def SplitToPartsOf(n)
+			This.SplitToPartsOfNItems(n)
+
+		#--
+
+		def SplitToPartsOfExactlyN(n)
+			This.SplitToPartsOfNItems(n)
+
+		def SplitToPartsOfExactly(n)
+			This.SplitToPartsOfNItems(n)
+
+		def SplitToPartsOfExactlyNItems(n)
+			This.SplitToPartsOfNItems(n)
+
+		#>
+
+	def SplittedToPartsOfNItems(n)
+		aResult = This.Copy().SplitToPartsOfNItemsQ(n).Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def SplitToPartsOfExactlyNPositions(n)
-			return This.SplitToPartsOfExactlyNItems(n)
+		def SplittedToPartsOfN(n)
+			return This.SplittedToPartsOfNItems(n)
+
+		def SplittedToPartsOf(n)
+			return This.SplittedToPartsOfNItems(n)
 
 		#--
 
-		def SplitsToPartsOfExactlyNItems(n)
-			return This.SplitToPartsOfExactlyNItems(n)
+		def SplittedToPartsOfExactlyN(n)
+			return This.SplittedToPartsOfNItems(n)
 
-		def SplitsToPartsOfExactlyNPositions(n)
-			return This.SplitToPartsOfExactlyNItems(n)
+		def SplittedToPartsOfExactly(n)
+			return This.SplittedToPartsOfNItems(n)
+
+		def SplittedToPartsOfExactlyNItems(n)
+			return This.SplittedToPartsOfNItems(n)
 
 		#>
 
@@ -56830,113 +56993,210 @@ def IndexBy(pcPosOrOccurr)
 	#----------------------------#
 
 	def SplitToNParts(n)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitToNParts(n)
-		aResult = This.PositionsAt(anPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitToNParts(n)
+		aResult = This.Sections(aSections)
 		return aResult	
 
+		def SplitToNPartsQ(n)
+			This.SplitToNParts(n)
+			return This
+
+	def SplittedToNParts(n)
+		aResult = This.Copy().SplitToNPartsQ().Content()
+		return aResult
+
 		def SplitsToNParts(n)
-			return This.SplitToNParts(n)
+			return This.SplittedToNParts(n)
 
 	  #-----------------------------------------------#
 	 #  SPLITTING AROUND POSITION(S) OR SECTTION(s)  #
 	#===============================================#
 
 	def SplitAround(p)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAround(p)
-		aResult = This.PositionsAt(anPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAround(p)
+		aResult = This.Sections(aSections)
+		return aResult
+
+		def SplitAroundQ(p)
+			This.SplitAround(p)
+			return This
+
+	def SplittedAround(p)
+		aResult = This.Content().SplitAroundQ(p).Content()
 		return aResult
 
 		def SplitsAround(p)
-			return This.SplitAround(p)
+			return This.SplittedAround(p)
 
-	def SplitAroundIB(n)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAroundIB(p)
-		aResult = This.PositionsAt(anPos)
+	#-- IB/EXTENDED
+
+	def SplitAroundIB(p)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundIB(p)
+		aResult = This.Sections(aSections)
 		return aResult
 
-		def SplitsAroundIB(n)
-			return This.SplitAroundIB(n)
+		def SplitAroundIBQ(p)
+			This.SplitAroundIB(p)
+			return This
+
+	def SplittedAroundIB(p)
+		aResult = This.Content().SplitAroundQ(p).ContentIB()
+		return aResult
+
+		def SplitsAroundIB(p)
+			return This.SplittedAroundIB(p)
 
 	  #-------------------------------#
 	 #  SPLITTING AROUND A POSITION  #
 	#===============================#
 
 	def SplitAroundPosition(n)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAroundPosition(n)
-		aResult = This.PositionsAt(anPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundPosition(n)
+		aResult = This.Sections(aSections)
+		return aResult
+
+		def SplitAroundPositionQ(n)
+			This.SplitAroundPosition(n)
+			return This
+
+	def SplittedAroundPosition(n)
+		aResult = This.Content().SplitAroundPositionQ(n).Content()
 		return aResult
 
 		def SplitsAroundPosition(n)
-			return This.SplitAroundPosition(n)
+			return This.SplittedAroundPosition(n)
+
+	#-- IB/EXTENDED
 
 	def SplitAroundPositionIB(n)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAroundPositionIB(n)
-		aResult = This.PositionsAt(anPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundPositionIB(n)
+		aResult = This.Sections(aSections)
+		return aResult
+
+		def SplitAroundPositionIBQ(n)
+			This.SplitAroundPositionIB(n)
+			return This
+
+	def SplittedAroundPositionIB(n)
+		aResult = This.Content().SplitAroundPositionQ(n).ContentIB()
 		return aResult
 
 		def SplitsAroundPositionIB(n)
-			return This.SplitAroundPositionIB(n)
+			return This.SplittedAroundPositionIB(n)
 
 	  #------------------------------#
 	 #  SPLITTING AROUND POSITIONS  #
 	#------------------------------#
 
 	def SplitAroundPositions(panPos)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAroundPositions(panPos)
-		aResult = This.PositionsAt(anPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundPositions(panPos)
+		aResult = This.Sections(aSections)
+		return aResult
+
+		def SplitAroundPositionsQ(panPos)
+			This.SplitAroundPositions(panPos)
+			return This
+
+	def SplittedAroundPositions(panPos)
+		aResult = This.Content().SplitAroundPositionsQ(panPos).Content()
 		return aResult
 
 		def SplitsAroundPositions(panPos)
-			return This.SplitAroundPositions(panPos)
+			return This.SplittedAroundPositions(panPos)
+
+	#-- IB/EXTENDED
 
 	def SplitAroundPositionsIB(panPos)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAroundPositionsIB(panPos)
-		aResult = This.PositionsAt(anPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundPositionsIB(panPos)
+		aResult = This.Sections(aSections)
+		return aResult
+
+		def SplitAroundPositionsIBQ(panPos)
+			This.SplitAroundPositionsIB(panPos)
+			return This
+
+	def SplittedAroundPositionsIB(panPos)
+		aResult = This.Content().SplitAroundPositionsQ(panPos).ContentIB()
 		return aResult
 
 		def SplitsAroundPositionsIB(panPos)
-			return This.SplitAroundPositionsIB(panPos)
+			return This.SplittedAroundPositionsIB(panPos)
 
 	  #------------------------------#
 	 #  SPLITTING AROUND A SECTION  #
-	#------------------------------#
+	#==============================#
 
 	def SplitAroundSection(n1, n2)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAroundSection(n1, n2)
-		aResult = This.PositionsAt(anPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundSection(n1, n2)
+		aResult = This.Sections(aSections)
+		return aResult
+
+		def SplitAroundSectionQ(n1, n2)
+			This.SplitAroundSection(n1, n2)
+			return This
+
+	def SplittedAroundSection(n1, n2)
+		aResult = This.Content().SplitAroundSectionQ(n1, n2).Content()
 		return aResult
 
 		def SplitsAroundSection(n1, n2)
-			return This.SplitAroundSection(n1, n2)
+			return This.SplittedAroundSection(n1, n2)
+
+	#-- IB/EXTENDED
 
 	def SplitAroundSectionIB(n1, n2)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAroundSectionIB(n1, n2)
-		aResult = This.PositionsAt(anPos)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundSectionIB(n1, n2)
+		aResult = This.Sections(aSections)
 		return aResult
-		
+
+		def SplitAroundSectionIBQ(n1, n2)
+			This.SplitAroundSectionIB(n1, n2)
+			return This
+
+	def SplittedAroundSectionIB(n1, n2)
+		aResult = This.Content().SplitAroundSectionQ(n1, n2).ContentIB()
+		return aResult
+
 		def SplitsAroundSectionIB(n1, n2)
-			return This.SplitAroundSectionIB(n1, n2)
+			return This.SplittedAroundSectionIB(n1, n2)
 
 	  #-----------------------------#
 	 #  SPLITTING AROUND SECTIONS  #
 	#-----------------------------#
 
-	def SplitAroundSections(panSections)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAroundSections(panSections)
-		aResult = This.PositionsAt(anPos)
+	def SplitAroundSections(paSections)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundSections(paSections)
+		aResult = This.Sections(aSections)
 		return aResult
 
-		def SplitsAroundSections(panSections)
-			return This.SplitAroundSections(panSections)
+		def SplitAroundSectionsQ(paSections)
+			This.SplitAroundSections(paSections)
+			return This
 
-	def SplitAroundSectionsIB(panSections)
-		anPos = StzSplitterQ(This.NumberOfItems()).SplitAroundSectionsIB(panSections)
-		aResult = This.PositionsAt(anPos)
+	def SplittedAroundSections(paSections)
+		aResult = This.Content().SplitAroundSectionsQ(paSections).Content()
 		return aResult
 
-		def SplitsAroundSectionsIB(panSections)
-			return This.SplitAroundSectionsIB(panSections)
+		def SplitsAroundSections(paSections)
+			return This.SplittedAroundSections(paSections)
 
+	#-- IB/EXTENDED
+
+	def SplitAroundSectionsIB(paSections)
+		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundSectionsIB(paSections)
+		aResult = This.Sections(aSections)
+		return aResult
+
+		def SplitAroundSectionsIBQ(paSections)
+			This.SplitAroundSectionsIB(paSections)
+			return This
+
+	def SplittedAroundSectionsIB(paSections)
+		aResult = This.Content().SplitAroundSectionsQ(paSections).ContentIB()
+		return aResult
+
+		def SplitsAroundSectionsIB(paSections)
+			return This.SplittedAroundSectionsIB(paSections)
 www
 
 	  #---------------------------------------#
@@ -56945,51 +57205,44 @@ www
 
 	def SplitW(pcCondition)
 		/*
-		? StzListQ(1:5).SplitW('Q(@item).IsMultipleOf(2)')
+		? StzListQ(1:5).SplittedW('Q(This[@i]).IsMultipleOf(2)')
 		*/
 
 		if isList(pcCondition)
 
 			if Q(pcCondition).IsWhereNamedParam()
-				return This.SplitAtW(pcCondition[2])
+				This.SplitAtW(pcCondition[2])
 
 			but Q(pcCondition).IsAtNamedParam()
-				return This.SplitAtW(pcCondition[2])
+				This.SplitAtW(pcCondition[2])
 
 			but Q(pcCondition).IsBeforeNamedParam()
-				return This.SplitBeforeW(pcCondition[2])
+				This.SplitBeforeW(pcCondition[2])
 
 			but Q(pcCondition).IsAfterNamedParam()
-				return This.SplitAfterW(pcCondition[2])
+				This.SplitAfterW(pcCondition[2])
 
 			ok
 		
 		else
 
-			return This.SplitAtW(pcCondition)
+			This.SplitAtW(pcCondition)
 		ok
 
-		#< @FunctionFluentForms
+		#< @FunctionFluentForm
 
 		def SplitWQ(pcCondition)
-			return This.SplitWQR(pcCondition, :stzList)
-
-		def SplitWQR(pcCondition, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitW(pcCondition) )
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitW(pcCondition) )
-			on :stzListOfItems
-				return new stzListOfItems( This.SplitW(pcCondition) )
-			other
-				StzRaise("Unsupported return type!")
-			off
+			This.SplitW(pcCondition)
+			return This
 
 		#>
 
 	def SplittedW(pcConditon)
-		return This.SplitW(pcCondition)
+		aResult = This.Copy().SplitWQ(pcCondition).Content()
+		return aResult
+
+		def SplitsW(pcCondition)
+			return This.SplittedW(pcCondition)
 
 	  #-----------------------------------------------------#
 	 #    SPLITTING UNDER A GIVEN CONDTION -- XT/EXTENDED  #
@@ -56997,51 +57250,44 @@ www
 
 	def SplitWXT(pcCondition)
 		/*
-		? StzListQ(1:5).SplitWXT('Q(@item).IsMultipleOf(2)')
+		? StzListQ(1:5).SplittedW('Q(@item).IsMultipleOf(2)')
 		*/
 
 		if isList(pcCondition)
 
 			if Q(pcCondition).IsWhereNamedParam()
-				return This.SplitAtWXT(pcCondition[2])
+				This.SplitAtWXT(pcCondition[2])
 
 			but Q(pcCondition).IsAtNamedParam()
-				return This.SplitAtWXT(pcCondition[2])
+				This.SplitAtWXT(pcCondition[2])
 
 			but Q(pcCondition).IsBeforeNamedParam()
-				return This.SplitBeforeWXT(pcCondition[2])
+				This.SplitBeforeWXT(pcCondition[2])
 
 			but Q(pcCondition).IsAfterNamedParam()
-				return This.SplitAfterWXT(pcCondition[2])
+				This.SplitAfterWXT(pcCondition[2])
 
 			ok
 		
 		else
 
-			return This.SplitAtWXT(pcCondition)
+			This.SplitAtWXT(pcCondition)
 		ok
 
-		#< @FunctionFluentForms
+		#< @FunctionFluentForm
 
 		def SplitWXTQ(pcCondition)
-			return This.SplitWXTQR(pcCondition, :stzList)
-
-		def SplitWXTQR(pcCondition, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitWXT(pcCondition) )
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitWXT(pcCondition) )
-			on :stzListOfItems
-				return new stzListOfItems( This.SplitWXT(pcCondition) )
-			other
-				StzRaise("Unsupported return type!")
-			off
+			This.SplitWXT(pcCondition)
+			return This
 
 		#>
 
 	def SplittedWXT(pcConditon)
-		return This.SplitWXT(pcCondition)
+		aResult = This.Copy().SplitWXTQ(pcCondition).Content()
+		return aResult
+
+		def SplitsWXT(pcCondition)
+			return This.SplittedWXT(pcCondition)
 
 	  #------------------------------------#
 	 #    SPLITTING AT A GIVEN CONDTION   #
@@ -57050,63 +57296,48 @@ www
 	def SplitAtW(pcCondition)
 
 		anPos = This.FindW(pcCondition)
-		aResult = This.SplitAtPositions(anPos)
+		This.SplitAtPositions(anPos)
 
-		return aResult
 
-		#< @FunctionFluentForms
+		#< @FunctionFluentForm
 
-		def SplitAtWQ(pcCondition)
-			return This.SplitAtWQR(pcCondition, :stzList)
-
-		def SplitAtWQR(pcCondition, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitAtW(pcCondition) )
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitAtW(pcCondition) )
-			on :stzListOfItems
-				return new stzListOfItems( This.SplitAtW(pcCondition) )
-			other
-				StzRaise("Unsupported return type!")
-			off
+		def SplkitAtWQ(pcCondiiton)
+			This.SplitAtW(pccondition)
+			return This
 
 		#>
 
 	def SplittedAtW(pcConditon)
-		return This.SplitAtW(pcCondition)
+		aResult = This.Copy().SplitAtW(pcCondition)
+		return aResult
+
+		def SplitsAtW(pcCondition)
+			return This.SplittedAtW(pcCondition)
 
 	  #---------------------------------------------------#
 	 #    SPLITTING AT A GIVEN CONDTION -- WXT/EXTENDED  #
 	#---------------------------------------------------#
 
 	def SplitAtWXT(pcCondition)
+
 		anPos = This.FindWXT(pcCondition)
-		aResult = This.SplitAtPositions(anPos)
+		This.SplitAtPositions(anPos)
 
-		return aResult
 
-		#< @FunctionFluentForms
+		#< @FunctionFluentForm
 
-		def SplitAtWXTQ(pcCondition)
-			return This.SplitAtWXTQR(pcCondition, :stzList)
-
-		def SplitAtWXTQR(pcCondition, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitAtWXT(pcCondition) )
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitAtWXT(pcCondition) )
-			on :stzListOfItems
-				return new stzListOfItems( This.SplitAtWXT(pcCondition) )
-			other
-				StzRaise("Unsupported return type!")
-			off
+		def SplitAtWXTQ(pcCondiiton)
+			This.SplitAtWXT(pccondition)
+			return This
 
 		#>
 
 	def SplittedAtWXT(pcConditon)
-		return This.SplitAtWXT(pcCondition)
+		aResult = This.Copy().SplitAtWXT(pcCondition)
+		return aResult
+
+		def SplitsAtWXT(pcCondition)
+			return This.SplittedAtWXT(pcCondition)
 
 	  #----------------------------------------#
 	 #    SPLITTING BEFORE A GIVEN CONDTION   #
@@ -57114,31 +57345,22 @@ www
 
 	def SplitBeforeW(pcCondition)
 		anPos = This.FindItemsW(pcCondition)
-		aResult = This.SplitBeforePositions(anPos)
+		This.SplitBeforePositions(anPos)
 
-		return aResult
-
-		#< @FunctionFluentForms
+		#< @FunctionFluentForm
 
 		def SplitBeforeWQ(pcCondition)
-			return This.SplitBeforeWQR(pcCondition, :stzList)
-
-		def SplitBeforeWQR(pcCondition, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitBeforeW(pcCondition) )
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitBeforeW(pcCondition) )
-			on :stzListOfItems
-				return new stzListOfItems( This.SplitBeforeW(pcCondition) )
-			other
-				StzRaise("Unsupported return type!")
-			off
+			This.SplitBeforeW(pcCondition)
+			return This
 
 		#>
 
 	def SplittedBeforeW(pcConditon)
-		return This.SplitBeforeW(pcCondition)
+		aResult = This.SplitBeforeW(pcCondition)
+		return aResult
+
+		def SplitsBeforeW(pcCondition)
+			return This.SplittedBeforeW(pcCondition)
 
 	  #------------------------------------------------------#
 	 #    SPLITTING BEFORE A GIVEN CONDTION -- XT/EXTENDED  #
@@ -57146,95 +57368,68 @@ www
 
 	def SplitBeforeWXT(pcCondition)
 		anPos = This.FindItemsWXT(pcCondition)
-		aResult = This.SplitBeforePositions(anPos)
+		This.SplitBeforePositions(anPos)
 
-		return aResult
-
-		#< @FunctionFluentForms
+		#< @FunctionFluentForm
 
 		def SplitBeforeWXTQ(pcCondition)
-			return This.SplitBeforeWXTQR(pcCondition, :stzList)
-
-		def SplitBeforeWXTQR(pcCondition, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitBeforeWXT(pcCondition) )
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitBeforeWXT(pcCondition) )
-			on :stzListOfItems
-				return new stzListOfItems( This.SplitBeforeWXT(pcCondition) )
-			other
-				StzRaise("Unsupported return type!")
-			off
+			This.SplitBeforeWXT(pcCondition)
+			return This
 
 		#>
 
 	def SplittedBeforeWXT(pcConditon)
-		return This.SplitBeforeWXT(pcCondition)
+		aResult = This.SplitBeforeWXT(pcCondition)
+		return aResult
 
-	  #---------------------------------------#
+		def SplitsBeforeWXT(pcCondition)
+			return This.SplittedBeforeWXT(pcCondition)
+
+	  #----------------------------------------#
 	 #    SPLITTING AFTER A GIVEN CONDTION   #
-	#=======================================#
+	#========================================#
 
 	def SplitAfterW(pcCondition)
 		anPos = This.FindItemsW(pcCondition)
-		aResult = This.SplitAfterPositions(anPos)
+		This.SplitAfterPositions(anPos)
 
-		return aResult
-
-		#< @FunctionFluentForms
+		#< @FunctionFluentForm
 
 		def SplitAfterWQ(pcCondition)
-			return This.SplitAfterWQR(pcCondition, :stzList)
-
-		def SplitAfterWQR(pcCondition, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitAfterW(pcCondition) )
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitAfterW(pcCondition) )
-			on :stzListOfItems
-				return new stzListOfItems( This.SplitAfterW(pcCondition) )
-			other
-				StzRaise("Unsupported return type!")
-			off
+			This.SplitAfterW(pcCondition)
+			return This
 
 		#>
 
 	def SplittedAfterW(pcConditon)
-		return This.SplitAfterW(pcCondition)
+		aResult = This.SplitAfterW(pcCondition)
+		return aResult
+
+		def SplitsAfterW(pcCondition)
+			return This.SplittedAfterW(pcCondition)
 
 	  #------------------------------------------------------#
-	 #    SPLITTING AFTER A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #    SPLITTING AFTER A GIVEN CONDTION -- XT/EXTENDED  #
 	#------------------------------------------------------#
 
 	def SplitAfterWXT(pcCondition)
 		anPos = This.FindItemsWXT(pcCondition)
-		aResult = This.SplitAfterPositions(anPos)
+		This.SplitAfterPositions(anPos)
 
-		return aResult
-
-		#< @FunctionFluentForms
+		#< @FunctionFluentForm
 
 		def SplitAfterWXTQ(pcCondition)
-			return This.SplitAfterWXTQR(pcCondition, :stzList)
-
-		def SplitAfterWXTQR(pcCondition, pcReturnType)
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.SplitAfterWXT(pcCondition) )
-			on :stzListOfStrings
-				return new stzListOfStrings( This.SplitAfterWXT(pcCondition) )
-			on :stzListOfItems
-				return new stzListOfItems( This.SplitAfterWXT(pcCondition) )
-			other
-				StzRaise("Unsupported return type!")
-			off
+			This.SplitAfterWXT(pcCondition)
+			return This
 
 		#>
 
 	def SplittedAfterWXT(pcConditon)
-		return This.SplitAfterWXT(pcCondition)
+		aResult = This.SplitAfterWXT(pcCondition)
+		return aResult
+
+		def SplitsAfterWXT(pcCondition)
+			return This.SplittedAfterWXT(pcCondition)
 
 	  #-----------------------------------------------------------#
 	 #  NTH ITEM AFTER SPLITTING STRING USING A GIVEN SEPARATOR  #
@@ -62765,16 +62960,11 @@ www
 
 		#< @FunctionAlternativeForm
 
-		def FindNthSplitToPartsOfExactlyNItems(n, nPos)
-			return This.FindNthSplitToPartsOfNItems(n, nPos)
-
-		#--
-
 		def FindNthSplitToPartsOfNItemsZ(n, nPos)
-			return This.FindNthSplitToPartsOfNItems(n, nPos)
+			return This.FindNthSplitToPartsOfNItemsXT(n, nPos)
 
 		def FindNthSplitToPartsOfExactlyNItemsZ(n, nPos)
-			return This.FindNthSplitToPartsOfNItems(n, nPos)
+			return This.FindNthSplitToPartsOfNItemsXT(n, nPos)
 
 		#>
 
@@ -64654,7 +64844,7 @@ www
 				return This.FindLastSplitToNParts(pItem[2])
 
 			but oParam.IsToPartsOfNItemsNamedParam()
-				return This.FindLastSplitToPartsOfNItems(pItem[2])
+				return This.FindLastSplitToPartsOfNItemsXT(pItem[2])
 
 			# SPLITTING WHERE
 
@@ -65201,9 +65391,9 @@ www
 
 		#>
 
-	  #-------------------------------------------------#
+	  #--------------------------------------------#
 	 #   FINDING LAST SPLIT BEFORE A GIVEN Item   #
-	#-------------------------------------------------#
+	#--------------------------------------------#
 
 	def FindLastSplitBeforeItemCS(pItem, pCaseSensitive)
 		if This.IsEmpty()
@@ -65254,9 +65444,9 @@ www
 
 		#>
 
-	  #-----------------------------------------------#
+	  #------------------------------------------#
 	 #   FINDING LAST SPLIT BEFORE MANY Items   #
-	#-----------------------------------------------#
+	#------------------------------------------#
 
 	def FindLastSplitBeforeItemsCS(paItems, pCaseSensitive)
 		if This.IsEmpty()
@@ -65565,9 +65755,9 @@ www
 
 		#>
 
-	  #-------------------------------------------------#
+	  #--------------------------------------------#
 	 #   FINDING LAST SPLIT BEFORE A GIVEN Item   #
-	#-------------------------------------------------#
+	#--------------------------------------------#
 
 	def FindLastSplitAfterItemCS(pItem, pCaseSensitive)
 		if NOT isString(pItem)
@@ -65997,16 +66187,11 @@ www
 
 		#< @FunctionAlternativeForm
 
-		def FindLastSplitToPartsOfExactlyNItems(nPos)
-			return This.FindLastSplitToPartsOfNItems(nPos)
-
-		#--
-
 		def FindLastSplitToPartsOfNItemsZ(nPos)
-			return This.FindLastSplitToPartsOfNItems(nPos)
+			return This.FindLastSplitToPartsOfNItemsXT(nPos)
 
 		def FindLastSplitToPartsOfExactlyNItemsZ(nPos)
-			return This.FindLastSplitToPartsOfNItems(nPos)
+			return This.FindLastSplitToPartsOfNItemsXT(nPos)
 
 		#>
 

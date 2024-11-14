@@ -59994,7 +59994,7 @@ n1 = Min(aTemp)
 
 	def SplitToPartsOfNChars(n)
 		aSections = StzSplitterQ( This.NumberOfChars() ).
-				SplitToPartsOfExactlyNPositions(n)
+				SplitToPartsOfNItems(n)
 
 		aResult = This.Sections( aSections )
 		return aResult
@@ -60047,7 +60047,7 @@ n1 = Min(aTemp)
 
 	def SplitToPartsOfNCharsXT(n)
 		aSections = StzSplitterQ( This.NumberOfChars() ).
-				SplitToPartsOfNPositions(n)
+				SplitToPartsOfNItemsXT(n)
 
 		aResult = This.Sections(aSections)
 

@@ -1,5 +1,4 @@
-load "stzprofsys.ring"
-//load "../max/stzmax.ring"
+load "../stzmax.ring"
 
 
 /*----

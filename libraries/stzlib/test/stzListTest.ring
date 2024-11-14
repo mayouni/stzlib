@@ -10832,7 +10832,7 @@ pron()
 
 o1 = new stzSplitter( 1:5 )
 
-? @@(o1.SplitToPartsOfNItems(2))
+? @@(o1.SplitToPartsOfNItemsXT(2))
 #--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 5 ] ]
 
 ? @@(o1.SplitBeforePositions( [ 3, 5 ] ))
@@ -10850,7 +10850,7 @@ pron()
 
 o1 = new stzList([ "a", "b", "c", "d", "e" ])
 
-? @@( o1.SplitToPartsOfNItems(2) )
+? @@( o1.SplitToPartsOfNItemsXT(2) )
 #--> [ [ "a", "b" ], [ "c", "d" ], [ "e" ] ]
 
 ? @@( o1.SplitAfterPositions([ 3, 5 ]) )

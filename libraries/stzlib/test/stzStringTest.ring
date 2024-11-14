@@ -16299,7 +16299,7 @@ o1 = new stzSplitter([ 1, 2 ])
 ? @@( o1.SplitToNParts(2) )
 #--> [ [ 1, 1 ], [ 2, 2 ] ]
 
-? @@( o1.SplitToPartsOfNItems(2) )
+? @@( o1.SplitToPartsOfNItemsXT(2) )
 #--> [ [ 1, 2 ] ]
 
 proff()
@@ -16313,10 +16313,10 @@ o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
 ? @@( o1.SplitToNParts(2) )
 #--> [ [ 1, 3 ], [ 4, 5 ] ]
 
-? @@( o1.SplitToPartsOfNItems(5) )
+? @@( o1.SplitToPartsOfNItemsXT(5) )
 #--> [ [ 1, 5 ] ]
 
-? @@( o1.SplitToPartsOfNItems(4) )
+? @@( o1.SplitToPartsOfNItemsXT(4) )
 #--> [ [ 1, 4 ], [ 5, 5 ] ]
 
 proff()

@@ -179,10 +179,10 @@ class stzSplitter from stzListOfNumbers
 		#== Misc.
 
 		but oParam.IsThisNamedParam(:ToPartsOfNItems)
-			return This.SplitToPartsOfNItems(p)
+			return This.SplitToPartsOfNItemsXT(p)
 
 		but oParam.IsthisNamedParam(:ToPartsOfExactlyNItems)
-			return This.SplitToPartsOfExactlyNItems(p)
+			return This.SplitToPartsOfNItems(p)
 
 		but oParam.IsThisNamedParam(:ToNParts)
 			return This.SplitToNParts(p)
@@ -1213,7 +1213,7 @@ class stzSplitter from stzListOfNumbers
 	 #   SPLITTING TO PARTS OF N ITEMS   #
 	#===================================#
 
-	def SplitToPartsOfNItems(n)
+	def SplitToPartsOfNItemsXT(n)
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
@@ -1237,27 +1237,27 @@ class stzSplitter from stzListOfNumbers
 		#< @FunctionAlternativeForm
 
 		def SplitToPartsOfN(n)
-			return This.SplitToPartsOfNItems(n)
+			return This.SplitToPartsOfNItemsXT(n)
 
 		def SplitToPartsOf(n)
-			return This.SplitToPartsOfNItems(n)
+			return This.SplitToPartsOfNItemsXT(n)
 
 		def SplitToPartsOfNPositions(n)
-			return This.SplitToPartsOfNItems(n)
+			return This.SplitToPartsOfNItemsXT(n)
 
 		#--
 
 		def SplitsToPartsOfNItems(n)
-			return This.SplitToPartsOfNItems(n)
+			return This.SplitToPartsOfNItemsXT(n)
 
 		def SplitsToPartsOfN(n)
-			return This.SplitToPartsOfNItems(n)
+			return This.SplitToPartsOfNItemsXT(n)
 
 		def SplitsToPartsOf(n)
-			return This.SplitToPartsOfNItems(n)
+			return This.SplitToPartsOfNItemsXT(n)
 
 		def SplitsToPartsOfNPositions(n)
-			return This.SplitToPartsOfNItems(n)
+			return This.SplitToPartsOfNItemsXT(n)
 
 		#>
 
@@ -1265,9 +1265,9 @@ class stzSplitter from stzListOfNumbers
 	 #    SPLITTING TO PARTS OF EXACTLY N ITEMS    #
 	#---------------------------------------------#
 
-	def SplitToPartsOfExactlyNItems(n)
+	def SplitToPartsOfNItems(n)
 
-		aSections = This.SplitToPartsOfNItems(n)
+		aSections = This.SplitToPartsOfNItemsXT(n)
 		
 		nLen = len(aSections)
 		aLastPair = aSections[ nLen ]
@@ -1281,15 +1281,15 @@ class stzSplitter from stzListOfNumbers
 		#< @FunctionAlternativeForms
 
 		def SplitToPartsOfExactlyNPositions(n)
-			return This.SplitToPartsOfExactlyNItems(n)
+			return This.SplitToPartsOfNItems(n)
 
 		#--
 
 		def SplitsToPartsOfExactlyNItems(n)
-			return This.SplitToPartsOfExactlyNItems(n)
+			return This.SplitToPartsOfNItems(n)
 
 		def SplitsToPartsOfExactlyNPositions(n)
-			return This.SplitToPartsOfExactlyNItems(n)
+			return This.SplitToPartsOfNItems(n)
 
 		#>
 
