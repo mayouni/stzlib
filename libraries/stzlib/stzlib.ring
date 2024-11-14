@@ -195,7 +195,9 @@
 
 	load "data/stzLocaleData.ring"
 	load "data/stzStopWordsData.ring"
-	load "data/stzUnicodeData.ring"
+
+	load "data/stzUnicodeData.ring" #TODO // Make it as a TXT file
+
 	load "data/stzConstraintsData.ring"
 	load "data/stzRandomData.ring"
 	load "data/stzCharData.ring"

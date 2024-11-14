@@ -1,8 +1,6 @@
 
-load "stzPlugSys.ring"
+load "../stzmax.ring"
 
-load "stzProfSys.ring"
-load "stzShowSys.ring"
 
 /*
 This code demonstrates how to implement a plugin system in Ring

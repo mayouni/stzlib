@@ -1,3 +1,5 @@
+func UnicodeDataInString()
+	cData = '
 0000;<control>;Cc;0;BN;;;;;N;NULL;;;;
 0001;<control>;Cc;0;BN;;;;;N;START OF HEADING;;;;
 0002;<control>;Cc;0;BN;;;;;N;START OF TEXT;;;;
@@ -34929,3 +34931,5 @@ F0000;<Plane 15 Private Use, First>;Co;0;L;;;;;N;;;;;
 FFFFD;<Plane 15 Private Use, Last>;Co;0;L;;;;;N;;;;;
 100000;<Plane 16 Private Use, First>;Co;0;L;;;;;N;;;;;
 10FFFD;<Plane 16 Private Use, Last>;Co;0;L;;;;;N;;;;;
+'
+	return cData
