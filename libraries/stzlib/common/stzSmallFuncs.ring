@@ -149,9 +149,9 @@ func QQ(p)
 		if oParam.IsNumberInString()
 			return new stzNumber(p)
 
-		but oParam.IsListInString() #TODO: check Q(' "A" : "C" ').IsListInString()
+		but oParam.IsListInString() #TODO // check Q(' "A" : "C" ').IsListInString()
 			return new stzList(p)
-			#TODO: check new stzList("[1, 2, 3]")
+			#TODO // check new stzList("[1, 2, 3]")
 
 		but oParam.IsChar() or oParam.IsHexUnicode()
 			return new stzChar(p)

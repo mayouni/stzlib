@@ -37,9 +37,9 @@ _aLocaleCountriesXT = [
 	[ "7", 		:Anguilla, 			"AI", 			"AIA", 			"+1264", 	:english, 		:Eastern_Caribbean_dollar, 		"Cent", 		100,		"🇦🇮" 		],
 	[ "8", 		:Antarctica, 			"AQ", 			"ATA", 			"+672", 	:russian, 		:Antarctic_dollar, 			"Cent", 		100,		"🇦🇶" 		],
 	[ "9", 		:Antigua_And_Barbuda, 		"AG", 			"ATG", 			"+1-268", 	"???",			:Eastern_Caribbean_dollar, 		"Cent", 		100, 		"🇦🇬" 		],
-	[ "10", 	:Argentina, 			"AR", 			"ARG", 			"+54", 		:spanish, 		:Argentine_peso, 			"Centavo", 		100,		"🇦🇷"		], #TODO: check spellin :Argentine_peso or :Argentina_peso
+	[ "10", 	:Argentina, 			"AR", 			"ARG", 			"+54", 		:spanish, 		:Argentine_peso, 			"Centavo", 		100,		"🇦🇷"		], #TODO // check spellin :Argentine_peso or :Argentina_peso
 	[ "11", 	:Armenia, 			"AM", 			"ARM", 			"+374", 	:armenian, 		:Armenian_dram, 			"Luma", 		100,		"🇦🇲" 		],
-	[ "12", 	:Aruba, 			"AW", 			"ABW", 			"+297", 	:papiamento, 		:Aruban_florin, 			"Cent", 		100,		"🇦🇼"		], #TODO: Check Guilder or Florin
+	[ "12", 	:Aruba, 			"AW", 			"ABW", 			"+297", 	:papiamento, 		:Aruban_florin, 			"Cent", 		100,		"🇦🇼"		], #TODO // Check Guilder or Florin
 	[ "13", 	:Australia, 			"AU", 			"AUS", 			"+61", 		:english, 		:Australian_dollar, 			"Cent", 		100,		"🇦🇺"		],
 	[ "14", 	:Austria, 			"AT", 			"AUT", 			"+43", 		:german, 		:Euro, 					"Cent", 		100,		"🇦🇹"		],
 	[ "15", 	:Azerbaijan, 			"AZ", 			"AZE", 			"+994", 	:azerbaijani, 		:Azerbaijani_manat, 			"Qəpik", 		100,		"🇦🇿"		],
@@ -94,15 +94,15 @@ _aLocaleCountriesXT = [
 	[ "62", 	:Timor_Leste, 			"TL", 			"TLS", 			"+670", 	:spanish, 		:United_States_dollar, 			"Cent", 		100,		"🇹🇱"		], # Previously called :East_Timor
 	[ "63", 	:Ecuador, 			"EC", 			"ECU", 			"+593", 	:spanish,		:United_States_dollar, 			"Cent", 		100,		"🇪🇨"		],
 	[ "64", 	:Egypt, 			"EG", 			"EGY", 			"+20", 		:arabic, 		:Egyptian_pound, 			"Piastre", 		100,		"🇪🇬"		],
-	[ "65", 	:El_Salvador, 			"SV", 			"SLV", 			"+503", 	:spanish, 		:El_Selvador_colon, 			"Cent", 		100_000_000,	"🇸🇻"		], #TODO: 100_000_000? check it!
+	[ "65", 	:El_Salvador, 			"SV", 			"SLV", 			"+503", 	:spanish, 		:El_Selvador_colon, 			"Cent", 		100_000_000,	"🇸🇻"		], #TODO // 100_000_000? check it!
 	[ "66", 	:Equatorial_Guinea, 		"GN", 			"GNQ", 			"+240", 	:spanish, 		:Central_African_CFA_franc, 		"Centime", 		100,		"🇬🇶"		],
 	[ "67", 	:Eritrea,			"ER", 			"ERI", 			"+291", 	:tigrinya,		:Eritrean_nakfa, 			"Cent" , 		100,		"🇪🇷"		],
-	[ "68", 	:Estonia, 			"EE", 			"EST", 			"+372", 	:estonia, 		:Euro, 					"Cent",			100,		"🇪🇪"		], #TODO: check default language (:estonia or :estonian)
+	[ "68", 	:Estonia, 			"EE", 			"EST", 			"+372", 	:estonia, 		:Euro, 					"Cent",			100,		"🇪🇪"		], #TODO // check default language (:estonia or :estonian)
 	[ "69", 	:Ethiopia, 			"ET", 			"ETH", 			"+251", 	:english, 		:Ethiopian_birr, 			"Santim", 		100,		"🇪🇹"		],
 	[ "70", 	:Falkland_Islands, 		"FK", 			"FLK", 			"+500", 	:english, 		:Falkland_Islands_pound, 		"Penny", 		100,		"🇫🇰"		],
 	[ "71", 	:Faroe_Islands, 		"FO", 			"FRO", 			"+298", 	:faroese, 		:Faroese_krona, 			"Oyra", 		100,	 	"🇫🇴"		],
 	[ "72", 	:Fiji, 				"FJ", 			"FJI", 			"+679", 	:english, 		:Fijian_dollar , 			"Cent", 		100,		"🇫🇯"		],
-	[ "73", 	:Finland, 			"FI", 			"FIN", 			"+358", 	:finnish, 		:Euro, 					"Sentti",		100,		"🇫🇮"		], #TODO: Check sentti or cent
+	[ "73", 	:Finland, 			"FI", 			"FIN", 			"+358", 	:finnish, 		:Euro, 					"Sentti",		100,		"🇫🇮"		], #TODO // Check sentti or cent
 	[ "74", 	:France, 			"FR", 			"FRA", 			"+33", 		:french, 		:Euro, 					"Cent", 		100,		"🇫🇷"		],
 	[ "75", 	:Guernsey, 			"GG", 			"GGY", 			"+44-1481", 	:english, 		:Guernsey_pound, 			"Penny", 		100, 		"🇬🇬"		],
 

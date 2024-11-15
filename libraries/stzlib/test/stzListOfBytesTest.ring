@@ -1,7 +1,7 @@
 
 load "../max/stzmax.ring"
 
-#TODO: Add use cases from Qt documentation:
+#TODO // Add use cases from Qt documentation:
 # https://doc.qt.io/qt-6/qbytearray.html()
 
 /*--------------------
@@ -293,7 +293,7 @@ o1 {
 	
 	? @@( Bytecodes() )
 	#--> [ 115, -29, -118, -79, 109 ]
-	#TODO: Understand why some values are negative!
+	#TODO // Understand why some values are negative!
 
 	? BytecodeOfByteN(5)
 	#--> 109

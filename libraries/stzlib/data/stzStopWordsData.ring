@@ -2,7 +2,7 @@
 # https://github.com/Alir3z4/stop-words
 
 # But reviewed.
-#TODO: do it for all the available languages.
+#TODO // do it for all the available languages.
 
 /* --> NOTE
 

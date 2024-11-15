@@ -42,7 +42,7 @@ class stzChainOfTruth from stzObject
 	@pValue
 
 	# These attributes hold the state of the chain
-	@bSouldContinue = TRUE	#TODO: is it really useful?
+	@bSouldContinue = TRUE	#TODO // is it really useful?
 	@bShouldReturnTRUE = FALSE
 	@bShouldReturnFALSE = FALSE
 

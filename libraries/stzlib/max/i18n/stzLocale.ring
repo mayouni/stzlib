@@ -828,7 +828,7 @@ class stzLocale from stzObject
 
 
 	  #----------------#
-	 #  NUMBER FORM   #	#TODO: Should be used by default in
+	 #  NUMBER FORM   #	#TODO // Should be used by default in
 	#----------------#	# formatting numbers in stzNumber
 
 	def DecimalPoint()
@@ -924,7 +924,7 @@ class stzLocale from stzObject
 				#NOTE: we are implementing the simplified variant of title
 				# case here (also knowan as start case).
 
-				#TODO: Implement the various styles documented in this
+				#TODO // Implement the various styles documented in this
 				# Wikipedia article: https://en.wikipedia.org/wiki/Title_case
 
 				# Example:
@@ -932,7 +932,7 @@ class stzLocale from stzObject
 				# "in search of lost time" becomes
 				# "In Search Of Lost Time"
 
-				#TODO: Manage stop-words that we should'nt titlize, like "of" here.
+				#TODO // Manage stop-words that we should'nt titlize, like "of" here.
 
 				anWordsPositions = StzTextQ(pcStr).WordsPositions()
 
@@ -1009,7 +1009,7 @@ class stzLocale from stzObject
 		oStr = StzStringQ(pcStr).LowercaseQ()
 
 		# Getting the positions of the words in the string
-		#TODO: delegate the work to stzText when ready
+		#TODO // delegate the work to stzText when ready
 
 		anPos = oStr.FindAll(" ")
 		if len(anPos) = 0

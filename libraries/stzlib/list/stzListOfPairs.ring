@@ -18,7 +18,7 @@ func RangeToSection(pnStart, pnRange)
 		return RangeToSection(pnStart, pnRange)
 
 func RangesToSections(panRanges)
-	#TODO:
+	#TODO //
 	# Replace for/in by for
 
 	#UPDATE
@@ -51,7 +51,7 @@ func SectionToRange(n1, n2)
 		return SectionToRange(n1, n2)
 
 func SectionsToRanges(paSections)
-	#TODO:
+	#TODO //
 	# Replace for/in by for
 
 	#UPDATE

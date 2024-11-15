@@ -2181,7 +2181,7 @@ proff()
 
 pron()
 
-#TODO: Those two functions must be unified
+#TODO // Those two functions must be unified
 #--> Read the TODO in stzScripts.ring
 
 ? len( LocaleScripts() )
@@ -2215,7 +2215,7 @@ pron()
 ? Dotless("أفديك بروحي يا قدس") 	#--> أٯدٮک ٮروحٮ ٮا ٯدس
 ? Dotless("مشمش وخوخ وزيتون")		#--> مسمس وحوح ورٮٮوٮ
 
-#TODO: the implementation needs some enhancements/
+#TODO // the implementation needs some enhancements/
 
 proff()
 
@@ -4677,7 +4677,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*-----------
-*/
+
 StartProfiler()
 
 o1 = new stzString("
@@ -4700,7 +4700,8 @@ o1.TrimQ().RemoveLinesWXT(' Q(@line).IsMadeOfNumbers() ')
 #  RSTUVW"
 
 StopProfiler()
-# Executed in 0.14 second(s)
+# Executed in 0.09 second(s) in Ring 1.21
+# Executed in 0.14 second(s) in Ring 1.19
 
 /*=============
 
@@ -4709,7 +4710,8 @@ StartProfiler()
 o1 = new stzString("I love <<Ring>> and <<Softanza>>!")
 
 # Finding the positions of substrings enclosed between << and >>
-? @@( o1.FindanyBoundedBy([ "<<",">>" ]) )
+
+? @@( o1.FindAnyBoundedBy([ "<<",">>" ]) )
 #--> [10, 23]
 
 	# Returning the same result but as sections
@@ -4717,6 +4719,7 @@ o1 = new stzString("I love <<Ring>> and <<Softanza>>!")
 	#--> [ [10, 13], [23, 30] ]
 
 	# Getting the substrings themselves
+
 	? @@( o1.AnyBoundedBy([ "<<",">>" ]) ) # Or SubStringsBoundedBy([ "<<", :And = ">>" ])
 	#--> [ "Ring", "Softanza" ]
 
@@ -4730,11 +4733,12 @@ o1 = new stzString("I love <<Ring>> and <<Softanza>>!")
 	? @@( o1.FindAnyBoundedByAsSectionsIB([ "<<", ">>" ]) ) # Or Simply FindAnyBoundedByZZ()
 	#--> [ [ 8, 15 ], [ 21, 32 ] ]
 
-	? @@( o1.AnyBoundedByIB([ "<<",">>" ]) )
+	? @@( o1.AnyBoundedByIB([ "<<",">>" ]) ) # Or SubStringsBoundedByIB()
 	#--> [ <<Ring>>, <<Softanza>> ]
 
 StopProfiler()
-#--> Executed in 0.12 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.12 second(s) in Ring 1.18
 
 /*-----------
 
@@ -5028,7 +5032,7 @@ o1.SpacifyXT(
 #--> 99 99 99 99.999 999
 
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*==============
 
@@ -6021,7 +6025,7 @@ o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
 ? o1.FindLast("♥♥♥")
 #--> 22
 
-? o1.FindLastAsSection("♥♥♥") 	#NOTE that the function is misspelled (there is an
+? o1.FindLastAsSection("♥♥♥") 	#NOTE //that the function is misspelled (there is an
 #--> [22, 24]			#ERRonous "e" after "Last", but Softanza lets it go!
 
 ? o1.FindLastZ("♥♥♥")
@@ -6031,7 +6035,7 @@ o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
 #--> [ "♥♥♥", [22, 24] ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*---------------
 
@@ -6071,9 +6075,10 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 #--> 3
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.06 second(s) in Ring 1.18
 
-/*================= Using ..S() and ..SD() extension
+/*================= Using ..ST() and ..STD() extension
 
 pron()
 
@@ -6092,17 +6097,18 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
 #--- Spacifying the direction with SD extension
 
-? o1.FindNthSD(2, "♥♥♥", :StartingAt = 10, :Going = :Backward)
+? o1.FindNthSTD(2, "♥♥♥", :StartingAt = 10, :Going = :Backward)
 #--> 3
 
-? o1.FindFirstSD("♥♥♥", :StartingAt = 14, :Backward)
+? o1.FindFirstSTD("♥♥♥", :StartingAt = 14, :Backward)
 #--> 8
 
-? o1.FindLastSD("♥♥♥", :StartingAt = 6, :Direction = :Backward)
+? o1.FindLastSTD("♥♥♥", :StartingAt = 6, :Direction = :Backward)
 #--> 3
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.04 second(s) in Ring 1.21
+# Executed in 0.15 second(s) in Ring 1.17
 
 /*-----------------
 
@@ -6111,36 +6117,48 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-? o1.FindNthSZ(2, "♥♥♥", :StartingAt = 3)
+? o1.NthSTZ(2, "♥♥♥", :StartingAt = 3)
 #--> [ "♥♥♥", 8 ]
 
-? o1.FindFirstSZ("♥♥♥", :StartingAt = 5)
+? o1.FirstSTZ("♥♥♥", :StartingAt = 5)
 #--> [ "♥♥♥", 8 ]
 
-? o1.FindLastSZ("♥♥♥", :StartingAt = 6)
+? o1.LastSTZ("♥♥♥", :StartingAt = 6)
 #--> [ "♥♥♥", 13 ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.08 second(s) in Ring 1.18
 
-/*----------------- Using ..S() + ..D() + Z() extensions
+/*----------------- Using ..ST() + ..D() + ZZ() prefixes
 
 pron()
 
-#                     3    8    3
+#                     3 5
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-? o1.FindNthSDZ(2, "♥♥♥", :StartingAt = 10, :Backward)
-#--> [ "♥♥♥", 3 ]
+? o1.FindNthSTDZZ(2, "♥♥♥", :StartingAt = 10, :Backward)
+#--> [ 3, 5 ]
 
-? o1.FindFirstSDZ("♥♥♥", :StartingAt = 5, :Backward)
-#--> [ "♥♥♥", 3 ]
+? o1.FindFirstSTDZZ("♥♥♥", :StartingAt = 5, :Backward)
+#--> [ 3, 5 ]
 
-? o1.FindLastSDZ("♥♥♥", :StartingAt = :LastChar, :Backward)
-#--> [ "♥♥♥", 3 ]
+? o1.FindLastSTDZZ("♥♥♥", :StartingAt = :LastChar, :Backward)
+#--> [ 3, 5 ]
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.08 second(s) in Ring 1.21
+
+/*-----------------
+*/
+pron()
+
+o1 = new stzString("123456♥..♥♥")
+? o1.HowManyST("♥", :StartingAt = 6) # Or NumberOfOuccurrenceST() or CountST()
+#--> 3
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*-----------------
 
@@ -6296,20 +6314,20 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 #--> [8, 10]
 
 /*--------------
-
+*/
 pron()
 
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-? o1.FindFirstAsSectionD("♥♥♥", :Backward)
+? o1.FindFirstDZZ("♥♥♥", :Backward)
 #--> [13, 15]
 
 proff()
 # Executed in 0.07 second(s)
 
 /*=============
-
+*/
 pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
@@ -6455,7 +6473,7 @@ o1 = new stzString("**aa***aa**aa***")
 ? o1.SplitQ("aa").IfQ('NumberOfItems() > 2').RemoveFirstAndLastItemsQ().Content()
 #--> ["***", "**"]
 
-#TODO: Needs more thinking, because the ELSE case should also be considered.
+#TODO // Needs more thinking, because the ELSE case should also be considered.
 #--> A use case better suited for stzChainOfValue
 
 proff()
@@ -6470,7 +6488,7 @@ o1 = new stzString("**aa***aa**aa***")
 ? o1.SplitQ("aa").IfQ('This.NumberOfItems() > 2').RemoveFirstAndLastItemsQ().Content()
 #--> ["***", "**"]
 
-#TODO: IfQ() function Needs more thinking, because the ELSE case should also be considered.
+#TODO // IfQ() function Needs more thinking, because the ELSE case should also be considered.
 #--> A use case better suited for stzChainOfValue
 
 proff()
@@ -7986,7 +8004,7 @@ o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12"
 #	[ "77.12",  [ 55 ]    ]
 # ]
 
-? @@( o1.NumbersAndTheirSections() ) #TODO: Enhance performance!
+? @@( o1.NumbersAndTheirSections() ) #TODO // Enhance performance!
 #-->
 # [
 # 	[ "12.34", 	[ [ 7, 11 ], [ 39, 43 ]	] ],
@@ -9375,7 +9393,7 @@ o1 = new stzString("***ONE***TWO***THREE***")
 
 ? @@( o1.SplitQ(:Using = "***").Content() )
 #--> [ "", "ONE", "TWO", "THREE", "" ]
-#TODO: Should we remove the "" from the result?
+#TODO // Should we remove the "" from the result?
 
 ? @@( o1.FindAnyBoundedByIB("**") )
 #--> [ 2, 8, 14 ]
@@ -11395,7 +11413,7 @@ pron()
 oQLocale = new QLocale("tr-TR")
 ? oQLocale.toupper("ı") #ERROR: --> I but must be İ
 
-#TODO: solve this by implementing the specialCasing of unicode as
+#TODO // solve this by implementing the specialCasing of unicode as
 # described in this file:
 # http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 
@@ -11928,7 +11946,7 @@ o1 = new stzString("SOFTANZA IS AWSOME!")
 /*================= Quiet-Equality of two strings
 
 o1 = new stzString("SOFTANZA IS AWSOME!")
-#TODO: Check performance of IsQuietEqualTo() --> Root cause RemoveDiacritics()
+#TODO // Check performance of IsQuietEqualTo() --> Root cause RemoveDiacritics()
 ? o1.IsQuietEqualTo("softanza is awsome!")	#--> TRUE
 ? o1.IsQuietEqualTo("Softansa is aowsome!")	#--> TRUE (we added an "o" to "awsome")
 ? o1.IsQuietEqualTo("Softansa iis aowsome!")	#--> FALSE (we add "i" to "is" and "o" to "awsome")
@@ -12025,7 +12043,7 @@ o1 = new stzString("SOFTANZA")
 ? o1 = StringUppercase("softanza")
 #--> TRUE
 
-#TODO: Complete the other operators when COMPARAISON methods are made in stzString
+#TODO // Complete the other operators when COMPARAISON methods are made in stzString
 
 proff()
 # Executed in 0.02 second(s).
@@ -13176,7 +13194,7 @@ StzStringQ("RING IS NICE") {
 	? EachCharBoxed()
 	? EachCharBoxedRound()
 
-	// ? VizFindBoxed("I")	#TODO: Add it
+	// ? VizFindBoxed("I")	#TODO // Add it
 
 	? BoxedDashed()
 	? BoxedDashedRound()

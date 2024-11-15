@@ -135,7 +135,7 @@ class stzOctalNumber from stzString
 		def ToScientificNotation()
 			return This.ToScientificNotationForm()
 
-	def ToBytes() #TODO: Should also be turned as stzListOfBytes
+	def ToBytes() #TODO // Should also be turned as stzListOfBytes
 		return This.ToStzNumber().ToBytes()
 
 	def FromDecimalForm(n)

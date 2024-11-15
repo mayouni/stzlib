@@ -1358,7 +1358,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	  #---------------------------------------------#
-	 #   FINDING THE FIRST OCCURRENCE OF A VALUE   #TODO: Add case sensitivity
+	 #   FINDING THE FIRST OCCURRENCE OF A VALUE   #TODO // Add case sensitivity
 	#---------------------------------------------#
 
 	def FindFirstOccurrenceOfValue(pValue)
@@ -1388,7 +1388,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	  #--------------------------------------------#
-	 #   FINDING THE LAST OCCURRENCE OF A VALUE   #TODO: Add case sensitivity
+	 #   FINDING THE LAST OCCURRENCE OF A VALUE   #TODO // Add case sensitivity
 	#--------------------------------------------#
 
 	def FindLastOccurrenceOfValue(pValue)
@@ -1401,7 +1401,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.FindLastOccurrenceOfValue(pValue) 
 
 	  #---------------------------#
-	 #   FINDING KEYS BY VALUE   #TODO: Add case sensitivity
+	 #   FINDING KEYS BY VALUE   #TODO // Add case sensitivity
 	#---------------------------#
 
 	def FindKeysByValue(pValue)
@@ -1421,7 +1421,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return anResult
 
 	  #------------------------------#
-	 #   FINDING NTH KEY BY VALUE   #TODO: Add case sensitivity
+	 #   FINDING NTH KEY BY VALUE   #TODO // Add case sensitivity
 	#------------------------------#
 
 	def FindNthKeyByValue(pValue)
@@ -1432,7 +1432,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return nResult
 
 	  #--------------------------------#
-	 #   FINDING FIRST KEY BY VALUE   #TODO: Add case sensitivity
+	 #   FINDING FIRST KEY BY VALUE   #TODO // Add case sensitivity
 	#--------------------------------#
 
 	def FindFirstKeyByValue(pValue)
@@ -1456,7 +1456,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		#>
 	  #-------------------------------#
-	 #   FINDING LAST KEY BY VALUE   #TODO: Add case sensitivity
+	 #   FINDING LAST KEY BY VALUE   #TODO // Add case sensitivity
 	#-------------------------------#
 
 	def FindLastKeyByValue(pValue)
@@ -1470,7 +1470,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return cResult
 
 	  #----------------------------------------------------#
-	 #   GETTING THE KEY CORRESPONDING TO A GIVEN VALUE   #TODO: Add case sensitivity
+	 #   GETTING THE KEY CORRESPONDING TO A GIVEN VALUE   #TODO // Add case sensitivity
 	#----------------------------------------------------#
 
 	def KeyByValue(pValue)
@@ -1485,7 +1485,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return cResult
 	
 	  #-----------------------------------------------------#
-	 #   GETTING THE KEYS CORRESPONDING TO A GIVEN VALUE   #TODO: Add case sensitivity
+	 #   GETTING THE KEYS CORRESPONDING TO A GIVEN VALUE   #TODO // Add case sensitivity
 	#-----------------------------------------------------#
 
 	def KeysByValue(pValue)
@@ -1525,7 +1525,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #-----------------------------------------#
 	 #  FINDING LISTS (VALUES THAT ARE LISTS)  #
 	#=========================================#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindLists()
 		aContent = This.Content()
@@ -1642,7 +1642,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------#
 	 #  FINDING NUMBERS (VALUES THAT ARE NUMBERS)  #
 	#=============================================#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindNumbers()
 		aContent = This.Content()
@@ -1753,7 +1753,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #--------------------------------------------#
 	 #  FINDING STRINGS (VALUES THAT ARE STRING)  #
 	#============================================#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindStrings()
 		aContent = This.Content()
@@ -1864,7 +1864,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------#
 	 #  FINDING OBJECTS (VALUES THAT ARE OBJECTS)  #
 	#=============================================#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindObjects()
 		aContent = This.Content()
@@ -1897,7 +1897,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #------------------------------------------------------#
 	 #  FINDING STZLISTS (VALUES THAT ARE STZLIST OBJECTS)  #
 	#======================================================#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindStzLists()
 		aContent = This.Content()
@@ -1930,7 +1930,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #-------------------------------------------------------#
 	 #  FINDING STZHASHLISTS (VALUES THAT ARE STZHASHLISTS)  #
 	#=======================================================#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindStzHashLists()
 		aContent = This.Content()
@@ -1963,7 +1963,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------------#
 	 #  FINDING STZNUMBERS (VALUES THAT ARE STZNUMBERS)  #
 	#===================================================#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindStzNumbers()
 		aContent = This.Content()
@@ -1996,7 +1996,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------------#
 	 #  FINDING STZSTRINGS (VALUES THAT ARE STZSTRINGS)  #
 	#===================================================#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindStzStrings()
 		aContent = This.Content()
@@ -2029,7 +2029,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------------#
 	 #  FINDING STZOBJECTS (VALUES THAT ARE STZOBJECTS)  #
 	#===================================================#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindStzObjects()
 		aContent = This.Content()
@@ -2062,12 +2062,12 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------------------------------------#
 	 #   CHECHKING IF ONE VALUE (AT LEAST) IS A LIST CONTAINING THE GIVEN ITEM   #
 	#===========================================================================#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	# SEMANTIC NOTE: An "Item" in the context of stzHashList, refers to values that
 	# are lists, and those lists contain the item. See examples hereafter.
 
-	def ContainsItem(pItem) #TODO: Add case sensitivity
+	def ContainsItem(pItem) #TODO // Add case sensitivity
 		/* EXAMPLE
 	
 		o1 = new stzHashList([
@@ -2110,7 +2110,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #-----------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE GIVEN ITEM INSIDE THAT TLIST  #
 	#=======================================================================#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindItem(pItem)
 		/* EXAMPLE
@@ -2359,7 +2359,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #-------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE NTH OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
 	#-------------------------------------------------------------------------------------#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindNthItem(n, pItem)
 
@@ -2385,7 +2385,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #---------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE FIRST OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
 	#---------------------------------------------------------------------------------------#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindFirstItem(pItem)
 		return This.FindNthItem(1, pItem)
@@ -2428,7 +2428,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #--------------------------------------------------------------------------------------#
 	 #   WHEN THE VALUE IS A LIST, FINDING THE LAST OCCURRENCE OF AN ITEM INSIDE THAT LIST  # 
 	#--------------------------------------------------------------------------------------#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindLastItem(pItem)
 		n = This.NumberOfOccurreceOfItemInList(pItem)
@@ -2453,7 +2453,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	  #----------------------------------------------------------------------#
 	 #  WHEN THE VALUES ARE LISTS, FINDING A GIVEN ITEM INSIDE THOSE LISTS  # 
 	#----------------------------------------------------------------------#
-	#TODO: Add case sensitivity
+	#TODO // Add case sensitivity
 
 	def FindKeysByItem(pItem)
 		anPos = This.FindItemInList(pItem)
@@ -2572,7 +2572,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			ok
 		next
 
-		def ListifyQ() #TODO: Ensure consistency in all library
+		def ListifyQ() #TODO // Ensure consistency in all library
 			This.Listify()
 			return This
 
@@ -3792,7 +3792,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	  #------------------------------#
-	 #  CLASSIFYING VALUES IN LIST  #TODO: Test and clarify!
+	 #  CLASSIFYING VALUES IN LIST  #TODO // Test and clarify!
 	#------------------------------#
 
 	def ClassifyInList()

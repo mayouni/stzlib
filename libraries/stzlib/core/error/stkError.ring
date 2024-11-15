@@ -5,7 +5,7 @@
 
 # The numbers convey a classification of errors by category. For example,
 # errors from 1 to 9 are related tt PARAMS, from 10 to 19 to OBJECTS CREATION,
-# and so on. #TODO: Rethink this classification.
+# and so on. #TODO // Rethink this classification.
 
 func StkError(cErr)
 

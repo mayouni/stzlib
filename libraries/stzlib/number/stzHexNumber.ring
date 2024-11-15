@@ -171,7 +171,7 @@ class stzHexNumber from stzObject
 		#--> This will avoid the use of WithoutPrefix
 		#--> It aligns with Softanza style of using XT() notation
 
-		// #TODO: Generalize this to all number classes
+		// #TODO // Generalize this to all number classes
 
 		oStrTemp = new stzString(THis.IntegerPart())
 		oStrTemp.RemoveMany(HexPrefixes())
@@ -267,7 +267,7 @@ class stzHexNumber from stzObject
 		def ToScientific()
 			return This.ToScientificForm()
 
-	def ToBytes() #TODO: Should also be turned as stzListOfBytes
+	def ToBytes() #TODO // Should also be turned as stzListOfBytes
 		return This.ToStzNumber().ToBytes()
 
 	def FromDecimalForm(n)

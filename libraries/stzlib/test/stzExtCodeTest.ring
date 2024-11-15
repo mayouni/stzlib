@@ -131,7 +131,7 @@ pron()
 
 		@([
 
-		:id    = SMALLINT, 	// #TODO: SQL datatypes are not supported yet
+		:id    = SMALLINT, 	// #TODO // SQL datatypes are not supported yet
 		:name  = VARCHAR(30),
 		:score = SMALLINT
 
@@ -207,7 +207,7 @@ pron()
 
 	@SELECT([ :name, :score ]),
 	@FROM( :persons ),
-	@WHERE( 'score > 80' ) // #TODO: check WHERE_( 'name = "Dan"' );
+	@WHERE( 'score > 80' ) // #TODO // check WHERE_( 'name = "Dan"' );
 
 	])
 
@@ -502,7 +502,7 @@ o1 = new stzString("Niger")
 ? ObjectName(o1)
 #--> @noname
 
-#TODO: Reflect...
+#TODO // Reflect...
 # Does any normal object (not necessarilty a stzObject) containing an
 # @cVarName attribute and an ObjectVarName() method should be
 # considered as potentially named ?
@@ -1056,7 +1056,7 @@ country_name = "Tunisia"
 
 ? print2str("مرحبا بك #{اسم_صديق} في بلدك #{اسم_بلد} !")
 
-#TODO: Use it in Interpolate() function
+#TODO // Use it in Interpolate() function
 
 proff()
 # Executed in 0.01 second(s).

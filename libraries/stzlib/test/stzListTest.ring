@@ -1804,7 +1804,7 @@ proff()
 
 pron()
 
-#TODO: General note on performance
+#TODO // General note on performance
 # For all loops on large data (tens of thousands of times and more)
 # don't rely on stzString services, but use Qt directly instead!
 
@@ -7102,7 +7102,7 @@ o1.InsertAt(2, "B")
 ? o1.Content()
 #--> ABBBCD
 
-#TODO: add ( :Position = ... and :SubString = ... ) everywhere!
+#TODO // add ( :Position = ... and :SubString = ... ) everywhere!
 #UPDATE: done!
 
 proff()
@@ -10134,7 +10134,7 @@ o1 = new stzList([ 10, "A":"E", 12, obj, 10, "A":"E", obj, "Ring" ])
 ? o1.FindAll(obj)
 #--> [ 4, 7 ]
 
-#TODO: this won't work corretcly if we add other objects different from
+#TODO // this won't work corretcly if we add other objects different from
 # obj in the list. We should think of an other algorithm other then relying
 # on the empty spaces generated, for objects, by list2code() function of Ring!
 

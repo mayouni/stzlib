@@ -3643,7 +3643,7 @@ func OnlyNumbers(paList)
 	func @OnlyNumbersIn(paList)
 		return OnlyNumbers(paList)
 
-#TODO: Add OnlyStrings() and cie...
+#TODO // Add OnlyStrings() and cie...
 
 def Flatten(paList)
 	if CheckParams()
@@ -6843,7 +6843,7 @@ class stzList from stzObject
 	 #  ADDING AN ITEM AT A GIVEN POSITION --> INSERT OR EXTEND  #
 	#-----------------------------------------------------------#
 
-	def AddItemAt(n, pItem) #TODO: Test it!
+	def AddItemAt(n, pItem) #TODO // Test it!
 
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
@@ -13139,8 +13139,8 @@ class stzList from stzObject
 	#------------------------------------------------#
 
 	def ReplaceRanges(panRanges, pNewItem)
-		#TODO: Add params check
-		#TODO: Change for/in loop by for loop
+		#TODO // Add params check
+		#TODO // Change for/in loop by for loop
 
 		for anRange in panRanges
 			n = anRange[1]
@@ -13542,7 +13542,7 @@ class stzList from stzObject
 			return This.AllOccurrencesOfThisItemRemoved(pItem)
 
 	  #-------------------------------------------------------#
-	 #   REMOVING GIVEN OCCURRENCES OF AN ITEM IN THE LIST   #TODO: Add CASESENSITIVITY
+	 #   REMOVING GIVEN OCCURRENCES OF AN ITEM IN THE LIST   #TODO // Add CASESENSITIVITY
 	#-------------------------------------------------------#
 
 	def RemoveOccurrences(panOccurr, pItem)
@@ -16798,11 +16798,11 @@ class stzList from stzObject
 	 #  CHECKING IF THE 2 ITEMS OF THE LIST ARE BOUNDS OF A SUBSTRING IN A GIVEN STRING  #
 	#===================================================================================#
 
-	#TODO: Unify the bounds functions in stzString and stzList
+	#TODO // Unify the bounds functions in stzString and stzList
 
 	def AreBoundsOfCS(pcSubStr, pIn, pCaseSensitive)
 		# Supports only strings in pIn
-		#TODO: lists will be also supported
+		#TODO // lists will be also supported
 
 		/* EXAMPLE 1
 
@@ -17343,7 +17343,7 @@ class stzList from stzObject
 		*/
 
 		# All items are list of 2 items, where the 1st beeing string
-		#TODO: The strings in the 1st column (keys of the hashlist) must be unique
+		#TODO // The strings in the 1st column (keys of the hashlist) must be unique
 
 		bResult = TRUE
 		aTempKeys = []
@@ -23847,7 +23847,7 @@ class stzList from stzObject
 		def IsAStzTree()
 			return This.IsStzTree()
 
-	def IsTable() #TODO: Review this solution
+	def IsTable() #TODO // Review this solution
 		try
 			new stzTable(This.List())
 			return TRUE
@@ -26387,7 +26387,7 @@ class stzList from stzObject
 		? o1.ExpandedIfPairOfNumbers() #--> [ 12, 11, 10, 9, 8, 7 ]
 	*/
 
-	def ExpandIfPairOfNumbers() #TODO: Should be delegated to stzPairOfNumbers
+	def ExpandIfPairOfNumbers() #TODO // Should be delegated to stzPairOfNumbers
 		if This.IsPairOfNumbers()
 			n1 = This.Item(1)
 			n2 = This.Item(2)
@@ -27014,7 +27014,7 @@ class stzList from stzObject
 	  #--------------------------------------------------------#
 	 #  CHECKING IF THE LIST IS THE REVERSE OF AN OTHER LIST  #
 	#--------------------------------------------------------#
-	 #TODO: check performance
+	 #TODO // check performance
 
 	def IsReverseOf(paOtherList)
 		if NOT isList(paOtherList)
@@ -30225,7 +30225,7 @@ class stzList from stzObject
 		return aResult
 
 	  #----------------------------#
-	 #   REPEATED LEADING ITEMS   # #TODO: Add case sensitivity!
+	 #   REPEATED LEADING ITEMS   # #TODO // Add case sensitivity!
 	#----------------------------#
 
 	def HasRepeatedLeadingItems()
@@ -32091,7 +32091,7 @@ class stzList from stzObject
 
 	  #-----------------------------------------------------#
 	 #     NUMBER OF OCCURRENCE OF AN ITEM IN THE LIST     #
-	#-----------------------------------------------------#
+	#=====================================================#
 	
 	def NumberOfOccurrenceCS(pItem, pCaseSensitive)
 
@@ -32231,11 +32231,161 @@ class stzList from stzObject
 
 		#
 
+	  #--------------------------------------------------------------------#
+	 #     NUMBER OF OCCURRENCE OF AN ITEM STARTING AT A GIVEN POSITION   #
+	#--------------------------------------------------------------------#
+	
+	def NumberOfOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+		if CheckParams()
+			if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+
+			if isString(pnStartingAt)
+				if pnStartingAt = :Start or
+			  	   pnStartingAt = :First or
+				   pnStartingAt = :FirstChar
+
+					pnStartingAt = 1
+
+				but pnStartingAt = :End or
+			  	    pnStartingAt = :Last or
+				    pnStartingAt = :LastChar
+
+					pnStartingAt = This.NumberOfChars()
+				ok
+			ok
+
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param type! pnStartingAt must be a number.")
+			ok
+
+		ok
+
+		# Doing the job
+
+		nResult = This.SectionQ(pnStartingAt, This.NumberOfItems()).
+			       NumberOfOccurrenceCS(pItem, pCaseSensitive)		
+
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfOccurrencesSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+		def CountSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return NumberOfOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+		def HowManySTCS(pItem, pnStartingAt, pCaseSensitive)
+			return NumberOfOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+		def ItemOccursNTimesSTCS(n, pnStartingAt, pItem, pCaseSensitive)
+			return NumberOfOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def NumberOfDuplicatesOfSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+		def NumberOfDuplicationsOfSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+		def NumberOfDuplicationOfSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def NumberOfSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+		#>
+
+		#< @FunctionMisspelledForm
+
+		def NumberOfOccurenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+		#--
+
+		def NumberOfDupplicatesOfSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+		def NumberOfDupplicationsOfSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+		def NumberOfDupplicationOfSTCS(pItem, pnStartingAt, pCaseSensitive)
+			return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, pCaseSensitive)
+
+		#
+
+	#-- WITHOUT CASESENSITIVITY
+
+/*	def NumberOfOccurrence(pItem)
+		return This.NumberOfOccurrenceCS(pItem, TRUE)
+
+		#< @FucntionAlternativeForms
+
+		def NumberOfOccurrences(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def NumberOfOccurrencesOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def NumberOfOccurrenceOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def Count(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def HowMany(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def ItemOccursNTimes(n, pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		#--
+
+		def NumberOfDuplicatesOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def NumberOfDuplicationsOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def NumberOfDuplicationOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		#--
+
+		def NumberOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		#>
+	
+		#< @FunctionMisspelledForm
+
+		def NumberOfOccurence(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		#--
+
+		def NumberOfDupplicatesOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def NumberOfDupplicationsOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		def NumberOfDupplicationOf(pItem)
+			return This.NumberOfOccurrence(pItem)
+
+		#
+*/
 	  #---------------------------------------------------------#
 	 #  GETTING ITEMS OCCURRING N (OR MORE) TIMES IN THE LIST  #
 	#=========================================================#
 
-	def ItemsOccurringNTimesCS(n, pCaseSensitive) #TODO: Check for performance
+	def ItemsOccurringNTimesCS(n, pCaseSensitive) #TODO // Check for performance
 		aIndex = This.IndexCS(pCaseSensitive)
 		nLen = len(aIndex)
 
@@ -32336,7 +32486,7 @@ class stzList from stzObject
 	 #  GETTING ITEMS OCCURRING EXACTLY N TIMES IN THE LIST  #
 	#-------------------------------------------------------#
 
-	def ItemsOccurringExactlyNTimesCS(n, pCaseSensitive) #TODO: Check for performance
+	def ItemsOccurringExactlyNTimesCS(n, pCaseSensitive) #TODO // Check for performance
 		aIndex = This.IndexCS(pCaseSensitive)
 		nLen = len(aIndex)
 
@@ -32465,7 +32615,7 @@ class stzList from stzObject
 	 #  GETTING ITEMS OCCURRING MORE THAN N TIMES IN THE LIST  #
 	#---------------------------------------------------------#
 
-	def ItemsOccurringMoreThanNTimesCS(n, pCaseSensitive) #TODO: Check for performance
+	def ItemsOccurringMoreThanNTimesCS(n, pCaseSensitive) #TODO // Check for performance
 		aIndex = This.IndexCS(pCaseSensitive)
 		nLen = len(aIndex)
 
@@ -32554,7 +32704,7 @@ class stzList from stzObject
 	 #  GETTING ITEMS OCCURRING LESS THAN N TIMES IN THE LIST  #
 	#---------------------------------------------------------#
 
-	def ItemsOccurringLessThanNTimesCS(n, pCaseSensitive) #TODO: Check for performance
+	def ItemsOccurringLessThanNTimesCS(n, pCaseSensitive) #TODO // Check for performance
 		aIndex = This.IndexCS(pCaseSensitive)
 		nLen = len(aIndex)
 
@@ -32643,7 +32793,7 @@ class stzList from stzObject
 	 #  GETTING ITEMS OCCURRING N TIMES OR LESS IN THE LIST  #
 	#-------------------------------------------------------#
 
-	def ItemsOccurringNTimesOrLessCS(n, pCaseSensitive) #TODO: Check for performance
+	def ItemsOccurringNTimesOrLessCS(n, pCaseSensitive) #TODO // Check for performance
 		aIndex = This.IndexCS(pCaseSensitive)
 		nLen = len(aIndex)
 
@@ -36022,7 +36172,7 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionMisspelledForms # double p instead of one p #TODO: Generalize it
+		#< @FunctionMisspelledForms # double p instead of one p #TODO // Generalize it
 
 		def ItemsWithoutDupplicationCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
@@ -38984,7 +39134,7 @@ class stzList from stzObject
 				return This.FirstListQ()
 
 	def ListsPaths()
-		return This.ItemsThatAreLists_AtAnyLevel_TheirPaths() #TODO: Refactor this!
+		return This.ItemsThatAreLists_AtAnyLevel_TheirPaths() #TODO // Refactor this!
 
 		def ListsPathsQ()
 			return new stzList( This.ListsPaths() )
@@ -39269,7 +39419,7 @@ class stzList from stzObject
 	 #   GETTING THE LIST OF ALL POSSIBLE SUBLISTS   #
 	#===============================================#
 	# By analogy to SubStrings() in stzString
-	#TODO: Use the same implementation of SubSrtrings() in stzString
+	#TODO // Use the same implementation of SubSrtrings() in stzString
 	#NOTE: Bring all the related functions
 
 	#WARNING: SubLists() and Lists() are different.
@@ -42825,7 +42975,7 @@ class stzList from stzObject
 	 #  FINDING LAST ITEM VERIFYING A GIVEN CONDITION  #
 	#-------------------------------------------------#
 
-	def FindLastW(pcCondition) #TODO: Check for performance
+	def FindLastW(pcCondition) #TODO // Check for performance
 		nLastW = This.NumberOfOccurrencesW(pcCondition)
 		return FindNthW(nLastW , pcCondition)
 
@@ -49558,7 +49708,7 @@ class stzList from stzObject
 	 #  GETTING NUMBER OF OCCURRENCES OF AN ITEM IN THE GIVEN SECTIONS  #
 	#==================================================================#
 
-#TODO: Add
+#TODO // Add
 #	FindNearest("hi", :To = "emm")
 #	FindNearest("hi", :ToPositio = 10)
 
@@ -50332,7 +50482,7 @@ class stzList from stzObject
 	  #------------------------------------------------------------------#
 	 #  STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BECOME STRINGS)  #
 	#------------------------------------------------------------------#
-	#TODO: Abstract this function in stzObject
+	#TODO // Abstract this function in stzObject
 
 	def Stringify()
 
@@ -55252,7 +55402,7 @@ class stzList from stzObject
 		return len(This.Letters())
 
 	  #=========================================#
-	 #  GETTING THE LIST OF PAIRS IN THE LIST  #TODO: Add case sensitivity
+	 #  GETTING THE LIST OF PAIRS IN THE LIST  #TODO // Add case sensitivity
 	#=========================================#
 
 	def ContainsPairs()
@@ -55404,7 +55554,7 @@ class stzList from stzObject
 		return aResult
 
 	  #===========================================#
-	 #  GETTING THE LIST OF SINGLES IN THE LIST  #TODO: Add case sensitivity
+	 #  GETTING THE LIST OF SINGLES IN THE LIST  #TODO // Add case sensitivity
 	#===========================================#
 
 	def ContainsSingles()
@@ -57798,7 +57948,7 @@ class stzList from stzObject
 	# Utility function used to simplify code in stzListOfStrings
 
 	def NthItemAfterSplittingStringUsing(n, cSep)
-	#TODO: Remake it using FindNthSplitZZ(n)
+	#TODO // Remake it using FindNthSplitZZ(n)
 
 		return This.Split(cSep)[n]
 
@@ -68361,7 +68511,7 @@ class stzList from stzObject
 	#=====================#
 
 	def NumberOfCombinations()
-		return len(This.Combinations()) // #TODO: solve it mathematically.
+		return len(This.Combinations()) // #TODO // solve it mathematically.
 	
 	def Combinations()
 
@@ -68507,7 +68657,7 @@ class stzList from stzObject
 	#NOTE
 	# Currently (V1) Softanza supports more then 1500 named params
 
-	#TODO: Add @ to all params, like this:
+	#TODO // Add @ to all params, like this:
 	# (This.Item(1) = :ParamName or This.Item(1) = :ParamName@ ) )
 
 	def IsOnPositionNamedParam()
@@ -69244,7 +69394,7 @@ class stzList from stzObject
 
 	#--
 
-	#TODO: Move IsToCharNamedParam() here
+	#TODO // Move IsToCharNamedParam() here
 
 	def IsUntilCharNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -69361,7 +69511,7 @@ class stzList from stzObject
 
 	#--
 
-	#TODO: Move IsToListNamedParam() here
+	#TODO // Move IsToListNamedParam() here
 
 	def IsUntilListNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -71205,7 +71355,7 @@ class stzList from stzObject
 
 	def IsExceptNamedParam()
 		# Used initially by ReplaceWordsWithMarquersExceptXT(pcByOption, paExcept)
-		#TODO: generalize to all the functions we want to provide exceptions to it
+		#TODO // generalize to all the functions we want to provide exceptions to it
 
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Except )
@@ -81883,6 +82033,74 @@ class stzList from stzObject
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and
 		   This.Item(1) = :AfterManyPositions
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsToEndOfWordNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :ToEndOfWord
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEndOfWordNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :EndOfWord
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToEndOfLineNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :ToEndOfLine
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEndOfLineNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :EndOfLine
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsToEndOfSentenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :ToEndOfSentence
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsEndOfSentenceNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :EndOfSentence
 
 			return TRUE
 

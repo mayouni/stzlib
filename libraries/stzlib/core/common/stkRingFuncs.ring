@@ -7,7 +7,7 @@
 #     softanza object, then the softanza version will apply, unless you
 #     you opt for the Ring's version using ring_...()
 
-#TODO: Add the ring_...() form of all Ring functions
+#TODO // Add the ring_...() form of all Ring functions
 
 func SoftanzaLogo()
 	return $SOFTANZALOGO

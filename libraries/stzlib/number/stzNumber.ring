@@ -3631,7 +3631,7 @@ class stzNumber from stzObject
 	#----------------------------------------------------#
 
 	def MultiplyByMany(paOtherNumbers)
-		#TODO: Add "These" as alternative of "Many"
+		#TODO // Add "These" as alternative of "Many"
 
 		This.MultiplyByManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
 
@@ -3729,7 +3729,7 @@ class stzNumber from stzObject
 		#>
 	
 	def DivideByMany(paOtherNumbers)
-		#TODO: Add "These" as alternative of "Many"
+		#TODO // Add "These" as alternative of "Many"
 
 		This.DivideByManyXT(paOtherNumbers, :ReturnIntermediateResults = FALSE)
 
@@ -5862,10 +5862,10 @@ class stzNumber from stzObject
 		but pOp = "<>" or pOp = "!"
 			return This.IsDifferentFrom(pValue)
 
-		but pOp = "++" #TODO: check if it works! (++ is reserved by Ring)
+		but pOp = "++" #TODO // check if it works! (++ is reserved by Ring)
 			return This.NextNumber()
 
-		but pOp = "--" #TODO: check if it works! (-- is reserved by Ring)
+		but pOp = "--" #TODO // check if it works! (-- is reserved by Ring)
 			return This.PreviousNumber()
 
 		but pOp = "[]"

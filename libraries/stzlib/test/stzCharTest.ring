@@ -149,7 +149,7 @@ proff()
 
 /*======== TURNABLE NUMBERS
 
-#TODO: Add TurnUp, TurnDown, Turn, IsTurnedUp, IsTurnedDown
+#TODO // Add TurnUp, TurnDown, Turn, IsTurnedUp, IsTurnedDown
 # here in stzChar then in stzString
 
 pron()
@@ -616,7 +616,7 @@ o1 = new stzChar("LATIN CAPITAL LETTER N")
 o1 = new stzChar("ARABIC LETTER SEEN")
 ? o1.Content() #--> س
 
-o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO: fix performance lag!
+o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO // fix performance lag!
 ? o1.Content() #--> Ⅲ
 
 /*-------------------
@@ -855,7 +855,7 @@ o1 = new stzChar("ROMAN NUMERAL THREE")	#TODO: fix performance lag!
 
 /*--------------
 
-? TurnedChars() #TODO: This make confusion with InvertedChars: solve it!
+? TurnedChars() #TODO // This make confusion with InvertedChars: solve it!
 
 /*--------------
 
@@ -1023,7 +1023,7 @@ o1 = new stzChar("⅋")
 
 /*-------------
 
-? CommonLanguagesInScripts([ :cyrillic, :arabic ]) #TODO: Check the performance lag!
+? CommonLanguagesInScripts([ :cyrillic, :arabic ]) #TODO // Check the performance lag!
 #--> 	belarusian
 #	bosnian
 #	kazakh
@@ -1032,7 +1032,7 @@ o1 = new stzChar("⅋")
 
 /*-------------
 
-? CommonLanguagesInScripts([ :cyrillic, :latin ]) #TODO: Check the performance lag!
+? CommonLanguagesInScripts([ :cyrillic, :latin ]) #TODO // Check the performance lag!
 #--> 	belarusian
 #	bosnian
 #	bulgarian
@@ -1044,7 +1044,7 @@ o1 = new stzChar("⅋")
 #	hungarian
 /*-------------
 
-? CommonLanguagesInScripts([ :armenian, :latin ]) #TODO: Check the performance lag!
+? CommonLanguagesInScripts([ :armenian, :latin ]) #TODO // Check the performance lag!
 #--> 	belarusian
 #	hungarian
 #	serbian
