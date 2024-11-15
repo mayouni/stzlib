@@ -42325,7 +42325,7 @@ class stzList from stzObject
 	 #   FINDING ALL ITEMS VERIFYING A GIVEN CONDITION   #
 	#===================================================#
 
-	def FindAllItemsW(pcCondition)
+	def FindAllItemsWCS(pcCondition, pCaseSensitive)
 
 		/*
 		pcCondition can only contain the @i and This[@i...] keywords.
@@ -42347,6 +42347,8 @@ class stzList from stzObject
 		because YieldW() uses the current function FindW() --> Stackoverfolw!
 		*/
 
+		# 1) ~> Checking params
+
 		if CheckParams()
 			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
 				pcCondition = pcCondition[2]
@@ -42357,17 +42359,16 @@ class stzList from stzObject
 			ok
 		ok
 
-		# Identifying the executable section
+		# 2) ~> Identifying the executable section
 
 		nLen = len(@aContent)
 
 		_oCode_ = new stzCCode(pcCondition)
-
 		aExecutableSection = _oCode_.ExecutableSection()
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]
 
-		#WARNING: Very important check!
+		#WARNING // Very important check!
 		# Read explanation in the stzCCode file --> ExectutableSection() method
 		#TODO
 		# check that this is done for all places where
@@ -42383,19 +42384,29 @@ class stzList from stzObject
 			nEnd = nLen
 		ok
 
-		# Composing the code to be evaluated bu the loop
+		# 3) ~> Composing the code to be evaluated bu the loop
 
-			#WARNING # Don't transpile conditional code in ..W() functions!
-			# Only ...WXT() must contain Transpile() feature.
-			# Therefore, the fellowing line is incorrect:
-	
-			# cCode = 'bOk = ( ' + StzCCodeQ(pcCondition).Transpiled() + ' )'
-	
-			# And you should put simply:
+		#WARNING # Don't transpile conditional code in ..W() functions!
+		# Only ...WXT() must contain Transpile() feature.
+		# Therefore, the fellowing line is incorrect:
+
+		# cCode = 'bOk = ( ' + StzCCodeQ(pcCondition).Transpiled() + ' )'
+
+		# And you should put simply:
 
 		cCode = 'bOk = (' + _oCode_.Code() + ' )'
 
-		# Doing the job
+		# 4) ~>  Preparing the list for casesensitivity
+
+		if @CaseSensitive(pCaseSensitive) = TRUE
+			_oCopy_ = This.Copy()
+		else
+			_oCopy_ = This.Copy().LowercaseQ()
+		ok
+
+		cCode = StzStringQ(cCode).ReplaceCSQ("This", "_oCopy_", FALSE).Content()
+
+		# 5) ~>  Doing the job
 
 		anResult = []
 
@@ -42407,6 +42418,7 @@ class stzList from stzObject
 			# supposed to contain only @ and This[@i]-like keywords
 
 			eval(cCode)
+
 			if bOk
 				anResult + @i
 			ok
@@ -42414,6 +42426,55 @@ class stzList from stzObject
 
 		return anResult
 		
+		#< @FunctionAlternativeForms
+
+		def FindAllWCS(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pCondition, pCaseSensitive)
+
+		def FindWCS(pCondition, pCaseSensitive)
+			aResult = This.FindAllItemsWCS(pCondition, pCaseSensitive)
+			return aResult
+
+		def FindWhereCS(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pCondition, pCaseSensitive)
+
+		def FindAllWhereCS(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pCondition, pCaseSensitive)
+
+		def FindAllItemsWhereCS(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pCondition, pCaseSensitive)
+
+		def FindItemsWCS(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pCondition, pCaseSensitive)
+
+		def FindItemsWhereCS(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pCondition, pCaseSensitive)
+
+		def ItemsPositionsWCS(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pCondition, pCaseSensitive)
+
+		def ItemsPositionsWhereCS(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pCondition, pCaseSensitive)
+
+		def PositionsWCS(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pCondition, pCaseSensitive)
+
+		def PositionsOfItemsWCS(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pCondition, pCaseSensitive)
+
+		def PositionsWhereCS(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pCondition, pCaseSensitive)
+
+		def PositionsOfItemsWhereCS(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pCondition, pCaseSensitive)
+
+	#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAllItemsW(pcCondition)
+		return This.FindAllItemsWCS(pcCondition, TRUE)
+
 		#< @FunctionAlternativeForms
 
 		def FindAllW(pCondition)
