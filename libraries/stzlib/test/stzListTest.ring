@@ -2088,9 +2088,10 @@ o1 = new stzList([ 1, 2, [ "a", "b" ], 4, [ "c", "d"], [ "a", "b" ] ])
 # ]
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*-----------
-
+*/
 pron()
 
 ? Q([ "a", "♥", "*" ]).ContainsThese([ "♥", "*"])
@@ -2101,6 +2102,7 @@ o1 = new stzList([ [ "a", "♥", "*" ], [ "♥", "*"], [ "a", "b", "♥", "*" ] 
 #--> TRUE
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*-----
 
@@ -3778,7 +3780,7 @@ proff()
 # Executed in 0.06 second(s) in Ring 1.21
 
 /*============
-
+*/
 pron()
    
 o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
@@ -6849,7 +6851,7 @@ pron()
 ? Q([ "ONE", "TWO", "THREE" ]).Are([ :Uppercase, :Strings ])
 
 proff()
-# Executed in 0.20 second(s).
+# Executed in 0.28 second(s) in Ring 1.21
 
 /*------------------
 
@@ -7508,7 +7510,7 @@ StzListQ( L(' "ا" : "ج" ') ) {
 }
 
 proff()
-# Executed in 0.07 second(s).
+# Executed in 0.07 second(s) in Ring 1.21
 
 /*----------------- #narration : Use of the L() small function
 
@@ -8795,7 +8797,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*------------------
-
+*/
 pron()
 
 StzListQ([ "A", "-", "-", "A", "-", "A", "-", "A" ]) {
@@ -9623,7 +9625,7 @@ StopProfiler()
 #--> Executed in 0.17 second(s)
 
 /*--------- OTHER WALKING TECHNIQUES
-
+*/
 StartProfiler()
 
 StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
@@ -9750,7 +9752,7 @@ StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 }
 
 StopProfiler()
-# Executed in 0.31 second(s).
+# Executed in 0.30 second(s).
 
 /*========================
 
@@ -10873,7 +10875,7 @@ o1 = new stzSplitter( 1:5 )
 #--> [ [ 1, 3 ], [ 4, 5 ] ]
 
 proff()
-# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*-------------
 
@@ -10939,7 +10941,8 @@ pron()
 o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
 
 ? @@( o1.SplitBeforePositions([ 1, 6 ]) )
-#--> ERROR: Incorrect param value! panPos must contain numbers in the range of the splitter bounds.
+#--> ERROR: Incorrect param value!
+# panPos must contain unique numbers between 1 and 5.
 
 proff()
 
@@ -11373,13 +11376,17 @@ pron()
 
 o1 = new stzString("File")
 
-? o1 * 3 		# ~> Returns a new string and leaves o1 as is
+# Returning a new string and leaving o1 as is
+
+? o1 * 3
 #--> FileFileFile
 
-? o1 + "File"		# ~> Idem
+? o1 + "File"
 #--> FileFile
 
-? @@( o1 / 4 )		# ~> Returns a list and leaves o1 as is
+# Returning a list and leaving o1 as is
+
+? @@( o1 / 4 )
 #--> [ "F", "i", "l", "e" ]
 
 ? o1.Content() 	
@@ -11759,7 +11766,7 @@ proff()
 # Executed in 0.05 second(s).
 
 /*------------
-
+*/
 pron()
 
 # A Softanza NullObject is a named object
