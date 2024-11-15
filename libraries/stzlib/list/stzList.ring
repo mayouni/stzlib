@@ -42525,8 +42525,30 @@ class stzList from stzObject
 	# Condditional code can contain keywords other then This[@i],
 	# like @NextItem, @PreviousItem etc.
 
-	def FindAllItemsWXT(pcCondition)
-		
+	def FindAllItemsWCSXT(pcCondition, pCaseSensitive)
+
+		/*
+		pcCondition can only contain the @i and This[@i...] keywords.
+		@NextItem, @PreviousItem, @item ans so on can not be used.
+
+		This is always the better option to take if you want a more
+		performant code.
+
+		If you want to be more expressive and include them in your
+		pccondition string, use FindWXT() instead. 
+
+		WARNING
+
+		We can't use this solution:
+
+			anPos = This.YieldW('@position', pcCondition)
+			return anPos
+
+		because YieldW() uses the current function FindW() --> Stackoverfolw!
+		*/
+
+		# 1) ~> Checking params
+
 		if CheckParams()
 			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
 				pcCondition = pcCondition[2]
@@ -42537,28 +42559,25 @@ class stzList from stzObject
 			ok
 		ok
 
-		# Identifying the executable section
+		# 2) ~> Identifying the executable section
 
 		nLen = len(@aContent)
 
 		_oCode_ = new stzCCode(pcCondition)
 		_oCode_.Transpile() # The sole difference with ..W() form of the function
 
-			#WARNING
-			# If you use _oCode_ variable name to assign a stzCCode object
-			# to it in your code then you will get an error of an object
-			# trying to destroy itself! That's why I used _ and _ bounds
-			# here to minimise that risk!
-	
-			#TODO // ~> Clearly specify this in the documentatio,!
+		#WARNING
+		# If you use _oCode_ variable name to assign a stzCCode object
+		# to it in your code then you will get an error of an object
+		# trying to destroy itself! That's why I used _ and _ bounds
+		# here to minimise that risk!
 
-			#TODO // Review all the places in the codebase that could
-			# contains a similar error!
+		#TODO // ~> Clearly specify this in the documentation!
 
-		# Getting the bounds of the executable section
+		#TODO // Review all the places in the codebase that could
+		# contains a similar error!
 
 		aExecutableSection = _oCode_.ExecutableSection()
-
 		nStart = aExecutableSection[1]
 		nEnd   = aExecutableSection[2]
 
@@ -42572,9 +42591,21 @@ class stzList from stzObject
 			nEnd = nLen
 		ok
 
-		# Composing the code to be evaluated by the loop
+		# 3) ~> Composing the code to be evaluated bu the loop
 
-		cCode = 'bOk = (' + _oCode_.Content() + ' )'
+		cCode = 'bOk = (' + _oCode_.Code() + ' )'
+
+		# 4) ~>  Preparing the list for casesensitivity
+
+		if @CaseSensitive(pCaseSensitive) = TRUE
+			_oCopy_ = This.Copy()
+		else
+			_oCopy_ = This.Copy().LowercaseQ()
+		ok
+
+		cCode = StzStringQ(cCode).ReplaceCSQ("This", "_oCopy_", FALSE).Content()
+
+		# 5) ~>  Doing the job
 
 		anResult = []
 
@@ -42582,10 +42613,12 @@ class stzList from stzObject
 
 			#WARNING
 			# You don't need to use any sophisticated keywords
-			# like @item = @aContent[@i], since the code has
-			# been already transpiled.
+			# like @item = @aContent[@i], since the code has been
+			# transpiled above and hence is garanteed to containing
+			# only @ and This[@i]-like keywords
 
 			eval(cCode)
+
 			if bOk
 				anResult + @i
 			ok
@@ -42593,6 +42626,55 @@ class stzList from stzObject
 
 		return anResult
 		
+		#< @FunctionAlternativeForms
+
+		def FindAllWCSXT(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCSXT(pCondition, pCaseSensitive)
+
+		def FindWCSXT(pCondition, pCaseSensitive)
+			aResult = This.FindAllItemsWCSXT(pCondition, pCaseSensitive)
+			return aResult
+
+		def FindWhereCSXT(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCSXT(pCondition, pCaseSensitive)
+
+		def FindAllWhereCSXT(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCSXT(pCondition, pCaseSensitive)
+
+		def FindAllItemsWhereCSXT(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCSXT(pCondition, pCaseSensitive)
+
+		def FindItemsWCSXT(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCSXT(pCondition, pCaseSensitive)
+
+		def FindItemsWhereCSXT(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCSXT(pCondition, pCaseSensitive)
+
+		def ItemsPositionsWCSXT(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCSXT(pCondition, pCaseSensitive)
+
+		def ItemsPositionsWhereCSXT(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCSXT(pCondition, pCaseSensitive)
+
+		def PositionsWCSXT(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCSXT(pCondition, pCaseSensitive)
+
+		def PositionsOfItemsWCSXT(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCSXT(pCondition, pCaseSensitive)
+
+		def PositionsWhereCSXT(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCSXT(pCondition, pCaseSensitive)
+
+		def PositionsOfItemsWhereCSXT(pCondition, pCaseSensitive)
+			return This.FindAllItemsWCSXT(pCondition, pCaseSensitive)
+
+	#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAllItemsWXT(pcCondition)
+		return This.FindAllItemsWCSXT(pcCondition, TRUE)
+
 		#< @FunctionAlternativeForms
 
 		def FindAllWXT(pCondition)
@@ -42636,6 +42718,79 @@ class stzList from stzObject
 
 	#>
 
+	#>
+
+/*
+	def FindAllItemsWXT(pcCondition)
+		
+		if CheckParams()
+			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
+				pcCondition = pcCondition[2]
+			ok
+
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+		ok
+
+		# Identifying the executable section
+
+		nLen = len(@aContent)
+
+		_oCode_ = new stzCCode(pcCondition)
+		_oCode_.Transpile() # The sole difference with ..W() form of the function
+
+			#WARNING
+			# If you use _oCode_ variable name to assign a stzCCode object
+			# to it in your code then you will get an error of an object
+			# trying to destroy itself! That's why I used _ and _ bounds
+			# here to minimise that risk!
+	
+			#TODO // ~> Clearly specify this in the documentation!
+
+			#TODO // Review all the places in the codebase that could
+			# contains a similar error!
+
+		# Getting the bounds of the executable section
+
+		aExecutableSection = _oCode_.ExecutableSection()
+
+		nStart = aExecutableSection[1]
+		nEnd   = aExecutableSection[2]
+
+		if isString(nEnd) and nEnd = :last
+			nEnd = nLen
+		ok
+
+		if nEnd < 0
+			nEnd += nLen
+		but nEnd = :Last
+			nEnd = nLen
+		ok
+
+		# Composing the code to be evaluated by the loop
+
+		cCode = 'bOk = (' + _oCode_.Content() + ' )'
+
+		anResult = []
+
+		for @i = nStart to nEnd
+
+			#WARNING
+			# You don't need to use any sophisticated keywords
+			# like @item = @aContent[@i], since the code has
+			# been already transpiled.
+
+			eval(cCode)
+			if bOk
+				anResult + @i
+			ok
+		next
+
+		return anResult
+		
+
+*/
 	  #--------------------------------------------------#
 	 #  FINDING FIRST ITEM VERIFYING A GIVEN CONDITION  #
 	#==================================================#
