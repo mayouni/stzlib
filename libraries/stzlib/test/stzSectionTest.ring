@@ -1,6 +1,6 @@
 load "../max/stzmax.ring"
 
-#TODO: check errors!
+#TODO // check errors!
 
 /*----
 

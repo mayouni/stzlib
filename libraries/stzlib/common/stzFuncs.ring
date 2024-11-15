@@ -1,5 +1,5 @@
 
-#TODO: general - study the compatibility of softanza comments
+#TODO // general - study the compatibility of softanza comments
 # with JSDoc (https://jsdoc.app/)
 #--> Create a generator of a static web site documentation
 
@@ -15,7 +15,7 @@ Programming, by Heart! By: M.Ayouni╭
 ━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
   ╰╯'
 
-#TODO: Add these alternatives to NumberOf...() functions, allover the library:
+#TODO // Add these alternatives to NumberOf...() functions, allover the library:
 #	- HowMany...() : in singular and plural forms, exp: HowManyItem() and HowManyItems()
 #	- Count...()
 # NB: Many have been added! Check those that haven't.
@@ -72,7 +72,7 @@ _CacheFileHandler = NULL
 
 _cCacheMemoryString = ""
 
-_acRingFunctions = [ // #TODO: Add the new functions added in Ring 1.21
+_acRingFunctions = [ // #TODO // Add the new functions added in Ring 1.21
 	"acos",
 	"add",
 	"addattribute",
@@ -313,7 +313,7 @@ _acRingFunctions = [ // #TODO: Add the new functions added in Ring 1.21
 	"write"
 ]
 
-#TODO: Review the list for last ring version
+#TODO // Review the list for last ring version
 _acRingKeywords = [
 	"again",
 	"and",
@@ -2042,7 +2042,7 @@ func @ForEach(p, pIn)
 # --> In this case, you deactivate param checking inside
 # functions, and if you need it, do it by yourself outside teh loop/
 
-func SetParamCheckingTo(bTrueOrFalse) #TODO: Test it!
+func SetParamCheckingTo(bTrueOrFalse) #TODO // Test it!
 	_bParamCheck = bTrueOrFalse
  
 	#< @FunctionAlternatives
@@ -3185,7 +3185,7 @@ func IsCharOrObject(p)
 
 #--
 
-func ListOfListsOfStzTypes() #TODO: complete the list
+func ListOfListsOfStzTypes() #TODO // complete the list
 	return [
 		:stzListOfObjects,
 		:stzListOfNumbers,
@@ -4167,7 +4167,7 @@ func IsRingOrStzType(pcStr)
 	def @IsStzOrRingType(pcStr)
 		return IsRingOrStzType(pcStr)
 
-	#-- #TODO: Add other alternatives (see IsRingType() and IsStzType() functions)
+	#-- #TODO // Add other alternatives (see IsRingType() and IsStzType() functions)
 
 
 func StzLen(p)
@@ -4823,7 +4823,7 @@ func HowMany(paList)
 		return HowMany(paList)
 
 	#-- @FunctionMisspelledForms
-	#TODO: Add "Hwo" as an alternative of "Hwo" in all functions
+	#TODO // Add "Hwo" as an alternative of "Hwo" in all functions
 
 	func HwoMany(paList)
 		return HowMany(paList)
@@ -4888,7 +4888,7 @@ func IsStzFindable(p)
 #----
 
 func RingQtClasses()
-	#TODO: Update it tp Ring 1.19
+	#TODO // Update it tp Ring 1.19
 	aRingQtClasses = [
 		:QAbstractAspect,
 		:QAbstractButton,
@@ -5290,7 +5290,7 @@ func NumberOfStzClasses()
 		return NumberOfStzClasses()
 
 func StzClassesXT()
-	#TODO: Update this list!
+	#TODO // Update this list!
 	aStzClassesXT = [
 		# [ :Singular,			:Plural			]
 		[ :stzObject, 			:stzObjects 		],

@@ -18,7 +18,7 @@ ok
 ? _(1234).IsA(:Number).Which(:IsEven)._
 ? _("ring").IsA(:String).Which(:IsLowercase)._
 ? _([]).IsA(:List).Which(:IsEmpty)._
-#TODO: an example for objects
+#TODO // an example for objects
 
 /*----------------- ok
 
@@ -27,7 +27,7 @@ ok
 ? _(1234).IsA(:String).Which(:IsEven)._
 ? _("ring").IsA(:Number).Which(:IsUppercase)._
 ? _("ring").IsA(:String).Which(:IsUppercase)._
-#TODO: an example for objects
+#TODO // an example for objects
 
 /*----------------- ERROR
 

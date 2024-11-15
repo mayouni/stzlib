@@ -37,15 +37,15 @@ https://betterprogramming.pub/pandas-illustrated-the-definitive-visual-guide-to-
 	systems, data frame libraries, and more.
 #TODO Use Apache Parquet as a storage Format
 
-#TODO: Add support of Excel functions (see at the bottom of the file)
+#TODO // Add support of Excel functions (see at the bottom of the file)
 #UPDATA: These Excel-like functions are now supported:
 #--> SUM, PRODUCT, AVERAGE, KOUNT, MAX, and MIN
 
-#TODO: Add Paging feature
+#TODO // Add Paging feature
 
 #TODO : Support SQL statements
 
-#TODO: Add the Join() feature to manage linked tables
+#TODO // Add the Join() feature to manage linked tables
 
 */
 
@@ -2872,7 +2872,7 @@ Class stzTable from stzObject
 		#>
 
 	def TheseCellsToHashList(paCellsPos)
-		#TODO: check if paCells are really cells and belong to the table!
+		#TODO // check if paCells are really cells and belong to the table!
 
 		aResult = []
 		nLen = len(paCellsPos)
@@ -5510,7 +5510,7 @@ Class stzTable from stzObject
 		anPos = FindSubValueInCellCS(pCellCol, pCellRow, pSubValue, pCaseSensitive)
 		anResult = anPos[n]
 
-		#TODO: Implement a more performant alortithm by adding FindNext...()
+		#TODO // Implement a more performant alortithm by adding FindNext...()
 
 		return anResult
 
@@ -9045,7 +9045,7 @@ Class stzTable from stzObject
 		#>
 
 	/// WORKING ON SECTIONS //////////////////////////////////////////////////////////////////////
-	#TODO: Working on SELECTIONS
+	#TODO // Working on SELECTIONS
 
 	  #==========================================================================================#
 	 #  FINDING POSITIONS OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN THE GIVEN SECTION  #
@@ -9616,7 +9616,7 @@ Class stzTable from stzObject
 
 		#--
 
-		#TODO: Add the fellowing semantics to all simular functions in the library
+		#TODO // Add the fellowing semantics to all simular functions in the library
 
 		def ReplaceEachOne(paCellsPos, paNewCellValue)
 			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
@@ -10794,7 +10794,7 @@ Class stzTable from stzObject
 	  #------------------------------------------------------------------------------------------------#
 	 #  REPLACING ALL THE COLUMNS IN THE TABLE WITH A GIVEN NEW COLUMN (PROVIDED AS A LIST OF CELLS)  #
 	#------------------------------------------------------------------------------------------------#
-	#TODO: check for performance
+	#TODO // check for performance
 
 	def ReplaceAllCols(paNewCol)
 		if CheckParams()
@@ -10831,7 +10831,7 @@ Class stzTable from stzObject
 	  #------------------------------------------------------------------------------------------------------------#
 	 #  REPLACING ALL THE COLUMNS IN THE TABLE WITH A GIVEN NEW COLUMN (PROVIDED AS A LIST OF CELLS) -- EXTENDED  #
 	#------------------------------------------------------------------------------------------------------------#
-	#TODO: check for performance
+	#TODO // check for performance
 
 	def ReplaceAllColsXT(paNewCol)
 		if CheckParams()
@@ -10906,7 +10906,7 @@ Class stzTable from stzObject
 
 		#>
 
-	#TODO: Add ReplaceTheseColsByManyXT()
+	#TODO // Add ReplaceTheseColsByManyXT()
 	#--> When the new provided cols are all used --> restart from the first one
 
 	  #===================================================================#
@@ -13614,7 +13614,7 @@ Class stzTable from stzObject
 		# many mooving parts. This goes against the "RELIABILITY"
 		# goal, because it complexifies the code and diminishes
 		# it's readbility and modifiability.
-		#TODO: Review this implentation!
+		#TODO // Review this implentation!
 
 		/* EXAMPLE
 
@@ -13655,7 +13655,7 @@ Class stzTable from stzObject
 
 				return This.ShowXT([ :UnderLineHeader = TRUE ])
 
-			but paOptions = :ShowRowNumbers or	#TODO: Add those named params
+			but paOptions = :ShowRowNumbers or	#TODO // Add those named params
 			    paOptions = :AddRowNumbers or	# to ShowXT([ ... ])
 			    paOptions = :WithRowNumbers or
 			    paOptions = :RowNumbers

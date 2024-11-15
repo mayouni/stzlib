@@ -6,7 +6,7 @@
 
 # See examples in stzExtLang.ring file
 
-#TODO: Organize this file by language
+#TODO // Organize this file by language
 
   ///////////////////
  ///  VARIABLES  ///
@@ -1053,7 +1053,7 @@ func WITH_(pcSQL)
 
 	SELECT([ :name, :score ]),
 	FROM_( :persons ),
-	WHERE_( 'score > 100' ) #TODO: check WHERE_( 'name = "Dan"' );
+	WHERE_( 'score > 100' ) #TODO // check WHERE_( 'name = "Dan"' );
 
 	])
 

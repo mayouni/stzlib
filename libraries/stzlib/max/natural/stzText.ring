@@ -9,7 +9,7 @@
 #										#
 #-------------------------------------------------------------------------------#
 
-#TODO: Replace all for/in loops by for loops
+#TODO // Replace all for/in loops by for loops
 
   ///////////////////
  ///   GLOBALS   ///
@@ -1207,7 +1207,7 @@ class stzText from stzString
 		cResult = StzListOfStringsQ( acListOfChars ).ConcatenateQ().SimplifyQ().Content()
 		return cResult
 		
-	#TODO: Not optimised for large texts!
+	#TODO // Not optimised for large texts!
 	def OnlyArabic()
 		acListOfChars = StzListQ( This.ToListOfChars() ).ItemsW('
 			StzCharQ(@item).IsNeutral() or
@@ -1291,7 +1291,7 @@ class stzText from stzString
 			return This.IsLatinWord()
 
 
-	#TODO: Add other scripts supported by Unicode standard
+	#TODO // Add other scripts supported by Unicode standard
 
 
 	  #----------------------------------------------------------#
@@ -2034,7 +2034,7 @@ class stzText from stzString
 		
 		cWord = ""
 		
-		#TODO: replace for/in with normal for loop --> better performance
+		#TODO // replace for/in with normal for loop --> better performance
 
 		for aLine in aTemp
 			cWord = aLine[1]
@@ -2138,7 +2138,7 @@ class stzText from stzString
 
 		next
 
-		#TODO: When RegExp is implemented, use it instead.
+		#TODO // When RegExp is implemented, use it instead.
 
 		# ? ( clock() - t0 ) / clockspersecond()
 
@@ -3779,7 +3779,7 @@ class stzText from stzString
 		#>
 	
 	  #-----------------------------------------#
-	 #      FINDING NTH OCCURRENCE OF WORD     #TODO: Test it
+	 #      FINDING NTH OCCURRENCE OF WORD     #TODO // Test it
 	#-----------------------------------------#
 	
 	# In principal, words are managed in lowercase (and this is what
@@ -3827,7 +3827,7 @@ class stzText from stzString
 			return This.FindNthOccurrenceOfWordCS(n, pcWord, pCaseSensitive)
 
 	  #-------------------------------------------#
-	 #      FINDING FIRST OCCURRENCE OF WORD     #TODO: Test it!
+	 #      FINDING FIRST OCCURRENCE OF WORD     #TODO // Test it!
 	#-------------------------------------------#
 	
 	def FindFirstOccurrenceOfWordCS(pcWord, pCaseSensitive)
@@ -3866,7 +3866,7 @@ class stzText from stzString
 		#>
 
 	  #------------------------------------------#
-	 #      FINDING LAST OCCURRENCE OF WORD     #TODO: test it!
+	 #      FINDING LAST OCCURRENCE OF WORD     #TODO // test it!
 	#------------------------------------------#
 
 	def FindLastOccurrenceOfWordCS(pcWord, pCaseSensitive)
@@ -4770,7 +4770,7 @@ class stzText from stzString
 
 		return anResult
 
-	def RemoveDiacritics() #TODO: test this!
+	def RemoveDiacritics() #TODO // test this!
 
 		/*
 		Diacritics are marks placed above or below (or sometimes next to)
@@ -4828,12 +4828,12 @@ class stzText from stzString
 				:Where = '{ StzCharQ(@char).IsGreekDiacritic() }',
 				:With  = 'StzCharQ(@char).RemoveGreekDiacritic()'
 			)
-			#TODO: I assumed that greek works like latin for diacritics,
+			#TODO // I assumed that greek works like latin for diacritics,
 			# but check this!
 	
 		on :Hebrew
 			This.ToStzString().RemoveCharsWXT('{ StzCharQ(@char).IsHebrewDiacritic() }')
-			#TODO: I assumed that hebrew works like arabic for diacritics,
+			#TODO // I assumed that hebrew works like arabic for diacritics,
 			# but check this!
 	
 		other
@@ -4929,7 +4929,7 @@ class stzText from stzString
 	*/
 
 	def RemoveDiacriticsInLocale(pLocale)
-		#TODO: add more speciefic languages (only german is managed here)
+		#TODO // add more speciefic languages (only german is managed here)
 		# and special cases as documented in the Unicode standard here:
 		#--> http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 

@@ -15,7 +15,7 @@ func Section(n1, n2, nSize)
 	aResult = oSection.Content()
 	return aResult
 
-	#TODO:
+	#TODO //
 	# Bug in Ring: see with Mahmoud why returning the object directly
 	# does nt work :return oSection.Content()
 
@@ -224,7 +224,7 @@ class stzSection
 
 		@aContent = [n1, n2]
 
-		#TODO: do same behavior in stzList.Section()
+		#TODO // do same behavior in stzList.Section()
 		#TODO : Add SectionXT() that allows using out of index params and return accurate results
 
 

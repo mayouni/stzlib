@@ -2875,7 +2875,7 @@ pron()
 ? Q("🔻").Unicode()
 #--> 53
 
-? StzStringQ("🔻").CharName() #TODO: Correct this
+? StzStringQ("🔻").CharName() #TODO // Correct this
 #!--> QUESTION MARK
 
 proff()
@@ -3159,7 +3159,7 @@ Proff()
 
 /*------------ #perf
 
-#TODO: Check performance! Rethink the subStrings() design
+#TODO // Check performance! Rethink the subStrings() design
 #UPDATE: done! After redesigning SubStrings() function,
 # performance of the following sample went down
 # from 144.36 seconds to 12.75 seconds!
@@ -5215,7 +5215,7 @@ Q("℺℻ℚ") {
 proff()
 # Executed in 0.16 second(s)
 
-/*-------------- #TODO: Use the normal way (ExecutableSection) and check for perf
+/*-------------- #TODO // Use the normal way (ExecutableSection) and check for perf
 #todo check after including yield() function
 
 pron()
@@ -7253,7 +7253,7 @@ o1 = new stzString(str)
 # 	[ 22000102, 22000102 ]
 # ]
 
-#TODO: Try to compose the string by pushing the first part in the middle or a the end,
+#TODO // Try to compose the string by pushing the first part in the middle or a the end,
 # and if stzString is still as performant!
 
 proff()

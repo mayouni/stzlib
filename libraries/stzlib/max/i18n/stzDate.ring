@@ -1,5 +1,5 @@
 /*
-#TODO: Implement it with QDate and QDateTime()
+#TODO // Implement it with QDate and QDateTime()
 #TODO review the class design to be consistent with all other classes
 
 */

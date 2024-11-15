@@ -201,7 +201,7 @@ class stzSet from stzList
 	#---------------------------------#
 
 	def UnionWithMany(paListOfSets)
-		#TODO: Add "These" as alternative of "Many"
+		#TODO // Add "These" as alternative of "Many"
 
 		if NOT @IsListOfSets(paListOfSets)
 			StzRaise(stzSetError(:CanNotComputeUnionWithNonSets))
@@ -223,7 +223,7 @@ class stzSet from stzList
 			return new stzSet( This.UnionWithMany(paListOfSets))
 	
 	def UnifyWithMany(paListOfSets)
-		#TODO: Add "These" as alternative of "Many"
+		#TODO // Add "These" as alternative of "Many"
 
 		This.Update( This.UnionWithMany(paListOfSets) )
 

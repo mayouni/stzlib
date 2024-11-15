@@ -229,7 +229,7 @@ o1 = new stzListOfStrings([ "130", "12500", "17" ])
 proff()
 # Executed in 0.09 second(s)
 
-#TODO: Rethink stzListOfStrings main container
+#TODO // Rethink stzListOfStrings main container
 # Problem: QStringList() takes time in constructing the object
 
 /*---------------
@@ -791,7 +791,7 @@ o1 = new stzListOfPairs([
 proff()
 # Executed in 0.05 second(s)
 
-/*----------- #TODO: check it!
+/*----------- #TODO // check it!
 
 pron()
 

@@ -1445,7 +1445,7 @@ func SizeInBytesPerChar64XT(pacChars)
 
 	return aResult
 
-#========== #TODO: add XT(), 32() and 64() prefixes
+#========== #TODO // add XT(), 32() and 64() prefixes
 
 func SizeInKiloBytes(item)
 	return BytesToKiloBytes( SizeInBytes(item) )

@@ -11,7 +11,7 @@
 /*
 	Mainly, this class servers as a parent for the common features
 	ot its inherited classes, namely stzNumber, stzString, stzList, etc.
-	#TODO: All the common features are not abstructed yet. Some of them
+	#TODO // All the common features are not abstructed yet. Some of them
 	# are duplicated due to semantic differences between classes.
 
 	All the meta data provided by Ring to objects are provided by this class:
@@ -4988,7 +4988,7 @@ class stzObject
 			ok
 		ok
 
-		#TODO: Add other Stz types
+		#TODO // Add other Stz types
 
 		bOfType1 = FALSE
 		bOfType2 = FALSE

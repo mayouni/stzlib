@@ -6,7 +6,7 @@ load "../max/stzmax.ring"
 */
 pron()
 
-	#WARNING: This code works as expected and even executes
+	#WARNING// This code works as expected and even executes
 	# the final proff() function correctly, but it returns
 	# an internal error I cant't understand:
 	# 
@@ -19,6 +19,28 @@ pron()
 pState1 = ring_state_init()
 pState2 = ring_state_init()
 pNotAState = NULL
+
+? isPointer(pstate1)
+#--> TRUE
+
+? isPointer(pState2)
+#--> TRUE
+
+? isPointer(pNotAState)
+#--> FALSE
+
+? type(pState1)
+#--> RINGSTATE
+
+? type(pState2)
+#--> RINGSTATE
+
+? type(pNotAState)
+#--> STRING
+
+
+? IsRingState(pState1)
+#--> TRUE
 
 ? IsRingState(pState2) # A Softanza function
 #--> TRUE

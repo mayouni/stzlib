@@ -82,7 +82,7 @@ class stzFile from stzObject
 	def Size()
 		return oQFileInfo.size()
 
-	def IsTextFile()	#TODO: check if QMimeData() class could help
+	def IsTextFile()	#TODO // check if QMimeData() class could help
 				# NB : QMimeType() is better but not supported in Ring 1.14
 		if This.ContainsEndOfFile()
 			return TRUE

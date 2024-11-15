@@ -5244,7 +5244,7 @@ def init(paList)
 		nLen = len(aContent)
 
 		anNumbers = This.NumbersBetween(n1, n2)
-		nResult = ARandomNumberIn(anNumbers) #TODO: Add ARandomItemIn() function to stzRandomFunctions.ring
+		nResult = ARandomNumberIn(anNumbers) #TODO // Add ARandomItemIn() function to stzRandomFunctions.ring
 
 		return nResult
 
@@ -5506,7 +5506,7 @@ def init(paList)
 		nLen = len(aContent)
 
 		anNumbers = This.NumbersNotBetweenIB(n1, n2) #TODO
-		nResult = ARandomNumberIn(anNumbers) #TODO: Add ARandomItemIn() function to stzRandomFunctions.ring
+		nResult = ARandomNumberIn(anNumbers) #TODO // Add ARandomItemIn() function to stzRandomFunctions.ring
 
 		return nResult
 
@@ -6264,7 +6264,7 @@ def init(paList)
 	 #  GETTING N RANDOM NUMBERS OTHER THEN THE GIVEN NUMBERS  #
 	#---------------------------------------------------------#
 	
-	// #TODO: Add alternatives of (DifferentTo / Of / From / With) all over the library!
+	// #TODO // Add alternatives of (DifferentTo / Of / From / With) all over the library!
 
 	def NNumbersOtherThanMany(n, anNumbers)
 

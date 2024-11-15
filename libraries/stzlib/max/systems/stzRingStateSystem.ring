@@ -1,12 +1,8 @@
 
 func IsRingState(pPointer)
+
 	if isPointer(pPointer) and type(pPointer) = "RINGSTATE"
-		try
-			ring_state_runcode(pPointer, ' ')
-			return TRUE
-		catch
-			return FALSE
-		done
+		return TRUE
 
 	else
 		return FALSE
