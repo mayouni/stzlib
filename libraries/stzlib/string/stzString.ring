@@ -2005,7 +2005,7 @@ class stzString from stzObject
 
 
 	def ExtendedToPositionWith(n, pcChar)
-		cResult = This.Copy().ExtendToPositionWithQ(n, pcChar)
+		cResult = This.Copy().ExtendToPositionWithQ(n, pcChar).Content()
 		return This
 
 		#< @FunctionAlternativeForms
@@ -11481,7 +11481,7 @@ class stzString from stzObject
 			return NULL
 
 		but n > nLen
-			return This.Conten()
+			return This.Content()
 
 		else
 			if This.IsRightToleft()
@@ -21400,7 +21400,7 @@ class stzString from stzObject
 			return This
 
 	def BoundedSubStringRemoved(pcSubStr)
-		cResult = This.Copy().RemoveBoundedSubStringQ(pcSubStr)
+		cResult = This.Copy().RemoveBoundedSubStringQ(pcSubStr).Content()
 		return This
 
 	  #---------------------------------------------------------------------#
@@ -21429,7 +21429,7 @@ class stzString from stzObject
 			return This
 
 	def BoundedSubStringRemovedIB(pcSubStr)
-		cResult = This.Copy().RemoveBoundedSubStringIBQ(pcSubStr)
+		cResult = This.Copy().RemoveBoundedSubStringIBQ(pcSubStr).Content()
 		return This
 
 	  #-------------------------------------------------------#
@@ -38097,7 +38097,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringInsertedBeforeNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-		cResult = This.Copy().InsertBeforeNthOccurrenceCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertBeforeNthOccurrenceCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForm
@@ -38420,7 +38420,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringInsertedAfterNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-		cResult = This.Copy().InsertAfterNthOccurrenceCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertAfterNthOccurrenceCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive).Content()
 		return cResult
 
 		def SubStringInsertedAfterNthOccurrenceOfSubStringCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -38499,7 +38499,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringInsertedAfterFirstOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-		cResult = This.Copy().InsertAfterFirstOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertAfterFirstOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
 		return cResult
 
 		def SubStringInsertedAfterFirstOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -38578,7 +38578,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringInsertedAfterLastOccurrenceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-		cResult = This.Copy().InsertAfterLastOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().InsertAfterLastOccurrenceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive).Content()
 		return cResult
 
 		def SubStringInsertedAfterLastOccurrenceOfSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -39398,7 +39398,7 @@ class stzString from stzObject
 	#< @FunctionPassiveForms
 
 	def ReplacedByManyCS(pcSubStr, pacNewSubStr, pCaseSensitive)
-		cResult = This.Copy().ReplaceByManyCSQ(pcSubStr, pacNewSubStr, pCaseSensitive).Conten()
+		cResult = This.Copy().ReplaceByManyCSQ(pcSubStr, pacNewSubStr, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -39637,7 +39637,7 @@ class stzString from stzObject
 	#< @FunctionPassiveForms
 
 	def ReplacedByManyCSXT(pcSubStr, pacNewSubStr, pCaseSensitive)
-		cResult = This.Copy().ReplaceByManyCSXTQ(pcSubStr, pacNewSubStr, pCaseSensitive).Conten()
+		cResult = This.Copy().ReplaceByManyCSXTQ(pcSubStr, pacNewSubStr, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -40140,7 +40140,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringAtPositionNReplacedCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-		cResult = This.Copy().ReplaceSubStringAtPositionNCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceSubStringAtPositionNCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeforms
@@ -40264,7 +40264,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringAtPositionsReplacedCS(panPos, pcSubStr, pcNewSubStr, pCaseSensitive)
-		cResult = This.Copy().ReplaceSubStringAtPositionsCSQ(panPos, pcSubStr, pcNewSubStr, pCaseSensitive)
+		cResult = This.Copy().ReplaceSubStringAtPositionsCSQ(panPos, pcSubStr, pcNewSubStr, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeforms
@@ -40301,7 +40301,7 @@ class stzString from stzObject
 		#>
 
 	def SubStringAtPositionsReplaced(panPos, pcSubStr, pcNewSubStr)
-		cResult = This.Copy().ReplaceSubStringAtPositionsQ(panPos, pcSubStr, pcNewSubStr)
+		cResult = This.Copy().ReplaceSubStringAtPositionsQ(panPos, pcSubStr, pcNewSubStr).Content()
 		return cResult
 
 		#< @FunctionAlternativeforms
@@ -60200,7 +60200,7 @@ n1 = Min(aTemp)
 
 		#>
 
-	def SplittedAtSubStringsW(pcConditon)
+	def SplittedAtSubStringsW(pcCondition)
 		return This.SplitAtSubStringsW(pcCondition)
 
 	  #------------------------------------------------------------------------#
@@ -60232,7 +60232,7 @@ n1 = Min(aTemp)
 
 		#>
 
-	def SplittedAtSubStringsWCSXT(pcConditon, pCaseSensitive)
+	def SplittedAtSubStringsWCSXT(pcCondition, pCaseSensitive)
 		return This.SplitAtSubStringsWCSXT(pcCondition, pCaseSensitive)
 
 	#-- WTHOUT CASESENSITIVITY
@@ -60250,7 +60250,7 @@ n1 = Min(aTemp)
 
 		#>
 
-	def SplittedAtSubStringsWXT(pcConditon)
+	def SplittedAtSubStringsWXT(pcCondition)
 		return This.SplitAtSubStringsWXT(pcCondition)
 
 	  #-------------------------------------------------------------#
@@ -60633,7 +60633,7 @@ n1 = Min(aTemp)
 
 		#>
 
-	def SplittedBeforeCharsWCS(pcConditon, pCaseSensitive)
+	def SplittedBeforeCharsWCS(pcCondition, pCaseSensitive)
 		return This.SplitBeforeCharsWCS(pcCondition, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
@@ -60651,7 +60651,7 @@ n1 = Min(aTemp)
 
 		#>
 
-	def SplittedBeforeCharsW(pcConditon)
+	def SplittedBeforeCharsW(pcCondition)
 		return This.SplitBeforeCharsW(pcCondition)
 
 	  #-----------------------------------------------------------------------#
@@ -60684,7 +60684,7 @@ n1 = Min(aTemp)
 
 		#>
 
-	def SplittedBeforeCharsWCSXT(pcConditon, pCaseSensitive)
+	def SplittedBeforeCharsWCSXT(pcCondition, pCaseSensitive)
 		return This.SplitBeforeCharsWCSXT(pcCondition, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
@@ -60702,7 +60702,7 @@ n1 = Min(aTemp)
 
 		#>
 
-	def SplittedBeforeCharsWXT(pcConditon)
+	def SplittedBeforeCharsWXT(pcCondition)
 		return This.SplitBeforeCharsWXT(pcCondition)
 
 	  #-------------------------------------------------------#
@@ -60741,7 +60741,7 @@ n1 = Min(aTemp)
 
 		#>
 
-	def SplittedAfterCharsWCS(pcConditon, pCaseSensitive)
+	def SplittedAfterCharsWCS(pcCondition, pCaseSensitive)
 		return This.SplitAfterCharsWCS(pcCondition, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
@@ -60759,7 +60759,7 @@ n1 = Min(aTemp)
 
 		#>
 
-	def SplittedAfterCharsW(pcConditon)
+	def SplittedAfterCharsW(pcCondition)
 		return This.SplitAfterCharsW(pcCondition)
 
 	  #----------------------------------------------------------------------#
@@ -60792,7 +60792,7 @@ n1 = Min(aTemp)
 
 		#>
 
-	def SplittedAfterCharsWCSXT(pcConditon, pCaseSensitive)
+	def SplittedAfterCharsWCSXT(pcCondition, pCaseSensitive)
 		return This.SplitAfterCharsWCSXT(pcCondition, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
@@ -60810,7 +60810,7 @@ n1 = Min(aTemp)
 
 		#>
 
-	def SplittedAfterCharsWXT(pcConditon)
+	def SplittedAfterCharsWXT(pcCondition)
 		return This.SplitAfterCharsWXT(pcCondition)
 
 	  #----------------------------------------------------------------#
@@ -79338,7 +79338,7 @@ n1 = Min(aTemp)
 			return This
 
 	def SectionsSwapped(panSection1, panSection2)
-		cResult = This.Copy().SwapSectionsQ(panSection1, panSection2)
+		cResult = This.Copy().SwapSectionsQ(panSection1, panSection2).Content()
 		return cResult
 
 	  #-----------------------------------#
@@ -84785,18 +84785,6 @@ n1 = Min(aTemp)
 		def Spacified()
 			return This.CharsSpacified()
 
-		#--
-
-		def CharsSpacifiedQ()
-		#TODO
-		# Add the fluent form of each passive form in the libraray
-
-			oResult = This.Copy().SpacifyCharsQ()
-			return oResult
-
-			def SpacifiedQ()
-				return This.CharsSpacifiedQ()
-
 		#< @FunctionFutureForm
 
 		def SpacifiedFQ()
@@ -84859,12 +84847,6 @@ n1 = Min(aTemp)
 
 		def SpacifiedUsing(pcSep)
 			return CharsSpacifiedUsing(pcSep)
-
-		#--
-
-		def SpacifiedUsingQ(pcSep)
-			oResult = This.Copy().SpacifyCharsUsingQ(pcSep)
-			return oResult
 
 	  #--------------------------------------------------------------------------#
 	 #  SPACIFYING A GIVEN SUBSTRING INSIDE THE STRING USING A GIVEN SEPARATOR  #
@@ -91406,7 +91388,7 @@ n1 = Min(aTemp)
 			if paBoxOptions[ :AllCorners ] = :Round or
 			   paBoxOptions[ :AllCorners ] = :Rounded
 
-				if isString(bRounded) and bRround = NULL
+				if isString(bRounded) and bRounded = NULL
 					bRounded = TRUE
 				ok
 
@@ -91428,7 +91410,7 @@ n1 = Min(aTemp)
 			but cAllCorners = :Round or
 			    cAllCorners = :Rounded
 
-				if isString(bRounded) and bRround = NULL
+				if isString(bRounded) and bRsound = NULL
 					bRounded = TRUE
 				ok
 
@@ -91439,7 +91421,7 @@ n1 = Min(aTemp)
 			if len(paBoxOptions[:Corners]) = 4 and
 			   StzListQ( paBoxOptions[:Corners] ).IsMadeOfSome([ :Rectangular, :Round ])
 	
-				if isString(bRounded) and bRround = NULL
+				if isString(bRounded) and bRound = NULL
 					bRounded = TRUE
 				ok
 
@@ -93355,6 +93337,10 @@ n1 = Min(aTemp)
 
 	def operator(pOp,pValue)
 
+		#WARNING // DON'T ADD = OPERATOR
+		# Because it causes semantic conflict with
+		# feature in stzExtCode (see CREATE_TABLE sql function)
+
 		// string access : str[n]
 		// string search : str[substr]
 
@@ -93404,12 +93390,6 @@ n1 = Min(aTemp)
 		but pOp = ">>"
 			This.Append(value)
 
-		but pOp = "="
-			if @IsStzObject(pValue)
-				return pValue
-			else
-				return This.IsEqualTo(pValue)
-			ok
 		// oString < str
 
 		but pOp = "<"

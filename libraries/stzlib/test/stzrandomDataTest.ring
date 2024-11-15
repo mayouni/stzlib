@@ -17,7 +17,7 @@ pron()
 ? Q("").FilledWith( AnEnglishWord() + ' & ' + AFrenchWord() ) + NL
 #--> question & soleil
 
-StzGridQ([10, 10]).FillWithQ( CharsBetween("!", "p") ).Show()
+StzGridQ([10, 10]).FillWithQ( CharsBetween("!", "p") ).Show() #TODO // fix it!
 #-->
 #   ! " # $ % & ' ( ) *
 #   + , - . / 0 1 2 3 4
@@ -29,5 +29,6 @@ StzGridQ([10, 10]).FillWithQ( CharsBetween("!", "p") ).Show()
 #   g h i j k l m n o p
 
 proff()
-# Executed in 0.20 second(s)
+# Executed in 0.06 second(s) in Ring 1.21
+# Executed in 0.20 second(s) in Ring 1.19
 

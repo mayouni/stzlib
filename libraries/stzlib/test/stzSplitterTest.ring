@@ -23,7 +23,7 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.13 second(s) in Ring 1.21
+# Executed in 0.08 second(s) in Ring 1.21
 # Executed in 0.24 second(s) in Ring 1.19
 
 /*-----------
@@ -35,13 +35,13 @@ o1 = new stzSplitter(1:10)
 # [ [ 1, 2 ], [ 6, 10 ] ]
 
 ? @@( o1.SplitXT( :AtSections = [ [3,5], [8,9] ] ) )
-#--> [ [1,2], [6,7], [10,10] ]
+#--> [ [ 1, 2 ], [ 6, 7 ], [ 10, 10 ] ]
 
 proff()
-# Executed in 0.14 second(s) in Ring 1.21
+# Executed in 0.12 second(s) in Ring 1.21
 
 /*====================
-
+*/
 pron()
 
 o1 = new stzSplitter(1:10)
@@ -75,7 +75,7 @@ proff()
 # Executed in 0.23 second(s) in Ring 1.20
 
 /*====================
-*/
+
 pron()
 
 o1 = new stzSplitter(1:10)
@@ -108,7 +108,7 @@ o1 = new stzSplitter(1:10)
 #--> [ [ 1, 3 ], [ 4, 10 ] ]
 
 proff()
-# Executed in 0.17 second(s)
+# Executed in 0.15 second(s) in Ring 1.21
 
 /*====================
 
@@ -125,12 +125,11 @@ o1 = new stzSplitter(1:10)
 ? @@( o1.SplitAfter([3, 7]) )
 #--> [ [ 1, 3 ], [ 4, 7 ], [ 8, 10 ] ]
 
-? @@( o1.SplitAfterSection([ 4, 7 ]) )
+? @@( o1.SplitAfterSection(4, 7) )
 #--> [ [ 1, 7 ], [ 8, 10 ] ]
 
-? @@( o1.SplitAfterSection([ 2, 9 ]) ) #TODO: Correct it
-#--> Returned [ 1, 10 ]
-#--> Should return [ [1, 9], [10, 10] ]
+? @@( o1.SplitAfterSection(2, 9) )
+#--> [ [1, 9], [10, 10] ]
 
 ? @@( o1.SplitAfterSections([ [3,5], [7, 8] ]) )
 #--> [ [ 1, 5 ], [ 6, 8 ], [ 9, 10 ] ]
@@ -145,7 +144,8 @@ o1 = new stzSplitter(1:10)
 #--> [ [ 1, 6 ], [ 7, 10 ] ]
 
 proff()
-# Executed in 0.19 second(s)
+# Executed in 0.14 second(s) in Ring 1.21
+# Executed in 0.19 second(s) in Ring 1.20
 
 /*====================
 
@@ -153,17 +153,19 @@ pron()
 
 o1 = new stzSplitter(1:10)
 
-? @@( o1.Split( :ToPartsOfNItems = 3 ) )
-#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 9 ], [ 10, 10 ] ]
-
-? @@( o1.Split( :ToPartsOfExactlyNItems = 3 ) )
+? @@( o1.Split( :ToPartsOfNItems = 3 ) ) # Or :ToPartsOfExactlyNItems
 #--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 9 ] ]
 
+
+? @@( o1.Split( :ToPartsOfNItemsXT = 3 ) ) # XT ~> Adds the remaining part
+#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 9 ], [ 10, 10 ] ]
+
 ? @@( o1.Split( :ToNParts = 4 ) )
-#--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 10 ] ]
+#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
 proff()
-#--> Executed in 0.16 second(s)
+# Executed in 0.13 second(s) in Ring 1.21
+# Executed in 0.16 second(s) in Ringh 1.20
 
 /*--------------------
 
@@ -174,14 +176,21 @@ o1 = new stzSplitter(1:10)
 ? @@( o1.SplitToNParts(2) )
 #--> [ [ 1, 5 ], [ 6, 10 ] ]
 
-? @@( o1.SplitToPartsOfNPositions(2) )
+? @@( o1.SplitToPartsOfNPositions(2) ) + NL
 #--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
-? @@( o1.SplitToPartsOfNPositions(3) )
+#--
+
+? @@( o1.SplitToPartsOfNPositions(3) ) # Same as SplitToPartsOfExactlyNPositions
 #--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 9 ], [ 10, 10 ] ]
 
-? @@( o1.SplitToPartsOfExactlyNPositions(3) )
-#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 9 ] ]
+? @@( o1.SplitToPartsOfNPositionsXT(3) ) + NL # XT ~> adds the remaining part
+#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 9 ], [ 10, 10 ] ]
+
+proff()
+# Executed in 0.03 second(s) in Ring 1.21
+
+/*---
 
 o1 = new stzSplitter(12)
 ? @@( o1.SplitToPartsOfNPositions(5) )
@@ -193,7 +202,9 @@ o1 = new stzSplitter(12)
 proff()
 # Executed in 0.09 second(s)
 
-/*================== TODO: Retest this sample after adding splitting to stzList
+/*==================
+
+pron()
 
 # Softanza is designed with Programmer Experience in mind.
 
@@ -212,43 +223,51 @@ proff()
 
 o1 = new stzList( 1:10 )
 
-? @@( o1.SplitW( 'Q(@position).IsMultipleOf(3)' ) )
+? @@( o1.SplittedWXT( 'Q(@position).IsMultipleOf(3)' ) )
 #--> [ [ 1, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]
 
-? @@( o1.SplitW( :Where = 'Q(@position).IsMultipleOf(3)' ) )
+? @@( o1.SplittedWXT( :Where = 'Q(@position).IsMultipleOf(3)' ) )
 #--> [ [ 1, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]
 
-? @@( o1.SplitW( :At = 'Q(@position).IsMultipleOf(3)' ) )
+? @@( o1.SplittedWXT( :At = 'Q(@position).IsMultipleOf(3)' ) )
 #--> [ [ 1, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]
 
-? @@( o1.SplitAtW( :Where = 'Q(@position).IsMultipleOf(3)' ) )
+? @@( o1.SplittedAtWXT( :Where = 'Q(@position).IsMultipleOf(3)' ) )
 #--> [ [ 1, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]
 
-? @@( o1.SplitAtW( 'Q(@position).IsMultipleOf(3)' ) )
+? @@( o1.SplittedAtWXT( 'Q(@position).IsMultipleOf(3)' ) )
 #--> [ [ 1, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]
 
-? @@( o1.SplitW( :Before = 'Q(@position).IsMultipleOf(3)' ) )
+? @@( o1.SplittedWXT( :Before = 'Q(@position).IsMultipleOf(3)' ) )
 #--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 8 ], [ 9, 10 ] ]
 
-? @@( o1.SplitBeforeW( 'Q(@position).IsMultipleOf(3)' ) )
+? @@( o1.SplittedBeforeWXT( 'Q(@position).IsMultipleOf(3)' ) )
 #--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 8 ], [ 9, 10 ] ]
 
-? @@( o1.SplitBeforeW( :Where = 'Q(@position).IsMultipleOf(3)' ) )
+? @@( o1.SplittedBeforeWXT( :Where = 'Q(@position).IsMultipleOf(3)' ) )
 #--> [ [ 1, 2 ], [ 3, 5 ], [ 6, 8 ], [ 9, 10 ] ]
 
-? @@( o1.SplitW( :After = 'Q(@position).IsMultipleOf(3)' ) )
-#--> 
+? @@( o1.SplittedWXT( :After = 'Q(@position).IsMultipleOf(3)' ) )
+#--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ], [ 10 ] ]
 
-? @@( o1.SplitAfterW( 'Q(@position).IsMultipleOf(3)' ) )
-#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 9 ], [ 10, 10 ] ]
+? @@( o1.SplittedAfterWXT( 'Q(@position).IsMultipleOf(3)' ) )
+#--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ], [ 10 ] ]
 
-? @@( o1.SplitAfterW( :Where = 'Q(@position).IsMultipleOf(3)' ) )
-#--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 9 ], [ 10, 10 ] ]
+? @@( o1.SplittedAfterWXT( :Where = 'Q(@position).IsMultipleOf(3)' ) )
+#--> [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ], [ 10 ] ]
+
+proff()
+# Executed in 0.60 second(s) in Ring 1.21
 
 /*==================
+*/
+pron()
+
+# Used internally by Softanza, but could be useful...
 
 o1 = new stzSplitter(1:10)
 ? @@( o1.GetPairsFromPositions([3, 6, 8]) )
 #--> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
 
-
+proff()
+# Executed in 0.02 second(s) in Ring 1.21

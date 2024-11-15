@@ -383,6 +383,7 @@ func Vl(paVals)
 
 	if oldval() = ""
 		_oldVar = _var
+
 	ok
 
 	func @Vl(paVals)

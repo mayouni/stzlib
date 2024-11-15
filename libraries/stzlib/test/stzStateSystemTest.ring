@@ -1,11 +1,18 @@
-load "stzStateSys.ring"
-load "stzProfSys.ring"
+load "../max/stzmax.ring"
 
-#TODO Add test of stzRingState object
+#TODO Add tests for creating a stzRingState object
 
 /*--- #ring-states Softanza functions
 */
 pron()
+
+	#WARNING: This code works as expected and even executes
+	# the final proff() function correctly, but it returns
+	# an internal error I cant't understand:
+	# 
+	# ~> Error (E3) : Deleting scope while no scope! 
+	# 
+	#TODO # ~> Ask Mahmoud for it
 
 # Some useful Softanza functions for checking Ring states
 
@@ -29,7 +36,7 @@ proff()
 # Executed in 0.01 second(s)
 
 /*=========== #ring Testing the use of Ring states
-*
+
 pron()
 # Creating VM states (Ring Instances in Softanza terms)
 
@@ -89,22 +96,22 @@ pron()
 	ring_state_delete(pState2)
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.07 second(s) in Ring 1.20
 
 /*-----	#ring #ring-state fault-tolerance
-
+*/
 # Desing a fault-tolerant progam in Ring is easy, due to the feature
 # of embedding Ring in Ring as explained here:
 # https://ring-lang.github.io/doc1.20/ringemb.html
 
-# Let's make a program and istruct it to run for codes, each in a
+# Let's make a program and istruct it to run four codes, each in a
 # disticn instance of the Ring VM.
 
 # And let's make some erros in some of these codes, and see how
 # the program will resist and continue its path until ruling them all!
 
 pron()
-//t1 = clock()
 
 	? "PROGRAM STARTED >>>"
 
@@ -147,4 +154,5 @@ pron()
 	? NL + "<<< PROGRAM COMPLETED"
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.09 second(s) in Ring 1.20

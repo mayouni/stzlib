@@ -112,6 +112,13 @@ class stzParser from stzList
 	def MoveToPosition(n)
 		This.SetCurrentPosition(n)
 		
+	def NextPosition()
+		if @nCurrentPosition = This.NumberOfPositions()
+			return @nCurrentPosition
+		else
+			return @nCurrentPosition + 1
+		ok
+
 	def MoveToNextPosition()
 		This.MoveToNextNthPosition(1)
 
@@ -123,7 +130,11 @@ class stzParser from stzList
 		ok
 
 	def PreviousPosition()
-		return @nCurrentPosition
+		if @nCurrentPosition = 1
+			return @nCurrentPosition
+		else
+			return @nCurrentPosition - 1
+		ok
 
 	def SetPreviousPosition(n)
 		if isNumber(n) and StzNumberQ(n).ExistsIn( This.ParsedPositions() )
@@ -156,7 +167,7 @@ class stzParser from stzList
 
 	def LastItem()
 		This.SetCurrentPosition( This.NumberOfParsedItems() )
-		return This.List()[ This.ParsedItems()[ This.NumberOfParsedItems() ] ]
+		return This.List()[ This.ParsedPositions()[ This.NumberOfParsedPositions() ] ]
 
 	def NthItem(n)
 		This.SetCurrentPosition(n)

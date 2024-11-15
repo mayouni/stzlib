@@ -7102,7 +7102,7 @@ class stzList from stzObject
 				return This.InsertBeforeCS(pItem, pNewItem, pCaseSensitive)
 
 	def ItemInsertedBeforeCS(pItem, pNewItem, pCaseSensitive)
-		aResult = This.Copy().InsertBeforeItemCSQ(pItem, pNewItem, pCaseSensitive)
+		aResult = This.Copy().InsertBeforeItemCSQ(pItem, pNewItem, pCaseSensitive).Content()
 		return aResult
 
 		def InsertedBeforeCS(pItem, pNewItem, pCaseSensitive)
@@ -7163,7 +7163,7 @@ class stzList from stzObject
 				return This.InsertAfterCS(pItem, pNewItem, pCaseSensitive)
 
 	def ItemInsertedAfterCS(pItem, pNewItem, pCaseSensitive)
-		aResult = This.Copy().InsertAfterItemCSQ(pItem, pNewItem, pCaseSensitive)
+		aResult = This.Copy().InsertAfterItemCSQ(pItem, pNewItem, pCaseSensitive).Content()
 		return aResult
 
 		def InsertedAfterCS(pItem, pNewItem, pCaseSensitive)
@@ -8086,7 +8086,7 @@ class stzList from stzObject
 	#< @FunctionPassiveForms
 
 	def ReplacedByManyCS(pItem, paNewItems, pCaseSensitive)
-		cResult = This.Copy().ReplaceByManyCSQ(pItem, paNewItems, pCaseSensitive).Conten()
+		cResult = This.Copy().ReplaceByManyCSQ(pItem, paNewItems, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -8939,7 +8939,7 @@ class stzList from stzObject
 		#>
 
 	def AnyItemAtPositionNReplacedCS(n, pNewItem, pCaseSensitive)
-		cResult = This.Copy().ReplaceAnyItemAtPositionNCSQ(n, pNewItem, pCaseSensitive)
+		cResult = This.Copy().ReplaceAnyItemAtPositionNCSQ(n, pNewItem, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeforms
@@ -9024,7 +9024,7 @@ class stzList from stzObject
 	#< @FunctionPassiveForms
 
 	def AnyItemAtPositionNReplaced(n, pNewItem)
-		cResult = This.Copy().ReplaceAnyItemAtPositionNQ(n, pNewItem)
+		cResult = This.Copy().ReplaceAnyItemAtPositionNQ(n, pNewItem).Content()
 		return cResult
 
 		#< @FunctionAlternativeforms
@@ -9114,7 +9114,7 @@ class stzList from stzObject
 	#< @FunctionPassiveForm
 
 	def AnyItemAtPositionsReplacedCS(panPos, pNewItem, pCaseSensitive)
-		cResult = This.Copy().ReplaceAnyItemAtPositionsCSQ(panPos, pNewItem, pCaseSensitive)
+		cResult = This.Copy().ReplaceAnyItemAtPositionsCSQ(panPos, pNewItem, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeforms
@@ -9189,7 +9189,7 @@ class stzList from stzObject
 	#-- @FunctionPassiveForm
 
 	def AnyItemAtPositionsReplaced(panPos, pNewItem)
-		cResult = This.Copy().ReplaceAnyItemAtPositionsQ(panPos, pNewItem)
+		cResult = This.Copy().ReplaceAnyItemAtPositionsQ(panPos, pNewItem).Content()
 		return cResult
 
 		#< @FunctionAlternativeform
@@ -9382,7 +9382,7 @@ class stzList from stzObject
 	#< @FunctionPassiveForms
 
 	def ThisItemAtPositionNReplacedCS(n, pItem, pNewItem, pCaseSensitive)
-		cResult = This.Copy().ReplaceThisItemAtPositionCSQ(n, pItem, pNewItem, pCaseSensitive)
+		cResult = This.Copy().ReplaceThisItemAtPositionCSQ(n, pItem, pNewItem, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -9574,7 +9574,7 @@ class stzList from stzObject
 		#>
 
 	def ThisItemAtPositionsReplacedCS(panPos, pItem, pNewItem, pCaseSensitive)
-		cResult = This.Copy().ReplaceThisItemAtPositionsCSQ(panPos, pItem, pNewItem, pCaseSensitive)
+		cResult = This.Copy().ReplaceThisItemAtPositionsCSQ(panPos, pItem, pNewItem, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeform
@@ -9598,7 +9598,7 @@ class stzList from stzObject
 		#>
 
 	def ThisItemAtPositionsReplaced(panPos, pItem, pNewItem)
-		cResult = This.Copy().ReplaceThisItemAtPositionsQ(panPos, pItem, pNewItem)
+		cResult = This.Copy().ReplaceThisItemAtPositionsQ(panPos, pItem, pNewItem).Content()
 		return cResult
 
 		#< @FunctionAlternativeform
@@ -9671,7 +9671,7 @@ class stzList from stzObject
 		#>
 
 	def TheseItemsAtPositionsReplacedCS(panPos, paItems, pNewItem, pCaseSensitive)
-		cResult = This.Copy().ReplaceTheseItemsAtPositionsCSQ(panPos, paItems, pNewItem, pCaseSensitive)
+		cResult = This.Copy().ReplaceTheseItemsAtPositionsCSQ(panPos, paItems, pNewItem, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeform
@@ -9687,7 +9687,7 @@ class stzList from stzObject
 		This.ReplaceTheseItemsAtPositionsCS(panPos, paItems, pNewItem, TRUE)
 
 	def TheseItemsAtPositionsReplaced(panPos, paItems, pNewItem)
-		cResult = This.Copy().ReplaceTheseItemsAtPositionsQ(panPos, paItems, pNewItem)
+		cResult = This.Copy().ReplaceTheseItemsAtPositionsQ(panPos, paItems, pNewItem).Content()
 		return cResult
 
 		#< @FunctionAlternativeforms
@@ -9786,7 +9786,7 @@ class stzList from stzObject
 		#>
 
 	def TheseItemsAtPositionsReplacedByManyCS(panPos, paItems, pNewItem, pCaseSensitive)
-		cResult = This.Copy().ReplaceTheseItemsAtPositionsByManyCSQ(panPos, paItems, pNewItem, pCaseSensitive)
+		cResult = This.Copy().ReplaceTheseItemsAtPositionsByManyCSQ(panPos, paItems, pNewItem, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeform
@@ -9850,7 +9850,7 @@ class stzList from stzObject
 		#>
 
 	def TheseItemsAtPositionsReplacedByMany(panPos, paItems, pNewItem)
-		cResult = This.Copy().ReplaceTheseItemsAtPositionsByManyQ(panPos, paItems, pNewItem)
+		cResult = This.Copy().ReplaceTheseItemsAtPositionsByManyQ(panPos, paItems, pNewItem).Content()
 		return cResult
 
 		#< @FunctionAlternativeforms
@@ -9951,7 +9951,7 @@ class stzList from stzObject
 		#>
 
 	def ThisItemAtPositionsReplacedByManyCS(panPos, paItems, pNewItem, pCaseSensitive)
-		cResult = This.Copy().ReplaceThisItemAtPositionsByManyCSQ(panPos, paItems, pNewItem, pCaseSensitive)
+		cResult = This.Copy().ReplaceThisItemAtPositionsByManyCSQ(panPos, paItems, pNewItem, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeform
@@ -10022,7 +10022,7 @@ class stzList from stzObject
 		#>
 
 	def ThisItemAtPositionsReplacedByMany(panPos, paItems, pNewItem)
-		cResult = This.Copy().ReplaceThisItemAtPositionsByManyQ(panPos, paItems, pNewItem)
+		cResult = This.Copy().ReplaceThisItemAtPositionsByManyQ(panPos, paItems, pNewItem).Content()
 		return cResult
 
 		#< @FunctionAlternativeform
@@ -10137,7 +10137,7 @@ class stzList from stzObject
 
 
 	def TheseItemsAtPositionsReplacedByManyCSXT(panPos, paItems, pNewItem, pCaseSensitive)
-		cResult = This.Copy().ReplaceTheseItemsAtPositionsByManyCSXTQ(panPos, paItems, pNewItem, pCaseSensitive)
+		cResult = This.Copy().ReplaceTheseItemsAtPositionsByManyCSXTQ(panPos, paItems, pNewItem, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeforms
@@ -10179,7 +10179,7 @@ class stzList from stzObject
 		#>
 
 	def TheseItemsAtPositionsReplacedByManyXT(panPos, paItems, pNewItem)
-		cResult = This.Copy().ReplaceTheseItemsAtPositionsByManyXTQ(panPos, paItems, pNewItem)
+		cResult = This.Copy().ReplaceTheseItemsAtPositionsByManyXTQ(panPos, paItems, pNewItem).Content()
 		return cResult
 
 		#< @FunctionAlternativeforms
@@ -10334,7 +10334,7 @@ class stzList from stzObject
 		#>
 
 	def AnyItemsAtPositionsReplacedByManyCSXT(panPos, paNewItems, pCaseSensitive)
-		cResult = This.Copy().ReplaceAnyItemsAtPositionsByManyCSXTQ(panPos, paNewItems, pCaseSensitive)
+		cResult = This.Copy().ReplaceAnyItemsAtPositionsByManyCSXTQ(panPos, paNewItems, pCaseSensitive).Content()
 		return cResult
 
 		#< @FunctionAlternativeforms
@@ -10417,7 +10417,7 @@ class stzList from stzObject
 		#>
 
 	def AnyItemsAtPositionsReplacedByManyXT(panPos, paNewItems)
-		cResult = This.Copy().ReplaceAnyItemsAtPositionsByManyXTQ(panPos, paNewItems)
+		cResult = This.Copy().ReplaceAnyItemsAtPositionsByManyXTQ(panPos, paNewItems).Content()
 		return cResult
 
 		#< @FunctionAlternativeforms
@@ -13343,7 +13343,7 @@ class stzList from stzObject
 		#>
 
 	def ItemsReplacedW(pCondition, pOtherItem)
-		aResult = This.Copy().ReplaceItemsW(pCondition, pOtherItem)
+		aResult = This.Copy().ReplaceItemsWQ(pCondition, pOtherItem).Content()
 		return aResult
 
 	  #--------------------------------------------------------#
@@ -13375,7 +13375,7 @@ class stzList from stzObject
 		#>
 
 	def ItemsReplacedWXT(pCondition, pOtherItem)
-		aResult = This.Copy().ReplaceItemsW(pCondition, pOtherItem)
+		aResult = This.Copy().ReplaceItemsWQ(pCondition, pOtherItem).Content()
 		return aResult
 
 	  #----------------------------------#
@@ -15332,7 +15332,7 @@ class stzList from stzObject
 		#>
 
 	def RangeRemoved(pnStart, pnRange)
-		aResult = This.Copy().RemoveRangeQ(pnStart, pnRange)
+		aResult = This.Copy().RemoveRangeQ(pnStart, pnRange).Content()
 		return aResult
 
 	  #-----------------------------------#
@@ -15658,7 +15658,7 @@ class stzList from stzObject
 			return This
 
 	def SectionsSwapped(panSection1, panSection2)
-		cResult = This.Copy().SwapSectionsQ(panSection1, panSection2)
+		cResult = This.Copy().SwapSectionsQ(panSection1, panSection2).Content()
 		return cResult
 
 	  #------------------------------------#
@@ -30621,7 +30621,7 @@ class stzList from stzObject
 				return This
 	
 	def RepeatedLeadingAndTrailingItemsRemoved()
-		aResult = This.Copy().RemoveRepeatedLEadingAndTrailingItems()
+		aResult = This.Copy().RemoveRepeatedLeadingAndTrailingItemsQ().Content()
 		return aResult
 
 		def RepeatedTrailingAndLeadingItemsRemoved()
@@ -30924,6 +30924,10 @@ class stzList from stzObject
 	#TODO #WARNING
 	# ~> Operators should adopt same semantics in all classes...
 
+	#WARNING // DON'T ADD = OPERATOR
+	# Because it causes semantic conflict with
+	# feature in stzExtCode (see CREATE_TABLE sql function)
+
 	def operator(pcOp, pValue)
 		
 		if pcOp = "[]"
@@ -31011,13 +31015,6 @@ class stzList from stzObject
 		// Add an item at the end of the list
 		but pcOp = ">>"
 			This.Add(pValue)
-
-		but pcOp = "="
-			if @IsStzObject(pValue)
-				return pValue
-			else
-				return This.IsEqualTo(pValue)
-			ok
 
 		but pcOp = "=="
 			return This.IsStrictlyEqualTo(pValue)
@@ -31260,13 +31257,10 @@ class stzList from stzObject
 				aResult = @aContent
 
 			else
-				nLen = len(@aContent)
 				aResult = []
 	
 				for i = 1 to p
-					for j = 1 to nLen
-						aResult + @aContent[j]
-					next
+					aResult + @aContent
 				next
 			ok
 
@@ -40293,56 +40287,6 @@ class stzList from stzObject
 		nResult = nLen - nPos + 1
 		return nResult
 
-/*
-		if CheckParams()
-			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
-				pItem = pItem[2]
-			ok
-
-			if isObject(pItem) and NOT @IsNamedObject(pItem)
-				StzRaise("Can't process! Objects, unless they are named objects, can not be found yet.")
-			ok
-
-			if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-				pCaseSensitive = pCaseSensitive[2]
-			ok
-		ok
-
-		acReversed = ring_reverse( StzListQ(This.Content()).Stringified() )
-
-		# Reversing the list after stringifying it
-
-		nLen = len(acReversed)
-
-		# Stringifying the item to look for
-
-		cItem = ""
-		if isList(pItem) or @IsNamedObject(pItem)
-			cItem = @@(pItem)
-		else
-			cItem = Q(pItem).Stringified()
-		ok
-
-		# Managing case sensitivity
-
-		if pCaseSensitive = FALSE
-			cItem = ring_lower(cItem)
-			for i = 1 to nLen
-				acReversed[i] = ring_lower(acReversed[i])
-			next
-		ok
-
-		# Doing the job
-
-		nResult = 0
-
-		n = ring_find(acReversed, cItem)
-		if n > 0
-			nResult = nLen - n + 1
-		ok
-
-		return nResult
-*/
 		#< @FunctionAlternativeForms
 
 		def FindLastCS(pItem, pCaseSensitive)
@@ -55946,7 +55890,7 @@ class stzList from stzObject
 			return This
 
 	def SplittedAtPosition(n)
-		aResult = This.Copy().SplitAtPositionQ(n)
+		aResult = This.Copy().SplitAtPositionQ(n).Content()
 		return aResult
 
 		def SplitsAtPosition(n)
@@ -55965,7 +55909,7 @@ class stzList from stzObject
 			aResult + [ aSections[i][1], aSections[i][nLenTemp] ]
 		next
 
-		return aResult
+		This.UpdateWith(aResult)
 
 		def SplitAtPositionAsSectionsQ(n)
 			This.SplitAtPositionAsSections(n)
@@ -55978,7 +55922,7 @@ class stzList from stzObject
 				return This.SplitAtPositionAsSectionsQ(p)
 
 	def SplittedAtPositionAsSections(n)
-		aResult = This.Copy().SplitAtPositionAsSectionsQ(n)
+		aResult = This.Copy().SplitAtPositionAsSectionsQ(n).Content()
 		return aResult
 
 		def SplitsAtPositionAsSections(n)
@@ -57121,7 +57065,7 @@ class stzList from stzObject
 	def SplitToNParts(n)
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitToNParts(n)
 		aResult = This.Sections(aSections)
-		return aResult	
+		This.UpdateWith(aResult)
 
 		def SplitToNPartsQ(n)
 			This.SplitToNParts(n)
@@ -57141,7 +57085,7 @@ class stzList from stzObject
 	def SplitAround(p)
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitAround(p)
 		aResult = This.Sections(aSections)
-		return aResult
+		This.UpdateWith(aResult)
 
 		def SplitAroundQ(p)
 			This.SplitAround(p)
@@ -57159,7 +57103,7 @@ class stzList from stzObject
 	def SplitAroundIB(p)
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundIB(p)
 		aResult = This.Sections(aSections)
-		return aResult
+		This.UpdateWith(aResult)
 
 		def SplitAroundIBQ(p)
 			This.SplitAroundIB(p)
@@ -57179,7 +57123,7 @@ class stzList from stzObject
 	def SplitAroundPosition(n)
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundPosition(n)
 		aResult = This.Sections(aSections)
-		return aResult
+		This.UpdateWith(aResult)
 
 		def SplitAroundPositionQ(n)
 			This.SplitAroundPosition(n)
@@ -57197,7 +57141,7 @@ class stzList from stzObject
 	def SplitAroundPositionIB(n)
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundPositionIB(n)
 		aResult = This.Sections(aSections)
-		return aResult
+		This.UpdateWith(aResult)
 
 		def SplitAroundPositionIBQ(n)
 			This.SplitAroundPositionIB(n)
@@ -57217,7 +57161,7 @@ class stzList from stzObject
 	def SplitAroundPositions(panPos)
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundPositions(panPos)
 		aResult = This.Sections(aSections)
-		return aResult
+		This.UpdateWith(aResult)
 
 		def SplitAroundPositionsQ(panPos)
 			This.SplitAroundPositions(panPos)
@@ -57235,7 +57179,7 @@ class stzList from stzObject
 	def SplitAroundPositionsIB(panPos)
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundPositionsIB(panPos)
 		aResult = This.Sections(aSections)
-		return aResult
+		This.UpdateWith(aResult)
 
 		def SplitAroundPositionsIBQ(panPos)
 			This.SplitAroundPositionsIB(panPos)
@@ -57255,7 +57199,7 @@ class stzList from stzObject
 	def SplitAroundSection(n1, n2)
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundSection(n1, n2)
 		aResult = This.Sections(aSections)
-		return aResult
+		This.UpdateWith(aResult)
 
 		def SplitAroundSectionQ(n1, n2)
 			This.SplitAroundSection(n1, n2)
@@ -57273,7 +57217,7 @@ class stzList from stzObject
 	def SplitAroundSectionIB(n1, n2)
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundSectionIB(n1, n2)
 		aResult = This.Sections(aSections)
-		return aResult
+		This.UpdateWith(aResult)
 
 		def SplitAroundSectionIBQ(n1, n2)
 			This.SplitAroundSectionIB(n1, n2)
@@ -57293,7 +57237,7 @@ class stzList from stzObject
 	def SplitAroundSections(paSections)
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundSections(paSections)
 		aResult = This.Sections(aSections)
-		return aResult
+		This.UpdateWith(aResult)
 
 		def SplitAroundSectionsQ(paSections)
 			This.SplitAroundSections(paSections)
@@ -57311,7 +57255,7 @@ class stzList from stzObject
 	def SplitAroundSectionsIB(paSections)
 		aSections = StzSplitterQ(This.NumberOfItems()).SplitAroundSectionsIB(paSections)
 		aResult = This.Sections(aSections)
-		return aResult
+		This.UpdateWith(aResult)
 
 		def SplitAroundSectionsIBQ(paSections)
 			This.SplitAroundSectionsIB(paSections)
@@ -57362,7 +57306,7 @@ class stzList from stzObject
 
 		#>
 
-	def SplittedW(pcConditon)
+	def SplittedW(pcCondition)
 		aResult = This.Copy().SplitWQ(pcCondition).Content()
 		return aResult
 
@@ -57407,7 +57351,7 @@ class stzList from stzObject
 
 		#>
 
-	def SplittedWXT(pcConditon)
+	def SplittedWXT(pcCondition)
 		aResult = This.Copy().SplitWXTQ(pcCondition).Content()
 		return aResult
 
@@ -57426,14 +57370,14 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def SplkitAtWQ(pcCondiiton)
+		def SplkitAtWQ(pcCondition)
 			This.SplitAtW(pccondition)
 			return This
 
 		#>
 
-	def SplittedAtW(pcConditon)
-		aResult = This.Copy().SplitAtW(pcCondition)
+	def SplittedAtW(pcCondition)
+		aResult = This.Copy().SplitAtWQ(pcCondition).Content()
 		return aResult
 
 		def SplitsAtW(pcCondition)
@@ -57451,14 +57395,14 @@ class stzList from stzObject
 
 		#< @FunctionFluentForm
 
-		def SplitAtWXTQ(pcCondiiton)
+		def SplitAtWXTQ(pcCondition)
 			This.SplitAtWXT(pccondition)
 			return This
 
 		#>
 
-	def SplittedAtWXT(pcConditon)
-		aResult = This.Copy().SplitAtWXT(pcCondition)
+	def SplittedAtWXT(pcCondition)
+		aResult = This.Copy().SplitAtWXTQ(pcCondition).Content()
 		return aResult
 
 		def SplitsAtWXT(pcCondition)
@@ -57480,8 +57424,8 @@ class stzList from stzObject
 
 		#>
 
-	def SplittedBeforeW(pcConditon)
-		aResult = This.SplitBeforeW(pcCondition)
+	def SplittedBeforeW(pcCondition)
+		aResult = This.Copy().SplitBeforeWQ(pcCondition).Content()
 		return aResult
 
 		def SplitsBeforeW(pcCondition)
@@ -57503,8 +57447,8 @@ class stzList from stzObject
 
 		#>
 
-	def SplittedBeforeWXT(pcConditon)
-		aResult = This.SplitBeforeWXT(pcCondition)
+	def SplittedBeforeWXT(pcCondition)
+		aResult = This.Copy().SplitBeforeWXTQ(pcCondition).Content()
 		return aResult
 
 		def SplitsBeforeWXT(pcCondition)
@@ -57526,8 +57470,8 @@ class stzList from stzObject
 
 		#>
 
-	def SplittedAfterW(pcConditon)
-		aResult = This.SplitAfterW(pcCondition)
+	def SplittedAfterW(pcCondition)
+		aResult = This.Copy().SplitAfterWQ(pcCondition).Content()
 		return aResult
 
 		def SplitsAfterW(pcCondition)
@@ -57549,8 +57493,8 @@ class stzList from stzObject
 
 		#>
 
-	def SplittedAfterWXT(pcConditon)
-		aResult = This.SplitAfterWXT(pcCondition)
+	def SplittedAfterWXT(pcCondition)
+		aResult = This.Copy().SplitAfterWXTQ(pcCondition).Content()
 		return aResult
 
 		def SplitsAfterWXT(pcCondition)

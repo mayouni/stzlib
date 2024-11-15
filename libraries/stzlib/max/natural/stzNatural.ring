@@ -128,7 +128,7 @@ class stzNatural
 		next
 
 		cCode += "}"
-? ccode
+
 		return cCode
 
 	def Run()

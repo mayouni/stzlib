@@ -6021,4 +6021,5 @@ o1 = new stzTable([
 #--> 4
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.05 second(s) in Ring 1.21
+# Executed in 0.08 second(s) in Ring 1.20

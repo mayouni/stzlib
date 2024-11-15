@@ -2985,7 +2985,7 @@ class stzListOfLists from stzList
 				return This.SortNthListQ(n)
 
 	def NthListSorted(n)
-		aResult = This.Copy().SortNthListInAscending()
+		aResult = This.Copy().SortNthListInAscendingQ().Content()
 
 		def NthListSortedUp(n)
 			return NthListSorted(n)

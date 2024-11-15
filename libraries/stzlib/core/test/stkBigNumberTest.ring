@@ -1,17 +1,14 @@
 
-load "../Common/stkRingLibs.ring"
+load "../stzcore.ring"
 
-load "../common/stkNumberCommons.ring"
-load "../number/stkBigNumber.ring"
-
-load "../error/stkError.ring"
+# TODO: WORK IN PROGRESS
 
 decimals(3)
 t0 = clock()
 
 
-/*-------
-*/
+/*------- #Todo Divide() lacking
+
 oBig = new stkBigNumber("324987182091876345.078")
 
 oBig.Divide("876234987333.9876673")
@@ -51,6 +48,7 @@ oBig = new stkBigNumber("124_280_400.68")
 # Executed in 0.024 seconds.
 
 /*-------
+
 
 oBig = new stkBigNumber("324_987_182_091_876_345.078")
 

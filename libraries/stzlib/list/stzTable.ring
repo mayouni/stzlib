@@ -14033,7 +14033,7 @@ Class stzTable from stzObject
 			This.Fill(pValue)
 			return This
 
-		def FillCQ(pValue) #TODO: Add this to all functions
+		def FillCQ(pValue) #TODO // Add this to all functions
 			return This.Copy().FillQ(pValue)
 
 	def Filled(pValue)
@@ -14183,7 +14183,7 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		if NOT Q(p).IsBetween(1, This.NumberOfCols())
+		if NOT Q(p).IsBetweenIB(1, This.NumberOfCols())
 			StzRaise("Incorrect value! n must correspond to a valid number of column.")
 		ok
 

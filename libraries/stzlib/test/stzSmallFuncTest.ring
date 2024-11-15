@@ -57,5 +57,6 @@ pron()
 ? LoS([ "A", 12, "B", 14, "C", 20 ]) #--> ["A", "B", "C"]
 
 proff()
+# Executed in 0.08 second(s) in Ring 1.21
 # Executed in 0.14 second(s) in Ring 1.20
 # Executed in 0.11 second(s) in Ring 1.19

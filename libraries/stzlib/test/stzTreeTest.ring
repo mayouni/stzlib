@@ -2,7 +2,7 @@ load "../max/stzmax.ring"
 
 // INCMPLETE: NOT READY FOR TESTING.
 
-/* TODO: Make it possible the input of a tree in a string:
+/*---- TODO: Make it possible the input of a tree in a string:
 
 cTree = "
 	Skills
@@ -60,6 +60,8 @@ myTree =
 
 /*---------------------
 
+pron()
+
 oTree = new stzTree {
 	AddNode("Skills") {
 		AddLeaf("Programming")
@@ -87,4 +89,5 @@ oTree = new stzTree {
 
 oTree = new stzTree(myTree)
 oTree.Show()
-*/
+
+proff()

@@ -28,6 +28,7 @@
 
 	load "number/stkNumber.ring"
 	load "number/stkListOfNumbers.ring"
+	load "number/stkBigNumber.ring"
 
 # Loading Softanka (core) data
 

@@ -1,9 +1,5 @@
 
-# Used, in particular, to enable chains of truth, like
-# when we make multiple equality check :
 
-# ? Q(2+5) = Q(3+4) = Q(9-2) = 7
-#--> TRUE
 
 func StzFalseObjectQ()
 	return new stzFalseObject

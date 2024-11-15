@@ -5725,7 +5725,15 @@ class stzNumber from stzObject
 	#TODO // Operators should carry same semantics in all classes...
 	#TODO // Make a request to Mahmoud to enable multichar operators in Ring
 
+	#WARNING // DON'T ADD = OPERATOR
+	# Because it causes semantic conflict with
+	# feature in stzExtCode (see CREATE_TABLE sql function)
+
 	def operator (pOp, pValue)
+
+		#WARNING // DON'T ADD = OPERATOR
+		# Because it causes semantic conflict with
+		# feature in stzExtCode (see CREATE_TABLE sql function)
 
 		if  pOp = "+"
 			if isString(pValue)
@@ -5838,13 +5846,6 @@ class stzNumber from stzObject
 
 		but pOp = "%"
 			return This.Modulo(pValue)
-
-		but pOp = "="
-			if @IsStzObject(pValue)
-				return pValue
-			else
-				return This.IsEqualTo(pValue)
-			ok
 
 		but pOp = ">"
 			return This.IsStrictlyGreaterThan(pValue)
