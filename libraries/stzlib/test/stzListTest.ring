@@ -3936,7 +3936,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzList([ 1, 2, "ring", 4, 5, "RING", 7, "Ring" ])
@@ -3960,15 +3960,15 @@ pron()
 
 o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ])
 
-? o1.FindW('NOT isNumber(This[@i + 1])')
+? o1.FindW(' NOT isNumber(This[@i + 1]) ')
 #--> [2, 6]
 # Executed in 0.13 second(s)
 
-//? o1.FindWXT(' Q(@NextItem).IsNotANumber() ')
+? o1.FindWXT(' Q(@NextItem).IsNotANumber() ')
 #--> [2, 6]
 
 proff()
-# Executed in 0.16 second(s) in Ring 1.21
+# Executed in 0.15 second(s) in Ring 1.21
 # Executed in 0.59 second(s) in Ring 1.20
 # Executed in 0.70 second(s) in Ring 1.17
 
