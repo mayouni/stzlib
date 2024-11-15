@@ -2091,7 +2091,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*-----------
-*/
+
 pron()
 
 ? Q([ "a", "♥", "*" ]).ContainsThese([ "♥", "*"])
@@ -3780,7 +3780,7 @@ proff()
 # Executed in 0.06 second(s) in Ring 1.21
 
 /*============
-*/
+
 pron()
    
 o1 = new stzList([ "1", "2", "3", "4", "5", "6", "7", "8", "9" ])
@@ -3936,7 +3936,26 @@ proff()
 # Executed in 0.03 second(s)
 
 /*-----------
+*/
+pron()
 
+o1 = new stzList([ 1, 2, "ring", 4, 5, "RING", 7, "Ring" ])
+
+? o1.FindW('{
+	isString(This[@i]) and This[@i] = "ring"
+}')
+#--> [ 3 ]
+
+? o1.FindWCS('{
+	isString(This[@i]) and This[@i] = "ring"
+}', :CS = FALSE)
+#--> [ 3, 6, 8 ]
+
+proff()
+# Executed in 0.13 second(s) in Ring 1.21
+
+/*-----------
+*/
 pron()
 
 o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ])
@@ -3945,7 +3964,7 @@ o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ])
 #--> [2, 6]
 # Executed in 0.13 second(s)
 
-? o1.FindWXT(' Q(@NextItem).IsNotANumber() ')
+//? o1.FindWXT(' Q(@NextItem).IsNotANumber() ')
 #--> [2, 6]
 
 proff()
