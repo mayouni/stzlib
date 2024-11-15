@@ -3616,7 +3616,7 @@ proff()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*----------------
-*/
+
 pron()
 #                   1  4  78
 o1 = new stzString("...ring...")
@@ -3634,7 +3634,7 @@ o1 = new stzString("...ring...")
 #--> [ [ 1, 3 ], [ 8, 10 ] ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*---------------- Sections and AntiSections
 
@@ -4677,7 +4677,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*-----------
-
+*/
 StartProfiler()
 
 o1 = new stzString("
@@ -4691,7 +4691,7 @@ RSTUVW
 
 ")
 
-o1.TrimQ().RemoveLinesW(' Q(@line).IsMadeOfNumbers() ')
+o1.TrimQ().RemoveLinesWXT(' Q(@line).IsMadeOfNumbers() ')
 ? @@(o1.Content())
 #-->
 # "ABCDEF

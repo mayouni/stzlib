@@ -15694,12 +15694,12 @@ class stzList from stzObject
 	 #   REMOVING ITEMS UNDER A GIVEN CONDITION   #
 	#============================================#
 
-	def RemoveW(pCondition)
+	def RemoveWCS(pCondition, pCaseSensitive)
 		/*
 		Example:
 
 		o1 = new stzList([ "1", "a", "2", "b", "3", "c" ])
-		o1.RemoveAllItemsW(:Where = '{ StzCharQ(This[@i]).IsANumber() }')
+		o1.RemoveItemsW(:Where = '{ StzCharQ(This[@i]).IsANumber() }')
 		? o1.Content()
 
 		#--> Gives: [ "a", "b", "c" ]
@@ -15707,8 +15707,46 @@ class stzList from stzObject
 
 		# Checking the provided param for the pCondition
 
-		anPos = This.FindW(pCondition)
+		anPos = This.FindWCS(pCondition, pCaseSensitive)
 		This.RemoveItemsAtThesePositions(anPos)
+
+		#< @FunctionFluentForm
+
+		def RemoveWCSQ(pCondition, pCaseSensitive)
+			This.RemoveWCS(pCondition, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveItemsWCS(pCondition, pCaseSensitive)
+			This.RemoveWCS(pCondition, pCaseSensitive)
+
+			def RemoveItemsWCSQ(pCondition, pCaseSensitive)
+				return This.RemoveWCSQ(pCondition, pCaseSensitive)
+
+		def RemoveItemWCS(pCondition, pCaseSensitive)
+			This.RemoveWCS(pCondition, pCaseSensitive)
+
+			def RemoveItemWCSQ(pCondition, pCaseSensitive)
+				return This.RemoveWCSQ(pCondition, pCaseSensitive)
+
+		#>
+
+	#-- @FunctionPassiveForm
+
+	def ItemsRemovedWCS(pCondition, pCaseSensitive)
+		aResult = This.Copy().RemoveItemsWCSQ(pCondition, pCaseSensitive).Content()
+		return aResult
+
+		def ItemRemovedWCS(pCondition, pCaseSensitive)
+			return This.ItemsRemovedWCS(pCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIviTY
+
+	def RemoveW(pCondition)
+		This.RemoveWCS(pCondition, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -15747,12 +15785,12 @@ class stzList from stzObject
 	 #   REMOVING ITEMS UNDER A GIVEN CONDITION -- WXT/EXTENDED   #
 	#------------------------------------------------------------#
 
-	def RemoveWXT(pCondition)
+	def RemoveWCSXT(pCondition, pCaseSensitive)
 		/*
 		Example:
 
 		o1 = new stzList([ "1", "a", "2", "b", "3", "c" ])
-		o1.RemoveAllItemsWXT(:Where = '{ StzCharQ(@item).IsANumber() }')
+		o1.RemoveItemsWXT(:Where = '{ StzCharQ(@item).IsANumber() }')
 		? o1.Content()
 
 		#--> Gives: [ "a", "b", "c" ]
@@ -15760,8 +15798,46 @@ class stzList from stzObject
 
 		# Checking the provided param for the pCondition
 
-		anPos = This.FindWXT(pCondition)
+		anPos = This.FindWCSXT(pCondition, pCaseSensitive)
 		This.RemoveItemsAtThesePositions(anPos)
+
+		#< @FunctionFluentForm
+
+		def RemoveWCSXTQ(pCondition, pCaseSensitive)
+			This.RemoveWCSXT(pCondition, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveItemsWCSXT(pCondition, pCaseSensitive)
+			This.RemoveWCSXT(pCondition, pCaseSensitive)
+
+			def RemoveItemsWCSXTQ(pCondition, pCaseSensitive)
+				return This.RemoveWCSXTQ(pCondition, pCaseSensitive)
+
+		def RemoveItemWCSXT(pCondition, pCaseSensitive)
+			This.RemoveWCSXT(pCondition, pCaseSensitive)
+
+			def RemoveItemWCSXTQ(pCondition, pCaseSensitive)
+				return This.RemoveWCSXTQ(pCondition, pCaseSensitive)
+
+		#>
+
+	#-- @FunctionPassiveForm
+
+	def ItemsRemovedWCSXT(pCondition, pCaseSensitive)
+		aResult = This.Copy().RemoveItemsWCSXTQ(pCondition, pCaseSensitive).Content()
+		return aResult
+
+		def ItemRemovedWCSXT(pCondition, pCaseSensitive)
+			return This.ItemsRemovedWCSXT(pCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIviTY
+
+	def RemoveWXT(pCondition)
+		This.RemoveWCSXT(pCondition, TRUE)
 
 		#< @FunctionFluentForm
 

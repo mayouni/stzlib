@@ -6668,7 +6668,7 @@ class stzString from stzObject
 		*/
 
 		cResult = This.LinesCSQR(pCaseSensitive, :stzListOfStrings).
-			       RemoveWXTQ(pCaseSensitive, pcCondition).
+			       RemoveWCSXTQ(pcCondition, pCaseSensitive).
 			       ConcatenatedUsing(NL)
 
 		This.Update(cResult)
