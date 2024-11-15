@@ -32322,65 +32322,59 @@ class stzList from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-/*	def NumberOfOccurrence(pItem)
-		return This.NumberOfOccurrenceCS(pItem, TRUE)
+	def NumberOfOccurrenceST(pItem, pnStartingAt)
+		return This.NumberOfOccurrenceSTCS(pItem, pnStartingAt, TRUE)
 
-		#< @FucntionAlternativeForms
+		#< @FunctionAlternativeForms
 
-		def NumberOfOccurrences(pItem)
-			return This.NumberOfOccurrence(pItem)
+		def NumberOfOccurrencesST(pItem, pnStartingAt)
+			return This.NumberOfOccurrenceST(pItem, pnStartingAt)
 
-		def NumberOfOccurrencesOf(pItem)
-			return This.NumberOfOccurrence(pItem)
+		def CountST(pItem, pnStartingAt)
+			return NumberOfOccurrenceST(pItem, pnStartingAt)
 
-		def NumberOfOccurrenceOf(pItem)
-			return This.NumberOfOccurrence(pItem)
+		def HowManyST(pItem, pnStartingAt)
+			return NumberOfOccurrenceST(pItem, pnStartingAt)
 
-		def Count(pItem)
-			return This.NumberOfOccurrence(pItem)
-
-		def HowMany(pItem)
-			return This.NumberOfOccurrence(pItem)
-
-		def ItemOccursNTimes(n, pItem)
-			return This.NumberOfOccurrence(pItem)
+		def ItemOccursNTimesST(n, pnStartingAt, pItem)
+			return NumberOfOccurrenceST(pItem, pnStartingAt)
 
 		#--
 
-		def NumberOfDuplicatesOf(pItem)
-			return This.NumberOfOccurrence(pItem)
+		def NumberOfDuplicatesOfST(pItem, pnStartingAt)
+			return This.NumberOfOccurrenceST(pItem, pnStartingAt)
 
-		def NumberOfDuplicationsOf(pItem)
-			return This.NumberOfOccurrence(pItem)
+		def NumberOfDuplicationsOfST(pItem, pnStartingAt)
+			return This.NumberOfOccurrenceST(pItem, pnStartingAt)
 
-		def NumberOfDuplicationOf(pItem)
-			return This.NumberOfOccurrence(pItem)
+		def NumberOfDuplicationOfST(pItem, pnStartingAt)
+			return This.NumberOfOccurrenceST(pItem, pnStartingAt)
 
 		#--
 
-		def NumberOf(pItem)
-			return This.NumberOfOccurrence(pItem)
+		def NumberOfST(pItem, pnStartingAt)
+			return This.NumberOfOccurrenceST(pItem, pnStartingAt)
 
 		#>
-	
+
 		#< @FunctionMisspelledForm
 
-		def NumberOfOccurence(pItem)
-			return This.NumberOfOccurrence(pItem)
+		def NumberOfOccurenceST(pItem, pnStartingAt)
+			return This.NumberOfOccurrenceST(pItem, pnStartingAt)
 
 		#--
 
-		def NumberOfDupplicatesOf(pItem)
-			return This.NumberOfOccurrence(pItem)
+		def NumberOfDupplicatesOfST(pItem, pnStartingAt)
+			return This.NumberOfOccurrenceST(pItem, pnStartingAt)
 
-		def NumberOfDupplicationsOf(pItem)
-			return This.NumberOfOccurrence(pItem)
+		def NumberOfDupplicationsOfST(pItem, pnStartingAt)
+			return This.NumberOfOccurrenceST(pItem, pnStartingAt)
 
-		def NumberOfDupplicationOf(pItem)
-			return This.NumberOfOccurrence(pItem)
+		def NumberOfDupplicationOfST(pItem, pnStartingAt)
+			return This.NumberOfOccurrenceST(pItem, pnStartingAt)
 
 		#
-*/
+
 	  #---------------------------------------------------------#
 	 #  GETTING ITEMS OCCURRING N (OR MORE) TIMES IN THE LIST  #
 	#=========================================================#
