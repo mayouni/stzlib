@@ -71,7 +71,7 @@ proff()
 # Executed in 0.04 second(s).
 
 /*===
-
+*/
 pron()
 
 oWalker = new stzWalker( 5, -5, 2 )

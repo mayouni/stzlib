@@ -175,8 +175,17 @@ proff()
 # Executed in 0.05 second(s) in Ring 1.20
 # Executed in 0.11 second(s) in ring 1.18
 
+/*--------------
+
+pron()
+
+? QQ(1:3).StzType()
+#--> StzListOfNumbers
+
+proff()
+
 /*================= #todo write a #narration
-*/
+
 pron()
 
 ? Q([ 1, 2, 3, 4, 5]) - [1, 3 , 5]
@@ -201,15 +210,9 @@ pron()
 
 #--> [ 2, 4 ]
 
-# If you want to get a stzListOfNumbers add QQ() instead:
-
-? ( QQ([ 1, 2, 3, 4, 5]) - TheseQ([1, 3 , 5]) ).StzType()
-#  \____________________ ______________________/
-#                       V
-#            A stzListOfNumbers object
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21s
 
 /*----------------
 
@@ -246,19 +249,18 @@ proff()
 # Executed in 0.02 second(s)
 
 /*----------------
-*/ غالط
+ 
 pron()
 
-? Q([1, 2, 3 ]) * 4
-#--> [ 4, 8, 12 ]
+? @@( Q([1, 2, 3 ]) * 4 )
+#--> [ 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3 ]
 
 ? ( Q([1, 2, 3 ]) * Q(4) ).Content()
 # \___________ __________/
 #             V
 #       A stzList object
 
-#--> [ 4, 8, 12 ]
-
+#--> 
 
 proff()
 # Executed in 0.02 second(s)
@@ -267,21 +269,36 @@ proff()
 
 pron()
 
-? Q(["A", "B" ]) * 3
-#--> [ "A", "B", "A", "B", "A", "B" ]
+? @@( Q(["A", "B" ]) * 3 )
+#--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
 
-? ( Q(["A", "B" ]) * Q(3) ).Content()
-# \____________ __________/
-#              V
-#      A stzList object
+? @@( ( Q(["A", "B" ]) * Q(3) ).Content() )
+#     \____________ __________/
+#                  V
+#           A stzList object
 
-#--> [ "A", "B", "A", "B", "A", "B" ]
+#--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
 
 proff()
 # Executed in 0.02 second(s)
 
 /*----------------
-*/
+
+pron()
+
+o1 = new stzList(["one", "two", "three", "four", "five", "six" ])
+
+? @@( o1.SplittedToPartsOfNItems(3) ) + NL
+#--> [ [ "one", "two", "three" ], [ "four", "five", "six" ] ]
+
+? @@( o1.SplittedToNParts(3) )
+#--> [ [ "one", "two" ], [ "three", "four" ], [ "five", "six" ] ]
+
+proff()
+# Executed in 0.03 second(s) in Ring 1.21
+
+/*----------------
+
 pron()
 
 ? @@( Q(["one", "two", "three", "four", "five", "six" ]) / 3 ) + NL
@@ -295,25 +312,24 @@ pron()
 #--> [ [ "one", "two" ], [ "three", "four" ], [ "five", "six" ] ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*----------------
 
-*/
 pron()
 
-? Q([4, 44, 444 ]) / 4
-#--> [ 1, 11, 111 ]
+? @@( Q([4, 44, 444 ]) / 3 )
+#--> [ [ 4 ], [ 44 ], [ 444 ] ]
 
-? ( Q([4, 44, 444 ]) / Q(4) ).Content()
-# \____________ ___________/
-#              V
-#     a stzList object
+? @@( ( Q([4, 44, 444 ]) / Q(3) ).Content() )
+#      \____________ ___________/
+#                   V
+#           a stzList object
 
-#--> [ 1, 11, 111 ]
+#--> [ [ 4 ], [ 44 ], [ 444 ] ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*----------------
 
@@ -331,7 +347,8 @@ o1 = new stzList([ "A", "B" ])
 #--> [ ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.06 second(s) in Ring 1.18
 
 /*----------------
 
@@ -463,7 +480,7 @@ proff()
 # Executed in 0.03 second(s)
 
 /*---------------
-
+*/
 pron()
 
 ? QQ([ 12, 4, 35, 102, 22, 98, 5 ]).AnyNumberBefore(22)
@@ -475,7 +492,7 @@ pron()
 
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
 /*---------------
 
@@ -490,7 +507,7 @@ pron()
 
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s)
 
 /*---------------
 

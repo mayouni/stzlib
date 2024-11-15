@@ -239,6 +239,25 @@ class stzSplitter from stzListOfNumbers
 			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ])
 				return This.SplitAtSectionsIB(p[2])
 
+			but oParam.IsToPartsOfNItemsNamedParam() or
+			    oParam.IsToPartsOfExactlyNItemsNamedParam()
+
+				return This.SplitToPartsOfNItems(p[2])
+
+			but oParam.IsToPartsOfNItemsXTNamedParam()
+
+				return This.SplitToPartsOfNItemsXT(p[2])
+
+			but oParam.IsToNPartsNamedParam() or
+			    oParam.IsToExactlyNPartsNamedParam()
+
+				return This.SplitToNParts(p[2])
+
+			but oParam.IsToNPartsXTNamedParam()
+				return This.SplitToNParts(p[2])
+
+			else
+				StzRaise("Unsupported syntax of Split( :... = ... ).")
 			ok
 		else
 			StzRaise("Incorrect param! p must be a number, list of numbers, section, or list of sections.")
@@ -534,10 +553,10 @@ class stzSplitter from stzListOfNumbers
 				return This.SplitAfterPositions(p[2])
 
 			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ])
-				return This.SplitAfterSection(p[2])
+				return This.SplitAfterSection(p[2][1], p[2][2])
 
 			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ])
-				return This.SplitAfterSectionIB(p[2])
+				return This.SplitAfterSectionIB(p[2][1], p[2][2])
 
 			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
 				return This.SplitAfterSections(p[2])
@@ -714,7 +733,7 @@ class stzSplitter from stzListOfNumbers
 
 	def SplitAtSectionIB(n1, n2)
 
-		if NOT @BothAreNumbers(n1, n2)
+		if NOT (isNumber(n1) and isNumber(n2))
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
@@ -931,7 +950,7 @@ class stzSplitter from stzListOfNumbers
 
 	def SplitBeforeSection(n1, n2)
 
-		if NOT @BothAreNumbers(n1, n2)
+		if NOT (isNumber(n1) and isNumber(n2))
 			StzRaise("Incorrect pram type! panSection must be a pair of numbers.")
 		ok
 
@@ -953,7 +972,7 @@ class stzSplitter from stzListOfNumbers
 		#>
 
 	def SplitBeforeSectionIB(n1, n2)
-		if NOT @BothAreNumbers(n1, n2)
+		if NOT (isNumber(n1) and isNumber(n2))
 			StzRaise("Incorrect pram type! panSection must be a pair of numbers.")
 		ok
 
@@ -1049,7 +1068,7 @@ class stzSplitter from stzListOfNumbers
 
 	def SplitAfterSection(n1, n2)
 
-		if NOT BothArNumbers(n1, n2)
+		if NOT (isNumber(n1) and isNumber(n2))
 			StzRaise("Incorrect pram type! n1 and n2 must be both numbers.")
 		ok
 
@@ -1071,7 +1090,7 @@ class stzSplitter from stzListOfNumbers
 		#>
 
 	def SplitAfterSectionIB(n1, n2)
-		if NOT BothArNumbers(n1, n2)
+		if NOT (isNumber(n1) and isNumber(n2))
 			StzRaise("Incorrect pram type! n1 and n2 must be both numbers.")
 		ok
 
@@ -1188,27 +1207,27 @@ class stzSplitter from stzListOfNumbers
 
 		#< @FunctionAlternativeForm
 
-		def SplitToPartsOfN(n)
+		def SplitToPartsOfNXT(n)
 			return This.SplitToPartsOfNItemsXT(n)
 
-		def SplitToPartsOf(n)
+		def SplitToPartsOfXT(n)
 			return This.SplitToPartsOfNItemsXT(n)
 
-		def SplitToPartsOfNPositions(n)
+		def SplitToPartsOfNPositionsXT(n)
 			return This.SplitToPartsOfNItemsXT(n)
 
 		#--
 
-		def SplitsToPartsOfNItems(n)
+		def SplitsToPartsOfNItemsXT(n)
 			return This.SplitToPartsOfNItemsXT(n)
 
-		def SplitsToPartsOfN(n)
+		def SplitsToPartsOfNXT(n)
 			return This.SplitToPartsOfNItemsXT(n)
 
-		def SplitsToPartsOf(n)
+		def SplitsToPartsOfXT(n)
 			return This.SplitToPartsOfNItemsXT(n)
 
-		def SplitsToPartsOfNPositions(n)
+		def SplitsToPartsOfNPositionsXT(n)
 			return This.SplitToPartsOfNItemsXT(n)
 
 		#>
@@ -1232,15 +1251,41 @@ class stzSplitter from stzListOfNumbers
 
 		#< @FunctionAlternativeForms
 
-		def SplitToPartsOfExactlyNPositions(n)
+		def SplitToPartsOfN(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitToPartsOf(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitToPartsOfNPositions(n)
 			return This.SplitToPartsOfNItems(n)
 
 		#--
 
-		def SplitsToPartsOfExactlyNItems(n)
+		def SplitsToPartsOfNItems(n)
 			return This.SplitToPartsOfNItems(n)
 
-		def SplitsToPartsOfExactlyNPositions(n)
+		def SplitsToPartsOfN(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitsToPartsOf(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitsToPartsOfNPositions(n)
+			return This.SplitToPartsOfNItems(n)
+
+		#==
+
+		def SplitToPartsOfExactlyNItems(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitToPartsOfExactlyN(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitToPartsOfExactly(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitToPartsOfExactlyNPositions(n)
 			return This.SplitToPartsOfNItems(n)
 
 		#>

@@ -1,4 +1,7 @@
 load "../max/stzmax.ring"
+
+pron()
+
 # Uses stkStringArt, part of SoftanzaCore, in the background
 #NOTE // All tests in ../core/string/stkRingArtTest.ring are usable here in the SoftanzaPrime level by chaing "stz" by "stk"
 
@@ -19,7 +22,8 @@ SetStringArtStyle(:neon)
 
 ? " Powered by: Softanza and the Ring GameEngine (c)"
 
-
+proff()
+# Executed in 0.03 second(s) in Ring 1.21
 
 
 

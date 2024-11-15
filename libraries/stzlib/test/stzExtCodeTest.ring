@@ -248,9 +248,14 @@ pron()
 	])
 
 	? v(:sqlTable).Show()
+	#--> NAME   SCORE
+	#   ----- ------
+	#    Dan     120
+	#    Roy     100
+	#    Bob      89
 
 proff()
-# Executed in 0.39 second(s) in Ring 1.21
+# Executed in 0.32 second(s) in Ring 1.21
 # Executed in 2.07 second(s) in Ring 1.20
 
 /*==============
@@ -677,62 +682,6 @@ Vr( "a" : "z" ) '<~' Vl( 1 : NumberOfLatinLetters() )
 
 proff()
 # Executed in 0.11 second(s).
-
-/*======= Multiple eqality check #TODO #ERROR checki it
-
-	pron()
-	
-	? Q(3+3) = Q(2+4) = Q(9-3) = 6
-	#--> TRUE
-	/*
-	? Q("r"+"ing") = Q("ri"+"ng") = Q("rin"+"g") = "ring"
-	#--> TRUE
-	
-	? Q(["♥", "♥"]+"♥") = Q(["♥"]+"♥"+"♥") = ["♥","♥", "♥"]
-	#--> TRUE
-
-	proff()
-	# Executed in 0.04 second(s)
-
-/*------- #Idem #todo #error
-
-	pron()
-	
-	# Multiple equality checks are possible in many languages
-	# such as Python, Javascript, Java, C, to name a few.
-	# In all cases it takes the form :
-	'
-	value1 == value2 == value3
-	'
-	
-	# Now, this is possible also in Ring:
-	
-	? Q(3+3) = Q(2+4) = Q(9-3) = 6
-	#--> TRUE
-	
-	# In the background, Softanza enables this by overloading
-	# the "=" operator on a pipe of softanza objects. In the
-	# current case, they are stzNumber objects:
-	
-	? Q(3+3).IsEqualToQ(2+4).IsEqualToQ(9-3).IsEqualTo(6)
-	#--> TRUE
-	
-	# Let's experiment with the FALSE output:
-	
-	? Q(3+3) = Q(2+444) = Q(9-3) = 6
-	#--> FALSE
-	
-	# Internally, the implementation of the FALSE case
-	# required the use of a special stzFalseObject.
-	
-	# While it is not necessary to undersdand it inorder
-	# to use the syntax shown in this sample, one would gain
-	# more clarity when it does...
-	
-	#TODO: Explain the use of stzFalseObject to enable
-	# managing the FALSE case in multiple eqality check.
-	
-	proff()
 
 /*======
 

@@ -26,10 +26,10 @@ StzTestQ() {
 }
 
 proff()
-#--> Executed in 0.20 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.20 second(s) in Ring 1.19
 
 /*--------------
-*/
 
 pron()
 
@@ -52,9 +52,10 @@ StzTestQ() {
 # Correctly returned: "N I A M E Y"
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.14 second(s) in ring 1.19
 
-/*------------ TODO: Retest after managing SubStringsBetween() and cie
+/*------------
 
 StartProfiler()
 
@@ -65,13 +66,14 @@ StzTestQ() {
 		? o1.ExecutableSection()
 	'
 	
-	@Result = [ 4, -3 ]
+	@MustReturn = [ 4, -3 ]
 
 	CheckXT()
 	# Correcly returned: [ 4, -3 ]
 }
 
 StopProfiler()
-# Executed in 0.14 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.14 second(s) in Ring 1.19
 
 /*-----------

@@ -4476,15 +4476,10 @@ class stzObject
 		TODO: Operators should adopt same semantics in all classes...
 	*/
 
-	def operator(pcOp, pValue)
+	#WARNING // DON'T ADD = OPERATOR
+	# Because it causes semantic conflict with
+	# feature in stzExtCode (see CREATE_TABLE sql function)
 		
-		if pcOp = "="
-			if @IsStzObject(pValue)
-				return pValue
-			else
-				return This.IsEqualTo(pValue)
-			ok
-		ok
 
 	  #============================================================#
 	 #   FINDING THE FIRST N OCCURRENCES OF A SUBSTRING Or ITEM   #

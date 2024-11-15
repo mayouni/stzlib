@@ -1,7 +1,7 @@
 load "../max/stzmax.ring"
 
 /*--
-
+*/
 pron()
 
 o1 = new stzSortedList([ 2, 1, 4, 3 ])
@@ -9,7 +9,7 @@ o1 = new stzSortedList([ 2, 1, 4, 3 ])
 #--> [ 1, 2, 3, 4, 5 ]
 
 proff()
-# Executed in 0.01 second(s).
+# Executed in 0.02 second(s) in Ring 1.21
 
 #--
 

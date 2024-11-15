@@ -1,5 +1,7 @@
 load "../max/stzmax.ring"
 
+/*---
+
 pron()
 
 StzParserQ([ "_", "A", "_" , "_", "B", "_", "_", "C", "_", "D" ]) {
@@ -7,25 +9,30 @@ StzParserQ([ "_", "A", "_" , "_", "B", "_", "_", "C", "_", "D" ]) {
 	SetCurrentPosition(5)
 
 	? PreviousItem() 	#--> "_"
-	? CurrentPosition() 	#--> 4
+	? CurrentPosition() 	#--> 5
 
-	? PreviousNthItem(2) 	#--> "A"
-	? CurrentPosition() 	#--> 2
+	? PreviousNthItem(4) 	#--> "A"
+	? CurrentPosition() 	#--> 5
 
-	? NextNthItem(3) 	#--> "B"
+	? NextNthItem(4) 	#--> "C"
 	? CurrentPosition() 	#--> 5
 
 	? LastItem()		#--> "D"
-	? CurrentPosition()	#--> 10
+	? CurrentPosition()	#--> 5
 }
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*----
-
+*/
+pron()
 
 StzParserQ(["a", "_", "b", "_", "c"]) {
 	SetCurrentPosition(2)
 	? NextNthItem(3)
+	#--> "_"
 }
 
+proff()
+# Executed in 0.03 second(s) in Ring 1.21

@@ -1,5 +1,9 @@
 load "../max/stzmax.ring"
 
+#TODO: check errors!
+
+/*----
+
 pron()
 
 ? IsSection(:From = :Start, :To = :End, 10)
@@ -12,9 +16,17 @@ o1 = new stzSection(:From = :Start, :To = :End, 10)
 ? o1.Content()
 #--> [ 1, 5 ]
 
+proff()
+
+/*----
+
 o1 = new stzSection(1, 5, 10) # Or stzSection(:From=1, :To=5, :InAListOfSize = 10)
 ? o1.Content()
 #--> [ 1, 5 ]
+
+proff()
+
+/*---
 
 o1 = new stzSection(:From = :EndOfList, :To = :StartOfList, :InAListOfSize = 10)
 ? o1.Content()

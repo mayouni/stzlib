@@ -148,6 +148,10 @@ func StopWordsLanguages()
 	#>
 
 func StopWordsIn(pcLang)
+	if NOT isString(pcLang)
+		StzRaise("Incorrect param type! pcLang must be a string")
+	ok
+
 	switch pcLang
 	on :Arabic
 		return ArabicStopWords()

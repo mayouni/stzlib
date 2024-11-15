@@ -33,3 +33,4 @@
 	load "systems/stzShowSystem.ring"
 	load "systems/stzTextEncodingSystem.ring"
 	load "systems/stzCodeAnalysisSystem.ring"
+	load "systems/stzRingStateSystem.ring"
