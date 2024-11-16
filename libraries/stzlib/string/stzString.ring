@@ -27235,7 +27235,7 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def ContainsSubStringBoundedBySD(pcSubStr, pacBounds, pnStartingAt, pcDirection)
+	def ContainsSubStringBoundedBySTD(pcSubStr, pacBounds, pnStartingAt, pcDirection)
 		return This.ContainsSubStringBoundedBySDCS(pcSubStr, pacBounds, pnStartingAt, pcDirection, TRUE)
 
 
@@ -44639,8 +44639,8 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindNthAsSectionDZZ(n, pcSubStr, pcDirection)
-		return This.FindNthAsSectionDCS(n, pcSubStr, pcDirection, TRUE)
+	def FindNthDZZ(n, pcSubStr, pcDirection)
+		return This.FindNthDCSZZ(n, pcSubStr, pcDirection, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -44715,7 +44715,7 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindLastADZZ(pcSubStr, pcDirection)
+	def FindLastDZZ(pcSubStr, pcDirection)
 		return This.FindLastDCSZZ(pcSubStr, pcDirection, TRUE)
 
 		#< @FunctionAlternativeForms
@@ -44823,7 +44823,7 @@ class stzString from stzObject
 
 		else // forward
 			nLast = This.NumberOfOccurrenceSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
-			aResult = This.FindNthSTDCSZZ(nLast, pcSubStr, pnStartingAt, pCaseSensitive)
+			aResult = This.FindNthSTCSZZ(nLast, pcSubStr, pnStartingAt, pCaseSensitive)
 			return aResult
 
 		ok
@@ -44886,8 +44886,8 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindNthAsSectionST(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindNthAsSectionSTCS(pcSubStr, pnStartingAt, TRUE)
+	def FindNthAsSectionST(n, pcSubStr, pnStartingAt)
+		return This.FindNthAsSectionSTCS(n, pcSubStr, pnStartingAt, TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -45581,7 +45581,7 @@ class stzString from stzObject
 	#---------------------------------------------------------------------------#
 
 	def LastSTDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
-		nLast = This.NumberOfOccirrenceSCS(pcsubStr, pnStartingAt, pCaseSensitive)
+		nLast = This.NumberOfOccurrenceSTCS(pcsubStr, pnStartingAt, pCaseSensitive)
 		return This.NthSTDCSZ(nLast, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
 		def LastSubStringSTDCZ(pcSubStr, pnSartingAt, pcDirection, pCaseSensitive)
@@ -45662,7 +45662,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def FirstSTDZZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindFirstSTDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
+		return This.FirstSTDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 
 		def FirstSubStringSTDZZ(pcSubStr, pnStartingAt, pcDirection)
@@ -48399,7 +48399,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		aResult = [ pcSubStr, This.FindSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
+		aResult = [ pcSubStr, This.FindSTDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
 		return aResult
 
 	#-- WITHOUT CASESENSITIVIY
@@ -48412,7 +48412,7 @@ class stzString from stzObject
 	 #  AND GOING IN A GIVEN DIRECTION -- RETURNING THE SUBSTRING AND ITS SECTIONS  #
 	#-------------------------------------------------------------------------------#
 
-	def FindSDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
+	def FindSTDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 
 		if CheckParams()
 
@@ -48424,7 +48424,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		aResult = [ pcSubStr, This.FindAsSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
+		aResult = This.FindAsSectionsSTDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 		return aResult
 
 	#-- WITHOUT CASESENSITIVIY
@@ -52688,7 +52688,7 @@ n1 = Min(aTemp)
 
 		if len(anPos1) > 0
 			anPos2 = StzListOfNumbersQ(anPos1).AddedToEach(Q(pcSubStr).NumberOfChars() - 1)
-			aResult = Association([ :Of = anPos1, :And = anPos2 ])
+			aResult = Association([ anPos1, anPos2 ])
 		ok
 
 		return aResult
@@ -52757,13 +52757,13 @@ n1 = Min(aTemp)
 	#--------------------------------------------------------------------#
 
 	def FindAsSectionsSTDCSZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
-		aResult = [ pcSubStr, This.FindAllSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
+		aResult = [ pcSubStr, This.FindAllSTDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
 		return aResult
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsSectionsSTDZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindAsSectionsSDCSZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
+		return This.FindAsSectionsSTDCSZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 	   #--------------------------------------------------------------------#
 	  #  FINDING A SUBSTRING AS SECTIONS, STARTING FROM A GIVEN POSITION,  #
@@ -52771,13 +52771,13 @@ n1 = Min(aTemp)
 	#--------------------------------------------------------------------#
 
 	def FindAsSectionsSTDCSZZ(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
-		aResult = [ pcSubStr, This.FindAsSectionsSDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
+		aResult = [ pcSubStr, This.FindAsSectionsSTDCS(pcSubStr, pnStartingAt, pcDirection, pCaseSensitive) ]
 		return aResult
 
 	#-- WITHOUT CASESENSITIVITY
 
 	def FindAsSectionsSTDZZ(pcSubStr, pnStartingAt, pcDirection)
-		return This.FindAsSectionsSDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
+		return This.FindAsSectionsSTDCSZZ(pcSubStr, pnStartingAt, pcDirection, TRUE)
 
 	  #=====================================================================#
 	 #   FINDING A SUBSTRING AND RETURNING ITS POSITIONS AS ANTI-SECTIONS  #

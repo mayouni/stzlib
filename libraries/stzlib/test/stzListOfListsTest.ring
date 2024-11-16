@@ -615,7 +615,7 @@ proff()
 
 pron()
 
-? @@( Association([ :of = [ :one, :two, :three ], :with = [1, 2, 3] ]) )
+? @@( Association([ [ :one, :two, :three ], s[1, 2, 3] ]) )
 #--> [ [ "one", 1 ], [ "two", 2 ], [ "three", 3 ] ]
 
 proff()
@@ -1197,7 +1197,7 @@ proff()
 
 pron()
 
-? @@( Association([ :Of = ["A", "B", "C"], :And = [1, 2, 3] ]) )
+? @@( Association([ ["A", "B", "C"], [1, 2, 3] ]) )
 #--> [ [ "A", 1 ], [ "B", 2 ], [ "C", 3 ] ]
 
 proff()
