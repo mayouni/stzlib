@@ -32086,6 +32086,7 @@ class stzString from stzObject
 	def FindSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
 		acBounds = @Bounds(pacBounds)
+
 		cBound1 = acBounds[1]
 		cBound2 = acBounds[2]
 

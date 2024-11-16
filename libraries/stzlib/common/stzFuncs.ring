@@ -2360,28 +2360,29 @@ func StoppingAt(p)
 #==
 
 func Bounds(pBounds)
-
-	if CheckParams()
-		if isList(pBounds) and len(pBounds) = 2 and
-		   isList(pBounds[2]) and len(pBounds[2]) = 2 and pBounds[2][1] = :And
-			aTemp = []
-			aTemp + pBounds[1] + pBounds[2][2]
-			pBounds = aTemp
-		ok
+? ">> " + @@(pBounds)
+	if NOT isString(pBounds) or ( isList(pBounds) and len(pBounds) and isString(pBounds[1]) )
+			StzRaise("Incorrect param type! pBounds must be a string or a list of two strings.")
 	ok
 
 	if isString(pBounds)
 		return [ pBounds, pBounds ]
-
-	but isList(pBounds) and len(pBounds) = 2 and
-	    isString(pBounds[1]) and isString(pBounds[2])
-
-		return pBounds
-
-	else
-		StzRaise("Incorrect param type! pBounds must be a string or a pair of strings.")
-
 	ok
+
+	# Now, pBounds is a list of two items where 1st item is a string
+
+	p1 = pBounds[1]
+
+	if isList(pBounds[2]) and StzListQ(pBounds[2]).IsAndNamedParam()
+		p2 = pBounds[2][2]
+	ok
+
+	if NOT isString(p2)
+		StzRaise("Incorrect param type! The second item of pBounds must be also a string.")
+	ok
+
+	return [ p1, p2 ]
+
 
 	func @Bounds(pBounds)
 		return Bounds(pBounds)

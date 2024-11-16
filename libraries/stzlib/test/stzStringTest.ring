@@ -6595,7 +6595,7 @@ proff()
 proff()
 
 #---------
-*/
+
 pron()
 #                      4 6      3 5
 o1 = new stzString("*<<***>>**<<***>>*")
@@ -6615,50 +6615,51 @@ o1 = new stzString("*<<***>>**<<***>>*")
 #--> [ [ 4, 6 ], [ 13, 15 ] ]
 
 proff()
-# Executed in 0.17 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.17 second(s) in Ring 1.17
 
 /*-----------------
-
+*/
 pron()
 
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 
-? @@( o1.FindAnyBetween("67", :And = "12") ) # Same as o1.FindSubStringsBetween("67", "12")
+//? @@( o1.FindAnyBoundedBy([ "67", :And = "12" ]) ) # Same as o1.FindSubStringsBetween("67", "12")
 #--> [ 8 ]
 
-? @@( o1.FindBetween("♥♥♥", "67", :And = "12") ) # Same  as o1.FindSubStringsBetween( "♥♥♥", "67", "12")
+? @@( o1.FindSubStringBoundedBy("♥♥♥", [ "67", :And = "12" ]) ) # Same  as o1.FindSubStringsBetween( "♥♥♥", "67", "12")
+#--> [ 8 ]
+/*
+? @@( o1.FindXT( "♥♥♥", :BoundedBy = [ "67", :And = "12" ]) )
 #--> [ 8 ]
 
-? @@( o1.FindXT( "♥♥♥", :Between = [ "67", :And = "12" ]) )
-#--> [ 8 ]
-
-? @@( o1.FindAsSectionsXT( "♥♥♥", :Between = [ "67", :And = "12" ]) )
+? @@( o1.FindAsSectionsXT( "♥♥♥", :BoundedBy = [ "67", :And = "12" ]) )
 #--> [ [ 8, 10 ] ]
 
-? @@( o1.FindAsSectionsXT( "♥♥♥", :BetweenIB = [ "67", :And = "12" ]) )
+? @@( o1.FindAsSectionsXT( "♥♥♥", :BoundedByIB = [ "67", :And = "12" ]) )
 #--> [ [ 6, 12 ] ]
 
-? @@( o1.FindAsSectionsXT( "♥♥♥", :Between = [ "12", :And = "67" ]) )
+? @@( o1.FindAsSectionsXT( "♥♥♥", :BoundedBy = [ "12", :And = "67" ]) )
 #--> [ [ 3, 5 ], [ 13, 15 ] ]
 
-? @@( o1.FindAsSectionsXT( "♥♥♥", :BetweenIB = [ "12", "67" ]) )
+? @@( o1.FindAsSectionsXT( "♥♥♥", :BoundedByIB = [ "12", "67" ]) )
 #--> [ [ 1, 7 ], [ 11, 17 ] ]
 
 #-----
 
-? @@( o1.FindXT( "♥♥♥", :Between = ["12", :And = "67" ]) )
+? @@( o1.FindXT( "♥♥♥", :BoundedBy = ["12", :And = "67" ]) )
 #--> [3, 13]
 
-? @@( o1.FindAsSectionsXT( "♥♥♥", :Between = ["12", :And = "67" ]) )
+? @@( o1.FindAsSectionsXT( "♥♥♥", :BoundedBy = ["12", :And = "67" ]) )
 #--> [ [ 3, 5 ], [ 13, 15 ] ]
 
-? @@( o1.FindXT( "♥♥♥", :BetweenIB = ["12", :And = "67" ]) )
+? @@( o1.FindXT( "♥♥♥", :BoundedByIB = ["12", :And = "67" ]) )
 #--> [1, 11]
 
-? @@( o1.FindAsSectionsXT( "♥♥♥", :BetweenIB = ["12", :And = "67" ]) )
+? @@( o1.FindAsSectionsXT( "♥♥♥", :BoundedByIB = ["12", :And = "67" ]) )
 #--> [ [ 1, 7 ], [ 11, 17 ] ]
-
+*/
 proff()
 # Executed in 0.30 second(s)
 
