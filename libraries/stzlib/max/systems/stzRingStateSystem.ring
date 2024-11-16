@@ -1,3 +1,30 @@
+/* #TODO
+
+Apply this from Mahmoud message:
+
+	Two things to add about these functions:
+	
+	They were added when I was developing a prototype for PWCT2 on Mobile.
+	The idea was to run Ring programs without starting a new process.
+	Later, they were updated to support "Try Ring Online." 
+	
+	The real use case for these functions can be found here:
+	https://github.com/ring-lang/ring/blob/master/tools/tryringonline/ringvm.ring#L120
+	
+	Note that I am using ring_state_new() and ring_state_mainfile() only once.
+	
+	Regarding the (E3) error, the code behind this message exists here:
+	https://github.com/ring-lang/ring/blob/master/language/src/vmvars.c#L389
+	
+	In some cases, it might be sufficient to avoid printing this message
+	and replace exit() with return; But the purpose of this message is
+	to indicate that we are using Ring VM in a way that it's not
+	designed/tested for.
+	
+	Summary: Use ring_state_new() and ring_state_mainfile() and
+	avoid ring_state_init() and ring_state_runcode().
+
+*/
 
 func IsRingState(pPointer)
 

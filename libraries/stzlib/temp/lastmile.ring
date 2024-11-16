@@ -1,4 +1,4 @@
-load "../stzlib.ring"
+load "../max/stzmax.ring"
 
 /*======
 
@@ -195,11 +195,9 @@ pron()
 #                                      20
 o1 = new stzString("Ring programming language")
 
-? o1.ContainsSubStringBoundedByS("ramm", ["prog", "ing"], 5)
+? o1.ContainsSubStringBoundedByST("ramm", ["prog", "ing"], 5)
 #--> TRUE
 
-? o1.ContainsSubStringBoundedBySD("ramm", [ "prog", "ing" ], :StartingAt = 20, :Going = :Backward)
-#--> TRUE
 
 proff()
 # Executed in 0.08 second(s)
@@ -763,25 +761,8 @@ pron()
 #                       v       v      v      v        v          v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 
-? o1.FindNthSubStringBoundedBySD(2, "ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
+? o1.FindNthSubStringBoundedByST(2, "ring", [ "<<", ">>" ], :StartingAt = 3)
 #--> 27
-
-? o1.FindNthSubStringBoundedBySD(2, "ring", [ "<<", ">>" ], :StartingAt = 47, :Backward)
-#--> 13
-
-? ""
-
-? o1.FindFirstSubStringBoundedBySD("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
-#--> 13
-
-? o1.FindFirstSubStringBoundedBySD("ring", [ "<<", ">>" ], :StartingAt = 47, :Backward)
-#--> 27
-
-? o1.FindLastSubStringBoundedBySD("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
-#--> 27
-
-? o1.FindLastSubStringBoundedBySD("ring", [ "<<", ">>" ], :StartingAt = 47, :Backward)
-#--> 13
 
 proff()
 # Executed in 0.09 second(s)
@@ -796,27 +777,27 @@ o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 ? o1.NumberOfOccurrenceOfSubStringBoundedBy("ring", [ "<<", ">>" ])
 #--> 2
 
-? o1.NumberOfOccurrenceOfSubStringBoundedByS("ring", [ "<<", ">>" ], :StartingAt = 5) + NL
+? o1.NumberOfOccurrenceOfSubStringBoundedByST("ring", [ "<<", ">>" ], :StartingAt = 5) + NL
 #--> 2
 
-? o1.FindNthSubStringBoundedBySDZZ(2, "ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
+? o1.FindNthSubStringBoundedBySTDZZ(2, "ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
 #--> [ 27, 30 ]
 
-? o1.FindFirstSubStringBoundedBySDZZ("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
+? o1.FindFirstSubStringBoundedBySTDZZ("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
 #--> [ 13, 16 ]
 
-? o1.FindLastSubStringBoundedBySDZZ("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
+? o1.FindLastSubStringBoundedBySTDZZ("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
 #--> [ 27, 30 ]
 
 #--
 
-? o1.FindNthSubStringBoundedBySDZZ(2, "ring", [ "<<", ">>" ], :StartingAt = 47, :Backward)
+? o1.FindNthSubStringBoundedBySTDZZ(2, "ring", [ "<<", ">>" ], :StartingAt = 47, :Backward)
 #--> [ 13, 16 ]
 
-? o1.FindFirstSubStringBoundedBySDZZ("ring", [ "<<", ">>" ], :StartingAt = 47, :Backward)
+? o1.FindFirstSubStringBoundedBySTDZZ("ring", [ "<<", ">>" ], :StartingAt = 47, :Backward)
 #--> [ 27, 30 ]
 
-? o1.FindLastSubStringBoundedBySDZZ("ring", [ "<<", ">>" ], :StartingAt = 47, :Backward)
+? o1.FindLastSubStringBoundedBySTDZZ("ring", [ "<<", ">>" ], :StartingAt = 47, :Backward)
 #--> [ 13, 16 ]
 
 proff()
@@ -829,24 +810,24 @@ pron()
 #                       v     v      v      v      v
 o1 = new stzString("THE START <<ring>> ring <<ring>> __ring__ THE END of story")
 
-? o1.FindNthSubStringBoundedBySDIB(2, "ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
+? o1.FindNthSubStringBoundedBySTDIB(2, "ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
 #--> 25
 
-? o1.FindFirstSubStringBoundedBySDIB("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
+? o1.FindFirstSubStringBoundedBySTDIB("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
 #--> 11
 
-? o1.FindLastSubStringBoundedBySDIB("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
+? o1.FindLastSubStringBoundedBySTDIB("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
 #--> 25
 
 ? ""
 
-? o1.FindNthSubStringBoundedBySDIBZZ(2, "ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
+? o1.FindNthSubStringBoundedBySTDIBZZ(2, "ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
 #--> [ 25, 28 ]
 
-? o1.FindFirstSubStringBoundedBySDIBZZ("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
+? o1.FindFirstSubStringBoundedBySTDIBZZ("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
 #--> [ 11, 18 ]
 
-? o1.FindLastSubStringBoundedBySDIBZZ("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
+? o1.FindLastSubStringBoundedBySTDIBZZ("ring", [ "<<", ">>" ], :StartingAt = 3, :Forward)
 #--> [ 25, 32 ]
 
 proff()

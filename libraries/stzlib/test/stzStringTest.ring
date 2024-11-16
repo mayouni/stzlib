@@ -6150,7 +6150,7 @@ proff()
 # Executed in 0.08 second(s) in Ring 1.21
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("123456♥..♥♥")
@@ -6190,17 +6190,17 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-? o1.FindNthSDZZ(2, "♥♥♥", :StartingAt = 3, :Direction = :Forward)
-#--> [ "♥♥♥", [8, 10] ]
+? o1.FindNthSTDZZ(2, "♥♥♥", :StartingAt = 3, :Direction = :Forward)
+#--> [ 8, 10 ]
 
-? o1.FindFirstSDZZ("♥♥♥", :StartingAt = 5, :Direction = :Forward)
-#--> [ "♥♥♥", [8, 10] ]
+? o1.FindFirstSTDZZ("♥♥♥", :StartingAt = 5, :Direction = :Forward)
+#--> [ 8, 10 ]
 
-? @@(o1.FindLastSDZZ("♥♥♥", :StartingAt = 6, :Direction = :Forward))
-#--> [ "♥♥♥", [13, 15] ]
+? o1.FindLastSTDZZ("♥♥♥", :StartingAt = 6, :Direction = :Forward)
+#--> [ 13, 15 ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*=================
 
@@ -6218,21 +6218,8 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 ? o1.FindNthST(2, "♥♥♥", :StartingAt = 6)
 #--> 13
 
-/*--------------
-
-pron()
-
-#                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
-
-? o1.FindFirstSZ("♥♥♥", :StartingAt = 6)
-#--> [ "♥♥♥", 8 ]
-
-? o1.FindLastSZ("♥♥♥", :StartingAt = 6)
-#--> [ "♥♥♥"", 13 ]
-
-? o1.FindNthSZ(2, "♥♥♥", :StartingAt = 6)
-#--> #--> [ "♥♥♥"", 13 ]
+proff()
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*--------------
 
@@ -6241,17 +6228,18 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-? o1.FindFirstSZZ("♥♥♥", :StartingAt = 6)
-#--> [ "♥♥♥", [8, 10] ]
+? o1.FindFirstSTZZ("♥♥♥", :StartingAt = 6)
+#--> [ 8, 10 ]
 
-? o1.FindLastSZZ("♥♥♥", :StartingAt = 6)
-#--> [ "♥♥♥"", [13, 15] ]
+? o1.FindLastSTZZ("♥♥♥", :StartingAt = 6)
+#--> [ 13, 15 ]
 
-? o1.FindNthSZZ(2, "♥♥♥", :StartingAt = 6)
-#--> [ "♥♥♥"", [13, 15] ]
+? o1.FindNthSTZZ(2, "♥♥♥", :StartingAt = 6)
+#--> [ 13, 15 ]
 
 proff()
-# Executed in 0.16 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.16 second(s) in Ring 1.17
 
 /*===============
 
@@ -6260,49 +6248,75 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-? o1.FindFirstSD("♥♥♥", :StartingAt = 12, :Backward)
+? o1.FindFirstSTD("♥♥♥", :StartingAt = 12, :Backward)
 #--> 8
 
-? o1.FindLastSD("♥♥♥", :StartingAt = 12, :Backward)
+? o1.FindLastSTD("♥♥♥", :StartingAt = 12, :Backward)
 #--> 3
 
-? o1.FindNthSD(2, "♥♥♥", :StartingAt = 12, :Backward)
+? o1.FindNthSTD(2, "♥♥♥", :StartingAt = 12, :Backward)
 #--> 3
-
-/*--------------
-
-pron()
-
-#                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
-
-? o1.FindFirstSDZ("♥♥♥", :StartingAt = 12, :Backward)
-#--> [ "♥♥♥", 8 ]
-
-? o1.FindLastSDZ("♥♥♥", :StartingAt = 12, :Backward)
-#--> [ "♥♥♥"", 3 ]
-
-? o1.FindNthSDZ(2, "♥♥♥", :StartingAt = 12, :Backward)
-#--> #--> [ "♥♥♥"", 3 ]
-
-/*--------------
-
-pron()
-
-#                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
-
-? o1.FindFirstSDZZ("♥♥♥", :StartingAt = 12, :Backward)
-#--> [ "♥♥♥", [8, 10] ]
-
-? o1.FindLastSDZZ("♥♥♥", :StartingAt = 12, :Backward)
-#--> [ "♥♥♥"", [3, 5] ]
-
-? o1.FindNthSDZZ(2, "♥♥♥", :StartingAt = 12, :Backward)
-#--> [ "♥♥♥"", [3, 5] ]
 
 proff()
-# Executed in 0.26 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+
+/*--------------
+
+pron()
+
+#                     3    8    3
+o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+
+? o1.FirstSTDZ("♥♥♥", :StartingAt = 12, :Backward)
+#--> [ "♥♥♥", 8 ]
+
+? o1.LastSTDZ("♥♥♥", :StartingAt = 12, :Backward)
+#--> [ "♥♥♥"", 3 ]
+
+? o1.NthSTDZ(2, "♥♥♥", :StartingAt = 12, :Backward)
+#--> [ "♥♥♥", 3 ]
+
+proff()
+# Executed in 0.02 second(s) in Ring 1.21
+
+/*--------------
+
+pron()
+
+#                     3    8    3
+o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+
+? o1.FindFirstSTDZZ("♥♥♥", :StartingAt = 12, :Backward)
+#--> [ 8, 10 ]
+
+? o1.FindLastSTDZZ("♥♥♥", :StartingAt = 12, :Backward)
+#--> [ 3, 5 ]
+
+? o1.FindNthSTDZZ(2, "♥♥♥", :StartingAt = 12, :Backward)
+#--> [ 3, 5 ]
+
+proff()
+# Executed in 0.08 second(s) in Ring 1.21
+
+/*--------------
+
+pron()
+
+#                     3    8    3
+o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+
+? o1.FirstSTDZZ("♥♥♥", :StartingAt = 12, :Backward)
+#--> [ "♥♥♥", [ 8, 10 ] ]
+
+? o1.LastSTDZZ("♥♥♥", :StartingAt = 12, :Backward)
+#--> [ "♥♥♥", [ 3, 5 ] ]
+
+? o1.NthSTDZZ(2, "♥♥♥", :StartingAt = 12, :Backward)
+#--> [ "♥♥♥", [ 3, 5 ] ]
+
+proff()
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.08 second(s) in Ring 1.18
 
 /*===========
 
@@ -6314,11 +6328,14 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 ? o1.FindFirstAsSection("♥♥♥")
 #--> [3, 5]
 
-? o1.FindFirstAsSectionS("♥♥♥", :StartingAt = 5)
+? o1.FindFirstAsSectionST("♥♥♥", :StartingAt = 5)
 #--> [8, 10]
 
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
 /*--------------
-*/
+
 pron()
 
 #                     3    8    3
@@ -6328,10 +6345,11 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 #--> [13, 15]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.07 second(s) in Ring 1.18
 
 /*=============
-*/
+
 pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
@@ -6342,11 +6360,14 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 ? o1.FindLastD("♥♥♥", :Backward)
 #--> 3
 
-? o1.FindNthD(2, "♥♥♥", :Backward)
+? o1.FindNthD(2, "♥♥♥", :Backward) + NL
 #--> 8
 
 ? o1.FindD("♥♥♥", :Backward)
 #--> [13, 8, 3 ]
+
+proff()
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*--------------
 
@@ -6354,17 +6375,21 @@ pron()
 
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
-? o1.FindFirstDZ("♥♥♥", :Backward)
-#--> [ "♥♥♥", 13 ]
 
-? o1.FindLastDZ("♥♥♥", :Backward)
-#--> [ "♥♥♥", 3 ]
+? o1.FindFirstD("♥♥♥", :Backward)
+#--> 13
 
-? o1.FindNthDZ(2, "♥♥♥", :Backward)
-#--> [ "♥♥♥", 8 ]
+? o1.FindLastD("♥♥♥", :Backward)
+#--> 3
 
-? o1.FindDZ("♥♥♥", :Backward)
-#--> [ "♥♥♥"", [ 13, 8, 3 ] ]
+? o1.FindNthD(2, "♥♥♥", :Backward) + NL
+#--> 8
+
+? o1.FindD("♥♥♥", :Backward)
+#--> [ 13, 8, 3 ]
+
+proff()
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*--------------
 
@@ -6374,19 +6399,20 @@ pron()
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
 ? o1.FindFirstDZZ("♥♥♥", :Backward)
-#--> [ "♥♥♥", [13, 15] ]
+#--> [ 13, 15 ]
 
 ? o1.FindLastDZZ("♥♥♥", :Backward)
-#--> [ "♥♥♥", [3, 5] ]
+#--> [ 3, 5 ]
 
 ? o1.FindNthDZZ(2, "♥♥♥", :Backward)
-#--> [ "♥♥♥", [8, 10] ]
+#--> [ 8, 10 ]
 
 ? @@( o1.FindDZZ("♥♥♥", :Backward) )
-#--> [ "♥♥♥"", [ [ 13, 15 ], [ 8, 10 ], [ 3, 5 ] ] ]
+#--> [ [ [ 13, 15 ], [ 8, 10 ], [ 3, 5 ] ]
 
 proff()
-# Executed in 0.36 second(s)
+# Executed in 0.05 second(s) in Ring 1.21
+# Executed in 0.36 second(s) in Ring 1.17
 
 /*--------------
 
@@ -6394,17 +6420,18 @@ pron()
 
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
-/*
+
 ? @@( o1.Find( "♥♥♥" ) ) # or FindOccurrences( :Of = "♥♥♥" )
 #--> [3, 8, 13 ]
 
 ? @@( o1.FindZ( :Of = "♥♥♥") )
-#--> [ "♥♥♥", [3, 8, 13 ] ]
+#--> [ 3, 8, 13 ]
 
 ? @@( o1.FindZZ( :Of = "♥♥♥") )
-#--> [ "♥♥♥", [ [3, 5], [8, 10], [13, 15] ] ]
+#--> [ [3, 5], [8, 10], [13, 15] ]
 
 proff()
+# Executed in 0.06 second(s) in Ring 1.21
 
 /*--------------
 
@@ -6416,16 +6443,17 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 ? @@( o1.FindD( "♥♥♥", :Backward ) )
 #--> [ 13, 8, 3 ]
 
-? o1.FindAsSectionsD( "♥♥♥", :Backward )
+? @@( o1.FindAsSectionsD( "♥♥♥", :Backward ) )
 #--> [ [13, 5], [8, 10], [3, 5] ]
 
 ? @@( o1.FindDZ( "♥♥♥", :Backward) )
-#--> [ "♥♥♥", [ 13, 8, 3 ] ]
+#--> [ 13, 8, 3 ]
 
 ? @@( o1.FindDZZ( "♥♥♥", :Backward) )
-#--> [ "♥♥♥", [ [ 13, 15 ], [ 8, 10 ], [ 3, 5 ] ] ]
+#--> [ [ 13, 15 ], [ 8, 10 ], [ 3, 5 ] ]
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*--------------
 
@@ -6434,17 +6462,18 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-? o1.FindST( "♥♥♥", :StartingAt = 6 )
+? @@( o1.FindST( "♥♥♥", :StartingAt = 6 ) )
 #--> [8, 13 ]
 
-? @@( o1.FindSZ( "♥♥♥", :StartingAt = 6 ) )
-#--> [ "♥♥♥", [8, 13 ] ]
+? @@( o1.FindSTZ( "♥♥♥", :StartingAt = 6 ) )
+#--> [ 8, 13 ]
 
-? @@( o1.FindSZZ( "♥♥♥", :StartingAt = 6 ) )
-#--> [ "♥♥♥", [ [8, 10], [13, 15] ] ]
+? @@( o1.FindSTZZ( "♥♥♥", :StartingAt = 6 ) )
+#--> [ 8, 10], [13, 15] ]
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.11 second(s) in Ring 1.17
 
 /*--------------
 
@@ -6453,22 +6482,22 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
 
-? o1.FindSD( "♥♥♥", :StartingAt = 6, :Backward )
+? o1.FindSTD( "♥♥♥", :StartingAt = 6, :Backward )
 #--> [8, 13 ]
 
-? o1.FindSDZ( "♥♥♥", :StartingAt = 6, :Backward )
+? o1.FindSTDZ( "♥♥♥", :StartingAt = 6, :Backward )
 #--> [ "♥♥♥", [13, 8] ]
 
-? @@( o1.FindAsSectionsSD("♥♥♥", :StartingAt = 6, :Backward) )
-#--> [ [ 13, 15 ], [ 8, 10 ] ]
+? @@( o1.FindAsSectionsSTD("♥♥♥", :StartingAt = 12, :Backward) )
+#--> [ [ 8, 10 ], [ 3, 5 ] ]
 
-? @@( o1.FindSDZZ( "♥♥♥", :StartingAt = 6, :Backward ) )
-#--> [ "♥♥♥", [ [ 13, 15 ], [ 8, 10 ] ] ]
+? @@( o1.FindSTDZZ( "♥♥♥", :StartingAt = 12, :Backward ) )
+#--> [ [ 8, 10 ], [ 3, 5 ] ]
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.21
 
-
-/*-----------------
+/*===============
 
 pron()
 
@@ -6481,6 +6510,7 @@ o1 = new stzString("**aa***aa**aa***")
 #--> A use case better suited for stzChainOfValue
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*-----------------
 
@@ -6504,14 +6534,15 @@ pron()
 
 o1 = new stzString("aa***aa**aa***")
 
-? o1.FindAnyBetween("aa", "aa")
-#--> 8
+? @@( o1.FindAnyBoundedBy([ "aa", "aa" ]) )
+#--> [ 3, 8 ]
 
-? o1.FindAnyBetweenAsSections("aa", "aa")
-#--> [ 8, 9 ]
+? @@( o1.FindAnyBoundedByZZ([ "aa", "aa" ]) )
+#--> [ [ 3, 5 ], [ 8, 9 ] ]
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.10 second(s) in Ring 1.17
 
 /*---------------
 
@@ -6519,19 +6550,13 @@ pron()
 #                     3    8   3
 o1 = new stzString("**aa***aa**aa***")
 
-? @@(o1.FindAnyBoundedByAsSectionsS("aa", "aa", 1))
+? @@( o1.FindSubStringsBoundedByZZ(["aa", "aa"]) )
 #--> [ [ 5, 7 ], [ 10, 11 ] ]
 
-? @@(o1.FindAnyBoundedByDZZ("aa", "aa", :Backward))
-#--> [ [ 10, 11 ], [ 5, 7 ] ]
-
-? @@(o1.FindAnyBoundedBySZZ("aa", "aa", :StartingAt = 3))
-#--> [ [ 10, 11 ] ]
-
 proff()
-# Executed in 0.18 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
-#---------
+#=============
 
 pron()
 
@@ -6548,18 +6573,8 @@ o1 = new stzString("*aa***aa**aa***aa*")
 #--> TRUE
 
 proff()
-# Executed in 0.18 second(s)
-
-#---------
-
-pron()
-
-#                        6
-o1 = new stzString("*aa***aa**aa***aa*")
-? @@( o1.FindAnyBetweenAsSections("aa", "aa") ) # o1.FindAnyBetweenAsSections("aa", "aa")
-#--> [ [ 4, 6 ], [ 13, 15 ] ]
-
-proff()
+# Executed in 0.04 second(s) in Ring 1.21
+# Executed in 0.18 second(s) in ring 1.18
 
 #---------
 
@@ -6567,33 +6582,36 @@ pron()
 #                      4 6  90  3 5
 o1 = new stzString("*aa***aa**aa***aa*")
 
-? o1.FindAnyBetween("aa", "aa")
+? o1.FindAnyBoundedBy([ "aa", "aa" ])
 #--> [4, 9, 13]
 
-? @@( o1.FindAnyBetweenAsSections("aa", "aa") )
+? @@( o1.FindAnyBoundedByAsSections([ "aa", "aa" ]) )
 #--> [ [ 4, 6 ], [ 9, 10 ], [ 13, 15 ] ]
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.15 second(s) in ring 1.17
+
+proff()
 
 #---------
-
+*/
 pron()
 #                      4 6      3 5
 o1 = new stzString("*<<***>>**<<***>>*")
 
-? o1.FindAnyBetween("<<", ">>")
+? o1.FindAnyBoundedBy([ "<<", ">>" ])
 #--> [4, 13]
 
-? @@( o1.FindAnyBetweenAsSections("<<", ">>") )
+? @@( o1.FindAnyBoundedByAsSections([ "<<", ">>" ]) )
 #--> [ [ 4, 6 ], [ 13, 15 ] ]
 
 ? "--"
 
-? o1.FindAnyBetweenIB("<<", ">>")
+? o1.FindAnyBoundedByIB([ "<<", ">>" ])
 #--> [2, 11]
 
-? @@( o1.FindAnyBetweenAsSections("<<", ">>") )
+? @@( o1.FindAnyBoundedByAsSections([ "<<", ">>" ]) )
 #--> [ [ 4, 6 ], [ 13, 15 ] ]
 
 proff()
@@ -6661,7 +6679,7 @@ proff()
 # Executed in 0.09 second(s)
 
 /*===================
-
+*/
 pron()
 
 #                     3    8    3
@@ -6683,18 +6701,18 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 
 #--
 
-? @@( o1.FindSD("♥♥♥", :StartingAt = 6, :Forward) )
+? @@( o1.FindSTD("♥♥♥", :StartingAt = 6, :Forward) )
 #--> [ 8, 13 ]
 
-? @@( o1.FindAsSectionsSD("♥♥♥", :StartingAt = 6, :Forward) )
+? @@( o1.FindAsSectionsSTD("♥♥♥", :StartingAt = 6, :Forward) )
 #--> [ [ 8, 10 ], [ 13, 15 ] ]
 
 #--
 
-? @@( o1.FindSD("♥♥♥", :StartingAt = 14, :Backward) )
+? @@( o1.FindSTD("♥♥♥", :StartingAt = 14, :Backward) )
 #--> [8, 3]
 
-? @@( o1.FindAsSectionsSD("♥♥♥", :StartingAt = 14, :Backward) )
+? @@( o1.FindAsSectionsSTD("♥♥♥", :StartingAt = 14, :Backward) )
 #--> [ [ 8, 10 ], [ 3, 5 ] ]
 
 proff()
@@ -6726,7 +6744,7 @@ proff()
 # Executed in 0.09 second(s)
 
 /*-----------------
-
+*/
 pron()
 
 #                     3    8    3
@@ -6744,7 +6762,7 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 ? @@( o1.FindTheseOccurrencesSD([ 1, 2], :Of = "♥♥♥", :StartingAt = 12, :Bakcward) )
 #--> [ 8, 3 ]
 
-? @@( o1.FindTheseOccurrencesAsSectionsSD([ 1, 2], :Of = "♥♥♥", :StartingAt = 12, :Backward) )
+? @@( o1.FindTheseOccurrencesAsSectionsSTD([ 1, 2], :Of = "♥♥♥", :StartingAt = 12, :Backward) )
 #--> [ [ 8, 10 ], [ 3, 5 ] ]
 
 proff()
