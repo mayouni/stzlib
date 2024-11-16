@@ -33920,9 +33920,6 @@ class stzString from stzObject
 
 		#>
 
-
-~~~~~~~~~~~~~
-
 	  #==============================================================#
 	 #  FINDING NESTED SUBSTRINGS ENCLOSED BETWEN TWO GOVEN BOUNDS  #
 	#==============================================================#
@@ -34207,8 +34204,6 @@ class stzString from stzObject
 			return This.NestedSubStringsZZ(pacBounds)
 
 		#>
-
-#-- ici --------------------------------------
 
 	  #------------------------------------------------------------------------------#
 	 #  FINDING NESTED SUBSTRINGS ENCLOSED BETWEN TWO GOVEN BOUNDS -- IB/EXTENDTED  #
@@ -45751,11 +45746,15 @@ class stzString from stzObject
 		if oOption.IsBoundedByNamedParam()
 			return This.FindNthSubStringBoundedByCS(n, pcSubStr, paOption[2], pCaseSensitive)
 
+		but oOption.IsBoundedByIBNamedParam()
+			return This.FindNthSubStringBoundedByCSIB(n, pcSubStr, paOption[2], pCaseSensitive)
 
 		# CASE 2: ? o1.NthXT(2, "word", :Between = ["<<",">>"])
 		but oOption.IsBetweenNamedParam()
 			return This.FindNthSubStringBetweenCS(n, pcSubStr, paOption[1], paOption[2], pCaseSensitive)
 
+		but oOption.IsBetweenIBNamedParam()
+			return This.FindNthSubStringBetweenCSIB(n, pcSubStr, paOption[1], paOption[2], pCaseSensitive)
 
 		# CASE 3: ? o1.FindNthXT(2, "word", :StartingAt = 5)
 		but oOption.IsStartingAtNamedParam()
@@ -49267,14 +49266,18 @@ class stzString from stzObject
 				p2 = p2[2]
 				return This.FindBetweenCS(p1, p2[1], p2[2], pCaseSensitive)
 
-			# FindXT( "*", :BoundedBy = '"' )
-			but oP2.IsBoundedByNamedParam()
-				return This.FindSubStringBoundedByCS(p1, p2[2], pCaseSensitive)
-
 			# FindXT( "*", :BetweenIB = [ "<<", :And = ">>" ])
 			but  oP2.IsBetweenIBNamedParam()
 				p2 = p2[2]
 				return This.FindSubstringBetweenCSIB(p1, p2[1], p2[2], pCaseSensitive)
+
+			# FindXT( "*", :BoundedBy = '"' )
+			but oP2.IsBoundedByNamedParam()
+				return This.FindSubStringBoundedByCS(p1, p2[2], pCaseSensitive)
+
+			# FindXT( "*", :BoundedBy = '"' )
+			but oP2.IsBoundedByIBNamedParam()
+				return This.FindSubStringBoundedByCSIB(p1, p2[2], pCaseSensitive)
 
 			# FindXT("word", :StartingAt = 12)
 			but oP2.IsStartingAtNamedParam()
@@ -49480,7 +49483,11 @@ class stzString from stzObject
 
 			# FindAsSectionsXT( "*", :BoundedBy = '"' )
 			but oP2.IsBoundedByNamedParam()
-				return This.FindBoundedByAsSectionsCS(p1, p2[2], pCaseSensitive)
+				return This.FindSubStringBoundedByAsSectionsCS(p1, p2[2], pCaseSensitive)
+				
+			# FindAsSectionsXT( "*", :BoundedByIB = '"' )
+			but oP2.IsBoundedByIBNamedParam()
+				return This.FindSubStringBoundedByAsSectionsCSIB(p1, p2[2], pCaseSensitive)
 
 			# FindAsSectionsXT( "*", :BetweenIB = [ "<<", :And = ">>" ])
 			but  oP2.IsBetweenIBNamedParam()
@@ -49568,7 +49575,7 @@ class stzString from stzObject
 			    isList(p2) and Q(p2).IsBoundedByNamedParam()
 
 				n = 0+ Q(p1[1]).FirstNumber()
-				return This.FindNthBoundedAsSectionByCS(n, p1[2], p2, pCaseSensitive)
+				return This.FindNthBoundedAsSectionByCS(n, [ p1[2], p2 ], pCaseSensitive)
 
 			# FindAsSectionsXT( :3rd = "*", :InSection = [5, 24] ])
 			but isList(p1) and isString(p1[2]) and
@@ -54120,6 +54127,7 @@ n1 = Min(aTemp)
 	  #---------------------------------------#
 	 #   CHECKING CONATAINMENT -- EXTENDED   #
 	#---------------------------------------#
+	#TODO // Optimise the code hierarchy for all simular XT() functions
 
 	def ContainsCSXT(p1, p2, pCaseSensitive)
 
@@ -54188,100 +54196,198 @@ n1 = Min(aTemp)
 			ok
 
 			return This.ContainsSubStringBoundedByCS(p1, p2[2], pCaseSensitive)
-		
-		# ? Q("_/♥\_").ContainsXT("♥", :Between = ["/", :And = "\"])
-		but isString(p1) and isList(p2) and (Q(p2).IsBetweenNamedParam() or Q(p2).IsBoundedByNamedParam())
 
-			if Q(p2[2][2]).IsAndNamedParam()
-				aTemp = []
-				aTemp + p2[2][1] + p2[2][2][2]
-				p2[2] = aTemp
+		# ? Q("_-♥-_").ContainsXT("♥", :BoundedByIB = "-")
+		# ? Q("_-♥-_").ContainsXT(:SubString = "♥", :BoundedByIB = "-")
+		but ( isString(p1) or
+		      ( isList(p1) and Q(p1).IsSubStringNamedParam() and isString(p1[2]) ) ) and
+		    isList(p2) and Q(p2).IsBoundedByIBNamedParam()
+
+			if isList(p1) and Q(p1).IsSubStringNamedParam()
+				p1 = p1[2]
 			ok
 
-			if Q(p2[2]).isListOfStrings()
+			return This.ContainsSubStringBoundedByCSIB(p1, p2[2], pCaseSensitive)
 
+		
+		but isString(p1) and isList(p2)
+
+			# ? Q("_/♥\_").ContainsXT("♥", :Between = ["/", :And = "\"])
+
+			if Q(p2).IsBetweenNamedParam()
+
+				if Q(p2[2][2]).IsAndNamedParam()
+					aTemp = []
+					aTemp + p2[2][1] + p2[2][2][2]
+					p2[2] = aTemp
+				ok
+	
+				if Q(p2[2]).isListOfStrings()
+					return This.ContainsSubStringBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
+	
+				but Q(p2[2]).isListOfNumbers()
+					return This.ContainsSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
+	
+				ok
+
+			# ? Q("_/♥\_").ContainsXT("♥", :BetweenIB = ["/", :And = "\"])
+
+			but Q(p2).IsBetweenIBNamedParam()
+
+				if Q(p2[2][2]).IsAndNamedParam()
+					aTemp = []
+					aTemp + p2[2][1] + p2[2][2][2]
+					p2[2] = aTemp
+				ok
+	
+				if Q(p2[2]).isListOfStrings()
+					return This.ContainsSubStringBetweenCSIB(p1, p2[2][1], p2[2][2], pCaseSensitive)
+	
+				but Q(p2[2]).isListOfNumbers()
+					return This.ContainsSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
+	
+				ok
+
+			but Q(p2).IsInSectionNamedParam() and
+		    	   isList(p2[2]) and Q(p2[2]).IsPairOfNumbers()
+
+				return This.containsInSectionCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
+
+			but Q(p2).IsBetweenSubStringsNamedParam()
+
+				if Q(p2[2]).IsAndNamedParam()
+					p2[2] = p2[2][2]
+				ok
+	
 				return This.ContainsSubStringBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
+			
+			but Q(p2).IsBetweenIBSubStringsNamedParam()
 
-			but Q(p2[2]).isListOfNumbers()
+				if Q(p2[2]).IsAndNamedParam()
+					p2[2] = p2[2][2]
+				ok
+	
+				return This.ContainsSubStringBetweenCSIB(p1, p2[2][1], p2[2][2], pCaseSensitive)
+
+			but Q(p2).IsBetweenPositionsNamedParam()
+				if Q(p2[2]).IsAndNamedParam()
+					p2[2] = p2[2][2]
+				ok
+	
 				return This.ContainsSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
-
+	
 			ok
-
-		but isString(p1) and isList(p2) and
-		    Q(p2).IsInSectionNamedParam() and
-		    isList(p2[2]) and Q(p2[2]).IsPairOfNumbers()
-
-			return This.containsInSectionCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
-
-
-		but isString(p1) and isList(p2) and Q(p2).IsBetweenSubStringsNamedParam()
-
-			if Q(p2[2]).IsAndNamedParam()
-				p2[2] = p2[2][2]
-			ok
-
-			return This.ContainsSubStringBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
-		
-		but isString(p1) and isList(p2) and Q(p2).IsBetweenPositionsNamedParam()
-
-			if Q(p2[2]).IsAndNamedParam()
-				p2[2] = p2[2][2]
-			ok
-
-			return This.ContainsSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
 		
 		# ? Q("__-♥-__").ContainsXT(["_", "-", "♥"], [])
+
 		but isList(p1) and Q(p1).IsListOfStrings() and isList(p2) and len(p2) = 0
 			return This.ContainsTheseCS(p1, pCaseSensitive)
 		
 		# ? Q("__-♥-__-•-__").ContainsXT(["♥", "•"], :BoundedBy = "-")
-		but isList(p1) and Q(p1).IsListOfStrings() and isList(p2) and Q(p2).IsBoundedByNamedParam()
-			bResult = TRUE
-		
-			nLen = len(p1)
-			for i = 1 to nLen
-				if NOT This.ContainsSubStringBoundedByCS(p1[i], p2[2], pCaseSensitive)
-					bResult = FALSE
-					exit
-				ok
-			next
-		
-			return bResult
-		
-		# ? Q("__/♥\__/•\__").ContainsXT(["♥", "•"], :Between = ["/","\"])
-		but isList(p1) and Q(p1).IsListOfStrings() and isList(p2) and Q(p2).IsBetweenNamedParam()
-			if Q(p2[2][2]).IsAndNamedParam()
-				p2[2][2] = p2[2][2][2]
+
+		but isList(p1) and Q(p1).IsListOfStrings() and isList(p2)
+
+			if Q(p2).IsBoundedByNamedParam()
+				bResult = TRUE
+			
+				nLen = len(p1)
+				for i = 1 to nLen
+					if NOT This.ContainsSubStringBoundedByCS(p1[i], p2[2], pCaseSensitive)
+						bResult = FALSE
+						exit
+					ok
+				next
+			
+				return bResult
+
+			but Q(p2).IsBoundedByIBNamedParam()
+				bResult = TRUE
+			
+				nLen = len(p1)
+				for i = 1 to nLen
+					if NOT This.ContainsSubStringBoundedByCSIB(p1[i], p2[2], pCaseSensitive)
+						bResult = FALSE
+						exit
+					ok
+				next
+			
+				return bResult
 			ok
-		
-			bResult = TRUE
-		
-			nLen = len(p1)
-			for i = 1 to nLen
-				if NOT This.ContainsSubStringBetweenCS(p1[1], p2[2][1], p2[2][2], pCaseSensitive)
-					bResult = FALSE
-					exit
+
+		# ? Q("__/♥\__/•\__").ContainsXT(["♥", "•"], :Between = ["/","\"])
+
+		but isList(p1) and Q(p1).IsListOfStrings() and isList(p2)
+
+			if Q(p2).IsBetweenNamedParam()
+				if Q(p2[2][2]).IsAndNamedParam()
+					p2[2][2] = p2[2][2][2]
 				ok
-			next
+			
+				bResult = TRUE
+			
+				nLen = len(p1)
+				for i = 1 to nLen
+					if NOT This.ContainsSubStringBetweenCS(p1[1], p2[2][1], p2[2][2], pCaseSensitive)
+						bResult = FALSE
+						exit
+					ok
+				next
+			
+				return bResult
 		
-			return bResult
-		
+			but Q(p2).IsBetweenIBNamedParam()
+				if Q(p2[2][2]).IsAndNamedParam()
+					p2[2][2] = p2[2][2][2]
+				ok
+			
+				bResult = TRUE
+			
+				nLen = len(p1)
+				for i = 1 to nLen
+					if NOT This.ContainsSubStringBetweenCSIB(p1[1], p2[2][1], p2[2][2], pCaseSensitive)
+						bResult = FALSE
+						exit
+					ok
+				next
+			
+				return bResult
+			ok
+
 		# ? Q("__♥__").ContainsXT([], "♥")
+
 		but isList(p1) and len(p1) = 0 and isString(p2)
 			return This.ContainsCS(p2, pCaseSensitive)
 		
 		# ? Q("__♥__♥__").ContainsXT( [], :BoundedBy = ["/","\"] )
-		but isList(p1) and len(p1) = 0 and isList(p2) and Q(p2).IsBoundedByNamedParam()
-			return This.ContainsSubStringsBoundedByCS(p2[2], pCaseSensitive)
-		
-		# ? Q("__/♥\__/^^\__").ContainsXT( [], :Between = ["/","\"] )
-		but isList(p1) and len(p1) = 0 and isList(p2) and Q(p2).IsBetweenNamedParam()
-			if Q(p2[2]).IsAndNamedParam()
-				p2[2] = p2[2][2]
+
+		but isList(p1) and len(p1) = 0 and isList(p2)
+
+			if Q(p2).IsBoundedByNamedParam()
+				return This.ContainsSubStringsBoundedByCS(p2[2], pCaseSensitive)
+
+			but Q(p2).IsBoundedByIBNamedParam()
+				return This.ContainsSubStringsBoundedByCSIB(p2[2], pCaseSensitive)
 			ok
-		
-			return This.ContainsSubStringsBetweenCS(p2[2][1], p2[2][2], pCaseSensitive)
+
+		# ? Q("__/♥\__/^^\__").ContainsXT( [], :Between = ["/","\"] )
+
+		but isList(p1) and len(p1) = 0 and isList(p2)
+
+			if Q(p2).IsBetweenNamedParam()
+				if Q(p2[2]).IsAndNamedParam()
+					p2[2] = p2[2][2]
+				ok
 			
+				return This.ContainsSubStringsBetweenCS(p2[2][1], p2[2][2], pCaseSensitive)
+
+			but Q(p2).IsBetweenIBNamedParam()
+				if Q(p2[2]).IsAndNamedParam()
+					p2[2] = p2[2][2]
+				ok
+			
+				return This.ContainsSubStringsBetweenCSIB(p2[2][1], p2[2][2], pCaseSensitive)
+			ok
+
 		#=== CHARS
 
 		# ? Q("__-♥-__").ContainsXT(:Chars, ["_", "-", "_"])
@@ -54853,7 +54959,7 @@ n1 = Min(aTemp)
 	 #  NUMBER OF OCCURRENCE OF A SUBSTRING BOUNDED BY TWO OTHER SUBSTRINGS  #
 	#=======================================================================#
 
-	def NumberOfOccurrenceCSXT(pcSubStr, pacBetween, pCaseSensitive)
+	def NumberOfOccurrenceCSXT(pcSubStr, pacBetweenOrBoundedBy, pCaseSensitive)
 		/* EXAMPLE
 		
 		o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
@@ -54870,33 +54976,79 @@ n1 = Min(aTemp)
 			pcSubStr = pcSubStr[2]
 		ok
 
-		if isList(pacBetween) and
-			( Q(pacBetween).IsBetweenNamedParam() or
-			Q(pacBetween).IsBetweenSubstringsNamedParam() or
-			Q(pacBetween).IsBoundedByNamedParam() or
-			Q(pacBetween).IsBoundedBySubStringsNamedParam() )
+		cBetweenOrBoundedBy = ""
 
-			pacBetween = pacBetween[2]
+		if isList(pacBetweenOrBoundedBy)
+
+			# Resolving the case of [ ..., :And = ... ]
+
+			if isList(pacBetweenOrBoundedBy[2]) and
+				Q(pacBetweenOrBoundedBy[2]).IsAndNamedParam()
+	
+					pacBetweenOrBoundedBy[2] = pacBetweenOrBoundedBy[2][2]
+			ok
+
+			if NOT ( Q(pacBetweenOrBoundedBy).IsPairOfStrings() or Q(pacBetweenOrBoundedBy).IsPairOfNumbers() or
+				
+				( ( isString(pacBetweenOrBoundedBy[1]) or isNumber(pacBetweenOrBoundedBy[1]) ) and
+				   isList(pacBetweenOrBoundedBy[2]) and
+				   Q(pacBetweenOrBoundedBy[2]).IsAndNamedParam() and
+				   ( isString(pacBetweenOrBoundedBy[2][2]) or isNumber((pacBetweenOrBoundedBy[2][2])))
+				) )
+	
+				stzRaise("Incorrect param! pacBetweenOrBoundedBy must be a pair of strings or numbers.")
+			ok
+
+			# Reading the parms wether they correspond :Between or :BoundedBy
+
+			if Q(pacBetweenOrBoundedBy).IsBetweenNamedParam() or
+			   Q(pacBetweenOrBoundedBy).IsBetweenSubStringsNamedParam() or
+			   Q(pacBetweenOrBoundedBy).IsBetweenpositionsNamedParam()
+
+				cBetweenOrBoundedBy = :Between
+				pacBetweenOrBoundedBy = pacBetweenOrBoundedBy[2]			
+
+			But Q(pacBetweenOrBoundedBy).IsBetweenIBNamedParam() or
+			    Q(pacBetweenOrBoundedBy).IsBetweenSubStringsIBNamedParam() or
+			    Q(pacBetweenOrBoundedBy).IsBetweenPositionsIBNamedParam()
+
+				cBetweenOrBoundedBy = :BetweenIB
+				pacBetweenOrBoundedBy = pacBetweenOrBoundedBy[2]
+
+			but Q(pacBetweenOrBoundedBy).IsBoundedByNamedParam() or
+			    Q(pacBetweenOrBoundedBy).IsBoundedBySubStringsNamedParam()
+
+				cBetweenOrBoundedBy = :BoundedBy
+				pacBetweenOrBoundedBy = pacBetweenOrBoundedBy[2]			
+
+			But Q(pacBetweenOrBoundedBy).IsBoundedByIBNamedParam() or
+			    Q(pacBetweenOrBoundedBy).IsBoundedBySubStringsIBNamedParam()
+
+				cBetweenOrBoundedBy = :BoundedByIB
+				pacBetweenOrBoundedBy = pacBetweenOrBoundedBy[2]
+
+			ok	
 		ok
 
-		if isList(pacBetween) and
-			isList(pacBetween[2]) and
-			Q(pacBetween[2]).IsAndNamedParam()
+		# Doing the job
 
-				pacBetween[2] = pacBetween[2][2]
-		ok
+		switch cBetweenOrBoundedBy
+			on :Between
+				nResult = This.NumberOfOccurrenceBetweenCS(pcSubStr, pacBetween[1], pacBetween[2], pCaseSensitive)
 
-		if NOT ( Q(pacBetween).IsPairOfStrings() or
-			
-			( isString(pacBetween[1]) and
-			   	isList(pacBetween[2]) and
-			  	 Q(pacBetween[2]).IsAndNamedParam() and
-			   	 isString(pacBetween[2][2]) ) )
+			on :BetweenIB
+				nResult = This.NumberOfOccurrenceBetweenCSIB(pcSubStr, pacBetween[1], pacBetween[2], pCaseSensitive)
 
-			stzRaise("Incorrect param! pacBetween must be a pair of strings.")
-		ok
+			on :BoundedBy
+				nResult = This.NumberOfOccurrenceBoundedByCS(pcSubStr, pacBetween[1], pacBetween[2], pCaseSensitive)
 
-		nResult = This.NumberOfOccurrenceBetweenCS(pcSubStr, pacBetween[1], pacBetween[2], pCaseSensitive)
+			on :BoundedByIB
+				nResult = This.NumberOfOccurrenceBoundedByCSIB(pcSubStr, pacBetween[1], pacBetween[2], pCaseSensitive)
+
+			other
+				StzRaise("Unsupported syntax!")
+			off
+
 		return nResult
 
 	#-- WITHOUT CASESENSITIVITY

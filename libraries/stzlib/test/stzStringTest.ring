@@ -6619,18 +6619,28 @@ proff()
 # Executed in 0.17 second(s) in Ring 1.17
 
 /*-----------------
+
+pron()
+
+? Bounds([ "67", :And = "12" ])
+#--> [ "67", "12" ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.21
+
+/*-----------------
 */
 pron()
 
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 
-//? @@( o1.FindAnyBoundedBy([ "67", :And = "12" ]) ) # Same as o1.FindSubStringsBetween("67", "12")
+? @@( o1.FindSubStringsBoundedBy([ "67", :And = "12" ]) ) # Same as o1.FindSubStringsBetween("67", "12")
 #--> [ 8 ]
 
 ? @@( o1.FindSubStringBoundedBy("♥♥♥", [ "67", :And = "12" ]) ) # Same  as o1.FindSubStringsBetween( "♥♥♥", "67", "12")
 #--> [ 8 ]
-/*
+
 ? @@( o1.FindXT( "♥♥♥", :BoundedBy = [ "67", :And = "12" ]) )
 #--> [ 8 ]
 
@@ -6659,7 +6669,7 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 
 ? @@( o1.FindAsSectionsXT( "♥♥♥", :BoundedByIB = ["12", :And = "67" ]) )
 #--> [ [ 1, 7 ], [ 11, 17 ] ]
-*/
+
 proff()
 # Executed in 0.30 second(s)
 
