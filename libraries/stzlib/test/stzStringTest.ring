@@ -6629,7 +6629,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.21
 
 /*-----------------
-*/
+
 pron()
 
 #                     3    8    3
@@ -6671,7 +6671,8 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 #--> [ [ 1, 7 ], [ 11, 17 ] ]
 
 proff()
-# Executed in 0.30 second(s)
+# Executed in 0.10 second(s) in Ring 1.21
+# Executed in 0.30 second(s) in Ring 1.18
 
 /*---------------
 
@@ -6680,17 +6681,18 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 
-? @@( o1.FindAnyBetweenAsSectionsIB("12", "67") )
+? @@( o1.FindAnyBoundedByAsSectionsIB([ "12", "67" ]) )
 #--> [ [ 1, 7 ], [ 11, 17 ] ]
 
-? @@( o1.FindAnyBetweenAsSections("♥♥♥", "♥♥♥") )
-#--> [ [ 6, 7 ] ]
+? @@( o1.FindAnyBoundedByAsSections([ "♥♥♥", "♥♥♥" ]) )
+#--> [ [ 6, 7 ], [ 11, 12 ] ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.09 second(s) in Ring 1.18
 
 /*===================
-*/
+
 pron()
 
 #                     3    8    3
@@ -6727,7 +6729,8 @@ o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 #--> [ [ 8, 10 ], [ 3, 5 ] ]
 
 proff()
-# Executed in 0.18 second(s)
+# Executed in 0.05 second(s) in Ring 1.21
+# Executed in 0.18 second(s) in Ring 1.18
 
 /*-----------------
 
@@ -6736,26 +6739,27 @@ pron()
 #                     3    8    3
 o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
 
-? @@( o1.FindOccurrences( :Of = "♥♥♥" ) ) # Or FindAllOccurrences()
-#--> [ 3, 8, 13 ]
+? @@( o1.FindOccurrences( [ 2, 3 ], :Of = "♥♥♥" ) ) # Or FindAllOccurrences()
+#--> [ 8, 13 ]
 
 ? @@( o1.FindTheseOccurrences([ 2, 3], :Of = "♥♥♥") ) # Or FindOccurrencesXT()
 #--> [ 8, 13 ]
 
-? @@( o1.FindTheseOccurrencesAsSections([ 2, 3], :Of = "♥♥♥") ) # Or FindOccurrencesAsSectionsXT
+? @@( o1.FindTheseOccurrencesZZ([ 2, 3], :Of = "♥♥♥") ) # Or FindOccurrencesAsSectionsXT
 #--> [ [ 8, 10 ], [ 13, 15 ] ]
 
-? @@( o1.FindTheseOccurrencesS([ 2, 3], :Of = "♥♥♥", :StartingAt = 2) ) # Or FindOccurrencesXTS()
+? @@( o1.FindTheseOccurrencesST([ 2, 3], :Of = "♥♥♥", :StartingAt = 2) ) # Or FindOccurrencesXTS()
 #--> [ 3, 8, 13 ]
 
-? @@( o1.FindTheseOccurrencesAsSectionsS([ 2, 3], :Of = "♥♥♥", :StartingAt = 2) ) # Or FindOccurrencesXTS()
+? @@( o1.FindTheseOccurrencesSTZZ([ 2, 3], :Of = "♥♥♥", :StartingAt = 2) ) # Or FindOccurrencesXTS()
 #--> [ [ 3, 5 ], [ 8, 10 ], [ 13, 15 ] ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.04 second(s) in Ring 1.21
+# Executed in 0.09 second(s) in Ring 1.18
 
 /*-----------------
-*/
+
 pron()
 
 #                     3    8    3
@@ -6785,7 +6789,6 @@ pron()
 
 o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
 
-
 ? o1.FindFirstST("♥♥♥", :StartingAt = 8)
 #--> 22
 
@@ -6796,6 +6799,7 @@ o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
 #--> 22
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*---------------
 
@@ -6803,14 +6807,15 @@ StartProfiler()
 
 o1 = new stzString("The range is between {min} and {max}")
 
-? @@( o1.FindAnyBetween("{", "}") ) + NL
+? @@( o1.FindBoundedBy([ "{", "}" ]) ) + NL
 #--> [ 23, 33 ]
 
-? @@( o1.FindAnyBetweenAsSections("{", "}") ) + NL
+? @@( o1.FindBoundedByZZ([ "{", "}" ]) ) + NL
 #--> [ [ 23, 25 ], [ 33, 35 ] ]
 
 StopProfiler()
-# Executed in 0.10 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.10 second(s) in Ring 1.18
 
 /*------------
 
@@ -6818,17 +6823,18 @@ StartProfiler()
 
 o1 = new stzString("The range is between {min} and {max}")
 
-? @@( o1.FindAnyBetweenIB("{", "}") ) + NL
+? @@( o1.FindBoundedByIB([ "{", "}" ]) ) + NL
 #--> [ 22, 32 ]
 
-? @@( o1.AnyBetweenIBZ("{", "}") ) + NL
+? @@( o1.BoundedByIBZ([ "{", "}" ]) ) + NL
 #--> [ [ "{min}", 22 ], [ "{max}", 32 ] ]
 
-? @@( o1.AnyBetweenIBZZ("{", "}") )
+? @@( o1.BoundedByIBZZ([ "{", "}" ]) )
 #--> [ [ "{min}", [ 22, 26 ] ], [ "{max}", [ 32, 36 ] ] ]
 
 StopProfiler()
-# Executed in 0.24 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.24 second(s) in Ring 1.18
 
 /*============
 
@@ -6838,44 +6844,54 @@ o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla {✤✤✤}")
 ? @@( o1.Find([ "♥♥♥", "✤✤✤" ]) ) # or FindMany()
 #-->[ 6, 22, 35 ]
 
-? @@( o1.FindZ([ "♥♥♥", "✤✤✤" ]) ) + NL # or FindManyZ()
+? @@( o1.TheseSubStringsZ([ "♥♥♥", "✤✤✤" ]) ) + NL
 #--> [ [ "♥♥♥", [ 6, 22 ] ], [ "✤✤✤", [ 35 ] ] ]
 
-? @@( o1.FindZZ([ "♥♥♥", "✤✤✤" ]) ) # or FindManyZZ()
+? @@NL( o1.TheseSubStringsZZ([ "♥♥♥", "✤✤✤" ]) ) # or FindManyZZ()
 #--> [
-#	[ "♥♥♥",   [ [6, 8], [22, 24] ] ],
-# 	[ "✤✤✤", [ [ 35, 37 ] ] ]
+#	[ "♥♥♥", [ [ 6, 8 ], [ 22, 24 ] ] ],
+#	[ "✤✤✤", [ [ 35, 37 ] ] ]
 # ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s) in Ring 1.21
 
-/*==================================================
-			 
+/*====# #todo #narration THE ART OF SPLITTING THINGS IN SOFTANZA
+		
+# Softanza can do all these splitting cases, both for strings and lists:
+
  -------------------+--------+--------+-------+--------- 
         SPLITTING   |   At   | Before | After | Around  
  ===================+========+========+=======+========= 
-      A Position    |   ✓   |   ✓   |   ✓   |   ...   
+      A Position    |   ✓   |   ✓   |   ✓   |   ✓   
  -------------------+--------+--------+-------+---------
-   Many Positions   |   ✓   |   ✓   |   ✓   |   ...    
+   Many Positions   |   ✓   |   ✓   |   ✓   |   ✓    
  -------------------+--------+--------+-------+---------
-      A SubString   |   ✓   |   ✓   |   ✓   |   ...    
+      A SubString   |   ✓   |   ✓   |   ✓   |   ✓   
  -------------------+--------+--------+-------+---------
-   Many SubStrings  |   ✓   |   ✓   |   ✓   |   ...    
+   Many SubStrings  |   ✓   |   ✓   |   ✓   |   ✓    
  -------------------+--------+--------+-------+---------
-       Section	    |   ✓   |   ✓   |   ✓   |   ...    
+       Section	    |   ✓   |   ✓   |   ✓   |   ✓    
  -------------------+--------+--------+-------+---------
-    Many Sections   |   ✓   |   ✓   |   ✓   |   ...    
+      SectionIB     |   ✓   |   ✓   |   ✓   |   ✓    
+ -------------------+--------+--------+-------+---------
+    Many Sections   |   ✓   |   ✓   |   ✓   |   ✓    
+ -------------------+--------+--------+-------+---------
+   Many SectionsIB  |   ✓   |   ✓   |   ✓   |   ✓    
  -------------------+--------+--------+-------+---------
        Where        |   ✓   |   ✓   |   ✓   |   ...    
  -------------------+--------+--------+-------+---------
 
+# See fellowing examples...
 
-/*============ SPLITTING BEFORE
+/*-----
+
+pron()
 
 # Splitting before a given substring with case sensitivity
 
 o1 = new stzString("__a__A__")
+
 ? @@( o1.SplitBeforeCS("a", :CS = FALSE) )
 #--> [ "__", "a__", "A__" ]
 
@@ -6885,6 +6901,8 @@ o1 = new stzString("__a__A__")
 ? @@( o1.Split( :Before = [ "a", "A" ] ) ) + NL
 #--> [ "__", "a__", "A__" ]
 
+#---
+
 o1 = new stzString("...♥...♥...")
 ? @@( o1.Split( :BeforePosition = 4 ) )
 #--> [ "...", "♥...♥..." ]
@@ -6892,8 +6910,10 @@ o1 = new stzString("...♥...♥...")
 ? @@( o1.Split( :BeforePositions = [ 4, 8 ] ) )
 #--> [ "...", "♥...", "♥..." ]
 
-? @@( o1.Split( :BeforeSection = [ 4,  8 ] ) )
+? @@( o1.Split( :BeforeSection = [ 4,  8 ] ) ) + NL
 #--> [ "...", "♥...♥..." ]
+
+#---
 
 o1 = new stzString("...♥♥♥..♥♥..")
 ? @@( o1.Split( :BeforeSections = [ [4, 6], [9, 10] ] ) )
@@ -6907,8 +6927,12 @@ o1 = new stzString("...♥♥...♥♥...")
 ? @@( o1.SplitBeforeSubStringsWXT(' @SubString = "♥♥" ') )
 #--> [ "...", "♥♥...", "♥♥..." ]
 
-/*============ SPLITTING AT
 
+proff()
+# Executed in 0.27 second(s) in Ring 1.21
+
+/*============ SPLITTING AT
+*/
 pron()
 
 # Splitting at a given substring with case sensitivity
@@ -6958,23 +6982,23 @@ o1 = new stzString("...♥♥♥...♥♥...")
 # Splitting at a char described by a condition
 
 o1 = new stzString("...♥...♥...")
-? o1.SplitW('@char = "♥"')
+? o1.SplitWXT('@char = "♥"')
 #--> [ "...", "...", "..." ]
 
 # Splitting at a substring described by a condition
 
 o1 = new stzString("...♥♥...♥♥...")
-? o1.SplitW('{ @SubString = "♥♥" }')
+? o1.SplitWXT('{ @SubString = "♥♥" }')
 #--> [ "...", "...", "..." ]
 
 o1 = new stzString("...ONE...TWO...ONE")
-? o1.SplitW('{ @SubString = "ONE" or @SubString = "TWO" }')
+? o1.SplitWXT('{ @SubString = "ONE" or @SubString = "TWO" }')
 #--> [ "...", "...", "..." ]
 
-? o1.SplitW('{ Q(@SubString).IsOneOfThese([ "ONE", "TWO"]) }')
+? o1.SplitWXT('{ Q(@SubString).IsOneOfThese([ "ONE", "TWO"]) }')
 #--> [ "...", "...", "..." ]
 
-? o1.SplitW('{ Q(@SubString).IsEither( "ONE", :Or = "TWO") }')
+? o1.SplitWXT('{ Q(@SubString).IsEither( "ONE", :Or = "TWO") }')
 #--> [ "...", "...", "..." ]
 
 proff()
