@@ -6931,19 +6931,35 @@ o1 = new stzString("...♥♥...♥♥...")
 proff()
 # Executed in 0.27 second(s) in Ring 1.21
 
+/*------
+
+pron()
+
+o1 = new stzString("hello ring what a nice ring!")
+
+? @@( o1.FindAsSections( "ring" ) )
+#--> [ [7, 10], [24, 27] ]
+
+? @@( o1.FindAsAntiSections("ring") )
+#--> [ [1, 6], [11, 23], [28, 28] ]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
 /*============ SPLITTING AT
-*/
+
 pron()
 
 # Splitting at a given substring with case sensitivity
 
 o1 = new stzString("__a__A__")
+
 ? o1.SplitCS("a", :CS = FALSE)
 #--> [ "__", "__", "__" ]
 
 # Splitting at a given substring (without case sensitivity)
 
-? @@( o1.Split("a") )
+? o1.Split("a")
 #--> [ "__", "__A__" ]
 
 # Splitting at a given position
@@ -6970,7 +6986,7 @@ o1 = new stzString("...♥♥♥...")
 ? o1.SplitAt( :Section = [ 4, 6 ] )
 #--> [ "...", "..." ]
 
-? @@( o1.Split( :AtSection = [ 4, 6 ] ) )
+? o1.Split( :AtSection = [ 4, 6 ] )
 #--> [ "...", "..." ]
 
 # Splitting at many sections
@@ -6982,26 +6998,27 @@ o1 = new stzString("...♥♥♥...♥♥...")
 # Splitting at a char described by a condition
 
 o1 = new stzString("...♥...♥...")
-? o1.SplitWXT('@char = "♥"')
+? o1.SplitAtCharsWXT('@char = "♥"')
 #--> [ "...", "...", "..." ]
 
 # Splitting at a substring described by a condition
 
 o1 = new stzString("...♥♥...♥♥...")
-? o1.SplitWXT('{ @SubString = "♥♥" }')
+? o1.SplitAtSubStringsWXT('{ @SubString = "♥♥" }')
 #--> [ "...", "...", "..." ]
 
 o1 = new stzString("...ONE...TWO...ONE")
-? o1.SplitWXT('{ @SubString = "ONE" or @SubString = "TWO" }')
+? o1.SplitAtsubStringsWXT('{ @SubString = "ONE" or @SubString = "TWO" }')
 #--> [ "...", "...", "..." ]
 
-? o1.SplitWXT('{ Q(@SubString).IsOneOfThese([ "ONE", "TWO"]) }')
+? o1.SplitAtSubStringsWXT('{ Q(@SubString).IsOneOfThese([ "ONE", "TWO"]) }')
 #--> [ "...", "...", "..." ]
 
-? o1.SplitWXT('{ Q(@SubString).IsEither( "ONE", :Or = "TWO") }')
+? o1.SplitAtSubStringsWXT('{ Q(@SubString).IsEither( "ONE", :Or = "TWO") }')
 #--> [ "...", "...", "..." ]
 
 proff()
+# Executed in 2.55 second(s) in Ring 1.21
 
 /*============ SPLITTING AFTER
 
@@ -7045,6 +7062,26 @@ o1 = new stzString("...♥♥...♥♥...")
 proff()
 # Executed in 3.89 second(s)
 
+/*-----------------
+*/
+pron()
+
+
+	def SplitAround(pSubStrOrPos)
+	def SplitAroundPosition(n)
+	def SplitAroundPositions(panPos)
+	def SplitAroundSection(n1, n2)
+	def SplitAroundSectionIB(n1, n2)
+	def SplittedAroundSectionIB(n1, n2)
+	def SplitAroundSections(paSections)
+	def SplitAroundSectionsIB(panSections)
+	def SplitAroundSubString(pcSubStr)
+	def SplitAroundSubStringIB(pcSubStr)
+	def SplitAroundSubStrings(pacSubStrings)
+	def SplitAroundSubStringsIB(pacSubStrings)
+
+proff()
+
 /*==================
 
 pron()
@@ -7058,21 +7095,23 @@ o1 = new stzString("...ONE...TWO...ONE")
 #--> [ "...", "...", "..." ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.07 second(s) in Ring 1.18
 
 /*================
-
+*/
 pron()
 
 o1 = new stzString("...ONE...TWO...ONE")
-? @@( o1.FindSubstringsW('{ @SubString = "ONE" or @SubString = "TWO" }') )
+? @@( o1.FindSubstringsWXT('{ @SubString = "ONE" or @SubString = "TWO" }') )
 #--> [ 4, 10, 16 ]
 
-? @@( o1.FindSubstringsAsSectionsW('{ @SubString = "ONE" or @SubString = "TWO" }') )
+? @@( o1.FindSubstringsAsSectionsWXT('{ @SubString = "ONE" or @SubString = "TWO" }') )
 #--> [ [ 4, 6 ], [ 10, 12 ], [ 16, 18 ] ]
 
 proff()
-# Executed in 3.91 second(s)
+# Executed in 1.14 second(s) in Ring 1.21
+# Executed in 3.91 second(s) in Ring 1.18
 
 /*-----------------
 
