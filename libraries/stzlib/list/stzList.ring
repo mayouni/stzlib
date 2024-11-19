@@ -63743,7 +63743,7 @@ class stzList from stzObject
 
 	def FindNthSplitW(n, pcCondition)
 		/*
-		? StzSplitterQ(1:5).FindNthSplitW('Q(@item).IsMultipleOf(2)')
+		? StzSplitterQ(5).FindNthSplitWXT('Q(@item).IsMultipleOf(2)')
 		*/
 
 		if isList(pcCondition)
@@ -63780,7 +63780,7 @@ class stzList from stzObject
 
 	def FindNthSplitWXT(n, pcCondition)
 		/*
-		? StzSplitterQ(1:5).FindNthSplitW('Q(@item).IsMultipleOf(2)')
+		? StzSplitterQ(5).FindNthSplitWXT('Q(@item).IsMultipleOf(2)')
 		*/
 
 		if isList(pcCondition)
@@ -67006,7 +67006,7 @@ class stzList from stzObject
 
 	def FindLastSplitW(pcCondition)
 		/*
-		? StzSplitterQ(1:5).FindLastSplitW('Q(@item).IsMultipleOf(2)')
+		? StzSplitterQ(5).FindLastSplitWXT('Q(@item).IsMultipleOf(2)')
 		*/
 
 		if isList(pcCondition)
@@ -67043,7 +67043,7 @@ class stzList from stzObject
 
 	def FindLastSplitWXT(pcCondition)
 		/*
-		? StzSplitterQ(1:5).FindLastSplitWXT('Q(@item).IsMultipleOf(2)')
+		? StzSplitterQ(5).FindLastSplitWXT('Q(@item).IsMultipleOf(2)')
 		*/
 
 		if isList(pcCondition)
@@ -69763,36 +69763,7 @@ class stzList from stzObject
 
 	#--
 
-	def IsToStringItemNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and This.Item(1) = :ToStringItem)
-
-			return TRUE
-		else
-			return FALSE
-		ok
-
-	def IsUntilStringItemNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and This.Item(1) = :UntilStringItem)
-
-			return TRUE
-		else
-			return FALSE
-		ok
-
-	def IsUpToStringItemNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and This.Item(1) = :UpToStringItem)
-
-			return TRUE
-		else
-			return FALSE
-		ok
-
-	#--
-
-	#TODO : Move IsToNumberNamedParam() here
+	#TODO // Move IsToNumberNamedParam() here
 
 	def IsUntilNumberNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -71637,18 +71608,15 @@ class stzList from stzObject
 		if This.NumberOfItems() = 2 and
 
 		   ( isString(This.Item(1)) and Q(This.Item(1)).IsOneOfThese([
-					:InStringAt, :InStringItemAt,
-					:inStringAtPosition, :InStringItemAtPosition,
-					:InStringN, :InStringItemN ]) )
+					:InStringAt,
+					:inStringAtPosition,
+					:InStringN ]) )
 
 			return TRUE
 
 		else
 			return FALSE
 		ok
-
-		def IsInStringItemNNamedParam()
-			return This.IsInStringNNamedParam()
 
 		def IsInStringAtPositionNNamedParam()
 			return This.IsInStringNNamedParam()
@@ -74320,16 +74288,6 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsToPositionOfStringItemNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :ToPositionOfStringItem )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
 	def IsToPositionOfCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToPositionOfChar )
@@ -74388,16 +74346,6 @@ class stzList from stzObject
 	def IsFromPositionOfStringNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromPositionOfString )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsFromPositionOfStringItemNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :FromPositionOfStringItem )
 
 			return TRUE
 
@@ -74573,9 +74521,29 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsPositionIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :PositionIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsThisPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThisPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsThisPositionIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ThisPositionIB )
 
 			return TRUE
 
@@ -74593,9 +74561,29 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsPositionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :PositionsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsThesePositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ThesePositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsThesePositionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ThesePositionsIB )
 
 			return TRUE
 
@@ -74612,6 +74600,16 @@ class stzList from stzObject
 
 		def IsPositionOrPositionsNamedParams()
 			return This.IsPositionOrPositionsNamedParam()
+
+	def IsPositionIBOrPositionsibNamedParam()
+		if This.IsPositionIBNamedParam() or This.IsPositionsIBNamedParam()
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		def IsPositionIBOrPositionsIBNamedParams()
+			return This.IsPositionIBOrPositionsIBNamedParam()
 
 	def IsAlongWithNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -74683,16 +74681,6 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsAndStringItemNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :AndStringItem )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
 	def IsAndCharNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndChar )
@@ -74756,26 +74744,6 @@ class stzList from stzObject
 	def IsAndStringAtPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :AndStringAtPosition )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsAndStringItemAtNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :AndStringItemAt )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsAndStringItemAtPositionNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :AndStringItemAtPosition )
 
 			return TRUE
 
@@ -75413,6 +75381,15 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsAtIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and This.Item(1) = :AtIB
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsAtOrUsingNamedParam()
 		if This.IsAtNamedParam() or This.IsUsingNamedParam()
 			return TRUE
@@ -75441,9 +75418,29 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsAtPositionIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This.Item(1)) and  This.Item(1) = :AtPositionIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsAtThisPositionNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThisPosition )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtThisPositionIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisPositionIB )
 
 			return TRUE
 
@@ -75461,6 +75458,16 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsAtPositionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This.Item(1)) and  This.Item(1) = :AtPositionsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsAtThesePositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtThesePositions )
@@ -75471,9 +75478,29 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsAtThesePositionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This.Item(1)) and  This.Item(1) = :AtThesePositionsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsAtManyPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyPositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManyPositionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This.Item(1)) and  This.Item(1) = :AtManyPositionsIB )
 
 			return TRUE
 
@@ -75627,61 +75654,19 @@ class stzList from stzObject
 
 	#--
 
-	def IsAtStringItemNamedParam()
-		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtStringItem )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsAtThisStringItemNamedParam()
-		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtThisStringItem )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsAtStringItemsNamedParam()
-		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtStringItems )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsAtTheseStringItemsNamedParam()
-		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtTheseStringItems )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsAtManyStringItemsNamedParam()
-		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtManyStringItems )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	#--
-
 	def IsAtSubStringNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtSubString )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtSubStringIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This.Item(1)) and  This.Item(1) = :AtSubStringIB )
 
 			return TRUE
 
@@ -75715,9 +75700,29 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsAtThisSubStringIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisSubStringIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsAtSubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtSubStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtSubStringsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This.Item(1)) and  This.Item(1) = :AtSubStringsIB )
 
 			return TRUE
 
@@ -75735,9 +75740,29 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsAtTheseSubStringsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This.Item(1)) and  This.Item(1) = :AtTheseSubStringsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsAtManySubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManySubStrings )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtManySubStringsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isString(This.Item(1)) and  This.Item(1) = :AtManySubStringsIB )
 
 			return TRUE
 
@@ -75757,6 +75782,36 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsBeforeIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforeIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AfterIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AroundIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsAtThisCharNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isChar(This.Item(1)) and  This.Item(1) = :AtThisChar )
@@ -75766,6 +75821,404 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+	#--
+
+	def IsAtItemIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AtItemIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAtItemsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AtItemsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
+
+	def IsBeforePositionIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforePositionIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeThisPositionIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforeThisPositionIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforePositionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforePositionsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeManyPositionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforeManyPositionsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeThesePositionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforeThesePositionsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeSubStringIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforeSubStringIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeThisSubStringIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforeThisSubStringIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeSubStringsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforeSubStringsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeTheseSubStringsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforeTheseSubStringsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeItemIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforeItemIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeThisItemIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforeThisItemIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeItemsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforeItemsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeTheseItemsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :BeforeTheseItemsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+#--
+
+	def IsAfterPositionIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AfterPositionIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterThisPositionIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AfterThisPositionIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterPositionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AfterPositionsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterThesePositionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AfterThesePositionsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterSubStringIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AfterSubStringIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterThisSubStringIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AfterThisSubStringIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterSubStringsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AfterSubStringsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterTheseSubStringsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AfterTheseSubStringsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterItemIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AfterItemIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterThisItemIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AfterThisItemIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterItemsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AfterItemsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterTheseItemsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AfterTheseItemsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundPositionIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AroundPositionIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundThisPositionIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AroundThisPositionIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundPositionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AroundPositionsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundThesePositionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AroundThesePositionsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundSubStringIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AroundSubStringIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundThisSubStringIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AroundThisSubStringIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundSubStringsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AroundSubStringsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundTheseSubStringsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AroundTheseSubStringsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundItemIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AroundItemIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundThisItemIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AroundThisItemIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundItemsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AroundItemsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundTheseItemsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+			( isChar(This.Item(1)) and  This.Item(1) = :AroundtheseItemsIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	#--
 
 	def IsAtCharsNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -76154,59 +76607,6 @@ class stzList from stzObject
 	def IsAtManyListsOfStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfStrings )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	#--
-
-	def IsAtListOfStringItemsNamedParam()
-		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtListOfStringItems )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsAtThisListOfStringItemsNamedParam()
-		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtThisListOfStringItems )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-
-	def IsAtListsOfStringItemsNamedParam()
-		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtListsOfStringItems )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsAtTheseListsOfStringItemsNamedParam()
-		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtTheseListsOfStringItems )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsAtManyListsOfStringItemsNamedParam()
-		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtManyListsOfStringItems )
 
 			return TRUE
 
@@ -77329,6 +77729,15 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsBeforeManyPositionsNamedParam()
+		if ( This.NumberOfItems() = 2 ) and
+		   ( isString(This.Item(1)) and This.Item(1) = :BeforeManyPositions )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsBeforeThesePositionsNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :BeforeThesePositions )
@@ -77809,36 +78218,6 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsStringItemNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StringItem )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsThisStringItemNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :ThisStringItem )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsStringOrStringItemNamedParam()
-		if This.IsStringNamedParam() or This.IsStringItemNamedParam()
-			return TRUE
-		else
-			return FALSE
-		ok
-
-		def IsStringItemOrStringNamedParam()
-			return This.IsStringOrStringItemNamedParam()
-
 	#--
 
 	def IsNumberNamedParam()
@@ -78127,16 +78506,6 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsStringItemAtPositionsNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemAtPositions )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
 	def IsCharAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :CharAtPositions )
@@ -78150,26 +78519,6 @@ class stzList from stzObject
 	def IsCharsAtPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :CharsAtPositions )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsStringItemAtNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemAt )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsStringItemAtPositionNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemAtPosition )
 
 			return TRUE
 
@@ -78871,28 +79220,6 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsBetweenStringItemNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItem )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsBetweenStringItemsNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItems )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
 	def IsBetweenStringAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringAt )
@@ -78982,159 +79309,6 @@ class stzList from stzObject
 
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringAtPositions )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	#--
-
-	def IsStringItemFromPositionNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemFromPosition )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsStringItemsFromPositionNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemsFromPosition )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsStringItemFromNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemFrom )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsStringItemsFromNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemsFrom )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsFromStringItemPositionNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemPosition )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsBetweenStringItemAtNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItemAt )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsFromStringItemAtNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemAt )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsToStringItemAtNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItemAt )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsBetweenStringItemAtPositionNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItemAtPosition )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsFromStringItemAtPositionNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemAtPosition )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsToStringItemAtPositionNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItemAtPosition )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsBetweenStringItemAtPositionsNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItemAtPositions )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsFromStringItemAtPositionsNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemAtPositions )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsToStringItemAtPositionsNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItemAtPositions )
 
 			return TRUE
 
@@ -79565,184 +79739,6 @@ class stzList from stzObject
 
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringsAtPositions )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	#--
-
-	def IsStringItemsFromPositionsNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemsFromPositions )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsStringItemsNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StringItems )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsStringItemsAtNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemsAt )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsStringItemsAtPositionNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemsAtPosition )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsStringItemsAtPositionsNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :StringItemsAtPositions )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsFromStringItemsNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItems )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsToStringItemsNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItems )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsBetweenStringItemsAtNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItemsAt )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsFromStringItemsAtNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemsAt )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsToStringItemsAtNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItemsAt )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsBetweenStringItemsAtPositionNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItemsAtPosition )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsFromStringItemsAtPositionNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemsAtPosition )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsToStringItemsAtPositionNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItemsAtPosition )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsBetweenStringItemsAtPositionsNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenStringItemsAtPositions )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsFromStringItemsAtPositionsNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :FromStringItemsAtPositions )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsToStringItemsAtPositionsNamedParam()
-
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :ToStringItemsAtPositions )
 
 			return TRUE
 
@@ -81054,16 +81050,6 @@ class stzList from stzObject
 	def IsToNStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :ToNStrings )
-
-			return TRUE
-
-		else
-			return FALSE
-		ok
-
-	def IsToNStringItemsNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  This.Item(1) = :ToNStringItems )
 
 			return TRUE
 
@@ -82511,10 +82497,10 @@ class stzList from stzObject
 		def IsAtThisPositionOrAtNamedParam()
 			return This.IsAtThisPositionOrAtNamedParam()
 
-	def IsBeforeManyPositionsNamedParam()
+	def IsAfterManyPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and
-		   This.Item(1) = :BeforeManyPositions
+		   This.Item(1) = :AfterManyPositions
 
 			return TRUE
 
@@ -82522,10 +82508,10 @@ class stzList from stzObject
 			return FALSE
 		ok
 
-	def IsAfterManyPositionsNamedParam()
+	def IsAfterManyPositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and
-		   This.Item(1) = :AfterManyPositions
+		   This.Item(1) = :AfterManyPositionsIB
 
 			return TRUE
 

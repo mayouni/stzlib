@@ -30,7 +30,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter(1:10)
+o1 = new stzSplitter(10)
 ? @@( o1.SplitAtSection(3, 5) )
 # [ [ 1, 2 ], [ 6, 10 ] ]
 
@@ -38,13 +38,13 @@ o1 = new stzSplitter(1:10)
 #--> [ [ 1, 2 ], [ 6, 7 ], [ 10, 10 ] ]
 
 proff()
-# Executed in 0.12 second(s) in Ring 1.21
+# Executed in 0.25 second(s) in Ring 1.21
 
 /*====================
-*/
+
 pron()
 
-o1 = new stzSplitter(1:10)
+o1 = new stzSplitter(10)
 
 ? @@( o1.SplitAt( :Position = 5) )
 #--> [ [1, 4], [6, 10] ]
@@ -78,7 +78,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter(1:10)
+o1 = new stzSplitter(10)
 
 ? @@( o1.SplitBefore( :Position = 10) )
 #--> [ [ 1, 9 ], [ 10, 10 ] ]
@@ -108,13 +108,13 @@ o1 = new stzSplitter(1:10)
 #--> [ [ 1, 3 ], [ 4, 10 ] ]
 
 proff()
-# Executed in 0.15 second(s) in Ring 1.21
+# Executed in 0.20 second(s) in Ring 1.21
 
 /*====================
 
 pron()
 
-o1 = new stzSplitter(1:10)
+o1 = new stzSplitter(10)
 
 ? @@( o1.SplitAfter( :Position = 9) )
 #--> [ [ 1, 9 ], [ 10, 10 ] ]
@@ -144,14 +144,14 @@ o1 = new stzSplitter(1:10)
 #--> [ [ 1, 6 ], [ 7, 10 ] ]
 
 proff()
-# Executed in 0.14 second(s) in Ring 1.21
+# Executed in 0.18 second(s) in Ring 1.21
 # Executed in 0.19 second(s) in Ring 1.20
 
 /*====================
-
+*/
 pron()
 
-o1 = new stzSplitter(1:10)
+o1 = new stzSplitter(10)
 
 ? @@( o1.Split( :ToPartsOfNItems = 3 ) ) # Or :ToPartsOfExactlyNItems
 #--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 9 ] ]
@@ -164,14 +164,14 @@ o1 = new stzSplitter(1:10)
 #--> [ [ 1, 3 ], [ 4, 6 ], [ 7, 8 ], [ 9, 10 ] ]
 
 proff()
-# Executed in 0.13 second(s) in Ring 1.21
+# Executed in 0.14 second(s) in Ring 1.21
 # Executed in 0.16 second(s) in Ringh 1.20
 
-/*--------------------
+/*=============
 
 pron()
 
-o1 = new stzSplitter(1:10)
+o1 = new stzSplitter(10)
 
 ? @@( o1.SplitToNParts(2) )
 #--> [ [ 1, 5 ], [ 6, 10 ] ]
@@ -265,7 +265,7 @@ pron()
 
 # Used internally by Softanza, but could be useful...
 
-o1 = new stzSplitter(1:10)
+o1 = new stzSplitter(10)
 ? @@( o1.GetPairsFromPositions([3, 6, 8]) )
 #--> [ [ 1, 3 ], [ 3, 6 ], [ 6, 8 ], [ 8, 10 ] ]
 

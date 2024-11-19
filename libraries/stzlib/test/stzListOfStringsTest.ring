@@ -1834,7 +1834,6 @@ o1 = new stzListOfStrings([
 
 o1 = new stzListOfStrings([ "aabc", "abxaaxcccz", "aattaacvv" ])
 ? o1.NumberOfOccurrence("aabc") 		 #--> 1
-? o1.NumberOfOccurrenceOfStringItem("aabc")	 #--> 1
 
 /*===================
 

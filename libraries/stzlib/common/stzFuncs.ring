@@ -386,11 +386,6 @@ _acStzCCKeywords = [
 		:@PreviousString,
 		:@NextString,
 	
-	:@StringItem,
-		:@CurrentStringItem,
-		:@PreviousStringItem,
-		:@NextStringItem,
-	
 	:@Line,
 		:@CurrentLine,
 		:@PreviousLine,

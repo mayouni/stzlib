@@ -69858,22 +69858,22 @@ n1 = Min(aTemp)
 
 			#--
 
-			but oParam.IsAtCharsWhereXTOrAtCharsWXTNamedParam()
+			but oParam.IsAtCharsWXTNamedParam()
 				return This.FindLastSplitAtCharsWXT(pcSubStrOrPos[2])
 
-			but oParam.IsBeforeCharsWhereXTOrBeforeCharsWXTNamedParam()
+			but oParam.IsBeforeCharsWXTNamedParam()
 				return This.FindLastSplitBeforeCharsWXT(pcSubStrOrPos[2])
 
-			but oParam.IsAfterCharsWhereXTOrAfterCharsWXTNamedParam()
+			but oParam.IsAfterCharsWXTNamedParam()
 				return This.FindLastSplitAfterCharsWXT(pcSubStrOrPos[2])
 
-			but oParam.IsAtSubStringsWhereXTOrAtSubStringsWXTNamedParam()
+			but oParam.IsAtSubStringsWXTNamedParam()
 				return This.FindLastSplitAtSubStringsWXT(pcSubStrOrPos[2])
 
-			but oParam.IsBeforeSubStringsWhereXTOrBeforeSubStringsWXTNamedParam()
+			but oParam.IsBeforeSubStringsWWXTNamedParam()
 				return This.FindLastSplitBeforeSubStringsWXT(pcSubStrOrPos[2])
 
-			but oParam.IsAfterSubStringsWhereXTOrAfterSubStringsWXTNamedParam()
+			but oParam.IsAfterSubStringsWWXTNamedParam()
 				return This.FindLastSplitAfterSubStringsWXT(pcSubStrOrPos[2])
 			ok
 
