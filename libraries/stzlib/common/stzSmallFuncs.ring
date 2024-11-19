@@ -198,10 +198,13 @@ func N(p)
 		return p
 
 	but isString(p)
-		if Q(p).IsNumberInString()
+
+		oParam = Q(p)
+
+		if oParam.IsNumberInString()
 			return 0+ p
 
-		but Q(p).IsListInString()
+		but oParam.IsListInString()
 			return len( Q(p).ToList() )
 
 		else

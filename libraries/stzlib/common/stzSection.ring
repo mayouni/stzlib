@@ -141,7 +141,9 @@ class stzSection
 			# Managing the case of :First and :Last keywords
 	
 			if isString(n1)
-				if Q(n1).IsOneOfThese([
+				oParam = Q(n1)
+
+				if oParam.IsOneOfThese([
 					:Start,
 					:First, :FirstChar,
 					:FromFirst, :FromFirstChar,
@@ -154,7 +156,7 @@ class stzSection
 
 					n1 = 1
 	
-				but Q(n1).IsOneOfThese([
+				but oParam.IsOneOfThese([
 					:Last, :LastChar,
 					:ToLast, :ToLastChar,
 
@@ -172,7 +174,10 @@ class stzSection
 			ok
 		
 			if isString(n2)
-				if Q(n2).IsOneOfThese([
+
+				oParam = Q(n2)
+
+				if oParam.IsOneOfThese([
 					:End, :Last, :LastChar, :EndOfString,
 					:ToEnd, :ToLast, :ToLastChar, :ToEndOfString,
 
@@ -184,7 +189,7 @@ class stzSection
 
 					n2 = nSize
 	
-				but Q(n2).IsOneOfThese([
+				but oParam.IsOneOfThese([
 					:First, :FirstChar,
 					:FromFirst, :FromFirstChar,
 

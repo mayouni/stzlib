@@ -2251,16 +2251,19 @@ func RandomNumberIn(panNumbers)
 			nRandomMin01 = 0
 			nRandomMax01 = 0
 
-			if Q(nMin).IsReal()
-				nMin   = 0+ Q(nMin).IntegerPart()
-				nMin01 = 0+ Q(nMin).DecimalPart()
+			oMin = new stzNumber(nMin)
+			oMax = new stzNumber(nMax)
+
+			if oMin.IsReal()
+				nMin   = 0+ oMin.IntegerPart()
+				nMin01 = 0+ oMin.DecimalPart()
 
 				nRandomMin01 = ARanomNumberGreaterThan01(nMin01)
+				nRandomMax01 = 0
 
-			nRandomMax01 = 0
-			but Q(nMax).IsReal()
-				nMax   = 0+ Q(nMax).IntegerPart() 
-				nMax01 = 0+ Q(nMax).DecimalPat()
+			but oMax.IsReal()
+				nMax   = 0+ oMax.IntegerPart() 
+				nMax01 = 0+ oMax.DecimalPat()
 			ok
 
 			/* ... */

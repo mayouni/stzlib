@@ -4185,7 +4185,7 @@ class stzObject
 			value = This.Content()
 		ok
 
-		if Q(pIn).IsOneOfThese([ :List, :InList, :AList, :InAList ])
+		if ring_find([ :List, :InList, :AList, :InAList ], pIn) > 0
 	
 			aResult = []
 			for i = 1 to pnSize
@@ -4193,7 +4193,7 @@ class stzObject
 			next
 			return aResult
 
-		but Q(pIn).IsOneOfThese([ :Pair, :InPair, :APair, :InAPair ])
+		but ring_find([ :Pair, :InPair, :APair, :InAPair ], pIn) > 0
 
 			aResult = []
 			for i = 1 to 2
@@ -4201,8 +4201,8 @@ class stzObject
 			next
 			return aResult
 
-		but Q(pIn).IsOneOfThese([ :ListOfNumbers, :InListOfNumbers,
-					  :AListOfNumbers, :InAListOfNumbers ])
+		but ring_find([ :ListOfNumbers, :InListOfNumbers,
+				:AListOfNumbers, :InAListOfNumbers ], pIn) > 0
 
 			aResult = []
 			for i = 1 to pnSize
@@ -4210,8 +4210,8 @@ class stzObject
 			next
 			return aResult
 
-		but Q(pIn).IsOneOfThese([ :ListOfStrings, :InListOfStrings,
-					  :AListOfStrings, :InAListOfStrings ])
+		but ring_find([ :ListOfStrings, :InListOfStrings,
+				:AListOfStrings, :InAListOfStrings ], pIn) > 0
 
 			aResult = []
 			for i = 1 to pnSize
@@ -4219,8 +4219,8 @@ class stzObject
 			next
 			return aResult
 
-		but Q(pIn).IsOneOfThese([ :ListOfLists, :InListOfLists,
-					  :AListOfLists, :InAListOfLists ])
+		but ring_find([ :ListOfLists, :InListOfLists,
+				:AListOfLists, :InAListOfLists ], pIn) > 0
 	
 			aResult = []
 			for i = 1 to pnSize
@@ -4228,8 +4228,8 @@ class stzObject
 			next
 			return aResult
 
-		but Q(pIn).IsOneOfThese([ :ListOfPairs, :InListOfPairs,
-					  :AListOfPairs, :InAListOfNPairs ])
+		but ring_find([ :ListOfPairs, :InListOfPairs,
+				:AListOfPairs, :InAListOfNPairs ], pIn) > 0
 	
 			aResult = []
 			for i = 1 to pnSize
@@ -4237,7 +4237,7 @@ class stzObject
 			next
 			return aResult
 
-		but Q(pIn).IsOneOfThese([ :String, :InString, :AString, :InAString ])
+		but ring_find([ :String, :InString, :AString, :InAString ], pIn) > 0
 
 			cResult = ""
 			for i = 1 to pnSize
@@ -4245,7 +4245,7 @@ class stzObject
 			next
 			return cResult
 
-		but Q(pIn).IsOneOfThese([ :Grid, :InGrid, :AGrid, :InAGrid ])
+		but ring_find([ :Grid, :InGrid, :AGrid, :InAGrid ], pIn) > 0
 
 			aResult = StzGridQ([ pnSize[1], pnSize[2] ]).
 					ReplaceAllQ(:With = value).
@@ -4253,12 +4253,12 @@ class stzObject
 
 			return aResult
 
-		but Q(pIn).IsOneOfThese([ :Table, :InTable, :ATable, :InATable ])
+		but ring_find([ :Table, :InTable, :ATable, :InATable ], pIn) > 0
 
 			aResult = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(value).Content()
 			return aResult
 
-		but Q(pIn).IsOneOfThese([ :StzTable, :InStzTable, :InAStzTable ])
+		but ring_find([ :StzTable, :InStzTable, :InAStzTable ], pIn) > 0
 
 			oResult = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(value)
 			return oResult

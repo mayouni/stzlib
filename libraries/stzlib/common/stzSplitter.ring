@@ -515,7 +515,7 @@ class stzSplitter from stzListOfNumbers
 
 			#--
 
-			but Q(p).IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
+			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
 				return This.SplitBeforeSections(p[2])
 
 			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ])
@@ -645,7 +645,7 @@ class stzSplitter from stzListOfNumbers
 
 			#--
 
-			but Q(p).IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
+			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
 				return This.SplitAfterSections(p[2])
 
 			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ])
