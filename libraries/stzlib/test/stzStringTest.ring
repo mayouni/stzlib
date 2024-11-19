@@ -7063,23 +7063,46 @@ proff()
 # Executed in 3.89 second(s)
 
 /*-----------------
+
+pron()
+
+o1 = new stzSplitter(1:10)
+? @@( o1.SplitAroundSections([ [4, 5], [ 8, 8] ]) )
+#--> [ [ 1, 3 ], [ 6, 7 ], [ 9, 10 ] ]
+
+proff()
+# Executed in 0.03 second(s) in Ring 1.21
+
+/*-----------------
 */
 pron()
 
+o1 = new stzString("...♥^♥...♥^♥...")
 
-	def SplitAround(pSubStrOrPos)
+
+? @@( o1.SplitAround("♥^♥") )
+#--> [ "...", "...", "..." ]
+
+? @@( o1.SplitAroundIB("♥^♥") )
+
+
+/*
 	def SplitAroundPosition(n)
 	def SplitAroundPositions(panPos)
 	def SplitAroundSection(n1, n2)
 	def SplitAroundSectionIB(n1, n2)
 	def SplittedAroundSectionIB(n1, n2)
-	def SplitAroundSections(paSections)
+
+
+? @@( o1.SplitAroundSections( o1.FindZZ("♥♥") ) )
+#--> [ "...", "...", "..." ]
+
 	def SplitAroundSectionsIB(panSections)
 	def SplitAroundSubString(pcSubStr)
 	def SplitAroundSubStringIB(pcSubStr)
 	def SplitAroundSubStrings(pacSubStrings)
 	def SplitAroundSubStringsIB(pacSubStrings)
-
+*/
 proff()
 
 /*==================
