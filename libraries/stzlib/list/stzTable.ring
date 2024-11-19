@@ -79,7 +79,9 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param format! paTable must be a list.")
 		ok
 
-		if len(paTable) = 0 or Q(paTable).IsPairOfNumbers()
+		oParam = Q(paTable)
+
+		if len(paTable) = 0 or oParam.IsPairOfNumbers()
 	
 		# Way 1: new stzTable([])
 		#--> Creates an empty table with just a column and a row
@@ -108,8 +110,8 @@ Class stzTable from stzObject
 
 			return
 
-		but Q(paTable).ItemsAreListsOfSameSize() and
-		    Q(paTable[1]).IsListOfStrings()
+		but oParam.ItemsAreListsOfSameSize() and
+		    @IsListOfStrings(paTable[1])
 
 		# Way 3 (the more natural way) The table is described in a
 		# a list of lists that mimics the realworld presentation
@@ -147,8 +149,8 @@ Class stzTable from stzObject
 
 			return
 
-		but Q(paTable).ItemsAreListsOfSameSize() and
-		    Q(paTable).IsNotHashList()
+		but oParam.ItemsAreListsOfSameSize() and
+		    oParam.IsNotHashList()
 
 		# WAY 4: Similar to way 3 but the line of column names is
 		# not provided. Means that you privided only the rows of
@@ -176,7 +178,7 @@ Class stzTable from stzObject
 			This.Init(paTable)
 			return
 
-		but Q(paTable).IsHashList()
+		but oParam.IsHashList()
 		# Way 5: The table is provided in the same format of how
 		# it is implemented in this class: a hashlist.
 		# ~> the most performant way!
@@ -219,7 +221,7 @@ Class stzTable from stzObject
 				ok
 			next
 
-		but isList(paTable) and Q(paTable).IsFromFileNamedParam()
+		but oParam.IsFromFileNamedParam()
 		# Way 5: The table is created from the content of a text file
 
 		#  ~> The first line of the file corrspond the column names
@@ -796,11 +798,10 @@ Class stzTable from stzObject
 				StzRaise("Incorrect param type! pcColName must be a string.")
 			ok
 
-		
-			if Q(pcColName).IsOneOfThese([:First, :FirstCol, :FirstColumn])
+			if ring_find([:First, :FirstCol, :FirstColumn], pcColName) > 0
 				pcColName = This.FirstColName()
 
-			but Q(pcColName).IsOneOfThese([:Last, :LastCol, :LastColumn])
+			but ring_find([:Last, :LastCol, :LastColumn], pcColName) > 0
 				pcColName = This.LastColName()
 			ok
 
@@ -1532,10 +1533,11 @@ Class stzTable from stzObject
 
 	def NthColName(n)
 		if isString(n)
-			if Q(n).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+
+			if ring_find([ :First, :FirstCol, :FirstColumn ], n) > 0
 				n = 1
 
-			but Q(n).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
+			but ring_find([ :Last, :LastCol, :LastColumn ], n) > 0
 				n = This.NumberOfColumns()
 
 			else
@@ -1984,10 +1986,11 @@ Class stzTable from stzObject
 	def Row(n)
 
 		if isString(n)
-			if Q(n).IsOneOfThese([ :First, :FirstRow ])
+
+			if ring_find([ :First, :FirstRow ], n) > 0
 				n = 1
 
-			but Q(n).IsOneOfThese([ :Last, :LastRow ])
+			but ring_find([ :Last, :LastRow ], n) > 0
 				n = This.NumberOfRows()
 
 			ok
@@ -2470,10 +2473,11 @@ Class stzTable from stzObject
 	def Cell(pCol, pnRow)
 
 		if isString(pCol)
-			if Q(pCol).IsOneOfThese([:First, :FirstCol, :FirstColumn])
+
+			if ring_find([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 				pCol = 1
 
-			but Q(pCol).IsOneOfThese([:Last, :LastCol, :LastColumn])
+			but ring_find([ :Last, :LastCol, :LastColumn ], pCol) > 0
 				pCol = This.NumberOfColumns()
 
 			else
@@ -3234,25 +3238,32 @@ Class stzTable from stzObject
 
 	def ColSectionAsPositions(pCol, n1, n2)
 		if CheckParams()
-			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
-				:From, :FromCell, :FromPosition, :FromCellAt, :FromCellAtPosition
+			if isList(n1)
+
+				if StzListQ(n1).IsOneOfTheseNamedParams([
+					:From, :FromCell, :FromPosition,
+					:FromCellAt, :FromCellAtPosition
 				])
 
-				n1 = n1[2]
+					n1 = n1[2]
+				ok
 			ok
 	
-			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
-				:To, :ToCell, :ToPosition, :ToCellAt, :ToCellAtPosition
+			if isList(n2)
+				if StzListQ(n2).IsOneOfTheseNamedParams([
+					:To, :ToCell, :ToPosition,
+					:ToCellAt, :ToCellAtPosition
 				])
 
-				n2 = n2[2]
+					n2 = n2[2]
+				ok
 			ok
 	
 			if isString(pCol)
-				if Q(pCol).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+				if ring_find([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 					pCol = 1
 	
-				but Q(pCol).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
+				but ring_find([ :Last, :LastCol, :LastColumn ], pCol) > 0
 					pCol = This.NumberOfColumns()
 	
 				but This.HasColName(pCol)
@@ -3341,25 +3352,34 @@ Class stzTable from stzObject
 
 	def RowSectionAsPositions(nRow, n1, n2)
 		if CheckParams()
-			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
-				:From, :FromCell, :FromPosition, :FromCellAt, :FromCellAtPosition
+
+			if isList(n1)
+				if StzListQ(n1).IsOneoftheseNamedParams([
+					:From, :FromCell, :FromPosition,
+					:FromCellAt, :FromCellAtPosition
 				])
 
-				n1 = n1[2]
+					n1 = n1[2]
+				ok
 			ok
 	
-			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
-				:To, :ToCell, :ToPosition, :ToCellAt, :ToCellAtPosition
+			if isList(n2)
+
+				if StzListQ(n2).IsOneOfTheseNamedParams([
+					:To, :ToCell, :ToPosition,
+					:ToCellAt, :ToCellAtPosition
 				])
 
-				n2 = n2[2]
+					n2 = n2[2]
+				ok
 			ok
 	
 			if isString(nRow)
-				if Q(pCol).IsOneOfThese([ :First, :FirstRow])
+
+				if ring_find([ :First, :FirstRow], nRow) > 0
 					nRow = 1
 	
-				but Q(nRow).IsOneOfThese([ :Last, :LastRow ])
+				but ring_find([ :Last, :LastRow ], nRow) > 0
 					nRow = This.NumberOfRows()
 				ok
 			ok
@@ -3486,16 +3506,20 @@ Class stzTable from stzObject
 		*/
 
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([
+
+			oParam = new stzList(pCellValueOrSubValue)
+
+			if oParam.IsOneOfTheseNamedParams([
 				:Cell, :OfCell, :Value, :OfValue,
 				:CellValue, :OfCellValue, :Of ])
 
+
 				return This.FindCellCS(pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([
-					:SubValue, :OfSubValue,
-					:Part, :OfPart, :CellPart, :OfCellPart,
-					:SubPart, :OfSubPart ])
+			but oParam.IsOneOfTheseNamedParams([
+				:SubValue, :OfSubValue,
+				:Part, :OfPart, :CellPart, :OfCellPart,
+				:SubPart, :OfSubPart ])
 
 				return This.FindSubValueCS(pCellValueOrSubValue[2], pCaseSensitive)
 			else
@@ -3752,10 +3776,18 @@ Class stzTable from stzObject
 	def FindNthCS(n, pCellValueOrSubValue, pCaseSensitive)
 
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+
+			oParam = new stzList(pCellValueOrSubValue)
+
+			if oParam.IsOfOfTheseNamedParams([
+				:Cell, :OfCell, :Value, :OfValue, :Of ])
+
 				return This.FindNthValueCS(n, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but oParam.IsOneOfTheseNamedParams([
+				:SubValue, :OfSubValue, :Part, :OfPart,
+				:CellPart, :OfCellPart ])
+
 				return This.FindNthSubValueCS(n, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -3790,10 +3822,11 @@ Class stzTable from stzObject
 		# the nth position is returned as a pair of numbers
 
 		if isString(n)
-			if Q(n).IsOneOfThese([ :First, :FirstOccurrence ])
+
+			if ring_find([ :First, :FirstOccurrence ], n) > 0
 				n = 1
 
-			but Q(n).IsOneOfThese([ :Last, :LastOccurrence ])
+			but ring_find([ :Last, :LastOccurrence ], n) > 0
 				n = This.NumberOfOccurrenceCS(pCellValue, pCaseSensitive)
 			ok
 		ok
@@ -3852,10 +3885,10 @@ Class stzTable from stzObject
 		# the nth position is returned as a pair of numbers
 
 		if isString(n)
-			if Q(n).IsOneOfThese([ :First, :FirstOccurrence ])
+			if ring_find([ :First, :FirstOccurrence ], n) > 0
 				n = 1
 
-			but Q(n).IsOneOfThese([ :Last, :LastOccurrence ])
+			but ring_find([ :Last, :LastOccurrence ], n) > 0
 				n = This.CountSubValueCS(pSubValue, pCaseSensitive)
 
 			ok
@@ -3902,10 +3935,18 @@ Class stzTable from stzObject
 	def FindFirstCS(pCellValueOrSubValue, pCaseSensitive)
 
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+
+			oParam = new stzList(pCellValueOrSubValue)
+
+			if oParam.IsOneOfTheseNamedParams([
+				:Cell, :OfCell, :Value, :OfValue, :Of ])
+
 				return This.FindFirstCellCS(pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but oParam.IsOneOfTheseNamedParams([
+				:SubValue, :OfSubValue, :Part, :OfPart,
+				:CellPart, :OfCellPart ])
+
 				return This.FindFirstSubValueCS(pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -3988,17 +4029,25 @@ Class stzTable from stzObject
 		def FindFirstOccurrenceOfSubValue(pSubValueValue)
 			return This.FindFirstSubValue(pSubValue)
 
-	  #-----------------------------------------------------------------------------------------#
+	  #----------------------------------------------------------------------------------------#
 	 #  FINDING LAST OCCURRENCE OF A GIVEN CELL (OR A GIVEN SUBVALUE IN A CELL) IN THE TABLE  #
-	#-----------------------------------------------------------------------------------------#
+	#----------------------------------------------------------------------------------------#
 
 	def FindLastCS(pCellValueOrSubValue, pCaseSensitive)
 
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+
+			oParam = new stzList(pCellValueOrSubValue)
+
+			if oParam.IsOneOfTheseNamedParams([
+				:Cell, :OfCell, :Value, :OfValue, :Of ])
+
 				return This.FindLastCellCS(pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but oParam.IsOneOfTheseNamedParams([
+				:SubValue, :OfSubValue, :Part, :OfPart,
+				:CellPart, :OfCellPart ])
+
 				return This.FindLastSubValueCS(pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -4087,10 +4136,12 @@ Class stzTable from stzObject
 		*/
 
 		if isList(pValue)
-			if Q(pValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Cells, :Value, :OfValue, :Of ])
+			oParam = new stzList(pValue)
+
+			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Cells, :Value, :OfValue, :Of ])
 				return This.NumberOfOccurrenceOfCellCS(pValue[2], pCaseSensitive)
 
-			but Q(pValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				return This.NumberOfOccurrenceOfSubValueCS(pValue[2], pCaseSensitive)
 
 			else
@@ -4469,10 +4520,13 @@ Class stzTable from stzObject
 		*/
 
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :Value ])
+
+			oParam = new stzlist(pCellValueOrSubValue)
+
+			if oParam.IsOneOfTheseNamedParams([ :Cell, :Value ])
 				return This.ContainsCellCS(pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :Part, :CellPart ])
+			but oParam.IsOneOfTheseNamedParams([ :SubValue, :Part, :CellPart ])
 				return This.ContainsSubValueCS(pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -5005,10 +5059,13 @@ Class stzTable from stzObject
 	def FindNthInCellsCS(n, paCells, pCellValueOrSubValue, pCaseSensitive)
 
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+
+			oParam = new stzList(pCellValueOrSubValue)
+
+			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				return This.FindNthValueInCellsCS(n, paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				return This.FindNthSubValueInCellsCS(n, paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -5042,10 +5099,10 @@ Class stzTable from stzObject
 		# Returns an empty pair [] if no occurrence is found.
 
 		if isString(n)
-			if Q(n).IsOneOfThese([ :First, :FirstOccurrence, :FirstValue ])
+			if ring_find([ :First, :FirstOccurrence, :FirstValue ], n) > 0
 				n = 1
 
-			but Q(n).IsOneOfThese([ :Last, :LastOccurrence, :LastValue ])
+			but ring_find([ :Last, :LastOccurrence, :LastValue ], n) > 0
 				n = This.NumberOfOccurrenceInCellsCS(paCells, pCellValue, pCaseSensitive)
 			ok
 		ok
@@ -5084,10 +5141,10 @@ Class stzTable from stzObject
 		# Returns an empty pair [] if no occurrence is found.
 
 		if isString(n)
-			if Q(n).IsOneOfThese([ :First, :FirstOccurrence, :FirstSubValue ])
+			if ring_find([ :First, :FirstOccurrence, :FirstSubValue ], n) > 0
 				n = 1
 
-			but Q(n).IsOneOfThese([ :Last, :LastOccurrence, :LastSubValue ])
+			but ring_find([ :Last, :LastOccurrence, :LastSubValue ], n) > 0
 				n = This.CountSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 
 			ok
@@ -5136,10 +5193,13 @@ Class stzTable from stzObject
 	def FindFirstInCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)
 
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+
+			oParam = new stzList(pCellValueOrSubValue)
+
+			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				return This.FindFirstValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				return This.FindFirstSubValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -5207,10 +5267,13 @@ Class stzTable from stzObject
 	def FindLastInCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)
 
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+
+			oParam = new stzList(pCellValueOrSubValue)
+
+			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				return This.FindLastValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfPart ])
+			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfPart ])
 				return This.FindLastSubValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -5278,10 +5341,13 @@ Class stzTable from stzObject
 	def NumberOfOccurrencesInCellsCS(paCells, pCellValueOrSubValue, pCaseSensitive)
 
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+
+			oParam = new stzList(pCellValueOrSubValue)
+
+			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				return This.NumberOfOccurrencesOfValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				return This.NumberOfOccurrencesOfSubValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -5427,11 +5493,15 @@ Class stzTable from stzObject
 	#----------------------------------------------------------------------#
 
 	def CellsContainCS(paCells, pCellValueOrSubValue, pCaseSensitive)
+
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+
+			oParam = new stzList(pCellValueOrSubValue)
+
+			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				return This.CellsContainValueCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				return This.CellsContainSubValueCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -5628,10 +5698,13 @@ Class stzTable from stzObject
 	def NumberOfOccurrencesInCellCS(pCellCol, pCellRow, pCellValueOrSubValue, pCaseSensitive)
 
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+
+			oParam = new stzList(pCellValueOrSubValue)
+
+			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				return This.NumberOfOccurrencesOfValueInCellCS( pCellCol, pCellRow, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				return This.NumberOfOccurrencesOfSubValueInCellCS( pCellCol, pCellRow, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -5773,12 +5846,15 @@ Class stzTable from stzObject
 		bSubValue = TRUE
 
 		if isList(pCellValueOrSubValue)
-			if Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+
+			oParam = new stzList(pCellValueOrSubValue)
+
+			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
 				bValue = TRUE
 				bSubValue = FALSE
 				
-			but Q(pCellValueOrSubValue).IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
 
 			else
@@ -7794,10 +7870,11 @@ Class stzTable from stzObject
 		ok
 
 		if isString(pCol)
-			if Q(pCol).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+
+			if ring_find([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 				pCol = 1
 
-			but Q(pCol).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
+			but ring_find([ :Last, :LastCol, :LastColumn ], pCol) > 0
 				pCol = This.NumberOfCols()
 		
 			else
@@ -11525,10 +11602,11 @@ Class stzTable from stzObject
 		ok
 
 		if isString(pCol)
-			if Q(pCol).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+
+			if ring_find([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 				pCol = 1
 
-			but Q(pCol).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+			but ring_find([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 				pCol = This.NumberOfCols()
 
 			but This.HasColName(pCol)
@@ -12827,26 +12905,28 @@ Class stzTable from stzObject
 		ok
 
 		if isString(pnFrom)
-			if Q(pnFrom).IsOneOfThese([
-				:First, :FirstCol, :FirstColumn, :FirstPosition ])
+
+			if ring_find([
+				:First, :FirstCol, :FirstColumn, :FirstPosition ], pnForm) > 0
 
 				pnFrom = 1
 
-			but Q(pnFrom).IsOneOfThese([
-				:Last, :LastCol, :LastColumn, :LastPosition ])
+			but ring_find([
+				:Last, :LastCol, :LastColumn, :LastPosition ], pnFrom) > 0
 
 				pnFrom = This.NumberOfCols()
 			ok
 		ok
 
 		if isString(pnTo)
-			if Q(pnTo).IsOneOfThese([
-				:First, :FirstCol, :FirstColumn, :FirstPosition ])
+
+			if ring_find([
+				:First, :FirstCol, :FirstColumn, :FirstPosition ], pnTo) > 0
 
 				pnTo = 1
 
-			but Q(pnTo).IsOneOfThese([
-				:Last, :LastCol, :LastColumn, :LastPosition ])
+			but ring_find([
+				:Last, :LastCol, :LastColumn, :LastPosition ], pnTo) > 0
 
 				pnTo = This.NumberOfCols()
 			ok
@@ -14013,8 +14093,8 @@ Class stzTable from stzObject
 				next v
 			next i
 
-		but Q(cFill).IsOneOfThese([
-			:WithCol, :WithColumn, :UsingCol, :UsingColumn ])
+		but ring_find([
+			:WithCol, :WithColumn, :UsingCol, :UsingColumn ], cFill) > 0
 		    
 			This.ReplaceCols(:With = pValue)
 
@@ -14062,10 +14142,11 @@ Class stzTable from stzObject
 		ok
 
 		if isString(p)
-			if Q(p).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+
+			if ring_find([ :First, :FirstCol, :FirstColumn ], p) > 0
 				p = 1
 
-			but Q(p).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
+			but ring_find([ :Last, :LastCol, :LastColumn ], p) > 0
 				p = This.NumberOfCols()
 
 			but This.HasColName(p)
@@ -14169,10 +14250,11 @@ Class stzTable from stzObject
 		ok
 
 		if isString(p)
-			if Q(p).IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+
+			if ring_find([ :First, :FirstCol, :FirstColumn ], p) > 0
 				p = 1
 
-			but Q(p).IsOneOfThese([ :Last, :LastCol, :LastColumn ])
+			but ring_find([ :Last, :LastCol, :LastColumn ], p) > 0
 				p = This.NumberOfCols()
 
 			but This.HasColName(p)

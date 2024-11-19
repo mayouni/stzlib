@@ -6885,7 +6885,7 @@ proff()
 # See fellowing examples...
 
 /*-----
-
+*/
 pron()
 
 # Splitting before a given substring with case sensitivity
@@ -6947,7 +6947,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*============ SPLITTING AT
-
+*/
 pron()
 
 # Splitting at a given substring with case sensitivity
@@ -7021,7 +7021,7 @@ proff()
 # Executed in 2.25 second(s) in Ring 1.21
 
 /*============ SPLITTING AFTER
-
+*/
 pron()
 
 # Splitting before a given substring with case sensitivity
@@ -7064,7 +7064,7 @@ proff()
 # Executed in 3.89 second(s) in Ring 1.18
 
 /*-----------------
-
+*/
 pron()
 
 o1 = new stzSplitter(10)
@@ -7086,7 +7086,7 @@ proff()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*-----------------
-
+*/
 pron()
 
 o1 = new stzSplitter(10)
@@ -7117,7 +7117,7 @@ o1 = new stzSplitter(10)
 proff()
 
 /*----------------
-
+*/
 pron()
 
 ? @@( StzSplitterQ(10).splitAround(8) )

@@ -2350,28 +2350,28 @@ def init(paList)
 
 		# Doing the job
 
-		if Q( pcBeforeOrAfter ).IsOneOfThese([
+		if ring_find([
 			:BeforeOrAfter, :BeforeOrAfterIt,
 			:AfterOrBefore, :AfterOrBeforeIt,
 
 			:ComingBeforeOrAfter, :ComingBeforeOrAfterIt,
 			:ComingAfterOrBefore, :ComingAfterOrBeforeIt
-			])
+			], pcBeforeOrAfter) > 0
 
 			nResult = This.NearestTo(n)
 
-		but Q( pcBeforeOrAfter ).IsOneOfThese([
+		but ring_find([
 			:Before, :BeforeIt,
 			:ComingBefore, :ComingBeforeIt
-			])
+			], pcBeforeOrAfter) > 0
 
 			anPair = This.NeighborsOf(n)
 			nResult = anPair[1]
 
-		but Q( pcBeforeOrAfter ).IsOneOfThese([
+		but ring_find([
 			:After, :AfterIt,
 			:ComingAfter, :ComingAfterIt
-			])
+			], pcBeforeOrAfter) > 0
 
 			anPair = This.NeighborsOf(n)
 			nResult = anPair[2]
@@ -2474,20 +2474,20 @@ def init(paList)
 
 		# Doing the job
 
-		if Q( pcBeforeOrAfter ).IsOneOfThese([
+		if ring_find([
 			:BeforeOrAfter, :BeforeOrAfterIt,
 			:AfterOrBefore, :AfterOrBeforeIt,
 
 			:ComingBeforeOrAfter, :ComingBeforeOrAfterIt,
 			:ComingAfterOrBefore, :ComingAfterOrBeforeIt
-			])
+			], pcBeforeOrAfter) > 0
 
 			nResult = This.FarthestTo(n)
 
-		but Q( pcBeforeOrAfter ).IsOneOfThese([
+		but ring_find([
 			:Before, :BeforeIt,
 			:ComingBefore, :ComingBeforeIt
-			])
+			], pcBeforeOrAfter) > 0
 
 			anSorted = This.ToSetQ().Sorted()
 			nLen = len(anSorted)
@@ -2525,10 +2525,10 @@ def init(paList)
 
 			ok
 
-		but Q( pcBeforeOrAfter ).IsOneOfThese([
+		but ring_find([
 			:After, :AfterIt,
 			:ComingAfter, :ComingAfterIt
-			])
+			], pcBeforeOrAfter) > 0
 
 			anSorted = This.ToSetQ().Sorted()
 			nLen = len(anSorted)
@@ -6103,10 +6103,13 @@ def init(paList)
 
 	def NNumbersOtherThan(n, nNumber)
 		if isList(n)
-			if Q(n).IsPositionNamedParam()
+
+			oParam = new stzList(n)
+
+			if oParam.IsPositionNamedParam()
 				return This.NNumbersOutSidePosition(n[2], nNumber)
 
-			but Q(n).IsPositionsNamedParam()
+			but oParam.IsPositionsNamedParam()
 				return This.NNumbersOutsidePositions(n[2], nNumber)
 
 			else
@@ -6127,10 +6130,13 @@ def init(paList)
 
 	def NNumbersOtherThanZ(n, nNumber)
 		if isList(n)
-			if Q(n).IsPositionNamedParam()
+
+			oParam = new stzList(n)
+
+			if oParam.IsPositionNamedParam()
 				return This.NNumbersOutSidePosition(n[2], nNumber)
 
-			but Q(n).IsPositionsNamedParam()
+			but oParam.IsPositionsNamedParam()
 				return This.NNumbersOutsidePositions(n[2], nNumber)
 
 			else
@@ -6557,10 +6563,13 @@ def init(paList)
 
 	def SomeNumbersOtherThan(n, nNumber)
 		if isList(n)
-			if Q(n).IsPositionNamedParam()
+
+			oParam = new stzList(n)
+
+			if oParam.IsPositionNamedParam()
 				return This.SomeNumbersOutSidePosition(n[2], nNumber)
 
-			but Q(n).IsPositionsNamedParam()
+			but oParam.IsPositionsNamedParam()
 				return This.SomeNumbersOutsidePositions(n[2], nNumber)
 
 			else
