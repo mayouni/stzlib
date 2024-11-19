@@ -1589,25 +1589,31 @@ class stzSplitter from stzListOfNumbers
 	 #  SPLITTING AROUND SECTIONS  #
 	#-----------------------------#
 
-	def SplitAroundSections(panSections)
-		aResult = This.AntiFindSectionsZZ(panSections)
+	def SplitAroundSections(paSections)
+		aResult = This.AntiSectionsZZ(paSections)
+		return aResult
 
-		def SplitsAroundSections(panSections)
-			return This.SplitAroundSections(panSections)
+		def SplitsAroundSections(paSections)
+			return This.SplitAroundSections(paSections)
 
-	def SplitAroundSectionsIB(panSections)
-		aResult = This.SplitAroundSections(panSections)
+	def SplitAroundSectionsIB(paSections)
+
+		aResult = This.SplitAroundSections(paSections)
 
 		nLen = len(aResult)
 		for i = 1 to nLen
-			aResult[i][2]++
-			aResult[i][1]--
+			if aResult[i][2] < nLen
+				aResult[i][2]++
+			ok
+			if aResult[i][1] > 1
+				aResult[i][1]--
+			ok
 		next
 
 		return aResult
 
-		def SplitsAroundSectionsIB(panSections)
-			return This.SplitAroundSectionsIB(panSections)
+		def SplitsAroundSectionsIB(paSections)
+			return This.SplitAroundSectionsIB(paSections)
 
 	  #=======================================================#
 	 #   Utility functions used by the other methods above   #

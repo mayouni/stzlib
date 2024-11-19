@@ -47305,8 +47305,21 @@ class stzList from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForms
+
 		def AntiSectionsAsPairsOfNumbers(paSections)
 			return This.FindAntiSections(paSections)
+
+		def FindAntiSectionsZZ(paSections)
+			return This.FindAntiSections(paSections)
+
+		def AntiSectionsZZ(paSections)
+			return This.FindAntiSections(paSections)
+
+		def AntiSectionsAsSections(paSections)
+			return This.FindAntiSections(paSections)
+
+		#>
 
 	def AntiSections(paSections)
 		/* EXAMPLE
