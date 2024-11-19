@@ -5715,7 +5715,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter(1:12)
+o1 = new stzSplitter(12)
 
 ? @@( o1.SplitAtSections([ [3, 5], [8, 9] ]) ) + NL
 #--> [ [ 1, 2 ], [ 6, 7 ], [ 10, 12 ] ]
@@ -7018,7 +7018,7 @@ o1 = new stzString("...ONE...TWO...ONE")
 #--> [ "...", "...", "..." ]
 
 proff()
-# Executed in 2.55 second(s) in Ring 1.21
+# Executed in 2.25 second(s) in Ring 1.21
 
 /*============ SPLITTING AFTER
 
@@ -7052,42 +7052,98 @@ o1 = new stzString("...♥♥♥..♥♥..")
 #--> [ "...♥♥♥", "..♥♥", ".." ]
 
 o1 = new stzString("...♥...♥...")
-? @@( o1.SplitAfterW(' @char = "♥" ') )
+? @@( o1.SplitBeforeCharsWXT(' @char = "♥" ') )
 #--> [ "...♥", "...♥", "..." ]
 
 o1 = new stzString("...♥♥...♥♥...")
-? @@( o1.SplitAfterW(' @SubString = "♥♥" ') )
+? @@( o1.SplitAfterSubStringsWXT(' @SubString = "♥♥" ') )
 #--> [ "...♥", "♥...♥", "♥..." ]
 
 proff()
-# Executed in 3.89 second(s)
+# Executed in 0.49 second(s) in Ring 1.21
+# Executed in 3.89 second(s) in Ring 1.18
 
 /*-----------------
 
 pron()
 
-o1 = new stzSplitter(1:10)
+o1 = new stzSplitter(10)
 ? @@( o1.SplitAroundSections([ [4, 5], [ 8, 8] ]) )
 #--> [ [ 1, 3 ], [ 6, 7 ], [ 9, 10 ] ]
+
+? @@( o1.SplitAroundSectionsIB([ [4, 5], [ 8, 8] ]) )
+
+o1 = new stzString("...♥♥..♥..")
+#		    1234567890
+
+? @@( o1.SplitAroundSections([ [ 4, 5], [8,8] ]) )
+#--> [ "...", "..", ".." ]
+
+? @@( o1.SplitAroundSectionsIB([ [ 4, 5], [8,8] ]) )
+#--> [ "...♥", "♥..♥", "♥.." ]
 
 proff()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*-----------------
+
+pron()
+
+o1 = new stzSplitter(10)
+
+? @@( o1.SplitAtSection(3, 5) )
+#--> [ [ 1, 2 ], [ 6, 10 ] ]
+
+? @@( o1.SplitAtSectionIB(3, 5) ) + NL
+#--> [ [ 1, 3 ], [ 5, 10 ] ]
+
+#--
+
+? @@( o1.SplitAtSection(1, 5) )
+#--> [ [ 6, 10 ] ]
+
+? @@( o1.SplitAtSectionIB(1, 5) ) + NL
+#--> [ [ 5, 10 ] ]
+
+#--
+
+? @@( o1.SplitAtSection(5, 10) )
+#--> [ [ 1, 4 ] ]
+
+? @@( o1.SplitAtSectionIB(5, 10) ) + NL
+#--> [ [ 1, 5 ] ]
+
+
+proff()
+
+/*----------------
+
+pron()
+
+? @@( StzSplitterQ(10).splitAround(8) )
+#--> [ [ 1, 7 ], [ 9, 10 ] ]
+
+proff()
+# Executed in 0.02 second(s) in Ring 1.21
+
+/*-----------------
 */
 pron()
 
-o1 = new stzString("...♥^♥...♥^♥...")
-
+o1 = new stzString("...♥^♥.|.♥^♥...")
 
 ? @@( o1.SplitAround("♥^♥") )
-#--> [ "...", "...", "..." ]
+#--> [ "...", ".|.", "..." ]
 
 ? @@( o1.SplitAroundIB("♥^♥") )
+#--> [ "...♥", "♥.|.♥", "♥..." ]s
 
+#--
+
+? @@( o1.SplitAroundPosition(8) )
+#--> [ "...♥^♥.", ".♥^♥..." ]
 
 /*
-	def SplitAroundPosition(n)
 	def SplitAroundPositions(panPos)
 	def SplitAroundSection(n1, n2)
 	def SplitAroundSectionIB(n1, n2)
@@ -8021,7 +8077,7 @@ StopProfiler()
 
 pron()
 
-o1 = new stzSplitter(1:8)
+o1 = new stzSplitter(8)
 ? @@( o1.SplitAt([3, 5]) )
 #--> [ [ 1, 2 ], [ 4, 4 ], [ 6, 8 ] ]
 
@@ -14582,7 +14638,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter(1:10)
+o1 = new stzSplitter(10)
 
 ? @@( o1.GetPairsFromPositions([ 1, 3, 8 ]) )
 #--> [ [ 1, 3 ], [ 3, 8 ], [ 8, 10 ] ]
@@ -14596,7 +14652,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter(1:12)
+o1 = new stzSplitter(12)
 
 ? @@( o1.GetPairsFromPositions([ 1, 3, 8, 10 ]) )
 #--> [ [ 1, 3 ], [ 3, 8 ], [ 8, 10 ], [ 10, 12 ] ]
@@ -16432,7 +16488,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter([ 1, 2 ])
+o1 = new stzSplitter(2)
 ? @@( o1.SplitToNParts(2) )
 #--> [ [ 1, 1 ], [ 2, 2 ] ]
 
@@ -16446,7 +16502,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
+o1 = new stzSplitter(5)
 ? @@( o1.SplitToNParts(2) )
 #--> [ [ 1, 3 ], [ 4, 5 ] ]
 

@@ -217,65 +217,60 @@ class stzListOfStrings from stzList
 	 #    APPENDING THE LIST WITH A STRING (AT THE END OF LIST)    #
 	#-------------------------------------------------------------#
 
-	def AddStringItem(pcStrItem)
-		if isString(pcStrItem)
-			This.QStringListObject().append(pcStrItem)
-		else
-			StzRaise( stzListOfStringsError(:CanNotAddNonStringItem) )
+	def AddString(pcstr)
+		if NOT isString(pcstr)
+			StzRaise("Incorrect param type! pcstr must be string.")
 		ok
 
-		def AddStringItemQ(pcStrItem)
-			This.AddStringItem(pcStrItem)
+		This.QStringListObject().append(pcstr)
+
+
+		def AddStringQ(pcstr)
+			This.AddString(pcstr)
 			return This
 
-		def AddString(pcStrItem)
-			This.AddStringItem(pcStrItem)
-			
-			def AddStringQ(pcStrItem)
-				This.AddString(pcStrItem)
+		def Append(pcstr)
+			This.AddString(pcstr)
+
+			def AppendQ(pcstr)
+				This.Append(pcstr)
 				return This
 
-		def Append(pcStrItem)
-			This.AddStringItem(pcStrItem)
+		def AppendWith(pcstr)
+			This.AddString(pcstr)
 
-			def AppendQ(pcStrItem)
-				This.Append(pcStrItem)
+			def AppendWithQ(pcstr)
+				This.AppendWith(pcstr)
 				return This
 
-		def AppendWith(pcStrItem)
-			This.AddStringItem(pcStrItem)
+		def Add(pcstr)
+			This.AddString(pcstr)
 
-			def AppendWithQ(pcStrItem)
-				This.AppendWith(pcStrItem)
-				return This
-
-		def Add(pcStrItem)
-			This.AddStringItem(pcStrItem)
-
-			def AddQ(pcStrItem)
-				This.Add(pcStrItem)
+			def AddQ(pcstr)
+				This.Add(pcstr)
 				return This
 
 	  #--------------------------------------------------------------------#
 	 #    PREPENDING THE LIST WITH A STRING (AT THE BEGINNING OF LIST)    #
 	#--------------------------------------------------------------------#
 			
-	def Prepend(pcStrItem)
-		if isString(pcStrItem)
-			This.QStringListObject().prepend(pcStrItem)
-		else
-			StzRaise( stzListOfStringsError(:CanNotAddNonStringItem) )
+	def Prepend(pcStr)
+		if NOT isString(pcStr)
+			StzRaise("Incorrect param type! pcstr must be a string.")
 		ok
+
+		This.QStringListObject().prepend(pcstr)
+
 		
-		def PrependQ(pcStrItem)
-			This.Prepend(pcStrItem)
+		def PrependQ(pcstr)
+			This.Prepend(pcstr)
 			return This
 
-		def PrependWith(pcStrItem)
-			This.Prepend(pcStrItem)
+		def PrependWith(pcstr)
+			This.Prepend(pcstr)
 
-			def PrependWithQ(pcStrItem)
-				This.PrependWith(pcStrItem)
+			def PrependWithQ(pcstr)
+				This.PrependWith(pcstr)
 				return This
 
 	  #--------------------------------#

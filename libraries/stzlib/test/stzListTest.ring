@@ -10882,7 +10882,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter( 1:5 )
+o1 = new stzSplitter(5)
 
 ? @@(o1.SplitToPartsOfNItemsXT(2))
 #--> [ [ 1, 2 ], [ 3, 4 ], [ 5, 5 ] ]
@@ -10918,7 +10918,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
+o1 = new stzSplitter(5)
 
 ? @@( o1.GetPairsFromPositions([ 3, 5 ]) )
 #--> [ [ 1, 3 ], [ 3, 5 ] ]
@@ -10933,7 +10933,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
+o1 = new stzSplitter(5)
 
 ? @@( o1.SplitAt(1) )
 #--> [ [ 2, 5 ] ]
@@ -10957,7 +10957,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
+o1 = new stzSplitter(5)
 
 ? @@( o1.SplitBeforePositions([ 1, 6 ]) )
 #--> ERROR: Incorrect param value!
@@ -10969,7 +10969,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
+o1 = new stzSplitter(5)
 
 ? @@( o1.SplitBefore(1) )
 #--> [ [ 1, 5 ] ]
@@ -10993,7 +10993,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter([ 1, 2, 3, 4, 5 ])
+o1 = new stzSplitter(5)
 
 ? @@( o1.SplitAfter(3) )
 #--> [ [ 1, 3 ], [ 4, 5 ] ]
@@ -11260,7 +11260,7 @@ proff()
 
 pron()
 
-o1 = new stzSplitter(1:3)
+o1 = new stzSplitter(3)
 ? @@( o1.SplitToNParts(0) )
 #--> [ ]
 

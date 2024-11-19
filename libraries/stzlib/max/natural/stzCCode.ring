@@ -179,7 +179,6 @@ class stzCCode
 				"@chars", "@allChars", "@char",
 
 				"@strings", "@allStrings", "@string",
-				"@strinItems", "@allStringItems", "@StringItem",
 				"@SubStrings", "@allSubStrings", "@SubString",
 				"@Lines", "@allLines", "@Line",
 	
@@ -198,7 +197,7 @@ class stzCCode
 				"-@Number",
 
 				"@NextItem",
-				"@NextChar", "@NextString", "@NextStringItem", "@NextSubString",
+				"@NextChar", "@NextString", "@NextSubString",
 				"@NextLine",
 
 				"@NextNumber",
@@ -213,7 +212,7 @@ class stzCCode
 
 				"@PreviousItem",
 				"@PreviousChar",
-				"@PreviousString","@PreviousStringItem", "@PreviousSubString",
+				"@PreviousString", "@PreviousSubString",
 				"@PreviousLine",
 				"@PreviousNumber",
 
@@ -277,7 +276,7 @@ class stzCCode
 				
 			ReplaceManyCSQ([
 				" @NextItem ",
-				" @NextChar ", " @NextString ", " @NextStringItem ", " @NextSubString ",
+				" @NextChar ", " @NextString ", " @NextSubString ",
 				" @NextLine ",
 				" @NextNumber ",
 				
@@ -295,7 +294,7 @@ class stzCCode
 			ReplaceManyCSQ([
 				" @PreviousItem ",
 				" @PreviousChar ",
-				" @PreviousString ", " @PreviousStringItem ", " @PreviousSubString ",
+				" @PreviousString ", " @PreviousSubString ",
 				" @PreviousLine ",
 				" @PreviousNumber ",
 
