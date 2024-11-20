@@ -1532,10 +1532,10 @@ class stzListOfLists from stzList
 			ok
 	
 			if isString(pItem) and
-			    	Q(pItem).IsOneOfThese([
+			    	ring_find([
 					:ItemsRepeated, :RepeatingItems,
 					:RepeatedItems, :ByRepeatingItems
-				])
+				], pItem) > 0
 	
 				This.ExtendToByRepeatingItems(n)
 				return
@@ -1948,7 +1948,7 @@ class stzListOfLists from stzList
 				n = n[2]
 			ok
 		
-			if isList(pWith) and Q(pWith).IsOneOfThese([ :With, :By, :Using ])
+			if isList(pWith) and Q(pWith).IsOneOfTheseNamedParams([ :With, :By, :Using ])
 				pWith = pWith[2]
 			ok
 		ok

@@ -7297,18 +7297,16 @@ class stzList from stzObject
 			ok
 	
 			if isString(n1) and
-			   Q(n1).IsOneOfThese([ :First, :FirstPosition, :FirstItem ])
-					    
+			   ring_find([ :First, :FirstPosition, :FirstItem ], n1) > 0
 				n1 = 1
 			ok
 	
 			if isString(n2) and
-			   Q(n1).IsOneOfThese([ :Last, :LastPosition, :LastItem ])
-	
+			   ring_find([ :Last, :LastPosition, :LastItem ], n2)
 				n2 = This.NumberOfItems()
 			ok
 	
-			if NOT Q([n1, n2]).BothAreNumbers()
+			if NOT ( isNumber(n1) and isNumber(n2) )
 				StzRaise("Incorrect param type! n1 and n2 must be numbers.")
 			ok
 
@@ -12202,15 +12200,13 @@ class stzList from stzObject
 
 		if isString(pnStartingAt)
 
-			oParam = Q(pnStartingAt)
-
-			if oParam.IsOneOfThese([
-				:First, :FirstPosition, :FirstItem ], :CS = FALSE)
+			if ring_find([
+				:First, :FirstPosition, :FirstItem ], pnStartingAt) > 0
 
 				pnStartingAt = 1
 			
-			but oParam.IsOneOfThese([
-				:Last, :LastPosition, :LastItem ], :CS = FALSE)
+			but ring_find([
+				:Last, :LastPosition, :LastItem ], pnStartingAt)
 
 				pnStartingAt = This.NumberOfItems()
 			ok
@@ -12538,15 +12534,13 @@ class stzList from stzObject
 
 		if isString(pnStartingAt)
 
-			oParam = Q(pnStartingAt)
-
-			if oParam.IsOneOfThese([
-				:First, :FirstPosition, :FirstItem ], :CS = FALSE)
+			if ring_find([
+				:First, :FirstPosition, :FirstItem ], pnStartingAt) > 0
 
 				pnStartingAt = 1
 			
-			but oParam.IsOneOfThese([
-				:Last, :LastPosition, :LastItem ], :CS = FALSE)
+			but ring_find([
+				:Last, :LastPosition, :LastItem ], pnStartingAt) > 0
 
 				pnStartingAt = This.NumberOfItems()
 			ok
@@ -14542,15 +14536,13 @@ class stzList from stzObject
 
 		if isString(pnStartingAt)
 
-			oParam = Q(pnStartingAt)
-
-			if oParam.IsOneOfTheseCS([
-				:First, :FirstPosition, :FirstItem, :FirstItem ], :CS = FALSE)
+			if ring_find([
+				:First, :FirstPosition, :FirstItem, :FirstItem ], pnStartingAt) > 0
 
 				pnStartingAt = 1
 			
-			but oParam.IsOneOfTheseCS([
-				:Last, :LastPosition, :LastItem, :LastItem ], :CS = FALSE)
+			but ring_find([
+				:Last, :LastPosition, :LastItem, :LastItem ], pnStartingAt) > 0
 
 				pnStartingAt = This.NumberOfItems()
 			ok
@@ -14830,17 +14822,15 @@ class stzList from stzObject
 
 		if isString(n)
 
-			oParam = Q(n)
-
-			if oParam.IsOneOfThese([
+			if ring_find([
 				:First, :FirstPosition,
-			      	:FirstItem, :FirstItem ])
+			      	:FirstItem, :FirstItem ], n) > 0
 				  
 				n = 1
 
-			but oParam.IsOneOfThese([
+			but ring_find([
 				:Last, :LastPosition,
-			     	:LastItem, :LastItem ])
+			     	:LastItem, :LastItem ], n) > 0
 
 				n = This.NumberOfItems()
 			ok
@@ -15304,17 +15294,15 @@ class stzList from stzObject
 
 		if isString(pnStart)
 
-			oParam = Q(pnStart)
-
-			if oParam.IsOneOfThese([
+			if ring_find([
 					:First, :FirstPosition,
-				      	:FirstItem, :FirstItem ])
+				      	:FirstItem, :FirstItem ], pnStart) > 0
 				  
 				pnStart = 1
 
-			but oParam.IsOneOfThese([
+			but ring_find([
 					:Last, :LastPosition,
-				      	:LastItem, :LastItem ])
+				      	:LastItem, :LastItem ], pnStart) > 0
 
 				n = This.NumberOfItems()
 			ok
@@ -15327,9 +15315,9 @@ class stzList from stzObject
 		# Checking the correctness of the pnRange param
 
 		if isList(pnRange) and
-		   isItem(pnRange[1]) and
+		   isString(pnRange[1]) and
 
-		   ( Q(pnRange[1]).IsOneOfTheseCS([ :UpToN, :UpToNItems, :UpToNItems ]) )
+		   ring_find([ :UpToN, :UpToNItems, :UpToNItems ], pnRange[1]) > 0
 
 		   	pnRange = pnRange[2]
 		ok
@@ -15397,17 +15385,17 @@ class stzList from stzObject
 			ok
 	
 			if isString(n1) and
-				( Q(n1).IsOneOfThese([
+				ring_find([
 					:First, :FirstPosition,
-					:FirstItem, :FirstItem ]) )
+					:FirstItem, :FirstItem ], n1) > 0
 	
 				n1 = 1
 			ok
 	
 			if isString(n2) and
-				( Q(n2).IsOneOfThese([
+				ring_find([
 					:Last, :LastPosition,
-					:LastItem, :LastItem ]) )
+					:LastItem, :LastItem ], n2) > 0
 	 
 				n2 = This.NumberOfItems()
 			ok
@@ -24641,12 +24629,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -24741,12 +24729,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -24828,12 +24816,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -24885,12 +24873,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn) > 0)
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -24898,9 +24886,10 @@ class stzList from stzObject
 
 		# Doing the job
 
-		anPos = 1 : This.NumberOfItems()
+		nLen = This.NumberOfItems()
+		anPos = 1 : nLen
 
-		for i = This.NumberOfItems()-1 to 1 step -1
+		for i = nLen-1 to 1 step -1
 			anPos + i
 		next
 		
@@ -24939,12 +24928,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -24952,9 +24941,10 @@ class stzList from stzObject
 
 		# Doing the job
 
-		anPos = This.NumberOfItems() : 1
+		nLen = This.NumberOfItems()
+		anPos = nLen : 1
 
-		for i = 2 to This.NumberOfItems()
+		for i = 2 to nLen
 			anPos + i
 		next
 
@@ -25012,12 +25002,12 @@ class stzList from stzObject
 	
 			if NOT ( isString(pReturn) and
 	
-				 Q(pReturn).IsOneOfThese([
+				 ring_find([
 					:WalkedPositions, :WalkedItems,
 					:LastPosition, :LastWalkedPosition,
 					:LastItem, :LastWalkedItem,
 					:Default
-				]) )
+				], pReturn) > 0 )
 	
 				StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 					 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -25027,12 +25017,13 @@ class stzList from stzObject
 				pReturn = :WalkedPositions
 			ok
 	
-			if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+			if isList(pcDirection) and
+			   ring_find([ :Direction, :Going ], pcDirection) > 0
 				pcDirection = pcDirection[2]
 			ok
 	
 			if NOT ( isString(pcDirection) and
-				 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
+				 ring_find([ :Forward, :Backward, :Default ], pcDirection) > 0 )
 	
 				StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
 			ok
@@ -25142,12 +25133,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn)  > 0)
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -25162,7 +25153,7 @@ class stzList from stzObject
 		ok
 
 		if NOT ( isString(pcDirection) and
-			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
+			 ring_find([ :Forward, :Backward, :Default ], pcDirection) > 0 )
 
 			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
 		ok
@@ -25254,12 +25245,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -25274,7 +25265,7 @@ class stzList from stzObject
 		ok
 
 		if NOT ( isString(pcDirection) and
-			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
+			 ring_find([ :Forward, :Backward, :Default ], pcDirection) > 0 )
 
 			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
 		ok
@@ -25350,12 +25341,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -25370,7 +25361,7 @@ class stzList from stzObject
 		ok
 
 		if NOT ( isString(pcDirection) and
-			 Q(pcDirection).IsOneOfThese([ :Forward, :Backward, :Default ]) )
+			 ring_find([ :Forward, :Backward, :Default ], pcDirection) > 0 )
 
 			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
 		ok
@@ -25527,12 +25518,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -25540,6 +25531,7 @@ class stzList from stzObject
 
 		# Doing the job
 
+		nLen = This.NumberOfItems()
 		anPos = []
 
 		if n < 0
@@ -25553,10 +25545,10 @@ class stzList from stzObject
 			nstep = 1
 			i = 0
 			
-			while nStep <= This.NumberOfItems()
+			while nStep <= nLen
 				i++
 				nStep += (n * i)
-				if nStep <= This.NumberOfItems()
+				if nStep <= nLen
 					anPos + nStep
 				ok
 			end
@@ -25758,12 +25750,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -25771,17 +25763,18 @@ class stzList from stzObject
 
 		# Doing the job
 
+		nLen = This.NumberOfItems()
 		anPos = []
 
 		if n < 0
 			StzRaise("Can't proceed. n must be positive!")
 
 		but n = 0
-			anPos = [ This.NumberOfItems() ]
+			anPos = [ nLen ]
 
 		else
-			anPos = [ This.NumberOfItems() ]
-			nStep = This.NumberOfItems()
+			anPos = [ nLen ]
+			nStep = nLen
 			i = 0
 			
 			while nStep > 0
@@ -25930,12 +25923,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -26054,12 +26047,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -26185,12 +26178,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -26311,12 +26304,12 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 Q(pReturn).IsOneOfThese([
+			 ring_find([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
 				:Default
-			]) )
+			], pReturn) > 0 )
 
 			StzRaise("Incorrect param! pReturn must be a string. Allowed values are " +
 				 ":WalkedPositions, :WalkedItems, :LastWalkedPosition, :LastWalkedItem, and :Default." )
@@ -31822,8 +31815,8 @@ class stzList from stzObject
 				ok
 
 			but isString(pWith) and
-			    oParam.IsOneOfThese([
-				:ByRepeatingItems, :WithItemsRepeated, :ByItemsRepeated ] )
+			    ring_find([ :ByRepeatingItems, :WithItemsRepeated,
+					:ByItemsRepeated ], pWith ) > 0
 
 				if isList(n) and Q(n).IsToOrToPositionNamedParam()
 					n = n[2]
@@ -41618,7 +41611,7 @@ class stzList from stzObject
 		cViz = " "
 		for i = 1 to nLen - 2
 			
-			if StzNumberQ(i).IsOneOfThese(anPos)
+			if ring_find(anPos, i) > 0
 				cViz += "^"
 			else
 				cViz += "-"
@@ -42237,17 +42230,13 @@ class stzList from stzObject
 			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
-	
-			oParam = Q(pnStartingAt)
 
 			if isString(pnStartingAt)
-				if oParam.IsOneOfTheseCS([
-					:First, :FirstItem ], :CS = FALSE)
+				if ring_find([ :First, :FirstItem ], pnStartingAt) > 0
 	
 					pnStartingAt = 1
 				
-				but oParam.IsOneOfTheseCS([
-					:Last, :LastItem ], :CS = FALSE)
+				but ring_find([ :Last, :LastItem ], pnStartingAt) > 0
 	
 					pnStartingAt = This.NumberOfItems()
 				ok
@@ -42322,15 +42311,11 @@ class stzList from stzObject
 
 			if isString(pnStartingAt)
 
-				oParam = Q(pnStartingAt)
-
-				if oParam.IsOneOfTheseCS([
-					:First, :FirstItem ], :CS = FALSE)
+				if ring_find([ :First, :FirstItem ], pnStartingAt) > 0
 	
 					pnStartingAt = 1
 				
-				but oParam.IsOneOfTheseCS([
-					:Last, :LastItem ], :CS = FALSE)
+				but ring_find([ :Last, :LastItem ], pnStartingAt) > 0
 	
 					pnStartingAt = This.NumberOfItems()
 				ok
@@ -46711,17 +46696,11 @@ class stzList from stzObject
 	
 			if isString(n1)
 
-				oParam = Q(n1)
-
-				if oParam.IsOneOfThese([
-					:First, :FirstItem
-				])
+				if ring_find([ :First, :FirstItem ], n1) > 0
 
 					n1 = 1
 	
-				but oParam.IsOneOfThese([
-					:Last, :LastItem
-				])
+				but ring_find([ :Last, :LastItem ], n1) > 0
 
 					n1 = nLen
 	
@@ -46735,17 +46714,13 @@ class stzList from stzObject
 		
 			if isString(n2)
 
-				oParam = Q(n2)
-
-				if oParam.IsOneOfThese([
+				if ring_find([
 					:End, :Last, :LastItem, :EndOfList
-				])
+				], n2) > 0
 
 					n2 = nLen
 	
-				but oParam.IsOneOfThese([
-					:First, :FirstItem
-				])
+				but ring_find([ :First, :FirstItem ], n2) > 0
 
 					n2 = 1
 	
@@ -47927,9 +47902,11 @@ class stzList from stzObject
 
 		if nLen = 1 and isString(@aContent[1]) and
 
-		   StzStringQ(@aContent[1]).IsOneOfThese([ :Default, :DefaultLocale,
-				 :System, :SystemLocale, "c", "C", :CLocale
-		   ])
+		   ring_find([
+			:Default, :DefaultLocale,
+			:System, :SystemLocale, "c", "C", :CLocale
+
+		   ], @aContent[1]) > 0
 
 			return TRUE
 		ok
@@ -48858,14 +48835,14 @@ class stzList from stzObject
 				return This.FindAfterPositionCS( p1[2], p2[2], pCaseSensitive )
 
 			# FindXT( :AnySubString, :Between = ["<<", ">>" )
-			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
+			but isString(p1) and ring_find([ :Any, :AnySubString ], p1) > 0 and
 			    isList(p2) and Q(p2).IsBetweenNamedParam() and
 			    isList(p2[2]) and Q(p2[2]).IsPairOfStrings()
 
 				return This.FindAnyBetweenCS(p2[2][1], p2[2][1], pCaseSensitive)
 
 			# FindXT( :Any, :BoundedBy = '"' )
-			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
+			but isString(p1) and ring_find([ :Any, :AnySubString ], p1) > 0 and
 			    isList(p2) and Q(p2).IsBoundedByNamedParam()
 
 				return This.FindAnyBoundedByCS(p2[2], pCaseSensitive)
@@ -48900,10 +48877,10 @@ class stzList from stzObject
 			ok
 	
 			if isString(n1)
-				oParam = Q(n1)
-				if oParam.IsOneOfThese([ :First, :FirstItem ])
+
+				if ring_find([ :First, :FirstItem ], n1) > 0
 					n1 = 1
-				but oParam.IsOneOfThese([ :Last, :LastItem ])
+				but ring_find([ :Last, :LastItem ], n1) > 0
 					n1 = This.NumberOfItems()
 				ok
 			ok
@@ -48917,11 +48894,11 @@ class stzList from stzObject
 			ok
 	
 			if isString(n2)
-				oParam = Q(n2)
-				if oParam.IsOneOfThese([ :Last, :LastItem ])
+
+				if ring_find([ :Last, :LastItem ], n2) > 0
 					n2 = This.NumberOfItems()
 
-				but oParam.IsOneOfThese([ :First, :FirstItem ])
+				but ring_find([ :First, :FirstItem ], n2) > 0
 					n2 = 1
 				ok
 
@@ -49038,10 +49015,10 @@ class stzList from stzObject
 			ok
 	
 			if isString(n1)
-				oParam = Q(n2)
-				if oParam.IsOneOfThese([ :First, :FirstItem ])
+
+				if ring_find([ :First, :FirstItem ], n1) > 0
 					n1 = 1
-				but oParam.IsOneOfThese([ :Last, :LastItem ])
+				but ring_find([ :Last, :LastItem ], n1) > 0
 					n1 = This.NumberOfItems()
 				ok
 			ok
@@ -49055,10 +49032,10 @@ class stzList from stzObject
 			ok
 	
 			if isString(n2)
-				oParam = Q(n)
-				if oParam.IsOneOfThese([ :Last, :LastItem ])
+
+				if ring_find([ :Last, :LastItem ], n2) > 0
 					n2 = This.NumberOfItems()
-				but oParam.IsOneOfThese([ :First, :FirstItem ])
+				but ring_find([ :First, :FirstItem ], n2) > 0
 					n2 = 1
 				ok
 			ok
@@ -51433,7 +51410,11 @@ class stzList from stzObject
 			paEvalDirection = paEvalDirection[2]
 		ok
 
-		if NOT Q(paEvalDirection).IsOneOfTheseCS([
+		if NOT isString(paEvalDirection)
+			StzRaise("Incorrect param type! paEvalDirection must be a string.")
+		ok
+
+		if NOT ring_find([
 			:Default, :Nothing,
 			:LeftToRight, :RightToLeft,
 			:Left2Right, :Right2Left,
@@ -51441,25 +51422,25 @@ class stzList from stzObject
 			:FromLeft2Right, :FromRight2Left,
 			:LTR, :RTL, :L2R, :R2L,
 			:FromLTR, :FromRTL, :FromL2R, :FromR2L
-			], :CS = FALSE)
+			], paEvalDirection) > 0
 
 			StzRaise("Incorrect param value for paEvalDirection! Allowed values are :RightToLeft and :LeftToRight.")
 		ok
 
-		if Q(paEvalDirection).IsEither(:Default, :Or = :Nothing)
+		if paEvalDirection = :Default or paEvalDirection = :Nothing
 			paEvalDirection = :RightToLeft
 		ok
 
 		# Doing the job
 
-		if Q(paEvalDirection).IsOneOfTheseCS([
+		if ring_find([
 			:RightToLeft,
 			:Right2Left,
 			:FromRightToLeft,
 			:FromRight2Left,
 			:RTL, :R2L,
 			:FromRTL, :FromR2L
-			], :CS = FALSE)
+			], paEvalDirection) > 0
 
 			p = Q(p).Reversed()
 		ok
@@ -71657,10 +71638,11 @@ class stzList from stzObject
 	def IsInStringNNamedParam()
 		if This.NumberOfItems() = 2 and
 
-		   ( isString(This.Item(1)) and Q(This.Item(1)).IsOneOfThese([
-					:InStringAt,
-					:inStringAtPosition,
-					:InStringN ]) )
+		   ( isString(This.Item(1)) and
+		     ring_find([
+			:InStringAt,
+			:inStringAtPosition,
+			:InStringN ], This.Item(1)) > 0 )
 
 			return TRUE
 
@@ -75272,7 +75254,8 @@ class stzList from stzObject
 
 	def IsByColNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzStringQ(This.Item(1)).IsOneOfThese([ :ByCol, :ByCol@ ]) )
+		   ( isString(This.Item(1)) and
+		     ring_find([ :ByCol, :ByCol@ ], This.Item(1)) > 0 )
 		  
 			return TRUE
 
@@ -75282,7 +75265,8 @@ class stzList from stzObject
 
 	def IsByColumnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzStringQ(This.Item(1)).IsOneOfThese([ :ByColumn, :ByColumn@ ]) )
+		   ( isString(This.Item(1)) and
+		     ring_find([ :ByColumn, :ByColumn@ ], This.Item(1)) > 0 )
 		  
 			return TRUE
 
@@ -75292,8 +75276,9 @@ class stzList from stzObject
 
 	def IsUsingColNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzStringQ(This.Item(1)).IsOneOfThese([ :UsingCol, :UsingCol@ ]) )
-		  
+		   ( isString(This.Item(1)) and
+		     ring_find([ :UsingCol, :UsingCol@ ], This.Item(1)) > 0 )
+
 			return TRUE
 
 		else
@@ -75302,7 +75287,8 @@ class stzList from stzObject
 
 	def IsUsingColumnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzStringQ(This.Item(1)).IsOneOfThese([ :UsingColumn, :UsingColumn@ ]) )
+		   ( isString(This.Item(1)) and
+		     ring_find([ :UsingColumn, :UsingColumn@ ], This.Item(1)) > 0 )
 		  
 			return TRUE
 
@@ -75312,7 +75298,8 @@ class stzList from stzObject
 
 	def IsWithColNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzStringQ(This.Item(1)).IsOneOfThese([ :WithCol, :WithCol@ ]) )
+		   ( isString(This.Item(1)) and
+		     ring_find([ :WithCol, :WithCol@ ], This.Item(1)) > 0 )
 		  
 			return TRUE
 
@@ -75322,7 +75309,8 @@ class stzList from stzObject
 
 	def IsWithColumnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and  StzStringQ(This.Item(1)).IsOneOfThese([ :WithColumn, :WithColumn@ ]) )
+		   ( isString(This.Item(1)) and
+		     ring_find([ :WithColumn, :WithColumn@ ], This.Item(1)) > 0 )
 		  
 			return TRUE
 

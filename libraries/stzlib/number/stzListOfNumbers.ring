@@ -2333,7 +2333,7 @@ def init(paList)
 		ok
 
 		if NOT 	( isString(pcBeforeOrAfter) and
-			  Q(pcBeforeOrAfter).IsOneOfThese([
+			  ring_find([
 				:Before, :After, :BeforeIt, :AfterIt,
 				:BeforeOrAfter, :BeforeOrAfterIt,
 				:AfterOrBefore, :AfterOrBeforeIt,
@@ -2342,7 +2342,7 @@ def init(paList)
 				:ComingBeforeOrAfter, :ComingBeforeOrAfterIt,
 				:ComingAfterOrBefore, :ComingAfterOrBeforeIt
 
-			  ]) )
+			  ], pcBeforeOrAfter) > 0)
 
 			StzRaise("Incorrect param type! pcComingBeforeOrAfter must be a string equal to :Before, :After, or :BeforeOrAfter.")
 
@@ -2457,7 +2457,7 @@ def init(paList)
 		ok
 
 		if NOT ( isString(pcBeforeOrAfter) and
-			  Q(pcBeforeOrAfter).IsOneOfThese([
+			  ring_find([
 				:Before, :After, :BeforeIt, :AfterIt,
 				:BeforeOrAfter, :BeforeOrAfterIt,
 				:AfterOrBefore, :AfterOrBeforeIt,
@@ -2466,7 +2466,7 @@ def init(paList)
 				:ComingBeforeOrAfter, :ComingBeforeOrAfterIt,
 				:ComingAfterOrBefore, :ComingAfterOrBeforeIt
 
-			  ]) )
+			  ], pcBeforeOrAfter) > 0 )
 
 			StzRaise("Incorrect param type! pcComingBeforeOrAfter must be a string equal to :Before, :After, or :BeforeOrAfter.")
 

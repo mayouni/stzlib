@@ -96,3 +96,6 @@ class stzPair from stzList
 		else
 			return FALSE
 		ok
+
+	def IsStzPair()
+		return TRUE

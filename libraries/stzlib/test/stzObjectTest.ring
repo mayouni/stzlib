@@ -46,7 +46,7 @@ StzNamedObjectQ(:myobj = TrueObject()) {
 # Executed in 0.03 second(s)
 
 /*==============
-*/
+
 pron()
 
 ? @@( StzNullObjectQ() )
@@ -225,9 +225,19 @@ proff()
 
 pron()
 
-? Q("2").IsA([ :Number, :Or = :String, :Or = :List ])
-#--> TRUE
-# Same as: ? Q("2").IsOneOfTheseTypes([ :Number, :String, :List ])
+? RingTypes()
+? StzTypes()
+
+? @IsRingOrStzType(:PairOfNumbers)
+
+proff()
+
+/*-----------------
+*/
+pron()
+
+? Q("2").IsA([ :Number, :String, :List ])
+#--> FALSE
 
 ? Q([10, 20]).IsA([ :List, :Pair, :ListOfNumbers, :PairOfNumbers ])
 #--> TRUE
@@ -259,7 +269,18 @@ pron()
 ? Q("2").IsA(:String)
 #--> TRUE
 
+? Q("2").IsAXT([ :NumberInString ])
+#--> TRUE
+
 ? Q("2").IsA(:NumberInString)
+#--> TRUE
+
+? Q("2").Is(:NumberInString)
+#--> TRUE
+
+? Q("2").Is(:NumberInString)
+#--> TRUE
+
 #--> TRUE
 
 ? Q("2").IsEitherA(:Number, :Or = :String)
@@ -272,7 +293,7 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.10 second(s) in Ring 1.21
 
 /*=======
 

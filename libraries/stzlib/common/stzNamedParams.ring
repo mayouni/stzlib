@@ -1,15 +1,27 @@
 
-    /////////////////////////////////////////////////////
-   /// #===========================================# ///
-  /// #   CHECKING IF THE LIST IS A NAMED PARAM   # ///
- /// #===========================================# ///
-/////////////////////////////////////////////////////
+
+#===========================================#
+#   CHECKING IF THE LIST IS A NAMED PARAM   #
+#===========================================#
 
 #NOTE
+# This file replaces all the methods in stzList initailly made
+# to check named params. Hence, they are transformed to global
+# functions, without the need of instanciating a stzList object
+# at each use. Which also leads to better performance.
+
+#TODO // Test this file, repalce all the occurrence where named
+# params are used in the library with these global functions,
+# and then remove all the relative methods from stzList class.
+
 # Currently (V1) Softanza supports more then 1760 named params
 
 #TODO // Add @ to all params, like this:
 # (paList[1] = :ParamName or paList[1] = :ParamName@ ) )
+
+#TODO // Add _acNamedParams = [] list and use it to check if
+# a give string is a named param (to avoid the current solution
+# implemented using eval, see IsNamedParam() function)
 
 func IsOnPositionNamedParam(paList)
 	if isList(paList) and len(paList) = 2 and
@@ -882,8 +894,12 @@ func IsUpToObjectNamedParam(paList)
 
 #--
 
-func IsOneOfTheseNamedParams(pacParamNames)
+func IsOneOfTheseNamedParams(paList, pacParamNames)
 	if CheckParams()
+		if NOT ( isList(paList) and len(paList) = 2 and isString(paList[1]) )
+			StzRaise("Incorrect param type! paList must be a pair of items starting with a string.")
+		ok
+
 		if NOT ( isList(pacParamNames) and @IsListOfStrings(pacParamNames) )
 			StzRaise("Incorrect param type! pacParamNames must be a list of strings.")
 		ok
@@ -893,7 +909,7 @@ func IsOneOfTheseNamedParams(pacParamNames)
 	bResult = FALSE
 
 	for i = 1 to nLen
-		cCode = 'bFound = This.Is' + pacParamNames[i] + 'NamedParam(paList)'
+		cCode = 'bFound = Is' + pacParamNames[i] + 'NamedParam(paList)'
 		eval(cCode)
 		if bFound
 			bResult = TRUE
@@ -905,56 +921,60 @@ func IsOneOfTheseNamedParams(pacParamNames)
 
 	#< @functionMisspelledForm
 
-	func IsOneTheseNamedParams(pacParamNames)
-		return This.IsOneOfTheseNamedParams(pacParamNames)
+	func IsOneTheseNamedParams(paList, pacParamNames)
+		return This.IsOneOfTheseNamedParams(paList, pacParamNames)
 
 	#>
 
 func IsRemoveAtOptionsNamedParam(paList)
 	bResult = FALSE
+	oList = new stzList(paList)
 
-	if This.IsHashList() and
+	if oList.IsHashList() and
 
-	   This.ToStzHashList().KeysQ().IsMadeOfSome([
+	   oList.ToStzHashList().KeysQ().IsMadeOfSome([
 		:RemoveNCharsBefore, :RemoveNCharsAfter,
 		:RemoveThisSubStringBefore,:RemoveThisSubStringAfter,
 		:RemoveThisCharBefore,:RemoveThisCharBefore,
 		:RemoveThisBound, :RemoveThisBoundingSubString,
 		:CaseSensitive, :CS ])
-		#NOTE: I've decided to keep CS as a suffix in the function
-		# name and never use it as an internal option...
-		#--> more simple mental model to keep things memprable
 
-		if This.ToStzHashList().
+		#NOTE// I've decided to keep CS as a suffix in the function
+		# name and never use it as an internal option...
+
+		#--> more work for me, but simpler user mental model to keep
+		# things memorable
+
+		if oList.ToStzHashList().
 			KeysQR(:stzListOfStrings).
-			ContainsBothCS(:CaseSensitive, :CS, :CS = FALSE)
+			ContainsBothCS(:CaseSensitive, :CS, FALSE)
 
 			StzRaise("Incorrect format! :CaseSensitive and :CS can not be used both in the same time")
 		ok
 
-		if This.ToStzHashList().
+		if oList.ToStzHashList().
 			KeysQR(:stzListOfStrings).
-			ContainsBothCS(:RemoveThisBound, :RemoveThisBoundingSubString, :CS = FALSE)
+			ContainsBothCS(:RemoveThisBound, :RemoveThisBoundingSubString, FALSE)
 
 			StzRaise("Incorrect format! :RemoveThisBound and :RemoveThisBoundingSubString can not be used both in the same time")
 		ok
 
 		bOk1 = FALSE
-		nRemoveNCharsBefore = This.Content()[ :RemoveNCharsBefore ]
+		nRemoveNCharsBefore = oList.Content()[ :RemoveNCharsBefore ]
 		cType = ring_type(nRemoveNCharsBefore)
 	   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsBefore = NULL )
 			bOk1 = TRUE
 		ok
 
 		bOk2 = FALSE
-		nRemoveNCharsAfter = This.Content()[ :RemoveNCharsAfter ]
+		nRemoveNCharsAfter = oList.Content()[ :RemoveNCharsAfter ]
 		cType = ring_type(nRemoveNCharsAfter)
 	   	if cType = "NUMBER" or ( cType = "STRING" and nRemoveNCharsAfter = NULL )
 			bOk2 = TRUE
 		ok
 
 		bOk3 = FALSE
-		cRemoveSubStringBefore = This.Content()[ :RemoveSubStringBefore ]
+		cRemoveSubStringBefore = oList.Content()[ :RemoveSubStringBefore ]
 		cType = ring_type(cRemoveSubStringBefore)
 	   	if cType = "STRING"
 			bOk3 = TRUE
@@ -1026,11 +1046,11 @@ func IsTextBoxedOptionsNamedParam(paList)
 		:Sectioned
 	]
 
-	nLen = isList(paList) and len(paList)
+	nLen = len(paList)
 
-	if nLen >= 1 and nLen < len(aListOfBoxOptions)
-
-		if This.IsHashList() and
+	if nLen >= 1 and nLen <= len(aListOfBoxOptions)
+		oList = new stzList(paList)
+		if oList.IsHashList() and
 		   StzHashListQ(This.Content()).KeysQ().IsMadeOfSome(aListOfBoxOptions)
 
 			return TRUE
@@ -1069,9 +1089,7 @@ func IsBoxOptionsNamedParam(paList)
 	nLen = len(paList)
 
 	if nLen >= 1 and nLen <= len(aListOfBoxOptions)
-
-		oList = new stzList(aListOfBoxOptions)
-
+		oList = new stzList(paList)
 	  	if oList.IsHashList() and
 	   	   oList.ToStzHashListQ().KeysQ().IsMadeOfSome(aListOfBoxOptions)
 	
@@ -2665,10 +2683,8 @@ func IsendsAtOccurrenceNamedParam(paList)
 func IsInStringNNamedParam(paList)
 	if isList(paList) and len(paList) = 2 and
 
-	   ( isString(paList[1]) and Q(paList[1]).IsOneOfThese([
-				:InStringAt,
-				:inStringAtPosition,
-				:InStringN ]) )
+	   ( isString(paList[1]) and
+	     ring_find([ :InStringAt, :inStringAtPosition, :InStringN ], paList[1]) > 0 )
 
 		return TRUE
 
@@ -6280,7 +6296,8 @@ func IsByManyXTOrWithManyXTOrUsingManyXTNamedParam(paList)
 
 func IsByColNamedParam(paList)
 	if isList(paList) and len(paList) = 2 and
-	   ( isString(paList[1]) and  StzStringQ(paList[1]).IsOneOfThese([ :ByCol, :ByCol@ ]) )
+	   ( isString(paList[1]) and
+	     ring_find([ :ByCol, :ByCol@ ], paList[1]) > 0  )
 	  
 		return TRUE
 
@@ -6290,7 +6307,8 @@ func IsByColNamedParam(paList)
 
 func IsByColumnNamedParam(paList)
 	if isList(paList) and len(paList) = 2 and
-	   ( isString(paList[1]) and  StzStringQ(paList[1]).IsOneOfThese([ :ByColumn, :ByColumn@ ]) )
+	   ( isString(paList[1]) and
+	     ring_find([ :ByColumn, :ByColumn@ ], paList[1]) > 0  )
 	  
 		return TRUE
 
@@ -6300,8 +6318,8 @@ func IsByColumnNamedParam(paList)
 
 func IsUsingColNamedParam(paList)
 	if isList(paList) and len(paList) = 2 and
-	   ( isString(paList[1]) and  StzStringQ(paList[1]).IsOneOfThese([ :UsingCol, :UsingCol@ ]) )
-	  
+	   ( isString(paList[1]) and
+	     ring_find([ :UsingCol, :UsingCol@ ], paList[1]) > 0  )
 		return TRUE
 
 	else
@@ -6310,8 +6328,9 @@ func IsUsingColNamedParam(paList)
 
 func IsUsingColumnNamedParam(paList)
 	if isList(paList) and len(paList) = 2 and
-	   ( isString(paList[1]) and  StzStringQ(paList[1]).IsOneOfThese([ :UsingColumn, :UsingColumn@ ]) )
-	  
+	   ( isString(paList[1]) and
+	     ring_find([ :UsingColumn, :UsingColumn@ ], paList[1]) > 0 )
+
 		return TRUE
 
 	else
@@ -6320,7 +6339,8 @@ func IsUsingColumnNamedParam(paList)
 
 func IsWithColNamedParam(paList)
 	if isList(paList) and len(paList) = 2 and
-	   ( isString(paList[1]) and  StzStringQ(paList[1]).IsOneOfThese([ :WithCol, :WithCol@ ]) )
+	   ( isString(paList[1]) and
+	     ring_find([ :WithCol, :WithCol@ ], paList[1]) > 0 )
 	  
 		return TRUE
 
@@ -6330,7 +6350,8 @@ func IsWithColNamedParam(paList)
 
 func IsWithColumnNamedParam(paList)
 	if isList(paList) and len(paList) = 2 and
-	   ( isString(paList[1]) and  StzStringQ(paList[1]).IsOneOfThese([ :WithColumn, :WithColumn@ ]) )
+	   ( isString(paList[1]) and
+	     ring_find([ :WithColumn, :WithColumn@ ], paList[1]) > 0 )
 	  
 		return TRUE
 

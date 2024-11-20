@@ -1336,11 +1336,11 @@ Class stzTable from stzObject
 	def Col(p)
 
 		if isString(p)
-			oTemp = Q(p)
-			if oTemp.IsOneOfThese([ :First, :FirstCol, :FirstColumn ])
+
+			if ring_find([ :First, :FirstCol, :FirstColumn ], p) > 0
 				p = 1
 
-			but oTemp.IsOneOfThese([ :Last, :LastCol, :LastColumn ])
+			but ring_find([ :Last, :LastCol, :LastColumn ], p) > 0
 				p = This.NumberOfColumns()
 
 			but This.HasColName(p)
@@ -9696,14 +9696,14 @@ Class stzTable from stzObject
 		#TODO // Add the fellowing semantics to all simular functions in the library
 
 		def ReplaceEachOne(paCellsPos, paNewCellValue)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
 		def ReplaceEachCell(paCellsPos, paNewCellValue)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
@@ -9718,14 +9718,14 @@ Class stzTable from stzObject
 		#--
 
 		def ReplaceEveryOne(paCellsPos, paNewCellValue)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
 		def ReplaceEveryCell(paCellsPos, paNewCellValue)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
@@ -9917,14 +9917,14 @@ Class stzTable from stzObject
 		#--
 
 		def ReplaceEachOneByMany(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
 		def ReplaceEachCellByMany(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
@@ -9939,14 +9939,14 @@ Class stzTable from stzObject
 		#--
 
 		def ReplaceEveryOneByMany(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseByMany([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
 		def ReplaceEveryCellByMany(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
@@ -10142,14 +10142,14 @@ Class stzTable from stzObject
 		#--
 
 		def ReplaceEachOneByManyXT(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
 		def ReplaceEachCellByManyXT(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
@@ -10164,14 +10164,14 @@ Class stzTable from stzObject
 		#--
 
 		def ReplaceEveryOneByManyXT(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseByManyXT([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
 		def ReplaceEveryCellByManyXT(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfThese([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 

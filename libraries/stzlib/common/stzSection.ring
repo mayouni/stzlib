@@ -141,29 +141,17 @@ class stzSection
 			# Managing the case of :First and :Last keywords
 	
 			if isString(n1)
-				oParam = Q(n1)
 
-				if oParam.IsOneOfThese([
-					:Start,
-					:First, :FirstChar,
+				if ring_find([
+					:Start, :First, :FirstChar,
 					:FromFirst, :FromFirstChar,
-
-					#--
-
-					:FirstItem, :FromFirstItem
-
-				])
+					:FirstItem, :FromFirstItem], n1) > 0
 
 					n1 = 1
 	
-				but oParam.IsOneOfThese([
-					:Last, :LastChar,
-					:ToLast, :ToLastChar,
-
-					#--
-
-					:LastItem, :ToLastItem
-				])
+				but ring_find([
+					:Last, :LastChar, :ToLast, :ToLastChar,
+					:LastItem, :ToLastItem ], n1) > 0
 
 					n1 = nSize
 	
@@ -175,9 +163,7 @@ class stzSection
 		
 			if isString(n2)
 
-				oParam = Q(n2)
-
-				if oParam.IsOneOfThese([
+				if ring_find([
 					:End, :Last, :LastChar, :EndOfString,
 					:ToEnd, :ToLast, :ToLastChar, :ToEndOfString,
 
@@ -185,11 +171,11 @@ class stzSection
 
 					:LastItem, :EndOfList, :ToLastItem, :ToEndOfList
 
-				])
+				], n2) > 0
 
 					n2 = nSize
 	
-				but oParam.IsOneOfThese([
+				but ring_find([
 					:First, :FirstChar,
 					:FromFirst, :FromFirstChar,
 
@@ -197,7 +183,7 @@ class stzSection
 
 					:FirstItem, :FromFirstItem
 
-				])
+				], n2) > 0
 
 					n2 = 1
 	
