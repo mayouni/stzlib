@@ -148,7 +148,7 @@ proff()
 # Executed in 0.19 second(s) in Ring 1.20
 
 /*====================
-*/
+
 pron()
 
 o1 = new stzSplitter(10)

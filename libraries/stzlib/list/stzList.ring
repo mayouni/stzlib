@@ -47212,7 +47212,7 @@ class stzList from stzObject
 	   #--------------------------------------------------------------#
 	  #   FINDING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS AND   #
 	 #   RETURNING THEM AS PAIRS OF NUMBERS                         #
-	#--------------------------------------------------------------#
+	#==============================================================#
 
 	def FindAntiSections(paSections)
 		/* EXAMPLE
@@ -47279,44 +47279,12 @@ class stzList from stzObject
 		aResult = aAntiSections
 		return aResult
 
-		#< @FunctionFluentForm
-
-		def FindAntiSectionsQ(paSections)
-			return This.FindAntiSectionsQR(paSections, :stzList)
-
-		def FindAntiSectionsQR(paSections, pcReturnType)
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindAntiSections(paSections) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.FindAntiSections(paSections) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.FindAntiSections(paSections) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
-
 		#< @FunctionAlternativeForms
-
-		def AntiSectionsAsPairsOfNumbers(paSections)
-			return This.FindAntiSections(paSections)
 
 		def FindAntiSectionsZZ(paSections)
 			return This.FindAntiSections(paSections)
 
 		def AntiSectionsZZ(paSections)
-			return This.FindAntiSections(paSections)
-
-		def AntiSectionsAsSections(paSections)
 			return This.FindAntiSections(paSections)
 
 		#>
@@ -47330,9 +47298,6 @@ class stzList from stzObject
 
 		aResult = This.Sections( This.FindAntiSections(paSections) )
 		return aResult
-
-		def SectionsOtherThan(paSections)
-			return This.AntiSections(paSections)
 
 		#< @FunctionFluentForm
 
@@ -47369,35 +47334,6 @@ class stzList from stzObject
 		aResult = aAllSections
 		return aResult
 
-		#< @FunctionFluentForm
-
-		def FindAsSectionsAndAntiSectionsQ(paSections)
-			return This.FindAsSectionsAndAntiSectionsQR(paSections, :stzList)
-
-		def FindAsSectionsAndAntiSectionsQR(paSections, pcReturnType)
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindAsSectionsAndAntiSections(paSections) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.FindAsSectionsAndAntiSections(paSections) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.FindAsSectionsAndAntiSectionss(paSections) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		def SectionsAndAntiSectionsAsPairsOfNumbers(paSections)
-			return This.FindAsSectionsAndAntiSections(paSections)
-
 	def SectionsAndAntiSections(paSections)
 		aAllSections = This.FindAsSectionsAndAntiSections(paSections)
 		aResult = This.Sections(aAllSections)
@@ -47408,16 +47344,6 @@ class stzList from stzObject
 		def SectionsAndAntiSectionsQ(paSections)
 			return new stzList( This.SectionsAntiSections(paSections) )
 
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def AllSectionsIncluding(paSections)
-			return This.SectionsAndAntiSections(paSections)
-
-			def AllSectionsIncludingQ(paSections)
-				return new stzList( This.AllSectionsIncluding(paSections) )
-	
 		#>
 
 	   #--------------------------------------------------------------#
@@ -47488,34 +47414,15 @@ class stzList from stzObject
 		aResult = aAntiSectionsIB
 		return aResult
 
-		#< @FunctionFluentForm
+		#< @FunctionAlternativeForms
 
-		def FindAntiSectionsIBQ(paSections)
-			return This.FindAntiSectionsIBQR(paSections, :stzList)
+		def FindAntiSectionsIBZZ(paSections)
+			return This.FindAntiSectionsIB(paSections)
 
-		def FindAntiSectionsIBQR(paSections, pcReturnType)
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindAntiSectionsIB(paSections) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.FindAntiSectionsIB(paSections) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.FindAntiSectionsIB(paSections) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
+		def AntiSectionsIBZZ(paSections)
+			return This.FindAntiSectionsIB(paSections)
 
 		#>
-
-		def AntiSectionsAsPairsOfNumbersIB(paSections)
-			return This.FindAntiSectionsIB(paSections)
 
 	def AntiSectionsIB(paSections)
 		aResult = This.Sections( This.FindAntiSectionsIB(paSections) )
@@ -47525,16 +47432,6 @@ class stzList from stzObject
 
 		def AntiSectionsIBQ(paSections)
 			return new stzList( This.AntiSectionsIB(paSections) )
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def SectionsOtherThanIB(paSections)
-			return This.AntiSectionsIB(paSections)
-
-			def SectionsOtherThanIBQ(paSections)
-				return This.AntiSectionsIBQ(paSections)
 
 		#>
 
@@ -47566,34 +47463,6 @@ class stzList from stzObject
 		aResult = aAllSectionsIB
 		return aResult
 
-		#< @FunctionFluentForm
-
-		def FindAsSectionsAndAntiSectionsIBQ(paSections)
-			return This.FindAsSectionsAndAntiSectionsIBQR(paSections, :stzList)
-
-		def FindAsSectionsAndAntiSectionsIBQR(paSections, pcReturnType)
-			if NOT isString(pcReturnType)
-				StzRaise("Incorrect param type! pcReturnType must be a string.")
-			ok
-
-			switch pcReturnType
-			on :stzList
-				return new stzList( This.FindAsSectionsAndAntiSectionsIB(paSections) )
-
-			on :stzListOfLists
-				return new stzListOfLists( This.FindAsSectionsAndAntiSectionsIB(paSections) )
-
-			on :stzListOfPairs
-				return new stzListOfPairs( This.FindAsSectionsAndAntiSectionssIB(paSections) )
-
-			other
-				StzRaise("Unsupported return type!")
-			off
-
-		#>
-
-		def SectionsAndAntiSectionsAsPairsOfNumbersIB(paSections)
-			return This.FindAsSectionsAndAntiSectionsIB(paSections)
 
 	def SectionsAndAntiSectionsIB(paSections)
 		aAllSectionsIB = This.FindAsSectionsAndAntiSectionsIB(paSections)
@@ -47607,14 +47476,70 @@ class stzList from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
+	   #--------------------------------------------------------#
+	  #   FINDING THE ANTI-SECTION(S) OF A GIVEN SECTION AND   #
+	 #   RETURNING IT AS A PAIR OF NUMBERS                    #
+	#========================================================#
 
-		def AllSectionsIncludingIB(paSections)
-			return This.SectionsAndAntiSectionsIB(paSections)
+	def FindAntiSection(n1, n2)
+		if NOT ( isNumber(n1) and isNumber(n2) )
+			StzRaise("Incorrect param types! n1 and n2 must be both Numbers.")
+		ok
 
-			def AllSectionsIncludingIBQ(paSections)
-				return new stzList( This.AllSectionsIncludingIB(paSections) )
-	
+		return This.FindAntiSections([ [n1, n2 ] ])
+
+		#< @FunctionAlternativeForms
+
+		def FindAntiSectionZZ(n1, n2)
+			return This.FindAntiSection(n1, n2)
+
+		def AntiSectionZZ(n1, n2)
+			return This.FindAntiSection(n1, n2)
+
+		#>
+
+	def AntiSection(n1, n2)
+		aResult = This.Section( This.FindAntiSection(n1, n2) )
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def AntiSectionQ(paSections)
+			return new stzList( This.AntiSection(paSections) )
+
+		#>
+
+	   #------------------------------------------------------------#
+	  #   FINDING THE ANTI-SECTIONS OF A GIVEN SECTION AND         #
+	 #   RETURNING IT AS A PAIR OF NUMBERS  -- INCLUDING BOUNDS   #
+	#------------------------------------------------------------#
+
+	def FindAntiSectionIB(n1, n2)
+		if NOT ( isNumber(n1) and isNumber(n2) )
+			StzRaise("Incorrect param types! n1 and n2 must be both Numbers.")
+		ok
+
+		return This.FindAntiSectionsIB([ [n1, n2 ] ])
+
+		#< @FunctionAlternativeForms
+
+		def FindAntiSectionIBZZ(n1, n2)
+			return This.FindAntiSectionIB(n1, n2)
+
+		def AntiSectionIBZZ(n1, n2)
+			return This.FindAntiSectionIB(n1, n2)
+
+		#>
+
+	def AntiSectionIB(n1, n2)
+		aResult = This.Section( This.FindAntiSectionIB(n1, n2) )
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def AntiSectionIBQ(paSections)
+			return new stzList( This.AntiSectionIB(paSections) )
+
 		#>
 
 	  #===================================#
@@ -55068,7 +54993,7 @@ class stzList from stzObject
 	#------------------------------------------------------------#
 
 	def RandomizeAntiSection(n1, n2)
-		anSections = This.FindAntiSections([ [n1, n2] ]) # Or maybe AntiSectionsAsSections()
+		anSections = This.FindAntiSections([ [n1, n2] ])
 		This.RandomizeSections(anSections)
 
 		#< @FunctionFluentForm
@@ -55130,7 +55055,7 @@ class stzList from stzObject
 	#-------------------------------------------------------------#
 
 	def RandomizeAntiSections(panSections)
-		anSections = This.FindAntiSections(panSections) # Or maybe AntiSectionsAsSections()
+		anSections = This.FindAntiSections(panSections)
 		This.RandomizeSections(anSections)
 
 		#< @FunctionFluentForm

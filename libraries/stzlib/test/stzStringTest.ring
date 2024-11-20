@@ -7143,23 +7143,35 @@ o1 = new stzString("...♥^♥.|.♥^♥...")
 ? @@( o1.SplitAroundPosition(8) )
 #--> [ "...♥^♥.", ".♥^♥..." ]
 
-/*
-	def SplitAroundPositions(panPos)
-	def SplitAroundSection(n1, n2)
-	def SplitAroundSectionIB(n1, n2)
-	def SplittedAroundSectionIB(n1, n2)
+? @@( o1.SplitAroundPositions([ 5, 8, 11 ]) )
+#--> [ "...♥", "♥.", ".♥", "♥..." ]
 
+? @@( o1.SplitAroundSection(5, 11) )
+#--> [ "...♥", "♥..." ]
 
-? @@( o1.SplitAroundSections( o1.FindZZ("♥♥") ) )
-#--> [ "...", "...", "..." ]
+? @@( o1.SplitAroundSectionIB(5, 11) )
+#--> [ "...♥^", "^♥..." ]
 
-	def SplitAroundSectionsIB(panSections)
-	def SplitAroundSubString(pcSubStr)
-	def SplitAroundSubStringIB(pcSubStr)
-	def SplitAroundSubStrings(pacSubStrings)
-	def SplitAroundSubStringsIB(pacSubStrings)
-*/
+? @@( o1.SplitAroundSections( o1.FindZZ("♥^♥") ) )
+#--> [ "...", ".|.", "..." ]
+
+? @@( o1.SplitAroundSectionsIB( o1.FindZZ("♥^♥") ) )
+#--> [ "...♥", "♥.|.♥", "♥..." ]
+
+? @@( o1.SplitAroundSubString("♥^♥") )
+#--> [ "...", ".|.", "..." ]
+
+? @@( o1.SplitAroundSubStringIB("♥^♥") )
+#--> [ "...♥", "♥.|.♥", "♥..." ]
+
+? @@( o1.SplitAroundSubStrings([ "♥^♥.", ".♥^♥" ]) )
+#--> [ "..", "|", ".." ]
+
+? @@( o1.SplitAroundSubStringsIB([ "♥^♥.", ".♥^♥" ]) )
+#--> [ "...", ".|.", "..." ]
+
 proff()
+# Executed in 0.11 second(s) in Ring 1.21
 
 /*==================
 
