@@ -6885,7 +6885,7 @@ proff()
 # See fellowing examples...
 
 /*-----
-*/
+
 pron()
 
 # Splitting before a given substring with case sensitivity
@@ -6929,7 +6929,7 @@ o1 = new stzString("...♥♥...♥♥...")
 
 
 proff()
-# Executed in 0.27 second(s) in Ring 1.21
+# Executed in 0.50 second(s) in Ring 1.21
 
 /*------
 
@@ -6947,7 +6947,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*============ SPLITTING AT
-*/
+
 pron()
 
 # Splitting at a given substring with case sensitivity
@@ -7018,10 +7018,10 @@ o1 = new stzString("...ONE...TWO...ONE")
 #--> [ "...", "...", "..." ]
 
 proff()
-# Executed in 2.25 second(s) in Ring 1.21
+# Executed in 2.60 second(s) in Ring 1.21
 
 /*============ SPLITTING AFTER
-*/
+
 pron()
 
 # Splitting before a given substring with case sensitivity
@@ -7053,18 +7053,18 @@ o1 = new stzString("...♥♥♥..♥♥..")
 
 o1 = new stzString("...♥...♥...")
 ? @@( o1.SplitBeforeCharsWXT(' @char = "♥" ') )
-#--> [ "...♥", "...♥", "..." ]
+#--> [ "...", "♥...", "♥..." ]
 
 o1 = new stzString("...♥♥...♥♥...")
 ? @@( o1.SplitAfterSubStringsWXT(' @SubString = "♥♥" ') )
-#--> [ "...♥", "♥...♥", "♥..." ]
+#--> [ "...♥♥", "...♥♥", "..." ]
 
 proff()
-# Executed in 0.49 second(s) in Ring 1.21
+# Executed in 0.55 second(s) in Ring 1.21
 # Executed in 3.89 second(s) in Ring 1.18
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzSplitter(10)
@@ -7086,7 +7086,7 @@ proff()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzSplitter(10)
@@ -7110,14 +7110,14 @@ o1 = new stzSplitter(10)
 ? @@( o1.SplitAtSection(5, 10) )
 #--> [ [ 1, 4 ] ]
 
-? @@( o1.SplitAtSectionIB(5, 10) ) + NL
+? @@( o1.SplitAtSectionIB(5, 10) )
 #--> [ [ 1, 5 ] ]
 
-
 proff()
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*----------------
-*/
+
 pron()
 
 ? @@( StzSplitterQ(10).splitAround(8) )
@@ -7136,7 +7136,7 @@ o1 = new stzString("...♥^♥.|.♥^♥...")
 #--> [ "...", ".|.", "..." ]
 
 ? @@( o1.SplitAroundIB("♥^♥") )
-#--> [ "...♥", "♥.|.♥", "♥..." ]s
+#--> [ "...♥", "♥.|.♥", "♥..." ]
 
 #--
 
