@@ -16402,12 +16402,6 @@ class stzList from stzObject
 	#--------------------------------------#
 
 	def ExtractSection(n1, n2)
-		if NOT ( Q([n1, n2]).BothAreNumbers() and
-		   Q(n1).IsBetween(1, This.NumberOfItems()) and
-		   Q(n2).IsBetween(1, This.NumberOfItems()) )
-
-			StzRaise("Can't extract! The section is outside the list.")
-		ok
 
 		aResult = This.Section(n1, n2)
 		This.RemoveSection(n1, n2)
@@ -25969,8 +25963,8 @@ class stzList from stzObject
 		i = nStart
 		anPos = [ i ]
 
-		while Q(i + pnForward).IsBetween(1, nLen) and
-		      Q(i + pnForward - pnBackward).IsBetween(1, nLen)
+		while (i + pnForward) >= 1 and (i + pnForward) <= nLen and
+		      (i + pnForward - pnBackward) >= 1 and (i + pnForward - pnBackward) <= nLen
 
 			i = i + pnForward
 			anPos + i
@@ -26093,8 +26087,8 @@ class stzList from stzObject
 		i = nStart
 		anPos = [ nStart ]
 
-		while Q(i - pnBackward).IsBetween(1, nLen) and
-		      Q(i - pnBackward + pnForward ).IsBetween(1, nLen)
+		while ( (i - pnBackward) >= 1 and (i - pnBackward) <= nLen ) and
+		      ( (i - pnBackward + pnForward) >= 1 and (i - pnBackward + pnForward) <= nLen )
 
 			i = i - pnBackward
 			anPos + i
@@ -70067,7 +70061,9 @@ class stzList from stzObject
 			
 		]
 
-		if StzNumberQ(This.NumberOfItems()).IsBetween(1, len(aListOfBoxOptions)) and
+		nLen = This.NumberOfItems()
+		   
+		if nLen >= 1 and nLen <= len(aListOfBoxOptions) and
 		   This.IsHashList() and
 		   StzHashListQ(This.Content()).KeysQ().IsMadeOfSome(aListOfBoxOptions)
 		

@@ -85338,15 +85338,6 @@ class stzString from stzObject
 
 	def ExtractSection(n1, n2)
 
-		if CheckParams()
-			if NOT ( Q([n1, n2]).BothAreNumbers() and
-		   	Q(n1).IsBetween(1, This.NumberOfSubStrings()) and
-		   	Q(n2).IsBetween(1, This.NumberOfSubStrings()) )
-
-				StzRaise("Can't extract! The section is outside the string.")
-			ok
-		ok
-
 		aResult = This.Section(n1, n2)
 		This.RemoveSection(n1, n2)
 		return aResult

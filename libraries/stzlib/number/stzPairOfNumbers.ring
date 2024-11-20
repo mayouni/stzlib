@@ -133,8 +133,8 @@ class stzPairOfNumbers from stzPair
 			StzRaise("Incorrect param type! n1 and n2 must both be numbers.")
 		ok
 
-		if QR(This.FirstNumber(), :stzNumber).IsBetween(n1, n2) and
-		   QR(This.SecondNumber(), :stzNumber).IsBetween(n1, n2)
+		if ( @aContent[1] >= n1 and @aContent[2] <= n2 ) and
+		   ( @aContent[2] >= n1 and @aContent[2] <= n2 )
 
 			return TRUE
 		else
