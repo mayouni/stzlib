@@ -1619,7 +1619,8 @@ class stzSplitter from stzListOfNumbers
 	#------------------------------#
 
 	def SplitAroundSection(n1, n2)
-		aResult = This.AntiFindSectionZZ(n1, n2)
+		aResult = This.AntiSectionZZ(n1, n2)
+		return aResult
 
 		def SplitsAroundSection(n1, n2)
 			return This.SplitAroundSection(n1, n2)

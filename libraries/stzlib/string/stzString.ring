@@ -36386,7 +36386,7 @@ class stzString from stzObject
 	   #-------------------------------------------------------------#
 	  #   FINDING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS AND  #
 	 #  RETURNING THEM AS PAIRS OF NUMBERS                         #
-	#-------------------------------------------------------------#
+	#=============================================================#
 
 	def FindAntiSections(paSections)
 
@@ -36396,26 +36396,11 @@ class stzString from stzObject
 
 		return aResult
 
-		#< @FunctionFluentForm
-
-		def FindAntiSectionsQ(paSections)
-			return new stzList( This.FindAntiSections(paSections) )
-
-		#>
-
 		#< @FunctionAlternativeForms
 
 		def FindAntiSectionsZZ(paSections)
 			return This.FindAntiSections(paSections)
 
-			def FindAntiSectionsZZQ(paSections)
-				return This.FindAntiSectionsQ(paSections)
-
-		def AntiSectionsAsPairsOfNumbers(paSections)
-			return This.FindAntiSections(paSections)
-
-			def AntiSectionsAsPairsOfNumbersQ(paSections)
-				return This.FindAntiSectionsQ(paSections)
 		#>
 
 	  #----------------------------------------------------------#
@@ -36456,19 +36441,6 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForms
-
-		def SectionsOtherThan(paSections)
-			return This.AntiSections(paSections)
-
-			def SectionsOtherThanQ(paSections)
-				return This.AntiSectionsQ(paSections)
-	
-			def SectionsOtherThanQR(paSections, pcReturnType)
-				return This.AntiSectionsQR(paSections, pcReturnType)
-
-		#>
-
 	  #---------------------------------------------------------------------#
 	 #   GETIING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS -- EXTENDED  #
 	#---------------------------------------------------------------------#
@@ -36503,19 +36475,6 @@ class stzString from stzObject
 			other
 				stzRaise("Unsupported return type!")
 			off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def SectionsOtherThanXT(paSections)
-			return This.AntiSectionsXT(paSections)
-
-			def SectionsOtherThanXTQ(paSections)
-				return This.AntiSectionsXTQ(paSections)
-	
-			def SectionsOtherThanXTQR(paSections, pcReturnType)
-				return This.AntiSectionsXTQR(paSections, pcReturnType)
 
 		#>
 
@@ -36591,19 +36550,6 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForms
-
-		def AllSectionsIncluding(paSections)
-			return This.SectionsAndAntiSections(paSections)
-
-			def AllSectionsIncludingQ(paSections)
-				return This.SectionsAndAntiSectionsQ(paSections)
-	
-			def AllSectionsIncludingQR(paSections, pcReturnType)
-				return This.SectionsAndAntiSectionsQR(paSections, pcReturnType)
-
-		#>
-
 	  #------------------------------------------------------------------------------#
 	 #   GETTING SECTIONS AND ANTI-SECTIONS OF A GIVEN SET OF SECTIONS -- EXTENDED  #
 	#------------------------------------------------------------------------------#
@@ -36642,19 +36588,6 @@ class stzString from stzObject
 			other
 				stzRaise("Unsupported return type!")
 			off
-
-		#>
-
-		#< @FunctionAlternativeForms
-
-		def AllSectionsIncludingXT(paSections)
-			return This.SectionsAndAntiSectionsXT(paSections)
-
-			def AllSectionsIncludingXTQ(paSections)
-				return This.SectionsAndAntiSectionsXTQ(paSections)
-	
-			def AllSectionsIncludingXTQR(paSections, pcReturnType)
-				return This.SectionsAndAntiSectionsXTQR(paSections, pcReturnType)
 
 		#>
 
