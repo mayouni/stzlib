@@ -3955,7 +3955,7 @@ proff()
 # Executed in 0.13 second(s) in Ring 1.21
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzList([ 1, 2, "*", 4, 5, 6, "*", 8, 9 ])
@@ -8816,12 +8816,13 @@ proff()
 # Executed in 0.01 second(s).
 
 /*------------------
-*/
+
 pron()
 
 StzListQ([ "A", "-", "-", "A", "-", "A", "-", "A" ]) {
 	RemoveNextNthOccurrence(2, :Of = "A", :StartingAt = 3)
-	? Content() #--> [ "A", "-", "-", "A", "-", "-", "A" ]
+	? Content()
+	#--> [ "A", "-", "-", "A", "-", "-", "A" ]
 }
 
 proff()
@@ -9299,7 +9300,8 @@ o1 = new stzList([ 2, 8, 2, 11, 2, 11, 1, 4, 2, 1, 3, 2, 10, 8, 3, 8 ])
 #    ]
 
 proff()
-# Executed in 0.69 second(s).
+# Executed in 0.56 second(s) in Ring 1.21
+# Executed in 0.69 second(s) in Ring 1.19
 
 /*---------------------
 

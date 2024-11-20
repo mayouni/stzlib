@@ -2932,10 +2932,10 @@ class stzText from stzString
 			if isNull(pByValue) { pByValue = :OrderOfOccurrenceOfWords }
 
 			# It an incorrect value is provided, raise an error
-			if NOT ( isString(pByValue) and StzStringQ(pByValue).IsOneOfThese([
+			if NOT ( isString(pByValue) and ring_find([
 				:OrderOfOccurrence, :OrderOfOccurrenceOfWords,
 				:AscendingOrder, :AscendingOrderOfWords,
-				:DescendingOrder, :DescendingOrderOfWords ]) )
+				:DescendingOrder, :DescendingOrderOfWords ], pByValue) > 0 )
 	
 				StzRaise("Incorrect param format!")
 			ok
@@ -2966,9 +2966,9 @@ class stzText from stzString
 
 			if NOT ( isString(pStopWordsValue) and
 
-			         StzStringQ(pStopWordsValue).IsOneOfThese([
-					:MustBeRemoved, :MustNotBeRemoved
-				 	]) )
+			         ring_find([ :MustBeRemoved,
+					:MustNotBeRemoved
+				 	], pStopWordsValue) > 0 )
 
 				StzRaise("Incorrect param format!")
 			ok
@@ -4713,6 +4713,7 @@ class stzText from stzString
 	#-----------------------------------------------#
 
 	def RemovePunctuationExcept(paChars)
+		#TODO // Replace it with a more performant pure Ring implementation
 		This.RemoveCharsWhere('StzCharQ(@char).isPunctuation() and NOT Q(@char).IsOneOfThese(' + @@(paChars) + ')')
 
 		def RemovePunctuationExceptQ(paChars)

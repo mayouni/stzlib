@@ -2773,7 +2773,7 @@ class stzString from stzObject
 			stzRaise("Incorrect format!")
 		ok
 	
-		if NOT ( Q(paLocale[1]).IsOneOfThese([ :InThisLocale, :InLocale ]) )
+		if NOT ( ring_find([ :InThisLocale, :InLocale ], paLocale[1]) > 0 )
 			stzRaise("Incorrect format!")
 		ok
 	
@@ -42781,7 +42781,7 @@ class stzString from stzObject
 		ok
 
 		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
-			if Q(nStart[1]).IsOneOfThese([ :StartingAt, :StartingAtPosition ])
+			if ring_find([ :StartingAt, :StartingAtPosition ], nStart[1]) > 0
 				nStart = nStart[2]
 
 			but nStart[1] = :StartingAtOccurrence
@@ -42896,7 +42896,7 @@ class stzString from stzObject
 		ok
 
 		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
-			if Q(nStart[1]).IsOneOfThese([ :StartingAt, :StartingAtPosition ])
+			if ring_find([ :StartingAt, :StartingAtPosition ], nStart[1]) > 0
 				nStart = nStart[2]
 
 			but nStart[1] = :StartingAtOccurrence
@@ -44643,7 +44643,7 @@ class stzString from stzObject
 		ok
 
 		if NOT ( isString(pcDirection) and
-			 Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward ]) )
+			 ring_find([ :Default, :Forward, :Backward ], pcDirection) > 0 )
 
 			StzRaise("Incorrect param! pcDirection must be a string. " + NL +
 				 "Allowed values are :Default, :Forward, and :Backward.")
@@ -45253,7 +45253,7 @@ class stzString from stzObject
 			ok
 	
 			if NOT ( isString(pcDirection) and
-				 Q(pcDirection).IsOneOfThese([ :Forward, :Default, :Backward ]) )
+				 ring_find([ :Forward, :Default, :Backward ], pcDirection) > 0)
 	
 				StzRaise("Incorrect param! pcDirection must be a string. " + NL +
 					 "Allowed values are :Forward, :Backward, and :Default.")
@@ -45270,8 +45270,8 @@ class stzString from stzObject
 			if isString(n)
 	
 				if NOT ( isNumber(n) or
-					 isString(n) and Q(n).IsOneOfThese([
-						:First, :FirstOccurrence, :Last, :LastOccurrence ]) )
+					 isString(n) and ring_find([
+						:First, :FirstOccurrence, :Last, :LastOccurrence ], n) > 0 )
 	
 					StzRaise("Incorrect param! n must be a number or one of these " +
 						 "two strings (:First or :Last).")
@@ -46230,7 +46230,7 @@ class stzString from stzObject
 		ok
 
 		if NOT ( isString(pcDirection) and 
-			 Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward ]) )
+			 ring_find([ :Default, :Forward, :Backward ], pcDirection) > 0)
 
 			StzRaise("Incorrect param! pcDirection must be a string. " +
 				 "Allowed values are :Default, :Forward, and :Backward.")
@@ -46751,7 +46751,7 @@ class stzString from stzObject
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
-			if isList(pcDirection) and Q(pcDirection).IsOneOfThese([ :Direction, :Going ])
+			if isList(pcDirection) and Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
 				pcDirection = pcDirection[2]
 			ok
 
@@ -47896,7 +47896,7 @@ class stzString from stzObject
 		ok
 
 		if NOT ( isString(pcDirection) and 
-			 Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward ]) )
+			 ring_find([ :Default, :Forward, :Backward ], pcDirection) > 0 )
 
 			StzRaise("Incorrect param! pcDirection must be a string. " +
 				 "Allowed values are :Default, :Forward, and :Backward.")
@@ -48082,7 +48082,7 @@ class stzString from stzObject
 		ok
 
 		if NOT ( isString(pcDirection) and 
-			 Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward ]) )
+			 ring_find([ :Default, :Forward, :Backward ], pcDirection) > 0 )
 
 			StzRaise("Incorrect param! pcDirection must be a string. " +
 				 "Allowed values are :Default, :Forward, and :Backward.")
@@ -48391,7 +48391,7 @@ class stzString from stzObject
 			ok
 	
 			if NOT ( isString(pcDirection) and 
-				 Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward ]) )
+				 ring_find([ :Default, :Forward, :Backward ], pcDirection)  > 0 )
 	
 				StzRaise("Incorrect param! pcDirection must be a string. " +
 					 "Allowed values are :Default, :Forward, and :Backward.")
@@ -49465,14 +49465,14 @@ class stzString from stzObject
 				return This.FindAfterPositionCS( p1[2], p2[2], pCaseSensitive )
 
 			# FindXT( :AnySubString, :Between = ["<<", ">>" )
-			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
+			but isString(p1) and ring_find([ :Any, :AnySubString ], p1) > 0 and
 			    isList(p2) and Q(p2).IsBetweenNamedParam() and
 			    isList(p2[2]) and Q(p2[2]).IsPairOfStrings()
 
 				return This.FindAnyBetweenCS(p2[2][1], p2[2][1], pCaseSensitive)
 
 			# FindXT( :Any, :BoundedBy = '"' )
-			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
+			but isString(p1) and ring_find([ :Any, :AnySubString ], p1) > 0 and
 			    isList(p2) and Q(p2).IsBoundedByNamedParam()
 
 				return This.FindAnyBoundedByCS(p2[2], pCaseSensitive)
@@ -49702,14 +49702,14 @@ class stzString from stzObject
 				return This.FindAsSectionsCSXT( p1[2], :InSection = [ p2[2], nLen ], pCaseSensitive )
 
 			# FindAsSectionsXT( :AnySubString, :Between = ["<<", ">>" )
-			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
+			but isString(p1) and ring_find([ :Any, :AnySubString ], p1) > 0 and
 			    isList(p2) and Q(p2).IsBetweenNamedParam() and
 			    isList(p2[2]) and Q(p2[2]).IsPairOfStrings()
 
 				return This.FindAnyBetweenAsSectionsCS(p2[2][1], p2[2][1], pCaseSensitive)
 
 			# FindAsSectionsXT( :Any, :BoundedBy = '"' )
-			but isString(p1) and Q(p1).IsOneOfThese([ :Any, :AnySubString ]) and
+			but isString(p1) and ring_find([ :Any, :AnySubString ], p1) > 0 and
 			    isList(p2) and Q(p2).IsBoundedByNamedParam()
 
 				return This.FindAnyBoundedByAsSectionsCS(p2[2], pCaseSensitive)
@@ -52684,7 +52684,7 @@ class stzString from stzObject
 		ok
 
 		if NOT ( isString(pcDirection) and 
-			 Q(pcDirection).IsOneOfThese([ :Default, :Forward, :Backward ]) )
+			 ring_find([ :Default, :Forward, :Backward ], pcDirection) > 0 )
 
 			StzRaise("Incorrect param! pcDirection must be a string. " +
 				 "Allowed values are :Default, :Forward, and :Backward.")
@@ -53647,7 +53647,7 @@ class stzString from stzObject
 				   Q(pcSubStr).IsPair() and
 
 				   isString(pcSubStr[1]) and
-				   Q(pcSubStr[1]).IsOneOfThese([ :NextNth, :NthNext ]) and
+				   ring_find([ :NextNth, :NthNext ], pcSubStr[1]) > 0 and
 
 				   isList(pcSubStr[2]) and Q(pcSubStr[2]).IsPair()
 				   isNumber(pcSubStr[2][1]) and isString(pcSubStr[2][2])
@@ -54220,10 +54220,10 @@ class stzString from stzObject
 			return FALSE
 
 		# ? Q("__♥__").ContainsXT("♥", "_")
-		but BothAreStrings(p1, p2) and
-		    NOT oP1.IsOneOfThese([
+		but isString(p1) and isString(p2) and
+		    NOT ring_find([
 			:CharsW, :CharsWhere, :SubStringsW, :SubStringsWhere
-			])
+			], p1) > 0
 
 			return This.ContainsTheseCS([p1, p2], pCaseSensitive)
 		
@@ -77135,9 +77135,9 @@ class stzString from stzObject
 			]
 			#TODO // Add other stz types
 
-			if @BothAreStrings(pcStr1, pcStr2) and
-			   Q(pcStr1).IsOneOfThese(acStzTypes) and
-			   Q(pcStr2).IsOneOfThese(acStzTypes)
+			if isString(pcStr1) and isString(pcStr2) and
+			   ring_find(acStzTypes, pcStr1) > 0 and
+			   ring_find(acStzTypes, pcStr2) > 0
 
 				return This.@IsNeither(pcStr1, pcStr2)
 			ok
@@ -79393,18 +79393,20 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n1 must be a number or string.")
 			ok
 
-			if isString(n1) and NOT Q(n1).IsOneOfThese([
+			if isString(n1) and
+			   ring_find([
 				:First, :FirstChar, :StartOfString,
-				:Last,  :LastChar,  :EndOfString ])
+				:Last,  :LastChar,  :EndOfString ], n1 ) = 0
 
 				StzRaise("Incorrect value! n1 can be a string containing one of these values: " +
 					":First, :FirstChar, :StartOfString, :Last,  :LastChar or :EndOfString.")
 
 			ok
 
-			if isString(n2) and NOT Q(n2).IsOneOfThese([
+			if isString(n2) and
+			   ring_find([
 				:First, :FirstChar, :StartOfString,
-				:Last,  :LastChar,  :EndOfString ])
+				:Last,  :LastChar,  :EndOfString ], n2 ) = 0
 
 				StzRaise("Incorrect value! n2 can be a string containing one of these values: " +
 					":First, :FirstChar, :StartOfString, :Last,  :LastChar or :EndOfString.")
@@ -80237,18 +80239,18 @@ class stzString from stzObject
 				pcNewSubStr = pcNewSubStr[2]
 			ok
 
-			if isString(n1) and NOT Q(n1).IsOneOfThese([
+			if isString(n1) and ring_find([
 				:First, :FirstChar, :StartOfString,
-				:Last,  :LastChar,  :EndOfString ])
+				:Last,  :LastChar,  :EndOfString ], n1) = 0
 
 				StzRaise("Incorrect value! n1 can be a string containing one of these values: " +
 					":First, :FirstChar, :StartOfString, :Last,  :LastChar or :EndOfString.")
 
 			ok
 
-			if isString(n2) and NOT Q(n2).IsOneOfThese([
+			if isString(n2) and ring_find([
 				:First, :FirstChar, :StartOfString,
-				:Last,  :LastChar,  :EndOfString ])
+				:Last,  :LastChar,  :EndOfString ], n2) = 0
 
 				StzRaise("Incorrect value! n2 can be a string containing one of these values: " +
 					":First, :FirstChar, :StartOfString, :Last,  :LastChar or :EndOfString.")
@@ -80448,9 +80450,9 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! nNumberOfChars must be a number.")
 			ok
 
-			if isString(nStart) and NOT Q(nStart).IsOneOfThese([
+			if isString(nStart) and ring_find([
 				:First, :FirstChar, :StartOfString,
-				:Last,  :LastChar,  :EndOfString ])
+				:Last,  :LastChar,  :EndOfString ], nStart) = 0
 
 				StzRaise("Incorrect value! nStart can be a string containing one of these values: " +
 					":First, :FirstChar, :StartOfString, :Last,  :LastChar or :EndOfString.")
@@ -87234,7 +87236,7 @@ class stzString from stzObject
 		bResult = FALSE
 
 		if This.IsLetter() or This.IsSpace() or
-		   This.IsOneOfThese(pacChars)
+		   ring_find(pacChars, This.Content()) > 0
 
 			return TRUE
 		else
@@ -91532,14 +91534,14 @@ class stzString from stzObject
 		ok
 
 		if isString(pCaseSensitive)
-			if Q(pCaseSensitive).IsOneOfThese([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ])
+			if ring_find([
+				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive) > 0
 
 				pCaseSensitive = TRUE
 			
-			but Q(pCaseSensitive).IsOneOfThese([
+			but ring_find([
 				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ])
+				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive) > 0
 
 				pCaseSensitive = FALSE
 			ok
@@ -92898,8 +92900,8 @@ class stzString from stzObject
 
 			cTextAdjustedTo = :Center # By default
 
-			oString = new stzString( paBoxOptions[ :TextAdjustedTo ] )
-			if oString.IsOneOfThese([ :Left, :Center, :Centered, :Right, :Justified ])
+			if ring_find([ :Left, :Center, :Centered, :Right, :Justified ],
+				paBoxOptions[ :TextAdjustedTo ]) > 0
 
 				cTextAdjustedTo = paBoxOptions[ :TextAdjustedTo ]
 			ok
@@ -93084,18 +93086,18 @@ class stzString from stzObject
 		ok
 
 		if isString(n1) and
-		   Q(n1).IsOneOfThese([ :First, :FirstPosition, :FirstChar ])
+		   ring_find([ :First, :FirstPosition, :FirstChar ], n1) > 0
 				    
 			n1 = 1
 		ok
 
 		if isString(n2) and
-		   Q(n1).IsOneOfThese([ :Last, :LastPosition, :LastChar ])
+		   ring_find([ :Last, :LastPosition, :LastChar ], n1) > 0
 
 			n2 = This.NumberOfItems()
 		ok
 
-		if NOT @BothAreNumbers(n1, n2)
+		if NOT ( isNumber(n1) and isNumbe(n2) )
 			stzRaise("Incorrect param type! n1 and n2 must be numbers.")
 		ok
 
@@ -93257,7 +93259,7 @@ class stzString from stzObject
 
 		*/
 
-		if isList(pcSubStr2) and Q(pcSubStr2).IsOneOfThese([ :And, :With, :By ])
+		if isList(pcSubStr2) and Q(pcSubStr2).IsOneOfTheseNamedParams([ :And, :With, :By ])
 			pcSubStr2 = pcSubStr2[2]
 		ok
 
@@ -93265,7 +93267,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param types! Both pcSubStr1 and pcSubStr2 must be strings.")
 		ok
 
-		#NOTE: if the string contains more then one occurrence form a substring,
+		#NOTE // if the string contains more then one occurrence form a substring,
 		# then only the first Occurrence is considered
 
 		aSectionSubStr1 = This.FindAsSectionsCS(pcSubStr1, pCaseSensitive)[1]
@@ -93602,7 +93604,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcHashingAlgo must be a string.")
 		ok
 
-		if NOT Q(pcHashingAlgo).IsOneOfThese([ :MD5, :SHA1, :SHA256, :SHA512, :SHA384, :SHA224 ])
+		if ring_find([ :MD5, :SHA1, :SHA256, :SHA512, :SHA384, :SHA224 ], pcHashingAlgo) = 0
 			StzRaise("Unsupported hashing algorithm! Allowed values are :MD5, :SHA1, :SHA256, :SHA512, :SHA384 and :SHA224.")
 		ok
 
@@ -94965,7 +94967,7 @@ class stzString from stzObject
 				if NOT 	( isNumber(oHashList.LastValue()) or
 
 					  ( isString(oHashList.LastValue()) and
-					    Q(oHashList.LastValue()).IsOneOfThese([ :Remaining, :RemainingChars ]) ) )
+					    ring_find([ :Remaining, :RemainingChars ], oHashList.LastValue()) > 0 ) )
 
 					stzRaise("Incorrect value! The last value mus tbe a number or a string (:Remaining or :RemainingChars).")
 				ok
@@ -94973,9 +94975,8 @@ class stzString from stzObject
 				# If the last value is :Remaining or :RemainingChars, the its replace by the n remaining chars
 
 				if isString(oHashList.LastValue()) and
-				   Q(oHashList.LastValue()).IsOneOfThese([ :Remaining, :RemainingChars ])
+				   ring_find([ :Remaining, :RemainingChars ], oHashList.LastValue()) > 0
 
-					
 					n = 0
 					nLenTemp = len(aValuesExceptLast)
 					for i = 1 to nLenTemp
@@ -95314,21 +95315,22 @@ class stzString from stzObject
 		i = 0
 		nLen = This.NumberOfChars()
 
+		acChars = This.Chars()
+
 		while bContinue
 			i++
 			if i > nLen
 				bContinue = FALSE
 
 			else
-				cCurrentChar = This.Char(i)
 
-				if NOT ( Q(cCurrentChar).IsANumberInString() or
-					 Q(cCurrentChar).IsOneOfThese([ "+", "-", "_", "." ]) )
+				if NOT ( isNumber(0+ acChars[i]) or
+					 ring_find([ "+", "-", "_", "." ], acChars[i]) > 0 )
 
 					bContinue = FALSE
 
 				else
-					cResult += cCurrentChar
+					cResult += acChars[i]
 
 				ok
 
@@ -95464,7 +95466,9 @@ class stzString from stzObject
 
 		cResult = ""
 		bContinue = TRUE
-		i = This.NumberOfChars() + 1
+
+		acChars = This.Chars()
+		i = len(acChars) + 1
 
 		while bContinue
 			i--
@@ -95472,10 +95476,9 @@ class stzString from stzObject
 				bContinue = FALSE
 
 			else
-				cCurrentChar = This.Char(i)
 
-				if NOT ( Q(cCurrentChar).IsANumberInString() or
-					 Q(cCurrentChar).IsOneOfThese([ "+", "-", "."]) )
+				if NOT ( isNumber(0+ acChars[i]) or
+					 ring_find([ "+", "-", "."], acChars[i]) > 0 )
 
 					bContinue = FALSE
 

@@ -98,8 +98,9 @@ func ElapsedTimeXT(pIn)
 		StzRaise("Incorrect param type! pIn must be a string.")
 	ok
 
-	if NOT Q(pIn).IsOneOfThese([ :Clocks, :Seconds, :Minutes, :Hours ])
-		#TODO - Future: Add days, weeks, months, years...
+	if NOT ring_find([ :Clocks, :Seconds, :Minutes, :Hours ], pIn)
+		#TODO // Future: Add days, weeks, months, years...
+
 		StzRaise("Incorrect value of pIn param! Allowed values are: " +
 		":Clocks, :Seconds, :Minutes and :Hours.")
 	ok

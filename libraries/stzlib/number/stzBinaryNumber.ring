@@ -27,7 +27,7 @@ def BinaryPrefixes()
 
 def SetBinaryNumberPrefix(pcBinaryPrefix)
 
-	if isString(pcBinaryPrefix) and StzStringQ(pcBinaryPrefix).IsOneOfThese(BinaryPrefixes())
+	if isString(pcBinaryPrefix) and ring_find(BinaryPrefixes(),pcBinaryPrefix) > 0
 		_cBinaryNumberPrefix = pcBinaryPrefix
 
 	else

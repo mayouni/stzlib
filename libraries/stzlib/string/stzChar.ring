@@ -1299,7 +1299,7 @@ class stzChar from stzObject
 		# ring_find( SeparatorUnicodes(), This.Unicode() ) to get the result.
 
 
-	def IsOneOfThese(paChars)
+	def IsOneOfThese(pacChars)
 		/* Could be solved expressively like this:
 		
 		 return StzStringQ( This.Content() ).IsOneOfThese( paChars )
@@ -1308,22 +1308,33 @@ class stzChar from stzObject
 
 		So, let's solve it natively in Ring...
 		*/
-		bResult = FALSE
 
-		for c in paChars
-			if c = This.Content()
-				bResult = TRUE
-				exit
+		if CheckParams()
+			if NOT (isList(pacChars) and @IsListOfChars(pacChars))
+				StzRaise("Incorrect param type! pacChars must be a list of chars.")
 			ok
-		next
+		ok
 
-		return bResult
+		if ring_find(pacChars, This.Char()) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
 
 	def IsWordSeparator()
-		return This.IsOneOfThese( WordSeparators() )
+		if ring_find( WordSeparators(), This.Char() ) >  0
+			return TRUE
+		else
+			return FALSE
+		ok
 
 	def IsSentenceSeparator()
-		return This.IsOneOfThese( SentenceSeparators() )
+		if ring_find( SentenceSeparators(), This.Char() ) >  0
+			return TRUE
+		else
+			return FALSE
+		ok
 
 	def IsLineSeparator()
 		return This.Content() = NL

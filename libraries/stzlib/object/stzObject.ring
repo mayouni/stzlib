@@ -2105,71 +2105,27 @@ class stzObject
 		*/
 
 		if CheckParams()
-			if NOT ( isList(pacStr) and @IsListOfStrings(pacStr) )
+
+			if NOT isList(pacStr) 
+				StzRaise("Incorrect param type! pacStr must be a list.")
+			ok
+
+			if NOT @IsListOfStrings(pacStr)
 				StzRaise("Incorrect param type! pacStr must be a list of strings.")
 			ok
 		ok
 
+		# Checking those functions against the object value
+
 		nLen = len(pacStr)
 		if nLen = 0
 			return FALSE
-		but nLen = 1
-			return This.IsA(pacStr[1])
 		ok
 
-		cType = lower(pacStr[nLen])
-
-		#NOTE
-		# "word" will be used her as an alternative of "string"
-		# ~> we use it in natiral-coding
-
-		if NOT ( @IsRingOrStzType(cType) or cType = "word" )
-			StzRaise("Incorrect param value! paStr must contains a Ring or Softanza type at the end.")
-		ok
-
-		if cType = "word"
-			cType = "string"
-		ok
-
-		content = This.Content()
-
-		if isNumber(content)
-			object = new stzNumber(content)
-
-		but isString(content)
-			object = new stzString(content)
-
-		but isList(content)
-			object = new stzList(content)
-
-		but isObject(content)
-			object = new stzObject(content)
-
-		ok
-
-		# Preparing the names of the methods
-
-		acMethods = []
-
-		for i = 1 to nLen-1
-
-			if pacStr[i] = "number" or pacStr[i] = "string" or
-			   pacStr[i] = "list" or pacStr[i] = "object"
-
-				acMethods + ( "isA" + pacStr[i] + "()" )
-			else
-				acMethods + ( "is" + pacStr[i] + "()" )
-			ok
-
-		next
-
-		# Checking the methods on the object
-
-		nLen = len(acMethods)
 		bResult = TRUE
 
 		for i = 1 to nLen
-			ccode = 'bResult = object.' + acMethods[i]
+			ccode = 'bResult = @is' + pacStr[i] + '(' + @@(this.Content()) + ')'
 
 			eval(cCode)
 			if bResult = FALSE
@@ -2246,32 +2202,9 @@ class stzObject
 
 		if isList(pcType)
 			return This.IsAXT(pcType)
+		else
+			return This.IsAXT([ pcType ])
 		ok
-
-		if NOT isString(pcType)
-			StzRaise("Incorrect param type! pcType must be a string.")
-		ok
-		
-		if pcType = "word"
-			pcType = "string"
-		ok
-
-		pcType = StzStringQ(pcType).InfereType()
-
-		if pcType = "number" or pcType = "string" or pcType = "list"
-			pcType = "A" + pcType
-		but pcType = "object"
-			pcType = "anobject"
-		ok
-
-		cCode = 'bResult = This.Is'+ pcType + '()'
-
-		try
-			eval(cCode)
-			return bResult
-		catch
-			return FALSE
-		done
 
 		#< @FunctionFluentForm
 
@@ -2435,27 +2368,7 @@ class stzObject
 		#>
 
 	def Is(pcType)
-
-		if NOT isString(pcType)
-			StzRaise("Incorrect param type! pcType must be a string.")
-		ok
-		
-		pcType = StzStringQ(pcType).InfereType()
-
-		if pcType = "number" or pcType = "string" or pcType = "list"
-			pcType = "A" + pcType
-		but pcType = "object"
-			pcType = "anobject"
-		ok
-
-		cCode = 'bResult = This.Is'+ pcType + '()'
-
-		try
-			eval(cCode)
-			return bResult
-		catch
-			return FALSE
-		done
+		return This.IsA(pcType)
 
 		def IsQ(pcType)
 			if This.Is(pcType) = TRUE

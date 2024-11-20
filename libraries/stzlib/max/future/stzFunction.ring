@@ -61,8 +61,43 @@ def FunctionNameFinishesWithOneOfThese( pcFunctionCall, paSubStr )
 
 
 def FunctionParamTypeIsOneOfThese(pcFunctionCall, paSubStr)
+	if CheckParams()
+		if NOT isString(pcFunctionCall)
+			StzRaise("Incorrect param type! pcFunctionCall must be a string.")
+		ok
+	
+		if pcFunctionCall = ""
+			StzRaise("Incorrect param value! pcFunctionCall must be a non empty string.")
+		ok
+	
+		if NOT ( isList(pacSubStr) and IsListOfStrings(pacSubStr) )
+			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+		ok
+
+		if len(pacSubStr) = 0
+			StzRaise("Incorrect param value! pacSubStr must be a nom empty list.")
+		ok
+	ok
+
 	cType = FunctionParamType(pcFunctionCall)
-	return StzStringQ(cType).IsOneOfThese(paSubStr)
+	if cType = ""
+		return FALSE
+	ok
+
+	cTypeLow = lower(cType)
+
+	nLen = len(pacSubStr)
+	acSubStrLow = []
+
+	for i = 1 to nLen
+		acSubStrLow + lower(pacSubStr[i])
+	next
+
+	if ring_find(acSubStrLow, cTypeLow) > 0
+		return TRUE
+	else
+		return FALSE
+	ok
 
 
 class stzFunction from stzObject

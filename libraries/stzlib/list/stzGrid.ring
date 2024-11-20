@@ -1290,7 +1290,7 @@ class stzGrid from stzObject
 				pcDirection = pcDirection[2]
 			ok
 	
-			if NOT ( isString(pcDirection) and Q(pcDirection).IsOneOfThese([ :Horizontally, :Vertically ]) )
+			if NOT ( isString(pcDirection) and ring_find([ :Horizontally, :Vertically ], pcDirection) > 0 )
 				StzRaise("Incorrect param! pcDirection must be a string equal to :Horizontally, :Vertically, or :Default.")
 			ok
 		ok

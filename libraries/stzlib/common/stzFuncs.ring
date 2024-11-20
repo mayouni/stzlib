@@ -4589,17 +4589,17 @@ func TodoInCurrent()
 
 func TodoXT(pcCurrentOrFuture)
 	if NOT ( isString(pcCurrentOrFuture) and
-	   Q(pcCurrentOrFuture).IsOneOfThese([
-		:Current, :InCurrent, :Future, :InFuture,
-		:CurrentRelease, :InCurrentRelease, :FutureRelease, :InFutureRelease,
+	   	 ring_find([
+			:Current, :InCurrent, :Future, :InFuture,
+			:CurrentRelease, :InCurrentRelease, :FutureRelease, :InFutureRelease,
 
-		# Misspelled variations
-		:Fture, :InFture, :FtureRelease, :InFtureRelease ]) )
+			# Misspelled variations
+			:Fture, :InFture, :FtureRelease, :InFtureRelease ], pcCurrentOrFuture) ) > 0
 
 		StzRaise("Incorrect param! pcCurrentOrFuture must be a string equal to :Current or :Future.")
 	ok
 
-	if Q(pcCurrentOrFuture).IsOneOfThese([ :Future, :InFuture, :FutureRelase, :InFutureRelase ])
+	if ring_find([ :Future, :InFuture, :FutureRelase, :InFutureRelase ], pcCurrentOrFuture) > 0
 		StzRaise("Unavailable feature in current version (TODO in the future!)")
 
 	else
@@ -4722,17 +4722,41 @@ func euc_dist(a,b)
 
 	return sqrt(s)
 
+func @IsList(paList)
+	return isList(paList)
+
+	func IsAList(paList)
+		return isList(paList)
+
+	func @IsAList(paList)
+		return isList(paList)
+
 func @IsNumber(n)
 	return isNumber(n)
+
+	func IsANumber(n)
+		return isNumber(n)
+
+	func @IsANumber(n)
+		return isNumber(n)
 
 func @IsString(str)
 	return isString(str)
 
-func @IsList(aList)
-	return isList(aList)
+	func IsAString(str)
+		return isString(str)
+
+	func @IsAString(str)
+		return isString(str)
 
 func @IsObject(obj)
 	return isObject(obj)
+
+	func IsAnObject(obj)
+		return isObject(obj)
+
+	func @IsAnObject(obj)
+		return isObject(obj)
 
 #--
 
@@ -5794,3 +5818,7 @@ class stzForEachObject
 		else
 			return This.@VarsXT()[pcVar][@i]
 		ok
+
+#WARNING
+# DO NOT ADD GLOBAL FUNCTIONS HERE BECAUSE THIS IS A CLASS REGION
+
