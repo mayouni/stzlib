@@ -169,6 +169,7 @@
 	load "common/stzSmallFuncs.ring"
 	load "common/stzQtFuncs.ring"
 	load "common/stzRingLibs.ring"
+	load "common/stzNamedParams.ring" #TODO // Use it instead of stzList methods
 
 # Loading files related to ERROR module
 

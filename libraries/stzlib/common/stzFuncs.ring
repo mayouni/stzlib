@@ -2507,7 +2507,11 @@ func QuietEqualityRatio()
 		return _nQuietEqualityRatio
 
 func SetQuietEqualityRatio(n)
-	if Q(n).IsBetween(0,1)
+	if NOT isNumber(n)
+		StzRaise("Incorrect param type! n must be a number.")
+	ok
+
+	if n >= 0 and n <= 1
 		_nQuietEqualityRatio = n
 	ok
 
@@ -4687,10 +4691,10 @@ func AreBothListsOfObjects(aList1, aList2)
 	ok
 
 func EuclideanDistance(anNumbers1, anNumbers2)
-	if isList(anNumbers1) and Q(anNumbers1).IsBetweenNamedParam()
+	if isList(anNumbers1) and StzListQ(anNumbers1).IsBetweenNamedParam()
 		anNumbers1 = anNumbers1[1]
 	ok
-	if isList(anNumbers2) and Q(anNumbers2).IsAndNamedParam()
+	if isList(anNumbers2) and StzListQ(anNumbers2).IsAndNamedParam()
 		anNumbers2 = anNumbers2[1]
 	ok
 	
