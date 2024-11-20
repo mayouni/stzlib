@@ -48657,12 +48657,10 @@ class stzList from stzObject
 		if CheckParams()
 			if isString(n)
 
-				oParam = Q(n)
-
-				if oParam.IsEither(:First, :Or = :FirstItem)
+				if n = :First Or n = :FirstItem
 					n = 1
 
-				but oParam.IsEither(:Last, :Or = :LastItem)
+				but n = :Last Or n = :LastItem
 					n = This.NumberOfOccurrencesOfSmallestItem()
 				ok
 			ok
@@ -48676,13 +48674,10 @@ class stzList from stzObject
 	def FindNthOccurrenceOfLargestItem(n)
 		if CheckParams()
 			if isString(n)
-
-				oParam = Q(n)
-
-				if oParam.IsEither(:First, :Or = :FirstItem)
+				if n = :First Or n = :FirstItem
 					n = 1
 
-				but oParam.IsEither(:Last, :Or = :LastItem)
+				but n = :Last Or n = :LastItem
 					n = This.NumberOfOccurrencesOfLargestItem()
 				ok
 			ok
@@ -51221,7 +51216,7 @@ class stzList from stzObject
 
 		cSyntax = ""
 
-		if isString(p2) and Q(p2).IsEither(:Or, :OrA)
+		if isString(p2) and ( p2 = :Or or p2 = :OrA )
 			cSyntax = "1"
 
 		but isList(p2) and Q(p2).IsOneOfTheseNamedParams([ :Or, :OrA ])

@@ -3750,7 +3750,7 @@ class stzObject
 			pcType2 = pcType2[2]
 		ok
 
-		if NOT @BothAreStrings(pcType1, pcType2)
+		if NOT ( isString(pcType1) and isString(pcType2) )
 			StzRaise("Incorrect param type! pcType1 and pcType2 must be strings.")
 		ok
 
@@ -3785,7 +3785,7 @@ class stzObject
 			pcType2 = pcType2[2]
 		ok
 
-		if NOT @BothAreStrings(pcType1, pcType2)
+		if NOT ( isString(pcType1) and isString(pcType2) )
 			StzRaise("Incorrect param type! pcType1 and pcType2 must be strings.")
 		ok
 

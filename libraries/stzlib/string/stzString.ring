@@ -45261,7 +45261,7 @@ class stzString from stzObject
 			ok
 	
 			if NOT ( isString(pcDirection) and
-				 Q(pcDirection).IsEither(:Forward, :Or = :Backward) )
+				 (pcDirection = :Forward Or pcDirection = :Backward) )
 	
 				StzRaise("Incorrect param! pcDirection must be a string. Allowed values are :Forward and :Backward.")
 	
@@ -47252,22 +47252,21 @@ class stzString from stzObject
 				nStart = nStart[2]
 			ok
 	
-			if isString(nStart) and Q(nStart).IsEither(:Last, :Or = :LastChar)
+			if isString(nStart) and ( nStart = :Last Or nStart = :LastChar )
 				nStart = This.NumberOfChars()
 			ok
 	
 			if isString(n)
-				oNString = Q(n)
 	
-				if oNString.IsEither(:First, :Or = :FirstOccurrence)
+				if n = :First Or n= :FirstOccurrence
 					n = 1
 	
-				but oNString.IsEither(:Last, :Or = :LastOccurrence)
+				but n = :Last Or n = :LastOccurrence
 					n = This.SectionQ(1, nStart).NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 				ok
 			ok
 	
-			if NOT @BothAreNumbers(n, nStart)
+			if NOT ( isNumber(n) and isNumber(nStart) )
 				StzRaise("Incorrect param type! n and nStart must be numbers.")
 			ok
 	
@@ -90402,7 +90401,7 @@ class stzString from stzObject
 			stzRaise("Incorrect param value for paEvalDirection! Allowed values are :RightToLeft and :LeftToRight.")
 		ok
 
-		if oEvalDir.IsEither(:Default, :Or = :Nothing)
+		if paEvalDirection = :Default Or paEvalDirection = :Nothing
 			paEvalDirection = :RightToLeft
 		ok
 
