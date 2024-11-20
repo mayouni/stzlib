@@ -12963,10 +12963,13 @@ Class stzTable from stzObject
 	#--------------------------#
 
 	def SwapColNames(pCol1, pCol2)
-		bCol1IsValid = ( isNumber(pCol1) and Q(pCol1).IsBetween(1, This.NumberOfCol()) )
-		bCol2IsValie = ( isString(pCol2) and This.HasColName(pCol2) )
 
-		if NOT ( bCol1IsValid or bCol2IsValie )
+		bCol1IsValid = ( isNumber(pCol1) and
+				 pCol1 >= 1 and pCol1 <= This.NumberOfCol() )
+
+		bCol2IsValid = ( isString(pCol2) and This.HasColName(pCol2) )
+
+		if NOT ( bCol1IsValid or bCol2IsValid )
 			StzRaise("Incorrect params! pCol1 and pCol2 must be valid columns names or strings.")
 		ok
 
@@ -14265,7 +14268,7 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		if NOT Q(p).IsBetweenIB(1, This.NumberOfCols())
+		if NOT ( p >= 1 and p <= This.NumberOfCols() )
 			StzRaise("Incorrect value! n must correspond to a valid number of column.")
 		ok
 

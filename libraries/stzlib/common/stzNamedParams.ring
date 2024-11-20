@@ -1066,15 +1066,20 @@ func IsBoxOptionsNamedParam(paList)
 		
 	]
 
-	if StzNumberQ(isList(paList) and len(paList)).IsBetween(1, len(aListOfBoxOptions)) and
-	   This.IsHashList() and
-	   StzHashListQ(This.Content()).KeysQ().IsMadeOfSome(aListOfBoxOptions)
-	
-		return TRUE
+	nLen = len(paList)
 
-	else
-		return FALSE
+	if nLen >= 1 and nLen <= len(aListOfBoxOptions)
+
+		oList = new stzList(aListOfBoxOptions)
+
+	  	if oList.IsHashList() and
+	   	   oList.ToStzHashListQ().KeysQ().IsMadeOfSome(aListOfBoxOptions)
+	
+			return TRUE
+		ok
 	ok
+
+	return FALSE
 
 func IsConstraintsOptionsNamedParam(paList)
 	/* EXAMPLE
