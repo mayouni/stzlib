@@ -19097,31 +19097,37 @@ class stzString from stzObject
 
 		#>
 
-	  #---------------------------------------------------------------------------------------#
-	 #  FINDING THE BOUNDS AS SECTIONS - UP TO N CHARS - OF A GIVEN SUBSTRING IN THE STRING  #
-	#=======================================================================================#
+	  #-----------------------------------------------------------------------------------#
+	 #  FINDING THE BOUNDS AS SECTIONS - UP TO [ N1, N2 ] CHARS - OF A GIVEN SUBSTRING   #
+	#===================================================================================#
 
-	def FindSubStringBoundsUpToNCharsAsSectionsCS(pcSubStr, n,  pCaseSensitive)
+	def FindSubStringBoundsUpToNCharsAsSectionsCSXT(pcSubStr, n1, n2, pCaseSensitive)
 		#< @MotherFunctionOf = FindAsSectionsCS() #>
 
 		if checkParams()
-			if NOT isNumber(n)
-				StzRaise("Incorrect param type! n must be a number.")
+			if NOT ( isNumber(n1) and isNumber(n2) )
+				StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 			ok
 		ok
 
-		# Getting the list of chars and sections of pcSubStr
+		if n1 < 1 or n2 < 1
+			StzRaise("Incorrect param values! n1 and n2 must be both greater then 1.")
+		ok
+
+		nLenBound1 = n1
+		nLenBound2 = n2
+
+		# Getting the list of chars, and the list of sections of pcSubStr
 
 		nLenStr = This.NumberOfChars()
 		if nLenStr = 0
 			return []
 		ok
-
 		acChars = This.Chars()
-
+		
 		aSections = This.FindAsSectionsCS(pcSubStr,  pCaseSensitive)
-		nLen = len(aSections)
-		if nLen = 0
+		nLenSections = len(aSections)
+		if nLenSections = 0
 			return []
 		ok
 
@@ -19132,8 +19138,8 @@ class stzString from stzObject
 			nLen--
 		ok
 
-		if aSections[nLen][2] = nLenStr
-			ring_del(aSections, nLen)
+		if aSections[nLenSections][2] = nLenStr
+			ring_del(aSections, nLenSections)
 			nLen--
 		ok
 
@@ -19141,8 +19147,10 @@ class stzString from stzObject
 
 		aResult = []
 
-		for i = 1 to nLen
+		for i = 1 to nLenSections
 			
+			#== Getting the first bound
+
 			nTemp = 0
 
 			n1 = aSections[i][1]
@@ -19150,7 +19158,7 @@ class stzString from stzObject
 			
 			for j = n1 - 2 to 1 step - 1
 				nTemp++
-				if nTemp = n or acChars[j] != c
+				if nTemp = n1 or acChars[j] != c
 					exit
 				ok
 			next
@@ -19158,31 +19166,60 @@ class stzString from stzObject
 			# Empty chars can't be part of a bound
 
 			if NOT @trim(This.Section(j + 1, n1 - 1)) = ""
-				aResult + [ j + 1, n1 - 1 ]
+				nDiff = n1 - 1 - j
+				if nLenBound1 < nDiff
+					aResult + [ j + 1, j + nLenBound1 ]
+				else
+					aResult + [ j + 1, n1 - 1 ]
+				ok
 			ok
 
-			#--
+			#== Getting the second bound
 
 			nTemp = 0
 
-			n1 = aSections[i][2]
-			c = acChars[n1+1]
+			n2 = aSections[i][2]
+			c = acChars[n2+1]
 
-			for j = n1 + 2 to nLenStr
+			for j = n2 + 2 to nLenStr
 				nTemp++
-				if nTemp = n or acChars[j] != c
+				if nTemp = n2 or acChars[j] != c
 					exit
 				ok
 			next
 
 			# Empty chars can't be part of a bound
 
-			if NOT @trim(This.Section(n1 + 1, j - 1)) = ""
-				aResult + [ n1 + 1, j - 1 ]
+
+			if NOT @trim(This.Section(n2 + 1, j - 1)) = ""
+				nDiff = j - 1 - n2
+				if nLenBound2 < nDiff
+					aResult + [ n2 + 1, n2 + nLenBound2 ]
+				else
+					aResult + [ n2 + 1, j - 1 ]
+				ok
 			ok
 		next
 
 		return aResult
+
+	  #-----------------------------------------------------------------------#
+	 #  FINDING THE BOUNDS - UP TO [ N1, N2 ] CHARS - OF A GIVEN SUBSTRING   #
+	#-----------------------------------------------------------------------#
+
+def FindSubStringBoundsUpToNCharsXT(pcSubStr, n1, n2, pCaseSensitive)
+	aSections = This.FindSubStringBoundsUpToNCharsAsSectionsCSXT(pcSubStr, n1, n2, pCaseSensitive)
+	nLen = len(aSections)
+	anResult = []
+
+	for i = 1 to nLen
+		anResult + aSections[i][1]
+	next
+
+	return anResult
+
+	def FindSubStringBoundsUpToNCharsAsSectionsCS(pcSubStr, n,  pCaseSensitive)
+		return This.FindSubStringBoundsUpToNCharsAsSectionsCSXT(pcSubStr, n, n, pCaseSensitive)
 
 		#< @FunctionAlternativeForms
 
@@ -19220,7 +19257,7 @@ class stzString from stzObject
 	#===========================================================================#
 
 	def FindSubStringBoundsUpToNCharsCS(pcSubStr, n,  pCaseSensitive)
-		aSections = This.FindSubStringBoundsUpToNCharsAsSectionsCS(pcSubStr, n, pCasseSensitive)
+		aSections = This.FindSubStringBoundsUpToNCharsCSZZ(pcSubStr, n, pCasseSensitive)
 		anResult = StzListOfPairsQ(aSections).FirstItems()
 		return anResult
 
@@ -19259,48 +19296,39 @@ class stzString from stzObject
 	 #  FINDING THE BOUNDS - UP TO N CHARS - OF A GIVEN SUBSTRING IN THE STRING -- XT #
 	#--------------------------------------------------------------------------------#
 
-	def FindSubStringBoundsAsSectionsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
-		if CheckParams()
-			if isList(pUpToNChars) and Q(pUpToNChars).IsUpToNCharsNamedParam()
-				pUpToNChars = pUpToNChars[2]
-			ok
+	def FindSubStringBoundsAsSectionsCSXT(pcSubStr, n1, n2, pCaseSensitive)
 
-			if NOT isNumber(pUpToNChars)
-				StzRaise("Incorrect param type! pUpToNChars must be a number.")
-			ok
-		ok
-
-		aResult = This.FindSubStringBoundsUpToNCharsAsSectionsCS(pcSubStr, pUpToNChars,  pCaseSensitive)
+		aResult = This.FindSubStringBoundsUpToNCharsAsSectionsCSXT(pcSubStr, n1, n2,  pCaseSensitive)
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def FindSubStringBoundsCSXTZZ(pcSubStr, pUpToNChars,  pCaseSensitive)
-			return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, pUpToNChars,  pCaseSensitive)
+		def FindSubStringBoundsCSXTZZ(pcSubStr, n1, n2,  pCaseSensitive)
+			return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, n1, n2,  pCaseSensitive)
 
-		def FindBoundsOfAsSectionsCSXT(pcSubStr, pUpToNChars,  pCaseSensitive)
-			return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, pUpToNChars,  pCaseSensitive)
+		def FindBoundsOfAsSectionsCSXT(pcSubStr, n1, n2,  pCaseSensitive)
+			return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, n1, n2,  pCaseSensitive)
 
-		def FindBoundsOfCSXTZZ(pcSubStr, pUpToNChars,  pCaseSensitive)
-			return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, pUpToNChars,  pCaseSensitive)
+		def FindBoundsOfCSXTZZ(pcSubStr, n1, n2,  pCaseSensitive)
+			return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, n1, n2,  pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindSubStringBoundsAsSectionsXT(pcSubStr, pUpToNChars)
-		return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, pUpToNChars,  TRUE)
+	def FindSubStringBoundsAsSectionsXT(pcSubStr, n1, n2)
+		return This.FindSubStringBoundsAsSectionsCSXT(pcSubStr, n1, n2,  TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def FindSubStringBoundsXTZZ(pcSubStr, pUpToNChars)
-			return This.FindSubStringBoundsAsSectionsXT(pcSubStr, pUpToNChars)
+		def FindSubStringBoundsXTZZ(pcSubStr, n1, n2)
+			return This.FindSubStringBoundsAsSectionsXT(pcSubStr, n1, n2)
 
-		def FindBoundsOfAsSectionsXT(pcSubStr, pUpToNChars)
-			return This.FindSubStringBoundsAsSectionsXT(pcSubStr, pUpToNChars)
+		def FindBoundsOfAsSectionsXT(pcSubStr, n1, n2)
+			return This.FindSubStringBoundsAsSectionsXT(pcSubStr, n1, n2)
 
-		def FindBoundsOfXTZZ(pcSubStr, pUpToNChars)
-			return This.FindSubStringBoundsAsSectionsXT(pcSubStr, pUpToNChars)
+		def FindBoundsOfXTZZ(pcSubStr, n1, n2)
+			return This.FindSubStringBoundsAsSectionsXT(pcSubStr, n1, n2)
 
 		#>
 
@@ -20677,32 +20705,32 @@ class stzString from stzObject
 	 #  GETTING THE BOUNDS, UP TO N CHARS, OF A GIVEN SUBSTRING IN THE STRING -- XT  #
 	#-------------------------------------------------------------------------------#
 
-	def SubStringBoundSCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
+	def SubStringBoundsCSXT(pcSubStr, n1, n2, pCaseSensitive)
 		/* EXAMPLE 1
 
 		o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
-		? o1.BoundsOfXT("Ring", :UpToNChars = 2)
+		? o1.BoundsOfXT("Ring", [ 2, 2 ])
 		#--> [ ["<<", ">>"], [ "((", "))" ] ]
 
 		*/
 
-		aSections = This.FindBoundsOfAsSectionsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
+		aSections = This.FindBoundsOfAsSectionsCSXT(pcSubStr, n1, n2, pCaseSensitive)
 		acResult = This.Sections(aSections)
 
 		return acResult
 
 		#< @FunctionFluentForms
 
-		def SubStringBoundsCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, :stzList)
+		def SubStringBoundsCSXTQ(pcSubStr, n1, n2, pCaseSensitive)
+			return This.SubStringBoundsCSXTQR(pcSubStr, n1, n2, pCaseSensitive, :stzList)
 
-		def SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+		def SubStringBoundsCSXTQR(pcSubStr, n1, n2, pCaseSensitive, pcReturnType)
 			switch pcReturnType
 			on :stzList
-				return new stzList(This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive))
+				return new stzList(This.SubStringBoundsCSXT(pcSubStr, n1, n2, pCaseSensitive))
 
 			on :stzListOfStrings
-				return new stzListOfStrings(This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive))
+				return new stzListOfStrings(This.SubStringBoundsCSXT(pcSubStr, n1, n2, pCaseSensitive))
 
 			other
 				StzRaise("Unsupported return type!")
@@ -20712,106 +20740,106 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def BoundsOfCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
+		def BoundsOfCSXT(pcSubStr, n1, n2, pCaseSensitive)
+			return This.SubStringBoundsCSXT(pcSubStr, n1, n2, pCaseSensitive)
 
-			def BoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
-				return This.BoundsOfCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, :stzList)
+			def BoundsOfCSXTQ(pcSubStr, n1, n2, pCaseSensitive)
+				return This.BoundsOfCSXTQR(pcSubStr, n1, n2, pCaseSensitive, :stzList)
 
-			def BoundsOfCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+			def BoundsOfCSXTQR(pcSubStr, n1, n2, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQR(pcSubStr, n1, n2, pCaseSensitive, pcReturnType)
 		#--
 
-		def SubStringFirstAndLastBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
+		def SubStringFirstAndLastBoundsCSXT(pcSubStr, n1, n2, pCaseSensitive)
+			return This.SubStringBoundsCSXT(pcSubStr, n1, n2, pCaseSensitive)
 
-			def SubStringFirstAndLastBoundsCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
-				return This.BoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
+			def SubStringFirstAndLastBoundsCSXTQ(pcSubStr, n1, n2, pCaseSensitive)
+				return This.BoundsOfCSXTQ(pcSubStr, n1, n2, pCaseSensitive)
 
-			def SubStringFirstAndLastBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+			def SubStringFirstAndLastBoundsCSXTQR(pcSubStr, n1, n2, pCaseSensitive, pcReturnType)
 				return This.SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
 
-		def SubStringFirstAndSecondBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
+		def SubStringFirstAndSecondBoundsCSXT(pcSubStr, n1, n2, pCaseSensitive)
+			return This.SubStringBoundsCSXT(pcSubStr, n1, n2, pCaseSensitive)
 
-			def SubStringFirstAndSecondBoundsCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
-				return This.BoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
+			def SubStringFirstAndSecondBoundsCSXTQ(pcSubStr, n1, n2, pCaseSensitive)
+				return This.BoundsOfCSXTQ(pcSubStr, n1, n2, pCaseSensitive)
 
-			def SubStringFirstAndSecondBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+			def SubStringFirstAndSecondBoundsCSXTQR(pcSubStr, n1, n2, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQR(pcSubStr, n1, n2, pCaseSensitive, pcReturnType)
 
-		def FirstAndLastBoundsOfCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
+		def FirstAndLastBoundsOfCSXT(pcSubStr, n1, n2, pCaseSensitive)
+			return This.SubStringBoundsCSXT(pcSubStr, n1, n2, pCaseSensitive)
 
-			def FirstAndLastBoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
-				return This.BoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
+			def FirstAndLastBoundsOfCSXTQ(pcSubStr, n1, n2, pCaseSensitive)
+				return This.BoundsOfCSXTQ(pcSubStr, n1, n2, pCaseSensitive)
 
-			def FirstAndLastBoundsOfCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+			def FirstAndLastBoundsOfCSXTQR(pcSubStr, n1, n2, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQR(pcSubStr, n1, n2, pCaseSensitive, pcReturnType)
 
-		def FirstAndSecondBoundsOfCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
-			return This.SubStringBoundsCSXT(pcSubStr, pUpToNChars, pCaseSensitive)
+		def FirstAndSecondBoundsOfCSXT(pcSubStr, n1, n2, pCaseSensitive)
+			return This.SubStringBoundsCSXT(pcSubStr, n1, n2, pCaseSensitive)
 
-			def FirstAndSecondBoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
-				return This.BoundsOfCSXTQ(pcSubStr, pUpToNChars, pCaseSensitive)
+			def FirstAndSecondBoundsOfCSXTQ(pcSubStr, n1, n2, pCaseSensitive)
+				return This.BoundsOfCSXTQ(pcSubStr, n1, n2, pCaseSensitive)
 
-			def FirstAndSecondBoundsOfCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
-				return This.SubStringBoundsCSXTQR(pcSubStr, pUpToNChars, pCaseSensitive, pcReturnType)
+			def FirstAndSecondBoundsOfCSXTQR(pcSubStr, n1, n2, pCaseSensitive, pcReturnType)
+				return This.SubStringBoundsCSXTQR(pcSubStr, n1, n2, pCaseSensitive, pcReturnType)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringBoundsXT(pcSubstr, pUpToNChars)
-		return This.SubStringBoundsCSXT(pcSubstr, pUpToNChars, TRUE)
+	def SubStringBoundsXT(pcSubstr, n1, n2)
+		return This.SubStringBoundsCSXT(pcSubstr, n1, n2, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def BoundsOfXT(pcSubStr, pUpToNChars)
-			return This.SubStringBoundsXT(pcSubStr, pUpToNChars)
+		def BoundsOfXT(pcSubStr, n1, n2)
+			return This.SubStringBoundsXT(pcSubStr, n1, n2)
 
-			def BoundsXTOfQ(pcSubStr, pUpToNChars)
-				return This.BoundsOfXTQR(pcSubStr, pUpToNChars, :stzList)
+			def BoundsXTOfQ(pcSubStr, n1, n2)
+				return This.BoundsOfXTQR(pcSubStr, n1, n2, :stzList)
 
-			def BoundsOfXTQR(pcSubStr, pUpToNChars, pcReturnType)
-				return This.SubStringBoundsXTQR(pcSubStr, pUpToNChars, pcReturnType)
+			def BoundsOfXTQR(pcSubStr, n1, n2, pcReturnType)
+				return This.SubStringBoundsXTQR(pcSubStr, n1, n2, pcReturnType)
 		#--
 
-		def SubStringFirstAndLastBoundsXT(pcSubStr, pUpToNChars)
-			return This.SubStringBoundsXT(pcSubStr, pUpToNChars)
+		def SubStringFirstAndLastBoundsXT(pcSubStr, n1, n2)
+			return This.SubStringBoundsXT(pcSubStr, n1, n2)
 
-			def SubStringFirstAndLastBoundsXTQ(pcSubStr, pUpToNChars)
-				return This.BoundsOfXTQ(pcSubStr, pUpToNChars)
+			def SubStringFirstAndLastBoundsXTQ(pcSubStr, n1, n2)
+				return This.BoundsOfXTQ(pcSubStr, n1, n2)
 
-			def SubStringFirstAndLastBoundsXTQR(pcSubStr, pUpToNChars, pcReturnType)
-				return This.SubStringBoundsXTQR(pcSubStr, pUpToNChars, pcReturnType)
+			def SubStringFirstAndLastBoundsXTQR(pcSubStr, n1, n2, pcReturnType)
+				return This.SubStringBoundsXTQR(pcSubStr, n1, n2, pcReturnType)
 
-		def SubStringFirstAndSecondBoundsXT(pcSubStr, pUpToNChars)
-			return This.SubStringBoundsXT(pcSubStr, pUpToNChars)
+		def SubStringFirstAndSecondBoundsXT(pcSubStr, n1, n2)
+			return This.SubStringBoundsXT(pcSubStr, n1, n2)
 
-			def SubStringFirstAndSecondBoundsXTQ(pcSubStr, pUpToNChars)
-				return This.BoundsOfXTQ(pcSubStr, pUpToNChars)
+			def SubStringFirstAndSecondBoundsXTQ(pcSubStr, n1, n2)
+				return This.BoundsOfXTQ(pcSubStr, n1, n2)
 
-			def SubStringFirstAndSecondBoundsXTQR(pcSubStr, pUpToNChars, pcReturnType)
-				return This.SubStringBoundsXTQR(pcSubStr, pUpToNChars, pcReturnType)
+			def SubStringFirstAndSecondBoundsXTQR(pcSubStr, n1, n2, pcReturnType)
+				return This.SubStringBoundsXTQR(pcSubStr, n1, n2, pcReturnType)
 
-		def FirstAndLastBoundsOfXT(pcSubStr, pUpToNChars)
-			return This.SubStringBoundsXT(pcSubStr, pUpToNChars)
+		def FirstAndLastBoundsOfXT(pcSubStr, n1, n2)
+			return This.SubStringBoundsXT(pcSubStr, n1, n2)
 
-			def FirstAndLastBoundsOfXTQ(pcSubStr, pUpToNChars)
-				return This.BoundsOfXTQ(pcSubStr, pUpToNChars)
+			def FirstAndLastBoundsOfXTQ(pcSubStr, n1, n2)
+				return This.BoundsOfXTQ(pcSubStr, n1, n2)
 
-			def FirstAndLastBoundsOfXTQR(pcSubStr, pUpToNChars, pcReturnType)
-				return This.SubStringBoundsXTQR(pcSubStr, pUpToNChars, pcReturnType)
+			def FirstAndLastBoundsOfXTQR(pcSubStr, n1, n2, pcReturnType)
+				return This.SubStringBoundsXTQR(pcSubStr, n1, n2, pcReturnType)
 
-		def FirstAndSecondBoundsOfXT(pcSubStr, pUpToNChars)
-			return This.SubStringBoundsXT(pcSubStr, pUpToNChars)
+		def FirstAndSecondBoundsOfXT(pcSubStr, n1, n2)
+			return This.SubStringBoundsXT(pcSubStr, n1, n2)
 
-			def FirstAndSecondBoundsOfXTQ(pcSubStr, pUpToNChars)
-				return This.BoundsOfXTQ(pcSubStr, pUpToNChars)
+			def FirstAndSecondBoundsOfXTQ(pcSubStr, n1, n2)
+				return This.BoundsOfXTQ(pcSubStr, n1, n2)
 
-			def FirstAndSecondBoundsOfXTQR(pcSubStr, pUpToNChars, pcReturnType)
-				return This.SubStringBoundsXTQR(pcSubStr, pUpToNChars, pcReturnType)
+			def FirstAndSecondBoundsOfXTQR(pcSubStr, n1, n2, pcReturnType)
+				return This.SubStringBoundsXTQR(pcSubStr, n1, n2, pcReturnType)
 
 		#>
 
@@ -36391,8 +36419,7 @@ class stzString from stzObject
 	def FindAntiSections(paSections)
 
 		aResult = StzListQ( 1 : This.NumberOfChars() ).
-			  FindAntiSectionsQ(paSections).
-			  Content()
+			  FindAntiSections(paSections)
 
 		return aResult
 
@@ -36414,7 +36441,7 @@ class stzString from stzObject
 		#--> [ "AB", "F", "IJ" ]
 		*/
 
-		aResult = This.Sections( This.AntiSectionsAsPairsOfNumbers(paSections) )
+		aResult = This.Sections( This.FindAntiSectionsZZ(paSections) )
 
 		return aResult
 
@@ -85690,7 +85717,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
-		aAntiSections = This.AntiSectionsAsPairsOfNumbers(paSections)
+		aAntiSections = This.AntiSectionsZZ(paSections)
 		nLen = len(aAntiSections)
 
 		for i = nLen to 1 step -1

@@ -7127,7 +7127,7 @@ proff()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString("...♥^♥.|.♥^♥...")
@@ -7190,18 +7190,18 @@ proff()
 # Executed in 0.07 second(s) in Ring 1.18
 
 /*================
-*/
+
 pron()
 
 o1 = new stzString("...ONE...TWO...ONE")
 ? @@( o1.FindSubstringsWXT('{ @SubString = "ONE" or @SubString = "TWO" }') )
 #--> [ 4, 10, 16 ]
 
-? @@( o1.FindSubstringsAsSectionsWXT('{ @SubString = "ONE" or @SubString = "TWO" }') )
+? @@( o1.FindSubstringsWXTZZ('{ @SubString = "ONE" or @SubString = "TWO" }') )
 #--> [ [ 4, 6 ], [ 10, 12 ], [ 16, 18 ] ]
 
 proff()
-# Executed in 1.14 second(s) in Ring 1.21
+# Executed in 1.42 second(s) in Ring 1.21
 # Executed in 3.91 second(s) in Ring 1.18
 
 /*-----------------
@@ -7210,14 +7210,15 @@ pron()
 
 o1 = new stzString("...♥♥...♥♥...")
 
-? @@( o1.FindSubStringsW('{ @SubString = "♥♥" }') )
+? @@( o1.FindSubStringsWXT('{ @SubString = "♥♥" }') )
 #--> [ 4, 9 ]
 
-? @@( o1.FindSubStringsAsSectionsW('{ @SubString = "♥♥" }') )
+? @@( o1.FindSubStringsWXTZZ('{ @SubString = "♥♥" }') )
 #--> [ [ 4, 5 ], [ 9, 10 ] ]
 
 proff()
-# Executed in 3.79 second(s)
+# Executed in 0.77 second(s) in Ring 1.21
+# Executed in 3.79 second(s) in Ring 1.18
 
 #-----------
 
@@ -7232,7 +7233,8 @@ o1 = new stzString("..ONE..TWO..ONE..")
 #--> 120
 
 proff()
-# Executed in 0.28 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.28 second(s) in Ring 1.17
 
 #---------
 
@@ -7265,7 +7267,8 @@ o1 = new stzString("ABA")
 # ]
 
 proff()
-# Executed in 0.19 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.19 second(s) in Ring 1.17
 
 #========
 
@@ -7275,39 +7278,26 @@ pron()
 #--> TRUE
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.21
 
 #=======
-
+*/
 pron()
 
-o1 = new stzString("<<word>> and __word__")
-? @@( o1.BoundsXT( :Of = "word", :UpToNChars = 2 ) )
-#--> [ [ "<<", ">>" ], [ "__", "__" ] ]
+o1 = new stzString(" <<<<word>>> and ~~~~word~~~~~ ")
+
+? @@( o1.BoundsOf( "word") )
+#--> [ "<<<<", ">>>", "~~~~", "~~~~~" ]
+
+? @@( o1.BoundsOfXT( "word", 3, 2  ) )
+#--> [ "<<<", ">>", "~~~", "~~" ]
+
+? @@( o1.BoundsOfXT( "word", 8, 8 ) )
+#--> [ "<<<<", ">>>", "~~~~", "~~~~~" ]
 
 proff()
-# Executed in 0.11 second(s)
-	
-#-------
-
-pron()
-	
-o1 = new stzString("<<word>> and __word__")
-? @@( o1.BoundsXT( :Of = "word", :UpToNChars = [ 2, 2 ]  ) )
-#--> [ [ "<<", ">>" ], [ "__", "__" ] ]
-
-proff()
-# Executed in 0.11 second(s)
-		
-#-------
-
-pron()
-
-o1 = new stzString("<<word>>> and  _word__")
-? @@( o1.BoundsXT( :Of = "word", :UpToNChars = [ [ 2, 3 ], [ 1, 2 ] ]  ) )
-#--> [ [ "<<", ">>>" ], [ "_", "__" ] ]
-
-proff()
-# Executed in 0.09 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.11 second(s) in Ring 1.17
 
 /*--------------
 

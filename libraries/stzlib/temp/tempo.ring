@@ -1,5 +1,5 @@
 
-load "../stzlib.ring"
+load "../max/stzmax.ring"
 
 /*----------- #narration Conditional Code()
 
@@ -3653,7 +3653,7 @@ o1.RemoveSection(1, 3)
 proff()
 # Executed in 0.05 second(s)
 
-/*--------- #narration
+/*===== #narration
 
 pron()
 
@@ -3685,7 +3685,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*--------
-
+*/
 pron()
 
 o1 = new stzString("<<<word>>>")
@@ -3749,6 +3749,10 @@ proff()
 pron()
 
 o1 = new stzString("[word] <word> (word)")
+
+? @@( o1.BoundsOf("word") )
+#--> [ "[", "]", "<", ">", "(", ")" ]
+
 o1.RemoveBoundsOf("word")
 ? o1.Content()
 #--> word word word
