@@ -928,7 +928,7 @@ o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
 
 # In our case, the function you’d need is this one:
 
-? o1.BoundsOfXT("Ring", :UpToNChars = 2) # You will understand the XT() usage in a moment ;)
+? o1.BoundsOfXT("Ring", 2, 2) # You will understand the XT() usage in a moment ;)
 #--> [ [ "<<", ">>" ], [ "((", "))" ] ]
 
 # This is what you should use when you don’t want all the bounding substrings returned
@@ -944,7 +944,7 @@ o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
 # of characters in the bound.
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*===
 
@@ -7281,6 +7281,55 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 #=======
+
+pron()
+
+o1 = new stzString("<<<word>>>")
+
+? o1.Bounds()
+#--> [ "<<<", ">>>" ]
+
+? o1.BoundsXT(:UpToNChars = 2)
+#--> [ "<<", ">>" ]
+
+? o1.BoundsXT([ 1, 2 ])
+#--> [ "<", ">>" ]
+
+
+? o1.BoundsUpToNChars(2)
+#--> [ "<<", ">>" ]
+
+? o1.BoundsUpToNChars([ 1, 2 ])
+#--> [ "<", ">>" ]
+
+proff()
+# Executed in 0.04 second(s) in Ring 1.21
+
+/*-----
+
+pron()
+
+o1 = new stzString("<<<word>>>")
+
+? o1.BoundsOf("word")
+#--> [ "<<<", ">>>" ]
+
+? o1.BoundsOfXT("word", :UpToNChars = 2)
+#--> [ "<<", ">>" ]
+
+? o1.BoundsOfXT("word", [ 1, 2 ])
+#--> [ "<", ">>" ]
+
+? o1.BoundsOfUpToNChars("word", 2)
+#--> [ "<<", ">>" ]
+
+? o1.BoundsOfUpToNChars("word", [ 1, 2 ])
+#--> [ "<", ">>" ]
+
+proff()
+# Executed in 0.03 second(s) in Ring 1.21
+
+/*------
 */
 pron()
 
@@ -7289,10 +7338,10 @@ o1 = new stzString(" <<<<word>>> and ~~~~word~~~~~ ")
 ? @@( o1.BoundsOf( "word") )
 #--> [ "<<<<", ">>>", "~~~~", "~~~~~" ]
 
-? @@( o1.BoundsOfXT( "word", 3, 2  ) )
+? @@( o1.BoundsOfXT( "word", [ 3, 2 ] ) )
 #--> [ "<<<", ">>", "~~~", "~~" ]
 
-? @@( o1.BoundsOfXT( "word", 8, 8 ) )
+? @@( o1.BoundsOfXT( "word", 8 ) )
 #--> [ "<<<<", ">>>", "~~~~", "~~~~~" ]
 
 proff()
@@ -7303,17 +7352,40 @@ proff()
 
 pron()
 
-? Q(:IsBoundedBy = ".").IsISBoundedByNamedParam()
+? Q(".. ♥♥ring♥♥ ..").SubStringXT("♥♥", :IsBoundOf = "ring")
+#--> TRUE
+
+? Q(".. <<ring>> ..").SubStringXT("<<", :IsFirstBoundOf = "ring")
+#--> TRUE
+
+? Q(".. <<ring>> ..").SubStringXT(">>", :IsLastBoundOf = "ring")
+#--> TRUE
+
+? Q(".. <<ring>> ..").SubStringXT("<<", :IsLeftBoundOf = "ring")
+#--> TRUE
+
+? Q(".. <<ring>> ..").SubStringXT(">>", :IsRightBoundOf = "ring")
+#--> TRUE
+
+proff()
+# Executed in 0.04 second(s) in Ring 1.21
+
+/*--------------
+
+pron()
+
+? Q(:IsBoundedBy = ".").IsIsBoundedByNamedParam()
 #--> TRUE
 
 ? Q(".♥.").SubStringIsBoundedBy("♥", ".")
 #--> TRUE
 
-? Q(".♥.").SubString("♥", :IsBoundedBy = ".")
+? Q(".♥.").SubStringXT("♥", :IsBoundedBy = ".")
 #--> TRUE
 
 proff()
-# Executed in 0.17 second(s)
+# Executed in 0.08 second(s) in Ring 1.21
+# Executed in 0.17 second(s) in Ring 1.18
 
 /*========================
 
