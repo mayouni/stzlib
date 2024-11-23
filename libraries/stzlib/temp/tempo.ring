@@ -3654,7 +3654,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*===== #narration
-
+*/
 pron()
 
 # Each string is bounded by default by its first and last chars
@@ -3685,7 +3685,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*--------
-*/
+
 pron()
 
 o1 = new stzString("<<<word>>>")
@@ -3694,16 +3694,47 @@ o1.RemoveTheseBounds("***", "***") # Nothing happens
 ? o1.Content()
 #--> <<<word>>>
 
-o1.RemoveTheseBounds("<<<", "***") # Remove only the first bound
+o1.RemoveTheseBounds("<<<", "***") # Nothing happens
 ? o1.Content()
-#--> word>>>
+#--> <<<word>>>
 
-o1.RemoveBounds() # First and last chars are considered the bounds ~> removed
+o1.RemoveBounds()
 ? o1.Content()
-#--> ord>>
+#--> word
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.06 second(s) in Ring 1.21
+
+/*--------
+*/
+pron()
+
+o1 = new stzString("ring")
+? o1.Bounds()
+#--> [ "r", "g" ]
+
+#--
+
+o1 = new stzString("rringgg")
+? o1.Bounds()
+#--> [ "rr", "ggg" ]
+
+o1.RemoveBounds()
+? o1.Content() + NL
+#--> "in"
+
+#--
+
+o1 = new stzString("rrRingGG")
+? o1.Bounds()
+#--> [ "rr", "GG" ]
+
+o1.RemoveBounds()
+? o1.Content()
+#--> "Ring"
+
+proff()
+# Executed in 0.07 second(s) in Ring 1.21
 
 /*--------
 
@@ -3715,19 +3746,19 @@ o1.RemoveFirstBound()
 #--> word>>>
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*--------
 
 pron()
 
 o1 = new stzString("<<<word>>>")
-o1.RemoveLastBound() # Or o1.RemovesecondBound()
+o1.RemoveLastBound() # Or o1.RemoveSecondBound()
 ? o1.Content()
 #--> <<<word
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*--------
 
@@ -3742,7 +3773,7 @@ o1 = new stzString("<<<word>>> <<word>> <word>")
 #--> [ ">>>", ">>", ">" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s) in Ring 1.21s
 
 /*------
 
@@ -3758,7 +3789,7 @@ o1.RemoveBoundsOf("word")
 #--> word word word
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.05 second(s) in Ring 1.21
 
 /*------
 
@@ -3770,10 +3801,10 @@ o1.RemoveBoundsOf("word")
 #--> word word word
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.06 second(s) in Ring 1.21
 
 /*---------
-
+*/
 pron()
 
 o1 = new stzString("<<<word>>> <<word>> <word>")
@@ -3787,7 +3818,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*---------
-
+*/
 pron()
 
 o1 = new stzString("<<<word>>> <<word>> <word>")
@@ -3797,7 +3828,7 @@ o1.RemoveLastBounds(:Of = "word") # Or o1.RemoveRightBounds(:Of = "word")
 #--> <<<word <<word <word
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.05 second(s) in Ring 1.21
 
 /*========= SWAPPING TWO SECTIONS
 

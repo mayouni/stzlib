@@ -1,5 +1,4 @@
 
-
 #===========================================#
 #   CHECKING IF THE LIST IS A NAMED PARAM   #
 #===========================================#
@@ -13659,6 +13658,72 @@ func IsEndOfSentenceNamedParam(paList)
 	if isList(paList) and len(paList) = 2 and
 	   isString(paList[1]) and
 	   paList[1] = :EndOfSentence
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+def IsUpToNBoundsNamedParam()
+	if This.NumberOfItems() = 2 and
+	   isString(This.Item(1)) and
+	   This.Item(1) = :UpToNBounds
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+def IsIsBoundOfNamedParam()
+	if This.NumberOfItems() = 2 and
+	   isString(This.Item(1)) and
+	   This.Item(1) = :IsBoundOf
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+def IsIsFirstBoundOfNamedParam()
+	if This.NumberOfItems() = 2 and
+	   isString(This.Item(1)) and
+	   This.Item(1) = :IsFirstBoundOf
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+def IsIsLastBoundOfNamedParam()
+	if This.NumberOfItems() = 2 and
+	   isString(This.Item(1)) and
+	   This.Item(1) = :IsLastBoundOf
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+def IsIsLeftBoundOfNamedParam()
+	if This.NumberOfItems() = 2 and
+	   isString(This.Item(1)) and
+	   This.Item(1) = :IsLeftBoundOf
+
+		return TRUE
+
+	else
+		return FALSE
+	ok
+
+def IsIsRightBoundOfNamedParam()
+	if This.NumberOfItems() = 2 and
+	   isString(This.Item(1)) and
+	   This.Item(1) = :IsRightBoundOf
 
 		return TRUE
 

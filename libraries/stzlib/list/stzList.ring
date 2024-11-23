@@ -82544,3 +82544,77 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+#~~~~~~~~
+
+	def IsUpToNBoundsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :UpToNBounds
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsIsBoundOfNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :IsBoundOf
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsIsFirstBoundOfNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :IsFirstBoundOf
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsIsLastBoundOfNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :IsLastBoundOf
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsIsLeftBoundOfNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :IsLeftBoundOf
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsIsRightBoundOfNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :IsRightBoundOf
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+#WARNING: All the Is...NamedParam() functions will be moved
+# to the dedicated stzNamedParams.ring file.
+
+#~> Once this migration is complete, stzList.ring will be
+# cleaned up and these functions will be removed.  
