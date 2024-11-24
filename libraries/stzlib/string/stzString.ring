@@ -42084,6 +42084,48 @@ class stzString from stzObject
 		def MadeOf(pcSubStr)
 			return This.SubStringsMadeOf(pcSubStr)
 
+	  #-------------------------------------------------------------#
+	 #  SUBSTRINGS MADE OF A GIVEN OTHER SUBSTRING -- ZZ/EXTENDED  #
+	#-------------------------------------------------------------#
+	
+	def SubStringsMadeOfCSZZ(pcSubStr, pCaseSensitive)
+	
+		aSections = This.FindSubStringsMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		aResult = @Association([ This.Sections(aSections), aSections ])
+		
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def MadeOfCSZZ(pcSubStr, pCaseSensitive)
+			return This.SubStringsMadeOfCSZZ(pcSubStr, pCaseSensitive)
+
+		def SubStringsMadeOfAndTheirSectionsCS(pcSubStr, pCaseSensitive)
+			return This.SubStringsMadeOfCSZZ(pcSubStr, pCaseSensitive)
+
+		def MadeOfAndTheirSectionsCS(pcSubStr, pCaseSensitive)
+			return This.SubStringsMadeOfCSZZ(pcSubStr, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+	
+	def SubStringsMadeOfZZ(pcSubStr)
+		return This.SubStringsMadeOfCSZZ(pcSubStr, TRUE)
+	
+		#< @FunctionAlternativeForms
+
+		def MadeOfZZ(pcSubStr)
+			return This.SubStringsMadeOfZZ(pcSubStr)
+
+		def SubStringsMadeOfAndTheirSections(pcSubStr)
+			return This.SubStringsMadeOfZZ(pcSubStr)
+
+		def MadeOfAndTheirSections(pcSubStr)
+			return This.SubStringsMadeOfCSZZ(pcSubStr)
+
+		#>
+
 	  #==============================================#
 	 #  SUBSTRINGS MADE OF A GIVEN OTHER SUBSTRING  #
 	#==============================================#
