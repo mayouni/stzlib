@@ -42260,6 +42260,23 @@ class stzString from stzObject
 
 		*/
 
+		# Checking param type
+
+		if NOT isString(pcSubStr)
+			StzRaise("Incorrect param type! pcSubStr must be a string.")
+		ok
+
+		# preparing the list of chars
+
+		bCase = CaseSensitive(pCaseSensitive)
+		if bCase = TRUE
+			acChars = This.Chars()
+
+		else
+			acChars = This.CharsQ().Lowercased()
+			pcSubStr = lower(pcSubStr)
+		ok
+
 		# Preparing some values we need
 
 		nLenStr = This.NumberOfChars()
@@ -42274,9 +42291,11 @@ class stzString from stzObject
 		aResult = []
 		
 		# For each position
+
 		for i = 1 to nLenPos
 
 			# we start parsing the string from that position
+
 			n = anPos[i]
 			nNext = 0
 			if i < nLenPos
@@ -42293,17 +42312,17 @@ class stzString from stzObject
 				   (nNext != 0 and n >= nNext)
 					exit
 				ok
-		
-				if NOT This.CharQ(n).IsEqualToCS(cFirstChar, pCaseSensitive)
+
+				if NOT acChars[n] = cFirstChar
 					aTempSection = [ anPos[i], (n-1) ]
 
 					if len(aResult) > 0 and
 					   anPos[i] = aResult[len(aResult)][1]
 
-						aResult[len(aResult)][2] = (n-1)
+						aResult[len(aResult)][2] = (n-3)
 
 					else
-						aResult + [ anPos[i], (n-1) ]
+						aResult + [ anPos[i], (n-3) ]
 					ok
 				ok
 
