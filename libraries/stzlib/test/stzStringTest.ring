@@ -8173,7 +8173,6 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*================== 
-*/
 
 StartProfiler()
 #                      4   8 01  4 6 89  23
@@ -8208,7 +8207,8 @@ o1 = new stzSplitter(8)
 #--> [ [ 1, 2 ], [ 4, 4 ], [ 6, 8 ] ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.07 second(s) in Ring 1.20
 
 /*--------
 
@@ -8219,23 +8219,26 @@ o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
 #--> [4, 7]
 # Executed in 0.05 second(s)
 
-? @@( o1.SplitAtPositions([ 4, 7]) )
+o1.SplitAtPositions([ 4, 7])
+? @@( o1.Content() )
 #--> [ [ 4, 8, 10 ], [ 14, 16 ], [ 18 ] ]
-# Executed in 0.03 second(s)
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.08 second(s) in Ring 1.21
 
 /*--------
 
 pron()
 
 o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
-? @@( o1.SplitW('This[@i] = "*"') )
+
+o1.SplitW('This[@i] = "*"')
+
+? @@( o1.Content() )
 # [ [ 4, 8, 10 ], [ 14, 16 ], [ 18 ] ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.07 second(s) in Ring 1.21
 
 /*--------
 
@@ -8255,7 +8258,7 @@ proff()
 # Executed in 0.44 second(s) in Ring 1.17
 
 /*--------
-*/
+
 pron()
 
 o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
@@ -8269,18 +8272,21 @@ proff()
 # Executed in 0.09 second(s) in Ring 1.21
 
 /*==============
+*/
+pron()
 
 o1 = new stzString("..._...__...___...")
 ? @@( o1.FindALL("_") )
 #--> [ 4, 8, 9, 13, 14, 15 ]
 
-? @@( o1.FindSubstringsMadeOf("_") )
+? @@( o1.FindSubstringsMadeOfZZ("_") )
 #--> [ 4, 8, 13 ]
 
 ? o1.SubStringsMadeOf("_")
 #--> [ "_", "__", "___" ]
 
-STOP()
+proff()
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*-----------------
 
