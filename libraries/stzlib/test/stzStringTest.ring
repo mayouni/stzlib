@@ -8170,22 +8170,25 @@ o1 = new stzString("...456...")
 #--> [ "4", "5", "6" ]
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*================== 
+*/
 
 StartProfiler()
 #                      4   8 01  4 6 89  23
 o1 = new stzString("...12..1212..121212..12.")
-? @@( o1.FindMadeOf("12") )
+
+? @@( o1.FindMadeOf("12") ) + NL
 #--> [ 4, 8, 10, 14, 16, 18 ]
 
-? @@( o1.FindMadeOfAsSections("12") )
+? @@( o1.FindMadeOfZZ("12") ) + NL # Or FindMadeOfAsSections
 #--> [ [ 4, 5 ], [ 8, 11 ], [ 14, 19 ], [ 22, 23 ] ]
 
-? @@( o1.SubStringsMadeOf("12") )
+? @@( o1.SubStringsMadeOf("12") ) + NL
 #--> [ "12", "1212", "121212", "12" ]
 
-? @@( o1.SubStringsMadeOfXT("12") )
+? @@NL( o1.SubStringsMadeOfZZ("12") )
 #--> [
 #	[ "12", [ 4, 5 ] ],
 #	[ "1212", [ 8, 11 ] ],
@@ -8194,6 +8197,7 @@ o1 = new stzString("...12..1212..121212..12.")
 # ]
 
 StopProfiler()
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*=============
 
