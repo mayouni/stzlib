@@ -2300,6 +2300,7 @@ class stzString from stzObject
 		if isString(n) and n = :String
 
 			if isList(pWith)
+				oWith = new stzList(pWith)
 
 				# Case 1: o1.ExtendXT( :String, :With = "DE")
 				if oWith.IsWithOrByOrUsingNamedParam()
@@ -13399,7 +13400,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtOrStartingAtPositionNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -13423,7 +13424,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		acResult = This.SectionQ(pnStartingAt, pnStartingAt + n - 1).Chars()
+		acResult = This.SectionQ(pnStartingAt+1, pnStartingAt + n).Chars()
 		return acResult
 
 		#< @FunctionFluentForm
@@ -13522,7 +13523,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
-			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtOrStartingAtPositionNamedParam()
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
@@ -13546,7 +13547,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		acResult = This.SectionQ(pnStartingAt - n + 1, pnStartingAt).Chars()
+		acResult = This.SectionQ(pnStartingAt - n, pnStartingAt-1).Chars()
 
 		return acResult
 
@@ -36647,10 +36648,17 @@ class stzString from stzObject
 
 		return aResult
 
+
+		def FindAntiSectionsQ(paSections)
+			return new stzList(This.FindAntiSections(paSections))
+
 		#< @FunctionAlternativeForms
 
 		def FindAntiSectionsZZ(paSections)
 			return This.FindAntiSections(paSections)
+
+			def FindAntiSectionsZZQ(paSections)
+				return This.FindAntiSectionsQ(paSections)
 
 		#>
 
@@ -49076,7 +49084,21 @@ class stzString from stzObject
 		*/
 
 		if CheckParams()
-			if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
+
+			if NOT isList(pacSubStr)
+				StzRaise("Incorrect param type! pacSubStr must be a list.")
+			ok
+
+			nLen = len(pacSubStr)
+			lastItem = pacSubStr[nLen]
+
+			if isList(lastItem) and
+			   isString(latItem[1]) and lastItem[1] = :And
+
+				pacSubStr[nLen] = lastItem[2]
+			ok
+
+			if NOT IsListOfStrings(pacSubStr)
 				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 			ok
 		ok
@@ -49196,8 +49218,24 @@ class stzString from stzObject
 
 	def FindManyAsSectionsCS(pacSubStr, pCaseSensitive)
 
-		if NOT ( isList(pacSubStr) and @IsListOfStrings(pacSubStr) )
-			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+		if CheckParams()
+
+			if NOT isList(pacSubStr)
+				StzRaise("Incorrect param type! pacSubStr must be a list.")
+			ok
+
+			nLen = len(pacSubStr)
+			lastItem = pacSubStr[nLen]
+
+			if isList(lastItem) and
+			   isString(lastItem[1]) and lastItem[1] = :And
+
+				pacSubStr[nLen] = lastItem[2]
+			ok
+
+			if NOT IsListOfStrings(pacSubStr)
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
 		ok
 
 		pacSubStr = U( pacSubStr )
@@ -54376,460 +54414,243 @@ class stzString from stzObject
 	  #---------------------------------------#
 	 #   CHECKING CONATAINMENT -- EXTENDED   #
 	#---------------------------------------#
-	#TODO // Optimise the code hierarchy for all simular XT() functions
+	#NOTE // This code was so complex before I used ClaudeAI to reorganize it.
+	#TODO // Do the same wit other simular functions FindXT, ReplaceXT, RemoveXT...
+
+	#TODO // Add the same function to stzList
 
 	def ContainsCSXT(p1, p2, pCaseSensitive)
-
-		#=== GENERAL
-
 		oP1 = Q(p1)
 		oP2 = Q(p2)
-
-		# ? Q("").ContainsXT(:Chars, []) #--> FALSE
+	
+		#=== EMPTY STRING AND BASIC CASES ===
+		
+		# Empty string cases
+	
 		if This.String() = "" and isString(p1) = :Chars and
 		   (  (isList(p2)   and len(p2) = 0) or
 		      (isString(p2) and p2 = ""    ) or
 		      (isNumber(p2) and p2 = 0     )    )
-
+	
 			return FALSE
-
-		# ? Q("").ContainsXT([], :Chars) #--> FALSE
-		but ( (isList(p1)   and len(p1) = 0) or
-		      (isString(p1) and p1 = ""    ) or
-		      (isNumber(p1) and p1 = 0     )    ) and
-
-		    isString(p2) and p2 = :Chars
-
-			return FALSE
-
-		# ? Q("__♥__").ContainsXT("♥", "_")
-		but isString(p1) and isString(p2) and
-		    NOT ring_find([
-			:CharsW, :CharsWhere, :SubStringsW, :SubStringsWhere
-			], p1) > 0
-
-			return This.ContainsTheseCS([p1, p2], pCaseSensitive)
-		
-		# ? Q("__♥__").ContainsXT("♥", "_")
-		but isString(p1) and isList(p2) and oP2.IsPairOfStrings() and p2[1] = :And
-
-			return This.ContainsTheseCS([p1, p2[2]], pCaseSensitive)
-
-		# ? Q("__♥__♥__").ContainsXT(2, "♥")
-		but isNumber(p1) and isString(p2)
-			return This.ContainsNOccurrencesCS(p1, p2, pCaseSensitive)
-		
-		# ? Q("__♥__♥__").ContainsXT( :Exactly = 2, "♥" )
-		but isList(p1) and oP1.IsExactlyNamedParam()
-			return This.ContainsNOccurrencesCS(p1[2], p2, pCaseSensitive)
-
-		# ? Q("__♥__♥__").ContainsXT( :MoreThen = 1, "♥")
-		but isList(p1) and pP1.IsMoreThenNamedParam()
-			return This.ContainsMoreThenNOccurrencesCS(p1[2], p2, pCaseSensitive)
-
-		# ? Q("__♥__♥__").ContainsXT( :LessThen = 3, "♥")
-		but isList(p1) and oP1.IsLessThenNamedParam()
-			return This.ContainsLessThenNOccurrencesCS(p1[2], p2, pCaseSensitive)
-
-		# ? Q("__♥__").ContainsXT("♥", [])
-		but isString(p1) and isList(p2) and len(p2) = 0 and
-			NOT Q(p2).IsWhereNamedParam()
-
-			return This.ContainsCS(p1, pCaseSensitive)
-
-		# ? Q("_-♥-_").ContainsXT("♥", :BoundedBy = "-")
-		# ? Q("_-♥-_").ContainsXT(:SubString = "♥", :BoundedBy = "-")
-		but ( isString(p1) or
-		      ( isList(p1) and oP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
-		    isList(p2) and pP2.IsBoundedByNamedParam()
-
-			if isList(p1) and oP1.IsSubStringNamedParam()
-				p1 = p1[2]
-			ok
-
-			return This.ContainsSubStringBoundedByCS(p1, p2[2], pCaseSensitive)
-
-		# ? Q("_-♥-_").ContainsXT("♥", :BoundedByIB = "-")
-		# ? Q("_-♥-_").ContainsXT(:SubString = "♥", :BoundedByIB = "-")
-		but ( isString(p1) or
-		      ( isList(p1) and oP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
-		    isList(p2) and pP2.IsBoundedByIBNamedParam()
-
-			if isList(p1) and oP1.IsSubStringNamedParam()
-				p1 = p1[2]
-			ok
-
-			return This.ContainsSubStringBoundedByCSIB(p1, p2[2], pCaseSensitive)
-
-		
-		but isString(p1) and isList(p2)
-
-			# ? Q("_/♥\_").ContainsXT("♥", :Between = ["/", :And = "\"])
-
-			if oP2.IsBetweenNamedParam()
-
-				if Q(p2[2][2]).IsAndNamedParam()
-					aTemp = []
-					aTemp + p2[2][1] + p2[2][2][2]
-					p2[2] = aTemp
-				ok
-	
-				oP22 = Q(p2[2])
-
-				if oP22.isListOfStrings()
-					return This.ContainsSubStringBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
-	
-				but oP22.isListOfNumbers()
-					return This.ContainsSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
-	
-				ok
-
-			# ? Q("_/♥\_").ContainsXT("♥", :BetweenIB = ["/", :And = "\"])
-
-			but oP2.IsBetweenIBNamedParam()
-
-				if Q(p2[2][2]).IsAndNamedParam()
-					aTemp = []
-					aTemp + p2[2][1] + p2[2][2][2]
-					p2[2] = aTemp
-				ok
-	
-				oP22 = Q(p2[2])
-
-				if oP22.isListOfStrings()
-					return This.ContainsSubStringBetweenCSIB(p1, p2[2][1], p2[2][2], pCaseSensitive)
-	
-				but oP22.isListOfNumbers()
-					return This.ContainsSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
-	
-				ok
-
-			but oP2.IsInSectionNamedParam() and
-		    	   isList(p2[2]) and Q(p2[2]).IsPairOfNumbers()
-
-				return This.containsInSectionCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
-
-			but oP2.IsBetweenSubStringsNamedParam()
-
-				if Q(p2[2]).IsAndNamedParam()
-					p2[2] = p2[2][2]
-				ok
-	
-				return This.ContainsSubStringBetweenCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
-			
-			but oP2.IsBetweenIBSubStringsNamedParam()
-
-				if Q(p2[2]).IsAndNamedParam()
-					p2[2] = p2[2][2]
-				ok
-	
-				return This.ContainsSubStringBetweenCSIB(p1, p2[2][1], p2[2][2], pCaseSensitive)
-
-			but oP2.IsBetweenPositionsNamedParam()
-				if Q(p2[2]).IsAndNamedParam()
-					p2[2] = p2[2][2]
-				ok
-	
-				return This.ContainsSubStringBetweenPositionsCS(p1, p2[2][1], p2[2][2], pCaseSensitive)
-	
-			ok
-		
-		# ? Q("__-♥-__").ContainsXT(["_", "-", "♥"], [])
-
-		but isList(p1) and @IsListOfStrings(p1) and isList(p2) and len(p2) = 0
-			return This.ContainsTheseCS(p1, pCaseSensitive)
-		
-		# ? Q("__-♥-__-•-__").ContainsXT(["♥", "•"], :BoundedBy = "-")
-
-		but isList(p1) and @IsListOfStrings(p1) and isList(p2)
-
-			if oP2.IsBoundedByNamedParam()
-				bResult = TRUE
-			
-				nLen = len(p1)
-				for i = 1 to nLen
-					if NOT This.ContainsSubStringBoundedByCS(p1[i], p2[2], pCaseSensitive)
-						bResult = FALSE
-						exit
-					ok
-				next
-			
-				return bResult
-
-			but oP2.IsBoundedByIBNamedParam()
-				bResult = TRUE
-			
-				nLen = len(p1)
-				for i = 1 to nLen
-					if NOT This.ContainsSubStringBoundedByCSIB(p1[i], p2[2], pCaseSensitive)
-						bResult = FALSE
-						exit
-					ok
-				next
-			
-				return bResult
-			ok
-
-		# ? Q("__/♥\__/•\__").ContainsXT(["♥", "•"], :Between = ["/","\"])
-
-		but isList(p1) and oP1.IsListOfStrings() and isList(p2)
-
-			if oP2.IsBetweenNamedParam()
-				if Q(p2[2][2]).IsAndNamedParam()
-					p2[2][2] = p2[2][2][2]
-				ok
-			
-				bResult = TRUE
-			
-				nLen = len(p1)
-				for i = 1 to nLen
-					if NOT This.ContainsSubStringBetweenCS(p1[1], p2[2][1], p2[2][2], pCaseSensitive)
-						bResult = FALSE
-						exit
-					ok
-				next
-			
-				return bResult
-		
-			but oP2.IsBetweenIBNamedParam()
-				if Q(p2[2][2]).IsAndNamedParam()
-					p2[2][2] = p2[2][2][2]
-				ok
-			
-				bResult = TRUE
-			
-				nLen = len(p1)
-				for i = 1 to nLen
-					if NOT This.ContainsSubStringBetweenCSIB(p1[1], p2[2][1], p2[2][2], pCaseSensitive)
-						bResult = FALSE
-						exit
-					ok
-				next
-			
-				return bResult
-			ok
-
-		# ? Q("__♥__").ContainsXT([], "♥")
-
-		but isList(p1) and len(p1) = 0 and isString(p2)
-			return This.ContainsCS(p2, pCaseSensitive)
-		
-		# ? Q("__♥__♥__").ContainsXT( [], :BoundedBy = ["/","\"] )
-
-		but isList(p1) and len(p1) = 0 and isList(p2)
-
-			if oP2.IsBoundedByNamedParam()
-				return This.ContainsSubStringsBoundedByCS(p2[2], pCaseSensitive)
-
-			but oP2.IsBoundedByIBNamedParam()
-				return This.ContainsSubStringsBoundedByCSIB(p2[2], pCaseSensitive)
-			ok
-
-		# ? Q("__/♥\__/^^\__").ContainsXT( [], :Between = ["/","\"] )
-
-		but isList(p1) and len(p1) = 0 and isList(p2)
-
-			if oP2.IsBetweenNamedParam()
-				if Q(p2[2]).IsAndNamedParam()
-					p2[2] = p2[2][2]
-				ok
-			
-				return This.ContainsSubStringsBetweenCS(p2[2][1], p2[2][2], pCaseSensitive)
-
-			but oP2.IsBetweenIBNamedParam()
-				if Q(p2[2]).IsAndNamedParam()
-					p2[2] = p2[2][2]
-				ok
-			
-				return This.ContainsSubStringsBetweenCSIB(p2[2][1], p2[2][2], pCaseSensitive)
-			ok
-
-		#=== CHARS
-
-		# ? Q("__-♥-__").ContainsXT(:Chars, ["_", "-", "_"])
-		# ? Q("__-♥-__").ContainsXT(:TheseChars, ["_", "-", "_"])
-		but isString(p1) and (p1 = :Chars or p1 = :TheseChars) and
-		    isList(p2) and oP2.IsListOfChars()
-
-			return This.ContainsTheseSubStrings(p2)
-
-		# ? Q("__-♥-__").ContainsXT(:SomeOfTheseChars, ["_", "-", "_"])
-		but isString(p1) and p1 = :SomeOfTheseChars and
-		    isList(p2) and oP2.IsListOfChars()
-
-			return This.ContainsSomeOfTheseSubStrings(p2)
-
-		# ? Q("__-♥-__").ContainsXT(:OneOfTheseChars, ["_", "-", "_"])
-		but isString(p1) and p1 = :OneOfTheseChars and
-		    isList(p2) and oP2.IsListOfChars()
-
-			return This.ContainsOneOfTheseSubStrings(p2)
-
-		# ? Q("__-♥-__").ContainsXT(:NoneOfTheseChars, ["A", "*", "B"])
-		but isString(p1) and p1 = :NoneOfTheseChars and
-		    isList(p2) and oP2.IsListOfChars()
-
-			return This.ContainsNoneOfTheseSubStrings(p2)
-
-		# ? Q("__---__").ContainsXT(:CharsWhere, 'Q(This[@i]).IsEither("_", :Or = "-")')
-		# ? Q("__---__").ContainsXT(:CharsW, 'Q(This[@i]).IsEither("_", :Or = "-")')
-		but isString(p1) and (p1 = :CharsWhere or p1 = :CharsW) and isString(p2)
-			return This.ContainsCharsWXT(p2)
-		
-		# ? Q("__---__").ContainsXT(:Chars, :Where = 'Q(This[@i]).IsEither("_", :Or = "-")')
-		# ? Q("__---__").ContainsXT(:Chars, Where('Q(This[@i]).IsEither("_", :Or = "-")'))
-		# ? Q("__---__").ContainsXT(:Chars, W('Q(This[@i]).IsEither("_", :Or = "-")'))
-		but isString(p1) and p1 = :Chars and
-		    isList(p2) and oP2.IsPairOfStrings() and p2[1] = :Where	
-
-			return this.ContainsCharsWXT(p2[2])
-
-		#=== SUBSTRINGS
-
-		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStrings, ["softanza", :And = "ring"])
-		# ? Q("_softanza_loves_ring_").ContainsXT(:TheseSubStrings, ["softanza", :And = "ring"])
-		but isString(p1) and (p1 = :SubStrings or p1 = :TheseSubStrings) and
-		    isList(p2) and oP2.IsListOfStrings()
-
-			return This.ContainsTheseSubStringsCS(p2, pCaseSensitive)
-
-		# ? Q("_softanza_loves_ring_").ContainsXT(:SomeOfTheseSubStrings, ["ring", "php", :Or = "softanza"])
-		# ? Q("_softanza_loves_ring_").ContainsXT(:SomeOfThese, ["ring", "php", "softanza"])
-		but isString(p1) and (p1 = :SomeOfTheseSubStrings or p1 = :SomeOfThese) and
-		    isList(p2) and oP2.IsListOfStrings()
-
-			return This.ContainsSomeOfTheseSubStringsCS(p2, pCaseSensitive)
-
-		# ? Q("_softanza_loves_ring_").ContainsXT(:OneOfTheseSubStrings, ["python", "php", :Or = "ring"])
-		# ? Q("_softanza_loves_ring_").ContainsXT(:OneOfThese, ["python", "php", :Or = "ring"])
-		but isString(p1) and (p1 = :OneOfTheseSubStrings or p1 = :OneOfThese) and
-		    isList(p2) and oP2.IsListOfStrings()
-
-			return This.ContainsOneOfTheseSubStringsCS(p2, pCaseSensitive)
-
-		# ? Q("_softanza_loves_ring_").ContainsXT(:NoneOfTheseSubStrings, ["python", "php", :Nor = "ring"])
-		# ? Q("_softanza_loves_ring_").ContainsXT(:NoneOfThese, ["python", "php", :Or = "ring"])
-		but isString(p1) and (p1 = :NoneOfTheseSubStrings or p1 = :NoneOfThese) and
-		    isList(p2) and oP2.IsListOfStrings()
-
-			return This.ContainsNoneOfTheseSubStringsCS(p2, pCaseSensitive)
-
-		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsWhere, 'Q(@SubString).IsUppercase()')
-		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, 'Q(@SubString).IsUppercase()')
-		but isString(p1) and (p1 = :SubStringsWhere or p1 = :SubStringsW) and isString(p2)
-
-			return This.ContainsSubStringsWXT(p2)
-			
-		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, :Where = 'Q(@SubString).IsUppercase()')
-		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, :Where('Q(@SubString).IsUppercase()') )
-		# ? Q("_softanza_loves_ring_").ContainsXT(:SubStringsW, :W('Q(@SubString).IsUppercase()') )
-		but isString(p1) and p1 = :SubStringsW and
-		    isList(p2) and oP2.IsPairOfStrings() and p2[1] = :Where	
-
-			return This.ContainsSubStringsWXT(p2[2])
-
-		# ? Q("^^♥^^").ContainsXT("♥", :AtPosition = 3)
-		but ( isString(p1) or
-		      ( isList(p1) and oP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
-
-		    isList(p2) and oP2.IsOneOfTheseNamedParams([ :At, :AtPosition ]) and
-		    isNumber(p2[2])
-
-			if isList(p1)
-				p1 = p1[2]
-			ok
-
-			return This.ContainsAt(p2[2], p1)
-
-		# ? Q("♥^^♥^^♥").ContainsXT("♥", :AtPositions = [1, 4, 7])
-		but ( isString(p1) or
-		      ( isList(p1) and oP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
-
-		    isList(p2) and oP2.IsOneOfTheseNamedParams([ :At, :AtPositions ]) and
-		    isList(p2[2]) and Q(p2[2]).IsListOfNumbers()
-
-			if isList(p1)
-				p1 = p1[2]
-			ok
-
-			return This.ContainsAtPositions(p2[2], p1)
-
-		# ? Q("^^♥^^").ContainsXT("^", :Before = "♥^")
-		# ? Q("^^♥^^").ContainsXT("^", :Before = 3)
-		but ( isString(p1) or
-		      ( isList(p1) and oP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
-
-		    isList(p2) and oP2.IsBeforeNamedParam() and Q(p2[2]).IsStringOrNumber()
-
-			return This.ContainsBefore(p1, p2[2])
-
-		# ? Q("--♥^^").ContainsXT("^", :After = "-♥")
-		# ? Q("^^♥^^").ContainsXT("^", :After = 3)
-		but ( isString(p1) or
-		      ( isList(p1) and oP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
-
-		    isList(p2) and oP2.IsAfterNamedParam() and Q(p2[2]).IsStringOrNumber()
-
-			return This.ContainsAfter(p1, p2[2])
-
-		# ? Q("^^♥^^").ContainsXT("^", :BeforePosition = 3)
-		but ( isString(p1) or
-		      ( isList(p1) and pP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
-
-		    isList(p2) and oP2.IsBeforePositionNamedParam() and isNumber(p2[2])
-
-			return This.ContainsBefore(p1, :Position = p2[2])
-
-		# ? Q("^^♥^^").ContainsXT("^", :AfterPosition = 3)
-		but ( isString(p1) or
-		      ( isList(p1) and oP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
-
-		    isList(p2) and oP2.IsAfterPositionNamedParam() and isNumber(p2[2])
-
-			return This.ContainsAfter(p1, :Position = p2[2])
-
-		# ? Q("^^♥^^").ContainsXT("^", :BeforeSubString = "♥^")
-		but ( isString(p1) or
-		      ( isList(p1) and oP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
-
-		    isList(p2) and oP2.IsBeforeSubStringNamedParam() and isString(p2[2])
-
-			return This.ContainsBefore(p1, :SubString = p2[2])
-
-		# ? Q("--♥^^").ContainsXT("^", :AfterSubString = "-♥")
-		but ( isString(p1) or
-		      ( isList(p1) and oP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
-
-		    isList(p2) and oP2.IsAfterSubStringNamedParam() and isString(p2[2])
-
-			return This.ContainsAfter(p1, :SubString = p2[2])
-
-		# ? Q("123♥5678").ContainsXT( "♥", :InSection = [3, 5] )
-		but ( isString(p1) or
-		      ( isList(p1) and oP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
-
-		    isList(p2) and oP2.IsInSectionNamedParam()
-
-			return This.ContainsInSection(p1, p2[2])
-
-		# ? Q("123♥56♥890♥234").Contains( "♥", :InSections = [ [3,5], [6,8], [10,12] ] )
-		but ( isString(p1) or
-		      ( isList(p1) and oP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
-
-		    isList(p2) and oP2.IsInSectionsNamedParam()
-
-			return This.ContainsInSections(p1, p2[2])
-
-		else
-
-			StzRaise("Unsupported syntax")
 		ok
-
-	#-- WITOUT CASESENSITIVITY
-
-	def ContainsXT(p1, p2)
-		return This.ContainsCSXT( p1, p2, TRUE)
-
+	
+		if ( (isList(p1)   and len(p1) = 0) or
+		     (isString(p1) and p1 = ""    ) or
+		     (isNumber(p1) and p1 = 0     )    ) and
+		   isString(p2) and p2 = :Chars
+	
+			return FALSE
+		ok
+	
+		# Direct string comparison
+	
+		if isString(p1) and isString(p2) and
+		   NOT ring_find([
+			:CharsW, :CharsWhere, :SubStringsW, :SubStringsWhere
+		   ], p1) > 0
+	
+			return This.ContainsTheseCS([p1, p2], pCaseSensitive)
+		ok
+	
+		# Simple string pairs
+	
+		if isString(p1) and isList(p2)
+	
+			if oP2.IsPairOfStrings() and p2[1] = :And
+				return This.ContainsTheseCS([p1, p2[2]], pCaseSensitive)
+	
+				but oP2.IsAtPositionNamedParam() and isNumber(p2[2])
+					if ring_find(This.FindCS(p1, pCaseSensitive), p2[2]) > 0
+						return TRUE
+					else
+						return FALSE
+					ok
+				ok
+		ok
+	
+		#=== NUMERIC OCCURRENCES ===
+	
+		if isNumber(p1) and isString(p2)
+			return This.ContainsNOccurrencesCS(p1, p2, pCaseSensitive)
+		ok
+	
+		if isList(p1)
+	
+			if oP1.IsExactlyNamedParam()
+				return This.ContainsNOccurrencesCS(p1[2], p2, pCaseSensitive)
+			ok
+	
+			if oP1.IsMoreThenNamedParam()
+				return This.ContainsMoreThenNOccurrencesCS(p1[2], p2, pCaseSensitive)
+			ok
+	
+			if oP1.IsLessThenNamedParam()
+				return This.ContainsLessThenNOccurrencesCS(p1[2], p2, pCaseSensitive)
+			ok
+		ok
+	
+		#=== BOUNDED AND BETWEEN CASES ===
+	
+		# Handle bounded strings
+	
+		if ( isString(p1) or
+		     ( isList(p1) and oP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
+		   isList(p2)
+	
+			if isList(p1)
+				cString = p1[2]
+			else
+				cString = p1
+			ok
+	
+			if oP2.IsBoundedByNamedParam()
+				return This.ContainsSubStringBoundedByCS(cString, p2[2], pCaseSensitive)
+			ok
+	
+			if oP2.IsBoundedByIBNamedParam()
+				return This.ContainsSubStringBoundedByCSIB(cString, p2[2], pCaseSensitive)
+			ok
+	
+			if oP2.IsBetweenNamedParam() or oP2.IsBetweenIBNamedParam()
+	
+				if Q(p2[2][2]).IsAndNamedParam()
+					aTemp = []
+					aTemp + p2[2][1] + p2[2][2][2]
+					p2[2] = aTemp
+				ok
+	
+				oP22 = Q(p2[2])
+	
+				if oP22.isListOfStrings()
+	
+					if oP2.IsBetweenNamedParam()
+						return This.ContainsSubStringBetweenCS(cString, p2[2][1], p2[2][2], pCaseSensitive) :
+					else
+						return This.ContainsSubStringBetweenCSIB(cString, p2[2][1], p2[2][2], pCaseSensitive)
+					ok
+				ok
+	
+				if oP22.isListOfNumbers()
+					return This.ContainsSubStringBetweenPositionsCS(cString, p2[2][1], p2[2][2], pCaseSensitive)
+				ok
+			ok
+		ok
+	
+		#=== CHARACTER OPERATIONS ===
+	
+		if isString(p1) and isList(p2) and oP2.IsListOfChars()
+	
+			switch p1
+	
+			case :Chars
+				return This.ContainsTheseSubStrings(p2)
+			case :TheseChars
+				return This.ContainsTheseSubStrings(p2)
+			
+			case :SomeOfTheseChars
+				return This.ContainsSomeOfTheseSubStrings(p2)
+	
+			case :OneOfTheseChars
+				return This.ContainsOneOfTheseSubStrings(p2)
+	
+			case :NoneOfTheseChars
+				return This.ContainsNoneOfTheseSubStrings(p2)
+			off
+		ok
+	
+		if isString(p1) and (p1 = :CharsWhere or p1 = :CharsW) and isString(p2)
+			return This.ContainsCharsWXT(p2)
+		ok
+	
+		if isString(p1) and p1 = :Chars and
+		   isList(p2) and oP2.IsPairOfStrings() and p2[1] = :Where
+	
+			return this.ContainsCharsWXT(p2[2])
+		ok
+	
+		#=== SUBSTRING OPERATIONS ===
+	
+		if isString(p1) and isList(p2) and oP2.IsListOfStrings()
+	
+			switch p1
+	
+			case :SubStrings
+				return This.ContainsTheseSubStringsCS(p2, pCaseSensitive)
+			case :TheseSubStrings
+				return This.ContainsTheseSubStringsCS(p2, pCaseSensitive)
+	
+			case :SomeOfTheseSubStrings
+				return This.ContainsSomeOfTheseSubStringsCS(p2, pCaseSensitive)
+			case :SomeOfThese
+				return This.ContainsSomeOfTheseSubStringsCS(p2, pCaseSensitive)
+	
+			case :OneOfTheseSubStrings
+				return This.ContainsOneOfTheseSubStringsCS(p2, pCaseSensitive)
+			case :OneOfThese
+				return This.ContainsOneOfTheseSubStringsCS(p2, pCaseSensitive)
+	
+			case :NoneOfTheseSubStrings
+				return This.ContainsNoneOfTheseSubStringsCS(p2, pCaseSensitive)
+			case :NoneOfThese
+				return This.ContainsNoneOfTheseSubStringsCS(p2, pCaseSensitive)
+			off
+		ok
+	
+		#=== POSITION BASED OPERATIONS ===
+	
+		if ( isString(p1) or
+		     ( isList(p1) and oP1.IsSubStringNamedParam() and isString(p1[2]) ) ) and
+		   isList(p2)
+	
+			if isList(p1)
+				cString = p1[2]
+			else
+				cString = p1
+			ok
+	
+			if oP2.IsOneOfTheseNamedParams([ :At, :AtPosition ]) and isNumber(p2[2])
+				return This.ContainsAt(p2[2], cString)
+			ok
+	
+			if oP2.IsOneOfTheseNamedParams([ :At, :AtPositions ]) and
+			   isList(p2[2]) and Q(p2[2]).IsListOfNumbers()
+	
+				return This.ContainsAtPositions(p2[2], cString)
+			ok
+	
+			if oP2.IsBeforeNamedParam() and Q(p2[2]).IsStringOrNumber()
+				return This.ContainsBefore(cString, p2[2])
+			ok
+	
+			if oP2.IsAfterNamedParam() and Q(p2[2]).IsStringOrNumber()
+				return This.ContainsAfter(cString, p2[2])
+			ok
+	
+			if oP2.IsBeforePositionNamedParam() and isNumber(p2[2])
+				return This.ContainsBefore(cString, :Position = p2[2])
+			ok
+	
+			if oP2.IsAfterPositionNamedParam() and isNumber(p2[2])
+				return This.ContainsAfter(cString, :Position = p2[2])
+			ok
+	
+			if oP2.IsInSectionNamedParam()
+				return This.ContainsInSection(cString, p2[2][1], p2[2][2])
+			ok
+	
+			if oP2.IsInSectionsNamedParam()
+				return This.ContainsInSections(cString, p2[2])
+			ok
+		ok
+	
+		StzRaise("Unsupported syntax")
+	
+		#-- WITHOUT CASESENSITIVITY
+	
+		def ContainsXT(p1, p2)
+			return This.ContainsCSXT(p1, p2, TRUE)
+	
 	  #----------------------------------------------#
 	 #    CONTAINING ONE OF THE GIVEN SUBSTRINGS    #
 	#==============================================#
@@ -95365,21 +95186,25 @@ class stzString from stzObject
 
 	def StartsWithThisNumber(n)
 		
+		if NOT (isNumber(n) or ( isString(n) and @IsNumberInString(n) ) )
+			StzRaise("Incorrect param type! n must be a number or number in string.")
+		ok
+
+		cNumber = ""
+
 		if isString(n)
 			if n = ""
 				return FALSE
-
-			else
-				n = Q(n).RemoveSpacesQ().
-					 RemoveQ("_").
-					 ThisFirstCharRemoved("+")
 			ok
+			cNumber = n
+
+		but isNumber(n)
+			cNumber = ""+ n
 		ok
 
-		oStrCopyWS = This.Copy().RemoveSpacesQ()
-		cLeadingNumber = Q(oStrCopyWS.LeadingNumber()).ThisFirstCharRemoved("+")
+		nLen = StzStringQ(cNumber).NumberOfChars()
 
-		if  cLeadingNumber = ""+ n
+		if This.FirstNCharsAsString(nLen) = cNumber
 			return TRUE
 		else
 			return FALSE
@@ -95424,9 +95249,9 @@ class stzString from stzObject
 
 		#>
 		
-	  #-----------------------------------------------#
-	 #  CHECKING IF THE STRING STARTS WITH A NUMBER  #
-	#-----------------------------------------------#
+	  #-------------------------------------------------#
+	 #  CHECKING IF THE STRING STARTS WITH ANY NUMBER  #
+	#-------------------------------------------------#
 
 	def StartsWithANumber()
 		/* EXAMPLE
@@ -95489,42 +95314,32 @@ class stzString from stzObject
 		#--> 23
 		*/
 
-		if NOT This.HasALeadingNumber()
-			return ""
-		ok
-
 		cResult = ""
 		bContinue = TRUE
-		i = 0
-		nLen = This.NumberOfChars()
 
 		acChars = This.Chars()
+		nLen = len(acChars)
+		i = 0
 
 		while bContinue
 			i++
-			if i > nLen
+
+			if i = 0
 				bContinue = FALSE
 
 			else
 
-				if NOT ( isNumber(0+ acChars[i]) or
-					 ring_find([ "+", "-", "_", "." ], acChars[i]) > 0 )
+				if NOT ( @IsNumberInString(acChars[i]) or
+					 ring_find([ "+", "-", ".", "_"], acChars[i]) > 0 )
 
 					bContinue = FALSE
-
-				else
-					cResult += acChars[i]
 
 				ok
 
 			ok
 		end
 
-		cResult = Q(cResult).
-			  RemoveSpacesQ().
-			  RemoveThisFirstCharQ("+").
-			  ThisLastCharRemoved(".")
-
+		cResult = This.Section(1, i-1)
 		return cResult
 
 		#< @FunctionAlternativeForm
@@ -95542,18 +95357,26 @@ class stzString from stzObject
 	#===================================================#
 
 	def EndsWithThisNumber(n)
+
+		if NOT (isNumber(n) or ( isString(n) and @IsNumberInString(n) ) )
+			StzRaise("Incorrect param type! n must be a number or number in string.")
+		ok
+
+		cNumber = ""
+
 		if isString(n)
 			if n = ""
 				return FALSE
-
-			else
-				n = Q(n).ThisFirstCharRemoved("+")
 			ok
+			cNumber = n
+
+		but isNumber(n)
+			cNumber = ""+ n
 		ok
 
-		cTrailingNumber = Q(This.TrailingNumber()).ThisFirstCharRemoved("+")
+		nLen = StzStringQ(cNumber).NumberOfChars()
 
-		if  cTrailingNumber = ""+ n
+		if This.LastNCharsAsString(nLen) = cNumber
 			return TRUE
 		else
 			return FALSE
@@ -95603,12 +95426,6 @@ class stzString from stzObject
 	#---------------------------------------------#
 
 	def EndsWithANumber()
-		/* EXAMPLE
-		o1 = new stzString("23 rounds")
-		? o1.EndsWithNumber()
-		#--> TRUE
-		*/
-
 		nResult = This.LastCharQ().IsANumberInString()
 		return nResult
 
@@ -95651,29 +95468,28 @@ class stzString from stzObject
 		bContinue = TRUE
 
 		acChars = This.Chars()
+		nLen = len(acChars)
 		i = len(acChars) + 1
 
 		while bContinue
 			i--
+
 			if i = 0
 				bContinue = FALSE
 
 			else
 
-				if NOT ( isNumber(0+ acChars[i]) or
-					 ring_find([ "+", "-", "."], acChars[i]) > 0 )
+				if NOT ( @IsNumberInString(acChars[i]) or
+					 ring_find([ "+", "-", ".", "_"], acChars[i]) > 0 )
 
 					bContinue = FALSE
-
-				else
-					cResult += cCurrentChar
 
 				ok
 
 			ok
 		end
 
-		cResult = Q(cResult).ReverseCharsQ().ThisLastCharRemoved(".")
+		cResult = This.Section(i+1, nLen)
 		return cResult
 
 		#< @FunctionAlternativeForm
@@ -95998,13 +95814,13 @@ class stzString from stzObject
 
 			switch pcReturnType
 			on :stzList
-				return new stzList( This.NumbersComingAfterCSXT(pcSubStr, pCaseSensitive) )
+				return new stzList( This.NumbersComingAfterCS(pcSubStr, pCaseSensitive) )
 
 			on :stzListOfNumbers
-				return new stzListOfNumbers( This.NumbersComingAfterCSXT(pcSubStr, pCaseSensitive) )
+				return new stzListOfNumbers( This.NumbersComingAfterCS(pcSubStr, pCaseSensitive) )
 
 			on :stzListOfStrings
-				return new stzListOfStrings( This.NumbersComingAfterCSXT(pcSubStr, pCaseSensitive) )
+				return new stzListOfStrings( This.NumbersComingAfterCS(pcSubStr, pCaseSensitive) )
 
 			other
 				StzRaise("Unsupported param type!")

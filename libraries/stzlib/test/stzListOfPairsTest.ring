@@ -592,18 +592,18 @@ proff()
 # Executed in 0.05 second(s).
 
 /*----- #narration
-*/
+
 pron()
 
 # In the following example, we want to remove consecutive
-# duplicate programming language names and obtain the final result:
+# duplicated programming language names and obtain the final result:
 # "PhpRingPythonRuby".
 
 o1 = new stzString("PhpRingRingRingPythonRubyRuby")
 
 # Let's retrieve their list along with their sections:
 
-? @@( o1.DupSecutiveSubStringsZZ() ) + NL
+? @@NL( o1.DupSecutiveSubStringsZZ() ) + NL
 #--> [
 #	[ "ingR", [ [ 9, 12 ] ] ],
 #	[ "ngRi", [ [ 10, 13 ] ] ],
@@ -664,7 +664,7 @@ o1.RemoveSections(aSections)
 # resulting in the correct removal through RemoveSections().
 
 proff()
-# Executed in 0.14 second(s).
+# Executed in 0.12 second(s) in Ring 1.21
 
 /*-----
 
@@ -688,7 +688,7 @@ proff()
 # Executed in 0.05 second(s).
 
 /*=====
- */
+ 
 pron()
 
 o1 = new stzListOfPairs([
@@ -806,7 +806,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*===========
-
+s
 pron()
 
 ? Q("--♥-♥--").ContainsXT( 2, "♥")
@@ -822,7 +822,8 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21s
+# Executed in 0.04 second(s) in Ring 1.18
 
 /*------------
 
