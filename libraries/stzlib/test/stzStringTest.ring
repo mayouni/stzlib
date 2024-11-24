@@ -8378,7 +8378,7 @@ StopProfiler()
 # Executed in 0.51 second(s) in Ring 1.17
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzString( " This[ @i - 1 ] = This[ @i + 3 ] " )
@@ -8389,11 +8389,13 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.14 second(s) in Ring 1.17
 
-/*-----------------
+/*=============
+
+pron()
 
 ? SoftanzaLogo()
-/* --> 
-
+#--> 
+'
 ╭━━━┳━━━┳━━━┳━━━━┳━━━┳━╮╱╭┳━━━━┳━━━╮
 ┃╭━╮┃╭━╮┃╭━━┫╭╮╭╮┃╭━╮┃┃╰╮┃┣━━╮━┃╭━╮┃
 ┃╰━━┫┃╱┃┃╰━━╋╯┃┃╰┫┃╱┃┃╭╮╰╯┃╱╭╯╭┫┃╱┃┃
@@ -8404,46 +8406,76 @@ proff()
 Programming, by Heart! By: M.Ayouni╭
 ━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
   ╰╯
+'
+proff()
+# Executed in almost 0 second(s) in Ring 1.21
 
 /*-----------------
+
+pron()
 
 ? Basmalah()	#--> ﷽
 ? Heart()	#--> ♥
 ? 3Hearts()	#--> ♥♥♥
 ? 5Stars()	#--> ★★★★★
 
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
 /*-----------------
 
-? Heart() #--> ♥
-? Q(Heart()).RepeatedNTimes(3) #--> ♥♥♥
+pron()
+
+? Heart()
+#--> ♥
+
+? Q(Heart()).RepeatedNTimes(3)
+#--> ♥♥♥
+
 # or you can use the short form .NTimes(3)
 
-? Q("Go").RepeatedNTimes(3) #--> GoGoGo
+? Q("Go").RepeatedNTimes(3)
+#--> GoGoGo
 
 ? @@( Q([ "A", "B" ]).RepeatedNTimes(3) )
 #--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
 
-? Five(Star()) #--> ★★★★★
-? Three(Heart()) #--> ♥♥♥
-/*---
+? Five(Star())
+#--> ★★★★★
+
+? Three(Heart())
+#--> ♥♥♥
+
+proff()
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*------------------
+
+pron()
 
 o1 = new stzString("{abc}")
+
 o1.RemoveThisFirstChar("{")
 o1.RemoveThisLastChar("}")
+
 ? o1.Content()
+#--> abc
 
-/*------------------
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
 
-# When applied to the string "Hi!", RepeatedNTimes() will update
-# it to become "Hi!Hi!Hi!".
+/*------------------ #narration
+
+pron()
+
+# When applied to the string "Hi!", RepeatedNTimes() will duplicate
+# it, resulting in "Hi!Hi!Hi!".
 
 ? Q("Hi!").RepeatedNTimes(3)
 #--> "Hi!Hi!Hi!"
 
-# When used with all other types (stzList, stzNumber, and stzObject),
-# it will repeat the object value inside a list:
+# For all other types (stzList, stzNumber, and stzObject),
+# it repeats the object value within a list:
 
 ? Q(5).RepeatedNTimes(3)
 #--> [5, 5, 5]
@@ -8451,29 +8483,76 @@ o1.RemoveThisLastChar("}")
 ? Q(1:3).RepeatedNTimes(3)
 #--> [ 1:3, 1:3, 1:3 ]
 
-# You my ask we we opted for a different behavior for
-# strings compared to other types, and why we don't produce
-# a list even when we use the function on a string, like this
-# ? Q("Hi!").RepeatNTimes(3) #!--> [ "Hi!", "Hi!", "Hi" ] ?
+# You might ask why we chose different behavior for strings
+# compared to other types, and why we don't produce a list 
+# when the function is applied to a string, like this:
+# ? Q("Hi!").RepeatNTimes(3) #!--> [ "Hi!", "Hi!", "Hi!" ] ?
 
-# Well, because I think it's more natural to update the
-# string when we ask to repeat it, and have a string as a
-# result not a list!
+# The reason is that it feels more intuitive to duplicate the
+# string directly when asked to repeat it, producing a string
+# as the result, rather than a list!
 
-# If you want to avoid any confusuion coming from this double-usage,
-# rely on RepeatedXT() instead, and specify explicitly what
-# you hant to have as an output, like this:
+# If you'd like to avoid potential confusion from this dual behavior,
+# you can use RepeatNTimesXT(), where you explicitly specify the
+# desired output format, like this:
 
-? Q("Hi!").RepeatedNTimesXT( 3, :InString)
-#--> "Hi!Hi:Hi!
+? Q("Hi!").RepeatedNTimesXT(3, :InAString)
+#--> "Hi!Hi!Hi!"
 
-? Q("Hi!").RepeatedNTimesXT( 3, :InList)
+? Q("Hi!").RepeatedNTimesXT(0, :InAList)
 #--> [ "Hi!", "Hi!", "Hi!" ]
 
-/*----------------------
+proff()
+# Executed in 0.08 second(s) in Ring 1.21
 
-? Q("*").IsNotLetter()
-#--> TRUE
+/*----------------------
+*/
+pron()
+
+# Because Softanza mimics natural language train of thoughts,
+# the computational form:
+
+? NOT Q("*").IsLetter()
+
+# Can be written:
+
+? Q("*").IsNotLetter() + NL
+
+# This called @FunctionNegativeForm in Softanza.
+
+#NOTE: Not all Softanza functions made ready for their negative forms,
+# but this will be done in the future.
+
+#NOTE: @FunctionNegativeForm is different from @FunctionPassiveForm,
+# which is the linguitsic passive form of the function verb. For example:
+
+o1 = new stzString("RIxxNxG")
+o1.Remove("x") # ~> This is the active form of the function
+#--> All "x" chars are now removed from the object content.
+? o1.Content()
+#--> RING
+
+# Hence, the active form (expressed with the verb Remove()) modifies
+# the content of the object. In some cases, however, you need to
+# perform the removal without altering the original content...
+
+# Lingusitically speaking, you want a copy of this string from
+# wich the "x" chars are removed, while leaving the original content as is.
+
+# Here comes the usefulness of the @FunctionPassiveform. Let's redo
+# the same sample to show you this:
+
+o1 = new stzString("RIxxNxG")
+? o1.Removed("x")
+#--> RING
+
+# and the original obkect is not changed:
+? o1.Content()
+#--> "RIxxNxG"
+
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*----------------------
 */
