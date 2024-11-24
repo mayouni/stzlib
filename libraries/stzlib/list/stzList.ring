@@ -6541,9 +6541,9 @@ class stzList from stzObject
 
 		# Doing the job
 
-		acResult = This.SectionQ(pnStartingAt, pnStartingAt + n - 1).Items()
+		aResult = This.SectionQ(pnStartingAt + 1, pnStartingAt + n).Items()
 
-		return acResult
+		return aResult
 
 		#< @FunctionFluentForm
 
@@ -6627,9 +6627,9 @@ class stzList from stzObject
 
 		# Doing the job
 
-		acResult = This.SectionQ(pnStartingAt - n + 1, pnStartingAt).Items()
+		aResult = This.SectionQ(pnStartingAt - n, pnStartingAt - 1).Items()
 
-		return acResult
+		return aResult
 
 
 		#< @FunctionFluentForm
@@ -17036,7 +17036,7 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveTheseBoundsCSQ(pBound1, pBound2, pCaseSensitive).Content()
 		return aResult
 
-		/* WARNING: Subtle bug in Ring (Show to Mahmoud)
+		/* WARNING: Subtle bug in Ring in Ring 1.18 (Show to Mahmoud)
 
 		In the function above, if we write the expression that returns
 		the result directly after the keyword 'return', like this:
@@ -17050,6 +17050,8 @@ class stzList from stzObject
 		compute the result in a variable, and then return it (see code above).
 
 		--> TODO: Check the occurrence this pattern all over the library!
+		#UPDATE: This behaviour dissepeard in later Ring versions. So it's ok for now.
+
 		*/
 		
 	#-- WIHTOUT CASESENSITIVITY
@@ -17097,9 +17099,9 @@ class stzList from stzObject
 		aResult = This.Copy().RemoveManyBoundsQ(paPairsOfBounds).Content()
 		return aResult
 
-	  #----------------------------------#
+	  #==================================#
 	 #   REMOVING ZEROS FROM THE LIST   #
-	#----------------------------------#
+	#==================================#
 
 	def RemoveZeros()
 		This.RemoveItem(0)
@@ -47279,13 +47281,26 @@ class stzList from stzObject
 		aResult = aAntiSections
 		return aResult
 
+		#< @FunctionFluentForm
+
+		def FindAntiSectionsQ(paSections)
+			return new stzList( This.FindAntiSections(paSections) )
+
+		#>
+
 		#< @FunctionAlternativeForms
 
 		def FindAntiSectionsZZ(paSections)
 			return This.FindAntiSections(paSections)
 
+			def FindAntiSectionsZZQ(paSections)
+				return This.FindAntiSectionsQ(paSections)
+
 		def AntiSectionsZZ(paSections)
 			return This.FindAntiSections(paSections)
+
+			def AntiSectionsZZQ(paSections)
+				return This.FindAntiSectionsQ(paSections)
 
 		#>
 
@@ -80145,9 +80160,27 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsBetweenSubStringsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :BetweenSubStringsIB )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	def IsBoundedBySubStringsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :BoundedBySubStrings )
+
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	def IsBoundedBySubStringsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :BoundedBySubStringsIB )
 
 			return TRUE
 		else

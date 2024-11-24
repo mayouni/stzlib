@@ -6584,15 +6584,15 @@ proff()
 
 pron()
 
-o1 = new stzList([ ".",".",".","4","5","6",".",".","." ])
-? o1.NextNItems(3, :StartingAtPosition = 4)
-#--> [ "4", "5", "6" ]
+o1 = new stzList([ ".",".",".",4 ,5 ,6 ,".",".","." ])
+? o1.NextNItems(3, :StartingAtPosition = 3)
+#--> [ 4, 5, 6 ]
 
-? o1.PreviousNItems(3, :StartingAtPosition = 6)
-#--> [ "4", "5", "6" ]
+? o1.PreviousNItems(3, :StartingAtPosition = 7)
+#--> [ 4, 5, 6 ]
 
 proff()
-# Executed in almost 0 second(s).
+# Executed in almost 0 second(s) in Ring 1.21
 
 /*=================
 
@@ -9646,7 +9646,7 @@ StopProfiler()
 #--> Executed in 0.17 second(s)
 
 /*--------- OTHER WALKING TECHNIQUES
-*/
+
 StartProfiler()
 
 StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
@@ -9773,7 +9773,7 @@ StzListQ([ "A", "B", "C", "D", "E", "F", "G" ]) {
 }
 
 StopProfiler()
-# Executed in 0.30 second(s).
+# Executed in 0.28 second(s) in Ring 1.21
 
 /*========================
 

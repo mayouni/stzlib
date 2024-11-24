@@ -372,17 +372,17 @@ proff()
 
 pron()
 
-? Q([ "mohannad", 	100, 	"loves", "ring" ]).ContainsMany([ "amer", 34 ])
+? Q([ "mohannad", 100, 	"loves", "ring" ]).ContainsMany([ "amer", 34 ])
 #--> FALSE
 
-? Q([ "mohannad", 	100, 	"loves", "ring" ]).ContainsCS("amer", true)
+? Q([ "mohannad", 100, 	"loves", "ring" ]).ContainsCS("amer", true)
 #--> FALSE
 
-? Q([ "mohannad", 	100, 	"loves", "ring" ]).ContainsSubList([ "loves", "ring" ])
+? Q([ "mohannad", 100, 	"loves", "ring" ]).ContainsSubList([ "loves", "ring" ])
 #--> TRUE
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.06 second(s) in Ring 1.21
 
 /*--------------
 
@@ -426,7 +426,7 @@ o1 = new stzListOfLists([
 # ]
 
 proff()
-# Executed in 0.21 seconds
+# Executed in 0.28 second(s) in Ring 1.21
 
 /*------------
 */

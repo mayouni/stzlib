@@ -1638,15 +1638,15 @@ o1.ReplaceManyWithMany(["--", "__", ".."], ["1", "2", "3"])
 
 proff()
 
-/*-------- #TODO
+/*-------- #expressiveness #elegant-code
 
 pron()
 
 o1 = new stzString("--Ring--__Softanza__")
 
-o1.ReplaceAllExcept([ "Ring", "&", "Softanza" ], [ "1", "2", "3"])
+o1.ReplaceAllExcept([ "Ring", :And = "Softanza" ], :With = AHeart())
 ? o1.Content()
-#--> 1Ring2Softanza3
+#--> ♥Ring♥Softanza♥
 
 proff()
 
@@ -1679,6 +1679,7 @@ cMyConditionIsVerified = '
 # instruct them to do their job upon a given condition.
 
 proff()
+# Executed in 0.08 second(s) in Ring 1.21
 # Executed in 0.16 second(s) in Ring 1.20
 # Executed in 0.24 second(s) in Ring 1.19
 
@@ -2035,7 +2036,8 @@ o1 = new stzString("123♥♥678♥♥1234♥♥789")
 #--> TRUE
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.05 second(s) in Ring 1.21
+# Executed in 0.10 second(s) in Ring 1.20
 
 /*-----
 
@@ -2050,7 +2052,8 @@ o1 = new stzString("123♥♥678♥♥1234♥♥789")
 #--> TRUE
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*==================
 
@@ -2391,9 +2394,9 @@ o1 = new stzString("BEbe")
 ? @@( o1.SubStringsCS(FALSE) )
 #--> [ "b", "be", "beb", "bebe", "e", "eb", "ebe" ]
 
-
 proff()
 # Executed in 0.01 second(s)
+
 /*----------------
 
 pron()
@@ -2452,19 +2455,19 @@ o1 = new stzString("HELLOhello")
 ? @@( o1.SubStringsOfNCharsCSU(4, FALSE) ) + NL
 #--> [ "hell", "ello", "lloh", "lohe", "ohel" ]
 
-? @@( o1.SubStringsW('
+? @@( o1.SubStringsWXT('
 	len(@SubString) <= 6 and
 	Q(@SubString).Contains(["e", "o"]) ')
 ) + NL
 #--> [ "Ohello", "hello", "ello" ]	# Takes 0.20 second(s)
 
-? @@( o1.SubStringsWZ('
+? @@( o1.SubStringsWXTZ('
 	len(@SubString) <= 6 and
 	Q(@SubString).Contains(["e", "o"]) ')
 ) + NL
 #--> [ [ "Ohello", [ 5 ] ], [ "hello", [ 6 ] ], [ "ello", [ 7 ] ] ]
 
-? @@( o1.SubStringsWZZ('
+? @@( o1.SubStringsWXTZZ('
 	len(@SubString) <= 6 and
 	Q(@SubString).Contains(["e", "o"]) ')
 )
@@ -2475,7 +2478,7 @@ o1 = new stzString("HELLOhello")
 # ]
 
 proff()
-#Executed in 0.86 second(s)
+# Executed in 0.75 second(s) in Ring 1.21
 
 
 /*==================
@@ -2556,7 +2559,7 @@ o1.Show()
 #--> [ "A", "B", "C", "D", "E" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*----------------
 
@@ -2568,7 +2571,7 @@ o1.Show()
 #--> "ABC  "
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*----------------
 
@@ -2580,7 +2583,7 @@ o1.Show()
 #--> "ABC**"
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*----------------
 
@@ -2592,7 +2595,7 @@ o1.Show()
 #--> "12312312"
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*----------------
 
@@ -2604,7 +2607,7 @@ o1.Show()
 #--> "12312312"
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*----------------
 
@@ -2616,7 +2619,7 @@ o1.Show()
 #--> "ABCDE"
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*----------------
 
@@ -2640,7 +2643,8 @@ o1.Show()
 #--> "ABCAB"
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.18
 
 /*----------------
 
@@ -2653,7 +2657,8 @@ o1.Show()
 #--> "ABCAB"
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.18
 
 /*----------------
 
@@ -2665,7 +2670,8 @@ o1.Show()
 #--> "ABC**"
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.18
 
 /*----------------
 
@@ -2677,7 +2683,8 @@ o1.Show()
 #--> "ABCDED"
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.18
 
 /*----------------
 
@@ -2689,7 +2696,8 @@ o1.Show()
 #--> "ABC"
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.05 second(s) in Ring 1.18
 
 /*===============
 
@@ -2697,7 +2705,7 @@ pron()
 #                     3  6  9  2
 o1 = new stzString("..♥^^♥..^♥♥^..")
 
-? @@( o1.SubStringsW('
+? @@( o1.SubStringsWXT('
 
 	Q(@SubString).NumberOfChars() = 4 and
 	Q(@SubString).ContainsXT( 2, "♥") and
@@ -2708,7 +2716,8 @@ o1 = new stzString("..♥^^♥..^♥♥^..")
 #--> [ "♥^^♥", "^♥♥^" ]
 
 proff()
-# Executed in 1.98 second(s)
+# Executed in 0.42 second(s) in Ring 1.21
+# Executed in 1.98 second(s) in Ring 1.19
 
 /*--------------
 
@@ -2716,7 +2725,7 @@ pron()
 #                     3  6  9  2 
 o1 = new stzString("..♥^^♥..^♥♥^..")
 
-? @@( o1.FindSubStringsAsSectionsW('
+? @@( o1.FindSubStringsAsSectionsWXT('
 
 	Q(@SubString).NumberOfChars() = 4 and
 	Q(@SubString).ContainsXT( 2, "♥") and
@@ -2727,18 +2736,20 @@ o1 = new stzString("..♥^^♥..^♥♥^..")
 #--> [ [ 3, 6 ], [ 9, 12 ] ]
 
 proff()
-# Executed in 1.92 second(s)
+# Executed in 0.42 second(s) in Ring 1.21
+# Executed in 1.92 second(s) in Ring 1.19
 
 /*=============
 
 pron()
 
 o1 = new stzString("...♥...♥...")
-? o1.FindW('@char = "♥"')
+? o1.FindWXT('@char = "♥"')
 #--> [4, 8]
 
 proff()
-# Executed in 1.69 second(s)
+# Executed in 0.26 second(s) in Ring 1.21
+# Executed in 1.69 second(s) in Ring 1.19
 
 /*============
 
@@ -3070,7 +3081,7 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*-----------
 
@@ -3082,7 +3093,7 @@ pron()
 ? Q("^^♥^^").ContainsBetweenPositions("♥", 2, 4)
 #--> TRUE
 
-? Q("^^♥^^").ContainsBoundedBy("♥", :Positions = [ 2, :And = 4])
+//? Q("^^♥^^").ContainsBoundedBy("♥", :Positions = [ 2, 4])
 #--> TRUE
 
 ? Q("^^♥^^").ContainsInSection("♥", 1, 3)
@@ -3118,7 +3129,7 @@ pron()
 ? Q("^^♥^^").ContainsInSection("^", 5, 3)
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.04 second(s) in Ring 1.21
 
 /*-----------
 
@@ -3141,19 +3152,6 @@ pron()
 #--> TRUE
 
 ? Q("--♥^^").ContainsXT("^", :After = 2)
-#--> TRUE
-
-proff()
-# Executed in 0.06 second(s)
-
-/*-----------
-
-pron()
-
-? Q("^^♥^^").ContainsXT("^", :BeforeSubString = "♥^")
-#--> TRUE
-
-? Q("--♥^^").ContainsXT("^", :AfterSubString = "-♥")
 #--> TRUE
 
 proff()
@@ -3220,7 +3218,8 @@ o1 = new stzString("...<<hi!>>...<<-->>...<<hi!>>...")
 #--> [ [ 6, 8 ], [ 25, 27 ] ]
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.11 second(s) in Ring 1.19
 
 /*--------------
 
@@ -3250,7 +3249,8 @@ o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
 #--> [ [8, 10], [29, 31] ]
 
 proff()
-# Executed in 0.34 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.34 second(s) in Ring 1.18
 
 /*-----------
 
@@ -3276,13 +3276,15 @@ o1 = new stzString("...<<*>>...<<*>>...")
 #--> [ [ 6, 6 ], [ 14, 14 ] ]
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*----------
 
 StartProfiler()
 
 o1 = new stzString("/♥♥♥\__/\/\__/♥♥♥\__")
-//? o1.FindBetweenAsSections("♥♥♥", "/", "\")	# FindXT( "♥", :Between = ["/","\"], :AsSections )
+
+? o1.FindBetweenAsSections("♥♥♥", "/", "\")	# FindXT( "♥", :Between = ["/","\"], :AsSections )
 #--> [ [2, 4], [15, 17] ]
 
 ? o1.FindAsSectionsXT( "♥♥♥", :Between = ["/","\"])
@@ -3299,7 +3301,8 @@ StartProfiler()
 #--> TRUE
 
 StopProfiler()
-# Executed in 0.28 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.28 second(s) in Ring 1.18
 
 /*=============
 
@@ -3321,43 +3324,50 @@ o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
 proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
-/*---------------
+/*--------------- #narration
 
 pron()
 
-# Let's take this string of text:
+# Let's start with this string of text:
 
 o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
 
-# What if you want to get all the substrings bounded by << and >>:
+# If you want to extract all substrings bounded by << and >>,
+# you can do so easily:
+
 ? o1.BoundedBy([ "<<", ">>" ])
 #--> ["♥♥♥", "stars", "♥♥♥"]
 
-# They are 3, 2 of them are the same! No worry, you can get
-# a unique instance of each of them by extending the function
-# name by the "U" letter (for Unique):
+# There are 3 substrings, and 2 of them are identical! No worries,
+# you can retrieve only the unique substrings by appending the
+# letter "U" (for Unique) to the function name:
 
 ? o1.BoundedByU([ "<<", ">>" ])
 #--> ["♥♥♥", "stars"]
 
-# Sometimes, people have different interpretations for the
-# term BETWEEN, and they may want to have the strings inbetween
-# along with the bounds themselves...
+# Sometimes, the term "BETWEEN" can be interpreted differently,
+# and you might want  to include the bounds along with the substrings. 
 
-# You can do it simply by adding the IB extensions to the name
-# of the fuction ("IB" for "Include Bounds")
+# This can be achieved by adding the "IB" prefix to the function
+# name ("IB" for "Include Bounds"):
 
 ? o1.BoundedByIB([ "<<", ">>" ])
 #--> [ "<<♥♥♥>>", "<<stars>>", "<<♥♥♥>>" ]
 
-# Oh, great! But "<<♥♥♥>>" is repeated twice...
-# Well, you know how to manage it: just add the "U" extension:
+# Wonderful! But notice that "<<♥♥♥>>" appears twice...
+# No problem, you know the solution: just append the "U" prefix:
 
- ? o1.BoundedByIBU([ "<<", ">>" ])
-#--> [ "<<♥♥♥>>", "<<stars>>", "<<♥♥♥>>" ]
+? o1.BoundedByIBU([ "<<", ">>" ])
+#--> [ "<<♥♥♥>>", "<<stars>>" ]
 
 proff()
-# Executed in 0.15 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.15 second(s) in Ring 1.18
+
+
+proff()
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.15 second(s) in Ring 1.18
 
 /*===============
 
@@ -6556,17 +6566,17 @@ o1 = new stzString("**aa***aa**aa***")
 proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
-#=============
+/*=============
 
 pron()
 
 #                        6
 o1 = new stzString("*aa***aa**aa***aa*")
 
-? @@( o1.FindAsSections("aa") )
+? @@( o1.FindAsSections("aa") ) + NL
 # [ [ 2, 3 ], [ 7, 8 ], [ 11, 12 ], [ 16, 17 ] ]
 
-? @@( o1.FindAsAntiSections("aa") )
+? @@( o1.FindAsAntiSections("aa") ) + NL
 # [ [ 1, 1 ], [ 4, 6 ], [ 9, 10 ], [ 13, 15 ], [ 18, 18 ] ]
 
 ? o1.ContainsXT( :SubString = "***", :BoundedBy = "aa") # Or ? o1.ContainsSubStringBoundedBy()
@@ -6576,7 +6586,7 @@ proff()
 # Executed in 0.04 second(s) in Ring 1.21
 # Executed in 0.18 second(s) in ring 1.18
 
-#---------
+/*---------
 
 pron()
 #                      4 6  90  3 5
@@ -6594,7 +6604,7 @@ proff()
 
 proff()
 
-#---------
+/*---------
 
 pron()
 #                      4 6      3 5
@@ -7201,7 +7211,7 @@ o1 = new stzString("...ONE...TWO...ONE")
 #--> [ [ 4, 6 ], [ 10, 12 ], [ 16, 18 ] ]
 
 proff()
-# Executed in 1.42 second(s) in Ring 1.21
+# Executed in 1.28 second(s) in Ring 1.21
 # Executed in 3.91 second(s) in Ring 1.18
 
 /*-----------------
@@ -7330,7 +7340,7 @@ proff()
 # Executed in 0.03 second(s) in Ring 1.21
 
 /*------
-*/
+
 pron()
 
 o1 = new stzString(" <<<<word>>> and ~~~~word~~~~~ ")
@@ -7389,6 +7399,8 @@ proff()
 
 /*========================
 
+pron()
+
 #NOTE :
 #	- RemoveNthItem(n) : Remove item at position n
 #
@@ -7398,7 +7410,7 @@ proff()
 #	- RemoveThisNthItem(n, pItem) : remove nth item only if it
 #	  is equal to pItem
 
-/*
+
 o1 = new stzString("_ABC_DE_")
 
 o1.RemoveFirstChar()
@@ -7419,14 +7431,24 @@ o1.RemoveThisNthChar(3, "_")
 ? o1.Content()
 #--> BCDE
 
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
 /*========================
+
+pron()
 
 o1 = new stzString("ABC456DE")
 o1.RemoveSection(4, 6)
 ? o1.Content()
 #--> "ABCDE"
 
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
 /*----------------------
+
+pron()
 
 o1 = new stzString("{HELLO}")
 o1.RemoveFromStart("{")
@@ -7437,42 +7459,21 @@ o1.RemoveFromEnd("}")
 ? o1.Content()
 #--> "HELLO"
 
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
 /*=================
 
 StartProfiler()
 
 o1 = new stzString("123456789")
+
 o1.ReplaceSection(4, 6, :with = "♥♥♥")
 ? o1.Content()
+#--> 123♥♥♥789
 
 StopProfiler()
-#--> Executed in 0.02 second(s)
-
-/*----------------
-
-StartProfiler()
-
-o1 = new stzString("ABcdeFG")
-
-o1.ReplaceSection(3, 5, :By@ = 'Q(@EachChar).Uppercased()')
-? o1.Content()
-#--> ABCDEFG
-
-StopProfiler()
-#--> Executed in 0.28 second(s)
-
-/*----------------
-
-StartProfiler()
-
-o1 = new stzList([ "A", "B", "c", "d", "e", "F" , "G" ])
-
-o1.ReplaceSection(3, 5, :By@ = 'Q(@EachItem).Uppercased()')
-? o1.Content()
-#--> [ "A", "B", "C", "D", "E", "F", "G" ]
-
-StopProfiler()
-#--> Executed in 0.26 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*===================
 
@@ -7487,7 +7488,7 @@ Q("Ring programmin language.") {
 }
 
 StopProfiler()
-#--> Executed in 0.04 second(s)
+#--> Executed in 0.02 second(s) in Ring 1.21
 
 /*-----------
 
@@ -7504,7 +7505,7 @@ StopProfiler()
 # Executed in 0.02 second(s)
 
 /*-----------
-
+*
 StartProfiler()
 
 Q("__♥__(♥__♥__") {
@@ -7876,7 +7877,8 @@ o1 = new stzString("hello")
 # ]
 
 proff()
-# Executed in 0.54 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.54 second(s) in Ring 1.18
 
 /*----------
 
@@ -7894,7 +7896,7 @@ o1 = new stzString("*4*34")
 # ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*----------------
 
@@ -7912,54 +7914,87 @@ o1 = new stzString("123456")
 # ]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.06 second(s) in Ring 1.19
 
 /*==========
+
+pron()
 
 o1 = new stzString('{ This[ @i - 3 ] = This[ @i + 3 ] }')
 ? o1.NumbersComingAfter("@i")
 #--> [ "-3", "3" ]
 
-? o1.NumbersComingAfterQ("@i").Smallest()
-#--> "-3"
+? o1.NumbersComingAfterQ("@i").NumbrifyQ().Smallest()
+#--> -3
 
-? o1.NumbersComingAfterQ("@i").Greatest()
-#--> "3"
+? o1.NumbersComingAfterQ("@i").NumberifyQ().Greatest()
+#--> 3
+
+proff()
+# Executed in 0.23 second(s) in Ring 1.21
 
 /*----------
 
+pron()
+
 o1 = new stzString("@item = This[ @i+1 ]")
-? o1.Numbers()
-//? @@( o1.NumbersAfter("@i") )
+
+? @@( o1.Numbers() ) + NL
+#--> [ "+1" ]
+
+? @@( o1.NumbersAfter("@i") )
+#--> [ "+1" ]
+
+proff()
+# Executed in 0.12 second(s) in Ring 1.21
 
 /*=================
+
+pron()
 
 o1 = new stzString("123456789")
-? o1.Section(3, -3)
+
+//? o1.Section(3, -3)
+#!--> ERROR: Indexes out of range! n1 and n2 must be inside the string.
+
+? o1.SectionXT(3, -3)
 #--> "34567"
 
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
 /*=================
-*
+
+pron()
+
 o1 = new stzString("... ____ ... ____")
 ? o1.Find("...")
 #--> [ 1, 10 ]
 
-? @@( o1.FindOccurrencesXT( :Of = "...", :AndReturnThemAs = :Positions ) )
-#--> [ 1, 10 ]
-
-? @@( o1.FindOccurrencesXT( :Of = "...", :AndReturnThemAs = :Sections ) )
+? @@( o1.FindZZ("...") )
 #--> [ [ 1, 3 ], [ 10, 12 ] ]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*----------------
 
+pron()
+
 o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12")
-? @@( o1.Find("12.34") )
+
+? @@( o1.Find("12.34") ) + NL
 #--> [ 7, 39 ]
-? @@( o1.FindAsSections("12.34") )
+
+? @@( o1.FindAsSections("12.34") ) + NL
 #--> [ [ 7, 11 ], [ 39, 43 ] ]
 
 ? @@( o1.FindManyAsSections([ "12.34", "-56.30", "77.12" ]) )
 #--> [ [ 7, 11 ], [ 21, 26 ], [ 39, 43 ], [ 55, 59 ] ]
+
+proff()
+# Executed in 0.05 second(s) in Ring 1.21
 
 /*=================
 
@@ -7976,6 +8011,7 @@ o1 = new stzString("-23.67 pounds")
 #--? TRUE
 
 proff()
+# Executed in 0.04 second(s) in Ring 1.21
 
 /*-----------------
 
@@ -7992,7 +8028,7 @@ o1 = new stzString("Amount: -132.45")
 #--> "-132.45"
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s) in Ring 1.21
 
 /*-----------------
 
@@ -8014,7 +8050,7 @@ o1 = new stzString("Amount: +132.45")
 #--> "+132.45"
 
 proff()
-#--> Executed in 0.06 second(s)
+#--> Executed in 0.04 second(s) in Ring 1.21
 
 /*-----------------
 
@@ -8031,7 +8067,7 @@ o1 = new stzString("Amount: +132.45")
 #--> "+132.45"
 
 proff()
-# Executed in 0.06 second(s)s
+# Executed in 0.04 second(s) in Ring 1.21
 
 /*==================
 
@@ -8042,9 +8078,10 @@ o1 = new stzList([ ".", ".", "M", ".", "I", "X" ])
 #--> [1, 2, 4]
 
 proff()
-# Executed in 0.17 second(s).
+# Executed in 0.08 second(s) in Ring 1.21
+# Executed in 0.17 second(s) in Ring 1.17
 
-/*==============
+/*============== #TODO Test it after adding Yield()
 
 pron()
 
@@ -8107,21 +8144,32 @@ proff()
 
 /*==================
 
-o1 = new stzList([ ".",".",".","4","5","6",".",".","." ])
-? o1.NextNItems(3, :StartingAtPosition = 4)
-#--> [ "4", "5", "6" ]
+pron()
 
-? o1.PreviousNItems(3, :StartingAtPosition = 6)
-#--> [ "4", "5", "6" ]
+o1 = new stzList([ ".",".",".", 4, 5, 6,".",".","." ])
+
+? o1.NextNItems(3, :StartingAtPosition = 3)
+#--> [ 4, 5, 6 ]
+
+? o1.PreviousNItems(3, :StartingAtPosition = 7)
+#--> [ 4, 5, 6 ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.21
 
 /*------------------
 
+pron()
+
 o1 = new stzString("...456...")
-? o1.NextNChars(3, :StartingAtPosition = 4)
+
+? o1.NextNChars(3, :StartingAt = 3)
 #--> [ "4", "5", "6" ]
 
-? o1.PreviousNChars(3, :StartingAtPosition = 6)
+? o1.PreviousNChars(3, :StartingAtPosition = 7)
 #--> [ "4", "5", "6" ]
+
+proff()
 
 /*================== 
 
@@ -8194,12 +8242,27 @@ o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
 ? o1.FindWXT('@CurrentItem = "*"')
 # Executed in 0.22 second(s)
 
-? @@(o1.SplitWXT('@CurrentItem = "*"'))
+o1.SplitAtPositions([ 4, 7 ])
+? @@( o1.Content() )
 #--> [ [ 4, 8, 10 ], [ 14, 16 ], [ 18 ] ]
-# Executed in 0.22 second(s)
 
 proff()
-# Executed in 0.44 second(s)
+# # Executed in 0.10 second(s) in Ring 1.21
+# Executed in 0.44 second(s) in Ring 1.17
+
+/*--------
+*/
+pron()
+
+o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
+
+o1.SplitWXT('@CurrentItem = "*"')
+
+? @@( o1.Content() )
+#--> [ [ 4, 8, 10 ], [ 14, 16 ], [ 18 ] ]
+
+proff()
+# Executed in 0.09 second(s) in Ring 1.21
 
 /*==============
 
@@ -8265,7 +8328,7 @@ o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12"
 #--> [ [ 7, 11 ], [ 21, 26 ], [ 39, 43 ], [ 55, 59 ] ]
 
 /*================
-
+*/
 StartProfiler()
 
 o1 = new stzString( " This 10 : @i - 1.23 and this: @i + 378.12! " )
@@ -8279,10 +8342,11 @@ o1 = new stzString( " This 10 : @i - 1.23 and this: @i + 378.12! " )
 #--> [ "10", "-1.23", "+378.12" ]
 
 StopProfiler()
-# Executed in 0.51 second(s)
+# Executed in 0.27 second(s) in Ring 1.21
+# Executed in 0.51 second(s) in Ring 1.19
 
 /*-----------------
-
+*/
 pron()
 
 o1 = new stzString( " This[ @i - 1 ] = This[ @i + 3 ] " )
@@ -8290,7 +8354,8 @@ o1 = new stzString( " This[ @i - 1 ] = This[ @i + 3 ] " )
 #--> [ "-1", "+3" ]
 
 proff()
-#--> Executed in 0.14 second(s)
+# Executed in 0.08 second(s) in Ring 1.21
+# Executed in 0.14 second(s) in Ring 1.17
 
 /*-----------------
 
@@ -8379,15 +8444,17 @@ o1.RemoveThisLastChar("}")
 #--> TRUE
 
 /*----------------------
+*/
+pron()
 
 ? Q("ONE-TWO-THREE").Split("-")
 #--> [ "ONE", "TWO", "THREE" ]
 
-? Q("ONE-TWO-THREE").SplitW('{ Q(@char).IsNotLetter() }')
+? Q("ONE-TWO-THREE").SplitAtCharsWXT('{ Q(@char).IsNotLetter() }')
 #--> [ "ONE", "TWO", "THREE" ]
 
-? Q("ONE-TWO-THREE") / W('Q(@char).IsNotLetter()')
-#--> [ "ONE", "TWO", "THREE" ]
+proff()
+# Executed in 0.18 second(s) in Ring 1.21
 
 /*----------------------
 
