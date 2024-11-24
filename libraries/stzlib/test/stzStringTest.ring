@@ -8272,7 +8272,7 @@ proff()
 # Executed in 0.09 second(s) in Ring 1.21
 
 /*==============
-*/
+
 pron()
 
 o1 = new stzString("..._...__...___...")
@@ -8290,70 +8290,92 @@ proff()
 
 /*-----------------
 
-o1 = new stzString("_-132__114.45_ euros")
-? o1.Numbers()
+pron()
 
-/*
+o1 = new stzString("-132114.45 euros and 246 cents")
+
+? @@( o1.FindNumbers() )
+#--> [ 1, 22 ]
+
+? @@( o1.FindNumbersZZ() )  + NL
+#--> [ [ 1, 10 ], [ 22, 24 ] ]
+
+? @@( o1.Numbers() )
+#--> [ "-132114.45", "246" ]
+
+? @@( o1.NumbersZZ() ) + NL
+#--> [ [ "-132114.45", [ 1, 10 ] ], [ "246", [ 22, 24 ] ] ]
+
 ? o1.StartsWithANumber()
 #--> TRUE
 
-? o1.StartsWithNumber("-132114.45")
+? o1.StartsWithThisNumber("-132")
 #--> TRUE
-/*
+
+? o1.StartsWithThisNumber("-132114.45") + NL
+#--> TRUE
+
 ? o1.LeadingNumber()
-#--> +132.45
+#--> "-132114.45"
+
+proff()
+# Executed in 0.08 second(s) in Ring 1.21
 
 /*=================
+
+pron()
 
 o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12")
 
 ? @@( o1.Numbers() ) + NL
 #--> [ "12.34", "-56.30", "12.34", "77.12" ]
 
-
-? @@( o1.UniqueNumbers() )
+? @@( o1.UniqueNumbers() ) + NL
 #--> [ "12.34", "-56.30", "77.12" ]
 
+#--
 
-? @@( o1.FindNumbers()) + NL
+? @@( o1.FindNumbers())
 #--> [ 7, 21, 39, 55 ]
 
-? @@( o1.NumbersAndTheirPositions() ) + NL
-#-->
-# [
-# 	[ "12.34",  [ 7, 39 ] ],
-#	[ "-56.30", [ 21 ]    ],
-#	[ "77.12",  [ 55 ]    ]
+? @@( o1.FindNumbersZZ() ) # FindNumbersAsSections
+#--> [ [ 7, 11 ], [ 21, 26 ], [ 39, 43 ], [ 55, 59 ] ]
+
+? @@NL( o1.NumbersZ() ) + NL # Same as NumbersAndTheirPositions()
+#--> [
+#	[ "12.34", [ 7, 39 ] ],
+#	[ "-56.30", [ 21 ] ],
+#	[ "77.12", [ 55 ] ]
 # ]
 
-? @@( o1.NumbersAndTheirSections() ) #TODO // Enhance performance!
+? @@NL( o1.NumbersZZ() ) # Same as NumbersAndTheirSections()
 #-->
 # [
 # 	[ "12.34", 	[ [ 7, 11 ], [ 39, 43 ]	] ],
-#	[ "-56.30",	[ [ 21, 26 ] 		   	] ],
-#	[ "77.12", 	[ [ 55, 59 ] 			] ]
+#	[ "-56.30",	[ [ 21, 26 ] ] ],
+#	[ "77.12", 	[ [ 55, 59 ] ] ]
 # ]
 
-? @@( o1.FindNumbersAsSections() ) + NL
-#--> [ [ 7, 11 ], [ 21, 26 ], [ 39, 43 ], [ 55, 59 ] ]
+proff()
+# Executed in 0.06 second(s) in Ring 1.21
 
 /*================
-*/
+
 StartProfiler()
 
 o1 = new stzString( " This 10 : @i - 1.23 and this: @i + 378.12! " )
 ? o1.NumbersComingAfter("@i")
-#--> [ "-1.23", "+378.12" ]
+#--> [ "-1.23", "378.12" ]
 
-? o1.NthNumberComingAfter(2, "@i")
-#--> "+378.12"
+? o1.NthNumberComingAfter(2, "@i") + NL
+#--> "378.12"
 
 ? o1.Numbers()
-#--> [ "10", "-1.23", "+378.12" ]
+#--> [ "10", "-1.23", "378.12" ]
 
 StopProfiler()
-# Executed in 0.27 second(s) in Ring 1.21
-# Executed in 0.51 second(s) in Ring 1.19
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.51 second(s) in Ring 1.17
 
 /*-----------------
 */
@@ -8361,10 +8383,10 @@ pron()
 
 o1 = new stzString( " This[ @i - 1 ] = This[ @i + 3 ] " )
 ? o1.NumbersComingAfter("@i")
-#--> [ "-1", "+3" ]
+#--> [ "-1", "3" ]
 
 proff()
-# Executed in 0.08 second(s) in Ring 1.21
+# Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.14 second(s) in Ring 1.17
 
 /*-----------------

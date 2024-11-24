@@ -42126,26 +42126,6 @@ class stzString from stzObject
 
 		#>
 
-	  #==============================================#
-	 #  SUBSTRINGS MADE OF A GIVEN OTHER SUBSTRING  #
-	#==============================================#
-	
-	def SubStringsMadeOfCSXT(pcSubStr, pCaseSensitive)
-		aSections = This.FindSubStringsMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
-		aResult = This.SectionsXT(aSections)
-		return aResult
-
-		def MadeOfCSXT(pcSubStr, pCaseSensitive)
-			return This.SubStringsMadeOfCSXT(pcSubStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-	
-	def SubStringsMadeOfXT(pcSubStr)
-		return This.SubStringsMadeOfCSXT(pcSubStr, TRUE)
-	
-		def MadeOfXT(pcSubStr)
-			return This.SubStringsMadeOfXT(pcSubStr)
-
 	  #------------------------------------------------#
 	 #  FINDING SUBSTRINGS MADE OF A GIVEN SUBSTRING  #
 	#------------------------------------------------#
@@ -42379,11 +42359,29 @@ class stzString from stzObject
 
 		#>
 
+	  #----------------------------------------------------#
+	 #  SUBSTRINGS MADE OF A GIVEN OTHER SUBSTRING -- XT  #
+	#====================================================#
+	
+	def SubStringsMadeOfCSXT(pcSubStr, pCaseSensitive)
+		aSections = This.FindSubStringsMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)
+		aResult = This.SectionsXT(aSections)
+		return aResult
+
+		def MadeOfCSXT(pcSubStr, pCaseSensitive)
+			return This.SubStringsMadeOfCSXT(pcSubStr, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+	
+	def SubStringsMadeOfXT(pcSubStr)
+		return This.SubStringsMadeOfCSXT(pcSubStr, TRUE)
+	
+		def MadeOfXT(pcSubStr)
+			return This.SubStringsMadeOfXT(pcSubStr)
+
 	  #==============================================================#
 	 #   REPLACING A CHAR AT A GIVEN POSITION BY A GIVEN SUBSTRING  #
 	#==============================================================#
-
-	#TODO : Add case sensitivity
 
 	def ReplaceCharAtPosition(n, pcNewSubStr)
 		#< @MotherFunction = ReplaceSection() > @QtBased = TRUE #>
@@ -95321,14 +95319,18 @@ class stzString from stzObject
 		#--> TRUE
 		*/
 
-		oStrCopyWS = This.Copy().RemoveSpacesQ()
+		nLen = This.NumberOfChars()
+		if nLen = 0
+			return FALSE
+		ok
 
-		if  oStrCopyWS.FirstCharQ().IsANumberInString() or
+		cFirst = This.Char(1)
+		if cFirst = "+" or cFirst = "-"
+			cFirst = This.Char(2)
+		ok
 
-		    ( oStrCopyWS.NumberOfChars() > 1 and
-		      oStrCopyWS.FirstCharQ().IsEither("+", :Or = "-") and
-		      oStrCopyWS.SecondCharQ().IsANumberInString() )
-
+		oChar = new stzChar(cFirst)
+		if oChar.IsANumber()
 			return TRUE
 		else
 			return FALSE
@@ -95391,7 +95393,7 @@ class stzString from stzObject
 			else
 
 				if NOT ( @IsNumberInString(acChars[i]) or
-					 ring_find([ "+", "-", ".", "_"], acChars[i]) > 0 )
+					 ring_find([ "+", "-", "." ], acChars[i]) > 0 )
 
 					bContinue = FALSE
 
@@ -95413,7 +95415,7 @@ class stzString from stzObject
 
 		#>
 	
-  	  #===================================================#
+  	  #---------------------------------------------------#
 	 #  CHECKING IF THE STRING ENDS WITH A GIVEN NUMBER  #
 	#===================================================#
 
@@ -95487,7 +95489,7 @@ class stzString from stzObject
 	#---------------------------------------------#
 
 	def EndsWithANumber()
-		nResult = This.LastCharQ().IsANumberInString()
+		nResult = This.LastCharQR(:stzChar).IsANumber()
 		return nResult
 
 		#< @FunctionAlternativeForms
@@ -95541,7 +95543,7 @@ class stzString from stzObject
 			else
 
 				if NOT ( @IsNumberInString(acChars[i]) or
-					 ring_find([ "+", "-", ".", "_"], acChars[i]) > 0 )
+					 ring_find([ "+", "-", "." ], acChars[i]) > 0 )
 
 					bContinue = FALSE
 
@@ -95567,7 +95569,7 @@ class stzString from stzObject
 	 #  GETTING ALL THE (DECIMAL) NUMBERS THAT EXIST IN THE STRING  #
 	#==============================================================#
  
-	def Numbers()
+	def Numbers() #ai // Made in collaboration with ClaudeAI
 		/* EXAMPLE
 
 		o1 = new stzString("book: 12.34, watch: -56.30, glasses: 77.")
@@ -95576,60 +95578,58 @@ class stzString from stzObject
 
 		*/
 
-		cTempStr = This.Content() + " "
-		nLen = This.NumberOfChars() + 1
-
-		cNumber = ""
 		acResult = []
-		bThereWasASign = FALSE
-
+		acChars = This.Chars()
+		nLen = len(acChars)
+		cCurrentNum = ""
+		bInNumber = FALSE
+    
 		for i = 1 to nLen
-			c = Q(cTempStr).CharAt(i)
 
-			if c = " " and bThereWasASign
-				loop
-			ok
+			nLenCurrentNum = len(cCurrentNum) 
+			# Check if char is digit, decimal point, or negative sign
+	
 
-			if StzCharQ(c).IsANumber() or
-			   (c = "+" or c = "-" and cNumber = "") or
-			   ((c = "." or c = "_") and cNumber != "" and StzCharQ(Q(cNumber).LastChar()).IsANumber())
-		
-				cNumber += c
+			if ring_find(["0","1","2","3","4","5","6","7","8","9"], acChars[i]) > 0 or 
+				(acChars[i] = "." and nLenCurrentNum > 0) or
+				(acChars[i] = "-" and nLenCurrentNum = 0)
+            
+				cCurrentNum += acChars[i]
+				bInNumber = TRUE
+            
+			else
+				if bInNumber
 
-			but (NOT StzCharQ(c).IsANumber()) or i = nLen
-		
-				if cNumber != ""
-		
-					cNumber = Q(cNumber).
-						  RemoveThisLastCharQ(".").
-						  RemoveThisLastCharQ("_").
-						  Content()
-		
-					cSign = ""
-					if len(acResult) > 0
-						if acResult[len(acResult)] = "+"
-							cSign = "+"
+					nLenTemp = len(acResult)
 
-						but acResult[len(acResult)] = "-"
-							cSign = "-"
-						ok
+					if nLenTemp > 0 and acResult[nLenTemp] = "-"
+						acResult[nLenTemp] = "-" + cCurrentNum
+					else
+						acResult + cCurrentNum
 					ok
 
-					if cSign != ""
-						del(acResult, len(acResult))
-						cNumber = cSign + cNumber
-					ok
-
-					if cNumber != "+" and cNumber != "-"
-						acResult + cNumber
-						cNumber = ""
-					ok
+					cCurrentNum = ""
+					bInNumber = FALSE
 				ok
 			ok
-		
 		next
-		
+    
+		# Add final number if string ends with a number
+
+		if nLenCurrentNum > 0
+			nLenTemp = len(acResult)
+
+			if nLenTemp > 0 and acResult[nLenTemp] = "-"
+				acResult[nLenTemp] = "-" + cCurrentNum
+			else
+				acResult + cCurrentNum
+			ok
+		ok
+    
 		return acResult
+
+
+		#< @FunctionFluentForms
 
 		def NumbersQ()
 			return This.NumbersQR(:stzList)
@@ -95653,6 +95653,8 @@ class stzString from stzObject
 			other
 				StzRaise("Unsupported return type!")
 			off
+
+		#>
 
 	  #--------------------------------------#
 	 #  EXTRACTING NUMBERS FROM THE STRING  #
@@ -95688,8 +95690,15 @@ class stzString from stzObject
 	#-------------------------------------------------------------------------#
 
 	def NumbersAndTheirPositions() #TODO // Check performance!
-		aResult = Q(This.UniqueNumbers()).AssociatedWith( This.FindNumbers() )
-		return aResult
+		anResult = []
+		acNumbersU = This.UniqueNumbers()
+		nLen = len(acNumbersU)
+
+		for i = 1 to nLen
+			anResult + [ acNumbersU[i], This.Find(acNumbersU[i]) ]
+		next
+
+		return anResult
 
 		def NumbersZ()
 			return This.NumbersAndTheirPositions()
@@ -95777,21 +95786,21 @@ class stzString from stzObject
 	#----------------------------------------------------------------#
 
 	def FindNumbers()
-		anResult = This.FindManyQ( This.UniqueNumbers() ).FlattenQ().Sorted()
+		anResult = This.FindMany( This.Numbers() )
 		return anResult
+
+		def FindNumbersZ()
+			return This.FindNumbers()
 
 	  #---------------------------------------------------------------#
 	 #  FINDING (DECIMAL) NUMBERS IN THE STRING (SECTIONS RETURNED)  #
 	#---------------------------------------------------------------#
 
 	def FindNumbersAsSections()
-		return This.FindManyAsSections( This.UniqueNumbers() )
+		return This.FindManyAsSections( This.Numbers() )
 
-		def FindNumbersSections()
-			return This.FindNumbersAsSection()
-
-		def FindAsSectionsOfNumbers()
-			return This.FindNumbersAsSection()
+		def FindNumbersZZ()
+			return This.FindNumbersAsSections()
 
 	  #--------------------------------------------------------------#
 	 #  GETTING THE NTH (DECIMAL) NUMBER THAT EXISTS IN THE DTRING  #
