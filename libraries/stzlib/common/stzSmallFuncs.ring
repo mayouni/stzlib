@@ -478,3 +478,14 @@ func W(cCode)
 
 	func Where(cCode)
 		return W(cCode)
+
+func WXT(cCode)
+	if NOT isString(cCode)
+		StzRaise("Incorrect param type! cCode must be a string.")
+	ok
+
+	aResult = [:WhereXT, cCode]
+	return aResult
+
+	func WhereXT(cCode)
+		return WXT(cCode)

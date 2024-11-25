@@ -8506,7 +8506,7 @@ proff()
 # Executed in 0.08 second(s) in Ring 1.21
 
 /*----------------------
-*/
+
 pron()
 
 # Because Softanza mimics natural language train of thoughts,
@@ -8548,14 +8548,14 @@ o1 = new stzString("RIxxNxG")
 
 # and the original obkect is not changed:
 ? o1.Content()
-#--> "RIxxNxG"
+#--> RIxxNxG
 
 
 proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*----------------------
-*/
+
 pron()
 
 ? Q("ONE-TWO-THREE").Split("-")
@@ -8567,34 +8567,92 @@ pron()
 proff()
 # Executed in 0.18 second(s) in Ring 1.21
 
-/*----------------------
+/*=================
+
+pron()
+
+o1 = new stzString("RingRingRing")
+
+? o1.SplitWXT("Q(@char).IsUppercase()")
+#--> [ "ing", "ing", "ing" ]
+
+? o1.SplitAtWXT("Q(@char).IsUppercase()")
+#--> [ "ing", "ing", "ing" ]
+
+? o1.SplitWXT(:At = "Q(@char).IsUppercase()")
+#--> [ "ing", "ing", "ing" ]
+
+proff()
+# Executed in 0.41 second(s) in Ring 1.21
+
+/*-----------
+*/
+pron()
+
+o1 = new stzString("RingRingRing")
+
+? @@( o1.SplitWXT(:At = " @position % 4 = 0 ") )
+#--> [ "Rin", "Rin", "Rin" ]
+
+? @@( o1.SplitWXT(:After = " @position % 4 = 0 ") )
+#--> [ "Ring", "Ring", "Ring" ]
+
+proff()
+# Executed in 0.19 second(s) in Ring 1.21
+
+/*-----------
+
+pron()
+
+o1 = new stzString("RingRingRing")
+
+? o1.SplitAtCharsWXT("Q(@char).IsUppercase()")
+#--> [ "ing", "ing", "ing" ]
+
+? o1.SplitWXT(:AtChars = "Q(@char).IsUppercase()")
+#--> [ "ing", "ing", "ing" ]
+
+proff()
+
+/*-----------
+*/
+pron()
+
+
+proff()
+
+/*---------------------- #narration
+*/
+pron()
 
 # Five nice usecases of the / operator on a Softanza string:
 
 # Usecase 1: Dividing the string into 3 equal parts
-? Q("RingRingRing") / 3
+//? Q("RingRingRing") / 3
 #--> [ "Ring", "Ring", "Ring" ]
 
 # Usecase 2: Splitting the string using a given char
-? Q("Ring;Python;Ruby") / ";"
+//? Q("Ring;Python;Ruby") / ";"
 #--> [ "Ring", "Python", "Ruby" ]
 
 # Usecase 3: Splitting the string on each char verifying a condition
-? Q("Ring:Python;Ruby") / W('Q(@Char).IsNotLetter()')
+? Q("Ring:Python;Ruby") / WXT('Q(@Char).IsNotLetter()')
 #--> [ "Ring", "Python", "Ruby" ]
 
 # Usecase 4: Sharing the string equally between three stakeholders
-? Q("RingRubyJava") / [ "Qute", "Nice", "Good" ]
+//? @@( Q("RingRubyJava") / [ "Qute", "Nice", "Good" ] ) + NL
 #--> [ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]
-
+/*
 # Usecase 5: Specifying how mutch char we should give to every stakeholder
-? Q("IAmRingDeveloper") / [
+? @@( Q("IAmRingDeveloper") / [
 	:Subject = 1,
 	:Verb    = 2,
 	:Noun1   = 4,
 	:Noun2   = :RemainingChars
-]
+])
 #--> [ :Subject = "I", :Verb = "Am", :Noun1 = "Ring", :Noun2 = "Developer" ]
+*/
+proff()
 
 /*---------------
 

@@ -42767,7 +42767,7 @@ class stzString from stzObject
 		#>
 
 	def CharsReplacedWXT(pcCondition, pcNewSubStr)
-		cResult = This.Copy().ReplaceCharsWXTQ(pcCondition, pcSubStr).Content()
+		cResult = This.Copy().ReplaceCharsWXTQ(pcCondition, pcNewSubStr).Content()
 		return cResult
 
 	  #-------------------------------------------------------------------------------#
@@ -60739,6 +60739,954 @@ class stzString from stzObject
 
 		#>
 
+	  #================================================#
+	 #  SPLITTING THE STRING UNDER A GIVEN CONDITION  #
+	#================================================#
+
+	def SplitWCS(pcCondition, pCaseSensitive)
+		if CheckParams()
+			if isList(pcCondition)
+				oParam = new stzList(pcCondition)
+
+				if oParam.IsAtNamedParam()
+					return This.SplitAtWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAtPositionNamedParam()
+					return This.SplitAtPositionWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAtPositionsNamedParam()
+					return This.SplitAtPositionsWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAtSubStringNamedParam()
+					return This.SplitAtSubStringWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAtSubStringsNamedParam()
+					return This.SplitAtSubStringsWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAtSectionNamedParam()
+					return This.SplitAtSectionWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAtSectionsNamedParam()
+					return This.SplitAtSectionsWCS(pcCondition, pCaseSensitive)
+
+				#--
+
+				but oParam.IsBeforeNamedParam()
+					return This.SplitBeforeWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsBeforePositionNamedParam()
+					return This.SplitBeforePositionWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsBeforePositionsNamedParam()
+					return This.SplitBeforePositionsWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsBeforeSubStringNamedParam()
+					return This.SplitBeforeSubStringWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsBeforeSubStringsNamedParam()
+					return This.SplitBeforeSubStringsWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsBeforeSectionNamedParam()
+					return This.SplitBeforeSectionWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsBeforeSectionsNamedParam()
+					return This.SplitBeforeSectionsWCS(pcCondition, pCaseSensitive)
+
+				#--
+
+				but oParam.IsAfterNamedParam()
+					return This.SplitAfterWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAfterPositionNamedParam()
+					return This.SplitAfterPositionWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAfterPositionsNamedParam()
+					return This.SplitAfterPositionsWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAfterSubStringNamedParam()
+					return This.SplitAfterSubStringWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAfterSubStringsNamedParam()
+					return This.SplitAfterSubStringsWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAfterSectionNamedParam()
+					return This.SplitAfterSectionWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAfterSectionsNamedParam()
+					return This.SplitAfterSectionsWCS(pcCondition, pCaseSensitive)
+
+				#--
+
+				but oParam.IsAroundNamedParam()
+					return This.SplitAroundWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAroundPositionNamedParam()
+					return This.SplitAroundPositionWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAroundPositionsNamedParam()
+					return This.SplitAroundPositionsWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAroundSubStringNamedParam()
+					return This.SplitAroundSubStringWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAroundSubStringsNamedParam()
+					return This.SplitAroundSubStringsWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAroundSectionNamedParam()
+					return This.SplitAroundSectionWCS(pcCondition, pCaseSensitive)
+
+				but oParam.IsAroundSectionsNamedParam()
+					return This.SplitAroundSectionsWCS(pcCondition, pCaseSensitive)
+
+				ok
+
+			ok
+
+			if NOT isString(pccondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+		ok
+
+		return This.SplitAtWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitW(pcCondition)
+		return This.SplitWCS(pcCondition, TRUE)
+
+	  #---------------------------------------------#
+	 #  SPLITTiNG THE STRING AT A GIVEN CONDITION  #
+	#---------------------------------------------#
+
+	def SplitAtWCS(pcCondition, pCaseSensitive)
+
+		oCondition = new stzString(pcCondition)
+
+		bChars = oCondition.ContainsCS("@char", FALSE)
+		bSubStr = oCondition.ContainsCS("@substring", FALSE)
+
+		if bChars and NOT bSubStr
+			return This.SplitAtCharsWCS(pcCondition, pCaseSensitive)
+
+		but bSubStr and NOT bChars
+			return This.SplitAtSubStringsWCS(pcCondition, pCaseSensitive)
+
+		else
+			StzRaise("Syntax error! pcCondition must contains @char or @substring keyword but not both.")
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAtW(pcCondition)
+		return This.SplitAWCS(pcCondition, TRUE)
+
+	  #======================================================#
+	 #  SPLITTING THE STRING UNDER A GIVEN CONDITION -- XT  #
+	#======================================================#
+
+	def SplitWCSXT(pcCondition, pCaseSensitive)
+		if CheckParams()
+			if isList(pcCondition)
+				oParam = new stzList(pcCondition)
+
+				if oParam.IsAtNamedParam()
+					return This.SplitAtWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAtPositionNamedParam()
+					return This.SplitAtPositionWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAtPositionsNamedParam()
+					return This.SplitAtPositionsWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAtSubStringNamedParam()
+					return This.SplitAtSubStringWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAtSubStringsNamedParam()
+					return This.SplitAtSubStringsWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAtSectionNamedParam()
+					return This.SplitAtSectionWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAtSectionsNamedParam()
+					return This.SplitAtSectionsWCSXT(pcCondition[2], pCaseSensitive)
+
+				#--
+
+				but oParam.IsBeforeNamedParam()
+					return This.SplitBeforeWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsBeforePositionNamedParam()
+					return This.SplitBeforePositionWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsBeforePositionsNamedParam()
+					return This.SplitBeforePositionsWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsBeforeSubStringNamedParam()
+					return This.SplitBeforeSubStringWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsBeforeSubStringsNamedParam()
+					return This.SplitBeforeSubStringsWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsBeforeSectionNamedParam()
+					return This.SplitBeforeSectionWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsBeforeSectionsNamedParam()
+					return This.SplitBeforeSectionsWCSXT(pcCondition[2], pCaseSensitive)
+
+				#--
+
+				but oParam.IsAfterNamedParam()
+					return This.SplitAfterWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAfterPositionNamedParam()
+					return This.SplitAfterPositionWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAfterPositionsNamedParam()
+					return This.SplitAfterPositionsWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAfterSubStringNamedParam()
+					return This.SplitAfterSubStringWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAfterSubStringsNamedParam()
+					return This.SplitAfterSubStringsWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAfterSectionNamedParam()
+					return This.SplitAfterSectionWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAfterSectionsNamedParam()
+					return This.SplitAfterSectionsWCSXT(pcCondition[2], pCaseSensitive)
+
+				#--
+
+				but oParam.IsAroundNamedParam()
+					return This.SplitAroundWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAroundPositionNamedParam()
+					return This.SplitAroundPositionWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAroundPositionsNamedParam()
+					return This.SplitAroundPositionsWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAroundSubStringNamedParam()
+					return This.SplitAroundSubStringWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAroundSubStringsNamedParam()
+					return This.SplitAroundSubStringsWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAroundSectionNamedParam()
+					return This.SplitAroundSectionWCSXT(pcCondition[2], pCaseSensitive)
+
+				but oParam.IsAroundSectionsNamedParam()
+					return This.SplitAroundSectionsWCSXT(pcCondition[2], pCaseSensitive)
+
+				ok
+
+			ok
+
+			if NOT isString(pcCondition)
+				StzRaise("Incorrect param type! pcCondition must be a string.")
+			ok
+		ok
+
+		return This.SplitAtWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitWXT(pcCondition)
+		return This.SplitWCSXT(pcCondition, TRUE)
+
+	  #---------------------------------------------------#
+	 #  SPLITTiNG THE STRING AT A GIVEN CONDITION -- Xt  #
+	#---------------------------------------------------#
+
+	def SplitAtWCSXT(pcCondition, pCaseSensitive)
+
+		oCondition = new stzString(pcCondition)
+
+		bChars = oCondition.ContainsCS("@char", FALSE)
+		bSubStr = oCondition.ContainsCS("@substring", FALSE)
+
+		if bChars and NOT bSubStr
+			return This.SplitAtCharsWCSXT(pcCondition, pCaseSensitive)
+
+		but bSubStr and NOT bChars
+			return This.SplitAtSubStringsWCSXT(pcCondition, pCaseSensitive)
+
+		else
+			StzRaise("Syntax error! pcCondition must contains @char or @substring keyword but not both.")
+		ok
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAtWXT(pcCondition)
+		return This.SplitAtWCSXT(pcCondition, TRUE)
+
+	  #---------------------------------------------------------#
+	 #    SPLITTING AT POSITIONS VERIFYING A GIVEN CONDTION   #
+	#=========================================================#
+
+	def SplitAtPositionsWCS(pcCondition, pCaseSensitive)
+
+		anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
+		acResult = This.SplitAtPositions(anPos)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAtPositionsWCSQ(pcCondition, pCaseSensitive)
+			return This.SplitAtPositionsWCSQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAtPositionsWCSQR(pcCondition, pCaseSensitive pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAtPositionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAtPositionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfPositions
+				return new stzListOfPositions( This.SplitAtPositionsWCS(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAtPositionWCS(pcCondition, pCaseSensitive)
+			return This.SplitAtPositionsWCS(pcCondition, pCaseSensitive)
+
+			def SplitAtPositionWCSQ(pcCondition, pCaseSensitive)
+				return This.SplitAtPositionsWCSQ(pcCondition, pCaseSensitive)
+
+			def SplitAtPositionWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAtPositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAtPositionsWCS(pcCondition, pCaseSensitive)
+		return This.SplitAtPositionsWCS(pcCondition, pCaseSensitive)
+
+		def SplittedAtPositionWCS(pcCondition, pCaseSensitive)
+			return This.SplitAtSubstringsWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAtPositionsW(pcCondition)
+		return This.SplitAtPositionsWCS(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAtPositionsWQ(pcCondition)
+			return This.SplitAtPositionsWQR(pcCondition, :stzList)
+
+		def SplitAtPositionsWQR(pcCondition, pcReturnType)
+			return This.SplitAtPositionsWCSQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAtPositionW(pcCondition)
+			return This.SplitAtPositionsW(pcCondition)
+
+			def SplitAtPositionWQ(pcCondition)
+				return This.SplitAtPositionsWQ(pcCondition)
+
+			def SplitAtPositionWQR(pcCondition, pcReturnType)
+				return This.SplitAtPositionsWQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAtPositionsW(pcCondition)
+		return This.SplitAtPositionsW(pcCondition)
+
+		def SplittedAtPositionW(pcCondition)
+			return This.SplitAtSubstringsW(pcCondition)
+
+	  #------------------------------------------------------------------------#
+	 #    SPLITTING AT POSITIONS VERIFYING A GIVEN CONDTION -- WXT/EXTENDED  #
+	#------------------------------------------------------------------------#
+
+	def SplitAtPositionsWCSXT(pcCondition, pCaseSensitive)
+
+		anPos = This.FindCharsWCSXT(pcCondition, pCaseSensitive)
+		acResult = This.SplitAtPositions(anPos)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAtPositionsWCSXTQ(pcCondition, pCaseSensitive)
+			return This.SplitAtPositionsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAtPositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAtPositionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAtPositionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfPositions
+				return new stzListOfPositions( This.SplitAtPositionsWCSXT(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAtPositionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitAtPositionsWCSXT(pcCondition, pCaseSensitive)
+
+			def SplitAtPositionWCSXTQ(pcCondition, pCaseSensitive)
+				return This.SplitAtPositionsWCSXTQ(pcCondition, pCaseSensitive)
+
+			def SplitAtPositionWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAtPositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAtPositionsWCSXT(pcCondition, pCaseSensitive)
+		return This.SplitAtPositionsWCSXT(pcCondition, pCaseSensitive)
+
+		def SplittedAtPositionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitAtSubstringsWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WTHOUT CASESENSITIVITY
+
+	def SplitAtPositionsWXT(pcCondition)
+		return This.SplitAtPositionsWCSXT(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAtPositionsWXTQ(pcCondition)
+			return This.SplitAtPositionsWXTQR(pcCondition, :stzList)
+
+		def SplitAtPositionsWXTQR(pcCondition, pcReturnType)
+			return This.SplitAtPositionsWCSXTQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAtPositionWXT(pcCondition)
+			return This.SplitAtPositionsWXT(pcCondition)
+
+			def SplitAtPositionWXTQ(pcCondition)
+				return This.SplitAtPositionsWXTQ(pcCondition)
+
+			def SplitAtPositionWXTQR(pcCondition, pcReturnType)
+				return This.SplitAtPositionsWXTQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAtPositionsWXT(pcCondition)
+		return This.SplitAtPositionsWXT(pcCondition)
+
+		def SplittedAtPositionWXT(pcCondition)
+			return This.SplitAtSubstringsWXT(pcCondition)
+
+	  #-------------------------------------------------------------#
+	 #    SPLITTING BEFORE POSITIONS VERIFYING A GIVEN CONDTION   #
+	#=============================================================#
+
+	def SplitBeforePositionsWCS(pcCondition, pCaseSensitive)
+
+		anPos = This.FindCharsWCSZ(pcCondition, pCaseSensitive)
+		acResult = This.SplitBeforePositions(anPos)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitBeforePositionsWCSQ(pcCondition, pCaseSensitive)
+			return This.SplitBeforePositionsWCSQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitBeforePositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitBeforePositionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitBeforePositionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfPositions
+				return new stzListOfPositions( This.SplitBeforePositionsWCS(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+
+		#< @FunctionAlternativeForm
+
+		def SplitBeforePositionWCS(pcCondition, pCaseSensitive)
+			return This.SplitBeforePositionsWCS(pcCondition, pCaseSensitive)
+
+			def SplitBeforePositionWCSQ(pcCondition, pCaseSensitive)
+				return This.SplitBeforePositionsWCSQ(pcCondition, pCaseSensitive)
+
+			def SplitBeforePositionWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitBeforePositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedBeforePositionsWCS(pcCondition, pCaseSensitive)
+		return This.SplitBeforePositionsWCS(pcCondition, pCaseSensitive)
+
+		def SplittedBeforePositionWCS(pcCondition, pCaseSensitive)
+			return This.SplittedBeforePositionsWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitBeforePositionsW(pcCondition)
+		return This.SplitBeforePositionsWCS(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitBeforePositionsWQ(pcCondition)
+			return This.SplitBeforePositionsWQR(pcCondition, :stzList)
+
+		def SplitBeforePositionsWQR(pcCondition, pcReturnType)
+			return This.SplitBeforePositionsWCSQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitBeforePositionW(pcCondition)
+			return This.SplitBeforePositionsW(pcCondition)
+
+			def SplitBeforePositionWQ(pcCondition)
+				return This.SplitBeforePositionsWQ(pcCondition)
+
+			def SplitBeforePositionWQR(pcCondition, pcReturnType)
+				return This.SplitBeforePositionsWQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedBeforePositionsW(pcConditionà
+		return This.SplitBeforePositionsW(pcCondition)
+
+		def SplittedBeforePositionW(pcCondition)
+			return This.SplittedBeforePositionsW(pcCondition)
+
+	  #----------------------------------------------------------------------------#
+	 #    SPLITTING BEFORE POSITIONS VERIFYING A GIVEN CONDTION -- WXT/EXTENDED  #
+	#----------------------------------------------------------------------------#
+
+	def SplitBeforePositionsWCSXT(pcCondition, pCaseSensitive)
+		anPos = This.FindCharsWCSXT(pcCondition, pCaseSensitive)
+		acResult = This.SplitBeforePositions(anPos)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitBeforePositionsWCSXTQ(pcCondition, pCaseSensitive)
+			return This.SplitBeforePositionsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitBeforePositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitBeforePositionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitBeforePositionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfPositions
+				return new stzListOfPositions( This.SplitBeforePositionsWCSXT(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitBeforePositionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitBeforePositionsWCSXT(pcCondition, pCaseSensitive)
+
+			def SplitBeforePositionWCSXTQ(pcCondition, pCaseSensitive)
+				return This.SplitBeforePositionsWCSXTQ(pcCondition, pCaseSensitive)
+
+			def SplitBeforePositionWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitBeforePositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedBeforePositionsWCSXT(pcCondition, pCaseSensitive)
+		return This.SplitBeforePositionsWCSXT(pcCondition, pCaseSensitive)
+
+		def SplittedBeforePositionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplittedBeforePositionsWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitBeforePositionsWXT(pcCondition)
+		return This.SplitBeforePositionsWCSXT(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitBeforePositionsWXTQ(pcCondition)
+			return This.SplitBeforePositionsWXTQR(pcCondition, :stzList)
+
+		def SplitBeforePositionsWXTQR(pcCondition, pcReturnType)
+			return This.SplitBeforePositionsWCSXTQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitBeforePositionWXT(pcCondition)
+			return This.SplitBeforePositionsWXT(pcCondition)
+
+			def SplitBeforePositionWXTQ(pcCondition)
+				return This.SplitBeforePositionsWXTQ(pcCondition)
+
+			def SplitBeforePositionWXTQR(pcCondition, pcReturnType)
+				return This.SplitBeforePositionsWXTQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedBeforePositionsWXT(pcConditionà
+		return This.SplitBeforePositionsWXT(pcCondition)
+
+		def SplittedBeforePositionWXT(pcCondition)
+			return This.SplittedBeforePositionsWXT(pcCondition)
+
+	  #------------------------------------------------------------#
+	 #    SPLITTING AFTER POSITIONS VERIFYING A GIVEN CONDTION   #
+	#============================================================#
+
+	def SplitAfterPositionsWCS(pcCondition, pCaseSensitive)
+
+		anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
+		acResult = This.SplitAfterPositions(anPos)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAfterPositionsWCSQ(pcCondition, pCaseSensitive)
+			return This.SplitAfterPositionsWCSQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAfterPositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAfterPositionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAfterPositionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfPositions
+				return new stzListOfPositions( This.SplitAfterPositionsWCS(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+
+		#< @FunctionAlternativeForm
+
+		def SplitAfterPositionWCS(pcCondition, pCaseSensitive)
+			return This.SplitAfterPositionsWCS(pcCondition, pCaseSensitive)
+
+			def SplitAfterPositionWCSQ(pcCondition, pCaseSensitive)
+				return This.SplitAfterPositionsWCSQ(pcCondition, pCaseSensitive)
+
+			def SplitAfterPositionWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAfterPositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAfterPositionsWCS(pcCondition, pCaseSensitive)
+		return This.SplitAfterPositionsWCS(pcCondition, pCaseSensitive)
+
+		def SplittedAfterPositionWCS(pcCondition, pCaseSensitive)
+			return This.SplittedAfterPositionsWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAfterPositionsW(pcCondition)
+		return This.SplitAfterPositionsWCS(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAfterPositionsWQ(pcCondition)
+			return This.SplitAfterPositionsWQR(pcCondition, :stzList)
+
+		def SplitAfterPositionsWQR(pcCondition, pcReturnType)
+			return This.SplitAfterPositionsWCSQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAfterPositionW(pcCondition)
+			return This.SplitAfterPositionsW(pcCondition)
+
+			def SplitAfterPositionWQ(pcCondition)
+				return This.SplitAfterPositionsWQ(pcCondition)
+
+			def SplitAfterPositionWQR(pcCondition, pcReturnType)
+				return This.SplitAfterPositionsWQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAfterPositionsW(pcConditionà
+		return This.SplitAfterPositionsW(pcCondition)
+
+		def SplittedAfterPositionW(pcCondition)
+			return This.SplittedAfterPositionsW(pcCondition)
+
+	  #---------------------------------------------------------------------------#
+	 #    SPLITTING AFTER POSITIONS VERIFYING A GIVEN CONDTION -- WXT/EXTENDED  #
+	#---------------------------------------------------------------------------#
+
+	def SplitAfterPositionsWCSXT(pcCondition, pCaseSensitive)
+
+		anPos = This.FindCharsWCSXT(pcCondition, pCaseSensitive)
+		acResult = This.SplitAfterPositions(anPos)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAfterPositionsWCSXTQ(pcCondition, pCaseSensitive)
+			return This.SplitAfterPositionsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAfterPositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAfterPositionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAfterPositionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfPositions
+				return new stzListOfPositions( This.SplitAfterPositionsWCSXT(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAfterPositionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitAfterPositionsWCSXT(pcCondition, pCaseSensitive)
+
+			def SplitAfterPositionWCSXTQ(pcCondition, pCaseSensitive)
+				return This.SplitAfterPositionsWCSXTQ(pcCondition, pCaseSensitive)
+
+			def SplitAfterPositionWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAfterPositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAfterPositionsWCSXT(pcCondition, pCaseSensitive)
+		return This.SplitAfterPositionsWCSXT(pcCondition, pCaseSensitive)
+
+		def SplittedAfterPositionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplittedAfterPositionsWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAfterPositionsWXT(pcCondition)
+		return This.SplitAfterPositionsWCSXT(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAfterPositionsWXTQ(pcCondition)
+			return This.SplitAfterPositionsWXTQR(pcCondition, :stzList)
+
+		def SplitAfterPositionsWXTQR(pcCondition, pcReturnType)
+			return This.SplitAfterPositionsWCSXTQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAfterPositionWXT(pcCondition)
+			return This.SplitAfterPositionsWXT(pcCondition)
+
+			def SplitAfterPositionWXTQ(pcCondition)
+				return This.SplitAfterPositionsWXTQ(pcCondition)
+
+			def SplitAfterPositionWXTQR(pcCondition, pcReturnType)
+				return This.SplitAfterPositionsWXTQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAfterPositionsWXT(pcConditionà
+		return This.SplitAfterPositionsWXT(pcCondition)
+
+		def SplittedAfterPositionWXT(pcCondition)
+			return This.SplittedAfterPositionsWXT(pcCondition)
+
+	  #-------------------------------------------------------------#
+	 #    SPLITTING AROUND POSITIONS VERIFYING A GIVEN CONDTION   #
+	#=============================================================#
+
+	def SplitAroundPositionsWCS(pcCondition, pCaseSensitive)
+
+		anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
+		acResult = This.SplitAroundPositions(aSections)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAroundPositionsWCSQ(pcCondition, pCaseSensitive)
+			return This.SplitAroundPositionsWCSQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAroundPositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAroundPositionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAroundPositionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfPositions
+				return new stzListOfPositions( This.SplitAroundPositionsWCS(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+
+		#< @FunctionAlternativeForm
+
+		def SplitAroundPositionWCS(pcCondition, pCaseSensitive)
+			return This.SplitAroundPositionsWCS(pcCondition, pCaseSensitive)
+
+			def SplitAroundPositionWCSQ(pcCondition, pCaseSensitive)
+				return This.SplitAroundPositionsWCSQ(pcCondition, pCaseSensitive)
+
+			def SplitAroundPositionWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAroundPositionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAroundPositionsWCS(pcCondition, pCaseSensitive)
+		return This.SplitAroundPositionsWCS(pcCondition, pCaseSensitive)
+
+		def SplittedAroundPositionWCS(pcCondition, pCaseSensitive)
+			return This.SplittedAroundPositionsWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAroundPositionsW(pcCondition)
+		return This.SplitAroundPositionsWCS(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAroundPositionsWQ(pcCondition)
+			return This.SplitAroundPositionsWQR(pcCondition, :stzList)
+
+		def SplitAroundPositionsWQR(pcCondition, pcReturnType)
+			return This.SplitAroundPositionsWCSQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAroundPositionW(pcCondition)
+			return This.SplitAroundPositionsW(pcCondition)
+
+			def SplitAroundPositionWQ(pcCondition)
+				return This.SplitAroundPositionsWQ(pcCondition)
+
+			def SplitAroundPositionWQR(pcCondition, pcReturnType)
+				return This.SplitAroundPositionsWQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAroundPositionsW(pcConditionà
+		return This.SplitAroundPositionsW(pcCondition)
+
+		def SplittedAroundPositionW(pcCondition)
+			return This.SplittedAroundPositionsW(pcCondition)
+
+	  #----------------------------------------------------------------------------#
+	 #    SPLITTING AROUND SBSTRINGS VERIFYING A GIVEN CONDTION -- WXT/EXTENDED  #
+	#----------------------------------------------------------------------------#
+
+	def SplitAroundPositionsWCSXT(pcCondition, pCaseSensitive)
+
+		anPos = This.FindCharsWCSXT(pcCondition, pCaseSensitive)
+		acResult = This.SplitAroundPositions(aSections)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAroundPositionsWCSXTQ(pcCondition, pCaseSensitive)
+			return This.SplitAroundPositionsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAroundPositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAroundPositionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAroundPositionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfPositions
+				return new stzListOfPositions( This.SplitAroundPositionsWCSXT(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAroundPositionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitAroundPositionsWCSXT(pcCondition, pCaseSensitive)
+
+			def SplitAroundPositionWCSXTQ(pcCondition, pCaseSensitive)
+				return This.SplitAroundPositionsWCSXTQ(pcCondition, pCaseSensitive)
+
+			def SplitAroundPositionWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAroundPositionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAroundPositionsWCSXT(pcCondition, pCaseSensitive)
+		return This.SplitAroundPositionsWCSXT(pcCondition, pCaseSensitive)
+
+		def SplittedAroundPositionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplittedAroundPositionsWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAroundPositionsWXT(pcCondition)
+		return This.SplitAroundPositionsWCSXT(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAroundPositionsWXTQ(pcCondition)
+			return This.SplitAroundPositionsWXTQR(pcCondition, :stzList)
+
+		def SplitAroundPositionsWXTQR(pcCondition, pcReturnType)
+			return This.SplitAroundPositionsWCSXTQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAroundPositionWXT(pcCondition)
+			return This.SplitAroundPositionsWXT(pcCondition)
+
+			def SplitAroundPositionWXTQ(pcCondition)
+				return This.SplitAroundPositionsWXTQ(pcCondition)
+
+			def SplitAroundPositionWXTQR(pcCondition, pcReturnType)
+				return This.SplitAroundPositionsWXTQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAroundPositionsWXT(pcConditionà
+		return This.SplitAroundPositionsWXT(pcCondition)
+
+		def SplittedAroundPositionWXT(pcCondition)
+			return This.SplittedAroundPositionsWXT(pcCondition)
+
 	  #---------------------------------------------------------#
 	 #    SPLITTING AT SUBSTRINGS VERIFYING A GIVEN CONDTION   #
 	#=========================================================#
@@ -60775,8 +61723,24 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SplitAtSubStringWCS(pcCondition, pCaseSensitive)
+			return This.SplitAtSubStringsWCS(pcCondition, pCaseSensitive)
+
+			def SplitAtSubStringWCSQ(pcCondition, pCaseSensitive)
+				return This.SplitAtSubStringsWCSQ(pcCondition, pCaseSensitive)
+
+			def SplitAtSubStringWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
 	def SplittedAtSubStringsWCS(pcCondition, pCaseSensitive)
 		return This.SplitAtSubStringsWCS(pcCondition, pCaseSensitive)
+
+		def SplittedAtSubStringWCS(pcCondition, pCaseSensitive)
+			return This.SplitAtSubstringsWCS(pcCondition, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -60793,8 +61757,24 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SplitAtSubStringW(pcCondition)
+			return This.SplitAtSubStringsW(pcCondition)
+
+			def SplitAtSubStringWQ(pcCondition)
+				return This.SplitAtSubStringsWQ(pcCondition)
+
+			def SplitAtSubStringWQR(pcCondition, pcReturnType)
+				return This.SplitAtSubStringsWQR(pcCondition, pcReturnType)
+
+		#>
+
 	def SplittedAtSubStringsW(pcCondition)
 		return This.SplitAtSubStringsW(pcCondition)
+
+		def SplittedAtSubStringW(pcCondition)
+			return This.SplitAtSubstringsW(pcCondition)
 
 	  #------------------------------------------------------------------------#
 	 #    SPLITTING AT SUBSTRINGS VERIFYING A GIVEN CONDTION -- WXT/EXTENDED  #
@@ -60825,8 +61805,24 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SplitAtSubStringWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitAtSubStringsWCSXT(pcCondition, pCaseSensitive)
+
+			def SplitAtSubStringWCSXTQ(pcCondition, pCaseSensitive)
+				return This.SplitAtSubStringsWCSXTQ(pcCondition, pCaseSensitive)
+
+			def SplitAtSubStringWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAtSubStringsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
 	def SplittedAtSubStringsWCSXT(pcCondition, pCaseSensitive)
 		return This.SplitAtSubStringsWCSXT(pcCondition, pCaseSensitive)
+
+		def SplittedAtSubStringWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitAtSubstringsWCSXT(pcCondition, pCaseSensitive)
 
 	#-- WTHOUT CASESENSITIVITY
 
@@ -60843,8 +61839,24 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SplitAtSubStringWXT(pcCondition)
+			return This.SplitAtSubStringsWXT(pcCondition)
+
+			def SplitAtSubStringWXTQ(pcCondition)
+				return This.SplitAtSubStringsWXTQ(pcCondition)
+
+			def SplitAtSubStringWXTQR(pcCondition, pcReturnType)
+				return This.SplitAtSubStringsWXTQR(pcCondition, pcReturnType)
+
+		#>
+
 	def SplittedAtSubStringsWXT(pcCondition)
 		return This.SplitAtSubStringsWXT(pcCondition)
+
+		def SplittedAtSubStringWXT(pcCondition)
+			return This.SplitAtSubstringsWXT(pcCondition)
 
 	  #-------------------------------------------------------------#
 	 #    SPLITTING BEFORE SUBSTRINGS VERIFYING A GIVEN CONDTION   #
@@ -60882,8 +61894,25 @@ class stzString from stzObject
 
 		#>
 
+
+		#< @FunctionAlternativeForm
+
+		def SplitBeforeSubStringWCS(pcCondition, pCaseSensitive)
+			return This.SplitBeforeSubStringsWCS(pcCondition, pCaseSensitive)
+
+			def SplitBeforeSubStringWCSQ(pcCondition, pCaseSensitive)
+				return This.SplitBeforeSubStringsWCSQ(pcCondition, pCaseSensitive)
+
+			def SplitBeforeSubStringWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitBeforeSubStringsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
 	def SplittedBeforeSubStringsWCS(pcCondition, pCaseSensitive)
 		return This.SplitBeforeSubStringsWCS(pcCondition, pCaseSensitive)
+
+		def SplittedBeforeSubStringWCS(pcCondition, pCaseSensitive)
+			return This.SplittedBeforeSubStringsWCS(pcCondition, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -60900,8 +61929,24 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SplitBeforeSubStringW(pcCondition)
+			return This.SplitBeforeSubStringsW(pcCondition)
+
+			def SplitBeforeSubStringWQ(pcCondition)
+				return This.SplitBeforeSubStringsWQ(pcCondition)
+
+			def SplitBeforeSubStringWQR(pcCondition, pcReturnType)
+				return This.SplitBeforeSubStringsWQR(pcCondition, pcReturnType)
+
+		#>
+
 	def SplittedBeforeSubStringsW(pcConditionà
 		return This.SplitBeforeSubStringsW(pcCondition)
+
+		def SplittedBeforeSubStringW(pcCondition)
+			return This.SplittedBeforeSubStringsW(pcCondition)
 
 	  #----------------------------------------------------------------------------#
 	 #    SPLITTING BEFORE SUBSTRINGS VERIFYING A GIVEN CONDTION -- WXT/EXTENDED  #
@@ -60939,8 +61984,24 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SplitBeforeSubStringWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitBeforeSubStringsWCSXT(pcCondition, pCaseSensitive)
+
+			def SplitBeforeSubStringWCSXTQ(pcCondition, pCaseSensitive)
+				return This.SplitBeforeSubStringsWCSXTQ(pcCondition, pCaseSensitive)
+
+			def SplitBeforeSubStringWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitBeforeSubStringsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
 	def SplittedBeforeSubStringsWCSXT(pcCondition, pCaseSensitive)
 		return This.SplitBeforeSubStringsWCSXT(pcCondition, pCaseSensitive)
+
+		def SplittedBeforeSubStringWCSXT(pcCondition, pCaseSensitive)
+			return This.SplittedBeforeSubStringsWCSXT(pcCondition, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -60957,20 +62018,30 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SplitBeforeSubStringWXT(pcCondition)
+			return This.SplitBeforeSubStringsWXT(pcCondition)
+
+			def SplitBeforeSubStringWXTQ(pcCondition)
+				return This.SplitBeforeSubStringsWXTQ(pcCondition)
+
+			def SplitBeforeSubStringWXTQR(pcCondition, pcReturnType)
+				return This.SplitBeforeSubStringsWXTQR(pcCondition, pcReturnType)
+
+		#>
+
 	def SplittedBeforeSubStringsWXT(pcConditionà
 		return This.SplitBeforeSubStringsWXT(pcCondition)
+
+		def SplittedBeforeSubStringWXT(pcCondition)
+			return This.SplittedBeforeSubStringsWXT(pcCondition)
 
 	  #------------------------------------------------------------#
 	 #    SPLITTING AFTER SUBSTRINGS VERIFYING A GIVEN CONDTION   #
 	#============================================================#
 
 	def SplitAfterSubStringsWCS(pcCondition, pCaseSensitive)
-		#EXAMPLE
-		/*
-		o1 = new stzString( "ABCabcEFGijHI" )
-		? o1.SplitAfterSubStringsW( 'Q(This[@i]).IsLowercase()' )
-		#--> [ "ABC", "EFG", "HI" ]
-		*/
 
 		aSections = This.FindSubStringsWCSZZ(pcCondition, pCaseSensitive)
 		acResult = This.SplitAfterSections(aSections)
@@ -60996,8 +62067,25 @@ class stzString from stzObject
 
 		#>
 
+
+		#< @FunctionAlternativeForm
+
+		def SplitAfterSubStringWCS(pcCondition, pCaseSensitive)
+			return This.SplitAfterSubStringsWCS(pcCondition, pCaseSensitive)
+
+			def SplitAfterSubStringWCSQ(pcCondition, pCaseSensitive)
+				return This.SplitAfterSubStringsWCSQ(pcCondition, pCaseSensitive)
+
+			def SplitAfterSubStringWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAfterSubStringsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
 	def SplittedAfterSubStringsWCS(pcCondition, pCaseSensitive)
 		return This.SplitAfterSubStringsWCS(pcCondition, pCaseSensitive)
+
+		def SplittedAfterSubStringWCS(pcCondition, pCaseSensitive)
+			return This.SplittedAfterSubStringsWCS(pcCondition, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -61014,8 +62102,24 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SplitAfterSubStringW(pcCondition)
+			return This.SplitAfterSubStringsW(pcCondition)
+
+			def SplitAfterSubStringWQ(pcCondition)
+				return This.SplitAfterSubStringsWQ(pcCondition)
+
+			def SplitAfterSubStringWQR(pcCondition, pcReturnType)
+				return This.SplitAfterSubStringsWQR(pcCondition, pcReturnType)
+
+		#>
+
 	def SplittedAfterSubStringsW(pcConditionà
 		return This.SplitAfterSubStringsW(pcCondition)
+
+		def SplittedAfterSubStringW(pcCondition)
+			return This.SplittedAfterSubStringsW(pcCondition)
 
 	  #---------------------------------------------------------------------------#
 	 #    SPLITTING AFTER SUBSTRINGS VERIFYING A GIVEN CONDTION -- WXT/EXTENDED  #
@@ -61053,8 +62157,24 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SplitAfterSubStringWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitAfterSubStringsWCSXT(pcCondition, pCaseSensitive)
+
+			def SplitAfterSubStringWCSXTQ(pcCondition, pCaseSensitive)
+				return This.SplitAfterSubStringsWCSXTQ(pcCondition, pCaseSensitive)
+
+			def SplitAfterSubStringWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAfterSubStringsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
 	def SplittedAfterSubStringsWCSXT(pcCondition, pCaseSensitive)
 		return This.SplitAfterSubStringsWCSXT(pcCondition, pCaseSensitive)
+
+		def SplittedAfterSubStringWCSXT(pcCondition, pCaseSensitive)
+			return This.SplittedAfterSubStringsWCSXT(pcCondition, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -61071,8 +62191,889 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SplitAfterSubStringWXT(pcCondition)
+			return This.SplitAfterSubStringsWXT(pcCondition)
+
+			def SplitAfterSubStringWXTQ(pcCondition)
+				return This.SplitAfterSubStringsWXTQ(pcCondition)
+
+			def SplitAfterSubStringWXTQR(pcCondition, pcReturnType)
+				return This.SplitAfterSubStringsWXTQR(pcCondition, pcReturnType)
+
+		#>
+
 	def SplittedAfterSubStringsWXT(pcConditionà
 		return This.SplitAfterSubStringsWXT(pcCondition)
+
+		def SplittedAfterSubStringWXT(pcCondition)
+			return This.SplittedAfterSubStringsWXT(pcCondition)
+
+	  #-------------------------------------------------------------#
+	 #    SPLITTING AROUND SUBSTRINGS VERIFYING A GIVEN CONDTION   #
+	#=============================================================#
+
+	def SplitAroundSubStringsWCS(pcCondition, pCaseSensitive)
+
+		aSections = This.FindSubStringsWCSZZ(pcCondition, pCaseSensitive)
+		acResult = This.SplitAroundSubStrings(aSections)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAroundSubStringsWCSQ(pcCondition, pCaseSensitive)
+			return This.SplitAroundSubStringsWCSQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAroundSubStringsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAroundSubStringsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAroundSubStringsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfSubStrings
+				return new stzListOfSubStrings( This.SplitAroundSubStringsWCS(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+
+		#< @FunctionAlternativeForm
+
+		def SplitAroundSubStringWCS(pcCondition, pCaseSensitive)
+			return This.SplitAroundSubStringsWCS(pcCondition, pCaseSensitive)
+
+			def SplitAroundSubStringWCSQ(pcCondition, pCaseSensitive)
+				return This.SplitAroundSubStringsWCSQ(pcCondition, pCaseSensitive)
+
+			def SplitAroundSubStringWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAroundSubStringsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAroundSubStringsWCS(pcCondition, pCaseSensitive)
+		return This.SplitAroundSubStringsWCS(pcCondition, pCaseSensitive)
+
+		def SplittedAroundSubStringWCS(pcCondition, pCaseSensitive)
+			return This.SplittedAroundSubStringsWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAroundSubStringsW(pcCondition)
+		return This.SplitAroundSubStringsWCS(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAroundSubStringsWQ(pcCondition)
+			return This.SplitAroundSubStringsWQR(pcCondition, :stzList)
+
+		def SplitAroundSubStringsWQR(pcCondition, pcReturnType)
+			return This.SplitAroundSubStringsWCSQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAroundSubStringW(pcCondition)
+			return This.SplitAroundSubStringsW(pcCondition)
+
+			def SplitAroundSubStringWQ(pcCondition)
+				return This.SplitAroundSubStringsWQ(pcCondition)
+
+			def SplitAroundSubStringWQR(pcCondition, pcReturnType)
+				return This.SplitAroundSubStringsWQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAroundSubStringsW(pcConditionà
+		return This.SplitAroundSubStringsW(pcCondition)
+
+		def SplittedAroundSubStringW(pcCondition)
+			return This.SplittedAroundSubStringsW(pcCondition)
+
+	  #----------------------------------------------------------------------------#
+	 #    SPLITTING AROUND SBSTRINGS VERIFYING A GIVEN CONDTION -- WXT/EXTENDED  #
+	#----------------------------------------------------------------------------#
+
+	def SplitAroundSubStringsWCSXT(pcCondition, pCaseSensitive)
+		#EXAMPLE
+		/*
+		o1 = new stzString( "ABCabcEFGijHI" )
+		? o1.SplitAroundSubStringsWXT( 'Q(@SubString).IsLowercase()' )
+		#--> [ "ABC", "EFG", "HI" ]
+		*/
+
+		aSections = This.FindSubStringsWCSXTZZ(pcCondition, pCaseSensitive)
+		acResult = This.SplitAroundSubStrings(aSections)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAroundSubStringsWCSXTQ(pcCondition, pCaseSensitive)
+			return This.SplitAroundSubStringsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAroundSubStringsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAroundSubStringsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAroundSubStringsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfSubStrings
+				return new stzListOfSubStrings( This.SplitAroundSubStringsWCSXT(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAroundSubStringWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitAroundSubStringsWCSXT(pcCondition, pCaseSensitive)
+
+			def SplitAroundSubStringWCSXTQ(pcCondition, pCaseSensitive)
+				return This.SplitAroundSubStringsWCSXTQ(pcCondition, pCaseSensitive)
+
+			def SplitAroundSubStringWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAroundSubStringsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAroundSubStringsWCSXT(pcCondition, pCaseSensitive)
+		return This.SplitAroundSubStringsWCSXT(pcCondition, pCaseSensitive)
+
+		def SplittedAroundSubStringWCSXT(pcCondition, pCaseSensitive)
+			return This.SplittedAroundSubStringsWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAroundSubStringsWXT(pcCondition)
+		return This.SplitAroundSubStringsWCSXT(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAroundSubStringsWXTQ(pcCondition)
+			return This.SplitAroundSubStringsWXTQR(pcCondition, :stzList)
+
+		def SplitAroundSubStringsWXTQR(pcCondition, pcReturnType)
+			return This.SplitAroundSubStringsWCSXTQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAroundSubStringWXT(pcCondition)
+			return This.SplitAroundSubStringsWXT(pcCondition)
+
+			def SplitAroundSubStringWXTQ(pcCondition)
+				return This.SplitAroundSubStringsWXTQ(pcCondition)
+
+			def SplitAroundSubStringWXTQR(pcCondition, pcReturnType)
+				return This.SplitAroundSubStringsWXTQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAroundSubStringsWXT(pcConditionà
+		return This.SplitAroundSubStringsWXT(pcCondition)
+
+		def SplittedAroundSubStringWXT(pcCondition)
+			return This.SplittedAroundSubStringsWXT(pcCondition)
+
+	  #-------------------------------------------------------------#
+	 #    SPLITTING AT SECTIONS VERIFYING A GIVEN CONDTION   #
+	#=============================================================#
+
+	def SplitAtSectionsWCS(pcCondition, pCaseSensitive)
+
+		aSections = This.FindSubStringsWCSZZ(pcCondition, pCaseSensitive)
+		acResult = This.SplitAtSections(aSections)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAtSectionsWCSQ(pcCondition, pCaseSensitive)
+			return This.SplitAtSectionsWCSQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAtSectionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAtSectionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAtSectionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfSubStrings
+				return new stzListOfSubStrings( This.SplitAtSectionsWCS(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+
+		#< @FunctionAlternativeForm
+
+		def SplitAtSectionWCS(pcCondition, pCaseSensitive)
+			return This.SplitAtSectionsWCS(pcCondition, pCaseSensitive)
+
+			def SplitAtSectionWCSQ(pcCondition, pCaseSensitive)
+				return This.SplitAtSectionsWCSQ(pcCondition, pCaseSensitive)
+
+			def SplitAtSectionWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAtSectionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAtSectionsWCS(pcCondition, pCaseSensitive)
+		return This.SplitAtSectionsWCS(pcCondition, pCaseSensitive)
+
+		def SplittedAtSectionWCS(pcCondition, pCaseSensitive)
+			return This.SplittedAtSectionsWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAtSectionsW(pcCondition)
+		return This.SplitAtSectionsWCS(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAtSectionsWQ(pcCondition)
+			return This.SplitAtSectionsWQR(pcCondition, :stzList)
+
+		def SplitAtSectionsWQR(pcCondition, pcReturnType)
+			return This.SplitAtSectionsWCSQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAtSectionW(pcCondition)
+			return This.SplitAtSectionsW(pcCondition)
+
+			def SplitAtSectionWQ(pcCondition)
+				return This.SplitAtSectionsWQ(pcCondition)
+
+			def SplitAtSectionWQR(pcCondition, pcReturnType)
+				return This.SplitAtSectionsWQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAtSectionsW(pcConditionà
+		return This.SplitAtSectionsW(pcCondition)
+
+		def SplittedAtSectionW(pcCondition)
+			return This.SplittedAtSectionsW(pcCondition)
+
+	  #----------------------------------------------------------------------------#
+	 #    SPLITTING AT SECTIONS VERIFYING A GIVEN CONDTION -- WXT/EXTENDED  #
+	#----------------------------------------------------------------------------#
+
+	def SplitAtSectionsWCSXT(pcCondition, pCaseSensitive)
+		#EXAMPLE
+		/*
+		o1 = new stzString( "ABCabcEFGijHI" )
+		? o1.SplitAtSectionsWXT( 'Q(@SubString).IsLowercase()' )
+		#--> [ "ABC", "EFG", "HI" ]
+		*/
+
+		aSections = This.FindSubStringsWCSXTZZ(pcCondition, pCaseSensitive)
+		acResult = This.SplitAtSections(aSections)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAtSectionsWCSXTQ(pcCondition, pCaseSensitive)
+			return This.SplitAtSectionsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAtSectionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAtSectionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAtSectionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfSubStrings
+				return new stzListOfSubStrings( This.SplitAtSectionsWCSXT(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAtSectionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitAtSectionsWCSXT(pcCondition, pCaseSensitive)
+
+			def SplitAtSectionWCSXTQ(pcCondition, pCaseSensitive)
+				return This.SplitAtSectionsWCSXTQ(pcCondition, pCaseSensitive)
+
+			def SplitAtSectionWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAtSectionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAtSectionsWCSXT(pcCondition, pCaseSensitive)
+		return This.SplitAtSectionsWCSXT(pcCondition, pCaseSensitive)
+
+		def SplittedAtSectionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplittedAtSectionsWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAtSectionsWXT(pcCondition)
+		return This.SplitAtSectionsWCSXT(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAtSectionsWXTQ(pcCondition)
+			return This.SplitAtSectionsWXTQR(pcCondition, :stzList)
+
+		def SplitAtSectionsWXTQR(pcCondition, pcReturnType)
+			return This.SplitAtSectionsWCSXTQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAtSectionWXT(pcCondition)
+			return This.SplitAtSectionsWXT(pcCondition)
+
+			def SplitAtSectionWXTQ(pcCondition)
+				return This.SplitAtSectionsWXTQ(pcCondition)
+
+			def SplitAtSectionWXTQR(pcCondition, pcReturnType)
+				return This.SplitAtSectionsWXTQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAtSectionsWXT(pcConditionà
+		return This.SplitAtSectionsWXT(pcCondition)
+
+		def SplittedAtSectionWXT(pcCondition)
+			return This.SplittedAtSectionsWXT(pcCondition)
+
+	  #-------------------------------------------------------------#
+	 #    SPLITTING AFTER SECTIONS VERIFYING A GIVEN CONDTION   #
+	#=============================================================#
+
+	def SplitAfterSectionsWCS(pcCondition, pCaseSensitive)
+
+		aSections = This.FindSubStringsWCSZZ(pcCondition, pCaseSensitive)
+		acResult = This.SplitAfterSections(aSections)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAfterSectionsWCSQ(pcCondition, pCaseSensitive)
+			return This.SplitAfterSectionsWCSQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAfterSectionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAfterSectionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAfterSectionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfSubStrings
+				return new stzListOfSubStrings( This.SplitAfterSectionsWCS(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+
+		#< @FunctionAlternativeForm
+
+		def SplitAfterSectionWCS(pcCondition, pCaseSensitive)
+			return This.SplitAfterSectionsWCS(pcCondition, pCaseSensitive)
+
+			def SplitAfterSectionWCSQ(pcCondition, pCaseSensitive)
+				return This.SplitAfterSectionsWCSQ(pcCondition, pCaseSensitive)
+
+			def SplitAfterSectionWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAfterSectionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAfterSectionsWCS(pcCondition, pCaseSensitive)
+		return This.SplitAfterSectionsWCS(pcCondition, pCaseSensitive)
+
+		def SplittedAfterSectionWCS(pcCondition, pCaseSensitive)
+			return This.SplittedAfterSectionsWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAfterSectionsW(pcCondition)
+		return This.SplitAfterSectionsWCS(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAfterSectionsWQ(pcCondition)
+			return This.SplitAfterSectionsWQR(pcCondition, :stzList)
+
+		def SplitAfterSectionsWQR(pcCondition, pcReturnType)
+			return This.SplitAfterSectionsWCSQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAfterSectionW(pcCondition)
+			return This.SplitAfterSectionsW(pcCondition)
+
+			def SplitAfterSectionWQ(pcCondition)
+				return This.SplitAfterSectionsWQ(pcCondition)
+
+			def SplitAfterSectionWQR(pcCondition, pcReturnType)
+				return This.SplitAfterSectionsWQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAfterSectionsW(pcConditionà
+		return This.SplitAfterSectionsW(pcCondition)
+
+		def SplittedAfterSectionW(pcCondition)
+			return This.SplittedAfterSectionsW(pcCondition)
+
+	  #----------------------------------------------------------------------------#
+	 #    SPLITTING AFTER SECTIONS VERIFYING A GIVEN CONDTION -- WXT/EXTENDED  #
+	#----------------------------------------------------------------------------#
+
+	def SplitAfterSectionsWCSXT(pcCondition, pCaseSensitive)
+		#EXAMPLE
+		/*
+		o1 = new stzString( "ABCabcEFGijHI" )
+		? o1.SplitAfterSectionsWXT( 'Q(@SubString).IsLowercase()' )
+		#--> [ "ABC", "EFG", "HI" ]
+		*/
+
+		aSections = This.FindSubStringsWCSXTZZ(pcCondition, pCaseSensitive)
+		acResult = This.SplitAfterSections(aSections)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAfterSectionsWCSXTQ(pcCondition, pCaseSensitive)
+			return This.SplitAfterSectionsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAfterSectionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAfterSectionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAfterSectionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfSubStrings
+				return new stzListOfSubStrings( This.SplitAfterSectionsWCSXT(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAfterSectionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitAfterSectionsWCSXT(pcCondition, pCaseSensitive)
+
+			def SplitAfterSectionWCSXTQ(pcCondition, pCaseSensitive)
+				return This.SplitAfterSectionsWCSXTQ(pcCondition, pCaseSensitive)
+
+			def SplitAfterSectionWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAfterSectionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAfterSectionsWCSXT(pcCondition, pCaseSensitive)
+		return This.SplitAfterSectionsWCSXT(pcCondition, pCaseSensitive)
+
+		def SplittedAfterSectionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplittedAfterSectionsWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAfterSectionsWXT(pcCondition)
+		return This.SplitAfterSectionsWCSXT(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAfterSectionsWXTQ(pcCondition)
+			return This.SplitAfterSectionsWXTQR(pcCondition, :stzList)
+
+		def SplitAfterSectionsWXTQR(pcCondition, pcReturnType)
+			return This.SplitAfterSectionsWCSXTQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAfterSectionWXT(pcCondition)
+			return This.SplitAfterSectionsWXT(pcCondition)
+
+			def SplitAfterSectionWXTQ(pcCondition)
+				return This.SplitAfterSectionsWXTQ(pcCondition)
+
+			def SplitAfterSectionWXTQR(pcCondition, pcReturnType)
+				return This.SplitAfterSectionsWXTQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAfterSectionsWXT(pcConditionà
+		return This.SplitAfterSectionsWXT(pcCondition)
+
+		def SplittedAfterSectionWXT(pcCondition)
+			return This.SplittedAfterSectionsWXT(pcCondition)
+
+	  #-------------------------------------------------------------#
+	 #    SPLITTING BEFORE SECTIONS VERIFYING A GIVEN CONDTION   #
+	#=============================================================#
+
+	def SplitBeforeSectionsWCS(pcCondition, pCaseSensitive)
+
+		aSections = This.FindSubStringsWCSZZ(pcCondition, pCaseSensitive)
+		acResult = This.SplitAfterSections(aSections)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitBeforeSectionsWCSQ(pcCondition, pCaseSensitive)
+			return This.SplitBeforeSectionsWCSQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitBeforeSectionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitBeforeSectionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitBeforeSectionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfSubStrings
+				return new stzListOfSubStrings( This.SplitBeforeSectionsWCS(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+
+		#< @FunctionAlternativeForm
+
+		def SplitBeforeSectionWCS(pcCondition, pCaseSensitive)
+			return This.SplitBeforeSectionsWCS(pcCondition, pCaseSensitive)
+
+			def SplitBeforeSectionWCSQ(pcCondition, pCaseSensitive)
+				return This.SplitBeforeSectionsWCSQ(pcCondition, pCaseSensitive)
+
+			def SplitBeforeSectionWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitBeforeSectionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedBeforeSectionsWCS(pcCondition, pCaseSensitive)
+		return This.SplitBeforeSectionsWCS(pcCondition, pCaseSensitive)
+
+		def SplittedBeforeSectionWCS(pcCondition, pCaseSensitive)
+			return This.SplittedBeforeSectionsWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitBeforeSectionsW(pcCondition)
+		return This.SplitBeforeSectionsWCS(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitBeforeSectionsWQ(pcCondition)
+			return This.SplitBeforeSectionsWQR(pcCondition, :stzList)
+
+		def SplitBeforeSectionsWQR(pcCondition, pcReturnType)
+			return This.SplitBeforeSectionsWCSQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitBeforeSectionW(pcCondition)
+			return This.SplitBeforeSectionsW(pcCondition)
+
+			def SplitBeforeSectionWQ(pcCondition)
+				return This.SplitBeforeSectionsWQ(pcCondition)
+
+			def SplitBeforeSectionWQR(pcCondition, pcReturnType)
+				return This.SplitBeforeSectionsWQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedBeforeSectionsW(pcConditionà
+		return This.SplitBeforeSectionsW(pcCondition)
+
+		def SplittedBeforeSectionW(pcCondition)
+			return This.SplittedBeforeSectionsW(pcCondition)
+
+	  #---------------------------------------------------------------------------#
+	 #    SPLITTING AFTER SUBSTRINGS VERIFYING A GIVEN CONDTION -- WXT/EXTENDED  #
+	#---------------------------------------------------------------------------#
+
+	def SplitBeforeSectionsWCSXT(pcCondition, pCaseSensitive)
+		#EXAMPLE
+		/*
+		o1 = new stzString( "ABCabcEFGijHI" )
+		? o1.SplitBeforeSectionsWXT( 'Q(@SubString).IsLowercase()' )
+		#--> [ "ABC", "EFG", "HI" ]
+		*/
+
+		aSections = This.FindSubStringsWCSXTZZ(pcCondition, pCaseSensitive)
+		acResult = This.SplitAfterSections(aSections)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitBeforeSectionsWCSXTQ(pcCondition, pCaseSensitive)
+			return This.SplitBeforeSectionsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitBeforeSectionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitBeforeSectionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitBeforeSectionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfSubStrings
+				return new stzListOfSubStrings( This.SplitBeforeSectionsWCSXT(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitBeforeSectionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitBeforeSectionsWCSXT(pcCondition, pCaseSensitive)
+
+			def SplitBeforeSectionWCSXTQ(pcCondition, pCaseSensitive)
+				return This.SplitBeforeSectionsWCSXTQ(pcCondition, pCaseSensitive)
+
+			def SplitBeforeSectionWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitBeforeSectionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedBeforeSectionsWCSXT(pcCondition, pCaseSensitive)
+		return This.SplitBeforeSectionsWCSXT(pcCondition, pCaseSensitive)
+
+		def SplittedBeforeSectionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplittedBeforeSectionsWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitBeforeSectionsWXT(pcCondition)
+		return This.SplitBeforeSectionsWCSXT(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitBeforeSectionsWXTQ(pcCondition)
+			return This.SplitBeforeSectionsWXTQR(pcCondition, :stzList)
+
+		def SplitBeforeSectionsWXTQR(pcCondition, pcReturnType)
+			return This.SplitBeforeSectionsWCSXTQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitBeforeSectionWXT(pcCondition)
+			return This.SplitBeforeSectionsWXT(pcCondition)
+
+			def SplitBeforeSectionWXTQ(pcCondition)
+				return This.SplitBeforeSectionsWXTQ(pcCondition)
+
+			def SplitBeforeSectionWXTQR(pcCondition, pcReturnType)
+				return This.SplitBeforeSectionsWXTQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedBeforeSectionsWXT(pcConditionà
+		return This.SplitBeforeSectionsWXT(pcCondition)
+
+		def SplittedBeforeSectionWXT(pcCondition)
+			return This.SplittedBeforeSectionsWXT(pcCondition)
+
+	  #-------------------------------------------------------------#
+	 #    SPLITTING AROUND SECTIONS VERIFYING A GIVEN CONDTION   #
+	#=============================================================#
+
+	def SplitAroundSectionsWCS(pcCondition, pCaseSensitive)
+
+		aSections = This.FindSectionsWCSZZ(pcCondition, pCaseSensitive)
+		acResult = This.SplitAroundSections(aSections)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAroundSectionsWCSQ(pcCondition, pCaseSensitive)
+			return This.SplitAroundSectionsWCSQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAroundSectionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAroundSectionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAroundSectionsWCS(pcCondition, pCaseSensitive) )
+			on :stzListOfSections
+				return new stzListOfSections( This.SplitAroundSectionsWCS(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+
+		#< @FunctionAlternativeForm
+
+		def SplitAroundSectionWCS(pcCondition, pCaseSensitive)
+			return This.SplitAroundSectionsWCS(pcCondition, pCaseSensitive)
+
+			def SplitAroundSectionWCSQ(pcCondition, pCaseSensitive)
+				return This.SplitAroundSectionsWCSQ(pcCondition, pCaseSensitive)
+
+			def SplitAroundSectionWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAroundSectionsWCSQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAroundSectionsWCS(pcCondition, pCaseSensitive)
+		return This.SplitAroundSectionsWCS(pcCondition, pCaseSensitive)
+
+		def SplittedAroundSectionWCS(pcCondition, pCaseSensitive)
+			return This.SplittedAroundSectionsWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAroundSectionsW(pcCondition)
+		return This.SplitAroundSectionsWCS(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAroundSectionsWQ(pcCondition)
+			return This.SplitAroundSectionsWQR(pcCondition, :stzList)
+
+		def SplitAroundSectionsWQR(pcCondition, pcReturnType)
+			return This.SplitAroundSectionsWCSQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAroundSectionW(pcCondition)
+			return This.SplitAroundSectionsW(pcCondition)
+
+			def SplitAroundSectionWQ(pcCondition)
+				return This.SplitAroundSectionsWQ(pcCondition)
+
+			def SplitAroundSectionWQR(pcCondition, pcReturnType)
+				return This.SplitAroundSectionsWQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAroundSectionsW(pcConditionà
+		return This.SplitAroundSectionsW(pcCondition)
+
+		def SplittedAroundSectionW(pcCondition)
+			return This.SplittedAroundSectionsW(pcCondition)
+
+	  #----------------------------------------------------------------------------#
+	 #    SPLITTING AROUND SECTIONS VERIFYING A GIVEN CONDTION -- WXT/EXTENDED  #
+	#----------------------------------------------------------------------------#
+
+	def SplitAroundSectionsWCSXT(pcCondition, pCaseSensitive)
+		#EXAMPLE
+		/*
+		o1 = new stzString( "ABCabcEFGijHI" )
+		? o1.SplitAroundSectionsWXT( 'Q(@Section).IsLowercase()' )
+		#--> [ "ABC", "EFG", "HI" ]
+		*/
+
+		aSections = This.FindSectionsWCSXTZZ(pcCondition, pCaseSensitive)
+		acResult = This.SplitAroundSections(aSections)
+
+		return acResult
+
+		#< @FunctionFluentForms
+
+		def SplitAroundSectionsWCSXTQ(pcCondition, pCaseSensitive)
+			return This.SplitAroundSectionsWCSXTQR(pcCondition, pCaseSensitive, :stzList)
+
+		def SplitAroundSectionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+			switch pcReturnType
+			on :stzList
+				return new stzList( This.SplitAroundSectionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfStrings
+				return new stzListOfStrings( This.SplitAroundSectionsWCSXT(pcCondition, pCaseSensitive) )
+			on :stzListOfSections
+				return new stzListOfSections( This.SplitAroundSectionsWCSXT(pcCondition, pCaseSensitive) )
+			other
+				StzRaise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAroundSectionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplitAroundSectionsWCSXT(pcCondition, pCaseSensitive)
+
+			def SplitAroundSectionWCSXTQ(pcCondition, pCaseSensitive)
+				return This.SplitAroundSectionsWCSXTQ(pcCondition, pCaseSensitive)
+
+			def SplitAroundSectionWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+				return This.SplitAroundSectionsWCSXTQR(pcCondition, pCaseSensitive, pcReturnType)
+
+		#>
+
+	def SplittedAroundSectionsWCSXT(pcCondition, pCaseSensitive)
+		return This.SplitAroundSectionsWCSXT(pcCondition, pCaseSensitive)
+
+		def SplittedAroundSectionWCSXT(pcCondition, pCaseSensitive)
+			return This.SplittedAroundSectionsWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def SplitAroundSectionsWXT(pcCondition)
+		return This.SplitAroundSectionsWCSXT(pcCondition, TRUE)
+
+		#< @FunctionFluentForms
+
+		def SplitAroundSectionsWXTQ(pcCondition)
+			return This.SplitAroundSectionsWXTQR(pcCondition, :stzList)
+
+		def SplitAroundSectionsWXTQR(pcCondition, pcReturnType)
+			return This.SplitAroundSectionsWCSXTQR(pcCondition, TRUE, pcReturnType)
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def SplitAroundSectionWXT(pcCondition)
+			return This.SplitAroundSectionsWXT(pcCondition)
+
+			def SplitAroundSectionWXTQ(pcCondition)
+				return This.SplitAroundSectionsWXTQ(pcCondition)
+
+			def SplitAroundSectionWXTQR(pcCondition, pcReturnType)
+				return This.SplitAroundSectionsWXTQR(pcCondition, pcReturnType)
+
+		#>
+
+	def SplittedAroundSectionsWXT(pcConditionà
+		return This.SplitAroundSectionsWXT(pcCondition)
+
+		def SplittedAroundSectionWXT(pcCondition)
+			return This.SplittedAroundSectionsWXT(pcCondition)
 
 	  #----------------------------------------------------#
 	 #    SPLITTING AT CHARS VERIFYING A GIVEN CONDTION   #
@@ -94825,6 +96826,7 @@ class stzString from stzObject
 	#============================#
 
 	#TODO // Operators should carry same semantics in all classes...
+	#UPDATE // Largely done
 
 	def operator(pOp,pValue)
 
@@ -94949,6 +96951,138 @@ class stzString from stzObject
 		// Split: String / n  | String / str	| String / list
 
 		but pOp = "/"
+			# Native Ring string
+			if isString(pValue)
+				if Q(pValue).IsBoundedBy([ "{", "}" ])
+					acSplitted = This.SplitW(pValue)
+				else
+					acSplitted = This.Split(pValue)
+				ok
+				return acSplitted
+		
+			# Softanza string object
+			but @IsStzString(pValue)
+				if pValue.IsBoundedBy([ "{", "}" ])
+					acSplitted = This.SplitW(pValue.Content())
+				else
+					acSplitted = This.Split(pValue.Content())
+				ok
+				return Q(acSplitted)
+		
+			# Native Ring number
+			but isNumber(pValue)
+				return This.SplitToNParts(pValue)
+		
+			# Softanza number object
+			but @IsStzNumber(pValue)
+				return Q(This.SplitToNParts(pValue.NumericValue()))
+		
+			# Native Ring list with numbers
+			but isList(pValue) and Q(pValue).IsListOfNumbers()
+				acSplitted = This.SplitToPartsOfSizes(pValue)
+				return acSplitted
+		
+			# Softanza list object with numbers
+			but @IsStzList(pValue) and pValue.IsListOfNumbers()
+				acSplitted = This.SplitAtPositions(pValue.Content())
+				return Q(acSplitted)
+		
+			# Native Ring list with where condition
+			but isList(pValue) and Q(pValue).IsPairOfStrings() and
+			    pValue[1] = :where
+
+				acSplitted = This.SplitW(pValue[2])
+				return acSplitted
+		
+			# Softanza list object with where condition
+			but @IsStzList(pValue) and pValue.IsPairOfStrings() and
+			    pValue.Content()[1] = :where
+
+				acSplitted = This.SplitW(pValue.Content()[2])
+				return Q(acSplitted)
+		
+			# Native Ring list with wherext condition
+			but isList(pValue) and Q(pValue).IsPairOfStrings() and
+			    pValue[1] = :wherext
+? 'ici'
+				acSplitted = This.SplitWXT(pValue[2])
+				return acSplitted
+		
+			# Softanza list object with wherext condition
+			but @IsStzList(pValue) and pValue.IsPairOfStrings() and
+			    pValue.Content()[1] = :wherext
+
+				acSplitted = This.SplitWXT(pValue.Content()[2])
+				return Q(acSplitted)
+		
+			# Native Ring list of strings
+			but isList(pValue) and Q(pValue).IsListOfStrings()
+				nLen = len(pValue)
+				acSplitted = This.SplitToNParts(nLen)
+				aResult = Association([ pValue, acSplitted ])
+				return aResult
+		
+			# Softanza list object of strings
+			but @IsStzList(pValue) and pValue.IsListOfStrings()
+				nLen = len(pValue.Content())
+				acSplitted = This.SplitToNParts(nLen)
+				aResult = Association([ pValue.Content(), acSplitted ])
+				return Q(aResult)
+		
+			# Native Ring hash list
+			but isList(pValue) and Q(pValue).IsHashList()
+				oHashList = new stzHashList(pValue)
+				aValuesExceptLast = oHashList.ValuesQ().LastItemRemoved()
+		
+				if NOT Q(aValuesExceptLast).IsListOfNumbers()
+					stzRaise("Incorrect values! All the values except the last, must be numbers.")
+				ok
+		
+				if NOT ( isNumber(oHashList.LastValue()) or
+					 ( isString(oHashList.LastValue()) and
+					   ring_find([ :Remaining, :RemainingChars ], oHashList.LastValue()) > 0 ) )
+		
+					stzRaise("Incorrect value! The last value must be a number or a string (:Remaining or :RemainingChars).")
+				ok
+		
+				if isString(oHashList.LastValue()) and
+				   ring_find([ :Remaining, :RemainingChars ], oHashList.LastValue()) > 0
+		
+					n = 0
+					nLenTemp = len(aValuesExceptLast)
+					for i = 1 to nLenTemp
+						n += aValuesExceptLast[i]
+					next
+		
+					nRemainingChars = This.NumberOfChars() - n
+					pValue[ len(pValue) ][2] = nRemainingChars
+				ok
+		
+				if NOT StzHashListQ(pValue).ValuesQR(:stzListOfNumbers).Sum() = This.NumberOfChars()
+					stzRaise("Incorrect values! The sum of numbers must be equal to the number of chars!")
+				ok
+		
+				nLenValue = len(pValue)
+				aResult = []
+				n = 1
+				for i = 1 to nLenValue
+					aPair = pValue[i]
+					cShare = This.Range(n, aPair[2])
+					n += aPair[2]
+					aResult + [ aPair[1], cShare ]
+				next
+		
+				return aResult
+		
+			# Softanza hash list object
+			but @IsStzList(pValue) and pValue.IsHashList()
+				acResult = This / pValue.Content()
+				return Q(acResult)
+			ok
+
+/*
+		but pOp = "/"
+
 
 			if isString(pValue)
 				if Q(pValue).IsBoundedBy([ "{", "}" ])
@@ -94977,13 +97111,19 @@ class stzString from stzObject
 			but @IsStzNumber(pValue)
 				return Q(This.SplitToNParts(pValue.NumericValue()))
 
-			but isList(pValue) and Q(pValue).IsListOfNumbers()
-				acSplitted = This.SplitToPartsOfSizes(pValue)
-				return acSplitted
+			but isList(pValue)
 
-			but @IsStzList(pValue) and pValue.IsListOfNumbers()
-				acSplitted = This.SplitAtPositions(pValue.Content())
-				return Q(acSplitted)
+				if Q(pValue).IsListOfNumbers()
+					acSplitted = This.SplitToPartsOfSizes(pValue)
+					return acSplitted
+				ok
+
+			but @IsStzList(pValue)
+
+				if pValue.IsListOfNumbers()
+					acSplitted = This.SplitAtPositions(pValue.Content())
+					return Q(acSplitted)
+				ok
 
 			but isList(pValue) and Q(pValue).IsPairOfStrings() and
 			    pValue[1] = :where and Q(pValue[2]).IsBoundedBy([ "{" , "}" ])
@@ -94997,11 +97137,22 @@ class stzString from stzObject
 				acSplitted = This.SplitW(pValue.Content()[2])
 				return Q(acSplitted)
 
+			but isList(pValue) and Q(pValue).IsPairOfStrings() and
+			    pValue[1] = :wherext and Q(pValue[2]).IsBoundedBy([ "{" , "}" ])
+
+				acSplitted = This.SplitWXT(pValue[2])
+				return acSplitted
+			
+			but @IsStzList(pValue) and pValue.IsPairOfStrings() and
+			    pValue.Content()[1] = :wherext and Q(pValue.Content())[2].IsBoundedBy([ "{", "}" ])
+
+				acSplitted = This.SplitWXT(pValue.Content()[2])
+				return Q(acSplitted)
+
 			but isList(pValue) and Q(pValue).IsListOfStrings()
-				/* EXAMPLE
-				? @@( Q("RingRubyJava") / [ "Qute", "Nice", "Good" ] )
+				# EXAMPLE
+				# @@( Q("RingRubyJava") / [ "Qute", "Nice", "Good" ] )
 				#--> [ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]	
-				*/
 
 				nLen = len(pValue)
 				acSplitted = This.SplitToNParts(nLen)
@@ -95076,7 +97227,7 @@ class stzString from stzObject
 				acResult = This / pValue.Content()
 				return Q(acResult)
 			ok
-		
+*/
 		// string - string | string - .25 | string - 3
 		but pOp = "-"
 			cResult = NULL
@@ -95584,6 +97735,9 @@ class stzString from stzObject
 		cCurrentNum = ""
 		bInNumber = FALSE
     
+		nLenCurrentNum = 0
+		nLenTemp = 0
+
 		for i = 1 to nLen
 
 			nLenCurrentNum = len(cCurrentNum) 
