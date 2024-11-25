@@ -8,11 +8,11 @@ SeeNL('Testing string operations...');
 vv(':text', 'Hello Ring World');
 
 // Ring-style functions (1-based)
-SeeNL('Upper:', r0j.upper(v(':text')));
-SeeNL('Lower:', r0j.lower(v(':text')));
-SeeNL('Left 5:', r0j.left(v(':text'), 5));
-SeeNL('Right 5:', r0j.right(v(':text'), 5));
-SeeNL('Substring (1-5):', r0j.substring(v(':text'), 1, 5));
+SeeNL('Upper:', r$j.upper(v(':text')));
+SeeNL('Lower:', r$j.lower(v(':text')));
+SeeNL('Left 5:', r$j.left(v(':text'), 5));
+SeeNL('Right 5:', r$j.right(v(':text'), 5));
+SeeNL('Substring (1-5):', r$j.substring(v(':text'), 1, 5));
 
 // ===== List Operations Demo =====
 See('\nTesting list operations...\n');
@@ -21,28 +21,28 @@ See('\nTesting list operations...\n');
 vv(':myList', [1, 2, 3, 4, 5]);
 
 SeeNL('Original List:', v(':myList'));
-SeeNL('Get item at position 1:', r0j.get(v(':myList'), 1));
-SeeNL('Find position of 3:', r0j.find(v(':myList'), 3));
+SeeNL('Get item at position 1:', r$j.get(v(':myList'), 1));
+SeeNL('Find position of 3:', r$j.find(v(':myList'), 3));
 
 // Test list addition
-vv(':myList', r0j.add(v(':myList'), 6));
+vv(':myList', r$j.add(v(':myList'), 6));
 SeeNL('After adding 6:', v(':myList'));
 
 // Test list deletion
-vv(':myList', r0j.del(v(':myList'), 1));
+vv(':myList', r$j.del(v(':myList'), 1));
 SeeNL('After deleting position 1:', v(':myList'));
 
 // ===== Loop System Demo =====
 See('\nTesting loop system (1-based)...\n');
 
-r0j.for(':i').from(1).to(5, _(() => {
+r$j.for(':i').from(1).to(5, _(() => {
     SeeNL('Loop index (1-based):', v(':i'));
 }));
 
 // ===== Class System Demo =====
 See('\nTesting class system...\n');
 
-r0j.class('Person').Block(function() {
+r$j.class('Person').Block(function() {
     this.attr(':name', '');
     this.attr(':age', 0);
     
@@ -56,7 +56,7 @@ r0j.class('Person').Block(function() {
     });
 });
 
-r0j.class('Employee')
+r$j.class('Employee')
     .From('Person')
     .Block(function() {
         this.attr(':salary', 0);
@@ -73,10 +73,10 @@ r0j.class('Employee')
     });
 
 // Test classes
-vv(':john', c('Person').new('John', 25));
+vv(':john', v('Person').new('John', 25));
 SeeNL('Person:', v(':john').info());
 
-vv(':alice', c('Employee').new('Alice', 28, 50000));
+vv(':alice', v('Employee').new('Alice', 28, 50000));
 SeeNL('Employee:', v(':alice').info());
 
 See('\nAll tests completed!\n');
