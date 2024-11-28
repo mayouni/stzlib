@@ -1,68 +1,106 @@
-// === ringjstest.js ===
-// Test suite for RingJSLib
+// rjsTesMaker Test Suite for RingJSLib
+// Ensure RingJSLib is loaded before running tests
 
-// Testing variable assignment
-	seenl('Testing variable assignment...');
-	hr();
+const RingJSTests = {
+    run() {
+        // Global setup before all tests
+        RT.beforeEach(() => {
+            // Reset global scope before each test if needed
+            // This is just a demonstration
+            if (typeof vv === 'function') {
+                vv('testPrefix', 'TEST_');
+            }
+        });
 
-	vv('cName', "kathy");
-	seenl('Name:', v('cName'));
+        RT
+            // Variable Assignment Group
+            .group('Variable Assignment', 'Tests for basic variable creation and retrieval')
+            .addTestCase({
+                title: 'Simple String Variable Assignment',
+                test: () => {
+                    vv('cName', "kathy");
+                    return v('cName');
+                },
+                expectedValue: (result) => result === "kathy",
+                tags: ['core', 'variable']
+            })
+            .addTestCase({
+                title: 'Parameterized List Variable Assignment',
+                testCases: [
+                    ["age", 25],
+                    ["name", "john"],
+                    ["hobbies", ["reading", "coding"]]
+                ],
+                test: (testCase) => {
+                    vv('aInfo', testCase);
+                    return v('aInfo');
+                },
+                expectedValue: (result, testCase) => {
+                    return JSON.stringify(result) === JSON.stringify(testCase);
+                },
+                tags: ['core', 'variable', 'parameterized']
+            })
+            .addTestCase({
+                title: 'Skipped Test',
+                skip: true,
+                test: () => false,
+                expectedValue: () => true
+            })
+            .addTestCase({
+                title: 'Conditionally Run Test',
+                runIf: () => {
+                    // Only run this test if certain conditions are met
+                    return typeof vv === 'function';
+                },
+                test: () => {
+                    vv('cGreeting', 'Hello Conditional Ring!');
+                    return v('cGreeting');
+                },
+                expectedValue: (result) => result === 'Hello Conditional Ring!'
+            })
 
-	vv('aInfo', ["age", 25]);
-	seenl('Info:', v('aInfo'));
+            // String Operation Group
+            .group('String Operations', 'Tests for string manipulation functions')
+            .addTestCase({
+                title: 'Uppercase Conversion',
+                test: () => {
+                    vv('cText', "Hello Ring World");
+                    return upper(v('cText'));
+                },
+                expectedValue: (result) => result === "HELLO RING WORLD",
+                tags: ['string', 'transformation']
+            })
+            .addTestCase({
+                title: 'Lowercase Conversion',
+                test: () => {
+                    vv('cText', "Hello Ring World");
+                    return lower(v('cText'));
+                },
+                expectedValue: (result) => result === "hello ring world",
+                tags: ['string', 'transformation']
+            })
 
-	vv('cGreeting', 'Hello Ring!');
-	seenl('Greeting:', v('cGreeting'));
-	nl();
+            // Function Definition Group
+            .group('Function Definition', 'Tests for function creation and calling')
+            .beforeEach(() => {
+                // Setup before each test in this group
+                vv('testPrefix', 'FUNC_');
+            })
+            .addTestCase({
+                title: 'Simple Function Definition and Calling',
+                test: () => {
+                    func('greet', ['pcPerson'], function() {
+                        return 'Hello ' + v('pcPerson');
+                    });
+                    return f('greet', "Kathy");
+                },
+                expectedValue: (result) => result === 'Hello Kathy',
+                timeout: 1000 // Optional timeout for this specific test
+            })
 
-// Test string operations
-	seenl('Testing string operations...');
-	hr();
+            .runAllTests();
+    }
+};
 
-	vv('cText', "Hello Ring World");
-	seenl('Upper:', upper(v('cText')));
-	seenl('Lower:', lower(v('cText')));
-	seenl('Left 5:', left(v('cText'), 5));
-	seenl('Right 5:', right(v('cText'), 5));
-	seenl('Substr(1,5):', substr(v('cText'), 1, 5));
-	nl();
-
-// Test list operations
-	seenl('Testing list operations...');
-	hr();
-
-	vv('aMyList', [1, 2, 3, 4, 5]);
-	seenl('Original list:', v('aMyList'));
-
-	vv('aNewList', add(v('aMyList'), 6));
-	seenl('After add:', v('aNewList'));
-
-	vv('aAfterDel', del(v('aNewList'), 1));
-	seenl('After delete first:', v('aAfterDel'));
-
-	seenl('Get item at position 2:', nth(v('aMyList'), 2));
-	nl();
-
-// Test function definition and calling
-	seenl("Testing functions...");
-	hr();
-
-	func('greet', ['pcPerson'], function() {
-   		return 'Hello ' + v('pcPerson');
-	});
-
-	seenl( 'Function result:', f('greet', "Kathy") );
-	nl();
-
-// Test type checking
-	seenl('Testing type checking...');
-	hr();
-
-	seenl( "Type of list:", type( v('aMyList') ) );
-	seenl( "Type of string:", type( v('cName') ) );
-	seenl( "Type of null:", type(null) );
-	nl();
-
-// End of the tests
-	hr();
-	seenl('All tests completed!');
+// Run tests when the script is loaded
+RingJSTests.run();

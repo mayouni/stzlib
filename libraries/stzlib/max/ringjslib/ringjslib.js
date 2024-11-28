@@ -120,11 +120,37 @@ const RingJSLib = (function() {
             return this;
         },
 
-        seenl(...args) {
+        seeNL(...args) {
             this.see(...args, '\n');
             return this;
         },
+		
+		seenl(...args) { return seeNL(...args); },
         
+		repr(value) {
+		  if (typeof value === 'number' || typeof value === 'string') {
+			return value;
+		  } else if (Array.isArray(value)) {
+			return '[' + value.map(repr).join(', ') + ']';
+		  } else if (typeof value === 'object') {
+			return value.name || '@unnamedObject';
+		  }
+		},
+
+		reprNL(value, indent = 0) {
+		  if (typeof value === 'number' || typeof value === 'string') {
+			console.log(' '.repeat(indent) + value);
+		  } else if (Array.isArray(value)) {
+			console.log(' '.repeat(indent) + '[');
+			value.forEach(item => reprNL(item, indent + 2));
+			console.log(' '.repeat(indent) + ']');
+		  } else if (typeof value === 'object') {
+			console.log(' '.repeat(indent) + (value.name || '@unnamedObject'));
+		  }
+		},
+		
+		reprnl(value, indent = 0) { reprNL(value, indent = 0); },
+		
         nl() {
             console.log('');
             if (typeof document !== 'undefined') {
@@ -136,6 +162,8 @@ const RingJSLib = (function() {
             return this;
         },
         
+		NL() { return nl(); },
+		
         hr() {
             console.log('-'.repeat(80));
             if (typeof document !== 'undefined') {
@@ -148,6 +176,8 @@ const RingJSLib = (function() {
             }
             return this;
         },
+		
+		HR() { return hr(); },
         
         upper(str) {
             return String(str).toUpperCase();
@@ -193,32 +223,50 @@ const RingJSLib = (function() {
             if (item && typeof item === 'object') return Object.keys(item).length;
             return 0;
         },
-        
+		
         type(item) {
             if (item === null) return 'NULL';
             if (Array.isArray(item)) return 'LIST';
             return upper(typeof item);
         }
+		
+
     };
     
     // Safe global function creation
     const globalFunctions = {
+		
         vv: lib.vv.bind(lib),
         v: lib.v.bind(lib),
+		
         see: lib.see.bind(lib),
-        seenl: lib.seenl.bind(lib),
+        seeNL: lib.seeNL.bind(lib),
+		seenl: lib.seenl.bind(lib),
+		
+		repr: lib.repr.bind(lib),
+		reprNL: lib.reprNL.bind(lib),
+		reprnl: lib.reprnl.bind(lib),
+		
         nl: lib.nl.bind(lib),
+		NL: lib.NL.bind(lib),
+		
         hr: lib.hr.bind(lib),
-	upper: lib.upper.bind(lib),
-	lower: lib.lower.bind(lib),
+		HR: lib.HR.bind(lib),
+		
+		upper: lib.upper.bind(lib),
+		lower: lib.lower.bind(lib),
         left: lib.left.bind(lib),
         right: lib.right.bind(lib),
+		
         substr: lib.substr.bind(lib),
+		
         add: lib.add.bind(lib),
         del: lib.del.bind(lib),
         nth: lib.nth.bind(lib),
         len: lib.len.bind(lib),
+		
         type: lib.type.bind(lib),
+		
         func: lib.func.bind(lib),
         f: lib.f.bind(lib)
     };
