@@ -4666,8 +4666,8 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 
 	# because the content of the object can be modified by this function.
 
-	# Instead of that you should prootect the content by taking a copy first
-	# and then sendng it to this function, like this:
+	# Instead of that you should protect the content by taking a copy first
+	# and then sendهng it to this function, like this:
 
 	#    aTempContent = This.Content()
 	#    @FindNthOccurrence(TaTempContent, ...; ...)
@@ -4697,11 +4697,13 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 	ok
 
 	if pCaseSensitive = FALSE 
+
 		if isString(pItem)
 			pItem = lower(pItem)
 		ok
 
-		aTempList = StzListQ(paList).Lowercased()
+		paList = StzListQ(paList).Lowercased()
+
 	ok
 
 	nLen = len(paList)
@@ -4716,7 +4718,7 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 		done
 
 		if nPos = 0
-			exit
+			return 0
 		ok
 
 		n++
@@ -4728,13 +4730,8 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 		
 	end
 
-	nResult = 0
+	return nPos
 
-	if nPos > 0
-		nResult = nPos
-	ok
-
-	return nResult
 
 	func @FindNthCS(aList, nth, pItem, pCaseSensitive)
 		return @FindNthOccurrenceCS(aList, nth, pItem, pCaseSensitive)
@@ -37623,17 +37620,9 @@ class stzList from stzObject
 		def ThisDuplicatedConsecutiveItemRemoved(pItem)
 			return This.DupSecutiveItemRemoved(pItem)
 
-	  #====================#
-	 #     CONTAINMENT    #
-	#====================#
-	/*
-		Review the function namings and make the same semantics
-		here and in stzString class.
-	*/
-
-	  #----------------------------------------------#
+	  #==============================================#
 	 #  CHECKING IF THE LIST CONTAINS A GIVEN ITEM  #
-	#----------------------------------------------#
+	#==============================================#
 
 	def ContainsCS(pItem, pCaseSensitive)
 
@@ -40313,6 +40302,7 @@ class stzList from stzObject
 		ok
 
 		# Trying to use the Ring native find() function
+
 		aTempContent = This.Content()
 		nPos = @FindNthCS(aTempContent, n, pItem, pCaseSensitive)
 
@@ -55837,6 +55827,14 @@ class stzList from stzObject
 		def Numberfied()
 			return This.Numberified()
 
+		#-- @FluentPassiveFunctionForm
+
+		def NumbrifiedQ()
+			return This.NumberifyQ()
+
+		def NumberifiedQ()
+			return This.NumberifyQ()
+
 	  #----------------------------------------------------------------#
 	 #  OBJECTIFYING THE LIST BY TRANFORMING EACH ITEM TO STZ OBJECT  #
 	#----------------------------------------------------------------#
@@ -57836,7 +57834,7 @@ class stzList from stzObject
 			return This.SplittedAroundSectionsIB(paSections)
 
 	  #---------------------------------------#
-	 #    SPLITTING UNDER A GIVEN CONDTION   #
+	 #    SPLITTING UNDER A GIVEN CONDITION   #
 	#=======================================#
 
 	def SplitW(pcCondition)
@@ -57883,7 +57881,7 @@ class stzList from stzObject
 			return This.SplittedW(pcCondition)
 
 	  #-----------------------------------------------------#
-	 #    SPLITTING UNDER A GIVEN CONDTION -- XT/EXTENDED  #
+	 #    SPLITTING UNDER A GIVEN CONDITION -- XT/EXTENDED  #
 	#-----------------------------------------------------#
 
 	def SplitWXT(pcCondition)
@@ -57929,7 +57927,7 @@ class stzList from stzObject
 			return This.SplittedWXT(pcCondition)
 
 	  #------------------------------------#
-	 #    SPLITTING AT A GIVEN CONDTION   #
+	 #    SPLITTING AT A GIVEN CONDITION   #
 	#====================================#
 
 	def SplitAtW(pcCondition)
@@ -57954,7 +57952,7 @@ class stzList from stzObject
 			return This.SplittedAtW(pcCondition)
 
 	  #---------------------------------------------------#
-	 #    SPLITTING AT A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #    SPLITTING AT A GIVEN CONDITION -- WXT/EXTENDED  #
 	#---------------------------------------------------#
 
 	def SplitAtWXT(pcCondition)
@@ -57979,7 +57977,7 @@ class stzList from stzObject
 			return This.SplittedAtWXT(pcCondition)
 
 	  #----------------------------------------#
-	 #    SPLITTING BEFORE A GIVEN CONDTION   #
+	 #    SPLITTING BEFORE A GIVEN CONDITION   #
 	#========================================#
 
 	def SplitBeforeW(pcCondition)
@@ -58002,7 +58000,7 @@ class stzList from stzObject
 			return This.SplittedBeforeW(pcCondition)
 
 	  #------------------------------------------------------#
-	 #    SPLITTING BEFORE A GIVEN CONDTION -- XT/EXTENDED  #
+	 #    SPLITTING BEFORE A GIVEN CONDITION -- XT/EXTENDED  #
 	#------------------------------------------------------#
 
 	def SplitBeforeWXT(pcCondition)
@@ -58025,7 +58023,7 @@ class stzList from stzObject
 			return This.SplittedBeforeWXT(pcCondition)
 
 	  #----------------------------------------#
-	 #    SPLITTING AFTER A GIVEN CONDTION   #
+	 #    SPLITTING AFTER A GIVEN CONDITION   #
 	#========================================#
 
 	def SplitAfterW(pcCondition)
@@ -58048,7 +58046,7 @@ class stzList from stzObject
 			return This.SplittedAfterW(pcCondition)
 
 	  #------------------------------------------------------#
-	 #    SPLITTING AFTER A GIVEN CONDTION -- XT/EXTENDED  #
+	 #    SPLITTING AFTER A GIVEN CONDITION -- XT/EXTENDED  #
 	#------------------------------------------------------#
 
 	def SplitAfterWXT(pcCondition)
@@ -59702,7 +59700,7 @@ class stzList from stzObject
 			return This.FindSplitsToPartsOfNItemsXT(n)
 
 	  #-------------------------------------------#
-	 #   FINDING SPLITS UNDER A GIVEN CONDTION   #
+	 #   FINDING SPLITS UNDER A GIVEN CONDITION   #
 	#===========================================#
 
 	def FindSplitsW(pcCondition)
@@ -59738,7 +59736,7 @@ class stzList from stzObject
 		#>
 
 	  #---------------------------------------------------------#
-	 #   FINDING SPLITS UNDER A GIVEN CONDTION -- XT/EXTENDED  #
+	 #   FINDING SPLITS UNDER A GIVEN CONDITION -- XT/EXTENDED  #
 	#---------------------------------------------------------#
 
 	def FindSplitsWXT(pcCondition)
@@ -59774,7 +59772,7 @@ class stzList from stzObject
 		#>
 
 	  #--------------------------------------------------------#
-	 #   FINDING SPLITS AT A POSITION UNDER A GIVEN CONDTION  #
+	 #   FINDING SPLITS AT A POSITION UNDER A GIVEN CONDITION  #
 	#========================================================#
 
 	def FindSplitsAtW(pcCondition)
@@ -59792,7 +59790,7 @@ class stzList from stzObject
 		#>
 
 	  #------------------------------------------------------------------------#
-	 #   FINDING SPLITS AT A POSITION UNDER A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #   FINDING SPLITS AT A POSITION UNDER A GIVEN CONDITION -- WXT/EXTENDED  #
 	#------------------------------------------------------------------------#
 
 	def FindSplitsAtWXT(pcCondition)
@@ -59810,7 +59808,7 @@ class stzList from stzObject
 		#>
 
 	  #--------------------------------------------#
-	 #   FINDING SPLITS BEFORE A GIVEN CONDTION   #
+	 #   FINDING SPLITS BEFORE A GIVEN CONDITION   #
 	#============================================#
 
 	def FindSplitsBeforeW(pcCondition)
@@ -59827,7 +59825,7 @@ class stzList from stzObject
 		#>
 
 	  #-----------------------------------------------------------#
-	 #   FINDING SPLITS BEFORE A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #   FINDING SPLITS BEFORE A GIVEN CONDITION -- WXT/EXTENDED  #
 	#-----------------------------------------------------------#
 
 	def FindSplitsBeforeWXT(pcCondition)
@@ -59844,7 +59842,7 @@ class stzList from stzObject
 		#>
 
 	  #-------------------------------------------#
-	 #   FINDING SPLITS AFTER A GIVEN CONDTION   #
+	 #   FINDING SPLITS AFTER A GIVEN CONDITION   #
 	#===========================================#
 
 	def FindSplitsAfterW(pcCondition)
@@ -59861,7 +59859,7 @@ class stzList from stzObject
 		#>
 
 	  #----------------------------------------------------------#
-	 #   FINDING SPLITS AFTER A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #   FINDING SPLITS AFTER A GIVEN CONDITION -- WXT/EXTENDED  #
 	#----------------------------------------------------------#
 
 	def FindSplitsAfterWXT(pcCondition)
@@ -61949,7 +61947,7 @@ class stzList from stzObject
 		#>
 
 	  #----------------------------------------------------------#
-	 #    FINDING SPLITS (AS SECTIONS) UNDER A GIVEN CONDTION   #
+	 #    FINDING SPLITS (AS SECTIONS) UNDER A GIVEN CONDITION   #
 	#==========================================================#
 
 	def FindSplitsWCSZZ(pcCondition, pCaseSensitive)
@@ -61999,7 +61997,7 @@ class stzList from stzObject
 		#>
 
 	  #-------------------------------------------------------#
-	 #    FINSING SPLITS (AS SECTIONS) AT A GIVEN CONDTION   #
+	 #    FINSING SPLITS (AS SECTIONS) AT A GIVEN CONDITION   #
 	#-------------------------------------------------------#
 
 	def FindSplitsAtWCSZZ(pcCondition, pCaseSensitive)
@@ -62065,7 +62063,7 @@ class stzList from stzObject
 		#>
 
 	  #-----------------------------------------------------------#
-	 #    FINDING SPLITS (AS SECTIONS) BEFORE A GIVEN CONDTION   #
+	 #    FINDING SPLITS (AS SECTIONS) BEFORE A GIVEN CONDITION   #
 	#-----------------------------------------------------------#
 
 	def FindSplitsBeforeWCSZZ(pcCondition, pCaseSensitive)
@@ -62117,7 +62115,7 @@ class stzList from stzObject
 		#>
 
 	  #----------------------------------------------------------#
-	 #    FINDING SPLITS (AS SECTIONS) AFTER A GIVEN CONDTION   #
+	 #    FINDING SPLITS (AS SECTIONS) AFTER A GIVEN CONDITION   #
 	#----------------------------------------------------------#
 
 	def FindSplitsAfterWCSZZ(pcCondition, pCaseSensitive)
@@ -63694,7 +63692,7 @@ class stzList from stzObject
 			return This.FindNthSplitToPartsOfNItemsXT(n, nPos)
 
 	  #----------------------------------------------#
-	 #   FINDING NTH SPLIT UNDER A GIVEN CONDTION   #
+	 #   FINDING NTH SPLIT UNDER A GIVEN CONDITION   #
 	#==============================================#
 
 	def FindNthSplitW(n, pcCondition)
@@ -63733,7 +63731,7 @@ class stzList from stzObject
 		#>
 
 	  #-------------------------------------------------------------#
-	 #   FINDING NTH SPLIT UNDER A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #   FINDING NTH SPLIT UNDER A GIVEN CONDITION -- WXT/EXTENDED  #
 	#-------------------------------------------------------------#
 
 	def FindNthSplitWXT(n, pcCondition)
@@ -63772,7 +63770,7 @@ class stzList from stzObject
 		#>
 
 	  #-------------------------------------------#
-	 #   FINSING NTH SPLIT AT A GIVEN CONDTION   #
+	 #   FINSING NTH SPLIT AT A GIVEN CONDITION   #
 	#===========================================#
 
 	def FindNthSplitAtW(n, pcCondition)
@@ -63790,7 +63788,7 @@ class stzList from stzObject
 		#>
 
 	  #----------------------------------------------------------#
-	 #   FINSING NTH SPLIT AT A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #   FINSING NTH SPLIT AT A GIVEN CONDITION -- WXT/EXTENDED  #
 	#----------------------------------------------------------#
 
 	def FindNthSplitAtWXT(n, pcCondition)
@@ -63808,7 +63806,7 @@ class stzList from stzObject
 		#>
 
 	  #-----------------------------------------------#
-	 #   FINDING NTH SPLIT BEFORE A GIVEN CONDTION   #
+	 #   FINDING NTH SPLIT BEFORE A GIVEN CONDITION   #
 	#===============================================#
 
 	def FindNthSplitBeforeW(n, pcCondition)
@@ -63825,7 +63823,7 @@ class stzList from stzObject
 		#>
 
 	  #---------------------------------------------------------------#
-	 #   FINDING NTH SPLIT BEFORE A GIVEN CONDTION -- WXT/EXTENSION  #
+	 #   FINDING NTH SPLIT BEFORE A GIVEN CONDITION -- WXT/EXTENSION  #
 	#---------------------------------------------------------------#
 
 	def FindNthSplitBeforeWXT(n, pcCondition)
@@ -63842,7 +63840,7 @@ class stzList from stzObject
 		#>
 
 	  #----------------------------------------------#
-	 #   FINDING NTH SPLIT AFTER A GIVEN CONDTION   #
+	 #   FINDING NTH SPLIT AFTER A GIVEN CONDITION   #
 	#==============================================#
 
 	def FindNthSplitAfterW(n, pcCondition)
@@ -63859,7 +63857,7 @@ class stzList from stzObject
 		#>
 
 	  #--------------------------------------------------------------#
-	 #   FINDING NTH SPLIT AFTER A GIVEN CONDTION  -- WXT/EXTENDED  #
+	 #   FINDING NTH SPLIT AFTER A GIVEN CONDITION  -- WXT/EXTENDED  #
 	#--------------------------------------------------------------#
 
 	def FindNthSplitAfterWXT(n, pcCondition)
@@ -65325,7 +65323,7 @@ class stzList from stzObject
 		return aResult
 
 	  #------------------------------------------------------------#
-	 #    FINDING NTH SPLIT (AS SECTION) UNDER A GIVEN CONDTION   #
+	 #    FINDING NTH SPLIT (AS SECTION) UNDER A GIVEN CONDITION   #
 	#============================================================#
 
 	def FindNthSplitWZZ(n, pcCondition)
@@ -65361,7 +65359,7 @@ class stzList from stzObject
 		#>
 
 	  #---------------------------------------------------------#
-	 #    FINSING NTH SPLIT (AS SECTION) AT A GIVEN CONDTION   #
+	 #    FINSING NTH SPLIT (AS SECTION) AT A GIVEN CONDITION   #
 	#=========================================================#
 
 	def FindNthSplitAtWZZ(n, pcCondition)
@@ -65379,7 +65377,7 @@ class stzList from stzObject
 		#>
 
 	  #------------------------------------------------------------------------#
-	 #    FINSING NTH SPLIT (AS SECTION) AT A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #    FINSING NTH SPLIT (AS SECTION) AT A GIVEN CONDITION -- WXT/EXTENDED  #
 	#------------------------------------------------------------------------#
 
 	def FindNthSplitAtWXTZZ(n, pcCondition)
@@ -65397,7 +65395,7 @@ class stzList from stzObject
 		#>
 
 	  #--------------------------------------------------------------#
-	 #    FINDING NTH SPLIT (AS SECTIONS) BEFORE A GIVEN CONDTION   #
+	 #    FINDING NTH SPLIT (AS SECTIONS) BEFORE A GIVEN CONDITION   #
 	#==============================================================#
 
 	def FindNthSplitBeforeWZZ(n, pcCondition)
@@ -65414,7 +65412,7 @@ class stzList from stzObject
 		#>
 
 	  #-----------------------------------------------------------------------------#
-	 #    FINDING NTH SPLIT (AS SECTIONS) BEFORE A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #    FINDING NTH SPLIT (AS SECTIONS) BEFORE A GIVEN CONDITION -- WXT/EXTENDED  #
 	#-----------------------------------------------------------------------------#
 
 	def FindNthSplitBeforeWXTZZ(n, pcCondition)
@@ -65431,7 +65429,7 @@ class stzList from stzObject
 		#>
 
 	  #------------------------------------------------------------#
-	 #    FINDING NTH SPLIT (AS SECTION) AFTER A GIVEN CONDTION   #
+	 #    FINDING NTH SPLIT (AS SECTION) AFTER A GIVEN CONDITION   #
 	#============================================================#
 
 	def FindNthSplitAfterWZZ(n, pcCondition)
@@ -65448,7 +65446,7 @@ class stzList from stzObject
 		#>
 
 	  #---------------------------------------------------------------------------#
-	 #    FINDING NTH SPLIT (AS SECTION) AFTER A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #    FINDING NTH SPLIT (AS SECTION) AFTER A GIVEN CONDITION -- WXT/EXTENDED  #
 	#---------------------------------------------------------------------------#
 
 	def FindNthSplitAfterWXTZZ(n, pcCondition)
@@ -66959,7 +66957,7 @@ class stzList from stzObject
 			return This.FindLastSplitToPartsOfNItemsXT(nPos)
 
 	  #-----------------------------------------------#
-	 #   FINDING LAST SPLIT UNDER A GIVEN CONDTION   #
+	 #   FINDING LAST SPLIT UNDER A GIVEN CONDITION   #
 	#===============================================#
 
 	def FindLastSplitW(pcCondition)
@@ -66998,7 +66996,7 @@ class stzList from stzObject
 		#>
 
 	  #--------------------------------------------------------------#
-	 #   FINDING LAST SPLIT UNDER A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #   FINDING LAST SPLIT UNDER A GIVEN CONDITION -- WXT/EXTENDED  #
 	#--------------------------------------------------------------#
 
 	def FindLastSplitWXT(pcCondition)
@@ -67037,7 +67035,7 @@ class stzList from stzObject
 		#>
 
 	  #--------------------------------------------#
-	 #   FINDING LAST SPLIT AT A GIVEN CONDTION   #
+	 #   FINDING LAST SPLIT AT A GIVEN CONDITION   #
 	#============================================#
 
 	def FindLastSplitAtW(pcCondition)
@@ -67055,7 +67053,7 @@ class stzList from stzObject
 		#>
 
 	  #-----------------------------------------------------------#
-	 #   FINDING LAST SPLIT AT A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #   FINDING LAST SPLIT AT A GIVEN CONDITION -- WXT/EXTENDED  #
 	#-----------------------------------------------------------#
 
 	def FindLastSplitAtWXT(pcCondition)
@@ -67073,7 +67071,7 @@ class stzList from stzObject
 		#>
 
 	  #------------------------------------------------#
-	 #   FINDING LAST SPLIT BEFORE A GIVEN CONDTION   #
+	 #   FINDING LAST SPLIT BEFORE A GIVEN CONDITION   #
 	#================================================#
 
 	def FindLastSplitBeforeW(pcCondition)
@@ -67090,7 +67088,7 @@ class stzList from stzObject
 		#>
 
 	  #---------------------------------------------------------------#
-	 #   FINDING LAST SPLIT BEFORE A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #   FINDING LAST SPLIT BEFORE A GIVEN CONDITION -- WXT/EXTENDED  #
 	#---------------------------------------------------------------#
 
 	def FindLastSplitBeforeWXT(pcCondition)
@@ -67107,7 +67105,7 @@ class stzList from stzObject
 		#>
 
 	  #-----------------------------------------------#
-	 #   FINDING LAST SPLIT AFTER A GIVEN CONDTION   #
+	 #   FINDING LAST SPLIT AFTER A GIVEN CONDITION   #
 	#===============================================#
 
 	def FindLastSplitAfterW(pcCondition)
@@ -67124,7 +67122,7 @@ class stzList from stzObject
 		#>
 
 	  #--------------------------------------------------------------#
-	 #   FINDING LAST SPLIT AFTER A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #   FINDING LAST SPLIT AFTER A GIVEN CONDITION -- WXT/EXTENDED  #
 	#--------------------------------------------------------------#
 
 	def FindLastSplitAfterWXT(pcCondition)
@@ -68593,7 +68591,7 @@ class stzList from stzObject
 		return aResult
 
 	  #-------------------------------------------------------------#
-	 #    FINDING LAST SPLIT (AS SECTION) UNDER A GIVEN CONDTION   #
+	 #    FINDING LAST SPLIT (AS SECTION) UNDER A GIVEN CONDITION   #
 	#=============================================================#
 
 	def FindLastSplitWZZ(pcCondition)
@@ -68629,7 +68627,7 @@ class stzList from stzObject
 		#>
 
 	  #----------------------------------------------------------------------------#
-	 #    FINDING LAST SPLIT (AS SECTION) UNDER A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #    FINDING LAST SPLIT (AS SECTION) UNDER A GIVEN CONDITION -- WXT/EXTENDED  #
 	#----------------------------------------------------------------------------#
 
 	def FindLastSplitWXTZZ(pcCondition)
@@ -68665,7 +68663,7 @@ class stzList from stzObject
 		#>
 
 	  #----------------------------------------------------------#
-	 #    FINSING LAST SPLIT (AS SECTION) AT A GIVEN CONDTION   #
+	 #    FINSING LAST SPLIT (AS SECTION) AT A GIVEN CONDITION   #
 	#==========================================================#
 
 	def FindLastSplitAtWZZ(pcCondition)
@@ -68683,7 +68681,7 @@ class stzList from stzObject
 		#>
 
 	  #-------------------------------------------------------------------------#
-	 #    FINSING LAST SPLIT (AS SECTION) AT A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #    FINSING LAST SPLIT (AS SECTION) AT A GIVEN CONDITION -- WXT/EXTENDED  #
 	#-------------------------------------------------------------------------#
 
 	def FindLastSplitAtWXTZZ(pcCondition)
@@ -68701,7 +68699,7 @@ class stzList from stzObject
 		#>
 
 	  #--------------------------------------------------------------#
-	 #    FINDING LAST SPLIT (AS SECTION) BEFORE A GIVEN CONDTION   #
+	 #    FINDING LAST SPLIT (AS SECTION) BEFORE A GIVEN CONDITION   #
 	#==============================================================#
 
 	def FindLastSplitBeforeWZZ(pcCondition)
@@ -68718,7 +68716,7 @@ class stzList from stzObject
 		#>
 
 	  #-----------------------------------------------------------------------------#
-	 #    FINDING LAST SPLIT (AS SECTION) BEFORE A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #    FINDING LAST SPLIT (AS SECTION) BEFORE A GIVEN CONDITION -- WXT/EXTENDED  #
 	#-----------------------------------------------------------------------------#
 
 	def FindLastSplitBeforeWXTZZ(pcCondition)
@@ -68735,7 +68733,7 @@ class stzList from stzObject
 		#>
 
 	  #-------------------------------------------------------------#
-	 #    FINDING LAST SPLIT (AS SECTION) AFTER A GIVEN CONDTION   #
+	 #    FINDING LAST SPLIT (AS SECTION) AFTER A GIVEN CONDITION   #
 	#=============================================================#
 
 	def FindLastSplitAfterWZZ(pcCondition)
@@ -68752,7 +68750,7 @@ class stzList from stzObject
 		#>
 
 	  #----------------------------------------------------------------------------#
-	 #    FINDING LAST SPLIT (AS SECTION) AFTER A GIVEN CONDTION -- WXT/EXTENDED  #
+	 #    FINDING LAST SPLIT (AS SECTION) AFTER A GIVEN CONDITION -- WXT/EXTENDED  #
 	#----------------------------------------------------------------------------#
 
 	def FindLastSplitAfterWXTZZ(pcCondition)
@@ -75747,7 +75745,7 @@ class stzList from stzObject
 
 	def IsAtCharNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AtChar )
+			( isString(This.Item(1)) and  This.Item(1) = :AtChar )
 
 			return TRUE
 
@@ -75757,7 +75755,7 @@ class stzList from stzObject
 
 	def IsBeforeIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforeIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforeIB )
 
 			return TRUE
 
@@ -75767,7 +75765,7 @@ class stzList from stzObject
 
 	def IsAfterIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AfterIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AfterIB )
 
 			return TRUE
 
@@ -75777,7 +75775,7 @@ class stzList from stzObject
 
 	def IsAroundIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AroundIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AroundIB )
 
 			return TRUE
 
@@ -75787,7 +75785,7 @@ class stzList from stzObject
 
 	def IsAtThisCharNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AtThisChar )
+			( isString(This.Item(1)) and  This.Item(1) = :AtThisChar )
 
 			return TRUE
 
@@ -75799,7 +75797,7 @@ class stzList from stzObject
 
 	def IsAtItemIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AtItemIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AtItemIB )
 
 			return TRUE
 
@@ -75809,7 +75807,7 @@ class stzList from stzObject
 
 	def IsAtItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AtItemsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AtItemsIB )
 
 			return TRUE
 
@@ -75821,7 +75819,7 @@ class stzList from stzObject
 
 	def IsBeforePositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforePositionIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforePositionIB )
 
 			return TRUE
 
@@ -75831,7 +75829,7 @@ class stzList from stzObject
 
 	def IsBeforeThisPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforeThisPositionIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforeThisPositionIB )
 
 			return TRUE
 
@@ -75841,7 +75839,7 @@ class stzList from stzObject
 
 	def IsBeforePositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforePositionsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforePositionsIB )
 
 			return TRUE
 
@@ -75851,7 +75849,7 @@ class stzList from stzObject
 
 	def IsBeforeManyPositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforeManyPositionsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforeManyPositionsIB )
 
 			return TRUE
 
@@ -75861,7 +75859,7 @@ class stzList from stzObject
 
 	def IsBeforeThesePositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforeThesePositionsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforeThesePositionsIB )
 
 			return TRUE
 
@@ -75871,7 +75869,7 @@ class stzList from stzObject
 
 	def IsBeforeSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforeSubStringIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforeSubStringIB )
 
 			return TRUE
 
@@ -75881,7 +75879,7 @@ class stzList from stzObject
 
 	def IsBeforeThisSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforeThisSubStringIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforeThisSubStringIB )
 
 			return TRUE
 
@@ -75891,7 +75889,7 @@ class stzList from stzObject
 
 	def IsBeforeSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforeSubStringsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforeSubStringsIB )
 
 			return TRUE
 
@@ -75901,7 +75899,7 @@ class stzList from stzObject
 
 	def IsBeforeTheseSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforeTheseSubStringsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforeTheseSubStringsIB )
 
 			return TRUE
 
@@ -75911,7 +75909,7 @@ class stzList from stzObject
 
 	def IsBeforeItemIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforeItemIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforeItemIB )
 
 			return TRUE
 
@@ -75921,7 +75919,7 @@ class stzList from stzObject
 
 	def IsBeforeThisItemIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforeThisItemIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforeThisItemIB )
 
 			return TRUE
 
@@ -75931,7 +75929,7 @@ class stzList from stzObject
 
 	def IsBeforeItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforeItemsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforeItemsIB )
 
 			return TRUE
 
@@ -75941,7 +75939,7 @@ class stzList from stzObject
 
 	def IsBeforeTheseItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :BeforeTheseItemsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :BeforeTheseItemsIB )
 
 			return TRUE
 
@@ -75953,7 +75951,7 @@ class stzList from stzObject
 
 	def IsAfterPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AfterPositionIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AfterPositionIB )
 
 			return TRUE
 
@@ -75963,7 +75961,7 @@ class stzList from stzObject
 
 	def IsAfterThisPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AfterThisPositionIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AfterThisPositionIB )
 
 			return TRUE
 
@@ -75973,7 +75971,7 @@ class stzList from stzObject
 
 	def IsAfterPositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AfterPositionsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AfterPositionsIB )
 
 			return TRUE
 
@@ -75983,7 +75981,7 @@ class stzList from stzObject
 
 	def IsAfterThesePositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AfterThesePositionsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AfterThesePositionsIB )
 
 			return TRUE
 
@@ -75993,7 +75991,7 @@ class stzList from stzObject
 
 	def IsAfterSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AfterSubStringIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AfterSubStringIB )
 
 			return TRUE
 
@@ -76003,7 +76001,7 @@ class stzList from stzObject
 
 	def IsAfterThisSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AfterThisSubStringIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AfterThisSubStringIB )
 
 			return TRUE
 
@@ -76013,7 +76011,7 @@ class stzList from stzObject
 
 	def IsAfterSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AfterSubStringsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AfterSubStringsIB )
 
 			return TRUE
 
@@ -76023,7 +76021,7 @@ class stzList from stzObject
 
 	def IsAfterTheseSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AfterTheseSubStringsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AfterTheseSubStringsIB )
 
 			return TRUE
 
@@ -76033,7 +76031,7 @@ class stzList from stzObject
 
 	def IsAfterItemIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AfterItemIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AfterItemIB )
 
 			return TRUE
 
@@ -76043,7 +76041,7 @@ class stzList from stzObject
 
 	def IsAfterThisItemIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AfterThisItemIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AfterThisItemIB )
 
 			return TRUE
 
@@ -76053,7 +76051,7 @@ class stzList from stzObject
 
 	def IsAfterItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AfterItemsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AfterItemsIB )
 
 			return TRUE
 
@@ -76063,7 +76061,7 @@ class stzList from stzObject
 
 	def IsAfterTheseItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AfterTheseItemsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AfterTheseItemsIB )
 
 			return TRUE
 
@@ -76073,7 +76071,7 @@ class stzList from stzObject
 
 	def IsAroundPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AroundPositionIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AroundPositionIB )
 
 			return TRUE
 
@@ -76083,7 +76081,7 @@ class stzList from stzObject
 
 	def IsAroundThisPositionIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AroundThisPositionIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AroundThisPositionIB )
 
 			return TRUE
 
@@ -76093,7 +76091,7 @@ class stzList from stzObject
 
 	def IsAroundPositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AroundPositionsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AroundPositionsIB )
 
 			return TRUE
 
@@ -76103,7 +76101,7 @@ class stzList from stzObject
 
 	def IsAroundThesePositionsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AroundThesePositionsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AroundThesePositionsIB )
 
 			return TRUE
 
@@ -76113,7 +76111,7 @@ class stzList from stzObject
 
 	def IsAroundSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AroundSubStringIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AroundSubStringIB )
 
 			return TRUE
 
@@ -76123,7 +76121,7 @@ class stzList from stzObject
 
 	def IsAroundThisSubStringIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AroundThisSubStringIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AroundThisSubStringIB )
 
 			return TRUE
 
@@ -76133,7 +76131,7 @@ class stzList from stzObject
 
 	def IsAroundSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AroundSubStringsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AroundSubStringsIB )
 
 			return TRUE
 
@@ -76143,7 +76141,7 @@ class stzList from stzObject
 
 	def IsAroundTheseSubStringsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AroundTheseSubStringsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AroundTheseSubStringsIB )
 
 			return TRUE
 
@@ -76153,7 +76151,7 @@ class stzList from stzObject
 
 	def IsAroundItemIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AroundItemIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AroundItemIB )
 
 			return TRUE
 
@@ -76163,7 +76161,7 @@ class stzList from stzObject
 
 	def IsAroundThisItemIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AroundThisItemIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AroundThisItemIB )
 
 			return TRUE
 
@@ -76173,7 +76171,7 @@ class stzList from stzObject
 
 	def IsAroundItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AroundItemsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AroundItemsIB )
 
 			return TRUE
 
@@ -76183,7 +76181,7 @@ class stzList from stzObject
 
 	def IsAroundTheseItemsIBNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AroundtheseItemsIB )
+			( isString(This.Item(1)) and  This.Item(1) = :AroundtheseItemsIB )
 
 			return TRUE
 
@@ -76195,7 +76193,7 @@ class stzList from stzObject
 
 	def IsAtCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isChar(This.Item(1)) and  This.Item(1) = :AtChars )
+		    isString(This.Item(1)) and  This.Item(1) = :AtChars
 
 			return TRUE
 
@@ -76205,7 +76203,7 @@ class stzList from stzObject
 
 	def IsAtTheseCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtTheseChars )
+		   isString(This.Item(1)) and  This.Item(1) = :AtTheseChars
 
 			return TRUE
 
@@ -76215,7 +76213,7 @@ class stzList from stzObject
 
 	def IsAtManyCharsNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtManyChars )
+		   isString(This.Item(1)) and  This.Item(1) = :AtManyChars
 
 			return TRUE
 
@@ -76227,7 +76225,7 @@ class stzList from stzObject
 
 	def IsAtNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtNumber )
+		   isString(This.Item(1)) and  This.Item(1) = :AtNumber
 
 			return TRUE
 
@@ -76237,7 +76235,7 @@ class stzList from stzObject
 
 	def IsAtThisNumberNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtThisNumber )
+		   isString(This.Item(1)) and  This.Item(1) = :AtThisNumber
 
 			return TRUE
 
@@ -76247,7 +76245,7 @@ class stzList from stzObject
 
 	def IsAtNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtNumbers )
+		   isString(This.Item(1)) and  This.Item(1) = :AtNumbers
 
 			return TRUE
 
@@ -76257,7 +76255,7 @@ class stzList from stzObject
 
 	def IsAtTheseNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtTheseNumbers )
+		   isString(This.Item(1)) and  This.Item(1) = :AtTheseNumbers
 
 			return TRUE
 
@@ -76267,7 +76265,7 @@ class stzList from stzObject
 
 	def IsAtManyNumbersNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtManyNumbers )
+		   isString(This.Item(1)) and  This.Item(1) = :AtManyNumbers
 
 			return TRUE
 
@@ -76279,7 +76277,7 @@ class stzList from stzObject
 
 	def IsAtListNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtList )
+		   isString(This.Item(1)) and  This.Item(1) = :AtList
 
 			return TRUE
 
@@ -76289,7 +76287,7 @@ class stzList from stzObject
 
 	def IsAtThisListNamedParam()
 		if This.NumberOfItems() = 2 and
-			( isString(This.Item(1)) and  This.Item(1) = :AtThisList )
+		   isString(This.Item(1)) and  This.Item(1) = :AtThisList
 
 			return TRUE
 
@@ -81251,6 +81249,50 @@ class stzList from stzObject
 			return FALSE
 		ok
 
+	def IsAroundPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :AroundPosition or This.Item(1) = :AroundPosition@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundPositionsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :AroundPositions or This.Item(1) = :AroundPositions@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :AroundSubString or This.Item(1) = :AroundSubString@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :AroundSubStrings or This.Item(1) = :AroundSubStrings@ ) )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsAroundTheseNamedParam()
 		if ( This.NumberOfItems() = 2 ) and
 		   ( isString(This.Item(1)) and This.Item(1) = :AroundThese )
@@ -82645,6 +82687,103 @@ class stzList from stzObject
 		else
 			return FALSE
 		ok
+
+#--
+
+	def IsBeforeCharNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :BeforeChar
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBeforeCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :BeforeChars
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterCharNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :AfterChar
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAfterCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :AfterChars
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundCharNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :AroundChar
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsAroundCharsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :AroundChars
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+#--
+
+	def IsBeforePositonNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :BeforePosition
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+#--
+
+	def IsBeforSubStringsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   This.Item(1) = :BeforeSubStrings
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+#-
+
 
 #WARNING: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.

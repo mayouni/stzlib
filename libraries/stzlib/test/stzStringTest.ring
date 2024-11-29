@@ -8586,7 +8586,7 @@ proff()
 # Executed in 0.41 second(s) in Ring 1.21
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzString("RingRingRing")
@@ -8604,6 +8604,15 @@ proff()
 
 pron()
 
+? Q([ "atchars", "Q(@char).IsUppercase()" ]).IsAtCharsNamedParam()
+#--> TRUE
+
+proff()
+
+/*-------
+
+pron()
+
 o1 = new stzString("RingRingRing")
 
 ? o1.SplitAtCharsWXT("Q(@char).IsUppercase()")
@@ -8613,37 +8622,99 @@ o1 = new stzString("RingRingRing")
 #--> [ "ing", "ing", "ing" ]
 
 proff()
+# Executed in 0.31 second(s) in Ring 1.21
 
 /*-----------
-*/
+
 pron()
 
+o1 = new stzString("JuliaRingRuby")
+
+? o1.SplitWXT(:AroundSubString = ' @substring = "Ring" ')
+#--> [ "Julia", "Runby" ]
+
+? o1.SplitWXT(:BeforeSubString = ' @substring = "Ring" ')
+#--> [ "Julia", "Ruby" ]
+
+? o1.SplitWXT(:AfterSubString = ' @substring = "Ring" ')
+#--> [ "JuliaRing", "Ruby" ]
 
 proff()
+# Executed in 0.97 second(s) in Ring 1.21
+
+/*-------------
+
+pron()
+
+o1 = new stzString("---4---8---")
+
+? @@( o1.SplitBeforePositions([ 4, 8 ]) ) + NL
+#--> [ "---", "4---", "8---" ]
+
+? @@( o1.SplitWXT(:BeforePositions = ' Q(@position).IsOneOfThese([ 4, 8 ]) ') )
+#--> [ "---", "4---", "8---" ]
+
+proff()
+# Executed in 0.13 second(s) in Ring 1.21
+
+/*-------------
+
+pron()
+
+o1 = new stzString("---4---8---")
+
+? @@( o1.SplitAfterPositions([ 4, 8 ]) ) + NL
+#--> [ "---4", "---8", "---" ]
+
+? @@( o1.SplitWXT(:AfterPositions = ' Q(@position).IsOneOfThese([ 4, 8 ]) ') )
+#--> [ "---4", "---8", "---" ]
+
+proff()
+# Executed in 0.13 second(s) in Ring 1.21
+
+/*-------------
+
+pron()
+
+o1 = new stzString("---4---8---")
+
+? @@( o1.SplitAroundPositions([ 4, 8 ]) ) + NL
+#--> [ "---", "---", "---" ]
+
+? @@( o1.SplitWXT(:AroundPositions = ' Q(@position).IsOneOfThese([ 4, 8 ]) ') )
+#--> [ "---", "---", "---" ]
+
+proff()
+# Executed in 0.13 second(s) in Ring 1.21
 
 /*---------------------- #narration
-*/
+
 pron()
 
 # Five nice usecases of the / operator on a Softanza string:
 
-# Usecase 1: Dividing the string into 3 equal parts
-//? Q("RingRingRing") / 3
+# Use case 1: Dividing the string into 3 equal parts
+
+? Q("RingRingRing") / 3
 #--> [ "Ring", "Ring", "Ring" ]
 
-# Usecase 2: Splitting the string using a given char
-//? Q("Ring;Python;Ruby") / ";"
+# Use case 2: Splitting the string using a given char
+
+? Q("Ring;Python;Ruby") / ";"
 #--> [ "Ring", "Python", "Ruby" ]
 
-# Usecase 3: Splitting the string on each char verifying a condition
+# Use case 3: Splitting the string at chars that satisfy a condition
+
 ? Q("Ring:Python;Ruby") / WXT('Q(@Char).IsNotLetter()')
 #--> [ "Ring", "Python", "Ruby" ]
 
-# Usecase 4: Sharing the string equally between three stakeholders
-//? @@( Q("RingRubyJava") / [ "Qute", "Nice", "Good" ] ) + NL
+# Use case 4: Distributing the string equally among three stakeholders
+
+? @@( Q("RingRubyJava") / [ "Qute", "Nice", "Good" ] ) + NL
 #--> [ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]
-/*
-# Usecase 5: Specifying how mutch char we should give to every stakeholder
+
+# Usecase 5: Allocating chars to stakeholders based on specified portions
+
 ? @@( Q("IAmRingDeveloper") / [
 	:Subject = 1,
 	:Verb    = 2,
@@ -8651,22 +8722,36 @@ pron()
 	:Noun2   = :RemainingChars
 ])
 #--> [ :Subject = "I", :Verb = "Am", :Noun1 = "Ring", :Noun2 = "Developer" ]
-*/
+
 proff()
+# Executed in 0.20 second(s) in Ring 1.21
 
 /*---------------
+
+pron()
 
 ? PLuralOfThisStzType("stzChar")
 #--> "stzchars"
 
+proff()
+# Executed in almost 0 second(s) in Ring 1.21
+
 /*---------------
+
+pron()
 
 ? Q("stzchars").IsPluralOfAStzType()
 #--> TRUE
 
 ? Q("stzchars").IsPluralOfThisStzType("stzchar")
+#--> TRUE
+
+proff()
+# Executed in 0.06 second(s) in Ring 1.21
 
 /*---------------
+
+pron()
 
 ? Q("punctuation").InfereMethod(:From = :stzChar)
 #--> "ispunctuation"
@@ -8674,55 +8759,65 @@ proff()
 ? Q("punctuations").InfereMethod(:From = :stzChar)
 #--> "ispunctauion"
 
-/*================= "What You Think Is What You Write"
+proff()
+# Executed in 0.32 second(s) in Ring 1.21
+
+/*================= #narration "What You Think Is What You Write"
+
+pron()
 
 # In plain english, when you see "12309" you would say
-# "all chars are numbers". In Softanza, it's the same:
-? Q("12309").AllCharsAre(:Numbers)
+# all "chars are numbers". In Softanza, it's the same:
+
+? Q("12309").CharsQ().NumbrifiedQ().Are(:Numbers)
 #--> TRUE
 
-# For "248", yoou say "All chars are even positive numbers"
+# For "248", yoou say "chars are even positive numbers"
 # In Softanza, it's exactly the same:
-? Q("248").AllCharsAre([ :Even, :Positive, :Numbers ])
+
+? Q("248").CharsQ().NumberifiedQ().Are([ :Even, :Positive, :Numbers ])
 #--> TRUE
 
-# In this example, "all chars are punctuations", right?
-? Q(",:;").AllCharsAre(:Punctuations)
-#--> TRUE
+# In this example, "chars are punctuations", right?
 
-# And in this one, "all chars are arabic":
-? Q("سلام").AllCharsAre(:Arabic)
-#--> TRUE
-
-# Yes, "all chars are arabic chars"!
-? Q("سلام").AllCharsAre([ :Arabic, :Chars ])
-#--> TRUE
-
-# And yes, "all chars are right-to-left arabic chars"! 
-? Q("سلام").AllCharsAre([ :RightToLeft, :Arabic, :Chars ])
-#--> TRUE
-
-# In fact, you can be as expressive as you want, and say:
-# "all chars are right-to-left chars, where each char is an arabic char"!
-# In Softanza, it's the same, exactly the same:
-? Q("سلام").AllCharsAre([ :RightToLeft, :Chars, Where('Q(@EachChar).IsAnArabic()'), :Char ])
+? Q([ ",", ":", ";" ]).Are([ :Punctuation, :Chars ])
 #--> TRUE
 
 # In Softanza, "What You Think Is What You Write".
 
-/*---
-
-? Q("Riiiiinngg").UniqueChars() #--> [ "R", "i", "n", "g" ]
+proff()
+# Executed in 0.19 second(s) in Ring 1.21
 
 /*---
 
 pron()
 
-? StzListOfStringsQ([ "A", "A", "A", "B", "B", "C" ]).ContainsCS("a", :CS = FALSE)
+? Q("Riiiiinngg").UniqueChars()
+#--> [ "R", "i", "n", "g" ]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
+/*====
+
+pron()
+
+o1 = new stzList([ "A", "A", "A", "B", "B", "C" ])
+? o1.FindNthCS(3, "A", FALSE)
+#--> 3
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
+/*---
+*/
+pron()
+
+? StzListQ([ "A", "A", "A", "B", "B", "C" ]).ContainsCS("a", FALSE)
 #--> TRUE
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*---
 
