@@ -2100,6 +2100,7 @@ class stzObject
 	#=====
 
 	def IsAXT(pacStr)
+
 		/* EAMPLE
 		? Q("ring").IsAXT([ :Lowercase, :Latin, :String ])
 		*/
@@ -2125,7 +2126,7 @@ class stzObject
 		bResult = TRUE
 
 		for i = 1 to nLen
-			ccode = 'bResult = @is' + pacStr[i] + '(' + @@(this.Content()) + ')'
+			cCode = 'bResult = @is' + pacStr[i] + '(' + @@(this.Content()) + ')'
 
 			eval(cCode)
 			if bResult = FALSE
