@@ -42,6 +42,16 @@ class stzPair from stzList
 	def Copy()
 		return new stzPair( This.Content() )
 
+	def Update(paPair)
+		if NOT ( isList(paPair) and len(panPair) = 2 )
+			StzRaise("Incorrect param type! paPair must be a list of 2 items.")
+		ok
+
+		@aContent = paPair
+
+		def UpdateWith(paPair)
+			This.Update(paPair)
+
 	def ToStzList()
 		return new stzList( This.Pair() )
 
@@ -58,9 +68,13 @@ class stzPair from stzList
 			return This.Item2()
 
 	def Swap()
-		temp = @aContent[1]
-		@aContent[1] = @aContent[2]
-		@aContent[2] = temp
+		aContent = This.Content()
+
+		temp = aContent[1]
+		aContent[1] = aContent[2]
+		aContent[2] = temp
+
+		This.UpdateWith(aContent)
 
 		def SwapQ()
 			This.Swap()

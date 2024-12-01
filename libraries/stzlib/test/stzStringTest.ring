@@ -1,5 +1,21 @@
 load "../max/stzmax.ring"
 
+/*-----
+*/
+pron()
+
+? Q("ring programming languge").UrlEncoded()
+#--> ring%20programming%20languge
+
+? Q("ring%20programming%20language").UrlDecoded() + NL
+#--> ring programming language
+
+? Q('<div class = "article">This is an article</div>').HtmlEscaped()
+#--> &lt;div class = &quot;article&quot;&gt;This is an article&lt;/div&gt;
+
+proff()
+# Executed in 0.03 second(s) in Ring 1.21
+
 /*=====
 
 pron()
@@ -8810,7 +8826,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*---
-*/
+
 pron()
 
 ? StzListQ([ "A", "A", "A", "B", "B", "C" ]).ContainsCS("a", FALSE)
@@ -8852,7 +8868,7 @@ pron()
 #--> "Ring"
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*===========
 
@@ -8865,7 +8881,7 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.04 second(s).
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*----------
 
@@ -8878,7 +8894,7 @@ o1.RemoveCharsWXT('Q(@Char).IsNumberInString()')
 #--> (, , )
 
 proff()
-# Executed in 0.18 second(s).
+# Executed in 0.13 second(s) in Ring 1.21
 
 /*------
 
@@ -8888,27 +8904,28 @@ pron()
 	RemoveCharsWXTQ('Q(@Char).IsNumberInString()'). # becomes (, , )
 	RemoveSpacesQ().			 	# becomes (,,)
 	RemoveDuplicatedCharsQ().		 	# becomes (,)
-	AllCharsAre(:Punctuations)
-#--> TRUE
+	Content()
+
+#--> (,)
 
 proff()
-# Executed in 0.71 second(s).
+# Executed in 0.14 second(s) in Ring 1.21
 
-/*--- TODO - FUTURE: Add a Qh() function (h for history) that traces the intermediate results:
-
+/*--- TODO - FUTURE: Add a QH() function (H for history) that traces the intermediate results:
+*/
 pron()
 
-? Qh("(9, 7, 8)").
+? QH("(9, 7, 8)").
 	RemoveWQ('Q(@Char).IsNumberInString()').
 	RemoveSpacesQ().
 	RemoveDuplicatedCharsQ().
-	AllCharsAre(:Punctuations)
-#--> [ "(, , )", "(,,)", "(,)", TRUE ]
+	Content()
+#--> [ "(, , )", "(,,)", "(,)" ]
 
 proff()
 
 /*-----------------
-
+*/
 pron()
 
 str = "sun"

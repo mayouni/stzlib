@@ -3433,11 +3433,16 @@ def init(paList)
 
 	def Cumulate()
 		aResult = []
-		nLen = This.Content()
+		anContent = This.Content()
+		nLen = len(anContent)
+
 		for i = 3 to nLen
-			@aContent[i] += @aContent[i-1]
+			anContent[i] += anContent[i-1]
 		next
 			
+		This.UpdateWith(anContent)
+
+
 		def CumulateQ()
 			return This.CumulateQR()
 
@@ -4240,7 +4245,8 @@ def init(paList)
 			StzRaise("Incorrect param type!")
 		ok
 
-		@aContent = panNewListOfNumbers
+		This.UpdateWith(panNewListOfNumbers)
+
 
 		#< @FunctionFluentForm
 
@@ -4306,7 +4312,10 @@ def init(paList)
 			StzRaise("Incorrect param! pnNewNumber must be a number.")
 		ok
 
-		@aContent[n] = pnNewNumber
+		anContent = This.Content()
+		anContent[n] = pnNewNumber
+		This.UpdateWith(anContent)
+
 
 	  #---------------------------------------#
 	 #     REVERSING THE LIST OF NUMBERS     #

@@ -257,7 +257,7 @@ func Val(cNumberInStr)
 
 func NStringify(nNumber, cSpaceChar, nSpaceStep, nRound)
 
-	if not isNumber(nNumber) and isString(cSpaceChar) and isNumber(nRound)
+	if not ( isNumber(nNumber) and isString(cSpaceChar) and isNumber(nRound) )s
 		raise("ERR-" + StkError(:IncorrectParamType) + NL)
 	ok
 

@@ -757,12 +757,16 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		# Now, let's do the job
 
-		@aContent[n][1] = pcValue
+		aContent = This.Content()
+		aContent[n][1] = pcValue
+		This.UpdateWith(aContent)
 
 	def UpdateKey(pcKey, pcNewKey)
 		if isString(pcKey) and This.ContainsKey(pcKey)
+			aContent = This.Content()
 			n = This.FindKey(pcKey)
-			@aContent[n][1] = pcNewKey
+			aContent[n][1] = pcNewKey
+			This.UpdateWith(aContent)
 		ok
 	
 	def UpdateKeys(paKeys)
@@ -781,9 +785,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 			n = This.NumberOfValues()
 		ok
 
+		aContent = This.Content()
+		aContent[n][2] = pValue
+		This.UpdateWith(aContent)
 
-		@aContent[n][2] = pValue
-	
 		def UpdateNthOccurrenceOfValue(pValue)
 			This.UpdateNthValue( This.FindNthOccurrenceOfValue(pValue) )
 	
@@ -850,8 +855,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def AddPair(paNewPair)
 
-		if isList(paNewPair) and Q(paNewPair).IsPair() and isString(paNewPair[1])
-			@aContent + paNewPair
+		if isList(paNewPair) and @IsPair(paNewPair)and isString(paNewPair[1])
+			aContent = This.Content()
+			aContent + paNewPair
+			This.UpdateWith(aContent)
 
 		else
 			StzRaise("Syntax error! The value you provided is not a pair with its key beeing a string.")
@@ -2562,15 +2569,19 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def Listify()
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			if NOT isList(@aContent[i][2])
+			if NOT isList(aContent[i][2])
 				aTempList = []
-				aTempList + @aContent[i][2]
-				@aContent[i][2] = aTempList
+				aTempList + aContent[i][2]
+				aContent[i][2] = aTempList
 			ok
 		next
+
+		This.UpdateWith(aContent)
+
 
 		def ListifyQ() #TODO // Ensure consistency in all library
 			This.Listify()
