@@ -4102,7 +4102,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*------------
-*/
+
 pron()
 
 o1 = new stzString(" @i + 10, @i- 125, e11")
@@ -4112,18 +4112,20 @@ o1 = new stzString(" @i + 10, @i- 125, e11")
 #--> [ "+10", "-125", "11" ]
 
 proff()
-# Executed in 0.11 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.11 second(s) in Ring 1.18
 
 /*------------
 
 pron()
 
-o1 = new stzString("emm +   12_456.50 emm 11. and -   4.12_")
-? o1.Numbers()
-#--> [ "+12_456.50", "11", "-4.12" ]
+o1 = new stzString("emm +   12  456.50 emm 11. and -   4.12_")
+? @@( o1.Numbers() )
+#--> [ "12", "456.50", "11.", "-4.12" ]
 
 proff()
-# Executed in 0.19 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.19 second(s) in Ring 1.18
 
 /*------------
 
@@ -4137,52 +4139,72 @@ o1 = new stzString("Math: 18, Geo: 16, :Physics: 17.80")
 #--> Math: , Geo: , :Physics: 
 
 proff()
-# Executed in 0.17 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.17 second(s) in Ring 1.18
 
-/*-----------
+/*======
 
 StartProfiler()
 
 oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
 
 ? oLargeStr.NumberOfChars()
-#--> 1_897_793
-# Executed in 0.02 second(s)
+#--> 1914201
 
 ? oLargeStr.NumberOfLines()
-#--> 34_627
-# Executed in 0.02 second(s)
+#--> 34933
 
 ? oLargeStr.SplitQ(NL).NumberOfItems()
-#--> 34_627
-#--> Executed in 0.45 second(s)
+#--> 34933
 
 StopProfiler()
-# Executed in 0.85 second(s)
+# Executed in 0.51 second(s) in Ring 1.21
+# Executed in 0.85 second(s) in Ring 1.18
 
 /*-----------
-#WARNING: takes 14 seconds to complete!
+
+#WARNING: takes 14 seconds to complete in Ring 1.17!
+#UPDATE: It now takes only 5 seconds in Ring 1.21!
 
 StartProfiler()
 
-oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
+oLargeStr = new stzString( UnicodeData() )
+#~> Contains ~2M chars (1.914.201 exactly)
+
 ? oLargeStr.Reverse()
 ? oLargeStr.Content()
 
 StopProfiler()
-# Executed in 14.56 second(s)
+# Executed in 5.18 second(s) in Ring 1.21
+# Executed in 14.56 second(s) in Ring 1.17
+
+/*===========
+*/
+pron()
+
+o1 = new stzString("•••••••••")
+
+? o1.Contains("")
+#--> FALSE
+
+proff()
 
 /*-----------
-	
+
+*/
+pron()
+
 # Testing extreme cases in FindNthNext()/FindNthPrevious on a small string
 
 StartProfiler()
 #                   .2....7.9
 o1 = new stzString("•••••••••")
 
+? o1.contains("")
+
 ? o1.FindNext("", :StartingAt = 1)
 #--> 0
-
+/*
 ? o1.FindNext("x", :StartingAt = 1)
 #--> 0
 
@@ -4204,7 +4226,7 @@ o1 = new stzString("•••••••••")
 
 ? o1.FindNthPrevious(3, "•", :StartingAt = 4)
 #--> 1
-
+*/
 StopProfiler()
 # Executed in 0.12 second(s)
 
