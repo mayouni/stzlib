@@ -6784,7 +6784,9 @@ class stzList from stzObject
 	#----------------------#
 
 	def AddItem(pItem)
-		@aContent + pItem
+		aCopy = This.Content()
+		aCopy + pItem
+		This.UpdateWith(aCopy)
 
 		#< @FunctionFluentForm
 
@@ -6899,10 +6901,13 @@ class stzList from stzObject
 		ok
 
 		nLen = len(paItems)
+		aContent = This.Content()
 
 		for i = 1 to nLen
-			@aContent + paItems[i]
+			aContent + paItems[i]
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -7051,7 +7056,9 @@ class stzList from stzObject
 				n = n[2]
 			ok
 
-			ring_insert(@aContent, n, pItem)
+			aContent = @aContent
+			ring_insert(aContent, n, pItem)
+			This.UpdateWith(aContent)
 
 			def InsertAtQ(n, pItem)
 				This.InsertAt(n, pItem)
@@ -7311,15 +7318,18 @@ class stzList from stzObject
 
 		# Doing the job
 
-		item = @aContent[n1]
-		ring_remove(@aContent, n1)
+		aContent = This.Content()
+
+		item = aContent[n1]
+		ring_remove(aContent, n1)
 
 		n = n2
 		if n1 > n2
 			n++
 		ok
 
-		ring_insert(@aContent, n2, item)
+		ring_insert(aContent, n2, item)
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -8889,7 +8899,10 @@ class stzList from stzObject
 			ok
 		ok
 
-		@aContent[n] = pNewItem
+		aContent = This.Content()
+		aContent[n] = pNewItem
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -9059,11 +9072,14 @@ class stzList from stzObject
 			ok
 		ok
 
+		aContent = This.Content()
 		nLen = len(panPos)
 
 		for i = 1 to nLen
-			@aContent[ panPos[i] ] = pNewItem
+			aContent[ panPos[i] ] = pNewItem
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -9322,10 +9338,14 @@ class stzList from stzObject
 			ok
 		ok
 
+		aContent = This.Content()
 		anPos = This.FindCS(pItem, pCaseSensitive)
+
 		if len(anPos) > 0 and ring_find(anPos, n) > 0
-			@aContent[n] = pNewItem
+			aContent[n] = pNewItem
 		ok
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -9555,13 +9575,16 @@ class stzList from stzObject
 		nLen = len(panPos)
 		anPosAll = This.FindAllCS(pItem, pCaseSensitive)
 		
+		aContent = This.Content()
 		anPos = []
 
 		for i = 1 to nLen
 			if ring_find(anPosAll, panPos[i])
-				@aContent[ panPos[i] ] = pNewItem
+				aContent[ panPos[i] ] = pNewItem
 			ok
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -9653,12 +9676,15 @@ class stzList from stzObject
 		anPosAll = This.FindManyCS(paItems, pCaseSensitive)
 		
 		anPos = []
+		aContent = This.Content()
 
 		for i = 1 to nLen
 			if ring_find(anPosAll, panPos[i])
-				@aContent[ panPos[i] ] = pNewItem
+				aContent[ panPos[i] ] = pNewItem
 			ok
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -10477,9 +10503,13 @@ class stzList from stzObject
 
 		# Doing the job
 
+		aContent = This.Content()
+
 		for i = 1 to nLen
-			@aContent[ anPos[i] ] = paNewItems[i]
+			aContent[ anPos[i] ] = paNewItems[i]
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -10659,9 +10689,13 @@ class stzList from stzObject
 
 		# Doing the job
 
+		aContent = This.Content()
+
 		for i = 1 to nMin
-			@aContent[anPos[i]] = aNewItems[i]
+			aContent[anPos[i]] = aNewItems[i]
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -12851,7 +12885,9 @@ class stzList from stzObject
 	#------------------------------#
 
 	def ReplaceFirstItem(pOtherItem)
-		@aContent[1] = pOtherItem
+		aContent = This.Content()
+		aContent[1] = pOtherItem
+		This.UpdateWith(aContent)
 
 		def ReplaceFirstItemQ(pOtherItem)
 			This.ReplaceFirstItem(pOtherItem)
@@ -12877,7 +12913,9 @@ class stzList from stzObject
 	#-----------------------------#
 
 	def ReplaceLastItem(pOtherItem)
-		@aContent[ len(@aContent) ] = pOtherItem
+		aContent = This.Content()
+		aContent[ len(aContent) ] = pOtherItem
+		This.UpdateWith(aContent)
 
 		def ReplaceLastItemQ(pOtherItem)
 			This.ReplaceLastItem(pOtherItem)
@@ -12916,7 +12954,11 @@ class stzList from stzObject
 		ok
 
 		This.RemoveSection(n1, n2)
-		ring_insert( @aContent, n1, pNewItem )
+
+		aContent = This.Content()
+		ring_insert( aContent, n1, pNewItem )
+
+		This.UpdateWith(aContent)
 
 		def ReplaceSectionQ(n1, n2, pNewItem)
 			This.ReplaceSection(n1, n2, pNewItem)
@@ -13050,10 +13092,13 @@ class stzList from stzObject
 		This.RemoveSection(n1, n2)
 
 		nLen = len(paOtherListOfItems)
+		aContent = This.Content()
 
 		for i = nLen to 1 step -1
-			ring_insert( @aContent, n1, paOtherListOfItems[i] )
+			ring_insert( aContent, n1, paOtherListOfItems[i] )
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -14840,7 +14885,9 @@ class stzList from stzObject
 		# Doing the job
 
 		if n <= This.NumberOfItems()
-			ring_del( @aContent, n )
+			aContent = This.Content()
+			ring_del( aContent, n )
+			This.UpdateWith(aContent)
 		ok
 
 
@@ -15197,10 +15244,13 @@ class stzList from stzObject
 		# Doing the job
 
 		anPosSorted = ring_sort(panPos)
+		aContent = This.Content()
 
 		for i = nLenPos to 1 step -1
-			ring_remove(@aContent, anPosSorted[i])
+			ring_remove(aContent, anPosSorted[i])
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -15425,7 +15475,7 @@ class stzList from stzObject
 			ok
 		
 			if (n1 = 1 and n2 = nLen) or (n1 = nLen and n2 = 1)
-				@aContent = []
+				This.UpdateWith([])
 				return
 			ok
 	
@@ -15435,17 +15485,18 @@ class stzList from stzObject
 			ok
 		ok
 
+		aContent = This.Content()
 		aResult = []
 
 		for i = 1 to n1 - 1
-			aResult + @aContent[i]
+			aResult + aContent[i]
 		next
 
 		for i = n2 + 1 to nLen
-			aResult + @aContent[i]
+			aResult + aContent[i]
 		next
 
-		@aContent = aResult
+		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
@@ -15669,7 +15720,7 @@ class stzList from stzObject
 	#------------------------------------#
 	
 	def RemoveAllItems()
-		@aContent = []
+		This.UpdateWith([])
 
 		#< @FunctionFluentForm
 
@@ -31420,15 +31471,14 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! paItems must be a list.")
 		ok
 
+		aContent = This.Content()
 		nLen = len(paItems)
 
 		for i = 1 to nLen
-			@aContent + paItems[i]
-			#NOTE
-			# Using This.Add() is better then using @aContent directly,
-			# but I do it to gain performance on large lists
-
+			aContent + paItems[i]
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -31467,6 +31517,7 @@ class stzList from stzObject
 		ok
 
 		nLen = This.NumberOfItems()
+		aContent = This.Content()
 
 		if n > nLen
 
@@ -31477,9 +31528,11 @@ class stzList from stzObject
 
 			nExtend = n - nLen
 			for i = 1 to nExtend
-				@aContent + value
+				aContent + value
 			next
 		ok
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -31562,14 +31615,17 @@ class stzList from stzObject
 		ok
 
 		nLen = This.NumberOfItems()
+		aContent = This.Conten()
 
 		if n > nLen
 
 			nExtend = n - nLen
 			for i = 1 to nExtend
-				@aContent + pValue
+				aContent + pValue
 			next
 		ok
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -40634,7 +40690,7 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def FindManyCSQ(paItems, pCaseSensitive)
-			return This.FindManyCSQR(paItems, pCaseSensitive, :stzListOfNumbers)
+			return new stzList(This.FindManyCS(paItems, pCaseSensitive))
 
 		def FindManyCSQR(paItems, pCaseSensitive, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -40672,7 +40728,7 @@ class stzList from stzObject
 		#< @FunctionFluentForm
 
 		def FindManyQ(paItems)
-			return This.FindManyQR(paItems, :stzListOfNumbers)
+			return new stzList(This.FindMany(paItems))
 
 		def FindManyQR(paItems, pcReturnType)
 			return This.FindManyCSQR(paItems, TRUE, pcReturnType)
@@ -42858,79 +42914,6 @@ class stzList from stzObject
 
 	#>
 
-	#>
-
-/*
-	def FindAllItemsWXT(pcCondition)
-		
-		if CheckParams()
-			if isList(pcCondition) and Q(pcCondition).IsWhereNamedParam()
-				pcCondition = pcCondition[2]
-			ok
-
-			if NOT isString(pcCondition)
-				StzRaise("Incorrect param type! pcCondition must be a string.")
-			ok
-		ok
-
-		# Identifying the executable section
-
-		nLen = len(@aContent)
-
-		_oCode_ = new stzCCode(pcCondition)
-		_oCode_.Transpile() # The sole difference with ..W() form of the function
-
-			#WARNING
-			# If you use _oCode_ variable name to assign a stzCCode object
-			# to it in your code then you will get an error of an object
-			# trying to destroy itself! That's why I used _ and _ bounds
-			# here to minimise that risk!
-	
-			#TODO // ~> Clearly specify this in the documentation!
-
-			#TODO // Review all the places in the codebase that could
-			# contains a similar error!
-
-		# Getting the bounds of the executable section
-
-		aExecutableSection = _oCode_.ExecutableSection()
-
-		nStart = aExecutableSection[1]
-		nEnd   = aExecutableSection[2]
-
-		if isString(nEnd) and nEnd = :last
-			nEnd = nLen
-		ok
-
-		if nEnd < 0
-			nEnd += nLen
-		but nEnd = :Last
-			nEnd = nLen
-		ok
-
-		# Composing the code to be evaluated by the loop
-
-		cCode = 'bOk = (' + _oCode_.Content() + ' )'
-
-		anResult = []
-
-		for @i = nStart to nEnd
-
-			#WARNING
-			# You don't need to use any sophisticated keywords
-			# like @item = @aContent[@i], since the code has
-			# been already transpiled.
-
-			eval(cCode)
-			if bOk
-				anResult + @i
-			ok
-		next
-
-		return anResult
-		
-
-*/
 	  #--------------------------------------------------#
 	 #  FINDING FIRST ITEM VERIFYING A GIVEN CONDITION  #
 	#==================================================#
@@ -44928,14 +44911,18 @@ class stzList from stzObject
 
 	def LowercaseLists()
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
 			if isList(item)
-				acLowercased = StzListOfStringsQ(@aContent[i]).Lowercased()
-				@aContent[i] = acLowercased
+				acLowercased = StzListOfStringsQ(aContent[i]).Lowercased()
+				aContent[i] = acLowercased
 			ok
 		next
+
+		This.UpdateWith(aContent)
+
 
 		def LowercaseListsQ()
 			This.LowercaseLists()
@@ -44948,14 +44935,18 @@ class stzList from stzObject
 
 	def LowercaseListsOfStrings()
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			if isList(item) and @IsListOfStrings(@aContent[i])
-				acLowercased = StzListOfStringsQ(@aContent[i]).Lowercased()
-				@aContent[i] = acLowercased
+			if isList(item) and @IsListOfStrings(aContent[i])
+				acLowercased = StzListOfStringsQ(aContent[i]).Lowercased()
+				aContent[i] = acLowercased
 			ok
 		next
+
+		This.UpdateWith(aContent)
+
 
 		def LowercaseListsOfStringsQ()
 			This.LowercaseListsOfStrings()
@@ -44967,15 +44958,18 @@ class stzList from stzObject
 	#----
 
 	def UppercaseLists()
-
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
 			if isList(item)
-				acLowercased = StzListOfStringsQ(@aContent[i]).Uppercased()
-				@aContent[i] = acLowercased
+				acLowercased = StzListOfStringsQ(aContent[i]).Uppercased()
+				aContent[i] = acLowercased
 			ok
 		next
+
+		This.UpdateWith(aContent)
+
 
 		def UppercaseListsQ()
 			This.UppercaseLists()
@@ -44988,14 +44982,18 @@ class stzList from stzObject
 
 	def UppercaseListsOfStrings()
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			if isList(item) and @IsListOfStrings(@aContent[i])
-				acLowercased = StzListOfStringsQ(@aContent[i]).Uppercased()
-				@aContent[i] = acLowercased
+			if isList(item) and @IsListOfStrings(aContent[i])
+				acLowercased = StzListOfStringsQ(aContent[i]).Uppercased()
+				aContent[i] = acLowercased
 			ok
 		next
+
+		This.UpdateWith(aContent)
+
 
 		def UppercaseListsOfStringsQ()
 			This.LowercaseListsOfStrings()
@@ -46497,10 +46495,14 @@ class stzList from stzObject
 
 		# Doing the job
 
+		aContent = This.Content()
 		nLenPos = len(anPos)
+
 		for i = nLenPos to 1 step -1
-			ring_insert(@aContent, panPos[i], pItem)
+			ring_insert(aContent, panPos[i], pItem)
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 		
@@ -46574,10 +46576,14 @@ class stzList from stzObject
 
 		# Doing the job
 
+		aContent = This.Content()
 		nLenPos = len(anPos)
+
 		for i = nLenPos to 1 step -1
-			ring_insert(@aContent, panPos[i]+1, pItem)
+			ring_insert(aContent, panPos[i]+1, pItem)
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 		
@@ -50434,24 +50440,27 @@ class stzList from stzObject
 
 	def Stringify()
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
 
-			if isString(@aContent[i])
+			if isString(aContent[i])
 				loop
 
-			but isNumber(@aContent[i])
-				@aContent[i] = ""+ @aContent[i]
+			but isNumber(aContent[i])
+				aContent[i] = ""+ @aContent[i]
 
-			but isList(@aContent[i])
-				@aContent[i] = @@(@aContent[i])
+			but isList(aContent[i])
+				aContent[i] = @@(aContent[i])
 
-			but isObject(@aContent[i])
-				@aContent[i] = @ObjectVarName(@aContent[i])
+			but isObject(aContent[i])
+				aContent[i] = @ObjectVarName(aContent[i])
 			ok
 
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -50497,13 +50506,16 @@ class stzList from stzObject
 	#--------------------------------------#
 
 	def StringifyLists()
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			if isList(@aContent[i])
-				@aContent[i] = @@(@aContent[i])	
+			if isList(aContent[i])
+				aContent[i] = @@(aContent[i])	
 			ok
 		next
+
+		This.UpdateWith(aContent)
 
 		def StringifylistsQ()
 			This.Stringifylists()
@@ -50519,14 +50531,16 @@ class stzList from stzObject
 
 	def StringifyObjects()
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			if isObject(@aContent[i])
-				@aContent[i] = @ObjectVarName(@aContent[i])	
+			if isObject(aContent[i])
+				aContent[i] = @ObjectVarName(aContent[i])	
 			ok
 		next
 
+		This.UpdateWith(aContent)
 
 		def StringifyObjectsQ()
 			This.StringifyObjects()
@@ -50541,14 +50555,16 @@ class stzList from stzObject
 	#----------------------------------------------#
 
 	def StringifyNamedObjects()
-
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			if @IsNamedObject(@aContent[i])
-				@aContent[i] = @ObjectVarName(@aContent[i])	
+			if @IsNamedObject(aContent[i])
+				aContent[i] = @ObjectVarName(aContent[i])	
 			ok
 		next
+
+		This.UpdateWith(aContent)
 
 
 		def StringifyNamedObjectsQ()
@@ -50563,8 +50579,7 @@ class stzList from stzObject
 	 #  Q-STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BECOME QSTRINGS)  #
 	#---------------------------------------------------------------------#
 
-	def QStringified()
-
+	def QStringify()
 		aContent = This.Content()
 		nLen = len(aContent)
 
@@ -50591,7 +50606,16 @@ class stzList from stzObject
 			aoResult + oQStr
 		next
 
-		return aoResult
+		This.UpdateWith( aoResult )
+
+		def QStringifyQ()
+			This.Stringify()
+			return This
+
+	def QStringified()
+		aResult = This.Copy().QStringfyQ().Content()
+		return aResult
+
 
 		#< @FunctionAlternativeForms
 
@@ -54540,6 +54564,8 @@ class stzList from stzObject
 			ok
 		ok
 
+		aContent = This.Content()
+
 		nLen = n2 - n1 + 1
 		anPos = NRandomNumbersBetweenU(nLen, n1, n2)
 		aItems = This.ItemsAtPositions(anPos)
@@ -54547,8 +54573,10 @@ class stzList from stzObject
 		j = 0
 		for i = n1 to n2
 			j++
-			@aContent[i] = aItems[j]
+			aContent[i] = aItems[j]
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionFluentForm
 
@@ -77398,7 +77426,7 @@ class stzList from stzObject
 		if This.NumberOfItems() <= 4 and
 		   This.IsHashList() and
 		   This.ToStzHashList().KeysQ().IsMadeOfSome([ :Where, :What, :Why, :Todo ]) and
-		   This.ToStzHashList().ValuesQ().AllItemsVerifyW("isString(@item) and @item != NULL")
+		   This.ToStzHashList().ValuesQ().CheckWXT("isString(@item) and @item != NULL")
 
 			return TRUE
 

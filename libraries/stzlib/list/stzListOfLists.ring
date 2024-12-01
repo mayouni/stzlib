@@ -336,7 +336,8 @@ class stzListOfLists from stzList
 	#-----------------#
 
 	def AddList(paList)
-		@aContent + paList
+		aTempContent = This.Content()
+		This.UpdateWith(aTempContent + paList)
 
 	def AddMany(paListOfLists)
 		if CheckParams()
@@ -345,10 +346,14 @@ class stzListOfLists from stzList
 			ok
 		ok
 
+		aContent = This.Content()
+
 		nLen = len(paListOfLists)
 		for i = 1 to nLen
-			@aContent + paListOfLists[i]
+			aContent + paListOfLists[i]
 		next
+
+		This.UpdateWith(aContent)
 
 		def AddManyLists(paListOfLists)
 			This.AddMany(paListOfLists)
@@ -450,7 +455,7 @@ class stzListOfLists from stzList
 	#--------------------------------------#
 
 	def FindSubListInListsCS(paSubList, pCaseSensitive)
-
+		StzRaise("Function non implemented yet!")
 
 	  #======================#
 	 #   POSITIONS WHERE    #
@@ -510,6 +515,16 @@ class stzListOfLists from stzList
 
 		#>
 
+		#TODO // XT form should be implemented in the same way as in stzList
+		# Temprorarily we implement them as alternatives of the normal form
+
+		def PositionWXT(pcCondition)
+			return This.PositionW(pcCondition)
+
+		def FindListsWXT(pcCondition)
+			return This.PositionsW(pcCondition)
+
+
 	  #------------------#
 	 #   LISTS WHERE    #
 	#------------------#
@@ -547,12 +562,12 @@ class stzListOfLists from stzList
 		def ListsWhere(pcCondition)
 			return This.ListsW(pcCondition)
 
-			#< @FunctionFluentForm
-
 			def ListsWhereQ(pcCondition)
 				return new stzList(This.ListsWhere(pcCondition))
 
-			#>
+		def ListsWXT(pcCondition)
+			return This.ListsW(pcCondition)
+
 		#>
 
 	  #-----------------------------#
@@ -579,12 +594,12 @@ class stzListOfLists from stzList
 		def ListsWhereZ(pcCondition)
 			return This.ListsWZ(pcCondition)
 
-			#< @FunctionFluentForm
-
 			def ListsWhereZQ(pcCondition)
 				return new stzList(This.ListsWhereZ(pcCondition))
 
-			#>
+		def ListsWXTZ(pcCondition)
+			return This.ListsWXT(pcCondition)
+
 		#>
 
 	  #==========================================#
@@ -2039,9 +2054,13 @@ class stzListOfLists from stzList
 		aListOfLists = This.ListOfLists()
 		nLen = len(aListOfLists)
 
+		aReversed = This.Content()
+
 		for i = 1 to nLen
-			@aContent[i] = Q(aListOfLists[i]).Reversed()
+			aReversed[i] = Q(aListOfLists[i]).Reversed()
 		next
+
+		This.UpdateWith(aReversed)
 
 		def ReverseItemsInListsQ()
 			This.ReverseItemsInLists()
@@ -2070,7 +2089,7 @@ class stzListOfLists from stzList
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( isList(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			StzRaise("Incorrect param type! pCaseSensitive must be TRUE or FALSE.")
 		ok
 
@@ -2159,7 +2178,7 @@ class stzListOfLists from stzList
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if NOT ( isList(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
+		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
 			StzRaise("Incorrect param type! pCaseSensitive must be TRUE or FALSE.")
 		ok
 
@@ -2406,7 +2425,9 @@ class stzListOfLists from stzList
 			StzRaise("Can't merge the list of lists! Instead you can return a merged copy of it using Merged()")
 
 	def Merged()
-		return @Merge(@aContent)
+		aContent = This.Content()
+		aResult = @Merge(@aContent)
+		return aResult
 
 	  #----------------------------------------#
 	 #  GETTING A FLATTENED COPY OF THE LIST  #
@@ -2905,23 +2926,28 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		nLen = len(paList)
-		if nLen = 0
+		nLenList = len(paList)
+		if nLenList = 0
 			return
 		ok
 
-		if nLen > 1 and len(@aContent) = 1 and len(@aContent[1]) = 0
+		aContent = This.Content()
+		nLenContent = len(aContent)
+
+		if nLenList > 1 and nLenContent = 1 and len(aContent[1]) = 0
 			
 			for i = 1 to nLen - 1
-				@aContent + []
+				aContent + []
 			next
 		ok
 
-		nMin = Min([ len(@aContent), len(paList) ])
+		nMin = Min([ nLenContent, nLenList ])
 
 		for i = 1 to nMin
-			@aContent[i] + paList[i]
+			aContent[i] + paList[i]
 		next
+
+		This.UpdateWith(aContent)
 
 	  #------------------------------------------------------#
 	 #  ADDING A COLUMN AT THE END OF THE LIST -- EXTENDED  #
@@ -2954,19 +2980,27 @@ class stzListOfLists from stzList
 		ok
 
 		This.Justify()
-		nLen = len(@aContent)
+
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			@aContent[i] + paList[i]
+			aContent[i] + paList[i]
 		next	
+
+		This.UpdateWith(aContent)
 
 	  #==================================#
 	 #  SORTING NTH LIST IN  ASCENDING  #
 	#==================================#
 
 	def SortNthList(n)
-		aSorted = @SortList(This.Content()[n])
-		@aContent[n] = aSorted
+		aContent = This.Content()
+		aSorted = @SortList(aContent[n])
+		aContent[n] = aSorted
+
+		This.UpdateWith(aContent)
+
 
 		def SortNthListQ(n)
 			This.SortNthList(n)
@@ -2998,8 +3032,12 @@ class stzListOfLists from stzList
 	#----------------------------------#
 
 	def SortDownNthList(n)
-		aSorted = ring_reverse( @SortList(This.Content()[n]) )
-		@aContent[n] = aSorted
+		aContent = This.Content()
+		aSorted = ring_reverse( @SortList(aContent[n]) )
+		aContent[n] = aSorted
+
+		This.UpdateWith(aContent)
+
 
 		def SortDownNthListQ(n)
 			This.SortDownNthList(n)
@@ -3285,12 +3323,14 @@ class stzListOfLists from stzList
 	 #  SORTING THE LISTS BY AN EXPRESSION EVALUATED AGAINST A GIVEN COLUMN - IN ASCENDING  #
 	#======================================================================================#
 
-def SortOnByXT(nCol, pcExpr) #TODO
-#--> returns a hashlist with the evaluated expression
+	def SortOnByXT(nCol, pcExpr) #TODO
+	#--> returns a hashlist with the evaluated expression
+		StzRaise("Non implemented yet!")
 
 	def SortOnBy(nCol, pcExpr)
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		aCol = This.Col(nCol)
 		nLenCol = len(aCol)
@@ -3302,10 +3342,10 @@ def SortOnByXT(nCol, pcExpr) #TODO
 		for @i = 1 to nLenCol
 			@item = aCol[@i]
 			eval(cCode)
-			ring_insert(@aContent[@i], 1, value)
+			ring_insert(aContent[@i], 1, value)
 		next
 
-		@aContent = @SortLists(@aContent)
+		This.UpdateWith( @SortLists(aContent) )
 		This.RemoveCol(1)
 		
 		#< @FunctionFluentForm
@@ -3372,7 +3412,10 @@ def SortOnByXT(nCol, pcExpr) #TODO
 	#===========================================#
 
 	def RemoveDuplicatesInNthList(n)
-		@aContent[n] = @WithoutDuplicates(@aContent[n])
+		aContent = This.Content()
+		aContent[n] = @WithoutDuplicates(aContent[n])
+		This.UpdateWith(aContent)
+
 
 		def RemoveDuplicatesInNthListQ(n)
 			This.RemoveDuplicatesInNthList(n)
@@ -3396,11 +3439,15 @@ def SortOnByXT(nCol, pcExpr) #TODO
 	#--------------------------------------------#
 
 	def RemoveDuplicatesInLists()
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			@aContent[i] = @WithoutDuplicates(@aContent[i])
+			aContent[i] = @WithoutDuplicates(@aContent[i])
 		next
+
+		This.UpdateWith(aContent)
+
 
 		def RemoveDuplicatesInListsQ()
 			This.RemoveDuplicatesInLists()
@@ -3679,14 +3726,18 @@ def SortOnByXT(nCol, pcExpr) #TODO
 
 		# Doing the job
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			nLenList = len(@aContent[i])
+			nLenList = len(aContent[i])
 			if n1 <= nLenList and n2 <= nLenList
-				@Move(@aContent[i], n1, n2)
+				@Move(aContent[i], n1, n2)
 			ok
 		next
+
+		This.UpdateWith(aContent)
+
 
 		#< @FunctionFluentForm
 
@@ -3765,14 +3816,18 @@ def SortOnByXT(nCol, pcExpr) #TODO
 
 		# Doing the job
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			nLenList = len(@aContent[i])
+			nLenList = len(aContent[i])
 			if n1 <= nLenList and n2 <= nLenList
-				ring_swap(@aContent[i], n1, n2)
+				ring_swap(aContent[i], n1, n2)
 			ok
 		next
+
+		This.UpdateWith(aContent)
+
 
 		#< @FunctionFluentForm
 
@@ -3840,11 +3895,12 @@ def SortOnByXT(nCol, pcExpr) #TODO
 
 		# Doing the job
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 		nLenCol = len(paColData)
 
 		for i = 1 to nLen
-			nLenList = len(@aContent[i])
+			nLenList = len(aContent[i])
 
 			item = NULL
 			if i <= nLenCol
@@ -3852,10 +3908,13 @@ def SortOnByXT(nCol, pcExpr) #TODO
 			ok
 
 			if n <= nLenList
-				ring_insert(@aContent[i], n, item)
+				ring_insert(aContent[i], n, item)
 			ok
 
 		next
+
+		This.UpdateWith(aContent)
+
 
 		#< @FunctionFluentForm
 
@@ -3892,7 +3951,8 @@ def SortOnByXT(nCol, pcExpr) #TODO
 
 		# Early Check
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		if n < 1 or n > nLen
 			return
@@ -3901,11 +3961,14 @@ def SortOnByXT(nCol, pcExpr) #TODO
 		# Doing the job
 
 		for i = 1 to nLen
-			nLenList = len(@aContent[i])
+			nLenList = len(aContent[i])
 			if n <= nLenList
-				ring_remove(@aContent[i], n)
+				ring_remove(aContent[i], n)
 			ok
 		next
+
+		This.UpdateWith(aContent)
+
 
 		#< @FunctionFluentForm
 
@@ -3978,19 +4041,24 @@ def SortOnByXT(nCol, pcExpr) #TODO
 			ok
 		ok
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
+
 		anColNumbers = ring_sort(anColNumbers)
 		nLenCols = len(anColNumbers)
 
 		for i = nLenCols to 1 step -1
 			n = anColNumbers[i]
 			for j = 1 to nLen
-				nLenList = len(@aContent[j])
+				nLenList = len(aContent[j])
 				if n <= nLenList
-					ring_remove(@aContent[j], n)
+					ring_remove(aContent[j], n)
 				ok
 			next
 		next
+
+		This.UpdateWith(aContent)
+
 
 		#< @FunctionFluentForm
 
@@ -4092,11 +4160,12 @@ def SortOnByXT(nCol, pcExpr) #TODO
 
 		# Doing the job
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 		nLenCol = len(paColData)
 
 		for i = 1 to nLen
-			nLenList = len(@aContent[i])
+			nLenList = len(aContent[i])
 
 			item = NULL
 			if i <= nLenCol
@@ -4104,10 +4173,13 @@ def SortOnByXT(nCol, pcExpr) #TODO
 			ok
 
 			if n <= nLenList
-				@aContent[i][n] = item
+				aContent[i][n] = item
 			ok
 
 		next
+
+		This.UpdateWith(aContent)
+
 
 		#< @FunctionFluentForm
 
@@ -4133,6 +4205,17 @@ def SortOnByXT(nCol, pcExpr) #TODO
 
 	def ReplaceCols(panColNumbers, paColData)
 
+		if CheckParams()
+			if NOT (isList(panColNumbers) and @IsListOfNumbers(panColNumbers))
+				StzRaise("Incorrect param type! panColNumbers must be a list of numbers.")
+			ok
+		ok
+
+		nLen = len(panColNumbers)
+
+		for i = 1 to nLen
+			this.ReplaceCol(panColNumbers[i], paColData)
+		next
 
 	  #==================================================#
 	 #  TRANSFORMING THE LIST OF LISTS TO OTHER FORMS   #

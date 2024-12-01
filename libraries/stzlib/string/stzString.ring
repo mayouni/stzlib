@@ -37510,29 +37510,33 @@ class stzString from stzObject
 		def SubStringInsertedAt(nPos, pcSubStr)
 			return This.SubStringInsertedBefore(nPos, pcSubStr)
 
-	  #------------------------------------------------#
-	 # INSERTING A SUBSTRING BEFoRE A GIVEN POSITION  #
-	#------------------------------------------------#
+	  #-------------------------------------------------#
+	 #  INSERTING A SUBSTRING BEFoRE A GIVEN POSITION  #
+	#-------------------------------------------------#
 
 	def InsertBeforePosition(nPos, pcSubStr)
-
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsSubStringNamedParam()
-			pcSubStr = pcSubStr[2]
+		if CheckParams()
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsSubStringNamedParam()
+				pcSubStr = pcSubStr[2]
+			ok
+	
+			if isNumber(nPos) and isString(pcSubStr)
+				n = nPos
+				cSubStr = pcSubStr
+	
+			but isNumber(pcSubStr) and isString(nPos)
+				n = pcSubStr
+				cSubStr = nPos
+	
+			else
+				StzRaise("Incorrect param types! You must provide a string and number.")
+			ok
 		ok
 
-		if isNumber(nPos) and isString(pcSubStr)
-			n = nPos
-			cSubStr = pcSubStr
+		oQCopy = @oQString
+		This.UpdateWith( oQCopy.insert(n-1, cSubStr) )
 
-		but isNumber(pcSubStr) and isString(nPos)
-			n = pcSubStr
-			cSubStr = nPos
-
-		else
-			StzRaise("Incorrect param types! You must provide a string and number.")
-		ok
-
-		@oQString.insert(n-1, cSubStr)
+		#< @FunctionAlternativeForms
 
 		def InsertBeforePositionQ(nPos, pcSubStr)
 			This.InsertBeforePosition(nPos, pcSubStr)
@@ -37555,6 +37559,8 @@ class stzString from stzObject
 
 			def InsertSubStringAtPosiitonQ(nPos, pcSubStr)
 				return This.InsertBeforePositionQ(nPos, pcSubStr)
+
+		#>
 
 	#-- @FunctionPassiveForms
 
@@ -37805,23 +37811,29 @@ class stzString from stzObject
 
 	def InsertAfterPosition(nPos, pcSubStr)
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsSubStringNamedParam()
-			pcSubStr = pcSubStr[2]
+		if CheckParams()
+
+			if isList(pcSubStr) and StzListQ(pcSubStr).IsSubStringNamedParam()
+				pcSubStr = pcSubStr[2]
+			ok
+	
+			if isNumber(nPos) and isString(pcSubStr)
+				n = nPos
+				cSubStr = pcSubStr
+	
+			but isNumber(pcSubStr) and isString(nPos)
+				n = pcSubStr
+				cSubStr = nPos
+	
+			else
+				StzRaise("Incorrect param types! You must provide a string and number.")
+			ok
 		ok
 
-		if isNumber(nPos) and isString(pcSubStr)
-			n = nPos
-			cSubStr = pcSubStr
+		oQCopy = @oQString
+		This.UpdateWith( oQCopy.insert(n, cSubStr) )
 
-		but isNumber(pcSubStr) and isString(nPos)
-			n = pcSubStr
-			cSubStr = nPos
-
-		else
-			StzRaise("Incorrect param types! You must provide a string and number.")
-		ok
-
-		@oQString.insert(n, cSubStr)
+		#< @FunctionAlternativeForms
 
 		def InsertAfterPositionQ(nPos, pcSubStr)
 			This.InsertAfterPosition(nPos, pcSubStr)
@@ -37832,6 +37844,8 @@ class stzString from stzObject
 
 			def InsertSubStringAfterPositionQ(nPos, pcSubStr)
 				return This.InsertAfterPositionQ(nPos, pcSubStr)
+
+		#>
 
 	#-- @FunctionPassiveForms
 
@@ -38115,27 +38129,31 @@ class stzString from stzObject
 	#================================================#
 
 	 def InsertAfterPositions(panPos, pcSubStr)
-		# Param checks
 
-		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+		if CheckParams()
 
-			stzRaise("Incorrect param! panPos must be a list of numbers.")
+			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+	
+				stzRaise("Incorrect param! panPos must be a list of numbers.")
+			ok
+	
+			if isList(pcSubStr) and Q(pcSubStr).IsStringOrSubStringNamedParam()
+				pcSubStr = pcSubStr[2]
+			ok
+
 		ok
 
-		if isList(pcSubStr) and Q(pcSubStr).IsStringOrSubStringNamedParam()
-			pcSubStr = pcSubStr[2]
-		ok
+		if EarlyCheck()
 
-		# Early checks
-
-		nLenStr = This.NumberOfChars()
-		if nLenstr = 0
-			return
-		ok
-
-		nLenPos = len(panPos)
-		if nLenPos = 0
-			return
+			nLenStr = This.NumberOfChars()
+			if nLenstr = 0
+				return
+			ok
+	
+			nLenPos = len(panPos)
+			if nLenPos = 0
+				return
+			ok
 		ok
 
 		# Leaving only the accurate positions
@@ -38152,10 +38170,14 @@ class stzString from stzObject
 
 		# Doing the job
 
+		oQCopy = @oQString
+		
 		nLenPos = len(anPos)
 		for i = nLenPos to 1 step -1
-			@oQString.insert(anPos[i], pcSubStr)
+			oQCopy.insert(anPos[i], pcSubStr)
 		next
+
+		This.UpdateWith(oQCopy.mid(0, oQCopy.count()-1) )
 
 		#< @FunctionFluentForm
 
@@ -38222,27 +38244,29 @@ class stzString from stzObject
 
 	 def InsertBeforePositions(panPos, pcSubStr)
 
-		# Param checks
+		if CheckParams()
 
-		if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
-
-			stzRaise("Incorrect param! panPos must be a list of numbers.")
+			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
+	
+				stzRaise("Incorrect param! panPos must be a list of numbers.")
+			ok
+	
+			if isList(pcSubStr) and Q(pcSubStr).IsStringOrSubStringNamedParam()
+				pcSubStr = pcSubStr[2]
+			ok
 		ok
 
-		if isList(pcSubStr) and Q(pcSubStr).IsStringOrSubStringNamedParam()
-			pcSubStr = pcSubStr[2]
-		ok
+		if EarlyCheck()
 
-		# Early checks
-
-		nLenStr = This.NumberOfChars()
-		if nLenstr = 0
-			return
-		ok
-
-		nLenPos = len(panPos)
-		if nLenPos = 0
-			return
+			nLenStr = This.NumberOfChars()
+			if nLenstr = 0
+				return
+			ok
+	
+			nLenPos = len(panPos)
+			if nLenPos = 0
+				return
+			ok
 		ok
 
 		# Leaving only the accurate positions
@@ -38259,10 +38283,14 @@ class stzString from stzObject
 
 		# Doing the job
 
+		oQCopy = @oQString
+
 		nLenPos = len(anPos)
 		for i = nLenPos to 1 step -1
-			@oQString.insert(anPos[i]-1, pcSubStr)
+			oQCopy.insert(anPos[i]-1, pcSubStr)
 		next
+
+		This.UpdateWith( oQCopy.mid(0, oQCopy.count()-1 ) )
 
 		#< @FunctionFluentForm
 
@@ -39314,8 +39342,9 @@ class stzString from stzObject
 
 		# Doing the job
 
-		@oQString.replace_2(pcSubStr, pcNewSubStr, pCaseSensitive)
-
+		oQCopy = @oQString
+		oQCopy.replace_2(pcSubStr, pcNewSubStr, pCaseSensitive)
+		This.UpdateWith( oQCopy.mid(0, oQCopy.count()-1 ) )
 	
 		#< @FunctionFluentForm
 		
@@ -43727,8 +43756,10 @@ class stzString from stzObject
 	def Update(pcNewStr)
 		#< QtBased | Uses QString.clear() and QString.append() >
 
-		if isList(pcNewStr) and Q(pcNewStr).IsWithOrByOrUsingNamedParam()
-			pcNewStr = pcNewStr[2]
+		if CheckParams()
+			if isList(pcNewStr) and Q(pcNewStr).IsWithOrByOrUsingNamedParam()
+				pcNewStr = pcNewStr[2]
+			ok
 		ok
 
 		@oQString.clear()
@@ -87175,12 +87206,8 @@ class stzString from stzObject
 	#==========================================================#
 
 	def Simplify()
-
-		# t0 = clock() // Veryf fast, takes almost 0.01s
-
-		This.Update( @oQString.simplified() )
-
-		# ? ( clock() - t0 ) / clockspersecond()
+		oQCopy = @oQString
+		This.UpdateWith( oQCopy.simplified() )
 
 		def SimplifyQ()
 			This.Simplify()
@@ -87632,10 +87659,14 @@ class stzString from stzObject
 
 		*/
 
+		oQCopy = @oQString
+
 		nLen = @oQString.count() // #TODO Use size() instead
 		for i = nLen-1 to 1 step -1
-			@oQString.insert(i, " ")
+			oQCopy.insert(i, " ")
 		next
+
+		This.UpdateWith( oQCopy.mid(0, oQCopy.count()-1 ) )
 
 		def SpacifyCharsQ()
 			This.SpacifyChars()
@@ -87704,10 +87735,15 @@ class stzString from stzObject
 
 		*/
 
+		oCopy = @oQString
+
 		nLen = @oQString.count() // #TODO Use size() instead
+
 		for i = nLen-1 to 1 step -1
-			@oQString.insert(i, pcSep)
+			oQCopy.insert(i, pcSep)
 		next
+
+		This.UpdateWith( oQCopy.mid(0, oQCopy.count()-1 ) )
 
 		def SpacifyCharsUsingQ(pcSep)
 			This.SpacifyCharsUsing(pcSep)
@@ -88488,7 +88524,6 @@ class stzString from stzObject
 	// Verifies if the string is right-to-left (like arabic) : SEE Orientation()
 	def IsRightToleft()
 		bResult = @oQString.isRightToleft()
-
 		return bResult
 
 	// Verifies if the string is left-to-right (like english)
@@ -88920,7 +88955,7 @@ class stzString from stzObject
 		an extended arabic library will manage those (and other)
 		specificities of arabic language.
 
-		WARNING: In this version, if your arabic text contains
+		~> #WARNING: In this version, if your arabic text contains
 		arabic diactritics (7arakets), then the alignment
 		won't be correct!
 
@@ -88930,9 +88965,21 @@ class stzString from stzObject
 
  		*/
 
+		if CheckParams()
+			if NOT isNumber(nWidth)
+				StzRaise("Incorrect param type! nWidth must be a number.")
+			ok
+
+			if NOT ( isString(cChar) and @IsChar(cChar) )
+				StzRaise("Incorrect param type! cChar must be a char.")
+			ok
+		ok
+
 		nWidth += This.NumberOfOccurrence( ArabicShaddah() )
 
 		# Computing the alignment using Qt
+
+		oQCopy = @oQString
 
 		if nWidth > This.NumberOfChars()
 			oChar = new stzChar(cChar)
@@ -88942,9 +88989,9 @@ class stzString from stzObject
 			// left-to-right strings (like arabic and hebrew)
 
 			if This.IsRightToLeft()
-				cJustified = @oQString.rightJustified(nWidth, oQChar, FALSE)
+				cJustified = oQCopy.rightJustified(nWidth, oQChar, FALSE)
 			else
-				cJustified = @oQString.leftJustified(nWidth, oQChar, FALSE)
+				cJustified = oQCopy.leftJustified(nWidth, oQChar, FALSE)
 			ok
 	
 			This.Update( cJustified )
@@ -89047,6 +89094,15 @@ class stzString from stzObject
 	#------------------------------------------------#
 
 	def RightAlignXT(nWidth, cChar)
+		if CheckParams()
+			if NOT isNumber(nWidth)
+				StzRaise("Incorrect param type! nWidth must be a number.")
+			ok
+
+			if NOT ( isString(cChar) and @IsChar(cChar) )
+				StzRaise("Incorrect param type! cChar must be a char.")
+			ok
+		ok
 
 		# See comment in LeftAlign() method
  
@@ -89054,14 +89110,16 @@ class stzString from stzObject
 
 		# Computing the justification using Qt
 
+		oQCopy = @oQString
+
 		if nWidth > This.NumberOfChars()
 			oChar = new stzChar(cChar)
 			oQChar = oChar.QCharObject()
 
 			if This.IsRightToLeft()
-				cJustified = @oQString.leftJustified(nWidth, oQChar, FALSE)
+				cJustified = oQCopy.leftJustified(nWidth, oQChar, FALSE)
 			else
-				cJustified = @oQString.rightJustified(nWidth, oQChar, FALSE)
+				cJustified = oQCopy.rightJustified(nWidth, oQChar, FALSE)
 			ok
 	
 			This.Update( cJustified )
@@ -89371,31 +89429,44 @@ class stzString from stzObject
 
 	//Returns a UTF-8 representation of the string (using QByteArray)
 	def ToUTF8()
-		return QByteArrayToListOfUnicodes(@oQString.toUtf8())
+		oQCopy = @oQString
+		cResult = QByteArrayToListOfUnicodes(oQCopy.toUtf8())
+		return cResult
 
 	def ToUTF8Q()
 		return new stzString( This.ToUTF8() )
 
 	def FromUTF8(pcUTF8String)
-		// TODO
+		StzRaise("Function non implemented yet!")
 
 	def ToLatin1()
-		return @oQString.toLatin1()
+		oQCopy = @oQString
+		cResult = oQCopy.toLatin1()
+		return oQCopy.toLatin1()
 
 	def FromLatin1(pcLatin1String)
-		// TODO
+		StzRaise("Function non implemented yet!")
 
 	def ToLocal8Bit()
-		return @oQString.toLocal8Bit()
+		oQCopy = @oQString
+		cResult = oQCopy.toLocal8bit()
+		return cResult
 
 	def ToBase64()
-		return This.ToStzListOfBytes().ToBase64()
+		cResult = This.ToStzListOfBytes().ToBase64()
+		return cResult
 
 		def ToBase64Q()
 			return new stzString( This.ToBase64() )
 
-	// Transforms the content of the string to a url-like encoded string
-	def ToPercentEncoding(pcExcludedFromEncoding, pcIncludedInEncoding, pcPercentAsciiChar)
+	  #---------------------------#
+	 #  URL-ENCODING THE STRING  #
+	#---------------------------#
+
+	#TODO // Support Unicode in this function
+	#~> // Use QSrinng.toPercentencoding() when added to RingQt
+
+	def UrlEncode()
 		/* Example:
 		o1 = new stzString("{a fishy string?}")
 		? o1.ToPercentEncoding( "{}", "s" )
@@ -89403,8 +89474,53 @@ class stzString from stzObject
 		--> {a%20fi%73hy%20%73tring%3F}
 		*/
 
-	// Updates the list of bytes with an url-like decoded copy of the provided string
-	def FromPercentEncoding(pcPercentEncodedString, pcPercentAsciiChar) // TODO
+		result = ""
+		acChars = This.Chars()
+		nLen = len(acChars)
+
+		for i = 1 to nLen
+
+			char = acChars[i]
+			charCode = @Unicode(char)
+
+			if (charCode >= ascii('a') and charCode <= ascii('z')) or
+				(charCode >= ascii('A') and charCode <= ascii('Z')) or
+				(charCode >= ascii('0') and charCode <= ascii('9')) or
+				char = '-' or char = '_' or char = '.' or char = '~'
+
+				result = result + char
+			else
+				hexStr = hex(charCode)
+
+				if len(hexStr) = 1
+					hexStr = "0" + hexStr
+				ok
+
+				result = result + "%" + hexStr
+			end
+		end
+
+		this.UpdateWith( result )
+
+		def UrlEncodeQ()
+			This.UrlEncode()
+			return This
+
+	def UrlEncoded()
+		cResult = This.Copy().UrlEncodeQ().Content()
+		return cResult
+
+		def ToUrlEncoded()
+			return This.UrlEncoded()
+
+	  #---------------------------#
+	 #  URL-ENCODING THE STRING  #
+	#---------------------------#
+
+	#TODO // Support Unicode in this function
+	#~> // Use QSrinng.toPercentencoding() when added to RingQt
+
+	def UrlDecode()
 		/* Example:
 		o1 = new stzString("")
 		o1.FromPercentEncoding( "{a%20fi%73hy%20%73tring%3F}", "%" )
@@ -89413,7 +89529,40 @@ class stzString from stzObject
 		--> {a fishy string?}
 		*/
 
-		StzRaise("Feature not implemented yet!")
+		result = ""
+		i = 1
+
+		acChars = This.Chars()
+		nLen = len(acChars)
+
+		while i <= nLen
+
+			if acChars[i] = "%" and i + 2 <= nLen
+
+				hexStr = @oQString.mid(i, 2)
+				charCode = @Unicode(hex2str(hexStr))
+				result = result + Char(charCode) + " "
+				i = i + 3
+
+		        else
+
+				result = result + @oQString.mid(i-1, 1)
+		            	i = i + 1
+		        end
+		end
+
+		This.UpdateWith( result )
+
+		def UrlDecodeQ()
+			This.UrlDecode()
+			return This
+
+	def UrlDecoded()
+		cResult = This.Copy().UrlDecodeQ().Content()
+		return cResult
+
+		def ToUrlDecoded()
+			return This.UrlDecoded()
 
 	  #-----------------------------#
 	 #  WORKING WITH THE HEX FORM  #
@@ -89435,8 +89584,8 @@ class stzString from stzObject
 			return new stzString( This.ToHexWithoutPrefix() )
 
 	def FromHex(cHex)
-		@oQString = new QString2()
-		@oQString.append(hex2str(cHex))
+		oQCode = new QString2()
+		This.UpdateWith( oQCode.append(hex2str(cHex)) )
 
 		def FromHexQ(cHex)
 			This.FromHex(cHex)
@@ -89544,15 +89693,16 @@ class stzString from stzObject
 	#=============================================#
 
 	def EscapeHtml()
-		cResult = @oQString.toHtmlEscaped()
-
-		return cResult
+		oQCopy = @oQString
+		This.UpdateWith( oQCopy.toHtmlEscaped() )
 
 		def EscapeHtmlQ()
-			return new stzString( This.EscapeHtml() )
+			This.EscapeHtml()
+			return This
 
 	def HtmlEscaped()
-		return This.EscapeHtmlQ().Content()
+		cResult = This.Copy().EscapeHtmlQ().Content()
+		return cResult
 
 	  #=======================================#
 	 #  TRANSFORMING THE STRING TO A NUMBER  #
@@ -96470,154 +96620,7 @@ class stzString from stzObject
 				return Q(acResult)
 			ok
 
-/*
-		but pOp = "/"
 
-
-			if isString(pValue)
-				if Q(pValue).IsBoundedBy([ "{", "}" ])
-
-					acSplitted = This.SplitW(pValue)
-
-				else
-					acSplitted = This.Split(pValue)
-				ok
-
-				return acSplitted
-
-			but @IsStzString(pValue)
-				if pValue.IsBoundedBy([ "{", "}" ])
-					acSplitted = This.SplitW(pValue.Content())
-
-				else
-					acSplitted = This.Split(pValue.Content())
-				ok
-
-				return Q(acSplitted)
-
-			but isNumber(pValue)
-				return This.SplitToNParts(pValue)
-
-			but @IsStzNumber(pValue)
-				return Q(This.SplitToNParts(pValue.NumericValue()))
-
-			but isList(pValue)
-
-				if Q(pValue).IsListOfNumbers()
-					acSplitted = This.SplitToPartsOfSizes(pValue)
-					return acSplitted
-				ok
-
-			but @IsStzList(pValue)
-
-				if pValue.IsListOfNumbers()
-					acSplitted = This.SplitAtPositions(pValue.Content())
-					return Q(acSplitted)
-				ok
-
-			but isList(pValue) and Q(pValue).IsPairOfStrings() and
-			    pValue[1] = :where and Q(pValue[2]).IsBoundedBy([ "{" , "}" ])
-
-				acSplitted = This.SplitW(pValue[2])
-				return acSplitted
-			
-			but @IsStzList(pValue) and pValue.IsPairOfStrings() and
-			    pValue.Content()[1] = :where and Q(pValue.Content())[2].IsBoundedBy([ "{", "}" ])
-
-				acSplitted = This.SplitW(pValue.Content()[2])
-				return Q(acSplitted)
-
-			but isList(pValue) and Q(pValue).IsPairOfStrings() and
-			    pValue[1] = :wherext and Q(pValue[2]).IsBoundedBy([ "{" , "}" ])
-
-				acSplitted = This.SplitWXT(pValue[2])
-				return acSplitted
-			
-			but @IsStzList(pValue) and pValue.IsPairOfStrings() and
-			    pValue.Content()[1] = :wherext and Q(pValue.Content())[2].IsBoundedBy([ "{", "}" ])
-
-				acSplitted = This.SplitWXT(pValue.Content()[2])
-				return Q(acSplitted)
-
-			but isList(pValue) and Q(pValue).IsListOfStrings()
-				# EXAMPLE
-				# @@( Q("RingRubyJava") / [ "Qute", "Nice", "Good" ] )
-				#--> [ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]	
-
-				nLen = len(pValue)
-				acSplitted = This.SplitToNParts(nLen)
-				aResult = Association([ pValue, acSplitted ])
-				return aResult
-
-			but @IsStzList(pValue) and pValue.IsListOfStrings()
-				nLen = len(pValue.Content())
-				acSplitted = This.SplitToNParts(nLen)
-				aResult = Association([ pValue.Content(), acSplitted ])
-				return Q(aResult)
-
-			but isList(pValue) and Q(pValue).IsHashList()
-				oHashList = new stzHashList(pValue)
-
-				# All the values except the last one must be numbers
-
-				aValuesExceptLast = oHashList.ValuesQ().LastItemRemoved()
-
-				if NOT Q(aValuesExceptLast).IsListOfNumbers()
-					stzRaise("Incorrect values! All the values except the last, must be numbers.")
-				ok
-
-				# The last value can be a number or a string equal to :Remaining or :RemainingChars
-
-				if NOT 	( isNumber(oHashList.LastValue()) or
-
-					  ( isString(oHashList.LastValue()) and
-					    ring_find([ :Remaining, :RemainingChars ], oHashList.LastValue()) > 0 ) )
-
-					stzRaise("Incorrect value! The last value mus tbe a number or a string (:Remaining or :RemainingChars).")
-				ok
-
-				# If the last value is :Remaining or :RemainingChars, the its replace by the n remaining chars
-
-				if isString(oHashList.LastValue()) and
-				   ring_find([ :Remaining, :RemainingChars ], oHashList.LastValue()) > 0
-
-					n = 0
-					nLenTemp = len(aValuesExceptLast)
-					for i = 1 to nLenTemp
-						n += aValuesExceptLast[i]
-					next
-
-					nRemainingChars = This.NumberOfChars() - n
-
-					pValue[ len(pValue) ][2] = nRemainingChars
-				ok
-
-				# The sum of shares must be equal to the number of chars
-
-				if NOT StzHashListQ(pValue).ValuesQR(:stzListOfNumbers).Sum() = This.NumberOfChars()
-					stzRaise("Incorrect values! The sum of numbers must be equal to the number of chars!")
-				ok
-
-				# Making the share of the string based on the values provided
-
-				nLenValue = len(pValue)
-				aResult = []
-				n = 1
-				for i = 1 to nLenValue
-					aPair = pValue[i]
-					cShare = This.Range(n, aPair[2])
-					n += aPair[2]
-
-					aResult + [ aPair[1], cShare  ]
-				next
-
-				return aResult
-
-			but @IsStzList(pValue) and pValue.IsHashList()
-				acResult = This / pValue.Content()
-				return Q(acResult)
-			ok
-*/
 		// string - string | string - .25 | string - 3
 		but pOp = "-"
 			cResult = NULL

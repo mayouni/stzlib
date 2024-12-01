@@ -126,6 +126,62 @@ class stzListOfPairs from stzListOfLists
 			StzRaise("Can't update the stzListOfPairs object! The value you provided is not a list of pairs.")
 		ok
 
+	def UpdatePairWith(n, paNewPair)
+		if CheckParams()
+			if NOT (isNumber(n) and ( n = 1 or n = 2 ) )
+				StzRaise("Incorrect param type! n must be a number equal to 1 or 2.")
+			ok
+
+			if NOT isList(paNewPair) and len(paNewPair) = 2
+				StzRaise("Incorrect param type! paNewPair must be a list of 2 items.")
+			ok
+		ok
+
+		aContent = This.Content()
+		aContent[n] = paNewPair
+		This.UpdateWith(aContent)
+
+
+		#< @FunctionAlternativeForms
+
+		def UpdateNthPairWith(n, paNewPair)
+			This.UpdatePairWith(n, paNewPair)
+
+		def UpdatePairN(n, paNewPair)
+			This.UpdatePairWith(n, paNewPair)
+
+		def UpdatePair(n, paNewPair)
+			This.UpdatePairWith(n, paNewPair)
+
+		def UpdateNthPair(n, paNewPair)
+			This.UpdatePairWith(n, paNewPair)
+
+		#>
+
+	def UpdateFirstPairWith(paNewPair)
+		This.UpdatePairWith(1, paNewPair)
+
+		def UpdatePair1With(paNewPair)
+			This.UpdateFirstPairWith(paNewPair)
+
+		def UpdateFirstPair(paNewPair)
+			UpdateFirstPairWith(paNewPair)
+
+		def UpdatePair1(paNewPair)
+			This.UpdateFirstPairWith(paNewPair)
+
+	def UpdateSecondPairWith(paNewPair)
+		This.UpdatePairWith(2, paNewPair)
+
+		def UpdatePair2With(paNewPair)
+			This.UpdateSecondPairWith(paNewPair)
+
+		def UpdateSecondPair(paNewPair)
+			UpdateSecondPairWith(paNewPair)
+
+		def UpdatePair2(paNewPair)
+			This.UpdateSecondPairWith(paNewPair)
+
 	def ToStzList()
 		return new stzList( This.Content() )
 
@@ -134,7 +190,8 @@ class stzListOfPairs from stzListOfLists
 	#-------------------------------#
 
 	def NumberOfPairs()
-		return len(@aContent)
+		nResult = len(@aContent)
+		return nResult
 
 	  #------------------------#
 	 #  GETTING THE NTH PAIR  #
@@ -468,7 +525,7 @@ class stzListOfPairs from stzListOfLists
 
 	def ReplacePair(n, paNewPair)
 		if isList(paNewPair) and Q(paNewPair).IsPair()
-			@aContent[n] = paNewPair
+			This.UpdateNthPairWith(n, paNewPair)
 		ok
 
 		def ReplacePairQ(n, paNewPair)

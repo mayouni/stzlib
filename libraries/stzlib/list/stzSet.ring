@@ -151,7 +151,9 @@ class stzSet from stzList
 
 	def AddElement(pElm)
 		if not This.Contains(pElm)	# From StzList
-			@aContent + pElm
+			aContent = This.Content()
+			aContent + pElm
+			This.UpdateWith(aContent)
 		ok
 
 	def AddElementQ(pElm)

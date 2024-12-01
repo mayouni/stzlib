@@ -1618,6 +1618,7 @@ class stzObject
 	@oObject
 
 	@cVarName = :@NoName
+	@aHisto = []
 
 	def init(pObject)
 

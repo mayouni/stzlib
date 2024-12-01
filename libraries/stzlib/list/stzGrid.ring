@@ -284,6 +284,16 @@ class stzGrid from stzObject
 		@nNumberOfVLines = nV
 		@nNumberOfHLines = nH
 
+	  #----------------#
+	 #     UPDATE     #
+	#----------------#
+
+	def Update(paContent)
+		@aContent = paContent
+
+		def UpdateWith(paContent)
+			This.Update(paContent)
+
 	  #-----------------#
 	 #     GENERAL     #
 	#-----------------#
@@ -785,7 +795,8 @@ class stzGrid from stzObject
 			7 8 9		1 2 3
 		*/
 
-		@aContent = StzListQ( This.HLines() ).Reversed()
+		aContent = StzListQ( This.HLines() ).Reversed()
+		This.UpdateWith(aContent)
 
 	def ReverseHLinesQ()
 		This.ReverseHLines()

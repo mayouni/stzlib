@@ -9651,8 +9651,11 @@ Class stzTable from stzObject
 			ok
 		ok
 
+		aContent = This.Content()
 		cCol = This.ColToName(pCol)
-		@aContent[cCol][pnRow] = pNewCellValue
+		aContent[cCol][pnRow] = pNewCellValue
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionAlternativeForms
 
@@ -10533,16 +10536,18 @@ Class stzTable from stzObject
 		ok
 
 		aCol = []
+		aContent = This.Content()
 
 		for i = 1 to nRows
 			if i <= nLen
 				aCol + paCol[i]
 			else
-				aCol + @aContent[n][2][i]
+				aCol + aContent[n][2][i]
 			ok
 		next
 
-		@aContent[n][2] = aCol
+		aContent[n][2] = aCol
+		This.UpdateWith(aContent)
 
 		#< @FunctionAlternativeForms
 
@@ -10621,7 +10626,9 @@ Class stzTable from stzObject
 			ok
 		next
 
-		@aContent[n][2] = aCol
+		aContent = This.Content()
+		aContent[n][2] = aCol
+		This.UpdateWith(aContent)
 
 		#< @FunctionAlternativeForms
 
@@ -10796,8 +10803,12 @@ Class stzTable from stzObject
 			aTemp + paColData[i]
 		next
 
-		@aContent[n][1] = pcColName
-		@aContent[n][2] = aTemp
+		aContent = This.Content()
+		aContent[n][1] = pcColName
+		aContent[n][2] = aTemp
+
+		This.UpdateWith(aContent)
+
 
 		#< @FunctionAlternativeForms
 
@@ -10860,10 +10871,14 @@ Class stzTable from stzObject
 
 		nCol = This.ColToColNumber(pCol)
 		nRows = This.NumberOfRows()
+		aContent = This.Content()
 
 		for i = 1 to nRows
-			@aContent[nCol][2][i] = pCell
+			aContent[nCol][2][i] = pCell
 		next
+
+		This.UpdateWith(aContent)
+
 
 		def ReplaceCellsInColumn(pCol, pCell)
 			This.ReplaceCellsInCol(pCol, pCell)
@@ -11100,12 +11115,15 @@ Class stzTable from stzObject
 
 		nLenCols = Min([ len(paNewRow), len(@aContent) ])
 		nLenRows = This.NumberOfRows()
+		aContent = This.Content()
 
 		for i = 1 to nLenCols
 			for j = 1 to nLenRows
-				@aContent[i][2][j] = paNewRow[i]
+				aContent[i][2][j] = paNewRow[i]
 			next
 		next
+
+		This.UpdateWith(aContent)
 
 		#< @FunctionAlternativeForms
 
@@ -11503,9 +11521,13 @@ Class stzTable from stzObject
 			StzRaise("Incorrect format! paRow must contain " + This.NumberOfCols() + " items.")
 		ok
 
+		aContent = This.Content()
+
 		for i = 1 to nLen
-			@aContent[i][2] + paRow[i]
+			aContent[i][2] + paRow[i]
 		next
+
+		This.UpdateWith(aContent)
 
 	def AddRows(paRows)
 		if NOT isList(paRows)
@@ -11668,12 +11690,15 @@ Class stzTable from stzObject
 
 	def RemoveNthCol(n)
 		if This.NumberOfCols() = 1
-			@aContent = [ [ :COL1, [ NULL ] ] ]
+			This.UpdateWith( [ [ :COL1, [ NULL ] ] ] )
 			return
 		ok
 
-		ring_remove(@aContent, n)
-	
+		aContent = This.Content()
+		ring_remove(aContent, n)
+		This.UpdateWith(aContent)
+
+
 		def RemoveColAt(n)
 			This.RemoveNthCol(n)
 
@@ -11687,11 +11712,14 @@ Class stzTable from stzObject
 		nCol = This.ColToColNumber(pColNameOrNumber)
 
 		if This.NumberOfCols() = 1 and nCol = 1
-			@aContent = [ [ :COL1, [ NULL ] ] ]
+			This.UpdateWith( [ [ :COL1, [ NULL ] ] ] )
 			return
 		ok
 
+		aContent = This.Content()
 		ring_remove(@aContent, nCol)
+		This.UpdateWith(aContent)
+
 
 		def RemoveCol(pColNameOrNumber)
 			This.RemoveColumn(pColNameOrNumber)
@@ -11710,9 +11738,15 @@ Class stzTable from stzObject
 		anColNumbers = ring_sort( U(TpaColNamesOrNumbers) )
 		nLen = len(anColNumbers)
 
+		aContent = This.Content()
+
 		for i = nLen to 1 step -1
-			ring_remove(@aContent, anColNumbers[i])
+			ring_remove(aContent, anColNumbers[i])
 		next
+
+		This.UpdateWith(aContent)
+
+
 
 		def RemoveColsAt(panColNumbers)
 			This.RemoveColumnsAt(panColNumbers)
@@ -11727,13 +11761,18 @@ Class stzTable from stzObject
 		anColNumbers = ring_sort( U(This.TheseColsToColNumbers(paColNamesOrNumbers)) )
 		nLen = len(anColNumbers)
 
+		aContent = This.Content()
+
 		for i = nLen to 1 step -1
-			ring_remove(@aContent, anColNumbers[i])
+			ring_remove(aContent, anColNumbers[i])
 		next
 
-		if len(@aContent) = 0
-			@aContent = [ :COL1 = [ NULL ] ]
+		if len(aContent) = 0
+			aContent = [ :COL1 = [ NULL ] ]
 		ok
+
+		This.UpdateWith(aContent)
+
 
 		def RemoveCols(pColNamesOrNumbers)
 			This.RemoveColumns(pColNamesOrNumbers)
@@ -11828,7 +11867,7 @@ Class stzTable from stzObject
 	#=============================================#
 
 	def RemoveAll()
-		@aContent = [ :COL1 = [ NULL ] ]
+		This.UpdateWith([ :COL1 = [ NULL ] ])
 
 		def RemoveAllCols()
 			This.RemoveAll()
@@ -11862,11 +11901,15 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			ring_remove(@aContent[i][2], n)
+			ring_remove(aContent[i][2], n)
 		next
+
+		This.UpdateWith(aContent)
+
 
 		def RemoveRowAt(n)
 			This.RemoveNthRow(n)
@@ -11889,15 +11932,18 @@ Class stzTable from stzObject
 			ok
 		ok
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+		nLen = len(aContent)
 		anPos = ring_sort( U(panRows) )
 		nLenPos = len(anPos)
 
 		for i = nLen to 1 step -1
 			for j = 1 to nLen
-				ring_remove(@aContent[j][2], anPos[i])
+				ring_remove(aContent[j][2], anPos[i])
 			next
 		next
+
+		This.UpdateWith(aContent)
 
 
 		def RemoveRowsAt(panRows)
@@ -11993,14 +12039,19 @@ Class stzTable from stzObject
 		# Only data in cells is erased, columns and
 		# rows remain as they are!
 
-		nLen = len(@aContent)
+		aContent = This.Content()
+
+		nLen = len(aContent)
 
 		for i = 1 to nLen
-			nLenLine = len(@aContent[i][2])
+			nLenLine = len(aContent[i][2])
 			for j = 1 to nLenLine
-				@aContent[i][2][j] = NULL
+				aContent[i][2][j] = NULL
 			next
 		next
+
+		This.UpdateWith(aContent)
+
 
 		def EraseTable()
 			This.Erase()
@@ -12056,8 +12107,13 @@ Class stzTable from stzObject
 			StzRaise("Incorrect column name!")
 		ok
 
+		aContent = This.Content()
+
 		nCol = This.ColToColNumber(pCol)
-		@aContent[nCol][2][pnRow] = NULL
+		aContent[nCol][2][pnRow] = NULL
+
+		This.UpdateWith(aContent)
+
 
 		def EraseCellAtPosition(pCol, pnRow)
 			This.EraseCell(pCol, pnRow)
@@ -12067,13 +12123,17 @@ Class stzTable from stzObject
 			StzRaise("Incorrect param type! paCellsPos must be a list of pairs of numbers.")
 		ok
 
+		aContent = This.Content()
 		nLen = len(paCellsPos)
 
 		for i = 1 to nLen
 			nCol = paCellsPos[i][1]
 			nRow = paCellsPos[i][2]
-			@aContent[nCol][2][nRow] = NULL
+			aContent[nCol][2][nRow] = NULL
 		next
+
+		This.UpdateWith(aContent)
+
 
 		def EraseCellsAtPositions(paCellsPos)
 			This.EraseCells(paCellsPos)
@@ -12134,7 +12194,10 @@ Class stzTable from stzObject
 
 		# Adding the column
 
+		aContent = This.Content()
 		@aContent + [ cColName, aColData ]
+		This.UpdateWith(aContent)
+
 
 		#< @FunctionAlternativeForms
 
@@ -12235,9 +12298,14 @@ Class stzTable from stzObject
 
 		# Doing the job
 
+		aContent = This.Content()
+
 		for i = 1 to nCols
-			ring_insert(@aContent[i][2], n, paRowData[i])
+			ring_insert(aContent[i][2], n, paRowData[i])
 		next
+
+		This.UpdateWith(aContent)
+
 
 
 		#< @FunctionAlternativeForms
@@ -12945,11 +13013,16 @@ Class stzTable from stzObject
 
 		# Doing the job
 
+		aContent = This.Content()
+
 		if pnFrom != pnTo
 			aCopy = @aContent[pnTo]
-			@aContent[pnTo] = @aContent[pnFrom]
-			@aContent[pnFrom] = aCopy
+			aContent[pnTo] = @aContent[pnFrom]
+			aContent[pnFrom] = aCopy
 		ok
+
+		This.UpdateWith(aContent)
+
 
 		#< @FunctionAlternativeForm
 
@@ -12979,8 +13052,12 @@ Class stzTable from stzObject
 		nCol1 = This.ColNumber(pCol1)
 		nCol2 = This.ColNumber(pCol2)
 
-		@aContent[nCol1][1] = cName2
-		@aContent[nCol2][1] = cName1
+		aContent = This.Content()
+		aContent[nCol1][1] = cName2
+		aContent[nCol2][1] = cName1
+
+		This.UpdateWith(aContent)
+
 
 		#< @FunctionAlternativeForm
 
@@ -13089,8 +13166,11 @@ Class stzTable from stzObject
 			StzRaise("Can't replace the column with this name (" + pcNewColName + ")! Name you provided already exists.")
 		ok
 
+		aContent = This.Content()
 		n = This.ColNumber(pCol)
 		@aContent[n][1] = pcNewColName
+		This.UpdateWith(aContent)
+
 
 		#< @FunctionAlternativeForm
 
@@ -14516,7 +14596,9 @@ Class stzTable from stzObject
 
 		next		
 
+		aContent = This.Content()
 		ring_insert(@aContent, n, [ pcColName, aColData ])
+		This.UpdateWith(aContent)
 		@anCalculatedCols + n
 
 		#< @FunctionAlternativeForms
@@ -14667,7 +14749,11 @@ Class stzTable from stzObject
 		ok
 
 		oTempTable = new stzTable(:FromFile = pcFileName)
-		@aContent = oTempTable.Content()
+
+		aContent = This.Content()
+		aContent = oTempTable.Content()
+		This.UpdateWith(aContent)
+
 
 		def FromCSV(pcFileName)
 			This.FromFile(pcFileName)

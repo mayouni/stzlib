@@ -38,6 +38,7 @@ o1.Extend()
 #--> 0
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*--------
 
@@ -51,6 +52,7 @@ pron()
 #--> TRUE
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.21
 
 /*--------
 
@@ -72,7 +74,7 @@ o1 = new stzListOfLists([
 #--> [ "ring"]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*========
 
@@ -94,7 +96,7 @@ o1.Sort()
 # ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*-------- #ring #qt
 
@@ -120,7 +122,7 @@ oQList.sort()
 ? oQList.Content()
 #--> [ "X" ,"x" ]
 
-# The same thing applis the the multi-dimensional sort:
+# The same thing applies the the multi-dimensional sort:
 
 aLists = [
 	[ "mazen", 300, "X", 1 ],
@@ -129,9 +131,9 @@ aLists = [
 
 ? @@SP( sort(aLists, 3) )
 #--> [
-	[ "mazen", 300, "X", 1 ],
-	[ "amer", 300, "a", 1 ]
-]
+#	[ "mazen", 300, "X", 1 ],
+#	[ "amer", 300, "a", 1 ]
+# ]
 
 proff()
 # Executed in 0.02 second(s).
@@ -162,6 +164,8 @@ proff()
 
 /*--------
 
+pron()
+
 aLists = [
 	[ "mohannad", 	100, 	"him", 	"ring" ],
 	[ "karim", 	20,   	"hi" ],
@@ -175,8 +179,10 @@ aLists = [
 	[ "mahran", 	87,	FalseObject() ]
 ]
 
-SortListsOnn(aLists, 3)
+SortListsOn(aLists, 3)
 #--> ERROR: Can't proceed! Nth column must not contain objects.
+
+proff()
 
 /*-------- #narration
 
@@ -197,7 +203,7 @@ aLists = [
 	[ "amer", 	20, 	"" ]
 ]
 
-? @@SP( SortListsOnn(aLists, 3) )
+? @@SP( SortListsOn(aLists, 3) )
 #--> [
 #	[ "abir", 	"", 	"", 	"" 	],
 #	[ "mourad", 	18, 	"", 	"" 	],
@@ -219,7 +225,7 @@ aLists = [
 # the Ring standard function sort(aListOfLists, nCol).
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*--------
 
@@ -236,8 +242,18 @@ aLists = [
 ]
 
 ? @@SP( ring_sort2(aLists, 2) )
+#--> [
+#	[ "mazen", 0, "X", 1 ],
+#	[ "abir", 0, "", "" ],
+#	[ "mourad", 18, "", "" ],
+#	[ "karim", 20, "hi", "" ],
+#	[ "amer", 34, "[ ]", "" ],
+#	[ "salem", 67, "", "" ],
+#	[ "mohannad", 100, "him", "ring" ]
+# ]
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.21
 
 /*-------- #TODO #narration Difference between SortOn() and SortBy()
 
@@ -320,7 +336,8 @@ oTimes = new stzListOfNumbers([ 12.08, 3.20, 1.18, 0.08 ])
 #--> [3.77, 2.71, 14.75]
 
 # NOTE: With the more general-purpose names we have for these
-# functions, we can use them in contexts beyond time performance:
+# functions, Gain100() and GainX(), we can use them in contexts
+# beyond time performance:
 
 oSales = new stzListOfNumbers([ 34500.89, 42180.98, 56100.65 ])
 
@@ -332,6 +349,17 @@ oSales = new stzListOfNumbers([ 34500.89, 42180.98, 56100.65 ])
 
 proff()
 # Executed in 0.04 second(s).
+
+/*-------
+
+pron()
+
+o1 = new stzListOfLists([ [ 2, 3, 4 ], [ 6, 7, 8 ], [ 11, 12, 13 ] ])
+? o1.AreContiguous()
+#--> TRUE
+
+proff()
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*-------
 
@@ -352,7 +380,7 @@ o1 = new stzList([ 1, 2, 3, 4, "|", 2, 3, 4, 5, "|", 2, 3, 4, 5 ])
 #--> TRUE
 
 proff()
-# Executed in 0.05 second(s).
+# Executed in 0.05 second(s) in Ring 1.21
 
 /*-------
 
@@ -402,34 +430,33 @@ o1 = new stzListOfLists([
 ])
 
 
-? @@SP( o1.ListsW(' Q(@list).Contains("abir") ') ) + NL
+? @@SP( o1.ListsWXT(' Q(@list).Contains("abir") ') ) + NL
 #--> [
 #	[ "abir", 234 ],
 #	[ "abir" ],
 #	[ "abir" ]
 # ]
 
-? o1.FindListsW(' Q(@list).Contains("abir") ')
+? o1.FindListsWXT(' Q(@list).Contains("abir") ')
 #--> [ 3, 7, 9 ]
 
-? @@SP( o1.ListsWZ(' Q(@list).Contains("abir") ') ) + NL
+? @@SP( o1.ListsWXTZ(' Q(@list).Contains("abir") ') ) + NL
 #--> [
 #	[ [ "abir", 234 ], 3 ],
 #	[ [ "abir" ], 	   7 ],
 #	[ [ "abir" ], 	   9 ]
 # ]
 
-? @@SP( o1.ListsWZ(' Q(@list).ContainsMany([ "amer", 34 ]) ') ) + NL
+? @@SP( o1.ListsWXTZ(' Q(@list).ContainsMany([ "amer", 34 ]) ') ) + NL
 #--> [
 #	[ [ "amer", 34, [ 1, 2, 3 ] ], 8 ],
 #	[ [ "sahloul", 108, "amer", 34 ], 9 ]
 # ]
 
 proff()
-# Executed in 0.28 second(s) in Ring 1.21
+# Executed in 0.20 second(s) in Ring 1.21
 
 /*------------
-*/
 
 pron()
 
@@ -446,7 +473,6 @@ o1 = new stzListOfLists([
 	[ "abir" ]
 ])
 
-
 ? Q([ "sahloul", 108, "amer", 34 ]).FindSubList([ "amer", 34 ])
 #--> [ 3, 4 ]
 
@@ -461,44 +487,62 @@ o1 = new stzListOfLists([
 #--> TRUE
 
 proff()
-# Executed in 0.08 second(s).
+# Executed in 0.11 second(s) in Ring 1.21
 
 /*-------------
+
+pron()
+
+o1 = new stzListOfLists([
+	[ "mohannad", 	100, 	"him", "ring" ],
+	[ "karim", 	20,   	"amer", 34 ],
+	[ "abir",	234 ],
+	[ "salem", 	67 ],
+	[ "mazen", 	[90], 	"X", 1 ],
+	[ "mourad",	18 ],
+	[ "abir" ],
+	[ "amer", 	34, 	[1, 2, 3 ] ],
+	[ "sahloul",	108, 	"amer",	34 ],
+	[ "abir" ]
+])
 
 # Now, let’s sort this complex structure based on the 3rd column of each list (index 3).
 
 ? @@SP( o1.SortedOn(3) )
 
 #--> [
-#	[ "salem", 	67, 	"", 		""	],
-#	[ "mourad", 	18, 	"", 		""	],
-#	[ "abir", 	"", 	"", 		""	],
-#	[ "mazen", 	[ 90 ], "X", 		1 	],
-#	[ "amer", 	34, 	"[ 1, 2, 3 ]", 	"" 	],
-#	[ "karim", 	20, 	"hi", 		"" 	],
-#	[ "mohannad", 	100, 	"him", 		"ring" 	]
+#	[ "salem", 67, "", "" ],
+#	[ "mourad", 18, "", "" ],
+#	[ "abir", 234, "", "" ],
+#	[ "abir", "", "", "" ],
+#	[ "abir", "", "", "" ],
+#	[ "mazen", [ 90 ], "X", 1 ],
+#	[ "amer", 34, "[ 1, 2, 3 ]", "" ],
+#	[ "sahloul", 108, "amer", 34 ],
+#	[ "karim", 20, "amer", 34 ],
+#	[ "mohannad", 100, "him", "ring" ]
 # ]
 
-*/
 proff()
-# Execution completed in 0.03 second(s) - a testament to Softanza's efficiency!
-
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*--------
 
 pron()
 
-//? @@( StzListQ([ "him", [ "him" ], "" ]).Sorted() )
+? @@( StzListQ([ "him", [ "him" ], "" ]).Sorted() ) + NL
+#--> [ "", "him", [ "him" ] ]
 
 o1 = new stzList([ "him", [ "him" ], "" ])
 o1.Stringify()
 ? @@( o1.Content() )
 o1.Sort()
+#--> [ "him", '[ "him" ]', "" ]
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.21
 
 /*--------
-*/
 
 pron()
 
@@ -521,10 +565,10 @@ o1 = new stzListOfLists([
 # ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*--------
-
+*/
 pron()
 
 o1 = new stzListOfLists([
@@ -549,7 +593,7 @@ o1 = new stzListOfLists([
 # ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*===
 
@@ -563,7 +607,7 @@ pron()
 #--> [ "A", "X", "C" ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*-----
 
@@ -573,12 +617,13 @@ pron()
 #--> [ "A", "B", "C" ]
 
 ? Intersection([ "A":"C", "A":"B", "A":"C" ])
-#--> [ "A", "C" ]
+#--> [ "A", "B" ]
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*=====
-*/
+
 pron()
 
 o1 = new stzListOfLists([ 1:3, 1:3, 1:3 ])
@@ -586,6 +631,7 @@ o1 = new stzListOfLists([ 1:3, 1:3, 1:3 ])
 #--> TRUE
 
 ? StzListOfListsQ([ 1:3, 1:2, 1:3 ]).AllListsAreEqual()
+#--> FALSE
 
 #TODO : Add to stzList
 #	AllNumbersAreEqual()
@@ -594,7 +640,7 @@ o1 = new stzListOfLists([ 1:3, 1:3, 1:3 ])
 #	AllObjectsAreEqual()
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*=========
 
@@ -609,7 +655,7 @@ o1 = new stzListOfLists([ ["01","02"], ["16", "17"], ["23", "25"], ["08", "10"] 
 #--> [ [ "23", "25" ], [ "16", "17" ], [ "08", "10" ], [ "01", "02" ] ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*=========
 
@@ -947,7 +993,7 @@ proff()
 # Executed in 0.12 second(s)
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzLists([ # or stzListOfLists()
@@ -966,7 +1012,7 @@ o1.Show()
 # 
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*=================
 
@@ -1309,13 +1355,13 @@ proff()
 # Executed in 0.15 second(s)
 
 /*-----------
-*/
+
 pron()
 
 o1 = new stzString("[4, 5, 6, 7, 8]")
-/*
+
 ? @@(o1.RepeatedLeadingChars())
-#--> ""
+#--> []
 
 ? o1.ContainsLeadingAndTrailingChars()
 #--> FALSE
@@ -1325,23 +1371,22 @@ o1 = new stzString("[4, 5, 6, 7, 8]")
 
 ? o1.Bounds()
 #--> [ "[", "]" ]
-*/
 
-//? @@( o1.FindTheseBoundsAsSections("[[", "]") )
-#--> [ [ ], [ 1, 1 ] ]
+
+? @@( o1.FindTheseBoundsAsSections("[[", "]") )
+#--> [ ]
 
 ? o1.FindTheseBoundsAsSections("[", "]")
-#--> [ [ ], [ 1, 1 ] ]
+#--> [ [ 1, 1 ], [ 15, 15 ] ]
 
-//o1.RemoveTheseBounds("[","]")
+o1.RemoveTheseBounds("[","]")
 ? o1.Content()
+#--> "4, 5, 6, 7, 8"
 
 proff()
-
+# Executed in 0.06 second(s) in Ring 1.21
 
 /*-----------
-
-*/
 
 pron()
 
@@ -1349,12 +1394,14 @@ pron()
 #--> "[ 4, 5, 6, 7, 8 ]"
 
 ? @@( StzListQ( 4:8 ).ToListInAStringInShortForm() )
-#--> '4:8'
+#--> "4:8"
 
 proff()
 # Executed in 0.50 second(s)
 
-/*-----------
+/*----------- #TODO Retest after including CheckW()
+
+pron()
 
 o1 = new stzListOfLists([ 1:3, 4:5, 6:7 ])
 ? @@( o1.ToListInString() )
@@ -1363,7 +1410,11 @@ o1 = new stzListOfLists([ 1:3, 4:5, 6:7 ])
 ? @@( o1.ToListInStringInShortForm() )
 #--> [ "1:3", "4:5", "6:7" ]
 
+proff()
+
 /*----------
+
+pron()
 
 o1 = new stzListOfLists([
 	[ 1, 2, 3 ],
@@ -1373,30 +1424,47 @@ o1 = new stzListOfLists([
 	[ 5, 6, 7 ]
 ])
 
-//StartTimer()
 
-? o1.NthList(4) 			#--> [3, 5]
+? o1.NthList(4)
+#--> [3, 5]
 
-? @@( o1.ItemsAtPositionN(2) ) 	#--> [ 2, 5, 0, 5, 6 ]
+? @@( o1.ItemsAtPositionN(2) )
+#--> [ 2, 5, 0, 5, 6 ]
 
-? @@( o1.ListsOfSize(2) )		#--> [ [9,0], [3,5] ]
-? o1.PositionsOfListsOfSize(2)		#--> [     3,    4  ]
+? @@( o1.ListsOfSize(2) )
+#--> [ [9, 0], [3, 5] ]
 
-? @@( o1.Sizes() )			#--> [ 3, 5, 2, 2, 3 ]
-? o1.SmallestSize()			#--> 2
-? o1.BiggestSize()			#--> 5
-? @@( o1.SmallestLists() )		#--> [ [9,0], [3,5] ]
+? o1.PositionsOfListsOfSize(2)
+#--> [ 3, 4 ]
 
-? o1.PositionsOfSmallestLists()		#--> [ 3, 4 ]
+? @@( o1.Sizes() )
+#--> [ 3, 5, 2, 2, 3 ]
 
-? @@( o1.ListsW('Q(@list).Size() <= 3') )
+? o1.SmallestSize()
+#--> 2
+
+? o1.BiggestSize()
+#--> 5
+
+? @@( o1.SmallestLists() )
+#--> [ [ 9, 0 ], [ 3, 5 ] ]
+
+? o1.PositionsOfSmallestLists()
+#--> [ 3, 4 ]
+
+? @@( o1.ListsWXT('Q(@list).Size() <= 3') )
 #--> [ [ 1, 2, 3 ], [ 9, 0 ], [ 3, 5 ], [ 5, 6, 7 ] ]
 
-? @@( o1.Yield('{ len(@list) }') ) 	#--> [ 3, 5, 2, 2, 3 ]
+# Test this line after adding Yield() #TODO
 
-//? ElapsedTime()
+//? @@( o1.Yield('{ len(@list) }') ) 	#--> [ 3, 5, 2, 2, 3 ]
+
+proff()
+# Executed in 0.05 second(s) in Ring 1.21
 
 /*----------
+
+pron()
 
 // Merging many lists in one list
 o1 = new stzListOfLists([ 1:3, 4:7, 8:9, [10, 11:13] ])
@@ -1404,9 +1472,12 @@ o1 = new stzListOfLists([ 1:3, 4:7, 8:9, [10, 11:13] ])
 ? @@( o1.Flattened() )
 #--> [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ]
 
+proff()
+# Executed in 0.02 second(s) in Ring 1.21
+
 /*================
 
-StartTimer()
+pron()
 
 o1 = new stzListOfLists([
 	[ 1, 2, 3 ],
@@ -1419,10 +1490,12 @@ o1 = new stzListOfLists([
 ? @@( o1.ListsOfSizeN(2) )
 #--> [ [ 9, 0 ], [ 3, 5 ] ]
 
-? ElapsedTime()
-#--> 0.03 seconds
+? proff()
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*===============
+
+pron()
 
 // in this example, we are going to index those three lists:
 
@@ -1435,30 +1508,21 @@ o1 = new stzListOfLists([ a1, a2, a3 ])
 # First, we index them on the positions occuppied by each item
 # in each list
 
-aIndex = o1.IndexBy(:Position)
-? @@( aIndex ) + NL
+? @@NL( o1.Index() ) + NL
 #--> [
-#	[ "A", [ [1,1], [1,3], [2,1], [3,3] ] ],
-#	[ "B", [ [1,2], [2,2] ] ],
-#	[ "C", [ [2,3], [3,1] ] ],
-#	[ "D", [ [3,2] ] ]
-# ]	
+#	[ "A", [ 1, 1, 2, 3 ] ],
+#	[ "B", [ 1, 2 ] ],
+#	[ "C", [ 2, 3 ] ],
+#	[ "D", [ 3 ] ]
+# ]
 
-? @@( aIndex["A"] ) + NL # Showing just the index of "A"
-#--> [ [1,1], [1,3], [2,1], [3,3] ]
-
-// And then, we index them by number of occurrence of each
-# character in each list:
-
-aIndex = o1.IndexBy(:NumberOfOccurrence)
-? @@( aIndex ) + NL
+? @@NL( o1.IndexXT() )
 #--> [
-#	[ "A", [2, 1, 1] ],
-#	[ "B", [1, 1, 0] ],
-#	[ "C", [0, 1, 1] ],
-#	[ "D", [0, 0, 1] ]
-# ]	
+#	[ "A", [ [ 1, 1 ], [ 1, 3 ], [ 2, 1 ], [ 3, 3 ] ] ],
+#	[ "B", [ [ 1, 2 ], [ 2, 2 ] ] ],
+#	[ "C", [ [ 2, 3 ], [ 3, 1 ] ] ],
+#	[ "D", [ [ 3, 2 ] ] ]
+# ]
 
-? @@( aIndex["C"] ) # howing just the index of "C"
-#--> [0, 0, 1]
-
+proff()
+# Executed in 0.02 second(s) in Ring 1.21
