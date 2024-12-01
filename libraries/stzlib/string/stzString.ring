@@ -47801,6 +47801,12 @@ class stzString from stzObject
 
 		ok
 
+		# Early check
+
+		if This.ContainsCS(pcSubStr, pCaseSensitive) = FALSE
+			return 0
+		ok
+
 		# Doing the job (Qt-side)
 
 		nResult = QStringObject().indexof(pcSubStr, nStart, pCaseSensitive) + 1
@@ -54186,7 +54192,7 @@ class stzString from stzObject
 
 		# Doing the job (Qt-side)
 
-		nPos = This.QStringObject().indexOf(pcSubStr, 0, pCaseSensitive) + 1
+		nPos = This.QStringObject().indexOf(pcSubStr, 0, pCaseSensitive)
 
 		if nPos > 0
 			return TRUE
