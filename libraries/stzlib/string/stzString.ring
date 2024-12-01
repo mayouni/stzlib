@@ -1167,6 +1167,8 @@ class stzString from stzObject
 	@cLanguage = :English	# Set explicitly using SetLanguage()
 				#TODO (future): Infere the language from the string
 
+	@aHisto = []
+
 	// Initializes the content of the softanza string object
 	def init(pcStr)
 
@@ -38177,7 +38179,7 @@ class stzString from stzObject
 			oQCopy.insert(anPos[i], pcSubStr)
 		next
 
-		This.UpdateWith(oQCopy.mid(0, oQCopy.count()-1) )
+		This.UpdateWith( QStringToString(oQCopy) )
 
 		#< @FunctionFluentForm
 
@@ -38290,7 +38292,7 @@ class stzString from stzObject
 			oQCopy.insert(anPos[i]-1, pcSubStr)
 		next
 
-		This.UpdateWith( oQCopy.mid(0, oQCopy.count()-1 ) )
+		This.UpdateWith( QStringToString(oQCopy) )
 
 		#< @FunctionFluentForm
 
@@ -39344,7 +39346,7 @@ class stzString from stzObject
 
 		oQCopy = @oQString
 		oQCopy.replace_2(pcSubStr, pcNewSubStr, pCaseSensitive)
-		This.UpdateWith( oQCopy.mid(0, oQCopy.count()-1 ) )
+		This.UpdateWith( QStringToString(oQCopy) )
 	
 		#< @FunctionFluentForm
 		
@@ -43765,6 +43767,7 @@ class stzString from stzObject
 		@oQString.clear()
 		@oQString.append(pcNewStr)
 
+//		This.AddHistoricValue(@aHisto)  # From the parent stzObject
 		//This.VerifyConstraints()
 
 		#< @FunctionFluentForm
@@ -87201,6 +87204,59 @@ class stzString from stzObject
 		cResult = This.Copy().ReplaceOverSpacesQ(c).Content()
 		return cResult
 
+	  #====================================#
+	 #  REMOVING UPPON A GIVEN CONDITION  #
+	#====================================#
+
+	def RemoveWCS(pcCondition, pCaseSensitive)
+		aSections = This.FindWCS(pcCondition, pCaseSensitive)
+		This.RemoveSections(aSections)
+
+		def RemoveWCSQ(pcCondition, pCaseSensitive)
+			This.RemoveWCS(pcCondition, pCaseSensitive)
+			return This
+
+	def RemovedWCS(pcCondition, pCaseSensitive)
+		cResult = This.Copy().RemoveWCSQ(pcCondition, pCaseSensitive).Content()
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveW(pccondition)
+		This.RemoveWCS(pcCondition, TRUE)
+
+		def RemoveWQ(pcCondition)
+			return This.RemoveWCSQ(pccondition, TRUE)
+
+	def RemovedW(pcCondition)
+		return This.RemovedWCS(pcCondition, TRUE)
+
+	  #-------------------------------------------#
+	 #  REMOVING UPPON A GIVEN CONDITION -- WXT  #
+	#-------------------------------------------#
+
+	def RemoveWCSXT(pcCondition, pCaseSensitive)
+		aSections = This.FindWCSXT(pcCondition, pCaseSensitive)
+		This.RemoveSections(aSections)
+
+		def RemoveWCSXTQ(pcCondition, pCaseSensitive)
+			This.RemoveWCSXT(pcCondition, pCaseSensitive)
+			return This
+
+	def RemovedWCSXT(pcCondition, pCaseSensitive)
+		cResult = This.Copy().RemoveWCSXTQ(pcCondition, pCaseSensitive).Content()
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveWXT(pccondition)
+		This.RemoveWCSXT(pcCondition, TRUE)
+
+		def RemoveWXTQ(pcCondition)
+			return This.RemoveWCSXTQ(pccondition, TRUE)
+
+	def RemovedWXT(pcCondition)
+		return This.RemovedWCSXT(pcCondition, TRUE)
+
+
 	  #==========================================================#
 	 #   SIMPLIFYING THE STRING BY REMOVING DUPLICATED SPACES   #
 	#==========================================================#
@@ -87666,7 +87722,7 @@ class stzString from stzObject
 			oQCopy.insert(i, " ")
 		next
 
-		This.UpdateWith( oQCopy.mid(0, oQCopy.count()-1 ) )
+		This.UpdateWith( QStringToString(oQCopy) )
 
 		def SpacifyCharsQ()
 			This.SpacifyChars()
@@ -87743,7 +87799,7 @@ class stzString from stzObject
 			oQCopy.insert(i, pcSep)
 		next
 
-		This.UpdateWith( oQCopy.mid(0, oQCopy.count()-1 ) )
+		This.UpdateWith( QStringToString(oQCopy) )
 
 		def SpacifyCharsUsingQ(pcSep)
 			This.SpacifyCharsUsing(pcSep)
