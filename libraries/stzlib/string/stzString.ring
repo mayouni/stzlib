@@ -97219,11 +97219,10 @@ class stzString from stzObject
     
 		# Add final number if string ends with a number
 
-		if nLenCurrentNum > 0
-			nLenTemp = len(acResult)
-
-			if nLenTemp > 0 and acResult[nLenTemp] = "-"
-				acResult[nLenTemp] = "-" + cCurrentNum
+		if cCurrentNum != ""
+			nLen = len(acResult)
+			if nLen > 0 and acResult[nLen] = "-"
+				acResult[nLen] = "-" + cCurrentNum
 			else
 				acResult + cCurrentNum
 			ok
