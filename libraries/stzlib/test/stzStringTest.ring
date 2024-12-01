@@ -4075,7 +4075,7 @@ proff()
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*------------
-*/
+
 StartProfiler()
 
 o1 = new stzString('This[@i] = This[@i +   1] + @i -    2')
@@ -4090,8 +4090,25 @@ StopProfiler()
 
 pron()
 
+o1 = new stzString("+10,")
+? @@( o1.Numbers() )
+#--> [ "10" ]
+
+o1 = new stzString("+10,  12;kdjf")
+? @@( o1.Numbers() )
+#--> [ "10", "12" ]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
+/*------------
+*/
+pron()
+
 o1 = new stzString(" @i + 10, @i- 125, e11")
-? o1.NumbersComingAfter("@i")
+? @@( o1.Numbers() ) + NL
+
+? @@( o1.NumbersComingAfter("@i") )
 #--> [ "+10", "-125", "11" ]
 
 proff()
