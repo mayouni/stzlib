@@ -97453,7 +97453,11 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcsubStr must be a string.")
 		ok
 
-		acSubStr = This.SplitQ("@i").FirstItemRemoved()
+		acSubStr = This.Copy().
+			RemoveSpacesQ().
+			SplitQ("@i").
+			FirstItemRemoved()
+
 		# Splitting takes as little as 0.01s
 
 		nLen = len(acSubStr)
