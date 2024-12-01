@@ -3938,7 +3938,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*===================
-*/
+
 pron()
 
 ? Q([ "I ", "believe ", "in ","Ring!" ]).Reduce()
@@ -3947,8 +3947,8 @@ pron()
 proff()
 #--> Executed in 0.93
 
-/*------
-
+/*------ #TODO Check after Yield() is included
+*
 pron()
 
 # To return the ascii code of each letter we say:
@@ -3967,7 +3967,7 @@ pron()
 proff()
 # Executed in 3.02 second(s)
 
-/*------
+/*------ #TODO Idem
 
 pron()
 
@@ -3975,7 +3975,7 @@ pron()
 
 proff()
 
-/*------
+/*------ #TODO Idem
 
 pron()
 
@@ -4013,7 +4013,8 @@ o1 = new stzString("...<<ring>>...<<softanza>>...")
 #--> ["<<ring>>", "<<softanza>>"]
 
 proff()
-# Executed in 0.25 second(s)
+# Executed in 0.03 second(s) in Ring 1.21
+# Executed in 0.25 second(s) in Ring 1.18
 
 /*------------
 
@@ -4028,7 +4029,7 @@ o1 = new stzString("___<<<__<<<__")
 #--> [4, 6]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*------------
 
@@ -4044,7 +4045,7 @@ o1 = new stzString("___<<<__<<<__")
 #--> [9, 11]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*------------
 
@@ -4054,22 +4055,36 @@ o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
 ? o1.FindPrevious("<<<", :StartingAt = 11)
 #--> 4
 
-? o1.Between("<<<", ">>>")
+proff()
+# Executed in 0.02 second(s) in Ring 1.21
+
+/*------------ #TODO #narration BOUNDEDBY() VS BETWEEN()
+
+pron()
+
+o1 = new stzString("___<<<ring>>>___<<<softanza>>>___")
+
+
+? o1.BoundedBy([ "<<<", ">>>" ])
 #--> ["ring", "softanza"]
 
+? o1.Between("<<<", ">>>")
+#--> "ring>>>___<<<softanza"
+
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*------------
-
+*/
 StartProfiler()
 
-o1 = new stzString('This[@i] = This[@i + 1] + @i - 2')
+o1 = new stzString('This[@i] = This[@i +   1] + @i -    2')
 ? o1.NumbersAfter("@i")
-#--> [ "+1", "-2" ]
+#--> [ "1", "-2" ]
 
 StopProfiler()
-# Executed in 0.14 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.14 second(s) in Ring 1.18
 
 /*------------
 
