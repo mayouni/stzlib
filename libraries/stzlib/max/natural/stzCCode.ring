@@ -48,7 +48,7 @@ class stzCCode
 			SimplifyQ().
 			RemoveTheseBoundsQ("{", "}").
 			Content()
-		
+
 	  #-------------------------------------------#
 	 #  GETTING THE CONTENT OF THE CCODE OBJECT  #
 	#-------------------------------------------#
@@ -155,11 +155,13 @@ class stzCCode
 		# forms of conditiobal functions, enabling them to be more
 		# expressive, but it also introduces a performance overhead.
 
+
 		cCode = StzStringQ(This.Code()).
 			TrimQ().
 			RemoveTheseBoundsQ("{","}").
 
 			ReplaceAllQ("(", :By = "( ").
+
 			ReplaceAllQ(")", :By = " )").
 
 			ReplaceAllQ("[", :By = "[ ").

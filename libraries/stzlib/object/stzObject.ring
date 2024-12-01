@@ -5479,3 +5479,28 @@ class stzObject
 
 	def Print()
 		? This.Content()
+
+	  #----------------------------#
+	 #  MANAGING HISTORIC VALUES  #
+	#----------------------------#
+
+	def AddHistoricValue(value)
+		@aHisto + value
+
+		def AddHistValue(value)
+			@aHisto + value
+
+		def AffToHistory(value)
+			@aHisto + value
+
+		def AddToHist(value)
+			@aHisto + value
+
+	def HistoricValues()
+		return @aHisto
+
+		def HistValues()
+			return @aHisto
+
+		def History()
+			return @aHisto

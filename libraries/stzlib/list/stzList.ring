@@ -26500,7 +26500,7 @@ class stzList from stzObject
 		ok
 
 		def Reduce()
-			return This.Reduce()
+			return This.Cumulate()
 
 	  #---------------------------------------------------------#
 	 # REDUCING THE LIST BY CUMULATIONG ITS ITEMS -- EXTENDED  #
@@ -26544,7 +26544,7 @@ class stzList from stzObject
 		ok
 
 		def ReduceXT()
-			return This.ReduceXT()
+			return This.CumulateXT()
 
 	  #==================================================#
 	 #  CHECKING IF THE LIST IS EQUAL TO AN OTHER LIST  #

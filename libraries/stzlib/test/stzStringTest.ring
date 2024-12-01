@@ -1,7 +1,7 @@
 load "../max/stzmax.ring"
 
 /*-----
-*/
+
 pron()
 
 ? Q("ring programming languge").UrlEncoded()
@@ -3831,137 +3831,15 @@ pron()
 #                   ...4...8...2...6...2...   
 o1 = new stzString("...&^^^&...&vvv&...&...")
 
-? o1.BoundedBy("&")
-#--> [ "^^^", "vvv" ]
+? @@( o1.BoundedBy("&") )
+#--> [ "^^^", "...", "vvv", "..." ]
 
-? o1.BoundedByIB("&")
-#--> [ "&^^^&", "&vvv&" ]
-
-? o1.BoundedByD("&", :Going = :Backward)
-#--> [ "...", "..." ]
-
-? o1.BoundedByDIB("&", :Going = :Backward)
-#--> [ "&...&", "&...&" ]
+? @@( o1.BoundedByIB("&") )
+#--> [ "&^^^&", "&...&", "&vvv&", "&...&" ]
 
 proff()
-# Executed in 0.10 second(s)
-
-/*----------------
-
-pron()
-#                   ...4...8...2...6...2...   
-o1 = new stzString("...&^^^&...&vvv&...&...")
-
-? @@( o1.FindAnyBoundedByAsSectionsD("&", :Forward) )
-#--> [ [ 5, 7 ], [ 13, 15 ] ]
-
-? @@( o1.FindAnyBoundedByD("&", :Forward) )
-#--> [ 5, 13 ]
-
-? @@( o1.BoundedByD("&", :Going = :Backward) )
-#--> [ "...", "..." ]
-
-proff()
-# Executed in 0.12 second(s)
-
-/*----------------
-
-pron()
-
-#                   ...4...8...2...6...2...   
-o1 = new stzString("...&^^^&...&vvv&...&...")
-
-? @@( o1.FindAnyBoundedByAsSectionsD("&", :Backward) )
-#--> [ [ 9, 11 ], [ 17, 19 ] ]
-
-proff()
-# Executed in 0.05 second(s)
-
-/*----------------
-
-pron()
-
-#                   ...4.6...0.2...6.8...2.4...8.0...   
-o1 = new stzString("...&&&^^^&&&...&&&vvv&&&...&&&...")
-
-? @@( o1.FindAnyBoundedByAsSectionsD("&&&", :Backward) )
-#--> [ [ 13, 15 ], [ 25, 27 ] ]
-
-? @@( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Backward) )
-#--> [ [ 10, 18 ], [ 22, 30 ] ]
-
-proff()
-# Executed in 0.08 second(s)
-
-/*----------------
-
-pron()
-
-#                   ...4.6...0.2...6.8...2.4...8.0...   
-o1 = new stzString("...&&&^^^&&&...&&&vvv&&&...&&&...")
-
-? @@( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Forward) )
-#--> [ [ 4, 12 ], [ 16, 24 ] ]
-
-? @@( o1.BoundedByDIB("&&&", :Forward) )
-#--> [ "&&&^^^&&&", "&&&vvv&&&" ]
-
-? NL + "--" + NL
-
-? @@( o1.FindAnyBoundedByAsSectionsDIB("&&&", :Backward) )
-#--> [ [ 10, 18 ], [ 22, 30 ] ]
-
-? @@( o1.BoundedByDIB("&&&", :Backward) )
-#--> [ "&&&...&&&", "&&&...&&&" ]
-
-proff()
-# Executed in 0.14 second(s)
-
-/*----------------
-
-pron()
-
-#                   ...4...8...2...6...2...   
-o1 = new stzString("...&^^^&...&vvv&...&...")
-
-? @@( o1.FindAnyBoundedByAsSectionsDIB("&", :Forward) )
-#--> [ [ 4, 8 ], [ 12, 16 ] ]
-
-? @@( o1.BoundedByDIB("&", :Forward) )
-# [ "&^^^&", "&vvv&" ]
-
-? NL + "--" + NL
-
-? @@( o1.FindAnyBoundedByAsSectionsDIB("&", :Backward) )
-#--> [ [ 8, 12 ], [ 16, 20 ] ]
-
-? @@( o1.BoundedByDIB("&", :Going = :Backward) )
-#--> [ "&...&", "&...&" ]
-
-proff()
-#--> Executed in 0.14 second(s)
-
-/*----------------
-
-pron()
-
-#                   ...4...8...2...6...2...   
-o1 = new stzString("...&^^^&...&vvv&...&...")
-
-? @@( o1.BoundedByZ("&") )
-# [
-#	[ "^^^", [ 5  ] ],
-#	[ "vvv", [ 13 ] ]
-# ]
-
-?  @@( o1.BoundedByZZ("&") )
-# [
-#	[ "^^^", [ [ 5, 7   ] ] ],
-#	[ "vvv", [ [ 13, 15 ] ] ]
-# ]
-
-proff()
-# Executed in 0.16 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.10 second(s) in ring 1.18
 
 /*----------------
 
@@ -3970,20 +3848,31 @@ pron()
 #                   ..3...7..0...4..7...1..4...8..  
 o1 = new stzString("..&^^^&..&^^^&..&---&..&---&..")
 
-? @@( o1.BoundedByZ("&") )
+? @@NL( o1.BoundedByZ("&") ) + NL
 #--> [
-#	[ "^^^", [  4, 11 ] ],
-#	[ "---", [ 18, 25 ] ]
+#	[ "^^^", 4 ],
+#	[ "..", 8 ],
+#	[ "^^^", 11 ],
+#	[ "..", 15 ],
+#	[ "---", 18 ],
+#	[ "..", 22 ],
+#	[ "---", 25 ]
 # ]
 
-? @@( o1.BoundedByZZ("&") )
+? @@NL( o1.BoundedByZZ("&") )
 #--> [
-#	[ "^^^", [ [  4,  6 ], [ 11, 13 ] ] ],
-#	[ "---", [ [ 18, 20 ], [ 25, 27 ] ] ]
+#	[ "^^^", [ 4, 6 ] ],
+#	[ "..", [ 8, 9 ] ],
+#	[ "^^^", [ 11, 13 ] ],
+#	[ "..", [ 15, 16 ] ],
+#	[ "---", [ 18, 20 ] ],
+#	[ "..", [ 22, 23 ] ],
+#	[ "---", [ 25, 27 ] ]
 # ]
 
 proff()
-# Executed in 0.18 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.18 second(s) in Ring 1.18
 
 /*----------------
 
@@ -3992,22 +3881,30 @@ pron()
 #                   ...4...8...2...6...2...   
 o1 = new stzString("...&^^^&...&vvv&...&...")
 
-? o1.FindAnyBoundedBy("&")
-#--> [5, 13]
+? @@( o1.FindAnyBoundedBy("&") )
+#--> [ 5, 9, 13, 17 ]
 
-? o1.FindAnyBoundedByIB("&")
-#--> [4, 12]
+? @@( o1.FindAnyBoundedByIB("&") ) + NL
+#--> [ 4, 8, 12, 16 ]
 
-? NL + "--" + NL
+#--
 
-? @@( o1.FindAnyBoundedByAsSections("&") )
-#--> [ [ 5, 7 ], [ 13, 15 ] ]
+? @@( o1.FindAnyBoundedByZZ("&") )
+#--> [ [ 5, 7 ], [ 9, 11 ], [ 13, 15 ], [ 17, 19 ] ]
 
-? @@( o1.FindAnyBoundedByAsSectionsIB("&") )
-#--> [ [ 4, 8 ], [ 12, 16 ] ]
+? @@( o1.FindAnyBoundedByIBZZ("&") ) + NL
+#--> [ [ 4, 8 ], [ 8, 12 ], [ 12, 16 ], [ 16, 20 ] ]
+
+#--
+
+? @@( o1.BoundedBy("&") )
+#--> [ "^^^", "...", "vvv", "..." ]
+
+? @@( o1.BoundedByIB("&") )
+#--> [ "&^^^&", "&...&", "&vvv&", "&...&" ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*----------------
 
@@ -4023,49 +3920,7 @@ o1 = new stzString("...&^^^&...&vvv&...&...")
 #--> [ [ "&^^^&", [ 4, 8 ] ], [ "&vvv&", [ 12, 16 ] ] ]
 
 proff()
-# Executed in 0.14 second(s)
-
-/*----------------
-
-
-pron()
-
-#                   ...4...8...2...6...2...   
-o1 = new stzString("...&^^^&...&vvv&...&...")
-
-? @@( o1.BoundedByD("&", :Forward) )
-#--> [ "^^^", "vvv" ]
-
-? @@( o1.BoundedByD("&", :Backward) )
-#--> [ "...", "..." ]
-
-? NL + "--" + NL
-
-? @@( o1.BoundedByDZ("&", :Forward) )
-#--> [ [ "^^^", 5 ], [ "vvv", 13 ] ]
-
-? @@( o1.BoundedByDZ("&", :Backward) )
-#--> [ [ "...", 9 ], [ "...", 17 ] ]
-
-? @@( o1.BoundedByDZZ("&", :Backward) )
-#--> [ [ "...", [ 9, 11 ] ], [ "...", [ 17, 19 ] ]
-
-? NL + "--" + NL
-
-? @@( o1.BoundedByDIBZ("&", :Forward) )
-#--> [ [ "&^^^&", 4 ], [ "&vvv&", 12 ] ]
-
-? @@( o1.BoundedByDIBZZ("&", :Forward) )
-#--> [ [ "&^^^&", [ 4, 8 ] ], [ "&vvv&", [ 12, 16 ] ] ]
-
-? @@( o1.BoundedByDIBZ("&", :Backward) )
-#--> [ [ "&...&", 8 ], [ "&...&", 16 ] ]
-
-? @@( o1.BoundedByDIBZZ("&", :Backward) )
-#--> [ [ "&...&", [ 8, 12 ] ], [ "&...&", [ 16, 20 ] ] ]
-
-proff()
-# Executed in 0.58 second(s)
+# Executed in 0.02 second(s) in Ring 1.21
 
 /*-------------------
 
@@ -4080,11 +3935,13 @@ o1 = new stzString('this code : txt1 = "<    leave spaces    >" and this code: t
 # ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*===================
+*/
+pron()
 
-? Q([ "I", "believe", "in","Ring!" ]).ReduceXT('@string + " "')
+? Q([ "I ", "believe ", "in ","Ring!" ]).Reduce()
 #--> I believe in Ring!
 
 proff()
@@ -4642,7 +4499,7 @@ o1.QStringObject().replace(3, 1, "D")
 #--> "ABCDEF"
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s)
 
 /*-----------------
 
@@ -4703,7 +4560,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*-----------
-
+*
 StartProfiler()
 
 o1 = new stzString("
@@ -8884,7 +8741,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*----------
-
+*/
 pron()
 
 o1 = new stzString("(9, 7, 8)")
@@ -8897,7 +8754,7 @@ proff()
 # Executed in 0.13 second(s) in Ring 1.21
 
 /*------
-
+*/
 pron()
 
 ? Q("(9, 7, 8)").
@@ -8915,11 +8772,11 @@ proff()
 */
 pron()
 
-? QH("(9, 7, 8)").
-	RemoveWQ('Q(@Char).IsNumberInString()').
+? Q("(9, 7, 8)").
+	RemoveWXTQ('Q(@Char).IsNumberInString()').
 	RemoveSpacesQ().
 	RemoveDuplicatedCharsQ().
-	Content()
+	History()
 #--> [ "(, , )", "(,,)", "(,)" ]
 
 proff()
