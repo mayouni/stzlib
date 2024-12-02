@@ -33,8 +33,10 @@ class stzSetOfSections from stzListOfSections
 		return This
 
 	def Update(paNewSections)
-		if isList(paNewSections) and StzListQ(paSections).IsWithNamedParam()
-			paNewSections = paNewSections[2]
+		if CheckParam()
+			if isList(paNewSections) and StzListQ(paSections).IsWithNamedParam()
+				paNewSections = paNewSections[2]
+			ok
 		ok
 
 		@aContent = paNewSections

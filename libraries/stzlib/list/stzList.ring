@@ -5897,6 +5897,7 @@ class stzList from stzObject
 	#------------------------------------#
 
 	def Item(n)
+
 		if CheckParams()
 
 			if isString(n)
@@ -5923,7 +5924,7 @@ class stzList from stzObject
 			n = nLen + n + 1
 		ok
 
-		return This.Content()[n]
+		return @aContent[n]
 
 		def ItemQ(n)
 			return Q(This.Item(n))
@@ -12949,8 +12950,10 @@ class stzList from stzObject
 
 		*/
 
-		if isList(pNewItem) and StzListQ(pNewItem).IsWithNamedParam()
-			pNewItem = pNewItem[2]
+		if CheckParam()
+			if isList(pNewItem) and StzListQ(pNewItem).IsWithOrByNamedParam()
+				pNewItem = pNewItem[2]
+			ok
 		ok
 
 		This.RemoveSection(n1, n2)
@@ -29541,7 +29544,7 @@ class stzList from stzObject
 
 	def CommonItemsWithCS(paOtherList, pCaseSensitive)
 
-		if CheckParams()
+		if CheckParam()
 			if isList(paOtherList) and StzListQ(paOtherList).IsWithNamedParam()
 				paOtherList = paOtherList[2]
 			ok
@@ -29611,8 +29614,10 @@ class stzList from stzObject
 				return This.CommonItemsWithCSQ(paOtherList, pCaseSensitive)
 
 		def IntersectionCS(paOtherList, pCaseSensitive)
-			if isList(paOtherList) and StzListQ(paOtherList).IsWithNamedParam()
-				paOtherList = paOtherList[2]
+			if CheckParam()
+				if isList(paOtherList) and StzListQ(paOtherList).IsWithNamedParam()
+					paOtherList = paOtherList[2]
+				ok
 			ok
 
 			aResult =  This.CommonItemsWithCS(paOtherList, pCaseSensitive)
@@ -29662,13 +29667,17 @@ class stzList from stzObject
 	#---------------------------------------------------#
 
 	def Union(paOtherList)
-		if isList(paOtherList) and StzListQ(paOtherList).IsWithNamedParam()
-			paOtherList = paOtherList[2]
+		if CheckParam()
+			if isList(paOtherList) and StzListQ(paOtherList).IsWithNamedParam()
+				paOtherList = paOtherList[2]
+			ok
+	
+			if NOT isList(paOtherList)
+				StzRaise("Incorrect param type! paOtherList must be a list.")
+			ok
 		ok
 
-		if NOT isList(paOtherList)
-			StzRaise("Incorrect param type! paOtherList must be a list.")
-		ok
+		# Doing the job
 
 		aResult = @aContent
 
@@ -42760,6 +42769,7 @@ class stzList from stzObject
 		nLen = len(@aContent)
 
 		_oCode_ = new stzCCode(pcCondition)
+
 		_oCode_.Transpile() # The sole difference with ..W() form of the function
 
 		#WARNING

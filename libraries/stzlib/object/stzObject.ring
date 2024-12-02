@@ -3617,12 +3617,6 @@ class stzObject
 	def OfCSXT(n, cIgnored, pCaseSensitive)
 		return This.OfCS(n, pCaseSensitive)
 
-		def OfXTCSM(n, cIgnored, pCaseSensitive)
-			return This.OfCSM(n, pCaseSensitive)
-
-		def OfXTCSMM(n, cIgnored, pCaseSensitive)
-			return This.OfCSMM(n, pCaseSensitive)
-
 		def OfCSXTQ(n, cIgnored, pCaseSensitive)
 			return This.OfCSQ(n, pCaseSensitive)
 
@@ -3631,6 +3625,18 @@ class stzObject
 
 		def OfCSXTMQ(n, cIgnored, pCaseSensitive)
 			return This.OfCSMQ(n, pCaseSensitive)
+
+		def OfXTCS(n, cIgnored, pCaseSensitive)
+			return This.OfCS(n, pCaseSensitive)
+
+		def OfXTCSQ(n, cIgnored, pCaseSensitive)
+			return This.OfCS(n, pCaseSensitive)
+
+		def OfXTCSQM(n, cIgnored, pCaseSensitive)
+			return This.OfCS(n, pCaseSensitive)
+
+		def OfXTCSMQ(n, cIgnored, pCaseSensitive)
+			return This.OfCS(n, pCaseSensitive)
 
 	def OfXT(n, cIgnored)
 		return This.OfCS(n, TRUE)
@@ -3645,10 +3651,10 @@ class stzObject
 			return This.OfCSQ(n, TRUE)
 
 		def OfXTQM(n, cIgnored)
-			return This.OfXTCSQM(n, TRUE)
+			return This.OfCSXTQM(n, TRUE)
 
 		def OfXTMQ(n, cIgnored)
-			return This.OfXTCSMQ(n, TRUE)
+			return This.OfCSXTMQ(n, TRUE)
 
 	#==
 

@@ -4133,7 +4133,7 @@ class stzListOfLists from stzList
 	def ReplaceCol(n, paColData)
 
 		if CheckParams()
-			if isList(paColData) and Q(paColData).IsWithNamedParam()
+			if isList(paColData) and Q(paColData).IsWithOrByNamedParam()
 				paColData = paColData[2]
 			ok
 

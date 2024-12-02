@@ -24,15 +24,17 @@ class stzListOfSections from stzLists
 	def Copy()
 		return This
 
-	def UpdateWith(paNewSections)
-		@aContent = paNewSections
-
-		def Update(paNewSections)
+	def Update(paNewSections)
+		if CheckParam()
 			if isList(paNewSections) and StzListQ(paNewSections).IsWithNamedParam()
 				paNewSections = paNewSections[2]
 			ok
+		ok
 
-			@aContent = paNewSections
+		@aContent = paNewSections
+
+		def UpdateWith(paNewSections)
+			This.Update(paNewSections)
 
 	  #----------------------------------------------------------#
 	 #  MERGING THE ADJASCENT SECTIONS IN THE LIST OF SECTIONS  #

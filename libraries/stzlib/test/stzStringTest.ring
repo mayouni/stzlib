@@ -4178,8 +4178,25 @@ StopProfiler()
 # Executed in 5.18 second(s) in Ring 1.21
 # Executed in 14.56 second(s) in Ring 1.17
 
-/*===========
-*/
+/*=========== #ringqt #ERROR #TODO post it in the ring-group for correction
+# Read this discussion:
+# https://groups.google.com/d/msgid/ring-lang/c5f6c5ea-9afd-411d-8000-6a695d8db2f4n%40googlegroups.com?utm_medium=email&utm_source=footer
+
+pron()
+
+o1 = new QString2()
+o1.append("•••••••••")
+
+? o1.indexOf("", 0, false)
+#--> 0
+
+? o1.indexOf("•", 0, false)
+#--> 0
+
+proff()
+
+/*-----------
+
 pron()
 
 o1 = new stzString("•••••••••")
@@ -4187,11 +4204,13 @@ o1 = new stzString("•••••••••")
 ? o1.Contains("")
 #--> FALSE
 
+? o1.Contains("•")
+#--> TRUE
+
 proff()
 
 /*-----------
 
-*/
 pron()
 
 # Testing extreme cases in FindNthNext()/FindNthPrevious on a small string
@@ -4200,13 +4219,14 @@ StartProfiler()
 #                   .2....7.9
 o1 = new stzString("•••••••••")
 
-? o1.contains("")
-
 ? o1.FindNext("", :StartingAt = 1)
 #--> 0
-/*
+
 ? o1.FindNext("x", :StartingAt = 1)
 #--> 0
+
+? o1.FindNext("•", :startingAt = 5)
+#--> 6
 
 ? o1.FindNthNext(6, "•", :StartingAt = 3)
 #--> 9
@@ -4214,21 +4234,27 @@ o1 = new stzString("•••••••••")
 ? o1.FindNthNext(5, "•", :StartingAt = 1)
 #--> 6
 
-
 ? o1.FindPrevious("", :StartingAt = 9)
 #--> 0
 
 ? o1.FindPrevious("x", :StartingAt = 1)
 #--> 0
 
+? o1.FindPrevious("•", :StartingAt = 5)
+#--> 4
+
+? o1.FindPrevious("•", :StartingAt = 2)
+#--> 1
+
 ? o1.FindNthPrevious(8, "•", :StartingAt = 9)
 #--> 1
 
 ? o1.FindNthPrevious(3, "•", :StartingAt = 4)
 #--> 1
-*/
+
 StopProfiler()
-# Executed in 0.12 second(s)
+# Executed in 0.04 second(s) in Ring 1.21
+# Executed in 0.12 second(s) in Ring 1.18
 
 /*-----------
 
@@ -4246,20 +4272,19 @@ o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
 #--> 110819
 
 ? o1.FindNthNext(6, "ARABIC", :StartingAt = 3)
-#--> 106563
+#--> 106564
 
 ? o1.FindNthNext(12, "HAN", :StartingAt = 250_000)
-#--> 300537
-
+#--> 300643
 
 ? o1.FindPrevious("", :StartingAt = 9)
 #--> 0
 
-? o1.FindPrevious("x", :StartingAt = 1)
+? o1.FindPrevious("x", :StartingAt = 2)
 #--> 0
 
 StopProfiler()
-# Executed in 0.08 second(s)
+# Executed in 0.19 second(s) in Ring 1.21
 
 /*-----------
 
@@ -4275,7 +4300,7 @@ o1 = new stzString("•♥••••♥••")
 #--> 0
 
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*-----------
 
@@ -4291,7 +4316,7 @@ o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
 #--> FALSE
 
 StopProfiler()
-# Executed in 0.03 second(s)
+# Executed in 0.06 second(s) in Ring 1.21
 
 /*============
 
@@ -4301,7 +4326,7 @@ o1 = new stzString("123456789")
 
 ? o1.FirstHalf()
 #--> 1234
-? o1.SecondHalf()
+? o1.SecondHalf() + NL
 #--> 56789
 
 ? o1.Halves() # Or Bisect()
@@ -4309,7 +4334,7 @@ o1 = new stzString("123456789")
 
 ? o1.FirstHalfXT()
 #--> 12345
-? o1.SecondHalfXT()
+? o1.SecondHalfXT() + NL
 #--> 6789
 
 ? o1.HalvesXT() # Or BisectXT()
@@ -4329,34 +4354,40 @@ o1 = new stzString("123456789")
 
 	? o1.FirstHalf()
 	#--> 1234
+
 	? o1.FirstHalfXT()
 	#--> 12345
 	
-	? @@( o1.FirstHalfAndItsPosition() )
+	? @@( o1.FirstHalfZ() )
 	#--> [ "1234", 1 ]
-	? @@( o1.FirstHalfAndItsSection() )
+
+	? @@( o1.FirstHalfZZ() )
 	#--> [ "1234", [ 1, 4 ] ]
 	
-	? @@( o1.FirstHalfAndItsPositionXT() )
+	? @@( o1.FirstHalfXTZ() )
 	#--> [ "12345", 1 ]
-	? @@( o1.FirstHalfAndItsSectionXT() )
+
+	? @@( o1.FirstHalfXTZZ() ) + NL
 	#--> [ "12345", [ 1, 5 ] ]
 
 # SECOND HALF
 
 	? o1.SecondHalf()
 	#--> 56789
+
 	? o1.SecondHalfXT()
 	#--> 6789
 	
-	? @@( o1.SecondHalfAndItsPosition() )
+	? @@( o1.SecondHalfZ() )
 	#--> [ "56789", 5 ]
-	? @@( o1.SecondHalfAndItsSection() )
+
+	? @@( o1.SecondHalfZZ() )
 	#--> [ "56789", [ 5, 9 ] ]
 	
-	? @@( o1.SecondHalfAndItsPositionXT() )
+	? @@( o1.SecondHalfXTZ() )
 	#--> [ "6789", 6 ]
-	? @@( o1.SecondHalfAndItsSectionXT() )
+
+	? @@( o1.SecondHalfXTZZ() ) + NL
 	#--> [ "6789",  [ 6, 9 ] ]
 
 #-- THE TWO HALVES
@@ -4367,19 +4398,20 @@ o1 = new stzString("123456789")
 	? @@( o1.HalvesXT() )
 	#--> [ "12345", "6789" ]
 
-	? @@( o1.HalvesAndPositions() )
+	? @@( o1.HalvesZ() )
 	#--> [ [ "1234", 1 ], [ "56789", 5 ] ]
 
-	? @@( o1.HalvesAndPositionsXT() )
+	? @@( o1.HalvesXTZ() )
 	#--> [ [ "12345", 1 ], [ "6789", 6 ] ]
 
-	? @@( o1.HalvesAndSections() )
+	? @@( o1.HalvesZZ() )
 	#--> [ [ "1234", [ 1, 4 ] ], [ "56789", [ 5, 9 ] ] ]
 
-	? @@( o1.HalvesAndSectionsXT() )
+	? @@( o1.HalvesXTZZ() )
 	#--> [ [ "12345", [ 1, 5 ] ], [ "6789", [ 6, 9 ] ] ]
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.21
 
 /*==============
 
@@ -4398,9 +4430,9 @@ o1 = new stzString("---***---***---***---")
 #--> 16
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
-/*=============
+/*============= #perf
 
 StartProfiler()
 
@@ -4408,15 +4440,26 @@ oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
 ? oLargeStr.FindLast(";")
 #--> 1897793
 
-StopProfiler()
-# Executed in 12.99 second(s)
+# Let's see the gains in performance between Ring 1.18 and Ring 1.22
 
-/*-----------
+? PerfGain100(12.99, 5.63) # Or simply PerfGain()
+#--> 56.66%
+
+? SpeedUpX(12.99, 5.63) # Or simply SpeedUp()
+#--> 2.31X
+
+StopProfiler()
+# Executed in 5.63 second(s) in Ring 1.21
+# Executed in 12.99 second(s) in Ring 1.18
+
+/*----------- #perf
 
 StartProfiler()
 
 oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
+
 ? @@( oLargeStr.FindAll("ALIF") )
+#--> [ 130655, 1714648, 1716479, 1718401 ]
 
 ? oLargeStr.Contains("ALIF")
 #--> TRUE
@@ -4428,15 +4471,15 @@ oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
 #--> 4
 
 ? oLargeStr.FindNth(4, "ALIF")
-#--> 1703275
+#--> 1718401
 
 ? oLargeStr.FindLast("ALIF")
-#--> 1703275
+#--> 1718401
 
 StopProfiler()
-# Executed in 0.06 second(s)
+# Executed in 0.16 second(s) in Ring 1.21
 
-/*-----------
+/*----------- #perf
 
 StartProfiler()
 
@@ -4444,34 +4487,30 @@ oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
 
 ? oLargeStr.Contains("Plane 15 Private Use")
 #--> TRUE
-# Executed in 0.02 second(s)
 
-? oLargeStr.HowMany("Plane 15 Private Use")
+? oLargeStr.HowMany("Plane 15 Private Use") + NL
 #--> 2
-# Executed in 0.03 second(s)
 
 ? oLargeStr.FindAll("Plane 15 Private Use")
-#--> [ 1_897_586, 1_897_640 ]
-# Executed in 0.02 second(s)
+#--> [ 1913993, 1914047 ]
 
-? oLargeStr.FindFirst("Plane 15 Private Use")
-#--> 1_897_586
-# Executed in 0.02 second(s)
+? oLargeStr.FindFirst("Plane 15 Private Use") + NL
+#--> 1913993
 
 ? oLargeStr.FindLast("Plane 15 Private Use")
-#--> 1897640
-# Executed in 0.04 second(s)
+#--> 1914047
 
 StopProfiler()
-#--> Executed in 0.06 second(s)
+#--> Executed in 0.12 second(s) in Ring 1.21
 
-/*-----------
+/*----------- #perf
 
 StartProfiler()
 
 #                    2    7
 o1 = new stzString("•♥••••♥••")
-//? o1.FindNthW(2, '@char = "♥"')
+
+? o1.FindNthW(2, '@char = "♥"')
 #--> 7
 # Executed in 0.13 second(s)
 
@@ -4479,7 +4518,7 @@ o1 = new stzString("•♥••••♥••")
 #--> 6
 
 StopProfiler()
-#--> Executed in 0.30 second(s)
+#--> Executed in 0.25 second(s) in Ring 1.21
 
 /*===========
 
@@ -4498,7 +4537,7 @@ StartProfiler()
 #--> :Hybridcase
 
 StopProfiler()
-# Executed in 0.18 second(s)
+# Executed in 0.28 second(s) in Ring 1.21
 
 /*----------
 
@@ -4511,7 +4550,7 @@ StartProfiler()
 #--> TRUE
 
 StopProfiler()
-# Executed in 0.01 second(s)
+# Executed in 0.05 second(s) in Ring 1.21
 
 /*----------
 
@@ -4528,7 +4567,7 @@ StartProfiler()
 # but Softanza accepts it.
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.05 second(s) in Ring 1.21
 
 /*----------
 
@@ -4541,7 +4580,7 @@ StartProfiler()
 #--> TRUE
 
 StopProfiler()
-# Executed in 0.05 second(s)
+# Executed in 0.07 second(s) in Ring 1.21
 
 /*==================
 
@@ -4566,7 +4605,7 @@ o1.ReplaceCharAt( :Position = 4, :By = "D")
 #--> "ABCDEF"
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
 
 /*-----------------
 
@@ -4587,11 +4626,15 @@ pron()
 ? Q("121212").IsMadeOf("12")
 #--> TRUE
 
+? Q("121212").IsMadeOf([ "1", "2" ])
+#--> TRUE
+
 ? Q("984332").IsMadeOfNumbers()
 #--> TRUE
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.06 second(s) in Ring 1.18
 
 /*-----------
 
@@ -4611,10 +4654,112 @@ RSTUVW
 #--> TRUE
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.05 second(s) in Ring 1.18
 
 /*-----------
-*
+
+pron()
+
+/*
+cResult = This.LinesCSQ(pCaseSensitive).
+	RemoveWCSXTQ(pcCondition, pCaseSensitive).
+	ConcatenatedUsing(NL)
+
+
+o1 = new stzString("
+
+ABCDEF
+GHIJKL
+123346
+MNOPQU
+RSTUVW
+984332
+
+")
+
+acLines = o1.LinesQ()
+anPos = o1.FindCharsWXT("Q(@char).IsNumberInString()")
+? anPos
+//RemoveWXTQ("Q(@char).IsNumberInString()").Content()
+
+
+proff()
+*/
+/*----------- #qt Issue in replacing empty substrings
+
+pron()
+
+oQStr = new QString2()
+
+oQStr.append("Ring language")
+oQStr.replace_2("ing", "uby", false)
+? QStringToString(oQStr) # A Softanza function
+#--> Ruby language
+
+oQStr.replace_2("", 'any', false)
+? QStringToString(oQStr)
+#--> anylanyaanynanyganyuanyaanyganyeany
+
+str = "Ring Language"
+? substr(str, "", "any")
+#--> ring message: Bad paramater value!
+
+proff()
+
+/*-----------
+*/
+pron()
+
+o1 = new stzString(" isNumber( 0+  @item  ) ")
+
+? @@( o1.FindZZ("") )
+
+o1.Replace("", "any")
+? o1.Content()
+#--> " isNumber( 0+  @item  ) "
+proff()
+# Executed in 0.01 second(s) in Ring 1.21
+
+/*-----------
+*/
+pron()
+
+o1 = new stzString(" isNumber( 0+  @item  ) ")
+o1.ReplaceMany([ "" ], "kk")
+
+? o1.Content()
+
+proff()
+
+/*-----------
+*/
+pron()
+
+o1 = new stzCCode("isNumber(0+ @item)")
+? o1.Transpile()
+
+proff()
+
+/*-----------
+*/
+pron()
+
+o1 = new stzList([
+	"ABCDEF",
+	"GHIJKL",
+	"123346",
+	"MNOPQU",
+	"RSTUVW",
+	"984332"
+])
+
+? o1.FindWXT(' isNumber(0+ @item) ')
+
+proff()
+
+/*-----------
+*/
 StartProfiler()
 
 o1 = new stzString("
@@ -4628,8 +4773,9 @@ RSTUVW
 
 ")
 
-o1.TrimQ().RemoveLinesWXT(' Q(@line).IsMadeOfNumbers() ')
-? @@(o1.Content())
+? o1.TrimQ().FindWXT(' Q(@item).IsMadeOfNumbers() ').Content()
+
+//? @@(o1.Content())
 #-->
 # "ABCDEF
 #  GHIJKL

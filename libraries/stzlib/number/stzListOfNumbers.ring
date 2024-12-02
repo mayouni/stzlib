@@ -3106,13 +3106,17 @@ def init(paList)
 		#--> 12
 		*/
 
-		if isList(panOtherList) and Q(panOtherList).IsWithNamedParam()
-			panOtherList = panOtherList[2]
+		if CheckParam()
+			if isList(panOtherList) and Q(panOtherList).IsWithNamedParam()
+				panOtherList = panOtherList[2]
+			ok
+	
+			if NOT Q(panOtherList).IsListOfNumbers()
+				StzRaise("Incorrect pram type! panOtherList must be a list of numbers.")
+			ok
 		ok
 
-		if NOT Q(panOtherList).IsListOfNumbers()
-			StzRaise("Incorrect pram type! panOtherList must be a list of numbers.")
-		ok
+		# Doing the job
 
 		anThisSorted = This.SortedInAscending()
 		anOtherSorted = Q(panOtherList).SortedInAscending()
@@ -3167,13 +3171,17 @@ def init(paList)
 		#--> 102
 		*/
 
-		if isList(panOtherList) and Q(panOtherList).IsWithNamedParam()
-			panOtherList = panOtherList[2]
+		if CheckParams()
+			if isList(panOtherList) and Q(panOtherList).IsWithNamedParam()
+				panOtherList = panOtherList[2]
+			ok
+	
+			if NOT Q(panOtherList).IsListOfNumbers()
+				StzRaise("Incorrect pram type! panOtherList must be a list of numbers.")
+			ok
 		ok
 
-		if NOT Q(panOtherList).IsListOfNumbers()
-			StzRaise("Incorrect pram type! panOtherList must be a list of numbers.")
-		ok
+		# Doing the job
 
 		anThisSorted = This.SortedInDescending()
 		anOtherSorted = Q(panOtherList).SortedInDescending()
@@ -4245,7 +4253,7 @@ def init(paList)
 			StzRaise("Incorrect param type!")
 		ok
 
-		This.UpdateWith(panNewListOfNumbers)
+		@aContent = panNewListOfNumbers
 
 
 		#< @FunctionFluentForm
