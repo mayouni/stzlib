@@ -974,8 +974,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return this
 
 	def ReplaceNthKey(n, pcNewKey)
-		if isList(pcNewKey) and Q(pcNewKey).IsWithNamedParam()
-			pcNewKey = pcNewKey[2]
+		if CheckParam()
+			if isList(pcNewKey) and Q(pcNewKey).IsWithOrByNamedParam()
+				pcNewKey = pcNewKey[2]
+			ok
 		ok
 
 		This.NthPair(n)[1] = pcNewKey
@@ -1011,8 +1013,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return this
 
 	def ReplaceNthValue(n, pNewValue)
-		if isList(pNewValue) and Q(pNewValue).IsWithNamedParam()
-			pNewValue = pNewValue[2]
+		if CheckParam()
+			if isList(pNewValue) and Q(pNewValue).IsWithOrByNamedParam()
+				pNewValue = pNewValue[2]
+			ok
 		ok
 
 		This.NthPair(n)[2] = pNewValue

@@ -154,7 +154,7 @@ class stzCCode
 		# By escence, Softanza uses it internaali with `..WXT()`
 		# forms of conditiobal functions, enabling them to be more
 		# expressive, but it also introduces a performance overhead.
-
+? this.content()
 
 		cCode = StzStringQ(This.Code()).
 			TrimQ().
@@ -241,14 +241,18 @@ class stzCCode
 				
 				" @objects ","@allObjects" ],
 
-				:By = " This.Content() ", :CS = FALSE).
+				:By = " This.Content() ", :CS = FALSE).Content()
+? cResult
+dfdf
 
 			ReplaceManyCSQ([
 				" @position ", " @CurrentPosition ",
 				" @Current@i ", " @CurrentI ",
 				" @EachPosition ", " @EachI " ],
 
-				:By = " @i ", :CS = FALSE).
+				:By = " @i ", :CS = FALSE).Content()
+? cResult
+dfdf
 
 			ReplaceManyCSQ([				
 				" @item ", " @EachItem ", " @CurrentItem ",
@@ -275,7 +279,7 @@ class stzCCode
 				" @NextPosition ", " @NextI "],
 
 				:By = " @i + 1 ", :CS = FALSE).
-				
+			
 			ReplaceManyCSQ([
 				" @NextItem ",
 				" @NextChar ", " @NextString ", " @NextSubString ",

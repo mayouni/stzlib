@@ -72,10 +72,14 @@ class stzCoreString from stzCoreObject
 	#-- APPENDING
 
 	def Append(substr)
-		@content.append(substr)
+		if substr != ""
+			@content.append(substr)
+		ok
 
 		def Add(substr)
-			@content.append(substr)
+			if substr != ""
+				@content.append(substr)
+			ok
 
 	def AppendQChar(q)
 		@content.append_2(q)
@@ -83,22 +87,38 @@ class stzCoreString from stzCoreObject
 	#-- FINDING
 
 	def FindFirstCS(substr, bCase)
+		if substr = ""
+			return 0
+		ok
 		return @content.indexOf(substr, 0, bCase) + 1
 
 	def FindFirst(substr)
+		if substr = ""
+			return 0
+		ok
 		return @content.indexOf(substr, 0, true) + 1
 
 	#--
 
 	def FindLastCS(substr, bCase)
+		if substr = ""
+			return 0
+		ok
 		return @content.lastIndexOf(substr, @content.count()-1, bCase) + 1
 
 	def FindLast(substr)
+		if substr = ""
+			return 0
+		ok
 		return @content.lastIndexOf(substr, @content.count()-1, true) + 1
 
 	#--
 
 	def FindCS(substr, bCase)
+		if substr = ""
+			return [0]
+		ok
+
 		@TempQStr = new QString2()
 		@TempQStr.append(substr)
 		nSize = @TempQStr.count()
@@ -133,6 +153,10 @@ class stzCoreString from stzCoreObject
 	#--
 
 	def FindNthCS(n, substr, bCase)
+		if n < 0 or substr = ""
+			return 0
+		ok
+
 		@TempQStr = new QString2()
 		@TempQStr.append(substr)
 		nSize = @TempQStr.count()
@@ -166,37 +190,54 @@ class stzCoreString from stzCoreObject
 	#-- INSERTING
 
 	def InsertAt(n, substr)
-		@content.insert(n-1, substr)
+		if n > 0 and substr != ""
+			@content.insert(n-1, substr)
+		ok
 
 	#== REPLACING
 
 	def ReplaceCS(substr1, substr2, bCase)
-		@content.replace_2(substr1, substr2, bCase)
+		if substr1 != ""
+			@content.replace_2(substr1, substr2, bCase)
+		ok
 
 	def Replace(substr1, substr2)
-		@content.replace_2(substr1, substr2, true)
-
+		if substr1 != ""
+			@content.replace_2(substr1, substr2, true)
+		ok
 	#--
 
 	def ReplaceSection(n1, n2, substr)
-		@content.replace( n1 - 1, n2 - n1 + 1, substr)
+		if n1 > 0 and n2 >= n1 and substr != ""
+			@content.replace( n1 - 1, n2 - n1 + 1, substr)
+		ok
 
 	#== REMOVING
 
 	def RemoveCS(substr, bCase)
-		@content.replace_2(substr, "", bCase)
+		if substr != ""
+			@content.replace_2(substr, "", bCase)
+		ok
 
 	def Remove(substr)
-		@content.replace_2(substr, "", true)
+		if substr != ""
+			@content.replace_2(substr, "", true)
+		ok
 
 	#--
 
 	def RemoveSection(n1, n2)
-		@content.replace(n1 - 1, n2 - n1 + 1, "")
+		if n1 > 0 and n2 >= n1
+			@content.replace(n1 - 1, n2 - n1 + 1, "")
+		ok
 
 	#== SPLITTING
 
 	def SplitCS(substr, bCase)
+		if substr = ""
+			return []
+		ok
+
 		oQStrList = This.QStringObject().split(substr, 0, bCase)
 
 		acResult = []
@@ -212,30 +253,58 @@ class stzCoreString from stzCoreObject
 	#--
 
 	def Section(n1, n2)
-		return @content.mid(n1-1, n2 - n1 + 1)
+		if n1 > 0 and n2 >= n1
+			return @content.mid(n1-1, n2 - n1 + 1)
+		else
+			raise( 'ERR-' + StkError(:IncorrectParamType) )
+		ok
 
 	#--
 
 	def ContainsCS(substr, bCase)
+		if substr = ""
+			return FALSE
+		ok
+
 		return @content.contains(substr, bCase)
 
 	def Contains(substr)
+		if substr = ""
+			return FALSE
+		ok
+
 		return @content.contains(substr, true)
 
 	#==
 
 	def StartsWithCS(substr, bCase)
+		if substr = ""
+			return FALSE
+		ok
+
 		return @content.startsWith(substr, bCase)
 
 	def StartsWith(substr)
+		if substr = ""
+			return FALSE
+		ok
+
 		return @content.startsWith(substr, true)
 
 	#--
 
 	def EndsWithCS(substr, bCase)
+		if substr = ""
+			return FALSE
+		ok
+
 		return @content.endsWith(substr, bCase)
 
 	def EndsWith(substr)
+		if substr = ""
+			return FALSE
+		ok
+
 		return @content.endsWith(substr, true)
 
 	#--
@@ -246,15 +315,24 @@ class stzCoreString from stzCoreObject
 	#--
 
 	def Simplify()
-		cSimplified = @content.simplified()
-		oTempQStr = new QString2()
-		oTempQStr.append(cSimplified)
-
-		@content = oTempQStr
-
+		if This.Content() != ""
+			cSimplified = @content.simplified()
+			oTempQStr = new QString2()
+			oTempQStr.append(cSimplified)
+	
+			@content = oTempQStr
+		ok
 	#==
 
 	def UnicodeAt(n)
+		if @content = ""
+			raise( "Can't proceed! Because the string is empty." )
+		ok
+
+		if n <= 0
+			raise( 'ERR-' + StkError(:IncorrectParamType) )
+		ok
+
 		oTempQStr = new QString2()
 		oTempQStr.append(This.CharAt(n))
 		nResult = oTempQStr.unicode().unicode()
@@ -264,15 +342,26 @@ class stzCoreString from stzCoreObject
 			return This.UnicodeOfChar(n)
 
 	def Unicode()
-		if This.Size() = 1
+		nLen = This.Size()
+		if nLen = 0
+			raise( "Can't proceed! Because the string is empty." )
+
+		ok
+
+		if nLen = 1
 			return This.UnicodeAt(1)
 		else
 			return This.Unicodes()
 		ok
 
 	def Unicodes()
-		anResult = []
 		nLen = This.Size()
+		if nLen = 0
+			raise( "Can't proceed! Because the string is empty." )
+
+		ok
+
+		anResult = []
 
 		for i = 1 to nLen
 			anResult + This.UnicodeAt(i)
@@ -281,8 +370,13 @@ class stzCoreString from stzCoreObject
 		return anResult
 
 	def Chars()
-		acResult = []
 		nLen = This.Size()
+		if nLen = 0
+			raise( "Can't proceed! Because the string is empty." )
+
+		ok
+
+		acResult = []
 
 		for i = 1 to nLen
 			acResult + This.CharAt(i)
@@ -314,7 +408,9 @@ class stzCoreString from stzCoreObject
 
 	def Operator(op, value)
 		if op = "+"
-			@content.append(value)
+			if value != ""
+				@content.append(value)
+			ok
 
 		but op = "[]"
 			return This.At(value)

@@ -3984,6 +3984,7 @@ class stzNumber from stzObject
 	# LEAST COMMON MULTIPLE
 
 	def LeastCommonMultiple(pOtherNumber)
+
 		if isList(pOtherNumber) and Q(pOtherNumber).IsWithNamedParam()
 			pOtherNumber = pOtherNumber[2]
 		ok
