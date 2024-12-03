@@ -1105,7 +1105,7 @@ func GetUnitsDozensAndHundreds(pNumber)	// Or simplier : GetMicroStructure(pNumb
 			
 	on 3
 		cUnits = right(pcNumber,1)
-		cDozens = substr(pcNumber,2,1)
+		cDozens = ring_substr2(pcNumber, 2, s1)
 		cHundreds = left(pcNumber,1)
 	off
 
@@ -2316,7 +2316,7 @@ class stzNumber from stzObject
 
 		if cSign = "+" or cSign = "-"
 
-			This.Update( Substr(cNumber, 2, nLenNumber -2 ) )
+			This.Update( ring_substr2(cNumber, 2, nLenNumber -2 ) )
 		ok
 
 		def RemoveSignQ()
@@ -2792,7 +2792,7 @@ class stzNumber from stzObject
 		if NOT This.IsSigned()
 			return This.IntegerPart()
 		else
-			return substr( This.IntegerPart(), 2, len(This.IntegerPart())-1 )
+			return ring_substr2( This.IntegerPart(), 2, len(This.IntegerPart())-1 )
 		ok
 
 		def IntegerPartWithoutSignQ()

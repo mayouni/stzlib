@@ -163,7 +163,7 @@ func ListStringifyXT(paList)
 				nMaxSize = nSize
 			ok
 
-			nDotPos = substr( cNumber, "." )
+			nDotPos = ring_substr1( cNumber, "." )
 
 			if nDotPos = 0
 				nLenLeft = nSize
@@ -205,7 +205,7 @@ func ListStringifyXT(paList)
 
 		cNumber = ""+ paList[nPos]
 		nLenNumber = len(cNumber)
-		nPosDot = substr(cNumber, ".")
+		nPosDot = ring_substr1(cNumber, ".")
 			
 		if nPosDot = 0
 				
@@ -4512,6 +4512,31 @@ func ObjectsIn(paList)
 		return Objects(paList)
 
 	#>
+
+#===
+
+func StzListContainsCS(paList, pItem, pCaseSensitive)
+	nPos = @FindFirstCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+	if nPos > 0
+		return TRUE
+	else
+		return FALSE
+	ok
+
+	func ListContainsCS(paList, pItem, pCaseSensitive)
+		return StzListContainsCS(paList, pItem, pCaseSensitive)
+
+	func @ListContainsCS(paList, pItem, pCaseSensitive)
+		return StzListContainsCS(paList, pItem, pCaseSensitive)
+
+func StzListContains(paList, pItem)
+	return StzListContainsCS(paList, pItem, TRUE)
+
+	func ListContains(paList, pItem)
+		return StzListContains(paList, pItem)
+
+	func @ListContains(paList, pItem)
+		return StzListContains(paList, pItem)
 
 #=== Enhance Ring+Softanza finding functions
 
@@ -13477,6 +13502,44 @@ class stzList from stzObject
 		def DeepReplaceQ(pItem, pByValue)
 			This.DeepReplace(pItem, pByValue)
 			return This
+
+	  #================================================================#
+	 #  TRIMMING THE LIST (REMOVING LEADING AND TRAILING FALSE ITEMS  #
+	#================================================================#
+
+	def TrimCS(pCaseSensitive)
+		aLead = This.LeadingItemsCS(pCaseSensitive)
+		aTrail = This.TrailingItemsCS(pCaseSensitive)
+
+		if len(aTrail) > 1
+			if ( isNumber(aTrail[1]) and aTrail[1] = 0 ) or
+			   ( isString(aTrail[1]) and aTrail[1] = "" ) or
+			   ( isList(aTrail[1]) and len(aTrail[1]) = 0 ) or
+			   ( isObject(aTrail[1]) and @IsFalseObject(aTrail[1]) )
+
+				This.RemoveTrailingItemsCS(pCaseSensitive)
+			ok
+		ok
+
+		if len(aLead) > 1
+			if ( isNumber(aLead[1]) and aLead[1] = 0 ) or
+			   ( isString(aLead[1]) and aLead[1] = "" ) or
+			   ( isList(aLead[1]) and len(aLead[1]) = 0 ) or
+			   ( isObject(aLead[1]) and @IsFalseObject(aLead[1]) )
+
+				This.RemoveLeadingItemsCS(pCaseSensitive)
+			ok
+		ok
+
+		def TrimCSQ(pCaseSensitive)
+			This.TrimCS(pCaseSensitive)
+			return This
+
+	def Trim()
+		This.TrimCSQ(TRUE)
+
+		def TrimQ()
+			return TrimCSQ(TRUE)
 
 	  #=========================================================#
 	 #   REMOVING ALL OCCURRENCE OF A GIVEN ITEM IN THE LIST   #
@@ -30288,16 +30351,44 @@ class stzList from stzObject
 		aResult = This.Copy().AssociateWithQ(paOtherList).Content()
 		return aResult
 
-	  #----------------------------#
-	 #   REPEATED LEADING ITEMS   # #TODO // Add case sensitivity!
-	#----------------------------#
+	  #=====================================================#
+	 #   CHECKING IF THE LIST HAS REPEATED LEADING ITEMS   #
+	#=====================================================#
+
+	def HasRepeatedLeadingItemsCS(pCaseSensitive)
+		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
+
+		if len(aLead) > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def HasLeadingRepeatedItemsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingItemsCS(pCaseSensitive)
+
+		def HasLeadingItemsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingItemsCS(pCaseSensitive)
+	
+		#--
+
+		def ContainsRepeatedLeadingItemsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingItemsCS(pCaseSensitive)
+
+		def ContainsLeadingRepeatedItemsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingItemsCS(pCaseSensitive)
+
+		def ContainsLeadingItemsCS(pCaseSensitive)
+			return This.HasRepeatedLeadingItemsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def HasRepeatedLeadingItems()
-		if StzListQ(This.RepeatedLeadingItems()).IsEmpty()
-			return FALSE
-		else
-			return TRUE
-		ok
+		return This.HasRepeatedLeadingItemsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -30320,12 +30411,45 @@ class stzList from stzObject
 
 		#>
 
-	def HasRepeatedTrailingItems()
-		if StzListQ(This.RepeatedTrailingItems()).IsEmpty()
-			return FALSE
-		else
+	  #------------------------------------------------------#
+	 #   CHECKING IF THE LIST HAS REPEATED TRAILING ITEMS   #
+	#------------------------------------------------------#
+
+
+	def HasRepeatedTrailingItemsCS(pCaseSensitive)
+		aTrail = This.RepeatedTrailingItemsCS(pCaseSensitive)
+
+		if len(aTrail) > 0
 			return TRUE
+		else
+			return FALSE
 		ok
+
+		#< @FunctionAlternativeForms
+
+		def HasTrailingRepeatedItemsCS(pCaseSensitive)
+			return This.HasRepeatedTrailingItemsCS(pCaseSensitive)
+
+		def HasTrailingItemsCS(pCaseSensitive)
+			return This.HasRepeatedTrailingItemsCS(pCaseSensitive)
+	
+		#--
+
+		def ContainsRepeatedTrailingItemsCS(pCaseSensitive)
+			return This.HasRepeatedTrailingItemsCS(pCaseSensitive)
+
+		def ContainsTrailingRepeatedItemsCS(pCaseSensitive)
+			return This.HasRepeatedTrailingItemsCS(pCaseSensitive)
+
+		def ContainsTrailingItemsCS(pCaseSensitive)
+			return This.HasRepeatedTrailingItemsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def HasRepeatedTrailingItems()
+		return This.HasRepeatedTrailingItemsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -30347,8 +30471,12 @@ class stzList from stzObject
 			return This.HasRepeatedTrailingItems()
 
 		#>
-	
-	def RepeatedLeadingItems() # Same item is repeated at the start of the list
+
+	  #--------------------------------------------------#
+	 #  GETTING THE REPEATED LEADING ITEMS IN THE LIST  #
+	#==================================================#
+
+	def RepeatedLeadingItemsCS(pCaseSensitive) # Same item is repeated at the start of the list
 
 		/* Example:
 			[ 'e', 'e', 'e', 'T', 'U', 'N', 'I', 'S' ]
@@ -30358,63 +30486,202 @@ class stzList from stzObject
 			--> []
 		*/
 
+		
 		aContent = This.Content()
 		nLen = This.NumberOfItems()
 
-		if NOT This.IsEmpty()
+		# Stringiying the list depending on case sensitivity
+
+		bCase = @CaseSensitive(pCaseSensitive)
+		acList = ""
+
+		if bCase = TRUE
+			acList = This.Stringified()
+		else
+			acList.StringifyQ().Lowercased()
+		ok
+
+		aResult = []
+
+		if nLen > 0
 			cResult = ""
 	
 			i = 1
-			while aContent[i] = aContent[1] and i <= nLen
+			while acList[i] = acList[1] and i <= nLen
 				i++
 			end
 
 			if i > 2
-				return This.NFirstItems(i-1)
+				aResult = This.NFirstItems(i-1)
 			ok
 		ok
 
+		return aResult
+
+		#< @FunctionFluentForm
+
+		def RepeatedLeadingItemsCSQ(pCaseSensitive)
+			return new stzList( This.RepeatedLeadingItemsCS(pCaseSensitive) )
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def LeadingRepeatedItemsCS(pCaseSensitive)
+			return This.RepeatedLeadingItemsCS(pCaseSensitive)
+
+			def LeadingRepeatedItemsCSQ(pCaseSensitive)
+				return This.RepeatedLeadingItemsQ()
+	
+		def LeadingItemsCS(pCaseSensitive)
+			return This.RepeatedLeadingItemsCS(pCaseSensitive)
+
+			def LeadingItemsCSQ(pCaseSensitive)
+				return This.RepeatedLeadingItemsCSQ(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedLeadingItems()
+		return This.RepeatedLeadingItemsCS(TRUE)
+
+		#< @FunctionFluentForm
+
 		def RepeatedLeadingItemsQ()
 			return new stzList( This.RepeatedLeadingItems() )
-	
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def LeadingRepeatedItems()
 			return This.RepeatedLeadingItems()
 
 			def LeadingRepeatedItemsQ()
-				return new stzList( This.LeadingRepeatedItems() )
+				return This.RepeatedLeadingItemsQ()
 	
 		def LeadingItems()
 			return This.RepeatedLeadingItems()
 
 			def LeadingItemsQ()
-				return new stzList( This.LeadingItems() )
-	
-	def RepeatedLeadingItem()
-		if This.HasRepeatedLeadingItems()
-			return This.Item(1)
+				return This.RepeatedLeadingItemsQ()
+
+		#>
+
+	  #-------------------------------------------------#
+	 #  GETTING THE REPEATED LEADING ITEM IN THE LIST  #
+	#-------------------------------------------------#
+
+	def RepeatedLeadingItemCS(pCaseSensitive)
+		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
+		if len(aLead) = 0
+			StzRaise("Can't proceed! The list has no repeated leading items.")
 		ok
 
-		def RepeatedLeadingItemQ()
-			return Q(This.RepeatedLeadingItem())
+		return aLead[1]
+
+		#< @FunctionFluentForm
+
+		def RepeatedLeadingItemCSQ(pCaseSensitive)
+			return Q(This.RepeatedLeadingItemCS(pCaseSensitive))
 	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def LeadingRepeatedItemCS(pCaseSensitive)
+			return This.RepeatedLeadingItemCS(pCaseSensitive)
+
+			def LeadingRepeatedItemCSQ(pCaseSensitive)
+				return This.RepeatedLeadingItemCSQ(pCaseSensitive)
+	
+		def LeadingItemCS(pCaseSensitive)
+			return This.RepeatedLeadingItemCS(pCaseSensitive)
+
+			def LeadingItemCSQ(pCaseSensitive)
+				return This.RepeatedLeadingItemCSQ(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedLeadingItem()
+		return This.RepeatedLeadingItem(TRUE)
+
+		#< @FunctionFluentForm
+
+		def RepeatedLeadingItemQ()
+			return new stzList(This.RepeatedLeadingItem())
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def LeadingRepeatedItem()
 			return This.RepeatedLeadingItem()
 
 			def LeadingRepeatedItemQ()
-				return Q(This.LeadingRepeatedItem())
+				return This.RepeatedLeadingItemQ()
 	
 		def LeadingItem()
 			return This.RepeatedLeadingItem()
 
 			def LeadingItemQ()
-				return Q(This.LeadingItem())
-	
+				return This.RepeatedLeadingItemQ()
+
+		#>
+
+	  #------------------------------------------------#
+	 #  GETTING THE NUMBER OF REPEATED LEADING ITEMS  #
+	#------------------------------------------------#
+
+	def NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
+		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
+		nResult = len(aLead)
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfLeadingRepeatedItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
+
+		def NumberOfLeadingItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
+
+		def CountRepeatedLeadingItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
+
+		def CountLeadingRepeatedItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
+
+		def CountLeadingItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
+
+		def HowManyRepeatedLeadingItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
+
+		def HowManyRepeatedLeadingItemCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingItems()
+
+		def HowManyLeadingRepeatedItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
+
+		def HowManyLeadingRepeatedItemCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
+
+		def HowManyLeadingItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
+
+		def HowManyLeadingItemCS(pCaseSensitive)
+			return This.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def NumberOfRepeatedLeadingItems()
-		if This.HasRepeatedLeadingItems()
-			return StzListQ( This.RepeatedLeadingItems() ).NumberOfItems()
-		else
-			return 0
-		ok
+		return This.NumberOfRepeatedLeadingItemsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -30453,43 +30720,116 @@ class stzList from stzObject
 
 		#>
 
-	def RepeatedLeadingItemIs(pItem)
-		if This.HasRepeatedLeadingItems() and This.FirstItemQ().IsEqualTo(pItem)
-			return TRUE
-		else
-			return FALSE
+	  #----------------------------------------------------#
+	 #  CHECKING IF AN ITEM IS THE REPEATED LEADING ITEM  #
+	#----------------------------------------------------#
+
+	def RepeatedLeadingItemIsCS(pItem, pCaseSensitive)
+
+		aLead = This.RepeatedLeadingItemsCS(pCaseSensitive)
+		bResult = FALSE
+
+		if len(aLead) > 0
+			if Q(aLead[1]).IsEqualToCS(pItem, pCaseSensitive)
+				bResult = TRUE
+			ok
 		ok
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def LeadingRepeatedItemIsCS(pItem, pCaseSensitive)
+			return This.RepeatedLeadingItemIsCS(pItem, pCaseSensitive)
+
+		def LeadingItemIsCS(pItem, pCaseSensitive)
+			return This.RepeatedLeadingItemIsCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedLeadingItemIs(pItem)
+		return This.RepeatedLeadingItemIs(pItem, TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def LeadingRepeatedItemIs(pItem)
 			return This.RepeatedLeadingItemIs(pItem)
 
 		def LeadingItemIs(pItem)
 			return This.RepeatedLeadingItemIs(pItem)
-	
-	  #-----------------------------#
-	 #   REPEATED TRAILING ITEMS   #
-	#-----------------------------#
+
+		#>
+
+	  #----------------------------------------#
+	 #   GETTING THE REPEATED TRAILING ITEM   #
+	#----------------------------------------#
+
+	def RepeatedTrailingItemCS(pCaseSensitive)
+
+		aTrail = This.RepeatedTrailingItemsCS(pCaseSensitive)
+
+		if len(aTrail) = 0
+			StzRaise("Can't proceed! The list has no repeated trailing items.")
+		ok
+
+		return aTrail[1]
+
+		#< @FunctionFluentForm
+
+		def RepeatedTrailingItemCSQ(pCaseSensitive)
+			return Q(This.RepeatedTrailingItemCS(pCaseSensitive))
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def TrailingRepeatedItemCS(pCaseSensitive)
+			return This.RepeatedTrailingItemCS(pCaseSensitive)
+
+			def TrailingRepeatedItemCSQ(pCaseSensitive)
+				return This.RepeatedTrailingItemCSQ(pCaseSensitive)
+
+		def TrailingItemCS(pCaseSensitive)
+			return This.RepeatedTrailingItemCS(pCaseSensitive)
+
+			def TrailingItemCSQ(pCaseSensitive)
+				return RepeatedTrailingItemCSQ(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def RepeatedTrailingItem()
-		if This.HasRepeatedTrailingItems()
-			return This.LastItem()
-		ok
+		return This.RepeatedTrailingItemCS(TRUE)
+
+		#< @FunctionFluentForm
 
 		def RepeatedTrailingItemQ()
 			return Q(This.RepeatedTrailingItem())
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def TrailingRepeatedItem()
 			return This.RepeatedTrailingItem()
 
 			def TrailingRepeatedItemQ()
-				return Q(This.TrailingRepeatedItem())
+				return This.RepeatedTrailingItemQ()
 
 		def TrailingItem()
 			return This.RepeatedTrailingItem()
 
 			def TrailingItemQ()
-				return Q(This.TrailingItem())
-	
+				return This.RepeatedTrailingItemQ()
+
+		#>
+
+	  #----------------------------------------#
+	 #   GETTING THE REPEATED TRAILING ITEMS  #
+www	#----------------------------------------#
+
 	def RepeatedTrailingItems()
 		aResult = This.Copy().ReverseQ().RepeatedLeadingItems()
 		return aResult
@@ -30568,7 +30908,7 @@ class stzList from stzObject
 	
 	  #-------------------------------------#
 	 #   REMOVING REPEATED LEADING ITEMS   #
-	#-------------------------------------#
+	#=====================================#
 
 	def RemoveRepeatedLeadingItems()
 		if This.HasRepeatedLeadingItems()
@@ -30638,7 +30978,7 @@ class stzList from stzObject
 
 	  #--------------------------------------#
 	 #   REMOVING REPEATED TRAILING ITEMS   #
-	#--------------------------------------#
+	#======================================#
 
 	def RemoveRepeatedTrailingItems()
 		if This.HasRepeatedTrailingItems()
@@ -30708,7 +31048,7 @@ class stzList from stzObject
 	
 	  #--------------------------------------------------#
 	 #   REMOVING REPEATED LEADING AND TRAILING ITEMS   #
-	#--------------------------------------------------#
+	#==================================================#
 
 	def RemoveRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
 		This.RemoveRepeatedLeadingItem(pItem1)
@@ -30775,7 +31115,7 @@ class stzList from stzObject
 	
 	  #-----------------------------#
 	 #   REPLACING LEADING ITEMS   #
-	#-----------------------------#
+	#=============================#
 
 	def ReplaceRepeatedLeadingItem(pItem)
 		/* Example:
@@ -30874,7 +31214,7 @@ class stzList from stzObject
 				
 	  #------------------------------#
 	 #   REPLACING TRAILING ITEMS   #
-	#------------------------------#
+	#==============================#
 
 	def ReplaceRepeatedTrailingItem(pItem)
 		/* Example:
@@ -30974,7 +31314,7 @@ class stzList from stzObject
 	
 	  #---------------------------------------------------#
 	 #   REPLACING REPEATED LEADING AND TRAILING ITEMS   #
-	#---------------------------------------------------#
+	#===================================================#
 
 	def ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
 		This.ReplaceRepeatedLeadingItemWith(pItem1)
@@ -31056,7 +31396,7 @@ class stzList from stzObject
 	
 		def TrailingAndLeadingItemsReplaced(pItem1, pItem2)
 			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem1, pItem2)
-
+www
 	  #==============================#
 	 #     OPERATORS OVERLOADING    #
 	#==============================#
@@ -42809,8 +43149,7 @@ class stzList from stzObject
 			_oCopy_ = This.Copy().LowercaseQ()
 		ok
 
-		cCode = StzStringQ(cCode).ReplaceCSQ("This", "_oCopy_", FALSE).Content()
-
+		cCode = @ReplaceCS(cCode, "This", "_oCopy_", FALSE)
 		# 5) ~>  Doing the job
 
 		anResult = []
@@ -50650,7 +50989,7 @@ class stzList from stzObject
 	def StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
 		#< QtBased | Uses QString2() #>
 
-		#NOTE: General note on performance of code written here in SoftanzaLib
+		#NOTE // General note on performance of code written here in SoftanzaLib
 
 		# For all loops running on large data (tens of thousands of times and more), we
 		# don't rely on softanza objects services (stzString and alike), we use Qt directly instead!
@@ -50664,12 +51003,20 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
+		if pcSubStr = ""
+			return
+		ok
+
 		if isList(pcOtherSubStr) and Q(pcOtherSubStr).IsWithOrByOrUsingNamedParam()
 			pcOtherSubStr = pcOtherSubStr[2]
 		ok
 
 		if NOT isString(pcOtherSubStr)
 			StzRaise("Incorrect param type! pcOtherSubStr must be a string.")
+		ok
+
+		if pcOtherSubStr = ""
+			return
 		ok
 
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
@@ -50710,8 +51057,7 @@ class stzList from stzObject
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
 					cItem = item
 				else
-					oQStr.replace_2(pcSubStr, pcOtherSubStr, pCaseSensitive)
-					cItem = oQStr.mid(0, oQStr.count())
+					cItem = @ReplaceCS(item, pcSubStr, pcOtherSubStr, pCaseSensitive)
 					anPos + i
 				ok
 
@@ -50733,9 +51079,7 @@ class stzList from stzObject
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
 					cItem = item
 				else
-
-					oQStr.replace_2(pcSubStr, pcOtherSubStr, pCaseSensitive)
-					cItem = oQStr.mid(0, oQStr.count())
+					cItem = @ReplaceCS(item, pcSubStr, pcOtherSubStr, pCaseSensitive)
 				ok
 
 				if bExtend and ring_find(anPos, i) = 0
@@ -50880,12 +51224,20 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
+		if pcSubStr = ""
+			return
+		ok
+
 		if isList(pcOtherSubStr) and Q(pcOtherSubStr).IsWithOrByOrUsingNamedParam()
 			pcOtherSubStr = pcOtherSubStr[2]
 		ok
 
 		if NOT isString(pcOtherSubStr)
 			StzRaise("Incorrect param type! pcOtherSubStr must be a string.")
+		ok
+
+		if pcOtherSubStr = ""
+			return
 		ok
 
 		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
@@ -50928,8 +51280,7 @@ class stzList from stzObject
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
 					cItem = item
 				else
-					oQStr.replace_2(pcSubStr, pcOtherSubStr, pCaseSensitive)
-					cItem = oQStr.mid(0, oQStr.count())
+					cItem = @ReplaceCS(item, pcSubStr, pcOtherSubStr, pCaseSensitive)
 					anPos + i
 				ok
 
@@ -50951,8 +51302,7 @@ class stzList from stzObject
 				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
 					cItem = item
 				else
-					oQStr.replace_2(pcSubStr, pcOtherSubStr, pCaseSensitive)
-					cItem = oQStr.mid(0, oQStr.count())
+					cItem = @ReplaceCS(item, pcSubStr, pcOtherSubStr, pCaseSensitive)
 				ok
 
 				if bExtend and ring_find(anPos, i) = 0
@@ -51255,7 +51605,7 @@ class stzList from stzObject
 	
 		ok
 
-		cCode = substr(cCode, "Isnobject", "IsAnObject")
+		cCode = ring_substr2(cCode, "Isnobject", "IsAnObject")
 		# Brute force solution!
 		# #TODO A cleaner solution is to check how cCode is composed
 		# and let IsAnObject be generated isntead of IsnObject

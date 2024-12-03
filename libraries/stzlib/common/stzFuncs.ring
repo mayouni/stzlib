@@ -4723,7 +4723,11 @@ func euc_dist(a,b)
 	return sqrt(s)
 
 func @IsList(paList)
-	return isList(paList)
+	if isList(paList)
+		return TRUE
+	else
+		return FALSE
+	ok
 
 	func IsAList(paList)
 		return isList(paList)
@@ -4732,7 +4736,11 @@ func @IsList(paList)
 		return isList(paList)
 
 func @IsNumber(n)
-	return isNumber(n)
+	if isNumber(n)
+		return TRUE
+	else
+		return FALSE
+	ok
 
 	func IsANumber(n)
 		return isNumber(n)
@@ -4741,7 +4749,11 @@ func @IsNumber(n)
 		return isNumber(n)
 
 func @IsString(str)
-	return isString(str)
+	if isString(str)
+		return TRUE
+	else
+		return FALSE
+	ok
 
 	func IsAString(str)
 		return isString(str)
@@ -4750,7 +4762,11 @@ func @IsString(str)
 		return isString(str)
 
 func @IsObject(obj)
-	return isObject(obj)
+	if isObject(obj)
+		return TRUE
+	else
+		return FALSE
+	ok
 
 	func IsAnObject(obj)
 		return isObject(obj)

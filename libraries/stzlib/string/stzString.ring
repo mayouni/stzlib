@@ -232,11 +232,94 @@ func IsBlank(pcStr)
 
 	#>
 
+#TODO Some of these functions should call their corresponding (same)
+# functions in the core layer
+
+func StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+	if isString(pStrOrList)
+		cTemp = ring_substr(pStrOrList, pSubStrOrItem, "")
+		if cTemp != pStrOrList
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	but isList(pStrOrList)
+		nPos = @FindFirstCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		if nPos > 0
+			return TRUE
+		else
+			return FALSE
+		ok
+	else
+		StzRaise("Can't proceed! pStrOrList must be a string or list.")
+	ok
+
+	func @ContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+
+func StzContains(pStrOrList, pSubStrOrItem)
+	return StzContainsCS(pStrOrList, pSubStrOrItem, TRUE)
+
+	func @Contains(pStrOrList, pSubStrOrItem)
+		return StzContains(pStrOrList, pSubStrOrItem)
+
+#--
+
+func StringContainsCS(pcStr, pcSubStr, pCaseSensitive)
+		cTemp = @ReplaceCS(pcStr, pcSubStr, "", pCaseSensitive)
+		if cTemp != pcStr
+			return TRUE
+		else
+			return FALSE
+		ok
+
+	func @StringContainsCS(pcStr, pcSubStr, bCaseSensitive)
+		return StringContainsCS(pcStr, pcSubStr, bCaseSensitive)
+
+	func StzStringContainsCS(pcStr, pcSubStr, bCaseSensitive)
+		return StringContainsCS(pcStr, pcSubStr, bCaseSensitive)
+
+	func @StzStringContainsCS(pcStr, pcSubStr, bCaseSensitive)
+		return StringContainsCS(pcStr, pcSubStr, bCaseSensitive)
+
+func StringContains(pcStr, pcSubStr)
+	return StringContainsCS(pcStr, pcSubStr, TRUE)
+
+	func @StringContains(pcStr, pcSubStr)
+		return StringContains(pcStr, pcSubStr)
+
+	func StzStringContains(pcStr, pcSubStr)
+		return StringContainsCS(pcStr, pcSubStr)
+
+	func @StzStringContains(pcStr, pcSubStr)
+		return StringContains(pcStr, pcSubStr)
+#==
+
+func StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
+
+	bCase = @CaseSensitive(bCaseSensitive)
+
+	if bCase = TRUE
+		return ring_substr2(cStr, cSubStr, cNewSubStr)
+	ok
+
+	cStrLow = lower(cStr)
+	cSubStrLow = lower(cSubStr)
+	cNewSubStrLow = lower(cNewSubStr)
+
+	return ring_substr2(cStrLow, cSubStrLow, cNewSubStrLow)
+
+	func @ReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
+		return StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
+
+func StzReplace(cStr, cSubStr, cNewSubStr)
+	return StzReplaceCS(cStr, cSubStr, cNewSubStr, TRUE)
+
+	func @Replace(cStr, cSubStr, cNewSubStr)
+		return StzReplace(cStr, cSubStr, cNewSubStr)
+
 func StzSplitCS(cStr, cSubStr, bCaseSensitive)
-	#NOTE // We could call the stzSplt() function in the CORE layer
-	# that does the same thing and contains the same code!
-	# But since the code small let's rewerite again here and gain
-	# the independence between layers.
 
 	oQStr = new QString2()
 	oQStr.append(cStr)
@@ -641,6 +724,8 @@ func IsSortedStringInDescending(pcStr)
 
 #===
 
+#TODO: Review if the String...() functions are necessary
+
 func StringAlignXT(cStr, nWidth, cChar, cDirection)
 	oString = new stzString(cStr)
 	return oString.AlignXTQ(nWidth, cChar, cDirection).Content()
@@ -792,12 +877,6 @@ func StringIsWord(cStr)
 	
 	func @IsWord(cStr)
 		return StringIsWord(cStr)
-
-func StringContains(pcStr, pcSubStr)
-	return StzStringQ(pcStr).Contains(pcSubStr)
-	
-	func @Contains(pcStr, pcSubStr)
-		return StringContains(pcStr, pcSubStr)
 
 func StringNumberOfOccurrence(pcStr, pcSubStr)
 	return StzStringQ(pcStr).NumberOfOccurrence(pcSubStr)
@@ -36703,6 +36782,14 @@ class stzString from stzObject
 
 		#>
 
+	def AntiSectionsZ(paSections)
+		aResult = @Association([ This.AntiSections(paSections), This.FindAntiSections(paSections) ])
+		return aResult
+
+	def AntiSectionsZZ(paSections)
+		aResult = @Association([ This.AntiSections(paSections), This.FindAntiSectionsZZ(paSections) ])
+		return aResult
+
 	  #---------------------------------------------------------------------#
 	 #   GETIING THE ANTI-SECTIONS OF A GIVEN SET OF SECTIONS -- EXTENDED  #
 	#---------------------------------------------------------------------#
@@ -39345,13 +39432,11 @@ class stzString from stzObject
 
 		# Doing the job
 
-		if pcSubStr != "" 	#WARNING // Essential because Qt changes the string in a non
-					// logical way when the substring is empty!
+		bCase = @CaseSensitive(pCaseSensitive)
+		cResult = This.Content()
 
-			oQCopy = @oQString
-			oQCopy.replace_2(pcSubStr, pcNewSubStr, pCaseSensitive)
-			This.UpdateWith( QStringToString(oQCopy) )
-		ok
+		cResult = @ReplaceCS(cResult, pcSubStr, pcNewSubStr, bCase)
+		This.UpdateWith(cResult)
 
 		#< @FunctionFluentForm
 		
@@ -39406,7 +39491,7 @@ class stzString from stzObject
 
 		#< @FunctionMisspelledForm
 
-		#TODO // Add Repalce as a misspelled form to all Replace...() functions
+		#TODO // Add Replace as a misspelled form to all Replace...() functions
 
 		def Repalce(pcSubStr, pcNewSubStr)
 			This.Replace(pcSubStr, pcNewSubStr)
@@ -39590,12 +39675,17 @@ class stzString from stzObject
 		# Doing the job
 
 		pacSubStr = Q(pacSubStr).DuplicatesRemovedCS(pCaseSensitive)
-		nLen = len(pacSubStr)
-		
+		nLen = len(pacSubStr)	
+
+		bCase = @CaseSensitive(pCaseSensitive)
+		cResult = This.Content()
 		for i = 1 to nLen
-			This.ReplaceCS( pacSubStr[i], pNewSubStr, pCaseSensitive )
+			cResult = @ReplaceCS(cResult, pacSubStr[i], pNewSubStr, bCase)
 		next
-	
+
+
+		This.UpdateWith(cResult)
+
 		#< @FunctionFluentForm
 	
 		def ReplaceManyCSQ(pacSubStr, pNewSubstr, pCaseSensitive)
@@ -42522,7 +42612,7 @@ class stzString from stzObject
 
 		#>
 
-		#TODO // Add Repalce as misspelling of Replace
+		#TODO // Add Replace as misspelling of Replace
 
 	  #-------------------------------------------------------------#
 	 #   REPLACING CHARS AT GIVEN POSITIONS BY A GIVEN SUBSTRING   #
@@ -54264,20 +54354,16 @@ class stzString from stzObject
 		ok
 
 		# Doing the job (Qt-side) #~> CANCELLED due to a RingQt error (should return -1 as in Qt)
-		#UPDATE // The error comes from Qt itself! Read this discussion with Mahmoud:
-		# Link:  https://groups.google.com/d/msgid/ring-lang/c3d2c83e-609e-4583-8d05-f1979be5e198n%40googlegroups.com.
 
-		// nPos = This.QStringObject().indexOf(pcSubStr, 0, pCaseSensitive)
+			#UPDATE // The error comes from Qt itself! Read this discussion with Mahmoud:
+			# Link: https://groups.google.com/g/ring-lang/c/BbdsAsylurA
+	
+			// nPos = This.QStringObject().indexOf(pcSubStr, 0, pCaseSensitive)
+	
+		# Using a Ring-based solution instead
 
-		# Work-around, by removing the substring, and counting the resulting size with the initial size
-
-		nTemp = This.Copy().RemoveCSQ(pcSubStr, pCaseSensitive).NumberOfChars()
-
-		if nTemp != This.NumberOfChars()
-			return TRUE
-		else
-			return FALSE
-		ok
+		bResult = @StringContainsCS(This.Content(), pcSubStr, pCaseSensitive)
+		return bResult
 
 		#< @FunctionAlternativeForm
 
@@ -87374,7 +87460,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
 		ok
 
-		aAntiSections = This.AntiSectionsZZ(paSections)
+		aAntiSections = This.FindAntiSectionsZZ(paSections)
 		nLen = len(aAntiSections)
 
 		for i = nLen to 1 step -1
@@ -96225,14 +96311,14 @@ class stzString from stzObject
 				nDec1 = 0
 				nDec2 = 0
 
-				#TODO # Check if substr() upports all unicode chars!
+				#TODO # Check if ring_substr() upports all unicode chars!
 
-				nPos1 = substr(cPart1, ".")
+				nPos1 = ring_substr1(cPart1, ".")
 				if nPos1 > 0
 					nDec1 = nLenPart1 - nPos1
 				ok
 
-				nPos2 = substr(cPart2, ".")
+				nPos2 = ring_substr1(cPart2, ".")
 				if nPos2 > 0
 					nDec2 = nLenPart2 - nPos2
 				ok

@@ -4,13 +4,28 @@ load "LightGuiLib.ring"
 #  STZ CORE STRING  #
 #~~~~~~~~~~~~~~~~~~~#
 
+func StkReplaceCS(cStr, cSubStr, cNewSubStr, bCase)
+
+	if bCase = TRUE
+		return ring_substr2(cStr, cSubStr, cNewSubStr)
+	ok
+
+	cStrLow = lower(cStr)
+	cSubStrLow = lower(cSubStr)
+	cNewSubStrLow = lower(cNewSubStr)
+
+	return ring_substr2(cStrLow, cSubStrLow, cNewSubStrLow)
+
+func StkReplace(cStr, cSubStr, cNewSubStr)
+	return StzReplaceCS(cStr, cSubStr, cNewSubStr, TRUE)
+
 # Split function (to use instead of the one provided by the standard library)
 
-func StkSplitCS(cStr, cSubStr, bCaseSensitive)
+func StkSplitCS(cStr, cSubStr, bCase)
 	oQStr = new QString2()
 	oQStr.append(cStr)
 	
-	oQStrList = oQStr.split(cSubStr, 0, bCaseSensitive)
+	oQStrList = oQStr.split(cSubStr, 0, bCase)
 	
 	acResult = []
 	for i = 0 to oQStrList.size()-1
@@ -197,14 +212,12 @@ class stzCoreString from stzCoreObject
 	#== REPLACING
 
 	def ReplaceCS(substr1, substr2, bCase)
-		if substr1 != ""
-			@content.replace_2(substr1, substr2, bCase)
-		ok
+		cResult = StkReplaceCS(This.Content(), substr1, substr2, bCase)
+		This.Update(cResult)
 
 	def Replace(substr1, substr2)
-		if substr1 != ""
-			@content.replace_2(substr1, substr2, true)
-		ok
+		This.Replace(substr1, substr2, true)
+
 	#--
 
 	def ReplaceSection(n1, n2, substr)
@@ -215,14 +228,10 @@ class stzCoreString from stzCoreObject
 	#== REMOVING
 
 	def RemoveCS(substr, bCase)
-		if substr != ""
-			@content.replace_2(substr, "", bCase)
-		ok
+		This.ReplaceCS(substr, "", bCase)
 
 	def Remove(substr)
-		if substr != ""
-			@content.replace_2(substr, "", true)
-		ok
+		This.Replace(substr, "")
 
 	#--
 
@@ -234,17 +243,7 @@ class stzCoreString from stzCoreObject
 	#== SPLITTING
 
 	def SplitCS(substr, bCase)
-		if substr = ""
-			return []
-		ok
-
-		oQStrList = This.QStringObject().split(substr, 0, bCase)
-
-		acResult = []
-		for i = 0 to oQStrList.size()-1
-			acResult + oQStrList.at(i)	
-		next
-	
+		acResult = StkSplitCS(This.Content(), cSubStr, bCase)
 		return acResult
 
 	def Split(substr)

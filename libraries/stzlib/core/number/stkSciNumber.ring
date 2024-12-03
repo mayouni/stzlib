@@ -4,7 +4,7 @@ func IsSciForm(cNumber)
 		return FALSE
 	ok
 
-	nPos = substr(cNumber, "e")
+	nPos = ring_substr1(cNumber, "e")
 	if nPos = 0
 		return FALSE
 	ok
@@ -57,7 +57,7 @@ func Number2Sci(n)
 
 
 func Sci2Number(cNumberInStr)
-	cNumberInStr = trim(substr(cNumberInStr, "_", ""))
+	cNumberInStr = trim( ring_substr2(cNumberInStr, "_", "") )
 	nPos = substr(cNumberInStr, "e")
 	if nPos = 0
 		raise("ERR-" + StkError(:IncorrectParamValue))
@@ -93,7 +93,7 @@ class stkSciNumber
 			return raise("ERR-" + StkError(:IncorrectParamType))
 		ok
 	
-		nPos = substr(cNumberInSciForm, "e")
+		nPos = ring_substr1(cNumberInSciForm, "e")
 		if nPos = 0
 			return FALSE
 		ok

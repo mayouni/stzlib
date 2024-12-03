@@ -154,7 +154,6 @@ class stzCCode
 		# By escence, Softanza uses it internaali with `..WXT()`
 		# forms of conditiobal functions, enabling them to be more
 		# expressive, but it also introduces a performance overhead.
-? this.content()
 
 		cCode = StzStringQ(This.Code()).
 			TrimQ().
@@ -170,7 +169,7 @@ class stzCCode
 			Content()
 
 		#TODO // Automate the addition of new keywords
-		# Example : for @split", all the necessary variations
+		# Example : for "@split", all the necessary variations
 		# are generated as found in the fellowing list:
 		# ~> we can also add Keywords()
 
@@ -224,9 +223,9 @@ class stzCCode
 				
 		], :CaseSensitive = FALSE)
 
-		cResult = StzStringQ(" " + cCode + " ").
+		oResult = StzStringQ(" " + cCode + " ")
 
-			ReplaceManyCSQ([
+		oResult.ReplaceManyCS([
 				" @items ","@allItems",
 								
 				" @chars ","@allChars",
@@ -241,20 +240,16 @@ class stzCCode
 				
 				" @objects ","@allObjects" ],
 
-				:By = " This.Content() ", :CS = FALSE).Content()
-? cResult
-dfdf
+				" This.Content() ", FALSE)
 
-			ReplaceManyCSQ([
+		oResult.ReplaceManyCS([
 				" @position ", " @CurrentPosition ",
 				" @Current@i ", " @CurrentI ",
 				" @EachPosition ", " @EachI " ],
 
-				:By = " @i ", :CS = FALSE).Content()
-? cResult
-dfdf
+				" @i ", FALSE)
 
-			ReplaceManyCSQ([				
+		oResult.ReplaceManyCS([				
 				" @item ", " @EachItem ", " @CurrentItem ",
 				" @char ", " @EachChar ", " @CurrentChar ",
 				" @string", " @EachString ", " @CurrentString ",
@@ -271,16 +266,16 @@ dfdf
 
 				" @object ", " @EachObject ", " @CurrentObject " ],
 
-				:By = " This[@i] ", :CS = FALSE ).
-				
-			ReplaceCSQ(" -@Number ", :By = " - This[@i] ", :CS = FALSE).
+				" This[@i] ", FALSE )
+			
+		oResult.ReplaceCS(" -@Number ", " - This[@i] ", FALSE)
 
-			ReplaceManyCSQ([
+		oResult.ReplaceManyCS([
 				" @NextPosition ", " @NextI "],
 
-				:By = " @i + 1 ", :CS = FALSE).
+				" @i + 1 ", FALSE)
 			
-			ReplaceManyCSQ([
+		oResult.ReplaceManyCS([
 				" @NextItem ",
 				" @NextChar ", " @NextString ", " @NextSubString ",
 				" @NextLine ",
@@ -290,14 +285,14 @@ dfdf
 				" @NextSplit ",
 				" @NextObject " ],
 
-				:By = " This[@i + 1] ", :CS = FALSE).
+				" This[@i + 1] ", FALSE)
 
-			ReplaceManyCSQ([
+		oResult.ReplaceManyCS([
 				" @PreviousPosition ", " @PreviousI "],
 
-				:By = " @i - 1 ", :CS = FALSE).
+				" @i - 1 ", FALSE)
 
-			ReplaceManyCSQ([
+		oResult.ReplaceManyCS([
 				" @PreviousItem ",
 				" @PreviousChar ",
 				" @PreviousString ", " @PreviousSubString ",
@@ -309,9 +304,9 @@ dfdf
 				" @PreviousObject "
 				],
 
-				:By = " This[@i - 1] ", :CS = FALSE).
+				" This[@i - 1] ", FALSE)
 
-			Trimmed()
+		cResult = oResult.Trimmed()
 
 		@cContent = cResult
 

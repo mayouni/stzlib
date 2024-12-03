@@ -206,15 +206,15 @@ class stzBinaryNumber from stzObject
 
 		# Remove the fractional part
 
-		nDotPos = substr(cBinary, ".")
+		nDotPos = ring_substr1(cBinary, ".")
 		if nDotPos > 0
 			cBinary = left(cBinary, nDotPos-1)
 		ok
 
 		# Remove the 0b or b prefix
 
-		cBinary = substr(cBinary, "0b", "")
-		cBinary = substr(cBinary, "b", "")
+		cBinary = ring_substr2(cBinary, "0b", "")
+		cBinary = ring_substr2(cBinary, "b", "")
 		nLen = len(cBinary)
 
 		# Doing the job

@@ -65,7 +65,7 @@ class stkBigNumber
 
 		bSpacify = FALSE
 
-		if substr(cValue, "_") > 0
+		if ring_substr1(cValue, "_") > 0
 			bSpacify = TRUE
 		ok
 
@@ -97,9 +97,9 @@ class stkBigNumber
 
 		# If the new number is spacified then store that info and unspaicify it
 
-		if substr(cNumberInStr, "_") > 0
+		if ring_substr1(cNumberInStr, "_") > 0
 			@bSpacify = TRUE
-			cNumberInStr = substr(cNumberInStr, "_", "")
+			cNumberInStr = ring_substr2(cNumberInStr, "_", "")
 		ok
 
 		# The string must contain a valid number
@@ -112,7 +112,7 @@ class stkBigNumber
 
 		if left(cNumberInStr, 1) = "-"
 			@bNegative = TRUE
-	       		cNumberInStr = substr(cNumberInStr, "-", "")
+	       		cNumberInStr = ring_substr2(cNumberInStr, "-", "")
 	        ok
 
 		# Splitting the number into 2 parts, intpart and fractpart
@@ -277,7 +277,7 @@ class stkBigNumber
 		ok
 
 		if This.IsNegative()
-			cResult = substr(cValue, "-", "")
+			cResult = ring_substr2(cValue, "-", "")
 			return cResult
 			
 		else
@@ -481,7 +481,7 @@ class stkBigNumber
 		ok
 		
 		if precision = 0
-			result = substr(result, ".", "")
+			result = ring_substr2(result, ".", "")
 		ok
 	
 		return result
@@ -517,7 +517,7 @@ class stkBigNumber
 
 		@nPrecision = n
 
-		if substr(cRounded, ".") = 0
+		if ring_substr1(cRounded, ".") = 0
 			@cIntPart = cRounded
 			@cFracPart = ""
 			
@@ -624,9 +624,9 @@ class stkBigNumber
 		# Checking spacification
 
 		bSpace = FALSE
-		if @bSpacify or substr(cOtherNumber, "_") > 0
+		if @bSpacify or ring_substr1(cOtherNumber, "_") > 0
 			bSpace = TRUE
-			cOtherNumber = substr(cOtherNumber, "_", "")
+			cOtherNumber = ring_substr2(cOtherNumber, "_", "")
 		ok
 
 		# Checking the param value (must be a number in string)
@@ -659,7 +659,7 @@ class stkBigNumber
 		cInt1  = @cIntPart
 		cFrac1 = @cFracPart
 
-		nDot2 = substr(cOtherNumber, ".")
+		nDot2 = ring_substr1(cOtherNumber, ".")
 		cInt2  = cOtherNumber
 		cFrac2 = ""
 
@@ -668,7 +668,7 @@ class stkBigNumber
 			bHasFrac = TRUE
 			cInt2  = left(cOtherNumber, nDot2 - 1)
 			cFrac2 = right(cOtherNumber, nLenOtherNumber - nDot2)
-			cFrac2 = substr(cFrac2, ".", "") # to be safe
+			cFrac2 = ring_substr2(cFrac2, ".", "") # to be safe
 		ok
 	
 		nLenInt1 = len(cInt1)
@@ -814,11 +814,11 @@ pvtAddOne(cNumber) # Must ba an int
 		raise("ERR-" + StkError(:IncorrectParamType))
 	ok
 
-	if substr(cNumber, ".") > 0
+	if ring_substr1(cNumber, ".") > 0
 		raise("ERR-" + StkError(:IncorrectParamType))
 	ok
 
-	cNumber = substr(cNumber, "_", "")
+	cNumber = ring_substr2(cNumber, "_", "")
 	nLen = len(cNumber)
 
 	cResult = ""
@@ -977,8 +977,8 @@ pvtAddOne(cNumber) # Must ba an int
 			raise("Incorrect param type!")
 		ok
 	
-		strNum1 = substr(strNum1, "_", "")
-		strNum2 = substr(strNum2, "_", "")
+		strNum1 = ring_substr2(strNum1, "_", "")
+		strNum2 = ring_substr2(strNum2, "_", "")
 	
 		strNum1 = pvtTrimLeadingZeros(pvtTrimTrailingZeros(strNum1))
 		strNum2 = pvtTrimLeadingZeros(pvtTrimTrailingZeros(strNum2))
@@ -1012,7 +1012,7 @@ pvtAddOne(cNumber) # Must ba an int
 		intPart2 = ""
 		fractPart2 = ""
 	
-		nDot1 = substr(strNum1, ".")
+		nDot1 = ring_substr1(strNum1, ".")
 		if nDot1 = 0
 			intPart1 = strNum1
 			fracPart1 = ""
@@ -1021,7 +1021,7 @@ pvtAddOne(cNumber) # Must ba an int
 			fracPart1 = right(strNum1, nLen1 - nDot1)
 		ok
 	
-		nDot2 = substr(strNum2, ".")
+		nDot2 = ring_substr1(strNum2, ".")
 		if nDot2 = 0
 			intPart2 = strNum2
 			fracPart2 = ""
@@ -1123,7 +1123,7 @@ pvtAddOne(cNumber) # Must ba an int
 	def pvtSAbs(s)
 
 	        if left(s, 1) = "-"
-			s = substr(s, "-", "")
+			s = ring_substr2(s, "-", "")
 	        ok
 
 	        return s
@@ -1138,7 +1138,7 @@ pvtAddOne(cNumber) # Must ba an int
 				exit
 			ok
 	
-	            	s = substr(s, 2)
+	            	s = ring_substr1(s, 2)
 	        end
 	
 	        return s

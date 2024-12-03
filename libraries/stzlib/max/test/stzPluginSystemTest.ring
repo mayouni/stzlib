@@ -34,7 +34,7 @@ Here is an example of the content of a plugin file:
 	#--> Embedding Ring in Ring!
 	
 	func pluginFunc(value, aParams)
-		cResult = substr(value, aParams[1], aParams[2])
+		cResult = ring_substr2(value, aParams[1], aParams[2])
 		return cResult
 
 The programmer should only give a name to the file with the format:

@@ -7499,7 +7499,7 @@ def init(paList)
 				nMaxSize = nSize
 			ok
 
-			nDotPos = substr( cNumber, "." )
+			nDotPos = ring_substr1( cNumber, "." )
 
 			if nDotPos = 0
 				nLenLeft = nSize
@@ -7528,7 +7528,7 @@ def init(paList)
 
 			cNumber = ""+ aContent[i]
 			nLenNumber = len(cNumber)
-			nPosDot = substr(cNumber, ".")
+			nPosDot = ring_substr1(cNumber, ".")
 			
 			if nPosDot = 0
 				

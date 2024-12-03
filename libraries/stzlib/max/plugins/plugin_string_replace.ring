@@ -25,7 +25,7 @@ func pluginFunc(value, aParams)
 
 		# Function logic
 
-		cResult = substr(value, aParams[1], aParams[2])
+		cResult = ring_substr2(value, aParams[1], aParams[2])
 
 		# Checking time constraint
 
@@ -43,7 +43,7 @@ func pluginFunc(value, aParams)
 
 		if @plugin_max_time > 0 and len(cResult) > @plugin_max_size
 			if @pluging_partial_result
-				return substr(cResult, 1, @plugin_max_size)
+				return ring_substr2(cResult, 1, @plugin_max_size)
 			else
 
 			raise("Cancelled! Maximum allowed time has been exceeded.")

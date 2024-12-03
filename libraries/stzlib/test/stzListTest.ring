@@ -1677,6 +1677,7 @@ o1.StringifyLowercaseAndReplace("_", "♥")
 #--> [ "r♥ing", "r♥ing", "r♥ing" ]
 
 proff()
+# Executed in 0.05 second(s) in Ring 1.22
 # Executed in 0.10 second(s) in Ring 1.19 (64 bits)
 # Executed in 0.09 second(s) in Ring 1.19 (32 bits)
 # Executed in 0.12 second(s) in Ring 1.17
@@ -1690,11 +1691,13 @@ o1.StringifyAndReplaceXT("_", "♥") # Used by internal staff in Softanza
 ? @@( o1.Content() )
 #--> [
 #	[ "--♥--", "[ 12, "--♥--", 10 ]", "--♥--", "9" ],
-#	[ 1, 3 ]
+#	[ 1, 3 ],
+#	[ ]
 # ]
 
 proff()
-# Executed in 0.05 second(s) in Ring 1.19 (64 bits)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.19
 # Executed in 0.04 second(s) in Ring 1.19 (32 bits)
 # Executed in 0.04 second(s) in Ring 1.18
 # Executed in 0.03 second(s) in Ring 1.17
@@ -1706,10 +1709,11 @@ pron()
 o1 = new stzList([ "--_--", [ 12, "--_--", 10], "--_--", 9 ])
 o1.StringifyAndReplace("_", "♥")
 ? @@( o1.Content() )
-#--> [ "--_--", [ 12, "--_--", 10 ], "--_--", 9 ]
+#--> [ "--♥--", '[ 12, "--♥--", 10 ]', "--♥--", "9" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.19
 
 /*-------------
 
@@ -1722,10 +1726,11 @@ next
 
 o1 = new stzList(aLargeList)
 o1.StringifyAndReplaceXT("_", "*")
-? o1.Content()[2]
+? @@( o1.Content()[2] )
 #--> [1, 3]
 
 proff()
+# Executed in 20.31 second(s) in Ring 1.22
 # Executed in 19.96 second(s) in Ring 1.21
 
 
@@ -1744,10 +1749,11 @@ pron()
 o1 = new stzList([ 1, "r_INg", 2, "R_ng", 3, "R_ING" ])
 o1.StringifyLowercaseAndReplaceXT("_", :With = AHeart())
 o1.Show()
-#--> [ [ "1", "r♥ing", "2", "r♥ng", "3", "r♥ing" ], [ 2, 4, 6 ] ]
+#--> [ [ "1", "r♥ing", "2", "r♥ng", "3", "r♥ing" ], [ 2, 4, 6 ], [ ] ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.19
 
 /*-------------
 
@@ -1798,10 +1804,21 @@ o1.StringifyAndReplaceXT("_", "♥")
 #--> [1, 3, 1005, 1006]
 
 proff()
-# Executed in 0.50 second(s)
+# Executed in 0.21 second(s) in Ring 1.22
+# Executed in 0.50 second(s) in Ring 1.20
+
+/*------------
+*/
+pron()
+
+o1 = new stzList([ 0, "", [], 1, 2, 3, [], NULL, 0 ])
+o1.Trim()
+? @@( o1.Content() )
+
+proff()
 
 /*------------- PERFORMANCE TIP
-
+*/
 pron()
 
 #TODO // General note on performance
@@ -1818,8 +1835,16 @@ oQStr.replace_2("ring", "RING", FALSE)
 ? oQStr.mid(0, oQStr.count())
 #--> I talk in RING language!
 
+#UPDATE #WARNING
+# I discovered some critival issues in Qt replace and contains
+# ~> The library has been updated to avoid them and use a
+# Ring-based solutuion via @Replace() and @Contains() functions
+# To get an idea of the issue, read this discussion on the group:
+# link: https://groups.google.com/g/ring-lang/c/BbdsAsylurA
+
 proff()
-# Executed in 0.03 second(s)
+# Executed in almost 0 second(s) in Ring 1.22
+# Executed in 0.03 second(s) in Ring 1.20
 
 /*------------- PERFORMANCE TIP
 
