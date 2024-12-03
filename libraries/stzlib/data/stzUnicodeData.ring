@@ -549,7 +549,7 @@ func UnicodeBlocksContaining(pcStr)
 
 	for i = 1 to nLen
 		str = lower(_aUnicodeBlocksXT[i][1])
-		if substr(str, pcStr) > 0
+		if ring_substr1(str, pcStr) > 0
 			acResult + _aUnicodeBlocksXT[i][1]
 		ok
 	next
@@ -589,7 +589,7 @@ func UnicodeBlocksContainingXT(pcStr)
 
 	for i = 1 to nLen
 		str = lower(_aUnicodeBlocksXT[i][1])
-		if substr(str, pcStr) > 0
+		if ring_substr1(str, pcStr) > 0
 			aResult + _aUnicodeBlocksXT[i]
 		ok
 	next
@@ -810,7 +810,7 @@ class stzUnicodeData
 		anResult = []
 
 		for i = 1 to nLen
-			if substr(acLines[i], cPartOfName) > 0
+			if ring_substr1(acLines[i], cPartOfName) > 0
 				cHex = ""
 				n = 1
 				while TRUE

@@ -29,7 +29,7 @@ class stkNumber
 			@nRound = @Round(""= @content)
 
 		else # the number is provided in a string
-			if substr(pNumber, '_') > 0
+			if ring_substr1(pNumber, '_') > 0
 
 				@bSpacify = TRUE
 			else
@@ -40,8 +40,6 @@ class stkNumber
 			@nRound = @Round(@content)
 
 		ok
-
-		
 
 	#--------------------------------------------#
 	#  NUMBER VALUE, IN NUMBER AND STRING FORMS  #
@@ -80,7 +78,7 @@ class stkNumber
 
 			@content = @Val(pNumber)
 
-			if substr(pNumber, '_') > 0
+			if ring_substr1(pNumber, '_') > 0
 				@bSpacify = TRUE
 			else
 				@bSpacify = FALSE
@@ -150,7 +148,7 @@ class stkNumber
 
 		decimals(nTempRound)
 
-		nPos = substr(cTempStr, ".")
+		nPos = ring_substr1(cTempStr, ".")
 
 		if nPos = 0
 			return ""
@@ -188,7 +186,7 @@ class stkNumber
 		#>
 
 	def HasFractPart()
-		if substr( This.SValue(), "." ) > 0
+		if ring_substr1( This.SValue(), "." ) > 0
 			return TRUE
 		else
 			return FALSE
@@ -216,9 +214,9 @@ class stkNumber
 	def SFractPartWithoutZeroDot()
 
 		cResult = This.SFractPart()
-		cResult = substr(cResult, "0.", "")
-		cResult = substr(cResult, "+", "")
-		cResult = substr(cResult, "-", "")
+		cResult = ring_substr2(cResult, "0.", "")
+		cResult = ring_substr2(cResult, "+", "")
+		cResult = ring_substr2(cResult, "-", "")
 
 		return cResult
 
@@ -431,7 +429,7 @@ class stkNumber
 
 				# Removing potential "_"
 
-				cTempStr = trim(substr(value, "_", ""))
+				cTempStr = trim( ring_substr2(value, "_", "") )
 
 				# Getting the numeric value
 
@@ -477,7 +475,7 @@ class stkNumber
 
 				# Removing potential "_"
 
-				cTempStr = trim(substr(value, "_", ""))
+				cTempStr = trim( ring_substr2(value, "_", "") )
 
 				# Getting the numeric value
 
@@ -523,7 +521,7 @@ class stkNumber
 
 				# Removing potential "_"
 
-				cTempStr = trim(substr(value, "_", ""))
+				cTempStr = trim( ring_substr2(value, "_", "") )
 
 				# Getting the numeric value
 
@@ -568,7 +566,7 @@ class stkNumber
 
 				# Removing potential "_"
 
-				cTempStr = trim(substr(value, "_", ""))
+				cTempStr = trim( ring_substr2(value, "_", "") )
 
 				# Getting the numeric value
 

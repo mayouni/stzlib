@@ -215,15 +215,23 @@ func ring_substr(paParams)
 	ok
 
 	if nLen = 2
-		return substr(paParams[1], paParams[2])
+		return ring_substr1(paParams[1], paParams[2])
 	but nLen = 3
-		return substr(paParams[1], paParams[2], paParams[2])
+		return ring_substr2(paParams[1], paParams[2], paParams[2])
 	ok
 
 func ring_substr1(str, substr) # Finds substr in str
+	if str = "" or substr = ''
+		return 0
+	ok
+
 	return substr(str, substr)
 
 func ring_substr2(str, substr1, substr2) # Replaces substr1 by substr2 in str
+	if str = "" or substr1 = ''
+		return ""
+	ok
+
 	return substr(str, substr1, substr2)
 
 func ring_copy(p1, p2)

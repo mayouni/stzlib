@@ -1,27 +1,6 @@
 
-pState1 = ring_state_init()
-pState2 = ring_state_init()
-pNotAState = NULL
 
-? IsRingState(pState2) # A Softanza function
-#--> TRUE
 
-? IsRingState(pNotAState)
-
-func IsRingState(pPointer)
-	if isPointer(pPointer) and type(pPointer) = "RINGSTATE"
-		try
-			ring_state_runcode(pPointer, ' ')
-			return TRUE
-		catch
-			return FALSE
-		done
-
-	else
-		return FALSE
-	ok
-
-/*
 load "../max/stzmax.ring"
 
 

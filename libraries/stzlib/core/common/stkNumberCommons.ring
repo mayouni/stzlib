@@ -35,7 +35,7 @@ func IsOdd(n)
 #-- Number type
 
 func IsInt(n)
-	if substr( ""+ n, '.') = 0
+	if ring_substr1( ""+ n, '.') = 0
 		return TRUE
 	else
 		return FALSE
@@ -73,7 +73,7 @@ func IsSafeNumber(n)
 func CurrentRound() # Current round in Ring actuated by decimals() function
 
 	cStringified = ""+ 0.1234567890123456789
-	nPos = substr(cStringified, ".")
+	nPos = ring_substr1(cStringified, ".")
 	nLen = len(cStringified)
 
 	nResult = nLen - nPos
@@ -106,7 +106,7 @@ func Round(pNumber) # Effective Round of a number (independently form current ro
 		# on the positions taken by the decimal digits and the sign
 
 		nLen = len(cTempStr)
-		nDotPos = substr(cTempStr, ".")
+		nDotPos = ring_substr1(cTempStr, ".")
 
 		nMaxPossibleRound = nMax - nDotPos
 
@@ -152,7 +152,7 @@ func Round(pNumber) # Effective Round of a number (independently form current ro
 
 	but isString(pNumber)
 
-		cTempStr = trim( substr(pNumber, "_", "") )
+		cTempStr = trim( ring_substr2(pNumber, "_", "") )
 		nValue = 0+ cTempStr
 
 		if not isNumber(nValue)
@@ -160,7 +160,7 @@ func Round(pNumber) # Effective Round of a number (independently form current ro
 		ok
 
 		nRound = 0
-		nDotPos = substr(cTempStr, ".")
+		nDotPos = ring_substr1(cTempStr, ".")
 
 		nRoundMax = $MAX_NUMBER_SIZE - (nDotPos - 1)
 
@@ -238,8 +238,8 @@ func Val(cNumberInStr)
 		raise("ERR-" + StkError(:IncorrectParamType))
 	ok
 
-	if substr(cNumberInStr, "_") > 0
-		cNumberInStr = trim( substr(cNumberInStr, "_", "") )
+	if ring_substr2(cNumberInStr, "_") > 0
+		cNumberInStr = trim( ring_substr2(cNumberInStr, "_", "") )
 	ok
 
 	nResult = 0+ cNumberInStr
@@ -265,7 +265,7 @@ func NStringify(nNumber, cSpaceChar, nSpaceStep, nRound)
 
 	# Spacifying the integer part
 
-	nDotPos = substr(cStringified, ".")
+	nDotPos = ring_substr1(cStringified, ".")
 
 	cIntPart = ""
 
@@ -279,7 +279,7 @@ func NStringify(nNumber, cSpaceChar, nSpaceStep, nRound)
 	ok
 
 	if nNumber < 0
-		cIntPart = substr(cIntPart, "-", "")
+		cIntPart = ring_substr2(cIntPart, "-", "")
 	ok
 
 	nLen = len(cIntPart)

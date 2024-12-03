@@ -9,7 +9,7 @@
 # functions, without the need of instanciating a stzList object
 # at each use. Which also leads to better performance.
 
-#TODO // Test this file, repalce all the occurrence where named
+#TODO // Test this file, replace all the occurrence where named
 # params are used in the library with these global functions,
 # and then remove all the relative methods from stzList class.
 

@@ -62,8 +62,8 @@ class stzOctalNumber from stzString
 		oStzStr = new stzString(This.OctalNumber())
 		cOctal = oStzStr.Section(2, len(This.OctalNumber()) )
 
-		cOctal = substr(cOctal, "0o", "")
-		cOctal = substr(cOctal, "o", "")
+		cOctal = ring_substr2(cOctal, "0o", "")
+		cOctal = ring_substr2(cOctal, "o", "")
 
 		nResult = 0
 		nLen = len(cOctal)

@@ -76,8 +76,8 @@ class stzRunTime
 			# returns only the vars used by the user program (and not
 			# system vars or any other libraries vars)
 
-			if substr(pacVarsNames[i], 1, 10) = "n_sys_var_" and
-			   isNumber( 0+ substr(pacVarsNames[i], 11, len(pcVarNames[i]) - 10) )
+			if ring_substr2(pacVarsNames[i], 1, 10) = "n_sys_var_" and
+			   isNumber( 0+ ring_substr2(pacVarsNames[i], 11, len(pcVarNames[i]) - 10) )
 
 				loop
 

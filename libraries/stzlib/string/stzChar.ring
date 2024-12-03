@@ -132,7 +132,7 @@ func IsChar(pStrOrNbr)
 	but isNumber(pStrOrNbr)
 
 		cStringified = ""+ pStrOrNbr
-		if substr(cStringified, ".") > 0
+		if ring_substr1(cStringified, ".") > 0
 			return FALSE
 		ok
 

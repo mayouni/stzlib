@@ -21,7 +21,7 @@ Q("Ali 12500 Tony 24800 Claude 12340") {
 
 	? SubStringsWXT('
 		IsNumberInString(@SubString) and
-		substr(@SubString, " ") = 0 and
+		ring_substr1(@SubString, " ") = 0 and
 		len(@SubString) = 5 '
 	)
 	#--> [ "12500", "24800", "12340" ]
