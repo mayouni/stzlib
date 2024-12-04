@@ -4833,7 +4833,7 @@ RSTUVW
 
 ")
 
-? o1.TrimQ().Content()//FindWXT(' Q(@item).IsMadeOfNumbers() ').Content()
+? o1.TrimQ().FindWXT(' Q(@item).IsMadeOfNumbers() ').Content()
 
 //? @@(o1.Content())
 #-->

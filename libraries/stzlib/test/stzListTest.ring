@@ -1807,15 +1807,34 @@ proff()
 # Executed in 0.21 second(s) in Ring 1.22
 # Executed in 0.50 second(s) in Ring 1.20
 
-/*------------
+/*===============
 */
 pron()
 
 o1 = new stzList([ 0, "", [], 1, 2, 3, [], NULL, 0 ])
+
 o1.Trim()
+
 ? @@( o1.Content() )
+#--> [ 1, 2, 3 ]
 
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*--------
+
+pron()
+
+o1 = new stzList([ 0, "", [], 1, 2, 3, [], NULL, 0 ])
+
+o1.TrimLeft()
+o1.TrimRight()
+
+? @@( o1.Content() )
+#--> [ 1, 2, 3 ]
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*------------- PERFORMANCE TIP
 */
@@ -9839,7 +9858,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*-----------------------
-
+*/
 pron()
 
 StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
