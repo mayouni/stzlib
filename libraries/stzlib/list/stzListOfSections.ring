@@ -40,9 +40,10 @@ class stzListOfSections from stzLists
 	 #  MERGING THE ADJASCENT SECTIONS IN THE LIST OF SECTIONS  #
 	#----------------------------------------------------------#
 
-	def MergeContiguous()
-		#EXAMPLE
-		/*
+	def MergeContiguous() #ai #claude
+
+		/* EXAMPLE
+
 		o1 = new stzListOfSections([
 			[ 1, 4], [6, 8], [9, 10], [12, 13], [13, 15] ]
 		])
@@ -52,45 +53,57 @@ class stzListOfSections from stzLists
 
 		*/
 
-		aContent = This.Content()
-		nLen = len(aContent)
+    		aContent = This.Content()
+    		nLen = len(aContent)
 
-		aResult = []
+    		if nLen = 0
+        		return
+    		ok
 
-		for i = 1 to nLen - 1
-			aCurrentPair = This.Pair(i)
-			aNextPair = This.Pair(i+1)
+    		aResult = []
+    		aCurrentMerged = aContent[1]
 
-			if aCurrentPair[2] = aNextPair[1] or
-			   aCurrentPair[2] = aNextPair[1] - 1
-				bContiguous = TRUE
-
-				aResult + [ aCurrentPair[1], aNextPair[2] ]
-				i++
-
-			else
-				bContiguous = FALSE
-				aResult + aCurrentPair
-			ok
-
-		next
-
-		if bContiguous = FALSE
-			aResult = aContent[nLen]
-		ok
-
-		This.UpdateWith(aResult)
+		for i = 2 to nLen
+		        aNextPair = This.Item(i)
 		
+		        if aCurrentMerged[2] >= aNextPair[1] - 1
+
+		            # Merge sections
+
+		            aCurrentMerged[2] = @max([ aCurrentMerged[2], aNextPair[2] ])
+
+		        else
+
+		            # Add current merged section and start a new merge
+
+		            aResult + aCurrentMerged
+		            aCurrentMerged = aNextPair
+		        ok
+		next
+		
+		# Add the last merged section
+
+		aResult + aCurrentMerged
+		
+		This.UpdateWith(aResult)
+
+		#< @FunctionFluentForm	
 
 		def MergeContiguousQ()
 			This.MergeContiguous()
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def MergeAdjuscent()
 			This.MergeContiguous()
 
 			def MergeAdjuscentQ()
 				return This.MergeContiguousQ()
+
+		#>
 
 	def ContiguousSectionsMerged()
 		aResult = This.Copy().MergeContiguousQ().Content()

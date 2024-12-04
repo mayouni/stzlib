@@ -4819,7 +4819,7 @@ proff()
 # Executed in 0.13 second(s) in Ring 1.22
 
 /*-----------
-*/
+
 StartProfiler()
 
 o1 = new stzString("
@@ -4833,9 +4833,8 @@ RSTUVW
 
 ")
 
-? o1.TrimQ().FindWXT(' Q(@item).IsMadeOfNumbers() ').Content()
+? o1.TrimQ().LinesQ().RemoveWXTQ(' Q(@line).IsMadeOfNumbers() ').Content()
 
-//? @@(o1.Content())
 #-->
 # "ABCDEF
 #  GHIJKL
@@ -8273,7 +8272,8 @@ o1 = new stzString("*#!ABC$^..")
 #--> [ "A", "AB", "ABC", "B", "BC", "C" ]
 
 proff()
-# Executed in 0.99 second(s).
+# Executed in 0.58 second(s) in Ring 1.22
+# Executed in 0.99 second(s) in Ring 1.19
 
 /*==================
 
@@ -8307,6 +8307,32 @@ proff()
 
 /*================== 
 
+pron()
+
+? @@( QQ([ 4, 8, 10, 14, 16, 18 ]).Sectioned() )
+#--> [ [ 1, 4 ], [ 5, 8 ], [ 9, 10 ], [ 11, 14 ], [ 15, 16 ], [ 17, 18 ] ]
+
+proff()
+#--> Executed in 0.02 second(s) in Ring 1.22
+
+/*------------------
+*/
+pron()
+
+o1 = new stzString("...12..1212..121212..12.")
+
+aSections = o1.FindZZ("12")
+#--> [ [ 4, 5 ], [ 8, 9 ], [ 10, 11 ], [ 14, 15 ], [ 16, 17 ], [ 18, 19 ], [ 22, 23 ] ]
+
+o1 = new stzListOfSections(aSections)
+o1.MergeContiguous()
+
+? @@( o1.Content() )
+
+proff()
+
+/*------------------
+*/
 StartProfiler()
 #                      4   8 01  4 6 89  23
 o1 = new stzString("...12..1212..121212..12.")

@@ -42366,12 +42366,47 @@ class stzString from stzObject
 
 		*/
 
+
 		# Checking param type
 
 		if NOT isString(pcSubStr)
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
+		if pcSubStr = ""
+			return []
+		ok
+		
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive) + [ 0, 0 ]
+		nLenSections = len(aSections)
+
+		aResult = []
+
+		for i = 1 to nLenSections - 1
+
+			for j = i to nLenSections - 1
+				aCurrentSection = aSections[j]
+				aNextSection = aSections[j+1]
+	
+				aSection = aCurrentSection
+				if aCurrentSection[j][2] = aNextSection[j][1] - 1
+					aSection[i][2] = aNextSection[j][2]
+				
+				else
+					i += j
+					exit
+				ok
+			next
+
+			aResult + aSection
+
+			
+		next
+
+		del( aResult, len(aResult) )
+
+		return aResult
+/*
 		# preparing the list of chars
 
 		bCase = CaseSensitive(pCaseSensitive)
@@ -42437,7 +42472,7 @@ class stzString from stzObject
 		next
 		
 		return aResult
-
+*/
 		#< @FunctionAlternativeForms
 
 		def FindSubStringsMadeOfAsSectionsCS(pcSubStr, pCaseSensitive)

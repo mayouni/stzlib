@@ -913,7 +913,7 @@ o1 = new stzList([ 1, 3,4, 7,8,9, 12 ])
 ? @@( o1.YieldW('[ This[@i], This[@i+1] ]', :Where = 'This[@i] = This[@i+1]+1') )
 
 proff()
-/*-----------------
+/*----------------- #TOSO Retest when Yield() is included
 
 StartProfiler()
 
@@ -931,21 +931,6 @@ o1 = new stzListOfPairs([
 		:Where = 'This[@i][2] = This[@i+1][1]-1') )
 
 StopProfiler()
-
-/*----
-
-pron()
-
-o1 = new stzListOfPairs([
-	[ 1, 4], [6, 8], [9, 10], [12, 13], [13, 15]
-])
-
-o1.MergeContiguous() # Or MergeAdjuscent()
-? @@( o1.Content() )
-#--> [ [1, 4], [6, 10], [12, 15] ]
-
-proff()
-# Executed in 0.03 second(s)
 
 /*-----------------
 
