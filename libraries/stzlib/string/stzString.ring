@@ -4912,6 +4912,78 @@ class stzString from stzObject
 
 		#>
 
+	  #==========================================================#
+	 #  FINDING CHARS OR SUBSTRINGS BASED ON A GIVEN CONDITION  #
+	#==========================================================#
+
+	def FindWCS(pcCondition, pCaseSensitive)
+		/* ... */
+
+		def FindWCSZ(pcCondition, pCaseSensitive)
+			return This.FindWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindW(pcCondition)
+		return This.FindWCS(pcCondition, TRUE)
+
+		def FindWZ(pcCondition)
+			return This.FindW(pcCondition)
+
+	  #------------------------------------------------------------------------------------------#
+	 #  FINDING AS SECTIONS THE SUBSTRINGS (OR EVEN CHARS) VERIFYING THE GIVEN CONDITION -- ZZ  #
+	#------------------------------------------------------------------------------------------#
+
+	def FindAsSectionsWCS(pcCondition, pCaseSensitive)
+		/* ... */
+
+		def FindWCSZZ(pcCondition, pCaseSensitive)
+			return This.FindAsSectionsWCS(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAsSectionsW(pcCondition)
+		return This.FindAsSectionsWCS(pcCondition, TRUE)
+
+		def FindWZZ(pcCondition)
+			return This.FindAsSectionsW(pcCondition)
+
+	  #----------------------------------------------------------------#
+	 #  FINDING CHARS OR SUBSTRINGS BASED ON A GIVEN CONDITION -- XT  #
+	#================================================================#
+
+	def FindWCSXT(pcCondition, pCaseSensitive)
+		/* ... */
+
+		def FindWCSXTZ(pcCondition, pCaseSensitiv)
+			return This.FindWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindWXT(pcCondition)
+		return This.FindWCSXT(pcCondition, TRUE)
+
+		def FindWXTZ(pcCondition)
+			return This.FindWXT(pcCondition)
+
+	  #------------------------------------------------------------------#
+	 #  FINDING CHARS OR SUBSTRINGS BASED ON A GIVEN CONDITION -- XTZZ  #
+	#------------------------------------------------------------------#
+
+	def FindAsSectionsWCSXT(pcCondition, pCaseSensitive)
+		/* ... */
+
+		def FindWCSXTZZ(pcCondition, pCaseSensitiv)
+			return This.FindAsSectionsWCSXT(pcCondition, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindAsSectionsWXT(pcCondition)
+		return This.FindAsSectionsWCSXT(pcCondition, TRUE)
+
+		def FindWXTZZ(pcCondition)
+			return This.FindAsSectionsWXT(pcCondition)
+
 	  #------------------------------------------------------------------------------#
 	 #  FINDING ALL POSSIBLE SUBSTRINGS IN THE STRINGS VERIFYING A GIVEN CONDITION  #                  #
 	#==============================================================================#
@@ -4943,11 +5015,6 @@ class stzString from stzObject
 		def FindPossibleSubStringsWCSZ(pcCondition, pCaseSensitive)
 			return This.FindAllSubStringsWCS(pcCondition, pCaseSensitive)
 
-		#--
-
-		def FindWCS(pcCondition, pCaseSensitive)
-			return This.FindAllSubStringsWCS(pcCondition, pCaseSensitive)
-
 		#>
 
 	#-- WITHOUT CASESENSITIIVTY
@@ -4976,11 +5043,6 @@ class stzString from stzObject
 
 		def FindPossibleSubStringsWZ(pcCondition)
 			return This.FindAllSubStringsWCS(pcCondition)
-
-		#--
-
-		def FindW(pcCondition)
-			return This.FindAllSubStringsW(pcCondition)
 
 		#>
 
@@ -5016,11 +5078,6 @@ class stzString from stzObject
 		def FindPossibleSubStringsWCSXTZ(pcCondition, pCaseSensitive)
 			return This.FindAllSubStringsWCSXT(pcCondition, pCaseSensitive)
 
-		#--
-
-		def FindWCSXT(pcCondition, pCaseSensitive)
-			return This.FindAllSubStringsWCSXT(pcCondition, pCaseSensitive)
-
 		#>
 
 	#-- WITHOUT CASESENSITIIVTY
@@ -5049,11 +5106,6 @@ class stzString from stzObject
 
 		def FindPossibleSubStringsWXTZ(pcCondition)
 			return This.FindAllSubStringsWCSXT(pcCondition)
-
-		#--
-
-		def FindWXT(pcCondition)
-			return This.FindAllSubStringsWXT(pcCondition)
 
 		#>
 
@@ -5094,14 +5146,6 @@ class stzString from stzObject
 		def FindPossibleSubStringsWCSZZ(pcCondition, pCaseSensitive)
 			return This.FindSubStringsAsSectionsWCS(pcCondition, pCaseSensitive)
 
-		#--
-
-		def FindWCSZZ(pcCondition, pCaseSensitive)
-			return This.FindSubStringsAsSectionsWCS(pcCondition, pCaseSensitive)
-
-		def FindAsSectionsWCSZZ(pcCondition, pCaseSensitive)
-			return This.FindSubStringsAsSectionsWCS(pcCondition, pCaseSensitive)
-
 		#>
 
 	#-- WITHOUT CASESENSITIIVTY
@@ -5132,14 +5176,6 @@ class stzString from stzObject
 			return This.FindSubStringsAsSectionsWCS(pcCondition)
 
 		def FindPossibleSubStringsWZZ(pcCondition)
-			return This.FindSubStringsAsSectionsW(pcCondition)
-
-		#--
-
-		def FindWZZ(pcCondition)
-			return This.FindSubStringsAsSectionsW(pcCondition)
-
-		def FindAsSectionsWZZ(pcCondition)
 			return This.FindSubStringsAsSectionsW(pcCondition)
 
 		#>
@@ -5181,14 +5217,6 @@ class stzString from stzObject
 		def FindPossibleSubStringsWCSXTZZ(pcCondition, pCaseSensitive)
 			return This.FindSubStringsAsSectionsWCSXT(pcCondition, pCaseSensitive)
 
-		#--
-
-		def FindWCSXTZZ(pcCondition, pCaseSensitive)
-			return This.FindSubStringsAsSectionsWCSXT(pcCondition, pCaseSensitive)
-
-		def FindAsSectionsWCSXTZZ(pcCondition, pCaseSensitive)
-			return This.FindSubStringsAsSectionsWCSXT(pcCondition, pCaseSensitive)
-
 		#>
 
 	#-- WITHOUT CASESENSITIIVTY
@@ -5219,14 +5247,6 @@ class stzString from stzObject
 			return This.FindSubStringsAsSectionsWCSXT(pcCondition)
 
 		def FindPossibleSubStringsWXTZZ(pcCondition)
-			return This.FindSubStringsAsSectionsWXT(pcCondition)
-
-		#--
-
-		def FindWXTZZ(pcCondition)
-			return This.FindSubStringsAsSectionsWXT(pcCondition)
-
-		def FindAsSectionsWXTZZ(pcCondition)
 			return This.FindSubStringsAsSectionsWXT(pcCondition)
 
 		#>
@@ -87416,7 +87436,7 @@ class stzString from stzObject
 	#====================================#
 
 	def RemoveWCS(pcCondition, pCaseSensitive)
-		aSections = This.FindWCS(pcCondition, pCaseSensitive)
+		aSections = This.FindWCSZZ(pcCondition, pCaseSensitive)
 		This.RemoveSections(aSections)
 
 		def RemoveWCSQ(pcCondition, pCaseSensitive)
@@ -87442,7 +87462,7 @@ class stzString from stzObject
 	#-------------------------------------------#
 
 	def RemoveWCSXT(pcCondition, pCaseSensitive)
-		aSections = This.FindWCSXT(pcCondition, pCaseSensitive)
+		aSections = This.FindWCSXTZZ(pcCondition, pCaseSensitive)
 		This.RemoveSections(aSections)
 
 		def RemoveWCSXTQ(pcCondition, pCaseSensitive)

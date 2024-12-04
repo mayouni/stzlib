@@ -1508,7 +1508,7 @@ class stzSplitter from stzListOfNumbers
 			return This.SplitToNParts(n)
 
 	  #===============================================#
-	 #  SPLITTING AROUND POSITION(S) OR SECTTION(s)  #
+	 #  SPLITTING AROUND POSITION(S) OR SECTION(s)  #
 	#===============================================#
 
 	def SplitAround(p)

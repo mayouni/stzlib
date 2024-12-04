@@ -59125,7 +59125,7 @@ www	#----------------------------------------#
 			return This.SplittedToNParts(n)
 
 	  #-----------------------------------------------#
-	 #  SPLITTING AROUND POSITION(S) OR SECTTION(s)  #
+	 #  SPLITTING AROUND POSITION(S) OR SECTION(s)  #
 	#===============================================#
 
 	def SplitAround(p)
