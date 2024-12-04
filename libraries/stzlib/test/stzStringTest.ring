@@ -7689,7 +7689,7 @@ Q("Ring programming guage.") {
 }
 
 StopProfiler()
-# Executed in 0.04 second(s)
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*---------
 
@@ -7703,7 +7703,7 @@ Q("__♥)__♥)__♥)__") {
 }
 
 StopProfiler()
-# Executed in 0.02 second(s)
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*---------
 
@@ -8334,7 +8334,7 @@ proff()
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*------------------
-*/
+
 StartProfiler()
 #                      4   8 01  4 6 89  23
 o1 = new stzString("...12..1212..121212..12.")
@@ -8408,14 +8408,13 @@ pron()
 o1 = new stzList([ 4, 8, 10, "*", 14, 16, "*", 18 ])
 
 ? o1.FindWXT('@CurrentItem = "*"')
-# Executed in 0.22 second(s)
 
 o1.SplitAtPositions([ 4, 7 ])
 ? @@( o1.Content() )
 #--> [ [ 4, 8, 10 ], [ 14, 16 ], [ 18 ] ]
 
 proff()
-# # Executed in 0.10 second(s) in Ring 1.21
+# Executed in 0.10 second(s) in Ring 1.21
 # Executed in 0.44 second(s) in Ring 1.17
 
 /*--------
@@ -8441,13 +8440,13 @@ o1 = new stzString("..._...__...___...")
 #--> [ 4, 8, 9, 13, 14, 15 ]
 
 ? @@( o1.FindSubstringsMadeOfZZ("_") )
-#--> [ 4, 8, 13 ]
+#--> [ [ 4, 4 ], [ 8, 9 ], [ 13, 15 ] ]
 
 ? o1.SubStringsMadeOf("_")
 #--> [ "_", "__", "___" ]
 
 proff()
-# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.05 second(s) in Ring 1.22
 
 /*-----------------
 
@@ -8455,13 +8454,13 @@ pron()
 
 o1 = new stzString("-132114.45 euros and 246 cents")
 
-? @@( o1.FindNumbers() )
+? @@( o1.FindNumbers() ) + NL
 #--> [ 1, 22 ]
 
 ? @@( o1.FindNumbersZZ() )  + NL
 #--> [ [ 1, 10 ], [ 22, 24 ] ]
 
-? @@( o1.Numbers() )
+? @@( o1.Numbers() ) + NL
 #--> [ "-132114.45", "246" ]
 
 ? @@( o1.NumbersZZ() ) + NL
@@ -8480,7 +8479,7 @@ o1 = new stzString("-132114.45 euros and 246 cents")
 #--> "-132114.45"
 
 proff()
-# Executed in 0.08 second(s) in Ring 1.21
+# Executed in 0.08 second(s) in Ring 1.22
 
 /*=================
 
@@ -8496,10 +8495,10 @@ o1 = new stzString("book: 12.34, watch: -56.30, microbit: 12.34, glasses: 77.12"
 
 #--
 
-? @@( o1.FindNumbers())
+? @@( o1.FindNumbers()) + NL
 #--> [ 7, 21, 39, 55 ]
 
-? @@( o1.FindNumbersZZ() ) # FindNumbersAsSections
+? @@( o1.FindNumbersZZ() ) + NL # FindNumbersAsSections
 #--> [ [ 7, 11 ], [ 21, 26 ], [ 39, 43 ], [ 55, 59 ] ]
 
 ? @@NL( o1.NumbersZ() ) + NL # Same as NumbersAndTheirPositions()
@@ -9029,7 +9028,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzString("(9, 7, 8)")
@@ -9039,10 +9038,10 @@ o1.RemoveCharsWXT('Q(@Char).IsNumberInString()')
 #--> (, , )
 
 proff()
-# Executed in 0.13 second(s) in Ring 1.21
+# Executed in 0.15 second(s) in Ring 1.22
 
 /*------
-*/
+
 pron()
 
 ? Q("(9, 7, 8)").
@@ -9054,17 +9053,35 @@ pron()
 #--> (,)
 
 proff()
-# Executed in 0.14 second(s) in Ring 1.21
+# Executed in 0.17 second(s) in Ring 1.22
+
+/*---
+
+pron()
+
+? Q(" ").IsNumberInString()
+#--> FALSE
+
+proff()
+
+/*---
+*/
+pron()
+
+? Q("1 AA 6 B 0 CCC 6 DD 1 Z").findwxt(' Q(@char).IsNumberInString() ')
+
+proff()
 
 /*--- TODO - FUTURE: Add a QH() function (H for history) that traces the intermediate results:
 */
 pron()
 
-? Q("(9, 7, 8)").
-	RemoveWXTQ('Q(@Char).IsNumberInString()').
-	RemoveSpacesQ().
+? Q("1 AA 2 B 3 CCC 4 DD 5 Z").
+	RemoveWXTQ('Q(@Char).IsNumberInString()').Content()
+/*	RemoveSpacesQ().
 	RemoveDuplicatedCharsQ().
-	History()
+	Content()
+*/
 #--> [ "(, , )", "(,,)", "(,)" ]
 
 proff()
