@@ -13503,43 +13503,292 @@ class stzList from stzObject
 			This.DeepReplace(pItem, pByValue)
 			return This
 
-	  #================================================================#
-	 #  TRIMMING THE LIST (REMOVING LEADING AND TRAILING FALSE ITEMS  #
-	#================================================================#
+
+	  #=================================================================#
+	 #  TRIMMING THE LIST (REMOVING LEADING AND TRAILING EMPRY ITEMS)  #
+	#=================================================================#
 
 	def TrimCS(pCaseSensitive)
-		aLead = This.LeadingItemsCS(pCaseSensitive)
-		aTrail = This.TrailingItemsCS(pCaseSensitive)
-
-		if len(aTrail) > 1
-			if ( isNumber(aTrail[1]) and aTrail[1] = 0 ) or
-			   ( isString(aTrail[1]) and aTrail[1] = "" ) or
-			   ( isList(aTrail[1]) and len(aTrail[1]) = 0 ) or
-			   ( isObject(aTrail[1]) and @IsFalseObject(aTrail[1]) )
-
-				This.RemoveTrailingItemsCS(pCaseSensitive)
-			ok
-		ok
-
-		if len(aLead) > 1
-			if ( isNumber(aLead[1]) and aLead[1] = 0 ) or
-			   ( isString(aLead[1]) and aLead[1] = "" ) or
-			   ( isList(aLead[1]) and len(aLead[1]) = 0 ) or
-			   ( isObject(aLead[1]) and @IsFalseObject(aLead[1]) )
-
-				This.RemoveLeadingItemsCS(pCaseSensitive)
-			ok
-		ok
-
+		This.TrimLeftCS(pCaseSensitive)
+		This.TrimRightCS(pCaseSensitive)
+	
 		def TrimCSQ(pCaseSensitive)
 			This.TrimCS(pCaseSensitive)
 			return This
 
+	def TrimmedCS(pCaseSensitive)
+		aResult = This.Copy().TrimCSQ(pCaseSensitive).Content()
+		return aResult
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def Trim()
-		This.TrimCSQ(TRUE)
+		This.TrimCS(TRUE)
 
 		def TrimQ()
-			return TrimCSQ(TRUE)
+			return This.TrimCSQ(TRUE)
+
+	def Trimmed()
+		return This.TrimmedCS(TRUE)
+
+	  #---------------------------------------------------------------#
+	 #  TRIMMING THE LIST FROM START (REMOVING LEADING EMPTY ITEMS)  #
+	#---------------------------------------------------------------#
+
+	def TrimLeftCS(pCaseSensitive)
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen < 1
+			return
+		ok
+
+		# Leading
+
+		i = 0
+
+		while TRUE
+			i++
+			if i = nLen
+				exit
+			ok
+
+			bEmptyItem = ( isNumber(aContent[i]) and aContent[i] = 0 ) or
+			   ( isString(aContent[i]) and aContent[i] = "" ) or
+			   ( isList(aContent[i]) and len(aContent[i]) = 0 ) or
+			   ( isObject(aContent[i]) and @IsFalseObject(aContent[i]) )
+	
+			if NOT bEmptyItem
+				exit
+					
+			ok
+
+		end
+
+		if i > 1
+			This.RemoveSection(1, i-1)
+		ok
+
+		#< @FunctionFluentForm
+
+		def TrimLeftCSQ(pCaseSensitive)
+			This.TrimLeftCS(pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def TrimFromLeftCS(pCaseSensitive)
+			This.TrimLeftCS(pCaseSensitive)
+
+			def TrimFromLeftCSQ(pCaseSensitive)
+				return This.TrimLeftCSQ(pCaseSensitive)
+
+		def TrimStartCS(pCaseSensitive)
+			This.TrimLeftCS(pCaseSensitive)
+
+			def TrimStartCSQ(pCaseSensitive)
+				return This.TrimLeftCSQ(pCaseSensitive)
+
+		def TrimFromStartCS(pCaseSensitive)
+			This.TrimLeftCS(pCaseSensitive)
+
+			def TrimFromStartCSQ(pCaseSensitive)
+				return This.TrimLeftCSQ(pCaseSensitive)
+
+		#>
+
+
+	def TrimmedLeftCS(pCaseSensitive)
+		aResult = This.Copy().TrimLeftCSQ(pCaseSensitive).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def TrimmedFromLeftCS(pCaseSensitive)
+			return This.TrimmedLeftCS(pCaseSensitive)
+
+		def TrimmedStartCS(pCaseSensitive)
+			return This.TrimmedLeftCS(pCaseSensitive)
+
+		def TimmedFromStartCS(pCaseSensitive)
+			return This.TrimmedLeftCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def TrimLeft()
+		This.TrimLeftCS(TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def TrimFromLeft()
+			This.TrimLeft()
+
+			def TrimFromLeftQ()
+				return This.TrimLeftQ()
+
+		def TrimStart()
+			This.TrimLeft()
+
+			def TrimStartQ()
+				return This.TrimLeftQ()
+
+		def TrimFromStart()
+			This.TrimLeft()
+
+			def TrimFromStartQ()
+				return This.TrimLeftQ()
+
+		#>
+
+	def TrimmedLeft()
+		aResult = This.Copy().TrimLeftQ().Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def TrimmedFromLeft()
+			return This.TrimmedLeft()
+
+		def TrimmedStart()
+			return This.TrimmedLeft()
+
+		def TimmedFromStart()
+			return This.TrimmedLeft()
+
+		#>
+
+	  #--------------------------------------------------------------#
+	 #  TRIMMING THE LIST FROM END (REMOVING TRAILING EMPTY ITEMS)  #
+	#--------------------------------------------------------------#
+
+	def TrimRightCS(pCaseSensitive)
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen < 1
+			return
+		ok
+
+		# Leading
+
+		i = 0
+
+		while TRUE
+			i++
+			if i = nLen
+				exit
+			ok
+
+			n = nLen - i + 1
+
+			bEmptyItem = ( isNumber(aContent[n]) and aContent[n] = 0 ) or
+			   ( isString(aContent[n]) and aContent[n] = "" ) or
+			   ( isList(aContent[n]) and len(aContent[n]) = 0 ) or
+			   ( isObject(aContent[n]) and @IsFalseObject(aContent[n]) )
+	
+			if NOT bEmptyItem
+				exit
+					
+			ok
+
+		end
+
+		if i > 1
+			This.RemoveSection(n + 1, nLen)
+		ok
+
+		#< @FunctionFluentForm
+
+		def TrimRightCSQ(pCaseSensitive)
+			This.TrimRightCS(pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def TrimFromRightCS(pCaseSensitive)
+			This.TrimRightCS(pCaseSensitive)
+
+			def TrimFromRightCSQ(pCaseSensitive)
+				return This.TrimRightCSQ(pCaseSensitive)
+
+		def TrimEndCS(pCaseSensitive)
+			This.TrimRightCS(pCaseSensitive)
+
+			def TrimEndCSQ(pCaseSensitive)
+				return This.TrimRightCSQ(pCaseSensitive)
+
+		def TrimFromEndCS(pCaseSensitive)
+			This.TrimRightCS(pCaseSensitive)
+
+			def TrimFromEndCSQ(pCaseSensitive)
+				return This.TrimRightCSQ(pCaseSensitive)
+
+		#>
+
+
+	def TrimmedRightCS(pCaseSensitive)
+		aResult = This.Copy().TrimRightCSQ(pCaseSensitive).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def TrimmedFromrightCS(pCaseSensitive)
+			return This.TrimmedrightCS(pCaseSensitive)
+
+		def TrimmedEndCS(pCaseSensitive)
+			return This.TrimmedRightCS(pCaseSensitive)
+
+		def TimmedFromEndCS(pCaseSensitive)
+			return This.TrimmedRightCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def TrimRight()
+		This.TrimRightCS(TRUE)
+
+		#< @FunctionAlternativeForm
+
+		def TrimFromRight()
+			This.TrimRight()
+
+			def TrimFromRightQ()
+				return This.TrimRightQ()
+
+		def TrimEnd()
+			This.TrimRight()
+
+			def TrimEndQ()
+				return This.TrimRightQ()
+
+		#>
+
+	def TrimmedRight()
+		aResult = This.Copy().TrimRightQ().Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def TrimmedFromRight()
+			return This.TrimmedRight()
+
+		def TrimmedEnd()
+			return This.TrimmedRight()
+
+		def TimmedFromEnd()
+			return This.TrimmedRight()
+
+		#>
+
 
 	  #=========================================================#
 	 #   REMOVING ALL OCCURRENCE OF A GIVEN ITEM IN THE LIST   #
@@ -30830,13 +31079,47 @@ class stzList from stzObject
 	 #   GETTING THE REPEATED TRAILING ITEMS  #
 www	#----------------------------------------#
 
-	def RepeatedTrailingItems()
-		aResult = This.Copy().ReverseQ().RepeatedLeadingItems()
+	def RepeatedTrailingItemsCS(pCaseSensitive)
+		aResult = This.Copy().ReverseQ().RepeatedLeadingItemsCS(pCaseSensitive)
 		return aResult
+
+		#< @FunctionFluentForm
+
+		def RepeatedTrailingItemsCSQ(pCaseSensitive)
+			return new stzList(This.RepeatedTrailingItemsCS(pCaseSensitive))
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def TrailingRepeatedItemsCS(pCaseSensitive)
+			return This.RepeatedTrailingItemsCS(pCaseSensitive)
+
+			def TrailingRepeatedItemsCSQ(pCaseSensitive)
+				return new stzList(This.TrailingRepeatedItemsCS(pCaseSensitive))
+	
+		def TrailingItemsCS(pCaseSensitive)
+			return This.RepeatedTrailingItemsCS(pCaseSensitive)
+
+			def TrailingItemsCSQ(pCaseSensitive)
+				return new stzList(This.TrailingItemsCS(pCaseSensitive))
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedTrailingItems()
+		return This.RepeatedTrailingItemsCS(TRUE)
+
+		#< @FunctionFluentForm
 
 		def RepeatedTrailingItemsQ()
 			return new stzList(This.RepeatedTrailingItems())
-	
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def TrailingRepeatedItems()
 			return This.RepeatedTrailingItems()
 
@@ -30849,12 +31132,57 @@ www	#----------------------------------------#
 			def TrailingItemsQ()
 				return new stzList(This.TrailingItems())
 
+		#>
+
+	  #-------------------------------------------------#
+	 #  GETTING THE NUMBER OF REPEATED TRAILING ITEMS  #
+	#-------------------------------------------------#
+
+	def NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+		aTrail = This.RepeadtedTrailingItemsCS(pCaseSensitive)
+		return len(aTrail)
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfTrailingRepeatedItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+
+		def NumberOfTrailingItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+
+		def CountRepeatedTrailingItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+
+		def CountTrailingRepeatedItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+
+		def CountTrailingItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+
+		def HowManyRepeatedTrailingItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+
+		def HowManyRepeatedTrailingItemCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+
+		def HowManyTrailingRepeatedItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+
+		def HowManyTrailingRepeatedItemCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+
+		def HowmanyTrailingItemsCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+
+		def HowmanyTrailingItemCS(pCaseSensitive)
+			return This.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def NumberOfRepeatedTrailingItems()
-		if This.HasRepeatedTrailingItems()
-			return stzListQ( This.RepeatedTrailingItems() ).NumberOfItems()
-		else
-			return 0
-		ok
+		return This.NumberOfRepeatedTrailingItemsCS(TRUE)
 
 		#< @FunctionAlternativeForms
 
@@ -30892,28 +31220,96 @@ www	#----------------------------------------#
 			return This.NumberOfRepeatedTrailingItems()
 
 		#>
-	
-	def RepeatedTrailingItemIs(pItem)
-		if This.HasRepeatedLeadingItems() and This.LastItemQ().IsEqualTo(pItem)
-			return TRUE
-		else
-			return FALSE
+
+	  #----------------------------------------------------------#
+	 #  CHECKING IF A GIVEN ITEM IS THE REPEATED TRAILING ITEM  #
+	#----------------------------------------------------------#
+
+	def RepeatedTrailingItemIsCS(pItem, pCaseSensitive)
+
+		aLead = This.RepeatedTrailingItemsCS(pCaseSensitive)
+		bResult = FALSE
+
+		if len(aLead) > 0
+			if Q(aLead[1]).IsEqualToCS(pItem, pCaseSensitive)
+				bResult = TRUE
+			ok
 		ok
+
+		return bResult
+
+		#< @FunctionAlternativeForms
+
+		def TrailingRepeatedItemIsCS(pItem, pCaseSensitive)
+			return This.RepeatedTrailingItemIsCS(pItem, pCaseSensitive)
+
+		def TrailingItemIsCS(pItem, pCaseSensitive)
+			return This.RepeatedTrailingItemIsCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RepeatedTrailingItemIs(pItem)
+		return This.RepeatedTrailingItemIsCS(pItem, TRUE)
+
+		#< @FunctionAlternativeForms
 
 		def TrailingRepeatedItemIs(pItem)
 			return This.RepeatedTrailingItemIs(pItem)
 
 		def TrailingItemIs(pItem)
 			return This.RepeatedTrailingItemIs(pItem)
-	
+
+		#>
+
 	  #-------------------------------------#
 	 #   REMOVING REPEATED LEADING ITEMS   #
 	#=====================================#
 
-	def RemoveRepeatedLeadingItems()
+	def RemoveRepeatedLeadingItemsCS(pCaseSensitive)
 		if This.HasRepeatedLeadingItems()
-			This.RemoveFirstNItems( This.NumberOfRepeatedLeadingItems() )
+			This.RemoveFirstNItems( This.NumberOfRepeatedLeadingItemsCS(pCaseSensitive) )
 		ok
+
+		#< @FunctionFluentForm
+
+		def RemoveRepeatedLeadingItemsCSQ(pCaseSensitive)
+			This.RemoveRepeatedLeadingItemsCS(pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveLeadingRepeatedItemsCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingItemsCS(pCaseSensitive)
+
+			def RemoveLeadingRepeatedItemsCSQ(pCaseSensitive)
+				return This.RemoveRepeatedLeadingItemsCSQ(pCaseSensitive)
+	
+		def RemoveLeadingItemsCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingItemsCS(pCaseSensitive)
+
+			def RemoveLeadingItemsCSQ(pCaseSensitive)
+				return This.RemoveRepeatedLeadingItemsCSQ(pCaseSensitive)
+
+		#>
+
+	def RepeatedLeadingItemsRemovedCS(pCaseSensitive)
+		aResult = This.Copy().RemoveRepeatedLeadingItemsCSQ(pCaseSensitive).Content()
+		return aResult
+
+		def LeadingRepeatedItemsRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingItemsRemovedCS(pCaseSensitive)
+
+		def LeadingItemsRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingItemsRemovedCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveRepeatedLEadingItems()
+		This.RemoveRepeatedLeadingItemsCS(TRUE)
 
 		def RemoveRepeatedLeadingItemsQ()
 			This.RemoveRepeatedLeadingItems()
@@ -30923,15 +31319,13 @@ www	#----------------------------------------#
 			This.RemoveRepeatedLeadingItems()
 
 			def RemoveLeadingRepeatedItemsQ()
-				This.RemoveLeadingRepeatedItems()
-				return This
+				return This.RemoveRepeatedLeadingItemsQ()
 	
 		def RemoveLeadingItems()
 			This.RemoveRepeatedLeadingItems()
 
 			def RemoveLeadingItemsQ()
-				This.RemoveLeadingItems()
-				return This
+				return This.RemoveRepeatedLeadingItemsQ()
 	
 	def RepeatedLeadingItemsRemoved()
 		aResult = This.Copy().RemoveRepeatedLeadingItemsQ().Content()
@@ -30942,15 +31336,82 @@ www	#----------------------------------------#
 
 		def LeadingItemsRemoved()
 			return This.RepeatedLeadingItemsRemoved()
-	
-	def RemoveRepeatedLeadingItem(pItem)
-		if This.RepeatedLeadingItemQ().IsEqualTo(pItem)
-			return This.RemoveRepeatedLeadingItems()
+
+	  #--------------------------------------------#
+	 #  REMOVING THE GIVEN REPEATED LEADING ITEM  #
+	#--------------------------------------------#
+
+	def RemoveRepeatedLeadingItemCS(pItem, pCaseSensitive)
+		if This.RepeatedLeadingItemCSQ(pCaseSensitive).IsEqualToCS(pItem, pCaseSensitive)
+			return This.RemoveRepeatedLeadingItemsCS(pCaseSensitive)
 		ok
+
+		#< @FunctionFluentForm
+
+		def RemoveRepeatedLeadingItemCSQ(pItem, pCaseSensitive)
+			This.RemoveRepeatedLeadingItemCS(pItem, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveLeadingRepeatedItemCS(pItem, pCaseSensitive)
+			This.RemoveRepeatedLeadingItemCS(pItem, pCaseSensitive)
+
+			def RemoveLeadingRepeatedItemCSQ(pItem, pCaseSensitive)
+				return This.RemoveRepeatedLeadingItemCSQ(pItem, pCaseSensitive)
+	
+		def RemoveLeadingItemCS(pItem, pCaseSensitive)
+			This.RemoveRepeatedLeadingItemCS(pItem, pCaseSensitive)
+
+			def RemoveLeadingItemCSQ(pItem, pCaseSensitive)
+				return This.RemoveRepeatedLeadingItemCSQ(pItem, pCaseSensitive)
+
+		#--
+
+		def RemoveThisRepeatedLeadingItemCS(pItem, pCaseSensitive)
+			This.RemoveRepeatedLeadingItemCS(pItem, pCaseSensitive)
+
+			def RemoveThisRepeatedLeadingItemCSQ(pItem, pCaseSensitive)
+				return This.RemoveRepeatedLeadingItemCSQ(pItem, pCaseSensitive)
+
+		def RemoveThisLeadingItemCS(pItem, pCaseSensitive)
+			This.RemoveRepeatedLeadingItemCS(pItem, pCaseSensitive)
+
+			def RemoveThisLeadingItemCSQ(pItem, pCaseSensitive)
+				return This.RemoveThisLeadingItemCS(pItem, pCaseSensitive)
+
+		#>
+
+	def RepeatedLeadingItemRemovedCS(pItem, pCaseSensitive)
+		aResult = This.Copy().RemoveRepeatedLeadingItemCSQ(pItem, pCaseSensitive).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def LeadingRepeatedItemRemovedCS(pItem, pCaseSensitive)
+			return This.RepeatedLeadingItemRemovedCS(pItem, pCaseSensitive)
+
+		def LeadingItemRemovedCS(pItem, pCaseSensitive)
+			return This.RepeatedLeadingItemRemovedCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveRepeatedLeadingItem(pItem)
+		This.RemoveRepeatedLeadingItemCS(pItem, TRUE)
+
+		#< @FunctionFluentForm
 
 		def RemoveRepeatedLeadingItemQ(pItem)
 			This.RemoveRepeatedLeadingItem(pItem)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def RemoveLeadingRepeatedItem(pItem)
 			This.RemoveRepeatedLeadingItem(pItem)
@@ -30966,9 +31427,27 @@ www	#----------------------------------------#
 				This.RemoveLeadingItem(pItem)
 				return This
 	
+		#--
+
+		def RemoveThisRepeatedLeadingItem(pItem)
+			This.RemoveRepeatedLeadingItem(pItem)
+
+			def RemoveThisRepeatedLeadingItemQ(pItem)
+				return This.RemoveRepeatedLeadingItemQ(pItem)
+
+		def RemoveThisLeadingItem(pItem)
+			This.RemoveRepeatedLeadingItem(pItem)
+
+			def RemoveThisLeadingItemQ(pItem)
+				return This.RemoveThisLeadingItem(pItem)
+
+		#>
+
 	def RepeatedLeadingItemRemoved(pItem)
 		aResult = This.Copy().RemoveRepeatedLeadingItemQ(pItem).Content()
 		return aResult
+
+		#< @FunctionAlternativeForms
 
 		def LeadingRepeatedItemRemoved(pItem)
 			return This.RepeatedLeadingItemRemoved(pItem)
@@ -30976,14 +31455,49 @@ www	#----------------------------------------#
 		def LeadingItemRemoved(pItem)
 			return This.RepeatedLeadingItemRemoved(pItem)
 
+		#>
+
 	  #--------------------------------------#
 	 #   REMOVING REPEATED TRAILING ITEMS   #
 	#======================================#
 
-	def RemoveRepeatedTrailingItems()
-		if This.HasRepeatedTrailingItems()
-			This.RemoveLastNItems( This.NumberOfRepeatedTrailingItems() )
+	def RemoveRepeatedTrailingItemsCS(pCaseSensitive)
+		if This.HasRepeatedTrailingItemsCS(pCaseSensitive)
+			This.RemoveLastNItems( This.NumberOfRepeatedTrailingItemsCS(pCaseSensitive) )
 		ok
+
+		def RemoveRepeatedTrailingItemsCSQ(pCaseSensitive)
+			This.RemoveRepeatedTrailingItemsCS(pCaseSensitive)
+			return This
+	
+		def RemoveTrailingRepeatedItemsCS(pCaseSensitive)
+			This.RemoveRepeatedTrailingItemsCS(pCaseSensitive)
+
+			def RemoveTrailingRepeatedItemsCSQ(pCaseSensitive)
+				This.RemoveTrailingRepeatedItemsCS(pCaseSensitive)
+				return This
+	
+		def RemoveTrailingItemsCS(pCaseSensitive)
+			This.RemoveRepeatedTrailingItemsCS(pCaseSensitive)
+
+			def RemoveTrailingItemsCSQ(pCaseSensitive)
+				This.RemoveTrailingItemsCS(pCaseSensitive)
+				return This
+	
+	def RepeatedTrailingItemsRemovedCS(pCaseSensitive)
+		aResult = This.Copy().RemoveRepeatedTrailingItemsCSQ(pCaseSensitive).Content()
+		return aResult
+
+		def TrailingRepeatedItemsRemovedCS(pCaseSensitive)
+			This.RepeatedTrailingItemsRemovedCS(pCaseSensitive)
+
+		def TrailingItemsRemovedCS(pCaseSensitive)
+			This.RepeatedTrailingItemsRemovedCS(pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveRepeatedTrailingItems()
+		This.RemoveRepeatedTrailingItemsCS(TRUE)
 
 		def RemoveRepeatedTrailingItemsQ()
 			This.RemoveRepeatedTrailingItems()
@@ -31012,30 +31526,107 @@ www	#----------------------------------------#
 
 		def TrailingItemsRemoved()
 			This.RepeatedTrailingItemsRemoved()
-	
-	def RemoveRepeatedTrailingItem(pItem)
-		if This.RepeatedTrailingItemQ().IsEqualTo(pItem)
-			This.RemoveRepeatedTrailingItems()
+
+	  #------------------------------------------#
+	 #  REMOVIN A GIVEN REPEATED TRAILING ITEM  #
+	#------------------------------------------#
+
+	def RemoveRepeatedTrailingItemCS(pItem, pCaseSensitive)
+		if This.RepeatedTrailingItemCSQ(pCaseSensitive).IsEqualToCS(pItem, pCaseSensitive)
+			This.RemoveRepeatedTrailingItemsCS(pCaseSensitive)
 		ok
+
+		#< @FunctionFluentForm
+
+		def RemoveRepeatedTrailingItemCSQ(pItem, pCaseSensitive)
+			This.RemoveRepeatedTrailingItemCS(pItem, pCaseSensitive)
+			return This
+	
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveTrailingRepeatedItemCS(pItem, pCaseSensitive)
+			This.RemoveRepeatedTrailingItemCS(pItem, pCaseSensitive)
+
+			def RemoveTrailingRepeatedItemCSQ(pItem, pCaseSensitive)
+				return This.RemoveRepeatedTrailingItemCSQ(pItem, pCaseSensitive)
+	
+		def RemoveTrailingItemCS(pItem, pCaseSensitive)
+			This.RemoveRepeatedTrailingItemCS(pItem, pCaseSensiitve)
+
+			def RemoveTrailingItemCSQ(pItem, pCaseSensitive)
+				return This.RemoveRepeatedTrailingItemCSQ(pItem, pCaseSensitive)
+
+		#--
+
+		def RemoveThisRepeatedTrailingItemCS(pItem, pCaseSensitive)
+			This.RemoveRepeatedTrailingItemCS(pItem, pCaseSensitive)
+
+			def RemoveThisRepeatedTrailingItemCSQ(pItem, pCaseSensitive)
+				return This.RemoveRepeatedTrailingItemCSQ(pItem, pCaseSensitive)
+	
+		def RemoveThisTrailingItemCS(pItem, pCaseSensitive)
+			This.RemoveRepeatedTrailingItemCS(pItem, pCaseSensitive)
+
+			def RemoveThisTrailingItemCSQ(pItem, pCaseSensitive)
+				return This.RemoveRepeatedTrailingItemCSQ(pItem, pCaseSensitive)
+
+		#>
+
+	def RepeatedTrailingItemRemovedCS(pItem, pCaseSensitive)
+		aResult = This.Copy().RemoveRepeatedTrailingItemCSQ(pItem, pCaseSensitive).Content()
+		return aResult
+
+		def TrailingRepeatedItemRemovedCS(pItem, pCaseSensitive)
+			return This.RepeatedTrailingItemRemovedCS(pItem, pCaseSensitive)
+
+		def TrailingItemRemovedCS(pItem, pCaseSEnsitive)
+			return This.RepeatedTrailingItemRemovedCS(pItem, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def RemoveRepeatedTrailingItem(pItem)
+		This.RemoveRepeatedTrailingItemCS(pItem, TRUE)
+
+		#< @FunctionFluentForm
 
 		def RemoveRepeatedTrailingItemQ(pItem)
 			This.RemoveRepeatedTrailingItem(pItem)
 			return This
 	
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def RemoveTrailingRepeatedItem(pItem)
 			This.RemoveRepeatedTrailingItem(pItem)
 
 			def RemoveTrailingRepeatedItemQ(pItem)
-				This.RemoveTrailingRepeatedItem(pItem)
-				return This
+				return This.RemoveRepeatedTrailingItemQ(pItem)
 	
 		def RemoveTrailingItem(pItem)
 			This.RemoveRepeatedTrailingItem(pItem)
 
 			def RemoveTrailingItemQ(pItem)
-				This.RemoveTrailingItem(pItem)
-				return This
+				return This.RemoveRepeatedTrailingItemQ(pItem)
+
+		#--
+
+		def RemoveThisRepeatedTrailingItem(pItem)
+			This.RemoveRepeatedTrailingItem(pItem)
+
+			def RemoveThisRepeatedTrailingItemQ(pItem)
+				return This.RemoveRepeatedTrailingItemQ(pItem)
 	
+		def RemoveThisTrailingItem(pItem)
+			This.RemoveRepeatedTrailingItem(pItem)
+
+			def RemoveThisTrailingItemQ(pItem)
+				return This.RemoveRepeatedTrailingItemQ(pItem)
+
+		#>
+
 	def RepeatedTrailingItemRemoved(pItem)
 		aResult = This.Copy().RemoveRepeatedTrailingItemQ(pItem).Content()
 		return aResult
@@ -31045,18 +31636,91 @@ www	#----------------------------------------#
 
 		def TrailingItemRemoved(pItem)
 			return This.RepeatedTrailingItemRemoved(pItem)
-	
+
 	  #--------------------------------------------------#
 	 #   REMOVING REPEATED LEADING AND TRAILING ITEMS   #
 	#==================================================#
+
+	def RemoveRepeatedLeadingItemAndTrailingItemCS(pItem1, pCaseSensitive)
+		This.RemoveRepeatedLeadingItemCS(pItem1, pCaseSensitive)
+		This.RemoveRepeatedTrailingItemCS(pItem2, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def RemoveRepeatedLeadingcharAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+			This.RemoveRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def RemoveLeadingItemAndTrailingItemCS(pItem1, pItem2, pCaseSensitive)
+			This.RemoveRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, pCaseSensitive)
+
+			def RemoveLeadingItemAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+				return This.RemoveRepeatedLeadingcharAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+	
+		def RemoveTrailingItemAndLeadingItemCS(pItem1, pItem2, pCaseSensitive)
+			This.RemoveRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, pCaseSensitive)
+
+			def RemoveTrailingItemAndLeadingItemCSQ(pItem1, pItem2, pCaseSensitive)
+				return This.RemoveRepeatedLeadingcharAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+
+		#--
+
+		def RemoveTheseLeadingAndTrailingItemsCS(pItem1, pItem2, pCaseSensitive)
+			This.RemoveRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, pCaseSensitive)
+
+			def RemoveTheseLeadingAndTrailingItemsCSQ(pItem1, pItem2, pCaseSensitive)
+				return This.RemoveRepeatedLeadingcharAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+
+		def RemoveTheseTrailingAndLeadingItemsCS(pItem1, pItem2, pCaseSensitive)
+			This.RemoveRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, pCaseSensitive)
+
+			def RemoveTheseTrailngAndLeadingItemsCSQ(pItem1, pItem2, pCaseSensitive)
+				return This.RemoveRepeatedLeadingcharAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+
+		#>
+
+	def RepeatedLeadingItemAndTrailingItemRemovedCS(pItem1, pItem2, pCaseSensitive)
+		aResult = This.Copy().RemoveRepeatedLeadingItemAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def RepeatedTrailingItemAndLeadingItemRemovedCS(pItem1, pItem2, pCaseSensitive)
+			return This.RepeatedLeadingItemAndTrailingItemRemovedCS(pItem1, pItem2, pCaseSensitive)
+
+		def LeadingItemAndTrailingItemRemovedCS(pItem1, pItem2, pCaseSensitive)
+			return This.RepeatedLeadingItemAndTrailingItemRemovedCS(pItem1, pItem2, pCaseSensitive)
+
+		def TrailingItemAndLeadingItemRemovedCS(pItem1, pItem2, pCaseSensitive)
+			return This.RepeatedLeadingItemAndTrailingItemRemovedCS(pItem1, pItem2, pCaseSensitive)
+
+		def TheseLeadingAndTrailingItemsRemovedCS(pItem1, pItem2, pCaseSensitive)
+			return This.RepeatedLeadingItemAndTrailingItemRemovedCS(pItem1, pItem2, pCaseSensitive)
+
+		def TheseTrailingAndLeadingItemsRemovedCS(pItem1, pItem2, pCaseSensitive)
+			return This.RepeatedLeadingItemAndTrailingItemRemovedCS(pItem1, pItem2, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
 		This.RemoveRepeatedLeadingItem(pItem1)
 		This.RemoveRepeatedTrailingItem(pItem2)
 
+		#< @FunctionFluentForm
+
 		def RemoveRepeatedLeadingcharAndTrailingItemQ(pItem1, pItem2)
 			This.RemoveRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
 			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def RemoveLeadingItemAndTrailingItem(pItem1, pItem2)
 			This.RemoveRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
@@ -31071,10 +31735,28 @@ www	#----------------------------------------#
 			def RemoveTrailingItemAndLeadingItemQ(pItem1, pItem2)
 				This.RemoveTrailingItemAndLeadingItem(pItem1, pItem2)
 				return This
-	
+
+		#--
+
+		def RemoveTheseLeadingAndTrailingItems(pItem1, pItem2)
+			This.RemoveRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
+
+			def RemoveTheseLeadingAndTrailingItemsQ(pItem1, pItem2)
+				return This.RemoveRepeatedLeadingcharAndTrailingItemQ(pItem1, pItem2)
+
+		def RemoveTheseTrailingAndLeadingItems(pItem1, pItem2)
+			This.RemoveRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
+
+			def RemoveTheseTrailngAndLeadingItemsQ(pItem1, pItem2)
+				return This.RemoveRepeatedLeadingcharAndTrailingItemQ(pItem1, pItem2)
+
+		#>
+
 	def RepeatedLeadingItemAndTrailingItemRemoved(pItem1, pItem2)
 		aResult = This.Copy().RemoveRepeatedLeadingItemAndTrailingItemQ(pItem1, pItem2).Content()
 		return aResult
+
+		#< @FunctionAlternativeForms
 
 		def RepeatedTrailingItemAndLeadingItemRemoved(pItem1, pItem2)
 			return This.RepeatedLeadingItemAndTrailingItemRemoved(pItem1, pItem2)
@@ -31084,22 +31766,77 @@ www	#----------------------------------------#
 
 		def TrailingItemAndLeadingItemRemoved(pItem1, pItem2)
 			return This.RepeatedLeadingItemAndTrailingItemRemoved(pItem1, pItem2)
+
+		def TheseLeadingAndTrailingItemsRemoved(pItem1, pItem2)
+			return This.RepeatedLeadingItemAndTrailingItemRemoved(pItem1, pItem2)
+
+		def TheseTrailingAndLeadingItemsRemoved(pItem1, pItem2)
+			return This.RepeatedLeadingItemAndTrailingItemRemoved(pItem1, pItem2)
+
+		#>
 	
+	  #-------------------------------------------------------------#
+	 #  REMOVING REPEATED LEADTING AND TRAILING ITEMS IN THE LIST  #
+	#-------------------------------------------------------------#
+
+	def RemoveRepeatedLeadingAndTrailingItemsCS(pCaseSensitive)
+		This.RemoveRepeatedLeadingItemsCS(pCaseSensitive)
+		This.RemoveRepeatedTrailingItemsCS(pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def RemoveRepeatedLeadingAndTrailingItemsCSQ(pCaseSensitive)
+			This.RemoveRepeatedLeadingAndTrailingItemsCS(pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def RemoveLeadingAndTrailingRepeatedItemsCS(pCaseSensitive)
+			This.RemoveRepeatedLeadingAndTrailingItemsCS(pCaseSensitive)
+
+			def RemoveLeadingAndTrailingRepeatedItemsCSQ(pCaseSensitive)
+				return This.RemoveRepeatedLeadingAndTrailingItemsCSQ(pCaseSensitive)
+	
+		#>
+
+	def RepeatedLeadingAndTrailingItemsRemovedCS(pCaseSensitive)
+		aResult = This.Copy().RemoveRepeatedLeadingAndTrailingItemsCSQ(pCaseSensitive).Content()
+		return aResult
+
+		def RepeatedTrailingAndLeadingItemsRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingItemsRemovedCS(pCaseSensitive)
+
+		def LeadingAndTrailingItemsRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingItemsRemovedCS(pCaseSensitive)
+
+		def TrailingAndLeadingItemsRemovedCS(pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingItemsRemovedCS(pCaseSensitive)
+
+	#-- WTIHOUT CASESENSITIVITY
+
 	def RemoveRepeatedLeadingAndTrailingItems()
-		This.RemoveRepeatedLeadingItems()
-		This.RemoveRepeatedTrailingItems()
+		This.RemoveRepeatedLeadingAndTrailingItemsCS(TRUE)
+
+		#< @FunctionFluentForm
 
 		def RemoveRepeatedLeadingAndTrailingItemsQ()
 			This.RemoveRepeatedLeadingAndTrailingItems()
 			return This
-	
+
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def RemoveLeadingAndTrailingRepeatedItems()
 			This.RemoveRepeatedLeadingAndTrailingItems()
 
 			def RemoveLeadingAndTrailingRepeatedItemsQ()
-				This.RemoveLeadingAndTrailingRepeatedItems()
-				return This
-	
+				return This.RemoveRepeatedLeadingAndTrailingItemsQ()
+
+		#>
+
 	def RepeatedLeadingAndTrailingItemsRemoved()
 		aResult = This.Copy().RemoveRepeatedLeadingAndTrailingItemsQ().Content()
 		return aResult
@@ -31117,10 +31854,11 @@ www	#----------------------------------------#
 	 #   REPLACING LEADING ITEMS   #
 	#=============================#
 
-	def ReplaceRepeatedLeadingItem(pItem)
+	def ReplaceRepeatedLeadingItemCS(pItem, pCaseSensitive)
 		/* Example:
 
-		StzListQ([ '_', '_', '_', 'V', 'A', 'R', '-', '-', '-' ]).ReplaceRepeatedLeadingItem(:With = "-")
+		o1 = new stzList([ '_', '_', '_', 'V', 'A', 'R', '-', '-', '-' ])
+		ReplaceRepeatedLeadingItem(:With = "-")
 
 		--> Gives: [ '-', '-', '-', 'V', 'A', 'R', '-', '-', '-' ]
 		*/
@@ -31129,14 +31867,87 @@ www	#----------------------------------------#
 			pItem = pItem[2]
 		ok
 
-		if This.HasRepeatedLeadingItems()
-			n = This.NumberOfRepeatedLeadingItems()
+		if This.HasRepeatedLeadingItemsCS(pCaseSensitive)
+			n = This.NumberOfRepeatedLeadingItemsCS(pCaseSensitive)
 
 			for i = 1 to n
 				This.ReplaceAt(i, pItem)
 			next
 
 		ok
+
+		#< @FunctionFluentForm
+
+		def ReplaceRepeatedLeadingItemCSQ(pItem, pCaseSensitive)
+			This.ReplaceRepeatedLeadingItemCS(pItem, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+	
+		def ReplaceLeadingRepeatedItemCS(pItem, pCaseSensitive)
+			This.ReplaceRepeatedLeadingItemCS(pItem, pCaseSensitive)
+
+			def ReplaceLeadingRepeatedItemCSQ(pItem, pCaseSensitive)
+				return This.ReplaceRepeatedLeadingItemCSQ(pItem, pCaseSensitive)
+	
+		def ReplaceLeadingItemCS(pItem, pCaseSensitive)
+			This.ReplaceRepeatedLeadingItemCS(pItem, pCaseSensitive)
+
+			def ReplaceLeadingItemCSQ(pItem, pCaseSensitive)
+				return This.ReplaceRepeatedLeadingItemCSQ(pItem, pCaseSensitive)
+
+		#-- Same functions with ...Items in plural
+
+		def ReplaceRepeatedLeadingItemsCS(pItem, pCaseSensitive)
+			This.ReplaceRepeatedLeadingItemCS(pItem, pCaseSensitive)
+
+			def ReplaceRepeatedLeadingItemsCSQ(pItem, pCaseSensitive)
+				return This.ReplaceRepeatedLeadingItemCSQ(pItem, pCaseSensitive)
+
+		def ReplaceLeadingRepeatedItemsCS(pItem, pCaseSensitive)
+			This.ReplaceRepeatedLeadingItemCS(pItem, pCaseSensitive)
+
+			def ReplaceLeadingRepeatedItemsCSQ(pItem, pCaseSensitive)
+				return This.ReplaceRepeatedLeadingItemCSQ(pItem, pCaseSensitive)
+	
+		def ReplaceLeadingItemsCS(pItem, pCaseSensitive)
+			This.ReplaceRepeatedLeadingItemCS(pItem, pCaseSensitive)
+
+			def ReplaceLeadingItemsCSQ(pItem, pCaseSensitive)
+				return This.ReplaceRepeatedLeadingItemCSQ(pItem, pCaseSensitive)
+
+		#>
+
+	def RepeatedLeadingItemReplacedCS(pItem, pCaseSensitive)
+		aResult = This.Copy().ReplaceRepeatedLeadingItemCSQ(pItem, pCaseSensitive).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+	
+		def LeadingRepeatedItemReplacedCS(pItem, pCaseSensitive)
+			return This.RepeatedLeadingItemReplacedCS(pItem, pCaseSensitive)
+	
+		def LeadingItemReplacedCS(pItem, pCaseSensitive)
+			return This.RepeatedLeadingItemReplacedCS(pItem, pCaseSensitive)
+
+		#-- Same functions with ...Items in plural
+
+		def RepeatedLeadingItemsReplacedCS(pItem, pCaseSensitive)
+			return This.RepeatedLeadingItemReplacedCS(pItem, pCaseSensitive)
+
+		def LeadingRepeatedItemsReplacedCS(pItem, pCaseSensitive)
+			return This.RepeatedLeadingItemReplacedCS(pItem, pCaseSensitive)
+	
+		def LeadingItemsReplacedCS(pItem, pCaseSensitive)
+			return This.RepeatedLeadingItemReplacedCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceRepeatedLeadingItem(pItem)
 
 		#< @FunctionFluentForm
 
@@ -31211,32 +32022,165 @@ www	#----------------------------------------#
 			return This.RepeatedLeadingItemReplaced(pItem)
 
 		#>
-				
+
+	  #---------------------------------------------------#
+	 #  REPLACING A GIVEN LEADING ITEM BY AN OTHER ITEM  #
+	#---------------------------------------------------#
+
+	def ReplaceThisRepeatedLeadingItemCS(pItem, pNewItem, pCaseSensitive)
+
+		if CheckParams()
+			if isList(pNewItem) and StzListQ(pNewItem).IsWithOrByNamedParam()
+				pNewItem = pNewItem[2]
+			ok
+		ok
+
+		if This.RepeatedLeadingItemIsCS(pItem, pCaseSensitive)
+			This.ReplaceRepeatedLeadingItemsCS(pNewItem, pCaseSensitive)
+		ok
+
+		#< @FunctionFluentForm
+
+		def ReplaceThisRepeatedLeadingItemCSQ(pItem, pNewItem, pCaseSensitive)
+			This.ReplaceThisRepeatedLeadingItemCS(pItem, pNewItem, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceThisLeadingItemCS(pItem, pNewItem, pCaseSensitive)
+			This.ReplaceThisRepeatedLeadingItemCS(pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceThisLeadingItemCSQ(pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceThisRepeatedLeadingItemCSQ(pItem, pNewItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceThisRepeatedLeadingItem(pItem, pNewItem)
+		This.ReplaceThisRepeatedLeadingItemCS(pItem, pNewItem, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceThisRepeatedLeadingItemQ(pItem, pNewItem)
+			This.ReplaceThisRepeatedLeadingItem(pItem, pNewItem)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceThisLeadingItem(pItem, pNewItem)
+			This.ReplaceThisRepeatedLeadingItem(pItem, pNewItem)
+
+			def ReplaceThisLeadingItemQ(pItem, pNewItem)
+				return This.ReplaceThisRepeatedLeadingItemQ(pItem, pNewItem)
+
+		#>
+
 	  #------------------------------#
 	 #   REPLACING TRAILING ITEMS   #
 	#==============================#
 
-	def ReplaceRepeatedTrailingItem(pItem)
+	def ReplaceRepeatedTrailingItemCS(pItem, pCaseSensitive)
 		/* Example:
 
-		stzListQ([ "_","_","_","V","A","R","-","-","-" ]).ReplaceRepeatedTrailingItemBy("_")
+		o1 = new stzList([ "_","_","_","V","A","R","-","-","-" ])
+		o1.ReplaceRepeatedTrailingItemBy("_")
 
-		Gives --> [ "_","_","_","V","A","R","_","_","_" ]
+		#--> [ "_","_","_","V","A","R","_","_","_" ]
 		*/
 
 		if isList(pItem) and Q(pItem).IsWithOrByNamedParam()
 			pItem = pItem[2]
 		ok
 
-		if This.HasRepeatedTrailingItems()
-			n = This.NumberOfRepeatedTrailingItems()
+		if This.HasRepeatedTrailingItemsCS(pCaseSensitive)
+			n = This.NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
 
-			n = This.NumberOfItems() - n + 1
-			for i = n to This.NumberOfItems()
+			nLen = This.NumberOfItems()
+			n = nLen - n + 1
+			for i = n to nLen
 				This.ReplaceAt(i, pItem)
 			next
 
 		ok
+
+		#< @FunctionFluentForm
+
+		def ReplaceRepeatedTrailingItemCSQ(pItem, pCaseSensitive)
+			This.ReplaceRepeatedTrailingItemCS(pItem, pCaseSensitive)
+			return This
+			
+		#>
+	
+		#< @FunctionAlternativeForms
+	
+		def ReplaceTrailingRepeatedItemCS(pItem, pCaseSensitive)
+			This.ReplaceRepeatedTrailingItemCS(pItem, pCaseSensitive)
+
+			def ReplaceTrailingRepeatedItemCSQ(pItem, pCaseSensitive)
+				return This.ReplaceRepeatedTrailingItemCSQ(pItem, pCaseSensitive)
+	
+		def ReplaceTrailingItemCS(pItem, pCaseSensitive)
+			This.ReplaceRepeatedTrailingItemCS(pItem, pCaseSensitive)
+
+			def ReplaceTrailingItemCSQ(pItem, pCaseSensitive)
+				return This.ReplaceRepeatedTrailingItemCSQ(pItem, pCaseSensitive)
+
+		#-- Same functions with ...Items in plural
+
+		def ReplaceRepeatedTrailingItemsCS(pItem, pCaseSensitive)
+			This.ReplaceRepeatedTrailingItemCS(pItem, pCaseSensitive)
+
+			def ReplaceRepeatedTrailingItemsCSQ(pItem, pCaseSensitive)
+				return This.ReplaceRepeatedTrailingItemCSQ(pItem, pCaseSensitive)
+
+		def ReplaceTrailingRepeatedItemsCS(pItem, pCaseSensitive)
+			This.ReplaceRepeatedTrailingItemCS(pItem, pCaseSensitive)
+
+			def ReplaceTrailingRepeatedItemsCSQ(pItem, pCaseSensitive)
+				return This.ReplaceRepeatedTrailingItemCSQ(pItem, pCaseSensitive)
+	
+		def ReplaceTrailingItemsCS(pItem, pCaseSensitive)
+			This.ReplaceRepeatedTrailingItemCS(pItem, pCaseSensitive)
+
+			def ReplaceTrailingItemsCSQ(pItem, pCaseSensitive)
+				return This.ReplaceRepeatedTrailingItemCSQ(pItem, pCaseSensitive)
+
+		#>
+
+	def RepeatedTrailingItemReplacedCS(pItem, pCaseSensitive)
+		aResult = This.Copy().ReplaceRepeatedTrailingItemCSQ(pItem, pCaseSensitive).Content()
+		return aResult
+
+		#< @FunctionAlternativeForms
+	
+		def TrailingRepeatedItemReplacedCS(pItem, pCaseSensitive)
+			return This.RepeatedTrailingItemReplacedCS(pItem, pCaseSensitive)
+	
+		def TrailingItemReplacedCS(pItem, pCaseSensitive)
+			return This.RepeatedTrailingItemReplacedCS(pItem, pCaseSensitive)
+
+		#-- Same functions with ...Items in plural
+
+		def RepeatedTrailingItemsReplacedCS(pItem, pCaseSensitive)
+			return This.RepeatedTrailingItemReplacedCS(pItem, pCaseSensitive)
+
+		def TrailingRepeatedItemsReplacedCS(pItem, pCaseSensitive)
+			return This.RepeatedTrailingItemReplacedCS(pItem, pCaseSensitive)
+	
+		def TrailingItemsReplacedCS(pItem, pCaseSensitive)
+			return This.RepeatedTrailingItemReplacedCS(pItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceRepeatedTrailingItem(pItem)
+		This.ReplaceRepeatedTralingItemCS(pItem, TRUE)
 
 		#< @FunctionFluentForm
 
@@ -31311,40 +32255,182 @@ www	#----------------------------------------#
 			return This.RepeatedTrailingItemReplaced(pItem)
 
 		#>
-	
+
+	  #---------------------------------------------------#
+	 #  REPLACING A GIVEN TRAILING ITEM BY AN OTHER ITEM  #
+	#---------------------------------------------------#
+
+	def ReplaceThisRepeatedTrailingItemCS(pItem, pNewItem, pCaseSensitive)
+
+		if CheckParams()
+			if isList(pNewItem) and StzListQ(pNewItem).IsWithOrByNamedParam()
+				pNewItem = pNewItem[2]
+			ok
+		ok
+
+		if This.RepeatedTrailingItemIsCS(pItem, pCaseSensitive)
+			This.ReplaceRepeatedTrailingItemsCS(pNewItem, pCaseSensitive)
+		ok
+
+		#< @FunctionFluentForm
+
+		def ReplaceThisRepeatedTrailingItemCSQ(pItem, pNewItem, pCaseSensitive)
+			This.ReplaceThisRepeatedTrailingItemCS(pItem, pNewItem, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceThisTrailingItemCS(pItem, pNewItem, pCaseSensitive)
+			This.ReplaceThisRepeatedTrailingItemCS(pItem, pNewItem, pCaseSensitive)
+
+			def ReplaceThisTrailingItemCSQ(pItem, pNewItem, pCaseSensitive)
+				return This.ReplaceThisRepeatedTrailingItemCSQ(pItem, pNewItem, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceThisRepeatedTrailingItem(pItem, pNewItem)
+		This.ReplaceThisRepeatedTrailingItemCS(pItem, pNewItem, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceThisRepeatedTrailingItemQ(pItem, pNewItem)
+			This.ReplaceThisRepeatedTrailingItem(pItem, pNewItem)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForm
+
+		def ReplaceThisTrailingItem(pItem, pNewItem)
+			This.ReplaceThisRepeatedTrailingItem(pItem, pNewItem)
+
+			def ReplaceThisTrailingItemQ(pItem, pNewItem)
+				return This.ReplaceThisRepeatedTrailingItemQ(pItem, pNewItem)
+
+		#>
+
 	  #---------------------------------------------------#
 	 #   REPLACING REPEATED LEADING AND TRAILING ITEMS   #
 	#===================================================#
 
+	def ReplaceRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, pCaseSensitive)
+		This.ReplaceRepeatedLeadingItemWithCS(pItem1, pCaseSensitive)
+		This.ReplaceRepeatedTrailingItemWithCS(pItem2, pCaseSensitive)
+
+		#< @FunctionFluentForm
+
+		def ReplaceRepeatedLeadingItemAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+			This.ReplaceRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, pCaseSensitive)
+			return This
+
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceRepeatedTrailingItemAndLeadingItemCS(pItem1, pItem2, pCaseSensitive)
+			This.ReplaceRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, pCaseSensitive)
+
+			def ReplaceRepeatedTrailingItemAndLeadingItemCSQ(pItem1, pItem2, pCaseSensitive)
+				return This.ReplaceRepeatedLeadingItemAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+	
+		def ReplaceLeadingItemAndTrailingItemCS(pItem1, pItem2, pCaseSensitive)
+			This.ReplaceRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, pCaseSensitive)
+
+			def ReplaceLeadingItemAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+				return This.ReplaceRepeatedLeadingItemAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+	
+		def ReplaceTrailingItemAndLeadingItemCS(pItem1, pItem2, pCaseSensitive)
+			This.ReplaceRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, pCaseSensitive)
+
+			def ReplaceTrailingItemAndLeadingItemCSQ(pItem1, pItem2, pCaseSensitive)
+				return This.ReplaceRepeatedLeadingItemAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+
+		#--
+
+		def ReplaceTheseLeadingAndTrailingItemsCS(pItem1, pItem2, pCaseSensitive)
+			This.ReplaceRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, pCaseSensitive)
+
+			def ReplaceTheseLeadingAndTrailingItemsCSQ(pItem1, pItem2, pCaseSensitive)
+				return This.ReplaceRepeatedLeadingItemAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+
+		def ReplaceTheseTrailingAndLeadingItemsCS(pItem1, pItem2, pCaseSensitive)
+			This.ReplaceRepeatedLeadingItemAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+
+			def ReplaceTheseTrailingAndLeadingItemsCSQ(pItem1, pItem2, pCaseSensitive)
+				return This.ReplaceRepeatedLeadingItemAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive)
+
+		#>
+
+	def RepeatedLeadingcharAndTrailingItemReplacedCS(pItem1, pItem2, pCaseSensitive)
+		aResult = This.Copy().ReplaceRepeatedLeadingItemAndTrailingItemCSQ(pItem1, pItem2, pCaseSensitive).Content()
+		return aResult
+	
+		def RepeatedTrailingItemAndLeadingItemReplacedCS(pItem1, pItem2, pCaseSensitive)
+			This.RepeatedLeadingcharAndTrailingItemReplacedCS(pItem1, pItem2, pCaseSensitive)
+	
+		def TrailingItemAndLeadingItemReplacedCS(pItem1, pItem2, pCaseSensitive)
+			This.RepeatedLeadingcharAndTrailingItemReplacedCS(pItem1, pItem2, pCaseSensitive)
+
+		def TheseLeadingAndTrailingItemsReplacedCS(pItem1, pItem2, pCaseSensitive)
+			This.RepeatedLeadingcharAndTrailingItemReplacedCS(pItem1, pItem2, pCaseSensitive)
+
+		def TheseTrailingandLeadingItemsReplacedCS(pItem1, pItem2, pCaseSensitive)
+			This.RepeatedLeadingcharAndTrailingItemReplacedCS(pItem1, pItem2, pCaseSensitive)
+
+
+	#-- WITHOUT CASESENSITIVITY
+
 	def ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
-		This.ReplaceRepeatedLeadingItemWith(pItem1)
-		This.ReplaceRepeatedTrailingItemWith(pItem2)
+		This.ReplaceRepeatedLeadingItemAndTrailingItemCS(pItem1, pItem2, TRUE)
+
+		#< @FunctionFluentForm
 
 		def ReplaceRepeatedLeadingItemAndTrailingItemQ(pItem1, pItem2)
 			This.ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
 			return This
 
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def ReplaceRepeatedTrailingItemAndLeadingItem(pItem1, pItem2)
 			This.ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
 
 			def ReplaceRepeatedTrailingItemAndLeadingItemQ(pItem1, pItem2)
-				This.ReplaceRepeatedTrailingItemAndLeadingItem(pItem1, pItem2)
-				return This
+				return This.ReplaceRepeatedLeadingItemAndTrailingItemQ(pItem1, pItem2)
 	
 		def ReplaceLeadingItemAndTrailingItem(pItem1, pItem2)
 			This.ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
 
 			def ReplaceLeadingItemAndTrailingItemQ(pItem1, pItem2)
-				This.ReplaceLeadingItemAndTrailingItem(pItem1, pItem2)
-				return This
+				return This.ReplaceRepeatedLeadingItemAndTrailingItemQ(pItem1, pItem2)
 	
 		def ReplaceTrailingItemAndLeadingItem(pItem1, pItem2)
 			This.ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
 
 			def ReplaceTrailingItemAndLeadingItemQ(pItem1, pItem2)
-				This.ReplaceTrailingItemAndLeadingItem(pItem1, pItem2)
-				return This
-	
+				return This.ReplaceRepeatedLeadingItemAndTrailingItemQ(pItem1, pItem2)
+
+		#--
+
+		def ReplaceTheseLeadingAndTrailingItems(pItem1, pItem2)
+			This.ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
+
+			def ReplaceTheseLeadingAndTrailingItemsQ(pItem1, pItem2)
+				return This.ReplaceRepeatedLeadingItemAndTrailingItemQ(pItem1, pItem2)
+
+		def ReplaceTheseTrailingAndLeadingItems(pItem1, pItem2)
+			This.ReplaceRepeatedLeadingItemAndTrailingItem(pItem1, pItem2)
+
+			def ReplaceTheseTrailingAndLeadingItemsQ(pItem1, pItem2)
+				return This.ReplaceRepeatedLeadingItemAndTrailingItemQ(pItem1, pItem2)
+
+		#>
+
 	def RepeatedLeadingcharAndTrailingItemReplaced(pItem1, pItem2)
 		aResult = This.Copy().ReplaceRepeatedLeadingItemAndTrailingItemQ(pItem1, pItem2).Content()
 		return aResult
@@ -31354,49 +32440,56 @@ www	#----------------------------------------#
 	
 		def TrailingItemAndLeadingItemReplaced(pItem1, pItem2)
 			This.RepeatedLeadingcharAndTrailingItemReplaced(pItem1, pItem2)
-	
-	def ReplaceRepeatedLeadingAndTrailingItems(pItem1, pItem2)
-		This.ReplaceRepeatedLeadingItem(pItem1)
-		This.ReplaceRepeatedTrailingItem(pItem2)
 
-		def ReplaceRepeatedLeadingAndTrailingItemsQ(pItem1, pItem2)
-			This.ReplaceRepeatedLeadingAndTrailingItems(pItem1, pItem2)
+		def TheseLeadingAndTrailingItemsReplaced(pItem1, pItem2)
+			This.RepeatedLeadingcharAndTrailingItemReplaced(pItem1, pItem2)
+
+		def TheseTrailingandLeadingItemsReplaced(pItem1, pItem2)
+			This.RepeatedLeadingcharAndTrailingItemReplaced(pItem1, pItem2)
+
+	  #---------------------------------------------------------------#
+	 #  REPLACING THE LEADING AND TRAINLING ITEMS WITH A GIVEN ITEM  #
+	#---------------------------------------------------------------#
+
+	def ReplaceRepeatedLeadingAndTrailingItemsCS(pNewItem, pCaseSensitive)
+		This.ReplaceRepeatedLeadingItemsCS(pNewItem, pCaseSensitive)
+		This.ReplaceRepeatedTrailingItemsCS(pNewItem, pCaseSensitive)
+
+		def ReplaceRepeatedLeadingAndTrailingItemsCSQ(pNewItem, pCaseSensitive)
+			This.ReplaceRepeatedLeadingAndTrailingItemsCS(pNewItem, pCaseSensitive)
 			return This
 	
-		def ReplaceLeadingAndTrailingItems(pItem1, pItem2)
-			This.ReplaceRepeatedLeadingAndTrailingItems(pItem1, pItem2)
+		def ReplaceLeadingAndTrailingItemsCS(pNewItem, pCaseSensitive)
+			This.ReplaceRepeatedLeadingAndTrailingItemsCS(pNewItem, pCaseSensitive)
 
-			def ReplaceLeadingAndTrailingItemsQ(pItem1, pItem2)
-				This.ReplaceLeadingAndTrailingItems(pItem1, pItem2)
-				return This
+			def ReplaceLeadingAndTrailingItemsCSQ(pNewItem, pCaseSensitive)
+				return This.ReplaceRepeatedLeadingAndTrailingItemsCSQ(pNewItem, pCaseSensitive)
 	
-		def ReplaceRepeatedTrailingAndLeadingItems(pItem1, pItem2)
-			This.ReplaceRepeatedLeadingAndTrailingItems(pItem1, pItem2)
+		def ReplaceRepeatedTrailingAndLeadingItemsCS(pNewItem, pCaseSensitive)
+			This.ReplaceRepeatedLeadingAndTrailingItemsCS(pNewItem, pCaseSensitive)
 
-			def ReplaceRepeatedTrailingAndLeadingItemQ(pItem1, pItem2)
-				This.ReplaceRepeatedTrailingAndLeadingItems(pItem1, pItem2)
-				return This
+			def ReplaceRepeatedTrailingAndLeadingItemCSQ(pNewItem, pCaseSensitive)
+				return This.ReplaceRepeatedLeadingAndTrailingItemsCSQ(pNewItem, pCaseSensitive)
 	
-		def ReplaceTrailingAndLeadingItems(pItem1, pItem2)
-			This.ReplaceRepeatedLeadingAndTrailingItems(pItem1, pItem2)
+		def ReplaceTrailingAndLeadingItemsCS(pNewItem, pCaseSensitive)
+			This.ReplaceRepeatedLeadingAndTrailingItemsCS(pNewItem, pCaseSensitive)
 
-			def ReplaceTrailingAndLeadingItemsQ(pItem1, pItem2)
-				This.ReplaceTrailingAndLeadingItems(pItem1, pItem2)
-				return This
+			def ReplaceTrailingAndLeadingItemsCSQ(pNewItem, pCaseSensitive)
+				return This.ReplaceRepeatedLeadingAndTrailingItemsCSQ(pNewItem, pCaseSensitive)
 	
-	def RepeatedLeadingAndTrailingItemsReplaced(pItem1, pItem2)
-		aResult = This.Copy().ReplaceRepeatedLeadingAndTrailingItemsQ(pItem1, pItem2).Content()
+	def RepeatedLeadingAndTrailingItemsReplacedCS(pNewItem, pCaseSensitive)
+		aResult = This.Copy().ReplaceRepeatedLeadingAndTrailingItemsCSQ(pNewItem, pCaseSensitive).Content()
 		return aResult
 
-		def RepeatedTrailingAndLeadingItemsReplaced(pItem1, pItem2)
-			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem1, pItem2)
+		def RepeatedTrailingAndLeadingItemsReplacedCS(pNewItem, pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingItemsReplacedCS(pNewItem, pCaseSensitive)
 
-		def LeadingAndTrailingItemsReplaced(pItem1, pItem2)
-			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem1, pItem2)
+		def LeadingAndTrailingItemsReplacedCS(pNewItem, pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingItemsReplacedCS(pNewItem, pCaseSensitive)
 	
-		def TrailingAndLeadingItemsReplaced(pItem1, pItem2)
-			return This.RepeatedLeadingAndTrailingItemsReplaced(pItem1, pItem2)
-www
+		def TrailingAndLeadingItemsReplacedCS(pNewItem, pCaseSensitive)
+			return This.RepeatedLeadingAndTrailingItemsReplacedCS(pNewItem, pCaseSensitive)
+
 	  #==============================#
 	 #     OPERATORS OVERLOADING    #
 	#==============================#
