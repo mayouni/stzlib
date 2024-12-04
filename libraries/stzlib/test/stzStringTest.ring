@@ -8316,7 +8316,7 @@ proff()
 #--> Executed in 0.02 second(s) in Ring 1.22
 
 /*------------------
-*/
+
 pron()
 
 o1 = new stzString("...12..1212..121212..12.")
@@ -8328,8 +8328,10 @@ o1 = new stzListOfSections(aSections)
 o1.MergeContiguous()
 
 ? @@( o1.Content() )
+#--> [ [ 4, 5 ], [ 8, 11 ], [ 14, 19 ], [ 22, 23 ] ]
 
 proff()
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*------------------
 */
@@ -8338,7 +8340,7 @@ StartProfiler()
 o1 = new stzString("...12..1212..121212..12.")
 
 ? @@( o1.FindMadeOf("12") ) + NL
-#--> [ 4, 8, 10, 14, 16, 18 ]
+#--> [ 4, 8, 14, 22 ]
 
 ? @@( o1.FindMadeOfZZ("12") ) + NL # Or FindMadeOfAsSections
 #--> [ [ 4, 5 ], [ 8, 11 ], [ 14, 19 ], [ 22, 23 ] ]
@@ -8355,7 +8357,7 @@ o1 = new stzString("...12..1212..121212..12.")
 # ]
 
 StopProfiler()
-# Executed in 0.02 second(s) in Ring 1.21
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*=============
 

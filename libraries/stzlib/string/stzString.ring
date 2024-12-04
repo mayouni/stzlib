@@ -42376,7 +42376,14 @@ class stzString from stzObject
 		if pcSubStr = ""
 			return []
 		ok
-		
+
+		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive)
+		oSections = new stzListOfSections(aSections)
+		aResult = oSections.ContiguousMerged()
+
+		return aResult
+
+/*---		
 		aSections = This.FindAsSectionsCS(pcSubStr, pCaseSensitive) + [ 0, 0 ]
 		nLenSections = len(aSections)
 
@@ -42406,7 +42413,7 @@ class stzString from stzObject
 		del( aResult, len(aResult) )
 
 		return aResult
-/*
+/*---
 		# preparing the list of chars
 
 		bCase = CaseSensitive(pCaseSensitive)
