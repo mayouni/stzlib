@@ -28,6 +28,12 @@ func Q(p)
 		return Q(p)
 
 func QH(p)
+	#TODO // Review the code of all functions where loops are used
+	# on the main object and modify it many times
+
+	#~> // Use a copy on which the loop is used and then update
+	# the main object in on UpdateWith() call
+
 	SetKeepingHistoryTo(TRUE)
 	return Q(p)
 

@@ -76,8 +76,14 @@ class stzCCode
 	#--------------------------------------#
 
 	def Update(cNewCode)
-		if isList(cNewCode) and Q(cNewCode).IsWithOrByOrUsingNamedParam()
-			cNewCode = cNewCode[2]
+		if CheckingParams() = TRUE
+			if isList(cNewCode) and Q(cNewCode).IsWithOrByOrUsingNamedParam()
+				cNewCode = cNewCode[2]
+			ok
+
+			if NOT isString(cNewCode)
+				StzRaise("Incorrect param type! cNewCode must be a string.")
+			ok
 		ok
 
 		@cContent = cNewCode

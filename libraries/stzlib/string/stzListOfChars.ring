@@ -307,6 +307,10 @@ class stzListOfChars from stzListOfStrings
 			StzRaise(stzListOfCharsError(:CanNotCreateListOfChars))
 		ok
 
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
+
 	def Content()
 		return @aContent
 
@@ -341,16 +345,22 @@ class stzListOfChars from stzListOfStrings
 	#--
 
 	def Update(paOtherListOfChars)
-		if isList(paOtherListOfChars) and Q(paOtherListOfChars).IsWithOrByOrUsingNamedParam()
-			paOtherListOfChars = paOtherListOfChars[2]
+		if CheckingParams() = TRUE
+			if isList(paOtherListOfChars) and Q(paOtherListOfChars).IsWithOrByOrUsingNamedParam()
+				paOtherListOfChars = paOtherListOfChars[2]
+			ok
+
+			if NOT @IsListOfChars(paOtherListOfChars)
+				StzRaise("Incorrect param type! paOtherListOfChars must be a list of chars.")
+			ok
 		ok
 
-		if Q(paOtherListOfChars).IsListOfChars()
-			@aContent = paOtherListOfChars
-			@cString = Q(paOtherListOfChars).Concatenated()
-			@aStzChars = Q(paOtherListOfChars).ToListOfStzChars()
-		else
-			StzRaise(stzListOfCharsError(:CanNotUpdateListOfChars)) #TODO
+		@aContent = paOtherListOfChars
+		@cString = Q(paOtherListOfChars).Concatenated()
+		@aStzChars = Q(paOtherListOfChars).ToListOfStzChars()
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
 		#< @FunctionAlternativeForms

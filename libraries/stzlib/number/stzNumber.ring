@@ -1673,7 +1673,7 @@ class stzNumber from stzObject
 	#-------------------------#
 
 	def Update(pNumber)
-		if CheckingParams()
+		if CheckingParams() = TRUE
 
 			if isList(pNumber) and Q(pNumber).IsWithOrByOrUsingNamedParam()
 				pNumber = pNumber[2]
@@ -1704,6 +1704,10 @@ class stzNumber from stzObject
 
 			@cContent = ""+ pNumber
 			@nRound = StzCurrentRound()
+		ok
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
 
 		#< @FunctionFluentForm

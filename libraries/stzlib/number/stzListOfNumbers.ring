@@ -1399,32 +1399,36 @@ func PrimesUnderIB(n)
 class stzNumbers from stzListOfNumbers
 
 class stzListOfNumbers from stzList
-@aContent
+	@aContent
+	
+	// TODO: Add the possibility to add a list of numbers in strings
+	// --> So we can manage numbers as stzNumbers (wich can be provided
+	// in strings to conserve their round.
+	def init(paList)
+		if isList(paList) and
+		   ( Q(paList).IsEmpty() or Q(paList).IsListOfNumbers() )
+	
+			@aContent = paList
+	
+		but isString(paList)
+			try
+				aList = Q(paList).ToList()
+				if StzListQ(aList).IsListOfNumbers()
+					@aContent = aList
+				else
+					StzRaise("The list in the string you provided is not a list of numbers!")
+				ok
+	
+			catch
+				StzRaise("Can't transform the string into a llist of numbers!")
+			done
+		else
+			StzRaise("Can't create a stzListOfNumbers object!")
+		ok
 
-// TODO: Add the possibility to add a list of numbers in strings
-// --> So we can manage numbers as stzNumbers (wich can be provided
-// in strings to conserve their round.
-def init(paList)
-	if isList(paList) and
-	   ( Q(paList).IsEmpty() or Q(paList).IsListOfNumbers() )
-
-		@aContent = paList
-
-	but isString(paList)
-		try
-			aList = Q(paList).ToList()
-			if StzListQ(aList).IsListOfNumbers()
-				@aContent = aList
-			else
-				StzRaise("The list in the string you provided is not a list of numbers!")
-			ok
-
-		catch
-			StzRaise("Can't transform the string into a llist of numbers!")
-		done
-	else
-		StzRaise("Can't create a stzListOfNumbers object!")
-	ok
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
 
 	def Content()
 		aResult = @aContent
@@ -4242,19 +4246,24 @@ def init(paList)
 
 	def Update(panNewListOfNumbers)
 
-		if isList(panNewListOfNumbers) and Q(panNewListOfNumbers).IsWithOrByOrUsingNamedParam()
-			panNewListOfNumbers = panNewListOfNumbers[2]
-		ok
-
-		if NOT ( isList(panNewListOfNumbers) and
-			 Q(panNewListOfNumbers).IsListOfNumbers()
-		       )
-
-			StzRaise("Incorrect param type!")
+		if CheckingParams() = TRUE
+			if isList(panNewListOfNumbers) and Q(panNewListOfNumbers).IsWithOrByOrUsingNamedParam()
+				panNewListOfNumbers = panNewListOfNumbers[2]
+			ok
+	
+			if NOT ( isList(panNewListOfNumbers) and
+				 Q(panNewListOfNumbers).IsListOfNumbers()
+			       )
+	
+				StzRaise("Incorrect param type!")
+			ok
 		ok
 
 		@aContent = panNewListOfNumbers
 
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
 
 		#< @FunctionFluentForm
 

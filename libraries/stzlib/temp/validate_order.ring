@@ -81,8 +81,12 @@ for i = 1 to 1_000_000
 	baraket = al_ustr_new(" و بركاته")
 	al_ustr_append(salem, baraket)
 next
-	al_cstr(salem) ? "fine"
+	al_cstr(salem) ? "finished"
 
+proff()
+# Executed in 3.01 second(s) in Ring 1.22
+
+/*
 # Getting the size (in bytes) of the string
 
 	? al_ustr_size(salem)
@@ -108,6 +112,6 @@ next
 	
 	? al_ustr_compare(alif, bee)
 	#--> -5
-
+*/
 proff()
 #--> Executed in 1.84 second(s) in Ring 1.22

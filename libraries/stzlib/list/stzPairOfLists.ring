@@ -18,6 +18,10 @@ class stzPairOfLists from stzPair
 		@aList1 = paList1
 		@aList2 = paList2
 
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
+
 	def Content()
 		return [ @aList1, @aList2 ]
 

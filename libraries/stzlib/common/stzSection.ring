@@ -234,36 +234,38 @@ class stzSection
 		def EndPos()
 			return @aContent[2]
 
-	def AddSection(n1, n2)
+	#TODO // Add these methods
+
+//	def AddSection(n1, n2)
+
+//	def RemoveSection(n1, n2)
 		
-	def RemoveSection(n1, n2)
+//	def AddSections(paSections)
 
-	def AddSections(paSections)
+//	def RemoveSections(paSections)
 
-	def RemoveSections(paSections)
+//	def Extend()
 
-	def Extend()
+//	def ExtendStart()
 
-	def ExtendStart()
+//		def ExtendFromStart()
+//			This.ExtendStart()
 
-		def ExtendFromStart()
-			This.ExtendStart()
+//	def ExtendEnd()
 
-	def ExtendEnd()
+//		def ExtendFromEnd()
+//			This.ExtendEnd()
 
-		def ExtendFromEnd()
-			This.ExtendEnd()
+//	def Shrink()
 
-	def Shrink()
+//	def ShringStart()
 
-	def ShringStart()
+//	def ShringEnd()
 
-	def ShringEnd()
+//	def Section()
+//		return This.Content()
 
-	def Section()
-		return This.Content()
-
-	def AntiSection()
+//	def AntiSection()
 
 	def StzType()
 		return :stzSection

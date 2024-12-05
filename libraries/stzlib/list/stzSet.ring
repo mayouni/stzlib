@@ -70,6 +70,10 @@ class stzSet from stzList
 		oTempList = new stzList(paList)
 		@aContent = oTempList.ToSet()	# From StzList		
 
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
+
 	  #-------------#
 	 #   GENERAL   #
 	#-------------#
@@ -89,15 +93,21 @@ class stzSet from stzList
 	#--
 
 	def Update(paOtherSet)
-		if isList(paOtherSet) and Q(paOtherSet).IsWithOrByOrUsingNamedParam()
-			paOtherSet = paOtherSet[2]
-		ok
-
-		If NOT @IsSet(paOtherSet)
-			StzRaise(stzSetError(:CanNotUpdateSetWithNonSet))
+		if CheckingParams()
+			if isList(paOtherSet) and StzListQ(paOtherSet).IsWithOrByOrUsingNamedParam()
+				paOtherSet = paOtherSet[2]
+			ok
+	
+			If NOT @IsSet(paOtherSet)
+				StzRaise(stzSetError(:CanNotUpdateSetWithNonSet))
+			ok
 		ok
 
 		@aContent = paOtherSet
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
 
 		#< @FunctionFluentForm
 

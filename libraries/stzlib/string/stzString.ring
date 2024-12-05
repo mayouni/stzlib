@@ -1266,9 +1266,8 @@ class stzString from stzObject
 	@aConstraints = []
 
 	@cLanguage = :English	# Set explicitly using SetLanguage()
-				#TODO (future): Infere the language from the string
+				#TODO (future)// Infere the language from the string
 
-//	@aHisto = []
 
 	// Initializes the content of the softanza string object
 	def init(pcStr)
@@ -1297,7 +1296,7 @@ class stzString from stzObject
 		@oQString.append(pcStr)
 
 		if KeepingHistory() = TRUE
-			@aHisto + pcStr
+			This.AddHistoricValue(This.Content())
 		ok
 
 	  #==========================#
@@ -44034,7 +44033,7 @@ class stzString from stzObject
 	def Update(pcNewStr)
 		#< QtBased | Uses QString.clear() and QString.append() >
 
-		if CheckingParams()
+		if CheckingParams() = TRUE
 			if isList(pcNewStr) and Q(pcNewStr).IsWithOrByOrUsingNamedParam()
 				pcNewStr = pcNewStr[2]
 			ok
@@ -44042,7 +44041,6 @@ class stzString from stzObject
 
 		@oQString.clear()
 		@oQString.append(pcNewStr)
-
 
 		if KeepingHisto() = TRUE
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
@@ -79454,9 +79452,22 @@ class stzString from stzObject
 	#----------------------------------------------#
 
 	def RemoveManyCS(pacSubStr, pCaseSensitive)
-		for cSubstr in paCsubstr
-			This.RemoveAllCS(cSubstr, pCaseSensitive)
+		if CheckParams()
+			if NOT (isList(pacSubStr) and @IsListOfStrings(pacSubStr))
+				StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+			ok
+		ok
+
+		acSubStr = U(pacSubStr)
+		nLen = len(acSubStr)
+		oCopy = This.Copy()
+
+		for i = 1 to nLen
+			oCopy.RemoveAllCS(cSubstr, pCaseSensitive)
 		next
+
+		This.UpdateWith(oCopy.Content())
+
 
 		def RemoveManyCSQ(pacSubStr, pCaseSensitive)
 			This.RemoveManyCS(pacSubStr, pCaseSensitive)
