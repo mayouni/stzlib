@@ -34,10 +34,10 @@ What if we could capture each step of this transformation? Imagine a programming
     RemoveDuplicatedCharsQ().
     History() ) + NL
 #--> [
-#		"1 AA 2 B 3 CCC 4 DD 5 Z", 	# Original
-#		" AA  B  CCC  DD  Z",            	# After removing numbers
-#		"AABCCCDDZ",                     	# After removing spaces
-#		"ABCDZ"                          		# Final result
+#	"1 AA 2 B 3 CCC 4 DD 5 Z",      # Original
+#	" AA  B  CCC  DD  Z",               # After removing numbers
+#	"AABCCCDDZ",                        # After removing spaces
+#	"ABCDZ"                                 # Final result
 # ]
 ```
 
