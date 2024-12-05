@@ -168,6 +168,10 @@ class stzHashList from stzList # Also called stzAssociativeList
 			StzRaise("Unsupported form of the input of the hashlist!")
 		off
 
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
+
 	  #-------------#
 	 #     GET     #
 	#-------------#
@@ -667,13 +671,22 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#---------------------------#
 
 	def Update(paNewHashList)
-		if isList(paNewHashList) and Q(paNewHashList).IsWithOrByOrUsingNamedParam()
-			paNewHashList = paNewHashList[2]
+		if CheckingParams() = TRUE
+			if isList(paNewHashList) and Q(paNewHashList).IsWithOrByOrUsingNamedParam()
+				paNewHashList = paNewHashList[2]
+			ok
+
+			if NOT( isList(paNewHashList) and StzListQ(paNewHashList).IsHashList() )
+				StzRaise("Incorrect param type! paNewHashList must be a hashlist.")
+			ok
 		ok
 
-		if isList(paNewHashList) and StzListQ(paNewHashList).IsHashList()
-			@aContent = paNewHashList
+		@aContent = paNewHashList
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
 		ok
+	
 
 		#< @FunctionAlternativeForms
 

@@ -87,6 +87,10 @@ class stkNumber
 
 		@nRound = @Round(pNumber)
 
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
+
 	#-------------------------------------------------------#
 	#  GETTING THE INTEGER PART IN NUMBER AND STRING FORMS  #
 	#-------------------------------------------------------#

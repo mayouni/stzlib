@@ -747,12 +747,18 @@ class stzListOfBytes from stzList
 	#--
 
 	def Update(pcStr)
-		if isList(pcStr) and Q(pcStr).IsWithOrByOrUsingNamedParam()
-			pcStr = pcStr[2]
+		if CheckingParams() = TRUE
+			if isList(pcStr) and Q(pcStr).IsWithOrByOrUsingNamedParam()
+				pcStr = pcStr[2]
+			ok
 		ok
 
 		@oQByteArray = new QByteArray()
 		@oQByteArray.append(cResult)
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
 
 		#< @FunctionAlternativeForms
 

@@ -120,6 +120,10 @@ class stzListOfStrings from stzList
 			done
 		ok
 
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
+
 	  #---------------#
 	 #    GENENRAL   #
 	#---------------#
@@ -329,14 +333,16 @@ class stzListOfStrings from stzList
 	#--------------------------------#
 
 	def Update(pNewListOfStr)
-		if isList(pNewListOfStr) and Q(pNewListOfStr).IsWithOrByOrUsingNamedParam()
-			pNewListOfStr = pNewListOfStr[2]
+		if CheckParams()
+			if isList(pNewListOfStr) and Q(pNewListOfStr).IsWithOrByOrUsingNamedParam()
+				pNewListOfStr = pNewListOfStr[2]
+			ok
 		ok
 
 		if IsQStringListObject(pNewListOfStr)
 			@oQStrList = pNewListOfStr
 
-		but StzListQ(pNewListOfStr).IsListOfStrings()
+		but @IsListOfString(pNewListOfStr)
 			This.QStringListObject().clear()
 			nLen = len(pNewListOfStr)
 
@@ -347,6 +353,10 @@ class stzListOfStrings from stzList
 		else
 			StzRaise("Param you provided is not a list of strings!")
 	
+		ok
+
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
 		ok
 
 		#< @FunctionFluentForm

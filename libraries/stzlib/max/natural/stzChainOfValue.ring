@@ -129,11 +129,17 @@ class stzChainOfValue from stzObject
 	#-------------------------------#
 
 	def Update(pValue)
-		if isList(pValue) and Q(pValue).IsWithOrByOrUsingNamedParam()
-			cNewCode = cNewCode[2]
+		if CheckingParams() = TRUE
+			if isList(pValue) and Q(pValue).IsWithOrByOrUsingNamedParam()
+				cNewCode = cNewCode[2]
+			ok
 		ok
 
 		@pValue = pValue
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
 
 		#< @FunctionFluentForm
 

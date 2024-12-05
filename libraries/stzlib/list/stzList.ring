@@ -5437,6 +5437,10 @@ class stzList from stzObject
 
 		@aContent = paList
 
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
+
 	  #---------------------#
 	 #     CONSTRAINTS     #
 	#---------------------#
@@ -6713,12 +6717,22 @@ class stzList from stzObject
 	*/
 
 	def Update(paNewList)
-		if isList(paNewList) and Q(paNewList).IsWithOrByOrUsingNamedParam()
-			paNewList = paNewList[2]
+		if CheckingParams() = TRUE
+			if isList(paNewList) and Q(paNewList).IsWithOrByOrUsingNamedParam()
+				paNewList = paNewList[2]
+			ok
+
+			if NOT isList(paNewList)
+				StzRaise("Incorrect param type! paNewList must be a list.")
+			ok
 		ok
 
 		@aContent = paNewList
-		
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
+
 		#< @FunctionFluentForm
 
 		def UpdateQ(paNewList)
@@ -7788,10 +7802,14 @@ class stzList from stzObject
 		paItems = Q(paItems).DuplicatesRemovedCS(pCaseSensitive)
 		nLen = len(paItems)
 
+		oCopy = This.Copy()
+
 		for i = 1 to nLen
-			This.ReplaceCS( paItems[i], pNewItem, pCaseSensitive )
+			oCopy.ReplaceCS( paItems[i], pNewItem, pCaseSensitive )
 		next
-	
+
+		This.UpdateWith(oCopy.Content())
+
 		#< @FunctionFluentForm
 	
 		def ReplaceManyCSQ(paItems, pNewItem, pCaseSensitive)
@@ -13999,10 +14017,13 @@ class stzList from stzObject
 		ok
 
 		nLen = len(paItems)
+		oCopy = This.Copy()
 
 		for i = 1 to nLen
-			This.RemoveAllCS(paItems[i], pCaseSensitive)
+			oCopy.RemoveAllCS(paItems[i], pCaseSensitive)
 		next
+
+		This.UpdateWith(oCopy.Content())
 
 		#< @FunctionFluentForm
 
@@ -15861,9 +15882,13 @@ class stzList from stzObject
 
 		# Doing the job
 
+		oCopy = This.Copy()
+
 		for i = nLen to 1 step -1
-			This.RemoveSection(aMerged[i][1], aMerged[i][2])
+			oCopy.RemoveSection(aMerged[i][1], aMerged[i][2])
 		next
+
+		This.UpdateWith(oCopy.Content())
 
 		#< @FunctionFluentForm
 
@@ -45965,6 +45990,32 @@ www	#----------------------------------------#
 			def RemoveOnlyStringsQ()
 				This.RemoveOnlyStrings()
 				return This
+
+	def FindSpaces()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		anResult = []
+
+		for i = 1 to nLen
+			if isString(aContent[i]) and aContent[i] = " "
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+	def RemoveSpaces()
+		anPos = This.FindSpaces()
+		This.RemoveItemsAtPositions(anPos)
+
+		def RemoveSpacesQ()
+			This.RemoveSpaces()
+			return This
+
+	def SpacesRemoved()
+		aResult = This.Copy().RemoveSpacesQ().Content()
+		return aResult
 
 	  #-------------------------------------------#
 	 #  GETTING THE STRINGS AND THEIR POSITIONS  #

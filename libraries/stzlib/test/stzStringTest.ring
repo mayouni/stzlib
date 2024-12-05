@@ -9123,26 +9123,69 @@ pron()
 
 proff()
 
-/*======= KEEPING THE HISTOR OF UPDATES OF A SOFTANZA OBJECT
-*/
+/*======= KEEPING THE HISTORY OF UPDATES OF A SOFTANZA OBJECT
+
 pron()
+
+# Consider this basic string transformation chain in Softanza:
 
 ? Q("1 AA 2 B 3 CCC 4 DD 5 Z").
 	RemoveWXTQ('Q(@Char).IsNumberInString()').
 	RemoveSpacesQ().
 	RemoveDuplicatedCharsQ().
 	Content() + NL
+	#--> ABCDZ
 
-#--> ABCDZ
+# Here, we process the string, removing numbers, spaces,
+# and # duplicate characters. The result is clear, but
+# the path is forgotten.
+
+# What if we could capture each step of this transformation?
+# Say hello the QH() small function:
 
 ? @@NL( QH("1 AA 2 B 3 CCC 4 DD 5 Z").
 	RemoveWXTQ('Q(@Char).IsNumberInString()').
 	RemoveSpacesQ().
 	RemoveDuplicatedCharsQ().
-	Histo() ) + NL
-#--> ABCDZ
+	History() ) + NL
+
+#--> [
+#	"1 AA 2 B 3 CCC 4 DD 5 Z",
+#	" AA  B  CCC  DD  Z",
+#	"AABCCCDDZ",
+#	"ABCDZ"
+# ]
 
 proff()
+# Executed in 0.44 second(s) in Ring 1.22
+
+/*-----
+*/
+pron()
+
+? @@( Q([ " ", 1, " ", "A", "A", 2, "B", 3, "C", "C", "C", 4, "D", "D" ]).
+	RemoveWXTQ('isNumber(@item)').
+	RemoveSpacesQ().
+	RemoveDuplicatedItemsQ().
+	Content() ) + NL
+
+#--> [ "A", "B", "C", "D" ]
+
+? @@NL( QH([ " ", 1, " ", "A", "A", 2, "B", 3, "C", "C", "C", 4, "D", "D" ]).
+	RemoveWXTQ('isNumber(@item)').
+	RemoveSpacesQ().
+	RemoveDuplicatedItemsQ().
+	History() ) 
+
+#--> [
+#	[ " ", 1, " ", "A", "A", 2, "B", 3, "C", "C", "C", 4, "D", "D" ],
+#	[ " ", " ", "A", "A", "B", "C", "C", "C", "D", "D" ],
+#	[ "A", "A", "B", "C", "C", "C", "D", "D" ],
+#	[ "A", "B", "C", "D" ]
+# ]
+
+proff()
+# Executed in 0.17 second(s) in Ring 1.22
 
 /*-----
 
@@ -9155,17 +9198,22 @@ pron()
 	Content() + NL
 #--> ABCDZ
 
-KeepHisto()
+KeepHistory()
 
-? Q("1 AA 2 B 3 CCC 4 DD 5 Z").
+? @@NL( Q("1 AA 2 B 3 CCC 4 DD 5 Z").
 	RemoveWXTQ('Q(@Char).IsNumberInString()').
 	RemoveSpacesQ().
 	RemoveDuplicatedCharsQ().
-	History()
+	History() ) + NL
 
-#--> "ABCDZ"
+#--> [
+#	"1 AA 2 B 3 CCC 4 DD 5 Z",
+#	" AA  B  CCC  DD  Z",
+#	"AABCCCDDZ",
+#	"ABCDZ"
+# ]
 
-DontKeepHisto()
+DontKeepHistory()
 
 ? @@( Q("1 AA 2 B 3 CCC 4 DD 5 Z").
 	RemoveWXTQ('Q(@Char).IsNumberInString()').
@@ -9175,9 +9223,10 @@ DontKeepHisto()
 #--> [ ]
 
 proff()
+# Executed in 0.65 second(s) in Ring 1.22
 
-/*-----------------
-*/
+/*============
+
 pron()
 
 str = "sun"

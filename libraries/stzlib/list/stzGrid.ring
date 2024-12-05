@@ -144,6 +144,10 @@ class stzGrid from stzObject
 	
 		This.SetGrid(p)
 
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
+
 	  #--------------------#
 	 #  SETTING THE GRID  #
 	#--------------------#
@@ -290,6 +294,10 @@ class stzGrid from stzObject
 
 	def Update(paContent)
 		@aContent = paContent
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
 
 		def UpdateWith(paContent)
 			This.Update(paContent)

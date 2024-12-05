@@ -102,7 +102,6 @@ class stzBinaryNumber from stzObject
 		return BinaryPrefix() + This.Content()
 
 
-
  	  #-------------------------#
 	 #    BITWISE OPERATORS    #
 	#-------------------------#

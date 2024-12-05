@@ -372,6 +372,10 @@ Class stzTable from stzObject
 				 "stzTable.Init() method.")
 		ok
 
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
+
 	def Content()
 		return @aContent
 
@@ -11555,17 +11559,23 @@ Class stzTable from stzObject
 	#======================#
 
 	def Update(paNewTable)
-		if isList(paNewTable) and Q(paNewTable).IsWithOrByOrUsingNamedParam()
-			paNewTable = paNewTable[2]
-		ok
-
-		if NOT( isList(paNewTable) and Q(paNewTable).IsHashList() and
-			StzHashListQ(paNewTable).ValuesAreListsOfSameSize()  )
-
-			StzRaise("Incorrect param type! paNewTable must be a hashlist where values are lists of the same size.")
+		if CheckingParams() = TRUE
+			if isList(paNewTable) and Q(paNewTable).IsWithOrByOrUsingNamedParam()
+				paNewTable = paNewTable[2]
+			ok
+	
+			if NOT( isList(paNewTable) and Q(paNewTable).IsHashList() and
+				StzHashListQ(paNewTable).ValuesAreListsOfSameSize()  )
+	
+				StzRaise("Incorrect param type! paNewTable must be a hashlist where values are lists of the same size.")
+			ok
 		ok
 
 		@aContent = paNewTable
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
 
 		#< @FunctionFluentForm
 

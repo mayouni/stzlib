@@ -26,9 +26,12 @@ class stzPair from stzList
 		// Control: paList must contain just 2 items
 		@aContent = []
 		for item in paList
-
 			@aContent + item
 		next
+
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
 
 	def Content()
 		return @aContent
@@ -43,11 +46,17 @@ class stzPair from stzList
 		return new stzPair( This.Content() )
 
 	def Update(paPair)
-		if NOT ( isList(paPair) and len(panPair) = 2 )
-			StzRaise("Incorrect param type! paPair must be a list of 2 items.")
+		if CheckingParams()
+			if NOT ( isList(paPair) and len(panPair) = 2 )
+				StzRaise("Incorrect param type! paPair must be a list of 2 items.")
+			ok
 		ok
 
 		@aContent = paPair
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
 
 		def UpdateWith(paPair)
 			This.Update(paPair)

@@ -265,6 +265,10 @@ class stzListOfLists from stzList
 			@aContent = paList
 		ok
 
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
+
 	  #-------------#
 	 #   GENERAL   #
 	#-------------#
@@ -292,15 +296,21 @@ class stzListOfLists from stzList
 	#-------------------------------#
 
 	def Update(paList)
-		if isList(paList) and Q(paList).IsWithOrByOrUsingNamedParam()
-			paList = paList[2]
+		if CheckingParams() = TRUE
+			if isList(paList) and Q(paList).IsWithOrByOrUsingNamedParam()
+				paList = paList[2]
+			ok
 
-			if NOT Q(paList).IsListOfLists(paList)
+			if NOT @IsListOfLists(paList)
 				StzRaise("Incorrect param type! paList must be a list of lists.")
 			ok
 		ok
 
 		@aContent = paList
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
 
 		#< @FunctionAlternativeForms
 

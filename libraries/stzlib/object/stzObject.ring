@@ -1647,6 +1647,10 @@ class stzObject
 			StzRaise("Type error: you must provide an object or an object varname inside a string!")
 		ok
 
+		if KeepingHistory() = TRUE
+			@aHisto + This.Content()
+		ok
+
 	def Content()
 		return @oObject
 

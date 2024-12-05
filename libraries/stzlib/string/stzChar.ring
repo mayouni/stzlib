@@ -568,6 +568,10 @@ class stzChar from stzObject
 			StzRaise(stzCharError(:CanNotCreateCharObjectForThisType))
 		ok
 
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
+
 	def Content()
 		oStr = new QString2()
 		oStr.append_2(@oQChar)
@@ -616,8 +620,10 @@ class stzChar from stzObject
 	#---
 
 	def Update(pChar)
-		if isList(pChar) and Q(pChar).IsWithOrByOrUsingNamedParam()
-			pChar = pChar[2]
+		if CheckingParams() = TRUE
+			if isList(pChar) and Q(pChar).IsWithOrByOrUsingNamedParam()
+				pChar = pChar[2]
+			ok
 		ok
 
 		if isString(pChar)
@@ -633,6 +639,11 @@ class stzChar from stzObject
 		else
 			StzRaise("Can't update the char!")
 		ok
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
+
 
 	#< @FunctionAlternativeForms
 

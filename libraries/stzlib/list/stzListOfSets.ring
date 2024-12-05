@@ -18,6 +18,10 @@ class stzListOfSets from stzListOfLists
 			StzRaise(stzListOfSetsError(:CanNotCreateListOfSets))
 		ok
 
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
+
 	def Content()
 		return @aContent
 

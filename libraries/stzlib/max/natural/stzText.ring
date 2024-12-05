@@ -560,9 +560,19 @@ class stzText from stzString
 		return new stzString( This.Content() )
 
 	def UpdateWith(pcStr)
+		if CheckingParams()
+			if NOT isString(pcStr)
+				StzRaise("Incorrect param type! pcStr must be a string.")
+			ok
+		ok
+
 		@cContent = pcStr
 		@oQString = new QString2()
 		@oQString.append(pcStr)
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
 
 		def Update(pcStr)
 			This.UpdateWith(pcStr)

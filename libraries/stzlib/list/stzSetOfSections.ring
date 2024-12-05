@@ -26,6 +26,10 @@ class stzSetOfSections from stzListOfSections
 
 		@aContent = paSections
 
+		if KeepingHistory() = TRUE
+			This.AddHistoricValue(This.Content())
+		ok
+
 	def Content()
 		return @aContent
 
@@ -33,13 +37,22 @@ class stzSetOfSections from stzListOfSections
 		return This
 
 	def Update(paNewSections)
+
 		if CheckingParam()
 			if isList(paNewSections) and StzListQ(paSections).IsWithNamedParam()
 				paNewSections = paNewSections[2]
 			ok
+
+			if NOT @IsListOfPairsOfNumbers(paNewSections)
+				StzRaise("Incorrect param type! paNewSections must be a list of pairs of numbers.")
+			ok
 		ok
 
 		@aContent = paNewSections
+
+		if KeepingHisto() = TRUE
+			This.AddHistoricValue(This.Content())  # From the parent stzObject
+		ok
 
 		def UpdateWith(paNewSections)
 			This.Update(paNewSections)
