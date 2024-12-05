@@ -9160,7 +9160,7 @@ proff()
 # Executed in 0.44 second(s) in Ring 1.22
 
 /*-----
-*/
+
 pron()
 
 ? @@( Q([ " ", 1, " ", "A", "A", 2, "B", 3, "C", "C", "C", 4, "D", "D" ]).
@@ -9186,6 +9186,31 @@ pron()
 
 proff()
 # Executed in 0.17 second(s) in Ring 1.22
+
+/*-----
+*/
+pron()
+
+? Q(12500).
+	AddQ(500).
+	RetrieveQ(1500).
+	DivideByQ(500).
+	MultiplyByQ(2).
+	Value()
+
+	#--> 45
+
+? @@( Qh(12500).
+	AddQ(500).
+	RetrieveQ(1500).
+	DivideByQ(500).
+	MultiplyByQ(2).
+	History() )
+
+	#--> [ 13000, 11500, 23, 46 ]
+
+proff()
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*-----
 

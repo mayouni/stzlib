@@ -1707,7 +1707,7 @@ class stzNumber from stzObject
 		ok
 
 		if KeepingHisto() = TRUE
-			This.AddHistoricValue(This.Content())  # From the parent stzObject
+			This.AddHistoricValue(This.Value())  # From the parent stzObject
 		ok
 
 		#< @FunctionFluentForm
