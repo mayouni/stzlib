@@ -76,7 +76,10 @@ func StartTimer()
 	_time0 = clock()
 
 func ResetTimer()
-	_time0 = 0
+	_time0 = clock()
+
+	func ResetProfiler()
+		_time0 = clock()
 
 func ElapsedTime()
 	return ElapsedTimeXT(:In = :Seconds)

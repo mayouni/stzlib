@@ -117,7 +117,7 @@ func StzNumberQ(cNumber)
 	return new stzNumber(cNumber)
 
 func StzNamedNumber(paNamed)
-	if CheckParams()
+	if CheckingParams()
 
 	ok
 
@@ -901,7 +901,7 @@ func GetActiveRound()
 	#>
 	
 func NumberIsCalculable(nNumber)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(nNumber)
 			StzRaise("Incorrect param type! nNumber must be a number.")
 		ok
@@ -974,7 +974,7 @@ func StringToNumber(cNumber) # TESTING IN PROGESS
 	#>
 
 func NumberToString(n)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
@@ -1004,7 +1004,7 @@ func NumberToString(n)
 # Decimal form
 
 func StringRepresentsNumberInDecimalForm(pcNumber)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(pcNumber)
 			StzRaise("Incorrect param type! pcNumber must be a string.")
 		ok
@@ -1019,7 +1019,7 @@ func CharIsDigit(c)
 # Binary form
 
 func StringRepresentsNumberInBinaryform(pcNumber)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(pcNumber)
 			StzRaise("Incorrect param type! pcNumber must be a string.")
 		ok
@@ -1031,7 +1031,7 @@ func StringRepresentsNumberInBinaryform(pcNumber)
 # Hex form
 
 func StringRepresentsNumberInHexForm(pcNumber)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(pcNumber)
 			StzRaise("Incorrect param type! pcNumber must be a string.")
 		ok
@@ -1041,7 +1041,7 @@ func StringRepresentsNumberInHexForm(pcNumber)
 	return oTempStr.RepresentsNumberInHexForm()
 
 func StringRepresentsNumberInUnicodeHexForm(pcNumber)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(pcNumber)
 			StzRaise("Incorrect param type! pcNumber must be a string.")
 		ok
@@ -1052,7 +1052,7 @@ func StringRepresentsNumberInUnicodeHexForm(pcNumber)
 # Octal form
 
 func StringRepresentsNumberInOctalForm(pcNumber)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(pcNumber)
 			StzRaise("Incorrect param type! pcNumber must be a string.")
 		ok
@@ -1432,7 +1432,7 @@ class stzNumber from stzObject
 		#    or as a number in string), and the round to be taken.
 		#    ~> Example : new stzNumber([ 12.275865, :Round = 3 ])
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT (isNumber(pNumber) or isString(pNumber) or @IsPair(pNumber))
 				StzRaise(stzNumberError(:CanNotCreateStzNumberObject))
 			ok
@@ -1571,7 +1571,7 @@ class stzNumber from stzObject
 		return @cReturnType
 
 	def SetReturnType(cType)
-		if CheckParams()
+		if CheckingParams()
 			if isList(cType) and Q(cType).IsToOrAsNamedParams()
 				cType = cType[2]
 			ok
@@ -1590,7 +1590,7 @@ class stzNumber from stzObject
 		#< @FunctionAlternativeForms
 
 		def SetReturnTypeTo(cType)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isString(cType)
 					StzRaise("Incorrect param type! cType must be a string.")
 				ok
@@ -1673,7 +1673,7 @@ class stzNumber from stzObject
 	#-------------------------#
 
 	def Update(pNumber)
-		if CheckParams()
+		if CheckingParams()
 
 			if isList(pNumber) and Q(pNumber).IsWithOrByOrUsingNamedParam()
 				pNumber = pNumber[2]
@@ -1792,7 +1792,7 @@ class stzNumber from stzObject
 
 	def IsMultipleOf(n)
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
@@ -1824,7 +1824,7 @@ class stzNumber from stzObject
 			return This.IsMultipleOf(n)
 
 	def IsDoubleOf(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
@@ -1852,7 +1852,7 @@ class stzNumber from stzObject
 			return This.IsDoubleOf(n)
 
 	def IsTripleOf(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
@@ -1880,7 +1880,7 @@ class stzNumber from stzObject
 			return This.IsTripleOf(n)
 
 	def IsQuadrupleOf(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
@@ -1908,7 +1908,7 @@ class stzNumber from stzObject
 			return This.IsQuadrupleOf(n)
 
 	def IsQuintupleOf(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
@@ -1936,7 +1936,7 @@ class stzNumber from stzObject
 			return This.IsQuintupleOf(n)
 
 	def IsSextupleOf(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
@@ -1965,7 +1965,7 @@ class stzNumber from stzObject
 
 
 	def IsOctupleOf(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
@@ -1993,7 +1993,7 @@ class stzNumber from stzObject
 			return This.IsOctupleOf(n)
 
 	def IsNonupleOf(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
@@ -2021,7 +2021,7 @@ class stzNumber from stzObject
 			return This.IsNonupleOf(n)
 
 	def IsDecupleOf(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @IsStringOrNumber(n)
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
@@ -2053,7 +2053,7 @@ class stzNumber from stzObject
 	#-----------------#
 
 	def IsBoundedBy(n1, n2)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( @IsStringOrNumber(n1) and @IsStringOrNumber(n2) )
 				StzRaise("Incorrect param type! n1 and n2 must be numbers or strings.")
 			ok
@@ -2361,7 +2361,7 @@ class stzNumber from stzObject
         #-------------------#
 	
 	def IsEqualTo(pOtherNumber)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @IsNumberOrNumberInString(pOtherNumber)
 				StzRaise("Incorrect param type! pOtherNumber must be a number or number in string.")
 			ok
@@ -2455,7 +2455,7 @@ class stzNumber from stzObject
 	#=====
 
 	def IsNeither(n1, n2)
-		if CheckParams()
+		if CheckingParams()
 			if isList(n1) and Q(n1).IsEqualToNamedParam()
 				n1 = n1[2]
 			ok
@@ -2488,7 +2488,7 @@ class stzNumber from stzObject
 			return This.IsNeither(n1, n2)
 
 	def IsLess(pOtherNumber)
-		if CheckParams()
+		if CheckingParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()
 				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
 			ok
@@ -2525,7 +2525,7 @@ class stzNumber from stzObject
 		#>
 	
 	def IsStriclyLess(pOtherNumber)
-		if CheckParams()
+		if CheckingParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()
 				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
 			ok
@@ -2562,7 +2562,7 @@ class stzNumber from stzObject
 		#>
 
 	def IsGreater(pOtherNumber)
-		if CheckParams()
+		if CheckingParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()
 				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
 			ok
@@ -2602,7 +2602,7 @@ class stzNumber from stzObject
 		#>
 
 	def IsStrictlyGreater(pOtherNumber)
-		if CheckParams()
+		if CheckingParams()
 			if NOT Q(pOtherNumber).IsNumberOrString()
 				StzRaise("Incorrect param types! pNumber1 and pNumber2 must be numbers or strings.")
 			ok
@@ -2643,7 +2643,7 @@ class stzNumber from stzObject
 
 	def IsBetween(pNumber1, pNumber2)
 
-		if CheckParams()
+		if CheckingParams()
 			if isList(pNumber2) and Q(pNumber2).IsAndNamedParam()
 				pNumber2 = pNumber2[2]
 			ok
@@ -2668,7 +2668,7 @@ class stzNumber from stzObject
 
 	def IsBetweenIB(pNumber1, pNumber2)
 
-		if CheckParams()
+		if CheckingParams()
 			if isList(pNumber2) and Q(pNumber2).IsAndNamedParam()
 				pNumber2 = pNumber2[2]
 			ok
@@ -2695,7 +2695,7 @@ class stzNumber from stzObject
 			return This.IsBetweenIB(pNumber1, pNumber2)
 
 	def IsStrictlyBetween(pNumber1, pNumber2)
-		if CheckParams()
+		if CheckingParams()
 			if isList(pNumber2) and Q(pNumber2).IsAndNamedParam()
 				pNumber2 = pNumber2[2]
 			ok
@@ -3122,7 +3122,7 @@ class stzNumber from stzObject
 		#>
 
 	def RoundToXT(nRound)
-		if CheckParams()
+		if CheckingParams()
 			if isString(nRound) and nRound = :Max
 				nRound = MaxRoundInRing()
 			ok
@@ -3368,7 +3368,7 @@ class stzNumber from stzObject
 		#>
 
 	def AddManyXT(paOtherNumbers, paReturnIntermediateResults)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
 				StzRaise("Incorrect param type! paOtherNumbers must be a list of numbers or strings.")
 			ok
@@ -3526,7 +3526,7 @@ class stzNumber from stzObject
 	def SubStructManyXT(paOtherNumbers, paReturnIntermediateResults)
 		#TODO // Add "These" as alternative of "Many"
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
 				StzRaise("Incorrect param type! paOtherNumbers must be a list of numbers or strings.")
 			ok
@@ -3586,7 +3586,7 @@ class stzNumber from stzObject
 
 	def MultiplyBy(pOtherNumber)
 
-		if CheckParams()
+		if CheckingParams()
 			if isList(pOtherNumber)
 				This.MultiplyByMany(pOtherNumber)
 				return
@@ -3606,7 +3606,7 @@ class stzNumber from stzObject
 		#< @FunctionAlternativeForm
 
 		def Multiply(pOtherNumber)
-			if CheckParams()
+			if CheckingParams()
 				if isList(pOtherNumber) and Q(pOtherNumber).IsByOrWithOrUsingNamedParam()
 					pOtherNumber = pOtherNumber[2]
 				ok
@@ -3650,7 +3650,7 @@ class stzNumber from stzObject
 	def MultiplyByManyXT(paOtherNumbers, paReturnIntermediateResults)
 		#TODO // Add "These" as alternative of "Many"
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
 				StzRaise("Incorrect param type! paOtherNumbers must be a list of numbers or strings.")
 			ok
@@ -3683,7 +3683,7 @@ class stzNumber from stzObject
 	#----------------#
 
 	def Divide(pOtherNumber)
-		if CheckParams()
+		if CheckingParams()
 
 			if isList(pOtherNumber) and Q(pOtherNumber).IsByNamedParam()
 				paByDividor = paByDividor[2]
@@ -3748,7 +3748,7 @@ class stzNumber from stzObject
 	def DivideByManyXT(paOtherNumbers, paReturnIntermediateResults)
 		#TODO // Add "These" as alternative of "Many"
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(paOtherNumbers) and @IsListOfNumbersOrStrings(paOtherNumbers) )
 				StzRaise("Incorrect param type! paOtherNumbers must be a list of numbers or strings.")
 			ok
@@ -4236,7 +4236,7 @@ class stzNumber from stzObject
 
 	def MultiplesUntil(pOtherNumber)
 
-		if CheckParams()
+		if CheckingParams()
 
 			if NOT (isNumber(pOtherNumber) or isString(pOtherNumber))
 				StzRaise("Incorrect param type! pOtherNumber must be a number or a string.")
@@ -4360,7 +4360,7 @@ class stzNumber from stzObject
 	# DIVIDABILITY
 
 	def IsDividableBy(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @IsNumberOrString(n)
 				StzRaise("Incorrect param type! n must be a number or string.")
 			ok
@@ -6066,7 +6066,7 @@ class stzNumber from stzObject
 
 	def SwapWith(pOtherStzNumber)
 
-		if CheckParams()
+		if CheckingParams()
 
 			if NOT @IsStzNumber(pOtherStzNumber)
 				StzRaise("Incorrect param type! pOtherStzNumber must be a stzNumber object.")

@@ -3,7 +3,7 @@ func StzListOfEntitiesQ()
 	return new stzListOfEntities()
 
 func IsListOfEntities(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type!")
 		ok

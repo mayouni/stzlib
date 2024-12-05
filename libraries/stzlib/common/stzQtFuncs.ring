@@ -344,7 +344,7 @@ func QStringContent(oQStr)
 		return QStringContent(oQStr)
 
 func StringToQStringObject(str)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(str)
 			StzRaise("Incorrect param type! str must be a string.")
 		ok

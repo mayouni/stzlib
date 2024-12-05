@@ -784,7 +784,7 @@ func INSERT_INTO(pcTableName, pacColNames)
 
 	*/
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(pcTableName)
 			StzRaise("Incorrect param type! pcTableName must be a string.")
 		ok
@@ -824,7 +824,7 @@ func INSERT_INTO(pcTableName, pacColNames)
 	#>
 
 func VALUES(paValues)
-	if CheckParams()
+	if CheckingParams()
 		if NOT ( isList(paValues) and Q(paValues).IsListOfLists() )
 			StzRaise("Incorrect param type! paValues must be a list of lists.")
 		ok
@@ -884,7 +884,7 @@ func VALUES(paValues)
 
 func SELECT(pacColNames)
 
-	if CheckParams()
+	if CheckingParams()
 
 		if NOT ( isString(pacColNames) or
 			( isList(pacColNames) and Q(pacColNames).IsListOfStrings() ) )
@@ -919,7 +919,7 @@ func SELECT(pacColNames)
 
 func FROM_(pcTableName)
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(pcTableName)
 			StzRaise("Incorrect param type! pcTableName must be a string.")
 		ok
@@ -972,7 +972,7 @@ func FROM_(pcTableName)
 
 func WHERE_(pcCondition) #NOTE: Where() is used in an other place
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(pcCondition)
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
@@ -1080,7 +1080,7 @@ func WITH_(pcSQL)
 	#>
 
 func ORDER_BY(pcColName, pcSortOrder)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(pcColName)
 			StzRaise("Incorrect param type! pcColName must be a string.")
 		ok
@@ -1133,7 +1133,7 @@ class WITH // used in supporting SQL semantics
 	cSQL
 
 	def init(pcSQL)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isString(pcSQL)
 				StzRaise("Incorrect param type! pcSQL must be a string.")
 			ok
@@ -1142,7 +1142,7 @@ class WITH // used in supporting SQL semantics
 		cSQL = pcSQL
 
 	def As(paParams)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(paParams) and
 				 len(paParams) > 0 and len(paParams) <= 3 )
 

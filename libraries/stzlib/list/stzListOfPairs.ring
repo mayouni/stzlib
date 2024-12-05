@@ -24,7 +24,7 @@ func RangesToSections(panRanges)
 	#UPDATE
 	# Done!
 
-	if CheckParams()
+	if CheckingParams()
 		if not isList(panRanges)
 			StzRaise("Incorrect param type! panRanges must be a list.")
 		ok
@@ -57,7 +57,7 @@ func SectionsToRanges(paSections)
 	#UPDATE
 	# Done!
 
-	if CheckParams()
+	if CheckingParams()
 		if not isList(paSections)
 			StzRaise("Incorrect param type! paSections must be a list.")
 		ok
@@ -97,7 +97,7 @@ class stzListOfPairs from stzListOfLists
 	@aContent = []
 
 	def init(paLists)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(paLists) and @IsListOfPairs(paLists) )
 				StzRaise("Can't create the StzListOfPairs object! You must provide a list of pairs.")
 			ok
@@ -127,7 +127,7 @@ class stzListOfPairs from stzListOfLists
 		ok
 
 	def UpdatePairWith(n, paNewPair)
-		if CheckParams()
+		if CheckingParams()
 			if NOT (isNumber(n) and ( n = 1 or n = 2 ) )
 				StzRaise("Incorrect param type! n must be a number equal to 1 or 2.")
 			ok

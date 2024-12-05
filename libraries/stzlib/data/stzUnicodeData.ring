@@ -690,7 +690,7 @@ class stzUnicodeData
 		return cChar
 
 	def CharHexCodeByName(pcCharName)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isString(pcCharName)
 				StzRaise("Incorrect param type! pcCharName must be a string.")
 			ok
@@ -797,7 +797,7 @@ class stzUnicodeData
 	#==
 
 	def UnicodesOfCharsContaining(cPartOfName)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isString(cPartOfName)
 				StzRaise("Incorrect param type! cPartOfName must be a string.")
 			ok

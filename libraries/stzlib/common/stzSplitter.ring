@@ -545,7 +545,7 @@ class stzSplitter from stzListOfNumbers
 
 	def SplitBeforePositions(panPos)
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 				StzRaise("Incorrect param type! panPos must be a list of numbers.")
 			ok
@@ -675,7 +675,7 @@ class stzSplitter from stzListOfNumbers
 	#------------------------------------#
 
 	def SplitAfterPositions(panPos)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(panPos) and @IsListOfNumbers(panPos) )
 				StzRaise("Incorrect param type! panPos must be a list of numbers.")
 			ok
@@ -1371,7 +1371,7 @@ class stzSplitter from stzListOfNumbers
 	#----------------------------#
 
 	def SplitToNParts(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -1551,7 +1551,7 @@ class stzSplitter from stzListOfNumbers
 
 		# Checking the param
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok

@@ -441,7 +441,7 @@ func NumberOfChineseLetters()
 #TODO // add simular functions to all other languages
 
 func NthChar(n, str)
-	if CheckParams()
+	if CheckingParams()
 		if NOT ( isNumber(n) and isString(str) )
 			StzRaise("Incorrect param type! n must be a number and str must be a string.")
 		ok
@@ -455,7 +455,7 @@ func NthChar(n, str)
 
 /*
 func StzIsVowel(cCharOrStr) # A more general alternative of Ring isVowel()
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(cCharOrStr)
 			StzRaise("Incorrect param type! cCharOrStr must be a string.")
 		ok
@@ -478,7 +478,7 @@ func StzIsVowel(cCharOrStr) # A more general alternative of Ring isVowel()
 
 */
 func StzIsVowel(p) # Can be char, a string or a list of chars or strings
-	if CheckParams()
+	if CheckingParams()
 		if NOT isStringOrListOfStrings(p)
 			StzRaise("Incorrect param type! pcStrOrList must be a string or list of strings.")
 		ok
@@ -1309,7 +1309,7 @@ class stzChar from stzObject
 		So, let's solve it natively in Ring...
 		*/
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT (isList(pacChars) and @IsListOfChars(pacChars))
 				StzRaise("Incorrect param type! pacChars must be a list of chars.")
 			ok
@@ -3102,7 +3102,7 @@ class stzChar from stzObject
 		#< @FunctionAlternativeForm
 
 		def ToHexSeparatedBy(pcSep)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isString(pcSep)
 					StzRaise("Incorrect param type! pcSep must be a string.")
 				ok
@@ -3111,7 +3111,7 @@ class stzChar from stzObject
 			return This.ToHexSeparated(pcSep)
 
 		def ToHexSeparatedWith(pcSep)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isString(pcSep)
 					StzRaise("Incorrect param type! pcSep must be a string.")
 				ok
@@ -3120,7 +3120,7 @@ class stzChar from stzObject
 			return This.ToHexSeparated(pcSep)
 
 		def ToHexSeparatedUsing(pcSep)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isString(pcSep)
 					StzRaise("Incorrect param type! pcSep must be a string.")
 				ok
@@ -3141,7 +3141,7 @@ class stzChar from stzObject
 		#< @FunctionAlternativeForm
 
 		def ToHexWithoutPrefixSeparatedBy(pcSep)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isString(pcSep)
 					StzRaise("Incorrect param type! pcSep must be a string.")
 				ok
@@ -3150,7 +3150,7 @@ class stzChar from stzObject
 			return This.ToHexWithoutPrefixSeparated(pcSep)
 
 		def ToHexWithoutPrefixSeparatedWith(pcSep)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isString(pcSep)
 					StzRaise("Incorrect param type! pcSep must be a string.")
 				ok
@@ -3159,7 +3159,7 @@ class stzChar from stzObject
 			return This.ToHexWithoutPrefixSeparated(pcSep)
 
 		def ToHexWithoutPrefixSeparatedUsing(pcSep)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isString(pcSep)
 					StzRaise("Incorrect param type! pcSep must be a string.")
 				ok

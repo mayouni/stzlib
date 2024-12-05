@@ -4,7 +4,7 @@ func StzListOfGridsQ(paGrids)
 	return new stzListOfGrids(paGrids)
 
 func IsListOfGrids(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type!")
 		ok

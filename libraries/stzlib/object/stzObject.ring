@@ -109,7 +109,7 @@ func StzObjectQ(pObject)
 	return new stzObject(pObject)
 
 func StzNamedObject(paNamed)
-	if CheckParams()
+	if CheckingParams()
 		if NOT (isList(paNamed) and Q(paNamed).IsPairOfStringAndObject())
 			StzRaise("Incorrect param type! paNamed must be a pair of string and object.")
 		ok
@@ -127,7 +127,7 @@ func StzNamedObject(paNamed)
 
 func NamedObject(pcObjName)
 	? @@(_avars)
-	if CheckParams()
+	if CheckingParams()
 		
 	ok
 
@@ -198,7 +198,7 @@ func ObjectIsUnnamed(pObject)
 
 	
 func PluralOfRingType(cType)
-	if CheckParams()
+	if CheckingParams()
 		if NOT IsString(cPlural)
 			StzRaise("Incorrect param type! cPlural must be a string.")
 		ok
@@ -241,7 +241,7 @@ func RingTypesPlurals()
 		return RingTypesPlurals()
 
 func IsPluralOfRingType(cPlural)
-	if CheckParams()
+	if CheckingParams()
 		if NOT IsString(cPlural)
 			StzRaise("Incorrect param type! cPlural must be a string.")
 		ok
@@ -304,7 +304,7 @@ func RingTypesXT()
 	return _aRingTypesXT
 	
 func PluralToRingType(cPlural)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(cPlural)
 			StzRaise("Incorrect param type! cPlural must be a string.")
 		ok
@@ -388,7 +388,7 @@ func StzClassesPlurals()
 		return StzClassesPlurals()
 
 func IsPluralOfAStzType(cPlural)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(cPlural)
 			StzRaise("Incorrect param! cPlural must be a string.")
 		ok
@@ -478,7 +478,7 @@ func IsPluralOfAStzType(cPlural)
 	#>
 
 func PluralToStzType(cPlural)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(cPlural)
 			StzRaise("Incorrect param! cPlural must be a string.")
 		ok
@@ -647,7 +647,7 @@ func AreUnnamedObjects(paObjects)
 		return AreUnnamedObjects(paObjects)
 
 func ObjectsNames(paObjects)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paObjects)
 			StzRaise("Incorrect param type! paObjects must be a list.")
 		ok
@@ -2106,7 +2106,7 @@ class stzObject
 		? Q("ring").IsAXT([ :Lowercase, :Latin, :String ])
 		*/
 
-		if CheckParams()
+		if CheckingParams()
 
 			if NOT isList(pacStr) 
 				StzRaise("Incorrect param type! pacStr must be a list.")
@@ -3482,7 +3482,7 @@ class stzObject
 			return This.HasAQ()
 
 	def HasN(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -3492,7 +3492,7 @@ class stzObject
 		return This
 
 		def HasNM(n)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isNumber(n)
 					StzRaise("Incorrect param type! n must be a number.")
 				ok
@@ -3501,7 +3501,7 @@ class stzObject
 			return This.HasN(n)
 
 		def HasNMM()
-			if CheckParams()
+			if CheckingParams()
 				if NOT isNumber(n)
 					StzRaise("Incorrect param type! n must be a number.")
 				ok
@@ -4707,7 +4707,7 @@ class stzObject
 	#------------------------------------------------------------#
 
 	def FindLastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
-		if CheckParams()
+		if CheckingParams()
 			if isList(pStrOrItem) and
 			   Q(pStrOrItem).IsOneOfTheseNamedParams([ :Of, :OfSubString ])
 	
@@ -4870,7 +4870,7 @@ class stzObject
 
 	def SwapWith(pOtherStzObject)
 
-		if CheckParams()
+		if CheckingParams()
 
 			if NOT @IsStzObject(pOtherStzObject)
 				StzRaise("Incorrect param type! pOtherStzObject must be a stzObject.")
@@ -4895,7 +4895,7 @@ class stzObject
 				return This.SwapWithQ(pOtherStzObject)
 
 	def @IsNeither(pcType1, pcType2)
-		if CheckParams()
+		if CheckingParams()
 			if isList(pcType1) and Q(pcType1).IsOfTypeNamedParam()
 				pcType1 = pcType1[2]
 			ok
@@ -5452,7 +5452,7 @@ class stzObject
 
 	def IsEqualTo(pOtherObject)
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isObject(pOtherObject)
 				StzRaise("Incorrect param type! pOtherObject must be an object.")
 			ok
@@ -5486,11 +5486,12 @@ class stzObject
 	def Print()
 		? This.Content()
 
-	  #----------------------------#
+	  #============================#
 	 #  MANAGING HISTORIC VALUES  #
-	#----------------------------#
+	#============================#
 
 	def AddHistoricValue(value)
+
 		@aHisto + value
 
 		def AddHistValue(value)
@@ -5503,10 +5504,18 @@ class stzObject
 			@aHisto + value
 
 	def HistoricValues()
-		return @aHisto
+		aResult = @aHisto
+		@aHisto = []
+		return aResult
 
 		def HistValues()
 			return @aHisto
 
 		def History()
 			return @aHisto
+
+		def Histo()
+			return @aHisto
+
+	def CleanHistory()
+		@aHisto = []

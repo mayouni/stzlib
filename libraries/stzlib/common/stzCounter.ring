@@ -62,7 +62,7 @@ class stzCounter from stzObject
 		ok		
 
 	def Counting(nNumber)
-		if CheckParams()
+		if CheckingParams()
 			if isList(nNumber) and Q(nNumber).IsToNamedParam()
 				nNumber = nNumber[2]
 			ok

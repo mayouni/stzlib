@@ -61,7 +61,7 @@ def FunctionNameFinishesWithOneOfThese( pcFunctionCall, paSubStr )
 
 
 def FunctionParamTypeIsOneOfThese(pcFunctionCall, paSubStr)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(pcFunctionCall)
 			StzRaise("Incorrect param type! pcFunctionCall must be a string.")
 		ok

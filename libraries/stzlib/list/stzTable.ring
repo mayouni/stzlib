@@ -792,7 +792,7 @@ Class stzTable from stzObject
 
 	def FindColByName(pcColName)
 
-		if CheckParams()
+		if CheckingParams()
 
 			if NOT isString(pcColName)
 				StzRaise("Incorrect param type! pcColName must be a string.")
@@ -826,7 +826,7 @@ Class stzTable from stzObject
 
 	def FindColsByName(pacColNames)
 
-		if CheckParams()
+		if CheckingParams()
 
 			if NOT ( isList(pacColNames) and Q(pacColNames).IsListOfStrings() )
 				StzRaise("Incorrect param type! pacColNames must be a list of strings.")
@@ -901,7 +901,7 @@ Class stzTable from stzObject
 	#-----------------------------#
 
 	def FindColByValueCS(paColData, pCaseSensitive)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(paColData)
 				StzRaise("Incorrect param type! paColData must be a list.")
 			ok
@@ -927,7 +927,7 @@ Class stzTable from stzObject
 
 	def FindColsByValueCS(paManyColData, pCaseSensitive)
 
-		if CheckParams()
+		if CheckingParams()
 
 			if NOT ( isList(paManyColData) and Q(paManyColData).IsListOfLists() )
 				StzRaise("Incorrect param type! paManyColData must be a list of lists.")
@@ -1015,7 +1015,7 @@ Class stzTable from stzObject
 	#===============================================#
 
 	def FindColsExceptAt(panColNumbers)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(panColNumbers) and @IsListOfLists(panColNumbers) )
 				StzRaise("Incorrect param type! apnColNumbers must be a list of numbers.")
 			ok
@@ -1045,7 +1045,7 @@ Class stzTable from stzObject
 
 
 	def FindColsExcept(paColNumbersOrColNames)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(paColNumbersOrColNames)
 				StzRaise("Incorrect param type! paColNumbersOrColNames must be a list.")
 			ok
@@ -1210,7 +1210,7 @@ Class stzTable from stzObject
 	#------------------------------------------------------------------#
 
 	def FindRowsExceptCS(paRows, pCaseSensitive)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(paRows) and ( @IsListOfNumbers(paRows) or @IsListOfLists(paRows) )  )
 				StzRaise("Incorrect param type! paRows must be a list of numbers or a list of lists.")
 			ok
@@ -1246,7 +1246,7 @@ Class stzTable from stzObject
 	#------------------------------------------------------#
 
 	def FindRowsExceptTheseCS(paRows, pCaseSensitive)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(paRows) and @IsListOfLists(paRows) )
 				StzRaise("Incorrect param type! paRows must be a list of lists.")
 			ok
@@ -1287,7 +1287,7 @@ Class stzTable from stzObject
 	#-----------------------------------------------------------#
 
 	def FindRowsExceptAtCS(panRowNumbers, pCaseSensitive)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(panRowNumbers) and @IsListOfNumbers(panRowNumbers) )
 				StzRaise("Incorrect param type! panRowNumbers must be a list of numbers.")
 			ok
@@ -2299,7 +2299,7 @@ Class stzTable from stzObject
 	#-------------------------------------------------------#
 
 	def RowAsPositions(pnRow)
-		if CheckParams()
+		if CheckingParams()
 
 			if isString(pnRow)
 				if pnRow = :First or pnRow = :FirstRow
@@ -3052,7 +3052,7 @@ Class stzTable from stzObject
 		#>
 
 	def SectionAsPositions( panCellPos1, panCellPos2 )
-		if CheckParams()
+		if CheckingParams()
 			if isList(panCellPos1) and Q(panCellPos1).IsFromNamedParam()
 				panCellPos1 = panCellPos1[2]
 			ok
@@ -3237,7 +3237,7 @@ Class stzTable from stzObject
 			return This.ColSection(pCol, n1, n2)
 
 	def ColSectionAsPositions(pCol, n1, n2)
-		if CheckParams()
+		if CheckingParams()
 			if isList(n1)
 
 				if StzListQ(n1).IsOneOfTheseNamedParams([
@@ -3351,7 +3351,7 @@ Class stzTable from stzObject
 		#>
 
 	def RowSectionAsPositions(nRow, n1, n2)
-		if CheckParams()
+		if CheckingParams()
 
 			if isList(n1)
 				if StzListQ(n1).IsOneoftheseNamedParams([
@@ -3623,7 +3623,7 @@ Class stzTable from stzObject
 	#-----------------------------------#
 
 	def FindCellsCS(paValues, pCaseSensitive)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(paValues)
 				StzRaise("Incorrect param type! paValues must be a list.")
 			ok
@@ -9642,7 +9642,7 @@ Class stzTable from stzObject
 	#==========================================================================#
 
 	def ReplaceCell(pCol, pnRow, pNewCellValue)
-		if CheckParams()
+		if CheckingParams()
 			if isList(pNewCellValue) and Q(pNewCellValue).IsOneOfTheseNamedParams([ :By, :With, :Using ])
 				pNewCellValue = pNewCellValue[2]
 			ok
@@ -9888,7 +9888,7 @@ Class stzTable from stzObject
 
 	def ReplaceCellsByMany(paCellsPos, paNewValues)
 
-		if CheckParams()
+		if CheckingParams()
 
 			if isList(paNewValues) and
 			   Q(paNewValues).IsOneOfTheseNamedParams([ :By, :With, :Using ])
@@ -10109,7 +10109,7 @@ Class stzTable from stzObject
 
 	def ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
-		if CheckParams()
+		if CheckingParams()
 
 			if isList(paNewValues) and
 			   Q(paNewValues).IsOneOfTheseNamedParams([ :By, :With, :Using ])
@@ -10501,7 +10501,7 @@ Class stzTable from stzObject
 			This.ReplaceCol(pCol, paCol)
 
 	def ReplaceNthCol(n, paCol)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -10590,7 +10590,7 @@ Class stzTable from stzObject
 			This.ReplaceColXT(pCol, paCol)
 
 	def ReplaceNthColXT(n, paCol)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -10775,7 +10775,7 @@ Class stzTable from stzObject
 		#>
 
 	def ReplaceNthColNamedAndData(n, pcColName, paColData)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -10863,7 +10863,7 @@ Class stzTable from stzObject
 	#==================================================================#
 
 	def ReplaceCellsInCol(pCol, pCell)
-		if CheckParams()
+		if CheckingParams()
 			if isList(pCell) and Q(pCell).IsWithOrByOrUsingNamedParam()
 				pCell = pCell[2]
 			ok
@@ -10889,7 +10889,7 @@ Class stzTable from stzObject
 	#TODO // check for performance
 
 	def ReplaceAllCols(paNewCol)
-		if CheckParams()
+		if CheckingParams()
 
 			if isList(paNewCol) and
 			   Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
@@ -10926,7 +10926,7 @@ Class stzTable from stzObject
 	#TODO // check for performance
 
 	def ReplaceAllColsXT(paNewCol)
-		if CheckParams()
+		if CheckingParams()
 
 			if isList(paNewCol) and
 			   Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
@@ -11020,7 +11020,7 @@ Class stzTable from stzObject
 	#-----------------------------------------------------------------------------------------#
 
 	def ReplaceRow(pnRow, paNewRow)
-		if CheckParams()
+		if CheckingParams()
 			if isList(pnRow) and
 			   ( Q(pnRow).IsAtNamedParam() or
 			     Q(pnRow).IsAtPositionNamedParam() )
@@ -11102,7 +11102,7 @@ Class stzTable from stzObject
 	#--------------------------------------------------------------------------------#
 
 	def ReplaceAllRows(paNewRow)
-		if CheckParams()
+		if CheckingParams()
 			if isList(paNewRow) and
 			   Q(paNewRow).IsOneOfTheseNamedParams([ :With, :By, :Using ])
 				paNewRow = paNewRow[2]
@@ -11729,7 +11729,7 @@ Class stzTable from stzObject
 	#------------------------------#
 
 	def RemoveColumnsAt(panColNumbers)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(panColNumbers) and @IsListOfNumbers(panColNumbers) )
 				StzRaise("Incorrect param type! panColNumbers must be a list of numbers.")
 			ok
@@ -11826,7 +11826,7 @@ Class stzTable from stzObject
 		#>
 
 	def RemoveAllColsExcept(paCols)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(paCols) and Q(paCols).IsListOfNumbersOrStrings() )
 				StzRaise("Incorrect param type! panRows must be a list of numbers or strings.")
 			ok
@@ -11880,7 +11880,7 @@ Class stzTable from stzObject
 	#========================#
 
 	def RemoveRow(pRowOrRowNumber)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isNumber(pRowOrRowNumber) or isList(pRowOrRowNumber) )
 				StzRaise("Incorrect param type! pRowOrRowNumber must be a number or list.")
 			ok
@@ -11895,7 +11895,7 @@ Class stzTable from stzObject
 		ok
 
 	def RemoveNthRow(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -11926,7 +11926,7 @@ Class stzTable from stzObject
 
 	def RemoveNthRows(panRows)
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
 				StzRaise("Incorrect param type! panRows must be a list of numbers.")
 			ok
@@ -11950,7 +11950,7 @@ Class stzTable from stzObject
 			This.RemoveNthRows(panRows)
 
 	def RemoveRows(pRowsOrRowsNumbers)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(pRowsOrRowsNumbers)
 				StzRaise("Incorrect param type! pRowsOrRowsNumbers must be a list of numbers.")
 			ok
@@ -11973,7 +11973,7 @@ Class stzTable from stzObject
 	#-----------------------------------------------#
 
 	def RemoveAllRowsExceptAt(panRows)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(panRows) and Q(panRows).IsListOfNumbers() )
 				StzRaise("Incorrect param type! panRows must be a list of numbers.")
 			ok
@@ -11997,7 +11997,7 @@ Class stzTable from stzObject
 
 	def RemoveAllRowsExcept(pRowsOrRowsNumbers)
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(pRowsOrRowsNumbers)
 				StzRaise("Incorrect param type! pRowsOrRowsNumbers must be a list of numbers.")
 			ok
@@ -12147,7 +12147,7 @@ Class stzTable from stzObject
 	#======================#
 
 	def InsertCol(n, paColData)
-		if CheckParams()
+		if CheckingParams()
 			if isList(n) and Q(n).IsOneOfTheseNamedParams([
 					:At, :Before,
 					:AtPosition, :BeforePosition,
@@ -12259,7 +12259,7 @@ Class stzTable from stzObject
 	#===================#
 
 	def InsertRow(n, paRowData)
-		if CheckParams()
+		if CheckingParams()
 			if isList(n) and Q(n).IsOneOfTheseNamedParams([
 					:At, :Before,
 					:AtPosition, :BeforePosition,
@@ -12341,7 +12341,7 @@ Class stzTable from stzObject
 	#-------------------------------------#
 
 	def InsertRowAtPositions(panPos, paRow)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(panPos) and @isListOfNumbers(panPos) )
 				StzRaise("Incorrect param type! panPos must be a list of numbers.")
 			ok
@@ -14515,7 +14515,7 @@ Class stzTable from stzObject
 		])
 		*/
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isString(paColNames) or
 				 (isList(paColNames) and Q(paColNames).IsHasHListOrListOfStrings()) )
 
@@ -14554,7 +14554,7 @@ Class stzTable from stzObject
 	#==============================#
 
 	def InsertCalculatedCol(n, pcColName, pcFormula)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreStrings(pcColName, pcFormula)
 				StzRaise("Incorrect param types! pcColName and pcFormula must be both strings.")
 			ok
@@ -14670,7 +14670,7 @@ Class stzTable from stzObject
 	#===========================#
 
 	def InsertCalculatedRow(n, pacFormulas)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(pacFormulas) and @IsListOfStrings(pacFormulas) )
 				StzRaise("Incorrect param type! pacFormulas must be a list of strings.")
 			ok
@@ -14742,7 +14742,7 @@ Class stzTable from stzObject
 	#=================================#
 
 	def FromFile(pcFileName)
-		if CheckParam()
+		if CheckingParam()
 			if NOT isString(pcFileName)
 				StzRaise("Incorrect param file! pcString must be a string.")
 			ok

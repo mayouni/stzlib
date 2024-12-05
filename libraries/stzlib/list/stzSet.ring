@@ -13,7 +13,7 @@ func StzSetQ(paList)
 	return new stzSet(paList)
 
 func IsSet(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok

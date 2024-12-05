@@ -78,7 +78,7 @@ class stzDistanceZero from stzObject
 		return @acMeaning[@cLanguage]
 
 	def SayItIn(cLang)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isString(cLang)
 				StzRaise("Incorrect param type! cLang must be a string")
 			ok
