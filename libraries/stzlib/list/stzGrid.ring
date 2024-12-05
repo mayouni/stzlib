@@ -1290,7 +1290,7 @@ class stzGrid from stzObject
 
 	def FillWithXT(paList, pcDirection)
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(paList) 
 				StzRaise("Incorrect param type! paList must be a list.")
 			ok

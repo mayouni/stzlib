@@ -2,7 +2,7 @@
 func StzListOfNamedObject(paoObjects)
 
 func IsListOfNamedObjects(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type!")
 		ok

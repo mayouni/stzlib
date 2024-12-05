@@ -21,7 +21,7 @@ func ring_min(n1, n2)
 	return min(n1, n2)
 
 func IsClassName(cStr)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(cStr)
 			StzRaise("Incorrect param type! cStr must be a string.")
 		ok
@@ -37,7 +37,7 @@ func IsClassName(cStr)
 		return IsClassName
 
 func IsPackageName(cStr)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(cStr)
 			StzRaise("Incorrect param type! cStr must be a string.")
 		ok
@@ -56,7 +56,7 @@ class stzRunTime
 	@aVarValues = []
 
 	def init(pacVarsNames)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(pacVarsNames) and @IsListOfStrings(pacVarsNames) )
 				StzRaise("Incorrect param type! pacVarsNames must be a list of strings.")
 			ok

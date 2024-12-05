@@ -61,7 +61,7 @@ func GreatestCommonDividor( n1, n2 )
 #-- Inspired by a discussion with Mahmoud on the google group
 
 func SpeedUp(n1, n2)
-	if CheckParams()
+	if CheckingParams()
 		if isList(n1) and StzListQ(n1).IsFromOrBetweenNamedParam()
 			n1 = n1[2]
 		ok
@@ -74,6 +74,12 @@ func SpeedUp(n1, n2)
 	return StzPairOfNumbersQ([ n1, n2 ]).SpeedUp()
 
 	func SpeedUpX(n1, n2) # X ~> ouput is a factor
+		return SpeedUp(n1, n2)
+
+	func SpeedX(n1, n2)
+		return SpeedUp(n1, n2)
+
+	func SpeedFactor(n1, n2)
 		return SpeedUp(n1, n2)
 
 	func PerfGainX(n1, n2)

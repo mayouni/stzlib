@@ -80,7 +80,7 @@ func Few(paList)
 	return FewXT(paList, DefaultFew())
 
 func FewXT(paList, nFewRatio)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -107,7 +107,7 @@ func Some(paList)
 	return SomeXT(paList, DefaultSome())
 
 func SomeXT(paList, nSomeRatio)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -132,7 +132,7 @@ func SetHalf(n)
 	_nHalf = n
 
 func Half(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -142,7 +142,7 @@ func Half(paList)
 	return NRandomItemsInU(n, paList)
 
 func HalfXT(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -170,7 +170,7 @@ func Many(paList)
 	return ManyXT(paList, DefaultMany())
 
 func ManyXT(paList, nManyRatio)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -197,7 +197,7 @@ func Most(paList)
 	return MostXT(paList, DefaultMost())
 
 func MostXT(paList, nMostRatio)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -221,7 +221,7 @@ func SetAll(n)
 	_nAll = n
 
 func All(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -235,7 +235,7 @@ func MaxRandomLoop()
 	return _nMaxRandomLoop
 
 func SetMaxRandomLoop(n)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
@@ -262,7 +262,7 @@ func RandomRoundXT()
 	return pow(10, _nRandomRound)
 
 func SetRandomRound(n)
-	if checkParams()
+	if CheckingParams()
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
@@ -271,7 +271,7 @@ func SetRandomRound(n)
 	_nRandomRound = n
 				
 func StzRandom(n)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
@@ -300,7 +300,7 @@ func StzRandom(n)
 		return StzRandom01()
 
 func StzSRandom(n)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
@@ -313,7 +313,7 @@ func StzSRandom(n)
 	return srandom(n)
 
 func StzRandomXT(n, nSeed)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
@@ -340,7 +340,7 @@ func StzRandomXT(n, nSeed)
 		return StzRandom01XT(nSeed)
 
 func SeedRandom(n)
-	if CheckParams()
+	if CheckingParams()
 		if isList(n) and Q(n).IsWithOrByOrUsingNamedParam()
 			n = n[2]
 		ok
@@ -446,7 +446,7 @@ func RandomNumberLessThan(n)
 	#==
 
 	func RandomNumberLessThan01(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n musrt be a number.")
 			ok
@@ -526,7 +526,7 @@ func RandomNumberLessThanXT(n, nSeed)
 	#==
 
 	func RandomNumberLessThan01XT(n, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n musrt be a number.")
 			ok
@@ -620,7 +620,7 @@ func RandomNumberGreaterThan(n)
 	#==
 
 	func RandomNumberGreaterThan01(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n musrt be a number.")
 			ok
@@ -725,7 +725,7 @@ func RandomNumberGreaterThanXT(n, nSeed)
 	#==
 
 	func RandomNumberGreaterThan01XT(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n musrt be a number.")
 			ok
@@ -833,7 +833,7 @@ func RandomNumberOtherThan(n)
 	#==
 
 	func ARandomNumberOtherThan01(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number")
 			ok
@@ -926,7 +926,7 @@ func RandomNumberOtherThanXT(n, nSeed)
 	#==
 
 	func ARandomNumberOtherThan01XT(n, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number")
 			ok
@@ -1346,7 +1346,7 @@ func SomeRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 	#==
 
 	func SomeRandomNumbersGreaterThan01XTU(n, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number")
 			ok
@@ -1468,7 +1468,7 @@ func NRandomNumbersGreaterThan(n, nValue)
 	#==
 
 	func NRandomNumbersGreaterThan01(n, nValue)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -1541,7 +1541,7 @@ func NRandomNumbersGreaterThanXT(n, nValue, nSeed)
 	#==
 
 	func NRandomNumbersGreaterThan01XT(n, nValue, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -1652,7 +1652,7 @@ func NRandomNumbersGreaterThanU(n, nValue)
 	#==
 
 	func NRandomNumbersGreaterThan01U(n, nValue)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -1775,7 +1775,7 @@ func NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 	#==
 
 	func NRandomNumbersGreaterThan01XTU(n, nValue, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -1878,7 +1878,7 @@ func NRandomNumbersLessThan(n, nValue)
 	#==
 
 	func NRandomNumbersLessThan01(n, nValue)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(nValue)
 				StzRaise("Incorrect param type! nValue must be a number.")
 			ok
@@ -1939,7 +1939,7 @@ func NRandomNumbersLessThanXT(n, nValue, nSeed)
 	#==
 
 	func NRandomNumbersLessThan01XT(n, nValue, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(nValue)
 				StzRaise("Incorrect param type! nValue must be a number.")
 			ok
@@ -2029,7 +2029,7 @@ func NRandomNumbersLessThanU(n, nValue)
 	#==
 
 	func NRandomNumbersLessThan01U(n, nValue)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -2122,7 +2122,7 @@ func NRandomNumbersLessThanXTU(n, nValue, nSeed)
 	#==
 
 	func NRandomNumbersLessThanXT01U(n, nValue, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -2222,7 +2222,7 @@ func RandomNumberIn(panNumbers)
 	#==
 
 	func RandomNumberBetween(nMin, nMax)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -2327,7 +2327,7 @@ func RandomNumberInZ(panNumbers)
 	#==
 
 	func RandomNumberBetweenZ(nMin, nMax)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -2374,7 +2374,7 @@ func RandomNumberInXT(panNumbers, nSeed)
 	#==
 
 	func RandomNumberBetweenXT(nMin, nMax, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -2397,7 +2397,7 @@ func RandomNumberInXT(panNumbers, nSeed)
 	#>
 
 func RandomNumberInXTZ(panNumbers, nSeed)
-	if CheckParams()
+	if CheckingParams()
 
 		if NOT ( isList(panNumbers) and IsListOfNumbers(panNumbers) )
 			StzRaise("Incorrect param type! panNumbers must be a list of numbers.")
@@ -2427,7 +2427,7 @@ func RandomNumberInXTZ(panNumbers, nSeed)
 	#==
 
 	func RandomNumberBetweenXTZ(nMin, nMax, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -2452,7 +2452,7 @@ func RandomNumberInXTZ(panNumbers, nSeed)
 #==
 
 func SomeRandomNumbersIn(panNumbers)
-	if CheckParams()
+	if CheckingParams()
 		if NOT ( isList(panNumbers) and IsListOfNumbers(panNumbers) )
 			StzRaise("Incorrect param type! panNumbers.")
 		ok
@@ -2480,7 +2480,7 @@ func SomeRandomNumbersIn(panNumbers)
 	#==
 
 	func SomeRandomNumbersBetween(nMin, nMax)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -2505,7 +2505,7 @@ func SomeRandomNumbersIn(panNumbers)
 	#>
 
 func SomeRandomNumbersInZ(panNumbers)
-	if CheckParams()
+	if CheckingParams()
 		if NOT ( isList(panNumbers) and IsListOfNumbers(panNumbers) )
 			StzRaise("Incorrect param type! panNumbers.")
 		ok
@@ -2533,7 +2533,7 @@ func SomeRandomNumbersInZ(panNumbers)
 	#==
 
 	func SomeRandomNumbersBetweenZ(nMin, nMax)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -2582,7 +2582,7 @@ func SomeRandomNumbersInXT(panNumbers, nSeed)
 	#==
 
 	func SomeRandomNumbersBetweenXT(nMin, nMax, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -2629,7 +2629,7 @@ func SomeRandomNumbersInXTZ(panNumbers, nSeed)
 	#==
 
 	func SomeRandomNumbersBetweenXTZ(nMin, nMax, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -2656,7 +2656,7 @@ func SomeRandomNumbersInXTZ(panNumbers, nSeed)
 #==
 
 func SomeRandomNumbersInU(panNumbers)
-	if CheckParams()
+	if CheckingParams()
 		if NOT ( isList(panNumbers) and IsListOfNumbers(panNumbers) )
 			StzRaise("Incorrect param type! panNumbers.")
 		ok
@@ -2692,7 +2692,7 @@ func SomeRandomNumbersInU(panNumbers)
 	#==
 
 	func SomeRandomNumbersBetweenU(nMin, nMax)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -2724,7 +2724,7 @@ func SomeRandomNumbersInU(panNumbers)
 	#>
 
 func SomeRandomNumbersInUZ(panNumbers)
-	if CheckParams()
+	if CheckingParams()
 		if NOT ( isList(panNumbers) and IsListOfNumbers(panNumbers) )
 			StzRaise("Incorrect param type! panNumbers.")
 		ok
@@ -2760,7 +2760,7 @@ func SomeRandomNumbersInUZ(panNumbers)
 	#==
 
 	func SomeRandomNumbersBetweenUZ(nMin, nMax)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -2824,7 +2824,7 @@ func SomeRandomNumbersInXTU(panNumbers, nSeed)
 	#==
 
 	func SomeRandomNumbersBetweenXTU(nMin, nMax, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -2887,7 +2887,7 @@ func SomeRandomNumbersInXTUZ(panNumbers, nSeed)
 	#==
 
 	func SomeRandomNumbersBetweenXTUZ(nMin, nMax, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -2954,7 +2954,7 @@ func NRandomNumbersIn(n, panNumbers)
 	#==
 
 	func NRandomNumbersBetween(n, nMin, nMax)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -3008,7 +3008,7 @@ func NRandomNumbersInZ(n, panNumbers)
 	#==
 
 	func NRandomNumbersBetweenZ(n, nMin, nMax)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -3047,7 +3047,7 @@ func NRandomNumbersInXT(n, panNumbers, nSeed)
 	#==
 
 	func NRandomNumbersBetweenXT(n, nMin, nMax, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -3084,7 +3084,7 @@ func NRandomNumbersInXTZ(n, panNumbers, nSeed)
 	#==
 
 	func NRandomNumbersBetweenXTZ(n, nMin, nMax, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -3154,7 +3154,7 @@ func NRandomNumbersInU(n, panNumbers)
 	#==
 
 	func NRandomNumbersBetweenU(n, nMin, nMax)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -3238,7 +3238,7 @@ func NRandomNumbersInUZ(n, panNumbers)
 	#==
 
 	func NRandomNumbersBetweenUZ(n, nMin, nMax)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -3305,7 +3305,7 @@ func NRandomNumbersInXTU(n, panNumbers, nSeed)
 	#==
 
 	func NRandomNumbersBetweenXTU(n, nMin, nMax, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -3370,7 +3370,7 @@ func NRandomNumbersInXTUZ(n, panNumbers, nSeed)
 	#==
 
 	func NRandomNumbersBetweenXTUZ(n, nMin, nMax, nSeed)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @BothAreNumbers(nMin, nMax)
 				StzRaise("Incorrect params types! nMin and nMax must be numbers.")
 			ok
@@ -3406,7 +3406,7 @@ func NRandomNumbersInXTUZ(n, panNumbers, nSeed)
 #==
 
 func ARandomItemIn(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -3418,7 +3418,7 @@ func ARandomItemIn(paList)
 	return aResult
 
 func NRandomItemsIn(n, paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -3439,7 +3439,7 @@ func NRandomItemsIn(n, paList)
 		return NRandomItemsIn(n, paList)
 
 func NRandomItemsInU(n, paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok

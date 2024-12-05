@@ -23,7 +23,7 @@ func StzHashListQ(paList)
 	return new stzHashList(paList)
 
 func StzNamedHashList(paNamed)
-	if CheckParams()
+	if CheckingParams()
 		if NOT (isList(paNamed) and Q(paNamed).IsPair() and isString(paNamed[1]) and Q(paNamed[2]).IsHashList())
 			StzRaise("Incorrect param type! paNamed must be a pair of string and list of type stzHashList.")
 		ok
@@ -816,7 +816,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		This.UpdateNthValue(n, pValue, pNewValue)
 
 	def UpdateAllPairsWith(paPair)
-		if CheckParams()
+		if CheckingParams()
 			if not isList(paPair)
 				StzRaise("Incorrect param type! paPair must be a list.")
 			ok
@@ -926,7 +926,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 				return This
 
 	def RemovePairsByKeys(pacKeys)
-		if CheckParams()
+		if CheckingParams()
 			if NOT (isList(pacKeys) and @IsListOStrings(pacKeys))
 				StzRaise("Incorrect param type! pacKeys must be a list of strings.")
 			ok
@@ -949,7 +949,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This
 
 	def RemovePairsByValues(paValues)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(paValues)
 				StzRaise("Incorrect param type! paValues must be a list.")
 			ok
@@ -974,7 +974,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return this
 
 	def ReplaceNthKey(n, pcNewKey)
-		if CheckParam()
+		if CheckingParam()
 			if isList(pcNewKey) and Q(pcNewKey).IsWithOrByNamedParam()
 				pcNewKey = pcNewKey[2]
 			ok
@@ -1013,7 +1013,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return this
 
 	def ReplaceNthValue(n, pNewValue)
-		if CheckParam()
+		if CheckingParam()
 			if isList(pNewValue) and Q(pNewValue).IsWithOrByNamedParam()
 				pNewValue = pNewValue[2]
 			ok
@@ -1327,7 +1327,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindNthOccurrenceOfValueCS(n, pValue, pCaseSensitive)
 
-		if CheckParams()
+		if CheckingParams()
 
 			if n = :First
 				n = 1
@@ -1584,7 +1584,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindList(paList) # Add case sensitivity
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(paList)
 				StzRaise("Incorrect param type! paList must be a list.")
 			ok
@@ -1599,7 +1599,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return anResult
 
 	def ListZ(paList)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(paList) 
 				StzRaise("Incorrect param type! paList must be a list.")
 			ok
@@ -1610,7 +1610,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return aResult
 
 	def FindTheseLists(paLists)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
 				StzRaise("Incorrect param type! paLists must be a list of lists.")
 			ok
@@ -1633,7 +1633,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return anResult
 
 	def TheseListsZ(paLists)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
 				StzRaise("Incorrect param type! paLists must be a list of lists.")
 			ok
@@ -1697,7 +1697,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindNumber(paNumber) # Add case sensitivity
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(paNumber)
 				StzRaise("Incorrect param type! paNumber must be a list.")
 			ok
@@ -1712,7 +1712,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return anResult
 
 	def NumberZ(paNumber)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(paNumber) 
 				StzRaise("Incorrect param type! paNumber must be a list.")
 			ok
@@ -1723,7 +1723,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return aResult
 
 	def FindTheseNumbers(paNumbers)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isNumber(paNumbers) and Q(paNumbers).IsNumberOfNumbers() )
 				StzRaise("Incorrect param type! paNumbers must be a list of lists.")
 			ok
@@ -1746,7 +1746,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return anResult
 
 	def TheseNumbersZ(paNumbers)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isNumber(paNumbers) and Q(paNumbers).IsNumberOfNumbers() )
 				StzRaise("Incorrect param type! paNumbers must be a list of lists.")
 			ok
@@ -1808,7 +1808,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 	def FindString(paString) # Add case sensitivity
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isString(paString)
 				StzRaise("Incorrect param type! paString must be a list.")
 			ok
@@ -1823,7 +1823,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return anResult
 
 	def StringZ(paString)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isString(paString) 
 				StzRaise("Incorrect param type! paString must be a list.")
 			ok
@@ -1834,7 +1834,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return aResult
 
 	def FindTheseStrings(paStrings)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isString(paStrings) and Q(paStrings).IsStringOfStrings() )
 				StzRaise("Incorrect param type! paStrings must be a list of lists.")
 			ok
@@ -1857,7 +1857,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		return anResult
 
 	def TheseStringsZ(paStrings)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isString(paStrings) and Q(paStrings).IsStringOfStrings() )
 				StzRaise("Incorrect param type! paStrings must be a list of lists.")
 			ok
@@ -2202,7 +2202,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		*/
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(paItems)
 				StzRaise("Incorrect param type! paItems must be a list.")
 			ok
@@ -2277,7 +2277,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		# ]
 		*/
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(paItems)
 				StzRaise("Incorrect param type! paItems must be a list.")
 			ok
@@ -2981,7 +2981,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#--------------------------------------#
 
 	def TheseClassesSizes(pacClasses)
-		if CheckParams()
+		if CheckingParams()
 			if NOT (isList(pacClasses) and Q(pacClasses).IsListOfStrings())
 				StzRaise("Incorrect param type! pcClasses must be a list of strings.")
 			ok
@@ -3025,7 +3025,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def TheseClassesSizesXT(pacClasses)
-		if CheckParams()
+		if CheckingParams()
 			if NOT (isList(pacClasses) and Q(pacClasses).IsListOfStrings())
 				StzRaise("Incorrect param type! pcClasses must be a list of strings.")
 			ok
@@ -3231,7 +3231,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#------------------------------------------------#
 
 	def TheseClassesFrequencies(pacClasses)
-		if CheckParams()
+		if CheckingParams()
 			if NOT (isList(pacClasses) and Q(pacClasses).IsListOfStrings())
 				StzRaise("Incorrect param type! pacClasses must be a list of strings.")
 			ok
@@ -3267,7 +3267,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def TheseClassesFrequenciesXT(pacClasses)
-		if CheckParams()
+		if CheckingParams()
 			if NOT (isList(pacClasses) and Q(pacClasses).IsListOfStrings())
 				StzRaise("Incorrect param type! pacClasses must be a list of strings.")
 			ok

@@ -54,7 +54,7 @@ class stzWalker from stzList
 		# 		:Step = 3
 		# ])
 
-		if CheckParams() #TODO // Should be CheckNamedParams()...
+		if CheckingParams() #TODO // Should be CheckNamedParams()...
 
 			if isList(pnStart) and
 			   StzListQ(pnStart).IsOneOfTheseNamedParams([
@@ -362,7 +362,7 @@ class stzWalker from stzList
 			return This.Walkables()
 
 	def NthWalkablePosition(n)
-		if CheckParams()
+		if CheckingParams()
 			if isString(n)
 				if n = :First
 					n = 1
@@ -495,7 +495,7 @@ class stzWalker from stzList
 	#--------------------------------------#
 
 	def IsWalkable(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -521,7 +521,7 @@ class stzWalker from stzList
 		#>
 
 	def AreWalkables(anPos)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @IsListOfNumbers(anPos)
 				StzRaise("Incorrect param type! anPos must be a list of numbers.")
 			ok
@@ -550,7 +550,7 @@ class stzWalker from stzList
 	#----------------------------------------#
 
 	def IsUnwalkable(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -576,7 +576,7 @@ class stzWalker from stzList
 		#>
 
 	def AreUnwalkables(anPos)
-		if CheckParams()
+		if CheckingParams()
 			if NOT @IsListOfNumbers(anPos)
 				StzRaise("Incorrect param type! anPos must be a list of numbers.")
 			ok
@@ -602,7 +602,7 @@ class stzWalker from stzList
 	#---------------------------------------------#
 
 	def WalkBetween(n1, n2)
-		if CheckParams()
+		if CheckingParams()
 			if isList(n2) and StzListQ(n3).IsAndNamedParam()
 				n2 = n2[2]
 			ok

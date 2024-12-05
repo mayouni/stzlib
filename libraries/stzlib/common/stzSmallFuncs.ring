@@ -27,6 +27,10 @@ func Q(p)
 	func TheQ(p)
 		return Q(p)
 
+func QH(p)
+	SetKeepingHistoryTo(TRUE)
+	return Q(p)
+
 #--
 
 func StzW(cType, paMethodAndFilter)
@@ -257,7 +261,7 @@ func U(p)
 	
 	*/
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type!")
 		ok

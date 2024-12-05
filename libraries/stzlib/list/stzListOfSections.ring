@@ -25,7 +25,7 @@ class stzListOfSections from stzLists
 		return This
 
 	def Update(paNewSections)
-		if CheckParam()
+		if CheckingParam()
 			if isList(paNewSections) and StzListQ(paNewSections).IsWithNamedParam()
 				paNewSections = paNewSections[2]
 			ok

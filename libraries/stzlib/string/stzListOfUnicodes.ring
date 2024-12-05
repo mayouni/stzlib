@@ -9,7 +9,7 @@ func UnicodesToChars(anUnicodes)
 		return UnicodesToChars(anUnicodes)
 
 func UnicodesToCharsNames(panUnicodes)
-	if CheckParams()
+	if CheckingParams()
 		if NOT (isList(panUnicodes) and Q(panUnicodes).IsListOfNumbers())
 			StzRaise("Incorrect param type! panUnicodes must be a list of numbers.")
 		ok

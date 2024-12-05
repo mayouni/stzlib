@@ -140,7 +140,7 @@ func AddFutureXT(pAction, pcBeforeOrAfter)
 	#>
 
 func ExecuteActions(pActions, pStzObj)
-	if CheckParams()
+	if CheckingParams()
 		if NOT ( isList(pActions) and @IsHashList(pActions) )
 			StzRaise("Incorrect param type! pActions must be a hashlist.")
 		ok

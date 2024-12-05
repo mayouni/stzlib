@@ -9065,24 +9065,114 @@ pron()
 proff()
 
 /*---
-*/
+
 pron()
 
-? Q("1 AA 6 B 0 CCC 6 DD 1 Z").findwxt(' Q(@char).IsNumberInString() ')
+? @ReplaceCS("ruby RING python", "ring", "julia", TRUE)
+#--> ruby RING python
+
+? @ReplaceCS("ruby RING python", "ring", "julia", FALSE)
+#--> ruby julia python
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*----
+
+pron()
+
+? @Contains(" Q(@char).IsNumberInString() ", "@char")
+#--> TRUE
+
+? @Contains(" Q(@char).IsNumberInString() ", "@substring")
+#--> FALSE
+
+? @ContainsCS(" Q(@char).IsNumberInString() ", "@CHAR", FALSE)
+#--> TRUE
+
+? @ContainsCS(" Q(@char).IsNumberInString() ", "@substring", TRUE)
+#--> FALSE
+
+? @ContainsCS(" Q(@char).IsNumberInString() ", "@substring", FALSE)
+#--> FALSE
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*----
+
+pron()
+
+o1 = new stzString(" Q(@char).IsNumberInString() ")
+
+? o1.ContainsCS("@char", FALSE)
+#--> TRUE
+
+? o1.ContainsCS("@substring", FALSE)
+#--> FALSE
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*---
+
+pron()
+
+? @@( Q("1 AA 6 B 0 CCC 6 DD 1 Z").FindWXT(' Q(@char).IsNumberInString() ') )
+#--> [ 1, 6, 10, 16, 21 ]
 
 proff()
 
-/*--- TODO - FUTURE: Add a QH() function (H for history) that traces the intermediate results:
+/*======= KEEPING THE HISTOR OF UPDATES OF A SOFTANZA OBJECT
 */
 pron()
 
 ? Q("1 AA 2 B 3 CCC 4 DD 5 Z").
-	RemoveWXTQ('Q(@Char).IsNumberInString()').Content()
-/*	RemoveSpacesQ().
+	RemoveWXTQ('Q(@Char).IsNumberInString()').
+	RemoveSpacesQ().
 	RemoveDuplicatedCharsQ().
-	Content()
-*/
-#--> [ "(, , )", "(,,)", "(,)" ]
+	Content() + NL
+
+#--> ABCDZ
+
+? @@NL( QH("1 AA 2 B 3 CCC 4 DD 5 Z").
+	RemoveWXTQ('Q(@Char).IsNumberInString()').
+	RemoveSpacesQ().
+	RemoveDuplicatedCharsQ().
+	Histo() ) + NL
+#--> ABCDZ
+
+proff()
+
+/*-----
+
+pron()
+
+? Q("1 AA 2 B 3 CCC 4 DD 5 Z").
+	RemoveWXTQ('Q(@Char).IsNumberInString()').
+	RemoveSpacesQ().
+	RemoveDuplicatedCharsQ().
+	Content() + NL
+#--> ABCDZ
+
+KeepHisto()
+
+? Q("1 AA 2 B 3 CCC 4 DD 5 Z").
+	RemoveWXTQ('Q(@Char).IsNumberInString()').
+	RemoveSpacesQ().
+	RemoveDuplicatedCharsQ().
+	History()
+
+#--> "ABCDZ"
+
+DontKeepHisto()
+
+? @@( Q("1 AA 2 B 3 CCC 4 DD 5 Z").
+	RemoveWXTQ('Q(@Char).IsNumberInString()').
+	RemoveSpacesQ().
+	RemoveDuplicatedCharsQ().
+	History() )
+#--> [ ]
 
 proff()
 
@@ -17893,6 +17983,170 @@ proff()
 #  "V" :  -------^------^-- (2)
 #  "X" :  ----------------- (0)
 
+/*======== #narration #perf CONCATENATING STRINGS IN RING AND SOFTANZA
+
+StartProfiler()
+
+# In Ring, concatenating 1 million strings takes about 45 seconds:
+
+	str = ""
+	for i = 1 to 1_000_000
+		str += "السّلام عليكم ورحمة الله"
+	next
+	? "Finished"
+
+	? ElapsedTime() + NL
+	# Executed in 44.94 second(s) in Ring 1.22
+
+# While in Softanza, using  Concatenate(), this take about 4 seconds:
+
+	ResetTimer()
+
+	acList = []
+	for i = 1 to 1_000_000
+		acList + "السّلام عليكم ورحمة الله"
+	next
+	
+	Concatenate(acList)
+	#--> Executed in 3.64 second(s) in Ring 1.22
+
+	? ElapsedTime()
+
+# Which is a speed factor of about 11 times!
+
+	? SpeedX(45, 4)
+	#--> 11.25
+
+StopProfiler()
+# Executed in 3.83 second(s) in Ring 1.22
+
+/*----- #perf #ring #unicode
+
+pron()
+
+# Ring can add 1 million strings to a list quickly:
+
+	acList = []
+	for i = 1 to 1_000_000
+		acList + "any text"
+	next
+
+	? ElapsedTime()
+	#--> 0.26 second(s)
+
+# But when the string is unicode (arabic in this case),
+# this becomes visibly less performant
+
+	ResetTimer()
+
+	acList = []
+	for i = 1 to 1_000_000
+		acList + "السّلام عليكم ورحمة الله"
+	next
+
+	? ElapsedTime()
+	#--> 0.47 second(s)
+
+proff()
+# 0.47 second(s)
+
+/*----- #narration #perf #ring CONCATENATING UNICODE STRINGS IN RING AND SOFTANZA
+
+pron()
+
+# Ring can concatenate 1 million latin strings in almost 2 seconds:
+
+	cStr = ""
+	for i = 1 to 1_000_000
+		cStr += "any text"
+	next
+
+	? ElapsedTime()
+	#--> 1.70 second(s)
+
+# But when the string is in unicode (arabic in this case), Ring's
+# performance degradates to more then 45 seconds:
+
+	ResetTimer()
+
+	cStr = ""
+	for i = 1 to 1_000_000
+		cStr += "السّلام عليكم ورحمة الله"
+	next
+
+	? ElapsedTime() + NL
+	#--> 45.63 second(s)
+
+# Hopefully, Softanza has the Concatenate() function that
+# does the job in less then 4 seconds:
+
+	ResetTimer()
+
+	aListOfStr = []
+
+	for i = 1 to 1_000_000
+		aListOfStr + "السّلام عليكم ورحمة الله"
+	next
+	# The filling takes 1.70 seconds
+
+	str = Concat(aListOfStr)
+
+	? ElapsedTime() + NL
+	# 3.66 second(s)
+
+# Which is a performance gain of +88%
+
+	? PerfGain100(45.63, 3.66)
+	#--> 88.56
+
+# or a speed factor of +8 times!
+
+	? SpeedFactor(45.63, 3.66)
+	#--> 8.74
+
+proff()
+# Executed in 5.33 second(s) in Ring 1.22
+
+/*----- #perf qt qstring qstringlist
+
+pron()
+
+# Qt String is not performant for appending a large
+# number of strings (takes a lot of time to append
+# 1000000 arabic strings)
+
+# Check it by yourself (though i don't advise you
+# to run the code):
+
+#	salem = new QString2()
+#	for i = 1 to 1_000_000
+#		salem.append("السّلام عليكم ورحمة الله")
+#	next
+#	? ElapsedTime() + NL
+#	#--> A lot! I cancelled the execution after minutes.
+
+# Instead of QString, use QStringList which does
+# the job very quickly:
+
+	ResetTimer()
+
+	oQStrList = new QStringLis()
+	for i = 1 to 1_000_000
+		oQStrList.append("السّلام عليكم ورحمة الله")
+	next
+	
+# In practice, you would need that QStringList to quickly
+# concatenate the list usig the join() method:
+
+	str = oQStrList.join("")
+	# Executed in 0.01 second(s)
+
+# Or better of all use Allegro via GameEngine library.
+#NOTE Softanza will rely on it in string manipulation instead of Qt
+
+proff()
+
+
                  ///////////////////////////////////////////////
                 //                              ///////////////
       ///////////      TO BE FIXED LATER       /////////////
@@ -17981,4 +18235,3 @@ StzListQ([ "A", "B", 12, "C", "D", "E", 4, "F", 25, "G", "H" ]) {
 	? WalkUntil("@item = 'D'") #--> 1:5
 	? WalkUntil('@item = "x"') #--> 0
 }
-

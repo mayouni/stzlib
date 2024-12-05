@@ -28,7 +28,7 @@ func ItemExists(pItem, paList)
 	ok
 
 func AllListsHaveSameSize(paListOfLists)
-	if CheckParams()
+	if CheckingParams()
 		if NOT ( isList(paListOfLists) and
 			 len(paListOfLists) > 1 and
 			 IsListOfLists(paListOfLists) )
@@ -60,7 +60,7 @@ func AllListsHaveSameSize(paListOfLists)
 		return AllListsHaveSameSize(paListOfLists)
 
 func ListsMerge(paListOfLists)
-	if CheckParams()
+	if CheckingParams()
 		if NOT ( isList(paListOfLists) and @IsListOfLists(paListOfLists) )
 			StzRaise("Incorrect param type! paListOfLists must be a list of lists.")
 		ok
@@ -93,7 +93,7 @@ func ListsMerge(paListOfLists)
 		return ListsMerge(paListOfLists)
 
 func Association(paLists)
-	if CheckParams()
+	if CheckingParams()
 	
 		if NOT ( isList(paLists) and Q(paLists).IsListOfLists() )
 			StzRaise("Incorrect param type! paLists must be a list of lists.")
@@ -238,7 +238,7 @@ class stzListOfLists from stzList
 
 	def init(paList)
 
-		if CheckParams()
+		if CheckingParams()
 
 			if NOT isList(paList) 
 				StzRaise("Can't create the object! You must provide a list.")
@@ -340,7 +340,7 @@ class stzListOfLists from stzList
 		This.UpdateWith(aTempContent + paList)
 
 	def AddMany(paListOfLists)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isList(paListOfLists) and Q(paListOfLists).IsListOfLists() )
 				StzRaise("Incorrect param type! paListOfLists must be a list of lists.")
 			ok
@@ -363,7 +363,7 @@ class stzListOfLists from stzList
 	#---------------#
 
 	def NthList(n)
-		if CheckParams()
+		if CheckingParams()
 
 			if isString(n)
 				if n = :First or n = :FirstList
@@ -1533,7 +1533,7 @@ class stzListOfLists from stzList
 	#------------------------------------------------------------------------------------#
 
 	def ExtendToXT(n, pItem)
-		if CheckParams()
+		if CheckingParams()
 			if isList(n) and Q(n).IsPositionNamedParam()
 				n = n[2]
 			ok
@@ -1860,7 +1860,7 @@ class stzListOfLists from stzList
 
 	def ShrinkToWith(n, pWith)
 
-		if CheckParams()
+		if CheckingParams()
 
 			if isList(n) and Q(n).IsToOrToPosition(n)
 				n = n[2]
@@ -1957,7 +1957,7 @@ class stzListOfLists from stzList
 
 	def AdjustXT(n, pWith)
 	
-		if CheckParams()
+		if CheckingParams()
 	
 			if isList(n) and Q(n).IsToNamedParam()
 				n = n[2]
@@ -2728,7 +2728,7 @@ class stzListOfLists from stzList
 		#>
 
 	def NthcolumnXT(n) # Adds NULL if size of innerlist < n
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -2785,7 +2785,7 @@ class stzListOfLists from stzList
 		#>
 
 	def NthColumn(n)
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -2920,7 +2920,7 @@ class stzListOfLists from stzList
 
 		*/
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(paList)
 				StzRaise("Incorrect param! paList must be a list.")
 			ok
@@ -2973,7 +2973,7 @@ class stzListOfLists from stzList
 
 		*/
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(paList)
 				StzRaise("Incorrect param! paList must be a list.")
 			ok
@@ -3661,7 +3661,7 @@ class stzListOfLists from stzList
 
 	def ClassifyOnBy(nCol, pcExpr)
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(nCol)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -3702,7 +3702,7 @@ class stzListOfLists from stzList
 
 	def MoveCol(n1, n2)
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT (isNumber(n1) and isNumber(n2))
 				StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
 			ok
@@ -3778,7 +3778,7 @@ class stzListOfLists from stzList
 	#=============================================#
 
 	def SwapCols(n1, n2)
-		if CheckParams()
+		if CheckingParams()
 
 			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
 				:From, :FromPosition,
@@ -3870,7 +3870,7 @@ class stzListOfLists from stzList
 	#===========================================#
 
 	def InsertCol(n, paColData)
-		if CheckParams()
+		if CheckingParams()
 
 			if NOT isList(paColData)
 				StzRaise("Incorrect param type! paColData must be a list.")
@@ -3939,7 +3939,7 @@ class stzListOfLists from stzList
 	#=================================================#
 	
 	def RemoveCol(n)
-		if CheckParams()
+		if CheckingParams()
 			if isList(n) and Q(n).IsAtOrAtPositionNamedParam()
 				n = n[2]
 			ok
@@ -4031,7 +4031,7 @@ class stzListOfLists from stzList
 	#------------------------------------------------#
 
 	def RemoveCols(anColNumbers)
-		if CheckParams()
+		if CheckingParams()
 			if isList(anColNumbers) and Q(anColNumbers).IsAtOrAtPositionsNamedParams()
 				anColNumbers = anColNumbers[2]
 			ok
@@ -4132,7 +4132,7 @@ class stzListOfLists from stzList
 
 	def ReplaceCol(n, paColData)
 
-		if CheckParams()
+		if CheckingParams()
 			if isList(paColData) and Q(paColData).IsWithOrByNamedParam()
 				paColData = paColData[2]
 			ok
@@ -4205,7 +4205,7 @@ class stzListOfLists from stzList
 
 	def ReplaceCols(panColNumbers, paColData)
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT (isList(panColNumbers) and @IsListOfNumbers(panColNumbers))
 				StzRaise("Incorrect param type! panColNumbers must be a list of numbers.")
 			ok
@@ -4410,7 +4410,7 @@ class stzListOfLists from stzList
 
 	def FindSubListCS(paItems, pCaseSensitive)
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isList(paItems)
 				StzRaise("Incorrect param type! paItems must be a list.")
 			ok

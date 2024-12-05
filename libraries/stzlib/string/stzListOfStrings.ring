@@ -22,6 +22,57 @@ func StzListOfStringsQ(paList)
 	func StzStringsQ(paList)
 		return StzListOfStringsQ(paList)
 
+# Some functions
+
+func Concatenate(acListOfStr)
+	return ConcatenateXT(acListOfStr, "")
+
+	#< @FunctionAlternativeForms
+
+	func Concat(acListOfStr)
+		return Concatenate(acListOfStr)
+
+	func @Concatenate(acListOfStr)
+		return Concatenate(acListOfStr)
+
+	func @Concat(acListOfStr)
+		return Concatenate(acListOfStr)
+
+	#>
+
+func ConcatenateXT(acListOfStr, cSep)
+	if CheckingParams()
+		if NOT ( isList(acListOfStr) and IsListOfStrings(acListOfStr) )
+			StzRaise("Incorrect param type! acListOfStr must be a list of strings.")
+		ok
+
+		if NOT isString(cSep)
+			StzRaise("Incorrect param type! cSep must be a string.")
+		ok
+	ok
+
+	nLen = len(acListOfStr)
+	oQStrList = new QStringList()
+	for i = 1 to 1_000_000
+		oQStrList.append(acListOfStr[i])
+	next
+	
+	cResult = oQStrList.join(cSep)
+	return cResult
+
+	#< @FunctionAlternativeForms
+
+	func ConcatXT(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	func @ConcatenateXT(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	func @ConcatXT(acListOfStr, cSep)
+		return ConcatenateXT(acListOfStr, cSep)
+
+	#>
+
 # Used for natural-coding
 
 func ListOfStrings(paList)
@@ -469,7 +520,7 @@ class stzListOfStrings from stzList
 
 	def FilterCS(pcSubStr, pCaseSensitive)
 
-		if CheckParams()
+		if CheckingParams()
 
 			if isList(pcSubStr) and Q(pcSubStr).IsUsingOrByNamedParam()
 				pcSubStr = pcSubStr[2]

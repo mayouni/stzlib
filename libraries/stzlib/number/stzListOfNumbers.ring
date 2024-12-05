@@ -77,7 +77,7 @@ func MaxOf(panNumbers)
 #-- Multiple calculation
 
 func Sum(panNumbers)
-	if CheckParams()
+	if CheckingParams()
 		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
 			panNumbers = panNumbers[2]
 		ok
@@ -109,7 +109,7 @@ func Sum(panNumbers)
 		return Sum(panNumbers)
 
 func Substruct(panNumbers)
-	if CheckParams()
+	if CheckingParams()
 		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
 			panNumbers = panNumbers[2]
 		ok
@@ -138,7 +138,7 @@ func Substruct(panNumbers)
 		return Substruct(panNumbers)
 
 func Product(panNumbers)
-	if CheckParams()
+	if CheckingParams()
 		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
 			panNumbers = panNumbers[2]
 		ok
@@ -194,7 +194,7 @@ func Product(panNumbers)
 	#>
 
 func Divide(panNumbers)
-	if CheckParams()
+	if CheckingParams()
 		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
 			panNumbers = panNumbers[2]
 		ok
@@ -239,7 +239,7 @@ func Divide(panNumbers)
 #--- Multiple claculations, cumulated
 
 func SumXT(panNumbers)
-	if CheckParams()
+	if CheckingParams()
 		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
 			panNumbers = panNumbers[2]
 		ok
@@ -303,7 +303,7 @@ func SumXT(panNumbers)
 	#>
 
 func SubstructXT(panNumbers)
-	if CheckParams()
+	if CheckingParams()
 		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
 			panNumbers = panNumbers[2]
 		ok
@@ -376,7 +376,7 @@ func SubstructXT(panNumbers)
 	#>
 
 func ProductXT(panNumbers)
-	if CheckParams()
+	if CheckingParams()
 		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
 			panNumbers = panNumbers[2]
 		ok
@@ -493,7 +493,7 @@ func ProductXT(panNumbers)
 
 
 func DivideXT(panNumbers)
-	if CheckParams()
+	if CheckingParams()
 		if isList(panNumbers) and Q(panNumbers).IsOfNamedParam()
 			panNumbers = panNumbers[2]
 		ok
@@ -631,7 +631,7 @@ func MultiplicationsYieldingN_WithoutCommutation(n)
 		return MultiplicationsYieldingN_WithoutCommutation(n)
 
 func NZeros(n)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isNumber(n) and n >= 0
 			StzRaise("Incorrect param type! n must be a postive number.")
 		ok
@@ -691,7 +691,7 @@ func NumbersXT(n1, n2)
 	#>
 
 func NumbersBetween(n1, n2)
-	if CheckParams()
+	if CheckingParams()
 
 		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :Between, :From ])
 			n1 = n1[2]
@@ -753,7 +753,7 @@ func CommonNumbers(paListsOfNumbers)
 	#>
 
 func NumbersIn(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT IsList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -778,7 +778,7 @@ func NumbersIn(paList)
 	#>
 
 func PositiveNumbersIn(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT IsList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -811,7 +811,7 @@ func PositiveNumbersIn(paList)
 	#>
 
 func NegativeNumbersIn(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT IsList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -844,7 +844,7 @@ func NegativeNumbersIn(paList)
 	#>
 
 func PositiveNumbersBetween(n1, n2)
-	if CheckParams()
+	if CheckingParams()
 		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
@@ -860,7 +860,7 @@ func PositiveNumbersBetween(n1, n2)
 	#>
 
 func NegativeNumbersBetween(n1, n2)
-	if CheckParams()
+	if CheckingParams()
 		if NOT @BothAreNumbers(n1, n2)
 			StzRaise("Incorrect param types! n1 and n2 must both be numbers.")
 		ok
@@ -876,7 +876,7 @@ func NegativeNumbersBetween(n1, n2)
 	#>
 
 func EvenNumbersIn(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT IsList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -909,7 +909,7 @@ func EvenNumbersIn(paList)
 	#>
 
 func OddNumbersIn(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT IsList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -942,7 +942,7 @@ func OddNumbersIn(paList)
 	#>
 
 func PrimeNumbersIn(paList)
-	if CheckParams()
+	if CheckingParams()
 		if NOT IsList(paList)
 			StzRaise("Incorrect param type! paList must be a list.")
 		ok
@@ -1099,7 +1099,7 @@ func NextPrimeST(nbr)
 	#>
 
 func NextNthPrimeST(nth, nbr)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isNumber(nth)
 			StzRaise("Incorrect param type! nth must be a number.")
 		ok
@@ -1198,7 +1198,7 @@ func PreviousPrimeST(nbr)
 	#>
 
 func PreviousNthPrimeST(nth, nbr)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isNumber(nth)
 			StzRaise("Incorrect param type! nth must be a number.")
 		ok
@@ -1286,7 +1286,7 @@ func FirstNPrimesWXT(n, pcCondition)
 	#--> [ ... ]
 
 	*/
-	if CheckParams()
+	if CheckingParams()
 
 		if NOT isNumber(n)
 			StzRaise("Incorrect param type! n must be a number.")
@@ -3106,7 +3106,7 @@ def init(paList)
 		#--> 12
 		*/
 
-		if CheckParam()
+		if CheckingParam()
 			if isList(panOtherList) and Q(panOtherList).IsWithNamedParam()
 				panOtherList = panOtherList[2]
 			ok
@@ -3171,7 +3171,7 @@ def init(paList)
 		#--> 102
 		*/
 
-		if CheckParams()
+		if CheckingParams()
 			if isList(panOtherList) and Q(panOtherList).IsWithNamedParam()
 				panOtherList = panOtherList[2]
 			ok
@@ -4038,7 +4038,7 @@ def init(paList)
 
 		# Checking params
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -4131,7 +4131,7 @@ def init(paList)
 
 		# Checking params
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -7477,7 +7477,7 @@ def init(paList)
 	#---------------------------------------------------------#
 
 	def AdjustUsing(c)
-		if CheckParams()
+		if CheckingParams()
 			if NOT (isString(c) and @IsChar(c))
 				StzRaise("Incorrect param type! c must be a char.")
 			ok

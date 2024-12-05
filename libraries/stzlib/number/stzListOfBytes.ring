@@ -295,7 +295,7 @@ class stzListOfBytes from stzList
 		return aResult
 
 	def BytesOfChar(pcChar)
-		if CheckParams()
+		if CheckingParams()
 			if NOT ( isString(pcChar) and @IsChar(pcChar) )
 				StzRaise("Incorrect param type! pcChar must be a char.")
 			ok
@@ -323,7 +323,7 @@ class stzListOfBytes from stzList
 
 	def BytesOfCharNumber(n)
 
-		if CheckParams()
+		if CheckingParams()
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
@@ -621,7 +621,7 @@ class stzListOfBytes from stzList
 		return aResult
 
 	def ToHexSeparated(pcSep)
-		if CheckParams()
+		if CheckingParams()
 			if isList(pcSep) and Q(pcSep).IsByOrUsingOrWithNamedParam()
 				pcSep = pcSep[2]
 			ok
@@ -648,7 +648,7 @@ class stzListOfBytes from stzList
 		#< @FunctionAlternativeForm
 
 		def ToHexSeparatedBy(pcSep)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isString(pcSep)
 					StzRaise("Incorrect param type! pcSep must be a string.")
 				ok
@@ -657,7 +657,7 @@ class stzListOfBytes from stzList
 			return This.ToHexSeparated(pcSep)
 
 		def ToHexSeparatedWith(pcSep)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isString(pcSep)
 					StzRaise("Incorrect param type! pcSep must be a string.")
 				ok
@@ -666,7 +666,7 @@ class stzListOfBytes from stzList
 			return This.ToHexSeparated(pcSep)
 
 		def ToHexSeparatedUsing(pcSep)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isString(pcSep)
 					StzRaise("Incorrect param type! pcSep must be a string.")
 				ok
@@ -682,7 +682,7 @@ class stzListOfBytes from stzList
 	#--
 
 	def ToHexWithoutPrefixSeparated(pcSep)
-		if CheckParams()
+		if CheckingParams()
 			if isList(pcSep) and Q(pcSep).IsByOrUsingOrWithNamedParam()
 				pcSep = pcSep[2]
 			ok
@@ -709,7 +709,7 @@ class stzListOfBytes from stzList
 		#< @FunctionAlternativeForm
 
 		def ToHexWithoutPrefixSeparatedBy(pcSep)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isString(pcSep)
 					StzRaise("Incorrect param type! pcSep must be a string.")
 				ok
@@ -718,7 +718,7 @@ class stzListOfBytes from stzList
 			return This.ToHexWithoutPrefixSeparated(pcSep)
 
 		def ToHexWithoutPrefixSeparatedWith(pcSep)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isString(pcSep)
 					StzRaise("Incorrect param type! pcSep must be a string.")
 				ok
@@ -727,7 +727,7 @@ class stzListOfBytes from stzList
 			return This.ToHexWithoutPrefixSeparated(pcSep)
 
 		def ToHexWithoutPrefixSeparatedUsing(pcSep)
-			if CheckParams()
+			if CheckingParams()
 				if NOT isString(pcSep)
 					StzRaise("Incorrect param type! pcSep must be a string.")
 				ok

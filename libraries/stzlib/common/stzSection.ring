@@ -26,7 +26,7 @@ class stzSection
 	@aContent
 
 	def init(n1, n2, nSize)
-		if CheckParams()
+		if CheckingParams()
 
 			if isList(nSize) and Q(nSize).IsOneOfTheseNamedParams([
 				:Size, :ListSize, :StringSize,

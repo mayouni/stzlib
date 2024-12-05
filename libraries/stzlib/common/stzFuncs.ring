@@ -24,6 +24,8 @@ Programming, by Heart! By: M.Ayouni╭
  ///  GLOBALS VARIABLES  ///
 ///////////////////////////
 
+_bKeepHisto = FALSE
+
 _aRingTypes = [ :number, :string, :char, :list, :object, :cobject ]
 
 _aRingTypesXT = [
@@ -419,6 +421,59 @@ _acStzCCKeywords = [
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
 
+func KeepingHistory()
+	return _bKeepHisto
+
+	func KeepingHisto()
+		return KeepingHistory()
+
+func KeepHistoryON()
+	_bKeepHisto = TRUE
+
+	func KeepHistory()
+		KeepHistoryON()
+
+	func KeepHistoON()
+		KeepHistoryON()
+
+	func KeepHisto()
+		KeepHistoryON()
+
+func KeepHistoryOFF()
+	_bKeepHisto = FALSE
+
+	func DontKeepHistory()
+		KeepHistoryOFF()
+
+	func KeepHistoOFF()
+		KeepHistoryOFF()
+
+	func DontKeepHisto()
+		KeepHistoryOFF()
+
+func SetKeepingHistoryTo(bTrueOrFalse)
+	if NOT (isNumber(bTrueOrFalse) and isNumber(bTrueOrFalse) )
+		StzRaise("Incorrect param type! bTrueOrFalse must be a number.")
+	ok
+
+	if NOT ( bTrueOrFalse = 0 or bTrueOrFalse = 1 )
+		StzRaise("Incorrect param value! bTrueOrFalse must be 0 or 1.")
+	ok
+
+	_bKeepHisto = bTrueOrFalse
+
+	func SetKeepHistoryTo(bTrueOrFalse)
+		SetKeepingHistoryTo(bTrueOrFalse)
+
+	func SetKeepingHistory(bTrueOrFalse)
+		SetKeepingHistoryTo(bTrueOrFalse)
+
+	func SetKeepHistory(bTrueOrFalse)
+		SetKeepingHistoryTo(bTrueOrFalse)
+
+	func SetKeepHistoTo(bTrueOrFalse)
+		SetKeepingHistoryTo(bTrueOrFalse)
+
 func AttributesValues(pObject) # Compliments Ring attributes() function
 	if NOT isObject(pObject)
 		Raise("Incorrect param type! pObject must be an object.")
@@ -475,7 +530,7 @@ func Obj(pObject)
 	# Q([1, 2]) + TheseQ([3, 4])
 	#--> A stzList object containing [1, 2, 3, 4 ]
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isObject(pObject)
 			StzRaise("Incorrect param type! pObject must be an object.")
 		ok
@@ -502,7 +557,7 @@ func Obj(pObject)
 	#>
 
 func ObjQ(pObject)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isObject(pObject)
 			StzRaise("Incorrect param type! pObject must be an object.")
 		ok
@@ -530,7 +585,7 @@ func ObjQ(pObject)
 
 func M(poStzObject)
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT (isObject(poStzObject) and IsStzObject(poStzObject))
 			StzRaise("Incorrect param type! poStzObject must be a Softanza object.")
 		ok
@@ -554,7 +609,7 @@ func These(p)
 	# In the contrary, if [ "x", "y" ] was existant, it will be removed:
 	# ? Q([ 1, 2, ["x", "y"], 3 ]) - [ "x", "y"] #--> [ 1, 2, 3 ]
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -659,7 +714,7 @@ func TheseNumbers(p)
 	_bThese = TRUE
 	_bTheseQ = FALSE
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -715,7 +770,7 @@ func TheseChars(p)
 	_bThese = TRUE
 	_bTheseQ = FALSE
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -771,7 +826,7 @@ func TheseStrings(p)
 	_bThese = TRUE
 	_bTheseQ = FALSE
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -827,7 +882,7 @@ func TheseLists(p)
 	_bThese = TRUE
 	_bTheseQ = FALSE
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -883,7 +938,7 @@ func TheseObjects(p)
 	_bThese = TRUE
 	_bTheseQ = FALSE
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isObject(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -941,7 +996,7 @@ func TheseStzNumbers(p)
 	_bThese = TRUE
 	_bTheseQ = FALSE
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -997,7 +1052,7 @@ func TheseStzChars(p)
 	_bThese = TRUE
 	_bTheseQ = FALSE
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1053,7 +1108,7 @@ func TheseStzStrings(p)
 	_bThese = TRUE
 	_bTheseQ = FALSE
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1109,7 +1164,7 @@ func TheseStzLists(p)
 	_bThese = TRUE
 	_bTheseQ = FALSE
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1165,7 +1220,7 @@ func TheseStzObjects(p)
 	_bThese = TRUE
 	_bTheseQ = FALSE
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1221,7 +1276,7 @@ func TheseQtObjects(p)
 	_bThese = TRUE
 	_bTheseQ = FALSE
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1278,7 +1333,7 @@ func TheseQ(p)
 	# Used in the fellowing situation:
 	#  ? Q([ 1, 2, "x", 3, "y" ]) - TheseQ([ "x", "y"]) #--> Q([ 1, 2, 3 ])
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1381,7 +1436,7 @@ func TheseQ(p)
 
 func TheseNumbersQ(p)
 	
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1437,7 +1492,7 @@ func TheseNumbersQ(p)
 
 func TheseCharsQ(p)
 	
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1493,7 +1548,7 @@ func TheseCharsQ(p)
 
 func TheseStringsQ(p)
 	
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1549,7 +1604,7 @@ func TheseStringsQ(p)
 
 func TheseListsQ(p)
 	
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1605,7 +1660,7 @@ func TheseListsQ(p)
 
 func TheseObjectsQ(p)
 	
-	if CheckParams()
+	if CheckingParams()
 		if NOT isObject(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1661,7 +1716,7 @@ func TheseObjectsQ(p)
 
 func TheseStzNumbersQ(p)
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1717,7 +1772,7 @@ func TheseStzNumbersQ(p)
 
 func TheseStzCharsQ(p)
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1773,7 +1828,7 @@ func TheseStzCharsQ(p)
 
 func TheseStzStringsQ(p)
 	
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1829,7 +1884,7 @@ func TheseStzStringsQ(p)
 
 func TheseStzListsQ(p)
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1885,7 +1940,7 @@ func TheseStzListsQ(p)
 
 func TheseStzObjectsQ(p)
 
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -1942,7 +1997,7 @@ func TheseStzObjectsQ(p)
 
 func TheseQtObjectsQ(p)
 	
-	if CheckParams()
+	if CheckingParams()
 		if NOT isList(p)
 			StzRaise("Incorrect param type! p must be a list.")
 		ok
@@ -2265,7 +2320,7 @@ func EarlyCheckOff()
 		_bEarlyCheck = FALSE
 
 func SetEarlyCheck(b)
-	if CheckParams()
+	if CheckingParams()
 		if NOT (isNumber(b) and (b = 0 or b = 1) )
 			StzRaise("Incorrect param! b must be a boolean (TRUE or FALSE).")
 		ok
@@ -2602,7 +2657,7 @@ func StzRaise(paMessage)
 #-----
 
 func IsClassName(cStr)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(cStr)
 			StzRaise("Incorrect param type! cStr must be a string.")
 		ok
@@ -2618,7 +2673,7 @@ func IsClassName(cStr)
 		return IsClassName
 
 func IsPackageName(cStr)
-	if CheckParams()
+	if CheckingParams()
 		if NOT isString(cStr)
 			StzRaise("Incorrect param type! cStr must be a string.")
 		ok
@@ -5432,7 +5487,7 @@ func StzClassesXT()
 		return StzClassesXT()
 
 func StzType(oStzObj)
-	if CheckParams()
+	if CheckingParams()
 		if NOT ( isObject(oStzObj) and IsStzObject(oStzObj) )
 			StzRaise("Incorrect param type! oStzObject must be a stzObject.")
 		ok
