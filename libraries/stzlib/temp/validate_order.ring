@@ -62,7 +62,7 @@ proff()
 # Executed in 44.65 second(s) in Ring 1.22
 
 
-/*=========== RingAllegro
+/*=========== RingAllegro #TODO use it instead of Qt in Softanza
 */
 pron()
 

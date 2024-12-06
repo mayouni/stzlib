@@ -906,7 +906,29 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#------------------#
 
 	def RemoveNthPair(n)
-		del( This.HashList(), n )
+
+		#NOTE // As a general guideline, and after introducing the
+		# object history feature through QH() small function, we
+		# should never update objects content direcly like this:
+
+		// del( This.Content(), n )
+
+		# Instead, we use a copy of the content, change it, and then
+		# call the UpdateWith() method on our object with the result.
+
+		# This way, the UpdateWith() can form a single update-point
+		# of all Softanza manipulations and enables QH() and its
+		# related functions to track the history of updates.
+
+		#LINK // To get an idea of the use of QH() read this
+		# narration on the library documentation:
+		# https://github.com/mayouni/stzlib/blob/main/libraries/stzlib/doc/narrations/stz-narration-keeping-object-history.md
+
+		#TODO // Review all the library according to this.
+
+		aContent = This.Content()
+		del(aContent, n)
+		This.UpdateWith(aContent)
 
 		def RemoveNthPairQ(n)
 			This.RemovePair(n)

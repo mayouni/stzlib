@@ -7443,6 +7443,10 @@ class stzList from stzObject
 				n1 = n1[2]
 			ok
 	
+			if NOT isNumber(n1)
+				n1 = This.FindFirst(n1)
+			ok
+
 			if isList(n2) and
 			   Q(n2).IsOneOfTheseNamedPArams([
 				:And, :AndPosition, :AndItemAt, :AndItemAtPosition, :AndItem ])
@@ -7450,11 +7454,19 @@ class stzList from stzObject
 				n2 = n2[2]
 			ok
 
+			if NOT isNumber(n2)
+				n2 = This.FindFirst(n2)
+			ok
 		ok
 
+		_oList_ = This.Copy()
+
 		copy = This[n2]
-		This.ReplaceItemAtPosition(n2, :By = This[n1])
-		This.ReplaceItemAtPosition(n1, :By = copy)
+		_oList_.ReplaceItemAtPosition(n2, :By = This[n1])
+		_oList_.ReplaceItemAtPosition(n1, :By = copy)
+
+		This.UpdateWith(_oList_.Content())
+
 
 		#< @FunctionAlternativeForms
 
@@ -13006,9 +13018,13 @@ class stzList from stzObject
 
 		This.UpdateWith(aContent)
 
+		#< @FunctionFluentForm
+
 		def ReplaceSectionQ(n1, n2, pNewItem)
 			This.ReplaceSection(n1, n2, pNewItem)
 			return This
+
+		#>
 
 	def SectionReplaced(n1, n2, pNewItem)
 		aResult = This.Copy().ReplaceSectionQ(n1, n2, pNewItem).Content()
@@ -13022,23 +13038,44 @@ class stzList from stzObject
 	#----------------------------------------------#
 
 	def ReplaceManySections(paSections, pNewItem)
-		for anSection in paSections
-			This.ReplaceSection(anSection, pNewItem)
+		if CheckingParams() = TRUE
+			if NOT ( isList(paSections) and @IsListOfPairsOfNumbers(paSections) )
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
+		nLen = len(paSections)
+		_oCopy_ = This.Copy()
+
+		for i = 1 to nLen
+			_oCopy_.ReplaceSection(paSections[i], pNewItem)
 		next
+
+		This.UpdateWith(_oCopy_.Content())
+
+		#< @FunctionFluentForm
 
 		def ReplaceManySectionsQ(paSections, pNewItem)
 			This.ReplaceManySections(paSections, pNewItem)
 			return This
-		
+		#>
+
+		#< @FunctionAlternativeForm
+
 		def ReplaceTheseSections(paSections, pNewItem)
 			This.ReplaceManySections(paSections, pNewItem)
 
 			def ReplaceTheseSectionsQ(paSections, pNewItem)
 				return This.ReplaceManySectionsQ(paSections, pNewItem)
-				
+		#>
+
+	#-- @FunctionPasssiveForm
+
 	def ManySectionsReplaced(paSections, pNewItem)
 		aResult = This.Copy().ReplaceManySectionsQ(paSections, pNewItem).Content()
 		return aResult
+
+		#< @FunctionAlternativeForms
 
 		def ManySectionsReplacedWith(paSections, pNewItem)
 			return This.ManySectionsReplaced(paSections, pNewItem)
@@ -13048,6 +13085,8 @@ class stzList from stzObject
 
 		def TheseSectionsReplacedWith(paSections, pNewItem)
 			return This.ManySectionsReplaced(paSections, pNewItem)
+
+		#>
 
 	  #------------------------------------------------------#
 	 #   REPLACING EACH ITEM IN SECTION BY ONE GIVEN ITEM   #
@@ -13086,21 +13125,38 @@ class stzList from stzObject
 	#----------------------------------------------------------#
 
 	def ReplaceEachItemInManySections(paSections, pNewItem)
+		if CheckingParams() = TRUE
+			if NOT (isList(paSections) and @IsListOfPairsOfNumbers(paSections))
+				StzRaise("Incorrect param type! paSections must be a list of pairs of numbers.")
+			ok
+		ok
+
 		nLen = len(paSections)
+		_oCopy_ = This.Copy()
 
 		for i = 1 to nLen
-			This.ReplaceEachItemInSection(paSections[i][1], paSections[i][2], pNewItem)
+			_oCopy_.ReplaceEachItemInSection(paSections[i][1], paSections[i][2], pNewItem)
 		next
+
+		This.UpdateWith(_oCopy_.Content())
+
+		#< @FunctionFluentForm
 
 		def ReplaceEachItemInManySectionsQ(paSections, pNewItem)
 			This.ReplaceEachItemInManySections(paSections, pNewItem)
 			return This
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def ReplaceEachItemInTheseSections(paSections, pNewItem)
 			This.ReplaceEachItemInManySections(paSections, pNewItem)
 
 			def ReplaceEachItemInTheseSectionsQ(paSections, pNewItem)
 				return This.ReplaceEachItemInManySectionsQ(paSections, pNewItem)
+		#>
+
+	#-- @FunctionPassiveForm
 
 	def EachItemInManySectionsReplaced(paSections, pNewItem)
 
@@ -13233,15 +13289,24 @@ class stzList from stzObject
 		#TODO // Add params check
 		#TODO // Change for/in loop by for loop
 
+		_oCopy_ = This.Copy()
+
 		for anRange in panRanges
 			n = anRange[1]
 			nRange = anRange[2]
-			This.ReplaceRange(n, nRange, pNewItem)
+			_oCopy_.ReplaceRange(n, nRange, pNewItem)
 		next
+
+		This.UpdateWith(_oCopy_.Content())
+
+		#< @FunctionFluentForm
 
 		def ReplaceRangesQ(panRanges, pNewItem)
 			This.ReplaceManyRanges(panRanges, pNewItem)
 			return This
+		#>
+
+		#< @FunctionAlternativeForms
 
 		def ReplaceManyRanges(panRanges, pNewItem)
 			This.ReplaceRanges(panRanges, pNewItem)
@@ -13254,6 +13319,9 @@ class stzList from stzObject
 
 			def ReplaceTheseRangesQ(panRanges, pNewItem)
 				return This.ReplaceRangesQ(panRanges, pNewItem)
+		#>
+
+	#-- @FunctionPassiveForms
 
 	def RangesReplaced(panRanges, pNewItem)
 		acResult = This.Copy().ReplaceManyRangesQ(panRanges, pNewItem).Content()
@@ -13296,12 +13364,16 @@ class stzList from stzObject
 		#TODO // Add params check
 		#TODO // Change for/in loop by for loop
 
+		_oCopy_ = This.Copy()
+
 		for anRange in panRanges
 			anSection = @RangeToSection(anRange[1], anRanges[2])
 			n1 = anSection[1]
 			n2 = anSection[2]
-			This.ReplaceEachItemInSection(n1, n2, pNewItem)
+			_oCopy_.ReplaceEachItemInSection(n1, n2, pNewItem)
 		next
+		This.UpdateWith(_oCopy_.Content())
+
 
 		def ReplaceEachItemInManyRangesQ(panRanges, pNewItem)
 			This.ReplaceEachItemInManyRanges(panRanges, pNewItem)
@@ -13342,6 +13414,8 @@ class stzList from stzObject
 		n1 = anSection[1]
 		n2 = anSection[2]
 
+		_oCopy_ = This.Copy()
+
 		i = 0
 		for n = n1 to n2
 			i++
@@ -13351,8 +13425,11 @@ class stzList from stzObject
 				item = NULL
 			ok
 
-			This.ReplaceAt(n, item)
+			_oCopy_.ReplaceAt(n, item)
 		next
+
+		This.UpdateWith(_oCopy_.Content())
+
 
 		def ReplaceRangeByManyQ(n, nRange, paOtherListOfItems)
 			This.ReplaceRangeByMany(n, nRange, paOtherListOfItems)
@@ -13377,12 +13454,18 @@ class stzList from stzObject
 	#------------------------------------------------#
 
 	def ReplaceManyRangesByMany(panRanges, paOtherListOfItems)
+
+		_oCopy_ = This.Copy()
+
 		for anRange in panRanges
 			anSection = @RangeToSection(anRange[1], anRange[2])
 			n1 = anSections[1]
 			n2 = anSections[2]
-			This.ReplaceRangeByMany(n, nRange, paOtherListOfItems)
+			_oCopy_.ReplaceRangeByMany(n, nRange, paOtherListOfItems)
 		next
+
+		This.UpdateWith(_oCopy_.Content())
+
 
 		def ReplaceManyRangesByManyQ(panRanges, paOtherListOfItems)
 			This.ReplaceManyRangesByMany(panRanges, paOtherListOfItems)
@@ -13527,12 +13610,20 @@ class stzList from stzObject
 	#=================================================================#
 
 	def TrimCS(pCaseSensitive)
-		This.TrimLeftCS(pCaseSensitive)
-		This.TrimRightCS(pCaseSensitive)
+
+		_oCopy_ = This.Copy()
+
+		_oCopy_.TrimLeftCS(pCaseSensitive)
+		_oCopy_.TrimRightCS(pCaseSensitive)
 	
+		This.UpdateWith(_oCopy_.Content())
+
+		#< @FunctionFluentForm
+
 		def TrimCSQ(pCaseSensitive)
 			This.TrimCS(pCaseSensitive)
 			return This
+		#>
 
 	def TrimmedCS(pCaseSensitive)
 		aResult = This.Copy().TrimCSQ(pCaseSensitive).Content()
@@ -13822,9 +13913,13 @@ class stzList from stzObject
 		anPos = This.FindAllCS(pItem, pCaseSensitive)
 		nLenPos = len(anPos)
 
+		_oCopy_ = This.Copy()
+
 		for i = nLenPos to 1 step -1
-			This.RemoveItemAtPosition(anPos[i])
+			_oCopy_.RemoveItemAtPosition(anPos[i])
 		next
+
+		This.UpdateWith(_oCopy_.Content())
 
 		#< @FunctionFluentForm
 
@@ -13955,13 +14050,6 @@ class stzList from stzObject
 		anPos = This.FindTheseOccurrences(panOccurr, pItem)
 		This.RemoveItemsAtPositions(anPos)
 
-		#TODO
-		# See why this alternative implementations leads an error
-		/*
-		for i = 1 to nLen
-			This.RemoveNthOccurrence(panOccurr[i], pItem)
-		next
-		*/
 
 		#< @FunctionFluentForm
 
@@ -14017,13 +14105,13 @@ class stzList from stzObject
 		ok
 
 		nLen = len(paItems)
-		oCopy = This.Copy()
+		_oCopy_ = This.Copy()
 
 		for i = 1 to nLen
-			oCopy.RemoveAllCS(paItems[i], pCaseSensitive)
+			_oCopy_.RemoveAllCS(paItems[i], pCaseSensitive)
 		next
 
-		This.UpdateWith(oCopy.Content())
+		This.UpdateWith(_oCopy_.Content())
 
 		#< @FunctionFluentForm
 
@@ -14937,9 +15025,14 @@ class stzList from stzObject
 
 		This.RemoveItemAtPosition(nPosition)
 
+		#< @FunctionFluentForm
+
 		def RemovePreviousNthOccurrenceCSQ(n, pItem, pnStartingAt, pCaseSensitive)
 			This.RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 			return This
+		#>
+
+		#< @FunctionAlternativeForm
 
 		def RemoveNthPreviousOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 			This.RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
@@ -14947,6 +15040,7 @@ class stzList from stzObject
 			def RemoveNthPreviousOccurrenceCSQ(n, pItem, pnStartingAt, pCaseSensitive)
 				This.RemoveNthPreviousOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 				return This
+		#>
 
 	def NthPreviousOccurrenceRemovedCS(n, pItem, pnStartingAt, pCaseSensitive)
 
@@ -15334,8 +15428,13 @@ class stzList from stzObject
 	#----------------------------------#
 
 	def RemoveFirstAndLastItems()
-		This.RemoveFirstItem()
-		This.RemoveLastItem()
+
+		_oCopy_ = This.Copy()
+
+		_oCopy_.RemoveFirstItem()
+		_oCopy_.RemoveLastItem()
+
+		This.UpdateWith(_oCopy_.Content())
 
 		#< @FunctionFluentForm
 
@@ -15882,13 +15981,13 @@ class stzList from stzObject
 
 		# Doing the job
 
-		oCopy = This.Copy()
+		_oCopy_ = This.Copy()
 
 		for i = nLen to 1 step -1
-			oCopy.RemoveSection(aMerged[i][1], aMerged[i][2])
+			_oCopy_.RemoveSection(aMerged[i][1], aMerged[i][2])
 		next
 
-		This.UpdateWith(oCopy.Content())
+		This.UpdateWith(_oCopy_.Content())
 
 		#< @FunctionFluentForm
 
@@ -80969,6 +81068,16 @@ www	#----------------------------------------#
 	def IsBetweenCharsAtNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCharsAt )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBetweenCharsAtPositionNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenCharsAtPosition )
 
 			return TRUE
 

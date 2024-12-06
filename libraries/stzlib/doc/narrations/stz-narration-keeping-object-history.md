@@ -63,7 +63,7 @@ Yet an other example around numbers:
 	#--> [ 13000, 11500, 23, 46 ]
 ```
 
->NOTE: All other Softanza objects—not just `stzString`s and `stzNumbers`, as demonstrated—are supported and can retain their historic values. This includes `stzList`s, `stzObject`s, `stzTable`s, and more.
+>NOTE: All other Softanza objects—not just `stzString`s and `stzNumber`s, as demonstrated—are supported and can retain their historic values. This includes `stzList`s, `stzObject`s, `stzTable`s, and more.
 
 ### Key Benefits
 
