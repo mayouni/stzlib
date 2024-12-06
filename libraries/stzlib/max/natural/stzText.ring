@@ -4811,11 +4811,14 @@ class stzText from stzString
 		nLen = len(anPos)
 
 		aoStzChars = This.ToListOfStzChars()
+		_oCopy_ = This.Copy()
 
 		for i = 1 to nLen
 			nPos = anPos[i]
-			@oQString.replace(nPos-1, 1, aoStzChars[nPos].DiacriticRemoved())			
+			_Copy_.QStringObject().replace(nPos-1, 1, aoStzChars[nPos].DiacriticRemoved())			
 		next
+
+		This.UpdateWith(_oCopy_.Content())
 
 
 		def RemoveDiacriticsQ()

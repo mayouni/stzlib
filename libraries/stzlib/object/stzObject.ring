@@ -5494,6 +5494,12 @@ class stzObject
 	 #  MANAGING HISTORIC VALUES  #
 	#============================#
 
+	#TODO // Review all the places in the library where softanza objects
+	# are updated directly without using UpdateWith().
+
+	#~> // UpdateWith() must be the single-update point for all objects
+	# manipulations in the library, so history can be tracked.
+
 	def AddHistoricValue(value)
 
 		@aHisto + value

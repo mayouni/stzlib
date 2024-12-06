@@ -9188,7 +9188,7 @@ proff()
 # Executed in 0.17 second(s) in Ring 1.22
 
 /*-----
-*/
+
 pron()
 
 ? Q(12500).
@@ -9779,71 +9779,104 @@ proff()
 
 /*=================
 
+pron()
+
 o1 = new stzString("ACB")
 o1.Move( :CharFromPosition = 3, :To = 2 )
-? o1.Content() #--> "ABC"
+? o1.Content()
+#--> "ABC"
 
 o1.Swap( :Positions = 2, :And = 3 )
-? o1.Content() #--> "ACB"
+? o1.Content()
+#--> "ACB"
+
+proff()
+# Executed in 0.08 second(s) in Ring 1.22
 
 /*------------------
 
-o1 = new stzListOfStrings([ "A", "C", "B" ])
-o1.Move( :StringFromPosition = 3, :To = 2 )
-? o1.Content() #--> "ABC"
-
-o1.Swap( :Positions = 2, :And = 3 )
-? o1.Content() #--> "ACB"
-
-/*------------------
+pron()
 
 o1 = new stzList([ "A", "C", "B" ])
-o1.Move( :ItemFromPosition = 3, :ToPosition = 2 )
-? o1.Content() #--> [ "A", "B", "C" ]
+o1.Move( :ItemFromPosition = 3, :To = 2 )
+? o1.Content()
+#--> [ "A", "B", "C" ]
 
 o1.Swap( :Positions = 2, :And = 3 )
-? o1.Content() #--> [ "A", "C", "B" ]
+? o1.Content()
+#--> [ "A", "B", "C" ]
+
+proff()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*------------------
 
 pron()
 
 o1 = new stzString("TWO, ONE, THREE!")
-o1.SwapSubStrings("TWO", "ONE")
+o1.Swap("TWO", :And = "ONE") # Or SwapSubStrings()
 ? o1.Content()
 #--> ONE, TWO, THREE!
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+
+/*--------
+
+pron()
+
+o1 = new stzList([ "TWO", "ONE", "THREE" ])
+o1.Swap("TWO", :And = "ONE")
+? o1.Content()
+
+proff()
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*=================
 
+pron()
+
 o1 = new stzString("*AB*")
 
-? @@( o1.Find("*") )	#--> [1, 4]
+? @@( o1.Find("*") )
+#--> [1, 4]
 
 # Or you can say:
-? @@( o1.Find( :SubString = "*" ) )	#--> [1, 4]
+? @@( o1.Find( :SubString = "*" ) )
+#--> [1, 4]
 
 # Or also:
-? @@( o1.FindSubString( "*" ) )	#--> [1, 4]
+? @@( o1.FindSubString( "*" ) )
+#--> [1, 4]
 
 # And many other alternatives that you can discover in the fucntion code
 
+proff()
+# Executed in 0.02 second(s) in Ring 1.22
+
 /*==================
+
+pron()
 
 ? Q("NEXTAV TUNISIA").Section(:From = 1, :To = 6)
 #--> "NEXTAV"
 
-? Q("NEXTAV TUNISIA").Section(:From = (:NthToLastChar = 6), :To = :LastChar)
-#--> "TUNISIA"
+proff()
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*-----------------
+
+pron()
 
 ? Q("SOFTANZA").NthToLast(3)
 #--> "A"
 
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
 /*-----------------
+
+pron()
 
 ? Q("SOFTANZA").Section(1, 4)
 #--> "SOFT"
@@ -9852,27 +9885,21 @@ o1 = new stzString("*AB*")
 #--> "SOFT"
 
 ? Q("SOFTANZA").Section(4, 1)
-#--> "TFOS"
+#--> "SOFT"
 
 ? Q("SOFTANZA").Section(:From = :LastChar, :To = :FirstChar)
-#--> "AZNATFOS"
-
-? Q("SOFTANZA").Section(:From = (:NthToLastChar = 3), :To = :LastChar)
-#--> "ANZA"
+#--> "SOFTANZA"
 
 ? Q("SOFTANZA").Section(:From = "F", :To = "A")
-#--> "FTA"
+#--> "FTANZA"
 
 ? Q("SOFTANZA").Section( :From = "A", :To = :EndOfString )
 #--> "ANZA"
 
 ? Q("Programming By Heart!
      This is Softanza motto.").
-	Section( :From = "By", :To = :EndOfLine)
+	Section( :From = "By", :To = :EndOfLine) + NL
 #--> "By Heart!"
-
-? Q("SOFTANZA").Section(-99, 99)
-#--> ""
 
 ? Q("SOFTANZA").Section(4, :@)
 #--> "T"
@@ -9883,11 +9910,25 @@ o1 = new stzString("*AB*")
 ? Q("SOFTANZA").Section(:@, :@)
 #--> "SOFTANZA"
 
+proff()
+# Executed in 0.12 second(s) in Ring 1.22
+
 /*-----------------
+
+
+? @@( Q("SOFTANZA").Section(-99, 99) )
+#--> Indexes out of range! n1 and n2 must be inside the string.
+
+/*-----------------
+*/
+pron()
 
 o1 = new stzString("and **<Ring>** and _<<PHP>>_ AND <Python/> and _<<<Ruby>>>_ ANDand !!C++!! and")
 ? @@( o1.Split( :Using = "and" ) )
 #--> [ "<Ring> ", " <<PHP>> ", " <Python/> ", " <<<Ruby>>> ", "", " !!C++!!" ]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*----------------- TODO: FUTURE
 
