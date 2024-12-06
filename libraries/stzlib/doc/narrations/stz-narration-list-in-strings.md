@@ -45,7 +45,7 @@ Now, you know whether you're dealing with a detailed list or a compact range. Th
 Let’s check if the elements form a contiguous range (either numeric or character-based). A simple call does the trick:
 
 ```ring
-? StzStringQ('[1,3]').IsContiguousListInString()		#--> FALSE
+? StzStringQ('[1,3]').IsContiguousListInString()	#--> FALSE
 ? StzStringQ('1:3').IsContiguousListInString()		#--> TRUE
 ? StzStringQ(' "A":"C" ').IsContiguousListInString()	#--> TRUE
 ? StzStringQ(' "ا":"ج" ').IsContiguousListInString()	#--> TRUE
@@ -90,7 +90,7 @@ If you’re a fan of compact syntax, Softanza offers a sleek shortcut: `ToListIn
 
 ```ring
 ? @@( StzStringQ('[1,2,3]').ToListInStringSF() )		#--> "1 : 3"
-? StzStringQ(' ["A","B","C","D"] ').ToListInStringSF()	#--> "A" : "D"
+? StzStringQ(' ["A","B","C","D"] ').ToListInStringSF()		#--> "A" : "D"
 ? StzStringQ(' [ "ا", "ب", "ة", "ت" ] ').ToListInStringSF()+ NL	#--> "ا" : "ت"
 ```
 
