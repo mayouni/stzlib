@@ -25,7 +25,7 @@ Here, we process the string, removing numbers, spaces, and duplicate characters.
 
 What if we could capture each step of this transformation? Imagine a programming feature that doesn't just give you the final result, but tells you the entire story of how that result was achieved.
 
-### The Solution: Introducing QH() small function
+### The Solution: Introducing `QH()` small function
 
 ```ring
 ? @@NL( QH("1 AA 2 B 3 CCC 4 DD 5 Z").
@@ -63,7 +63,7 @@ Yet an other example around numbers:
 	#--> [ 13000, 11500, 23, 46 ]
 ```
 
->NOTE: All other Softanza objects—not just stzStrings and stzNumbers, as demonstrated—are supported and can retain their historic values. This includes stzLists, stzObjects, stzTables, and more.
+>NOTE: All other Softanza objects—not just `stzString`s and `stzNumbers`, as demonstrated—are supported and can retain their historic values. This includes `stzList`s, `stzObject`s, `stzTable`s, and more.
 
 ### Key Benefits
 
