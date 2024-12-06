@@ -1,10 +1,10 @@
-# The Narrative of Transformations: Tracking Object Evolution in Softanza
+# The Narrative of Transformations: Tracking Object History in Softanza
 
 ## Unveiling the Story Behind Data Mutations
 
 In programming, data transformations often happen in the blink of an eye, leaving no trace of their journey. Softanza challenges this paradigm with a groundbreaking feature that captures the entire lifecycle of object modifications.
 
-### The Initial Approach: Transformation Without Memory
+### The Initial Approach: Transformation Without History
 
 Consider this basic string transformation chain in Softanza:
 
@@ -40,6 +40,30 @@ What if we could capture each step of this transformation? Imagine a programming
 #	"ABCDZ"                         # Final result
 # ]
 ```
+
+Yet an other example around numbers:
+
+```ring
+? Q(12500).
+	AddQ(500).
+	RetrieveQ(1500).
+	DivideByQ(500).
+	MultiplyByQ(2).
+	Value()
+
+	#--> 45
+
+? @@( Qh(12500).
+	AddQ(500).
+	RetrieveQ(1500).
+	DivideByQ(500).
+	MultiplyByQ(2).
+	History() )
+
+	#--> [ 13000, 11500, 23, 46 ]
+```
+
+>NOTE: All other Softanza objects—not just stzStrings and stzNumbers, as demonstrated—are supported and can retain their historic values. This includes stzLists, stzObjects, stzTables, and more.
 
 ### Key Benefits
 
