@@ -10227,7 +10227,7 @@ proff()
 # Executed in 0.07 second(s) in Ring 1.22
 
 /*----------------- TODO
-*/
+
 pron()
 
 o1 = new stzString("what a 123nice>>> day!")
@@ -10242,13 +10242,20 @@ proff()
 
 /*=================
 
+pron()
+
 o1 = new stzString("How many words in <<many many words>>? So many!")
-? @@( o1.FindPositions(:Of = "many") )
+
+? @@( o1.FindPositions(:Of = "many") ) + NL
 #--> [ 5, 21, 26, 43 ]
+
 ? @@( o1.FindAsSections(:Of = "many") ) + NL
 #--> [ [ 5, 8 ], [ 21, 24 ], [ 26, 29 ], [ 43, 46 ] ]
 
+#--
+
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+
 ? @@( o1.AnySubstringsBoundedBy([ "<<", :and = ">>" ]) )
 #--> [ "word", "noword", "word" ]
 
@@ -10258,36 +10265,51 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 ? @@( o1.FindAnyBoundedByAsSections([ "<<",">>" ]) )
 #--> [ [ 11, 14 ], [ 28, 33 ], [ 43, 46 ] ]
 
-
-
-/*----------------
-
-o1 = new stzString("bla bla <<word1>> bla bla <<word2>> bla <<word3>>")
-? o1.NthSubStringBoundedBy(2, [ "<<", ">>" ] ) #--> "word2"
-# or you can say:
-? o1.NthSubStringXT(2, :BoundedBy = ["<<", ">>"]) #--> "word2"
+proff()
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*----------------
+
+pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? o1.Nth(2, "word")		#--> 30
-? o1.NthAsSection(2, "word")	#--> [ 30, 33 ]
+
+? o1.Nth(2, "word") + NL
+#--> 30
+
+? @@( o1.NthAsSection(2, "word") )
+#--> [ 30, 33 ]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*----------------
 
+pron()
+
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>")
-? o1.FindNthBoundedBy(2, "word", [ "<<", ">>" ])
+
+? o1.FindNthBoundedBy(2, "word", [ "<<", ">>" ]) + NL
 #--> 28
-? o1.FindNthSectionBoundedBy(2, "word", [ "<<", ">>" ])
+
+? o1.FindNthBoundedByZZ(2, "word", [ "<<", ">>" ])
 #--> [28, 31]
 
-? o1.FindNthXT(2, "word", :BoundedBy = ["<<", ">>"])
+? o1.FindNthXT(2, "word", :BoundedBy = ["<<", ">>"]) + NL
 #--> 28
-? o1.FindNthSectionXT(2, "word", :BoundedBy = ["<<", ">>"])
+
+# TODO
+# ? o1.FindNthXTZZ(2, "word", :BoundedBy = ["<<", ">>"])
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*================
 
+pron()
+
 o1 = new stzString("**word1***word2**word3***")
+
 ? o1.Sections([ [1,2], [8, 10], [16, 17], [23, 25] ])
 #--> [ "**", "***", "**", "***" ]
 
@@ -10295,9 +10317,15 @@ o1.RemoveSections([
 	[1,2], [8, 10], [16, 17], [23, 25]
 ])
 
-? o1.Content() #--> "word1word2word3"
+? o1.Content()
+#--> "word1word2word3"
+
+proff()
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*----------------------
+
+pron()
 
 o1 = new stzString("**word1***word2**word3***")
 ? o1.Ranges([ [1,2], [8, 3], [16, 2], [23, 3] ])
@@ -10307,31 +10335,12 @@ o1.RemoveRanges([ [1,2], [8, 3], [16, 2], [23, 3] ])
 ? o1.Content()
 #--> "word1word2word3"
 
-/*-----------------
-
-o1 = new stzString("..AA..aa..BB..bb")
-
-o1.RemoveSectionsW(
-	[ [3, 4], [7,8], [11,12], [15,16] ],
-	:Where = '{ Q( @section ).IsLowercase() }'
-)
-
-? o1.Content()
-#--> "..AA....BB.."
-
-/*-----------------
-
-o1 = new stzString("..AA..aa..BB..bb")
-
-o1.RemoveRangesW(
-	[ [3, 2], [7,2], [11,2], [15,2] ],
-	:Where = '{ Q( @range ).IsLowercase() }'
-)
-
-? o1.Content()
-#--> "..AA....BB.."
+proff()
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*=================
+
+pron()
 
 o1 = new stzString("
 	The xCommodore X64X, also known as the XC64 or the CBMx 64, is an x8-bit
@@ -10340,28 +10349,30 @@ o1 = new stzString("
 
 o1.Simplify()
 
-o1.RemoveCharsW('{ lower(@char) = "x" }')
+o1.RemoveCharsWXT('{ lower(@char) = "x" }')
 ? o1.Content()
 
-#--> 	The Commodore 64, also known as the C64 or the CBM 64, is an 8-bit
-#	home computer introduced in January 1982 by Commodore International
+#--> The Commodore 64, also known as the C64 or the CBM 64, is an 8-bit
+# home computer introduced in January 1982 by Commodore International
+
+proff()
+# Executed in 0.55 second(s) in Ring 1.22
 
 /*=================
 
+pron()
+
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? o1.FindBoundedByCS("word", [ "<<", ">>" ], :CaseSensitive = FALSE)
+
+? o1.FindSubStringBoundedByCS("word", [ "<<", ">>" ], :CaseSensitive = FALSE)
 #--> [ 11, 43 ]
 
-o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? o1.FindNthXT(2, "word", :BoundedBy = ["<<", ">>"])
-#--> 43
-
-? o1.FindNthSectionXT(2, "word", :BoundedBy = ["<<", ">>"])
-#--> [43, 46]
-
-? o1.FindNthXT(2, "word", :ReturnSection)
+proff()
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*-----------------
+
+pron()
 
 o1 = new stzString("12*45*78*c")
 ? o1.FindAll("*")
@@ -10370,15 +10381,21 @@ o1 = new stzString("12*45*78*c")
 ? o1.NFirstOccurrences(2, :Of = "*") 
 #--> [3, 6]
 
-? o1.NFirstOccurrencesXT(2, :Of = "*", :StartingAt = 5)
-#--> [3, 6]
-
-? o1.LastNOccurrencesXT(2, :Of = "*", :StartingAt = 2)
+? o1.NFirstOccurrencesST(2, :Of = "*", :StartingAt = 5)
 #--> [6, 9]
+
+? o1.LastNOccurrencesST(2, :Of = "*", :StartingAt = 2)
+#--> [6, 9]
+
+proff()
+# Executed in 0.05 second(s) in Ring 1.22
 
 /*-----------------
 
+pron()
+
 o1 = new stzString("12abc67abc12abc")
+
 ? o1.FindAll("abc")
 #--> [3, 8, 13]
 
@@ -10388,72 +10405,89 @@ o1 = new stzString("12abc67abc12abc")
 ? o1.NFirstOccurrences(2, :Of = "abc") 
 #--> [3, 8]
 
-? o1.NFirstOccurrencesXT(2, :Of = "abc", :StartingAt = 1)
+? o1.NFirstOccurrencesST(2, :Of = "abc", :StartingAt = 1)
 #--> [3, 8]
 
 ? o1.NLastOccurrences(2, :Of = "abc")
 #--> [8, 13]
 
-? o1.NLastOccurrencesXT(2, "abc", :StartingAt = 1)
+? o1.NLastOccurrencesST(2, "abc", :StartingAt = 1)
 #--> [8, 13]
 
-
-? o1.NFirstOccurrencesXT(2, :Of = "abc", :StartingAt = 6)
+? o1.NFirstOccurrencesST(2, :Of = "abc", :StartingAt = 5)
 #--> [8, 13]
 
-? o1.LastNOccurrencesXT(2, :Of = "abc", :StartingAt = 10)
+? o1.LastNOccurrencesST(2, :Of = "abc", :StartingAt = 3)
 #--> [8, 13]
+
+proff()
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*=================
 
+pron()
+
 o1 = new stzString("**3**67**012**56**92**")
-? @@( FindAnySeparatedBy("**") )
+
+? @@( o1.FindSubStringsBoundedBy("**") ) + NL
 #--> [ 3, 6, 10, 15, 19 ]
 
-? @@( o1.FindAnySeparatedByIB("**") )
-#--> [ [3,3], [6, 7], [10, 12], [15,16], [19,20] ]
+? @@( o1.FindSubStringsBoundedByZZ("**") )
+#--> [ [ 3, 3 ], [ 6, 7 ], [ 10, 12 ], [ 15, 16 ], [ 19, 20 ] ]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*-----------------
 
 pron()
 
 o1 = new stzString("***ONE***TWO***THREE***")
-? @@( o1.FindMany([ "ONE", "TWO", "THREE"]) )
+
+? @@( o1.FindMany([ "ONE", "TWO", "THREE"]) ) + NL
 #--> [ 4, 10, 16 ]
 
-? @@( o1.SplitQ(:Using = "***").Content() )
-#--> [ "", "ONE", "TWO", "THREE", "" ]
-#TODO // Should we remove the "" from the result?
+? @@( o1.SplitQ(:Using = "***").Content() ) + NL
+#--> [ "ONE", "TWO", "THREE" ]
 
-? @@( o1.FindAnyBoundedByIB("**") )
-#--> [ 2, 8, 14 ]
+? @@( o1.FindAnyBoundedByIB("**") ) + NL
+#--> [ 1, 7, 13 ]
 
-? @@( o1.FindAnyBoundedByAsSectionsIB("**") )
-#--> [ [ 2, 8 ], [ 8, 14 ], [ 14, 22 ] ]
+? @@( o1.FindAnyBoundedByIBZZ("**") )
+#--> [ [ 1, 8 ], [ 7, 14 ], [ 13, 22 ] ]
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.14 second(s) in Ring 1.18
 
 /*-----------------
 
 pron()
 
 o1 = new stzString("txt <<ring>> txt <<php>>")
-? @@( o1.FindAnyBetween("<<",">>") )
+
+? @@( o1.FindAnyBoundedBy([ "<<",">>" ]) )
 #--> [7, 20]
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*-----------------
+
+pron()
 
 o1 = new stzString("*2*45*78*0*")
 
-? @@( o1.FindAnyBetween("*","*") ) # Or o1.FindAnyBoundedBy("*") 
+? @@( o1.FindAnyBoundedBy([ "*","*" ]) ) + NL # Or o1.FindAnyBoundedBy("*") 
 #--> [ 2, 4, 7, 10 ]
 
-? @@( o1.FindAnyBoundedByIB("*") ) # Or o1.FindAnyBetweenIB("*", "*")
+? @@( o1.FindAnyBoundedByIB("*") ) + NL # Or o1.FindAnyBetweenIB("*", "*")
 #--> [ 1, 3, 6, 9 ]
 
-? @@( o1.AnyBoundedBy("*") )
+? @@( o1.AnyBoundedBy("*") ) + NL
 #--> [ "2", "45", "78", "0" ]
 
-? @@( o1.AnyBoundedByZZ("*") )
+? @@NL( o1.AnyBoundedByZZ("*") )
 # [
 #	[ "2", 	[ 2, 2 ] ],
 #	[ "45", [ 4, 5 ] ],
@@ -10462,7 +10496,8 @@ o1 = new stzString("*2*45*78*0*")
 # ]
 
 proff()
-# Executed in 0.31 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.31 second(s) in Ring 1.18
 
 /*--------------
 
@@ -10474,35 +10509,38 @@ pron()
 # adding the keyword Sections like this:
 
 o1 = new stzString("txt <<ring>> txt <<php>>")
-? @@( o1.FindAnyBetweenAsSections("<<",">>") )
+
+? @@( o1.FindBoundedByZZ([ "<<", ">>" ]) ) + NL
 #--> [ [ 7, 10 ], [ 20, 22 ] ]
 
 o1 = new stzString("*2*45*78*0*")
-? @@( o1.FindAnyBetweenAsSections("*","*") )
+? @@( o1.FindBoundedByZZ("*") ) + NL
 #--> [ [ 2, 2 ], [ 4, 5 ], [ 7, 8 ], [ 10, 10 ] ]
 
-? @@( o1.FindAnyBoundedByAsSectionsIB("*") )
+? @@( o1.FindAnyBoundedByIBZZ("*") )
 #--> [ [ 1, 3 ], [ 3, 6 ], [ 6, 9 ], [ 9, 11 ] ]
 
 proff()
-# Executed in 0.13 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.13 second(s) in Ring 1.18
 
 /*-----------------
 
 pron()
 
-? @@( Q("txt <<ring>> txt <<ring>>").FindAnyBetweenAsSections("<<",">>") ) + NL
+? @@( Q("txt <<ring>> txt <<ring>>").FindBoundedByAsSections([ "<<", ">>" ]) ) + NL
 #--> [ [ 7, 10 ], [ 20, 23 ] ]
 
 str = 'for      txt =  "   val1  "   to  "   val2"   do  this or   that!'
-? @@( Q(str).FindAnyBetweenAsSections('"', '"') ) + NL
+? @@( Q(str).FindBoundedByAsSections('"') ) + NL
 #--> [ [ 18, 26 ], [ 28, 34 ], [ 36, 42 ] ]
 
 ? @@( Q(str).Sections([ [ 18, 26 ], [ 28, 34 ], [ 36, 42 ] ]) )
 #--> [ "   val1  ", "   to  ", "   val2" ]
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.18
 
 /*-----------------
 
@@ -10510,23 +10548,25 @@ pron()
 
 o1 = new stzString("12*♥*78*♥*")
 
-? @@( o1.FindThisBetween("♥", "*","*") )
-#--> [ 4, 9 ]
-
-? @@( o1.FindXT("♥", :Between = ["*", "*"]) )
+? @@( o1.FindSubStringBoundedBy("♥", "*") )
 #--> [ 4, 9 ]
 
 ? @@( o1.FindXT("♥", :BoundedBy = "*" ) )
 #--> [ 4, 9 ]
 
+? @@( o1.FindXT("♥", :BoundedBy = [ "*", "*" ] ) )
+#--> [ 4, 9 ]
+
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.05 second(s) in Ring 1.22
+# Executed in 0.08 second(s) in Ring 1.20
 
 /*-----------------
 
 pron()
 
 o1 = new stzString("12*45*78*90")
+
 ? o1.FindNthST(2, "*", :StartingAt = 4)
 #--> 9
 
@@ -10534,7 +10574,8 @@ o1 = new stzString("12*45*78*90")
 #--> 6
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.20
 
 /*-----------------
 
@@ -10544,62 +10585,62 @@ o1 = new stzString("12*A*33*A*")
 ? o1.FindAll("*")
 #--> [3, 5, 8, 10]
 
-? o1.FindNth(3, "*")
+? o1.FindNth(3, "*") + NL
 #--> 8
 
-? o1.FindFirst("*")
+? o1.FindFirst("*") + NL
 #--> 3
 
-? o1.FindLast("*")
+? o1.FindLast("*") + NL
 #--> 10
 
 ? @@( o1.FindAsSections("*") )
 #--> [ [ 3, 3 ], [ 5, 5 ], [ 8, 8 ], [ 10, 10 ] ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.20
 
 /*----------
 
 pron()
 
 o1 = new stzString("12*A*33*A*")
+
 ? o1.Sections([ 1:2, 6:7 ])
 #--> [ "12", "33" ]
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*-----------------
 
 pron()
 
 o1 = new stzString("12*A*33*A*")
-? @@( o1.FindBetween("A", "*", "*") )
-#--> [4, 9]
 
-? @@( o1.FindBetweenAsSections("A", "*", "*") )
-#--> [ [4, 4], [9, 9] ]
+? @@( o1.FindSubStringBoundedBy("A", [ "*", "*" ]) )
+#--> [ 4, 9 ]
+
+? @@( o1.FindSubStringBoundedByAsSections("A", [ "*", "*" ]) )
+#--> [ [ 4, 4 ], [ 9, 9 ] ]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*-----------------
 
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
-? o1.FindBoundedByCS("word", [ "<<", ">>" ], :CaseSensitive = FALSE)
+? o1.FindSubStringBoundedByCS("word", [ "<<", ">>" ], :CaseSensitive = FALSE)
 #--> [ 11, 43 ]
 
-? o1.FindBoundedByAsSections("word", [ "<<", ">>" ])
+? o1.FindSubStringBoundedByAsSections("word", [ "<<", ">>" ])
 #--> [ [11, 14], [43, 46] ]
 
-? o1.FindXT("word", :BoundedBy = [ "<<", ">>" ])
-#--> [ 11, 43 ]
-
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*-----------------
 
@@ -10609,8 +10650,8 @@ pron()
 #                       |                      |
 #                       V                      V
 o1 = new stzString("my <<word>> and your <<word>>")
-? o1.FindXT("word", :Between = [ "<<", ">>" ])
-#--> [6, 24]
+? o1.FindXT("word", :BoundedBy = [ "<<", ">>" ])
+#--> [ 6, 24 ]
 
 #                       +----+            +----+
 #                       |    |            |    |
@@ -10620,17 +10661,18 @@ o1 = new stzString("my <<word>> and your <<word>>")
 #--> [6, 24]
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*-----------------
 
 pron()
 
 o1 = new stzString("my <<word>> and your <<word>>")
-? o1.FindBoundedBy("word", "<<", ">>")
-#--> [6, 24]
+? o1.FindSubStringBoundedBy("word", [ "<<", ">>" ])
+#--> [ 6, 24 ]
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*-----------------
 
@@ -10638,14 +10680,11 @@ pron()
 
 o1 = new stzString("my **word** and your **word**")
 
-? o1.FindBoundedBy("word", "**", "**")
-#--> [6, 24]
-
-? o1.FindXT("word", :BoundedBy = "**")
+? o1.FindSubStringBoundedBy("word", [ "**", "**" ])
 #--> [6, 24]
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*============= Near Natural Code
 
@@ -10653,22 +10692,20 @@ pron()
 
 o1 = new stzString("my <<word>> and your <<word>>")
 ? @@( o1.FindXT("word", :StartingAt = 12) )
-#--> [ 13 ]
+#--> [ 24 ]
 
 ? @@( o1.FindXT("word", :InSection = [3, 10]) )
 #--> [ 6 ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.08 second(s) in Ring 1.19
 
 /*-----------------
 
 pron()
 
 o1 = new stzString("12*♥*56*♥*")
-
-? o1.FindFirstXT("♥", :Between = [ "*", "*"])
-#--> 4
 
 ? o1.FindFirstXT("♥", :BoundedBy = [ "*", "*"])
 #--> 4
@@ -10677,7 +10714,7 @@ o1 = new stzString("12*♥*56*♥*")
 #--> 4
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*==============
 
@@ -10685,10 +10722,10 @@ pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
 
-? @@( o1.FindBetween("word", "<<", ">>") )
+? @@( o1.FindSubStringBoundedBy("word", [ "<<", ">>" ]) )
 #--> [ 11 ]
 
-? @@( o1.FindBetweenAsSections("word", "<<", ">>") ) + NL
+? @@( o1.FindSubStringBoundedByZZ("word", [ "<<", ">>" ]) ) + NL
 #--> [ [ 11, 14 ] ]
 
 #--
@@ -10696,11 +10733,11 @@ o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<wording>>")
 ? @@( o1.FindAnyBoundedBy([ "<<",">>" ]) )
 #--> [ 11, 28, 43 ]
 
-? @@( o1.FindAnyBoundedByAsSections([ "<<",">>" ]) )
+? @@( o1.FindAnyBoundedByZZ([ "<<",">>" ]) )
 #--> [ [ 11, 14 ], [ 28, 33 ], [ 43, 49 ] ]
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*=================
 
@@ -10713,7 +10750,7 @@ o1.ReplaceSubStringsBoundedBy([ "<<", ">>" ], "wrod")
 #--> "bla bla <<word>> bla bla <<word>> bla <<word>>"
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.04 second(s) in Ring 1.22
 
 /*================ FindBoundedSubString() VS FindSubStringBounds()
 
@@ -10725,19 +10762,18 @@ o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>> word")
 ? @@( o1.FindBoundedSubString("word") ) + NL
 #--> [ 11, 28, 41 ]
 
-? @@( o1.FindBoundedSubStringZZ("word") )
+? @@( o1.FindBoundedSubStringZZ("word") ) + NL
 #--> [ [ 11, 14 ], [ 28, 31 ], [ 41, 44 ] ]
-
-? "--"
 
 ? @@( o1.FindSubStringBounds("word") ) + NL
 #--> [ 9, 15, 26, 32, 39, 45 ]
 
-? @@( o1.FindSubStringBoundsZZ("word") ) + NL
+? @@( o1.FindSubStringBoundsZZ("word") )
 #--< [ [ 9, 10 ], [ 15, 16 ], [ 26, 27 ], [ 32, 33 ], [ 39, 40 ], [ 45, 46 ] ]
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.07 second(s) in Ring 1.19
 
 /*--------
 
@@ -10746,14 +10782,17 @@ pron()
 #                           v------v         v------v     v------v
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>> word")
 
-? @@( o1.FindBoundedSubStringIB("word") ) + NL
+? @@( o1.FindBoundedSubString("word") ) + NL
 #--> [ 11, 28, 41 ]
 
+? @@( o1.FindBoundedSubStringIB("word") ) + NL
+#--> [ 9, 26, 39 ]
+
 ? @@( o1.FindBoundedSubStringIBZZ("word") )
-#--> [ [ 11, 14 ], [ 28, 31 ], [ 41, 44 ] ]
+#--> [ [ 9, 16 ], [ 26, 33 ], [ 39, 46 ] ]
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*--------
 
@@ -10766,7 +10805,7 @@ o1.RemoveBoundedSubString("word")
 #--> bla  bla <<>> bla bla <<>> bla <<>> word
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.05 second(s) in Ring 1.22
 
 /*--------
 
@@ -10782,7 +10821,7 @@ o1.RemoveBoundedSubStringIB("word")
 #--> bla word bla  bla bla  bla  word
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--------
 
@@ -10803,17 +10842,19 @@ o1.RemoveTheseBounds("<<", ">>")
 #--> The Ring programming language is Waooo!
 
 proff()
-# Executed in 0.02 second(s)
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*=======
 
 pron()
 
 o1 = new stzString("bla <<nonword>> bla")
+
 ? @@( o1.FindSubStringBoundsZZ("word") )
 #--> [ [ 9, 9 ], [ 14, 15 ] ]
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*------
 
@@ -10832,12 +10873,12 @@ o1 = new stzString("bla word bla <<word>> bla bla <<noword>> bla <<word>> word _
 #--> [ [ 14, 15 ], [ 20, 21 ], [ 46, 47 ], [ 52, 53 ] ]
 
 o1.RemoveTheseSubStringBounds("word", [ "<<", ">>" ])
-#--> bla word bla word bla bla <<noword>> bla word word _word_
 
 ? o1.Content()
-# Executed in 0.06 second(s)
+# #--> bla word bla word bla bla <<noword>> bla word word _word_
 
-pron()
+proff()
+# Executed in 0.10 second(s) in Ring 1.22
 
 /*------
 
@@ -10886,6 +10927,7 @@ proff()
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>.")
+
 o1.ReplaceSubStringBoundedByIB("word", [ "<<", ">>" ], "WORD")
 ? o1.Content() + NL
 #--> bla bla WORD bla bla WORD bla WORD.
@@ -10893,24 +10935,26 @@ o1.ReplaceSubStringBoundedByIB("word", [ "<<", ">>" ], "WORD")
 # or, more naturally, you can say:
 
 o1 = new stzString("bla bla <<word>> bla bla <<word>> bla <<word>>.")
+
 o1.ReplaceXT("word", :BoundedByIB = ["<<", ">>"], :With = "WORD")
 ? o1.Content()
-#-->
+#--> bla bla WORD bla bla WORD bla WORD.
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.08 second(s) in Ring 1.22
 
 /*------ 
 
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+
 o1.RemoveAnySubStringBoundedBy([ "<<", ">>" ])
-? o1.Content()	#--> "bla bla <<>> bla bla <<>> bla <<>>"
+? o1.Content()
 #--> bla bla <<>> bla bla <<>> bla <<>>
 
 proff()
-# Executed in 0.03 second(s) in Ring 1.20
+# Executed in 0.06 second(s) in Ring 1.22
 # Executed in 0.07 second(s) in Ring 1.19
 
 /*------ 
@@ -10918,12 +10962,13 @@ proff()
 pron()
 
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+
 o1.RemoveAnySubStringBoundedByIB([ "<<", ">>" ])
 ? o1.Content()
-#--> "bla bla  bla bla  bla"
+#--> bla bla  bla bla  bla 
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*----------------- RemoveBetween RemoveAt
 
@@ -10932,6 +10977,7 @@ pron()
 # EXAMPLE 1
 #                             11
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
+
 o1.RemoveXT("word", :AtPosition = 11)
 ? o1.Content() + NL
 #--> bla bla <<>> bla bla <<noword>> bla <<word>>
@@ -10959,7 +11005,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*================= #narration
-
+*/
 pron()
 
 # In Softanza, to remove a substring from left or right
