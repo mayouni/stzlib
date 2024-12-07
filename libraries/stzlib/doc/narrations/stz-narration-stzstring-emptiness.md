@@ -50,7 +50,7 @@ Also, finding the first position of "" always returns 0, which means it does not
 
 This contrasts with languages like **Qt C++** or **Python**, or even the `substr()` function in **Ring**, where finding `""` may return the first position, misleadingly implying its presence.
 
->NOTE: We focus on Qt here because it is integrated into Ring through the **RingQt** library, which serves as the primary option for managing Unicode strings in the Ring language.
+>NOTE: We focus on **Qt** here because it is integrated into Ring through the **RingQt** library, which serves as the primary option for managing Unicode strings in the Ring language.
 
 ---
 
