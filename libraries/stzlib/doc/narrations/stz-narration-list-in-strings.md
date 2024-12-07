@@ -1,4 +1,4 @@
-### **Narration: Unlocking the Power of Lists-in-Strings with Softanza**
+# **Unlocking the Power of Lists-in-Strings with Softanza**
 
 ---
 
@@ -8,7 +8,7 @@ Fear not! **Softanza** is here, with its robust `StzStringQ` utilities. Let’s 
 
 ---
 
-### **Step 1: Is It a List in a String?**
+## **Step 1: Is It a List in a String?**
 
 You start with a string that looks suspiciously like a list. Is it really a list? Let Softanza figure that out for you:
 
@@ -25,7 +25,7 @@ Softanza isn’t just smart—it’s multilingual! It can recognize lists using 
 
 ---
 
-### **Step 2: Normal or Short Form?**
+## **Step 2: Normal or Short Form?**
 
 With a glance, Softanza tells you if the list is in **normal** or **short form**:
 
@@ -40,7 +40,7 @@ Now, you know whether you're dealing with a detailed list or a compact range. Th
 
 ---
 
-### **Step 3: Are the Elements Contiguous?**
+## **Step 3: Are the Elements Contiguous?**
 
 Let’s check if the elements form a contiguous range (either numeric or character-based). A simple call does the trick:
 
@@ -55,7 +55,7 @@ Softanza even considers the Unicode ordering of characters when determining cont
 
 ---
 
-### **Step 4: Transforming Forms**
+## **Step 4: Transforming Forms**
 
 Sometimes, you need to switch between forms. Softanza makes this effortless with `ToListInShortForm()` and `ToListInNormalForm()`:
 
@@ -70,7 +70,7 @@ Whether you're debugging, formatting data, or preparing a string for transmissio
 
 ---
 
-### **Step 5: Evaluating Lists at Runtime**
+## **Step 5: Evaluating Lists at Runtime**
 
 Finally, when you're ready to convert the string back to a vibrant **Ring list** for further computation, just call `ToList()`:
 
@@ -84,7 +84,7 @@ This is where the magic happens. A list-in-string becomes a living, breathing Ri
 
 ---
 
-### **Step 6: Bonus – The Shortform Shortcut**
+## **Step 6: Bonus – The Shortform Shortcut**
 
 If you’re a fan of compact syntax, Softanza offers a sleek shortcut: `ToListInStringSF()`:
 
@@ -98,7 +98,7 @@ This feature is perfect for quick conversions without sacrificing clarity.
 
 ---
 
-### **Step 7: Bonus – The Magic of `Q()`**
+## **Step 7: Bonus – The Magic of `Q()`**
 
 Tired of typing `StzStringQ()` every time? Softanza introduces the **`Q()` function**, a concise utility that elevates your data to the appropriate Softanza object. For our case, it conveniently wraps your string into an `stzString` object:
 
@@ -113,7 +113,7 @@ With `Q()`, your workflow becomes smoother and more natural. It’s like a unive
 
 ---
 
-### **Final Thoughts**
+## **Final Thoughts**
 
 With these tools, Softanza equips you to:
 - Analyze strings for list content.

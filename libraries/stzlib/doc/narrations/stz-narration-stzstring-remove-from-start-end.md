@@ -1,10 +1,10 @@
-### **Simplifying Orientation in String Manipulation with Softanza**
+# **Simplifying Orientation in String Manipulation with Softanza**
 
 In text manipulation, removing a substring from the left or right of a string is a common task, but it can quickly become tricky when handling languages with different orientations, such as Arabic. Softanza's `stzString` class addresses this challenge by offering both specific and generalized solutions for managing string content seamlessly.
 
 ---
 
-#### **Traditional Approaches: Left and Right Removal**
+## **Traditional Approaches: Left and Right Removal**
 
 Softanza provides two straightforward functions to remove substrings:
 
@@ -27,7 +27,7 @@ This works well for languages like English, where text flows left to right. Howe
 
 ---
 
-#### **The RTL Challenge: Left and Right Confusion**
+## **The RTL Challenge: Left and Right Confusion**
 
 Consider an Arabic sentence:  
 ```ring
@@ -46,7 +46,7 @@ This reversal in directionality can cause confusion, especially for developers w
 
 ---
 
-#### **A Semantic Solution: Start and End Removal**
+## **A Semantic Solution: Start and End Removal**
 
 To eliminate orientation-based complications, Softanza introduces two semantic alternatives:
 
@@ -72,7 +72,7 @@ o1.RemoveFromStart("هذه ")
 
 ---
 
-#### **Why It Matters**
+## **Why It Matters**
 
 The `RemoveFromStart()` and `RemoveFromEnd()` functions embody Softanza's commitment to **semantic programming**—designing functions that align with human logic rather than the technicalities of text representation. 
 
@@ -84,7 +84,7 @@ Whether you're working with left-to-right English text or right-to-left Arabic, 
 
 ---
 
-#### **Conclusion**
+## **Conclusion**
 
 Softanza simplifies string manipulation for multilingual and bidirectional text environments, ensuring developers can write clean, intuitive, and error-free code. The semantic approach of `RemoveFromStart()` and `RemoveFromEnd()` highlights the library's attention to detail and user-centered design. 
 

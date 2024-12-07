@@ -11005,7 +11005,7 @@ proff()
 # Executed in 0.04 second(s)
 
 /*================= #narration
-*/
+
 pron()
 
 # In Softanza, to remove a substring from left or right
@@ -11059,7 +11059,7 @@ o1.RemoveLast(" من") # Or o1.RemoveNthOccurrence(:Last, " من")
 #--> Gives من كان في زمنه من أصحابه فهو أكبر المحظوظين
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*-----------------
 
@@ -11071,7 +11071,7 @@ o1.RemoveNthOccurrence(:Last, "A")
 #--> **A1****A2***3
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*-----------------
 
@@ -11079,10 +11079,11 @@ pron()
 
 o1 = new stzString("**A1****A2***A3")
 o1.RemoveNthOccurrenceCS(:Last, "a", :CaseSensitive = FALSE)
-? o1.Content() #--> **A1****A2***3
+? o1.Content()
+#--> **A1****A2***3
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*-----------------
 
@@ -11133,7 +11134,7 @@ o1.AddBounds(["<<",">>"]) # or BoundWith(["<<",">>"])
 #--> <<word>>
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*---------------
 
@@ -11144,7 +11145,8 @@ o1 = new stzString("Hello <<<Ring>>, the beautiful ((Ring))!")
 #--> [ ["<<", ">>"], [ "((", "))" ] ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.08 second(s) in Ring 1.20
 
 /*---------------
 
@@ -11155,7 +11157,8 @@ o1 = new stzString("Ring>>, the nice ---Ring---, the beautiful ((Ring")
 #--> [ [ "---", "---" ] ]
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.09 second(s) in ring 1.20
 
 /*---------------
 
@@ -11172,7 +11175,8 @@ o1 = new stzString("Hello <<<Ring>>, the nice __Ring__ and beautiful ((Ring))!")
 #--> [ ">>", "__", "))" ]
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.08 second(s) in Ring 1.20
 
 /*---------------
 
@@ -11193,16 +11197,15 @@ o1 = new stzString("<<word>>")
 # use with left-to-right and right-toleft strings
 
 proff()
-# Executed in 0.13 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.13 second(s) in Ring 1.20
 
 /*================= StzRaise
-
 
 ? StzRaise("Simple error message!")
 #--> Simple error message! 
 
-/*------
-
+/*------ #TODO Recheck it when adding CheckWXT()
 
 ? StzRaise([
 	:Where	= "stzString.ring",
@@ -11226,7 +11229,7 @@ o1 = new stzString("@str = Q(@str).Uppercased()")
 #--> TRUE
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*-----------------
 
@@ -11237,7 +11240,7 @@ o1 = new stzString("Baba, Mama, and Dada")
 #--> TRUE
 
 proff()
-# Executed in 0.03 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*-----------------
 
@@ -11252,10 +11255,12 @@ StzStringQ('') {
 #--> Shows the page content as Text/HTML
 
 proff()
-# Executed in 2.63 second(s)
-
+# Executed in 0.46 second(s) in Ring 1.22
+# Executed in 2.63 second(s) in Ring 1.18
 
 /*-----------------
+
+pron()
 
 StzStringQ("ring is not the ring you ware but the ring you program with") {
 	? @@( FindAllOccurrencesCS(:Of = "ring", :CS = FALSE) )
@@ -11271,48 +11276,109 @@ StzStringQ("ring is not the ring you ware but the ring you program with") {
 	#--> [ ]
 }
 
+proff()
+# Executed in 0.06 second(s) in Ring 1.22
+
 /*-----------------
+
+pron()
 
 StzStringQ("ring is not the ring you ware but the ring you program with") {
 
-	? NextNthOccurrence(1, :of = "ring", :startingat = 1)	#--> 1
-	? NextNthOccurrence(2, :of = "ring", :startingat = 17)	#--> 39
+	? NextNthOccurrence(1, :of = "ring", :startingat = 1)
+	#--> 2
 
+	? NextNthOccurrence(2, :of = "ring", :startingat = 17)
+	#--> 40
 }
 
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
 /*-----------------
 
+pron()
+
+#           1          v    17            v       39
 StzStringQ("ring is not the ring you ware but the ring you program with") {
 
-	? FindNextOccurrences(:Of = "ring", :StartingAt = 12)
+	? @@( FindAll("ring") ) + NL
+	#--> [ 1, 17, 39 ]
+
+	? @@( FindNextOccurrences(:Of = "ring", :StartingAt = 12) ) + NL
 	#--> [ 18, 40 ]
 
-	? FindPreviousOccurrences(:Of = "ring", :StartingAt = 30)
+	? @@( FindPreviousOccurrences(:Of = "ring", :StartingAt = 32) )
 	#--> [ 1, 17 ]
 
 }
 
+proff()
+# Executed in 0.02 second(s) in Ring 1.22
+
 /*======================
+
+pron()
 
 o1 = new stzString("Softanza embraces ♥♥♥ simplicty and flexibility")
+
 o1.ReplaceSubStringAtPosition(19, "♥♥♥", :With = "Ring")
-? o1.Content() #--> Softanza embraces Ring simplicty and flexibility
+? o1.Content()
+#--> Softanza embraces Ring simplicty and flexibility
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*======================
 
-? Q("RINGO").HasCentralChar()		 #--> TRUE
-? Q("RINGO").CentralChar()		 #--> N
-? Q("RINGO").PositionOfCentralChar()	 #--> 3
-? Q("RINGO").HasThisCharInTheCenter("N") #--> TRUE
+pron()
+
+? Q("RINGO").HasCentralChar()
+#--> TRUE
+
+? Q("RINGO").CentralChar()
+#--> N
+
+? Q("RINGO").PositionOfCentralChar()
+#--> 3
+
+? Q("RINGO").HasThisCentralChar("N")
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
 
 /*----------------------
 
-? Q("ArabicArabicArabic").IsMultipleOf("Arabic")	  #--> TRUE
-? Q("ArabicArabicArabic").IsNTimesMultipleOf(3, "Arabic") #--> TRUE
-? Q("ArabicArabicArabic").IsNTimesMultipleOf(5, "Arabic") #--> FALSE
+pron()
 
-? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", TRUE)	  #--> FALSE
-? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", :CS = FALSE)	  #--> TRUE
+? Q("dfgfdgg Arabic Arabic Arabic dgdgf arabic KKKK").NumberOfOccurrenceCS("Arabic", FALSE)
+#--> 4
+
+proff()
+
+/*----------------------
+*/
+pron()
+
+? Q("ArabicArabicArabic").IsMultipleOf("Arabic")
+#--> TRUE
+
+? Q("ArabicArabicArabic").IsNTimesMultipleOf(3, "Arabic")
+#--> TRUE
+
+? Q("ArabicArabicArabic").IsNTimesMultipleOf(5, "Arabic")
+#--> FALSE
+
+? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", TRUE)
+#--> FALSE
+
+? Q("ArabicArabicArabic").IsMultipleOfCS("arabic", :CS = FALSE)
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*------------------------
 
