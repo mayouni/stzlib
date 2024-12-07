@@ -1,8 +1,8 @@
 # Emptiness in Strings, Clear Rules: The Softanza Way
 
-In programming, emptiness—represented as the empty string `""`—is often mishandled, leading to unexpected results, bugs, and inconsistencies. **Softanza**, built on top of the **Ring language**, provides a clean, logical, and consistent framework for string operations through its `stzString` class. This design enforces rules that treat emptiness with clear principles, forging clean, predictable programs.
+In programming, emptiness—represented as the empty string `""`—is often mishandled, leading to unexpected results, bugs, and inconsistencies. **Softanza**, built on top of the **Ring language**, provides a clean, logical, and consistent framework for string operations through its `stzString` class. This design enforces rules that treat emptiness with clear principles, forging explicit, predictable programs.
 
-This article explains Softanza’s handling of emptiness with five rules, using **real-world code examples** to showcase its logical fluency and how it compares to mainstream languages.
+This article explains Softanza’s handling of emptiness with **five rules**, using **real-world code examples** to showcase its logical fluency and how it compares to mainstream languages.
 
 ---
 
@@ -22,7 +22,7 @@ load "stzlib.ring"
 
 This prevents the confusion found in some languages where empty substrings are implicitly considered "present" at every position in a string.
 
->NOTE: The small `Q(val)` function converts the value val into its corresponding Softanza object. In this case, `Q("text")` returns an `stzString("text")` object.
+>NOTE: The small `Q(val)` function converts the value `val` into its corresponding Softanza object. In this case, `Q("text")` returns an `stzString("text")` object.
 
 ---
 
@@ -77,10 +77,6 @@ This behavior eliminates ambiguities in mainstream languages, where `""` is ofte
 
 Replacing any value with emptiness has no meaningful effect, nor does replacing an empty string with another empty string.
 
-However, replacing emptiness with a non-empty string stretches the empty string to host the new content.
-
-Softanza enforces this by ensuring replacements involving "" either return the original string or logically adjust to accommodate the replacement.
-
 ```ring
 ? @@( Q("").ReplaceQ("", "").Content() ) 
 #--> ""
@@ -90,7 +86,11 @@ Softanza enforces this by ensuring replacements involving "" either return the o
 
 ? @@( Q("").ReplaceQ('', "text").Content() ) 
 #--> ""
+```
 
+However, replacing emptiness with a non-empty string stretches the empty string to host the new content.
+
+```ring
 ? @@( Q("text").ReplaceQ("", "").Content() ) 
 #--> "text"
 
@@ -98,8 +98,11 @@ Softanza enforces this by ensuring replacements involving "" either return the o
 #--> "text"
 ```
 
+Softanza enforces this by ensuring replacements involving `""` either return the original string or logically adjust to accommodate the replacement.
+
 This avoids surprising behaviors like those in **Qt C++**, where replacing `""` inserts the replacement string between every character (`"tXeXtX"`).
 
+>NOTE: The @@() function (resembling two glasses one puts on to improve sight) returns a readable, string-based representation of the value val, regardless of its type.
 ---
 
 ## Rule 5: Emptiness Is Irremovable
@@ -123,17 +126,36 @@ This ensures logical consistency and avoids unintended alterations.
 
 ## Logical Fluency and Real-World Implications
 
-Softanza’s rules for dealing with emptiness prevent common errors and ensure programs are easier to reason about. For example, when sanitizing input or validating substrings, these predictable behaviors save developers from pitfalls like unexpected insertions or removals.
+Softanza’s rules for handling emptiness prevent common errors and make programs more predictable.
 
-### Example: Sanitizing Input
-Consider a case where you want to sanitize a user input string by removing unwanted substrings. In Softanza:
+In many languages, methods like `QString.indexOf("")` in **RingQt** or `substr()` in **Ring** return `0` and `1`, respectively, when searching for an empty string—positions corresponding to the first character in the string. Using these results can lead to unintended modifications, such as removing the first character.
+
+**Illustrating the Risk in Ring:**
 
 ```ring
-? @@( Q("username").RemoveQ("").Content() )
-#--> "username"
+// An empty value we don't control, e.g., from an API or user input
+val = ""
+
+// Getting the position
+nPosition = substr("ring", val) #--> 1
+
+// Removing the character at that position
+? substr("ring", nPosition) #--> "ing"
 ```
 
-Contrast this with **Qt C++**, where handling `""` might lead to errors or undesired outcomes. Softanza’s approach avoids such traps.
+Here, val being empty leads to mistakenly identifying position 1 (first character) as a valid match, resulting in an unintended modification.
+
+**Softanza’s Secure Approach:**
+
+```ring
+val = ""
+
+// Removing with Softanza
+? Q("Ring").RemoveQ(val).Content()
+#--> "Ring"
+```
+
+Softanza ensures no modifications occur when dealing with empty strings, preventing such traps and ensuring logical fluency in real-world programming.
 
 ---
 
