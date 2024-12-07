@@ -19837,12 +19837,12 @@ class stzString from stzObject
 
 		if aSections[1][1] = 1
 			ring_del(aSections, 1)
-			nLen--
+			nLenSections--
 		ok
 
 		if aSections[nLenSections][2] = nLenStr
 			ring_del(aSections, nLenSections)
-			nLen--
+			nLenSections--
 		ok
 
 		# Doing the job
@@ -20065,13 +20065,13 @@ class stzString from stzObject
 	#=================================================================================#
 
 	def FindBoundedSubStringCSIB(pcSubStr, pCaseSensitive)
-		anSections = This.FindBoundedSubStringCSIBZZ(pcSubStr, pCaseSensitive)
-		nLen = len(anSections)
+		aSections = This.FindBoundedSubStringCSIBZZ(pcSubStr, pCaseSensitive)
+		nLen = len(aSections)
 
 		anResult = []
 
-		for i = 1 to nLen step 2
-			anResult + anSections[i][2]++
+		for i = 1 to nLen
+			anResult + aSections[i][1]
 		next
 
 		return anResult
@@ -28606,7 +28606,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 	
 		def FindSubStringBoundedByZ(pcSubStr, pacBounds)
-			return This.FindSubStringBoundedBy(pcSubStr, pacBound)
+			return This.FindSubStringBoundedBy(pcSubStr, pacBounds)
 	
 		#>
 
@@ -29990,15 +29990,15 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def FindNthSubStringBoundedByCSZ(n, pcSubStr, pacBounds, pCaseSensitive)
-			return This.FindNthSubStringBoundedByCS(n, pcSubStr, pacBound, pCaseSensitives)
+			return This.FindNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pCaseSensitives)
 
 		#--
 
 		def FindNthBoundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
-			return This.FindNthSubStringBoundedByCS(n, pcSubStr, pacBound, pCaseSensitives)
+			return This.FindNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pCaseSensitives)
 
 		def FindNthBoundedByCSZ(n, pcSubStr, pacBounds, pCaseSensitive)
-			return This.FindNthSubStringBoundedByCS(n, pcSubStr, pacBound, pCaseSensitives)
+			return This.FindNthSubStringBoundedByCS(n, pcSubStr, pacBounds, pCaseSensitives)
 
 		#>
 
@@ -30010,15 +30010,15 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def FindNthSubStringBoundedByZ(n, pcSubStr, pacBounds)
-			return This.FindNthSubStringBoundedBy(n, pcSubStr, pacBound)
+			return This.FindNthSubStringBoundedBy(n, pcSubStr, pacBounds)
 
 		#--
 
 		def FindNthBoundedBy(n, pcSubStr, pacBounds)
-			return This.FindNthSubStringBoundedBy(n, pcSubStr, pacBound)
+			return This.FindNthSubStringBoundedBy(n, pcSubStr, pacBounds)
 
 		def FindNthBoundedByZ(n, pcSubStr, pacBounds)
-			return This.FindNthSubStringBoundedBy(n, pcSubStr, pacBound)
+			return This.FindNthSubStringBoundedBy(n, pcSubStr, pacBounds)
 
 		#>
 
@@ -30141,7 +30141,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def FindFirstSubStringBoundedByZ(pcSubStr, pacBounds)
-			return This.FindFirstSubStringBoundedBy(pcSubStr, pacBound)
+			return This.FindFirstSubStringBoundedBy(pcSubStr, pacBounds)
 
 		#--
 
@@ -30230,7 +30230,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def FindLastSubStringBoundedByZ(pcSubStr, pacBounds)
-			return This.FindLastSubStringBoundedBy(pcSubStr, pacBound)
+			return This.FindLastSubStringBoundedBy(pcSubStr, pacBounds)
 
 		#--
 
@@ -30385,7 +30385,7 @@ class stzString from stzObject
 		#< @FunctionAlternativeForm
 
 		def FindNthSubStringBoundedByIBZ(n, pcSubStr, pacBounds)
-			return This.FindNthSubStringBoundedByIB(n, pcSubStr, pacBound)
+			return This.FindNthSubStringBoundedByIB(n, pcSubStr, pacBounds)
 
 		#--
 
@@ -31230,15 +31230,15 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindFirstSubStringBoundedByIBZ(pcSubStr, pacBounds)
-			return This.FindFirstSubStringBoundedByIB(pcSubStr, pacBound)
+			return This.FindFirstSubStringBoundedByIB(pcSubStr, pacBounds)
 
 		#--
 
 		def FindFirstBoundedByIB(pcSubStr, pacBounds)
-			return This.FindFirstSubStringBoundedByIB(pcSubStr, pacBound)
+			return This.FindFirstSubStringBoundedByIB(pcSubStr, pacBounds)
 
 		def FindFirstBoundedByIBZ(pcSubStr, pacBounds)
-			return This.FindFirstSubStringBoundedByIB(pcSubStr, pacBound)
+			return This.FindFirstSubStringBoundedByIB(pcSubStr, pacBounds)
 
 		#>
 
@@ -31941,15 +31941,15 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def FindLastSubStringBoundedByIBZ(pcSubStr, pacBounds)
-			return This.FindLastSubStringBoundedByIB(pcSubStr, pacBound)
+			return This.FindLastSubStringBoundedByIB(pcSubStr, pacBounds)
 
 		#--
 
 		def FindLastBoundedByIB(pcSubStr, pacBounds)
-			return This.FindLastSubStringBoundedByIB(pcSubStr, pacBound)
+			return This.FindLastSubStringBoundedByIB(pcSubStr, pacBounds)
 
 		def FindLastBoundedByIBZ(pcSubStr, pacBounds)
-			return This.FindLastSubStringBoundedByIB(pcSubStr, pacBound)
+			return This.FindLastSubStringBoundedByIB(pcSubStr, pacBounds)
 
 		#>
 
@@ -33025,7 +33025,7 @@ class stzString from stzObject
 		def BoundedBy(pacBounds)
 			return This.SubStringsBoundedBy(pacBounds)
 
-		def AnySubStringsBoundedBy(acBounds)
+		def AnySubStringsBoundedBy(pacBounds)
 			return This.SubStringsBoundedBy(pacBounds)
 
 		def AnyBoundedBy(pacBounds)
@@ -81784,382 +81784,6 @@ class stzString from stzObject
 
 		def RangedRemoved(paRanges)
 			return This.ManyRangesRemoved(paRanges)
-
-	  #-------------------------------------------------------------#
-	 #    REMOVING SECTIONS OF CHARS VERIFYING A GIVEN CONDITION   # 
-	#=============================================================#
-
-	def RemoveSectionsWCS(paSections, pcCondition, pCaseSensitive)
-
-		/* EXAMPLE
-
-		o1 = new stzString("..AA..aa..BB..bb")
-		o1.RemoveSectionsW(
-			[3, 4], [7,8], [11,12], [15,16],
-			:Wehre = '{ Q(This[@i]).IsLowercase() }'
-		)
-
-		#--> "..AA....BB.."
-		*/
-
-		acSubStr = This.Sections(paSections)
-		aSections = This.FindSubStringsWCS(acSubStr, pcCondition, pCaseSensitive)
-		This.RemoveSections(aSections)
-
-		#< @FunctionFluentForm
-
-		def RemoveSectionsWCSQ(paSections, pcCondition, pCaseSensitive)
-			This.RemoveSectionsWCS(paSections, pcCondition, pCaseSensitive)
-			return This
-
-		def RemoveSectionsWhereCS(paSections, pcCondition, pCaseSensitive)
-			This.RemoveSectionsWCS(paSections, pcCondition, pCaseSensitive)
-
-			def RemoveSectionsWhereCSQ(paSections, pcCondition, pCaseSensitive)
-				This.RemoveSectionsWhereCS(paSections, pcCondition, pCaseSensitive)
-				return This
-
-		def RemoveManySectionsWCS(paSections, pcCondition, pCaseSensitive)
-			This.RemoveSectionsWCS(paSections, pcCondition, pCaseSensitive)
-	
-			def RemoveManySectionsWCSQ(paSections, pcCondition, pCaseSensitive)
-				This.RemoveManySectionsWCS(paSections, pcCondition, pCaseSensitive)
-				return This
-
-		def RemoveManySectionsWhereCS(paSections, pcCondition, pCaseSensitive)
-			This.RemoveSectionsWCS(paSections, pcCondition, pCaseSensitive)
-
-			def RemoveManySectionsWhereCSQ(paSections, pcCondition, pCaseSensitive)
-				This.RemoveManySectionsWhereCS(paSections, pcCondition, pCaseSensitive)
-				return This
-
-	def ManySectionsRemovedWCS(paSections, pcCondition, pCaseSensitive)
-		cResult = This.Copy().RemoveManySectionsWCSQ(paSections, pcCondition, pCaseSensitive).Content()
-		return cResult
-
-		def ManySectionsRemovedWhereCS(paSections, pcCondition, pCaseSensitive)
-			return This.ManySectionsRemovedWCS(paSections, pcCondition, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RemoveSectionsW(paSections, pcCondition)
-		This.RemoveSectionsWCS(paSections, pcCondition, TRUE)
-
-		#< @FunctionFluentForm
-
-		def RemoveSectionsWQ(paSections, pcCondition)
-			This.RemoveSectionsW(paSections, pcCondition)
-			return This
-
-		def RemoveSectionsWhere(paSections, pcCondition)
-			This.RemoveSectionsW(paSections, pcCondition)
-
-			def RemoveSectionsWhereQ(paSections, pcCondition)
-				This.RemoveSectionsWhere(paSections, pcCondition)
-				return This
-
-		def RemoveManySectionsW(paSections, pcCondition)
-			This.RemoveSectionsW(paSections, pcCondition)
-	
-			def RemoveManySectionsWQ(paSections, pcCondition)
-				This.RemoveManySectionsW(paSections, pcCondition)
-				return This
-
-		def RemoveManySectionsWhere(paSections, pcCondition)
-			This.RemoveSectionsW(paSections, pcCondition)
-
-			def RemoveManySectionsWhereQ(paSections, pcCondition)
-				This.RemoveManySectionsWhere(paSections, pcCondition)
-				return This
-
-	def ManySectionsRemovedW(paSections, pcCondition)
-		cResult = This.Copy().RemoveManySectionsWQ(paSections, pcCondition).Content()
-		return cResult
-
-		def ManySectionsRemovedWhere(paSections, pcCondition)
-			return This.ManySectionsRemovedW(paSections, pcCondition)
-
-	  #-------------------------------------------------------------------#
-	 #    REMOVING SECTIONS OF CHARS VERIFYING A GIVEN CONDITION -- WXT  # 
-	#===================================================================#
-
-	def RemoveSectionsWCSXT(paSections, pcCondition, pCaseSensitive)
-
-		/* EXAMPLE
-
-		o1 = new stzString("..AA..aa..BB..bb")
-		o1.RemoveSectionsWXT(
-			[3, 4], [7,8], [11,12], [15,16],
-			:Wehre = '{ Q(@section).IsLowercase() }'
-		)
-
-		#--> "..AA....BB.."
-		*/
-
-		acSubStr = This.Sections(paSections)
-		aSections = This.FindSubStringsWCSXT(acSubStr, pcCondition, pCaseSensitive)
-		This.RemoveSections(aSections)
-
-		#< @FunctionFluentForm
-
-		def RemoveSectionsWCSXTQ(paSections, pcCondition, pCaseSensitive)
-			This.RemoveSectionsWCSXT(paSections, pcCondition, pCaseSensitive)
-			return This
-
-		def RemoveSectionsWhereCSXT(paSections, pcCondition, pCaseSensitive)
-			This.RemoveSectionsWCSXT(paSections, pcCondition, pCaseSensitive)
-
-			def RemoveSectionsWhereCSXTQ(paSections, pcCondition, pCaseSensitive)
-				This.RemoveSectionsWhereCSXT(paSections, pcCondition, pCaseSensitive)
-				return This
-
-		def RemoveManySectionsWCSXT(paSections, pcCondition, pCaseSensitive)
-			This.RemoveSectionsWCSXT(paSections, pcCondition, pCaseSensitive)
-	
-			def RemoveManySectionsWCSXTQ(paSections, pcCondition, pCaseSensitive)
-				This.RemoveManySectionsWCSXT(paSections, pcCondition, pCaseSensitive)
-				return This
-
-		def RemoveManySectionsWhereCSXT(paSections, pcCondition, pCaseSensitive)
-			This.RemoveSectionsWCSXT(paSections, pcCondition, pCaseSensitive)
-
-			def RemoveManySectionsWhereCSXTQ(paSections, pcCondition, pCaseSensitive)
-				This.RemoveManySectionsWhereCSXT(paSections, pcCondition, pCaseSensitive)
-				return This
-
-	def ManySectionsRemovedWCSXT(paSections, pcCondition, pCaseSensitive)
-		cResult = This.Copy().RemoveManySectionsWCSXTQ(paSections, pcCondition, pCaseSensitive).Content()
-		return cResult
-
-		def ManySectionsRemovedWhereCSXT(paSections, pcCondition, pCaseSensitive)
-			return This.ManySectionsRemovedWCSXT(paSections, pcCondition, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RemoveSectionsWXT(paSections, pcCondition)
-		This.RemoveSectionsWCSXT(paSections, pcCondition, TRUE)
-
-		#< @FunctionFluentForm
-
-		def RemoveSectionsWXTQ(paSections, pcCondition)
-			This.RemoveSectionsWXT(paSections, pcCondition)
-			return This
-
-		def RemoveSectionsWhereXT(paSections, pcCondition)
-			This.RemoveSectionsWXT(paSections, pcCondition)
-
-			def RemoveSectionsWhereXTQ(paSections, pcCondition)
-				This.RemoveSectionsWhereXT(paSections, pcCondition)
-				return This
-
-		def RemoveManySectionsWXT(paSections, pcCondition)
-			This.RemoveSectionsWXT(paSections, pcCondition)
-	
-			def RemoveManySectionsWXTQ(paSections, pcCondition)
-				This.RemoveManySectionsWXT(paSections, pcCondition)
-				return This
-
-		def RemoveManySectionsWhereXT(paSections, pcCondition)
-			This.RemoveSectionsWXT(paSections, pcCondition)
-
-			def RemoveManySectionsWhereXTQ(paSections, pcCondition)
-				This.RemoveManySectionsWhereXT(paSections, pcCondition)
-				return This
-
-	def ManySectionsRemovedWXT(paSections, pcCondition)
-		cResult = This.Copy().RemoveManySectionsWXTQ(paSections, pcCondition).Content()
-		return cResult
-
-		def ManySectionsRemovedWhereXT(paSections, pcCondition)
-			return This.ManySectionsRemovedWXT(paSections, pcCondition)
-
-	  #-----------------------------------------------------------#
-	 #    REMOVING RANGES OF CHARS VERIFYING A GIVEN CONDITION   # 
-	#===========================================================#
-
-	def RemoveRangesWCS(paRanges, pcCondition, pCaseSensitive)
-
-		/* EXAMPLE
-
-		o1 = new stzString("..AA..aa..BB..bb")
-		o1.RemoveRangesW(
-			[3, 1], [7,1], [11,1], [15,1],
-			:Wehre = '{ Q(This[@i]).IsLowercase() }'
-		)
-
-		#--> "..AA....BB.."
-		*/
-
-		acSubStr = This.Ranges(paRanges)
-		aRanges = This.FindSubStringsWCS(acSubStr, pcCondition, pCaseSensitive)
-		This.RemoveRanges(aRanges)
-
-		#< @FunctionFluentForm
-
-		def RemoveRangesWCSQ(paRanges, pcCondition, pCaseSensitive)
-			This.RemoveRangesWCS(paRanges, pcCondition, pCaseSensitive)
-			return This
-
-		def RemoveRangesWhereCS(paRanges, pcCondition, pCaseSensitive)
-			This.RemoveRangesWCS(paRanges, pcCondition, pCaseSensitive)
-
-			def RemoveRangesWhereCSQ(paRanges, pcCondition, pCaseSensitive)
-				This.RemoveRangesWhereCS(paRanges, pcCondition, pCaseSensitive)
-				return This
-
-		def RemoveManyRangesWCS(paRanges, pcCondition, pCaseSensitive)
-			This.RemoveRangesWCS(paRanges, pcCondition, pCaseSensitive)
-	
-			def RemoveManyRangesWCSQ(paRanges, pcCondition, pCaseSensitive)
-				This.RemoveManyRangesWCS(paRanges, pcCondition, pCaseSensitive)
-				return This
-
-		def RemoveManyRangesWhereCS(paRanges, pcCondition, pCaseSensitive)
-			This.RemoveRangesWCS(paRanges, pcCondition, pCaseSensitive)
-
-			def RemoveManyRangesWhereCSQ(paRanges, pcCondition, pCaseSensitive)
-				This.RemoveManyRangesWhereCS(paRanges, pcCondition, pCaseSensitive)
-				return This
-
-	def ManyRangesRemovedWCS(paRanges, pcCondition, pCaseSensitive)
-		cResult = This.Copy().RemoveManyRangesWCSQ(paRanges, pcCondition, pCaseSensitive).Content()
-		return cResult
-
-		def ManyRangesRemovedWhereCS(paRanges, pcCondition, pCaseSensitive)
-			return This.ManyRangesRemovedWCS(paRanges, pcCondition, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RemoveRangesW(paRanges, pcCondition)
-		This.RemoveRangesWCS(paRanges, pcCondition, TRUE)
-
-		#< @FunctionFluentForm
-
-		def RemoveRangesWQ(paRanges, pcCondition)
-			This.RemoveRangesW(paRanges, pcCondition)
-			return This
-
-		def RemoveRangesWhere(paRanges, pcCondition)
-			This.RemoveRangesW(paRanges, pcCondition)
-
-			def RemoveRangesWhereQ(paRanges, pcCondition)
-				This.RemoveRangesWhere(paRanges, pcCondition)
-				return This
-
-		def RemoveManyRangesW(paRanges, pcCondition)
-			This.RemoveRangesW(paRanges, pcCondition)
-	
-			def RemoveManyRangesWQ(paRanges, pcCondition)
-				This.RemoveManyRangesW(paRanges, pcCondition)
-				return This
-
-		def RemoveManyRangesWhere(paRanges, pcCondition)
-			This.RemoveRangesW(paRanges, pcCondition)
-
-			def RemoveManyRangesWhereQ(paRanges, pcCondition)
-				This.RemoveManyRangesWhere(paRanges, pcCondition)
-				return This
-
-	def ManyRangesRemovedW(paRanges, pcCondition)
-		cResult = This.Copy().RemoveManyRangesWQ(paRanges, pcCondition).Content()
-		return cResult
-
-		def ManyRangesRemovedWhere(paRanges, pcCondition)
-			return This.ManyRangesRemovedW(paRanges, pcCondition)
-
-	  #-----------------------------------------------------------------#
-	 #    REMOVING RANGES OF CHARS VERIFYING A GIVEN CONDITION -- WXT  # 
-	#=================================================================#
-
-	def RemoveRangesWCSXT(paRanges, pcCondition, pCaseSensitive)
-
-		/* EXAMPLE
-
-		o1 = new stzString("..AA..aa..BB..bb")
-		o1.RemoveRangesWXT(
-			[3, 1], [7,1], [11,1], [15,1],
-			:Wehre = '{ Q(@range).IsLowercase() }'
-		)
-
-		#--> "..AA....BB.."
-		*/
-
-		acSubStr = This.Ranges(paRanges)
-		aRanges = This.FindSubStringsWCSXT(acSubStr, pcCondition, pCaseSensitive)
-		This.RemoveRanges(aRanges)
-
-		#< @FunctionFluentForm
-
-		def RemoveRangesWCSXTQ(paRanges, pcCondition, pCaseSensitive)
-			This.RemoveRangesWCSXT(paRanges, pcCondition, pCaseSensitive)
-			return This
-
-		def RemoveRangesWhereCSXT(paRanges, pcCondition, pCaseSensitive)
-			This.RemoveRangesWCSXT(paRanges, pcCondition, pCaseSensitive)
-
-			def RemoveRangesWhereCSXTQ(paRanges, pcCondition, pCaseSensitive)
-				This.RemoveRangesWhereCSXT(paRanges, pcCondition, pCaseSensitive)
-				return This
-
-		def RemoveManyRangesWCSXT(paRanges, pcCondition, pCaseSensitive)
-			This.RemoveRangesWCSXT(paRanges, pcCondition, pCaseSensitive)
-	
-			def RemoveManyRangesWCSXTQ(paRanges, pcCondition, pCaseSensitive)
-				This.RemoveManyRangesWCSXT(paRanges, pcCondition, pCaseSensitive)
-				return This
-
-		def RemoveManyRangesWhereCSXT(paRanges, pcCondition, pCaseSensitive)
-			This.RemoveRangesWCSXT(paRanges, pcCondition, pCaseSensitive)
-
-			def RemoveManyRangesWhereCSXTQ(paRanges, pcCondition, pCaseSensitive)
-				This.RemoveManyRangesWhereCSXT(paRanges, pcCondition, pCaseSensitive)
-				return This
-
-	def ManyRangesRemovedWCSXT(paRanges, pcCondition, pCaseSensitive)
-		cResult = This.Copy().RemoveManyRangesWCSXTQ(paRanges, pcCondition, pCaseSensitive).Content()
-		return cResult
-
-		def ManyRangesRemovedWhereCSXT(paRanges, pcCondition, pCaseSensitive)
-			return This.ManyRangesRemovedWCSXT(paRanges, pcCondition, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
-	def RemoveRangesWXT(paRanges, pcCondition)
-		This.RemoveRangesWCSXT(paRanges, pcCondition, TRUE)
-
-		#< @FunctionFluentForm
-
-		def RemoveRangesWXTQ(paRanges, pcCondition)
-			This.RemoveRangesWXT(paRanges, pcCondition)
-			return This
-
-		def RemoveRangesWhereXT(paRanges, pcCondition)
-			This.RemoveRangesWXT(paRanges, pcCondition)
-
-			def RemoveRangesWhereXTQ(paRanges, pcCondition)
-				This.RemoveRangesWhereXT(paRanges, pcCondition)
-				return This
-
-		def RemoveManyRangesWXT(paRanges, pcCondition)
-			This.RemoveRangesWXT(paRanges, pcCondition)
-	
-			def RemoveManyRangesWXTQ(paRanges, pcCondition)
-				This.RemoveManyRangesWXT(paRanges, pcCondition)
-				return This
-
-		def RemoveManyRangesWhereXT(paRanges, pcCondition)
-			This.RemoveRangesWXT(paRanges, pcCondition)
-
-			def RemoveManyRangesWhereXTQ(paRanges, pcCondition)
-				This.RemoveManyRangesWhereXT(paRanges, pcCondition)
-				return This
-
-	def ManyRangesRemovedWXT(paRanges, pcCondition)
-		cResult = This.Copy().RemoveManyRangesWXTQ(paRanges, pcCondition).Content()
-		return cResult
-
-		def ManyRangesRemovedWhereXT(paRanges, pcCondition)
-			return This.ManyRangesRemovedWXT(paRanges, pcCondition)
 
 	  #-------------------------------------------------#
 	 #    REMOVING CHARS VERIFYING A GIVEN CONDITION   # 
