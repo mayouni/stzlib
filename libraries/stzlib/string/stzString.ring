@@ -11151,6 +11151,11 @@ class stzString from stzObject
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
+		# Unfortunately, we don't have a direct function that
+		# returns this in Ring or RingQt. So, we implement it
+		# in our own and pay for the performance tax on sutch
+		# an elementary feature in any language!
+
 		if CheckingParams()
 
 			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
@@ -11159,7 +11164,36 @@ class stzString from stzObject
 
 		ok
 
-		nResult = -1 + This.SplitCSQ(pcSubStr, pCaseSensitive).NumberOfItems()
+		if pcSubStr = ""
+			return 0
+		ok
+
+		bCase = @CaseSensitive(pCaseSensitive)
+
+		_cTempStr_ = This.Content()
+		_cSubStr_ = pcSubStr
+
+		if bCase = FALSE
+			_cTempStr_ = ring_lower(_cTempStr_)
+			_cSubStr_  = ring_lower(_cSubStr_)
+		ok
+
+		# Early check
+
+		n = ring_substr1(_cTempStr_, _cSubStr_)
+		if n = 0
+			return 0
+		ok
+
+		# Removing the substring from the string
+
+		nLenBeforeRemove = StzStringQ(_cTempStr_).NumberOfChars()
+		_cTempStr2_ = ring_substr2(_cTempStr_, _cSubStr_, "")
+		nLenAfterRemove = StzStringQ(_cTempStr2_).NumberOfChars()
+
+		nLenSubStr = StzStringQ(_cSubStr_).NumberOfChars()
+		nResult = ( (nLenBeforeRemove - nLenAfterRemove) / nLenSubStr )
+
 		return nResult
 
 		#< @FunctionFluentForm
@@ -47425,10 +47459,16 @@ class stzString from stzObject
 		ok
 
 		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
+		nLenPos = len(anPos)
+		if nLenPos = 0
+			return []
+		ok
+
 		nLenOccurr = len(panOccurr)
 
+		nLen = Min([ nLenOccurr, nLenPos ])
 		anResult = []
-		for i = 1 to nLenOccurr
+		for i = 1 to nLen
 			anResult + anPos[panOccurr[i]]
 		next
 
@@ -48359,10 +48399,85 @@ class stzString from stzObject
 
 		#>
 
+	  #----------------------------------------------------------------------#
+	 #  FINDING ALL NEXT OCCURRENCES OF A SUBSTRING STARTING AT A POSITION  #
+	#----------------------------------------------------------------------#
+
+	def FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		if CheckingParams()
+
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param type! pnStartingAt must be a number.")
+			ok
+
+		ok
+
+		anPos = This.SectionQ(pnStartingAt, This.NumberOfChars()).FindAllCS(pcSubStr, pCaseSensitive)
+		nLen = len(anPos)
+
+		for i = 1 to nLen
+			anPos[i] += pnStartingAt
+		next
+
+		return anPos
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNextOccurrences(pcSubStr, pnStartingAt)
+		return This.FindNextOccurrencesCS(pcSubStr, pnStartingAt, TRUE)
+
+	  #------------------------------------------------------------------------#
+	 #  FINDING NEXT OCCURRENCES OF A SUBSTRING STARTING AT A POSITION -- ZZ  #
+	#------------------------------------------------------------------------#
+
+	def FindNextOccurrencesCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
+		if CheckingParams()
+
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param type! pnStartingAt must be a number.")
+			ok
+
+		ok
+
+		nLen = This.NumberOfChars()
+		if pnStartingAt = nLen
+			return []
+		ok
+
+		aSections = This.SectionQ(pnStartingAt + 1, nLen).FindAllCSZZ(pcSubStr, pCaseSensitive)
+		nLen = len(aSections)
+
+		for i = 1 to nLen
+			aSections[i][1] += pnStartingAt
+			asections[i][2] += pnStartingAt
+		next
+
+		return aSections
+
+
+		def FindNextOccurrencesAsSectionsCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindNextOccurrencesCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindNextOccurrencesZZ(pcSubStr, pnStartingAt)
+		return This.FindNextOccurrencesCSZZ(pcSubStr, pnStartingAt, TRUE)
+
+		def FindNextOccurrencesAsSections(pcSubStr, pnStartingAt)
+			return This.FindNextOccurrencesZZ(pcSubStr, pnStartingAt)
+
 	   #-----------------------------------------------------#
 	  #      FINDING PREVIOUS OCCURRENCE OF A SUBSTRING     #
 	 #      STARTING FROM A GIVEN POSITION N               #
-	#-----------------------------------------------------#
+	#=====================================================#
 
 	def FindPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
@@ -48445,6 +48560,63 @@ class stzString from stzObject
 			return This.FindPrevious(pcSubStr, nStart)
 
 		#>
+
+	  #--------------------------------------------------------------------------#
+	 #  FINDING THE PREVIOUS OCCURRENCES OF A SUBSTRING STARTING AT A POSITION  #
+	#--------------------------------------------------------------------------#
+
+	def FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		if CheckingParams()
+
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param type! pnStartingAt must be a number.")
+			ok
+
+		ok
+
+		anPos = This.SectionQ(1, pnStartingAt - 1).FindAllCS(pcSubStr, pCaseSensitive)
+		return anPos
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindPreviousOccurrences(pcSubStr, pnStartingAt)
+		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, TRUE)
+
+	  #--------------------------------------------------------------------------------#
+	 #  FINDING ALL PREVIOUS OCCURRENCES OF A SUBSTRING STARTING AT A POSITION -- ZZ  #
+	#--------------------------------------------------------------------------------#
+
+	def FindPreviousOccurrencesCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
+		if CheckingParams()
+
+			if isList(pnStartingAt) and Q(pnStartingAt).IsStartingAtNamedParam()
+				pnStartingAt = pnStartingAt[2]
+			ok
+	
+			if NOT isNumber(pnStartingAt)
+				StzRaise("Incorrect param type! pnStartingAt must be a number.")
+			ok
+
+		ok
+
+		aSections = This.SectionQ(1, pnStartingAt - 1).FindAllCSZZ(pcSubStr, pCaseSensitive)
+		return aSections
+
+
+		def FindPreviousOccurrencesAsSectionsCS(pcSubStr, pnStartingAt, pCaseSensitive)
+			return This.FindPreviousOccurrencesCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def FindPreviousOccurrencesZZ(pcSubStr, pnStartingAt)
+		return This.FindPreviousOccurrencesCSZZ(pcSubStr, pnStartingAt, TRUE)
+
+		def FindPreviousOccurrencesAsSections(pcSubStr, pnStartingAt)
+			return This.FindPreviousOccurrencesZZ(pcSubStr, pnStartingAt)
 
 	  #-------------------------------------------------#
 	 #      FINDING ALL OCCURRENCES OF A SUBSTRING     #
@@ -79388,23 +79560,43 @@ class stzString from stzObject
 			return FALSE
 		ok
 
-		n = This.NumberOfOccurrenceCS( pcSubStr, pCaseSensitive )
+		_oCopy_ = This.Copy()
+		_oCopy_.RemoveCS(pcSubStr, pCaseSensitive)
 
-		oStr = StzStringQ(pcSubStr) * n
+		if _oCopy_.Content() = ""
+			return TRUE
+		else
+			return FALSE
+		ok
 
-		return oStr.IsEqualToCS(This.String(), pCaseSensitive)
+	#-- WIHTOUT CASESENSITIVITY
 
 	def IsMultipleOf(pcSubStr)
 		return This.IsMultipleOfCS(pcSubStr, TRUE)
+
+	  #--------------------------------------------------------------------#
+	 #  CHECKING THAT THE STRING IS N TIMES MULTIPLE OF THE GIVEN STRING  #
+	#--------------------------------------------------------------------#
 
 	def IsNTimesMultipleOfCS(n, pcSubStr, pCaseSensitive)
 		if NOT isString(pcSubStr)
 			return FALSE
 		ok
 
-		oStr = StzStringQ(pcSubStr) * n
+		_oCopy_ = This.Copy()
+		nOccurr = _oCopy_.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
-		return oStr.IsEqualToCS(This.String(), pCaseSensitive)
+		if nOccurr != n
+			return FALSE
+		ok
+
+		_oCopy_.RemoveCS(pcSubStr, pCaseSensitive)
+
+		if _oCopy_.Content() = ""
+			return TRUE
+		else
+			return FALSE
+		ok
 
 	def IsNTimesMultipleOf(n, pcSubStr)
 		return This.IsNTimesMultipleOfCS(n, pcSubStr, TRUE)
@@ -88628,17 +88820,11 @@ class stzString from stzObject
 	 #   DOES THE STRING CONTAIN A GIVEN CENTRAL CHAR?   #
 	#---------------------------------------------------#
 
-	def ContainsCharInTheCenter(c)
+	def ContainsThisCentralChar(c)
 		return This.CentralChar() = c
 
-		def ContainsCharInTheMiddle(c)
-			return This.ContainsCharInTheCenter()
-
-		def HasCharInTheCenter(c)
-			return This.ContainsCharInTheCenter(c)
-
-		def HasCharInTheMiddle(c)
-			return This.ContainsCharInTheMiddle(c)
+		def HasThisCentralChar(c)
+			return This.ContainsThisCentralChar(c)
 
 	  #----------------------------------------------------#
 	 #    DOES THE STRING CONTAIN ANY MIDDLE SUBSTRING?   #
@@ -99981,7 +100167,7 @@ class stzString from stzObject
 	  #------------------------------#
 	 #  ALTERNATIVES OF FindNext()  #
 	#------------------------------#
-#nasrallah
+
 	def FindNextOccurrenceCS(pcSubStr, nStart, pCaseSensitive)
 		return This.FindNextSTCS(pcSubStr, nStart, pCaseSensitive)
 	
@@ -100401,86 +100587,77 @@ class stzString from stzObject
 	def PreviousNthOccurrenceAsSection(n, pcSubStr, nStart)
 		return This.FindNthPreviousAsSection(n, pcSubStr, nStart)
 
-	  #---------------------------------#
-	 #  ALTERNATIVES OF FindAllNext()  #
-	#---------------------------------#
+	  #-----------------------------------------#
+	 #  ALTERNATIVES OF FindNextOccurrences()  #
+	#-----------------------------------------#
 
 	def FindNextOccurrenceSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindAllNext(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 	def NextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindAllNext(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 	def NextPositionsCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindAllNext(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 	def FindNextOccurrencesOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindAllNext(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 	def NextPositionsOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindAllNext(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindNextOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAllNextS(pcSubStr, pnStartingAt)
-		return This.FindAllNext(pcSubStr, pnStartingAt)
-
-	def FindNextOccurrences(pcSubStr, pnStartingAt)
-		return This.FindAllNext(pcSubStr, pnStartingAt)
+	def FindNextOccurrenceST(pcSubStr, pnStartingAt)
+		return This.FindNextOccurrences(pcSubStr, pnStartingAt)
 
 	def NextOccurrences(pcSubStr, pnStartingAt)
-		return This.FindAllNext(pcSubStr, pnStartingAt)
+		return This.FindNextOccurrences(pcSubStr, pnStartingAt)
 	
-	def NextPositionsC(pcSubStr, pnStartingAt)
-		return This.FindAllNext(pcSubStr, pnStartingAt)
+	def NextPositions(pcSubStr, pnStartingAt)
+		return This.FindNextOccurrences(pcSubStr, pnStartingAt)
 	
 	def FindNextOccurrencesOfSubString(pcSubStr, pnStartingAt)
-		return This.FindAllNext(pcSubStr, pnStartingAt)
-	
+		return This.FindNextOccurrences(pcSubStr, pnStartingAt)
+
 	def NextPositionsOfSubString(pcSubStr, pnStartingAt)
-		return This.FindAllNext(pcSubStr, pnStartingAt)
+		return This.FindNextOccurrences(pcSubStr, pnStartingAt)
 
-	  #-------------------------------------#
-	 #  ALTERNATIVES OF FindAllPrevious()  #
-	#-------------------------------------#
+	  #---------------------------------------------#
+	 #  ALTERNATIVES OF FindPreviousOccurrences()  #
+	#---------------------------------------------#
 
-	def FindAllPreviousSCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindAllPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
-
-	def FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindAllPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+	def FindPreviousOccurrenceSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 	def PreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindAllPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 	def PreviousPositionsCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindAllPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 	def FindPreviousOccurrencesOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindAllPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 
 	def PreviousPositionsOfSubStringCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		return This.FindAllPreviousCS(pcSubStr, pnStartingAt, pCaseSensitive)
+		return This.FindPreviousOccurrencesCS(pcSubStr, pnStartingAt, pCaseSensitive)
 	
 	#-- WITHOUT CASESENSITIVITY
 
-	def FindAllPreviousS(pcSubStr, pnStartingAt)
-		return This.FindAllPrevious(pcSubStr, pnStartingAt)
-
-	def FindPreviousOccurrences(pcSubStr, pnStartingAt)
-		return This.FindAllPrevious(pcSubStr, pnStartingAt)
+	def FindPreviousOccurrenceST(pcSubStr, pnStartingAt)
+		return This.FindPreviousOccurrences(pcSubStr, pnStartingAt)
 
 	def PreviousOccurrences(pcSubStr, pnStartingAt)
-		return This.FindAllPrevious(pcSubStr, pnStartingAt)
+		return This.FindPreviousOccurrences(pcSubStr, pnStartingAt)
 	
-	def PreviousPositionsC(pcSubStr, pnStartingAt)
-		return This.FindAllPrevious(pcSubStr, pnStartingAt)
+	def PreviousPositions(pcSubStr, pnStartingAt)
+		return This.FindPreviousOccurrences(pcSubStr, pnStartingAt)
 	
 	def FindPreviousOccurrencesOfSubString(pcSubStr, pnStartingAt)
-		return This.FindAllPrevious(pcSubStr, pnStartingAt)
-	
+		return This.FindPreviousOccurrences(pcSubStr, pnStartingAt)
+
 	def PreviousPositionsOfSubString(pcSubStr, pnStartingAt)
-		return This.FindAllPrevious(pcSubStr, pnStartingAt)
+		return This.FindPreviousOccurrences(pcSubStr, pnStartingAt)
 
 	  #------------------------------------------#
 	 #  ALTERNATIVES OF NumberOfOccurrenceXT()  #

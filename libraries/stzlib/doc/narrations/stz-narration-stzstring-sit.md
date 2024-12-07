@@ -1,4 +1,4 @@
-### **Mastering Precision with the `Sit()` Function**
+# **Mastering Precision with the `Sit()` Function**
 
 ---
 
@@ -8,7 +8,7 @@ Let’s explore practical examples where `Sit()` excels.
 
 ---
 
-### **Example 1: Extract Variable Contexts for Text Highlighting**
+## **Example 1: Extract Variable Contexts for Text Highlighting**
 
 Imagine building a **text editor** with a live preview that highlights words with their surrounding context. The goal is to extract a substring like `"nice"` and dynamically include **2 characters before and 3 characters after**:
 
@@ -33,7 +33,7 @@ Here’s why `Sit()` is invaluable:
 
 ---
 
-### **Example 2: Position-Based Extraction for Advanced Tokenization**
+## **Example 2: Position-Based Extraction for Advanced Tokenization**
 
 Suppose you’re tokenizing a sentence and want to dynamically extract **letters surrounding a given character** (like `"i"` in `"nice"`) to analyze its immediate context, for tasks such as **natural language processing (NLP)** or **spell checking**.
 
@@ -83,7 +83,7 @@ Here, `Sit()` extracts **surrounding section boundaries** with custom offsets:
 
 ---
 
-### **Conclusion**
+## **Conclusion**
 
 The `Sit()` function’s strength lies in:
 1. **Manual control over context size:** Specify how many characters before and after to include—perfect for dynamic, context-sensitive tasks.
