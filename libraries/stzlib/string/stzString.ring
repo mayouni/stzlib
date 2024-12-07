@@ -27866,6 +27866,11 @@ class stzString from stzObject
 		def NumberOfOccurrencesOfSubStringBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 			return This.NumberOfOccurrenceBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 
+		#==
+
+		def CountSubStringsBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+			return This.NumberOfOccurrenceBetweenCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -27884,6 +27889,9 @@ class stzString from stzObject
 			return This.NumberOfOccurrenceBetween(pcSubStr, pcSubStr1, pcSubStr2)
 
 		def NumberOfOccurrencesOfSubStringBetween(pcSubStr, pcSubStr1, pcSubStr2)
+			return This.NumberOfOccurrenceBetween(pcSubStr, pcSubStr1, pcSubStr2)
+
+		def CountSubStringsBetween(pcSubStr, pcSubStr1, pcSubStr2)
 			return This.NumberOfOccurrenceBetween(pcSubStr, pcSubStr1, pcSubStr2)
 
 		#>
@@ -28020,7 +28028,7 @@ class stzString from stzObject
 	#------------------------------------------------------------------------------------------#
 
 	def ContainsNOccurrencesOfSubStringboundedByCS(n, pcSubStr, pacBounds, pCaseSensitive)
-		bResult = ( This.NumberOfOccurrenceboundedByCS(pcSubStr, pacBounds, pCaseSensitive) = n )
+		bResult = ( This.CountSubStringsBoundedByCS(pcSubStr, pacBounds, pCaseSensitive) = n )
 		return bResult
 
 		#< @FunctionAlternativeForms
@@ -32648,8 +32656,21 @@ class stzString from stzObject
 		def HowManyOccurrenceOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
-
 		def HowManyOccurrencesOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		#--
+
+		def CountSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		def CountOccurrencesOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		def CountOccurrenceOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+
+		def CountSubStringBoundedByCS(pacBounds, pCaseSensitive)
 			return This.NumberOfSubStringsBoundedByCS(pacBounds, pCaseSensitive)
 
 		#>
@@ -32679,6 +32700,78 @@ class stzString from stzObject
 
 		def HowManyOccurrencesOfSubStringsBoundedBy(pacBounds)
 			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+		#--
+
+		def CountSubStringsBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+		def CountOccurrencesOfSubStringsBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+		def CountOccurrenceOfSubStringsBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+		def CountSubStringBoundedBy(pacBounds)
+			return This.NumberOfSubStringsBoundedBy(pacBounds)
+
+		#>
+
+	  #--------------------------------------------------------------------------#
+	 #  GETTING THE NUMBER OF SUBSTRINGS BOUNDED BY THE GIVEN SUBSTRINGS -- IB  #
+	#--------------------------------------------------------------------------#
+
+	def NumberOfSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+		nResult = len( This.FindSubStringsBoundedByCSIB(pacBounds, pCaseSensitive) )
+		return nResult
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfOccurrencesOfSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		def NumberOfOccurrenceOfSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		def HowManySubStringBoundedByCSIB(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		def HowManySubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		def HowManyOccurrenceOfSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+
+		def HowManyOccurrencesOfSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+			return This.NumberOfSubStringsBoundedByCSIB(pacBounds, pCaseSensitive)
+
+		#>
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def NumberOfSubStringsBoundedByIB(pacBounds)
+		return This.NumberOfSubStringsBoundedByCSIB(pacBounds, TRUE)
+
+		#< @FunctionAlternativeForms
+
+		def NumberOfOccurrencesOfSubStringsBoundedByIB(pacBounds)
+			return This.NumberOfSubStringsBoundedByIB(pacBounds)
+
+		def NumberOfOccurrenceOfSubStringsBoundedByIB(pacBounds)
+			return This.NumberOfSubStringsBoundedByIB(pacBounds)
+
+		def HowManySubStringBoundedByIB(pacBounds)
+			return This.NumberOfSubStringsBoundedByIB(pacBounds)
+
+		def HowManySubStringsBoundedByIB(pacBounds)
+			return This.NumberOfSubStringsBoundedByIB(pacBounds)
+
+		def HowManyOccurrenceOfSubStringsBoundedByIB(pacBounds)
+			return This.NumberOfSubStringsBoundedByIB(pacBounds)
+
+		def HowManyOccurrencesOfSubStringsBoundedByIB(pacBounds)
+			return This.NumberOfSubStringsBoundedByIB(pacBounds)
 
 		#>
 
@@ -33080,6 +33173,14 @@ class stzString from stzObject
 		def AnyBoundedByCSU(pacBounds, pCaseSensitive)
 			return This.SubStringsBoundedByCSU(pacBounds, pCaseSensitive)
 
+		#--
+
+		def UniqueSubStringsBoundedByCS(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSU(pacBounds, pCaseSensitive)
+
+		def UniqueBoundedByCS(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSU(pacBounds, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVTY
@@ -33098,6 +33199,14 @@ class stzString from stzObject
 		def AnyBoundedByU(pacBounds)
 			return This.SubStringsBoundedByU(pacBounds)
 
+		#--
+
+		def UniqueSubStringsBoundedBy(pacBounds)
+			return This.SubStringsBoundedByU(pacBounds)
+
+		def UniqueBoundedBy(pacBounds)
+			return This.SubStringsBoundedByU(pacBounds)
+
 		#>
 
 	   #----------------------------------------------------------------#
@@ -33107,8 +33216,6 @@ class stzString from stzObject
 
 	def SubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
 		return U( This.SubStringsBoundedByCSZU(pacBounds, pCaseSensitive) )
-
-
 
 		#< @FunctionAlternativeForms
 
@@ -55665,41 +55772,30 @@ class stzString from stzObject
 
 			oParam = new stzList(pacBetweenOrBoundedBy)
 
-			if NOT ( oParam.IsPairOfStrings() or oParam.IsPairOfNumbers() or
-				
-				( ( isString(pacBetweenOrBoundedBy[1]) or isNumber(pacBetweenOrBoundedBy[1]) ) and
-				   isList(pacBetweenOrBoundedBy[2]) and
-				   Q(pacBetweenOrBoundedBy[2]).IsAndNamedParam() and
-				   ( isString(pacBetweenOrBoundedBy[2][2]) or isNumber((pacBetweenOrBoundedBy[2][2])))
-				) )
-	
-				stzRaise("Incorrect param! pacBetweenOrBoundedBy must be a pair of strings or numbers.")
-			ok
-
 			# Reading the parms wether they correspond :Between or :BoundedBy
 
-			if oParam = new stzList(pacBetweenOrBoundedBy).IsBetweenNamedParam() or
-			   oParam = new stzList(pacBetweenOrBoundedBy).IsBetweenSubStringsNamedParam() or
-			   oParam = new stzList(pacBetweenOrBoundedBy).IsBetweenpositionsNamedParam()
+			if oParam.IsBetweenNamedParam() or
+			   oParam.IsBetweenSubStringsNamedParam() or
+			   oParam.IsBetweenpositionsNamedParam()
 
 				cBetweenOrBoundedBy = :Between
 				pacBetweenOrBoundedBy = pacBetweenOrBoundedBy[2]			
 
-			But oParam = new stzList(pacBetweenOrBoundedBy).IsBetweenIBNamedParam() or
-			    oParam = new stzList(pacBetweenOrBoundedBy).IsBetweenSubStringsIBNamedParam() or
-			    oParam = new stzList(pacBetweenOrBoundedBy).IsBetweenPositionsIBNamedParam()
+			But oParam.IsBetweenIBNamedParam() or
+			    oParam.IsBetweenSubStringsIBNamedParam() or
+			    oParam.IsBetweenPositionsIBNamedParam()
 
 				cBetweenOrBoundedBy = :BetweenIB
 				pacBetweenOrBoundedBy = pacBetweenOrBoundedBy[2]
 
-			but oParam = new stzList(pacBetweenOrBoundedBy).IsBoundedByNamedParam() or
-			    oParam = new stzList(pacBetweenOrBoundedBy).IsBoundedBySubStringsNamedParam()
+			but oParam.IsBoundedByNamedParam() or
+			    oParam.IsBoundedBySubStringsNamedParam()
 
 				cBetweenOrBoundedBy = :BoundedBy
 				pacBetweenOrBoundedBy = pacBetweenOrBoundedBy[2]			
 
-			But oParam = new stzList(pacBetweenOrBoundedBy).IsBoundedByIBNamedParam() or
-			    oParam = new stzList(pacBetweenOrBoundedBy).IsBoundedBySubStringsIBNamedParam()
+			But oParam.IsBoundedByIBNamedParam() or
+			    oParam.IsBoundedBySubStringsIBNamedParam()
 
 				cBetweenOrBoundedBy = :BoundedByIB
 				pacBetweenOrBoundedBy = pacBetweenOrBoundedBy[2]
@@ -55710,28 +55806,28 @@ class stzString from stzObject
 		# Doing the job
 
 		switch cBetweenOrBoundedBy
-			on :Between
-				nResult = This.NumberOfOccurrenceBetweenCS(pcSubStr, pacBetween[1], pacBetween[2], pCaseSensitive)
+		on :Between
+			nResult = This.NumberOfOccurrenceBetweenCS(pcSubStr, pacBetweenOrBoundedBy[1], pacBetweenOrBoundedBy[2], pCaseSensitive)
 
-			on :BetweenIB
-				nResult = This.NumberOfOccurrenceBetweenCSIB(pcSubStr, pacBetween[1], pacBetween[2], pCaseSensitive)
+		on :BetweenIB
+			nResult = This.NumberOfOccurrenceBetweenCSIB(pcSubStr, pacBetweenOrBoundedBy[1], pacBetweenOrBoundedBy[2], pCaseSensitive)
 
-			on :BoundedBy
-				nResult = This.NumberOfOccurrenceBoundedByCS(pcSubStr, pacBetween[1], pacBetween[2], pCaseSensitive)
+		on :BoundedBy
+			nResult = This.NumberOfOccurrenceOfSubStringBoundedByCS(pcSubStr, pacBetweenOrBoundedBy, pCaseSensitive)
 
-			on :BoundedByIB
-				nResult = This.NumberOfOccurrenceBoundedByCSIB(pcSubStr, pacBetween[1], pacBetween[2], pCaseSensitive)
+		on :BoundedByIB
+			nResult = This.NumberOfOccurrenceOfSubStringBoundedByCSIB(pcSubStr, pacBetweenOrBoundedBy, pCaseSensitive)
 
-			other
-				StzRaise("Unsupported syntax!")
-			off
+		other
+			StzRaise("Unsupported syntax!")
+		off
 
 		return nResult
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def NumberOfOccurrenceXT(pcSubStr, pacBetween)
-		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetween, TRUE)
+	def NumberOfOccurrenceXT(pcSubStr, pacBetweenOrBoundedBy)
+		return This.NumberOfOccurrenceCSXT(pcSubStr, pacBetweenOrBoundedBy, TRUE)
 
 	  #----------------------------------------------------------------------#
 	 #  CHECKING IF THE STRING CONTAINS N OCCURRENCES OF A GIVEN SUBSTRING  #
