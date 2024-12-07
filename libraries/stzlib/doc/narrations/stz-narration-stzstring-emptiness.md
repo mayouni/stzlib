@@ -11,18 +11,18 @@ This article explains Softanza’s handling of emptiness with five rules, using 
 In Softanza, an empty string has no measurable presence. It cannot be counted inside any string, empty or not:
 
 ```ring
-moad "stzlib.ring"
+load "stzlib.ring"
 
 ? Q("").Count("") 
 #--> 0
 
-? Q("text").Count("") + NL 
+? Q("text").Count("") 
 #--> 0
 ```
 
 This prevents the confusion found in some languages where empty substrings are implicitly considered "present" at every position in a string.
 
->NOTE: The small Q(val) function converts the value val into its corresponding Softanza object. In this case, Q("text") returns an stzString("text") object.
+>NOTE: The small `Q(val)` function converts the value val into its corresponding Softanza object. In this case, `Q("text")` returns an `stzString("text")` object.
 
 ---
 
@@ -34,12 +34,22 @@ Since emptiness is uncountable (Rule 1), it logically follows that it cannot be 
 ? @@( Q("").FindAll("") ) 
 #--> [ ]
 
-? @@( Q("text").FindAll("") ) + NL
+? @@( Q("text").FindAll("") )
 #--> [ ]
 ```
 
-This contrasts with languages like **Qt C++** or **Python**, or even the `substr()` function in Ring, where finding `""` may return the first position, misleadingly implying its presence.
+Also, finding the first position of "" always returns 0, which means it does not even exist:
 
+```ring
+? Q("").FindFirst("")
+#--> 0
+
+? Q("text").FindFirst("")
+#--> 0
+
+This contrasts with languages like **Qt C++** or **Python**, or even the `substr()` function in **Ring**, where finding `""` may return the first position, misleadingly implying its presence.
+
+>NOTE: We focus on Qt here because it is integrated into Ring through the **RingQt** library, which serves as the primary option for managing Unicode strings in the Ring language.
 ---
 
 ## Rule 3: Emptiness Is Uncontainable
@@ -53,7 +63,7 @@ An empty string contains nothing, and no string (empty or not) contains an empty
 ? Q("").Contains("text") 
 #--> FALSE
 
-? Q("text").Contains("") + NL
+? Q("text").Contains("")
 #--> FALSE
 ```
 
@@ -61,9 +71,13 @@ This behavior eliminates ambiguities in mainstream languages, where `""` is ofte
 
 ---
 
-## Rule 4: Emptiness Is Irreplaceable
+## Rule 4: Emptiness Is Irreplaceable but Stretchable
 
-Replacing emptiness with any value or replacing any value with emptiness has no meaningful effect. Softanza enforces this by ensuring replacements involving `""` return the original or logically empty string:
+Replacing any value with emptiness has no meaningful effect, nor does replacing an empty string with another empty string.
+
+However, replacing emptiness with a non-empty string stretches the empty string to host the new content.
+
+Softanza enforces this by ensuring replacements involving "" either return the original string or logically adjust to accommodate the replacement.
 
 ```ring
 ? @@( Q("").ReplaceQ("", "").Content() ) 
@@ -78,7 +92,7 @@ Replacing emptiness with any value or replacing any value with emptiness has no 
 ? @@( Q("text").ReplaceQ("", "").Content() ) 
 #--> "text"
 
-? @@( Q("text").ReplaceQ("", "X").Content() ) + NL 
+? @@( Q("text").ReplaceQ("", "X").Content() )
 #--> "text"
 ```
 
@@ -125,4 +139,4 @@ Contrast this with **Qt C++**, where handling `""` might lead to errors or undes
 
 By treating emptiness as **uncountable**, **unfindable**, **uncontainable**, **irreplaceable**, and **irremovable**, **Softanza** provides a consistent and logical framework for string operations. These rules eliminate ambiguities found in other languages, fostering clean and maintainable code.
 
-For developers seeking predictable and secure string handling, Softanza’s `Q` class offers a robust solution, making emptiness a straightforward concept rather than a source of confusion.
+For developers seeking predictable and secure string handling, Softanza’s `stzString` class offers a robust solution, making emptiness a straightforward concept rather than a source of confusion.
