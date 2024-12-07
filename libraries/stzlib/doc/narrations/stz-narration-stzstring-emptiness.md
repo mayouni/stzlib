@@ -128,9 +128,9 @@ This ensures logical consistency and avoids unintended alterations.
 
 Softanza’s rules for handling emptiness prevent common errors and make programs more predictable.
 
-In many languages, methods like `QString.indexOf("")` in **RingQt** or `substr()` in **Ring** return `0` and `1`, respectively, when searching for an empty string—positions corresponding to the first character in the string. Using these results can lead to unintended modifications, such as removing the first character.
+In many languages, methods like `QString.indexOf("")` in **RingQt** or `substr("text", "")` in **Ring** return `0` and `1`, respectively, when searching for an empty string—positions corresponding to the first character in the string. Using these results can lead to unintended modifications, such as removing the first character.
 
-**Illustrating the Risk in Ring:**
+**Illustrating the Case Ring Induces Softanza in Error:**
 
 ```ring
 // An empty value we don't control, e.g., from an API or user input
@@ -139,11 +139,11 @@ val = ""
 // Getting the position
 nPosition = substr("ring", val) #--> 1
 
-// Removing the character at that position
-? substr("ring", nPosition) #--> "ing"
+// Removing the character at that position using Softanza
+? Q("Ring"=.RemoveAt(nPosition) #--> "ing"
 ```
 
-Here, val being empty leads to mistakenly identifying position 1 (first character) as a valid match, resulting in an unintended modification.
+Here, `val` being empty leads to mistakenly identifying position 1 (first character) as a valid match, resulting in an unintended modification.
 
 **Softanza’s Secure Approach:**
 
