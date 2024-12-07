@@ -1,3 +1,19 @@
+
+// Setting dumpy values for all variables
+p1 = 0 p2 = 0
+btn_degree = [ :any = "test", :other = "" ]
+
+// Check that btn_degree works
+empty = "any"
+? btn_degree [empty]
+#--> test
+
+// Calling the line of code
+if btn_degree[empty][1]<10 p1 = 10 p2=10 else p1=5 p2=10 ok
+#   \_________________/
+         !!string!!
+
+
 load "../max/stzmax.ring"
 load "gamelib.ring"
 
@@ -63,7 +79,7 @@ proff()
 
 
 /*=========== RingAllegro #TODO use it instead of Qt in Softanza
-*/
+
 pron()
 
 # Creating a string
@@ -112,6 +128,6 @@ proff()
 	
 	? al_ustr_compare(alif, bee)
 	#--> -5
-*/
+
 proff()
 #--> Executed in 1.84 second(s) in Ring 1.22

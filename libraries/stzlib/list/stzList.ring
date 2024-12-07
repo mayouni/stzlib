@@ -80258,9 +80258,29 @@ www	#----------------------------------------#
 			return FALSE
 		ok
 
+	def IsBetweenPositionIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenPositionIB )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
 	def IsBetweenPositionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenPositions )
+
+			return TRUE
+
+		else
+			return FALSE
+		ok
+
+	def IsBetweenPositionsIBNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :BetweenPositionsIB )
 
 			return TRUE
 

@@ -9952,7 +9952,10 @@ proff()
 )
 
 /*================= #narration IDENTIFYING LISTS INSIDE A STRING
-*/
+
+#NOTE // I made an article on the subject here:
+# https://github.com/mayouni/stzlib/blob/main/libraries/stzlib/doc/narrations/stz-narration-list-in-strings.md
+
 pron()
 
 # In many situations (especially in advanced metaprogramming scenarios),
@@ -9992,7 +9995,6 @@ pron()
 
 	? StzListQ(1:3).IsContiguous()			#--> TRUE
 	? StzListQ("A":"E").IsContiguous() + NL	#--> TRUE
-
 
 # Back to list IN STRINGS!
 
@@ -10047,23 +10049,31 @@ proff()
 
 /*=================
 
+pron()
+
 o1 = new stzString("bla bla <<word>> bla bla <<noword>> bla <<word>>")
 ? o1.SubstringsBoundedBy([ "<<", :and = ">>" ])
 #--> [ "word", "noword", "word" ]
 
-? o1.UniqueSubStringsBoundedBy("<<", :and = ">>")
+? o1.SubStringsBoundedByU([ "<<", :and = ">>" ]) # Or UniqueSubStringsBoundedBy()
 #--> [ "word", "noword" ]
 
+proff()
+# Executed in 0.02 second(s) in Ring 1.22
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
 
 ? o1.NumberOfOccurrence(:OfSubString = "many")
 #--> 5
+
 ? @@( o1.Positions(:of = "many") ) + NL	# or o1.FindSubString("many")
 #--> [5, 12, 33, 40, 54]
 
-? @@(o1.Sections(:Of = "many")) + NL		# or o1.FindAsSections(:OfSubString = "many")
+? @@(o1.Sections(:Of = "many")) + NL # or o1.FindAsSections(:OfSubString = "many")
 #--> [ [ 5, 8 ], [ 12, 15 ], [ 33, 36 ], [ 40, 43 ], [ 54, 57 ] ]
 
 	#NOTE that Sections() has an other syntax that returns, not the sections
@@ -10075,71 +10085,106 @@ o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!
 
 ? o1.NumberOfOccurrenceXT(
 	:OfSubString = "many",
-	:BoundedBy = ["<<", :and = ">>"]
-	# or :Between = ["<<", :and = ">>"]
-	# or :BetweenSubStrings = ["<<", :and = ">>"]
+	:BoundedBy = [ "<<", :and = ">>" ]
 	# or :BoundedBySubStrings = ["<<", :and = ">>"]
 )
 #--> 3
 
+proff()
+# Executed in 0.11 second(s) in Ring 1.22
+
 /*-----------------
 
+pron()
+
 o1 = new stzString("what a <<nice>>> day!")
+
 ? o1.Section(8, 9)
 #--> "<<"
-? o1.Section(14, 16)
+? o1.Section(14, 16) + NL
 #--> ">>>"
+
 ? o1.Sections([ [8, 9], [14, 16] ])
 #--> [ "<<", ">>>" ]
 
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*-----------------
+
+pron()
+
+o1 = new stzString("what a <<nice>>> day!")
+
+? o1.Section(3, 3)
+#--> "a"
+
+? o1.Section(10, 13)
+#--> "nice"
+
+? o1.Section(13, 10)
+#--> "nice"
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
 /*-----------------
 
 o1 = new stzString("what a <<nice>>> day!")
+
+# All these return an error message:
+
 ? o1.Section(50, 0)	#--> NULL
 ? o1.Section(0, 0)	#--> NULL
 ? o1.Section(-20, 10)	#--> NULL
-? o1.Section(3, 3)	#--> "a"
-? o1.Section(10, 13)	#--> "nice"
-? o1.Section(13, 10)	#--> "ecin"
+
+#--> ERROR MESSAGE:
+#--> Indexes out of range! n1 and n2 must be inside the string.
 
 /*==================
+
+pron()
 
 o1 = new stzString("How many <<many>> are there in (many <<many>>): so <<many>>!")
 
-? @@( o1.BoundsXT( :Of = "many", :UpToNChars = 1 ) ) + NL
-#--> [ [ " ", " " ], [ "<", ">" ], [ "(", " " ], [ "<", ">" ], [ "<", ">" ] ]
+? @@( o1.SubStringBoundsXT( :Of = "many", :UpToNChars = 1 ) ) + NL
+#--> [ "<", ">", "(", "<", ">", "<", ">" ]
 
 # Same as:
-? @@( o1.BoundsXT( :Of = "many", :UpToNChars = [1, 1] ) ) + NL
-#--> [ [ " ", " " ], [ "<", ">" ], [ "(", " " ], [ "<", ">" ], [ "<", ">" ] ]
+? @@( o1.SubStringBoundsXT( :Of = "many", :UpToNChars = [1, 1] ) ) + NL
+#--> [ "<", ">", "(", "<", ">", "<", ">" ]
 
-? @@( o1.BoundsXT( :Of = "many", :UpToNChars = [ 0, 2, 0 ] ) ) + NL
-#--> [ [ "", "" ], [ "<<", ">>" ], [ "", "" ] ]
+? @@( o1.SubStringBoundsXT( :Of = "many", :UpToNChars = [ 1, 2 ] ) ) + NL
+#--> [ "<", ">>", "(", "<", ">>", "<", ">>" ]
 
-? @@( o1.BoundsXT(:Of = "many", :UpToNChars = [ 0, 2, 0, 2, 2 ] ) ) + NL
-#--> [ [ "", "" ], [ "<<", ">>" ], [ "", "" ], [ "<<", ">>" ], [ "<<", ">>" ] ]
+? @@( o1.SubStringBoundsXT(:Of = "many", :UpToNChars = [ 2, 2 ] ) ) + NL
+#--> [ "<<", ">>", "(", "<<", ">>", "<<", ">>" ]
 
-? @@( o1.BoundsXT(:Of = "many", :UpToNChars = [ [0,0], [2,2] ] ) ) + NL
-#--> [ [ "", "" ], [ "<<", ">>" ] ]
-
-? @@( o1.BoundsXT(:Of = "many", :UpToNChars = [ 0, [2,2], 0, 2, [2, 2] ] ) ) + NL
-#--> [ [ "", "" ], [ "<<", ">>" ], [ "", "" ], [ "<<", ">>" ], [ "<<", ">>" ] ]
+proff()
+# Executed in 0.09 second(s) in Ring 1.22
 
 /*----------
 
+pron()
+
 o1 = new stzString("what a <<<nice>>> day!")
-? @@( o1.BoundsXT(:Of = "nice", :UpToNChars = 3) )
-#--> [ [ "<<<", ">>>" ] ]
+? @@( o1.SubStringBoundsXT(:Of = "nice", :UpToNChars = 3) )
+#--> [ "<<<", ">>>" ]
 
 o1 = new stzString("what a <nice>>> day!")
-? @@( o1.BoundsXT(:Of = "nice", :UpToNChars = [1, 3]) )
-#--> [ [ "<", ">>>" ] ]
+? @@( o1.SubStringBoundsXT(:Of = "nice", :UpToNChars = [1, 3]) )
+#--> [ "<", ">>>" ]
 
 o1 = new stzString("what a <<nice>>> day! Really <nice>>.")
-? @@( o1.BoundsXT(:Of = "nice", :UpToNChars = [ [2, 3], [1, 2] ]) )
-#--> [ [ "<<", ">>>" ], [ "<", ">>" ] ]
+? @@( o1.SubStringBoundsXT(:Of = "nice", :UpToNChars = [ 2, 3 ]) )
+#--> [ "<<", ">>>", "<", ">>" ]
+
+proff()
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*==================
+
+pron()
 
 o1 = new stzString("what a <<nice>>> day!")
 
@@ -10149,34 +10194,51 @@ o1 = new stzString("what a <<nice>>> day!")
 )
 #--> [ "<<", ">>>" ]
 
+proff()
+# Executed in 0.03 second(s) in Ring 1.22
+
 /*-----------------
+
+pron()
 
 o1 = new stzString("what a <<nice>>> day!")
 ? o1.Sit(
 	:OnPosition = 11, # the letter "i"
 	:AndHarvest = [ :NCharsBefore = 1, :NCharsAfter = 2 ]
 )
-#--> { "n", "ce" ]
+#--> [ "n", "ce" ]
+
+proff()
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*-----------------
 
+pron()
+
 o1 = new stzString("what a <<nice>>> day!")
 
-? o1.Sit(
+? @@( o1.Sit(
 	:OnSection  = [10, 13], # or o1.FindAsSection("nice")
 	:AndHarvestSections = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
-)
+) )
 #--> [ [8, 9], [14, 16] ]
 
+proff()
+# Executed in 0.07 second(s) in Ring 1.22
+
 /*----------------- TODO
+*/
+pron()
 
 o1 = new stzString("what a 123nice>>> day!")
 
 ? o1.Sit(
-	:OnSection  = o1.FindFirstSection("nice"),
+	:OnSection  = o1.FindFirstAsSection("nice"),
 	:AndHarvest = [ :CharsBeforeW = 'Q(@char).IsANumber()', :NCharsAfter = 3 ]
 )
 #--> [ "123", ">>>" ]
+
+proff()
 
 /*=================
 
