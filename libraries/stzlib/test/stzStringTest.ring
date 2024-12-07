@@ -11359,7 +11359,7 @@ pron()
 proff()
 
 /*----------------------
-*/
+
 pron()
 
 ? Q("ArabicArabicArabic").IsMultipleOf("Arabic")
@@ -11416,6 +11416,7 @@ pron()
 #--> [ "#0", "#1", "#2" ]
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 # Executed in 0.03 second(s) in Ring 1.21
 # Executed in 0.53 second(s) in Ring 1.14
 
@@ -11459,6 +11460,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.22
 # Executed in 0.05 second(s) in Ring 1.21
 # Executed in 2.49 second(s) in Ring 1.19
 
@@ -11492,6 +11494,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
+# Executed in 0.02 second(s) in Ring 1.22
 # Executed in 1.64 second(s) in Ring 1.21
 # Executed in 1.64 second(s) in Ring 1.19
 
@@ -11512,6 +11515,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.63 second(s) in Ring 1.19
 
@@ -11541,14 +11545,85 @@ proff()
 # Executed in 0.70 second(s) in Ring 1.17
 
 /*=================== #perf
+*/
+pron()
 
+# Rule 1 - Emptiness is uncountable:
+# We can not cout its occurrences inside any string, beeing empty or not
+
+	? Q("").Count('')
+	#--> 0
+	
+	? Q("text").Count('') + NL
+	#--> 0  
+	
+# Rule 2 - Emptiness is unfindable (since it is uncountable ~> Rule 1)
+
+	? @@( Q("").Find('') )
+	#--> [ ]
+	
+	? @@( Q("text").Find('') ) + NL
+	#--> [ ]
+
+# Rule 3 - Emptiness is uncontainable in both directions
+
+#~> An empty string contains nothing, being an empty string or not,
+#~> and a non empty string does not contain any empty one
+#~> (which is completely coherent with Rule 1)
+
+	? Q("").Contains('') 
+	#--> FALSE
+	
+	? Q("").Contains('text')
+	#--> FALSE
+	
+	? Q("text").Contains('') + NL
+	#--> FALSE
+
+# Rule 4 - Emptiness is irreplaçable in both directions
+
+	? @@( Q("").ReplaceQ('', '').Content() )
+	#--> ""
+	
+	? @@( Q("").ReplaceQ('any', '').Content() )
+	#--> ""
+	
+	? @@( Q("").ReplaceQ('', 'any').Content() )
+	#--> ""
+	
+	? @@( Q("text").ReplaceQ('', "").Content() )
+	#--> text
+	
+	? @@( Q("text").ReplaceQ('', "X").Content() ) + NL
+	#--> text
+
+# Rule 5 - Emptiness is irremovalbe in both directions
+
+	? @@( Q("").RemoveQ('').Content() )
+	#--> ""
+
+	? @@( Q("").RemoveQ('text').Content() )
+	#--> ""
+
+	? @@( Q("text").RemoveQ('').Content() )
+
+/*
+? Q("").RemoveQ('any').Content()
+#--> ""
+*/
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
+/*--------------------
+*/
 pron()
 
 ? Q("ring").Contains("ring")
 #--> TRUE
 
 ? Q("").Contains('')
-#--> TRUE
+#--> FALSE
 
 ? Q([ 12, 66 ]).IsIncludedIn([ 12, 66 ])
 #--> TRUE

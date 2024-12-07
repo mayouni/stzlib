@@ -941,6 +941,80 @@ func StringCenterAlignXT(cStr, nWidth, cChar)
 		return StringCenterAlignXT(cStr, nWidth, cChar)
 #===
 
+func CountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
+	if isSrtring(pStrOrList)
+		return StringCountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
+
+	but isList(pStrOrList)
+		return ListCountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
+
+	else
+		StzRaise("Incorrect param type! pStrOrList must be a string or list.")
+	ok
+
+	func StzCountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
+		return CountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
+
+func Count(pStrOrList, pSubStrOrItem)
+	return CountCS(pstrOrList, pSubStrOrItem, TRUE)
+
+	func StzCount(pStrOrList, pSubStrOrItem)
+		return Count(pStrOrList, pSubStrOrItem)
+
+#--
+
+func StringCountCS(pcStr, pcSubStr, pCaseSensitive)
+	if CheckingParams()
+
+		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			pcSubStr = pcSubStr[2]
+		ok
+
+	ok
+
+	if pcSubStr = ""
+		return 0
+	ok
+
+	bCase = @CaseSensitive(pCaseSensitive)
+
+	_cTempStr_ = pcStr
+	_cSubStr_ = pcSubStr
+
+	if bCase = FALSE
+		_cTempStr_ = ring_lower(_cTempStr_)
+		_cSubStr_  = ring_lower(_cSubStr_)
+	ok
+
+	# Early check
+
+	n = ring_substr1(_cTempStr_, _cSubStr_)
+	if n = 0
+		return 0
+	ok
+
+	# Removing the substring from the string
+
+	nLenBeforeRemove = StzStringQ(_cTempStr_).NumberOfChars()
+	_cTempStr2_ = ring_substr2(_cTempStr_, _cSubStr_, "")
+	nLenAfterRemove = StzStringQ(_cTempStr2_).NumberOfChars()
+
+	nLenSubStr = StzStringQ(_cSubStr_).NumberOfChars()
+	nResult = ( (nLenBeforeRemove - nLenAfterRemove) / nLenSubStr )
+
+	return nResult
+
+	func StzStringCountCS(pcStr, pcSubStr, pCaseSensitive)
+		return StringCountCS(pcStr, pcSubStr, pCaseSensitive)
+
+func StringCount(pcStr, pcSubStr)
+	return StringCount(pcStr, pcSubStr, TRUE)
+
+	func StzStringCount(pcStr, pcSubStr)
+		return StringCount(pcStr, pcSubStr)
+
+#--
+
 func StringRepeat(cStr, n)
 	oString = new stzString(cStr)
 	return oString.RepeatedNTimes(n)
@@ -11156,44 +11230,7 @@ class stzString from stzObject
 		# in our own and pay for the performance tax on sutch
 		# an elementary feature in any language!
 
-		if CheckingParams()
-
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
-				pcSubStr = pcSubStr[2]
-			ok
-
-		ok
-
-		if pcSubStr = ""
-			return 0
-		ok
-
-		bCase = @CaseSensitive(pCaseSensitive)
-
-		_cTempStr_ = This.Content()
-		_cSubStr_ = pcSubStr
-
-		if bCase = FALSE
-			_cTempStr_ = ring_lower(_cTempStr_)
-			_cSubStr_  = ring_lower(_cSubStr_)
-		ok
-
-		# Early check
-
-		n = ring_substr1(_cTempStr_, _cSubStr_)
-		if n = 0
-			return 0
-		ok
-
-		# Removing the substring from the string
-
-		nLenBeforeRemove = StzStringQ(_cTempStr_).NumberOfChars()
-		_cTempStr2_ = ring_substr2(_cTempStr_, _cSubStr_, "")
-		nLenAfterRemove = StzStringQ(_cTempStr2_).NumberOfChars()
-
-		nLenSubStr = StzStringQ(_cSubStr_).NumberOfChars()
-		nResult = ( (nLenBeforeRemove - nLenAfterRemove) / nLenSubStr )
-
+		nResult = StringCountCS(This.Content(), pcSubStr, pCaseSensitive)
 		return nResult
 
 		#< @FunctionFluentForm
@@ -11234,13 +11271,7 @@ class stzString from stzObject
 
 			def NumberOfOccurrencesOfSubstringCSQ(pcSubStr, pCaseSensitive)
 				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
-	
-		def CountCS(pcSubStr, pCaseSensitive)
-			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
-
-			def CountCSQ(pcSubStr, pCaseSensitive)
-				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
-	
+		
 		def HowManyCS(pcSubStr, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
@@ -11251,6 +11282,18 @@ class stzString from stzObject
 			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
 			def NumberOfCSQ(pcSubStr, pCaseSensitive)
+				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
+
+		def CountCS(pcSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+
+			def CountCSQ(pcSubStr, pCaseSensitive)
+				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
+
+		def CountSubStringCS(pcSubStr, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+
+			def CountSubStringCSQ(pcSubStr, pCaseSensitive)
 				return This.NumberOfOccurrenceCSQ(pcSubStr, pCaseSensitive)
 
 		#>
@@ -11298,13 +11341,7 @@ class stzString from stzObject
 
 			def NumberOfOccurrencesOfSubstringQ(pcSubStr)
 				return This.NumberOfOccurrenceQ(pcSubStr)
-	
-		def Count(pcSubStr)
-			return This.NumberOfOccurrence(pcSubStr)
-
-			def CountQ(pcSubStr)
-				return This.NumberOfOccurrenceQ(pcSubStr)
-	
+		
 		def HowMany(pcSubStr)
 			return This.NumberOfOccurrence(pcSubStr)
 
@@ -11316,6 +11353,12 @@ class stzString from stzObject
 
 			def NumberOfQ(pcSubStr)
 				return This.NumberOfOccurrenceQ(pcSubStr)
+
+		def Count(pcSubStr)
+			return This.NumberOfOccurrence(pcSubStr)
+
+		def CountSubString(pcSubStr)
+			return This.NumberOfOccurrence(pcSubStr)
 
 		#>
 

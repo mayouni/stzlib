@@ -4537,6 +4537,19 @@ func StzListContains(paList, pItem)
 
 	func @ListContains(paList, pItem)
 		return StzListContains(paList, pItem)
+#--
+
+func StzListCountCS(aList, pItem, pCaseSensitive)
+	nResult = StzListQ(aList).FindAllCS(aList, pItem, pCaseSensitive)
+
+	func ListCountCS(aList, pItem, pCaseSensitive)
+		return StzListCountCS(aList, pItem, pCaseSensitive)
+
+func StzListCount(aList, pItem)
+	return StzListCountCS(aList, pItem, pCaseSensitive)
+
+	func ListCount(aList, pItem)
+		return StzListCount(aList, pItem)
 
 #=== Enhance Ring+Softanza finding functions
 
@@ -4615,12 +4628,10 @@ func @FindAllCS(aList, pItem, pCaseSensitive)
 		
 	end
 
-	
 	return anResult
 
 	func FindAllCS(aList, pItem, pCaseSensitive)
 		return @FindAllCS(aList, pItem, pCaseSensitive)
-
 
 func @FindAll(aList, pItem)
 	return @FindAllCS(aList, pItem, TRUE)
