@@ -12099,7 +12099,7 @@ proff()
 # Executed in 0.74 second(s) in Ring 1.17
 
 /*=======================
-*/
+
 pron()
 
 o1 = new stzString("My name is Mansour. What's your name please?")
@@ -12157,7 +12157,7 @@ proff()
 # Executed in 0.24 second(s) in Ring 1.17
 
 /*----------------------
-
+*
 pron()
 
 o1 = new stzString("I Work For Afterward")
@@ -12184,7 +12184,8 @@ pron()
 #--> 0123456789
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*----------------------
 
@@ -12200,7 +12201,8 @@ StzStringQ("73964532041") {
 }
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.20
 
 /*----------------------
 
@@ -12216,25 +12218,27 @@ proff()
 # Executed in 0.08 second(s)
 
 /*======================
-*/
+
 pron()
 
 ? StzStringQ("Arc").IsAnagramOfCS("cra", :CS = FALSE)
 #--> TRUE
 
 proff()
-# Executed in 0.06 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.06 second(s) in Ring 1.18
 
 /*=====================
-*/
+
 pron()
 
 o1 = new stzString("IloveRingprogramminglanguage!")
-o1.SpacifySubStringsUsing( [ "love", "programming" ], " " )
+o1.SpacifySubStringsUsing( [ "love", "Ring", "programming" ], " " )
 ? o1.Content()
-#--> 
+#--> I love Ring programming language!
+
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.05 second(s) in Ring 1.22
 
 /*---------------------
 
@@ -12251,11 +12255,12 @@ proff()
 pron()
 
 o1 = new stzString("KALIDIA")
-? o1.FindWXT('@char = "I"')
+
+? o1.FindCharsWXT('@char = "I"')
 #--> [ 4, 6 ]
 
-
 proff()
+# Executed in 0.08 second(s) in Ring 1.22
 # Executed in 0.42 second(s) in Ring 1.18
 # Executed in 0.52 second(s) in Ring 1.17
 

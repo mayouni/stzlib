@@ -1,5 +1,8 @@
 #TODO add a stzListOfSectionsTest.ring file
 
+#TODO Add these methods:
+#	- RemoveIncluded()
+
 func StzListOfSectionsQ(paSections)
 	return new stzListOfSections(paSections)
 
