@@ -15,6 +15,8 @@ o1 = new stzString("fjringljringdjringg")
 #--> [ 3, 9, 15 ]
 ```
 
+>Note: The `@@(val)` function (resembling two glasses one puts on to improve sight) returns a readable, string-based representation of the value `val`, regardless of its type.
+
 ### 2. Visual Enhancement
 
 We can add a visual dimension by using the `viz` prefix with `Find()`, making the positions easy to spot:
