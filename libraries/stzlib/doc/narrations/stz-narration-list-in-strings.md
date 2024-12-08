@@ -1,10 +1,10 @@
 # **Unlocking the Power of Lists-in-Strings with Softanza**
-
+![Softanza Lists-in-Strings, by Microsoft Create AI](images/stz-narration-list-in-strings.jpg)
 ---
 
 It’s a calm day in the development lab, and you’re faced with an intriguing problem: you need to work with lists hosted inside strings. Maybe you’re designing a code generator, parsing user input, or crafting an interactive tool where lists are passed around as strings. 
 
-Fear not! **Softanza** is here, with its robust `StzStringQ` utilities. Let’s dive into a hands-on exploration of this amazing feature, step by step.
+Fear not! **Softanza** is here, with its robust `StzString` utilities. Let’s dive into a hands-on exploration of this amazing feature, step by step.
 
 ---
 
