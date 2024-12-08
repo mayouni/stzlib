@@ -1,4 +1,5 @@
 # The Narrative of Transformations: Tracking Object History in Softanza
+![Tracking Object History in Softanza](stz-narration-keeping-object-history.jpg)
 
 ----
 
