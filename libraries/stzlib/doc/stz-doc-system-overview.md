@@ -1,4 +1,4 @@
-# Introducing the Softanza Documentation System: Depth, Clarity, and Engagement  
+# Softanza Documentation System: Depth, Clarity, and Engagement  
 ![Softanza Documentation System, by Microsoft Create AI](stz-doc-system-overview.jpg)
 
 The **Softanza Documentation System** is built to inspire and support developers of all levels, reflecting the philosophy behind Softanza itself: to accelerate modern software development while fostering computational thinking. Designed for flexibility and inclusivity, this system offers multiple entry points for users with varying needs and preferences.  
