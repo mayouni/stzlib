@@ -84,12 +84,4 @@ The Softanza Documentation System is built for growth. While currently focused o
 Softanza’s documentation isn’t just a manual—it’s a reflection of its philosophy:  
 - **Inclusive**: Catering to diverse learning preferences.  
 - **Efficient**: Providing actionable resources like Oneliners for immediate results.  
-- **Engaging**: Encouraging learning through stories and deeper reflections.  
-
----
-
-## **Get Started Today**  
-
-Ready to explore the world of Softanza? Check out the documentation on our [GitHub repository](#). Whether you’re solving a problem, learning through stories, or diving into philosophy, Softanza has you covered.  
-
-Join us on this journey to make programming more accessible, meaningful, and enjoyable.
+- **Engaging**: Encouraging learning through stories and deeper reflections.
