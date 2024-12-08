@@ -11544,8 +11544,11 @@ proff()
 # Executed in 0.02 second(s) in Ring 1.21
 # Executed in 0.70 second(s) in Ring 1.17
 
-/*=================== #perf
-*/
+/*=================== #narration DEALING IN EMPTINESS IN SOFTANZA
+
+# Read documentaion here:
+# https://github.com/mayouni/stzlib/blob/main/libraries/stzlib/doc/narrations/stz-narration-stzstring-emptiness.md#emptiness-in-strings-clear-rules-the-softanza-way
+
 pron()
 
 # Rule 1 - Emptiness is uncountable:
@@ -11606,17 +11609,13 @@ pron()
 	#--> ""
 
 	? @@( Q("text").RemoveQ('').Content() )
-
-/*
-? Q("").RemoveQ('any').Content()
-#--> ""
-*/
+	#--> "text"
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*--------------------
-*/
+
 pron()
 
 ? Q("ring").Contains("ring")
@@ -11626,6 +11625,9 @@ pron()
 #--> FALSE
 
 ? Q([ 12, 66 ]).IsIncludedIn([ 12, 66 ])
+#--> FALSE
+
+? Q([ 12, 66]).AreInCludedIn([ 12, 66 ])
 #--> TRUE
 
 ? Q([]).Contains([])
@@ -11635,8 +11637,8 @@ pron()
 #--> TRUE
 
 proff()
-# Executed in 0.02 second(s) in Ring 1.21
-# Executed in 0.05 second(s) in Ring 1.19 (32 bits)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.19
 # Executed in 0.03 second(s) in Ring 1.18
 
 /*----------------------
@@ -11713,6 +11715,7 @@ StzStringQ("My name is #1, my age is #2, and my job is #3. Again: my name is #1!
 }
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.22
 # Executed in 0.05 second(s) in Ring 1.21
 # Executed in 2.02 second(s) in Ring 1.18
 
@@ -11905,7 +11908,8 @@ StzStringQ("The first candidate is #3, the second is #1, while the third is #2!"
 }
 
 proff()
-# Executed in 0.04 second(s) in Ring 0.04
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.21
 # Executed in 1.36 second(s) in Ring 1.18
 # Executed in 2.22 second(s) in Ring 1.17
 
@@ -12031,6 +12035,7 @@ StartProfiler()
 	#--> My three kids are Hussein, Haneen and Teeba!
 
 StopProfiler()
+# Executed in 0.03 second(s) in Ring 1.22
 # Executed in 0.06 second(s) in Ring 1.21
 # Executed in 1.73 second(s) in Ring 1.18
 # Executed in 2.90 second(s) in Ring 1.17
@@ -12094,7 +12099,7 @@ proff()
 # Executed in 0.74 second(s) in Ring 1.17
 
 /*=======================
-
+*/
 pron()
 
 o1 = new stzString("My name is Mansour. What's your name please?")
@@ -12113,6 +12118,7 @@ o1 = new stzString("My name is Mansour. What's your name please?")
 #--> [ [ "name", [ [ 4, 7 ], [ 33, 36 ] ] ], [ "nothing", [ ] ], [ "please", [ [ 38, 43 ] ] ] ]
 
 proff()
+# Executed in 0.03 second(s) in Ring 1.22
 # Executed in 0.07 second(s) in Ring 1.21
 # Executed in 0.07 second(s) in Ring 1.18
 # Executed in 0.11 second(s) in Ring 1.17
@@ -12146,7 +12152,7 @@ pron()
 ? Q("ج").DownTo("ب")	#--> [ "ج", "ث", "ت", "ة", "ب" ]
 
 proff()
-# Executed in 0.06 second(s) in Ring 106
+# Executed in 0.06 second(s) in Ring 1.21
 # Executed in 0.14 second(s) in Ring 1.18
 # Executed in 0.24 second(s) in Ring 1.17
 
@@ -12210,17 +12216,17 @@ proff()
 # Executed in 0.08 second(s)
 
 /*======================
-
+*/
 pron()
 
-? StzStringQ("Arc").IsAnagramOfCS("car", :CS = FALSE)
+? StzStringQ("Arc").IsAnagramOfCS("cra", :CS = FALSE)
 #--> TRUE
 
 proff()
 # Executed in 0.06 second(s)
 
 /*=====================
-
+*/
 pron()
 
 o1 = new stzString("IloveRingprogramminglanguage!")
@@ -12241,31 +12247,17 @@ proff()
 # Executed in 0.18 second(s)
 
 /*---------------------
-
+*/
 pron()
 
 o1 = new stzString("KALIDIA")
-? o1.FindW('@char = "I"')
+? o1.FindWXT('@char = "I"')
 #--> [ 4, 6 ]
 
-o1.InsertBeforeW( '{ @char = "I" }', "*" )
-? o1.Content() #--> KAL*ID*IA
 
 proff()
 # Executed in 0.42 second(s) in Ring 1.18
 # Executed in 0.52 second(s) in Ring 1.17
-
-/*----------------------
-
-pron()
-
-o1 = new stzString("KALIDIA")
-o1.InsertAfterW( '{ @char = "I" }', "*" )
-? o1.Content() #--> KALI*DI*A
-
-proff()
-# Executed in 0.26 second(s) in Ring 1.18
-# Executed in 0.28 second(s) in Ring 1.17
 
 /*----------------------
 
@@ -12283,8 +12275,8 @@ StzStringQ("12500;NAME;10;0") {
 proff()
 # Executed in 0.05 second(s)
 
-/*=======================
-
+/*======================= #narration
+*/
 pron()
 
 # One of the design goals of Softanza is to be as consitent as possible
