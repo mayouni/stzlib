@@ -28,7 +28,6 @@ The system is divided into five carefully designed sections, each tailored to a 
 
 Every Quicker includes links to related **Narrations** or **References** for users who wish to dive deeper.  
 
----
 
 ### 2. **Narrations**: **For Story Lovers**  
 **Narrations** are where technical content meets storytelling. They present concepts through engaging, relatable examples, helping readers connect with both the functionality and philosophy of Softanza.  
@@ -39,7 +38,6 @@ Every Quicker includes links to related **Narrations** or **References** for use
 
 Narrations make learning enjoyable and memorable, encouraging developers to explore the human side of programming.  
 
----
 
 ### 3. **References**: **For Structured Information Seekers**  
 The **References** section provides an encyclopedic view of Softanza’s components, ideal for those seeking detailed descriptions of:  
@@ -49,7 +47,6 @@ The **References** section provides an encyclopedic view of Softanza’s compone
 
 This section ensures users can quickly find authoritative information about any part of the library.  
 
----
 
 ### 4. **Deepdives**: **For Philosophers and Engineers**  
 **Deepdives** combine technical depth with philosophical reflection, making them perfect for those who want to explore the inner workings and aspirations of Softanza.  
@@ -61,7 +58,6 @@ This section ensures users can quickly find authoritative information about any 
 
 Deepdives invite readers to ponder, critique, and contribute to the evolution of software programming.  
 
----
 
 ### 5. **FAQs**: **For Quick Answers**  
 The **FAQs** section offers concise solutions to common questions, such as:  
