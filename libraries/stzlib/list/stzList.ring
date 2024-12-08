@@ -39450,11 +39450,16 @@ www	#----------------------------------------#
 			return FALSE
 		ok
 
-		bResult = Q(p).ContainsCS(This.Content(), pCaseSensitive)
-		return bResult
+		anPos = Q(p).FindAllCS(This.Content(), pCaseSensitive)
+		nLen = len(anPos)
 
-		bResult = FALSE
+		if nLen > 0
+			return TRUE
+		else
+			return FALSE
+		ok
 
+/*
 		switch ring_type(p)
 		on "LIST"	
 			bResult = Q(p).ContainsManyCS( This.List(), pCaseSensitive )
@@ -39467,7 +39472,7 @@ www	#----------------------------------------#
 			# For now, number and object type are not concerned
 			StzRaise("Unsupported type!")
 		off
-
+*/
 		return bResult
 
 		#< @FunctionAlternativeForm
