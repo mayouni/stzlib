@@ -314,31 +314,42 @@ func StringContains(pcStr, pcSubStr)
 #==
 
 func StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
+	if CheckParams()
+		if NOT ( isString(cStr) and isString(cSubStr) and isString(cNewSubStr) )
+			StzRaise("Incorrect params types! cStr, cSubStr, and cNewSubStr must all be strings.")
+		ok
+	ok
 
-	if cStr = "" or
-	   cSubStr = ""
+	if cStr = "" or cSubStr = ''
 		return cStr
 	ok
+	
+	bCase = CaseSensitive(bCaseSensitive)
 
-	bCase = @CaseSensitive(bCaseSensitive)
+	_oQStr_ = new QString2()
+	_oQStr_.append(cStr)
+	_oQStr_.replace_2(cSubStr, cNewSubStr, bCase)
 
-	if bCase = TRUE
-		return ring_substr2(cStr, cSubStr, cNewSubStr)
-	else
+	cResult = _oQStr_.mid(0, _oQStr_.size())
+	return cResult
 
-		cStrLow = lower(cStr)
-		cSubStrLow = lower(cSubStr)
-
-		return ring_substr2(cStrLow, cSubStrLow, cNewSubStr)
-	ok
+	#< @FunctionAlternativeForms
 
 	func @ReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
 		return StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
+
+	func ReplaceCS(str, cSubStr, cNewSubStr, bCaseSensitive)
+		return StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
+
+	#>
 
 func StzReplace(cStr, cSubStr, cNewSubStr)
 	return StzReplaceCS(cStr, cSubStr, cNewSubStr, TRUE)
 
 	func @Replace(cStr, cSubStr, cNewSubStr)
+		return StzReplace(cStr, cSubStr, cNewSubStr)
+
+	func Replace(cStr, cSubStr, cNewSubStr)
 		return StzReplace(cStr, cSubStr, cNewSubStr)
 
 func StzSplitCS(cStr, cSubStr, bCaseSensitive)
@@ -50250,7 +50261,7 @@ class stzString from stzObject
 	#=============================================#
 
 	def FindCharsWCS(pcCondition, pCaseSensitive)
-		anResult = This.CharsCSQ(pCaseSensitive).FindW(pcCondition)
+		anResult = This.CharsCSQ(pCaseSensitive).FindWCS(pcCondition, pCaseSensitive)
 		return anResult
 
 		def FindCharsWCSQ(pcCondition, pCaseSensitive)
@@ -50275,7 +50286,7 @@ class stzString from stzObject
 	#-------------------------------------------------------------#
 
 	def FindCharsWCSXT(pcCondition, pCaseSensitive)
-		anResult = This.CharsCSQ(pCaseSensitive).FindWXT(pcCondition)
+		anResult = This.CharsCSQ(pCaseSensitive).FindWCSXT(pcCondition, pCaseSensitive)
 		return anResult
 
 		def FindCharsWCSXTQ(pcCondition, pCaseSensitive)
@@ -88529,15 +88540,18 @@ class stzString from stzObject
 
 		# Inserting the bounds around the sections
 
+		_oCopy_ = This.Copy()
+
 		nLen = len(aSectionsXT)
-		This.InsertAfterPosition(aSectionsXT[nLen][2], " ")
+		_oCopy_.InsertAfterPosition(aSectionsXT[nLen][2], " ")
 
 		for i = nLen to 1 step -1
 			n1 = aSectionsXT[i][1]
-			This.InsertBeforePosition(n1, " ")
+			_oCopy_.InsertBeforePosition(n1, " ")
 		next
 
-		
+		This.UpdateWith(_oCopy_.Content())
+
 
 		#< @FunctionFluentForm
 
@@ -99281,15 +99295,23 @@ class stzString from stzObject
 
 	def IsAnagramOfCS(pcOtherStr, pCaseSensitive)
 
-		oTheseChars = This.CharsQR(:stzListOfStrings).RemoveduplicatesQ().SortInAscendingQ()
+		bCase = @CaseSensitive(pCaseSensitive)
 
-		cOtherChars = StzStringQ( pcOtherStr ).
-				CharsQ().RemoveDuplicatesQ().
-				SortInAscendingQ().Content()
-	
-		bResult = oTheseChars.IsEqualToCS( cOtherChars, pCaseSensitive )
+		_cStr_ = This.Content()
+		_cOther_ = pcOtherStr
 
-		return bResult
+		if bCase = FALSE
+			_cStr_ = lower(_cStr_)
+			_cOther_ = lower(pcOtherStr)
+		ok
+
+		_cInversed_ = ring_reverse(_cOther_)
+
+		if _cStr_ = _cInversed_
+			return TRUE
+		else
+			return FALSE
+		ok
 
 	def IsAnagramOf(pcOtherStr)
 		return This.IsAnagramOfCS(pcOtherStr, TRUE)
