@@ -58,7 +58,7 @@ This showcases `Sit()`’s precision:
 
 ---
 
-### **Example 3: Extracting Overlapping Contexts for Deep Inspection**
+**Example 3: Extracting Overlapping Contexts for Deep Inspection**
 
 For debugging, you might need to inspect **overlapping contexts** around a substring (like `"nice"`) and capture the **boundaries of its surroundings**. Instead of a static range, you define exactly how far before and after to look.
 
