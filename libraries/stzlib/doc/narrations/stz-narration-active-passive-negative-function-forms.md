@@ -1,4 +1,4 @@
-#Active, Passive, and Negative Forms in Softanza: A Linguistic Approach to Programming
+# Active, Passive, and Negative Forms in Softanza: A Linguistic Approach to Programming
 ![Multiple function forms in Softanza, by Microsoft Create AI](images/stz-narration-active-passive-negative-function-forms.jpg)
 
 Softanza, the foundation library for the Ring programming language, brings a unique feature set that mirrors natural language constructs. By treating functions as linguistic expressions, Softanza enables developers to write expressive, readable, and intuitive code. At the heart of this design are **active**, **passive**, and **negative forms** of functions. This article explores these forms, beginning with their analogy to natural language and progressing through practical examples.
@@ -46,7 +46,7 @@ The function `Removed()` produces a new string without modifying the content of 
 
 ---
 
-##Negative Form: Simplifying Logical Negations 
+## Negative Form: Simplifying Logical Negations 
 
 Softanza also supports a **negative form** for certain functions, designed to make logical negations more natural and intuitive. Instead of writing verbose boolean expressions, you can directly call the negative form of a function, much like using "not" in natural language.  
 
@@ -70,7 +70,7 @@ This functionality, called **@FunctionNegativeForm**, enhances code readability 
 
 ---
 
-##Why These Forms Matter  
+## Why These Forms Matter  
 
 Softanza’s distinction between active, passive, and negative forms is more than a stylistic choice—it offers practical benefits:  
 
@@ -90,7 +90,7 @@ Softanza’s distinction between active, passive, and negative forms is more tha
 
 ---
 
-##Conclusion  
+## Conclusion  
 Softanza’s active, passive, and negative function forms exemplify its commitment to intuitive, natural language-inspired programming. By aligning function names and behaviors with linguistic patterns, Softanza simplifies code writing, enhances clarity, and empowers developers with greater control.  
 
 As Softanza evolves, expanded support for these forms will further its mission of making programming as natural as thinking. Whether you’re modifying an object, creating a new one, or simplifying logical conditions, Softanza has you covered with its versatile and expressive design.
