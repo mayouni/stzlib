@@ -1,5 +1,5 @@
 # **Mastering Precision with the `Sit()` Function**
-![Sit Function in Softanza, by Microsoft Create AI](stz-narration-stzstring-sit)
+![Sit Function in Softanza, by Microsoft Create AI](stz-narration-stzstring-sit.png)
 ---
 
 The `Sit()` function stands out as a **surgical tool** for precision string manipulation. Whether you’re designing advanced text editors, processing linguistic data, or debugging complex parsers, `Sit()` adapts to your needs with unparalleled flexibility. Embrace the control it offers and elevate your string manipulation game with Softanza!
