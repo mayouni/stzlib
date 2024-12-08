@@ -1,4 +1,5 @@
 # **Simplifying Orientation in String Manipulation with Softanza**
+![Softanza Lists-in-Strings, by Microsoft Create AI](images/stz-narration-stzstring-remove-from-start-end.jpg)
 
 In text manipulation, removing a substring from the left or right of a string is a common task, but it can quickly become tricky when handling languages with different orientations, such as Arabic. Softanza's `stzString` class addresses this challenge by offering both specific and generalized solutions for managing string content seamlessly.
 
