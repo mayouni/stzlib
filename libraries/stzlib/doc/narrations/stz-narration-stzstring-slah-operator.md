@@ -7,16 +7,14 @@ The **Softanza library** for the **Ring programming language** introduces a grou
 
 ## **1. Dividing Strings into Equal Parts**
 
-### Feature Overview:
 Split a string into a specified number of equal parts.
 
-### Syntax:
 ```ring
 ? Q("RingRingRing") / 3
 #--> [ "Ring", "Ring", "Ring" ]
 ```
 
-### Practical Applications:
+**Practical Applications:**
 - **Load Balancing:** Divide a workload evenly across multiple processes or systems.  
 - **UI Design:** Segment text into chunks for visual layouts like columns or sections.  
 - **Data Analysis:** Distribute data samples into equal parts for statistical computations.
@@ -25,16 +23,14 @@ Split a string into a specified number of equal parts.
 
 ## **2. Splitting Strings by a Specific Delimiter**
 
-### Feature Overview:
 Split a string based on a character or substring.
 
-### Syntax:
 ```ring
 ? Q("Ring;Python;Ruby") / ";"
 #--> [ "Ring", "Python", "Ruby" ]
 ```
 
-### Practical Applications:
+**Practical Applications:**
 - **File Parsing:** Extract data from CSV, TSV, or other delimited file formats.  
 - **Command Parsing:** Process user inputs or shell commands separated by custom delimiters.  
 - **Data Transformation:** Convert delimited strings into arrays for further manipulation.
@@ -43,16 +39,14 @@ Split a string based on a character or substring.
 
 ## **3. Conditional String Splitting**
 
-### Feature Overview:
 Split a string at positions where characters meet a specified condition.
 
-### Syntax:
 ```ring
 ? Q("Ring:Python;Ruby") / WXT('Q(@Char).IsNotLetter()')
 #--> [ "Ring", "Python", "Ruby" ]
 ```
 
-### Practical Applications:
+**Practical Applications:**
 - **Natural Language Processing:** Segment text into words, ignoring punctuation.  
 - **Data Cleaning:** Separate useful information from noise in unstructured data.  
 - **Custom Parsing Rules:** Handle domain-specific splitting logic efficiently.
@@ -61,16 +55,14 @@ Split a string at positions where characters meet a specified condition.
 
 ## **4. Distributing Strings Equally Among Stakeholders**
 
-### Feature Overview:
 Distribute string segments among stakeholders in equal portions.
 
-### Syntax:
 ```ring
 ? @@( Q("RingRubyJava") / [ "Qute", "Nice", "Good" ] ) + NL
 #--> [ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]
 ```
 
-### Practical Applications:
+**Practical Applications:**
 - **Team Collaboration:** Assign equal portions of text to team members for review.  
 - **Task Distribution:** Evenly divide workload among agents, processes, or devices.  
 - **Resource Allocation:** Simplify scenarios where multiple parties share limited resources.
@@ -79,10 +71,8 @@ Distribute string segments among stakeholders in equal portions.
 
 ## **5. Allocating Strings by Custom Rules**
 
-### Feature Overview:
 Allocate string segments to stakeholders based on a custom distribution schema.
 
-### Syntax:
 ```ring
 ? @@( Q("IAmRingDeveloper") / [
     :Subject = 1,
@@ -93,7 +83,7 @@ Allocate string segments to stakeholders based on a custom distribution schema.
 #--> [ :Subject = "I", :Verb = "Am", :Noun1 = "Ring", :Noun2 = "Developer" ]
 ```
 
-### Practical Applications:
+**Practical Applications:**
 - **Text Parsing:** Extract specific elements like subject, verb, or object for linguistic analysis.  
 - **Custom Task Allocation:** Dynamically adjust portions based on priority or weight.  
 - **Content Management:** Structure content into predefined categories for systematic processing.
