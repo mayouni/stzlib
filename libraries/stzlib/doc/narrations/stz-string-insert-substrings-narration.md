@@ -1,5 +1,5 @@
 # InsertSubstrings(): A Powerful String Manipulation Tool in Softanza
-![Inserting Substrings in a Sring in Softanza](../images/stzstring-insert-substrings.jpg")
+![Inserting Substrings in a Sring in Softanza](../images/stzstring-insert-substrings.jpg)
 
 Developers often face the challenge of inserting a list of formatted substrings into existing text. Softanza, a foundation library for Ring programming language, offers a powerful solution to this problem with its `InsertSubstrings()` feature. This article explores the capabilities of this function, demonstrating its flexibility and ease of use across various complexity levels.
 
