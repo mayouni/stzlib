@@ -26,7 +26,7 @@ This single function call abstracts away the complexity of Unicode conversion, p
 Softanza also simplifies the reverse process:
 
 ```ring
-? StzCharQ(40330).Content()
+? Char(40330)
 #--> 鶊
 ```
 
@@ -34,7 +34,7 @@ Here, we create an `StzCharQ` object with the Unicode number and retrieve its co
 
 ## Behind the Scenes: How Softanza Uses Qt
 
-While Softanza presents a clean and simple interface, it's leveraging Qt's powerful Unicode handling capabilities under the hood. Let's break down the process:
+While Softanza presents a clean and simple interface, it's leveraging Qt's powerful Unicode handling capabilities under the hood. To illustrate this, let's break down the work done for you internally by Softanza to enable the Char() function above:
 
 1. Creating a QChar object:
    ```ring
@@ -56,6 +56,8 @@ While Softanza presents a clean and simple interface, it's leveraging Qt's power
    ```
    Finally, we convert the QString to UTF-8 encoding and retrieve the raw data, resulting in our desired character.
 
+A significant amount of work, complicated by obscure technical details that are challenging to locate amidst the vast expanse of Qt's online documentation!
+
 ## The Benefits of Softanza's Approach
 
 Softanza's approach to working with Qt offers several advantages:
@@ -68,24 +70,22 @@ Softanza's approach to working with Qt offers several advantages:
 
 ## Softanza vs Other Qt-based Libraries
 
-When compared to other Qt-based libraries like PyQt or PySide (Qt for Python), Softanza's approach stands out for its emphasis on simplification and abstraction. While these Python libraries provide direct bindings to Qt, often mirroring Qt's C++ API closely, Softanza takes a different path:
+When compared to other Qt-based libraries like PyQt or PySide (Qt for Python), or even RingQt itself, Softanza's approach stands out for its emphasis on simplification and abstraction. While these Python libraries provide direct bindings to Qt, often mirroring Qt's C++ API closely, Softanza takes a different path:
 
-1. **Abstraction Level**: PyQt and PySide typically maintain Qt's original structure and complexity, requiring developers to navigate Qt's extensive class hierarchy and method names. In contrast, Softanza provides a higher level of abstraction, with methods like `Unicode()` that encapsulate complex operations into simple function calls.
+1. **Abstraction Level**: RingQt, PyQt and PySide typically maintain Qt's original structure and complexity, requiring developers to navigate Qt's extensive class hierarchy and method names. In contrast, Softanza provides a higher level of abstraction, with methods like `Unicode()` that encapsulate complex operations into simple function calls.
 
-2. **Syntax Adaptation**: Softanza adapts Qt's functionality to Ring's syntax and idioms, creating a more natural fit for Ring developers. Other Qt bindings often retain C++-style syntax, which can feel out of place in languages like Python.
+2. **Syntax Adaptation**: Softanza adapts Qt's functionality to it's own user-friendly syntax and idioms, creating a more natural fit for developers. Other Qt bindings often retain C++-style syntax, which can feel out of place.
 
-3. **Unified Mental Model**: While PyQt and PySide users often need to switch between Python and Qt mindsets, Softanza presents a consistent, Ring-centric approach across all Qt-derived functionality.
+3. **Unified Mental Model**: While RingQt, PyQt and PySide users often need to switch between Python and Qt mindsets, Softanza presents a consistent, Ring-centric approach across all Qt-derived functionality.
 
-4. **Reduced Boilerplate**: Softanza's abstractions often result in less boilerplate code compared to direct Qt bindings. For instance, the multi-step process of creating a QChar, converting it to a QString, and then to UTF-8 in Qt is condensed into a single function call in Softanza.
+4. **Reduced Boilerplate**: Softanza's abstractions often result in less boilerplate code compared to direct Qt bindings. For instance, as we saw above, the multi-step process of creating a QChar, converting it to a QString, and then to UTF-8 in Qt is condensed into a single function call in Softanza.
 
-5. **Learning Curve**: New users of PyQt or PySide essentially need to learn both Python and Qt. Softanza significantly reduces this burden by presenting Qt's capabilities through a more accessible, Ring-native interface.
+5. **Learning Curve**: New users of RingQt, PyQt or PySide essentially need to learn both the  lnaguage (Ring or Python) and Qt. Softanza significantly reduces this burden by presenting Qt's capabilities through a more accessible, natural-oriented programming interface.
 
-6. **Flexibility in Implementation**: Softanza's abstraction layer allows for potential optimizations or alternative implementations in the future without changing the API, providing a level of future-proofing that direct bindings may not offer.
+6. **Flexibility in Implementation**: Softanza's abstraction layer ensures future-proofing by enabling potential optimizations or alternative implementations without altering the API. Unlike direct bindings, this approach allows Softanza to seamlessly replace the Qt backend with any other C or C++ library, all without requiring any modifications to the user codebase.
 
-This approach makes Softanza particularly appealing for Ring developers who want to leverage Qt's power without the steep learning curve associated with Qt's full complexity. It offers a more streamlined development experience while still providing access to Qt's robust capabilities.
+This approach makes Softanza particularly appealing for developers who want to leverage Qt's power without the steep learning curve associated with Qt's full complexity. It offers a more streamlined development experience while still providing access to Qt's robust capabilities.
 
 ## Conclusion
 
-Softanza's approach to Unicode handling demonstrates its broader philosophy: harnessing the power of established libraries like Qt (via RingQt) while providing a more accessible and unified interface. This strategy allows developers to benefit from Qt's robust features and performance without grappling with its full complexity.
-
-By bridging the gap between power and simplicity, Softanza enables Ring developers to write more efficient, readable, and maintainable code. Whether you're working on complex Unicode manipulations or other advanced features, Softanza offers a pathway to leverage powerful tools like Qt without sacrificing the clarity and simplicity of your code.
+Softanza's approach to Unicode handling exemplifies its overarching philosophy: leveraging the strengths of well-established C and C++ libraries, such as Qt (through RingQt), while offering a more user-friendly and cohesive interface combined with complete architectural flexibility. This strategy enables Softanza developers to harness Qt's powerful capabilities and performance without being burdened by its inherent complexity.
