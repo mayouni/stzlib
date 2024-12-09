@@ -1,7 +1,6 @@
 # The Narrative of Transformations: Tracking Object History in Softanza
 ![Tracking Object History in Softanza](../images/stzobject-history.jpg)
 
-----
 
 ## Unveiling the Story Behind Data Mutations
 
@@ -26,13 +25,13 @@ load "stzlib.ring"
 
 Here, we process the string, removing numbers, spaces, and duplicate characters. The result is clear, but the path is forgotten.
 
----
+
 
 ## The Challenge: Preserving the Transformation Trail
 
 What if we could capture each step of this transformation? Imagine a programming feature that doesn't just give you the final result, but tells you the entire story of how that result was achieved.
 
----
+
 
 ## The Solution: Introducing `QH()` small function
 
@@ -72,15 +71,18 @@ Yet an other example around numbers:
 	#--> [ 13000, 11500, 23, 46 ]
 ```
 
->NOTE: All other Softanza objects—not just `stzString`s and `stzNumber`s, as demonstrated—are supported and can retain their historic values. This includes `stzList`s, `stzObject`s, `stzTable`s, and more.
+>NOTE: All other Softanza objects—not just `stzString` and `stzNumber`, as demonstrated—are supported and can retain their historic values. This includes `stzList`s, `stzObject`s, `stzTable`s, and more.
 
----
 
 ## Key Benefits
 
 - **Debugging Insight**: Trace exactly how your data transformed
 - **Educational Tool**: Visualize complex manipulation processes
 - **Audit Trail**: Maintain a comprehensive log of object mutations
+
+---
+
+## Conclusion
 
 Softanza turns data transformation from a black box into a transparent, narratable journey.
 

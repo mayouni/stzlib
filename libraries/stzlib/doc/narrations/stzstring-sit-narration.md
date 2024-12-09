@@ -1,6 +1,6 @@
-# **Mastering Precision with the `Sit()` Function**
+# Mastering Precision with the `Sit()` Function
 ![Sit Function in Softanza, by Microsoft Create AI](../images/stzstring-sit.jpg)
----
+
 
 The `Sit()` function stands out as a **surgical tool** for precision string manipulation. Whether you’re designing advanced text editors, processing linguistic data, or debugging complex parsers, `Sit()` adapts to your needs with unparalleled flexibility. Embrace the control it offers and elevate your string manipulation game with Softanza!
 
@@ -8,7 +8,7 @@ Let’s explore practical examples where `Sit()` excels.
 
 ---
 
-## **Example 1: Extract Variable Contexts for Text Highlighting**
+## Example 1: Extract Variable Contexts for Text Highlighting
 
 Imagine building a **text editor** with a live preview that highlights words with their surrounding context. The goal is to extract a substring like `"nice"` and dynamically include **2 characters before and 3 characters after**:
 
@@ -31,9 +31,9 @@ Here’s why `Sit()` is invaluable:
 - The number of surrounding characters is not tied to a fixed pattern but is defined based on **contextual needs**—ideal for previews or summaries.
 - Alternative methods like `SubStringBounds()` are rigid, extracting only exact bounds.
 
----
 
-## **Example 2: Position-Based Extraction for Advanced Tokenization**
+
+## Example 2: Position-Based Extraction for Advanced Tokenization
 
 Suppose you’re tokenizing a sentence and want to dynamically extract **letters surrounding a given character** (like `"i"` in `"nice"`) to analyze its immediate context, for tasks such as **natural language processing (NLP)** or **spell checking**.
 
@@ -56,9 +56,9 @@ This showcases `Sit()`’s precision:
 - Anchors the operation to a **specific position**.
 - Dynamically harvests a **customizable range** around the anchor.
 
----
 
-**Example 3: Extracting Overlapping Contexts for Deep Inspection**
+
+## Example 3: Extracting Overlapping Contexts for Deep Inspection
 
 For debugging, you might need to inspect **overlapping contexts** around a substring (like `"nice"`) and capture the **boundaries of its surroundings**. Instead of a static range, you define exactly how far before and after to look.
 
@@ -83,7 +83,7 @@ Here, `Sit()` extracts **surrounding section boundaries** with custom offsets:
 
 ---
 
-## **Conclusion**
+## Conclusion
 
 The `Sit()` function’s strength lies in:
 1. **Manual control over context size:** Specify how many characters before and after to include—perfect for dynamic, context-sensitive tasks.

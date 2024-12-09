@@ -3,6 +3,8 @@
 
 Softanza transforms string sequence finding in Ring language from a basic search operation into a visually rich experience. Let's explore its features through practical examples.
 
+---
+
 ## Core Features
 
 ### 1. Basic Finding
@@ -103,4 +105,8 @@ The sequence finding feature demonstrates Softanza's core design philosophy: tra
 - **Leverages Console Power**: Rich visual feedback without GUI libraries, using just ASCII and Unicode thoughtfully
 - **Sets a Pattern**: The visual elements introduced here (markers, sections, boxes) establish a language that extends to other Softanza operations with lists, grids, and more
 
-This sequence finding implementation showcases how console output can be both beautiful and deeply functional, making abstract operations immediately understandable.
+---
+
+## Conculsion
+
+Softanza sequence finding solution showcases how console output can be both beautiful and deeply functional, making abstract algorithmic operations immediately understandable.

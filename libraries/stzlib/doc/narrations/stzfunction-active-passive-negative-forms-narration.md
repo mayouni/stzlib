@@ -5,7 +5,8 @@ Softanza, the foundation library for the Ring programming language, brings a uni
 
 ---
 
-## Active Form: Functions as Verbs  
+## Active Form: Functions as Verbs 
+ 
 In Softanza, all functions are expressed by defaul in their active form. This so called `@FunctionActiveFrom` is always a **verb** that **acts** directly on the object it is called upon. Much like verbs in natural language, active functions perform an action **in place**, modifying the state of the object.  
 
 **Example of a @FunctionActiveForm**
@@ -21,9 +22,9 @@ o1.Remove("x")  # Removes all "x" characters from the object's content
 
 Here, the function `Remove()` actively modifies the content of the object `o1`, just as the verb "remove" would imply an action in real life.  
 
----
 
 ## Passive Form: Actions Without Side Effects  
+
 In some scenarios, you may want to perform an action without altering the original object. This is where the `@FunctionPassiveForm` comes into play. Linguistically, the passive form shifts the focus **from the actor** (the object) **to the result** of the action.  
 
 In programming terms, the passive form of a function returns a **new value** that reflects the desired transformation, leaving the original object unchanged.  
@@ -44,7 +45,6 @@ The function `Removed()` produces a new string without modifying the content of 
 
 > **Note**: Internally, a copy of o1 has been created (using `o1.Copy()`) and then an active `Remove()` has been acted on it, before the content of the copy is returned (using `Copy.Content()`).
 
----
 
 ## Negative Form: Simplifying Logical Negations 
 
@@ -68,7 +68,6 @@ This functionality, called **@FunctionNegativeForm**, enhances code readability 
 
 > **Note**: Not all functions in Softanza currently have a negative form, but support for this feature will expand in future updates.  
 
----
 
 ## Why These Forms Matter  
 
@@ -90,7 +89,6 @@ Softanza’s distinction between active, passive, and negative forms is more tha
 
 ---
 
-## Conclusion  
-Softanza’s active, passive, and negative function forms exemplify its commitment to intuitive, natural language-inspired programming. By aligning function names and behaviors with linguistic patterns, Softanza simplifies code writing, enhances clarity, and empowers developers with greater control.  
+## Conclusion
 
-As Softanza evolves, expanded support for these forms will further its mission of making programming as natural as thinking. Whether you’re modifying an object, creating a new one, or simplifying logical conditions, Softanza has you covered with its versatile and expressive design.
+Softanza’s active, passive, and negative function forms exemplify its commitment to intuitive, natural language-inspired programming. By aligning function names and behaviors with linguistic patterns, Softanza simplifies code writing, enhances clarity, and empowers developers with greater control.
