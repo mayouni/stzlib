@@ -1,5 +1,5 @@
 # Visual Sequence Finding in Softanza
-![Sit Function in Softanza, by Microsoft Create AI](images/stz-narration-stzstring-viz-find.jpg)
+![Sit Function in Softanza, by Microsoft Create AI](../images/stzstring-vizfind.jpg)
 
 Softanza transforms string sequence finding in Ring language from a basic search operation into a visually rich experience. Let's explore its features through practical examples.
 

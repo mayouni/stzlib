@@ -135,7 +135,7 @@ A10: While StringArt is primarily designed for console output, you could potenti
 ## Q11: Where can I find more information about StringArt?
 
 A11: For more detailed information, you can refer to:
-- [The StringArt overview document](../overviews/stz-string-art-overview.md)
+- [The StringArt overview document](../narrations/stz-string-art-overview.md)
 - [The StringArt reference document](../references/stz-string-art-reference.md)
 - [The StringArt quickers guide for quick code snippets](../quickers/stz-string-art-quickers.md)
 - [The `stkStringArtTest.ring` file for practical examples](../../core/test/stzStringArtTest.ring)
