@@ -104,7 +104,7 @@ func ComputableShortFormXT(paListOrStr, p)
 
 		oQStr = new QString2()
 		oQStr.append(paListOrStr)
-		nLen = oQStr.count()
+		nLen = oQStr.size()
 		cThings = "chars"
 	ok
 
@@ -168,7 +168,7 @@ func ComputableShortFormXT(paListOrStr, p)
 				oQStr = new QString2()
 				oQStr.append(aContent[i])
 				c1 = oQStr.mid(0, 1)
-				c2 = oQStr.mid(oQStr.count()-1, 1)
+				c2 = oQStr.mid(oQStr.size()-1, 1)
 			
 				if c1 = '"' or
 				   c2 = '"'
@@ -189,10 +189,10 @@ func ComputableShortFormXT(paListOrStr, p)
 
 		oQStr = new QString2()
 		oQStr.append(cResult)
-		oQStr.replace( (oQStr.count() - 2), 2, "" )
+		oQStr.replace( (oQStr.size() - 2), 2, "" )
 		oQStr.append(" ]")
 	
-		cResult = oQStr.mid(0, oQStr.count())
+		cResult = oQStr.mid(0, oQStr.size())
 		return cResult
 
 	else # Case paListOrStr is string
@@ -313,7 +313,7 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 		oQStr = new QString2()
 		oQStr.append(pValue)
 
-		if oQStr.count() = 1
+		if oQStr.size() = 1
 
 			if pValue = '"'
 				cBound = "'"
@@ -333,7 +333,7 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 			oQStr = new QString2()
 			oQStr.append(pValue)
 			c1 = oQStr.mid(0, 1)
-			c2 = oQStr.mid(oQStr.count()-1, 1)
+			c2 = oQStr.mid(oQStr.size()-1, 1)
 	
 			if c1 = '"' or
 			   c2 = '"'
@@ -385,7 +385,7 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 				oQStr = new QString2()
 				oQStr.append(acontent[i])
 		
-				if oQStr.count() = 1
+				if oQStr.size() = 1
 			
 					if aContent[i] = '"'
 						cBound = "'"
@@ -404,7 +404,7 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 					oQStr = new QString2()
 					oQStr.append(aContent[i])
 					c1 = oQStr.mid(0, 1)
-					c2 = oQStr.mid(oQStr.count()-1, 1)
+					c2 = oQStr.mid(oQStr.size()-1, 1)
 		
 					if c1 = '"' or
 				  		c2 = '"'
@@ -445,10 +445,10 @@ func ComputableFormXT(pValue, cSep1, cSep2)
 
 		oQStr = new QString2()
 		oQStr.append(cResult)
-		oQStr.replace( (oQStr.count() - 2), 2, "" )
+		oQStr.replace( (oQStr.size() - 2), 2, "" )
 		oQStr.append(cSep1 + "]")
 
-		cResult = oQStr.mid(0, oQStr.count())
+		cResult = oQStr.mid(0, oQStr.size())
 		return cResult
 
 	but isObject(pValue)

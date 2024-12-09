@@ -63,18 +63,18 @@ class stzCoreString from stzCoreObject
 	#--
 
 	def Content()
-		return @content.mid(0, @content.count())
+		return @content.mid(0, @content.size())
 
 	#--
 
 	def Size()
-		return @content.count()
+		return @content.size()
 
 		def Count()
-			return @content.count()
+			return @content.size()
 
 		def NumberOfChars()
-			return @content.count()
+			return @content.size()
 
 	#--
 
@@ -119,13 +119,13 @@ class stzCoreString from stzCoreObject
 		if substr = ""
 			return 0
 		ok
-		return @content.lastIndexOf(substr, @content.count()-1, bCase) + 1
+		return @content.lastIndexOf(substr, @content.size()-1, bCase) + 1
 
 	def FindLast(substr)
 		if substr = ""
 			return 0
 		ok
-		return @content.lastIndexOf(substr, @content.count()-1, true) + 1
+		return @content.lastIndexOf(substr, @content.size()-1, true) + 1
 
 	#--
 
@@ -136,7 +136,7 @@ class stzCoreString from stzCoreObject
 
 		@TempQStr = new QString2()
 		@TempQStr.append(substr)
-		nSize = @TempQStr.count()
+		nSize = @TempQStr.size()
 
 		anResult = []
 		bContinue = TRUE
@@ -174,7 +174,7 @@ class stzCoreString from stzCoreObject
 
 		@TempQStr = new QString2()
 		@TempQStr.append(substr)
-		nSize = @TempQStr.count()
+		nSize = @TempQStr.size()
 
 		nResult = 0
 		bContinue = TRUE

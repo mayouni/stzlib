@@ -58,7 +58,7 @@ func QCharToQString(oQChar)
 
 func QCharToStzString(oQChar)
 	oQStr = QCharToQString(oQChar)
-	cStr = oQStr.NLeftChars(oQStr.count())
+	cStr = oQStr.NLeftChars(oQStr.size())
 	oStzStr = new stzString(cStr)
 	return oStzStr
 
@@ -315,7 +315,7 @@ func IsQString(p)
 func QStringContent(oQStr)
 
 	if IsQString(oQStr)
-		return oQStr.left(oQStr.count())
+		return oQStr.left(oQStr.size())
 
 	else
 		stzRaise(stzStringError(:CanNotTransformQStringToString))
