@@ -134,7 +134,7 @@ class stzListOfStrings from stzList
 	def Content()
 
 		acResult = []
-		nLen = @oQStrList.count()
+		nLen = @oQStrList.size()
 
 		for i = 0 to nLen - 1
 			acResult + This.@oQStrList.at(i)	

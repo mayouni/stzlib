@@ -69,7 +69,7 @@ func StringArt(str)
 	bOk = FALSE
 
 	if oQStr.mid(0, 2) = "#{"
-		nLen = oQStr.count()
+		nLen = oQStr.size()
 		if oQStr.mid(nLen-1, 1) = "}"
 			bOk = TRUE
 		ok
@@ -96,7 +96,7 @@ func StringArtBoxified(str)
 	bOk = FALSE
 
 	if oQStrArt.mid(0, 2) = "#{"
-		nLen = oQStrArt.count()
+		nLen = oQStrArt.size()
 		if oQStrArt.mid(nLen-1, 1) = "}"
 			bOk = TRUE
 		ok
@@ -157,7 +157,7 @@ func StringArtPainting(cPaintingName)
 	bOk = FALSE
 
 	if oQStr.mid(0, 2) = "#{"
-		nLen = oQStr.count()
+		nLen = oQStr.size()
 		if oQStr.mid(nLen-1, 1) = "}"
 			bOk = TRUE
 		ok
@@ -288,7 +288,7 @@ class stkStringArt
 		for i = 1 to nLen
 			oQStr = new QString2()
 			oQStr.append(acLines[i])
-			anLenLines + oQStr.count()
+			anLenLines + oQStr.size()
 		next
 
 		anLenLines = sort(anLenLines)

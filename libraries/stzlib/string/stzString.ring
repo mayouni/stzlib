@@ -1514,9 +1514,9 @@ class stzString from stzObject
 	// Returns the string's content
 	def Content()
 
-		return QStringObject().left(QStringObject().count())
+		return QStringObject().left(QStringObject().size())
 
-		#TODO // Replace with QStringObject().size()
+		#TODO // Replace with QStringObject().count() with size()
 		# ~> count() returns number of unicode codepoints
 		# ~> size() returns number of chars
 		#UPDATE // Done using Ring 1.22 (thanks @Mahmoud)
@@ -23874,10 +23874,7 @@ class stzString from stzObject
 
 	def FindRepeatedLeadingCharsCS(pCaseSensitive)
 
-		nLen = QStringObject().count()
-		#TODO // Replace with QStringObject().size()
-		# ~> count() returns number of unicode codepoints
-		# ~> size() returns number of chars
+		nLen = QStringObject().size()
 
 		if nLen < 2
 			return []
@@ -24302,12 +24299,10 @@ class stzString from stzObject
 			return []
 		ok
 
-		nLenStr = QStringObject().count()
-		#TODO // Replace with QStringObject().size()
-		# ~> count() returns number of unicode codepoints
-		# ~> size() returns number of chars
+		_oQStr_ = QStringObject()
+		nLenStr = _oQStr_.size()
 
-		cLastChar = QStringObject().mid(nLenStr-1, 1)
+		cLastChar = _oQStr_.mid(nLenStr-1, 1)
 
 		cResult = ""
 
@@ -24499,12 +24494,10 @@ class stzString from stzObject
 			return []
 		ok
 
-		nLenStr = QStringObject().count()
-		#TODO // Replace with QStringObject().size()
-		# ~> count() returns number of unicode codepoints
-		# ~> size() returns number of chars
+		_oQStr_ = QStringObject()
+		nLenStr = _oQStr_.size()
+		cLastChar = _oQStr_.mid(nLenStr-1, 1)
 
-		cLastChar = QStringObject().mid(nLenStr-1, 1)
 		acResult = []
 
 		for i = 1 to n
@@ -24966,17 +24959,15 @@ class stzString from stzObject
 
 	def FindRepeatedTrailingCharsCS(pCaseSensitive)
 
-		nLenStr = QStringObject().count()
-		#TODO // Replace with QStringObject().size()
-		# ~> count() returns number of unicode codepoints
-		# ~> size() returns number of chars
+		_oQStr_ = QStringObject()
+		nLenStr = _oQStr_.size()
 
 		if nLenStr < 2
 			return []
 		ok
 
-		cLastChar = QStringObject().mid(nLenStr-1, 1)
-		cBeforeLastChar = QStringObject().mid(nLenStr-2, 1)
+		cLastChar = _oQStr_.mid(nLenStr-1, 1)
+		cBeforeLastChar = _oQStr_.mid(nLenStr-2, 1)
 
 		if NOT StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
 			return []
@@ -24984,7 +24975,7 @@ class stzString from stzObject
 
 		n = 0
 		for i = nLenStr to 1 step -1
-			if StzStringQ(QStringObject().mid(i-1, 1)).IsEqualToCS(cLastChar, pCaseSensitive)
+			if StzStringQ(_oQStr_.mid(i-1, 1)).IsEqualToCS(cLastChar, pCaseSensitive)
 				n++
 			else
 				exit
@@ -25032,17 +25023,15 @@ class stzString from stzObject
 
 	def FindRepeatedTrailingCharsAsSectionCS(pCaseSensitive)
 
-		nLenStr = QStringObject().count()
-		#TODO // Replace with QStringObject().size()
-		# ~> count() returns number of unicode codepoints
-		# ~> size() returns number of chars
+		_oQStr_ = QStringObject()
+		nLenStr = _oQStr_.size()
 
 		if nLenStr < 2
 			return []
 		ok
 
-		cLastChar = QStringObject().mid(nLenStr-1, 1)
-		cBeforeLastChar = QStringObject().mid(nLenStr-2, 1)
+		cLastChar = _oQStr_.mid(nLenStr-1, 1)
+		cBeforeLastChar = _oQStr_.mid(nLenStr-2, 1)
 
 		if NOT StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
 			return []
@@ -25050,7 +25039,7 @@ class stzString from stzObject
 
 		n = 0
 		for i = nLenStr to 1 step -1
-			if StzStringQ(QStringObject().mid(i-1, 1)).IsEqualToCS(cLastChar, pCaseSensitive)
+			if StzStringQ(_oQStr_.mid(i-1, 1)).IsEqualToCS(cLastChar, pCaseSensitive)
 				n++
 			else
 				exit
@@ -26122,22 +26111,20 @@ class stzString from stzObject
 	def RemoveThisRepeatedTrailingCharCS(c, pCaseSensitive)
 		#< QtBased >
 
-		nLenStr = QStringObject().count()
-		#TODO // Replace with QStringObject().size()
-		# ~> count() returns number of unicode codepoints
-		# ~> size() returns number of chars
+		_oQStr_ = QStringObject()
+		nLenStr = _oQStr_.size()
 
 		if nLenStr < 2
 			return
 		ok
 
-		cLastChar = QStringObject().mid(nLenStr-1, 1)
+		cLastChar = _oQStr_.mid(nLenStr-1, 1)
 
 		if NOT StzStringQ(cLastChar).IsEqualToCS(c, pCaseSensitive)
 			return
 		ok
 
-		cBeforeLastChar = QStringObject().mid(nLenStr-2, 1)
+		cBeforeLastChar = _oQStr_.mid(nLenStr-2, 1)
 
 		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
 			aSection = This.FindRepeatedTrailingCharsCSZZ(pCaseSensitive)
@@ -88212,14 +88199,14 @@ class stzString from stzObject
 
 		*/
 
-		oQCopy = QStringObject()
+		_oQCopy_ = QStringObject()
 
-		nLen = QStringObject().count()
+		nLen = _oQCopy_.size()
 		for i = nLen-1 to 1 step -1
-			oQCopy.insert(i, " ")
+			_oQCopy_.insert(i, " ")
 		next
 
-		This.UpdateWith( QStringToString(oQCopy) )
+		This.UpdateWith( QStringToString(_oQCopy_) )
 
 		def SpacifyCharsQ()
 			This.SpacifyChars()
@@ -88288,14 +88275,14 @@ class stzString from stzObject
 
 		*/
 
-		oCopy = QStringObject()
-		nLen = QStringObject().count()
+		_oQCopy_ = QStringObject()
+		nLen = _oQCopy.size()
 
 		for i = nLen-1 to 1 step -1
-			oQCopy.insert(i, pcSep)
+			_oQCopy_.insert(i, pcSep)
 		next
 
-		This.UpdateWith( QStringToString(oQCopy) )
+		This.UpdateWith( QStringToString(_oQCopy_) )
 
 		def SpacifyCharsUsingQ(pcSep)
 			This.SpacifyCharsUsing(pcSep)
@@ -92181,17 +92168,18 @@ class stzString from stzObject
 	def CharsCS(pCaseSensitive)
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
-		nLen = QStringObject().count()
+		_oQCopy_ = QStringObject()
+		nLen = _oQCopy_.size()
 		acResult = []
 
 		if bCaseSensitive = TRUE
 			for i = 1 to nLen
-				acResult + QStringObject().mid(i-1, 1)
+				acResult + _oQCopy_.mid(i-1, 1)
 			next
 
 		else
 			for i = 1 to nLen
-				c = lower( QStringObject().mid(i-1, 1) )
+				c = lower( _oQCopy_.mid(i-1, 1) )
 				if ring_find(acResult, c) = 0
 					acResult + c
 				ok
@@ -93363,14 +93351,15 @@ class stzString from stzObject
 			stzRaise("Incorrect param type! n should be a number.")
 		ok
 
-		nLen = QStringObject().count()
-		cResult = QStringObject().mid(n-1, 1)
+		_oQCopy_ = QStringObject()
+		nLen = _oQCopy_.size()
+		cResult = _oQCopy_.mid(n-1, 1)
 		return cResult
 
 		#< @FunctionFluentForm
 		
 		def NthCharQ(n)
-			return This.NthCharQR(n, :stzString)
+			return new stzString(This.NthChar(n))
 
 		def NthCharQR(n, pcReturnType)
 			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
@@ -93674,51 +93663,22 @@ class stzString from stzObject
 	 #   NUMBER OF CHARS     #
 	#-----------------------#
 
-	/* TODO
-	Reimplement these functions using QTextBoundaryFinder
-	https://doc.qt.io/qt-5/qtextboundaryfinder.html#details
-	*/
+	#TODO
+	# Reimplement these functions using QTextBoundaryFinder
+	# https://doc.qt.io/qt-5/qtextboundaryfinder.html#details
 
 	def NumberOfCharsCS(pCaseSensitive)
-		#< QtBased | Uses QString.count() >
+		#< QtBased | Uses QString.size() >
 
 		# Resolving pCaseSensitive
 
-		if isList(pCaseSensitive) and Q(pCaseSensitive).IsCaseSensitiveNamedParam()
-			pCaseSensitive = pCaseSensitive[2]
-		ok
-
-		if isString(pCaseSensitive)
-			if ring_find([
-				:CaseSensitive, :IsCaseSensitive , :CS, :IsCS ], pCaseSensitive) > 0
-
-				pCaseSensitive = TRUE
-			
-			but ring_find([
-				:CaseInSensitive, :NotCaseSensitive, :NotCS,
-				:IsCaseInSensitive, :IsNotCaseSensitive, :IsNotCS ], pCaseSensitive) > 0
-
-				pCaseSensitive = FALSE
-			ok
-
-		ok
-
-		if NOT ( isNumber(pCaseSensitive) and (pCaseSensitive = 0 or pCaseSensitive = 1) )
-			stzRaise("Error in param value! pCaseSensitive must be 0 or 1 (TRUE or FALSE).")
-		ok
+		bCase = @CaseSensitive(pCaseSensitive)
 
 		# Doing the job
 
-		if pCaseSensitive = TRUE
+		if bCase = TRUE
 
-			return QStringObject().count()
-
-			#TODO // we should use QStringObject().size() instead
-			# ~> because count() returns the number of unicode
-			# codepoints and not the number of chars
-
-			# ~> Ask Mahmoud to add it to RingQt
-			#UPDATE // Added in the upcoming Ring 1.22
+			return QStringObject().size()
 		else
 			return len( This.UniqueChars() )
 		ok

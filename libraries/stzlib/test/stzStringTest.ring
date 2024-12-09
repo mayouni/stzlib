@@ -1739,7 +1739,7 @@ c1 = oQStr.mid(0, 1)
 ? c1
 #--> "r"
 
-c2 = oQStr.mid(oQStr.count()-1, 1)
+c2 = oQStr.mid(oQStr.size()-1, 1)
 ? c2
 #--> "g"
 
@@ -16531,7 +16531,7 @@ pron()
 
 o1 = new QString2()
 o1.append("M")
-? o1.count()
+? o1.size()
 #--> 1
 
 o1 = new QString2()
@@ -16541,7 +16541,7 @@ o1.append("🐨")
 
 //o1 = new QString2()
 //o1.append("🐨")
-//? o1.size()	#TODO See with Mahmoud to add it to RingQt
+//? o1.size()
 #--> 2
 
 proff()

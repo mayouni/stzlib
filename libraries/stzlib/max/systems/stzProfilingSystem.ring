@@ -481,7 +481,7 @@ func SizeInChars(str)
 	oQString = new QString2()
 	oQString.append(str)
 
-	return oQString.count()
+	return oQString.size()
 
 	func @SizeInChars(str)
 		return SizeInChars(str)
@@ -493,7 +493,7 @@ func Chars(str)
 
 	oQString = new QString2()
 	oQString.append(str)
-	nLen = oQString.count()
+	nLen = oQString.size()
 
 	acResult = []
 

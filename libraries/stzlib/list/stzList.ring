@@ -50107,7 +50107,7 @@ class stzList from stzObject
 			but isString(@aContent[i])
 				oQString = new qstring2()
 				oQString.append(@aContent[i])
-				nSize = oQString.count()
+				nSize = oQString.size()
 
 			but isList(@aContent[i])
 				nSize = len(@aContent[i])

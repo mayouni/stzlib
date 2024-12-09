@@ -1851,7 +1851,7 @@ oQStr.append("I talk in Ring language!")
 #--> TRUE
 
 oQStr.replace_2("ring", "RING", FALSE)
-? oQStr.mid(0, oQStr.count())
+? oQStr.mid(0, oQStr.size())
 #--> I talk in RING language!
 
 #UPDATE #WARNING
