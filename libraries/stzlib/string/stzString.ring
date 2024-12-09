@@ -61426,8 +61426,24 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SplitToNSections(n)
+			return This.SplitToNParts(n)
+
+			def SplitToNSectionsQ(n, pcReturnType)
+				return This.SplitToNPartsQ(n)
+
+			def SplitToNSectionsQR(n, pcReturnType)
+				return This.SplitToNPartsQR(n, pcReturnType)
+	
+		#>
+
 	def SplittedToNParts(n)
 		return This.SplitToNParts(n)
+
+		def SplittedToNSections(n)
+			return this.SplitToNParts(n)
 
 	  #---------------------------------------------#
 	 #   SPLITTING TO PARTS OF (EXACTLY) N CHARS   #
@@ -61469,9 +61485,29 @@ class stzString from stzObject
 			return This.SplitToPartsOfNChars(n)
 
 			def SplitToPartsOfExactlyNCharsQ(n)
-				return This.SplitToPartsOfExactlyNCharsQR(n, :stzList)
+				return This.SplitToPartsOfNCharsQ(n)
 
 			def SplitToPartsOfExactlyNCharsQR(n, pcReturnType)
+				return This.SplitToPartsOfNCharsQR(n, pcReturnType)
+
+		#--
+
+		def SplitToSectionsOfNChars(n)
+			return This.SplitToPartsOfNChars(n)
+
+			def SplitToSectionsOfNCharsQ(n)
+				return This.SplitToPartsOfNCharsQ(n)
+
+			def SplitToSectionsOfNCharsQR(n, pcReturnType)
+				return This.SplitToPartsOfNCharsQR(n, pcReturnType)
+
+		def SplitToSectionsOfExactlyNChars(n)
+			return This.SplitToPartsOfNChars(n)
+
+			def SplitToSectionsOfExactlyNCharsQ(n)
+				return This.SplitToPartsOfNCharsQ(n)
+
+			def SplitToSectionsOfvNCharsQR(n, pcReturnType)
 				return This.SplitToPartsOfNCharsQR(n, pcReturnType)
 
 		#>
@@ -61480,6 +61516,12 @@ class stzString from stzObject
 		return This.SplitToPartsOfNChars(n)
 
 		def SplittedToPartsOfExactlyNChars(n)
+			return This.SplitToPartsOfNChars(n)
+
+		def SplittedToSectionsOfNChars(n)
+			return This.SplitToPartsOfNChars(n)
+
+		def SplittedToSectionsOfExactlyNChars(n)
 			return This.SplitToPartsOfNChars(n)
 
 	  #----------------------------------------------#
@@ -61517,11 +61559,24 @@ class stzString from stzObject
 
 		#>
 
+		#< @FunctionAlternativeForm
+
+		def SplitToSectionsOfNCharsXT(n)
+			return This.SplitToPartsOfNCharsXT(n)
+
+			def SplitToSectionsOfNCharsXTQ(n)
+				return This.SplitToPartsOfNCharsQ(n)
+
+			def SplitToSectionsOfNCharsXTQR(n, pcReturnType)
+				return This.SplitToPartsOfNCharsQR(n, pcReturnType)
+
+		#>
+
 	def SplittedToPartsOfNCharsXT(n)
 		return This.SplitToPartsOfNCharsXT(n)
 
-		def SplittedToPartsOfExactlyNCharsXT(n)
-			return This.SplitToPartsOfNCharsXT(n)
+		def SplittedToSectionsOfNCharsXT(n)
+			return Thhis.SplitToPartsOfNCharsXT(n)
 
 	#--------------------------------------------------------#
 	#  SPLITTING THE STRING TO PARTS HAVING THE GIVEN SIZES  #
@@ -61577,14 +61632,34 @@ class stzString from stzObject
 		def SplitToPartsHavingSizes(panSizes)
 			return This.SplitToPartsOfSizes(panSizes)
 
-		def SplitToPartsHavingTheseSizes(panPos)
+		def SplitToPartsHavingTheseSizes(panSizes)
 			return This.SplitToPartsOfSizes(panSizes)
 
 		def SplitToPartsWithSizes(panSizes)
 			return This.SplitToPartsOfSizes(panSizes)
 
-		def SplitToPartsWithTheseSizes(panPos)
+		def SplitToPartsWithTheseSizes(panSizes)
 			return This.SplitToPartsOfSizes(panSizes)
+
+		#--
+
+		def SplitToSectionsOfSizes(panSizes)
+			return This.SplitToPartsOfSizes(panSizes)
+
+		def SplitToSectionsOfTheseSizes(panSizes)
+			return This.SplitToSectionsOfSizes(panSizes)
+
+		def SplitToSectionsHavingSizes(panSizes)
+			return This.SplitToSectionsOfSizes(panSizes)
+
+		def SplitToSectionsHavingTheseSizes(panSizes)
+			return This.SplitToSectionsOfSizes(panSizes)
+
+		def SplitToSectionsWithSizes(panSizes)
+			return This.SplitToSectionsOfSizes(panSizes)
+
+		def SplitToSectionsWithTheseSizes(panSizes)
+			return This.SplitToSectionsOfSizes(panSizes)
 
 		#>
 
@@ -94378,19 +94453,36 @@ class stzString from stzObject
 	def IsMadeOfCS(acSubStr, pCaseSensitive)
 
 		if CheckingParams()
+
+			if NOT (isList(acSubStr) or isString(acSubStr))
+				StzRaise("Incorrect param type! acSubStr must be a list or a string.")
+			ok
+
 			if isString(acSubStr)
 				acTemp = [] + acSubStr
 				acSubStr = acTemp
 			ok
 
-			IF NOT ( isList(acSubStr) and StzListQ(acSubStr).IsListOfStrings() )
+			if isList(acSubStr)
+				nLen = len(acSubStr)
+				if nLen > 0
+					if isList(acSubStr[nLen]) and len(acSubStr[nLen]) = 2 and
+					   isString(acSubStr[nLen][1]) and acSubStr[nLen][1] = :And
+
+						_tempVal_ = acSubStr[nLen][2]
+						acSubStr[nLen] = _tempVal_
+					ok
+				ok
+
+			ok
+
+			IF NOT @IsListOfStrings(acsubStr)
 				StzRaise("Incorrect param type! acSubStr must be a list of strings.")
 			ok
 
 		ok
 
-		oCopy = This.Copy()
-		
+		_oCopy_ = This.Copy()
 		nLen = len(acSubStr)
 
 		for i = 1 to nLen
@@ -94398,10 +94490,10 @@ class stzString from stzObject
 				return FALSE
 			ok
 
-			oCopy.RemoveAllCS(acSubStr[i], pCaseSensitive)
+			_oCopy_.RemoveAllCS(acSubStr[i], pCaseSensitive)
 		next
 
-		if oCopy.IsEmpty()
+		if _oCopy_.IsEmpty()
 			return TRUE
 		else
 			return FALSE

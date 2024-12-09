@@ -1096,7 +1096,7 @@ class stzListOfChars from stzListOfStrings
 
 			but NOT bSectioned and len(anHilighted) > 0
 
-				aSectionsOfNumbers = Q(anHilighted).SplitToSectionsOfN(2)
+				aSectionsOfNumbers = Q(anHilighted).SplitToPartsOfN(2)
 				nLenSectionsOfNumbers = len(aSectionsOfNumbers)
 
 				acSectionsOfNumbers = []

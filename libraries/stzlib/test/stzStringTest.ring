@@ -15859,7 +15859,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.22
 
 *------
-*/
+
 pron()
 
 o1 = new stzString("Ring language")
@@ -15878,10 +15878,11 @@ proff()
 
 pron()
 
-o1 = new stzString("Hi Dan! Your are Dan, but your work is always not done ;)")
+o1 = new stzString("Hi Dan! You are Dan, but your work is never done! 😉")
 o1.ReplaceNthOccurrence(2, "Dan", "hardworker")
+
 ? o1.Content()
-#--> Hi Dan! Your are harworker, but your work is always not done ;)
+#--> Hi Dan! You are hardworker, but your work is never done! 😉
 
 proff()
 # Executed in 0.01 second(s).
@@ -15891,10 +15892,11 @@ proff()
 pron()
 
 o1 = new stzString("text this text is written with the text of my scrampy text")
+
 ? o1.FindAll("text")
 #--> [ 1, 11, 36, 55 ]
 
-? o1.FindNthOccurrence(4, :Of = "text")
+? o1.FindNthOccurrence(4, :Of = "text") + NL
 #--> 55
 
 ? o1.ContainsNtimes(4, "text")
@@ -16006,8 +16008,7 @@ o1 {
 }
 
 proff()
-# Executed in 0.11 second(s) using for.
-# Executed in 0.59 second(s) using for/in.
+# Executed in 0.16 second(s) in Ring 1.22
 
 /*------------------
 
@@ -16018,7 +16019,7 @@ o1 = new stzString("12500543.12")
 #--> TRUE
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*------------------
 
@@ -16037,7 +16038,7 @@ o1 = new stzString("0b-110001.1001")
 #--> FALSE
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.03 second(s) in Ring 1.22
 
 /*------------------
 
@@ -16068,7 +16069,7 @@ o1 = new stzString("0o2304.307")
 #--> TRUE
 
 proff()
-# Executed in 0.05 second(s).
+# Executed in 0.08 second(s) in Ring 1.22
 
 /*=================== #narration INSERTING LISTS INSIDE A STRING
 
@@ -16193,22 +16194,22 @@ o1 = new stzString("ar-tn")
 
 o1 = new stzString("ar-fr")
 ? o1.IsLocaleAbbreviation()
-#--> TRUE
+#--> FALSE
 
 o1 = new stzString("tn-fr")
 ? o1.IsLocaleAbbreviation()
-#--> TRUE
+#--> FALSE
 
 proff()
-# Executed in 0.02 second(s).
+# Executed in 0.01 second(s) in Ring 1.22
 
-/*------------------
+/*------------------ #qt
 
 pron()
 
 @oQLocale = new QLocale("ar-tn")
 ? @oQLocale.name()
-#--> ar_tn
+#--> ar_TN
 
 proff()
 # Executed in almost 0 second(s).
@@ -16238,7 +16239,7 @@ o1 = new stzLocale("TN-Arab") # TN here means the TswaNa language in South Afric
 #--> tswana
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.05 second(s) in Ring 1.22
 
 /*------------------
 
@@ -16328,11 +16329,16 @@ proff()
 
 pron()
 
-o1 = new stzString("100110001")
-? o1.IsMadeOf([ "1","0" ])
+o1 = new stzString("10011033001")
+
+? o1.IsMadeOf([ "1", "0", "3" ])
+#--> TRUE
+
+? o1.IsMadeOf([ "1", "0", :and = "3" ])
 #--> TRUE
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--------------------
 
@@ -16430,6 +16436,7 @@ oStr.append_2(oChar)
 # to simplify its use and unify it in a freindly mental model.
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--------------
 
@@ -16443,6 +16450,7 @@ o1 = new stzString("abcbbaccbtttx")
 #--> TRUE
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*---------------
 
@@ -16487,7 +16495,7 @@ o1 = new stzString("b100011")
 ? o1.RepresentsNumberInBinaryForm()
 #--> TRUE
 
-o1 = new stzString("100011") # Withount the b, it's rather a decimal not binary number!
+o1 = new stzString("100011") # Without the b, it's rather a decimal not binary number!
 ? o1.RepresentsNumberInBinaryForm()
 #--> FALSE
 
@@ -16498,7 +16506,7 @@ o1 = new stzString("100011")
 proff()
 # Executed in 0.02 second(s).
 
-/*---------------
+/*--------------- #todo Write a narration about it
 
 pron()
 
@@ -16523,9 +16531,10 @@ o1 = new stzString("Приве́т नमस्ते שָׁלוֹם")
 #--> [ "Приве", "́", "т", " नमस्ते שָׁלוֹם" ]
 
 proff()
-# Executed in 0.58 second(s).
+# Executed in 0.45 second(s) in Ring 1.22
+# Executed in 0.58 second(s) in Ring 1.20
 
-/*--------------- #TODO
+/*---------------
 
 pron()
 
@@ -16539,28 +16548,28 @@ o1.append("🐨")
 ? o1.count()
 #--> 2
 
-//o1 = new QString2()
-//o1.append("🐨")
-//? o1.size()
+o1 = new QString2()
+o1.append("🐨")
+? o1.size()
 #--> 2
 
 proff()
 # Executed in almost 0 second(s).
 
-/*---------------
+/*--------------- #todo write a narration about it
 
 pron()
 
 o1 = new stzString("🐨")
 
 ? o1.SizeInBytes()
-#--> 435
+#--> 491
 
 ? @@SP( o1.SizeInBytesXT() )
 #--> [
 #	[ "RING_64BIT_LIST_STRUCTURE_SIZE", 80 ],
-#	[ "RING_64BIT_ITEM_STRUCTURE_SIZE * 6", 144 ],
-#	[ "RING_64BIT_ITEMS_STRUCTURE_SIZE * 6", 192 ],
+#	[ "RING_64BIT_ITEM_STRUCTURE_SIZE * 7", 168 ],
+#	[ "RING_64BIT_ITEMS_STRUCTURE_SIZE * 7", 224 ],
 #	[ "RING_64BIT_ITEMS_CONTENT_SIZE", 19 ]
 # ]
 
@@ -16640,7 +16649,7 @@ o1 = new stzString("MustHave32CharsAnd8Spaces")
 proff()
 # Executed in 0.01 second(s).
 
-/*======== REMOVE XT ==================================================
+/*======== REMOVE XT ================= #todo Write a #narration
 
 StartProfiler()
 	
@@ -16670,11 +16679,11 @@ StopProfiler()
 
 StartProfiler()
 	
-	o1 = new stzString("Ring *progr*amming* language")
-	o1.RemoveXT( :Nth = [ 2, "*" ], :From = "*progr*amming*")
+	o1 = new stzString("Ring (progr(amming) language")
+	o1.RemoveXT( :Nth = [ 2, "(" ], :From = "(progr(amming)")
 	
 	? o1.Content()
-	#--> Ring *programming* language
+	#--> Ring (programming) language
 	
 StopProfiler()
 # Executed in 0.01 second(s)
@@ -16683,8 +16692,8 @@ StopProfiler()
 
 StartProfiler()
 	
-	o1 = new stzString("Ring *progr*amming* language")
-	o1.RemoveXT( :First = "*", :From = "*progr*amming*")
+	o1 = new stzString("Ring mprogramming language")
+	o1.RemoveXT( :First = "m", :From = "mprogramming")
 	
 	? o1.Content()
 	#--> Ring progr*amming* language
@@ -16696,11 +16705,11 @@ StopProfiler()
 
 StartProfiler()
 	
-	o1 = new stzString("Ring *progr*amming* language")
-	o1.RemoveXT( :Last = "*", :From = "*progr*amming*")
+	o1 = new stzString("Ring programmingm language")
+	o1.RemoveXT( :Last = "m", :From = "programmingm")
 	
 	? o1.Content()
-	#--> Ring *progr*amming language
+	#--> Ring programming language
 	
 StopProfiler()
 # Executed in 0.01 second(s)
@@ -16710,7 +16719,7 @@ StopProfiler()
 StartProfiler()
 	
 	o1 = new stzString("Ring *progr*amming* language")
-	o1.RemoveXT( :Nth = [ [1,3], "*" ], :From = "*progr*amming*")
+	o1.RemoveXT( :Nth = [ [1, 3], "*" ], :From = "*progr*amming*")
 	
 	? o1.Content()
 	#--> Ring progr*amming language
@@ -16731,15 +16740,14 @@ StopProfiler()
 # Executed in 0.01 second(s)
 
 /*======== REMOVING AFTER
-
+*
 StartProfiler()
 	
 Q("Ring programming* language.") {
 	
 	RemoveXT("*", :After = "programming")
 	? Content()
-	#--> Ring programming language.
-	
+	#--> Ring programming language.	
 }
 	
 StopProfiler()
@@ -17560,9 +17568,9 @@ pron()
 o1 = new stzListOfChars(@Chars("RINGORIALAND"))
 
 ? o1.BoxifyXT([
-	:Rounded,
+	:Rounded = TRUE,
 	:Hilight = [ ],
-	:Numbered
+	:Numbered = TRUE
 ])
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -17571,6 +17579,7 @@ o1 = new stzListOfChars(@Chars("RINGORIALAND"))
 #   1   2   3   4   5   6   7   8   9   10  11  12
 
 proff()
+# Executed in 0.06 second(s) in Ring 1.22
 
 /*-----------------
 
@@ -17579,9 +17588,9 @@ pron()
 o1 = new stzListOfChars(@Chars("RINGORIALAND"))
 
 ? o1.BoxifyXT([
-	:Rounded,
+	:Rounded = TRUE,
 	:Hilight = [ 1, 2, 3, 5, 10, 12 ],
-	:Numbered
+	:Numbered = TRUE
 ])
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -17593,16 +17602,16 @@ proff()
 # Executed in 0.08 second(s).
 
 /*-----------------
-
+*/
 pron()
 
 o1 = new stzListOfChars(@Chars("RINGORIALAND"))
 
 ? o1.BoxifyXT([
-	:Rounded,
+	:Rounded = TRUE,
 	:Hilight = [ 1, 2, 3, 5, 10, 12 ],
-	:Sectioned,
-	:Numbered
+	:Sectioned = TRUE,
+	:Numbered = TRUE
 ])
 
 #-->

@@ -1306,6 +1306,34 @@ class stzSplitter from stzListOfNumbers
 		def SplitsToPartsOfNPositionsXT(n)
 			return This.SplitToPartsOfNItemsXT(n)
 
+		#==
+
+		def SplitToSectionsOfNItemsXT(n)
+			return This.SplitToPartsOfNItemsXT(n)
+
+		def SplitToSectionsOfNXT(n)
+			return This.SplitToSectionsOfNItemsXT(n)
+
+		def SplitToSectionsOfXT(n)
+			return This.SplitToSectionsOfNItemsXT(n)
+
+		def SplitToSectionsOfNPositionsXT(n)
+			return This.SplitToSectionsOfNItemsXT(n)
+
+		#--
+
+		def SplitsToSectionsOfNItemsXT(n)
+			return This.SplitToSectionsOfNItemsXT(n)
+
+		def SplitsToSectionsOfNXT(n)
+			return This.SplitToSectionsOfNItemsXT(n)
+
+		def SplitsToSectionsOfXT(n)
+			return This.SplitToSectionsOfNItemsXT(n)
+
+		def SplitsToSectionsOfNPositionsXT(n)
+			return This.SplitToSectionsOfNItemsXT(n)
+
 		#>
 
 	  #---------------------------------------------#
@@ -1350,7 +1378,7 @@ class stzSplitter from stzListOfNumbers
 		def SplitsToPartsOfNPositions(n)
 			return This.SplitToPartsOfNItems(n)
 
-		#==
+		#--
 
 		def SplitToPartsOfExactlyNItems(n)
 			return This.SplitToPartsOfNItems(n)
@@ -1363,6 +1391,48 @@ class stzSplitter from stzListOfNumbers
 
 		def SplitToPartsOfExactlyNPositions(n)
 			return This.SplitToPartsOfNItems(n)
+
+		#==
+
+		def SplittoSectionsOfNItems(n)
+			return This.SplitToPartsOfNItems(n)
+
+		def SplitToSectionsOfN(n)
+			return This.SplitToSectionsOfNItems(n)
+
+		def SplitToSectionsOf(n)
+			return This.SplitToSectionsOfNItems(n)
+
+		def SplitToSectionsOfNPositions(n)
+			return This.SplitToSectionsOfNItems(n)
+
+		#--
+
+		def SplitsToSectionsOfNItems(n)
+			return This.SplitToSectionsOfNItems(n)
+
+		def SplitsToSectionsOfN(n)
+			return This.SplitToSectionsOfNItems(n)
+
+		def SplitsToSectionsOf(n)
+			return This.SplitToSectionsOfNItems(n)
+
+		def SplitsToSectionsOfNPositions(n)
+			return This.SplitToSectionsOfNItems(n)
+
+		#--
+
+		def SplitToSectionsOfExactlyNItems(n)
+			return This.SplitToSectionsOfNItems(n)
+
+		def SplitToSectionsOfExactlyN(n)
+			return This.SplitToSectionsOfNItems(n)
+
+		def SplitToSectionsOfExactly(n)
+			return This.SplitToSectionsOfNItems(n)
+
+		def SplitToSectionsOfExactlyNPositions(n)
+			return This.SplitToSectionsOfNItems(n)
 
 		#>
 
@@ -1503,9 +1573,20 @@ class stzSplitter from stzListOfNumbers
 		# Finally, we return the result
 		return aResult
 	
+		#< @FunctionAlternativeForms
 
 		def SplitsToNParts(n)
 			return This.SplitToNParts(n)
+
+		#--
+
+		def SplitToNSections(n)
+			return This.SplitToNParts(n)
+
+		def SplitsToNSections(n)
+			return This.SplitToNParts(n)
+
+		#>
 
 	  #===============================================#
 	 #  SPLITTING AROUND POSITION(S) OR SECTION(s)  #

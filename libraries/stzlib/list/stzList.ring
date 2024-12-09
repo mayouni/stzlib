@@ -59279,6 +59279,20 @@ class stzList from stzObject
 		def SplitToPartsOfNPositionsXT(n)
 			This.SplitToPartsOfNItemsXT(n)
 
+		#--
+
+		def SplitToSectionsOfNItemsXT(n)
+			This.SplitToPartsOfNItemsXT(n)
+
+		def SplitToSectionsOfNXT(n)
+			This.SplitToPartsOfNItemsXT(n)
+
+		def SplitToSectionsOfXT(n)
+			This.SplitToPartsOfNItemsXT(n)
+
+		def SplitToSectionsOfNPositionsXT(n)
+			This.SplitToPartsOfNItemsXT(n)
+
 		#>
 
 	def SplittedToPartsOfNItemsXT(n)
@@ -59298,6 +59312,23 @@ class stzList from stzObject
 
 		def SplitsToPartsOfNPositionsXT(n)
 			return This.SplittedToPartsOfNItemsXT(n)
+
+		#--
+
+		def SplittedToSectionsOfNItemsXT(n)
+			return This.SplittedToPartsOfNItemsXT(n)
+
+		def SplitsToSectionsOfNItemsXT(n)
+			return This.SplittedToSectionsOfNItemsXT(n)
+
+		def SplitsToSectionsOfNXT(n)
+			return This.SplittedToSectionsOfNItemsXT(n)
+
+		def SplitsToSectionsOfXT(n)
+			return This.SplittedToSectionsOfNItemsXT(n)
+
+		def SplitsToSectionsOfNPositionsXT(n)
+			return This.SplittedToSectionsOfNItemsXT(n)
 
 		#>
 
@@ -59337,6 +59368,34 @@ class stzList from stzObject
 		def SplitToPartsOfExactlyNItems(n)
 			This.SplitToPartsOfNItems(n)
 
+		#==
+
+		def SplitToSectionsOfNItems(n)
+			This.SplitToPartsOfNItems(n)
+
+		def SplitToSectionsOfN(n)
+			This.SplitToPartsOfNItems(n)
+
+		def SplitToSectionsOf(n)
+			This.SplitToPartsOfNItems(n)
+
+		def SplitToSectionsOfNPositions(n)
+			This.SplitToPartsOfNItems(n)
+
+		#--
+
+		def SplitToSectionsOfExactlyNItems(n)
+			This.SplitToPartsOfNItems(n)
+
+		def SplitToSectionsOfExactlyN(n)
+			This.SplitToPartsOfNItems(n)
+
+		def SplitToSectionsOfExactly(n)
+			This.SplitToPartsOfNItems(n)
+
+		def SplitToSectionsOfExactlyNPositions(n)
+			This.SplitToPartsOfNItems(n)
+
 		#>
 
 	def SplittedToPartsOfNItems(n)
@@ -59362,6 +59421,40 @@ class stzList from stzObject
 		def SplittedToPartsOfExactlyNItems(n)
 			return This.SplittedToPartsOfNItems(n)
 
+		#==
+
+		def SplittedToSectionsOfNItems(n)
+			return This.SplittedToPartsOfNItems(n)
+
+		def SplitsToSectionsOfNItems(n)
+			return This.SplittedToSectionsOfNItems(n)
+
+		def SplitsToSectionsOfN(n)
+			return This.SplittedToSectionsOfNItems(n)
+
+		def SplitsToSectionsOf(n)
+			return This.SplittedToSectionsOfNItems(n)
+
+		def SplitsToSectionsOfNPositions(n)
+			return This.SplittedToSectionsOfNItems(n)
+
+		#--
+
+		def SplittedToSectionsOfExactlyNItems(n)
+			return This.SplittedToPartsOfNItems(n)
+
+		def SplitsToSectionsOfExactlyNItems(n)
+			return This.SplittedToSectionsOfNItems(n)
+
+		def SplitsToSectionsOfExactlyN(n)
+			return This.SplittedToSectionsOfNItems(n)
+
+		def SplitsToSectionsOfExactly(n)
+			return This.SplittedToSectionsOfNItems(n)
+
+		def SplitsToSectionsOfExactlyNPositions(n)
+			return This.SplittedToSectionsOfNItems(n)
+
 		#>
 
 	  #----------------------------#
@@ -59377,11 +59470,23 @@ class stzList from stzObject
 			This.SplitToNParts(n)
 			return This
 
+		def SplitToNSections(n)
+			return This.SplitToNParts(n)
+
+			def SplitToNSectionsQ(n)
+				return This.SplitToNPartsQ(n)
+
 	def SplittedToNParts(n)
 		aResult = This.Copy().SplitToNPartsQ(n).Content()
 		return aResult
 
 		def SplitsToNParts(n)
+			return This.SplittedToNParts(n)
+
+		def SplittedToNSections(n)
+			return This.SplittedToNParts(n)
+
+		def SplitsToNSections(n)
 			return This.SplittedToNParts(n)
 
 	  #-----------------------------------------------#
