@@ -121,4 +121,4 @@ With these tools, Softanza equips you to:
 - Transform and evaluate lists seamlessly.
 - Simplify your coding experience with `Q()`.
 
-Whether you’re parsing, debugging, or creating innovative tools, Softanza's `StzStringQ` utilities (and the `Q()` function!) open up a world of possibilities. So, go ahead—unleash the power of lists-in-strings and let your creativity soar!
+Whether you’re parsing, debugging, or creating innovative tools, Softanza's `StzString` utilities (and the `Q()` function!) open up a world of possibilities. So, go ahead—unleash the power of lists-in-strings and let your creativity soar!

@@ -1,4 +1,4 @@
-# Active, Passive, and Negative Forms in Softanza: A Linguistic Approach to Programming
+# Active, Passive, and Negative Function Forms in Softanza: A Linguistic Approach to Programming
 ![Multiple function forms in Softanza, by Microsoft Create AI](../images/stzfunction-active-passive-negative-forms.jpg)
 
 Softanza, the foundation library for the Ring programming language, brings a unique feature set that mirrors natural language constructs. By treating functions as linguistic expressions, Softanza enables developers to write expressive, readable, and intuitive code. At the heart of this design are **active**, **passive**, and **negative forms** of functions. This article explores these forms, beginning with their analogy to natural language and progressing through practical examples.
