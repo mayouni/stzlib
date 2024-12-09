@@ -15829,20 +15829,47 @@ proff()
 # Executed in 0.19 second(s) in Ring 1.22
 
 /*==================
+
+pron()
+
+o1 = new stzString("Ring programming language")
+
+anPos = o1.Find("in")
+? anPos
+#--> [ 2, 14 ]
+
+o1.InsertBeforePositions(anPos, "_")
+? o1.Content()
+#--> R_ing programm_ing language
+
+proff()
+# R_ing programm_ing language
+
+/*------
+
+pron()
+
+o1 = new stzString("Ring language")
+
+o1.InsertBefore("language", "programming ")
+? o1.Content()
+# Ring programming language
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
+
+*------
 */
 pron()
 
-StzStringQ("أهلا بأيّ كانَ، ومرحبا بأيّ كان، ومرحى لأيّ كان، أيّا كان من سمَّاهُ حُسَيْنْ") {
+o1 = new stzString("Ring language")
 
-	cSubStr = "أيّ كان"
-	cNewSubStr = " اسْمُهُ حُسَيْنْ"
+o1.InsertAfter("Ring", " programming")
+? o1.Content()
+# Ring programming language
 
-anPos = Find(cSubStr)
-	InsertBeforePosition(anPos, cNewSubStr)
-	? Content()
-}
-#-->
-# أهلا بأيّ كان اسْمُهُ حُسَيْنْ، ومرحبا بأيّ كان اسْمُهُ حُسَيْنْ، ومرحى لأيّ كان اسْمُهُ حُسَيْنْ، أيّا كان من سمَّاهُ حُسَيْنْ
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 proff()
 # Executed in 0.09 second(s).
