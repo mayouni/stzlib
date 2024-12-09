@@ -939,7 +939,7 @@ class stzLocale from stzObject
 				oStr = new stzString(pcStr)
 				cResult = ""
 				for i = 1 to oStr.NumberOfChars()
-					if Q(i).ExistsIn(ComputableForm(anWordsPositions))
+					if Q(i).ExistsIn(anWordsPositions)
 						cResult += Q(oStr.Char(i)).Uppercased()
 					else
 						cResult += oStr.Char(i)

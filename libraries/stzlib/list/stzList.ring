@@ -31212,7 +31212,7 @@ class stzList from stzObject
 
 	  #----------------------------------------#
 	 #   GETTING THE REPEATED TRAILING ITEMS  #
-www	#----------------------------------------#
+	#----------------------------------------#
 
 	def RepeatedTrailingItemsCS(pCaseSensitive)
 		aResult = This.Copy().ReverseQ().RepeatedLeadingItemsCS(pCaseSensitive)
@@ -31274,7 +31274,7 @@ www	#----------------------------------------#
 	#-------------------------------------------------#
 
 	def NumberOfRepeatedTrailingItemsCS(pCaseSensitive)
-		aTrail = This.RepeadtedTrailingItemsCS(pCaseSensitive)
+		aTrail = This.RepeatedTrailingItemsCS(pCaseSensitive)
 		return len(aTrail)
 
 		#< @FunctionAlternativeForms
@@ -32590,10 +32590,15 @@ www	#----------------------------------------#
 		This.ReplaceRepeatedLeadingItemsCS(pNewItem, pCaseSensitive)
 		This.ReplaceRepeatedTrailingItemsCS(pNewItem, pCaseSensitive)
 
+		#< @FunctionFluentForm
+
 		def ReplaceRepeatedLeadingAndTrailingItemsCSQ(pNewItem, pCaseSensitive)
 			This.ReplaceRepeatedLeadingAndTrailingItemsCS(pNewItem, pCaseSensitive)
 			return This
-	
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def ReplaceLeadingAndTrailingItemsCS(pNewItem, pCaseSensitive)
 			This.ReplaceRepeatedLeadingAndTrailingItemsCS(pNewItem, pCaseSensitive)
 
@@ -32611,7 +32616,9 @@ www	#----------------------------------------#
 
 			def ReplaceTrailingAndLeadingItemsCSQ(pNewItem, pCaseSensitive)
 				return This.ReplaceRepeatedLeadingAndTrailingItemsCSQ(pNewItem, pCaseSensitive)
-	
+		#>
+
+
 	def RepeatedLeadingAndTrailingItemsReplacedCS(pNewItem, pCaseSensitive)
 		aResult = This.Copy().ReplaceRepeatedLeadingAndTrailingItemsCSQ(pNewItem, pCaseSensitive).Content()
 		return aResult
@@ -32624,6 +32631,53 @@ www	#----------------------------------------#
 	
 		def TrailingAndLeadingItemsReplacedCS(pNewItem, pCaseSensitive)
 			return This.RepeatedLeadingAndTrailingItemsReplacedCS(pNewItem, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def ReplaceRepeatedLeadingAndTrailingItems(pNewItem)
+		This.ReplaceRepeatedLeadingAndTrailingItemsCS(pNewItem, TRUE)
+
+		#< @FunctionFluentForm
+
+		def ReplaceRepeatedLeadingAndTrailingItemsQ(pNewItem)
+			This.ReplaceRepeatedLeadingAndTrailingItems(pNewItem)
+			return This
+		#>
+
+		#< @FunctionAlternativeForms
+
+		def ReplaceLeadingAndTrailingItems(pNewItem)
+			This.ReplaceRepeatedLeadingAndTrailingItems(pNewItem)
+
+			def ReplaceLeadingAndTrailingItemsQ(pNewItem)
+				return This.ReplaceRepeatedLeadingAndTrailingItemsQ(pNewItem)
+	
+		def ReplaceRepeatedTrailingAndLeadingItems(pNewItem)
+			This.ReplaceRepeatedLeadingAndTrailingItems(pNewItem)
+
+			def ReplaceRepeatedTrailingAndLeadingItemQ(pNewItem)
+				return This.ReplaceRepeatedLeadingAndTrailingItemsQ(pNewItem)
+	
+		def ReplaceTrailingAndLeadingItems(pNewItem)
+			This.ReplaceRepeatedLeadingAndTrailingItems(pNewItem)
+
+			def ReplaceTrailingAndLeadingItemsQ(pNewItem)
+				return This.ReplaceRepeatedLeadingAndTrailingItemsQ(pNewItem)
+		#>
+
+
+	def RepeatedLeadingAndTrailingItemsReplaced(pNewItem)
+		aResult = This.Copy().ReplaceRepeatedLeadingAndTrailingItemsQ(pNewItem).Content()
+		return aResult
+
+		def RepeatedTrailingAndLeadingItemsReplaced(pNewItem)
+			return This.RepeatedLeadingAndTrailingItemsReplaced(pNewItem)
+
+		def LeadingAndTrailingItemsReplaced(pNewItem)
+			return This.RepeatedLeadingAndTrailingItemsReplaced(pNewItem)
+	
+		def TrailingAndLeadingItemsReplaced(pNewItem)
+			return This.RepeatedLeadingAndTrailingItemsReplaced(pNewItem)
 
 	  #==============================#
 	 #     OPERATORS OVERLOADING    #
@@ -50518,6 +50572,20 @@ www	#----------------------------------------#
 		def FindInManySectionsCSZ(pItem, paSections, pCaseSensitive)
 			return This.FindInSectionsCS(pItem, paSections, pCaseSensitive)
 
+		#==
+
+		def FindItemInSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.FindInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def FindItemInManySectionsCS(pItem, paSections, pCaseSensitive)
+			return This.FindInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def FindItemInSectionsCSZ(pItem, paSections, pCaseSensitive)
+			return This.FindInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def FindItemInManySectionsCSZ(pItem, paSections, pCaseSensitive)
+			return This.FindInSectionsCS(pItem, paSections, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -50536,6 +50604,20 @@ www	#----------------------------------------#
 			return This.FindInSections(pItem, paSections)
 
 		def FindInManySectionsZ(pItem, paSections)
+			return This.FindInSections(pItem, paSections)
+
+		#==
+
+		def FindItemInSections(pItem, paSections)
+			return This.FindInSectionsCS(pItem, paSections)
+
+		def FindItemInManySections(pItem, paSections)
+			return This.FindInSections(pItem, paSections)
+
+		def FindItemInSectionsZ(pItem, paSections)
+			return This.FindInSections(pItem, paSections)
+
+		def FindItemInManySectionsZ(pItem, paSections)
 			return This.FindInSections(pItem, paSections)
 
 		#>
@@ -51311,6 +51393,12 @@ www	#----------------------------------------#
 		def HowManyOccurrencesOfItemInSectionsCS(pItem, paSections, pCaseSensitive)
 			return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
 
+		def CountInSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+
+		def CountItemInSectionsCS(pItem, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pItem, paSections, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -51348,6 +51436,12 @@ www	#----------------------------------------#
 			return This.NumberOfOccurrenceInSections(pItem, paSections)
 
 		def HowManyOccurrencesOfItemInSections(pItem, paSections)
+			return This.NumberOfOccurrenceInSections(pItem, paSections)
+
+		def CountInSections(pItem, paSections)
+			return This.NumberOfOccurrenceInSections(pItem, paSections)
+
+		def CountItemInSections(pItem, paSections)
 			return This.NumberOfOccurrenceInSections(pItem, paSections)
 
 		#>
@@ -84461,6 +84555,19 @@ www	#----------------------------------------#
 
 #-
 
+	def IsPositionOrSubStringNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   (This.Item(1) = :Position or This.Item(1) = :SubString)
+
+			return TRUE
+
+		else
+			return FALSE
+		ok	
+
+		def IsSubStringOrPositionNamedParam()
+			return This.IsPositionOrSubStringNamedParam()
 
 #WARNING: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.

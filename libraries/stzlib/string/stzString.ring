@@ -3440,7 +3440,7 @@ class stzString from stzObject
 
 		for i = 1 to nLen
 			cUpper = _oCopy_.SectionQ(anSections[i][1], anSections[i][2]).Uppercased()
-			_Copy.ReplaceSection(anSections[i][1], anSections[i][2], cUpper)
+			_Copy_.ReplaceSection(anSections[i][1], anSections[i][2], cUpper)
 		next
 
 		This.UpdateWith(_oCopy_.Content())
@@ -4368,7 +4368,8 @@ class stzString from stzObject
 		#>
 			
 	def TitlecasedInLocale(pLocale)
-		return This.Copy().TitleCaseInLocaleQ(pLocale).Content()
+		cResult = This.Copy().TitleCaseInLocaleQ(pLocale).Content()
+		return cResult
 
 		def TitlecasedIn(pLocale)
 			return This.TitlecasedInLocale(pLocale)
@@ -38867,7 +38868,7 @@ class stzString from stzObject
 	def InsertBeforeSubstringCS(pcNewSubStr, pcSubStr, pCaseSensitive)
 
 		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
-		This.InsertBeforePositions(anPos, pcSubStr)
+		This.InsertBeforePositions(anPos, pcNewSubStr)
 
 		#< @FunctionFluentForm
 
@@ -48009,7 +48010,7 @@ class stzString from stzObject
 
 		# Doint the job
 
-		nResult  = This.SectionQ(nStart, nLen).
+		nResult  = This.SectionQ(nStart+1, nLen).
 				FindNthCS(n, pcSubStr, pCaseSensitive)
 
 		if nResult != 0
@@ -52549,6 +52550,12 @@ class stzString from stzObject
 		def HowManyOccurrencesOfSubStringInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 			return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
 
+		def CountInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
+		def CountSubStringInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+			return This.NumberOfOccurrenceInSectionsCS(pcSubStr, paSections, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -52586,6 +52593,12 @@ class stzString from stzObject
 			return This.NumberOfOccurrenceInSections(pcSubStr, paSections)
 
 		def HowManyOccurrencesOfSubStringInSections(pcSubStr, paSections)
+			return This.NumberOfOccurrenceInSections(pcSubStr, paSections)
+
+		def CountInSections(pcSubStr, paSections)
+			return This.NumberOfOccurrenceInSections(pcSubStr, paSections)
+
+		def CountSubStringInSections(pcSubStr, paSections)
 			return This.NumberOfOccurrenceInSections(pcSubStr, paSections)
 
 		#>
@@ -94616,7 +94629,7 @@ class stzString from stzObject
 		#< @FunctionFluentForm
 
 		def BoxDashQ()
-			This.BoxDashed()
+			This.BoxDash()
 			return This
 		#>
 
@@ -94626,6 +94639,12 @@ class stzString from stzObject
 			This.BoxDash()
 
 			def BoxifyDashQ()
+				return This.BoxDashQ()
+
+		def BoxDashed()
+			This.BoxDash()
+
+			def BoxDashedQ()
 				return This.BoxDashQ()
 
 		#>
@@ -94658,6 +94677,9 @@ class stzString from stzObject
 		return This.Copy().BoxRoundQ().Content()
 
 		def BoxifiedRounded()
+			return This.BoxedRound()
+
+		def BoxedRounded()
 			return This.BoxedRound()
 
 	#--
@@ -94708,6 +94730,10 @@ class stzString from stzObject
 
 		def BoxifiedRoundedDashed()
 			return This.BoxedRoundedDashed()
+
+		def BoxedDashedRounded()
+			return This.BoxedRoundedDashed()
+
 
 	#--
 
@@ -94797,7 +94823,7 @@ class stzString from stzObject
 		#>
 
 	def EachCharBoxedRounded()
-		return This.Copy().BoxRoundEachCharRQ().Content()
+		return This.Copy().BoxRoundEachCharQ().Content()
 
 		def EachCharBoxifiedRounded()
 			return This.EachCharBoxedRound()

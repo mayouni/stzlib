@@ -12251,7 +12251,7 @@ proff()
 # Executed in 0.18 second(s)
 
 /*---------------------
-*/
+
 pron()
 
 o1 = new stzString("KALIDIA")
@@ -12280,8 +12280,8 @@ StzStringQ("12500;NAME;10;0") {
 proff()
 # Executed in 0.05 second(s)
 
-/*======================= #narration
-*/
+/*======================= #narration 
+
 pron()
 
 # One of the design goals of Softanza is to be as consitent as possible
@@ -12299,8 +12299,8 @@ StzStringQ( "***Ring++" ) {
 	? NumberOfLeadingChars()
 	#--> 3
 
-	? @@( LeadingChars() )
-	#--> "***"
+	? @@( LeadingChars() ) # Or LeadingCharsXT() #--> "***"
+	#--> [ "*", "*", "*" ]
 	
 	? HasTrailingChars()
 	#--> TRUE
@@ -12308,7 +12308,7 @@ StzStringQ( "***Ring++" ) {
 	? NumberOfTrailingChars()
 	#--> 2
 
-	? @@( TrailingChars() )
+	? @@( TrailingCharsXT() )
 	#--> "++"
 
 	ReplaceEachLeadingChar(:With = "+")
@@ -12317,7 +12317,7 @@ StzStringQ( "***Ring++" ) {
 	
 	//ReplaceLeadingAndTrailingChars(:With = "*")
 	ReplaceEachLeadingAndTrailingChar(:With = "*")
-	? Content()
+	? Content() + NL + NL + "---" + NL
 	#--> "***Ring**"
 }
 
@@ -12346,12 +12346,14 @@ StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 	? @@( Content() )
 	#--> [ "+", "+", "+", "R", "i", "n", "g", "+", "+" ]
 	
-	ReplaceLeadingAndTrailingItems(:With = "*")
+	ReplaceLeadingAndTrailingItems(:With = "*") + NL+NL + "---" + NL
 	? @@( Content() )
 	#--> [ "*", "*", "*", "R", "i", "n", "g", "*", "*" ]
 }
 
-#NOTE that, as far as strings are concerned, this feature is sensitive to case,
+#NOTE that, as far as strings are concerned, both if the main objec we
+# are working on is a string or a list containing string itmes as leading
+# or trailing chars, this feature is sensitive to case:
 # so we can say:
 
 StzStringQ("eeEEeeTUNISeeEE") {
@@ -12373,13 +12375,13 @@ StzStringQ("eeEEeeTUNISeeEE") {
 
 	#--
 
-	? NumberOfTrailingCharsCS(:CaseSensitive = FALSE)
+	? NumberOfTrailingCharsCS(:CaseSensitive = FALSE) + NL
 	#--> 4
 
 	? TrailingCharsCS(:CaseSensitive = FALSE)
 	#--> EEee
 
-	? NumberOfTrailingCharsCS(TRUE)
+	? NumberOfTrailingCharsCS(TRUE) + NL
 	#--> 2
 
 	? TrailingCharsCS(TRUE)
@@ -12391,10 +12393,11 @@ StzStringQ("eeEEeeTUNISeeEE") {
 }
 
 proff()
+# Executed in 0.08 second(s) in Ring 1.22
 # Executed in 0.35 second(s) in Ring 1.18
 # Executed in 0.61 second(s) in Ring 1.17
 
-#NOTE: Case sensitivity is supported in Lists with some functions.
+#NOTE: Case sensitivity is also supported in Lists with most functions.
 # In the future, all functions wil be covered.
 
 /*=====================
@@ -12408,6 +12411,7 @@ o1.ReplaceNextNthOccurrence(2, :Of = "@@", :StartingAt = 12, :With = "##")
 #--> ----@@--@@-------@@----##---
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 # Executed in 0.07 second(s) in Ring 1.18
 # Executed in 0.05 second(s) in Ring 1.17
 
@@ -12422,7 +12426,8 @@ o1.ReplacePreviousNthOccurrence(2, :Of = "@@", :StartingAt = 22, :With = "##")
 #--> ----@@--##-------@@----@@---
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.07 second(s) in Ring 1.18
 
 /*======================
 
@@ -12590,6 +12595,7 @@ pron()
 #--> FALSE
 
 proff()
+# Executed in 0.12 second(s) in Ring 1.22
 # Executed in 0.11 second(s) in Ring 1.18
 # Executed in 0.21 second(s) in Ring 1.17
 
@@ -12632,9 +12638,10 @@ oQLocale = new QLocale("tr-TR")
 # http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.03 second(s) in Ring 1.22
+# Executed in 0.07 second(s) in Ring 1.18
 
-/*--------------------
+/*-------------------- #narration
 
 pron()
 
@@ -12678,6 +12685,7 @@ Q("ê") { ? NumberOfChars() ? Unicode() }
 # http://unicode.org/faq/char_combmark.html
 
 proff()
+# Executed in 0.11 second(s) in Ring 1.22
 # Executed in 0.36 second(s) in Ring 1.18
 # Executed in 0.75 second(s) in Ring 1.17
 
@@ -12758,8 +12766,29 @@ proff()
 pron()
 
 o1 = new stzString("...ONE...NONE...SONY...")
-? o1.NumberOfOccurrenceInSections("N", [ [3, 5], [9, 12], [16, 19] ])
+
+? o1.CountInSections("N", [ [3, 5], [9, 12], [16, 19] ])
 #--> 4
+
+? @@ ( o1.FindInSections("N", [ [3, 5], [9, 12], [16, 19] ]) ) + NL
+#--> [ 5, 10, 12, 19 ]
+
+# Same functions work for lists
+
+o1 = new stzList([
+	".", ".", ".",
+	"O", "N", "E",
+	".", ".", ".",
+	"N", "O", "N", "E",
+	".", ".", ".",
+	"S", "O", "N", "Y",
+	".", ".", "."
+])
+
+? o1.CountInSections("N", [ [3, 5], [9, 12], [16, 19] ])
+#--> 4
+
+? @@ ( o1.FindInSections("N", [ [3, 5], [9, 12], [16, 19] ]) )
 
 proff()
 # Executed in 0.04 second(s)
@@ -12783,7 +12812,8 @@ o1 = new stzString("one;two;three;four;five")
 # ]
 
 proff()
-# Executed in 0.08 second(s).
+# Executed in 0.06 second(s) in Ring 1.22
+# Executed in 0.08 second(s) in Ring 1.20
 
 /*--------------------
 
@@ -12791,13 +12821,14 @@ pron()
 
 o1 = new stzString("in search of lost time, all the time")
 ? @@( o1.FindWords() )
-#--> [ 1, 4, 11, 14, 19, 24, 28, 32 ]
+#--> [ 1, 4, 11, 14, 19, 25, 29, 33 ]
 
 proff()
+# Executed in 0.05 second(s) in Ring 1.22
 # Executed in 0.05 second(s) in Ring 1.21
 # Executed in 0.08 second(s) in Ring 1.17
 
-/*-------------------- #todo check it
+/*--------------------
 
 pron()
 
@@ -12807,7 +12838,7 @@ StzStringQ("in search of lost time") {
 	#--> In Search Of Lost Time
 
 	? CapitalisedInLocale("en-US")
-	# !--> In Search Of Lost Time
+	#--> In Search Of Lost Time
 }
 
 StzStringQ("à la recherche du temps perdu") {
@@ -12820,6 +12851,7 @@ StzStringQ("à la recherche du temps perdu") {
 }
 
 proff()
+# Executed in 0.39 second(s) in Ring 1.22
 
 /*--------------------
 
@@ -12952,7 +12984,7 @@ pron()
 
 # You have a number in string an you want to get some info about its trailing part?
 
-# A trailing aprt is a substring at the end of the string composed of repeated chars.
+# A trailing part is a substring at the end of the string composed of repeated chars.
 
 o1 = new stzString("12.4560000")
 
@@ -12967,7 +12999,7 @@ o1 = new stzString("12.4560000")
 
 # You can get theim as a string:
 
-? o1.TrailingSubString()
+? o1.TrailingSubString() # Or TrailingCharsXT()
 #--> "0000"
 
 # or get them as a list of chars:
@@ -12977,9 +13009,9 @@ o1 = new stzString("12.4560000")
 
 # Usually, in practice, you need to remove them:
 
-o1.RemoveTrailingChars() # Or RemoveTrailingSubString
+o1.RemoveTrailingChars() # Or RemoveTrailingSubString()
 ? o1.Content()
-#--> 12.456
+#--> "12.456"
 
 proff()
 # Executed in 0.01 second(s).
@@ -13128,50 +13160,109 @@ proff()
 
 /*--------------------
 
+pron()
+
 o1 = new stzString("BATISTA1")
 o1.RemoveLastChar()
-? o1.Content()	#--> BATISTA
+? o1.Content()
+#--> BATISTA
 
-? StzStringQ("BATISTA1").LastCharRemoved() #--> BATISTA
+? StzStringQ("BATISTA1").LastCharRemoved()
+#--> BATISTA
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--------------------
+
+pron()
 
 o1 = new stzString("123BATISTA")
-o1.RemoveNFirstChars(3)
-? o1.Content()	#--> BATISTA
 
-? StzStringQ("123BATISTA").FirstNCharsRemoved(3) #--> BATISTA
+o1.RemoveNFirstChars(3)
+? o1.Content()
+#--> BATISTA
+
+? StzStringQ("123BATISTA").FirstNCharsRemoved(3)
+#--> BATISTA
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--------------------
+
+pron()
 
 o1 = new stzString("1BATISTA")
-o1.RemoveFirstChar()
-? o1.Content()	#--> BATISTA
 
-? StzStringQ("1BATISTA").FirstCharRemoved() #--> BATISTA
+o1.RemoveFirstChar()
+? o1.Content()
+#--> BATISTA
+
+? StzStringQ("1BATISTA").FirstCharRemoved()
+#--> BATISTA
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--------------------
 
+pron()
+
 o1 = new stzString("SOFTANZA IS AWSOME!")
-? o1.IsEqualTo("softanza is awsome!")			#--> FALSE
-? o1.IsEqualToCS("softanza is awsome!", :CS = FALSE)	#--> TRUE
-? o1.IsUppercaseOf("softanza is awsome!")		#--> TRUE
+
+? o1.IsEqualTo("softanza is awsome!")
+#--> FALSE
+
+? o1.IsEqualToCS("softanza is awsome!", :CS = FALSE)
+#--> TRUE
+
+? o1.IsUppercaseOf("softanza is awsome!")
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*================= Quiet-Equality of two strings
+$
+pron()
 
 o1 = new stzString("SOFTANZA IS AWSOME!")
+
 #TODO // Check performance of IsQuietEqualTo() --> Root cause RemoveDiacritics()
-? o1.IsQuietEqualTo("softanza is awsome!")	#--> TRUE
-? o1.IsQuietEqualTo("Softansa is aowsome!")	#--> TRUE (we added an "o" to "awsome")
-? o1.IsQuietEqualTo("Softansa iis aowsome!")	#--> FALSE (we add "i" to "is" and "o" to "awsome")
+#UPDATE Done, performance is now good (Ring 1.22)
+
+? o1.IsQuietEqualTo("softanza is awsome!")
+#--> TRUE
+
+? o1.IsQuietEqualTo("Softansa is aowsome!")
+#--> TRUE (we added an "o" to "awsome")
+
+? o1.IsQuietEqualTo("Softansa iis aowsome!")
+#--> FALSE (we add "i" to "is" and "o" to "awsome")
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--------------------
 
+pron()
+
 # Quiet-eqality is particularily useful in french where "énoncé" and "ÉNONCÉ" are the same:
+
 o1 = new stzString("énoncé")
-? o1.IsEqualTo("enonce")	#--> FALSE
-? o1.IsQuietEqualTo("enonce")	#--> TRUE
-? o1.IsQuietEqualTo("ÉNONCÉ")	#--> TRUE
+
+? o1.IsEqualTo("enonce")
+#--> FALSE
+
+? o1.IsQuietEqualTo("enonce")
+#--> TRUE
+
+? o1.IsQuietEqualTo("ÉNONCÉ")
+#--> TRUE
+
+proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*--------------------
 
@@ -13205,7 +13296,7 @@ o1 = new stzText("père frère mère tête")
 #--> "pere frere mere tete"
 
 proff()
-# Executed in 0.25 second(s).
+# Executed in 0.27 second(s) in Ring 1.22
 
 /*--------------------
 
@@ -13281,7 +13372,7 @@ o1 = new stzString("{{{ Scope of Life }}}")
 #--> {{ Scope of Life }}
 
 proff()
-# Executed in 0.03 second(s).
+# Executed in 0.07 second(s) in Ring 1.22
 
 /*--------------------
 
@@ -13370,7 +13461,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*=====================
-
+*
 pron()
 
 o1 = new stzString("216;TUNISIA;227;NIGER")
@@ -13470,7 +13561,8 @@ StzStringQ("__b和平س__a__و") {
 }
 
 proff()
-# Executed in 0.61 second(s).
+# Executed in 0.57 second(s) in Ring 1.22
+# Executed in 0.61 second(s) in Ring 1.18
 
 /*--------------------
 
@@ -13488,20 +13580,24 @@ proff()
 pron()
 
 o1 = new stzString("__b和平س__a_ووو")
-? o1.PartsUsingXT(' StzCharQ(@char).Script() ')
+
+? @@( o1.PartsUsingXT(' StzCharQ(@char).Script() ') )
+#--> [ "__", "b", "和平", "س", "__", "a", "_", "ووو" ]
 
 proff()
-# Executed in 0.15 second(s).
+# Executed in 0.13 second(s) in Ring 1.22
 
 /*--------------------
 
 pron()
 
 o1 = new stzString("__b和平س__a_ووو")
+
 ? o1.PartsUsing(' StzCharQ(This[@i]).Script() ' )
+# #--> [ "__", "b", "和平", "س", "__", "a", "_", "ووو" ]
 
 proff()
-# Executed in 0.07 second(s).
+# EExecuted in 0.09 second(s) in Ring 1.22
 
 /*--------------------
 
@@ -13522,7 +13618,8 @@ o1 = new stzString("__b和平س__a_ووو")
 # ]
 
 proff()
-# Executed in 0.12 second(s).
+# Executed in 0.09 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.18
 
 /*====================
 
@@ -14362,13 +14459,13 @@ StzStringQ("RING") {
 	? Content()
 	? Boxed()
 
-	? BoxedRound()
-	? BoxedRoundDashed()
+	? BoxedRounded()
+	? BoxedRoundedDashed()
 
 	? EachCharBoxed()
-	? EachCharboxedRound()
+	? EachCharboxedRounded()
 
-	//? VizFindBoxed("I")	#--> TODO: Add VizFindBoxed()
+	? VizFindBoxed("I")	#--> TODO: Add VizFindBoxed()
 }
 
 #--> RING
@@ -14392,7 +14489,7 @@ StzStringQ("RING") {
 #   └───┴─•─┴───┴───┘
 
 proff()
-# Executed in 0.05 second(s).
+# Executed in 0.11 second(s) in Ring 1.22
 
 /*------------------
 
@@ -14406,14 +14503,14 @@ StzStringQ("RING IS NICE") {
 	? BoxedRound()
 
 	? EachCharBoxed()
-	? EachCharBoxedRound()
+	? EachCharBoxedRounded()
 
 	// ? VizFindBoxed("I")	#TODO // Add it
 
 	? BoxedDashed()
-	? BoxedDashedRound()
+	? BoxedDashedRounded()
 
-	? BoxedXT([
+	? CharsBoxedXT([
 		:Line = :Solid,
 		:Corners = [
 			:Round, :Rectangular,
@@ -14447,7 +14544,7 @@ StzStringQ("RING IS NICE") {
 #   └──────────────╯
 
 proff()
-# Executed in 0.09 second(s).
+# Executed in 0.12 second(s) in Ring 1.22
 
 /*-----------------
 
@@ -15729,10 +15826,10 @@ o1 = new stzString("NoWomanNoCry")
 #--> [ "No", "Woman", "No", "Cry" ]
 
 proff()
-# Executed in 0.23 second(s).
+# Executed in 0.19 second(s) in Ring 1.22
 
 /*==================
-
+*/
 pron()
 
 StzStringQ("أهلا بأيّ كانَ، ومرحبا بأيّ كان، ومرحى لأيّ كان، أيّا كان من سمَّاهُ حُسَيْنْ") {
@@ -15740,7 +15837,8 @@ StzStringQ("أهلا بأيّ كانَ، ومرحبا بأيّ كان، ومرح
 	cSubStr = "أيّ كان"
 	cNewSubStr = " اسْمُهُ حُسَيْنْ"
 
-	InsertBefore(cSubStr,cNewSubStr)
+anPos = Find(cSubStr)
+	InsertBeforePosition(anPos, cNewSubStr)
 	? Content()
 }
 #-->
