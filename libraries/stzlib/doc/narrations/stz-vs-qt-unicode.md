@@ -11,7 +11,7 @@ Qt is a powerful cross-platform application framework, known for its comprehensi
 
 Let's examine how Softanza simplifies Unicode handling, a task that often requires multiple steps when using Qt directly.
 
----
+
 
 ## Unicode Handling in Softanza
 
@@ -37,7 +37,7 @@ Softanza also simplifies the reverse process:
 
 Here, we create an `StzCharQ` object with the Unicode number and retrieve its content, resulting in the corresponding character.
 
----
+
 
 ## Behind the Scenes: How Softanza Uses Qt
 
@@ -65,7 +65,7 @@ While Softanza presents a clean and simple interface, it's leveraging Qt's power
 
 A significant amount of work, complicated by obscure technical details that are challenging to locate amidst the vast expanse of Qt's online documentation!
 
----
+
 
 ## Advantages of Softanza's Abstraction Approach
 
@@ -86,7 +86,7 @@ By abstracting backend complexities, Softanza lowers the barrier to entry for de
 5. Future-Proof Design
 The abstraction layer enables future optimizations and alternative implementations while maintaining API stability.
 
----
+
 
 ## Softanza vs Other Qt-based Libraries
 
@@ -107,4 +107,6 @@ Unlike direct bindings, Softanza’s API remains agnostic to the underlying back
 
 ## Conclusion
 
-Softanza’s approach to Unicode handling embodies its broader philosophy: leveraging established C and C++ libraries like Qt while providing a more accessible and cohesive interface with complete architectural flexibility. This strategy ensures developers can harness the power of Qt—or any other backend—without being overwhelmed by complexity.
+Softanza’s approach to Unicode handling embodies its broader philosophy: leveraging established C and C++ libraries like Qt while providing a more accessible and cohesive interface with complete architectural flexibility.
+
+This strategy ensures developers can harness the power of Qt—or any other backend—without being overwhelmed by complexity.

@@ -88,6 +88,8 @@ The `InsertSubstrings` feature in Softanza offers several advantages when compar
 
 5. **Granular Control**: The extended version offers fine-grained control over numerous formatting aspects, all within a single function call.
 
+---
+
 ## Conclusion
 
 The `InsertSubstrings` feature in Softanza exemplifies a "simple by default, complex when needed" design philosophy. It provides an elegant solution to string list insertion, catering to both beginners and advanced users.

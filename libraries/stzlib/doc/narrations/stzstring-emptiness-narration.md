@@ -25,7 +25,7 @@ This prevents the confusion found in some languages where empty substrings are i
 
 >NOTE: The small `Q(val)` function converts the value `val` into its corresponding Softanza object. In this case, `Q("text")` returns an `stzString("text")` object.
 
----
+
 
 ## Rule 2: Emptiness Is Unfindable
 
@@ -53,7 +53,7 @@ This contrasts with languages like **Qt C++** or **Python**, or even the `substr
 
 >NOTE: We focus on **Qt** here because it is integrated into Ring through the **RingQt** library, which serves as the primary option for managing Unicode strings in the Ring language.
 
----
+
 
 ## Rule 3: Emptiness Is Uncontainable
 
@@ -72,7 +72,7 @@ An empty string contains nothing, and no string (empty or not) contains an empty
 
 This behavior eliminates ambiguities in mainstream languages, where `""` is often considered contained within any string.
 
----
+
 
 ## Rule 4: Emptiness Is Irreplaceable but Stretchable
 
@@ -104,7 +104,7 @@ Softanza enforces this by ensuring replacements involving `""` either return the
 This avoids surprising behaviors like those in **Qt C++**, where replacing `""` inserts the replacement string between every character (`"tXeXtX"`).
 
 >NOTE: The @@() function (resembling two glasses one puts on to improve sight) returns a readable, string-based representation of the value val, regardless of its type.
----
+
 
 ## Rule 5: Emptiness Is Irremovable
 
@@ -123,7 +123,7 @@ Similarly, emptiness cannot be removed from any string. Softanza guarantees that
 
 This ensures logical consistency and avoids unintended alterations.
 
----
+
 
 ## Logical Fluency and Real-World Implications
 
@@ -163,5 +163,3 @@ Softanza ensures no modifications occur when dealing with empty strings, prevent
 ## Conclusion
 
 By treating emptiness as **uncountable**, **unfindable**, **uncontainable**, **irreplaceable**, and **irremovable**, **Softanza** provides a consistent and logical framework for string operations. These rules eliminate ambiguities found in other languages, fostering clean and maintainable code.
-
-For developers seeking predictable and secure string handling, Softanza’s `stzString` class offers a robust solution, making emptiness a straightforward concept rather than a source of confusion.
