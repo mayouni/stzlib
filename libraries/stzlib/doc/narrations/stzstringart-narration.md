@@ -1,6 +1,9 @@
 # An overview of String Art support in Softanza
+![String in Art in Softanza](../images/stzstringart.jpg)
 
-The Softanza library for Ring language introduces string art texts and paintings, enhancing the programming experience in code narrations, educational examples, and console text-based games. This feature makes programming more engaging, enjoyable, and visually appealing.
+Softanza library for Ring language introduces string art texts and paintings, enhancing the programming experience in code narrations, educational examples, and console text-based games. This feature makes programming more engaging, enjoyable, and visually appealing.
+
+---
 
 ## StringArt() Function Features
 
