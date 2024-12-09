@@ -1,5 +1,5 @@
 # Softanza: Simplifying the Power of C++ Backends for Unicode Handling
-![Softanza Simplifies Qt](../images/stz-cpp-qt-backend.jpg)
+![Softanza Simplifies Qt, by Microsoft Create AI](../images/stz-vs-qt-unicode.jpg)
 
 In programming in general, there's often a trade-off between power and simplicity. Softanza, a library for the Ring programming language, aims to bridge this gap by leveraging the robust C and C++ libraries, such as Qt, while providing developers with a unified, accessible interface. This article explores how Softanza achieves this balance, with a focus on Unicode handling, using Qt as an illustrative example.
 
