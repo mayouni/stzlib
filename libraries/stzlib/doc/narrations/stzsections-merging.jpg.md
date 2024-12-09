@@ -1,15 +1,18 @@
 # Understanding Section Merging Features in Softanza
+![Merging Sections in Softanza](../images/stzsections-merging.jpg)
+
+---
 
 ## Introduction
 
-Softanza library provides three sophisticated methods for merging sections (in the `stzListOfPairs` class): `MergeInclusive()`, `MergeOverlapping()`, and `MergeSections()`. These features are designed to handle different types of section-merging scenarios, offering both specialized and comprehensive solutions for real-world algorithmic problems.
+Softanza library provides three sophisticated methods for merging sections (in the `stzListOfSections` class): `MergeInclusive()`, `MergeOverlapping()`, and `MergeSections()`. These features are designed to handle different types of section-merging scenarios, offering both specialized and comprehensive solutions for real-world algorithmic problems.
 
 ## The Nature of Sections
 
-Before exploring the merging features, let’s clarify what we mean by "sections." In Softanza, a section is represented as a pair of numbers `[n1, n2]`, where:
+Before exploring the merging features, let’s clarify what we mean by "sections". In Softanza, a section is represented as a pair of numbers `[n1, n2]`, where:
 
-- `n1` is the starting point
-- `n2` is the ending point
+- `n1` is the starting position in the string or list
+- `n2` is the ending position in the string or list
 
 `n1` can be ≤ `n2` or vice versa; whichever the case, the section `[n1, n2]` is returned.
 
@@ -35,18 +38,12 @@ The `Section()` function works the same way with both strings and lists:
 
 ## MergeInclusive(): Handling Contained Sections
 
-### Purpose
 `MergeInclusive()` is designed to merge sections where one section completely contains another. This is particularly useful when dealing with nested sections that need to be simplified.
 
-### Syntax
-```ring
-o1 = new stzListOfPairs(aSections)
-o1.MergeInclusive()
-```
+**Example:**
 
-### Example
 ```ring
-o1 = new stzListOfPairs([
+o1 = new stzListOfSections([
 	[ 4, 6  ], # Contains all the following sections
 	[ 4, 4  ],
 	[ 4, 5  ],
@@ -60,20 +57,17 @@ o1.MergeInclusive()
 #--> [ [ 4, 6 ] ]  # All sections were included in [4, 6]
 ```
 
+>NOTE: The `@@()` function, resembling a pair of glasses for better clarity, is designed to produce a readable string representation of a list or any other value provided to it.
+
+
 ## MergeOverlapping(): Handling Adjacent or Overlapping Sections
 
-### Purpose
 `MergeOverlapping()` merges sections that either overlap or are adjacent to each other. This is useful when you need to combine sections that share common points or are consecutive.
 
-### Syntax
-```ring
-o1 = new stzListOfPairs(aSections)
-o1.MergeOverlapping()
-```
+**Example:**
 
-### Example
 ```ring
-o1 = new stzListOfPairs([
+o1 = new stzListOfSections([
 	[ 8, 11  ], # Each section overlaps with the next
 	[ 9, 12  ],
 	[ 10, 13 ],
@@ -87,18 +81,14 @@ o1.MergeOverlapping()
 #--> [ [ 8, 15 ], [ 26, 29 ] ]
 ```
 
+
 ## MergeSections(): Comprehensive Section Merging
 
-### Purpose
+
 `MergeSections()` combines both inclusive and overlapping merging strategies, providing the most compact representation possible of the given sections.
 
-### Syntax
-```ring
-o1 = new stzListOfPairs(aSections)
-o1.MergeSections()
-```
+**Example:**
 
-### Example
 ```ring
 o1 = new stzListOfPairs([
 	# Inclusive sections
@@ -116,12 +106,15 @@ o1.MergeSections()
 #--> [ [ 4, 6 ], [ 8, 14 ], [ 20, 28 ] ]
 ```
 
+
 ## Practical Applications
 
 We’ll demonstrate the section-merging feature in Softanza with three practical examples. The issue presented in the third example was the key motivation for adding this feature to the library, so it will be covered in greater detail.
 
 ### 1. Time Slot Management
+
 These features are valuable for managing calendar events or scheduling systems:
+
 ```ring
 # Meeting time slots (in 24-hour format)
 aSlots = [
@@ -143,6 +136,7 @@ oSlots.MergeSections()
 > REMINDER: We use "Memory Section" instead of "Memory Range" because they are distinct in Softanza, and what we mean here is specifically a Section, not a Range.
 
 Useful for systems programming and memory management:
+
 ```ring
 # Memory sections to allocate
 aSections = [
@@ -171,7 +165,8 @@ First, let's examine our input string and analyze its duplicated substrings:
 o1 = new stzString("PhpRingRingRingPythonRubyRuby")
 
 # Get the duplicated substrings along with their sections:
-? @@( o1.DupSecutiveSubStringsZZ() )
+
+? @@( o1.DupSecutiveSubStringsZZ() ) # The ZZ() suffix adds sections to the substrings
 #--> [
 #	[ "ingR", [ [ 9, 12 ] ] ],
 #	[ "ngRi", [ [ 10, 13 ] ] ],
@@ -181,7 +176,7 @@ o1 = new stzString("PhpRingRingRingPythonRubyRuby")
 # ]
 ```
 
-This output shows us all the duplicated substrings and their positions in the string. As we can see, there are several overlapping sections. For our purpose, we need just the sections themselves:
+This output shows us all the duplicated substrings and their positions (as sections) in the string. For our purpose, we need just the sections themselves, so let's just add `Find` at the beginiing of the `DupSecutiveSubStringsZZ()` method:
 
 ```ring
 # Extract just the sections:
@@ -218,7 +213,7 @@ o1.RemoveSections(aSections)
 The magic happens behind the scenes. Let's see how Softanza processes these sections:
 
 ```ring
-? @@( StzListOfPairsQ(aSections).MergeSectionsQ().Content() )
+? @@( StzListOfSectionsQ(aSections).MergeSectionsQ().Content() )
 #--> [ [ 8, 15 ], [ 26, 29 ] ]
 ```
 
@@ -236,7 +231,7 @@ This merging process ensures that our string manipulation operations work correc
 
 This example demonstrated the critical importance of proper section merging in string manipulation. Without this feature, operations involving overlapping or inclusive sections could produce unexpected and incorrect results. By first consolidating such sections into a clean, non-overlapping set of sections, Softanza ensures reliable and predictable string manipulation outcomes.
 
-
+---
 
 ## Conclusion
 
