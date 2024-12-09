@@ -4815,7 +4815,7 @@ class stzText from stzString
 
 		for i = 1 to nLen
 			nPos = anPos[i]
-			_Copy_.QStringObject().replace(nPos-1, 1, aoStzChars[nPos].DiacriticRemoved())			
+			_oCopy_.QStringObject().replace(nPos-1, 1, aoStzChars[nPos].DiacriticRemoved())			
 		next
 
 		This.UpdateWith(_oCopy_.Content())
