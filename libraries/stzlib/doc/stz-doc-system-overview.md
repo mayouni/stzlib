@@ -14,7 +14,7 @@ At its core, the documentation system emphasizes:
 3. **Versatility**: Catering to diverse audiences, from beginners to seasoned developers.  
 4. **Simplicity**: Staying lightweight and accessible, using markdown files hosted on GitHub.  
 
----
+
 
 ## The Five Pillars of Softanza Documentation
 
