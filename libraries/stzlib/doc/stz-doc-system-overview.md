@@ -47,7 +47,7 @@ This category ensures users can quickly find authoritative information about any
 ### 4. **Deepdives**: **For Engineers and Philosophers**  
 **Deepdives** combine technical depth with philosophical reflection, making them perfect for those who want to explore the inner workings and aspirations of Softanza.  
 
-#### Topics:  
+**Topics:**
 - **Architectural Insights**: How Softanza achieves modularity, performance, and interoperability.  
 - **Philosophical Reflections**: Addressing barriers to programming, ethical considerations, and human-centric design.  
 - **Critiques and Aspirations**: Honest evaluations of challenges faced and future goals.  
