@@ -59423,6 +59423,12 @@ class stzList from stzObject
 
 		#==
 
+		def SplittedToSectionsOfN(n)
+			return This.SplittedToPartsOfNItems(n)
+
+		def SplittedToSectionsOfExactlyN(n)
+			return This.SplittedToPartsOfNItems(n)
+
 		def SplittedToSectionsOfNItems(n)
 			return This.SplittedToPartsOfNItems(n)
 

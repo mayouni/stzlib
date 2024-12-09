@@ -1808,7 +1808,7 @@ proff()
 # Executed in 0.50 second(s) in Ring 1.20
 
 /*===============
-*/
+
 pron()
 
 o1 = new stzList([ 0, "", [], 1, 2, 3, [], NULL, 0 ])
@@ -1837,7 +1837,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*------------- PERFORMANCE TIP
-*/
+
 pron()
 
 #TODO // General note on performance
@@ -9858,7 +9858,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*-----------------------
-*/
+
 pron()
 
 StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
@@ -9884,7 +9884,7 @@ StzListQ([ "*", "*", "*", "R", "i", "n", "g", "+", "+" ]) {
 	? Content()
 	#--> [ "+", "+", "+", "R", "i", "n", "g", "+", "+" ]
 	
-	ReplaceLeadingAndTrailingItems("*","*")
+	ReplaceLeadingAndTrailingItems("*") # Or [ "*", "*" ]
 	? Content() #--> [ "*", "*", "*", "R", "i", "n", "g", "*", "*" ]
 }
 
@@ -11814,7 +11814,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.21
 # Executed in 0.02 second(s) in Ring 1.17
 
-/*-----------------
+/*----------------- #TODO check error
 
 pron()
 
@@ -11831,12 +11831,14 @@ proff()
 # Executed in 0.05 second(s).
 
 /*------------
-*/
+
 pron()
 
 # A Softanza NullObject is a named object
 
 ? NullObject().IsNamedObject()
+#--> TRUE
+
 ? NullObject().VarName()
 #--> @nullobject
 
@@ -11848,7 +11850,7 @@ pron()
 proff()
 # Executed in almost 0 second(s).
 
-/*------------ #narration NAMED OBJECTS EQuALiTY
+/*------------ #narration NAMED OBJECTS EQuALiTY #todo check error
 
 # Softanza can check objects equality only if objects are
 # created as named objects (a special form of a Softanza

@@ -837,6 +837,22 @@ class stzListOfChars from stzListOfStrings
 
 			# Reading the numbering option
 
+			bNumbered = FALSE
+
+			if (paBoxOptions[ :Numbered ] != NULL and
+			   paBoxOptions[ :Numbered ] = TRUE) or
+
+			   (paBoxOptions[ :Numbers ] != NULL and
+			   paBoxOptions[ :Numbers ] = TRUE) or
+
+			   (paBoxOptions[ :ShowPositions ] != NULL and
+			   paBoxOptions[ :ShowPositions ] = TRUE)
+
+				bNumbered = TRUE
+			ok
+
+			#---
+
 			bNumberedXT = FALSE
 
 			if (paBoxOptions[ :NumberedXT ] != NULL and
@@ -855,6 +871,7 @@ class stzListOfChars from stzListOfStrings
 			   paBoxOptions[ :AllPositions ] = TRUE)
 
 				bNumberedXT = TRUE
+				bNumbered = FALSE
 			ok
 
 			# Reading the sectioned option
@@ -1057,8 +1074,7 @@ class stzListOfChars from stzListOfStrings
 
 			but bNumbered and bSectioned
 
-				aSectionsOfNumbers = Q(anHilighted).SplitToSectionsOfN(2)
-
+				aSectionsOfNumbers = Q(anHilighted).SplittedToPartsOfN(2)
 				nLenSectionsOfNumbers = len(aSectionsOfNumbers)
 
 				acSectionsOfNumbers = []

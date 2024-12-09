@@ -17585,24 +17585,24 @@ proff()
 
 pron()
 
-o1 = new stzListOfChars(@Chars("RINGORIALAND"))
+o1 = new stzListOfChars(@Chars("RINGORIA"))
 
 ? o1.BoxifyXT([
 	:Rounded = TRUE,
-	:Hilight = [ 1, 2, 3, 5, 10, 12 ],
-	:Numbered = TRUE
+	:Hilight = [ 1, 2, 3, 5 ],
+	:Numbered = TRUE # Shows only the highlited positions
 ])
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
-# │ R │ I │ N │ G │ O │ R │ I │ A │ L │ A │ N │ D │
-# ╰─•─┴─•─┴─•─┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴─•─╯
-#   1   2   3       5                   10     12
+# ╭───┬───┬───┬───┬───┬───┬───┬───╮
+# │ R │ I │ N │ G │ O │ R │ I │ A │
+# ╰─•─┴─•─┴─•─┴───┴─•─┴───┴───┴───╯
+#   1   2   3       5
 
 proff()
 # Executed in 0.08 second(s).
 
 /*-----------------
-*/
+
 pron()
 
 o1 = new stzListOfChars(@Chars("RINGORIALAND"))
@@ -17694,7 +17694,11 @@ pron()
 
 o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 
-? o1.BoxifyXT([ :Rounded, :Hilight = [ 1, 4 ], :Sectioned , :Numbered ]) + NL
+? o1.BoxifyXT([
+	:Rounded = TRUE,
+	:Hilight = [ 1, 4 ],
+	:Sectioned = TRUE,
+	:Numbered = TRUE ]) + NL
 #-->
 # ╭───┬───┬───┬───╮
 # │ R │ I │ N │ G │
@@ -17704,7 +17708,12 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 
 # Force the display of all the positions ~> add an ..XT to :Numbered option
 
-? o1.BoxifyXT([ :Rounded, :Hilight = [ 1, 4 ], :Sectioned , :NumberedXT ])
+? o1.BoxifyXT([
+	:Rounded = TRUE,
+	:Hilight = [ 1, 4 ],
+	:Sectioned = TRUE,
+	:NumberedXT = TRUE
+])
 #-->
 # ╭───┬───┬───┬───╮
 # │ R │ I │ N │ G │
@@ -17713,7 +17722,7 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 #   1   2   3   4
 
 proff()
-# Executed in 0.11 second(s).
+# Executed in 0.10 second(s) in Ring 1.22
 
 /*-----------------
 
@@ -17721,14 +17730,18 @@ pron()
 
 o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 
-? o1.BoxXT([ :Rounded, :Hilight = [ 1, 4 ], :NumberedXT ]) + NL # OrBoxifyXT()
+? o1.BoxXT([
+	:Rounded = TRUE,
+	:Hilight = [ 1, 4 ],
+	:NumberedXT = TRUE
+]) + NL # OrBoxifyXT()
 #-->
 # ╭───┬───┬───┬───╮
 # │ R │ I │ N │ G │
 # ╰─•─┴───┴───┴─•─╯
 #   1   2   3   4
 
-? o1.BoxifyXT([ :ShowPositions = [ 1, 4 ], :NumberedXT ])
+? o1.BoxifyXT([ :ShowPositions = [ 1, 4 ], :NumberedXT = TRUE ])
 #-->
 # ┌───┬───┬───┬───┐
 # │ R │ I │ N │ G │
@@ -17742,28 +17755,14 @@ proff()
 
 pron()
 
-? Q("RING").CharsBoxifiedXT([ :Numbered, TRUE ]) + NL
+? Q("RING").CharsBoxifiedXT([ :Numbered = TRUE ]) + NL
 #-->
 # ┌───┬───┬───┬───┐
 # │ R │ I │ N │ G │
 # └───┴───┴───┴───┘
 #   1   2   3   4
 
-? Q("RING").CharsBoxifiedXT(:Numbered) + NL
-#-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
-#   1   2   3   4
-
-? Q("RING").CharsBoxifiedXT([ :Rounded, :Numbered ]) + NL
-#-->
-# ╭───┬───┬───┬───╮
-# │ R │ I │ N │ G │
-# ╰───┴───┴───┴───╯
-#   1   2   3   4
-
-? Q(Chars("RING")).ToStzListOfChars().BoxifiedXT(:Numbered)
+? Q(Chars("RING")).ToStzListOfChars().BoxifiedXT([ :Numbered = TRUE ])
 #-->
 # ┌───┬───┬───┬───┐
 # │ R │ I │ N │ G │
@@ -17771,7 +17770,8 @@ pron()
 #   1   2   3   4
 
 proff()
-# Executed in 0.18 second(s).
+# Executed in 0.10 second(s) in Ring 1.22
+# Executed in 0.18 second(s) in Ring 1.20
 
 /*-----------------
 
@@ -17782,7 +17782,7 @@ o1 = new stzString("SOFTANZA~RING")
 o1.BoxifyCharsXT([
 	:Rounded = TRUE,
 	:Corners = [ :Round, :Rect, :Round, :Rect ],
-	:Numbered
+	:Numbered = TRUE
 ])
 
 ? o1.Content() + NL
@@ -17800,7 +17800,7 @@ o1 = new stzString("SOFTANZA~RING")
 o1.BoxifyCharsXT([
 	:Rounded = FALSE,
 	:Corners = [ :Round, :Rect, :Round, :Rect ],
-	:Numbered
+	:Numbered = TRUE
 ])
 
 ? o1.Content()
@@ -17811,9 +17811,9 @@ o1.BoxifyCharsXT([
 #   1   2   3   4   5   6   7   8   9   10  11  12  13
 
 proff()
-# Executed in 0.10 second(s).
+# Executed in 0.12 second(s) in Ring 1.22
 
-/*-----------------
+/*===============
 
 pron()
 
@@ -17831,8 +17831,10 @@ pron()
 o1 = new stzString("SOFTANZA")
 o1.SpacifyCharsUsing("~")
 ? o1.Content()
+#--> S~O~F~T~A~N~Z~A
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*-----------------
 
@@ -17883,11 +17885,11 @@ proff()
 # Executed in 0.01 second(s).
 
 /*------------------
-
+*/
 pron()
 
 o1 = new stzString("SOFTANZA")
-o1.SpacifyCharsXT("~", 2, :Default)
+o1.SpacifyCharsXT(:Separator = "~", :Step = 2, :Direction = :Default)
 ? o1.Content()
 #--> SO~FT~AN~ZA
 

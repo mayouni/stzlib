@@ -17,6 +17,10 @@
 	for UT8-only string
 	#--> Better performance.
 
+	#TODO Consider using Allegro extension (via Ring GameEngine)
+	# for unicode string manipulation ~> My tests prove it's more
+	# performant the Qt and basic Ring native string management.
+
 	#TODO //
 	Get inspiration from the python ftfy library to add Unicode text
 	cleansing in Softanza
@@ -87959,13 +87963,14 @@ class stzString from stzObject
 
 			anPos = []
 
-			if pcDirection = :Forward
+			if pcDirection = :Forward or pcDirection = :Default
 				
 				for i = 1 to nLenStr step pnStep
 					anPos + i
 				next
 
 				This.InsertBeforeThesePositions(anPos, pcSeparator)
+				return
 
 			but pcDirection = :Backward
 		
@@ -87974,12 +87979,10 @@ class stzString from stzObject
 				next
 
 				This.InsertAfterThesePositions(anPos, pcSeparator)
+				return
 			ok
 
-			# Finishing the job
-
-			return
-
+			StzRaise("Unsupported syntax!")
 		ok
 
 		# Case of Extended mode
@@ -88351,7 +88354,7 @@ class stzString from stzObject
 		*/
 
 		_oQCopy_ = QStringObject()
-		nLen = _oQCopy.size()
+		nLen = _oQCopy_.size()
 
 		for i = nLen-1 to 1 step -1
 			_oQCopy_.insert(i, pcSep)
@@ -94928,7 +94931,6 @@ class stzString from stzObject
 	#--
 
 	def BoxXT(paBoxOptions)
-
 		/*
 		Example:
 
@@ -95025,6 +95027,14 @@ class stzString from stzObject
 				cLine = :Dashed
 			ok
 
+			# Reading if the box should be numbered
+
+			bNumbered = FALSE # By default
+
+			if paBoxOptions[ :Numbered ] = TRUE
+				bNumbered = TRUE
+			ok
+
 			# Reading if the box is rounded
 
 			bRounded = NULL # By default
@@ -95104,7 +95114,6 @@ class stzString from stzObject
 			# to the stzListOfChars class
 
 			if paBoxOptions[ :EachChar ] = TRUE
-
 				cResult = This.ToStzListOfChars().BoxedXT(paBoxOptions)
 				This.UpdateWith(cResult)
 				return
