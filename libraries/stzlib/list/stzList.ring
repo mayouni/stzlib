@@ -4516,7 +4516,7 @@ func ObjectsIn(paList)
 #===
 
 func StzListContainsCS(paList, pItem, pCaseSensitive)
-	nPos = @FindFirstCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+	nPos = @FindFirstCS(paList, pItem, pCaseSensitive)
 	if nPos > 0
 		return TRUE
 	else
@@ -4849,8 +4849,6 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 		aContent[nPos] += (""+ aContent[nPos]+1)
 		
 	end
-
-
 
 	nResult = 0
 
@@ -76942,14 +76940,17 @@ class stzList from stzObject
 	#--
 
 	def IsByManyOrWithManyOrUsingManyNamedParam()
-		if This.IsByManyNamedParam() or
-		   This.IsWithNamedParam() or
-		   This.IsUsingNamedParam()
+		if This.NumberOfItems() = 2 and ( isString(This.Item(1)) and
 
+			( This.Item(1) = :ByMany or This.Item(1) = :UsingMany or
+			This.Item(1) = :WithMany ) )
+		  
 			return TRUE
+
 		else
 			return FALSE
 		ok
+
 
 		#--
 
