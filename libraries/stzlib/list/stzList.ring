@@ -4823,7 +4823,7 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 	nLen = len(aList)
 	aContent = []
 
-	for i = nStart+1 to nLen
+	for i = nStart to nLen
 		aContent + aList[i]
 	next
 
@@ -4854,10 +4854,12 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 
 	if nPos > 0
 
-		nResult = nPos + nStart
+		nResult = nPos + nStart - 1
 	ok
 
 	return nResult
+
+	#< @FunctionAlternativeForms
 
 	func FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
@@ -4870,55 +4872,17 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 
 	#--
 
-	func @FindNthNextSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-
-	func @FindNextNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-
-	func FindNextNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-
-	func FindNthNextSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-
-
-	func FindNthNextStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-
-	func FindNextNthStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-
-
-	func @FindNextNthStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-
-	func @FindNthNextStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-
-	#--
-
-	def FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-
-	def FindNextNthCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-
-	def @FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
-		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-
-	def @FindNextNthCS(aList, nth, pItem, nStart, pCaseSensitive)
+	func FindNthCS(aList, nth, pItem, nStart, pCaseSensitive)
 		return @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 
 	#>
+
+#-- CS
 
 func @FindNthST(aList, nth, pItem, nStart)
 	return @FindNthSTCS(aList, nth, pItem, nStart, TRUE)
 
 	#< @FunctionAlternativeForms
-
-	func @FindNthStartingAt(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
 
 	func FindNthST(aList, nth, pItem, nStart)
 		return @FindNthST(aList, nth, pItem, nStart)
@@ -4926,47 +4890,104 @@ func @FindNthST(aList, nth, pItem, nStart)
 	func FindNthStartingAt(aList, nth, pItem, nStart)
 		return @FindNthST(aList, nth, pItem, nStart)
 
-	#--
-
-	func @FindNthNextST(aList, nth, pItem, nStart)
+	func @FindNthStartingAt(aList, nth, pItem, nStart)
 		return @FindNthST(aList, nth, pItem, nStart)
-
-	func @FindNextNthST(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
-
-	func FindNextNthST(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
-
-	func FindNthNextST(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
-
-
-	func FindNthNextStartingAt(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
-
-	func FindNextNthStartingAt(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
-
-
-	func @FindNextNthStartingAt(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
-
-	func @FindNthNextStartingAt(aList, nth, pItem, nStart)
-		return @FindNthSCST(aList, nth, pItem, nStart)
 
 	#--
 
-	def FindNthNext(aList, nth, pItem, nStart)
+	func FindNth(aList, nth, pItem, nStart)
 		return @FindNthST(aList, nth, pItem, nStart)
+
+	#>
+
+#===
+
+func FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	if CheckingParams() = TRUE
+		if isList(nStart) and StzListQ(nStart).IsStartingAtNamedParam()
+			nStart = nStart[2]
+		ok
+	ok
+
+	return @FindNthSTCS(aList, nth, pItem, nStart+1, pCaseSensitive)
+
+	#< @FunctionAlternativeForms
+
+	def FindNextNthCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	def @FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	def @FindNextNthCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func @FindNthNextSTCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func @FindNextNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func FindNextNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func FindNthNextSTCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func FindNthNextStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func FindNextNthStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func @FindNextNthStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	func @FindNthNextStartingAtCS(aList, nth, pItem, nStart, pCaseSensitive)
+		return FindNthNextCS(aList, nth, pItem, nStart, pCaseSensitive)
+
+	#>
+
+#-- CS
+
+func FindNthNext(aList, nth, pItem, nStart)
+	return FindNthNextCS(aList, nth, pItem, nStart, TRUE)
+
+	#< @FunctionAlternativeForms
 
 	def FindNextNth(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
+		return FindNthNext(aList, nth, pItem, nStart)
 
 	def @FindNthNext(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
+		return FindNthNext(aList, nth, pItem, nStart)
 
 	def @FindNextNth(aList, nth, pItem, nStart)
-		return @FindNthST(aList, nth, pItem, nStart)
+		return FindNthNext(aList, nth, pItem, nStart)
+
+	func @FindNthNextST(aList, nth, pItem, nStart)
+		return FindNthNext(aList, nth, pItem, nStart)
+
+	func @FindNextNthST(aList, nth, pItem, nStart)
+		return FindNthNext(aList, nth, pItem, nStart)
+
+	func FindNextNthST(aList, nth, pItem, nStart)
+		return FindNthNext(aList, nth, pItem, nStart)
+
+	func FindNthNextST(aList, nth, pItem, nStart)
+		return FindNthNext(aList, nth, pItem, nStart)
+
+	func FindNthNextStartingAt(aList, nth, pItem, nStart)
+		return FindNthNext(aList, nth, pItem, nStart)
+
+	func FindNextNthStartingAt(aList, nth, pItem, nStart)
+		return FindNthNext(aList, nth, pItem, nStart)
+
+	func @FindNextNthStartingAt(aList, nth, pItem, nStart)
+		return FindNthNext(aList, nth, pItem, nStart)
+
+	func @FindNthNextStartingAt(aList, nth, pItem, nStart)
+		return FindNthNext(aList, nth, pItem, nStart)
 
 	#>
 
