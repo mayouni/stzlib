@@ -1355,8 +1355,26 @@ Dotless LETTERS
 	_aNumberOfLettersPerLanguage = []
 
 
+	  #--------------------------------------#
+	 #  CHARS CORRESPONDINH TO PAPER CARDS  #
+	#--------------------------------------#
 
-
+	_aCardsXT = [
+	    :Ace = "🂡",
+	    :Two = "🂢",
+	    :Three = "🂣",
+	    :Four = "🂤",
+	    :Five = "🂥",
+	    :Six = "🂦",
+	    :Seven = "🂧",
+	    :Eight = "🂨",
+	    :Nine = "🂩",
+	    :Ten = "🂪",
+	    :Jack = "🂫",
+	    :Queen = "🂭",
+	    :King = "🂮"
+	]
+	
   /////////////////////
  ///   FUNCTIONS   ///
 /////////////////////
@@ -2521,3 +2539,72 @@ Dotless LETTERS
 
 		func TheMoon()
 			return Moon()
+
+	#--
+
+	func CardsXT()
+		return _aCardsXT
+	
+	func Cards()
+	
+		nLen = len(_aCardsXT)
+	
+		acResult = []
+	
+		for i = 1 to nLen
+			acResult + _aCardsXT[i][2]
+		next
+	
+		return acResult
+	
+	func Card(pcCard)
+	
+		if NOT isString(pcCard)
+			StzRaise("Incorrect param type!")
+		ok
+	
+		cResult = _aCardsXT[pcCard]
+	
+		if cResult = NULL
+			StzRaise("Incorrect param value!")
+		ok 
+	
+		return cResult
+
+	func TheseCards(acCards)
+		if NOT (isList(acCards) and IsListOfStrings(acCards))
+			StzRaise("Incorrect param type! acCards must be a list of strings.")
+		ok
+
+		acResult = []
+		nLen = len(acCards)
+
+		for i = 1 to nLen
+			
+			cCard = _aCardsXT[acCards[i]]
+
+			if cCard != NULL
+				acResult + cCard
+			ok
+		next
+
+		return acResult
+
+	func TheseCardsXT(acCards)
+		if NOT (isList(acCards) and IsListOfStrings(acCards))
+			StzRaise("Incorrect param type! acCards must be a list of strings.")
+		ok
+
+		acResult = []
+		nLen = len(acCards)
+
+		for i = 1 to nLen
+			
+			cCard = _aCardsXT[acCards[i]]
+
+			if cCard != NULL
+				acResult + [ acCards[i], cCard ]
+			ok
+		next
+
+		return acResult
