@@ -3028,17 +3028,34 @@ proff()
 #--> Executed in 0.17
 
 /*---------
-
+*/
 pron()
 
-//? @ListContainsCS([ "hi!", "--♥♥♥--♥♥♥--" ], "hi!", 1)
+aList = [ 1, "♥", 3, 4, "♥", 5, "♥" ]
 
-//? @FindFirstCS()
+? FindNth(aList, 2, "♥", :StartingAt = 2)
+#--> 5
 
-//? @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
-? @FindNthSTCS([ "hi!", "--♥♥♥--♥♥♥--" ], 1, "hi!", 1, TRUE)
+? FindNth(aList, 2, "♥", :StartingAt = 3)
+#--> 7
 
-//? Q([ "hi!", "--♥♥♥--♥♥♥--" ]).containsCS("hi!", 1)
+? FindNextNth(aList, 2 , "♥", :StartingAt = 2)
+#--> 7
+
+proff()
+# Executed in almost 0 second(s) in Ring 1.22
+
+/*---------
+*/
+pron()
+
+? @ListContainsCS([ "hi!", "--♥♥♥--♥♥♥--" ], "hi!", TRUE)
+#--> TRUE
+
+? @FindNthSTCS([ "hi!", "--♥♥♥--♥♥♥--" ], 1, "hi!", :StartingAt = 1, TRUE)
+#--> 1
+
+? Q([ "hi!", "--♥♥♥--♥♥♥--" ]).ContainsCS("hi!", 1)
 
 proff()
 
@@ -3061,7 +3078,8 @@ o1 = new stzString("<<hi!>>..<<--♥♥♥--♥♥♥-->>..<<hi!>>")
 # ]
 
 proff()
-#--> Executed in 0.20 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.20 second(s) in Ring 1.17
 
 /*-------------
 
