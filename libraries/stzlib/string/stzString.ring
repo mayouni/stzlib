@@ -7521,7 +7521,7 @@ class stzString from stzObject
 	def OccurrencesOfMarquer(pcMarquer)
 
 		aResult = This.UniqueMarquersAndTheirPositions()[pcMarquer]
-			# ~> Or you can simply say: This.MarquersZU()[pcMarquer]
+			# ~> Or you can simply say: This.MarquersUZ()[pcMarquer]
 
 		if isString(aResult) and aResult = NULL
 			return []
@@ -7811,22 +7811,13 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForm
 
-		def MarquersZZU()
+		def MarquersUZZ()
 			return This.UniqueMarquersAndSections()
 
 			def MarquersZZUQ()
 				return This.UniqueMarquersAndSectionsQ()
 
 			def MarquersZZUQR(pcReturnType)
-				return This.UniqueMarquersAndSectionsQR(pcReturnType)
-
-		def MarquersUZZ()
-			return This.UniqueMarquersAndSections()
-
-			def MarquersUZZQ()
-				return This.UniqueMarquersAndSectionsQ()
-
-			def MarquersUZZQR(pcReturnType)
 				return This.UniqueMarquersAndSectionsQR(pcReturnType)
 
 		def UniqueMarquersAndTheirSections()
@@ -8004,10 +7995,10 @@ class stzString from stzObject
 		def MarquersAndTheirPositionsSortedInAscendingU()
 			return This.UniqueMarquersAndPositionsSortedInAscending()
 
-		def MarquersSortedZU()
+		def MarquersSortedUZ()
 			return This.UniqueMarquersAndPositionsSortedInAscending()
 
-		def MarquersSortedInAscendingZU()
+		def MarquersSortedInAscendingUZ()
 			return This.UniqueMarquersAndPositionsSortedInAscending()
 
 		#>
@@ -8067,7 +8058,7 @@ class stzString from stzObject
 		def MarquersAndTheirPositionsSortedOInDescendingU()
 			return This.UniqueMarquersAndPositionsSortedInDescending()
 
-		def MarquersSortedInDescendingZU()
+		def MarquersSortedInDescendingUZ()
 			return This.UniqueMarquersAndPositionsSortedInDescending()
 
 		#>
@@ -8144,10 +8135,10 @@ class stzString from stzObject
 		def MarquersAndTheirSectionsSortedOInAscendingU()
 			return This.UniqueMarquersAndSectionsSortedInAscending()
 
-		def MarquersSortedInAscendingZZU()
+		def MarquersSortedInAscendingUZZ()
 			return This.UniqueMarquersAndSectionsSortedInAscending()
 
-		def MarquersSortedZZU()
+		def MarquersSortedUZZ()
 			return This.UniqueMarquersAndSectionsSortedInAscending()
 
 		#>
@@ -8220,7 +8211,7 @@ class stzString from stzObject
 		def MarquersAndTheirSectionsSortedOInDescendingU()
 			return This.UniqueMarquersAndSectionsSortedInDescending()
 
-		def MarquersSortedInDescendingZZU()
+		def MarquersSortedInDescendingUZZ()
 			return This.UniqueMarquersAndSectionsSortedInDescending()
 
 		#>
@@ -33294,53 +33285,53 @@ class stzString from stzObject
 	 #  ALONG WITH THEIR POSITIONS -- U/EXTENDED                      #
 	#----------------------------------------------------------------#
 
-	def SubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
-		return U( This.SubStringsBoundedByCSZU(pacBounds, pCaseSensitive) )
+	def SubStringsBoundedByCSUZ(pacBounds, pCaseSensitive)
+		return U( This.SubStringsBoundedByCSUZ(pacBounds, pCaseSensitive) )
 
 		#< @FunctionAlternativeForms
 
-		def BoundedByCSZU(acBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
+		def BoundedByCSUZ(acBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSUZ(pacBounds, pCaseSensitive)
 
-		def AnySubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
+		def AnySubStringsBoundedByCSUZ(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSUZ(pacBounds, pCaseSensitive)
 
-		def AnyBoundedByCSZU(acBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
+		def AnyBoundedByCSUZ(acBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSUZ(pacBounds, pCaseSensitive)
 
 		#--
 
 		def SubStringsBoundedByAndTheirPositionsCSU(pacBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSUZ(pacBounds, pCaseSensitive)
 
 		def AnySubStringsBoundedByAndTheirPositionsCSU(acBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSZU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSUZ(pacBounds, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVTY
 
-	def SubStringsBoundedByZU(pacBounds)
-		return This.SubStringsBoundedByCSZU(pacBounds, TRUE)
+	def SubStringsBoundedByUZ(pacBounds)
+		return This.SubStringsBoundedByCSUZ(pacBounds, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def BoundedByZU(pacBounds)
-			return This.SubStringsBoundedByZU(pacBounds)
+		def BoundedByUZ(pacBounds)
+			return This.SubStringsBoundedByUZ(pacBounds)
 
-		def AnySubStringsBoundedByZU(pacBounds)
-			return This.SubStringsBoundedByZU(pacBounds)
+		def AnySubStringsBoundedByUZ(pacBounds)
+			return This.SubStringsBoundedByUZ(pacBounds)
 
-		def AnyBoundedByZU(pacBounds)
-			return This.SubStringsBoundedByZU(pacBounds)
+		def AnyBoundedByUZ(pacBounds)
+			return This.SubStringsBoundedByUZ(pacBounds)
 
 		#--
 
 		def SubStringsBoundedByAndTheirPositionsU(pacBounds)
-			return This.SubStringsBoundedByZU(pacBounds)
+			return This.SubStringsBoundedByUZ(pacBounds)
 
 		def AnySubStringsBoundedByAndTheirPositionsU(acBounds)
-			return This.SubStringsBoundedByCSZU(pacBounds)
+			return This.SubStringsBoundedByCSUZ(pacBounds)
 
 		#>
 	
@@ -33349,53 +33340,86 @@ class stzString from stzObject
 	 #  ALONG WITH THEIR SECTIONS -- U/EXTENDED                       #
 	#----------------------------------------------------------------#
 
-	def SubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
-		return U( This.SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive) )
+	def SubStringsBoundedByCSUZZ(pacBounds, pCaseSensitive)
+		aSections = This.SubStringsBoundedByCSZZ(pacBounds, pCaseSensitive)
+		nLen = len(aSections)
+
+		if nLen = 0
+			return []
+		ok
+
+		bCase = @CaseSensitive(pCaseSensitive)
+
+		if bCase = FALSE
+			for i = 1 to nLen
+				aSections[i][1] = lower(aSections[i][1])
+			next
+		ok
+
+		acSeen = []
+		aResult = []
+
+		for i = 1 to nLen
+
+			nPos = ring_find(acSeen, aSections[i][1])
+
+			if nPos = 0
+				aResult + [ aSections[i][1], [ aSections[i][2] ] ]
+				acSeen + aSections[i][1]
+			else
+
+				aResult[nPos][2] + aSections[i][2]
+
+			ok
+
+		next
+
+		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def BoundedByCSZZU(pacBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
+		def BoundedByCSUZZ(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSUZZ(pacBounds, pCaseSensitive)
 
-		def AnySubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
+		def AnySubStringsBoundedByCSUZZ(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSUZZ(pacBounds, pCaseSensitive)
 
-		def AnyBoundedByCSZZU(pacBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
+		def AnyBoundedByCSUZZ(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSUZZ(pacBounds, pCaseSensitive)
 
 		#--
 
 		def SubStringsBoundedByAndTheirSectionsCSU(pacBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSUZZ(pacBounds, pCaseSensitive)
 
 		def AnySubStringsBoundedByAndTheirSectionsCSU(pacBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSZZU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSUZZ(pacBounds, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVTY
 
-	def SubStringsBoundedByZZU(pacBounds)
-		return This.SubStringsBoundedByCSZZU(pacBounds, TRUE)
+	def SubStringsBoundedByUZZ(pacBounds)
+		return This.SubStringsBoundedByCSUZZ(pacBounds, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def BoundedByZZU(pacBounds)
-			return This.SubStringsBoundedByZZU(pacBounds)
+		def BoundedByUZZ(pacBounds)
+			return This.SubStringsBoundedByUZZ(pacBounds)
 
-		def AnySubStringsBoundedByZZU(pacBounds)
-			return This.SubStringsBoundedByZZU(pacBounds)
+		def AnySubStringsBoundedByUZZ(pacBounds)
+			return This.SubStringsBoundedByUZZ(pacBounds)
 
-		def AnyBoundedByZZU(pacBounds)
-			return This.SubStringsBoundedByZZU(pacBounds)
+		def AnyBoundedByUZZ(pacBounds)
+			return This.SubStringsBoundedByUZZ(pacBounds)
 
 		#--
 
 		def SubStringsBoundedByAndTheirSectionsU(pacBounds)
-			return This.SubStringsBoundedByZZU(pacBounds)
+			return This.SubStringsBoundedByUZZ(pacBounds)
 
 		def AnySubStringsBoundedByAndTheirSectionsU(acBounds)
-			return This.SubStringsBoundedByCSZZU(pacBounds)
+			return This.SubStringsBoundedByCSUZZ(pacBounds)
 
 		#>
 
@@ -33884,48 +33908,48 @@ class stzString from stzObject
 	 #  GETTING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IBZU/EXTENSION  #
 	#-----------------------------------------------------------------------#
 
-	def SubStringsBoundedByCSIBZU(pacBounds, pCaseSensitive)
+	def SubStringsBoundedByCSIBUZ(pacBounds, pCaseSensitive)
 
 		return U( This.SubStringsBoundedByCSIBZ(pacBounds, pCaseSensitive) )
 
 		#< @FunctionAlternativeForms
 
-		def AnySubStringBoundedByCSIBZU(pacBounds, pCaseSenitive)
-			return This.SubStringsBoundedByCSIBZU(pacBounds, pCaseSensitive)
+		def AnySubStringBoundedByCSIBUZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBUZ(pacBounds, pCaseSensitive)
 
-		def AnySubStringsBoundedByCSIBZU(pacBounds, pCaseSenitive)
-			return This.SubStringsBoundedByCSIBZU(pacBounds, pCaseSensitive)
+		def AnySubStringsBoundedByCSIBUZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBUZ(pacBounds, pCaseSensitive)
 
 		#--
 
-		def BoundedByCSIBZU(pacBounds, pCaseSenitive)
-			return This.SubStringsBoundedByCSIBZU(pacBounds, pCaseSensitive)
+		def BoundedByCSIBUZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBUZ(pacBounds, pCaseSensitive)
 
-		def AnyBoundedByCSIBZU(pacBounds, pCaseSenitive)
-			return This.SubStringsBoundedByCSIBZU(pacBounds, pCaseSensitive)
+		def AnyBoundedByCSIBUZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBUZ(pacBounds, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBoundedByIBZU(pacBounds)
-		return This.SubStringsBoundedByCSIBZU(pacBounds, TRUE)
+	def SubStringsBoundedByIBUZ(pacBounds)
+		return This.SubStringsBoundedByCSIBUZ(pacBounds, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def AnySubStringBoundedByIBZU(pacBounds)
-			return This.SubStringsBoundedByIBZU(pacBounds)
+		def AnySubStringBoundedByIBUZ(pacBounds)
+			return This.SubStringsBoundedByIBUZ(pacBounds)
 
-		def AnySubStringsBoundedByIBZU(pacBounds)
-			return This.SubStringsBoundedByIBZU(pacBounds)
+		def AnySubStringsBoundedByIBUZ(pacBounds)
+			return This.SubStringsBoundedByIBUZ(pacBounds)
 
 		#--
 
-		def BoundedByIBZU(pacBounds)
-			return This.SubStringsBoundedByIBZU(pacBounds)
+		def BoundedByIBUZ(pacBounds)
+			return This.SubStringsBoundedByIBUZ(pacBounds)
 
-		def AnyBoundedByIBZU(pacBounds)
-			return This.SubStringsBoundedByIBZU(pacBounds)
+		def AnyBoundedByIBUZ(pacBounds)
+			return This.SubStringsBoundedByIBUZ(pacBounds)
 
 		#>
 
@@ -33933,7 +33957,7 @@ class stzString from stzObject
 	 #  GETTING THE SUBSTRINGS BOUNDED BY THE GIVEN BOUNDS -- IBZZU/EXTENSION  #
 	#------------------------------------------------------------------------#
 
-	def SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+	def SubStringsBoundedByCSIBUZZ(pacBounds, pCaseSensitive)
 
 		return U( This.SubStringsBoundedByCSIBZZ(pacBounds, pCaseSensitive) )
 
@@ -33941,69 +33965,69 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def AnySubStringBoundedByCSIBZZU(pacBounds, pCaseSenitive)
-			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+		def AnySubStringBoundedByCSIBUZZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBUZZ(pacBounds, pCaseSensitive)
 
-		def AnySubStringsBoundedByCSIBZZU(pacBounds, pCaseSenitive)
-			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+		def AnySubStringsBoundedByCSIBUZZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBUZZ(pacBounds, pCaseSensitive)
 
 		#--
 
-		def BoundedByCSIBZZU(pacBounds, pCaseSenitive)
-			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+		def BoundedByCSIBUZZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBUZZ(pacBounds, pCaseSensitive)
 
-		def AnyBoundedByCSIBZZU(pacBounds, pCaseSenitive)
-			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+		def AnyBoundedByCSIBUZZ(pacBounds, pCaseSenitive)
+			return This.SubStringsBoundedByCSIBUZZ(pacBounds, pCaseSensitive)
 
 		#==
 
 		def SubStringsBoundedByAsSectionsCSIBU(pacBounds, pCaseSensitive)
-			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSIBUZZ(pacBounds, pCaseSensitive)
 
 		#--
 
 		def BoundedByAsSectionsCSIBU(pacBounds, pCaseSenitive)
-			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSIBUZZ(pacBounds, pCaseSensitive)
 
 		def AnyBoundedByAsSectionsCSIBU(pacBounds, pCaseSenitive)
-			return This.SubStringsBoundedByCSIBZZU(pacBounds, pCaseSensitive)
+			return This.SubStringsBoundedByCSIBUZZ(pacBounds, pCaseSensitive)
 
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SubStringsBoundedByIBZZU(pacBounds)
-		return This.SubStringsBoundedByCSIBZZU(pacBounds, TRUE)
+	def SubStringsBoundedByIBUZZ(pacBounds)
+		return This.SubStringsBoundedByCSIBUZZ(pacBounds, TRUE)
 
 		#< @FunctionAlternativeForms
 
 
-		def AnySubStringBoundedByIBZZU(pacBounds)
-			return This.SubStringsBoundedByIBZZU(pacBounds)
+		def AnySubStringBoundedByIBUZZ(pacBounds)
+			return This.SubStringsBoundedByIBUZZ(pacBounds)
 
-		def AnySubStringsBoundedByIBZZU(pacBounds)
-			return This.SubStringsBoundedByIBZZU(pacBounds)
+		def AnySubStringsBoundedByIBUZZ(pacBounds)
+			return This.SubStringsBoundedByIBUZZ(pacBounds)
 
 		#--
 
-		def BoundedByIBZZU(pacBounds)
-			return This.SubStringsBoundedByIBZZU(pacBounds)
+		def BoundedByIBUZZ(pacBounds)
+			return This.SubStringsBoundedByIBUZZ(pacBounds)
 
-		def AnyBoundedByIBZZU(pacBounds)
-			return This.SubStringsBoundedByIBZZU(pacBounds)
+		def AnyBoundedByIBUZZ(pacBounds)
+			return This.SubStringsBoundedByIBUZZ(pacBounds)
 
 		#==
 
 		def SubStringsBoundedByAsSectionsIBU(pacBounds)
-			return This.SubStringsBoundedByIBZZU(pacBounds)
+			return This.SubStringsBoundedByIBUZZ(pacBounds)
 
 		#--
 
 		def BoundedByAsSectionsIBU(pacBounds)
-			return This.SubStringsBoundedByIBZZU(pacBounds)
+			return This.SubStringsBoundedByIBUZZ(pacBounds)
 
 		def AnyBoundedByAsSectionsIBU(pacBounds)
-			return This.SubStringsBoundedByIBZZU(pacBounds)
+			return This.SubStringsBoundedByIBUZZ(pacBounds)
 
 		#>
 
@@ -39807,12 +39831,18 @@ class stzString from stzObject
 	
 			# Checking the correctness of pcNewSubStr param
 	
-			if isList(pcNewSubStr) and Q(pcNewSubStr).IsWithOrUsingOrByNamedParam()
-				pcNewSubStr = pcNewSubStr[2]
+			if isList(pcNewSubStr)
+				_oList_ = StzListQ(pcNewSubStr)
+
+				if _oList_.IsWithOrUsingOrByNamedParam() or
+				   _oList_.IsWithManyOrUsingManyOrByManyNamedParam()
+
+					pcNewSubStr = pcNewSubStr[2]
+				ok
 			ok
 
 			if isList(pcNewSubStr)
-				return This.ReplaceByManyCS(pcSubStr, pcNewSubStr[2], pCaseSensitive)
+				return This.ReplaceByManyCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			ok
 
 			#--
@@ -40243,7 +40273,7 @@ class stzString from stzObject
 			ok
 	
 			if NOT isList(pacNewSubStr)
-				stzRaise("Incorrect param! pacNewSubStr must be a lists.")
+				stzRaise("Incorrect param! pacNewSubStr must be a list.")
 			ok
 	
 			nLenNewSubStr = len(pacNewSubStr)
@@ -54611,7 +54641,7 @@ class stzString from stzObject
 
 	def VizFindBoxedCSXT(pcSubstr, pCaseSensitive, paOptions)
 
-		aHilightOption = [ :Hilighted, @Flatten( This.FindCS(pcSubStr, pCaseSensitive) ) ]
+		aHilightOption = [ :Hilighted, @Flatten( This.FindCSZZ(pcSubStr, pCaseSensitive) ) ]
 		paOptions +  aHilightOption + [ :CaseSensitive, @CaseSensitive(pCaseSensitive) ]
 
 		cResult = This.ToStzListOfChars().BoxXT(paOptions)
@@ -56143,11 +56173,22 @@ class stzString from stzObject
 		def RemoveSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
 			This.RemoveSubStringAtCS(n, pcSubStr, pCaseSensitive)
 
+			def RemoveSubStringAtPositionCSQ(n, pcSubStr, pCaseSensitive)
+				return This.RemoveSubStringAtCSQ(n, pcSubStr, pCaseSensitive)
+
+		def RemoveAtCS(n, pcSubStr, pCaseSensitive)
+			This.RemoveSubStringAtCS(n, pcSubStr, pCaseSensitive)
+
+			def RemoveAtCSQ(n, pcSubStr, pCaseSensitive)
+				return This.RemoveSubStringAtCSQ(n, pcSubStr, pCaseSensitive)
 		#>
 
 	def SubStringAtPositionNRemovedCS(n, pcSubStr, pCaseSensitive)
 		cResult = This.Copy().RemoveSubsStringAtPositionCSQ(n, pcSubStr, pCaseSensitive).Content()
 		return cResult
+
+		def SubStringRemovedAtCS(n, pcSubStr, pCaseSensitive)
+			return This.SubStringAtPositionNRemovedCS(n, pcSubStr, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -56167,11 +56208,20 @@ class stzString from stzObject
 		def RemoveSubStringAtPosition(n, pcSubStr)
 			This.RemoveSubStringAt(n, pcSubStr)
 
+		def RemoveAt(n, pcSubStr)
+			This.RemoveSubStringAt(n, pcSubStr)
+
+			def RemoveAtQ(n, pcSubStr)
+				return This.RemoveSubStringAtQ(n, pcSubStr)
+
 		#>
 
 	def SubStringAtPositionNRemoved(n, pcSubStr)
 		cResult = This.Copy().RemoveSubsStringAtPositionQ(n, pcSubStr).Content()
 		return cResult
+
+		def SubStringRemovedAt(n, pcSubStr)
+			return This.SubStringAtPositionNRemoved(n, pcSubStr)
 
 	  #-----------------------------------------------------#
 	 #   REMOVING A SUBSTRING AT A SOME GIVEN POSITIONS    #
@@ -58025,15 +58075,15 @@ class stzString from stzObject
 		#< @FunctionAlternativeForms
 
 		def SplitsAndTheirPositionsCSU(pSubStrOrPos, pCaseSensitive)
-			return This.SplitsCSZU(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSUZ(pSubStrOrPos, pCaseSensitive)
 
 		#--
 
 		def UniqueSplitsCSZ(pSubStrOrPos, pCaseSensitive)
-			return This.SplitsCSZU(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSUZ(pSubStrOrPos, pCaseSensitive)
 
 		def UniqueSplitsAndTheirPositionsCS(pSubStrOrPos, pCaseSensitive)
-			return This.SplitsCSZU(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSUZ(pSubStrOrPos, pCaseSensitive)
 
 		#==
 
@@ -58044,21 +58094,21 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SplitsZU(pSubStrOrPos)
-		return This.SplitsCSZU(pSubStrOrPos, TRUE)
+	def SplitsUZ(pSubStrOrPos)
+		return This.SplitsCSUZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForms
 
 		def SplitsAndTheirPositionsU(pSubStrOrPos)
-			return This.SplitsZU(pSubStrOrPos)
+			return This.SplitsUZ(pSubStrOrPos)
 
 		#--
 
 		def UniqueSplitsZ(pSubStrOrPos)
-			return This.SplitsZU(pSubStrOrPos)
+			return This.SplitsUZ(pSubStrOrPos)
 
 		def UniqueSplitsAndTheirPositions(pSubStrOrPos)
-			return This.SplitsZU(pSubStrOrPos)
+			return This.SplitsUZ(pSubStrOrPos)
 
 		#==
 
@@ -58071,9 +58121,9 @@ class stzString from stzObject
 	 #  GETTING THE SPLITS AND THEIR SECTIONS -- U/EXTENDED  #
 	#-------------------------------------------------------#
 
-	def SplitsCSZZU(pSubStrOrPos, pCaseSensitive)
+	def SplitsCSUZZ(pSubStrOrPos, pCaseSensitive)
 		acSplits = This.SplitsCSU(pSubStrOrPos, pCaseSensitive)
-		anPos = This.FindSplitsCSZZU(pSubStrOrPos, pCaseSensitive)
+		anPos = This.FindSplitsCSUZZ(pSubStrOrPos, pCaseSensitive)
 
 		aResult = @Association([ acSplits, anPos ])
 
@@ -58081,16 +58131,16 @@ class stzString from stzObject
 
 		#< @FunctionAlternativeForms
 
-		def SplitsAndTheirPositionsCSZZU(pSubStrOrPos, pCaseSensitive)
-			return This.SplitsCSZZU(pSubStrOrPos, pCaseSensitive)
+		def SplitsAndTheirPositionsCSUZZ(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSUZZ(pSubStrOrPos, pCaseSensitive)
 
 		#--
 
 		def UniqueSplitsCSZZ(pSubStrOrPos, pCaseSensitive)
-			return This.SplitsCSZZU(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSUZZ(pSubStrOrPos, pCaseSensitive)
 
 		def UniqueSplitsAndTheirSectionsCS(pSubStrOrPos, pCaseSensitive)
-			return This.SplitsCSZZU(pSubStrOrPos, pCaseSensitive)
+			return This.SplitsCSUZZ(pSubStrOrPos, pCaseSensitive)
 
 		#==
 
@@ -58101,21 +58151,21 @@ class stzString from stzObject
 
 	#-- WITHOUT CASESENSITIVITY
 
-	def SplitsZZU(pSubStrOrPos)
-		return This.SplitsCSZZU(pSubStrOrPos, TRUE)
+	def SplitsUZZ(pSubStrOrPos)
+		return This.SplitsCSUZZ(pSubStrOrPos, TRUE)
 
 		#< @FunctionAlternativeForms
 
-		def SplitsAndTheirPositionsZZU(pSubStrOrPos)
-			return This.SplitsZZU(pSubStrOrPos)
+		def SplitsAndTheirPositionsUZZ(pSubStrOrPos)
+			return This.SplitsUZZ(pSubStrOrPos)
 
 		#--
 
 		def UniqueSplitsZZ(pSubStrOrPos)
-			return This.SplitsZZU(pSubStrOrPos)
+			return This.SplitsUZZ(pSubStrOrPos)
 
 		def UniqueSplitsAndTheirSections(pSubStrOrPos)
-			return This.SplitsZZU(pSubStrOrPos)
+			return This.SplitsUZZ(pSubStrOrPos)
 
 		#==
 

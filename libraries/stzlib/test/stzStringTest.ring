@@ -1232,7 +1232,7 @@ o1.ReplaceAt(4, "ruby", "ring")
 
 proff()
 # Executed in 0.01 second(s) in Ring 1.21
-# Executed in 0.04 second(s) in Ring 1.1è
+# Executed in 0.04 second(s) in Ring 1.18
 
 /*----
 
@@ -1281,7 +1281,8 @@ pron()
 	#--> R I N G
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.18
 
 /*======
 
@@ -1303,7 +1304,8 @@ o1.Replace("♥", :ByMany = [ "2", "5", "6" ])
 #--> 123456
 
 proff()
-# Executed in 0.16 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.16 second(s) in Ring 1.17
 
 /*======
 
@@ -1316,7 +1318,8 @@ o1.ReplaceMany( ["+", "-", "/" ], :By = "*" )
 #--> "a * b * c * d = 0"
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.17
 
 /*-----
 
@@ -1329,7 +1332,8 @@ o1.ReplaceByMany("ring", :By = [ "♥", "♥♥", "♥♥♥" ])
 #--> "♥ php ruby ♥♥ python ♥♥♥"
 
 proff()
-# Executed in 0.08 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.08 second(s) in Ring 1.17
 
 /*------
 
@@ -1338,10 +1342,12 @@ pron()
 o1 = new stzString("ring php ring ruby ring python ring")
 
 o1.ReplaceByManyXT("ring", :By = [ "#1", "#2" ])
-? o1.Content() #--> "#1 php #2 ruby #1 python #2"
+? o1.Content()
+#--> "#1 php #2 ruby #1 python #2"
 
 proff()
-# Executed in 0.10 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.10 second(s) in Ring 1.17
 
 /*------
 
@@ -1350,10 +1356,12 @@ pron()
 o1 = new stzString("ring qt softanza pyhton kandaji csharp ring")
 
 o1.ReplaceManyByMany([ "ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥", "♥♥♥" ])
-? o1.Content() #--> "♥ qt ♥♥ pyhton ♥♥♥ csharp ♥"
+? o1.Content()
+#--> "♥ qt ♥♥ pyhton ♥♥♥ csharp ♥"
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.04 second(s) in Ring 1.17
 
 /*------
 
@@ -1366,7 +1374,8 @@ o1.ReplaceSubstringAtPositions([ 1, 20 ], "ring", :By = "♥♥♥")
 #--> "♥♥♥ ruby ring php ♥♥♥"
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.07 second(s) in Ring 1.17
 
 /*------
 
@@ -1375,10 +1384,12 @@ pron()
 o1 = new stzString("ring php ring ruby ring python ring csharp ring")
 
 o1.ReplaceOccurrencesByMany([ 1, 3, 5], "ring", :By = [ "#1", "#3", "#5" ])
-? o1.Content() #--> "#1 php ring ruby #3 python ring csharp #5"
+? o1.Content()
+#--> "#1 php ring ruby #3 python ring csharp #5"
 
 proff()
-# Executed in 0.09 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.09 second(s) in Ring 1.17
 
 /*=====
 
@@ -1392,10 +1403,12 @@ pron()
 		[1,2], [8, 10], [16, 17], [23, 25]
 	])
 		
-	? o1.Content() #--> "word1word2word3"
+	? o1.Content()
+	#--> "word1word2word3"
 
 proff()
-#--> Executed in 0.17 second(s)
+# Executed in 0.06 second(s) in Ring 1.22
+# Executed in 0.17 second(s) in Ring 1.17
 
 /*-----
 
@@ -1407,7 +1420,8 @@ o1.RemoveSections([ 2:3, 7:8, 12:13 ])
 #--> 14569014
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.06 second(s) in Ring 1.22
+# Executed in 0.14 second(s) in Ring 1.17
 
 /*-----
 
@@ -1443,8 +1457,8 @@ o1 {
 }
 
 proff()
+# Executed in 0.07 second(s) in Ring 1.22
 
-/*-----
 /*==========
 
 pron()
@@ -1469,7 +1483,8 @@ pron()
 	#--> "ring ruby php"
 
 proff()
-# Executed in 0.05 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.05 second(s) in Ring 1.18
 
 /*------------
 
@@ -1481,7 +1496,8 @@ pron()
 	? o1.Content() #--> "ring ruby php"
 
 proff()
-# Executed in 0.14 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.14 second(s) in Ring 1.17
 
 /*------------
 
@@ -1494,7 +1510,8 @@ pron()
 	#--> "ring ruby php"
 
 proff()
-# Executed in 0.07 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.07 second(s) in Ring 1.17
 
 /*==========
 
@@ -1507,7 +1524,8 @@ pron()
 	#--> "ruby ♥♥♥ php"
 
 proff()
-# Executed in 0.16 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.16 second(s) in Ring 1.17
 
 /*----------
 
@@ -3013,14 +3031,30 @@ proff()
 
 pron()
 
+//? @ListContainsCS([ "hi!", "--♥♥♥--♥♥♥--" ], "hi!", 1)
+
+//? @FindFirstCS()
+
+//? @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
+? @FindNthSTCS([ "hi!", "--♥♥♥--♥♥♥--" ], 1, "hi!", 1, TRUE)
+
+//? Q([ "hi!", "--♥♥♥--♥♥♥--" ]).containsCS("hi!", 1)
+
+proff()
+
+/*---------
+*/
+pron()
+
 o1 = new stzString("<<hi!>>..<<--♥♥♥--♥♥♥-->>..<<hi!>>")
-? @@( o1.BetweenZZ("<<", ">>") ) + NL
+
+? @@NL( o1.BoundedByZZ([ "<<", ">>" ]) ) + NL
 #--> [	[ "hi!", [3, 5] ],
 #	[ "--♥♥♥--♥♥♥--", [ 12, 23 ] ],
 #	[ "hi!", [ 30, 32 ] ]
 # ]
 
-? @@( o1.BetweenUZZ("<<", ">>") )
+? @@NL( o1.BoundedByUZZ([ "<<", ">>" ]) )
 #--> [
 #	[ "hi!", [ [ 3, 5 ], [ 30, 32 ] ] ],
 #	[ "--♥♥♥--♥♥♥--", [ [ 12, 23 ] ] ]
@@ -3034,10 +3068,10 @@ proff()
 pron()
 
 o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
-? @@( o1.SubStringsBetween("<<", ">>") )
+? @@( o1.SubStringsBoundedBy([ "<<", ">>" ]) )
 #--> [ "--hi!--", "--", "hi!" ]
 
-? @@( o1.BetweenZZ("<<", ">>") )
+? @@( o1.BoundedByZZ([ "<<", ">>" ]) )
 #--> [
 #	[ "--hi!--", 	[  6, 12 ] ],
 #	[ "--", 	[ 20, 21 ] ],
@@ -3045,7 +3079,8 @@ o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
 #]
 
 proff()
-#--> Executed in 0.14 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.14 second(s) in Ring 1.18
 
 /*================
 
@@ -3069,25 +3104,16 @@ o1 = new stzString("1234567")
 #--> 345
 
 ? o1.Section(5, 3)
-#--> 543
-
-? o1.Section(3, -3)
 #--> 345
 
-? o1.Section(-3, 3)
-#--> 543
-
-? o1.Range(3, 3)
+? o1.SectionXT(3, -3)
 #--> 345
 
-? o1.Range(3, -3)
-#--> 123
-
-? o1.Range(-5, -3)
-#--> 123
+? o1.SectionXT(-3, 3) + NL
+#--> 543
 
 proff()
-# Executed in 0.04 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*===============
 
@@ -3125,7 +3151,7 @@ proff()
 # Executed in 0.05 second(s)
 
 /*-----------
-
+*
 pron()
 
 ? Q("^^♥^^").ContainsBefore("♥", :Position = 4)
@@ -3743,7 +3769,8 @@ o1 = new stzString("...ring...")
 #--> [ [ 1, 3 ], [ 8, 10 ] ]
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.18
 
 /*---------------- Sections and AntiSections
 
@@ -3764,7 +3791,8 @@ o1 = new stzString("...456...012...")
 #--> [ [ 1, 3 ], [ 7, 9 ], [ 13, 15 ] ]
 
 proff()
-# Executed in 0.20 second(s)
+# Executed in 0.06 second(s) in Ring 1.22
+# Executed in 0.20 second(s) in Ring 1.18
 
 /*================ Find and AntiFind
 
@@ -4176,9 +4204,6 @@ StopProfiler()
 
 /*-----------
 
-#WARNING: takes 14 seconds to complete in Ring 1.17!
-#UPDATE: It now takes only 5 seconds in Ring 1.21!
-
 StartProfiler()
 
 oLargeStr = new stzString( UnicodeData() )
@@ -4188,7 +4213,7 @@ oLargeStr = new stzString( UnicodeData() )
 ? oLargeStr.Content()
 
 StopProfiler()
-# Executed in 5.18 second(s) in Ring 1.21
+# Executed in  8.50 second(s) in Ring 1.22
 # Executed in 14.56 second(s) in Ring 1.17
 
 /*=========== #ringqt #ERROR #TODO post it in the ring-group for correction
@@ -11949,10 +11974,10 @@ pron()
 
 StzStringQ("My name is #1, my age is #3, and my job is #2. Again: my name is #1!") {	
 
-	? @@( MarquersSortedZU() ) + NL
+	? @@( MarquersSortedUZ() ) + NL
 	#--> [ [ "#1", [ 12, 66 ] ], [ "#2", [ 44 ] ], [ "#3", [ 26 ] ] ]
 
-	? @@( MarquersSortedZZU() )
+	? @@( MarquersSortedUZZ() )
 	#--> [
 	# 	[ "#1", [ [ 12, 13 ], [ 66, 67 ] ] ],
 	# 	[ "#2", [ [ 44, 45 ] ] ],
@@ -18214,7 +18239,7 @@ proff()
 # Executed in 0.01 second(s).
 
 /*===============
-*/
+
 pron()
 
 ? @@NL( CardsXT() ) + NL
@@ -18427,7 +18452,7 @@ proff()
 proff()
 
 /*-------#narration #visiality VIZ-FINDING A RECURRING SUBSTRING
-*/
+
 # This narration explores methods to locate and highlight recurring 
 # sequences within strings, with both precision and visual assistance.
 
@@ -18435,7 +18460,7 @@ pron()
 
 # Searching for "ring" within a jumble of letters:
 
-o1 = new stzString("fjringljringdjringgring")
+o1 = new stzString("fjringljringdjringg")
 
 # Let's start with a straightforward approach using Find(),
 # which returns the list of positions where "ring" appears:
@@ -18494,6 +18519,29 @@ o1 = new stzString("fjringljringdjringgring")
 proff()
 # Code executed in 0.17 second(s) in Ring 1.21
 
+/*-----------------
+
+pron()
+
+o1 = new stzListOfChars( @Chars("fjringljringdjringg") )
+aOptions = [
+	[ "rounded", 1 ],
+	[ "sectioned", 1 ],
+	[ "numbered", 1 ],
+	[ "hilighted", [ 3, 6, 9, 12, 15, 18 ] ],
+	[ "casesensitive", 1 ]
+]
+
+? o1.BoxXT(aOptions)
+#-->
+# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
+# │ f │ j │ r │ i │ n │ g │ l │ j │ r │ i │ n │ g │ d │ j │ r │ i │ n │ g │ g │
+# ╰───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───╯
+#          '-----------'           '-----------'           '-----------'
+#          3           6           9         12            15         18
+
+proff()
+
 /*----------------- (TODO)
 
 ? StzStringQ("ABTCADNBBABEFAVCC").VizFindMany([ "A", "T", "V" ])
@@ -18524,15 +18572,16 @@ proff()
 StartProfiler()
 
 # In Ring, concatenating 1 million strings takes about 45 seconds:
+#~> (The code setion is commented,  because it takes a lot of time)
 
-	str = ""
-	for i = 1 to 1_000_000
-		str += "السّلام عليكم ورحمة الله"
-	next
-	? "Finished"
-
-	? ElapsedTime() + NL
-	# Executed in 44.94 second(s) in Ring 1.22
+#	str = ""
+#	for i = 1 to 1_000_000
+#		str += "السّلام عليكم ورحمة الله"
+#	next
+#	? "Finished"
+#
+#	? ElapsedTime() + NL
+#	# Executed in 44.94 second(s) in Ring 1.22
 
 # While in Softanza, using  Concatenate(), this take about 4 seconds:
 
@@ -18602,16 +18651,17 @@ pron()
 
 # But when the string is in unicode (arabic in this case), Ring's
 # performance degradates to more then 45 seconds:
+#~> (The code setion is commented,  because it takes a lot of time)
 
-	ResetTimer()
-
-	cStr = ""
-	for i = 1 to 1_000_000
-		cStr += "السّلام عليكم ورحمة الله"
-	next
-
-	? ElapsedTime() + NL
-	#--> 45.63 second(s)
+#	ResetTimer()
+#
+#	cStr = ""
+#	for i = 1 to 1_000_000
+#		cStr += "السّلام عليكم ورحمة الله"
+#	next
+#
+#	? ElapsedTime() + NL
+#	#--> 45.63 second(s)
 
 # Hopefully, Softanza has the Concatenate() function that
 # does the job in less then 4 seconds:
@@ -18633,12 +18683,12 @@ pron()
 # Which is a performance gain of +88%
 
 	? PerfGain100(45.63, 3.66)
-	#--> 88.56
+	#--> 91.98
 
 # or a speed factor of +8 times!
 
 	? SpeedFactor(45.63, 3.66)
-	#--> 8.74
+	#--> 12.47
 
 proff()
 # Executed in 5.33 second(s) in Ring 1.22
@@ -18666,7 +18716,7 @@ pron()
 
 	ResetTimer()
 
-	oQStrList = new QStringLis()
+	oQStrList = new QStringList()
 	for i = 1 to 1_000_000
 		oQStrList.append("السّلام عليكم ورحمة الله")
 	next
@@ -18681,7 +18731,7 @@ pron()
 #NOTE Softanza will rely on it in string manipulation instead of Qt
 
 proff()
-
+# Executed in 2.72 second(s) in Ring 1.22
 
                  ///////////////////////////////////////////////
                 //                              ///////////////
