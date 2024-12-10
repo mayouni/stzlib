@@ -17884,8 +17884,8 @@ o1.InsertAfterPositions([ 2, 4, 6, 8 ], " ")
 proff()
 # Executed in 0.01 second(s).
 
-/*------------------
-*/
+/*===============
+
 pron()
 
 o1 = new stzString("SOFTANZA")
@@ -17919,7 +17919,7 @@ o1 = new stzString("SOFTANZA")
 # SOFTANZA
 # ----^--^
 
-? o1.VizFindXT("A", :Spacified ) + NL
+? o1.VizFindXT("A", [ :Spacified = TRUE  ]) + NL
 #-->
 # S O F T A N Z A
 # --------^-----^
@@ -17967,7 +17967,7 @@ o1 = new stzString("SOFTANZA")
 #                   5           8
 
 proff()
-# Executed in 0.14 second(s) in Ring 1.21
+# Executed in 0.19 second(s) in Ring 1.22
 # Executed in 0.23 second(s) in Ring 1.20
 
 /*----- #narration FLEXIBLE OPTIONS SYNTAX
@@ -17979,28 +17979,29 @@ o1 = new stzString("SOFTANZA")
 ? o1.VizFindBoxedXT("A", [
 	:Dashed = TRUE,
 	:Rounded = TRUE,
-	:Numbered = TRUE
+	:Numbered = TRUE,
 ])
-
-# Can be writtent in the fellowing simplified form:
-
-? o1.VizFindBoxedXT("A", [ :Dashed = 1, :Rounded = 1, :Numbered = 1 ])
-
-# And they both lead to this output:
 
 #-->
 # ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
 # ┊ S ┊ O ┊ F ┊ T ┊ A ┊ N ┊ Z ┊ A ┊
-# ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴─↑─┴╌╌╌┴╌╌╌┴─↑─╯
+# ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴─•─┴╌╌╌┴╌╌╌┴─•─╯
 #                   5           8
 
-# When yu provide one option, enclouse it between [ and ]:
+# Let's change the position sign:
+
+? PositionSign() # Or PositionChar() or HilightSign() or HilightChar()
+#--> "•"
+
+SetPositionSign("↑")
+
+# When you provide one option, enclose it between [ and ]:
 
 ? o1.VizFindBoxedXT( "A", [ :Rounded = TRUE ] )
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───╮
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
-# ╰───┴───┴───┴───┴─•─┴───┴───┴─•─╯
+# ╰───┴───┴───┴───┴─↑─┴───┴───┴─↑─╯
 
 proff()
 # Executed in 0.12 second(s).
@@ -18012,7 +18013,7 @@ pron()
 o1 = new stzString("SOFTANZA")
 
 ? o1.VizFindBoxedXT("A", [
-	:PositionSign = "↑",
+	:PositionChar = "↑", # Or :PositionSign or :HilightChar or :HilightSign
 	:Numbered = TRUE,
 	:Solid = TRUE,
 
@@ -18058,7 +18059,7 @@ o1 = new stzString("..STZ..STZ..STZ")
 # │ . │ . │ S │ T │ Z │ . │ . │ S │ T │ Z │ . │ . │ S │ T │ Z │
 # ╰───┴───┴─•─┴───┴─•─┴───┴───┴─•─┴───┴─•─┴───┴───┴─•─┴───┴─•─╯
 #           '-------'           '-------'           '-------'
-#           11     19           31     39           51     59
+#           3       5           8     10            13     15
 
 proff()
 # Executed in 0.09 second(s) in Ring 1.21
@@ -18075,11 +18076,11 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 # │ R │ I │ N │ G │
 # └───┴───┴───┴───┘
 
-	? o1.BoxXT([])
-	#-->
-	# ┌───┬───┬───┬───┐
-	# │ R │ I │ N │ G │
-	# └───┴───┴───┴───┘
+? o1.BoxXT([])
+#-->
+# ┌───┬───┬───┬───┐
+# │ R │ I │ N │ G │
+# └───┴───┴───┴───┘
 
 ? o1.BoxRound()
 #-->
@@ -18144,13 +18145,21 @@ pron()
 
 o1 = new stzString("..STZ..StZ..stz")
 
-# The order of params is defined by the order of name suffixes:
+# The fellowing calls all return  the same result:
 
-? o1.VizFindCSXT("STZ", :CS = FALSE, [ :Numbered = TRUE ])
+? o1.VizFindCSXT("STZ", :CS = FALSE, [ :Numbered = TRUE ]) + NL
+#-->
+# ..STZ..StZ..stz
+# --^----^----^--
+#   3    8    13 
 
-? o1.VizFindXTCS("stz", [ :Numbered = TRUE ], :CS = FALSE )
+? o1.VizFindXT("stz", [ :Numbered = TRUE, :CS = FALSE ] ) + NL
+#-->
+# ..STZ..StZ..stz
+# --^----^----^--
+#   3    8    13 
 
-# They both lead to this output:
+? o1.VizFindCSXT("stz", :CS = FALSE, [ :Numbered = TRUE ] )
 #-->
 # ..STZ..StZ..stz
 # --^----^----^--
@@ -18168,12 +18177,13 @@ o1 = new stzString("..STZ..StZ..stz...STZ")
 # The order of params is defined by the order of name suffixes:
 
 ? o1.VizFindBoxedCSXT("STZ", :CS = FALSE, [ :Numbered = TRUE ])
-
-#TODO Knowan issue: when the number of position is Fardi,
-# the last one is not hilighted!
+#-->
+# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
+# │ . │ . │ S │ T │ Z │ . │ . │ S │ t │ Z │ . │ . │ s │ t │ z │ . │ . │ . │ S │ T │ Z │
+# └───┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴───┴───┴───┴───┴─•─┴───┴───┘
 
 proff()
-# Executed in 0.09 second(s) in Ring 1.21
+# Executed in 0.11 second(s) in Ring 1.22
 
 /*-----
 
@@ -18185,39 +18195,63 @@ pron()
 # ^-------^---------^-------^------   
 
 proff()
-# Executed in 0.01 second(s) in Ring 1.21
+# Executed in 0.02 second(s) in Ring 1.22
 
 /*------------------
 
 pron()
 
 o1 = new stzString("----^----------^----------^-----")
+
 ? o1.content()
+#--> ----^----------^----------^-----
 
 o1.ReplaceByMany("^", [ "A", "B", "C" ])
 ? o1.Content()
-
-#--> ----^----------^----------^-----
 #--> ----A----------B----------C-----
 
 proff()
 # Executed in 0.01 second(s).
 
-/*------------------
-
+/*===============
+*/
 pron()
 
-o1 = new stzString("----^----------^----------^-----")
-? o1.content()
+? @@NL( CardsXT() ) + NL
+#--> [
+#	[ "ace","🂡" ],
+#	[ "two", "🂢" ],
+#	[ "three", "🂣" ],
+#	[ "four", "🂤" ],
+#	[ "five", "🂥" ],
+#	[ "six", "🂦" ],
+#	[ "seven", "🂧" ],
+#	[ "eight", "🂨" ],
+#	[ "nine", "🂩" ],
+#	[ "ten", "🂪" ],
+#	[ "jack", "🂫" ],
+#	[ "queen", "🂭" ],
+#	[ "king", "🂮" ]
+# ]
 
-o1.ReplaceByMany("^", [ "A", "B", "C" ])
-? o1.Content()
+? @@( Cards() ) + NL
+#--> [ "🂡", "🂢", "🂣", "🂤", "🂥", "🂦", "🂧", "🂨", "🂩", "🂪", "🂫", "🂭", "🂮" ]
 
-#--> ----^----------^----------^-----
-#--> ----A----------B----------C-----
+? Card(:jack) + NL
+#--> 🂫
+
+? @@( TheseCards([ :four, :nine, :king ]) ) + NL
+#--> [ "🂤", "🂩", "🂮" ]
+
+? @@NL( TheseCardsXT([ :four, :nine, :king ]) )
+#--> [
+#	[ "four", "🂤" ],
+#	[ "nine", "🂩" ],
+#	[ "king", "🂮" ]
+# ]
 
 proff()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*===============
 
@@ -18259,7 +18293,7 @@ proff()
 # Executed in 0.01 second(s) in Ring 1.21
 # Executed in 0.07 second(s) in Ring 1.19
 
-/*------------------
+/*------------------ #ring
 
 pron()
 
@@ -18303,18 +18337,19 @@ o1.ReplaceSectionsByMany([ [3, 5], [8, 9] ], [ "^^^", "^^" ])
 #--> --^^^--^^---
 
 proff()
-# Executed in 0.08 second(s).
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.08 second(s) in Ring 1.19
 
 /*-------------
-
-pron()
 
 o1 = new stzString("123---789---")
 o1.ReplaceSectionsByMany([ [1, 3], [7, 9] ], "^")
 ? o1.Content()
 #--> ERROR MESSAGE: Incorrect param type! pacSubStr must be a list.
 
-proff()
+/*-------------
+
+
 
 /*-------------
 
@@ -18392,7 +18427,7 @@ proff()
 proff()
 
 /*-------#narration #visiality VIZ-FINDING A RECURRING SUBSTRING
-
+*/
 # This narration explores methods to locate and highlight recurring 
 # sequences within strings, with both precision and visual assistance.
 
@@ -18400,7 +18435,7 @@ pron()
 
 # Searching for "ring" within a jumble of letters:
 
-o1 = new stzString("fjringljringdjringg")
+o1 = new stzString("fjringljringdjringgring")
 
 # Let's start with a straightforward approach using Find(),
 # which returns the list of positions where "ring" appears:

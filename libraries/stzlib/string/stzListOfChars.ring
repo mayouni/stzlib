@@ -151,13 +151,34 @@ func NumberOfCharsBetween(c1, c2)
 
 func HilightChar()
 	return _cHilightChar
-	
+
+	func HilightSign()
+		return _cHilightChar
+
+	func PositionChar()
+		return _cHilightChar
+
+	func PositionSign()
+		return _cHilightChar
+
 func SetHilightChar(c)
 	if @IsChar(c)
 		_cHilightChar = c
 	else
 		StzRaise(:CanNotSetHilightChar)
 	ok
+
+	func SetHilightSign(c)
+		SetHilightChar(c)
+
+	func SetPositionChar(c)
+		SetHilightChar(c)
+
+	func SetPositionSign(c)
+		SetHilightChar(c)
+
+
+
 	
 func CharsToUnicodes(paList)
 	return StzListOfCharsQ(paList).Unicodes()
@@ -813,10 +834,18 @@ class stzListOfChars from stzListOfStrings
 
 			cSign = HilightChar()
 
-			if ( paBoxOptions[ :PositionSign ] != NULL and @IsChar(paBoxOptions[ :PositionSign ]) ) or
-			   ( paBoxoptions[ :PositionChar ] != NULL and @IsChar(paBoxOptions[ :PositionChar ]) )
-
+			if ( paBoxOptions[ :PositionSign ] != NULL and @IsChar(paBoxOptions[ :PositionSign ]) )
 				cSign = paBoxOptions[ :PositionSign ]
+
+			but ( paBoxoptions[ :PositionChar ] != NULL and @IsChar(paBoxOptions[ :PositionChar ]) )
+				cSign = paBoxOptions[ :PositionChar ]
+
+			but ( paBoxOptions[ :HilightSign ] != NULL and @IsChar(paBoxOptions[ :HilightSign ]) )
+				cSign = paBoxOptions[ :HilightSign ]
+
+			but ( paBoxoptions[ :HilightChar ] != NULL and @IsChar(paBoxOptions[ :HilightChar ]) )
+				cSign = paBoxOptions[ :HilightChar ]
+
 			ok
 
 			# Reading the numbering option

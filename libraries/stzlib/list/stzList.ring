@@ -71783,7 +71783,9 @@ class stzList from stzObject
 			:Numbered, :Numbers,
 			:NumberedXT, :NumberXT,
 
-			:PositionSign, :PositionChars,
+			:PositionSign, :PositionChar,
+			:HilightSign, :HilightChar,
+
 			:Sectioned
 		]
 
