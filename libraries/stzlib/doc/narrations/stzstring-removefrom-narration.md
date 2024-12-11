@@ -1,7 +1,7 @@
 # Simplifying Orientation in String Removal with Softanza
-![Softanza Lists-in-Strings, by Microsoft Create AI](../images/stzstring-removefrom.jpg)
+![Softanza Lists-in-Strings, by Microsoft Image Create AI](../images/stzstring-removefrom.jpg)
 
-In text manipulation, removing a substring from the left or right of a string is a common task, but it can quickly become tricky when handling languages with different orientations, such as Arabic. Softanza's `stzString` class addresses this challenge by offering both specific and generalized solutions for managing string content seamlessly.
+In text manipulation, removing a substring from the left or right of a string is a common task, but it can quickly become tricky when handling languages with different orientations, such as Arabic. Softanza addresses this challenge by offering both specific and generalized solutions for managing string content seamlessly.
 
 ---
 
@@ -14,18 +14,15 @@ Softanza provides two straightforward functions to remove substrings:
 
 For example:
 ```ring
-pron()
+load "stzlib.ring"
 
 o1 = new stzString("let's say welcome to everyone!")
 o1.RemoveFromLeft("let's say ")
 ? o1.Content()
 #--> welcome to everyone!
-
-proff()
 ```
 
 This works well for languages like English, where text flows left to right. However, things get less intuitive with right-to-left (RTL) languages like Arabic.  
-
 
 
 ## The RTL Challenge: Left and Right Confusion
@@ -33,10 +30,11 @@ This works well for languages like English, where text flows left to right. Howe
 Consider an Arabic sentence:  
 ```ring
 o1 = new stzString("هذه الكلمات الّتي سوف تبقى")
-? o1.NRightCharsAsSubstring(4) #--> "هذه "
+? o1.NRightCharsXT(4)
+#--> "هذه "
 ```
 
-To remove the substring `"هذه "` (which appears visually at the start), you would use `RemoveFromRight()` instead of `RemoveFromLeft()`. Why? Because for an RTL string, **"right"** corresponds to the start of the text, and **"left"** corresponds to the end.
+To remove the substring `"هذه "` (which appears visually at the start), you would use `RemoveFromRight()` instead of `RemoveFromLeft()`. Why? Because for an RTL string, ""**right**" corresponds to the start of the text, and "**left**" corresponds to the end.
 
 ```ring
 o1.RemoveFromRight("هذه ")
@@ -45,6 +43,7 @@ o1.RemoveFromRight("هذه ")
 
 This reversal in directionality can cause confusion, especially for developers working with multilingual systems.  
 
+>**NOTE**: The `**XT**()` suffix, when appended to a Softanza function, signifies an e**XT**ended outcome of the basic feature in question. For example, in the case of `o1.NRightChars**XT**()` shown above, the suffix forces the output to be a **string** rather than a **list** of characters. In other words: without XT, calling `o1.NRightChars()` produces the list `[ "ه", "ذ", "ه", " " ]` instead of the string `"هذه "`.
 
 
 ## A Semantic Solution: Start and End Removal
@@ -56,8 +55,6 @@ To eliminate orientation-based complications, Softanza introduces two semantic a
 
 Using these, the same task becomes simpler and more intuitive:
 ```ring
-pron()
-
 o1 = new stzString("let's say welcome to everyone!")
 o1.RemoveFromStart("let's say ")
 ? o1.Content()

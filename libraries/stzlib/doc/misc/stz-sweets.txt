@@ -1,0 +1,35 @@
+#Softanza Notes: A Central Reporsitory of Sweeteness
+---
+
+>The `Q(val)` small function elevates the value `val`, whatever type it has, to the corresponding Softanza object. In our case, it creates a `stzString` object from the string `"1 AA 2 B 3 CCC 4 DD 5 Z"`.
+
+---
+
+>The `Q` in `StzString**Q**(str)` returns a `stzString` object containing the string `str`. It's more practical (an beautiful) then instanciating it using `oStr = new stzString(str)`.
+
+---
+
+>The `@@(val)` function (resembling two glasses one puts on to improve sight) returns a readable, string-based representation of the value `val`, regardless of its type.
+
+>`**@@**(val)` is a Softanza small function, akin to a **pair of glasses** that enhance vision, designed to produce a readable string representation of any value `val`. Specifically, when `val` is a list, it is rendered with brackets ([, ]) and commas (,), like you see in `[ 13000, 11500, 23, 46 ]` above, accurately representing the list structure regardless of its depth.
+
+---
+
+>In Softanza, as a general principle, anything that works for strings will work the same way for lists, following the same syntax and semantics. You can test this yourself by simply replacing `o1 = new stzString("ABRACADABRA")` by `o1 = new stz**List**(**[ "A", "B", "R", "A", "C", "A", "D", "A", "B", "R", "A" ]**)` and making no other changes in your code!
+
+---
+
+>The `**XT**()` suffix, when appended to a Softanza function, signifies an e**XT**ended outcome of the basic feature in question. For example, in the case of `o1.NRightChars**XT**()` shown above, the suffix forces the output to be a **string** rather than a **list** of characters. In other words: without XT, calling `o1.NRightChars()` produces the list `[ "ه", "ذ", "ه", " " ]` instead of the string `"هذه "`.
+
+---
+
+>If you try `Find**Z**()` instead of `Find**ZZ**()`, you'll see that both `**Z**()` and `**ZZ**()` return positions, but the first **as numbers** and the second **as sections** (pairs of numbers). Whatever your need, such smart yet powerful Softanza tiny **suffixes**, applied to almost any function, will have you covered!
+
+---
+
+>The `**XT**()` suffix, when appended to a Softanza function, signifies an e**XT**ended outcome of the basic feature in question. In our case, it's about providing a **list of options**, such as `[ **:Numbered = TRUE** ]` above, and others that we will discover later.
+
+---
+
+>If you try `:Numbered**XT** = TRUE` instead of just `:Numbered = TRUE`, you'll see that the **XT** suffix forces the display of positions **for all** the characters, not just the **sections** defined, which can be useful in some cases.
+

@@ -1,5 +1,5 @@
 # Mastering Precision with the `Sit()` Function
-![Sit Function in Softanza, by Microsoft Create AI](../images/stzstring-sit.jpg)
+![Sit Function in Softanza, by Microsoft Image Create AI](../images/stzstring-sit.jpg)
 
 
 The `Sit()` function stands out as a **surgical tool** for precision string manipulation. Whether you’re designing advanced text editors, processing linguistic data, or debugging complex parsers, `Sit()` adapts to your needs with unparalleled flexibility. Embrace the control it offers and elevate your string manipulation game with Softanza!
@@ -13,7 +13,7 @@ Let’s explore practical examples where `Sit()` excels.
 Imagine building a **text editor** with a live preview that highlights words with their surrounding context. The goal is to extract a substring like `"nice"` and dynamically include **2 characters before and 3 characters after**:
 
 ```ring
-pron()
+load "stzlib.ring"
 
 o1 = new stzString("what a <<nice>>> day!")
 
@@ -22,9 +22,6 @@ o1 = new stzString("what a <<nice>>> day!")
 	:AndHarvest = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
 )
 #--> [ "<<", ">>>" ]
-
-proff()
-# Executed in 0.03 second(s) in Ring 1.22
 ```
 
 Here’s why `Sit()` is invaluable:
@@ -32,14 +29,11 @@ Here’s why `Sit()` is invaluable:
 - Alternative methods like `SubStringBounds()` are rigid, extracting only exact bounds.
 
 
-
 ## Example 2: Position-Based Extraction for Advanced Tokenization
 
 Suppose you’re tokenizing a sentence and want to dynamically extract **letters surrounding a given character** (like `"i"` in `"nice"`) to analyze its immediate context, for tasks such as **natural language processing (NLP)** or **spell checking**.
 
 ```ring
-pron()
-
 o1 = new stzString("what a <<nice>>> day!")
 
 ? o1.Sit(
@@ -47,9 +41,6 @@ o1 = new stzString("what a <<nice>>> day!")
 	:AndHarvest = [ :NCharsBefore = 1, :NCharsAfter = 2 ]
 )
 #--> [ "n", "ce" ]
-
-proff()
-# Executed in 0.03 second(s) in Ring 1.22
 ```
 
 This showcases `Sit()`’s precision:
@@ -57,14 +48,11 @@ This showcases `Sit()`’s precision:
 - Dynamically harvests a **customizable range** around the anchor.
 
 
-
 ## Example 3: Extracting Overlapping Contexts for Deep Inspection
 
 For debugging, you might need to inspect **overlapping contexts** around a substring (like `"nice"`) and capture the **boundaries of its surroundings**. Instead of a static range, you define exactly how far before and after to look.
 
 ```ring
-pron()
-
 o1 = new stzString("what a <<nice>>> day!")
 
 ? @@( o1.Sit(
@@ -72,14 +60,13 @@ o1 = new stzString("what a <<nice>>> day!")
 	:AndHarvestSections = [ :NCharsBefore = 2, :NCharsAfter = 3 ]
 ) )
 #--> [ [8, 9], [14, 16] ]
-
-proff()
-# Executed in 0.07 second(s) in Ring 1.22
 ```
 
 Here, `Sit()` extracts **surrounding section boundaries** with custom offsets:
 - Surrounding ranges (`[8, 9]` and `[14, 16]`) dynamically depend on your `NCharsBefore` and `NCharsAfter` parameters.
 - This level of granularity is crucial for debugging parsers or **extracting overlapping segments** in structured text.
+
+>**NOTE**: `**@@**(val)` used above, is a Softanza small function, akin to a **pair of glasses** that enhance vision, designed to produce a readable string representation of any value `val`, especially when `val` is a list.
 
 ---
 
