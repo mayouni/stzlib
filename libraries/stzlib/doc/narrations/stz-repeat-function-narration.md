@@ -69,9 +69,9 @@ Sometimes, simple repetition isn't enough. You may need multi-step repetitions t
 
 ```ring
 @@( Q("A").
-RepeatXTQ(:InA = :List, :OfSize = 3).
-RepeatedXT(:InA = :List, :OfSize = 3)
-) + NL
+    RepeatXTQ(:InA = :List, :OfSize = 3).
+    RepeatedXT(:InA = :List, :OfSize = 3)
+)
 #--> [ [ "A", "A", "A" ], [ "A", "A", "A" ], [ "A", "A", "A" ] ]
 ```
 
