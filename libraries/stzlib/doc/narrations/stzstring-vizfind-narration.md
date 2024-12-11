@@ -27,7 +27,7 @@ o1 = new stzString("fjringljringdjringg")
 We can add a visual dimension by using the `viz` **prefix** with `Find()`, making the positions easy to spot:
 
 ```ring
-? o1.**viz**Find("ring")
+? o1.vizFind("ring")
 #-->
 # fjringljringdjringg
 # --^-----^-----^----
@@ -37,26 +37,26 @@ We can add a visual dimension by using the `viz` **prefix** with `Find()`, makin
 To gain even more insight, we can add the `XT()` **suffix**, providing a `:Numbered` guide for each matched position:
 
 ```ring
-? o1.**viz**Find**XT**("ring", [ **:Numbered = TRUE** ])
+? o1.vizFindXT("ring", [ :Numbered = TRUE ])
 #-->
 # fjringljringdjringg
 # --^-----^-----^----
 #   3     9     15
 ```
 
->**NOTE**: The `**XT**()` suffix, when appended to a Softanza function, signifies an e**XT**ended outcome of the basic feature in question. In our case, it's about providing a **list of options**, such as `[ **:Numbered = TRUE** ]` above, and others that we will discover later.
+>**NOTE**: The `XT()` suffix, when appended to a Softanza function, signifies an e**XT**ended outcome of the basic feature in question. In our case, it's about providing a **list of options**, such as `[ :Numbered = TRUE ]` above, and others that we will discover later.
 
 
 ### 4. Section Finding
 
-The `Find**AsSections**()` method (or simply `Find**ZZ**()`) offers a different perspective by returning each sequence position as a **pair** of start and end positions:
+The `FindAsSections()` method (or simply `FindZZ()`) offers a different perspective by returning each sequence position as a **pair** of start and end positions:
 
 ```ring
-? @@( o1.Find**AsSections**("ring") ) # Or simply Find**ZZ**()
+? @@( o1.FindAsSections("ring") ) # Or simply FindZZ()
 #--> [ [3, 6], [9, 12], [15, 18] ]
 ```
 
->**NOTE**: If you try `Find**Z**()` instead of `Find**ZZ**()`, you'll see that both `**Z**()` and `**ZZ**()` return positions, but the first **as numbers** and the second **as sections** (pairs of numbers). Whatever your need, such smart yet powerful Softanza tiny **suffixes**, applied to almost any function, will have you covered!
+>**NOTE**: If you try `FindZ()` instead of `FindZZ()`, you'll see that both `Z()` and `ZZ()` return positions, but the first **as numbers** and the second **as sections** (pairs of numbers). Whatever your need, such smart yet powerful Softanza tiny **suffixes**, applied to almost any function, will have you covered!
 
 
 ### 5. Sectioned Visualization
@@ -64,7 +64,7 @@ The `Find**AsSections**()` method (or simply `Find**ZZ**()`) offers a different 
 The sections can be visualized using the `:Sectioned` option, which clearly shows the **boundaries** of each match:
 
 ```ring
-? o1.vizFindXT("ring", [ **:Sectioned = TRUE**, :Numbered = TRUE ])
+? o1.vizFindXT("ring", [ :Sectioned = TRUE, :Numbered = TRUE ])
 #-->
 # fjringljringdjringg
 #   '--'  '--'  '--'
@@ -77,9 +77,9 @@ For the most sophisticated display, we can combine **boxing**, **sectioning** an
 
 ```ring
 ? o1.vizFindXT("ring", [
-	**:Boxed = TRUE**, 
+	:Boxed = TRUE, 
 	:Rounded = TRUE, 
-	**:Sectioned = TRUE**, 
+	:Sectioned = TRUE, 
 	:Numbered = TRUE 
 ])
 #-->
@@ -90,7 +90,7 @@ For the most sophisticated display, we can combine **boxing**, **sectioning** an
           3           6           9         12            15         18
 ```
 
->**NOTE**: If you try `:Numbered**XT** = TRUE` instead of just `:Numbered = TRUE`, you'll see that the **XT** suffix forces the display of positions **for all** the characters, not just the **sections** defined, which can be useful in some cases.
+>**NOTE**: If you try `:NumberedXT = TRUE` instead of just `:Numbered = TRUE`, you'll see that the **XT** suffix forces the display of positions **for all** the characters, not just the **sections** defined, which can be useful in some cases.
 
 
 ## Why It Matters

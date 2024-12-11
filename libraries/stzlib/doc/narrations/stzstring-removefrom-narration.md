@@ -9,8 +9,8 @@ In text manipulation, removing a substring from the left or right of a string is
 
 Softanza provides two straightforward functions to remove substrings:
 
-1. **`RemoveFromLeft()`**: Removes a substring from the left side of the string.  
-2. **`RemoveFromRight()`**: Removes a substring from the right side of the string.
+1. `RemoveFromLeft()`: Removes a substring from the left side of the string.  
+2. `RemoveFromRight()`: Removes a substring from the right side of the string.
 
 For example:
 ```ring
@@ -43,15 +43,15 @@ o1.RemoveFromRight("هذه ")
 
 This reversal in directionality can cause confusion, especially for developers working with multilingual systems.  
 
->**NOTE**: The `**XT**()` suffix, when appended to a Softanza function, signifies an e**XT**ended outcome of the basic feature in question. For example, in the case of `o1.NRightChars**XT**()` shown above, the suffix forces the output to be a **string** rather than a **list** of characters. In other words: without XT, calling `o1.NRightChars()` produces the list `[ "ه", "ذ", "ه", " " ]` instead of the string `"هذه "`.
+>**NOTE**: The `XT()` suffix, when appended to a Softanza function, signifies an e**XT**ended outcome of the basic feature in question. For example, in the case of `o1.NRightCharsXT()` shown above, the suffix forces the output to be a **string** rather than a **list** of characters. In other words: without XT, calling `o1.NRightChars()` produces the list `[ "ه", "ذ", "ه", " " ]` instead of the string `"هذه "`.
 
 
 ## A Semantic Solution: Start and End Removal
 
 To eliminate orientation-based complications, Softanza introduces two semantic alternatives:
 
-1. **`RemoveFromStart()`**: Removes a substring from the logical start of the string, regardless of the text's orientation.  
-2. **`RemoveFromEnd()`**: Removes a substring from the logical end.
+1. `RemoveFromStart()`: Removes a substring from the logical start of the string, regardless of the text's orientation.  
+2. `RemoveFromEnd()`: Removes a substring from the logical end.
 
 Using these, the same task becomes simpler and more intuitive:
 ```ring

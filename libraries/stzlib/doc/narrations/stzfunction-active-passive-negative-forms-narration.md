@@ -40,7 +40,7 @@ Let’s revisit the string manipulation, but this time using the **passive** for
 
 ```ring
 o1 = new stzString("RIxxNxG")
-? o1.Remov**ed**("x")  # Note the use of **ed** to make a passive form from the verb **remove**
+? o1.Removed("x")  # Note the use of "ed" to make a passive form from the verb "remove"
 #--> RING
 
 ? o1.Content()  # The original object remains unchanged
@@ -67,7 +67,7 @@ Here’s how you might check if a character is **not** a letter using the standa
 Softanza simplifies this by introducing a direct negative form:  
 
 ```ring
-? Q("*").Is**Not**Letter()
+? Q("*").IsNotLetter()
 ```  
 
 This functionality, called **@FunctionNegativeForm**, enhances code readability by allowing developers to express negation as naturally as they would in spoken language.

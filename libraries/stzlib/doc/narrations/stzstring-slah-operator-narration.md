@@ -12,11 +12,11 @@ Split a string into a specified number of equal parts.
 ```ring
 load "stzlib.ring"
 
-? Q("RingRingRing") **/** 3
+? Q("RingRingRing") / 3
 #--> [ "Ring", "Ring", "Ring" ]
 ```
 
-Here, the slash operator does the job of `SplitToNParts()` method that you can use like this: `Q("RingRingRing).**SplitToNParts**(3)` and get the same result.
+Here, the slash operator does the job of `SplitToNParts()` method that you can use like this: `Q("RingRingRing).SplitToNParts(3)` and get the same result.
 
 **Practical Applications:**
 - **Load Balancing:** Divide a workload evenly across multiple processes or systems.  
@@ -30,11 +30,11 @@ Here, the slash operator does the job of `SplitToNParts()` method that you can u
 Split a string based on a character or substring.
 
 ```ring
-? Q("Ring;Python;Ruby") **/** ";"
+? Q("Ring;Python;Ruby") / ";"
 #--> [ "Ring", "Python", "Ruby" ]
 ```
 
-Here, the slash operator does the job of `SplitAt()` method that you can use like this: `Q("RingRingRing).**SplitAt**(";")` and get the same result.
+Here, the slash operator does the job of `SplitAt()` method that you can use like this: `Q("RingRingRing).SplitAt(";")` and get the same result.
 
 **Practical Applications:**
 - **File Parsing:** Extract data from CSV, TSV, or other delimited file formats.  
@@ -47,11 +47,11 @@ Here, the slash operator does the job of `SplitAt()` method that you can use lik
 Split a string at positions **where** characters meet a **specified condition**.
 
 ```ring
-? Q("Ring:Python;Ruby") **/** WXT('Q(@Char).IsNotLetter()')
+? Q("Ring:Python;Ruby") / WXT('Q(@Char).IsNotLetter()')
 #--> [ "Ring", "Python", "Ruby" ]
 ```
 
-Here, the slash operator, combined with the `WXT()` **conditional** small function, does the job of `Chars**WXT**()` method that you can use like this: `Q("RingRingRing).**CharsWXT**('Q(@Char).IsNotLetter()')` and get the same result.
+Here, the slash operator, combined with the `WXT()` **conditional** small function, does the job of `CharsWXT()` method that you can use like this: `Q("RingRingRing).CharsWXT('Q(@Char).IsNotLetter()')` and get the same result.
 
 **Practical Applications:**
 - **Natural Language Processing:** Segment text into words, ignoring punctuation.  
@@ -77,7 +77,7 @@ Distribute string segments among **stakeholders** in **equal** portions.
 - **Task Distribution:** Evenly divide workload among agents, processes, or devices.  
 - **Resource Allocation:** Simplify scenarios where multiple parties share limited resources.
 
-**NOTE**: `**@@**(val)` is a Softanza small function, akin to a **pair of glasses** that enhance vision, designed to produce a readable string representation of any value `val`. Specifically, when `val` is a list, it is rendered with brackets (**[**, **]**) and commas (**,**), like you see in `[ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]` above, accurately representing the list structure regardless of its depth.
+**NOTE**: `@@(val)` is a Softanza small function, akin to a **pair of glasses** that enhance vision, designed to produce a readable string representation of any value `val`. Specifically, when `val` is a list, it is rendered with brackets (**[**, **]**) and commas (**,**), like you see in `[ [ "Qute", "Ring" ], [ "Nice", "Ruby" ], [ "Good", "Java" ] ]` above, accurately representing the list structure regardless of its depth.
 
 
 ## 5. Allocating Strings by Custom Rules
