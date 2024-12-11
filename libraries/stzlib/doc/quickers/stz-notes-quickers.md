@@ -1,4 +1,4 @@
-# Softanza Documentation Notes: A Central Repository of Sweetness
+# Softanza Notes: A Central Repository of Sweetness
 ![Softanza Sweetness, by Microsoft Image AI](../images/stznotes.jpg)
 
 I compiled all the **notes** I wrote inside the documentation files into one place, so you can get a taste of the power of some of the tiny yet powerful Softanza **small** functions, function **prefixes** and **suffixes**, expressive function **named params**, and other rather sweet features and utilities.
@@ -22,6 +22,24 @@ The `Q(val)` small function elevates the value `val`, whatever type it has, to t
 ```
 
 >Note how `Uppercase()` function works also for lists.
+
+---
+
+## Tracking Method Chains in Softanza: History at a Glance
+
+Chains of methods called on a Softanza object can be tracked using a combination of the QH() small function (which adds an H() suffix to the Q() small function) and the History() method.
+
+**Example**:
+
+```ring
+# A standard chain without history tracking
+? Q("h e l l o").RemoveSpacesQ().UppercaseQ().Content() + NL
+#--> "HELLO"
+
+# The same chain with history tracking
+? QH("h e l l o").RemoveSpacesQ().UppercaseQ().History()
+#--> [ "h e l l o", "hello", "HELLO" ]
+```
 
 ---
 
