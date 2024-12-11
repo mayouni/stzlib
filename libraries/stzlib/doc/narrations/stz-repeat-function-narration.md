@@ -47,7 +47,7 @@ Repetition can also include smart type conversion, which is as useful as it is p
 ```ring
 # Repeating the STRING "5" three times in a list of NUMBERS
 
-@@( Q("5").RepeatedXT(:InA = :ListOfNumbers, :OfSize = 3) )
+Q("5").RepeatedXT(:InA = :ListOfNumbers, :OfSize = 3)
 #--> [ 5, 5, 5 ]
 
 # Repeating the NUMBER 5 three times in a STRING
@@ -57,7 +57,7 @@ Q(5).RepeatedXT(:InA = :String, :OfSize = 3)
 
 # Repeating the NUMBER 5 three times in a list of STRINGS
 
-@@( Q(5).RepeatedXT(:InA = :ListOfStrings, :OfSize = 3) )
+Q(5).RepeatedXT(:InA = :ListOfStrings, :OfSize = 3)
 #--> [ "5", "5", "5" ]
 ```
 
@@ -80,6 +80,8 @@ Method chaining introduces a new dimension of usability. By combining `RepeatXTQ
 >**NOTE 1**: Method chaining in Softanza allows fluent design of transformation pipelines by simply suffixing the method you want to chain with a small `...Q()`, like this: `Q("h e l l o").RemoveSpacesQ().UppercaseQ().Content()`, resulting in the string `"HELLO"`.
 
 >**NOTE 2**: Fluent chains of `Q()`ed calls generally end with a **passive function form** that returns the final value, not an intermediate Softanza object. To form the passive version of a function, turn the active form (a verb) into its past participle, e.g., `Uppercase` → `Uppercased`. Thus, the earlier chain becomes `Q("h e l l o").RemoveSpacesQ().Uppercased()`.
+
+>**NOTE 3**: `@@(val)` is a small Softanza function, akin to a **pair of glasses** that enhances vision. It is designed to produce a readable string representation of any value `val`, which is useful in particular when `val` is a multi-level list. In our case, it beautifully generated the output [ [ "A", "A", "A" ], [ "A", "A", "A" ], [ "A", "A", "A" ] ]. Without it, the console would display a vertical list of nine "A"s.
 
 ## Multidimensional Structures
 
@@ -110,9 +112,9 @@ Grids, tables, and other complex data structures can also be generated with eleg
 #   A      A      A
 ```
 
-With a single method call, you can create complex grids and tables, populated with repeated elements across multiple dimensions.
+In the last example, the list containing a table representation (thanks to the RepeatXT() function) has been transformed into a stzTable object, on which we called the function Show().
 
->`@@(val)` is a Softanza utility function, akin to a **pair of glasses** that enhance visibility, designed to produce a readable string representation of any value `val`.
+>**NOTE**: Wherever needed, Softanza provides a dedicated `Show()` function for each of its objects, allowing you to obtain a **pleasant** and **readable** string representation of their content.
 
 ## Practical Applications
 
@@ -127,4 +129,4 @@ The power of `RepeatXT()` extends far beyond simple examples, offering tangible 
 
 ## Conclusion
 
-Softanza's repetition feature transcends traditional data manipulation approaches. It provides a concise, powerful, and intuitive way to generate, transform, and replicate values across diverse data types and structures.
+Softanza's repetition feature transcends traditional data manipulation approaches. It provides a concise, powerful, and intuitive way to **generate**, **transform**, and **replicate** values across diverse **data types** and **structures**.
