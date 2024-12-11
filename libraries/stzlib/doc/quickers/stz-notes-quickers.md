@@ -79,14 +79,16 @@ StzStringQ("h e l l o") {
 # When you write this in the console:
 ? [ 1, 2, [ 3, 4 ], 5 ]
 
-# You get a vertical display like this:
+# You get a vertical display like this
+
 1  
 2  
 3  
 4  
 5  
 
-# But when you put on the @@ glasses:
+# But when you put on the @@ glasses
+
 ? @@( [ 1, 2, [ 3, 4 ], 5 ] )
 #--> "[ 1, 2, [ 3, 4 ], 5 ]"
 ```
