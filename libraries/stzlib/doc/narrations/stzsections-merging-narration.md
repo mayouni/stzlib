@@ -19,13 +19,13 @@ Before exploring the merging features, let’s clarify what we mean by "**sectio
 A Section in Softanza differs from a **Range**. The fellowing returns the substring from position 3 to 5:
 
 ```ring
-Q("SOFTANZA").**Section**(3, 5) #--> "TAN"
+Q("SOFTANZA").Section(3, 5) #--> "TAN"
 ```
 
 While the fellowing returns the substring **starting at** position 3 **and spanning** 5 positions forward:
 
 ```ring
-Q("SOFTANZA").**Range**(3, 5) #--> "TANZA" : 
+Q("SOFTANZA").Range(3, 5) #--> "TANZA" : 
 ```
 
 The `Section()` function works the same way with both **strings** and **lists**:
@@ -107,7 +107,6 @@ o1.MergeSections()
 #--> [ [ 4, 6 ], [ 8, 14 ], [ 20, 28 ] ]
 ```
 
-
 ## Practical Applications
 
 We’ll demonstrate the section-merging feature in Softanza with three practical examples. The issue presented in the third example was the key motivation for adding this feature to the library, so it will be covered in greater detail.
@@ -181,7 +180,7 @@ This output shows us all the duplicated substrings and their positions (as secti
 
 ```ring
 # Extract just the sections:
-? @@( o1.**Find**DupSecutiveSubStringsZZ() )
+? @@( o1.FindDupSecutiveSubStringsZZ() )
 #--> [ [ 9, 12 ], [ 10, 13 ], [ 26, 29 ], [ 11, 14 ], [ 8, 11 ], [ 12, 15 ] ]
 
 # Sort them in descending order for processing
@@ -206,7 +205,7 @@ Here's how we solve this problem using Softanza's section merging capability emb
 
 ```ring
 o1 = new stzString("PhpRingRingRingPythonRubyRuby")
-o1.**RemoveSections**(aSections)
+o1.RemoveSections(aSections)
 ? o1.Content()
 #--> PhpRingPythonRuby   # Perfect! This is what we wanted.
 ```

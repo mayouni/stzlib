@@ -28,9 +28,9 @@ Softanza isn’t just smart—it’s multilingual! It can recognize lists using 
 
 “Great,” you think, “but I wonder how these lists are structured?”
 
->**NOTE 1**: The `Q` in `StzString**Q**(str)` simplifies creating an `stzString` object by eliminating the need for explicit instantiation. Instead of writing `oStr = new stzString(str)`, you can achieve the same result more concisely with `Q(str)`.
+>**NOTE 1**: The `Q` in `StzStringQ(str)` simplifies creating an `stzString` object by eliminating the need for explicit instantiation. Instead of writing `oStr = new stzString(str)`, you can achieve the same result more concisely with `Q(str)`.
 
->**NOTE 2**: We would be able to use `Q(str)` directly and get the same result. But, using `Stz**String**Q(str)` enforces the intent to handle the input as a **string**, reducing ambiguity in cases like `"[1, 2, 3]"`, which could be misinterpreted as a list rather than a **string representing a list**.
+>**NOTE 2**: We would be able to use `Q(str)` directly and get the same result. But, using `StzStringQ(str)` enforces the intent to handle the input as a **string**, reducing ambiguity in cases like `"[1, 2, 3]"`, which could be misinterpreted as a list rather than a **string representing a list**.
 
 
 ## Step 2: Normal or Short Form?
@@ -103,7 +103,7 @@ This feature is perfect for quick conversions without sacrificing clarity.
 
 ## Step 7: Bonus – The Magic of `Q()`
 
-Tired of typing `StzStringQ()` every time? Softanza introduces the **`Q()` function**, a concise utility that elevates your data to the appropriate Softanza object. For our case, it conveniently wraps your string into an `stzString` object:
+Tired of typing `StzStringQ()` every time? Softanza introduces the `Q()` function, a concise utility that elevates your data to the appropriate Softanza object. For our case, it conveniently wraps your string into an `stzString` object:
 
 ```ring
 ? Q('[1,2,3]').IsListInString()		#--> TRUE

@@ -75,7 +75,7 @@ o1.RemoveDuplicates()
 #--> "ABRCAD"
 ```
 
->**NOTE**: In Softanza, as a general principle, anything that works for strings will work the same way for lists, following the same syntax and semantics. You can test this yourself by simply replacing `o1 = new stzString("ABRACADABRA")` by `o1 = new stz**List**(**[ "A", "B", "R", "A", "C", "A", "D", "A", "B", "R", "A" ]**)` and making no other changes in your code!
+>**NOTE**: In Softanza, as a general principle, anything that works for strings will work the same way for lists, following the same syntax and semantics. You can test this yourself by simply replacing `o1 = new stzString("ABRACADABRA")` by `o1 = new stzList([ "A", "B", "R", "A", "C", "A", "D", "A", "B", "R", "A" ])` and making no other changes in your code!
 ---
 
 ## Conclusion

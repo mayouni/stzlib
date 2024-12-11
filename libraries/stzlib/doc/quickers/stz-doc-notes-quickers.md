@@ -27,12 +27,12 @@ The `Q(val)` small function elevates the value `val`, whatever type it has, to t
 
 ## StzStringQ(): Elegant String Initialization
 
-The `Q` in `StzString**Q**(str)` returns a `stzString` object containing the string `str`. It's more practical (an beautiful) then instanciating it using `oStr = new stzString(str)`.
+The `Q` in `StzStringQ(str)` returns a `stzString` object containing the string `str`. It's more practical (an beautiful) then instanciating it using `o1 = new stzString(str)`.
 
 ---
 
 ## @@() small function: Clarity with a Readable Representation
->`**@@**(val)` is a Softanza small function, akin to a **pair of glasses** that enhance vision, designed to produce a readable string representation of any value `val`.
+>`@@(val)` is a Softanza small function, akin to a **pair of glasses** that enhance vision, designed to produce a readable string representation of any value `val`.
 
 ---
 
@@ -54,7 +54,7 @@ In Softanza, as a general principle, anything that works for strings will work t
 
 ## XT Suffix: Extending Basic Features
 
-The `**XT**()` suffix, when appended to a Softanza function, signifies an e**XT**ended outcome of the basic feature in question.
+The `XT()` suffix, when appended to a Softanza function, signifies an e**XT**ended outcome of the basic feature in question.
 
 **Example**:
 ```ring
@@ -71,14 +71,14 @@ As you can see, the **XT** suffix forces the output to be a **string** rather th
 
 ## Z and ZZ Suffixes: Positions or Sections, Your Choice
 
-If you try `o1.Find**Z**()` instead of `o1.Find**ZZ**()` on any Softanza `o1` object, beeing a `stzString` or `stzList`, you'll see that both `**Z**()` and `**ZZ**()` return positions, but the first **as numbers** and the second **as sections** (pairs of numbers). Whatever your need, such smart yet powerful Softanza tiny **suffixes**, applied to almost any function, will have you covered!
+If you try `o1.FindZ()` instead of `o1.FindZZ()` on any Softanza `o1` object, beeing a `stzString` or `stzList`, you'll see that both `Z()` and `ZZ()` return positions, but the first **as numbers** and the second **as sections** (pairs of numbers). Whatever your need, such smart yet powerful Softanza tiny **suffixes**, applied to almost any function, will have you covered!
 
 Example:
 ```ring
-? Q("Prog**ramm**ing in Softanza is prog**ramm**ing by heart!").Find**Z**("ramm") # Or simply Find() without Z
+? Q("Programming in Softanza is prog**ramm**ing by heart!").FindZ("ramm") # Or simply Find() without Z
 #--> [ 5, 32 ]
 
-? Q("Prog**ramm**ing in Softanza is prog**ramm**ing by heart!").Find**ZZ**("ramm") # Or Find**AsSections**()
+? Q("Programming in Softanza is programming by heart!").FindZZ("ramm") # Or FindAsSections()
 #--> [ [ 5, 8 ], [ 32, 35 ] ]
 ```
 

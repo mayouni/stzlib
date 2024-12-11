@@ -730,14 +730,12 @@ class stzChar from stzObject
 		# (a further processing of other files is necessary). But this is not
 		# supported now and leaved for future releases.
 
-		# So, when the name is not found, a special name is returned in
-		# the string @CantRetriveTheName (so you know what happended).
-
-		# To avoid this in your program and be sure a valid name is returned,
-		# use the checker function CanRetriveName()
-
 		cHex = DecimalToHex( This.Unicode() )
 		cResult = StzUnicodeDataQ().CharNameByHexCode(cHex)
+		if cResult = ""
+			StzRaise("Can't proceed! The name of this char does not exist in the local unicode database.")
+		ok
+
 		return cResult
 
 		#< @FunctionAlternativeForm

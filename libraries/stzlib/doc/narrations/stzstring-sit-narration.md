@@ -66,7 +66,7 @@ Here, `Sit()` extracts **surrounding section boundaries** with custom offsets:
 - Surrounding ranges (`[8, 9]` and `[14, 16]`) dynamically depend on your `NCharsBefore` and `NCharsAfter` parameters.
 - This level of granularity is crucial for debugging parsers or **extracting overlapping segments** in structured text.
 
->**NOTE**: `**@@**(val)` used above, is a Softanza small function, akin to a **pair of glasses** that enhance vision, designed to produce a readable string representation of any value `val`, especially when `val` is a list.
+>**NOTE**: `@@(val)` used above, is a Softanza small function, akin to a **pair of glasses** that enhance vision, designed to produce a readable string representation of any value `val`, especially when `val` is a list.
 
 ---
 

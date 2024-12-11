@@ -31,7 +31,7 @@ In this example, the method automatically encloses the inserted list in parenthe
 
 ## Customization with InsertSubstringsXT()
 
-For more control over the formatting, Softanza offers `InsertSubstrings**XT**()`, an eXTended version of the function. This allows developers to customize various aspects of the insertion:
+For more control over the formatting, Softanza offers `InsertSubstringsXT()`, an eXTended version of the function. This allows developers to customize various aspects of the insertion:
 
 ```ring
 o1 = new stzString("All our software versions must be updated!")
@@ -75,7 +75,7 @@ o1.InsertSubstringsXT(
 #--> All our software versions { V1, V2, V3, V4, and V5 } must be updated!
 ```
 
-This example showcases the full power of `InsertSubstrings**XT**()`:
+This example showcases the full power of `InsertSubstringsXT()`:
 - Custom opening and closing characters
 - Main separator with automatic spacing
 - Special handling for the last item ("and")
