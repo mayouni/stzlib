@@ -9539,17 +9539,27 @@ proff()
 # Executed in 0.03 second(s).
 
 /*----------------
-*/
+
 pron()
+
+# Softanza have a Repeat() function you can use like thois:
 
 ? Repeat("A", 3)
 #--> [ "A", "A", "A" ]
 
+# Which is the same as:
+
 ? RepeatInList("A", 3)
 
-? RepeatInString("A", 3) # Equaivalent of Ring copy() function
+# And when you want the repetinion putpt to be a sitring:
 
+? RepeatInString("A", 3) # Equaivalent of Ring copy() function
+#--> "AAA"
+
+# But this is just a part of the story. Say hello the extented RepeatXT() function!
+# ~> See next narration.
 proff()
+# Executed in almost 0 second(s) in Ring 1.22
 
 /*----------------
 
@@ -9616,8 +9626,8 @@ pron()
 # Repeating "A" three times in a list, then repeating that list three times
 
 ? @@( Q("A").
-RepeatXTQ(:InA = :List, :OfSize = 3).
-RepeatedXT(:InA = :List, :OfSize = 3)
+	RepeatXTQ(:InA = :List, :OfSize = 3).
+	RepeatedXT(:InA = :List, :OfSize = 3)
 ) + NL
 #--> [ [ "A", "A", "A" ], [ "A", "A", "A" ], [ "A", "A", "A" ] ]
 
@@ -9633,12 +9643,14 @@ RepeatedXT(:InA = :List, :OfSize = 3)
 
 # Creating a 3x3 table filled with "A"
 
-? @@( Q("A").RepeatedXT(:InA = :Table, :OfSize = [3, 3]) )
+? @@( Q("A").RepeatedXT(:InA = :Table, :OfSize = [3, 3]) ) + NL
 #--> [
 # [ "COL1", [ "A", "A", "A" ] ],
 # [ "COL2", [ "A", "A", "A" ] ],
 # [ "COL3", [ "A", "A", "A" ] ]
 # ]
+
+? Q("A").RepeatXTQ(:InA = :Table, :OfSize = [3, 3]).ToStzTable().Show()
 
 proff()
 # Executed in 0.16 second(s).
