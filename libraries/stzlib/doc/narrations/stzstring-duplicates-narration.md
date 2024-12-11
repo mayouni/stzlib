@@ -1,8 +1,8 @@
-# Decoding Duplicates: Exploring Duplicate Detection and Removal with Softanza Library
-![Manging Duplicates in Softanza](../iages/stzstring-duplicates.jpg)
+# Decoding Duplicates: Exploring Duplicate Detection and Removal with Softanza
+![Manging Duplicates in Softanza](../images/stzstring-duplicates.jpg)
 ---
 
-Let’s dive into an engaging exploration of how the Softanza library handles duplicate detection and management in strings. Consider this illustrative string:
+Let’s dive into an engaging exploration of how Softanza handles duplicate detection and management in strings. Consider this illustrative string:
 
 ```ring
 o1 = new stzString("ABRACADABRA")
@@ -24,7 +24,7 @@ Yes, duplicates are present.
 How many duplicates are there?
 
 ```ring
-? o1.NumberOfDuplicates()
+? o1.CountDuplicates()
 #--> 6
 ```
 

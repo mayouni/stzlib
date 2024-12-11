@@ -2938,7 +2938,7 @@ proff()
 # Executed in 0.17 second(s)
 
 /*----------
-
+*/
 pron()
 
 o1 = new stzString("ring php ringoria")
@@ -2951,42 +2951,42 @@ o1 = new stzString("ring php ringoria")
 proff()
 # Executed in 1.32 second(s)
 
-/*----------
-*/
+/*---------- #narration
+
 pron()
 
 o1 = new stzString("RINGORIALAND")
 
 # Are there any duplicated substrings in this string?
+
 ? o1.ContainsDuplicates()
 #--> TRUE
-# Executed in 0.35 second(s)
 
 # The number of duplicates is 5:
+
 ? o1.NumberOfDuplicates()
 #--> 5
-# Executed in 0.37 second(s)
 
 # But, if we check their positions we get only 4 !
+
 ? @@( o1.FindDuplicates() )
 #--> [ 6, 7, 10, 11 ]
-# Executed in 0.45 second(s)
 
 # The dupicates are effectively 5:
 ? @@( o1.Duplicates() )
 #--> [ "R", "RI", "I", "A", "N" ]
-# Executed in 0.45 second(s)
 
 # To find an explication, let's use the DuplicatesAndTheirPositions()
 # function, or use its short form DuplicatesZ()
+
 ? @@( o1.DuplicatesZ() )
 #--> [ [ "R", 6 ], [ "RI", 6 ], [ "I", 7 ], [ "A", 10 ], [ "N", 11 ] ]
-# Executed in 0.80 second(s)
 
-# Hence we see that position 6 corresponds to two duplicated substrings: "R" and "RI"                                                                                                                             
+# Hence we see that position 6 corresponds to 2 duplicated substrings: "R" and "RI"                                                                                                                             
 
 proff()
-# Executed in 2.20 second(s)
+# Executed in 0.95 second(s) in Ring 1.22
+# Executed in 2.20 second(s) in Ring 1.19
 
 /*================
 
