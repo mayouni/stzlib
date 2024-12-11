@@ -33817,6 +33817,12 @@ class stzList from stzObject
 	#TODO
 	# Do it for all Softanza classes()
 
+	def ToStzTable()
+		return new stzTable( This.Content() )
+
+	def ToStzGrid()
+		return new stzGrid( This.Content() )
+
 	def ToStzSet()
 		return new stzSet( This.ToSet() )
 

@@ -1,18 +1,18 @@
 # The Symphony of Repetition: A Coding Journey in Softanza
 ![Symphony of Repetition in Softanza, by Microsoft Image AI](../images/stz-repeat-function.jpg)
 
-Softanza introduces a remarkable function `Repeat()`, along with its e**XT**ended form `RepeatXT()`, that transforms **value repetition** into an elegant, flexible coding technique. These methods allow developers to duplicate and transform values **across various data structures** with unprecedented ease and precision.
+Softanza introduces a remarkable function, `Repeat()`, along with its e**XT**ended form `RepeatXT()`, that transforms **value repetition** into an elegant, flexible coding technique. These functions allow you to duplicate and transform values **across various data types and structures** with unprecedented ease and precision.
 
 ---
 
 ## Basic Repetition
 
-Softanza have a `Repeat()` function you can use like this:
+All starts with the dead-simple `Repeat()` function that you can use like this:
 
 ```ring
 load "stzlib.ring"
 
-Repeat("A", 3)
+? Repeat("A", 3)
 #--> [ "A", "A", "A" ]
 
 # Which is the same as:
@@ -26,7 +26,7 @@ Repeat("A", 3)
 #--> "AAA"
 ```
 
-But this is just a part of the story. Say hello to the extended `RepeatXT()` function!
+But this is just a part of the story. Say hello to the more capable `RepeatXT()` function!
 
 ## List Repetition
 
@@ -87,7 +87,9 @@ RepeatedXT(:InA = :List, :OfSize = 3)
 ```
 Method chaining introduces a new dimension of usability. By combining `RepeatXTQ()` and `RepeatedXT()`, developers can create intricate nested structures with a single, readable code sequence.
 
->**NOTE**: Method chaining in Softanza allows fluent design of transformation pipelines by just suffixing the method you wand to chain on with a small `Q()`, like this: `Q("h e l l o").RemoveSpacesQ().UppercaseQ().Content()`, so you get the string `"HELLO"`.
+>**NOTE 1**: Method chaining in Softanza allows fluent design of transformation pipelines by just suffixing the method you wand to chain on with a small `Q()`, like this: `Q("h e l l o").RemoveSpacesQ().UppercaseQ().Content()`, so you get the string `"HELLO"`.
+
+>**NOTE 2**: Generally, a fluent chain of `Q()`ed calls ends with a passive function form that returns the final value (made by turing the verb of the function to a past participle, like Uppercase ~> Uppercas**ed**). Hence the chain in the Previous note becomes `Q("h e l l o").RemoveSpacesQ().Uppercased()`
 
 ## Multidimensional Structures
 
@@ -108,6 +110,14 @@ Grids, tables, and complex data structures require powerful repetition mechanism
 # [ "COL2", [ "A", "A", "A" ] ],
 # [ "COL3", [ "A", "A", "A" ] ]
 # ]
+
+? Q("A").RepeatXTQ(:InA = :Table, :OfSize = [3, 3]).ToStzTable().Show()
+#-->
+# COL1   COL2   COL3
+# ----- ------ -----
+#   A      A      A
+#   A      A      A
+#   A      A      A
 ```
 Hence, the pinnacle of the method's capability lies in generating multidimensional structures. With a single method call, you can create complex grids and tables, populated with repeated elements across different dimensions.
 
