@@ -1,8 +1,11 @@
 # Decoding Duplicates: Exploring Duplicate Detection and Removal with Softanza
 ![Manging Duplicates in Softanza, by Microsoft Image Create AI](../images/stzstring-duplicates.jpg)
----
 
 Let’s dive into an engaging exploration of how Softanza handles duplicate detection and management in strings. Consider this illustrative string:
+
+---
+
+First, let's load the library and create a `stzString` object:
 
 ```ring
 load "stzlib.ring"
