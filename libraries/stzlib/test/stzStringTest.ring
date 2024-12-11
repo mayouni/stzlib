@@ -2952,7 +2952,7 @@ proff()
 # Executed in 1.32 second(s)
 
 /*----------
-
+*/
 pron()
 
 o1 = new stzString("RINGORIALAND")
@@ -3000,35 +3000,45 @@ o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
 #--> [ 8, 29 ]
 
 proff()
-# Executed in 0.19 second(s)
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.19 second(s) in Ring 1.18
 
 /*-----------------
 
 pron()
 
-? @@( Q("..<<--♥♥♥--♥♥♥-->>..<<---♥♥♥>>..").
-	FindBetweenAsSections("♥♥♥", "<<", ">>") ) # Or Simply FindBetweenZZ()
-#--> [ [ 7, 9 ], [ 12, 14 ], [ 26, 28 ] ]
+? @@( Q("--<<♥♥♥>>--<<♥♥♥>>---<<♥♥♥>>").
+	FindBoundedByAsSections([ "<<", ">>" ]) ) # Or Simply FindBoundedByZZ()
+#--> [ [ 5, 7 ], [ 14, 16 ], [ 24, 26 ] ]
 
 proff()
-# Executed in 0.12 second(s)
+# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.12 second(s) in Ring 1.18
 
 /*=========
 
 pron()
 
 o1 = new stzString("__<<teeba>>__<<rined>>__<<teeba>>")
-? @@( o1.BetweenZ("<<", ">>") ) + NL
-#--> [ [ "teeba", 5 ], [ "rined", 16 ], [ "teeba", 27 ] ]
 
-? @@( o1.BetweenZZ("<<", ">>") )
-#--> [ [ "teeba", [ 5, 9 ] ], [ "rined", [ 16, 20 ] ], [ "teeba", [ 27, 31 ] ] ]
+? @@NL( o1.BoundedByUZ([ "<<", ">>" ]) ) + NL
+#--> [
+#	[ "teeba", [ 5, 27 ] ],
+#	[ "rined", [ 16 ] ]
+# ]
+
+? @@NL( o1.BoundedByUZZ([ "<<", ">>" ]) )
+#--> [
+#	[ "teeba", [ [ 5, 9 ], [ 27, 31 ] ] ],
+#	[ "rined", [ [ 16, 20 ] ] ]
+# ]
 
 proff()
-#--> Executed in 0.17
+# Executed in 0.02 second(s) in Ring 1.22
+# Executed in 0.17 in Ring 1.18
 
 /*---------
-*/
+
 pron()
 
 aList = [ 1, "♥", 3, 4, "♥", 5, "♥" ]
@@ -3046,7 +3056,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---------
-*/
+
 pron()
 
 ? @ListContainsCS([ "hi!", "--♥♥♥--♥♥♥--" ], "hi!", TRUE)
@@ -3056,11 +3066,13 @@ pron()
 #--> 1
 
 ? Q([ "hi!", "--♥♥♥--♥♥♥--" ]).ContainsCS("hi!", 1)
+#--> 1
 
 proff()
+# Executed in 0.01 second(s) in Ring 1.22
 
 /*---------
-*/
+
 pron()
 
 o1 = new stzString("<<hi!>>..<<--♥♥♥--♥♥♥-->>..<<hi!>>")
@@ -3086,10 +3098,11 @@ proff()
 pron()
 
 o1 = new stzString("...<<--hi!-->>...<<-->>...<<hi!>>...")
+
 ? @@( o1.SubStringsBoundedBy([ "<<", ">>" ]) )
 #--> [ "--hi!--", "--", "hi!" ]
 
-? @@( o1.BoundedByZZ([ "<<", ">>" ]) )
+? @@NL( o1.BoundedByZZ([ "<<", ">>" ]) )
 #--> [
 #	[ "--hi!--", 	[  6, 12 ] ],
 #	[ "--", 	[ 20, 21 ] ],
