@@ -1,10 +1,12 @@
 # Decoding Duplicates: Exploring Duplicate Detection and Removal with Softanza
-![Manging Duplicates in Softanza](../images/stzstring-duplicates.jpg)
+![Manging Duplicates in Softanza, by Microsoft Image Create AI](../images/stzstring-duplicates.jpg)
 ---
 
 Let’s dive into an engaging exploration of how Softanza handles duplicate detection and management in strings. Consider this illustrative string:
 
 ```ring
+load "stzlib.ring"
+
 o1 = new stzString("ABRACADABRA")
 ```
 
@@ -73,9 +75,10 @@ o1.RemoveDuplicates()
 #--> "ABRCAD"
 ```
 
+>**NOTE**: In Softanza, as a general principle, anything that works for strings will work the same way for lists, following the same syntax and semantics. You can test this yourself by simply replacing `o1 = new stzString("ABRACADABRA")` by `o1 = new stz**List**(**[ "A", "B", "R", "A", "C", "A", "D", "A", "B", "R", "A" ]**)` and making no other changes in your code!
 ---
 
 ## Conclusion
 
-This exploration demonstrates the power of the Softanza library's string manipulation capabilities. By identifying, analyzing, and ultimately removing duplicates, we transform a verbose string into its most concise form. This functionality is invaluable in applications ranging from text processing to data compression, offering both efficiency and clarity in handling complex string data.
+This exploration demonstrates the power of the Softanza library's string manipulation capabilities. By **identifying**, **analyzing**, and ultimately **removing duplicates**, we transform a verbose string into its most concise form. This functionality is invaluable in applications ranging from text processing to data compression, offering both efficiency and clarity in handling complex string data.
 

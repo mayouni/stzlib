@@ -1,5 +1,5 @@
 func UnicodeDataInString()
-	cData = '
+cData = '
 0000;<control>;Cc;0;BN;;;;;N;NULL;;;;
 0001;<control>;Cc;0;BN;;;;;N;START OF HEADING;;;;
 0002;<control>;Cc;0;BN;;;;;N;START OF TEXT;;;;
@@ -34931,5 +34931,13 @@ F0000;<Plane 15 Private Use, First>;Co;0;L;;;;;N;;;;;
 FFFFD;<Plane 15 Private Use, Last>;Co;0;L;;;;;N;;;;;
 100000;<Plane 16 Private Use, First>;Co;0;L;;;;;N;;;;;
 10FFFD;<Plane 16 Private Use, Last>;Co;0;L;;;;;N;;;;;
+9D8A;CJK UNIFIED IDEOGRAPH-9D8A;Lo;0;L;;;;;N;;;;;
+9D8B;CJK UNIFIED IDEOGRAPH-9D8B;Lo;0;L;;;;;N;;;;;
+9D8C;CJK UNIFIED IDEOGRAPH-9D8C;Lo;0;L;;;;;N;;;;;
+9D8D;CJK UNIFIED IDEOGRAPH-9D8D;Lo;0;L;;;;;N;;;;;
+9D8E;CJK UNIFIED IDEOGRAPH-9D8E;Lo;0;L;;;;;N;;;;;
+9D8F;CJK UNIFIED IDEOGRAPH-9D8F;Lo;0;L;;;;;N;;;;;
+9D90;CJK UNIFIED IDEOGRAPH-9D90;Lo;0;L;;;;;N;;;;;
+9D91;CJK UNIFIED IDEOGRAPH-9D91;Lo;0;L;;;;;N;;;;;
 '
 	return cData

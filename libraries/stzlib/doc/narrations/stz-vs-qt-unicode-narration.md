@@ -1,5 +1,5 @@
 # Softanza: Simplifying the Power of C++ Backends for Unicode Handling
-![Softanza Simplifies Qt, by Microsoft Create AI](../images/stz-vs-qt-unicode.jpg)
+![Softanza Simplifies Qt, by Microsoft Image Create AI](../images/stz-vs-qt-unicode.jpg)
 
 In programming in general, there's often a trade-off between power and simplicity. Softanza, a library for the Ring programming language, aims to bridge this gap by leveraging the robust C and C++ libraries, such as Qt, while providing developers with a unified, accessible interface. This article explores how Softanza achieves this balance, with a focus on Unicode handling, using Qt as an illustrative example.
 
@@ -7,11 +7,14 @@ In programming in general, there's often a trade-off between power and simplicit
 
 ## The Power of Qt and the Simplicity of Softanza
 
-Qt is a powerful cross-platform application framework, known for its comprehensive feature set and performance. Ring come with a full support of it via the extensive RingQt library. However, Qt's power comes with complexity that can be challenging for developers, especially those new to the framework. Softanza addresses this by wrapping Qt's functionality in a more intuitive and friendly syntax.
+`Qt` is a powerful cross-platform application framework, known for its comprehensive feature set and performance. Ring come with a full support of it via the extensive `RingQt` library. However, `Qt`'s power comes with complexity that can be challenging for developers, especially those new to the framework. Softanza addresses this by wrapping `Qt`'s functionality in a more intuitive and friendly semantic model and syntax.
 
 Let's examine how Softanza simplifies Unicode handling, a task that often requires multiple steps when using Qt directly.
 
-
+To do that, let's load the library first:
+```ring
+load "stzlib.ring"
+```
 
 ## Unicode Handling in Softanza
 
@@ -37,11 +40,11 @@ Softanza also simplifies the reverse process:
 
 Here, we create an `StzCharQ` object with the Unicode number and retrieve its content, resulting in the corresponding character.
 
-
+>**NOTE**: Curious about the **script** of this 鶊 character or even its **name**? Try using `? Script("鶊")` and `? Name("鶊")`. You’ll get `han` and vCJK UNIFIED IDEOGRAPH-9D8A`, respectively.
 
 ## Behind the Scenes: How Softanza Uses Qt
 
-While Softanza presents a clean and simple interface, it's leveraging Qt's powerful Unicode handling capabilities under the hood. To illustrate this, let's break down the work done for you internally by Softanza to enable the Char() function above:
+While Softanza presents a clean and simple interface, it's leveraging Qt's powerful Unicode handling capabilities under the hood. To illustrate this, let's break down the work done for you internally by Softanza to enable the `Char()` function above:
 
 1. Creating a QChar object:
    ```ring
@@ -66,7 +69,6 @@ While Softanza presents a clean and simple interface, it's leveraging Qt's power
 A significant amount of work, complicated by obscure technical details that are challenging to locate amidst the vast expanse of Qt's online documentation!
 
 
-
 ## Advantages of Softanza's Abstraction Approach
 
 Softanza's abstraction layer offers significant benefits over direct bindings to libraries like Qt:
@@ -85,7 +87,6 @@ By abstracting backend complexities, Softanza lowers the barrier to entry for de
 
 5. Future-Proof Design
 The abstraction layer enables future optimizations and alternative implementations while maintaining API stability.
-
 
 
 ## Softanza vs Other Qt-based Libraries

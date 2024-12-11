@@ -2941,6 +2941,26 @@ proff()
 */
 pron()
 
+? @@( Q("Programming in Softanza is programming by heart!").FindZZ("ramm") )
+
+proff()
+
+/*----------
+*/
+pron()
+
+? Script("鶊")
+#--> han
+
+? Name("鶊")
+#--> CJK UNIFIED IDEOGRAPH-9D8A
+
+proff()
+
+/*----------
+*/
+pron()
+
 o1 = new stzString("ring php ringoria")
 ? o1.NumberOfDuplicates()
 #--> 12

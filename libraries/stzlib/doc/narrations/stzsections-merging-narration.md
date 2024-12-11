@@ -1,34 +1,34 @@
 # Understanding Section Merging Features in Softanza
-![Merging Sections in Softanza](../images/stzsections-merging.jpg)
+![Merging Sections in Softanza, by Microsoft Image Create AI](../images/stzsections-merging.jpg)
 
 ---
 
 ## Introduction
 
-Softanza library provides three sophisticated methods for merging sections (in the `stzListOfSections` class): `MergeInclusive()`, `MergeOverlapping()`, and `MergeSections()`. These features are designed to handle different types of section-merging scenarios, offering both specialized and comprehensive solutions for real-world algorithmic problems.
+Softanza library provides three sophisticated methods for **merging sections** (mainly in the `stzListOfSections` class): `MergeInclusive()`, `MergeOverlapping()`, and `MergeSections()`. These features are designed to handle different types of section-merging scenarios, offering both specialized and comprehensive solutions for real-world algorithmic problems.
 
-## The Nature of Sections
+## The Nature of Sections in Softanza
 
-Before exploring the merging features, let’s clarify what we mean by "sections". In Softanza, a section is represented as a pair of numbers `[n1, n2]`, where:
+Before exploring the merging features, let’s clarify what we mean by "**sections**". In Softanza, a **section** is represented as a pair of numbers `[n1, n2]`, where:
 
-- `n1` is the starting position in the string or list
-- `n2` is the ending position in the string or list
+- `n1` is the **starting position** in the string or list
+- `n2` is the **ending position** in the string or list
 
-`n1` can be ≤ `n2` or vice versa; whichever the case, the section `[n1, n2]` is returned.
+`n1` can be ≤ `n2` or vice versa; **whichever the case**, the section `[n1, n2]` is returned.
 
-A section in Softanza differs from a Range. The fellowing returns the substring from position 3 to 5:
-
-```ring
-Q("SOFTANZA").Section(3, 5) #--> "TAN"
-```
-
-While the fellowing returns the substring starting at position 3 and spanning 5 positions forward:
+A Section in Softanza differs from a **Range**. The fellowing returns the substring from position 3 to 5:
 
 ```ring
-Q("SOFTANZA").Range(3, 5) #--> "TANZA" : 
+Q("SOFTANZA").**Section**(3, 5) #--> "TAN"
 ```
 
-The `Section()` function works the same way with both strings and lists:
+While the fellowing returns the substring **starting at** position 3 **and spanning** 5 positions forward:
+
+```ring
+Q("SOFTANZA").**Range**(3, 5) #--> "TANZA" : 
+```
+
+The `Section()` function works the same way with both **strings** and **lists**:
 
 ```ring
 ? Q([ "S", "O", "F", "T", "A", "N", "Z", "A" ]).Section(3, 5) #--> [ "T", "A", "N" ]
@@ -36,9 +36,10 @@ The `Section()` function works the same way with both strings and lists:
 
 >The `Range()` function is also used in the same way with both strings and lists.
 
+
 ## MergeInclusive(): Handling Contained Sections
 
-`MergeInclusive()` is designed to merge sections where one section completely contains another. This is particularly useful when dealing with nested sections that need to be simplified.
+`MergeInclusive()` is designed to merge sections where one section **completely contains another**. This is particularly useful when dealing with nested sections that need to be simplified.
 
 **Example:**
 
@@ -57,12 +58,12 @@ o1.MergeInclusive()
 #--> [ [ 4, 6 ] ]  # All sections were included in [4, 6]
 ```
 
->NOTE: The `@@()` function, resembling a pair of glasses for better clarity, is designed to produce a readable string representation of a list or any other value provided to it.
+>**NOTE**: The `@@()` function, resembling a pair of glasses for better clarity, is designed to produce a readable string representation of a list or any other value provided to it.
 
 
 ## MergeOverlapping(): Handling Adjacent or Overlapping Sections
 
-`MergeOverlapping()` merges sections that either overlap or are adjacent to each other. This is useful when you need to combine sections that share common points or are consecutive.
+`MergeOverlapping()` merges sections that either **overlap or are adjacent** to each other. This is useful when you need to combine sections that share common points or are consecutive.
 
 **Example:**
 
@@ -85,7 +86,7 @@ o1.MergeOverlapping()
 ## MergeSections(): Comprehensive Section Merging
 
 
-`MergeSections()` combines both inclusive and overlapping merging strategies, providing the most compact representation possible of the given sections.
+`MergeSections()` combines **both inclusive and overlapping** merging strategies, providing the most compact representation possible of the given sections.
 
 **Example:**
 
@@ -155,9 +156,9 @@ oSections.MergeSections()
 
 ### 3. String Section Management: A Deep Dive
 
-One of the primary motivations for implementing these features in Softanza was to enhance string manipulation operations, particularly when dealing with duplicated substrings. 
+One of the primary motivations for implementing these features in Softanza was to enhance string manipulation operations, particularly when dealing with **duplicated substrings**. 
 
-Let's explore a practical example where we want to remove consecutive duplicated names of programming languages from a string like "PhpRingRingRingPythonRubyRuby" to get "PhpRingPythonRuby" as our final result.
+Let's explore a practical example where we want to remove consecutive duplicated names of programming languages from a string like `"PhpRingRingRingPythonRubyRuby"` to get `"PhpRingPythonRuby"` as our final result.
 
 First, let's examine our input string and analyze its duplicated substrings:
 
@@ -176,11 +177,11 @@ o1 = new stzString("PhpRingRingRingPythonRubyRuby")
 # ]
 ```
 
-This output shows us all the duplicated substrings and their positions (as sections) in the string. For our purpose, we need just the sections themselves, so let's just add `Find` at the beginiing of the `DupSecutiveSubStringsZZ()` method:
+This output shows us all the duplicated substrings and their positions (as sections) in the string. For our purpose, we need just the sections themselves, so let's just add `Find` at the beginning of the `DupSecutiveSubStringsZZ()` method:
 
 ```ring
 # Extract just the sections:
-? @@( o1.FindDupSecutiveSubStringsZZ() )
+? @@( o1.**Find**DupSecutiveSubStringsZZ() )
 #--> [ [ 9, 12 ], [ 10, 13 ], [ 26, 29 ], [ 11, 14 ], [ 8, 11 ], [ 12, 15 ] ]
 
 # Sort them in descending order for processing
@@ -199,18 +200,18 @@ next
 #--> PhpRing   # This is not what we wanted!
 ```
 
-We get an unexpected result! The problem lies in the nature of our sections - they are either overlapping or inclusive of each other. When we remove them sequentially, we end up removing more text than intended because the sections interact with each other.
+We get an unexpected result! The problem lies in the nature of our sections - they are **either overlapping or inclusive** of each other. When we remove them sequentially, we end up removing more text than intended because the sections interact with each other.
 
-Here's how we solve this problem using Softanza's section merging capability:
+Here's how we solve this problem using Softanza's section merging capability embedded behind the `RemoveSections()` feature:
 
 ```ring
 o1 = new stzString("PhpRingRingRingPythonRubyRuby")
-o1.RemoveSections(aSections)
+o1.**RemoveSections**(aSections)
 ? o1.Content()
 #--> PhpRingPythonRuby   # Perfect! This is what we wanted.
 ```
 
-The magic happens behind the scenes. Let's see how Softanza processes these sections:
+The magic happens behind the scenes. Let's see how Softanza made it:
 
 ```ring
 ? @@( StzListOfSectionsQ(aSections).MergeSectionsQ().Content() )
@@ -222,19 +223,19 @@ What happened here is remarkable. Softanza took our complex list of overlapping 
 [ [ 9, 12 ], [ 10, 13 ], [ 26, 29 ], [ 11, 14 ], [ 8, 11 ], [ 12, 15 ] ]
 ```
 
-And merged them into two clean, non-overlapping sections:
+And merged them into two clean, **non-overlapping** sections:
 ```
 [ [ 8, 15 ], [ 26, 29 ] ]
 ```
 
-This merging process ensures that our string manipulation operations work correctly. The first merged section `[8, 15]` cleanly captures all the overlapping "Ring" duplicates, while the second section `[26, 29]` handles the duplicated "Ruby". When these merged sections are used with RemoveSections(), we get exactly the result we want.
+This merging process ensures that our string manipulation operations work correctly. The first merged section `[8, 15]` cleanly captures all the overlapping `"Ring"` duplicates, while the second section `[26, 29]` handles the duplicated `"Ruby"`. When these merged sections are used internally with `RemoveSections()`, we get exactly the result we want.
 
-This example demonstrated the critical importance of proper section merging in string manipulation. Without this feature, operations involving overlapping or inclusive sections could produce unexpected and incorrect results. By first consolidating such sections into a clean, non-overlapping set of sections, Softanza ensures reliable and predictable string manipulation outcomes.
+This example demonstrated the critical importance of **proper section merging in string manipulation**. Without this feature, operations involving overlapping or inclusive sections could produce unexpected and incorrect results.
 
 ---
 
 ## Conclusion
 
-The section merging features in Softanza provide a robust solution for handling different types of section-merging scenarios. Whether you need to merge contained sections (`MergeInclusive()`), overlapping sections (`MergeOverlapping()`), or both (`MergeSections()`), these methods offer both specialized and comprehensive solutions.
+The **section merging** features in Softanza provide a robust solution for handling different types of section-merging scenarios. Whether you need to merge **contained sections** (`MergeInclusive()`), **overlapping sections** (`MergeOverlapping()`), or **both** (`MergeSections()`), these methods offer both specialized and comprehensive solutions.
 
-The implementation of these features was driven by real-world needs, particularly in string manipulation scenarios where consistent handling of sections is crucial. However, their utility extends far beyond string operations, making them valuable tools for any situation involving section management, from scheduling systems to memory allocation.
+The implementation of these features, like the wide majority of Softanza, was driven by **real-world needs**, particularly in string manipulation scenarios where consistent handling of sections is crucial. However, their utility extends **far beyond string operations**, making them valuable tools for any situation involving section management, from scheduling systems to memory allocation.
