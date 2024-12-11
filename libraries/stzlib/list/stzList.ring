@@ -25,6 +25,40 @@ func StzListQ(paList)
 
 #===
 
+func Repeat(value, nTimes)
+	if CheckParams()
+		if NOT isNumber(nTimes)
+			StzRaise("Incorrect param type! nTimes must be a number.")
+		ok
+	ok
+
+	aResult = []
+
+	for i = 1 to nTimes
+		aResult + value
+	next
+
+	return aResult
+
+	#< @FunctionAlternativeForms
+
+	func @Repeat(value, nTimes)
+		return Repeat(value, nTimes)
+
+	func RepeatInList(value, nTimes)
+		return Repeat(value, nTimes)
+
+	func RepeatInAList(value, nTimes)
+		return Repeat(value, nTimes)
+
+	func @RepeatInList(value, nTimes)
+		return StzRepeat(value, nTimes)
+
+	func @RpeatInAList(value, nTimes)
+		return Repeat(value, nTimes)
+
+	#>
+
 func Types(paList)
 	if CheckingParams()
 		if NOT isList(paList)

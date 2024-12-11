@@ -2938,15 +2938,7 @@ proff()
 # Executed in 0.17 second(s)
 
 /*----------
-*/
-pron()
 
-? @@( Q("Programming in Softanza is programming by heart!").FindZZ("ramm") )
-
-proff()
-
-/*----------
-*/
 pron()
 
 ? Script("鶊")
@@ -2956,9 +2948,10 @@ pron()
 #--> CJK UNIFIED IDEOGRAPH-9D8A
 
 proff()
+# Executed in 0.05 second(s) in Ring 1.22
 
 /*----------
-*/
+
 pron()
 
 o1 = new stzString("ring php ringoria")
@@ -2969,7 +2962,7 @@ o1 = new stzString("ring php ringoria")
 #--> [ "r", "ri", "rin", "ring", "i", "in", "ing", "n", "ng", "g", " ", "p" ]
 
 proff()
-# Executed in 1.32 second(s)
+# Executed in 0.65 second(s) in Ring 1.22
 
 /*---------- #narration
 
@@ -9546,6 +9539,19 @@ proff()
 # Executed in 0.03 second(s).
 
 /*----------------
+*/
+pron()
+
+? Repeat("A", 3)
+#--> [ "A", "A", "A" ]
+
+? RepeatInList("A", 3)
+
+? RepeatInString("A", 3) # Equaivalent of Ring copy() function
+
+proff()
+
+/*----------------
 
 pron()
 
@@ -9559,7 +9565,7 @@ proff()
 # Executed in 0.02 second(s).
 
 /*---- #narration EXTENDED FORMS OF REPEATING OBJECTS IN SOFTANZA
-
+*/
 pron()
 
 # Repeating "5" twice in a list
