@@ -29,7 +29,7 @@ load "stzlib.ring"
 
 ---
 
-# @@() small function: Clarity with a Readable Representation
+## @@() small function: Clarity with a Readable Representation
 >`**@@**(val)` is a Softanza small function, akin to a **pair of glasses** that enhance vision, designed to produce a readable string representation of any value `val`.
 
 ---
