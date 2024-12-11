@@ -96,6 +96,7 @@ Your content is clear and engaging. Here's a slightly refined version to polish 
 ```
 
 Get the idea?
+
 ---
 
 ## Across Strings and Lists: A Unified Syntax
