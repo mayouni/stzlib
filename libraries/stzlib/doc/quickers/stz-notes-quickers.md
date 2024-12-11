@@ -155,7 +155,7 @@ If you try `o1.FindZ()` instead of `o1.FindZZ()` on any Softanza `o1` object, be
 #--> "HELLO"
 ```
 
-**Fluent chains** of `Q()`**ed** methods calls generally end with a **passive function form** that returns the **final value**, rather than an intermediate Softanza object.
+**Fluent chains** of Q()**ed** methods calls generally end with a **passive function form** that returns the **final value**, rather than an intermediate Softanza object.
 
 To create the passive version of a function, convert its active form, which is essentially a **verb**, into its **past participle**, e.g., `Uppercase → Uppercased`. Thus, the chain from the earlier example becomes:
 
