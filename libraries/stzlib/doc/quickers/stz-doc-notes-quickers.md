@@ -73,7 +73,7 @@ As you can see, the **XT** suffix forces the output to be a **string** rather th
 
 If you try `o1.FindZ()` instead of `o1.FindZZ()` on any Softanza `o1` object, beeing a `stzString` or `stzList`, you'll see that both `Z()` and `ZZ()` return positions, but the first **as numbers** and the second **as sections** (pairs of numbers). Whatever your need, such smart yet powerful Softanza tiny **suffixes**, applied to almost any function, will have you covered!
 
-Example:
+**Example**:
 ```ring
 ? Q("Programming in Softanza is prog**ramm**ing by heart!").FindZ("ramm") # Or simply Find() without Z
 #--> [ 5, 32 ]
@@ -82,3 +82,22 @@ Example:
 #--> [ [ 5, 8 ], [ 32, 35 ] ]
 ```
 
+---
+
+## Method Chaining: A Tool for Fluid Design Thinking
+
+Method chaining in Softanza enables the fluent design of transformation pipelines by simply appending the method you want to chain with a small `...Q()`.
+
+**Example**:
+```ring
+? Q("h e l l o").RemoveSpacesQ().UppercaseQ().Content()
+#--> "HELLO"
+```
+
+Fluent chains of `Q()`ed calls generally end with a **passive function form** that returns the final value, rather than an intermediate Softanza object.
+
+To create the passive version of a function, convert its **active** form (a verb) into its past participle, e.g., `Uppercase` → `Uppercased`. Thus, the chain from the earlier example becomes:
+
+```ring
+? Q("h e l l o").RemoveSpacesQ().Uppercased()
+```
