@@ -1,7 +1,7 @@
 # Softanza Documentation Notes: A Central Repository of Sweetness
 ![Softanza Sweetness, by Microsoft Image AI](../images/stznotes.jpg)
 
-I compiled all the **notes** I wrote inside the documentation files into one place, so you can get a taste of the power of some of the tiny yet powerful Softanza **small** functions, function **prefixes** and **suffixes**, expressive function **named params**, and other rather sweet features.
+I compiled all the **notes** I wrote inside the documentation files into one place, so you can get a taste of the power of some of the tiny yet powerful Softanza **small** functions, function **prefixes** and **suffixes**, expressive function **named params**, and other rather sweet features and utilities.
 
 ## Getting Started: Load the Sweetness
 Of course, you need to load the library first:
@@ -25,9 +25,27 @@ The `Q(val)` small function elevates the value `val`, whatever type it has, to t
 
 ---
 
-## StzStringQ(): Elegant String Initialization
+## StzStringQ(): One-Liners, Fluent Chains, and Declarative Crafting of Code
 
-The `Q` in `StzStringQ(str)` returns a `stzString` object containing the string `str`. It's more practical (an beautiful) then instanciating it using `o1 = new stzString(str)`.
+The `Q` in `StzStringQ(str)` returns a `stzString` object containing the string `str`. It's more practical (and elegant) than instantiating it using `o1 = new stzString(str)`.
+
+This feature is designed to enable smart **one-liners**, **fluent code chains**, and a **declarative coding style** directly within the object itself (thank you Ring!):
+
+```ring
+# A one-liner expressing a chain of transformations
+
+? StzStringQ("h e l l o").RemoveSpacesQ().UppercaseQ().Content()
+#--> "HELLO"
+
+# A declarative crafting block of code
+
+StzStringQ("h e l l o") {
+    RemoveSpaces()
+    Uppercase()
+    ? Content()
+    #--> "HELLO"
+}
+```
 
 ---
 
