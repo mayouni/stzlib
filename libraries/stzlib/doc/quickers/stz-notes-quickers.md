@@ -1,9 +1,11 @@
 # Softanza Notes: A Central Repository of Sweetness
+
 ![Softanza Sweetness, by Microsoft Image AI](../images/stznotes.jpg)
 
 I compiled all the **notes** I wrote inside the documentation files into one place, so you can get a taste of the power of some of the tiny yet powerful Softanza **small** functions, function **prefixes** and **suffixes**, expressive function **named params**, and other rather sweet features and utilities.
 
 ## Getting Started: Load the Sweetness
+
 Of course, you need to load the library first:
 ```ring
 load "stzlib.ring"
@@ -67,9 +69,33 @@ StzStringQ("h e l l o") {
 
 ---
 
-## @@() small function: Clarity with a Readable Representation
->`@@(val)` is a Softanza small function, akin to a **pair of glasses** that enhance vision, designed to produce a readable string representation of any value `val`.
+Your content is clear and engaging. Here's a slightly refined version to polish the language further:
 
+---
+
+## @@(): Clarity Through Readable Representation
+
+>`@@(val)` is a Softanza small function, akin to a **pair of glasses** that enhances vision by providing a readable string representation of any value `val`.
+
+**Example**:
+
+```ring
+# When you write this in the console:
+? [ 1, 2, [ 3, 4 ], 5 ]
+
+# You get a vertical display like this:
+1  
+2  
+3  
+4  
+5  
+
+# But when you put on the @@ glasses:
+? @@( [ 1, 2, [ 3, 4 ], 5 ] )
+#--> "[ 1, 2, [ 3, 4 ], 5 ]"
+```
+
+Get the idea?
 ---
 
 ## Across Strings and Lists: A Unified Syntax
