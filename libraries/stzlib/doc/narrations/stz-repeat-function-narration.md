@@ -1,9 +1,7 @@
 # The Symphony of Repetition: A Coding Journey in Softanza
 ![Symphony of Repetition in Softanza, by Microsoft Image AI](../images/stz-repeat-function.jpg)
 
-<span style="font-size: 24px;">
 Softanza introduces a remarkable function `Repeated()`, along with its eXTended form `Repeated()`, that transforms object repetition into an elegant, flexible coding technique. This method allows developers to duplicate and transform objects across various data structures with unprecedented ease and precision.
-</span>
 
 ---
 
